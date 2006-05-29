@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -56,12 +56,12 @@ IMPLEMENT_DYNAMIC_CLASS( wxDialog_SpeedControl, wxDialog_Base )
 
 wxDialog_SpeedControl::wxDialog_SpeedControl( )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 }
 
 wxDialog_SpeedControl::wxDialog_SpeedControl( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     Create(parent, id, caption, pos, size, style);
 }
 
@@ -71,7 +71,7 @@ wxDialog_SpeedControl::wxDialog_SpeedControl( wxWindow* parent, wxWindowID id, c
 
 bool wxDialog_SpeedControl::Create( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxDialog_SpeedControl member initialisation
     v_pBoxV_all = NULL;
     v_pPanel_Seek = NULL;
@@ -96,7 +96,7 @@ bool wxDialog_SpeedControl::Create( wxWindow* parent, wxWindowID id, const wxStr
 
 void wxDialog_SpeedControl::CreateControls()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxDialog_SpeedControl content construction
     wxDialog_SpeedControl* itemDialog_Base1 = this;
 
@@ -180,10 +180,10 @@ wxIcon wxDialog_SpeedControl::GetIconResource( const wxString& name )
 
 bool wxDialog_SpeedControl::Gui_Refresh(CallBackData *pCallBackData)
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     SpeedControlCallBackData *pCallData = dynamic_cast<SpeedControlCallBackData *>(pCallBackData);
     _COND_RET(pCallData != NULL, false);
-    _WX_LOG_NFO("Style=%s, speed=%d, seek=%d", _str_enum(pCallData->m_eStyle), pCallData->m_nSpeed, pCallData->m_nSeekToPos);
+    _LOG_NFO("Style='%s', speed=%d, seek=%d", _str_enum(pCallData->m_eStyle), pCallData->m_nSpeed, pCallData->m_nSeekToPos);
     bool bShowTime = false;
     bool bShowSeek = false;
     bool bShowSpeed = false;
@@ -204,10 +204,10 @@ bool wxDialog_SpeedControl::Gui_Refresh(CallBackData *pCallBackData)
             bShowSpeed = true;
             break;
         default:
-            _WX_LOG_ERR("bad style : %d", pCallData->m_eStyle);
+            _LOG_ERR("bad style : %d", pCallData->m_eStyle);
             break;
     }
-    _WX_LOG_NFO("bShowTime=%d, bShowSeek=%d, bShowSpeed=%d", bShowTime, bShowSeek, bShowSpeed);
+    _LOG_NFO("bShowTime=%d, bShowSeek=%d, bShowSpeed=%d", bShowTime, bShowSeek, bShowSpeed);
     if (bShowTime)
     {
         v_pPanel_Time->v_nTimeStart = pCallData->m_nTimeStart;

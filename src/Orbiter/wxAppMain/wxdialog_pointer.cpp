@@ -18,6 +18,8 @@
 
 #include "wxdialog_pointer.h"
 #include <wx/filename.h>
+#include "wrapper_x11.h"
+#include "wrapper_sdl.h"
 
 ////@begin XPM images
 #include "cancel.xpm"
@@ -25,23 +27,22 @@
 #include "exit.xpm"
 ////@end XPM images
 
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/cursorfont.h>
+bool wx_SetCursor_Image(const wxString &sPath);
+bool SDL_SetCursor_Image(const std::string &sPath);
 
-bool X11_SetCursor(const std::string &sPath);
-bool X11_ConstrainMouse(int nPosX, int nPosY, int nWidth, int nHeight, std::string *pStringError=NULL);
-
-bool wx_SetCursor(const char *sPath);
+bool wx_SetCursor_Font(int nShape);
+bool SDL_SetCursor_Font(int nShape);
 
 struct struct_string_int
 {
     std::string sName;
     int nValue;
 };
-extern struct_string_int g_aCursorNameValue[];
-extern const int g_nCount_CursorNameValue;
+extern struct_string_int g_aCursorNameValues[];
+extern const int g_nCount_CursorNameValues;
+
+// return -1 on error
+int X11Cursor_GetValueByName(const std::string &sName);
 
 /*!
  * wxDialog_Pointer type definition
@@ -56,11 +57,15 @@ IMPLEMENT_DYNAMIC_CLASS( wxDialog_Pointer, wxDialog_Base );
 BEGIN_EVENT_TABLE( wxDialog_Pointer, wxDialog_Base )
 
 ////@begin wxDialog_Pointer event table entries
-    EVT_BUTTON( ID_BUTTON_CONSTRAINMOUSE, wxDialog_Pointer::OnButtonConstrainmouseClick )
+    EVT_BUTTON( ID_BUTTON_MOUSE_CONSTRAIN, wxDialog_Pointer::OnButtonMouseConstrainClick )
+
+    EVT_BUTTON( wxID_CLOSE, wxDialog_Pointer::OnCloseClick )
 
     EVT_BUTTON( ID_BUTTON_LOADIMAGE, wxDialog_Pointer::OnButtonLoadimageClick )
 
-    EVT_BUTTON( wxID_CLOSE, wxDialog_Pointer::OnCloseClick )
+    EVT_LISTBOX( ID_LISTBOX, wxDialog_Pointer::OnListboxSelected )
+
+    EVT_BUTTON( ID_BUTTON_ROOTWINDOW, wxDialog_Pointer::OnButtonRootwindowClick )
 
 ////@end wxDialog_Pointer event table entries
 
@@ -71,11 +76,17 @@ BEGIN_EVENT_TABLE( wxDialog_Pointer, wxDialog_Base )
  */
 
 wxDialog_Pointer::wxDialog_Pointer( )
+        : v_pX11(NULL)
+        , v_pX11_Locker_NewDisplay(NULL)
 {
+    X11_Init();
 }
 
 wxDialog_Pointer::wxDialog_Pointer( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
+        : v_pX11(NULL)
+        , v_pX11_Locker_NewDisplay(NULL)
 {
+    X11_Init();
     Create(parent, id, caption, pos, size, style);
 }
 
@@ -88,10 +99,14 @@ bool wxDialog_Pointer::Create( wxWindow* parent, wxWindowID id, const wxString& 
 ////@begin wxDialog_Pointer member initialisation
     v_pBoxV_all = NULL;
     v_pBoxH_Buttons = NULL;
-    v_pButton_ConstrainMouse = NULL;
-    v_pButton_LoadImage = NULL;
+    v_pButton_Mouse_Constrain = NULL;
     v_pButton_Close = NULL;
-    v_pChoice = NULL;
+    v_pSizerV_Label = NULL;
+    v_pSizerV_Pointer = NULL;
+    v_pButton_LoadImage = NULL;
+    v_pStaticText_Message = NULL;
+    v_pListBox = NULL;
+    v_pButton_RootWindow = NULL;
     v_pStaticText = NULL;
 ////@end wxDialog_Pointer member initialisation
 
@@ -113,7 +128,7 @@ bool wxDialog_Pointer::Create( wxWindow* parent, wxWindowID id, const wxString& 
 
 void wxDialog_Pointer::CreateControls()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxDialog_Pointer content construction
     wxDialog_Pointer* itemDialog_Base1 = this;
 
@@ -123,14 +138,9 @@ void wxDialog_Pointer::CreateControls()
     v_pBoxH_Buttons = new wxBoxSizer(wxHORIZONTAL);
     v_pBoxV_all->Add(v_pBoxH_Buttons, 0, wxGROW|wxALL, 5);
 
-    v_pButton_ConstrainMouse = new wxButton;
-    v_pButton_ConstrainMouse->Create( itemDialog_Base1, ID_BUTTON_CONSTRAINMOUSE, _T("Constrain Mouse"), wxDefaultPosition, wxDefaultSize, 0 );
-    v_pBoxH_Buttons->Add(v_pButton_ConstrainMouse, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
-
-    v_pButton_LoadImage = new wxButton;
-    v_pButton_LoadImage->Create( itemDialog_Base1, ID_BUTTON_LOADIMAGE, _T("Load Pointer Image"), wxDefaultPosition, wxDefaultSize, 0 );
-    v_pButton_LoadImage->SetDefault();
-    v_pBoxH_Buttons->Add(v_pButton_LoadImage, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+    v_pButton_Mouse_Constrain = new wxButton;
+    v_pButton_Mouse_Constrain->Create( itemDialog_Base1, ID_BUTTON_MOUSE_CONSTRAIN, _T("Constrain Mouse"), wxDefaultPosition, wxDefaultSize, 0 );
+    v_pBoxH_Buttons->Add(v_pButton_Mouse_Constrain, 1, wxGROW|wxALL, 5);
 
     wxBitmap v_pButton_CloseBitmap(itemDialog_Base1->GetBitmapResource(wxT("cancel.png")));
     v_pButton_Close = new wxBitmapButton;
@@ -141,25 +151,176 @@ void wxDialog_Pointer::CreateControls()
     v_pButton_Close->SetBitmapFocus(v_pButton_CloseBitmapFocus);
     v_pBoxH_Buttons->Add(v_pButton_Close, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
-    wxString v_pChoiceStrings[] = {
-        _T("aa"),
-        _T("bb"),
-        _T("cc"),
-        _T("dd")
+    v_pSizerV_Label = new wxStaticBox(itemDialog_Base1, wxID_ANY, _T("Pointer Shape"));
+    v_pSizerV_Pointer = new wxStaticBoxSizer(v_pSizerV_Label, wxVERTICAL);
+    v_pBoxV_all->Add(v_pSizerV_Pointer, 1, wxGROW|wxALL, 5);
+
+    v_pButton_LoadImage = new wxButton;
+    v_pButton_LoadImage->Create( itemDialog_Base1, ID_BUTTON_LOADIMAGE, _T("Load Pointer Image"), wxDefaultPosition, wxDefaultSize, 0 );
+    v_pButton_LoadImage->SetDefault();
+    v_pSizerV_Pointer->Add(v_pButton_LoadImage, 0, wxGROW|wxALL, 5);
+
+    v_pStaticText_Message = new wxStaticText;
+    v_pStaticText_Message->Create( itemDialog_Base1, wxID_STATIC, _T("OR Select a standard X11 cursor :"), wxDefaultPosition, wxDefaultSize, 0 );
+    v_pSizerV_Pointer->Add(v_pStaticText_Message, 0, wxGROW|wxALL|wxADJUST_MINSIZE, 5);
+
+    wxString v_pListBoxStrings[] = {
+        _T("11"),
+        _T("22"),
+        _T("33"),
+        _T("44")
     };
-    v_pChoice = new wxChoice;
-    v_pChoice->Create( itemDialog_Base1, ID_CHOICE_STD, wxDefaultPosition, wxDefaultSize, 4, v_pChoiceStrings, 0 );
-    v_pChoice->SetStringSelection(_T("bb"));
-    v_pBoxV_all->Add(v_pChoice, 0, wxGROW|wxALL, 5);
+    v_pListBox = new wxListBox;
+    v_pListBox->Create( itemDialog_Base1, ID_LISTBOX, wxDefaultPosition, wxDefaultSize, 4, v_pListBoxStrings, wxLB_SINGLE );
+    v_pListBox->SetStringSelection(_T("22"));
+    v_pSizerV_Pointer->Add(v_pListBox, 1, wxGROW|wxALL, 5);
+
+    v_pButton_RootWindow = new wxButton;
+    v_pButton_RootWindow->Create( itemDialog_Base1, ID_BUTTON_ROOTWINDOW, _T("Root Window Pointer Shape"), wxDefaultPosition, wxDefaultSize, 0 );
+    v_pButton_RootWindow->Show(false);
+    v_pSizerV_Pointer->Add(v_pButton_RootWindow, 0, wxGROW|wxALL, 5);
 
     v_pStaticText = new wxStaticText;
     v_pStaticText->Create( itemDialog_Base1, wxID_STATIC, _T("Static text Static text Static text Static text Static text Static text Static text Static text "), wxDefaultPosition, wxDefaultSize, 0 );
-    v_pBoxV_all->Add(v_pStaticText, 0, wxGROW|wxALL|wxADJUST_MINSIZE, 5);
+    v_pSizerV_Pointer->Add(v_pStaticText, 0, wxGROW|wxALL|wxADJUST_MINSIZE, 5);
 
 ////@end wxDialog_Pointer content construction
-    //--CaptureMouse();
-    v_pStaticText->SetLabel("");
     ::wxInitAllImageHandlers();
+    v_pStaticText->SetLabel("");
+    v_pListBox->Clear();
+    for (int i=0; i<g_nCount_CursorNameValues; ++i)
+    {
+        v_pListBox->Append(g_aCursorNameValues[i].sName);
+    }
+    v_pListBox->SetSelection(-1);
+    // wxFileDialog
+    wxFileName oFileName("./data/pointers_bw/");
+    oFileName.Normalize();
+    v_sMessage = "Open Pointer Image";
+    v_sDir = oFileName.GetFullPath();
+    v_sFilename = "verybig.xbm";
+    v_sWildcard = wxString::Format(
+        "All Files (%s)|%s|"
+        "PNG files (*.png)|*.png|"
+        "BMP files (*.bmp)|*.bmp|"
+        "ICO files (*.ico)|*.ico|"
+        "GIF files (*.gif)|*.gif|"
+        "JPEG files (*.jpg)|*.jpg|"
+        "PCX files (*.pcx)|*.pcx|"
+        "TIFF files (*.tif)|*.tif|"
+        "CURSOR files (*.cur)|*.cur"
+        , wxFileSelectorDefaultWildcardStr, wxFileSelectorDefaultWildcardStr
+        );
+}
+
+/*!
+ * wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_CONSTRAINMOUSE
+ */
+
+void wxDialog_Pointer::OnButtonMouseConstrainClick( wxCommandEvent& event )
+{
+////@begin wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_CONSTRAINMOUSE in wxDialog_Pointer.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_CONSTRAINMOUSE in wxDialog_Pointer.
+    if (! v_pX11->Mouse_IsConstrainActive())
+    {
+        v_pX11->Mouse_Constrain_ReactivateIfActive();
+        v_pX11->Mouse_Constrain(100, 100, 200, 100);
+    }
+    else
+    {
+        v_pX11->Mouse_Constrain_ReactivateIfActive();
+    }
+}
+
+/*!
+ * wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CLOSE
+ */
+
+void wxDialog_Pointer::OnCloseClick( wxCommandEvent& event )
+{
+////@begin wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CLOSE in wxDialog_Pointer.
+    // Before editing this code, remove the block markers.
+    Destroy();
+////@end wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CLOSE in wxDialog_Pointer.
+    wxUnusedVar(event);
+}
+
+/*!
+ * wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_LOADIMAGE
+ */
+
+void wxDialog_Pointer::OnButtonLoadimageClick( wxCommandEvent& event )
+{
+////@begin wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_LOADIMAGE in wxDialog_Pointer.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_LOADIMAGE in wxDialog_Pointer.
+    v_pListBox->SetSelection(-1);
+    int nFlags = wxOPEN | wxFILE_MUST_EXIST;
+    _LOG_NFO("v_sDir='%s', v_sFilename='%s'", v_sDir.c_str(), v_sFilename.c_str());
+    wxFileDialog oFileDialog(this, v_sMessage, v_sDir, v_sFilename, v_sWildcard, nFlags);
+    if (wxID_CANCEL == oFileDialog.ShowModal())
+        return;
+    v_sDir = oFileDialog.GetDirectory();
+    v_sFilename = oFileDialog.GetFilename();
+    wxString sPath = oFileDialog.GetPath();
+    wxString sPathMask = sPath + ".msk";
+    _COND_RET(! sPath.IsEmpty());
+    _LOG_NFO("sPath='%s'", sPath.c_str());
+    if (wx_SetCursor_Image(sPath))
+    {
+        v_pStaticText->SetLabel(sPath);
+    }
+    if (v_pX11->Mouse_SetCursor_Image(v_pX11->Debug_Window(), sPath.c_str(), sPathMask.c_str()))
+    {
+        v_pStaticText->SetLabel(sPath);
+    }
+}
+
+/*!
+ * wxEVT_COMMAND_LISTBOX_SELECTED event handler for ID_LISTBOX
+ */
+
+void wxDialog_Pointer::OnListboxSelected( wxCommandEvent& event )
+{
+    _LOG_NFO("%s", _str_event(event));
+    if (! event.IsSelection())
+    {
+        return;
+    }
+////@begin wxEVT_COMMAND_LISTBOX_SELECTED event handler for ID_LISTBOX in wxDialog_Pointer.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_COMMAND_LISTBOX_SELECTED event handler for ID_LISTBOX in wxDialog_Pointer.
+    wxString sItem = event.GetString();
+    int nShape = X11Cursor_GetValueByName(sItem.c_str());
+    if (nShape < 0)
+    {
+        _LOG_ERR("Not a choice string : '%s'", sItem.c_str());
+        return;
+    }
+    _LOG_NFO("X11 shape : %d", nShape);
+    if (v_pX11->Mouse_SetCursor_Font(v_pX11->Debug_Window(), nShape))
+    {
+        v_pStaticText->SetLabel(sItem);
+    }
+}
+
+/*!
+ * wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_ROOTWINDOW
+ */
+
+void wxDialog_Pointer::OnButtonRootwindowClick( wxCommandEvent& event )
+{
+////@begin wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_ROOTWINDOW in wxDialog_Pointer.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_ROOTWINDOW in wxDialog_Pointer.
+    v_pListBox->SetSelection(-1);
+    v_pX11->Mouse_SetCursor_Inherit(v_pX11->Debug_Window());
+    v_pStaticText->SetLabel("Inherit from parent window");
 }
 
 /*!
@@ -212,108 +373,31 @@ wxIcon wxDialog_Pointer::GetIconResource( const wxString& name )
 ////@end wxDialog_Pointer icon retrieval
 }
 
-/*!
- * wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_CONSTRAINMOUSE
- */
-
-void wxDialog_Pointer::OnButtonConstrainmouseClick( wxCommandEvent& event )
-{
-////@begin wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_CONSTRAINMOUSE in wxDialog_Pointer.
-    // Before editing this code, remove the block markers.
-    event.Skip();
-////@end wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_CONSTRAINMOUSE in wxDialog_Pointer.
-
-    static bool bIsActiveConstrainMouse = false;
-    std::string sErrorMessage;
-    bool bResult = false;
-    if (! bIsActiveConstrainMouse)
-    {
-        bIsActiveConstrainMouse = bResult = X11_ConstrainMouse(100, 100, 200, 200, &sErrorMessage);
-    }
-    else
-    {
-        bResult = X11_ConstrainMouse(0, 0, 0, 0, &sErrorMessage);
-        bIsActiveConstrainMouse = false;
-    }
-    _WX_LOG_NFO("bIsActiveConstrainMouse=%d, bResult=%d, sErrorMessage='%s'", bIsActiveConstrainMouse, bResult, sErrorMessage.c_str());
-}
-
-/*!
- * wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_LOADIMAGE
- */
-
-void wxDialog_Pointer::OnButtonLoadimageClick( wxCommandEvent& event )
-{
-////@begin wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_LOADIMAGE in wxDialog_Pointer.
-    // Before editing this code, remove the block markers.
-    event.Skip();
-////@end wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_LOADIMAGE in wxDialog_Pointer.
-    wxFileName oFileName("./data/pointers/");
-    oFileName.Normalize();
-    static wxString sMessage("Open Pointer Image");
-    static wxString sDir(oFileName.GetFullPath());
-    static wxString sFilename("standard_big_b.png");
-    static wxString sExtension;
-    static wxString sWildcard(
-        wxString::Format(
-            "All Files (%s)|%s|"
-            "PNG files (*.png)|*.png|"
-            "BMP files (*.bmp)|*.bmp|"
-            "ICO files (*.ico)|*.ico|"
-            "GIF files (*.gif)|*.gif|"
-            "JPEG files (*.jpg)|*.jpg|"
-            "PCX files (*.pcx)|*.pcx|"
-            "TIFF files (*.tif)|*.tif|"
-            "CURSOR files (*.cur)|*.cur"
-            , wxFileSelectorDefaultWildcardStr, wxFileSelectorDefaultWildcardStr
-            )
-        );
-    int nFlags = wxOPEN | wxFILE_MUST_EXIST;
-    _WX_LOG_NFO("sDir='%s', sFilename='%s'", sDir.c_str(), sFilename.c_str());
-    wxFileDialog oFileDialog(this, sMessage, sDir, sFilename, sWildcard, nFlags);
-    if (wxID_CANCEL == oFileDialog.ShowModal())
-        return;
-    sDir = oFileDialog.GetDirectory();
-    sFilename = oFileDialog.GetFilename();
-    wxString sPath = oFileDialog.GetPath();
-    _COND_RET(! sPath.IsEmpty());
-    _WX_LOG_NFO("sPath='%s'", sPath.c_str());
-    if (wx_SetCursor(sPath))
-    {
-        v_pStaticText->SetLabel(sPath);
-    }
-}
-
-/*!
- * wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CLOSE
- */
-
-void wxDialog_Pointer::OnCloseClick( wxCommandEvent& event )
-{
-////@begin wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CLOSE in wxDialog_Pointer.
-    // Before editing this code, remove the block markers.
-    Destroy();
-////@end wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CLOSE in wxDialog_Pointer.
-    wxUnusedVar(event);
-}
-
 wxDialog_Pointer::~wxDialog_Pointer()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     ::wxSetCursor(wxNullCursor);
-    //--ReleaseMouse();
+    wxDELETE(v_pX11);
+    wxDELETE(v_pX11_Locker_NewDisplay);
 }
 
-bool wx_SetCursor(const char *sPath)
+void wxDialog_Pointer::X11_Init()
+{
+    v_pX11 = new X11wrapper((Display *)wxGetDisplay());
+    //v_pX11_Locker_NewDisplay = new X11_Locker_NewDisplay();
+    //v_pX11 = new X11wrapper(v_pX11_Locker_NewDisplay->GetDisplay());
+}
+
+bool wx_SetCursor_Image(const wxString &sPath)
 {
     wxImage oImage(sPath);
     _COND_RET(oImage.Ok(), false);
     if (! oImage.HasAlpha())
-        _WX_LOG_WRN("Not HasAlpha");
+        _LOG_WRN("Not HasAlpha");
     if (! oImage.ConvertAlphaToMask())
-        _WX_LOG_WRN("Not ConvertAlphaToMask");
+        _LOG_WRN("Not ConvertAlphaToMask");
     if (! oImage.HasAlpha())
-        _WX_LOG_WRN("Again, Not HasAlpha");
+        _LOG_WRN("Again, Not HasAlpha");
     //wxBitmap oBitmap(oImage);
     //_COND_RET(oBitmap.Ok(), false);
     wxCursor oCursor(oImage);
@@ -322,7 +406,15 @@ bool wx_SetCursor(const char *sPath)
     return true;
 }
 
-bool SDL_SetCursor(const std::string &sPath)
+bool wx_SetCursor_Font(int nShape)
+{
+    wxCursor oCursor(nShape);
+    _COND_RET(oCursor.Ok(), false);
+    ::wxSetCursor(oCursor);
+    return true;
+}
+
+bool SDL_SetCursor_Image(const std::string &sPath)
 {
     // SDL_Cursor *SDL_CreateCursor(Uint8 *data, Uint8 *mask, int w, int h, int hot_x, int hot_y);
     //
@@ -350,7 +442,7 @@ bool SDL_SetCursor(const std::string &sPath)
     return true;
 }
 
-bool SDL_X11_SetCursor(const std::string &sPath)
+bool SDL_SetCursor_Font(const std::string &sPath)
 {
 //#ifdef HAVE_XCURSOR
 //#include <X11/Xlib.h>
@@ -379,9 +471,9 @@ bool SDL_X11_SetCursor(const std::string &sPath)
 }
 
 // all from : /usr/include/X11/cursorfont.h
-struct_string_int g_aCursorNameValue[] =
+struct_string_int g_aCursorNameValues[] =
 {
-    {"XC_num_glyphs", XC_num_glyphs},
+    // bad value : {"XC_num_glyphs", XC_num_glyphs},
     {"XC_X_cursor", XC_X_cursor},
     {"XC_arrow", XC_arrow},
     {"XC_based_arrow_down", XC_based_arrow_down},
@@ -460,219 +552,14 @@ struct_string_int g_aCursorNameValue[] =
     {"XC_watch", XC_watch},
     {"XC_xterm", XC_xterm},
 };
-const int g_nCount_CursorNameValue = ( sizeof(g_aCursorNameValue) / sizeof(g_aCursorNameValue[0]) );
+const int g_nCount_CursorNameValues = ( sizeof(g_aCursorNameValues) / sizeof(g_aCursorNameValues[0]) );
 
-//bool X11_XChangePointerControl(Display *display, bool do_accel=false, bool do_threshold=false, int accel_numerator=-1, accel_denominator=-1, int threshold=-1)
-//{
-//    return (XChangePointerControl(display, do_accel, do_threshold, accel_numerator, accel_denominator, threshold) == 0);
-//}
-
-//bool X11_XGrabPointer(
-//    Display *display,
-//    Window grab_window,
-//    Bool owner_events,
-//    unsigned int event_mask,
-//    int pointer_mode, keyboard_mode,
-//    Window confine_to, // Specifies the window to confine the pointer in or None
-//    Cursor cursor, // Specifies the cursor that is to be displayed during the grab or None
-//    Time time
-//    )
-//{
-//    return true;
-//}
-
-bool X11_SetCursor(const std::string &sPath)
+int X11Cursor_GetValueByName(const std::string &sName)
 {
-    //Cursor XCreateFontCursor(Display *display, unsigned int shape);
-    //Cursor XCreatePixmapCursor(Display *display, Pixmap source, Pixmap mask, XColor *foreground_color, XColor *background_color, unsigned int x, y);
-    //Cursor XCreateGlyphCursor(Display *display, Font source_font, Font mask_font, unsigned int source_char, unsigned int mask_char, XColor *foreground_color, XColor *background_color);
-    //int XRecolorCursor(Display *display, Cursor cursor, XColor *foreground_color, XColor *background_color);
-
-    if (sPath == "")
-        return false;
-    return true;
-}
-
-static bool X11_ConstrainMouse_Helper(Display *pDisplay, Window parent_window, int nPosX, int nPosY, int nWidth, int nHeight, std::string *pStringError/*=NULL*/)
-{
-    _WX_LOG_DBG("(%d, %d, %d, %d)", nPosX, nPosY, nWidth, nHeight);
-    static bool bIsActiveConstrainMouse = false;
-
-    // dummy error message string, used when no such string is required
-    std::string string_error_dummy;
-    if (pStringError == NULL)
-        pStringError = &string_error_dummy;
-    std::string &sErr = *pStringError;
-    sErr = "";
-
-    // check values
-    // Size (not including the border) must be nonzero (or a Value error results)
-    // Note: The Xlib manual doesn't mention this restriction ?
-    if ( (nWidth <= 0) || (nHeight <= 0) )
+    for (int i=0; i<g_nCount_CursorNameValues; ++i)
     {
-        sErr = "bad arguments, size must be greater than 0";
-        return false;
+        if (g_aCursorNameValues[i].sName == sName)
+            return g_aCursorNameValues[i].nValue;
     }
-
-    static Window window = 0;
-    //int nScreen = XDefaultScreen(pDisplay);
-
-    // hide window case
-    if ( (nWidth == 0) && (nHeight == 0) )
-    {
-        if (! bIsActiveConstrainMouse)
-        {
-            sErr = "window not created";
-            return false;
-        }
-        bIsActiveConstrainMouse = false;
-        if (! XUngrabPointer(pDisplay, window))
-        {
-            sErr = "cannot ungrab the pointer";
-            return false;
-        }
-        if (! XUnmapWindow(pDisplay, window))
-        {
-            sErr = "cannot hide the window";
-            return false;
-        }
-        if (! XDestroyWindow(pDisplay, window))
-        {
-            sErr = "cannot destroy the window";
-            return false;
-        }
-        //if (! XCloseDisplay(pDisplay))
-        //{
-        //    sErr = "cannot close the display";
-        //    return false;
-        //}
-        return true;
-    }
-
-    // show window
-    if (bIsActiveConstrainMouse)
-    {
-        sErr = "window is already created";
-        return false;
-    }
-
-    Visual visual;
-    visual.visualid = CopyFromParent;
-    //Visual *visual = DefaultVisual(pDisplay, nScreen);
-    int nBorderWidth = 0;
-    //unsigned long mask = CWEventMask | CWBackPixel;
-    //unsigned long mask = 0;
-    XSetWindowAttributes win_attr;
-    win_attr.event_mask = ExposureMask;    // | ButtonPressMask | KeyPressMask | ButtonReleaseMask;
-    win_attr.background_pixel = 0xF0F0F0;
-
-    if (window > 0)
-    {
-        _WX_LOG_ERR("closing a window previously created");
-        if (! XDestroyWindow(pDisplay, window))
-        {
-            sErr = "cannot destroy the previously created window, it should not exist in the first place";
-            return false;
-        }
-    }
-
-    //window = XCreateWindow(
-    //    pDisplay,
-    //    parent_window,
-    //    nPosX, nPosY, nWidth, nHeight,
-    //    nBorderWidth,
-    //    DefaultDepth (pDisplay, nScreen),
-    //    InputOutput,
-    //    &visual,
-    //    mask,
-    //    &win_attr
-    //    );
-
-    window = XCreateSimpleWindow(
-        pDisplay,
-        parent_window,
-        nPosX, nPosY, nWidth, nHeight,
-        nBorderWidth,
-        0,
-        0
-        );
-
-    if (window <= 0)
-    {
-        sErr = "cannot create window";
-        return false;
-    }
-    XClassHint classHint;
-    classHint.res_name = "grab_name";
-    classHint.res_class = "grab_class";
-    if (! XSetClassHint(pDisplay, window, &classHint))
-    {
-        sErr = "cannot set class name";
-        return false;
-    }
-    if (! XMapWindow(pDisplay, window))
-    {
-        sErr = "cannot show the window";
-        return false;
-    }
-    XSync(pDisplay, false);
-    if (! XLowerWindow(pDisplay, window))
-    {
-        sErr = "cannot lower the window";
-        return false;
-    }
-    XSync(pDisplay, false);
-    int res = XGrabPointer(
-        pDisplay, window,
-        false,
-        ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask,
-        GrabModeAsync, // pointer_mode
-        GrabModeAsync, // keyboard_mode
-        window, // confine_to_window
-        None, // cursor // TODO: This may need to be set to the cursor of this window
-        CurrentTime );
-    XSync(pDisplay, false);
-    if (res != GrabSuccess)
-    {
-        sErr = "cannot grab the pointer";
-        if (res == GrabNotViewable)
-            sErr = "this is not a viewable window - perhaps not shown yet";
-        if (res == AlreadyGrabbed)
-            sErr = "pointer already grabbed";
-        if (res == GrabFrozen)
-            sErr = "pointer frozen by another grab";
-        return false;
-    }
-
-    // correct the window position (wm may change it after create or show)
-    if (! XMoveResizeWindow(pDisplay, window, nPosX, nPosY, nWidth, nHeight))
-    {
-        sErr = "cannot change the window position";
-        return false;
-    }
-    XSync(pDisplay, false);
-
-    bIsActiveConstrainMouse = true;
-    return true;
-}
-
-bool X11_ConstrainMouse(int nPosX, int nPosY, int nWidth, int nHeight, std::string *pStringError/*=NULL*/)
-{
-    static Display *pDisplay = NULL;
-    Window parent_window = 0;
-
-    if (pDisplay == NULL)
-        pDisplay = XOpenDisplay(NULL);
-    parent_window = DefaultRootWindow(pDisplay);
-
-    XLockDisplay(pDisplay);
-
-    bool bResult = X11_ConstrainMouse_Helper(pDisplay, parent_window, nPosX, nPosY, nWidth, nHeight, pStringError);
-
-    //if ( (nWidth == 0) && (nHeight == 0) && bResult )
-    //    pDisplay = NULL;
-    XSync(pDisplay, false);
-    XUnlockDisplay(pDisplay);
-
-    return bResult;
+    return -1;
 }

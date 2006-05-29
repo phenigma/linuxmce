@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -158,10 +158,10 @@ wxIcon wxDialog_LightControl::GetIconResource( const wxString& name )
 
 bool wxDialog_LightControl::Gui_Refresh(CallBackData *pCallBackData)
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     LightControlCallBackData *pCallData = dynamic_cast<LightControlCallBackData *>(pCallBackData);
     _COND_RET(pCallData != NULL, false);
-    _WX_LOG_NFO("m_nPositions=%d, m_nCrtPosition=%d", pCallData->m_nPositions, pCallData->m_nCrtPosition);
+    _LOG_NFO("m_nPositions=%d, m_nCrtPosition=%d", pCallData->m_nPositions, pCallData->m_nCrtPosition);
     Update_Position_FullScreen(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height, pCallData->m_bShowFullScreen);
     v_pPanel_Light->v_nPositions = pCallData->m_nPositions;
     v_pPanel_Light->v_nCrtPosition = pCallData->m_nCrtPosition;

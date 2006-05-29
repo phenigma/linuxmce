@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -65,7 +65,7 @@ wxDialog_Base::wxDialog_Base( )
         , v_pExtern_Task_Data_WaitUser(NULL)
         , v_pExtern_Task_Data_WaitInitialized(NULL)
 {
-    _WX_LOG_NFO("Label='%s'", GetLabel().c_str());
+    _LOG_NFO("Label='%s'", GetLabel().c_str());
     wxDELETE(v_pExtern_Task_Data_WaitUser);
     wxDELETE(v_pExtern_Task_Data_WaitInitialized);
 }
@@ -76,7 +76,7 @@ wxDialog_Base::wxDialog_Base( wxWindow* parent, wxWindowID id, const wxString& c
         , v_pExtern_Task_Data_WaitUser(NULL)
         , v_pExtern_Task_Data_WaitInitialized(NULL)
 {
-    _WX_LOG_NFO("Label='%s'", GetLabel().c_str());
+    _LOG_NFO("Label='%s'", GetLabel().c_str());
     Create(parent, id, caption, pos, size, style);
 }
 
@@ -86,7 +86,7 @@ wxDialog_Base::wxDialog_Base( wxWindow* parent, wxWindowID id, const wxString& c
 
 bool wxDialog_Base::Create( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
 #ifdef USE_RELEASE_CODE
     style |= wxSTAY_ON_TOP;
 #endif // USE_RELEASE_CODE
@@ -96,11 +96,11 @@ bool wxDialog_Base::Create( wxWindow* parent, wxWindowID id, const wxString& cap
     wxWindow *pTopWindow = wxGetApp().GetTopWindow();
     if (pTopWindow == NULL)
     {
-        _WX_LOG_WRN("NULL top window");
+        _LOG_WRN("NULL top window");
     }
     else if (parent == NULL)
     {
-        _WX_LOG_NFO("NULL parent for window '%s'", caption.c_str());
+        _LOG_NFO("NULL parent for window '%s'", caption.c_str());
         parent = pTopWindow;
     }
 ////@begin wxDialog_Base member initialisation
@@ -121,7 +121,7 @@ bool wxDialog_Base::Create( wxWindow* parent, wxWindowID id, const wxString& cap
 
 void wxDialog_Base::CreateControls()
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
 ////@begin wxDialog_Base content construction
     wxDialog_Base* itemDialog1 = this;
 
@@ -137,7 +137,7 @@ void wxDialog_Base::CreateControls()
 
 void wxDialog_Base::OnCloseWindow( wxCloseEvent& event )
 {
-    _WX_LOG_DBG("Label='%s'", GetLabel().c_str());
+    _LOG_NFO("Label='%s'", GetLabel().c_str());
 ////@begin wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_BASE in wxDialog_Base.
     // Before editing this code, remove the block markers.
 ////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_BASE in wxDialog_Base.
@@ -151,10 +151,10 @@ void wxDialog_Base::OnCloseWindow( wxCloseEvent& event )
 
 void wxDialog_Base::OnIdle( wxIdleEvent& event )
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     if (v_pExtern_Task_Data_WaitInitialized && v_bInitialized)
     {
-        _WX_LOG_NFO("Send response to external task : WaitInitialized");
+        _LOG_NFO("Send response to external task : WaitInitialized");
         Extern_Task_Response(v_pExtern_Task_Data_WaitInitialized);
         wxDELETE(v_pExtern_Task_Data_WaitInitialized);
     }
@@ -202,15 +202,15 @@ wxIcon wxDialog_Base::GetIconResource( const wxString& name )
 
 wxDialog_Base::~wxDialog_Base()
 {
-    _WX_LOG_NFO("Label='%s'", GetLabel().c_str());
+    _LOG_NFO("Label='%s'", GetLabel().c_str());
 }
 
 bool wxDialog_Base::Destroy()
 {
-    _WX_LOG_NFO("Label='%s'", GetLabel().c_str());
+    _LOG_NFO("Label='%s'", GetLabel().c_str());
     if (IsModal())
     {
-        _WX_LOG_WRN("Dialog '%s' Is Modal!", GetLabel().c_str());
+        _LOG_WRN("Dialog '%s' Is Modal!", GetLabel().c_str());
         EndModal(GetReturnCode());
         return true;
     }
@@ -220,11 +220,11 @@ bool wxDialog_Base::Destroy()
 
 void wxDialog_Base::EndModal(int retCode)
 {
-    _WX_LOG_NFO("Label='%s' retCode=%d", GetLabel().c_str(), retCode);
+    _LOG_NFO("Label='%s' retCode=%d", GetLabel().c_str(), retCode);
     SetReturnCode(retCode);
     if (! IsModal())
     {
-        _WX_LOG_WRN("Dialog '%s' Is Not Modal!", GetLabel().c_str());
+        _LOG_WRN("Dialog '%s' Is Not Modal!", GetLabel().c_str());
         Destroy();
         return;
     }
@@ -234,14 +234,14 @@ void wxDialog_Base::EndModal(int retCode)
 
 void wxDialog_Base::OnButton_EndModal( wxCommandEvent& event )
 {
-    //_WX_LOG_NFO("%s", _str_event(event));
+    //_LOG_NFO("%s", _str_event(event));
     OnButton_SetReturnCode(event);
     EndModal(GetReturnCode());
 }
 
 void wxDialog_Base::OnButton_SetReturnCode( wxCommandEvent& event )
 {
-    _WX_LOG_NFO("%s", _str_event(event));
+    _LOG_NFO("%s", _str_event(event));
     wxWindow *pwxWindow = wxDynamicCast(event.GetEventObject(), wxWindow);
     _COND_RET(pwxWindow != NULL);
     SetReturnCode(pwxWindow->GetId());
@@ -249,20 +249,20 @@ void wxDialog_Base::OnButton_SetReturnCode( wxCommandEvent& event )
 
 bool wxDialog_Base::Gui_DataLoad(CallBackData * pCallBackData)
 {
-    _WX_LOG_NFO("Label='%s'", GetLabel().c_str());
+    _LOG_NFO("Label='%s'", GetLabel().c_str());
     return Gui_Refresh(pCallBackData);
 }
 
 bool wxDialog_Base::Gui_DataSave(CallBackData * pCallBackData)
 {
-    _WX_LOG_NFO("Label='%s'", GetLabel().c_str());
+    _LOG_NFO("Label='%s'", GetLabel().c_str());
     wxUnusedVar(pCallBackData);
     return true;
 }
 
 bool wxDialog_Base::Gui_Refresh(CallBackData * pCallBackData)
 {
-    //_WX_LOG_NFO("Label='%s'", GetLabel().c_str());
+    //_LOG_NFO("Label='%s'", GetLabel().c_str());
     PositionCallBackData *pCallData = dynamic_cast<PositionCallBackData *>(pCallBackData);
     _COND_RET(pCallData != NULL, false);
     Update_Position_FullScreen(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height, pCallData->m_bShowFullScreen);
@@ -276,32 +276,32 @@ bool wxDialog_Base::IsInitialized()
 
 void wxDialog_Base::Set_Data_Holder_Dialog(Data_Holder_Dialog *pData_Holder_Dialog)
 {
-    _WX_LOG_NFO("pData_Holder_Dialog=%p", pData_Holder_Dialog);
+    _LOG_NFO("pData_Holder_Dialog=%p", pData_Holder_Dialog);
     v_pData_Holder_Dialog = pData_Holder_Dialog;
 }
 
 void wxDialog_Base::Set_WaitUser(Extern_Task_Data *pExtern_Task_Data)
 {
-    _WX_LOG_NFO("pExtern_Task_Data=%p", pExtern_Task_Data);
+    _LOG_NFO("pExtern_Task_Data=%p", pExtern_Task_Data);
     v_pExtern_Task_Data_WaitUser = pExtern_Task_Data;
 }
 
 void wxDialog_Base::Set_WaitInitialized(Extern_Task_Data *pExtern_Task_Data)
 {
-    _WX_LOG_NFO("pExtern_Task_Data=%p", pExtern_Task_Data);
+    _LOG_NFO("pExtern_Task_Data=%p", pExtern_Task_Data);
     v_pExtern_Task_Data_WaitInitialized = pExtern_Task_Data;
 }
 
 void wxDialog_Base::OnWindowCreate(wxWindowCreateEvent& event)
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     wxDialog *pwxDialog = wxDynamicCast(event.GetEventObject(), wxDialog);
     if (pwxDialog)
     {
         wxString sLabel = GetLabel();
         if (pwxDialog->GetLabel() == sLabel)
         {
-            _WX_LOG_NFO("Initialized : %s", sLabel.c_str());
+            _LOG_NFO("Initialized : %s", sLabel.c_str());
             v_bInitialized = true;
         }
     }
@@ -309,11 +309,11 @@ void wxDialog_Base::OnWindowCreate(wxWindowCreateEvent& event)
 
 void wxDialog_Base::OnEvent_Dialog(wxCommandEvent& event)
 {
-    _WX_LOG_NFO("Received event : %s", _str_event(event));
+    _LOG_NFO("Received event : %s", _str_event(event));
     Data_Holder_Dialog *pData_Holder_Dialog = wx_static_cast(Data_Holder_Dialog *, event.GetClientData());
     _COND_RET(pData_Holder_Dialog != NULL);
     E_ACTION_TYPE action = (E_ACTION_TYPE)event.GetId();
-    _WX_LOG_NFO("Received command event : action='%s'", _str_enum(action));
+    _LOG_NFO("Received command event : action='%s'", _str_enum(action));
     switch (action)
     {
         case E_Action_Refresh:
@@ -322,7 +322,7 @@ void wxDialog_Base::OnEvent_Dialog(wxCommandEvent& event)
             break;
         }
         default:
-            _WX_LOG_ERR("bad action : %d", action);
+            _LOG_ERR("bad action : %d", action);
             break;
     } // switch (action)
     wx_semaphore_post(*pData_Holder_Dialog);
@@ -330,23 +330,23 @@ void wxDialog_Base::OnEvent_Dialog(wxCommandEvent& event)
 
 void wxDialog_Base::Clean_Exit()
 {
-    _WX_LOG_NFO("Label='%s' retCode=%d", GetLabel().c_str(), GetReturnCode());
+    _LOG_NFO("Label='%s' retCode=%d", GetLabel().c_str(), GetReturnCode());
     if (v_pExtern_Task_Data_WaitInitialized)
     {
-        _WX_LOG_NFO("Send response to external task : WaitInitialized");
+        _LOG_NFO("Send response to external task : WaitInitialized");
         Extern_Task_Response(v_pExtern_Task_Data_WaitInitialized);
         wxDELETE(v_pExtern_Task_Data_WaitInitialized);
     }
     if (v_pExtern_Task_Data_WaitUser)
     {
-        _WX_LOG_NFO("Send response to external task : WaitUser");
+        _LOG_NFO("Send response to external task : WaitUser");
         v_pExtern_Task_Data_WaitUser->nButtonId = GetReturnCode();
         Extern_Task_Response(v_pExtern_Task_Data_WaitUser);
         wxDELETE(v_pExtern_Task_Data_WaitUser);
     }
     if (v_pData_Holder_Dialog)
     {
-        _WX_LOG_NFO("Send response to external thread");
+        _LOG_NFO("Send response to external thread");
         v_pData_Holder_Dialog->bRetCode = true;
         v_pData_Holder_Dialog->nRetCode = GetReturnCode();
         wx_semaphore_post(*v_pData_Holder_Dialog);
@@ -368,14 +368,14 @@ void wxDialog_Base::Update_Position(const int x, const int y, const int width, c
         return;
     if ( (x == 0) && (y == 0) && (width == 0) && (height == 0) )
     {
-        _WX_LOG_ERR(
+        _LOG_ERR(
             "Label='%s' : Bad Position : (%d, %d, %d, %d)",
             GetLabel().c_str(),
             x, y, width, height
             );
         return;
     }
-    _WX_LOG_NFO(
+    _LOG_NFO(
         "Label='%s' : Changing Position : (%d, %d, %d, %d) -> (%d, %d, %d, %d)",
         GetLabel().c_str(),
         old_x, old_y, old_width, old_height,
@@ -392,7 +392,7 @@ void wxDialog_Base::Update_FullScreen(bool bShowFullScreen)
     bool old_bMaximized = IsMaximized();
     if (old_bShowFullScreen != bShowFullScreen)
     {
-        _WX_LOG_NFO(
+        _LOG_NFO(
             "Label='%s' : Changing Full-Screen/Maximized Mode : (%d/%d) -> (%d/%d)",
             GetLabel().c_str(),
             old_bShowFullScreen, old_bMaximized, bShowFullScreen, bShowFullScreen

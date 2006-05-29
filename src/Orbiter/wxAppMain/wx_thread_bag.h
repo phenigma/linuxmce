@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -17,7 +17,7 @@
 
 class wxThread_Bag : public wxEvtHandler
 {
-  public:
+public:
     wxThread_Bag();
     ~wxThread_Bag();
 
@@ -30,7 +30,7 @@ class wxThread_Bag : public wxEvtHandler
 
     wxThread_Cmd * ptr_ThreadItem(const wxString &sName);
 
-  protected:
+protected:
     // event callbacks
     void OnEvent_Thread(wxCommandEvent& event);
 
@@ -39,7 +39,7 @@ class wxThread_Bag : public wxEvtHandler
     wxSemaphore v_oSemaphoreRunningAll; // used for try-wait, all threads
     wxArray_p_wxThread_Cmd v_apwxThread_Cmd; // array of ptr to thread command class
 
-  private:
+private:
     friend class wxThread_Cmd;
     DECLARE_EVENT_TABLE();
 };

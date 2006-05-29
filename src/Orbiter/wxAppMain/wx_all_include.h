@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -17,8 +17,9 @@
 
 #include "wx_lib_compatibility.h"
 #include "wx_config.h"
+#include "define_cond.h"
+#include "define_logger.h"
 #include "wx_logger.h"
-#include "wx_macro.h"
 #include "wx_helpers.h"
 #include "wx_main.h"
 #include "wx_debugging.h"

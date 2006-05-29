@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -34,7 +34,7 @@ ExternApp::ExternApp(int argc, char *argv[])
         , argc(argc)
         , argv(argv)
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 #ifdef USE_RELEASE_CODE
     v_pSDL_App_Object = NULL;
 #endif // USE_RELEASE_CODE
@@ -42,13 +42,13 @@ ExternApp::ExternApp(int argc, char *argv[])
 
 ExternApp::~ExternApp()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     Destroy();
 }
 
 void ExternApp::Run()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     if (! Create())
         return;
     EventLoop();
@@ -57,18 +57,18 @@ void ExternApp::Run()
 
 bool ExternApp::Create()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 #ifdef USE_RELEASE_CODE
     v_pSDL_App_Object = new SDL_App_Object(argc, argv);
     if (! v_pSDL_App_Object->LoadConfig())
     {
-        _WX_LOG_ERR("error returned by : LoadConfig()");
+        _LOG_ERR("error returned by : LoadConfig()");
         wxDELETE(v_pSDL_App_Object);
         return false;
     }
     if (! v_pSDL_App_Object->Create())
     {
-        _WX_LOG_ERR("error returned by : Create()");
+        _LOG_ERR("error returned by : Create()");
         wxDELETE(v_pSDL_App_Object);
         return false;
     }
@@ -78,24 +78,24 @@ bool ExternApp::Create()
 
 bool ExternApp::EventLoop()
 {
-    _WX_LOG_NFO("Event Loop Start");
+    _LOG_NFO("Event Loop Start");
 #ifdef USE_RELEASE_CODE
     while (v_pSDL_App_Object->EventProcess())
     {
         if (wxIdleThreadShouldStop())
         {
-            _WX_LOG_WRN("Event process loop stopped");
+            _LOG_WRN("Event process loop stopped");
             return false;
         }
     }
 #endif // USE_RELEASE_CODE
-    _WX_LOG_NFO("Event Loop End");
+    _LOG_NFO("Event Loop End");
     return true;
 }
 
 void ExternApp::Destroy()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 #ifdef USE_RELEASE_CODE
     if (! v_pSDL_App_Object)
         return;
@@ -115,7 +115,7 @@ const char * _str_enum(const CallBackType &value)
         CASE_const_ret_str(cbOnDialogSave);
         CASE_const_ret_str(cbOnDialogWaitUser);
         default:
-            _WX_LOG_ERR("unknown value %d", value);
+            _LOG_ERR("unknown value %d", value);
             break;
     }
     return wxString::Format("?%d?", value);
@@ -131,16 +131,16 @@ void Extern_Task_Listener()
     if (! pExternApp->IsRunning())
         return;
 #endif // USE_RELEASE_CODE
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     Task *pTask = TaskManager::Instance().PopTask();
     if (pTask == NULL)
     {
-        //_WX_LOG_NFO("No task to process, sleeping");
+        //_LOG_NFO("No task to process, sleeping");
         return;
     }
     E_DIALOG_TYPE e_dialog_type = pTask->DialogType;
     CallBackType action = pTask->TaskType;
-    _WX_LOG_NFO("Received command event : class='%s' action='%s'", _str_enum(e_dialog_type), _str_enum(action));
+    _LOG_NFO("Received command event : class='%s' action='%s'", _str_enum(e_dialog_type), _str_enum(action));
     Data_Holder_Dialog data_holder_dialog(e_dialog_type, NULL, pTask->pCallBackData);
     switch (action)
     {
@@ -179,11 +179,11 @@ void Extern_Task_Listener()
         }
         default:
         {
-            _WX_LOG_ERR("bad action : %d", action);
+            _LOG_ERR("bad action : %d", action);
             break;
         }
     } // switch (action)
-    _WX_LOG_NFO("End command event : class='%s' action='%s'", _str_enum(e_dialog_type), _str_enum(action));
+    _LOG_NFO("Processed command event : class='%s' action='%s'", _str_enum(e_dialog_type), _str_enum(action));
     wxDELETE(pTask->pCallBackData); // this is the request
     TaskManager::Instance().TaskProcessed(pTask->TaskId);
 #ifdef USE_RELEASE_CODE
@@ -192,7 +192,7 @@ void Extern_Task_Listener()
 
 void Extern_Task_Response(Extern_Task_Data *pExtern_Task_Data)
 {
-    _WX_LOG_NFO("pExtern_Task_Data=%p", pExtern_Task_Data);
+    _LOG_NFO("pExtern_Task_Data=%p", pExtern_Task_Data);
     _COND_RET(pExtern_Task_Data != NULL);
 #ifdef USE_RELEASE_CODE
     ExternApp *pExternApp = wxGetApp().ptr_ExternApp();

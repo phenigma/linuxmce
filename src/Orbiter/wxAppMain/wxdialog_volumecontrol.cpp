@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -158,10 +158,10 @@ wxIcon wxDialog_VolumeControl::GetIconResource( const wxString& name )
 
 bool wxDialog_VolumeControl::Gui_Refresh(CallBackData *pCallBackData)
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     VolumeControlCallBackData *pCallData = dynamic_cast<VolumeControlCallBackData *>(pCallBackData);
     _COND_RET(pCallData != NULL, false);
-    _WX_LOG_NFO("Style=%s, m_nPositions=%d, m_nCrtPosition=%d", _str_enum(pCallData->m_eStyle), pCallData->m_nPositions, pCallData->m_nCrtPosition);
+    _LOG_NFO("Style='%s', m_nPositions=%d, m_nCrtPosition=%d", _str_enum(pCallData->m_eStyle), pCallData->m_nPositions, pCallData->m_nCrtPosition);
     switch (pCallData->m_eStyle)
     {
         case VolumeControlCallBackData::SPEED:
@@ -169,7 +169,7 @@ bool wxDialog_VolumeControl::Gui_Refresh(CallBackData *pCallBackData)
             v_pPanel_Volume->v_eStyle = pCallData->m_eStyle;
             break;
         default:
-            _WX_LOG_ERR("bad style : %d", pCallData->m_eStyle);
+            _LOG_ERR("bad style : %d", pCallData->m_eStyle);
             break;
     }
     v_pPanel_Volume->v_nPositions = pCallData->m_nPositions;

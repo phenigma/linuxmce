@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -59,12 +59,12 @@ END_EVENT_TABLE()
 
 wxDialog_WaitList::wxDialog_WaitList( )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 }
 
 wxDialog_WaitList::wxDialog_WaitList( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     Create(parent, id, caption, pos, size, style);
 }
 
@@ -74,7 +74,7 @@ wxDialog_WaitList::wxDialog_WaitList( wxWindow* parent, wxWindowID id, const wxS
 
 bool wxDialog_WaitList::Create( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxDialog_WaitList member initialisation
     v_pBoxV_all = NULL;
     v_pBoxH_top = NULL;
@@ -103,7 +103,7 @@ bool wxDialog_WaitList::Create( wxWindow* parent, wxWindowID id, const wxString&
 
 void wxDialog_WaitList::CreateControls()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxDialog_WaitList content construction
     wxDialog_WaitList* itemDialog_Base1 = this;
 
@@ -205,7 +205,7 @@ wxIcon wxDialog_WaitList::GetIconResource( const wxString& name )
 
 bool wxDialog_WaitList::Gui_Refresh(CallBackData *pCallBackData)
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     WaitUserListCallBackData *pCallData = dynamic_cast<WaitUserListCallBackData *>(pCallBackData);
     _COND_RET(pCallData != NULL, false);
     Update_Position_FullScreen(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height, pCallData->m_bShowFullScreen);

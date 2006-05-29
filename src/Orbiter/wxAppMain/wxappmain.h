@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -93,7 +93,7 @@ protected:
 ////@begin declare app
 DECLARE_APP(wxAppMain)
 ////@end declare app
-;
+    ;
 
 #endif
 // _WXAPPMAIN_H_

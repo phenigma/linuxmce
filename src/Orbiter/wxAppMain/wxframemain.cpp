@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -116,12 +116,12 @@ BEGIN_EVENT_TABLE( wxFrameMain, wxFrame )
 
 wxFrameMain::wxFrameMain( )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 }
 
 wxFrameMain::wxFrameMain( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     Create( parent, id, caption, pos, size, style );
 }
 
@@ -131,7 +131,7 @@ wxFrameMain::wxFrameMain( wxWindow* parent, wxWindowID id, const wxString& capti
 
 bool wxFrameMain::Create( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxFrameMain member initialisation
     v_pToolBar = NULL;
     v_pLogTextCtrl = NULL;
@@ -152,7 +152,7 @@ bool wxFrameMain::Create( wxWindow* parent, wxWindowID id, const wxString& capti
 
 void wxFrameMain::CreateControls()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxFrameMain content construction
     wxFrameMain* itemFrame1 = this;
 
@@ -278,7 +278,7 @@ void wxFrameMain::CreateControls()
 
 void wxFrameMain::OnCloseWindow( wxCloseEvent& event )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxEVT_CLOSE_WINDOW event handler for ID_FRAMEMAIN in wxFrameMain.
     // Before editing this code, remove the block markers.
     wxWindow* window = this;
@@ -293,7 +293,7 @@ void wxFrameMain::OnCloseWindow( wxCloseEvent& event )
 
 void wxFrameMain::OnIdle( wxIdleEvent& event )
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     App_SetReady();
     wxFrame::OnIdle(event);
 ////@begin wxEVT_IDLE event handler for ID_FRAMEMAIN in wxFrameMain.
@@ -325,7 +325,7 @@ void wxFrameMain::OnToolPointerClick( wxCommandEvent& event )
     // Before editing this code, remove the block markers.
     wxDialog_Pointer* window = new wxDialog_Pointer(NULL, ID_DIALOG_POINTER, _T("Pointer Demo"));
     window->Show(true);
-////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_POINTER in wxFrameMain. 
+////@end wxEVT_COMMAND_MENU_SELECTED event handler for ID_TOOL_POINTER in wxFrameMain.
     wxUnusedVar(event);
 }
 
@@ -847,7 +847,7 @@ wxIcon wxFrameMain::GetIconResource( const wxString& name )
 
 bool wxFrameMain::Destroy()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     wxGetApp().Clean_Exit(false);
     return wxFrame::Destroy();
 }

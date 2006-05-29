@@ -32,9 +32,10 @@ class wxBoxSizer;
 #define SYMBOL_WXDIALOG_POINTER_IDNAME ID_DIALOG_POINTER
 #define SYMBOL_WXDIALOG_POINTER_SIZE wxSize(130, 113)
 #define SYMBOL_WXDIALOG_POINTER_POSITION wxDefaultPosition
-#define ID_BUTTON_CONSTRAINMOUSE 10052
+#define ID_BUTTON_MOUSE_CONSTRAIN 10052
 #define ID_BUTTON_LOADIMAGE 10051
-#define ID_CHOICE_STD 10054
+#define ID_LISTBOX 10055
+#define ID_BUTTON_ROOTWINDOW 10053
 ////@end control identifiers
 
 /*!
@@ -67,14 +68,20 @@ public:
 
 ////@begin wxDialog_Pointer event handler declarations
 
-    /// wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_CONSTRAINMOUSE
-    void OnButtonConstrainmouseClick( wxCommandEvent& event );
+    /// wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_MOUSE_CONSTRAIN
+    void OnButtonMouseConstrainClick( wxCommandEvent& event );
+
+    /// wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CLOSE
+    void OnCloseClick( wxCommandEvent& event );
 
     /// wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_LOADIMAGE
     void OnButtonLoadimageClick( wxCommandEvent& event );
 
-    /// wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CLOSE
-    void OnCloseClick( wxCommandEvent& event );
+    /// wxEVT_COMMAND_LISTBOX_SELECTED event handler for ID_LISTBOX
+    void OnListboxSelected( wxCommandEvent& event );
+
+    /// wxEVT_COMMAND_BUTTON_CLICKED event handler for ID_BUTTON_ROOTWINDOW
+    void OnButtonRootwindowClick( wxCommandEvent& event );
 
 ////@end wxDialog_Pointer event handler declarations
 
@@ -93,15 +100,29 @@ public:
 ////@begin wxDialog_Pointer member variables
     wxBoxSizer* v_pBoxV_all;
     wxBoxSizer* v_pBoxH_Buttons;
-    wxButton* v_pButton_ConstrainMouse;
-    wxButton* v_pButton_LoadImage;
+    wxButton* v_pButton_Mouse_Constrain;
     wxBitmapButton* v_pButton_Close;
-    wxChoice* v_pChoice;
+    wxStaticBox* v_pSizerV_Label;
+    wxStaticBoxSizer* v_pSizerV_Pointer;
+    wxButton* v_pButton_LoadImage;
+    wxStaticText* v_pStaticText_Message;
+    wxListBox* v_pListBox;
+    wxButton* v_pButton_RootWindow;
     wxStaticText* v_pStaticText;
 ////@end wxDialog_Pointer member variables
 
 public:
     ~wxDialog_Pointer();
+
+protected:
+    void X11_Init();
+
+    class X11wrapper *v_pX11;
+    class X11_Locker_NewDisplay *v_pX11_Locker_NewDisplay;
+    wxString v_sMessage;
+    wxString v_sDir;
+    wxString v_sFilename;
+    wxString v_sWildcard;
 };
 
 #endif

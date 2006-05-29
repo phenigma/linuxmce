@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -31,7 +31,7 @@ const char * _str_enum(E_DIALOG_TYPE value)
         CASE_const_ret_str(E_Dialog_VolumeControl);
         CASE_const_ret_str(E_Dialog_LightControl);
         default:
-            _WX_LOG_ERR("unknown value %d", value);
+            _LOG_ERR("unknown value %d", value);
             break;
     }
     return wxString::Format("?%d?", value);
@@ -53,7 +53,7 @@ const char * _str_enum(E_ACTION_TYPE value)
         CASE_const_ret_str(E_Action_WaitUser);
         CASE_const_ret_str(E_Action_WaitInitialized);
         default:
-            _WX_LOG_ERR("unknown value %d", value);
+            _LOG_ERR("unknown value %d", value);
             break;
     }
     return wxString::Format("?%d?", value);

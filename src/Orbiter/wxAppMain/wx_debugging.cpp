@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -65,7 +65,7 @@ void _debug_init(class CallBackData *pCallBackData=NULL)
     {
         _g_mapStrBool[_g_aStr[idx]] = (i % (2+idx));
     }
-    _WX_LOG_DBG("iLoop=%d, nPercent=%d, nTimeoutSeconds=%d", iLoop, _g_nPercent, _g_nTimeoutSeconds);
+    _LOG_DBG("iLoop=%d, nPercent=%d, nTimeoutSeconds=%d", iLoop, _g_nPercent, _g_nTimeoutSeconds);
     // loop continue
     if (PositionCallBackData *pCallData = dynamic_cast<PositionCallBackData *>(pCallBackData))
     {
@@ -151,7 +151,7 @@ bool CallRefresh()
     wxClassName *pwxDialog = ptr_wxDialogByType<wxClassName>();
     if (pwxDialog)
     {
-        _WX_LOG_DBG("%s", Get_ClassName(Get_Type<wxClassName>()));
+        _LOG_DBG("%s", Get_ClassName(Get_Type<wxClassName>()));
         ExternData_CallBackData *pCallBackData = new ExternData_CallBackData();
         _debug_init(pCallBackData);
         Safe_Gui_Refresh(pwxDialog, pCallBackData);
@@ -190,20 +190,20 @@ template <class wxClassName>
 void _debug_show_dlg_safe(CallBackData *pCallBackData=NULL)
 {
 #ifdef USE_DEBUG_CODE
-    _WX_LOG_DBG("Safe_START");
+    _LOG_DBG("Safe_START");
     wxClassName *pWin = NULL;
-    _WX_LOG_DBG("Safe_Show");
+    _LOG_DBG("Safe_Show");
     pWin = Safe_CreateUnique<wxClassName>(pCallBackData);
     Safe_Show<wxClassName>(pWin);
-    _WX_LOG_DBG("Safe_Close");
+    _LOG_DBG("Safe_Close");
     Safe_Close<wxClassName>(pWin);
-    _WX_LOG_DBG("Safe_Show Again");
+    _LOG_DBG("Safe_Show Again");
     pWin = Safe_CreateUnique<wxClassName>(pCallBackData);
     Safe_Show<wxClassName>(pWin);
-    _WX_LOG_DBG("Safe_ShowModal");
+    _LOG_DBG("Safe_ShowModal");
     pWin = Safe_CreateUnique<wxClassName>(pCallBackData);
     Safe_ShowModal<wxClassName>(pWin);
-    _WX_LOG_DBG("Safe_END");
+    _LOG_DBG("Safe_END");
 #endif // USE_DEBUG_CODE
 }
 
@@ -211,33 +211,33 @@ template <class wxClassName>
 void _debug_show_dlg_pdac(CallBackData *pCallBackData=NULL)
 {
 #ifdef USE_DEBUG_CODE
-    _WX_LOG_DBG("PDAC_START");
+    _LOG_DBG("PDAC_START");
     Task *pTask = NULL;
-    _WX_LOG_DBG("cbOnDialogCreate");
+    _LOG_DBG("cbOnDialogCreate");
     pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTask(pTask);
-    _WX_LOG_DBG("cbOnDialogRefresh 1");
+    _LOG_DBG("cbOnDialogRefresh 1");
     pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTask(pTask);
-    _WX_LOG_DBG("cbOnDialogRefresh 2");
+    _LOG_DBG("cbOnDialogRefresh 2");
     pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTask(pTask);
-    _WX_LOG_DBG("cbOnDialogDelete");
+    _LOG_DBG("cbOnDialogDelete");
     pTask = TaskManager::Instance().CreateTask(cbOnDialogDelete, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTask(pTask);
-    _WX_LOG_DBG("cbOnDialogCreate Again");
+    _LOG_DBG("cbOnDialogCreate Again");
     pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTaskAndWait(pTask);
-    _WX_LOG_DBG("cbOnDialogRefresh 3");
+    _LOG_DBG("cbOnDialogRefresh 3");
     pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTask(pTask);
-    _WX_LOG_DBG("cbOnDialogRefresh 4");
+    _LOG_DBG("cbOnDialogRefresh 4");
     pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTask(pTask);
-    _WX_LOG_DBG("cbOnDialogWaitUser");
+    _LOG_DBG("cbOnDialogWaitUser");
     pTask = TaskManager::Instance().CreateTask(cbOnDialogWaitUser, Get_Type<wxClassName>(), pCallBackData);
     TaskManager::Instance().AddTask(pTask);
-    _WX_LOG_DBG("PDAC_END");
+    _LOG_DBG("PDAC_END");
 #endif // USE_DEBUG_CODE
 }
 
@@ -301,31 +301,31 @@ void _debug_show_dlg_all()
 
 void _debug_thread_block()
 {
-    _WX_LOG_DBG();
+    _LOG_DBG();
     _debug_show_dlg_all();
-    _WX_LOG_DBG("Loop");
+    _LOG_DBG("Loop");
     for ( int i = 0; i < 5; i++ )
     {
         wx_post_event(wxGetApp().ptr_ThreadBag(), wxEVTC_THREAD, wxThread_Cmd::E_EventIdle, "_debug_thread_block()", ptr_wxThread_Cmd());
         wx_sleep(1);
     }
-    _WX_LOG_DBG(";;");
+    _LOG_DBG(";;");
 }
 
 void _debug_thread_nonblock()
 {
-    _WX_LOG_DBG();
+    _LOG_DBG();
     _debug_show_dlg_all();
-    _WX_LOG_DBG("Loop");
+    _LOG_DBG("Loop");
     for ( int i = 0; i < 10; i++ )
     {
         if ( wxIdleThreadShouldStop() )
         {
-            _WX_LOG_DBG("Should Stop Now");
+            _LOG_DBG("Should Stop Now");
             return;
         }
         wx_post_event(wxGetApp().ptr_ThreadBag(), wxEVTC_THREAD, wxThread_Cmd::E_EventIdle, "_debug_thread_nonblock()", ptr_wxThread_Cmd());
         wx_sleep(0, 500);
     }
-    _WX_LOG_DBG(";;");
+    _LOG_DBG(";;");
 }

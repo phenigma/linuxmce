@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -41,14 +41,14 @@ wxThread_Wrapper::wxThread_Wrapper(
 , v_reStatus(reStatus)
 , v_p_fn_launch(p_fn_launch)
 {
-    _WX_LOG_NFO("pCmd=%p, pWrapper=%p", pwxThread_Cmd, this);
+    _LOG_NFO("pCmd=%p, pWrapper=%p", pwxThread_Cmd, this);
 }
 
 wxThreadError wxThread_Wrapper::Create()
 {
     if (v_pwxThread_Cmd == NULL)
     {
-        _WX_LOG_ERR("wxThread_Cmd object not created");
+        _LOG_ERR("wxThread_Cmd object not created");
         _COND_ASSIGN(v_reStatus, wxThread_Cmd::E_Unitialized, wxThread_Cmd::E_CreateError);
         return wxTHREAD_MISC_ERROR;
     }
@@ -62,7 +62,7 @@ wxThreadError wxThread_Wrapper::Create()
 
 void * wxThread_Wrapper::Entry()
 {
-    _WX_LOG_NFO("[%p] Starting", v_pwxThread_Cmd);
+    _LOG_NFO("[%p] Starting", v_pwxThread_Cmd);
     _COND_RET(v_pwxThread_Cmd, NULL);
     {
         wxCriticalSectionLocker lock(v_rCriticalSection);
@@ -70,21 +70,21 @@ void * wxThread_Wrapper::Entry()
         v_rnRunningCount++;
     }
     wx_post_event(wxGetApp().ptr_ThreadBag(), wxEVTC_THREAD, wxThread_Cmd::E_RunStarted, v_pwxThread_Cmd->GetName(), v_pwxThread_Cmd);
-    _WX_LOG_NFO("[%p] Before Run", v_pwxThread_Cmd);
+    _LOG_NFO("[%p] Before Run", v_pwxThread_Cmd);
     v_pwxThread_Cmd->Run();
-    _WX_LOG_NFO("[%p] After Run", v_pwxThread_Cmd);
+    _LOG_NFO("[%p] After Run", v_pwxThread_Cmd);
     {
         wxCriticalSectionLocker lock(v_rCriticalSection);
         _COND_ASSIGN(v_reStatus, wxThread_Cmd::E_RunStarted, wxThread_Cmd::E_RunExiting);
     }
     wx_post_event(wxGetApp().ptr_ThreadBag(), wxEVTC_THREAD, wxThread_Cmd::E_RunExiting, v_pwxThread_Cmd->GetName(), v_pwxThread_Cmd);
-    _WX_LOG_NFO("[%p] Exiting", v_pwxThread_Cmd);
+    _LOG_NFO("[%p] Exiting", v_pwxThread_Cmd);
     return NULL;
 }
 
 void wxThread_Wrapper::OnExit()
 {
-    _WX_LOG_NFO("[%p] Ending", v_pwxThread_Cmd);
+    _LOG_NFO("[%p] Ending", v_pwxThread_Cmd);
     if (v_pwxThread_Cmd != NULL)
     {
         wxCriticalSectionLocker lock(v_rCriticalSection);

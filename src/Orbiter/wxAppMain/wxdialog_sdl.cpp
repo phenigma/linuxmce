@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -234,7 +234,7 @@ bool wxDialog_SDL::Create( wxWindow* parent, wxWindowID id, const wxString& capt
 
 void wxDialog_SDL::CreateControls()
 {
-    _WX_LOG_NFO("v_nRefCount=%d", v_nRefCount);
+    _LOG_NFO("v_nRefCount=%d", v_nRefCount);
 ////@begin wxDialog_SDL content construction
     wxDialog_SDL* itemDialog_Base1 = this;
 
@@ -296,5 +296,4 @@ void wxDialog_SDL::OnMotion( wxMouseEvent& event )
     // Before editing this code, remove the block markers.
     event.Skip();
 ////@end wxEVT_MOTION event handler for ID_DIALOG_SDL in wxDialog_SDL.
-    _WX_LOG_DBG("wxDialog_SDL::OnMotion");
 }

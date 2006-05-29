@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -28,18 +28,18 @@ END_EVENT_TABLE()
 
 wxThread_Bag::wxThread_Bag()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 }
 
 wxThread_Bag::~wxThread_Bag()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     DestroyAll();
 }
 
 void wxThread_Bag::Add(wxThread_Cmd *pwxThread_Cmd)
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     {
         wxCriticalSectionLocker lock(v_oCriticalSection);
         v_apwxThread_Cmd.Add(pwxThread_Cmd);
@@ -48,7 +48,7 @@ void wxThread_Bag::Add(wxThread_Cmd *pwxThread_Cmd)
 
 void wxThread_Bag::Delete(wxThread_Cmd *pwxThread_Cmd)
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     _COND_RET(pwxThread_Cmd != NULL);
     if (pwxThread_Cmd->IsRunning())
     {
@@ -63,7 +63,7 @@ void wxThread_Bag::Delete(wxThread_Cmd *pwxThread_Cmd)
         int idx = v_apwxThread_Cmd.Index(pwxThread_Cmd);
         if (idx == wxNOT_FOUND)
         {
-            _WX_LOG_ERR("Not Found : %s", _str_thread_status(pwxThread_Cmd));
+            _LOG_ERR("Not Found : %s", _str_thread_status(pwxThread_Cmd));
         }
         else
         {
@@ -74,7 +74,7 @@ void wxThread_Bag::Delete(wxThread_Cmd *pwxThread_Cmd)
 
 void wxThread_Bag::DestroyAll()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     {
         wxCriticalSectionLocker lock(v_oCriticalSection);
         // check if already empty
@@ -82,7 +82,7 @@ void wxThread_Bag::DestroyAll()
             return;
         // send stop to each thread, in normal order
         size_t nCount = v_apwxThread_Cmd.GetCount();
-        _WX_LOG_NFO("Send stop to all : %d", nCount);
+        _LOG_NFO("Send stop to all : %d", nCount);
         {
             for (size_t i=0; i<nCount; i++)
             {
@@ -91,12 +91,12 @@ void wxThread_Bag::DestroyAll()
             }
         }
     }
-    _WX_LOG_NFO("Waiting for all to stop : max %d ms", WAIT_ALL_THREADS_TIMEOUT_MSEC);
+    _LOG_NFO("Waiting for all to stop : max %d ms", WAIT_ALL_THREADS_TIMEOUT_MSEC);
     bool b_wait_ok = (v_oSemaphoreRunningAll.WaitTimeout(WAIT_ALL_THREADS_TIMEOUT_MSEC) == wxSEMA_NO_ERROR);
-    _WX_LOG_NFO("Check again, timer expired");
+    _LOG_NFO("Check again, timer expired");
     if (b_wait_ok)
         return;
-    _WX_LOG_WRN("Deleting threads that are still running : %d", v_apwxThread_Cmd.GetCount());
+    _LOG_WRN("Deleting threads that are still running : %d", v_apwxThread_Cmd.GetCount());
     // remove each thread, in reverse order
     {
         v_oCriticalSection.Enter();
@@ -144,7 +144,7 @@ wxThread_Cmd * wxThread_Bag::ptr_ThreadItem(const wxString &sName)
 
 void wxThread_Bag::OnEvent_Thread(wxCommandEvent& event)
 {
-    _WX_LOG_NFO("Received event : %s", _str_event(event));
+    _LOG_NFO("Received event : %s", _str_event(event));
     wxThread_Cmd *pwxThread_Cmd = wx_static_cast(wxThread_Cmd *, event.GetClientData());
     _COND_RET(pwxThread_Cmd != NULL);
     int idx = v_apwxThread_Cmd.Index(pwxThread_Cmd);
@@ -154,11 +154,11 @@ void wxThread_Bag::OnEvent_Thread(wxCommandEvent& event)
     switch (id)
     {
         case wxThread_Cmd::E_RunEnded:
-            _WX_LOG_NFO("deleting : obj(str='%s', ptr=%p)", event.GetString().c_str(), pwxThread_Cmd);
+            _LOG_NFO("deleting : obj(str='%s', ptr=%p)", event.GetString().c_str(), pwxThread_Cmd);
             wx_sleep(0, WAIT_THREAD_EXIT_MSEC);
             if (event.GetString() == "ExternApp")
             {
-                _WX_LOG_NFO("Send Exit Signals");
+                _LOG_NFO("Send Exit Signals");
                 App_SetExitCode(pwxThread_Cmd->GetExitCode());
                 App_SetShouldExit(true);
             }

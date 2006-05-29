@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -65,12 +65,12 @@ END_EVENT_TABLE()
 
 wxDialog_RoomWizard::wxDialog_RoomWizard( )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 }
 
 wxDialog_RoomWizard::wxDialog_RoomWizard( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     Create(parent, id, caption, pos, size, style);
 }
 
@@ -80,7 +80,7 @@ wxDialog_RoomWizard::wxDialog_RoomWizard( wxWindow* parent, wxWindowID id, const
 
 bool wxDialog_RoomWizard::Create( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxDialog_RoomWizard member initialisation
     v_pBoxV_all = NULL;
     v_pGrid = NULL;
@@ -103,7 +103,7 @@ bool wxDialog_RoomWizard::Create( wxWindow* parent, wxWindowID id, const wxStrin
 
 void wxDialog_RoomWizard::CreateControls()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxDialog_RoomWizard content construction
     wxDialog_RoomWizard* itemDialog_Base1 = this;
 
@@ -154,7 +154,7 @@ void wxDialog_RoomWizard::OnCloseWindow( wxCloseEvent& event )
 
 void wxDialog_RoomWizard::OnSize( wxSizeEvent& event )
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     wxDialog_Base::OnSize(event);
     wx_Grid_Resize_Column(v_pGrid, idxResizableColumn);
 ////@begin wxEVT_SIZE event handler for ID_DIALOG_ROOMWIZARD in wxDialog_RoomWizard.
@@ -173,7 +173,7 @@ void wxDialog_RoomWizard::OnCellLeftClick( wxGridEvent& event )
     {
         int row=event.GetRow();
         int col=event.GetCol();
-        _WX_LOG_NFO("row=%d, col=%d", row, col);
+        _LOG_NFO("row=%d, col=%d", row, col);
         ItemWindowSelect(row);
         if (col == 0)
         {
@@ -231,7 +231,7 @@ bool wxDialog_RoomWizard::Gui_DataLoad(CallBackData *pCallBackData)
     RoomWizardCallBackData *pCallData = dynamic_cast<RoomWizardCallBackData *>(pCallBackData);
     _COND_RET(pCallData, false);
     v_aRoomItems.Clear();
-    _WX_LOG_NFO("pCallData=%p", pCallData);
+    _LOG_NFO("pCallData=%p", pCallData);
 #ifdef USE_DEBUG_CODE
     v_oPersistent_Data.map_room_types = pCallData->map_room_types;
     for (map<int,int>::iterator it = v_oPersistent_Data.map_room_types.begin(); it != v_oPersistent_Data.map_room_types.end(); ++it)
@@ -240,7 +240,7 @@ bool wxDialog_RoomWizard::Gui_DataLoad(CallBackData *pCallBackData)
         int nValue = it->second;
         string sName = pCallData->map_fn_GetRoomTypeName[nKey];
         v_oPersistent_Data.map_room_names[nKey] = sName;
-        _WX_LOG_NFO("Load Roomtype: %s (pk: %d) : %d", sName.c_str(), nKey, nValue);
+        _LOG_NFO("Load Roomtype: '%s' (pk: %d) : %d", sName.c_str(), nKey, nValue);
         v_aRoomItems.Add( RoomItem(sName.c_str(), nValue, nKey) );
     }
 #endif // USE_DEBUG_CODE
@@ -248,11 +248,11 @@ bool wxDialog_RoomWizard::Gui_DataLoad(CallBackData *pCallBackData)
     WizardLogic *pWizardLogic = pCallData->m_pWizardLogic;
     if (pWizardLogic == NULL)
     {
-        _WX_LOG_WRN("extern data not initialized");
+        _LOG_WRN("extern data not initialized");
     }
     else
     {
-        _WX_LOG_NFO("extern data (%p)", pWizardLogic);
+        _LOG_NFO("extern data (%p)", pWizardLogic);
         pWizardLogic->PreSeedRoomInfo(v_oPersistent_Data.map_room_types);
         for (map<int,int>::iterator it = v_oPersistent_Data.map_room_types.begin(); it != v_oPersistent_Data.map_room_types.end(); ++it)
         {
@@ -260,16 +260,16 @@ bool wxDialog_RoomWizard::Gui_DataLoad(CallBackData *pCallBackData)
             int nValue = it->second;
             string sName = pWizardLogic->GetRoomTypeName(nKey);
             v_oPersistent_Data.map_room_names[nKey] = sName;
-            _WX_LOG_NFO("Load Roomtype: %s (pk: %d) : %d", sName.c_str(), nKey, nValue);
+            _LOG_NFO("Load Roomtype: '%s' (pk: %d) : %d", sName.c_str(), nKey, nValue);
             v_aRoomItems.Add( RoomItem(sName.c_str(), nValue, nKey) );
         }
     }
 #endif // USE_RELEASE_CODE
     v_nSelectedItem = -1;
     if (v_aRoomItems.GetCount() <= 0)
-        _WX_LOG_WRN("Number of rooms: %d", v_aRoomItems.GetCount());
+        _LOG_WRN("Number of rooms: %d", v_aRoomItems.GetCount());
     else
-        _WX_LOG_NFO("Number of rooms: %d", v_aRoomItems.GetCount());
+        _LOG_NFO("Number of rooms: %d", v_aRoomItems.GetCount());
     v_pGrid->AppendRows(v_aRoomItems.GetCount());
     for (size_t i=0; i<v_aRoomItems.GetCount(); i++)
     {
@@ -292,26 +292,26 @@ bool wxDialog_RoomWizard::Gui_DataSave(CallBackData *pCallBackData)
 {
     RoomWizardCallBackData *pCallData = dynamic_cast<RoomWizardCallBackData *>(pCallBackData);
     _COND_RET(pCallData, false);
-    _WX_LOG_NFO("pCallData=%p", pCallData);
+    _LOG_NFO("pCallData=%p", pCallData);
     if (v_aRoomItems.GetCount() <= 0)
-        _WX_LOG_WRN("Number of rooms: %d", v_aRoomItems.GetCount());
+        _LOG_WRN("Number of rooms: %d", v_aRoomItems.GetCount());
     else
-        _WX_LOG_NFO("Number of rooms: %d", v_aRoomItems.GetCount());
+        _LOG_NFO("Number of rooms: %d", v_aRoomItems.GetCount());
 #ifdef USE_RELEASE_CODE
     WizardLogic *pWizardLogic = pCallData->m_pWizardLogic;
     if (pWizardLogic == NULL)
     {
-        _WX_LOG_WRN("extern data not initialized");
+        _LOG_WRN("extern data not initialized");
     }
     else
     {
-        _WX_LOG_NFO("extern data (%p)", pWizardLogic);
-        _WX_LOG_NFO("Number of rooms: %d", v_aRoomItems.GetCount());
+        _LOG_NFO("extern data (%p)", pWizardLogic);
+        _LOG_NFO("Number of rooms: %d", v_aRoomItems.GetCount());
         _COND(v_aRoomItems.GetCount() > 0);
         for (size_t i=0; i<v_aRoomItems.GetCount(); i++)
         {
             v_oPersistent_Data.map_room_types[v_aRoomItems[i].nKey] = v_aRoomItems[i].nValue;
-            _WX_LOG_NFO("Save Roomtype: %s (pk: %d) : %d", v_aRoomItems[i].sName.c_str(), v_aRoomItems[i].nKey, v_aRoomItems[i].nValue);
+            _LOG_NFO("Save Roomtype: '%s' (pk: %d) : %d", v_aRoomItems[i].sName.c_str(), v_aRoomItems[i].nKey, v_aRoomItems[i].nValue);
         }
         pWizardLogic->ProcessUpdatedRoomInfo(v_oPersistent_Data.map_room_types);
     }
@@ -323,7 +323,7 @@ void wxDialog_RoomWizard::ItemWindowSelect(int nItem, bool bOn/*=true*/)
 {
     if ( (nItem < 0) || (nItem >= (int)v_aRoomItems.GetCount()) )
         return;
-    _WX_LOG_NFO("item=%d, bool=%d", nItem, bOn);
+    _LOG_NFO("item=%d, bool=%d", nItem, bOn);
     // deselect previous
     if (bOn && (nItem != v_nSelectedItem))
         ItemWindowSelect(v_nSelectedItem, false);
@@ -341,10 +341,10 @@ void wxDialog_RoomWizard::ItemWindowSelect(int nItem, bool bOn/*=true*/)
 
 void wxDialog_RoomWizard::eventButtonDec()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     if (v_nSelectedItem < 0)
         return;
-    _WX_LOG_NFO("sel=%d, value=%d", v_nSelectedItem, v_aRoomItems[v_nSelectedItem].nValue);
+    _LOG_NFO("sel=%d, value=%d", v_nSelectedItem, v_aRoomItems[v_nSelectedItem].nValue);
     if (v_aRoomItems[v_nSelectedItem].nValue > 0)
         v_aRoomItems[v_nSelectedItem].nValue--;
     v_pGrid->SetCellValue(v_nSelectedItem, 2, Str(v_aRoomItems[v_nSelectedItem].nValue));
@@ -352,10 +352,10 @@ void wxDialog_RoomWizard::eventButtonDec()
 
 void wxDialog_RoomWizard::eventButtonInc()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     if (v_nSelectedItem < 0)
         return;
-    _WX_LOG_NFO("sel=%d, value=%d", v_nSelectedItem, v_aRoomItems[v_nSelectedItem].nValue);
+    _LOG_NFO("sel=%d, value=%d", v_nSelectedItem, v_aRoomItems[v_nSelectedItem].nValue);
     v_aRoomItems[v_nSelectedItem].nValue++;
     v_pGrid->SetCellValue(v_nSelectedItem, 2, Str(v_aRoomItems[v_nSelectedItem].nValue));
 }

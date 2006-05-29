@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -31,12 +31,12 @@ wxThread_Cmd::wxThread_Cmd(wxThreadKind eKind, const char *sName, type_ptr_void_
         , v_pwxThread_Wrapper(NULL)
         , v_oSemaphoreRunning()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 }
 
 wxThread_Cmd::~wxThread_Cmd()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     Stop();
 }
 
@@ -44,17 +44,17 @@ bool wxThread_Cmd::Start()
 {
     if (wxGetApp().ptr_ThreadBag() == NULL)
     {
-        _WX_LOG_ERR("wxThread_Bag object not created");
+        _LOG_ERR("wxThread_Bag object not created");
         return false;
     }
     {
         wxCriticalSectionLocker lock(wxGetApp().ptr_ThreadBag()->v_oCriticalSection);
         if ( v_pwxThread_Wrapper != NULL )
         {
-            _WX_LOG_ERR("Can start only once");
+            _LOG_ERR("Can start only once");
             return false;
         }
-        _WX_LOG_NFO("New thread object : %s", _str_thread_status(this));
+        _LOG_NFO("New thread object : %s", _str_thread_status(this));
         v_pwxThread_Wrapper = new wxThread_Wrapper(
             v_eKind,
             this,
@@ -66,36 +66,36 @@ bool wxThread_Cmd::Start()
             v_p_fn_launch
             );
     }
-    _WX_LOG_NFO("Creating : %s", _str_thread_status(this));
+    _LOG_NFO("Creating : %s", _str_thread_status(this));
     v_pwxThread_Wrapper->Create();
     if ( v_eStatus != E_Created )
     {
-        _WX_LOG_ERR("Cannot create thread : %s", _str_thread_status(this));
+        _LOG_ERR("Cannot create thread : %s", _str_thread_status(this));
         return false;
     }
     wxGetApp().ptr_ThreadBag()->Add(this);
-    _WX_LOG_NFO("Starting : %s", _str_thread_status(this));
+    _LOG_NFO("Starting : %s", _str_thread_status(this));
     if ( v_pwxThread_Wrapper->Run() != wxTHREAD_NO_ERROR )
     {
-        _WX_LOG_ERR("Cannot start thread!");
+        _LOG_ERR("Cannot start thread!");
         wxGetApp().ptr_ThreadBag()->Delete(this);
         return false;
     }
-    _WX_LOG_NFO("ok");
+    _LOG_NFO("ok");
     return true;
 }
 
 bool wxThread_Cmd::Stop()
 {
-    _WX_LOG_NFO("Stopping : %s", _str_thread_status(this));
+    _LOG_NFO("Stopping : %s", _str_thread_status(this));
     if (! IsRunning())
         return false;
     v_bShouldCancel = true;
-    _WX_LOG_NFO("Waiting to stop : max %d ms", WAIT_THREAD_TIMEOUT_MSEC);
+    _LOG_NFO("Waiting to stop : max %d ms", WAIT_THREAD_TIMEOUT_MSEC);
     bool b_wait_ok = (v_oSemaphoreRunning.WaitTimeout(WAIT_THREAD_TIMEOUT_MSEC) == wxSEMA_NO_ERROR);
     if (! b_wait_ok)
     {
-        _WX_LOG_NFO("force stop");
+        _LOG_NFO("force stop");
         wxCriticalSectionLocker lock(wxGetApp().ptr_ThreadBag()->v_oCriticalSection);
         v_pwxThread_Wrapper->Kill();
         wxGetApp().ptr_ThreadBag()->v_nRunningCount--;
@@ -108,12 +108,12 @@ void wxThread_Cmd::Run()
 {
     if (v_p_fn_launch == NULL)
     {
-        _WX_LOG_ERR("Nothing to do in '%s'", GetName().c_str());
+        _LOG_ERR("Nothing to do in '%s'", GetName().c_str());
         return;
     }
-    _WX_LOG_NFO("[%p] Before Launch", this);
+    _LOG_NFO("[%p] Before Launch", this);
     (v_p_fn_launch)();
-    _WX_LOG_NFO("[%p] After Launch", this);
+    _LOG_NFO("[%p] After Launch", this);
 }
 
 wxThreadKind wxThread_Cmd::GetKind()
@@ -134,14 +134,14 @@ wxThread_Cmd::E_STATUS wxThread_Cmd::GetStatus()
 int wxThread_Cmd::GetExitCode()
 {
     wxCriticalSectionLocker lock(wxGetApp().ptr_ThreadBag()->v_oCriticalSection);
-    _WX_LOG_NFO("ExitCode == %d", v_nExitCode);
+    _LOG_NFO("ExitCode == %d", v_nExitCode);
     return v_nExitCode;
 }
 
 void wxThread_Cmd::SetExitCode(int nExitCode)
 {
     wxCriticalSectionLocker lock(wxGetApp().ptr_ThreadBag()->v_oCriticalSection);
-    _WX_LOG_NFO("ExitCode: %d -> %d", v_nExitCode, nExitCode);
+    _LOG_NFO("ExitCode: %d -> %d", v_nExitCode, nExitCode);
     v_nExitCode = nExitCode;
 }
 
@@ -152,19 +152,19 @@ bool wxThread_Cmd::IsDetached()
 
 bool wxThread_Cmd::IsCancelled()
 {
-    //_WX_LOG_NFO("%s", _str_thread_status(this));
+    //_LOG_NFO("%s", _str_thread_status(this));
     return v_bShouldCancel;
 }
 
 bool wxThread_Cmd::IsRunning()
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     return (v_eStatus == E_RunStarted);
 }
 
 bool wxThread_Cmd::IsFinished()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     return (v_eStatus == E_RunEnded);
 }
 
@@ -177,7 +177,7 @@ bool wxThread_Cmd::TestDestroy()
 const char * _str_thread_status(wxThread_Cmd *pwxThread_Cmd)
 {
     return wxString::Format(
-        "_str_thread_status(kind=%s, name='%s', status=%s, cancelled=%c, exit_code=%d, pCmd=%p, pWrapper=%p)",
+        "_str_thread_status(kind='%s', name='%s', status='%s', cancelled=%c, exit_code=%d, pCmd=%p, pWrapper=%p)",
         _str_enum(pwxThread_Cmd->v_eKind),
         pwxThread_Cmd->v_sName.c_str(),
         _str_enum(pwxThread_Cmd->v_eStatus),
@@ -202,7 +202,7 @@ const char * _str_enum(wxThread_Cmd::E_STATUS value)
         CASE_const_ret_str(wxThread_Cmd::E_RunDestroyed);
         CASE_const_ret_str(wxThread_Cmd::E_EventIdle);
         default:
-            _WX_LOG_ERR("unknown value %d", value);
+            _LOG_ERR("unknown value %d", value);
             break;
     }
     return wxString::Format("?%d?", value);
@@ -215,7 +215,7 @@ const char * _str_enum(wxThreadKind value)
         CASE_const_ret_str(wxTHREAD_DETACHED);
         CASE_const_ret_str(wxTHREAD_JOINABLE);
         default:
-            _WX_LOG_ERR("unknown value %d", value);
+            _LOG_ERR("unknown value %d", value);
             break;
     }
     return wxString::Format("?%d?", value);

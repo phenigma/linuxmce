@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -186,18 +186,18 @@ void wxPanel_Time::Refresh(bool eraseBackground /*= true*/, const wxRect* rect /
         (v_nTimeStart < 0) || (v_nTimeNow < 0) || (v_nTimeEnd < 0)
         )
     {
-        _WX_LOG_ERR("Bad values: ""start=%d, now=%d, end=%d", v_nTimeStart, v_nTimeNow, v_nTimeEnd);
+        _LOG_ERR("Bad values: ""start=%d, now=%d, end=%d", v_nTimeStart, v_nTimeNow, v_nTimeEnd);
         return;
     }
     else if (
         (v_nTimeEnd <= v_nTimeStart) || (v_nTimeNow < v_nTimeStart) || (v_nTimeEnd < v_nTimeNow)
         )
     {
-        _WX_LOG_WRN("Bad values: ""start=%d, now=%d, end=%d", v_nTimeStart, v_nTimeNow, v_nTimeEnd);
+        _LOG_WRN("Bad values: ""start=%d, now=%d, end=%d", v_nTimeStart, v_nTimeNow, v_nTimeEnd);
     }
     else
     {
-        _WX_LOG_NFO("start=%d, now=%d, end=%d", v_nTimeStart, v_nTimeNow, v_nTimeEnd);
+        _LOG_NFO("start=%d, now=%d, end=%d", v_nTimeStart, v_nTimeNow, v_nTimeEnd);
     }
     // update controls
     v_pSliderTime->SetRange(v_nTimeStart, v_nTimeEnd);
@@ -214,7 +214,7 @@ void wxPanel_Time::Refresh(bool eraseBackground /*= true*/, const wxRect* rect /
         int x_label_time = (int)( v_pTimeStart->GetRect().GetLeft() + dPosPercent * (v_pTimeStart->GetRect().GetLeft() - v_pTimeEnd->GetRect().GetRight()) );
         if (x_label_time != v_pTimeNow->GetPosition().x)
         {
-            _WX_LOG_NFO("Changing Label Position : (%d) -> (%d)", v_pTimeNow->GetPosition().x, x_label_time);
+            _LOG_NFO("Changing Label Position : (%d) -> (%d)", v_pTimeNow->GetPosition().x, x_label_time);
             v_pTimeNow->SetSize(x_label_time, -1, -1, -1);
         }
     }

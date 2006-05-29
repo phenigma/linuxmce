@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -101,17 +101,17 @@ bool Safe_Close(wxClassName *pwxDialog)
 {
     if (pwxDialog == NULL)
         pwxDialog = ptr_wxDialogByType<wxClassName>();
-    _WX_LOG_NFO("pwxDialog=%p", pwxDialog);
+    _LOG_NFO("pwxDialog=%p", pwxDialog);
     _COND_RET(pwxDialog != NULL, false);
 #ifdef USE_DEBUG_CODE
     if (! ::wxIsMainThread())
     {
         wxCriticalSectionLocker lock(g_oCriticalDialogAction);
-        _WX_LOG_NFO("Switching to main thread");
+        _LOG_NFO("Switching to main thread");
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), pwxDialog);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_Close, "", &data_holder_dialog);
         wx_semaphore_wait(data_holder_dialog);
-        _WX_LOG_NFO("Returned from main thread");
+        _LOG_NFO("Returned from main thread");
         return data_holder_dialog.bRetCode;
     }
 #endif // USE_DEBUG_CODE
@@ -122,16 +122,16 @@ bool Safe_Close(wxClassName *pwxDialog)
 template <class wxClassName>
 wxClassName * Safe_Create(CallBackData *pCallBackData=NULL)
 {
-    _WX_LOG_NFO("pCallBackData=%p", pCallBackData);
+    _LOG_NFO("pCallBackData=%p", pCallBackData);
 #ifdef USE_DEBUG_CODE
     if (! ::wxIsMainThread())
     {
         wxCriticalSectionLocker lock(g_oCriticalDialogAction);
-        _WX_LOG_NFO("Switching to main thread");
+        _LOG_NFO("Switching to main thread");
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), NULL, pCallBackData);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_Create, "", &data_holder_dialog);
         wx_semaphore_wait(data_holder_dialog);
-        _WX_LOG_NFO("Returned from main thread");
+        _LOG_NFO("Returned from main thread");
         wxClassName *pwxDialog = wx_static_cast(wxClassName *, data_holder_dialog.pWindow);
         _COND_RET(pwxDialog != NULL, NULL);
         return pwxDialog;
@@ -139,7 +139,7 @@ wxClassName * Safe_Create(CallBackData *pCallBackData=NULL)
 #endif // USE_DEBUG_CODE
     wxClassName *pwxDialog = new wxClassName();
     _COND_RET(pwxDialog != NULL, NULL);
-    _WX_LOG_NFO("Allocated at %p", pwxDialog);
+    _LOG_NFO("Allocated at %p", pwxDialog);
     pwxDialog->Create(wxTheApp->GetTopWindow());
     Safe_Gui_DataLoad(pwxDialog, pCallBackData);
     return pwxDialog;
@@ -148,11 +148,11 @@ wxClassName * Safe_Create(CallBackData *pCallBackData=NULL)
 template <class wxClassName>
 wxClassName * Safe_CreateUnique(CallBackData *pCallBackData=NULL)
 {
-    _WX_LOG_NFO("pCallBackData=%p", pCallBackData);
+    _LOG_NFO("pCallBackData=%p", pCallBackData);
     wxClassName *pwxDialog = ptr_wxDialogByType<wxClassName>();
     if (pwxDialog)
     {
-        _WX_LOG_WRN("Dialog is already active, closing, pwxDialog=%p", pwxDialog);
+        _LOG_WRN("Dialog is already active, closing, pwxDialog=%p", pwxDialog);
         Safe_Close<wxClassName>(pwxDialog);
     }
     pwxDialog = Safe_Create<wxClassName>(pCallBackData);
@@ -164,16 +164,16 @@ bool Safe_Gui_DataLoad(wxClassName *pwxDialog, CallBackData *pCallBackData=NULL)
 {
     if (pwxDialog == NULL)
         pwxDialog = ptr_wxDialogByType<wxClassName>();
-    _WX_LOG_NFO("pwxDialog=%p, pCallBackData=%p", pwxDialog, pCallBackData);
+    _LOG_NFO("pwxDialog=%p, pCallBackData=%p", pwxDialog, pCallBackData);
     _COND_RET(pwxDialog != NULL, false);
 #ifdef USE_DEBUG_CODE
     if (! ::wxIsMainThread())
     {
         wxCriticalSectionLocker lock(g_oCriticalDialogAction);
-        _WX_LOG_NFO("Switching to main thread");
+        _LOG_NFO("Switching to main thread");
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), pwxDialog, pCallBackData);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_DataLoad, "", &data_holder_dialog);
-        _WX_LOG_NFO("Returned from main thread");
+        _LOG_NFO("Returned from main thread");
         wx_semaphore_wait(data_holder_dialog);
         return data_holder_dialog.bRetCode;
     }
@@ -181,7 +181,7 @@ bool Safe_Gui_DataLoad(wxClassName *pwxDialog, CallBackData *pCallBackData=NULL)
     bool retCode = pwxDialog->Gui_DataLoad(pCallBackData);
     if (! retCode)
     {
-        _WX_LOG_WRN("Data Load");
+        _LOG_WRN("Data Load");
     }
     return retCode;
 }
@@ -191,16 +191,16 @@ bool Safe_Gui_DataSave(wxClassName *pwxDialog, CallBackData *pCallBackData=NULL)
 {
     if (pwxDialog == NULL)
         pwxDialog = ptr_wxDialogByType<wxClassName>();
-    _WX_LOG_NFO("pwxDialog=%p, pCallBackData=%p", pwxDialog, pCallBackData);
+    _LOG_NFO("pwxDialog=%p, pCallBackData=%p", pwxDialog, pCallBackData);
     _COND_RET(pwxDialog != NULL, false);
 #ifdef USE_DEBUG_CODE
     if (! ::wxIsMainThread())
     {
         wxCriticalSectionLocker lock(g_oCriticalDialogAction);
-        _WX_LOG_NFO("Switching to main thread");
+        _LOG_NFO("Switching to main thread");
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), pwxDialog, pCallBackData);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_DataSave, "", &data_holder_dialog);
-        _WX_LOG_NFO("Returned from main thread");
+        _LOG_NFO("Returned from main thread");
         wx_semaphore_wait(data_holder_dialog);
         return data_holder_dialog.bRetCode;
     }
@@ -208,7 +208,7 @@ bool Safe_Gui_DataSave(wxClassName *pwxDialog, CallBackData *pCallBackData=NULL)
     bool retCode = pwxDialog->Gui_DataSave(pCallBackData);
     if (! retCode)
     {
-        _WX_LOG_WRN("Data Save");
+        _LOG_WRN("Data Save");
     }
     return retCode;
 }
@@ -218,23 +218,23 @@ bool Safe_Gui_Refresh(wxClassName *pwxDialog, CallBackData *pCallBackData=NULL)
 {
     if (pwxDialog == NULL)
         pwxDialog = ptr_wxDialogByType<wxClassName>();
-    _WX_LOG_NFO("pwxDialog=%p, pCallBackData=%p", pwxDialog, pCallBackData);
+    _LOG_NFO("pwxDialog=%p, pCallBackData=%p", pwxDialog, pCallBackData);
     _COND_RET(pwxDialog != NULL, false);
 #ifdef USE_DEBUG_CODE
     if (! ::wxIsMainThread())
     {
         wxCriticalSectionLocker lock(g_oCriticalDialogAction);
-        _WX_LOG_NFO("Switching to main thread");
+        _LOG_NFO("Switching to main thread");
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), pwxDialog, pCallBackData);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_Refresh, "", &data_holder_dialog);
         wx_semaphore_wait(data_holder_dialog);
-        _WX_LOG_NFO("Returned from main thread");
+        _LOG_NFO("Returned from main thread");
         return data_holder_dialog.bRetCode;
     }
 #endif // USE_DEBUG_CODE
     if (! pwxDialog->IsInitialized())
     {
-        _WX_LOG_ERR("Dialog is not initialized");
+        _LOG_ERR("Dialog is not initialized");
     }
     bool retCode = pwxDialog->Gui_Refresh(pCallBackData);
     pwxDialog->Refresh(false);
@@ -247,22 +247,22 @@ bool Safe_Show(wxClassName *pwxDialog, bool bShow=true)
 {
     if (pwxDialog == NULL)
         pwxDialog = ptr_wxDialogByType<wxClassName>();
-    _WX_LOG_NFO("pwxDialog=%p, bShow=%d", pwxDialog, bShow);
+    _LOG_NFO("pwxDialog=%p, bShow=%d", pwxDialog, bShow);
     _COND_RET(pwxDialog != NULL, false);
 #ifdef USE_DEBUG_CODE
     if (! ::wxIsMainThread())
     {
         wxCriticalSectionLocker lock(g_oCriticalDialogAction);
-        _WX_LOG_NFO("Switching to main thread");
+        _LOG_NFO("Switching to main thread");
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), pwxDialog, NULL, bShow);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_Show, "", &data_holder_dialog);
         wx_semaphore_wait(data_holder_dialog);
-        _WX_LOG_NFO("Returned from main thread");
+        _LOG_NFO("Returned from main thread");
         return data_holder_dialog.bRetCode;
     }
 #endif // USE_DEBUG_CODE
     bool retCode = pwxDialog->Show(bShow);
-    _WX_LOG_NFO("retCode=%d, pwxDialog=%p", retCode, pwxDialog);
+    _LOG_NFO("retCode=%d, pwxDialog=%p", retCode, pwxDialog);
     return retCode;
 }
 
@@ -271,7 +271,7 @@ int Safe_ShowModal(wxClassName *pwxDialog)
 {
     if (pwxDialog == NULL)
         pwxDialog = ptr_wxDialogByType<wxClassName>();
-    _WX_LOG_NFO("pwxDialog=%p", pwxDialog);
+    _LOG_NFO("pwxDialog=%p", pwxDialog);
     _COND_RET(pwxDialog != NULL, 0);
 #ifdef USE_DEBUG_CODE
     if (! ::wxIsMainThread())
@@ -279,20 +279,20 @@ int Safe_ShowModal(wxClassName *pwxDialog)
         // create a non-modal dialog
         // but wait for it until dismissed by the user
         wxCriticalSectionLocker lock(g_oCriticalDialogAction);
-        _WX_LOG_NFO("Switching to main thread");
+        _LOG_NFO("Switching to main thread");
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), pwxDialog);
         pwxDialog->Set_Data_Holder_Dialog(&data_holder_dialog);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_Show, "", &data_holder_dialog);
         wx_semaphore_wait(data_holder_dialog);
-        _WX_LOG_NFO("Returned from main thread");
-        _WX_LOG_NFO("Waiting the user");
+        _LOG_NFO("Returned from main thread");
+        _LOG_NFO("Waiting the user");
         wx_semaphore_wait(data_holder_dialog);
-        _WX_LOG_NFO("Acknowledge from the user");
+        _LOG_NFO("Acknowledge from the user");
         return data_holder_dialog.nRetCode;
     }
 #endif // USE_DEBUG_CODE
     int retCode = pwxDialog->ShowModal();
-    _WX_LOG_NFO("retCode=%d, pwxDialog=%p", retCode, pwxDialog);
+    _LOG_NFO("retCode=%d, pwxDialog=%p", retCode, pwxDialog);
     return retCode;
 }
 
@@ -301,23 +301,23 @@ bool Safe_WaitUser(wxClassName *pwxDialog, CallBackData *pCallBackData)
 {
     if (pwxDialog == NULL)
         pwxDialog = ptr_wxDialogByType<wxClassName>();
-    _WX_LOG_NFO("pwxDialog=%p, pCallBackData=%p", pwxDialog, pCallBackData);
+    _LOG_NFO("pwxDialog=%p, pCallBackData=%p", pwxDialog, pCallBackData);
     _COND_RET(pwxDialog != NULL, false);
 #ifdef USE_DEBUG_CODE
     if (! ::wxIsMainThread())
     {
         wxCriticalSectionLocker lock(g_oCriticalDialogAction);
-        _WX_LOG_NFO("Switching to main thread");
+        _LOG_NFO("Switching to main thread");
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), pwxDialog, pCallBackData);
         pwxDialog->Set_Data_Holder_Dialog(&data_holder_dialog);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_WaitUser, "", &data_holder_dialog);
         wx_semaphore_wait(data_holder_dialog);
-        _WX_LOG_NFO("Returned from main thread");
+        _LOG_NFO("Returned from main thread");
         return data_holder_dialog.bRetCode;
     }
 #endif // USE_DEBUG_CODE
     pwxDialog->Set_WaitUser(dynamic_cast<Extern_Task_Data *>(pCallBackData));
-    _WX_LOG_NFO("pwxDialog=%p", pwxDialog);
+    _LOG_NFO("pwxDialog=%p", pwxDialog);
     return true;
 }
 
@@ -326,23 +326,23 @@ bool Safe_WaitInitialized(wxClassName *pwxDialog, CallBackData *pCallBackData)
 {
     if (pwxDialog == NULL)
         pwxDialog = ptr_wxDialogByType<wxClassName>();
-    _WX_LOG_NFO("pwxDialog=%p, pCallBackData=%p", pwxDialog, pCallBackData);
+    _LOG_NFO("pwxDialog=%p, pCallBackData=%p", pwxDialog, pCallBackData);
     _COND_RET(pwxDialog != NULL, false);
 #ifdef USE_DEBUG_CODE
     if (! ::wxIsMainThread())
     {
         wxCriticalSectionLocker lock(g_oCriticalDialogAction);
-        _WX_LOG_NFO("Switching to main thread");
+        _LOG_NFO("Switching to main thread");
         Data_Holder_Dialog data_holder_dialog(Get_Type<wxClassName>(), pwxDialog, pCallBackData);
         pwxDialog->Set_Data_Holder_Dialog(&data_holder_dialog);
         wx_post_event(wxTheApp, wxEVTC_DIALOG, E_Action_WaitUser, "", &data_holder_dialog);
         wx_semaphore_wait(data_holder_dialog);
-        _WX_LOG_NFO("Returned from main thread");
+        _LOG_NFO("Returned from main thread");
         return data_holder_dialog.bRetCode;
     }
 #endif // USE_DEBUG_CODE
     pwxDialog->Set_WaitInitialized(dynamic_cast<Extern_Task_Data *>(pCallBackData));
-    _WX_LOG_NFO("pwxDialog=%p", pwxDialog);
+    _LOG_NFO("pwxDialog=%p", pwxDialog);
     return true;
 }
 

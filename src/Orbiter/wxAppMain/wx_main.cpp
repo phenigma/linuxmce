@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -30,14 +30,14 @@
 #ifdef USE_MAIN_CONSOLE
 int main(int argc, char *argv[])
 {
-    _WX_LOG_NFO("STARTED");
+    _LOG_NFO("STARTED");
     int nExitCode = EXIT_SUCCESS;
     //if (0) // already in Init_System
     //{
     //    // activate X11 GUI threads
     //    if ( XInitThreads() == 0 )
     //    {
-    //        _WX_LOG_WRN("Unable to initialize multithreaded X11 code (XInitThreads failed)");
+    //        _LOG_WRN("Unable to initialize multithreaded X11 code (XInitThreads failed)");
     //    }
     //}
 #ifdef USE_RELEASE_CODE
@@ -46,30 +46,30 @@ int main(int argc, char *argv[])
 #endif // USE_RELEASE_CODE
     // wx initialize
     {
-        _WX_LOG_NFO("wxEntry() begin");
+        _LOG_NFO("wxEntry() begin");
         nExitCode = wxEntry(argc, argv);
-        _WX_LOG_NFO("wxTheApp %s NULL", ( (wxTheApp == NULL) ? "==" : "!=" ));
-        _WX_LOG_NFO("wxEntry() end");
+        _LOG_NFO("wxTheApp %s NULL", ( (wxTheApp == NULL) ? "==" : "!=" ));
+        _LOG_NFO("wxEntry() end");
     }
     // be sure cleanup is ok
     {
         if (wxTheApp != NULL)
         {
-            _WX_LOG_NFO("calling wxApp::OnExit()");
+            _LOG_NFO("calling wxApp::OnExit()");
             wxTheApp->OnExit();
         }
         if (wxTheApp != NULL)
         {
-            _WX_LOG_NFO("calling wxApp::CleanUp()");
+            _LOG_NFO("calling wxApp::CleanUp()");
 #if wxCHECK_VERSION(2, 6, 0)
             wxTheApp->CleanUp();
 #else // replacement code for old version
             wxApp::CleanUp();
 #endif // wxCHECK_VERSION(2, 6, 0)
         }
-        _WX_LOG_NFO("after wxApp::CleanUp(), wxTheApp %s NULL", ( (wxTheApp == NULL) ? "==" : "!=" ));
+        _LOG_NFO("after wxApp::CleanUp(), wxTheApp %s NULL", ( (wxTheApp == NULL) ? "==" : "!=" ));
     }
-    _WX_LOG_NFO("EXIT_SUCCESS ! CODE=%d", nExitCode);
+    _LOG_NFO("EXIT_SUCCESS ! CODE=%d", nExitCode);
     return nExitCode;
 }
 #endif // USE_MAIN_CONSOLE

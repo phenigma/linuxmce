@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -48,7 +48,7 @@ const char * Get_ClassName(E_DIALOG_TYPE e_dialog_type)
         case E_Dialog_LightControl:  return "wxDialog_LightControl";
         default: break;
     } // switch (e_dialog_type)
-    _WX_LOG_ERR("unknown value '%s'", _str_enum(e_dialog_type));
+    _LOG_ERR("unknown value '%s'", _str_enum(e_dialog_type));
     return "";
 }
 
@@ -65,7 +65,7 @@ const char * Get_WindowName(E_DIALOG_TYPE e_dialog_type)
         case E_Dialog_LightControl:  return SYMBOL_WXDIALOG_LIGHTCONTROL_TITLE;
         default: break;
     } // switch (e_dialog_type)
-    _WX_LOG_ERR("unknown value '%s'", _str_enum(e_dialog_type));
+    _LOG_ERR("unknown value '%s'", _str_enum(e_dialog_type));
     return "";
 }
 
@@ -82,7 +82,7 @@ const long Get_WindowID(E_DIALOG_TYPE e_dialog_type)
         case E_Dialog_LightControl:  return SYMBOL_WXDIALOG_LIGHTCONTROL_IDNAME;
         default: break;
     } // switch (e_dialog_type)
-    _WX_LOG_ERR("unknown value '%s'", _str_enum(e_dialog_type));
+    _LOG_ERR("unknown value '%s'", _str_enum(e_dialog_type));
     return 0;
 }
 
@@ -96,13 +96,13 @@ E_DIALOG_TYPE Get_Type(const char * sClassName)
     if (str == "wxDialog_SpeedControl")  return E_Dialog_SpeedControl;
     if (str == "wxDialog_VolumeControl") return E_Dialog_VolumeControl;
     if (str == "wxDialog_LightControl")  return E_Dialog_LightControl;
-    _WX_LOG_ERR("unknown value '%s'", sClassName);
+    _LOG_ERR("unknown value '%s'", sClassName);
     return E_Dialog_Undefined;
 }
 
 bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Data_Holder_Dialog *pData_Holder_Dialog)
 {
-    _WX_LOG_NFO("class='%s' action='%s'", _str_enum(e_dialog_type), _str_enum(action));
+    _LOG_NFO("class='%s' action='%s'", _str_enum(e_dialog_type), _str_enum(action));
     _COND_RET(pData_Holder_Dialog != NULL, false);
     switch (action)
     {
@@ -117,7 +117,7 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
                 case E_Dialog_SpeedControl: pData_Holder_Dialog->bRetCode = Safe_Close<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow); break;
                 case E_Dialog_VolumeControl: pData_Holder_Dialog->bRetCode = Safe_Close<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow); break;
                 case E_Dialog_LightControl: pData_Holder_Dialog->bRetCode = Safe_Close<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow); break;
-                default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
+                default: _LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
         }
@@ -132,7 +132,7 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
                 case E_Dialog_SpeedControl: pData_Holder_Dialog->pWindow = Safe_Create<wxDialog_SpeedControl>(pData_Holder_Dialog->pCallBackData); break;
                 case E_Dialog_VolumeControl: pData_Holder_Dialog->pWindow = Safe_Create<wxDialog_VolumeControl>(pData_Holder_Dialog->pCallBackData); break;
                 case E_Dialog_LightControl: pData_Holder_Dialog->pWindow = Safe_Create<wxDialog_LightControl>(pData_Holder_Dialog->pCallBackData); break;
-                default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
+                default: _LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
         }
@@ -147,7 +147,7 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
                 case E_Dialog_SpeedControl: pData_Holder_Dialog->pWindow = Safe_CreateUnique<wxDialog_SpeedControl>(pData_Holder_Dialog->pCallBackData); break;
                 case E_Dialog_VolumeControl: pData_Holder_Dialog->pWindow = Safe_CreateUnique<wxDialog_VolumeControl>(pData_Holder_Dialog->pCallBackData); break;
                 case E_Dialog_LightControl: pData_Holder_Dialog->pWindow = Safe_CreateUnique<wxDialog_LightControl>(pData_Holder_Dialog->pCallBackData); break;
-                default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
+                default: _LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
         }
@@ -162,7 +162,7 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
                 case E_Dialog_SpeedControl: pData_Holder_Dialog->bRetCode = Safe_Gui_DataLoad<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
                 case E_Dialog_VolumeControl: pData_Holder_Dialog->bRetCode = Safe_Gui_DataLoad<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
                 case E_Dialog_LightControl: pData_Holder_Dialog->bRetCode = Safe_Gui_DataLoad<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
-                default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
+                default: _LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
         }
@@ -177,7 +177,7 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
                 case E_Dialog_SpeedControl: pData_Holder_Dialog->bRetCode = Safe_Gui_DataSave<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
                 case E_Dialog_VolumeControl: pData_Holder_Dialog->bRetCode = Safe_Gui_DataSave<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
                 case E_Dialog_LightControl: pData_Holder_Dialog->bRetCode = Safe_Gui_DataSave<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
-                default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
+                default: _LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
         }
@@ -192,7 +192,7 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
                 case E_Dialog_SpeedControl: pData_Holder_Dialog->bRetCode = Safe_Gui_Refresh<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
                 case E_Dialog_VolumeControl: pData_Holder_Dialog->bRetCode = Safe_Gui_Refresh<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
                 case E_Dialog_LightControl: pData_Holder_Dialog->bRetCode = Safe_Gui_Refresh<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
-                default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
+                default: _LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
         }
@@ -207,7 +207,7 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
                 case E_Dialog_SpeedControl: pData_Holder_Dialog->bRetCode = Safe_Show<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->bShow); break;
                 case E_Dialog_VolumeControl: pData_Holder_Dialog->bRetCode = Safe_Show<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->bShow); break;
                 case E_Dialog_LightControl: pData_Holder_Dialog->bRetCode = Safe_Show<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->bShow); break;
-                default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
+                default: _LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
         }
@@ -222,7 +222,7 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
                 case E_Dialog_SpeedControl: pData_Holder_Dialog->nRetCode = Safe_ShowModal<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow); break;
                 case E_Dialog_VolumeControl: pData_Holder_Dialog->nRetCode = Safe_ShowModal<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow); break;
                 case E_Dialog_LightControl: pData_Holder_Dialog->nRetCode = Safe_ShowModal<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow); break;
-                default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
+                default: _LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
         }
@@ -237,7 +237,7 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
                 case E_Dialog_SpeedControl: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
                 case E_Dialog_VolumeControl: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
                 case E_Dialog_LightControl: pData_Holder_Dialog->bRetCode = Safe_WaitUser<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
-                default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
+                default: _LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
         }
@@ -252,15 +252,15 @@ bool Process_Dialog_Action(E_DIALOG_TYPE e_dialog_type, E_ACTION_TYPE action, Da
                 case E_Dialog_SpeedControl: pData_Holder_Dialog->bRetCode = Safe_WaitInitialized<wxDialog_SpeedControl>((wxDialog_SpeedControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
                 case E_Dialog_VolumeControl: pData_Holder_Dialog->bRetCode = Safe_WaitInitialized<wxDialog_VolumeControl>((wxDialog_VolumeControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
                 case E_Dialog_LightControl: pData_Holder_Dialog->bRetCode = Safe_WaitInitialized<wxDialog_LightControl>((wxDialog_LightControl *)pData_Holder_Dialog->pWindow, pData_Holder_Dialog->pCallBackData); break;
-                default: _WX_LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
+                default: _LOG_ERR("bad dialog type : %d", e_dialog_type); return false;
             }
             break;
         }
         default:
-            _WX_LOG_ERR("bad action : %d", action);
+            _LOG_ERR("bad action : %d", action);
             break;
     } // switch (action)
     wx_semaphore_post(*pData_Holder_Dialog);
-    _WX_LOG_NFO("DONE WITH class='%s' action='%s'", _str_enum(e_dialog_type), _str_enum(action));
+    _LOG_NFO("Processed class='%s' action='%s'", _str_enum(e_dialog_type), _str_enum(action));
     return true;
 }

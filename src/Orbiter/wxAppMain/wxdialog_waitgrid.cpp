@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -65,12 +65,12 @@ END_EVENT_TABLE()
 
 wxDialog_WaitGrid::wxDialog_WaitGrid( )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 }
 
 wxDialog_WaitGrid::wxDialog_WaitGrid( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     Create(parent, id, caption, pos, size, style);
 }
 
@@ -80,7 +80,7 @@ wxDialog_WaitGrid::wxDialog_WaitGrid( wxWindow* parent, wxWindowID id, const wxS
 
 bool wxDialog_WaitGrid::Create( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxDialog_WaitGrid member initialisation
     v_pBoxV_all = NULL;
     v_pBoxH_top = NULL;
@@ -109,7 +109,7 @@ bool wxDialog_WaitGrid::Create( wxWindow* parent, wxWindowID id, const wxString&
 
 void wxDialog_WaitGrid::CreateControls()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxDialog_WaitGrid content construction
     wxDialog_WaitGrid* itemDialog_Base1 = this;
 
@@ -187,7 +187,7 @@ void wxDialog_WaitGrid::OnCloseWindow( wxCloseEvent& event )
 
 void wxDialog_WaitGrid::OnSize( wxSizeEvent& event )
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     wxDialog_Base::OnSize(event);
     wx_Grid_Resize_Column(v_pGrid, idxResizableColumn);
 ////@begin wxEVT_SIZE event handler for ID_DIALOG_WAITGRID in wxDialog_WaitGrid.
@@ -238,7 +238,7 @@ wxIcon wxDialog_WaitGrid::GetIconResource( const wxString& name )
 
 bool wxDialog_WaitGrid::Gui_Refresh(CallBackData *pCallBackData)
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     WaitUserGridCallBackData *pCallData = dynamic_cast<WaitUserGridCallBackData *>(pCallBackData);
     _COND_RET(pCallData != NULL, false);
     Update_Position_FullScreen(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height, pCallData->m_bShowFullScreen);

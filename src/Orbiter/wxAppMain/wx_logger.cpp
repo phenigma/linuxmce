@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -139,14 +139,14 @@ void _wx_log_verbose_(const char *sformat, ...)
 }
 
 #ifdef USE_DEBUG_CODE
-bool g_WX_LOG_DBG = true;
+bool g_LOG_DBG = true;
 #else
-bool g_WX_LOG_DBG = (getenv("WX_LOG_DBG"));
+bool g_LOG_DBG = (getenv("_LOG_DBG"));
 #endif // USE_DEBUG_CODE
 
 void _wx_log_dbg_(const char *sformat, ...)
 {
-    if (! g_WX_LOG_DBG)
+    if (! g_LOG_DBG)
         return;
     va_list arg_ptr;
     va_start(arg_ptr, sformat);

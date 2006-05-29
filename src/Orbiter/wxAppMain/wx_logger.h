@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -10,17 +10,6 @@
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "wx_logger.h"
 #endif
-
-#if 0
-#define _WX_FAIL_MSG(x) wxFAIL_MSG(x)
-#else
-#define _WX_FAIL_MSG(x)
-#endif
-
-#define _WX_LOG_NFO(x, ...) _wx_log_nfo(x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
-#define _WX_LOG_ERR(x, ...) _wx_log_err(x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
-#define _WX_LOG_WRN(x, ...) _wx_log_wrn(x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
-#define _WX_LOG_DBG(x, ...) _wx_log_dbg(x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
 
 #define _wx_log_nfo _wx_log_nfo_
 #define _wx_log_err _wx_log_err_

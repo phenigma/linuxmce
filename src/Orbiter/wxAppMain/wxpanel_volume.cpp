@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -116,7 +116,7 @@ void wxPanel_Volume::OnSize( wxSizeEvent& event )
     _COND(v_oBitmapDraw.Ok());
     if ( (w != v_oBitmapDraw.GetWidth()) || (h != v_oBitmapDraw.GetHeight()) )
     {
-        _WX_LOG_NFO("Rescale image : (%d, %d) -> (%d, %d)", v_oBitmapDraw.GetWidth(), v_oBitmapDraw.GetHeight(), w, h);
+        _LOG_NFO("Rescale image : (%d, %d) -> (%d, %d)", v_oBitmapDraw.GetWidth(), v_oBitmapDraw.GetHeight(), w, h);
         v_oBitmapDraw = wxBitmap(v_oImageBuffer.Scale(w, h));
     }
 }
@@ -132,7 +132,7 @@ void wxPanel_Volume::OnPaint( wxPaintEvent& event )
     wxPaintDC dc(this);
 ////@end wxEVT_PAINT event handler for ID_PANEL_VOLUME in wxPanel_Volume.
     wxUnusedVar(event);
-    _WX_LOG_NFO("pos=%d, crt_pos=%d, style=%s", v_nPositions, v_nCrtPosition, _str_enum(v_eStyle));
+    _LOG_NFO("pos=%d, crt_pos=%d, style=%s", v_nPositions, v_nCrtPosition, _str_enum(v_eStyle));
     // check values
     if (
         (v_nPositions < 0) || (v_nCrtPosition < 0) ||
@@ -141,18 +141,18 @@ void wxPanel_Volume::OnPaint( wxPaintEvent& event )
             ))
         )
     {
-        _WX_LOG_ERR("Bad values: pos=%d, crt_pos=%d", v_nPositions, v_nCrtPosition);
+        _LOG_ERR("Bad values: pos=%d, crt_pos=%d", v_nPositions, v_nCrtPosition);
         return;
     }
     else if (
         (v_nCrtPosition > v_nPositions)
         )
     {
-        _WX_LOG_WRN("Bad values: pos=%d, crt_pos=%d", v_nPositions, v_nCrtPosition);
+        _LOG_WRN("Bad values: pos=%d, crt_pos=%d", v_nPositions, v_nCrtPosition);
     }
     else
     {
-        _WX_LOG_NFO("pos=%d, crt_pos=%d", v_nPositions, v_nCrtPosition);
+        _LOG_NFO("pos=%d, crt_pos=%d", v_nPositions, v_nCrtPosition);
     }
     // get dimensions
     wxSize oSize = dc.GetSize();

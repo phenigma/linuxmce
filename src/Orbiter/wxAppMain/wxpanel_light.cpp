@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -114,18 +114,18 @@ void wxPanel_Light::OnPaint( wxPaintEvent& event )
         (v_nPositions < 0) || (v_nCrtPosition < 0)
         )
     {
-        _WX_LOG_ERR("Bad values: pos=%d, crt_pos=%d", v_nPositions, v_nCrtPosition);
+        _LOG_ERR("Bad values: pos=%d, crt_pos=%d", v_nPositions, v_nCrtPosition);
         return;
     }
     else if (
         (v_nCrtPosition > v_nPositions)
         )
     {
-        _WX_LOG_WRN("Bad values: pos=%d, crt_pos=%d", v_nPositions, v_nCrtPosition);
+        _LOG_WRN("Bad values: pos=%d, crt_pos=%d", v_nPositions, v_nCrtPosition);
     }
     else
     {
-        _WX_LOG_NFO("pos=%d, crt_pos=%d", v_nPositions, v_nCrtPosition);
+        _LOG_NFO("pos=%d, crt_pos=%d", v_nPositions, v_nCrtPosition);
     }
     // continue to draw
     wxSize oSize = dc.GetSize();

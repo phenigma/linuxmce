@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -89,7 +89,7 @@ wxAppMain::wxAppMain()
         , v_oTimer_WakeIdle(this, ID_Timer_WakeIdle)
 {
     global_wx_log_enter();
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxAppMain member initialisation
 ////@end wxAppMain member initialisation
 }
@@ -100,7 +100,7 @@ wxAppMain::wxAppMain()
 
 bool wxAppMain::OnInit()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     _COND_RET(this == wxTheApp, false);
 ////@begin wxAppMain initialisation
     // Remove the comment markers above and below this block
@@ -140,9 +140,9 @@ bool wxAppMain::OnInit()
 #ifdef USE_DEBUG_CODE
 #ifdef WX_SDL_DEMO
     // initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0)
     {
-        _WX_LOG_ERR("unable to init SDL: %s", SDL_GetError());
+        _LOG_ERR("unable to init SDL: %s", SDL_GetError());
         return false;
     }
     // Setup video mode, but don't create a window
@@ -159,7 +159,7 @@ bool wxAppMain::OnInit()
 int wxAppMain::OnExit()
 {
     // NO wx log call if NO DontCreateOnDemand()
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxAppMain cleanup
     return wxApp::OnExit();
 ////@end wxAppMain cleanup
@@ -171,11 +171,11 @@ int wxAppMain::OnExit()
 
 void wxAppMain::OnIdle( wxIdleEvent& event )
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
 #ifdef USE_RELEASE_CODE
     if (App_ShouldExit())
     {
-        _WX_LOG_NFO("Received Exit Signal");
+        _LOG_NFO("Received Exit Signal");
         Clean_Exit();
     }
     else if ( App_IsReady() && (v_pExternApp==NULL) )
@@ -202,7 +202,7 @@ void wxAppMain::OnIdle( wxIdleEvent& event )
 
 wxAppMain::~wxAppMain()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     v_oTimer_WakeIdle.Stop();
     wxDELETE(v_pwxThread_Bag);
     global_wx_log_leave();
@@ -211,16 +211,16 @@ wxAppMain::~wxAppMain()
 
 int wxAppMain::OnRun()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     wxApp::OnRun();
     v_oTimer_WakeIdle.Stop();
-    _WX_LOG_NFO("ExitCode == %d", App_GetExitCode());
+    _LOG_NFO("ExitCode == %d", App_GetExitCode());
     return App_GetExitCode();
 }
 
 void wxAppMain::Clean_Exit(bool bDestroyTopWindow/*=true*/)
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     if (v_bExiting)
         return;
     v_bExiting = true;
@@ -232,7 +232,7 @@ void wxAppMain::Clean_Exit(bool bDestroyTopWindow/*=true*/)
         wxWindow *pTopWindow = GetTopWindow();
         if (pTopWindow)
         {
-            _WX_LOG_NFO("Closing top window %s", pTopWindow->GetLabel().c_str());
+            _LOG_NFO("Closing top window %s", pTopWindow->GetLabel().c_str());
             pTopWindow->Destroy();
         }
     }
@@ -246,13 +246,13 @@ void wxAppMain::Clean_Exit(bool bDestroyTopWindow/*=true*/)
 
 wxThread_Bag * wxAppMain::ptr_ThreadBag() const
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     return v_pwxThread_Bag;
 }
 
 ExternApp * wxAppMain::ptr_ExternApp() const
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     if (App_ShouldExit())
         return NULL;
     return v_pExternApp;
@@ -260,7 +260,7 @@ ExternApp * wxAppMain::ptr_ExternApp() const
 
 void wxAppMain::OnEvent_Dialog(wxCommandEvent& event)
 {
-    _WX_LOG_NFO("Received event : %s", _str_event(event));
+    _LOG_NFO("Received event : %s", _str_event(event));
     Data_Holder_Dialog *pData_Holder_Dialog = wx_static_cast(Data_Holder_Dialog *, event.GetClientData());
     _COND_RET(pData_Holder_Dialog != NULL);
     Process_Dialog_Action(pData_Holder_Dialog->e_dialog_type, (E_ACTION_TYPE)event.GetId(), pData_Holder_Dialog);
@@ -268,7 +268,7 @@ void wxAppMain::OnEvent_Dialog(wxCommandEvent& event)
 
 void wxAppMain::OnTimer_WakeIdle(wxTimerEvent& event)
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     _COND_RET(event.GetId() == ID_Timer_WakeIdle);
     if (! App_IsReady())
         return;

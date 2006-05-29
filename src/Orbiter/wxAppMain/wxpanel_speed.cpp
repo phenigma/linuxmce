@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -102,7 +102,7 @@ void wxPanel_Speed::OnPaint( wxPaintEvent& event )
     wxPaintDC dc(this);
 ////@end wxEVT_PAINT event handler for ID_PANEL_SPEED in wxPanel_Speed.
     wxUnusedVar(event);
-    _WX_LOG_NFO("count=%d, speed=%d", v_anSpeeds.GetCount(), v_nSpeed);
+    _LOG_NFO("count=%d, speed=%d", v_anSpeeds.GetCount(), v_nSpeed);
     // init draw
     dc.SetBackground(wxBrush(GetBackgroundColour()));
     dc.SetBrush(GetForegroundColour());
@@ -113,11 +113,11 @@ void wxPanel_Speed::OnPaint( wxPaintEvent& event )
         (v_anSpeeds.GetCount() == 0)
         )
     {
-        _WX_LOG_WRN("Bad value: array_size=%d", v_anSpeeds.GetCount());
+        _LOG_WRN("Bad value: array_size=%d", v_anSpeeds.GetCount());
     }
     else
     {
-        _WX_LOG_NFO("array_size=%d", v_anSpeeds.GetCount());
+        _LOG_NFO("array_size=%d", v_anSpeeds.GetCount());
     }
     // continue to draw
     int nCount = v_anSpeeds.size();
@@ -162,7 +162,7 @@ void wxPanel_Speed::OnPaint( wxPaintEvent& event )
     }
     if (! bIndexFound)
     {
-        _WX_LOG_WRN("value not found: array_size=%d, speed=%d", v_anSpeeds.GetCount(), v_nSpeed);
+        _LOG_WRN("value not found: array_size=%d, speed=%d", v_anSpeeds.GetCount(), v_nSpeed);
     }
 }
 

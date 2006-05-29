@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -51,7 +51,7 @@ const char * _str_enum(wxSemaError value)
         CASE_const_ret_str(wxSEMA_OVERFLOW);
         CASE_const_ret_str(wxSEMA_MISC_ERROR);
         default:
-            _WX_LOG_ERR("unknown value %d", value);
+            _LOG_ERR("unknown value %d", value);
             break;
     }
     return wxString::Format("?%d?", value);
@@ -142,7 +142,7 @@ void wx_post_event(wxEvtHandler *pDestEvtHandler, WXTYPE event_type, int event_i
     event.SetString(sInfo);
     event.SetClientData(pData);
     event.SetInt(nInt);
-    _WX_LOG_NFO("wx_post_event(%s)", _str_event(event));
+    _LOG_NFO("wx_post_event(%s)", _str_event(event));
     ::wxPostEvent( pDestEvtHandler, event );
 }
 
@@ -151,7 +151,7 @@ wxSemaError wx_semaphore_post(wxSemaphore &rSemaphore)
     wxSemaError semCode = rSemaphore.Post();
     if (semCode != wxSEMA_NO_ERROR)
     {
-        _WX_LOG_ERR("Semaphore error %s", _str_enum(semCode));
+        _LOG_ERR("Semaphore error %s", _str_enum(semCode));
     }
     return semCode;
 }
@@ -165,14 +165,14 @@ wxSemaError wx_semaphore_wait(wxSemaphore &rSemaphore)
         semCode = rSemaphore.WaitTimeout(WAIT_SEMAPHORE_MSEC);
         if (wxIdleThreadShouldStop())
         {
-            _WX_LOG_WRN("Stop in semaphore wait");
+            _LOG_WRN("Stop in semaphore wait");
             //rSemaphore.Post();
             break;
         }
     } while (semCode == wxSEMA_TIMEOUT);
     if (semCode != wxSEMA_NO_ERROR)
     {
-        _WX_LOG_ERR("Semaphore error %s", _str_enum(semCode));
+        _LOG_ERR("Semaphore error %s", _str_enum(semCode));
     }
     return semCode;
 }
@@ -184,7 +184,7 @@ wxCondLocker::wxCondLocker(bool bCondition, type_ref_void_fn_void fn_launch_ente
 {
     if (v_bLocked)
     {
-        _WX_LOG_NFO("Locking");
+        _LOG_NFO("Locking");
         v_fn_launch_enter();
     }
 }
@@ -193,7 +193,7 @@ wxCondLocker::~wxCondLocker()
 {
     if (v_bLocked)
     {
-        _WX_LOG_NFO("Unlocking");
+        _LOG_NFO("Unlocking");
         v_fn_launch_leave();
     }
 }
@@ -203,7 +203,7 @@ void App_SetReady()
 {
     if (! g_bAppInitialized)
     {
-        _WX_LOG_NFO();
+        _LOG_NFO();
         g_bAppInitialized = true;
     }
 }
@@ -217,13 +217,13 @@ bool g_bShouldExit = false;
 
 int App_GetExitCode()
 {
-    //_WX_LOG_NFO("ExitCode == %d", g_nExitCode);
+    //_LOG_NFO("ExitCode == %d", g_nExitCode);
     return g_nExitCode;
 }
 
 void App_SetExitCode(int nExitCode)
 {
-    _WX_LOG_NFO("ExitCode: %d -> %d", g_nExitCode, nExitCode);
+    _LOG_NFO("ExitCode: %d -> %d", g_nExitCode, nExitCode);
     g_nExitCode = nExitCode;
 }
 
@@ -235,9 +235,9 @@ bool App_ShouldExit()
 void App_SetShouldExit(bool bShouldExit)
 {
     if (bShouldExit)
-        _WX_LOG_NFO("app should exit soon");
+        _LOG_NFO("app should exit soon");
     else
-        _WX_LOG_NFO("app exit signal cleared");
+        _LOG_NFO("app exit signal cleared");
     g_bShouldExit = bShouldExit;
 }
 

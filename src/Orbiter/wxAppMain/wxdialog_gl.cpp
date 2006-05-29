@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -422,7 +422,7 @@ bool wxDialog_GL::Create( wxWindow* parent, wxWindowID id, const wxString& capti
 
 void wxDialog_GL::CreateControls()
 {
-    _WX_LOG_NFO("v_nRefCount=%d", v_nRefCount);
+    _LOG_NFO("v_nRefCount=%d", v_nRefCount);
 ////@begin wxDialog_GL content construction
     wxDialog_GL* itemDialog_Base1 = this;
 

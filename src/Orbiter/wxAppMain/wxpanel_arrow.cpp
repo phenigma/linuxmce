@@ -106,12 +106,12 @@ void wxPanel_Arrow::OnPaint( wxPaintEvent& event )
         (v_dPosPercent < 0) || (v_dPosPercent > 100)
         )
     {
-        _WX_LOG_ERR("Bad value: PosPercent=%f", v_dPosPercent);
+        _LOG_ERR("Bad value: PosPercent=%f", v_dPosPercent);
         return;
     }
     else
     {
-        //_WX_LOG_NFO("PosPercent=%f", v_dPosPercent);
+        //_LOG_NFO("PosPercent=%f", v_dPosPercent);
     }
     // continue to draw
     wxSize oSize = dc.GetSize();

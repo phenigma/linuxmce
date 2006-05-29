@@ -1,5 +1,5 @@
 //
-// Author : C Remus
+// Author : Remus C.
 //
 // Changed by : ...
 //
@@ -62,13 +62,13 @@ BEGIN_EVENT_TABLE( wxDialog_WaitUser, wxDialog_Base )
 wxDialog_WaitUser::wxDialog_WaitUser( )
         : v_oTimer_ExpireDialog(this, ID_Timer_ExpireDialog)
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 }
 
 wxDialog_WaitUser::wxDialog_WaitUser( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
         : v_oTimer_ExpireDialog(this, ID_Timer_ExpireDialog)
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     Create(parent, id, caption, pos, size, style);
 }
 
@@ -78,7 +78,7 @@ wxDialog_WaitUser::wxDialog_WaitUser( wxWindow* parent, wxWindowID id, const wxS
 
 bool wxDialog_WaitUser::Create( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxDialog_WaitUser member initialisation
     v_pBoxV_all = NULL;
     v_pBoxH_top = NULL;
@@ -108,7 +108,7 @@ bool wxDialog_WaitUser::Create( wxWindow* parent, wxWindowID id, const wxString&
 
 void wxDialog_WaitUser::CreateControls()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
 ////@begin wxDialog_WaitUser content construction
     wxDialog_WaitUser* itemDialog_Base1 = this;
 
@@ -214,13 +214,13 @@ wxIcon wxDialog_WaitUser::GetIconResource( const wxString& name )
 
 wxDialog_WaitUser::~wxDialog_WaitUser()
 {
-    _WX_LOG_NFO();
+    _LOG_NFO();
     v_oTimer_ExpireDialog.Stop();
 }
 
 bool wxDialog_WaitUser::Gui_DataLoad(CallBackData *pCallBackData)
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     WaitUserPromptCallBackData *pCallData = dynamic_cast<WaitUserPromptCallBackData *>(pCallBackData);
     _COND_RET(pCallData != NULL, false);
     Update_Position_FullScreen(pCallData->m_rectPosition.X, pCallData->m_rectPosition.Y, pCallData->m_rectPosition.Width, pCallData->m_rectPosition.Height, pCallData->m_bShowFullScreen);
@@ -267,7 +267,7 @@ bool wxDialog_WaitUser::Gui_DataLoad(CallBackData *pCallBackData)
 
 void wxDialog_WaitUser::OnTimer_ExpireDialog(wxTimerEvent& event)
 {
-    //_WX_LOG_NFO();
+    //_LOG_NFO();
     _COND_RET(event.GetId() == ID_Timer_ExpireDialog);
     if ( (! v_bInitialized) || (v_nExpireTime_ms <= 0) )
         return;
