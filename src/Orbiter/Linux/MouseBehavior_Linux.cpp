@@ -61,16 +61,26 @@ void MouseBehavior_Linux::ShowMouse(bool bShow)
 
 bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
 {
-    return false;
+    //return false;
     g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d)",
                           rect.X, rect.Y, rect.Width, rect.Height
                           );
+    static const char sWindowClassName[] = "constrain_mouse.constrain_mouse";
     bool bResult = ptrOrbiterLinux()->m_pX11->Mouse_Constrain(rect.X, rect.Y, rect.Width, rect.Height, ptrOrbiterLinux()->GetMainWindow());
-    ptrOrbiterLinux()->m_pWinListManager->IsWindowAvailable("constrain");
-    ptrOrbiterLinux()->m_pWinListManager->ActivateSdlWindow();
-    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : done",
-                          rect.X, rect.Y, rect.Width, rect.Height
-                          );
+    if (bResult)
+    {
+        ptrOrbiterLinux()->m_pWMController->SetLayer(sWindowClassName, LayerBelow);
+        ptrOrbiterLinux()->m_pWinListManager->ActivateSdlWindow();
+        g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : done",
+                              rect.X, rect.Y, rect.Width, rect.Height
+                              );
+    }
+    else
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : error",
+                              rect.X, rect.Y, rect.Width, rect.Height
+                              );
+    }
     return bResult;
 }
 
