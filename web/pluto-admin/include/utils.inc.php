@@ -5268,8 +5268,8 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 			$deviceCategoriesArray=getAlphaCategories($dbADO);
 			$deviceCategoryFormElement=pulldownFromArray($deviceCategoriesArray,'categoryID',$categoryID,'class="input_big" onChange="setDeviceCategory(-1);"');
 	}
-	
-	if(isset($_REQUEST['do_filter']) || (int)@$_REQUEST['autofilter']==1 || (int)@$_SESSION['parentID']>0){
+
+	if(isset($_REQUEST['do_filter']) || (int)@$_REQUEST['autofilter']==1 || (int)@$_SESSION['parentID']>0 || (int)@$_REQUEST['categoryID']>0){
 		//echo 'do_filter categ: '.$categoryID.' manuf: '.$manufacturerID;
 		
 		$deviceTemplatesArray=getAllowedDT((int)@$_SESSION['parentID'],$categoryID,$manufacturerID,$dbADO);

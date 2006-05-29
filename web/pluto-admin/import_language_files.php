@@ -13,7 +13,6 @@ $subCategories=array(''=>0,)+getAssocArray('TextCategory','Description','PK_Text
 $plutoAdminFilenames=getTextFilenames($subCategories,$dbADO);
 $englishValues=(count($plutoAdminFilenames)>0)?getAssocArray('Text_LS','FK_Text','Description',$dbADO,'WHERE FK_Text IN ('.join(',',array_values($plutoAdminFilenames)).') AND FK_Language=1'):array();
 
-
 exec($cmd,$retArr);
 $len=strlen($path);
 foreach ($retArr AS $line){

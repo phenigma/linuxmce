@@ -89,16 +89,16 @@ function mythSettings($output,$dbADO) {
 			{
 				if ($zipCode == '')
 				{
-					$out.='<br><b>'.$TEXT_MYTH_INPUT_ZIP.'</b><br>';		
+					$out.='<br><b>'.$TEXT_MYTH_INPUT_ZIP_CONST.'</b><br>';		
 				}
 				else
 				{
 					$templates = getTemplates($plutomythADO, $zipCode);
 					if (count($templates) > 1)
 					{
-						$out.='<br>'.$TEXT_MYTH_IMPORT_MULTI_LINEUP.'<br>';
+						$out.='<br>'.$TEXT_MYTH_IMPORT_MULTI_LINEUP_CONST.'<br>';
 						
-						$out.=pulldownFromArray($templates,'templatepd_'.$sids[$i],'').'&nbsp;<input type="submit" class="button" name="import_lineup_'.$sids[$i].'" value="'.$TEXT_MYTH_IMPORT.'"><br>';					
+						$out.=pulldownFromArray($templates,'templatepd_'.$sids[$i],'').'&nbsp;<input type="submit" class="button" name="import_lineup_'.$sids[$i].'" value="'.$TEXT_MYTH_IMPORT_CONST.'"><br>';					
 						$out.='<input type="checkbox" name="remove_unknown_'.$sids[$i].'" checked value="1">'.$TEXT_MYTH_REMOVE_UNKNOWN_CHANNELS.'<br>';
 
 					}
@@ -106,14 +106,14 @@ function mythSettings($output,$dbADO) {
 					{
 						reset($templates);
 						list($mdk, $mdv) = each($templates);
-						$out.='<br>'.$TEXT_MYTH_IMPORT_ONE_LINEUP.'<br>';
-						$out.=$mdv.'&nbsp;<input type="submit" class="button" name="import_lineup_'.$sids[$i].'" value="'.$TEXT_MYTH_IMPORT.'"><br>';
-						$out.='<input type="checkbox" name="remove_unknown_'.$sids[$i].'" checked value="1">'.$TEXT_MYTH_REMOVE_UNKNOWN_CHANNELS.'<br>';
+						$out.='<br>'.$TEXT_MYTH_IMPORT_ONE_LINEUP_CONST.'<br>';
+						$out.=$mdv.'&nbsp;<input type="submit" class="button" name="import_lineup_'.$sids[$i].'" value="'.$TEXT_MYTH_IMPORT_CONST.'"><br>';
+						$out.='<input type="checkbox" name="remove_unknown_'.$sids[$i].'" checked value="1">'.$TEXT_MYTH_REMOVE_UNKNOWN_CHANNELS_CONST.'<br>';
 						$out.='<input type="hidden" name="providerid_'.$sids[$i].'" value="'.$mdk.'">';
 					}
 					else
 					{
-						$out.='<br>'.$TEXT_MYTH_NOIMPORT.$zipCode.'<br>';
+						$out.='<br>'.$TEXT_MYTH_NOIMPORT_CONST.$zipCode.'<br>';
 					}				
 				}
 				$UnassignedChannels = getMythQAMUnassignedChannels($mythADO, $sids[$i]);
@@ -159,8 +159,8 @@ function mythSettings($output,$dbADO) {
 					$out.='</table>';
 					if ($zipCode!='')
 					{
-						$out.='<br>'.$TEXT_MYTH_PUBLISH_LINEUP.'<br>';
-						$out.='<input type="text" size="40" name="Provider_'.$sids[$i].'" value="">&nbsp;<input type="submit" class="button" name="publish_'.$sids[$i].'" value="'.$TEXT_MYTH_PUBLISH.'">';
+						$out.='<br>'.$TEXT_MYTH_PUBLISH_LINEUP_CONST.'<br>';
+						$out.='<input type="text" size="40" name="Provider_'.$sids[$i].'" value="">&nbsp;<input type="submit" class="button" name="publish_'.$sids[$i].'" value="'.$TEXT_MYTH_PUBLISH_CONST.'">';
 					}
 				}
 				
@@ -282,7 +282,7 @@ function importLineup($plutomythADO, $mythADO, $PK_Provider, $zipCode, $removeun
 						$mythADO->Execute('UPDATE cardinput SET startchan=\''.$epgrow['channum'].'\' WHERE sourceid='.$sid);
 						$firstchan = 0;
 					}
-					$results.=$TEXT_MYTH_IMPSET_ASSIGNED.' '.$uarow['channum'].': '.$row['Callsign'].' ('.$epgrow['channum'].')<br>';
+					$results.=$TEXT_MYTH_IMPSET_ASSIGNED_CONST.' '.$uarow['channum'].': '.$row['Callsign'].' ('.$epgrow['channum'].')<br>';
 				}
 				else
 				{
@@ -291,17 +291,17 @@ function importLineup($plutomythADO, $mythADO, $PK_Provider, $zipCode, $removeun
 						$mythADO->Execute('UPDATE cardinput SET startchan=\''.$epgrow['channum'].'\' WHERE sourceid='.$sid);
 						$firstchan = 0;
 					}
-					$results.=$TEXT_MYTH_IMPSET_SKIPPED.' '.$uarow['channum'].' ('.$row['Callsign'].')<br>';
+					$results.=$TEXT_MYTH_IMPSET_SKIPPED_CONST.' '.$uarow['channum'].' ('.$row['Callsign'].')<br>';
 				}
 			}
 			else
 			{
-				$results.=$TEXT_MYTH_IMPERR_ATTEMPTINGADD.' '.$row['Callsign'].'. '.$TEXT_MYTH_IMPERR_NOCHANNEL.'<br>';
+				$results.=$TEXT_MYTH_IMPERR_ATTEMPTINGADD_CONST.' '.$row['Callsign'].'. '.$TEXT_MYTH_IMPERR_NOCHANNEL_CONST.'<br>';
 			}							
 		}
 		else
 		{
-			$results.=$TEXT_MYTH_IMPERR_ATTEMPTINGADD.' '.$row['Callsign'].'. '.$TEXT_MYTH_IMPERR_NOEPG.'<br>';
+			$results.=$TEXT_MYTH_IMPERR_ATTEMPTINGADD_CONST.' '.$row['Callsign'].'. '.$TEXT_MYTH_IMPERR_NOEPG_CONST.'<br>';
 		}			
 	}
 	if ($firstchan==1)

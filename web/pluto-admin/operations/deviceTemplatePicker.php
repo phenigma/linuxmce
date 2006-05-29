@@ -13,6 +13,7 @@ function deviceTemplatePicker($output,$dbADO) {
 
 	$_SESSION['categoryID']=(isset($_SESSION['categoryID']))?$_SESSION['categoryID']:NULL;
 	$_SESSION['categoryID']=(isset($_REQUEST['dcSelected']))?cleanInteger($_REQUEST['dcSelected']):$_SESSION['categoryID'];
+	$_SESSION['categoryID']=(isset($_REQUEST['categoryID']))?cleanInteger($_REQUEST['categoryID']):$_SESSION['categoryID'];
 	$_SESSION['categoryID']=($_SESSION['categoryID']==0)?NULL:$_SESSION['categoryID'];
 	$allowAddDT=((int)@$_REQUEST['allowAdd']==1)?1:0;
 	
