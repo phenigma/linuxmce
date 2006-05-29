@@ -2797,7 +2797,7 @@ void General_Info_Plugin::PromptUserToReloadAfterNewDevices()
 	for(list<Row_Device *>::iterator it=m_listRow_Device_NewAdditions.begin();it!=m_listRow_Device_NewAdditions.end();++it)
 	{
 		Row_Device *pRow_Device = *it;
-		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_Device->FK_DeviceTemplate_get(),DEVICEDATA_Immediate_Reload_Isnt_Necessary_CONST);
+		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_Device->FK_DeviceTemplate_get(),DEVICEDATA_Immediate_Reload_Isnt_Necessar_CONST);
 		if( !pRow_DeviceTemplate_DeviceData || atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str())!=1 )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::PromptUserToReloadAfterNewDevices devvice %d needs reload",pRow_Device->PK_Device_get());
