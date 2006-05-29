@@ -19,6 +19,7 @@
 #include "DesignObj_Orbiter.h"
 #include "DesignObj_DataGrid.h"
 #include "pluto_main/Define_DesignObjType.h"
+#include "ObjectFactory.h"
 
 DesignObj_Data::~DesignObj_Data()
 {
@@ -495,11 +496,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 			{
 				unsigned long Type = Read_unsigned_long();
 	#ifdef ORBITER
-				DesignObj_Orbiter *pDesignObj_Data=NULL;
-				if( Type==DESIGNOBJTYPE_Datagrid_CONST )
-					pDesignObj_Data = new DesignObj_DataGrid((Orbiter *)pExtraSerializationData);
-				else
-					pDesignObj_Data = new DesignObj_Orbiter((Orbiter *)pExtraSerializationData);
+				DesignObj_Orbiter *pDesignObj_Data = ObjectFactory::CreateObject(Type, (Orbiter *)pExtraSerializationData);
 	#else
 				DesignObj_Data *pDesignObj_Data = new DesignObj_Data();
 	#endif

@@ -565,7 +565,7 @@ void DesignObj_Orbiter::RenderObject( DesignObj_Orbiter *pObj_Screen, PlutoPoint
 		// todo 2.0     SolidRectangle( rectTotal.X,  rectTotal.Y,  rectTotal.Width,  rectTotal.Height,  atoi( GetParameterValue( DESIGNOBJPARAMETER_Cell_Color_CONST ).c_str(  ) ),  atoi( GetParameterValue( DESIGNOBJPARAMETER_Transparency_CONST ).c_str(  ) ) );
 		break;
 	case DESIGNOBJTYPE_Datagrid_CONST:
-//		RenderDataGrid( ( DesignObj_DataGrid * )pObj, point );
+		//RenderDataGrid( ( DesignObj_DataGrid * )pObj, point );
 		break;
 	case DESIGNOBJTYPE_Floorplan_CONST:
 	//	RenderFloorplan(pObj,pObj_Screen, point);

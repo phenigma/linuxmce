@@ -451,12 +451,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		virtual void PrepareRenderDataGrid( DesignObj_DataGrid *pObj, string& sDelSelections );
 
 		/**
-		* @brief renders the data grid
-		* @todo ask better comment
-		*/
-		virtual void RenderDataGrid( DesignObj_DataGrid *pObj, PlutoPoint point = PlutoPoint(0, 0) );
-
-		/**
 		* @brief The framework will call this when it's time to change screens
 		* This immediately calls RenderScreen. Normally we add the current screen to the history list so we can go back again. However,
 		* if we're changing screens because of a GO BACK command, we won't do that
@@ -657,18 +651,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		virtual bool RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point = PlutoPoint(0, 0) );
 
 		/**
-		* @brief renders a cell in the specified cell of the specified table at the specified coordinates
-		* @todo ask
-		*/
-		virtual bool RenderCell( class DesignObj_DataGrid *pObj, class DataGridTable *pT, class DataGridCell *pCell, int j, int i, int iGraphicToDisplay, PlutoPoint point = PlutoPoint(0, 0) );
-
-		/**
-		* @brief renders a graphic object in the specified rectangle
-		* @todo ask
-		*/
-
-
-		/**
 		* @brief The derived class should implement this if it can.  It moves the mouse pointer to the given coordinates
 		*/
 		virtual void SetMousePointer(int X, int Y) {}
@@ -853,12 +835,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		holding up the goto is probably no longer needed since we now use NeedToRender, which serves the same purpose
 		*/
 		void ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList, DesignObj_Orbiter *pDesignObj_Orbiter, SelectionMethod selectionMethod, int iX = -1, int iY = -1, int Repeat=0 ); // Execute commands
-
-		/**
-		* @brief returns the grid cell dimensions in the parameters
-		* @todo ask
-		*/
-		void GetGridCellDimensions( DesignObj_DataGrid *pObj, int iColSpan, int iRowSpan, int iColumn, int iRow, int &iX, int &iY, int &iWidth, int &iHeight );
 
 		/**
 		* @brief substitutes some defined markers with values taken from the class data

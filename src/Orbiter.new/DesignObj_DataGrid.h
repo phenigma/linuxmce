@@ -22,7 +22,11 @@ public:
 	}
 	virtual ~DesignObj_DataGrid(); 
 
-	virtual void RenderObject( DesignObj_Orbiter *pObj_Screen, PlutoPoint point, int Layer);
+	virtual void RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point, int Layer);
+	virtual bool RenderCell(class DataGridTable *pT,  class DataGridCell *pCell,  
+		int j,  int i,  int GraphicToDisplay, PlutoPoint point = PlutoPoint(0, 0));
+	virtual void GetGridCellDimensions(int Colspan,  int Rowspan,  int Column,  int Row,  
+		int &x,  int &y,  int &w,  int &h);
 
 	int m_dwIDownRow,m_iUpRow;  // These are the rows which have up/down arrows.  If up==-1, there is no up arrow, same for down.  Otherwise it's 0 based
 	int m_iHighlightedRow,m_iHighlightedColumn;

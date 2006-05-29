@@ -155,6 +155,9 @@
 				RelativePath=".\Win32\MainDialog.cpp">
 			</File>
 			<File
+				RelativePath=".\ObjectFactory.cpp">
+			</File>
+			<File
 				RelativePath="Orbiter.cpp">
 			</File>
 			<File
@@ -332,6 +335,9 @@
 			</File>
 			<File
 				RelativePath=".\nvshaderprogram.h">
+			</File>
+			<File
+				RelativePath=".\ObjectFactory.h">
 			</File>
 			<File
 				RelativePath="Orbiter.h">
