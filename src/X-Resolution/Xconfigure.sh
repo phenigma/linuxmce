@@ -21,6 +21,7 @@ GenModeline()
 	local Modeline
 	Modeline=$(/usr/pluto/bin/xtiming.pl "$ResX" "$ResY" "$Refresh" "$ScanType")
 	Modeline="${Modeline/@*\"/\"}"
+	echo "$Modeline"
 }
 
 OrigParams=("$@")
