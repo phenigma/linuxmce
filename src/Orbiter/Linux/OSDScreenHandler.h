@@ -25,6 +25,7 @@ public:
 	virtual void SCREEN_VideoWizard(long PK_Screen);
 	virtual bool VideoWizard_ObjectSelected(CallBackData *pData);
 	virtual bool VideoWizard_OnTimer(CallBackData *pData);
+	virtual bool VideoWizard_OnScreen(CallBackData *pData);
 
 	//1. Users Wizard
 	virtual void SCREEN_UsersWizard(long PK_Screen);

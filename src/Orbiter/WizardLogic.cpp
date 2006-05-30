@@ -26,7 +26,7 @@ WizardLogic::~WizardLogic()
 bool WizardLogic::Setup()
 {
 #ifdef WIN32
-	if( !MySQLConnect("192.168.80.1", "root", "", "pluto_main_temp") )
+	if( !MySQLConnect("192.168.80.97", "root", "", "pluto_main") )
 #else
 	if( !MySQLConnect(m_pOrbiter->m_sIPAddress, "root", "", "pluto_main") )
 #endif

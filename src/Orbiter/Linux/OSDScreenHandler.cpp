@@ -76,7 +76,6 @@ void OSDScreenHandler::DisableAllVideo()
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 {
-m_pOrbiter->m_bNewOrbiter=true;
 	m_bWizardIsRunning = true;
 	if( !m_bHasVideoWizardFiles )
 		DisableAllVideo();
@@ -91,7 +90,6 @@ m_pOrbiter->m_bNewOrbiter=true;
 			// Help the user get a remote control
 			m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_NoRemoteControl_CONST),
 										"", "", false, false );
-			m_pOrbiter->StartScreenHandlerTimer(500);
 		}
 	}
 	else
@@ -99,6 +97,17 @@ m_pOrbiter->m_bNewOrbiter=true;
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnTimer, new CallBackData());
+	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnScreen, new RenderScreenCallBackData());
+}
+
+bool OSDScreenHandler::VideoWizard_OnScreen(CallBackData *pData)
+{
+	RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pData;
+	if( pRenderScreenCallBackData->m_pObj->m_iBaseObjectID==DESIGNOBJ_NoRemoteControl_CONST )
+	{
+		m_pOrbiter->StartScreenHandlerTimer(500);
+	}
+	return false;
 }
 
 bool OSDScreenHandler::VideoWizard_OnTimer(CallBackData *pData)

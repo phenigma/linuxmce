@@ -410,6 +410,10 @@ int OrbiterGenerator::DoIt()
 	PopulateEffects(m_mapEffects, m_pRow_Skin->PK_Skin_get());
 
 	PopulateScreenMap(&mds, m_mapDesignObj, m_pRow_UI, pRow_Skin_For_Translation, m_pRow_Device);
+	vector<Row_Screen *> vectRow_Screen_GoBack;
+	mds.Screen_get()->GetRows("GoBackToScreen=1",&vectRow_Screen_GoBack);
+	for(vector<Row_Screen *>::iterator it_vsgb=vectRow_Screen_GoBack.begin();it_vsgb!=vectRow_Screen_GoBack.end();++it_vsgb)
+		m_mapPK_Screen_GoBackToScreen[ (*it_vsgb)->PK_Screen_get() ]=1;
 
 	m_pRow_Screen_MainMenu = NULL;
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Screen_CONST);

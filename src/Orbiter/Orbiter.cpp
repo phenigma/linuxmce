@@ -5817,8 +5817,12 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 		m_pContextToBeRestored = pScreenHistory;
 		ScreenHistory::m_bAddToHistory = false;
 		m_pScreenHistory_NewEntry = pScreenHistory;
-		CMD_Goto_DesignObj(0, pScreenHistory->GetObj()->m_ObjectID, pScreenHistory->ScreenID(),
-			"", false, pScreenHistory->GetObj()->m_bCantGoBack);
+
+		if( m_mapPK_Screen_GoBackToScreen.find(m_pScreenHistory_NewEntry->PK_Screen())!=m_mapPK_Screen_GoBackToScreen.end() )
+			CMD_Goto_Screen(m_pScreenHistory_NewEntry->ScreenID(),m_pScreenHistory_NewEntry->PK_Screen());
+		else
+			CMD_Goto_DesignObj(0, pScreenHistory->GetObj()->m_ObjectID, pScreenHistory->ScreenID(),
+				"", false, pScreenHistory->GetObj()->m_bCantGoBack);
 	}
 	else
 		GotoMainMenu();
