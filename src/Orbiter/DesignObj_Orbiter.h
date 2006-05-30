@@ -1,6 +1,9 @@
 #ifndef DESIGNOBJ_Orbiter_H
 #define DESIGNOBJ_Orbiter_H
 
+#include <algorithm>
+using namespace std;
+
 #include "DesignObj_Data.h"
 #include "PlutoUtils/GraphicFormat.h"
 //-------------------------------------------------------------------------------------------------------
@@ -28,10 +31,6 @@ enum eGraphicManagement { GR_KEEPUNCOMPRESSED, GR_KEEPCOMPRESSED, GR_DISCARDONCH
 	#define GetRValue(rgb)      ((BYTE)(rgb))
 	#define GetGValue(rgb)      ((BYTE)(((WORD)(rgb)) >> 8))
 	#define GetBValue(rgb)      ((BYTE)((rgb)>>16))
-#endif
-//-------------------------------------------------------------------------------------------------------
-#ifndef max
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
 #endif
 //-------------------------------------------------------------------------------------------------------
 enum GraphicType
