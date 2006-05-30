@@ -822,12 +822,27 @@ function validateIP(ip,strError) {
 		return true;
 	}
 	
-	var isip = ip.match("^([a-zA-Z0-9_\-])+(\.([a-zA-Z0-9_\-])+)*@((\[(((([0-1])?([0-9])?[0-9])|(2[0-4][0-9])|(2[0-5][0-5])))\.(((([0-1])?([0-9])?[0-9])|(2[0-4][0-9])|(2[0-5][0-5])))\.(((([0-1])?([0-9])?[0-9])|(2[0-4][0-9])|(2[0-5][0-5])))\.(((([0-1])?([0-9])?[0-9])|(2[0-4][0-9])|(2[0-5][0-5]))\]))|((([a-zA-Z0-9])+(([\-])+([a-zA-Z0-9])+)*\.)+([a-zA-Z])+(([\-])+([a-zA-Z0-9])+)*))$");
+	var ipPattern = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+	var isip = ip.match(ipPattern); 
+
 	if(isip == null){
 		alert(strError);
 		return false;
 	}else{
+		var ipArray=ip.split("."); 
+	
+		if (!ipArray||!ipArray[0]||!ipArray[1]||!ipArray[2]||!ipArray[3]){
+			alert(strError);
+			return false;
+		}
+			
+		for (i = 0; i < 4; i++) {
+			thisSegment = ipArray[i];
+			if (thisSegment > 255) {
+				alert(strError);
+				return false;
+			}
+		}
 		return true;
-	}	
+	}
 }
-

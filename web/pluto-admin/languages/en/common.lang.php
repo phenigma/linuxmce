@@ -160,4 +160,5 @@ $TEXT_ERROR_INVALID_DATE_FORMAT_CONST='Invalid date format, please enter dd/mm/y
 $TEXT_NONE_CONST='None';
 $TEXT_NOTES_CONST='Notes';
 $TEXT_INVALID_MAC_ADDRESS_CONST='Invalid MAC address';
+$TEXT_INVALID_IP_ADDRESS_CONST='Invalid IP address';
 ?>

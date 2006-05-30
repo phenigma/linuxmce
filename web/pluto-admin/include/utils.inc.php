@@ -3236,7 +3236,10 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specif
 				<td align="left"><B>MAC</B></td>
 				<td><input type="text" name="mac_'.$deviceID.'" value="'.@$rowDDforDevice['MACaddress'].'"></td>
 			</tr>';
-		$jsValidation.=' frmvalidator.addValidation("mac_'.$deviceID.'","mac","'.$TEXT_INVALID_MAC_ADDRESS_CONST.'");';
+		if($boolJsValidation==1){
+			$jsValidation.=' frmvalidator.addValidation("mac_'.$deviceID.'","mac","'.$TEXT_INVALID_MAC_ADDRESS_CONST.'");';
+			$jsValidation.=' frmvalidator.addValidation("ip_'.$deviceID.'","ip","'.$TEXT_INVALID_IP_ADDRESS_CONST.'");';
+		}
 	}
 	$deviceDataBox.='</table>';
 	
