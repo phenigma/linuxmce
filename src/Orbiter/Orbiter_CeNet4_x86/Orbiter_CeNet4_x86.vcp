@@ -193,6 +193,7 @@ DEP_CPP_COMMA=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\ServerSocket.h"\
@@ -275,6 +276,7 @@ DEP_CPP_DESIG=\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
+	"..\PlutoGraphic.h"\
 	"..\TextStyle.h"\
 	
 NODEP_CPP_DESIG=\
@@ -298,6 +300,7 @@ DEP_CPP_DESIGN=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
@@ -309,6 +312,7 @@ DEP_CPP_DESIGN=\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -329,6 +333,7 @@ DEP_CPP_DESIGN=\
 	"..\Floorplan.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
 	"..\TextStyle.h"\
 	
 NODEP_CPP_DESIGN=\
@@ -485,6 +490,7 @@ DEP_CPP_GRAPH=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
@@ -497,6 +503,7 @@ DEP_CPP_GRAPH=\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -518,6 +525,7 @@ DEP_CPP_GRAPH=\
 	"..\GraphicBuilder.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
@@ -641,6 +649,7 @@ DEP_CPP_MAIN_=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\ServerLogger.h"\
 	"..\..\DCE\Socket.h"\
@@ -653,6 +662,7 @@ DEP_CPP_MAIN_=\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -673,8 +683,11 @@ DEP_CPP_MAIN_=\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
+	"..\OpenGL\Orbiter_OpenGL.h"\
+	"..\OpenGL\PendingGLEffects.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
@@ -684,11 +697,13 @@ DEP_CPP_MAIN_=\
 	"..\Win32\main.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
+	"..\Win32\OrbiterWin32Defs.h"\
 	"..\Win32\StartOrbiter.h"\
 	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_MAIN_=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\Win32\Orbiter_OpenGL.h"\
 	
 # End Source File
 # Begin Source File
@@ -743,6 +758,7 @@ DEP_CPP_MAIND=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
@@ -754,6 +770,7 @@ DEP_CPP_MAIND=\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -774,8 +791,10 @@ DEP_CPP_MAIND=\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
+	"..\OpenGL\PendingGLEffects.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
@@ -785,12 +804,14 @@ DEP_CPP_MAIND=\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
+	"..\Win32\OrbiterWin32Defs.h"\
 	"..\Win32\PopupMessage.h"\
 	"..\Win32\StartOrbiter.h"\
 	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_MAIND=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\Win32\Orbiter_OpenGL.h"\
 	
 # End Source File
 # Begin Source File
@@ -910,6 +931,7 @@ DEP_CPP_ORBIT=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
@@ -931,6 +953,7 @@ DEP_CPP_ORBIT=\
 	"..\..\pluto_main\Define_FloorplanType.h"\
 	"..\..\pluto_main\Define_Screen.h"\
 	"..\..\pluto_main\Define_Text.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\pluto_main\Define_Variable.h"\
 	"..\..\pluto_main\Define_VertAlignment.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
@@ -945,7 +968,10 @@ DEP_CPP_ORBIT=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\ProcessUtils.h"\
+	"..\..\PlutoUtils\singleton.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\PlutoUtils\threads.h"\
+	"..\..\PlutoUtils\typetraits.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
@@ -955,6 +981,7 @@ DEP_CPP_ORBIT=\
 	"..\CENet\WinCE.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
+	"..\dialog_types.h"\
 	"..\Floorplan.h"\
 	"..\GraphicBuilder.h"\
 	"..\Linux\OSDScreenHandler.h"\
@@ -963,6 +990,9 @@ DEP_CPP_ORBIT=\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\OrbiterFileBrowser.h"\
+	"..\PlutoGraphic.h"\
+	"..\PopupAnimationData.h"\
+	"..\PopupManager.h"\
 	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
@@ -1010,20 +1040,24 @@ DEP_CPP_ORBITE=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\pluto_main\Define_Button.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObj.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_DeviceData.h"\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Direction.h"\
+	"..\..\pluto_main\Define_Effect.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\pluto_main\Define_HorizAlignment.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\pluto_main\Define_VertAlignment.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
@@ -1035,7 +1069,10 @@ DEP_CPP_ORBITE=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\ProcessUtils.h"\
+	"..\..\PlutoUtils\singleton.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\PlutoUtils\threads.h"\
+	"..\..\PlutoUtils\typetraits.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
@@ -1061,6 +1098,7 @@ DEP_CPP_ORBITE=\
 	"..\OpenGL\orbitergl3dengine.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
 	"..\PocketFrog\OpenGLProxy.h"\
 	"..\PocketFrog\OpenGLTextureConverter_PocketFrog.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
@@ -1098,6 +1136,7 @@ DEP_CPP_ORBITER=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
@@ -1174,6 +1213,7 @@ DEP_CPP_PFGHE=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
@@ -1185,6 +1225,7 @@ DEP_CPP_PFGHE=\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1206,6 +1247,7 @@ DEP_CPP_PFGHE=\
 	"..\Floorplan.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PFGHelper.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
@@ -1214,6 +1256,62 @@ DEP_CPP_PFGHE=\
 	"..\TextStyle.h"\
 	
 NODEP_CPP_PFGHE=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\PlutoGraphic.cpp
+DEP_CPP_PLUTO=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\ClientSocket.h"\
+	"..\..\DCE\Command_Impl.h"\
+	"..\..\DCE\DeviceData_Base.h"\
+	"..\..\DCE\DeviceData_Impl.h"\
+	"..\..\DCE\Event_Impl.h"\
+	"..\..\DCE\HandleRequestSocket.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\Socket.h"\
+	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
+	"..\CENet\WinCE.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_PLUTO=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 # End Source File
@@ -1249,6 +1347,7 @@ DEP_CPP_POCKE=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
@@ -1260,6 +1359,7 @@ DEP_CPP_POCKE=\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1280,6 +1380,7 @@ DEP_CPP_POCKE=\
 	"..\Floorplan.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PFGHelper.h"\
 	"..\PocketFrog\PNGWrapper.h"\
@@ -1444,9 +1545,11 @@ DEP_CPP_SCREE=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
+	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -1460,6 +1563,7 @@ DEP_CPP_SCREE=\
 	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\pluto_main\Define_Screen.h"\
 	"..\..\pluto_main\Define_Text.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\pluto_main\Define_Variable.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
@@ -1482,6 +1586,7 @@ DEP_CPP_SCREE=\
 	"..\Floorplan.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
 	"..\ScreenHandler.h"\
 	"..\ScreenHistory.h"\
 	"..\TextStyle.h"\
@@ -1515,6 +1620,7 @@ DEP_CPP_SCREEN=\
 	"..\CENet\WinCE.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
+	"..\PlutoGraphic.h"\
 	"..\ScreenHistory.h"\
 	"..\TextStyle.h"\
 	
@@ -1574,6 +1680,7 @@ DEP_CPP_SELFU=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
@@ -1587,6 +1694,7 @@ DEP_CPP_SELFU=\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1608,8 +1716,10 @@ DEP_CPP_SELFU=\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
+	"..\OpenGL\PendingGLEffects.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
@@ -1618,11 +1728,13 @@ DEP_CPP_SELFU=\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
+	"..\Win32\OrbiterWin32Defs.h"\
 	"..\Win32\StartOrbiter.h"\
 	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_SELFU=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\Win32\Orbiter_OpenGL.h"\
 	
 # End Source File
 # Begin Source File
@@ -1727,6 +1839,7 @@ DEP_CPP_SIMUL=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\ServerSocket.h"\
 	"..\..\DCE\Socket.h"\
@@ -1741,6 +1854,7 @@ DEP_CPP_SIMUL=\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1750,15 +1864,14 @@ DEP_CPP_SIMUL=\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
-	"..\..\PlutoUtils\singleton.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
-	"..\..\PlutoUtils\threads.h"\
-	"..\..\PlutoUtils\typetraits.h"\
 	"..\..\Proxy_Orbiter\Proxy_Orbiter.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
+	"..\..\utilities\linux\window_manager\WMController\WindowLayer.h"\
 	"..\..\utilities\linux\window_manager\WMController\WMController.h"\
 	"..\..\utilities\linux\window_manager\WMController\wmctrl.h"\
+	"..\..\utilities\linux\wrapper\wrapper_x11.h"\
 	"..\CacheImageManager.h"\
 	"..\CallBackTypes.h"\
 	"..\CENET\OrbiterSDL_WinCE.h"\
@@ -1774,22 +1887,28 @@ DEP_CPP_SIMUL=\
 	"..\Linux\XProgressWnd.h"\
 	"..\Linux\XPromptUser.h"\
 	"..\Linux\XRecordExtensionHandler.h"\
+	"..\OpenGL\Orbiter_OpenGL.h"\
+	"..\OpenGL\PendingGLEffects.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\SDL\OrbiterSDL.h"\
+	"..\SDL\StartOrbiterSDL.h"\
 	"..\SDL_Bluetooth\OrbiterSDLBluetooth.h"\
 	"..\Simulator.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
+	"..\Win32\OrbiterWin32Defs.h"\
 	"..\Win32\StartOrbiter.h"\
 	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_SIMUL=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\Win32\Orbiter_OpenGL.h"\
 	
 # End Source File
 # Begin Source File
@@ -1873,6 +1992,7 @@ DEP_CPP_START=\
 	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\ServerLogger.h"\
 	"..\..\DCE\Socket.h"\
@@ -1885,6 +2005,7 @@ DEP_CPP_START=\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1905,8 +2026,10 @@ DEP_CPP_START=\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
+	"..\OpenGL\PendingGLEffects.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
@@ -1915,11 +2038,13 @@ DEP_CPP_START=\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
+	"..\Win32\OrbiterWin32Defs.h"\
 	"..\Win32\StartOrbiter.h"\
 	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_START=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\Win32\Orbiter_OpenGL.h"\
 	
 # End Source File
 # Begin Source File

@@ -260,6 +260,9 @@
 				RelativePath="..\Bd\PhoneDevice.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter\PlutoGraphic.cpp">
+			</File>
+			<File
 				RelativePath="..\VIPShared\PlutoPhoneCommands.cpp">
 			</File>
 			<File

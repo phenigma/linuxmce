@@ -118,6 +118,7 @@ sources += \
 	DatagridMouseHandlerHelper.cpp \
 	MouseGovernor.cpp \
 	MouseIterator.cpp \
+	PlutoGraphic.cpp \
 	SDL/SDLRendererOCGHelper.cpp \
 	SDL/SDLGraphic.cpp \
 	SDL/OrbiterSDL.cpp \

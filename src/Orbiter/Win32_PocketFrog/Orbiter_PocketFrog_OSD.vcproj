@@ -300,6 +300,9 @@
 				RelativePath="..\PocketFrog\PFGHelper.cpp">
 			</File>
 			<File
+				RelativePath="..\PlutoGraphic.cpp">
+			</File>
+			<File
 				RelativePath="..\PocketFrog\PNGWrapper.cpp">
 			</File>
 			<File

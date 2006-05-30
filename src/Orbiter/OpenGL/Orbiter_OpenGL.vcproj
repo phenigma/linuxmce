@@ -161,6 +161,9 @@
 				RelativePath="..\OrbiterFileBrowser.cpp">
 			</File>
 			<File
+				RelativePath="..\PlutoGraphic.cpp">
+			</File>
+			<File
 				RelativePath="..\RendererMNG.cpp">
 			</File>
 			<File

@@ -161,6 +161,9 @@
 				RelativePath="..\Orbiter\Sdl\OrbiterSDL.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter\PlutoGraphic.cpp">
+			</File>
+			<File
 				RelativePath="Proxy_Orbiter.cpp">
 			</File>
 			<File
