@@ -9109,6 +9109,54 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_This_Room : public PreformedCommand
+	{
+	public:
+		SCREEN_This_Room(long DeviceIDFrom, long DeviceIDTo,
+			bool bAlways)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "232" /* screen ID */,
+				225 /* if true, always prompt for a new room even if a valid one is already there */, StringUtils::ltos(bAlways).c_str());
+		}
+	};
+
+	class SCREEN_This_Room_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_This_Room_DL(long DeviceIDFrom, string sDeviceIDTo,
+			bool bAlways)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "232" /* screen ID */,
+				225 /* if true, always prompt for a new room even if a valid one is already there */, StringUtils::ltos(bAlways).c_str());
+		}
+	};
+
+	class SCREEN_This_Room_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_This_Room_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			bool bAlways)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "232" /* screen ID */,
+				225 /* if true, always prompt for a new room even if a valid one is already there */, StringUtils::ltos(bAlways).c_str());
+		}
+	};
+
+	class SCREEN_This_Room_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_This_Room_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			bool bAlways)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "232" /* screen ID */,
+				225 /* if true, always prompt for a new room even if a valid one is already there */, StringUtils::ltos(bAlways).c_str());
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9353,6 +9401,7 @@ namespace DCE
 		virtual void SCREEN_Internal_Disk_Drive_Wizard(long PK_Screen, string sData_String, int iPK_Device_ControlledVia, string sDescription){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Media_Tracks(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Which_Wizard(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_This_Room(long PK_Screen, bool bAlways){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -10529,6 +10578,12 @@ namespace DCE
 				case 231:
 				{
 					SCREEN_Which_Wizard(nPK_Screen);
+					break;
+				}
+				case 232:
+				{
+					bool bAlways = pMessage->m_mapParameters[225] == "1";
+					SCREEN_This_Room(nPK_Screen, bAlways);
 					break;
 				}
 

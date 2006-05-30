@@ -54,17 +54,6 @@ bool WizardLogic::Setup()
 	return true;
 }
 
-void WizardLogic::LookForLighting()
-{
-	string sSQL = "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_ZWave_CONST);
-	{
-		MYSQL_ROW row;
-		PlutoSqlResult result_set;
-		if( (result_set.r=mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set.r))) )
-			m_nPK_Device_Lighting = atoi( row[0] );
-	}
-}
-
 /*
 	GREETING
 */

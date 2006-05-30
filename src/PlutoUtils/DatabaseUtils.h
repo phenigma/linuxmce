@@ -38,6 +38,7 @@ namespace DatabaseUtils
 	int FindControlledViaCandidate(MySqlHelper *pMySqlHelper,int iPK_Device,int iPK_DeviceTemplate,int iPK_Device_RelatedTo,int iPK_Installation);
 	int FindControlledViaCandidate(MySqlHelper *pMySqlHelper,int iPK_Device,int iPK_DeviceTemplate,int iPK_Device_RelatedTo,PlutoSqlResult &result_cv);
 	int ViolatesDuplicateRules(MySqlHelper *pMySqlHelper,int PK_Device_ControlledVia_temp,int iPK_DeviceTemplate);
+	string GetNameForRoom(MySqlHelper *pMySqlHelper,int PK_Room);
 };
 
 #endif //#ifndef _DatabaseUtils

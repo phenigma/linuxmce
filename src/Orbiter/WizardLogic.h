@@ -96,7 +96,6 @@ public:
 		SETUP LIGHTING
 	*/
 	int GetNumLights(int &iNumLightsUnassigned);
-	void LookForLighting();
 
 	/*
 		UTILITIES

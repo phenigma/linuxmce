@@ -357,3 +357,16 @@ int DatabaseUtils::ViolatesDuplicateRules(MySqlHelper *pMySqlHelper,int PK_Devic
 	}
 	return 0;
 }
+
+string DatabaseUtils::GetNameForRoom(MySqlHelper *pMySqlHelper,int PK_Room)
+{
+	string sSQL = "SELECT Description FROM Room WHERE PK_Room=" + StringUtils::itos(PK_Room);
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) && row[0] )
+		return row[0];
+	else
+		return "";
+}
+

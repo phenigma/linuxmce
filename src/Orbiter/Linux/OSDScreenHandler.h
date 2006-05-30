@@ -9,7 +9,7 @@ protected:
 	class WizardLogic *m_pWizardLogic;
 	int m_nLightInDequeToAssign; // To keep track of which light we're flashing
 	bool m_bLightsFlashThreadQuit,m_bLightsFlashThreadRunning;
-	bool m_bHasVideoWizardFiles,m_bWizardIsRunning;
+	bool m_bHasVideoWizardFiles,m_bWizardIsRunning,m_bAlreadyPlaySeeAndHearMe;
 
 public:
 	OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj);
@@ -43,6 +43,10 @@ public:
 	virtual bool RoomsWizard_CapturedKeyboardBufferChanged(CallBackData *pData);
 	virtual bool RoomsWizard_DatagridSelected(CallBackData *pData);
 
+	// This room
+	virtual void SCREEN_This_Room(long PK_Screen, bool bAlways);
+	bool ThisRoom_ObjectSelected(CallBackData *pData);
+
 	//4. TV Provider
 	virtual void SCREEN_TV_provider(long PK_Screen);
 	virtual bool TV_provider_ObjectSelected(CallBackData *pData);
@@ -70,7 +74,9 @@ public:
 	virtual bool LightsSetup_Intercepted(CallBackData *pData);
 	virtual bool LightsSetup_OnScreen(CallBackData *pData);
 	virtual bool LightsSetup_OnGotoScreen(CallBackData *pData);
-	void LightsSetup_Timer();
+	void LightsSetup_Timer();  // Our own thread so we can take a long time to wait for delivery confirmation
+	virtual bool Lights_OnTimer(CallBackData *pData);  // A normal thread for checking if we have lights yet
+	void HandleLightingScreen();
 
 	//9. Alarm Panel
 	virtual void SCREEN_AlarmPanel(long PK_Screen);
