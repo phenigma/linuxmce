@@ -1389,6 +1389,7 @@ loop_to_keep_looking_for_objs_to_include:
 				m_sInitialScreen=StringUtils::itos(SCREEN_FirstTime_CONST);
 		}
 	}
+	cout << "Initial screen: " << m_sInitialScreen << endl;
 
 	list<Row_DesignObj *>::iterator itno;
 	list<Row_DesignObj *> alNewDesignObjsToGenerate2;  // Create a second list of any new dependencies we drug in

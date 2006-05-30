@@ -3280,7 +3280,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				exit( 1 );
 			}
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"Setting current location");
+			g_pPlutoLogger->Write(LV_STATUS,"Setting current location and initial screen %s",m_sInitialScreen.c_str());
 #endif
 			CMD_Set_Current_Location(m_pLocationInfo_Initial->iLocation);
 			m_pLocationInfo = m_pLocationInfo_Initial;
