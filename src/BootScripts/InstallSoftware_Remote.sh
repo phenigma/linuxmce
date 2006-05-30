@@ -38,9 +38,13 @@ if [ -n "$IsDeb" ]; then
 			cat "/etc/apt/sources.list.test" >>/etc/apt/sources.list
 			rm "/etc/apt/sources.list.test"
 		fi
-		apt-get update &> >(tee -a "$LogFile")
-		apt-get -y install "$PackageName" &> >(tee -a "$LogFile")
+
+		apt-get update
+		echo "($?) apt-get update ($?)" >> $LogFile
+
+		apt-get -y install "$PackageName" 
 		RetCode="$?"
+		echo "($RetCode) apt-get -f install $PackageName" >> $LogFile
 
 		if [[ "$RetCode" != 0 ]]; then
 			Result="Installation failed (from Debian repository)"
@@ -48,14 +52,21 @@ if [ -n "$IsDeb" ]; then
 	fi
 	Unlock "InstallNewDevice" "InstallSoftware_Remote"
 else
-	wget -P /tmp "$RepositoryURL/$PackageName" &> >(tee -a "$LogFile")
-	if [ "$?" -eq 0 ]; then
+	wget -P /tmp "$RepositoryURL/$PackageName"
+	RetCode=$?
+	echo "($RetCode) wget -P /tmp $RepositoryURL/$PackageName" >> $LogFile
+
+	if [ "$RetCode" -eq 0 ]; then
 		WaitLock "InstallNewDevice" "InstallSoftware_Remote"
-		dpkg -i /tmp/$PackageName || Result="Installation failed (direct link)" &> >(tee -a "$LogFile")
+
+		dpkg -i /tmp/$PackageName
+		echo "($?) dpkg -i /tmp/$PackageName"
+
 		Unlock "InstallNewDevice" "InstallSoftware_Remote"
 	else
 		Result="Download failed (direct link)"
 	fi
+
 	rm -f /tmp/$PackageName
 fi
 
