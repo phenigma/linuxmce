@@ -442,17 +442,20 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
     switch ( keysym )
     {
         case XK_Shift_L:   case XK_Shift_R:
-            m_keyboardState.bShiftDown = ( event.type == Orbiter::Event::BUTTON_DOWN );
+			event.data.button.m_iPK_Button = BUTTON_left_shift_CONST;
+			g_pPlutoLogger->Write(LV_STATUS, "shift %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up");
+            m_bShiftDown = ( event.type == Orbiter::Event::BUTTON_DOWN );
+			m_bShiftDownOnScreenKeyboard = false;
             break;
         case XK_Control_L:    case XK_Control_R:
-            m_keyboardState.bControlDown = ( event.type == Orbiter::Event::BUTTON_DOWN );
+            m_bControlDown = ( event.type == Orbiter::Event::BUTTON_DOWN );
             break;
         case XK_Alt_L:    case XK_Alt_R:
-            m_keyboardState.bAltDown = ( event.type == Orbiter::Event::BUTTON_DOWN );
+            m_bAltDown = ( event.type == Orbiter::Event::BUTTON_DOWN );
             break;
         case XK_Caps_Lock:
             if ( event.type == Orbiter::Event::BUTTON_UP )
-                m_keyboardState.bCapsLock = ! m_keyboardState.bCapsLock;
+                m_bCapsLock = ! m_bCapsLock;
             break;
 
         case XK_F1:     event.data.button.m_iPK_Button = BUTTON_F1_CONST; break;
@@ -465,86 +468,92 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 		case XK_F8:     event.data.button.m_iPK_Button = BUTTON_F8_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F8 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
 
         case XK_0: case XK_KP_0:
-            if(m_keyboardState.bShiftDown)
+            if(m_bShiftDown)
                 event.data.button.m_iPK_Button = BUTTON_right_parenthesis_CONST;
             else
                 event.data.button.m_iPK_Button = BUTTON_0_CONST;
             break;
         case XK_1: case XK_KP_1:
-            if(m_keyboardState.bShiftDown)
+            if(m_bShiftDown)
                 event.data.button.m_iPK_Button = BUTTON_exclamation_point_CONST;
             else
                 event.data.button.m_iPK_Button = BUTTON_1_CONST;
             break;
         case XK_2: case XK_KP_2:
-            if(m_keyboardState.bShiftDown)
+            if(m_bShiftDown)
                 event.data.button.m_iPK_Button = BUTTON_at_sign_CONST;
             else
                 event.data.button.m_iPK_Button = BUTTON_2_CONST;
             break;
         case XK_3: case XK_KP_3:
-            if(m_keyboardState.bShiftDown)
+           if(m_bShiftDown)
                 event.data.button.m_iPK_Button = BUTTON_Pound_CONST;
             else
                 event.data.button.m_iPK_Button = BUTTON_3_CONST;
             break;
         case XK_4: case XK_KP_4:
-            if(m_keyboardState.bShiftDown)
+            if(m_bShiftDown)
                 event.data.button.m_iPK_Button = BUTTON_dollar_CONST;
             else
                 event.data.button.m_iPK_Button = BUTTON_4_CONST;
             break;
         case XK_5: case XK_KP_5:
-            if(m_keyboardState.bShiftDown)
+            if(m_bShiftDown)
+			{
                 event.data.button.m_iPK_Button = BUTTON_percent_CONST;
+				g_pPlutoLogger->Write(LV_STATUS, "% key");
+			}
             else
+			{
                 event.data.button.m_iPK_Button = BUTTON_5_CONST;
+				g_pPlutoLogger->Write(LV_STATUS, "5 key");
+			}
             break;
         case XK_6: case XK_KP_6:
-            if(m_keyboardState.bShiftDown)
+            if(m_bShiftDown)
                 event.data.button.m_iPK_Button = BUTTON_caret_CONST;
             else
                 event.data.button.m_iPK_Button = BUTTON_6_CONST;
             break;
         case XK_7: case XK_KP_7:
-            if(m_keyboardState.bShiftDown)
+            if(m_bShiftDown)
                 event.data.button.m_iPK_Button = BUTTON_ampersand_CONST;
             else
                 event.data.button.m_iPK_Button = BUTTON_7_CONST;
             break;
         case XK_8: case XK_KP_8:
-            if(m_keyboardState.bShiftDown)
+            if(m_bShiftDown)
                 event.data.button.m_iPK_Button = BUTTON_Asterisk_CONST;
             else
                 event.data.button.m_iPK_Button = BUTTON_8_CONST;
             break;
         case XK_9: case XK_KP_9:
-            if(m_keyboardState.bShiftDown)
+            if(m_bShiftDown)
                 event.data.button.m_iPK_Button = BUTTON_left_parenthesis_CONST;
             else
                 event.data.button.m_iPK_Button = BUTTON_9_CONST;
             break;
 
         case XK_Up:
-			if(m_keyboardState.bShiftDown)
+			if(m_bShiftDown)
 				event.data.button.m_iPK_Button = BUTTON_Shift_Up_Arrow_CONST;
 			else
 				event.data.button.m_iPK_Button = BUTTON_Up_Arrow_CONST;
 			break;
         case XK_Down:
-			if(m_keyboardState.bShiftDown)
+			if(m_bShiftDown)
 				event.data.button.m_iPK_Button = BUTTON_Shift_Down_Arrow_CONST;
 			else
 				event.data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST;
 			break;
         case XK_Left:
-			if(m_keyboardState.bShiftDown)
+			if(m_bShiftDown)
 				event.data.button.m_iPK_Button = BUTTON_Shift_Left_Arrow_CONST;
 			else
 		      	event.data.button.m_iPK_Button = BUTTON_Left_Arrow_CONST;
             break;
         case XK_Right:
-			if(m_keyboardState.bShiftDown)
+			if(m_bShiftDown)
 				event.data.button.m_iPK_Button = BUTTON_Shift_Right_Arrow_CONST;
 			else
 				event.data.button.m_iPK_Button = BUTTON_Right_Arrow_CONST;
@@ -560,8 +569,10 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
         case XK_BackSpace:      event.data.button.m_iPK_Button = BUTTON_Back_CONST;  break;
         case XK_underscore:     event.data.button.m_iPK_Button = BUTTON_underscore_CONST;  break;
         case XK_minus:  event.data.button.m_iPK_Button = BUTTON_dash_CONST;  break;
-        case XK_plus:   event.data.button.m_iPK_Button = BUTTON_plus_CONST;  break;
-        case XK_equal:  case XK_KP_Equal:       event.data.button.m_iPK_Button = BUTTON_equals_sign_CONST;  break;
+        case XK_equal:  case XK_KP_Equal:       
+			event.data.button.m_iPK_Button = BUTTON_equals_sign_CONST;  
+			break;
+						
         case XK_period: event.data.button.m_iPK_Button = BUTTON_dot_CONST;  break;
         case XK_comma:  case XK_KP_Separator:   event.data.button.m_iPK_Button =  BUTTON_comma_CONST; break;
         case XK_colon:  event.data.button.m_iPK_Button = BUTTON_colon_CONST; break;
@@ -573,23 +584,8 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
         default:
             if ( XK_a <= keysym && keysym <= XK_z )
 			{
-				if (
-                    (m_keyboardState.bShiftDown && m_keyboardState.bCapsLock) ||
-                    (!m_keyboardState.bShiftDown && !m_keyboardState.bCapsLock)
-                    )
-                {
-	                event.data.button.m_iPK_Button = BUTTON_a_CONST + keysym - XK_a;
-                }
-				else
-                {
-                    event.data.button.m_iPK_Button = BUTTON_A_CONST + keysym - XK_a;
-                }
+				event.data.button.m_iPK_Button = BUTTON_a_CONST + keysym - XK_a;
 			}
-            else if ( XK_A <= keysym && keysym <= XK_Z )
-            {
-                event.data.button.m_iPK_Button = BUTTON_A_CONST + keysym - XK_A;
-                std::cout<<"kb what is this:"<<'A'+keysym - XK_A<<std::endl;
-            }
             else
             {
                 event.type = Orbiter::Event::NOT_PROCESSED;

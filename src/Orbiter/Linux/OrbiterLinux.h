@@ -62,7 +62,7 @@ protected:
     bool m_bOrbiterReady; // ready to process events
     bool m_bIsExclusiveMode; // it's alone on the desktop
 
-	keyboardState m_keyboardState;
+	//keyboardState m_keyboardState;
 
     // grabbed once for info only
     // do not use this

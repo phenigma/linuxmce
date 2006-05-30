@@ -3907,7 +3907,7 @@ if(UsesUIVersion2())
 
 /*virtual*/ bool Orbiter::HandleButtonEvent(int PK_Button)
 {
-	g_pPlutoLogger->Write(LV_CRITICAL, "HandleButtonEvent button %d", PK_Button);
+	g_pPlutoLogger->Write(LV_CRITICAL, "HandleButtonEvent button %d, shift %d, caps %d", PK_Button, m_bShiftDown, m_bCapsLock);
 	
 	if( !PK_Button || !m_pScreenHistory_Current )
 		return false;
