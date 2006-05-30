@@ -840,7 +840,7 @@
 #define TEXT_Chandelier_CONST 1546
 #define TEXT_Track_light_CONST 1547
 #define TEXT_Recessed_lighting_CONST 1548
-#define TEXT_Start_Using_the_Monster_Vault_CONST 1549
+#define TEXT_Start_Using_the_system_CONST 1549
 #define TEXT_Can_you_see_me_and_hear_me_CONST 1551
 #define TEXT_Stop_video_CONST 1552
 #define TEXT_Whats_your_name_CONST 1553
@@ -1016,6 +1016,12 @@
 #define TEXT_Proceed_with_ir_learning_CONST 1729
 #define TEXT_Found_power_codes_CONST 1730
 #define TEXT_Explain_connect_to_TV_CONST 1731
+#define TEXT_Only_have_toggle_codes_CONST 1732
+#define TEXT_manufacturer_still_not_on_list_CONST 1733
+#define TEXT_Extensive_Manufacturer_List_CONST 1734
+#define TEXT_Cancel_Wizard_CONST 1735
+#define TEXT_Need_to_reload_After_Wizard_CONST 1736
+#define TEXT_Reserved_for_future_use_CONST 1737
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

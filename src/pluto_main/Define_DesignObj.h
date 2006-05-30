@@ -1720,7 +1720,7 @@
 #define DESIGNOBJ_VoipProvider_CONST 4567
 #define DESIGNOBJ_butStartWizard_CONST 4568
 #define DESIGNOBJ_butRepeat_CONST 4569
-#define DESIGNOBJ_butYourName_CONST 4570
+#define DESIGNOBJ_butHouseSetupWizard_CONST 4570
 #define DESIGNOBJ_butFamilyMembers_CONST 4571
 #define DESIGNOBJ_butLocation_CONST 4572
 #define DESIGNOBJ_butConfirmNames_CONST 4573
@@ -1934,7 +1934,7 @@
 #define DESIGNOBJ_butDemo4_CONST 4846
 #define DESIGNOBJ_butIRGroups_CONST 4847
 #define DESIGNOBJ_butConfirmIRCodes_CONST 4848
-#define DESIGNOBJ_butTVModelNotListed_CONST 4849
+#define DESIGNOBJ_butModelNotListed_CONST 4849
 #define DESIGNOBJ_butTVInputsNotListed_CONST 4850
 #define DESIGNOBJ_test_main_menu_CONST 4851
 #define DESIGNOBJ_hide_popup_CONST 4852
@@ -1989,7 +1989,7 @@
 #define DESIGNOBJ_TVDspMode_CONST 4923
 #define DESIGNOBJ_TVDspList_CONST 4924
 #define DESIGNOBJ_TVDspOrder_CONST 4925
-#define DESIGNOBJ_butTVWhatDelays_CONST 4926
+#define DESIGNOBJ_butNextNewModel_CONST 4926
 #define DESIGNOBJ_butTVHowToTune_CONST 4927
 #define DESIGNOBJ_butSQLOnOffCodes_CONST 4928
 #define DESIGNOBJ_appTVWhatDelay_CONST 4929
@@ -2128,6 +2128,10 @@
 #define DESIGNOBJ_butReceiver_No_TV_CONST 5076
 #define DESIGNOBJ_butUseIR_CONST 5077
 #define DESIGNOBJ_butShowAllModels_CONST 5078
+#define DESIGNOBJ_AllManuf_CONST 5079
+#define DESIGNOBJ_ManufStillNotListed_CONST 5080
+#define DESIGNOBJ_butNewManufacturerForType_CONST 5081
+#define DESIGNOBJ_butMediaWizard_CONST 5082
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

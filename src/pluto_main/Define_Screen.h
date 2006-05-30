@@ -175,7 +175,6 @@
 #define SCREEN_AudiAudioRemote_CONST 174
 #define SCREEN_VideoWizard_CONST 175
 #define SCREEN_DialogCannotPlayMedia_CONST 176
-#define SCREEN_DialogGenericNoButtons_CONST 177
 #define SCREEN_DialogRippingInProgress_CONST 178
 #define SCREEN_DialogCheckingDrive_CONST 179
 #define SCREEN_DialogUnableToSavePlaylist_CONST 180
@@ -211,21 +210,15 @@
 #define SCREEN_Download_are_ready_to_install_CONST 210
 #define SCREEN_mnuMainMenu2_CONST 211
 #define SCREEN_mnuAmbiance_CONST 212
-#define SCREEN_TVConfirmInputsDiscrete_CONST 215
 #define SCREEN_TVConfirmInputsToggle_CONST 216
-#define SCREEN_TVOnOffCodes_CONST 217
 #define SCREEN_mnuPVR_OSD_Full_Screen_CONST 218
 #define SCREEN_mnuPVRRecording_Full_Screen_CONST 219
 #define SCREEN_CurrentlyActiveRemote_CONST 220
-#define SCREEN_TVMultipleInputs_CONST 221
 #define SCREEN_mnuLights_CONST 222
 #define SCREEN_mnuPlaybackControl_CONST 223
 #define SCREEN_mnuSpeedControl_CONST 224
 #define SCREEN_mnuVolume_CONST 225
-#define SCREEN_OnOff_Toggle_CONST 226
-#define SCREEN_TVConfirmOnOffDiscre_CONST 227
 #define SCREEN_Internal_Disk_Drive_Wizard_CONST 228
-#define SCREEN_TVDSPMode_CONST 229
 #define SCREEN_Media_Tracks_CONST 230
 #define SCREEN_Which_Wizard_CONST 231
 
