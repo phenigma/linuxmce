@@ -3829,24 +3829,26 @@ if(UsesUIVersion2())
 {
 	bool bSkipProcessing=false;
 
-	if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F6_CONST && m_pMouseBehavior )
-		bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_6_CONST);
+	if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior)
+	{
+		if(event.data.button.m_iPK_Button == BUTTON_F6_CONST || event.data.button.m_iPK_Button == BUTTON_Mouse_6_CONST)
+			bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_6_CONST);
+		else if(event.data.button.m_iPK_Button == BUTTON_F7_CONST || event.data.button.m_iPK_Button == BUTTON_Mouse_7_CONST)
+			bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_7_CONST);
+        else if(event.data.button.m_iPK_Button == BUTTON_F8_CONST || event.data.button.m_iPK_Button == BUTTON_Mouse_8_CONST)
+		    bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_8_CONST);
+	}
 
-	if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F7_CONST && m_pMouseBehavior )
-		bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_7_CONST);
-
-	if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F8_CONST && m_pMouseBehavior )
-		bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_8_CONST);
-
-	if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F6_CONST && m_pMouseBehavior )
-		bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_6_CONST);
-
-	if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F7_CONST && m_pMouseBehavior )
-		bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_7_CONST);
-
-	if ( event.type == Orbiter::Event::BUTTON_UP && event.data.button.m_iPK_Button==BUTTON_F8_CONST && m_pMouseBehavior )
-		bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_8_CONST);
-
+    if(event.type == Orbiter::Event::BUTTON_UP && NULL != m_pMouseBehavior)
+    {
+        if(event.data.button.m_iPK_Button == BUTTON_F6_CONST || event.data.button.m_iPK_Button == BUTTON_Mouse_6_CONST)
+            bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_6_CONST);
+        else if(event.data.button.m_iPK_Button == BUTTON_F7_CONST || event.data.button.m_iPK_Button == BUTTON_Mouse_7_CONST)
+            bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_7_CONST);
+        else if(event.data.button.m_iPK_Button == BUTTON_F8_CONST || event.data.button.m_iPK_Button == BUTTON_Mouse_8_CONST)
+            bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_8_CONST);
+    }
+	
 	// The cancel button
 	if ( event.type == Orbiter::Event::BUTTON_DOWN && event.data.button.m_iPK_Button==BUTTON_F9_CONST && m_pMouseBehavior )
 		bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
