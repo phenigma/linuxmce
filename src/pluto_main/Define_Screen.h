@@ -221,7 +221,6 @@
 #define SCREEN_Internal_Disk_Drive_Wizard_CONST 228
 #define SCREEN_Media_Tracks_CONST 230
 #define SCREEN_Which_Wizard_CONST 231
-#define SCREEN_This_Room_CONST 232
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
