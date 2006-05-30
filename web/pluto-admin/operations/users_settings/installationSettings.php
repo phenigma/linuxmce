@@ -83,7 +83,6 @@ function installationSettings($output,$dbADO) {
 		<input type="hidden" name="from" value="'.$from.'">
 		<input type="hidden" name="timeZoneText" value="update">
 
-		<h3>'.$TEXT_INSTALLATION_SETTINGS_CONST.'</h3>
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 			<table width="300">			

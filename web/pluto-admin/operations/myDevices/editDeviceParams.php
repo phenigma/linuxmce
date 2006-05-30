@@ -146,9 +146,8 @@ $installationID = (int)@$_SESSION['installationID'];
 	</table>
 	<form method="post" action="index.php" name="editDeviceParams">
 	<script>
-		 	var frmvalidator = new formValidator("editDeviceParams");
- 			frmvalidator.addValidation("DeviceDescription","req","Please enter a description");
-		</script>
+	 	var frmvalidator = new formValidator("editDeviceParams");
+	</script>
 		
 	<fieldset>
 	<legend>'.$TEXT_DEVICE_INFO_CONST.' #'.$deviceID.' <!--<a href="'.$PlutoSupportHost.'index.php?section=document&docID='.@$helpDocument.'"><img src="include/images/help_rounded.gif" align="middle" border="0"></a>--></legend>
@@ -267,7 +266,11 @@ $installationID = (int)@$_SESSION['installationID'];
 	</table>
 	</fieldset>
 	<br />
-					
+	<script>
+		frmvalidator.addValidation("DeviceDescription","req","Please enter a description");
+		frmvalidator.addValidation("macAddress","mac","'.$TEXT_INVALID_MAC_ADDRESS_CONST.'");
+		frmvalidator.addValidation("ipAddress","ip","'.$TEXT_INVALID_IP_ADDRESS_CONST.'");
+	</script>
 	<table width="100%">
 		<tr>
 			<td valign="top" width="50%">

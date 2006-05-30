@@ -32,7 +32,7 @@ function addSoftware($output,$dbADO) {
 			
 			<form action="index.php" method="POST" name="addSoftware">
 			<input type="hidden" name="section" value="addSoftware">
-			<input type="hidden" name="action" value="add">
+			<input type="hidden" name="action" value="form">
 		
 		<table>
 			<tr>
@@ -76,7 +76,30 @@ function addSoftware($output,$dbADO) {
 			</tr>
 			<tr>
 				<td colspan="2" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_SOFTWARE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
-			</tr>
+			</tr>		';
+		if(isset($_POST['add'])){
+			$deviceParts=explode(':',$_POST['deviceIP']);
+			$deviceIP=$deviceParts[1];
+			$packageName=$_POST['packageName'];
+			$url=((isset($_POST['debianRepository']) && (int)$_POST['debianRepository']==1)?'deb ':'').$_POST['url'];
+			$repositoryName=@$_POST['repositoryName'];
+
+			$cmd="/usr/pluto/bin/InstallSoftware.sh '$deviceIP' '$packageName' '$url' '$repositoryName'";
+			$msg="$TEXT_DEVICE_CONST ".$_POST['deviceIP']." $TEXT_PACKAGE_NAME_CONST $packageName";
+			$msg.=' '.$TEXT_INSTALLATION_STATUS_CONST.' '.exec($cmd);
+			
+			$_SESSION['deviceIP']=$deviceParts[0].':'.$deviceIP;
+			$_SESSION['packageName']=$packageName;
+			$_SESSION['url']=$_POST['url'];
+			$_SESSION['debianRepository']=(isset($_POST['debianRepository']) && (int)$_POST['debianRepository']==1)?1:0;
+			$_SESSION['repositoryName']=$repositoryName;
+			
+			$out.='
+			<tr>
+				<td colspan="2" align="center">'.$msg.'<br><iframe src="operations/logs/executeLog.php?script=4&cmd='.$cmd.'" width="950" height="600"></iframe></td>
+			</tr>';
+		}
+		$out.='
 		</table>
 		</form>';
 	}else{
@@ -88,24 +111,7 @@ function addSoftware($output,$dbADO) {
 			exit();
 		}	
 
-		if(isset($_POST['add'])){
-			$deviceParts=explode(':',$_POST['deviceIP']);
-			$deviceIP=$deviceParts[1];
-			$packageName=$_POST['packageName'];
-			$url=((isset($_POST['debianRepository']) && (int)$_POST['debianRepository']==1)?'deb ':'').$_POST['url'];
-			$repositoryName=@$_POST['repositoryName'];
-
-			$cmd="/usr/pluto/bin/InstallSoftware.sh '$deviceIP' '$packageName' '$url' '$repositoryName'";
-			$msg="$TEXT_DEVICE_CONST ".$_POST['deviceIP']." $TEXT_PACKAGE_NAME_CONST $packageName";
-			$msg.=' '.$TEXT_INSTALLATION_STATUS_CONST.' '.exec($cmd);
-			$_SESSION['deviceIP']=$deviceParts[0].':'.$deviceIP;
-			$_SESSION['packageName']=$packageName;
-			$_SESSION['url']=$_POST['url'];
-			$_SESSION['debianRepository']=(isset($_POST['debianRepository']) && (int)$_POST['debianRepository']==1)?1:0;
-			$_SESSION['repositoryName']=$repositoryName;
-		}
-		
-		header('Location: index.php?section=addSoftware&msg='.urlencode($msg));
+		header('Location: index.php?section=addSoftware');
 	}
 
 	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
