@@ -207,6 +207,8 @@ namespace DCE
 			
 			// media functions
 			bool OpenMedia(string fileName, string &sMediaInfo, string sMediaPosition);
+			bool CloseMedia();
+
 			
 			bool playStream( string mediaPosition);
 			

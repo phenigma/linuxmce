@@ -346,7 +346,9 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sC
 	pStream->pauseMediaStream();
 	*sMediaPosition = pStream->GetPosition();
 	
-	ptrFactory->DestroyStream( iStreamID );
+	pStream->CloseMedia();
+	
+	//ptrFactory->DestroyStream( iStreamID );
 }
 
 //<-dceag-c39-b->

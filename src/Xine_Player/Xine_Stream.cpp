@@ -389,6 +389,18 @@ bool Xine_Stream::InitXineAVOutput()
 	return true;
 }
 
+bool Xine_Stream::CloseMedia()
+{
+	if ( m_pXineStream )
+	{	
+		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_stop for stream with id: %d", m_iStreamID );
+		xine_stop( m_pXineStream );
+
+		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close for stream with id: %d", m_iStreamID );
+		xine_close( m_pXineStream );
+	}
+}
+
 bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPosition)
 {
 	if (!m_bInitialized)
