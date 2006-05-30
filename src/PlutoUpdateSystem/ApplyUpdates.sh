@@ -112,14 +112,7 @@ done
 Count=$(apt-get -f -y -s dist-upgrade | egrep -c '^Inst |^Conf ')
 
 echo "- Doing dist-upgrade (this can take some time)"
-if [[ -x /usr/bin/screen ]]; then
-	screen -d -m -S BkgSS-ApplyUpdates apt-get -V -f -y dist-upgrade
-	pidScreen=$!
-	wait $pidScreen
-else
-	## Make sure we run even without screen
-	apt-get -V -f -y dist-upgrade
-fi
+apt-get -V -f -y dist-upgrade
 
 if [[ "$Count" != "0" ]]; then
 	Q="UPDATE Device SET NeedConfigure=1"
