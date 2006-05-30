@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../..;../Win32;../../DCE;&quot;../../../libs/Libraries/pthreads-win32/include&quot;;.;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../../../libs/CrossPlatform/lpng127;../../PlutoUtils;../SDL;../../OrbiterGen;../../../libs/CrossPlatform/zlib"
+				AdditionalIncludeDirectories="..;../..;../Win32;../../DCE;&quot;../../../libs/Libraries/pthreads-win32/include&quot;;.;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../../../libs/CrossPlatform/lpng127;../../PlutoUtils;../SDL;../../OrbiterGen;../../../libs/CrossPlatform/zlib;&quot;../../.../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;&quot;../../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../../libs/CrossPlatform/sge030809-w32/src&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;DEBUG;ORBITER_OPENGL"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,10 +33,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib dce.lib zlib1-pluto-d.lib libpng-pluto-d.lib OpenGL32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib dce.lib zlib1-pluto-d.lib libpng-pluto-d.lib OpenGL32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SGE-pluto-d.lib"
 				OutputFile="../../Debug/Orbiter_OpenGL.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;../../lib;../../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug;../../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug;../../../libs/Libraries/jpgsrc6b/vc7/Debug"
+				AdditionalLibraryDirectories="&quot;../../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;../../lib;../../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug;../../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug;../../../libs/Libraries/jpgsrc6b/vc7/Debug;&quot;../../../libs/CrossPlatform/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Debug&quot;;&quot;../../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;"
 				IgnoreDefaultLibraryNames="LIBCD"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Orbiter.pdb"
@@ -324,6 +324,9 @@
 								Name="VCCLCompilerTool"
 								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
 						</FileConfiguration>
+					</File>
+					<File
+						RelativePath=".\OpenGLGraphic.cpp">
 					</File>
 					<File
 						RelativePath=".\OpenGLTextureConverter.cpp">

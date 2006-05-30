@@ -20,6 +20,7 @@
 #include "GL2DEffects/gl2deffectfadesfromunderneath.h"
 #include "Orbiter3DCommons.h" 
 #include "Simulator.h" 
+#include "OpenGLGraphic.h"
 
 #include "../../pluto_main/Define_Effect.h"
 //-----------------------------------------------------------------------------------------------------
@@ -191,18 +192,18 @@ Orbiter_OpenGL::Orbiter_OpenGL(int DeviceID, int PK_DeviceTemplate, string Serve
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ PlutoGraphic *Orbiter_OpenGL::CreateGraphic()
 {
-	//todo
-	return NULL;
+	return new OpenGLGraphic(this);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_OpenGL::RenderScreen( bool bRenderGraphicsOnly )
 {
-
+	Orbiter::RenderScreen(bRenderGraphicsOnly);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_OpenGL::RedrawObjects()
 {
-
+    PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
+	Orbiter::RedrawObjects();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_OpenGL::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
@@ -252,7 +253,7 @@ Orbiter_OpenGL::Orbiter_OpenGL(int DeviceID, int PK_DeviceTemplate, string Serve
 /*virtual*/ void Orbiter_OpenGL::Initialize(GraphicType Type, int iPK_Room/*= 0*/, 
 	int iPK_EntertainArea/* = 0*/)
 {
-    //Orbiter::Initialize(Type, iPK_Room, iPK_EntertainArea);
+    Orbiter::Initialize(Type, iPK_Room, iPK_EntertainArea);
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ void Orbiter_OpenGL::Cleanup()

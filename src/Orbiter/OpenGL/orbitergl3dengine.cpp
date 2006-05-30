@@ -165,7 +165,7 @@ int OrbiterGL3D::InitOpenGL()
 			SDL_GetError());
 		exit(1);
 	}
-    pOrbiter->InitializeAfterSetVideoMode();
+//    pOrbiter->InitializeAfterSetVideoMode();
 	g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", 
 		pOrbiter->m_iImageWidth, pOrbiter->m_iImageHeight);
 
