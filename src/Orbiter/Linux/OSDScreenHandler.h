@@ -46,6 +46,7 @@ public:
 	// This room
 	virtual void SCREEN_This_Room(long PK_Screen, bool bAlways);
 	bool ThisRoom_ObjectSelected(CallBackData *pData);
+	bool This_Room_GridSelected(CallBackData *pData);
 
 	//4. TV Provider
 	virtual void SCREEN_TV_provider(long PK_Screen);

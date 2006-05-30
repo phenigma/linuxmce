@@ -517,6 +517,7 @@ void OSDScreenHandler::SCREEN_This_Room(long PK_Screen, bool bAlways)
 	}
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::ThisRoom_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::This_Room_GridSelected, new DatagridCellBackData());
 	return ScreenHandler::SCREEN_This_Room(PK_Screen,bAlways);
 }
 
@@ -524,29 +525,10 @@ void OSDScreenHandler::SCREEN_This_Room(long PK_Screen, bool bAlways)
 bool OSDScreenHandler::This_Room_GridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
-	if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Available_Serial_Ports_CONST )
+	if(GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_InWhichRoomIsTheSystem_CONST)
 	{
-		string::size_type pos=0;
-		int iPK_Device_ControlledVia = atoi(StringUtils::Tokenize(pCellInfoData->m_sValue,",",pos).c_str());
-		string sPort = StringUtils::Tokenize(pCellInfoData->m_sValue,",",pos);
-
-		string sModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
-		if(sModel == "")
-			return true;
-
-		m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST);
-		m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->AddDevice(atoi(sModel.c_str()),
-                                                                    StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + sPort,
-                                                                    iPK_Device_ControlledVia);
-		m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_DirectToTV_CONST),"","",true,false);
-		return true;
-	}
-		if(GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_TVManuf_CONST:
-			{
-				m_pWizardLogic->m_dwPK_Manufacturer = atoi(pCellInfoData->m_sValue.c_str());
-				m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butTVModel_CONST), 0,"","", m_pWizardLogic->m_dwPK_Manufacturer ? "1" : "0" );
-			}
-			break;
+		int PK_Room = atoi(pCellInfoData->m_sValue.c_str());
+		m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butTVProvider_CONST), 0,"","", PK_Room ? "1" : "0" );
 	}
 
 	return false;
