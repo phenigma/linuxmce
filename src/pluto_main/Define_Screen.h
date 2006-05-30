@@ -235,6 +235,8 @@
 #define SCREEN_SPECIALHANDINGRECOMMENDED_TABLE_FIELD "Screen.SpecialHandingRecommended"
 #define SCREEN_ALWAYSINCLUDE_FIELD "AlwaysInclude"
 #define SCREEN_ALWAYSINCLUDE_TABLE_FIELD "Screen.AlwaysInclude"
+#define SCREEN_GOBACKTOSCREEN_FIELD "GoBackToScreen"
+#define SCREEN_GOBACKTOSCREEN_TABLE_FIELD "Screen.GoBackToScreen"
 #define SCREEN_PSC_ID_FIELD "psc_id"
 #define SCREEN_PSC_ID_TABLE_FIELD "Screen.psc_id"
 #define SCREEN_PSC_BATCH_FIELD "psc_batch"
