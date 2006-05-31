@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#MessageSend $IP -targetType template 0 26 1 67 13 "/usr/pluto/bin/ForceUpdates.sh"
+. /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/Config_Ops.sh
 
 ## Kill all DownloadUpdates.sh scripts that are running
 DownloadUpdates_PIDS=$(pidof DownloadUpdates.sh)
@@ -28,5 +29,30 @@ touch /usr/pluto/var/Updates/UpdatesOk.flag
 echo $UpdatesOkStamp > /usr/pluto/var/Updates/UpdatesOk.flag
 echo $UpdatesOkStamp > /usr/pluto/var/Updates/ForceUpdates.stamp
 
+## Generate a list containig all orbiter ids ($OrbiterIDList) to display the reboot message
+Q="
+        SELECT
+                PK_Device
+        FROM
+                Device
+                JOIN DeviceTemplate ON PK_DeviceTemplate = FK_DeviceTemplate
+                JOIN DeviceCategory ON PK_DeviceCategory = FK_DeviceCategory
+        WHERE
+                PK_DeviceCategory IN (5,2,3)
+"
+
+OrbiterList=$(RunSQL "$Q")
+
+OrbiterIDList=""
+for Orbiter in $OrbiterList; do
+        if [[ $OrbiterIDList != "" ]]; then
+                OrbiterIDList="$OrbiterIDList,"
+        fi
+
+        Orbiter_ID=$(Field 1 "$Orbiter")
+        OrbiterIDList="$OrbiterIDList""$Orbiter_ID"
+done
+
 ## Force the reboot
+/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList  1 741 159 53 9 'Restarting the Core to force a system update ...' 163 "reboot" 183 "0"
 reboot
