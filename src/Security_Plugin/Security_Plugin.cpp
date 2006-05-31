@@ -500,7 +500,8 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	Row_ModeChange *pRow_ModeChange = m_pDatabase_pluto_security->ModeChange_get()->AddRow();
 	pRow_ModeChange->EK_HouseMode_set(PK_HouseMode);
 	pRow_ModeChange->ChangeTime_set(StringUtils::SQLDateTime(time(NULL)));
-	pRow_ModeChange->EK_Users_set(iPK_Users);
+	if( iPK_Users )
+		pRow_ModeChange->EK_Users_set( iPK_Users );
 	pRow_ModeChange->Table_ModeChange_get()->Commit();
 	m_mapRow_ModeChange_Last[pDeviceGroup ? pDeviceGroup->m_dwPK_DeviceGroup : 0]=pRow_ModeChange;
 
