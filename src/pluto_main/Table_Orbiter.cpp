@@ -646,7 +646,23 @@ update_values_list = update_values_list + "`PK_Orbiter`="+pRow->PK_Orbiter_asSQL
 
 	
 		string query = "update Orbiter set " + update_values_list + " where " + condition;
-			
+cout << "orbiter::Commit " << update_values_list << " " << condition << endl;
+	string sql = "select * FROM Orbiter where " + condition;
+	mysql_query(database->m_pMySQL, sql.c_str());
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
+	if( res )
+	{
+		MYSQL_ROW row;
+		while ((row = mysql_fetch_row(res)) != NULL)
+		{
+			string st;
+			for(int i=0;i<res->field_count;++i)
+			{
+				st += StringUtils::itos(i) + ":" + (row[i] ? row[i] : "NULL") + "      ";
+			}
+			cout << "orbiter::Commit " << st << endl;
+		}
+	}				
 		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
