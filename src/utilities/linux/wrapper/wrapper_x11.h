@@ -25,9 +25,6 @@
 #include <iostream>
 using namespace std;
 
-class X11_Locker;
-class X11_Locker_NewDisplay;
-
 // definition from in Xlib.h
 // WARNING, this type not in Xlib spec
 typedef int (*XErrorHandler) (Display*, XErrorEvent*);
@@ -35,10 +32,42 @@ typedef int (*XErrorHandler) (Display*, XErrorEvent*);
 // new type
 typedef int (*X_AfterFunction) (Display*);
 
+/// sync and lock functions
+bool X11_Sync(Display *pDisplay); // call flush
+bool X11_Lock(Display *pDisplay);
+bool X11_Unlock(Display *pDisplay); // call sync
+
+// small helper class to be used with X11 code
+// locks in the constructor and unlocks in the destructor
+// making it much more difficult to forget to unlock
+// (which, in general, will lead to serious and difficult to debug problems)
+class X11_Locker
+{
+public:
+    X11_Locker(Display *pDisplay);
+    ~X11_Locker();
+protected:
+    Display *v_pDisplay;
+};
+
+// small helper class to be used with X11 code
+// locks in the constructor and unlocks in the destructor
+// making it much more difficult to forget to unlock
+// (which, in general, will lead to serious and difficult to debug problems)
+// this one open a new display, and closes it in the destructor
+class X11_Locker_NewDisplay
+{
+public:
+    X11_Locker_NewDisplay();
+    ~X11_Locker_NewDisplay();
+    Display * GetDisplay();
+protected:
+    Display *v_pDisplay;
+};
+
 // X11 wrapper class
 // if the display connection is assigned, it will not be closed at exit
 // the main window can be kept here, but it is not handled
-
 class X11wrapper
 {
 public:
@@ -77,6 +106,10 @@ public:
     void Assign_MainWindow(Window window);
     Window GetMainWindow();
 
+    // reuse the already opened display for the main window
+    void Assign_MainDisplay(Window window);
+    Window GetMainDisplay();
+
     /// static functions
 public:
     inline static bool IsReturnCodeOk(int code);
@@ -91,8 +124,9 @@ public:
     bool ErrorHandler_Set();
     bool ErrorHandler_Restore();
 
-    /// lock and unlock
+    /// sync and lock functions
 
+    void Sync();
     void Lock();
     void Unlock();
 
@@ -189,7 +223,7 @@ protected:
     };
     Info_Mouse_Constrain previous_mouse_constrain;
 
-    // debug
+    /// debug
 public:
     Window Debug_Window(bool bCreate_NotClose=true);
 
@@ -200,35 +234,6 @@ public:
 protected:
     X_AfterFunction v_pOld_X_AfterFunction;
     bool v_bIsChanged_X_AfterFunction;
-};
-
-// small helper class to be used with X11 code
-// locks in the constructor and unlocks in the destructor
-// making it much more difficult to forget to unlock
-// (which, in general, will lead to serious and difficult to debug problems)
-
-class X11_Locker
-{
-public:
-    X11_Locker(Display *pDisplay);
-    ~X11_Locker();
-protected:
-    Display *v_pDisplay;
-};
-
-// small helper class to be used with X11 code
-// locks in the constructor and unlocks in the destructor
-// making it much more difficult to forget to unlock
-// (which, in general, will lead to serious and difficult to debug problems)
-// this one open a new display, and closes it in the destructor
-class X11_Locker_NewDisplay
-{
-public:
-    X11_Locker_NewDisplay();
-    ~X11_Locker_NewDisplay();
-    Display * GetDisplay();
-protected:
-    Display *v_pDisplay;
 };
 
 #endif
