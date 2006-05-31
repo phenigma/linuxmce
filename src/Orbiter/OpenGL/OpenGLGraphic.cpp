@@ -87,6 +87,39 @@ bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 	Width = m_pSDL_Surface->w;
 	Height = m_pSDL_Surface->h;
 
+	SDL_Surface *SurfaceTexture= SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, m_pSDL_Surface->format->BitsPerPixel, rmask, gmask, bmask, amask);
+					
+	if(SurfaceTexture == NULL) {
+		fprintf(stderr, "CreateRGBSurface failed: %s", SDL_GetError());
+		return NULL;
+	}
+	SDL_BlitSurface(m_pSDL_Surface, NULL, SurfaceTexture, NULL);
+	glGenTextures( 1, &m_OpenGLTexture);
+	/* Typical Texture Generation Using Data From The Bitmap */
+	glBindTexture( GL_TEXTURE_2D, m_OpenGLTexture);
+	if(SurfaceTexture->format->BytesPerPixel == 4)
+		/* Generate The Texture */
+		glTexImage2D( GL_TEXTURE_2D, 
+		0, 3, 
+		SurfaceTexture->w, SurfaceTexture->h, 
+		0, GL_RGBA,
+		GL_UNSIGNED_BYTE, 
+		SurfaceTexture->pixels );
+	else
+	/* Generate The Texture */
+	glTexImage2D( GL_TEXTURE_2D, 
+			0, 3, 
+			SurfaceTexture->w, SurfaceTexture->h, 
+			0, GL_RGB,
+			GL_UNSIGNED_BYTE, 
+			SurfaceTexture->pixels );
+
+
+	SDL_FreeSurface(SurfaceTexture);
+	/* Linear Filtering */
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
 	return true;
 }
 //-------------------------------------------------------------------------------------------------------

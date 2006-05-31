@@ -209,7 +209,6 @@ Orbiter_OpenGL::Orbiter_OpenGL(int DeviceID, int PK_DeviceTemplate, string Serve
 /*virtual*/ void Orbiter_OpenGL::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
 	bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
-
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_OpenGL::BeginPaint()

@@ -5,8 +5,8 @@
 
 #if defined(POCKETFROG)
 	#include "PocketFrog/PocketFrogGraphic.h"
-#elif defined(ORBITER_OPENGL)
-	//TODO
+#elif defined(ORBITER_OPENGL)	
+	#include "OpenGL/OpenGLGraphic.h"
 #else
 	#include "SDL/SDLGraphic.h"
 #endif
@@ -55,7 +55,7 @@ void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type,
 #if defined(POCKETFROG)
 		= new PocketFrogGraphic(pOrbiter);
 #elif defined(ORBITER_OPENGL)
-		= NULL;
+		= new OpenGLGraphic(pOrbiter);
 #else
 		= new SDLGraphic(pOrbiter); //we won't load the graphic yet
 #endif
