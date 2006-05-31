@@ -349,7 +349,12 @@ bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
 {
     if (sdl_event_loop_data.pOrbiter->m_bQuit)
         return false;
-    if(SDL_PollEvent(&sdl_event_loop_data.event))
+    // crash in X11_CheckMouseMode () from /usr/lib/libSDL-1.2.so.0
+    // our SDL lib is not thread-safe
+    sdl_event_loop_data.pOrbiter->X_LockDisplay();
+    bool bIsEventWaiting = SDL_PollEvent(&sdl_event_loop_data.event);
+    sdl_event_loop_data.pOrbiter->X_UnlockDisplay();
+    if (bIsEventWaiting)
     {
         if(sdl_event_loop_data.event.type == SDL_QUIT)
             return false;
