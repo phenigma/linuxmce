@@ -908,7 +908,7 @@ cout << "DEVICE::Commit " << update_values_list << " " << condition << endl;
 			{
 				st += StringUtils::itos(i) + ":" + (row[i] ? row[i] : "NULL") + "      ";
 			}
-			cout << "st" << endl;
+			cout << "DEVICE::Commit " << st << endl;
 		}
 	}			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
