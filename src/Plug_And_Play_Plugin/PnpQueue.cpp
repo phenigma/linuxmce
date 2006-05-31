@@ -218,7 +218,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 			}
 
 			pRow_Device_Created->FK_Device_ControlledVia_set(PK_Device_ControlledVia);
-			pRow_Device_Created->Disabled_set(false);
+			SetDisableFlagForDeviceAndChildren(pRow_Device_Created,false);
 			m_pDatabase_pluto_main->Device_get()->Commit();
 			
 			Message *pMessage_Kill = new Message(m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get(),PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_QUIT,0);
@@ -229,7 +229,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 		}
 		else if( pRow_Device_Created->Disabled_get()!=0 )
 		{
-			pRow_Device_Created->Disabled_set(0);
+			SetDisableFlagForDeviceAndChildren(pRow_Device_Created,false);
 			m_pDatabase_pluto_main->Device_get()->Commit();
 			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_ADD_SOFTWARE);
 			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Detected queue %d was existing device, but disabled",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
@@ -565,7 +565,7 @@ bool PnpQueue::Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
 	Row_Device *pRow_Device_Created = pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_getrow() : NULL;  // This will be NULL if it's a new device
 	if( pRow_Device_Created )
 	{
-		pRow_Device_Created->Disabled_set(1);
+		SetDisableFlagForDeviceAndChildren(pRow_Device_Created,true);
 		m_pDatabase_pluto_main->Device_get()->Commit();
 		Message *pMessage_Kill = new Message(m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get(),PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_QUIT,0);
 		m_pPlug_And_Play_Plugin->QueueMessageToRouter(pMessage_Kill); // Kill the device at the old location
@@ -906,3 +906,16 @@ string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
 		sDescription = pPnpQueueEntry->m_pRow_Device_Reported->Description_get();
 	return sDescription;
 }
+
+void PnpQueue::SetDisableFlagForDeviceAndChildren(Row_Device *pRow_Device,bool bDisabled)
+{
+	pRow_Device->Disabled_set(bDisabled ? 1 : 0);
+	vector<Row_Device *> vectRow_Device;
+	pRow_Device->Device_FK_Device_ControlledVia_getrows(&vectRow_Device);
+	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
+		SetDisableFlagForDeviceAndChildren(*it,bDisabled);
+}
+
+
+	
+

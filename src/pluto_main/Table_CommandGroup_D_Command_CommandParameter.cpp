@@ -473,6 +473,23 @@ update_values_list = update_values_list + "`FK_CommandGroup_D_Command`="+pRow->F
 
 	
 		string query = "update CommandGroup_D_Command_CommandParameter set " + update_values_list + " where " + condition;
+cout << "CommandGroup_D_Command_CommandParameter::Commit " << update_values_list << " " << condition << endl;
+	string sql = "select * FROM CommandGroup_D_Command_CommandParameter where " + condition;
+	mysql_query(database->m_pMySQL, sql.c_str());
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
+	if( res )
+	{
+		MYSQL_ROW row;
+		while ((row = mysql_fetch_row(res)) != NULL)
+		{
+			string st;
+			for(int i=0;i<res->field_count;++i)
+			{
+				st += StringUtils::itos(i) + ":" + (row[i] ? row[i] : "NULL") + "      ";
+			}
+			cout << "CommandGroup_D_Command_CommandParameter::Commit " << st << endl;
+		}
+	}				
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
