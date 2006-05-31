@@ -20,6 +20,10 @@
 device="$PK_Device"
 code="$Activation_Code"
 
+PrevVersion="$2"
+
+DEVICETEMPLATE_HAL=1808
+
 echo "setting up dce router2"
 hasRecords=$(RunSQL "SELECT count(PK_Installation) FROM Installation")
 if [[ $hasRecords -ne 0 ]]; then
@@ -156,3 +160,20 @@ Templates=$(RunSQL "$Q")
 for Template in $Templates; do
 	/usr/pluto/bin/WebDB_GetIR.sh 0 "$Template"
 done
+
+if [[ -n "$PrevVersion" ]]; then
+	Q="
+		SELECT PK_Device
+		FROM Device
+		JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+		WHERE FK_DeviceCategory IN (7,8) AND FK_Device_ControlledVia IS NULL
+	"
+	Computers=$(RunSQL "$Q")
+
+	for Comp in $Computers; do
+		NewHAL=$(/usr/pluto/bin/CreateDevice -d "$DEVICETEMPLATE_HAL" -C "$Comp" 2>/dev/null)
+		if [[ -n "$NewHAL" ]]; then
+			echo "Created HAL device '$NewHAL' under computer '$Comp'"
+		fi
+	done
+fi
