@@ -66,8 +66,8 @@ Ask()
 
 NewDev()
 {
-	echo "Create device: $*" >/dev/tty
-	/usr/pluto/bin/CreateDevice "$@" | tail -1
+	echo "Create device: $*" >/dev/stderr
+	/usr/pluto/bin/CreateDevice "$@" | tee /dev/stderr | tail -1
 }
 
 # TODO: make these work at install time (currently they mess up debconf)
