@@ -58,8 +58,7 @@ IMPLEMENT_APP( wxAppMain )
  * wxAppMain type definition
  */
 
-IMPLEMENT_CLASS( wxAppMain, wxApp )
-    ;
+IMPLEMENT_CLASS( wxAppMain, wxApp );
 
 /*!
  * wxAppMain event table definition
@@ -75,8 +74,7 @@ BEGIN_EVENT_TABLE( wxAppMain, wxApp )
     EVTC_DIALOG(wxID_ANY, wxAppMain::OnEvent_Dialog)
     EVT_TIMER(ID_Timer_WakeIdle, wxAppMain::OnTimer_WakeIdle)
 
-    END_EVENT_TABLE()
-    ;
+    END_EVENT_TABLE();
 
 /*!
  * Constructor for wxAppMain

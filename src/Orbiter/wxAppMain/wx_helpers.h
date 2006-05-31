@@ -58,10 +58,10 @@ wxSemaError wx_semaphore_wait(wxSemaphore &rSemaphore);
 // when the object is created, respectively destroyed
 class wxCondLocker
 {
-  public:
+public:
     wxCondLocker(bool bCondition, type_ref_void_fn_void fn_launch_enter, type_ref_void_fn_void fn_launch_leave);
     ~wxCondLocker();
-  protected:
+protected:
     bool v_bLocked; // functions called
     type_ref_void_fn_void v_fn_launch_enter;
     type_ref_void_fn_void v_fn_launch_leave;

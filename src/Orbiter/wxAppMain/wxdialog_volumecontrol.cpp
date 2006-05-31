@@ -32,26 +32,26 @@
  * wxDialog_VolumeControl type definition
  */
 
-IMPLEMENT_DYNAMIC_CLASS( wxDialog_VolumeControl, wxDialog_Base )
+IMPLEMENT_DYNAMIC_CLASS( wxDialog_VolumeControl, wxDialog_Base );
 
 /*!
  * wxDialog_VolumeControl event table definition
  */
 
-    BEGIN_EVENT_TABLE( wxDialog_VolumeControl, wxDialog_Base )
+BEGIN_EVENT_TABLE( wxDialog_VolumeControl, wxDialog_Base )
 
 ////@begin wxDialog_VolumeControl event table entries
     EVT_CLOSE( wxDialog_VolumeControl::OnCloseWindow )
 
 ////@end wxDialog_VolumeControl event table entries
 
-    END_EVENT_TABLE()
+    END_EVENT_TABLE();
 
 /*!
  * wxDialog_VolumeControl constructors
  */
 
-    wxDialog_VolumeControl::wxDialog_VolumeControl( )
+wxDialog_VolumeControl::wxDialog_VolumeControl( )
 {
 }
 

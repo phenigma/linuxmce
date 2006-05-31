@@ -36,8 +36,7 @@
  * wxDialog_WaitList type definition
  */
 
-IMPLEMENT_DYNAMIC_CLASS( wxDialog_WaitList, wxDialog_Base )
-;
+IMPLEMENT_DYNAMIC_CLASS( wxDialog_WaitList, wxDialog_Base );
 
 /*!
  * wxDialog_WaitList event table definition
@@ -50,8 +49,7 @@ BEGIN_EVENT_TABLE( wxDialog_WaitList, wxDialog_Base )
 
 ////@end wxDialog_WaitList event table entries
 
-END_EVENT_TABLE()
-;
+    END_EVENT_TABLE();
 
 /*!
  * wxDialog_WaitList constructors

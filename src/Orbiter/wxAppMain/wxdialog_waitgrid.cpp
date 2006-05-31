@@ -41,8 +41,7 @@ const int nColumnCount = 2;
  * wxDialog_WaitGrid type definition
  */
 
-IMPLEMENT_DYNAMIC_CLASS( wxDialog_WaitGrid, wxDialog_Base )
-;
+IMPLEMENT_DYNAMIC_CLASS( wxDialog_WaitGrid, wxDialog_Base );
 
 /*!
  * wxDialog_WaitGrid event table definition
@@ -56,8 +55,7 @@ BEGIN_EVENT_TABLE( wxDialog_WaitGrid, wxDialog_Base )
 
 ////@end wxDialog_WaitGrid event table entries
 
-END_EVENT_TABLE()
-;
+    END_EVENT_TABLE();
 
 /*!
  * wxDialog_WaitGrid constructors
@@ -193,7 +191,7 @@ void wxDialog_WaitGrid::OnSize( wxSizeEvent& event )
 ////@begin wxEVT_SIZE event handler for ID_DIALOG_WAITGRID in wxDialog_WaitGrid.
     // Before editing this code, remove the block markers.
     event.Skip();
-////@end wxEVT_SIZE event handler for ID_DIALOG_WAITGRID in wxDialog_WaitGrid. 
+////@end wxEVT_SIZE event handler for ID_DIALOG_WAITGRID in wxDialog_WaitGrid.
 }
 
 /*!

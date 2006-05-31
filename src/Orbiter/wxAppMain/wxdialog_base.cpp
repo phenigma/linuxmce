@@ -35,8 +35,7 @@
  * wxDialog_Base type definition
  */
 
-IMPLEMENT_DYNAMIC_CLASS( wxDialog_Base, wxDialog )
-    ;
+IMPLEMENT_DYNAMIC_CLASS( wxDialog_Base, wxDialog );
 
 /*!
  * wxDialog_Base event table definition
@@ -52,8 +51,7 @@ BEGIN_EVENT_TABLE( wxDialog_Base, wxDialog )
     EVT_WINDOW_CREATE( wxDialog_Base::OnWindowCreate )
     EVTC_DIALOG(wxID_ANY, wxDialog_Base::OnEvent_Dialog)
 
-    END_EVENT_TABLE()
-    ;
+    END_EVENT_TABLE();
 
 /*!
  * wxDialog_Base constructors

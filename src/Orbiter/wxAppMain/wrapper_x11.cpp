@@ -4,20 +4,15 @@
 // Changed by : ...
 //
 
-// notes:
-//        use Lock() and Unlock()
-//        use a single instance
-//        initialize it from the start
-
 #if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma implementation "wrapper_x11.h"
 #endif
 
 #include "wrapper_x11.h"
 #ifdef USE_DEBUG_CODE
-#include "define_logger.h"
+#include "define_all.h"
 #else
-#include "../../defines/define_logger.h"
+#include "../../defines/define_all.h"
 #endif // USE_DEBUG_CODE
 
 // do not use the error handler grabber
@@ -76,33 +71,63 @@ static const bool g_bXNoLock  = getenv("X11_NO_XLOCK");
     } \
     else do {} while (0)
 
+// sync and lock functions implementation
+
+bool X11_Sync(Display *pDisplay)
+{
+    if (pDisplay == NULL)
+    {
+        _LOG_ERR("NULL Display pointer");
+        return false;
+    }
+    //_LOG_NFO("pDisplay==%p", v_pDisplay);
+    //XFlush(pDisplay); // already called by XSync
+    return XSync(pDisplay, false);
+    return true;
+}
+
+bool X11_Lock(Display *pDisplay)
+{
+    if (pDisplay == NULL)
+    {
+        _LOG_ERR("NULL Display pointer");
+        return false;
+    }
+    //_LOG_NFO("pDisplay==%p", v_pDisplay);
+    if (g_bXSynchronize_Each)
+        XSynchronize(pDisplay, true);
+    if (! g_bXNoLock)
+        XLockDisplay(pDisplay);
+    return true;
+}
+
+bool X11_Unlock(Display *pDisplay)
+{
+    if (pDisplay == NULL)
+    {
+        _LOG_ERR("NULL Display pointer");
+        return false;
+    }
+    //_LOG_NFO("pDisplay==%p", v_pDisplay);
+    X11_Sync(pDisplay);
+    if (! g_bXNoLock)
+        XUnlockDisplay(pDisplay);
+    if (g_bXSynchronize_Each)
+        XSynchronize(pDisplay, false);
+    return true;
+}
+
 // class X11_Locker implementation
 
 X11_Locker::X11_Locker(Display *pDisplay)
         : v_pDisplay(pDisplay)
 {
-    if (v_pDisplay == NULL)
-    {
-        _LOG_ERR("NULL Display pointer");
-        return;
-    }
-    //_LOG_NFO("pDisplay==%p", v_pDisplay);
-    if (g_bXSynchronize_Each)
-        XSynchronize(v_pDisplay, true);
-    if (! g_bXNoLock)
-        XLockDisplay(v_pDisplay);
+    X11_Lock(v_pDisplay);
 }
 
 X11_Locker::~X11_Locker()
 {
-    if (v_pDisplay == NULL)
-        return;
-    //_LOG_NFO("pDisplay==%p", v_pDisplay);
-    XSync(v_pDisplay, false);
-    if (! g_bXNoLock)
-        XUnlockDisplay(v_pDisplay);
-    if (g_bXSynchronize_Each)
-        XSynchronize(v_pDisplay, false);
+    X11_Unlock(v_pDisplay);
 }
 
 // class X11_Locker_NewDisplay implementation
@@ -111,28 +136,12 @@ X11_Locker_NewDisplay::X11_Locker_NewDisplay()
         : v_pDisplay(NULL)
 {
     v_pDisplay = XOpenDisplay(NULL);
-    if (v_pDisplay == NULL)
-    {
-        _LOG_ERR("NULL Display pointer");
-        return;
-    }
-    //_LOG_NFO("pDisplay==%p", v_pDisplay);
-    if (g_bXSynchronize_Each)
-        XSynchronize(v_pDisplay, true);
-    if (! g_bXNoLock)
-        XLockDisplay(v_pDisplay);
+    X11_Lock(v_pDisplay);
 }
 
 X11_Locker_NewDisplay::~X11_Locker_NewDisplay()
 {
-    if (v_pDisplay == NULL)
-        return;
-    //_LOG_NFO("pDisplay==%p", v_pDisplay);
-    XSync(v_pDisplay, false);
-    if (! g_bXNoLock)
-        XUnlockDisplay(v_pDisplay);
-    if (g_bXSynchronize_Each)
-        XSynchronize(v_pDisplay, false);
+    X11_Unlock(v_pDisplay);
     XCloseDisplay(v_pDisplay);
 }
 
@@ -334,7 +343,6 @@ int X11wrapper::ErrorHandler_Grabber(Display *pDisplay, XErrorEvent *pXErrorEven
 
 bool X11wrapper::ErrorHandler_Set()
 {
-    // No XSync here
     _LOG_NFO();
     if (v_bIsChanged_XErrorHandler)
     {
@@ -349,7 +357,6 @@ bool X11wrapper::ErrorHandler_Set()
 
 bool X11wrapper::ErrorHandler_Restore()
 {
-    // No XSync here
     _LOG_NFO("pOld_XErrorHandler==%p", v_pOld_XErrorHandler);
     if (! v_bIsChanged_XErrorHandler)
     {
@@ -361,21 +368,19 @@ bool X11wrapper::ErrorHandler_Restore()
     return true;
 }
 
+void X11wrapper::Sync()
+{
+    X11_Sync(v_pDisplay);
+}
+
 void X11wrapper::Lock()
 {
-    if (g_bXSynchronize_Each)
-        XSynchronize(v_pDisplay, true);
-    if (! g_bXNoLock)
-        XLockDisplay(v_pDisplay);
+    X11_Lock(v_pDisplay);
 }
 
 void X11wrapper::Unlock()
 {
-    XSync(v_pDisplay, false);
-    if (! g_bXNoLock)
-        XUnlockDisplay(v_pDisplay);
-    if (g_bXSynchronize_Each)
-        XSynchronize(v_pDisplay, false);
+    X11_Unlock(v_pDisplay);
 }
 
 Window X11wrapper::Window_Create(int nPosX, int nPosY, unsigned int nWidth, unsigned int nHeight, Window parent_window/*=None*/)
@@ -687,12 +692,12 @@ bool X11wrapper::Mouse_SetCursor_Image(Window window, const string &sPath, const
         color_fg.pixel = BlackPixel(GetDisplay(), nScreen);
         code = XQueryColor(GetDisplay(), colormap, &color_fg);
         _COND_XERROR_LOG_BREAK(code);
-        XSync(GetDisplay(), false);
+        Sync();
         XColor color_bg;
         color_bg.pixel = WhitePixel(GetDisplay(), nScreen);
         code = XQueryColor(GetDisplay(), colormap, &color_bg);
         _COND_XERROR_LOG_BREAK(code);
-        XSync(GetDisplay(), false);
+        Sync();
         // create the cursor
         Cursor cursor = XCreatePixmapCursor(GetDisplay(), pixmap, pixmap_mask, &color_fg, &color_bg, x_hot_return, y_hot_return);
         if (! cursor)
@@ -953,7 +958,6 @@ int X11wrapper::AfterFunction_Grabber(Display *pDisplay)
 
 bool X11wrapper::AfterFunction_Set()
 {
-    // No XSync here
     _LOG_NFO();
     if (v_bIsChanged_X_AfterFunction)
     {
@@ -968,7 +972,6 @@ bool X11wrapper::AfterFunction_Set()
 
 bool X11wrapper::AfterFunction_Restore()
 {
-    // No XSync here
     _LOG_NFO("pOld_X_AfterFunction==%p", v_pOld_X_AfterFunction);
     if (! v_bIsChanged_X_AfterFunction)
     {

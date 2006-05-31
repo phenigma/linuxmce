@@ -22,9 +22,8 @@
 #include "wxframemain.h"
 
 BEGIN_EVENT_TABLE( wxThread_Bag, wxEvtHandler )
-EVTC_THREAD(wxID_ANY, wxThread_Bag::OnEvent_Thread)
-END_EVENT_TABLE()
-;
+    EVTC_THREAD(wxID_ANY, wxThread_Bag::OnEvent_Thread)
+    END_EVENT_TABLE();
 
 wxThread_Bag::wxThread_Bag()
 {

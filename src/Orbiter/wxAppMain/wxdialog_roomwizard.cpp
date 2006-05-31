@@ -39,8 +39,7 @@ const int nColumnCount = 4;
  * wxDialog_RoomWizard type definition
  */
 
-IMPLEMENT_DYNAMIC_CLASS( wxDialog_RoomWizard, wxDialog_Base )
-;
+IMPLEMENT_DYNAMIC_CLASS( wxDialog_RoomWizard, wxDialog_Base );
 
 /*!
  * wxDialog_RoomWizard event table definition
@@ -56,8 +55,7 @@ BEGIN_EVENT_TABLE( wxDialog_RoomWizard, wxDialog_Base )
 
 ////@end wxDialog_RoomWizard event table entries
 
-END_EVENT_TABLE()
-;
+    END_EVENT_TABLE();
 
 /*!
  * wxDialog_RoomWizard constructors

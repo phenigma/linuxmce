@@ -19,5 +19,4 @@
 #include "wx_event_thread.h"
 #include "wx_thread_cmd.h"
 
-DEFINE_EVENT_TYPE(wxEVTC_THREAD)
-;
+DEFINE_EVENT_TYPE(wxEVTC_THREAD);

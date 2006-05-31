@@ -46,19 +46,19 @@ static void _log_stdarg(const char *sformat, va_list arg_ptr, E_LOG_TYPE logtype
     switch(logtype)
     {
         case NFO:
-            s_beg = "\033[0;34mINFO:\033[0m\033[1;36m";
+            s_beg = "\033[0m\033[36mINFO:\033[1m";
             s_end = "\n\033[0m";
             break;
         case ERR:
-            s_beg = "\033[0;31mERROR:\033[0m\033[1;31m";
+            s_beg = "\033[0m\033[31mERROR:\033[1m";
             s_end = "\n\033[0m";
             break;
         case WRN:
-            s_beg = "\033[0;35mWARNING:\033[0m\033[1;35m";
+            s_beg = "\033[0m\033[35mWARNING:\033[1m";
             s_end = "\n\033[0m";
             break;
         case DBG:
-            s_beg = "\033[0;33mDBG:\033[0m\033[1;33m";
+            s_beg = "\033[0m\033[33mDEBUG:\033[1m";
             s_end = "\n\033[0m";
             break;
         default:

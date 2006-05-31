@@ -18,26 +18,26 @@ class wxThread_Bag;
 
 class wxThread_Cmd
 {
-  public:
+public:
     enum E_STATUS
-        {
-            E_Unitialized = 0, // thread object not yet created
-            E_Unused = 100,
-            E_Created,         // created, not started
-            E_CreateError,     // create error
-            // ( event sent by thread )
-            // inside OnEntry
-            E_RunStarted,      // started
-            E_RunCancelled,    // started, but cancelled
-            E_RunExiting,      // started, but cancelled
-            // ( event sent by thread )
-            // inside OnExit
-            E_RunEnded,        // finished, exit code should be set by now
-            // special case for bad thread
-            E_RunDestroyed,    // started, destroyed
-            // used only in events
-            E_EventIdle,
-        };
+    {
+        E_Unitialized = 0, // thread object not yet created
+        E_Unused = 100,
+        E_Created,         // created, not started
+        E_CreateError,     // create error
+        // ( event sent by thread )
+        // inside OnEntry
+        E_RunStarted,      // started
+        E_RunCancelled,    // started, but cancelled
+        E_RunExiting,      // started, but cancelled
+        // ( event sent by thread )
+        // inside OnExit
+        E_RunEnded,        // finished, exit code should be set by now
+        // special case for bad thread
+        E_RunDestroyed,    // started, destroyed
+        // used only in events
+        E_EventIdle,
+    };
 
     // if p_fn_launch!=NULL, Run() is called
     wxThread_Cmd(wxThreadKind eKind, const char *sName, type_ptr_void_fn_void p_fn_launch=NULL);
@@ -63,7 +63,7 @@ class wxThread_Cmd
 
     bool TestDestroy();
 
-  protected:
+protected:
     wxThreadKind v_eKind;
     wxString v_sName;
     type_ptr_void_fn_void v_p_fn_launch; // ptr to void fn called when the thread runs
@@ -74,7 +74,7 @@ class wxThread_Cmd
     wxThread_Wrapper *v_pwxThread_Wrapper;
     wxSemaphore v_oSemaphoreRunning; // used for try-wait, this thread
 
-  private:
+private:
     // no copy ctor/assignment operator
     wxThread_Cmd(const wxThread_Cmd&);
     wxThread_Cmd& operator=(const wxThread_Cmd&);

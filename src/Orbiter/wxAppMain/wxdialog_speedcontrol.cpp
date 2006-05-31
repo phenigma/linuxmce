@@ -34,21 +34,20 @@
  * wxDialog_SpeedControl type definition
  */
 
-IMPLEMENT_DYNAMIC_CLASS( wxDialog_SpeedControl, wxDialog_Base )
+IMPLEMENT_DYNAMIC_CLASS( wxDialog_SpeedControl, wxDialog_Base );
 
 /*!
  * wxDialog_SpeedControl event table definition
  */
 
-    BEGIN_EVENT_TABLE( wxDialog_SpeedControl, wxDialog_Base )
+BEGIN_EVENT_TABLE( wxDialog_SpeedControl, wxDialog_Base )
 
 ////@begin wxDialog_SpeedControl event table entries
     EVT_CLOSE( wxDialog_SpeedControl::OnCloseWindow )
 
 ////@end wxDialog_SpeedControl event table entries
 
-    END_EVENT_TABLE()
-    ;
+    END_EVENT_TABLE();
 
 /*!
  * wxDialog_SpeedControl constructors

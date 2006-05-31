@@ -142,21 +142,21 @@ void wxPanel_Speed::OnPaint( wxPaintEvent& event )
         else if (nSpeed > 0)
         {
             wxPoint aPoints[] =
-            {
-                wxPoint(x - w/2, 0),
-                wxPoint(x - w/2, h),
-                wxPoint(x + w/2, h/2),
-            };
+                {
+                    wxPoint(x - w/2, 0),
+                    wxPoint(x - w/2, h),
+                    wxPoint(x + w/2, h/2),
+                };
             dc.DrawPolygon( WXSIZEOF(aPoints), aPoints );
         }
         else // (nSpeed < 0)
         {
             wxPoint aPoints[] =
-            {
-                wxPoint(x + w/2, 0),
-                wxPoint(x + w/2, h),
-                wxPoint(x - w/2, h/2),
-            };
+                {
+                    wxPoint(x + w/2, 0),
+                    wxPoint(x + w/2, h),
+                    wxPoint(x - w/2, h/2),
+                };
             dc.DrawPolygon( WXSIZEOF(aPoints), aPoints );
         }
     }

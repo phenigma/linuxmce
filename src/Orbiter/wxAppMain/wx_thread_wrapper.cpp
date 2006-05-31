@@ -32,14 +32,14 @@ wxThread_Wrapper::wxThread_Wrapper(
     wxThread_Cmd::E_STATUS &reStatus,
     type_ptr_void_fn_void p_fn_launch
     )
-    : wxThread(eKind)
-, v_pwxThread_Cmd(pwxThread_Cmd)
-, v_rCriticalSection(rCriticalSection)
-, v_rnRunningCount(rnRunningCount)
-, v_rSemaphoreRunningAll(rSemaphoreRunningAll)
-, v_rSemaphoreRunning(rSemaphoreRunning)
-, v_reStatus(reStatus)
-, v_p_fn_launch(p_fn_launch)
+        : wxThread(eKind)
+        , v_pwxThread_Cmd(pwxThread_Cmd)
+        , v_rCriticalSection(rCriticalSection)
+        , v_rnRunningCount(rnRunningCount)
+        , v_rSemaphoreRunningAll(rSemaphoreRunningAll)
+        , v_rSemaphoreRunning(rSemaphoreRunning)
+        , v_reStatus(reStatus)
+        , v_p_fn_launch(p_fn_launch)
 {
     _LOG_NFO("pCmd=%p, pWrapper=%p", pwxThread_Cmd, this);
 }

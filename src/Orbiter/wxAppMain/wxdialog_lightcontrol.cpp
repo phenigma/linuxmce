@@ -32,26 +32,26 @@
  * wxDialog_LightControl type definition
  */
 
-IMPLEMENT_DYNAMIC_CLASS( wxDialog_LightControl, wxDialog_Base )
+IMPLEMENT_DYNAMIC_CLASS( wxDialog_LightControl, wxDialog_Base );
 
 /*!
  * wxDialog_LightControl event table definition
  */
 
-    BEGIN_EVENT_TABLE( wxDialog_LightControl, wxDialog_Base )
+BEGIN_EVENT_TABLE( wxDialog_LightControl, wxDialog_Base )
 
 ////@begin wxDialog_LightControl event table entries
     EVT_CLOSE( wxDialog_LightControl::OnCloseWindow )
 
 ////@end wxDialog_LightControl event table entries
 
-    END_EVENT_TABLE()
+    END_EVENT_TABLE();
 
 /*!
  * wxDialog_LightControl constructors
  */
 
-    wxDialog_LightControl::wxDialog_LightControl( )
+wxDialog_LightControl::wxDialog_LightControl( )
 {
 }
 
@@ -117,7 +117,7 @@ void wxDialog_LightControl::OnCloseWindow( wxCloseEvent& event )
     // Before editing this code, remove the block markers.
     wxWindow* window = this;
     window->Destroy();
-////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_LIGHTCONTROL in wxDialog_LightControl. 
+////@end wxEVT_CLOSE_WINDOW event handler for ID_DIALOG_LIGHTCONTROL in wxDialog_LightControl.
     wxUnusedVar(event);
 }
 

@@ -36,8 +36,7 @@
  * wxDialog_WaitUser type definition
  */
 
-IMPLEMENT_DYNAMIC_CLASS( wxDialog_WaitUser, wxDialog_Base )
-;
+IMPLEMENT_DYNAMIC_CLASS( wxDialog_WaitUser, wxDialog_Base );
 
 /*!
  * wxDialog_WaitUser event table definition

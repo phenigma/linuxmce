@@ -56,13 +56,13 @@ class Demo_GLCanvas: public wxGLCanvas
     friend class MyFrame;
 public:
     Demo_GLCanvas( wxWindow *parent, wxWindowID id = wxID_ANY,
-                  const wxPoint& pos = wxDefaultPosition,
-                  const wxSize& size = wxDefaultSize,
-                  long style = 0, const wxString& name = _T("Demo_GLCanvas") );
+                   const wxPoint& pos = wxDefaultPosition,
+                   const wxSize& size = wxDefaultSize,
+                   long style = 0, const wxString& name = _T("Demo_GLCanvas") );
     Demo_GLCanvas( wxWindow *parent, const Demo_GLCanvas *other,
-                  wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition,
-                  const wxSize& size = wxDefaultSize, long style = 0,
-                  const wxString& name = _T("Demo_GLCanvas") );
+                   wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition,
+                   const wxSize& size = wxDefaultSize, long style = 0,
+                   const wxString& name = _T("Demo_GLCanvas") );
     ~Demo_GLCanvas();
     void OnPaint(wxPaintEvent& event);
     void OnSize(wxSizeEvent& event);
@@ -139,15 +139,15 @@ BEGIN_EVENT_TABLE(Demo_GLCanvas, wxGLCanvas)
     EVT_KEY_DOWN( Demo_GLCanvas::OnKeyDown )
     EVT_KEY_UP( Demo_GLCanvas::OnKeyUp )
     EVT_ENTER_WINDOW( Demo_GLCanvas::OnEnterWindow )
-    END_EVENT_TABLE()
+    END_EVENT_TABLE();
 
-    unsigned long  Demo_GLCanvas::m_secbase = 0;
+unsigned long  Demo_GLCanvas::m_secbase = 0;
 int            Demo_GLCanvas::m_TimeInitialized = 0;
 unsigned long  Demo_GLCanvas::m_xsynct;
 unsigned long  Demo_GLCanvas::m_gsynct;
 
 Demo_GLCanvas::Demo_GLCanvas(wxWindow *parent, wxWindowID id,
-                           const wxPoint& pos, const wxSize& size, long style, const wxString& name)
+                             const wxPoint& pos, const wxSize& size, long style, const wxString& name)
         : wxGLCanvas(parent, (wxGLCanvas*) NULL, id, pos, size, style|wxFULL_REPAINT_ON_RESIZE , name )
         , v_nId(0)
 {
@@ -158,8 +158,8 @@ Demo_GLCanvas::Demo_GLCanvas(wxWindow *parent, wxWindowID id,
 }
 
 Demo_GLCanvas::Demo_GLCanvas(wxWindow *parent, const Demo_GLCanvas *other,
-                           wxWindowID id, const wxPoint& pos, const wxSize& size, long style,
-                           const wxString& name )
+                             wxWindowID id, const wxPoint& pos, const wxSize& size, long style,
+                             const wxString& name )
         : wxGLCanvas(parent, other->GetContext(), id, pos, size, style|wxFULL_REPAINT_ON_RESIZE , name)
         , v_nId(0)
 {
@@ -290,7 +290,7 @@ GLfloat Demo_GLCanvas::CalcRotateSpeed( unsigned long acceltime )
 }
 
 GLfloat Demo_GLCanvas::CalcRotateAngle( unsigned long lasttime,
-                                       unsigned long acceltime )
+                                        unsigned long acceltime )
 {
     GLfloat t,s1,s2;
     t = ((GLfloat)(acceltime - lasttime)) / 1000.0f;
@@ -300,7 +300,7 @@ GLfloat Demo_GLCanvas::CalcRotateAngle( unsigned long lasttime,
 }
 
 void Demo_GLCanvas::Action( long code, unsigned long lasttime,
-                           unsigned long acceltime )
+                            unsigned long acceltime )
 {
     GLfloat angle = CalcRotateAngle( lasttime, acceltime );
     if (code == m_rleft)

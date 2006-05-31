@@ -25,7 +25,7 @@
 
 ////@begin control identifiers
 #define ID_PANEL_ARROW 10017
-#define SYMBOL_WXPANEL_ARROW_STYLE wxRESIZE_BORDER|wxCLIP_CHILDREN 
+#define SYMBOL_WXPANEL_ARROW_STYLE wxRESIZE_BORDER|wxCLIP_CHILDREN
 #define SYMBOL_WXPANEL_ARROW_TITLE _T("wxPanel_Arrow")
 #define SYMBOL_WXPANEL_ARROW_IDNAME ID_PANEL_ARROW
 #define SYMBOL_WXPANEL_ARROW_SIZE wxSize(100, 10)
@@ -46,10 +46,10 @@
 
 class wxPanel_Arrow: public wxPanel
 {
-    DECLARE_DYNAMIC_CLASS( wxPanel_Arrow )
-        DECLARE_EVENT_TABLE()
+    DECLARE_DYNAMIC_CLASS( wxPanel_Arrow );
+    DECLARE_EVENT_TABLE();
 
-        public:
+public:
     /// Constructors
     wxPanel_Arrow( );
     wxPanel_Arrow( wxWindow* parent, wxWindowID id = SYMBOL_WXPANEL_ARROW_IDNAME, const wxPoint& pos = SYMBOL_WXPANEL_ARROW_POSITION, const wxSize& size = SYMBOL_WXPANEL_ARROW_SIZE, long style = SYMBOL_WXPANEL_ARROW_STYLE );

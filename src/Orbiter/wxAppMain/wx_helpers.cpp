@@ -178,9 +178,9 @@ wxSemaError wx_semaphore_wait(wxSemaphore &rSemaphore)
 }
 
 wxCondLocker::wxCondLocker(bool bCondition, type_ref_void_fn_void fn_launch_enter, type_ref_void_fn_void fn_launch_leave)
-    : v_bLocked(bCondition)
-, v_fn_launch_enter(fn_launch_enter)
-, v_fn_launch_leave(fn_launch_leave)
+        : v_bLocked(bCondition)
+        , v_fn_launch_enter(fn_launch_enter)
+        , v_fn_launch_leave(fn_launch_leave)
 {
     if (v_bLocked)
     {

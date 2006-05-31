@@ -19,5 +19,4 @@
 #include "wx_event_dialog.h"
 #include "wx_dialog_types.h"
 
-DEFINE_EVENT_TYPE(wxEVTC_DIALOG)
-;
+DEFINE_EVENT_TYPE(wxEVTC_DIALOG);

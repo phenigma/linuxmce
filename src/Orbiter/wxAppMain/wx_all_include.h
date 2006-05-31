@@ -17,8 +17,7 @@
 
 #include "wx_lib_compatibility.h"
 #include "wx_config.h"
-#include "define_cond.h"
-#include "define_logger.h"
+#include "define_all.h"
 #include "wx_logger.h"
 #include "wx_helpers.h"
 #include "wx_main.h"

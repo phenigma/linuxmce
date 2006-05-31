@@ -20,8 +20,8 @@ class wxDialog_Base;
 struct Data_Holder_Base
 {
     Data_Holder_Base()
-        : oSemaphore(0, 1)
-        , bInThread(! ::wxIsMainThread())
+            : oSemaphore(0, 1)
+            , bInThread(! ::wxIsMainThread())
         {
         }
     wxSemaphore oSemaphore; // wait until the action is finished

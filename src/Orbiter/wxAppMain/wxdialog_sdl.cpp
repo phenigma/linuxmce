@@ -57,18 +57,18 @@ inline void Demo_PanelSDL::onEraseBackground(wxEraseEvent &)
 {
 }
 
-IMPLEMENT_CLASS(Demo_PanelSDL, wxPanel)
+IMPLEMENT_CLASS(Demo_PanelSDL, wxPanel);
 
-    BEGIN_EVENT_TABLE(Demo_PanelSDL, wxPanel)
+BEGIN_EVENT_TABLE(Demo_PanelSDL, wxPanel)
     EVT_PAINT(Demo_PanelSDL::onPaint)
     EVT_ERASE_BACKGROUND(Demo_PanelSDL::onEraseBackground)
     EVT_IDLE(Demo_PanelSDL::onIdle)
-    END_EVENT_TABLE()
+    END_EVENT_TABLE();
 
-    Demo_PanelSDL::Demo_PanelSDL(wxWindow *parent)
-            : wxPanel(parent, SYMBOL_WXDIALOG_SDL_IDNAME)
-            , screen(NULL)
-            , v_nId(0)
+Demo_PanelSDL::Demo_PanelSDL(wxWindow *parent)
+        : wxPanel(parent, SYMBOL_WXDIALOG_SDL_IDNAME)
+        , screen(NULL)
+        , v_nId(0)
 {
     // ensure the size of the wxPanel
     wxSize size(640, 480);

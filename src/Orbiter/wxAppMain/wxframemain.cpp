@@ -43,8 +43,7 @@
  * wxFrameMain type definition
  */
 
-IMPLEMENT_CLASS( wxFrameMain, wxFrame )
-    ;
+IMPLEMENT_CLASS( wxFrameMain, wxFrame );
 
 /*!
  * wxFrameMain event table definition
@@ -107,8 +106,7 @@ BEGIN_EVENT_TABLE( wxFrameMain, wxFrame )
 
     EVT_IDLE(wxFrameMain::OnIdle)
 
-    END_EVENT_TABLE()
-    ;
+    END_EVENT_TABLE();
 
 /*!
  * wxFrameMain constructors

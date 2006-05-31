@@ -384,9 +384,9 @@ wxDialog_Pointer::~wxDialog_Pointer()
 
 void wxDialog_Pointer::X11_Init()
 {
-    v_pX11 = new X11wrapper((Display *)wxGetDisplay());
-    //v_pX11_Locker_NewDisplay = new X11_Locker_NewDisplay();
-    //v_pX11 = new X11wrapper(v_pX11_Locker_NewDisplay->GetDisplay());
+    //v_pX11 = new X11wrapper((Display *)wxGetDisplay());
+    v_pX11_Locker_NewDisplay = new X11_Locker_NewDisplay();
+    v_pX11 = new X11wrapper(v_pX11_Locker_NewDisplay->GetDisplay());
 }
 
 bool wx_SetCursor_Image(const wxString &sPath)
