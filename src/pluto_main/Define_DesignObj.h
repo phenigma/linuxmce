@@ -2132,6 +2132,7 @@
 #define DESIGNOBJ_ManufStillNotListed_CONST 5080
 #define DESIGNOBJ_butNewManufacturerForType_CONST 5081
 #define DESIGNOBJ_butMediaWizard_CONST 5082
+#define DESIGNOBJ_butStartAVwizard_CONST 5083
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -1022,6 +1022,7 @@
 #define TEXT_Cancel_Wizard_CONST 1735
 #define TEXT_Need_to_reload_After_Wizard_CONST 1736
 #define TEXT_Reserved_for_future_use_CONST 1737
+#define TEXT_Start_AV_Wizard_CONST 1738
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
