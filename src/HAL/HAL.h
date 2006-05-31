@@ -64,14 +64,14 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	bool DATA_Get_Only_One_Per_PC();
 
 			*****EVENT***** accessors inherited from base class
-	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData);
-	void EVENT_Device_Removed(string sMac_Address,string sText,int iPK_Device,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData);
+	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory);
+	void EVENT_Device_Removed(string sMac_Address,string sText,int iPK_Device,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory);
 
 			*****COMMANDS***** we need to implement
 	*/
-
 
 //<-dceag-h-e->
 private:
