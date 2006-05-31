@@ -12,17 +12,23 @@ FindDevice_Template()
 	fi
 
 	local i R Q
-	if [[ -z "$IncludeParent" ]]; then
+	if [[ "$PK_Device_Parent" == 0 ]]; then
 		Q="
 			SELECT PK_Device
 			FROM Device
-			WHERE FK_Device_ControlledVia='$PK_Device_Parent' AND FK_DeviceTemplate='$FK_DeviceTemplate'
+			WHERE FK_Device_ControlledVia IS NULL AND FK_DeviceTemplate IN ($FK_DeviceTemplate)
+		"
+	elif [[ -z "$IncludeParent" ]]; then
+		Q="
+			SELECT PK_Device
+			FROM Device
+			WHERE FK_Device_ControlledVia='$PK_Device_Parent' AND FK_DeviceTemplate IN ($FK_DeviceTemplate)
 		"
 	else
 		Q="
 			SELECT PK_Device
 			FROM Device
-			WHERE (FK_Device_ControlledVia='$PK_Device_Parent' OR PK_Device='$PK_Device_Parent') AND FK_DeviceTemplate='$FK_DeviceTemplate')
+			WHERE (FK_Device_ControlledVia='$PK_Device_Parent' OR PK_Device='$PK_Device_Parent') AND FK_DeviceTemplate IN ($FK_DeviceTemplate))
 		"
 	fi
 	R="$(RunSQL "$Q")"
@@ -50,19 +56,26 @@ FindDevice_Category()
 	fi
 
 	local i R Q
-	if [[ -z "$IncludeParent" ]]; then
+	if [[ "$PK_Device_Parent" == 0 ]]; then
 		Q="
 			SELECT PK_Device
 			FROM Device
 			JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-			WHERE FK_Device_ControlledVia='$PK_Device_Parent' AND FK_DeviceCategory='$FK_DeviceCategory'
+			WHERE FK_Device_ControlledVia IS NULL AND FK_DeviceCategory IN ($FK_DeviceCategory)
+		"
+	elif [[ -z "$IncludeParent" ]]; then
+		Q="
+			SELECT PK_Device
+			FROM Device
+			JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			WHERE FK_Device_ControlledVia='$PK_Device_Parent' AND FK_DeviceCategory IN ($FK_DeviceCategory)
 		"
 	else
 		Q="
 			SELECT PK_Device
 			FROM Device
 			JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-			WHERE (FK_Device_ControlledVia='$PK_Device_Parent' OR PK_Device='$PK_Device_Parent') AND FK_DeviceCategory='$FK_DeviceCategory'
+			WHERE (FK_Device_ControlledVia='$PK_Device_Parent' OR PK_Device='$PK_Device_Parent') AND FK_DeviceCategory IN ($FK_DeviceCategory)
 		"
 	fi
 	R="$(RunSQL "$Q")"
