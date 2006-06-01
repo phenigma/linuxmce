@@ -206,9 +206,8 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
         }
         m_pRow_Device_Me=vectRow_Device[0];
     }
-m_pRow_Device_Me->Status_set("xx");
-m_pDatabase_pluto_main->Device_get()->Commit();
-    m_dwPK_Device = m_pRow_Device_Me->PK_Device_get();
+
+	m_dwPK_Device = m_pRow_Device_Me->PK_Device_get();
     m_dwPK_Installation = m_pRow_Device_Me->FK_Installation_get();
 
 	Row_Device_DeviceData *pRow_Device_DeviceData = 
