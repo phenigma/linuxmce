@@ -55,8 +55,6 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 		return;
 	}
 	
-	g_pPlutoLogger->Write(LV_DEBUG, "++++++++++++++++++ An usb device added");
-	
 	gchar *bus = libhal_device_get_property_string (ctx, udi, "info.bus", NULL);
 	gchar *category = libhal_device_get_property_string (ctx, udi, "info.category", NULL);
 	if( bus != NULL &&
@@ -70,20 +68,12 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 										usb_device_vendor_id, 
 										usb_device_product_id);
 #ifdef NEW_PNP
-// /MessageSend dcerouter -targetType category 999 159 2 65 52 4 51 "0403f850"
-	char buffer[64];
-	snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
-	
-	halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, "", "");
-
-/*	string response;
-	if( !sendMessage(	"-targetType category " +
-						StringUtils::itos( halDevice->m_dwPK_Device ) +
-						+ " -1000 2 65 52 4 51 " + buffer,
-						response ) )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "ERROR: hald templates: %s", response.c_str());
-	}*/
+		g_pPlutoLogger->Write(LV_DEBUG, "+++++ New device added = %s", udi);
+		
+		char buffer[64];
+		snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
+		
+		halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, "", "");
 #else
 		map<unsigned int, int>::iterator it;
 		it = templatesMap.find(((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff) );
@@ -118,6 +108,8 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 	gchar *serial_port = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "linux.sysfs_path", NULL);
 	if(serial_port != NULL)
 	{
+		g_pPlutoLogger->Write(LV_DEBUG, "+++++ Serial device added = %s", udi);
+		
 		string portID;
 		getPortIdentification(string(serial_port), portID);
 		
@@ -167,6 +159,8 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 	}
 	else if( category != NULL && 0 == strcmp(category, "bluetooth_hci") && strlen(category) == strlen("bluetooth_hci") )
 	{
+		g_pPlutoLogger->Write(LV_DEBUG, "+++++ Bluetooth device added = %s", udi);
+		
 		gchar *parent = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "info.parent", NULL);
 		gchar *info_udi = libhal_device_get_property_string (ctx, parent, "info.udi", NULL);
 		int usb_device_product_id = libhal_device_get_property_int(ctx, parent, "usb_device.product_id", NULL);
@@ -259,7 +253,9 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 	for(int i = num_devices - 1; i >= 0 ; i--)
 	{
 		char *udi = devices[i];
+		
 		g_pPlutoLogger->Write(LV_DEBUG, "init udi = %s\n", udi);
+		
 		bus = libhal_device_get_property_string (ctx, udi, "info.bus", NULL);
 		category = libhal_device_get_property_string (ctx, udi, "info.category", NULL);
 		if( bus != NULL && 0 == strcmp(bus, "usb_device") && strlen(bus) == strlen("usb_device") )
@@ -272,6 +268,8 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 			char buffer[64];
 			snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 			
+			g_pPlutoLogger->Write(LV_DEBUG, "+++++++ New device added = %s", udi);
+				
 			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, "", "");
 #else
 			map<unsigned int, int>::iterator it =
@@ -320,6 +318,8 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 			gchar *serial_port = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "linux.sysfs_path", NULL);
 			if(serial_port != NULL)
 			{
+				g_pPlutoLogger->Write(LV_DEBUG, "+++++++ Serial device added = %s", udi);
+				
 				string portID;
 				getPortIdentification(string(serial_port), portID);
 				
@@ -365,6 +365,8 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 			
 			int usb_device_product_id = libhal_device_get_property_int(ctx, parent, "usb_device.product_id", NULL);
 			int usb_device_vendor_id = libhal_device_get_property_int(ctx, parent, "usb_device.vendor_id", NULL);
+			
+			g_pPlutoLogger->Write(LV_DEBUG, "+++++++ Bluetooth device added = %s", udi);
 			
 			char buffer[64];
 			snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
