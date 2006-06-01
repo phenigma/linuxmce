@@ -659,16 +659,13 @@ bool Xine_Stream::EnableVisualizing()
 {
 	return false;
 	
-	{
+	if ( ! m_pXineVisualizationPlugin )
+	{	
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
-		if ( ! m_pXineVisualizationPlugin )
+		m_pXineVisualizationPlugin = xine_post_init( m_pXineLibrary, "goom", 0, &m_pXineAudioOutput, &m_pXineVideoOutput );
+		if (!m_pXineVisualizationPlugin)
 		{
-			//TODO: NULL-terminated list here
-			m_pXineVisualizationPlugin = xine_post_init( m_pXineLibrary, "goom", 1, &m_pXineAudioOutput, &m_pXineVideoOutput );
-			if (!m_pXineVisualizationPlugin)
-			{
-				g_pPlutoLogger->Write( LV_WARNING, "xine_post_init call failed for visualization plugin" );
-			}
+			g_pPlutoLogger->Write( LV_WARNING, "xine_post_init call failed for visualization plugin" );
 		}
 	}
 	
@@ -676,7 +673,8 @@ bool Xine_Stream::EnableVisualizing()
 
 	if (m_pXineVisualizationPlugin)
 	{
-		rewiringResult = xine_post_wire_audio_port(xine_get_audio_source(m_pXineStream), m_pXineVisualizationPlugin->audio_input[0]);
+		rewiringResult = xine_post_wire(xine_get_audio_source(m_pXineStream), xine_post_input(m_pXineVisualizationPlugin, "audio in"));
+		//rewiringResult = xine_post_wire_audio_port(xine_get_audio_source(m_pXineStream), m_pXineVisualizationPlugin->audio_input[0]);
 		
 		if (!rewiringResult)
 		{
@@ -1739,13 +1737,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 
 Xine_Stream::PlayBackSpeedType Xine_Stream::getPlaybackSpeed()
 {
-	/*!
-	XineStream * pStream;
 
-	if ( ( pStream = getStreamForId( iStreamID, "Can't get the speed of a non existent stream (%d)!" ) ) == NULL )
-		return PLAYBACK_STOP;
-*/
-	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "getPlaybackSpeed called on non-initialized stream - aborting command");
