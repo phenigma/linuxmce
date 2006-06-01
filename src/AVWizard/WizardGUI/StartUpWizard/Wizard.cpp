@@ -151,7 +151,7 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	if(CurrentPage == 10)
 	{
 		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
-		SetExitWithCode(0);
+		SetExitWithCode(ExitCode);
 	}
 	CreateDialogs();
 	if(MainPage == NULL)
