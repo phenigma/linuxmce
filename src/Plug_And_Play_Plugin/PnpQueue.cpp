@@ -765,7 +765,7 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 		Row_DHCPDevice *pRow_DHCPDevice = it->second;
 		if( pRow_DHCPDevice->PnpDetectionScript_get().size() )
 		{  
-			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d checking detection",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_DHCPDevice->PnpDetectionScript_get().c_str());
+			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d checking detection %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_DHCPDevice->PnpDetectionScript_get().c_str());
 			DeviceData_Router *pDevice_AppServer=NULL,*pDevice_Detector=NULL;
 			pDevice_Detector = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceData_Router_Find(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
 			if( pDevice_Detector )
