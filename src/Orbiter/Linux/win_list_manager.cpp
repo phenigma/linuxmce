@@ -137,6 +137,7 @@ bool WinListManager::HideWindow(const string &sClassName)
 {
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	m_pWMController->SetVisible(sClassName, false);
+    return true;
 }
 
 void WinListManager::GetWindows(list<WinInfo>& listWinInfo)

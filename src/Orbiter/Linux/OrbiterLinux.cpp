@@ -62,31 +62,36 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
                            int nImageWidth, int nImageHeight,
 						   bool bFullScreen,
 						   bool bUseOpenGL)
+
         : OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, sLocalDirectory, bLocalMode,
-                     nImageWidth, nImageHeight, bFullScreen, NULL, bUseOpenGL),
-          // defaults
-          /**
-           * @hack to make it work for the short term. We need to find a way to set the class name properly or use the window ID if we can find it.
-           * The reason this is hack is because there could be potentially multiple SDL_Applications running at the same time which could break the controlling code.
-           */
-          m_strWindowName("Orbiter"),
-          m_strDisplayName(getenv("DISPLAY")),
+                     nImageWidth, nImageHeight, bFullScreen, NULL, bUseOpenGL)
 
-          // initializations
-          m_pProgressWnd(NULL),
-          m_pWaitGrid(NULL),
-          m_bButtonPressed_WaitGrid(false),
-          m_pWaitList(NULL),
-          m_bButtonPressed_WaitList(false),
-          m_pWaitUser(NULL),
-          m_pWinListManager(NULL),
-          m_bOrbiterReady(false),
-          m_bIsExclusiveMode(true),
-          m_pRecordHandler(NULL),
-          m_pWMController(NULL),
-          m_pX11(NULL),
-          m_pDisplay_SDL(NULL)
+    // defaults
+    /**
+     * @hack to make it work for the short term. We need to find a way to set the class name properly or use the window ID if we can find it.
+     * The reason this is hack is because there could be potentially multiple SDL_Applications running at the same time which could break the controlling code.
+     */
+        , m_strWindowName("Orbiter")
+        , m_strDisplayName(getenv("DISPLAY"))
 
+    // initializations
+        , m_pRecordHandler(NULL)
+        , m_nDesktopWidth(0)
+        , m_nDesktopHeight(0)
+        , m_nProgressWidth(0)
+        , m_nProgressHeight(0)
+        , m_pProgressWnd(NULL)
+        , m_pWaitGrid(NULL)
+        , m_bButtonPressed_WaitGrid(false)
+        , m_pWaitList(NULL)
+        , m_bButtonPressed_WaitList(false)
+        , m_pWaitUser(NULL)
+        , m_bOrbiterReady(false)
+        , m_bIsExclusiveMode(true)
+        , m_pDisplay_SDL(NULL)
+        , m_pWinListManager(NULL)
+        , m_pWMController(NULL)
+        , m_pX11(NULL)
 {
     m_nProgressWidth = 400;
     m_nProgressHeight = 200;
@@ -435,7 +440,7 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 	}
 #endif
 
-	printf("KEYCode: %d %x \n", keysym, keysym);
+	printf("KEYCode: %d %x \n", (int)keysym, (unsigned int)keysym);
 
     switch ( keysym )
     {
@@ -567,10 +572,10 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
         case XK_BackSpace:      event.data.button.m_iPK_Button = BUTTON_Back_CONST;  break;
         case XK_underscore:     event.data.button.m_iPK_Button = BUTTON_underscore_CONST;  break;
         case XK_minus:  event.data.button.m_iPK_Button = BUTTON_dash_CONST;  break;
-        case XK_equal:  case XK_KP_Equal:       
-			event.data.button.m_iPK_Button = BUTTON_equals_sign_CONST;  
+        case XK_equal:  case XK_KP_Equal:
+			event.data.button.m_iPK_Button = BUTTON_equals_sign_CONST;
 			break;
-						
+
         case XK_period: event.data.button.m_iPK_Button = BUTTON_dot_CONST;  break;
         case XK_comma:  case XK_KP_Separator:   event.data.button.m_iPK_Button =  BUTTON_comma_CONST; break;
         case XK_colon:  event.data.button.m_iPK_Button = BUTTON_colon_CONST; break;

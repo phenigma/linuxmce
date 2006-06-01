@@ -66,6 +66,7 @@ int X3DWindow::DestroyWindow()
     XDestroyWindow (m_pDisplay, m_wndThis);
     m_wndThis = 0;
     m_bVisible = false;
+    return m_wndThis;
 }
 
 bool X3DWindow::ShowWindow(bool bShow/* = true*/)

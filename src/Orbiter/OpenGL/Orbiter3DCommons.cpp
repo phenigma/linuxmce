@@ -8,11 +8,11 @@
 #include "OpenGLTextureConverter.h"
 
 Orbiter3DCommons::Orbiter3DCommons()
-	: Screen3D(NULL),
-	  HighLight(NULL),
-	  Selected(NULL),
-	  MouseTexture(0),
-	  MouseCursor(NULL)
+        : Screen3D(NULL),
+          HighLight(NULL),
+          Selected(NULL),
+          MouseCursor(NULL),
+          MouseTexture(0)
 {
 }
 

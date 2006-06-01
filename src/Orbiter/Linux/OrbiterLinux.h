@@ -25,8 +25,6 @@ using namespace std;
 class OrbiterLinux : public OrbiterSDL/*, public RatpoisonHandler<OrbiterLinux>*/
 {
 private:
-	XRecordExtensionHandler *m_pRecordHandler;
-
     string m_strWindowName;
     string m_strDisplayName;
 
@@ -37,6 +35,8 @@ private:
 
     bool X11_Init();
     bool X11_Exit();
+
+    XRecordExtensionHandler *m_pRecordHandler;
 
     int m_nDesktopWidth;
     int m_nDesktopHeight;

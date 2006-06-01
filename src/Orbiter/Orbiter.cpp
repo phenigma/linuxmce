@@ -2723,9 +2723,9 @@ DesignObj_Orbiter *Orbiter::FindFirstObjectByDirection(char cDirection /* u,d,l,
 		}
 		return pObjGrid;
 	}
-	else
-		return pObj;
-	return NULL;
+	//else
+    return pObj;
+    //return NULL; // warning: will never be executed
 }
 //------------------------------------------------------------------------
 DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurrent, int PK_Direction )
@@ -9424,7 +9424,7 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 	if( m_pObj_NowPlaying_TimeShort_OnScreen && m_pObj_NowPlaying_TimeShort_OnScreen->m_bOnScreen )
 		RenderObjectAsync(m_pObj_NowPlaying_TimeShort_OnScreen);
 	if( m_pObj_NowPlaying_TimeLong_OnScreen && m_pObj_NowPlaying_TimeLong_OnScreen->m_bOnScreen && m_pObj_NowPlaying_TimeShort_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen )
-		RenderObjectAsync(m_pObj_NowPlaying_TimeLong_OnScreen);
+		RenderObjectAsync(m_pObj_NowPlaying_TimeLong_OnScreen); // warning: will never be executed ?
 	if( m_pObj_NowPlaying_Speed_OnScreen && m_pObj_NowPlaying_Speed_OnScreen->m_bOnScreen && m_pObj_NowPlaying_Speed_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen )
 		RenderObjectAsync(m_pObj_NowPlaying_Speed_OnScreen);
 

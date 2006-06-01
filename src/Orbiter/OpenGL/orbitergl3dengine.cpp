@@ -35,12 +35,12 @@ using namespace DCE;
 OrbiterGL3D* OrbiterGL3D::Instance = NULL;
 
 OrbiterGL3D::OrbiterGL3D ()
-	: Screen3D(NULL),
-	  HighLighArea(NULL),
-	  SelectedArea(NULL),
-	  Widgets(NULL),
-	  EffectBuilder(NULL),
-	  pOrbiterGL(NULL)
+        : pOrbiterGL(NULL),
+          Screen3D(NULL),
+          HighLighArea(NULL),
+          SelectedArea(NULL),
+          Widgets(NULL),
+          EffectBuilder(NULL)
 {
 	Instance = this;
 }

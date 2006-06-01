@@ -960,7 +960,7 @@ void OrbiterSDL::DoHighlightObjectOpenGL()
 	if(Effect)
 		Effect->Configure(&m_rectLastHighlight);
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL, ">> OrbiterSDL::DoHighlightObjectOpenGL : no effect???!");
+		g_pPlutoLogger->Write(LV_CRITICAL, ">> OrbiterSDL::DoHighlightObjectOpenGL : no effect?!");
 
 #endif //opengl stuff
 }
