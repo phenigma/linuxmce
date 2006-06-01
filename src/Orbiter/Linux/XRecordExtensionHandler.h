@@ -27,7 +27,6 @@ class XRecordExtensionHandler
 	pthread_cond_t  	recordingStateChangedCondition;
 
 	XRecordContext		m_recordingContext;
-	// XRecordFlags m_RecordFlags;
 
 	Orbiter 			*m_pOrbiter;
 	Orbiter::Event 		m_OrbiterEvent;
@@ -44,10 +43,10 @@ private:
 	void processXRecordToOrbiterEvent(XRecordInterceptData *pRecordedData, Orbiter::Event *orbiterEvent, Display *pDisplay);
 
 public:
-	XRecordExtensionHandler(std::string strDisplayName);
+	XRecordExtensionHandler(Orbiter *pRecordingOrbiter, std::string strDisplayName);
 	virtual ~XRecordExtensionHandler();
 
-	virtual bool enableRecording(Orbiter *processingOrbiter, bool bEnable = true);
+	virtual bool enableRecording(bool bEnable = true);
 
 	pthread_t	getRecordingThread();
 };

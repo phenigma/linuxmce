@@ -12,8 +12,12 @@
 using namespace DCE;
 using namespace std;
 
-XRecordExtensionHandler::XRecordExtensionHandler(string displayName)
-	: m_strDisplayName(displayName), m_isRecordingEnabled(false), m_shouldRecord(false), m_shouldQuit(false)
+XRecordExtensionHandler::XRecordExtensionHandler(Orbiter *pRecordingOrbiter, string displayName)
+	: m_strDisplayName(displayName)
+    , m_isRecordingEnabled(false)
+    , m_shouldRecord(false)
+    , m_shouldQuit(false)
+    , m_pOrbiter(pRecordingOrbiter)
 {
  	pthread_mutex_init(&mutexEnableRecordCondition, NULL);
 	pthread_cond_init(&enableRecordCondition, NULL);
@@ -32,7 +36,7 @@ XRecordExtensionHandler::~XRecordExtensionHandler()
 	if ( m_isRecordingEnabled )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): Disabling recording");
-		enableRecording(NULL, false); // stop any recording taking place. This will not put the thread of the cond_wait if it is there.
+		enableRecording(false); // stop any recording taking place. This will not put the thread of the cond_wait if it is there.
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): Signaling the condition");
@@ -140,10 +144,8 @@ void *XRecordExtensionHandler::recordingThreadMainFunction(void *arguments)
 	return NULL;
 }
 
-bool XRecordExtensionHandler::enableRecording(Orbiter *pRecordingOrbiter, bool bEnable)
+bool XRecordExtensionHandler::enableRecording(bool bEnable)
 {
-	m_pOrbiter = pRecordingOrbiter;
-
 	m_shouldRecord = bEnable;
 
 	if (m_shouldRecord == m_isRecordingEnabled )
@@ -273,4 +275,3 @@ pthread_t XRecordExtensionHandler::getRecordingThread()
 {
 	return recordingThread;
 }
-

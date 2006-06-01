@@ -216,8 +216,6 @@ bool OrbiterLinux::X11_Init()
     m_pWMController = new WMControllerImpl();
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : WinListManager");
     m_pWinListManager = new WinListManager(m_pWMController, m_strWindowName);
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : XRecordExtensionHandler");
-    m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : done");
     return true;
 }
@@ -230,8 +228,6 @@ bool OrbiterLinux::X11_Exit()
         return false;
     }
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Exit()");
-    delete m_pRecordHandler;
-    m_pRecordHandler = NULL;
     delete m_pWinListManager;
     m_pWinListManager = NULL;
     delete m_pWMController;
@@ -348,7 +344,8 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
 	{
 		m_pMouseBehavior = new MouseBehavior_Linux(this);
 	}
-    m_pRecordHandler->enableRecording(this, true);
+    m_pRecordHandler = new XRecordExtensionHandler(this, m_strDisplayName);
+    m_pRecordHandler->enableRecording(true);
 
     reinitGraphics();
 
@@ -376,7 +373,8 @@ void OrbiterLinux::InitializeAfterRelatives()
 void OrbiterLinux::Destroy()
 {
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy()");
-    // crash fix
+    delete m_pRecordHandler;
+    m_pRecordHandler = NULL;
     if (m_pMouseBehavior)
     {
         delete m_pMouseBehavior;
