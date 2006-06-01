@@ -82,6 +82,8 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	
 	threadEventLoop = NULL;
 	m_pXineStreamEventQueue = NULL;
+	
+	m_pDynamic_Pointer = new Dynamic_Pointer(this, &cursors[0], &cursors[1]);
 }
 
 Xine_Stream::~Xine_Stream()
@@ -287,23 +289,17 @@ bool Xine_Stream::CreateWindows()
 	cursors[0] = XCreateFontCursor(m_pXDisplay, XC_left_ptr);
 	cursors[1] = XCreatePixmapCursor(m_pXDisplay, noCursor, noCursor, &black, &black, 0, 0);
 	
-	//TODO: process pointer	timings
-	/*!
 	if ( m_pDynamic_Pointer )
 		delete m_pDynamic_Pointer;
 	m_pDynamic_Pointer = new Dynamic_Pointer(this, &cursors[0], &cursors[1]);
-	*/
 
 	XFreePixmap( m_pXDisplay, noCursor );
 
 	XDefineCursor( m_pXDisplay, windows[ m_iCurrentWindow ], cursors[ m_iCurrentWindow ] );
 	XMapRaised( m_pXDisplay, windows[ m_iCurrentWindow ] );
 
-	//TODO: process pointer	timings
-	/*!
 	if ( m_pDynamic_Pointer )
 		m_pDynamic_Pointer->pointer_hide();
-	*/
 
 	res_h = ( DisplayWidth( m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayWidthMM( m_pXDisplay, m_iCurrentScreen ) );
 	res_v = ( DisplayHeight( m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayHeightMM( m_pXDisplay, m_iCurrentScreen ) );
@@ -1044,11 +1040,8 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 
 int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime )
 {
-	// TODO: reenable
-	/*
 	if ( m_pDynamic_Pointer )
 		m_pDynamic_Pointer->pointer_check_time();
-	*/
 
 	if (!m_bInitialized)
 	{
@@ -1400,9 +1393,8 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 			break;
 
 		case XINE_EVENT_INPUT_MOUSE_MOVE:
-			//TODO reenable
-			/*!if ( g_pDynamic_Pointer )
-				g_pDynamic_Pointer->pointer_show();*/
+			if ( pXineStream->m_pDynamic_Pointer )
+				pXineStream->m_pDynamic_Pointer->pointer_show();
 			break;
 		case XINE_EVENT_SPU_BUTTON:
 		case XINE_EVENT_INPUT_MOUSE_BUTTON:
@@ -1492,10 +1484,8 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 			break;
 	}
 
-	//TODO: reenable
-	/*!
-	if ( g_pDynamic_Pointer )
-		g_pDynamic_Pointer->pointer_check_time();*/
+	if ( pXineStream->m_pDynamic_Pointer )
+		pXineStream->m_pDynamic_Pointer->pointer_check_time();
 }
 
 void Xine_Stream::selectNextButton()
@@ -1809,9 +1799,9 @@ bool Xine_Stream::DestroyWindows()
 
 		m_pXDisplay = NULL;
 
-		// TODO: reenable
-		/*!delete m_pDynamic_Pointer;
-		m_pDynamic_Pointer = NULL;*/
+		if (!m_pDynamic_Pointer)
+			delete m_pDynamic_Pointer;
+		m_pDynamic_Pointer = NULL;
 	}
 
 	return true;
@@ -2317,12 +2307,10 @@ Xine_Stream::Dynamic_Pointer::Dynamic_Pointer(
 				m_pCursor_hidden(pCursor_hidden),
 				m_start_time(0)
 {
-	g_pDynamic_Pointer = this;
 }
 
 Xine_Stream::Dynamic_Pointer::~Dynamic_Pointer()
 {
-	g_pDynamic_Pointer = NULL;
 }
 
 void Xine_Stream::getScreenShot( int iWidth, int iHeight, char *&pData, int &iDataSize, string &sFormat, string &sCMD_Result )
