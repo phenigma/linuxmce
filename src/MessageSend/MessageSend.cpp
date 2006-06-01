@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
 			return bResult ? 0 : -1;
 		}
 		cout << "RESP: " << sResponse << endl;
-		return -1;
+		return bResult ? 0 : -1;
 	}
 
 	// There are out parameters, we need to get a message back in return
