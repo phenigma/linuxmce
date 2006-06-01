@@ -173,7 +173,7 @@
           <string name="Compiler lib path">"%AUTO%"</string>
           <string name="Preprocessor flags">"%AUTO%"</string>
           <string name="Optimizations">"%AUTO%"</string>
-          <string name="Warnings">"-Wall -W -Wunused"</string>
+          <string name="Warnings">"-W -Wall -Wunused -Wunreachable-code -Wno-system-headers"</string>
           <string name="Debug flags">"%AUTO%"</string>
           <string name="Libraries">"%AUTO%"</string>
           <string name="Library path">"%AUTO%"</string>
@@ -229,7 +229,7 @@
           <string name="Compiler lib path">"%AUTO%"</string>
           <string name="Preprocessor flags">"%AUTO%"</string>
           <string name="Optimizations">"%AUTO%"</string>
-          <string name="Warnings">"-Wall -W -Wunused"</string>
+          <string name="Warnings">"-W -Wall -Wunused -Wunreachable-code -Wno-system-headers"</string>
           <string name="Debug flags">"%AUTO%"</string>
           <string name="Libraries">"%AUTO%"</string>
           <string name="Library path">"%AUTO%"</string>
