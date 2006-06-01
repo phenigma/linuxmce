@@ -788,18 +788,20 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 			}
 
 			// The arguments are this device, the queue ie, the path where to find the device, the pnp script name
-			string sArguments = StringUtils::itos(m_pPlug_And_Play_Plugin->m_dwPK_Device) + " " + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + 
-				" \"" + sPath + "\" \"" + pRow_DHCPDevice->PnpDetectionScript_get() + "\"";
+			string sArguments = StringUtils::itos(m_pPlug_And_Play_Plugin->m_dwPK_Device) + "\t" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + 
+				"\t" + sPath + "\t" + pRow_DHCPDevice->PnpDetectionScript_get();
 			string sName = "PNP Detection " + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " " + pRow_DHCPDevice->PnpDetectionScript_get();
 			string sMessage = "0 " + StringUtils::itos(m_pPlug_And_Play_Plugin->m_dwPK_Device) + " 1 " + TOSTRING(COMMAND_PNP_Detection_Script_Finished_CONST) + " "
 				+ TOSTRING(COMMANDPARAMETER_PK_PnpQueue_CONST) + " " 
 				+ StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " " + TOSTRING(COMMANDPARAMETER_Filename_CONST) + " \""
 				+ pRow_DHCPDevice->PnpDetectionScript_get() + "\" " + TOSTRING(COMMANDPARAMETER_Errors_CONST) + " ";
 
+			string sResponse;
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
 				"/usr/pluto/pnp/" + pRow_DHCPDevice->PnpDetectionScript_get(), sName,
 				sArguments,sMessage + "FAIL",sMessage + "OK",false,false,false);
-			m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application);
+			if( !m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application,&sResponse) )
+				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts app server %d not responding",pDevice_AppServer->m_dwPK_Device);
 			
 			// We have a detection script we need to run
 			pPnpQueueEntry->m_sDetectionScript_Running=pRow_DHCPDevice->PnpDetectionScript_get();
