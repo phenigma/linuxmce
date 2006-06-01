@@ -36,7 +36,7 @@ do
     [ "$(basename $initFile)" == "Pluto_Start_DCERouter.sh" ] && continue
     [ "$(basename $initFile)" == "Pluto_Start_LocalDevices.sh" ] && continue
     [ "$(basename $initFile)" == "Pluto_Start_X.sh" ] && continue
-    [ "$(basename $initFile)" == "Pluto_Config_Device_Changes.sh" ] && return
+    [ "$(basename $initFile)" == "Pluto_Config_Device_Changes.sh" ] && continue
     [ "$(basename $initFile)" == "mysql" ] && continue
     [ "$(basename $initFile)" == "ssh" ] && continue
     [ "$(basename $initFile)" == "sysklogd" ] && continue
