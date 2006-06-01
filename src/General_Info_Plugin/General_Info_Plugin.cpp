@@ -531,7 +531,7 @@ void General_Info_Plugin::SetNetBoot(DeviceData_Router *pDevice,bool bNetBoot)
 		return;
 	}
 
-	string sFile = "/tftpboot/pxelinux.cfg/01-" + StringUtils::Replace(pDevice->m_sMacAddress,":","-");
+	string sFile = "/tftpboot/pxelinux.cfg/01-" + StringUtils::ToLower(StringUtils::Replace(pDevice->m_sMacAddress,":","-"));
 
 	g_pPlutoLogger->Write(LV_STATUS,"Setting net boot for file %s to %d",sFile.c_str(),(int) bNetBoot);
 
