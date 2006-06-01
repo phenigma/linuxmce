@@ -20,7 +20,6 @@ deb file:/usr/pluto/deb-cache/ sarge main
 echo "$Sources" >/etc/apt/sources.list
 echo "$SourcesOffline" >/etc/apt/sources.list.offline
 sleep 0.5
-clear
 
 exec 3>&1 1>/dev/tty
 clear

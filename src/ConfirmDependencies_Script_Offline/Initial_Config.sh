@@ -21,5 +21,5 @@ File="/var/log/pluto/Initial_Install.log"
 exec 3>&1 4>&2
 bash -x "$Cmd" > >(tee -a "$File" >&3) 2> >(tee -a "$File" | grep -v '^++* ' >&4)
 sleep 1 # so tee and grep close and flush their buffers
-exec 3>&1 4>&2
+exec 3>&- 4>&-
 exit 0
