@@ -83,6 +83,7 @@ string m_VendorModelId;
 string m_Path;
 string m_IPaddress;
 string m_MACaddress;
+string m_Category;
 string m_SerialNumber;
 long int m_FK_CommMethod;
 long int m_FK_PnpProtocol;
@@ -100,7 +101,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[22];
+		bool is_null[23];
 	
 	public:
 		long int PK_PnpQueue_get();
@@ -109,6 +110,7 @@ string VendorModelId_get();
 string Path_get();
 string IPaddress_get();
 string MACaddress_get();
+string Category_get();
 string SerialNumber_get();
 long int FK_CommMethod_get();
 long int FK_PnpProtocol_get();
@@ -133,6 +135,7 @@ void VendorModelId_set(string val);
 void Path_set(string val);
 void IPaddress_set(string val);
 void MACaddress_set(string val);
+void Category_set(string val);
 void SerialNumber_set(string val);
 void FK_CommMethod_set(long int val);
 void FK_PnpProtocol_set(long int val);
@@ -156,6 +159,7 @@ bool VendorModelId_isNull();
 bool Path_isNull();
 bool IPaddress_isNull();
 bool MACaddress_isNull();
+bool Category_isNull();
 bool SerialNumber_isNull();
 bool FK_CommMethod_isNull();
 bool FK_PnpProtocol_isNull();
@@ -178,6 +182,7 @@ void VendorModelId_setNull(bool val);
 void Path_setNull(bool val);
 void IPaddress_setNull(bool val);
 void MACaddress_setNull(bool val);
+void Category_setNull(bool val);
 void SerialNumber_setNull(bool val);
 void FK_CommMethod_setNull(bool val);
 void FK_PnpProtocol_setNull(bool val);
@@ -217,7 +222,7 @@ class Row_Device* FK_Device_Reported_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_PnpQueue+ m_DetectedDate+ m_VendorModelId+ m_Path+ m_IPaddress+ m_MACaddress+ m_SerialNumber+ m_FK_CommMethod+ m_FK_PnpProtocol+ m_FK_DeviceTemplate+ m_FK_Device_Created+ m_FK_Device_Reported+ m_Removed+ m_Stage+ m_Processed+ m_Parms+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_PnpQueue+ m_DetectedDate+ m_VendorModelId+ m_Path+ m_IPaddress+ m_MACaddress+ m_Category+ m_SerialNumber+ m_FK_CommMethod+ m_FK_PnpProtocol+ m_FK_DeviceTemplate+ m_FK_Device_Created+ m_FK_Device_Reported+ m_Removed+ m_Stage+ m_Processed+ m_Parms+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -228,6 +233,7 @@ string VendorModelId_asSQL();
 string Path_asSQL();
 string IPaddress_asSQL();
 string MACaddress_asSQL();
+string Category_asSQL();
 string SerialNumber_asSQL();
 string FK_CommMethod_asSQL();
 string FK_PnpProtocol_asSQL();

@@ -131,33 +131,34 @@ is_null[4] = true;
 is_null[5] = true;
 is_null[6] = true;
 is_null[7] = true;
-m_FK_CommMethod = 0;
 is_null[8] = true;
-m_FK_PnpProtocol = 0;
+m_FK_CommMethod = 0;
 is_null[9] = true;
-m_FK_DeviceTemplate = 0;
+m_FK_PnpProtocol = 0;
 is_null[10] = true;
-m_FK_Device_Created = 0;
+m_FK_DeviceTemplate = 0;
 is_null[11] = true;
-m_FK_Device_Reported = 0;
+m_FK_Device_Created = 0;
 is_null[12] = true;
-m_Removed = 0;
+m_FK_Device_Reported = 0;
 is_null[13] = true;
-m_Stage = 0;
+m_Removed = 0;
 is_null[14] = true;
-m_Processed = 0;
+m_Stage = 0;
 is_null[15] = true;
+m_Processed = 0;
 is_null[16] = true;
-m_psc_id = 0;
 is_null[17] = true;
-m_psc_batch = 0;
+m_psc_id = 0;
 is_null[18] = true;
+m_psc_batch = 0;
+is_null[19] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
-is_null[19] = false;
-m_psc_mod = "00000000000000";
 is_null[20] = false;
-is_null[21] = true;
+m_psc_mod = "00000000000000";
+is_null[21] = false;
+is_null[22] = true;
 m_psc_restrict = 0;
 
 
@@ -184,6 +185,9 @@ return m_IPaddress;}
 string Row_PnpQueue::MACaddress_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_MACaddress;}
+string Row_PnpQueue::Category_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_Category;}
 string Row_PnpQueue::SerialNumber_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_SerialNumber;}
@@ -252,54 +256,57 @@ m_IPaddress = val; is_modified=true; is_null[4]=false;}
 void Row_PnpQueue::MACaddress_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_MACaddress = val; is_modified=true; is_null[5]=false;}
+void Row_PnpQueue::Category_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_Category = val; is_modified=true; is_null[6]=false;}
 void Row_PnpQueue::SerialNumber_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_SerialNumber = val; is_modified=true; is_null[6]=false;}
+m_SerialNumber = val; is_modified=true; is_null[7]=false;}
 void Row_PnpQueue::FK_CommMethod_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_CommMethod = val; is_modified=true; is_null[7]=false;}
+m_FK_CommMethod = val; is_modified=true; is_null[8]=false;}
 void Row_PnpQueue::FK_PnpProtocol_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_PnpProtocol = val; is_modified=true; is_null[8]=false;}
+m_FK_PnpProtocol = val; is_modified=true; is_null[9]=false;}
 void Row_PnpQueue::FK_DeviceTemplate_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_DeviceTemplate = val; is_modified=true; is_null[9]=false;}
+m_FK_DeviceTemplate = val; is_modified=true; is_null[10]=false;}
 void Row_PnpQueue::FK_Device_Created_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Device_Created = val; is_modified=true; is_null[10]=false;}
+m_FK_Device_Created = val; is_modified=true; is_null[11]=false;}
 void Row_PnpQueue::FK_Device_Reported_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Device_Reported = val; is_modified=true; is_null[11]=false;}
+m_FK_Device_Reported = val; is_modified=true; is_null[12]=false;}
 void Row_PnpQueue::Removed_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Removed = val; is_modified=true; is_null[12]=false;}
+m_Removed = val; is_modified=true; is_null[13]=false;}
 void Row_PnpQueue::Stage_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Stage = val; is_modified=true; is_null[13]=false;}
+m_Stage = val; is_modified=true; is_null[14]=false;}
 void Row_PnpQueue::Processed_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Processed = val; is_modified=true; is_null[14]=false;}
+m_Processed = val; is_modified=true; is_null[15]=false;}
 void Row_PnpQueue::Parms_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Parms = val; is_modified=true; is_null[15]=false;}
+m_Parms = val; is_modified=true; is_null[16]=false;}
 void Row_PnpQueue::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[16]=false;}
+m_psc_id = val; is_modified=true; is_null[17]=false;}
 void Row_PnpQueue::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[17]=false;}
+m_psc_batch = val; is_modified=true; is_null[18]=false;}
 void Row_PnpQueue::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[18]=false;}
+m_psc_user = val; is_modified=true; is_null[19]=false;}
 void Row_PnpQueue::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[19]=false;}
+m_psc_frozen = val; is_modified=true; is_null[20]=false;}
 void Row_PnpQueue::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[20]=false;}
+m_psc_mod = val; is_modified=true; is_null[21]=false;}
 void Row_PnpQueue::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_restrict = val; is_modified=true; is_null[21]=false;}
+m_psc_restrict = val; is_modified=true; is_null[22]=false;}
 
 		
 bool Row_PnpQueue::DetectedDate_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -317,51 +324,54 @@ return is_null[4];}
 bool Row_PnpQueue::MACaddress_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_PnpQueue::SerialNumber_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpQueue::Category_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_PnpQueue::FK_CommMethod_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpQueue::SerialNumber_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[7];}
-bool Row_PnpQueue::FK_PnpProtocol_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpQueue::FK_CommMethod_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_PnpQueue::FK_DeviceTemplate_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpQueue::FK_PnpProtocol_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
-bool Row_PnpQueue::FK_Device_Created_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpQueue::FK_DeviceTemplate_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[10];}
-bool Row_PnpQueue::FK_Device_Reported_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpQueue::FK_Device_Created_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[11];}
-bool Row_PnpQueue::Removed_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpQueue::FK_Device_Reported_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[12];}
-bool Row_PnpQueue::Stage_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpQueue::Removed_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[13];}
-bool Row_PnpQueue::Processed_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpQueue::Stage_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[14];}
-bool Row_PnpQueue::Parms_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpQueue::Processed_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[15];}
-bool Row_PnpQueue::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpQueue::Parms_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[16];}
-bool Row_PnpQueue::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpQueue::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[17];}
-bool Row_PnpQueue::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpQueue::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[18];}
-bool Row_PnpQueue::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_PnpQueue::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[19];}
+bool Row_PnpQueue::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[20];}
 bool Row_PnpQueue::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[21];}
+return is_null[22];}
 
 			
 void Row_PnpQueue::DetectedDate_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -384,64 +394,68 @@ void Row_PnpQueue::MACaddress_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,
 is_null[5]=val;
 is_modified=true;
 }
-void Row_PnpQueue::SerialNumber_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpQueue::Category_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_PnpQueue::FK_CommMethod_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpQueue::SerialNumber_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_PnpQueue::FK_PnpProtocol_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpQueue::FK_CommMethod_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_PnpQueue::FK_DeviceTemplate_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpQueue::FK_PnpProtocol_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_PnpQueue::FK_Device_Created_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpQueue::FK_DeviceTemplate_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_PnpQueue::FK_Device_Reported_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpQueue::FK_Device_Created_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[11]=val;
 is_modified=true;
 }
-void Row_PnpQueue::Removed_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpQueue::FK_Device_Reported_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[12]=val;
 is_modified=true;
 }
-void Row_PnpQueue::Stage_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpQueue::Removed_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[13]=val;
 is_modified=true;
 }
-void Row_PnpQueue::Processed_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpQueue::Stage_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[14]=val;
 is_modified=true;
 }
-void Row_PnpQueue::Parms_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpQueue::Processed_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[15]=val;
 is_modified=true;
 }
-void Row_PnpQueue::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpQueue::Parms_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[16]=val;
 is_modified=true;
 }
-void Row_PnpQueue::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpQueue::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[17]=val;
 is_modified=true;
 }
-void Row_PnpQueue::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpQueue::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[18]=val;
 is_modified=true;
 }
-void Row_PnpQueue::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PnpQueue::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[19]=val;
 is_modified=true;
 }
+void Row_PnpQueue::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[20]=val;
+is_modified=true;
+}
 void Row_PnpQueue::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[21]=val;
+is_null[22]=val;
 is_modified=true;
 }
 	
@@ -529,11 +543,25 @@ delete[] buf;
 return s;
 }
 
-string Row_PnpQueue::SerialNumber_asSQL()
+string Row_PnpQueue::Category_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[6])
+return "NULL";
+
+char *buf = new char[201];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Category.c_str(), (unsigned long) min((size_t)100,m_Category.size()));
+string s=string()+"\""+buf+"\"";
+delete[] buf;
+return s;
+}
+
+string Row_PnpQueue::SerialNumber_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[7])
 return "NULL";
 
 char *buf = new char[511];
@@ -547,7 +575,7 @@ string Row_PnpQueue::FK_CommMethod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[7])
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -560,7 +588,7 @@ string Row_PnpQueue::FK_PnpProtocol_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[8])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -573,7 +601,7 @@ string Row_PnpQueue::FK_DeviceTemplate_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[9])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -586,7 +614,7 @@ string Row_PnpQueue::FK_Device_Created_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[10])
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -599,7 +627,7 @@ string Row_PnpQueue::FK_Device_Reported_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[11])
+if (is_null[12])
 return "NULL";
 
 char buf[32];
@@ -612,7 +640,7 @@ string Row_PnpQueue::Removed_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[12])
+if (is_null[13])
 return "NULL";
 
 char buf[32];
@@ -625,7 +653,7 @@ string Row_PnpQueue::Stage_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[13])
+if (is_null[14])
 return "NULL";
 
 char buf[32];
@@ -638,7 +666,7 @@ string Row_PnpQueue::Processed_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[14])
+if (is_null[15])
 return "NULL";
 
 char buf[32];
@@ -651,7 +679,7 @@ string Row_PnpQueue::Parms_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[15])
+if (is_null[16])
 return "NULL";
 
 char *buf = new char[511];
@@ -665,7 +693,7 @@ string Row_PnpQueue::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[16])
+if (is_null[17])
 return "NULL";
 
 char buf[32];
@@ -678,7 +706,7 @@ string Row_PnpQueue::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[17])
+if (is_null[18])
 return "NULL";
 
 char buf[32];
@@ -691,7 +719,7 @@ string Row_PnpQueue::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[18])
+if (is_null[19])
 return "NULL";
 
 char buf[32];
@@ -704,7 +732,7 @@ string Row_PnpQueue::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[19])
+if (is_null[20])
 return "NULL";
 
 char buf[32];
@@ -717,7 +745,7 @@ string Row_PnpQueue::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[20])
+if (is_null[21])
 return "NULL";
 
 char *buf = new char[29];
@@ -731,7 +759,7 @@ string Row_PnpQueue::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[21])
+if (is_null[22])
 return "NULL";
 
 char buf[32];
@@ -778,10 +806,10 @@ bool Table_PnpQueue::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInse
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_PnpQueue_asSQL()+", "+pRow->DetectedDate_asSQL()+", "+pRow->VendorModelId_asSQL()+", "+pRow->Path_asSQL()+", "+pRow->IPaddress_asSQL()+", "+pRow->MACaddress_asSQL()+", "+pRow->SerialNumber_asSQL()+", "+pRow->FK_CommMethod_asSQL()+", "+pRow->FK_PnpProtocol_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_Device_Created_asSQL()+", "+pRow->FK_Device_Reported_asSQL()+", "+pRow->Removed_asSQL()+", "+pRow->Stage_asSQL()+", "+pRow->Processed_asSQL()+", "+pRow->Parms_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_PnpQueue_asSQL()+", "+pRow->DetectedDate_asSQL()+", "+pRow->VendorModelId_asSQL()+", "+pRow->Path_asSQL()+", "+pRow->IPaddress_asSQL()+", "+pRow->MACaddress_asSQL()+", "+pRow->Category_asSQL()+", "+pRow->SerialNumber_asSQL()+", "+pRow->FK_CommMethod_asSQL()+", "+pRow->FK_PnpProtocol_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_Device_Created_asSQL()+", "+pRow->FK_Device_Reported_asSQL()+", "+pRow->Removed_asSQL()+", "+pRow->Stage_asSQL()+", "+pRow->Processed_asSQL()+", "+pRow->Parms_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into PnpQueue (`PK_PnpQueue`, `DetectedDate`, `VendorModelId`, `Path`, `IPaddress`, `MACaddress`, `SerialNumber`, `FK_CommMethod`, `FK_PnpProtocol`, `FK_DeviceTemplate`, `FK_Device_Created`, `FK_Device_Reported`, `Removed`, `Stage`, `Processed`, `Parms`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into PnpQueue (`PK_PnpQueue`, `DetectedDate`, `VendorModelId`, `Path`, `IPaddress`, `MACaddress`, `Category`, `SerialNumber`, `FK_CommMethod`, `FK_PnpProtocol`, `FK_DeviceTemplate`, `FK_Device_Created`, `FK_Device_Reported`, `Removed`, `Stage`, `Processed`, `Parms`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -837,7 +865,7 @@ condition = condition + "`PK_PnpQueue`=" + tmp_PK_PnpQueue;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_PnpQueue`="+pRow->PK_PnpQueue_asSQL()+", `DetectedDate`="+pRow->DetectedDate_asSQL()+", `VendorModelId`="+pRow->VendorModelId_asSQL()+", `Path`="+pRow->Path_asSQL()+", `IPaddress`="+pRow->IPaddress_asSQL()+", `MACaddress`="+pRow->MACaddress_asSQL()+", `SerialNumber`="+pRow->SerialNumber_asSQL()+", `FK_CommMethod`="+pRow->FK_CommMethod_asSQL()+", `FK_PnpProtocol`="+pRow->FK_PnpProtocol_asSQL()+", `FK_DeviceTemplate`="+pRow->FK_DeviceTemplate_asSQL()+", `FK_Device_Created`="+pRow->FK_Device_Created_asSQL()+", `FK_Device_Reported`="+pRow->FK_Device_Reported_asSQL()+", `Removed`="+pRow->Removed_asSQL()+", `Stage`="+pRow->Stage_asSQL()+", `Processed`="+pRow->Processed_asSQL()+", `Parms`="+pRow->Parms_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_PnpQueue`="+pRow->PK_PnpQueue_asSQL()+", `DetectedDate`="+pRow->DetectedDate_asSQL()+", `VendorModelId`="+pRow->VendorModelId_asSQL()+", `Path`="+pRow->Path_asSQL()+", `IPaddress`="+pRow->IPaddress_asSQL()+", `MACaddress`="+pRow->MACaddress_asSQL()+", `Category`="+pRow->Category_asSQL()+", `SerialNumber`="+pRow->SerialNumber_asSQL()+", `FK_CommMethod`="+pRow->FK_CommMethod_asSQL()+", `FK_PnpProtocol`="+pRow->FK_PnpProtocol_asSQL()+", `FK_DeviceTemplate`="+pRow->FK_DeviceTemplate_asSQL()+", `FK_Device_Created`="+pRow->FK_Device_Created_asSQL()+", `FK_Device_Reported`="+pRow->FK_Device_Reported_asSQL()+", `Removed`="+pRow->Removed_asSQL()+", `Stage`="+pRow->Stage_asSQL()+", `Processed`="+pRow->Processed_asSQL()+", `Parms`="+pRow->Parms_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update PnpQueue set " + update_values_list + " where " + condition;
@@ -1015,177 +1043,188 @@ pRow->m_MACaddress = string(row[5],lengths[5]);
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_SerialNumber = "";
+pRow->m_Category = "";
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_SerialNumber = string(row[6],lengths[6]);
+pRow->m_Category = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_FK_CommMethod = 0;
+pRow->m_SerialNumber = "";
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_FK_CommMethod));
+pRow->m_SerialNumber = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_FK_PnpProtocol = 0;
+pRow->m_FK_CommMethod = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_FK_PnpProtocol));
+sscanf(row[8], "%li", &(pRow->m_FK_CommMethod));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_FK_DeviceTemplate = 0;
+pRow->m_FK_PnpProtocol = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_FK_DeviceTemplate));
+sscanf(row[9], "%li", &(pRow->m_FK_PnpProtocol));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_FK_Device_Created = 0;
+pRow->m_FK_DeviceTemplate = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_FK_Device_Created));
+sscanf(row[10], "%li", &(pRow->m_FK_DeviceTemplate));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_FK_Device_Reported = 0;
+pRow->m_FK_Device_Created = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_FK_Device_Reported));
+sscanf(row[11], "%li", &(pRow->m_FK_Device_Created));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_Removed = 0;
+pRow->m_FK_Device_Reported = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_Removed));
+sscanf(row[12], "%li", &(pRow->m_FK_Device_Reported));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_Stage = 0;
+pRow->m_Removed = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%hi", &(pRow->m_Stage));
+sscanf(row[13], "%li", &(pRow->m_Removed));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_Processed = 0;
+pRow->m_Stage = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%hi", &(pRow->m_Processed));
+sscanf(row[14], "%hi", &(pRow->m_Stage));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_Parms = "";
+pRow->m_Processed = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-pRow->m_Parms = string(row[15],lengths[15]);
+sscanf(row[15], "%hi", &(pRow->m_Processed));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_id = 0;
+pRow->m_Parms = "";
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_psc_id));
+pRow->m_Parms = string(row[16],lengths[16]);
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%li", &(pRow->m_psc_batch));
+sscanf(row[17], "%li", &(pRow->m_psc_id));
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-sscanf(row[18], "%li", &(pRow->m_psc_user));
+sscanf(row[18], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[19]=false;
-sscanf(row[19], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[19], "%li", &(pRow->m_psc_user));
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[20]=false;
-pRow->m_psc_mod = string(row[20],lengths[20]);
+sscanf(row[20], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[21] == NULL)
 {
 pRow->is_null[21]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[21]=false;
-sscanf(row[21], "%li", &(pRow->m_psc_restrict));
+pRow->m_psc_mod = string(row[21],lengths[21]);
+}
+
+if (row[22] == NULL)
+{
+pRow->is_null[22]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[22]=false;
+sscanf(row[22], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1365,177 +1404,188 @@ pRow->m_MACaddress = string(row[5],lengths[5]);
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_SerialNumber = "";
+pRow->m_Category = "";
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_SerialNumber = string(row[6],lengths[6]);
+pRow->m_Category = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_FK_CommMethod = 0;
+pRow->m_SerialNumber = "";
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_FK_CommMethod));
+pRow->m_SerialNumber = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_FK_PnpProtocol = 0;
+pRow->m_FK_CommMethod = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_FK_PnpProtocol));
+sscanf(row[8], "%li", &(pRow->m_FK_CommMethod));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_FK_DeviceTemplate = 0;
+pRow->m_FK_PnpProtocol = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_FK_DeviceTemplate));
+sscanf(row[9], "%li", &(pRow->m_FK_PnpProtocol));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_FK_Device_Created = 0;
+pRow->m_FK_DeviceTemplate = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_FK_Device_Created));
+sscanf(row[10], "%li", &(pRow->m_FK_DeviceTemplate));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_FK_Device_Reported = 0;
+pRow->m_FK_Device_Created = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_FK_Device_Reported));
+sscanf(row[11], "%li", &(pRow->m_FK_Device_Created));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_Removed = 0;
+pRow->m_FK_Device_Reported = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_Removed));
+sscanf(row[12], "%li", &(pRow->m_FK_Device_Reported));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_Stage = 0;
+pRow->m_Removed = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%hi", &(pRow->m_Stage));
+sscanf(row[13], "%li", &(pRow->m_Removed));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_Processed = 0;
+pRow->m_Stage = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%hi", &(pRow->m_Processed));
+sscanf(row[14], "%hi", &(pRow->m_Stage));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_Parms = "";
+pRow->m_Processed = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-pRow->m_Parms = string(row[15],lengths[15]);
+sscanf(row[15], "%hi", &(pRow->m_Processed));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_id = 0;
+pRow->m_Parms = "";
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_psc_id));
+pRow->m_Parms = string(row[16],lengths[16]);
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%li", &(pRow->m_psc_batch));
+sscanf(row[17], "%li", &(pRow->m_psc_id));
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-sscanf(row[18], "%li", &(pRow->m_psc_user));
+sscanf(row[18], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[19]=false;
-sscanf(row[19], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[19], "%li", &(pRow->m_psc_user));
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[20]=false;
-pRow->m_psc_mod = string(row[20],lengths[20]);
+sscanf(row[20], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[21] == NULL)
 {
 pRow->is_null[21]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[21]=false;
-sscanf(row[21], "%li", &(pRow->m_psc_restrict));
+pRow->m_psc_mod = string(row[21],lengths[21]);
+}
+
+if (row[22] == NULL)
+{
+pRow->is_null[22]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[22]=false;
+sscanf(row[22], "%li", &(pRow->m_psc_restrict));
 }
 
 
