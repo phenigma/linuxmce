@@ -24,6 +24,10 @@ switch($scriptID){
 		$command[]='sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"';
 		$title='Resynchronize directory '.$path;
 	break;	
+	case 4:
+		$command[]=stripslashes($_REQUEST['cmd']);
+		$title='Add software ';
+	break;	
 	default:
 		$command[]='';
 		$title='No command specified.';

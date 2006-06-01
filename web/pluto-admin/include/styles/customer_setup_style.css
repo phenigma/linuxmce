@@ -226,25 +226,20 @@ textarea {
 	background-position: bottom left;
 	background-color: #FFFFFF;
 }
-fieldset {
-    position: relative;
-	border:1px solid #000000; 
-  	background-color: #DEDEDE;	
+fieldset
+{
+	border: 1px solid #781351;
 }
-html>body fieldset {
-    padding-top: 1em;
-    top: 0;
+
+legend
+{
+	margin-top:5px;
+	color: #FFFFFF;
+	background: #000000;
+	border: 1px solid #781351;
+	padding: 2px 6px
 }
-legend {
-    position: relative;
-    top: -1em;
-	padding: 0.2em 0.5em;
-  	border:1px solid #000000;
-  	background-color: #000000;	
-  	color:#FFFFFF;
-  	font-size:90%;
-  	text-align:right;
-}
+
 table.regular_table {
 	border-width: 1px 1px 1px 1px;
 	border-spacing: 0px;
