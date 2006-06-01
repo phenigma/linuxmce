@@ -35,7 +35,7 @@
 #    define _LOG_NFO(x, ...) fprintf(stderr, "\n\033[0m\033[36mINFO:\033[1m "    x " \033[0m\033[32m// %s\033[0m\n" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
 #    define _LOG_ERR(x, ...) fprintf(stderr, "\n\033[0m\033[31mERROR:\033[1m "   x " \033[0m\033[32m// %s\033[0m\n" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
 #    define _LOG_WRN(x, ...) fprintf(stderr, "\n\033[0m\033[35mWARNING:\033[1m " x " \033[0m\033[32m// %s\033[0m\n" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
-#    define _LOG_DBG(x, ...) fprintf(stderr, "\n\033[0m\033[33mDEBUG:\033[0m "     x " \033[0m\033[32m// %s\033[0m\n" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
+#    define _LOG_DBG(x, ...) fprintf(stderr, "\n\033[0m\033[33mDEBUG:\033[0m "   x " \033[0m\033[32m// %s\033[0m\n" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
 #  endif
 #endif // (! defined _LOG_NFO)
 
