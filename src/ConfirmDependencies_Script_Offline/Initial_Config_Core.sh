@@ -296,10 +296,9 @@ clear
                 echo ""
                 echo "\"Pluto Bonus CD 1\" succesfuly installed !"
                 echo ""
-        else
-                echo "Skipping \"Pluto Bonus CD 1\" install ..."
+        else        
+		echo "Skipping \"Pluto Bonus CD 1\" install ..."
         fi
-
 
 while :; do
 	ExtraPkg=$(Ask "Do you want to add extra packages? [y/N]")

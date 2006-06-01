@@ -28,6 +28,11 @@ case "$R" in
 	;;
 esac
 
+# Remove initial firewall rules to block services use at install
+/sbin/iptables -D INPUT -j DROP
+/sbin/iptables -D INPUT -m tcp -p tcp --dport 22 -j ACCEPT
+# End remove initial firewall rules
+
 Message1="Congratulations.  Pluto installation has completed.  The system will now 
 reboot.  The Pluto Core software will be started automatically.  As soon as 
 the computer finishes rebooting you will be able to access the Pluto Admin
