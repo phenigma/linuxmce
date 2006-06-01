@@ -987,7 +987,7 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		return ;
 	}
 
-	g_pPlutoLogger->Write( LV_WARNING, "Xine_Streamr::Seek seek to %d tolerance %d", pos, tolerance_ms );
+	g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::Seek seek to %d tolerance %d", pos, tolerance_ms );
 
 	for ( int i = 0;i < 10;++i )
 	{
