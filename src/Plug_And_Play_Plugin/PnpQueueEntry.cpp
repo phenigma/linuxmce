@@ -128,6 +128,7 @@ PnpQueueEntry::PnpQueueEntry(Row_PnpQueue *pRow_PnpQueue)
 
 void PnpQueueEntry::Stage_set(int Stage)
 { 
+	g_pPlutoLogger->Write(LV_STATUS, "PnpQueueEntry::Stage_set queue %d now set to %d", m_pRow_PnpQueue->PK_PnpQueue_get(),Stage);
 	m_pRow_PnpQueue->Stage_set(Stage); 
 	if( Stage==PNP_DETECT_STAGE_DONE || Stage==PNP_REMOVE_STAGE_DONE )
 		m_pRow_PnpQueue->Processed_set(1);
