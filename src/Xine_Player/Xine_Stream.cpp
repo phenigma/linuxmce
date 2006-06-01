@@ -1089,24 +1089,26 @@ void Xine_Stream::DisplaySpeedAndTimeCode()
 		return;
 	}
 
-	
-	int Whole = m_iSpecialSeekSpeed / 1000;
-	int Fraction = m_iSpecialSeekSpeed % 1000;
+	int iDirection = m_iSpecialSeekSpeed<0?-1:1;
+		
+	int Whole = iDirection*m_iSpecialSeekSpeed / 1000;
+	int Fraction = iDirection*m_iSpecialSeekSpeed % 1000;
 	
 	if (m_bTrickModeActive)
 	{
+		iDirection = 1;
 		Whole = m_iTrickPlaySpeed / 1000;
 		Fraction = m_iTrickPlaySpeed % 1000;
 	}
 	
 	string sSpeed;
 
-	if ( Fraction < 0 )
+	if ( iDirection < 0 )
 	{
-		Fraction *= -1;
 		sSpeed += "-";
 	}
-	else if ( Whole )
+	
+	if ( Whole )
 		sSpeed += StringUtils::itos( Whole );
 	else
 		sSpeed += "0";
@@ -1680,9 +1682,9 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 	
 	
 	// reverse play requested or trick_play is not supported for this stream
-	// or we need ultra-fast-forward (>16x)
-	const int UltraFastFWD = 16*1000;
-	if ( (desiredSpeed < 0)||( (desiredSpeed > 0) && !trickModeSupported )||(desiredSpeed>=UltraFastFWD) )
+	// or we need ultra-fast-forward (>8x)
+	const int UltraFastFWD = 8*1000;
+	if ( (desiredSpeed < 0)||( (desiredSpeed > 0) && !trickModeSupported )||(desiredSpeed>UltraFastFWD) )
 	{	
 		if ( trickModeSupported &&  trickModeActive )
 		{
