@@ -94,17 +94,17 @@ bool WizardLogic::HasRemoteControl(bool bPopulateListOfOptions)
 	if( !bPopulateListOfOptions || PK_Device_Remote )
 		return PK_Device_Remote!=0;
 
-	FindPnpDevices(DEVICECATEGORY_Infrared_Receivers_CONST);
+	FindPnpDevices( TOSTRING(DEVICECATEGORY_Infrared_Receivers_CONST) "," TOSTRING(DEVICECATEGORY_Remote_Controls_CONST) );
 	return false;
 }
 
-void WizardLogic::FindPnpDevices(int PK_DeviceCategory)
+void WizardLogic::FindPnpDevices(string sPK_DeviceCategory)
 {
 	// We don't have a remote, and the user will want to see a list of possibilities
 	string sSQL = "SELECT DeviceTemplate.Description,Manufacturer.Description FROM DeviceTemplate "
 		"JOIN Manufacturer ON DeviceTemplate.FK_Manufacturer=PK_Manufacturer "
 		"JOIN DHCPDevice ON FK_DeviceTemplate=PK_DeviceTemplate "
-		"WHERE DeviceTemplate.FK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory);
+		"WHERE DeviceTemplate.FK_DeviceCategory IN (" + sPK_DeviceCategory + ")";
 
 	MYSQL_ROW row;
 	string sPnpDevices;

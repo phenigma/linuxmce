@@ -296,6 +296,14 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 
 	vector<Row_DHCPDevice *> vectRow_DHCPDevice;
 	m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sSqlWhere,&vectRow_DHCPDevice);
+
+	if( vectRow_DHCPDevice.size()==0 && pPnpQueueEntry->m_pRow_PnpQueue->Category_get().size() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d checking for category",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		sSqlWhere = "SerialNumber='CAT:" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->Category_get()) + "'";
+		m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sSqlWhere,&vectRow_DHCPDevice);
+	}
+
 	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d has %d candidates",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) vectRow_DHCPDevice.size());
 	if( vectRow_DHCPDevice.size()>0 )
 	{

@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
 	char pBuffer[5000]="";
 	size_t sReceived=0;
 
-	g_pPlutoLogger->Write(LV_STATUS,"Starting: %s",sMessage.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"Starting: %s, port %s timeout %d",sMessage.c_str(),sPort.c_str(),iTimeout);
 	try
 	{
 		CSerialPort serialPort(sPort,iBaud,_eParityBitStop,bHardwareFlowControl);

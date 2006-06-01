@@ -130,6 +130,7 @@ bool Plug_And_Play_Plugin::DeviceDetected( class Socket *pSocket, class Message 
 		pMessage->m_mapParameters[EVENTPARAMETER_DeviceData_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_IP_Address_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST],
+		pMessage->m_mapParameters[EVENTPARAMETER_Category_CONST],
 		atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_CommMethod_CONST].c_str()),
 		atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_DeviceTemplate_CONST].c_str()),
 		pMessage->m_dwPK_Device_From,
@@ -453,6 +454,7 @@ void Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished(string sFilename,st
 	pthread_cond_broadcast( &m_PnpCond );  // We got the mutex, it won't run until we're done anyway
 	if( iPK_DeviceTemplate )  // Great, we know what it is
 	{
+		pPnpQueueEntry->m_sDetectionScript_Running="";  // This isn't running anymore
 		pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_set(iPK_DeviceTemplate);
 		pPnpQueueEntry->ParseDeviceData(sData_String);
 		g_pPlutoLogger->Write(LV_STATUS, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d prompting user", iPK_PnpQueue);

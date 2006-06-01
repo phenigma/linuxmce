@@ -38,6 +38,7 @@ namespace DCE
 			string sDeviceData,
 			string sIPAddress,
 			string sMacAddress,
+			string sCategory,
 			int PK_CommMethod,
 			int PK_DeviceTemplate,
 			int PK_Device_Reported,

@@ -108,7 +108,7 @@ public:
 	int FindFirstDeviceInCategoryOnThisPC(int PK_DeviceCategory,string *sDescription=NULL);
 	int FindManufacturer(string sName);
 	int FindModel(int PK_DeviceCategory,string sModel);
-	void FindPnpDevices(int PK_DeviceCategory);
+	void FindPnpDevices(string sPK_DeviceCategory);
 
 	/*
 		ALARM PANEL

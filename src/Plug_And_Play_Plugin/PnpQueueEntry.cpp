@@ -31,6 +31,7 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	string sDeviceData,
 	string sIPAddress,
 	string sMacAddress,
+	string sCategory,
 	int PK_CommMethod,
 	int PK_DeviceTemplate,
 	int PK_Device_Reported,
@@ -44,6 +45,7 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	m_pRow_PnpQueue->DetectedDate_set(StringUtils::SQLDateTime(time(NULL)));
 	m_pRow_PnpQueue->IPaddress_set(sIPAddress);
 	m_pRow_PnpQueue->MACaddress_set(sMacAddress);
+	m_pRow_PnpQueue->Category_set(sCategory);
 	m_pRow_PnpQueue->VendorModelId_set(sVendorModelId);
 	m_pRow_PnpQueue->Path_set("");
 	m_pRow_PnpQueue->SerialNumber_set(sPnpSerialNumber);
