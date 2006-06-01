@@ -239,7 +239,7 @@ void PlutoHalD::myDeviceRemoved(LibHalContext * ctx, const char * udi)
 		g_pPlutoLogger->Write(LV_DEBUG, "--------------- Removed = %s", udi);
 		
 		halDevice->EVENT_Device_Removed("", "", 0, "", 0, "", 4, 0, udi, "", "");
-		g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+		g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event");
 	}
 	else
 	{
