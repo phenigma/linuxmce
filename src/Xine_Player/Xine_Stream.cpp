@@ -441,18 +441,14 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 	}
 	
 	
-	// TODO: implement and enable
-	//!setXineStreamDebugging( streamID, true );
-	
-	
+	setDebuggingLevel(true );	
 	
 	// opening media
 	if ( mediaOpened )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Media opened " );
 
-		// TODO: implement and enable
-		//!setXineStreamDebugging( streamID, false );
+		setDebuggingLevel( false );
 		{
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 			m_bHasVideo = xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_HAS_VIDEO );
@@ -465,6 +461,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		if ( m_bHasVideo )
 		{
 			g_pPlutoLogger->Write( LV_STATUS, "Media has video - enabling deinterlacing plugin" );
+			EnableDeinterlacing();
 		}
 		else
 		{
