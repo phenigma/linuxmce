@@ -152,11 +152,24 @@ int main(int argc, char *argv[])
 
 	if( sSearchString.size() )
 	{
-		if( strstr(pBuffer,sSearchString.c_str())==NULL )
+		int Length = sSearchString.size();
+		if( Length>sReceived )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Search string not found");
 			return 1;
 		}
+
+		const char *pSearch = sSearchString.c_str();
+		char *pEnd = pBuffer + sReceived - Length;
+		for(char *p=pBuffer;p<=pEnd;++p)
+			if( memcmp(p,pSearch,Length)==0 )
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"Search string found");
+				return 0;
+			}
+
+		g_pPlutoLogger->Write(LV_STATUS,"Search string not found");
+		return 1;
 	}
 	
 	return 0;
