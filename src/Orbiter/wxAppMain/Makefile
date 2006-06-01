@@ -26,7 +26,7 @@ OBJECTPATH=DebugGTK2
 PROGRAM=wxAppMain
 LIBS=`wx-config --libs`
 LINKERFLAGS=-lGL -lGLU -lwx_gtk2d_gl-2.6 `sdl-config --libs`
-WARNINGFLAGS=-Wall -W -Wunused
+WARNINGFLAGS=-W -Wall -Wunused -Wunreachable-code -Wno-system-headers
 OPTFLAGS=-O0
 DEBUGFLAGS=-ggdb
 LIBPATH=
@@ -53,7 +53,7 @@ OBJECTPATH=ReleaseGTK2
 PROGRAM=wxAppMain
 LIBS=`/usr/lib/wx/config/gtk2-ansi-release-2.6 --libs`
 LINKERFLAGS=-lGL -lGLU -lwx_gtk2_gl-2.6 `sdl-config --libs`
-WARNINGFLAGS=-Wall -W -Wunused
+WARNINGFLAGS=-W -Wall -Wunused -Wunreachable-code -Wno-system-headers
 OPTFLAGS=-O2
 DEBUGFLAGS=
 LIBPATH=
@@ -208,7 +208,7 @@ $(OBJECTPATH)/wx_thread_wrapper.o:	wx_thread_wrapper.cpp wx/wx.h wx_thread_wrapp
 $(OBJECTPATH)/wrapper_sdl.o:	wrapper_sdl.cpp wx/wx.h wrapper_sdl.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wrapper_sdl.cpp
 
-$(OBJECTPATH)/wrapper_x11.o:	wrapper_x11.cpp wrapper_x11.h define_logger.h
+$(OBJECTPATH)/wrapper_x11.o:	wrapper_x11.cpp wrapper_x11.h define_all.h define_cond.h define_logger.h define_other.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wrapper_x11.cpp
 
 .PHONY:	all clean

@@ -82,7 +82,7 @@ bool X11_Sync(Display *pDisplay)
     }
     //_LOG_NFO("pDisplay==%p", v_pDisplay);
     //XFlush(pDisplay); // already called by XSync
-    return XSync(pDisplay, false);
+    XSync(pDisplay, false);
     return true;
 }
 
