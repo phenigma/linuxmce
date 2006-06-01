@@ -15,7 +15,7 @@ public:
 	PlutoColor(long Value) { m_Value=Value; }
 	PlutoColor(unsigned char R,unsigned char G,unsigned char B) { unsigned char *ucp = (unsigned char *) &m_Value;  ucp[0]=B; ucp[1]=G; ucp[2]=R; ucp[3]=255; };
 	PlutoColor(unsigned char R,unsigned char G,unsigned char B, unsigned char A) { unsigned char *ucp = (unsigned char *) &m_Value;  ucp[0]=B; ucp[1]=G; ucp[2]=R; ucp[3]=A; };
-	PlutoColor(const PlutoColor &C) {m_Value=C.m_Value;  }
+	PlutoColor(const PlutoColor &C) : SerializeClass() {m_Value=C.m_Value;  }
 
 	static PlutoColor Black() { return PlutoColor(0,0,0); }
 	static PlutoColor Red() { return PlutoColor(255,0,0); }
@@ -55,7 +55,7 @@ public:
 	PlutoPoint() { X=0; Y=0;  }
 	PlutoPoint(PlutoPoint *p) { X=p->X; Y=p->Y;  };
 	PlutoPoint(int x,int y) {X=x; Y=y;  }
-	PlutoPoint(const PlutoPoint &p) {X=p.X; Y=p.Y;  }
+	PlutoPoint(const PlutoPoint &p) : SerializeClass() {X=p.X; Y=p.Y;  }
 
 	void SetupSerialization(int iSC_Version)
 	{
@@ -136,7 +136,7 @@ class PlutoSize : public SerializeClass
 public:
 	int Width,Height;
 	PlutoSize() {Width=0; Height=0; };
-	PlutoSize(const PlutoSize &s) {Width=s.Width; Height=s.Height; };
+	PlutoSize(const PlutoSize &s) : SerializeClass() {Width=s.Width; Height=s.Height; };
 	PlutoSize(PlutoPoint &pt)
 	{
 		Width=pt.X;
@@ -177,7 +177,7 @@ public:
 	PlutoRectangle(int dX, int dY) { X=dX; Y=dY;  } ;
 	PlutoRectangle(PlutoPoint pt,PlutoSize sz) { X=pt.X; Y=pt.Y; Width=sz.Width; Height=sz.Height; }
 	PlutoRectangle(PlutoPoint origin,PlutoPoint corner) { X=origin.X; Y=origin.Y; Width=corner.X-origin.X; Height=corner.Y-origin.Y; }
-	PlutoRectangle(const PlutoRectangle &Rect) { X = Rect.X; Y=Rect.Y; Width=Rect.Width; Height=Rect.Height; }
+	PlutoRectangle(const PlutoRectangle &Rect) : SerializeClass() { X = Rect.X; Y=Rect.Y; Width=Rect.Width; Height=Rect.Height; }
 	
 	int Top() { return Y; }
 	int Bottom() { return Y + Height - 1; }
