@@ -1655,6 +1655,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 			
 			xine_stop_trick_play(m_pXineStream);
 			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
+			EnableDeinterlacing();
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 			m_iTrickPlaySpeed = 0;
 			m_bTrickModeActive = false;
@@ -1672,16 +1673,16 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 	
 	
 	// reverse play requested or trick_play is not supported for this stream
-	// or we need ultra-fast-forward (>8x)
-	const int UltraFastFWD = 8*1000;
+	// or we need ultra-fast-forward (>16x)
+	const int UltraFastFWD = 16*1000;
 	if ( (desiredSpeed < 0)||( (desiredSpeed > 0) && !trickModeSupported )||(desiredSpeed>UltraFastFWD) )
 	{	
 		if ( trickModeSupported &&  trickModeActive )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");
-			
+			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");	
 			xine_stop_trick_play(m_pXineStream);
 			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
+			EnableDeinterlacing();
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 			m_iTrickPlaySpeed = 0;
 			m_bTrickModeActive = false;
@@ -1718,10 +1719,11 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 			m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER);
 			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, 9000 );
+			DisableDeinterlacing();
 		}
 		else
 		{
-			xine_stop_trick_play(m_pXineStream);		
+			xine_stop_trick_play(m_pXineStream);	
 		}
 		
 		xine_start_trick_play(m_pXineStream, desiredSpeed*1000);
