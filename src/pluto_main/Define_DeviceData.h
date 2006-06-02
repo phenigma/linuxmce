@@ -143,16 +143,6 @@
 #define DEVICEDATA_PNP_Create_Without_Prompting_CONST 164
 #define DEVICEDATA_Immediate_Reload_Isnt_Necessar_CONST 165
 
-//////////////////////////////////////////////////////////////////////////
-//WARNING! TEMPORARY CODE. THIS CONSTANTS ARE MISSING FROM DB!!!
-//TODO: REMOVE ME!
-#define DEVICEDATA_UID_CONST 154
-#define DEVICEDATA_HAL_Model_CONST 155
-//////////////////////////////////////////////////////////////////////////
-
-
-
-
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_TABLE_FIELD "DeviceData.PK_DeviceData"

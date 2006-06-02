@@ -1025,6 +1025,12 @@
 #define TEXT_Start_AV_Wizard_CONST 1738
 #define TEXT_Current_Room_CONST 1739
 #define TEXT_confirm_room_CONST 1740
+#define TEXT_Direct_Connect_Receiver_CONST 1741
+#define TEXT_confirm_receiver_and_input_CONST 1742
+#define TEXT_confirm_receiver_CONST 1743
+#define TEXT_Wrong_receiver_CONST 1744
+#define TEXT_right_receiver_wrong_input_CONST 1745
+#define TEXT_dont_control_my_receiver_CONST 1746
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
