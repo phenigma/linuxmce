@@ -212,6 +212,11 @@ touch /var/run/utmp
 chown root.utmp /var/run/utmp
 chmod  664 /var/run/utmp
 
+Message "Setting console fonts"
+if [ -x /etc/init.d/console-screen.sh ]; then
+	/etc/init.d/console-screen.sh start 1>/dev/null &
+fi
+
 ## Set up the hostname
 Message "Setting up the hostname"
 if [ -f /etc/hostname ] ;then

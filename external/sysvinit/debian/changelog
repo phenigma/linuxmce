@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto44) unstable; urgency=low
+
+  * Set console fonts at boot
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Fri, 02 Jun 2006 15:11:23 +0300
+
 sysvinit (2.86.ds1-1.1pluto43) unstable; urgency=low
 
   * Serialize the shutdown / reboot runlevels
