@@ -82,10 +82,7 @@ static const string sURL_Base = "http://10.0.0.175/plutohome-com/getRegisteredDe
 DCEConfig dceConfig; // Needed by CreateDevice
 
 
-//WARNING! TEMPORARY CODE. THIS CONSTANTS ARE MISSING FROM DB!!!
-//TODO: REMOVE ME!
-#define DEVICEDATA_UID_CONST 154
-#define DEVICEDATA_HAL_Model_CONST 155
+
 
 
 //<-dceag-const-b->
