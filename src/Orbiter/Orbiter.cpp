@@ -3501,7 +3501,7 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 
 	m_pDesignObj_Orbiter_MainMenu=m_ScreenMap_Find( m_sMainMenu );
 	m_pDesignObj_Orbiter_SleepingMenu=m_ScreenMap_Find( m_sSleepingMenu );
-	m_pDesignObj_Orbiter_ScreenSaveMenu=m_ScreenMap_Find( m_sScreenSaveMenu );
+	m_pDesignObj_Orbiter_ScreenSaveMenu=UsesUIVersion2() ? NULL : m_ScreenMap_Find( m_sScreenSaveMenu );
 
 	if(  !m_pDesignObj_Orbiter_MainMenu  )
 	{
