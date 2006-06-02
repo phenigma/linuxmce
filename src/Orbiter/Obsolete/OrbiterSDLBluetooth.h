@@ -4,19 +4,15 @@
 //-----------------------------------------------------------------------------------------------------
 #include <iostream> 
 using namespace std; 
-
-#include <SDL.h>
 //-----------------------------------------------------------------------------------------------------
-#include "../SDL/OrbiterSDL.h"
+#include "../Orbiter.h"
 //-----------------------------------------------------------------------------------------------------
-
 class BDCommandProcessor;
-
 //-----------------------------------------------------------------------------------------------------
 namespace DCE
 {
 
-class OrbiterSDLBluetooth : public OrbiterSDL
+class OrbiterBluetooth : public Orbiter
 {
 	bool  m_bShowListSent;
     int   m_ImageQuality;
@@ -30,9 +26,9 @@ public:
 	virtual ~OrbiterSDLBluetooth();
 
 	// Public virtual methods
-	virtual void DisplayImageOnScreen(struct SDL_Surface *pScreenImage);
 	virtual void RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint point = PlutoPoint(0, 0));
 
+	virtual void DisplayImageOnScreen(struct SDL_Surface *pScreenImage);
 	virtual void BeginPaint();
 	virtual void EndPaint();
 

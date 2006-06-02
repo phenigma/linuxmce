@@ -9,6 +9,7 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "OrbiterRenderer.h"
 
 using namespace DCE;
 
@@ -146,7 +147,7 @@ void VolumeMouseHandler::CustomRender()
 	CurrentLevel = m_pObj->m_rPosition.Width * CurrentLevel / 100;
 	int Y = int(m_pObj->m_rPosition.Y + m_pObj->m_rPosition.Height * .1);
 
-    m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+    m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
 		m_pObj->m_rPosition.X, Y,
 		CurrentLevel, int(m_pObj->m_rPosition.Height * .1),
 		PlutoColor::White().SetAlpha(128));

@@ -9,6 +9,7 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "OrbiterRenderer.h"
 
 using namespace DCE;
 
@@ -131,7 +132,7 @@ void LightMouseHandler::CustomRender()
 	CurrentLevel = m_pObj->m_rPosition.Height * CurrentLevel / 100;
 	int X = m_pObj->m_rPosition.X + m_pObj->m_rPosition.Width -  int(m_pObj->m_rPosition.Width * .1);
 
-    m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+    m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
 		X,m_pObj->m_rPosition.Bottom()-CurrentLevel,
 		int(m_pObj->m_rPosition.Width * .1), CurrentLevel,
 		PlutoColor::Green().SetAlpha(128));
@@ -141,7 +142,7 @@ void LightMouseHandler::CustomRender()
 		int NotchWidth = m_pObj->m_rPosition.Height/11; // Allow for 5 repeat levels in each direction
 		int NotchStart = (5-m_iLastNotch) * NotchWidth;
 		NotchStart = m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + NotchStart;
-		m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+		m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
 			m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X + int(m_pObj->m_rPosition.Width*.5), NotchStart,
 			int(m_pObj->m_rPosition.Width*.1), NotchWidth,
 			PlutoColor::Blue());

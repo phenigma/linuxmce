@@ -2,11 +2,11 @@
 #include "../RendererOCG.h"
 #include "PlutoUtils/PlutoDefs.h"
 #include "PlutoUtils/FileUtils.h"
-#include "../PocketFrog/Orbiter_PocketFrog.h"
 #include "src/internal/graphicbuffer.h"
+#include "Orbiter.h"
 
 //----------------------------------------------------------------------------------------------------------------
-Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize)
+Surface* PocketFrog_LoadPFG(DisplayDevice *pDisplayDevice, char *pOCGData, size_t iOCGDataSize)
 {
 	RendererOCG *pRendererOCG = new RendererOCG();
 	pRendererOCG->SetOCGData(pOCGData, iOCGDataSize);
@@ -23,7 +23,7 @@ Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize)
 	{
 		if(iPixelsDataSize)
 		{
-			pSurface = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay()->CreateSurface(iWidth, iHeigth);
+			pSurface = pDisplayDevice->CreateSurface(iWidth, iHeigth);
 
 			Pixel * pPixels = pSurface->m_buffer->GetPixels();
 			memcpy((char *)pPixels, pPixelsData, iPixelsDataSize);
@@ -34,7 +34,7 @@ Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize)
 	return pSurface; 
 }
 //----------------------------------------------------------------------------------------------------------------
-Surface* PocketFrog_LoadPFG(string sFilename)
+Surface* PocketFrog_LoadPFG(DisplayDevice *pDisplayDevice, string sFilename)
 {
 	size_t iSize;
 	char *pData = FileUtils::ReadFileIntoBuffer(sFilename, iSize);
@@ -42,7 +42,7 @@ Surface* PocketFrog_LoadPFG(string sFilename)
 	if(!pData)
 		return NULL;
 
-	Surface *pSurface = PocketFrog_LoadPFG(pData, iSize);
+	Surface *pSurface = PocketFrog_LoadPFG(pDisplayDevice, pData, iSize);
 
 	PLUTO_SAFE_DELETE_ARRAY(pData);
 	return pSurface;

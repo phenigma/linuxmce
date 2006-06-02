@@ -4,17 +4,15 @@
 #include "PlutoUtils/FileUtils.h"
 #include "pluto_main/Define_Button.h"
 #include "DCE/Logger.h"
-
+#include "Orbiter.h"
 using namespace DCE;
 
 #ifdef WIN32
 
-	#include "Win32/OrbiterWin32Defs.h"
 	#include "Win32/MainDialog.h"
 	#include "StartOrbiter.h"
 
 	#ifdef WINCE
-
 		#include "stdafx.h"
 		#include <commctrl.h>
 		#include <sipapi.h>
@@ -24,30 +22,9 @@ using namespace DCE;
 		#endif
 
 	#else
-
 		#include <Windows.h>
-
-		#ifdef BLUETOOTH_DONGLE
-			#include "SDL_Bluetooth/OrbiterSDLBluetooth.h"
-		#elif defined(PROXY_ORBITER)
-			#include "Proxy_Orbiter/Proxy_Orbiter.h"
-		#endif
-
-	#endif
-
-#else //linux stuff
-    #ifdef BLUETOOTH_DONGLE
-		#include "SDL_Bluetooth/OrbiterSDLBluetooth.h"
-    #elif defined(PROXY_ORBITER)
-        #include "Proxy_Orbiter/Proxy_Orbiter.h"
-	#elif defined(ORBITER_OPENGL)
-		#include "OpenGL/Orbiter_OpenGL.h"
-	#else //non bluetooth or proxy
-		#include "Linux/OrbiterLinux.h"
 	#endif
 #endif //WIN32
-
-
 //------------------------------------------------------------------------------------------------------
 Simulator *Simulator::m_pInstance = NULL;
 //-----------------------------------------------------------------------------------------------------
@@ -84,16 +61,11 @@ void *GeneratorThread( void *p)
 	srand( (unsigned)time(NULL) );
 	static int Count = 0;
 
-#ifdef BLUETOOTH_DONGLE
-	Orbiter *pOrbiter = (OrbiterSDLBluetooth *)pSimulator->m_pOrbiter;
-#elif defined(PROXY_ORBITER)
-	Orbiter *pOrbiter = (Proxy_Orbiter *)pSimulator->m_pOrbiter;
+#if defined(BLUETOOTH_DONGLE)
+	//TODO: this can be a list of orbiters. maybe we should stress all of them
+	Orbiter *pOrbiter = pSimulator->m_pOrbiter;
 #else
-	#ifdef WIN32
-		Orbiter *pOrbiter = ORBITER_CLASS::GetInstance();
-	#else
-		Orbiter *pOrbiter = (OrbiterLinux *)pSimulator->m_pOrbiter;
-	#endif
+	Orbiter *pOrbiter = Orbiter::Instance();
 #endif
 
 	while(true)

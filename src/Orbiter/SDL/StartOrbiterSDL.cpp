@@ -15,21 +15,9 @@
 
 */
 
+#include "StartOrbiterSDL.h"
 #include "PlutoUtils/CommonIncludes.h"
 #include "DCE/Logger.h"
-
-//#define PHONEKEYS
-//#define AUDIDEMO
-
-#ifdef WIN32
-#  include "OrbiterSDL.h"
-#  include "MainDialog.h"
-#else
-#  include "../Linux/OrbiterLinux.h"
-#endif
-
-#include "StartOrbiterSDL.h"
-
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h"
 #include "../Simulator.h"
@@ -307,9 +295,9 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
     }
 }
 
-OrbiterSDL *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width, int Height, bool bFullScreen)
+OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width, int Height, bool bFullScreen)
 {
-	OrbiterSDL *pCLinux =
+	OrbiterLinux *pCLinux =
         new OrbiterLinux(
             PK_Device, PK_DeviceTemplate, sRouter_IP,
             sLocalDirectory, bLocalMode, Width, Height, bFullScreen, Simulator::GetInstance()->m_bUseOpenGL);
@@ -330,9 +318,11 @@ OrbiterSDL *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,
 			pCLinux->CreateChildren();
 			pCLinux->WaitForRelativesIfOSD();
 		}
-        pCLinux->InitializeAfterRelatives();
+        
+		OrbiterRenderer_SDL_Linux *pOrbiterRenderer_SDL_Linux = dynamic_cast<OrbiterRenderer_SDL_Linux *>(pCLinux->Renderer());
+		if(pOrbiterRenderer_SDL_Linux != NULL)
+			pOrbiterRenderer_SDL_Linux->InitializeAfterRelatives();
 
-		//pCLinux->Initialize_Display();
 		g_pPlutoLogger->Write(LV_STATUS, "Creating the simulator");
 		Simulator::GetInstance()->m_pOrbiter = pCLinux;
 
@@ -349,6 +339,8 @@ bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
 {
     if (sdl_event_loop_data.pOrbiter->m_bQuit)
         return false;
+
+/*
     // crash in X11_CheckMouseMode () from /usr/lib/libSDL-1.2.so.0
     // our SDL lib is not thread-safe
     sdl_event_loop_data.pOrbiter->X_LockDisplay();
@@ -358,26 +350,11 @@ bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
     {
         if(sdl_event_loop_data.event.type == SDL_QUIT)
             return false;
-		//if(sdl_event_loop_data.pOrbiter->UsesUIVersion2())
-		//{
-		//	if(sdl_event_loop_data.event.type == SDL_QUIT)
-		//		return false;
-		//}
-		//else
-		//{
-		//	// convert the SDL into what we know to interpret.
-		//    translateSDLEventToOrbiterEvent(sdl_event_loop_data.event, &sdl_event_loop_data.orbiterEvent, &sdl_event_loop_data.kbdState, 
-		//			sdl_event_loop_data.pOrbiter->UsesUIVersion2());
-
-	    //    if ( sdl_event_loop_data.orbiterEvent.type == Orbiter::Event::QUIT )
-		//		return false;
-
-		//	sdl_event_loop_data.pOrbiter->ProcessEvent(sdl_event_loop_data.orbiterEvent);
-		//}
     }
-    else
-        ((OrbiterSDL*)sdl_event_loop_data.pOrbiter)->OnIdle();
-    return true;
+*/
+
+	sdl_event_loop_data.pOrbiter->Renderer()->EventLoop();
+    return sdl_event_loop_data.pOrbiter->m_bQuit || sdl_event_loop_data.pOrbiter->m_bReload;
 }
 
 bool SDL_Event_Loop_End(SDL_Event_Loop_Data &sdl_event_loop_data)
@@ -417,8 +394,11 @@ bool SDL_App_Object::Run()
     {
         return false;
     }
-    while (EventProcess())
-        ;
+    
+	//while (EventProcess())
+    //    ;
+	EventProcess();
+
     Destroy();
     return true;
 }

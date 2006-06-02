@@ -57,7 +57,7 @@ GENDEV=../Gen_Devices
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
@@ -94,6 +94,7 @@ sources += \
 	../utilities/linux/wrapper/wrapper_x11.cpp \
 	Linux/win_list_manager.cpp \
 	Linux/OSDCompass.cpp \
+	Linux/OrbiterRenderer_SDL_Linux.cpp \
 	DesignObj_Data.cpp \
 	DesignObj_Orbiter.cpp \
 	Simulator.cpp \
@@ -119,9 +120,11 @@ sources += \
 	MouseGovernor.cpp \
 	MouseIterator.cpp \
 	PlutoGraphic.cpp \
+	OrbiterRenderer.cpp \
+	OrbiterRendererFactory.cpp \
+	SDL/OrbiterRenderer_SDL.cpp \
 	SDL/SDLRendererOCGHelper.cpp \
 	SDL/SDLGraphic.cpp \
-	SDL/OrbiterSDL.cpp \
 	SDL/StartOrbiterSDL.cpp \
 	SDL/OpenGLTextureConverter_SDL.cpp \
 	OpenGL/orbitergl3dengine.cpp \

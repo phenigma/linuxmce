@@ -7,8 +7,8 @@ using namespace Frog;
 #include <string>
 using namespace std;
 //----------------------------------------------------------------------------------------------------------------
-Surface* PocketFrog_LoadPFG(string sFilename);
-Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize);
+Surface* PocketFrog_LoadPFG(DisplayDevice *pDisplayDevice, string sFilename);
+Surface* PocketFrog_LoadPFG(DisplayDevice *pDisplayDevice, char *pOCGData, size_t iOCGDataSize);
 //----------------------------------------------------------------------------------------------------------------
 bool PocketFrog_SavePFG(Surface *pSurface, string sFilename);
 //----------------------------------------------------------------------------------------------------------------

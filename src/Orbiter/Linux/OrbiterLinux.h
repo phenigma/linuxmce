@@ -2,7 +2,7 @@
 #define __ORBITERLINUX_H__
 
 #include "../SDL/StartOrbiterSDL.h"
-#include "../SDL/OrbiterSDL.h"
+#include "../Orbiter.h"
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 //#include "utilities/linux/RatpoisonHandler.h"
@@ -22,9 +22,16 @@ class wxDialog_WaitUser;
 #include <string>
 using namespace std;
 
-class OrbiterLinux : public OrbiterSDL/*, public RatpoisonHandler<OrbiterLinux>*/
+namespace DCE
+{
+	class OrbiterRenderer_SDL_Linux;
+};
+
+class OrbiterLinux : public Orbiter
 {
 private:
+	friend class OrbiterRenderer_SDL_Linux;
+
     string m_strWindowName;
     string m_strDisplayName;
 
@@ -91,12 +98,8 @@ public:
     void setWindowName(string strDesktopWindowName);
     void setDisplayName(string strDisplayName);
 
-    // overriden to handle the desktop window hiding
-    virtual void RenderScreen( bool bRenderGraphicsOnly );
     virtual void reinitGraphics();
     virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0);
-    virtual void InitializeAfterSetVideoMode();
-    virtual void InitializeAfterRelatives();
 
     // called by the destructor
     // can be called from outside
@@ -118,10 +121,6 @@ public:
 
     virtual void CMD_Surrender_to_OS(string sOnOff, bool bFully_release_keyboard, string &sCMD_Result, Message *pMessage);
 
-    /*virtual */bool DisplayProgress(string sMessage, int nProgress);
-    /*virtual */bool DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress);
-	/*virtual */int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
-
 	virtual class ScreenHandler *CreateScreenHandler();
 
     void GrabPointer(bool bEnable);
@@ -131,11 +130,9 @@ public:
     virtual void X_UnlockDisplay();
 
 	XRecordExtensionHandler * GetXRecordExtensionHandler()
-        {
-            return m_pRecordHandler;
-        }
-
-    OrbiterSDL * OrbiterLinux::ptrOrbiterSDL();
+    {
+        return m_pRecordHandler;
+    }
 };
 
 #endif // __ORBITERLINUX_H__

@@ -29,6 +29,7 @@
 #include "../WizardLogic.h"
 #include "pluto_main/Define_FloorplanObjectType.h"
 #include "DataGrid.h"
+#include "../OrbiterRenderer.h"
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 #	include "../MouseBehavior.h"
@@ -1955,14 +1956,14 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 	static PlutoGraphic *pLocalBackgroundGraphic = NULL;
 	if(NULL == pLocalBackgroundGraphic)
 	{
-		pLocalBackgroundGraphic = m_pOrbiter->GetBackground(rectTotal);
+		pLocalBackgroundGraphic = m_pOrbiter->Renderer()->GetBackground(rectTotal);
 	}
 
 	pBackgroundGraphic = pLocalBackgroundGraphic;
 #endif
 
 	if(NULL != pBackgroundGraphic)
-		m_pOrbiter->RenderGraphic( pBackgroundGraphic,  rectTotal, pObj->m_bDisableAspectLock, point );
+		m_pOrbiter->Renderer()->RenderGraphic( pBackgroundGraphic,  rectTotal, pObj->m_bDisableAspectLock, point );
 
 	m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
 
@@ -1996,7 +1997,7 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 		PROFILE_START( ctText );
 		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
 		string TextToDisplay = m_pOrbiter->SubstituteVariables(m_pOrbiter->SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0), pText->m_pObject, 0, 0);
-		m_pOrbiter->RenderText( TextToDisplay, pText, pTextStyle, point );
+		m_pOrbiter->Renderer()->RenderText( TextToDisplay, pText, pTextStyle, point );
 		PROFILE_STOP( ctText,  "Text ( obj below )" );
 	}
 
@@ -2056,7 +2057,7 @@ bool OSDScreenHandler::VolumeControlCustomRender(CallBackData *pData)
 		if( m_pOrbiter->m_pMouseBehavior->m_pMouseHandler )
 		{
 			if(NULL == pBackgroundBackgroundX)
-				pBackgroundBackgroundX = m_pOrbiter->GetBackground(rectTotal);
+				pBackgroundBackgroundX = m_pOrbiter->Renderer()->GetBackground(rectTotal);
 
 			pBackgroundGraphic = pBackgroundBackgroundX;
 		}
@@ -2073,7 +2074,7 @@ bool OSDScreenHandler::VolumeControlCustomRender(CallBackData *pData)
 #endif
 
 	if(NULL != pBackgroundGraphic)
-		m_pOrbiter->RenderGraphic( pBackgroundGraphic,  rectTotal, pObj->m_bDisableAspectLock, point );
+		m_pOrbiter->Renderer()->RenderGraphic( pBackgroundGraphic,  rectTotal, pObj->m_bDisableAspectLock, point );
 
 	m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
 
@@ -2129,7 +2130,7 @@ bool OSDScreenHandler::LightControlCustomRender(CallBackData *pData)
 		if( m_pOrbiter->m_pMouseBehavior->m_pMouseHandler )
 		{
 			if(NULL == pBackgroundBackgroundX)
-				pBackgroundBackgroundX = m_pOrbiter->GetBackground(rectTotal);
+				pBackgroundBackgroundX = m_pOrbiter->Renderer()->GetBackground(rectTotal);
 
 			pBackgroundGraphic = pBackgroundBackgroundX;
 		}
@@ -2146,7 +2147,7 @@ bool OSDScreenHandler::LightControlCustomRender(CallBackData *pData)
 #endif
 
 	if(NULL != pBackgroundGraphic)
-		m_pOrbiter->RenderGraphic( pBackgroundGraphic,  rectTotal, pObj->m_bDisableAspectLock, point );
+		m_pOrbiter->Renderer()->RenderGraphic( pBackgroundGraphic,  rectTotal, pObj->m_bDisableAspectLock, point );
 
 	m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
 

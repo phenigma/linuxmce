@@ -1,6 +1,7 @@
 #include "PocketFrogGraphic.h"
 #include "Logger.h"
 #include "PFGHelper.h"
+#include "OrbiterRenderer_PocketFrog.h"
 
 #ifndef WINCE
 #include "PocketFrog/PNGWrapper.h"
@@ -12,14 +13,14 @@
 #include "src/internal/raster2d.h"
 //-------------------------------------------------------------------------------------------------------
 PocketFrogGraphic::PocketFrogGraphic(string Filename, eGraphicManagement GraphicManagement,
-					   Orbiter *pOrbiter)
-					   : PlutoGraphic(Filename, GraphicManagement, pOrbiter)
+					   OrbiterRenderer *pOrbiterRenderer)
+					   : PlutoGraphic(Filename, GraphicManagement, pOrbiterRenderer)
 {
 	Initialize();
 }
 //-------------------------------------------------------------------------------------------------------
-PocketFrogGraphic::PocketFrogGraphic(Orbiter *pOrbiter)
-: PlutoGraphic(pOrbiter)
+PocketFrogGraphic::PocketFrogGraphic(OrbiterRenderer *pOrbiterRenderer)
+: PlutoGraphic(pOrbiterRenderer)
 {
 	Initialize();
 }
@@ -45,11 +46,17 @@ void PocketFrogGraphic::Initialize()
 //-------------------------------------------------------------------------------------------------------
 bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 {
-    DisplayDevice *pDisplayDevice = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay();
+	OrbiterRenderer_PocketFrog *pPockerFrogRenderer = 
+		dynamic_cast<OrbiterRenderer_PocketFrog *>(m_pOrbiterRenderer);
+
+	if(NULL == pPockerFrogRenderer)
+		return false;
+
+    DisplayDevice *pDisplayDevice = pPockerFrogRenderer->GetOrbiterDisplay();
 
 	if(m_GraphicFormat == GR_OCG)
 	{
-		m_pSurface = PocketFrog_LoadPFG(pData, iSize);
+		m_pSurface = PocketFrog_LoadPFG(pDisplayDevice, pData, iSize);
 	}
 	else
 	{
@@ -119,7 +126,13 @@ void PocketFrogGraphic::Clear()
 
 PlutoGraphic *PocketFrogGraphic::GetHighlightedVersion()
 {
-    DisplayDevice *pDisplayDevice = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay();
+	OrbiterRenderer_PocketFrog *pPockerFrogRenderer = 
+		dynamic_cast<OrbiterRenderer_PocketFrog *>(m_pOrbiterRenderer);
+
+	if(NULL == pPockerFrogRenderer)
+		return NULL;
+
+	DisplayDevice *pDisplayDevice = pPockerFrogRenderer->GetOrbiterDisplay();
 
     Rect srcRect;
     srcRect.Set(0, 0, Width, Height);
@@ -138,11 +151,11 @@ PlutoGraphic *PocketFrogGraphic::GetHighlightedVersion()
         {
             pixelCurrent = pSourceRasterizer->GetPixel(i, j);
 
-            int R = min(255, Orbiter_PocketFrog::GetRedColor(pixelCurrent) + 30);
-            int G = min(255, Orbiter_PocketFrog::GetGreenColor(pixelCurrent) + 30);
-            int B = min(255, Orbiter_PocketFrog::GetBlueColor(pixelCurrent) + 30);
+            int R = min(255, OrbiterRenderer_PocketFrog::GetRedColor(pixelCurrent) + 30);
+            int G = min(255, OrbiterRenderer_PocketFrog::GetGreenColor(pixelCurrent) + 30);
+            int B = min(255, OrbiterRenderer_PocketFrog::GetBlueColor(pixelCurrent) + 30);
 
-            pixelHightlighted = Orbiter_PocketFrog::GetColor16(PlutoColor(R, G, B, 0));
+            pixelHightlighted = OrbiterRenderer_PocketFrog::GetColor16(PlutoColor(R, G, B, 0));
             pDestionationRasterizer->SetPixel(i, j, pixelHightlighted);
         }
     }
@@ -156,7 +169,13 @@ PlutoGraphic *PocketFrogGraphic::GetHighlightedVersion()
 //-------------------------------------------------------------------------------------------------------
 PlutoGraphic *PocketFrogGraphic::Clone()
 {
-	DisplayDevice *pDisplayDevice = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay();
+	OrbiterRenderer_PocketFrog *pPockerFrogRenderer = 
+		dynamic_cast<OrbiterRenderer_PocketFrog *>(m_pOrbiterRenderer);
+
+	if(NULL == pPockerFrogRenderer)
+		return NULL;
+
+	DisplayDevice *pDisplayDevice = pPockerFrogRenderer->GetOrbiterDisplay();
 
 	Rect srcRect;
 	srcRect.Set(0, 0, Width, Height);

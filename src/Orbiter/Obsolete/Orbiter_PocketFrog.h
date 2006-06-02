@@ -15,26 +15,10 @@ class OrbiterGL3D;
 namespace DCE
 {
 
-class TextToRenderInfo
-{
-public:
-	string TextToDisplay;
-	PlutoRectangle rPosition;
-	int iPK_HorizAlignment,iPK_VertAlignment;
-	PlutoPoint point;
-
-	string sFont;
-	PlutoColor ForeColor;
-	int iPixelHeight;
-	bool bBold, bItalic, bUnderline;
-};
-
 class Orbiter_PocketFrog : public Orbiter, public PlutoGame
 {
 protected:
 	static Orbiter_PocketFrog* m_pInstance; //the one and only instance of OrbiterSDL_Win32
-	bool m_bPoolRendering;
-	vector<TextToRenderInfo *> m_vectPooledTextToRender;
 
 	bool m_bUpdating;
 	bool m_bFullScreen;

@@ -23,8 +23,9 @@ XTRALDLIBS = -lVIPCommon -lBDCommon -lbluetooth -lSDL -lSDL_ttf -lSDL_image -lSG
 
 Gen_Dev_Files += $(GENDEV)/OrbiterBase.cpp
 sources += \
-	../Orbiter/SDL_Bluetooth/OrbiterSDLBluetooth.cpp \
-	../Orbiter/SDL_Bluetooth/StartOrbiterSDLBluetooth.cpp \
+	OrbiterBluetooth.cpp \
+	OrbiterBluetoothCreator.cpp \
+	OrbiterRenderer_SDL_Bluetooth.cpp \
 	../Orbiter/OrbiterFileBrowser.cpp \
 	../Orbiter/Simulator.cpp \
 	../Orbiter/DesignObj_Data.cpp \
@@ -38,11 +39,13 @@ sources += \
 	../Orbiter/ScreenHistory.cpp \
 	../Orbiter/SDL/SDLRendererOCGHelper.cpp \
 	../Orbiter/SDL/SDLGraphic.cpp \
-	../Orbiter/SDL/OrbiterSDL.cpp \
 	../Orbiter/SDL/JpegWrapper.cpp \
 	../Orbiter/ScreenHandler.cpp \
 	../Orbiter/CallBackData.cpp \
 	../Orbiter/PlutoGraphic.cpp \
+	../Orbiter/OrbiterRenderer.cpp \
+	../Orbiter/OrbiterRendererFactory.cpp \
+	../Orbiter/SDL/OrbiterRenderer_SDL.cpp \
 	../Splitter/TextWrapper.cpp \
 	../Splitter/TextSplitter.cpp \
 	../OrbiterGen/Renderer.cpp \

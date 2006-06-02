@@ -482,28 +482,9 @@ DEP_CPP_GRAPH=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
-	"..\..\DCE\ClientSocket.h"\
-	"..\..\DCE\Command_Impl.h"\
-	"..\..\DCE\DeviceData_Base.h"\
-	"..\..\DCE\DeviceData_Impl.h"\
-	"..\..\DCE\Event_Impl.h"\
-	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
-	"..\..\DCE\Message.h"\
-	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\Socket.h"\
-	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\OrbiterGen\Renderer.h"\
-	"..\..\pluto_main\Define_Command.h"\
-	"..\..\pluto_main\Define_CommandParameter.h"\
-	"..\..\pluto_main\Define_DesignObjType.h"\
-	"..\..\pluto_main\Define_DeviceCategory.h"\
-	"..\..\pluto_main\Define_DeviceData.h"\
-	"..\..\pluto_main\Define_DeviceTemplate.h"\
-	"..\..\pluto_main\Define_Event.h"\
-	"..\..\pluto_main\Define_EventParameter.h"\
-	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -516,19 +497,14 @@ DEP_CPP_GRAPH=\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
-	"..\CacheImageManager.h"\
-	"..\CallBackTypes.h"\
 	"..\CENet\WinCE.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
-	"..\Floorplan.h"\
 	"..\GraphicBuilder.h"\
-	"..\Orbiter.h"\
-	"..\OrbiterData.h"\
+	"..\OpenGL\GLDefs.h"\
+	"..\OpenGL\OpenGLGraphic.h"\
 	"..\PlutoGraphic.h"\
-	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
-	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\SDL\SDLGraphic.h"\
@@ -600,42 +576,6 @@ NODEP_CPP_LOGGE=\
 
 SOURCE=..\Win32\main.cpp
 DEP_CPP_MAIN_=\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_active.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_audio.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_byteorder.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_cdrom.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_error.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_events.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_getenv.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_joystick.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keyboard.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keysym.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_main.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mouse.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mutex.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_quit.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_rwops.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_timer.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
-	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
-	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
-	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
-	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
@@ -677,61 +617,29 @@ DEP_CPP_MAIN_=\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
 	"..\CallBackTypes.h"\
-	"..\CENET\OrbiterSDL_WinCE.h"\
 	"..\CENET\stdafx.h"\
 	"..\CENet\WinCE.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
-	"..\OpenGL\Orbiter_OpenGL.h"\
-	"..\OpenGL\PendingGLEffects.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\PlutoGraphic.h"\
-	"..\PocketFrog\Orbiter_PocketFrog.h"\
-	"..\PocketFrog\PocketFrogGraphic.h"\
-	"..\PocketFrog\PocketFrogWrapper.h"\
-	"..\SDL\OrbiterSDL.h"\
 	"..\Simulator.h"\
 	"..\TextStyle.h"\
 	"..\Win32\main.h"\
 	"..\Win32\MainDialog.h"\
-	"..\Win32\OrbiterSDL_Win32.h"\
-	"..\Win32\OrbiterWin32Defs.h"\
 	"..\Win32\StartOrbiter.h"\
 	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_MAIN_=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\Orbiter_OpenGL.h"\
 	
 # End Source File
 # Begin Source File
 
 SOURCE=..\Win32\MainDialog.cpp
 DEP_CPP_MAIND=\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_active.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_audio.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_byteorder.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_cdrom.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_error.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_events.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_getenv.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_joystick.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keyboard.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keysym.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_main.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mouse.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mutex.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_quit.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_rwops.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_timer.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
 	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
 	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
 	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
@@ -785,33 +693,28 @@ DEP_CPP_MAIND=\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
 	"..\CallBackTypes.h"\
-	"..\CENET\OrbiterSDL_WinCE.h"\
 	"..\CENET\stdafx.h"\
 	"..\CENet\WinCE.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
-	"..\OpenGL\PendingGLEffects.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
-	"..\PocketFrog\Orbiter_PocketFrog.h"\
+	"..\PocketFrog\OrbiterRenderer_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
-	"..\SDL\OrbiterSDL.h"\
 	"..\SelfUpdate.h"\
 	"..\Simulator.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
-	"..\Win32\OrbiterSDL_Win32.h"\
-	"..\Win32\OrbiterWin32Defs.h"\
 	"..\Win32\PopupMessage.h"\
 	"..\Win32\StartOrbiter.h"\
 	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_MAIND=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\Orbiter_OpenGL.h"\
 	
 # End Source File
 # Begin Source File
@@ -968,10 +871,7 @@ DEP_CPP_ORBIT=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\ProcessUtils.h"\
-	"..\..\PlutoUtils\singleton.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
-	"..\..\PlutoUtils\threads.h"\
-	"..\..\PlutoUtils\typetraits.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
@@ -981,7 +881,6 @@ DEP_CPP_ORBIT=\
 	"..\CENet\WinCE.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
-	"..\dialog_types.h"\
 	"..\Floorplan.h"\
 	"..\GraphicBuilder.h"\
 	"..\Linux\OSDScreenHandler.h"\
@@ -990,9 +889,9 @@ DEP_CPP_ORBIT=\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\OrbiterFileBrowser.h"\
+	"..\OrbiterRenderer.h"\
+	"..\OrbiterRendererFactory.h"\
 	"..\PlutoGraphic.h"\
-	"..\PopupAnimationData.h"\
-	"..\PopupManager.h"\
 	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
@@ -1009,8 +908,200 @@ NODEP_CPP_ORBIT=\
 # End Source File
 # Begin Source File
 
-SOURCE=..\PocketFrog\Orbiter_PocketFrog.cpp
+SOURCE=..\Win32\Orbiter_Win32.cpp
 DEP_CPP_ORBITE=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\ClientSocket.h"\
+	"..\..\DCE\Command_Impl.h"\
+	"..\..\DCE\DeviceData_Base.h"\
+	"..\..\DCE\DeviceData_Impl.h"\
+	"..\..\DCE\Event_Impl.h"\
+	"..\..\DCE\HandleRequestSocket.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\Socket.h"\
+	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\ProcessUtils.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
+	"..\CENet\WinCE.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\MouseBehavior.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
+	"..\SelfUpdate.h"\
+	"..\TextStyle.h"\
+	"..\Win32\MouseBehavior_Win32.h"\
+	"..\Win32\Orbiter_Win32.h"\
+	
+NODEP_CPP_ORBITE=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Gen_Devices\OrbiterBase.cpp
+DEP_CPP_ORBITER=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\ClientSocket.h"\
+	"..\..\DCE\Command_Impl.h"\
+	"..\..\DCE\DeviceData_Base.h"\
+	"..\..\DCE\DeviceData_Impl.h"\
+	"..\..\DCE\Event_Impl.h"\
+	"..\..\DCE\HandleRequestSocket.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\Socket.h"\
+	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\CENet\WinCE.h"\
+	
+NODEP_CPP_ORBITER=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\OrbiterFileBrowser.cpp
+DEP_CPP_ORBITERF=\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\OrbiterFileBrowser.h"\
+	
+NODEP_CPP_ORBITERF=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\OrbiterRenderer.cpp
+DEP_CPP_ORBITERR=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\ClientSocket.h"\
+	"..\..\DCE\Command_Impl.h"\
+	"..\..\DCE\DeviceData_Base.h"\
+	"..\..\DCE\DeviceData_Impl.h"\
+	"..\..\DCE\Event_Impl.h"\
+	"..\..\DCE\HandleRequestSocket.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
+	"..\..\DCE\Socket.h"\
+	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
+	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_HorizAlignment.h"\
+	"..\..\pluto_main\Define_UI.h"\
+	"..\..\pluto_main\Define_VertAlignment.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\ProcessUtils.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\CacheImageManager.h"\
+	"..\CallBackData.h"\
+	"..\CallBackTypes.h"\
+	"..\CENet\WinCE.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\MouseBehavior.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\OrbiterRenderer.h"\
+	"..\OrbiterRendererFactory.h"\
+	"..\PlutoGraphic.h"\
+	"..\ScreenHandler.h"\
+	"..\ScreenHistory.h"\
+	"..\Simulator.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_ORBITERR=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\PocketFrog\OrbiterRenderer_PocketFrog.cpp
+DEP_CPP_ORBITERRE=\
 	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
 	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
 	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
@@ -1098,14 +1189,14 @@ DEP_CPP_ORBITE=\
 	"..\OpenGL\orbitergl3dengine.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
 	"..\PocketFrog\OpenGLProxy.h"\
 	"..\PocketFrog\OpenGLTextureConverter_PocketFrog.h"\
-	"..\PocketFrog\Orbiter_PocketFrog.h"\
+	"..\PocketFrog\OrbiterRenderer_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\ScreenHistory.h"\
-	"..\SelfUpdate.h"\
 	"..\Simulator.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
@@ -1116,18 +1207,55 @@ DEP_CPP_ORBITE=\
 	"..\Win32\VirtualKeysTranslator.h"\
 	{$(INCLUDE)}"sipapi.h"\
 	
-NODEP_CPP_ORBITE=\
+NODEP_CPP_ORBITERRE=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Gen_Devices\OrbiterBase.cpp
-DEP_CPP_ORBITER=\
+SOURCE=..\OrbiterRendererFactory.cpp
+DEP_CPP_ORBITERREN=\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_active.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_audio.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_byteorder.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_cdrom.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_error.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_events.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_getenv.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_joystick.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keyboard.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keysym.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_main.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mouse.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mutex.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_quit.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_rwops.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_timer.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\Bluetooth_Dongle\OrbiterRenderer_SDL_Bluetooth.h"\
 	"..\..\DCE\ClientSocket.h"\
 	"..\..\DCE\Command_Impl.h"\
 	"..\..\DCE\DeviceData_Base.h"\
@@ -1142,43 +1270,46 @@ DEP_CPP_ORBITER=\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_DeviceData.h"\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
 	"..\..\PlutoUtils\MultiThreadIncludes.h"\
 	"..\..\PlutoUtils\MyMap.h"\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\Proxy_Orbiter\Proxy_OrbiterRenderer_SDL.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
 	"..\CENet\WinCE.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\OpenGL\PendingGLEffects.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\OrbiterRenderer.h"\
+	"..\OrbiterRendererFactory.h"\
+	"..\PlutoGraphic.h"\
+	"..\PocketFrog\OrbiterRenderer_PocketFrog.h"\
+	"..\PocketFrog\PocketFrogGraphic.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\SDL\OrbiterRenderer_SDL.h"\
+	"..\SDL\Win32\OrbiterRenderer_SDL_Win32.h"\
+	"..\TextStyle.h"\
 	
-NODEP_CPP_ORBITER=\
-	"..\..\PlutoUtils\PKFUNCS.H"\
-	
-# End Source File
-# Begin Source File
-
-SOURCE=..\OrbiterFileBrowser.cpp
-DEP_CPP_ORBITERF=\
-	"..\..\PlutoUtils\CommonIncludes.h"\
-	"..\..\PlutoUtils\FileUtils.h"\
-	"..\..\PlutoUtils\getch.h"\
-	"..\..\PlutoUtils\MyMap.h"\
-	"..\..\PlutoUtils\MyStl.h"\
-	"..\..\PlutoUtils\MyString.h"\
-	"..\..\PlutoUtils\Other.h"\
-	"..\..\PlutoUtils\StringUtils.h"\
-	"..\..\SerializeClass\SerializeClass.h"\
-	"..\OrbiterFileBrowser.h"\
-	
-NODEP_CPP_ORBITERF=\
+NODEP_CPP_ORBITERREN=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 # End Source File
@@ -1248,10 +1379,7 @@ DEP_CPP_PFGHE=\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\PlutoGraphic.h"\
-	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PFGHelper.h"\
-	"..\PocketFrog\PocketFrogGraphic.h"\
-	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\RendererOCG.h"\
 	"..\TextStyle.h"\
 	
@@ -1263,36 +1391,10 @@ NODEP_CPP_PFGHE=\
 
 SOURCE=..\PlutoGraphic.cpp
 DEP_CPP_PLUTO=\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
-	"..\..\DCE\ClientSocket.h"\
-	"..\..\DCE\Command_Impl.h"\
-	"..\..\DCE\DeviceData_Base.h"\
-	"..\..\DCE\DeviceData_Impl.h"\
-	"..\..\DCE\Event_Impl.h"\
-	"..\..\DCE\HandleRequestSocket.h"\
-	"..\..\DCE\Logger.h"\
-	"..\..\DCE\Message.h"\
-	"..\..\DCE\MessageBuffer.h"\
-	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\Socket.h"\
-	"..\..\Gen_Devices\OrbiterBase.h"\
-	"..\..\pluto_main\Define_Command.h"\
-	"..\..\pluto_main\Define_CommandParameter.h"\
-	"..\..\pluto_main\Define_DesignObjType.h"\
-	"..\..\pluto_main\Define_DeviceCategory.h"\
-	"..\..\pluto_main\Define_DeviceData.h"\
-	"..\..\pluto_main\Define_DeviceTemplate.h"\
-	"..\..\pluto_main\Define_Event.h"\
-	"..\..\pluto_main\Define_EventParameter.h"\
-	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
 	"..\..\PlutoUtils\GraphicFormat.h"\
-	"..\..\PlutoUtils\MultiThreadIncludes.h"\
 	"..\..\PlutoUtils\MyMap.h"\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
@@ -1300,14 +1402,9 @@ DEP_CPP_PLUTO=\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
-	"..\CacheImageManager.h"\
-	"..\CallBackTypes.h"\
-	"..\CENet\WinCE.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
-	"..\Floorplan.h"\
-	"..\Orbiter.h"\
-	"..\OrbiterData.h"\
+	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
 	"..\TextStyle.h"\
 	
@@ -1339,27 +1436,8 @@ DEP_CPP_POCKE=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
-	"..\..\DCE\ClientSocket.h"\
-	"..\..\DCE\Command_Impl.h"\
-	"..\..\DCE\DeviceData_Base.h"\
-	"..\..\DCE\DeviceData_Impl.h"\
-	"..\..\DCE\Event_Impl.h"\
-	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
-	"..\..\DCE\Message.h"\
-	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\Socket.h"\
-	"..\..\Gen_Devices\OrbiterBase.h"\
-	"..\..\pluto_main\Define_Command.h"\
-	"..\..\pluto_main\Define_CommandParameter.h"\
-	"..\..\pluto_main\Define_DesignObjType.h"\
-	"..\..\pluto_main\Define_DeviceCategory.h"\
-	"..\..\pluto_main\Define_DeviceData.h"\
-	"..\..\pluto_main\Define_DeviceTemplate.h"\
-	"..\..\pluto_main\Define_Event.h"\
-	"..\..\pluto_main\Define_EventParameter.h"\
-	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1372,16 +1450,12 @@ DEP_CPP_POCKE=\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
-	"..\CacheImageManager.h"\
-	"..\CallBackTypes.h"\
 	"..\CENet\WinCE.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
-	"..\Floorplan.h"\
-	"..\Orbiter.h"\
-	"..\OrbiterData.h"\
+	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
-	"..\PocketFrog\Orbiter_PocketFrog.h"\
+	"..\PocketFrog\OrbiterRenderer_PocketFrog.h"\
 	"..\PocketFrog\PFGHelper.h"\
 	"..\PocketFrog\PNGWrapper.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
@@ -1632,42 +1706,6 @@ NODEP_CPP_SCREEN=\
 
 SOURCE=..\SelfUpdate.cpp
 DEP_CPP_SELFU=\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_active.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_audio.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_byteorder.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_cdrom.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_error.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_events.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_getenv.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_joystick.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keyboard.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keysym.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_main.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mouse.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mutex.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_quit.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_rwops.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_timer.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
-	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
-	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
-	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
-	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
@@ -1710,31 +1748,22 @@ DEP_CPP_SELFU=\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
 	"..\CallBackTypes.h"\
-	"..\CENET\OrbiterSDL_WinCE.h"\
 	"..\CENET\stdafx.h"\
 	"..\CENet\WinCE.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
-	"..\OpenGL\PendingGLEffects.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\PlutoGraphic.h"\
-	"..\PocketFrog\Orbiter_PocketFrog.h"\
-	"..\PocketFrog\PocketFrogGraphic.h"\
-	"..\PocketFrog\PocketFrogWrapper.h"\
-	"..\SDL\OrbiterSDL.h"\
 	"..\SelfUpdate.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
-	"..\Win32\OrbiterSDL_Win32.h"\
-	"..\Win32\OrbiterWin32Defs.h"\
 	"..\Win32\StartOrbiter.h"\
 	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_SELFU=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\Orbiter_OpenGL.h"\
 	
 # End Source File
 # Begin Source File
@@ -1791,42 +1820,6 @@ NODEP_CPP_SERVE=\
 
 SOURCE=..\Simulator.cpp
 DEP_CPP_SIMUL=\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_active.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_audio.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_byteorder.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_cdrom.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_error.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_events.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_getenv.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_joystick.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keyboard.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keysym.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_main.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mouse.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mutex.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_quit.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_rwops.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_timer.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
-	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
-	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
-	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
-	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
@@ -1841,9 +1834,7 @@ DEP_CPP_SIMUL=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\ServerSocket.h"\
 	"..\..\DCE\Socket.h"\
-	"..\..\DCE\SocketListener.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\pluto_main\Define_Button.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -1865,50 +1856,26 @@ DEP_CPP_SIMUL=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
-	"..\..\Proxy_Orbiter\Proxy_Orbiter.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
-	"..\..\utilities\linux\window_manager\WMController\WindowLayer.h"\
-	"..\..\utilities\linux\window_manager\WMController\WMController.h"\
-	"..\..\utilities\linux\window_manager\WMController\wmctrl.h"\
-	"..\..\utilities\linux\wrapper\wrapper_x11.h"\
 	"..\CacheImageManager.h"\
 	"..\CallBackTypes.h"\
-	"..\CENET\OrbiterSDL_WinCE.h"\
 	"..\CENET\stdafx.h"\
 	"..\CENet\WinCE.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
-	"..\Linux\OrbiterLinux.h"\
-	"..\Linux\win_list_manager.h"\
-	"..\Linux\X3DButton.h"\
-	"..\Linux\X3DWindow.h"\
-	"..\Linux\XProgressWnd.h"\
-	"..\Linux\XPromptUser.h"\
-	"..\Linux\XRecordExtensionHandler.h"\
-	"..\OpenGL\Orbiter_OpenGL.h"\
-	"..\OpenGL\PendingGLEffects.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\PlutoGraphic.h"\
-	"..\PocketFrog\Orbiter_PocketFrog.h"\
-	"..\PocketFrog\PocketFrogGraphic.h"\
-	"..\PocketFrog\PocketFrogWrapper.h"\
-	"..\SDL\OrbiterSDL.h"\
-	"..\SDL\StartOrbiterSDL.h"\
-	"..\SDL_Bluetooth\OrbiterSDLBluetooth.h"\
 	"..\Simulator.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
-	"..\Win32\OrbiterSDL_Win32.h"\
-	"..\Win32\OrbiterWin32Defs.h"\
 	"..\Win32\StartOrbiter.h"\
 	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_SIMUL=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\Orbiter_OpenGL.h"\
 	
 # End Source File
 # Begin Source File
@@ -1943,42 +1910,6 @@ NODEP_CPP_SOCKE=\
 
 SOURCE=..\Win32\StartOrbiter.cpp
 DEP_CPP_START=\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_active.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_audio.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_byteorder.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_cdrom.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_error.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_events.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_getenv.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_joystick.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keyboard.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keysym.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_main.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mouse.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mutex.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_quit.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_rwops.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_timer.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
-	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
-	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
-	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
-	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
-	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
@@ -2020,31 +1951,24 @@ DEP_CPP_START=\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
 	"..\CallBackTypes.h"\
-	"..\CENET\OrbiterSDL_WinCE.h"\
 	"..\CENET\stdafx.h"\
 	"..\CENet\WinCE.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
-	"..\OpenGL\PendingGLEffects.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
-	"..\PocketFrog\Orbiter_PocketFrog.h"\
-	"..\PocketFrog\PocketFrogGraphic.h"\
-	"..\PocketFrog\PocketFrogWrapper.h"\
-	"..\SDL\OrbiterSDL.h"\
 	"..\Simulator.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
-	"..\Win32\OrbiterSDL_Win32.h"\
-	"..\Win32\OrbiterWin32Defs.h"\
+	"..\Win32\Orbiter_Win32.h"\
 	"..\Win32\StartOrbiter.h"\
 	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_START=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\Orbiter_OpenGL.h"\
 	
 # End Source File
 # Begin Source File

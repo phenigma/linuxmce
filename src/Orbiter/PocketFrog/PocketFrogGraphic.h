@@ -1,17 +1,21 @@
 #ifndef __POCKETFROG_GRAPHIC_H__
 #define __POCKETFROG_GRAPHIC_H__
 //-------------------------------------------------------------------------------------------------------
-#include "../DesignObj_Orbiter.h"
-#include "Orbiter_PocketFrog.h"
+#include <string>
+using namespace std;
+//-------------------------------------------------------------------------------------------------------
+#include "../PlutoGraphic.h"
 #include <PocketFrog.h>
 using namespace Frog;
+//-------------------------------------------------------------------------------------------------------
+class OrbiterRenderer;
 //-------------------------------------------------------------------------------------------------------
 class PocketFrogGraphic : public PlutoGraphic
 {
 public:
-	PocketFrogGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pCI);
+	PocketFrogGraphic(string Filename, eGraphicManagement GraphicManagement, OrbiterRenderer *pOrbiterRenderer);
 	PocketFrogGraphic(Surface *pSurface);
-	PocketFrogGraphic(Orbiter *pCI);
+	PocketFrogGraphic(OrbiterRenderer *pOrbiterRenderer);
 	~PocketFrogGraphic();
 
 	void Initialize();

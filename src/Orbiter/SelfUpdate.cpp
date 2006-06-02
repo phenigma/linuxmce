@@ -14,7 +14,24 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/md5.h"
 #include "pluto_main/Define_DeviceCategory.h"
-#include "Win32/OrbiterWin32Defs.h"
+#include "Orbiter.h"
+
+#ifdef WINCE
+	#ifdef WINCE_x86
+		const string csUpdateBinaryName("UpdateBinaryCE_x86.exe");
+		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_CeNet4_x86.dat");
+	#else
+		const string csUpdateBinaryName("UpdateBinaryCE.exe");
+		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_CeNet4_XScale.dat");
+	#endif
+#else
+		const string csUpdateBinaryName("UpdateBinary.exe");
+	#ifdef ORBITER_OPENGL
+		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_OpenGL.dat");
+	#else
+		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_Win32.dat");
+	#endif
+#endif
 
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
@@ -273,8 +290,6 @@ bool OrbiterSelfUpdate::LastUpdateFailed()
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSelfUpdate::Run()
 {
-	ORBITER_CLASS::GetInstance()->WriteStatusOutput("Updating orbiter...");
-
 	if(LastUpdateFailed())
 	{	
         if(IDYES == ::MessageBox(NULL, TEXT("Last time I tried to update it failed. Should I try again?  \r\nWe recommend you choose 'yes' unless the update keeps failing,\r\nin which case please notify Pluto support."), 

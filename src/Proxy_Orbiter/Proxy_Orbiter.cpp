@@ -30,20 +30,11 @@
 #include "Proxy_Orbiter.h"
 #include "SerializeClass/ShapesColors.h"
 #include "pluto_main/Define_Button.h"
-#include "Orbiter/SDL/JpegWrapper.h"
 #include "Orbiter/ScreenHistory.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "../Orbiter/SDL/OrbiterRenderer_SDL.h"
 
 #include "DataGrid.h"
-#include <SDL_ttf.h>
-#include <SDL_image.h>
-#include <SDL_video.h>
-#include <SDL_rwops.h>
-
-#include "sge.h"
-#include "SDL_image.h"
-#include "SDL_ttf.h"
-#include "png.h"
 
 using namespace DCE;
 #if defined(WIN32) 
@@ -58,7 +49,7 @@ void WriteStatusOutput(const char *) {} //do nothing
 
 //-----------------------------------------------------------------------------------------------------
 Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress)
-: OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, "", false, 0, 
+: Orbiter(DeviceID, PK_DeviceTemplate, ServerAddress, "", false, 0, 
     0, false), SocketListener("Proxy_Orbiter"), m_ActionMutex("action"), m_ResourcesMutex("resources")
 {
 	m_iImageCounter = 1;
@@ -78,7 +69,7 @@ Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerA
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool Proxy_Orbiter::GetConfig()
 {
-    if(!OrbiterSDL::GetConfig())
+    if(!Orbiter::GetConfig())
         return false;
 
     m_ImageQuality = DATA_Get_ImageQuality();
@@ -116,41 +107,6 @@ Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerA
     pthread_mutex_destroy(&m_ActionMutex.mutex);
 }
 //-----------------------------------------------------------------------------------------------------
-void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
-{
-    SDL_Surface * Drawing = pScreenImage;
-
-    png_bytepp image_rows;
-    FILE * File;
-    int BitsPerColor;
-
-    File = fopen(FileName.c_str(), "wb");
-
-    image_rows = new png_bytep[Drawing->h];
-    for (int n = 0; n < Drawing->h; n++)
-        image_rows[n] = (unsigned char *) Drawing->pixels + n * Drawing->pitch;
-
-    png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    png_infop png_info = png_create_info_struct(png_ptr);
-
-    png_init_io(png_ptr, File);
-    png_set_filter(png_ptr, 0, PNG_FILTER_NONE);
-    png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
-
-    BitsPerColor = Drawing->format->BitsPerPixel / Drawing->format->BytesPerPixel;
-    png_set_IHDR(png_ptr, png_info, Drawing->w, Drawing->h, BitsPerColor, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
-            PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-    png_write_info(png_ptr, png_info);
-    png_write_image(png_ptr, image_rows);
-    png_write_end(png_ptr, png_info);
-
-    delete [] image_rows;
-
-    png_destroy_write_struct(&png_ptr, &png_info);
-    fclose(File);
-}
-//-----------------------------------------------------------------------------------------------------
 void Proxy_Orbiter::RealRedraw( void *data )
 {
 	m_dequeCellXMLItems.clear();
@@ -176,51 +132,6 @@ string Proxy_Orbiter::GetDevicePngFileName()
 string Proxy_Orbiter::GetDeviceXmlFileName()
 {
 	return StringUtils::ltos(m_dwPK_Device) + "_" + CURRENT_SCREEN_XML;
-}
-//-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Proxy_Orbiter::DisplayImageOnScreen(struct SDL_Surface *pScreenImage)
-{
-	PLUTO_SAFETY_LOCK(sm,m_ScreenMutex);
-
-	if(NULL != m_pScreenHistory_Current)
-    {
-		g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
-    }
-
-    if(pScreenImage->w <= 320 && pScreenImage->h <= 240) //ip phone
-		m_ImageQuality = 100;
-
-	string sDevicePng = GetDevicePngFileName();
-	string sDeviceXml = GetDeviceXmlFileName();
-
-	PLUTO_SAFETY_LOCK(rm, m_ResourcesMutex);
-	//generate the jpeg or png image with current screen
-    if(m_ImageQuality == 100) //we'll use pngs for best quality
-        SaveImageToFile(pScreenImage, sDevicePng);
-    else
-        SDL_SaveJPG(pScreenImage, sDevicePng.c_str(), m_ImageQuality);
-
-    SaveXML(sDeviceXml);
-	rm.Release();
-
-	m_nCurrentScreenId = m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
-	g_pPlutoLogger->Write(LV_STATUS, "Current screen generated: %d", m_nCurrentScreenId);
-	
-	PLUTO_SAFETY_LOCK(am, m_ActionMutex);
-    g_pPlutoLogger->Write(LV_STATUS, "Image/xml generated. Wake up! Screen %s", 
-        m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
-    pthread_cond_broadcast(&m_ActionCond);
-
-	if(m_iListenPort >= CISCO_LISTEN_PORT_START && m_iListenPort < CISCO_LISTEN_PORT_START + 10 && //only cisco orbiters
-		!IsProcessingRequest() 
-	)
-	{
-		if(!PendingCallbackScheduled((OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask))
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "Scheduling push refresh event to execute in 1000 ms");
-			CallMaintenanceInMiliseconds(1000, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask, NULL, pe_ALL);
-		}
-	}
 }
 //-----------------------------------------------------------------------------------------------------
 bool Proxy_Orbiter::PushRefreshEvent(bool bForce,bool bIgnoreMinimumInterval/*=false*/)
@@ -310,7 +221,7 @@ void Proxy_Orbiter::EndProcessingRequest()
 	CallMaintenanceInMiliseconds(REQUEST_INTERVAL_TIMEOUT, (OrbiterCallBack)&Proxy_Orbiter::StopProcessingRequest, this, pe_ALL );
 }
 //-----------------------------------------------------------------------------------------------------
-void Proxy_Orbiter::StopProcessingRequest()
+void Proxy_Orbiter::StopProcessingRequest(void *p)
 {
     g_pPlutoLogger->Write(LV_STATUS, "Stopped processing request...");
 	m_bProcessingRequest = false;
@@ -469,16 +380,6 @@ void Proxy_Orbiter::StopProcessingRequest()
     }
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Proxy_Orbiter::BeginPaint()
-{
-	m_dequeCellXMLItems.clear();
-}
-//-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Proxy_Orbiter::EndPaint()
-{
-	DisplayImageOnScreen(m_pScreenImage);
-}
-//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Proxy_Orbiter::SetImageQuality(unsigned long nImageQuality)
 {
     m_ImageQuality = nImageQuality;
@@ -491,7 +392,7 @@ void Proxy_Orbiter::StopProcessingRequest()
 
 bool Proxy_Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *pT,  class DataGridCell *pCell,  int j,  int i,  int GraphicToDisplay, PlutoPoint point )
 {
-    bool bRetValue = OrbiterSDL::RenderCell(pObj, pT, pCell, j, i, GraphicToDisplay, point);
+    bool bRetValue = Orbiter::RenderCell(pObj, pT, pCell, j, i, GraphicToDisplay, point);
 
     int x, y, w, h;
     GetGridCellDimensions( pObj,  pCell->m_Colspan,  pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
@@ -515,11 +416,34 @@ bool Proxy_Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridT
     return bRetValue;
 }
 
+void Proxy_Orbiter::ImageGenerated()
+{
+	m_nCurrentScreenId = m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
+	g_pPlutoLogger->Write(LV_STATUS, "Current screen generated: %d", m_nCurrentScreenId);
+
+	PLUTO_SAFETY_LOCK(am, m_ActionMutex);
+	g_pPlutoLogger->Write(LV_STATUS, "Image/xml generated. Wake up! Screen %s", 
+		m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
+	pthread_cond_broadcast(&m_ActionCond);
+
+	if(m_iListenPort >= CISCO_LISTEN_PORT_START && m_iListenPort < CISCO_LISTEN_PORT_START + 10 && //only cisco orbiters
+		!IsProcessingRequest() 
+		)
+	{
+		if(!PendingCallbackScheduled((OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask))
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Scheduling push refresh event to execute in 1000 ms");
+			CallMaintenanceInMiliseconds(1000, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask, NULL, pe_ALL);
+		}
+	}
+}
+
 void Proxy_Orbiter::RenderScreen(bool bRenderGraphicsOnly)
 {
 	if( !bRenderGraphicsOnly )
 	    m_dequeCellXMLItems.clear();
-    return OrbiterSDL::RenderScreen(bRenderGraphicsOnly);
+
+    return Renderer()->RenderScreen(bRenderGraphicsOnly);
 }
 
 bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout )
@@ -736,3 +660,4 @@ bool StartOrbiter(class BDCommandProcessor *pBDCommandProcessor, int DeviceID,
 	return bReload;
 }
  
+

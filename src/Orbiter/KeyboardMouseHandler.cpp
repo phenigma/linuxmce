@@ -10,6 +10,7 @@
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "DataGrid.h"
+#include "OrbiterRenderer.h"
 
 using namespace DCE;
 
@@ -412,11 +413,11 @@ void KeyboardMouseHandler::TempHack_DrawAlphaSquare()
 
 	float NotchWidth = ((float) m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition.Height)/27; // Allow for 0,A-Z
 	int NotchStart = int(cLetter * NotchWidth) + m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition.Y + m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_pPopupPoint.Y;
-	m_pMouseBehavior->m_pOrbiter->HollowRectangle(
+	m_pMouseBehavior->m_pOrbiter->Renderer()->HollowRectangle(
 		m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition.X + m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_pPopupPoint.X, NotchStart,
 		m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition.Width, int(NotchWidth),
 		PlutoColor::White());
-	m_pMouseBehavior->m_pOrbiter->UpdateRect(m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition + m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_pPopupPoint);
+	m_pMouseBehavior->m_pOrbiter->Renderer()->UpdateRect(m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_rPosition + m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha->m_pPopupPoint);
 
 }
 

@@ -29,7 +29,7 @@
 class OrbiterFileBrowser_Collection;
 class ScreenHandler;
 class OSDScreenHandler;
-
+class OrbiterRenderer;
 /** For brevity,  DesignObj_Orbiter will be abbreviated Obj */
 
 namespace DCE
@@ -91,15 +91,20 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 	{
 	private:
 		class PlutoGraphic * m_pBackgroundImage;
-		
+		static Orbiter *m_pInstance; 
+
 	protected:
 		void DumpScreenHistory(); // temporary function
 
 		//<-dceag-decl-e->
+
+		OrbiterRenderer *m_pOrbiterRenderer;
+
 		friend class BD_PC_SetVariable; /** < Needs to maniuplate our variables */
 		friend class NeedToRender; /** < Needs to maniuplate our variables */
 		friend class ScreenHandler;
 		friend class OSDScreenHandler;
+		friend class OrbiterRenderer;
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		friend class MouseBehavior;
@@ -115,8 +120,16 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 #endif
 
 	public: //data
+
+		//these two methods should not be used from within bluetooth dongle
+		static void DestroyInstance();
+		static Orbiter *Instance(); 
+
+		OrbiterRenderer *Renderer() { return m_pOrbiterRenderer; }
+
 		int m_iImageWidth; /** < image width duh */
 		int m_iImageHeight; /** < image height */
+		bool m_bFullScreen;
 		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
 		/**
 		* @brief stores objects that need to be redrawned
@@ -159,6 +172,9 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		virtual void SetImageQuality(unsigned long ulImageQuality) {};
 
+		//callback; should be forwarded to the renderer
+		void RenderFrame(void *data);
+
 		/**
 		* @brief Returns true if version 2 of the UI is being used
 		*/
@@ -192,6 +208,28 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		map<int, PendingCallBackInfo *> m_mapPendingCallbacks; //The map with pending callbacks
 		unsigned int m_nCallbackCounter; //a pending callback counter
 
+		bool m_bShiftDown;
+		bool m_bShiftDownOnScreenKeyboard;
+		bool m_bControlDown;
+		bool m_bAltDown;
+		bool m_bCapsLock;
+
+		class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
+		class DesignObj_Orbiter *m_pObj_SelectedLastScreen;   // The last object we selected.  Used by floorplans to toggle states
+
+		/**
+		* @brief These will redraw any objects in m_vectObjsToRedraw. Use this to queue objects to redraw, such as those tht
+		*/
+		virtual void RedrawObjects();
+
+		// '0' - no item is selected until the user moves the arrows
+		// '1' - automatically highlight the first object when the screen changes
+		// '2' - selection/hightlighing routines disabled
+		int m_nSelectionBehaviour;    
+		bool m_bWeCanRepeat; /** < true if the rendering device we're using gives us Region Up Messages */
+
+		class DesignObj_Orbiter *m_pObj_Highlighted,*m_pObj_Highlighted_Last; /** < The current object highlighted, changed with the scrolling functions */
+
 	protected:
 
 		int m_dwPK_Users; /** < The current user */
@@ -199,9 +237,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		class LocationInfo *m_pLocationInfo; /** < The current location */
 
 		string m_sLocalDirectory; /** < A directory to get files from */
-		class DesignObj_Orbiter *m_pObj_Highlighted,*m_pObj_Highlighted_Last; /** < The current object highlighted, changed with the scrolling functions */
-		class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
-		class DesignObj_Orbiter *m_pObj_SelectedLastScreen;   // The last object we selected.  Used by floorplans to toggle states
 		class ScreenHistory *m_pContextToBeRestored; // We need to restore objects visibility status after the user does a go back
 		int m_iLastEntryInDeviceGroup; // Used by floorplans to go through a selected device group
 		map<int,class DeviceGroup *> m_mapDeviceGroups;
@@ -218,15 +253,11 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		bool m_bStartingUp; /** < True while the system hasn't yet finished starting */
 		int m_iCaptureKeyboard_EditType; /** < 0 = normal, 1 = numbers only, 2 = pin */
 		bool m_bCaptureKeyboard_DataGrid; /** < flag for capture keyboard */
-		bool m_bWeCanRepeat; /** < true if the rendering device we're using gives us Region Up Messages */
 		bool m_bRestrictedOp_IsUser;
 		int m_iRestrictedOp_ID;
 		bool m_bShowShortcuts; /** < if true, the shortcuts for each object rendered will be rendered too. */
 		bool m_bUsingExternalScreenMutex;
 		bool m_bForward_local_kb_to_OSD; // true if this is orbiter should be used a remote keyboard for another
-		int m_nSelectionBehaviour;    // '0' - no item is selected until the user moves the arrows
-		// '1' - automatically highlight the first object when the screen changes
-		// '2' - selection/hightlighing routines disabled
 
 		int  m_iCaptureKeyboard_PK_Variable; /** < capture keyboard variable (coresponds to primary key) @todo ask */
 		string m_sCaptureKeyboard_Text; /** < text for capture keyboard @todo ask */
@@ -249,12 +280,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		string m_sCacheFolder; /** < Where to store graphic files for caching */
 		int m_iCacheSize; /** < The maximum size of the graphics files stored (MB) */
 		int m_iVideoFrameInterval; /** < The interval between two frame requested from the router */
-
-		bool m_bShiftDown;
-		bool m_bShiftDownOnScreenKeyboard;
-		bool m_bControlDown;
-		bool m_bAltDown;
-		bool m_bCapsLock;
 
 		map<int,Message *> m_mapHardKeys;  /** < Messages to fire when keys are pressed */
 
@@ -321,8 +346,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		pthread_t m_MaintThreadID;
 
 		CacheImageManager *m_pCacheImageManager;
-		PlutoGraphic *m_pGraphicBeforeHighlight;
-		PlutoRectangle m_rectLastHighlight;
 
 		virtual void GetWindowPosition(PlutoPoint& point) { point.X = point.Y = 0; }
 
@@ -359,19 +382,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		PlutoPopup *FindPopupByName(DesignObj_Orbiter *pObj,string sPopupName);
 
 		/**
-		* @brief Render the screen in m_pScreenHistory_Current
-		*/
-		virtual void RenderScreen(bool bRenderGraphicsOnly);
-		virtual void BeginPaint() {};
-		virtual void EndPaint() {};
-		virtual void UpdateRect(PlutoRectangle rect, PlutoPoint point=PlutoPoint(0,0)) {};
-
-		/**
-		* @brief These will redraw any objects in m_vectObjsToRedraw. Use this to queue objects to redraw, such as those tht
-		*/
-		virtual void RedrawObjects();
-
-		/**
 		* @brief temp hack -- see comments
 		* @todo ask - add comments
 		*/
@@ -390,6 +400,10 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		void StartScreenHandlerTimer(int nInterval /*in miliseconds*/);
 
 	public: // temp - remove this
+
+		PlutoGraphic *m_pGraphicBeforeHighlight;
+		PlutoRectangle m_rectLastHighlight;
+
 		/**
 		* @brief Timeout the object, which is data
 		*/
@@ -585,13 +599,10 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		virtual bool RouterNeedsReload();
 		virtual int DeviceIdInvalid();
 		virtual int PickOrbiterDeviceID();
-		virtual int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
 		virtual int SetupNewOrbiter();
 		virtual int MonitorRegen(int PK_Device);
-		virtual int PromptFor(string sToken);
-		virtual bool DisplayProgress(string sMessage, int nProgress);
-		virtual bool DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress) { return false; }
 		virtual bool RegenOrbiter(); // Send Orbiter plugin a command to regen this orbiter
+		virtual void ShowProgress(int nPercent);
 
 		/**
 		* @brief Convert a virtual device (a negative device that corresponds to the VirtDev entries in DeviceTemplate) into the real device ID
@@ -659,11 +670,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		* @brief renders a graphic object in the specified rectangle
 		* @todo ask
 		*/
-		virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0)) = 0;
-
 		virtual void RenderGraphic( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0) );
-
-		virtual PlutoGraphic *CreateGraphic() = 0;
 
 		/**
 		* @brief The derived class should implement this if it can.  It moves the mouse pointer to the given coordinates
@@ -676,50 +683,11 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		virtual bool IsRepeatedKeyForScreen(DesignObj_Orbiter* pObj, int iPK_Button, bool bDown);
 
-		/**
-		* @brief renders text with the specified style
-		*/
-		virtual void RenderText( string &sTextToDisplay,class DesignObjText *Text, class TextStyle *pTextStyle, PlutoPoint point = PlutoPoint(0, 0) ) = 0;
-
-		/**
-		* @brief draws an rectangle
-		*/
-		virtual void SolidRectangle( int iX, int iY, int iWidth, int iHeight, PlutoColor color) = 0;
-
-		/**
-		* @brief draws an x-or'd rectangle outline.  Used to highlight something on screen
-		*/
-		virtual void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)=0;
-
-		/**
-		* @brief draws an line
-		*/
-		virtual void DrawLine( int iX, int iY, int iWidth, int iHeight, PlutoColor color) = 0;
-
-		/**
-		* @brief replaces the specified color from within the specified rectangle with another one
-		*/
-		virtual void ReplaceColorInRectangle( int iX, int iY, int iWidth, int iHeight, PlutoColor ColorToReplace, PlutoColor ReplacementColor ) = 0;
-
-		/**
-		* @brief floods the region that containes the specified point, replacing one color
-		* A graphic is no longer on screen. Maybe remove it from cache.
-		*/
-		virtual void FloodFill( int iX, int iY, PlutoColor ColorToReplace, PlutoColor ReplacementColor ) = 0;
 
 		/**
 		* @brief sets the time to the one specified by the parameter
 		*/
-		virtual void SetTime( char *pcServerTimeString ) = 0;
-
-		/**
-		* @brief We're going to be redrawing something on top of this object. Save it's state, so that during the next redraw this will be used
-		*/
-		virtual void SaveBackgroundForDeselect( DesignObj_Orbiter *pObj, PlutoPoint point ) = 0;
-		virtual PlutoGraphic *GetBackground( PlutoRectangle &rect ) = 0;
-
-		virtual void ClipRectangle(int& x, int& y, int& width, int& height);
-		virtual void ClipRectangle(PlutoRectangle &rect);
+		virtual void SetTime( char *pcServerTimeString ) {};
 
 		/**
 		*	FUNCTIONS A DERIVED ORBITER MAY WANT TO IMPLEMENT
@@ -789,6 +757,18 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		*/
 		virtual void GenerateSimulateKeypress(int iPK_C_Button);
 
+		virtual void StopRepeatRelatedEvents();
+
+	public:
+		/**
+		* @brief Something happened, like a touch or a button, reset any timeouts or screen saver.  Returns false if it should be ignored
+		*/
+		virtual bool GotActivity(  );
+
+		virtual void SimulateMouseClick(int x, int y);
+
+		virtual void SimulateKeyPress(long key);
+
 		/**
 		* @brief the point belongs to a region that was clicked
 		* @todo ask
@@ -802,17 +782,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		*/
 		virtual bool RegionUp(int iX, int iY);
 
-		virtual void StopRepeatRelatedEvents();
-
-	public:
-		/**
-		* @brief Something happened, like a touch or a button, reset any timeouts or screen saver.  Returns false if it should be ignored
-		*/
-		virtual bool GotActivity(  );
-
-		virtual void SimulateMouseClick(int x, int y);
-
-		virtual void SimulateKeyPress(long key);
 
 		/**
 		*	UTILITIES
@@ -974,7 +943,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		*/
 		void DeselectObjects( void *iData );
 
-		virtual void OnReload() { Orbiter_Command::OnReload(); OnQuit(); g_pPlutoLogger->Write(LV_WARNING,"Orbiter reloading"); }  // The OnQuit handlers take care of terminating the orbiter's event procesor, such as by firing an SDL event
+		virtual void OnQuit();
+		virtual void OnReload();
 
 		// Wait for related devices to startup before we let the user go
 		virtual bool WaitForRelativesIfOSD();

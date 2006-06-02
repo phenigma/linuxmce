@@ -18,13 +18,13 @@
 #include <string>
 using namespace std;
 
-#include "StartOrbiterSDLBluetooth.h"
-#include "OrbiterSDLBluetooth.h"
+#include "OrbiterBluetoothCreator.h"
+#include "OrbiterBluetooth.h"
 extern Command_Impl *g_pCommand_Impl;
 
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
-OrbiterSDLBluetooth *StartOrbiterSDLBluetooth(
+OrbiterBluetooth *CreateOrbiterBluetooth(
 	class BDCommandProcessor *pBDCommandProcessor,
 	int PK_Device, 
 	int PK_DeviceTemplate,
@@ -38,44 +38,44 @@ OrbiterSDLBluetooth *StartOrbiterSDLBluetooth(
 	int PK_EntertainArea
 )
 {
-    OrbiterSDLBluetooth * pOrbiterSDLBluetooth = NULL;
+    OrbiterBluetooth * pOrbiterBluetooth = NULL;
 
     try
     {
-	    pOrbiterSDLBluetooth = new OrbiterSDLBluetooth(
+	    pOrbiterBluetooth = new OrbiterBluetooth(
 				    pBDCommandProcessor,
 				    PK_Device, PK_DeviceTemplate, sRouter_IP, 
 				    sLocalDirectory, bLocalMode, Width, Height, pExternalScreenMutex);
 
-		g_pCommand_Impl = pOrbiterSDLBluetooth;  
+		g_pCommand_Impl = pOrbiterBluetooth;  
 
-	    if (bLocalMode || (pOrbiterSDLBluetooth->GetConfig() && pOrbiterSDLBluetooth->Connect(0))) // Don't validate the device template
+	    if (bLocalMode || (pOrbiterBluetooth->GetConfig() && pOrbiterBluetooth->Connect(0))) // Don't validate the device template
 	    {
 		    g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
-		    pOrbiterSDLBluetooth->Initialize(gtSDLGraphic,PK_Room,PK_EntertainArea);
+		    pOrbiterBluetooth->Initialize(gtSDLGraphic,PK_Room,PK_EntertainArea);
 		    g_pPlutoLogger->Write(LV_STATUS, "SDLGraphic initialized");
     		
 		    if( !bLocalMode  )
-			    pOrbiterSDLBluetooth->CreateChildren();
+			    pOrbiterBluetooth->CreateChildren();
 
 	    }
     }
     catch(string s)
     {
         g_pPlutoLogger->Write(LV_CRITICAL,s.c_str());
-        pOrbiterSDLBluetooth = NULL;
+        pOrbiterBluetooth = NULL;
     }
     catch(const char *s)
     {
         g_pPlutoLogger->Write(LV_CRITICAL, s);
-        pOrbiterSDLBluetooth = NULL;
+        pOrbiterBluetooth = NULL;
     }
     catch(...)
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter threw an unknown exception.");
-        pOrbiterSDLBluetooth = NULL;
+        pOrbiterBluetooth = NULL;
     }
 
-	return pOrbiterSDLBluetooth;
+	return pOrbiterBluetooth;
 }
 //-----------------------------------------------------------------------------------------------------

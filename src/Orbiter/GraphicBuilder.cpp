@@ -1,6 +1,5 @@
 #include "GraphicBuilder.h"
 #include "RendererMNG.h"
-#include "OrbiterGen/Renderer.h"
 #include "DCE/Logger.h"
 
 #if defined(POCKETFROG)
@@ -8,6 +7,7 @@
 #elif defined(ORBITER_OPENGL)	
 	#include "OpenGL/OpenGLGraphic.h"
 #else
+	#include "OrbiterGen/Renderer.h"
 	#include "SDL/SDLGraphic.h"
 #endif
 //-------------------------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ bool IsPFG(string sFileName)
 }
 //-------------------------------------------------------------------------------------------------------
 void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type, string Filename, 
-						 eGraphicManagement GraphicManagement, Orbiter *pOrbiter)
+						 eGraphicManagement GraphicManagement, OrbiterRenderer *pOrbiterRenderer)
 {
 	eGraphicFormat eGF = GR_UNKNOWN;
 
@@ -53,11 +53,11 @@ void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type,
 
 	PlutoGraphic *pGraphic
 #if defined(POCKETFROG)
-		= new PocketFrogGraphic(pOrbiter);
+		= new PocketFrogGraphic(pOrbiterRenderer);
 #elif defined(ORBITER_OPENGL)
 		= new OpenGLGraphic(pOrbiter);
 #else
-		= new SDLGraphic(pOrbiter); //we won't load the graphic yet
+		= new SDLGraphic(pOrbiterRenderer); //we won't load the graphic yet
 #endif
 
 	if(NULL != pGraphic)

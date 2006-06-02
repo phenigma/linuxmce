@@ -152,12 +152,6 @@
 				RelativePath=".\OrbiterFileBrowser.cpp">
 			</File>
 			<File
-				RelativePath=".\Sdl\OrbiterSDL.cpp">
-			</File>
-			<File
-				RelativePath=".\Win32\OrbiterSDL_Win32.cpp">
-			</File>
-			<File
 				RelativePath=".\Linux\OSDCompass.cpp">
 			</File>
 			<File
@@ -261,6 +255,18 @@
 					RelativePath=".\GraphicBuilder.cpp">
 				</File>
 				<File
+					RelativePath=".\OrbiterRenderer.cpp">
+				</File>
+				<File
+					RelativePath=".\Sdl\OrbiterRenderer_SDL.cpp">
+				</File>
+				<File
+					RelativePath=".\Sdl\Win32\OrbiterRenderer_SDL_Win32.cpp">
+				</File>
+				<File
+					RelativePath=".\OrbiterRendererFactory.cpp">
+				</File>
+				<File
 					RelativePath=".\PlutoGraphic.cpp">
 				</File>
 				<File
@@ -334,6 +340,9 @@
 				Filter="">
 				<File
 					RelativePath=".\Win32\MainDialog.cpp">
+				</File>
+				<File
+					RelativePath=".\Win32\Orbiter_Win32.cpp">
 				</File>
 				<File
 					RelativePath=".\Win32\PopupMessage.cpp">

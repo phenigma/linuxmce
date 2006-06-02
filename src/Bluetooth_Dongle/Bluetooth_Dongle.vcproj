@@ -128,91 +128,10 @@
 				RelativePath="..\DCE\AlarmManager.cpp">
 			</File>
 			<File
-				RelativePath="..\VIPShared\BD_CP_CaptureKeyboard.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_CurrentSignalStrength.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_Disconnect.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_SendFile.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_SendMeKeystrokes.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_ShowImage.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_ShowList.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_ShowVMC.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_SimulateEvent.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_UpdateVariables.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_Disconnect.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_GetSignalStrength.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_KeyWasPressed.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_OrderPlaced.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_ReportingVariables.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_ReportMyVersion.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_SelectedFromList.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_SetImageQuality.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_SetVariable.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_VMCHidden.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_VMCTerminated.cpp">
-			</File>
-			<File
-				RelativePath="..\Bd\BDCommand.cpp">
-			</File>
-			<File
-				RelativePath="..\Bd\BDCommandProcessor.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BDCommandProcessor_BluetoothDongle.cpp">
-			</File>
-			<File
-				RelativePath="..\Bd\BDCommandProcessor_Windows_Bluetooth.cpp">
-			</File>
-			<File
-				RelativePath="..\Bd\BDCommandProcessor_Windows_Socket.cpp">
-			</File>
-			<File
 				RelativePath="Bluetooth_Dongle.cpp">
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\Bluetooth_DongleBase.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\CacheImageManager.cpp">
 			</File>
 			<File
 				RelativePath="..\Orbiter\CallBackData.cpp">
@@ -224,12 +143,6 @@
 				RelativePath="..\Orbiter\DesignObj_Orbiter.cpp">
 			</File>
 			<File
-				RelativePath="..\Orbiter\GraphicBuilder.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\Sdl\JpegWrapper.cpp">
-			</File>
-			<File
 				RelativePath="Main.cpp">
 			</File>
 			<File
@@ -239,13 +152,13 @@
 				RelativePath="..\Gen_Devices\OrbiterBase.cpp">
 			</File>
 			<File
+				RelativePath=".\OrbiterBluetooth.cpp">
+			</File>
+			<File
+				RelativePath=".\OrbiterBluetoothCreator.cpp">
+			</File>
+			<File
 				RelativePath="..\Orbiter\OrbiterFileBrowser.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\Sdl\OrbiterSDL.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\SDL_Bluetooth\OrbiterSDLBluetooth.cpp">
 			</File>
 			<File
 				RelativePath="..\VIPShared\PhoneDetection_Bluetooth_Windows.cpp">
@@ -260,50 +173,158 @@
 				RelativePath="..\Bd\PhoneDevice.cpp">
 			</File>
 			<File
-				RelativePath="..\Orbiter\PlutoGraphic.cpp">
-			</File>
-			<File
 				RelativePath="..\VIPShared\PlutoPhoneCommands.cpp">
-			</File>
-			<File
-				RelativePath="..\OrbiterGen\Renderer.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\RendererMNG.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\RendererOCG.cpp">
 			</File>
 			<File
 				RelativePath="..\Orbiter\ScreenHandler.cpp">
 			</File>
 			<File
-				RelativePath="..\Orbiter\ScreenHistory.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\Sdl\SDLGraphic.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\Sdl\SDLRendererOCGHelper.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\Simulator.cpp">
-			</File>
-			<File
-				RelativePath="..\orbiter\sdl_bluetooth\StartOrbiterSDLBluetooth.cpp">
-			</File>
-			<File
-				RelativePath="..\Splitter\TextSplitter.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\TextStyle.cpp">
-			</File>
-			<File
-				RelativePath="..\Splitter\TextWrapper.cpp">
-			</File>
-			<File
 				RelativePath="..\VIPShared\VIPIncludes.cpp">
 			</File>
+			<Filter
+				Name="BD"
+				Filter="">
+				<File
+					RelativePath="..\VIPShared\BD_CP_CaptureKeyboard.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_CP_CurrentSignalStrength.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_CP_Disconnect.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_CP_SendFile.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_CP_SendMeKeystrokes.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_CP_ShowImage.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_CP_ShowList.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_CP_ShowVMC.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_CP_SimulateEvent.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_CP_UpdateVariables.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_PC_Disconnect.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_PC_GetSignalStrength.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_PC_KeyWasPressed.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_PC_OrderPlaced.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_PC_ReportingVariables.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_PC_ReportMyVersion.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_PC_SelectedFromList.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_PC_SetImageQuality.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_PC_SetVariable.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_PC_VMCHidden.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BD_PC_VMCTerminated.cpp">
+				</File>
+				<File
+					RelativePath="..\Bd\BDCommand.cpp">
+				</File>
+				<File
+					RelativePath="..\Bd\BDCommandProcessor.cpp">
+				</File>
+				<File
+					RelativePath="..\VIPShared\BDCommandProcessor_BluetoothDongle.cpp">
+				</File>
+				<File
+					RelativePath="..\Bd\BDCommandProcessor_Windows_Bluetooth.cpp">
+				</File>
+				<File
+					RelativePath="..\Bd\BDCommandProcessor_Windows_Socket.cpp">
+				</File>
+			</Filter>
+			<Filter
+				Name="Renderer"
+				Filter="">
+				<File
+					RelativePath="..\Orbiter\GraphicBuilder.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\Sdl\JpegWrapper.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\OrbiterRenderer.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\Sdl\OrbiterRenderer_SDL.cpp">
+				</File>
+				<File
+					RelativePath=".\OrbiterRenderer_SDL_Bluetooth.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\OrbiterRendererFactory.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\PlutoGraphic.cpp">
+				</File>
+				<File
+					RelativePath="..\OrbiterGen\Renderer.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\RendererMNG.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\RendererOCG.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\Sdl\SDLGraphic.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\Sdl\SDLRendererOCGHelper.cpp">
+				</File>
+				<File
+					RelativePath="..\Splitter\TextSplitter.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\TextStyle.cpp">
+				</File>
+				<File
+					RelativePath="..\Splitter\TextWrapper.cpp">
+				</File>
+			</Filter>
+			<Filter
+				Name="Utils"
+				Filter="">
+				<File
+					RelativePath="..\Orbiter\CacheImageManager.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\ScreenHistory.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\Simulator.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"

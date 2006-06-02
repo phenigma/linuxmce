@@ -11,18 +11,19 @@
 #include "SDLRendererOCGHelper.h"
 #include "PlutoSDLDefs.h"
 
+#include "../OrbiterRenderer.h"
 #include "../Orbiter.h"
-
+using namespace DCE;
 //-------------------------------------------------------------------------------------------------------
 SDLGraphic::SDLGraphic(string Filename, eGraphicManagement GraphicManagement,
-					   Orbiter *pOrbiter)
-					   : PlutoGraphic(Filename, GraphicManagement, pOrbiter)
+					   OrbiterRenderer *pOrbiterRenderer)
+					   : PlutoGraphic(Filename, GraphicManagement, pOrbiterRenderer)
 {
 	Initialize();
 }
 //-------------------------------------------------------------------------------------------------------
-SDLGraphic::SDLGraphic(Orbiter *pOrbiter)
-: PlutoGraphic(pOrbiter)
+SDLGraphic::SDLGraphic(OrbiterRenderer *pOrbiterRenderer)
+: PlutoGraphic(pOrbiterRenderer)
 {
 	Initialize();
 }
@@ -58,10 +59,10 @@ bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 		string sErrorMessage = 
 			"Cannot load OCG files in Orbiter SDL. "
 			"Please uncheck 'Use OCG' device data for this device (" + 
-				StringUtils::ltos(m_pOrbiter->m_dwPK_Device) + ").";
+				StringUtils::ltos(m_pOrbiterRenderer->OrbiterLogic()->m_dwPK_Device) + ").";
 
         g_pPlutoLogger->Write(LV_CRITICAL, sErrorMessage.c_str());
-		m_pOrbiter->PromptUser(sErrorMessage.c_str(), 100);
+		m_pOrbiterRenderer->PromptUser(sErrorMessage.c_str(), 100);
         exit(1);
 		return false;
 	}

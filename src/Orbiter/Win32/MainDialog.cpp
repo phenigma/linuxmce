@@ -6,9 +6,11 @@
 #include "PlutoUtils/MultiThreadIncludes.h"
 #include "SelfUpdate.h"
 #include "Win32/PopupMessage.h"
-#include "Win32/OrbiterWin32Defs.h"
-
 #include "Simulator.h"
+
+#ifdef POCKETFROG
+#include "PocketFrog/OrbiterRenderer_PocketFrog.h"
+#endif
 
 #if !defined(POCKETFROG) && !defined(WINCE)
 	#include "Commctrl.h"
@@ -207,7 +209,7 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 	int Times = atoi(sTimesText.c_str());
 
 	int Count = (int)::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
-	Orbiter *pOrbiter = ORBITER_CLASS::GetInstance();
+	Orbiter *pOrbiter = Orbiter::Instance();
 
 	while(Times--)
 	{
@@ -623,8 +625,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #endif
 			{
 #ifdef POCKETFROG
-				if(Orbiter_PocketFrog::GetInstance())
-					Orbiter_PocketFrog::GetInstance()->OnQuit();
+				if(NULL != Orbiter::Instance())
+					Orbiter::Instance()->OnQuit();
 				Sleep(500);
 #else
 				HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);						

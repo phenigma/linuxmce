@@ -26,7 +26,7 @@ That class creates a default decorator for OpenGL operations thread.
 
 class OrbiterGL3D {
 public: 
-	Orbiter * pOrbiterGL;
+	OrbiterRenderer * pOrbiterRendererGL;
 	TBasicWindow * Screen3D;
 	TBasicWindow * HighLighArea;
 	TBasicWindow * SelectedArea;
@@ -41,7 +41,7 @@ public:
 	GL2DEffectFactory* EffectBuilder;
 	FloatRect FullScreenSize;
 	
-	int BuildOrbiterGL(Orbiter * pOrbiterGL);
+	int BuildOrbiterGL(OrbiterRenderer * pOrbiterRendererGL);
 	
 	~OrbiterGL3D ();
 

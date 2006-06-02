@@ -53,8 +53,8 @@ using namespace DCE;
 OrbiterSDLBluetooth::OrbiterSDLBluetooth(class BDCommandProcessor *pBDCommandProcessor, int DeviceID, 
     int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, int nImageWidth, 
     int nImageHeight, pluto_pthread_mutex_t *pExternalScreenMutex)
-: OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, 
-    nImageHeight, false, pExternalScreenMutex), m_pBDCommandProcessor(pBDCommandProcessor)
+: Orbiter(DeviceID, PK_DeviceTemplate, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, 
+    nImageHeight, pExternalScreenMutex), m_pBDCommandProcessor(pBDCommandProcessor)
 {
     m_bShowListSent = false;
     m_ImageQuality = 70;
@@ -62,7 +62,7 @@ OrbiterSDLBluetooth::OrbiterSDLBluetooth(class BDCommandProcessor *pBDCommandPro
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool OrbiterSDLBluetooth::GetConfig()
 {
-    if(!OrbiterSDL::GetConfig())
+    if(!Orbiter::GetConfig())
         return false;
 
     m_ImageQuality = DATA_Get_ImageQuality();
@@ -215,7 +215,7 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint po
 #ifdef DEBUG
         g_pPlutoLogger->Write(LV_WARNING, "OrbiterSDLBluetooth: I won't render this grid on the phone");
 #endif
-        OrbiterSDL::RenderDataGrid(pObj);
+        Orbiter::RenderDataGrid(pObj);
         return;
     }
 
@@ -235,7 +235,7 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint po
         if(!bUsePhoneGrid)
         {
             g_pPlutoLogger->Write(LV_WARNING, "OrbiterSDLBluetooth: I won't render this grid on the phone");
-			OrbiterSDL::RenderDataGrid(pObj);
+			Orbiter::RenderDataGrid(pObj);
             return;
         }
 

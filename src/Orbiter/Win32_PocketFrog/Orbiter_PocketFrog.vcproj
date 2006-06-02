@@ -158,13 +158,13 @@
 				RelativePath="..\Orbiter.cpp">
 			</File>
 			<File
-				RelativePath="..\PocketFrog\Orbiter_PocketFrog.cpp">
-			</File>
-			<File
 				RelativePath="..\..\Gen_Devices\OrbiterBase.cpp">
 			</File>
 			<File
 				RelativePath="..\OrbiterFileBrowser.cpp">
+			</File>
+			<File
+				RelativePath="..\PocketFrog\PocketFrogWrapper.cpp">
 			</File>
 			<File
 				RelativePath="..\ScreenHandler.cpp">
@@ -270,6 +270,15 @@
 				Name="Renderer"
 				Filter="">
 				<File
+					RelativePath="..\OrbiterRenderer.cpp">
+				</File>
+				<File
+					RelativePath="..\PocketFrog\OrbiterRenderer_PocketFrog.cpp">
+				</File>
+				<File
+					RelativePath="..\OrbiterRendererFactory.cpp">
+				</File>
+				<File
 					RelativePath="..\PocketFrog\PFGHelper.cpp">
 				</File>
 				<File
@@ -280,9 +289,6 @@
 				</File>
 				<File
 					RelativePath="..\PocketFrog\PocketFrogGraphic.cpp">
-				</File>
-				<File
-					RelativePath="..\PocketFrog\PocketFrogWrapper.cpp">
 				</File>
 				<File
 					RelativePath="..\RendererMNG.cpp">
@@ -309,6 +315,9 @@
 				Filter="">
 				<File
 					RelativePath="..\Win32\MainDialog.cpp">
+				</File>
+				<File
+					RelativePath="..\Win32\Orbiter_Win32.cpp">
 				</File>
 				<File
 					RelativePath="..\Win32\PopupMessage.cpp">

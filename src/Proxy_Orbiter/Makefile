@@ -22,6 +22,10 @@ LDFLAGS +=
 XTRALDLIBS = -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lcurl
 
 sources += \
+	Proxy_OrbiterRenderer_SDL.cpp \
+	../Orbiter/OrbiterRenderer.cpp \
+	../Orbiter/SDL/OrbiterRenderer_SDL.cpp \
+	../Orbiter/OrbiterRendererFactory.cpp \
 	../Orbiter/OrbiterFileBrowser.cpp \
 	../Orbiter/Simulator.cpp \
 	../Orbiter/DesignObj_Data.cpp \
@@ -36,7 +40,6 @@ sources += \
 	../Orbiter/ScreenHistory.cpp \
 	../Orbiter/SDL/SDLRendererOCGHelper.cpp \
 	../Orbiter/SDL/SDLGraphic.cpp \
-	../Orbiter/SDL/OrbiterSDL.cpp \
 	../Orbiter/SDL/JpegWrapper.cpp \
 	../Orbiter/CallBackData.cpp \
 	../Orbiter/PlutoGraphic.cpp \

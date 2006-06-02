@@ -62,12 +62,11 @@ using namespace DCE;
 #include "ScreenHandler.h"
 #include "ScreenHistory.h"
 
+#include "OrbiterRenderer.h"
+#include "OrbiterRendererFactory.h"
+
 #include "GraphicBuilder.h"
 #include "Simulator.h"
-
-#ifdef USE_POPUPMANAGER
-#include "PopupManager.h"
-#endif
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 #include "MouseBehavior.h"
@@ -182,6 +181,27 @@ Either 'A' means arrows scroll the grid.  If 'H' is not specified, the scrolling
 'F'  - force rendering in Orbiter
 */
 
+//--------------------------------------------------------------------------------------------------
+Orbiter *Orbiter::m_pInstance = NULL; //the one and only - for non-bluetooth_dongle devices
+//--------------------------------------------------------------------------------------------------
+/*static*/ void Orbiter::DestroyInstance()
+{
+	if(NULL != m_pInstance)
+	{
+		delete m_pInstance;
+		m_pInstance = NULL;
+		return;
+	}
+
+	throw string("Orbiter::DestroyInstance: no instance to destroy"); 
+}
+//--------------------------------------------------------------------------------------------------
+/*static*/ Orbiter *Orbiter::Instance()
+{
+	return m_pInstance;
+}
+//--------------------------------------------------------------------------------------------------
+
 /*
 
 Constructors/Destructor
@@ -199,7 +219,13 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	WriteStatusOutput((char *)(string("Orbiter version: ") + VERSION).c_str());
 	WriteStatusOutput("Orbiter constructor");
 
+	//TODO: read as param
+	m_bFullScreen = false;
+
+	m_pInstance = this;
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
+	m_pOrbiterRenderer = OrbiterRendererFactory::CreateRenderer(this);
+
 	m_nCallbackCounter = 0;
 	m_dwPK_DeviceTemplate = PK_DeviceTemplate;
 	m_iUiVersion = 0;
@@ -452,6 +478,9 @@ Orbiter::~Orbiter()
 	if(m_pScreenHandler)
 		delete m_pScreenHandler;
 
+	delete m_pOrbiterRenderer;
+	m_pOrbiterRenderer = NULL;
+
 	vm.Release();
 	pthread_mutexattr_destroy(&m_MutexAttr);
 	pthread_mutex_destroy(&m_VariableMutex.mutex);
@@ -461,10 +490,6 @@ Orbiter::~Orbiter()
 
 	if(!m_bUsingExternalScreenMutex)
 		pthread_mutex_destroy(&m_ScreenMutex.mutex);
-
-#ifdef USE_POPUPMANAGER
-	PopupManager::Destroy();
-#endif
 }
 
 //<-dceag-getconfig-b->!
@@ -552,6 +577,7 @@ bool Orbiter::GetConfig()
 		m_iVideoFrameInterval = 6000; //6 sec
 
 	m_pScreenHandler = CreateScreenHandler();
+	m_pOrbiterRenderer->Configure();
 
 	return true;
 }
@@ -601,77 +627,6 @@ Protected methods
 /*
 GENERAL PURPOSE METHODS
 */
-
-//-----------------------------------------------------------------------------------------------------------
-void Orbiter::RenderScreen( bool bRenderGraphicsOnly )
-{
-	if( m_bQuit )
-		return;
-	if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->GetObj() )
-	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Got attempt to render null screen: %s", m_pScreenHistory_Current );
-		return;
-	}
-
-	if( !bRenderGraphicsOnly )
-	{
-		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnRenderScreen);
-		if(pCallBackData)
-		{
-			RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pCallBackData;
-			pRenderScreenCallBackData->m_nPK_Screen = m_pScreenHistory_Current->PK_Screen();
-			pRenderScreenCallBackData->m_pObj = m_pScreenHistory_Current->GetObj();
-		}
-
-		ExecuteScreenHandlerCallback(cbOnRenderScreen);
-	}
-
-#ifndef WINCE
-	g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s", m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
-#endif
-
-#if ( defined( PROFILING ) )
-	clock_t clkStart = clock();
-#endif
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
-
-	if (m_pBackgroundImage)
-	{
-		RenderGraphic(m_pBackgroundImage, PlutoRectangle(0, 0, m_iImageWidth, m_iImageHeight), false);
-	}
-
-	if ( m_pScreenHistory_Current  )
-	{
-		RenderObject( m_pScreenHistory_Current->GetObj(),  m_pScreenHistory_Current->GetObj());
-	}
-
-	for(list<class PlutoPopup*>::iterator it=m_listPopups.begin();it!=m_listPopups.end();++it)
-		RenderPopup(*it, (*it)->m_Position);
-
-	if( m_pScreenHistory_Current  )
-	{
-		for(list<class PlutoPopup*>::iterator it=m_pScreenHistory_Current->GetObj()->m_listPopups.begin();it!=m_pScreenHistory_Current->GetObj()->m_listPopups.end();++it)
-			RenderPopup(*it, (*it)->m_Position);
-	}
-
-	cm.Release(  );
-#if ( defined( PROFILING ) )
-	clock_t clkFinished = clock();
-	if(  m_pScreenHistory_Current   )
-	{
-		g_pPlutoLogger->Write( LV_CONTROLLER, "Render screen: %s took %d ms",
-			m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ), clkFinished-clkStart );
-	}
-#endif
-
-	if( bRenderGraphicsOnly )
-		return;
-
-#ifdef DEBUG
-	g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s finished", m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
-#endif
-}
-
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RedrawObjects(  )
 {
@@ -772,7 +727,7 @@ void Orbiter::RealRedraw( void *data )
 		m_vectTexts_NeedRedraw.clear();
 		nd.Release();
 
-		RenderScreen( !m_bRerenderScreen );  // If !m_bRerenderScreen, then only redraw objects because we're just rendering the whole screen because of the popup
+		m_pOrbiterRenderer->RenderScreen( !m_bRerenderScreen );  // If !m_bRerenderScreen, then only redraw objects because we're just rendering the whole screen because of the popup
 		if(NULL != m_pObj_Highlighted)
 			DoHighlightObject();
 
@@ -790,7 +745,7 @@ void Orbiter::RealRedraw( void *data )
 	if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size() == 0)
 		return;
 
-	BeginPaint();
+	m_pOrbiterRenderer->BeginPaint();
 	size_t s;
 
 	bool bRehighlight=false;
@@ -817,7 +772,7 @@ void Orbiter::RealRedraw( void *data )
 				UnHighlightObject();
 			}
 			RenderObject( pObj, m_pScreenHistory_Current->GetObj(), AbsolutePosition );
-			UpdateRect(pObj->m_rPosition, AbsolutePosition);
+			m_pOrbiterRenderer->UpdateRect(pObj->m_rPosition, AbsolutePosition);
 		}
 	}
 
@@ -829,13 +784,13 @@ void Orbiter::RealRedraw( void *data )
 		if( pTextStyle )
 		{
 			if(NULL != m_pActivePopup)
-				SolidRectangle( m_pActivePopup->m_Position.X + pText->m_rPosition.Left(),  m_pActivePopup->m_Position.Y + pText->m_rPosition.Top(), pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
+				m_pOrbiterRenderer->SolidRectangle( m_pActivePopup->m_Position.X + pText->m_rPosition.Left(),  m_pActivePopup->m_Position.Y + pText->m_rPosition.Top(), pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
 			else
-				SolidRectangle( pText->m_rPosition.Left(),  pText->m_rPosition.Top(), pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
+				m_pOrbiterRenderer->SolidRectangle( pText->m_rPosition.Left(),  pText->m_rPosition.Top(), pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
 
 			string TextToDisplay = SubstituteVariables(SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0), pText->m_pObject, 0, 0).c_str();
-			RenderText(TextToDisplay,pText, pTextStyle, AbsolutePosition);
-			UpdateRect(pText->m_rPosition, AbsolutePosition);
+			m_pOrbiterRenderer->RenderText(TextToDisplay,pText, pTextStyle, AbsolutePosition);
+			m_pOrbiterRenderer->UpdateRect(pText->m_rPosition, AbsolutePosition);
 		}
 		else
 		{
@@ -860,7 +815,7 @@ void Orbiter::RealRedraw( void *data )
 
 	m_vectObjs_NeedRedraw.clear();
 	m_vectTexts_NeedRedraw.clear();
-	EndPaint();
+	m_pOrbiterRenderer->EndPaint();
 }
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
@@ -1148,19 +1103,19 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		PROFILE_START( ctText );
 		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
 		string TextToDisplay = SubstituteVariables(SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0), pText->m_pObject, 0, 0);
-		RenderText( TextToDisplay, pText, pTextStyle, point );
+		m_pOrbiterRenderer->RenderText( TextToDisplay, pText, pTextStyle, point );
 		PROFILE_STOP( ctText,  "Text ( obj below )" );
 	}
 	if( pObj->m_pFloorplanObject && m_mapDevice_Selected.find(pObj->m_pFloorplanObject->PK_Device)!=m_mapDevice_Selected.end() )
 	{
 		int i;
 		for(i = 0; i < 4; ++i)
-			HollowRectangle(point.X + pObj->m_rBackgroundPosition.X-i, point.Y + pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i,
+			m_pOrbiterRenderer->HollowRectangle(point.X + pObj->m_rBackgroundPosition.X-i, point.Y + pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i,
 			(i==1 || i==2 ? PlutoColor::Black() : PlutoColor::White()));
 
 		//force an update because the object boundaries are not respected
 		PlutoRectangle rect(point.X + pObj->m_rBackgroundPosition.X-i, point.Y + pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i);
-		UpdateRect(rect, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));
+		m_pOrbiterRenderer->UpdateRect(rect, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));
 	}
 
 	if(m_bShowShortcuts && pObj->m_iPK_Button)
@@ -1213,14 +1168,14 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 	if ( w>4 && h >4 )
 	{
 		if ( !bTransparentCell )
-			SolidRectangle( point.X + x,  point.Y + y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor);
+			m_pOrbiterRenderer->SolidRectangle( point.X + x,  point.Y + y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor);
 
 		if ( pCell->m_pGraphicData )
 		{
-			PlutoGraphic *pPlutoGraphic = CreateGraphic();
+			PlutoGraphic *pPlutoGraphic = m_pOrbiterRenderer->CreateGraphic();
 			pPlutoGraphic->m_GraphicFormat = pCell->m_GraphicFormat;
 			pPlutoGraphic->LoadGraphic(pCell->m_pGraphicData,  pCell->m_GraphicLength, m_iRotation);
-			RenderGraphic(pPlutoGraphic, PlutoRectangle(x,  y,  w,  h), pObj->m_bDisableAspectLock, point );
+			m_pOrbiterRenderer->RenderGraphic(pPlutoGraphic, PlutoRectangle(x,  y,  w,  h), pObj->m_bDisableAspectLock, point );
 			delete pPlutoGraphic;
 		}
 g_pPlutoLogger->Write(LV_WARNING,"Rendering cell with %s",pCell->GetText());        
@@ -1240,7 +1195,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Rendering cell with %s",pCell->GetText());
 		Text.m_iPK_VertAlignment = pTextStyle->m_iPK_VertAlignment;
 
 		string sText = SubstituteVariables(pCell->GetText(  ),pObj,0,0);
-		RenderText( sText, &Text, pTextStyle, point );
+		m_pOrbiterRenderer->RenderText( sText, &Text, pTextStyle, point );
 	}
 	else
 		g_pPlutoLogger->Write( LV_WARNING,  "Datagrid width or height is too small" );
@@ -1278,7 +1233,7 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj, PlutoPoint point )
 	if( !pObj->m_pDataGridTable )
 		return;
 
-	SolidRectangle( point.X + pObj->m_rPosition.X, point.Y + pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 0 ) );
+	m_pOrbiterRenderer->SolidRectangle( point.X + pObj->m_rPosition.X, point.Y + pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 0 ) );
 
 	// short for "number of ARRow ROWS": ArrRows
 	// last screen exception: we consider one up arrow as not being there so we don't skip a row when we scroll up
@@ -1773,7 +1728,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 
 			if(pPlutoGraphic->m_GraphicFormat != GR_MNG)
 			{
-				SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 				if(  !pObj->m_bDontResetState  )
 					CallMaintenanceInMiliseconds( 500, &Orbiter::DeselectObjects, ( void * ) pObj, pe_NO );
 			}
@@ -2581,24 +2536,24 @@ if( m_pObj_Highlighted->m_ObjectID.find("4976")!=string::npos )
 	m_rectLastHighlight.Width++;  // GetBackground always seems to be 1 pixel to little
 	m_rectLastHighlight.Height++;
 
-	m_pGraphicBeforeHighlight = GetBackground(m_rectLastHighlight);
+	m_pGraphicBeforeHighlight = m_pOrbiterRenderer->GetBackground(m_rectLastHighlight);
 
 	PlutoGraphic *pPlutoGraphic = m_pGraphicBeforeHighlight->GetHighlightedVersion();
 	if(pPlutoGraphic)
 	{
-		RenderGraphic(pPlutoGraphic, m_rectLastHighlight);
+		m_pOrbiterRenderer->RenderGraphic(pPlutoGraphic, m_rectLastHighlight);
 		delete pPlutoGraphic;
 		pPlutoGraphic = NULL;
 	}
 
 	for(int i = 0; i < 4; i++)
-        HollowRectangle(
+        m_pOrbiterRenderer->HollowRectangle(
 			m_rectLastHighlight.X + i, m_rectLastHighlight.Y + i,
 			m_rectLastHighlight.Width - 2 * i - 2, m_rectLastHighlight.Height - 2 * i - 2,
 			i < 2 ? PlutoColor::Red() : PlutoColor::White()
 		);
 
-	UpdateRect(m_rectLastHighlight);
+	m_pOrbiterRenderer->UpdateRect(m_rectLastHighlight);
 }
 
 /*virtual*/ void Orbiter::UnHighlightObject( bool bDeleteOnly )
@@ -2610,8 +2565,8 @@ if( m_pObj_Highlighted->m_ObjectID.find("4976")!=string::npos )
 
 	if( !bDeleteOnly && m_pObj_Highlighted)
 	{
-		RenderGraphic(m_pGraphicBeforeHighlight, m_rectLastHighlight);
-		UpdateRect(m_rectLastHighlight);
+		m_pOrbiterRenderer->RenderGraphic(m_pGraphicBeforeHighlight, m_rectLastHighlight);
+		m_pOrbiterRenderer->UpdateRect(m_rectLastHighlight);
 	}
 
 	delete m_pGraphicBeforeHighlight;
@@ -2623,7 +2578,7 @@ if( m_pObj_Highlighted->m_ObjectID.find("4976")!=string::npos )
 {
 	if(sbNoSelection != m_nSelectionBehaviour)
 		for(int i = 0; i < 4; i++)
-			HollowRectangle(
+			m_pOrbiterRenderer->HollowRectangle(
 				point.X + pObj->m_rBackgroundPosition.X + i, point.Y + pObj->m_rBackgroundPosition.Y + i,
 				pObj->m_rBackgroundPosition.Width - 2 * i - 2, pObj->m_rBackgroundPosition.Height - 2 * i - 2,
 				i < 2 ? PlutoColor::Blue() : PlutoColor::White()
@@ -3095,7 +3050,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 	char * pData = FileUtils::ReadFileIntoBuffer("/usr/pluto/orbiter/skins/Basic/menu2/OrbiterBkg.png", iSize);
 	if (pData)
 	{
-		m_pBackgroundImage = CreateGraphic();
+		m_pBackgroundImage = m_pOrbiterRenderer->CreateGraphic();
 		m_pBackgroundImage->LoadGraphic(pData, iSize);
 		delete [] pData;
 	}
@@ -3204,7 +3159,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				if ( !iSizeConfigFile )
 				{
 					g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to get Orbiter data" );
-					PromptUser("I cannot read the Orbiter configuration from the server.  I'll try to regenerate it");
+					m_pOrbiterRenderer->PromptUser("I cannot read the Orbiter configuration from the server.  I'll try to regenerate it");
 					RegenOrbiter();
 					Sleep(2000);
 					OnQuit();
@@ -3215,7 +3170,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				if(  !SerializeRead( iSizeConfigFile, pConfigFile, ( void * ) this ) || !ParseConfigurationData( Type ) )
 				{
 					delete pMessage;
-					PromptUser("The Orbiter configuration from the server is corrupt.  I'll try to regenerate it");
+					m_pOrbiterRenderer->PromptUser("The Orbiter configuration from the server is corrupt.  I'll try to regenerate it");
 					RegenOrbiter();
 					Sleep(2000);
 					OnQuit();
@@ -3276,7 +3231,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			if(  !m_pLocationInfo_Initial  )
 			{
 				g_pPlutoLogger->Write( LV_CRITICAL, "No initial Location" );
-				PromptUser("Something went very wrong. No initial location!");
+				m_pOrbiterRenderer->PromptUser("Something went very wrong. No initial location!");
 				exit( 1 );
 			}
 #ifdef DEBUG
@@ -3290,7 +3245,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			if ( iHao==m_ScreenMap.end(  ) )
 			{
 				g_pPlutoLogger->Write( LV_CRITICAL, "No screens found." );
-				PromptUser("Something went very wrong. No screens found!");
+				m_pOrbiterRenderer->PromptUser("Something went very wrong. No screens found!");
 				exit( 1 );
 			}
 			else if( m_sInitialScreen.size() )
@@ -3328,7 +3283,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			if( !SendCommand( CMD_Orbiter_Registered ) )
 			{
 				g_pPlutoLogger->Write( LV_CRITICAL, "Cannot register with router" );
-				PromptUser("Orbiter cannot register with the router. Please try again later.");
+				m_pOrbiterRenderer->PromptUser("Orbiter cannot register with the router. Please try again later.");
 
 				exit(1);
 				return;
@@ -3346,7 +3301,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		if( !m_pScreenHistory_Current )
 		{
 			g_pPlutoLogger->Write( LV_CRITICAL, "No initial screen" );
-			PromptUser("Something went very wrong. No initial screen!");
+			m_pOrbiterRenderer->PromptUser("Something went very wrong. No initial screen!");
 			OnQuit();
 			return;
 		}
@@ -3634,15 +3589,15 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 
 	enum eGraphicManagement eMgmt = GR_DISCARDONCHANGE;
 	if(  pObj->m_sBackgroundFile.length(  )>0  )
-		CreateVectorGraphic(pObj->m_vectGraphic, Type,  pObj->m_sBackgroundFile,  eMgmt,  this );
+		CreateVectorGraphic(pObj->m_vectGraphic, Type,  pObj->m_sBackgroundFile,  eMgmt,  m_pOrbiterRenderer );
 	if(  pObj->m_sHighlightGraphicFilename.length(  )>0  )
-		CreateVectorGraphic(pObj->m_vectHighlightedGraphic, Type,  pObj->m_sHighlightGraphicFilename,  eMgmt,  this );
+		CreateVectorGraphic(pObj->m_vectHighlightedGraphic, Type,  pObj->m_sHighlightGraphicFilename,  eMgmt,  m_pOrbiterRenderer );
 	if(  pObj->m_sSelectedFile.length(  )>0  )
-		CreateVectorGraphic(pObj->m_vectSelectedGraphic, Type,  pObj->m_sSelectedFile,  eMgmt,  this );
+		CreateVectorGraphic(pObj->m_vectSelectedGraphic, Type,  pObj->m_sSelectedFile,  eMgmt,  m_pOrbiterRenderer );
 	for( size_t salt=0;salt<pObj->m_vectAltGraphicFilename.size(  );++salt )
 	{
 		VectorPlutoGraphic vectPlutoGraphic;
-		CreateVectorGraphic(vectPlutoGraphic, Type,  pObj->m_vectAltGraphicFilename[salt],  eMgmt,  this);
+		CreateVectorGraphic(vectPlutoGraphic, Type,  pObj->m_vectAltGraphicFilename[salt],  eMgmt,  m_pOrbiterRenderer);
 		pObj->m_vectAltGraphics.push_back( vectPlutoGraphic );
 	}
 
@@ -3779,7 +3734,7 @@ bool Orbiter::RenderDesktop( class DesignObj_Orbiter *pObj,  PlutoRectangle rect
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "Render desktop orb" );
 #endif
-	SolidRectangle( point.X + pObj->m_rPosition.X, point.Y + pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 255 ) );
+	m_pOrbiterRenderer->SolidRectangle( point.X + pObj->m_rPosition.X, point.Y + pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 255 ) );
 	if( pObj->m_mapObjParms_Find(DESIGNOBJPARAMETER_In_Background_CONST)=="1" )
 		int k=2;  // Do in background
 	return true;
@@ -3815,8 +3770,6 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 	// a switch would be good but kdevelop somehow doesn't like the syntax and mekes it red :-(
 	if ( event.type != Orbiter::Event::QUIT && event.type != Orbiter::Event::NOT_PROCESSED )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Processing event type: %d", event.type);
-
 		if ( event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP )
 			g_pPlutoLogger->Write(LV_STATUS, "Button %s: button ID: %d", (event.type == Orbiter::Event::BUTTON_DOWN) ? "down" : "up", event.data.button.m_iPK_Button );
 
@@ -5123,35 +5076,35 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			m_pObj_NowPlayingOnScreen=pObj;
 g_pPlutoLogger->Write(LV_CRITICAL,"now playing active popup 8 now %p",m_pActivePopup);
 			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
-				SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
 		else if(  Variable=="NP_SEC" )
 		{
 			Output += m_sNowPlaying_Section;
 			m_pObj_NowPlaying_Section_OnScreen=pObj;
 			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
-				SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
 		else if(  Variable=="NP_TIME_SHORT" )
 		{
 			Output += m_sNowPlaying_TimeShort;
 			m_pObj_NowPlaying_TimeShort_OnScreen=pObj;
 			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
-				SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
 		else if(  Variable=="NP_TIME_LONG" )
 		{
 			Output += m_sNowPlaying_TimeLong;
 			m_pObj_NowPlaying_TimeLong_OnScreen=pObj;
 			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
-				SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
 		else if(  Variable=="NP_SPEED" )
 		{
 			Output += m_sNowPlaying_Speed;
 			m_pObj_NowPlaying_Speed_OnScreen=pObj;
 			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
-				SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
 		else if(  Variable=="NPD" )
 		{
@@ -6373,7 +6326,7 @@ void Orbiter::CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string 
 	pObj->m_GraphicToDisplay=atoi( sID.c_str(  ) );
 	if(  pObj->m_GraphicToDisplay==GRAPHIC_SELECTED  )
 	{
-		SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0) );  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+		m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0) );  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		m_vectObjs_Selected.push_back( pObj );
 	}
 
@@ -6677,7 +6630,7 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
 		return;
 	}
 
-	PlutoGraphic *pPlutoGraphic = CreateGraphic();
+	PlutoGraphic *pPlutoGraphic = m_pOrbiterRenderer->CreateGraphic();
 
 	if(sType == "bmp")
 		pPlutoGraphic->m_GraphicFormat = GR_BMP;
@@ -7276,7 +7229,7 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 						fpObj->pObj->m_ObjectID.c_str(),fpObj->pObj->m_rBackgroundPosition.X,fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
 						fpObj->pObj->m_rBackgroundPosition.Height, (int) Color);
 #endif
-					ReplaceColorInRectangle(point.X + fpObj->pObj->m_rBackgroundPosition.X, point.Y + fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
+					m_pOrbiterRenderer->ReplaceColorInRectangle(point.X + fpObj->pObj->m_rBackgroundPosition.X, point.Y + fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
 						fpObj->pObj->m_rBackgroundPosition.Height, Magenta, Color);
 
 				}
@@ -7654,21 +7607,21 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
 
-	BeginPaint();
+	m_pOrbiterRenderer->BeginPaint();
 	PlutoColor color(255, 0, 0, 100);
-	SolidRectangle(x - 5, y - 5, 10, 10, color);
-	UpdateRect(PlutoRectangle(x - 5, y - 5, 10, 10), PlutoPoint(0, 0));
+	m_pOrbiterRenderer->SolidRectangle(x - 5, y - 5, 10, 10, color);
+	m_pOrbiterRenderer->UpdateRect(PlutoRectangle(x - 5, y - 5, 10, 10), PlutoPoint(0, 0));
 
 	//render current screen id
-	SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color);
+	m_pOrbiterRenderer->SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color);
 	PlutoRectangle rect2(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25);
 	DesignObjText text2(m_pScreenHistory_Current->GetObj());
 	text2.m_rPosition = rect2;
 	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
 	string sText = "Current screen: " + this->GetCurrentScreenID();
-	RenderText(sText,&text2, pTextStyle);
-	UpdateRect(PlutoRectangle(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25), PlutoPoint(0, 0));
-	EndPaint();
+	m_pOrbiterRenderer->RenderText(sText,&text2, pTextStyle);
+	m_pOrbiterRenderer->UpdateRect(PlutoRectangle(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25), PlutoPoint(0, 0));
+	m_pOrbiterRenderer->EndPaint();
 
 	RegionDown(x, y);
 }
@@ -7685,28 +7638,28 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
 
-	BeginPaint();
+	m_pOrbiterRenderer->BeginPaint();
 
 	//render a text with the
 	PlutoColor color(200, 200, 200, 100);
-	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color);
+	m_pOrbiterRenderer->SolidRectangle(5, m_iImageHeight - 30, 200, 25, color);
 	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
 	DesignObjText text(m_pScreenHistory_Current->GetObj());
 	text.m_rPosition = rect;
 	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
 	string sText = "Key code: " + StringUtils::ltos(key);
-	RenderText(sText,&text, pTextStyle);
+	m_pOrbiterRenderer->RenderText(sText,&text, pTextStyle);
 
 	//render current screen id
 	PlutoColor color2(255, 0, 0, 100);
-	SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color2);
+	m_pOrbiterRenderer->SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color2);
 	PlutoRectangle rect2(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25);
 	DesignObjText text2(m_pScreenHistory_Current->GetObj());
 	text2.m_rPosition = rect2;
 	sText = "Current screen: " + this->GetCurrentScreenID();
-	RenderText(sText,&text2, pTextStyle);
-	UpdateRect(PlutoRectangle(5, m_iImageHeight - 30, 200, 25), PlutoPoint(0, 0));
-	EndPaint();
+	m_pOrbiterRenderer->RenderText(sText,&text2, pTextStyle);
+	m_pOrbiterRenderer->UpdateRect(PlutoRectangle(5, m_iImageHeight - 30, 200, 25), PlutoPoint(0, 0));
+	m_pOrbiterRenderer->EndPaint();
 
 	HandleButtonEvent(key);
 	StopRepeatRelatedEvents();
@@ -7884,7 +7837,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 					if(iFrameSize)
 					{
-						PlutoGraphic *pGraphic = CreateGraphic();
+						PlutoGraphic *pGraphic = m_pOrbiterRenderer->CreateGraphic();
 						pGraphic->m_GraphicManagement = eGM;
 						pGraphic->m_Filename = sMNGFileName;
 						pGraphic->m_GraphicFormat = GR_PNG; //this is an mng with multiple png frames
@@ -7943,7 +7896,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	}
 
 	if(!pPlutoGraphic->IsEmpty())
-		RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
+		m_pOrbiterRenderer->RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
 #ifdef DEBUG
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", pObj->m_ObjectID.c_str());
@@ -8028,15 +7981,15 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 	if(!pPlutoGraphic->IsEmpty())
 	{
-		BeginPaint();
-		RenderGraphic(pPlutoGraphic, pObj->m_rBackgroundPosition, pObj->m_bDisableAspectLock);
+		m_pOrbiterRenderer->BeginPaint();
+		m_pOrbiterRenderer->RenderGraphic(pPlutoGraphic, pObj->m_rBackgroundPosition, pObj->m_bDisableAspectLock);
 
 		PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 		if(pObj == m_pObj_Highlighted)
 			DoHighlightObject();
 
-		UpdateRect(pObj->m_rPosition, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));
-		EndPaint();
+		m_pOrbiterRenderer->UpdateRect(pObj->m_rPosition, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));
+		m_pOrbiterRenderer->EndPaint();
 	}
 
 	pObj->m_iCurrentFrame++;
@@ -8300,17 +8253,17 @@ void Orbiter::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Me
 void Orbiter::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 //<-dceag-c193-e->
 {
-	BeginPaint();
+	m_pOrbiterRenderer->BeginPaint();
 	PlutoColor color(200, 200, 200, 100);
-	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color);
+	m_pOrbiterRenderer->SolidRectangle(5, m_iImageHeight - 30, 200, 25, color);
 	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
 	DesignObjText text(m_pScreenHistory_Current->GetObj());
 	text.m_rPosition = rect;
 	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
 	string sText = "Display is OFF";
-	RenderText(sText,&text, pTextStyle);
-	UpdateRect(PlutoRectangle(5, m_iImageHeight - 30, 200, 25), PlutoPoint(0, 0));
-	EndPaint();
+	m_pOrbiterRenderer->RenderText(sText,&text, pTextStyle);
+	m_pOrbiterRenderer->UpdateRect(PlutoRectangle(5, m_iImageHeight - 30, 200, 25), PlutoPoint(0, 0));
+	m_pOrbiterRenderer->EndPaint();
 }
 //<-dceag-c330-b->
 
@@ -8371,7 +8324,7 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 
 	if( iSC_Version>ORBITER_SCHEMA )
 	{
-		PromptUser("I'm sorry.  This version of Orbiter is too old.  It uses schema " + StringUtils::itos(ORBITER_SCHEMA)
+		m_pOrbiterRenderer->PromptUser("I'm sorry.  This version of Orbiter is too old.  It uses schema " + StringUtils::itos(ORBITER_SCHEMA)
 			+ " instead of " + StringUtils::itos(iSC_Version) + ".  Please install a newer version.");
 		OnQuit();
 		exit(0);
@@ -8382,7 +8335,7 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 		enum PromptsResp {prYes, prNo};
 		mapPrompts[prYes]    = "Yes";
 		mapPrompts[prNo]     = "No";
-		int iResponse = PromptUser("The user interface which your Core generated (" + StringUtils::itos(iSC_Version) + ") is too old for this Orbiter(" + StringUtils::itos(ORBITER_SCHEMA) + ").  Shall I ask the Core to rebuild it now?",0,&mapPrompts);
+		int iResponse = m_pOrbiterRenderer->PromptUser("The user interface which your Core generated (" + StringUtils::itos(iSC_Version) + ") is too old for this Orbiter(" + StringUtils::itos(ORBITER_SCHEMA) + ").  Shall I ask the Core to rebuild it now?",0,&mapPrompts);
 		if( iResponse==prNo )
 		{
 			OnQuit();
@@ -8531,22 +8484,6 @@ void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)
 	if(pPopup->m_pObj)
 	{
 		RenderObject(pPopup->m_pObj, pPopup->m_pObj, point);
-
-#ifdef USE_POPUPMANAGER
-		g_pPlutoLogger->Write(LV_CRITICAL, "Popup: task refresh", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
-
-		PopupBitmapCallBackData *pCallBackData = new PopupBitmapCallBackData();
-		pCallBackData->m_rectPosition = pPopup->m_pObj->m_rPosition;
-		pCallBackData->m_rectPosition.X = pPopup->m_Position.X;
-		pCallBackData->m_rectPosition.Y = pPopup->m_Position.Y;
-		pCallBackData->m_ulPopupID = m_mapPopupDialogs[pPopup];
-
-		PlutoGraphic *pPlutoGraphic = GetBackground(pCallBackData->m_rectPosition);
-		pPlutoGraphic->GetInMemoryBitmap(pCallBackData->m_pRawBitmapData, pCallBackData->m_ulSize);
-		delete pPlutoGraphic;
-
-		PopupManager::Instance().RefreshPopup(pCallBackData->m_ulPopupID, pCallBackData);
-#endif
 	}
 	else
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot render the popup %s: object %s doesn't exist", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
@@ -8631,22 +8568,6 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 	if( !bSuccessful )
 		return; // Popup must have already been there
 
-#ifdef USE_POPUPMANAGER
-	g_pPlutoLogger->Write(LV_CRITICAL, "Popup: task create", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
-
-	PopupCallBackData *pCallBackData = new PopupCallBackData();
-	pCallBackData->m_rectPosition = pPopup->m_pObj->m_rPosition;
-	pCallBackData->m_rectPosition.X = iPosition_X;
-	pCallBackData->m_rectPosition.Y = iPosition_Y;
-	unsigned long ulPopupId = 0;
-	PopupManager::Instance().CreatePopup(
-		PopupManager::Instance().GetDialogTypeOfPopupObj(pPopup->m_pObj->m_iBaseObjectID), 
-		pCallBackData, 
-		ulPopupId
-	);
-	m_mapPopupDialogs[pPopup] = ulPopupId;
-#endif
-
 	ResetState(pObj_Popup);
 
 	VectDesignObj_Orbiter vectDesignObj_Orbiter_OnScreen;
@@ -8706,18 +8627,6 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 					g_pPlutoLogger->Write(LV_CRITICAL,"active popup 6 now %p",m_pActivePopup);
 				}
 
-#ifdef USE_POPUPMANAGER
-				PlutoPopup *pPopup = *it;
-				g_pPlutoLogger->Write(LV_CRITICAL, "Popup: task delete", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
-				PopupCallBackData *pCallBackData = new PopupCallBackData();
-				pCallBackData->m_rectPosition = pPopup->m_pObj->m_rPosition;
-				pCallBackData->m_rectPosition.X = pPopup->m_Position.X;
-				pCallBackData->m_rectPosition.Y = pPopup->m_Position.Y;
-				pCallBackData->m_ulPopupID = m_mapPopupDialogs[pPopup];
-				PopupManager::Instance().ClosePopup(pCallBackData->m_ulPopupID, pCallBackData);
-				m_mapPopupDialogs.erase(pPopup);
-#endif
-
 				delete *it;
 				pObj->m_listPopups.erase(it);
 				break;
@@ -8740,18 +8649,6 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 					m_pActivePopup=NULL;
 					g_pPlutoLogger->Write(LV_CRITICAL,"active popup 7 now %p",m_pActivePopup);
 				}
-
-#ifdef USE_POPUPMANAGER
-				PlutoPopup *pPopup = *it;
-				g_pPlutoLogger->Write(LV_CRITICAL, "Popup: task delete", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
-				PopupCallBackData *pCallBackData = new PopupCallBackData();
-				pCallBackData->m_rectPosition = pPopup->m_pObj->m_rPosition;
-				pCallBackData->m_rectPosition.X = pPopup->m_Position.X;
-				pCallBackData->m_rectPosition.Y = pPopup->m_Position.Y;
-				pCallBackData->m_ulPopupID = m_mapPopupDialogs[pPopup];
-				PopupManager::Instance().ClosePopup(pCallBackData->m_ulPopupID, pCallBackData);
-				m_mapPopupDialogs.erase(pPopup);
-#endif
 
 				delete *it;
 				m_listPopups.erase(it);
@@ -9461,7 +9358,7 @@ void Orbiter::RenderShortcut(DesignObj_Orbiter *pObj)
 		DesignObjText text(m_pScreenHistory_Current->GetObj());
 		text.m_rPosition = rect;
 
-		RenderText(sCharToRender,&text, pTextStyle);
+		m_pOrbiterRenderer->RenderText(sCharToRender,&text, pTextStyle);
 		pTextStyle->m_iPixelHeight -= 15;
 		pTextStyle->m_ForeColor = OldColor;
 	}
@@ -9479,7 +9376,7 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 		enum PromptsResp {prYes, prNo};
 		mapPrompts[prYes]    = "Yes - Reset it now";
 		mapPrompts[prNo]     = "No - I'll do it later";
-		int iResponse = PromptUser("This new Orbiter is ready to go.  But all your devices need to do a reload before you can use it.  This takes about 15 seconds.", 0, &mapPrompts);
+		int iResponse = m_pOrbiterRenderer->PromptUser("This new Orbiter is ready to go.  But all your devices need to do a reload before you can use it.  This takes about 15 seconds.", 0, &mapPrompts);
 		if( iResponse==prYes )
 		{
 			string sResponse;
@@ -9503,7 +9400,7 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 	}
 	else if( sStatus=="n" )
 	{
-		PromptUser("Something went wrong and this orbiter's user interface wasn't created.  In Pluto Admin, go to Wizard, Devices, Orbiters and click Regen for Orbiter #" + StringUtils::itos(m_dwPK_Device) + " and try later");
+		m_pOrbiterRenderer->PromptUser("Something went wrong and this orbiter's user interface wasn't created.  In Pluto Admin, go to Wizard, Devices, Orbiters and click Regen for Orbiter #" + StringUtils::itos(m_dwPK_Device) + " and try later");
 		OnQuit();
 		exit(0);
 		return 0;
@@ -9517,9 +9414,9 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 
 		int iResponse = prNo;
 		if( sStatus=="D" )
-			iResponse = PromptUser("Something went wrong. The device number, " + StringUtils::itos(m_dwPK_Device) + ", doesn't seem to be an orbiter.  Reset the device number and try next time to determine it automatically?",0,&mapPrompts);
+			iResponse = m_pOrbiterRenderer->PromptUser("Something went wrong. The device number, " + StringUtils::itos(m_dwPK_Device) + ", doesn't seem to be an orbiter.  Reset the device number and try next time to determine it automatically?",0,&mapPrompts);
 		else
-			iResponse = PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", is not known to the Core.  Reset the device number and try next time to determine it automatically?",0,&mapPrompts);
+			iResponse = m_pOrbiterRenderer->PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", is not known to the Core.  Reset the device number and try next time to determine it automatically?",0,&mapPrompts);
 
 		if( iResponse==prYes )
 		{
@@ -9550,7 +9447,7 @@ bool Orbiter::RouterNeedsReload()
 		if(pResponse)
 			delete pResponse;
 
-		PromptUser("Sorry.  There is a problem creating the new orbiter");
+		m_pOrbiterRenderer->PromptUser("Sorry.  There is a problem creating the new orbiter");
 		return 0;
 	}
 	CMD_Get_Orbiter_Status_DT.ParseResponse( pResponse );
@@ -9565,7 +9462,7 @@ int Orbiter::DeviceIdInvalid()
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::DeviceIdInvalid");
 	if( m_dwPK_Device )
 	{
-		PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", is reported as invalid.");
+		m_pOrbiterRenderer->PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", is reported as invalid.");
 		OnQuit();
 		exit(0);
 		return 0;
@@ -9584,7 +9481,7 @@ int Orbiter::DeviceIdInvalid()
 		mapPrompts[prYes]    = "Yes - This is a new Orbiter";
 		mapPrompts[prNo]     = "No - There is already a Device ID for this Orbiter";
 		mapPrompts[prCancel] = "Cancel";
-		int iResponse = PromptUser("This seems to be a new Orbiter.  Shall I set it up for you?", 0, &mapPrompts);
+		int iResponse = m_pOrbiterRenderer->PromptUser("This seems to be a new Orbiter.  Shall I set it up for you?", 0, &mapPrompts);
 		if( iResponse == prCancel || PROMPT_CANCEL == iResponse )
 		{
 			OnQuit();
@@ -9618,46 +9515,7 @@ int Orbiter::PickOrbiterDeviceID()
 {
 	map<int,string> mapDevices;
 	GetDevicesByCategory(DEVICECATEGORY_Orbiter_CONST,&mapDevices);
-	return PromptUser("Which Orbiter is this?  Be careful.  Don't choose an Orbiter that is running on another device or it will be disconnected when this one connects.",0, &mapDevices);
-}
-//-----------------------------------------------------------------------------------------------------
-/*virtual*/ int Orbiter::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> *p_mapPrompts)
-{
-#ifndef WIN32
-	return PROMPT_CANCEL;  // TEMP TODO HACK -- we need to implement this for Linux SDL
-#endif
-
-#ifndef WINCE
-	map<int,int> mapResponse;
-	cout << sPrompt << endl;
-	int iCount=1;
-
-	if( p_mapPrompts )
-	{
-		for(map<int,string>::iterator it=p_mapPrompts->begin();it!=p_mapPrompts->end();++it)
-		{
-			mapResponse[iCount]=it->first;
-			cout << StringUtils::itos(iCount++) + ". " + it->second << endl;
-		}
-
-		cout << endl
-			<< "Please choose: ";
-	}
-	else
-		cout << "Press Enter to continue";
-
-	int iResponse=0;
-	while(true)
-	{
-		cin >> iResponse;
-		if( !p_mapPrompts )
-			return 0;
-		if( iResponse>0 && iResponse<=int(mapResponse.size()) )
-			return mapResponse[iResponse];
-		cout << endl << "Invalid.  Please try again: ";
-	}
-#endif
-	return PROMPT_CANCEL;
+	return m_pOrbiterRenderer->PromptUser("Which Orbiter is this?  Be careful.  Don't choose an Orbiter that is running on another device or it will be disconnected when this one connects.",0, &mapDevices);
 }
 //-----------------------------------------------------------------------------------------------------
 int Orbiter::SetupNewOrbiter()
@@ -9679,19 +9537,19 @@ int Orbiter::SetupNewOrbiter()
 
 	g_pPlutoLogger->Write(LV_STATUS,"SetupNewOrbiter prompting for inputs");
 
-	int PK_Users = PromptFor("Users");
+	int PK_Users = m_pOrbiterRenderer->PromptFor("Users");
 	if( PROMPT_CANCEL == PK_Users )
 		return 0;
 
-	int PK_Room = PromptFor("Room");
+	int PK_Room = m_pOrbiterRenderer->PromptFor("Room");
 	if( PROMPT_CANCEL == PK_Room )
 		return 0;
 
-	int PK_Skin = PromptFor("Skin");
+	int PK_Skin = m_pOrbiterRenderer->PromptFor("Skin");
 	if( PROMPT_CANCEL == PK_Skin )
 		return 0;
 
-	int PK_Language = PromptFor("Language");
+	int PK_Language = m_pOrbiterRenderer->PromptFor("Language");
 	if( PROMPT_CANCEL == PK_Language )
 		return 0;
 
@@ -9719,7 +9577,7 @@ int Orbiter::SetupNewOrbiter()
 #endif
 
 	int PK_Size=0;
-	PK_Size=PromptFor("Size");
+	PK_Size=m_pOrbiterRenderer->PromptFor("Size");
 	if( PROMPT_CANCEL == PK_Size)
 		return 0;
 
@@ -9735,7 +9593,7 @@ int Orbiter::SetupNewOrbiter()
 			delete pResponse;
 
 		g_pPlutoLogger->Write(LV_CRITICAL,"SetupNewOrbiter unable to create orbiter");
-		PromptUser("Sorry.  There is a problem creating the new orbiter.  Please check the logs.");
+		m_pOrbiterRenderer->PromptUser("Sorry.  There is a problem creating the new orbiter.  Please check the logs.");
 		return 0;
 	}
 	CMD_New_Orbiter_DT.ParseResponse( pResponse );
@@ -9744,7 +9602,7 @@ int Orbiter::SetupNewOrbiter()
 	if( !PK_Device )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"SetupNewOrbiter unable to create orbiter #2");
-		PromptUser("Sorry.  Orbiter Plugin could not create the device for some reason.  Please check the logs.");
+		m_pOrbiterRenderer->PromptUser("Sorry.  Orbiter Plugin could not create the device for some reason.  Please check the logs.");
 		return 0;
 	}
 
@@ -9784,8 +9642,8 @@ int Orbiter::MonitorRegen(int PK_Device)
 				delete pResponse;
 
 			g_pPlutoLogger->Write(LV_CRITICAL,"MonitorRegen - unable to check status");
-			DisplayProgress("",-1);
-			PromptUser("Sorry.  There is a problem creating the new orbiter");
+			m_pOrbiterRenderer->DisplayProgress("",-1);
+			m_pOrbiterRenderer->PromptUser("Sorry.  There is a problem creating the new orbiter");
 			return 0;
 		}
 		CMD_Get_Orbiter_Status_DT.ParseResponse( pResponse );
@@ -9797,73 +9655,17 @@ int Orbiter::MonitorRegen(int PK_Device)
 			break;
 		}
 
-		if( DisplayProgress(sRegenStatus,iRegenPercent) )
+		if( m_pOrbiterRenderer->DisplayProgress(sRegenStatus,iRegenPercent) )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"MonitorRegen - User cancelled");
-			DisplayProgress("",-1);
+			m_pOrbiterRenderer->DisplayProgress("",-1);
 			return 0; // Don't try to start
 		}
 		Sleep(5000);
 	}
 
-	DisplayProgress("",-1);
+	m_pOrbiterRenderer->DisplayProgress("",-1);
 	return 2; // Try again
-}
-//-----------------------------------------------------------------------------------------------------
-int Orbiter::PromptFor(string sToken)
-{
-	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
-
-	string sResults;
-	DCE::CMD_Get_Orbiter_Options_DT CMD_Get_Orbiter_Options_DT(m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse,
-		sToken,&sResults);
-
-	CMD_Get_Orbiter_Options_DT.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
-	Message *pResponse = event_Impl.SendReceiveMessage( CMD_Get_Orbiter_Options_DT.m_pMessage );
-	if( !pResponse || pResponse->m_dwID != 0 )
-	{
-		if(pResponse)
-			delete pResponse;
-
-		PromptUser("Sorry.  There is a problem getting the list of " + sToken);
-		return 0;
-	}
-	CMD_Get_Orbiter_Options_DT.ParseResponse( pResponse );
-	delete pResponse;
-
-	map<int,string> mapResponse;
-	vector<string> Choices;
-	StringUtils::Tokenize(sResults,"\n",Choices);
-	if( sToken=="Size" )
-		mapResponse[0]="Default";
-
-	for(vector<string>::iterator it = Choices.begin(); it != Choices.end(); ++it)
-	{
-		string sChoise = *it;
-		string::size_type pos=0;
-		int Choice = atoi(StringUtils::Tokenize(sChoise,"\t",pos).c_str());
-		string sDescription = StringUtils::Tokenize(sChoise,"\t",pos);
-
-		if( Choice && sDescription.size() )
-			mapResponse[Choice]=sDescription;
-	}
-
-	if(Simulator::GetInstance()->PreseededInstallValueDefined(sToken))
-	{
-		int nValue = Simulator::GetInstance()->GetPreseededInstallValue(sToken);
-
-		if(mapResponse.find(nValue) != mapResponse.end())
-            return nValue;
-		else if(mapResponse.size())
-			return mapResponse.begin()->first;
-	}
-
-	return PromptUser("Please select the " + sToken,0,&mapResponse);
-}
-//-----------------------------------------------------------------------------------------------------
-/*virtual*/ bool Orbiter::DisplayProgress(string sMessage, int nProgress)
-{
-	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool Orbiter::RegenOrbiter()
@@ -9875,10 +9677,10 @@ bool Orbiter::RegenOrbiter()
 	CMD_Regen_Orbiter_DT.m_pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;
 	if( !event_Impl.SendMessage(CMD_Regen_Orbiter_DT.m_pMessage,sResponse) || sResponse!="OK" )
 	{
-		PromptUser("Sorry.  I was unable to send this message to the Core.  Please try again or use the Pluto Admin site.");
+		m_pOrbiterRenderer->PromptUser("Sorry.  I was unable to send this message to the Core.  Please try again or use the Pluto Admin site.");
 		return true;
 	}
-	PromptUser("The UI is being regenerated.  This will take 15-30 minutes.  If you get this same message again after the regeneration is finished, then that means the generator on the Core is too old and you will need to reset your Core so it can update itself.  Click 'OK' to monitor the progress.");
+	m_pOrbiterRenderer->PromptUser("The UI is being regenerated.  This will take 15-30 minutes.  If you get this same message again after the regeneration is finished, then that means the generator on the Core is too old and you will need to reset your Core so it can update itself.  Click 'OK' to monitor the progress.");
 	return false;
 }
 
@@ -10037,9 +9839,9 @@ bool Orbiter::WaitForRelativesIfOSD()
 		{
 			string sMessage = m_mapTextString[TEXT_Not_all_devices_started_CONST];
             g_pPlutoLogger->Write(LV_WARNING,"Deleting progress bar dialog");
-			DisplayProgress("", mapChildDevices, -1);
+			m_pOrbiterRenderer->DisplayProgress("", mapChildDevices, -1);
             g_pPlutoLogger->Write(LV_WARNING,"Starting prompt user");
-            PromptUser(sMessage);
+            m_pOrbiterRenderer->PromptUser(sMessage);
 			g_pPlutoLogger->Write(LV_WARNING,"Continuing anyway with %d devices not registered",iUnregisteredRelatives);
 
 			//all ok
@@ -10055,9 +9857,9 @@ bool Orbiter::WaitForRelativesIfOSD()
 		}
 
 		g_pPlutoLogger->Write(LV_STATUS,"Waiting %d devices %s",iUnregisteredRelatives,sDescription.c_str());
-		if( DisplayProgress(sDescription, mapChildDevices, 100-(iUnregisteredRelatives*100/int(mapUnregisteredRelatives.size()))) )
+		if( m_pOrbiterRenderer->DisplayProgress(sDescription, mapChildDevices, 100-(iUnregisteredRelatives*100/int(mapUnregisteredRelatives.size()))) )
 		{
-			DisplayProgress("", mapChildDevices, -1);
+			m_pOrbiterRenderer->DisplayProgress("", mapChildDevices, -1);
 			g_pPlutoLogger->Write(LV_WARNING,"Orbiter::WaitForRelativesIfOSD user wants to abort");
 			OnQuit();
 			return false;
@@ -10065,7 +9867,7 @@ bool Orbiter::WaitForRelativesIfOSD()
 		Sleep(1000); // Sleep and try again
 	}
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::WaitForRelativesIfOSD finishing progress dialog");
-	DisplayProgress("", mapChildDevices, -1);
+	m_pOrbiterRenderer->DisplayProgress("", mapChildDevices, -1);
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::WaitForRelativesIfOSD exiting");
 	return true;
 #endif // X11_PROGRESS_BARS
@@ -10466,52 +10268,44 @@ void Orbiter::CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,Message *
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
-void Orbiter::ClipRectangle(int& x, int& y, int& width, int& height)
-{
-	PlutoRectangle rect(x, y, width, height);
-	ClipRectangle(rect);
-
-	x = rect.X;
-	y = rect.Y;
-	width = rect.Width;
-	height = rect.Height;
-}
-//-----------------------------------------------------------------------------------------------------
-void Orbiter::ClipRectangle(PlutoRectangle &rect)
-{
-	if( rect.X >= m_iImageWidth )
-		rect.X = m_iImageWidth-1;
-	if( rect.X <= 0)
-		rect.X = 0;
-	if( rect.Y <= 0)
-		rect.Y = 0;
-	if( rect.Y >= m_iImageHeight )
-		rect.Y = m_iImageHeight-1;
-
-	if(rect.Width <= 0)
-		rect.Width = 1;
-
-	if(rect.Height <= 0)
-		rect.Height = 1;
-
-	if(rect.X + rect.Width >= m_iImageWidth && rect.Width > 0)
-		rect.Width = m_iImageWidth - rect.X - 1;
-
-	if(rect.Y + rect.Height >= m_iImageHeight && rect.Height > 0)
-		rect.Height = m_iImageHeight - rect.Y - 1;
-}
-//-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool Orbiter::OnReplaceHandler(string sIP)
 {
     if(sIP != m_sIPAddress)
     {
         string sMessage = "An Orbiter with the same device id was started on " + sIP + ".\r\nThis Orbiter will be closed.";
-        PromptUser(sMessage);
+        m_pOrbiterRenderer->PromptUser(sMessage);
         m_bQuit = true;
         exit(1);
         return true;
     }
 
     return false;
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void Orbiter::ShowProgress(int nPercent) 
+{
+	m_pOrbiterRenderer->ShowProgress(nPercent);
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void Orbiter::OnQuit() 
+{ 
+	g_pPlutoLogger->Write(LV_WARNING,"Orbiter quiting..."); 
+	Orbiter_Command::OnQuit(); 
+
+	m_pOrbiterRenderer->OnQuit();
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void Orbiter::OnReload() 
+{ 
+	g_pPlutoLogger->Write(LV_WARNING,"Orbiter reloading..."); 
+	Orbiter_Command::OnReload(); 
+	OnQuit(); 
+
+	m_pOrbiterRenderer->OnReload();
+}  
+//-----------------------------------------------------------------------------------------------------
+void Orbiter::RenderFrame(void *data)
+{
+	m_pOrbiterRenderer->RenderFrame(data);
 }
 //-----------------------------------------------------------------------------------------------------

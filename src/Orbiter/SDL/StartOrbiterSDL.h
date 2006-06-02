@@ -1,7 +1,9 @@
 #if !defined(__START_ORBITER_SDL_H__)
 #define __START_ORBITER_SDL_H__
 
-#include "OrbiterSDL.h"
+#include "../Orbiter.h"
+#include "../Linux/OrbiterLinux.h"
+#include "../Linux/OrbiterRenderer_SDL_Linux.h"
 
 struct keyboardState
 {
@@ -29,13 +31,13 @@ bool Init_System();
 
 struct SDL_Event_Loop_Data
 {
-  OrbiterSDL * pOrbiter;
+  Orbiter* pOrbiter;
   SDL_Event event;
   Orbiter::Event orbiterEvent;
   keyboardState kbdState;
 };
 
-OrbiterSDL * CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width, int Height, bool bFullScreen);
+OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width, int Height, bool bFullScreen);
 
 bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data);
 bool SDL_Event_Loop_End(SDL_Event_Loop_Data &sdl_event_loop_data);

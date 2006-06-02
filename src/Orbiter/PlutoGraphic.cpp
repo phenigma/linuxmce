@@ -1,5 +1,5 @@
-#include "Orbiter.h"
 #include "PlutoGraphic.h"
+#include "OrbiterRenderer.h"
 //=======================================================================================================
 //Generic PlutoGraphic class methods
 //-------------------------------------------------------------------------------------------------------
@@ -11,21 +11,21 @@ PlutoGraphic::PlutoGraphic()
 	Height = 0;
 }
 //-------------------------------------------------------------------------------------------------------
-PlutoGraphic::PlutoGraphic(Orbiter *pOrbiter)
+PlutoGraphic::PlutoGraphic(OrbiterRenderer *pOrbiterRenderer)
 {
 	Initialize();
 
-	m_pOrbiter = pOrbiter;
+	m_pOrbiterRenderer = pOrbiterRenderer;
 	Width = 0;
 	Height = 0;
 }
 
 //-------------------------------------------------------------------------------------------------------
-PlutoGraphic::PlutoGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pOrbiter)
+PlutoGraphic::PlutoGraphic(string Filename, eGraphicManagement GraphicManagement, OrbiterRenderer *pOrbiterRenderer)
 {
 	Initialize();
 
-	m_pOrbiter = pOrbiter;
+	m_pOrbiterRenderer = pOrbiterRenderer;
 	m_Filename = Filename;
 	m_GraphicManagement = GraphicManagement;
 	Width = 0;
@@ -41,5 +41,6 @@ PlutoGraphic::PlutoGraphic(string Filename, eGraphicManagement GraphicManagement
 	m_GraphicManagement = GR_KEEPCOMPRESSED; 
 	m_GraphicFormat = GR_UNKNOWN; 
 	m_Filename = "";
+	m_pOrbiterRenderer = NULL;
 }
 //-------------------------------------------------------------------------------------------------------

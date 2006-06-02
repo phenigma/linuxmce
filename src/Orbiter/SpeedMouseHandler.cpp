@@ -11,6 +11,7 @@
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_Text.h"
+#include "OrbiterRenderer.h"
 
 #ifndef WIN32
 #	include "Task.h"
@@ -226,7 +227,7 @@ void SpeedMouseHandler::DrawInfo()
 		int Offset = int(m_pObj->m_rPosition.Width * Percent) - 5;
 		if( Offset<0 )
 			Offset=0;
-		m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+		m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
 			m_pObj->m_rPosition.X + Offset, m_pObj->m_rPosition.Y,
 			int(m_pObj->m_rPosition.Width * .01), int(m_pObj->m_rPosition.Height * .25),
 			PlutoColor::White().SetAlpha(128));
@@ -240,7 +241,7 @@ void SpeedMouseHandler::DrawInfo()
 		if( Offset<0 )
 			Offset=0;
 		int Y = m_pObj->m_rPosition.Y + int(m_pObj->m_rPosition.Height * .3);
-		m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+		m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
 			m_pObj->m_rPosition.X + Offset, Y,
 			int(m_pObj->m_rPosition.Width * .035), int(m_pObj->m_rPosition.Height * .25),
 			PlutoColor::Blue().SetAlpha(128));
@@ -271,7 +272,7 @@ void SpeedMouseHandler::DrawInfo()
 			int Offset = int(m_pObj->m_rPosition.Width * Percent) - 5;
 			if( Offset<0 )
 				Offset=0;
-			m_pMouseBehavior->m_pOrbiter->SolidRectangle(
+			m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
 				m_pObj->m_rPosition.X, m_pObj->m_rPosition.Y + int(m_pObj->m_rPosition.Height * .6),
 				Offset, int(m_pObj->m_rPosition.Height * .12),
 				PlutoColor::White().SetAlpha(128));

@@ -13,7 +13,7 @@
 #include "DCE/ServerLogger.h"
 
 #include "Simulator.h"
-#include "Win32/OrbiterWin32Defs.h"
+#include "Orbiter.h"
 
 #define  VERSION "<=version=>"
 const char *g_szCompile_Date="<=compile_date=>";
@@ -25,18 +25,6 @@ extern HWND	g_hWndList; //maindialog logger list
     static const string g_sOrbiterConfName = "Orbiter.txt";
 #else
     static const string g_sOrbiterConfName = "Orbiter.conf";
-#endif
-
-#if defined(POCKETFROG)
-	#include "Orbiter_PocketFrog.h"
-#elif defined(ORBITER_OPENGL)
-	#include "OpenGL/Orbiter_OpenGL.h"
-#else
-	#ifdef WINCE
-		#include "OrbiterSDL_WinCE.h"
-	#else
-		#include "OrbiterSDL_Win32.h"
-	#endif
 #endif
 
 namespace DCE
@@ -280,7 +268,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
         if(Simulator::GetInstance()->IsRunning())
         {
-            Orbiter_PocketFrog::GetInstance()->OnQuit();
+            Orbiter::Instance()->OnQuit();
 
             time_t tTime = time(NULL);
             while(true)
@@ -302,7 +290,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		Simulator::GetInstance()->SaveConfigurationFile(g_sBinaryPath + g_sOrbiterConfName);
 		Simulator::Cleanup();
 
-		ORBITER_CLASS::Cleanup();
+		if(NULL != Orbiter::Instance())
+			Orbiter::DestroyInstance();
 
 #ifdef WINCE
 		HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);

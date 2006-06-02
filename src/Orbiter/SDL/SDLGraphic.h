@@ -1,15 +1,17 @@
 #ifndef __SDL_GRAPHIC_H__
 #define __SDL_GRAPHIC_H__
 //-------------------------------------------------------------------------------------------------------
-#include "../DesignObj_Orbiter.h"
 #include "SDL.h"
+#include "../PlutoGraphic.h"
+//-------------------------------------------------------------------------------------------------------
+class OrbiterRenderer;
 //-------------------------------------------------------------------------------------------------------
 class SDLGraphic : public PlutoGraphic
 {
 public:
-	SDLGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pCI);
+	SDLGraphic(string Filename, eGraphicManagement GraphicManagement, OrbiterRenderer *pOrbiterRenderer);
 	SDLGraphic(struct SDL_Surface *pSDL_Surface);
-	SDLGraphic(Orbiter *pCI);
+	SDLGraphic(OrbiterRenderer *pOrbiterRenderer);
 	~SDLGraphic();
 
 	void Initialize();

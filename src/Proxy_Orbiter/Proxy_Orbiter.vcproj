@@ -125,9 +125,6 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="..\Orbiter\CacheImageManager.cpp">
-			</File>
-			<File
 				RelativePath="..\Orbiter\CallBackData.cpp">
 			</File>
 			<File
@@ -135,15 +132,6 @@
 			</File>
 			<File
 				RelativePath="..\Orbiter\DesignObj_Orbiter.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\GraphicBuilder.cpp">
-			</File>
-			<File
-				RelativePath="..\PlutoUtils\HttpUtils.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\Sdl\JpegWrapper.cpp">
 			</File>
 			<File
 				RelativePath="Main.cpp">
@@ -158,47 +146,76 @@
 				RelativePath="..\Orbiter\OrbiterFileBrowser.cpp">
 			</File>
 			<File
-				RelativePath="..\Orbiter\Sdl\OrbiterSDL.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\PlutoGraphic.cpp">
-			</File>
-			<File
 				RelativePath="Proxy_Orbiter.cpp">
-			</File>
-			<File
-				RelativePath="..\OrbiterGen\Renderer.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\RendererMNG.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\RendererOCG.cpp">
 			</File>
 			<File
 				RelativePath="..\Orbiter\ScreenHandler.cpp">
 			</File>
-			<File
-				RelativePath="..\Orbiter\ScreenHistory.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\Sdl\SDLGraphic.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\Sdl\SDLRendererOCGHelper.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\Simulator.cpp">
-			</File>
-			<File
-				RelativePath="..\Splitter\TextSplitter.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter\TextStyle.cpp">
-			</File>
-			<File
-				RelativePath="..\Splitter\TextWrapper.cpp">
-			</File>
+			<Filter
+				Name="Renderer"
+				Filter="">
+				<File
+					RelativePath="..\Orbiter\GraphicBuilder.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\Sdl\JpegWrapper.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\OrbiterRenderer.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\Sdl\OrbiterRenderer_SDL.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\OrbiterRendererFactory.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\PlutoGraphic.cpp">
+				</File>
+				<File
+					RelativePath=".\Proxy_OrbiterRenderer_SDL.cpp">
+				</File>
+				<File
+					RelativePath="..\OrbiterGen\Renderer.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\RendererMNG.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\RendererOCG.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\Sdl\SDLGraphic.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\Sdl\SDLRendererOCGHelper.cpp">
+				</File>
+				<File
+					RelativePath="..\Splitter\TextSplitter.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\TextStyle.cpp">
+				</File>
+				<File
+					RelativePath="..\Splitter\TextWrapper.cpp">
+				</File>
+			</Filter>
+			<Filter
+				Name="Utils"
+				Filter="">
+				<File
+					RelativePath="..\Orbiter\CacheImageManager.cpp">
+				</File>
+				<File
+					RelativePath="..\PlutoUtils\HttpUtils.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\ScreenHistory.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\Simulator.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"

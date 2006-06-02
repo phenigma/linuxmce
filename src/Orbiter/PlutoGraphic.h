@@ -4,9 +4,14 @@
 #define GRAPHIC_NORMAL		 0
 #define GRAPHIC_SELECTED	-1
 #define GRAPHIC_HIGHLIGHTED	-2
-
-#include "PlutoUtils/GraphicFormat.h"
+//-------------------------------------------------------------------------------------------------------
 #include <algorithm>
+#include <string>
+#include <list>
+#include <vector>
+using namespace std;
+//-------------------------------------------------------------------------------------------------------
+#include "PlutoUtils/GraphicFormat.h"
 //-------------------------------------------------------------------------------------------------------
 // Graphic memory management.  GR_DYNAMIC means that this is a dynamic image
 // and there's no reason to ever keep it.  Discardonchange may keep the image
@@ -30,24 +35,19 @@ enum GraphicType
 	gtOpenGLGraphic
 };
 //-------------------------------------------------------------------------------------------------------
-namespace DCE
-{
-	class Orbiter;
-};
-
-using namespace DCE;
+class OrbiterRenderer;
 //-------------------------------------------------------------------------------------------------------
 class PlutoGraphic
 {
 public:
 	PlutoGraphic();
-	PlutoGraphic(Orbiter *pOrbiter);
-	PlutoGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pOrbiter);
+	PlutoGraphic(OrbiterRenderer *pOrbiterRenderer);
+	PlutoGraphic(string Filename, eGraphicManagement GraphicManagement, OrbiterRenderer *pOrbiterRenderer);
 
 	virtual ~PlutoGraphic();
 	virtual PlutoGraphic* Clone() = 0; //Must be implemented
 
-	Orbiter *m_pOrbiter;
+	OrbiterRenderer *m_pOrbiterRenderer;
 
 	virtual void Initialize();
 	virtual GraphicType GraphicType_get()=0;  // Must be implemented

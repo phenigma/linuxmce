@@ -4,10 +4,8 @@
 //-----------------------------------------------------------------------------------------------------
 #include <iostream> 
 using namespace std; 
-
-#include <SDL.h>
 //-----------------------------------------------------------------------------------------------------
-#include "../Orbiter/SDL/OrbiterSDL.h"
+#include "../Orbiter/Orbiter.h"
 #include "SocketListener.h"
 //-----------------------------------------------------------------------------------------------------
 #define CURRENT_SCREEN_IMAGE        "screen.png"
@@ -15,16 +13,17 @@ using namespace std;
 //-----------------------------------------------------------------------------------------------------
 namespace DCE
 {
-	class Proxy_Orbiter : public OrbiterSDL, public SocketListener
+	class Proxy_OrbiterRenderer_SDL;
+
+	class Proxy_Orbiter : public Orbiter, public SocketListener
 	{
+		friend class Proxy_OrbiterRenderer_SDL;
 
 		bool IsProcessingRequest();
 		void StartProcessingRequest();
 		void EndProcessingRequest();
 		void *PushRefreshEventWatchdog(void *);
 
-		int m_nCurrentScreenId;
-		
 		int	  m_iListenPort;
 		int   m_ImageQuality;
 		int	  m_iImageCounter;  // We will increment this each time we have a new image so we can keep track of whether a connected device has the lateest
@@ -39,7 +38,6 @@ namespace DCE
         string m_sBaseUrl;
 
         pluto_pthread_mutex_t m_ActionMutex; 
-        pluto_pthread_mutex_t m_ResourcesMutex;
 		pthread_cond_t m_ActionCond;
 
         string sNoMediaSoftKeysXml;
@@ -50,21 +48,20 @@ namespace DCE
 		string m_sInternalServerAddress;
 		string m_sRemotePhoneIP;
 
+		int m_nCurrentScreenId;
+		pluto_pthread_mutex_t m_ResourcesMutex;
+
 	public:
 		Proxy_Orbiter(int DeviceID, 
 			int PK_DeviceTemplate, string ServerAddress);
 		virtual ~Proxy_Orbiter();
 
-		void StopProcessingRequest();
+		void StopProcessingRequest(void *p);
 
 		// Public virtual methods
-		virtual void DisplayImageOnScreen(struct SDL_Surface *pScreenImage);
-
-		virtual void BeginPaint();
-		virtual void EndPaint();
-
 		virtual bool GetConfig();
 
+		virtual unsigned long ImageQuality() { return m_ImageQuality; }
 		virtual void SetImageQuality(unsigned long nImageQuality);
 
 		virtual bool ReceivedString( Socket *pSocket, string sLine, int nTimeout = - 1 );
@@ -92,6 +89,7 @@ namespace DCE
 		virtual void CMD_Regen_Screen(string &sCMD_Result,Message *pMessage);
 
 		virtual bool IsRepeatedKeyForScreen(DesignObj_Orbiter* pObj, int iPK_Button);
+		virtual void ImageGenerated();
 		
 		bool PushRefreshEvent(bool bForce, bool bIgnoreMinimumInterval = false);
 		void *PushRefreshEventTask(void *p);

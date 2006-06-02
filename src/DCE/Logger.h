@@ -198,7 +198,7 @@ namespace DCE
 		virtual ~NullLogger()
 		{}
 
-		virtual void Write( int /*iLevel*/, const char */*pcFormat*/, ... ) {}
+		virtual void Write( int /*iLevel*/, const char * /*pcFormat*/, ... ) {}
 
 		virtual void WriteEntry( class Logger::Entry& /*entry*/ ) {}
 

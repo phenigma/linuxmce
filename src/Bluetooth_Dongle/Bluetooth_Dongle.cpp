@@ -53,7 +53,7 @@ using namespace DCE;
 #include "../pluto_main/Define_Text.h"
 
 #include "../Orbiter/Orbiter.h"
-#include "../Orbiter/SDL_Bluetooth/StartOrbiterSDLBluetooth.h"
+#include "OrbiterBluetoothCreator.h"
 
 #include "../VIPShared/BD_CP_SendMeKeystrokes.h"
 #include "../VIPShared/BD_CP_SendFile.h"
@@ -811,15 +811,15 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_Enter
 
 		g_pPlutoLogger->Write( LV_WARNING, "Orbiter created for %s device", sMac_address.c_str() );
 
-		class OrbiterSDLBluetooth *pOrbiter;
+		class OrbiterBluetooth *pOrbiter;
 		if( atoi(sPK_EntertainArea.c_str()) || iPK_Room )
         {
-            pOrbiter =  StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, 0, m_sIPAddress, 
+            pOrbiter =  CreateOrbiterBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, 0, m_sIPAddress, 
                 "", false, DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, &m_ScreenMutex, iPK_Room, atoi(sPK_EntertainArea.c_str()));
         }
 		else
 		{
-			pOrbiter = StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, 0, m_sIPAddress, 
+			pOrbiter = CreateOrbiterBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, 0, m_sIPAddress, 
                 "", false, DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, &m_ScreenMutex, 0, m_dwPK_EntertainArea);
 		}
 
