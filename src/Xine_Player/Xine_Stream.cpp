@@ -966,7 +966,11 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		timespec ts1,ts2,tsElapsed;
 		gettimeofday( &ts1, NULL );
 
-		xine_seek( m_pXineStream, 0, pos );
+		// we should use ordinary play instead of seek if we have audio-only
+		if (m_bHasVideo)
+			xine_seek( m_pXineStream, 0, pos );
+		else
+			xine_play( m_pXineStream, 0, pos );
 
 		gettimeofday( &ts2, NULL );
 		tsElapsed = ts2-ts1;
@@ -991,7 +995,10 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		else
 		{
 			g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::Seek get closer currently at: %d target pos: %d ctr %d", positionTime, pos, i );
-			xine_seek( m_pXineStream, 0, pos );
+			if (m_bHasVideo)
+				xine_seek( m_pXineStream, 0, pos );
+			else
+				xine_play( m_pXineStream, 0, pos );
 		}
 	}
 }
@@ -1189,8 +1196,8 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 		return;
 	}
 
-	
-	xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 1);
+	if (m_bHasVideo)
+		xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 1);
 	
 	int totalTime;
 	gettimeofday( &m_tsLastSpecialSeek, NULL );
@@ -1230,7 +1237,8 @@ void Xine_Stream::StopSpecialSeek()
 	if (!m_iSpecialSeekSpeed)
 		return;
 	
-	xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 0);
+	if (m_bHasVideo)
+		xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 0);
 	
 	g_pPlutoLogger->Write( LV_STATUS, "Stopping special seek" );
 	{
@@ -1668,12 +1676,12 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		
 		return;
 	}
-	
-	
+		
 	// reverse play requested or trick_play is not supported for this stream
 	// or we need ultra-fast-forward (>16x)
+	// or this stream doesn't have video
 	const int UltraFastFWD = 16*1000;
-	if ( (desiredSpeed < 0)||( (desiredSpeed > 0) && !trickModeSupported )||(desiredSpeed>UltraFastFWD) )
+	if ( (desiredSpeed < 0)||( (desiredSpeed > 0) && !trickModeSupported )||(desiredSpeed>UltraFastFWD) ||!m_bHasVideo)
 	{	
 		if ( trickModeSupported &&  trickModeActive )
 		{
