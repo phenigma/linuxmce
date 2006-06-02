@@ -324,7 +324,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::GetHighlighedObjectCoordinates
 void MouseBehavior::SelectFirstObject(char cDirection,DesignObj_Orbiter *pObj_Parent)
 {
 	// Select the first object to highlight if we didn't already and center over it
-	DesignObj_Orbiter *pObj = m_pOrbiter->m_pObj_Highlighted = m_pOrbiter->FindFirstObjectByDirection(cDirection,true,pObj_Parent,NULL);
+	DesignObj_Orbiter *pObj = m_pOrbiter->m_pObj_Highlighted = m_pOrbiter->Renderer()->FindFirstObjectByDirection(cDirection,true,pObj_Parent,NULL);
 	if( pObj )
 	{
 		PlutoRectangle rect = GetHighlighedObjectCoordinates();

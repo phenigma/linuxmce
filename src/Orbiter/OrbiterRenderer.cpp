@@ -3,6 +3,7 @@
 #include "ScreenHistory.h"
 #include "ScreenHandler.h"
 #include "MouseBehavior.h"
+#include "DataGrid.h"
 #include "OrbiterRendererFactory.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "../pluto_main/Define_VertAlignment.h" 
@@ -365,5 +366,460 @@ void OrbiterRenderer::OnReload()
 
 	delete OrbiterLogic()->m_pGraphicBeforeHighlight;
 	OrbiterLogic()->m_pGraphicBeforeHighlight=NULL;
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer::HighlightFirstObject()
+{
+	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );  // Protect the highlighed object
+	OrbiterLogic()->m_pObj_Highlighted = FindFirstObjectByDirection('1',true,NULL,NULL);
+}
+//-----------------------------------------------------------------------------------------------------
+DesignObj_Orbiter *OrbiterRenderer::FindFirstObjectByDirection(char cDirection /* u,d,l,r,1 (ul),2 (ur),3(dl),4(dr) */,bool bPreferGrid,DesignObj_Orbiter *pObj_Parent,DesignObj_Orbiter *pObj_RelativeTo)
+{
+	int Position=-1,PositionGrid=-1;  // The X+Y coordinates, we're looking for the upper left-most item, so we just add
+	DesignObj_Orbiter *pObj=NULL,*pObjGrid=NULL;  // We give preference to datagrids, so we track them separately
+	for(size_t s=0;s<OrbiterLogic()->m_vectObjs_TabStops.size();++s)
+	{
+		DesignObj_Orbiter *p = OrbiterLogic()->m_vectObjs_TabStops[s];
+		if( p->IsHidden() || !p->m_bOnScreen || (pObj_Parent && !p->ChildOf(pObj_Parent)) )
+			continue;
+		if( p->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && (!p->m_pDataGridTable || !p->m_pDataGridTable->m_RowCount))
+			continue;
+
+		int OldPositionGrid = PositionGrid;
+		int ThisPosition;
+		switch(cDirection)
+		{
+		case 'u':
+			if( pObj_RelativeTo && p->m_rPosition.Y>pObj_RelativeTo->m_rPosition.Y )
+				continue;
+			ThisPosition = p->m_rPosition.Y;
+			break;
+		case 'd':
+			if( pObj_RelativeTo && p->m_rPosition.Bottom()>pObj_RelativeTo->m_rPosition.Bottom() )
+				continue;
+			ThisPosition = OrbiterLogic()->m_Height - p->m_rPosition.Bottom();
+			break;
+		case 'l':
+			if( pObj_RelativeTo && p->m_rPosition.X>pObj_RelativeTo->m_rPosition.X )
+				continue;
+			ThisPosition = p->m_rPosition.X;
+			break;
+		case 'r':
+			if( pObj_RelativeTo && p->m_rPosition.Right()>pObj_RelativeTo->m_rPosition.Right() )
+				continue;
+			ThisPosition = OrbiterLogic()->m_Width - p->m_rPosition.Right();
+			break;
+		case '1':
+			ThisPosition = p->m_rPosition.X + p->m_rPosition.Y;
+			break;
+		case '2':
+			ThisPosition = OrbiterLogic()->m_Width - p->m_rPosition.Right() + p->m_rPosition.Y;
+			break;
+		case '3':
+			ThisPosition = p->m_rPosition.X + OrbiterLogic()->m_Height - p->m_rPosition.Bottom();
+			break;
+		case '4':
+			ThisPosition = OrbiterLogic()->m_Width - p->m_rPosition.Right() + OrbiterLogic()->m_Height - p->m_rPosition.Bottom();
+			break;
+		default:
+			return NULL; // shouldn't happen
+		}
+		if( bPreferGrid && p->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+		{
+			if( ThisPosition<PositionGrid || PositionGrid==-1 )
+			{
+				if(!p->m_pDataGridTable || !p->m_pDataGridTable->m_RowCount)
+					PositionGrid = OldPositionGrid;
+				else
+				{
+					PositionGrid=ThisPosition;
+					pObjGrid=p;
+				}
+			}
+		}
+		else
+		{
+			if( ThisPosition<Position || Position==-1 )
+			{
+				Position=ThisPosition;
+				pObj=p;
+			}
+		}
+	}
+
+	if( pObjGrid )
+	{
+		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) pObjGrid;
+		// If nothing is highlighted in this grid, start with the first row/column
+		if( pDesignObj_DataGrid->m_iHighlightedColumn==-1 && pDesignObj_DataGrid->m_iHighlightedRow==-1 )
+		{
+			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )==string::npos )
+				pDesignObj_DataGrid->m_iHighlightedRow=0;
+			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'R' )==string::npos )
+				pDesignObj_DataGrid->m_iHighlightedColumn=0;
+		}
+		return pObjGrid;
+	}
+	//else
+	return pObj;
+	//return NULL; // warning: will never be executed
+}
+//-----------------------------------------------------------------------------------------------------
+DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pObjCurrent, int PK_Direction )
+{
+	// Primary means an object primarily in that direction, Secondary means primarily in another direction
+	// if an object is 5 pixels to the right, and 10 pixels below, it's primary direction is right, secondary is down
+	// pObj_Primary will be the closes object primarily in the direction we want, pObj_Secondary will be a
+	// backup choice if there are no objects in that primary direction
+	DesignObj_Orbiter *pObj_Primary=NULL,*pObj_Secondary=NULL;
+	int Distance_Primary=-1,Distance_Secondary=-1;
+	for(size_t s=0;s<OrbiterLogic()->m_vectObjs_TabStops.size();++s)
+	{
+		DesignObj_Orbiter *p = OrbiterLogic()->m_vectObjs_TabStops[s];
+		if( p==pObjCurrent || p->IsHidden() || !p->m_bOnScreen )
+			continue;
+
+		if( p->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && (!p->m_pDataGridTable || !p->m_pDataGridTable->m_RowCount))
+			continue;
+
+		PlutoRectangle rectCurrent=pObjCurrent->m_rPosition+pObjCurrent->m_pPopupPoint;
+		PlutoRectangle rect=p->m_rPosition+p->m_pPopupPoint;
+
+		bool bSkip=false;
+		list<class PlutoPopup*>::reverse_iterator it;
+		for(it=OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_listPopups.rbegin();it!=OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_listPopups.rend();++it)
+		{
+			PlutoPopup *pPopup = *it;
+			if( (pPopup->m_pObj->m_rPosition+pPopup->m_pObj->m_pPopupPoint).IntersectsWith(rect) && p->TopMostObject()!=pPopup->m_pObj )
+			{
+				bSkip=true;
+				break;
+			}
+		}
+
+		if( bSkip )
+			continue;
+
+		for(it=OrbiterLogic()->m_listPopups.rbegin();it!=OrbiterLogic()->m_listPopups.rend();++it)
+		{
+			PlutoPopup *pPopup = *it;
+			if( (pPopup->m_pObj->m_rPosition+pPopup->m_pObj->m_pPopupPoint).IntersectsWith(rect) && p->TopMostObject()!=pPopup->m_pObj )
+			{
+				bSkip=true;
+				break;
+			}
+		}
+
+		if( bSkip )
+			continue;
+
+		// It looks funny if you move down and select an object that may have a center point lower, but the top is higher
+		if( (PK_Direction==DIRECTION_Down_CONST && rect.Top()<=rectCurrent.Top()) ||
+			(PK_Direction==DIRECTION_Up_CONST && rect.Top()>=rectCurrent.Top()) ||
+			(PK_Direction==DIRECTION_Right_CONST && rect.Left()<=rectCurrent.Left()) ||
+			(PK_Direction==DIRECTION_Left_CONST && rect.Left()>=rectCurrent.Left()) )
+			continue;
+
+		int Direction_Primary,Direction_Secondary,Distance;
+		PlutoPoint pp=p->m_pMidPoint+p->m_pPopupPoint;
+		(pObjCurrent->m_pMidPoint+pObjCurrent->m_pPopupPoint).RelativePosition(pp,Direction_Primary,Direction_Secondary,Distance);
+
+		if( Direction_Primary==PK_Direction )
+		{
+			int Test_Distance_Primary;
+			if( PK_Direction==DIRECTION_Left_CONST )
+				Test_Distance_Primary=(pObjCurrent->m_rPosition.X+pObjCurrent->m_pPopupPoint.X)-(p->m_rPosition.Right()+p->m_pPopupPoint.X);
+			else if( PK_Direction==DIRECTION_Right_CONST )
+				Test_Distance_Primary=(p->m_rPosition.X+p->m_pPopupPoint.X)-(pObjCurrent->m_rPosition.Right()+pObjCurrent->m_pPopupPoint.X);
+			else if( PK_Direction==DIRECTION_Up_CONST )
+				Test_Distance_Primary=(pObjCurrent->m_rPosition.Y+pObjCurrent->m_pPopupPoint.Y)-(p->m_rPosition.Bottom()+p->m_pPopupPoint.Y);
+			else if( PK_Direction==DIRECTION_Down_CONST )
+				Test_Distance_Primary=(p->m_rPosition.Y+p->m_pPopupPoint.Y)-(pObjCurrent->m_rPosition.Bottom()+pObjCurrent->m_pPopupPoint.Y);
+			if(Test_Distance_Primary+Distance<Distance_Primary || Distance_Primary==-1)
+			{
+				Distance_Primary=Test_Distance_Primary+Distance;
+				pObj_Primary=p;
+			}
+		}
+		else if( Direction_Secondary==PK_Direction && (Distance<Distance_Secondary || Distance_Secondary==-1) )
+		{
+			Distance_Secondary=Distance;
+			pObj_Secondary=p;
+		}
+	}
+
+	if( pObj_Primary )
+		return pObj_Primary;
+	if( pObj_Secondary )
+		return pObj_Secondary;
+	return pObjCurrent;
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ bool OrbiterRenderer::HighlightNextObject( int PK_Direction )
+{
+	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );  // Protect the highlighed object
+	// Nothing is selected, select the first object
+	if(NULL == OrbiterLogic()->m_pObj_Highlighted || (OrbiterLogic()->m_pObj_Highlighted && 
+		(!OrbiterLogic()->m_pObj_Highlighted->m_bOnScreen || OrbiterLogic()->m_pObj_Highlighted->IsHidden())))
+	{
+		OrbiterLogic()->m_pObj_Highlighted=NULL;
+		if(sbNoSelection != OrbiterLogic()->m_nSelectionBehaviour)
+			HighlightFirstObject();
+
+		if(OrbiterLogic()->m_pObj_Highlighted)
+			OrbiterLogic()->RenderObjectAsync(OrbiterLogic()->m_pObj_Highlighted);
+
+		return OrbiterLogic()->m_pObj_Highlighted!=NULL;
+	}
+
+	if( OrbiterLogic()->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	{
+		if( !OrbiterLogic()->m_pObj_Highlighted->m_pDataGridTable )
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"OrbiterRenderer::HighlightNextObject !m_pObj_Highlighted->m_pDataGridTable");
+			return false;
+		}
+		bool bScrolledOutsideGrid=false;  // Will be true if we scroll past the edge of the grid
+		PLUTO_SAFETY_LOCK( dg, OrbiterLogic()->m_DatagridMutex );
+		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) OrbiterLogic()->m_pObj_Highlighted;
+
+		switch( PK_Direction )
+		{
+		case DIRECTION_Up_CONST:
+			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )!=string::npos )
+				bScrolledOutsideGrid=true;
+			else if(
+				(pDesignObj_DataGrid->m_iHighlightedRow > 0 || pDesignObj_DataGrid->m_GridCurRow > 0) &&
+				pDesignObj_DataGrid->m_MaxRow > 1
+				)
+			{
+				pDesignObj_DataGrid->m_iHighlightedRow--;
+				if(pDesignObj_DataGrid->m_iHighlightedRow < 0 || (pDesignObj_DataGrid->m_iHighlightedRow == 0 && pDesignObj_DataGrid->HasMoreUp() && pDesignObj_DataGrid->m_iUpRow!=-1 ))
+				{
+					// Save which row in the actual table we are pointing to,  so we can point there again after doing the scroll
+					int iHighlightedAbsoluteRow = pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow;
+					dg.Release();
+					OrbiterLogic()->CMD_Scroll_Grid( "", "", PK_Direction );
+					pDesignObj_DataGrid->m_iHighlightedRow=iHighlightedAbsoluteRow - pDesignObj_DataGrid->m_GridCurRow;
+
+					if( pDesignObj_DataGrid->m_iHighlightedRow > pDesignObj_DataGrid->m_MaxRow - 1 )
+						pDesignObj_DataGrid->m_iHighlightedRow = pDesignObj_DataGrid->m_MaxRow - 1;
+				}
+			}
+			else
+				bScrolledOutsideGrid=true;
+			break;
+		case DIRECTION_Down_CONST:
+			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )!=string::npos )
+				bScrolledOutsideGrid=true;
+			// Continue only if we're not already highlighting the last cell
+			else if(
+				pDesignObj_DataGrid->m_GridCurRow + pDesignObj_DataGrid->m_iHighlightedRow +1 <
+				pDesignObj_DataGrid->m_pDataGridTable->GetRows() &&  // I just added the +1 on 17Apr06 because it was scrolling past the bottom, scroll right already did this
+				pDesignObj_DataGrid->m_MaxRow > 1
+				)  // Add 1 since the highlight is 0 based and get rows is not, add 2 if the last row is just a 'scroll down'
+			{
+				pDesignObj_DataGrid->m_iHighlightedRow++;
+				// See if we've scrolled past the visible end, in which case we need to page.  Subtract 1 or 2 cells for the scroll up/down cells if any
+				if(pDesignObj_DataGrid->m_iHighlightedRow >= pDesignObj_DataGrid->m_MaxRow - (pDesignObj_DataGrid->m_dwIDownRow >= 0 ? 1 : 0) /*- (pDesignObj_DataGrid->m_iUpRow >= 0 ? 1 : 0)*/)
+				{
+					dg.Release();
+					OrbiterLogic()->CMD_Scroll_Grid( "", "", PK_Direction );
+					pDesignObj_DataGrid->m_iHighlightedRow = 0;
+				}
+			}
+			else
+				bScrolledOutsideGrid=true;
+			break;
+		case DIRECTION_Left_CONST:
+			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'R' )!=string::npos )
+				bScrolledOutsideGrid=true;
+			else if(pDesignObj_DataGrid->m_iHighlightedColumn>0 || pDesignObj_DataGrid->m_GridCurCol>0  )
+			{
+				pDesignObj_DataGrid->m_iHighlightedColumn--;
+				if(  pDesignObj_DataGrid->m_iHighlightedColumn<0  )
+				{
+					dg.Release();
+					OrbiterLogic()->CMD_Scroll_Grid( "", "", PK_Direction );
+					pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_MaxCol;
+				}
+			}
+			else
+				bScrolledOutsideGrid=true;
+			break;
+		case DIRECTION_Right_CONST:
+			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'R' )!=string::npos )
+				bScrolledOutsideGrid=true;
+			// See if we scrolled past the physical end of all the columns
+			else if(  pDesignObj_DataGrid->m_GridCurCol+pDesignObj_DataGrid->m_iHighlightedColumn+1 < pDesignObj_DataGrid->m_pDataGridTable->GetCols(  )  ) // Add 1 since the highlight is 0 based and get cols is not
+			{
+				pDesignObj_DataGrid->m_iHighlightedColumn++;
+				// See if we've scrolled past the visible end, in which case we need to page
+				if(  pDesignObj_DataGrid->m_iHighlightedColumn>=pDesignObj_DataGrid->m_MaxCol  )
+				{
+					dg.Release();
+					OrbiterLogic()->CMD_Scroll_Grid( "", "", PK_Direction );
+					pDesignObj_DataGrid->m_iHighlightedColumn=0;
+				}
+			}
+			else
+				bScrolledOutsideGrid=true;
+			break;
+		};
+
+		// If we're capturing arrows, then we don't let the user move outside the grid
+		if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'A' )!=string::npos )
+			bScrolledOutsideGrid=false;
+
+		// Check that pDesignObj_DataGrid->m_pDataGridTable wasn't deleted
+		if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'H' )!=string::npos )
+		{
+			if( pDesignObj_DataGrid->m_pDataGridTable )
+			{
+				// We don't want the user to be able to just highlight cells without selecting, so select this cell
+				DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(
+					pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : pDesignObj_DataGrid->m_GridCurCol,
+					pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : 0);
+
+				if( pCell )
+					OrbiterLogic()->CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable, pCell->GetValue());
+			}
+			else
+			{
+				// Be sure nothing is selected since we moved the highlight
+				OrbiterLogic()->CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable, "");
+			}
+			dg.Release();
+			OrbiterLogic()->SelectedObject(pDesignObj_DataGrid,smNavigation);
+		}
+		dg.Release();
+		OrbiterLogic()->RenderObjectAsync(pDesignObj_DataGrid);
+		OrbiterLogic()->m_pObj_Highlighted_Last=NULL; // Be sure we always re-highlight this object since the grid changed
+
+		if( !bScrolledOutsideGrid )
+		{
+			//if we have hidden columns/rows, skip them
+			PLUTO_SAFETY_LOCK( dg, OrbiterLogic()->m_DatagridMutex );
+
+			DataGridCell *pCell = NULL;
+			while(!pCell)
+			{
+				int nHColumn = pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : pDesignObj_DataGrid->m_GridCurCol;
+				int nHRow = pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow - (pDesignObj_DataGrid->m_iUpRow >= 0 ? 1 : 0) : 0;
+
+				if(!pDesignObj_DataGrid->m_pDataGridTable)
+					break;
+
+				pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(nHColumn, nHRow);
+				if(pCell)
+					break; //all ok, we got it
+
+				bool bGiveUp = false;
+				switch(PK_Direction)
+				{
+				case DIRECTION_Up_CONST:
+					if(nHRow == 0)
+						bGiveUp = true;
+					else
+						pDesignObj_DataGrid->m_iHighlightedRow--;
+					break;
+
+				case DIRECTION_Down_CONST:
+
+					if(nHRow >= pDesignObj_DataGrid->m_pDataGridTable->m_RowCount)
+						bGiveUp = true;
+					else
+						pDesignObj_DataGrid->m_iHighlightedRow--;
+					break;
+
+				case DIRECTION_Left_CONST:
+					if(nHColumn == 0)
+						bGiveUp = true;
+					else
+						pDesignObj_DataGrid->m_iHighlightedColumn--;
+					break;
+
+				case DIRECTION_Right_CONST:
+					if(nHColumn >= pDesignObj_DataGrid->m_pDataGridTable->m_ColumnCount)
+						bGiveUp = true;
+					else
+						pDesignObj_DataGrid->m_iHighlightedColumn++;
+					break;
+				}
+
+				if(bGiveUp)
+					break;
+			}
+
+			return true; // We just moved around within the grid
+		}
+	}
+
+	//DesignObj_Orbiter *pDesignObj_Orbiter_OriginallyHighlight=m_pObj_Highlighted;
+	DesignObj_Orbiter *pNextObject = OrbiterLogic()->m_pObj_Highlighted;
+	switch( PK_Direction )
+	{
+		// Find the next ones,  skipping over any hidden ones
+	case DIRECTION_Up_CONST:
+		while(  pNextObject->m_pDesignObj_Orbiter_Up && pNextObject->m_pDesignObj_Orbiter_Up->IsHidden(  )  )
+			pNextObject = OrbiterLogic()->m_pObj_Highlighted->m_pDesignObj_Orbiter_Up;
+		pNextObject = pNextObject->m_pDesignObj_Orbiter_Up;
+		break;
+	case DIRECTION_Down_CONST:
+		while(  pNextObject->m_pDesignObj_Orbiter_Down && pNextObject->m_pDesignObj_Orbiter_Down->IsHidden(  )  )
+			pNextObject = OrbiterLogic()->m_pObj_Highlighted->m_pDesignObj_Orbiter_Down;
+		pNextObject = pNextObject->m_pDesignObj_Orbiter_Down;
+		break;
+	case DIRECTION_Left_CONST:
+		while(  pNextObject->m_pDesignObj_Orbiter_Left && pNextObject->m_pDesignObj_Orbiter_Left->IsHidden(  )  )
+			pNextObject = OrbiterLogic()->m_pObj_Highlighted->m_pDesignObj_Orbiter_Left;
+		pNextObject = pNextObject->m_pDesignObj_Orbiter_Left;
+		break;
+	case DIRECTION_Right_CONST:
+		while(  pNextObject->m_pDesignObj_Orbiter_Right && pNextObject->m_pDesignObj_Orbiter_Right->IsHidden(  )  )
+			pNextObject = OrbiterLogic()->m_pObj_Highlighted->m_pDesignObj_Orbiter_Right;
+		pNextObject = pNextObject->m_pDesignObj_Orbiter_Right;
+		break;
+	}
+
+	DesignObj_Orbiter *pObj_Highlighted_Before = OrbiterLogic()->m_pObj_Highlighted;
+	if(!pNextObject || pNextObject == OrbiterLogic()->m_pObj_Highlighted)
+	{
+		OrbiterLogic()->m_pObj_Highlighted = FindObjectToHighlight( OrbiterLogic()->m_pObj_Highlighted, PK_Direction );
+		if( OrbiterLogic()->m_pObj_Highlighted==pObj_Highlighted_Before )
+			return false;
+	}
+	else
+		OrbiterLogic()->m_pObj_Highlighted = pNextObject;
+
+	if( pObj_Highlighted_Before && OrbiterLogic()->m_pObj_Highlighted!=pObj_Highlighted_Before )
+		OrbiterLogic()->ExecuteCommandsInList( &pObj_Highlighted_Before->m_Action_UnhighlightList, pObj_Highlighted_Before, smHighlight, 0, 0 );
+
+	if( OrbiterLogic()->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	{
+		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) OrbiterLogic()->m_pObj_Highlighted;
+		// If nothing is highlighted in this grid, start with the first row/column
+		if( pDesignObj_DataGrid->m_iHighlightedColumn==-1 && pDesignObj_DataGrid->m_iHighlightedRow==-1 )
+		{
+			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )==string::npos )
+				pDesignObj_DataGrid->m_iHighlightedRow=0;
+			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'R' )==string::npos )
+				pDesignObj_DataGrid->m_iHighlightedColumn=0;
+		}
+	}
+
+	/*
+	if(pDesignObj_Orbiter_OriginallyHighlight)
+	if(pDesignObj_Orbiter_OriginallyHighlight->m_vectGraphic.size())
+	RenderObjectAsync(pDesignObj_Orbiter_OriginallyHighlight);
+	else //this button is embedded in the background, we must rerender all
+	RenderObjectAsync(m_pScreenHistory_Current->GetObj());
+	*/
+
+	if(OrbiterLogic()->m_pObj_Highlighted)
+		OrbiterLogic()->RenderObjectAsync(OrbiterLogic()->m_pObj_Highlighted);
+
+	return true;
 }
 //-----------------------------------------------------------------------------------------------------

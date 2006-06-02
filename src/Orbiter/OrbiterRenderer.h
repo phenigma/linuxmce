@@ -111,6 +111,28 @@ public:
 	*/
     virtual void DoHighlightObject();
 	virtual void UnHighlightObject(bool bDeleteOnly = false);
+
+	/**
+	* @brief Find the first 'tab stop' object on screen and highlight it
+	*/
+	virtual void HighlightFirstObject();
+	/**
+	* @brief Find an object from a given direction (ie up = start at the top and move down, down=start at the bottom and move up)
+	* finding any datagrid if there is one active if bPreferGrid is true, and that is only a child of pObj_Parent if that is not null,
+	* and use pObj_RelativeTo as a starting point if it's specified
+	*/
+	DesignObj_Orbiter *FindFirstObjectByDirection(char cDirection /* u,d,l,r,1 (ul),2 (ur),3(dl),4(dr) */,bool bPreferGrid,DesignObj_Orbiter *pObj_Parent,DesignObj_Orbiter *pObj_RelativeTo);
+
+	/**
+	* @brief This is used by the following function
+	*/
+	DesignObj_Orbiter *FindObjectToHighlight( DesignObj_Orbiter *pObjCurrent, int PK_Direction );
+
+	/**
+	* @brief Given a direction ( UDLR ) find the object.  Return false if we couldn't find anything and left the highlighted object unchanged
+	*/
+	virtual bool HighlightNextObject( int dwPK_Direction );
+
 };
 
 #endif //__ORBITER_RENDERER_H__

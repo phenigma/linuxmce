@@ -6,6 +6,7 @@
 #include "PlutoUtils/Other.h"
 #include "MouseGovernor.h"
 #include "MouseIterator.h"
+#include "OrbiterRenderer.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
@@ -166,7 +167,7 @@ void LockedMouseHandler::Notch(int PK_Direction,int iRepeat)
 NeedToRender render( m_pMouseBehavior->m_pOrbiter, "LockedMouseHandler::Notch" );
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 	for(int i=0;i<iRepeat;++i)
-		m_pMouseBehavior->m_pOrbiter->HighlightNextObject(PK_Direction);
+		m_pMouseBehavior->m_pOrbiter->Renderer()->HighlightNextObject(PK_Direction);
 	m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y); // So we don't hit limits too fast
 }
 

@@ -139,7 +139,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move away from highli
 			}
 		}
 		
-		if( !m_pMouseBehavior->m_pOrbiter->HighlightNextObject(PK_Direction) )
+		if( !m_pMouseBehavior->m_pOrbiter->Renderer()->HighlightNextObject(PK_Direction) )
 		{
 /*
 			// We're off in no-mans land, and not moving toward any selectable object, get back on the highlighted object
