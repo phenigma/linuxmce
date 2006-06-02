@@ -623,14 +623,6 @@ void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &
 
 void OrbiterLinux::CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 {
-    // TODO: clean this code
-    //Display *dpy = GetDisplay();
-    //X11_Locker lock(dpy);
-    //Window rootwindow = DefaultRootWindow (dpy);
-    //g_pPlutoLogger->Write(LV_STATUS, "Moving mouse (relative %d,%d)",iPosition_X,iPosition_Y);
-
-    //XWarpPointer(dpy, rootwindow,0 , 0, 0, 0, 0, iPosition_X, iPosition_Y);
-
     g_pPlutoLogger->Write(LV_STATUS, "Moving mouse (relative %d,%d)", iPosition_X, iPosition_Y);
     m_pX11->Mouse_SetPosition(iPosition_X, iPosition_Y);
 }
@@ -648,10 +640,11 @@ void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &
 
     // again ?
     // TODO: clean this code
-    Display *dpy = XOpenDisplay(NULL);
-    XTestFakeButtonEvent(dpy, 1, true, 0);
-    XTestFakeButtonEvent(dpy, 1, false, 0);
-    XCloseDisplay(dpy);
+    // note: caused hard-to-catch fatal-sync errors !?
+    //Display *dpy = XOpenDisplay(NULL);
+    //XTestFakeButtonEvent(dpy, 1, true, 0);
+    //XTestFakeButtonEvent(dpy, 1, false, 0);
+    //XCloseDisplay(dpy);
 }
 
 void OrbiterLinux::CMD_Surrender_to_OS(string sOnOff, bool bFully_release_keyboard, string &sCMD_Result, Message *pMessage)
