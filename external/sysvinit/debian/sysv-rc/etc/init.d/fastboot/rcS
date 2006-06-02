@@ -214,7 +214,8 @@ chmod  664 /var/run/utmp
 
 Message "Setting console fonts"
 if [ -x /etc/init.d/console-screen.sh ]; then
-	/etc/init.d/console-screen.sh start 1>/dev/null &
+	/usr/sbin/termwrap /bin/true
+	/etc/init.d/console-screen.sh start 1>/dev/null
 fi
 
 ## Set up the hostname
