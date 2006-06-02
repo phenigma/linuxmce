@@ -21,3 +21,6 @@ fi
 
 mkdir -p /target/usr/pluto/install/deb-critical
 cp /cdrom/Pluto-Install/Critical-Deb/* /target/usr/pluto/install/deb-critical
+
+echo 'LANG="en_US.UTF8"
+LANGUAGE="en_US:en_GB:en"' >/target/etc/environment
