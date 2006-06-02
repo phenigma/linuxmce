@@ -104,8 +104,6 @@ public:
 	virtual void ClipRectangle(PlutoRectangle &rect);
 	virtual void RenderFrame(void *) {}
 
-	//highlighting and selecting logic
-
 	/**
 	* @brief Do the Highlighting of the currently highlighted object, or remove the highlighting
 	*/
@@ -133,6 +131,25 @@ public:
 	*/
 	virtual bool HighlightNextObject( int dwPK_Direction );
 
+	/**
+	* @brief Render a shortcut for an object
+	*/
+	virtual void RenderShortcut(DesignObj_Orbiter *pObj);
+
+	/**
+	* @brief Hide a popup
+	*/
+	virtual void HidePopups(DesignObj_Orbiter *pObj);
+
+	/**
+	* @brief Render a popup
+	*/
+	virtual void RenderPopup(PlutoPopup *pPopup, PlutoPoint point);
+
+	/**
+	* @brief These will redraw any objects in m_vectObjsToRedraw. Use this to queue objects to redraw, such as those tht
+	*/
+	virtual void RedrawObjects();
 };
 
 #endif //__ORBITER_RENDERER_H__

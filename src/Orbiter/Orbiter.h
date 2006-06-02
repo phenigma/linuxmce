@@ -105,6 +105,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		friend class ScreenHandler;
 		friend class OSDScreenHandler;
 		friend class OrbiterRenderer;
+		friend class DesignObj_Orbiter;
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		friend class MouseBehavior;
@@ -173,7 +174,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		virtual void SetImageQuality(unsigned long ulImageQuality) {};
 
 		//callback; should be forwarded to the renderer
-		void RenderFrame(void *data);
+		virtual void RenderFrame(void *data);
 
 		/**
 		* @brief Returns true if version 2 of the UI is being used
@@ -216,11 +217,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
 		class DesignObj_Orbiter *m_pObj_SelectedLastScreen;   // The last object we selected.  Used by floorplans to toggle states
-
-		/**
-		* @brief These will redraw any objects in m_vectObjsToRedraw. Use this to queue objects to redraw, such as those tht
-		*/
-		virtual void RedrawObjects();
 
 		// '0' - no item is selected until the user moves the arrows
 		// '1' - automatically highlight the first object when the screen changes
@@ -360,21 +356,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		* @brief Add a popup to the list.  Will return false if the identical popup was already there
 		*/
 		bool AddPopup(list<class PlutoPopup*> &listPopups,class PlutoPopup *pPopup);
-
-		/**
-		* @brief Hide a popup
-		*/
-		virtual void HidePopups(DesignObj_Orbiter *pObj);
-
-		/**
-		* @brief Render a popup
-		*/
-		virtual void RenderPopup(PlutoPopup *pPopup, PlutoPoint point);
-
-		/**
-		* @brief Render a shortcut for an object
-		*/
-		void RenderShortcut(DesignObj_Orbiter *pObj);
 
 		/**
 		* @brief Get the popup with the id or name specified
@@ -637,12 +618,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		* @todo ask
 		*/
 		virtual bool RenderCell( class DesignObj_DataGrid *pObj, class DataGridTable *pT, class DataGridCell *pCell, int j, int i, int iGraphicToDisplay, PlutoPoint point = PlutoPoint(0, 0) );
-
-		/**
-		* @brief renders a graphic object in the specified rectangle
-		* @todo ask
-		*/
-		virtual void RenderGraphic( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0) );
 
 		/**
 		* @brief The derived class should implement this if it can.  It moves the mouse pointer to the given coordinates
@@ -1832,15 +1807,6 @@ light, climate, media, security, telecom */
 		* @todo ask
 		*/
 		void CalculateGridRight( DesignObj_DataGrid *pObj, int &iCurCol, int iCellsToSkip );
-
-		/**
-		* @brief locks the display, implemented in the Linux-derived class
-		*/
-        virtual void X_LockDisplay() {};
-		/**
-		* @brief unlocks the display, implemented in the Linux-derived class
-		*/
-        virtual void X_UnlockDisplay() {};
 	};
 
 	extern int g_iDontRender; /** < @todo ask */
@@ -1848,43 +1814,17 @@ light, climate, media, security, telecom */
 
 	class NeedToRender
 	{
-
 		class Orbiter *m_pOrbiter; /** <  */
 		const char *m_pWhere; /** <  */
 		static class ScreenHistory *m_pScreenHistory;
-		//static bool m_bAddToHistory;
+
 	public:
 
-		/**
-		* @brief constructor
-		*/
 		NeedToRender( class Orbiter *pOrbiter, const char *pWhere );
+		~NeedToRender();
 
-		/**
-		* @brief destructor
-		*/
-		~NeedToRender(  )
-		{
-			g_iDontRender--;
-			if ( g_iDontRender == 0 )
-			{
-				if( m_pScreenHistory )
-				{
-					class ScreenHistory *pScreenHistory = m_pScreenHistory;
-					m_pScreenHistory=NULL;
-					m_pOrbiter->NeedToChangeScreens(pScreenHistory);
-				}
-#ifdef DEBUG
-				g_pPlutoLogger->Write( LV_STATUS, "NeedToRender::~NeedToRender() calling redraw for: %s", m_pWhere);
-#endif
-				if(!m_pOrbiter->m_bQuit)
-					m_pOrbiter->RedrawObjects();
-			}
-
-		}
-
-		static void NeedToChangeScreens( class Orbiter *pOrbiter, class ScreenHistory *pScreenHistory/*, bool bAddToHistory = true*/ );
-		class ScreenHistory *m_pScreenHistory_get() { return m_pScreenHistory; }
+		static void NeedToChangeScreens( class Orbiter *pOrbiter, class ScreenHistory *pScreenHistory);
+		class ScreenHistory *m_pScreenHistory_get();
 	};
 
 	//------------------------------------------------------------------------

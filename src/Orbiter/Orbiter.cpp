@@ -41,8 +41,8 @@ using namespace DCE;
 #include "DesignObj_Orbiter.h"
 #include "DataGrid.h"
 #include "SerializeClass/ShapesColors.h"
+
 #include "pluto_main/Define_Variable.h"
-#include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_DeviceCategory.h"
@@ -52,6 +52,8 @@ using namespace DCE;
 #include "pluto_main/Define_VertAlignment.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_Screen.h"
+#include "pluto_main/Define_Button.h"
+
 #include "Floorplan.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_FloorplanType.h"
@@ -628,15 +630,6 @@ Protected methods
 GENERAL PURPOSE METHODS
 */
 //-----------------------------------------------------------------------------------------------------------
-void Orbiter::RedrawObjects(  )
-{
-	PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
-	if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size() == 0 && m_bRerenderScreen==false)
-		return; // Nothing to do anyway
-
-	CallMaintenanceInMiliseconds( 0, &Orbiter::RealRedraw, NULL, pe_ALL );
-}
-
 void Orbiter::ScreenSaver( void *data )
 {
 #ifdef DEBUG
@@ -872,7 +865,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
 #endif
 		if(m_bShowShortcuts && pObj->m_iPK_Button)
-			RenderShortcut(pObj);
+			m_pOrbiterRenderer->RenderShortcut(pObj);
 
 		return;
 	}
@@ -937,7 +930,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		if( pvectGraphic )
 			pObj->m_pvectCurrentGraphic = pvectGraphic;
 		if( pObj->m_pvectCurrentGraphic )
-			RenderGraphic(pObj, rectTotal, pObj->m_bDisableAspectLock, point);
+			pObj->RenderGraphic(rectTotal, pObj->m_bDisableAspectLock, point);
 	}
 	else if( pObj->m_bIsBoundToLocation )
 	{
@@ -951,7 +944,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 			if( m_pLocationInfo && m_pLocationInfo->m_pvectGraphic )
 				pObj->m_pvectCurrentGraphic = m_pLocationInfo->m_pvectGraphic;
 			if( pObj->m_pvectCurrentGraphic )
-				RenderGraphic(pObj, rectTotal, pObj->m_bDisableAspectLock, point);
+				pObj->RenderGraphic(rectTotal, pObj->m_bDisableAspectLock, point);
 		}
 	}
 	// Maybe we're showing a non standard state
@@ -961,7 +954,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		vector<PlutoGraphic*> vectGraphicToUndoSelect;
 		vectGraphicToUndoSelect.push_back(pObj->m_pGraphicToUndoSelect);
 		pObj->m_pvectCurrentGraphic = &vectGraphicToUndoSelect;
-		RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+		pObj->RenderGraphic(rectTotal, pObj->m_bDisableAspectLock, point);
 		pObj->m_pvectCurrentGraphic = pvectGraphic_Hold;
 
 		vectGraphicToUndoSelect.clear();
@@ -969,7 +962,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		pObj->m_pGraphicToUndoSelect=NULL;
 	}
 	else if(  pObj->m_pvectCurrentGraphic  )
-		RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+		pObj->RenderGraphic(rectTotal, pObj->m_bDisableAspectLock, point );
 
 	switch( pObj->m_ObjectType )
 	{
@@ -1119,7 +1112,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 	}
 
 	if(m_bShowShortcuts && pObj->m_iPK_Button)
-		RenderShortcut(pObj);
+		m_pOrbiterRenderer->RenderShortcut(pObj);
 }
 //-----------------------------------------------------------------------------------------------------------
 /*virtual*/bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *pT,  class DataGridCell *pCell,  int j,  int i,  int GraphicToDisplay, PlutoPoint point )
@@ -5329,7 +5322,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 		CMD_Set_Text(sPK_DesignObj, m_mapTextString[TEXT_No_Media_CONST], TEXT_STATUS_CONST);
 	}
 
-	HidePopups(NULL);
+	m_pOrbiterRenderer->HidePopups(NULL);
 
 	if( !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )
 		return;
@@ -6742,7 +6735,11 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 }
 
 ScreenHistory *NeedToRender::m_pScreenHistory=NULL;
-
+//////////////////////////////////////////////////////////////////////////
+//
+// class NeedToRender
+//
+//////////////////////////////////////////////////////////////////////////
 NeedToRender::NeedToRender( class Orbiter *pOrbiter, const char *pWhere )
 {
 	/*
@@ -6757,7 +6754,31 @@ NeedToRender::NeedToRender( class Orbiter *pOrbiter, const char *pWhere )
 	g_cLastTime = clock();
 	g_iDontRender++;
 }
-
+//-----------------------------------------------------------------------------------------------------
+NeedToRender::~NeedToRender()
+{
+	g_iDontRender--;
+	if ( g_iDontRender == 0 )
+	{
+		if( m_pScreenHistory )
+		{
+			class ScreenHistory *pScreenHistory = m_pScreenHistory;
+			m_pScreenHistory=NULL;
+			m_pOrbiter->NeedToChangeScreens(pScreenHistory);
+		}
+#ifdef DEBUG
+		g_pPlutoLogger->Write( LV_STATUS, "NeedToRender::~NeedToRender() calling redraw for: %s", m_pWhere);
+#endif
+		if(!m_pOrbiter->m_bQuit)
+			m_pOrbiter->Renderer()->RedrawObjects();
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+ScreenHistory *NeedToRender::m_pScreenHistory_get() 
+{ 
+	return m_pScreenHistory; 
+}
+//-----------------------------------------------------------------------------------------------------
 void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScreenHistory/*, bool bAddToHistory*/ )
 {
 #ifdef DEBUG
@@ -6791,6 +6812,8 @@ void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScree
 		pOrbiter->ResetState(pScreenHistory->GetObj());
 	}
 }
+//////////////////////////////////////////////////////////////////////////
+
 
 //<-dceag-c242-b->
 
@@ -7190,216 +7213,6 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	DesignObj_Orbiter *pObj=NULL;
 	if( sPK_DesignObj.length() && (pObj=FindObject(sPK_DesignObj))!=NULL )
 		RenderObjectAsync(pObj);
-}
-
-/*virtual*/ void Orbiter::RenderGraphic(DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point)
-{
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
-	vector<PlutoGraphic*> *pVectorPlutoGraphic = pObj->m_pvectCurrentGraphic;
-
-	//we have nothing to render
-	if(pVectorPlutoGraphic->size() == 0)
-		return;
-
-	//just in case
-	if(int(pVectorPlutoGraphic->size()) <= pObj->m_iCurrentFrame)
-		pObj->m_iCurrentFrame = 0;
-
-	int iCurrentFrame = pObj->m_iCurrentFrame;
-	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
-	bool bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
-
-	//if a button doesn't have a mng as selected state (see bDisableEffects), then the png
-	//used in normal state will be rendered for selected state + a blue rectangle to show the selection
-	if(!bIsMNG && pObj->m_GraphicToDisplay == GRAPHIC_SELECTED)
-	{
-		if(pObj->m_vectSelectedGraphic.size() != 0)
-			pVectorPlutoGraphic = &pObj->m_vectSelectedGraphic;
-		else
-			pVectorPlutoGraphic = &pObj->m_vectGraphic; //normal state
-
-		//we have nothing to render
-		if(pVectorPlutoGraphic->size() == 0)
-			return;
-		if(int(pVectorPlutoGraphic->size()) <= pObj->m_iCurrentFrame)
-			pObj->m_iCurrentFrame = 0;
-
-		iCurrentFrame = pObj->m_iCurrentFrame;
-		pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
-		bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
-	}
-
-	string sFileName = "";
-	if(pPlutoGraphic->IsEmpty() && NULL != m_pCacheImageManager && pPlutoGraphic->m_Filename.length() &&
-		m_pCacheImageManager->IsImageInCache(pPlutoGraphic->m_Filename, pObj->m_Priority)
-		)
-	{
-		//if we have the file in cache
-		sFileName = m_pCacheImageManager->GetCacheImageFileName(pPlutoGraphic->m_Filename);
-	}
-	else if(pPlutoGraphic->IsEmpty() && m_sLocalDirectory.length() > 0 && pPlutoGraphic->m_Filename.length() )
-	{
-		//the file is in our localdrive
-		sFileName = m_sLocalDirectory + pPlutoGraphic->m_Filename;
-	}
-
-	//if we don't have the file in cache or on our localdrive
-	if(pPlutoGraphic->IsEmpty() && sFileName.empty())
-	{
-		// Request our config info
-		char *pGraphicFile=NULL;
-		int iSizeGraphicFile=0;
-
-		DCE::CMD_Request_File CMD_Request_File(
-			m_dwPK_Device,m_dwPK_Device_GeneralInfoPlugIn,
-			"orbiter/C" + StringUtils::itos(m_dwPK_Device) + "/" + pPlutoGraphic->m_Filename,
-			&pGraphicFile,&iSizeGraphicFile);
-		SendCommand(CMD_Request_File);
-
-		if (!iSizeGraphicFile)
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to get file from server %s", pPlutoGraphic->m_Filename.c_str());
-			return;
-		}
-
-		//save the image in cache
-		if(NULL != m_pCacheImageManager) //cache manager is enabled ?
-		{
-			m_pCacheImageManager->CacheImage(pGraphicFile, iSizeGraphicFile, pPlutoGraphic->m_Filename, pObj->m_Priority);
-			sFileName = m_pCacheImageManager->GetCacheImageFileName(pPlutoGraphic->m_Filename);
-		}
-
-		//TODO: same logic for in-memory data
-		if( (sFileName.empty() || iSizeGraphicFile) && !pPlutoGraphic->LoadGraphic(pGraphicFile, iSizeGraphicFile))
-		{
-			delete pGraphicFile;
-			pGraphicFile = NULL;
-			return;
-		}
-
-		delete pGraphicFile;
-		pGraphicFile = NULL;
-	}
-
-	if(pPlutoGraphic->IsEmpty() && !sFileName.empty())
-	{
-		if(!FileUtils::FileExists(sFileName))
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read file %s", (sFileName).c_str());
-			return;
-		}
-
-		switch(pPlutoGraphic->m_GraphicFormat)
-		{
-		case GR_JPG:
-		case GR_GIF:
-		case GR_TIF:
-		case GR_PNG:
-		case GR_BMP:
-		case GR_OCG:
-			{
-				size_t size = 0;
-				char *pData = FileUtils::ReadFileIntoBuffer(sFileName.c_str(), size);
-
-				if(!size)
-					return;
-
-				if(!pPlutoGraphic->LoadGraphic(pData, size))
-					return;
-
-				delete [] pData;
-			}
-			break;
-
-		case GR_MNG:
-			{
-				//eGraphicFormat eGF = pPlutoGraphic->m_GraphicFormat;
-				eGraphicManagement eGM = pPlutoGraphic->m_GraphicManagement;
-				string sMNGFileName = pPlutoGraphic->m_Filename;
-
-				vector<PlutoGraphic *>::iterator itPlutoGraphic;
-				for(itPlutoGraphic = pVectorPlutoGraphic->begin(); itPlutoGraphic != pVectorPlutoGraphic->end(); ++itPlutoGraphic)
-					delete *itPlutoGraphic;
-				pVectorPlutoGraphic->clear();
-
-				InMemoryMNG *pInMemoryMNG = InMemoryMNG::CreateInMemoryMNGFromFile(sFileName, rectTotal.Size());
-				size_t framesCount = pInMemoryMNG->m_vectMNGframes.size();
-				for(size_t i = 0; i < framesCount; i++)
-				{
-					size_t iFrameSize = 0;
-					char *pFrameData = NULL;
-
-					iFrameSize = pInMemoryMNG->GetFrame(int(i), pFrameData);
-
-					if(iFrameSize)
-					{
-						PlutoGraphic *pGraphic = m_pOrbiterRenderer->CreateGraphic();
-						pGraphic->m_GraphicManagement = eGM;
-						pGraphic->m_Filename = sMNGFileName;
-						pGraphic->m_GraphicFormat = GR_PNG; //this is an mng with multiple png frames
-						pGraphic->LoadGraphic(pFrameData, iFrameSize);
-						pGraphic->m_GraphicFormat = GR_MNG;
-						(*pVectorPlutoGraphic).push_back(pGraphic);
-					}
-
-					delete [] pFrameData;
-				}
-
-				delete pInMemoryMNG;
-				pInMemoryMNG = NULL;
-			}
-			break;
-
-		default:;
-
-		}
-	}
-
-	if(bIsMNG && pObj->m_pvectCurrentPlayingGraphic == NULL)
-	{
-		pPlutoGraphic = (*pVectorPlutoGraphic)[0];
-
-		int iTime = 0; //hardcoding warning! don't know from where to get the framerate yet (ask Radu, libMNG)
-#ifndef WINCE
-		iTime = 15;
-#endif
-
-		bool bLoop = false; //hardcoding warning!  (ask Radu, libMNG)
-
-		switch(pObj->m_GraphicToDisplay)
-		{
-		case GRAPHIC_HIGHLIGHTED:
-			pObj->m_iTime_Highlighted = iTime;
-			pObj->m_bLoop_Highlighted = bLoop;
-			break;
-		case GRAPHIC_SELECTED:
-			pObj->m_iTime_Selected = iTime;
-			pObj->m_bLoop_Selected = bLoop;
-			break;
-		case GRAPHIC_NORMAL:
-			pObj->m_iTime_Background = iTime;
-			pObj->m_bLoop_Background = bLoop;
-			break;
-			//todo alternate graphics ?
-		}
-
-		pObj->m_iCurrentFrame = 1;
-
-		//schedule next frame for animation
-		pObj->m_pvectCurrentPlayingGraphic = pObj->m_pvectCurrentGraphic;
-		pObj->m_GraphicToPlay = pObj->m_GraphicToDisplay;
-		CallMaintenanceInMiliseconds( iTime, &Orbiter::PlayMNG_CallBack, pObj , pe_NO );
-	}
-
-	if(!pPlutoGraphic->IsEmpty())
-		m_pOrbiterRenderer->RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
-#ifdef DEBUG
-	else
-		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", pObj->m_ObjectID.c_str());
-#endif
-
-	if(!bIsMNG && pObj->m_GraphicToDisplay == GRAPHIC_SELECTED)
-		SelectObject(pObj, point);
 }
 
 /*virtual*/ void Orbiter::GetRepeatedKeysForScreen(DesignObj_Orbiter* pObj, string& sKeysList)
@@ -7970,22 +7783,6 @@ void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)
 		ResetState( (DesignObj_Orbiter * )( *iHao ), bDontResetState );
 }
 
-/*virtual*/ void Orbiter::RenderPopup(PlutoPopup *pPopup, PlutoPoint point)
-{
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
-#endif
-    PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
-
-	if(pPopup->m_pObj)
-	{
-		RenderObject(pPopup->m_pObj, pPopup->m_pObj, point);
-	}
-	else
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot render the popup %s: object %s doesn't exist", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
-}
-
-
 PlutoPopup *Orbiter::FindPopupByName(DesignObj_Orbiter *pObj,string sName)
 {
 	if( pObj )
@@ -8044,7 +7841,7 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 	}
 	DesignObj_Orbiter *pObj_Screen = FindObject(sPK_DesignObj_CurrentScreen);
 	if( bExclusive )
-		HidePopups(pObj_Screen);
+		m_pOrbiterRenderer->HidePopups(pObj_Screen);
 
 	PlutoPoint pt(iPosition_X,iPosition_Y);
 	if( m_iRotation==90 )
@@ -8157,40 +7954,7 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 	CMD_Refresh("");
 }
 
-/*virtual*/ void Orbiter::HidePopups(DesignObj_Orbiter *pObj)
-{
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"hide popups");
-#endif
-	m_pActivePopup=NULL;
-	if( pObj )
-	{
-		for(list<class PlutoPopup*>::iterator it=pObj->m_listPopups.begin();it!=pObj->m_listPopups.end();)
-		{
-			ObjectOffScreen((*it)->m_pObj);
-			delete *it++;
-		}
 
-		if(pObj->m_listPopups.size()) //no popup, no refresh
-			CMD_Refresh("");
-
-		pObj->m_listPopups.clear();
-	}
-	else
-	{
-		for(list<class PlutoPopup*>::iterator it=m_listPopups.begin();it!=m_listPopups.end();)
-		{
-			ObjectOffScreen((*it)->m_pObj);
-			delete *it++;
-		}
-
-		if(m_listPopups.size()) //no popup, no refresh
-			CMD_Refresh("");
-
-		m_listPopups.clear();
-	}
-}
 
 //<-dceag-c399-b->
 
@@ -8830,34 +8594,6 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 			m_pMouseBehavior->SetMediaInfo(sTime,sTotal,sSpeed,sTitle,sSection);
 	}
 #endif
-}
-
-void Orbiter::RenderShortcut(DesignObj_Orbiter *pObj)
-{
-	string sCharToRender;
-	if(pObj->m_iPK_Button >= BUTTON_1_CONST && pObj->m_iPK_Button <= BUTTON_9_CONST)
-		sCharToRender += '0' + pObj->m_iPK_Button - BUTTON_1_CONST + 1;
-	else if(pObj->m_iPK_Button == BUTTON_0_CONST)
-		sCharToRender += '0';
-
-	if(sCharToRender != "")
-	{
-		PlutoPoint AbsPos = NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0);
-		PlutoPoint textPos(AbsPos.X + pObj->m_rPosition.X + 5, AbsPos.Y + pObj->m_rPosition.Y + 5);
-
-		TextStyle *pTextStyle = m_mapTextStyle_Find(1);
-		PlutoColor OldColor = pTextStyle->m_ForeColor;
-		pTextStyle->m_ForeColor.m_Value = 0xFF2020;
-		pTextStyle->m_iPixelHeight += 15;
-
-		PlutoRectangle rect(textPos.X, textPos.Y, 30, pTextStyle->m_iPixelHeight + 5);
-		DesignObjText text(m_pScreenHistory_Current->GetObj());
-		text.m_rPosition = rect;
-
-		m_pOrbiterRenderer->RenderText(sCharToRender,&text, pTextStyle);
-		pTextStyle->m_iPixelHeight -= 15;
-		pTextStyle->m_ForeColor = OldColor;
-	}
 }
 
 int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPercent)
@@ -9714,7 +9450,7 @@ void Orbiter::CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,Message *
 	m_pOrbiterRenderer->OnReload();
 }  
 //-----------------------------------------------------------------------------------------------------
-void Orbiter::RenderFrame(void *data)
+/*virtual*/ void Orbiter::RenderFrame(void *data)
 {
 	m_pOrbiterRenderer->RenderFrame(data);
 }

@@ -695,11 +695,6 @@ void OrbiterRenderer_PocketFrog::RenderScreen( bool bRenderGraphicsOnly )
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_PocketFrog::RedrawObjects()
-{
-    OrbiterLogic()->RedrawObjects();
-}
-//-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
     bool bDisableAspectRatio, PlutoPoint point)
 {

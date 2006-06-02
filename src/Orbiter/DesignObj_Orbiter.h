@@ -4,6 +4,8 @@
 #include "DesignObj_Data.h"
 #include "PlutoGraphic.h"
 #include "PlutoUtils/GraphicFormat.h"
+
+#include "Gen_Devices/AllCommandsRequests.h"
 //-------------------------------------------------------------------------------------------------------
 class ProntoCCF;
 namespace DCE
@@ -34,7 +36,7 @@ public:
 	class DesignObj_Orbiter *m_pDesignObj_Orbiter_Up,*m_pDesignObj_Orbiter_Down,*m_pDesignObj_Orbiter_Left,*m_pDesignObj_Orbiter_Right,*m_pDesignObj_Orbiter_TiedTo;
 	int m_iColumnTiedTo,m_iRowTiedTo;  // this only applies if m_pDesignObj_Orbiter_TiedTo points to a datagrid, and this object is tied to a specific row in the grid
 
-	class Orbiter *m_pCore;
+	class Orbiter *m_pOrbiter;
 	bool m_bOneTimeDontReset;
 	bool m_bIsBoundToUser,m_bIsBoundToLocation,m_bIsARemoteControl; // Redundant, but saves time from looking this up each time
 	bool m_bOnScreen,m_bDisableAspectLock,m_bContainsDataGrid;
@@ -73,7 +75,9 @@ public:
 	class Orbiter_CriteriaList *m_pCriteria;
 	ProntoCCF *m_pCCF;
 
-	bool IsHidden() { if( m_bHidden ) return true;  if( m_pParentObject ) return ((DesignObj_Orbiter *) m_pParentObject)->IsHidden(); return false; }
+	bool IsHidden();
+
+	virtual void RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
 
 	// Runtime states
 	bool m_bActive, m_bHidden;

@@ -9,6 +9,7 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "OrbiterRenderer.h"
 #include "DataGrid.h"
 
 using namespace DCE;
@@ -84,7 +85,7 @@ int k=2;
 			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_ScrollingGrid);
 
 //m_pMouseBehavior->m_pOrbiter->HighlightNextObject(PK_Direction);
-			m_pMouseBehavior->m_pOrbiter->RedrawObjects();  // We may have scrolled past the end of a grid and need to re-render
+			m_pMouseBehavior->m_pOrbiter->Renderer()->RedrawObjects();  // We may have scrolled past the end of a grid and need to re-render
 		}
 		return true;
 	}

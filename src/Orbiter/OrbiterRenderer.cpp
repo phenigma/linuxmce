@@ -6,8 +6,11 @@
 #include "DataGrid.h"
 #include "OrbiterRendererFactory.h"
 #include "Gen_Devices/AllCommandsRequests.h"
+
 #include "../pluto_main/Define_VertAlignment.h" 
 #include "../pluto_main/Define_HorizAlignment.h" 
+#include "../pluto_main/Define_Button.h"
+
 #include <memory>
 //-----------------------------------------------------------------------------------------------------
 using namespace std;
@@ -227,13 +230,13 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 	}
 
 	for(list<class PlutoPopup*>::iterator it=OrbiterLogic()->m_listPopups.begin();it!=OrbiterLogic()->m_listPopups.end();++it)
-		OrbiterLogic()->RenderPopup(*it, (*it)->m_Position);
+		RenderPopup(*it, (*it)->m_Position);
 
 	if( OrbiterLogic()->m_pScreenHistory_Current  )
 	{
 		for(list<class PlutoPopup*>::iterator it=OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_listPopups.begin();
 			it!=OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_listPopups.end();++it)
-			OrbiterLogic()->RenderPopup(*it, (*it)->m_Position);
+			RenderPopup(*it, (*it)->m_Position);
 	}
 
 	cm.Release(  );
@@ -821,5 +824,96 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 		OrbiterLogic()->RenderObjectAsync(OrbiterLogic()->m_pObj_Highlighted);
 
 	return true;
+}
+//-----------------------------------------------------------------------------------------------------
+void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
+{
+	string sCharToRender;
+	if(pObj->m_iPK_Button >= BUTTON_1_CONST && pObj->m_iPK_Button <= BUTTON_9_CONST)
+		sCharToRender += '0' + pObj->m_iPK_Button - BUTTON_1_CONST + 1;
+	else if(pObj->m_iPK_Button == BUTTON_0_CONST)
+		sCharToRender += '0';
+
+	if(sCharToRender != "")
+	{
+		PlutoPoint AbsPos = NULL != OrbiterLogic()->m_pActivePopup ? OrbiterLogic()->m_pActivePopup->m_Position : PlutoPoint(0, 0);
+		PlutoPoint textPos(AbsPos.X + pObj->m_rPosition.X + 5, AbsPos.Y + pObj->m_rPosition.Y + 5);
+
+		TextStyle *pTextStyle = OrbiterLogic()->m_mapTextStyle_Find(1);
+		PlutoColor OldColor = pTextStyle->m_ForeColor;
+		pTextStyle->m_ForeColor.m_Value = 0xFF2020;
+		pTextStyle->m_iPixelHeight += 15;
+
+		PlutoRectangle rect(textPos.X, textPos.Y, 30, pTextStyle->m_iPixelHeight + 5);
+		DesignObjText text(OrbiterLogic()->m_pScreenHistory_Current->GetObj());
+		text.m_rPosition = rect;
+
+		RenderText(sCharToRender,&text, pTextStyle);
+		pTextStyle->m_iPixelHeight -= 15;
+		pTextStyle->m_ForeColor = OldColor;
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer::HidePopups(DesignObj_Orbiter *pObj)
+{
+	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"hide popups");
+#endif
+	OrbiterLogic()->m_pActivePopup=NULL;
+	if( pObj )
+	{
+		for(list<class PlutoPopup*>::iterator it=pObj->m_listPopups.begin();it!=pObj->m_listPopups.end();)
+		{
+			OrbiterLogic()->ObjectOffScreen((*it)->m_pObj);
+			delete *it++;
+		}
+
+		if(pObj->m_listPopups.size()) //no popup, no refresh
+			OrbiterLogic()->CMD_Refresh("");
+
+		pObj->m_listPopups.clear();
+	}
+	else
+	{
+		for(list<class PlutoPopup*>::iterator it=OrbiterLogic()->m_listPopups.begin();it!=OrbiterLogic()->m_listPopups.end();)
+		{
+			OrbiterLogic()->ObjectOffScreen((*it)->m_pObj);
+			delete *it++;
+		}
+
+		if(OrbiterLogic()->m_listPopups.size()) //no popup, no refresh
+			OrbiterLogic()->CMD_Refresh("");
+
+		OrbiterLogic()->m_listPopups.clear();
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer::RenderPopup(PlutoPopup *pPopup, PlutoPoint point)
+{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
+#endif
+	PLUTO_SAFETY_LOCK(sm, OrbiterLogic()->m_ScreenMutex);
+
+	if(pPopup->m_pObj)
+	{
+		OrbiterLogic()->RenderObject(pPopup->m_pObj, pPopup->m_pObj, point);
+	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot render the popup %s: object %s doesn't exist", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
+}
+//-----------------------------------------------------------------------------------------------------
+void OrbiterRenderer::RedrawObjects()
+{
+	PLUTO_SAFETY_LOCK(rm,OrbiterLogic()->m_NeedRedrawVarMutex);
+	if(
+		OrbiterLogic()->m_vectObjs_NeedRedraw.size() == 0 && 
+		OrbiterLogic()->m_vectTexts_NeedRedraw.size() == 0 && 
+		OrbiterLogic()->m_bRerenderScreen==false
+	)
+		return; // Nothing to do anyway
+
+	OrbiterLogic()->CallMaintenanceInMiliseconds( 0, (OrbiterCallBack) &Orbiter::RealRedraw, NULL, pe_ALL );
 }
 //-----------------------------------------------------------------------------------------------------

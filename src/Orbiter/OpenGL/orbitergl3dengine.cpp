@@ -105,11 +105,15 @@ void OrbiterGL3D::Flip()
 {
 #ifndef POCKETFROG
 
-    if (pOrbiterRendererGL->OrbiterLogic())
-        pOrbiterRendererGL->OrbiterLogic()->X_LockDisplay();
+	OrbiterRenderer_SDL *pOrbiterRenderer_SDL = dynamic_cast<OrbiterRenderer_SDL *>(pOrbiterRendererGL);
+
+	if(NULL != pOrbiterRenderer_SDL)
+        pOrbiterRenderer_SDL->LockDisplay();
+
     SDL_GL_SwapBuffers();
-    if (pOrbiterRendererGL->OrbiterLogic())
-        pOrbiterRendererGL->OrbiterLogic()->X_UnlockDisplay();
+
+    if (NULL != pOrbiterRenderer_SDL)
+        pOrbiterRenderer_SDL->UnlockDisplay();
 
 #else // ndef POCKETFROG
 	SwapBuffers(hdc);

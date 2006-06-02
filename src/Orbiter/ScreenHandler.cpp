@@ -1,6 +1,7 @@
 #include "ScreenHandler.h"
 #include "ScreenHistory.h"
 #include "CallBackTypes.h"
+#include "OrbiterRenderer.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_Screen.h"
@@ -70,7 +71,7 @@ void ScreenHandler::RefreshDatagrid(long PK_DesignObj_Datagrid)
 	{
 		m_pOrbiter->RenderObjectAsync(pObj);
 		m_pOrbiter->InitializeGrid((DesignObj_DataGrid *)pObj);
-		m_pOrbiter->RedrawObjects();
+		m_pOrbiter->Renderer()->RedrawObjects();
 	}
 }
 //-----------------------------------------------------------------------------------------------------

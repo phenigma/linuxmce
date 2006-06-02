@@ -92,8 +92,6 @@ public:
 
 	// Rendering
 	void RenderScreen( bool bRenderGraphicsOnly );
-	void RedrawObjects();
-
 	void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
 
 	void BeginPaint();

@@ -1965,7 +1965,7 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 	if(NULL != pBackgroundGraphic)
 		m_pOrbiter->Renderer()->RenderGraphic( pBackgroundGraphic,  rectTotal, pObj->m_bDisableAspectLock, point );
 
-	m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+	pObj->RenderGraphic(rectTotal, pObj->m_bDisableAspectLock, point);
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 
@@ -2076,7 +2076,7 @@ bool OSDScreenHandler::VolumeControlCustomRender(CallBackData *pData)
 	if(NULL != pBackgroundGraphic)
 		m_pOrbiter->Renderer()->RenderGraphic( pBackgroundGraphic,  rectTotal, pObj->m_bDisableAspectLock, point );
 
-	m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+	pObj->RenderGraphic(rectTotal, pObj->m_bDisableAspectLock, point);
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if( m_pOrbiter->m_pMouseBehavior )
@@ -2149,7 +2149,7 @@ bool OSDScreenHandler::LightControlCustomRender(CallBackData *pData)
 	if(NULL != pBackgroundGraphic)
 		m_pOrbiter->Renderer()->RenderGraphic( pBackgroundGraphic,  rectTotal, pObj->m_bDisableAspectLock, point );
 
-	m_pOrbiter->RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+	pObj->RenderGraphic(rectTotal, pObj->m_bDisableAspectLock, point);
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if( m_pOrbiter->m_pMouseBehavior )
