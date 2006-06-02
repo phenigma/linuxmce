@@ -1,0 +1,528 @@
+delay 2000
+button 176 (char: '°')
+delay 156 
+button 176 (char: '°')
+delay 17063 
+button 176 (char: '°')
+delay 156 
+button 176 (char: '°')
+delay 719 
+button 177 (char: '±')
+delay 15 
+button 177 (char: '±')
+delay 9578 
+click 610, 525 
+delay 2000
+click 892, 496 
+delay 1109 
+click 713, 526 
+delay 828 
+button 176 (char: '°')
+delay 141 
+button 176 (char: '°')
+delay 1594 
+button 177 (char: '±')
+delay 828 
+button 177 (char: '±')
+delay 1078 
+button 176 (char: '°')
+delay 187 
+button 176 (char: '°')
+delay 4594 
+button 178 (char: '²')
+delay 1000 
+button 178 (char: '²')
+delay 7328 
+click 693, 669 
+delay 1907 
+click 291, 262 
+delay 734 
+button 0 (char: '
+delay 250 
+button 0 (char: '
+delay 359 
+button 0 (char: '
+delay 219 
+button 0 (char: '
+delay 891 
+button 13 (char: '')
+delay 187 
+button 13 (char: '')
+delay 2000
+click 212, 170 
+delay 4234 
+click 384, 357 
+delay 531 
+button 176 (char: '°')
+delay 141 
+button 176 (char: '°')
+delay 687 
+button 177 (char: '±')
+delay 797 
+button 177 (char: '±')
+delay 1281 
+button 178 (char: '²')
+delay 250 
+button 178 (char: '²')
+delay 3250 
+click 255, 252 
+delay 3469 
+click 353, 248 
+delay 2000
+click 157, 111 
+delay 2000
+click 44, 8 
+delay 3313 
+click 551, 254 
+delay 922 
+button 176 (char: '°')
+delay 93 
+button 176 (char: '°')
+delay 1844 
+button 14 (char: '')
+delay 110 
+button 14 (char: '')
+delay 1312 
+click 527, 238 
+delay 3563 
+click 587, 231 
+delay 312 
+click 635, 238 
+delay 172 
+click 642, 238 
+delay 2078 
+button 0 (char: '
+delay 141 
+button 0 (char: '
+delay 250 
+button 0 (char: '
+delay 78 
+button 0 (char: '
+delay 140 
+button 0 (char: '
+delay 94 
+button 0 (char: '
+delay 2000
+click 792, 197 
+delay 2000
+click 485, 210 
+delay 1125 
+button 1 (char: '')
+delay 94 
+button 1 (char: '')
+delay 1171 
+button 13 (char: '')
+delay 79 
+button 13 (char: '')
+delay 2000
+button 4 (char: '')
+delay 141 
+button 4 (char: '')
+delay 219 
+button 1 (char: '')
+delay 94 
+button 1 (char: '')
+delay 656 
+button 176 (char: '°')
+delay 0 
+button 177 (char: '±')
+delay 109 
+button 177 (char: '±')
+delay 641 
+button 176 (char: '°')
+delay 15 
+button 177 (char: '±')
+delay 63 
+button 177 (char: '±')
+delay 1734 
+button 177 (char: '±')
+delay 750 
+button 177 (char: '±')
+delay 13203 
+button 13 (char: '')
+delay 79 
+button 13 (char: '')
+delay 2000
+click 481, 664 
+delay 1922 
+click 928, 516 
+delay 547 
+click 300, 523 
+delay 1141 
+button 13 (char: '')
+delay 140 
+button 13 (char: '')
+delay 2000
+button 4 (char: '')
+delay 141 
+button 4 (char: '')
+delay 1625 
+button 176 (char: '°')
+delay 156 
+button 176 (char: '°')
+delay 797 
+button 14 (char: '')
+delay 172 
+button 14 (char: '')
+delay 859 
+click 618, 326 
+delay 750 
+click 693, 334 
+delay 547 
+button 177 (char: '±')
+delay 750 
+button 177 (char: '±')
+delay 281 
+button 178 (char: '²')
+delay 125 
+button 178 (char: '²')
+delay 5422 
+click 484, 333 
+delay 891 
+button 13 (char: '')
+delay 78 
+button 13 (char: '')
+delay 2000
+click 628, 244 
+delay 2000
+button 177 (char: '±')
+delay 62 
+button 177 (char: '±')
+delay 719 
+button 176 (char: '°')
+delay 125 
+button 176 (char: '°')
+delay 1250 
+button 14 (char: '')
+delay 188 
+button 14 (char: '')
+delay 375 
+button 176 (char: '°')
+delay 203 
+button 176 (char: '°')
+delay 437 
+button 177 (char: '±')
+delay 188 
+button 177 (char: '±')
+delay 7812 
+click 1208, 510 
+delay 5078 
+button 1 (char: '')
+delay 78 
+button 1 (char: '')
+delay 94 
+button 1 (char: '')
+delay 78 
+button 1 (char: '')
+delay 94 
+button 1 (char: '')
+delay 78 
+button 1 (char: '')
+delay 188 
+button 2 (char: '')
+delay 78 
+button 2 (char: '')
+delay 156 
+button 2 (char: '')
+delay 16 
+button 2 (char: '')
+delay 78 
+button 2 (char: '')
+delay 203 
+button 3 (char: '')
+delay 31 
+button 2 (char: '')
+delay 172 
+button 2 (char: '')
+delay 0 
+button 3 (char: '')
+delay 94 
+button 2 (char: '')
+delay 1031 
+button 2 (char: '')
+delay 188 
+button 2 (char: '')
+delay 250 
+button 2 (char: '')
+delay 15 
+button 2 (char: '')
+delay 750 
+button 2 (char: '')
+delay 125 
+button 2 (char: '')
+delay 172 
+button 2 (char: '')
+delay 47 
+button 2 (char: '')
+delay 109 
+button 2 (char: '')
+delay 282 
+button 2 (char: '')
+delay 750 
+button 13 (char: '')
+delay 187 
+button 13 (char: '')
+delay 2000
+click 11, 21 
+delay 843 
+click 23, 30 
+delay 1391 
+click 1241, 29 
+delay 1094 
+click 138, 691 
+delay 375 
+click 366, 682 
+delay 375 
+click 499, 673 
+delay 172 
+click 511, 670 
+delay 2515 
+button 176 (char: '°')
+delay 219 
+button 176 (char: '°')
+delay 641 
+button 176 (char: '°')
+delay 218 
+button 176 (char: '°')
+delay 625 
+button 177 (char: '±')
+delay 32 
+button 177 (char: '±')
+delay 828 
+button 177 (char: '±')
+delay 15 
+button 177 (char: '±')
+delay 1813 
+button 177 (char: '±')
+delay 812 
+button 177 (char: '±')
+delay 6188 
+click 636, 490 
+delay 2000
+click 47, 35 
+delay 3032 
+click 662, 652 
+delay 484 
+click 703, 665 
+delay 1437 
+button 177 (char: '±')
+delay 219 
+button 177 (char: '±')
+delay 5360 
+click 913, 525 
+delay 6171 
+click 1046, 434 
+delay 2188 
+click 1046, 434 
+delay 844 
+click 1046, 434 
+delay 312 
+click 1046, 435 
+delay 188 
+click 1051, 434 
+delay 250 
+click 1041, 438 
+delay 297 
+click 1157, 437 
+delay 312 
+click 1145, 428 
+delay 438 
+click 1046, 434 
+delay 750 
+click 1046, 434 
+delay 2078 
+click 1046, 434 
+delay 625 
+click 1046, 434 
+delay 515 
+click 1046, 434 
+delay 328 
+click 1046, 434 
+delay 469 
+click 1053, 434 
+delay 313 
+click 1046, 434 
+delay 500 
+click 1046, 434 
+delay 437 
+click 1046, 438 
+delay 266 
+click 1045, 434 
+delay 390 
+click 1047, 434 
+delay 469 
+click 1028, 431 
+delay 235 
+click 1046, 434 
+delay 656 
+click 1047, 437 
+delay 1250 
+click 1046, 434 
+delay 1312 
+click 1046, 434 
+delay 250 
+click 1046, 434 
+delay 735 
+click 1046, 434 
+delay 218 
+click 1046, 434 
+delay 500 
+click 1046, 434 
+delay 469 
+click 1213, 490 
+delay 1000 
+click 1046, 434 
+delay 2656 
+click 1046, 434 
+delay 297 
+click 1046, 435 
+delay 547 
+click 1046, 434 
+delay 1063 
+click 1048, 434 
+delay 1297 
+click 1047, 444 
+delay 312 
+click 951, 429 
+delay 203 
+click 1037, 438 
+delay 1391 
+click 1039, 435 
+delay 1765 
+button 13 (char: '')
+delay 110 
+button 13 (char: '')
+delay 2000
+button 0 (char: '
+delay 94 
+button 0 (char: '
+delay 250 
+button 0 (char: '
+delay 125 
+button 0 (char: '
+delay 2000
+click 581, 273 
+delay 2000
+button 13 (char: '')
+delay 94 
+button 13 (char: '')
+delay 2000
+click 494, 185 
+delay 1875 
+button 176 (char: '°')
+delay 187 
+button 176 (char: '°')
+delay 1016 
+button 177 (char: '±')
+delay 187 
+button 177 (char: '±')
+delay 50422 
+click 1118, 515 
+delay 2000
+click 591, 48 
+delay 1375 
+click 330, 111 
+delay 687 
+click 130, 132 
+delay 1266 
+click 128, 192 
+delay 1797 
+click 133, 244 
+delay 1172 
+click 128, 292 
+delay 1172 
+click 79, 283 
+delay 859 
+click 133, 246 
+delay 1703 
+button 2 (char: '')
+delay 156 
+button 2 (char: '')
+delay 703 
+button 3 (char: '')
+delay 141 
+button 3 (char: '')
+delay 719 
+button 2 (char: '')
+delay 172 
+button 2 (char: '')
+delay 703 
+button 2 (char: '')
+delay 140 
+button 2 (char: '')
+delay 563 
+button 2 (char: '')
+delay 156 
+button 2 (char: '')
+delay 547 
+button 2 (char: '')
+delay 172 
+button 2 (char: '')
+delay 12828 
+button 3 (char: '')
+delay 78 
+button 3 (char: '')
+delay 1250 
+button 3 (char: '')
+delay 94 
+button 3 (char: '')
+delay 2000
+click 367, 109 
+delay 1781 
+button 3 (char: '')
+delay 47 
+button 3 (char: '')
+delay 750 
+button 3 (char: '')
+delay 62 
+button 3 (char: '')
+delay 1016 
+button 2 (char: '')
+delay 140 
+button 2 (char: '')
+delay 1172 
+button 2 (char: '')
+delay 172 
+button 2 (char: '')
+delay 2000
+click 34, 58 
+delay 985 
+click 588, 58 
+delay 906 
+click 43, 120 
+delay 1031 
+click 605, 34 
+delay 2828 
+click 35, 266 
+delay 2000
+button 2 (char: '')
+delay 125 
+button 2 (char: '')
+delay 718 
+button 2 (char: '')
+delay 94 
+button 2 (char: '')
+delay 219 
+button 5 (char: '')
+delay 94 
+button 5 (char: '')
+delay 703 
+button 4 (char: '')
+delay 172 
+button 4 (char: '')
+delay 156 
+button 4 (char: '')
+delay 109 
+button 4 (char: '')
+delay 110 
+button 4 (char: '')
+delay 93 
+button 4 (char: '')
+delay 625 
+button 4 (char: '')
+delay 125 
+button 4 (char: '')
+delay 94 
+button 5 (char: '')
+delay 78 
+button 5 (char: '')

@@ -1,0 +1,4 @@
+delay 2000
+click 21, 14 
+delay 2000
+click 59, 30 

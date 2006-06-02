@@ -1,0 +1,818 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<resource version="2.3.0.1" xmlns="http://www.wxwidgets.org/wxxrc">
+    <object class="wxDialog" name="ID_DIALOG_POINTER" subclass="wxDialog_Pointer">
+        <style>wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+        <exstyle>wxWS_EX_BLOCK_EVENTS</exstyle>
+        <size>130,113d</size>
+        <title>Pointer Demo</title>
+        <centered>1</centered>
+        <object class="wxBoxSizer" name="v_pBoxV_all">
+            <orient>wxVERTICAL</orient>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL</flag>
+                <border>5</border>
+                <object class="wxBoxSizer" name="v_pBoxH_Buttons">
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL</flag>
+                        <border>5</border>
+                        <option>1</option>
+                        <object class="wxButton" name="ID_BUTTON_MOUSE_CONSTRAIN">
+                            <label>Constrain Mouse</label>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <border>5</border>
+                        <object class="wxBitmapButton" name="wxID_CLOSE">
+                            <bitmap>cancel.xpm</bitmap>
+                            <selected>ok.xpm</selected>
+                            <focus>exit.xpm</focus>
+                        </object>
+                    </object>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL</flag>
+                <border>5</border>
+                <option>1</option>
+                <object class="wxStaticBoxSizer" name="wxID_ANY">
+                    <orient>wxVERTICAL</orient>
+                    <label>Pointer Shape</label>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL</flag>
+                        <border>5</border>
+                        <object class="wxButton" name="ID_BUTTON_LOADIMAGE">
+                            <label>Load Pointer Image</label>
+                            <default>1</default>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL|wxADJUST_MINSIZE</flag>
+                        <border>5</border>
+                        <object class="wxStaticText" name="wxID_STATIC">
+                            <label>OR Select a standard X11 cursor :</label>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL</flag>
+                        <border>5</border>
+                        <option>1</option>
+                        <object class="wxListBox" name="ID_LISTBOX">
+                            <style>wxLB_SINGLE</style>
+                            <content>
+                                <item>11</item>
+                                <item>22</item>
+                                <item>33</item>
+                                <item>44</item>
+                            </content>
+                            <selection>1</selection>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL</flag>
+                        <border>5</border>
+                        <object class="wxButton" name="ID_BUTTON_ROOTWINDOW">
+                            <hidden>1</hidden>
+                            <label>Root Window Pointer Shape</label>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL|wxADJUST_MINSIZE</flag>
+                        <border>5</border>
+                        <object class="wxStaticText" name="wxID_STATIC">
+                            <label>Static text Static text Static text Static text Static text Static text Static text Static text </label>
+                        </object>
+                    </object>
+                </object>
+            </object>
+        </object>
+    </object>
+    <object class="wxFrame" name="ID_FRAMEMAIN" subclass="wxFrameMain">
+        <style>wxDEFAULT_FRAME_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxMINIMIZE|wxMAXIMIZE|wxMINIMIZE_BOX|wxMAXIMIZE_BOX|wxCLOSE_BOX|wxDOUBLE_BORDER</style>
+        <size>700,300d</size>
+        <title>wxApplication</title>
+        <object class="wxMenuBar" name="ID_MENUBAR_MAIN">
+            <object class="wxMenu">
+                <label>&amp;Menu</label>
+                <object class="separator">
+                </object>
+                <object class="wxMenuItem" name="wxID_EXIT">
+                    <label>&amp;Quit</label>
+                    <help>Quit Application</help>
+                    <bitmap>exit.xpm</bitmap>
+                </object>
+            </object>
+        </object>
+        <object class="wxToolBar" name="ID_TOOLBAR_MAIN">
+            <style>wxTB_FLAT|wxTB_DOCKABLE|wxTB_HORIZONTAL|wxTB_TEXT|wxCLIP_CHILDREN </style>
+            <object class="tool" name="wxID_EXIT">
+                <help>Quit Application</help>
+                <bitmap>exit.xpm</bitmap>
+                <label>Quit</label>
+                <tooltip>Quit Application</tooltip>
+                <longhelp>Quit Application</longhelp>
+            </object>
+            <object class="separator">
+            </object>
+            <object class="tool" name="ID_TOOL_POINTER">
+                <help>Pointer Demo</help>
+                <bitmap>contexthelp.xpm</bitmap>
+                <label>Ptr</label>
+                <tooltip>Pointer Demo</tooltip>
+                <longhelp>Pointer Demo</longhelp>
+            </object>
+            <object class="separator">
+            </object>
+            <object class="tool" name="ID_TOOL_GL">
+                <help>GL window</help>
+                <bitmap>exec.xpm</bitmap>
+                <label>GL</label>
+                <tooltip>GL window</tooltip>
+                <longhelp>GL window</longhelp>
+            </object>
+            <object class="tool" name="ID_TOOL_SDL">
+                <help>SDL window</help>
+                <bitmap>exec.xpm</bitmap>
+                <label>SDL</label>
+                <tooltip>SDL window</tooltip>
+                <longhelp>SDL window</longhelp>
+            </object>
+            <object class="separator">
+            </object>
+            <object class="tool" name="ID_TOOL_DBG">
+                <help>debug</help>
+                <bitmap>bug.xpm</bitmap>
+                <label>dbg</label>
+                <tooltip>debug</tooltip>
+                <longhelp>debug</longhelp>
+                <toggle>1</toggle>
+            </object>
+            <object class="separator">
+            </object>
+            <object class="tool" name="ID_TOOL_SPEEDCONTOL">
+                <help>Speed Control</help>
+                <bitmap>clock.xpm</bitmap>
+                <label>Spd</label>
+                <tooltip>Speed Control</tooltip>
+                <longhelp>Speed Control</longhelp>
+                <toggle>1</toggle>
+            </object>
+            <object class="tool" name="ID_TOOL_VOLUMECONTROL">
+                <help>Volume Control</help>
+                <bitmap>clock.xpm</bitmap>
+                <label>Vol</label>
+                <tooltip>Volume Control</tooltip>
+                <longhelp>Volume Control</longhelp>
+                <toggle>1</toggle>
+            </object>
+            <object class="tool" name="ID_TOOL_LIGHTCONTROL">
+                <help>Light Control</help>
+                <bitmap>clock.xpm</bitmap>
+                <label>Lght</label>
+                <tooltip>Light Control</tooltip>
+                <longhelp>Light Control</longhelp>
+                <toggle>1</toggle>
+            </object>
+            <object class="separator">
+            </object>
+            <object class="tool" name="ID_TOOL_ROOMWIZARD">
+                <help>Room Wizard</help>
+                <bitmap>clock.xpm</bitmap>
+                <label>R.W.</label>
+                <tooltip>Room Wizard</tooltip>
+                <longhelp>Room Wizard</longhelp>
+                <toggle>1</toggle>
+            </object>
+            <object class="tool" name="ID_TOOL_WAITGRID">
+                <help>Wait Grid</help>
+                <bitmap>clock.xpm</bitmap>
+                <label>W.G.</label>
+                <tooltip>Wait Grid</tooltip>
+                <longhelp>Wait Grid</longhelp>
+                <toggle>1</toggle>
+            </object>
+            <object class="tool" name="ID_TOOL_WAITLIST">
+                <help>Wait List</help>
+                <bitmap>clock.xpm</bitmap>
+                <label>W.L.</label>
+                <tooltip>Wait List</tooltip>
+                <longhelp>Wait List</longhelp>
+                <toggle>1</toggle>
+            </object>
+            <object class="tool" name="ID_TOOL_WAITUSER">
+                <help>Wait User</help>
+                <bitmap>clock.xpm</bitmap>
+                <label>W.U.</label>
+                <tooltip>Wait User</tooltip>
+                <longhelp>Wait User</longhelp>
+                <toggle>1</toggle>
+            </object>
+            <object class="separator">
+            </object>
+            <object class="tool" name="ID_TOOL_U_B_D">
+                <help>Unknown Detached Blocking</help>
+                <bitmap>exec.xpm</bitmap>
+                <label>U B D</label>
+                <tooltip>U B D</tooltip>
+                <longhelp>Unknown Detached Blocking</longhelp>
+                <toggle>1</toggle>
+            </object>
+            <object class="tool" name="ID_TOOL_U_B_J">
+                <help>Unknown Joinable Blocking</help>
+                <bitmap>exec.xpm</bitmap>
+                <label>U B J</label>
+                <tooltip>U B J</tooltip>
+                <longhelp>Unknown Joinable Blocking</longhelp>
+                <toggle>1</toggle>
+            </object>
+            <object class="tool" name="ID_TOOL_U_N_D">
+                <help>Unknown Detached NonBlocking</help>
+                <bitmap>exec.xpm</bitmap>
+                <label>U N D</label>
+                <tooltip>U N D</tooltip>
+                <longhelp>Unknown Detached NonBlocking</longhelp>
+                <toggle>1</toggle>
+            </object>
+            <object class="tool" name="ID_TOOL_U_N_J">
+                <help>Unknown Joinable NonBlocking</help>
+                <bitmap>exec.xpm</bitmap>
+                <label>U N J</label>
+                <tooltip>U N J</tooltip>
+                <longhelp>Unknown Joinable NonBlocking</longhelp>
+                <toggle>1</toggle>
+            </object>
+            <object class="tool" name="ID_TOOL_STOP">
+                <help>stop all threads</help>
+                <bitmap>exit.xpm</bitmap>
+                <label>stop</label>
+                <tooltip>stop all threads</tooltip>
+                <longhelp>stop all threads</longhelp>
+            </object>
+            <object class="separator">
+            </object>
+        </object>
+        <object class="wxTextCtrl" name="ID_TEXTCTRL_LOG">
+            <font>
+                <size>8</size>
+                <family>default</family>
+                <style>normal</style>
+                <weight>normal</weight>
+                <underlined>0</underlined>
+                <face>Console</face>
+            </font>
+            <style>wxTE_MULTILINE</style>
+            <fg>#000080</fg>
+            <bg>#E5E5E5</bg>
+        </object>
+        <object class="wxStatusBar" name="ID_STATUSBAR_MAIN">
+            <font>
+                <size>8</size>
+                <family>swiss</family>
+                <style>normal</style>
+                <weight>normal</weight>
+                <underlined>0</underlined>
+                <face>Sans</face>
+            </font>
+            <style>wxST_SIZEGRIP|wxNO_BORDER|wxCLIP_CHILDREN </style>
+            <fields>1</fields>
+            <widths></widths>
+        </object>
+    </object>
+    <object class="wxDialog" name="ID_DIALOG_GL" subclass="wxDialog_GL">
+        <style>wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+        <exstyle>wxWS_EX_BLOCK_EVENTS</exstyle>
+        <size>150,150d</size>
+        <title>OpenGL Demo</title>
+        <centered>1</centered>
+    </object>
+    <object class="wxDialog" name="ID_DIALOG_SDL" subclass="wxDialog_SDL">
+        <style>wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+        <exstyle>wxWS_EX_BLOCK_EVENTS</exstyle>
+        <size>150,150d</size>
+        <title>SDL Demo</title>
+        <centered>1</centered>
+    </object>
+    <object class="wxPanel" name="ID_PANEL_ARROW" subclass="wxPanel_Arrow">
+        <style>wxRESIZE_BORDER|wxCLIP_CHILDREN </style>
+        <size>100,10d</size>
+    </object>
+    <object class="wxPanel" name="ID_PANEL_SEEK" subclass="wxPanel_Seek">
+        <style>wxRESIZE_BORDER|wxCLIP_CHILDREN </style>
+        <size>100,10d</size>
+    </object>
+    <object class="wxPanel" name="ID_PANEL_SPEED" subclass="wxPanel_Speed">
+        <style>wxRESIZE_BORDER|wxCLIP_CHILDREN </style>
+        <size>100,10d</size>
+    </object>
+    <object class="wxPanel" name="ID_PANEL_TIME" subclass="wxPanel_Time">
+        <style>wxRESIZE_BORDER|wxCLIP_CHILDREN </style>
+        <fg>#0000FF</fg>
+        <bg>#ADD8E6</bg>
+        <size>100,75d</size>
+        <font>
+            <size>8</size>
+            <family>default</family>
+            <style>normal</style>
+            <weight>normal</weight>
+            <underlined>0</underlined>
+            <face>Helvetica</face>
+        </font>
+        <object class="wxBoxSizer" name="v_pBoxV_all">
+            <orient>wxVERTICAL</orient>
+            <object class="sizeritem">
+                <flag>wxGROW</flag>
+                <border>5</border>
+                <option>1</option>
+                <object class="wxSlider" name="ID_SLIDER_TIME">
+                    <style>wxSL_HORIZONTAL|wxSL_AUTOTICKS</style>
+                    <enabled>0</enabled>
+                    <bg>#ADD8E6</bg>
+                    <value>50</value>
+                    <min>0</min>
+                    <max>100</max>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxGROW</flag>
+                <border>5</border>
+                <option>1</option>
+                <object class="wxPanel" name="ID_CTRL_TIME_ARROW" subclass="wxPanel_Arrow">
+                    <size>100,10d</size>
+                    <style>wxSUNKEN_BORDER|wxCLIP_CHILDREN </style>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxGROW</flag>
+                <border>5</border>
+                <object class="wxBoxSizer" name="v_pBoxH_Start_End">
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="sizeritem">
+                        <flag>wxGROW</flag>
+                        <border>5</border>
+                        <object class="wxStaticText" name="wxID_TIME_START">
+                            <label>11:11:11</label>
+                        </object>
+                    </object>
+                    <object class="spacer">
+                        <flag>wxGROW</flag>
+                        <border>5</border>
+                        <option>1</option>
+                        <size>5,5d</size>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxGROW</flag>
+                        <border>5</border>
+                        <object class="wxStaticText" name="wxID_TIME_NOW">
+                            <label>22:22:22</label>
+                        </object>
+                    </object>
+                    <object class="spacer">
+                        <flag>wxGROW</flag>
+                        <border>5</border>
+                        <option>1</option>
+                        <size>5,5d</size>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxGROW</flag>
+                        <border>5</border>
+                        <object class="wxStaticText" name="wxID_TIME_END">
+                            <label>99:99:99</label>
+                        </object>
+                    </object>
+                </object>
+            </object>
+        </object>
+    </object>
+    <object class="wxDialog" name="ID_DIALOG_SPEEDCONTROL" subclass="wxDialog_SpeedControl">
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN </style>
+        <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
+        <bg>#ADD8E6</bg>
+        <title>wx Dialog_SpeedControl</title>
+        <object class="wxBoxSizer" name="v_pBoxV_all">
+            <orient>wxVERTICAL</orient>
+            <object class="sizeritem">
+                <flag>wxGROW|wxLEFT|wxRIGHT</flag>
+                <border>5</border>
+                <option>1</option>
+                <object class="wxPanel" name="ID_CTRL_SEEK" subclass="wxPanel_Seek">
+                    <size>100,10d</size>
+                    <style>wxSUNKEN_BORDER|wxCLIP_CHILDREN </style>
+                    <fg>#A52A2A</fg>
+                    <bg>#ADD8E6</bg>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxGROW|wxLEFT|wxRIGHT</flag>
+                <border>5</border>
+                <option>1</option>
+                <object class="wxPanel" name="ID_CTRL_SPEED" subclass="wxPanel_Speed">
+                    <size>100,10d</size>
+                    <style>wxSUNKEN_BORDER|wxCLIP_CHILDREN </style>
+                    <fg>#0000FF</fg>
+                    <bg>#ADD8E6</bg>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxGROW|wxLEFT|wxRIGHT</flag>
+                <border>5</border>
+                <option>3</option>
+                <object class="wxPanel" name="ID_CTRL_TIME" subclass="wxPanel_Time">
+                    <size>100,75d</size>
+                    <style>wxSUNKEN_BORDER|wxCLIP_CHILDREN </style>
+                    <bg>#ADD8E6</bg>
+                </object>
+            </object>
+        </object>
+    </object>
+    <object class="wxPanel" name="ID_PANEL_VOLUME" subclass="wxPanel_Volume">
+        <style>wxRESIZE_BORDER</style>
+        <size>100,10d</size>
+    </object>
+    <object class="wxDialog" name="ID_DIALOG_VOLUMECONTROL" subclass="wxDialog_VolumeControl">
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN </style>
+        <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
+        <bg>#1E90FF</bg>
+        <size>100,10d</size>
+        <title>wx Dialog_VolumeControl</title>
+        <object class="wxBoxSizer" name="v_pBoxV_all">
+            <orient>wxVERTICAL</orient>
+            <object class="sizeritem">
+                <flag>wxGROW|wxLEFT|wxRIGHT</flag>
+                <border>5</border>
+                <option>1</option>
+                <object class="wxPanel" name="ID_CTRL_VOLUME" subclass="wxPanel_Volume">
+                    <size>100,10d</size>
+                    <style>wxSUNKEN_BORDER|wxCLIP_CHILDREN </style>
+                    <fg>#FFFF00</fg>
+                    <bg>#FFFFFF</bg>
+                </object>
+            </object>
+        </object>
+    </object>
+    <object class="wxPanel" name="ID_PANEL_LIGHT" subclass="wxPanel_Light">
+        <style>wxRESIZE_BORDER</style>
+        <size>10,100d</size>
+    </object>
+    <object class="wxDialog" name="ID_DIALOG_LIGHTCONTROL" subclass="wxDialog_LightControl">
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN </style>
+        <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
+        <bg>#FFA500</bg>
+        <size>10,100d</size>
+        <title>wx Dialog_LightControl</title>
+        <object class="wxBoxSizer" name="v_pBoxH_all">
+            <orient>wxHORIZONTAL</orient>
+            <object class="sizeritem">
+                <flag>wxGROW|wxTOP|wxBOTTOM</flag>
+                <border>5</border>
+                <option>1</option>
+                <object class="wxPanel" name="ID_CTRL_LIGHT" subclass="wxPanel_Light">
+                    <size>10,100d</size>
+                    <style>wxSUNKEN_BORDER|wxCLIP_CHILDREN </style>
+                    <fg>#0000FF</fg>
+                    <bg>#FFA500</bg>
+                </object>
+            </object>
+        </object>
+    </object>
+    <object class="wxDialog" name="ID_DIALOG_BASE" subclass="wxDialog_Base">
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN </style>
+        <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
+        <title>wx Dialog_Base</title>
+        <font>
+            <size>12</size>
+            <family>swiss</family>
+            <style>normal</style>
+            <weight>bold</weight>
+            <underlined>0</underlined>
+            <face>Sans</face>
+        </font>
+    </object>
+    <object class="wxDialog" name="ID_DIALOG_ROOMWIZARD" subclass="wxDialog_RoomWizard">
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN </style>
+        <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
+        <fg>#FFFFFF</fg>
+        <bg>#000080</bg>
+        <size>300,100d</size>
+        <title>Room Wizard</title>
+        <object class="wxBoxSizer" name="v_pBoxV_all">
+            <orient>wxVERTICAL</orient>
+            <object class="sizeritem">
+                <flag>wxGROW</flag>
+                <border>5</border>
+                <option>1</option>
+                <object class="wxGrid" name="ID_GRID_ROOMWIZARD">
+                    <font>
+                        <size>12</size>
+                        <family>swiss</family>
+                        <style>normal</style>
+                        <weight>bold</weight>
+                        <underlined>0</underlined>
+                        <face>Sans</face>
+                    </font>
+                    <style>wxWANTS_CHARS|wxCLIP_CHILDREN |wxVSCROLL</style>
+                    <fg>#FFFFFF</fg>
+                    <bg>#000080</bg>
+                </object>
+            </object>
+        </object>
+    </object>
+    <object class="wxDialog" name="ID_DIALOG_WAITGRID" subclass="wxDialog_WaitGrid">
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN </style>
+        <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
+        <bg>#E0E0F0</bg>
+        <size>300,200d</size>
+        <title>Wait Grid</title>
+        <object class="wxBoxSizer" name="v_pBoxV_all">
+            <orient>wxVERTICAL</orient>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL</flag>
+                <border>5</border>
+                <option>2</option>
+                <object class="wxBoxSizer" name="v_pBoxH_top">
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_VERTICAL</flag>
+                        <border>5</border>
+                        <object class="wxStaticBitmap" name="wxID_STATIC">
+                            <size>126,87d</size>
+                            <style>wxNO_BORDER</style>
+                            <bitmap>logo_pluto.xpm</bitmap>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL</flag>
+                        <border>5</border>
+                        <option>1</option>
+                        <object class="wxGrid" name="ID_GRID_WAITGRID">
+                            <font>
+                                <size>12</size>
+                                <family>swiss</family>
+                                <style>normal</style>
+                                <weight>bold</weight>
+                                <underlined>0</underlined>
+                                <face>Sans</face>
+                            </font>
+                            <style>wxSUNKEN_BORDER|wxWANTS_CHARS|wxCLIP_CHILDREN |wxVSCROLL</style>
+                            <fg>#E0E0F0</fg>
+                            <bg>#E0E0F0</bg>
+                        </object>
+                    </object>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL</flag>
+                <border>5</border>
+                <option>1</option>
+                <object class="wxBoxSizer" name="v_pBoxH_mid">
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL</flag>
+                        <border>5</border>
+                        <option>1</option>
+                        <object class="wxTextCtrl" name="ID_TEXTCTRL_WAITGRID">
+                            <font>
+                                <size>12</size>
+                                <family>swiss</family>
+                                <style>normal</style>
+                                <weight>bold</weight>
+                                <underlined>0</underlined>
+                                <face>Sans</face>
+                            </font>
+                            <style>wxTE_MULTILINE|wxTE_READONLY|wxTE_WORDWRAP|wxNO_BORDER</style>
+                            <bg>#E0E0F0</bg>
+                            <value> Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1
+ Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2
+</value>
+                        </object>
+                    </object>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL</flag>
+                <border>5</border>
+                <object class="wxBoxSizer" name="v_pBoxH_bot">
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <border>5</border>
+                        <option>1</option>
+                        <object class="wxGauge" name="ID_GAUGE_WAITGRID">
+                            <font>
+                                <size>12</size>
+                                <family>swiss</family>
+                                <style>normal</style>
+                                <weight>bold</weight>
+                                <underlined>0</underlined>
+                                <face>Sans</face>
+                            </font>
+                            <style>wxGA_HORIZONTAL|wxGA_PROGRESSBAR|wxGA_SMOOTH|wxNO_BORDER</style>
+                            <value>50</value>
+                            <range>100</range>
+                        </object>
+                    </object>
+                </object>
+            </object>
+        </object>
+    </object>
+    <object class="wxDialog" name="ID_DIALOG_WAITLIST" subclass="wxDialog_WaitList">
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDOUBLE_BORDER|wxCLIP_CHILDREN </style>
+        <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
+        <bg>#E0E0F0</bg>
+        <size>400,300d</size>
+        <title>Wait List</title>
+        <object class="wxBoxSizer" name="v_pBoxV_all">
+            <orient>wxVERTICAL</orient>
+            <object class="sizeritem">
+                <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                <border>5</border>
+                <object class="wxBoxSizer" name="v_pBoxH_top">
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <border>5</border>
+                        <object class="wxStaticBitmap" name="wxID_STATIC">
+                            <size>126,87d</size>
+                            <style>wxNO_BORDER</style>
+                            <bitmap>logo_pluto.xpm</bitmap>
+                        </object>
+                    </object>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL</flag>
+                <border>5</border>
+                <option>1</option>
+                <object class="wxBoxSizer" name="v_pBoxH_mid">
+                    <orient>wxVERTICAL</orient>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL</flag>
+                        <border>5</border>
+                        <option>1</option>
+                        <object class="wxTextCtrl" name="ID_TEXTCTRL_WAITLIST">
+                            <font>
+                                <size>12</size>
+                                <family>swiss</family>
+                                <style>normal</style>
+                                <weight>bold</weight>
+                                <underlined>0</underlined>
+                                <face>Sans</face>
+                            </font>
+                            <style>wxTE_MULTILINE|wxTE_READONLY|wxHSCROLL</style>
+                            <value> Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1
+ Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2
+</value>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL</flag>
+                        <border>5</border>
+                        <object class="wxTextCtrl" name="ID_TEXTCTRL_WAITLIST">
+                            <font>
+                                <size>12</size>
+                                <family>swiss</family>
+                                <style>normal</style>
+                                <weight>bold</weight>
+                                <underlined>0</underlined>
+                                <face>Sans</face>
+                            </font>
+                            <style>wxTE_READONLY|wxTE_WORDWRAP|wxNO_BORDER</style>
+                            <bg>#E0E0F0</bg>
+                            <value> Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1
+ Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2
+</value>
+                        </object>
+                    </object>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL</flag>
+                <border>5</border>
+                <object class="wxBoxSizer" name="v_pBoxH_bot">
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <border>5</border>
+                        <option>1</option>
+                        <object class="wxGauge" name="ID_GAUGE_WAITLIST">
+                            <font>
+                                <size>12</size>
+                                <family>swiss</family>
+                                <style>normal</style>
+                                <weight>bold</weight>
+                                <underlined>0</underlined>
+                                <face>Sans</face>
+                            </font>
+                            <style>wxGA_HORIZONTAL|wxGA_PROGRESSBAR|wxGA_SMOOTH|wxNO_BORDER</style>
+                            <value>50</value>
+                            <range>100</range>
+                        </object>
+                    </object>
+                </object>
+            </object>
+        </object>
+    </object>
+    <object class="wxDialog" name="ID_DIALOG_WAITUSER" subclass="wxDialog_WaitUser">
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxDIALOG_MODAL|wxDOUBLE_BORDER|wxCLIP_CHILDREN </style>
+        <exstyle>wxWS_EX_BLOCK_EVENTS|wxWS_EX_TRANSIENT</exstyle>
+        <bg>#E0E0F0</bg>
+        <size>150,150d</size>
+        <title>Wait User</title>
+        <object class="wxBoxSizer" name="v_pBoxV_all">
+            <orient>wxVERTICAL</orient>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL</flag>
+                <border>5</border>
+                <option>2</option>
+                <object class="wxBoxSizer" name="v_pBoxH_top">
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <border>5</border>
+                        <option>1</option>
+                        <object class="wxBoxSizer" name="v_pBoxV_logo">
+                            <orient>wxVERTICAL</orient>
+                            <object class="sizeritem">
+                                <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                <border>5</border>
+                                <object class="wxStaticBitmap" name="wxID_STATIC">
+                                    <size>126,87d</size>
+                                    <style>wxNO_BORDER</style>
+                                    <bitmap>logo_pluto.xpm</bitmap>
+                                </object>
+                            </object>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL</flag>
+                        <border>5</border>
+                        <object class="wxGauge" name="ID_GAUGE_WAITUSER">
+                            <font>
+                                <size>12</size>
+                                <family>swiss</family>
+                                <style>normal</style>
+                                <weight>bold</weight>
+                                <underlined>0</underlined>
+                                <face>Sans</face>
+                            </font>
+                            <style>wxGA_VERTICAL|wxGA_PROGRESSBAR|wxGA_SMOOTH|wxNO_BORDER</style>
+                            <value>50</value>
+                            <range>100</range>
+                        </object>
+                    </object>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL</flag>
+                <border>5</border>
+                <option>1</option>
+                <object class="wxBoxSizer" name="v_pBoxH_mid">
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL</flag>
+                        <border>5</border>
+                        <option>1</option>
+                        <object class="wxTextCtrl" name="ID_TEXTCTRL_WAITUSER">
+                            <font>
+                                <size>12</size>
+                                <family>swiss</family>
+                                <style>normal</style>
+                                <weight>bold</weight>
+                                <underlined>0</underlined>
+                                <face>Sans</face>
+                            </font>
+                            <style>wxTE_MULTILINE|wxTE_READONLY|wxTE_WORDWRAP|wxNO_BORDER</style>
+                            <bg>#E0E0F0</bg>
+                            <value> Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1 Info line 1
+ Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2 Info line 2
+</value>
+                        </object>
+                    </object>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                <border>5</border>
+                <object class="wxBoxSizer" name="v_pBoxH_bot">
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <border>5</border>
+                        <object class="wxButton" name="wxID_OK">
+                            <font>
+                                <size>12</size>
+                                <family>swiss</family>
+                                <style>normal</style>
+                                <weight>bold</weight>
+                                <underlined>0</underlined>
+                                <face>Sans</face>
+                            </font>
+                            <label>&amp;OK</label>
+                            <default>1</default>
+                        </object>
+                    </object>
+                </object>
+            </object>
+        </object>
+    </object>
+</resource>

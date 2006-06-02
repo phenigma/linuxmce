@@ -1,0 +1,1527 @@
+10	05/22/06 11:54:14.453		Device: 4996 starting.  Connecting to: 10.0.0.79 <003E5CE0>
+10	05/22/06 11:54:14.453		Stage connect <003E6478>
+10	05/22/06 11:54:14.453		About to cleanup Orbiter <003E6478>
+10	05/22/06 11:54:14.453		Orbiter_OpenGL: need to cleanup orbiter... <003E6478>
+10	05/22/06 11:54:14.453		Orbiter cleanup finished <003E6478>
+10	05/22/06 11:54:14.453		Orbiter_OpenGL constructor. <003E6478>
+21	05/22/06 11:54:14.484		lock(00759458) (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  <003E6720>
+21	05/22/06 11:54:14.484		acquired(00759458) #0 (>2) MessageQueue c:\pluto\src\dce\command_impl.cpp:695  <003E6720>
+21	05/22/06 11:54:14.484		start cond wait c:\pluto\src\dce\command_impl.cpp:695 (00759458)  <003E6720>
+10	05/22/06 11:54:14.484		Orbiter 007592C0 constructor <003E6478>
+10	05/22/06 11:54:14.484		New orbiter created! <003E6478>
+13	05/22/06 11:54:14.531		ClientSocket::Connect - created m_Socket: 3752 <003E6478>
+10	05/22/06 11:54:14.546		Setting timeout for socket 3752 to 20 <003E6478>
+13	05/22/06 11:54:14.593		ClientSocket::Connect - created m_Socket: 3724 <003E6478>
+10	05/22/06 11:54:14.609		monitor m_bDisplayOn initially set to 1 <003E6478>
+10	05/22/06 11:54:14.609		Setting timeout for socket 3752 to 15 <003E6478>
+10	05/22/06 11:54:14.609		Setting timeout for socket 3724 to 15 <003E6478>
+13	05/22/06 11:54:14.640		ClientSocket::Connect - created m_Socket: 3700 <003E6478>
+10	05/22/06 11:54:14.640		Connect OK <003E6478>
+10	05/22/06 11:54:14.640		Orbiter SelfUpdate: starting <003E6478>
+10	05/22/06 11:54:14.703		Orbiter's full path: c:\Pluto\src\debug\Orbiter_OpenGL.exe <003E6478>
+10	05/22/06 11:54:14.703		Last update didn't fail or the user decided to try to update again. <003E6478>
+10	05/22/06 11:54:14.703		Requesthandler 007592C0 (device: 4996) runThread now running <003E7340>
+10	05/22/06 11:54:14.703		InternalSendCommand out parm conf -1 resp 01656A60 <003E6478>
+10	05/22/06 11:54:14.796		Initialized SDL <003E72B0>
+10	05/22/06 11:54:15.265		Set video mode to 640 x 480 Window. <003E72B0>
+10	05/22/06 11:54:15.265		Created back screen surface! <003E72B0>
+10	05/22/06 11:54:15.875		InternalSendCommand out done conf -1 resp 01656A60 0165A620 0 type 1 id 239 to -2001 <003E6478>
+10	05/22/06 11:54:15.875		InternalSendCommand out parm exiting conf -1 resp 01656A60 <003E6478>
+01	05/22/06 11:54:15.875		[31;1mThe update file is missing on the server[0m <003E6478>
+10	05/22/06 11:54:15.875		No update available on the server. <003E6478>
+10	05/22/06 11:54:15.875		Stage run <003E6478>
+10	05/22/06 11:54:15.875		Starting processing events <003E6478>
+05	05/22/06 11:54:15.875		[33;1mEvent: 17[0m <003E6478>
+05	05/22/06 11:54:15.875		[33;1mEvent: 1[0m <003E6478>
+05	05/22/06 11:54:27.906		[33;1mEvent: 2[0m <003E6478>
+05	05/22/06 11:54:28.203		[33;1mEvent: 2[0m <003E6478>
+10	05/22/06 12:07:03.171		Device: 4996 starting.  Connecting to: 10.0.0.79 <003E5D48>
+10	05/22/06 12:07:03.171		Stage connect <003E6520>
+10	05/22/06 12:07:03.171		About to cleanup Orbiter <003E6520>
+10	05/22/06 12:07:03.171		Orbiter_OpenGL: need to cleanup orbiter... <003E6520>
+10	05/22/06 12:07:03.171		Orbiter cleanup finished <003E6520>
+10	05/22/06 12:07:03.171		Orbiter_OpenGL constructor. <003E6520>
+21	05/22/06 12:07:03.187		lock(00759420) (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  <003E6780>
+21	05/22/06 12:07:03.187		acquired(00759420) #0 (>2) MessageQueue c:\pluto\src\dce\command_impl.cpp:695  <003E6780>
+21	05/22/06 12:07:03.187		start cond wait c:\pluto\src\dce\command_impl.cpp:695 (00759420)  <003E6780>
+10	05/22/06 12:07:03.187		Orbiter 00759288 constructor <003E6520>
+10	05/22/06 12:07:03.187		New orbiter created! <003E6520>
+13	05/22/06 12:07:03.203		ClientSocket::Connect - created m_Socket: 3752 <003E6520>
+10	05/22/06 12:07:03.203		Setting timeout for socket 3752 to 20 <003E6520>
+13	05/22/06 12:07:03.250		ClientSocket::Connect - created m_Socket: 3732 <003E6520>
+10	05/22/06 12:07:03.265		monitor m_bDisplayOn initially set to 1 <003E6520>
+10	05/22/06 12:07:03.265		Setting timeout for socket 3752 to 15 <003E6520>
+10	05/22/06 12:07:03.265		Setting timeout for socket 3732 to 15 <003E6520>
+13	05/22/06 12:07:03.281		ClientSocket::Connect - created m_Socket: 3708 <003E6520>
+10	05/22/06 12:07:03.296		Connect OK <003E6520>
+10	05/22/06 12:07:03.296		Orbiter SelfUpdate: starting <003E6520>
+10	05/22/06 12:07:03.296		Stage run <003E6520>
+10	05/22/06 12:07:03.296		Requesthandler 00759288 (device: 4996) runThread now running <003E73A8>
+10	05/22/06 12:07:03.343		InternalSendCommand out parm conf -1 resp 01657C18 <003E6520>
+10	05/22/06 12:07:03.359		Initialized SDL <003E7318>
+10	05/22/06 12:07:03.453		InternalSendCommand out done conf -1 resp 01657C18 0165A068 0 type 1 id 694 to -2000 <003E6520>
+10	05/22/06 12:07:03.468		InternalSendCommand out parm exiting conf -1 resp 01657C18 <003E6520>
+10	05/22/06 12:07:03.468		Initialize Get_Orbiter_Status (1) -O- <003E6520>
+10	05/22/06 12:07:03.546		Set video mode to 640 x 480 Window. <003E7318>
+10	05/22/06 12:07:03.546		Created back screen surface! <003E7318>
+01	05/22/06 12:07:03.609		[31;1mCannot deserialize .info file.  It is version 20 and I need 23.[0m <003E6520>
+10	05/22/06 12:07:31.828		Device: 4996 starting.  Connecting to: 10.0.0.79 <003E5D48>
+10	05/22/06 12:07:31.828		Stage connect <003E6520>
+10	05/22/06 12:07:31.828		About to cleanup Orbiter <003E6520>
+10	05/22/06 12:07:31.828		Orbiter_OpenGL: need to cleanup orbiter... <003E6520>
+10	05/22/06 12:07:31.828		Orbiter cleanup finished <003E6520>
+10	05/22/06 12:07:31.828		Orbiter_OpenGL constructor. <003E6520>
+10	05/22/06 12:07:31.828		Orbiter 00759288 constructor <003E6520>
+10	05/22/06 12:07:31.828		New orbiter created! <003E6520>
+21	05/22/06 12:07:31.828		lock(00759420) (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  <003E6780>
+21	05/22/06 12:07:31.828		acquired(00759420) #0 (>2) MessageQueue c:\pluto\src\dce\command_impl.cpp:695  <003E6780>
+21	05/22/06 12:07:31.828		start cond wait c:\pluto\src\dce\command_impl.cpp:695 (00759420)  <003E6780>
+13	05/22/06 12:07:31.843		ClientSocket::Connect - created m_Socket: 3764 <003E6520>
+10	05/22/06 12:07:31.843		Setting timeout for socket 3764 to 20 <003E6520>
+13	05/22/06 12:07:31.875		ClientSocket::Connect - created m_Socket: 3720 <003E6520>
+10	05/22/06 12:07:31.890		monitor m_bDisplayOn initially set to 1 <003E6520>
+10	05/22/06 12:07:31.890		Setting timeout for socket 3764 to 15 <003E6520>
+10	05/22/06 12:07:31.890		Setting timeout for socket 3720 to 15 <003E6520>
+13	05/22/06 12:07:31.890		ClientSocket::Connect - created m_Socket: 3696 <003E6520>
+10	05/22/06 12:07:31.906		Connect OK <003E6520>
+10	05/22/06 12:07:31.906		Orbiter SelfUpdate: starting <003E6520>
+10	05/22/06 12:07:31.906		Stage run <003E6520>
+10	05/22/06 12:07:31.906		Requesthandler 00759288 (device: 4996) runThread now running <003E73A0>
+10	05/22/06 12:07:31.906		InternalSendCommand out parm conf -1 resp 01656720 <003E6520>
+10	05/22/06 12:07:31.953		Initialized SDL <003E7310>
+10	05/22/06 12:07:32.125		InternalSendCommand out done conf -1 resp 01656720 0165A0D0 0 type 1 id 694 to -2000 <003E6520>
+10	05/22/06 12:07:32.125		InternalSendCommand out parm exiting conf -1 resp 01656720 <003E6520>
+10	05/22/06 12:07:32.125		Initialize Get_Orbiter_Status (1) -O- <003E6520>
+01	05/22/06 12:07:32.140		[31;1mCannot deserialize .info file.  It is version 20 and I need 23.[0m <003E6520>
+10	05/22/06 12:07:32.453		Set video mode to 640 x 480 Window. <003E7310>
+10	05/22/06 12:07:32.453		Created back screen surface! <003E7310>
+10	05/22/06 12:07:48.031		Device: 4996 starting.  Connecting to: 10.0.0.79 <003E5D48>
+10	05/22/06 12:07:48.031		Stage connect <003E6520>
+10	05/22/06 12:07:48.031		About to cleanup Orbiter <003E6520>
+10	05/22/06 12:07:48.031		Orbiter_OpenGL: need to cleanup orbiter... <003E6520>
+10	05/22/06 12:07:48.031		Orbiter cleanup finished <003E6520>
+10	05/22/06 12:07:48.031		Orbiter_OpenGL constructor. <003E6520>
+21	05/22/06 12:07:48.062		lock(00759420) (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  <003E6780>
+21	05/22/06 12:07:48.062		acquired(00759420) #0 (>2) MessageQueue c:\pluto\src\dce\command_impl.cpp:695  <003E6780>
+21	05/22/06 12:07:48.062		start cond wait c:\pluto\src\dce\command_impl.cpp:695 (00759420)  <003E6780>
+10	05/22/06 12:07:48.078		Orbiter 00759288 constructor <003E6520>
+10	05/22/06 12:07:48.078		New orbiter created! <003E6520>
+13	05/22/06 12:07:48.093		ClientSocket::Connect - created m_Socket: 3752 <003E6520>
+10	05/22/06 12:07:48.093		Setting timeout for socket 3752 to 20 <003E6520>
+13	05/22/06 12:07:48.140		ClientSocket::Connect - created m_Socket: 3732 <003E6520>
+10	05/22/06 12:07:48.140		monitor m_bDisplayOn initially set to 1 <003E6520>
+10	05/22/06 12:07:48.140		Setting timeout for socket 3752 to 15 <003E6520>
+10	05/22/06 12:07:48.140		Setting timeout for socket 3732 to 15 <003E6520>
+13	05/22/06 12:07:48.156		ClientSocket::Connect - created m_Socket: 3708 <003E6520>
+10	05/22/06 12:07:48.171		Connect OK <003E6520>
+10	05/22/06 12:07:48.171		Orbiter SelfUpdate: starting <003E6520>
+10	05/22/06 12:07:48.171		Stage run <003E6520>
+10	05/22/06 12:07:48.171		Requesthandler 00759288 (device: 4996) runThread now running <003E73A8>
+10	05/22/06 12:07:48.218		InternalSendCommand out parm conf -1 resp 01657C18 <003E6520>
+10	05/22/06 12:07:48.218		Initialized SDL <003E7318>
+10	05/22/06 12:07:48.312		InternalSendCommand out done conf -1 resp 01657C18 0165A068 0 type 1 id 694 to -2000 <003E6520>
+10	05/22/06 12:07:48.312		InternalSendCommand out parm exiting conf -1 resp 01657C18 <003E6520>
+10	05/22/06 12:07:48.312		Initialize Get_Orbiter_Status (1) -O- <003E6520>
+01	05/22/06 12:07:48.328		[31;1mCannot deserialize .info file.  It is version 20 and I need 23.[0m <003E6520>
+10	05/22/06 12:07:52.296		Set video mode to 640 x 480 Window. <003E7318>
+10	05/22/06 12:07:52.296		Created back screen surface! <003E7318>
+10	05/22/06 12:08:20.234		Device: 4996 starting.  Connecting to: 10.0.0.79 <003E5D48>
+10	05/22/06 12:08:20.234		Stage connect <003E6520>
+10	05/22/06 12:08:20.234		About to cleanup Orbiter <003E6520>
+10	05/22/06 12:08:20.234		Orbiter_OpenGL: need to cleanup orbiter... <003E6520>
+10	05/22/06 12:08:20.234		Orbiter cleanup finished <003E6520>
+10	05/22/06 12:08:20.234		Orbiter_OpenGL constructor. <003E6520>
+21	05/22/06 12:08:20.234		lock(00759420) (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  <003E6780>
+21	05/22/06 12:08:20.234		acquired(00759420) #0 (>2) MessageQueue c:\pluto\src\dce\command_impl.cpp:695  <003E6780>
+21	05/22/06 12:08:20.234		start cond wait c:\pluto\src\dce\command_impl.cpp:695 (00759420)  <003E6780>
+10	05/22/06 12:08:20.234		Orbiter 00759288 constructor <003E6520>
+10	05/22/06 12:08:20.234		New orbiter created! <003E6520>
+13	05/22/06 12:08:20.250		ClientSocket::Connect - created m_Socket: 3752 <003E6520>
+10	05/22/06 12:08:20.250		Setting timeout for socket 3752 to 20 <003E6520>
+13	05/22/06 12:08:20.281		ClientSocket::Connect - created m_Socket: 3724 <003E6520>
+10	05/22/06 12:08:20.296		monitor m_bDisplayOn initially set to 1 <003E6520>
+10	05/22/06 12:08:20.296		Setting timeout for socket 3752 to 15 <003E6520>
+10	05/22/06 12:08:20.296		Setting timeout for socket 3724 to 15 <003E6520>
+13	05/22/06 12:08:20.296		ClientSocket::Connect - created m_Socket: 3708 <003E6520>
+10	05/22/06 12:08:20.312		Connect OK <003E6520>
+10	05/22/06 12:08:20.312		Orbiter SelfUpdate: starting <003E6520>
+10	05/22/06 12:08:20.312		Stage run <003E6520>
+10	05/22/06 12:08:20.312		Requesthandler 00759288 (device: 4996) runThread now running <003E73A8>
+10	05/22/06 12:08:20.343		InternalSendCommand out parm conf -1 resp 01656720 <003E6520>
+10	05/22/06 12:08:20.359		Initialized SDL <003E7318>
+10	05/22/06 12:08:20.500		InternalSendCommand out done conf -1 resp 01656720 0165A0C0 0 type 1 id 694 to -2000 <003E6520>
+10	05/22/06 12:08:20.515		InternalSendCommand out parm exiting conf -1 resp 01656720 <003E6520>
+10	05/22/06 12:08:20.515		Initialize Get_Orbiter_Status (1) -O- <003E6520>
+01	05/22/06 12:08:20.515		[31;1mCannot deserialize .info file.  It is version 20 and I need 23.[0m <003E6520>
+10	05/22/06 12:08:21.562		Set video mode to 640 x 480 Window. <003E7318>
+10	05/22/06 12:08:21.562		Created back screen surface! <003E7318>
+10	05/22/06 12:08:45.765		Device: 4996 starting.  Connecting to: 10.0.0.79 <003E5D48>
+10	05/22/06 12:08:45.765		Stage connect <003E6520>
+10	05/22/06 12:08:45.765		About to cleanup Orbiter <003E6520>
+10	05/22/06 12:08:45.765		Orbiter_OpenGL: need to cleanup orbiter... <003E6520>
+10	05/22/06 12:08:45.765		Orbiter cleanup finished <003E6520>
+10	05/22/06 12:08:45.765		Orbiter_OpenGL constructor. <003E6520>
+21	05/22/06 12:08:45.765		lock(00759420) (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  <003E6780>
+21	05/22/06 12:08:45.765		acquired(00759420) #0 (>2) MessageQueue c:\pluto\src\dce\command_impl.cpp:695  <003E6780>
+21	05/22/06 12:08:45.765		start cond wait c:\pluto\src\dce\command_impl.cpp:695 (00759420)  <003E6780>
+10	05/22/06 12:08:45.781		Orbiter 00759288 constructor <003E6520>
+10	05/22/06 12:08:45.781		New orbiter created! <003E6520>
+13	05/22/06 12:08:45.781		ClientSocket::Connect - created m_Socket: 3752 <003E6520>
+10	05/22/06 12:08:45.796		Setting timeout for socket 3752 to 20 <003E6520>
+13	05/22/06 12:08:45.828		ClientSocket::Connect - created m_Socket: 3724 <003E6520>
+10	05/22/06 12:08:45.828		monitor m_bDisplayOn initially set to 1 <003E6520>
+10	05/22/06 12:08:45.828		Setting timeout for socket 3752 to 15 <003E6520>
+10	05/22/06 12:08:45.828		Setting timeout for socket 3724 to 15 <003E6520>
+13	05/22/06 12:08:45.828		ClientSocket::Connect - created m_Socket: 3708 <003E6520>
+10	05/22/06 12:08:45.843		Connect OK <003E6520>
+10	05/22/06 12:08:45.843		Orbiter SelfUpdate: starting <003E6520>
+10	05/22/06 12:08:45.843		Stage run <003E6520>
+10	05/22/06 12:08:45.843		Requesthandler 00759288 (device: 4996) runThread now running <003E73A8>
+10	05/22/06 12:08:45.875		InternalSendCommand out parm conf -1 resp 01656720 <003E6520>
+10	05/22/06 12:08:45.890		Initialized SDL <003E7318>
+10	05/22/06 12:08:45.968		InternalSendCommand out done conf -1 resp 01656720 0165A0C0 0 type 1 id 694 to -2000 <003E6520>
+10	05/22/06 12:08:45.968		InternalSendCommand out parm exiting conf -1 resp 01656720 <003E6520>
+10	05/22/06 12:08:45.968		Initialize Get_Orbiter_Status (1) -O- <003E6520>
+01	05/22/06 12:08:45.984		[31;1mCannot deserialize .info file.  It is version 20 and I need 23.[0m <003E6520>
+10	05/22/06 12:09:08.500		Set video mode to 640 x 480 Window. <003E7318>
+10	05/22/06 12:09:08.500		Created back screen surface! <003E7318>
+10	05/22/06 12:09:33.593		Device: 4996 starting.  Connecting to: 10.0.0.79 <003E5D48>
+10	05/22/06 12:09:33.593		Stage connect <003E6520>
+10	05/22/06 12:09:33.593		About to cleanup Orbiter <003E6520>
+10	05/22/06 12:09:33.593		Orbiter_OpenGL: need to cleanup orbiter... <003E6520>
+10	05/22/06 12:09:33.593		Orbiter cleanup finished <003E6520>
+10	05/22/06 12:09:33.593		Orbiter_OpenGL constructor. <003E6520>
+21	05/22/06 12:09:33.593		lock(00759420) (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  <003E6780>
+21	05/22/06 12:09:33.609		acquired(00759420) #0 (>2) MessageQueue c:\pluto\src\dce\command_impl.cpp:695  <003E6780>
+21	05/22/06 12:09:33.609		start cond wait c:\pluto\src\dce\command_impl.cpp:695 (00759420)  <003E6780>
+10	05/22/06 12:09:33.609		Orbiter 00759288 constructor <003E6520>
+10	05/22/06 12:09:33.609		New orbiter created! <003E6520>
+13	05/22/06 12:09:33.625		ClientSocket::Connect - created m_Socket: 3752 <003E6520>
+10	05/22/06 12:09:33.625		Setting timeout for socket 3752 to 20 <003E6520>
+13	05/22/06 12:09:33.671		ClientSocket::Connect - created m_Socket: 3732 <003E6520>
+10	05/22/06 12:09:33.687		monitor m_bDisplayOn initially set to 1 <003E6520>
+10	05/22/06 12:09:33.687		Setting timeout for socket 3752 to 15 <003E6520>
+10	05/22/06 12:09:33.687		Setting timeout for socket 3732 to 15 <003E6520>
+13	05/22/06 12:09:33.687		ClientSocket::Connect - created m_Socket: 3708 <003E6520>
+10	05/22/06 12:09:33.703		Connect OK <003E6520>
+10	05/22/06 12:09:33.703		Orbiter SelfUpdate: starting <003E6520>
+10	05/22/06 12:09:33.703		Stage run <003E6520>
+10	05/22/06 12:09:33.703		Requesthandler 00759288 (device: 4996) runThread now running <003E73A8>
+10	05/22/06 12:09:33.750		InternalSendCommand out parm conf -1 resp 01657C18 <003E6520>
+10	05/22/06 12:09:33.750		Initialized SDL <003E7318>
+10	05/22/06 12:09:33.843		InternalSendCommand out done conf -1 resp 01657C18 0165A068 0 type 1 id 694 to -2000 <003E6520>
+10	05/22/06 12:09:33.859		InternalSendCommand out parm exiting conf -1 resp 01657C18 <003E6520>
+10	05/22/06 12:09:33.859		Initialize Get_Orbiter_Status (1) -O- <003E6520>
+01	05/22/06 12:09:33.859		[31;1mCannot deserialize .info file.  It is version 20 and I need 23.[0m <003E6520>
+10	05/22/06 12:09:38.578		Set video mode to 640 x 480 Window. <003E7318>
+10	05/22/06 12:09:38.578		Created back screen surface! <003E7318>
+10	05/22/06 12:18:33.796		Device: 4996 starting.  Connecting to: 10.0.0.79 <003E5E38>
+10	05/22/06 12:18:33.796		Stage connect <003E6530>
+10	05/22/06 12:18:33.796		About to cleanup Orbiter <003E6530>
+10	05/22/06 12:18:33.796		Orbiter_OpenGL: need to cleanup orbiter... <003E6530>
+10	05/22/06 12:18:33.796		Orbiter cleanup finished <003E6530>
+10	05/22/06 12:18:33.796		Orbiter_OpenGL constructor. <003E6530>
+21	05/22/06 12:18:33.828		lock(007594C8) (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  <003E67D8>
+21	05/22/06 12:18:33.828		acquired(007594C8) #0 (>2) MessageQueue c:\pluto\src\dce\command_impl.cpp:695  <003E67D8>
+21	05/22/06 12:18:33.828		start cond wait c:\pluto\src\dce\command_impl.cpp:695 (007594C8)  <003E67D8>
+10	05/22/06 12:18:33.843		Orbiter 00759330 constructor <003E6530>
+10	05/22/06 12:18:33.843		New orbiter created! <003E6530>
+13	05/22/06 12:18:33.843		ClientSocket::Connect - created m_Socket: 3752 <003E6530>
+10	05/22/06 12:18:33.859		Setting timeout for socket 3752 to 20 <003E6530>
+13	05/22/06 12:18:34.031		ClientSocket::Connect - created m_Socket: 3732 <003E6530>
+10	05/22/06 12:18:34.031		monitor m_bDisplayOn initially set to 1 <003E6530>
+10	05/22/06 12:18:34.031		Setting timeout for socket 3752 to 15 <003E6530>
+10	05/22/06 12:18:34.031		Setting timeout for socket 3732 to 15 <003E6530>
+13	05/22/06 12:18:34.062		ClientSocket::Connect - created m_Socket: 3708 <003E6530>
+10	05/22/06 12:18:34.062		Connect OK <003E6530>
+10	05/22/06 12:18:34.062		Orbiter SelfUpdate: starting <003E6530>
+10	05/22/06 12:18:34.062		Orbiter's full path: c:\Pluto\src\debug\Orbiter_OpenGL.exe <003E6530>
+10	05/22/06 12:18:34.062		Last update didn't fail or the user decided to try to update again. <003E6530>
+10	05/22/06 12:18:34.062		InternalSendCommand out parm conf -1 resp 01656708 <003E6530>
+10	05/22/06 12:18:34.078		Requesthandler 00759330 (device: 4996) runThread now running <003E73F0>
+10	05/22/06 12:18:34.109		Initialized SDL <003E7360>
+10	05/22/06 12:18:34.218		InternalSendCommand out done conf -1 resp 01656708 01659FC8 0 type 1 id 239 to -2001 <003E6530>
+10	05/22/06 12:18:34.218		InternalSendCommand out parm exiting conf -1 resp 01656708 <003E6530>
+01	05/22/06 12:18:34.218		[31;1mThe update file is missing on the server[0m <003E6530>
+10	05/22/06 12:18:34.218		No update available on the server. <003E6530>
+10	05/22/06 12:18:34.218		Stage run <003E6530>
+10	05/22/06 12:18:34.218		Starting processing events <003E6530>
+05	05/22/06 12:18:34.218		[33;1mEvent: 17[0m <003E6530>
+05	05/22/06 12:18:34.296		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.296		Processing event type: 6 <003E6530>
+10	05/22/06 12:18:34.296		Set video mode to 640 x 480 Window. <003E7360>
+10	05/22/06 12:18:34.296		Created back screen surface! <003E7360>
+05	05/22/06 12:18:34.312		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.312		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.437		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.437		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.500		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.500		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.500		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.500		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.531		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.531		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.531		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.531		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.578		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.578		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.609		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.609		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.640		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.640		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.656		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.656		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.656		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.656		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.687		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.687		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.718		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.718		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.718		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.718		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.750		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.750		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.781		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.781		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.812		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.812		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.812		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.812		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.843		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.843		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.843		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.843		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.875		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.875		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.906		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:34.906		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:34.937		[33;1mEvent: 1[0m <003E6530>
+05	05/22/06 12:18:35.703		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:35.703		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:35.703		[33;1mEvent: 1[0m <003E6530>
+05	05/22/06 12:18:35.703		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:35.703		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:35.718		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:35.718		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:35.718		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:35.718		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:35.750		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:35.750		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:35.750		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:35.750		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:35.781		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:35.781		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:35.812		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:35.812		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:35.843		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:35.843		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:35.859		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:35.859		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:35.890		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:35.890		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:35.921		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:35.921		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:35.953		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:35.953		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:35.953		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:35.953		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:35.984		[33;1mEvent: 1[0m <003E6530>
+05	05/22/06 12:18:36.578		[33;1mEvent: 17[0m <003E6530>
+05	05/22/06 12:18:36.578		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.578		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.578		[33;1mEvent: 16[0m <003E6530>
+05	05/22/06 12:18:36.578		[33;1mEvent: 17[0m <003E6530>
+05	05/22/06 12:18:36.578		[33;1mEvent: 1[0m <003E6530>
+05	05/22/06 12:18:36.609		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.609		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.625		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.625		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.640		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.640		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.640		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.640		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.671		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.671		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.765		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.765		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.765		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.765		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.796		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.796		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.796		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.796		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.828		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.828		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.859		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.859		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.890		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.890		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.890		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.890		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.921		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.921		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.937		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.937		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.937		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.937		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:36.968		[33;1mEvent: 1[0m <003E6530>
+05	05/22/06 12:18:36.968		[33;1mEvent: 4[0m <003E6530>
+10	05/22/06 12:18:36.968		Processing event type: 6 <003E6530>
+05	05/22/06 12:18:37.531		[33;1mEvent: 17[0m <003E6530>
+05	05/22/06 12:18:38.687		[33;1mEvent: 12[0m <003E6530>
+05	05/22/06 12:18:38.687		[33;1mReceived sdl event SDL_QUIT[0m <003E6530>
+10	05/22/06 12:18:38.687		About to quit EventLoop. Reload 0, ConnectionLost 205, Quit 0 <003E6530>
+10	05/22/06 12:18:38.687		Stage is now osQuit. <003E6530>
+10	05/22/06 12:18:38.687		Exited process messages loop. We are shutting down.... <003E5E38>
+10	05/22/06 12:18:38.687		Orbiter_OpenGL: need to cleanup orbiter... <003E5E38>
+10	05/22/06 12:18:38.687		Orbiter  00759330 is exiting <003E5E38>
+10	05/22/06 12:18:38.687		Kill Maint Thread 1 <003E5E38>
+10	05/22/06 12:18:38.703		Maint thread dead <003E5E38>
+10	05/22/06 12:18:38.703		InternalSendCommand out parm conf -1 resp 00756FA0 <003E5E38>
+10	05/22/06 12:18:38.703		InternalSendCommand out done conf -1 resp 00756FA0 0165A358 -1 type 1 id 255 to -1 <003E5E38>
+10	05/22/06 12:18:38.703		Waiting for message queue thread to quit <003E5E38>
+13	05/22/06 12:18:38.703		Socket::Close() m_Socket 3752 <003E5E38>
+13	05/22/06 12:18:38.703		Socket::Close() m_Socket 3752 closesocket: 0 <003E5E38>
+13	05/22/06 12:18:38.703		Socket::Close() m_Socket 3732 <003E5E38>
+13	05/22/06 12:18:38.703		Socket::Close() m_Socket 3732 closesocket: 0 <003E5E38>
+21	05/22/06 12:18:38.703		end cond wait c:\pluto\src\dce\command_impl.cpp:695 (007594C8)  <003E67D8>
+21	05/22/06 12:18:38.703		unlock(007594C8) #0 (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  <003E67D8>
+21	05/22/06 12:18:38.703		removed from map (007594C8) #0 (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  was: 3 size, now 2 Rel: Y Got: Y <003E67D8>
+13	05/22/06 12:18:38.703		Exiting MessageQueueThread_DCECI thread... <003E67D8>
+10	05/22/06 12:18:38.718		Message queue thread quit <003E5E38>
+13	05/22/06 12:18:38.734		Socket::~Socket(): deleting socket @0075D928 Event Dev #4996 (socket id in destructor: m_Socket: -1) <003E5E38>
+13	05/22/06 12:18:38.734		Socket::~Socket(): deleting socket @016BCD80 Event Dev #4996 (socket id in destructor: m_Socket: -1) <003E5E38>
+10	05/22/06 12:18:38.734		About to call kill spawned devices <003E5E38>
+10	05/22/06 12:18:38.734		~Command_Impl finished <003E5E38>
+13	05/22/06 12:18:38.734		~HandleRequestSocket 00759330 device: 4996 ip: 10.0.0.79 <003E5E38>
+13	05/22/06 12:18:38.734		RequestSocket::Disconnect 00759330 device: 4996 <003E5E38>
+05	05/22/06 12:18:38.734		[33;1mvoid ClientSocket::Disconnect() on this socket: 00759330 (m_Socket: 3708)[0m <003E5E38>
+05	05/22/06 12:18:39.078		[33;1mSocket::ReceiveData m_Socket 3708 m_bQuit 1[0m <003E73F0>
+10	05/22/06 12:18:39.078		Socket::ReceiveString2 ReceiveData failed m_Socket: 3708 Command_Impl1 Dev #4996 <003E73F0>
+10	05/22/06 12:18:39.078		Requesthandler 00759330 (device: 4996) Closing request handler connection <003E73F0>
+13	05/22/06 12:18:39.078		Exiting BeginHandleRequestThread thread... <003E73F0>
+13	05/22/06 12:18:39.078		Socket::Close() m_Socket 3708 <003E5E38>
+13	05/22/06 12:18:39.078		Socket::Close() m_Socket 3708 closesocket: 0 <003E5E38>
+13	05/22/06 12:18:39.078		Socket::~Socket(): deleting socket @00759330 Command_Impl1 Dev #4996 (socket id in destructor: m_Socket: -1) <003E5E38>
+10	05/22/06 12:18:39.078		Orbiter_OpenGL: orbiter deleted. <003E5E38>
+10	05/22/06 12:18:39.078		About to delete logger. Logger out. <003E5E38>
+10	05/23/06 13:16:01.875		Device: 4996 starting.  Connecting to: 10.0.0.79 <003E2EF8>
+10	05/23/06 13:16:01.875		Stage connect <003E6388>
+10	05/23/06 13:16:01.875		About to cleanup Orbiter <003E6388>
+10	05/23/06 13:16:01.875		Orbiter_OpenGL: need to cleanup orbiter... <003E6388>
+10	05/23/06 13:16:01.875		Orbiter cleanup finished <003E6388>
+10	05/23/06 13:16:01.875		Orbiter_OpenGL constructor. <003E6388>
+21	05/23/06 13:16:01.906		lock(007592E8) (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  <003E6630>
+21	05/23/06 13:16:01.906		acquired(007592E8) #0 (>2) MessageQueue c:\pluto\src\dce\command_impl.cpp:695  <003E6630>
+21	05/23/06 13:16:01.906		start cond wait c:\pluto\src\dce\command_impl.cpp:695 (007592E8)  <003E6630>
+10	05/23/06 13:16:01.921		Orbiter 00759150 constructor <003E6388>
+10	05/23/06 13:16:01.921		New orbiter created! <003E6388>
+13	05/23/06 13:16:01.953		ClientSocket::Connect - created m_Socket: 3752 <003E6388>
+10	05/23/06 13:16:02.000		Setting timeout for socket 3752 to 20 <003E6388>
+13	05/23/06 13:16:02.062		ClientSocket::Connect - created m_Socket: 3732 <003E6388>
+10	05/23/06 13:16:02.062		monitor m_bDisplayOn initially set to 1 <003E6388>
+10	05/23/06 13:16:02.062		Setting timeout for socket 3752 to 15 <003E6388>
+10	05/23/06 13:16:02.062		Setting timeout for socket 3732 to 15 <003E6388>
+13	05/23/06 13:16:02.078		ClientSocket::Connect - created m_Socket: 3708 <003E6388>
+10	05/23/06 13:16:02.093		Connect OK <003E6388>
+10	05/23/06 13:16:02.093		Orbiter SelfUpdate: starting <003E6388>
+10	05/23/06 13:16:02.093		Orbiter's full path: c:\Pluto\src\debug\Orbiter_OpenGL.exe <003E6388>
+10	05/23/06 13:16:02.093		Last update didn't fail or the user decided to try to update again. <003E6388>
+10	05/23/06 13:16:02.093		Requesthandler 00759150 (device: 4996) runThread now running <003E7250>
+10	05/23/06 13:16:02.093		InternalSendCommand out parm conf -1 resp 01657180 <003E6388>
+10	05/23/06 13:16:02.156		Initialized SDL <003E71C0>
+10	05/23/06 13:16:02.359		InternalSendCommand out done conf -1 resp 01657180 01659CB0 0 type 1 id 239 to -2001 <003E6388>
+10	05/23/06 13:16:02.359		InternalSendCommand out parm exiting conf -1 resp 01657180 <003E6388>
+01	05/23/06 13:16:02.359		[31;1mThe update file is missing on the server[0m <003E6388>
+10	05/23/06 13:16:02.359		No update available on the server. <003E6388>
+10	05/23/06 13:16:02.359		Stage run <003E6388>
+10	05/23/06 13:16:02.359		Starting processing events <003E6388>
+05	05/23/06 13:16:02.359		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:02.375		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:02.375		Processing event type: 6 <003E6388>
+10	05/23/06 13:16:02.390		Set video mode to 640 x 480 Window. <003E71C0>
+10	05/23/06 13:16:02.390		Created back screen surface! <003E71C0>
+05	05/23/06 13:16:02.406		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:02.406		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:03.296		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:03.296		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:03.984		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:03.984		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:04.500		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:04.500		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:04.531		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:04.531		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:04.546		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:04.546		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:04.546		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:04.546		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:04.562		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:04.562		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:04.609		[33;1mEvent: 1[0m <003E6388>
+05	05/23/06 13:16:06.046		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.062		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.062		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.078		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.078		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.093		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.093		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.109		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.109		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.140		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.140		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.156		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.187		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.187		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.203		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.234		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.234		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.250		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.250		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:06.265		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:07.281		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:07.281		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:07.296		[33;1mEvent: 1[0m <003E6388>
+05	05/23/06 13:16:07.296		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:07.296		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:07.312		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:07.312		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:07.312		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:07.312		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:07.312		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:07.312		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:07.343		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:07.343		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:07.359		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:07.359		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:07.390		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:07.390		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:07.468		[33;1mEvent: 5[0m <003E6388>
+10	05/23/06 13:16:07.468		Processing event type: 4 <003E6388>
+10	05/23/06 13:16:07.468		Region down: position: [21, 14] <003E6388>
+10	05/23/06 13:16:07.500		m_bDisplayOn is 1 <003E6388>
+10	05/23/06 13:16:07.500		NeedToRender::~NeedToRender() calling redraw for: Region Down <003E6388>
+05	05/23/06 13:16:07.515		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:07.515		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:07.609		[33;1mEvent: 6[0m <003E6388>
+10	05/23/06 13:16:07.609		Processing event type: 5 <003E6388>
+10	05/23/06 13:16:07.609		Region up: position: [21, 14] <003E6388>
+05	05/23/06 13:16:07.609		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:07.609		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:07.640		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:07.640		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:07.671		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:07.671		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:07.671		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:07.671		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:07.703		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:07.703		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:07.734		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:07.734		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:07.781		[33;1mEvent: 1[0m <003E6388>
+05	05/23/06 13:16:09.156		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:09.156		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.156		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.156		[33;1mEvent: 6[0m <003E6388>
+10	05/23/06 13:16:09.156		Processing event type: 5 <003E6388>
+10	05/23/06 13:16:09.156		Region up: position: [543, 260] <003E6388>
+05	05/23/06 13:16:09.156		[33;1mEvent: 1[0m <003E6388>
+05	05/23/06 13:16:09.156		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.156		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.156		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:09.156		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:09.187		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.187		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.203		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.203		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.203		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.203		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.203		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.203		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.234		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.234		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.234		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.234		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.265		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.265		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.281		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.281		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.281		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.281		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.312		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.312		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.312		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.312		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.312		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.312		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.375		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.375		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.375		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.375		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.375		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.375		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.390		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.390		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.437		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.437		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.437		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.437		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.468		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.468		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.468		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.468		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.500		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.500		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.515		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.515		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.531		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.531		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.546		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.546		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.546		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.546		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.546		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.546		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.578		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.578		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.593		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:09.593		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:09.593		[33;1mEvent: 1[0m <003E6388>
+05	05/23/06 13:16:10.562		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:10.578		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:11.078		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:11.078		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:11.078		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:11.078		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:11.078		[33;1mEvent: 1[0m <003E6388>
+05	05/23/06 13:16:11.109		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:11.109		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:11.140		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:11.140		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:11.140		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:11.140		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:11.171		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:11.171		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:11.171		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:11.171		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:11.203		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:11.203		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:11.203		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:11.203		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:11.234		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:11.234		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:11.234		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:11.234		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:11.265		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:11.265		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:11.296		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:11.296		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:11.328		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:11.328		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:11.328		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:11.328		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:11.359		[33;1mEvent: 1[0m <003E6388>
+05	05/23/06 13:16:12.437		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.437		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.437		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.453		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.453		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.453		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.453		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.453		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.453		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.453		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.453		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.484		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.484		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.609		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.609		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.656		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.671		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.671		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.671		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.671		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.687		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.687		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.687		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.703		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.703		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.718		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.718		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.734		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.734		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.734		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.734		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.734		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.734		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.765		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.765		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.781		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.781		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.812		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.812		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.812		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.812		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.828		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.828		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.859		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.859		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.859		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.859		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.859		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.875		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.875		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.906		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.906		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.906		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.906		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.921		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.921		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.921		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.921		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.937		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.953		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.953		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.953		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.953		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.953		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.968		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.968		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.968		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:12.968		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:12.968		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.000		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.000		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.046		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.046		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.671		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.671		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.687		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.703		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.703		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.718		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.718		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.765		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.781		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.796		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.796		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.796		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.796		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.812		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.812		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.812		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.843		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.843		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.843		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.843		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.859		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.859		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.859		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.859		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.859		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.875		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.890		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.890		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.890		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.890		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.906		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.906		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.906		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.906		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.921		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.937		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.937		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.937		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.937		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.937		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.937		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.953		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.953		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.953		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.953		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.953		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.968		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.968		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.984		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:13.984		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:13.984		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.000		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.000		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.000		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.000		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.000		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.000		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.000		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.015		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.015		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.031		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.031		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.031		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.031		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.031		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.031		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.046		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.046		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.046		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.046		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.062		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.062		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.078		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.078		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.093		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.093		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.093		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.109		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.125		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.125		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.125		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.234		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.234		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.234		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.234		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.234		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.234		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.265		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.265		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.265		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.265		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.281		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.281		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.281		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.312		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.312		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.312		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.312		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.328		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.343		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.359		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.359		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.375		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.390		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.390		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.421		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.421		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.421		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.421		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.421		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.437		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.468		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.468		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.468		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.484		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.484		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.500		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.500		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.500		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.500		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.531		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.531		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.546		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.546		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.546		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.546		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.562		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.562		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.562		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.578		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.578		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.578		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.593		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.593		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.593		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.593		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.593		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.609		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.609		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.609		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.609		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.625		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.625		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.640		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.640		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.640		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.656		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.656		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.656		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.656		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.656		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.656		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.671		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.687		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.687		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.703		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.703		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.703		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.718		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.734		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.734		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.750		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.750		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.781		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.781		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.781		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.796		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.812		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.812		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.812		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.828		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.843		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.843		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.843		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.859		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.859		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.875		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.875		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.875		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.875		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.875		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.890		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.890		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.890		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.890		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.906		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.906		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.921		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.921		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.921		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.921		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:14.968		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.984		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:14.984		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.015		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.015		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.031		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.031		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.031		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.031		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.046		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.046		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.062		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.062		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.078		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.078		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.093		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.109		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.109		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.125		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.125		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.125		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.125		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.125		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.125		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.265		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.265		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.265		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.281		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.296		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.296		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.296		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.296		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.312		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.312		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.312		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.312		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.328		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.328		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.343		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.343		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.343		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.343		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.359		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.359		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.359		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.359		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.375		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.375		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.375		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.375		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.390		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.390		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.390		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.390		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.390		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.406		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.406		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.406		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.406		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.437		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.437		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.437		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.437		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.437		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.437		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.437		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.453		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.453		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.453		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.453		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.468		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.468		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.468		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.484		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.484		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.484		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.484		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.484		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.500		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.500		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.500		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.500		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.531		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.531		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.531		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.531		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.531		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.531		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.531		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.531		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.546		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.546		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.546		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.546		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.562		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.562		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.578		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.578		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.593		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.593		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.593		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.593		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.609		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.609		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.625		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.625		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.625		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.625		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.625		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.640		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.640		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.640		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.640		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.656		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.656		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.671		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.671		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.671		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.671		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.687		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.687		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.687		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.687		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.703		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.703		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.718		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.718		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.734		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.734		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.734		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.734		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.734		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.734		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.750		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.750		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.750		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.765		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.765		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.765		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.781		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.781		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.781		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.781		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.796		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.812		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.812		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.812		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.812		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.812		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.828		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.828		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.828		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.828		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.828		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.828		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.828		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.828		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.859		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.859		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.859		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.859		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.875		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.875		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.921		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.921		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.937		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.953		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.953		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.953		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.953		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.968		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.968		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:15.968		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.984		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:15.984		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.000		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:16.000		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.015		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.015		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:16.015		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.031		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:16.031		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.046		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:16.046		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.046		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:16.062		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.078		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:16.078		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.093		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.093		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:16.093		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:16.093		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.093		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.093		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:16.109		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.109		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:16.109		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:16.109		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.125		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.125		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:16.125		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.140		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:16.140		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.140		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:16.140		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.187		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:16.187		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:16.359		[33;1mEvent: 1[0m <003E6388>
+05	05/23/06 13:16:16.375		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:16.375		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:16.375		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:16.375		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:16.390		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:16.390		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:16.437		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:16.437		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:16.437		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:16.437		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:16.484		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:16.484		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:16.500		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:16.500		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:16.531		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:16.531		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:16.578		[33;1mEvent: 1[0m <003E6388>
+05	05/23/06 13:16:17.203		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:17.203		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:17.203		[33;1mEvent: 6[0m <003E6388>
+10	05/23/06 13:16:17.203		Processing event type: 5 <003E6388>
+10	05/23/06 13:16:17.203		Region up: position: [639, 182] <003E6388>
+05	05/23/06 13:16:17.203		[33;1mEvent: 1[0m <003E6388>
+05	05/23/06 13:16:17.203		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:17.203		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:17.343		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:17.343		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:17.906		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:17.906		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:17.937		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:17.937		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:17.953		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:17.953		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:17.953		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:17.953		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:17.968		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:17.968		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:17.968		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:17.968		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:18.015		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:18.015		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:18.015		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:18.015		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:18.046		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:18.046		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:18.078		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:18.078		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:18.109		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:18.109		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:18.125		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:18.125		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:18.140		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:18.140		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:18.140		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:18.140		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:18.140		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:18.140		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:18.187		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:18.187		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:18.187		[33;1mEvent: 1[0m <003E6388>
+05	05/23/06 13:16:19.250		[33;1mEvent: 17[0m <003E6388>
+05	05/23/06 13:16:19.250		[33;1mEvent: 16[0m <003E6388>
+05	05/23/06 13:16:22.234		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:22.234		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:22.234		[33;1mEvent: 1[0m <003E6388>
+05	05/23/06 13:16:22.250		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:22.250		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:22.250		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:22.250		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:22.265		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:22.265		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:22.296		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:22.296		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:22.296		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:22.296		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:22.328		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:22.328		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:22.328		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:22.328		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:22.359		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:22.359		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:22.390		[33;1mEvent: 4[0m <003E6388>
+10	05/23/06 13:16:22.390		Processing event type: 6 <003E6388>
+05	05/23/06 13:16:22.421		[33;1mEvent: 1[0m <003E6388>
+05	05/23/06 13:16:22.906		[33;1mEvent: 12[0m <003E6388>
+05	05/23/06 13:16:22.906		[33;1mReceived sdl event SDL_QUIT[0m <003E6388>
+10	05/23/06 13:16:22.906		About to quit EventLoop. Reload 0, ConnectionLost 205, Quit 0 <003E6388>
+10	05/23/06 13:16:22.906		Stage is now osQuit. <003E6388>
+10	05/23/06 13:16:22.906		Exited process messages loop. We are shutting down.... <003E2EF8>
+10	05/23/06 13:16:22.906		Orbiter_OpenGL: need to cleanup orbiter... <003E2EF8>
+10	05/23/06 13:16:22.906		Orbiter  00759150 is exiting <003E2EF8>
+10	05/23/06 13:16:22.906		Kill Maint Thread 1 <003E2EF8>
+10	05/23/06 13:16:22.906		Maint thread dead <003E2EF8>
+10	05/23/06 13:16:22.906		InternalSendCommand out parm conf -1 resp 01659DD0 <003E2EF8>
+10	05/23/06 13:16:22.906		InternalSendCommand out done conf -1 resp 01659DD0 00757460 -1 type 1 id 255 to -1 <003E2EF8>
+10	05/23/06 13:16:22.906		Waiting for message queue thread to quit <003E2EF8>
+13	05/23/06 13:16:22.906		Socket::Close() m_Socket 3752 <003E2EF8>
+13	05/23/06 13:16:22.906		Socket::Close() m_Socket 3752 closesocket: 0 <003E2EF8>
+13	05/23/06 13:16:22.906		Socket::Close() m_Socket 3732 <003E2EF8>
+13	05/23/06 13:16:22.906		Socket::Close() m_Socket 3732 closesocket: 0 <003E2EF8>
+21	05/23/06 13:16:22.906		end cond wait c:\pluto\src\dce\command_impl.cpp:695 (007592E8)  <003E6630>
+21	05/23/06 13:16:22.906		unlock(007592E8) #0 (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  <003E6630>
+21	05/23/06 13:16:22.906		removed from map (007592E8) #0 (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  was: 3 size, now 2 Rel: Y Got: Y <003E6630>
+13	05/23/06 13:16:22.906		Exiting MessageQueueThread_DCECI thread... <003E6630>
+10	05/23/06 13:16:22.921		Message queue thread quit <003E2EF8>
+13	05/23/06 13:16:22.937		Socket::~Socket(): deleting socket @0075D678 Event Dev #4996 (socket id in destructor: m_Socket: -1) <003E2EF8>
+13	05/23/06 13:16:22.937		Socket::~Socket(): deleting socket @016D1CF0 Event Dev #4996 (socket id in destructor: m_Socket: -1) <003E2EF8>
+10	05/23/06 13:16:22.937		About to call kill spawned devices <003E2EF8>
+10	05/23/06 13:16:22.937		~Command_Impl finished <003E2EF8>
+13	05/23/06 13:16:22.937		~HandleRequestSocket 00759150 device: 4996 ip: 10.0.0.79 <003E2EF8>
+13	05/23/06 13:16:22.937		RequestSocket::Disconnect 00759150 device: 4996 <003E2EF8>
+05	05/23/06 13:16:22.937		[33;1mvoid ClientSocket::Disconnect() on this socket: 00759150 (m_Socket: 3708)[0m <003E2EF8>
+05	05/23/06 13:16:23.093		[33;1mSocket::ReceiveData m_Socket 3708 m_bQuit 1[0m <003E7250>
+10	05/23/06 13:16:23.093		Socket::ReceiveString2 ReceiveData failed m_Socket: 3708 Command_Impl1 Dev #4996 <003E7250>
+10	05/23/06 13:16:23.093		Requesthandler 00759150 (device: 4996) Closing request handler connection <003E7250>
+13	05/23/06 13:16:23.093		Exiting BeginHandleRequestThread thread... <003E7250>
+13	05/23/06 13:16:23.109		Socket::Close() m_Socket 3708 <003E2EF8>
+13	05/23/06 13:16:23.109		Socket::Close() m_Socket 3708 closesocket: 0 <003E2EF8>
+13	05/23/06 13:16:23.109		Socket::~Socket(): deleting socket @00759150 Command_Impl1 Dev #4996 (socket id in destructor: m_Socket: -1) <003E2EF8>
+10	05/23/06 13:16:23.109		Orbiter_OpenGL: orbiter deleted. <003E2EF8>
+10	05/23/06 13:16:23.109		About to delete logger. Logger out. <003E2EF8>
+10	05/23/06 13:19:10.718		Device: 4996 starting.  Connecting to: 10.0.0.79 <003E3000>
+10	05/23/06 13:19:10.718		Stage connect <003E6460>
+10	05/23/06 13:19:10.718		About to cleanup Orbiter <003E6460>
+10	05/23/06 13:19:10.718		Orbiter_OpenGL: need to cleanup orbiter... <003E6460>
+10	05/23/06 13:19:10.718		Orbiter cleanup finished <003E6460>
+10	05/23/06 13:19:10.718		Orbiter_OpenGL constructor. <003E6460>
+21	05/23/06 13:19:10.750		lock(007593B8) (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  <003E66C8>
+21	05/23/06 13:19:10.750		acquired(007593B8) #0 (>2) MessageQueue c:\pluto\src\dce\command_impl.cpp:695  <003E66C8>
+21	05/23/06 13:19:10.750		start cond wait c:\pluto\src\dce\command_impl.cpp:695 (007593B8)  <003E66C8>
+10	05/23/06 13:19:10.765		Orbiter 00759220 constructor <003E6460>
+10	05/23/06 13:19:10.765		New orbiter created! <003E6460>
+13	05/23/06 13:19:10.781		ClientSocket::Connect - created m_Socket: 3752 <003E6460>
+10	05/23/06 13:19:10.906		Setting timeout for socket 3752 to 20 <003E6460>
+13	05/23/06 13:19:10.953		ClientSocket::Connect - created m_Socket: 3732 <003E6460>
+10	05/23/06 13:19:11.093		monitor m_bDisplayOn initially set to 1 <003E6460>
+10	05/23/06 13:19:11.093		Setting timeout for socket 3752 to 15 <003E6460>
+10	05/23/06 13:19:11.093		Setting timeout for socket 3732 to 15 <003E6460>
+13	05/23/06 13:19:11.109		ClientSocket::Connect - created m_Socket: 3708 <003E6460>
+10	05/23/06 13:19:11.187		Initialized SDL <003E7258>
+10	05/23/06 13:19:11.234		Connect OK <003E6460>
+10	05/23/06 13:19:11.234		Orbiter SelfUpdate: starting <003E6460>
+10	05/23/06 13:19:11.265		Orbiter's full path: c:\Pluto\src\debug\Orbiter_OpenGL.exe <003E6460>
+10	05/23/06 13:19:11.265		Last update didn't fail or the user decided to try to update again. <003E6460>
+10	05/23/06 13:19:11.281		Requesthandler 00759220 (device: 4996) runThread now running <003E80F8>
+10	05/23/06 13:19:11.281		InternalSendCommand out parm conf -1 resp 0165A150 <003E6460>
+10	05/23/06 13:19:11.390		InternalSendCommand out done conf -1 resp 0165A150 01659BD8 0 type 1 id 239 to -2001 <003E6460>
+10	05/23/06 13:19:11.390		InternalSendCommand out parm exiting conf -1 resp 0165A150 <003E6460>
+01	05/23/06 13:19:11.390		[31;1mThe update file is missing on the server[0m <003E6460>
+10	05/23/06 13:19:11.390		No update available on the server. <003E6460>
+10	05/23/06 13:19:11.390		Stage run <003E6460>
+10	05/23/06 13:19:11.390		Starting processing events <003E6460>
+05	05/23/06 13:19:11.390		[33;1mEvent: 17[0m <003E6460>
+05	05/23/06 13:19:11.421		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.421		Processing event type: 6 <003E6460>
+10	05/23/06 13:19:11.421		Set video mode to 640 x 480 Window. <003E7258>
+10	05/23/06 13:19:11.421		Created back screen surface! <003E7258>
+05	05/23/06 13:19:11.437		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.437		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.484		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.484		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.484		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.484		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.515		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.515		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.546		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.546		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.578		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.578		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.609		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.609		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.656		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.656		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.656		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.656		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.671		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.671		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.718		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.718		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.750		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.750		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.750		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.750		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.781		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.781		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.796		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.796		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.828		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.828		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.859		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.859		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.890		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.890		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.937		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.937		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.937		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.937		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.953		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.953		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.953		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.953		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.984		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.984		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:11.984		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:11.984		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.015		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.015		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.046		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.046		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.078		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.078		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.078		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.078		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.125		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.125		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.125		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.125		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.140		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.140		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.187		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.187		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.218		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.218		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.250		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.250		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.265		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.265		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.281		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.281		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.375		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.375		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.421		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.421		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.421		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.421		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.468		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.468		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.484		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.484		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.515		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.515		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.546		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.546		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.546		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.546		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.593		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.593		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.593		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.593		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.625		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.625		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.640		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.640		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.656		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.656		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.687		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.687		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.687		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.687		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.718		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.718		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.734		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.734		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.734		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.734		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.765		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.765		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.765		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.765		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.796		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.796		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.812		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.812		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.843		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.843		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.875		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.875		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.906		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.906		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.921		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.921		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.921		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.921		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.953		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.953		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.953		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.953		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:12.984		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:12.984		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:13.015		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:13.015		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:13.015		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:13.015		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:13.046		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:13.046		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:13.078		[33;1mEvent: 1[0m <003E6460>
+05	05/23/06 13:19:14.000		[33;1mEvent: 1[0m <003E6460>
+05	05/23/06 13:19:14.000		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.000		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.000		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.000		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.031		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.031		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.046		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.046		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.046		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.046		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.046		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.046		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.078		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.078		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.093		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.093		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.093		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.093		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.140		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.140		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.250		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.250		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.281		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.281		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.296		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.296		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.343		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.343		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.343		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.343		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.375		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.375		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.375		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.375		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.406		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.406		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.437		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.437		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.484		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.484		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.546		[33;1mEvent: 5[0m <003E6460>
+10	05/23/06 13:19:14.546		Processing event type: 4 <003E6460>
+10	05/23/06 13:19:14.546		Region down: position: [59, 30] <003E6460>
+10	05/23/06 13:19:14.562		m_bDisplayOn is 1 <003E6460>
+10	05/23/06 13:19:14.562		NeedToRender::~NeedToRender() calling redraw for: Region Down <003E6460>
+05	05/23/06 13:19:14.656		[33;1mEvent: 6[0m <003E6460>
+10	05/23/06 13:19:14.656		Processing event type: 5 <003E6460>
+10	05/23/06 13:19:14.656		Region up: position: [59, 30] <003E6460>
+05	05/23/06 13:19:14.656		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.656		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.687		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.687		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.687		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.687		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.703		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.703		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.703		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.703		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.718		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.718		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.718		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.718		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.750		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.750		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.781		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.781		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.796		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.796		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.796		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.796		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.812		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.812		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.828		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.828		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.859		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.859		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.890		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.890		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.921		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.921		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.921		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.921		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.953		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.953		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:14.953		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:14.953		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:15.000		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:15.000		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:15.000		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:15.000		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:15.031		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:15.031		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:15.031		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:15.031		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:15.062		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:15.062		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:15.062		[33;1mEvent: 4[0m <003E6460>
+10	05/23/06 13:19:15.062		Processing event type: 6 <003E6460>
+05	05/23/06 13:19:15.093		[33;1mEvent: 1[0m <003E6460>
+05	05/23/06 13:19:15.937		[33;1mEvent: 12[0m <003E6460>
+05	05/23/06 13:19:15.937		[33;1mReceived sdl event SDL_QUIT[0m <003E6460>
+10	05/23/06 13:19:15.937		About to quit EventLoop. Reload 0, ConnectionLost 205, Quit 0 <003E6460>
+10	05/23/06 13:19:15.937		Stage is now osQuit. <003E6460>
+10	05/23/06 13:19:15.937		Exited process messages loop. We are shutting down.... <003E3000>
+10	05/23/06 13:19:15.937		Orbiter_OpenGL: need to cleanup orbiter... <003E3000>
+10	05/23/06 13:19:15.937		Orbiter  00759220 is exiting <003E3000>
+10	05/23/06 13:19:15.937		Kill Maint Thread 1 <003E3000>
+10	05/23/06 13:19:15.937		Maint thread dead <003E3000>
+10	05/23/06 13:19:15.937		InternalSendCommand out parm conf -1 resp 00757A70 <003E3000>
+10	05/23/06 13:19:16.203		InternalSendCommand out done conf -1 resp 00757A70 00757530 -1 type 1 id 255 to -1 <003E3000>
+10	05/23/06 13:19:16.203		Waiting for message queue thread to quit <003E3000>
+13	05/23/06 13:19:16.203		Socket::Close() m_Socket 3752 <003E3000>
+13	05/23/06 13:19:16.203		Socket::Close() m_Socket 3752 closesocket: 0 <003E3000>
+13	05/23/06 13:19:16.203		Socket::Close() m_Socket 3732 <003E3000>
+13	05/23/06 13:19:16.203		Socket::Close() m_Socket 3732 closesocket: 0 <003E3000>
+21	05/23/06 13:19:16.203		end cond wait c:\pluto\src\dce\command_impl.cpp:695 (007593B8)  <003E66C8>
+21	05/23/06 13:19:16.203		unlock(007593B8) #0 (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  <003E66C8>
+21	05/23/06 13:19:16.203		removed from map (007593B8) #0 (>2) MessageQueue: c:\pluto\src\dce\command_impl.cpp:695  was: 3 size, now 2 Rel: Y Got: Y <003E66C8>
+13	05/23/06 13:19:16.203		Exiting MessageQueueThread_DCECI thread... <003E66C8>
+10	05/23/06 13:19:16.218		Message queue thread quit <003E3000>
+13	05/23/06 13:19:16.234		Socket::~Socket(): deleting socket @0075D748 Event Dev #4996 (socket id in destructor: m_Socket: -1) <003E3000>
+13	05/23/06 13:19:16.234		Socket::~Socket(): deleting socket @016D1DC0 Event Dev #4996 (socket id in destructor: m_Socket: -1) <003E3000>
+10	05/23/06 13:19:16.234		About to call kill spawned devices <003E3000>
+10	05/23/06 13:19:16.234		~Command_Impl finished <003E3000>
+13	05/23/06 13:19:16.234		~HandleRequestSocket 00759220 device: 4996 ip: 10.0.0.79 <003E3000>
+13	05/23/06 13:19:16.234		RequestSocket::Disconnect 00759220 device: 4996 <003E3000>
+05	05/23/06 13:19:16.234		[33;1mvoid ClientSocket::Disconnect() on this socket: 00759220 (m_Socket: 3708)[0m <003E3000>
+05	05/23/06 13:19:16.281		[33;1mSocket::ReceiveData m_Socket 3708 m_bQuit 1[0m <003E80F8>
+10	05/23/06 13:19:16.281		Socket::ReceiveString2 ReceiveData failed m_Socket: 3708 Command_Impl1 Dev #4996 <003E80F8>
+10	05/23/06 13:19:16.281		Requesthandler 00759220 (device: 4996) Closing request handler connection <003E80F8>
+13	05/23/06 13:19:16.281		Exiting BeginHandleRequestThread thread... <003E80F8>
+13	05/23/06 13:19:16.296		Socket::Close() m_Socket 3708 <003E3000>
+13	05/23/06 13:19:16.296		Socket::Close() m_Socket 3708 closesocket: 0 <003E3000>
+13	05/23/06 13:19:16.296		Socket::~Socket(): deleting socket @00759220 Command_Impl1 Dev #4996 (socket id in destructor: m_Socket: -1) <003E3000>
+10	05/23/06 13:19:16.296		Orbiter_OpenGL: orbiter deleted. <003E3000>
+10	05/23/06 13:19:16.296		About to delete logger. Logger out. <003E3000>
