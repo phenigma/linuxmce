@@ -8,6 +8,11 @@
 #define DIRECTION_Left_CONST 3
 #define DIRECTION_Right_CONST 4
 
+// alpha values:
+// 0   : full-transparency
+// 255 : opaque
+// 128 : optimized semi-transparency
+
 class PlutoColor : public SerializeClass
 {
 public:
