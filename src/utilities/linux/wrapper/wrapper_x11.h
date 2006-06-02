@@ -166,6 +166,8 @@ public:
     bool Mouse_Ungrab();
 
     // if the parent window is the root window, use the same cursor as X11
+    bool Mouse_ShowStandardCursor(Window window);
+    bool Mouse_HideCursor(Window window);
     bool Mouse_SetCursor_Inherit(Window window);
     bool Mouse_SetCursor_Font(Window window, int nShape);
     bool Mouse_SetCursor_Image(Window window, const string &sPath, const string &sPathMask);

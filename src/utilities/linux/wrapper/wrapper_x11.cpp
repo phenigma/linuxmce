@@ -623,6 +623,33 @@ bool X11wrapper::Mouse_Ungrab()
     return IsReturnCodeOk(code);
 }
 
+bool X11wrapper::Mouse_ShowStandardCursor(Window window)
+{
+    return Mouse_SetCursor_Font(window, XC_left_ptr);
+}
+
+bool X11wrapper::Mouse_HideCursor(Window window)
+{
+    _LOG_NFO("window==%d", window);
+    static const char dataNoCursor[] = { 0x00 };
+    int code = -1;
+    X11_Locker x11_locker(v_pDisplay);
+    do
+    {
+        Pixmap pixmap = XCreateBitmapFromData( v_pDisplay, window, dataNoCursor, 1, 1 );
+        if (pixmap == None)
+            _LOG_XERROR_BREAK("cannot create the pixmap");
+        XColor color;
+        memset(&color, 0, sizeof(color));
+        Cursor cursor = XCreatePixmapCursor(v_pDisplay, pixmap, pixmap, &color, &color, 0, 0);
+        if (! cursor)
+            _LOG_XERROR_BREAK("Cannot create pixmap cursor");
+        code = XDefineCursor( v_pDisplay, window, cursor );
+        _COND_XERROR_LOG_BREAK(code);
+    } while (0);
+    return IsReturnCodeOk(code);
+}
+
 bool X11wrapper::Mouse_SetCursor_Inherit(Window window)
 {
     _LOG_NFO("window==%d", window);
