@@ -3780,6 +3780,8 @@ bool Orbiter::RenderDesktop( class DesignObj_Orbiter *pObj,  PlutoRectangle rect
 	g_pPlutoLogger->Write( LV_STATUS, "Render desktop orb" );
 #endif
 	SolidRectangle( point.X + pObj->m_rPosition.X, point.Y + pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 255 ) );
+	if( pObj->m_mapObjParms_Find(DESIGNOBJPARAMETER_In_Background_CONST)=="1" )
+		int k=2;  // Do in background
 	return true;
 }
 

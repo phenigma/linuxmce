@@ -507,7 +507,7 @@ void OSDScreenHandler::SCREEN_This_Room(long PK_Screen, bool bAlways)
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, DatabaseUtils::GetNameForRoom(m_pWizardLogic,PK_Room));
 			
 			DisplayMessageOnOrbiter(DESIGNOBJ_MediaSetupPopupWizard_CONST, 
-				m_pOrbiter->m_mapTextString[1739 /*TEXT_confirm_room_CONST*/],false,"0",false, //TODO: this constant vanished
+				m_pOrbiter->m_mapTextString[TEXT_confirm_room_CONST],false,"0",false,
 				m_pOrbiter->m_mapTextString[TEXT_YES_CONST],				
 				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_TV_provider_CONST),
 				m_pOrbiter->m_mapTextString[TEXT_NO_CONST],
