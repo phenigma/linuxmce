@@ -32,6 +32,7 @@
 
 #include "Orbiter/ScreenHistory.h"
 #include "Orbiter/SDL/JpegWrapper.h"
+#include "Orbiter/OrbiterRenderer.h"
 
 #define ADVANCED_OPTIONS_SCREEN "2022"
 #define IMAGE_QUALITY_SCREEN    "1274"
@@ -257,7 +258,7 @@ void OrbiterBluetooth::SetImageQuality(unsigned long nImageQuality)
     DATA_Set_ImageQuality(nImageQuality, true);
 
     m_bRerenderScreen = true;
-    RedrawObjects();
+    Renderer()->RedrawObjects();
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterBluetooth::ImageGenerated(const string& csImageFileName)
