@@ -378,10 +378,14 @@ int OrbiterRenderer_SDL_Linux::PromptUser(string sPrompt, int iTimeoutSeconds, m
 
 void OrbiterRenderer_SDL_Linux::LockDisplay()
 {
-	OrbiterLogic()->X_LockDisplay();
+	OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
+    if (pOrbiterLinux)
+        pOrbiterLinux->X_LockDisplay();
 }
 
 void OrbiterRenderer_SDL_Linux::UnlockDisplay()
 {
-	OrbiterLogic()->X_UnlockDisplay();
+	OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
+    if (pOrbiterLinux)
+        pOrbiterLinux->X_UnlockDisplay();
 }
