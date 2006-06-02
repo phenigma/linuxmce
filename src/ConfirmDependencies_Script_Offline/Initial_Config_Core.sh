@@ -5,6 +5,7 @@ DIR="/usr/pluto/install"
 
 mkdir -p /home/pluto/logs
 mkdir -p /home/public/data
+mkdir -p /usr/pluto/var
 
 Sources="# Pluto sources - start
 deb file:/usr/pluto/deb-cache/ sarge main
@@ -14,11 +15,13 @@ deb http://deb.plutohome.com/debian/ sarge main non-free contrib
 deb http://deb.plutohome.com/debian/ unstable mythtv
 deb http://www.yttron.as.ro/ sarge main
 # Pluto sources - end"
+echo "$Sources" >/etc/apt/sources.list
+
 SourcesOffline="# Pluto sources offline - start
 deb file:/usr/pluto/deb-cache/ sarge main
 # Pluto sources offline - end"
-echo "$Sources" >/etc/apt/sources.list
 echo "$SourcesOffline" >/etc/apt/sources.list.offline
+
 sleep 0.5
 
 exec 3>&1 1>/dev/tty
@@ -59,51 +62,14 @@ echo "You need to answer 'Y' below if you want Plug-and-play or extra media"
 echo "directors."
 DHCP=$(Ask "Run a DHCP server? [Y/n]")
 
-RestoreCoreConf()
-{
-	[[ -d /home/backup ]] || return 0
-	[[ -f /home/backup/pluto.conf-Core ]] || return 0
-
-	sed "$NoSpace" /home/backup/pluto.conf-Core | egrep -v "^#|^//" >/etc/pluto.conf
-	while read line; do
-		eval "local $line" &>/dev/null
-	done </etc/pluto.conf
-	export Device="$PK_Device"
-	export Code="$Activation_Code"
-}
-
 # /etc/apt/apt.conf.d/30pluto
 pluto_apt_conf='// Pluto apt conf add-on
-//Acquire::http::Proxy "http://127.0.0.1:8123";
-//Acquire::ftp::Proxy "ftp://127.0.0.1:8124";
-//Acquire::ftp::ProxyLogin { "USER $(SITE_USER)@$(SITE):$(SITE_PORT)"; "PASS $(SITE_PASS)"; };
-//Acquire::http::Proxy::dcerouter "DIRECT";
 Apt::Cache-Limit "12582912";
 Dpkg::Options { "--force-confold"; };
 Acquire::http::timeout "10";
 Acquire::ftp::timeout "10";
 '
-
-# Install critical (Deb talk: essential) packages
-CriticalPattern="/usr/pluto/install/deb-critical/*"
-CriticalPkgs=$(echo $CriticalPattern)
-if [[ -n "$CriticalPkgs" ]]; then
-	if dpkg -i $CriticalPattern; then
-		echo -n "$pluto_apt_conf" >/etc/apt/apt.conf.d/30pluto
-		echo -n "$polipo_conf" >/etc/polipo/config
-		echo -n "$frox_conf" >/etc/frox.conf
-		/usr/sbin/adduser --system --group --home /var/cache/frox --disabled-login --disabled-password frox
-		echo "RUN_DAEMON=yes" >/etc/default/frox
-		/etc/init.d/frox restart
-		/etc/init.d/polipo restart
-	else
-		echo "* ERROR * Complete proxy combination is not available. Installation can't continue"
-		read
-		exit 1
-	fi
-fi
-RestoreCoreConf
-WhereCode="in pluto.conf backup"
+echo -n "$pluto_apt_conf" >/etc/apt/apt.conf.d/30pluto
 
 # Pluto installation
 Activation_Code=1111
@@ -142,7 +108,6 @@ PK_Installation = 1
 PK_Users = 1
 OfflineMode = $OfflineMode
 "
-
 echo "$PlutoConf" >/etc/pluto.conf
 
 apt-get update
@@ -246,11 +211,6 @@ ff02::3 ip6-allhosts
 echo "$hosts" >/etc/hosts
 
 clear
-
-if [[ -d /home/backup && -f /home/backup/entire_database.sql ]]; then
-	echo "Restoring database"
-	mysql < /home/backup/entire_database.sql
-fi
 
 /usr/pluto/bin/Network_Setup.sh
 /usr/pluto/bin/DHCP_config.sh
