@@ -81,6 +81,13 @@ static const string sURL_Base = "http://10.0.0.175/plutohome-com/getRegisteredDe
 #include "DCEConfig.h"
 DCEConfig dceConfig; // Needed by CreateDevice
 
+
+//WARNING! TEMPORARY CODE. THIS CONSTANTS ARE MISSING FROM DB!!!
+//TODO: REMOVE ME!
+#define DEVICEDATA_UID_CONST 154
+#define DEVICEDATA_HAL_Model_CONST 155
+
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
