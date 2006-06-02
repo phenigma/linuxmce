@@ -1111,7 +1111,7 @@ void OrbiterRenderer_PocketFrog::DoHighlightObject()
 {
 	if(!EnableOpenGL)
 	{
-		OrbiterLogic()->DoHighlightObject();
+		OrbiterRenderer::DoHighlightObject();
 	}
 	else
 	{
@@ -1132,7 +1132,7 @@ void OrbiterRenderer_PocketFrog::DoHighlightObjectOpenGL()
 
 	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );  // Protect the highlighed object
 	if( OrbiterLogic()->m_pGraphicBeforeHighlight )
-		OrbiterLogic()->UnHighlightObject();
+		UnHighlightObject();
 
 	if( !OrbiterLogic()->m_pObj_Highlighted )
 	{

@@ -21,6 +21,7 @@
 #include "MediaMouseHandler.h"
 #include "LockedMouseHandler.h"
 #include "KeyboardMouseHandler.h"
+#include "OrbiterRenderer.h"
 
 #include "Linux/OSDCompass.h"
 
@@ -294,11 +295,11 @@ void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 {
 	DesignObj_Orbiter *pObj_Previously_Highlighted=m_pOrbiter->m_pObj_Highlighted;
 
-	m_pOrbiter->UnHighlightObject();
+	m_pOrbiter->Renderer()->UnHighlightObject();
 	if( pObj_Previously_Highlighted && pObj!=pObj_Previously_Highlighted )
 		m_pOrbiter->ExecuteCommandsInList( &pObj_Previously_Highlighted->m_Action_UnhighlightList, pObj_Previously_Highlighted, smHighlight, 0, 0 );
 	m_pOrbiter->m_pObj_Highlighted = pObj;
-	m_pOrbiter->DoHighlightObject();
+	m_pOrbiter->Renderer()->DoHighlightObject();
 //			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
 }
 

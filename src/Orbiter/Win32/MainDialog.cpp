@@ -5,8 +5,8 @@
 #include "Commdlg.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
 #include "SelfUpdate.h"
-#include "Win32/PopupMessage.h"
 #include "Simulator.h"
+#include "PopupMessage.h"
 
 #ifdef POCKETFROG
 #include "PocketFrog/OrbiterRenderer_PocketFrog.h"

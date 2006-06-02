@@ -722,14 +722,14 @@ void Orbiter::RealRedraw( void *data )
 		(m_vectObjs_NeedRedraw.size() || m_vectTexts_NeedRedraw.size()) ))
 	{
 		if(m_pGraphicBeforeHighlight)
-			UnHighlightObject(true);
+			m_pOrbiterRenderer->UnHighlightObject(true);
 		m_vectObjs_NeedRedraw.clear();
 		m_vectTexts_NeedRedraw.clear();
 		nd.Release();
 
 		m_pOrbiterRenderer->RenderScreen( !m_bRerenderScreen );  // If !m_bRerenderScreen, then only redraw objects because we're just rendering the whole screen because of the popup
 		if(NULL != m_pObj_Highlighted)
-			DoHighlightObject();
+			m_pOrbiterRenderer->DoHighlightObject();
 
 		m_bRerenderScreen = false;
 #ifdef DEBUG
@@ -752,7 +752,7 @@ void Orbiter::RealRedraw( void *data )
 	if(m_pGraphicBeforeHighlight && NULL != m_pObj_Highlighted && (m_pObj_Highlighted != m_pObj_Highlighted_Last))
 	{
 		bRehighlight=true;
-		UnHighlightObject();
+		m_pOrbiterRenderer->UnHighlightObject();
 	}
 
 	PlutoPoint AbsolutePosition = NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0);
@@ -769,7 +769,7 @@ void Orbiter::RealRedraw( void *data )
 			if(!bRehighlight && (bIntersectedWith || bIncludedIn))
 			{
 				bRehighlight=true;
-				UnHighlightObject();
+				m_pOrbiterRenderer->UnHighlightObject();
 			}
 			RenderObject( pObj, m_pScreenHistory_Current->GetObj(), AbsolutePosition );
 			m_pOrbiterRenderer->UpdateRect(pObj->m_rPosition, AbsolutePosition);
@@ -809,7 +809,7 @@ void Orbiter::RealRedraw( void *data )
 		else
 		{
 			m_pObj_Highlighted_Last = m_pObj_Highlighted;
-			DoHighlightObject();
+			m_pOrbiterRenderer->DoHighlightObject();
 		}
 	}
 
@@ -895,7 +895,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 		if(NULL != m_pObj_Highlighted && m_pObj_Highlighted != m_pObj_Highlighted_Last)
 		{
 			m_pObj_Highlighted_Last = m_pObj_Highlighted;
-			DoHighlightObject();
+			m_pOrbiterRenderer->DoHighlightObject();
 		}
 	}
 	else if(pObj->m_GraphicToDisplay == GRAPHIC_SELECTED && pObj->m_vectSelectedGraphic.size())
@@ -2166,7 +2166,7 @@ bool Orbiter::SelectedGrid( int DGRow )
 
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 	if(m_pObj_Highlighted == pDesignObj_DataGrid) //datagrid already highlighted. remove first old highlighting
-		UnHighlightObject();
+		m_pOrbiterRenderer->UnHighlightObject();
 
 	m_pObj_Highlighted = pDesignObj_DataGrid;
 	pDesignObj_DataGrid->m_iHighlightedColumn = -1;
@@ -2509,70 +2509,6 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 	}
 	return false;
 }
-//------------------------------------------------------------------------
-/*virtual*/ void Orbiter::DoHighlightObject()
-{
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
-	if(sbNoSelection == m_nSelectionBehaviour || !m_pObj_Highlighted->m_bOnScreen )
-		return;
-	UnHighlightObject();
-
-	if( !m_pObj_Highlighted )
-		return;
-
-if( m_pObj_Highlighted->m_ObjectID.find("4976")!=string::npos )
-	int k=2;
-
-	ExecuteCommandsInList( &m_pObj_Highlighted->m_Action_HighlightList, m_pObj_Highlighted, smHighlight, 0, 0 );
-
-	if( m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
-		GetDataGridHighlightCellCoordinates((DesignObj_DataGrid *) m_pObj_Highlighted,m_rectLastHighlight);
-	else
-		m_rectLastHighlight = m_pObj_Highlighted->GetHighlightRegion();
-
-	m_rectLastHighlight.X += m_pObj_Highlighted->m_pPopupPoint.X;
-	m_rectLastHighlight.Y += m_pObj_Highlighted->m_pPopupPoint.Y;
-
-	m_rectLastHighlight.Width++;  // GetBackground always seems to be 1 pixel to little
-	m_rectLastHighlight.Height++;
-
-	m_pGraphicBeforeHighlight = m_pOrbiterRenderer->GetBackground(m_rectLastHighlight);
-
-	PlutoGraphic *pPlutoGraphic = m_pGraphicBeforeHighlight->GetHighlightedVersion();
-	if(pPlutoGraphic)
-	{
-		m_pOrbiterRenderer->RenderGraphic(pPlutoGraphic, m_rectLastHighlight);
-		delete pPlutoGraphic;
-		pPlutoGraphic = NULL;
-	}
-
-	for(int i = 0; i < 4; i++)
-        m_pOrbiterRenderer->HollowRectangle(
-			m_rectLastHighlight.X + i, m_rectLastHighlight.Y + i,
-			m_rectLastHighlight.Width - 2 * i - 2, m_rectLastHighlight.Height - 2 * i - 2,
-			i < 2 ? PlutoColor::Red() : PlutoColor::White()
-		);
-
-	m_pOrbiterRenderer->UpdateRect(m_rectLastHighlight);
-}
-
-/*virtual*/ void Orbiter::UnHighlightObject( bool bDeleteOnly )
-{
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
-
-	if( !m_pGraphicBeforeHighlight )
-		return;
-
-	if( !bDeleteOnly && m_pObj_Highlighted)
-	{
-		m_pOrbiterRenderer->RenderGraphic(m_pGraphicBeforeHighlight, m_rectLastHighlight);
-		m_pOrbiterRenderer->UpdateRect(m_rectLastHighlight);
-	}
-
-	delete m_pGraphicBeforeHighlight;
-	m_pGraphicBeforeHighlight=NULL;
-}
-
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
 {
@@ -5973,7 +5909,7 @@ void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComp
 		//PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
 		PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 		if(  m_pObj_Highlighted==pObj && !bShow  )
-			UnHighlightObject();
+			m_pOrbiterRenderer->UnHighlightObject();
 
 		pObj->m_bHidden = !bShow;
 #ifdef DEBUG
@@ -7054,7 +6990,7 @@ void Orbiter::CMD_Reset_Highlight(string sPK_DesignObj,string &sCMD_Result,Messa
 		{
 			if( m_pObj_Highlighted && m_pObj_Highlighted!=pObj )
 			{
-				UnHighlightObject();
+				m_pOrbiterRenderer->UnHighlightObject();
 				ExecuteCommandsInList( &m_pObj_Highlighted->m_Action_UnhighlightList, m_pObj_Highlighted, smHighlight, 0, 0 );
 			}
 			m_pObj_Highlighted = pObj;
@@ -7986,7 +7922,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 		PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 		if(pObj == m_pObj_Highlighted)
-			DoHighlightObject();
+			m_pOrbiterRenderer->DoHighlightObject();
 
 		m_pOrbiterRenderer->UpdateRect(pObj->m_rPosition, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));
 		m_pOrbiterRenderer->EndPaint();
@@ -8605,7 +8541,7 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 	*/
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 	if( m_pObj_Highlighted )
-		UnHighlightObject();
+		m_pOrbiterRenderer->UnHighlightObject();
 
 	DesignObj_Orbiter *pObj = FindObject(sPK_DesignObj_CurrentScreen);
 	g_pPlutoLogger->Write(LV_CRITICAL,"remove popup %s",sName.c_str());
@@ -9932,92 +9868,6 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 	return new ScreenHandler(this, &m_mapDesignObj);
 #endif
 }
-//-----------------------------------------------------------------------------------------------------
-void Orbiter::LoadPlugins()
-{
-	/*
-	list<string> listFiles;
-	#ifdef WIN32
-	FileUtils::FindFiles(listFiles,"/pluto/orbiter/","*.dll",false,true);
-	#else
-	FileUtils::FindFiles(listFiles,"/usr/pluto/orbiter/","*.so",false,true);
-	#endif
-
-	for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
-	{
-	ScreenHandler *pScreenHandler = PlugIn_Load(*it);
-	if (pScreenHandler)
-	{
-	pScreenHandler->Register();
-	}
-	else
-	{
-	g_pPlutoLogger->Write(LV_CRITICAL, "Cannot load plug-in for %s",
-	(*it).c_str());
-	}
-	}
-	*/
-}
-
-ScreenHandler *Orbiter::PlugIn_Load(string sCommandLine)
-{
-	/*
-	RAOP_FType RegisterAsPlugin;
-	void * so_handle;
-	string ErrorMessage;
-	char MS_ErrorMessage[1024];
-
-	if (sCommandLine == "")
-	return NULL;
-
-	#ifndef WIN32
-	sCommandLine += ".so";
-	if (sCommandLine.find("/") == string::npos)
-	sCommandLine = "./" + sCommandLine;
-	so_handle = dlopen(sCommandLine.c_str(), RTLD_LAZY | RTLD_GLOBAL);
-	#else
-	so_handle = LoadLibrary(sCommandLine.c_str());
-	#endif
-
-	if (so_handle == NULL)
-	{
-	#ifndef WIN32
-	ErrorMessage = dlerror();
-	#else
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
-	MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), MS_ErrorMessage, 1024 / sizeof(TCHAR), NULL);
-	ErrorMessage = MS_ErrorMessage;
-	#endif
-	g_pPlutoLogger->Write(LV_CRITICAL, "Can't open plug-in file '%s': %s", sCommandLine.c_str(), ErrorMessage.c_str());
-	return NULL;
-	}
-
-	#ifndef WIN32
-	RegisterAsPlugin = (RAOP_FType) dlsym(so_handle, "RegisterAsOrbiterPlugIn");
-	#else
-	RegisterAsPlugin = (RAOP_FType) GetProcAddress((HMODULE) so_handle, "RegisterAsOrbiterPlugIn");
-	#endif
-
-	if (RegisterAsPlugin == NULL)
-	{
-	#ifndef WIN32
-	ErrorMessage = dlerror();
-	#else
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
-	MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), MS_ErrorMessage, 1024 / sizeof(TCHAR), NULL);
-	ErrorMessage = MS_ErrorMessage;
-	#endif
-	g_pPlutoLogger->Write(LV_CRITICAL, "Failed to load symbol 'RegisterAsPlugin' from file '%s': %s", sCommandLine.c_str(), ErrorMessage.c_str());
-	return NULL;
-	}
-
-	g_pPlutoLogger->Write(LV_WARNING, "Loaded plug-in %s", sCommandLine.c_str());
-
-	return RegisterAsPlugin(this,&m_mapDesignObj,g_pPlutoLogger);
-	*/
-	return NULL;
-}
-
 //-----------------------------------------------------------------------------------------------------
 bool Orbiter::ExecuteScreenHandlerCallback(CallBackType aCallBackType)
 {

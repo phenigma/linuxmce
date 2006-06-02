@@ -867,8 +867,7 @@ void OrbiterRenderer_SDL::DoHighlightObject()
 
 	if(!EnableOpenGL)
 	{
-		//TODO
-		//OrbiterRenderer::DoHighlightObject();
+		OrbiterRenderer::DoHighlightObject();
 	}
 	else
 	{
@@ -889,7 +888,7 @@ void OrbiterRenderer_SDL::DoHighlightObjectOpenGL()
 
 	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );  // Protect the highlighed object
 	if( OrbiterLogic()->m_pGraphicBeforeHighlight )
-		OrbiterLogic()->UnHighlightObject();
+		UnHighlightObject();
 
 	if( !OrbiterLogic()->m_pObj_Highlighted )
 		return;

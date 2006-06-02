@@ -102,8 +102,15 @@ public:
 	//helpers
 	virtual void ClipRectangle(int& x, int& y, int& width, int& height);
 	virtual void ClipRectangle(PlutoRectangle &rect);
-
 	virtual void RenderFrame(void *) {}
+
+	//highlighting and selecting logic
+
+	/**
+	* @brief Do the Highlighting of the currently highlighted object, or remove the highlighting
+	*/
+    virtual void DoHighlightObject();
+	virtual void UnHighlightObject(bool bDeleteOnly = false);
 };
 
 #endif //__ORBITER_RENDERER_H__

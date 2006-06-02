@@ -537,12 +537,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		virtual void SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point = PlutoPoint(0, 0) );
 
 		/**
-		* @brief Do the Highlighting of the currently highlighted object, or remove the highlighting
-		*/
-		virtual void DoHighlightObject();
-		virtual void UnHighlightObject( bool bDeleteOnly=false );
-
-		/**
 		* @brief Find the first 'tab stop' object on screen and highlight it
 		*/
 		virtual void HighlightFirstObject();
@@ -925,10 +919,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		void GetDataGridHighlightCellCoordinates(DesignObj_DataGrid *pGrid,PlutoRectangle &rect);
 
 		void GotoMainMenu();
-
-		// Plugins
-		void LoadPlugins();
-		ScreenHandler *PlugIn_Load(string sCommandLine);
 
 		/**
 		*	MAINTENANCE CALL BACKS

@@ -304,3 +304,66 @@ void OrbiterRenderer::OnReload()
 	OnQuit();
 }
 //-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer::DoHighlightObject()
+{
+	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );  // Protect the highlighed object
+	if(sbNoSelection == OrbiterLogic()->m_nSelectionBehaviour || !OrbiterLogic()->m_pObj_Highlighted->m_bOnScreen )
+		return;
+
+	UnHighlightObject();
+
+	if( !OrbiterLogic()->m_pObj_Highlighted )
+		return;
+
+	OrbiterLogic()->ExecuteCommandsInList( &OrbiterLogic()->m_pObj_Highlighted->m_Action_HighlightList, 
+		OrbiterLogic()->m_pObj_Highlighted, smHighlight, 0, 0 );
+
+	if( OrbiterLogic()->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+		OrbiterLogic()->GetDataGridHighlightCellCoordinates((DesignObj_DataGrid *) OrbiterLogic()->m_pObj_Highlighted,OrbiterLogic()->m_rectLastHighlight);
+	else
+		OrbiterLogic()->m_rectLastHighlight = OrbiterLogic()->m_pObj_Highlighted->GetHighlightRegion();
+
+	OrbiterLogic()->m_rectLastHighlight.X += OrbiterLogic()->m_pObj_Highlighted->m_pPopupPoint.X;
+	OrbiterLogic()->m_rectLastHighlight.Y += OrbiterLogic()->m_pObj_Highlighted->m_pPopupPoint.Y;
+
+	OrbiterLogic()->m_rectLastHighlight.Width++;  // GetBackground always seems to be 1 pixel to little
+	OrbiterLogic()->m_rectLastHighlight.Height++;
+
+	OrbiterLogic()->m_pGraphicBeforeHighlight = 
+		OrbiterLogic()->m_pOrbiterRenderer->GetBackground(OrbiterLogic()->m_rectLastHighlight);
+
+	PlutoGraphic *pPlutoGraphic = OrbiterLogic()->m_pGraphicBeforeHighlight->GetHighlightedVersion();
+	if(pPlutoGraphic)
+	{
+		OrbiterLogic()->m_pOrbiterRenderer->RenderGraphic(pPlutoGraphic, OrbiterLogic()->m_rectLastHighlight);
+		delete pPlutoGraphic;
+		pPlutoGraphic = NULL;
+	}
+
+	for(int i = 0; i < 4; i++)
+        OrbiterLogic()->m_pOrbiterRenderer->HollowRectangle(
+			OrbiterLogic()->m_rectLastHighlight.X + i, OrbiterLogic()->m_rectLastHighlight.Y + i,
+			OrbiterLogic()->m_rectLastHighlight.Width - 2 * i - 2, OrbiterLogic()->m_rectLastHighlight.Height - 2 * i - 2,
+			i < 2 ? PlutoColor::Red() : PlutoColor::White()
+		);
+
+	UpdateRect(OrbiterLogic()->m_rectLastHighlight);
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer::UnHighlightObject(bool bDeleteOnly)
+{
+	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );  // Protect the highlighed object
+
+	if( !OrbiterLogic()->m_pGraphicBeforeHighlight )
+		return;
+
+	if( !bDeleteOnly && OrbiterLogic()->m_pObj_Highlighted)
+	{
+		RenderGraphic(OrbiterLogic()->m_pGraphicBeforeHighlight, OrbiterLogic()->m_rectLastHighlight);
+		UpdateRect(OrbiterLogic()->m_rectLastHighlight);
+	}
+
+	delete OrbiterLogic()->m_pGraphicBeforeHighlight;
+	OrbiterLogic()->m_pGraphicBeforeHighlight=NULL;
+}
+//-----------------------------------------------------------------------------------------------------
