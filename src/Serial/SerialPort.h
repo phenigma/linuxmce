@@ -32,6 +32,17 @@ public:
 	virtual size_t Read(char *Buf, size_t MaxLen, int Timeout=5);  // Timeout in millseconds
 	virtual void Write(char *Buf, size_t Len);
 	virtual void Flush();
+	
+	/** Sends data to generate a break condition.
+	  * @param time how long to keep the break condition
+	  * TODO: Windows implementation
+	  */
+	virtual bool SendBreak(int time=0);
+	
+	/** Try to detect if there is a serial communication.
+	  * TODO: Windows implementation
+	  */
+	virtual bool IsBusy();
 
 public:
 #ifdef WIN32

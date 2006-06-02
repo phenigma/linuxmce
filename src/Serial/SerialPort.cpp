@@ -65,18 +65,29 @@ bool CSerialPort::IsReadEmpty()
 void CSerialPort::Flush() {
 }
 
+bool CSerialPort::SendBreak(int time)
+{
+	return true;
+}
+
+bool CSerialPort::IsBusy()
+{
+	return false;
+}
 
 #else
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <termios.h>
 #include <stdio.h>
 #include <pthread.h>
 
+//#include <iostream>
 #include <deque>
 
 class CSerialPort::Private
@@ -425,6 +436,43 @@ bool CSerialPort::IsReadEmpty()
 
 void CSerialPort::Flush() {
     ::tcflush(m_fdSerial, TCIOFLUSH);
+}
+
+bool CSerialPort::SendBreak(int time)
+{
+	pthread_mutex_lock( &d->mutex_serial );
+	int iSendBreak = ::tcsendbreak(m_fdSerial, time);
+	pthread_mutex_unlock( &d->mutex_serial );
+
+	return 0 == iSendBreak;
+}
+
+bool CSerialPort::IsBusy()
+{
+	int flags = 0;
+	
+	pthread_mutex_lock( &d->mutex_serial );
+	int iCTS = ioctl( m_fdSerial, TIOCMGET, &flags ); 
+	pthread_mutex_unlock( &d->mutex_serial );
+	
+	if( -1 == iCTS )
+	{
+		// bad serial device
+		return false;
+	}
+	
+/*		cout << "IsBusy --- 2 --- CAR = " << (int)(flags & TIOCM_CAR) 
+			<< " RTS = " << (int)(flags & TIOCM_RTS) 
+			<< " CTS = " << (int)(flags & TIOCM_CTS) << "\n";*/
+	
+	// if CTS is not set, then there isn't something connected to the serial port
+	// or the hardware dataflow control lines are not used
+	if( !(flags & TIOCM_CTS) )
+	{
+		return false;
+	}
+	
+	return true;
 }
 
 #endif
