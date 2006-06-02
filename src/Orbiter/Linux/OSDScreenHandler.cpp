@@ -701,7 +701,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 	else
 	{
 		ScreenHandlerBase::SCREEN_TV_Manufacturer(PK_Screen);
-		m_pWizardLogic->FindPnpDevices(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST);
+		m_pWizardLogic->FindPnpDevices(TOSTRING(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST));
 		m_pOrbiter->StartScreenHandlerTimer(500);
 	}
 
@@ -883,7 +883,7 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 	else
 	{
 		ScreenHandlerBase::SCREEN_Receiver(PK_Screen);
-		m_pWizardLogic->FindPnpDevices(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
+		m_pWizardLogic->FindPnpDevices(TOSTRING(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST));
 		m_pOrbiter->StartScreenHandlerTimer(500);
 	}
 
@@ -1184,7 +1184,7 @@ void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 		HandleLightingScreen();
 	else
 	{
-		m_pWizardLogic->FindPnpDevices(DEVICECATEGORY_Lighting_Interface_CONST);
+		m_pWizardLogic->FindPnpDevices(TOSTRING(DEVICECATEGORY_Lighting_Interface_CONST));
 		ScreenHandlerBase::SCREEN_LightsSetup(PK_Screen);
 		m_pOrbiter->StartScreenHandlerTimer(500);
 	}

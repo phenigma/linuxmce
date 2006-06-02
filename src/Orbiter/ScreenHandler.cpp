@@ -99,7 +99,7 @@ void ScreenHandler::SCREEN_PopupMessage(long PK_Screen, string sText, string sCo
 	string sMessage3 = StringUtils::Tokenize(sCommand_Line,"|",pos);
 	string sMessage4 = StringUtils::Tokenize(sCommand_Line,"|",pos);
 
-	DisplayMessageOnOrbiter(SCREEN_PopupMessage_CONST,sTitle, sPromptToResetRouter == "1", sTimeout, sCannotGoBack == "1",
+	DisplayMessageOnOrbiter(PK_Screen,sTitle, sPromptToResetRouter == "1", sTimeout, sCannotGoBack == "1",
 		sOption1,sMessage1,sOption2,sMessage2,sOption3,sMessage3,sOption4,sMessage4);
 }
 //-----------------------------------------------------------------------------------------------------

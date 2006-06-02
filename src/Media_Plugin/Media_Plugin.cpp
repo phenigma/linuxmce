@@ -133,7 +133,10 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 		{
 			// Since there's no other a/v device for volume adjustments, we'll send it to an app server
 			vector<DeviceData_Router *> vectDeviceData_Router;
-			pDeviceData_Router_Source->FindChildrenWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDeviceData_Router);
+			if( pDeviceData_Router_Source->m_pDevice_ControlledVia )
+				( (DeviceData_Router *)pDeviceData_Router_Source->m_pDevice_ControlledVia)->FindChildrenWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDeviceData_Router);
+			else
+				pDeviceData_Router_Source->FindChildrenWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDeviceData_Router);
 			if( vectDeviceData_Router.size() )
 				m_pDevice_Audio = vectDeviceData_Router[0];
 		}

@@ -2205,7 +2205,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "53" /* screen ID */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages (MessageSendFormat) for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -2217,7 +2217,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "53" /* screen ID */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages (MessageSendFormat) for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -2229,7 +2229,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "53" /* screen ID */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages (MessageSendFormat) for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -2241,7 +2241,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "53" /* screen ID */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages (MessageSendFormat) for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -3944,40 +3944,48 @@ namespace DCE
 	class SCREEN_GenericKeyboard : public PreformedCommand
 	{
 	public:
-		SCREEN_GenericKeyboard(long DeviceIDFrom, long DeviceIDTo)
+		SCREEN_GenericKeyboard(long DeviceIDFrom, long DeviceIDTo,
+			string sText, string sCommand_Line, string sDescription, string sCannotGoBack)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "97" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "97" /* screen ID */,
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages (MessageSendFormat) for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
 	class SCREEN_GenericKeyboard_DL : public PreformedCommand
 	{
 	public:
-		SCREEN_GenericKeyboard_DL(long DeviceIDFrom, string sDeviceIDTo)
+		SCREEN_GenericKeyboard_DL(long DeviceIDFrom, string sDeviceIDTo,
+			string sText, string sCommand_Line, string sDescription, string sCannotGoBack)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "97" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "97" /* screen ID */,
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages (MessageSendFormat) for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
 	class SCREEN_GenericKeyboard_DT : public PreformedCommand
 	{
 	public:
-		SCREEN_GenericKeyboard_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		SCREEN_GenericKeyboard_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			string sText, string sCommand_Line, string sDescription, string sCannotGoBack)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "97" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "97" /* screen ID */,
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages (MessageSendFormat) for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
 	class SCREEN_GenericKeyboard_Cat : public PreformedCommand
 	{
 	public:
-		SCREEN_GenericKeyboard_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		SCREEN_GenericKeyboard_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			string sText, string sCommand_Line, string sDescription, string sCannotGoBack)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "97" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "97" /* screen ID */,
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages (MessageSendFormat) for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -9276,7 +9284,7 @@ namespace DCE
 		virtual void SCREEN_Mytv_watching_tv(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Myth_live_tv_browse_mode(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Myth_playback_recording(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_GenericKeyboard(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_GenericKeyboard(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sCannotGoBack){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_PingPong(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVEPG1(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVEPG2(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -9914,7 +9922,11 @@ namespace DCE
 				}
 				case 97:
 				{
-					SCREEN_GenericKeyboard(nPK_Screen);
+					string sText = pMessage->m_mapParameters[9];
+					string sCommand_Line = pMessage->m_mapParameters[137];
+					string sDescription = pMessage->m_mapParameters[163];
+					string sCannotGoBack = pMessage->m_mapParameters[183];
+					SCREEN_GenericKeyboard(nPK_Screen, sText, sCommand_Line, sDescription, sCannotGoBack);
 					break;
 				}
 				case 98:
