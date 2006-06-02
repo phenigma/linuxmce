@@ -696,7 +696,7 @@ function editMasterDevice($output,$dbADO) {
 		$old_isAVDevice = cleanInteger(@$_POST['old_isAVDevice']);
 
 
-		if($newMacFrom!='' && $newMacTo!=''){
+		if(($newMacFrom!='' && $newMacTo!='') || $VendorModelID!=''){
 			$dbADO->Execute('INSERT INTO DHCPDevice (FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High,Description,VendorModelID) VALUES (?,?,?,?,?)',array($deviceID,$newMacFrom,$newMacTo,$newComment,$VendorModelID));
 			$locationGoTo='plugAndPlay';
 		}
