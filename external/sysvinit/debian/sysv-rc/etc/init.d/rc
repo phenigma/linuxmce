@@ -17,7 +17,7 @@
 #
 
 cmdline="$(</proc/cmdline)"
-if [[ "$cmdline" != *sysvinit* ]]; then    
+if [[ "$cmdline" != *sysvinit* && "$RUNLEVEL" != "0" && "$RUNLEVEL" != "6" ]]; then    
  /etc/init.d/fastboot/rc
  exit
 fi
