@@ -380,7 +380,7 @@ void Proxy_Orbiter::StopProcessingRequest(void *p)
     }
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Proxy_Orbiter::SetImageQuality(unsigned long nImageQuality)
+/*virtual*/ void Proxy_Orbiter::FireImageQualityChanged(unsigned long nImageQuality)
 {
     m_ImageQuality = nImageQuality;
     DATA_Set_ImageQuality(nImageQuality, true);
@@ -576,6 +576,11 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
         g_pPlutoLogger->Write(LV_WARNING, "Sent: OK");        
 		pSocket->SendString("OK");
 		return true;
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Not a valid communication tokey. Check the specs. Sending error...");        
+		pSocket->SendString("ERROR"); // Shouldn't happen
 	}
 	return false;
 }

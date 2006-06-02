@@ -40,7 +40,7 @@ void Proxy_OrbiterRenderer_SDL::DisplayImageOnScreen(SDL_Surface *pScreenImage)
 	Proxy_Orbiter *pProxy_Orbiter = dynamic_cast<Proxy_Orbiter *>(OrbiterLogic());
 
 	if(pScreenImage->w <= 320 && pScreenImage->h <= 240) //ip phone
-		pProxy_Orbiter->SetImageQuality(100);
+		pProxy_Orbiter->ImageQuality(100);
 
 	if(NULL != pProxy_Orbiter)
 	{

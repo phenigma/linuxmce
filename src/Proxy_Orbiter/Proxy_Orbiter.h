@@ -62,7 +62,8 @@ namespace DCE
 		virtual bool GetConfig();
 
 		virtual unsigned long ImageQuality() { return m_ImageQuality; }
-		virtual void SetImageQuality(unsigned long nImageQuality);
+		virtual void ImageQuality(unsigned long nImageQuality) 	{	m_ImageQuality = nImageQuality;	}
+		virtual void FireImageQualityChanged(unsigned long nImageQuality);
 
 		virtual bool ReceivedString( Socket *pSocket, string sLine, int nTimeout = - 1 );
 		virtual void ReceivedMessage( Socket *pSocket, Message* pMessage ) {} // We don't do messages
