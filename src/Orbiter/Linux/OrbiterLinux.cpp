@@ -544,30 +544,47 @@ void OrbiterLinux::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Mess
 {
 	if( sOnOff!="X" )
 		return;
-    Display *dpy = GetDisplay();
-    Window win = DefaultRootWindow (dpy);
+
+    // TODO: CMD_Show_Mouse_Pointer not implemented anywhere else
+
+    // TODO: use this new code as reference
+    //       probably this was the intention
+    {
+        //static bool bShow=false;
+        //bShow = !bShow;
+        //m_pMouseBehavior->ShowMouse(bShow);
+    }
 
     // TODO: clean this code
-    SDL_SysWMinfo sdlinfo;
-    SDL_VERSION(&sdlinfo.version);
-    int r2=SDL_GetWMInfo(&sdlinfo);
-    Window w2 = sdlinfo.info.x11.wmwindow;
-    Window w3 = sdlinfo.info.x11.window;
-    Window w4 = sdlinfo.info.x11.fswindow;
-    g_pPlutoLogger->Write(LV_CRITICAL, "GRABBING MOUSE window %d, r2: %d, w2: %d w3: %d w5: %d",(int) win,r2,(int) w2,(int) w3,(int) w4);
+    // what was written bellow does not work(now),
+    // and does not make any sense, either
+    // ..... log ..... GRABBING MOUSE window ?
+    // ..... try to hide the mouse, but the cursor was not set to that window
+    {
+        //Display *dpy = GetDisplay();
+        //Window win = DefaultRootWindow (dpy);
 
-    win = w3;
-    Pixmap blank;
-    XColor dummy;
-    char data[1] = {0};
-    Cursor cursor;
+        //SDL_SysWMinfo sdlinfo;
+        //SDL_VERSION(&sdlinfo.version);
+        //int r2=SDL_GetWMInfo(&sdlinfo);
+        //Window w2 = sdlinfo.info.x11.wmwindow;
+        //Window w3 = sdlinfo.info.x11.window;
+        //Window w4 = sdlinfo.info.x11.fswindow;
+        //g_pPlutoLogger->Write(LV_CRITICAL, "GRABBING MOUSE window %d, r2: %d, w2: %d w3: %d w5: %d",(int) win,r2,(int) w2,(int) w3,(int) w4);
 
-    /* make a blank cursor */
-    X11_Locker lock(GetDisplay());
-    blank = XCreateBitmapFromData (dpy, win, data, 1, 1);
-    if(blank == None) fprintf(stderr, "error: out of memory.\n");
-    cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
-    XFreePixmap (dpy, blank);
+        //win = w3;
+        //Pixmap blank;
+        //XColor dummy;
+        //char data[1] = {0};
+        //Cursor cursor;
+
+        ///* make a blank cursor */
+        //X11_Locker lock(GetDisplay());
+        //blank = XCreateBitmapFromData (dpy, win, data, 1, 1);
+        //if(blank == None) fprintf(stderr, "error: out of memory.\n");
+        //cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
+        //XFreePixmap (dpy, blank);
+    }
 }
 
 void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)

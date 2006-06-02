@@ -55,8 +55,16 @@ void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 
 void MouseBehavior_Linux::ShowMouse(bool bShow)
 {
-    X11_Locker lock(ptrOrbiterLinux()->GetDisplay());
-	SDL_ShowCursor(bShow ? SDL_ENABLE : SDL_DISABLE);
+    // TODO: delete these lines
+    //       SDL cannot restore a custom cursor set by the X11 code
+    //X11_Locker lock(ptrOrbiterLinux()->GetDisplay());
+	//SDL_ShowCursor(bShow ? SDL_ENABLE : SDL_DISABLE);
+
+    // at show, we want to show the standard mouse cursor
+    if (bShow)
+        ptrOrbiterLinux()->m_pX11->Mouse_ShowStandardCursor(ptrOrbiterLinux()->GetMainWindow());
+    else
+        ptrOrbiterLinux()->m_pX11->Mouse_HideCursor(ptrOrbiterLinux()->GetMainWindow());
 }
 
 bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
@@ -95,7 +103,7 @@ void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
     switch (mouseCursorStyle)
     {
         case mcs_Normal:
-            nShape = XC_top_left_arrow;
+            nShape = XC_left_ptr;
             if (! ptrOrbiterLinux()->m_pX11->Mouse_SetCursor_Font(ptrOrbiterLinux()->GetMainWindow(), nShape))
             {
                 g_pPlutoLogger->Write(
