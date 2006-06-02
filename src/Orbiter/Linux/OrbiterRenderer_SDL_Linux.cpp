@@ -376,3 +376,12 @@ int OrbiterRenderer_SDL_Linux::PromptUser(string sPrompt, int iTimeoutSeconds, m
 	return 0;
 }
 
+void OrbiterRenderer_SDL_Linux::LockDisplay()
+{
+	OrbiterLogic()->X_LockDisplay();
+}
+
+void OrbiterRenderer_SDL_Linux::UnlockDisplay()
+{
+	OrbiterLogic()->X_UnlockDisplay();
+}

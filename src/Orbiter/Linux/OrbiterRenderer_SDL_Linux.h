@@ -27,6 +27,9 @@ namespace DCE
 		bool DisplayProgress(string sMessage, int nProgress);
 		bool DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress);
 		int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
+
+		void LockDisplay();
+		void UnlockDisplay();
 	};
 }
 #endif //__ORBITER_RENDERER_SDL_LINUX_H__
