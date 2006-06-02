@@ -60,6 +60,7 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	m_pXineDeinterlacePlugin = NULL;
 
 	m_bInitialized = false;
+	m_bIsRendering = false;
 	
 	m_pXineAudioOutput = NULL;
 	m_pXineVideoOutput = NULL;
@@ -394,6 +395,9 @@ bool Xine_Stream::CloseMedia()
 
 		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close for stream with id: %d", m_iStreamID );
 		xine_close( m_pXineStream );
+		
+		m_bIsRendering = false;
+		m_iTitle=m_iChapter=-1;
 	}
 }
 
@@ -419,6 +423,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 	CalculatePosition( sMediaPosition, &sURLsuffix, NULL, NULL, NULL); 
 	
 	bool mediaOpened = false;
+	m_bIsRendering = false;
 	
 	if (sURLsuffix!="")
 	{
@@ -2389,7 +2394,7 @@ void Xine_Stream::ReportTimecode()
 		return;
 	}
 
-	if (!m_iTimeCodeReportFrequency )
+	if (!m_iTimeCodeReportFrequency||!m_bIsRendering )
 		return;
 	
 	if( m_bIsVDR )
