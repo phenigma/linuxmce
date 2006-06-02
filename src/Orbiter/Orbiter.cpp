@@ -3667,12 +3667,27 @@ int k=2;
 //------------------------------------------------------------------------
 bool Orbiter::RenderDesktop( class DesignObj_Orbiter *pObj,  PlutoRectangle rectTotal, PlutoPoint point )
 {
+    int x = point.X + pObj->m_rPosition.X;
+    int y = point.Y + pObj->m_rPosition.Y;
+    int width = pObj->m_rPosition.Width;
+    int height = pObj->m_rPosition.Height;
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_STATUS, "Render desktop orb" );
+	g_pPlutoLogger->Write( LV_STATUS, "Orbiter::RenderDesktop(pObj=%p) : Render desktop (%d,%d,%d,%d)",
+                           pObj, x, y, width, height );
 #endif
-	m_pOrbiterRenderer->SolidRectangle( point.X + pObj->m_rPosition.X, point.Y + pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 255 ) );
+    // background color
+    PlutoColor color( 0, 0, 255 );
+    // in some cases, make the background transparent
 	if( pObj->m_mapObjParms_Find(DESIGNOBJPARAMETER_In_Background_CONST)=="1" )
-		int k=2;  // Do in background
+    {
+        //int k=2;  // Do in background
+        if (! Simulator::GetInstance()->m_bUseOpenGL)
+        {
+            //color.SetAlpha(128); // optimized semi-transparency
+            color.SetAlpha(0); // full-transparency
+        }
+    }
+	m_pOrbiterRenderer->SolidRectangle(x, y, width, height, color);
 	return true;
 }
 
