@@ -57,12 +57,14 @@ public:
 	virtual bool TV_Manufacturer_ObjectSelected(CallBackData *pData);
 	virtual bool TV_Manufacturer_GridSelected(CallBackData *pData);
 	bool TV_OnTimer(CallBackData *pData);
+	virtual bool TV_OnScreen(CallBackData *pData);
 
 	//6. Receiver
 	virtual void SCREEN_Receiver(long PK_Screen);
 	virtual bool Receiver_ObjectSelected(CallBackData *pData);
 	virtual bool Receiver_GridSelected(CallBackData *pData);
 	virtual bool Receiver_OnTimer(CallBackData *pData);
+	virtual bool Receiver_OnScreen(CallBackData *pData);
 
 	//7. AV Devices
 	virtual void SCREEN_AV_Devices(long PK_Screen);
@@ -108,6 +110,7 @@ public:
 
 	bool NewAvDevice_ObjectSelected(int PK_DeviceCategory,ObjectInfoBackData *pObjectInfoData);
 	virtual void SCREEN_PopupMessage(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack);
+	bool WizardIntercept_OnGotoScreen(CallBackData *pData);
 
     //virtual void SCREEN_TVManufNotListed(long PK_Screen);
 	//virtual bool SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pData);

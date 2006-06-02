@@ -5812,6 +5812,18 @@ void Orbiter::CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string 
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot find object in CMD_Show_Object: %s", sPK_DesignObj.c_str(  ) );
 		return;
 	}
+
+	cm.Release();
+	PLUTO_SAFETY_LOCK( mt, m_MaintThreadMutex );
+	for(map<int,PendingCallBackInfo *>::iterator it=m_mapPendingCallbacks.begin();it!=m_mapPendingCallbacks.end();++it)
+	{
+		PendingCallBackInfo *pCallBackInfo = (*it).second;
+		if( pCallBackInfo->m_fnCallBack==Orbiter::DeselectObjects && pCallBackInfo->m_pData==(void *) pObj )
+			pCallBackInfo->m_bStop=true;
+	}
+	mt.Release();
+	cm.Relock();
+
 	pObj->m_GraphicToDisplay=atoi( sID.c_str(  ) );
 	if(  pObj->m_GraphicToDisplay==GRAPHIC_SELECTED  )
 	{
@@ -9122,6 +9134,7 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 	{
 		GotoScreenCallBackData *pGotoScreenCallBackData = (GotoScreenCallBackData *)pCallBackData;
 		pGotoScreenCallBackData->m_nPK_Screen = iPK_Screen;
+		pGotoScreenCallBackData->m_pMessage = pMessage;
 	}
 	if( ExecuteScreenHandlerCallback(cbOnGotoScreen) )
 		return;

@@ -1724,8 +1724,9 @@ loop_to_keep_looking_for_objs_to_include:
 
 	if( !m_bNewOrbiter )
 	{
-		m_pRow_Device->NeedConfigure_set(0);
-		m_pRow_Device->Table_Device_get()->Commit();
+		// Don't reset the psc_mod so this doesn't result in a 'new devices' messages
+		string sql = "UPDATE Device SET NeedConfigure=0,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(m_pRow_Device->PK_Device_get());
+		threaded_mysql_query(sql);
 	}
 
 	return 0;

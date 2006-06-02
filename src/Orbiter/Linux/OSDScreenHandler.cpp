@@ -78,6 +78,7 @@ void OSDScreenHandler::DisableAllVideo()
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 {
+	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_bWizardIsRunning = true;
 	if( !m_bHasVideoWizardFiles )
 		DisableAllVideo();
@@ -188,6 +189,7 @@ bool OSDScreenHandler::VideoWizard_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_UsersWizard(long PK_Screen)
 {
+	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
@@ -312,6 +314,7 @@ bool OSDScreenHandler::UsersWizard_DatagridSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_CountryWizard(long PK_Screen)
 {
+	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butLocationWizard_CONST));
 	if( m_pWizardLogic->GetLocation() )
 	{
@@ -398,6 +401,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_RoomsWizard(long PK_Screen)
 {
+	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 /*
 #if (USE_WX_LIB)
     {
@@ -500,6 +504,8 @@ bool OSDScreenHandler::RoomsWizard_DatagridSelected(CallBackData *pData)
 
 void OSDScreenHandler::SCREEN_This_Room(long PK_Screen, bool bAlways)
 {
+	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butThisRoom_CONST));
 	if( !bAlways )
 	{
 		int PK_Room = m_pWizardLogic->WhatRoomIsThisDeviceIn(m_pWizardLogic->GetTopMostDevice(m_pOrbiter->m_dwPK_Device));
@@ -566,6 +572,8 @@ bool OSDScreenHandler::ThisRoom_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_TV_provider(long PK_Screen)
 {
+	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butTVProviderWizard_CONST));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "0");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "0");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
@@ -655,6 +663,8 @@ bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 {
+	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butTVManufWizard_CONST));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
@@ -669,7 +679,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 
 	if(m_pWizardLogic->m_nPK_Device_TV )
 	{
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, StringUtils::itos(DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_TV)));
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_TV)));
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, sTV);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, sInput);
 		if( m_pWizardLogic->m_nPK_Command_Input_Video_On_TV )
@@ -682,7 +692,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_DirectToTV_CONST),
 				m_pOrbiter->m_mapTextString[TEXT_wrong_tv_CONST],
 				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_TVManuf_CONST),
-				m_pOrbiter->m_mapTextString[TEXT_dont_control_my_TV_CONST] + "delxxx",
+				m_pOrbiter->m_mapTextString[TEXT_dont_control_my_TV_CONST],
 				"0 " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn) + " 1 " TOSTRING(COMMAND_Delete_Device_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " " + StringUtils::itos(m_pWizardLogic->m_nPK_Device_TV) + "\n"
 				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_Receiver_CONST));
 		}
@@ -694,7 +704,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_DirectToTV_CONST),
 				m_pOrbiter->m_mapTextString[TEXT_wrong_tv_CONST],
 				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_TVManuf_CONST),
-				m_pOrbiter->m_mapTextString[TEXT_dont_control_my_TV_CONST] + "delxxx",
+				m_pOrbiter->m_mapTextString[TEXT_dont_control_my_TV_CONST],
 				"0 " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn) + " 1 " TOSTRING(COMMAND_Delete_Device_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " " + StringUtils::itos(m_pWizardLogic->m_nPK_Device_TV) + "\n"
 				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_Receiver_CONST));
 		}
@@ -715,7 +725,12 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 	RegisterCallBack(cbCapturedKeyboardBufferChanged, 
 		(ScreenHandlerCallBack) &OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged,
 		new ObjectInfoBackData());
+	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::TV_OnScreen, new RenderScreenCallBackData());
 
+}
+bool OSDScreenHandler::TV_OnScreen(CallBackData *pData)
+{
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::TV_OnTimer(CallBackData *pData)
@@ -725,7 +740,7 @@ bool OSDScreenHandler::TV_OnTimer(CallBackData *pData)
 	if(PK_Device_TV)
 	{
 		NeedToRender render2( m_pOrbiter, "OSDScreenHandler::VideoWizard_OnTimer" );  // Redraw anything that was changed by this command
-		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_WhichTVInput_CONST),"","",false,false);
+		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_DirectToTV_CONST),"","",false,false);
 		return false;
 	}
 	return true;
@@ -735,23 +750,6 @@ bool OSDScreenHandler::TV_OnTimer(CallBackData *pData)
 bool OSDScreenHandler::TV_Manufacturer_GridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
-	if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Available_Serial_Ports_CONST )
-	{
-		string::size_type pos=0;
-		int iPK_Device_ControlledVia = atoi(StringUtils::Tokenize(pCellInfoData->m_sValue,",",pos).c_str());
-		string sPort = StringUtils::Tokenize(pCellInfoData->m_sValue,",",pos);
-
-		string sModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
-		if(sModel == "")
-			return true;
-
-		m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST);
-		m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->AddDevice(atoi(sModel.c_str()),
-                                                                    StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + sPort,
-                                                                    iPK_Device_ControlledVia);
-		m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_DirectToTV_CONST),"","",true,false);
-		return true;
-	}
 	
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
@@ -759,6 +757,23 @@ bool OSDScreenHandler::TV_Manufacturer_GridSelected(CallBackData *pData)
 			{
 				m_pWizardLogic->m_dwPK_Manufacturer = atoi(pCellInfoData->m_sValue.c_str());
 				m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butTVModel_CONST), 0,"","", m_pWizardLogic->m_dwPK_Manufacturer ? "1" : "0" );
+			}
+			break;
+		case DESIGNOBJ_TVModel_CONST:
+			{
+				m_pWizardLogic->m_nPK_Device_TV = atoi(pCellInfoData->m_sValue.c_str());
+				m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butDirectToTv_CONST), 0,"","", m_pWizardLogic->m_nPK_Device_TV ? "1" : "0" );
+			}
+			break;
+		case DESIGNOBJ_WhichTVInput_CONST:
+			{
+				m_pWizardLogic->m_nPK_Command_Input_Video_On_TV = atoi(pCellInfoData->m_sValue.c_str());
+				m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butReceiver_CONST), 0,"","", m_pWizardLogic->m_nPK_Command_Input_Video_On_TV ? "1" : "0" );
+			}
+			break;
+		case DESIGNOBJ_SelectPort_CONST:
+			{
+				m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butSelectedPort_CONST), 0,"","", pCellInfoData->m_sValue.size() ? "1" : "0" );
 			}
 			break;
 	}
@@ -835,6 +850,29 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 			}
 		}
 		break;
+
+		case DESIGNOBJ_SelectPort_CONST:
+		{
+            if(DESIGNOBJ_butSelectedPort_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+				string sCell = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
+				string::size_type pos=0;
+				int iPK_Device_ControlledVia = atoi(StringUtils::Tokenize(sCell,",",pos).c_str());
+				string sPort = StringUtils::Tokenize(sCell,",",pos);
+				int PK_DeviceTemplate = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST].c_str());
+
+				// Delete receivers first since maybe the user is returning to this wizard
+				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST);
+				m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->AddDevice(PK_DeviceTemplate,
+																				StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + sPort,
+																				iPK_Device_ControlledVia);
+
+				m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_DirectToTV_CONST),"","",true,false);
+				return true;
+			}
+		}
+		break;
 	}
 
 	return false;
@@ -844,41 +882,51 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 {
+	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butReceiverWizard_CONST));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
 
-	long PK_Device_Receiver = 0,PK_Command_Input = 0;
+	long PK_Command_Input = 0;
 	string sReceiver,sInput;
+	m_pWizardLogic->m_nPK_Device_Receiver = 0;  // We will refind this
 	bool bHasReceiverInPath = m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
-                                              PK_Device_Receiver,1,PK_Command_Input,sReceiver,sInput);
-	if( !PK_Device_Receiver )
-		PK_Device_Receiver = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST,&sReceiver);
+                                              m_pWizardLogic->m_nPK_Device_Receiver,1,PK_Command_Input,sReceiver,sInput);
+	if( !m_pWizardLogic->m_nPK_Device_Receiver )
+		m_pWizardLogic->m_nPK_Device_Receiver = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST,&sReceiver);
 
-	if( PK_Device_Receiver )
+	if( m_pWizardLogic->m_nPK_Device_Receiver )
 	{
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_Receiver)));
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, sReceiver);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, sInput);
 		if( PK_Command_Input )
 		{
 			DisplayMessageOnOrbiter(DESIGNOBJ_MediaSetupPopupWizard_CONST,
-				m_pOrbiter->m_mapTextString[TEXT_confirm_tv_and_input_CONST],false,"0",false,
+				m_pOrbiter->m_mapTextString[TEXT_confirm_receiver_and_input_CONST],false,"0",false,
 				m_pOrbiter->m_mapTextString[TEXT_YES_CONST],				
-				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_Receiver_CONST),
-				m_pOrbiter->m_mapTextString[TEXT_right_tv_wrong_input_CONST],
-				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_WhichTVInput_CONST),
-				m_pOrbiter->m_mapTextString[TEXT_wrong_tv_CONST],
-				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_TVManuf_CONST));
+				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AV_Devices_CONST),
+				m_pOrbiter->m_mapTextString[TEXT_right_receiver_wrong_input_CONST],
+				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_ReceiverInputs_CONST),
+				m_pOrbiter->m_mapTextString[TEXT_Wrong_receiver_CONST],
+				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_ReceiverManuf_CONST),
+				m_pOrbiter->m_mapTextString[TEXT_dont_control_my_receiver_CONST],
+				"0 " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn) + " 1 " TOSTRING(COMMAND_Delete_Device_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " " + StringUtils::itos(m_pWizardLogic->m_nPK_Device_Receiver) + "\n"
+				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AV_Devices_CONST));
 		}
 		else
 		{
 			DisplayMessageOnOrbiter(DESIGNOBJ_MediaSetupPopupWizard_CONST,
-				m_pOrbiter->m_mapTextString[TEXT_Confirm_TV_CONST],false,"0",false,
+				m_pOrbiter->m_mapTextString[TEXT_confirm_receiver_CONST],false,"0",false,
 				m_pOrbiter->m_mapTextString[TEXT_YES_CONST],				
-				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_Receiver_CONST),
-				m_pOrbiter->m_mapTextString[TEXT_wrong_tv_CONST],
-				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_TVManuf_CONST));
+				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_ReceiverInputs_CONST),
+				m_pOrbiter->m_mapTextString[TEXT_Wrong_receiver_CONST],
+				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_ReceiverManuf_CONST),
+				m_pOrbiter->m_mapTextString[TEXT_dont_control_my_receiver_CONST],
+				"0 " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn) + " 1 " TOSTRING(COMMAND_Delete_Device_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " " + StringUtils::itos(m_pWizardLogic->m_nPK_Device_Receiver) + "\n"
+				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AV_Devices_CONST));
 		}
 	}
 	else
@@ -888,23 +936,25 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 		m_pOrbiter->StartScreenHandlerTimer(500);
 	}
 
-	if( m_pWizardLogic->m_bUsingReceiverForVideo )
-		m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_ReceiverManuf_CONST), "", "", false, false );
-	else
-		ScreenHandlerBase::SCREEN_Receiver(PK_Screen);
-
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::Receiver_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::Receiver_GridSelected, new DatagridCellBackData());
 	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &OSDScreenHandler::Receiver_OnTimer, new CallBackData());
+	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::Receiver_OnScreen, new RenderScreenCallBackData());
 }
+//-----------------------------------------------------------------------------------------------------
+bool OSDScreenHandler::Receiver_OnScreen(CallBackData *pData)
+{
+	return false;
+}
+
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::Receiver_OnTimer(CallBackData *pData)
 {
-	int PK_Device_TV = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
+	int PK_Device_Receiver = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
 
-	if(PK_Device_TV)
+	if(PK_Device_Receiver)
 	{
-		NeedToRender render2( m_pOrbiter, "OSDScreenHandler::VideoWizard_OnTimer" );  // Redraw anything that was changed by this command
+		NeedToRender render2( m_pOrbiter, "OSDScreenHandler::Receiver_OnTimer" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_ReceiverInputs_CONST),"","",false,false);
 		return false;
 	}
@@ -914,24 +964,32 @@ bool OSDScreenHandler::Receiver_OnTimer(CallBackData *pData)
 bool OSDScreenHandler::Receiver_GridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
-	if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Available_Serial_Ports_CONST )
+
+	switch(GetCurrentScreen_PK_DesignObj())
 	{
-		string::size_type pos=0;
-		int iPK_Device_ControlledVia = atoi(StringUtils::Tokenize(pCellInfoData->m_sValue,",",pos).c_str());
-		string sPort = StringUtils::Tokenize(pCellInfoData->m_sValue,",",pos);
-
-		string sModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
-		if(sModel == "")
-			return true;
-
-		// Delete receivers first since maybe the user is returning to this wizard
-		m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
-		m_pWizardLogic->m_nPK_Device_Receiver = m_pWizardLogic->AddDevice(atoi(sModel.c_str()),
-                                                                          StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + sPort,
-                                                                          iPK_Device_ControlledVia);
-
-		m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_ReceiverInputs_CONST),"","",true,false);
-		return true;
+		case DESIGNOBJ_ReceiverManuf_CONST:
+			{
+				m_pWizardLogic->m_dwPK_Manufacturer = atoi(pCellInfoData->m_sValue.c_str());
+				m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butReceiverModel_CONST), 0,"","", m_pWizardLogic->m_dwPK_Manufacturer ? "1" : "0" );
+			}
+			break;
+		case DESIGNOBJ_ReceiverModel_CONST:
+			{
+				m_pWizardLogic->m_nPK_Device_Receiver = atoi(pCellInfoData->m_sValue.c_str());
+				m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butReceiverInputs_CONST), 0,"","", m_pWizardLogic->m_nPK_Device_Receiver ? "1" : "0" );
+			}
+			break;
+		case DESIGNOBJ_ReceiverInputs_CONST:
+			{
+				int PK_Command_Input = atoi(pCellInfoData->m_sValue.c_str());
+				m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butAVDevices_CONST), 0,"","", PK_Command_Input ? "1" : "0" );
+			}
+			break;
+		case DESIGNOBJ_SelectPort_CONST:
+			{
+				m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butSelectedPort_CONST), 0,"","", pCellInfoData->m_sValue.size() ? "1" : "0" );
+			}
+			break;
 	}
 	return false;
 }
@@ -969,7 +1027,7 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butReceiverInputs_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
+				string sModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
 				if(sModel == "")
 					return true;
 
@@ -991,10 +1049,23 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 
 		case DESIGNOBJ_SelectPort_CONST:
 		{
-			if(DESIGNOBJ_butAlarmDetect_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+            if(DESIGNOBJ_butSelectedPort_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_ReceiverInputs_CONST),"","",false,false);
-				return true;  // We're redirecting to normal flow (DESIGNOBJ_SelectPort_CONST IS USED ON ALARM PANEL!!!)
+				PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+				string sCell = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
+				string::size_type pos=0;
+				int iPK_Device_ControlledVia = atoi(StringUtils::Tokenize(sCell,",",pos).c_str());
+				string sPort = StringUtils::Tokenize(sCell,",",pos);
+				int PK_DeviceTemplate = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST].c_str());
+
+				// Delete receivers first since maybe the user is returning to this wizard
+				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
+				m_pWizardLogic->m_nPK_Device_Receiver = m_pWizardLogic->AddDevice(PK_DeviceTemplate,
+																				StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + sPort,
+																				iPK_Device_ControlledVia);
+
+				m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_ReceiverInputs_CONST),"","",true,false);
+				return true;
 			}
 		}
 		break;
@@ -1034,6 +1105,8 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_AV_Devices(long PK_Screen)
 {
+	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butAVDevicesWizard_CONST));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Filter_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
@@ -1178,7 +1251,8 @@ void OSDScreenHandler::HandleLightingScreen()
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butLightsWizard_CONST)); // todo
+	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butLightsWizard_CONST)); 
 
 	m_pWizardLogic->m_nPK_Device_Lighting =	m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Lighting_Interface_CONST);
 	if( m_pWizardLogic->m_nPK_Device_Lighting )
@@ -1459,6 +1533,7 @@ bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_AlarmPanel(long PK_Screen)
 {
+	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
@@ -1531,7 +1606,7 @@ bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
 
 		case DESIGNOBJ_SelectPort_CONST:
 		{
-			if(DESIGNOBJ_butAlarmDetect_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			if(DESIGNOBJ_butSelectedPort_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
 				string sAlarmPort = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
 				if(sAlarmPort == "")
@@ -1738,6 +1813,7 @@ bool OSDScreenHandler::AlarmPanel_CapturedKeyboardBufferChanged(CallBackData *pD
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_VOIP_Provider(long PK_Screen)
 {
+	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, "");
@@ -2196,3 +2272,13 @@ void OSDScreenHandler::SCREEN_PopupMessage(long PK_Screen, string sText, string 
 	ScreenHandler::SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, sDescription, sPromptToResetRouter, sTimeout, sCannotGoBack);
 }
 
+bool OSDScreenHandler::WizardIntercept_OnGotoScreen(CallBackData *pData)
+{
+	GotoScreenCallBackData *pGotoScreenCallBackData = (GotoScreenCallBackData *)pData;
+	if( pGotoScreenCallBackData->m_nPK_Screen == SCREEN_PopupMessage_CONST )
+	{
+		if( pGotoScreenCallBackData->m_pMessage && pGotoScreenCallBackData->m_pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST]=="new_device_reload" )
+			return true;
+	}
+	return false;
+}

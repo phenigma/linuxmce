@@ -355,11 +355,13 @@ class DataGridTable *Infrared_Plugin::AvailableInputs(string GridID,string Parms
 	{
 		Row_DeviceTemplate_Input *pRow_DeviceTemplate_Input = vectRow_DeviceTemplate_Input[s];
 		pCell = new DataGridCell( pRow_DeviceTemplate_Input->FK_Command_getrow()->Description_get(),StringUtils::itos(pRow_DeviceTemplate_Input->FK_Command_get()) );
+		/*		This means if the user already selected another value, it always defaults to hdmi/dvi when they return to the screen
 		if( pRow_DeviceTemplate_Input->FK_Command_get()==COMMAND_DVI_CONST || pRow_DeviceTemplate_Input->FK_Command_get()==COMMAND_HDMI_CONST )
 		{
 			*iPK_Variable=VARIABLE_Misc_Data_4_CONST;
 			*sValue_To_Assign=StringUtils::itos(pRow_DeviceTemplate_Input->FK_Command_get());
 		}
+		*/
 
 		pDataGrid->SetData(iColumn,iRow,pCell);
 		iColumn++;

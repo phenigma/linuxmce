@@ -70,12 +70,14 @@ int WizardLogic::FindFirstDeviceInCategoryOnThisPC(int PK_DeviceCategory,string 
 		"JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate "
 		"JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory " 
 		"LEFT JOIN Device As P1 ON Device.FK_Device_ControlledVia=P1.PK_Device "
-		"LEFT JOIN Device As P2 ON P1.FK_Device_ControlledVia=P2.PK_Device "
+		"LEFT JOIN Device As P2 ON P1.FK_Device_ControlledVia=P2.PK_Device " 
+		"LEFT JOIN Device As P3 ON P2.FK_Device_ControlledVia=P3.PK_Device "
 		"WHERE "
 		"(PK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory) + " OR FK_DeviceCategory_Parent=" + StringUtils::itos(PK_DeviceCategory) + ") AND "
 		"(Device.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + " " 
 		"OR P1.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + " " 
-		"OR P2.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + ")";
+		"OR P2.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + " "
+		"OR P3.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + ")";
 
 	PlutoSqlResult result_set;
 	MYSQL_ROW row;
