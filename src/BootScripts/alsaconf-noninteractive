@@ -664,6 +664,7 @@ fi
 	$sbindir/alsactl store
     else
 	$sbindir/alsactl restore
+	amixer -q set Mic cap
     fi
 }
 
