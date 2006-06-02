@@ -1002,7 +1002,7 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 	{
 		case DESIGNOBJ_Receiver_CONST:
 		{
-			if(DESIGNOBJ_butTV_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			if(DESIGNOBJ_butNoReceiver_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
 				// No Receiver -- I use the tv for audio
 				m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
