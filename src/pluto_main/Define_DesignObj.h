@@ -2134,6 +2134,7 @@
 #define DESIGNOBJ_butMediaWizard_CONST 5082
 #define DESIGNOBJ_butStartAVwizard_CONST 5083
 #define DESIGNOBJ_butThisRoom_CONST 5084
+#define DESIGNOBJ_popMessage_CONST 5085
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

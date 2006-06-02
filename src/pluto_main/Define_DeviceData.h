@@ -132,8 +132,6 @@
 #define DEVICEDATA_Port_channel_choices_CONST 151
 #define DEVICEDATA_Block_Device_CONST 152
 #define DEVICEDATA_Directories_CONST 153
-#define DEVICEDATA_UID_CONST 154
-#define DEVICEDATA_HAL_Model_CONST 155
 #define DEVICEDATA_Name_CONST 156
 #define DEVICEDATA_Discrete_Volume_CONST 157
 #define DEVICEDATA_Volume_Level_CONST 158

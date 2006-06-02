@@ -103,6 +103,7 @@
 #define DEVICECATEGORY_Network_Storage_CONST 158
 #define DEVICECATEGORY_Plug_and_Play_Plugins_CONST 159
 #define DEVICECATEGORY_Serial_Ports_CONST 160
+#define DEVICECATEGORY_Gestural_Remote_CONST 161
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"
