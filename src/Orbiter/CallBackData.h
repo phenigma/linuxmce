@@ -99,7 +99,7 @@ class GotoScreenCallBackData : public CallBackData
 {
 public:
 	int m_nPK_Screen;
-	Message *m_pMessage;
+	DCE::Message *m_pMessage;
 
 	GotoScreenCallBackData()
 	{

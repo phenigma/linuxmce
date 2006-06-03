@@ -80,8 +80,16 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 {
 	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_bWizardIsRunning = true;
+
+	DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_Greetings_CONST),TEXT_STATUS_CONST );
 	if( !m_bHasVideoWizardFiles )
+	{
 		DisableAllVideo();
+		if( pText )
+			pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_No_bonus_CD_CONST];
+	}
+	else if( pText )
+		pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_video_clip_here_CONST];
 
 	if( m_pOrbiter->m_bNewOrbiter==true && m_bAlreadyPlaySeeAndHearMe==false )
 	{
