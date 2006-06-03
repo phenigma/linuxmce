@@ -5818,7 +5818,7 @@ void Orbiter::CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string 
 	for(map<int,PendingCallBackInfo *>::iterator it=m_mapPendingCallbacks.begin();it!=m_mapPendingCallbacks.end();++it)
 	{
 		PendingCallBackInfo *pCallBackInfo = (*it).second;
-		if( pCallBackInfo->m_fnCallBack==Orbiter::DeselectObjects && pCallBackInfo->m_pData==(void *) pObj )
+		if( pCallBackInfo->m_fnCallBack==&Orbiter::DeselectObjects && pCallBackInfo->m_pData==(void *) pObj )
 			pCallBackInfo->m_bStop=true;
 	}
 	mt.Release();
