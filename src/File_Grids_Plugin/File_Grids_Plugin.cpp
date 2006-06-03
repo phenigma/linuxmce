@@ -35,6 +35,7 @@ using namespace DCE;
 #include "DCE/DataGrid.h"
 #include "DCERouter.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
+#include "Media_Plugin/Media_Plugin.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_DesignObjParameter.h"
 #include "pluto_main/Define_DeviceTemplate.h"
@@ -396,7 +397,12 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
         pCell = new DataGridCell((pFileDetails->m_bIsDir ? "~S2~" : "") + pFileDetails->m_sFileName + " " + pFileDetails->m_sDescription, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
 
 		if (pFileDetails->m_bIsDir && PK_MediaType==MEDIATYPE_pluto_DVD_CONST)
-			pFileDetails->m_bIsDir=false;
+		{
+			PlutoSqlResult result_set;
+			string sSQL = "SELECT PK_File from `File` where Path='" + StringUtils::SQLEscape(pFileDetails->m_sBaseName) + "' AND Filename='" + StringUtils::SQLEscape(pFileDetails->m_sFileName) + "' and IsDirectory=0";
+			if( (result_set.r=m_pMedia_Plugin->m_pDatabase_pluto_media->mysql_query_result(sSQL)) && result_set.r->row_count )
+				pFileDetails->m_bIsDir=false;
+		}
 
 		if (pFileDetails->m_bIsDir)
 		{
