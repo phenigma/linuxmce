@@ -1031,6 +1031,7 @@
 #define TEXT_Wrong_receiver_CONST 1744
 #define TEXT_right_receiver_wrong_input_CONST 1745
 #define TEXT_dont_control_my_receiver_CONST 1746
+#define TEXT_video_clip_here_CONST 1747
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
