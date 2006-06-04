@@ -731,6 +731,7 @@
 #define COMMAND_Set_Pnp_Options_CONST 804
 #define COMMAND_Ignore_PNP_Device_CONST 805
 #define COMMAND_PNP_Detection_Script_Finished_CONST 806
+#define COMMAND_Get_Attributes_For_Media_CONST 807
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

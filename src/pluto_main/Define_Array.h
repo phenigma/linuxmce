@@ -26,7 +26,11 @@
 #define ARRAY_Misc_Scenarios_non_visible_CONST 25
 #define ARRAY_Scenarios_for_Event_Handlers_CONST 26
 #define ARRAY_Irrigation_Scenarios_CONST 27
-#define ARRAY_Media_Type_Sorts_CONST 28
+#define ARRAY_PK_MediaType_CONST 29
+#define ARRAY_Media_Sort_Options_CONST 30
+#define ARRAY_Media_Filter_Genres_CONST 31
+#define ARRAY_Media_Filter_Subtype_CONST 32
+#define ARRAY_Media_Filter_Source_CONST 33
 
 #define ARRAY_TABLE "Array"
 #define ARRAY_PK_ARRAY_FIELD "PK_Array"
