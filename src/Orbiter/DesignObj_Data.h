@@ -137,7 +137,7 @@ public:
 	string m_sBackgroundFile, m_sSelectedFile, m_sHighlightGraphicFilename;
 	vector<string> m_vectAltGraphicFilename;
 	map<int,string> m_mapObjParms;
-	string m_mapObjParms_Find(int PK_DesignObjParameter) { map<int,string>::iterator it = m_mapObjParms.find(PK_DesignObjParameter); return it==m_mapObjParms.end() ? NULL : (*it).second; }
+	string m_mapObjParms_Find(int PK_DesignObjParameter) { map<int,string>::iterator it = m_mapObjParms.find(PK_DesignObjParameter); return it==m_mapObjParms.end() ? "" : (*it).second; }
 
 	string m_ObjectID;
 	int m_iBaseObjectID,m_iVersion,m_iPage;  // Version & Page will only be used for top level objects (screens)

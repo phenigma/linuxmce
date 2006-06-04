@@ -87,6 +87,7 @@ namespace DCE
 		friend class Orbiter;
 		friend class MouseIterator;
 		friend class MouseGovernor;
+		friend class HorizMenuMouseHandler;
 		friend class LightMouseHandler;
 		friend class SpeedMouseHandler;
 		friend class VolumeMouseHandler;

@@ -15,6 +15,7 @@
 #include "Simulator.h"
 #include "OpenGL/Orbiter3DCommons.h"
 
+#include "HorizMenuMouseHandler.h"
 #include "SpeedMouseHandler.h"
 #include "LightMouseHandler.h"
 #include "VolumeMouseHandler.h"
@@ -122,8 +123,10 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 	{
 	case 'L':
 	case 'M':
-	case 'H':
 		m_pMouseHandler=new LockedMouseHandler(pObj,sOptions,this);
+		break;
+	case 'H':
+		m_pMouseHandler=new HorizMenuMouseHandler(pObj,sOptions,this);
 		break;
 	case 'S':
 		m_pMouseHandler=new SpeedMouseHandler(pObj,sOptions,this);
@@ -168,8 +171,16 @@ DesignObj_Orbiter *MouseBehavior::FindChildObjectAtPosition(DesignObj_Orbiter *p
 		if( pObj_Child )
 			return pObj_Child;
 	}
-	if( pObj_Parent->m_bTabStop && (pObj_Parent->m_rPosition+pObj_Parent->m_pPopupPoint).Contains(X,Y) )
-		return pObj_Parent;
+	if( pObj_Parent->m_bTabStop )
+	{
+		if( Y==-1 )
+		{
+			if( (pObj_Parent->m_rPosition+pObj_Parent->m_pPopupPoint).X<=X && (pObj_Parent->m_rPosition+pObj_Parent->m_pPopupPoint).Right()>=X )
+				return pObj_Parent;
+		}
+		else if( (pObj_Parent->m_rPosition+pObj_Parent->m_pPopupPoint).Contains(X,Y) )
+			return pObj_Parent;
+	}
 	return NULL;
 }
 

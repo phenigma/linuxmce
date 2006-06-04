@@ -343,6 +343,9 @@
 					RelativePath="..\DatagridMouseHandlerHelper.cpp">
 				</File>
 				<File
+					RelativePath="..\HorizMenuMouseHandler.cpp">
+				</File>
+				<File
 					RelativePath="..\KeyboardMouseHandler.cpp">
 				</File>
 				<File

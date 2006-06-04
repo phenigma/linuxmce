@@ -2520,6 +2520,7 @@ INITIALIZATION
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea )
 {
+	/*
 	size_t iSize;
 	char * pData = FileUtils::ReadFileIntoBuffer("/usr/pluto/orbiter/skins/Basic/menu2/OrbiterBkg.png", iSize);
 	if (pData)
@@ -2528,7 +2529,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		m_pBackgroundImage->LoadGraphic(pData, iSize);
 		delete [] pData;
 	}
-
+	*/
 	if ( !m_bQuit )
 	{
 		m_bStartingUp=true;
@@ -9129,6 +9130,9 @@ bool Orbiter::WaitForRelativesIfOSD()
 void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
+	if( iPK_Screen==SCREEN_Main_CONST && m_bNewOrbiter && atoi(m_sInitialScreen.c_str())==SCREEN_VideoWizard_CONST )
+		iPK_Screen=SCREEN_VideoWizard_CONST;
+
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnGotoScreen);
 	if(pCallBackData)
 	{

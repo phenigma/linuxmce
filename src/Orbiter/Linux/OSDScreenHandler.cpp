@@ -106,7 +106,7 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 	{
 		if( m_pOrbiter->m_bNewOrbiter )
 			// Everthing is setup already.  Goto the 'pick a wizard screen'
-			m_pOrbiter->CMD_Goto_Screen("",232 /*SCREEN_This_Room_CONST*/); //TODO: this constant vanished?
+			m_pOrbiter->CMD_Goto_Screen("",SCREEN_This_Room_CONST); 
 		else
 			// Everthing is setup already.  Goto the 'pick a wizard screen'
 			m_pOrbiter->CMD_Goto_Screen("",SCREEN_Which_Wizard_CONST);
@@ -172,6 +172,17 @@ bool OSDScreenHandler::VideoWizard_ObjectSelected(CallBackData *pData)
 				else if( !m_pWizardLogic->HouseAlreadySetup() )
 				{
 					m_pOrbiter->CMD_Goto_Screen("",SCREEN_UsersWizard_CONST);
+					return true;
+				}
+				else
+				{
+					// The house is already setup
+					if( m_pOrbiter->m_bNewOrbiter )
+						// Everthing is setup already.  Goto the 'pick a wizard screen'
+						m_pOrbiter->CMD_Goto_Screen("",SCREEN_This_Room_CONST); 
+					else
+						// Everthing is setup already.  Goto the 'pick a wizard screen'
+						m_pOrbiter->CMD_Goto_Screen("",SCREEN_Which_Wizard_CONST);
 					return true;
 				}
 			}
@@ -1238,11 +1249,14 @@ void OSDScreenHandler::HandleLightingScreen()
 	if( PK_DeviceTemplate==DEVICETEMPLATE_ZWave_CONST )
 	{
 		if( NumLights )
+		{
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::itos(NumLights));
 			DisplayMessageOnOrbiter(DESIGNOBJ_HouseSetupPopupWizard_CONST,m_pOrbiter->m_mapTextString[TEXT_Already_paired_lights_CONST],false,"0",false,
 				m_pOrbiter->m_mapTextString[TEXT_YES_CONST],
 				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AlarmPanel_CONST),
 				m_pOrbiter->m_mapTextString[TEXT_No_add_lights_again_CONST],
 				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_Explain_Pair_ZWave_Lights_CONST));
+		}
 		else
 			m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_Explain_Pair_ZWave_Lights_CONST),
 										"", "", false, false );
@@ -1415,9 +1429,9 @@ bool OSDScreenHandler::LightsSetup_ObjectSelected(CallBackData *pData)
 
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
-		case DESIGNOBJ_NoLights_CONST:
+		case DESIGNOBJ_Explain_Pair_ZWave_Lights_CONST:
 		{
-			if(DESIGNOBJ_butIHaveMonster_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			if(DESIGNOBJ_butZwaveLightsDownload_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
 				if( !m_dwMessageInterceptorCounter_ReportingChildDevices )
 				{
@@ -1427,14 +1441,7 @@ bool OSDScreenHandler::LightsSetup_ObjectSelected(CallBackData *pData)
 				DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_NoLights_CONST),TEXT_STATUS_CONST );
 				if( pText )
 					pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Lights_Setup_CONST];
-			}
-		}
-		break;
 
-		case DESIGNOBJ_Explain_Pair_ZWave_Lights_CONST:
-		{
-			if(DESIGNOBJ_butZwaveLightsDownload_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
-			{
 				string sResponse;
 				DCE::CMD_Download_Configuration CMD_Download_Configuration(m_pOrbiter->m_dwPK_Device,m_pWizardLogic->m_nPK_Device_Lighting,"");
 				if( !m_pOrbiter->SendCommand(CMD_Download_Configuration,&sResponse) )
@@ -1473,9 +1480,9 @@ bool OSDScreenHandler::LightsSetup_SelectedGrid(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
 {
-	if(GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_butZwaveLightsDownload_CONST)
+	MsgInterceptorCellBackData *pMsgInterceptorCellBackData = (MsgInterceptorCellBackData *) pData;
+	if(GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_CopyZWaveData_CONST)
 	{
-		MsgInterceptorCellBackData *pMsgInterceptorCellBackData = (MsgInterceptorCellBackData *) pData;
 		if( pMsgInterceptorCellBackData->m_pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT &&
             pMsgInterceptorCellBackData->m_pMessage->m_dwID==EVENT_Download_Config_Done_CONST )
 		{
@@ -2287,6 +2294,10 @@ bool OSDScreenHandler::WizardIntercept_OnGotoScreen(CallBackData *pData)
 	{
 		if( pGotoScreenCallBackData->m_pMessage && pGotoScreenCallBackData->m_pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST]=="new_device_reload" )
 			return true;
+	}
+	else if( pGotoScreenCallBackData->m_nPK_Screen == SCREEN_Need_Regen_Orbiter_CONST || pGotoScreenCallBackData->m_nPK_Screen == SCREEN_Need_Reload_Router_CONST )
+	{
+		return true;
 	}
 	return false;
 }
