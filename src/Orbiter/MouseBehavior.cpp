@@ -15,6 +15,7 @@
 #include "Simulator.h"
 #include "OpenGL/Orbiter3DCommons.h"
 
+#include "MediaBrowserMouseHandler.h"
 #include "HorizMenuMouseHandler.h"
 #include "SpeedMouseHandler.h"
 #include "LightMouseHandler.h"
@@ -127,6 +128,9 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		break;
 	case 'H':
 		m_pMouseHandler=new HorizMenuMouseHandler(pObj,sOptions,this);
+		break;
+	case 'B':
+		m_pMouseHandler=new MediaBrowserMouseHandler(pObj,sOptions,this);
 		break;
 	case 'S':
 		m_pMouseHandler=new SpeedMouseHandler(pObj,sOptions,this);

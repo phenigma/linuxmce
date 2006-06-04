@@ -1,0 +1,42 @@
+#ifndef __MediaBrowserMouseHandler_H__
+#define __MediaBrowserMouseHandler_H__
+//-----------------------------------------------------------------------------------------------------
+#include <list>
+#include <string>
+#include <map>
+using namespace std;
+
+#include "DesignObj_Orbiter.h"
+#include "Orbiter.h"
+#include "PlutoUtils/ProcessUtils.h"
+#include "MouseBehavior.h"
+using namespace DCE;
+
+#define MAX_SPEEDS		17
+
+namespace DCE
+{
+	//-----------------------------------------------------------------------------------------------------
+	/**
+	* @brief Handles special mouse behavior for lighting control
+	*/
+	//-----------------------------------------------------------------------------------------------------
+	class MediaBrowserMouseHandler : public MouseHandler
+	{
+		DesignObj_DataGrid *m_pObj_ListGrid,*m_pObj_PicGrid;
+
+	public:
+		MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
+		virtual EMouseHandler TypeOfMouseHandler() { return mh_Locked; }
+
+		void Start();
+		void Stop();
+
+		bool ButtonDown(int PK_Button);
+		bool ButtonUp(int PK_Button);
+		void Move(int X,int Y,int PK_Direction);
+	};
+
+}
+//-----------------------------------------------------------------------------------------------------
+#endif

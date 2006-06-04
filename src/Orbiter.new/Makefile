@@ -117,6 +117,7 @@ sources += \
 	VolumeMouseHandler.cpp \
 	MediaMouseHandler.cpp \
 	LockedMouseHandler.cpp \
+	MediaBrowserMouseHandler.cpp \
 	KeyboardMouseHandler.cpp \
 	HorizMenuMouseHandler.cpp \
 	DatagridMouseHandlerHelper.cpp \

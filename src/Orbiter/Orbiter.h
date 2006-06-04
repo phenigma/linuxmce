@@ -112,6 +112,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		friend class MouseIterator;
 		friend class MouseGovernor;
 		friend class HorizMenuMouseHandler;
+		friend class MediaBrowserMouseHandler;
 		friend class LightMouseHandler;
 		friend class SpeedMouseHandler;
 		friend class VolumeMouseHandler;

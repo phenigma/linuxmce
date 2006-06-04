@@ -116,6 +116,19 @@ void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::ltos(iPK_Users));
 	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, iPK_Users);
 }
+
+void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
+{
+	if( m_pOrbiter->UsesUIVersion2()==false )
+	{
+		ScreenHandlerBase::SCREEN_FileList_Music_Movies_Video(PK_Screen);
+		return;
+	}
+
+	ScreenHandlerBase::SCREEN_FileList_Music_Movies_Video(PK_Screen);
+	return;
+}
+
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, string sPrivate,
 									string sPublic, string sCaption)

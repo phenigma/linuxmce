@@ -458,6 +458,9 @@
 					RelativePath=".\LockedMouseHandler.cpp">
 				</File>
 				<File
+					RelativePath=".\MediaBrowserMouseHandler.cpp">
+				</File>
+				<File
 					RelativePath=".\Win32\main.cpp">
 				</File>
 				<File

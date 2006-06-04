@@ -88,6 +88,7 @@ namespace DCE
 		friend class MouseIterator;
 		friend class MouseGovernor;
 		friend class HorizMenuMouseHandler;
+		friend class MediaBrowserMouseHandler;
 		friend class LightMouseHandler;
 		friend class SpeedMouseHandler;
 		friend class VolumeMouseHandler;

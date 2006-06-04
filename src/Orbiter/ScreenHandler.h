@@ -50,6 +50,7 @@ public:
 	virtual void GotoDesignObj(int PK_DesignObj,string sID="",bool bStore_Variables=false,bool bCant_Go_Back=false);
 	virtual void SCREEN_NewPnpDevice(long PK_Screen, string sDescription, int iPK_PnpQueue);
 	virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users); 
+	virtual void SCREEN_FileList_Music_Movies_Video(long PK_Screen);
 	virtual void SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, 
 		string sPrivate, string sPublic, string sCaption);
 	virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, string sDescription);
