@@ -66,10 +66,10 @@ using namespace DCE;
 #include "Gen_Devices/AllScreens.h"
 
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
-#include "File_Grids_Plugin/File_Grids_Plugin.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "DataGrid.h"
-#include "File_Grids_Plugin/FileListGrid.h"
+#include "MediaListGrid.h"
+#include "File_Grids_Plugin/FileListOps.h"
 #include "SerializeClass/ShapesColors.h"
 #include "RippingJob.h"
 #include "../VFD_LCD/VFD_LCD_Base.h"
@@ -77,29 +77,48 @@ using namespace DCE;
 
 extern int UniqueColors[MAX_MEDIA_COLORS];
 
+// Parms = PK_MediaType | , sep PK_MediaSubType | , sep PK_FileFormat | Genres to include, or empty for all (, sep PK_Attribute) |
+// , sep of sources -- hardcoded strings (below) or a path if sort=0 (sort by filename) | , sep PK_Users (0=public, empty=public only) | PK_AttributeType (sort by) | PK_Users (for ratings)
+
 class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
-	string::size_type pos = Parms.find(",");
-	if( pos==string::npos )
-		return NULL;
+	string::size_type pos=0;
 
+	int PK_MediaType = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
+	string sPK_MediaSubType = StringUtils::Tokenize( Parms,"|",pos );
+	string sPK_FileFormat = StringUtils::Tokenize( Parms,"|",pos );
+	string sPK_Attribute_Genres = StringUtils::Tokenize( Parms,"|",pos );
+	string sSources = StringUtils::Tokenize( Parms,"|",pos );
+	string sPK_Users_Private = StringUtils::Tokenize( Parms,"|",pos );
+	int PK_AttributeType_Sort = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
+	int PK_Users = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
+
+	DataGridTable *pDataGridTable;
+	MediaListGrid *pMediaListGrid=NULL;
 	int PK_AttributeType = atoi(Parms.c_str());
-	if( PK_AttributeType==0 )
+	if( PK_AttributeType_Sort==0 )
 	{
-		DataGridGeneratorCallBack *pCB = m_pDatagrid_Plugin->GetCallBack(DATAGRID_Directory_Listing_CONST,0);
-		DataGridTable *pDataGridTable=NULL;
-
-		if( pCB )
-			return CALL_MEMBER_FN( *pCB->m_pDataGridGeneratorPlugIn, pCB->m_pDCEDataGridGeneratorFn ) ( GridID, Parms.substr(pos+1), ExtraData, iPK_Variable, sValue_To_Assign, pMessage );
-		else
-			return NULL;
+		pDataGridTable = FileBrowser( pMessage->m_dwPK_Device_From, GridID, PK_MediaType, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sSources, sPK_Users_Private, PK_Users, iPK_Variable, sValue_To_Assign );
+		pMediaListGrid = new MediaListGrid(m_pDatagrid_Plugin,this,(MediaListGrid *) pDataGridTable);
+	}
+	else
+	{
+		pDataGridTable = AttributesBrowser( GridID, Parms.substr(pos+1), ExtraData, iPK_Variable, sValue_To_Assign, pMessage );
 	}
 
+	if( pMediaListGrid )
+		m_pDatagrid_Plugin->m_DataGrids["_" + GridID]=pMediaListGrid;  // The same grid is used for both icons and lists.  If the name starts with an _, it is assumed to be an icon grid
+
+	return pDataGridTable;
+}
+
+class DataGridTable *Media_Plugin::AttributesBrowser( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
 	// What type of media is this
-	pos = Parms.find("~MT");
+	string::size_type pos = Parms.find("~MT");
 	if( pos==string::npos )
 		return NULL;
-
+int PK_AttributeType=3;
 	int PK_MediaType = atoi(Parms.substr(pos+3).c_str());
 	string sSQL = "select PK_Attribute,PK_File,Name,Path,Filename,FK_Picture FROM Attribute"
 		" LEFT JOIN File_Attribute ON FK_Attribute=PK_Attribute"
@@ -137,14 +156,198 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 			if( row[5] )
 				pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + string(row[5]) + ".jpg",size);
 			pCell->m_GraphicLength=size;
-
-			DCE::CMD_MH_Play_Media CMD_MH_Play_Media(pMessage->m_dwPK_Device_From,m_dwPK_Device,0,"!F" + string(row[1]),0,0,"",false,0);
-			pCell->m_pMessage = CMD_MH_Play_Media.m_pMessage;
 		}
 	}
 	
 	return pDataGrid;
 }
+
+class DataGridTable *Media_Plugin::FileBrowser( int PK_Orbiter, string sGridID, int PK_MediaType, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sSources, string &sPK_Users_Private, int PK_Users, int *iPK_Variable, string *sValue_To_Assign )
+{
+#ifdef DEBUG
+g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
+#endif
+	MediaListGrid *pDataGrid = new MediaListGrid(m_pDatagrid_Plugin,this);
+	DataGridCell *pCell;
+
+	// A comma separated list of file extensions.  Blank means all files
+	Row_MediaType *pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType);
+	if( !pRow_MediaType )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find Media Type: %d",PK_MediaType);
+		return NULL;
+	}
+	string Extensions = pRow_MediaType->Extensions_get();
+
+int PK_Controller=9997;
+string GridID="foo";
+	// This grid is initially called by the orbiter without the iDirNumber and sSubDirectory
+	// When the grid creates cells for sub-directories, it will create an action that re-populates,
+	// like a recursive function, and indicate which of the directories it recursed and what path
+	// here.  When it repopulates itself again, it will this time populate only the contents of the
+	// Path[iDirNumber] + sSubDirectory.  It will also add a 'parent' button that that drops
+	// 1 path off the sSubDirectory and repopulates itself
+	string::size_type pos = 0;
+	int iDirNumber = atoi(StringUtils::Tokenize(sSources, "\n", pos).c_str());
+	string sSubDirectory = StringUtils::Tokenize(sSources, "", pos);
+	if( sSubDirectory.length()==1 && (sSubDirectory[0]=='/' || sSubDirectory[0]=='\\') )
+		sSubDirectory = "";
+
+	string sPaths;
+	if( sSubDirectory.size() )
+		sPaths = sSubDirectory;
+	else
+		sPaths = "/home/public/data/movies";  // Todo, fill this in for private as well
+
+	int iRow=0;
+	if( sSubDirectory.length() )
+	{
+		string sParent = FileUtils::BasePath(sSubDirectory) + "/";
+		string newParams = sPaths + "\n" + Extensions + "\n" 
+			+ "\n" + StringUtils::itos(iDirNumber)+ "\n" + sParent;
+		DCE::CMD_NOREP_Populate_Datagrid CMDPDG(PK_Controller, m_pDatagrid_Plugin->m_dwPK_Device,
+			"", GridID, DATAGRID_Directory_Listing_CONST, newParams, 0);
+
+		pCell = new DataGridCell("~S21~<-- Back (..) - " + FileUtils::FilenameWithoutPath(sSubDirectory), "");
+		pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
+		pDataGrid->SetData(0, iRow++, pCell);
+
+		pDataGrid->m_vectFileInfo.push_back(new FileListInfo(true,sPaths,true));
+	}
+
+	//Jukeboxes special hack
+	vector<Row_Device *> vectRow_Device;
+	if(sSources.find("JUKE_BOXES")!=string::npos)
+	{
+		//this is the movies top level folder; we'll add at the beginning an entry for each jukeboxe from current installation
+		m_pDatabase_pluto_main->Device_get()->GetRows(
+			"FK_DeviceTemplate = " + StringUtils::ltos(DEVICETEMPLATE_Powerfile_C200_CONST) + " AND "  + 
+			"FK_Installation = " + StringUtils::ltos(m_pRouter->iPK_Installation_get()), 
+			&vectRow_Device);	
+		
+		if(!sSubDirectory.length()) 
+		{
+			for(vector<Row_Device *>::iterator iPowerFile = vectRow_Device.begin(); iPowerFile != vectRow_Device.end(); iPowerFile++)
+			{
+				Row_Device *pRow_Device = *iPowerFile;
+				string sItemName = "Jukebox: " + pRow_Device->Description_get();
+				FileListInfo *pFileListInfo = new FileListInfo(true, sItemName, false);
+		
+				pCell = new DataGridCell("~S2~" + sItemName, sItemName);
+
+				string newParams = sPaths + "\n" + Extensions + "\n" 
+					+ "\n" + StringUtils::itos(iRow)+ "\n" + sItemName;
+				DCE::CMD_NOREP_Populate_Datagrid CMDPDG(PK_Controller, m_pDatagrid_Plugin->m_dwPK_Device,
+					"", GridID, DATAGRID_Directory_Listing_CONST, newParams, 0);
+				pCell->m_pMessage = CMDPDG.m_pMessage;
+				
+				pDataGrid->SetData(0, iRow++, pCell);
+				pDataGrid->m_vectFileInfo.push_back(pFileListInfo);
+			}
+		}
+		else if( StringUtils::StartsWith(sSubDirectory,"Jukebox: ") )
+		{
+			//not a top level folder
+			for(vector<Row_Device *>::iterator iPowerFile = vectRow_Device.begin(); iPowerFile != vectRow_Device.end(); iPowerFile++)
+			{
+				Row_Device *pRow_Device = *iPowerFile;
+				
+				if("Jukebox: " + pRow_Device->Description_get() == sSubDirectory)
+				{
+					//we are in a "jukebox"; let's show its movies
+					string sStatus;
+					CMD_Get_Jukebox_Status CMD_Get_Jukebox_Status_(m_dwPK_Device, pRow_Device->PK_Device_get(), ""/*force=no*/, &sStatus);
+					
+					if(!SendCommand(CMD_Get_Jukebox_Status_))
+					{
+						FileListInfo *pFileListInfo = new FileListInfo(true, "", false);
+
+						pCell = new DataGridCell("Unable to communicate with Powerfile '" + pRow_Device->Description_get() + "'", "");
+						pDataGrid->SetData(0, iRow++, pCell);
+
+						pDataGrid->m_vectFileInfo.push_back(pFileListInfo);					
+						return pDataGrid;
+					}
+					
+					vector<string> vectElems;
+					StringUtils::Tokenize(sStatus, ",", vectElems);
+					
+					for(vector<string>::iterator it = vectElems.begin(); it != vectElems.end(); it++)
+					{
+						string sElem = *it;
+						if(sElem.length() > 0 && sElem[0] == 'S')
+						{
+							string sSlotIndex = sElem.substr(1, sElem.find('=', 0) - 1);
+							FileListInfo *pFileListInfo = new FileListInfo(true, sSlotIndex + ". " + "Movie", false);
+							pCell = new DataGridCell("~S2~not identified", "not identified");
+							
+							pDataGrid->SetData(0, iRow++, pCell);
+				
+							pDataGrid->m_vectFileInfo.push_back(pFileListInfo);							
+						}
+					}
+				}
+			}
+			
+			return pDataGrid;
+		}	
+	}
+
+	string PathsToScan;
+	(*iPK_Variable) = VARIABLE_Path_CONST;
+	if( sSubDirectory.length() )
+	{
+		pos=0;
+		for(int i=0;i<=iDirNumber;++i)
+			PathsToScan = StringUtils::Tokenize(sPaths, "\t", pos);
+		PathsToScan += "/" + sSubDirectory;
+		(*sValue_To_Assign) = PathsToScan;
+	}
+	else
+	{
+		PathsToScan = sPaths;
+		(*sValue_To_Assign) = PathsToScan;
+	}
+
+	list<FileDetails *> listFileDetails;
+	GetDirContents(listFileDetails,PathsToScan,Extensions);
+
+	listFileDetails.sort(FileNameComparer);	
+			
+	for (list<FileDetails *>::iterator i = listFileDetails.begin(); i != listFileDetails.end(); i++)
+	{
+		FileDetails *pFileDetails = *i;
+		FileListInfo *flInfo;
+		flInfo = new FileListInfo(pFileDetails->m_bIsDir,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,false);
+
+        pCell = new DataGridCell((pFileDetails->m_bIsDir ? "~S2~" : "") + pFileDetails->m_sFileName + " " + pFileDetails->m_sDescription, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
+
+		if (pFileDetails->m_bIsDir && PK_MediaType==MEDIATYPE_pluto_DVD_CONST)
+		{
+			PlutoSqlResult result_set;
+			string sSQL = "SELECT PK_File from `File` where Path='" + StringUtils::SQLEscape(pFileDetails->m_sBaseName) + "' AND Filename='" + StringUtils::SQLEscape(pFileDetails->m_sFileName) + "' and IsDirectory=0";
+			if( (result_set.r=m_pDatabase_pluto_media->mysql_query_result(sSQL)) && result_set.r->row_count )
+				pFileDetails->m_bIsDir=false;
+		}
+
+		if (pFileDetails->m_bIsDir)
+		{
+			string newParams = sPaths + "\n" + Extensions + "\n" 
+				+ "\n" + StringUtils::itos(pFileDetails->m_iDirNumber)+ "\n" + sSubDirectory + pFileDetails->m_sFileName + "/";
+			DCE::CMD_NOREP_Populate_Datagrid CMDPDG(PK_Controller, m_pDatagrid_Plugin->m_dwPK_Device,
+				"", GridID, DATAGRID_Directory_Listing_CONST, newParams, 0);
+			pCell->m_pMessage = CMDPDG.m_pMessage;
+		}
+		
+		delete pFileDetails; // We won't need it anymore and it was allocated on the heap
+
+		pDataGrid->SetData(0, iRow++, pCell);
+		pDataGrid->m_vectFileInfo.push_back(flInfo);
+	}
+
+	return pDataGrid;
+}
+
 
 class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
@@ -224,7 +427,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 
 class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
-    FileListGrid *pDataGrid = new FileListGrid( m_pDatagrid_Plugin, this );
+    MediaListGrid *pDataGrid = new MediaListGrid( m_pDatagrid_Plugin, this );
     DataGridCell *pCell;
 
 	string::size_type pos=0;

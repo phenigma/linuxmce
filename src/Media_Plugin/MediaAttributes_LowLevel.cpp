@@ -1031,6 +1031,7 @@ Row_File *MediaAttributes_LowLevel::AddDirectoryToDatabase(int PK_MediaType,stri
 		return vectRow_File[0];
 
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+	pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
 	pRow_File->EK_MediaType_set(PK_MediaType);
 	pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDirectory)));
 	pRow_File->Filename_set( FileUtils::FilenameWithoutPath(sDirectory) );
@@ -1098,6 +1099,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 					pRow_File->EK_MediaType_set(MEDIATYPE_pluto_StoredAudio_CONST);
 				else
 					pRow_File->EK_MediaType_set(PK_MediaType);
+				pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
 				pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(sDestination));
 				pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
 				m_pDatabase_pluto_media->File_get()->Commit();
@@ -1175,6 +1177,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Removing it.  size is %d",(int) listFiles.size
 			else
 			{
 				pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+				pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
 				pRow_File->EK_MediaType_set(PK_MediaType);
 				pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDestination)));
 				pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );

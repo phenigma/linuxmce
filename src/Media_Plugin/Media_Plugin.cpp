@@ -3949,6 +3949,7 @@ void Media_Plugin::AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType)
 		return;
 
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+	pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
 	pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(pMediaFile->m_sPath));
 	pRow_File->Filename_set(pMediaFile->m_sFilename);
 	pRow_File->EK_MediaType_set(PK_MediaType);
