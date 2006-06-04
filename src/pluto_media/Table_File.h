@@ -79,6 +79,8 @@ class DECLSPECIFIER Row_File : public TableRow, public SerializeClass
 		
 		long int m_PK_File;
 long int m_EK_MediaType;
+long int m_FK_MediaSubType;
+long int m_FK_FileFormat;
 string m_Path;
 string m_Filename;
 long int m_Missing;
@@ -90,11 +92,13 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[12];
+		bool is_null[14];
 	
 	public:
 		long int PK_File_get();
 long int EK_MediaType_get();
+long int FK_MediaSubType_get();
+long int FK_FileFormat_get();
 string Path_get();
 string Filename_get();
 long int Missing_get();
@@ -109,6 +113,8 @@ long int psc_restrict_get();
 		
 		void PK_File_set(long int val);
 void EK_MediaType_set(long int val);
+void FK_MediaSubType_set(long int val);
+void FK_FileFormat_set(long int val);
 void Path_set(string val);
 void Filename_set(string val);
 void Missing_set(long int val);
@@ -122,6 +128,8 @@ void psc_restrict_set(long int val);
 
 		
 		bool EK_MediaType_isNull();
+bool FK_MediaSubType_isNull();
+bool FK_FileFormat_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -130,6 +138,8 @@ bool psc_restrict_isNull();
 
 			
 		void EK_MediaType_setNull(bool val);
+void FK_MediaSubType_setNull(bool val);
+void FK_FileFormat_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -147,7 +157,9 @@ void psc_restrict_setNull(bool val);
 		class Table_File *Table_File_get() { return table; };
 
 		// Return the rows for foreign keys 
-		
+		class Row_MediaSubType* FK_MediaSubType_getrow();
+class Row_FileFormat* FK_FileFormat_getrow();
+
 
 		// Return the rows in other tables with foreign keys pointing here
 		void Bookmark_FK_File_getrows(vector <class Row_Bookmark*> *rows);
@@ -158,13 +170,15 @@ void PlaylistEntry_FK_File_getrows(vector <class Row_PlaylistEntry*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_File+ m_EK_MediaType+ m_Path+ m_Filename+ m_Missing+ m_IsDirectory+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_File+ m_EK_MediaType+ m_FK_MediaSubType+ m_FK_FileFormat+ m_Path+ m_Filename+ m_Missing+ m_IsDirectory+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_File_asSQL();
 string EK_MediaType_asSQL();
+string FK_MediaSubType_asSQL();
+string FK_FileFormat_asSQL();
 string Path_asSQL();
 string Filename_asSQL();
 string Missing_asSQL();

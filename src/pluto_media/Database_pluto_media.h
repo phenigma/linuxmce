@@ -37,12 +37,20 @@ class Table_Disc_Attribute* tblDisc_Attribute;
 bool Commit_Disc_Attribute(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_File* tblFile;
 bool Commit_File(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_FileFormat* tblFileFormat;
+bool Commit_FileFormat(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_File_Attribute* tblFile_Attribute;
 bool Commit_File_Attribute(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_MediaProvider* tblMediaProvider;
 bool Commit_MediaProvider(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_MediaSubType* tblMediaSubType;
+bool Commit_MediaSubType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_MediaType_AttributeType* tblMediaType_AttributeType;
 bool Commit_MediaType_AttributeType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_MediaType_FileFormat* tblMediaType_FileFormat;
+bool Commit_MediaType_FileFormat(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_MediaType_MediaSubType* tblMediaType_MediaSubType;
+bool Commit_MediaType_MediaSubType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Picture* tblPicture;
 bool Commit_Picture(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Picture_Attribute* tblPicture_Attribute;
@@ -78,9 +86,13 @@ class Table_Bookmark* Bookmark_get() { if( !tblBookmark ) CreateTable_Bookmark()
 class Table_Disc* Disc_get() { if( !tblDisc ) CreateTable_Disc(); return tblDisc; }
 class Table_Disc_Attribute* Disc_Attribute_get() { if( !tblDisc_Attribute ) CreateTable_Disc_Attribute(); return tblDisc_Attribute; }
 class Table_File* File_get() { if( !tblFile ) CreateTable_File(); return tblFile; }
+class Table_FileFormat* FileFormat_get() { if( !tblFileFormat ) CreateTable_FileFormat(); return tblFileFormat; }
 class Table_File_Attribute* File_Attribute_get() { if( !tblFile_Attribute ) CreateTable_File_Attribute(); return tblFile_Attribute; }
 class Table_MediaProvider* MediaProvider_get() { if( !tblMediaProvider ) CreateTable_MediaProvider(); return tblMediaProvider; }
+class Table_MediaSubType* MediaSubType_get() { if( !tblMediaSubType ) CreateTable_MediaSubType(); return tblMediaSubType; }
 class Table_MediaType_AttributeType* MediaType_AttributeType_get() { if( !tblMediaType_AttributeType ) CreateTable_MediaType_AttributeType(); return tblMediaType_AttributeType; }
+class Table_MediaType_FileFormat* MediaType_FileFormat_get() { if( !tblMediaType_FileFormat ) CreateTable_MediaType_FileFormat(); return tblMediaType_FileFormat; }
+class Table_MediaType_MediaSubType* MediaType_MediaSubType_get() { if( !tblMediaType_MediaSubType ) CreateTable_MediaType_MediaSubType(); return tblMediaType_MediaSubType; }
 class Table_Picture* Picture_get() { if( !tblPicture ) CreateTable_Picture(); return tblPicture; }
 class Table_Picture_Attribute* Picture_Attribute_get() { if( !tblPicture_Attribute ) CreateTable_Picture_Attribute(); return tblPicture_Attribute; }
 class Table_Picture_Disc* Picture_Disc_get() { if( !tblPicture_Disc ) CreateTable_Picture_Disc(); return tblPicture_Disc; }
@@ -107,9 +119,13 @@ void CreateTable_Bookmark();
 void CreateTable_Disc();
 void CreateTable_Disc_Attribute();
 void CreateTable_File();
+void CreateTable_FileFormat();
 void CreateTable_File_Attribute();
 void CreateTable_MediaProvider();
+void CreateTable_MediaSubType();
 void CreateTable_MediaType_AttributeType();
+void CreateTable_MediaType_FileFormat();
+void CreateTable_MediaType_MediaSubType();
 void CreateTable_Picture();
 void CreateTable_Picture_Attribute();
 void CreateTable_Picture_Disc();
@@ -130,9 +146,13 @@ void DeleteTable_Bookmark();
 void DeleteTable_Disc();
 void DeleteTable_Disc_Attribute();
 void DeleteTable_File();
+void DeleteTable_FileFormat();
 void DeleteTable_File_Attribute();
 void DeleteTable_MediaProvider();
+void DeleteTable_MediaSubType();
 void DeleteTable_MediaType_AttributeType();
+void DeleteTable_MediaType_FileFormat();
+void DeleteTable_MediaType_MediaSubType();
 void DeleteTable_Picture();
 void DeleteTable_Picture_Attribute();
 void DeleteTable_Picture_Disc();

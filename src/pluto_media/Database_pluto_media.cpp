@@ -30,9 +30,13 @@ tblBookmark=NULL;
 tblDisc=NULL;
 tblDisc_Attribute=NULL;
 tblFile=NULL;
+tblFileFormat=NULL;
 tblFile_Attribute=NULL;
 tblMediaProvider=NULL;
+tblMediaSubType=NULL;
 tblMediaType_AttributeType=NULL;
+tblMediaType_FileFormat=NULL;
+tblMediaType_MediaSubType=NULL;
 tblPicture=NULL;
 tblPicture_Attribute=NULL;
 tblPicture_Disc=NULL;
@@ -75,14 +79,26 @@ if( tblDisc_Attribute!=NULL )
 if( tblFile!=NULL )
 	if( !Commit_File(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
+if( tblFileFormat!=NULL )
+	if( !Commit_FileFormat(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblFile_Attribute!=NULL )
 	if( !Commit_File_Attribute(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
 if( tblMediaProvider!=NULL )
 	if( !Commit_MediaProvider(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
+if( tblMediaSubType!=NULL )
+	if( !Commit_MediaSubType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblMediaType_AttributeType!=NULL )
 	if( !Commit_MediaType_AttributeType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblMediaType_FileFormat!=NULL )
+	if( !Commit_MediaType_FileFormat(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblMediaType_MediaSubType!=NULL )
+	if( !Commit_MediaType_MediaSubType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
 if( tblPicture!=NULL )
 	if( !Commit_Picture(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
@@ -138,9 +154,13 @@ DeleteTable_Bookmark();
 DeleteTable_Disc();
 DeleteTable_Disc_Attribute();
 DeleteTable_File();
+DeleteTable_FileFormat();
 DeleteTable_File_Attribute();
 DeleteTable_MediaProvider();
+DeleteTable_MediaSubType();
 DeleteTable_MediaType_AttributeType();
+DeleteTable_MediaType_FileFormat();
+DeleteTable_MediaType_MediaSubType();
 DeleteTable_Picture();
 DeleteTable_Picture_Attribute();
 DeleteTable_Picture_Disc();
