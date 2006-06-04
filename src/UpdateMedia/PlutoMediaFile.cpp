@@ -266,6 +266,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 	{
 		//No record to reuse; we'll create a new one
 		pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+		pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
 		pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(m_sDirectory));
 		pRow_File->Filename_set(m_sFile);
 		pRow_File->EK_MediaType_set(PK_MediaType);
