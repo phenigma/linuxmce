@@ -11,6 +11,8 @@
 #define FILE_FK_MEDIASUBTYPE_TABLE_FIELD "File.FK_MediaSubType"
 #define FILE_FK_FILEFORMAT_FIELD "FK_FileFormat"
 #define FILE_FK_FILEFORMAT_TABLE_FIELD "File.FK_FileFormat"
+#define FILE_DATEADDED_FIELD "DateAdded"
+#define FILE_DATEADDED_TABLE_FIELD "File.DateAdded"
 #define FILE_PATH_FIELD "Path"
 #define FILE_PATH_TABLE_FIELD "File.Path"
 #define FILE_FILENAME_FIELD "Filename"
