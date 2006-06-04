@@ -565,7 +565,7 @@ m_bNoEffects = true;
 	if( !drUsers_Default )
 	{
 		vector<Row_Installation_Users *> vectRow_Installation_Users;
-		mds.Installation_Users_get()->GetRows(INSTALLATION_USERS_FK_INSTALLATION_FIELD + string("=") + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Installation_Users);
+		mds.Installation_Users_get()->GetRows(INSTALLATION_USERS_FK_INSTALLATION_FIELD "=" + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Installation_Users);
 		if( vectRow_Installation_Users.size() )
 		{
 			cout << "***Warning*** No default user specified.  Picking first one: " << vectRow_Installation_Users[0]->FK_Users_get() << endl;
@@ -1432,31 +1432,6 @@ loop_to_keep_looking_for_objs_to_include:
 				SearchForGotos(ocDesignObj);
 			}
 		}
-	}
-
-	// Now include all the media sort options if this it UI version 2
-	if( bFirstLoop && m_pRow_UI->Version_get()==2 && (m_map_PK_DesignObj_SoleScreenToGen.size()==0 || m_map_PK_DesignObj_SoleScreenToGen[DESIGNOBJ_grpMediaSortOptions_CONST]==true) )
-	{
-		Row_DesignObj *pRow_DesignObj = mds.DesignObj_get()->GetRow(DESIGNOBJ_grpMediaSortOptions_CONST);
-		string sSQL = "select DISTINCT EK_MediaType FROM MediaType_AttributeType where MediaSortOption is not null";
-		PlutoSqlResult result_set_array;
-		MYSQL_ROW row;
-		if( (result_set_array.r=m_Database_pluto_media.mysql_query_result(sSQL)) )
-		{
-			while ((row = mysql_fetch_row(result_set_array.r)))
-			{
-				m_dwMediaType = atoi(row[0]);
-				m_mapDesignObj_WithArrays[ pRow_DesignObj->PK_DesignObj_get() ] = true;
-				DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
-				ocDesignObj->m_bIsPopup=true;
-				m_mapPopups[ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()]=true;
-				if( ocDesignObj->m_bUsingCache )
-				{
-					SearchForGotos(ocDesignObj);
-				}
-			}
-		}
-		m_dwMediaType=0;
 	}
 
 	list< pair<Row_DesignObj *,int> >::iterator itnol;

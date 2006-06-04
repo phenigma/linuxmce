@@ -1653,32 +1653,6 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
             break;
         }
 
-		case ARRAY_Media_Type_Sorts_CONST:
-			{
-				vector<Row_MediaType_AttributeType *> vectRow_MediaType_AttributeType;
-				m_pOrbiterGenerator->m_Database_pluto_media.MediaType_AttributeType_get()->GetRows("EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType) + " AND MediaSortOption IS NOT NULL ORDER BY MediaSortOption",&vectRow_MediaType_AttributeType);
-				for(vector<Row_MediaType_AttributeType *>::iterator it=vectRow_MediaType_AttributeType.begin();it!=vectRow_MediaType_AttributeType.end();++it)
-				{
-					Row_MediaType_AttributeType *pRow_MediaType_AttributeType = *it;
-					Row_AttributeType *pRow_AttributeType = pRow_MediaType_AttributeType->FK_AttributeType_getrow();
-					if( !pRow_AttributeType )
-						continue; // Shouldn't happen 
-
-	                alArray->push_back(new ArrayValue(StringUtils::itos(pRow_AttributeType->PK_AttributeType_get()),
-						pRow_AttributeType->Description_get(),NULL,0,0,0,VARIABLE_Sort_CONST,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
-				}
-				if( vectRow_MediaType_AttributeType.size() )
-				{
-					DesignObjCommand *p_DesignObjCommand = new DesignObjCommand(COMMAND_Set_Variable_CONST,0,true,DEVICEID_HANDLED_INTERNALLY,0,false);
-					p_DesignObjCommand->m_PK_DeviceTemplate=0;
-					p_DesignObjCommand->m_PK_DeviceCategory=0;
-					p_DesignObjCommand->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST] = StringUtils::itos(VARIABLE_Sort_CONST);
-					p_DesignObjCommand->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST] = StringUtils::itos(vectRow_MediaType_AttributeType[0]->FK_AttributeType_get());
-					m_Action_LoadList.push_back(p_DesignObjCommand);
-				}
-			}
-			break;
-
         case ARRAY_Phone_Users_CONST:
         case ARRAY_All_Users_CONST:
             {
@@ -1687,15 +1661,19 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                 for(size_t s=0;s<vectIUs.size();++s)
                 {
                     Row_Installation_Users *drIU = vectIUs[s];
-					if( drIU->FK_Users_getrow()->HideFromOrbiter_get()==1 )
+					Row_Users *pRow_Users = drIU->FK_Users_getrow();
+					if( !pRow_Users )
+						continue;
+
+					if( pRow_Users->HideFromOrbiter_get()==1 )
 						continue;
                     if( PK_Array==ARRAY_Phone_Users_CONST && drIU->FK_Users_getrow()->Extension_isNull() )
                         continue;
-					string sName = drIU->FK_Users_getrow()->UserName_get();
+					string sName = pRow_Users->UserName_get();
 					if( drIU->FK_Users_getrow()->Nickname_get().size() )
-						sName = drIU->FK_Users_getrow()->Nickname_get();
+						sName = pRow_Users->Nickname_get();
 
-					alArray->push_back(new ArrayValue(StringUtils::itos(drIU->FK_Users_getrow()->PK_Users_get()),sName,NULL,0,0,
+					alArray->push_back(new ArrayValue(StringUtils::itos(pRow_Users->PK_Users_get()),sName,NULL,0,0,
                         0,0,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
                 }
             }

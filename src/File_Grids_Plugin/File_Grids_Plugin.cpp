@@ -51,15 +51,6 @@ using namespace DCE;
 #include <attr/attributes.h>
 #endif
 
-static bool FileNameComparer(FileDetails *x, FileDetails *y)
-{
-	return StringUtils::ToUpper(x->m_sFileName)<StringUtils::ToUpper(y->m_sFileName);
-}
-
-static bool FileDateComparer(FileDetails *x, FileDetails *y)
-{
-	return x->m_tDate<y->m_tDate;
-}
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -145,8 +136,6 @@ void File_Grids_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMes
 	sCMD_Result = "UNKNOWN DEVICE";
 }
 
-
-#define INCREMENT_ROW_COLUMN iColumn++; if( iColumn>iMaxColumns ) { iColumn=0; iRow++; }
 
 class DataGridTable * File_Grids_Plugin::FileList(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {

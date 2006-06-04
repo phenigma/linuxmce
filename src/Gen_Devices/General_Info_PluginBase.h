@@ -201,9 +201,7 @@ public:
 	virtual void CMD_Check_Mounts(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Device_Relations(int iPK_Device,string sList_PK_Device,bool bReverse,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Force_Update_Packages(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Get_iPK_DeviceFromUID(string sUID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Enable_Status(int iPK_Device,bool bEnable,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Get_All_HAL_Model_ID(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_InitAVDeviceTemplateSettings(int iPK_DeviceTemplate,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Available_Storage_Device(int iSize,int *iPK_Device,string *sDescription,string *sPath,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_ControlledVia,string sBlock_Device,string &sCMD_Result,class Message *pMessage) {};
@@ -777,32 +775,6 @@ public:
 					};
 					iHandled++;
 					continue;
-				case COMMAND_Get_iPK_DeviceFromUID_CONST:
-					{
-						string sCMD_Result="OK";
-						string sUID=pMessage->m_mapParameters[COMMANDPARAMETER_UID_CONST];
-						CMD_Get_iPK_DeviceFromUID(sUID.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							pMessageOut->m_mapParameters[0]=sCMD_Result;
-							SendMessage(pMessageOut);
-						}
-						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							SendString(sCMD_Result);
-						}
-						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
-						{
-							int iRepeat=atoi(itRepeat->second.c_str());
-							for(int i=2;i<=iRepeat;++i)
-								CMD_Get_iPK_DeviceFromUID(sUID.c_str(),sCMD_Result,pMessage);
-						}
-					};
-					iHandled++;
-					continue;
 				case COMMAND_Set_Enable_Status_CONST:
 					{
 						string sCMD_Result="OK";
@@ -826,31 +798,6 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Enable_Status(iPK_Device,bEnable,sCMD_Result,pMessage);
-						}
-					};
-					iHandled++;
-					continue;
-				case COMMAND_Get_All_HAL_Model_ID_CONST:
-					{
-						string sCMD_Result="OK";
-						CMD_Get_All_HAL_Model_ID(sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							pMessageOut->m_mapParameters[0]=sCMD_Result;
-							SendMessage(pMessageOut);
-						}
-						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							SendString(sCMD_Result);
-						}
-						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
-						{
-							int iRepeat=atoi(itRepeat->second.c_str());
-							for(int i=2;i<=iRepeat;++i)
-								CMD_Get_All_HAL_Model_ID(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -941,7 +888,7 @@ public:
 					iHandled++;
 					continue;
 				}
-				iHandled += Command_Impl::ReceivedMessage(pMessage);
+				iHandled += (Command_Impl::ReceivedMessage(pMessage)==rmr_NotProcessed ? 0 : 1);
 			}
 			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{

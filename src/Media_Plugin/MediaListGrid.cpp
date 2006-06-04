@@ -104,7 +104,7 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 		for(int col=*ColStart;col<=*ColStart+ColCount;++col)
 		{
 			int OriginalRow = row*ColCount+col;
-			if( OriginalRow>m_pMediaListGrid_Master->m_TotalRows )
+			if( OriginalRow>=m_pMediaListGrid_Master->m_TotalRows )
 				break;
 			DataGridCell *pCell = m_pMediaListGrid_Master->GetData(0,OriginalRow);
 #ifdef DEBUG

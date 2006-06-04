@@ -14,6 +14,8 @@
 #undef delete
 #endif
 
+#define INCREMENT_ROW_COLUMN iColumn++; if( iColumn>iMaxColumns ) { iColumn=0; iRow++; }
+
 namespace DCE
 {
 

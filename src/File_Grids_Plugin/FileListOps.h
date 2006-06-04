@@ -1,6 +1,8 @@
 #ifndef FileListOps_h
 #define FileListOps_h
 
+#include "PlutoUtils/StringUtils.h"
+
 #include <list>
 #include <string>
 using namespace std;
@@ -21,5 +23,15 @@ class FileDetails
 };
 
 void GetDirContents(list<FileDetails *> &listFileName,string Path, string sValidExtensions_CSV);
+
+static bool FileNameComparer(FileDetails *x, FileDetails *y)
+{
+	return StringUtils::ToUpper(x->m_sFileName)<StringUtils::ToUpper(y->m_sFileName);
+}
+
+static bool FileDateComparer(FileDetails *x, FileDetails *y)
+{
+	return x->m_tDate<y->m_tDate;
+}
 
 #endif /* FileListOps_h */

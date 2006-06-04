@@ -308,6 +308,9 @@
 					RelativePath=".\KeyboardMouseHandler.cpp">
 				</File>
 				<File
+					RelativePath=".\HorizMenuMouseHandler.cpp">
+				</File>
+				<File
 					RelativePath=".\LightMouseHandler.cpp">
 				</File>
 				<File

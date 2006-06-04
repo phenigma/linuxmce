@@ -30,9 +30,6 @@ string RegenMonitor::GetModInfo_Array(int PK_Array)
 			else
 				return sResult;
 
-		case ARRAY_Media_Type_Sorts_CONST:
-			return sResult;
-
 		case ARRAY_All_Phones_CONST:
 		case ARRAY_Hard_Phones_CONST:
 		case ARRAY_Soft_Phones_CONST:

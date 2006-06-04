@@ -164,7 +164,7 @@
 				RelativePath="Media_Plugin_Grids.cpp">
 			</File>
 			<File
-				RelativePath=".\Media_Plugin_Grids.cpp">
+				RelativePath="MediaListGrid.cpp">
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\Media_PluginBase.cpp">
@@ -183,9 +183,6 @@
 			</File>
 			<File
 				RelativePath="..\UpdateMedia\MediaIdentifier.cpp">
-			</File>
-			<File
-				RelativePath=".\MediaListGrid.cpp">
 			</File>
 			<File
 				RelativePath=".\MediaStream.cpp">

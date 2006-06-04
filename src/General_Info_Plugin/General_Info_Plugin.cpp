@@ -2557,18 +2557,6 @@ void General_Info_Plugin::CMD_Force_Update_Packages(string &sCMD_Result,Message 
 	ProcessUtils::SpawnApplication("/usr/pluto/bin/ForceUpdates.sh", "", "ForceUpdates", NULL, false);
 }
 
-//<-dceag-c790-b->
-
-	/** @brief COMMAND: #790 - Get_iPK_DeviceFromUID */
-	/** Get the device ID from the UID from the USB port. */
-		/** @param #206 UID */
-			/** UID from USB port */
-
-void General_Info_Plugin::CMD_Get_iPK_DeviceFromUID(string sUID,string &sCMD_Result,Message *pMessage)
-//<-dceag-c790-e->
-{
-}
-
 //<-dceag-c791-b->
 
 	/** @brief COMMAND: #791 - Set Enable Status */
@@ -2596,15 +2584,8 @@ void General_Info_Plugin::CMD_Set_Enable_Status(int iPK_Device,bool bEnable,stri
 		g_pPlutoLogger->Write(LV_WARNING, "Failed to set enable status for device %d: the device doesn't exists",
 			iPK_Device);
 	}
-}//<-dceag-c792-b->
-
-	/** @brief COMMAND: #792 - Get All HAL Model ID */
-	/** Returns a list of HAL Model ID-s */
-
-void General_Info_Plugin::CMD_Get_All_HAL_Model_ID(string &sCMD_Result,Message *pMessage)
-//<-dceag-c792-e->
-{
 }
+
 //<-dceag-c800-b->
 
 	/** @brief COMMAND: #800 - InitAVDeviceTemplateSettings */
