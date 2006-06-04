@@ -27,7 +27,7 @@ namespace DCE
 
 	public:
 		HorizMenuMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
-		virtual EMouseHandler TypeOfMouseHandler() { return mh_Locked; }
+		virtual EMouseHandler TypeOfMouseHandler() { return mh_HorizMenu; }
 
 		void Start();
 		void Stop();

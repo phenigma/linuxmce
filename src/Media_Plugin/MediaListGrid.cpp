@@ -113,7 +113,7 @@ g_pPlutoLogger->Write(LV_STATUS,"MediaListGrid::row %d graphic data: %p rowstart
 #endif
 			if( !pCell || !pCell->m_pGraphicData ) // We haven't already set a picture for this cell.  Skip it if it's a cell with text
 			{
-				string Extension,PictureFile;
+				string Extension,PictureFile_TN,PictureFile_Full;
 				int PKID_MED_Picture = 0;
 				enum eGraphicFormat format;
 
@@ -162,17 +162,18 @@ g_pPlutoLogger->Write(LV_STATUS,"MediaListGrid::row %d graphic data: %p rowstart
 
 				if(PKID_MED_Picture > 0)
 				{
-					PictureFile = "/home/mediapics/" + StringUtils::itos(PKID_MED_Picture) + "_tn." + Extension;
-					pIconBuffer = FileUtils::ReadFileIntoBuffer(PictureFile,stIconSize);
+					PictureFile_TN = "/home/mediapics/" + StringUtils::itos(PKID_MED_Picture) + "_tn." + Extension;
+					PictureFile_Full = "/home/mediapics/" + StringUtils::itos(PKID_MED_Picture) + "." + Extension;
+					pIconBuffer = FileUtils::ReadFileIntoBuffer(PictureFile_TN,stIconSize);
 #ifdef DEBUG
-					g_pPlutoLogger->Write(LV_STATUS, "Pic file: %s has size: %d", PictureFile.c_str(),stIconSize);
+					g_pPlutoLogger->Write(LV_STATUS, "Pic file: %s has size: %d", PictureFile_TN.c_str(),stIconSize);
 #endif
 					format = GR_JPG;
 				}
 
 				if( pIconBuffer )
 				{
-					DataGridCell *pCell = new DataGridCell("","");
+					DataGridCell *pCell = new DataGridCell("",PictureFile_Full);
 					pCell->SetImage(pIconBuffer,(int) stIconSize,format);
 					SetData(col,row,pCell);
 				}

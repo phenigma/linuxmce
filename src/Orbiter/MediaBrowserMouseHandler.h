@@ -23,11 +23,14 @@ namespace DCE
 	//-----------------------------------------------------------------------------------------------------
 	class MediaBrowserMouseHandler : public MouseHandler
 	{
+		friend class ScreenHandler;
+
 		DesignObj_DataGrid *m_pObj_ListGrid,*m_pObj_PicGrid;
+		DesignObj_Orbiter *m_pObj_CoverArtPopup;
 
 	public:
 		MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
-		virtual EMouseHandler TypeOfMouseHandler() { return mh_Locked; }
+		virtual EMouseHandler TypeOfMouseHandler() { return mh_MediaBrowser; }
 
 		void Start();
 		void Stop();
@@ -35,6 +38,7 @@ namespace DCE
 		bool ButtonDown(int PK_Button);
 		bool ButtonUp(int PK_Button);
 		void Move(int X,int Y,int PK_Direction);
+		void ShowCoverArtPopup();
 	};
 
 }

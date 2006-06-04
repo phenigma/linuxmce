@@ -49,6 +49,7 @@ MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 	m_pMouseIterator = new MouseIterator(this);
 	m_iPK_Button_Mouse_Last=0;
     m_iTime_Last_Mouse_Down=m_iTime_Last_Mouse_Up=0;
+	m_bMouseConstrained=false;
 	Clear();
 }
 
@@ -285,8 +286,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 
 	if( m_pMouseHandler )
 	{
-		m_pMouseHandler->ButtonDown(PK_Button);
-		return true;
+		return m_pMouseHandler->ButtonDown(PK_Button);
 	}
 	return false;
 }

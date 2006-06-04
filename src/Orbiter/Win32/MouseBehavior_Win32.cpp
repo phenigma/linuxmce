@@ -23,6 +23,7 @@ void MouseBehavior_Win32::ShowMouse(bool bShow)
 
 bool MouseBehavior_Win32::ConstrainMouse(const PlutoRectangle &rect)
 {
+	m_bMouseConstrained = rect.X!=0 || rect.Y!=0 || rect.Width!=0 || rect.Height!=0;
 	if( rect.Width==0 || rect.Height==0 )
 	{
 		ClipCursor(NULL);

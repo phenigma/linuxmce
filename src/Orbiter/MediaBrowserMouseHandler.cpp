@@ -20,6 +20,7 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
 	m_pObj_ListGrid=m_pObj_PicGrid=NULL;
+	m_pObj_CoverArtPopup=NULL;
 	if( !m_pObj )
 		return; // Shouldn't happen
 
@@ -42,6 +43,7 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = m_pObj_ListGrid;
 		m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
 	}
+	m_pObj_CoverArtPopup=m_pMouseBehavior->m_pOrbiter->FindObject(5087);
 }
 
 void MediaBrowserMouseHandler::Start()
@@ -54,6 +56,8 @@ void MediaBrowserMouseHandler::Stop()
 
 bool MediaBrowserMouseHandler::ButtonDown(int PK_Button)
 {
+	if( m_pMouseBehavior->m_bMouseConstrained )
+		return false;
 	if( PK_Button==BUTTON_Mouse_1_CONST )
 	{
 		m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
@@ -65,6 +69,8 @@ bool MediaBrowserMouseHandler::ButtonDown(int PK_Button)
 
 bool MediaBrowserMouseHandler::ButtonUp(int PK_Button)
 {
+	if( m_pMouseBehavior->m_bMouseConstrained )
+		return false;
 	if( PK_Button==BUTTON_Mouse_7_CONST && m_bTapAndRelease==false && m_bStartedMovement )
 	{
 //		return false;
@@ -75,6 +81,8 @@ bool MediaBrowserMouseHandler::ButtonUp(int PK_Button)
 
 void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 {
+	if( m_pMouseBehavior->m_bMouseConstrained )  // There's a popup grabbing the mouse
+		return;
 	if( !m_pObj_ListGrid || !m_pObj_PicGrid )
 		return;  // Shouldn't happen
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
@@ -111,4 +119,31 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 
 	// This takes care of the list grid
 	m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
+	ShowCoverArtPopup();
+}
+
+void MediaBrowserMouseHandler::ShowCoverArtPopup()
+{
+	if( !m_pObj_CoverArtPopup )
+		return; // Shouldn't happen
+
+	int X=0,Y=0;
+	if( m_pObj_PicGrid->m_iHighlightedColumn )
+		X = (m_pObj_PicGrid->m_iHighlightedColumn*m_pObj_PicGrid->m_FixedColumnWidth) - ((m_pObj_CoverArtPopup->m_rPosition.Width - m_pObj_PicGrid->m_FixedColumnWidth)/2);
+	if( m_pObj_PicGrid->m_iHighlightedRow )
+		Y = (m_pObj_PicGrid->m_iHighlightedRow*m_pObj_PicGrid->m_FixedRowHeight) - ((m_pObj_CoverArtPopup->m_rPosition.Height - m_pObj_PicGrid->m_FirstRowHeight)/2);
+
+	DataGridCell *pCell = NULL;
+	if( m_pObj_PicGrid->m_pDataGridTable )
+		pCell = m_pObj_PicGrid->m_pDataGridTable->GetData(m_pObj_PicGrid->m_iHighlightedColumn,m_pObj_PicGrid->m_iHighlightedRow);
+
+	if( pCell && pCell->m_pGraphicData )
+	{
+		char *pDup = new char[pCell->m_GraphicLength];
+		memcpy(pDup,pCell->m_pGraphicData,pCell->m_GraphicLength);
+		m_pMouseBehavior->m_pOrbiter->CMD_Update_Object_Image(m_pObj_CoverArtPopup->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",pDup,pCell->m_GraphicLength,"0");
+		m_pMouseBehavior->m_pOrbiter->CMD_Show_Popup(m_pObj_CoverArtPopup->m_ObjectID,X,Y,"","coverart",false,false);
+	}
+	else
+		m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
 }

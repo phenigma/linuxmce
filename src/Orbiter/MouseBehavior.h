@@ -50,7 +50,7 @@ namespace DCE
 		virtual void Notch(int PK_Direction,int iRepeat) {} // The user moved a 'notch' in the given direction
 		virtual bool MovedOutside(int PK_Direction) { return false; } // Override this and return true if you don't want the framework to automatically reposition the pointer inside the object
 		virtual bool SlowDrift(int &X,int &Y) { return false; } // We're about to call a move after the user has been slowly drifting.  The handler can alter the position, and/or return true to ignore the move
-		typedef enum EMouseHandler { mh_Locked, mh_Speed, mh_Light, mh_Volume, mh_Media, mh_Keyboard };
+		typedef enum EMouseHandler { mh_Locked, mh_Speed, mh_Light, mh_Volume, mh_Media, mh_Keyboard, mh_MediaBrowser, mh_HorizMenu };
 		virtual EMouseHandler TypeOfMouseHandler()=0;
 	};
 
@@ -85,6 +85,7 @@ namespace DCE
 	class MouseBehavior
 	{
 		friend class Orbiter;
+		friend class ScreenHandler;
 		friend class MouseIterator;
 		friend class MouseGovernor;
 		friend class HorizMenuMouseHandler;
@@ -116,6 +117,7 @@ namespace DCE
 		unsigned long m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up; // When it was pressed
 		unsigned long m_dwTime_Last_Notch;
 		std::auto_ptr<OSDCompass> m_spCompass;
+		bool m_bMouseConstrained;
 
 	public:
 		typedef enum { mcs_Normal, mcs_LeftRight, mcs_UpDown, mcs_AnyDirection, mcs_LeftRightUpDown } MouseCursorStyle;
@@ -139,6 +141,7 @@ namespace DCE
 
 		// Override these for OS specific handling
 		virtual void SetMousePosition(int X,int Y) { m_pLastPosition.X=X; m_pLastPosition.Y=Y; /*g_pPlutoLogger->Write(LV_FESTIVAL,"SetMousePosition %d,%d",X,Y);*/ }
+		virtual void SetMousePosition(DesignObj_Orbiter *pObj) { SetMousePosition( pObj->m_rPosition.X + pObj->m_pPopupPoint.X + pObj->m_rPosition.Width/2 , pObj->m_rPosition.Bottom() + pObj->m_pPopupPoint.Y ); }
 		virtual void GetMousePosition(PlutoPoint *p) { }
 		virtual void ShowMouse(bool bShow) { }
 
@@ -148,6 +151,7 @@ namespace DCE
 
         // have a platform-specific implementation
         virtual bool ConstrainMouse(const PlutoRectangle &rect) { return false; }
+        virtual bool ConstrainMouse() { PlutoRectangle rect; return ConstrainMouse(rect); }
 		virtual void SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle) {}
     };
 

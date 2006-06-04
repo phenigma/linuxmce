@@ -69,6 +69,7 @@ void MouseBehavior_Linux::ShowMouse(bool bShow)
 
 bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
 {
+	m_bMouseConstrained = rect.X!=0 || rect.Y!=0 || rect.Width!=0 || rect.Height!=0;
     //return false;
     g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d)",
                           rect.X, rect.Y, rect.Width, rect.Height

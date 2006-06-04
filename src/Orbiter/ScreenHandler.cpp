@@ -2,6 +2,9 @@
 #include "ScreenHistory.h"
 #include "CallBackTypes.h"
 #include "OrbiterRenderer.h"
+#include "MouseBehavior.h"
+#include "MediaBrowserMouseHandler.h"
+#include "DataGrid.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_Screen.h"
@@ -116,7 +119,7 @@ void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::ltos(iPK_Users));
 	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, iPK_Users);
 }
-
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 {
 	if( m_pOrbiter->UsesUIVersion2()==false )
@@ -126,9 +129,61 @@ void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 	}
 
 	ScreenHandlerBase::SCREEN_FileList_Music_Movies_Video(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_ObjectSelected,	new ObjectInfoBackData());
 	return;
 }
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 
+	if(	pObjectInfoData->m_PK_DesignObj_SelectedObject == 4949	|| pObjectInfoData->m_PK_DesignObj_SelectedObject == 5086 ) // todo
+	{
+		DesignObj_Orbiter *pObj_Play = m_pOrbiter->FindObject( TOSTRING(5088) ".0.0." TOSTRING(5089) );
+		if( !pObj_Play || !pObj_Play->m_pParentObject )
+			return false; // Shouldn't happen
+
+		if( !m_pOrbiter->m_pMouseBehavior->m_pMouseHandler || m_pOrbiter->m_pMouseBehavior->m_pMouseHandler->TypeOfMouseHandler() != MouseHandler::mh_MediaBrowser )
+			return false; // Shouldn't happen
+		MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pOrbiter->m_pMouseBehavior->m_pMouseHandler;
+
+		DataGridCell *pCell = NULL;
+		if( pMediaBrowserMouseHandler->m_pObj_PicGrid->m_pDataGridTable )
+			pCell = pMediaBrowserMouseHandler->m_pObj_PicGrid->m_pDataGridTable->GetData(pMediaBrowserMouseHandler->m_pObj_PicGrid->m_iHighlightedColumn,pMediaBrowserMouseHandler->m_pObj_PicGrid->m_iHighlightedRow);
+
+		size_t Size;
+		char *pData = NULL;
+		if( pCell && pCell->m_ValueLength )
+		{
+			pData = FileUtils::ReadFileIntoBuffer(pCell->m_Value,Size);
+			if( !pData )
+			{
+				int i;
+				DCE::CMD_Request_File CMD_Request_File( m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn, 
+					pCell->m_Value, &pData, &i );
+				m_pOrbiter->SendCommand( CMD_Request_File );
+				Size=i;
+			}
+		}
+
+		m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",pData,Size,"0");
+		m_pOrbiter->m_pObj_Highlighted = pObj_Play;
+		m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
+		m_pOrbiter->m_pMouseBehavior->ConstrainMouse(pObj_Play->m_pParentObject->m_rPosition + pObj_Play->m_pPopupPoint );
+		m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
+	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == 5090 )
+	{
+		if( !m_pOrbiter->m_pMouseBehavior->m_pMouseHandler || m_pOrbiter->m_pMouseBehavior->m_pMouseHandler->TypeOfMouseHandler() != MouseHandler::mh_MediaBrowser )
+			return false; // Shouldn't happen
+		MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pOrbiter->m_pMouseBehavior->m_pMouseHandler;
+
+		m_pOrbiter->m_pObj_Highlighted = pMediaBrowserMouseHandler->m_pObj_ListGrid;
+		m_pOrbiter->CMD_Remove_Popup("","filedetails");
+		m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
+	}
+	return false;
+}
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, string sPrivate,
 									string sPublic, string sCaption)
