@@ -14,6 +14,7 @@ Table_Disc_Attribute.cpp \
 Table_File.cpp \
 Table_FileFormat.cpp \
 Table_File_Attribute.cpp \
+Table_File_Users.cpp \
 Table_MediaProvider.cpp \
 Table_MediaSubType.cpp \
 Table_MediaType_AttributeType.cpp \

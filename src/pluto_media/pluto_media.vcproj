@@ -142,6 +142,9 @@
 				RelativePath=".\Table_File_Attribute.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_File_Users.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_MediaProvider.cpp">
 			</File>
 			<File

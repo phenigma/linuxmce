@@ -41,6 +41,8 @@ class Table_FileFormat* tblFileFormat;
 bool Commit_FileFormat(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_File_Attribute* tblFile_Attribute;
 bool Commit_File_Attribute(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_File_Users* tblFile_Users;
+bool Commit_File_Users(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_MediaProvider* tblMediaProvider;
 bool Commit_MediaProvider(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_MediaSubType* tblMediaSubType;
@@ -88,6 +90,7 @@ class Table_Disc_Attribute* Disc_Attribute_get() { if( !tblDisc_Attribute ) Crea
 class Table_File* File_get() { if( !tblFile ) CreateTable_File(); return tblFile; }
 class Table_FileFormat* FileFormat_get() { if( !tblFileFormat ) CreateTable_FileFormat(); return tblFileFormat; }
 class Table_File_Attribute* File_Attribute_get() { if( !tblFile_Attribute ) CreateTable_File_Attribute(); return tblFile_Attribute; }
+class Table_File_Users* File_Users_get() { if( !tblFile_Users ) CreateTable_File_Users(); return tblFile_Users; }
 class Table_MediaProvider* MediaProvider_get() { if( !tblMediaProvider ) CreateTable_MediaProvider(); return tblMediaProvider; }
 class Table_MediaSubType* MediaSubType_get() { if( !tblMediaSubType ) CreateTable_MediaSubType(); return tblMediaSubType; }
 class Table_MediaType_AttributeType* MediaType_AttributeType_get() { if( !tblMediaType_AttributeType ) CreateTable_MediaType_AttributeType(); return tblMediaType_AttributeType; }
@@ -121,6 +124,7 @@ void CreateTable_Disc_Attribute();
 void CreateTable_File();
 void CreateTable_FileFormat();
 void CreateTable_File_Attribute();
+void CreateTable_File_Users();
 void CreateTable_MediaProvider();
 void CreateTable_MediaSubType();
 void CreateTable_MediaType_AttributeType();
@@ -148,6 +152,7 @@ void DeleteTable_Disc_Attribute();
 void DeleteTable_File();
 void DeleteTable_FileFormat();
 void DeleteTable_File_Attribute();
+void DeleteTable_File_Users();
 void DeleteTable_MediaProvider();
 void DeleteTable_MediaSubType();
 void DeleteTable_MediaType_AttributeType();

@@ -169,6 +169,7 @@ class Row_FileFormat* FK_FileFormat_getrow();
 		// Return the rows in other tables with foreign keys pointing here
 		void Bookmark_FK_File_getrows(vector <class Row_Bookmark*> *rows);
 void File_Attribute_FK_File_getrows(vector <class Row_File_Attribute*> *rows);
+void File_Users_FK_File_getrows(vector <class Row_File_Users*> *rows);
 void Picture_File_FK_File_getrows(vector <class Row_Picture_File*> *rows);
 void PlaylistEntry_FK_File_getrows(vector <class Row_PlaylistEntry*> *rows);
 
