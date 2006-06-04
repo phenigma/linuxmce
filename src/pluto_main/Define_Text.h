@@ -1032,6 +1032,21 @@
 #define TEXT_right_receiver_wrong_input_CONST 1745
 #define TEXT_dont_control_my_receiver_CONST 1746
 #define TEXT_video_clip_here_CONST 1747
+#define TEXT_Public_CONST 1748
+#define TEXT_All_CONST 1749
+#define TEXT_FBSF_Go_CONST 1750
+#define TEXT_FBSF_Format_CONST 1751
+#define TEXT_FBSF_Type_CONST 1752
+#define TEXT_FBSF_Genre_CONST 1753
+#define TEXT_FBSF_Rating_CONST 1754
+#define TEXT_FBSF_Private_CONST 1755
+#define TEXT_FBSF_Source_CONST 1756
+#define TEXT_FBSF_MediaType_CONST 1757
+#define TEXT_FBSF_Sort_CONST 1758
+#define TEXT_MediaDetails_Filename_CONST 1759
+#define TEXT_MediaDetails_Title_CONST 1760
+#define TEXT_Games_CONST 1763
+#define TEXT_Data_CONST 1764
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
