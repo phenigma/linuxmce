@@ -175,7 +175,7 @@ function getLeftWizardMenu($dbADO){
 	$devices=join(',',array_keys(getAssocArray('Device','PK_Device','PK_Device',$dbADO,'WHERE FK_Installation='.$_SESSION['installationID'],'ORDER BY PK_Device ASC')));
 
 	// if cached menu exists but something changed in SetupStep table or device table, rebuild menu
-	/*
+	
 	$lastTimestamp=getLastTimestamp('SetupStep',$dbADO);
 	if(file_exists($cachedLeftWizardMenu)){
 		$oldIDs=@file($cachedIDs);
@@ -184,7 +184,7 @@ function getLeftWizardMenu($dbADO){
 			return join('',file($cachedLeftWizardMenu));
 		}
 	}
-*/
+
 	
 	$selectWizard = "
 			SELECT DISTINCT PageSetup.*, SetupStep.FK_Installation
@@ -245,8 +245,8 @@ function getLeftWizardMenu($dbADO){
 	$leftWizardMenu.='</table>';
 
 	// write top menu file and devices/page setup IDs
-	//writeFile($cachedLeftWizardMenu,$leftWizardMenu,'w');
-	//writeFile($SetupStepTimestampFile,$lastTimestamp,'w');
+	writeFile($cachedLeftWizardMenu,$leftWizardMenu,'w');
+	writeFile($SetupStepTimestampFile,$lastTimestamp,'w');
 	
 	return $leftWizardMenu;
 }
