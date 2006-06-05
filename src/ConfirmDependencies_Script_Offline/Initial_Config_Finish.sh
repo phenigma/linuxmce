@@ -78,7 +78,7 @@ awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Nonintera
 mv /var/cache/debconf/config.dat.$$ /var/cache/debconf/config.dat
 
 if [[ -x /usr/pluto/bin/alsaconf-noninteractive ]]; then
-	/usr/pluto/bin/alsaconf-noninteractive
+	/usr/pluto/bin/alsaconf-noninteractive -m
 fi
 
 echo "$(CatMessages "$Message1" "$Message2")" | fmt
