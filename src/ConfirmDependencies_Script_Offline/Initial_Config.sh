@@ -15,13 +15,6 @@ case "$Type" in
 esac
 Cmd=/usr/pluto/install/Initial_Config_"$Suffix".sh
 
-# Initial firewall rules to block services use at install
-/sbin/iptables -P INPUT DROP
-/sbin/iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
-/sbin/iptables -A INPUT -i lo -j ACCEPT
-/sbin/iptables -A INPUT -m tcp -p tcp --dport 22 -j ACCEPT
-# End initial firewall rules
-
 mkdir -p /var/log/pluto
 File="/var/log/pluto/Initial_Install.log"
 : >"$File"
