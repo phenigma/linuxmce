@@ -252,6 +252,7 @@ public:
 	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Remove_playlist(int iEK_Playlist,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Attributes_For_Media(string sFilename,string sPK_EntertainArea,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -265,6 +266,9 @@ public:
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
 			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
+				// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+				if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+					return rmr_Buffered;
 				switch(pMessage->m_dwID)
 				{
 				case COMMAND_MH_Play_Media_CONST:
@@ -997,8 +1001,37 @@ public:
 					};
 					iHandled++;
 					continue;
+				case COMMAND_Get_Attributes_For_Media_CONST:
+					{
+						string sCMD_Result="OK";
+						string sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
+						string sPK_EntertainArea=pMessage->m_mapParameters[COMMANDPARAMETER_PK_EntertainArea_CONST];
+						string sValue_To_Assign=pMessage->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST];
+						CMD_Get_Attributes_For_Media(sFilename.c_str(),sPK_EntertainArea.c_str(),&sValue_To_Assign,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST]=sValue_To_Assign;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_Attributes_For_Media(sFilename.c_str(),sPK_EntertainArea.c_str(),&sValue_To_Assign,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
 				}
-				iHandled += Command_Impl::ReceivedMessage(pMessage);
+				iHandled += (Command_Impl::ReceivedMessage(pMessage)==rmr_NotProcessed ? 0 : 1);
 			}
 			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
@@ -1013,7 +1046,12 @@ public:
 				DeviceData_Impl *pDeviceData_Impl = m_pData->FindChild(pMessage->m_dwPK_Device_To);
 				string sCMD_Result="UNHANDLED";
 				if( pDeviceData_Impl )
+				{
+					// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+					if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+						return rmr_Buffered;
 					ReceivedCommandForChild(pDeviceData_Impl,sCMD_Result,pMessage);
+				}
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);
 					if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )

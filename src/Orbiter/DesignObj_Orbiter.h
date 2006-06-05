@@ -79,6 +79,7 @@ public:
 
 	virtual void RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
 
+	string GetArrayValue(); // If this is an item in an array, it will return the id of the array
 	// Runtime states
 	bool m_bActive, m_bHidden;
 

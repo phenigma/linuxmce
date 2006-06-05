@@ -4560,6 +4560,11 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		{
 			Output += StringUtils::itos(m_iPK_MediaType);
 		}
+		else if( Variable=="FBO" )
+		{
+			if( m_pScreenHandler )
+				Output += m_pScreenHandler->mediaFileBrowserOptions.ToString();
+		}
 		else if(  Variable=="NP" )
 		{
 			Output += m_sNowPlaying;
@@ -4634,6 +4639,11 @@ g_pPlutoLogger->Write(LV_CRITICAL,"now playing active popup 8 now %p",m_pActiveP
 				}
 			}
 			Output += StringUtils::itos(pObjGD->m_GraphicToDisplay);
+		}
+		else if(  Variable.length()>1 && Variable[0]=='K' )
+		{
+			if( m_pScreenHandler )
+				Output += m_pScreenHandler->m_mapKeywords[Variable.substr(1)];
 		}
 		else if(  Variable.length()>1 && Variable[0]=='A' )
 		{
@@ -8000,7 +8010,7 @@ void Orbiter::RemoveShortcuts( void *data )
 void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *pMessage)
 //<-dceag-c401-e->
 {
-	if( !m_pOrbiterFileBrowser_Collection )
+	if( !m_pOrbiterFileBrowser_Collection || !m_pScreenHandler )
 		return; // Should never happen
 
 	OrbiterFileBrowser_Entry *pOrbiterFileBrowser_Entry =
@@ -8012,6 +8022,7 @@ void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *
 		return;
 	}
 
+	m_pScreenHandler->mediaFileBrowserOptions.ClearAll(iPK_MediaType);
 	CMD_Set_Variable(VARIABLE_Filename_CONST, pOrbiterFileBrowser_Entry->m_sFilename);
 	CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType));
 	CMD_Goto_Screen("",pOrbiterFileBrowser_Entry->m_PK_Screen);

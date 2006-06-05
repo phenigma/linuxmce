@@ -68,6 +68,7 @@ static HEAP_ALLOC(wrkmem,LZO1X_1_MEM_COMPRESS);
 #include "pluto_main/Table_EventHandler.h"
 #include "pluto_main/Table_CommandGroup_Command_CommandParameter.h"
 #include "pluto_main/Table_CommandGroup_Command.h"
+#include "pluto_main/Define_MediaType.h"
 #include "DCE/DCEConfig.h"
 
 DCEConfig g_DCEConfig;
@@ -1432,6 +1433,39 @@ loop_to_keep_looking_for_objs_to_include:
 				SearchForGotos(ocDesignObj);
 			}
 		}
+	}
+
+	// Now include all the media sort options if this it UI version 2
+	if( m_pRow_UI->Version_get()==2 ) //&& (m_map_PK_DesignObj_SoleScreenToGen.size()==0 || m_map_PK_DesignObj_SoleScreenToGen[DESIGNOBJ_grpMediaSortOptions_CONST]==true) )
+	{
+		Row_DesignObj *pRow_DesignObj_Array[5] = { NULL, NULL, NULL, NULL, NULL };
+		pRow_DesignObj_Array[0] = mds.DesignObj_get()->GetRow(5100);
+		pRow_DesignObj_Array[1] = mds.DesignObj_get()->GetRow(5103);
+		pRow_DesignObj_Array[2] = mds.DesignObj_get()->GetRow(5106);
+		pRow_DesignObj_Array[3] = mds.DesignObj_get()->GetRow(5112);
+		pRow_DesignObj_Array[4] = mds.DesignObj_get()->GetRow(5109);
+
+		int iPK_MediaType_Searchable[] = {MEDIATYPE_pluto_StoredAudio_CONST,MEDIATYPE_pluto_StoredVideo_CONST,MEDIATYPE_pluto_Pictures_CONST,MEDIATYPE_np_Game_CONST,MEDIATYPE_misc_DocViewer_CONST};
+		for(int i=0;i<5;++i)
+		{
+			m_dwMediaType = iPK_MediaType_Searchable[i];
+			for(int iRow_DesignObj=0;iRow_DesignObj<5;++iRow_DesignObj)
+			{
+				Row_DesignObj *pRow_DesignObj = pRow_DesignObj_Array[iRow_DesignObj];
+				if( !pRow_DesignObj )
+					continue;  // Shouldn't happen
+
+				m_mapDesignObj_WithArrays[ pRow_DesignObj->PK_DesignObj_get() ] = true;
+				DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
+				ocDesignObj->m_bIsPopup=true;
+				m_mapPopups[ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()]=true;
+				if( ocDesignObj->m_bUsingCache )
+				{
+					SearchForGotos(ocDesignObj);
+				}
+			}
+		}
+		m_dwMediaType=0;
 	}
 
 	list< pair<Row_DesignObj *,int> >::iterator itnol;

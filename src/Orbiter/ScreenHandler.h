@@ -10,6 +10,31 @@ typedef bool (ScreenHandler::*ScreenHandlerCallBack)(CallBackData *pData);
 typedef class ScreenHandler * (* RAOP_FType) (class Orbiter *,  map<int,int> *p_MapDesignObj, Logger *);
 //-----------------------------------------------------------------------------------------------------
 
+class MediaFileBrowserOptions
+{
+public:
+	int m_PK_MediaType,m_PK_AttributeType_Sort,m_PK_Users;
+	string m_sPK_MediaSubType,m_sPK_FileFormat,m_sPK_Attribute_Genres,m_sSources,m_sPK_Users_Private;
+
+	MediaFileBrowserOptions() { ClearAll(0); }
+
+	string ToString()
+	{
+		return StringUtils::itos(m_PK_MediaType) + "|" + m_sPK_MediaSubType + "|" + m_sPK_FileFormat + "|" + m_sPK_Attribute_Genres + "|" + m_sSources +
+			"|" + m_sPK_Users_Private + "|" + StringUtils::itos(m_PK_AttributeType_Sort) + "|" + StringUtils::itos(m_PK_Users);
+	}
+
+	void ClearAll(int PK_MediaType)
+	{
+		m_PK_MediaType=PK_MediaType;
+		m_PK_AttributeType_Sort=m_PK_Users=0;
+		m_sPK_MediaSubType=""; m_sPK_FileFormat=""; m_sPK_Attribute_Genres=""; m_sSources=""; m_sPK_Users_Private="";
+	}
+
+	void SelectArrays(DesignObj_Orbiter *pObj,string &sValues);
+	void SelectArrays(DesignObj_Orbiter *pObj,int &iValues);
+};
+
 class ScreenHandler : public ScreenHandlerBase
 {
 protected:
@@ -27,6 +52,7 @@ protected:
 		string sOption3 = "", string sMessage3 = "",
 		string sOption4 = "", string sMessage4 = "");
 
+
 public: 
 	ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj);
 	virtual ~ScreenHandler();
@@ -41,6 +67,9 @@ public:
 	ScreenHandlerCallBack m_mapCallBack_Find(CallBackType aCallBackType);
 	CallBackData *m_mapCallBackData_Find(CallBackType aCallBackType);
 
+	map<string,string> m_mapKeywords;  // Used for storing keywords to be substituded into text
+	MediaFileBrowserOptions mediaFileBrowserOptions;  // Current sort/filter options for the media browser
+
 	//helper functions
 	int GetCurrentScreen_PK_DesignObj();
 	void RefreshDatagrid(long PK_DesignObj_Datagrid);
@@ -50,8 +79,12 @@ public:
 	virtual void GotoDesignObj(int PK_DesignObj,string sID="",bool bStore_Variables=false,bool bCant_Go_Back=false);
 	virtual void SCREEN_NewPnpDevice(long PK_Screen, string sDescription, int iPK_PnpQueue);
 	virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users); 
+#ifdef ENABLE_MOUSE_BEHAVIOR
 	virtual void SCREEN_FileList_Music_Movies_Video(long PK_Screen);
+	virtual void SCREEN_MediaSortFilter(long PK_Screen);
 	bool MediaBrowser_ObjectSelected(CallBackData *pData);
+	void GetAttributesForMediaFile(const char *pFilename);
+#endif
 	virtual void SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, 
 		string sPrivate, string sPublic, string sCaption);
 	virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, string sDescription);

@@ -56,6 +56,7 @@ void MediaBrowserMouseHandler::Stop()
 
 bool MediaBrowserMouseHandler::ButtonDown(int PK_Button)
 {
+		return false;
 	if( m_pMouseBehavior->m_bMouseConstrained )
 		return false;
 	if( PK_Button==BUTTON_Mouse_1_CONST )
@@ -69,6 +70,7 @@ bool MediaBrowserMouseHandler::ButtonDown(int PK_Button)
 
 bool MediaBrowserMouseHandler::ButtonUp(int PK_Button)
 {
+		return false;
 	if( m_pMouseBehavior->m_bMouseConstrained )
 		return false;
 	if( PK_Button==BUTTON_Mouse_7_CONST && m_bTapAndRelease==false && m_bStartedMovement )

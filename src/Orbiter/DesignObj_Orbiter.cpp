@@ -21,6 +21,7 @@
 #include "OrbiterRenderer.h"
 #include "DesignObj_Orbiter.h"
 #include "Orbiter.h"
+#include "pluto_main/Define_Variable.h"
 
 #ifdef PRONTO
 #include "CCF.h"
@@ -421,3 +422,22 @@ bool DesignObj_DataGrid::HasMoreDown()
 	return VerticalOnly() && CanGoDown();													
 }
 //-------------------------------------------------------------------------------------------------------
+string DesignObj_Orbiter::GetArrayValue()
+{
+	for(DesignObjZoneList::iterator itZ=m_ZoneList.begin();itZ!=m_ZoneList.end();++itZ)
+	{
+		DesignObjZone *pDesignObjZone = *itZ;
+
+		for(DesignObjCommandList::iterator it=pDesignObjZone->m_Commands.begin();it!=pDesignObjZone->m_Commands.end();++it)
+		{
+			DesignObjCommand *pDesignObjCommand = *it;
+			if( pDesignObjCommand->m_PK_Command==COMMAND_Set_Variable_CONST )
+			{
+				int PK_Variable = atoi(pDesignObjCommand->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST].c_str());
+				if( PK_Variable == VARIABLE_Array_ID_CONST )
+					return pDesignObjCommand->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST];
+			}
+		}
+	}
+	return "";
+}

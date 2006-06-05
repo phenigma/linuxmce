@@ -77,6 +77,7 @@ public:
 	bool ReadRegenVersion(string sFilename);
 	bool ReadFloorplanInfo(string sFilename);
 	void WriteFloorplanInfo(string sFilename);
+	string GetText(int PK_Text); // Returns the text string in the current language
 };
 
 #endif

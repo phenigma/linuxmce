@@ -931,6 +931,19 @@ Powerfile: 0, 1, ... */
 	virtual void CMD_Remove_playlist(int iEK_Playlist,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #807 - Get Attributes For Media */
+	/**  */
+		/** @param #5 Value To Assign */
+			/** A tab delimited list of attributes: Attribute type \t Name \t type ... */
+		/** @param #13 Filename */
+			/** The file to retrieve the attributes for.  Can be a filename, or !F + PK_File, or a URL.  If not specified, specify the entertainment area */
+		/** @param #45 PK_EntertainArea */
+			/** Gets the currently active media in this entertainment area.  If not specified, specify file */
+
+	virtual void CMD_Get_Attributes_For_Media(string sFilename,string sPK_EntertainArea,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Attributes_For_Media(sFilename.c_str(),sPK_EntertainArea.c_str(),sValue_To_Assign,sCMD_Result,NULL);};
+	virtual void CMD_Get_Attributes_For_Media(string sFilename,string sPK_EntertainArea,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 

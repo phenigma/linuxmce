@@ -119,6 +119,7 @@ void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::ltos(iPK_Users));
 	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, iPK_Users);
 }
+#ifdef ENABLE_MOUSE_BEHAVIOR
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 {
@@ -147,20 +148,36 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 			return false; // Shouldn't happen
 		MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pOrbiter->m_pMouseBehavior->m_pMouseHandler;
 
-		DataGridCell *pCell = NULL;
+		DataGridCell *pCell_Pic=NULL,*pCell_List=NULL;
 		if( pMediaBrowserMouseHandler->m_pObj_PicGrid->m_pDataGridTable )
-			pCell = pMediaBrowserMouseHandler->m_pObj_PicGrid->m_pDataGridTable->GetData(pMediaBrowserMouseHandler->m_pObj_PicGrid->m_iHighlightedColumn,pMediaBrowserMouseHandler->m_pObj_PicGrid->m_iHighlightedRow);
+			pCell_Pic = pMediaBrowserMouseHandler->m_pObj_PicGrid->m_pDataGridTable->GetData(pMediaBrowserMouseHandler->m_pObj_PicGrid->m_iHighlightedColumn,pMediaBrowserMouseHandler->m_pObj_PicGrid->m_iHighlightedRow);
+		if( pMediaBrowserMouseHandler->m_pObj_ListGrid->m_pDataGridTable )
+			pCell_List = pMediaBrowserMouseHandler->m_pObj_ListGrid->m_pDataGridTable->GetData(0,pMediaBrowserMouseHandler->m_pObj_ListGrid->m_iHighlightedRow);
 
-		size_t Size;
-		char *pData = NULL;
-		if( pCell && pCell->m_ValueLength )
+		if( !pCell_List )
+			return false; // Shouldn't happen
+
+		if( pCell_List->m_Value[0]=='!' && pCell_List->m_Value[1]=='D' )
 		{
-			pData = FileUtils::ReadFileIntoBuffer(pCell->m_Value,Size);
+			// It's a sub directory.  Update the source and refresh the page
+			mediaFileBrowserOptions.m_sSources = pCell_List->m_Value;
+			m_pOrbiter->CMD_Refresh("*");
+			return false;
+		}
+
+
+		GetAttributesForMediaFile(pCell_List->m_Value);
+
+		size_t Size=0;
+		char *pData = NULL;
+		if( pCell_Pic && pCell_Pic->m_ValueLength )
+		{
+			pData = FileUtils::ReadFileIntoBuffer(pCell_Pic->m_Value,Size);
 			if( !pData )
 			{
 				int i;
 				DCE::CMD_Request_File CMD_Request_File( m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn, 
-					pCell->m_Value, &pData, &i );
+					pCell_Pic->m_Value, &pData, &i );
 				m_pOrbiter->SendCommand( CMD_Request_File );
 				Size=i;
 			}
@@ -182,8 +199,86 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		m_pOrbiter->CMD_Remove_Popup("","filedetails");
 		m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
 	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == 5089 )
+	{
+		if( !m_pOrbiter->m_pMouseBehavior->m_pMouseHandler || m_pOrbiter->m_pMouseBehavior->m_pMouseHandler->TypeOfMouseHandler() != MouseHandler::mh_MediaBrowser )
+			return false; // Shouldn't happen
+		MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pOrbiter->m_pMouseBehavior->m_pMouseHandler;
+		if( !pMediaBrowserMouseHandler->m_pObj_ListGrid->m_pDataGridTable )
+			return false; //shouldn't happen
+
+		DataGridCell *pCell_List=NULL;
+		pCell_List = pMediaBrowserMouseHandler->m_pObj_ListGrid->m_pDataGridTable->GetData(0,pMediaBrowserMouseHandler->m_pObj_ListGrid->m_iHighlightedRow);
+
+		if( !pCell_List || !pCell_List->m_Value )
+			return false; // Shouldn't happen
+
+		m_pOrbiter->CMD_Remove_Popup("","filedetails");
+		m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
+
+		DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
+			0,pCell_List->m_Value,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0);
+		m_pOrbiter->SendCommand(CMD_MH_Play_Media);
+	}
+
 	return false;
 }
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::GetAttributesForMediaFile(const char *pFilename)
+{
+	m_mapKeywords.clear();
+	string sResult;
+	DCE::CMD_Get_Attributes_For_Media CMD_Get_Attributes_For_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
+		pFilename,"",&sResult);
+	if( m_pOrbiter->SendCommand(CMD_Get_Attributes_For_Media) )
+	{
+		string::size_type pos=0;
+		while(pos<sResult.size())
+		{
+			string s = StringUtils::Tokenize(sResult,"\t",pos);
+			m_mapKeywords[s] = StringUtils::Tokenize(sResult,"\t",pos);
+		}
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_MediaSortFilter(long PK_Screen)
+{
+	// Preseed the selected values
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_MediaType_CONST)), mediaFileBrowserOptions.m_PK_MediaType );
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_PK_MediaSubType_CONST) ".<%=" TOSTRING(VARIABLE_PK_MediaType_CONST) "%>.0"), mediaFileBrowserOptions.m_sPK_MediaSubType );
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_PK_FileFormat_CONST) ".<%=" TOSTRING(VARIABLE_PK_MediaType_CONST) "%>.0"), mediaFileBrowserOptions.m_sPK_FileFormat );
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_Genres_CONST) ".<%=" TOSTRING(VARIABLE_PK_MediaType_CONST) "%>.0"), mediaFileBrowserOptions.m_sPK_Attribute_Genres );
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_Sort_CONST) ".<%=" TOSTRING(VARIABLE_PK_MediaType_CONST) "%>.0"), mediaFileBrowserOptions.m_PK_AttributeType_Sort );
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_MediaSource_CONST) ".<%=" TOSTRING(VARIABLE_PK_MediaType_CONST) "%>.0"), mediaFileBrowserOptions.m_sSources );
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_PrivateMedia_CONST)), mediaFileBrowserOptions.m_sPK_Users_Private );
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_RatingsByUser_CONST)), mediaFileBrowserOptions.m_PK_Users );
+
+	ScreenHandlerBase::SCREEN_MediaSortFilter(PK_Screen);
+}
+//-----------------------------------------------------------------------------------------------------
+void MediaFileBrowserOptions::SelectArrays(DesignObj_Orbiter *pObj,string &sValues)
+{
+	if( !pObj )
+		return; // Shouldn't happen
+
+	for( DesignObj_DataList::iterator iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+	{
+		DesignObj_Orbiter *pDesignObj_Orbiter=( DesignObj_Orbiter * )*iHao;
+		pDesignObj_Orbiter->m_bDontResetState=true;
+		string sArrayValue = pDesignObj_Orbiter->GetArrayValue();
+		if( sArrayValue.size()==0 || atoi(sArrayValue.c_str())==0 )
+			pDesignObj_Orbiter->m_GraphicToDisplay = sValues.size()==0 ? GRAPHIC_SELECTED : GRAPHIC_NORMAL;
+		else if( ("," + sValues + ",").find( "," + sArrayValue + "," )!=string::npos )
+			pDesignObj_Orbiter->m_GraphicToDisplay = GRAPHIC_SELECTED;
+		else
+			pDesignObj_Orbiter->m_GraphicToDisplay = GRAPHIC_NORMAL;
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+void MediaFileBrowserOptions::SelectArrays(DesignObj_Orbiter *pObj,int &iValues)
+{
+}
+#endif
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, string sPrivate,
 									string sPublic, string sCaption)

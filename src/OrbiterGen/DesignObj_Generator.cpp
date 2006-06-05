@@ -61,9 +61,14 @@
 #include "pluto_main/Table_Variable.h"
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_DeviceTemplate_DesignObj.h"
+#include "pluto_main/Table_MediaType.h"
 #include "pluto_main/Define_VertAlignment.h"
+#include "pluto_main/Define_Text.h"
 #include "pluto_media/Table_MediaType_AttributeType.h"
 #include "pluto_media/Table_AttributeType.h"
+#include "pluto_media/Table_Attribute.h"
+#include "pluto_media/Table_FileFormat.h"
+#include "pluto_media/Table_MediaSubType.h"
 
 #define TOTAL_ESTIMATED_SCREENS 200
 
@@ -1575,6 +1580,104 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
             }
             break;
 
+		case ARRAY_PK_MediaType_CONST:
+                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_pluto_StoredVideo_CONST),	GetText(1761),
+                    NULL, 0, 0, 0, 0,false,false,false));
+                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_pluto_StoredAudio_CONST),	GetText(1765),
+                    NULL, 0, 0, 0, 0,false,false,false));
+                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_pluto_Pictures_CONST),	GetText(1762),
+                    NULL, 0, 0, 0, 0,false,false,false));
+                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_np_Game_CONST), GetText(TEXT_Games_CONST),
+                    NULL, 0, 0, 0, 0,false,false,false));
+                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_misc_DocViewer_CONST),	GetText(TEXT_Data_CONST),
+                    NULL, 0, 0, 0, 0,false,false,false));
+            break;
+
+		case ARRAY_Media_Sort_Options_CONST:
+			{
+				string sSQL = "JOIN MediaType_AttributeType ON FK_AttributeType=PK_AttributeType where EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType) + 
+					" and MediaSortOption is not null order by MediaSortOption";
+
+                alArray->push_back(new ArrayValue("0",	GetText(1682),
+                    NULL, 0, 0, 0, 0,false,false,false));
+
+				vector<Row_AttributeType *> vectRow_AttributeType;
+				m_pOrbiterGenerator->m_Database_pluto_media.AttributeType_get()->GetRows(sSQL,&vectRow_AttributeType);
+				for( vector<Row_AttributeType *>::iterator it=vectRow_AttributeType.begin();it!=vectRow_AttributeType.end();++it )
+				{
+					Row_AttributeType *pRow_AttributeType = *it;
+					alArray->push_back(new ArrayValue(StringUtils::itos(pRow_AttributeType->PK_AttributeType_get()),
+						pRow_AttributeType->Description_get(),
+	                    NULL, 0, 0, 0, 0,false,false,false));
+				}
+			}
+            break;
+
+		case ARRAY_Media_Filter_Genres_CONST:
+			{
+//                alArray->push_back(new ArrayValue("0",	GetText(TEXT_All_CONST),
+  //                  NULL, 0, 0, 0, 0,false,false,false));
+
+				string sSQL = "WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Genre_CONST);
+				vector<Row_Attribute *> vectRow_Attribute;
+				m_pOrbiterGenerator->m_Database_pluto_media.Attribute_get()->GetRows(sSQL,&vectRow_Attribute);
+				for( vector<Row_Attribute *>::iterator it=vectRow_Attribute.begin();it!=vectRow_Attribute.end();++it )
+				{
+					Row_Attribute *pRow_Attribute = *it;
+					alArray->push_back(new ArrayValue(StringUtils::itos(pRow_Attribute->PK_Attribute_get()),
+						pRow_Attribute->Name_get(),
+	                    NULL, 0, 0, 0, 0,false,false,false));
+				}
+			}
+            break;
+
+		case ARRAY_Media_Filter_Subtype_CONST:
+			{
+                alArray->push_back(new ArrayValue("0",	GetText(TEXT_All_CONST),
+                    NULL, 0, 0, 0, 0,false,false,false));
+
+				string sSQL = "JOIN MediaType_MediaSubType on FK_MediaSubType = PK_MediaSubType WHERE EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType);
+				vector<Row_MediaSubType *> vectRow_MediaSubType;
+				m_pOrbiterGenerator->m_Database_pluto_media.MediaSubType_get()->GetRows(sSQL,&vectRow_MediaSubType);
+				for( vector<Row_MediaSubType *>::iterator it=vectRow_MediaSubType.begin();it!=vectRow_MediaSubType.end();++it )
+				{
+					Row_MediaSubType *pRow_MediaSubType = *it;
+					alArray->push_back(new ArrayValue(StringUtils::itos(pRow_MediaSubType->PK_MediaSubType_get()),
+						pRow_MediaSubType->Description_get(),
+	                    NULL, 0, 0, 0, 0,false,false,false));
+				}
+			}
+            break;
+
+		case ARRAY_Media_Filter_Source_CONST:
+                alArray->push_back(new ArrayValue("id",
+                    "source",
+                    NULL,
+                    0,  // criteria
+                    0, // sub
+                    0, // command group
+					VARIABLE_PK_CommandGroup_CONST,
+					false,false,false));
+            break;
+
+		case ARRAY_Media_Filter_File_Format_CONST:
+			{
+                alArray->push_back(new ArrayValue("0",	GetText(TEXT_All_CONST),
+                    NULL, 0, 0, 0, 0,false,false,false));
+
+				string sSQL = "JOIN MediaType_FileFormat on FK_FileFormat = PK_FileFormat WHERE EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType);
+				vector<Row_FileFormat *> vectRow_FileFormat;
+				m_pOrbiterGenerator->m_Database_pluto_media.FileFormat_get()->GetRows(sSQL,&vectRow_FileFormat);
+				for( vector<Row_FileFormat *>::iterator it=vectRow_FileFormat.begin();it!=vectRow_FileFormat.end();++it )
+				{
+					Row_FileFormat *pRow_FileFormat = *it;
+					alArray->push_back(new ArrayValue(StringUtils::itos(pRow_FileFormat->PK_FileFormat_get()),
+						pRow_FileFormat->Description_get(),
+	                    NULL, 0, 0, 0, 0,false,false,false));
+				}
+			}
+            break;
+
 		// TODO -- Huh?  this one makes non sense.  PK_DeviceTemplate = ARRAY_Entertainment_Areas_CONST;????
         case ARRAY_Entertainment_Areas_CONST:
         case ARRAY_Viewable_Cameras_CONST:
@@ -1869,7 +1972,9 @@ int k=2;
         string sVariable = Text.substr(Pos+3,EndPos-Pos-3);
         bool bRunTime=true;  // If there's a :0, it means it is not run-time
         size_t Option=sVariable.find(':');
-        if( Option!=string::npos && sVariable.substr(Option+1,1)=="0" )
+		if( sVariable.size()>1 && sVariable[0]=='K' )
+			bRunTime=true;
+        else if( Option!=string::npos && sVariable.substr(Option+1,1)=="0" )
             bRunTime = false;
 
         string sValue="**NO~VALUE**";  // Use a special value to differentiate between a real "empty" vs. a no-match
@@ -2103,4 +2208,12 @@ void DesignObj_Generator::WriteFloorplanInfo(string sFilename)
 	fwrite(sc.m_pcDataBlock,sc.CurrentSize(),1,file);
 	fclose(file);
 	sc.FreeSerializeMemory();
+}
+
+string DesignObj_Generator::GetText(int PK_Text)
+{
+	Row_Text_LS *pRow_Text_LS = m_mds->Text_LS_get()->GetRow(PK_Text,m_pOrbiterGenerator->m_pRow_Language->PK_Language_get());
+	if( !pRow_Text_LS && m_pOrbiterGenerator->m_pRow_Language->PK_Language_get()!=1 )
+		pRow_Text_LS = m_mds->Text_LS_get()->GetRow(PK_Text,1);
+	return pRow_Text_LS ? pRow_Text_LS->Description_get() : "";
 }

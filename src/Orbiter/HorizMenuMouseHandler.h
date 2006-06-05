@@ -36,7 +36,9 @@ namespace DCE
 		bool ButtonUp(int PK_Button);
 		void Move(int X,int Y,int PK_Direction);
 
-		void ShowMainMenuPopup(DesignObj_Orbiter *pObj_MenuPad);
+		void ShowPopup(DesignObj_Orbiter *pObj_MenuPad);
+		string GetMainMenuPopup(DesignObj_Orbiter *pObj_MenuPad);
+		string GetFileBrowserPopup(DesignObj_Orbiter *pObj_MenuPad);
 	};
 
 }

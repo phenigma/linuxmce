@@ -179,42 +179,69 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	}
 	string Extensions = pRow_MediaType->Extensions_get();
 
-int PK_Controller=9997;
-string GridID="foo";
-	// This grid is initially called by the orbiter without the iDirNumber and sSubDirectory
-	// When the grid creates cells for sub-directories, it will create an action that re-populates,
-	// like a recursive function, and indicate which of the directories it recursed and what path
-	// here.  When it repopulates itself again, it will this time populate only the contents of the
-	// Path[iDirNumber] + sSubDirectory.  It will also add a 'parent' button that that drops
-	// 1 path off the sSubDirectory and repopulates itself
-	string::size_type pos = 0;
-	int iDirNumber = atoi(StringUtils::Tokenize(sSources, "\n", pos).c_str());
-	string sSubDirectory = StringUtils::Tokenize(sSources, "", pos);
-	if( sSubDirectory.length()==1 && (sSubDirectory[0]=='/' || sSubDirectory[0]=='\\') )
-		sSubDirectory = "";
+	// The first time, sSources will be empty.  For all sub directories the value will be !D + sub directory
+	// For each subsequent times, it will be !D + first dir + \t + second dir and so on.
+	// To go back, skip the last directory on the list
+	if( sSources.length()<3 || sSources[0]!='!' || sSources[1]!='D' )
+		sSources = "";
+
+	string::size_type posLastPath=2,pos=2;
+	if( sSources.length() )
+		while( (pos=sSources.find("\t",pos))!=string::npos )
+			posLastPath=++pos;
 
 	string sPaths;
-	if( sSubDirectory.size() )
-		sPaths = sSubDirectory;
+	if( sSources.size() )
+		sPaths = sSources.substr(posLastPath);
 	else
-		sPaths = "/home/public/data/movies";  // Todo, fill this in for private as well
+		sPaths = "/home/public/data/videos";  // Todo, fill this in for private as well
 
 	int iRow=0;
-	if( sSubDirectory.length() )
+	if( sSources.length() )
 	{
-		string sParent = FileUtils::BasePath(sSubDirectory) + "/";
-		string newParams = sPaths + "\n" + Extensions + "\n" 
-			+ "\n" + StringUtils::itos(iDirNumber)+ "\n" + sParent;
-		DCE::CMD_NOREP_Populate_Datagrid CMDPDG(PK_Controller, m_pDatagrid_Plugin->m_dwPK_Device,
-			"", GridID, DATAGRID_Directory_Listing_CONST, newParams, 0);
-
-		pCell = new DataGridCell("~S21~<-- Back (..) - " + FileUtils::FilenameWithoutPath(sSubDirectory), "");
-		pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
+		string sPrevious = posLastPath<3 ? "!D" : sSources.substr(0,posLastPath-1);
+		pCell = new DataGridCell("~S21~<-- Back (..)", sPrevious);
 		pDataGrid->SetData(0, iRow++, pCell);
-
-		pDataGrid->m_vectFileInfo.push_back(new FileListInfo(true,sPaths,true));
+		pDataGrid->m_vectFileInfo.push_back(new FileListInfo(true,sPrevious,true));  // It will start with a !D
 	}
 
+	list<FileDetails *> listFileDetails;
+	GetDirContents(listFileDetails,sPaths,Extensions);
+
+	listFileDetails.sort(FileNameComparer);	
+			
+	for (list<FileDetails *>::iterator i = listFileDetails.begin(); i != listFileDetails.end(); i++)
+	{
+		FileDetails *pFileDetails = *i;
+		FileListInfo *flInfo;
+		flInfo = new FileListInfo(pFileDetails->m_bIsDir,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,false);
+
+		if( pFileDetails->m_bIsDir )
+		{
+			PlutoSqlResult result_set;
+			string sSQL = "SELECT PK_File from `File` where Path='" + StringUtils::SQLEscape(pFileDetails->m_sBaseName) + "' AND Filename='" + StringUtils::SQLEscape(pFileDetails->m_sFileName) + "' and IsDirectory=0";
+			if( (result_set.r=m_pDatabase_pluto_media->mysql_query_result(sSQL)) && result_set.r->row_count )
+			{
+				pFileDetails->m_bIsDir=false;
+		        pCell = new DataGridCell(pFileDetails->m_sFileName, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
+			}
+			else
+				pCell = new DataGridCell(pFileDetails->m_sFileName, sSources.length() ? sSources +"\t" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName : "!D" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
+		}
+		else
+	        pCell = new DataGridCell(pFileDetails->m_sFileName, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
+
+		
+		delete pFileDetails; // We won't need it anymore and it was allocated on the heap
+
+		pDataGrid->SetData(0, iRow++, pCell);
+		pDataGrid->m_vectFileInfo.push_back(flInfo);
+	}
+
+	return pDataGrid;
+}
+
+/*  jukeboxes
 	//Jukeboxes special hack
 	vector<Row_Device *> vectRow_Device;
 	if(sSources.find("JUKE_BOXES")!=string::npos)
@@ -256,7 +283,7 @@ string GridID="foo";
 				{
 					//we are in a "jukebox"; let's show its movies
 					string sStatus;
-					CMD_Get_Jukebox_Status CMD_Get_Jukebox_Status_(m_dwPK_Device, pRow_Device->PK_Device_get(), ""/*force=no*/, &sStatus);
+					CMD_Get_Jukebox_Status CMD_Get_Jukebox_Status_(m_dwPK_Device, pRow_Device->PK_Device_get(), "", &sStatus); // ""= force=no
 					
 					if(!SendCommand(CMD_Get_Jukebox_Status_))
 					{
@@ -292,62 +319,7 @@ string GridID="foo";
 			return pDataGrid;
 		}	
 	}
-
-	string PathsToScan;
-	(*iPK_Variable) = VARIABLE_Path_CONST;
-	if( sSubDirectory.length() )
-	{
-		pos=0;
-		for(int i=0;i<=iDirNumber;++i)
-			PathsToScan = StringUtils::Tokenize(sPaths, "\t", pos);
-		PathsToScan += "/" + sSubDirectory;
-		(*sValue_To_Assign) = PathsToScan;
-	}
-	else
-	{
-		PathsToScan = sPaths;
-		(*sValue_To_Assign) = PathsToScan;
-	}
-
-	list<FileDetails *> listFileDetails;
-	GetDirContents(listFileDetails,PathsToScan,Extensions);
-
-	listFileDetails.sort(FileNameComparer);	
-			
-	for (list<FileDetails *>::iterator i = listFileDetails.begin(); i != listFileDetails.end(); i++)
-	{
-		FileDetails *pFileDetails = *i;
-		FileListInfo *flInfo;
-		flInfo = new FileListInfo(pFileDetails->m_bIsDir,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,false);
-
-        pCell = new DataGridCell((pFileDetails->m_bIsDir ? "~S2~" : "") + pFileDetails->m_sFileName + " " + pFileDetails->m_sDescription, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
-
-		if (pFileDetails->m_bIsDir && PK_MediaType==MEDIATYPE_pluto_DVD_CONST)
-		{
-			PlutoSqlResult result_set;
-			string sSQL = "SELECT PK_File from `File` where Path='" + StringUtils::SQLEscape(pFileDetails->m_sBaseName) + "' AND Filename='" + StringUtils::SQLEscape(pFileDetails->m_sFileName) + "' and IsDirectory=0";
-			if( (result_set.r=m_pDatabase_pluto_media->mysql_query_result(sSQL)) && result_set.r->row_count )
-				pFileDetails->m_bIsDir=false;
-		}
-
-		if (pFileDetails->m_bIsDir)
-		{
-			string newParams = sPaths + "\n" + Extensions + "\n" 
-				+ "\n" + StringUtils::itos(pFileDetails->m_iDirNumber)+ "\n" + sSubDirectory + pFileDetails->m_sFileName + "/";
-			DCE::CMD_NOREP_Populate_Datagrid CMDPDG(PK_Controller, m_pDatagrid_Plugin->m_dwPK_Device,
-				"", GridID, DATAGRID_Directory_Listing_CONST, newParams, 0);
-			pCell->m_pMessage = CMDPDG.m_pMessage;
-		}
-		
-		delete pFileDetails; // We won't need it anymore and it was allocated on the heap
-
-		pDataGrid->SetData(0, iRow++, pCell);
-		pDataGrid->m_vectFileInfo.push_back(flInfo);
-	}
-
-	return pDataGrid;
-}
-
+*/
 
 class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {

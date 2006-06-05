@@ -2205,7 +2205,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "53" /* screen ID */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages (MessageSendFormat) for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -2217,7 +2217,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "53" /* screen ID */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages (MessageSendFormat) for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -2229,7 +2229,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "53" /* screen ID */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages (MessageSendFormat) for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -2241,7 +2241,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "53" /* screen ID */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages (MessageSendFormat) for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 163 /* A short keyword explaining what the message in for in case there's some special code to intercept it */, sDescription.c_str(), 181 /* Prompt To Reset Router */, sPromptToResetRouter.c_str(), 182 /* Timeout */, sTimeout.c_str(), 183 /* Cannot Go Back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -9165,6 +9165,46 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_MediaSortFilter : public PreformedCommand
+	{
+	public:
+		SCREEN_MediaSortFilter(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "233" /* screen ID */);
+		}
+	};
+
+	class SCREEN_MediaSortFilter_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_MediaSortFilter_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "233" /* screen ID */);
+		}
+	};
+
+	class SCREEN_MediaSortFilter_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_MediaSortFilter_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "233" /* screen ID */);
+		}
+	};
+
+	class SCREEN_MediaSortFilter_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_MediaSortFilter_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "233" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9410,6 +9450,7 @@ namespace DCE
 		virtual void SCREEN_Media_Tracks(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Which_Wizard(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_This_Room(long PK_Screen, bool bAlways){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_MediaSortFilter(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -10596,6 +10637,11 @@ namespace DCE
 				{
 					bool bAlways = pMessage->m_mapParameters[225] == "1";
 					SCREEN_This_Room(nPK_Screen, bAlways);
+					break;
+				}
+				case 233:
+				{
+					SCREEN_MediaSortFilter(nPK_Screen);
 					break;
 				}
 
