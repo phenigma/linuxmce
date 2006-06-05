@@ -1386,6 +1386,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 	if(pCallBackData)
 	{
 		ObjectInfoBackData *pObjectData = (ObjectInfoBackData *)pCallBackData;
+		pObjectData->m_pObj = pObj;
 		pObjectData->m_PK_DesignObj_SelectedObject = pObj->m_iBaseObjectID;
 	}
 
@@ -7749,7 +7750,7 @@ void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *
 		return;
 	}
 
-	m_pScreenHandler->mediaFileBrowserOptions.ClearAll(iPK_MediaType);
+	m_pScreenHandler->mediaFileBrowserOptions.ClearAll(iPK_MediaType,pOrbiterFileBrowser_Entry->m_PK_Screen);
 	CMD_Set_Variable(VARIABLE_Filename_CONST, pOrbiterFileBrowser_Entry->m_sFilename);
 	CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType));
 	CMD_Goto_Screen("",pOrbiterFileBrowser_Entry->m_PK_Screen);

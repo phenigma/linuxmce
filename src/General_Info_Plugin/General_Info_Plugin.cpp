@@ -2755,26 +2755,3 @@ void General_Info_Plugin::CMD_Get_Unused_Serial_Ports(int iPK_Device,string *sVa
 	}
 	*sValue_To_Assign = sAvailablePorts;
 }
-
-//<-dceag-c790-b->
-
-	/** @brief COMMAND: #790 - Get_iPK_DeviceFromUID */
-	/** Get the device ID from the UID from the USB port. */
-		/** @param #206 UID */
-			/** UID from USB port */
-
-void General_Info_Plugin::CMD_Get_iPK_DeviceFromUID(string sUID,string &sCMD_Result,Message *pMessage)
-//<-dceag-c790-e->
-{
-}
-
-//<-dceag-c792-b->
-
-	/** @brief COMMAND: #792 - Get All HAL Model ID */
-	/** Returns a list of HAL Model ID-s */
-
-void General_Info_Plugin::CMD_Get_All_HAL_Model_ID(string &sCMD_Result,Message *pMessage)
-//<-dceag-c792-e->
-{
-}
-

@@ -45,6 +45,7 @@ namespace DCE
 
 		// Will display this image in the cell
 		void SetImage(char *Data, int Length, enum eGraphicFormat Format);
+		void SetValue(string Value);
 		// Will fire off this message when touched.
 		void SetMessage(Message *pMessage);
 		const char *GetText();

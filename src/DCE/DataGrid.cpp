@@ -87,6 +87,23 @@ DataGridCell::DataGridCell(string Text, string Value)
 	strcpy(m_Text,Text.c_str());
 	m_TextLength = (int)Text.length();
 
+	if( Value.size()==0 )
+	{
+		m_Value=NULL;
+		m_ValueLength=0;
+	}
+	else
+	{
+		m_Value = new char[Value.length()+1]; 
+		strcpy(m_Value,Value.c_str());
+		m_ValueLength = (int)Value.length();
+	}
+}
+
+void DataGridCell::SetValue(string Value)
+{
+	delete m_Value;
+
 	m_Value = new char[Value.length()+1]; 
 	strcpy(m_Value,Value.c_str());
 	m_ValueLength = (int)Value.length();

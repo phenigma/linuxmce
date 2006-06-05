@@ -20492,34 +20492,6 @@ namespace DCE
 			COMMAND_Force_Update_Packages_CONST,
 			0 /* number of parameters */); }
 	};
-	class CMD_Get_iPK_DeviceFromUID : public PreformedCommand {
-	public:
-		CMD_Get_iPK_DeviceFromUID(long DeviceIDFrom, long DeviceIDTo,string sUID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
-			COMMAND_Get_iPK_DeviceFromUID_CONST,
-			1 /* number of parameters */,
-			COMMANDPARAMETER_UID_CONST, sUID.c_str()); }
-	};
-	class CMD_Get_iPK_DeviceFromUID_DL : public PreformedCommand {
-	public:
-		CMD_Get_iPK_DeviceFromUID_DL(long DeviceIDFrom, string DeviceIDTo,string sUID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Get_iPK_DeviceFromUID_CONST,
-			1 /* number of parameters */,
-			COMMANDPARAMETER_UID_CONST, sUID.c_str()); }
-	};
-	class CMD_Get_iPK_DeviceFromUID_DT : public PreformedCommand {
-	public:
-		CMD_Get_iPK_DeviceFromUID_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sUID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Get_iPK_DeviceFromUID_CONST,
-			1 /* number of parameters */,
-			COMMANDPARAMETER_UID_CONST, sUID.c_str()); }
-	};
-	class CMD_Get_iPK_DeviceFromUID_Cat : public PreformedCommand {
-	public:
-		CMD_Get_iPK_DeviceFromUID_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sUID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Get_iPK_DeviceFromUID_CONST,
-			1 /* number of parameters */,
-			COMMANDPARAMETER_UID_CONST, sUID.c_str()); }
-	};
 	class CMD_Set_Enable_Status : public PreformedCommand {
 	public:
 		CMD_Set_Enable_Status(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,bool bEnable) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
@@ -20551,30 +20523,6 @@ namespace DCE
 			2 /* number of parameters */,
 			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
 			COMMANDPARAMETER_Enable_CONST, (bEnable ? "1" : "0")); }
-	};
-	class CMD_Get_All_HAL_Model_ID : public PreformedCommand {
-	public:
-		CMD_Get_All_HAL_Model_ID(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
-			COMMAND_Get_All_HAL_Model_ID_CONST,
-			0 /* number of parameters */); }
-	};
-	class CMD_Get_All_HAL_Model_ID_DL : public PreformedCommand {
-	public:
-		CMD_Get_All_HAL_Model_ID_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Get_All_HAL_Model_ID_CONST,
-			0 /* number of parameters */); }
-	};
-	class CMD_Get_All_HAL_Model_ID_DT : public PreformedCommand {
-	public:
-		CMD_Get_All_HAL_Model_ID_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Get_All_HAL_Model_ID_CONST,
-			0 /* number of parameters */); }
-	};
-	class CMD_Get_All_HAL_Model_ID_Cat : public PreformedCommand {
-	public:
-		CMD_Get_All_HAL_Model_ID_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Get_All_HAL_Model_ID_CONST,
-			0 /* number of parameters */); }
 	};
 	class RESP_Get_Sibling_Remotes : public PreformedCommandResponse {
 		string *m_sValue_To_Assign;

@@ -254,6 +254,29 @@ void ScreenHandler::SCREEN_MediaSortFilter(long PK_Screen)
 	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_RatingsByUser_CONST)), mediaFileBrowserOptions.m_PK_Users );
 
 	ScreenHandlerBase::SCREEN_MediaSortFilter(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaSortFilter_ObjectSelected,	new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::MediaSortFilter_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+
+	if( pObjectInfoData->m_pObj && pObjectInfoData->m_pObj->m_pParentObject )
+	{
+		m_pOrbiter->Renderer()->RenderObjectAsync(pObjectInfoData->m_pObj);  // We will be changing the selected state
+		switch( pObjectInfoData->m_pObj->m_pParentObject->m_iBaseObjectID )
+		{
+		case DESIGNOBJ_popFBSF_Genres_CONST:
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_Attribute_Genres);
+			return true;
+		};
+	}
+	if(	pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_OK_CONST )
+	{
+		m_pOrbiter->CMD_Goto_Screen("",mediaFileBrowserOptions.m_iPK_Screen);
+		return true;
+	}
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 void MediaFileBrowserOptions::SelectArrays(DesignObj_Orbiter *pObj,string &sValues)
@@ -277,6 +300,39 @@ void MediaFileBrowserOptions::SelectArrays(DesignObj_Orbiter *pObj,string &sValu
 //-----------------------------------------------------------------------------------------------------
 void MediaFileBrowserOptions::SelectArrays(DesignObj_Orbiter *pObj,int &iValues)
 {
+}
+void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,string &sValues)
+{
+	if( !pObj )
+		return; // Shouldn't happen
+	string sArrayValue = pObj->GetArrayValue();
+	string::size_type pos=0,prior=0;
+	while(pos<sValues.size())
+	{
+		string sToken = StringUtils::Tokenize(sValues,",",pos);
+		if( sToken==sArrayValue )
+		{
+			string sNewValue;
+			if( prior==0 && pos>=sValues.size() )
+				sNewValue = "";
+			else if( prior==0 )
+				sNewValue = sValues.substr(pos);
+			else if( pos>=sValues.size() )
+				sNewValue = sValues.substr(0,prior-1);
+			else
+				sNewValue = sValues.substr(0,prior) + sValues.substr(pos);
+			sValues = sNewValue;
+			pObj->m_GraphicToDisplay = GRAPHIC_NORMAL;
+			return;
+		}
+		prior=pos;
+	}
+	
+	pObj->m_GraphicToDisplay = GRAPHIC_SELECTED;
+	if( sValues.size() )
+		sValues += ",";
+	sValues += sArrayValue;
+int k=2;
 }
 #endif
 //-----------------------------------------------------------------------------------------------------

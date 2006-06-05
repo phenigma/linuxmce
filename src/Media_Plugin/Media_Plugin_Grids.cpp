@@ -70,6 +70,7 @@ using namespace DCE;
 #include "DataGrid.h"
 #include "MediaListGrid.h"
 #include "File_Grids_Plugin/FileListOps.h"
+#include "File_Grids_Plugin/FileListGrid.h"
 #include "SerializeClass/ShapesColors.h"
 #include "RippingJob.h"
 #include "../VFD_LCD/VFD_LCD_Base.h"
@@ -93,23 +94,40 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	int PK_AttributeType_Sort = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
 	int PK_Users = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
 
-	DataGridTable *pDataGridTable;
-	MediaListGrid *pMediaListGrid=NULL;
+	MediaListGrid *pMediaListGrid = new MediaListGrid(m_pDatagrid_Plugin,this);
 	int PK_AttributeType = atoi(Parms.c_str());
 	if( PK_AttributeType_Sort==0 )
+		FileBrowser( pMediaListGrid, PK_MediaType, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sSources, sPK_Users_Private, PK_Users, iPK_Variable, sValue_To_Assign );
+//	else
+//		pDataGridTable = AttributesBrowser( GridID, Parms.substr(pos+1), ExtraData, iPK_Variable, sValue_To_Assign, pMessage );
+
+
+	pMediaListGrid->m_listFileBrowserInfo.sort(FileBrowserInfoComparer);
+	pMediaListGrid->m_pFileBrowserInfoPtr = new FileBrowserInfoPtr[ pMediaListGrid->m_listFileBrowserInfo.size() ];
+
+	DataGridCell *pCell;
+	string sDisplayGroupPrior;
+	int iRow=0;
+	for(list<FileBrowserInfo *>::iterator it=pMediaListGrid->m_listFileBrowserInfo.begin();it!=pMediaListGrid->m_listFileBrowserInfo.end();++it)
 	{
-		pDataGridTable = FileBrowser( pMessage->m_dwPK_Device_From, GridID, PK_MediaType, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sSources, sPK_Users_Private, PK_Users, iPK_Variable, sValue_To_Assign );
-		pMediaListGrid = new MediaListGrid(m_pDatagrid_Plugin,this,(MediaListGrid *) pDataGridTable);
-	}
-	else
-	{
-		pDataGridTable = AttributesBrowser( GridID, Parms.substr(pos+1), ExtraData, iPK_Variable, sValue_To_Assign, pMessage );
+		FileBrowserInfo *pFileBrowserInfo = *it;
+		pMediaListGrid->m_pFileBrowserInfoPtr[iRow] = pFileBrowserInfo;  // Store in an array for fast retrieval by row
+		if( pFileBrowserInfo->m_sDisplayGroup.size() && pFileBrowserInfo->m_sDisplayGroup!=sDisplayGroupPrior )
+			pCell = new DataGridCell(pFileBrowserInfo->m_sDisplayGroup + " : " + pFileBrowserInfo->m_sDisplayName);
+		else 
+			pCell = new DataGridCell(pFileBrowserInfo->m_sDisplayName);
+		
+		pCell->SetValue(pFileBrowserInfo->m_sMRL);
+		pMediaListGrid->SetData(0,iRow++,pCell);
 	}
 
-	if( pMediaListGrid )
-		m_pDatagrid_Plugin->m_DataGrids["_" + GridID]=pMediaListGrid;  // The same grid is used for both icons and lists.  If the name starts with an _, it is assumed to be an icon grid
+	MediaListGrid *pMediaListGrid_CoverArt = new MediaListGrid(m_pDatagrid_Plugin,this,pMediaListGrid);
+	DataGridMap::iterator itdg=m_pDatagrid_Plugin->m_DataGrids.find("_" + GridID);
+	if( itdg!=m_pDatagrid_Plugin->m_DataGrids.end() )
+		delete itdg->second;
+	m_pDatagrid_Plugin->m_DataGrids["_" + GridID]=pMediaListGrid_CoverArt;  // The same grid is used for both icons and lists.  If the name starts with an _, it is assumed to be an icon grid
 
-	return pDataGridTable;
+	return pMediaListGrid;
 }
 
 class DataGridTable *Media_Plugin::AttributesBrowser( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
@@ -162,20 +180,17 @@ int PK_AttributeType=3;
 	return pDataGrid;
 }
 
-class DataGridTable *Media_Plugin::FileBrowser( int PK_Orbiter, string sGridID, int PK_MediaType, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sSources, string &sPK_Users_Private, int PK_Users, int *iPK_Variable, string *sValue_To_Assign )
+void Media_Plugin::FileBrowser( MediaListGrid *pMediaListGrid,int PK_MediaType, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sSources, string &sPK_Users_Private, int PK_Users, int *iPK_Variable, string *sValue_To_Assign )
 {
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 #endif
-	MediaListGrid *pDataGrid = new MediaListGrid(m_pDatagrid_Plugin,this);
-	DataGridCell *pCell;
-
 	// A comma separated list of file extensions.  Blank means all files
 	Row_MediaType *pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType);
 	if( !pRow_MediaType )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find Media Type: %d",PK_MediaType);
-		return NULL;
+		return;
 	}
 	string Extensions = pRow_MediaType->Extensions_get();
 
@@ -200,45 +215,80 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	if( sSources.length() )
 	{
 		string sPrevious = posLastPath<3 ? "!D" : sSources.substr(0,posLastPath-1);
-		pCell = new DataGridCell("~S21~<-- Back (..)", sPrevious);
-		pDataGrid->SetData(0, iRow++, pCell);
-		pDataGrid->m_vectFileInfo.push_back(new FileListInfo(true,sPrevious,true));  // It will start with a !D
+		pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("~S21~<-- Back (..)",sPrevious,0,true,true) );
 	}
 
-	list<FileDetails *> listFileDetails;
-	GetDirContents(listFileDetails,sPaths,Extensions);
-
-	listFileDetails.sort(FileNameComparer);	
-			
-	for (list<FileDetails *>::iterator i = listFileDetails.begin(); i != listFileDetails.end(); i++)
+	pos=0;
+    while( pos<sPaths.size() )
 	{
-		FileDetails *pFileDetails = *i;
-		FileListInfo *flInfo;
-		flInfo = new FileListInfo(pFileDetails->m_bIsDir,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,false);
+		string sSearchPath=StringUtils::Tokenize(sPaths,"\t",pos);
 
-		if( pFileDetails->m_bIsDir )
+		list<FileDetails *> listFileDetails;
+		GetDirContents(listFileDetails,sSearchPath,Extensions);
+
+		map<string,DatabaseInfoOnPath *> mapDatabaseInfoOnPath;
+		PopulateWithDatabaseInfoOnPath(mapDatabaseInfoOnPath,sSearchPath);
+
+		for (list<FileDetails *>::iterator i = listFileDetails.begin(); i != listFileDetails.end(); i++)
 		{
-			PlutoSqlResult result_set;
-			string sSQL = "SELECT PK_File from `File` where Path='" + StringUtils::SQLEscape(pFileDetails->m_sBaseName) + "' AND Filename='" + StringUtils::SQLEscape(pFileDetails->m_sFileName) + "' and IsDirectory=0";
-			if( (result_set.r=m_pDatabase_pluto_media->mysql_query_result(sSQL)) && result_set.r->row_count )
+			FileDetails *pFileDetails = *i;
+			map<string,DatabaseInfoOnPath *>::iterator itDIOP = mapDatabaseInfoOnPath.find( pFileDetails->m_sFileName );
+			DatabaseInfoOnPath *pDatabaseInfoOnPath = itDIOP==mapDatabaseInfoOnPath.end() ? NULL : itDIOP->second;
+
+			FileBrowserInfo *pFileBrowserInfo;
+			if( pFileDetails->m_bIsDir && (pDatabaseInfoOnPath==NULL || pDatabaseInfoOnPath->m_bDirectory==true) )
 			{
-				pFileDetails->m_bIsDir=false;
-		        pCell = new DataGridCell(pFileDetails->m_sFileName, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
+				if( sSources.length() )
+					pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,sSources +"\t" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,true,false);
+				else
+					pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,"!D" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,true,false);
 			}
 			else
-				pCell = new DataGridCell(pFileDetails->m_sFileName, sSources.length() ? sSources +"\t" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName : "!D" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
+				pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,false,false);
+
+			if( pDatabaseInfoOnPath )
+			{
+				pFileBrowserInfo->m_PK_File=pDatabaseInfoOnPath->m_PK_File;
+				pFileBrowserInfo->m_PK_Picture=pDatabaseInfoOnPath->m_PK_Picture;
+			}
+			pMediaListGrid->m_listFileBrowserInfo.push_back( pFileBrowserInfo );
+
+			delete pFileDetails; // We won't need it anymore and it was allocated on the heap
 		}
-		else
-	        pCell = new DataGridCell(pFileDetails->m_sFileName, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
-
-		
-		delete pFileDetails; // We won't need it anymore and it was allocated on the heap
-
-		pDataGrid->SetData(0, iRow++, pCell);
-		pDataGrid->m_vectFileInfo.push_back(flInfo);
+		for(map<string,DatabaseInfoOnPath *>::iterator itDIOP=mapDatabaseInfoOnPath.begin();itDIOP!=mapDatabaseInfoOnPath.end();++itDIOP)
+			delete itDIOP->second;
 	}
+}
 
-	return pDataGrid;
+void Media_Plugin::PopulateWithDatabaseInfoOnPath(map<string,DatabaseInfoOnPath *> &mapDatabaseInfoOnPath,string &sSearchPath)
+{
+	string sSql = 
+		"( "
+			"SELECT Filename, PK_File, IsDirectory, Picture_Attribute.FK_Picture "
+			"FROM File "
+				"JOIN File_Attribute ON PK_File = FK_File "
+				"JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute = File_Attribute.FK_Attribute "
+				"JOIN Picture ON Picture_Attribute.FK_Picture = PK_Picture "
+				"JOIN Attribute ON Picture_Attribute.FK_Attribute = PK_Attribute "
+				"JOIN AttributeType ON FK_AttributeType = PK_AttributeType "
+			"WHERE Path = \"" + sSearchPath + "\" "
+			"GROUP BY Filename "
+			"ORDER BY PicPriority DESC "
+		") "
+		"UNION "
+		"( "
+		"SELECT Filename, PK_File, IsDirectory, FK_Picture "
+		"FROM File "
+		"JOIN Picture_File ON PK_File = FK_File "
+		"JOIN Picture ON FK_Picture = PK_Picture "
+		"WHERE Path = \"" + sSearchPath + "\""
+		")";
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( sSql ) ) )
+        while( ( row=mysql_fetch_row( result.r ) ) )
+			mapDatabaseInfoOnPath[row[0]] = new DatabaseInfoOnPath(atoi(row[1]),row[2][0]==1,row[3] ? atoi(row[3]) : 0);
 }
 
 /*  jukeboxes
@@ -399,7 +449,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 
 class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
-    MediaListGrid *pDataGrid = new MediaListGrid( m_pDatagrid_Plugin, this );
+    FileListGrid *pDataGrid = new FileListGrid( m_pDatagrid_Plugin, this );
     DataGridCell *pCell;
 
 	string::size_type pos=0;

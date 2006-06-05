@@ -363,6 +363,9 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
 
 	*iWidth=pDataGridTable->GetCols();
 	*iHeight=pDataGridTable->GetRows();
+	DataGridMap::iterator it=m_DataGrids.find(sDataGrid_ID);
+	if( it!=m_DataGrids.end() )
+		delete it->second;
 	m_DataGrids[sDataGrid_ID]=pDataGridTable;
 #ifdef DEBUG
 	clock_t cStop = clock();
