@@ -20,6 +20,7 @@ namespace DCE
 		~OrbiterRenderer_SDL_Linux();
 
 		void RenderScreen(bool bRenderGraphicsOnly);
+		void EventLoop();
 
 		void InitializeAfterSetVideoMode();
 		void InitializeAfterRelatives();

@@ -389,3 +389,32 @@ void OrbiterRenderer_SDL_Linux::UnlockDisplay()
     if (pOrbiterLinux)
         pOrbiterLinux->X_UnlockDisplay();
 }
+
+void OrbiterRenderer_SDL_Linux::EventLoop()
+{
+	int SDL_Event_Pending = 0;
+
+	SDL_Event Event;
+
+	// For now I'll assume that shift + arrows scrolls a grid
+	while (!OrbiterLogic()->m_bQuit && !OrbiterLogic()->m_bReload)
+	{
+		SDL_Event_Pending = SDL_PollEvent(&Event);
+
+		if (SDL_Event_Pending)
+		{
+			Orbiter::Event orbiterEvent;
+			orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
+
+			if (Event.type == SDL_QUIT)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Received sdl event SDL_QUIT");
+				break;
+			} 
+		}
+		else
+		{
+			OnIdle();
+		}
+	}  // while
+}
