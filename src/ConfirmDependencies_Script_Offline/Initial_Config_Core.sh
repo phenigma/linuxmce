@@ -1,8 +1,14 @@
 #!/bin/bash
 
+## Test to see if we are in upgrade mode or not
+UpgradeMode=false
+if [[ -d /.backup ]] ;then
+	UpgradeMode=true
+fi
+
+
 . /usr/pluto/install/Common.sh
 DIR="/usr/pluto/install"
-
 # Initial firewall rules to block services use at install
 /sbin/iptables -P INPUT DROP
 /sbin/iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
@@ -13,7 +19,9 @@ DIR="/usr/pluto/install"
 mkdir -p /home/pluto/logs
 mkdir -p /home/public/data
 mkdir -p /usr/pluto/var
+Activation_Code=1111
 
+## Setup apt sources.list
 Sources="# Pluto sources - start
 deb file:/usr/pluto/deb-cache/ sarge main
 deb http://deb.plutohome.com/debian/ 20dev main
@@ -29,47 +37,7 @@ deb file:/usr/pluto/deb-cache/ sarge main
 # Pluto sources offline - end"
 echo "$SourcesOffline" >/etc/apt/sources.list.offline
 
-sleep 0.5
-
-exec 3>&1 1>/dev/tty
-clear
-echo "** Initial config script"
-echo ""
-echo "I need to ask some basic questions"	
-echo "Please see http://plutohome.com/support"
-echo "click Quick Start Guide, and Installing Software"
-echo "for details."
-echo ""
-
-# Ask the questions
-echo "Note: Hybrid means this PC will not only be the main server, but you will"
-echo "also hook it up to a TV and use it as a media director.  Core means it is"
-echo "a server only, and will not be used as a media station."
-Type=$(Ask "Should this be a Core, Hybrid or Other? [C/h/o]")
-
-CoreDT=7
-if [[ "$Type" == o || "$Type" == O ]]; then
-	CoreDT=$(Ask "Enter the device template number")
-fi
-
-echo ""
-echo "If you have an active internet connection, Pluto can use it to perform"
-echo "various task : syncronize your computer clock, automaticaly send bug"
-echo "reports, install aditional software, perform updates ..."
-echo "You can also switch from online/offline mode later by using the web"
-echo "administration interface"
-echo
-echo "Important : Keep in mind that when you don't have an active internet"
-echo "connection, this tasks can slow down your computer and an negative"
-echo "answer here would be the right choice."
-UseInternet=$(Ask "Should Pluto use your internet connection ? [Y/n]")
-
-echo ""
-echo "You need to answer 'Y' below if you want Plug-and-play or extra media"
-echo "directors."
-DHCP=$(Ask "Run a DHCP server? [Y/n]")
-
-# /etc/apt/apt.conf.d/30pluto
+## Setup pluto's apt.conf
 pluto_apt_conf='// Pluto apt conf add-on
 Apt::Cache-Limit "12582912";
 Dpkg::Options { "--force-confold"; };
@@ -78,9 +46,50 @@ Acquire::ftp::timeout "10";
 '
 echo -n "$pluto_apt_conf" >/etc/apt/apt.conf.d/30pluto
 
-# Pluto installation
-Activation_Code=1111
 
+## Ask the questions
+sleep 0.5
+exec 3>&1 1>/dev/tty
+if [[ $UpgradeMode == "false" ]] ;then
+	clear
+
+	echo "** Initial config script"
+	echo ""
+	echo "I need to ask some basic questions"	
+	echo "Please see http://plutohome.com/support"
+	echo "click Quick Start Guide, and Installing Software"
+	echo "for details."
+	echo ""
+	echo "Note: Hybrid means this PC will not only be the main server, but you will"
+	echo "also hook it up to a TV and use it as a media director.  Core means it is"
+	echo "a server only, and will not be used as a media station."
+	Type=$(Ask "Should this be a Core, Hybrid or Other? [C/h/o]")
+
+	CoreDT=7
+	if [[ "$Type" == o || "$Type" == O ]]; then
+		CoreDT=$(Ask "Enter the device template number")
+	fi
+
+	echo ""
+	echo "If you have an active internet connection, Pluto can use it to perform"
+	echo "various task : syncronize your computer clock, automaticaly send bug"
+	echo "reports, install aditional software, perform updates ..."
+	echo "You can also switch from online/offline mode later by using the web"
+	echo "administration interface"
+	echo
+	echo "Important : Keep in mind that when you don't have an active internet"
+	echo "connection, this tasks can slow down your computer and an negative"
+	echo "answer here would be the right choice."
+	UseInternet=$(Ask "Should Pluto use your internet connection ? [Y/n]")
+
+	echo ""
+	echo "You need to answer 'Y' below if you want Plug-and-play or extra media"
+	echo "directors."
+	DHCP=$(Ask "Run a DHCP server? [Y/n]")
+fi
+
+
+## Setup Offline Mode
 OfflineMode="false"
 if [[ "$UseInternet" == "N" || "$UseInternet" == "n" ]] ;then
 	OfflineMode="true"
@@ -99,6 +108,7 @@ Dir::Etc::sourcelist "sources.list.offline";
 
 fi
 
+## Setup pluto.conf
 PlutoConf="# Pluto config file
 MySqlHost = localhost
 MySqlUser = root
@@ -117,6 +127,11 @@ OfflineMode = $OfflineMode
 "
 echo "$PlutoConf" >/etc/pluto.conf
 
+if [[ "$UpgradeMode" == "true" ]];then
+	cp /.backup/pluto.conf /etc/pluto.conf
+fi
+
+## Install the software
 apt-get update
 if ! apt-get -y -f install pluto-dcerouter; then
 	echo "Installation failed"
@@ -126,80 +141,83 @@ fi
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
-# "Initial config"
-# Create installation
-Q="INSERT INTO Installation(Description, ActivationCode) VALUES('Pluto', '$Activation_Code')"
-RunSQL "$Q"
-
-# Add Core
-CoreDev=$(NewDev -d "$CoreDT")
-Q="UPDATE Device SET Description='CORE' WHERE PK_Device='$CoreDev'"
-RunSQL "$Q"
-
-# Create hybrid
-if [[ "$Type" == "H" || "$Type" == "h" ]]; then
-	HybDev=$(NewDev -d 28 -C "$CoreDev")
-	Q="UPDATE Device SET Description='The core/hybrid' WHERE PK_Device='$HybDev'"
+## Initial config
+if [[ "$UpgradeMode" == "false" ]] ;then
+	# Create installation
+	Q="INSERT INTO Installation(Description, ActivationCode) VALUES('Pluto', '$Activation_Code')"
 	RunSQL "$Q"
-fi
 
-DHCPsetting=
-if [[ "$DHCP" != n && "$DHCP" != N ]]; then
-	DHCPsetting="192.168.80.2-192.168.80.128,192.168.80.129-192.168.80.254"
-fi
-
-if [[ -n "$DHCPsetting" ]]; then
-	Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
-		VALUES($CoreDev, 28, '$DHCPsetting')"
+	# Add Core
+	CoreDev=$(NewDev -d "$CoreDT")
+	Q="UPDATE Device SET Description='CORE' WHERE PK_Device='$CoreDev'"
 	RunSQL "$Q"
+
+	# Create hybrid
+	if [[ "$Type" == "H" || "$Type" == "h" ]]; then
+		HybDev=$(NewDev -d 28 -C "$CoreDev")
+		Q="UPDATE Device SET Description='The core/hybrid' WHERE PK_Device='$HybDev'"
+		RunSQL "$Q"
+	fi
+
+	DHCPsetting=
+	if [[ "$DHCP" != n && "$DHCP" != N ]]; then
+		DHCPsetting="192.168.80.2-192.168.80.128,192.168.80.129-192.168.80.254"
+	fi
+
+	if [[ -n "$DHCPsetting" ]]; then
+		Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
+			VALUES($CoreDev, 28, '$DHCPsetting')"
+		RunSQL "$Q"
+	fi
+
+	# "DCERouter postinstall"
+	devices=$(echo "SELECT PK_Device FROM Device;" | /usr/bin/mysql pluto_main | tail +2 | tr '\n' ' ')
+
+	for i in $devices; do
+		echo "Running device $i"
+	
+		#run the following with the device
+		# Add missing data by template
+		Q1="INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData)
+		SELECT PK_Device,DeviceTemplate_DeviceData.FK_DeviceData,DeviceTemplate_DeviceData.IK_DeviceData
+		FROM Device
+		JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+		JOIN DeviceTemplate_DeviceData on DeviceTemplate_DeviceData.FK_DeviceTemplate=PK_DeviceTemplate
+		LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND Device_DeviceData.FK_DeviceData=DeviceTemplate_DeviceData.FK_DeviceData
+		WHERE Device_DeviceData.FK_Device IS NULL AND PK_Device=$i;"
+	
+		# Add for the category
+		Q2="INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData)
+		SELECT PK_Device,DeviceCategory_DeviceData.FK_DeviceData,DeviceCategory_DeviceData.IK_DeviceData
+		FROM Device
+		JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+		JOIN DeviceCategory_DeviceData on DeviceCategory_DeviceData.FK_DeviceCategory=DeviceTemplate.FK_DeviceCategory
+		LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND Device_DeviceData.FK_DeviceData=DeviceCategory_DeviceData.FK_DeviceData
+		WHERE Device_DeviceData.FK_Device IS NULL AND PK_Device=$i;"
+	
+		# Add for parent's category
+		Q3="INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData)
+		SELECT PK_Device,DeviceCategory_DeviceData.FK_DeviceData,DeviceCategory_DeviceData.IK_DeviceData
+		FROM Device
+		JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+		JOIN DeviceCategory ON DeviceTemplate.FK_DeviceCategory=PK_DeviceCategory
+		JOIN DeviceCategory_DeviceData on DeviceCategory_DeviceData.FK_DeviceCategory=DeviceCategory.FK_DeviceCategory_Parent
+		LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND Device_DeviceData.FK_DeviceData=DeviceCategory_DeviceData.FK_DeviceData
+		WHERE Device_DeviceData.FK_Device IS NULL AND PK_Device=$i;"
+	
+		(echo "$Q1"; echo "$Q2"; echo "$Q3";) | /usr/bin/mysql pluto_main
+	done
+	
+	echo "$Q4" | /usr/bin/mysql pluto_main
 fi
 
-# "DCERouter postinstall"
-devices=$(echo "SELECT PK_Device FROM Device;" | /usr/bin/mysql pluto_main | tail +2 | tr '\n' ' ')
-
-for i in $devices; do
-	echo "Running device $i"
-
-	#run the following with the device
-	# Add missing data by template
-	Q1="INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData)
-	SELECT PK_Device,DeviceTemplate_DeviceData.FK_DeviceData,DeviceTemplate_DeviceData.IK_DeviceData
-	FROM Device
-	JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
-	JOIN DeviceTemplate_DeviceData on DeviceTemplate_DeviceData.FK_DeviceTemplate=PK_DeviceTemplate
-	LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND Device_DeviceData.FK_DeviceData=DeviceTemplate_DeviceData.FK_DeviceData
-	WHERE Device_DeviceData.FK_Device IS NULL AND PK_Device=$i;"
-
-	# Add for the category
-	Q2="INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData)
-	SELECT PK_Device,DeviceCategory_DeviceData.FK_DeviceData,DeviceCategory_DeviceData.IK_DeviceData
-	FROM Device
-	JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
-	JOIN DeviceCategory_DeviceData on DeviceCategory_DeviceData.FK_DeviceCategory=DeviceTemplate.FK_DeviceCategory
-	LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND Device_DeviceData.FK_DeviceData=DeviceCategory_DeviceData.FK_DeviceData
-	WHERE Device_DeviceData.FK_Device IS NULL AND PK_Device=$i;"
-
-	# Add for parent's category
-	Q3="INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData)
-	SELECT PK_Device,DeviceCategory_DeviceData.FK_DeviceData,DeviceCategory_DeviceData.IK_DeviceData
-	FROM Device
-	JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
-	JOIN DeviceCategory ON DeviceTemplate.FK_DeviceCategory=PK_DeviceCategory
-	JOIN DeviceCategory_DeviceData on DeviceCategory_DeviceData.FK_DeviceCategory=DeviceCategory.FK_DeviceCategory_Parent
-	LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND Device_DeviceData.FK_DeviceData=DeviceCategory_DeviceData.FK_DeviceData
-	WHERE Device_DeviceData.FK_Device IS NULL AND PK_Device=$i;"
-
-	(echo "$Q1"; echo "$Q2"; echo "$Q3";) | /usr/bin/mysql pluto_main
-done
-
-echo "$Q4" | /usr/bin/mysql pluto_main
-
-# Update startup scripts
+## Update startup scripts
 /usr/pluto/bin/Update_StartupScrips.sh
 
-# Remove installation incomplete flag
+## Remove installation incomplete flag
 rm /usr/pluto/install/.notdone
 
+## Setup /etc/hosts
 selectedInterface=$(grep 'iface..*eth' /etc/network/interfaces | awk '{print $2}')
 dcerouterIP=$(ifconfig $selectedInterface | awk 'NR==2' | cut -d: -f2 | cut -d' ' -f1)
 
@@ -223,54 +241,56 @@ clear
 /usr/pluto/bin/DHCP_config.sh
 
 clear
-# XXX: No error checking
-	echo "The Pluto Bonus CD version 1 has some extras, such as a video setup"
-	echo "wizard to help get you up and running. If you have the Pluto Bonus CD"
-	echo "version 1, please insert it into your drive now and choose Y after it is in."
-	echo "Otherwise, choose N."
-        echo ""
-        BonusCD=$(Ask "Did you insert the \"Pluto Bonus CD 1\" in drive ? [y/N]")
-	if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
-
-		if [ ! -d /cdrom ]; then
+# XXX: Setup Bonus CD
+echo "The Pluto Bonus CD version 1 has some extras, such as a video setup"
+echo "wizard to help get you up and running. If you have the Pluto Bonus CD"
+echo "version 1, please insert it into your drive now and choose Y after it is in."
+echo "Otherwise, choose N."
+echo ""
+BonusCD=$(Ask "Did you insert the \"Pluto Bonus CD 1\" in drive ? [y/N]")
+if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
+	
+	if [ ! -d /cdrom ]; then
 		mkdir /cdrom
-		fi
-
-                /bin/mount /dev/cdrom /cdrom 2>/dev/null
+	fi
+	/bin/mount /dev/cdrom /cdrom 2>/dev/null
                 
-		        while [ ! -d "/cdrom/bonuscd1" ]; do
-                        	echo "This in not a valid \"Pluto Bonus CD 1\". Please insert the correct CD and try again."
-	                        /usr/bin/eject
-        	                echo "Press any key when you inserted the correct CD in drive."
-                	        read key
-                                if [[ ! -n "$key" ]]; then
-                                        /bin/mount /dev/cdrom /cdrom 2>/dev/null
-                                fi
-                        done
+	while [ ! -d "/cdrom/bonuscd1" ]; do
+		echo "This in not a valid \"Pluto Bonus CD 1\". Please insert the correct CD and try again."
+	        /usr/bin/eject
+		echo "Press any key when you inserted the correct CD in drive."
+		read key
 
-                echo "Installing extra packages from \"Pluto Bonus CD 1\""
-                echo "... PLEASE WAIT ..."
+		if [[ ! -n "$key" ]]; then
+			/bin/mount /dev/cdrom /cdrom 2>/dev/null
+		fi
+	done
 
-		for files in $(ls /cdrom/bonuscd1); do
+	echo "Installing extra packages from \"Pluto Bonus CD 1\""
+	echo "... PLEASE WAIT ..."
+
+	for files in $(ls /cdrom/bonuscd1); do
 		pkgname=$(echo $files | awk -F '_' '{print $1}')
-               	echo "Installing package name : $files"
+		echo "Installing package name : $files"
 		cd /cdrom/bonuscd1
-                dpkg -i $files 1>/dev/null
-		done
+		dpkg -i $files 1>/dev/null
+	done
 
-		cd /cdrom/bonuscd1-cache
-                cp -r *.deb /usr/pluto/deb-cache/dists/sarge/main/binary-i386/
-                cd /usr/pluto/deb-cache/dists/sarge/main/binary-i386/
-                /usr/bin/screen -A -m -d -S pkgsrebuild dpkg-scanpackages . /dev/null | sed 's,\./,dists/replacements/main/binary-i386/,g' | gzip -9c > Packages.gz
-                cd ..
-                /usr/bin/eject
-                echo ""
-                echo "\"Pluto Bonus CD 1\" succesfuly installed !"
-                echo ""
-        else        
-		echo "Skipping \"Pluto Bonus CD 1\" install ..."
-        fi
+	cd /cdrom/bonuscd1-cache
+	cp -r *.deb /usr/pluto/deb-cache/dists/sarge/main/binary-i386/
+	cd /usr/pluto/deb-cache/dists/sarge/main/binary-i386/
+	/usr/bin/screen -A -m -d -S pkgsrebuild dpkg-scanpackages . /dev/null | sed 's,\./,dists/replacements/main/binary-i386/,g' | gzip -9c > Packages.gz
+	cd ..
+	/usr/bin/eject
+	echo ""
+	echo "\"Pluto Bonus CD 1\" succesfuly installed !"
+	echo ""
+else        
+	echo "Skipping \"Pluto Bonus CD 1\" install ..."
+fi
 
+
+## Install extra packages
 while :; do
 	ExtraPkg=$(Ask "Do you want to add extra packages? [y/N]")
 	if [[ "$ExtraPkg" == y || "$ExtraPkg" == Y ]]; then
@@ -300,10 +320,8 @@ exec 1>&3 3>&-
 
 /usr/pluto/bin/SetupUsers.sh
 /usr/pluto/bin/generateRcScripts.sh
-
 sed -i 's/^ide-generic$/#&/g' /etc/modules
 
 /usr/pluto/install/Initial_Config_Finish.sh
 
-#init q
 exit 0
