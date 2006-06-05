@@ -363,6 +363,15 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 	virtual void CMD_Force_Update_Packages(string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #790 - Get_iPK_DeviceFromUID */
+	/** Get the device ID from the UID from the USB port. */
+		/** @param #206 UID */
+			/** UID from USB port */
+
+	virtual void CMD_Get_iPK_DeviceFromUID(string sUID) { string sCMD_Result; CMD_Get_iPK_DeviceFromUID(sUID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Get_iPK_DeviceFromUID(string sUID,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #791 - Set Enable Status */
 	/** This command will enable or disable a device. A reload router will be needed in order to take effect. */
 		/** @param #2 PK_Device */
@@ -372,6 +381,13 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 
 	virtual void CMD_Set_Enable_Status(int iPK_Device,bool bEnable) { string sCMD_Result; CMD_Set_Enable_Status(iPK_Device,bEnable,sCMD_Result,NULL);};
 	virtual void CMD_Set_Enable_Status(int iPK_Device,bool bEnable,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #792 - Get All HAL Model ID */
+	/** Returns a list of HAL Model ID-s */
+
+	virtual void CMD_Get_All_HAL_Model_ID() { string sCMD_Result; CMD_Get_All_HAL_Model_ID(sCMD_Result,NULL);};
+	virtual void CMD_Get_All_HAL_Model_ID(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #800 - InitAVDeviceTemplateSettings */
@@ -407,6 +423,17 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 
 	virtual void CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_ControlledVia,string sBlock_Device) { string sCMD_Result; CMD_Blacklist_Internal_Disk_Drive(iPK_Device_ControlledVia,sBlock_Device.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_ControlledVia,string sBlock_Device,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #808 - Get Unused Serial Ports */
+	/**  */
+		/** @param #2 PK_Device */
+			/** The computer to get the ports for */
+		/** @param #5 Value To Assign */
+			/** A comma delimited list of ports */
+
+	virtual void CMD_Get_Unused_Serial_Ports(int iPK_Device,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Unused_Serial_Ports(iPK_Device,sValue_To_Assign,sCMD_Result,NULL);};
+	virtual void CMD_Get_Unused_Serial_Ports(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

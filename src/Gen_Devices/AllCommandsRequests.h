@@ -21156,5 +21156,73 @@ namespace DCE
 			COMMANDPARAMETER_Filename_CONST, sFilename.c_str(),
 			COMMANDPARAMETER_PK_EntertainArea_CONST, sPK_EntertainArea.c_str()); }
 	};
+	class RESP_Get_Unused_Serial_Ports : public PreformedCommandResponse {
+		string *m_sValue_To_Assign;
+	public:
+		RESP_Get_Unused_Serial_Ports(string *sValue_To_Assign) { 
+		m_sValue_To_Assign=sValue_To_Assign; }
+		void ParseResponse(Message *pMessage) {
+			*m_sValue_To_Assign=pMessage->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST]; };
+	};
+	class CMD_Get_Unused_Serial_Ports : public PreformedCommand {
+	public:
+		CMD_Get_Unused_Serial_Ports(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,string *sValue_To_Assign) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Get_Unused_Serial_Ports_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_Value_To_Assign_CONST, (*sValue_To_Assign).c_str());		m_pcResponse = new RESP_Get_Unused_Serial_Ports(sValue_To_Assign); }
+	};
+	class CMD_Get_Unused_Serial_Ports_DL : public PreformedCommand {
+	public:
+		CMD_Get_Unused_Serial_Ports_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,string *sValue_To_Assign) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Unused_Serial_Ports_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_Value_To_Assign_CONST, (*sValue_To_Assign).c_str());		m_pcResponse = new RESP_Get_Unused_Serial_Ports(sValue_To_Assign); }
+	};
+	class CMD_Get_Unused_Serial_Ports_DT : public PreformedCommand {
+	public:
+		CMD_Get_Unused_Serial_Ports_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,string *sValue_To_Assign) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Unused_Serial_Ports_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_Value_To_Assign_CONST, (*sValue_To_Assign).c_str());		m_pcResponse = new RESP_Get_Unused_Serial_Ports(sValue_To_Assign); }
+	};
+	class CMD_Get_Unused_Serial_Ports_Cat : public PreformedCommand {
+	public:
+		CMD_Get_Unused_Serial_Ports_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string *sValue_To_Assign) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Unused_Serial_Ports_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_Value_To_Assign_CONST, (*sValue_To_Assign).c_str());		m_pcResponse = new RESP_Get_Unused_Serial_Ports(sValue_To_Assign); }
+	};
+	class CMD_NOREP_Get_Unused_Serial_Ports : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Unused_Serial_Ports(long DeviceIDFrom, long DeviceIDTo,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Unused_Serial_Ports_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str()); }
+	};
+	class CMD_NOREP_Get_Unused_Serial_Ports_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Unused_Serial_Ports_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Unused_Serial_Ports_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str()); }
+	};
+	class CMD_NOREP_Get_Unused_Serial_Ports_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Unused_Serial_Ports_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Unused_Serial_Ports_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str()); }
+	};
+	class CMD_NOREP_Get_Unused_Serial_Ports_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Unused_Serial_Ports_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Unused_Serial_Ports_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str()); }
+	};
 }
 #endif

@@ -2717,3 +2717,64 @@ void General_Info_Plugin::PromptUserToReloadAfterNewDevices()
 		SendCommand(SCREEN_PopupMessage_DL);
 	}
 }
+
+//<-dceag-c808-b->
+
+	/** @brief COMMAND: #808 - Get Unused Serial Ports */
+	/**  */
+		/** @param #2 PK_Device */
+			/** The computer to get the ports for */
+		/** @param #5 Value To Assign */
+			/** A comma delimited list of ports */
+
+void General_Info_Plugin::CMD_Get_Unused_Serial_Ports(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c808-e->
+{
+	int iPK_Device_PC = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,iPK_Device);
+	string sPorts = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,iPK_Device_PC,DEVICEDATA_Available_Serial_Ports_CONST);
+	string sAvailablePorts;
+	string::size_type pos=0;
+	while(pos<sPorts.size())
+	{
+		string sPort = StringUtils::Tokenize(sPorts,",",pos);
+		string sSQL = "select FK_DeviceData FROM Device_DeviceData "
+			"JOIN Device AS D1 ON FK_Device=D1.PK_Device "
+			"LEFT JOIN Device AS D2 ON D1.FK_Device_ControlledVia=D2.PK_Device "
+			"LEFT JOIN Device AS D3 ON D2.FK_Device_ControlledVia=D3.PK_Device "
+			"LEFT JOIN Device AS D4 ON D3.FK_Device_ControlledVia=D4.PK_Device "
+			"WHERE FK_DeviceData=" TOSTRING(DEVICEDATA_COM_Port_on_PC_CONST) " "
+			"AND IK_DeviceData='" + StringUtils::SQLEscape(sPort) + "' "
+			"AND (D1.PK_Device=" + StringUtils::itos(iPK_Device_PC) + " OR D2.PK_Device=" + StringUtils::itos(iPK_Device_PC) + " OR D3.PK_Device=" + StringUtils::itos(iPK_Device_PC) + " OR D4.PK_Device=" + StringUtils::itos(iPK_Device_PC) + " OR D4.FK_Device_ControlledVia=" + StringUtils::itos(iPK_Device_PC) + ")";
+		
+		PlutoSqlResult result;
+		if( (result.r = m_pRouter->mysql_query_result(sSQL)) && result.r->row_count>0 )
+			continue;
+		if( sAvailablePorts.size() )
+			sAvailablePorts += ",";
+		sAvailablePorts += sPort;
+	}
+	*sValue_To_Assign = sAvailablePorts;
+}
+
+//<-dceag-c790-b->
+
+	/** @brief COMMAND: #790 - Get_iPK_DeviceFromUID */
+	/** Get the device ID from the UID from the USB port. */
+		/** @param #206 UID */
+			/** UID from USB port */
+
+void General_Info_Plugin::CMD_Get_iPK_DeviceFromUID(string sUID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c790-e->
+{
+}
+
+//<-dceag-c792-b->
+
+	/** @brief COMMAND: #792 - Get All HAL Model ID */
+	/** Returns a list of HAL Model ID-s */
+
+void General_Info_Plugin::CMD_Get_All_HAL_Model_ID(string &sCMD_Result,Message *pMessage)
+//<-dceag-c792-e->
+{
+}
+
