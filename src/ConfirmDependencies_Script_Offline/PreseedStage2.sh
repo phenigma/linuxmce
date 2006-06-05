@@ -15,4 +15,5 @@ for setting in "${preseed[@]}"; do
 	variable="${setting%%=*}"
 	value="${setting#*=}"
 	db_set "$variable" "$value"
+	db_fset "$variable" seen true
 done
