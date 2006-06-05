@@ -232,7 +232,11 @@ clear
         BonusCD=$(Ask "Did you insert the \"Pluto Bonus CD 1\" in drive ? [y/N]")
 	if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 
-                /bin/mount /dev/cdrom 2>/dev/null
+		if [ ! -d /cdrom ]; then
+		mkdir /cdrom
+		fi
+
+                /bin/mount /dev/cdrom /cdrom 2>/dev/null
                 
 		        while [ ! -d "/cdrom/bonuscd1" ]; do
                         	echo "This in not a valid \"Pluto Bonus CD 1\". Please insert the correct CD and try again."
@@ -240,7 +244,7 @@ clear
         	                echo "Press any key when you inserted the correct CD in drive."
                 	        read key
                                 if [[ ! -n "$key" ]]; then
-                                        /bin/mount /dev/cdrom 2>/dev/null
+                                        /bin/mount /dev/cdrom /cdrom 2>/dev/null
                                 fi
                         done
 
