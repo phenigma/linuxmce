@@ -20,6 +20,9 @@ namespace DCE
 		void DisplayImageOnScreen(struct SDL_Surface *pScreenImage);
 		void BeginPaint();
 		void EndPaint();
+
+		void RefreshScreen(void *data);
+		void RenderScreen(bool bRenderGraphicsOnly);
 	};
 }
 

@@ -74,12 +74,7 @@ namespace DCE
         virtual string GenerateSoftKeys(DesignObj_Orbiter *pObj);
 
         virtual bool RenderCell( class DesignObj_DataGrid *pObj, class DataGridTable *pT, class DataGridCell *pCell, int j, int i, int iGraphicToDisplay, PlutoPoint point = PlutoPoint(0, 0) );
-        virtual void RenderScreen(bool bRenderGraphicsOnly);
-
         virtual void ParseHardKeys();
-
-		virtual void RedrawObjects();
-		virtual void RealRedraw( void *data );
 
 		inline string GetDevicePngFileName();
 		inline string GetDeviceXmlFileName();

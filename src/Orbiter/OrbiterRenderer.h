@@ -6,10 +6,13 @@
 #include "DesignObj_Orbiter.h"
 #include "PlutoGraphic.h"
 #include "SerializeClass/ShapesColors.h"
+#include "DCE/Logger.h"
 
 namespace DCE
 {
 	class Orbiter;
+	//class DesignObj_Orbiter;
+	//class DesignObjText;
 }
 
 using namespace DCE;
@@ -21,14 +24,23 @@ private:
 	friend class OrbiterRendererFactory;
 	Orbiter *m_pOrbiter;
 
+	/**
+	* @brief stores objects that need to be redrawned
+	* When it's time to redraw some objects without redrawing the whole screen, store them here
+	* then call RedrawObjects(), rather than updating the screen over and over if several objects change at once
+	*/
+	vector<DesignObj_Orbiter *> m_vectObjs_NeedRedraw;
+	vector<DesignObjText *> m_vectTexts_NeedRedraw;
+
 protected:
 
 	OrbiterRenderer(Orbiter *pOrbiter);
 
 	void ConfigureDefaultTextStyle();
-	auto_ptr<TextStyle> m_spTextStyle;
-
 	virtual void UpdateScreen();
+
+	auto_ptr<TextStyle> m_spTextStyle;
+	pluto_pthread_mutex_t m_NeedRedrawVarMutex; //this will protect needredraw vectors
 
 public:
 
@@ -150,6 +162,43 @@ public:
 	* @brief These will redraw any objects in m_vectObjsToRedraw. Use this to queue objects to redraw, such as those tht
 	*/
 	virtual void RedrawObjects();
+
+	/*
+	 *	Refreshes the screen as a task of maintenance thread
+	 */
+	virtual void RefreshScreen(void *data);
+
+	/**
+	* @brief renders an object on the screen async; it will add the object to m_vectObjs_NeedRedraw vector to be re-rendered
+	*/
+	virtual void RenderObjectAsync(DesignObj_Orbiter *pObj);
+
+	/**
+	* @brief renders a text object on the screen async; it will add the object to m_vectTexts_NeedRedraw vector to be re-rendered
+	*/
+	virtual void RenderTextAsync(DesignObjText *pObj);
+
+	/*
+	 *	Wrapper for ObjectOnScreen
+	 */
+	virtual void ObjectOnScreenWrapper();
+
+	/**
+	* @brief puts the object on screen
+	* @param pObj pointer to the object to put on screen
+	*/
+	virtual void ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj, PlutoPoint *ptPopup=NULL );
+
+	/**
+	* @brief A graphic is no longer on screen. Maybe remove it from cache
+	*/
+	virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic);
+
+	/**
+	* @brief takes out the specified object from screen
+	* @param pObj the object to remove from screen
+	*/
+	virtual void ObjectOffScreen( DesignObj_Orbiter *pObj );
 };
 
 #endif //__ORBITER_RENDERER_H__

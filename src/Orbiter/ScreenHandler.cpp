@@ -72,7 +72,7 @@ void ScreenHandler::RefreshDatagrid(long PK_DesignObj_Datagrid)
 	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(StringUtils::ltos(PK_DesignObj_Datagrid));
 	if(pObj)
 	{
-		m_pOrbiter->RenderObjectAsync(pObj);
+		m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
 		m_pOrbiter->InitializeGrid((DesignObj_DataGrid *)pObj);
 		m_pOrbiter->Renderer()->RedrawObjects();
 	}

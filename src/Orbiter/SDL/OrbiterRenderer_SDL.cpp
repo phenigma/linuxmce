@@ -318,8 +318,7 @@ void OrbiterRenderer_SDL::ObjectOnScreen(VectDesignObj_Orbiter *pVectDesignObj_O
 	if(pObj->m_PK_Effect_On_Screen > 0)
 		m_spPendingGLEffects->m_nOnScreenTransitionEffectID = pObj->m_PK_Effect_On_Screen;
 
-	//TODO: we need to move objectonscreen in the renderer class
-	//Orbiter::ObjectOnScreen(pVectDesignObj_Orbiter, pObj, ptPopup);
+	OrbiterRenderer::ObjectOnScreen(pVectDesignObj_Orbiter, pObj, ptPopup);
 }
 //----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL::ObjectOffScreen(DesignObj_Orbiter *pObj)
@@ -327,8 +326,7 @@ void OrbiterRenderer_SDL::ObjectOffScreen(DesignObj_Orbiter *pObj)
 	if(pObj->m_PK_Effect_Off_Screen > 0)
         m_spPendingGLEffects->m_nOffScreenTransitionEffectID = pObj->m_PK_Effect_Off_Screen;
 
-	//TODO: same
-	//Orbiter::ObjectOffScreen(pObj);
+	OrbiterRenderer::ObjectOffScreen(pObj);
 }
 //----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL::RenderScreen( bool bRenderGraphicsOnly )
@@ -1016,8 +1014,6 @@ void OrbiterRenderer_SDL::EventLoop()
 
 		if (SDL_Event_Pending)
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Event: %d", Event.type);
-
 			Orbiter::Event orbiterEvent;
 			orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
 

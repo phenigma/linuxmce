@@ -10,6 +10,7 @@
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "DataGrid.h"
+#include "OrbiterRenderer.h"
 
 using namespace DCE;
 
@@ -117,7 +118,7 @@ void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 			pObj_Grid->m_pDataGridTable=NULL;
 			pObj_Grid->bReAcquire=true;
 			NeedToRender render( m_pMouseBehavior->m_pOrbiter, "MOUSE BEHAVIOR SCROLL" );
-			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(pObj_Grid);
+			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Grid);
 		}
 	}
 	else

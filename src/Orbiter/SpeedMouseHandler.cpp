@@ -146,7 +146,7 @@ void SpeedMouseHandler::Move(int X,int Y,int PK_Direction)
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Change_Playback_Speed.m_pMessage);
 			m_iLastNotch=Notch;
 NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start speed" );
-m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
+m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
 		}
 	}
 	else  // holding down, go to position
@@ -164,7 +164,7 @@ m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);// Redraw even if the ob
 			DCE::CMD_Set_Media_Position CMD_Set_Media_Position(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0," POS:" + StringUtils::itos(m_iLastNotch*1000));
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Set_Media_Position.m_pMessage);
 NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start speed" );
-m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
+m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
 		}
 	}
 }

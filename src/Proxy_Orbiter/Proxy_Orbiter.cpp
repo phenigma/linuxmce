@@ -107,23 +107,6 @@ Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerA
     pthread_mutex_destroy(&m_ActionMutex.mutex);
 }
 //-----------------------------------------------------------------------------------------------------
-void Proxy_Orbiter::RealRedraw( void *data )
-{
-	m_dequeCellXMLItems.clear();
-	m_bRerenderScreen = true; //force full redraw
-
-	Orbiter::RealRedraw(data);
-}
-//-----------------------------------------------------------------------------------------------------
-void Proxy_Orbiter::RedrawObjects()
-{
-	PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
-	if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size() == 0 && m_bRerenderScreen==false)
-		return; // Nothing to do anyway
-
-	CallMaintenanceInMiliseconds( 0, (OrbiterCallBack)&Proxy_Orbiter::RealRedraw, NULL, pe_ALL );
-}
-//-----------------------------------------------------------------------------------------------------
 string Proxy_Orbiter::GetDevicePngFileName()
 {
 	return StringUtils::ltos(m_dwPK_Device) + "_" + CURRENT_SCREEN_IMAGE;
@@ -386,7 +369,7 @@ void Proxy_Orbiter::StopProcessingRequest(void *p)
     DATA_Set_ImageQuality(nImageQuality, true);
 
     m_bRerenderScreen = true;
-    RedrawObjects();
+    m_pOrbiterRenderer->RedrawObjects();
 }
 //-----------------------------------------------------------------------------------------------------
 
@@ -436,14 +419,6 @@ void Proxy_Orbiter::ImageGenerated()
 			CallMaintenanceInMiliseconds(1000, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask, NULL, pe_ALL);
 		}
 	}
-}
-
-void Proxy_Orbiter::RenderScreen(bool bRenderGraphicsOnly)
-{
-	if( !bRenderGraphicsOnly )
-	    m_dequeCellXMLItems.clear();
-
-    return Renderer()->RenderScreen(bRenderGraphicsOnly);
 }
 
 bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout )

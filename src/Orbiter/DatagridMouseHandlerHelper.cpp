@@ -82,7 +82,7 @@ if( Row_Before==Row && Column_Before==Column )
 int k=2;
 		if( m_pObj_ScrollingGrid->m_iHighlightedRow!=Row_Before || m_pObj_ScrollingGrid->m_iHighlightedColumn!=Column_Before )
 		{
-			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_ScrollingGrid);
+			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_ScrollingGrid);
 
 //m_pMouseBehavior->m_pOrbiter->HighlightNextObject(PK_Direction);
 			m_pMouseBehavior->m_pOrbiter->Renderer()->RedrawObjects();  // We may have scrolled past the end of a grid and need to re-render
@@ -208,7 +208,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid direct
 	{
 g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid Notch %d",Notch);
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "scroll" );
-		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_ScrollingGrid);
+		m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_ScrollingGrid);
 		// We know the notch can't go in reverse since that would stop the scrolling
 		if( Notch<=5 )
 		{
@@ -229,12 +229,12 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid Notch 
 		if( dwPK_Direction==DIRECTION_Down_CONST && m_pObj_MediaBrowser_Down )
 		{
 			m_pObj_MediaBrowser_Down->m_GraphicToDisplay=m_pMouseHandler->m_iLastNotch-5;
-			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_MediaBrowser_Down);
+			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_MediaBrowser_Down);
 		}
 		else if( dwPK_Direction==DIRECTION_Up_CONST && m_pObj_MediaBrowser_Up )
 		{
 			m_pObj_MediaBrowser_Up->m_GraphicToDisplay=m_pMouseHandler->m_iLastNotch-5;
-			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj_MediaBrowser_Up);
+			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_MediaBrowser_Up);
 		}
 //remus  m_pObj_ScrollingGrid->SetSpeed(Speed);
 	}

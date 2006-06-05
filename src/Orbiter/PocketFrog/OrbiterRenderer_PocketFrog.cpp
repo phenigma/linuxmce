@@ -990,7 +990,7 @@ void OrbiterRenderer_PocketFrog::DumpLocks()
         FormatMutexMessage(OrbiterLogic()->m_VariableMutex) +
         FormatMutexMessage(OrbiterLogic()->m_DatagridMutex) +
         FormatMutexMessage(OrbiterLogic()->m_MaintThreadMutex) +
-        FormatMutexMessage(OrbiterLogic()->m_NeedRedrawVarMutex);
+        FormatMutexMessage(m_NeedRedrawVarMutex);
 
 #ifdef WINCE
     wchar_t MessageW[4096];

@@ -31,7 +31,7 @@ void VolumeMouseHandler::Start()
 	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_LeftRight);
 
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
-	m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
+	m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);
 m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume=true;
 	if( m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume==false || m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{
@@ -58,8 +58,7 @@ m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume=true;
 void VolumeMouseHandler::Stop()
 {
 NeedToRender render( m_pMouseBehavior->m_pOrbiter, "change to discrete volume" );
-PLUTO_SAFETY_LOCK(nd,m_pMouseBehavior->m_pOrbiter->m_NeedRedrawVarMutex);
-m_pMouseBehavior->m_pOrbiter->m_vectObjs_NeedRedraw.push_back(m_pObj);
+m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);
 g_pPlutoLogger->Write(LV_CORPCLIENT,"m_pObj.disabled = true");
 }
 
@@ -105,7 +104,7 @@ void VolumeMouseHandler::Move(int X,int Y,int PK_Direction)
 		if( Notch!=m_iLastNotch )
 		{
 			NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
-			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
+			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);
 			m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Volume,Notch,500,this);
 			m_iLastNotch = Notch;
 		}
@@ -121,7 +120,7 @@ void VolumeMouseHandler::Move(int X,int Y,int PK_Direction)
 		if( Notch!=m_iLastNotch )
 		{
 			NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
-			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
+			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);
 			DCE::CMD_Set_Volume CMD_Set_Volume(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,StringUtils::itos(Notch));
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Set_Volume.m_pMessage);
 			m_iLastNotch = Notch;
@@ -156,7 +155,7 @@ void VolumeMouseHandler::CustomRender()
 void VolumeMouseHandler::DoIteration(int Parm)
 {
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
-	m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
+	m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);
 	m_iCancelLevel += Parm;
 	if( m_iCancelLevel > 100 )
 		m_iCancelLevel=100;

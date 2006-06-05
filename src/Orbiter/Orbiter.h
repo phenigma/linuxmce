@@ -134,13 +134,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		int m_iImageHeight; /** < image height */
 		bool m_bFullScreen;
 		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
-		/**
-		* @brief stores objects that need to be redrawned
-		* When it's time to redraw some objects without redrawing the whole screen, store them here
-		* then call RedrawObjects(), rather than updating the screen over and over if several objects change at once
-		*/
-		vector < class DesignObj_Orbiter * > m_vectObjs_NeedRedraw;
-		vector < class DesignObjText * > m_vectTexts_NeedRedraw;
 
 		//<-dceag-const-b->!
 
@@ -199,7 +192,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		*/
 		virtual bool SelfUpdate() { return false; };
 
-		pluto_pthread_mutex_t m_NeedRedrawVarMutex; //this will protect needredraw vectors
 		pluto_pthread_mutex_t m_MaintThreadMutex;  // This will also protect the callback map
 		pluto_pthread_mutex_t m_ScreenMutex; /** < Anything that should not be done during a screen render, change, etc. Blocking this will prevent screen changes */
 		pluto_pthread_mutex_t m_VariableMutex; /** < Short mutex to protect members like strings and maps */
@@ -365,8 +357,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		PlutoPopup *FindPopupByName(DesignObj_Orbiter *pObj,string sPopupName);
 
 		/**
-		* @brief temp hack -- see comments
-		* @todo ask - add comments
+		* @brief Forwards a RenderScreenAsync to renderer
+		* 
 		*/
 		virtual void RealRedraw( void *iData );
 
@@ -408,11 +400,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		virtual void RenderObject( DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_Orbiter *pDesignObj_Orbiter_Screen, PlutoPoint point = PlutoPoint(0, 0) );
 		
 		/**
-		* @brief renders an object on the screen async; it will add the object to m_vectObjs_NeedRedraw vector to be re-rendered
-		*/
-		virtual void RenderObjectAsync(DesignObj_Orbiter *pObj);
-
-		/**
 		* @brief renders a floorplan
 		* @todo ask
 		*/
@@ -437,26 +424,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		*/
 		virtual void NeedToChangeScreens( class ScreenHistory *pScreenHistory);
 
-		/**
-		* @brief
-		* @todo ask
-		*/
-		virtual void ObjectOnScreenWrapper();
-
-		/**
-		* @brief puts the object on screen
-		* @param pObj pointer to the object to put on screen
-		* @todo ask (makesure)
-		*/
-		virtual void ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj, PlutoPoint *ptPopup=NULL );
 		void HandleNewObjectsOnScreen(VectDesignObj_Orbiter *pVectDesignObj_Orbiter);
-
-		/**
-		* @brief takes out the specified object from screen
-		* @param pObj the object to remove from screen
-		* @todo ask
-		*/
-		virtual void ObjectOffScreen( DesignObj_Orbiter *pObj );
 
 		/**
 		* @brief returnes the video frame from the DesignObj_Orbiter object pointed by iData
@@ -641,11 +609,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		/**
 		*	FUNCTIONS A DERIVED ORBITER MAY WANT TO IMPLEMENT
 		*/
-
-		/**
-		* @brief A graphic is no longer on screen. Maybe remove it from cache
-		*/
-		virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic);
 
 	public:
 

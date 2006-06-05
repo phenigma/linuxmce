@@ -44,8 +44,7 @@ void LightMouseHandler::Start()
 void LightMouseHandler::Stop()
 {
 NeedToRender render( m_pMouseBehavior->m_pOrbiter, "change light" );
-PLUTO_SAFETY_LOCK(nd,m_pMouseBehavior->m_pOrbiter->m_NeedRedrawVarMutex);
-m_pMouseBehavior->m_pOrbiter->m_vectObjs_NeedRedraw.push_back(m_pObj);
+m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);
 g_pPlutoLogger->Write(LV_CORPCLIENT,"m_pObj.disabled = true");
 }
 
@@ -96,7 +95,7 @@ void LightMouseHandler::Move(int X,int Y,int PK_Direction)
 	if( Notch!=m_iLastNotch )
 	{
 		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "LightMouseHandler" );
-		m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
+		m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);
 		if( m_bTapAndRelease==false )
 		{
 			DCE::CMD_Set_Level CMD_Set_Level(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_LightingPlugIn,StringUtils::itos(Notch*10));
@@ -154,7 +153,7 @@ void LightMouseHandler::CustomRender()
 void LightMouseHandler::DoIteration(int Parm)
 {
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "LightMouseHandler it" );
-	m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pObj);
+	m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);
 	m_iCancelLevel += (Parm*10);
 	if( m_iCancelLevel > 100 )
 		m_iCancelLevel=100;

@@ -201,7 +201,7 @@ void MouseBehavior::SetMediaInfo(string sTime,string sTotal,string sSpeed,string
 		pSpeedMouseHandler->m_CurrentMedia_Stop = Stop;
 		pSpeedMouseHandler->m_CurrentMedia_Pos = Current;
 NeedToRender render( m_pOrbiter, "start speed" );
-m_pOrbiter->RenderObjectAsync(pSpeedMouseHandler->m_pObj);
+m_pOrbiter->Renderer()->RenderObjectAsync(pSpeedMouseHandler->m_pObj);
 
 	}
 }

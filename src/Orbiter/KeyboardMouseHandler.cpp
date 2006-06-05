@@ -59,8 +59,7 @@ void KeyboardMouseHandler::Stop()
 	{
 		// temp hack -- todo.  temporary redraw the screen since the keyboard/speed indicators may be messed up
 NeedToRender render( m_pMouseBehavior->m_pOrbiter, "change k/b" );
-PLUTO_SAFETY_LOCK(nd,m_pMouseBehavior->m_pOrbiter->m_NeedRedrawVarMutex);
-m_pMouseBehavior->m_pOrbiter->m_vectObjs_NeedRedraw.push_back(m_pObj);
+m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);
 	}
 }
 

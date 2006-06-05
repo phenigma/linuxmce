@@ -305,19 +305,19 @@
 					RelativePath=".\DatagridMouseHandlerHelper.cpp">
 				</File>
 				<File
-					RelativePath=".\KeyboardMouseHandler.cpp">
-				</File>
-				<File
 					RelativePath=".\HorizMenuMouseHandler.cpp">
 				</File>
 				<File
-					RelativePath=".\MediaBrowserMouseHandler.cpp">
+					RelativePath=".\KeyboardMouseHandler.cpp">
 				</File>
 				<File
 					RelativePath=".\LightMouseHandler.cpp">
 				</File>
 				<File
 					RelativePath=".\LockedMouseHandler.cpp">
+				</File>
+				<File
+					RelativePath=".\MediaBrowserMouseHandler.cpp">
 				</File>
 				<File
 					RelativePath=".\MediaMouseHandler.cpp">
@@ -374,7 +374,7 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="TexRenderer"
+				Name="TextRenderer"
 				Filter="">
 				<File
 					RelativePath="..\Splitter\TextSplitter.cpp">

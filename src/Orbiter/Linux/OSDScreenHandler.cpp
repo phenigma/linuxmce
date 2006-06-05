@@ -1374,7 +1374,7 @@ void OSDScreenHandler::LightsSetup_Timer()
 
 		{
 			if(NULL != pObjStatus)
-				m_pOrbiter->RenderObjectAsync(pObjStatus);
+				m_pOrbiter->Renderer()->RenderObjectAsync(pObjStatus);
 			/*
               PLUTO_SAFETY_LOCK( nd, m_pOrbiter->m_NeedRedrawVarMutex );
               if( pObjStatus )
@@ -1406,7 +1406,7 @@ void OSDScreenHandler::LightsSetup_Timer()
 
 		{
 			if(NULL != pObjStatus)
-				m_pOrbiter->RenderObjectAsync(pObjStatus);
+				m_pOrbiter->Renderer()->RenderObjectAsync(pObjStatus);
 			/*
               PLUTO_SAFETY_LOCK( nd, m_pOrbiter->m_NeedRedrawVarMutex );
               if( pObjStatus )
