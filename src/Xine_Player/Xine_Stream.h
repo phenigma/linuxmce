@@ -109,6 +109,8 @@ namespace DCE
 			
 			void FireMenuOnScreen(int iButtons);
 			
+			int m_iSeekMuteStatus;
+			
 		public:
 			int m_iTimeCodeReportFrequency;
 			bool m_bIsVDR;   // Is this live tv from VDR?

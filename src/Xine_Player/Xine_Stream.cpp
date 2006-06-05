@@ -118,6 +118,8 @@ bool Xine_Stream::StartupStream()
 	
 	m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER );
 	
+	m_iSeekMuteStatus = xine_get_param(m_pXineStream, XINE_PARAM_AUDIO_MUTE);
+	
 	m_bInitialized = true;
 	return true;
 }
@@ -1202,7 +1204,22 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 	}
 
 	if (m_bHasVideo)
-		xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 1);
+	{
+		m_iSeekMuteStatus = xine_get_param(m_pXineStream, XINE_PARAM_AUDIO_MUTE);
+		if (m_iSeekMuteStatus==0)
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "Muting sound");
+			xine_set_param(m_pXineStream, XINE_PARAM_AUDIO_MUTE, 1);
+		}
+	
+		// this feature definitely works for MPEG2 only (may be some other audio codecs, but not generic)
+		// e.g. MOV files cannot restore after it
+		if (strncasecmp("dvd:", m_sCurrentFile.c_str(), 4)==0)
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "Disabling audio decoding for faster seek: %s", m_sCurrentFile.c_str());
+			xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 1);
+		}
+	}
 	
 	int totalTime;
 	gettimeofday( &m_tsLastSpecialSeek, NULL );
@@ -1243,7 +1260,19 @@ void Xine_Stream::StopSpecialSeek()
 		return;
 	
 	if (m_bHasVideo)
-		xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 0);
+	{
+		if (xine_get_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO)==1)
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "Enabling audio decoding for stopping seek");
+			xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 0);
+		}
+		
+		if (m_iSeekMuteStatus==0)
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "Unmuting sound");
+			xine_set_param(m_pXineStream, XINE_PARAM_AUDIO_MUTE, 0);
+		}
+	}
 	
 	g_pPlutoLogger->Write( LV_STATUS, "Stopping special seek" );
 	{
