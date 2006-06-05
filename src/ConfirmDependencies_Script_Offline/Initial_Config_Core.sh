@@ -326,4 +326,10 @@ sed -i 's/^ide-generic$/#&/g' /etc/modules
 
 /usr/pluto/install/Initial_Config_Finish.sh
 
+
+## Remove the backup
+if [[ "$UpgradeMode" == "true" ]];then
+	rm -rf /.backup
+fi
+
 exit 0
