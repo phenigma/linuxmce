@@ -229,6 +229,9 @@ Message "Start up networking"
 if [[ -x /etc/init.d/ifupdown-clean ]]; then
 	/etc/init.d/ifupdown-clean start 1> /dev/null
 fi
+if [[ -x /sbin/ifrename ]]; then
+	/sbin/ifrename -d -p
+fi
 if [[ -x /etc/init.d/ifupdown ]]; then
 	/etc/init.d/ifupdown start 1> /dev/null # Remove when droping the 
 fi
