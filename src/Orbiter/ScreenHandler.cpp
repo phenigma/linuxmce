@@ -2,7 +2,9 @@
 #include "ScreenHistory.h"
 #include "CallBackTypes.h"
 #include "OrbiterRenderer.h"
+#ifdef ENABLE_MOUSE_BEHAVIOR
 #include "MouseBehavior.h"
+#endif
 #include "MediaBrowserMouseHandler.h"
 #include "DataGrid.h"
 #include "Gen_Devices/AllCommandsRequests.h"
@@ -20,9 +22,7 @@ using namespace DCE;
 ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) : 
 	ScreenHandlerBase(p_MapDesignObj)
 	, m_MapMutex("maps")
-#ifdef ENABLE_MOUSE_BEHAVIOR
 	, mediaFileBrowserOptions(pOrbiter)
-#endif
 {
 	m_pOrbiter = pOrbiter;
 
@@ -123,7 +123,6 @@ void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::ltos(iPK_Users));
 	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, iPK_Users);
 }
-#ifdef ENABLE_MOUSE_BEHAVIOR
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 {
@@ -148,15 +147,11 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		if( !pObj_Play || !pObj_Play->m_pParentObject )
 			return false; // Shouldn't happen
 
-		if( !m_pOrbiter->m_pMouseBehavior->m_pMouseHandler || m_pOrbiter->m_pMouseBehavior->m_pMouseHandler->TypeOfMouseHandler() != MouseHandler::mh_MediaBrowser )
-			return false; // Shouldn't happen
-		MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pOrbiter->m_pMouseBehavior->m_pMouseHandler;
-
 		DataGridCell *pCell_Pic=NULL,*pCell_List=NULL;
-		if( pMediaBrowserMouseHandler->m_pObj_PicGrid->m_pDataGridTable )
-			pCell_Pic = pMediaBrowserMouseHandler->m_pObj_PicGrid->m_pDataGridTable->GetData(pMediaBrowserMouseHandler->m_pObj_PicGrid->m_iHighlightedColumn,pMediaBrowserMouseHandler->m_pObj_PicGrid->m_iHighlightedRow);
-		if( pMediaBrowserMouseHandler->m_pObj_ListGrid->m_pDataGridTable )
-			pCell_List = pMediaBrowserMouseHandler->m_pObj_ListGrid->m_pDataGridTable->GetData(0,pMediaBrowserMouseHandler->m_pObj_ListGrid->m_iHighlightedRow);
+		if( mediaFileBrowserOptions.m_pObj_PicGrid->m_pDataGridTable )
+			pCell_Pic = mediaFileBrowserOptions.m_pObj_PicGrid->m_pDataGridTable->GetData(mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn,mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow);
+		if( mediaFileBrowserOptions.m_pObj_ListGrid->m_pDataGridTable )
+			pCell_List = mediaFileBrowserOptions.m_pObj_ListGrid->m_pDataGridTable->GetData(0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
 
 		if( !pCell_List )
 			return false; // Shouldn't happen
@@ -190,36 +185,34 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",pData,int(Size),"0");
 		m_pOrbiter->m_pObj_Highlighted = pObj_Play;
 		m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
+#ifdef ENABLE_MOUSE_BEHAVIOR
 		m_pOrbiter->m_pMouseBehavior->ConstrainMouse(pObj_Play->m_pParentObject->m_rPosition + pObj_Play->m_pPopupPoint );
 		m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
+#endif
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == 5090 )
 	{
-		if( !m_pOrbiter->m_pMouseBehavior->m_pMouseHandler || m_pOrbiter->m_pMouseBehavior->m_pMouseHandler->TypeOfMouseHandler() != MouseHandler::mh_MediaBrowser )
-			return false; // Shouldn't happen
-		MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pOrbiter->m_pMouseBehavior->m_pMouseHandler;
-
-		m_pOrbiter->m_pObj_Highlighted = pMediaBrowserMouseHandler->m_pObj_ListGrid;
+		m_pOrbiter->m_pObj_Highlighted = mediaFileBrowserOptions.m_pObj_ListGrid;
 		m_pOrbiter->CMD_Remove_Popup("","filedetails");
+#ifdef ENABLE_MOUSE_BEHAVIOR
 		m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
+#endif
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == 5089 )
 	{
-		if( !m_pOrbiter->m_pMouseBehavior->m_pMouseHandler || m_pOrbiter->m_pMouseBehavior->m_pMouseHandler->TypeOfMouseHandler() != MouseHandler::mh_MediaBrowser )
-			return false; // Shouldn't happen
-		MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pOrbiter->m_pMouseBehavior->m_pMouseHandler;
-		if( !pMediaBrowserMouseHandler->m_pObj_ListGrid->m_pDataGridTable )
+		if( !mediaFileBrowserOptions.m_pObj_ListGrid->m_pDataGridTable )
 			return false; //shouldn't happen
 
 		DataGridCell *pCell_List=NULL;
-		pCell_List = pMediaBrowserMouseHandler->m_pObj_ListGrid->m_pDataGridTable->GetData(0,pMediaBrowserMouseHandler->m_pObj_ListGrid->m_iHighlightedRow);
+		pCell_List = mediaFileBrowserOptions.m_pObj_ListGrid->m_pDataGridTable->GetData(0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
 
 		if( !pCell_List || !pCell_List->m_Value )
 			return false; // Shouldn't happen
 
 		m_pOrbiter->CMD_Remove_Popup("","filedetails");
+#ifdef ENABLE_MOUSE_BEHAVIOR
 		m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
-
+#endif
 		DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
 			0,pCell_List->m_Value,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0);
 		m_pOrbiter->SendCommand(CMD_MH_Play_Media);
@@ -397,7 +390,6 @@ void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,int &iValue)
 	pObj->m_GraphicToDisplay = GRAPHIC_SELECTED;
 	iValue = iValue_New;
 }
-#endif
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, string sPrivate,
 									string sPublic, string sCaption)

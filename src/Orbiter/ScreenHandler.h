@@ -4,13 +4,14 @@
 #include "Gen_Devices/AllScreens.h"
 #include "Orbiter.h"
 #include "CallBackData.h"
+#include "pluto_main/Define_DesignObj.h"
+
 //-----------------------------------------------------------------------------------------------------
 typedef bool (ScreenHandler::*ScreenHandlerCallBack)(CallBackData *pData);
 //-----------------------------------------------------------------------------------------------------
 typedef class ScreenHandler * (* RAOP_FType) (class Orbiter *,  map<int,int> *p_MapDesignObj, Logger *);
 //-----------------------------------------------------------------------------------------------------
 
-#ifdef ENABLE_MOUSE_BEHAVIOR
 class MediaFileBrowserOptions
 {
 public:
@@ -18,8 +19,14 @@ public:
 	string m_sPK_MediaSubType,m_sPK_FileFormat,m_sPK_Attribute_Genres,m_sSources,m_sPK_Users_Private;
 	map< pair<int,string>, DesignObj_Orbiter * > m_mapObjectsValues;
 	Orbiter *m_pOrbiter;
+	DesignObj_DataGrid *m_pObj_ListGrid,*m_pObj_PicGrid;
 
-	MediaFileBrowserOptions(Orbiter *pOrbiter) { m_pOrbiter=pOrbiter; ClearAll(0,0); }
+	MediaFileBrowserOptions(Orbiter *pOrbiter) 
+	{ 
+		m_pOrbiter=pOrbiter; 
+		ClearAll(0,0); 
+		m_pObj_ListGrid=m_pObj_PicGrid=NULL;
+	}
 
 	string ToString()
 	{
@@ -34,6 +41,10 @@ public:
 		m_PK_AttributeType_Sort=m_PK_Users=0;
 		m_sPK_MediaSubType=""; m_sPK_FileFormat=""; m_sPK_Attribute_Genres=""; m_sSources=""; m_sPK_Users_Private="";
 		m_mapObjectsValues.clear();
+		if( !m_pObj_ListGrid )
+			m_pObj_ListGrid=(DesignObj_DataGrid *) m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_CONST));
+		if( !m_pObj_PicGrid )
+			m_pObj_PicGrid=(DesignObj_DataGrid *) m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_Pics_CONST));
 	}
 
 	void SelectArrays(DesignObj_Orbiter *pObj,string &sValues);
@@ -41,7 +52,6 @@ public:
 	void SelectedArray(DesignObj_Orbiter *pObj,string &sValues);
 	void SelectedArray(DesignObj_Orbiter *pObj,int &iValue);
 };
-#endif
 
 class ScreenHandler : public ScreenHandlerBase
 {
@@ -86,7 +96,6 @@ public:
 	virtual void GotoDesignObj(int PK_DesignObj,string sID="",bool bStore_Variables=false,bool bCant_Go_Back=false);
 	virtual void SCREEN_NewPnpDevice(long PK_Screen, string sDescription, int iPK_PnpQueue);
 	virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users); 
-#ifdef ENABLE_MOUSE_BEHAVIOR
 	MediaFileBrowserOptions mediaFileBrowserOptions;  // Current sort/filter options for the media browser
 
 	virtual void SCREEN_FileList_Music_Movies_Video(long PK_Screen);
@@ -94,7 +103,6 @@ public:
 	virtual void SCREEN_MediaSortFilter(long PK_Screen);
 	bool MediaSortFilter_ObjectSelected(CallBackData *pData);
 	void GetAttributesForMediaFile(const char *pFilename);
-#endif
 	virtual void SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, 
 		string sPrivate, string sPublic, string sCaption);
 	virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, string sDescription);
