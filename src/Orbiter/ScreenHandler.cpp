@@ -18,7 +18,11 @@ using namespace DCE;
 
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) : 
-	ScreenHandlerBase(p_MapDesignObj), m_MapMutex("maps"), mediaFileBrowserOptions(pOrbiter)
+	ScreenHandlerBase(p_MapDesignObj)
+	, m_MapMutex("maps")
+#ifdef ENABLE_MOUSE_BEHAVIOR
+	, mediaFileBrowserOptions(pOrbiter)
+#endif
 {
 	m_pOrbiter = pOrbiter;
 
