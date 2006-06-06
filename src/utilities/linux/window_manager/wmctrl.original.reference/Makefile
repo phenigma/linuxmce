@@ -2,7 +2,7 @@ CC       = gcc
 CFLAGS   = -g -O2 -Wall -I/usr/X11R6/include
 CPPFLAGS = -I/usr/X11R6/include -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
 DEFS     = -DPACKAGE=\"wmctrl\" -DVERSION=\"1.07\" 
-LIBS     = -L/usr/X11R6/lib -lSM -lICE -lX11 -lXmu -lglib-2.0
+LIBS     = -L/usr/X11R6/lib -lX11 -lXmu -lglib-2.0
 
 PROGRAMS = wmctrl
 OBJECTS = main.o
