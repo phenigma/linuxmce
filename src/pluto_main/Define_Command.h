@@ -716,9 +716,7 @@
 #define COMMAND_Remove_playlist_CONST 780
 #define COMMAND_StatusReport_CONST 788
 #define COMMAND_Force_Update_Packages_CONST 789
-#define COMMAND_Get_iPK_DeviceFromUID_CONST 790
 #define COMMAND_Set_Enable_Status_CONST 791
-#define COMMAND_Get_All_HAL_Model_ID_CONST 792
 #define COMMAND_Get_Sibling_Remotes_CONST 793
 #define COMMAND_Set_Mouse_Behavior_CONST 795
 #define COMMAND_PL_Join_Call_CONST 797

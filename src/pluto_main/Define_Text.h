@@ -1045,8 +1045,11 @@
 #define TEXT_FBSF_Sort_CONST 1758
 #define TEXT_MediaDetails_Filename_CONST 1759
 #define TEXT_MediaDetails_Title_CONST 1760
-#define TEXT_Games_CONST 1763
-#define TEXT_Data_CONST 1764
+#define TEXT_MediaType_Video_CONST 1761
+#define TEXT_MediaType_Pictures_CONST 1762
+#define TEXT_MediaType_Games_CONST 1763
+#define TEXT_MediaType_Data_CONST 1764
+#define TEXT_MediaType_Audio_CONST 1765
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
