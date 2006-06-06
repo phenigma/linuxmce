@@ -148,6 +148,12 @@
 				RelativePath=".\Table_MediaProvider.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_MediaSource.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_MediaSource_FileFormat.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_MediaSubType.cpp">
 			</File>
 			<File
