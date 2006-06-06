@@ -18,7 +18,7 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_MediaSource.h"
 
-#include "Table_MediaSource_FileFormat.h"
+#include "Table_MediaType_MediaSource.h"
 
 
 void Database_pluto_media::CreateTable_MediaSource()
@@ -888,11 +888,11 @@ sscanf(row[8], "%li", &(pRow->m_psc_restrict));
 
 
 
-void Row_MediaSource::MediaSource_FileFormat_FK_MediaSource_getrows(vector <class Row_MediaSource_FileFormat*> *rows)
+void Row_MediaSource::MediaType_MediaSource_FK_MediaSource_getrows(vector <class Row_MediaType_MediaSource*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_MediaSource_FileFormat *pTable = table->database->MediaSource_FileFormat_get();
+class Table_MediaType_MediaSource *pTable = table->database->MediaType_MediaSource_get();
 pTable->GetRows("`FK_MediaSource`=" + StringUtils::itos(m_PK_MediaSource),rows);
 }
 

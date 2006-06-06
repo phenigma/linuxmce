@@ -1,10 +1,10 @@
-#ifndef __Table_MediaSource_FileFormat_H__
-#define __Table_MediaSource_FileFormat_H__
+#ifndef __Table_MediaType_MediaSource_H__
+#define __Table_MediaType_MediaSource_H__
 
 #include "TableRow.h"
 #include "Database_pluto_media.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
-#include "Define_MediaSource_FileFormat.h"
+#include "Define_MediaType_MediaSource.h"
 #include "SerializeClass/SerializeClass.h"
 
 // If we declare the maps locally, the compiler will create multiple copies of them
@@ -15,34 +15,34 @@
 class DECLSPECIFIER TableRow;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Table_MediaSource_FileFormat : public TableBase , DoubleLongKeyBase
+class DECLSPECIFIER Table_MediaType_MediaSource : public TableBase , DoubleLongKeyBase
 {
 private:
 	Database_pluto_media *database;
 	struct Key;	//forward declaration
 	
 public:
-	Table_MediaSource_FileFormat(Database_pluto_media *pDatabase):database(pDatabase)
+	Table_MediaType_MediaSource(Database_pluto_media *pDatabase):database(pDatabase)
 	{
 	};
-	~Table_MediaSource_FileFormat();
+	~Table_MediaType_MediaSource();
 
 private:		
-	friend class Row_MediaSource_FileFormat;
+	friend class Row_MediaType_MediaSource;
 	struct Key
 	{
-		friend class Row_MediaSource_FileFormat;
+		friend class Row_MediaType_MediaSource;
 		long int pk_EK_MediaType;
 long int pk_FK_MediaSource;
 
 		
 		Key(long int in_EK_MediaType, long int in_FK_MediaSource);
 	
-		Key(class Row_MediaSource_FileFormat *pRow);
+		Key(class Row_MediaType_MediaSource *pRow);
 	};
 	struct Key_Less
 	{			
-		bool operator()(const Table_MediaSource_FileFormat::Key &key1, const Table_MediaSource_FileFormat::Key &key2) const;
+		bool operator()(const Table_MediaType_MediaSource::Key &key1, const Table_MediaType_MediaSource::Key &key2) const;
 	};	
 
 	
@@ -55,28 +55,28 @@ public:
 	// the rows since they will be re-attempted.  If you set either flag to true, the failed
 	// row can be deleted.  Use with caution since your pointers become invalid!
 	bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);
-	bool GetRows(string where_statement,vector<class Row_MediaSource_FileFormat*> *rows);
-	class Row_MediaSource_FileFormat* AddRow();
+	bool GetRows(string where_statement,vector<class Row_MediaType_MediaSource*> *rows);
+	class Row_MediaType_MediaSource* AddRow();
 	Database_pluto_media *Database_pluto_media_get() { return database; }
 	
 		
-	class Row_MediaSource_FileFormat* GetRow(long int in_EK_MediaType, long int in_FK_MediaSource);
+	class Row_MediaType_MediaSource* GetRow(long int in_EK_MediaType, long int in_FK_MediaSource);
 	
 
 private:	
 	
 		
-	class Row_MediaSource_FileFormat* FetchRow(DoubleLongKey &key);
+	class Row_MediaType_MediaSource* FetchRow(DoubleLongKey &key);
 		
 			
 };
 
-class DECLSPECIFIER Row_MediaSource_FileFormat : public TableRow, public SerializeClass
+class DECLSPECIFIER Row_MediaType_MediaSource : public TableRow, public SerializeClass
 	{
-		friend struct Table_MediaSource_FileFormat::Key;
-		friend class Table_MediaSource_FileFormat;
+		friend struct Table_MediaType_MediaSource::Key;
+		friend class Table_MediaType_MediaSource;
 	private:
-		Table_MediaSource_FileFormat *table;
+		Table_MediaType_MediaSource *table;
 		
 		long int m_EK_MediaType;
 long int m_FK_MediaSource;
@@ -127,11 +127,11 @@ void psc_restrict_setNull(bool val);
 		void Delete();
 		void Reload();		
 	
-		Row_MediaSource_FileFormat(Table_MediaSource_FileFormat *pTable);
+		Row_MediaType_MediaSource(Table_MediaType_MediaSource *pTable);
 	
 		bool IsDeleted(){return is_deleted;};
 		bool IsModified(){return is_modified;};			
-		class Table_MediaSource_FileFormat *Table_MediaSource_FileFormat_get() { return table; };
+		class Table_MediaType_MediaSource *Table_MediaType_MediaSource_get() { return table; };
 
 		// Return the rows for foreign keys 
 		class Row_MediaSource* FK_MediaSource_getrow();

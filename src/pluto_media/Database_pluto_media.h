@@ -47,14 +47,14 @@ class Table_MediaProvider* tblMediaProvider;
 bool Commit_MediaProvider(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_MediaSource* tblMediaSource;
 bool Commit_MediaSource(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
-class Table_MediaSource_FileFormat* tblMediaSource_FileFormat;
-bool Commit_MediaSource_FileFormat(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_MediaSubType* tblMediaSubType;
 bool Commit_MediaSubType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_MediaType_AttributeType* tblMediaType_AttributeType;
 bool Commit_MediaType_AttributeType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_MediaType_FileFormat* tblMediaType_FileFormat;
 bool Commit_MediaType_FileFormat(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_MediaType_MediaSource* tblMediaType_MediaSource;
+bool Commit_MediaType_MediaSource(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_MediaType_MediaSubType* tblMediaType_MediaSubType;
 bool Commit_MediaType_MediaSubType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Picture* tblPicture;
@@ -97,10 +97,10 @@ class Table_File_Attribute* File_Attribute_get() { if( !tblFile_Attribute ) Crea
 class Table_File_Users* File_Users_get() { if( !tblFile_Users ) CreateTable_File_Users(); return tblFile_Users; }
 class Table_MediaProvider* MediaProvider_get() { if( !tblMediaProvider ) CreateTable_MediaProvider(); return tblMediaProvider; }
 class Table_MediaSource* MediaSource_get() { if( !tblMediaSource ) CreateTable_MediaSource(); return tblMediaSource; }
-class Table_MediaSource_FileFormat* MediaSource_FileFormat_get() { if( !tblMediaSource_FileFormat ) CreateTable_MediaSource_FileFormat(); return tblMediaSource_FileFormat; }
 class Table_MediaSubType* MediaSubType_get() { if( !tblMediaSubType ) CreateTable_MediaSubType(); return tblMediaSubType; }
 class Table_MediaType_AttributeType* MediaType_AttributeType_get() { if( !tblMediaType_AttributeType ) CreateTable_MediaType_AttributeType(); return tblMediaType_AttributeType; }
 class Table_MediaType_FileFormat* MediaType_FileFormat_get() { if( !tblMediaType_FileFormat ) CreateTable_MediaType_FileFormat(); return tblMediaType_FileFormat; }
+class Table_MediaType_MediaSource* MediaType_MediaSource_get() { if( !tblMediaType_MediaSource ) CreateTable_MediaType_MediaSource(); return tblMediaType_MediaSource; }
 class Table_MediaType_MediaSubType* MediaType_MediaSubType_get() { if( !tblMediaType_MediaSubType ) CreateTable_MediaType_MediaSubType(); return tblMediaType_MediaSubType; }
 class Table_Picture* Picture_get() { if( !tblPicture ) CreateTable_Picture(); return tblPicture; }
 class Table_Picture_Attribute* Picture_Attribute_get() { if( !tblPicture_Attribute ) CreateTable_Picture_Attribute(); return tblPicture_Attribute; }
@@ -133,10 +133,10 @@ void CreateTable_File_Attribute();
 void CreateTable_File_Users();
 void CreateTable_MediaProvider();
 void CreateTable_MediaSource();
-void CreateTable_MediaSource_FileFormat();
 void CreateTable_MediaSubType();
 void CreateTable_MediaType_AttributeType();
 void CreateTable_MediaType_FileFormat();
+void CreateTable_MediaType_MediaSource();
 void CreateTable_MediaType_MediaSubType();
 void CreateTable_Picture();
 void CreateTable_Picture_Attribute();
@@ -163,10 +163,10 @@ void DeleteTable_File_Attribute();
 void DeleteTable_File_Users();
 void DeleteTable_MediaProvider();
 void DeleteTable_MediaSource();
-void DeleteTable_MediaSource_FileFormat();
 void DeleteTable_MediaSubType();
 void DeleteTable_MediaType_AttributeType();
 void DeleteTable_MediaType_FileFormat();
+void DeleteTable_MediaType_MediaSource();
 void DeleteTable_MediaType_MediaSubType();
 void DeleteTable_Picture();
 void DeleteTable_Picture_Attribute();

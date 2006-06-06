@@ -141,7 +141,7 @@ void psc_restrict_setNull(bool val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		void MediaSource_FileFormat_FK_MediaSource_getrows(vector <class Row_MediaSource_FileFormat*> *rows);
+		void MediaType_MediaSource_FK_MediaSource_getrows(vector <class Row_MediaType_MediaSource*> *rows);
 
 
 		// Setup binary serialization

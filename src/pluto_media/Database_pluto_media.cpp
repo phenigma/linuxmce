@@ -35,10 +35,10 @@ tblFile_Attribute=NULL;
 tblFile_Users=NULL;
 tblMediaProvider=NULL;
 tblMediaSource=NULL;
-tblMediaSource_FileFormat=NULL;
 tblMediaSubType=NULL;
 tblMediaType_AttributeType=NULL;
 tblMediaType_FileFormat=NULL;
+tblMediaType_MediaSource=NULL;
 tblMediaType_MediaSubType=NULL;
 tblPicture=NULL;
 tblPicture_Attribute=NULL;
@@ -97,9 +97,6 @@ if( tblMediaProvider!=NULL )
 if( tblMediaSource!=NULL )
 	if( !Commit_MediaSource(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
-if( tblMediaSource_FileFormat!=NULL )
-	if( !Commit_MediaSource_FileFormat(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
-		bResult=false;
 if( tblMediaSubType!=NULL )
 	if( !Commit_MediaSubType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
@@ -108,6 +105,9 @@ if( tblMediaType_AttributeType!=NULL )
 		bResult=false;
 if( tblMediaType_FileFormat!=NULL )
 	if( !Commit_MediaType_FileFormat(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblMediaType_MediaSource!=NULL )
+	if( !Commit_MediaType_MediaSource(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
 if( tblMediaType_MediaSubType!=NULL )
 	if( !Commit_MediaType_MediaSubType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
@@ -171,10 +171,10 @@ DeleteTable_File_Attribute();
 DeleteTable_File_Users();
 DeleteTable_MediaProvider();
 DeleteTable_MediaSource();
-DeleteTable_MediaSource_FileFormat();
 DeleteTable_MediaSubType();
 DeleteTable_MediaType_AttributeType();
 DeleteTable_MediaType_FileFormat();
+DeleteTable_MediaType_MediaSource();
 DeleteTable_MediaType_MediaSubType();
 DeleteTable_Picture();
 DeleteTable_Picture_Attribute();
