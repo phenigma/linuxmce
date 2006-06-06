@@ -1679,6 +1679,8 @@ string Makefile = "none:\n"
 	cout << "Depends list: " << sDepends << endl;
 	cout << "PreDepends list: " << sPreDepends << endl;
 	cout << "Replaces: " << pRow_Package_Source->Replaces_get() << endl;  // This is a comma-delimited list
+	cout << "Conflicts: " << pRow_Package_Source->Conflicts_get() << endl;  // This is a comma-delimited list
+	cout << "Provides: " << pRow_Package_Source->Provides_get() << endl;  // This is a comma-delimited list
 
 #ifndef WIN32
 	string sed_predepends = "";
@@ -1688,9 +1690,19 @@ string Makefile = "none:\n"
 	}
 	string sed_cmd = "s/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + sed_predepends + "/";
 	string replaces = pRow_Package_Source->Replaces_get();
+	string conflicts = pRow_Package_Source->Conflicts_get();
+	string provides = pRow_Package_Source->Provides_get();
 	if (replaces != "")
 	{
-		sed_cmd += "; /^Description: / { x; s/^.*$/Replaces: " + replaces + "/; p; s/^.*$/Conflicts: " + replaces + "/; p; x; }";
+		sed_cmd += "; /^Description: / { x; s/^.*$/Replaces: " + replaces + "/; p; x; }";
+	}
+	if (conflicts != "")
+	{
+		sed_cmd += "; /^Description: / { x; s/^.*$/Conflicts: " + conflicts + "/; p; x; }";
+	}
+	if (provides != "")
+	{
+		sed_cmd += "; /^Description: / { x; s/^.*$/Provides: " + provides + "/; p; x; }";
 	}
 	string cmd = string("sed -i '" + sed_cmd + "' " + Dir + "/debian/control");
 	
