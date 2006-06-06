@@ -393,7 +393,7 @@ public:
 		CheckWrite(sizeof(unsigned long));
 		unsigned long *pl = (unsigned long *) m_pcCurrentPosition;
 
-#ifndef WINCE
+#if !defined(WINCE) && !defined(MAEMO_NOKIA770)
 		*pl = v;
 #else
 		//try to avoid "Datatype misalignment" exception
@@ -433,7 +433,7 @@ public:
 		CheckWrite(sizeof(long));
 		 long *pl = (long *) m_pcCurrentPosition;
 
-#ifndef WINCE
+#if !defined(WINCE) && !defined(MAEMO_NOKIA770)
 		*pl = v;
 #else
 		//try to avoid "Datatype misalignment" exception
