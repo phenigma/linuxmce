@@ -14,6 +14,8 @@ namespace DCE
 
 class OrbiterBluetooth : public Orbiter
 {
+	friend class DataGridRenderer_Bluetooth;
+
 	bool  m_bShowListSent;
     int   m_ImageQuality;
 
@@ -24,9 +26,6 @@ public:
         int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
         int nImageWidth, int nImageHeight, pluto_pthread_mutex_t *pExternalScreenMutex);
 	~OrbiterBluetooth();
-
-	// Public methods
-	void RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint point = PlutoPoint(0, 0));
 
 	void SimulateMouseClick(int x, int y);
 	void SimulateKeyPress(long key);

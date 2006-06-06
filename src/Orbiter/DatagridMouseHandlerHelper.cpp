@@ -117,7 +117,7 @@ bool DatagridMouseHandlerHelper::MovedPastTopBottomOfDataGrid(DesignObj_DataGrid
 		// Down is trickier since the last visible cell may not extend all the way to the bottom (the top cell is always the top)
 		// So get the coorindates of the last visible cell
 		PlutoRectangle r;
-		m_pMouseBehavior->m_pOrbiter->GetGridCellDimensions( pObj,
+		pObj->GetGridCellDimensions(
 			1, // col span
 			1, // row span
 			0, // column
@@ -165,7 +165,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid direct
 				m_pObj_ScrollingGrid->m_iHighlightedRow = m_pObj_ScrollingGrid->m_pDataGridTable->GetRows() - m_pObj_ScrollingGrid->m_GridCurRow - 1;
 
 			PlutoRectangle r;
-			m_pMouseBehavior->m_pOrbiter->GetGridCellDimensions( m_pObj_ScrollingGrid,
+			m_pObj_ScrollingGrid->GetGridCellDimensions(
 				1, // col span
 				1, // row span
 				0, // column

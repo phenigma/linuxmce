@@ -1169,7 +1169,7 @@ void OrbiterRenderer_PocketFrog::DoHighlightObjectOpenGL()
 			pGrid->m_iHighlightedRow = 0;
 
 		PlutoRectangle r;
-		OrbiterLogic()->GetGridCellDimensions( pGrid,  
+		pGrid->GetGridCellDimensions(  
 			pGrid->m_iHighlightedColumn==-1 ? pGrid->m_MaxCol : pCell->m_Colspan, 
 			pGrid->m_iHighlightedRow==-1 ? pGrid->m_MaxRow : pCell->m_Rowspan,
 			pGrid->m_iHighlightedColumn==-1 ? 0 : pGrid->m_iHighlightedColumn, 

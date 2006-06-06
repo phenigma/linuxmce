@@ -18,6 +18,7 @@ namespace DCE
 	class Proxy_Orbiter : public Orbiter, public SocketListener
 	{
 		friend class Proxy_OrbiterRenderer_SDL;
+		friend class DataGridRenderer_Proxy;
 
 		bool IsProcessingRequest();
 		void StartProcessingRequest();
@@ -73,7 +74,6 @@ namespace DCE
         virtual void GenerateXMLItems(DesignObj_Orbiter *pObj); //recursive
         virtual string GenerateSoftKeys(DesignObj_Orbiter *pObj);
 
-        virtual bool RenderCell( class DesignObj_DataGrid *pObj, class DataGridTable *pT, class DataGridCell *pCell, int j, int i, int iGraphicToDisplay, PlutoPoint point = PlutoPoint(0, 0) );
         virtual void ParseHardKeys();
 
 		inline string GetDevicePngFileName();

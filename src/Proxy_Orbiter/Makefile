@@ -23,6 +23,7 @@ XTRALDLIBS = -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lcurl
 
 sources += \
 	Proxy_OrbiterRenderer_SDL.cpp \
+	DataGridRenderer_Proxy.cpp \
 	../Orbiter/OrbiterRenderer.cpp \
 	../Orbiter/SDL/OrbiterRenderer_SDL.cpp \
 	../Orbiter/OrbiterRendererFactory.cpp \
@@ -30,6 +31,7 @@ sources += \
 	../Orbiter/Simulator.cpp \
 	../Orbiter/DesignObj_Data.cpp \
 	../Orbiter/DesignObj_Orbiter.cpp \
+	../Orbiter/DesignObj_DataGrid.cpp \
 	../Orbiter/Orbiter.cpp \
 	../Orbiter/GraphicBuilder.cpp \
 	../Orbiter/RendererMNG.cpp \
@@ -43,6 +45,9 @@ sources += \
 	../Orbiter/SDL/JpegWrapper.cpp \
 	../Orbiter/CallBackData.cpp \
 	../Orbiter/PlutoGraphic.cpp \
+	../Orbiter/DataGridRenderer.cpp \
+	../Orbiter/ObjectRenderer.cpp \
+	../Orbiter/ObjectRendererFactory.cpp \
 	../Splitter/TextWrapper.cpp \
 	../Splitter/TextSplitter.cpp \
 	../OrbiterGen/Renderer.cpp \

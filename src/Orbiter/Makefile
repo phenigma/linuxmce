@@ -97,6 +97,7 @@ sources += \
 	Linux/OrbiterRenderer_SDL_Linux.cpp \
 	DesignObj_Data.cpp \
 	DesignObj_Orbiter.cpp \
+	DesignObj_DataGrid.cpp \
 	Simulator.cpp \
 	OrbiterFileBrowser.cpp \
 	Linux/OrbiterLinux.cpp \
@@ -124,6 +125,9 @@ sources += \
 	PlutoGraphic.cpp \
 	OrbiterRenderer.cpp \
 	OrbiterRendererFactory.cpp \
+	DataGridRenderer.cpp \
+	ObjectRenderer.cpp \
+	ObjectRendererFactory.cpp \
 	SDL/OrbiterRenderer_SDL.cpp \
 	SDL/SDLRendererOCGHelper.cpp \
 	SDL/SDLGraphic.cpp \

@@ -236,7 +236,7 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 
 	if ( OrbiterLogic()->m_pScreenHistory_Current  )
 	{
-		OrbiterLogic()->RenderObject( OrbiterLogic()->m_pScreenHistory_Current->GetObj(),  OrbiterLogic()->m_pScreenHistory_Current->GetObj());
+		OrbiterLogic()->m_pScreenHistory_Current->GetObj()->RenderObject(OrbiterLogic()->m_pScreenHistory_Current->GetObj());
 	}
 
 	for(list<class PlutoPopup*>::iterator it=OrbiterLogic()->m_listPopups.begin();it!=OrbiterLogic()->m_listPopups.end();++it)
@@ -900,7 +900,7 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 
 	if(pPopup->m_pObj)
 	{
-		OrbiterLogic()->RenderObject(pPopup->m_pObj, pPopup->m_pObj, point);
+		pPopup->m_pObj->RenderObject(pPopup->m_pObj, point);
 	}
 	else
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot render the popup %s: object %s doesn't exist", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
@@ -986,7 +986,7 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 				bRehighlight=true;
 				UnHighlightObject();
 			}
-			OrbiterLogic()->RenderObject( pObj, OrbiterLogic()->m_pScreenHistory_Current->GetObj(), AbsolutePosition );
+			pObj->RenderObject(OrbiterLogic()->m_pScreenHistory_Current->GetObj(), AbsolutePosition );
 			UpdateRect(pObj->m_rPosition, AbsolutePosition);
 		}
 	}

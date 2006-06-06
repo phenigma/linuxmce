@@ -372,33 +372,6 @@ void Proxy_Orbiter::StopProcessingRequest(void *p)
     m_pOrbiterRenderer->RedrawObjects();
 }
 //-----------------------------------------------------------------------------------------------------
-
-bool Proxy_Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *pT,  class DataGridCell *pCell,  int j,  int i,  int GraphicToDisplay, PlutoPoint point )
-{
-    bool bRetValue = Orbiter::RenderCell(pObj, pT, pCell, j, i, GraphicToDisplay, point);
-
-    int x, y, w, h;
-    GetGridCellDimensions( pObj,  pCell->m_Colspan,  pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
-
-    string sX1 = StringUtils::ltos(x);
-    string sY1 = StringUtils::ltos(y);
-    string sX2 = StringUtils::ltos(x + w);
-    string sY2 = StringUtils::ltos(y + h);
-
-    string sTouchX = StringUtils::ltos(x + w / 2);
-    string sTouchY = StringUtils::ltos(y + h / 2);
-
-    string sXMLItem = 
-        "<MenuItem>\r\n"
-        "\t<Name>Button</Name>\r\n"
-        "\t<URL>" + m_sRequestUrl + "x=" + sTouchX + "&amp;" + "y=" + sTouchY + "</URL>\r\n"
-        "\t<TouchArea X1=\"" + sX1 + "\" Y1=\"" + sY1 + "\" X2=\"" + sX2 + "\" Y2=\"" + sY2 + "\"/>\r\n"
-        "</MenuItem>\r\n";
-
-    m_dequeCellXMLItems.push_front(sXMLItem);
-    return bRetValue;
-}
-
 void Proxy_Orbiter::ImageGenerated()
 {
 	m_nCurrentScreenId = m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;

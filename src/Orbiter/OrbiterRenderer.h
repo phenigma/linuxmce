@@ -51,6 +51,11 @@ public:
 	virtual void EventLoop() = 0; 
 	virtual void Configure() = 0;
 
+	/*
+	 *	Override this to disable select/highlight graphics for objects
+	 */
+	virtual bool AlternateGraphicsDisabled() { return false; }
+
 	/**
 	* @brief renders text with the specified style
 	*/

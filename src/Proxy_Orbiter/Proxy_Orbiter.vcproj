@@ -131,6 +131,9 @@
 				RelativePath="..\Orbiter\DesignObj_Data.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter\DesignObj_DataGrid.cpp">
+			</File>
+			<File
 				RelativePath="..\Orbiter\DesignObj_Orbiter.cpp">
 			</File>
 			<File
@@ -155,10 +158,22 @@
 				Name="Renderer"
 				Filter="">
 				<File
+					RelativePath="..\Orbiter\DataGridRenderer.cpp">
+				</File>
+				<File
+					RelativePath=".\DataGridRenderer_Proxy.cpp">
+				</File>
+				<File
 					RelativePath="..\Orbiter\GraphicBuilder.cpp">
 				</File>
 				<File
 					RelativePath="..\Orbiter\Sdl\JpegWrapper.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\ObjectRenderer.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter\ObjectRendererFactory.cpp">
 				</File>
 				<File
 					RelativePath="..\Orbiter\OrbiterRenderer.cpp">
@@ -225,6 +240,9 @@
 			</File>
 			<File
 				RelativePath="..\VIPShared\BD_PC_GetSignalStrength.h">
+			</File>
+			<File
+				RelativePath=".\DataGridRenderer_Proxy.h">
 			</File>
 			<File
 				RelativePath="..\Orbiter\OrbiterData.h">

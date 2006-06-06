@@ -17,6 +17,7 @@
  
 #include "PlutoUtils/CommonIncludes.h"	
 #include "DesignObj_Orbiter.h"
+#include "DesignObj_DataGrid.h"
 #include "pluto_main/Define_DesignObjType.h"
 
 DesignObj_Data::~DesignObj_Data()

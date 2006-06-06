@@ -12,6 +12,7 @@
 
 #ifdef ORBITER
 #include "DesignObj_Orbiter.h"
+#include "DesignObj_DataGrid.h"
 #endif
 
 // This is all the data for a Orbiter that we will serialize.  Be sure "ORBITER" is defined when including this in the Orbiter projects.

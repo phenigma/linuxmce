@@ -26,10 +26,12 @@ sources += \
 	OrbiterBluetooth.cpp \
 	OrbiterBluetoothCreator.cpp \
 	OrbiterRenderer_SDL_Bluetooth.cpp \
+	DataGridRenderer_Bluetooth.cpp \
 	../Orbiter/OrbiterFileBrowser.cpp \
 	../Orbiter/Simulator.cpp \
 	../Orbiter/DesignObj_Data.cpp \
 	../Orbiter/DesignObj_Orbiter.cpp \
+	../Orbiter/DesignObj_DataGrid.cpp \
 	../Orbiter/Orbiter.cpp \
 	../Orbiter/GraphicBuilder.cpp \
 	../Orbiter/RendererMNG.cpp \
@@ -46,6 +48,9 @@ sources += \
 	../Orbiter/OrbiterRenderer.cpp \
 	../Orbiter/OrbiterRendererFactory.cpp \
 	../Orbiter/SDL/OrbiterRenderer_SDL.cpp \
+	../Orbiter/DataGridRenderer.cpp \
+	../Orbiter/ObjectRenderer.cpp \
+	../Orbiter/ObjectRendererFactory.cpp \
 	../Splitter/TextWrapper.cpp \
 	../Splitter/TextSplitter.cpp \
 	../OrbiterGen/Renderer.cpp \

@@ -146,6 +146,9 @@
 				RelativePath="..\DesignObj_Data.cpp">
 			</File>
 			<File
+				RelativePath="..\DesignObj_DataGrid.cpp">
+			</File>
+			<File
 				RelativePath="..\DesignObj_Orbiter.cpp">
 			</File>
 			<File
@@ -269,6 +272,15 @@
 			<Filter
 				Name="Renderer"
 				Filter="">
+				<File
+					RelativePath="..\DataGridRenderer.cpp">
+				</File>
+				<File
+					RelativePath="..\ObjectRenderer.cpp">
+				</File>
+				<File
+					RelativePath="..\ObjectRendererFactory.cpp">
+				</File>
 				<File
 					RelativePath="..\OrbiterRenderer.cpp">
 				</File>

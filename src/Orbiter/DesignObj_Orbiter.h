@@ -4,6 +4,7 @@
 #include "DesignObj_Data.h"
 #include "PlutoGraphic.h"
 #include "PlutoUtils/GraphicFormat.h"
+#include "ObjectRendererFactory.h"
 
 #include "Gen_Devices/AllCommandsRequests.h"
 //-------------------------------------------------------------------------------------------------------
@@ -19,6 +20,7 @@ using namespace DCE;
 //-------------------------------------------------------------------------------------------------------
 class PlutoGraphic;
 class DesignObj_Orbiter;
+class ObjectRenderer;
 //-------------------------------------------------------------------------------------------------------
 typedef map<string, DesignObj_Orbiter*> DesignObj_OrbiterMap;
 typedef list<PlutoGraphic*> PlutoGraphicList;
@@ -78,6 +80,7 @@ public:
 	bool IsHidden();
 
 	virtual void RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
+	virtual void RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point = PlutoPoint(0, 0));
 
 	string GetArrayValue(); // If this is an item in an array, it will return the id of the array
 	// Runtime states
@@ -92,6 +95,14 @@ public:
 	int m_iAltColorValues[MAX_ALT_COLORS];
 
 	string GetParameterValue(int ParameterID);
+	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
+
+protected:
+
+	virtual bool PreRenderActions(DesignObj_Orbiter *pObj_Screen, PlutoPoint point = PlutoPoint(0, 0));
+	virtual bool PostRenderActions(DesignObj_Orbiter *pObj_Screen, PlutoPoint point = PlutoPoint(0, 0));
+
+	ObjectRenderer *m_pObjectRenderer;
 };
 //=======================================================================================================
 //Concrete class CHAEffect
@@ -125,46 +136,5 @@ typedef list<CHAEffect *> CHAEffectList;
 //-------------------------------------------------------------------------------------------------------
 // Eventually it might be good to be able to ask the server to cache a fairly signficant amount of the grid
 class ProntoCCF;
-//=======================================================================================================
-//Concrete class DesignObj_DataGrid
-//-------------------------------------------------------------------------------------------------------
-class DesignObj_DataGrid : public DesignObj_Orbiter 
-{
-public:
-	DesignObj_DataGrid(class Orbiter *pCore) : DesignObj_Orbiter(pCore)
-	{
-		for(int i=0;i<CACHE_SIZE;++i)
-			m_pDataGridTableCache[i]=NULL;
-
-		m_pObjLeft=m_pObjRight=m_pObjUp=m_pObjDown=NULL;
-		bReAcquire=false;
-		m_dwIDownRow=m_iUpRow=-1;
-		m_iPopulatedWidth=m_iPopulatedHeight=0;
-		m_bParsed=false;
-	}
-	virtual ~DesignObj_DataGrid(); 
-
-	int m_dwIDownRow,m_iUpRow;  // These are the rows which have up/down arrows.  If up==-1, there is no up arrow, same for down.  Otherwise it's 0 based
-	int m_iHighlightedRow,m_iHighlightedColumn;
-	int m_iPopulatedWidth,m_iPopulatedHeight; // The last known size during populate grid
-	bool bReAcquire,m_bParsed;
-	class DataGridTable *m_pDataGridTableCache[CACHE_SIZE];
-	class TextStyle *m_pTextStyle,*m_pTextStyle_FirstCol,*m_pTextStyle_FirstRow,*m_pTextStyle_Selected,*m_pTextStyle_Highlighted;
-	vector<class TextStyle *> m_vectTextStyle_Alt;
-
-	string sSelVariable;
-	bool m_bDontShowSelection,m_bIsMultiSelect,m_bKeepColHeader,m_bKeepRowHeader,m_bPersistXY,m_bHighlightSelectedCell;
-	int m_iInitialColNum,m_iInitialRowNum,m_iPK_Datagrid,m_iPK_Variable,m_iSeekColumn,m_iPK_DeviceTemplate;
-	string m_sGridID,m_sOptions,m_sExtraInfo,m_sSeek;
-	DesignObj_Orbiter *m_pObjLeft,*m_pObjRight,*m_pObjUp,*m_pObjDown;
-
-	bool CanGoUp();
-	bool CanGoDown();
-	bool CanGoLeft();
-	bool CanGoRight();
-	bool VerticalOnly();
-	bool HasMoreUp();
-	bool HasMoreDown();
-};
 //-------------------------------------------------------------------------------------------------------
 #endif
