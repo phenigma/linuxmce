@@ -11,6 +11,7 @@ Table_AttributeType.cpp \
 Table_Bookmark.cpp \
 Table_Disc.cpp \
 Table_Disc_Attribute.cpp \
+Table_Disc_Users.cpp \
 Table_File.cpp \
 Table_FileFormat.cpp \
 Table_File_Attribute.cpp \

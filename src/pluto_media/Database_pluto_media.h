@@ -35,6 +35,8 @@ class Table_Disc* tblDisc;
 bool Commit_Disc(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Disc_Attribute* tblDisc_Attribute;
 bool Commit_Disc_Attribute(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_Disc_Users* tblDisc_Users;
+bool Commit_Disc_Users(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_File* tblFile;
 bool Commit_File(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_FileFormat* tblFileFormat;
@@ -91,6 +93,7 @@ class Table_AttributeType* AttributeType_get() { if( !tblAttributeType ) CreateT
 class Table_Bookmark* Bookmark_get() { if( !tblBookmark ) CreateTable_Bookmark(); return tblBookmark; }
 class Table_Disc* Disc_get() { if( !tblDisc ) CreateTable_Disc(); return tblDisc; }
 class Table_Disc_Attribute* Disc_Attribute_get() { if( !tblDisc_Attribute ) CreateTable_Disc_Attribute(); return tblDisc_Attribute; }
+class Table_Disc_Users* Disc_Users_get() { if( !tblDisc_Users ) CreateTable_Disc_Users(); return tblDisc_Users; }
 class Table_File* File_get() { if( !tblFile ) CreateTable_File(); return tblFile; }
 class Table_FileFormat* FileFormat_get() { if( !tblFileFormat ) CreateTable_FileFormat(); return tblFileFormat; }
 class Table_File_Attribute* File_Attribute_get() { if( !tblFile_Attribute ) CreateTable_File_Attribute(); return tblFile_Attribute; }
@@ -127,6 +130,7 @@ void CreateTable_AttributeType();
 void CreateTable_Bookmark();
 void CreateTable_Disc();
 void CreateTable_Disc_Attribute();
+void CreateTable_Disc_Users();
 void CreateTable_File();
 void CreateTable_FileFormat();
 void CreateTable_File_Attribute();
@@ -157,6 +161,7 @@ void DeleteTable_AttributeType();
 void DeleteTable_Bookmark();
 void DeleteTable_Disc();
 void DeleteTable_Disc_Attribute();
+void DeleteTable_Disc_Users();
 void DeleteTable_File();
 void DeleteTable_FileFormat();
 void DeleteTable_File_Attribute();

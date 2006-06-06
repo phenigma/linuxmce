@@ -29,6 +29,7 @@ tblAttributeType=NULL;
 tblBookmark=NULL;
 tblDisc=NULL;
 tblDisc_Attribute=NULL;
+tblDisc_Users=NULL;
 tblFile=NULL;
 tblFileFormat=NULL;
 tblFile_Attribute=NULL;
@@ -78,6 +79,9 @@ if( tblDisc!=NULL )
 		bResult=false;
 if( tblDisc_Attribute!=NULL )
 	if( !Commit_Disc_Attribute(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblDisc_Users!=NULL )
+	if( !Commit_Disc_Users(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
 if( tblFile!=NULL )
 	if( !Commit_File(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
@@ -165,6 +169,7 @@ DeleteTable_AttributeType();
 DeleteTable_Bookmark();
 DeleteTable_Disc();
 DeleteTable_Disc_Attribute();
+DeleteTable_Disc_Users();
 DeleteTable_File();
 DeleteTable_FileFormat();
 DeleteTable_File_Attribute();
