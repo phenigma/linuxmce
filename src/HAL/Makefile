@@ -6,7 +6,7 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lSerial -lmysqlclient_r -lpthread
 
 MYNAME = HAL
 VERSION = 2.0.0
@@ -25,7 +25,7 @@ LDFLAGS +=
 XTRALDLIBS = -ldbus-glib-1 -lgthread-2.0 -ldbus-1 -lglib-2.0 -lhal
 
 Gen_Dev_Files +=
-sources += pluto-hald.cpp
+sources += pluto-hald.cpp seriald.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

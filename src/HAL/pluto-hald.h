@@ -36,7 +36,7 @@ class PlutoHalD
 		PlutoHalD();
 		
 		/***/
-		static void* startUp(void * HAL);
+		static void* startUp(void * device);
 		
 		/***/
 		static void shutDown();

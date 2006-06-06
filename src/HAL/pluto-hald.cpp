@@ -398,11 +398,11 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 	}
 }
 
-void* PlutoHalD::startUp(void *pnp)
+void* PlutoHalD::startUp(void *device)
 {
 	g_pPlutoLogger->Write(LV_DEBUG, "############ Start ");
 	
-	if( pnp == NULL )
+	if( device == NULL )
 	{
 		// error
 		return NULL;
@@ -410,7 +410,7 @@ void* PlutoHalD::startUp(void *pnp)
 	
 	LibHalContext * ctx = NULL;
 	
-	halDevice = (HAL *)pnp;
+	halDevice = (HAL *)device;
 	if( halDevice->m_pData == NULL )
 	{
 		// error

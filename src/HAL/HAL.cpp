@@ -17,6 +17,7 @@ using namespace DCE;
 
 #include "main.h"
 #include "pluto-hald.h"
+#include "seriald.h"
 
 class HAL::HalPrivate
 {
@@ -29,8 +30,14 @@ class HAL::HalPrivate
 		/** hald thread */
 		pthread_t hald_thread;
 		
+		/** serial connection thread */
+		pthread_t serial_thread;
+		
 		/** hald thread flag */
 		bool running;
+		
+		/** serial connection thread flag */
+		bool serial_running;
 		
 	private:
 	
@@ -39,6 +46,7 @@ class HAL::HalPrivate
 
 HAL::HalPrivate::HalPrivate(HAL * parent)
 	: running(false),
+	  serial_running(false),
 	  parent_(parent)
 {
 }
@@ -96,6 +104,18 @@ HAL::~HAL()
 		d->running = false;
 	}
 	
+	if( d->serial_running )
+	{
+		SerialD::shutDown();
+		
+		if( 0 != pthread_join( d->serial_thread, NULL ) )
+		{
+			// error
+		}
+		
+		d->serial_running = false;
+	}
+	
 	delete d;
 	d = NULL;
 }
@@ -110,14 +130,24 @@ bool HAL::GetConfig()
 	// Put your code here to initialize the data in this class
 	// The configuration parameters DATA_ are now populated
 	int ret = pthread_create( &d->hald_thread, NULL, PlutoHalD::startUp, (void *) this );
-	if( !ret )
+	if( 0 != ret )
 	{
-		d->running = true;
-		return true;
+		d->running = false;
+		g_pPlutoLogger->Write(LV_WARNING, "Couldn't create hald thread. return = %d", ret);
+		return false;
 	}
+	d->running = true;
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Couldn't create hald thread. return = %d", ret);
-	return false;
+	ret = pthread_create( &d->serial_thread, NULL, SerialD::startUp, (void *) this );
+	if( 0 != ret )
+	{
+		d->serial_running = false;
+		g_pPlutoLogger->Write(LV_WARNING, "Couldn't create seriald thread. return = %d", ret);
+		return false;
+	}
+	d->serial_running = true;
+	
+	return true;
 }
 
 //<-dceag-reg-b->
