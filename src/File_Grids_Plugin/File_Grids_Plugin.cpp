@@ -210,7 +210,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 		pDataGrid->m_vectFileInfo.push_back(new FileListInfo(true,Paths,true));
 	}
 
-	bool bMoviesFolder = Paths.substr(0, Paths.find("\t")) == "/home/public/data/movies";
+	bool bMoviesFolder = Paths.substr(0, Paths.find("\t")) == "/home/public/data/videos";
 		
 	//Jukeboxes special hack
 	vector<Row_Device *> vectRow_Device;

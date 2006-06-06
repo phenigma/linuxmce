@@ -106,7 +106,7 @@ else
 		done
 	else # not using Pluto directory structure, no mount point specified
 		Logging "NAS" $SEVERITY_NORMAL "share mount" "Not using Pluto directory structure. Links all over the place"
-		user_dirs="movies pictures music documents videos"
+		user_dirs="pictures audio documents videos"
 		Q="SELECT PK_Users FROM Users"
 		R=$(RunSQL "$Q")
 

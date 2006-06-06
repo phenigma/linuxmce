@@ -18,7 +18,7 @@ using namespace DCE;
 
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) : 
-	ScreenHandlerBase(p_MapDesignObj), m_MapMutex("maps")
+	ScreenHandlerBase(p_MapDesignObj), m_MapMutex("maps"), mediaFileBrowserOptions(pOrbiter)
 {
 	m_pOrbiter = pOrbiter;
 
@@ -269,6 +269,27 @@ bool ScreenHandler::MediaSortFilter_ObjectSelected(CallBackData *pData)
 		case DESIGNOBJ_popFBSF_Genres_CONST:
 			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_Attribute_Genres);
 			return true;
+		case DESIGNOBJ_popFBSF_PK_FileFormat_CONST:
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_FileFormat);
+			return true;
+		case DESIGNOBJ_popFBSF_MediaType_CONST:
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_PK_MediaType);
+			return true;
+		case DESIGNOBJ_popFBSF_PrivateMedia_CONST:
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_Users_Private);
+			return true;
+		case DESIGNOBJ_popFBSF_RatingsByUser_CONST:
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_PK_Users);
+			return true;
+		case DESIGNOBJ_popFBSF_Sort_CONST:
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_PK_AttributeType_Sort);
+			return true;
+		case DESIGNOBJ_popFBSF_MediaSource_CONST:
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sSources);
+			return true;
+		case DESIGNOBJ_popFBSF_PK_MediaSubType_CONST:
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_MediaSubType);
+			return true;
 		};
 	}
 	if(	pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_OK_CONST )
@@ -289,6 +310,7 @@ void MediaFileBrowserOptions::SelectArrays(DesignObj_Orbiter *pObj,string &sValu
 		DesignObj_Orbiter *pDesignObj_Orbiter=( DesignObj_Orbiter * )*iHao;
 		pDesignObj_Orbiter->m_bDontResetState=true;
 		string sArrayValue = pDesignObj_Orbiter->GetArrayValue();
+		m_mapObjectsValues[ make_pair<int,string> (pDesignObj_Orbiter->m_iBaseObjectID,sArrayValue) ] = pDesignObj_Orbiter;
 		if( sArrayValue.size()==0 || atoi(sArrayValue.c_str())==0 )
 			pDesignObj_Orbiter->m_GraphicToDisplay = sValues.size()==0 ? GRAPHIC_SELECTED : GRAPHIC_NORMAL;
 		else if( ("," + sValues + ",").find( "," + sArrayValue + "," )!=string::npos )
@@ -298,9 +320,24 @@ void MediaFileBrowserOptions::SelectArrays(DesignObj_Orbiter *pObj,string &sValu
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-void MediaFileBrowserOptions::SelectArrays(DesignObj_Orbiter *pObj,int &iValues)
+void MediaFileBrowserOptions::SelectArrays(DesignObj_Orbiter *pObj,int &iValue)
 {
+	if( !pObj )
+		return; // Shouldn't happen
+
+	for( DesignObj_DataList::iterator iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+	{
+		DesignObj_Orbiter *pDesignObj_Orbiter=( DesignObj_Orbiter * )*iHao;
+		pDesignObj_Orbiter->m_bDontResetState=true;
+		string sArrayValue = pDesignObj_Orbiter->GetArrayValue();
+		m_mapObjectsValues[ make_pair<int,string> (pDesignObj_Orbiter->m_iBaseObjectID,sArrayValue) ] = pDesignObj_Orbiter;
+		if( atoi(sArrayValue.c_str())==iValue )
+			pDesignObj_Orbiter->m_GraphicToDisplay = GRAPHIC_SELECTED;
+		else
+			pDesignObj_Orbiter->m_GraphicToDisplay = GRAPHIC_NORMAL;
+	}
 }
+
 void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,string &sValues)
 {
 	if( !pObj )
@@ -333,6 +370,28 @@ void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,string &sVal
 		sValues += ",";
 	sValues += sArrayValue;
 int k=2;
+}
+void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,int &iValue)
+{
+	if( !pObj )
+		return; // Shouldn't happen
+
+	string sValue = pObj->GetArrayValue();
+	int iValue_New = atoi(sValue.c_str());
+	if( iValue==iValue_New )
+		return; // User just chose the same thing
+
+	// Find the old one if it's changed
+	map< pair<int,string>, DesignObj_Orbiter * >::iterator it= m_mapObjectsValues.find( make_pair<int,string> (pObj->m_iBaseObjectID,sValue) );
+	if( it!=m_mapObjectsValues.end() )
+	{
+		DesignObj_Orbiter *pObj_PriorSelected = it->second;
+		pObj_PriorSelected->m_GraphicToDisplay = GRAPHIC_NORMAL;
+		m_pOrbiter->Renderer()->RenderObjectAsync(pObj_PriorSelected);  // We will be changing the selected state
+	}
+
+	pObj->m_GraphicToDisplay = GRAPHIC_SELECTED;
+	iValue = iValue_New;
 }
 #endif
 //-----------------------------------------------------------------------------------------------------

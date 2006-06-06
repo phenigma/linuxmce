@@ -13,11 +13,7 @@ for User in $R; do
 	if [[ -d "$Dir" ]]; then
 		/usr/pluto/bin/UpdateMedia -d "$Dir"
 	fi
-	Dir="/home/user_$User/data/movies"
-	if [[ -d "$Dir" ]]; then
-		/usr/pluto/bin/UpdateMedia -d "$Dir"
-	fi
-	Dir="/home/user_$User/data/music"
+	Dir="/home/user_$User/data/audio"
 	if [[ -d "$Dir" ]]; then
 		/usr/pluto/bin/UpdateMedia -d "$Dir"
 	fi

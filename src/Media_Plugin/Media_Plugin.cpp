@@ -2788,7 +2788,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 	sName = StringUtils::Replace(sName,"/","-");
 	sName = StringUtils::Replace(sName,"\\","-");
 
-	string sSubDir = pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "movies" : "music";
+	string sSubDir = pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "videos" : "audio";
 	if( iPK_Users==0 )
 		sName = "/home/public/data/" + sSubDir + "/" + sName;
 	else

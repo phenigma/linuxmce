@@ -38,7 +38,7 @@ for Device in $InternalOwnStorageDevices; do
 	
 	## Sanitize Device_Directories/Users
 	if [[ $Device_Directories == "" ]]; then
-		Device_Directories="movies,pictures,music,documents,videos"
+		Device_Directories="pictures,audio,documents,videos"
 	fi
 
 	if [[ $Device_Users == "" ]]; then

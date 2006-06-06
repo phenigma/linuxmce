@@ -16,8 +16,10 @@ class MediaFileBrowserOptions
 public:
 	int m_PK_MediaType,m_PK_AttributeType_Sort,m_PK_Users,m_iPK_Screen;
 	string m_sPK_MediaSubType,m_sPK_FileFormat,m_sPK_Attribute_Genres,m_sSources,m_sPK_Users_Private;
+	map< pair<int,string>, DesignObj_Orbiter * > m_mapObjectsValues;
+	Orbiter *m_pOrbiter;
 
-	MediaFileBrowserOptions() { ClearAll(0,0); }
+	MediaFileBrowserOptions(Orbiter *pOrbiter) { m_pOrbiter=pOrbiter; ClearAll(0,0); }
 
 	string ToString()
 	{
@@ -31,11 +33,13 @@ public:
 		m_PK_MediaType=PK_MediaType;
 		m_PK_AttributeType_Sort=m_PK_Users=0;
 		m_sPK_MediaSubType=""; m_sPK_FileFormat=""; m_sPK_Attribute_Genres=""; m_sSources=""; m_sPK_Users_Private="";
+		m_mapObjectsValues.clear();
 	}
 
 	void SelectArrays(DesignObj_Orbiter *pObj,string &sValues);
-	void SelectArrays(DesignObj_Orbiter *pObj,int &iValues);
+	void SelectArrays(DesignObj_Orbiter *pObj,int &iValue);
 	void SelectedArray(DesignObj_Orbiter *pObj,string &sValues);
+	void SelectedArray(DesignObj_Orbiter *pObj,int &iValue);
 };
 #endif
 

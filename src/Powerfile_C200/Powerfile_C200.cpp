@@ -1088,9 +1088,9 @@ void PowerfileRip_Task::RipDVD(Row_Disc *pRow_Disc,listMediaAttribute &listMedia
 
 	string sPath;
 	if (m_iPK_Users)
-		sPath = "/home/user_" + StringUtils::itos(m_iPK_Users) + "/data/movies";
+		sPath = "/home/user_" + StringUtils::itos(m_iPK_Users) + "/data/videos";
 	else
-		sPath = "/home/public/data/movies";
+		sPath = "/home/public/data/videos";
 	if (m_sPath.size())
 	{
 		if (m_sPath[0] == '/')
