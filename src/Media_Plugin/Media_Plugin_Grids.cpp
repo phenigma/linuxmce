@@ -63,6 +63,7 @@ using namespace DCE;
 #include "pluto_media/Table_Picture_File.h"
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_AttributeType.h"
+#include "pluto_media/Define_MediaSource.h"
 #include "Gen_Devices/AllScreens.h"
 
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
@@ -89,18 +90,16 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	string sPK_MediaSubType = StringUtils::Tokenize( Parms,"|",pos );
 	string sPK_FileFormat = StringUtils::Tokenize( Parms,"|",pos );
 	string sPK_Attribute_Genres = StringUtils::Tokenize( Parms,"|",pos );
-	string sSources = StringUtils::Tokenize( Parms,"|",pos );
+	string sPK_Sources = StringUtils::Tokenize( Parms,"|",pos );
 	string sPK_Users_Private = StringUtils::Tokenize( Parms,"|",pos );
 	int PK_AttributeType_Sort = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
 	int PK_Users = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
 
 	MediaListGrid *pMediaListGrid = new MediaListGrid(m_pDatagrid_Plugin,this);
-	int PK_AttributeType = atoi(Parms.c_str());
-	if( PK_AttributeType_Sort==0 )
-		FileBrowser( pMediaListGrid, PK_MediaType, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sSources, sPK_Users_Private, PK_Users, iPK_Variable, sValue_To_Assign );
-//	else
-//		pDataGridTable = AttributesBrowser( GridID, Parms.substr(pos+1), ExtraData, iPK_Variable, sValue_To_Assign, pMessage );
-
+	if( sPK_Sources.size()==0 || !PK_MediaType )
+		return pMediaListGrid;
+	
+	AttributesBrowser( pMediaListGrid, PK_MediaType, PK_AttributeType_Sort, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sPK_Sources, sPK_Users_Private, PK_Users, iPK_Variable, sValue_To_Assign );
 
 	pMediaListGrid->m_listFileBrowserInfo.sort(FileBrowserInfoComparer);
 	pMediaListGrid->m_pFileBrowserInfoPtr = new FileBrowserInfoPtr[ pMediaListGrid->m_listFileBrowserInfo.size() ];
@@ -130,58 +129,159 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	return pMediaListGrid;
 }
 
-class DataGridTable *Media_Plugin::AttributesBrowser( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_MediaType, int PK_AttributeType_Sort, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sPK_Sources, string &sPK_Users_Private, int PK_Users, int *iPK_Variable, string *sValue_To_Assign )
 {
-	// What type of media is this
-	string::size_type pos = Parms.find("~MT");
-	if( pos==string::npos )
-		return NULL;
-int PK_AttributeType=3;
-	int PK_MediaType = atoi(Parms.substr(pos+3).c_str());
-	string sSQL = "select PK_Attribute,PK_File,Name,Path,Filename,FK_Picture FROM Attribute"
-		" LEFT JOIN File_Attribute ON FK_Attribute=PK_Attribute"
-		" LEFT JOIN File ON File_Attribute.FK_File=PK_File"
-		" LEFT JOIN Picture_File ON Picture_File.FK_File=PK_File"
-		" WHERE FK_AttributeType=" + StringUtils::itos(PK_AttributeType) + " AND EK_MediaType=" + StringUtils::itos(PK_MediaType) +
-		" ORDER BY Name";
+	bool bFile=false,bJukebox=false,bLocalDisc=false;
+	string sPath;
+	string::size_type pos=0;
+	if( sPK_Sources[0]=='!' && sPK_Sources[1]=='D' )
+	{
+		sPath = sPK_Sources.substr(2);
+		bFile=true;
+	}
+	else
+	{
+		while(pos<sPK_Sources.size())
+		{
+			int PK_MediaSource=atoi( StringUtils::Tokenize(sPK_Sources,",",pos).c_str() );
+			if( PK_MediaSource==MEDIASOURCE_File_CONST )
+				bFile=true;
+			else if( PK_MediaSource==MEDIASOURCE_Jukebox_CONST )
+				bJukebox=true;
+			else if( PK_MediaSource==MEDIASOURCE_Local_Disc_CONST )
+				bLocalDisc=true;
+		}
+		if( bFile && PK_AttributeType_Sort==0 )
+		{
+			sPath = "'/home/public/data/videos','home/users_1/data/videos'"; // Todo, look at media type, and add in
+		}
+	}
+	// First get all matching PK_File's
+	string sSQL_File,sSQL_Disc,sSQL_Where;
+	
+	if( bFile )
+		sSQL_File = "SELECT PK_File FROM File ";
+
+	if( bJukebox || bLocalDisc )
+		sSQL_File = "SELECT PK_Disc FROM Disc ";
+	
+	if( sPK_Attribute_Genres.size() )
+	{
+		if( bFile )
+			sSQL_File += "LEFT JOIN File_Attribute ON FK_File=PK_File "
+				"LEFT JOIN Attribute AS Attribute_Genre ON FK_Attribute=Attribute_Genre.PK_Attribute AND Attribute_Genre.FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Genre_CONST) " ";
+		if( bJukebox || bLocalDisc )
+			sSQL_Disc += "LEFT JOIN Disc_Attribute ON FK_Disc=PK_Disc "
+				"LEFT JOIN Attribute AS Attribute_Genre ON FK_Attribute=Attribute_Genre.PK_Attribute AND Attribute_Genre.FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Genre_CONST) " ";
+	}
+
+	if( PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST )
+		sSQL_Where += " WHERE EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredAudio_CONST) "," TOSTRING(MEDIATYPE_pluto_CD_CONST) ")";
+	else if( PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST )
+		sSQL_Where += " WHERE EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredVideo_CONST) "," TOSTRING(MEDIATYPE_pluto_DVD_CONST) ")";
+	else 
+		sSQL_Where += " WHERE EK_MediaType=" + StringUtils::itos(PK_MediaType);
+
+	if( sPK_Attribute_Genres.size() )
+		sSQL_Where += " AND Attribute_Genre.PK_Attribute IN (" + sPK_Attribute_Genres + ")";
+
+	if( sPK_FileFormat.size() )
+		sSQL_Where += " AND FK_FileFormat IN (" + sPK_FileFormat + ")";
+
+	if( sPK_MediaSubType.size() )
+		sSQL_Where += " AND FK_MediaSubType IN (" + sPK_MediaSubType + ")";
+
+	if( sPK_Users_Private.size() )
+		sSQL_Where += " AND EK_Users IN (" + sPK_Users_Private + ")";
+	else
+		sSQL_Where += " AND EK_Users IS NULL";
+
+	string sPK_File,sPK_Disc;
+    PlutoSqlResult result;
+    MYSQL_ROW row;
+	if( bFile && ( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_File + sSQL_Where + (sPath.size() ? " AND Path in (" + sPath + ")" : "")) ) )
+        while( ( row=mysql_fetch_row( result.r ) ) )
+			sPK_File += row[0] + string(",");
+
+    if( (bJukebox || bLocalDisc) && ( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_File + sSQL_Where ) ) )
+        while( ( row=mysql_fetch_row( result.r ) ) )
+			sPK_Disc += row[0] + string(",");
+	
+	// Find all the pictures for the files and discs
+	map<int,int> mapFile_To_Pic,mapDisc_To_Pic;
+	if( bFile )
+		FetchPictures("File",sPK_File,mapFile_To_Pic);
+	if( bJukebox || bLocalDisc )
+		FetchPictures("Disc",sPK_Disc,mapDisc_To_Pic);
+
+	if( bFile )
+		PopulateFileBrowserInfoForFile(pMediaListGrid,PK_AttributeType_Sort,sPath,sPK_File,mapFile_To_Pic);
+//	void PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, string &sPath, string &sPK_File,map<int,int> &mapFile_To_Pic);
+//	if( bJukebox || bLocalDisc )
+//		PopulateFileBrowserInfoForDisc(pMediaListGrid,sPK_File,mapFile_To_Pic);
+}
+
+void Media_Plugin::FetchPictures(string sWhichTable,string &sPK_File_Or_Disc,map<int,int> &mapFile_To_Pic)
+{
+	string sSQL	= "SELECT FK_" + sWhichTable + ",FK_Picture FROM Picture_" + sWhichTable + " WHERE FK_" + sWhichTable + " IN (" + sPK_File_Or_Disc + ")";
+    PlutoSqlResult result;
+    MYSQL_ROW row;
+	string sPK_AlreadyGot;
+    if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL ) )
+        while( ( row=mysql_fetch_row( result.r ) ) )
+		{
+			sPK_AlreadyGot += row[0] + string(",");
+			mapFile_To_Pic[ atoi(row[0]) ] = atoi(row[1]);
+		}
+
+	sSQL = "SELECT FK_" + sWhichTable + ",FK_Picture FROM " + sWhichTable + "_Attribute JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=" + sWhichTable + "_Attribute.FK_Attribute WHERE FK_" + sWhichTable + " IN (" + sPK_File_Or_Disc + ") AND FK_" + sWhichTable + " NOT IN (" + sPK_AlreadyGot + ")";
+    PlutoSqlResult result2;
+    if( result2.r=m_pDatabase_pluto_media->mysql_query_result( sSQL ) )
+        while( ( row=mysql_fetch_row( result2.r ) ) )
+		{
+			sPK_AlreadyGot += row[0] + string(",");
+			mapFile_To_Pic[ atoi(row[0]) ] = atoi(row[1]);
+		}
+}
+
+void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, string &sPath, string &sPK_File,map<int,int> &mapFile_To_Pic)
+{
+	string sSQL_Sort;
+	if( PK_AttributeType_Sort )
+		sSQL_Sort = "SELECT PK_File,Path,Filename,IsDirectory FROM File WHERE Missing=0 AND PK_File in (" + sPK_File + ") ORDER BY IsDirectory,Filename";
+	else
+		sSQL_Sort = "SELECT PK_File,'',Name,0 FROM File JOIN File_Attribute ON FK_File=PK_File JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE Missing=0 IsDirectory=0 AND PK_File in (" + sPK_File + ") ORDER BY IsDirectory,Filename";
+
+	if( sPath.size() ) // We're doing a directory sort, and we're already starting with a path
+	{
+		string::size_type posLastPath=2,pos=2;
+		while( (pos=sPath.find(',',pos))!=string::npos )
+			posLastPath=++pos;
+		pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("back (..)","!D" + (posLastPath<3 ? "" : sPath.substr(0,posLastPath-1)),0,true,false) );
+	}
 
     PlutoSqlResult result;
     MYSQL_ROW row;
-    DataGridTable *pDataGrid = new DataGridTable();
-	DataGridCell *pCell;
-	int RowCount=0,ColCount=0,MaxCol=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
-	int PK_Attribute_Last=0;
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL ) ) )
-    {
+	FileBrowserInfo *pFileBrowserInfo;
+	// 0 =PK_File, 1=Path, 2=Name, 3=IsDirectory
+    if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Sort ) )
         while( ( row=mysql_fetch_row( result.r ) ) )
-        {
-			int PK_Attribute = atoi(row[0]);
-			if( PK_Attribute!=PK_Attribute_Last && PK_AttributeType!=ATTRIBUTETYPE_Title_CONST )
+		{
+			if( row[3][0]=='1' )
 			{
-				pCell = new DataGridCell( row[2] );
-				pCell->m_Colspan = 5;
-	            pDataGrid->SetData( 1, RowCount++, pCell );
-				PK_Attribute_Last=PK_Attribute;
+				if( sPath.length() )
+					pFileBrowserInfo = new FileBrowserInfo(row[1],"!D" + sPath + "," + row[1],atoi(row[0]),true,false);
+				else
+					pFileBrowserInfo = new FileBrowserInfo(row[1],string("!D") + row[1],atoi(row[0]),true,false);
 			}
-			pCell = new DataGridCell( row[4] );
-	        pDataGrid->SetData( ColCount++, RowCount, pCell );
-			if( ColCount>=MaxCol )
-			{
-				ColCount=0;  RowCount++;
-			}
-
-			size_t size=0;
-			if( row[5] )
-				pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + string(row[5]) + ".jpg",size);
-			pCell->m_GraphicLength=size;
+			else
+				pFileBrowserInfo = new FileBrowserInfo(row[1],string("!F") + row[0],atoi(row[0]),false,false);
 		}
-	}
-	
-	return pDataGrid;
 }
 
-void Media_Plugin::FileBrowser( MediaListGrid *pMediaListGrid,int PK_MediaType, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sSources, string &sPK_Users_Private, int PK_Users, int *iPK_Variable, string *sValue_To_Assign )
+void Media_Plugin::FileBrowser( MediaListGrid *pMediaListGrid,int PK_MediaType, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sPK_Sources, string &sPK_Users_Private, int PK_Users, int *iPK_Variable, string *sValue_To_Assign )
 {
+	// Maybe we won't use the FileBrowser anymore, and just always get the data from the database
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 #endif
@@ -197,24 +297,24 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	// The first time, sSources will be empty.  For all sub directories the value will be !D + sub directory
 	// For each subsequent times, it will be !D + first dir + \t + second dir and so on.
 	// To go back, skip the last directory on the list
-	if( sSources.length()<3 || sSources[0]!='!' || sSources[1]!='D' )
-		sSources = "";
+	if( sPK_Sources.length()<3 || sPK_Sources[0]!='!' || sPK_Sources[1]!='D' )
+		sPK_Sources = "";
 
 	string::size_type posLastPath=2,pos=2;
-	if( sSources.length() )
-		while( (pos=sSources.find("\t",pos))!=string::npos )
+	if( sPK_Sources.length() )
+		while( (pos=sPK_Sources.find("\t",pos))!=string::npos )
 			posLastPath=++pos;
 
 	string sPaths;
-	if( sSources.size() )
-		sPaths = sSources.substr(posLastPath);
+	if( sPK_Sources.size() )
+		sPaths = sPK_Sources.substr(posLastPath);
 	else
 		sPaths = "/home/public/data/videos";  // Todo, fill this in for private as well
 
 	int iRow=0;
-	if( sSources.length() )
+	if( sPK_Sources.length() )
 	{
-		string sPrevious = posLastPath<3 ? "!D" : sSources.substr(0,posLastPath-1);
+		string sPrevious = posLastPath<3 ? "!D" : sPK_Sources.substr(0,posLastPath-1);
 		pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("~S21~<-- Back (..)",sPrevious,0,true,true) );
 	}
 
@@ -238,8 +338,8 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 			FileBrowserInfo *pFileBrowserInfo;
 			if( pFileDetails->m_bIsDir && (pDatabaseInfoOnPath==NULL || pDatabaseInfoOnPath->m_bDirectory==true) )
 			{
-				if( sSources.length() )
-					pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,sSources +"\t" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,true,false);
+				if( sPK_Sources.length() )
+					pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,sPK_Sources +"\t" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,true,false);
 				else
 					pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,"!D" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,true,false);
 			}
