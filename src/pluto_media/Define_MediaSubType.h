@@ -1,6 +1,16 @@
 #ifndef __Define_MediaSubType_H__
 #define __Define_MediaSubType_H__
 
+#define MEDIASUBTYPE_TV_Shows_CONST 1
+#define MEDIASUBTYPE_Movies_CONST 2
+#define MEDIASUBTYPE_Home_Videos_CONST 3
+#define MEDIASUBTYPE_Sports_Events_CONST 4
+#define MEDIASUBTYPE_Music_Videos_CONST 5
+#define MEDIASUBTYPE_Alternative_CONST 6
+#define MEDIASUBTYPE_Popular_Music_CONST 7
+#define MEDIASUBTYPE_Classical_Music_CONST 8
+#define MEDIASUBTYPE_Learning_CONST 9
+#define MEDIASUBTYPE_Audio_Books_CONST 10
 
 #define MEDIASUBTYPE_TABLE "MediaSubType"
 #define MEDIASUBTYPE_PK_MEDIASUBTYPE_FIELD "PK_MediaSubType"

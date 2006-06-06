@@ -13,6 +13,8 @@
 #define DISC_EK_DEVICE_TABLE_FIELD "Disc.EK_Device"
 #define DISC_SLOT_FIELD "Slot"
 #define DISC_SLOT_TABLE_FIELD "Disc.Slot"
+#define DISC_EK_USERS_PRIVATE_FIELD "EK_Users_Private"
+#define DISC_EK_USERS_PRIVATE_TABLE_FIELD "Disc.EK_Users_Private"
 #define DISC_PSC_ID_FIELD "psc_id"
 #define DISC_PSC_ID_TABLE_FIELD "Disc.psc_id"
 #define DISC_PSC_BATCH_FIELD "psc_batch"

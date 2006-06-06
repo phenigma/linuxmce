@@ -1,6 +1,15 @@
 #ifndef __Define_FileFormat_H__
 #define __Define_FileFormat_H__
 
+#define FILEFORMAT_Low_Res_CONST 1
+#define FILEFORMAT_DVD_CONST 2
+#define FILEFORMAT_Standard_Def_CONST 3
+#define FILEFORMAT_HD_720_CONST 4
+#define FILEFORMAT_HD_1080_CONST 5
+#define FILEFORMAT_Low_Quality_CONST 6
+#define FILEFORMAT_MP3_CONST 7
+#define FILEFORMAT_CD_Quality_CONST 8
+#define FILEFORMAT_Highdef_audio_CONST 9
 
 #define FILEFORMAT_TABLE "FileFormat"
 #define FILEFORMAT_PK_FILEFORMAT_FIELD "PK_FileFormat"

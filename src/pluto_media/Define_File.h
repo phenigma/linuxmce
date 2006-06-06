@@ -21,6 +21,8 @@
 #define FILE_MISSING_TABLE_FIELD "File.Missing"
 #define FILE_ISDIRECTORY_FIELD "IsDirectory"
 #define FILE_ISDIRECTORY_TABLE_FIELD "File.IsDirectory"
+#define FILE_EK_USERS_PRIVATE_FIELD "EK_Users_Private"
+#define FILE_EK_USERS_PRIVATE_TABLE_FIELD "File.EK_Users_Private"
 #define FILE_PSC_ID_FIELD "psc_id"
 #define FILE_PSC_ID_TABLE_FIELD "File.psc_id"
 #define FILE_PSC_BATCH_FIELD "psc_batch"
