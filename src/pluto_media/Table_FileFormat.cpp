@@ -18,6 +18,7 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_FileFormat.h"
 
+#include "Table_Disc.h"
 #include "Table_File.h"
 #include "Table_MediaType_FileFormat.h"
 
@@ -889,6 +890,13 @@ sscanf(row[8], "%li", &(pRow->m_psc_restrict));
 
 
 
+void Row_FileFormat::Disc_FK_FileFormat_getrows(vector <class Row_Disc*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Disc *pTable = table->database->Disc_get();
+pTable->GetRows("`FK_FileFormat`=" + StringUtils::itos(m_PK_FileFormat),rows);
+}
 void Row_FileFormat::File_FK_FileFormat_getrows(vector <class Row_File*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);

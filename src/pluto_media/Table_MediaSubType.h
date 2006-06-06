@@ -141,7 +141,8 @@ void psc_restrict_setNull(bool val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		void File_FK_MediaSubType_getrows(vector <class Row_File*> *rows);
+		void Disc_FK_MediaSubType_getrows(vector <class Row_Disc*> *rows);
+void File_FK_MediaSubType_getrows(vector <class Row_File*> *rows);
 void MediaType_MediaSubType_FK_MediaSubType_getrows(vector <class Row_MediaType_MediaSubType*> *rows);
 
 
