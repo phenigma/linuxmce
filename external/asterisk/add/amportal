@@ -95,7 +95,7 @@ run_asterisk() {
         # Check for 0.1 x counter seconds that asterisk stays started
         local counter=50
         while [ $counter -gt 0 ]; do
-            echo -n "."
+            echo -n ":"
             sleep 0.1
             counter=$(($counter - 1))
 
