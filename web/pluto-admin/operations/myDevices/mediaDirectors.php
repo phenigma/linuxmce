@@ -596,9 +596,4 @@ function isDiskless($deviceID,$deviceData){
 	
 	return false;
 }
-
-function exec_batch_command($cmd){
-	writeFile($GLOBALS['WebExecLogFile'],$cmd."\n",'a+');
-	return exec($cmd);
-}
 ?>

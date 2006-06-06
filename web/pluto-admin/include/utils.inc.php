@@ -5845,4 +5845,9 @@ function GetIRCodesForDevice($deviceID,$dbADO,$dtID=0){
 	// no data either for device or device template, return error code
 	return 1;
 }
+
+function exec_batch_command($cmd){
+	writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\t".$cmd."\n",'a+');
+	return exec($cmd);
+}
 ?>

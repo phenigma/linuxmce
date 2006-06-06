@@ -27,7 +27,7 @@
   		$GLOBALS['save_loading_time']='/var/www/pluto-admin/cached/';
   		
   		// log file for external calls
-  		$GLOBALS['WebExecLogFile']='/var/www/pluto-admin/cached/webExecLog.log';
+  		$GLOBALS['WebExecLogFile']='/var/log/pluto/webExecLog.log';
   	}else{
   		error_reporting(E_ALL);
   		$GLOBALS['globalConfigPath']='/home/users/vali/work/web/globalconfig/';
@@ -48,7 +48,7 @@
   		$GLOBALS['save_loading_time']='/home/users/vali/work/web/pluto-admin/cached/';
 
   		// log file for external calls
-  		$GLOBALS['WebExecLogFile']='/var/www/pluto-admin/cached/webExecLog.log';
+  		$GLOBALS['WebExecLogFile']='/var/log/pluto/webExecLog.log';
 
   		// todo: remove
   		// setting get get parameter &red=1 set css style to red stylesheet and preserve it, set to 0 to return to pluto
