@@ -85,6 +85,8 @@ string m_Repository;
 string m_Version;
 string m_Parms;
 string m_Replaces;
+string m_Conflicts;
+string m_Provides;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -92,7 +94,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[14];
+		bool is_null[16];
 	
 	public:
 		long int PK_Package_Source_get();
@@ -103,6 +105,8 @@ string Repository_get();
 string Version_get();
 string Parms_get();
 string Replaces_get();
+string Conflicts_get();
+string Provides_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -119,6 +123,8 @@ void Repository_set(string val);
 void Version_set(string val);
 void Parms_set(string val);
 void Replaces_set(string val);
+void Conflicts_set(string val);
+void Provides_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -132,6 +138,8 @@ bool Repository_isNull();
 bool Version_isNull();
 bool Parms_isNull();
 bool Replaces_isNull();
+bool Conflicts_isNull();
+bool Provides_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -144,6 +152,8 @@ void Repository_setNull(bool val);
 void Version_setNull(bool val);
 void Parms_setNull(bool val);
 void Replaces_setNull(bool val);
+void Conflicts_setNull(bool val);
+void Provides_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -171,7 +181,7 @@ class Row_RepositorySource* FK_RepositorySource_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Package_Source+ m_FK_Package+ m_Name+ m_FK_RepositorySource+ m_Repository+ m_Version+ m_Parms+ m_Replaces+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Package_Source+ m_FK_Package+ m_Name+ m_FK_RepositorySource+ m_Repository+ m_Version+ m_Parms+ m_Replaces+ m_Conflicts+ m_Provides+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -184,6 +194,8 @@ string Repository_asSQL();
 string Version_asSQL();
 string Parms_asSQL();
 string Replaces_asSQL();
+string Conflicts_asSQL();
+string Provides_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
