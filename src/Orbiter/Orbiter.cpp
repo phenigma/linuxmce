@@ -4294,8 +4294,10 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		}
 		else if( Variable=="FBO" )
 		{
+#ifdef ENABLE_MOUSE_BEHAVIOR
 			if( m_pScreenHandler )
 				Output += m_pScreenHandler->mediaFileBrowserOptions.ToString();
+#endif
 		}
 		else if(  Variable=="NP" )
 		{
@@ -7750,7 +7752,9 @@ void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *
 		return;
 	}
 
+#ifdef ENABLE_MOUSE_BEHAVIOR
 	m_pScreenHandler->mediaFileBrowserOptions.ClearAll(iPK_MediaType,pOrbiterFileBrowser_Entry->m_PK_Screen);
+#endif
 	CMD_Set_Variable(VARIABLE_Filename_CONST, pOrbiterFileBrowser_Entry->m_sFilename);
 	CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType));
 	CMD_Goto_Screen("",pOrbiterFileBrowser_Entry->m_PK_Screen);
