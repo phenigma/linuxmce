@@ -17,6 +17,11 @@
 #  (at your option) any later version.
 #
 
+if [[ ! -x /etc/init.d/alsa ]]; then
+	echo "Alsa not installed yet. Can't run alsaconf"
+	exit 0
+fi
+
 load_bttv()
 {
 	echo 'modprobe-ing bttv'
@@ -25,7 +30,7 @@ load_bttv()
 trap load_bttv EXIT
 
 ForceRun=no
-if ! grep -q bttv /etc/hotplug/blacklist 2>/dev/null; then
+if [[ -d /etc/hotplug && -f /etc/hotplug/blacklist ]] && ! grep -q bttv /etc/hotplug/blacklist 2>/dev/null; then
 	echo "blacklisting bttv"
 	echo bttv >>/etc/hotplug/blacklist
 	ForceRun=yes
