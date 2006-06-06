@@ -319,7 +319,7 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 
 	//Create text area
 	std::string StringList[5];
-	StringList[0] = "I have tried to automatically detect which video cable your TV is conected to.";
+	StringList[0] = "I have tried to automatically detect which video cable your TV is connected to.";
 	StringList[1] = "If I got it right press the Enter key. Otherwise sue the left and right arrow to";
 	StringList[2] = "select the correct video cable and connector.";
 	StringList[3] = "Since you have a widescreen TV, it is recomended to";
@@ -421,7 +421,7 @@ void GenerateWizardConfigDefaults::GeneratePage3(
 	StringList[5] = "support that high of the resolution, and you should move to the left to select a";
 	StringList[6] = "lower resolution again.";
 	StringList[7] = "If you are an advanced user you can use the up and down arrow to adjust the";
-	StringList[8] = "refresh rate. Use the left and right arrows to adjust the resoltion, and press";
+	StringList[8] = "refresh rate. Use the left and right arrows to adjust the resolution, and press";
 	StringList[9] = "enter when you're satisfied with the results.";
 
 	SetFontStyle(13, "000000", "Regular");
