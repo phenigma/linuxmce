@@ -13,12 +13,21 @@ bool TextLineExtract::lineSplitter(char c)
 	return false;
 }
 
+/**
+ * iulian.d: This function is locale-dependent, it won't work with
+ * French characters, for example. It's also not Unicode-aware;
+ * it should work with std::wstring and wchar_t
+ * 
+ */ 
 bool TextLineExtract::wordSplitter(char c)
 {
 	if (
-		(c >= 'a' && c <='z')	 || 
-		(c >= 'A' && c <= 'Z')	 || 
-		(c >= '0' && c <= '9')
+		(c >= 'a' && c <='z')	  || 
+		(c >= 'A' && c <= 'Z')	  || 
+		(c >= '0' && c <= '9')    ||
+		(c == '\'') || (c == '"') ||
+		(c == '(')  || (c == ')') ||  
+		(c == '[')  || (c == ']')  
 		//|| c == ',' || c == '\'' || c == '(' || c == ')' || c == '/' 
 		//|| c == '?' || c == '!'  || c == ';' || c == '"' || c == '.'
 		//|| c == '[' || c == ']'  || c == '-' || c == '=' || c == '_'
@@ -79,7 +88,10 @@ list<Row> & TextLineExtract::Extract(string text)
 		}
 		else if (c >= ' ' && c != '~')
 		{
-			word += c;
+			if( word.size() > 0 || !isspace(c) ) /* Avoid adding space characters in front of words */
+			{
+				word += c;
+			}
 		}
 		else if (c == '\n')
 		{
