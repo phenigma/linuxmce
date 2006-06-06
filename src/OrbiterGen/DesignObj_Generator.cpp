@@ -1587,9 +1587,9 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                     NULL, 0, 0, 0, 0,false,false,false));
                 alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_pluto_Pictures_CONST),	GetText(1762),
                     NULL, 0, 0, 0, 0,false,false,false));
-                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_np_Game_CONST), GetText(TEXT_Games_CONST),
+				alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_np_Game_CONST), GetText(1763),
                     NULL, 0, 0, 0, 0,false,false,false));
-                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_misc_DocViewer_CONST),	GetText(TEXT_Data_CONST),
+                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_misc_DocViewer_CONST),	GetText(1764),
                     NULL, 0, 0, 0, 0,false,false,false));
             break;
 
