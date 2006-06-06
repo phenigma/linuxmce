@@ -174,7 +174,9 @@ function devices($output,$dbADO) {
 				$firstDevice=0;
 				$deviceDataArray=array();
 				while($rowD=$resDevice->FetchRow()){
-					$displayedDevices[]=$rowD['PK_Device'];
+					if(!in_array($rowD['PK_Device'],$displayedDevices)){
+						$displayedDevices[]=$rowD['PK_Device'];
+					}
 					
 					// fill in the device data array
 					if($rowD['PK_Device']!=$firstDevice){
@@ -241,7 +243,7 @@ function devices($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=devices&type=$type&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=devices&type=$type&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		$displayedDevicesArray=explode(',',@$_POST['displayedDevices']);
@@ -255,7 +257,7 @@ function devices($output,$dbADO) {
 				}
 			}
 		}
-		
+				
 		$msg='';
 		if(isset($_POST['update']) || $action=='externalSubmit' || isset($_POST['addGC100'])){
 			if(isset($_POST['addGC100'])){

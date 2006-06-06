@@ -343,16 +343,16 @@ function mediaDirectors($output,$dbADO) {
 			if(isset($_POST['delete_'.$value])){
 				$mdData=getFieldsAsArray('Device','IPaddress,MACaddress',$dbADO,'WHERE PK_Device='.$value);
 				$cmd='sudo -u root /usr/pluto/bin/Diskless_DeleteFS.sh "'.$mdData['IPaddress'][0].'" "'.$mdData['MACaddress'][0].'"';
-				exec($cmd);
+				exec_batch_command($cmd);
 				deleteDevice($value,$dbADO);
 				$cmd='sudo -u root /usr/pluto/bin/DHCP_config.sh';
-				exec($cmd);
+				exec_batch_command($cmd);
 			}
 			
 			if(isset($_POST['rebuild_diskless_'.$value])){
 				$mdData=getFieldsAsArray('Device','IPaddress,MACaddress',$dbADO,'WHERE PK_Device='.$value);
 				$cmd='sudo -u root /usr/pluto/bin/Diskless_DeleteFS.sh "'.$mdData['IPaddress'][0].'" "'.$mdData['MACaddress'][0].'"';
-				exec($cmd);
+				exec_batch_command($cmd);
 
 				header('Location: index.php?section=setupDisklessMD');
 				exit();
@@ -386,13 +386,8 @@ function mediaDirectors($output,$dbADO) {
 						$ip=$_POST['ip_'.$value];
 						$mac=$_POST['mac_'.$value];
 						$updateMacIp=",IPaddress='$ip', MACaddress='$mac'";
-						
-						// set DHCP settings
-						$cmd='sudo -u root /usr/pluto/bin/Diskless_RenameFS.sh --devid '.$value.' --oldip "'.$oldIpAddress.'" --newip "'.$ip.'" --oldmac "'.$oldMacAddress.'" --newmac "'.$mac.'"';
-						exec($cmd);
 					}
-										
-							
+												
 					$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
 					$controlledBy=(@$_POST['controlledBy_'.$value]!=0)?(int)@$_POST['controlledBy_'.$value]:NULL;
 					$dbADO->Execute('UPDATE Device Dparent JOIN Device Dchild ON Dchild.FK_Device_ControlledVia=Dparent.PK_Device SET Dparent.FK_Room=? WHERE Dchild.PK_Device=?',array($room,$value));
@@ -405,6 +400,14 @@ function mediaDirectors($output,$dbADO) {
 						$updateDevice='UPDATE Device SET Description=?, FK_Room=? '.@$updateMacIp.' WHERE PK_Device=?';
 						$dbADO->Execute($updateDevice,array($description,$room,$value));
 					}
+					
+
+					if(@$updateMacIp!=''){
+						// set DHCP settings
+						$cmd='sudo -u root /usr/pluto/bin/Diskless_RenameFS.sh --devid '.$value.' --oldip "'.$oldIpAddress.'" --newip "'.$ip.'" --oldmac "'.$oldMacAddress.'" --newmac "'.$mac.'"';
+						exec_batch_command($cmd);
+					}
+										
 					foreach($DeviceDataToDisplayArray as $ddValue){
 						$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:0;
 						$oldDeviceData=@$_POST['oldDeviceData_'.$value.'_'.$ddValue];
@@ -439,7 +442,7 @@ function mediaDirectors($output,$dbADO) {
 								$parent=($elem==$GLOBALS['BluetoothDongle'])?$value:$orbiterMDChild;
 								$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$elem.' -i '.$installationID.' -C '.$parent;
 
-								$insertID=exec($cmd);
+								$insertID=exec_batch_command($cmd);
 								$dbADO->Execute('UPDATE Device SET Description=?,FK_Room=? WHERE PK_Device=?',array($OptionalDeviceName,$room,$insertID));
 							}
 						}else{
@@ -463,7 +466,7 @@ function mediaDirectors($output,$dbADO) {
 					if($videoDT!=$_POST['oldVideo_'.$value]){
 						recreateDevice($value,$GLOBALS['VideoCards'],$videoDT,$_SESSION['installationID'],$room,$dbADO,0,1);
 						$cmd='/usr/pluto/bin/Config_Device_Changes.sh';
-						exec($cmd);
+						exec_batch_command($cmd);
 					}
 
 					processReceiver($value,$dbADO);
@@ -472,17 +475,17 @@ function mediaDirectors($output,$dbADO) {
 			}
 			
 			$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
-			exec($commandToSend);
+			exec_batch_command($commandToSend);
 		}
 		processRemotes($dbADO);
 		if(isset($_REQUEST['add']) && !isset($_REQUEST['mdID'])){
 			unset($_SESSION['from']);
 			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
 			if($deviceTemplate!=0){
-				$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID,$ret);	
+				$insertID=exec_batch_command('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID,$ret);	
 				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 				$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
-				exec($commandToSend);
+				exec_batch_command($commandToSend);
 			}
 			header("Location: index.php?section=mediaDirectors&newMD=1&lastAdded=$deviceTemplate#deviceLink_".@$insertID);
 			exit();
@@ -592,5 +595,10 @@ function isDiskless($deviceID,$deviceData){
 	}
 	
 	return false;
+}
+
+function exec_batch_command($cmd){
+	writeFile($GLOBALS['WebExecLogFile'],$cmd."\n",'a+');
+	return exec($cmd);
 }
 ?>
