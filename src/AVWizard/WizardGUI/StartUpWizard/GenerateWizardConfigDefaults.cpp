@@ -181,7 +181,7 @@ void GenerateWizardConfigDefaults::GeneratePage0(
 	StringList[0] = "From here you can set up the audio & video for your home";
 	StringList[1] = "For selections use \"UP/DOWN/LEFT/RIGHT\" arrows";
 	StringList[2] = "For validation use \"Enter\"";
-	StringList[3] = "IF you want to go back one step user \"Escape\"";
+	StringList[3] = "IF you want to go back one step use \"Escape\"";
 
 	SetFontStyle(13, "000000", "Regular");
 	for(int i = 0; i<4; i++)
