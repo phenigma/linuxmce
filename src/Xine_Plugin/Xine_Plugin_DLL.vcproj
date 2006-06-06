@@ -139,6 +139,9 @@
 				RelativePath="..\File_Grids_Plugin\FileListGrid.cpp">
 			</File>
 			<File
+				RelativePath="..\File_Grids_Plugin\FileListOps.cpp">
+			</File>
+			<File
 				RelativePath="..\Orbiter_Plugin\FollowMe_Device.cpp">
 			</File>
 			<File
@@ -155,9 +158,6 @@
 			</File>
 			<File
 				RelativePath="..\Media_Plugin\Media_Plugin_Grids.cpp">
-			</File>
-			<File
-				RelativePath="..\Media_Plugin\MediaListGrid.cpp">
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\Media_PluginBase.cpp">
@@ -179,6 +179,9 @@
 			</File>
 			<File
 				RelativePath="..\UpdateMedia\MediaIdentifier.cpp">
+			</File>
+			<File
+				RelativePath="..\Media_Plugin\MediaListGrid.cpp">
 			</File>
 			<File
 				RelativePath="..\Media_Plugin\MediaStream.cpp">

@@ -175,7 +175,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 			pData = FileUtils::ReadFileIntoBuffer(pCell_Pic->m_Value,Size);
 			if( !pData )
 			{
-				int i;
+				int i=0;
 				DCE::CMD_Request_File CMD_Request_File( m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn, 
 					pCell_Pic->m_Value, &pData, &i );
 				m_pOrbiter->SendCommand( CMD_Request_File );
