@@ -211,6 +211,9 @@ if [[ "$UpgradeMode" == "false" ]] ;then
 	done
 	
 	echo "$Q4" | /usr/bin/mysql pluto_main
+else
+	Q="UPDATE Device SET NeedConfigure=1"
+	echo "$Q" | /usr/bin/mysql pluto_main
 fi
 
 ## Update startup scripts
