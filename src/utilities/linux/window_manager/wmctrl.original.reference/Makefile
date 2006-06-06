@@ -14,7 +14,7 @@ all: $(PROGRAMS)
 .SUFFIXES: .c .o
 
 clean: 
-	@rm -f $(PROGRAMS) *.o core *.core
+	@rm -f $(PROGRAMS) *.o *.d core *.core
 
 .c.o:
 	$(CC) $(DEFS) $(CPPFLAGS) $(CFLAGS) -MT $@ -MD -MP -c -o $@ $<
