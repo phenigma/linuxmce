@@ -270,7 +270,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 		$newType=(@$_POST['newPath']!='0')?@$_POST['newPath']:NULL;
 		
 		if(($newFile!='' && $newPath!='')){
-			$insertFile='INSERT INTO File(Path, Filename, EK_MediaType) VALUES (?,?,?)';
+			$insertFile='INSERT INTO File(Path, Filename, EK_MediaType,DateAdded) VALUES (?,?,?,NOW())';
 			$mediadbADO->Execute($insertFile,array($newPath,$newFile,$newType));
 			
 			$insertID=$mediadbADO->Insert_ID();

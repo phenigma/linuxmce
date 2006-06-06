@@ -58,7 +58,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		';
 		$resFile=$mediadbADO->Execute('SELECT * FROM File WHERE PK_File=?',$fileID);
 		$rowFile=$resFile->FetchRow();
-		
+
 		$queryAttrTypes='
 			SELECT * 
 			FROM AttributeType 
@@ -75,6 +75,10 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		<h4>'.$TEXT_EDIT_MEDIA_FILE_CONST.'</h4>
 		<a href="javascript:syncPath(\''.$rowFile['Path'].'\')">Back</a>
 		<table border="0" cellspacing="0" cellpadding="3">
+			<tr bgColor="#EEEEEE">
+				<td><B>'.$TEXT_DATE_ADDED_CONST.':</B></td>
+				<td>'.$rowFile['DateAdded'].'</td>
+			</tr>		
 			<tr bgColor="#EEEEEE">
 				<td><B>'.$TEXT_FILE_CONST.':</B></td>
 				<td><input type="text" name="filename" value="'.$rowFile['Filename'].'" size="55"></td>

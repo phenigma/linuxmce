@@ -21,4 +21,5 @@ $TEXT_PICTURE_UPLOADED_CONST='The picture was uploaded.';
 $TEXT_MEDIA_PLUGIN_NOT_FOUND_CONST='Media plugin not found.';
 $TEXT_RESPONSE_CONST='Response';
 $TEXT_JPG_ONLY_CONST='JPG only';
+$TEXT_DATE_ADDED_CONST='Date added';
 ?>

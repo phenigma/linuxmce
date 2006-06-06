@@ -268,7 +268,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 				$type=(int)@$_POST['type_'.$physicalkey];
 				if($type!=0){
 					$isDir=(is_dir(stripslashes($path).'/'.$filename))?1:0;
-					$mediadbADO->Execute('INSERT INTO File (EK_MediaType, Path, Filename,IsDirectory) VALUES (?,?,?,?)',array($type,stripslashes($path),$filename,$isDir));
+					$mediadbADO->Execute('INSERT INTO File (EK_MediaType, Path, Filename,IsDirectory,DateAdded) VALUES (?,?,?,?,NOW())',array($type,stripslashes($path),$filename,$isDir));
 				}
 			}
 			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&msg='.$TEXT_FILE_ADDED_TO_DATABASE_CONST);
