@@ -131,7 +131,7 @@ cout << endl;
 			m_psc_id=psc_id;
 			m_bCommitted=false;
 			m_bReverted=m_bFrozen=false;
-			m_psc_user=m_psc_user_needs_to_authorize=m_psc_batch_new=m_psc_id_new=m_psc_restrict=0;
+			m_psc_user=m_psc_user_needs_to_authorize=m_psc_batch=m_psc_batch_new=m_psc_id_new=m_psc_restrict=0;
 			m_iBeforeTransmit_iAutoIncrID=m_iNewAutoIncrID=0;;
 		}
 
