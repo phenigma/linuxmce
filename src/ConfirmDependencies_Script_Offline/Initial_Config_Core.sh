@@ -214,6 +214,8 @@ if [[ "$UpgradeMode" == "false" ]] ;then
 else
 	Q="UPDATE Device SET NeedConfigure=1"
 	echo "$Q" | /usr/bin/mysql pluto_main
+
+	/usr/pluto/bin/Diskless_Setup.sh
 fi
 
 ## Update startup scripts
