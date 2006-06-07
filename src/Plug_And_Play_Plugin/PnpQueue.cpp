@@ -780,6 +780,12 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 			if( pDevice_Detector )
 				pDevice_AppServer = (DeviceData_Router *) pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
 
+			if( !pDevice_AppServer )
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d has no app server",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+				continue;
+			}
+
 			string sPath;  // Where to find the device
 			Row_DeviceTemplate *pRow_DeviceTemplate = pRow_DHCPDevice->FK_DeviceTemplate_getrow();
 			if( pRow_DeviceTemplate )
