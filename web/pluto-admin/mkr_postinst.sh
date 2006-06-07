@@ -39,6 +39,9 @@ chmod 777 /var/www/pluto-admin/cached
 touch /etc/pluto-callerid.conf
 chmod 777 /etc/pluto-callerid.conf
 
+touch /var/log/pluto/webExecLog.log
+chown www-data.www-data /var/log/pluto/webExecLog.log
+
 a2dissite default || /bin/true
 
 #Index=$(grep DirectoryIndex /etc/apache/httpd.conf | sed 's/DirectoryIndex//g; s/^ *//g; s/ *$//g' | grep -v '^#')
