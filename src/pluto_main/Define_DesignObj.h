@@ -2142,7 +2142,8 @@
 #define DESIGNOBJ_dgFileList2_Pics_CONST 5086
 #define DESIGNOBJ_popCoverArt_CONST 5087
 #define DESIGNOBJ_popFileDetails_CONST 5088
-#define DESIGNOBJ_butClose_CONST 5090
+#define DESIGNOBJ_butFBSF_Play_CONST 5089
+#define DESIGNOBJ_butFBSF_Close_CONST 5090
 #define DESIGNOBJ_hiddenShowCover_CONST 5091
 #define DESIGNOBJ_hiddenShowFileDetails_CONST 5092
 #define DESIGNOBJ_mnuMediaSortFilter_CONST 5093
