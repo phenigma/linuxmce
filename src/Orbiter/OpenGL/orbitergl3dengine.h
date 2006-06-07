@@ -26,11 +26,11 @@ That class creates a default decorator for OpenGL operations thread.
 
 class OrbiterGL3D {
 public: 
-	OrbiterRenderer * pOrbiterRendererGL;
 	TBasicWindow * Screen3D;
 	TBasicWindow * HighLighArea;
 	TBasicWindow * SelectedArea;
 	TBasicWindow * MouseCursor;
+	OrbiterRenderer * pOrbiterRendererGL;
 
 #ifdef POCKETFROG
 	HDC hdc;
