@@ -141,9 +141,9 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 
-	if(	pObjectInfoData->m_PK_DesignObj_SelectedObject == 4949	|| pObjectInfoData->m_PK_DesignObj_SelectedObject == 5086 ) // todo
+	if(	pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgFileList2_CONST	|| pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgFileList2_Pics_CONST || pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objCDCover_CONST ) // todo
 	{
-		DesignObj_Orbiter *pObj_Play = m_pOrbiter->FindObject( TOSTRING(5088) ".0.0." TOSTRING(5089) );
+		DesignObj_Orbiter *pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(5089) );
 		if( !pObj_Play || !pObj_Play->m_pParentObject )
 			return false; // Shouldn't happen
 
@@ -156,10 +156,10 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		if( !pCell_List )
 			return false; // Shouldn't happen
 
-		if( pCell_List->m_Value[0]=='!' && pCell_List->m_Value[1]=='D' )
+		if( !pCell_List->m_Value || (pCell_List->m_Value[0]=='!' && pCell_List->m_Value[1]=='D') )
 		{
 			// It's a sub directory.  Update the source and refresh the page
-			mediaFileBrowserOptions.m_sSources = pCell_List->m_Value;
+			mediaFileBrowserOptions.m_sSources = pCell_List->m_Value ? pCell_List->m_Value : "";
 			m_pOrbiter->CMD_Refresh("*");
 			return false;
 		}
@@ -190,7 +190,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
 #endif
 	}
-	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == 5090 )
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butClose_CONST )
 	{
 		m_pOrbiter->m_pObj_Highlighted = mediaFileBrowserOptions.m_pObj_ListGrid;
 		m_pOrbiter->CMD_Remove_Popup("","filedetails");
