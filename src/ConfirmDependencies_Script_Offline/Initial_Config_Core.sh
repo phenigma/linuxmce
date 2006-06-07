@@ -212,8 +212,13 @@ if [[ "$UpgradeMode" == "false" ]] ;then
 	
 	echo "$Q4" | /usr/bin/mysql pluto_main
 else
+	# Reconfigure all devices after install
 	Q="UPDATE Device SET NeedConfigure=1"
 	echo "$Q" | /usr/bin/mysql pluto_main
+
+	# Install the software again for the devices
+	Q="DELETE FROM Package_Device"
+	echo "$Q" | /usr/bin/mysql pluto_main;
 
 	/usr/pluto/bin/Diskless_Setup.sh
 	/usr/pluto/bin/DHCP_config.sh
