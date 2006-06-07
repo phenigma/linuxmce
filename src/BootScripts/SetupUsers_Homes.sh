@@ -7,6 +7,7 @@
 TemplateDir=/usr/pluto/templates
 
 BaseDir="/home"
+PublicHomeDir="/home/public/data"
 MakeUsers=yes
 while [[ "$#" -gt 0 ]]; do
 	case "$1" in
@@ -89,6 +90,17 @@ for Users in $R; do
 	done
 	
 	for dir in $user_dirs; do
+
+# update pluto user dir structure 
+                if [ -d $BaseDir/user_$PlutoUserID/data/audio/ ];then
+                        mv -f $BaseDir/user_$PlutoUserID/data/music/* $BaseDir/user_$PlutoUserID/data/audio/
+                        rm -rf $BaseDir/user_$PlutoUserID/data/music/
+                else
+                        mv -f $BaseDir/user_$PlutoUserID/data/music/ $BaseDir/user_$PlutoUserID/data/audio/
+                fi
+                mv -f $BaseDir/user_$PlutoUserID/data/movies/* $BaseDir/user_$PlutoUserID/data/videos
+                rm -rf $BaseDir/user_$PlutoUserID/data/movies/
+# finish
 		mkdir -p -m 0770 "$BaseDir/user_$PlutoUserID/data/${dir/~/ }"
 		if [[ -n "$ExtraDir" ]]; then
 			Target="$ExtraDir/user_$PlutoUserID/data/${dir/~/ }/$ExtraLink"
@@ -115,6 +127,17 @@ for dir in $user_static_dirs; do
 done
 
 for dir in $user_dirs; do
+
+# update pluto public dir structure
+        if [ -d $PublicHomeDir/audio ]; then
+                mv -f $PublicHomeDir/music/* $PublicHomeDir/audio
+                rm -rf $PublicHomeDir/music/
+        else
+                mv -f $PublicHomeDir/music/ $PublicHomeDir/audio
+        fi
+        mv -f $PublicHomeDir/movies/* $PublicHomeDir/videos
+        rm -rf $PublicHomeDir/movies/
+# end
 	mkdir -p -m 0755 "$BaseDir/public/data/${dir/~/ }"
 	if [[ -n "$ExtraDir" ]]; then
 		Target="$ExtraDir/public/data/${dir/~/ }/$ExtraLink"
