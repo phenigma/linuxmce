@@ -2552,6 +2552,9 @@ if(UsesUIVersion2())
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if(UsesUIVersion2())
 	{
+		if ( event.type == Orbiter::Event::MOUSE_RELATIVE_MOVE && m_pMouseBehavior )
+			m_pMouseBehavior->RelativeMove(event.data.region.m_iX, event.data.region.m_iY);
+
 		if ( event.type == Orbiter::Event::MOUSE_MOVE && m_pMouseBehavior )
 			m_pMouseBehavior->Move(event.data.region.m_iX, event.data.region.m_iY);
 	}

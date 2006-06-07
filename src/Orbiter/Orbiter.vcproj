@@ -134,6 +134,9 @@
 				RelativePath="..\Dce\DataGrid.cpp">
 			</File>
 			<File
+				RelativePath=".\DataGridRenderer.cpp">
+			</File>
+			<File
 				RelativePath="DesignObj_Data.cpp">
 			</File>
 			<File
@@ -144,6 +147,9 @@
 			</File>
 			<File
 				RelativePath=".\Win32\main.cpp">
+			</File>
+			<File
+				RelativePath=".\ObjectRenderer.cpp">
 			</File>
 			<File
 				RelativePath="Orbiter.cpp">
@@ -255,13 +261,7 @@
 				Name="Renderer"
 				Filter="">
 				<File
-					RelativePath=".\DataGridRenderer.cpp">
-				</File>
-				<File
 					RelativePath=".\GraphicBuilder.cpp">
-				</File>
-				<File
-					RelativePath=".\ObjectRenderer.cpp">
 				</File>
 				<File
 					RelativePath=".\ObjectRendererFactory.cpp">

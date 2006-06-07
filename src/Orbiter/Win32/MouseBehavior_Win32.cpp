@@ -4,6 +4,8 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 using namespace DCE;
+
+
 //-----------------------------------------------------------------------------------------------------
 MouseBehavior_Win32::MouseBehavior_Win32(Orbiter *pOrbiter)
 	: MouseBehavior(pOrbiter)
@@ -64,3 +66,4 @@ void MouseBehavior_Win32::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
 	HCURSOR hCursor = LoadCursor(NULL, IDC_WAIT); 
 	SetCursor(hCursor);
 }
+

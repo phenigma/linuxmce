@@ -118,6 +118,10 @@ public:
 	virtual void LockDisplay() {} //no-op for windows
 	virtual void UnlockDisplay() {}
 
+	bool m_bRelativeMode;
+	void CaptureRelativeMovements();
+	void ReleaseRelativeMovements();
+
 	virtual void RenderFrame(void *);
 
 	virtual bool DisplayProgress(string sMessage, int nProgress);

@@ -47,6 +47,7 @@ namespace DCE
 		virtual bool ButtonDown(int PK_Button) { return false; }     // Return true means don't process this anymore
 		virtual bool ButtonUp(int PK_Button) { return false; }   // Return true means don't process this anymore
 		virtual void Move(int X,int Y,int PK_Direction) {}
+		virtual void RelativeMove(int DeltaX, int DeltaY) {}
 		virtual void Notch(int PK_Direction,int iRepeat) {} // The user moved a 'notch' in the given direction
 		virtual bool MovedOutside(int PK_Direction) { return false; } // Override this and return true if you don't want the framework to automatically reposition the pointer inside the object
 		virtual bool SlowDrift(int &X,int &Y) { return false; } // We're about to call a move after the user has been slowly drifting.  The handler can alter the position, and/or return true to ignore the move
@@ -128,6 +129,8 @@ namespace DCE
 		bool ButtonDown(int PK_Button);     // Return true means don't process this anymore
 		bool ButtonUp(int PK_Button);   // Return true means don't process this anymore
 		void Move(int X,int Y);
+		void RelativeMove(int DeltaX, int DeltaY);
+
 		DesignObj_Orbiter *FindChildObjectAtPosition(DesignObj_Orbiter *pObj_Parent,int X,int Y);
 
 		void ResetSamples() { for(int i=0;i<NUM_SAMPLES;++i) m_dwSamples[i]=0; }
@@ -153,6 +156,8 @@ namespace DCE
         virtual bool ConstrainMouse(const PlutoRectangle &rect) { return false; }
         virtual bool ConstrainMouse() { PlutoRectangle rect; return ConstrainMouse(rect); }
 		virtual void SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle) {}
+		virtual void CaptureRelativeMovements();
+		virtual void ReleaseRelativeMovements();
     };
 
 }

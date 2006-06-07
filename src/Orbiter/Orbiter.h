@@ -597,7 +597,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 				BUTTON_UP,
 				REGION_DOWN, // mouse
 				REGION_UP,
-				MOUSE_MOVE
+				MOUSE_MOVE,
+				MOUSE_RELATIVE_MOVE
 			} EventType;
 
 			EventType type;

@@ -29,6 +29,12 @@
 
 using namespace DCE;
 
+#if defined(POCKETFROG)
+	// todo...
+#else
+	#include "SDL/OrbiterRenderer_SDL.h"
+#endif
+
 /*
 #include <SDL_image.h>
 #include "SDL/OrbiterSDL.h"
@@ -162,6 +168,13 @@ void MouseBehavior::Move(int X,int Y)
 
 	if(Simulator::GetInstance()->m_bUseOpenGL)
 		Commons3D::Instance().SetMousePosition(X, Y);
+}
+
+void MouseBehavior::RelativeMove(int DeltaX,int DeltaY)
+{
+	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
+	if( m_pMouseHandler )
+		m_pMouseHandler->RelativeMove(DeltaX, DeltaY);
 }
 
 DesignObj_Orbiter *MouseBehavior::FindChildObjectAtPosition(DesignObj_Orbiter *pObj_Parent,int X,int Y)
@@ -474,4 +487,33 @@ MouseHandler::MouseHandler(DesignObj_Orbiter *pObj, string sOptions, MouseBehavi
 
 MouseHandler::~MouseHandler()
 {
+}
+
+
+void MouseBehavior::CaptureRelativeMovements()
+{
+#if defined(POCKETFROG)
+	// Todo
+#elif defined(ORBITER_OPENGL)	
+	// Todo
+#else
+	OrbiterRenderer_SDL *pRenderer = (OrbiterRenderer_SDL *)m_pOrbiter->Renderer();
+	
+	pRenderer->CaptureRelativeMovements();
+
+#endif
+}
+
+void MouseBehavior::ReleaseRelativeMovements()
+{
+#if defined(POCKETFROG)
+	// Todo
+#elif defined(ORBITER_OPENGL)	
+	// Todo
+#else
+	OrbiterRenderer_SDL *pRenderer = (OrbiterRenderer_SDL *)m_pOrbiter->Renderer();
+	
+	pRenderer->ReleaseRelativeMovements();
+#endif
+
 }

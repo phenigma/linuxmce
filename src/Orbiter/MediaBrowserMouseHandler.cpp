@@ -81,8 +81,68 @@ bool MediaBrowserMouseHandler::ButtonUp(int PK_Button)
 	return false; // Keep processing
 }
 
+void MediaBrowserMouseHandler::RelativeMove(int DeltaX, int DeltaY)
+{
+#ifdef WIN32
+	string s = StringUtils::Format("DeltaX:=%d, DeltaY=%d, VY=%d\r\n", DeltaX, DeltaY, m_RelativeVirtualY);
+	::OutputDebugString(s.c_str());
+#endif
+
+	if (m_RelativeVirtualY <= 0) // We're at the top of the screen.
+	{
+		m_RelativeVirtualY+=DeltaY;
+		if (DeltaY > 0)
+		{
+			if (DeltaY >=5 || m_RelativeVirtualY > 0)
+			{
+				m_pMouseBehavior->ReleaseRelativeMovements();
+				return;
+			} 
+			else
+			{
+				m_RelativeVirtualY = max(m_RelativeVirtualY, DeltaY-5);
+			}
+		}
+		while (m_RelativeVirtualY < -100)
+		{
+			// todo : scroll grid
+			m_RelativeVirtualY += 100;
+		}
+	}
+	else
+	{
+		m_RelativeVirtualY+=DeltaY;
+		if (DeltaY < 0)
+		{
+			if (DeltaY < -5 || m_RelativeVirtualY < m_pMouseBehavior->m_pOrbiter->m_Height)
+			{
+				m_pMouseBehavior->ReleaseRelativeMovements();
+				return;
+			}
+			else
+			{
+				m_RelativeVirtualY = min(m_RelativeVirtualY, m_pMouseBehavior->m_pOrbiter->m_Height-DeltaY);
+			}
+		}
+		while (m_RelativeVirtualY > m_pMouseBehavior->m_pOrbiter->m_Height + 100)
+		{
+			// todo: scroll grid
+			m_RelativeVirtualY -= 100;
+		}
+		return;
+	}
+}
+
 void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 {
+	// add function .. is user at bottom.  If so... call function in mousebehavior capture relative movement
+	// 
+	if (Y <= 1 || Y >= m_pMouseBehavior->m_pOrbiter->m_Height-2)
+	{
+		m_RelativeVirtualY = Y;
+		m_pMouseBehavior->CaptureRelativeMovements();
+	}
+
 	if( m_pMouseBehavior->m_bMouseConstrained )  // There's a popup grabbing the mouse
 		return;
 	if( !m_pObj_ListGrid || !m_pObj_PicGrid )

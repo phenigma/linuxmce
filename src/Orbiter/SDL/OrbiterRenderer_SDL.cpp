@@ -175,6 +175,7 @@ OrbiterRenderer_SDL::OrbiterRenderer_SDL(Orbiter *pOrbiter) : OrbiterRenderer(pO
 {
 	// Use OpenGL if is requested
 	EnableOpenGL = false;
+	m_bRelativeMode = false;
 
 #ifdef DISABLE_OPENGL
 	EnableOpenGL = false;
@@ -1024,9 +1025,18 @@ void OrbiterRenderer_SDL::EventLoop()
 			} 
 			else if(Event.type == SDL_MOUSEMOTION)
 			{
-				orbiterEvent.type = Orbiter::Event::MOUSE_MOVE;
-				orbiterEvent.data.region.m_iX = Event.button.x;
-				orbiterEvent.data.region.m_iY = Event.button.y;
+				if (m_bRelativeMode)
+				{
+					orbiterEvent.type = Orbiter::Event::MOUSE_RELATIVE_MOVE;
+					orbiterEvent.data.region.m_iX = Event.motion.xrel;
+					orbiterEvent.data.region.m_iY = Event.motion.yrel;
+				}
+				else
+				{
+					orbiterEvent.type = Orbiter::Event::MOUSE_MOVE;
+					orbiterEvent.data.region.m_iX = Event.button.x;
+					orbiterEvent.data.region.m_iY = Event.button.y;
+				}
 				OrbiterLogic()->ProcessEvent(orbiterEvent);
 			} 
 			else if (Event.type == SDL_MOUSEBUTTONDOWN)
@@ -1054,6 +1064,23 @@ void OrbiterRenderer_SDL::EventLoop()
 		}
     }  // while
 }
+
+void OrbiterRenderer_SDL::CaptureRelativeMovements() 
+{ 
+	m_bRelativeMode = true;
+
+	SDL_WM_GrabInput(SDL_GRAB_ON);
+    SDL_ShowCursor(SDL_DISABLE);
+}
+	
+void OrbiterRenderer_SDL::ReleaseRelativeMovements()
+{ 
+	m_bRelativeMode = false;
+
+	SDL_WM_GrabInput(SDL_GRAB_OFF);
+    SDL_ShowCursor(SDL_ENABLE);
+}
+
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool OrbiterRenderer_SDL::DisplayProgress(string sMessage, int nProgress)
 {
