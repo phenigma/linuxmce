@@ -170,9 +170,9 @@ bool WMControllerImpl::ActivateWindow(const string& sWindowName)
 
 	string sParam;
 
-	action_window_str(
+    action_window_str(
 		pDisplay,
-		'a', //mode
+		'R', //mode
 		const_cast<char *>(sWindowName.c_str()),
 		const_cast<char *>(sParam.c_str()),
 		true,  //use class name
