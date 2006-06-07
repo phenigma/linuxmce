@@ -21,18 +21,6 @@
 #define POSTALCODE_FK_CITY_TABLE_FIELD "PostalCode.FK_City"
 #define POSTALCODE_FK_COUNTRY_FIELD "FK_Country"
 #define POSTALCODE_FK_COUNTRY_TABLE_FIELD "PostalCode.FK_Country"
-#define POSTALCODE_PSC_ID_FIELD "psc_id"
-#define POSTALCODE_PSC_ID_TABLE_FIELD "PostalCode.psc_id"
-#define POSTALCODE_PSC_BATCH_FIELD "psc_batch"
-#define POSTALCODE_PSC_BATCH_TABLE_FIELD "PostalCode.psc_batch"
-#define POSTALCODE_PSC_USER_FIELD "psc_user"
-#define POSTALCODE_PSC_USER_TABLE_FIELD "PostalCode.psc_user"
-#define POSTALCODE_PSC_FROZEN_FIELD "psc_frozen"
-#define POSTALCODE_PSC_FROZEN_TABLE_FIELD "PostalCode.psc_frozen"
-#define POSTALCODE_PSC_MOD_FIELD "psc_mod"
-#define POSTALCODE_PSC_MOD_TABLE_FIELD "PostalCode.psc_mod"
-#define POSTALCODE_PSC_RESTRICT_FIELD "psc_restrict"
-#define POSTALCODE_PSC_RESTRICT_TABLE_FIELD "PostalCode.psc_restrict"
 
 
 #endif

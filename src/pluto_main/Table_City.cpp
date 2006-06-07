@@ -137,18 +137,6 @@ is_null[7] = true;
 m_DmaId = 0;
 is_null[8] = true;
 is_null[9] = true;
-is_null[10] = true;
-m_psc_id = 0;
-is_null[11] = true;
-m_psc_batch = 0;
-is_null[12] = true;
-m_psc_user = 0;
-m_psc_frozen = 0;
-is_null[13] = false;
-m_psc_mod = "00000000000000";
-is_null[14] = false;
-is_null[15] = true;
-m_psc_restrict = 0;
 
 
 	is_added=false;
@@ -186,24 +174,6 @@ return m_County;}
 string Row_City::Code_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Code;}
-long int Row_City::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return m_psc_id;}
-long int Row_City::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return m_psc_batch;}
-long int Row_City::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return m_psc_user;}
-short int Row_City::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return m_psc_frozen;}
-string Row_City::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return m_psc_mod;}
-long int Row_City::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return m_psc_restrict;}
 
 		
 void Row_City::PK_City_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -236,24 +206,6 @@ m_County = val; is_modified=true; is_null[8]=false;}
 void Row_City::Code_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Code = val; is_modified=true; is_null[9]=false;}
-void Row_City::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-m_psc_id = val; is_modified=true; is_null[10]=false;}
-void Row_City::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-m_psc_batch = val; is_modified=true; is_null[11]=false;}
-void Row_City::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-m_psc_user = val; is_modified=true; is_null[12]=false;}
-void Row_City::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-m_psc_frozen = val; is_modified=true; is_null[13]=false;}
-void Row_City::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-m_psc_mod = val; is_modified=true; is_null[14]=false;}
-void Row_City::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-m_psc_restrict = val; is_modified=true; is_null[15]=false;}
 
 		
 bool Row_City::FK_Region_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -280,21 +232,6 @@ return is_null[8];}
 bool Row_City::Code_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
-bool Row_City::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[10];}
-bool Row_City::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[11];}
-bool Row_City::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[12];}
-bool Row_City::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[13];}
-bool Row_City::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[15];}
 
 			
 void Row_City::FK_Region_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -327,26 +264,6 @@ is_modified=true;
 }
 void Row_City::Code_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
-is_modified=true;
-}
-void Row_City::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[10]=val;
-is_modified=true;
-}
-void Row_City::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[11]=val;
-is_modified=true;
-}
-void Row_City::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[12]=val;
-is_modified=true;
-}
-void Row_City::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[13]=val;
-is_modified=true;
-}
-void Row_City::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[15]=val;
 is_modified=true;
 }
 	
@@ -485,85 +402,6 @@ delete[] buf;
 return s;
 }
 
-string Row_City::psc_id_asSQL()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-if (is_null[10])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%li", m_psc_id);
-
-return buf;
-}
-
-string Row_City::psc_batch_asSQL()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-if (is_null[11])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%li", m_psc_batch);
-
-return buf;
-}
-
-string Row_City::psc_user_asSQL()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-if (is_null[12])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%li", m_psc_user);
-
-return buf;
-}
-
-string Row_City::psc_frozen_asSQL()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-if (is_null[13])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%hi", m_psc_frozen);
-
-return buf;
-}
-
-string Row_City::psc_mod_asSQL()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-if (is_null[14])
-return "NULL";
-
-char *buf = new char[29];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
-string s=string()+"\""+buf+"\"";
-delete[] buf;
-return s;
-}
-
-string Row_City::psc_restrict_asSQL()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-if (is_null[15])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%li", m_psc_restrict);
-
-return buf;
-}
-
 
 
 
@@ -602,10 +440,10 @@ bool Table_City::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRo
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_City_asSQL()+", "+pRow->FK_Country_asSQL()+", "+pRow->FK_Region_asSQL()+", "+pRow->City_asSQL()+", "+pRow->Latitude_asSQL()+", "+pRow->Longitude_asSQL()+", "+pRow->TimeZone_asSQL()+", "+pRow->DmaId_asSQL()+", "+pRow->County_asSQL()+", "+pRow->Code_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_City_asSQL()+", "+pRow->FK_Country_asSQL()+", "+pRow->FK_Region_asSQL()+", "+pRow->City_asSQL()+", "+pRow->Latitude_asSQL()+", "+pRow->Longitude_asSQL()+", "+pRow->TimeZone_asSQL()+", "+pRow->DmaId_asSQL()+", "+pRow->County_asSQL()+", "+pRow->Code_asSQL();
 
 	
-		string query = "insert into City (`PK_City`, `FK_Country`, `FK_Region`, `City`, `Latitude`, `Longitude`, `TimeZone`, `DmaId`, `County`, `Code`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into City (`PK_City`, `FK_Country`, `FK_Region`, `City`, `Latitude`, `Longitude`, `TimeZone`, `DmaId`, `County`, `Code`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -661,7 +499,7 @@ condition = condition + "`PK_City`=" + tmp_PK_City;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_City`="+pRow->PK_City_asSQL()+", `FK_Country`="+pRow->FK_Country_asSQL()+", `FK_Region`="+pRow->FK_Region_asSQL()+", `City`="+pRow->City_asSQL()+", `Latitude`="+pRow->Latitude_asSQL()+", `Longitude`="+pRow->Longitude_asSQL()+", `TimeZone`="+pRow->TimeZone_asSQL()+", `DmaId`="+pRow->DmaId_asSQL()+", `County`="+pRow->County_asSQL()+", `Code`="+pRow->Code_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_City`="+pRow->PK_City_asSQL()+", `FK_Country`="+pRow->FK_Country_asSQL()+", `FK_Region`="+pRow->FK_Region_asSQL()+", `City`="+pRow->City_asSQL()+", `Latitude`="+pRow->Latitude_asSQL()+", `Longitude`="+pRow->Longitude_asSQL()+", `TimeZone`="+pRow->TimeZone_asSQL()+", `DmaId`="+pRow->DmaId_asSQL()+", `County`="+pRow->County_asSQL()+", `Code`="+pRow->Code_asSQL();
 
 	
 		string query = "update City set " + update_values_list + " where " + condition;
@@ -880,72 +718,6 @@ pRow->is_null[9]=false;
 pRow->m_Code = string(row[9],lengths[9]);
 }
 
-if (row[10] == NULL)
-{
-pRow->is_null[10]=true;
-pRow->m_psc_id = 0;
-}
-else
-{
-pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_id));
-}
-
-if (row[11] == NULL)
-{
-pRow->is_null[11]=true;
-pRow->m_psc_batch = 0;
-}
-else
-{
-pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_psc_batch));
-}
-
-if (row[12] == NULL)
-{
-pRow->is_null[12]=true;
-pRow->m_psc_user = 0;
-}
-else
-{
-pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_psc_user));
-}
-
-if (row[13] == NULL)
-{
-pRow->is_null[13]=true;
-pRow->m_psc_frozen = 0;
-}
-else
-{
-pRow->is_null[13]=false;
-sscanf(row[13], "%hi", &(pRow->m_psc_frozen));
-}
-
-if (row[14] == NULL)
-{
-pRow->is_null[14]=true;
-pRow->m_psc_mod = "";
-}
-else
-{
-pRow->is_null[14]=false;
-pRow->m_psc_mod = string(row[14],lengths[14]);
-}
-
-if (row[15] == NULL)
-{
-pRow->is_null[15]=true;
-pRow->m_psc_restrict = 0;
-}
-else
-{
-pRow->is_null[15]=false;
-sscanf(row[15], "%li", &(pRow->m_psc_restrict));
-}
-
 
 
 		//checking for duplicates
@@ -1162,72 +934,6 @@ else
 {
 pRow->is_null[9]=false;
 pRow->m_Code = string(row[9],lengths[9]);
-}
-
-if (row[10] == NULL)
-{
-pRow->is_null[10]=true;
-pRow->m_psc_id = 0;
-}
-else
-{
-pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_id));
-}
-
-if (row[11] == NULL)
-{
-pRow->is_null[11]=true;
-pRow->m_psc_batch = 0;
-}
-else
-{
-pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_psc_batch));
-}
-
-if (row[12] == NULL)
-{
-pRow->is_null[12]=true;
-pRow->m_psc_user = 0;
-}
-else
-{
-pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_psc_user));
-}
-
-if (row[13] == NULL)
-{
-pRow->is_null[13]=true;
-pRow->m_psc_frozen = 0;
-}
-else
-{
-pRow->is_null[13]=false;
-sscanf(row[13], "%hi", &(pRow->m_psc_frozen));
-}
-
-if (row[14] == NULL)
-{
-pRow->is_null[14]=true;
-pRow->m_psc_mod = "";
-}
-else
-{
-pRow->is_null[14]=false;
-pRow->m_psc_mod = string(row[14],lengths[14]);
-}
-
-if (row[15] == NULL)
-{
-pRow->is_null[15]=true;
-pRow->m_psc_restrict = 0;
-}
-else
-{
-pRow->is_null[15]=false;
-sscanf(row[15], "%li", &(pRow->m_psc_restrict));
 }
 
 

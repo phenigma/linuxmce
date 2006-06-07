@@ -13,18 +13,6 @@
 #define REGION_CODE_TABLE_FIELD "Region.Code"
 #define REGION_ADM1CODE_FIELD "ADM1Code"
 #define REGION_ADM1CODE_TABLE_FIELD "Region.ADM1Code"
-#define REGION_PSC_ID_FIELD "psc_id"
-#define REGION_PSC_ID_TABLE_FIELD "Region.psc_id"
-#define REGION_PSC_BATCH_FIELD "psc_batch"
-#define REGION_PSC_BATCH_TABLE_FIELD "Region.psc_batch"
-#define REGION_PSC_USER_FIELD "psc_user"
-#define REGION_PSC_USER_TABLE_FIELD "Region.psc_user"
-#define REGION_PSC_FROZEN_FIELD "psc_frozen"
-#define REGION_PSC_FROZEN_TABLE_FIELD "Region.psc_frozen"
-#define REGION_PSC_MOD_FIELD "psc_mod"
-#define REGION_PSC_MOD_TABLE_FIELD "Region.psc_mod"
-#define REGION_PSC_RESTRICT_FIELD "psc_restrict"
-#define REGION_PSC_RESTRICT_TABLE_FIELD "Region.psc_restrict"
 
 
 #endif
