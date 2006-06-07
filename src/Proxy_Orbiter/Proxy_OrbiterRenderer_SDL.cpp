@@ -123,6 +123,6 @@ void Proxy_OrbiterRenderer_SDL::RenderScreen(bool bRenderGraphicsOnly)
 	if(!bRenderGraphicsOnly)
 		pProxy_Orbiter->m_dequeCellXMLItems.clear();
 
-	return RenderScreen(bRenderGraphicsOnly);
+	return OrbiterRenderer_SDL::RenderScreen(bRenderGraphicsOnly);
 }
 //-----------------------------------------------------------------------------------------------------
