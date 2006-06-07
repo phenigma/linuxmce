@@ -74,43 +74,6 @@ fi
 update-inetd --remove tftp
 update-inetd --group BOOT --add "tftp        dgram   udp wait    nobody /usr/sbin/tcpd /usr/sbin/in.tftpd --tftpd-timeout 300 --retry-timeout 5     --mcast-port 1758 --mcast-addr 239.255.0.0-255 --maxthread 100 --verbose=5 --no-blksize /tftpboot"
 
-### Configure polipo, frox and apt
-# /etc/polipo/config
-polipo_conf='# Pluto config for polipo
-proxyAddress = "0.0.0.0"
-proxyPort = 8123
-allowedClients = 0.0.0.0/0
-logFile = /var/log/polipo.log
-relaxTransparency = maybe
-dnsUseGethostbyname = true
-'
-# /etc/frox.conf
-frox_conf='# Pluto config for frox
-Port 8124
-User frox
-Group frox
-WorkingDir /var/cache/frox
-DontChroot yes
-LogLevel 20
-LogFile /var/log/frox.log
-PidFile /var/cache/frox/frox.pid
-BounceDefend yes
-CacheModule local
-CacheSize 500
-CacheAll no
-DoNTP yes
-MaxForks 50
-MaxForksPerHost 4
-ACL Allow * - *
-'
-
-echo -n "$polipo_conf" >/etc/polipo/config
-echo -n "$frox_conf" >/etc/frox.conf
-/usr/sbin/adduser --system --group --home /var/cache/frox --disabled-login --disabled-password frox &>/dev/null|| /bin/true
-echo "RUN_DAEMON=yes" >/etc/default/frox
-/etc/init.d/frox restart
-/etc/init.d/polipo restart
-
 bash_flag="# Pluto - bash root prompt"
 bash_prompt="$bash_flag
 if [[ -f /usr/pluto/bin/Config_Ops.sh ]]; then
@@ -139,10 +102,6 @@ awk '!/^#/ && ($3 == "ext2" || $3 == "ext3" || $3 == "xfs") {print $2}' /etc/fst
 done
 
 [[ -z "$RA_CheckRemotePort" ]] && ConfSet RA_CheckRemotePort 1
-rm -rf /var/cache/polipo/* || /bin/true
-
-# prevent slapd from starting at boot
-update-rc.d -f slapd remove || /bin/true
 
 modules="ip_conntrack ip_conntrack_ftp ip_conntrack_irc ip_nat_ftp ip_nat_irc"
 
