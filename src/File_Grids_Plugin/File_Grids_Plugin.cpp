@@ -203,7 +203,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 			pDataGrid->SetData(1, iRow, pCell);
 
 			pCell = new DataGridCell("", "");
-			pCell->m_pMessage = CMDPDG.m_pMessage;
+			pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
 			pDataGrid->SetData(0, iRow++, pCell);
 		}
 
@@ -238,8 +238,8 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 					+ "\n" + StringUtils::itos(iRow)+ "\n" + sItemName;
 				DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
 					"", GridID, DATAGRID_Directory_Listing_CONST, newParams, 0);
-				pCell->m_pMessage = CMDPDG.m_pMessage;
-				pCellPicture->m_pMessage = CMDPDG.m_pMessage;			
+				pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
+				pCellPicture->m_pMessage = new Message(CMDPDG.m_pMessage);			
 				
 				if( PK_DataGrid==DATAGRID_Media_Browser_CONST )
 				{
@@ -307,14 +307,14 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 								{
 									// The Orbiter wants us to attach an action to files too
 									DCE::CMD_Play_Disk cmd(m_dwPK_Device, pRow_Device->PK_Device_get(), atoi(sSlotIndex.c_str()));
-									pCell->m_pMessage = cmd.m_pMessage;
+									pCell->m_pMessage = new Message(cmd.m_pMessage);
 								}
 								else if( Actions.find('S')!=string::npos )
 								{
 									// The Orbiter wants us to attach an action to files too
 									DCE::CMD_Show_Object cmd(PK_Controller, PK_Controller,
 										StringUtils::itos(DESIGNOBJ_butPreviewFileList_CONST), 0, "", "", "1");
-									pCell->m_pMessage = cmd.m_pMessage;
+									pCell->m_pMessage = new Message(cmd.m_pMessage);
 								}						
 							}
 							
@@ -399,8 +399,8 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 				+ "\n" + StringUtils::itos(pFileDetails->m_iDirNumber)+ "\n" + sSubDirectory + pFileDetails->m_sFileName + "/";
 			DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
 				"", GridID, DATAGRID_Directory_Listing_CONST, newParams, 0);
-			pCell->m_pMessage = CMDPDG.m_pMessage;
-			pCellPicture->m_pMessage = CMDPDG.m_pMessage;
+			pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
+			pCellPicture->m_pMessage = new Message(CMDPDG.m_pMessage);
 		}
 		else if( Actions.length() )
 		{
@@ -409,15 +409,15 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 				// The Orbiter wants us to attach an action to files too
 				DCE::CMD_MH_Play_Media_Cat cmd(PK_Controller, DEVICECATEGORY_Media_Plugins_CONST, false, BL_SameHouse,
 					0 /* any device */,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0 /* whatever media type the file is */,0 /* any master device */,"" /* current entertain area */, false /* resume */, 0 /* repeat */);
-				pCell->m_pMessage = cmd.m_pMessage;
-				pCellPicture->m_pMessage = cmd.m_pMessage;
+				pCell->m_pMessage = new Message(cmd.m_pMessage);
+				pCellPicture->m_pMessage = new Message(cmd.m_pMessage);
 			}
 			else if( Actions.find('S')!=string::npos )
 			{
 				// The Orbiter wants us to attach an action to files too
 				DCE::CMD_Show_Object cmd(PK_Controller, PK_Controller, StringUtils::itos(DESIGNOBJ_butPreviewFileList_CONST), 0, "", "", "1");
-				pCell->m_pMessage = cmd.m_pMessage;
-				pCellPicture->m_pMessage = cmd.m_pMessage;
+				pCell->m_pMessage = new Message(cmd.m_pMessage);
+				pCellPicture->m_pMessage = new Message(cmd.m_pMessage);
 			}
 		}
 		delete pFileDetails; // We won't need it anymore and it was allocated on the heap
