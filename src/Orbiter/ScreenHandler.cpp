@@ -264,16 +264,16 @@ bool ScreenHandler::MediaSortFilter_ObjectSelected(CallBackData *pData)
 		switch( pObjectInfoData->m_pObj->m_pParentObject->m_iBaseObjectID )
 		{
 		case DESIGNOBJ_popFBSF_Genres_CONST:
-			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_Attribute_Genres);
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_Attribute_Genres,true);
 			return true;
 		case DESIGNOBJ_popFBSF_PK_FileFormat_CONST:
-			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_FileFormat);
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_FileFormat,true);
 			return true;
 		case DESIGNOBJ_popFBSF_MediaType_CONST:
 			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_PK_MediaType);
 			return true;
 		case DESIGNOBJ_popFBSF_PrivateMedia_CONST:
-			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_Users_Private);
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_Users_Private,false);
 			return true;
 		case DESIGNOBJ_popFBSF_RatingsByUser_CONST:
 			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_PK_Users);
@@ -282,10 +282,10 @@ bool ScreenHandler::MediaSortFilter_ObjectSelected(CallBackData *pData)
 			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_PK_AttributeType_Sort);
 			return true;
 		case DESIGNOBJ_popFBSF_MediaSource_CONST:
-			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sSources);
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sSources,true);
 			return true;
 		case DESIGNOBJ_popFBSF_PK_MediaSubType_CONST:
-			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_MediaSubType);
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_MediaSubType,true);
 			return true;
 		};
 	}
@@ -335,33 +335,66 @@ void MediaFileBrowserOptions::SelectArrays(DesignObj_Orbiter *pObj,int &iValue)
 	}
 }
 
-void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,string &sValues)
+void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,string &sValues,bool bTreatZeroAsAll)
 {
 	if( !pObj )
 		return; // Shouldn't happen
 	string sArrayValue = pObj->GetArrayValue();
 	string::size_type pos=0,prior=0;
-	while(pos<sValues.size())
+	if( sArrayValue!="0" || !bTreatZeroAsAll )  // Don't bother if the user selected the 'all'
 	{
-		string sToken = StringUtils::Tokenize(sValues,",",pos);
-		if( sToken==sArrayValue )
+		while(pos<sValues.size())
 		{
-			string sNewValue;
-			if( prior==0 && pos>=sValues.size() )
-				sNewValue = "";
-			else if( prior==0 )
-				sNewValue = sValues.substr(pos);
-			else if( pos>=sValues.size() )
-				sNewValue = sValues.substr(0,prior-1);
-			else
-				sNewValue = sValues.substr(0,prior) + sValues.substr(pos);
-			sValues = sNewValue;
-			pObj->m_GraphicToDisplay = GRAPHIC_NORMAL;
-			return;
+			string sToken = StringUtils::Tokenize(sValues,",",pos);
+			if( sToken==sArrayValue )
+			{
+				string sNewValue;
+				if( prior==0 && pos>=sValues.size() )
+					sNewValue = "";
+				else if( prior==0 )
+					sNewValue = sValues.substr(pos);
+				else if( pos>=sValues.size() )
+					sNewValue = sValues.substr(0,prior-1);
+				else
+					sNewValue = sValues.substr(0,prior) + sValues.substr(pos);
+				sValues = sNewValue;
+				pObj->m_GraphicToDisplay = GRAPHIC_NORMAL;
+				return;
+			}
+			prior=pos;
 		}
-		prior=pos;
 	}
-	
+
+	if( bTreatZeroAsAll )
+	{
+		// Clear the 'all' unless the user selected all, in which case clear everything else
+		map< pair<int,string>, DesignObj_Orbiter * >::iterator it = m_mapObjectsValues.find( make_pair<int,string> ( pObj->m_iBaseObjectID, "0" ) );
+		if( it != m_mapObjectsValues.end() )
+		{
+			DesignObj_Orbiter *pObj_All = it->second;
+			if( pObj_All==pObj )  // user selected all, clear everything else
+			{
+				pObj->m_GraphicToDisplay = GRAPHIC_SELECTED;
+				for( DesignObj_DataList::iterator iHao=pObj->m_pParentObject->m_ChildObjects.begin(  ); iHao != pObj->m_pParentObject->m_ChildObjects.end(  ); ++iHao )
+				{
+					DesignObj_Orbiter *pObj_Child=( DesignObj_Orbiter * )*iHao;
+					if( pObj_Child!=pObj )
+					{
+						pObj_Child->m_GraphicToDisplay = GRAPHIC_NORMAL;
+						m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Child);
+					}
+				}
+				sValues="";
+				return;
+			}
+			else  // User selected something besides 'all'
+			{
+				pObj_All->m_GraphicToDisplay = GRAPHIC_NORMAL;
+				m_pOrbiter->Renderer()->RenderObjectAsync(pObj_All);
+			}
+		}
+	}
+
 	pObj->m_GraphicToDisplay = GRAPHIC_SELECTED;
 	if( sValues.size() )
 		sValues += ",";
@@ -379,7 +412,7 @@ void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,int &iValue)
 		return; // User just chose the same thing
 
 	// Find the old one if it's changed
-	map< pair<int,string>, DesignObj_Orbiter * >::iterator it= m_mapObjectsValues.find( make_pair<int,string> (pObj->m_iBaseObjectID,sValue) );
+	map< pair<int,string>, DesignObj_Orbiter * >::iterator it= m_mapObjectsValues.find( make_pair<int,string> (pObj->m_iBaseObjectID,StringUtils::itos(iValue)) );
 	if( it!=m_mapObjectsValues.end() )
 	{
 		DesignObj_Orbiter *pObj_PriorSelected = it->second;

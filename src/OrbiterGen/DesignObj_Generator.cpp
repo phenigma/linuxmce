@@ -69,6 +69,7 @@
 #include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Table_FileFormat.h"
 #include "pluto_media/Table_MediaSubType.h"
+#include "pluto_media/Table_MediaSource.h"
 
 #define TOTAL_ESTIMATED_SCREENS 200
 
@@ -1598,7 +1599,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 				string sSQL = "JOIN MediaType_AttributeType ON FK_AttributeType=PK_AttributeType where EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType) + 
 					" and MediaSortOption is not null order by MediaSortOption";
 
-                alArray->push_back(new ArrayValue("0",	GetText(1682),
+                alArray->push_back(new ArrayValue("0",	GetText(TEXT_Filename_CONST),
                     NULL, 0, 0, 0, 0,false,false,false));
 
 				vector<Row_AttributeType *> vectRow_AttributeType;
@@ -1615,8 +1616,8 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
 		case ARRAY_Media_Filter_Genres_CONST:
 			{
-//                alArray->push_back(new ArrayValue("0",	GetText(TEXT_All_CONST),
-  //                  NULL, 0, 0, 0, 0,false,false,false));
+                alArray->push_back(new ArrayValue("0", GetText(TEXT_All_CONST),
+	                NULL, 0, 0, 0, 0,false,false,false));
 
 				string sSQL = "WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Genre_CONST);
 				vector<Row_Attribute *> vectRow_Attribute;
@@ -1650,14 +1651,21 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
             break;
 
 		case ARRAY_Media_Filter_Source_CONST:
-                alArray->push_back(new ArrayValue("id",
-                    "source",
-                    NULL,
-                    0,  // criteria
-                    0, // sub
-                    0, // command group
-					VARIABLE_PK_CommandGroup_CONST,
-					false,false,false));
+			{
+                alArray->push_back(new ArrayValue("0",	GetText(TEXT_All_CONST),
+                    NULL, 0, 0, 0, 0,false,false,false));
+
+				string sSQL = "JOIN MediaType_MediaSource on FK_MediaSource = PK_MediaSource WHERE EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType);
+				vector<Row_MediaSource *> vectRow_MediaSource;
+				m_pOrbiterGenerator->m_Database_pluto_media.MediaSource_get()->GetRows(sSQL,&vectRow_MediaSource);
+				for( vector<Row_MediaSource *>::iterator it=vectRow_MediaSource.begin();it!=vectRow_MediaSource.end();++it )
+				{
+					Row_MediaSource *pRow_MediaSource = *it;
+					alArray->push_back(new ArrayValue(StringUtils::itos(pRow_MediaSource->PK_MediaSource_get()),
+						pRow_MediaSource->Description_get(),
+	                    NULL, 0, 0, 0, 0,false,false,false));
+				}
+			}
             break;
 
 		case ARRAY_Media_Filter_File_Format_CONST:

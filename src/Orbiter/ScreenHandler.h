@@ -49,7 +49,7 @@ public:
 
 	void SelectArrays(DesignObj_Orbiter *pObj,string &sValues);
 	void SelectArrays(DesignObj_Orbiter *pObj,int &iValue);
-	void SelectedArray(DesignObj_Orbiter *pObj,string &sValues);
+	void SelectedArray(DesignObj_Orbiter *pObj,string &sValues,bool bTreatZeroAsAll);
 	void SelectedArray(DesignObj_Orbiter *pObj,int &iValue);
 };
 
