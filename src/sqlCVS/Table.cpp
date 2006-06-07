@@ -2453,7 +2453,7 @@ void Table::VerifyIntegrity()
 				if( g_GlobalConfig.m_sSkipVerification.find( m_sName + ":" + pField->Name_get() )!=string::npos )
 					continue;
 
-				if( pField->m_pField_IReferTo_Directly )
+				if( pField->m_pField_IReferTo_Directly && pField->m_pField_IReferTo_Directly->m_pTable && pField->m_pField_IReferTo_Directly->m_pTable->m_pRepository )
 				{
 					sql.str("");
 					sql << "SELECT L.`" << pField->Name_get() << "`,R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` FROM " <<
@@ -2506,7 +2506,9 @@ void Table::VerifyIntegrity()
 					string sName = it->first;
 					Field *pField_IReferTo_Indirectly = it->second;
 					Table *pTable = m_pDatabase->GetTableFromForeignKey( pField );
-
+					if(	pField_IReferTo_Indirectly->m_pTable->m_pRepository==NULL )
+						continue;  // The foreign field isn't under our control anyway
+					
 					sql.str("");
 					sql << "SELECT T1.FK_" << pField->Name_get().substr(3) << ",T1." << pField->Name_get() << " FROM `" << m_sName << "` AS T1 " <<
 						"LEFT JOIN " << pField->Name_get().substr(3) << " As T2 ON T1.FK_" << pField->Name_get().substr(3) << " = T2.PK_" << pField->Name_get().substr(3) <<
