@@ -3204,10 +3204,14 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specif
 						if($rowDDforDevice['FK_DeviceData']==$GLOBALS['PortChannel']){
 							$choicesArray=parentHasChoices($deviceID,$dbADO);
 							if(count($choicesArray)>0){
-								$formElement=pulldownFromArray($choicesArray,'deviceData_'.$rowD['PK_Device'].'_'.$rowDDforDevice['FK_DeviceData'],$ddValue,'class="'.$cssStyle.'"');
-							}									
+								$formElement=pulldownFromArray($choicesArray,'deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'],$ddValue,'class="'.$cssStyle.'"');
+								$deviceDataBox.=$formElement;
+							}else{
+								$deviceDataBox.=$defaultFormElement;
+							}
+						}else{
+							$deviceDataBox.=$defaultFormElement;
 						}
-						$deviceDataBox.=$defaultFormElement;
 					}else{
 						$deviceDataBox.=serialPortsPulldown('deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'],$ddValue,$rowDDforDevice['AllowedToModify'],getTopLevelParent($deviceID,$dbADO),$dbADO,$deviceID,$cssStyle);
 					}
@@ -5849,5 +5853,12 @@ function GetIRCodesForDevice($deviceID,$dbADO,$dtID=0){
 function exec_batch_command($cmd){
 	writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\t".$cmd."\n",'a+');
 	return exec($cmd);
+}
+
+function wikiLink($str){
+	$wikiLink=str_replace(' ','_',$str);
+	$wikiLink=urlencode(str_replace('__','_',$wikiLink)); 
+	
+	return $wikiLink;
 }
 ?>
