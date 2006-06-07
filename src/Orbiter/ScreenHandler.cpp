@@ -190,7 +190,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
 #endif
 	}
-	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butClose_CONST )
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Close_CONST )
 	{
 		m_pOrbiter->m_pObj_Highlighted = mediaFileBrowserOptions.m_pObj_ListGrid;
 		m_pOrbiter->CMD_Remove_Popup("","filedetails");
