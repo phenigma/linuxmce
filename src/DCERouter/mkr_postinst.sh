@@ -113,7 +113,7 @@ for module in $modules; do
 done
 
 echo "Updating IR codes for all devices"
-Q="SELECT DISTINCT FK_DeviceTemplate FROM Device"
+Q="SELECT DISTINCT FK_DeviceTemplate FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_InfraredGroup is not null"
 Templates=$(RunSQL "$Q")
 
 for Template in $Templates; do

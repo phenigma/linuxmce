@@ -89,7 +89,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	MYSQL_ROW row;
 
 	int iPK_DeviceCategory;
-	string SQL = "SELECT FK_DeviceCategory,Description,ConfigureScript,IsPlugAndPlay,FK_Package FROM DeviceTemplate WHERE PK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
+	string SQL = "SELECT FK_DeviceCategory,Description,ConfigureScript,IsPlugAndPlay,FK_Package,FK_InfraredGroup FROM DeviceTemplate WHERE PK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
 	if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
 		iPK_DeviceCategory = atoi(row[0]);
 	else
@@ -98,7 +98,8 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		return 0;
 	}
 
-	system((string("/usr/pluto/bin/WebDB_GetIR.sh 0 ") + StringUtils::itos(iPK_DeviceTemplate)).c_str());
+	if( row[5] && atoi(row[5]) )  // Only ask for the i/r codes if there is an infrared group
+		system((string("/usr/pluto/bin/WebDB_GetIR.sh 0 ") + StringUtils::itos(iPK_DeviceTemplate)).c_str());
 	
 	// Check if this device template has 'one per pc' set and ther's already one
 	// Use a temporary PK_Device_ControlledVia_temp because in rare circumstances this can't be determined until after the device is created
