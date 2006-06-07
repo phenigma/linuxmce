@@ -776,8 +776,18 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d checking detection %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_DHCPDevice->PnpDetectionScript_get().c_str());
 			DeviceData_Router *pDevice_AppServer=NULL,*pDevice_Detector=NULL;
 			pDevice_Detector = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceData_Router_Find(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
+
 			if( pDevice_Detector )
+			{
+				//Chris M. 2005/06/07
+				if(NULL == pDevice_Detector->m_pDevice_Core)
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts pDevice_Detector->m_pDevice_Core is NULL!");
+					continue;
+				}
+
 				pDevice_AppServer = (DeviceData_Router *) ((DeviceData_Impl *) (pDevice_Detector->m_pDevice_Core))->FindSelfOrChildWithinCategory( DEVICECATEGORY_App_Server_CONST );
+			}
 
 			if( !pDevice_AppServer )  // Shouldn't ever happen
 			{
