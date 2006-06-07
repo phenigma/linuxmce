@@ -10,8 +10,8 @@ Standards-Version: 3.6.1.0
 Package: dbus
 Architecture: any
 Depends: ${shlibs:Depends}, adduser, debianutils (>= 1.22.0), lsb-base (>= 3.0)
-Conflicts: libdbus0, dbus-1, dbus-1-utils (<< 0.50-2), libdbus-1-1
-Replaces: libdbus0, dbus-1
+Conflicts: libdbus0, dbus-1 (<= 0.23.4), dbus-1-utils (<< 0.50-2), libdbus-1-1
+Replaces: libdbus0, dbus-1 (<= 0.23.4)
 Description: simple interprocess messaging system
  D-BUS is a message bus, used for sending messages between
  applications.  Conceptually, it fits somewhere in between raw sockets
