@@ -183,13 +183,12 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 				"LEFT JOIN Attribute AS Attribute_Genre ON FK_Attribute=Attribute_Genre.PK_Attribute AND Attribute_Genre.FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Genre_CONST) " ";
 	}
 
-	sSQL_Where = "WHERE Missing in (0,1)";
 	if( PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST )
-		sSQL_Where += " AND EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredAudio_CONST) "," TOSTRING(MEDIATYPE_pluto_CD_CONST) ")";
+		sSQL_Where += " WHERE EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredAudio_CONST) "," TOSTRING(MEDIATYPE_pluto_CD_CONST) ")";
 	else if( PK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST )
-		sSQL_Where += " AND EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredVideo_CONST) "," TOSTRING(MEDIATYPE_pluto_DVD_CONST) ")";
+		sSQL_Where += " WHERE EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredVideo_CONST) "," TOSTRING(MEDIATYPE_pluto_DVD_CONST) ")";
 	else 
-		sSQL_Where += " AND EK_MediaType=" + StringUtils::itos(PK_MediaType);
+		sSQL_Where += " WHERE EK_MediaType=" + StringUtils::itos(PK_MediaType);
 
 	if( sPK_Attribute_Genres.size() )
 		sSQL_Where += " AND Attribute_Genre.PK_Attribute IN (" + sPK_Attribute_Genres + ")";
@@ -206,30 +205,35 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		sSQL_Where += " AND EK_Users_Private IS NULL";
 
 	string sPK_File,sPK_Disc;
-    PlutoSqlResult result;
+    PlutoSqlResult resultf,resultd;
     MYSQL_ROW row;
-	if( bFile && ( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_File + sSQL_Where + (sPath.size() ? " AND Path in (" + sPath + ")" : "")) ) )
-        while( ( row=mysql_fetch_row( result.r ) ) )
+	if( bFile && ( resultf.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_File + sSQL_Where + " AND Missing in (0,1) " + (sPath.size() ? " AND Path in (" + sPath + ")" : "")) ) )
+        while( ( row=mysql_fetch_row( resultf.r ) ) )
 			sPK_File += row[0] + string(",");
 
-    if( (bJukebox || bLocalDisc) && ( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Disc + sSQL_Where ) ) )
-        while( ( row=mysql_fetch_row( result.r ) ) )
+    if( (bJukebox || bLocalDisc) && ( resultd.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Disc + sSQL_Where ) ) )
+        while( ( row=mysql_fetch_row( resultd.r ) ) )
 			sPK_Disc += row[0] + string(",");
+string xxx=sSQL_File + sSQL_Where + " AND Missing in (0,1) " + (sPath.size() ? " AND Path in (" + sPath + ")" : "");
+FileUtils::WriteBufferIntoFile("/temp.sql",xxx.c_str(),xxx.size());
 
-	if( sPK_File.size() )
-		sPK_File[ sPK_File.size()-1 ]=' '; // Get rid of the trailing comma
-	if( sPK_Disc.size() )
-		sPK_Disc[ sPK_Disc.size()-1 ]=' '; // Get rid of the trailing comma
-	
 	// Find all the pictures for the files and discs
 	map<int,int> mapFile_To_Pic,mapDisc_To_Pic;
-	if( bFile )
-		FetchPictures("File",sPK_File,mapFile_To_Pic);
-	if( bJukebox || bLocalDisc )
-		FetchPictures("Disc",sPK_Disc,mapDisc_To_Pic);
 
-	if( bFile )
+	if( sPK_File.size() )
+	{
+		sPK_File[ sPK_File.size()-1 ]=' '; // Get rid of the trailing comma
+		FetchPictures("File",sPK_File,mapFile_To_Pic);
 		PopulateFileBrowserInfoForFile(pMediaListGrid,PK_AttributeType_Sort,bSubDirectory,sPath_Back,sPK_File,mapFile_To_Pic);
+	}
+
+	if( sPK_Disc.size() )
+	{
+		sPK_Disc[ sPK_Disc.size()-1 ]=' '; // Get rid of the trailing comma
+		FetchPictures("Disc",sPK_Disc,mapDisc_To_Pic);
+	}
+	
+
 //	void PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, string &sPath, string &sPK_File,map<int,int> &mapFile_To_Pic);
 //	if( bJukebox || bLocalDisc )
 //		PopulateFileBrowserInfoForDisc(pMediaListGrid,sPK_File,mapFile_To_Pic);
@@ -242,6 +246,7 @@ void Media_Plugin::FetchPictures(string sWhichTable,string &sPK_File_Or_Disc,map
     MYSQL_ROW row;
 	string sPK_AlreadyGot;
 
+FileUtils::WriteBufferIntoFile("/temp.sql",sSQL.c_str(),sSQL.size());
 	if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL ) )
         while( ( row=mysql_fetch_row( result.r ) ) )
 		{
@@ -249,9 +254,15 @@ void Media_Plugin::FetchPictures(string sWhichTable,string &sPK_File_Or_Disc,map
 			mapFile_To_Pic[ atoi(row[0]) ] = atoi(row[1]);
 		}
 
-	sSQL = "SELECT FK_" + sWhichTable + ",FK_Picture FROM " + sWhichTable + "_Attribute JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=" + sWhichTable + "_Attribute.FK_Attribute WHERE FK_" + sWhichTable + " IN (" + sPK_File_Or_Disc + ") AND FK_" + sWhichTable + " NOT IN (" + sPK_AlreadyGot + ")";
+	sSQL = "SELECT FK_" + sWhichTable + ",FK_Picture FROM " + sWhichTable + "_Attribute JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=" + sWhichTable + "_Attribute.FK_Attribute WHERE FK_" + sWhichTable + " IN (" + sPK_File_Or_Disc + ")";
+	if( sPK_AlreadyGot.size() )
+	{
+		sPK_AlreadyGot[ sPK_AlreadyGot.size()-1 ]=' '; // Get rid of the trailing comma
+		sSQL += " AND FK_" + sWhichTable + " NOT IN (" + sPK_AlreadyGot + ")";
+	}
     PlutoSqlResult result2;
-    if( result2.r=m_pDatabase_pluto_media->mysql_query_result( sSQL ) )
+FileUtils::WriteBufferIntoFile("/temp.sql",sSQL.c_str(),sSQL.size());
+	if( result2.r=m_pDatabase_pluto_media->mysql_query_result( sSQL ) )
         while( ( row=mysql_fetch_row( result2.r ) ) )
 		{
 			sPK_AlreadyGot += row[0] + string(",");
@@ -269,6 +280,7 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 
 	if( bSubDirectory )
 		pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("back (..)",sPath,0,true,true) );
+FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
 
     PlutoSqlResult result;
     MYSQL_ROW row;
