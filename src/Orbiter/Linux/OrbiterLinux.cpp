@@ -598,6 +598,7 @@ void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Me
 
 void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 {
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::CMD_Simulate_Keypress() : m_bYieldInput==%d", m_bYieldInput);
     if( m_bYieldInput )
     {
         pair<bool,int> XKeySym = PlutoButtonsToX(atoi(sPK_Button.c_str()));
@@ -647,10 +648,21 @@ void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &
 
 void OrbiterLinux::CMD_Surrender_to_OS(string sOnOff, bool bFully_release_keyboard, string &sCMD_Result, Message *pMessage)
 {
+    // when xine is full-screen, on DVD menu
+    // and navigation in the dvd-menu with keyboard is wanted
+    // then
+    // sOnOff should be 1
+    // and bFully_release_keyboard should be true
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::CMD_Surrender_to_OS(%s, %d)", sOnOff.c_str(), bFully_release_keyboard);
     GrabPointer(sOnOff != "1");
     GrabKeyboard(sOnOff != "1");
     Orbiter::CMD_Surrender_to_OS(sOnOff, bFully_release_keyboard, sCMD_Result, pMessage);
+    //if (m_bYieldInput)
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::CMD_Surrender_to_OS() : ActivateWindow('%s')", m_pWinListManager->GetExternApplicationName().c_str());
+        m_pWMController->ActivateWindow(m_pWinListManager->GetExternApplicationName());
+    }
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::CMD_Surrender_to_OS(%s, %d) : done", sOnOff.c_str(), bFully_release_keyboard);
 }
 
 /*virtual*/ ScreenHandler *OrbiterLinux::CreateScreenHandler()
