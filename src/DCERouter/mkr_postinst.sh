@@ -65,7 +65,7 @@ fi
 rm -f /var/log/pluto
 ln -s /home/logs/pluto /var/log/pluto
 
-if [ "$TestInstallation" -eq 1 ]; then 
+if [[ "$TestInstallation" == 1 ]]; then 
 	sed -i 's/#log..= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf
 	sed -i 's/#log.= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf
 fi
