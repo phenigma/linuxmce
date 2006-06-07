@@ -216,6 +216,8 @@ else
 	echo "$Q" | /usr/bin/mysql pluto_main
 
 	/usr/pluto/bin/Diskless_Setup.sh
+	/usr/pluto/bin/DHCP_config.sh
+	/usr/pluto/bin/Diskless_ExportsNFS.sh
 fi
 
 ## Update startup scripts
