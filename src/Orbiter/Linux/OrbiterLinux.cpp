@@ -93,6 +93,8 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
 {
     m_nProgressWidth = 400;
     m_nProgressHeight = 200;
+    m_pWMController = new WMControllerImpl();
+    m_pWinListManager = new WinListManager(m_pWMController, m_strWindowName);
 }
 
 void *HackThread(void *p)
@@ -209,10 +211,6 @@ bool OrbiterLinux::X11_Init()
     m_pX11->Display_Open();
     m_pX11->GetDisplaySize(m_nDesktopWidth, m_nDesktopHeight);
     // initialize other classes
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : WMController");
-    m_pWMController = new WMControllerImpl();
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : WinListManager");
-    m_pWinListManager = new WinListManager(m_pWMController, m_strWindowName);
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : done");
     return true;
 }
@@ -225,15 +223,11 @@ bool OrbiterLinux::X11_Exit()
         return false;
     }
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Exit()");
-    delete m_pWinListManager;
-    m_pWinListManager = NULL;
-    delete m_pWMController;
-    m_pWMController = NULL;
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Exit() : done");
     // display was opened by SDL, it should be closed by SDL
     delete m_pX11;
     m_pX11 = NULL;
     m_pDisplay_SDL = NULL;
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Exit() : done");
     return true;
 }
 
@@ -345,6 +339,10 @@ void OrbiterLinux::Destroy()
         m_pMouseBehavior = NULL;
     }
     X11_Exit();
+    delete m_pWinListManager;
+    m_pWinListManager = NULL;
+    delete m_pWMController;
+    m_pWMController = NULL;
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() : done");
 }
 
