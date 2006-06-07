@@ -287,6 +287,47 @@ namespace DCE
 			}
 		}
 
+		// This will return the first device within the given category that is in any way
+		// related (ie also a child of the topmost device, meaning it runs on the same PC).  Call leaving the default parameters unspecified.
+		DeviceData_Base *FindFirstRelatedDeviceOfCategory(int PK_DeviceCategory,bool bScanParent=true,int PK_Device_ExcludeChild=0)
+		{
+			if( WithinCategory(PK_DeviceCategory) )
+				return this;
+			for(size_t s=0;s<m_vectDeviceData_Impl_Children.size();++s)
+			{
+				DeviceData_Impl *pDeviceData_Impl = m_vectDeviceData_Impl_Children[s];
+				if( pDeviceData_Impl->m_dwPK_Device==PK_Device_ExcludeChild )
+					continue;
+				DeviceData_Base *pDeviceData_Base_Result = ((DeviceData_Router *) pDeviceData_Impl)->FindFirstRelatedDeviceOfCategory(PK_DeviceCategory,false);
+				if( pDeviceData_Base_Result )
+					return pDeviceData_Base_Result;
+			}
+			if( bScanParent && m_pDevice_ControlledVia )
+				return ((DeviceData_Router *) m_pDevice_ControlledVia)->FindFirstRelatedDeviceOfCategory(PK_DeviceCategory,true,m_dwPK_Device);
+			return NULL;
+		}
+
+		// This will return the first device of the given template that is in any way
+		// related (ie also a child of the topmost device, meaning it runs on the same PC).  Call leaving the default parameters unspecified.
+		DeviceData_Base *FindFirstRelatedDeviceOfTemplate(int PK_DeviceTemplate, bool bScanParent=true, int PK_Device_ExcludeChild = 0)
+		{
+			if( m_dwPK_DeviceTemplate==PK_DeviceTemplate )
+				return this;
+
+			for(size_t s=0;s<m_vectDeviceData_Impl_Children.size();++s)
+			{
+				DeviceData_Impl *pDeviceData_Impl = m_vectDeviceData_Impl_Children[s];
+				if( pDeviceData_Impl->m_dwPK_Device==PK_Device_ExcludeChild )
+					continue;
+				DeviceData_Base *pDeviceData_Base_Result = ((DeviceData_Router *) pDeviceData_Impl)->FindFirstRelatedDeviceOfTemplate(PK_DeviceTemplate,false);
+				if( pDeviceData_Base_Result )
+					return pDeviceData_Base_Result;
+			}
+			if( bScanParent && m_pDevice_ControlledVia )
+				return ((DeviceData_Router *) m_pDevice_ControlledVia)->FindFirstRelatedDeviceOfTemplate(PK_DeviceTemplate,true,m_dwPK_Device);
+			return NULL;
+		}
+
 		// We're not going to use this, since we're not creating actual devices.  Implement this pure virtual function from our base class
 		class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition) { return NULL; };
 	};
