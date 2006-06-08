@@ -53,7 +53,10 @@ namespace HADesigner
 		private int m_intGotoUIDesignObjID = -1;
 		//		private int m_intCommandID = -1;
 		//		private int m_intCommandGroupID = -1;
-		private int m_intCommandGroup_D_TouchID = -1,m_intCommandGroup_D_LoadID = -1,m_intCommandGroup_D_UnloadID = -1, m_intCommandGroup_D_StartupID = -1, m_intCommandGroup_D_TimeoutID = -1;
+		private int 
+			m_intCommandGroup_D_TouchID = -1, m_intCommandGroup_D_LoadID = -1,m_intCommandGroup_D_UnloadID = -1, 
+			m_intCommandGroup_D_StartupID = -1, m_intCommandGroup_D_HighlightID = -1, m_intCommandGroup_D_UnhighlightID = -1,
+			m_intCommandGroup_D_TimeoutID = -1;
 		private int m_intCButton = -1;
 		public int m_iLastDisplayOrder = -1;
 		private bool m_boolDontResetSelectedState = false;
@@ -74,7 +77,11 @@ namespace HADesigner
 		private int m_intUIIDOriginal = -1;
 		private int m_intGotoUIDesignObjIDOriginal  = -1;
 		//		private int m_intCommandIDOriginal = -1;
-		private int m_intCommandGroup_D_TouchIDOriginal  = -1,m_intCommandGroup_D_LoadIDOriginal  = -1,m_intCommandGroup_D_UnloadIDOriginal  = -1, m_intCommandGroup_D_StartupIDOriginal = -1, m_intCommandGroup_D_TimeoutIDOriginal = -1;
+		private int 
+			m_intCommandGroup_D_TouchIDOriginal  = -1,	m_intCommandGroup_D_LoadIDOriginal  = -1,
+			m_intCommandGroup_D_UnloadIDOriginal  = -1, m_intCommandGroup_D_StartupIDOriginal = -1, 
+			m_intCommandGroup_D_HighlightIDOriginal = -1, m_intCommandGroup_D_UnhighlightIDOriginal = -1,
+			m_intCommandGroup_D_TimeoutIDOriginal = -1;
 		private int m_intCButtonOriginal = -1;
 		private bool m_boolDontResetSelectedStateOriginal = false;
 
@@ -87,6 +94,8 @@ namespace HADesigner
 		private UIDesignObjVariationCommandGroup m_objCommandGroup_D_Load;
 		private UIDesignObjVariationCommandGroup m_objCommandGroup_D_Unload;
 		private UIDesignObjVariationCommandGroup m_objCommandGroup_D_Startup;
+		private UIDesignObjVariationCommandGroup m_objCommandGroup_D_Highlight;
+		private UIDesignObjVariationCommandGroup m_objCommandGroup_D_Unhighlight;
 		private UIDesignObjVariationCommandGroup m_objCommandGroup_D_Timeout;
 
 
@@ -161,6 +170,8 @@ namespace HADesigner
 					if(this.CommandGroup_D_Touch.WarnToSave) return true;
 					if(this.CommandGroup_D_Unload.WarnToSave) return true;
 					if(this.CommandGroup_D_Startup.WarnToSave) return true;
+					if(this.CommandGroup_D_Highlight.WarnToSave) return true;
+					if(this.CommandGroup_D_Unhighlight.WarnToSave) return true;
 					if(this.CommandGroup_D_Timeout.WarnToSave) return true;
 				}
 				return false;
@@ -190,6 +201,18 @@ namespace HADesigner
 		{
 			get{ return m_objCommandGroup_D_Startup; }
 			set{ m_objCommandGroup_D_Startup = value; }
+		}
+
+		public UIDesignObjVariationCommandGroup CommandGroup_D_Highlight
+		{
+			get{ return m_objCommandGroup_D_Highlight; }
+			set{ m_objCommandGroup_D_Highlight = value; }
+		}
+
+		public UIDesignObjVariationCommandGroup CommandGroup_D_Unhighlight
+		{
+			get{ return m_objCommandGroup_D_Unhighlight; }
+			set{ m_objCommandGroup_D_Unhighlight = value; }
 		}
 
 		public UIDesignObjVariationCommandGroup CommandGroup_D_Timeout
@@ -254,6 +277,16 @@ namespace HADesigner
 		{
 			get	{return m_intCommandGroup_D_StartupID;}
 			set	{m_intCommandGroup_D_StartupID = value;}
+		}
+		public int CommandGroup_D_HighlightID
+		{
+			get	{return m_intCommandGroup_D_HighlightID;}
+			set	{m_intCommandGroup_D_HighlightID = value;}
+		}
+		public int CommandGroup_D_UnhighlightID
+		{
+			get	{return m_intCommandGroup_D_UnhighlightID;}
+			set	{m_intCommandGroup_D_UnhighlightID = value;}
 		}
 		public int CommandGroup_D_TimeoutID
 		{
@@ -326,9 +359,18 @@ namespace HADesigner
 		{
 			get
 			{
-				return m_intUIIDOriginal != m_intUIID || m_intCommandGroup_D_TouchIDOriginal != m_intCommandGroup_D_TouchID || 
-					m_intCommandGroup_D_LoadIDOriginal != m_intCommandGroup_D_LoadID || m_intCommandGroup_D_UnloadIDOriginal != m_intCommandGroup_D_UnloadID || m_intCommandGroup_D_StartupID != m_intCommandGroup_D_StartupIDOriginal || m_intCommandGroup_D_TimeoutID != m_intCommandGroup_D_TimeoutIDOriginal || 
-					m_intCButton != m_intCButtonOriginal || m_intGotoUIDesignObjIDOriginal != m_intGotoUIDesignObjID || m_boolDontResetSelectedState!=m_boolDontResetSelectedStateOriginal ||
+				return 
+					m_intUIIDOriginal != m_intUIID || 
+					m_intCommandGroup_D_TouchIDOriginal != m_intCommandGroup_D_TouchID || 
+					m_intCommandGroup_D_LoadIDOriginal != m_intCommandGroup_D_LoadID || 
+					m_intCommandGroup_D_UnloadIDOriginal != m_intCommandGroup_D_UnloadID || 
+					m_intCommandGroup_D_StartupID != m_intCommandGroup_D_StartupIDOriginal || 
+					m_intCommandGroup_D_HighlightID != m_intCommandGroup_D_HighlightIDOriginal || 
+					m_intCommandGroup_D_UnhighlightID != m_intCommandGroup_D_UnhighlightIDOriginal || 
+					m_intCommandGroup_D_TimeoutID != m_intCommandGroup_D_TimeoutIDOriginal || 
+					m_intCButton != m_intCButtonOriginal || 
+					m_intGotoUIDesignObjIDOriginal != m_intGotoUIDesignObjID || 
+					m_boolDontResetSelectedState!=m_boolDontResetSelectedStateOriginal ||
 					m_intCEffectSelectNoChange != m_intCEffectSelectNoChangeOriginal ||
 					m_intCEffectSelectWithChange != m_intCEffectSelectWithChangeOriginal ||
 					m_intCEffectHighlight != m_intCEffectHighlightOriginal;					
@@ -473,6 +515,14 @@ namespace HADesigner
 				if(this.CommandGroup_D_Startup == null)
 				{
 					this.CommandGroup_D_Startup = new UIDesignObjVariationCommandGroup(this, -1);
+				}
+				if(this.CommandGroup_D_Highlight == null)
+				{
+					this.CommandGroup_D_Highlight = new UIDesignObjVariationCommandGroup(this, -1);
+				}
+				if(this.CommandGroup_D_Unhighlight == null)
+				{
+					this.CommandGroup_D_Unhighlight = new UIDesignObjVariationCommandGroup(this, -1);
 				}
 				if(this.CommandGroup_D_Timeout == null)
 				{
@@ -653,6 +703,8 @@ namespace HADesigner
 			this.CommandGroup_D_LoadID = (drVariation.fFK_CommandGroup_D_OnLoadIsNull) ? -1 : drVariation.fFK_CommandGroup_D_OnLoad;
 			this.CommandGroup_D_UnloadID = (drVariation.fFK_CommandGroup_D_OnUnloadIsNull) ? -1 : drVariation.fFK_CommandGroup_D_OnUnload;
 			this.CommandGroup_D_StartupID = (drVariation.fFK_CommandGroup_D_OnStartupIsNull) ? -1 : drVariation.fFK_CommandGroup_D_OnStartup;
+			this.CommandGroup_D_HighlightID = (drVariation.fFK_CommandGroup_D_OnHighlightIsNull) ? -1 : drVariation.fFK_CommandGroup_D_OnHighlight;
+			this.CommandGroup_D_UnhighlightID = (drVariation.fFK_CommandGroup_D_OnUnhighlightIsNull) ? -1 : drVariation.fFK_CommandGroup_D_OnUnhighlight;
 			this.CommandGroup_D_TimeoutID = (drVariation.fFK_CommandGroup_D_OnTimeoutIsNull) ? -1 : drVariation.fFK_CommandGroup_D_OnTimeout;
 			
 			//Set the originals
@@ -702,6 +754,16 @@ namespace HADesigner
 				if(this.CommandGroup_D_StartupID != -1)
 				{
 					this.CommandGroup_D_Startup = new UIDesignObjVariationCommandGroup(this, this.CommandGroup_D_StartupID);
+				}
+
+				if(this.CommandGroup_D_HighlightID != -1)
+				{
+					this.CommandGroup_D_Highlight = new UIDesignObjVariationCommandGroup(this, this.CommandGroup_D_HighlightID);
+				}
+
+				if(this.CommandGroup_D_UnhighlightID != -1)
+				{
+					this.CommandGroup_D_Unhighlight = new UIDesignObjVariationCommandGroup(this, this.CommandGroup_D_UnhighlightID);
 				}
 
 				if(this.CommandGroup_D_TimeoutID != -1)
@@ -869,6 +931,12 @@ namespace HADesigner
 						this.CommandGroup_D_Startup.NeedsDelete = true;
 						this.CommandGroup_D_Startup.SaveToDatabase();
 
+						this.CommandGroup_D_Highlight.NeedsDelete = true;
+						this.CommandGroup_D_Highlight.SaveToDatabase();
+
+						this.CommandGroup_D_Unhighlight.NeedsDelete = true;
+						this.CommandGroup_D_Unhighlight.SaveToDatabase();
+
 						this.CommandGroup_D_Timeout.NeedsDelete = true;
 						this.CommandGroup_D_Timeout.SaveToDatabase();
 					}
@@ -888,6 +956,8 @@ namespace HADesigner
 						blnChanged = this.CommandGroup_D_Touch.SaveToDatabase() || blnChanged;
 						blnChanged = this.CommandGroup_D_Unload.SaveToDatabase() || blnChanged;
 						blnChanged = this.CommandGroup_D_Startup.SaveToDatabase() || blnChanged;
+						blnChanged = this.CommandGroup_D_Highlight.SaveToDatabase() || blnChanged;
+						blnChanged = this.CommandGroup_D_Unhighlight.SaveToDatabase() || blnChanged;
 						blnChanged = this.CommandGroup_D_Timeout.SaveToDatabase() || blnChanged;
 
 						//these ids may be -1, or they may be the same as they were
@@ -895,6 +965,8 @@ namespace HADesigner
 						this.CommandGroup_D_LoadID = this.CommandGroup_D_Load.CommandGroupID;
 						this.CommandGroup_D_UnloadID = this.CommandGroup_D_Unload.CommandGroupID;
 						this.CommandGroup_D_StartupID = this.CommandGroup_D_Startup.CommandGroupID;
+						this.CommandGroup_D_HighlightID = this.CommandGroup_D_Highlight.CommandGroupID;
+						this.CommandGroup_D_UnhighlightID = this.CommandGroup_D_Unhighlight.CommandGroupID;
 						this.CommandGroup_D_TimeoutID = this.CommandGroup_D_Timeout.CommandGroupID;
 
 
@@ -960,6 +1032,18 @@ namespace HADesigner
 							drDesignObjVariation.fFK_CommandGroup_D_OnStartupSetNull();
 						else
 							drDesignObjVariation.fFK_CommandGroup_D_OnStartup = this.CommandGroup_D_StartupID;
+
+
+						if(this.CommandGroup_D_HighlightID == -1)
+							drDesignObjVariation.fFK_CommandGroup_D_OnHighlightSetNull();
+						else
+							drDesignObjVariation.fFK_CommandGroup_D_OnHighlight = this.CommandGroup_D_HighlightID;
+
+
+						if(this.CommandGroup_D_UnhighlightID == -1)
+							drDesignObjVariation.fFK_CommandGroup_D_OnUnhighlightSetNull();
+						else
+							drDesignObjVariation.fFK_CommandGroup_D_OnUnhighlight = this.CommandGroup_D_UnhighlightID;
 
 
 						if(this.CommandGroup_D_TimeoutID == -1)
@@ -1039,6 +1123,16 @@ namespace HADesigner
 								drDesignObjVariation.fFK_CommandGroup_D_OnStartupSetNull();
 							else
 								drDesignObjVariation.fFK_CommandGroup_D_OnStartup = this.CommandGroup_D_StartupID;
+
+							if(this.CommandGroup_D_HighlightID == -1)
+								drDesignObjVariation.fFK_CommandGroup_D_OnHighlightSetNull();
+							else
+								drDesignObjVariation.fFK_CommandGroup_D_OnHighlight = this.CommandGroup_D_HighlightID;
+
+							if(this.CommandGroup_D_UnhighlightID == -1)
+								drDesignObjVariation.fFK_CommandGroup_D_OnUnhighlightSetNull();
+							else
+								drDesignObjVariation.fFK_CommandGroup_D_OnUnhighlight = this.CommandGroup_D_UnhighlightID;
 
 							if(this.CommandGroup_D_TimeoutID == -1)
 								drDesignObjVariation.fFK_CommandGroup_D_OnTimeoutSetNull();
@@ -1290,6 +1384,8 @@ namespace HADesigner
 			m_intCommandGroup_D_LoadIDOriginal = m_intCommandGroup_D_LoadID;
 			m_intCommandGroup_D_UnloadIDOriginal = m_intCommandGroup_D_UnloadID;
 			m_intCommandGroup_D_StartupIDOriginal = m_intCommandGroup_D_StartupID;
+			m_intCommandGroup_D_HighlightIDOriginal = m_intCommandGroup_D_HighlightID;
+			m_intCommandGroup_D_UnhighlightIDOriginal = m_intCommandGroup_D_UnhighlightID;
 			m_intCommandGroup_D_TimeoutIDOriginal = m_intCommandGroup_D_TimeoutID;
 			m_intCButtonOriginal = m_intCButton;
 			m_boolDontResetSelectedStateOriginal = m_boolDontResetSelectedState;

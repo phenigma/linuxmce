@@ -1408,6 +1408,8 @@ namespace HAData.DataAccess {
 			Relations.Add(MyRelations.DesignObjVariation_FK_CommandGroup_D_OnUnload,tCommandGroup_D.cPK_CommandGroup_D,tDesignObjVariation.cFK_CommandGroup_D_OnUnload);
 			Relations.Add(MyRelations.DesignObjVariation_FK_CommandGroup_D_OnTimeout,tCommandGroup_D.cPK_CommandGroup_D,tDesignObjVariation.cFK_CommandGroup_D_OnTimeout);
 			Relations.Add(MyRelations.DesignObjVariation_FK_CommandGroup_D_OnStartup,tCommandGroup_D.cPK_CommandGroup_D,tDesignObjVariation.cFK_CommandGroup_D_OnStartup);
+			Relations.Add(MyRelations.DesignObjVariation_FK_CommandGroup_D_OnHighlight,tCommandGroup_D.cPK_CommandGroup_D,tDesignObjVariation.cFK_CommandGroup_D_OnHighlight);
+			Relations.Add(MyRelations.DesignObjVariation_FK_CommandGroup_D_OnUnhighlight,tCommandGroup_D.cPK_CommandGroup_D,tDesignObjVariation.cFK_CommandGroup_D_OnUnhighlight);
 			Relations.Add(MyRelations.DesignObjVariation_FK_Button,tButton.cPK_Button,tDesignObjVariation.cFK_Button);
 			Relations.Add(MyRelations.DesignObjVariation_DesignObj_FK_DesignObjVariation_Parent,tDesignObjVariation.cPK_DesignObjVariation,tDesignObjVariation_DesignObj.cFK_DesignObjVariation_Parent);
 			Relations.Add(MyRelations.DesignObjVariation_DesignObj_FK_DesignObj_Child,tDesignObj.cPK_DesignObj,tDesignObjVariation_DesignObj.cFK_DesignObj_Child);
@@ -1540,6 +1542,8 @@ namespace HAData.DataAccess {
 			public const string DesignObjVariation_FK_EffectType_Selected_WithChange="76";
 			public const string DesignObjVariation_FK_EffectType_Selected_NoChange="77";
 			public const string DesignObjVariation_FK_EffectType_Highlighted="78";
+			public const string DesignObjVariation_FK_CommandGroup_D_OnHighlight="79";
+			public const string DesignObjVariation_FK_CommandGroup_D_OnUnhighlight="80";
 		}
 	}
 } // namespace HAData.Common.Data

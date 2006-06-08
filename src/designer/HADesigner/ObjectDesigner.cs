@@ -157,6 +157,8 @@ namespace HADesigner
 		private System.Windows.Forms.TabPage tabOnLoad;
 		private System.Windows.Forms.TabPage tabOnUnload;
 		private System.Windows.Forms.TabPage tabOnStartup;
+		private System.Windows.Forms.TabPage tabOnHighlight;
+		private System.Windows.Forms.TabPage tabOnUnhighlight;
 		private System.Windows.Forms.TabPage tabOnTimeout;
 		private System.Windows.Forms.TabPage tabOnSelected_WithChange;
 		private System.Windows.Forms.TabPage tabOnSelected_NoChange;
@@ -849,7 +851,7 @@ namespace HADesigner
 			}
 			else
 			{
-				pnCommandGroupInfo.Visible = tabAllPages.SelectedIndex > 2 && tabAllPages.SelectedIndex < 8;
+				pnCommandGroupInfo.Visible = tabAllPages.SelectedIndex > 2 && tabAllPages.SelectedIndex < 10;
 				if (pnCommandGroupInfo.Visible)
 				{
 					tvCommand.Enabled = true;
@@ -1017,6 +1019,8 @@ namespace HADesigner
 			this.tabOnLoad = new System.Windows.Forms.TabPage();
 			this.tabOnUnload = new System.Windows.Forms.TabPage();
 			this.tabOnStartup = new System.Windows.Forms.TabPage();
+			this.tabOnHighlight = new System.Windows.Forms.TabPage();
+			this.tabOnUnhighlight = new System.Windows.Forms.TabPage();
 			this.tabOnTimeout = new System.Windows.Forms.TabPage();
 			this.tabOnSelected_WithChange = new System.Windows.Forms.TabPage();
 			this.pnEffectsSelectChange = new System.Windows.Forms.Panel();
@@ -1497,6 +1501,8 @@ namespace HADesigner
 			this.tabAllPages.Controls.Add(this.tabOnLoad);
 			this.tabAllPages.Controls.Add(this.tabOnUnload);
 			this.tabAllPages.Controls.Add(this.tabOnStartup);
+			this.tabAllPages.Controls.Add(this.tabOnHighlight);
+			this.tabAllPages.Controls.Add(this.tabOnUnhighlight);
 			this.tabAllPages.Controls.Add(this.tabOnTimeout);
 			this.tabAllPages.Controls.Add(this.tabOnSelected_WithChange);
 			this.tabAllPages.Controls.Add(this.tabOnSelected_NoChange);
@@ -1911,12 +1917,28 @@ namespace HADesigner
 			this.tabOnStartup.TabIndex = 5;
 			this.tabOnStartup.Text = "OnStartup";
 			// 
+			// tabOnHighlight
+			// 
+			this.tabOnHighlight.Location = new System.Drawing.Point(4, 22);
+			this.tabOnHighlight.Name = "tabOnHighlight";
+			this.tabOnHighlight.Size = new System.Drawing.Size(760, 190);
+			this.tabOnHighlight.TabIndex = 6;
+			this.tabOnHighlight.Text = "OnHighlight";
+			// 
+			// tabOnUnhighlight
+			// 
+			this.tabOnUnhighlight.Location = new System.Drawing.Point(4, 22);
+			this.tabOnUnhighlight.Name = "tabOnUnhighlight";
+			this.tabOnUnhighlight.Size = new System.Drawing.Size(760, 190);
+			this.tabOnUnhighlight.TabIndex = 7;
+			this.tabOnUnhighlight.Text = "OnUnhighlight";
+			// 
 			// tabOnTimeout
 			// 
 			this.tabOnTimeout.Location = new System.Drawing.Point(4, 22);
 			this.tabOnTimeout.Name = "tabOnTimeout";
 			this.tabOnTimeout.Size = new System.Drawing.Size(760, 190);
-			this.tabOnTimeout.TabIndex = 6;
+			this.tabOnTimeout.TabIndex = 8;
 			this.tabOnTimeout.Text = "OnTimeout";
 			// 
 			// tabOnSelected_WithChange
@@ -1925,7 +1947,7 @@ namespace HADesigner
 			this.tabOnSelected_WithChange.Location = new System.Drawing.Point(4, 22);
 			this.tabOnSelected_WithChange.Name = "tabOnSelected_WithChange";
 			this.tabOnSelected_WithChange.Size = new System.Drawing.Size(760, 190);
-			this.tabOnSelected_WithChange.TabIndex = 7;
+			this.tabOnSelected_WithChange.TabIndex = 9;
 			this.tabOnSelected_WithChange.Text = "OnSelected(with change)";
 			// 
 			// pnEffectsSelectChange
@@ -1935,14 +1957,14 @@ namespace HADesigner
 			this.pnEffectsSelectChange.Location = new System.Drawing.Point(8, 8);
 			this.pnEffectsSelectChange.Name = "pnEffectsSelectChange";
 			this.pnEffectsSelectChange.Size = new System.Drawing.Size(456, 168);
-			this.pnEffectsSelectChange.TabIndex = 2;
+			this.pnEffectsSelectChange.TabIndex = 10;
 			// 
 			// lbEffect
 			// 
 			this.lbEffect.Location = new System.Drawing.Point(16, 16);
 			this.lbEffect.Name = "lbEffect";
 			this.lbEffect.Size = new System.Drawing.Size(216, 16);
-			this.lbEffect.TabIndex = 1;
+			this.lbEffect.TabIndex = 11;
 			this.lbEffect.Text = "Effect";
 			// 
 			// cbEffectsSelectChange
@@ -1951,7 +1973,7 @@ namespace HADesigner
 			this.cbEffectsSelectChange.Location = new System.Drawing.Point(16, 40);
 			this.cbEffectsSelectChange.Name = "cbEffectsSelectChange";
 			this.cbEffectsSelectChange.Size = new System.Drawing.Size(264, 21);
-			this.cbEffectsSelectChange.TabIndex = 0;
+			this.cbEffectsSelectChange.TabIndex = 12;
 			this.cbEffectsSelectChange.ValueMember = "ID";
 			this.cbEffectsSelectChange.SelectedIndexChanged += new System.EventHandler(this.cbEffectsSelectChange_SelectedIndexChanged);
 			// 
@@ -1961,7 +1983,7 @@ namespace HADesigner
 			this.tabOnSelected_NoChange.Location = new System.Drawing.Point(4, 22);
 			this.tabOnSelected_NoChange.Name = "tabOnSelected_NoChange";
 			this.tabOnSelected_NoChange.Size = new System.Drawing.Size(760, 190);
-			this.tabOnSelected_NoChange.TabIndex = 8;
+			this.tabOnSelected_NoChange.TabIndex = 13;
 			this.tabOnSelected_NoChange.Text = "OnSelected(no change)";
 			// 
 			// panel1
@@ -3383,6 +3405,14 @@ namespace HADesigner
 				if(this.tabAllPages.SelectedTab == this.tabOnStartup)
 				{
 					objAG = objSelectedVariation.CommandGroup_D_Startup;
+				}
+				if(this.tabAllPages.SelectedTab == this.tabOnHighlight)
+				{
+					objAG = objSelectedVariation.CommandGroup_D_Highlight;
+				}
+				if(this.tabAllPages.SelectedTab == this.tabOnUnhighlight)
+				{
+					objAG = objSelectedVariation.CommandGroup_D_Unhighlight;
 				}
 				if(this.tabAllPages.SelectedTab == this.tabOnTimeout)
 				{
