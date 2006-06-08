@@ -401,6 +401,8 @@ bool Xine_Stream::CloseMedia()
 		m_bIsRendering = false;
 		m_iTitle=m_iChapter=-1;
 	}
+	
+	return true;
 }
 
 bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPosition)
@@ -420,10 +422,73 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		m_bIsVDR = fileName.substr( 0, 4 ) == "vdr:";
 	}
 	
+	
+	// pre-reading media information
+	g_pPlutoLogger->Write( LV_STATUS, "Reading stream media info: \n");
+	if (xine_open( m_pXineStream, fileName.c_str() ) )
+	{
+		sMediaInfo = "";
+		int titlesCount = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_TITLE_COUNT);
+		g_pPlutoLogger->Write( LV_STATUS, "Stream titles count: %d", titlesCount);
+		int hasChapters = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_HAS_CHAPTERS);
+		g_pPlutoLogger->Write( LV_STATUS, "Stream has chapters: %d", hasChapters);
+		
+		xine_close( m_pXineStream);
+		
+		// for the media with titles
+		if (titlesCount>0)
+		{
+			/*
+			int chaptersCount = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_CHAPTER_COUNT);
+			g_pPlutoLogger->Write( LV_STATUS, "Stream chapters count: %d", chaptersCount);*/
+			
+			//also simply enumerating as we can't find the number of chapters using the current xine api
+			for (int i=1; i<=titlesCount; i++)
+			{
+				int chaptersCount=0;
+				
+				if (xine_open( m_pXineStream, (fileName+"/"+StringUtils::itos(i)).c_str() ))
+				{
+					chaptersCount = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_CHAPTER_COUNT);
+					xine_close( m_pXineStream);
+				}
+				else
+				{
+					g_pPlutoLogger->Write( LV_STATUS, "Failed to get chapters count for title: %d", i);
+				}
+				
+			
+				if (chaptersCount==0)
+					sMediaInfo += "Title " + StringUtils::itos(i) + "\t\t" + StringUtils::itos(i) + "\n";
+				else
+				{
+					for (int j=1; j<=chaptersCount; j++)
+						sMediaInfo += "Title " + StringUtils::itos(i) + " Chapter "+ StringUtils::itos(j) +"\t"+ StringUtils::itos(j) +"\t" + StringUtils::itos(i) + "\n";
+				}
+			}		
+		}
+		
+		/*
+		if (!hasChapters)
+		{
+			//simply enumerating titles count
+			for (int i=1; i<=titlesCount; i++)
+			{
+				sMediaInfo += "Track " + StringUtils::itos(i) + "\t" + StringUtils::itos(i) + "\n";
+			}
+		}
+		*/
+		
+		
+		g_pPlutoLogger->Write( LV_STATUS, "Stream media info (length=%i): \n%s", sMediaInfo.length(), sMediaInfo.c_str());
+	}
+	else
+		g_pPlutoLogger->Write( LV_STATUS, "Reading stream media info FAILED \n");
+	
 	// getting possible suffix for media: chapters and titles
 	string sURLsuffix;
 	CalculatePosition( sMediaPosition, &sURLsuffix, NULL, NULL, NULL); 
-	
+		
 	bool mediaOpened = false;
 	m_bIsRendering = false;
 	
@@ -518,36 +583,6 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::OpenMedia failed! Aborting!" );
 		return false;
 	}
-
-	// reading information about media
-	sMediaInfo = "";
-	int titlesCount = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_TITLE_COUNT);
-	g_pPlutoLogger->Write( LV_STATUS, "Stream titles count: %d", titlesCount);
-	int hasChapters = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_HAS_CHAPTERS);
-	g_pPlutoLogger->Write( LV_STATUS, "Stream has chapters: %d", hasChapters);
-	
-	if (!hasChapters)
-	{
-		//simply enumerating titles count
-		for (int i=1; i<=titlesCount; i++)
-		{
-			sMediaInfo += "Track " + StringUtils::itos(i) + "\t" + StringUtils::itos(i) + "\n";
-		}
-	}
-	else
-	{
-		/*
-		int chaptersCount = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_CHAPTER_COUNT);
-		g_pPlutoLogger->Write( LV_STATUS, "Stream chapters count: %d", chaptersCount);*/
-		
-		//also simply enumerating as we can't find the number of chapters using the current xine api
-		for (int i=1; i<=titlesCount; i++)
-		{
-			sMediaInfo += "Title " + StringUtils::itos(i) + "\t\t" + StringUtils::itos(i) + "\n";
-		}		
-	}
-	
-	g_pPlutoLogger->Write( LV_STATUS, "Stream media info: %s", sMediaInfo.c_str());
 	
 	return true;
 }
@@ -1662,10 +1697,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		return;
 	}
 
-	
-	//TODO: initialize correctly
-	// bool trickModeSupported = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_TRICK_PLAY_SUPPORTED);
-	// bool trickModeActive = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_TRICK_PLAY_ENABLED) ;
+
 	bool trickModeSupported = (strncasecmp("dvd:", m_sCurrentFile.c_str(), 4)==0);
 	bool trickModeActive = m_bTrickModeActive;
 	
