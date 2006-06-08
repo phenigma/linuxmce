@@ -46,8 +46,27 @@
 using namespace std;
 using namespace DCE;
 
+#ifdef WIN32
+	#include <signal.h>
+#endif
+
+namespace UpdateMediaSig
+{
+	static bool bSignalTrapCaught = false;
+};
+
+void sigtrap_hook(int sig)
+{
+	g_pPlutoLogger->Write(LV_CRITICAL, "Signal %d caught! Exiting...",  sig);
+	UpdateMediaSig::bSignalTrapCaught = true;
+}
+
 UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string sDirectory)
 {
+#ifndef WIN32
+	signal(SIGTRAP, &sigtrap_hook);
+#endif
+
     string sPlutoMediaDbName = "pluto_media";
     string sPlutoMainDbName = "pluto_main";
 
@@ -83,6 +102,10 @@ UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string 
 UpdateMedia::UpdateMedia(Database_pluto_media *pDatabase_pluto_media, 
     Database_pluto_main *pDatabase_pluto_main, string sDirectory)
 {
+#ifndef WIN32
+	signal(SIGTRAP, &sigtrap_hook);
+#endif
+
     //reusing connections
     m_pDatabase_pluto_main = pDatabase_pluto_main;
     m_pDatabase_pluto_media = pDatabase_pluto_media;
@@ -147,7 +170,13 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 	// Now start matching them up
 	for(list<string>::iterator it=listFilesOnDisk.begin();it!=listFilesOnDisk.end();++it)
 	{
-        string sFile = *it;
+		if(UpdateMediaSig::bSignalTrapCaught)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "SIGTERM received. Exiting...");
+			return 0;
+		}
+		
+		string sFile = *it;
 
 		//ignore id3 and lock files
 		if(StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "id3" || StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "lock")
