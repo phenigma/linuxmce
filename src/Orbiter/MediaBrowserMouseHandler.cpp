@@ -105,7 +105,7 @@ void MediaBrowserMouseHandler::RelativeMove(int DeltaX, int DeltaY)
 		}
 		while (m_RelativeVirtualY < -100)
 		{
-			// todo : scroll grid
+			m_pMouseBehavior->m_pOrbiter->CMD_Scroll_Grid("", "", 	DIRECTION_Up_CONST);		// todo : scroll grid
 			m_RelativeVirtualY += 100;
 		}
 	}
@@ -126,7 +126,7 @@ void MediaBrowserMouseHandler::RelativeMove(int DeltaX, int DeltaY)
 		}
 		while (m_RelativeVirtualY > m_pMouseBehavior->m_pOrbiter->m_Height + 100)
 		{
-			// todo: scroll grid
+			m_pMouseBehavior->m_pOrbiter->CMD_Scroll_Grid("", "", 	DIRECTION_Down_CONST);		
 			m_RelativeVirtualY -= 100;
 		}
 		return;
