@@ -99,9 +99,11 @@ void PnpQueue::Run()
 	bool bOnlyBlockedEntries=false;  // Set this to true if every entry in the list is blocked and we don't need to process anymore until something happens
 	while( !m_pPlug_And_Play_Plugin->m_bQuit )
 	{
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Run size %d only blocked %d", m_mapPnpQueueEntry.size(), (int) bOnlyBlockedEntries);
 		if( m_mapPnpQueueEntry.size()==0 || bOnlyBlockedEntries )  // bOnlyBlockedEntries will be true if the last loop had only blocked entries
 			pnp.TimedCondWait(60,0);  // Release the mutex so other items can be added to the queue and so we can handle incoming events.  Only sleep for 1 minutes in case an Orbiter is blocked and not responding
 
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Run size %d woke up", m_mapPnpQueueEntry.size());
 		bOnlyBlockedEntries = m_mapPnpQueueEntry.size()>0;
 		for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();)  // The pnp mutex is held so we can safely do what we like
 		{
@@ -112,11 +114,15 @@ void PnpQueue::Run()
 				( pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_running_detection_scripts || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_DETECTION_SCRIPT ) 
 				)
 			{
+				g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Run queue %d blocked %d time %d now %d", pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),
+					(int) pPnpQueueEntry->m_EBlockedState,(int) pPnpQueueEntry->m_tTimeBlocked, (int) time(NULL));
 				it++;
 				continue;
 			}
 			else
 				bOnlyBlockedEntries=false;  // There are some entries that are not blocked, so loop again
+
+			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Run prossing %d at stage %d", pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), pPnpQueueEntry->m_pRow_PnpQueue->Stage_get());
 
 			if( Process(pPnpQueueEntry)==true )  // Meaning it needs to be removed from the list
 			{
@@ -826,6 +832,7 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 
 void PnpQueue::ReleaseQueuesBlockedFromPromptingState(PnpQueueEntry *pPnpQueueEntry)
 {
+	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::ReleaseQueuesBlockedFromPromptingState prossing %d", pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
 	{
 		PnpQueueEntry *pPnpQueueEntry2 = it->second;

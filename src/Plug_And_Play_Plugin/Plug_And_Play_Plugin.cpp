@@ -245,8 +245,11 @@ class DataGridTable *Plug_And_Play_Plugin::PNPDevices( string GridID, string Par
 	{
 		pCell = new DataGridCell( pRow_DeviceTemplate->Description_get(), "-1" );
         pDataGrid->SetData( 0, 0, pCell );
+		g_pPlutoLogger->Write(LV_CRITICAL, "Plug_And_Play_Plugin::PNPDevices Parms=%s returning sole device template %d %s", Parms.c_str(),pRow_DeviceTemplate->PK_DeviceTemplate_get(),pRow_DeviceTemplate->Description_get().c_str());
 		return pDataGrid;
 	}
+
+	string sPK_DeviceTemplate;
 	for( map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();++it )
 	{
 		Row_DHCPDevice *pRow_DHCPDevice = it->second;
@@ -255,9 +258,12 @@ class DataGridTable *Plug_And_Play_Plugin::PNPDevices( string GridID, string Par
 			continue;  // Shouldn't happen
 
 		pCell = new DataGridCell( pRow_DeviceTemplate->Description_get(), StringUtils::itos(pRow_DHCPDevice->PK_DHCPDevice_get()) );
+
+		sPK_DeviceTemplate += StringUtils::itos(pRow_DHCPDevice->PK_DHCPDevice_get()) + "," + pRow_DeviceTemplate->Description_get() + " / ";
         pDataGrid->SetData( 0, RowCount++, pCell );
 	}
 
+	g_pPlutoLogger->Write(LV_CRITICAL, "Plug_And_Play_Plugin::PNPDevices Parms=%s returning templates %s", Parms.c_str(), sPK_DeviceTemplate.c_str());
 	return pDataGrid;
 }
 
