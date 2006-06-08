@@ -1,37 +1,40 @@
-#ifndef __OPENGL_GRAPHIC_H__
-#define __OPENGL_GRAPHIC_H__
-//-------------------------------------------------------------------------------------------------------
-#include "../DesignObj_Orbiter.h"
-#include "SDL.h"
-#include "GLDefs.h"
-#include <GL/gl.h>
+#ifndef OPENGLGRAPHIC_H_
+#define OPENGLGRAPHIC_H_
 
+#include<string>
 
-//-------------------------------------------------------------------------------------------------------
+#include "Texture/TextureManager.h"
+#include "../PlutoGraphic.h"
+
+#include <SDL.h>
+
 class OpenGLGraphic : public PlutoGraphic
 {
+	SDL_Surface* LocalSurface;
+
 public:
-	OpenGLGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pCI);
-	OpenGLGraphic(struct SDL_Surface *pSDL_Surface);
-	OpenGLGraphic(Orbiter *pCI);
+	OpenGLTexture Texture;
+	float MaxU, MaxV;
+	int Width, Height;
+
+	OpenGLGraphic();
+	OpenGLGraphic(OrbiterRenderer *pOrbiterRenderer);
+	OpenGLGraphic(string Filename, eGraphicManagement GraphicManagement, OrbiterRenderer *pOrbiterRenderer);
 	~OpenGLGraphic();
 
+	bool SetupFromImage(std::string FileName);
+	void Prepare(SDL_Surface* Surface);
+	void Convert();
+
+	//from PlutoGraphic
+	PlutoGraphic* Clone(); 
 	void Initialize();
-	GraphicType GraphicType_get() { return gtOpenGLGraphic; }
-	bool IsEmpty() { return NULL == m_pSDL_Surface; }
-	bool LoadGraphic(char *pData, size_t iSize,int iRotation=0);
+	GraphicType GraphicType_get();
+	bool IsEmpty(); 
+	bool LoadGraphic(char *pData, size_t iSize,int iRotation=0); 
 	void Clear(); 
-	virtual PlutoGraphic *GetHighlightedVersion();
-	PlutoGraphic* Clone();
+	PlutoGraphic *GetHighlightedVersion() { return NULL; }
 	bool GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize);
-
-	struct SDL_Surface *m_pSDL_Surface;
-	OpenGLTexture m_OpenGLTexture;
-
-	//helper methods
-	static Uint32 getpixel(struct SDL_Surface *pSDL_Surface,int x, int y);
-	static void putpixel(struct SDL_Surface *pSDL_Surface,int x, int y, Uint32 pixel_color);
 };
-//-------------------------------------------------------------------------------------------------------
-#endif //__OPENGL_GRAPHIC_H__
 
+#endif /*OPENGLGRAPHIC_H_*/

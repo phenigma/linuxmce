@@ -1,11 +1,8 @@
 #include "Orbiter3DCommons.h"
 
-#include "GL2DWidgets/DrawingWidgetsEngine.h"
-#include "GL2DEffects/gl2deffectfactory.h"
-
-
-#include <SDL.h>
-#include "OpenGLTextureConverter.h"
+#include "Widgets/DrawingWidgetsEngine.h"
+#include "Effects/gl2deffectfactory.h"
+#include "OpenGLGraphic.h"
 
 Orbiter3DCommons::Orbiter3DCommons()
         : Screen3D(NULL),
@@ -30,16 +27,15 @@ void Orbiter3DCommons::BuildCommons (GL2DEffectFactory* Effects,
 	this->MouseCursor = MouseCursor;
 }
 
-void Orbiter3DCommons::SetNewScreen(OpenGLTexture NewScreen)
+void Orbiter3DCommons::SetNewScreen(OpenGLGraphic NewScreen)
 {
-	Widgets->NewScreen = NewScreen;
+	//Widgets->NewScreen = NewScreen;
 }
 
-void Orbiter3DCommons::SetOldScreen(OpenGLTexture OldScreen)
+void Orbiter3DCommons::SetOldScreen(OpenGLGraphic OldScreen)
 {
-	Widgets->OldScreen = OldScreen;
+	//Widgets->OldScreen = OldScreen;
 }
-
 
 Orbiter3DCommons::~Orbiter3DCommons(void)
 {
@@ -48,12 +44,14 @@ Orbiter3DCommons::~Orbiter3DCommons(void)
 
 OpenGLTexture Orbiter3DCommons::GetNewScreen()
 {
-	return Widgets->NewScreen;
+	//todo
+	return 0;//return Widgets->NewScreen;
 }
 
 OpenGLTexture Orbiter3DCommons::GetOldScreen()
 {
-	return Widgets->OldScreen;
+	//todo
+	return 0;//return Widgets->OldScreen;
 }
 
 TBasicWindow* Orbiter3DCommons::GetScreen3D()
@@ -95,33 +93,3 @@ void Orbiter3DCommons::SetSelectedArea(FloatRect* SelectedArea)
 	this->Selected->SetRectCoordinates(*SelectedArea);
 }
 
-void Orbiter3DCommons::SetMouseCursor(PlutoGraphic* CursorSurface)
-{
-	if(MouseTexture != 0)
-		glDeleteTextures(1, &MouseTexture);
-
-#ifdef WIN32
-	::ShowCursor(CursorSurface == NULL);
-#else
-	SDL_ShowCursor(CursorSurface == NULL);
-#endif
-
-	if(CursorSurface == NULL)
-		return;
-	if(MouseCursor == NULL)
-		return;
-
-	MouseTexture = OpenGLTextureConverter::GenerateTexture(CursorSurface);
-	MouseCursor->SetTexture(MouseTexture);
-}
-
-void Orbiter3DCommons::SetMousePosition(int X, int Y)
-{
-	if(!MouseCursor)
-		return;
-	MouseCursor->SetBackgroundColor(1, 1, 1, 1.0/2);
-	MouseCursor->SetTexture	(MouseTexture);
-	//MouseCursor->SetTexture	(GetNewScreen());
-	MouseCursor->SetLeft(X);
-	MouseCursor->SetTop(Y);
-}

@@ -6,9 +6,10 @@
  * from different classes as widgets or effects 
  */
 
-#include "GL2DWidgets/basicwindow.h"
+#include "Widgets/basicwindow.h"
 
 //--------------------------------------------------------------------------------------------------------------
+#include "../PlutoGraphic.h"
 #include "../PlutoUtils/MultiThreadIncludes.h"
 #include "../PlutoUtils/singleton.h"
 #include "../CallBackTypes.h"
@@ -40,8 +41,8 @@ public:
 		TBasicWindow* Selected,
 		TBasicWindow* MouseCursor);
 
-	void SetNewScreen(OpenGLTexture NewScreen);
-	void SetOldScreen(OpenGLTexture OldScreen);
+	void SetNewScreen(OpenGLGraphic NewScreen);
+	void SetOldScreen(OpenGLGraphic OldScreen);
 
 	OpenGLTexture GetNewScreen();
 	OpenGLTexture GetOldScreen();
@@ -54,16 +55,6 @@ public:
 	void SetHighLightArea(FloatRect* HighLightedArea);
 
 	virtual ~Orbiter3DCommons(void);
-
-	/**
-	 *	That function creates a custom OpenGL cursor
-	 *	If Surface == NULL, it clean up the openGL mouse cursor and reneable the mouse	
-	 */
-	void SetMouseCursor(PlutoGraphic* Surface);
-	/**
-	 *	Set to OpenGL cursor position
-	 */
-	void SetMousePosition(int X, int Y);
 };
 //--------------------------------------------------------------------------------------------------------------
 typedef Singleton<Orbiter3DCommons, CreateUsingNew<Orbiter3DCommons>, DefaultLifetime, MultiThreaded> Commons3D;

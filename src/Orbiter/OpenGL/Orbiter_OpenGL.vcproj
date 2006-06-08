@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../../..;../../Win32;../../../../DCE;&quot;../../../../../../libs/Libraries/pthreads-win32/include&quot;;.;&quot;../../../../../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../../../../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../../../../../../libs/CrossPlatform/lpng127;../../../../PlutoUtils;../../SDL;../../../../OrbiterGen;../../../../../../libs/CrossPlatform/zlib;&quot;../../../../.../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;&quot;../../../../../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../../../../libs/CrossPlatform/sge030809-w32/src&quot;"
+				AdditionalIncludeDirectories="..;../../;../Win32;../../DCE;&quot;../../../libs/Libraries/pthreads-win32/include&quot;;.;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../../../../../../libs/CrossPlatform/lpng127;../../../../PlutoUtils;../SDL;../../OrbiterGen;../../../libs/CrossPlatform/zlib;&quot;../../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;DEBUG;ORBITER_OPENGL"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,10 +33,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib dce.lib zlib1-pluto-d.lib libpng-pluto-d.lib OpenGL32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SGE-pluto-d.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib dce.lib OpenGL32.lib GLU32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib libpng-pluto-d.lib zlib1-pluto-d.lib"
 				OutputFile="../../Debug/Orbiter_OpenGL.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;../../lib;../../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug;../../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug;../../../libs/Libraries/jpgsrc6b/vc7/Debug;&quot;../../../libs/CrossPlatform/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Debug&quot;;&quot;../../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;"
+				AdditionalLibraryDirectories="&quot;../../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;../../lib;../../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug;../../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug;../../../libs/Libraries/jpgsrc6b/vc7/Debug;&quot;../../../libs/CrossPlatform/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Debug&quot;;&quot;../../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;;&quot;../../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Debug&quot;"
 				IgnoreDefaultLibraryNames="LIBCD"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Orbiter.pdb"
@@ -137,6 +137,9 @@
 				RelativePath="..\DesignObj_Data.cpp">
 			</File>
 			<File
+				RelativePath="..\DesignObj_DataGrid.cpp">
+			</File>
+			<File
 				RelativePath="..\DesignObj_Orbiter.cpp">
 			</File>
 			<File
@@ -146,13 +149,7 @@
 				RelativePath="..\Win32\main.cpp">
 			</File>
 			<File
-				RelativePath="..\Sdl\OpenGLTextureConverter_SDL.cpp">
-			</File>
-			<File
 				RelativePath="..\Orbiter.cpp">
-			</File>
-			<File
-				RelativePath=".\Orbiter_OpenGL.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Gen_Devices\OrbiterBase.cpp">
@@ -188,193 +185,153 @@
 					Name="Effects"
 					Filter="">
 					<File
-						RelativePath=".\GL2DEffects\gl2deffect.cpp">
+						RelativePath=".\Effects\gl2deffect.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\gl2deffectbeziertranzit.cpp">
+						RelativePath=".\Effects\gl2deffectbeziertranzit.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\gl2deffectbeziertranzit_flow_slideleft.cpp">
+						RelativePath=".\Effects\gl2deffectbeziertranzit_flow_slideleft.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\gl2deffectbeziertranzit_flow_slideleft_reverse.cpp">
+						RelativePath=".\Effects\gl2deffectbeziertranzit_flow_slideleft_reverse.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\gl2deffectbeziertranzit_prism.cpp">
+						RelativePath=".\Effects\gl2deffectbeziertranzit_prism.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\gl2deffectbeziertranzit_topleft.cpp">
+						RelativePath=".\Effects\gl2deffectbeziertranzit_topleft.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\GL2DEffectBlending.cpp">
+						RelativePath=".\Effects\GL2DEffectBlending.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\gl2deffectfactory.cpp">
+						RelativePath=".\Effects\gl2deffectfactory.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\gl2deffectfadesfromtop.cpp">
+						RelativePath=".\Effects\gl2deffectfadesfromtop.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\gl2deffectfadesfromunderneath.cpp">
+						RelativePath=".\Effects\gl2deffectfadesfromunderneath.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\GL2DEffectHighLight.cpp">
+						RelativePath=".\Effects\GL2DEffectHighLight.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\GL2DEffectHighLightArea.cpp">
+						RelativePath=".\Effects\GL2DEffectHighLightArea.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\GL2DEffectNoEffect.cpp">
+						RelativePath=".\Effects\GL2DEffectNoEffect.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\gl2deffectselectedarea.cpp">
+						RelativePath=".\Effects\gl2deffectselectedarea.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\gl2deffectslidefromleft.cpp">
+						RelativePath=".\Effects\gl2deffectslidefromleft.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\gl2deffecttransit.cpp">
+						RelativePath=".\Effects\gl2deffecttransit.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\GL2DEffectTransitionNoEffect.cpp">
+						RelativePath=".\Effects\GL2DEffectTransitionNoEffect.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DEffects\GL2DEffectWipeIn.cpp">
+						RelativePath=".\Effects\GL2DEffectWipeIn.cpp">
 					</File>
 				</Filter>
 				<Filter
 					Name="Widgets"
 					Filter="">
 					<File
-						RelativePath=".\GL2DWidgets\basewidget.cpp">
-						<FileConfiguration
-							Name="Debug|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
+						RelativePath=".\Widgets\basewidget.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DWidgets\basicwindow.cpp">
-						<FileConfiguration
-							Name="Debug|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
+						RelativePath=".\Widgets\basicwindow.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DWidgets\bezierwindow.cpp">
-						<FileConfiguration
-							Name="Debug|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
+						RelativePath=".\Widgets\bezierwindow.cpp">
 					</File>
 					<File
-						RelativePath=".\GL2DWidgets\DrawingWidgetsEngine.cpp">
-						<FileConfiguration
-							Name="Debug|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
+						RelativePath=".\Widgets\DrawingWidgetsEngine.cpp">
 					</File>
 				</Filter>
 				<Filter
 					Name="Layers"
 					Filter="">
+					<File
+						RelativePath=".\Layers\GL2DEffectLayer.cpp">
+					</File>
+					<File
+						RelativePath=".\Layers\GL2DEffectLayersCompose.cpp">
+					</File>
 				</Filter>
 				<Filter
 					Name="Commons"
 					Filter="">
 					<File
+						RelativePath=".\ExtensionManager.cpp">
+					</File>
+					<File
+						RelativePath=".\GLMathUtils.cpp">
+					</File>
+					<File
+						RelativePath=".\GLSafetyLock.cpp">
+					</File>
+					<File
+						RelativePath=".\GraphicSettings.cpp">
+					</File>
+					<File
 						RelativePath=".\math3dutils.cpp">
-						<FileConfiguration
-							Name="Debug|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
+					</File>
+					<File
+						RelativePath=".\OpenGL3DEngine.cpp">
 					</File>
 					<File
 						RelativePath=".\OpenGLGraphic.cpp">
 					</File>
 					<File
-						RelativePath=".\OpenGLTextureConverter.cpp">
-						<FileConfiguration
-							Name="Debug|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
-					</File>
-					<File
 						RelativePath=".\Orbiter3DCommons.cpp">
-						<FileConfiguration
-							Name="Debug|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
+					</File>
+				</Filter>
+				<Filter
+					Name="Mesh"
+					Filter="">
+					<File
+						RelativePath=".\Mesh\MeshBuilder.cpp">
 					</File>
 					<File
-						RelativePath=".\orbitergl3dengine.cpp">
-						<FileConfiguration
-							Name="Debug|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-						</FileConfiguration>
+						RelativePath=".\Mesh\MeshContainer.cpp">
+					</File>
+					<File
+						RelativePath=".\Mesh\MeshFrame.cpp">
+					</File>
+					<File
+						RelativePath=".\Mesh\MeshPainter.cpp">
+					</File>
+					<File
+						RelativePath=".\Mesh\MeshTransform.cpp">
+					</File>
+					<File
+						RelativePath=".\Mesh\MeshTriangle.cpp">
+					</File>
+					<File
+						RelativePath=".\Mesh\MeshVertex.cpp">
+					</File>
+					<File
+						RelativePath=".\Mesh\Point3D.cpp">
+					</File>
+				</Filter>
+				<Filter
+					Name="Textures"
+					Filter="">
+					<File
+						RelativePath=".\Texture\GLFontRenderer.cpp">
+					</File>
+					<File
+						RelativePath=".\Texture\GLFontTextureList.cpp">
+					</File>
+					<File
+						RelativePath=".\Texture\TextureManager.cpp">
 					</File>
 				</Filter>
 			</Filter>
@@ -383,6 +340,9 @@
 				Filter="">
 				<File
 					RelativePath="..\Win32\MainDialog.cpp">
+				</File>
+				<File
+					RelativePath="..\Win32\Orbiter_Win32.cpp">
 				</File>
 				<File
 					RelativePath="..\Win32\PopupMessage.cpp">
@@ -395,6 +355,31 @@
 				</File>
 				<File
 					RelativePath="..\Win32\VirtualKeysTranslator.cpp">
+				</File>
+			</Filter>
+			<Filter
+				Name="Renderer"
+				Filter="">
+				<File
+					RelativePath="..\DataGridRenderer.cpp">
+				</File>
+				<File
+					RelativePath="..\ObjectRenderer.cpp">
+				</File>
+				<File
+					RelativePath="..\ObjectRendererFactory.cpp">
+				</File>
+				<File
+					RelativePath="..\OrbiterRenderer.cpp">
+				</File>
+				<File
+					RelativePath=".\OrbiterRenderer_OpenGL.cpp">
+				</File>
+				<File
+					RelativePath="..\OrbiterRendererFactory.cpp">
+				</File>
+				<File
+					RelativePath="..\RendererOCG.cpp">
 				</File>
 			</Filter>
 		</Filter>

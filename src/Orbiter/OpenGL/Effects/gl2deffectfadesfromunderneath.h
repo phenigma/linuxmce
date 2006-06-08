@@ -1,0 +1,42 @@
+//
+// C++ Interface: gl2deffecttransit
+//
+// Description: 
+//
+//
+// Author: ,,, <opengl@edgar>, (C) 2006
+//
+// Copyright: See COPYING file that comes with this distribution
+//
+//
+#ifndef GL2DEffectFadesFromUnderneath_H
+#define GL2DEffectFadesFromUnderneath_H
+
+#include "../Effects/gl2deffecttransit.h"
+#include "../Widgets/basicwindow.h"
+#include <memory>
+
+class GL2DEffectFadesFromUnderneath : public GL2DEffectTransit
+{
+	TBasicWindow* Background;
+	TBasicWindow* Destination;
+	
+	FloatRect ButtonSize;
+	FloatRect FullScreen;
+	
+public:
+	GL2DEffectFadesFromUnderneath (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
+	virtual ~GL2DEffectFadesFromUnderneath();
+	
+/**
+ * It copy the SourceFrame as button texture, DestFrame as destination image
+ * @param SourceFrame 
+ * @param DestFrame 
+ */
+	void Configure(PlutoRectangle* EffectSourceSize);
+	
+	virtual void Paint(int Now);	
+	
+};
+
+#endif

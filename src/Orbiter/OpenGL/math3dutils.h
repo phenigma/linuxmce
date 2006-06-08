@@ -11,12 +11,28 @@
 //
 #ifndef MATH3DUTILS_H
 #define MATH3DUTILS_H
-
 /**
 @author ciplogic
 */
 
 #include "../../SerializeClass/ShapesColors.h"
+
+struct FloatColor 
+{
+	float Red, Green, Blue, Alpha;
+
+	FloatColor(float ValueRed, float ValueGreen, float ValueBlue, 
+		float ValueAlpha)
+		: Red(ValueRed),
+		Green(ValueGreen),
+		Blue(ValueBlue),
+		Alpha(ValueAlpha)
+	{
+
+	}
+};
+
+typedef struct FloatColor ColorRGB;  
 
 /**
  * That class defines one rectangle structure which is defined as top,left coordinate
