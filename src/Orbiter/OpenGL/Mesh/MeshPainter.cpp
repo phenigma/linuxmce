@@ -6,8 +6,6 @@
 
 #include <stdio.h>
 
-#include "../GLSafetyLock.h"
-
 MeshPainter* MeshPainter::_Instance = NULL;
 
 /*static*/ MeshPainter* MeshPainter::Instance()
@@ -24,7 +22,7 @@ MeshPainter::MeshPainter()
 
 /*virtual*/ void MeshPainter::PaintContainer(MeshContainer& Container, MeshTransform& Transform)
 {
-	GLSafetyLock LockArea(&SafetyPaintMutex);
+	//GLSafetyLock LockArea(&SafetyPaintMutex);
 	
 	int Count;
 	MeshVertex* Vertexes = new MeshVertex[Container.NoVertexes];
