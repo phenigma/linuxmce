@@ -1,5 +1,12 @@
 #!/bin/bash
 
+. /usr/pluto/bin/LockUtils.sh
+
+while ! TryLock "Diskless_Setup" "Diskless_DeleteFS"; do
+	sleep 1
+done
+trap 'Unlock "Diskless_Setup" "Diskless_DeleteFS"' EXIT
+
 IP="$1"
 MAC="$2"
 lcdMAC=$(echo ${MAC//:/-} | tr 'A-Z' 'a-z')

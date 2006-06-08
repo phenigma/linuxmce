@@ -1,6 +1,12 @@
 #!/bin/bash
 
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/LockUtils.sh
+
+while ! TryLock "Diskless_Setup" "Diskless_RenameFS"; do
+	sleep 1
+done
+trap 'Unlock "Diskless_Setup" "Diskless_RenameFS"' EXIT
 
 # Parse parameters
 for ((i = 1; i <= "$#"; i++)); do

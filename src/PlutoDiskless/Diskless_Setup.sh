@@ -5,7 +5,7 @@
 . /usr/pluto/bin/LockUtils.sh
 
 if ! TryLock "Diskless_Setup" "Diskless_Setup"; then
-	echo "Another Diskless Setup is running"
+	echo "Another Diskless-related operation is running"
 	exit 1
 fi
 trap 'Unlock "Diskless_Setup" "Diskless_Setup"' EXIT
