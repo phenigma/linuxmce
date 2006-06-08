@@ -76,26 +76,30 @@ bool Tira::GetConfig()
 
 	m_iRepeat=DATA_Get_Repeat();
 
-	// Find all our sibblings that are remote controls 
-	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
-		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
+	if( pDevice )
 	{
-		DeviceData_Base *pDevice = itD->second;
-		if( pDevice->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia &&
-			pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_Tira_Remote_Controls_CONST )
+		string sResult;
+		DCE::CMD_Get_Sibling_Remotes CMD_Get_Sibling_Remotes(m_dwPK_Device,pDevice->m_dwPK_Device, DEVICECATEGORY_IRTrans_Remote_Controls_CONST, &sResult);
+		getCommandImpl()->SendCommand(CMD_Get_Sibling_Remotes);
+		vector<string> vectRemotes;
+
+		StringUtils::Tokenize(sResult, "`", vectRemotes); 
+		int i;
+		for(i=0;i<vectRemotes.size();i++)
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Using remote %d %s",pDevice->m_dwPK_Device,pDevice->m_sDescription.c_str());
-			string sType;
-			DCE::CMD_Get_Device_Data_Cat CMD_Get_Device_Data_Cat2(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,true,BL_SameHouse,
-				pDevice->m_dwPK_Device,DEVICEDATA_Remote_Layout_CONST,true,&sType);
-			SendCommand(CMD_Get_Device_Data_Cat2);
-
-			string sConfiguration;
-			DCE::CMD_Get_Device_Data_Cat CMD_Get_Device_Data_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,true,BL_SameHouse,
-				pDevice->m_dwPK_Device,DEVICEDATA_Configuration_CONST,true,&sConfiguration);
-
-			if( SendCommand(CMD_Get_Device_Data_Cat) && sConfiguration.size() )
+			vector<string> vectRemoteConfigs;
+			StringUtils::Tokenize(vectRemotes[i], "~", vectRemoteConfigs);
+			if (vectRemoteConfigs.size() == 3)
 			{
+				int PK_DeviceRemote = atoi(vectRemoteConfigs[0].c_str());
+				g_pPlutoLogger->Write(LV_STATUS, "Adding remote ID %d, layout %s\r\n", PK_DeviceRemote, vectRemoteConfigs[1].c_str());
+				char cRemoteLayout = 'W';
+				if( vectRemoteConfigs[1].size() )
+					cRemoteLayout = vectRemoteConfigs[1][0];
+				
+				m_mapRemoteLayout[pDevice->m_dwPK_Device]=cRemoteLayout;
+
+				string sConfiguration = vectRemoteConfigs[2];
 				vector<string> vectCodes;
 				StringUtils::Tokenize(sConfiguration,"\r\n",vectCodes);
 				for(size_t s=0;s<vectCodes.size();++s)
