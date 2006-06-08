@@ -82,6 +82,15 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		}
 	};
 
+	class PlutoAlert
+	{
+	public:
+		time_t m_tStartTime;
+		time_t m_tStopTime;
+		string m_sMessage;
+		string m_sToken;
+	};
+
 	class PendingCallBackInfo;
 
 	//<-dceag-decl-b->! custom
@@ -93,6 +102,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 	private:
 		class PlutoGraphic * m_pBackgroundImage;
 		static Orbiter *m_pInstance; 
+		list<PlutoAlert *> m_listPlutoAlert;  // Current alerts displayed on the screen as a popup message
 
 	protected:
 		void DumpScreenHistory(); // temporary function
@@ -364,6 +374,9 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		* 
 		*/
 		virtual void RealRedraw( void *iData );
+
+		// Handle displaying any alert messages on the screen
+		void ServiceAlerts( void *iData );
 
 		// Don't show shortcuts anymore
 		void RemoveShortcuts( void *iData );
@@ -1712,6 +1725,19 @@ light, climate, media, security, telecom */
 
 	virtual void CMD_Set_Mouse_Sensitivity(int iValue) { string sCMD_Result; CMD_Set_Mouse_Sensitivity(iValue,sCMD_Result,NULL);};
 	virtual void CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #809 - Display Alert */
+	/** Displays a short alert that appears on the orbiter as a discrete popup message that goes away automatically. */
+		/** @param #9 Text */
+			/** The text in the alert */
+		/** @param #70 Tokens */
+			/** File this alert with this token, and if another alert comes in before timeout with the same token, replace it. */
+		/** @param #182 Timeout */
+			/** Make the alert go away after this many seconds */
+
+	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout) { string sCMD_Result; CMD_Display_Alert(sText.c_str(),sTokens.c_str(),sTimeout.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

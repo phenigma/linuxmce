@@ -8546,3 +8546,92 @@ void Orbiter::CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,Message *
 	m_pOrbiterRenderer->RenderFrame(data);
 }
 //-----------------------------------------------------------------------------------------------------
+//<-dceag-c809-b->
+
+	/** @brief COMMAND: #809 - Display Alert */
+	/** Displays a short alert that appears on the orbiter as a discrete popup message that goes away automatically. */
+		/** @param #9 Text */
+			/** The text in the alert */
+		/** @param #70 Tokens */
+			/** File this alert with this token, and if another alert comes in before timeout with the same token, replace it. */
+		/** @param #182 Timeout */
+			/** Make the alert go away after this many seconds */
+
+void Orbiter::CMD_Display_Alert(string sText,string sTokens,string sTimeout,string &sCMD_Result,Message *pMessage)
+//<-dceag-c809-e->
+{
+	PlutoAlert *pPlutoAlert=NULL;
+	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+
+	// See if there's an existing alert with this token.  If so, we'll re-use it
+	for( list<PlutoAlert *>::iterator it=m_listPlutoAlert.begin();it!=m_listPlutoAlert.end();++it )
+	{
+		PlutoAlert *p = *it;
+		if( p->m_sToken == sTokens )
+		{
+			m_listPlutoAlert.erase(it); // We're going to re-add it below anyway
+			pPlutoAlert = p;
+			break;
+		}
+	}
+
+	if( !pPlutoAlert )
+	{
+		pPlutoAlert = new PlutoAlert();
+		pPlutoAlert->m_sToken = sTokens;
+	}
+
+	pPlutoAlert->m_sMessage = sText;
+	pPlutoAlert->m_tStartTime = time(NULL);
+	pPlutoAlert->m_tStopTime = pPlutoAlert->m_tStartTime + atoi(sTimeout.c_str());
+
+	// Must be a positive number, and no more than 60 seconds
+	if( pPlutoAlert->m_tStopTime<=pPlutoAlert->m_tStartTime || pPlutoAlert->m_tStopTime-60>pPlutoAlert->m_tStartTime )
+		pPlutoAlert->m_tStopTime = pPlutoAlert->m_tStartTime + 3; // Default to 3 seconds
+
+	m_listPlutoAlert.push_back(pPlutoAlert);
+
+	CallMaintenanceInMiliseconds(0,&Orbiter::ServiceAlerts,NULL,pe_ALL);	
+}
+
+void Orbiter::ServiceAlerts( void *iData )
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+
+	string sMessages;
+	time_t t = time(NULL);
+	time_t tNextStop = 0;
+
+	// See what alerts we need to display
+	for( list<PlutoAlert *>::iterator it=m_listPlutoAlert.begin();it!=m_listPlutoAlert.end(); )
+	{
+		PlutoAlert *p = *it;
+		if( p->m_tStopTime <= t )
+		{
+			delete p;
+			m_listPlutoAlert.erase(it++);
+		}
+		else
+		{
+			if( sMessages.size() )
+				sMessages += "\n";
+			sMessages += p->m_sMessage;
+			if( tNextStop==0 || tNextStop>p->m_tStopTime )
+				tNextStop = p->m_tStopTime;
+			it++;
+		}
+	}
+
+	if( sMessages.size() )
+	{
+		DesignObjText *pText = FindText( FindObject(DESIGNOBJ_popAlertMessage_CONST),TEXT_STATUS_CONST );
+		if( pText )
+			pText->m_sText = sMessages;
+		CMD_Show_Popup(TOSTRING(DESIGNOBJ_popAlertMessage_CONST),0,0,"","popup_alert",false,true);
+	}
+	else
+		CMD_Remove_Popup("","popup_alert");
+
+	if( tNextStop )
+		CallMaintenanceInMiliseconds((tNextStop - t)*1000,&Orbiter::ServiceAlerts,NULL,pe_ALL);	
+}

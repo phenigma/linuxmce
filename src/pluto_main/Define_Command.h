@@ -731,6 +731,7 @@
 #define COMMAND_PNP_Detection_Script_Finished_CONST 806
 #define COMMAND_Get_Attributes_For_Media_CONST 807
 #define COMMAND_Get_Unused_Serial_Ports_CONST 808
+#define COMMAND_Display_Alert_CONST 809
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

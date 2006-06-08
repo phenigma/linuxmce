@@ -405,7 +405,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 				bool bLocationOk = m_pWizardLogic->SetLocation(sLocation);
 				if( !bLocationOk )
 				{
-					DisplayMessageOnOrbiter(DESIGNOBJ_HouseSetupPopupWizard_CONST,"location isn't good",false,"0",false,"Try again","0 -300 1 741 159 194","Skip it","0 -300 1 741 159 192");
+					DisplayMessageOnOrbiter(DESIGNOBJ_HouseSetupPopupWizard_CONST,"Error retrieving longitude, latitude and time zone for that city.  Please try another city, perhaps a nearby larger one.",false,"0",false,"Try again","0 -300 1 741 159 194","Skip it","0 -300 1 741 159 192");
 					return true;
 				}
 			}

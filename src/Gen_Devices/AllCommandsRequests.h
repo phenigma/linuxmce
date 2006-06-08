@@ -21172,5 +21172,41 @@ namespace DCE
 			1 /* number of parameters */,
 			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str()); }
 	};
+	class CMD_Display_Alert : public PreformedCommand {
+	public:
+		CMD_Display_Alert(long DeviceIDFrom, long DeviceIDTo,string sText,string sTokens,string sTimeout) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Display_Alert_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
+			COMMANDPARAMETER_Tokens_CONST, sTokens.c_str(),
+			COMMANDPARAMETER_Timeout_CONST, sTimeout.c_str()); }
+	};
+	class CMD_Display_Alert_DL : public PreformedCommand {
+	public:
+		CMD_Display_Alert_DL(long DeviceIDFrom, string DeviceIDTo,string sText,string sTokens,string sTimeout) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Display_Alert_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
+			COMMANDPARAMETER_Tokens_CONST, sTokens.c_str(),
+			COMMANDPARAMETER_Timeout_CONST, sTimeout.c_str()); }
+	};
+	class CMD_Display_Alert_DT : public PreformedCommand {
+	public:
+		CMD_Display_Alert_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sText,string sTokens,string sTimeout) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Display_Alert_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
+			COMMANDPARAMETER_Tokens_CONST, sTokens.c_str(),
+			COMMANDPARAMETER_Timeout_CONST, sTimeout.c_str()); }
+	};
+	class CMD_Display_Alert_Cat : public PreformedCommand {
+	public:
+		CMD_Display_Alert_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sText,string sTokens,string sTimeout) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Display_Alert_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
+			COMMANDPARAMETER_Tokens_CONST, sTokens.c_str(),
+			COMMANDPARAMETER_Timeout_CONST, sTimeout.c_str()); }
+	};
 }
 #endif
