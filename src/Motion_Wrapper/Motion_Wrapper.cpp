@@ -57,6 +57,7 @@ void sighandler(int sig)
 	{
 		case SIGCHLD:
 			pid = wait(NULL);
+			g_pPlutoLogger->Write(LV_STATUS, "Child exited; pid: %d; motion_pid: %d", pid, my_motion_pid ? * my_motion_pid : 0);
 			if (my_motion_pid != NULL && pid == * my_motion_pid)
 				StartMotion(NULL);
 			break;
