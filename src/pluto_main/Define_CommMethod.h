@@ -7,6 +7,7 @@
 #define COMMMETHOD_USB_CONST 4
 #define COMMMETHOD_Firewire_CONST 5
 #define COMMMETHOD_Bluetooth_CONST 6
+#define COMMMETHOD_1Wire_CONST 7
 
 #define COMMMETHOD_TABLE "CommMethod"
 #define COMMMETHOD_PK_COMMMETHOD_FIELD "PK_CommMethod"
