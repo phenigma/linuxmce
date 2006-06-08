@@ -113,34 +113,35 @@ bool IRTrans::GetConfig()
 
 	FileUtils::DelDir("remotes");
 	system("mkdir remotes");
-	// Find all our sibblings that are remote controls 
-	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
-		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
+
+	DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Infrared_Plugins_CONST);
+	if( pDevice )
 	{
-		DeviceData_Base *pDevice = itD->second;
-		if( pDevice->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia &&
-			pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_IRTrans_Remote_Controls_CONST )
+		string sResult;
+		DCE::CMD_Get_Sibling_Remotes CMD_Get_Sibling_Remotes(m_dwPK_Device,pDevice->m_dwPK_Device, DEVICECATEGORY_IRTrans_Remote_Controls_CONST, &sResult);
+		getCommandImpl()->SendCommand(CMD_Get_Sibling_Remotes);
+		vector<string> vectRemotes;
+
+		StringUtils::Tokenize(sResult, "`", vectRemotes); 
+		int i;
+		for(i=0;i<vectRemotes.size();i++)
 		{
-			string sType;
-			DCE::CMD_Get_Device_Data_Cat CMD_Get_Device_Data_Cat2(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,true,BL_SameHouse,
-				pDevice->m_dwPK_Device,DEVICEDATA_Remote_Layout_CONST,true,&sType);
-			SendCommand(CMD_Get_Device_Data_Cat2);
-
-			// What type of key layout does this remote use?  Like 'W' for Windows XP MC remote, which is the default
-			char cRemoteLayout = sType.size() ? sType[0] : 'W';
-			m_mapRemoteLayout[pDevice->m_dwPK_Device]= cRemoteLayout;
-
-			string sConfiguration;
-			DCE::CMD_Get_Device_Data_Cat CMD_Get_Device_Data_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,true,BL_SameHouse,
-				pDevice->m_dwPK_Device,DEVICEDATA_Configuration_CONST,true,&sConfiguration);
-
-			// sConfiguration is the contents of the remote file relating i/r codes to keynames, which we will write out into the 
-			// remotes directory and the IRTrans server wiil use to fire events
-			if( SendCommand(CMD_Get_Device_Data_Cat) && sConfiguration.size() )
+			vector<string> vectRemoteConfigs;
+			StringUtils::Tokenize(vectRemotes[i], "~", vectRemoteConfigs);
+			if (vectRemoteConfigs.size() == 3)
 			{
+				int PK_DeviceRemote = atoi(vectRemoteConfigs[0].c_str());
+				g_pPlutoLogger->Write(LV_STATUS, "Adding remote ID %d, layout %s\r\n", PK_DeviceRemote, vectRemoteConfigs[1].c_str());
+				char cRemoteLayout = 'W';
+				if( vectRemoteConfigs[1].size() )
+					cRemoteLayout = vectRemoteConfigs[1][0];
+				
+				m_mapRemoteLayout[pDevice->m_dwPK_Device]=cRemoteLayout;
+
+				string sConfiguration = vectRemoteConfigs[2];
 				const char *pConfig = sConfiguration.c_str();
-				FILE *fp = fopen(("remotes/" + StringUtils::itos(pDevice->m_dwPK_Device) + ".rem").c_str(),"wb");
-				fwrite(pConfig,1,sConfiguration.size(),fp);
+				FILE *fp = fopen(("remotes/" + StringUtils::itos(PK_DeviceRemote) + ".rem").c_str(),"wb");
+				fwrite(pConfig,1,vectRemoteConfigs[2].size(),fp);
 				fclose(fp);
 				string sUpper = StringUtils::ToUpper(sConfiguration);
 				string::size_type pos_name=0;
@@ -164,8 +165,8 @@ bool IRTrans::GetConfig()
 					pos_space = pos_name +1;
 					while( pConfig[pos_space] && pConfig[pos_space]!='\n' && pConfig[pos_space]!='\r' && pConfig[pos_space]!='\t' )
 						pos_space++;
-					m_mapNameToDevice[ sConfiguration.substr(pos_name,pos_space-pos_name) ] = pDevice->m_dwPK_Device;
-					g_pPlutoLogger->Write(LV_STATUS,"Added remote %s device %d layout %c",sConfiguration.substr(pos_name,pos_space-pos_name).c_str(),pDevice->m_dwPK_Device,cRemoteLayout);
+					m_mapNameToDevice[ sConfiguration.substr(pos_name,pos_space-pos_name) ] = PK_DeviceRemote;
+					g_pPlutoLogger->Write(LV_STATUS,"Added remote %s device %d layout %c",sConfiguration.substr(pos_name,pos_space-pos_name).c_str(),PK_DeviceRemote,cRemoteLayout);
 					break;
 				}
 			}
