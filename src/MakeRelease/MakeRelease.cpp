@@ -163,7 +163,10 @@ system(sCMD.c_str());
 sCMD = "cp \"" + sOutput + "\" \"/copysource." + sOutput + "\"";
 system(sCMD.c_str());
 
-		return StringUtils::Replace( sInput, sOutput, "TestInstallation = 0", "TestInstallation = 1" );
+		StringUtils::Replace( sInput, "/temp.makerelease.test.installation", "TestInstallation = 0", "TestInstallation = 1" );
+		FileUtils::PUCopyFile( "/temp.makerelease.test.installation", sInput);
+		FileUtils::PUCopyFile( "/temp.makerelease.test.installation", sOutput);
+		return true;
 	}
 	else
 		return FileUtils::PUCopyFile(sInput,sOutput);
