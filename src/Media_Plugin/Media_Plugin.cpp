@@ -3880,7 +3880,7 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	*/
 
 	DCE::SCREEN_FileSave SCREEN_FileSave(m_dwPK_Device,pMessage->m_dwPK_Device_From, 
-		"", sCmdToRenameBookmark + "17 <%=U%>", sCmdToRenameBookmark, 
+		"", sCmdToRenameBookmark + " 17 <%=U%>", sCmdToRenameBookmark, 
 		"<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>");
 	SendCommand(SCREEN_FileSave);
 }
