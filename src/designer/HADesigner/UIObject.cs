@@ -18,6 +18,8 @@ namespace HADesigner
 	/// </summary>
 	public class UIDesignObj
 	{
+		public static int NoSetValue = -2;
+
 		//MEMBER VARIABLES
 		private string graphicsDirectory;
 		public string GraphicsDirectory
@@ -104,8 +106,8 @@ namespace HADesigner
 		private bool m_blnSelected = false;
 
 		//used for drawing
-		private int m_intWidth = -1;
-		private int m_intHeight = -1;
+		private int m_intWidth = NoSetValue;
+		private int m_intHeight = NoSetValue;
 		private float m_fltScale;
 		private bool m_bitRegenerateForEachScreen;
 		private bool m_bitCanBeHidden;
@@ -768,13 +770,13 @@ namespace HADesigner
 						drLink.fFK_DesignObj_Child = this.ID;
 						drLink.fFK_DesignObjVariation_Parent = this.ParentUIDesignObjVariation.ID;
 
-
-						if(this.Width == -1)
+						
+						if(this.Width < -1)
 							drLink.fWidthSetNull();
 						else
 							drLink.fWidth = this.Width;
 
-						if(this.Height == -1)
+						if(this.Height < -1)
 							drLink.fHeightSetNull();
 						else
 							drLink.fHeight = this.Height;
@@ -838,12 +840,12 @@ namespace HADesigner
 							//we need to update				
 							DesignObjVariation_DesignObjDataRow drLink = mds.tDesignObjVariation_DesignObj[this.LinkID];
 								
-							if(this.Width == -1)
+							if(this.Width < -1)
 								drLink.fWidthSetNull();
 							else
 								drLink.fWidth = this.Width;
 
-							if(this.Height == -1)
+							if(this.Height < -1)
 								drLink.fHeightSetNull();
 							else
 								drLink.fHeight = this.Height;
@@ -993,7 +995,7 @@ namespace HADesigner
 /* 10/6/2004 I wanted to comment out this stuff so that the width and height remain -1.  But Designer is such spaghetti code it breaks everything, and 
  * it's too hard to figure out why.  I'll put the logic in the OrbiterGen to ignore the specified width and height and auto-calculate. */
 				//do the build bottom up stuff
-				if(this.Width == -1 || this.Height == -1)
+				if(this.Width == UIDesignObj.NoSetValue || this.Height == UIDesignObj.NoSetValue)
 				{
 					int intMaxWidth = 0;
 					int intMaxHeight = 0;
@@ -1002,12 +1004,12 @@ namespace HADesigner
 					{
 						UIDesignObjVariation objVariation = (UIDesignObjVariation) obj;
 
-						if((this.Width == -1) && (objVariation.TotalWidth > intMaxWidth)) intMaxWidth = objVariation.TotalWidth;
-						if((this.Height == -1) && (objVariation.TotalHeight > intMaxHeight)) intMaxHeight = objVariation.TotalHeight;
+						if((this.Width == UIDesignObj.NoSetValue) && (objVariation.TotalWidth > intMaxWidth)) intMaxWidth = objVariation.TotalWidth;
+						if((this.Height == UIDesignObj.NoSetValue) && (objVariation.TotalHeight > intMaxHeight)) intMaxHeight = objVariation.TotalHeight;
 					}
 
-					if(this.Width == -1) this.Width = intMaxWidth;
-					if(this.Height == -1) this.Height = intMaxHeight;
+					if(this.Width == UIDesignObj.NoSetValue) this.Width = intMaxWidth;
+					if(this.Height == UIDesignObj.NoSetValue) this.Height = intMaxHeight;
 				}				
 			}
 		}
