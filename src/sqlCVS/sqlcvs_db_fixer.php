@@ -2,8 +2,8 @@
 
 $db_handle = mysql_connect('localhost', 'root', '');
 
-//$db_name = "pluto_main";
-$db_name = "test_db";
+$db_name = "pluto_main";
+//$db_name = "test_db";
 
 if (!$db_handle)
 {
