@@ -55,7 +55,7 @@ void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type,
 #if defined(POCKETFROG)
 		= new PocketFrogGraphic(pOrbiterRenderer);
 #elif defined(ORBITER_OPENGL)
-		= new OpenGLGraphic(pOrbiter);
+		= new OpenGLGraphic(pOrbiterRenderer);
 #else
 		= new SDLGraphic(pOrbiterRenderer); //we won't load the graphic yet
 #endif

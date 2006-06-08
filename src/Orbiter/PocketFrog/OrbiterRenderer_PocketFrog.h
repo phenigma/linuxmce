@@ -6,7 +6,7 @@
 #include "../PocketFrog/PocketFrogGraphic.h"
 #include "PocketFrogWrapper.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
-
+//-----------------------------------------------------------------------------------------------------
 namespace DCE
 {
 	class Message;
@@ -14,8 +14,6 @@ namespace DCE
 //-----------------------------------------------------------------------------------------------------
 #include <PocketFrog.h>
 using namespace Frog;
-//-----------------------------------------------------------------------------------------------------
-class OrbiterGL3D;
 //-----------------------------------------------------------------------------------------------------
 class TextToRenderInfo
 {
@@ -30,7 +28,7 @@ public:
 	int iPixelHeight;
 	bool bBold, bItalic, bUnderline;
 };
-
+//-----------------------------------------------------------------------------------------------------
 class OrbiterRenderer_PocketFrog : public OrbiterRenderer, public PlutoGame
 {
 protected:
@@ -74,7 +72,6 @@ public:
 	void HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	void TryToUpdate();
-	void UpdateScreen();
 
 	// Drawing routines
 	void SolidRectangle(int x, int y, int width, int height, PlutoColor color);
@@ -118,45 +115,12 @@ public:
 
     void AdjustWindowSize(int iWidth, int iHeight);
 	void CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rPosition,int iRotation,int iHeight,int iVertAlignment);
-
-protected:
-    void DumpLocks();
-    string FormatMutexMessage(pluto_pthread_mutex_t& PlutoMutex);
-
-	bool m_bPaintDesktop;
-
-	void OpenGL_RenderFrame(void *data); //callback
-	void StartAnimation();
-
-	auto_ptr<PlutoGraphic> m_spAfterGraphic;
-	auto_ptr<PlutoGraphic> m_spBeforeGraphic;
-	PlutoRectangle m_rectLastSelected;
-
-public:
-	/// Used to stop the animation if is no effec pending but to draw once the background (safeing drawing)
-	bool PaintDesktopGL;
-
-	pthread_cond_t m_GLThreadCond;
-	class OrbiterGL3D *m_Desktop;
-	pluto_pthread_mutex_t* m_GLThreadMutex;
-	
-	void WakeupFromCondWait();
-	void OnIdle();
-
-
-	void DoHighlightObject();
-	void DoHighlightObjectOpenGL();
-
-	void SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point );
-
 	void OnQuit();
 
-	void RenderFrame(void *);
+protected:
 
-private:
-	pthread_t SDLGLthread;
-	bool EnableOpenGL;
-
+	void DumpLocks();
+    string FormatMutexMessage(pluto_pthread_mutex_t& PlutoMutex);
 	bool m_bPoolRendering;
 	vector<TextToRenderInfo *> m_vectPooledTextToRender;
 };

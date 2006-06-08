@@ -22,22 +22,6 @@
 
 #include "../../DCE/DataGrid.h"
 
-#ifndef WINCE //no opengl support in windows ce
-	#include <GL/gl.h>
-
-	#include "OpenGLProxy.h"
-	#include "OpenGLTextureConverter_PocketFrog.h"
-	#include "OpenGL/orbitergl3dengine.h"
-	#include "OpenGL/math3dutils.h"
-	#include "OpenGL/GL2DWidgets/basicwindow.h"
-	#include "OpenGL/GL2DWidgets/DrawingWidgetsEngine.h"
-	#include "OpenGL/orbitergl3dengine.h"
-	#include "OpenGL/GL2DEffects/gl2deffecttransit.h"
-	#include "OpenGL/GL2DEffects/gl2deffectbeziertranzit.h" 
-	#include "../OpenGL/Orbiter3DCommons.h" 
-	#include "../Simulator.h" 
-#endif
-
 using namespace Frog;
 using namespace Frog::Internal;
 #include <src/internal/graphicbuffer.h>
@@ -95,93 +79,17 @@ typedef struct _VIDEO_POWER_MANAGEMENT {
 //-----------------------------------------------------------------------------------------------------
 extern Command_Impl *g_pCommand_Impl;
 //-----------------------------------------------------------------------------------------------------
-//no open gl support under CE
-#ifdef WINCE
-#define DISABLE_OPENGL
-#endif
-//-----------------------------------------------------------------------------------------------------
-#ifndef DISABLE_OPENGL
-
-/**
-* OpenGL drawing thread. It is in three steps: 
-* - Init OpenGL with SDL
-* - looping to drawing frames
-* - end the OpenGL
-*/
-void *Orbiter_OpenGLThread(void *p)
-{
-	OrbiterRenderer_PocketFrog * pOrbiterRenderer = (OrbiterRenderer_PocketFrog *) p;
-	// Create the OpenGL window and classes asociated with it
-	pOrbiterRenderer->m_Desktop = OrbiterGL3D::GetInstance();
-
-	Orbiter *pOrbiter = pOrbiterRenderer->OrbiterLogic();
-	pOrbiterRenderer->m_Desktop->BuildOrbiterGL(pOrbiterRenderer);
-	pOrbiterRenderer->PaintDesktopGL = false;
-
-	// OpenGL drawing operations, locked in the mutex
-	PLUTO_SAFETY_LOCK(cm, *(pOrbiterRenderer->m_GLThreadMutex));
-	while(!pOrbiter->m_bQuit)
-	{
-		//nothing to process. let's sleep...
-		cm.CondWait(); // This will unlock the mutex and lock it on awakening
-
-		/// Thread is waken up, for more reasons as Quit event or there is one effect pending or 
-		/// is idle event
-		// Orbiter is in Quit state, end the thread
-		if(pOrbiter->m_bQuit)
-			return NULL;
-
-		if (!pOrbiterRenderer->m_Desktop->EffectBuilder->HasEffects()) {
-			if (!pOrbiterRenderer->PaintDesktopGL) {
-				pOrbiterRenderer->PaintDesktopGL = true;
-				pOrbiterRenderer->m_Desktop->Paint();
-			}
-			else
-			{
-				cm.Release();
-				Sleep(10);
-				cm.Relock();
-			}
-		}
-		else 
-		{
-			pOrbiterRenderer->PaintDesktopGL = false;
-			pOrbiterRenderer->m_Desktop->Paint();
-		}
-	}
-
-	delete pOrbiterRenderer->m_Desktop;
-
-	return NULL;
-}	
-#endif
-
-//-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_PocketFrog::OrbiterRenderer_PocketFrog(Orbiter *pOrbiter) :	OrbiterRenderer(pOrbiter)
 {
-	m_Desktop = NULL;
-    m_config.orientation      = ORIENTATION_WEST;
+    m_config.orientation = ORIENTATION_WEST;
     m_config.splashScreenTime = 0;	
 	m_bUpdating = false;
-	
-	//TODO: hardcoded for now
-	EnableOpenGL = false;
-
-#ifdef WINCE
-	EnableOpenGL = false; //opengl not available for WINCE
-#endif
-
 	m_bPoolRendering = true;
 }
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_PocketFrog::~OrbiterRenderer_PocketFrog()
 {
-#ifndef WINCE
-	if (EnableOpenGL && m_spAfterGraphic.get())
-		m_spAfterGraphic->Initialize();
-#endif
 }
-
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterRenderer_PocketFrog::GameInit()
 {
@@ -236,36 +144,7 @@ bool OrbiterRenderer_PocketFrog::GameInit()
 	if(pLogoSurface)
 		delete pLogoSurface;
 
-	if (!EnableOpenGL)
-	{
-        GetDisplay()->Update();
-	}
-	else
-	{
-#ifndef DISABLE_OPENGL
-		/// if OpenGL is used there is created one OpenGL drawing mutex
-		m_GLThreadMutex = new pluto_pthread_mutex_t("open gl worker thread");
-
-		pthread_cond_init(&m_GLThreadCond, NULL);
-		m_GLThreadMutex->Init(NULL, &m_GLThreadCond);
-		m_Desktop = NULL;
-
-		/// if OpenGL is used there is created one OpenGL drawing thread 
-		pthread_create(&SDLGLthread, NULL, Orbiter_OpenGLThread, (void*)this);
-
-		// FIXME Wait to create all OpenGL objects
-		while((!m_Desktop) || (m_Desktop && !m_Desktop->EffectBuilder))
-			Sleep(10);
-
-		m_Desktop->EffectBuilder->
-			CreateEffect(
-			GL2D_EFFECT_NOEFFECT,
-			0
-			);
-		StartAnimation();
-#endif
-	}
-
+    GetDisplay()->Update();
 	OrbiterLogic()->Initialize(gtPocketFrogGraphic);
 
 	if(OrbiterLogic()->m_bQuit || OrbiterLogic()->m_bReload)
@@ -528,20 +407,6 @@ void OrbiterRenderer_PocketFrog::RenderScreen( bool bRenderGraphicsOnly )
 		(OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
 #endif
 	
-	if (EnableOpenGL)
-	{
-#ifndef WINCE
-		Rect srcRect;
-		srcRect.Set(0, 0, OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight);
-		auto_ptr<Surface> spSurface(GetDisplay()->CreateSurface(OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight));
-		auto_ptr<Rasterizer> spRasterizer(GetDisplay()->CreateRasterizer(spSurface.get()));
-		spRasterizer->Blit(0, 0, GetDisplay()->GetBackBuffer(), &srcRect);
-		m_spBeforeGraphic.reset(new PocketFrogGraphic(spSurface.get()));
-		spRasterizer.release();
-		spSurface.release();
-#endif
-	}
-
 	if (OrbiterLogic()->m_pScreenHistory_Current)
 	{
 		PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
@@ -568,131 +433,7 @@ void OrbiterRenderer_PocketFrog::RenderScreen( bool bRenderGraphicsOnly )
 		m_vectPooledTextToRender.clear();
 	}
 
-	if (EnableOpenGL)
-	{
-#ifndef WINCE
-		if(m_spAfterGraphic.get())
-			m_spAfterGraphic->Initialize();
-
-		m_spAfterGraphic.reset(new PocketFrogGraphic(GetDisplay()->GetBackBuffer()));
-
-		if(OrbiterLogic()->m_pObj_SelectedLastScreen)
-		{
-			m_rectLastSelected = PlutoRectangle(OrbiterLogic()->m_pObj_SelectedLastScreen->m_rPosition);
-			m_rectLastSelected.Y = OrbiterLogic()->m_iImageHeight - OrbiterLogic()->m_pObj_SelectedLastScreen->m_rPosition.Y;
-		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "No object selected? :o");
-			m_rectLastSelected.X = 0;
-			m_rectLastSelected.Y = OrbiterLogic()->m_iImageHeight;
-			m_rectLastSelected.Width = 80;
-			m_rectLastSelected.Height = 80;
-		}
-
-#ifndef DISABLE_OPENGL
-		if(m_Desktop && m_Desktop->EffectBuilder)
-		{
-			m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
-
-			//temp for the show. remove me!
-			if(OrbiterLogic()->UsesUIVersion2() && NULL != m_Desktop && NULL != m_Desktop->EffectBuilder)
-			{
-				//TODO: this is temporary
-				int nCurrentDesignObjID = OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
-				PlutoRectangle rectStartEffect(0, 0, OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight);
-				int nPK_Effect = 0;
-				int nTransitionTimeIsMs = Simulator::GetInstance()->m_iMilisecondsTransition; 
-				switch(nCurrentDesignObjID) 
-				{
-				case DESIGNOBJ_mnuMenu2_CONST:
-					nPK_Effect = EFFECT_Basic_transit_effect_CONST;
-					break;
-
-				case DESIGNOBJ_mnuAmbiance_CONST:
-					nTransitionTimeIsMs = 1000;
-					rectStartEffect.Location(PlutoPoint(0, OrbiterLogic()->m_iImageHeight - 40));
-					rectStartEffect.Size(PlutoSize(100, 40));
-					nPK_Effect = EFFECT_Bezier_transit_prism_CONST;
-					break;
-
-				case DESIGNOBJ_mnuSpeedControl_CONST:
-					nTransitionTimeIsMs = 1000;
-					rectStartEffect.Location(PlutoPoint(0, OrbiterLogic()->m_iImageHeight - 40));
-					rectStartEffect.Size(PlutoSize(100, 40));
-					nPK_Effect = EFFECT_Bezier_transit_flow_slide_left_CONST;
-					break;
-
-				case DESIGNOBJ_popFileList_CONST:
-					nPK_Effect = EFFECT_Fades_from_top_CONST;
-					break;
-
-				default:
-					break;
-				}
-
-				GL2DEffect* Transit = m_Desktop->EffectBuilder->
-					CreateEffect(
-					m_Desktop->EffectBuilder->GetEffectCode(nPK_Effect),
-					nTransitionTimeIsMs
-					);
-
-				if(Transit)
-					Transit->Configure(&rectStartEffect);
-
-				if(!Transit)
-					Transit = m_Desktop->EffectBuilder->
-					CreateEffect(
-					GL2D_EFFECT_TRANSIT_NO_EFFECT,
-					Simulator::GetInstance()->m_iMilisecondsTransition
-					);
-
-				StartAnimation();
-				return;
-			}
-
-			if(OrbiterLogic()->m_pObj_SelectedLastScreen)
-			{
-				m_rectLastSelected = PlutoRectangle(OrbiterLogic()->m_pObj_SelectedLastScreen->m_rPosition);
-				m_rectLastSelected.Y = OrbiterLogic()->m_pObj_SelectedLastScreen->m_rPosition.Y;
-
-#ifdef DEBUG
-				g_pPlutoLogger->Write(LV_WARNING, "Effect with change: %d", OrbiterLogic()->m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange);
-#endif
-
-				GL2DEffect* Transit = m_Desktop->EffectBuilder->
-					CreateEffect(
-					m_Desktop->EffectBuilder->GetEffectCode(OrbiterLogic()->m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange),
-					Simulator::GetInstance()->m_iMilisecondsTransition
-					);
-				if(!Transit)
-					Transit = m_Desktop->EffectBuilder->
-					CreateEffect(
-					GL2D_EFFECT_TRANSIT_NO_EFFECT,
-					Simulator::GetInstance()->m_iMilisecondsTransition
-					);
-
-				if(Transit)
-					Transit->Configure(&m_rectLastSelected);
-			}
-			else
-			{
-				GL2DEffect* Transit = m_Desktop->EffectBuilder->
-					CreateEffect(
-					GL2D_EFFECT_TRANSIT_NO_EFFECT,
-					400
-					);
-			}
-		}
-#endif
-
-		StartAnimation();
-#endif
-	}
-	else
-	{
-		UpdateScreen();
-	}
+	UpdateScreen();
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
@@ -755,25 +496,7 @@ void OrbiterRenderer_PocketFrog::BeginPaint()
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::EndPaint()
 {
-	if(EnableOpenGL)
-	{
-#ifndef DISABLE_OPENGL
-		//the surface after the screen was rendered
-		if(m_spAfterGraphic.get())
-			m_spAfterGraphic->Initialize();
-
-		m_spAfterGraphic.reset(new PocketFrogGraphic(GetDisplay()->GetBackBuffer()));
-
-		m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
-		GL2DEffect * Effect = m_Desktop->EffectBuilder->CreateEffect(GL2D_EFFECT_NOEFFECT, 
-			1);
-		StartAnimation();
-#endif //opengl stuff
-	}
-
-#ifdef DEBUG
     g_pPlutoLogger->Write(LV_WARNING, "End paint...");
-#endif
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::UpdateRect(PlutoRectangle rect, PlutoPoint point)
@@ -790,10 +513,7 @@ void OrbiterRenderer_PocketFrog::UpdateRect(PlutoRectangle rect, PlutoPoint poin
 	Rect rectUpdate;
 	rectUpdate.Set(localrect.Left(), localrect.Top(), localrect.Right(), localrect.Bottom());
 
-	if(!EnableOpenGL)
-		GetDisplay()->Update(&rectUpdate);
-	else
-		UpdateScreen();
+	GetDisplay()->Update(&rectUpdate);
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::OnQuit()
@@ -811,32 +531,7 @@ void OrbiterRenderer_PocketFrog::TryToUpdate()
 {
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
-	UpdateScreen();
-}
-//-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_PocketFrog::UpdateScreen()
-{
-	if (!EnableOpenGL)
-	{
-		GetDisplay()->Update();
-	}
-	else
-	{ 
-#ifndef WINCE
-		if(m_Desktop && m_Desktop->EffectBuilder && 
-			!m_Desktop->EffectBuilder->HasEffects())
-		{
-			if(m_spAfterGraphic.get())
-				m_spAfterGraphic->Initialize();
-
-			m_spAfterGraphic.reset(new PocketFrogGraphic(GetDisplay()->GetBackBuffer()));
-
-			m_Desktop->EffectBuilder->Widgets->ConfigureNextScreen(m_spAfterGraphic.get());
-			GL2DEffect* Transit = m_Desktop->EffectBuilder->CreateEffect(GL2D_EFFECT_NOEFFECT, 400);
-			StartAnimation();
-		}
-#endif
-	}
+	GetDisplay()->Update();
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::GameSuspend()
@@ -1009,214 +704,6 @@ string OrbiterRenderer_PocketFrog::FormatMutexMessage(pluto_pthread_mutex_t& Plu
         "    - " + PlutoMutex.m_sFileName + ":" + StringUtils::ltos(PlutoMutex.m_Line) + "\r\n";
 
     return sMessage;
-}
-//-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_PocketFrog::RenderFrame(void *data)
-{
-#ifndef WINCE
-	if(m_Desktop && m_Desktop->EffectBuilder && (m_Desktop->EffectBuilder->HasEffects()))
-	{
-		OrbiterLogic()->CallMaintenanceInMiliseconds(0, (OrbiterCallBack) &Orbiter::RenderFrame, 
-			NULL, pe_NO);
-		OnIdle();
-	}
-#endif
-}
-//-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_PocketFrog::StartAnimation()
-{
-	m_bPaintDesktop = false;
-	OrbiterLogic()->CallMaintenanceInMiliseconds(0, (OrbiterCallBack) &Orbiter::RenderFrame, 
-		NULL, pe_NO);
-}
-//-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_PocketFrog::OnIdle()
-{
-#ifndef DISABLE_OPENGL
-	if(EnableOpenGL)
-	{
-		Sleep(5);
-		WakeupFromCondWait();
-	}
-#endif
-}
-
-//-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_PocketFrog::WakeupFromCondWait()
-{
-#ifndef DISABLE_OPENGL
-	pthread_cond_broadcast(&m_GLThreadCond);
-#endif
-}
-//-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_PocketFrog::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
-{
-	if (!EnableOpenGL) 
-	{
-		OrbiterLogic()->SelectObject(pObj, point);
-		return;
-	}
-
-	if(EnableOpenGL)
-	{
-#ifndef DISABLE_OPENGL
-		if (!OrbiterLogic()->m_pObj_SelectedLastScreen)
-			Commons3D::Instance().SetSelectedArea(NULL);
-
-
-		FloatRect SelectedArea;
-		SelectedArea.Left   = (float)point.X + pObj->m_rBackgroundPosition.X;
-		SelectedArea.Top    = (float)(point.Y + pObj->m_rBackgroundPosition.Y);
-		SelectedArea.Width  = (float)pObj->m_rBackgroundPosition.Width;
-		SelectedArea.Height = (float)pObj->m_rBackgroundPosition.Height;
-
-		Commons3D::Instance().SetSelectedArea(&SelectedArea);
-
-		GL2DEffect* Effect = NULL;
-
-		Effect = m_Desktop->EffectBuilder->
-			CreateEffect(
-				m_Desktop->EffectBuilder->GetEffectCode(OrbiterLogic()->m_pObj_SelectedLastScreen->m_FK_Effect_Selected_NoChange),
-				Simulator::GetInstance()->m_iMilisecondsHighLight
-			);
-		if(!Effect)
-			Effect = m_Desktop->EffectBuilder->
-			CreateEffect(
-				GL2D_EFFECT_HIGHLIGHT_AREA,
-				Simulator::GetInstance()->m_iMilisecondsHighLight
-			);
-
-		if(!Effect)
-			return;
-
-		StartAnimation();
-
-		PlutoRectangle SeclectedAreaEffectSize;
-		SeclectedAreaEffectSize.X = point.X + pObj->m_rBackgroundPosition.X;
-		SeclectedAreaEffectSize.Y = point.Y + pObj->m_rBackgroundPosition.Y;
-		SeclectedAreaEffectSize.Width = pObj->m_rBackgroundPosition.Width;
-		SeclectedAreaEffectSize.Height = pObj->m_rBackgroundPosition.Height;
-		
-		Effect->Configure(&SeclectedAreaEffectSize);
-#endif
-	}
-}  
-//-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_PocketFrog::DoHighlightObject()
-{
-	if(!EnableOpenGL)
-	{
-		OrbiterRenderer::DoHighlightObject();
-	}
-	else
-	{
-#ifndef DISABLE_OPENGL
-		DoHighlightObjectOpenGL();
-#endif
-	}
-}
-//-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_PocketFrog::DoHighlightObjectOpenGL()
-{
-#ifndef DISABLE_OPENGL
-	if(sbNoSelection == OrbiterLogic()->m_nSelectionBehaviour)
-	{
-		Commons3D::Instance().SetHighLightArea(NULL);
-		return;
-	}
-
-	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );  // Protect the highlighed object
-	if( OrbiterLogic()->m_pGraphicBeforeHighlight )
-		UnHighlightObject();
-
-	if( !OrbiterLogic()->m_pObj_Highlighted )
-	{
-		Commons3D::Instance().SetHighLightArea(NULL);
-		return;
-	}
-
-	if( OrbiterLogic()->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
-	{
-		DesignObj_DataGrid *pGrid = (DesignObj_DataGrid *) OrbiterLogic()->m_pObj_Highlighted;
-		PLUTO_SAFETY_LOCK( dg, OrbiterLogic()->m_DatagridMutex );
-
-		int nHColumn = pGrid->m_iHighlightedColumn!=-1 ? pGrid->m_iHighlightedColumn + pGrid->m_GridCurCol : pGrid->m_GridCurCol;
-		int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow - (pGrid->m_iUpRow >= 0 ? 1 : 0) : 0;
-
-		if( nHColumn==-1 && nHRow==-1 )
-			return;
-
-		if(!pGrid->m_pDataGridTable)
-			return;
-
-		if(nHRow < pGrid->m_pDataGridTable->m_StartingRow)
-		{
-			pGrid->m_iHighlightedRow = 1;
-			nHRow = pGrid->m_pDataGridTable->m_StartingRow; //set the highlighted row
-		}
-
-		DataGridCell *pCell = pGrid->m_pDataGridTable->GetData(nHColumn, nHRow); 
-		if( !pCell )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter::DoHighlightObject cell is null.  obj %s col %d row %d",
-				OrbiterLogic()->m_pObj_Highlighted->m_ObjectID.c_str(), nHColumn, nHRow);
-			return;
-
-		}
-
-		//the datagrid is highlighted, but no row is highlighted; we don't want to select the whole datagrid
-		if(pGrid->m_iHighlightedRow == -1)
-			pGrid->m_iHighlightedRow = 0;
-
-		PlutoRectangle r;
-		pGrid->GetGridCellDimensions(  
-			pGrid->m_iHighlightedColumn==-1 ? pGrid->m_MaxCol : pCell->m_Colspan, 
-			pGrid->m_iHighlightedRow==-1 ? pGrid->m_MaxRow : pCell->m_Rowspan,
-			pGrid->m_iHighlightedColumn==-1 ? 0 : pGrid->m_iHighlightedColumn, 
-			pGrid->m_iHighlightedRow==-1 ? 0 : pGrid->m_iHighlightedRow, 
-			r.X,  r.Y,  r.Width,  r.Height );
-
-		OrbiterLogic()->m_rectLastHighlight.X = max(0,r.X);
-		OrbiterLogic()->m_rectLastHighlight.Y = max(0,r.Y);
-		OrbiterLogic()->m_rectLastHighlight.Right( min(r.Right(),OrbiterLogic()->m_Width-1) );
-		OrbiterLogic()->m_rectLastHighlight.Bottom( min(r.Bottom(),OrbiterLogic()->m_Height-1) );
-	}
-	else
-		OrbiterLogic()->m_rectLastHighlight = OrbiterLogic()->m_pObj_Highlighted->GetHighlightRegion();
-
-	OrbiterLogic()->m_rectLastHighlight.X += OrbiterLogic()->m_pObj_Highlighted->m_pPopupPoint.X;
-	OrbiterLogic()->m_rectLastHighlight.Y += OrbiterLogic()->m_pObj_Highlighted->m_pPopupPoint.Y;
-
-	OrbiterLogic()->m_rectLastHighlight.Width++;  // GetBackground always seems to be 1 pixel to little
-	OrbiterLogic()->m_rectLastHighlight.Height++;
-
-	//m_pGraphicBeforeHighlight = GetBackground(m_rectLastHighlight);
-	FloatRect HighLightArea;
-	HighLightArea.Left = (float)OrbiterLogic()->m_rectLastHighlight.Left();
-	HighLightArea.Top = (float)OrbiterLogic()->m_rectLastHighlight.Top();
-	HighLightArea.Width =  (float)OrbiterLogic()->m_rectLastHighlight.Width;
-	HighLightArea.Height = (float)OrbiterLogic()->m_rectLastHighlight.Height;
-
-	Commons3D::Instance().SetHighLightArea(&HighLightArea);
-	GL2DEffect* Effect = NULL;
-
-	if (OrbiterLogic()->m_pObj_SelectedLastScreen)
-	 Effect = m_Desktop->EffectBuilder->
-		CreateEffect(
-			m_Desktop->EffectBuilder->GetEffectCode(OrbiterLogic()->m_pObj_SelectedLastScreen->m_FK_Effect_Highlighted),
-			Simulator::GetInstance()->m_iMilisecondsHighLight
-		);
-	if(!Effect)
-		Effect = m_Desktop->EffectBuilder->
-			CreateEffect(
-				GL2D_EFFECT_HIGHLIGHT_AREA,
-				Simulator::GetInstance()->m_iMilisecondsHighLight
-			);
-	if(Effect)
-		Effect->Configure(&OrbiterLogic()->m_rectLastHighlight);
-
-	StartAnimation();
-#endif
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::GetWindowPosition(PlutoPoint& point)

@@ -8,8 +8,10 @@
 	#include "../Bluetooth_Dongle/OrbiterRenderer_SDL_Bluetooth.h"	
 #else
 	#ifdef WIN32
-		#ifdef POCKETFROG
+		#if defined(POCKETFROG)
 			#include "PocketFrog/OrbiterRenderer_PocketFrog.h"
+		#elif defined(ORBITER_OPENGL)
+			#include "OpenGL/OrbiterRenderer_OpenGL.h"
 		#else
 			#include "SDL/Win32/OrbiterRenderer_SDL_Win32.h"
 		#endif
@@ -26,8 +28,10 @@
 	return new OrbiterRenderer_SDL_Bluetooth(pOrbiter);
 #else
 	#ifdef WIN32
-		#ifdef POCKETFROG
+		#if defined(POCKETFROG)
 			return new OrbiterRenderer_PocketFrog(pOrbiter);
+		#elif defined(ORBITER_OPENGL)
+			return new OrbiterRenderer_OpenGL(pOrbiter);
 		#else
 			return new OrbiterRenderer_SDL_Win32(pOrbiter);
 		#endif

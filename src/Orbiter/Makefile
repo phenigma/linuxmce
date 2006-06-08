@@ -71,7 +71,6 @@ sources = Main.cpp Orbiter.cpp $(Gen_Dev_Files)
 
 CXXFLAGS += -g -O0
 CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DENABLE_MOUSE_BEHAVIOR -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen
-CPPFLAGS += -DENABLE_OPENGL
 LDFLAGS += -L/usr/X11R6/lib
 XTRALDLIBS += -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst -lGL
 
@@ -132,33 +131,6 @@ sources += \
 	SDL/SDLRendererOCGHelper.cpp \
 	SDL/SDLGraphic.cpp \
 	SDL/StartOrbiterSDL.cpp \
-	SDL/OpenGLTextureConverter_SDL.cpp \
-	OpenGL/orbitergl3dengine.cpp \
-	OpenGL/Orbiter3DCommons.cpp \
-	OpenGL/math3dutils.cpp \
-	OpenGL/OpenGLTextureConverter.cpp \
-	OpenGL/GL2DWidgets/DrawingWidgetsEngine.cpp \
-	OpenGL/GL2DWidgets/basicwindow.cpp \
-	OpenGL/GL2DWidgets/basewidget.cpp \
-	OpenGL/GL2DWidgets/bezierwindow.cpp \
-	OpenGL/GL2DEffects/gl2deffectslidefromleft.cpp \
-	OpenGL/GL2DEffects/gl2deffecttransit.cpp \
-	OpenGL/GL2DEffects/gl2deffectfactory.cpp \
-	OpenGL/GL2DEffects/gl2deffectbeziertranzit.cpp \
-	OpenGL/GL2DEffects/gl2deffectbeziertranzit_topleft.cpp \
-	OpenGL/GL2DEffects/gl2deffectbeziertranzit_prism.cpp \
-	OpenGL/GL2DEffects/gl2deffectbeziertranzit_flow_slideleft.cpp \
-	OpenGL/GL2DEffects/gl2deffectbeziertranzit_flow_slideleft_reverse.cpp \
-	OpenGL/GL2DEffects/gl2deffectfadesfromtop.cpp \
-	OpenGL/GL2DEffects/gl2deffectfadesfromunderneath.cpp \
-	OpenGL/GL2DEffects/GL2DEffectNoEffect.cpp \
-	OpenGL/GL2DEffects/GL2DEffectBlending.cpp \
-	OpenGL/GL2DEffects/GL2DEffectHighLightArea.cpp \
-	OpenGL/GL2DEffects/GL2DEffectHighLight.cpp \
-	OpenGL/GL2DEffects/gl2deffectselectedarea.cpp \
-	OpenGL/GL2DEffects/GL2DEffectTransitionNoEffect.cpp \
-	OpenGL/GL2DEffects/GL2DEffectWipeIn.cpp \
-	OpenGL/GL2DEffects/gl2deffect.cpp \
 	Linux/OSDScreenHandler.cpp \
 	Linux/MouseBehavior_Linux.cpp \
 	WizardLogic.cpp \

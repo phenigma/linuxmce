@@ -165,9 +165,6 @@ void MouseBehavior::Move(int X,int Y)
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	if( m_pMouseHandler )
 		m_pMouseHandler->Move(X,Y,0);
-
-	if(Simulator::GetInstance()->m_bUseOpenGL)
-		Commons3D::Instance().SetMousePosition(X, Y);
 }
 
 void MouseBehavior::RelativeMove(int DeltaX,int DeltaY)
