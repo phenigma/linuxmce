@@ -16,6 +16,11 @@
 #include "pluto_main/Define_Button.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 
+extern "C"
+{
+#include <cdda_interface.h>
+}
+
 #define POINTER_HIDE_SECONDS 2
 
 static DCE::Xine_Stream::Dynamic_Pointer *g_pDynamic_Pointer = NULL;
@@ -468,17 +473,39 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 			}		
 		}
 		
-		/*
-		if (!hasChapters)
+		// if this is Audio CD disk, MRL is like cdda:///dev/cdrom/12 - for 12th track
+		if(StringUtils::StartsWith(m_sCurrentFile, "cdda://", true))
 		{
-			//simply enumerating titles count
-			for (int i=1; i<=titlesCount; i++)
+			string drvName = m_sCurrentFile;
+			drvName = StringUtils::Replace(drvName, "cdda://", "");
+			int last_slash = drvName.find_last_of("/");
+			if (last_slash!=drvName.length())
 			{
-				sMediaInfo += "Track " + StringUtils::itos(i) + "\t" + StringUtils::itos(i) + "\n";
+				drvName.erase(last_slash);
+				
+				cdrom_drive *pDrive = cdda_identify(drvName.c_str(), CDDA_MESSAGE_FORGETIT, NULL);
+				if (!pDrive)
+				{
+					g_pPlutoLogger->Write( LV_STATUS, "Failed to identify cd drive: %s", drvName.c_str());
+				}
+				else
+				{
+					if (!cdda_open(pDrive))
+					{
+						int tracksCount = cdda_tracks(pDrive);
+                				cdda_close(pDrive);
+						for (int i=1; i<=tracksCount; i++)
+						{
+							sMediaInfo += "Track " + StringUtils::itos(i) + "\t" + StringUtils::itos(i) + "\n";
+						}
+					}
+					else
+					{
+						g_pPlutoLogger->Write( LV_STATUS, "Failed to open cd drive: %s", drvName.c_str());
+					}
+				}				
 			}
-		}
-		*/
-		
+		}	
 		
 		g_pPlutoLogger->Write( LV_STATUS, "Stream media info (length=%i): \n%s", sMediaInfo.length(), sMediaInfo.c_str());
 	}
