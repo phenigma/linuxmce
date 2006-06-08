@@ -888,9 +888,14 @@ void PnpQueue::ReadOutstandingQueueEntries()
 void PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry)
 {
 	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_Ethernet_CONST ) // This is universal, could be anywhere, ask on all orbiters
+	{
 		pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts=m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get();
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::DetermineOrbitersForPrompting queue %d use all orbiters: %s",
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.c_str());
+	}
 	else
 	{
+		pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts = "";
 		string s = m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get();
 		string::size_type pos=0;
 		while(pos<s.size())
@@ -898,16 +903,30 @@ void PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry)
 			string sPK_Orbiter = StringUtils::Tokenize(s,",",pos);
 			OH_Orbiter *pOH_Orbiter = m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( atoi(sPK_Orbiter.c_str()) );
 			if( !pOH_Orbiter || !pPnpQueueEntry->m_pRow_Device_Reported )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::DetermineOrbitersForPrompting queue %d orbiter %s/%p reported %p",sPK_Orbiter.c_str(),pOH_Orbiter,pPnpQueueEntry->m_pRow_Device_Reported);
 				continue;   // Shouldn't really happen
+			}
 			if( pOH_Orbiter->m_dwPK_Room!=pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get() && 
 				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Room!=pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get() &&
 				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device_MD!=pPnpQueueEntry->m_pRow_Device_Reported->FK_Device_ControlledVia_get() &&
 				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device_Core!=pPnpQueueEntry->m_pRow_Device_Reported->FK_Device_ControlledVia_get() )
-					continue;   // It doesn't normally belong in this room, and it's not currently in this room, and it's totally unrelated, so don't use it
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::DetermineOrbitersForPrompting queue %d orbiter %d reported %d in room %d/%d being skipped",
+					pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+					pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Room,pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get());
+				continue;   // It doesn't normally belong in this room, and it's not currently in this room, and it's totally unrelated, so don't use it
+			}
 			pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts += sPK_Orbiter + ",";
 		}
 	}
-	
+	if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.size()==0 )
+	{
+		pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts=m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get();
+		g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::DetermineOrbitersForPrompting queue %d orbiter list was empty.  setting it to %s",
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.c_str());
+	}
+	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::DetermineOrbitersForPrompting queue %d returning %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.c_str());
 }
 
 string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
