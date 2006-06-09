@@ -143,14 +143,6 @@ fi
 
 ## Do some pluto specific cleanup
 rm -f /var/run/*.pid
-setterm -blank >/dev/console             # disable console blanking
-chmod 777 /etc/pluto.conf                # ensure access rights on pluto.conf
-rm /var/log/pluto/running.pids
-chmod 777 /var/log/pluto
-rm -f /dev/ttyS_*                        # remove all ttyS_* (created by gc100s) entries from /dev
-mkdir -p /usr/pluto/locks                # clean up locks
-rm -f /usr/pluto/locks/*                 # clean up locks
-rm -f /etc/rc{0,6}.d/S*{umountnfs.sh,portmap,networking}
 rm -rf /var/run/screen/*
 dmesg -n 1
 
@@ -161,15 +153,6 @@ if ! grep -qF "$SysLogCfg" /etc/syslog.conf; then
 fi
 if ! grep -q '^SYSLOGD="-r"$' /etc/init.d/sysklogd; then
 	sed -i 's/^SYSLOGD=.*$/SYSLOGD="-r"/' /etc/init.d/sysklogd
-fi
-
-
-. /usr/pluto/bin/Config_Ops.sh
-. /usr/pluto/bin/pluto.func
-. /usr/pluto/bin/SQL_Ops.sh
-
-if [[ -e /usr/pluto/install/.notdone ]]; then
-    Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "It appears the installation was not successful. Pluto's startup scripts are disabled. To enable them, complete the installation process, or manually remove the file /usr/pluto/install/.notdone"
 fi
 
 ## Configure runtime kernel parameters
@@ -297,6 +280,10 @@ if grep -q "^1:23:once:/usr/pluto/install/Initial_Config.sh" /etc/inittab ;then
 	exit 0
 fi
 
+. /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/pluto.func
+. /usr/pluto/bin/SQL_Ops.sh
+
 # assure some settings
 if [[ -x /usr/pluto/bin/Report_Machine_Status.sh ]]; then
 	/usr/pluto/bin/Report_Machine_Status.sh  &
@@ -307,6 +294,15 @@ ConfSet PK_Installation "$R"
 Q="SELECT PK_Users FROM Users LIMIT 1"
 R="$(RunSQL "$Q")"
 ConfSet PK_Users "$R"
+
+setterm -blank >/dev/console             # disable console blanking
+chmod 777 /etc/pluto.conf 2>/dev/null    # ensure access rights on pluto.conf
+rm /var/log/pluto/running.pids 2>/dev/null
+chmod 777 /var/log/pluto 2>/dev/null
+rm -f /dev/ttyS_*                        # remove all ttyS_* (created by gc100s) entries from /dev
+mkdir -p /usr/pluto/locks                # clean up locks
+rm -f /usr/pluto/locks/*                 # clean up locks
+rm -f /etc/rc{0,6}.d/S*{umountnfs.sh,portmap,networking}
 
 if [[ -f /usr/pluto/bin/Config_Ops.sh ]]; then
 	 /usr/pluto/bin/Config_Ops.sh
