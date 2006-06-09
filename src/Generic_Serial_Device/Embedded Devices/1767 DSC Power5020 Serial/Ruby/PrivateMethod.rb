@@ -1,4 +1,4 @@
-#PrivateMethod  09-Jun-06 11:40  ApexDestiny 6100
+#PrivateMethod  09-Jun-06 11:40   Power5020
 class MyIO
 
 	def intialize
@@ -105,21 +105,21 @@ list.each{ |i|
 
 end
 
-def buildMess(buff)
-len = "%02X" % (buff.size() + 6)
-buff = len + buff + "00"
-buff += checkSumProc(buff) + "\r" + "\n"
-end
-
 def checkSumProc(buff)
 count=0   
-buff.each_byte{ |i|
+chkStr=String.new
+
+outStr=buff
+outStr.each_byte{ |i|
 	count += i
 	#log( i.to_s + ":" + count.to_s + "\n" )
 }
 #calculate checksum
-count=256-(count%256)
-return "%02X" % count
+count=count%256
+chkStr= "%02X" % count
+
+outStr += chkStr + "\r" + "\n"      #add check sum + cr/lf
+return outStr
 end
 
 #IO operation
@@ -332,22 +332,104 @@ end
 end
 
 #  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#  Apex function
-# Command for security panel
+#  DSC function
 
-def ApexArmPartition(type,user,password)
-buff="a"
+def DSCPoll
+buff="000"
+logCmd(buff)
+log( "\n" )
+sendCmd(buff)
+end
+
+def DSCStatusReport2
+buff="001"
+logCmd(buff)
+log( "\n" )
+sendCmd(buff)
+end
+
+def DSCSetDescArm(bState)
+buff="050"
+logCmd(buff)
+
+$bTimeStamp=bState
+# add data
+if (bState == true) then 
+	buff += '1' 
+else 
+	buff += '0' 
+end
+
+sendCmd(buff)
+end
+
+def DSCSetTimeStamp(bState)
+buff="055"
+logCmd(buff)
+
+$bTimeStamp=bState
+# add data
+if (bState == true) then 
+	buff += '1' 
+else 
+	buff += '0' 
+end
+
+sendCmd(buff)
+end
+
+def DSCSetTimeBroadcast(bState)
+buff="056"
+logCmd(buff)
+$bTimeBroadcast=bState
+# add data
+if (bState == true) then 
+	buff += '1' 
+else 
+	buff += '0' 
+end
+
+send(buff)
+#$myIo.send(buff)
+end
+
+def DSCSimulateAlarmCmd(value)
+buff="060"
+logCmd(buff)
+
+log( "Value: " + value.to_s +  "\n" )
 #check param
-if (type != "AWAY") and (type != "HOME")  then 
+chkValue=value.to_i
+if (chkValue<1) and (chkValue>3)  then 
+	badParam($cmdCode[buff],"Wrong value") 
+	return
+end
+
+# add data
+buff += value.to_s      #time
+
+sendCmd(buff)
+end
+
+#command for security panel
+def DSCArmPartition(type,value,password)
+buff="03"
+logCmd(buff)
+
+log( value.to_s + " armType: " + type + "\n" )
+#check param
+if (type != "AWAY") and (type != "STAY") and (type != "NODELAY") and (type != "CODE") then 
 	badParam(cmdCode[buff],"arm Type") 
 	return
 end
-if ( user.size()  !=2 )  then 
-	badParam(cmdCode[buff], "User number") 
+
+partNo=value.to_i
+if (partNo < 0) or (partNo > 8) then 
+	badParam(cmdCode[buff],"Partition number") 
 	return
 end
 
-if (password.size != 4)  then 
+if (password.size < 4) or (password.size > 6) then 
 	badParam($cmdCode[buff],"Password to long/short") 
 	return
 end
@@ -355,39 +437,39 @@ end
 #command code
 case type
 when "AWAY"       
-	buff += "a"       
-when "HOME" 
-	buff += "h" 
+	buff += "0"       
+when "STAY" 
+	buff += "1" 
+when "NODELAY"  
+	buff += "2"                
+when "CODE"	
+	buff += "3"
 end	
 
-buff += user.to_s + password.to_s
+buff += partNo.to_s
+if (type == "CODE")       then buff += password           end
 sendCmd(buff)
+
 end
 
-def ApexDisarmPartition(user,password)
-f ( user.size()  !=2 )  then 
-	badParam(cmdCode[buff], "User number") 
-	return
-end
+def DSCDisarmPartition(value,password)
+buff="040"
+logCmd(buff)
 
-if (password.size != 4)  then 
+log( "Partition:" + value.to_s + " Code:" + password + "\n" )
+#check param
+if (password.size < 4) or (password.size > 6) then 
 	badParam($cmdCode[buff],"Password to long/short") 
 	return
 end
 
-buff="aa"
-buff += value + password
+partNo=value.to_i
+if (partNo < 0) or (partNo > 8) then 
+	badParam($cmdCode[buff],"Partition number") 
+	return
+end
+
+buff += value
+buff += password
 sendCmd(buff)
-end
-
-def ApexArmingRequest()
-sendCmd( "as" )
-end
-
-def ApexStatusRequest()
-sendCmd( "zs" )
-end
-
-def ApexZoneRequest()
-sendCmd( "zp" )
 end
