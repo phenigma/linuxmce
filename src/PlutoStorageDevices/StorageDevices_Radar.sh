@@ -58,7 +58,7 @@ function Detect {
 		
 		for partition in $availPart ;do
 			#/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 159 228 109 "/dev/$partition" 156 $PK_Device 163 "$InfoMessage"
-			/usr/pluto/bin/MessageSend $DCERouter 0 -1001 2 65 55 "152|/dev/$partition" 52 8 49 1790			
+			/usr/pluto/bin/MessageSend $DCERouter $PK_Device -1001 2 65 55 "152|/dev/$partition" 52 8 49 1790			
 		done
 	fi
 }
