@@ -269,6 +269,7 @@ Motion_Wrapper::~Motion_Wrapper()
 {
 	if(motionpid_) {
 		g_pPlutoLogger->Write(LV_STATUS, "Killing motion process: %d...", motionpid_);
+		my_motion_pid = NULL;
 		kill(motionpid_, SIGKILL);
 		g_pPlutoLogger->Write(LV_STATUS, "Waiting for motion process to finish: %d...", motionpid_);
 		wait(NULL);
