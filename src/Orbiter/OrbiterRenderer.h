@@ -57,6 +57,11 @@ public:
 	virtual bool AlternateGraphicsDisabled() { return false; }
 
 	/**
+	* @brief Adjust the window size
+	*/
+	virtual void AdjustWindowSize(int iWidth, int iHeight) {}
+
+	/**
 	* @brief renders text with the specified style
 	*/
 	virtual void RenderText(string &sTextToDisplay,class DesignObjText *Text, class TextStyle *pTextStyle, PlutoPoint point = PlutoPoint(0, 0)) = 0;

@@ -1991,7 +1991,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			return;
 		}
 
-		AdjustWindowSize(m_pScreenHistory_Current->GetObj()->m_rPosition.Width,
+		m_pOrbiterRenderer->AdjustWindowSize(m_pScreenHistory_Current->GetObj()->m_rPosition.Width,
 			m_pScreenHistory_Current->GetObj()->m_rPosition.Height);
 
 		m_bStartingUp=false;

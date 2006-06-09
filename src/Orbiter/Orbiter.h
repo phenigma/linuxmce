@@ -406,11 +406,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		void ScreenSaver( void *data );
 
 		/**
-		* @brief Adjust the window size
-		*/
-		virtual void AdjustWindowSize(int iWidth, int iHeight) {}
-
-		/**
 		* @brief renders a floorplan
 		* @todo ask
 		*/
