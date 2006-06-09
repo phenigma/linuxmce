@@ -226,6 +226,11 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 			pRow_Device_Created->FK_Device_ControlledVia_set(PK_Device_ControlledVia);
 			SetDisableFlagForDeviceAndChildren(pRow_Device_Created,false);
 			m_pDatabase_pluto_main->Device_get()->Commit();
+
+			string sMessage = StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " Moved existing device: " + pRow_Device_Created->Description_get();
+			DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
+				sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
+			m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
 			
 			Message *pMessage_Kill = new Message(m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get(),PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_QUIT,0);
 			m_pPlug_And_Play_Plugin->QueueMessageToRouter(pMessage_Kill); // Kill the device at the old location
@@ -238,11 +243,22 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 			SetDisableFlagForDeviceAndChildren(pRow_Device_Created,false);
 			m_pDatabase_pluto_main->Device_get()->Commit();
 			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_ADD_SOFTWARE);
+
+			string sMessage = StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " Enabled existing device: " + pRow_Device_Created->Description_get();
+			DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
+				sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
+			m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+
 			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Detected queue %d was existing device, but disabled",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 			return Process_Detect_Stage_Add_Software(pPnpQueueEntry);
 		}
 		else
 		{
+			string sMessage = StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " Existing device already enabled: " + pRow_Device_Created->Description_get();
+			DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
+				sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
+			m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+
 			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
 			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Detected queue %d was existing device, nothing to do",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 			return true;
@@ -477,8 +493,14 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 		return true;
 	}
 
-	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_prompting_device_template && time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
-		return false; // We're waiting for user input.  Give the user more time.
+	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_prompting_device_template )
+	{
+		if( time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
+			return false; // We're waiting for user input.  Give the user more time.
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT user didn't respond to queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		DetermineOrbitersForPrompting(pPnpQueueEntry);
+	}
+
 
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_device_template);
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
@@ -492,8 +514,13 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_Options(PnpQueueEntry *pP
 	if( BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
 		return false; // Let this one get backed up
 
-	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_prompting_options && time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
-		return false; // We're waiting for user input.  Give the user more time.
+	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_prompting_options )
+	{
+		if(  time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
+			return false; // We're waiting for user input.  Give the user more time.
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_Options user didn't respond to queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		DetermineOrbitersForPrompting(pPnpQueueEntry);
+	}
 
 	if( m_Pnp_PreCreateOptions.OkayToCreateDevice(pPnpQueueEntry)==false )  // See if the user needs to specify some options
 		return false;  // The user needs to specify some options
@@ -581,6 +608,12 @@ bool PnpQueue::Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
 	{
 		SetDisableFlagForDeviceAndChildren(pRow_Device_Created,true);
 		m_pDatabase_pluto_main->Device_get()->Commit();
+
+		string sMessage = StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " Disabled: " + pRow_Device_Created->Description_get();
+		DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
+			sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
+		m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+
 		Message *pMessage_Kill = new Message(m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get(),PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_QUIT,0);
 		m_pPlug_And_Play_Plugin->QueueMessageToRouter(pMessage_Kill); // Kill the device at the old location
 	}
@@ -864,7 +897,7 @@ void PnpQueue::ReadOutstandingQueueEntries()
 	m_pDatabase_pluto_main->PnpQueue_get()->GetRows("Processed=0",&vectRow_PnpQueue);
 	for(vector<Row_PnpQueue *>::iterator it=vectRow_PnpQueue.begin();it!=vectRow_PnpQueue.end();++it)
 	{
-		PnpQueueEntry *pPnpQueueEntry = new PnpQueueEntry(*it);
+		PnpQueueEntry *pPnpQueueEntry = new PnpQueueEntry(m_pPlug_And_Play_Plugin,*it);
 		bool bWasDuplicate=false;
 		for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
 		{

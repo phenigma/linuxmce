@@ -31,10 +31,12 @@ namespace DCE
 		string m_sPK_Orbiter_List_For_Prompts;
 		string m_sDetectionScript_Running;
 		string m_sText;
+		Plug_And_Play_Plugin *m_pPlug_And_Play_Plugin;
 
 	public:
 		// Constructor for device detected
-		PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
+		PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
+			Database_pluto_main *pDatabase_pluto_main,
 			string sDeviceData,
 			string sIPAddress,
 			string sMacAddress,
@@ -48,7 +50,8 @@ namespace DCE
 			string sVendorModelId);
 
 		// Constructor for device removed
-		PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
+		PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
+			Database_pluto_main *pDatabase_pluto_main,
 			string sDeviceData,
 			string sIPAddress,
 			string sMacAddress,
@@ -62,7 +65,7 @@ namespace DCE
 			string sVendorModelId);
 
 		// Constructor for restarting unfinished ones in the queue
-		PnpQueueEntry(Row_PnpQueue *pRow_PnpQueue);
+		PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,Row_PnpQueue *pRow_PnpQueue);
 
 		void Stage_set(int Stage);
 
@@ -72,6 +75,7 @@ namespace DCE
 		void FindTopLevelDevice();
 		void AssignDeviceData(Row_Device *pRow_Device);
 		bool IsDuplicate(PnpQueueEntry *pPnpQueueEntry);  // Returns true if the entry passed in is the same as this one
+		string StageAsText();
 	};
 }
 

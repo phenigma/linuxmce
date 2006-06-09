@@ -126,7 +126,8 @@ void Plug_And_Play_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *p
 
 bool Plug_And_Play_Plugin::DeviceDetected( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
-	PnpQueueEntry *pPnpQueueEntry = new PnpQueueEntry(m_pDatabase_pluto_main,
+	PnpQueueEntry *pPnpQueueEntry = new PnpQueueEntry(this,
+		m_pDatabase_pluto_main,
 		pMessage->m_mapParameters[EVENTPARAMETER_DeviceData_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_IP_Address_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST],
@@ -147,7 +148,8 @@ bool Plug_And_Play_Plugin::DeviceDetected( class Socket *pSocket, class Message 
 
 bool Plug_And_Play_Plugin::DeviceRemoved( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
-	PnpQueueEntry *pPnpQueueEntry = new PnpQueueEntry(m_pDatabase_pluto_main,
+	PnpQueueEntry *pPnpQueueEntry = new PnpQueueEntry(this,
+		m_pDatabase_pluto_main,
 		pMessage->m_mapParameters[EVENTPARAMETER_DeviceData_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_IP_Address_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST],

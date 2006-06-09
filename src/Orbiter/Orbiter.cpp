@@ -8624,7 +8624,12 @@ void Orbiter::ServiceAlerts( void *iData )
 
 	if( sMessages.size() )
 	{
-		DesignObjText *pText = FindText( FindObject(DESIGNOBJ_popAlertMessage_CONST),TEXT_STATUS_CONST );
+		NeedToRender render( this, "alert message" );
+		DesignObj_Orbiter *pObj = FindObject(DESIGNOBJ_popAlertMessage_CONST);
+		if( !pObj )
+			return; // Shouldn't ever happen
+		Renderer()->RenderObjectAsync(pObj);
+		DesignObjText *pText = FindText( pObj,TEXT_STATUS_CONST );
 		if( pText )
 			pText->m_sText = sMessages;
 		CMD_Show_Popup(TOSTRING(DESIGNOBJ_popAlertMessage_CONST),0,0,"","popup_alert",false,true);

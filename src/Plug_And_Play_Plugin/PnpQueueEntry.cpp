@@ -19,15 +19,19 @@
 #include "PlutoUtils/DatabaseUtils.h"
 #include "PnpQueueEntry.h"
 #include "PnpQueue.h"
+#include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_PnpQueue.h"
 #include "pluto_main/Table_Device.h"
+#include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Define_DeviceData.h"
+#include "Plug_And_Play_Plugin.h"
 
 using namespace DCE;
 
 // Constructor for device detected
-PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
+PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
+	Database_pluto_main *pDatabase_pluto_main,
 	string sDeviceData,
 	string sIPAddress,
 	string sMacAddress,
@@ -40,6 +44,7 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	string sText,
 	string sVendorModelId)
 {
+	m_pPlug_And_Play_Plugin=pPlug_And_Play_Plugin;
 	m_pDatabase_pluto_main=pDatabase_pluto_main;
 	m_pRow_PnpQueue = pDatabase_pluto_main->PnpQueue_get()->AddRow();
 	m_pRow_PnpQueue->DetectedDate_set(StringUtils::SQLDateTime(time(NULL)));
@@ -69,7 +74,8 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 }
 
 // Constructor for device removed
-PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
+PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
+	Database_pluto_main *pDatabase_pluto_main,
 	string sDeviceData,
 	string sIPAddress,
 	string sMacAddress,
@@ -82,6 +88,7 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	string sText,
 	string sVendorModelId)
 {
+	m_pPlug_And_Play_Plugin=pPlug_And_Play_Plugin;
 	m_pDatabase_pluto_main=pDatabase_pluto_main;
 	m_pRow_PnpQueue = pDatabase_pluto_main->PnpQueue_get()->AddRow();
 	m_pRow_PnpQueue->DetectedDate_set(StringUtils::SQLDateTime(time(NULL)));
@@ -109,8 +116,9 @@ PnpQueueEntry::PnpQueueEntry(Database_pluto_main *pDatabase_pluto_main,
 	FindTopLevelDevice();
 }
 
-PnpQueueEntry::PnpQueueEntry(Row_PnpQueue *pRow_PnpQueue)
+PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,Row_PnpQueue *pRow_PnpQueue)
 {
+	m_pPlug_And_Play_Plugin=pPlug_And_Play_Plugin;
 	m_pRow_PnpQueue=pRow_PnpQueue;
 	m_pDatabase_pluto_main = m_pRow_PnpQueue->Table_PnpQueue_get()->Database_pluto_main_get();
 
@@ -135,6 +143,23 @@ void PnpQueueEntry::Stage_set(int Stage)
 	if( Stage==PNP_DETECT_STAGE_DONE || Stage==PNP_REMOVE_STAGE_DONE )
 		m_pRow_PnpQueue->Processed_set(1);
 	m_pDatabase_pluto_main->PnpQueue_get()->Commit();
+
+	if( m_pRow_Device_Reported )
+	{
+		string sMessage = StringUtils::itos(m_pRow_PnpQueue->PK_PnpQueue_get()) + " " + StageAsText();
+		if( m_pRow_PnpQueue->Category_get().size() )
+			sMessage += " " + m_pRow_PnpQueue->Category_get();
+
+		Row_DeviceTemplate *pRow_DeviceTemplate;
+		Row_Device *pRow_Device;
+		if( m_pRow_PnpQueue->FK_Device_Created_get() && (pRow_Device=m_pRow_PnpQueue->FK_Device_Created_getrow()) )
+			sMessage += " Added: " + pRow_Device->Description_get();
+		else if( m_pRow_PnpQueue->FK_DeviceTemplate_get() && (pRow_DeviceTemplate=m_pRow_PnpQueue->FK_DeviceTemplate_getrow()) )
+			sMessage += pRow_DeviceTemplate->Description_get();
+		DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(m_pRow_Device_Reported->PK_Device_get(),m_sPK_Orbiter_List_For_Prompts,sMessage,
+			"pnp_" + StringUtils::itos(m_pRow_PnpQueue->PK_PnpQueue_get()),(Stage==PNP_DETECT_STAGE_DONE || Stage==PNP_REMOVE_STAGE_DONE) ? "2" : "3");
+		m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+	}
 }
 
 void PnpQueueEntry::Block(EBlockedState eBlockedState)
@@ -201,5 +226,36 @@ bool PnpQueueEntry::IsDuplicate(PnpQueueEntry *pPnpQueueEntry)
 		}
 	}
 	return false;
+}
+
+string PnpQueueEntry::StageAsText()
+{
+	switch(m_pRow_PnpQueue->Stage_get())
+	{
+	case PNP_DETECT_STAGE_DETECTED:
+		return "Detected";
+	case PNP_DETECT_STAGE_CONFIRMING_POSSIBLE_DT:
+		return "Analyzing";
+	case PNP_DETECT_STAGE_RUNNING_DETECTION_SCRIPTS:
+		return "Querying device.  Please wait...";
+	case PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT:
+		return "Confirming";
+	case PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT:
+		return "Options";
+	case PNP_DETECT_STAGE_ADD_DEVICE:
+		return "Adding";
+	case PNP_DETECT_STAGE_ADD_SOFTWARE:
+		return "Installing";
+	case PNP_DETECT_STAGE_START_DEVICE:
+		return "Starting";
+	case PNP_DETECT_STAGE_DONE:
+		return "Done with new device";
+
+	case PNP_REMOVE_STAGE_REMOVED:
+		return "Removed";
+	case PNP_REMOVE_STAGE_DONE:
+		return "Done removing device";
+	};
+	return "ERROR--Stage";
 }
 
