@@ -2,8 +2,8 @@
 
 . /usr/pluto/bin/LockUtils.sh
 
-exec >>/var/log/pluto/InstallNewDevice.log 2>&1 0</dev/null
-echo -n "$(date -R) Called with parameters:"
+exec &> >(tee -a /var/log/pluto/InstallNewDevice.log) </dev/null
+echo -n "$(date -R) InstallNewDevice: Called with parameters:"
 for Parm in "$@"; do
 	echo -n " $Parm"
 done
