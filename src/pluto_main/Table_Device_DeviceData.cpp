@@ -485,7 +485,7 @@ update_values_list = update_values_list + "`FK_Device`="+pRow->FK_Device_asSQL()
 		string query = "update Device_DeviceData set " + update_values_list + " where " + condition;
 
 
-fprintf(fdebug,"%s %s\n",acBuff,query.c_str());
+fprintf(fdebug,"%s %s <%p%>\n",acBuff,query.c_str(),pthread_self());
 	string sql = "select * FROM Device where " + condition;
 	mysql_query(database->m_pMySQL, sql.c_str());
 	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
