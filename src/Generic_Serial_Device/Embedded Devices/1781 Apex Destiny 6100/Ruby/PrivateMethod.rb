@@ -131,7 +131,7 @@ log( "CheckSum:" + chkSum + "\n" )
 if( chkSum != checkSumProc($line) ) then
 	log( "Error reading line. Bad checksum" +  "\n" )
 end
-if( len.to_i != ($line.size()+2) ) then
+if( len.hex != ($line.size()+2) ) then
 	log( "Error reading line. Bad size" +  "\n" )
 end
 
