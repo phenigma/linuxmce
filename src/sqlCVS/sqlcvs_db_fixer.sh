@@ -3,7 +3,7 @@
 . /usr/pluto/bin/SQL_Ops.sh
 
 ## Get a list of repos
-Q="SHOW TABLES LIKE 'psc_%_table'"
+Q="SHOW TABLES LIKE 'psc_%_tables'"
 R=$(RunSQL "$Q")
 Repos=
 for TblName in $R ;do
@@ -21,18 +21,19 @@ done
 
 for Rname in $Repos ;do
 	TablesInRepo=
-	Q="SELECT Tablename,last_psc_id,last_psc_batch  FROM psc_${Rname}_table ORDER BY Tablename";
+	Q="SELECT Tablename,last_psc_id,last_psc_batch  FROM psc_${Rname}_tables ORDER BY Tablename";
 	R=$(RunSQL "$Q")
 	for Row in $R ;do
-		Tablename=$(Filed 1 "$Row")
+		Tablename=$(Field 1 "$Row")
 		last_psc_id=$(Field 2 "$Row")
-		last_psc_batch=$(Filed 3 "$Row")
+		last_psc_batch=$(Field 3 "$Row")
 
 		## Get real psc_id and psc_batch for $Tablename
 		real_psc_id=-1
 		real_psc_batch=-1
 
-		if echo " $Tables " | grep -q " $Table " ;then
+		if echo " $Tables " | grep -q " $Tablename " ;then
+
 			Q="SELECT MAX(psc_id), MAX(psc_batch) FROM ${Tablename}"
 			R=$(RunSQL "$Q")
 			
@@ -56,7 +57,7 @@ for Rname in $Repos ;do
 			Q="SELECT MAX(psc_id), MAX(psc_batch) FROM ${Tablename}_pschist"
 			R=$(RunSQL "$Q")
 
-			max_hist_id=$(Filed 1 "$R")
+			max_hist_id=$(Field 1 "$R")
 			max_hist_batch=$(Field 2 "$R")
 
 			if [[ "$max_hist_id" != "" ]] ;then
@@ -90,8 +91,8 @@ for Rname in $Repos ;do
 			fi
 
 			echo -n "Correcting last_psc_batch for table ${Tablename} ($last_psc_batch => $new_batch) ... ";
-			Q="UPDATE psc_$Rname_tables SET last_psc_batch=${new_batch} WHERE Tablename=${Tablename}"
-			RunSQL "$Q"
+			Q="UPDATE psc_${Rname}_tables SET last_psc_batch=${new_batch} WHERE Tablename=${Tablename}"
+			#RunSQL "$Q"
 			echo "done"
 		fi
 	done
