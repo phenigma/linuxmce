@@ -665,7 +665,7 @@ update_values_list = update_values_list + "`PK_Orbiter`="+pRow->PK_Orbiter_asSQL
 			
 
 
-fprintf(fdebug,"%s %s",acBuff,query.c_str());
+fprintf(fdebug,"%s %s\n",acBuff,query.c_str());
 	string sql = "select * FROM Device where " + condition;
 	mysql_query(database->m_pMySQL, sql.c_str());
 	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
@@ -679,7 +679,7 @@ fprintf(fdebug,"%s %s",acBuff,query.c_str());
 			{
 				st += StringUtils::itos(i) + ":" + (row[i] ? row[i] : "NULL") + "      ";
 			}
-			fprintf(fdebug,"%s %s",acBuff,st.c_str());
+			fprintf(fdebug,"%s %s\n",acBuff,st.c_str());
 		}
 	}			
 
