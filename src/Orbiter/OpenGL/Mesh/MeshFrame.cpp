@@ -50,8 +50,8 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 		Painter->PaintContainer(*Mesh, ChildTransform);
 
 			
- 	std::vector<MeshFrame*>::iterator Child;
-	for(Child = Children.begin(); Child!=Children.end(); Child++)
+ 	std::vector<MeshFrame*>::reverse_iterator Child;
+	for(Child = Children.rbegin(); Child!=Children.rend(); Child++)
 		(*Child)->Paint(ChildTransform);
 }
 

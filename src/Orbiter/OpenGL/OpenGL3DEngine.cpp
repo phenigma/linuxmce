@@ -19,9 +19,6 @@ OpenGL3DEngine::OpenGL3DEngine()
 	}
 
 	SceneMutex.Init(NULL);
-
-	CurrentLayer = new MeshFrame();
-	Desktop.AddChild(CurrentLayer);
 }
 
 OpenGL3DEngine::~OpenGL3DEngine()
@@ -43,7 +40,7 @@ void OpenGL3DEngine::Paint()
 	GL.ClearScreen(true, true);
 
 	MeshTransform Transform;
-	CurrentLayer->Paint(Transform);
+	Desktop.Paint(Transform);
 	GL.Flip();
 }
 

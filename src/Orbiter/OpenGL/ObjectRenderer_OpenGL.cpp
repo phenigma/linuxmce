@@ -17,6 +17,9 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 
 /*virtual*/ void ObjectRenderer_OpenGL::RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "RenderGraphic %d - (%d,%d,%d,%d)", m_pOwner->m_iBaseObjectID,
+		rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
+
 	//we have nothing to render
 	if(m_pOwner->m_vectGraphic.size() == 0)
 		return;

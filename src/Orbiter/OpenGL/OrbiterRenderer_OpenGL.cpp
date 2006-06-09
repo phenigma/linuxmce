@@ -33,7 +33,11 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 		throw string("OpenGL thread started, but Orbiter is null!");
 
 	pOrbiterRenderer->Engine = new OpenGL3DEngine();
-	if(!pOrbiterRenderer->Engine->GL.InitVideoMode(800, 600, 24, false))
+	if(!pOrbiterRenderer->Engine->GL.InitVideoMode(
+		pOrbiterRenderer->OrbiterLogic()->m_iImageWidth, 
+		pOrbiterRenderer->OrbiterLogic()->m_iImageHeight, 32, false
+		)
+	)
 	{
 		pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
 		return NULL;
@@ -138,24 +142,26 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : OrbiterRende
 	MeshContainer* Container = new MeshContainer();
 	Builder->Begin(MBMODE_TRIANGLE_STRIP);
 
-	//Builder->SetColor(1.0f, 1.0f, 0.0f);
-
-	Builder->SetColor(rectTotal.Width % 256, rectTotal.Height % 256 , 0.0f);
+	Builder->SetColor(1.0f, 1.0f, 1.0f);
 	Builder->SetTexture(Graphic);
 
 	Builder->SetTexture2D(0.0f, 0.0f);
-	Builder->AddVertexFloat(point.X, point.Y, 300);
+	Builder->AddVertexFloat(point.X + rectTotal.Left(), point.Y + rectTotal.Top(), OrbiterLogic()->m_iImageHeight / 2);
 	Builder->SetTexture2D(Graphic->MaxU, 0);
-	Builder->AddVertexFloat(rectTotal.Width, point.Y, 300);
+	Builder->AddVertexFloat(point.X + rectTotal.Right(), point.Y + rectTotal.Top(), OrbiterLogic()->m_iImageHeight / 2);
 	Builder->SetTexture2D(0.0f, Graphic->MaxV);
-	Builder->AddVertexFloat( point.X, rectTotal.Height, 300);
+	Builder->AddVertexFloat(point.X + rectTotal.Left(), point.Y + rectTotal.Bottom(), OrbiterLogic()->m_iImageHeight / 2);
 	Builder->SetTexture2D(Graphic->MaxU, Graphic->MaxV);
-	Builder->AddVertexFloat(rectTotal.Width, rectTotal.Height, 300);
+	Builder->AddVertexFloat(point.X + rectTotal.Right(), point.Y + rectTotal.Bottom(), OrbiterLogic()->m_iImageHeight / 2);
 
 	Container = Builder->End();
 	Frame->SetMeshContainer(Container);
 	
 	TextureManager::Instance()->PrepareImage(Graphic);
+
+	g_pPlutoLogger->Write(LV_STATUS, "AddMeshFrameToDesktop %d - (%d,%d,%d,%d)",
+		point.X, point.Y, rectTotal.Width, rectTotal.Height);
+
 	Engine->AddMeshFrameToDesktop(Frame);
 }
 //-----------------------------------------------------------------------------------------------------
