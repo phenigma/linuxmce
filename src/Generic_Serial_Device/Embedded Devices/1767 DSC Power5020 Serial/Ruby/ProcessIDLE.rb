@@ -1,4 +1,5 @@
-#Process IDLE  29-May-06 14:34 Power5020
+#ProcessIDLE  09-Jun-06 11:40  ApexDestiny 6100
+#log parameters
 myTime = Time.now
 timeStr = myTime.strftime("%d-%m-%Y  %H:%M:%S  ")
 diffTime = myTime - $lastCmdTime
@@ -8,7 +9,7 @@ if (  diffTime > 25 ) then
 	log( "No answer from previous command" )
 	log( "Start:" + $lastCmdTime.strftime("%d-%m-%Y  %H:%M:%S  ") + "Finish:" + timeStr + "\n" )
 	
-	sendCmd2()
+	#sendCmd2()
 	end
 	#$cmdBuffer=Array.new
 end
