@@ -1,33 +1,7 @@
-#PrivateMethod  09-Jun-06 11:40  ApexDestiny 6100
-class MyIO
-
-	def intialize
-		print "Constructor MyIo \n"
-	end
-	
-	def send(buff)
-	if conn_.nil? then
-		log( "Problem with sending data to serial!!! \n" )
-	else
-		log( "Sending data from MyIo class \n" )
-		conn_.Send(buff)
-	end
-	end
-end
-
-def log( buff )
-if  $logFile.nil? then
-	print( buff )
-else
-	$logFile.print( buff )
-	if $bFlush then $logFile.flush() end
-end
-end
-
+#PrivateMethod  09-Jun-06 15:20  ApexDestiny 6100
 def logString(word)
 log( "Line size:" + word.size.to_s + "  String:" )
 word.each_byte{ |i| 
-	#if i >='0' and i<= '9' then log( l= end
 	log( i.to_s + "  " )
 }
 
@@ -137,15 +111,33 @@ while cod[0,1] != "\n" do
 		log( "Can not read from serial " + "\n" )
 	end
 end
-		      
+log( "Read line " )
+logString($line)
+
+#check if line is well formated		      
 #if ($line.size() >$MaxLineLength) or ($line.size() < $MinLineLength) then
-if ($line.size() > 30 ) or ($line.size() < 7) then
-	log( "Comunication error. Line size:" + $line.size.to_s + "\n" )
+if($line.size() > 106 ) or ($line.size() < 8) then
+	log( "Error reading line. Line size to short or long:" + $line.size.to_s + "\n" )
 	#send error ...
 end	
 
-log( "Read line " )
-logString($line)
+len=String.new
+len=$line[0..1]
+chkSum=$line[$line.size()-2,2]
+$line=$line[0,$line.size()-2]
+log( "Line size:" + len.to_s + "\n" )
+log( "CheckSum:" + chkSum + "\n" )
+
+if( chkSum != checkSumProc($line) ) then
+	log( "Error reading line. Bad checksum" +  "\n" )
+end
+if( len.to_i != ($line.size()+2) ) then
+	log( "Error reading line. Bad size" +  "\n" )
+end
+
+#removed "00" reserved and length
+$line=$line[2..$line.size()-3]
+log( $line )
 end
 
 def readByte(val)
