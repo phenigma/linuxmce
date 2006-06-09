@@ -23,7 +23,6 @@ LogFile="/var/log/pluto/${device_id}_$(basename $cmd_line).log";
 valgrind_LogFile="/var/log/pluto/valgrind_${device_id}_$(basename $cmd_line).log";
 
 exec &> >(tee -a "$LogFile")
-echo "$LogSectionDelimiter"
 
 AlreadyRunning="/usr/pluto/locks/pluto_spawned_local_devices.txt"
 WaitLock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
@@ -83,6 +82,7 @@ Tab=$(printf "\t") # to prevent any smart masses from converting this tab to 4 o
 i=1
 ReloadWatcher=0
 while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
+	echo "$LogSectionDelimiter"
 	rm -f /var/log/pluto/spawned_devices_$device_id
 
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"

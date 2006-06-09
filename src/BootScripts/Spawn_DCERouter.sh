@@ -5,7 +5,6 @@
 
 LogFile="/var/log/pluto/DCERouter.log";
 exec &> >(tee -a "$LogFile")
-echo "$LogSectionDelimiter"
 
 Logging "$TYPE" "$SEVERITY_WARNING" "$0 $module" "Writing Version: $Version"
 echo "$Version" >/home/pluto-version
@@ -18,6 +17,7 @@ device_name="$module"
 
 i=1
 while [ "$i" -le 200 ]; do
+	echo "$LogSectionDelimiter"
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
 	echo "$(date) Starting"
 
