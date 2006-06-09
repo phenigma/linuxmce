@@ -93,12 +93,12 @@ for Users in $R; do
 
 # update pluto user dir structure 
                 if [ -d $BaseDir/user_$PlutoUserID/data/audio/ ];then
-                        mv -f $BaseDir/user_$PlutoUserID/data/music/* $BaseDir/user_$PlutoUserID/data/audio/
+                        mv -f $BaseDir/user_$PlutoUserID/data/music/* $BaseDir/user_$PlutoUserID/data/audio/ 2>/dev/null
                         rm -rf $BaseDir/user_$PlutoUserID/data/music/
                 else
-                        mv -f $BaseDir/user_$PlutoUserID/data/music/ $BaseDir/user_$PlutoUserID/data/audio/
+                        mv -f $BaseDir/user_$PlutoUserID/data/music/ $BaseDir/user_$PlutoUserID/data/audio/ 2>/dev/null
                 fi
-                mv -f $BaseDir/user_$PlutoUserID/data/movies/* $BaseDir/user_$PlutoUserID/data/videos
+                mv -f $BaseDir/user_$PlutoUserID/data/movies/* $BaseDir/user_$PlutoUserID/data/videos 2>/dev/null
                 rm -rf $BaseDir/user_$PlutoUserID/data/movies/
 # finish
 		mkdir -p -m 0770 "$BaseDir/user_$PlutoUserID/data/${dir/~/ }"
@@ -130,12 +130,12 @@ for dir in $user_dirs; do
 
 # update pluto public dir structure
         if [ -d $PublicHomeDir/audio ]; then
-                mv -f $PublicHomeDir/music/* $PublicHomeDir/audio
+                mv -f $PublicHomeDir/music/* $PublicHomeDir/audio 2>/dev/null
                 rm -rf $PublicHomeDir/music/
         else
-                mv -f $PublicHomeDir/music/ $PublicHomeDir/audio
+                mv -f $PublicHomeDir/music/ $PublicHomeDir/audio 2>/dev/null
         fi
-        mv -f $PublicHomeDir/movies/* $PublicHomeDir/videos
+        mv -f $PublicHomeDir/movies/* $PublicHomeDir/videos 2>/dev/null
         rm -rf $PublicHomeDir/movies/
 # end
 	mkdir -p -m 0755 "$BaseDir/public/data/${dir/~/ }"
