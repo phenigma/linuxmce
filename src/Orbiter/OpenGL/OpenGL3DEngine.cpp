@@ -19,6 +19,9 @@ OpenGL3DEngine::OpenGL3DEngine()
 	}
 
 	SceneMutex.Init(NULL);
+
+	//TODO: do somthing with me here!!!
+	CurrentLayer = new MeshFrame();
 }
 
 OpenGL3DEngine::~OpenGL3DEngine()
@@ -61,6 +64,6 @@ void OpenGL3DEngine::NewScreen()
 
 void OpenGL3DEngine::AddMeshFrameToDesktop(MeshFrame* Frame)
 {
-PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	CurrentLayer->AddChild(Frame);
 }

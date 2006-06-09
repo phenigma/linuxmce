@@ -24,7 +24,10 @@
 #include "OpenGL3DEngine.h"
 #include "Mesh/MeshFrame.h"
 #include "Mesh/MeshBuilder.h"
-
+//-----------------------------------------------------------------------------------------------------
+#include <SDL_ttf.h>
+#include "Texture/GLFontTextureList.h"
+//-----------------------------------------------------------------------------------------------------
 #include "../../pluto_main/Define_Effect.h"
 //-----------------------------------------------------------------------------------------------------
 void *OrbiterRenderer_OpenGLThread(void *p)
@@ -111,10 +114,30 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : OrbiterRende
 
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterRenderer_OpenGL::RenderText(string &sTextToDisplay,class DesignObjText *Text,class TextStyle *pTextStyle, 
-	PlutoPoint point/* = PlutoPoint(0, 0)*/)
+/*virtual*/ void OrbiterRenderer_OpenGL::RenderText(string &sTextToDisplay, DesignObjText *Text,
+	TextStyle *pTextStyle, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
+	GLFontTextureList aGLFontTextureList;
 
+	int style = TTF_STYLE_NORMAL;
+	if (pTextStyle->m_bUnderline)
+	{
+		style = TTF_STYLE_UNDERLINE;
+	}
+	else
+	{
+		if (pTextStyle->m_bBold)
+			style |= TTF_STYLE_BOLD;
+		if (pTextStyle->m_bItalic)
+			style |= TTF_STYLE_ITALIC;
+	}
+
+	aGLFontTextureList.MapFont(pTextStyle->m_sFont, pTextStyle->m_iPixelHeight, style);
+	MeshContainer *Container = aGLFontTextureList.TextOut(point.X + Text->m_rPosition.X, 
+		point.Y + Text->m_rPosition.Y, const_cast<char *>(sTextToDisplay.c_str()));
+	MeshFrame *Frame = new MeshFrame();
+	Frame->SetMeshContainer(Container);
+	Engine->AddMeshFrameToDesktop(Frame);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point)
@@ -286,5 +309,9 @@ void OrbiterRenderer_OpenGL::OnIdle()
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderObjectAsync(DesignObj_Orbiter *pObj)
 {
 	pObj->RenderObject(OrbiterLogic()->m_pScreenHistory_Current->GetObj());
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_OpenGL::ShowProgress(int nPercent) 
+{
 }
 //-----------------------------------------------------------------------------------------------------

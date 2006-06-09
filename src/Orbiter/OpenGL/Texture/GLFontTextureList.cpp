@@ -9,7 +9,8 @@
 
 GLFontTextureList::GLFontTextureList()
 {
-
+	for(int i = 0; i < 256; i++)
+		Letters[i] = new OpenGLGraphic();
 }
 
 GLFontTextureList::~GLFontTextureList()
@@ -22,7 +23,22 @@ GLFontTextureList::~GLFontTextureList()
 		int Style
 		)
 {
-	TTF_Font *Font = TTF_OpenFont(FontName.c_str(), Height);
+#ifdef WIN32
+#ifdef WINCE
+	string BasePath = "C:\\Windows\\Fonts\\";
+#else
+	char pWindowsDirector[MAX_PATH];
+	GetWindowsDirectory(pWindowsDirector, MAX_PATH);
+	string BasePath = string(pWindowsDirector) + "\\Fonts\\";
+#endif
+
+#else
+	string BasePath="/usr/share/fonts/truetype/msttcorefonts/";
+#endif //win32	
+
+	string sPathFont = BasePath + FontName + ".ttf";
+
+	TTF_Font *Font = TTF_OpenFont(sPathFont.c_str(), Height);
 	if(Font == NULL)
 	{
 		return;
@@ -31,7 +47,7 @@ GLFontTextureList::~GLFontTextureList()
 	char Text[2];
 	Text[1] = 0;
 	
-	for(int i = 1; i<256; i++)
+	for(int i = 0; i < 256; i++)
 	{
 		SDL_Color SDL_color;
 
@@ -57,7 +73,6 @@ GLFontTextureList::~GLFontTextureList()
 		Letters[i]->Prepare(RenderedText);
 			
 		SDL_FreeSurface(RenderedText);
-				
 	}
 		
 	
@@ -76,21 +91,6 @@ GLFontTextureList::~GLFontTextureList()
   	MeshContainer* Container;
   	MeshTransform Transform;
 	
-/*
-
-	MB.SetTexture(Texture.Texture);
-	
-	MB.SetTexture2D(0.0f, 0.0f);
-	MB.AddVertexFloat(-64, -48, 44);
-	MB.SetTexture2D(Texture.MaxU, 0.0f);
-	MB.AddVertexFloat( 64, -48, 44);
-	MB.SetTexture2D(0.0f, Texture.MaxV);
-	MB.AddVertexFloat( -64, 48, 44);
-	MB.SetTexture2D(Texture.MaxU, Texture.MaxV);
-	MB.AddVertexFloat(64, 48, 44);
-	
-*/
-
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
 	MB.SetColor(1.0f, 1.0f, 1.0f);
 	

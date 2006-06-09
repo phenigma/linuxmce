@@ -514,4 +514,3 @@ void OrbiterRenderer_SDL::ReleaseRelativeMovements()
     SDL_ShowCursor(SDL_ENABLE);
 }
 //-----------------------------------------------------------------------------------------------------
-

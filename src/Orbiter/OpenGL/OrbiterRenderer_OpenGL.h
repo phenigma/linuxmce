@@ -53,6 +53,8 @@ namespace DCE
 
 		virtual void RenderObjectAsync(DesignObj_Orbiter *pObj);
 
+		virtual void ShowProgress(int nPercent);
+
 		void WakeupFromCondWait();
 		void OnIdle();
 
