@@ -483,6 +483,7 @@ DEP_CPP_DESIGNO=\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObj.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_DeviceData.h"\
@@ -696,8 +697,8 @@ DEP_CPP_GRAPH=\
 	"..\DesignObj_Orbiter.h"\
 	"..\GraphicBuilder.h"\
 	"..\ObjectRendererFactory.h"\
-	"..\OpenGL\GLDefs.h"\
 	"..\OpenGL\OpenGLGraphic.h"\
+	"..\OpenGL\Texture\TextureManager.h"\
 	"..\PlutoGraphic.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\RendererImage.h"\
@@ -951,6 +952,43 @@ NODEP_CPP_MESSA=\
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\DCE\MessageBuffer.cpp
+DEP_CPP_MESSAG=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\ClientSocket.h"\
+	"..\..\DCE\Command_Impl.h"\
+	"..\..\DCE\DeviceData_Base.h"\
+	"..\..\DCE\DeviceData_Impl.h"\
+	"..\..\DCE\Event_Impl.h"\
+	"..\..\DCE\HandleRequestSocket.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\Socket.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\CENet\WinCE.h"\
+	
+NODEP_CPP_MESSAG=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\PlutoUtils\minilzo.cpp
 DEP_CPP_MINIL=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
@@ -1045,6 +1083,7 @@ DEP_CPP_OBJEC=\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObj.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_DeviceData.h"\
@@ -1092,6 +1131,7 @@ NODEP_CPP_OBJEC=\
 
 SOURCE=..\ObjectRendererFactory.cpp
 DEP_CPP_OBJECT=\
+	"..\..\Bluetooth_Dongle\DataGridRenderer_Bluetooth.h"\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\PreformedCommand.h"\
 	"..\..\Gen_Devices\AllCommandsRequests.h"\
@@ -1110,6 +1150,7 @@ DEP_CPP_OBJECT=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\Proxy_Orbiter\DataGridRenderer_Proxy.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\DataGridRenderer.h"\
@@ -1405,6 +1446,7 @@ DEP_CPP_ORBITERR=\
 	"..\..\pluto_main\Define_Button.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObj.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_DeviceData.h"\
@@ -1515,10 +1557,7 @@ DEP_CPP_ORBITERRE=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\ProcessUtils.h"\
-	"..\..\PlutoUtils\singleton.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
-	"..\..\PlutoUtils\threads.h"\
-	"..\..\PlutoUtils\typetraits.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
@@ -1531,30 +1570,14 @@ DEP_CPP_ORBITERRE=\
 	"..\Floorplan.h"\
 	"..\MouseBehavior.h"\
 	"..\ObjectRendererFactory.h"\
-	"..\OpenGL\GL2DEffects\gl2deffect.h"\
-	"..\OpenGL\GL2DEffects\gl2deffectbeziertranzit.h"\
-	"..\OpenGL\GL2DEffects\gl2deffectfactory.h"\
-	"..\OpenGL\GL2DEffects\gl2deffecttransit.h"\
-	"..\OpenGL\GL2DWidgets\basewidget.h"\
-	"..\OpenGL\GL2DWidgets\basicwindow.h"\
-	"..\OpenGL\GL2DWidgets\bezierwindow.h"\
-	"..\OpenGL\GL2DWidgets\DrawingWidgetsEngine.h"\
-	"..\OpenGL\GLDefs.h"\
-	"..\OpenGL\math3dutils.h"\
-	"..\OpenGL\OpenGLTextureConverter.h"\
-	"..\OpenGL\Orbiter3DCommons.h"\
-	"..\OpenGL\orbitergl3dengine.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
-	"..\PocketFrog\OpenGLProxy.h"\
-	"..\PocketFrog\OpenGLTextureConverter_PocketFrog.h"\
 	"..\PocketFrog\OrbiterRenderer_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\ScreenHistory.h"\
-	"..\Simulator.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\MouseBehavior_Win32.h"\
@@ -1658,7 +1681,7 @@ DEP_CPP_ORBITERREN=\
 	"..\Floorplan.h"\
 	"..\Linux\OrbiterRenderer_SDL_Linux.h"\
 	"..\ObjectRendererFactory.h"\
-	"..\OpenGL\PendingGLEffects.h"\
+	"..\OpenGL\OrbiterRenderer_OpenGL.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\OrbiterRenderer.h"\
