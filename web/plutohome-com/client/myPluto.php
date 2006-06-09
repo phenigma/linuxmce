@@ -4,7 +4,7 @@ if(!isset($_SESSION['userIsLogged'])){
 	exit();
 }
 function myPluto($output,$dbADO,$conn) {
-	global $forumHost,$MantisHost;
+	global $forumHost,$MantisHost,$wikiHost;
 	global $dbDealerServer, $dbDealerUser, $dbDealerPass, $dbDealerDatabase;
 	global $dbManufacturerServer, $dbManufacturerUser, $dbManufacturerPass, $dbManufacturerDatabase;
 	
@@ -82,7 +82,7 @@ function myPluto($output,$dbADO,$conn) {
 					<td class="normaltext" colspan="2">&nbsp;</td>
       			</tr>	
 				<tr>
-					<td class="normaltext" colspan="2">Visit our <a href="support/index.php"><B>support site</B></a> to access <a href="support/index.php?section=home&package=0"><B>online documentation</B></a>, <a href="index.php?section=myPluto&redirect=forum"><B>forums</B></a>, <a href="index.php?section=myPluto&redirect=mantis" target="_blank"><B>bug reports</B></a>, <a href="support/index.php?section=mail"><B>mailing lists</B></a> and our <a href="support/index.php?section=document&docID=11"><B>quick start guide</B></a>.</td>
+					<td class="normaltext" colspan="2">Visit our <a href="support/index.php"><B>support site</B></a> to access <a href="wiki/"><B>online documentation</B></a>, <a href="index.php?section=myPluto&redirect=forum"><B>forums</B></a>, <a href="index.php?section=myPluto&redirect=mantis" target="_blank"><B>bug reports</B></a>, <a href="support/index.php?section=mail"><B>mailing lists</B></a> and our <a href="'.$wikiHost.'index.php/'.wikiLink('Installation').'"><B>quick start guide</B></a>.</td>
       			</tr>	
 				<tr>
 					<td class="normaltext">&nbsp;'.@$msg.@$errMsg.'</td>
@@ -124,8 +124,8 @@ function myPluto($output,$dbADO,$conn) {
 							<a href="index.php?section=dealer_users"><B>Add/delete users to dealer account</B></a><br>';
 					}else{
 						$out.='Pluto 2 has been written from the ground up to be a very comfortable development platform for open source programmers.<br><br>
-      				We have developed class generators that will build a fully complete, ready-to-compile <a href="support/index.php?section=document&docID=51">DCE Devices</a> in minutes.
-	     			They\'re standard C++, run on both Linux & Windows, ready talk to any other DCE Device on any platform.  See our <a href="http://plutohome.com/support/index.php?section=document&docID=15">Programmer\'s guide</a> for a quick intro.<br><br>';
+      				We have developed class generators that will build a fully complete, ready-to-compile <a href="'.$wikiHost.'index.php/'.wikiLink('DCE').'">DCE Devices</a> in minutes.
+	     			They\'re standard C++, run on both Linux & Windows, ready talk to any other DCE Device on any platform.  See our <a href="'.$wikiHost.'index.php/'.wikiLink('Programmer\'s Guide').'">Programmer\'s guide</a> for a quick intro.<br><br>';
 					}
 					if(@$isManufacturer==1){
 						$out.='
@@ -156,13 +156,13 @@ function myPluto($output,$dbADO,$conn) {
       				There is online documentation, support forums, bug tracking and mailing lists.  Plus we have a live chat system so you can talk directly to one of our tech support team, or a developer.
       				</td>
       				<td align="left" width="34%" class="normaltext"  valign="top">
-      				Pluto has released several general purpose classes that you may find interesting, such as <a href="http://plutohome.com/support/index.php?section=document&docID=42">sqlCVS</a>, which is basically a CVS for databases.  
+      				Pluto has released several general purpose classes that you may find interesting, such as <a href="'.$wikiHost.'index.php/'.wikiLink('SqlCVS').'">sqlCVS</a>, which is basically a CVS for databases.  
       				It\'s what allows different programmers to all work on local copies of Pluto\'s master database and handles check-ins, updates, and remembers who owns each record.<br><br>
       				
-      				There are many other libraries too, such as our <a href="http://plutohome.com/support/index.php?section=document&docID=108">Serialize Class</a>, 
-      				<a href="http://plutohome.com/support/index.php?section=document&docID=109">sql2cpp</a> class generator,
-      				<a href="http://plutohome.com/support/index.php?section=document&docID=41">Request/Action</a> client-server library</a>, 
-      				<a href="http://plutohome.com/support/index.php?section=document&docID=39">Bi-Directional communications library</a>.  They\'re all GPL.<br><br>
+      				There are many other libraries too, such as our <a href="'.$wikiHost.'index.php/'.wikiLink('Serialize Class').'">Serialize Class</a>, 
+      				<a href="'.$wikiHost.'index.php/'.wikiLink('Sql2cpp').'">sql2cpp</a> class generator,
+      				<a href="'.$wikiHost.'index.php/'.wikiLink('RA - Client_Server Request-Action').'">Request/Action</a> client-server library</a>, 
+      				<a href="'.$wikiHost.'index.php/'.wikiLink('BD - Bidirectional command processor').'">Bi-Directional communications library</a>.  They\'re all GPL.<br><br>
         			</td>
 				</tr>
       		</table>

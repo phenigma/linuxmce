@@ -1,5 +1,6 @@
 <?php
  function developer($output,$conn) {
+ 	global $wikiHost;
 		$out = '';
 		
 $out.='
@@ -23,8 +24,8 @@ $out.='
 	that you may develop that you would like Pluto to host.  We have a sophisticated build system that allows us to target different platforms and operating systems 
 	simultaneously.<br><br>
 	
-	<a href="support/index.php?section=document&docID=194">What are the benefits of using Pluto\'s platform for my software project?</a><br><br>
-	<a href="support/index.php?section=document&docID=15">Programmer\'s guide</a>&nbsp;&nbsp; <a href="support/index.php?section=document&docID=181">Is the Pluto license OSD-approved?</a><br><br>
+	<a href="'.$wikiHost.'index.php/'.wikiLink('Why should I use the Pluto platform for my project?').'">What are the benefits of using Pluto\'s platform for my software project?</a><br><br>
+	<a href="'.$wikiHost.'index.php/'.wikiLink('Programmer\'s Guide').'">Programmer\'s guide</a>&nbsp;&nbsp; <br><br>
 	<a href="index.php?section=letter">What is Pluto\'s open source strategy?</a> 
 ';
       

@@ -15,41 +15,13 @@ function search($output,$dbADO,$conn){
 
 	if(strpos($searchString,' ')!==false){
 		$words=explode(' ',strtolower($searchString));
-		$filterByWords='';
-		foreach ($words AS $word)
-			$filterByWords.=" OR Title LIKE '% $word %' OR Contents LIKE '% $word %'";
 	}
-	$rs=$dbADO->Execute('SELECT * FROM Document WHERE Title LIKE ? OR Contents LIKE ?'.@$filterByWords,array('%'.$searchString.'%','%'.$searchString.'%'));
-	$docsFound=$rs->RecordCount();
 	$out.='
 		<table>
 		<tr>
 			<td colspan="2"><span class="title">Searching for: '.$searchString.'</span></td>
-		</tr>	
-		<tr>
-			<td colspan="2"><span class="title">Results found in DOCUMENTS: '.$docsFound.'</span></td>
-		</tr>
-		<tr>
-			<td width="20"></td>
-			<td class="insidetable2">';
-	// search in documents
-	$pos=0;
-	while($rowDocs=$rs->FetchRow()){
-		$pos++;
-		$out.='<B>'.highlight($searchString,$rowDocs['Title']).'</B><br>'.getPartialContent($searchString,$rowDocs['Contents']).'<br>';
-		$out.='<div align="right" style="background:#EEEEEE;"><a href="support/index.php?section=document&docID='.$rowDocs['PK_Document'].'">Link</a></div>';
-		if($pos==5)
-			break;
-	}		
-	$out.='		</td>
-	  		</tr>';
-	if($docsFound>5){
-		$out.='
-		<tr>
-			<td colspan="2"><div align="left"><a href="index.php?section=searchDocs&searchString='.$searchString.'">More results in documents ...</a></div>
-			</td>
-		</tr>';
-	}
+		</tr>	';
+
 /*
 	// search in Web pages content
 	$sql="SELECT PageContentID,PageContenttext,PageName FROM PageContent WHERE PageContenttext LIKE '%".$searchString."%'";

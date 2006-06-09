@@ -14,7 +14,7 @@ if (@$_SESSION['userIsLogged']!="yes"){
 	//print_r($_COOKIE);
 	if(isset($_COOKIE['PlutoHomeAutoLogin'])){
 		parse_str(base64_decode($_COOKIE['PlutoHomeAutoLogin']));
-		$isMasterUsers=checkMasterUsers($username, $password,$checkMasterUserUrl,'&FirstAccount=&Email=&PlutoId=&Pin=');
+		$isMasterUsers=checkMasterUsers($username, $password,$checkMasterUserUrl,'&FirstAccount=&Email=&PlutoId=&Pin=&sqlCvsAdmin=');
 		if($isMasterUsers[0]){
 			parse_str($isMasterUsers[1]);
 			$_SESSION['userID'] = $MasterUsersID;
@@ -26,6 +26,7 @@ if (@$_SESSION['userIsLogged']!="yes"){
 			$_SESSION['Email']=$Email;
 			$_SESSION['extPassword']=$extPassword;
 			$_SESSION['userLoggedIn'] = true;
+			$_SESSION['sqlCvsAdmin']=@$sqlCvsAdmin;
 		}
 	}
 }

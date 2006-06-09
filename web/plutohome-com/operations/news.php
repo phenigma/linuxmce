@@ -1,5 +1,6 @@
 <?
 function news($output,$conn){
+	global $wikiHost;
   $out = '';
 		
 $out.='
@@ -40,7 +41,7 @@ $out.='
 
 <tr>
     <td class="counter" align="left">
-	<a href="support/index.php?section=document&docID=1"><b>get the software</b></a>
+	<a href="'.$wikiHost.'index.php/'.wikiLink('Pluto Home').'"><b>get the software</b></a>
 	</td>
 </tr>
 

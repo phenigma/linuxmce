@@ -1,7 +1,10 @@
 <?php
  function letter($output) {
+ 	global $wikiHost;
 		$out = '';
-		
+
+$programmerGuideLink=$wikiHost.'index.php/'.wikiLink('Programmer\'s Guide');		
+
 $out.=<<<TEXT
 
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
@@ -37,7 +40,7 @@ voicemail during the movie.  Or Asterisk tells Xine to lower the volume on your 
 source has a lead here.  Most Windows applications do expose COM and OLE Automation interfaces allowing devices to communicate
 with each other, and you can, for example, drag and drop all sorts of non-Microsoft content into a MS Word document.  With Pluto's DCE 
 framework, however, all sorts of open source project work together as a seamless whole, across multiple platforms and operating systems,
-in a way not possible with closed source.  Read <a href="support/index.php?section=document&docID=15">Pluto allows projects to work together</a>
+in a way not possible with closed source.  Read <a href="$programmerGuideLink">Pluto allows projects to work together</a>
 for an example.</p>
 
 <p><b>For our dealers:</b>  By opening the platform, dealers now have a choice of hardware.  They can offer recognized name-brand commercial servers

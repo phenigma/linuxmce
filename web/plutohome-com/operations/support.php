@@ -1,5 +1,6 @@
 <?
 function support($output,$conn){
+	global $wikiHost;
 	$out='
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
@@ -13,13 +14,13 @@ function support($output,$conn){
     <td valign="top" class="insidetable2"><table>
 		<tr>
 			<td colspan="2">Visit our <a href="/support/index.php"><B>support site</B></a> to access 
-			<a href="support/index.php?section=home&package=0"><B>online documentation</B></a>, 
+			<a href="wiki/"><B>online documentation</B></a>, 
 			<a href="index.php?section=myPluto&redirect=forum"><B>forums</B></a>, 
 			<a href="index.php?section=myPluto&redirect=mantis" target="_blank"><B>bug reports</B></a>, 
 			<a href="support/index.php?section=mail"><B>mailing lists</B></a>, 
-			and our <a href="support/index.php?section=document&docID=11"><B>quick start guide</B></a>.  
+			and our <a href="'.$wikiHost.'index.php/'.wikiLink('Installation').'"><B>quick start guide</B></a>.  
 			There\'s also home page for techie\'s and open source programmers at <a href="http://plutohome.org"><b>plutohome.org</b></a>.
-			Our guide <a href="http://plutohome.com/support/index.php?section=document&docID=208">What can Pluto do and how to do it?</a> is also informative.</td>
+			Our guide <a href="'.$wikiHost.'index.php/'.wikiLink('What can I do with Pluto?').'">What can Pluto do and how to do it?</a> is also informative.</td>
 		</tr>
 		<tr>
 			<td width="15">&nbsp;</td>

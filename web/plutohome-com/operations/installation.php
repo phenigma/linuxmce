@@ -1,5 +1,11 @@
 <?php
  function installation($output) {
+ 	global $wikiHost;
+ 	
+ 	$installationUrl=$wikiHost.'index.php/'.wikiLink('Installation');
+ 	$usersManualUrl=$wikiHost.'index.php/'.wikiLink('User\'s Manual');
+ 	$introductionUrl=$wikiHost.'index.php/'.wikiLink('Programmer\'s Guide');
+ 	
 		$out = '';
 		
 $out.=<<<TEXT
@@ -17,9 +23,9 @@ $out.=<<<TEXT
       <p>Pluto has a comprehensive support web site with both general information about Pluto, and also detailed support for each of the plug-in modules.  
       To install the free software, just register or login, and choose "New Installation" from your My Pluto home page.
       Here are some useful shortcuts to our online support:<br>
-      <br><a href="/support/index.php?section=document&docID=11">Installation Section</a>
-      <br><a href="/support/index.php?section=document&docID=14">User's manual</a>
-      <br><a href="/support/index.php?section=document&docID=15">Introduction for programmers and developers</a>
+      <br><a href="$installationUrl">Installation Section</a>
+      <br><a href="$usersManualUrl">User's manual</a>
+      <br><a href="$introductionUrl">Introduction for programmers and developers</a>
 	</td>
   </tr>
 </table>

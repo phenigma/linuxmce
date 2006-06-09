@@ -1045,4 +1045,11 @@ function IntToMac($nr){
 	
 	return join(':',$hexArr);
 }
+
+function wikiLink($str){
+	$wikiLink=str_replace(' ','_',$str);
+	$wikiLink=urlencode(str_replace('__','_',$wikiLink)); 
+	
+	return $wikiLink;
+} 
 ?>

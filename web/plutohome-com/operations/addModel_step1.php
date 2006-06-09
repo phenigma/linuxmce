@@ -17,7 +17,7 @@
 		$out='
 		<h3 align="center">Add model</h3><br>
 		<B>Question 1 of 6 - How to control?</B><br>
-		<p class="normaltext">We need to ask a few basic questions about this device, which allows you to control it much more intuitively <a href="http://plutohome.com/support/index.php?section=document&docID=216">without having to write macros!</a> 
+		<p class="normaltext">We need to ask a few basic questions about this device, which allows you to control it much more intuitively <a href="'.$wikiHost.'index.php/'.wikiLink('Tell Pluto about your home').'">without having to write macros!</a> 
 		 This should only take a minute or two and we’ll try to fill in default answers for you whenever possible.
 		
 		<form action="index.php" method="POST" name="addModel">
