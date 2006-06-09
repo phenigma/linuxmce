@@ -664,12 +664,12 @@ fi
 	    $bindir/set_default_volume -f
 	else
 	    set_mixers
+	    amixer -q set Mic cap
 	fi
 	xecho "Saving the mixer setup used for this in /var/lib/alsa/asound.state."
 	$sbindir/alsactl store
     else
 	$sbindir/alsactl restore
-	amixer -q set Mic cap
     fi
 }
 
