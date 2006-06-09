@@ -2185,7 +2185,6 @@
 #define DESIGNOBJ_butFBSF_Show_MediaFormat_CONST 5129
 #define DESIGNOBJ_butFBSF_Show_Media_Go_CONST 5130
 #define DESIGNOBJ_butFBSF_Show_Sort_CONST 5131
-#define DESIGNOBJ_popAlertMessage_CONST 5132
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
