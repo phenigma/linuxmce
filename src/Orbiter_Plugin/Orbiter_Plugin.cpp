@@ -1187,10 +1187,14 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
         sPlutoMOInstallCmdLine = StringUtils::Replace(sPlutoMOInstallCmdLine, csMacToken, sMac_address);
 
         DeviceData_Base *pDevice_MD = pUnknownDeviceInfos->m_pDeviceFrom->m_pDevice_MD;
-        if(pDevice_MD)
+        if(NULL != pDevice_MD)
         {
             DeviceData_Base *pDevice_AppServer = ((DeviceData_Impl *)pDevice_MD)->FindSelfOrChildWithinCategory(DEVICECATEGORY_App_Server_CONST);
-            CMD_Send_File_To_Phone(sMac_address, sPlutoMOInstallCmdLine, pDevice_AppServer->m_dwPK_Device);
+			
+			if(NULL != pDevice_AppServer)
+				CMD_Send_File_To_Phone(sMac_address, sPlutoMOInstallCmdLine, pDevice_AppServer->m_dwPK_Device);
+			else
+				g_pPlutoLogger->Write(LV_CRITICAL, "Got the MD %d, but couldn't find the App_Server on it.", pDevice_MD->m_dwPK_Device);
         }
         else
             g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't find the App_Server for %d's MD/HY", pUnknownDeviceInfos->m_pDeviceFrom->m_dwPK_Device);
