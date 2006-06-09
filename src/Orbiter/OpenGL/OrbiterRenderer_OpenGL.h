@@ -22,6 +22,8 @@ namespace DCE
 		virtual void Configure();
 		virtual void EventLoop(); 
 
+		virtual void Destroy();
+
 		virtual void GetWindowPosition(PlutoPoint& point);
 		virtual void UpdateScreen();
 
@@ -37,6 +39,8 @@ namespace DCE
 		virtual PlutoGraphic *CreateGraphic();
 
 		// Rendering
+		virtual void RenderScreen(bool bRenderGraphicsOnly);
+
 		virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
 
 		virtual void BeginPaint();

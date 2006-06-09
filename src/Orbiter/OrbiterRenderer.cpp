@@ -106,6 +106,7 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 	if(rect.Y + rect.Height >= OrbiterLogic()->m_iImageHeight && rect.Height > 0)
 		rect.Height = OrbiterLogic()->m_iImageHeight - rect.Y - 1;
 }
+
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ int OrbiterRenderer::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> *p_mapPrompts)
 {
@@ -1210,5 +1211,3 @@ void OrbiterRenderer::ObjectOffScreen( DesignObj_Orbiter *pObj )
 		ObjectOffScreen( ( DesignObj_Orbiter * )*iHao );
 	}
 }
-//-----------------------------------------------------------------------------------------------------
-

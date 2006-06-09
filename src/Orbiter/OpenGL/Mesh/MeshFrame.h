@@ -11,7 +11,7 @@ class MeshFrame
 	MeshContainer* Mesh;
 	MeshTransform Transform;
 
-	std::vector<MeshFrame*> Cildren;
+	std::vector<MeshFrame*> Children;
 	
 public:
 	MeshFrame(MeshContainer* Mesh = NULL);
@@ -21,8 +21,8 @@ public:
 
 	void SetMeshContainer(MeshContainer* Mesh);
 
-	void AddChildren(MeshFrame* Frame);
-	void RemoveChildren(MeshFrame* Frame);
+	void AddChild(MeshFrame* Frame);
+	void RemoveChild(MeshFrame* Frame);
 
 	void Paint(MeshTransform ChildTransform);
 	

@@ -3,6 +3,7 @@
 
 #include "MeshVertex.h"
 #include "MeshTriangle.h"
+#include "../OpenGLGraphic.h"
 
 class MeshContainer
 {
@@ -16,7 +17,7 @@ public:
 	virtual ~MeshContainer();
 	
 	virtual void SetAlpha(float Alpha);
-	virtual void SetTexture(OpenGLTexture Texture);
+	virtual void SetTexture(OpenGLGraphic* Texture);
 };
 
 #endif 

@@ -21,6 +21,8 @@
 #include "Simulator.h" 
 #include "OpenGLGraphic.h"
 #include "OpenGL3DEngine.h"
+#include "Mesh/MeshFrame.h"
+#include "Mesh/MeshBuilder.h"
 
 #include "../../pluto_main/Define_Effect.h"
 //-----------------------------------------------------------------------------------------------------
@@ -46,10 +48,13 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 			SDL_PushEvent(&SDL_Event_Pending);
 
 		pOrbiterRenderer->Engine->Paint();
+		//pOrbiterRenderer->Engine->GetDesktop().CleanUp();
 		Sleep(10);
 	}
 
 	pOrbiterRenderer->Engine->Finalize();	
+	delete pOrbiterRenderer->Engine;
+	pOrbiterRenderer->Engine = NULL;
 
 	return NULL; 
 }	
@@ -63,9 +68,6 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : OrbiterRende
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterRenderer_OpenGL::~OrbiterRenderer_OpenGL()
 {
-	//cleanup here
-	Engine->Quit = true;
-	pthread_join(GLThread, NULL);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::Configure()
@@ -129,6 +131,32 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : OrbiterRende
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
 	bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
+	OpenGLGraphic* Graphic = dynamic_cast<OpenGLGraphic*> (pPlutoGraphic);
+
+	MeshFrame* Frame = new MeshFrame();
+	MeshBuilder* Builder = new MeshBuilder();
+	MeshContainer* Container = new MeshContainer();
+	Builder->Begin(MBMODE_TRIANGLE_STRIP);
+
+	//Builder->SetColor(1.0f, 1.0f, 0.0f);
+
+	Builder->SetColor(rectTotal.Width % 256, rectTotal.Height % 256 , 0.0f);
+	Builder->SetTexture(Graphic);
+
+	Builder->SetTexture2D(0.0f, 0.0f);
+	Builder->AddVertexFloat(point.X, point.Y, 300);
+	Builder->SetTexture2D(Graphic->MaxU, 0);
+	Builder->AddVertexFloat(rectTotal.Width, point.Y, 300);
+	Builder->SetTexture2D(0.0f, Graphic->MaxV);
+	Builder->AddVertexFloat( point.X, rectTotal.Height, 300);
+	Builder->SetTexture2D(Graphic->MaxU, Graphic->MaxV);
+	Builder->AddVertexFloat(rectTotal.Width, rectTotal.Height, 300);
+
+	Container = Builder->End();
+	Frame->SetMeshContainer(Container);
+	
+	TextureManager::Instance()->PrepareImage(Graphic);
+	Engine->AddMeshFrameToDesktop(Frame);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::BeginPaint()
@@ -240,3 +268,15 @@ void OrbiterRenderer_OpenGL::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignO
 	//pObj->m_vectGraphic.size()
 }
 //-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_OpenGL::Destroy()
+{
+	//cleanup here
+	Engine->Quit = true;
+	pthread_join(GLThread, NULL);
+}
+
+/*virtual*/ void OrbiterRenderer_OpenGL::RenderScreen(bool bRenderGraphicsOnly)
+{
+	Engine->NewScreen();
+	OrbiterRenderer::RenderScreen(bRenderGraphicsOnly);
+}

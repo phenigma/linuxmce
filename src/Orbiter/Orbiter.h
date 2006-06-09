@@ -233,6 +233,11 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		class DesignObj_Orbiter *m_pObj_Highlighted,*m_pObj_Highlighted_Last; /** < The current object highlighted, changed with the scrolling functions */
 
+		string GetLocalDirectory()
+		{
+			return m_sLocalDirectory;
+		}
+
 	protected:
 
 		int m_dwPK_Users; /** < The current user */

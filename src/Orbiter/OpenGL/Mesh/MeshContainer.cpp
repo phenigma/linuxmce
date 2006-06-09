@@ -14,7 +14,7 @@ void MeshContainer::SetAlpha(float Alpha)
 		Vertexes[i].UVW.Z = Alpha;
 }
 
-void MeshContainer::SetTexture(OpenGLTexture Texture)
+void MeshContainer::SetTexture(OpenGLGraphic* Texture)
 {
 	for(int i = 0; i < NoVertexes; i++)
 		Triangles[i].Texture = 	Texture;

@@ -9,6 +9,10 @@
 	#include "../Proxy_Orbiter/DataGridRenderer_Proxy.h"
 #endif
 
+#if defined(ORBITER_OPENGL)
+	#include "OpenGL/ObjectRenderer_OpenGL.h"
+#endif
+
 ObjectRendererFactory::ObjectRendererFactory()
 {
 }
@@ -33,5 +37,9 @@ ObjectRendererFactory::~ObjectRendererFactory()
 
 	}
 
+#if defined(ORBITER_OPENGL)
+	return new ObjectRenderer_OpenGL(pOwner);
+#else
 	return new ObjectRenderer(pOwner);
+#endif
 }

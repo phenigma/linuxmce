@@ -2,6 +2,7 @@
 #define __OBJECT_RENDERER_H__
 
 #include "DesignObj_Orbiter.h"
+#include "CacheImageManager.h"
 
 class ObjectRenderer
 {
@@ -9,7 +10,11 @@ class ObjectRenderer
 
 protected:
 
+
 	DesignObj_Orbiter *m_pOwner;
+
+	CacheImageManager *GetCacheImageManager();
+	std::string GetLocalDirectory();
 
 public:
 

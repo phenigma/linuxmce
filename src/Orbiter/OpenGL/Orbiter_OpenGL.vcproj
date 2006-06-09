@@ -287,9 +287,6 @@
 						RelativePath=".\OpenGL3DEngine.cpp">
 					</File>
 					<File
-						RelativePath=".\OpenGLGraphic.cpp">
-					</File>
-					<File
 						RelativePath=".\Orbiter3DCommons.cpp">
 					</File>
 				</Filter>
@@ -331,6 +328,9 @@
 						RelativePath=".\Texture\GLFontTextureList.cpp">
 					</File>
 					<File
+						RelativePath=".\OpenGLGraphic.cpp">
+					</File>
+					<File
 						RelativePath=".\Texture\TextureManager.cpp">
 					</File>
 				</Filter>
@@ -365,6 +365,9 @@
 				</File>
 				<File
 					RelativePath="..\ObjectRenderer.cpp">
+				</File>
+				<File
+					RelativePath=".\ObjectRenderer_OpenGL.cpp">
 				</File>
 				<File
 					RelativePath="..\ObjectRendererFactory.cpp">
@@ -403,6 +406,9 @@
 			</File>
 			<File
 				RelativePath="..\GraphicBuilder.h">
+			</File>
+			<File
+				RelativePath=".\ObjectRenderer_OpenGL.h">
 			</File>
 			<File
 				RelativePath="..\Orbiter.h">

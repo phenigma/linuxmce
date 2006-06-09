@@ -13,6 +13,7 @@
 
 #include <vector>
 #include "../Texture/TextureManager.h"
+#include "../OpenGLGraphic.h"
 
 class MeshBuilder
 {
@@ -23,7 +24,7 @@ class MeshBuilder
 	
 	float GlobalU, GlobalV, GlobalAlpha;
 	float GlobalRed, GlobalGreen, GlobalBlue;
-	OpenGLTexture GlobalMaterial;
+	OpenGLGraphic* GlobalMaterial;
 	
 	virtual void BuildTriangle();
 	virtual void AddTriangle(int Vertex1, int Vertex2, int Vertex3);
@@ -45,7 +46,7 @@ public:
 	virtual void AddVertexFloatUV(float X, float Y, float Z, float U, float V);
 
 	virtual void SetTexture2D(float U, float V);
-	virtual void SetTexture(OpenGLTexture Texture);
+	virtual void SetTexture(OpenGLGraphic* Texture);
 	virtual void SetColor(float Red, float Green, float Blue);
 	
 	virtual void SetAlpha(float Alpha);

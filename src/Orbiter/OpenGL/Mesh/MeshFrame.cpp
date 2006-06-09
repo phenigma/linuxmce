@@ -16,12 +16,12 @@ MeshFrame::~MeshFrame(void)
 {
 	delete Mesh;
 	std::vector<MeshFrame*>::iterator Child;
-	for(Child = Cildren.begin(); Child!=Cildren.end(); Child++)
+	for(Child = Children.begin(); Child!=Children.end(); Child++)
 	{
 		(*Child)->CleanUp();
 		delete (*Child);
 	}
-	Cildren.clear();
+	Children.clear();
 }
 
 void MeshFrame::SetMeshContainer(MeshContainer* Mesh)
@@ -29,17 +29,17 @@ void MeshFrame::SetMeshContainer(MeshContainer* Mesh)
 	this->Mesh = Mesh;
 }
 
-void MeshFrame::AddChildren(MeshFrame* Frame)
+void MeshFrame::AddChild(MeshFrame* Frame)
 {
-	Cildren.push_back(Frame);
+	Children.push_back(Frame);
 }
 
-void MeshFrame::RemoveChildren(MeshFrame* Frame)
+void MeshFrame::RemoveChild(MeshFrame* Frame)
 {
 	std::vector<MeshFrame*>::iterator Child;
-	for(Child = Cildren.begin(); Child!=Cildren.end(); Child++)
+	for(Child = Children.begin(); Child!=Children.end(); Child++)
 		if((*Child) == Frame)
-			Cildren.erase(Child);
+			Child = Children.erase(Child);
 }
 
 void MeshFrame::Paint(MeshTransform ChildTransform)
@@ -51,17 +51,17 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 
 			
  	std::vector<MeshFrame*>::iterator Child;
-	for(Child = Cildren.begin(); Child!=Cildren.end(); Child++)
+	for(Child = Children.begin(); Child!=Children.end(); Child++)
 		(*Child)->Paint(ChildTransform);
 }
 
 /*virtual*/ void MeshFrame::SetTransform(MeshTransform& Transform)
 {
-	Transform.CopyFrom(Transform);
+	this->Transform.CopyFrom(Transform);
 }
 
 /*virtual*/ void MeshFrame::ApplyTransform(MeshTransform& Transform)
 {
-	Transform.ApplyTransform(Transform);
+	this->Transform.ApplyTransform(Transform);
 }
 

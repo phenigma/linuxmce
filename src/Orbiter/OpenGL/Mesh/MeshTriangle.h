@@ -8,7 +8,8 @@ class MeshTriangle
 public:
 	int Vertex1, Vertex2, Vertex3;
 
-	OpenGLTexture Texture;
+	OpenGLGraphic* Texture;
+	MeshTriangle();
 };
 
 #endif

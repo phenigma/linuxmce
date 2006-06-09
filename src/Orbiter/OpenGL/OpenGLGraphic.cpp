@@ -29,6 +29,7 @@ OpenGLGraphic::~OpenGLGraphic()
 		SDL_FreeSurface(LocalSurface);
 		LocalSurface = NULL;
 	}
+
 }
 
 void OpenGLGraphic::Initialize()
@@ -36,6 +37,7 @@ void OpenGLGraphic::Initialize()
 	MaxU = 1.0f;
 	MaxV = 1.0f;
 	LocalSurface = NULL;
+	Texture = 0;
 }
 
 bool OpenGLGraphic::SetupFromImage(std::string FileName)
@@ -57,7 +59,7 @@ bool OpenGLGraphic::SetupFromImage(std::string FileName)
 	static Uint32 gmask = 0x0000ff00;
 	static Uint32 bmask = 0x00ff0000;
 	static Uint32 amask = 0xff000000;
-#endif
+#endif 
 
 
 void OpenGLGraphic::Prepare(SDL_Surface* Surface)
@@ -134,12 +136,21 @@ GraphicType OpenGLGraphic::GraphicType_get()
 
 bool OpenGLGraphic::IsEmpty()
 {
-	return false;
+	return LocalSurface == NULL;
 }
 
 bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 {
-	return false;
+	SDL_RWops * rw = SDL_RWFromMem(pData, int(iSize));
+	LocalSurface = IMG_Load_RW(rw, 1); // rw is freed here
+
+	if(LocalSurface)
+	{
+		Width = LocalSurface->w;
+		Height = LocalSurface->h;
+	}
+
+	return LocalSurface != NULL;
 }
 
 void OpenGLGraphic::Clear()

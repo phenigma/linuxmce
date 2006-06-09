@@ -8,7 +8,7 @@
 // Generates A Display List Based On The Data In The Patch
 // And The Number Of Divisions
 GLuint genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D, ColorRGB Background,
-					OpenGLTexture BackgroundTexture, MeshTransform& Transform) {
+					OpenGLGraphic* BackgroundTexture, MeshTransform& Transform) {
 	int		u = 0, v;
 	double		py, px, pyold; 
 	GLuint		drawlist = glGenLists(1);			// Make The Display List
@@ -117,7 +117,7 @@ void TBezierWindow::Paint(MeshTransform& Transform)
 	//glEnd();
 }
 
-bool TBezierWindow::SetBackgroundImage(OpenGLTexture Background)
+bool TBezierWindow::SetBackgroundImage(OpenGLGraphic* Background)
 {
 	// if wants to be set an invalid texture, the function will return false
 	if(Background<0)

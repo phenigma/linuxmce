@@ -61,7 +61,7 @@ void ExtensionManager::Resize(int Width, int Height)
 	// Change Matrix Mode to Projection
 	glMatrixMode(GL_PROJECTION);
 	// Do the perspective calculations. Last value = max clipping depth
-	gluPerspective(90.0, (float)Width/Height, 0.001, 1000);
+	gluPerspective(90.0, (float)Width/Height, 0.001, 5000);
 	// Return to the modelview matrix
 	glMatrixMode(GL_MODELVIEW);
 	// Reset View
@@ -73,6 +73,9 @@ void ExtensionManager::Resize(int Width, int Height)
     glClearDepth(1.0);                       // Depth Buffer Setup
     glEnable(GL_DEPTH_TEST);                 // Enable Depth Buffer
     glDepthFunc(GL_LESS);		           // The Type Of Depth Test To Do
+	
+	glScalef(1.f, -1.f, -1.f);
+	glTranslatef(-Width/2, -Height/2, 0.f);
 }
 
 bool ExtensionManager::InitVideoMode(int Width, int Height, int Bpp, bool FullScreen)

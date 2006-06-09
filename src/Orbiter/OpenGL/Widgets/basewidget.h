@@ -12,6 +12,7 @@ That class is an abstract class that should be overwriten for basic purposes. It
 
 #include "../GLMathUtils.h"
 #include "../Mesh/MeshFrame.h"
+#include "../OpenGLGraphic.h"
 #include "../math3dutils.h"
 
 class TBaseWidget{
@@ -41,7 +42,7 @@ public:
 	/**
 	 * Get the texure ID
 	 */
-	OpenGLTexture GetTexture() {
+	OpenGLGraphic* GetTexture() {
 		return BackgroundTex;
 	} 
 	
@@ -80,7 +81,7 @@ public:
 	/**
 	 * set the texture (OpenGL ID for texture)
 	 */
-	void SetTexture(OpenGLTexture ValueBackgroundTex) {
+	void SetTexture(OpenGLGraphic* ValueBackgroundTex) {
 		BackgroundTex = ValueBackgroundTex;
 	}
 	
@@ -97,7 +98,7 @@ protected:
 	 * or add in the derived class
 	 * if BackgroundTex = 0 then the texture is disabled
 	 */
-	OpenGLTexture BackgroundTex;
+	OpenGLGraphic* BackgroundTex;
 	/**
 	 * Background: color blending with current window texture, if doesn't exist, 
 	 * that is the color that apply over the window rectangle	 

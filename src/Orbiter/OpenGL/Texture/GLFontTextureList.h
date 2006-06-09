@@ -10,7 +10,7 @@ class GLFontTextureList
 	/**
 	 * Create a texture list with all ASCII images
 	 */
-	OpenGLGraphic Letters[256];
+	OpenGLGraphic* Letters[256];
 public:
 	GLFontTextureList();
 	virtual ~GLFontTextureList();

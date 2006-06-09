@@ -64,10 +64,10 @@ void TBasicWindow::Paint(MeshTransform& Transform)
 	delete Frame;
 }
 
-bool TBasicWindow::SetBackgroundImage(OpenGLTexture Background)
+bool TBasicWindow::SetBackgroundImage(OpenGLGraphic* Background)
 {
 	// if wants to be set an invalid texture, the function will return false
-	if(Background<0)
+	if(Background == 0)
 		return false;
 		
 	// set up the texture as texture background

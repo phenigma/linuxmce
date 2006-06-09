@@ -2,7 +2,6 @@
 #define OpenGLTextureConverter_H
 
 #include "../DesignObj_Orbiter.h"
-#include "GLDefs.h"
 
 #include <GL/gl.h>
 

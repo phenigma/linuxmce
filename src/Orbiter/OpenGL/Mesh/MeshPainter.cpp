@@ -1,6 +1,7 @@
 #include "MeshPainter.h"
 
 #include "../Texture/TextureManager.h"
+#include "../OpenGLGraphic.h"
 
 #include <GL/gl.h>
 
@@ -37,8 +38,9 @@ MeshPainter::MeshPainter()
 	for(Count = 0; Count < Container.NoTriangles; Count++)
 	{
 		MeshTriangle& Triangle = Container.Triangles[Count];
-		
-		TextureManager::Instance()->SetupTexture(Triangle.Texture);
+
+		if(Triangle.Texture)
+			TextureManager::Instance()->SetupTexture(Triangle.Texture->Texture);
 
 		MeshVertex& Vertex = Vertexes[Triangle.Vertex1];
 		glTexCoord2f(Vertex.UVW.X, Vertex.UVW.Y);

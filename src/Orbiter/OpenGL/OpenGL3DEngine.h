@@ -5,12 +5,15 @@
 #include "Texture/GLFontRenderer.h"
 #include "Mesh/MeshFrame.h"
 
+#include "PlutoUtils/MultiThreadIncludes.h"
+
 class OpenGL3DEngine
 {
-	//TODO: use me!
-	//pthread_cond_t SleepCond;
-	//pthread_mutex_t SleepMutex;
-	MeshFrame Desktop;	
+	pluto_pthread_mutex_t SceneMutex;
+	MeshFrame Desktop;
+
+	MeshFrame* CurrentLayer;
+	MeshFrame* OldLayer;
 	
 public:
 	bool Quit;
@@ -19,8 +22,10 @@ public:
 	virtual ~OpenGL3DEngine();
 	virtual void Finalize(void);
 	
-	virtual MeshFrame& GetDesktop();
+	void AddMeshFrameToDesktop(MeshFrame* Frame);
 	
+	virtual void NewScreen();
+
 	virtual void Paint();
 };
 

@@ -551,3 +551,15 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pOwner(pOwner)
 
 	return true;
 }
+
+//-----------------------------------------------------------------------------------------------------
+std::string ObjectRenderer::GetLocalDirectory()
+{
+	return m_pOwner->m_pOrbiter->m_sLocalDirectory;
+}
+//-----------------------------------------------------------------------------------------------------
+CacheImageManager *ObjectRenderer::GetCacheImageManager()
+{
+	return m_pOwner->m_pOrbiter->m_pCacheImageManager;
+}
+//-----------------------------------------------------------------------------------------------------

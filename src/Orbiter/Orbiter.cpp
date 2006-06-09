@@ -323,6 +323,8 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 Orbiter::~Orbiter()
 //<-dceag-dest-e->
 {
+	m_pOrbiterRenderer->Destroy();
+
 	if (m_pBackgroundImage)
 		delete m_pBackgroundImage;
 	

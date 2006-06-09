@@ -10,6 +10,7 @@ MeshBuilder::MeshBuilder(void)
 	this->GlobalAlpha = 1.0f;
 	this->GlobalU = 1.0f;
 	this->GlobalV = 1.0f;
+	this->GlobalMaterial = NULL;
 }
 
 MeshBuilder::~MeshBuilder(void)
@@ -109,7 +110,7 @@ void MeshBuilder::Begin(unsigned char BuildMode)
 	GlobalU = U;
 	GlobalV = V;
 }
-/*virtual*/ void MeshBuilder::SetTexture(OpenGLTexture Texture)
+/*virtual*/ void MeshBuilder::SetTexture(OpenGLGraphic*Texture)
 {
 	GlobalMaterial = Texture;	
 }

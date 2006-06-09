@@ -8,16 +8,25 @@
 #include "Mesh/MeshPainter.h"
 
 OpenGL3DEngine::OpenGL3DEngine()
+: OldLayer(NULL),
+  CurrentLayer(NULL),
+  Quit(false),
+  SceneMutex("scene mutex")
 {
 	if(TTF_Init()==-1) {
 		printf("Error on TTF_Init: %s\n", TTF_GetError());
 		return;
 	}
-	Quit = false;
+
+	SceneMutex.Init(NULL);
+
+	CurrentLayer = new MeshFrame();
+	Desktop.AddChild(CurrentLayer);
 }
 
 OpenGL3DEngine::~OpenGL3DEngine()
 {
+	pthread_mutex_destroy(&SceneMutex.mutex);
 }
 
 void OpenGL3DEngine::Finalize(void)
@@ -27,15 +36,34 @@ void OpenGL3DEngine::Finalize(void)
 
 void OpenGL3DEngine::Paint()
 {
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+
+	TextureManager::Instance()-> ConvertImagesToTextures();
 	GL.SetClearColor(.0f, .50f, 0.0f);
 	GL.ClearScreen(true, true);
 
 	MeshTransform Transform;
-	Desktop.Paint(Transform);
+	CurrentLayer->Paint(Transform);
 	GL.Flip();
 }
 
-/*virtual*/ MeshFrame& OpenGL3DEngine::GetDesktop()
+void OpenGL3DEngine::NewScreen()
 {
-	return Desktop;
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+
+	if(OldLayer)
+	{
+		Desktop.RemoveChild(OldLayer);
+		delete OldLayer;
+	}
+
+	OldLayer = CurrentLayer;
+	CurrentLayer = new MeshFrame();
+	Desktop.AddChild(CurrentLayer);
+}
+
+void OpenGL3DEngine::AddMeshFrameToDesktop(MeshFrame* Frame)
+{
+PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	CurrentLayer->AddChild(Frame);
 }

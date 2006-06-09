@@ -29,7 +29,7 @@ public:
 	 *  
 	 * @return it returns true if the texture was corectly set
 	 */
-	bool SetBackgroundImage(OpenGLTexture Background);
+	bool SetBackgroundImage(OpenGLGraphic* Background);
 
 public:
 	/**

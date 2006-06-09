@@ -34,6 +34,8 @@ TextureManager::~TextureManager(void)
 
 void TextureManager::PrepareImage(OpenGLGraphic* TextureGraphic)
 {
+	if(!TextureGraphic)
+		return;
 	WaitForConvert.push(TextureGraphic);
 }
 

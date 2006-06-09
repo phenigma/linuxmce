@@ -54,7 +54,7 @@ GLFontTextureList::~GLFontTextureList()
 		if (RenderedText == NULL)
 			return;
 			
-		Letters[i].Prepare(RenderedText);
+		Letters[i]->Prepare(RenderedText);
 			
 		SDL_FreeSurface(RenderedText);
 				
@@ -94,25 +94,22 @@ GLFontTextureList::~GLFontTextureList()
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
 	MB.SetColor(1.0f, 1.0f, 1.0f);
 	
-	FontHeight = Letters[CharPos].Height;
-	float PixelMaxV = Letters[CharPos].MaxV;
+	FontHeight = Letters[CharPos]->Height;
+	float PixelMaxV = Letters[CharPos]->MaxV;
 	int PixelHgt = FontHeight*2;
 
 
 	for(int i = 0; i<Length; i++)
 	{
 		CharPos = (unsigned char)Text[i];
- 		LetterLen = Letters[CharPos].Width;
- 		MaxU = Letters[CharPos].MaxU;
- 		MaxV = Letters[CharPos].MaxV;
-
-		Texture = Letters[CharPos].Texture;
-		glBindTexture(GL_TEXTURE_2D, Texture);
+ 		LetterLen = Letters[CharPos]->Width;
+ 		MaxU = Letters[CharPos]->MaxU;
+ 		MaxV = Letters[CharPos]->MaxV;
 
 		int PixelLen = LetterLen*2;
-		float PixelMaxU = Letters[CharPos].MaxU;
+		float PixelMaxU = Letters[CharPos]->MaxU;
 
-		MB.SetTexture(Texture);
+		MB.SetTexture(Letters[CharPos]);
 		// Point 1
 		MB.SetTexture2D(0.0f, 0.0f);
 		MB.AddVertexFloat(X, Y, 480);

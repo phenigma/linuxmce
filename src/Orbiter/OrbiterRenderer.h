@@ -50,6 +50,7 @@ public:
 
 	virtual void EventLoop() = 0; 
 	virtual void Configure() = 0;
+	virtual void Destroy() {}
 
 	/*
 	 *	Override this to disable select/highlight graphics for objects
