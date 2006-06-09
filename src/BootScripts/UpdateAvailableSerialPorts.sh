@@ -14,7 +14,7 @@ Q="INSERT INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
 	VALUES ('$PK_Device', '$DEVICEDATA_Available_Serial_Ports', '${SerialPorts//\'/\'}')"
 RunSQL "$Q" || /bin/true
 
-Q="UPDATE Device_DeviceData SET IK_DeviceData='${SerialPorts//\'/\'}'
+Q="UPDATE Device_DeviceData SET IK_DeviceData='${SerialPorts//\'/\'}', psc_mod=psc_mod
 	WHERE FK_Device='$PK_Device' AND FK_DeviceData='$DEVICEDATA_Available_Serial_Ports'"
 RunSQL "$Q"
 Unlock "UpdateAvailableSerialPorts" "UASP"
