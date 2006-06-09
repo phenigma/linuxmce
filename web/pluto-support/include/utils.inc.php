@@ -25,6 +25,14 @@ function showSectionContentWithPhp($string) {
    return stripslashes($string);                                 	
 } 
 
+// display array nicely formated - used for debug only
+function print_array($arr)
+{
+	print '<pre>';
+	print_r($arr);
+	print '</pre>';
+}
+
 //---------------------------------------------------------------------------------------
 //customized data format
 //---------------------------------------------------------------------------------------
@@ -407,5 +415,18 @@ function getSubmenu($website,$level,$parentID,$dbADO)
 		
 	}
 	return $menuPages;
+}
+
+function wikiLink($str){
+	$wikiLink=str_replace(' ','_',$str);
+	$wikiLink=urlencode(str_replace('__','_',$wikiLink)); 
+	
+	return $wikiLink;
+} 
+
+function getmicrotime() 
+{ 
+    list($usec, $sec) = explode(" ", microtime()); 
+    return ((float)$usec + (float)$sec); 
 }
 ?>

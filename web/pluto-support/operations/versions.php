@@ -1,7 +1,7 @@
 <?
 $package=(isset($_SESSION['package']))?$_SESSION['package']:0;
 $out='
-<p><a href=index.php?section=document&docID=53>Explain Pluto\'s version numbers</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href=index.php?section=platforms>Compatible platforms</a></p>
+<p><a href="'.$wikiHost.'index.php/'.wikiLink('Versions').'" target="_blank">Explain Pluto\'s version numbers</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href=index.php?section=platforms>Compatible platforms</a></p>
 ';
 if ($package == 0) {
 	$queryVers = '

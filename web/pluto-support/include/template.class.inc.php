@@ -368,6 +368,7 @@ function setTemplateFileType($type) {
   }
   
   function displayTopMenu(){
+  	/*
 	$package=(isset($_SESSION['package']))?$_SESSION['package']:0;
 	if($package!=0){
 		$topMenu = builtTopMenu(2,$this->dbADO);
@@ -377,6 +378,7 @@ function setTemplateFileType($type) {
 	}			
 		
 	$this->content = str_replace("{TopMenu}", $topMenu, $this->content);
+	*/
   }
   
   function displayBottomMenu(){

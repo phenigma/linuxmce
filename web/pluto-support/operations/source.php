@@ -2,7 +2,7 @@
 $package=(isset($_SESSION['package']))?$_SESSION['package']:0;
 //$package=0; // Fix this.  The query isn't working
 	$out='<p>The easiest way to get Pluto\'s source code is to register or login, create a new installation, and specify that you want source code.  This will install the source code automatically.</p>
-		<p>You can also get all Pluto\'s source code with CVS or SVN. <a href="/support/index.php?section=document&docID=101">details</a></p>
+		<p>You can also get all Pluto\'s source code with CVS or SVN. <a href="'.$wikiHost.'index.php/'.wikiLink('Building from source').'">details</a></p>
 		<br><p><b>Doxygen class documentation</b>';
 
 	if ($package == 0) {

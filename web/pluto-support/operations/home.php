@@ -56,18 +56,11 @@ if($package!=0){
 			<p>If you already have Pluto, you can add extra modules modules in the Pluto Admin web site.  They will be downloaded and installed automatically--you don\'t have to do anything.</p>
 			<p>If you want to download binaries or source code manually visit the <a href="http://plutohome.com/support/index.php?section=packageDownload&pkid='.$_SESSION['package'].'"><b>Download page for **package**</b></a></p>
 
-			<p>For the brave of heart, you can also visit the main <a href="index.php?section=mainDownload&packge=0">Download Page</a> that lists all the modules with 
-			dependencies and compatibility.  Or you can <a href="index.php?section=document&docID=101">build from source</a>.</p>';
+			<p>For the brave of heart, you can also visit the main <a href="index.php?section=mainDownload&package=0">Download Page</a> that lists all the modules with 
+			dependencies and compatibility.  Or you can <a href="'.$wikiHost.'index.php/'.wikiLink('Building from source').'" target="_blank">build from source</a>.</p>';
 	}
 }
-else {
-	$out='';
-	$queryDocs = 'SELECT Contents FROM Document
-					where PK_Document=1';
-	$resDocs = $dbADO ->Execute($queryDocs,$package);
-	$rowDocs = $resDocs->FetchRow();
-	$out.=$rowDocs['Contents'];
-}
+
 
 $output->setBody($out);
 $output->setTitle(APPLICATION_NAME);			

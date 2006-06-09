@@ -4,52 +4,38 @@ $package=(isset($_SESSION['package']))?$_SESSION['package']:0;
 	<p><b>Documentation :</b></p>
 	<table>
 		<tr>
-			<td><a href="index.php?section=document&docID=1">Pluto Home</a> : </td>
-			<td><a href="index.php?section=document&docID=11">Installation</a> : Equipment, Software...</td>
+			<td><a href="'.$wikiHost.'index.php/'.wikiLink('Pluto Home').'" target="_blank">Pluto Home</a> : </td>
+			<td><a href="'.$wikiHost.'index.php/'.wikiLink('Installation').'" target="_blank">Installation</a> : Equipment, Software...</td>
 		</tr>
 		<tr>
-			<td>.</td>
-			<td><a href="index.php?section=document&docID=11">Pluto Admin Website</a> : Wizard Pages, Advanced Pages...</td>
+			<td></td>
+			<td><a href="'.$wikiHost.'index.php/'.wikiLink('Pluto Admin Website').'" target="_blank">Pluto Admin Website</a> : Wizard Pages, Advanced Pages...</td>
 		</tr>
 		<tr>
-			<td>.</td>
-			<td><a href="index.php?section=document&docID=48">Software</a> : <a href="index.php?section=document&docID=3">Core programs</a>, <a href="index.php?section=document&docID=4">Pluto Libraries</a>, <a href="index.php?section=document&docID=5">Pluto Utilities</a>, <a href="index.php?section=document&docID=6">DCE Devices</a>, <a href="index.php?section=document&docID=7">Pluto Plug-ins</a>, </td>
+			<td></td>
+			<td><a href="'.$wikiHost.'index.php/'.wikiLink('Software').'">Software</a> : <a href="'.$wikiHost.'index.php/'.wikiLink('Core Programs').'">Core programs</a>, <a href="'.$wikiHost.'index.php/'.wikiLink('Pluto Libraries').'">Pluto Libraries</a>, <a href="'.$wikiHost.'index.php/'.wikiLink('Pluto Utilities').'">Pluto Utilities</a>, <a href="'.$wikiHost.'index.php/'.wikiLink('Pluto DCE Devices').'">DCE Devices</a>, <a href="'.$wikiHost.'index.php/'.wikiLink('Pluto Plug-ins').'">Pluto Plug-ins</a> </td>
 		</tr>
 		<tr>
-			<td>.</td>
-			<td><a href="index.php?section=document&docID=53">Versions</a></td>
+			<td></td>
+			<td><a href="'.$wikiHost.'index.php/'.wikiLink('Versions').'">Versions</a></td>
 		</tr>
 		<tr>
-			<td><a href="index.php?section=document&docID=2">PlutoVip</a> : </td>
-			<td><a href="index.php?section=document&docID=36">User\'s manual</a></td>
+			<td><a href="'.$wikiHost.'index.php/'.wikiLink('PlutoVIP').'">PlutoVip</a> : </td>
+			<td><a href="'.$wikiHost.'index.php/'.wikiLink('User\'s manual').'">User\'s manual</a></td>
 		</tr>
 		<tr>
-			<td>.</td>
-			<td><a href="index.php?section=document&docID=37">VIP Design</a></td>
+			<td></td>
+			<td><a href="'.$wikiHost.'index.php/'.wikiLink('VIP Design').'">VIP Design</a></td>
 		</tr>
 		<tr>
-			<td>.</td>
-			<td><a href="index.php?section=document&docID=38">VIP Server</a></td>
+			<td></td>
+			<td><a href="'.$wikiHost.'index.php/'.wikiLink('VIP Server').'">VIP Server</a></td>
 		</tr>
 		<tr>
-			<td>.</td>
-			<td><a href="index.php?section=document&docID=104">Download</a></td>
-		</tr>';
-	if ($package!=0) {
-		$seleDocs = 'SELECT * FROM Package
-			WHERE PK_Package=?';
-		$resDocs = $dbADO->Execute($seleDocs,$package);
-		$rowDocs = $resDocs->FetchRow(); 
-	$out.='<tr>
-	<td><a href="index.php?section=document&docID='.$rowDocs['FK_Document'].'"><b>**package**</b></a> : </td>
-			<td><a href="index.php?section=document&docID='.$rowDocs['FK_Document_UsersManual'].'">User\'s manual</a></td>
+			<td></td>
+			<td><a href="'.$wikiHost.'index.php/'.wikiLink('Download').'">Download</a></td>
 		</tr>
-		<tr>
-			<td>.</td>
-			<td><a href="index.php?section=document&docID='.$rowDocs['FK_Document_ProgrammersGuide'].'">Programmer\'s Guide</a></td>
-		</tr>';
-	}
-	$out.='</table>';
+	</table>';
 	
 	$out.='<br><table>
 			<tr>
@@ -57,16 +43,12 @@ $package=(isset($_SESSION['package']))?$_SESSION['package']:0;
 				<td><a href="index.php?section=mainDownload&package=0">Pluto\'s Main Download Page</td>
 			</tr>
 			<tr>
-				<td><b>.</b></td>
-				<td><a href="index.php?section=document&docID=104">PlutoVip Download Page</td>
-			</tr>
-			<tr>
-				<td><b>.</b></td>
-				<td><a href="index.php?section=document&docID=106">Windows Software Installers Page</td>
+				<td></td>
+				<td><a href="'.$wikiHost.'index.php/'.wikiLink('Windows').'">Windows Software Installers Page</td>
 			</tr>';
 	if ($package != 0) {
 			$out.='<tr>
-				<td>.</td>
+				<td></td>
 				<td><a href="index.php?section=packageDownload&pkid='.$package.'"><b>**package**</b>Download Page</td>
 			</tr>';
 	}

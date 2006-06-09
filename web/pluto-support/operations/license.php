@@ -96,7 +96,7 @@ else { // package is null
 			else $col = '';
 		$out2.='<tr'.$col.'>';
 			$out2.='<td><center>'.$rowLicense0['PackTypeDesc'].'</center></td>';
-			$out2.='<td><center><a href="/support/index.php?section=home&package='.$rowLicense0['PK_Package'].'">'.$rowLicense0['PackDesc'].'</a></center></td>';
+			$out2.='<td><center>'.$rowLicense0['PackDesc'].'</center></td>';
 			$out2.='<td><center>'.$rowLicense0['LicenseDesc'].'</center></td>';
 			$out2.='<td><center>'.$rowLicense0['ManufactDesc'].'</center></td>';
 		$out2.='</tr>';
