@@ -1,2 +1,2 @@
-#GetSensorList 09-Ian-06 11:05
-logState(true)
+#GetSensorList  09-Jun-06 11:40  ApexDestiny 6100
+#logState(true)
