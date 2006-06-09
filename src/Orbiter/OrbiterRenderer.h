@@ -52,11 +52,6 @@ public:
 	virtual void Configure() = 0;
 	virtual void Destroy() {}
 
-	/*
-	 *	Override this to disable select/highlight graphics for objects
-	 */
-	virtual bool AlternateGraphicsDisabled() { return false; }
-
 	/**
 	* @brief Adjust the window size
 	*/

@@ -51,13 +51,13 @@ namespace DCE
 		virtual void DoHighlightObject();
 		virtual void SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point );
 
+		virtual void RenderObjectAsync(DesignObj_Orbiter *pObj);
+
 		void WakeupFromCondWait();
 		void OnIdle();
 
 
 		virtual void OnQuit();
-
-		virtual void ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj, PlutoPoint *ptPopup );
 
 		OpenGL3DEngine* Engine;		
 		pthread_cond_t Condition;

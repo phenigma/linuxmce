@@ -20,11 +20,14 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 	g_pPlutoLogger->Write(LV_STATUS, "RenderGraphic %d - (%d,%d,%d,%d)", m_pOwner->m_iBaseObjectID,
 		rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
 
-	//we have nothing to render
-	if(m_pOwner->m_vectGraphic.size() == 0)
-		return;
+	PlutoGraphic *pPlutoGraphic = NULL;
+	pPlutoGraphic = 
+		m_pOwner->m_pvectCurrentGraphic != NULL && m_pOwner->m_pvectCurrentGraphic->size() > 0 ?
+		(m_pOwner->m_pvectCurrentGraphic->operator [](0)) : NULL;
 
-	PlutoGraphic *pPlutoGraphic = m_pOwner->m_vectGraphic[0];
+	//we have nothing to render
+	if(NULL == pPlutoGraphic)
+		return;
 
 	string sFileName = "";
 	if(

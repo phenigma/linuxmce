@@ -8,6 +8,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "../ScreenHistory.h"
 //-----------------------------------------------------------------------------------------------------
 #include "math3dutils.h"
 #include "Widgets/basicwindow.h"
@@ -162,6 +163,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : OrbiterRende
 	g_pPlutoLogger->Write(LV_STATUS, "AddMeshFrameToDesktop %d - (%d,%d,%d,%d)",
 		point.X, point.Y, rectTotal.Width, rectTotal.Height);
 
+	//TODO: find a way to replace an existing object if the graphic is changed instead of adding it
 	Engine->AddMeshFrameToDesktop(Frame);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -177,7 +179,6 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : OrbiterRende
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::UpdateRect(PlutoRectangle rect, PlutoPoint point/*= PlutoPoint(0,0)*/)
 {
-
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::AdjustWindowSize(int iWidth, int iHeight)
@@ -269,20 +270,21 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	delete pEvent;
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_OpenGL::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj, PlutoPoint *ptPopup )
-{
-	//pObj->m_vectGraphic.size()
-}
-//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::Destroy()
 {
 	//cleanup here
 	Engine->Quit = true;
 	pthread_join(GLThread, NULL);
 }
-
+//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderScreen(bool bRenderGraphicsOnly)
 {
 	Engine->NewScreen();
 	OrbiterRenderer::RenderScreen(bRenderGraphicsOnly);
 }
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_OpenGL::RenderObjectAsync(DesignObj_Orbiter *pObj)
+{
+	pObj->RenderObject(OrbiterLogic()->m_pScreenHistory_Current->GetObj());
+}
+//-----------------------------------------------------------------------------------------------------

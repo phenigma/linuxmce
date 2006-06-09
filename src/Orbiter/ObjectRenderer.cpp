@@ -222,7 +222,7 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pOwner(pOwner)
 	#endif
 
 	if(!bIsMNG && m_pOwner->m_GraphicToDisplay == GRAPHIC_SELECTED)
-	m_pOwner->m_pOrbiter->SelectObject(m_pOwner, point);
+		m_pOwner->m_pOrbiter->SelectObject(m_pOwner, point);
 }
 
 /*virtual*/ void ObjectRenderer::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
@@ -412,10 +412,6 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pOwner(pOwner)
 		m_pOwner->m_pvectCurrentGraphic = &(m_pOwner->m_vectGraphic);
 
 	if(!m_pOwner->m_pvectCurrentGraphic && m_pOwner->m_GraphicToDisplay != GRAPHIC_NORMAL  )
-		m_pOwner->m_pvectCurrentGraphic = &(m_pOwner->m_vectGraphic);
-
-	//with opengl, no selected or highlighted graphics for objects are needed
-	if(m_pOwner->m_pOrbiter->Renderer()->AlternateGraphicsDisabled())
 		m_pOwner->m_pvectCurrentGraphic = &(m_pOwner->m_vectGraphic);
 
 	if( m_pOwner->m_bCustomRender )
