@@ -8989,54 +8989,6 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_Internal_Disk_Drive_Wizard : public PreformedCommand
-	{
-	public:
-		SCREEN_Internal_Disk_Drive_Wizard(long DeviceIDFrom, long DeviceIDTo,
-			string sData_String, int iPK_Device_ControlledVia, string sDescription)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
-				COMMANDPARAMETER_PK_Screen_CONST, "228" /* screen ID */,
-				109 /* A block device associated with the internal disk drive  */, sData_String.c_str(), 156 /* The id of the device which controls the device which will be created */, StringUtils::ltos(iPK_Device_ControlledVia).c_str(), 163 /* Description message. */, sDescription.c_str());
-		}
-	};
-
-	class SCREEN_Internal_Disk_Drive_Wizard_DL : public PreformedCommand
-	{
-	public:
-		SCREEN_Internal_Disk_Drive_Wizard_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sData_String, int iPK_Device_ControlledVia, string sDescription)
-		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
-				COMMANDPARAMETER_PK_Screen_CONST, "228" /* screen ID */,
-				109 /* A block device associated with the internal disk drive  */, sData_String.c_str(), 156 /* The id of the device which controls the device which will be created */, StringUtils::ltos(iPK_Device_ControlledVia).c_str(), 163 /* Description message. */, sDescription.c_str());
-		}
-	};
-
-	class SCREEN_Internal_Disk_Drive_Wizard_DT : public PreformedCommand
-	{
-	public:
-		SCREEN_Internal_Disk_Drive_Wizard_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sData_String, int iPK_Device_ControlledVia, string sDescription)
-		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
-				COMMANDPARAMETER_PK_Screen_CONST, "228" /* screen ID */,
-				109 /* A block device associated with the internal disk drive  */, sData_String.c_str(), 156 /* The id of the device which controls the device which will be created */, StringUtils::ltos(iPK_Device_ControlledVia).c_str(), 163 /* Description message. */, sDescription.c_str());
-		}
-	};
-
-	class SCREEN_Internal_Disk_Drive_Wizard_Cat : public PreformedCommand
-	{
-	public:
-		SCREEN_Internal_Disk_Drive_Wizard_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sData_String, int iPK_Device_ControlledVia, string sDescription)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
-				COMMANDPARAMETER_PK_Screen_CONST, "228" /* screen ID */,
-				109 /* A block device associated with the internal disk drive  */, sData_String.c_str(), 156 /* The id of the device which controls the device which will be created */, StringUtils::ltos(iPK_Device_ControlledVia).c_str(), 163 /* Description message. */, sDescription.c_str());
-		}
-	};
-
 	class SCREEN_Media_Tracks : public PreformedCommand
 	{
 	public:
@@ -9446,7 +9398,6 @@ namespace DCE
 		virtual void SCREEN_mnuPlaybackControl(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_mnuSpeedControl(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_mnuVolume(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_Internal_Disk_Drive_Wizard(long PK_Screen, string sData_String, int iPK_Device_ControlledVia, string sDescription){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Media_Tracks(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Which_Wizard(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_This_Room(long PK_Screen, bool bAlways){ GotoScreen(PK_Screen); }
@@ -10613,14 +10564,6 @@ namespace DCE
 				case 225:
 				{
 					SCREEN_mnuVolume(nPK_Screen);
-					break;
-				}
-				case 228:
-				{
-					string sData_String = pMessage->m_mapParameters[109];
-					int iPK_Device_ControlledVia = atoi(pMessage->m_mapParameters[156].c_str());
-					string sDescription = pMessage->m_mapParameters[163];
-					SCREEN_Internal_Disk_Drive_Wizard(nPK_Screen, sData_String, iPK_Device_ControlledVia, sDescription);
 					break;
 				}
 				case 230:

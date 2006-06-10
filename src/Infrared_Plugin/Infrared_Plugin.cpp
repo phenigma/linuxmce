@@ -653,11 +653,6 @@ g_pPlutoLogger->Write(LV_STATUS,"q 2");
 		irDevice.m_bImplementsDCE = pRow_DeviceTemplate->ImplementsDCE_get()==1;
 	}
 
-g_pPlutoLogger->Write(LV_STATUS,"q 3");
-	pTable_InfraredGroup_Command->GetRows("WHERE FK_Device=" + 
-		StringUtils::itos(iPK_Device),
-		&vectRow_InfraredGroup_Command[2]);
-
 g_pPlutoLogger->Write(LV_STATUS,"q 4");
 	pTable_InfraredGroup_Command->GetRows("JOIN InfraredGroup_Command_Preferred ON FK_InfraredGroup_Command=PK_InfraredGroup_Command "
 		"WHERE (FK_DeviceTemplate=" + 

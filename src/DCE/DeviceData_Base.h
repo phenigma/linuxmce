@@ -397,6 +397,23 @@ namespace DCE
 			return m_pDevice_ControlledVia->IsChildOf(pDeviceData_Base);
 		}
 
+		// This will return the topmost device
+		DeviceData_Base *GetTopMostDevice()
+		{
+			if( m_bDeviceData_Impl )
+			{
+				DeviceData_Base *pDeviceData_Base = m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device);
+				if( pDeviceData_Base )
+					return pDeviceData_Base->GetTopMostDevice();
+				else
+					return NULL;
+			}
+
+			if( m_pDevice_ControlledVia )
+				return m_pDevice_ControlledVia->GetTopMostDevice();
+			return this;
+		}
+
 		// This will return the first device within the given category that is in any way
 		// related (ie also a child of the topmost device, meaning it runs on the same PC).  Call leaving the default parameters unspecified.
 		DeviceData_Base *FindFirstRelatedDeviceOfCategory(int PK_DeviceCategory,bool bScanParent=true,int PK_Device_ExcludeChild=0)
