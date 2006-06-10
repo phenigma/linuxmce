@@ -434,9 +434,7 @@ void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 void Xine_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c42-e->
 {
-	cout << "Need to implement command #42 - Jump to Position in Stream" << endl;
-	cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
-	cout << "Parm #41 - StreamID=" << iStreamID << endl;
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Jump_to_Position_in_Stream() Not implemented!");
 }
 
 //<-dceag-c63-b->
@@ -650,7 +648,7 @@ void Xine_Player::CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_R
 void Xine_Player::CMD_Pause(string &sCMD_Result,Message *pMessage)
 //<-dceag-c92-e->
 {
-	cout << "Need to implement command #92 - Pause" << endl;
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Pause() Not implemented!");
 }
 
 //<-dceag-c95-b->
@@ -663,8 +661,7 @@ void Xine_Player::CMD_Pause(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Stop(bool bEject,string &sCMD_Result,Message *pMessage)
 //<-dceag-c95-e->
 {
-	cout << "Need to implement command #95 - Stop" << endl;
-	cout << "Parm #203 - Eject=" << bEject << endl;
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Stop() Not implemented!");
 }
 
 //<-dceag-c139-b->
@@ -675,7 +672,7 @@ void Xine_Player::CMD_Stop(bool bEject,string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Play(string &sCMD_Result,Message *pMessage)
 //<-dceag-c139-e->
 {
-	cout << "Need to implement command #139 - Play" << endl;
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play() Not implemented!");
 }
 
 //<-dceag-c140-b->
@@ -868,7 +865,7 @@ void Xine_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_0(string &sCMD_Result,Message *pMessage)
 //<-dceag-c204-e->
 {
-	cout << "Need to implement command #204 - 0" << endl;
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_0() Not implemented!");
 }
 
 //<-dceag-c205-b->
@@ -879,7 +876,7 @@ void Xine_Player::CMD_0(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_1(string &sCMD_Result,Message *pMessage)
 //<-dceag-c205-e->
 {
-	cout << "Need to implement command #205 - 1" << endl;
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_1() Not implemented!");
 }
 
 //<-dceag-c206-b->
@@ -890,7 +887,7 @@ void Xine_Player::CMD_1(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_2(string &sCMD_Result,Message *pMessage)
 //<-dceag-c206-e->
 {
-	cout << "Need to implement command #206 - 2" << endl;
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_2() Not implemented!");
 }
 
 //<-dceag-c207-b->
@@ -901,7 +898,7 @@ void Xine_Player::CMD_2(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_3(string &sCMD_Result,Message *pMessage)
 //<-dceag-c207-e->
 {
-	cout << "Need to implement command #207 - 3" << endl;
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_3() Not implemented!");
 }
 
 //<-dceag-c208-b->
@@ -912,7 +909,7 @@ void Xine_Player::CMD_3(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_4(string &sCMD_Result,Message *pMessage)
 //<-dceag-c208-e->
 {
-	cout << "Need to implement command #208 - 4" << endl;
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_4() Not implemented!");
 }
 
 //<-dceag-c209-b->
@@ -923,7 +920,7 @@ void Xine_Player::CMD_4(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_5(string &sCMD_Result,Message *pMessage)
 //<-dceag-c209-e->
 {
-	cout << "Need to implement command #209 - 5" << endl;
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_5() Not implemented!");
 }
 
 //<-dceag-c210-b->
@@ -934,7 +931,7 @@ void Xine_Player::CMD_5(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_6(string &sCMD_Result,Message *pMessage)
 //<-dceag-c210-e->
 {
-	cout << "Need to implement command #210 - 6" << endl;
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_6() Not implemented!");
 }
 
 //<-dceag-c211-b->
@@ -945,7 +942,7 @@ void Xine_Player::CMD_6(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_7(string &sCMD_Result,Message *pMessage)
 //<-dceag-c211-e->
 {
-	cout << "Need to implement command #211 - 7" << endl;
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_7() Not implemented!");
 }
 
 //<-dceag-c212-b->
@@ -956,7 +953,7 @@ void Xine_Player::CMD_7(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_8(string &sCMD_Result,Message *pMessage)
 //<-dceag-c212-e->
 {
-	cout << "Need to implement command #212 - 8" << endl;
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_8() Not implemented!");
 }
 
 //<-dceag-c213-b->
@@ -967,7 +964,7 @@ void Xine_Player::CMD_8(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_9(string &sCMD_Result,Message *pMessage)
 //<-dceag-c213-e->
 {
-	cout << "Need to implement command #213 - 9" << endl;
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_9() Not implemented!");
 }
 
 //<-dceag-c240-b->
@@ -978,7 +975,7 @@ void Xine_Player::CMD_9(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
 //<-dceag-c240-e->
 {
-	cout << "Need to implement command #240 - Back / Prior Menu" << endl;
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Back_Prior_Menu() Not implemented!");
 }
 
 //<-dceag-c259-b->
