@@ -1056,8 +1056,7 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 void Xine_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c548-e->
 {
-	cout << "Need to implement command #548 - Menu" << endl;
-	cout << "Parm #9 - Text=" << sText << endl;
+	CMD_Goto_Media_Menu(0,0);
 }
 
 void Xine_Player::ReportTimecode(int iStreamID, int Speed)
