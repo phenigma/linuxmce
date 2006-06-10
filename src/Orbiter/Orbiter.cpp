@@ -359,7 +359,7 @@ Orbiter::~Orbiter()
 		SendCommand( CMD_Orbiter_Registered );
 	}
 
-	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 	DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
 	for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
 	{
@@ -776,7 +776,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"active popup 1 now NULL");
 			)
 		{
 			//update the list only if the screen is changed
-			PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+			PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 
 			if(ScreenHistory::m_bAddToHistory)
 			{
@@ -3897,7 +3897,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"now playing active popup 8 now %p",m_pActiveP
 		}
 		else if( Variable.length()>2 && Variable[0]=='B'  )
 		{
-			PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+			PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 			Output += m_mapBoundIconValues[Variable.substr(1)];
 			vm.Release();
 		}
@@ -4356,7 +4356,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 	if( !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )
 		return;
 
-	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex )
+	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 	ScreenHistory *pScreenHistory=NULL;
 
 	if(m_pScreenHistory_Current && m_pScreenHistory_Current->GoBack())
@@ -4639,7 +4639,7 @@ void Orbiter::CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Remove_Screen_From_History(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c8-e->
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"CMD_Remove_Screen_From_History %d - %s size: %d",iPK_Screen,sID.c_str(),(int) m_listScreenHistory.size());
@@ -5122,7 +5122,7 @@ void Orbiter::CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string
 void Orbiter::CMD_Set_Bound_Icon(string sValue_To_Assign,string sText,string sType,string &sCMD_Result,Message *pMessage)
 //<-dceag-c26-e->
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 	m_mapBoundIconValues[sType]=sText;
 	vm.Release();
 
@@ -6814,7 +6814,7 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 // Temporary function to debug a problem with the screen history
 void Orbiter::DumpScreenHistory()
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 	string s = "Screen history: size: " + StringUtils::itos(int(m_listScreenHistory.size())) + "; screens: ";
 
 	for(list < ScreenHistory * >::iterator it=m_listScreenHistory.begin();it!=m_listScreenHistory.end();++it)
@@ -8563,7 +8563,7 @@ void Orbiter::CMD_Display_Alert(string sText,string sTokens,string sTimeout,stri
 //<-dceag-c809-e->
 {
 	PlutoAlert *pPlutoAlert=NULL;
-	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 
 	// See if there's an existing alert with this token.  If so, we'll re-use it
 	for( list<PlutoAlert *>::iterator it=m_listPlutoAlert.begin();it!=m_listPlutoAlert.end();++it )
@@ -8592,13 +8592,13 @@ void Orbiter::CMD_Display_Alert(string sText,string sTokens,string sTimeout,stri
 		pPlutoAlert->m_tStopTime = pPlutoAlert->m_tStartTime + 3; // Default to 3 seconds
 
 	m_listPlutoAlert.push_back(pPlutoAlert);
-
+	vm.Release();
 	CallMaintenanceInMiliseconds(0,&Orbiter::ServiceAlerts,NULL,pe_ALL);	
 }
 
 void Orbiter::ServiceAlerts( void *iData )
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
+	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 
 	string sMessages;
 	time_t t = time(NULL);
@@ -8623,6 +8623,7 @@ void Orbiter::ServiceAlerts( void *iData )
 			it++;
 		}
 	}
+	vm.Release();
 
 	if( sMessages.size() )
 	{

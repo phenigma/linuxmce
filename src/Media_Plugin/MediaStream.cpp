@@ -486,16 +486,14 @@ int MediaStream::GetRemoteControlScreen(int PK_Orbiter)
 
 	if( m_bUseAltScreens )
 	{
-		if( bIsOSD )
+		if( bIsOSD && pRemoteControlSet->m_iPK_Screen_Alt_OSD )
 			return pRemoteControlSet->m_iPK_Screen_Alt_OSD;
-		else
+		else if( pRemoteControlSet->m_iPK_Screen_Alt_Remote )
 			return pRemoteControlSet->m_iPK_Screen_Alt_Remote;
 	}
+
+	if( bIsOSD && pRemoteControlSet->m_iPK_Screen_OSD )
+		return pRemoteControlSet->m_iPK_Screen_OSD;
 	else
-	{
-		if( bIsOSD )
-			return pRemoteControlSet->m_iPK_Screen_OSD;
-		else
-			return pRemoteControlSet->m_iPK_Screen_Remote;
-	}
+		return pRemoteControlSet->m_iPK_Screen_Remote;
 }

@@ -7569,11 +7569,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_DialogAskToResume(long DeviceIDFrom, long DeviceIDTo,
-			int iPK_Screen, string sPK_Device_From, string sPK_Device_MediaSource, string sStreamID_String, string sPosition, string sUsers, string sPK_MediaType_String)
+			string sPK_Device_From, string sPK_Device_MediaSource, string sStreamID_String, string sPosition, string sUsers, string sPK_MediaType_String, int iPK_Screen_GoTo)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 8, 
 				COMMANDPARAMETER_PK_Screen_CONST, "187" /* screen ID */,
-				159 /* Screen for remote control to go to after prompting */, StringUtils::ltos(iPK_Screen).c_str(), 184 /* PK_DeviceFrom */, sPK_Device_From.c_str(), 186 /* PK_Device_MediaSource */, sPK_Device_MediaSource.c_str(), 187 /* StreamID */, sStreamID_String.c_str(), 188 /* Position */, sPosition.c_str(), 189 /* Users */, sUsers.c_str(), 190 /* PK_MediaType */, sPK_MediaType_String.c_str());
+				184 /* PK_DeviceFrom */, sPK_Device_From.c_str(), 186 /* PK_Device_MediaSource */, sPK_Device_MediaSource.c_str(), 187 /* StreamID */, sStreamID_String.c_str(), 188 /* Position */, sPosition.c_str(), 189 /* Users */, sUsers.c_str(), 190 /* PK_MediaType */, sPK_MediaType_String.c_str(), 226 /* Screen for remote control to go to after prompting */, StringUtils::ltos(iPK_Screen_GoTo).c_str());
 		}
 	};
 
@@ -7581,11 +7581,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_DialogAskToResume_DL(long DeviceIDFrom, string sDeviceIDTo,
-			int iPK_Screen, string sPK_Device_From, string sPK_Device_MediaSource, string sStreamID_String, string sPosition, string sUsers, string sPK_MediaType_String)
+			string sPK_Device_From, string sPK_Device_MediaSource, string sStreamID_String, string sPosition, string sUsers, string sPK_MediaType_String, int iPK_Screen_GoTo)
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 8, 
 				COMMANDPARAMETER_PK_Screen_CONST, "187" /* screen ID */,
-				159 /* Screen for remote control to go to after prompting */, StringUtils::ltos(iPK_Screen).c_str(), 184 /* PK_DeviceFrom */, sPK_Device_From.c_str(), 186 /* PK_Device_MediaSource */, sPK_Device_MediaSource.c_str(), 187 /* StreamID */, sStreamID_String.c_str(), 188 /* Position */, sPosition.c_str(), 189 /* Users */, sUsers.c_str(), 190 /* PK_MediaType */, sPK_MediaType_String.c_str());
+				184 /* PK_DeviceFrom */, sPK_Device_From.c_str(), 186 /* PK_Device_MediaSource */, sPK_Device_MediaSource.c_str(), 187 /* StreamID */, sStreamID_String.c_str(), 188 /* Position */, sPosition.c_str(), 189 /* Users */, sUsers.c_str(), 190 /* PK_MediaType */, sPK_MediaType_String.c_str(), 226 /* Screen for remote control to go to after prompting */, StringUtils::ltos(iPK_Screen_GoTo).c_str());
 		}
 	};
 
@@ -7593,11 +7593,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_DialogAskToResume_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			int iPK_Screen, string sPK_Device_From, string sPK_Device_MediaSource, string sStreamID_String, string sPosition, string sUsers, string sPK_MediaType_String)
+			string sPK_Device_From, string sPK_Device_MediaSource, string sStreamID_String, string sPosition, string sUsers, string sPK_MediaType_String, int iPK_Screen_GoTo)
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 8, 
 				COMMANDPARAMETER_PK_Screen_CONST, "187" /* screen ID */,
-				159 /* Screen for remote control to go to after prompting */, StringUtils::ltos(iPK_Screen).c_str(), 184 /* PK_DeviceFrom */, sPK_Device_From.c_str(), 186 /* PK_Device_MediaSource */, sPK_Device_MediaSource.c_str(), 187 /* StreamID */, sStreamID_String.c_str(), 188 /* Position */, sPosition.c_str(), 189 /* Users */, sUsers.c_str(), 190 /* PK_MediaType */, sPK_MediaType_String.c_str());
+				184 /* PK_DeviceFrom */, sPK_Device_From.c_str(), 186 /* PK_Device_MediaSource */, sPK_Device_MediaSource.c_str(), 187 /* StreamID */, sStreamID_String.c_str(), 188 /* Position */, sPosition.c_str(), 189 /* Users */, sUsers.c_str(), 190 /* PK_MediaType */, sPK_MediaType_String.c_str(), 226 /* Screen for remote control to go to after prompting */, StringUtils::ltos(iPK_Screen_GoTo).c_str());
 		}
 	};
 
@@ -7605,11 +7605,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_DialogAskToResume_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			int iPK_Screen, string sPK_Device_From, string sPK_Device_MediaSource, string sStreamID_String, string sPosition, string sUsers, string sPK_MediaType_String)
+			string sPK_Device_From, string sPK_Device_MediaSource, string sStreamID_String, string sPosition, string sUsers, string sPK_MediaType_String, int iPK_Screen_GoTo)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 8, 
 				COMMANDPARAMETER_PK_Screen_CONST, "187" /* screen ID */,
-				159 /* Screen for remote control to go to after prompting */, StringUtils::ltos(iPK_Screen).c_str(), 184 /* PK_DeviceFrom */, sPK_Device_From.c_str(), 186 /* PK_Device_MediaSource */, sPK_Device_MediaSource.c_str(), 187 /* StreamID */, sStreamID_String.c_str(), 188 /* Position */, sPosition.c_str(), 189 /* Users */, sUsers.c_str(), 190 /* PK_MediaType */, sPK_MediaType_String.c_str());
+				184 /* PK_DeviceFrom */, sPK_Device_From.c_str(), 186 /* PK_Device_MediaSource */, sPK_Device_MediaSource.c_str(), 187 /* StreamID */, sStreamID_String.c_str(), 188 /* Position */, sPosition.c_str(), 189 /* Users */, sUsers.c_str(), 190 /* PK_MediaType */, sPK_MediaType_String.c_str(), 226 /* Screen for remote control to go to after prompting */, StringUtils::ltos(iPK_Screen_GoTo).c_str());
 		}
 	};
 
@@ -9364,7 +9364,7 @@ namespace DCE
 		virtual void SCREEN_DialogRippingInstructions(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DialogGenericError(long PK_Screen, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DialogCannotBookmark(long PK_Screen, string sErrors){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_DialogAskToResume(long PK_Screen, int iPK_Screen, string sPK_Device_From, string sPK_Device_MediaSource, string sStreamID_String, string sPosition, string sUsers, string sPK_MediaType_String){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_DialogAskToResume(long PK_Screen, string sPK_Device_From, string sPK_Device_MediaSource, string sStreamID_String, string sPosition, string sUsers, string sPK_MediaType_String, int iPK_Screen_GoTo){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DialogGC100Error(long PK_Screen, string sDescription, string sCannotGoBack){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DialogPhoneInstructions(long PK_Screen, string sDescription, string sPhoneName){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sMac_address, string sCommand_Line, string sPK_Device_From, string sPhoneName, string sPK_Device_AppServer){ GotoScreen(PK_Screen); }
@@ -10376,14 +10376,14 @@ namespace DCE
 				}
 				case 187:
 				{
-					int iPK_Screen = atoi(pMessage->m_mapParameters[159].c_str());
 					string sPK_Device_From = pMessage->m_mapParameters[184];
 					string sPK_Device_MediaSource = pMessage->m_mapParameters[186];
 					string sStreamID_String = pMessage->m_mapParameters[187];
 					string sPosition = pMessage->m_mapParameters[188];
 					string sUsers = pMessage->m_mapParameters[189];
 					string sPK_MediaType_String = pMessage->m_mapParameters[190];
-					SCREEN_DialogAskToResume(nPK_Screen, iPK_Screen, sPK_Device_From, sPK_Device_MediaSource, sStreamID_String, sPosition, sUsers, sPK_MediaType_String);
+					int iPK_Screen_GoTo = atoi(pMessage->m_mapParameters[226].c_str());
+					SCREEN_DialogAskToResume(nPK_Screen, sPK_Device_From, sPK_Device_MediaSource, sStreamID_String, sPosition, sUsers, sPK_MediaType_String, iPK_Screen_GoTo);
 					break;
 				}
 				case 188:

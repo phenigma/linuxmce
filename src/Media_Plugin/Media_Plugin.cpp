@@ -2785,8 +2785,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		sName = "Unknown disc";
 		bUsingUnknownDiscName=true;
 	}
-	sName = StringUtils::Replace(sName,"/","-");
-	sName = StringUtils::Replace(sName,"\\","-");
 
 	string sSubDir = pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "videos" : "audio";
 	if( iPK_Users==0 )
@@ -2927,16 +2925,35 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 
 	if( pRippingJob->m_bAborted )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Job aborted %s",pRippingJob->m_sName.c_str());
-		FileUtils::DelFile(pRippingJob->m_sName + "/*in-progress*");
-		FileUtils::DelFile(FileUtils::BasePath(pRippingJob->m_sName) + "/*in-progress*");
 		if( FileUtils::DirExists(pRippingJob->m_sName) )
 		{
+			string::size_type pos=0;
+			while(pos<pRippingJob->m_sTracks.size())
+			{
+				string sTrack = StringUtils::Tokenize( pRippingJob->m_sTracks, "|", pos );
+				string::size_type pos_name = sTrack.find(",");
+				if( pos_name!=string::npos )
+				{
+					FileUtils::DelFile(pRippingJob->m_sName + "/" + sTrack.substr(pos_name+1) + "*");
+g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pRippingJob->m_sName + "/" + sTrack.substr(pos_name+1) + "*").c_str() );
+				}
+			}
 			list<string> listFiles;
 			FileUtils::FindFiles(listFiles,pRippingJob->m_sName,"*",true,false,1);
+			FileUtils::FindDirectories(listFiles,pRippingJob->m_sName,false);
 			g_pPlutoLogger->Write(LV_STATUS,"It's a directory %s with %d files",pRippingJob->m_sName.c_str(),(int) listFiles.size());
-			if( listFiles.size()==0 )
+			if( listFiles.size()==0 )  // There's nothing else in that directory.  Delete it
+			{
 				FileUtils::DelDir(pRippingJob->m_sName);
+				string sParent = FileUtils::BasePath(pRippingJob->m_sName);
+				FileUtils::FindFiles(listFiles,sParent,"*",true,false,1);
+				FileUtils::FindDirectories(listFiles,sParent,false);
+			}
+		}
+		else
+		{
+			FileUtils::DelFile(pRippingJob->m_sName + ".*");  // Delete any temporary or in progress
+g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pRippingJob->m_sName + ".*").c_str() );
 		}
 	}
 
@@ -2999,6 +3016,27 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 			CMD_Display_Message_Name.m_pMessage->m_vectExtraMessages.push_back(CMD_Display_Message.m_pMessage);
 			SendCommand(CMD_Display_Message);
 		}
+	}
+
+	// Delete any lock files
+	if( FileUtils::DirExists(pRippingJob->m_sName) )  // Delete any locks
+	{
+		string::size_type pos=0;
+		while(pos<pRippingJob->m_sTracks.size())
+		{
+			string sTrack = StringUtils::Tokenize( pRippingJob->m_sTracks, "|", pos );
+			string::size_type pos_name = sTrack.find(",");
+			if( pos_name!=string::npos )
+			{
+				FileUtils::DelFile(pRippingJob->m_sName + "/" + sTrack.substr(pos_name+1) + ".*.lock");
+g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pRippingJob->m_sName + "/" + sTrack.substr(pos_name+1) + ".*.lock").c_str() );
+			}
+		}
+	}
+	else
+	{
+		FileUtils::DelFile(pRippingJob->m_sName + ".*.lock");  
+g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pRippingJob->m_sName + ".*.lock").c_str() );
 	}
 
 	delete pRippingJob;
@@ -4226,14 +4264,13 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 	bool bIsOSD=pMediaStream->OrbiterIsOSD(iPK_Device_Orbiter,&pEntertainArea_OSD);
 
 	SCREEN_DialogAskToResume SCREEN_DialogAskToResume(m_dwPK_Device, iPK_Device_Orbiter,
-		bIsOSD ? pRemoteControlSet->m_iPK_Screen_OSD : pRemoteControlSet->m_iPK_Screen_Remote,
 		StringUtils::ltos(m_dwPK_Device), 
 		StringUtils::ltos(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device),
 		StringUtils::itos(pMediaStream->m_iStreamID_get()),
 		sPosition,
 		StringUtils::itos(pMediaStream->m_iPK_Users),
-		StringUtils::itos(pMediaStream->m_iPK_MediaType)
-	);
+		StringUtils::itos(pMediaStream->m_iPK_MediaType),
+		bIsOSD && pRemoteControlSet->m_iPK_Screen_OSD ? pRemoteControlSet->m_iPK_Screen_OSD : pRemoteControlSet->m_iPK_Screen_Remote);
 	SendCommand(SCREEN_DialogAskToResume);
 
 	return iPK_Device_Orbiter;

@@ -508,16 +508,16 @@ return it==m_mapMediaStream.end() ? NULL : (*it).second; }
 
 			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
 			{
-				sFilename = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Performer_CONST]);
+				sFilename = FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Performer_CONST]));
 				if( sFilename.size() )
 					sFilename += "/"; // We got a performer
 
-				sFilename += m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]);
+				sFilename += FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]));
 			}
 			else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
-				sFilename = pMediaStream->m_sMediaDescription;
+				sFilename = FileUtils::ValidFileName(pMediaStream->m_sMediaDescription);
 			else if( pMediaStream->m_iPK_Playlist )
-				sFilename = pMediaStream->m_sPlaylistName;
+				sFilename = FileUtils::ValidFileName(pMediaStream->m_sPlaylistName);
 			if( StringUtils::StartsWith(sFilename,"<%=") )
 				sFilename="";  // It's just a stock message--the user will have to pick
 

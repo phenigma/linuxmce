@@ -567,8 +567,8 @@ void ScreenHandler::SCREEN_DialogCannotBookmark(long PK_Screen, string sErrors)
 		"%> " + sErrors);
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_DialogAskToResume(long PK_Screen, int iPK_Screen, string sPK_Device_From, 
-	string sPK_Device_MediaSource, string sStreamID_String, string sPosition, string sUsers, string sPK_MediaType_String)
+void ScreenHandler::SCREEN_DialogAskToResume(long PK_Screen, string sPK_Device_From, string sPK_Device_MediaSource, 
+					string sStreamID_String, string sPosition, string sUsers, string sPK_MediaType_String, int iPK_Screen_GoTo)
 {
 	string sMessageToResume = sPK_Device_From + " " + sPK_Device_MediaSource
 		+ " 1 " + StringUtils::itos(COMMAND_Set_Media_Position_CONST) + " "
@@ -577,7 +577,7 @@ void ScreenHandler::SCREEN_DialogAskToResume(long PK_Screen, int iPK_Screen, str
 
 	string sMessageToGoToRemote = sPK_Device_From + " " + StringUtils::ltos(m_pOrbiter->m_dwPK_Device)
 		+ " 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " "
-		+ StringUtils::itos(COMMANDPARAMETER_PK_Screen_CONST) + " " + StringUtils::itos(iPK_Screen);
+		+ StringUtils::itos(COMMANDPARAMETER_PK_Screen_CONST) + " " + StringUtils::itos(iPK_Screen_GoTo);
 
 	string sMessageToSetPreference = StringUtils::ltos(m_pOrbiter->m_dwPK_Device) + " " + sPK_Device_From
 		+ " 1 " + StringUtils::itos(COMMAND_Set_Auto_Resume_Options_CONST) + " "
