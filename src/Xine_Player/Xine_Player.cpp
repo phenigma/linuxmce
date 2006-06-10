@@ -1056,7 +1056,7 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 void Xine_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c548-e->
 {
-	CMD_Goto_Media_Menu(0,0);
+	CMD_Goto_Media_Menu(1,0);
 }
 
 void Xine_Player::ReportTimecode(int iStreamID, int Speed)
