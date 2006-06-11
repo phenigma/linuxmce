@@ -74,6 +74,7 @@ Renderer r("/usr/share/fonts/truetype/msttcorefonts/", "", 800, 600, FLAG_DISABL
 #endif
 
 int Renderer::m_Rotate=0;
+float Renderer::m_fScaleX,Renderer::m_fScaleY;
 
 
 Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo)
@@ -276,7 +277,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			}
 			else
 			{
-				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,false,bIsMenu ? m_cDefaultToAxisForBackground : 0, pDesignObj_Generator->m_rBitmapOffset,!pDesignObj_Generator->m_bContainsFloorplans);
+				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,false,bIsMenu ? m_cDefaultScaleForMenuBackground : m_cDefaultScaleForOtherGraphics, pDesignObj_Generator->m_rBitmapOffset,!pDesignObj_Generator->m_bContainsFloorplans);
 //SaveImageToFile(pRenderImage_Child, "first");
 			}
 
@@ -587,12 +588,12 @@ void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFil
 }
 
 // load image from file and possibly scale/stretch it
-RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool bPreserveAspectRatio,bool bCrop,char cUseAxis,PlutoRectangle offset,bool bUseAntiAliasing)
+RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool bPreserveAspectRatio,bool bCrop,char cScale,PlutoRectangle offset,bool bUseAntiAliasing)
 {
 	FILE * File;
 
 	File = fopen(sFilename.c_str(), "rb");
-	RendererImage * Result = CreateFromFile(File, size, bPreserveAspectRatio, bCrop, cUseAxis, offset,bUseAntiAliasing);
+	RendererImage * Result = CreateFromFile(File, size, bPreserveAspectRatio, bCrop, cScale, offset,bUseAntiAliasing);
     if (Result == NULL)
     {
         throw "Can't create surface from file: " + sFilename  + ": " + SDL_GetError();
@@ -602,7 +603,7 @@ RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool b
 	return Result;
 }
 
-RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, PlutoSize size, bool bPreserveAspectRatio, bool bCrop, char cUseAxis,PlutoRectangle offset, bool bUseAntiAliasing)
+RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, PlutoSize size, bool bPreserveAspectRatio, bool bCrop, char cScale,PlutoRectangle offset, bool bUseAntiAliasing)
 {
     SDL_Surface * SurfaceFromFile=NULL;
     //  try
@@ -702,36 +703,45 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
         // image needs to be steched/scaled
         // I could use SDL_SoftStretch(), but the SDL developers strongly advise against it for the moment
         // I use the SGE extension library instead
-        float scaleX = (float) RIFromFile->m_pSDL_Surface->w / SurfaceFromFile->w;
-        float scaleY = (float) RIFromFile->m_pSDL_Surface->h / SurfaceFromFile->h;
+        float scaleX,scaleY;
 
-		if( cUseAxis=='Y' )
-			scaleX = scaleY;
-		else if( cUseAxis=='X' )
-			scaleY = scaleX;
-        else if( bPreserveAspectRatio && bCrop )
-        {
-            if( scaleY>scaleX )  // Take the greater scale, ie cropping the edges
-                scaleX=scaleY;
-            else
-                scaleY=scaleX;
-        }
-        else if( bPreserveAspectRatio )
-        {
-            if( scaleY<scaleX ) // Take the lesser scale, ie shrinking to fit
+		if( cScale=='S' )
+		{
+			scaleX = m_fScaleX;
+			scaleY = m_fScaleY;
+		}
+		else
+		{
+			scaleX = (float) RIFromFile->m_pSDL_Surface->w / SurfaceFromFile->w;
+			scaleY = (float) RIFromFile->m_pSDL_Surface->h / SurfaceFromFile->h;
+		
+			if( cScale=='Y' )
+				scaleX = scaleY;
+			else if( cScale=='X' )
+				scaleY = scaleX;
+			else if( bPreserveAspectRatio && bCrop )
 			{
-				if( scaleY/scaleX<0.94 )  // If we're this close, then it's probably just a rounding error during scaling.  A 6% distortion won't be noticeable, it's more important to fit the target size exactly
-	                scaleX=scaleY;
+				if( scaleY>scaleX )  // Take the greater scale, ie cropping the edges
+					scaleX=scaleY;
+				else
+					scaleY=scaleX;
 			}
-            else
+			else if( bPreserveAspectRatio )
 			{
-				if( scaleX/scaleY<0.94 )
-	                scaleY=scaleX;
+				if( scaleY<scaleX ) // Take the lesser scale, ie shrinking to fit
+				{
+					if( scaleY/scaleX<0.94 )  // If we're this close, then it's probably just a rounding error during scaling.  A 6% distortion won't be noticeable, it's more important to fit the target size exactly
+						scaleX=scaleY;
+				}
+				else
+				{
+					if( scaleX/scaleY<0.94 )
+						scaleY=scaleX;
+				}
 			}
-        }
+		}
 /*  starting with the mobile phone, we have 'distorted' images because we want to re-use buttons, but the aspect ratios are different
 */
-
 #if defined(USE_SGE_TRANSFORM)
         ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, scaleX, scaleY, bUseAntiAliasing ? SGE_TSAFE | SGE_TAA : SGE_TSAFE );
 #elif defined(USE_GD_TRANSFORM)
@@ -750,10 +760,10 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
     return RIFromFile;
 }
 
-RendererImage * Renderer::CreateFromFile(FILE * File, PlutoSize size, bool bPreserveAspectRatio, bool bCrop,char cUseAxis,PlutoRectangle offset, bool bUseAntiAliasing)
+RendererImage * Renderer::CreateFromFile(FILE * File, PlutoSize size, bool bPreserveAspectRatio, bool bCrop,char cScale,PlutoRectangle offset, bool bUseAntiAliasing)
 {
 	SDL_RWops * rw = SDL_RWFromFP(File, 0);
-	return CreateFromRWops(rw, true, size, bPreserveAspectRatio, bCrop, cUseAxis, offset, bUseAntiAliasing);
+	return CreateFromRWops(rw, true, size, bPreserveAspectRatio, bCrop, cScale, offset, bUseAntiAliasing);
 }
 
 void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage * pRenderImage_Child, PlutoPoint pos)
@@ -1115,10 +1125,14 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
     return SubSurface;
 }
 
-void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate,char cDefaultRenderAxis)
+void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate,
+	char cDefaultScaleForMenuBackground,char cDefaultScaleForOtherGraphics,float fScaleX,float fScaleY)
 {
     static Renderer r(font,output,width,height);
-	r.m_cDefaultToAxisForBackground=cDefaultRenderAxis;
+	r.m_cDefaultScaleForMenuBackground=cDefaultScaleForMenuBackground;
+	r.m_cDefaultScaleForOtherGraphics=cDefaultScaleForOtherGraphics;
+	r.m_fScaleX=fScaleX;
+	r.m_fScaleY=fScaleY;
 	if( Rotate )
 		r.m_Rotate = 360 - Rotate;  // SDL treats rotation as counter clockwise, we do clockwise
 	else

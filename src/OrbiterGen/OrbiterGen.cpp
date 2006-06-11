@@ -86,7 +86,8 @@ static bool LocationComparer(LocationInfo *x, LocationInfo *y)
 }
 
 // For some reason windows won't compile with this in the same file???
-void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate,char cDefaultRenderAxis);
+void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate,
+	char cDefaultScaleForMenuBackground,char cDefaultScaleForOtherGraphics,float fScaleX,float fScaleY);
 #ifdef WIN32
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -1555,10 +1556,14 @@ loop_to_keep_looking_for_objs_to_include:
 			m_mapTextString[pRow_Text->PK_Text_get()] = pRow_Text_LS->Description_get();
 	}
 
+	char cScaleMenuBg,cScaleOtherGraphics;
+	string str = m_pRow_Size->ScaleMenuBg_get();
+	cScaleMenuBg = str.size() ? str[0] : 'F';
+	str = m_pRow_Size->ScaleOtherGraphics_get();
+	cScaleOtherGraphics = str.size() ? str[0] : 'F';
+
 	m_iScreensTotal=m_iScreensToRender;
 	m_iScreensToRender=m_iLastReportedPercentage=0;
-
-	char cDefaultRenderForYAxis = m_pRow_Size->ScaleX_get()==m_pRow_Size->ScaleY_get() ? 'Y' : '0';  // The Cisco and other odd UI aspect ratio's need special scaling
 
 	for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
 	{
@@ -1597,7 +1602,7 @@ loop_to_keep_looking_for_objs_to_include:
 				try
 				{
 //if( oco->m_ObjectID.find("2211")!=string::npos )
-					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,oco,m_iRotation,cDefaultRenderForYAxis);
+					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,oco,m_iRotation,cScaleMenuBg,cScaleOtherGraphics,((float) m_pRow_Size->ScaleX_get())/1000,((float) m_pRow_Size->ScaleY_get())/1000);
 					oco->HandleRotation(m_iRotation);
 				}
 				catch(string s)
@@ -2395,6 +2400,18 @@ Row_Size *OrbiterGenerator::TranslateSize(string sSize)
 	if( Width<200 || Width>5000 || Height<200 || Height>5000 )
 		return NULL; // Check some reasonable ranges
 
+	// Try to find an exact match for this UI
+	vector<Row_Size *> vectRow_Size;
+	mds.Size_get()->GetRows("Width=" + StringUtils::itos(Width) + " AND Height=" + StringUtils::itos(Height) + " AND FK_UI=" + StringUtils::itos(m_pRow_UI->PK_UI_get()),&vectRow_Size);
+	if( vectRow_Size.size() )
+		return vectRow_Size[0];
+
+	// Any match for this width and height
+	mds.Size_get()->GetRows("Width=" + StringUtils::itos(Width) + " AND Height=" + StringUtils::itos(Height),&vectRow_Size);
+	if( vectRow_Size.size() )
+		return vectRow_Size[0];
+
+	// No matches.  Build our own
 	int Scale = Height * 1000 / 1600;
 	Row_Size *pRow_Size = new Row_Size(mds.Size_get());
 	pRow_Size->Width_set(Width);
