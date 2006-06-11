@@ -495,7 +495,7 @@ bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMes
 			return false;
 		}
 
-		if ( (pMythTvStream = ConvertToMythMediaStream(m_pMedia_Plugin->m_mapMediaStream_Find(m_mapDevicesToStreams[playbackDevice]), "MythTV_PlugIn::MediaInfoChanged() ")) == NULL)
+		if ( (pMythTvStream = ConvertToMythMediaStream(m_pMedia_Plugin->m_mapMediaStream_Find(m_mapDevicesToStreams[playbackDevice],pMessage->m_dwPK_Device_From), "MythTV_PlugIn::MediaInfoChanged() ")) == NULL)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Could not detect a valid MythTV media stream based on the device %d", pDeviceFrom->m_dwPK_Device);
 			return false;
@@ -668,7 +668,7 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
     g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::CMD_Set_Active_Menu %s", sText.c_str());
 
     MythTvMediaStream *pMythTvMediaStream =
-		ConvertToMythMediaStream(m_pMedia_Plugin->m_mapMediaStream_Find(m_mapDevicesToStreams[pMessage->m_dwPK_Device_From]));
+		ConvertToMythMediaStream(m_pMedia_Plugin->m_mapMediaStream_Find(m_mapDevicesToStreams[pMessage->m_dwPK_Device_From],pMessage->m_dwPK_Device_From));
 
     if( !pMythTvMediaStream )
 	{
