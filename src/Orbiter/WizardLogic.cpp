@@ -397,7 +397,10 @@ bool WizardLogic::SetLocation(string sLocation)
 	string TimeZone = StringUtils::Tokenize(sLocation,"\t",pos);
 
 	if( !PK_City || City.size()==0 || Latitude.size()==0 || Longitude.size()==0 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"WizardLogic::SetLocation City %d %s lat %s long %s",PK_City,City.c_str(),Latitude.c_str(),Longitude.c_str());
 		return false;
+	}
 
 	string sSQL = "UPDATE Installation SET City='" + StringUtils::SQLEscape(City) +
 		"',State='" + StringUtils::SQLEscape(Region) + "',FK_City=" + StringUtils::itos(PK_City) +
