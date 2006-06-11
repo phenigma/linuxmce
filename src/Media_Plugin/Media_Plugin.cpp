@@ -657,7 +657,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     int iStreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
 	bool bWithErrors = pMessage->m_mapParameters[EVENTPARAMETER_With_Errors_CONST]=="1";
-    MediaStream * pMediaStream = m_mapMediaStream_Find( iStreamID );
+    MediaStream * pMediaStream = m_mapMediaStream_Find( iStreamID, pMessage->m_dwPK_Device_From );
 
     if ( pMediaStream == NULL )
     {
@@ -720,7 +720,7 @@ bool Media_Plugin::PlaybackStarted( class Socket *pSocket,class Message *pMessag
 	string sSectionDescription = pMessage->m_mapParameters[EVENTPARAMETER_SectionDescription_CONST];
 	string sAudio = pMessage->m_mapParameters[EVENTPARAMETER_Audio_CONST];
 	string sVideo = pMessage->m_mapParameters[EVENTPARAMETER_Video_CONST];
-    MediaStream * pMediaStream = m_mapMediaStream_Find( iStreamID );
+    MediaStream * pMediaStream = m_mapMediaStream_Find( iStreamID, pMessage->m_dwPK_Device_From );
 
     if ( pMediaStream == NULL )
     {
@@ -2264,7 +2264,7 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 	MediaStream *pMediaStream;
 
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-	if ( (pMediaStream = m_mapMediaStream_Find(iStreamID)) == NULL )
+	if ( (pMediaStream = m_mapMediaStream_Find(iStreamID,pMessage->m_dwPK_Device_From)) == NULL )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "No media stream with ID %d available", iStreamID );
 		return;
@@ -3465,7 +3465,7 @@ void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID
 	MediaStream *pMediaStream = NULL;
 	if( !iEK_File )
 	{
-		pMediaStream = m_mapMediaStream_Find(iStreamID);
+		pMediaStream = m_mapMediaStream_Find(iStreamID,pMessage->m_dwPK_Device_From);
 		if( !pMediaStream )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Add_Media_Attribute cannot find stream %d",iStreamID);
@@ -4282,10 +4282,10 @@ void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal
 //<-dceag-c689-e->
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-    MediaStream * pMediaStream = m_mapMediaStream_Find( iStreamID );
+    MediaStream * pMediaStream = m_mapMediaStream_Find( iStreamID, pMessage->m_dwPK_Device_From );
 
     if ( pMediaStream == NULL )
-    {
+	{
         g_pPlutoLogger->Write(LV_WARNING, "CMD_Update_Time_Code - Stream ID %d is not mapped to a media stream object", iStreamID);
         return;
     }
@@ -4482,7 +4482,7 @@ void Media_Plugin::AlarmCallback(int id, void* param)
 	PLUTO_SAFETY_LOCK(sm,m_MediaMutex);
 	if( id==MEDIA_PLAYBACK_TIMEOUT )
 	{
-		MediaStream *pMediaStream = m_mapMediaStream_Find((int) param);
+		MediaStream *pMediaStream = m_mapMediaStream_Find((int) param,0);
 		if( pMediaStream )
 			ProcessMediaFileTimeout(pMediaStream);
 	}

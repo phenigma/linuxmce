@@ -221,11 +221,23 @@ public:
 
     EntertainArea *m_mapEntertainAreas_Find(int iPK_EntertainArea) { map<int,class EntertainArea *>::iterator it = m_mapEntertainAreas.find(iPK_EntertainArea); return it==m_mapEntertainAreas.end() ? NULL : (*it).second; }
     MediaDevice *m_mapMediaDevice_Find(int iPK_Device) { map<int,class MediaDevice *>::iterator it = m_mapMediaDevice.find(iPK_Device); return it==m_mapMediaDevice.end() ? NULL : (*it).second; }
-    MediaStream *m_mapMediaStream_Find(int StreamID)  { MapMediaStream::iterator it = m_mapMediaStream.find(StreamID);  
-// temporary test code
-if( it==m_mapMediaStream.end() )
-g_pPlutoLogger->Write(LV_CRITICAL,"m_mapMediaStream_Find FAILED to find stream %d",StreamID);
-return it==m_mapMediaStream.end() ? NULL : (*it).second; }
+    MediaStream *m_mapMediaStream_Find(int StreamID,int iPK_Device_Source)
+	{ 
+		MapMediaStream::iterator it = m_mapMediaStream.find(StreamID);  
+		if( it!=m_mapMediaStream.end() )
+			return it->second; 
+		// Sometimes the stream ID is invalid or the media player doesn't use it.  If so we can't be 100% certain, but it's probably the media stream in that source device's ent area
+		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(iPK_Device_Source);
+		if( !pMediaDevice )
+			return NULL;
+		for(map<int,class EntertainArea *>::iterator it2=pMediaDevice->m_mapEntertainArea.begin();it2!=pMediaDevice->m_mapEntertainArea.end();++it2)
+		{
+			EntertainArea *pEntertainArea = it2->second;
+			if( pEntertainArea->m_pMediaStream )
+				return pEntertainArea->m_pMediaStream;
+		}
+		return NULL;
+	}
 	bool m_mapMediaType_Bookmarkable_Find(int iPK_MediaType) { map<int,bool>::iterator it=m_mapMediaType_Bookmarkable.find(iPK_MediaType); return it==m_mapMediaType_Bookmarkable.end() ? false : (*it).second; }
 	void m_mapMediaStream_Remove(int StreamID) { MapMediaStream::iterator it = m_mapMediaStream.find(StreamID); if( it!=m_mapMediaStream.end() ) m_mapMediaStream.erase(it); }
 

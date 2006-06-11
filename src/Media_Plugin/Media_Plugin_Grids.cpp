@@ -1034,14 +1034,17 @@ class DataGridTable *Media_Plugin::MediaAttrCurStream( string GridID, string Par
 			pDataGrid->SetData(0,iRow++,pCell);
 		}
 	}
-	for(size_t s=0;s<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size();++s)
+
+	MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->GetCurrentMediaFile();
+	if( pMediaFile )
 	{
-		MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->m_dequeMediaFile[s];
 		string sNamePrefix;
+		/* Why would the user want the filename again??
 		if( pMediaFile->m_dwPK_File )
 			sNamePrefix = "(" + pMediaFile->m_sFilename + ") ";  // It's a real file
 		else
-			sNamePrefix = "(#" + StringUtils::itos(s+1) + ") ";
+			sNamePrefix = "(#" + StringUtils::itos(pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos+1) + ") ";
+		*/
 		for( map<int,int>::iterator it=pMediaFile->m_mapPK_Attribute.begin();it!=pMediaFile->m_mapPK_Attribute.end();++it)
 		{
 			Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);

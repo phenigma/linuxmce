@@ -302,7 +302,7 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 	if( m_bPlugInWillSetDescription )
 		return;
 
-	m_sMediaDescription="";
+	m_sMediaDescription=""; m_sSectionDescription="";
 	Media_Plugin *pMedia_Plugin = m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin;
 
 	if( m_iPK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST || m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST || m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST )

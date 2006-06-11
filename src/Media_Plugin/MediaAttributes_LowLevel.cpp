@@ -1169,7 +1169,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 
 		pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
 		pRow_File->EK_MediaType_set(PK_MediaType);
-		pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDestination)));
+		pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(sDestination));
 		pRow_File->Filename_set( FileUtils::FilenameWithoutPath(sRippedFile) );
 		m_pDatabase_pluto_media->File_get()->Commit();
 

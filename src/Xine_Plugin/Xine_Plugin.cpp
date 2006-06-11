@@ -350,7 +350,7 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 
 	/** Find the stream */
 	XineMediaStream *pXineMediaStream = NULL;
-	if ( (pXineMediaStream = ConvertToXineMediaStream(m_pMedia_Plugin->m_mapMediaStream_Find( StreamID ), "Xine_Plugin::MenuOnScreen(): ")) == NULL )
+	if ( (pXineMediaStream = ConvertToXineMediaStream(m_pMedia_Plugin->m_mapMediaStream_Find( StreamID,pMessage->m_dwPK_Device_From ), "Xine_Plugin::MenuOnScreen(): ")) == NULL )
 		return false;
 
 	pXineMediaStream->m_bUseAltScreens=bOnOff;
