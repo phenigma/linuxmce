@@ -251,25 +251,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 		}
 	}
 
-	if( bIsOrbiter )
-	{
-		g_pPlutoLogger->Write(LV_STATUS,"it's an orbiter, time to generate");
-		string SQL = "SELECT PK_Device FROM Device WHERE FK_Installation=" + StringUtils::itos(m_iPK_Installation) + " AND FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_Orbiter_Plugin_CONST);
-		PlutoSqlResult result;
-		MYSQL_ROW row;
-		if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
-		{
-			int iPK_Device_OP = atoi(row[0]);
-			string sCmd = "/usr/pluto/bin/MessageSend localhost 0 " + StringUtils::itos(iPK_Device_OP) + " 1 " +
-				StringUtils::itos(COMMAND_Regen_Orbiter_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_Device_CONST) + " " + StringUtils::itos(PK_Device);
-			g_pPlutoLogger->Write(LV_STATUS,"Calling %s",sCmd.c_str());
-			system(sCmd.c_str());
-		}
-		else
-			cerr << "No Orbiter plugin" << endl;
-
-	}
-
 	// If we weren't given a controlled via, try to find an appropriate one
 	// Do this last since the controlled via may be something we added above
 	if( !PK_Device_ControlledVia )
@@ -286,6 +267,25 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 				return 0;
 			}
 		}
+	}
+
+	// If this is an orbiter, and it's not an on-screen orbiter for the first device created (meaning we're still installing), then DCERouter should be running.  Send a regen message
+	if( bIsOrbiter && DatabaseUtils::GetTopMostDevice(this,PK_Device)!=1 )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"it's an orbiter, time to generate");
+		string SQL = "SELECT PK_Device FROM Device WHERE FK_Installation=" + StringUtils::itos(m_iPK_Installation) + " AND FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_Orbiter_Plugin_CONST);
+		PlutoSqlResult result;
+		MYSQL_ROW row;
+		if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+		{
+			int iPK_Device_OP = atoi(row[0]);
+			string sCmd = "/usr/pluto/bin/MessageSend localhost 0 " + StringUtils::itos(iPK_Device_OP) + " 1 " +
+				StringUtils::itos(COMMAND_Regen_Orbiter_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_Device_CONST) + " " + StringUtils::itos(PK_Device);
+			g_pPlutoLogger->Write(LV_STATUS,"Calling %s",sCmd.c_str());
+			system(sCmd.c_str());
+		}
+		else
+			cerr << "No Orbiter plugin" << endl;
 	}
 
 	if( iPK_Package && !m_bDontInstallPackages )
