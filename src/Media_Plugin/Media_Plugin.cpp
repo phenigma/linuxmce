@@ -3022,27 +3022,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pR
 		}
 	}
 
-	// Delete any lock files
-	if( FileUtils::DirExists(pRippingJob->m_sName) )  // Delete any locks
-	{
-		string::size_type pos=0;
-		while(pos<pRippingJob->m_sTracks.size())
-		{
-			string sTrack = StringUtils::Tokenize( pRippingJob->m_sTracks, "|", pos );
-			string::size_type pos_name = sTrack.find(",");
-			if( pos_name!=string::npos )
-			{
-				FileUtils::DelFile(pRippingJob->m_sName + "/" + sTrack.substr(pos_name+1) + ".*.lock");
-g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pRippingJob->m_sName + "/" + sTrack.substr(pos_name+1) + ".*.lock").c_str() );
-			}
-		}
-	}
-	else
-	{
-		FileUtils::DelFile(pRippingJob->m_sName + ".*.lock");  
-g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pRippingJob->m_sName + ".*.lock").c_str() );
-	}
-
 	delete pRippingJob;
 	m_mapRippingJobs.erase(pMessage->m_dwPK_Device_From);
 	return true;

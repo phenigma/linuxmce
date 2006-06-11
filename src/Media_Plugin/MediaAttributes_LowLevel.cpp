@@ -1072,49 +1072,43 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 			if( p2<s.size() && p2!=string::npos )
 				sTrackName = s.substr(p2);
 			
-			// See if there's a file with this base name
+			// There should be a '.lock' file
 			list<string> listFiles;
-			FileUtils::FindFiles(listFiles,sDestination,sTrackName + ".*");
-//listFiles.push_back(sTrackName+".flac");
+			FileUtils::FindFiles(listFiles,sDestination,sTrackName + ".*.lock");
 			if( listFiles.size()!=1 )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped track: %s/%s",sDestination.c_str(),sTrackName.c_str());
+				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped track lock file: %s/%s",sDestination.c_str(),sTrackName.c_str());
 				continue;
 			}
+			string sLockFile = listFiles.front();
+			listFiles.clear();
+			FileUtils::FindFiles(listFiles,sDestination,FileUtils::FileWithoutExtension(sLockFile)); // Now find the file without the lock
+			if( listFiles.size()!=1 )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped track for lock file: %s",sLockFile.c_str());
+				continue;
+			}
+			string sRippedFile = listFiles.front();
 
 			vector<Row_File *> vectRow_File;
-			m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDestination))) +
-				"' AND Filename='" + StringUtils::SQLEscape(FileUtils::FilenameWithoutPath(listFiles.front())) + "'",
+			m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sDestination)) +
+				"' AND Filename='" + StringUtils::SQLEscape(FileUtils::FilenameWithoutPath(sRippedFile)) + "'",
 				&vectRow_File);
 
 			Row_File *pRow_File = NULL;
 			if(vectRow_File.size() > 0)
-			{
 				pRow_File = vectRow_File[0];
-			}
 			else
-			{
 				pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
-				if( PK_MediaType==MEDIATYPE_pluto_CD_CONST )
-					pRow_File->EK_MediaType_set(MEDIATYPE_pluto_StoredAudio_CONST);
-				else
-					pRow_File->EK_MediaType_set(PK_MediaType);
-				pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
-				pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(sDestination));
-				pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
-				m_pDatabase_pluto_media->File_get()->Commit();
 
-				string sLockFile = FileUtils::ExcludeTrailingSlash(sDestination) + "/" + FileUtils::FilenameWithoutPath(listFiles.front()) + ".lock";
-				if(FileUtils::FileExists(sLockFile))
-				{
-					g_pPlutoLogger->Write(LV_WARNING, "Lock file '%s' found. Deleting it...", sLockFile.c_str());
-					FileUtils::DelFile(sLockFile);
-				}
-				else
-				{
-					g_pPlutoLogger->Write(LV_CRITICAL, "Lock file '%s' NOT found! Ripped file unprotected!", sLockFile.c_str());
-				}
-			}
+			if( PK_MediaType==MEDIATYPE_pluto_CD_CONST )
+				pRow_File->EK_MediaType_set(MEDIATYPE_pluto_StoredAudio_CONST);
+			else
+				pRow_File->EK_MediaType_set(PK_MediaType);
+			pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
+			pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(sDestination));
+			pRow_File->Filename_set( sRippedFile );
+			m_pDatabase_pluto_media->File_get()->Commit();
 
 			AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,iTrack);
 
@@ -1134,58 +1128,53 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 					m_pDatabase_pluto_media->File_Attribute_get()->Commit();
 				}
 			}
+			FileUtils::DelFile(sDestination + "/" + sLockFile);
 		}
 	}
 	else
 	{
+		string sFileNameBase = FileUtils::FilenameWithoutPath(sDestination);
+		sDestination = FileUtils::BasePath(sDestination);
 		// It's not a directory, so it should be a file
+		// There should be a '.lock' file
 		list<string> listFiles;
-		FileUtils::FindFiles(listFiles,FileUtils::BasePath(sDestination),FileUtils::FilenameWithoutPath(sDestination) + ".*");
-
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::AddRippedDiscToDatabase Dir does not exists %s found %d files",sDestination.c_str(),(int) listFiles.size());
-
-		if( listFiles.size()>1 )
-		{
-			g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::AddRippedDiscToDatabase removing id3 files");
-			for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
-			{
-g_pPlutoLogger->Write(LV_WARNING,"Checking file %s with extension %s",(*it).c_str(),FileUtils::FindExtension(*it).c_str());
-				if( FileUtils::FindExtension(*it)=="id3" || FileUtils::FindExtension(*it)=="lock")
-				{
-					listFiles.erase(it);
-g_pPlutoLogger->Write(LV_WARNING,"Removing it.  size is %d",(int) listFiles.size());
-					break;
-				}
-			}
-		}
+		FileUtils::FindFiles(listFiles,sDestination,sFileNameBase + ".*.lock");
 		if( listFiles.size()!=1 )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped disc: %s",sDestination.c_str());
-		else
 		{
-			AddDirectoryToDatabase(PK_MediaType,FileUtils::BasePath(sDestination));
-
-			vector<Row_File *> vectRow_File;
-			m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDestination))) +
-				"' AND Filename='" + StringUtils::SQLEscape(FileUtils::FilenameWithoutPath(listFiles.front())) + "'",
-				&vectRow_File);
-
-			Row_File *pRow_File = NULL;
-			if(vectRow_File.size() > 0)
-			{
- 				pRow_File = vectRow_File[0];
-			}
-			else
-			{
-				pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
-				pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
-				pRow_File->EK_MediaType_set(PK_MediaType);
-				pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDestination)));
-				pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
-				m_pDatabase_pluto_media->File_get()->Commit();
-			}
-
-			AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,-1);  // We won't have tracks then we ripped.  -1=ripped whole thing
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped disc lock file: %s/%s",sDestination.c_str(),sFileNameBase.c_str());
+			return;
 		}
+		string sLockFile = listFiles.front();
+		listFiles.clear();
+		FileUtils::FindFiles(listFiles,sDestination,FileUtils::FileWithoutExtension(sLockFile)); // Now find the file without the lock
+		if( listFiles.size()!=1 )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped disc for lock file: %s",sLockFile.c_str());
+			return;
+		}
+		string sRippedFile = listFiles.front();
+
+		AddDirectoryToDatabase(PK_MediaType,FileUtils::BasePath(sDestination));
+
+		vector<Row_File *> vectRow_File;
+		m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDestination))) +
+			"' AND Filename='" + StringUtils::SQLEscape(FileUtils::FilenameWithoutPath(sRippedFile)) + "'",
+			&vectRow_File);
+
+		Row_File *pRow_File = NULL;
+		if(vectRow_File.size() > 0)
+ 			pRow_File = vectRow_File[0];
+		else
+			pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+
+		pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
+		pRow_File->EK_MediaType_set(PK_MediaType);
+		pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDestination)));
+		pRow_File->Filename_set( FileUtils::FilenameWithoutPath(sRippedFile) );
+		m_pDatabase_pluto_media->File_get()->Commit();
+
+		AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,-1);  // We won't have tracks then we ripped.  -1=ripped whole thing
+		FileUtils::DelFile(sDestination + "/" + sLockFile);
 	}
 }
 
