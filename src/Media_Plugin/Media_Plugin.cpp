@@ -1021,6 +1021,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	g_pPlutoLogger->Write(LV_STATUS,"Ready to call plugin's startmedia");
 	int iPK_Orbiter_PromptingToResume = 0;	string::size_type queue_pos;
 	if( pMediaStream->m_sStartPosition.size()==0 && 
+		(pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST) &&  // Don't bother asking for music
 			(pMediaStream->m_iDequeMediaFile_Pos<0 || pMediaStream->m_iDequeMediaFile_Pos>=pMediaStream->m_dequeMediaFile.size() ||
 			pMediaStream->GetCurrentMediaFile()->m_sStartPosition.size()==0) )
 		iPK_Orbiter_PromptingToResume = CheckForAutoResume(pMediaStream);
@@ -1228,9 +1229,9 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 						else if( iValue<0 && pMediaDevice->m_iLastPlaybackSpeed>0 )
 							pMediaDevice->m_iLastPlaybackSpeed=-2000;
 
-						// We're changing directions to forward, start at 1000
+						// We're changing directions to forward, start at 2000
 						else if( iValue>0 && pMediaDevice->m_iLastPlaybackSpeed<0 )
-							pMediaDevice->m_iLastPlaybackSpeed=1000;
+							pMediaDevice->m_iLastPlaybackSpeed=2000;
 
 						// We were paused and now got a forward.  Start out in slow motion
 						else if( iValue>0 && pMediaDevice->m_iLastPlaybackSpeed==0 )
@@ -1490,6 +1491,9 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 	for(size_t s=0;s<vectEntertainArea.size();++s)
 	{
 		EntertainArea *pEntertainArea = vectEntertainArea[s];
+		for(vector<class MediaStream  *>::iterator it=pEntertainArea->m_vectMediaStream_Interrupted.begin();it!=pEntertainArea->m_vectMediaStream_Interrupted.end();++it)
+			delete *it;
+		pEntertainArea->m_vectMediaStream_Interrupted.clear();
 		if( !pEntertainArea->m_pMediaStream )
 			continue; // Don't know what area it should be played in, or there's no media playing there
 

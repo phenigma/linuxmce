@@ -88,7 +88,7 @@ using namespace DCE;
 
 #define COUNTDOWN_INTERVAL_1			10  // How many seconds to wait when making the initial, full announcement
 #define COUNTDOWN_INTERVAL_2			5	// How many seconds to wait for subsequence announcement, while still not in RAPID_COUNTDOWN
-#define COUNTDOWN_INTERVAL_3			1	// How many seconds to wait for the RAPID_COUNTDOWN
+#define COUNTDOWN_INTERVAL_3			2	// How many seconds to wait for the RAPID_COUNTDOWN
 
 void* StartNotification( void* param ) 
 {
@@ -459,7 +459,9 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	m_mapPK_HouseMode[iPK_DeviceGroup]=PK_HouseMode;
 	SaveHouseModes();
 	Row_AlertType *pRow_AlertType = m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_Security_CONST);
-	string sAlerts = AlertsSinceLastChange(iPK_DeviceGroup);
+
+	bool bSecurityOrFire;
+	string sAlerts = AlertsSinceLastChange(iPK_DeviceGroup,bSecurityOrFire);
 
 	SetHouseModeBoundIcon(iPK_DeviceGroup);
 	
@@ -555,12 +557,14 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 		SendCommand(CMD_Set_House_Mode_DL_);
 	}
 
-	EVENT_Reset_Alarm();
+	if( bSecurityOrFire )
+		EVENT_Reset_Alarm();  // There were breaches, which likely caused media to start playing.  Reset the alarm
 	EVENT_House_Mode_Changed(iPK_DeviceGroup,PK_HouseMode);
 }
 
-string Security_Plugin::AlertsSinceLastChange(int PK_DeviceGroup)
+string Security_Plugin::AlertsSinceLastChange(int PK_DeviceGroup,bool &bSecurityOrFire)
 {
+	bSecurityOrFire=false;
 	Row_ModeChange *pRow_ModeChange = m_mapRow_ModeChange_Last_Find(PK_DeviceGroup);
 	if( !pRow_ModeChange )
 		return "";
@@ -571,6 +575,9 @@ string Security_Plugin::AlertsSinceLastChange(int PK_DeviceGroup)
 	for(size_t s=0;s<vectRow_Alert.size();++s)
 	{
 		Row_Alert *pRow_Alert = vectRow_Alert[s];
+		if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Security_CONST || pRow_Alert->FK_AlertType_get()==ALERTTYPE_Fire_CONST || pRow_Alert->FK_AlertType_get()==ALERTTYPE_Air_Quality_CONST )
+			bSecurityOrFire=true;
+
 		DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(pRow_Alert->EK_Device_get());
 		sAlert += pRow_Alert->DetectionTime_get() + " ";
 		if( pDevice )

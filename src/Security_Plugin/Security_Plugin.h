@@ -114,7 +114,7 @@ public:
 	int GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice,bool *bNotify=NULL);
 	void SecurityBreach(DeviceData_Router *pDevice);
 	void FireAlarm(DeviceData_Router *pDevice);
-	string AlertsSinceLastChange(int PK_DeviceGroup);
+	string AlertsSinceLastChange(int PK_DeviceGroup,bool &bSecurityOrFire);
 	void SaveHouseModes();  // Save m_mapPK_HouseMode to the database
 	void GetHouseModes(); // Get m_mapPK_HouseMode from the database
 

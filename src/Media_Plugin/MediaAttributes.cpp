@@ -117,6 +117,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Save playlist id %d with %d rows",iPK_Playlist,
 			pRow_PlaylistEntry->FK_File_set(pMediaFile->m_dwPK_File);
 		pRow_PlaylistEntry->Path_set(pMediaFile->m_sPath);
 		pRow_PlaylistEntry->Filename_set(pMediaFile->m_sFilename);
+		pRow_PlaylistEntry->Order_set(s);
 	}
 
     if( !m_pDatabase_pluto_media->PlaylistEntry_get()->Commit(true,true) )

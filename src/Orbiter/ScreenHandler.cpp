@@ -473,11 +473,11 @@ void ScreenHandler::SCREEN_ModeChanged(long PK_Screen, string sPK_HouseMode, str
 		StringUtils::itos(DESIGNOBJ_icoHouseStatusIndicator_CONST), sPK_HouseMode);
 	m_pOrbiter->CMD_Set_Text(sPK_DesignObj, sHouseModeTime, TEXT_House_Mode_Time_CONST);
 
-	if(sExitDelay != "")
-		m_pOrbiter->CMD_Select_Object(sPK_DesignObj, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), sExitDelay);
 
 	m_pOrbiter->CMD_Set_Text(sPK_DesignObj, sAlerts, TEXT_Alerts_Placeholder_CONST);
 	ScreenHandlerBase::SCREEN_ModeChanged(PK_Screen, sPK_HouseMode, sHouseModeTime, sExitDelay, sAlerts);
+	if(sExitDelay != "")
+		m_pOrbiter->CMD_Select_Object(sPK_DesignObj, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), sExitDelay);  // Do this last since the above resets the selected object
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_CurrentlyActiveRemote(long PK_Screen)
