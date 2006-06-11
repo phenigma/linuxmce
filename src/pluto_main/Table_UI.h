@@ -161,6 +161,7 @@ void psc_restrict_setNull(bool val);
 		// Return the rows in other tables with foreign keys pointing here
 		void DesignObjVariation_FK_UI_getrows(vector <class Row_DesignObjVariation*> *rows);
 void Screen_DesignObj_FK_UI_getrows(vector <class Row_Screen_DesignObj*> *rows);
+void Size_FK_UI_getrows(vector <class Row_Size*> *rows);
 void Skin_FK_UI_getrows(vector <class Row_Skin*> *rows);
 void StyleVariation_FK_UI_getrows(vector <class Row_StyleVariation*> *rows);
 void UI_FK_UI_Alt_getrows(vector <class Row_UI*> *rows);

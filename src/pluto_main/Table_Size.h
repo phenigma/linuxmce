@@ -85,6 +85,9 @@ long int m_Height;
 long int m_ScaleX;
 long int m_ScaleY;
 short int m_PreserveAspectRatio;
+long int m_FK_UI;
+string m_ScaleMenuBg;
+string m_ScaleOtherGraphics;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -92,7 +95,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[14];
+		bool is_null[17];
 	
 	public:
 		long int PK_Size_get();
@@ -103,6 +106,9 @@ long int Height_get();
 long int ScaleX_get();
 long int ScaleY_get();
 short int PreserveAspectRatio_get();
+long int FK_UI_get();
+string ScaleMenuBg_get();
+string ScaleOtherGraphics_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -119,6 +125,9 @@ void Height_set(long int val);
 void ScaleX_set(long int val);
 void ScaleY_set(long int val);
 void PreserveAspectRatio_set(short int val);
+void FK_UI_set(long int val);
+void ScaleMenuBg_set(string val);
+void ScaleOtherGraphics_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -128,6 +137,9 @@ void psc_restrict_set(long int val);
 
 		
 		bool Define_isNull();
+bool FK_UI_isNull();
+bool ScaleMenuBg_isNull();
+bool ScaleOtherGraphics_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -136,6 +148,9 @@ bool psc_restrict_isNull();
 
 			
 		void Define_setNull(bool val);
+void FK_UI_setNull(bool val);
+void ScaleMenuBg_setNull(bool val);
+void ScaleOtherGraphics_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -153,14 +168,15 @@ void psc_restrict_setNull(bool val);
 		class Table_Size *Table_Size_get() { return table; };
 
 		// Return the rows for foreign keys 
-		
+		class Row_UI* FK_UI_getrow();
+
 
 		// Return the rows in other tables with foreign keys pointing here
 		
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Size+ m_Description+ m_Define+ m_Width+ m_Height+ m_ScaleX+ m_ScaleY+ m_PreserveAspectRatio+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Size+ m_Description+ m_Define+ m_Width+ m_Height+ m_ScaleX+ m_ScaleY+ m_PreserveAspectRatio+ m_FK_UI+ m_ScaleMenuBg+ m_ScaleOtherGraphics+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -173,6 +189,9 @@ string Height_asSQL();
 string ScaleX_asSQL();
 string ScaleY_asSQL();
 string PreserveAspectRatio_asSQL();
+string FK_UI_asSQL();
+string ScaleMenuBg_asSQL();
+string ScaleOtherGraphics_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

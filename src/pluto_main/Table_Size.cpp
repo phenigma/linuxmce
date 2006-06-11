@@ -17,6 +17,7 @@
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Size.h"
+#include "Table_UI.h"
 
 
 
@@ -133,16 +134,20 @@ is_null[6] = false;
 m_PreserveAspectRatio = 0;
 is_null[7] = false;
 is_null[8] = true;
-m_psc_id = 0;
+m_FK_UI = 0;
 is_null[9] = true;
-m_psc_batch = 0;
 is_null[10] = true;
+is_null[11] = true;
+m_psc_id = 0;
+is_null[12] = true;
+m_psc_batch = 0;
+is_null[13] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
-is_null[11] = false;
+is_null[14] = false;
 m_psc_mod = "00000000000000";
-is_null[12] = false;
-is_null[13] = true;
+is_null[15] = false;
+is_null[16] = true;
 m_psc_restrict = 0;
 
 
@@ -175,6 +180,15 @@ return m_ScaleY;}
 short int Row_Size::PreserveAspectRatio_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PreserveAspectRatio;}
+long int Row_Size::FK_UI_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_UI;}
+string Row_Size::ScaleMenuBg_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_ScaleMenuBg;}
+string Row_Size::ScaleOtherGraphics_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_ScaleOtherGraphics;}
 long int Row_Size::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
@@ -219,68 +233,98 @@ m_ScaleY = val; is_modified=true; is_null[6]=false;}
 void Row_Size::PreserveAspectRatio_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PreserveAspectRatio = val; is_modified=true; is_null[7]=false;}
+void Row_Size::FK_UI_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_UI = val; is_modified=true; is_null[8]=false;}
+void Row_Size::ScaleMenuBg_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_ScaleMenuBg = val; is_modified=true; is_null[9]=false;}
+void Row_Size::ScaleOtherGraphics_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_ScaleOtherGraphics = val; is_modified=true; is_null[10]=false;}
 void Row_Size::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[8]=false;}
+m_psc_id = val; is_modified=true; is_null[11]=false;}
 void Row_Size::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[9]=false;}
+m_psc_batch = val; is_modified=true; is_null[12]=false;}
 void Row_Size::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[10]=false;}
+m_psc_user = val; is_modified=true; is_null[13]=false;}
 void Row_Size::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[11]=false;}
+m_psc_frozen = val; is_modified=true; is_null[14]=false;}
 void Row_Size::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[12]=false;}
+m_psc_mod = val; is_modified=true; is_null[15]=false;}
 void Row_Size::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_restrict = val; is_modified=true; is_null[13]=false;}
+m_psc_restrict = val; is_modified=true; is_null[16]=false;}
 
 		
 bool Row_Size::Define_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_Size::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Size::FK_UI_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_Size::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Size::ScaleMenuBg_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
-bool Row_Size::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Size::ScaleOtherGraphics_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[10];}
-bool Row_Size::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Size::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[11];}
-bool Row_Size::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Size::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[12];}
+bool Row_Size::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[13];}
+bool Row_Size::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[14];}
+bool Row_Size::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[16];}
 
 			
 void Row_Size::Define_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_Size::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Size::FK_UI_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_Size::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Size::ScaleMenuBg_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_Size::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Size::ScaleOtherGraphics_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_Size::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Size::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[11]=val;
 is_modified=true;
 }
-void Row_Size::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Size::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[12]=val;
+is_modified=true;
+}
+void Row_Size::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[13]=val;
+is_modified=true;
+}
+void Row_Size::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[14]=val;
+is_modified=true;
+}
+void Row_Size::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[16]=val;
 is_modified=true;
 }
 	
@@ -391,11 +435,52 @@ sprintf(buf, "%hi", m_PreserveAspectRatio);
 return buf;
 }
 
-string Row_Size::psc_id_asSQL()
+string Row_Size::FK_UI_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[8])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_UI);
+
+return buf;
+}
+
+string Row_Size::ScaleMenuBg_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[9])
+return "NULL";
+
+char *buf = new char[3];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_ScaleMenuBg.c_str(), (unsigned long) min((size_t)1,m_ScaleMenuBg.size()));
+string s=string()+"\""+buf+"\"";
+delete[] buf;
+return s;
+}
+
+string Row_Size::ScaleOtherGraphics_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[10])
+return "NULL";
+
+char *buf = new char[3];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_ScaleOtherGraphics.c_str(), (unsigned long) min((size_t)1,m_ScaleOtherGraphics.size()));
+string s=string()+"\""+buf+"\"";
+delete[] buf;
+return s;
+}
+
+string Row_Size::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -408,7 +493,7 @@ string Row_Size::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[9])
+if (is_null[12])
 return "NULL";
 
 char buf[32];
@@ -421,7 +506,7 @@ string Row_Size::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[10])
+if (is_null[13])
 return "NULL";
 
 char buf[32];
@@ -434,7 +519,7 @@ string Row_Size::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[11])
+if (is_null[14])
 return "NULL";
 
 char buf[32];
@@ -447,7 +532,7 @@ string Row_Size::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[12])
+if (is_null[15])
 return "NULL";
 
 char *buf = new char[29];
@@ -461,7 +546,7 @@ string Row_Size::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[13])
+if (is_null[16])
 return "NULL";
 
 char buf[32];
@@ -508,10 +593,10 @@ bool Table_Size::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRo
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Size_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Width_asSQL()+", "+pRow->Height_asSQL()+", "+pRow->ScaleX_asSQL()+", "+pRow->ScaleY_asSQL()+", "+pRow->PreserveAspectRatio_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Size_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Width_asSQL()+", "+pRow->Height_asSQL()+", "+pRow->ScaleX_asSQL()+", "+pRow->ScaleY_asSQL()+", "+pRow->PreserveAspectRatio_asSQL()+", "+pRow->FK_UI_asSQL()+", "+pRow->ScaleMenuBg_asSQL()+", "+pRow->ScaleOtherGraphics_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into Size (`PK_Size`, `Description`, `Define`, `Width`, `Height`, `ScaleX`, `ScaleY`, `PreserveAspectRatio`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into Size (`PK_Size`, `Description`, `Define`, `Width`, `Height`, `ScaleX`, `ScaleY`, `PreserveAspectRatio`, `FK_UI`, `ScaleMenuBg`, `ScaleOtherGraphics`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -567,7 +652,7 @@ condition = condition + "`PK_Size`=" + tmp_PK_Size;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_Size`="+pRow->PK_Size_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `Width`="+pRow->Width_asSQL()+", `Height`="+pRow->Height_asSQL()+", `ScaleX`="+pRow->ScaleX_asSQL()+", `ScaleY`="+pRow->ScaleY_asSQL()+", `PreserveAspectRatio`="+pRow->PreserveAspectRatio_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_Size`="+pRow->PK_Size_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `Width`="+pRow->Width_asSQL()+", `Height`="+pRow->Height_asSQL()+", `ScaleX`="+pRow->ScaleX_asSQL()+", `ScaleY`="+pRow->ScaleY_asSQL()+", `PreserveAspectRatio`="+pRow->PreserveAspectRatio_asSQL()+", `FK_UI`="+pRow->FK_UI_asSQL()+", `ScaleMenuBg`="+pRow->ScaleMenuBg_asSQL()+", `ScaleOtherGraphics`="+pRow->ScaleOtherGraphics_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update Size set " + update_values_list + " where " + condition;
@@ -767,67 +852,100 @@ sscanf(row[7], "%hi", &(pRow->m_PreserveAspectRatio));
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_UI = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_id));
+sscanf(row[8], "%li", &(pRow->m_FK_UI));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_batch = 0;
+pRow->m_ScaleMenuBg = "";
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_batch));
+pRow->m_ScaleMenuBg = string(row[9],lengths[9]);
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_user = 0;
+pRow->m_ScaleOtherGraphics = "";
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_user));
+pRow->m_ScaleOtherGraphics = string(row[10],lengths[10]);
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[11], "%li", &(pRow->m_psc_id));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-pRow->m_psc_mod = string(row[12],lengths[12]);
+sscanf(row[12], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_psc_restrict));
+sscanf(row[13], "%li", &(pRow->m_psc_user));
+}
+
+if (row[14] == NULL)
+{
+pRow->is_null[14]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[14]=false;
+sscanf(row[14], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[15] == NULL)
+{
+pRow->is_null[15]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[15]=false;
+pRow->m_psc_mod = string(row[15],lengths[15]);
+}
+
+if (row[16] == NULL)
+{
+pRow->is_null[16]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[16]=false;
+sscanf(row[16], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1029,67 +1147,100 @@ sscanf(row[7], "%hi", &(pRow->m_PreserveAspectRatio));
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_UI = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_id));
+sscanf(row[8], "%li", &(pRow->m_FK_UI));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_batch = 0;
+pRow->m_ScaleMenuBg = "";
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_batch));
+pRow->m_ScaleMenuBg = string(row[9],lengths[9]);
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_user = 0;
+pRow->m_ScaleOtherGraphics = "";
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_user));
+pRow->m_ScaleOtherGraphics = string(row[10],lengths[10]);
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[11], "%li", &(pRow->m_psc_id));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-pRow->m_psc_mod = string(row[12],lengths[12]);
+sscanf(row[12], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_psc_restrict));
+sscanf(row[13], "%li", &(pRow->m_psc_user));
+}
+
+if (row[14] == NULL)
+{
+pRow->is_null[14]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[14]=false;
+sscanf(row[14], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[15] == NULL)
+{
+pRow->is_null[15]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[15]=false;
+pRow->m_psc_mod = string(row[15],lengths[15]);
+}
+
+if (row[16] == NULL)
+{
+pRow->is_null[16]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[16]=false;
+sscanf(row[16], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1100,6 +1251,13 @@ sscanf(row[13], "%li", &(pRow->m_psc_restrict));
 }
 
 
+class Row_UI* Row_Size::FK_UI_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_UI *pTable = table->database->UI_get();
+return pTable->GetRow(m_FK_UI);
+}
 
 
 
