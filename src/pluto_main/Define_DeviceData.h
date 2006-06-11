@@ -88,7 +88,7 @@
 #define DEVICEDATA_PK_UI_CONST 104
 #define DEVICEDATA_Hard_Keys_mapping_CONST 105
 #define DEVICEDATA_Modules_CONST 106
-#define DEVICEDATA_PK_City_CONST 107
+#define DEVICEDATA_EK_City_CONST 107
 #define DEVICEDATA_Longitude_CONST 108
 #define DEVICEDATA_Latitude_CONST 109
 #define DEVICEDATA_Remote_Layout_CONST 110
