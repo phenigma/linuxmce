@@ -34,6 +34,7 @@ enum E_UNIQUE_ID
     ID_EVTC_THREAD,
     ID_Timer_WakeIdle,
     ID_Timer_ExpireDialog,
+    ID_Timer_CheckMouse,
 };
 
 #define LOG_FILE "/tmp/wxlog"

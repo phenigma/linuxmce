@@ -128,6 +128,9 @@ protected:
     wxString v_sDir;
     wxString v_sFilename;
     wxString v_sWildcard;
+
+    void OnTimer_CheckMouse(wxTimerEvent& event);
+    wxTimer v_oTimer_CheckMouse;
 };
 
 #endif

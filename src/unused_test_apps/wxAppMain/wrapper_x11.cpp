@@ -142,7 +142,8 @@ X11_Locker_NewDisplay::X11_Locker_NewDisplay()
 X11_Locker_NewDisplay::~X11_Locker_NewDisplay()
 {
     X11_Unlock(v_pDisplay);
-    XCloseDisplay(v_pDisplay);
+    if (v_pDisplay)
+        XCloseDisplay(v_pDisplay);
 }
 
 Display * X11_Locker_NewDisplay::GetDisplay()
@@ -791,37 +792,48 @@ bool X11wrapper::Mouse_SetPosition(int nPosX, int nPosY)
     return IsReturnCodeOk(code);
 }
 
-bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY)
+bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY, bool bRelative/*=false*/)
 {
-    _LOG_NFO("pos==(%d, %d)", nPosX, nPosY);
+    //_LOG_NFO("previous pos==(%d, %d)", nPosX, nPosY);
     Window window = Window_GetRoot();
     int code = -1;
     X11_Locker x11_locker(v_pDisplay);
     do
     {
-        Window root_return;
-        Window child_return;
-        int root_x_return;
-        int root_y_return;
-        int win_x_return;
-        int win_y_return;
-        unsigned int mask_return;
-        code = XQueryPointer(
-            v_pDisplay,
-            window,
-            &root_return,
-            &child_return,
-            &root_x_return,
-            &root_y_return,
-            &win_x_return,
-            &win_y_return,
-            &mask_return
-            );
-        _COND_XERROR_LOG_BREAK(code);
-        _LOG_NFO(
-            "root_return==%d, child_return==%d, root_x_return==%d, root_y_return==%d, win_x_return==%d, win_y_return==%d, mask_return==%d",
-            root_return, child_return, root_x_return, root_y_return, win_x_return, win_y_return, mask_return
-            );
+        if (bRelative)
+        {
+            //XDGAMotionEvent xdgamotionevent;
+            //XDGAEvent xdgaevent;
+            //XDGASelectInput(GetDisplay(), GetScreen(), PointerMotionMask | PointerMotionHintMask);
+        }
+        else
+        {
+            Window root_return;
+            Window child_return;
+            int root_x_return;
+            int root_y_return;
+            int win_x_return;
+            int win_y_return;
+            unsigned int mask_return;
+            code = XQueryPointer(
+                v_pDisplay,
+                window,
+                &root_return,
+                &child_return,
+                &root_x_return,
+                &root_y_return,
+                &win_x_return,
+                &win_y_return,
+                &mask_return
+                );
+            _COND_XERROR_LOG_BREAK(code);
+            _LOG_NFO(
+                "root_return==%d, child_return==%d, root_x_return==%d, root_y_return==%d, win_x_return==%d, win_y_return==%d, mask_return==%d",
+                root_return, child_return, root_x_return, root_y_return, win_x_return, win_y_return, mask_return
+                );
+            nPosX = root_x_return;
+            nPosY = root_y_return;
+        }
     } while (0);
     return IsReturnCodeOk(code);
 }
@@ -949,6 +961,100 @@ bool X11wrapper::Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pix
             y_hot_return = 0;
     } while (0);
     return IsReturnCodeOk(code);
+}
+
+// all from : /usr/include/X11/cursorfont.h
+const X11wrapper::string_int X11wrapper::v_aStdCursors_NameValue[] =
+{
+    // bad value : {"XC_num_glyphs", XC_num_glyphs},
+    {"XC_X_cursor", XC_X_cursor},
+    {"XC_arrow", XC_arrow},
+    {"XC_based_arrow_down", XC_based_arrow_down},
+    {"XC_based_arrow_up", XC_based_arrow_up},
+    {"XC_boat", XC_boat},
+    {"XC_bogosity", XC_bogosity},
+    {"XC_bottom_left_corner", XC_bottom_left_corner},
+    {"XC_bottom_right_corner", XC_bottom_right_corner},
+    {"XC_bottom_side", XC_bottom_side},
+    {"XC_bottom_tee", XC_bottom_tee},
+    {"XC_box_spiral", XC_box_spiral},
+    {"XC_center_ptr", XC_center_ptr},
+    {"XC_circle", XC_circle},
+    {"XC_clock", XC_clock},
+    {"XC_coffee_mug", XC_coffee_mug},
+    {"XC_cross", XC_cross},
+    {"XC_cross_reverse", XC_cross_reverse},
+    {"XC_crosshair", XC_crosshair},
+    {"XC_diamond_cross", XC_diamond_cross},
+    {"XC_dot", XC_dot},
+    {"XC_dotbox", XC_dotbox},
+    {"XC_double_arrow", XC_double_arrow},
+    {"XC_draft_large", XC_draft_large},
+    {"XC_draft_small", XC_draft_small},
+    {"XC_draped_box", XC_draped_box},
+    {"XC_exchange", XC_exchange},
+    {"XC_fleur", XC_fleur},
+    {"XC_gobbler", XC_gobbler},
+    {"XC_gumby", XC_gumby},
+    {"XC_hand1", XC_hand1},
+    {"XC_hand2", XC_hand2},
+    {"XC_heart", XC_heart},
+    {"XC_icon", XC_icon},
+    {"XC_iron_cross", XC_iron_cross},
+    {"XC_left_ptr", XC_left_ptr},
+    {"XC_left_side", XC_left_side},
+    {"XC_left_tee", XC_left_tee},
+    {"XC_leftbutton", XC_leftbutton},
+    {"XC_ll_angle", XC_ll_angle},
+    {"XC_lr_angle", XC_lr_angle},
+    {"XC_man", XC_man},
+    {"XC_middlebutton", XC_middlebutton},
+    {"XC_mouse", XC_mouse},
+    {"XC_pencil", XC_pencil},
+    {"XC_pirate", XC_pirate},
+    {"XC_plus", XC_plus},
+    {"XC_question_arrow", XC_question_arrow},
+    {"XC_right_ptr", XC_right_ptr},
+    {"XC_right_side", XC_right_side},
+    {"XC_right_tee", XC_right_tee},
+    {"XC_rightbutton", XC_rightbutton},
+    {"XC_rtl_logo", XC_rtl_logo},
+    {"XC_sailboat", XC_sailboat},
+    {"XC_sb_down_arrow", XC_sb_down_arrow},
+    {"XC_sb_h_double_arrow", XC_sb_h_double_arrow},
+    {"XC_sb_left_arrow", XC_sb_left_arrow},
+    {"XC_sb_right_arrow", XC_sb_right_arrow},
+    {"XC_sb_up_arrow", XC_sb_up_arrow},
+    {"XC_sb_v_double_arrow", XC_sb_v_double_arrow},
+    {"XC_shuttle", XC_shuttle},
+    {"XC_sizing", XC_sizing},
+    {"XC_spider", XC_spider},
+    {"XC_spraycan", XC_spraycan},
+    {"XC_star", XC_star},
+    {"XC_target", XC_target},
+    {"XC_tcross", XC_tcross},
+    {"XC_top_left_arrow", XC_top_left_arrow},
+    {"XC_top_left_corner", XC_top_left_corner},
+    {"XC_top_right_corner", XC_top_right_corner},
+    {"XC_top_side", XC_top_side},
+    {"XC_top_tee", XC_top_tee},
+    {"XC_trek", XC_trek},
+    {"XC_ul_angle", XC_ul_angle},
+    {"XC_umbrella", XC_umbrella},
+    {"XC_ur_angle", XC_ur_angle},
+    {"XC_watch", XC_watch},
+    {"XC_xterm", XC_xterm},
+};
+const int X11wrapper::v_aStdCursors_Count = ( sizeof(v_aStdCursors_NameValue) / sizeof(v_aStdCursors_NameValue[0]) );
+
+int X11wrapper::StdCursor_GetValueByName(const std::string &sName)
+{
+    for (int i=0; i<v_aStdCursors_Count; ++i)
+    {
+        if (v_aStdCursors_NameValue[i].sName == sName)
+            return v_aStdCursors_NameValue[i].nValue;
+    }
+    return -1;
 }
 
 Window X11wrapper::Debug_Window(bool bCreate_NotClose/*=true*/)
