@@ -50,7 +50,7 @@ echo -n "$pluto_apt_conf" >/etc/apt/apt.conf.d/30pluto
 ## Ask the questions
 sleep 0.5
 exec 3>&1 1>/dev/tty
-if [[ $UpgradeMode == "false" ]] ;then
+if [[ $UpgradeMode == "false" ]]; then
 	clear
 
 	echo "** Initial config script"
@@ -63,12 +63,20 @@ if [[ $UpgradeMode == "false" ]] ;then
 	echo "Note: Hybrid means this PC will not only be the main server, but you will"
 	echo "also hook it up to a TV and use it as a media director.  Core means it is"
 	echo "a server only, and will not be used as a media station."
-	Type=$(Ask "Should this be a Core, Hybrid or Other? [C/h/o]")
 
-	CoreDT=7
-	if [[ "$Type" == o || "$Type" == O ]]; then
-		CoreDT=$(Ask "Enter the device template number")
-	fi
+	while :; do
+		Type=$(Ask "Should this be a Core, Hybrid or Other? [C/h/o]")
+
+		CoreDT=7
+		if [[ "$Type" == o || "$Type" == O ]]; then
+			CoreDT=$(Ask "Enter the device template number")
+			break
+		elif [[ "$Type" == h || "$Type" == H || "$Type" == c || "$Type" == C || -z "$Type" ]]; then
+			break
+		else
+			echo "Invalid answer '$Type'"
+		fi
+	done
 
 	echo ""
 	echo "If you have an active internet connection, Pluto can use it to perform"
@@ -85,7 +93,15 @@ if [[ $UpgradeMode == "false" ]] ;then
 	echo ""
 	echo "You need to answer 'Y' below if you want Plug-and-play or extra media"
 	echo "directors."
-	DHCP=$(Ask "Run a DHCP server? [Y/n]")
+
+	while :; do
+		DHCP=$(Ask "Run a DHCP server? [Y/n]")
+		if [[ -z "$DHCP" || "$DHCP" == y || "$DHCP" == Y || "$DHCP" == n || "$DHCP" == N ]]; then
+			break
+		else
+			echo "Invalid answer '$DHCP'"
+		fi
+	done
 fi
 
 
