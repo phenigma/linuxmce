@@ -13,7 +13,7 @@ fi
 
 OutputFile=$(mktemp)
 trap "rm -f '$OutputFile'" EXIT
-wget -O "$OutputFile" "$URL"
+wget --timeout=10 -O "$OutputFile" "$URL"
 
 Header=$(head -1 "$OutputFile")
 Footer=$(tail -1 "$OutputFile")
