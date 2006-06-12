@@ -61,7 +61,7 @@ if [[ "$ChangesToBeMade" == y ]]; then
 	# - create /tftpboot/"$lcdNewIP"
 	# - update and restart DHCP
 	# and other actions that don't have to be duplicated here
-	/usr/pluto/bin/Diskless_Setup.sh
+	/usr/pluto/bin/Diskless_Setup.sh --skiplock
 	/usr/pluto/bin/DHCP_config.sh
 	/usr/pluto/bin/Diskless_ExportsNFS.sh
 fi

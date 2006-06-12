@@ -4,11 +4,22 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/LockUtils.sh
 
-if ! TryLock "Diskless_Setup" "Diskless_Setup"; then
-	echo "Another Diskless-related operation is running"
-	exit 1
+SkipLock=n
+
+# Parse parameters
+for ((i = 1; i <= "$#"; i++)); do
+        Parm="${!i}"
+        case "$Parm" in                 --skiplock) SkipLock=y
+        esac
+done
+
+if [[ "$SkipLock" == n ]]; then
+        if ! TryLock "Diskless_Setup" "Diskless_Setup"; then
+                echo "Another Diskless-related operation is running"
+                exit 1
+        fi
+        trap 'Unlock "Diskless_Setup" "Diskless_Setup"' EXIT
 fi
-trap 'Unlock "Diskless_Setup" "Diskless_Setup"' EXIT
 
 DEVICEDATA_Extra_Parameters=139
 DEVICEDATA_Extra_Parameters_Override=140
