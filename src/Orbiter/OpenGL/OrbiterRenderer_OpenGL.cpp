@@ -117,7 +117,9 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : OrbiterRende
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderText(string &sTextToDisplay, DesignObjText *Text,
 	TextStyle *pTextStyle, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
-	GLFontTextureList aGLFontTextureList;
+	if(sTextToDisplay.length() == 0)
+		return;
+
 
 	int style = TTF_STYLE_NORMAL;
 	if (pTextStyle->m_bUnderline)
@@ -132,8 +134,9 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : OrbiterRende
 			style |= TTF_STYLE_ITALIC;
 	}
 
-	aGLFontTextureList.MapFont(pTextStyle->m_sFont, pTextStyle->m_iPixelHeight, style);
-	MeshContainer *Container = aGLFontTextureList.TextOut(point.X + Text->m_rPosition.X, 
+	GLFontTextureList* aGLFontTextureList = new GLFontTextureList();
+	aGLFontTextureList->MapFont(pTextStyle->m_sFont, pTextStyle->m_iPixelHeight, style);
+	MeshContainer *Container = aGLFontTextureList->TextOut(point.X + Text->m_rPosition.X, 
 		point.Y + Text->m_rPosition.Y, const_cast<char *>(sTextToDisplay.c_str()));
 	MeshFrame *Frame = new MeshFrame();
 	Frame->SetMeshContainer(Container);
@@ -170,13 +173,29 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : OrbiterRende
 	Builder->SetTexture(Graphic);
 
 	Builder->SetTexture2D(0.0f, 0.0f);
-	Builder->AddVertexFloat(point.X + rectTotal.Left(), point.Y + rectTotal.Top(), OrbiterLogic()->m_iImageHeight / 2);
+	Builder->AddVertexFloat(
+		float(point.X + rectTotal.Left()), 
+		float(point.Y + rectTotal.Top()), 
+		float(OrbiterLogic()->m_iImageHeight / 2)
+		);
 	Builder->SetTexture2D(Graphic->MaxU, 0);
-	Builder->AddVertexFloat(point.X + rectTotal.Right(), point.Y + rectTotal.Top(), OrbiterLogic()->m_iImageHeight / 2);
+	Builder->AddVertexFloat(
+		float(point.X + rectTotal.Right()), 
+		float(point.Y + rectTotal.Top()), 
+		float(OrbiterLogic()->m_iImageHeight / 2)
+		);
 	Builder->SetTexture2D(0.0f, Graphic->MaxV);
-	Builder->AddVertexFloat(point.X + rectTotal.Left(), point.Y + rectTotal.Bottom(), OrbiterLogic()->m_iImageHeight / 2);
+	Builder->AddVertexFloat(
+		float(point.X + rectTotal.Left()), 
+		float(point.Y + rectTotal.Bottom()), 
+		float(OrbiterLogic()->m_iImageHeight / 2)
+		);
 	Builder->SetTexture2D(Graphic->MaxU, Graphic->MaxV);
-	Builder->AddVertexFloat(point.X + rectTotal.Right(), point.Y + rectTotal.Bottom(), OrbiterLogic()->m_iImageHeight / 2);
+	Builder->AddVertexFloat(
+		float(point.X + rectTotal.Right()), 
+		float(point.Y + rectTotal.Bottom()), 
+		float(OrbiterLogic()->m_iImageHeight / 2)
+		);
 
 	Container = Builder->End();
 	Frame->SetMeshContainer(Container);
@@ -296,7 +315,8 @@ void OrbiterRenderer_OpenGL::OnIdle()
 /*virtual*/ void OrbiterRenderer_OpenGL::Destroy()
 {
 	//cleanup here
-	Engine->Quit = true;
+	if(Engine)
+		Engine->Quit = true;
 	pthread_join(GLThread, NULL);
 }
 //-----------------------------------------------------------------------------------------------------

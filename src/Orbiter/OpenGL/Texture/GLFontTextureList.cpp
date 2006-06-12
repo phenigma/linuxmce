@@ -15,6 +15,9 @@ GLFontTextureList::GLFontTextureList()
 
 GLFontTextureList::~GLFontTextureList()
 {
+	for(int i = 0; i < 256; i++)
+		delete Letters[i];
+
 }
 
 /*virtual*/ void GLFontTextureList::MapFont(
@@ -67,9 +70,6 @@ GLFontTextureList::~GLFontTextureList()
 			std::cout<<"Renderer::RealRenderText : TTF_RenderText_Blended crashed!"<<std::endl;
 		}
 	
-		if (RenderedText == NULL)
-			return;
-			
 		Letters[i]->Prepare(RenderedText);
 			
 		SDL_FreeSurface(RenderedText);
@@ -81,9 +81,11 @@ GLFontTextureList::~GLFontTextureList()
 
 /*virtual*/ MeshContainer* GLFontTextureList::TextOut(int X, int Y, char* Text)
 {
-	int Length = strlen(Text);
+	int Length = int(strlen(Text));
+	if (Length == 0)
+		return NULL;
 	int LetterLen = 0, FontHeight;
-	unsigned char CharPos = 0;
+	unsigned char CharPos = 32;
 	float MaxU, MaxV;
 	OpenGLTexture Texture;
 	
@@ -112,23 +114,23 @@ GLFontTextureList::~GLFontTextureList()
 		MB.SetTexture(Letters[CharPos]);
 		// Point 1
 		MB.SetTexture2D(0.0f, 0.0f);
-		MB.AddVertexFloat(X, Y, 480);
+		MB.AddVertexFloat(float(X), float(Y), 300);
 
 		// Point 2
 		MB.SetTexture2D(0.0f, PixelMaxV);
-		MB.AddVertexFloat(X, Y+PixelHgt, 480);
+		MB.AddVertexFloat(float(X), float(Y+PixelHgt), 300);
 
 		// Point 3
 		MB.SetTexture2D(PixelMaxU, 0.0f);
-		MB.AddVertexFloat(X+PixelLen, Y, 480);
+		MB.AddVertexFloat(float(X+PixelLen), float(Y), 300);
 
 		// Point 4
 		MB.SetTexture2D(PixelMaxU, PixelMaxV);
-		MB.AddVertexFloat(X+PixelLen, Y+PixelHgt, 480);
+		MB.AddVertexFloat(float(X+PixelLen), float(Y+PixelHgt), 300);
 
 		X+= PixelLen;
 		
-		//printf("%f %f %f \n", (float)X, (float)Y, (float)FontHeight);
+		printf("%f %f %f \n", (float)X, (float)Y, (float)FontHeight);
 	}
 
 	Container = MB.End();

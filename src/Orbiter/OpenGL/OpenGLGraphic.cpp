@@ -64,7 +64,16 @@ bool OpenGLGraphic::SetupFromImage(std::string FileName)
 
 void OpenGLGraphic::Prepare(SDL_Surface* Surface)
 {    
-	
+	if(Surface == NULL)
+	{
+		if (LocalSurface == NULL)
+		{
+			SDL_FreeSurface(LocalSurface);
+			LocalSurface = NULL;
+		}
+		LocalSurface = Surface;
+		return;
+	}
 	Width = GLMathUtils::MinPowerOf2(Surface->w);
 	Height = GLMathUtils::MinPowerOf2(Surface->h);
 	
@@ -93,6 +102,11 @@ void OpenGLGraphic::Convert()
 	if( !LocalSurface )
 		return;
 		
+	if(Texture)
+	{
+		glDeleteTextures(1, &Texture);
+		Texture = 0;
+	}
 	/* Typical Texture Generation Using Data From The Bitmap */
 	OpenGLTexture FinalTexture;
 	glGenTextures( 1, &FinalTexture);
