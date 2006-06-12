@@ -2613,54 +2613,107 @@ void General_Info_Plugin::CMD_InitAVDeviceTemplateSettings(int iPK_DeviceTemplat
 void General_Info_Plugin::CMD_Get_Available_Storage_Device(int iSize,int *iPK_Device,string *sDescription,string *sPath,string &sCMD_Result,Message *pMessage)
 //<-dceag-c802-e->
 {
-	/*
-	// Selecting first internal drive (1790) that has space to store the file
-	string sSQL = "	SELECT	Device.PK_Device, Device.Description, DDSize.IK_DeviceData Size, DDType.IK_DeviceData Type FROM Device JOIN Device_DeviceData DDSize ON DDSize.FK_Device = Device.PK_Device AND DDSize.FK_DeviceData = 160 JOIN Device_DeviceData DDType ON DDType.FK_Device = Device.PK_Device AND DDType.FK_DeviceData = 159	HAVING	Size > " + StringUtils::itos(iSize) + " WHERE Device.FK_DeviceTemplate = 1790 LIMIT 1";	
 	PlutoSqlResult result_set;
+	string sSQL;
+	MYSQL_ROW row;
+	
+	// Consider that we don't have any drive to store the file 
+	*iPK_Device = 0;
+	
+	// Selecting first internal drive (1790) that has space to store the file
+	sSQL = " " 
+		"SELECT "
+			"Device.PK_Device, "
+			"Device.Description, "
+			"DDSize.IK_DeviceData Size, "
+			"DDType.IK_DeviceData Type, "
+			"DDMaxFileSize.IK_DeviceData MaxFileSize "
+		"FROM "
+			"Device "
+			"JOIN Device_DeviceData DDSize ON DDSize.FK_Device = Device.PK_Device AND DDSize.FK_DeviceData = 160 "
+			"JOIN Device_DeviceData DDType ON DDType.FK_Device = Device.PK_Device AND DDType.FK_DeviceData = 159 "
+			"LEFT JOIN Device_DeviceData DDMaxFileSize ON DDMaxFileSize.FK_Device = Device.PK_Device AND DDType.FK_DeviceData = 166 "
+		"HAVING "
+			"Size > " + StringUtils::itos(iSize) + " "
+			"AND  ( "
+				"ISNULL(MaxFileSize) "
+				"OR "
+				"MaxFileSize > " + StringUtils::itos(iSize) + " "
+		"WHERE "
+			"Device.FK_DeviceTemplate = 1790 "
+		"LIMIT 1 ";
 	result_set.r = m_pDatabase_pluto_main->mysql_query_result(sSQL);
 	
-	// In no internal drive, try our luck with the network storage devices (cat 158)
+	// If no internal drive, try our luck with the network storage devices (cat 158)
 	if (result_set.r == NULL) {
-		string sSQL = "
-			SELECT 	Device.PK_Device 
-				Device.Description,
-				DeviceTemplate.FK_Category Category,
-				DDSize.IK_DeviceData Size,
-				DDMaxFileSyste.IK_DeviceData MaxFileSize,
-				DDType.IK_DeviceData Type
-			FROM 
-				Device 
-				JOIN Device_DeviceData DDSize ON DDSize.FK_Device = Device.PK_Device AND DDSize.FK_DeviceData = 160 
-				JOIN Device_DeviceData DDType ON DDType.FK_Device = Device.PK_Device AND DDType.FK_DeviceData = 159
-			        JOIN Device_DeviceData DDMaxFileSize ON DDMaxFileSize.FK_Device = Device.PK_Device AND DDType.FK_DeviceData = xxx
-				JOIN DeviceTemplate ON DeviceTemplate.PK_DeviceTemplate = Device.FK_DeviceTemplate
-			HAVING  
-				Size > " + StringUtils::itos(iSize) + " "
-				AND
-				MaxFileSize < " + StringUtils::itos(iSize) + "
-			WHERE
-				DeviceTemplate.FK_Category = 158
-			"
+		sSQL = " \
+			SELECT 	Device.PK_Device, \
+				Device.Description, \
+				DDSize.IK_DeviceData Size, \
+				DDType.IK_DeviceData Type, \
+				DDMaxFileSize.IK_DeviceData MaxFileSize, \
+				DeviceTemplate.FK_DeviceCategory Category \
+			FROM \
+				Device \
+				JOIN Device_DeviceData DDSize ON DDSize.FK_Device = Device.PK_Device AND DDSize.FK_DeviceData = 160 \
+				JOIN Device_DeviceData DDType ON DDType.FK_Device = Device.PK_Device AND DDType.FK_DeviceData = 159 \
+			        LEFT JOIN Device_DeviceData DDMaxFileSize ON DDMaxFileSize.FK_Device = Device.PK_Device AND DDType.FK_DeviceData = 166 \
+				JOIN DeviceTemplate ON DeviceTemplate.PK_DeviceTemplate = Device.FK_DeviceTemplate \
+			HAVING \
+				Size > " + StringUtils::itos(iSize) + " \
+				AND ( \
+					ISNULL(MaxFileSize) \
+					OR \
+					MaxFileSize > " + StringUtils::itos(iSize) + " \
+				) \
+			WHERE \
+				DeviceTemplate.FK_Category = 158 \
+			LIMIT 1 \
+		";
+		result_set.r = m_pDatabase_pluto_main->mysql_query_result(sSQL);
 	}
 	
+	// If we found a storage device(nas/internal drive) that can store the file
 	if (result_set.r != NULL) 
 	{
-		MYSQL_ROW row = NULL;
+		row = NULL;
 		if ( (row = mysql_fetch_row(result_set.r)) != NULL ) 
 		{
-			iPK_Device = StringUtils::atoi(row[0]);
-			sDescription = row[1];
-		       	sPath = "/mnt/device/" + iPK_Device;
+			*iPK_Device = atoi(row[0]);
+			*sDescription = row[1];
+		       	*sPath = "/mnt/device/";
+		        *sPath += row[0];
 
-			return;
-		}
-		
-	} else {
-		
-		iPK_Device = 0;
+		}	
 	}
+
 	
-	*/
+	// If we didn't find any storage device that could store the file, look on the core's /home partition
+	if (*iPK_Device == 0 ) {
+		sSQL = " \
+			SELECT	\
+				Device.PK_Device \
+			FROM \
+				Device \
+				JOIN Device_DeviceData DDSize ON DDSize.FK_Device = Device.PK_Device AND DDSize.FK_DeviceData = 160 \
+			HAVING \
+				Size > " + StringUtils::itos(iSize) + " \
+			WHERE \
+				Device.FK_DeviceTemplate = 7 \
+			LIMIT 1 \
+		";
+		result_set.r = m_pDatabase_pluto_main->mysql_query_result(sSQL);
+		
+		if (result_set.r != NULL) {
+			row = NULL;
+	                if ( (row = mysql_fetch_row(result_set.r)) != NULL ) {
+				*iPK_Device = atoi(row[0]);
+				*sDescription = "Core /home directory";
+				*sPath = "/home/";
+			}
+		}
+	}	
+	
 }
 //<-dceag-c803-b->
 
@@ -2674,6 +2727,7 @@ void General_Info_Plugin::CMD_Get_Available_Storage_Device(int iSize,int *iPK_De
 void General_Info_Plugin::CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_ControlledVia,string sBlock_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c803-e->
 {
+	/* OBSOLITE 
 	DeviceData_Base *pDevice_MD = this->m_pRouter->m_mapDeviceData_Router_Find(iPK_Device_ControlledVia);
 	if(pDevice_MD) 
 	{
@@ -2685,6 +2739,7 @@ void General_Info_Plugin::CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_Contr
 	
 		SendCommand (CMD_Spawn_Application);
 	}
+	*/
 }
 
 void General_Info_Plugin::PromptUserToReloadAfterNewDevices()
