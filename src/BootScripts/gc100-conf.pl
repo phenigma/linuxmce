@@ -223,6 +223,7 @@ sub get_gc100mac {
 	    if($mac eq "") {
 	      exit(1);
 	    }
+		chop ($mac) if (substr($mac, length($mac) - 1, 1) == '\0')
 	    return $mac;
 	}
     }
