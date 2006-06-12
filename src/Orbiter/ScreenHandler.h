@@ -95,7 +95,7 @@ public:
 	//screens functions
 	virtual void GotoDesignObj(int PK_DesignObj,string sID="",bool bStore_Variables=false,bool bCant_Go_Back=false);
 	virtual void SCREEN_NewPnpDevice(long PK_Screen, string sDescription, int iPK_PnpQueue);
-	virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users); 
+	virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sName); 
 	MediaFileBrowserOptions mediaFileBrowserOptions;  // Current sort/filter options for the media browser
 
 	virtual void SCREEN_FileList_Music_Movies_Video(long PK_Screen);

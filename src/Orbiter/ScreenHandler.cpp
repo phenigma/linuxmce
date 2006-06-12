@@ -118,10 +118,11 @@ void ScreenHandler::SCREEN_NewPnpDevice(long PK_Screen, string sDescription, int
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), StringUtils::itos(iPK_PnpQueue), "", false, false );
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users)
+void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sName)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::ltos(iPK_Users));
-	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, iPK_Users);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sName);
+	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, iPK_Users, sName);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
