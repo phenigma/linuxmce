@@ -2,6 +2,8 @@
 
 #include "MeshPainter.h"
 
+#include "DCE/Logger.h"
+
 MeshFrame::MeshFrame(MeshContainer* Mesh)
 {
 	this->Mesh = Mesh;
@@ -49,16 +51,13 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 	if(Mesh!= NULL)
 		Painter->PaintContainer(*Mesh, ChildTransform);
 
-			
-	/*
- 	std::vector<MeshFrame*>::reverse_iterator Child;
-	for(Child = Children.rbegin(); Child!=Children.rend(); Child++)
-		(*Child)->Paint(ChildTransform);
-	*/
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "Painting %p with %d children: ", this, Children.size());
 
 	std::vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); Child++)
 		(*Child)->Paint(ChildTransform);
+
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "Painting %p END ", this);
 }
 
 /*virtual*/ void MeshFrame::SetTransform(MeshTransform& Transform)

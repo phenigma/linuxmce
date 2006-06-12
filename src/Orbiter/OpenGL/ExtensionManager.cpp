@@ -75,7 +75,7 @@ void ExtensionManager::Resize(int Width, int Height)
 	//Realy Nice perspective calculations
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     glClearDepth(1.0);                       // Depth Buffer Setup
-    glEnable(GL_DEPTH_TEST);                 // Enable Depth Buffer
+    //glEnable(GL_DEPTH_TEST);                 // Enable Depth Buffer
     glDepthFunc(GL_LESS);		           // The Type Of Depth Test To Do
 
 	glEnable(GL_BLEND); 

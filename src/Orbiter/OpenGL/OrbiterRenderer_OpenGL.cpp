@@ -174,7 +174,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
 	bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
-	g_pPlutoLogger->Write(LV_CRITICAL, "Rendering graphic size (%d, %d)", pPlutoGraphic->Width, pPlutoGraphic->Height);
+	g_pPlutoLogger->Write(LV_CRITICAL, "Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
 
 	OpenGLGraphic* Graphic = dynamic_cast<OpenGLGraphic*> (pPlutoGraphic);
 
@@ -362,5 +362,11 @@ void OrbiterRenderer_OpenGL::OnIdle()
 /*virtual*/ void OrbiterRenderer_OpenGL::ScreenUpdated()
 {
 	NeedToUpdateScreen_ = false;
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_OpenGL::RedrawObjects()
+{
+	OrbiterRenderer::RedrawObjects();
+	NeedToUpdateScreen_ = true;
 }
 //-----------------------------------------------------------------------------------------------------

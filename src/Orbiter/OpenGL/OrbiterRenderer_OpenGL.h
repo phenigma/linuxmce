@@ -30,6 +30,8 @@ namespace DCE
 		virtual void GetWindowPosition(PlutoPoint& point);
 		virtual void UpdateScreen();
 
+		virtual void RedrawObjects();
+
 		// Drawing routines
 		virtual void SolidRectangle(int x, int y, int width, int height, PlutoColor color);
 		virtual void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color);

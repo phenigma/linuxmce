@@ -146,7 +146,6 @@ GLFontTextureList::~GLFontTextureList()
 	}
 
 	Container = MB.End();
-	MB.SetBlended(false);
 	
 	//Painter->PaintContainer(*Container, Transform);
 

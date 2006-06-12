@@ -748,7 +748,7 @@ void OrbiterRenderer_PocketFrog::EventLoop()
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::RenderText(string &TextToDisplay,class DesignObjText *Text,class TextStyle *pTextStyle, PlutoPoint point)
 {
-    CHECK_STATUS();
+	CHECK_STATUS();
     PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
 
 	if(!m_bPoolRendering || TextToDisplay.find("~S") != string::npos)
