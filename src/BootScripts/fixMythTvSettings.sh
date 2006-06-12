@@ -13,7 +13,8 @@ chmod 760 /etc/mythtv/mysql.txt
 eval `cat /etc/mythtv/mysql.txt | grep -v "^#" | grep -v "^$"`;
 
 amixer set CD playback off
-amixer set CD capture1
+# this sets up default capture on CD, and we need Mic default
+# amixer set CD capture1
 # don't ask me why 'capture1' turns on cd capture...
 
 /usr/pluto/bin/sqlCVS -R 4000 -H sqlcvs.plutohome.com -n -h localhost -D pluto_myth -a -U anonymous~anonymous -r myth -e checkin
