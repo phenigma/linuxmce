@@ -332,6 +332,7 @@ bool FileUtils::DirExists( string sFile )
 
 void FileUtils::DelFile(string sFileName)
 {
+printf("FileUtils::DelFile %s",sFileName.c_str());
 	if( sFileName.find('*')!=string::npos || sFileName.find('?')!=string::npos )
 	{
 		list<string> listFiles;
