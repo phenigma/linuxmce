@@ -37,11 +37,6 @@ using namespace std;
 
 	#define stricmp(x, y) strcasecmp(x, y)
 
-#ifndef __linux__
-	#define min(x,y) ((x<y)?x:y)
-	#define max(x,y) ((x>y)?x:y)
-#endif
-
 	typedef unsigned int UINT;
 	typedef unsigned int LPARAM;
 	typedef unsigned int WPARAM;

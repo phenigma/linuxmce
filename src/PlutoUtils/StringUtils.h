@@ -204,6 +204,11 @@ namespace StringUtils
 
 	bool ContainsNonAscii(string &sInput);
 
+	/**
+	 * @brief escape bash pattern special characters in strings
+	 */
+	string BashPatternEscape(string sInput, string sCharsToNotEscape = "");
+
 #endif //#ifndef SYMBIAN
 };
 

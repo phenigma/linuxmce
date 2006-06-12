@@ -945,5 +945,53 @@ bool StringUtils::ContainsNonAscii(string &sInput)
 	return false;
 }
 
+string StringUtils::BashPatternEscape(string sInput, string sCharsToNotEscape)
+{
+	string sDefaultCharsToEscape = "\\?*[]";
+	string sCharsToEscape = "";
+
+	if (sCharsToNotEscape.size() == 0)
+	{
+		sCharsToEscape = sDefaultCharsToEscape;
+	}
+	else
+	{
+		for (size_t i = 0; i < sDefaultCharsToEscape.size(); i++)
+		{
+			bool bSkipCharacter = false;
+			for (size_t j = 0; j < sCharsToNotEscape.size(); j++)
+			{
+				if (sDefaultCharsToEscape[i] == sCharsToNotEscape[j])
+				{
+					bSkipCharacter = true;
+					break;
+				}
+			}
+			if (! bSkipCharacter)
+				sCharsToEscape += sDefaultCharsToEscape[i];
+		}
+	}
+
+	string sOutput;
+	for (size_t i = 0; i < sInput.size(); i++)
+	{
+		bool bEscaped = false;
+		for (size_t j = 0; j < sCharsToEscape.size(); j++)
+		{
+			if (sCharsToEscape[j] == sInput[i])
+			{
+				sOutput += string("\\") + sInput[i];
+				bEscaped = true;
+				break;
+			}
+		}
+		if (! bEscaped)
+			sOutput += sInput[i];
+	}
+
+	int x = 1; int y = 2;
+
+    return sOutput;
+}
 #endif //#ifndef SYMBIAN
 
