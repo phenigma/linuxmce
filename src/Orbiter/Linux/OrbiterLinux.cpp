@@ -657,7 +657,7 @@ void OrbiterLinux::CMD_Surrender_to_OS(string sOnOff, bool bFully_release_keyboa
     GrabPointer(sOnOff != "1");
     GrabKeyboard(sOnOff != "1");
     Orbiter::CMD_Surrender_to_OS(sOnOff, bFully_release_keyboard, sCMD_Result, pMessage);
-    //if (m_bYieldInput)
+    if (m_bYieldInput)
     {
         g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::CMD_Surrender_to_OS() : ActivateWindow('%s')", m_pWinListManager->GetExternApplicationName().c_str());
         m_pWMController->ActivateWindow(m_pWinListManager->GetExternApplicationName());

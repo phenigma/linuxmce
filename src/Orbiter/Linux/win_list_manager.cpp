@@ -31,9 +31,11 @@ void WinListManager::ShowSdlWindow(bool bExclusive)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     g_pPlutoLogger->Write(LV_WARNING, "WinListManager::ShowSdlWindow(%s)", bExclusive ? "true" : "false");
+    string sLastWindow;
     for (list<string>::iterator it = m_listVisibleWindows.begin(); it != m_listVisibleWindows.end(); ++it)
     {
-        g_pPlutoLogger->Write(LV_WARNING, "List Windows : %s", (*it).c_str());
+        sLastWindow = *it;
+        g_pPlutoLogger->Write(LV_WARNING, "Visible Window : %s", (*it).c_str());
     }
     // when Orbiter is fullscreen no other dialog can be on top of
     // it, so it will be maximized instead
@@ -42,6 +44,8 @@ void WinListManager::ShowSdlWindow(bool bExclusive)
     m_pWMController->SetLayer(m_sSdlWindowName, bExclusive ? LayerAbove : LayerBelow);
     if (bExclusive)
         ActivateSdlWindow();
+    else
+        m_pWMController->ActivateWindow(sLastWindow);
     m_pWMController->SetFullScreen(m_sSdlWindowName, bExclusive);
     return;
 }

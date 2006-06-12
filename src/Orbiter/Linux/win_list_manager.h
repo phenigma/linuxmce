@@ -10,8 +10,6 @@
 #include <list>
 using namespace std;
 
-struct WinInfo;
-
 class WinListManager
 {
 public:
