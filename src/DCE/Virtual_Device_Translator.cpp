@@ -15,6 +15,10 @@ bool Virtual_Device_Translator::GetConfig(DeviceData_Base *pDeviceData_Base)
 		m_dwPK_Device_LocalAppServer=m_dwPK_Device_LocalMediaPlayer=0;
 
 	DeviceData_Base *pDevice_ControlledVia = m_pDeviceData_Base->m_AllDevices.m_mapDeviceData_Base_Find( m_pDeviceData_Base->m_dwPK_Device );
+	if( !pDevice_ControlledVia )
+		pDevice_ControlledVia = m_pDeviceData_Base->m_AllDevices.m_mapDeviceData_Base_Find( m_pDeviceData_Base->m_dwPK_Device_ControlledVia );
+	if( !pDevice_ControlledVia )
+		return false;
 	pDevice_ControlledVia = pDevice_ControlledVia->GetTopMostDevice();
 
 	for(Map_DeviceData_Base::iterator it=m_pDeviceData_Base->m_AllDevices.m_mapDeviceData_Base.begin();it!=m_pDeviceData_Base->m_AllDevices.m_mapDeviceData_Base.end();++it)
