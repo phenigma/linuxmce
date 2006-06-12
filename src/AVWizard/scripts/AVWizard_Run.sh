@@ -65,14 +65,7 @@ UpdateAudioSettings()
 		MD="$PK_Device"
 	fi
 
-	Q="
-		SELECT IK_DeviceData
-		FROM Device_DeviceData
-		WHERE FK_Device='$MD' AND FK_DeviceData='$DEVICEDATA_Audio_Settings'
-	"
-	AudioSetting=$(RunSQL "$Q")
-
-	WizAudioConnector=$(WizGet 'AudioConntector')
+	WizAudioConnector=$(WizGet 'AudioConnector')
 	case "$WizAudioConnector" in
 		'Analog Stereo')
 			NewAudioSetting=
@@ -82,18 +75,10 @@ UpdateAudioSettings()
 		;;
 	esac
 	
-	if [[ -z "$AudioSetting" ]]; then
-		Q="
-			INSERT INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
-			VALUES('$MD', '$DEVICEDATA_Audio_Settings', '$NewAudioSetting')
-		"
-	else
-		Q="
-			UPDATE Device_DeviceData
-			SET IK_DeviceData='$NewAudioSetting'
-			WHERE FK_Device='$MD' AND FK_DeviceData='$DEVICEDATA_Audio_Settings'
-		"
-	fi
+	Q="
+		REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
+		VALUES('$MD', '$DEVICEDATA_Audio_Settings', '$NewAudioSetting')
+	"
 	RunSQL "$Q"
 }
 
