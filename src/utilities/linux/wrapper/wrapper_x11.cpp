@@ -804,6 +804,7 @@ bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY, bool bRelative/*=fals
         {
             //XDGAMotionEvent xdgamotionevent;
             //XDGAEvent xdgaevent;
+            //XDGASelectInput(GetDisplay(), GetScreen(), PointerMotionMask | PointerMotionHintMask);
         }
         else
         {
