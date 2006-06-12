@@ -24,6 +24,7 @@ valgrind_LogFile="/var/log/pluto/valgrind_${device_id}_$(basename $cmd_line).log
 
 exec &> >(tee -a "$LogFile")
 
+echo "== FRESH START =="
 AlreadyRunning="/usr/pluto/locks/pluto_spawned_local_devices.txt"
 WaitLock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "$$ Dev: $device_id; Already Running list: $(cat $AlreadyRunning | tr '\n' ',')"
