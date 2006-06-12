@@ -66,7 +66,7 @@ void OpenGLGraphic::Prepare(SDL_Surface* Surface)
 {    
 	if(Surface == NULL)
 	{
-		if (LocalSurface == NULL)
+		if (LocalSurface != NULL)
 		{
 			SDL_FreeSurface(LocalSurface);
 			LocalSurface = NULL;
@@ -114,7 +114,7 @@ void OpenGLGraphic::Convert()
 	if(LocalSurface->format->BytesPerPixel == 4)
 		/* Generate The Texture */
 		glTexImage2D( GL_TEXTURE_2D, 
-		0, 3, 
+		0, 4, 
 		LocalSurface->w, LocalSurface->h, 
 		0, GL_RGBA,
 		GL_UNSIGNED_BYTE, 

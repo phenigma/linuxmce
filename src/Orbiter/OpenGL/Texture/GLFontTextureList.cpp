@@ -7,7 +7,11 @@
 
 #include "../Mesh/MeshPainter.h"
 
-GLFontTextureList::GLFontTextureList()
+
+//remove me
+#include "../../SDL/PlutoSDLDefs.h"
+
+GLFontTextureList::GLFontTextureList(int ScreenHeight) : ScreenHeight_(ScreenHeight)
 {
 	for(int i = 0; i < 256; i++)
 		Letters[i] = new OpenGLGraphic();
@@ -23,7 +27,10 @@ GLFontTextureList::~GLFontTextureList()
 /*virtual*/ void GLFontTextureList::MapFont(
 		std::string FontName,
 		int Height, 
-		int Style
+		int Style,
+		unsigned char R, 
+		unsigned char G,
+		unsigned char B
 		)
 {
 #ifdef WIN32
@@ -50,17 +57,19 @@ GLFontTextureList::~GLFontTextureList()
 	char Text[2];
 	Text[1] = 0;
 	
-	for(int i = 0; i < 256; i++)
+	for(int i = 1; i < 256; i++)
 	{
 		SDL_Color SDL_color;
 
-		SDL_color.r = 255;
-		SDL_color.g = 255;
-		SDL_color.b = 255;
-		SDL_color.unused = 255;
+		SDL_color.r = 255;//R;
+		SDL_color.g = G;
+		SDL_color.b = B;
+		SDL_color.unused = 255; //opaque
 	
 		SDL_Surface * RenderedText = NULL;
 		Text[0] = i;
+
+		
 		try
 		{
 			RenderedText = TTF_RenderText_Blended(Font, Text, SDL_color);
@@ -69,10 +78,29 @@ GLFontTextureList::~GLFontTextureList()
 		{
 			std::cout<<"Renderer::RealRenderText : TTF_RenderText_Blended crashed!"<<std::endl;
 		}
+		
+
+		/*
+		RenderedText = SDL_CreateRGBSurface(SDL_SWSURFACE, Height, Height, 32, rmask, gmask, bmask, amask);
+
+		SDL_Rect rect;
+		rect.x = 0;
+		rect.y = 0;
+		rect.w = RenderedText->w;
+		rect.h = RenderedText->h;
+		SDL_FillRect(RenderedText, &rect, 0x88888888);
+
+		rect.x = RenderedText->w / 2;
+		rect.y = 0;
+		rect.w = RenderedText->w / 2;
+		rect.h = RenderedText->h;
+		SDL_FillRect(RenderedText, &rect, 0x00000000);
+		*/
 	
 		Letters[i]->Prepare(RenderedText);
-			
 		SDL_FreeSurface(RenderedText);
+
+		TextureManager::Instance()->PrepareImage(Letters[i]);
 	}
 		
 	
@@ -87,7 +115,6 @@ GLFontTextureList::~GLFontTextureList()
 	int LetterLen = 0, FontHeight;
 	unsigned char CharPos = 32;
 	float MaxU, MaxV;
-	OpenGLTexture Texture;
 	
 	MeshBuilder MB;
   	MeshContainer* Container;
@@ -107,6 +134,8 @@ GLFontTextureList::~GLFontTextureList()
  		LetterLen = Letters[CharPos]->Width;
  		MaxU = Letters[CharPos]->MaxU;
  		MaxV = Letters[CharPos]->MaxV;
+		X = (int) (X*MaxU);
+		Y = (int) (Y*MaxV);
 
 		int PixelLen = LetterLen*2;
 		float PixelMaxU = Letters[CharPos]->MaxU;
@@ -114,19 +143,19 @@ GLFontTextureList::~GLFontTextureList()
 		MB.SetTexture(Letters[CharPos]);
 		// Point 1
 		MB.SetTexture2D(0.0f, 0.0f);
-		MB.AddVertexFloat(float(X), float(Y), 300);
+		MB.AddVertexFloat(float(X), float(Y), ScreenHeight_ / 2.0f);
 
 		// Point 2
 		MB.SetTexture2D(0.0f, PixelMaxV);
-		MB.AddVertexFloat(float(X), float(Y+PixelHgt), 300);
+		MB.AddVertexFloat(float(X), float(Y+PixelHgt), ScreenHeight_ / 2.0f);
 
 		// Point 3
 		MB.SetTexture2D(PixelMaxU, 0.0f);
-		MB.AddVertexFloat(float(X+PixelLen), float(Y), 300);
+		MB.AddVertexFloat(float(X+PixelLen), float(Y), ScreenHeight_ / 2.0f);
 
 		// Point 4
 		MB.SetTexture2D(PixelMaxU, PixelMaxV);
-		MB.AddVertexFloat(float(X+PixelLen), float(Y+PixelHgt), 300);
+		MB.AddVertexFloat(float(X+PixelLen), float(Y+PixelHgt), ScreenHeight_ / 2.0f);
 
 		X+= PixelLen;
 		

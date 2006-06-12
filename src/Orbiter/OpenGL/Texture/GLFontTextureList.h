@@ -11,14 +11,19 @@ class GLFontTextureList
 	 * Create a texture list with all ASCII images
 	 */
 	OpenGLGraphic* Letters[256];
+	int ScreenHeight_;
+
 public:
-	GLFontTextureList();
+	GLFontTextureList(int ScreenHeight);
 	virtual ~GLFontTextureList();
 	
 	virtual void MapFont(
 		std::string FontName,
 		int Height, 
-		int Style
+		int Style,
+		unsigned char R, 
+		unsigned char G,
+		unsigned char B
 		);
 	
 	//returns the length in pixels

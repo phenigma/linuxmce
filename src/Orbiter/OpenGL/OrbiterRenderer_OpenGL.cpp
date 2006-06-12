@@ -67,7 +67,8 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 	return NULL; 
 }	
 //-----------------------------------------------------------------------------------------------------
-OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : OrbiterRenderer(pOrbiter), Mutex("open gl")
+OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : 
+	OrbiterRenderer(pOrbiter), Mutex("open gl"), Engine(NULL)
 {
 	GLThread = 0;
 	pthread_cond_init(&Condition, NULL);
@@ -134,8 +135,9 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : OrbiterRende
 			style |= TTF_STYLE_ITALIC;
 	}
 
-	GLFontTextureList* aGLFontTextureList = new GLFontTextureList();
-	aGLFontTextureList->MapFont(pTextStyle->m_sFont, pTextStyle->m_iPixelHeight, style);
+	GLFontTextureList* aGLFontTextureList = new GLFontTextureList(OrbiterLogic()->m_iImageHeight);
+	aGLFontTextureList->MapFont(pTextStyle->m_sFont, pTextStyle->m_iPixelHeight, style, pTextStyle->m_ForeColor.R(), 
+		pTextStyle->m_ForeColor.G(), pTextStyle->m_ForeColor.B());
 	MeshContainer *Container = aGLFontTextureList->TextOut(point.X + Text->m_rPosition.X, 
 		point.Y + Text->m_rPosition.Y, const_cast<char *>(sTextToDisplay.c_str()));
 	MeshFrame *Frame = new MeshFrame();
@@ -315,9 +317,11 @@ void OrbiterRenderer_OpenGL::OnIdle()
 /*virtual*/ void OrbiterRenderer_OpenGL::Destroy()
 {
 	//cleanup here
-	if(Engine)
+	if(NULL != Engine)
 		Engine->Quit = true;
-	pthread_join(GLThread, NULL);
+
+	if(GLThread != 0)
+		pthread_join(GLThread, NULL);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderScreen(bool bRenderGraphicsOnly)

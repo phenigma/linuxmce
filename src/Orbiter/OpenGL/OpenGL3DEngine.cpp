@@ -44,6 +44,23 @@ void OpenGL3DEngine::Paint()
 
 	MeshTransform Transform;
 	Desktop.Paint(Transform);
+/*
+	GL.ClearScreen(false);
+	glBegin(GL_TRIANGLES);
+	
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glVertex3f(10.0f, 10.0f, 310.0f);
+	glVertex3f(100.0f, 10.0f, 310.0f);
+	glVertex3f(10.0f, 100.0f, 310.0f);
+
+	glColor4f(1.0f, 0.0f, 0.0f, 0.0f);
+	glVertex3f(100.0f, 100.0f, 310.0f);
+	glVertex3f(100.0f, 10.0f, 310.0f);
+	glVertex3f(10.0f, 100.0f, 310.0f);
+
+	glEnd();
+*/
+
 	GL.Flip();
 }
 

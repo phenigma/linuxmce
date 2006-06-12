@@ -75,6 +75,9 @@ void ExtensionManager::Resize(int Width, int Height)
     glClearDepth(1.0);                       // Depth Buffer Setup
     glEnable(GL_DEPTH_TEST);                 // Enable Depth Buffer
     glDepthFunc(GL_LESS);		           // The Type Of Depth Test To Do
+
+	//glEnable(GL_BLEND); 
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 	
 	glScalef(1.f, -1.f, -1.f);
 	glTranslatef(-Width/2, -Height/2, 0.f);
