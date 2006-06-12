@@ -332,6 +332,7 @@ bool FileUtils::DirExists( string sFile )
 
 void FileUtils::DelFile(string sFileName)
 {
+#ifndef WINCE //no findfiles implemented under CE yet
 printf("FileUtils::DelFile %s",sFileName.c_str());
 	if( sFileName.find('*')!=string::npos || sFileName.find('?')!=string::npos )
 	{
@@ -340,6 +341,8 @@ printf("FileUtils::DelFile %s",sFileName.c_str());
 		for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 			FileUtils::DelFile(*it);
 	}
+#endif
+
 #ifdef WIN32
 	#ifdef WINCE
 		wchar_t pFileNameW[256];
