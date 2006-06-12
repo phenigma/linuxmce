@@ -88,7 +88,15 @@ if [[ $UpgradeMode == "false" ]]; then
 	echo "Important : Keep in mind that when you don't have an active internet"
 	echo "connection, this tasks can slow down your computer and an negative"
 	echo "answer here would be the right choice."
-	UseInternet=$(Ask "Should Pluto use your internet connection ? [Y/n]")
+
+	while :; do
+		UseInternet=$(Ask "Should Pluto use your internet connection ? [Y/n]")
+		if [[ -z "$UseInternet" || "$UseInternet" == y || "$UseInternet" == Y || "$UseInternet" == n || "$UseInternet" == N ]]; then
+			break
+		else
+			echo "Invalid answer '$UseInternet'"
+		fi
+	done
 
 	echo ""
 	echo "You need to answer 'Y' below if you want Plug-and-play or extra media"
