@@ -47,7 +47,10 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 		return NULL;
 	}
 
+	pOrbiterRenderer->Engine->GL.Setup();
+
 	pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
+	pOrbiterRenderer->Engine->Paint();
 
 	while(pOrbiterRenderer->Engine && !pOrbiterRenderer->Engine->Quit)
 	{
@@ -55,7 +58,12 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 		while(SDL_PollEvent(&SDL_Event_Pending) && !pOrbiterRenderer->Engine->Quit)
 			SDL_PushEvent(&SDL_Event_Pending);
 
-		pOrbiterRenderer->Engine->Paint();
+		if(pOrbiterRenderer->NeedToUpdateScreen())
+		{
+			pOrbiterRenderer->Engine->Paint();
+			pOrbiterRenderer->ScreenUpdated();
+		}
+
 		//pOrbiterRenderer->Engine->GetDesktop().CleanUp();
 		Sleep(10);
 	}
@@ -68,7 +76,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 }	
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : 
-	OrbiterRenderer(pOrbiter), Mutex("open gl"), Engine(NULL)
+	OrbiterRenderer(pOrbiter), Mutex("open gl"), Engine(NULL), NeedToUpdateScreen_(false)
 {
 	GLThread = 0;
 	pthread_cond_init(&Condition, NULL);
@@ -118,6 +126,8 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderText(string &sTextToDisplay, DesignObjText *Text,
 	TextStyle *pTextStyle, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
+	g_pPlutoLogger->Write(LV_CRITICAL, "Rendering text %s", sTextToDisplay.c_str());
+
 	if(sTextToDisplay.length() == 0)
 		return;
 
@@ -164,11 +174,11 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
 	bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
+	g_pPlutoLogger->Write(LV_CRITICAL, "Rendering graphic size (%d, %d)", pPlutoGraphic->Width, pPlutoGraphic->Height);
+
 	OpenGLGraphic* Graphic = dynamic_cast<OpenGLGraphic*> (pPlutoGraphic);
 
-	MeshFrame* Frame = new MeshFrame();
 	MeshBuilder* Builder = new MeshBuilder();
-	MeshContainer* Container = new MeshContainer();
 	Builder->Begin(MBMODE_TRIANGLE_STRIP);
 
 	Builder->SetColor(1.0f, 1.0f, 1.0f);
@@ -199,7 +209,10 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		float(OrbiterLogic()->m_iImageHeight / 2)
 		);
 
+	MeshContainer* Container = new MeshContainer();
 	Container = Builder->End();
+
+	MeshFrame* Frame = new MeshFrame();
 	Frame->SetMeshContainer(Container);
 	
 	TextureManager::Instance()->PrepareImage(Graphic);
@@ -218,7 +231,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::EndPaint()
 {
-
+	NeedToUpdateScreen_ = true;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::UpdateRect(PlutoRectangle rect, PlutoPoint point/*= PlutoPoint(0,0)*/)
@@ -237,7 +250,7 @@ void OrbiterRenderer_OpenGL::WakeupFromCondWait()
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_OpenGL::OnIdle()
 {
-	WakeupFromCondWait();
+	//WakeupFromCondWait();
 	Sleep(5);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -328,6 +341,8 @@ void OrbiterRenderer_OpenGL::OnIdle()
 {
 	Engine->NewScreen();
 	OrbiterRenderer::RenderScreen(bRenderGraphicsOnly);
+
+	NeedToUpdateScreen_ = true;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderObjectAsync(DesignObj_Orbiter *pObj)
@@ -337,5 +352,15 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::ShowProgress(int nPercent) 
 {
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ bool OrbiterRenderer_OpenGL::NeedToUpdateScreen()
+{
+	return NeedToUpdateScreen_;
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_OpenGL::ScreenUpdated()
+{
+	NeedToUpdateScreen_ = false;
 }
 //-----------------------------------------------------------------------------------------------------

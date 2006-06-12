@@ -11,6 +11,8 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+#include "Mesh/MeshPainter.h"
+
 ExtensionManager::ExtensionManager(void)
 {
 }
@@ -76,14 +78,14 @@ void ExtensionManager::Resize(int Width, int Height)
     glEnable(GL_DEPTH_TEST);                 // Enable Depth Buffer
     glDepthFunc(GL_LESS);		           // The Type Of Depth Test To Do
 
-	//glEnable(GL_BLEND); 
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+	glEnable(GL_BLEND); 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 	
 	glScalef(1.f, -1.f, -1.f);
 	glTranslatef(-Width/2, -Height/2, 0.f);
 }
 
-bool ExtensionManager::InitVideoMode(int Width, int Height, int Bpp, bool FullScreen)
+/*virtual*/ bool ExtensionManager::InitVideoMode(int Width, int Height, int Bpp, bool FullScreen)
 {
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE)<0)
 		return false;
@@ -119,3 +121,20 @@ bool ExtensionManager::InitVideoMode(int Width, int Height, int Bpp, bool FullSc
 	return Screen != NULL;
 }
 
+/*virtual*/ void ExtensionManager::EnableBlended(bool Enable)
+{
+	if(Enable)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	else
+	{
+		glDisable(GL_BLEND);
+	}
+}
+
+/*virtual*/ void ExtensionManager::Setup()
+{
+	MeshPainter::Instance()->Setup(this);
+}

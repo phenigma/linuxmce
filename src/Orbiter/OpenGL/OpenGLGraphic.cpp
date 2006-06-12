@@ -3,6 +3,7 @@
 #include <SDL_image.h>
 
 #include "GLMathUtils.h"
+#include "DCE/Logger.h"
 
 #include <iostream>
 
@@ -38,6 +39,8 @@ void OpenGLGraphic::Initialize()
 	MaxV = 1.0f;
 	LocalSurface = NULL;
 	Texture = 0;
+	Width = 0;
+	Height = 0;
 }
 
 bool OpenGLGraphic::SetupFromImage(std::string FileName)
@@ -82,7 +85,7 @@ void OpenGLGraphic::Prepare(SDL_Surface* Surface)
 	
 	/* Create a 32-bit surface with the bytes of each pixel in R,G,B,A order,
 	as expected by OpenGL for textures */
-	LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, Surface->format->BitsPerPixel, 
+	LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, Width, Height, Surface->format->BitsPerPixel, 
 		rmask, gmask, bmask, amask);
 		
 	if(LocalSurface == NULL) {
@@ -99,20 +102,22 @@ void OpenGLGraphic::Prepare(SDL_Surface* Surface)
 
 void OpenGLGraphic::Convert()
 {
-	if( !LocalSurface )
+	if( NULL == LocalSurface)
 		return;
-		
+
 	if(Texture)
 	{
 		glDeleteTextures(1, &Texture);
 		Texture = 0;
 	}
+
 	/* Typical Texture Generation Using Data From The Bitmap */
 	OpenGLTexture FinalTexture;
 	glGenTextures( 1, &FinalTexture);
 	glBindTexture(GL_TEXTURE_2D, FinalTexture);
+
 	if(LocalSurface->format->BytesPerPixel == 4)
-		/* Generate The Texture */
+		// Generate The Texture 
 		glTexImage2D( GL_TEXTURE_2D, 
 		0, 4, 
 		LocalSurface->w, LocalSurface->h, 
@@ -120,13 +125,15 @@ void OpenGLGraphic::Convert()
 		GL_UNSIGNED_BYTE, 
 		LocalSurface->pixels );
 	else
-	/* Generate The Texture */
-	glTexImage2D( GL_TEXTURE_2D, 
+	// Generate The Texture 
+		glTexImage2D( GL_TEXTURE_2D, 
 			0, 3, 
 			LocalSurface->w, LocalSurface->h, 
 			0, GL_RGB,
 			GL_UNSIGNED_BYTE, 
 			LocalSurface->pixels );
+
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "Freeing surface %p" , LocalSurface);
 
 	SDL_FreeSurface(LocalSurface);
 	LocalSurface = NULL;

@@ -15,9 +15,12 @@ public:
 	virtual void SetClearColor(float Red, float Green, float Blue);
 	virtual void ClearScreen(bool CleanColor = true, bool CleanZBuffer = true);
 	virtual void EnableZBuffer(bool Enable);
-	
+	virtual void EnableBlended(bool Enable);
+
 	virtual void Resize(int Width, int Height);
-	bool InitVideoMode(int Width, int Height, int Bpp, bool FullScreen);
+
+	virtual bool InitVideoMode(int Width, int Height, int Bpp, bool FullScreen);
+	virtual void Setup();
 	
 };
 

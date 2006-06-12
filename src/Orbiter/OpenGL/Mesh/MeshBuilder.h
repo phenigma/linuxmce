@@ -18,7 +18,8 @@
 class MeshBuilder
 {
 	unsigned char BuildMode;
-	
+	bool Blended_;
+
 	std::vector<MeshVertex> Vertexes;
 	std::vector<MeshTriangle>Triangles;
 	
@@ -50,6 +51,7 @@ public:
 	virtual void SetColor(float Red, float Green, float Blue);
 	
 	virtual void SetAlpha(float Alpha);
+	virtual void SetBlended(bool Blended);
 };
 
 #endif

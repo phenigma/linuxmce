@@ -12,6 +12,7 @@ public:
 	int NoVertexes;
 	MeshTriangle* Triangles;
 	int NoTriangles;
+	bool Blended_;
 
 	MeshContainer();
 	virtual ~MeshContainer();

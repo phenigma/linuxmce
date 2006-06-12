@@ -2,7 +2,7 @@
 
 #include "../GLMathUtils.h"
 
-MeshBuilder::MeshBuilder(void)
+MeshBuilder::MeshBuilder(void) : Blended_(false)
 {
 	this->GlobalRed = 1.0f;
 	this->GlobalGreen = 1.0f;
@@ -46,6 +46,8 @@ void MeshBuilder::Begin(unsigned char BuildMode)
 	for(Count = 0; Count < Result->NoTriangles; Count++)
 		Result->Triangles[Count] = Triangles[Count];
 			
+	Result->Blended_ = Blended_;
+
 	CleanUp();
 	return Result;
 }
@@ -127,3 +129,7 @@ void MeshBuilder::Begin(unsigned char BuildMode)
 	this->GlobalAlpha = Alpha;
 }
 
+/*virtual*/ void MeshBuilder::SetBlended(bool Blended)
+{
+	Blended_ = Blended;
+}

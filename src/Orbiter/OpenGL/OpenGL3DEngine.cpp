@@ -7,6 +7,9 @@
 
 #include "Mesh/MeshPainter.h"
 
+#include "DCE/Logger.h"
+using namespace DCE;
+
 OpenGL3DEngine::OpenGL3DEngine()
 : OldLayer(NULL),
   CurrentLayer(NULL),
@@ -43,23 +46,10 @@ void OpenGL3DEngine::Paint()
 	GL.ClearScreen(true, true);
 
 	MeshTransform Transform;
-	Desktop.Paint(Transform);
-/*
-	GL.ClearScreen(false);
-	glBegin(GL_TRIANGLES);
-	
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	glVertex3f(10.0f, 10.0f, 310.0f);
-	glVertex3f(100.0f, 10.0f, 310.0f);
-	glVertex3f(10.0f, 100.0f, 310.0f);
+	//TODO: need desktop for effects Desktop
+	CurrentLayer->Paint(Transform);
 
-	glColor4f(1.0f, 0.0f, 0.0f, 0.0f);
-	glVertex3f(100.0f, 100.0f, 310.0f);
-	glVertex3f(100.0f, 10.0f, 310.0f);
-	glVertex3f(10.0f, 100.0f, 310.0f);
-
-	glEnd();
-*/
+	g_pPlutoLogger->Write(LV_CRITICAL, "Painting using layer %p, num layers %d", CurrentLayer, Desktop.Children.size());
 
 	GL.Flip();
 }
@@ -77,10 +67,14 @@ void OpenGL3DEngine::NewScreen()
 	OldLayer = CurrentLayer;
 	CurrentLayer = new MeshFrame();
 	Desktop.AddChild(CurrentLayer);
+
+	g_pPlutoLogger->Write(LV_CRITICAL, "Current layer is now %p", CurrentLayer);
 }
 
 void OpenGL3DEngine::AddMeshFrameToDesktop(MeshFrame* Frame)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	CurrentLayer->AddChild(Frame);
+
+	g_pPlutoLogger->Write(LV_WARNING, "Adding child %p to layer %p", Frame, CurrentLayer);
 }

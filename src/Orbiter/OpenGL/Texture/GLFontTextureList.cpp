@@ -9,6 +9,7 @@
 
 
 //remove me
+#include "DCE/Logger.h"
 #include "../../SDL/PlutoSDLDefs.h"
 
 GLFontTextureList::GLFontTextureList(int ScreenHeight) : ScreenHeight_(ScreenHeight)
@@ -61,7 +62,7 @@ GLFontTextureList::~GLFontTextureList()
 	{
 		SDL_Color SDL_color;
 
-		SDL_color.r = 255;//R;
+		SDL_color.r = R;
 		SDL_color.g = G;
 		SDL_color.b = B;
 		SDL_color.unused = 255; //opaque
@@ -79,27 +80,9 @@ GLFontTextureList::~GLFontTextureList()
 			std::cout<<"Renderer::RealRenderText : TTF_RenderText_Blended crashed!"<<std::endl;
 		}
 		
-
-		/*
-		RenderedText = SDL_CreateRGBSurface(SDL_SWSURFACE, Height, Height, 32, rmask, gmask, bmask, amask);
-
-		SDL_Rect rect;
-		rect.x = 0;
-		rect.y = 0;
-		rect.w = RenderedText->w;
-		rect.h = RenderedText->h;
-		SDL_FillRect(RenderedText, &rect, 0x88888888);
-
-		rect.x = RenderedText->w / 2;
-		rect.y = 0;
-		rect.w = RenderedText->w / 2;
-		rect.h = RenderedText->h;
-		SDL_FillRect(RenderedText, &rect, 0x00000000);
-		*/
-	
-		Letters[i]->Prepare(RenderedText);
-		SDL_FreeSurface(RenderedText);
-
+		Letters[i]->LocalSurface = RenderedText;
+		Letters[i]->Width = RenderedText->w;
+		Letters[i]->Height = RenderedText->h;
 		TextureManager::Instance()->PrepareImage(Letters[i]);
 	}
 		
@@ -125,19 +108,19 @@ GLFontTextureList::~GLFontTextureList()
 	
 	FontHeight = Letters[CharPos]->Height;
 	float PixelMaxV = Letters[CharPos]->MaxV;
-	int PixelHgt = FontHeight*2;
 
+	int PixelHgt = FontHeight;
+	MB.SetBlended(true);
 
 	for(int i = 0; i<Length; i++)
 	{
 		CharPos = (unsigned char)Text[i];
- 		LetterLen = Letters[CharPos]->Width;
- 		MaxU = Letters[CharPos]->MaxU;
- 		MaxV = Letters[CharPos]->MaxV;
-		X = (int) (X*MaxU);
-		Y = (int) (Y*MaxV);
+		MaxU = Letters[CharPos]->MaxU;
+		MaxV = Letters[CharPos]->MaxV;
 
-		int PixelLen = LetterLen*2;
+		LetterLen = int(Letters[CharPos]->Width * MaxU);
+
+		int PixelLen = LetterLen;
 		float PixelMaxU = Letters[CharPos]->MaxU;
 
 		MB.SetTexture(Letters[CharPos]);
@@ -159,10 +142,11 @@ GLFontTextureList::~GLFontTextureList()
 
 		X+= PixelLen;
 		
-		printf("%f %f %f \n", (float)X, (float)Y, (float)FontHeight);
+		//DCE::g_pPlutoLogger->Write(LV_STATUS, "TextOut: %f %f %f \n", (float)X, (float)Y, (float)FontHeight);
 	}
 
 	Container = MB.End();
+	MB.SetBlended(false);
 	
 	//Painter->PaintContainer(*Container, Transform);
 

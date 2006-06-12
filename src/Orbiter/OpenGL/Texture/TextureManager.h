@@ -18,6 +18,7 @@ class TextureManager
 	OpenGLTexture LastTexture;
 	TextureManager();
 	static TextureManager* _Instance;
+	bool TextureEnable_;
 	
 	std::queue <OpenGLGraphic*> WaitForConvert;
 public:

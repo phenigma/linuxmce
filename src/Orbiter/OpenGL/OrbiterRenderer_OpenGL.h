@@ -13,6 +13,7 @@ namespace DCE
 	{
 	protected:
 		pthread_t GLThread;
+		bool NeedToUpdateScreen_;
 
 	public:
 
@@ -21,8 +22,10 @@ namespace DCE
 
 		virtual void Configure();
 		virtual void EventLoop(); 
-
 		virtual void Destroy();
+
+		virtual bool NeedToUpdateScreen();
+		virtual void ScreenUpdated();
 
 		virtual void GetWindowPosition(PlutoPoint& point);
 		virtual void UpdateScreen();

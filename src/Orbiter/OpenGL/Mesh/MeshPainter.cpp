@@ -2,6 +2,7 @@
 
 #include "../Texture/TextureManager.h"
 #include "../OpenGLGraphic.h"
+#include "../ExtensionManager.h"
 
 #include <GL/gl.h>
 
@@ -21,10 +22,24 @@ MeshPainter::MeshPainter()
 	pthread_mutex_init(&SafetyPaintMutex, NULL);	
 }
 
+void MeshPainter::Setup(ExtensionManager *ExtensionManager)
+{
+	ExtensionManager_ = ExtensionManager;
+}
+
 /*virtual*/ void MeshPainter::PaintContainer(MeshContainer& Container, MeshTransform& Transform)
 {
 	//GLSafetyLock LockArea(&SafetyPaintMutex);
 	
+	if(NULL == ExtensionManager_)
+		throw "ExtensionManager_ not set!";
+
+	if(Container.Blended_)
+	{
+		ExtensionManager_->EnableZBuffer(false);
+		ExtensionManager_->EnableBlended(true);
+	}
+
 	int Count;
 	MeshVertex* Vertexes = new MeshVertex[Container.NoVertexes];
 	
@@ -39,8 +54,7 @@ MeshPainter::MeshPainter()
 	{
 		MeshTriangle& Triangle = Container.Triangles[Count];
 
-		if(Triangle.Texture)
-			TextureManager::Instance()->SetupTexture(Triangle.Texture->Texture);
+		TextureManager::Instance()->SetupTexture(Triangle.Texture ? Triangle.Texture->Texture : 0);
 
 		MeshVertex& Vertex = Vertexes[Triangle.Vertex1];
 		glTexCoord2f(Vertex.UVW.X, Vertex.UVW.Y);
@@ -59,6 +73,12 @@ MeshPainter::MeshPainter()
 		
 	}
 	glEnd();
+
+	if(Container.Blended_)
+	{
+		ExtensionManager_->EnableZBuffer(true);
+		ExtensionManager_->EnableBlended(false);
+	}
 	
 	delete Vertexes;	
 }

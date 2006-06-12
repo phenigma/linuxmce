@@ -10,9 +10,14 @@
 
 class OpenGLGraphic : public PlutoGraphic
 {
-	SDL_Surface* LocalSurface;
+	
 
 public:
+
+
+	//move me
+SDL_Surface* LocalSurface;
+
 	OpenGLTexture Texture;
 	float MaxU, MaxV;
 	int Width, Height;

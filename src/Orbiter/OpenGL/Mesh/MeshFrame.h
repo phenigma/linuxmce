@@ -11,9 +11,12 @@ class MeshFrame
 	MeshContainer* Mesh;
 	MeshTransform Transform;
 
-	std::vector<MeshFrame*> Children;
 	
 public:
+
+//MOVE ME
+std::vector<MeshFrame*> Children;
+
 	MeshFrame(MeshContainer* Mesh = NULL);
 	virtual ~MeshFrame(void);
 

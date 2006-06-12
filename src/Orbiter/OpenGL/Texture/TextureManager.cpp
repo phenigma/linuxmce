@@ -6,7 +6,7 @@
 
 /*static*/ TextureManager* TextureManager::_Instance = NULL;
 
-TextureManager* TextureManager::Instance()
+TextureManager* TextureManager::Instance() 
 {
 	if(_Instance == NULL)
 		_Instance = new TextureManager();
@@ -14,7 +14,7 @@ TextureManager* TextureManager::Instance()
 }
 
 TextureManager::TextureManager(void)
-	: LastTexture(0)
+	: LastTexture(0), TextureEnable_(false)
 {
 }
 
@@ -26,8 +26,28 @@ TextureManager::~TextureManager(void)
 {
 	if(Texture == LastTexture)
 		return;
+
 	glEnd();
-	glBindTexture(GL_TEXTURE_2D, Texture);
+	
+	if(0 != Texture)
+	{
+		if(!TextureEnable_)
+		{
+			glEnable(GL_TEXTURE_2D);
+			TextureEnable_ = true;
+		}
+		
+		glBindTexture(GL_TEXTURE_2D, Texture);
+	}
+	else
+	{
+		if(TextureEnable_)
+		{
+			glDisable(GL_TEXTURE_2D);
+			TextureEnable_ = false;
+		}
+	}
+	
 	glBegin(GL_TRIANGLES);
 	LastTexture = Texture;
 }
