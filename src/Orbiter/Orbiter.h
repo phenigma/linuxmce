@@ -1277,6 +1277,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard) { string sCMD_Result; CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,sCMD_Result,NULL);};
 	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,Message *pMessage);
 
+	bool IsYieldScreen() const;
+	bool IsYieldInput() const;
 
 	/** @brief COMMAND: #77 - Set Current Room */
 	/** If you don't know the location, you can also set just the room */

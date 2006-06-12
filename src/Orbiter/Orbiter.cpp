@@ -5367,6 +5367,15 @@ void Orbiter::CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,str
 	m_bYieldInput = bFully_release_keyboard;
 }
 
+bool Orbiter::IsYieldScreen() const
+{
+	return m_bYieldScreen;
+}
+
+bool Orbiter::IsYieldInput() const
+{
+	return m_bYieldInput;
+}
 
 // Radu -- implemented scrolling into Orbiter -- Up/Down for now
 //------------------------------------------------------------------------------------------------------------

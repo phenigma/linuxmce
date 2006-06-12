@@ -499,18 +499,36 @@ void OrbiterRenderer_SDL::EventLoop()
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL::CaptureRelativeMovements() 
-{ 
+{
 	m_bRelativeMode = true;
 
+//#ifndef WIN32 // linux
+//    if (OrbiterLogic()->IsYieldScreen())
+//    {
+//        GrabPointer(false);
+//        GrabKeyboard(false);
+//    }
+//#endif
+    // warning: incompatible with constrain-mouse in linux
+    // both keyboard and mouse
 	SDL_WM_GrabInput(SDL_GRAB_ON);
     SDL_ShowCursor(SDL_DISABLE);
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL::ReleaseRelativeMovements()
-{ 
+{
 	m_bRelativeMode = false;
 
+    // warning: incompatible with constrain-mouse in linux
+    // both keyboard and mouse
 	SDL_WM_GrabInput(SDL_GRAB_OFF);
+//#ifndef WIN32 // linux
+//    if (OrbiterLogic()->IsYieldScreen())
+//    {
+//        GrabPointer(true);
+//        GrabKeyboard(true);
+//    }
+//#endif
     SDL_ShowCursor(SDL_ENABLE);
 }
 //-----------------------------------------------------------------------------------------------------
