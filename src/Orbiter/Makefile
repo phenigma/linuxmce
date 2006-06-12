@@ -76,7 +76,7 @@ XTRALDLIBS += -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst -lG
 
 # wmctrl wrapper
 CPPFLAGS += -I/usr/X11R6/include -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
-XTRALDLIBS += -lSM -lICE -lX11 -lXmu -lglib-2.0
+XTRALDLIBS += -lX11 -lXmu -lglib-2.0
 
 CFLAGS += $(WX_CFLAGS)
 CXXFLAGS += $(WX_CXXFLAGS)
@@ -89,7 +89,7 @@ sources += \
 	Task.cpp \
 	TaskManager.cpp \
 	../utilities/linux/window_manager/WMController/WMController.cpp \
-	../utilities/linux/window_manager/WMController/wmctrl.cpp \
+	../utilities/linux/window_manager/wmctrl/wmctrl.cpp \
 	../utilities/linux/wrapper/wrapper_x11.cpp \
 	Linux/win_list_manager.cpp \
 	Linux/OSDCompass.cpp \
