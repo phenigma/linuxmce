@@ -322,7 +322,7 @@ void OrbiterRenderer::OnReload()
 /*virtual*/ void OrbiterRenderer::DoHighlightObject()
 {
 	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );  // Protect the highlighed object
-	if(sbNoSelection == OrbiterLogic()->m_nSelectionBehaviour || !OrbiterLogic()->m_pObj_Highlighted->m_bOnScreen )
+	if(sbNoSelection == OrbiterLogic()->m_nSelectionBehaviour || !OrbiterLogic()->m_pObj_Highlighted || !OrbiterLogic()->m_pObj_Highlighted->m_bOnScreen )
 		return;
 
 	UnHighlightObject();
