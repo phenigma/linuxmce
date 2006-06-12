@@ -1,9 +1,5 @@
-./svn_config_dir/
-  - example directory with svn:eol-style defaults
-  - in ./svn_config_dir/README.txt : the real location/platform
-  - copy 'config' on your system in the proper place (or the entire directory)
-  - remember that for the files not covered by those rules, nothing will apply
-  - do NOT write a rule '*' for all files
+/pluto/trunk/src/docs/SVN_NOTES.txt
+  - setting Svn default properties
 
 /pluto/trunk/src/docs/X11_NOTES.txt
   - X11 notes, which also apply to SDL, GTK, wxWidgets

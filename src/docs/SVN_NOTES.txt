@@ -1,0 +1,78 @@
+//
+// Author : Remus C.
+//
+// Changed by : ...
+//
+
+== Svn default properties ==
+
+End-Of-Line delimiter have different sequences in Linux and Windows.
+When "svn ci" or "svn up" commands are used, the source file on disk
+will be exactly the same for both platforms.
+This will break the svn-merge algorithm, and will cause unwanted conflicts.
+
+In order to get rid of these conflicts, the svn:eol-style property should be
+set to "native" for all source/text files.
+This can be done automatically by svn, if its configuration is correct.
+
+In /pluto/trunk/src/docs/svn_config_dir/ there is a sample configuration for subversion.
+It was copied from debian-stable
+
+Only the "config" file was modified, to activate automatic change of properties.
+"servers" file does not need to be changed right now
+
+== Changing SVN configuration ==
+    <your-src-base-directory> contains your copy of /pluto/trunk/src/
+
+==Linux steps==
+
+Eventually, make a backup of directory ~/.subversion/
+
+Use the following commands
+    <your-src-base-directory> contains your copy of /pluto/trunk/src/
+
+    cd <your-src-base-directory>
+    cp -av docs/svn_config_dir/config ~/.subversion/
+
+==Windows steps==
+(Only for Tortoise-SVN, for now)
+
+    Right click in Explorer on <your-src-base-directory>
+    TortoiseSVN -> Settings ... // a dialog will appear
+
+    in the left tree -> General
+    on the right -> Subversion configuration file: "Edit" button
+    click on "Edit" button // configuration will be opened in Notepad
+
+    Eventually, File-> Save As -> config.orig
+    AND close
+    AND press "Edit" button again
+
+    open with ANOTHER Notepad <your-src-base-directory>\docs\svn_config_dir\config
+    select all text
+    copy in clipboard
+    close the new notepad
+
+    ALT-TAB to "config-notepad" // opened by the "Edit" button
+    select all text and delete it
+    paste from clipboard
+    save
+    close
+
+    press "OK" button to close the TortoiseSVN configuration dialog
+
+    done
+
+== Additional notes ==
+
+    After these steps were performed, do a "svn update".
+Solve the conflicts that may appear because you already have files on disk without
+svn:eol-style property correctly set.
+
+    Continue your work.
+After this point in time, there should be no more EOL conflicts caused by your svn.
+
+Every time you add a new file to svn, the property will be set according to the rules
+specified svn "config".
+
+// --EOF--
