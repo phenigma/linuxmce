@@ -869,7 +869,7 @@ function grabFiles($path,$fileParm='-type f',$startingWith='') {
 	//echo $cmd;
 	exec($cmd,$retArray);
 	foreach ($retArray AS $file){
-		if($file!=$path){
+		if($file!=$path && stat($path)!==false){
 			$filesArray[]=str_replace($path.'/','',$file);
 		}
 	}

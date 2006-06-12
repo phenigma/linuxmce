@@ -3,6 +3,7 @@ function rooms($output,$dbADO) {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/rooms.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deleteRoomFromInstallation.lang.php');
 
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -105,7 +106,7 @@ function rooms($output,$dbADO) {
 			<tr>
 				<td align="center" valign="top">
 					<input type="text" name="roomDesc_'.$rowRoom['PK_Room'].'" value="'.$rowRoom['Description'].'"><br>
-					<a href="javascript:void(0);" onClick="if(confirm(\''.$TEXT_DELETE_ROOM_CONFIRMATION_CONST.' '.$rowRoom['NoDevices'].'\'))windowOpen(\'index.php?section=deleteRoomFromInstallation&from=rooms&roomID='.$rowRoom['PK_Room'].'\',\'status=0,resizable=1,width=200,height=200,toolbars=true\');">'.$TEXT_DELETE_ROOM_CONST.' #'.$rowRoom['PK_Room'].'</a>
+					<a href="javascript:void(0);" onClick="if(confirm(\''.$TEXT_DELETE_ROOM_CONFIRMATION_CONST.' '.$rowRoom['NoDevices'].'\'))self.location=\'index.php?section=rooms&delRoom='.$rowRoom['PK_Room'].'&action=delete\';">'.$TEXT_DELETE_ROOM_CONST.' #'.$rowRoom['PK_Room'].'</a>
 				</td>
 				<td align="center" valign="top">'.pulldownFromArray($roomTypes,'roomType_'.$rowRoom['PK_Room'],$rowRoom['FK_RoomType']).'</td>
 				<td valign="top">'.@$roomImage.'<input type="file" name="pic_'.$rowRoom['PK_Room'].'"></td>
@@ -180,6 +181,19 @@ function rooms($output,$dbADO) {
 			exit();
 		}
 
+		if(isset($_REQUEST['delRoom'])){
+			$delRoom=(int)$_REQUEST['delRoom'];
+			if($delRoom>0){
+				$query = $dbADO->Execute('DELETE FROM Room WHERE PK_Room = ?',array($delRoom));
+				$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
+				exec_batch_command($commandToSend);
+
+				header("Location: index.php?section=rooms&msg=$TEXT_ROOM_DELETED_CONST");
+				exit();
+			}
+		}
+			
+			
 		$errNotice='';
 		if (isset($_POST['add'])) {
 			$roomType=((int)@$_REQUEST['roomType']>0)?(int)@$_REQUEST['roomType']:NULL;
