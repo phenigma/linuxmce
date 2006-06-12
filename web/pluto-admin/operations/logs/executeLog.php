@@ -15,7 +15,7 @@ switch($scriptID){
 	break;
 	case 2:
 		$timestamp=time();
-		$command[]=stripslashes(urldecode($_REQUEST['command'])).' 1>/dev/null 2>/tmp/sqlCVS-errors-'.$timestamp.'.log';
+		$command[]=stripslashes(urldecode($_REQUEST['command'])).' 2>/tmp/sqlCVS-errors-'.$timestamp.'.log | grep "Requesting update table" | cut -f4 -d\' \'';
 		$title='sqlCVS command';
 		$showTmpFile=1;
 	break;	
@@ -49,7 +49,8 @@ for ($i = 0; $i < count($command); $i++)
 			}
 			print '<br><br>';
 		}else{
-			system("bash -c '$command[$i] > >(tee -a /var/log/pluto/php-executeLog.log|/usr/pluto/bin/ansi2html)'", $retval);
+			$cmd=$command[$i]." | tee -a /var/log/pluto/php-executeLog.log|/usr/pluto/bin/ansi2html";
+			system($cmd,$retval);
 			if($retval==0){
 				print 'Status: success';
 			}else{

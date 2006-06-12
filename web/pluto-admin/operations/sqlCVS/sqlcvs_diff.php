@@ -169,7 +169,8 @@ function sqlcvs_diff($output,$dbADO) {
 			$parmList.=join(',',$tParmArray[$rep]);
 		}
 		
-		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$database.' -e -f /tmp/tmp_sqlcvs_file diff';
+		$rand_tmp_file='tmp_sqlcvs_file_'.rand(1000,9999);
+		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$database.' -e -f /tmp/'.$rand_tmp_file.' diff';
 
 		exec($cmd,$retArray,$retVal);
 echo $retVal.' '.$cmd;		
@@ -217,7 +218,7 @@ echo $retVal.' '.$cmd;
 		$repository='';
 		$table='';
 		if($retVal==0){
-			$resultArray=file('/tmp/tmp_sqlcvs_file');
+			$resultArray=file('/tmp/'.$rand_tmp_file);
 			$lineNo=0;
 			foreach ($resultArray AS $line){
 				$items=explode("\t",$line);
@@ -298,6 +299,7 @@ echo $retVal.' '.$cmd;
 		}
 			$out.='
 			</table>
+			<input type="hidden" name="rand_tmp_file" value="'.$rand_tmp_file.'">
 		</form>';
 		
 	}else {
@@ -313,6 +315,7 @@ echo $retVal.' '.$cmd;
 		$password=stripslashes($_POST['password']);
 		$parmList=$_POST['parms'];
 		$port=(int)$_POST['port'];
+		$rand_tmp_file=$_POST['rand_tmp_file'];
 		
 		if($host=='' || $port==''){
 			header("Location: index.php?section=sqlcvs_diff&error=$TEXT_ERROR_HOST_OR_PORT_NOT_SPECIFIED_CONST");
@@ -320,7 +323,7 @@ echo $retVal.' '.$cmd;
 		}		
 		
 		$fileLines=$_POST['fileLines'];
-		$fileArray=file('/tmp/tmp_sqlcvs_file');
+		$fileArray=file('/tmp/'.$rand_tmp_file);
 		$maskArray=array();
 		for($i=0;$i<$fileLines;$i++){
 			if(isset($_POST['line_'.$i]) && (int)$_POST['line_'.$i]==1){
@@ -332,8 +335,8 @@ echo $retVal.' '.$cmd;
 		
 		$sqlcvsAction=(isset($_POST['revert']))?'revert':'checkin';
 		
-		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$database.' -e -m /tmp/tmp_sqlcvs_file '.$sqlcvsAction;
-//		unlink('/tmp/tmp_sqlcvs_file');
+		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$database.' -e -m /tmp/'.$rand_tmp_file.' '.$sqlcvsAction;
+		//unlink($rand_tmp_file);
 
 		
 		$out='

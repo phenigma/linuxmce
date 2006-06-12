@@ -121,7 +121,8 @@ function sqlcvs_update($output,$dbADO) {
 		$password=stripslashes($_POST['password']);
 		$rParmArray=array();
 		$tParmArray=array();
-
+		$tParmByRepArray=array();
+		
 		if($host=='' || $port==''){
 			header("Location: index.php?section=sqlcvs_update&error=$TEXT_ERROR_HOST_OR_PORT_NOT_SPECIFIED_CONST");
 			exit();			
@@ -140,7 +141,8 @@ function sqlcvs_update($output,$dbADO) {
 						if(!in_array($cleanTable,$rParmArray)){
 							$rParmArray[]=$cleanTable;	
 						}
-						$tParmArray[$cleanTable][]=$value;
+						$tParmArray[]=$value;
+						$tParmByRepArray[$cleanTable][]=$value;
 					}
 				}			
 			}
@@ -148,14 +150,13 @@ function sqlcvs_update($output,$dbADO) {
 		
 		$parmList='-r '.join(',',$rParmArray).' -t ';
 		foreach ($rParmArray AS $rep){
-			if(!isset($tParmArray[$rep])){
+			if(!isset($tParmByRepArray[$rep])){
 				header("Location: index.php?section=sqlcvs_update&error=$TEXT_ERROR_NO_TABLE_SELECTED_CONST");
 				exit();
 			}
-			$parmList.=(substr($parmList,-1)==' ')?',':'';			
-			$parmList.=join(',',$tParmArray[$rep]);
 		}
-		
+		$parmList.=join(',',$tParmArray);
+
 		$cmd='/usr/pluto/bin/sqlCVS -R '. $port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e update';
 
 		$out='

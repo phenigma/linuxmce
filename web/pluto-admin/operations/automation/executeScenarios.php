@@ -130,7 +130,7 @@ function executeScenarios($output,$dbADO) {
 				<tr class="'.(($pos%2==0)?'alternate_back':'').'">
 					<td><B>'.$rowCG['ScenarioName'].'</B></td>
 					<td>'.$rowCG['ScenarioType'].'</td>
-					<td align="center"><input type="button" class="button_fixed" value="'.$TEXT_TEST_CONST.'" onClick="self.location=\'index.php?section=executeScenarios&action=execute&cgID='.$rowCG['PK_CommandGroup'].'\'"><a href="index.php?section=editCommandGroup&cgID='.$rowCG['PK_CommandGroup'].'"> <input type="button" class="button_fixed" value="'.$TEXT_EDIT_CONST.'" onclick="self.location=\'index.php?section=editCommandGroup&cgID='.$rowCG_R['PK_CommandGroup'].'\'"></td>
+					<td align="center"><input type="button" class="button_fixed" value="'.$TEXT_TEST_CONST.'" onClick="self.location=\'index.php?section=executeScenarios&action=execute&cgID='.$rowCG['PK_CommandGroup'].'\'"><a href="index.php?section=editCommandGroup&cgID='.$rowCG['PK_CommandGroup'].'"> <input type="button" class="button_fixed" value="'.$TEXT_EDIT_CONST.'" onclick="self.location=\'index.php?section=editCommandGroup&cgID='.$rowCG['PK_CommandGroup'].'\'"></td>
 				</tr>';
 		}
 		$out.='

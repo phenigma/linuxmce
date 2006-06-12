@@ -55,7 +55,7 @@
   var $topMenu = '';
   
   var $bottomMenu = '';
-  var $HelpSrc= "/support/index.php?section=document&docID=35";
+  var $HelpSrc= "/wiki/index.php/Pluto_Admin_Website";
   var $body = "";
   
   var $leftFrameSrc = 'index.php?section=wizard';
@@ -354,9 +354,10 @@ function setTemplateFileType($type) {
   }
   
    function displayHelpSrc(){
-  	global $defaultHelpUrl;
+  	global $defaultHelpUrl,$wikiHost;
   	if($this->HelpSrc=='')
   		$this->HelpSrc=$defaultHelpUrl;
+  	$this->HelpSrc=str_replace('/wiki/',$wikiHost,$this->HelpSrc);
 	$this->content = str_replace("{HelpSrc}", $this->HelpSrc, $this->content);
   }
   

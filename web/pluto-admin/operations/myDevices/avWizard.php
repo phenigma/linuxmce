@@ -21,7 +21,7 @@ $start_time=getmicrotime();
 
 	$deviceCategory=$GLOBALS['rootAVEquipment'];
 	$specificFloorplanType=$GLOBALS['AVEquipmentFlorplanType'];
-	$output->setHelpSrc('/support/index.php?section=document&docID=131');
+	$output->setHelpSrc('/wiki/index.php/AV_Devices');
 
 	// get selected category Device Templates
 	$categoriesArray=getDescendantsForCategory($deviceCategory,$dbADO);
@@ -259,7 +259,7 @@ $start_time=getmicrotime();
 				$roomPulldown.='</select>';
 	
 				$buttons='
-						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
+						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'/wiki/index.php/Documentation_by_Device_Templates#'.wikiLink($rowD['TemplateName']).'\'"><br>
 						<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
 						<input type="button" class="button_fixed" name="btn" value="'.$TEXT_AV_PROPERTIES_CONST.'" onClick="windowOpen(\'index.php?section=irCodes&dtID='.$rowD['FK_DeviceTemplate'].'&deviceID='.$rowD['PK_Device'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>
 						<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\''.$TEXT_DELETE_DEVICE_CONFIRMATION_CONST.'\'))return true;else return false;"></td>';

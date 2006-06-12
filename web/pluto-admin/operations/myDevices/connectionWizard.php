@@ -15,7 +15,7 @@ function connectionWizard($output,$dbADO) {
 	$installationID = (int)@$_SESSION['installationID'];
 
 	$deviceCategory=$GLOBALS['rootAVEquipment'];
-	$output->setHelpSrc('/support/index.php?section=document&docID=131');
+	$output->setHelpSrc('/wiki/index.php/AV_Devices');
 	
 	$_SESSION['AVentertainArea']=(isset($_REQUEST['entertainArea']) && (int)$_REQUEST['entertainArea']!=0)?(int)$_REQUEST['entertainArea']:@$_SESSION['AVentertainArea'];
 	$entertainArea=@$_SESSION['AVentertainArea'];

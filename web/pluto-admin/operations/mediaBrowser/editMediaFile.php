@@ -119,7 +119,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 						<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#FFFFFF').'">
 							<td><b>'.$rowAttributes['Description'].'</b></td>
 							<td><a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties">'.$rowAttributes['Name'].'</a></td>
-							<td align="center"><a href="#" onClick="if(confirm(\''.$TEXT_DELETE_ATTRIBUTE_FROM_FILE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=delete&dAtr='.$rowAttributes['PK_Attribute'].'&dpath='.stripslashes($rowFile['Path']).'\'">'.$TEXT_REMOVE_CONST.'</a></td>
+							<td align="center"><a href="#" onClick="if(confirm(\''.$TEXT_DELETE_ATTRIBUTE_FROM_FILE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=delete&dAtr='.$rowAttributes['PK_Attribute'].'&dpath='.urlencode(stripslashes($rowFile['Path'])).'\'">'.$TEXT_REMOVE_CONST.'</a></td>
 						</tr>';
 			}
 			$out.='
@@ -264,10 +264,11 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		if(isset($_REQUEST['dAtr'])){
 			$deleteAttribute=$_REQUEST['dAtr'];
 			$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_File=? AND FK_Attribute=?',array($fileID,$deleteAttribute));
-			
+
 			$dpath=$_REQUEST['dpath'];
 			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$dpath.'"';
 			exec($cmd);
+			
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_ATTRIBUTE_DELETED_FROM_FILE_CONST.': '.$cmd);	
 			exit();		
 		}

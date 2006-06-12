@@ -119,6 +119,11 @@ $installationID = (int)@$_SESSION['installationID'];
 		';
 	}
 
+	$wikiLink=wikiLink($mdlDescription);
+	$validOrbiters=getValidOrbitersArray($installationID,$dbADO);
+	if(in_array($deviceID,$validOrbiters)){
+		$orbiterSuffix='&orbiter=1';
+	}
 	$out.='
 	<script>
 			function windowOpen(locationA,attributes) {
@@ -137,9 +142,9 @@ $installationID = (int)@$_SESSION['installationID'];
 			'.$deleteLink.' &nbsp; &nbsp; &nbsp; 
 			<a href="javascript:windowOpen(\'index.php?section=sendCommand&deviceID='.$deviceID.'\',\'width=800,height=600,scrollbars=1,resizable=1\');">'.$TEXT_SEND_COMMAND_TO_DEVICE_CONST.'</a> &nbsp; &nbsp; &nbsp; '.$resetDeviceLink.'
 			</td>
-			<td align="right"><a href="javascript:windowOpen(\'index.php?section=errorLog&deviceID='.$deviceID.$dceRouterSuffix.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_VIEW_ERRORS_IN_LOG_CONST.'</a>&nbsp;&nbsp;&nbsp;
-				<a href="javascript:windowOpen(\'index.php?section=fullLog&deviceID='.$deviceID.$dceRouterSuffix.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_VIEW_WHOLE_LOG_CONST.'</a>&nbsp;&nbsp;&nbsp;
-				<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.$dceRouterSuffix.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_FOLLOW_LOG_CONST.'</a>
+			<td align="right"><a href="javascript:windowOpen(\'index.php?section=errorLog&deviceID='.$deviceID.$dceRouterSuffix.@$orbiterSuffix.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_VIEW_ERRORS_IN_LOG_CONST.'</a>&nbsp;&nbsp;&nbsp;
+				<a href="javascript:windowOpen(\'index.php?section=fullLog&deviceID='.$deviceID.$dceRouterSuffix.@$orbiterSuffix.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_VIEW_WHOLE_LOG_CONST.'</a>&nbsp;&nbsp;&nbsp;
+				<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.$dceRouterSuffix.@$orbiterSuffix.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_FOLLOW_LOG_CONST.'</a>
 				'.$coreSystemLog.'
 			</td>
 		</tr>
@@ -159,7 +164,7 @@ $installationID = (int)@$_SESSION['installationID'];
 	<tr>
 		<td>'.$TEXT_DEVICE_TEMPLATE_CONST.'</td>
 		<td width="230" bgcolor="#B9B9B9"><B>'.$mdlDescription.' #'.$DeviceTemplate.'</B></td>
-		<td><input value="'.$TEXT_VIEW_CONST.'" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model='.$DeviceTemplate.'&from=editDeviceParams\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> <input value="Help" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$deviceID.'\'">'.$manufHomeLink.' '.$internalLink.'</td>
+		<td><input value="'.$TEXT_VIEW_CONST.'" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model='.$DeviceTemplate.'&from=editDeviceParams\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> <input value="'.$TEXT_HELP_CONST.'" type="button" class="button" name="help" onClick="window.open(\'/wiki/index.php/Documentation_by_Device_Templates#'.$wikiLink.'\');">'.$manufHomeLink.' '.$internalLink.'</td>
 	</tr>
 	<tr>
 		<td>'.$TEXT_DEVICE_TEMPLATE_COMMENTS_CONST.'</td>
@@ -573,8 +578,6 @@ $installationID = (int)@$_SESSION['installationID'];
 		}
 	}
 	*/
-		$validOrbiters=getValidOrbitersArray($installationID,$dbADO);
-		$validComputers=getValidComputersArray($installationID,$dbADO);
 
 	$out.=((count($deviceDataArray)>0)?formatDeviceData($deviceID,$deviceDataArray[$deviceID],$dbADO,$IsIPBased,getSpecificFloorplanType($dcID,$dbADO),1,'textarea','input_big').'
 		<input type="hidden" name="DeviceDataToDisplay" value="'.join(',',$GLOBALS['DeviceDataToDisplay']).'">

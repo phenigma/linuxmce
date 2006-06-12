@@ -27,7 +27,7 @@ function errorLog($output,$dbADO) {
 		$resDevice=$dbADO->Execute($selectDevice,$deviceID);
 		$rowDevice=$resDevice->FetchRow();
 
-		$logName=getLogName($deviceID,$rowDevice['FK_DeviceTemplate'],$rowDevice['Template'],(int)@$_REQUEST['parentID']);
+		$logName=getLogName($deviceID,$rowDevice['FK_DeviceTemplate'],$rowDevice['Template'],(int)@$_REQUEST['parentID'],(int)@$_REQUEST['orbiter']);
 		
 		if(file_exists($logName)){
 			exec('grep \'^01\' '.$logName.' | /usr/pluto/bin/ansi2html',$retArray);

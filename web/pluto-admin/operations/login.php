@@ -15,7 +15,7 @@ function login($output,$dbADO) {
 	  <table border="0" align="center" cellpadding="5" cellspacing="0">
 		<tr>
 			<td colspan="2" align="center" height="133" class="left_frame_logo">
-				<a href="index.php?section=wizard"><img src="include/images/spacer.gif" border="0" width="220" height="90"></a>
+				<img src="include/images/spacer.gif" border="0" width="220" height="90">
 			</td>
 		</tr>
 		<tr>
@@ -39,7 +39,7 @@ function login($output,$dbADO) {
 	    &nbsp;&nbsp;
 	    </tr>
 	    <tr>
-	      <td colspan="2" align="center"><a href="/support/index.php?section=document&docID=35" target="_top">'.$TEXT_HELP_WITH_ADMIN_SITE_CONST.'</a></td>
+	      <td colspan="2" align="center"><a href="/wiki/index.php/Pluto_Admin_Website" target="_top">'.$TEXT_HELP_WITH_ADMIN_SITE_CONST.'</a></td>
 	    </tr>
 	    <tr>
 	      <td colspan="2" align="center">Learn about Pluto at <a href="http://www.plutohome.com" target="_top">www.plutohome.com</a><br><br>'.$TEXT_DOWNLOAD_CONST.' <a href="index.php?section=orbitersWin">'.$TEXT_ORBITER_WIN_INSTALLER_CONST.'</a></td>

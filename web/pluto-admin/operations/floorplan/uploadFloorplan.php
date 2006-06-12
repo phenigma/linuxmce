@@ -137,7 +137,6 @@ function uploadFloorplan($output,$dbADO) {
 	}
 	$output->setNavigationMenu(array("Floorplans Wizard"=>'index.php?section=floorplanWizard&page='.$page.'&type='.$type));	
 	
-	$output->setHelpSrc('/support/index.php?section=document&docID=35');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_UPLOAD_FLOORPLAN_CONST);
 	$output->output();

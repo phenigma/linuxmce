@@ -19,7 +19,7 @@ function devices($output,$dbADO) {
 	switch($type){
 		case 'interfaces':
 			$deviceCategory=$GLOBALS['rootInterfaces'];
-			$output->setHelpSrc('/support/index.php?section=document&docID=126');
+			$output->setHelpSrc('/wiki/index.php/Interfaces');
 		break;
 		case 'avEquipment':
 			$deviceCategory=$GLOBALS['rootAVEquipment'];
@@ -28,23 +28,23 @@ function devices($output,$dbADO) {
 		case 'lights':
 			$deviceCategory=$GLOBALS['rootLights'];
 			$specificFloorplanType=$GLOBALS['LightingFoorplanType'];
-			$output->setHelpSrc('/support/index.php?section=document&docID=128');
+			$output->setHelpSrc('/wiki/index.php/Lights');
 		break;
 		case 'climate':
 			$deviceCategory=$GLOBALS['rootClimate'];
 			$specificFloorplanType=$GLOBALS['ClimateFoorplanType'];
-			$output->setHelpSrc('/support/index.php?section=document&docID=130');
+			$output->setHelpSrc('/wiki/index.php/Climate');
 		break;
 		case 'security':
 			$deviceCategory=$GLOBALS['rootSecurity'];
 			$extraCategoryArray[]=$GLOBALS['rootGenericIO'];
 			$specificFloorplanType=$GLOBALS['SecurityFoorplanType'];
-			$output->setHelpSrc('/support/index.php?section=document&docID=127');
+			$output->setHelpSrc('/wiki/index.php/Security');
 		break;
 		case 'surveillance_cameras':
 			$deviceCategory=$GLOBALS['rootCameras'];
 			$specificFloorplanType=$GLOBALS['SecurityFoorplanType'];
-			$output->setHelpSrc('/support/index.php?section=document&docID=147');
+			$output->setHelpSrc('/wiki/index.php/Surveillance_Cameras');
 		break;
 		case 'phones':
 			$deviceCategory=$GLOBALS['rootPhones'];
@@ -208,7 +208,7 @@ function devices($output,$dbADO) {
 						<td class="alternate_back">'.controlledViaPullDown('controlledBy_'.$rowD['PK_Device'],$rowD['PK_Device'],$rowD['FK_DeviceTemplate'],$rowD['FK_DeviceCategory'],$rowD['FK_Device_ControlledVia'],$dbADO).'</td>
 						<td align="right" valign="top">'.formatDeviceData($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']],$dbADO,$rowD['IsIPBased'],@$specificFloorplanType,1).'</td>
 						<td align="center" valign="center" class="alternate_back">
-							<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
+							<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'/wiki/index.php/Documentation_by_Device_Templates#'.wikiLink($rowD['TemplateName']).'\'"><br>
 							<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
 							<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onClick="if(!confirm(\'Are you sure you want to delete this device?\'))return false;">
 						</td>
@@ -327,7 +327,7 @@ function devices($output,$dbADO) {
 			unset($_SESSION['from']);
 			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
 			if($deviceTemplate!=0){
-				$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);				
+				$insertID=exec_batch_command('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);
 				setDCERouterNeedConfigure($installationID,$dbADO);
 			}
 			

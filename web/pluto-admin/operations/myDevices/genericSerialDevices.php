@@ -187,9 +187,10 @@ function genericSerialDevices($output,$dbADO) {
 					$deviceName=(@$childOf[$rowD['PK_Device']]=='')?'<input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'">':'<input type="hidden" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"><B>'.$rowD['Description'].'</B>';
 					$roomPulldown=pulldownFromArray($roomsArray,'room_'.$rowD['PK_Device'],$rowD['FK_Room']);
 										
+					$wikiLink=wikiLink($rowD['TemplateName']);
 						
 					$buttons='	
-						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
+						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'/wiki/index.php/Documentation_by_Device_Templates#'.$wikiLink.'\'"><br>
 						<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
 						<input type="button" class="button_fixed" name="btn" value="'.$TEXT_RUBY_SOURCE_CODE_CONST.'" onClick="windowOpen(\'index.php?section=rubyCodes&from=genericSerialDevices&deviceID='.$rowD['PK_Device'].'&dtID='.$rowD['FK_DeviceTemplate'].'&from=genericSerialDevices&label=ruby\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>';
 					$buttons.='<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="return confirm(\''.$TEXT_DELETE_GCD_CONFIRMATION_CONST.'\');">';
