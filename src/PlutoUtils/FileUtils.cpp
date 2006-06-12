@@ -332,14 +332,10 @@ bool FileUtils::DirExists( string sFile )
 
 void FileUtils::DelFile(string sFileName)
 {
-printf("FileUtils::DelFile %s",sFileName.c_str());
 	if( sFileName.find('*')!=string::npos || sFileName.find('?')!=string::npos )
 	{
 		list<string> listFiles;
 		FileUtils::FindFiles(listFiles,FileUtils::BasePath(sFileName),FileUtils::FilenameWithoutPath(sFileName),false,true);
-printf("FileUtils::DelFile %s has wildcards, will search for %s / %s got %d",
-sFileName.c_str(),FileUtils::BasePath(sFileName).c_str(),FileUtils::FilenameWithoutPath(sFileName).c_str(),(int) listFiles.size());
-		
 		for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 			FileUtils::DelFile(*it);
 	}
