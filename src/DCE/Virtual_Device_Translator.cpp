@@ -64,7 +64,9 @@ bool Virtual_Device_Translator::GetConfig(DeviceData_Base *pDeviceData_Base)
 			break;
 		};
 
-		if( pDevice_ControlledVia && pDeviceData_Base->IsChildOf( pDevice_ControlledVia ) )
+		if( pDeviceData_Base && pDeviceData_Base->m_dwPK_DeviceTemplate==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
+			m_dwPK_Device_Orbiter = pDeviceData_Base->m_dwPK_Device;
+		else if( pDevice_ControlledVia && pDeviceData_Base->IsChildOf( pDevice_ControlledVia ) )
 		{
 			switch(pDeviceData_Base->m_dwPK_DeviceCategory)
 			{
@@ -96,7 +98,8 @@ bool Virtual_Device_Translator::GetConfig(DeviceData_Base *pDeviceData_Base)
 	//			m_dwPK_Device_CamcorderCapt = pDeviceData_Base->m_dwPK_Device;
 	//			break;
 			case DEVICECATEGORY_Standard_Orbiter_CONST:
-				m_dwPK_Device_Orbiter = pDeviceData_Base->m_dwPK_Device;
+				if( !m_dwPK_Device_Orbiter )
+					m_dwPK_Device_Orbiter = pDeviceData_Base->m_dwPK_Device;
 				break;
 			}
 		}
