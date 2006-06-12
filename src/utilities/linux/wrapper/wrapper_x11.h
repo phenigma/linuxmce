@@ -20,6 +20,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
+#include <X11/extensions/xf86dga.h>
 
 #include <string>
 #include <iostream>
@@ -182,7 +183,7 @@ public:
     bool Mouse_GetSpeed(int &accel_numerator_return, int &accel_denominator_return, int &threshold_return);
 
     bool Mouse_SetPosition(int nPosX, int nPosY);
-    bool Mouse_GetPosition(int &nPosX, int &nPosY);
+    bool Mouse_GetPosition(int &nPosX, int &nPosY, bool bRelative=false);
 
     // activate   : both width and height must be > 0
     // deactivate : both width and height == 0
@@ -195,6 +196,17 @@ public:
 
     // XFreePixmap should be called
     bool Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pixmap_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return);
+
+    struct string_int
+    {
+        std::string sName;
+        int nValue;
+    };
+    static const string_int v_aStdCursors_NameValue[];
+    static const int v_aStdCursors_Count;
+
+    // return -1 on error
+    static int StdCursor_GetValueByName(const std::string &sName);
 
 protected:
     Display *v_pDisplay;
