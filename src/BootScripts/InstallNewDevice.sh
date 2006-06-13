@@ -1,8 +1,10 @@
 #!/bin/bash
 
+# Re-run ourselves with stdout and stderr piped through tee
+. /usr/pluto/bin/TeeMyOutput.sh --outfile /var/log/pluto/InstallNewDevice.log --infile /dev/null --stdboth --append -- "$@"
+
 . /usr/pluto/bin/LockUtils.sh
 
-exec &> >(tee -a /var/log/pluto/InstallNewDevice.log) </dev/null
 echo -n "$(date -R) InstallNewDevice: Called with parameters:"
 for Parm in "$@"; do
 	echo -n " $Parm"
@@ -15,6 +17,8 @@ Package="$2"
 TryInstall()
 {
 	WaitLock "InstallNewDevice" "$Device"
+	trap "Unlock 'InstallNewDevice' '$Device'" EXIT
+
 	error=1
 	retries=0
 	while [[ $retries < 10 && $error != 0 ]]; do
@@ -38,8 +42,6 @@ TryInstall()
 	else
 		echo "Package installed successfully"
 	fi
-
-	Unlock "InstallNewDevice" "$Device"
 }
 
 if [[ -z "$Device" || -z "$Package" ]]; then
