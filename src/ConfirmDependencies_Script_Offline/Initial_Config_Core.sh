@@ -315,7 +315,8 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 	done
 
 	cd /cdrom/bonuscd1-cache
-        WorkDir="/usr/pluto/deb-cache/dists/sarge/main/binary-i386"
+        apt-get install dpkg-dev 2>/dev/null
+	WorkDir="/usr/pluto/deb-cache/dists/sarge/main/binary-i386"
 	cp -r *.deb $WorkDir
 	cd $WorkDir
 	pidofscreen=$(screen -r | grep pkgsrebuild )
