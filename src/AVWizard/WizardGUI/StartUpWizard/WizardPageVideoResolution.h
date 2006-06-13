@@ -10,6 +10,8 @@ class WizardPageVideoResolution :
 {
 	WizardWidgetListBox* Selected;
 	SettingsDictionary* GlobalSettings;
+
+	std::string PreviousResolution;
 public:
 
 	virtual void DefaultSetup(SettingsDictionary* AVWizardSettings);

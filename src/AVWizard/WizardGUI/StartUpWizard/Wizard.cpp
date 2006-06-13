@@ -91,7 +91,7 @@ void Wizard::MainLoop()
 			AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 
 			FrontEnd->TranslateEvent( Event);
-			EvaluateEvent( Event);
+			EvaluateEvent(Event);
 		}
 
 		if(!Quit)
@@ -322,3 +322,13 @@ void Wizard::SetExitWithCode(int Code)
 	GenerateCustomEvent(Event);
 }
 
+void Wizard::Resize(int Width, int Height, bool FullScreen)
+{
+	// if there is the same screen resolution, there is no need of resize
+	if (this->Width == Width &&  this->Height == Height)
+		return; 
+	this->Width = Width;
+	this->Height = Height;
+
+	FrontEnd->StartVideoMode(Width, Height, FullScreen);	
+}

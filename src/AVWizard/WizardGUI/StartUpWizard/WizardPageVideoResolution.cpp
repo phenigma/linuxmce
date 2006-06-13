@@ -14,6 +14,7 @@ WizardPageVideoResolution::WizardPageVideoResolution(SDLFrontEnd* FrontEnd, std:
 	: WizardPage(FrontEnd, Name)
 {
 	Selected = NULL;
+	PreviousResolution = "640x480";
 }
 
 WizardPageVideoResolution::~WizardPageVideoResolution(void)
@@ -61,7 +62,10 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 		RefreshStr =  AVWizardSettings->GetValue("VideoRefresh");
 	
 	RefreshListBox->SetCaption(RefreshStr);
-
+	
+	
+	if(AVWizardSettings->Exists("PreviousResolution"))
+		PreviousResolution = AVWizardSettings->GetValue("PreviousResolution");
 
 	bool IsSelectedResolutionListBox = Utils::StringToInt32(AVWizardSettings->GetValue("ResolutionSelected"));
 	ResListBox->SetFocus(IsSelectedResolutionListBox);

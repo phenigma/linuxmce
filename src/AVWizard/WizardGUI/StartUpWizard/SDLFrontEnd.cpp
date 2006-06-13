@@ -50,6 +50,7 @@ void SDLFrontEnd::TranslateEvent(WM_Event& WMEvent)
 int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 {
 	int Flags = 0;
+	SDL_Quit();
 	//Test if SDL inits nicely
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE)== -1)
 	{

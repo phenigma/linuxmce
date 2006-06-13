@@ -49,6 +49,8 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 		RatioMode = (OutputValue == "4_3");
 	}
 
+	Wizard::GetInstance()->Resize(640, 480, false);
+
 	SearchSelectedItem();
 }
 
