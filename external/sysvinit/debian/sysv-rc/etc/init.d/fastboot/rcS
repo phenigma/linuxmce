@@ -234,7 +234,7 @@ Message "Mounting remote filesystems"
 
 
 ## Check to see if a single mode was requested
-grep -qi " s " /proc/cmdline || grep -qi " s$" /proc/cmdline
+grep -qi " s " /proc/cmdline || grep -qi " s$" /proc/cmdline || grep -qi " single " /proc/cmdline || grep -qi ' single$' /proc/cmdline
 if [[ $? -eq 0 ]]; then
 	rm -f /var/run/block_single
 	Message "Going into single user mode"
@@ -288,9 +288,11 @@ fi
 if [[ -x /usr/pluto/bin/Report_Machine_Status.sh ]]; then
 	/usr/pluto/bin/Report_Machine_Status.sh  &
 fi
+
 Q="SELECT FK_Installation FROM Device WHERE PK_Device='$PK_Device'"
 R="$(RunSQL "$Q")"
 ConfSet PK_Installation "$R"
+
 Q="SELECT PK_Users FROM Users LIMIT 1"
 R="$(RunSQL "$Q")"
 ConfSet PK_Users "$R"
