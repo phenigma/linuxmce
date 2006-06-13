@@ -11,6 +11,7 @@ GLFontRenderer::GLFontRenderer(int ScreenHeight,
 							   unsigned char R, 
 							   unsigned char G,
 							   unsigned char B)
+							   : Font(ScreenHeight)
 							   
 {
 	Font.MapFont(FontName, Height, Style, R, G, B);
@@ -89,6 +90,7 @@ MeshFrame* GLFontRenderer::TextOut(std::string TextToDisplay, DesignObjText *Tex
 				}
 			}
 
+			/*
 			Font = new GLFontTextureList(pPieceTextStyle->m_iPixelHeight);
 			Font->MapFont(
 				pPieceTextStyle->m_sFont, 
@@ -103,7 +105,7 @@ MeshFrame* GLFontRenderer::TextOut(std::string TextToDisplay, DesignObjText *Tex
 				Text->m_iPK_VertAlignment, pPieceTextStyle->m_sFont,pPieceTextStyle->m_ForeColor,
 				pPieceTextStyle->m_iPixelHeight,pPieceTextStyle->m_bBold,pPieceTextStyle->m_bItalic,
 				pPieceTextStyle->m_bUnderline, point, rectLocation);
-
+*/
 			/*if(bMultiLine)
 				Text->m_rPosition.Y += rectLocation.bottom - rectLocation.top;
 			else
