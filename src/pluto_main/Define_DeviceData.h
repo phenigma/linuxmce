@@ -142,6 +142,7 @@
 #define DEVICEDATA_Autoassign_to_parents_room_CONST 163
 #define DEVICEDATA_PNP_Create_Without_Prompting_CONST 164
 #define DEVICEDATA_Immediate_Reload_Isnt_Necessar_CONST 165
+#define DEVICEDATA_Max_File_Size_CONST 166
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
