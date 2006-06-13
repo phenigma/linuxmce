@@ -443,9 +443,6 @@ bool PnpQueue::CheckForDeviceTemplateOnWeb(PnpQueueEntry *pPnpQueueEntry)
 
 bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQueueEntry)
 {
-	if( BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
-		return false; // Let this one get backed up
-
 	if( pPnpQueueEntry->m_iPK_DHCPDevice ) // See if the user already picked this from the menu
 	{
 		if( pPnpQueueEntry->m_iPK_DHCPDevice!=-1 )
@@ -501,6 +498,8 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 		DetermineOrbitersForPrompting(pPnpQueueEntry);
 	}
 
+	if( BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
+		return false; // Let this one get backed up
 
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_device_template);
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
