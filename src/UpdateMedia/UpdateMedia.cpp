@@ -330,6 +330,14 @@ cout << sFile << " exists in db as: " << PK_File << endl;
             PlutoMediaSubDir.SetFileAttribute(itMapFiles->second.first->PK_File_get());
 			continue; // This directory is already in the database 
 		}
+		
+		if(itMapFiles == mapFiles.end())
+		{
+			PlutoMediaFile PlutoMediaSubDir(m_pDatabase_pluto_media, m_nPK_Installation,
+				FileUtils::BasePath(sSubDir), "", true);
+
+			PlutoMediaSubDir.HandleFileNotInDatabase();
+		}
 
 		int i = ReadDirectory(sSubDir, bRecursive);
 		if( !PK_Picture )

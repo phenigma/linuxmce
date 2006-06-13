@@ -41,7 +41,7 @@ using namespace DCE;
 //
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation, 
-							   string sDirectory, string sFile) 
+							   string sDirectory, string sFile, bool bIsDir/* = false*/) 
 {
 	//initializations
     m_pDatabase_pluto_media = pDatabase_pluto_media;
@@ -49,6 +49,7 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
     m_sFile = sFile;
 	m_nOurInstallationID = PK_Installation;
 	m_nPK_MediaType = 0;
+	m_bIsDir = bIsDir;
 
 	g_pPlutoLogger->Write(LV_WARNING, "# PlutoMediaFile STARTED: dir %s file %s", 
 		m_sDirectory.c_str(), m_sFile.c_str());
@@ -98,9 +99,9 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 			m_nPK_MediaType = PK_MediaType;
 		}
 
-		g_pPlutoLogger->Write(LV_STATUS, "Media Type is: %d", PK_MediaType);
+		g_pPlutoLogger->Write(LV_STATUS, "Media Type is: %d, is folder %d", PK_MediaType, m_bIsDir);
 
-		if(PK_MediaType)
+		if(PK_MediaType || m_bIsDir)
             return AddFileToDatabase(PK_MediaType);
         else
         {
@@ -275,7 +276,8 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
 		pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(m_sDirectory));
 		pRow_File->Filename_set(m_sFile);
-		pRow_File->EK_MediaType_set(PK_MediaType);
+		pRow_File->IsDirectory_set(m_bIsDir);
+		pRow_File->EK_MediaType_set(!m_bIsDir ? PK_MediaType : 23 /*this is a folder. what media type to put?*/);
 		pRow_File->Table_File_get()->Commit();
 
 		g_pPlutoLogger->Write(LV_STATUS, "PlutoMediaFile::AddFileToDatabase -> created new record PK_File %d",

@@ -34,6 +34,7 @@ private:
     string m_sFile;
 	int m_nOurInstallationID;
 	int m_nPK_MediaType;
+	bool m_bIsDir;
 
     //internal helper functions
 	//This will add a record in the File table and additional attributes too in related tables
@@ -48,7 +49,7 @@ private:
 
 public:
     PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation,
-        string sDirectory, string sFile);
+        string sDirectory, string sFile, bool bIsDir = false);
     ~PlutoMediaFile();
 
     int HandleFileNotInDatabase(int PK_MediaType = 0);
