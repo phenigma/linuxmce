@@ -26,7 +26,7 @@ WizardLogic::~WizardLogic()
 bool WizardLogic::Setup()
 {
 #ifdef WIN32
-	if( !MySQLConnect("192.168.80.2", "root", "", "pluto_main") )
+	if( !MySQLConnect("192.168.80.1", "root", "", "pluto_main") )
 #else
 	if( !MySQLConnect(m_pOrbiter->m_sIPAddress, "root", "", "pluto_main") )
 #endif
@@ -60,7 +60,7 @@ bool WizardLogic::Setup()
 
 bool WizardLogic::HouseAlreadySetup()
 {
-	return AlreadyHasUsers();	
+	return AlreadyHasUsers() && AlreadyHasRooms();	
 }
 
 int WizardLogic::FindFirstDeviceInCategoryOnThisPC(int PK_DeviceCategory,string *sDescription)
@@ -135,6 +135,17 @@ int WizardLogic::AddUser(string sUsername)
 void WizardLogic::RemoveUser(int PK_User)
 {
 	m_pUserUtils->RemoveUser(PK_User);
+}
+
+bool WizardLogic::AlreadyHasRooms()
+{
+	string sSQL = "SELECT PK_Room FROM Room WHERE FK_Installation="
+		+ StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation) + " LIMIT 1";
+
+	PlutoSqlResult result_set_room;
+	if( (result_set_room.r=mysql_query_result(sSQL)) && result_set_room.r->row_count )
+		return true;
+	return false;
 }
 
 // Get a map of RoomTypes to number of Rooms of that Type, and the total number of rooms

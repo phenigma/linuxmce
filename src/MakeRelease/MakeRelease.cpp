@@ -155,14 +155,6 @@ bool CopySourceFile(string sInput,string sOutput)
 	// Little hack so we know what's a test installation
 	else if( !g_bSimulate && g_sDefines.find("-DDEBUG")!=string::npos && (sInput.find("Initial_Config_Real.sh")!=string::npos || sInput.find("Initial_Config_Core.sh")!=string::npos || sInput.find("Initial_Config_MD.sh")!=string::npos) )
 	{
-g_pPlutoLogger->Write(LV_WARNING,"Track CopySourceFile: %s -> %s simulate **it's a match** %d 1: %d 2: %d",sInput.c_str(),sOutput.c_str(),(int) g_bSimulate, (int) (g_sDefines.find("-DDEBUG")!=string::npos),
-	(int) (sInput.find("Initial_Config_Real.sh")!=string::npos || sInput.find("Initial_Config_Core.sh")!=string::npos || sInput.find("Initial_Config_MD.sh")!=string::npos));
-bool bFoo = StringUtils::Replace( sInput, sOutput, "TestInstallation = 0", "TestInstallation = 1" );
-string sCMD = "cp \"" + sInput + "\" \"/copysource." + sInput + "\"";
-system(sCMD.c_str());
-sCMD = "cp \"" + sOutput + "\" \"/copysource." + sOutput + "\"";
-system(sCMD.c_str());
-
 		StringUtils::Replace( sInput, "/temp.makerelease.test.installation", "TestInstallation = 0", "TestInstallation = 1" );
 		FileUtils::PUCopyFile( "/temp.makerelease.test.installation", sInput);
 		FileUtils::PUCopyFile( "/temp.makerelease.test.installation", sOutput);

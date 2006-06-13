@@ -52,6 +52,7 @@ public:
 		SETUP USERS
 	*/
 	bool AlreadyHasUsers();
+	bool AlreadyHasRooms();
 	int AddUser(string sUsername);
 	void RemoveUser(int PK_User);
 

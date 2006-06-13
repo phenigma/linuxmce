@@ -845,7 +845,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\t\t}" << endl;
 
 	fstr_DeviceCommand << "\t\t\tif( iHandled==0 && !pMessage->m_bRespondedToMessage &&" << endl;
-	fstr_DeviceCommand << "\t\t\t(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString) )" << endl;
+	fstr_DeviceCommand << "\t\t\t(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString || pMessage->m_eExpectedResponse==ER_DeliveryConfirmation) )" << endl;
 	fstr_DeviceCommand << "\t\t\t{" << endl;
 	fstr_DeviceCommand << "\t\t\t\tpMessage->m_bRespondedToMessage=true;" << endl;
 	fstr_DeviceCommand << "\t\t\t\tif( pMessage->m_eExpectedResponse==ER_ReplyMessage )" << endl;

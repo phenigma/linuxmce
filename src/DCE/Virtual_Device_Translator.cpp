@@ -63,44 +63,46 @@ bool Virtual_Device_Translator::GetConfig(DeviceData_Base *pDeviceData_Base)
 			m_dwPK_Device_PlugAndPlayPlugIn = pDeviceData_Base->m_dwPK_Device;
 			break;
 		};
-
-		if( pDeviceData_Base && pDeviceData_Base->m_dwPK_DeviceTemplate==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
-			m_dwPK_Device_Orbiter = pDeviceData_Base->m_dwPK_Device;
-		else if( pDevice_ControlledVia && pDeviceData_Base->IsChildOf( pDevice_ControlledVia ) )
+		if( pDevice_ControlledVia && pDeviceData_Base->IsChildOf( pDevice_ControlledVia ) )
 		{
-			switch(pDeviceData_Base->m_dwPK_DeviceCategory)
+			if( pDeviceData_Base && pDeviceData_Base->m_dwPK_DeviceTemplate==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
+				m_dwPK_Device_Orbiter = pDeviceData_Base->m_dwPK_Device;
+			else
 			{
-			case DEVICECATEGORY_Infrared_Receivers_CONST:
-				m_dwPK_Device_IRReceiver = pDeviceData_Base->m_dwPK_Device;
-				break;
-			case DEVICECATEGORY_LCDVFD_Displays_CONST:
-				m_dwPK_Device_LCD_VFD = pDeviceData_Base->m_dwPK_Device;
-				break;
-			case DEVICECATEGORY_App_Server_CONST:
-				m_dwPK_Device_AppServer = m_dwPK_Device_LocalAppServer = pDeviceData_Base->m_dwPK_Device;
-				break;
-			case DEVICECATEGORY_Media_Players_CONST:
-				m_dwPK_Device_LocalMediaPlayer = pDeviceData_Base->m_dwPK_Device;
-				break;
-			case DEVICECATEGORY_Disc_Drives_CONST:
-				m_dwPK_Device_DiscDrive = pDeviceData_Base->m_dwPK_Device;
-				break;
-	//todo		case DEVICECATEGORY_WebBrowser_CONST:
-	//			m_dwPK_Device_WebBrowser = pDeviceData_Base->m_dwPK_Device;
-	//			break;
-	//todo		case DEVICECATEGORY_General_Info_CONST:
-	//			m_dwPK_Device_MediaBurner = pDeviceData_Base->m_dwPK_Device;
-	//			break;
-	//todo		case DEVICECATEGORY_General_Info_CONST:
-	//			m_dwPK_Device_VideoConf = pDeviceData_Base->m_dwPK_Device;
-	//			break;
-	//todo		case DEVICECATEGORY_General_Info_CONST:
-	//			m_dwPK_Device_CamcorderCapt = pDeviceData_Base->m_dwPK_Device;
-	//			break;
-			case DEVICECATEGORY_Standard_Orbiter_CONST:
-				if( !m_dwPK_Device_Orbiter )
-					m_dwPK_Device_Orbiter = pDeviceData_Base->m_dwPK_Device;
-				break;
+				switch(pDeviceData_Base->m_dwPK_DeviceCategory)
+				{
+				case DEVICECATEGORY_Infrared_Receivers_CONST:
+					m_dwPK_Device_IRReceiver = pDeviceData_Base->m_dwPK_Device;
+					break;
+				case DEVICECATEGORY_LCDVFD_Displays_CONST:
+					m_dwPK_Device_LCD_VFD = pDeviceData_Base->m_dwPK_Device;
+					break;
+				case DEVICECATEGORY_App_Server_CONST:
+					m_dwPK_Device_AppServer = m_dwPK_Device_LocalAppServer = pDeviceData_Base->m_dwPK_Device;
+					break;
+				case DEVICECATEGORY_Media_Players_CONST:
+					m_dwPK_Device_LocalMediaPlayer = pDeviceData_Base->m_dwPK_Device;
+					break;
+				case DEVICECATEGORY_Disc_Drives_CONST:
+					m_dwPK_Device_DiscDrive = pDeviceData_Base->m_dwPK_Device;
+					break;
+		//todo		case DEVICECATEGORY_WebBrowser_CONST:
+		//			m_dwPK_Device_WebBrowser = pDeviceData_Base->m_dwPK_Device;
+		//			break;
+		//todo		case DEVICECATEGORY_General_Info_CONST:
+		//			m_dwPK_Device_MediaBurner = pDeviceData_Base->m_dwPK_Device;
+		//			break;
+		//todo		case DEVICECATEGORY_General_Info_CONST:
+		//			m_dwPK_Device_VideoConf = pDeviceData_Base->m_dwPK_Device;
+		//			break;
+		//todo		case DEVICECATEGORY_General_Info_CONST:
+		//			m_dwPK_Device_CamcorderCapt = pDeviceData_Base->m_dwPK_Device;
+		//			break;
+				case DEVICECATEGORY_Standard_Orbiter_CONST:
+					if( !m_dwPK_Device_Orbiter )
+						m_dwPK_Device_Orbiter = pDeviceData_Base->m_dwPK_Device;
+					break;
+				}
 			}
 		}
 	}

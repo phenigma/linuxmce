@@ -1141,7 +1141,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 		FileUtils::FindFiles(listFiles,sDestination,sFileNameBase + ".*.lock");
 		if( listFiles.size()!=1 )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped disc lock file: %s/%s",sDestination.c_str(),sFileNameBase.c_str());
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped disc lock file: %s / %s %d",sDestination.c_str(),sFileNameBase.c_str(),(int) listFiles.size());
 			return;
 		}
 		string sLockFile = listFiles.front();

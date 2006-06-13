@@ -168,12 +168,6 @@ int main(int argc, char *argv[])
 		cerr << "CreateDevice failed" << endl;
 		exit(1);
 	}
-	if (sIPAddress == "auto")
-	{
-		char cmd[1024];
-		snprintf(cmd, 1024, "/usr/pluto/bin/PlutoDHCP.sh -d %d -a", PK_Device);
-		system(cmd);
-	}
 	
 	cout << PK_Device << endl;
 

@@ -151,12 +151,11 @@ bool App_Server::Connect(int iPK_DeviceTemplate )
 
 	// Find the media director
 	DeviceData_Base *pDevice_This = m_pData->m_AllDevices.m_mapDeviceData_Base_Find( m_dwPK_Device );
-	if( pDevice_This && pDevice_This->m_pDevice_ControlledVia && pDevice_This->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Computers_CONST) )
-		m_dwPK_Device_MD = pDevice_This->m_pDevice_ControlledVia->m_dwPK_Device;
-	else if( pDevice_This && pDevice_This->m_pDevice_ControlledVia && pDevice_This->m_pDevice_ControlledVia->m_pDevice_ControlledVia &&
-			pDevice_This->m_pDevice_ControlledVia->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Computers_CONST) )
-		m_dwPK_Device_MD = pDevice_This->m_pDevice_ControlledVia->m_dwPK_Device;
-
+	DeviceData_Base *pDevice_MD = pDevice_This->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Director_CONST);
+	if( !pDevice_MD )
+		pDevice_MD = pDevice_This->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Computers_CONST);  // Shouldn't happen.  Be more broad
+	if( pDevice_MD )
+		m_dwPK_Device_MD = pDevice_MD->m_dwPK_Device;
 
 	if( m_bHardDrive )
 	{

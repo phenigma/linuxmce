@@ -18,17 +18,3 @@ cp /usr/pluto/orbiter/skins/Monster/bootsplash/*.cfg /etc/bootsplash/themes/plut
 cp /usr/pluto/orbiter/skins/Monster/bootsplash/*.jpg /etc/bootsplash/themes/pluto/images
 /var/lib/dpkg/info/bootsplash.postinst configure
 
-if [[ -z "$PrevVer" ]]; then
-	# Get rid of the default room / user since we'll do this in the wizard
-	Q="DELETE FROM Room WHERE PK_Room=1"
-	RunSQL "$Q"
-
-	Q="UPDATE Device SET FK_Room=NULL WHERE FK_Room=1"
-	RunSQL "$Q"
-
-	Q="DELETE FROM Users WHERE PK_Users=1"
-	RunSQL "$Q"
-
-	Q="DELETE FROM Installation_Users WHERE FK_Users=1"
-	RunSQL "$Q"
-fi

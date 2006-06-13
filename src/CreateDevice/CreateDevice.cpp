@@ -132,6 +132,13 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		return 0;
 	}
 
+	if (sIPAddress == "auto")
+	{
+		char cmd[1024];
+		snprintf(cmd, 1024, "/usr/pluto/bin/PlutoDHCP.sh -d %d -a", PK_Device);
+		system(cmd);
+	}
+
 	g_pPlutoLogger->Write(LV_STATUS,"Inserted device: %d Package: %d installation: %d configure: %d",
 		PK_Device,iPK_Package,m_iPK_Installation,(int) m_bDontCallConfigureScript);
 

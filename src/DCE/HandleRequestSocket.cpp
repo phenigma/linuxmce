@@ -196,6 +196,11 @@ void HandleRequestSocket::RunThread()
 						g_pPlutoLogger->Write( LV_STATUS, "Could not find a handler for message - from %d to %d Type: %d ID: %d (device: %d) %s",
 							pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To,
 							pMessage->m_dwMessage_Type, pMessage->m_dwID, m_dwPK_Device, m_sName.c_str() );
+						if( pMessage->m_eExpectedResponse!=ER_None && !pMessage->m_bRespondedToMessage )
+						{
+							SendString("FAIL");
+							pMessage->m_bRespondedToMessage=true;
+						}
 					}
 					if( receivedMessageResult != rmr_Buffered )
 						delete pMessage;

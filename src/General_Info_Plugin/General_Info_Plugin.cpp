@@ -2377,22 +2377,24 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 	{
 		if( sName.size()==0 )
 		{
-			SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, pMessage->m_dwPK_Device_From,
-				"You must type in a name for the room", // Main message
-				"", // Command Line
-				"bad_room", // Description
-				"0", // sPromptToResetRouter
-				"0", // sTimeout
-				"1"); // sCannotGoBack
-
-			SendCommand(SCREEN_PopupMessage);
-
+			DCE::SCREEN_NewPlugAndPlayDevice SCREEN_NewPlugAndPlayDevice(m_dwPK_Device,pMessage->m_dwPK_Device_From,iPK_Device,
+				pRow_Device ? pRow_Device->Description_get() : "",
+				"That room was invalid.  Please specify the room, or choose 'New Room' and type in the name of the new room");
+			SendCommand(SCREEN_NewPlugAndPlayDevice);
 			return;
 		}
-		pRow_Room = m_pDatabase_pluto_main->Room_get()->AddRow();
-		pRow_Room->Description_set(sName);
-		pRow_Room->FK_Installation_set(m_pRouter->iPK_Installation_get());
-		m_pDatabase_pluto_main->Room_get()->Commit();
+
+		vector<Row_Room *> vectRow_Room;
+		m_pDatabase_pluto_main->Room_get()->GetRows("Description = '" + StringUtils::SQLEscape(sName) + "'",&vectRow_Room);
+		if( vectRow_Room.size() )
+			pRow_Room = vectRow_Room[0];
+		else
+		{
+			pRow_Room = m_pDatabase_pluto_main->Room_get()->AddRow();
+			pRow_Room->Description_set(sName);
+			pRow_Room->FK_Installation_set(m_pRouter->iPK_Installation_get());
+			m_pDatabase_pluto_main->Room_get()->Commit();
+		}
 	}
 
 	if( !pRow_Device || !pRow_Room )

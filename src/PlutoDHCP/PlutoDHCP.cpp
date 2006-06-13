@@ -177,7 +177,7 @@ string PlutoDHCP::AssignIP(int PK_Device)
 
 	// See if it already has one
 	string sIP = pRow_Device->IPaddress_get();
-	if( sIP.size() )
+	if( sIP.size() && sIP!="auto" )
 	{
 		// It's already got a good one, use it
 		IPAddress ip(sIP);
