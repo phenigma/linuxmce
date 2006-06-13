@@ -1,3 +1,9 @@
+asterisk-pluto (1.0.9-17) unstable; urgency=low
+
+  * Create asterisk user if it doesn't exist, even if database exists
+
+ -- Office Server Operator <root@activate.plutohome.com>  Tue, 13 Jun 2006 18:19:21 +0300
+
 asterisk-pluto (1.0.9-16) unstable; urgency=low
 
   * Send event and let telecom plugin to handle it
