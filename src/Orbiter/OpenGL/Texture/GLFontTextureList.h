@@ -5,6 +5,8 @@
 
 #include "../Mesh/MeshBuilder.h"
 
+#include "GLFontTextureList.h"
+
 class GLFontTextureList
 {
 	/**
@@ -13,13 +15,15 @@ class GLFontTextureList
 	OpenGLGraphic* Letters[256];
 	int ScreenHeight_;
 
+	GLFontTextureList* Font;
+	
 public:
 	GLFontTextureList(int ScreenHeight);
 	virtual ~GLFontTextureList();
 	
 	virtual void MapFont(
 		std::string FontName,
-		int Height, 
+		int Height,
 		int Style,
 		unsigned char R, 
 		unsigned char G,

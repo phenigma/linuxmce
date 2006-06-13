@@ -85,7 +85,8 @@ void OpenGLGraphic::Prepare(SDL_Surface* Surface)
 	
 	/* Create a 32-bit surface with the bytes of each pixel in R,G,B,A order,
 	as expected by OpenGL for textures */
-	LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, Width, Height, Surface->format->BitsPerPixel, 
+	LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, Width, Height, 
+		Surface->format->BitsPerPixel, 
 		rmask, gmask, bmask, amask);
 		
 	if(LocalSurface == NULL) {

@@ -26,7 +26,7 @@
 #include "Mesh/MeshBuilder.h"
 //-----------------------------------------------------------------------------------------------------
 #include <SDL_ttf.h>
-#include "Texture/GLFontTextureList.h"
+#include "Texture/GLFontRenderer.h"
 //-----------------------------------------------------------------------------------------------------
 #include "../../pluto_main/Define_Effect.h"
 //-----------------------------------------------------------------------------------------------------
@@ -145,14 +145,28 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 			style |= TTF_STYLE_ITALIC;
 	}
 
+	
+	GLFontRenderer * aGLTextRenderer = new GLFontRenderer(OrbiterLogic()->m_iImageHeight, 
+		pTextStyle->m_sFont,
+		pTextStyle->m_iPixelHeight,
+		style, 
+		pTextStyle->m_ForeColor.R(), 
+		pTextStyle->m_ForeColor.G(), 
+		pTextStyle->m_ForeColor.B()
+		);
+	
+
 	GLFontTextureList* aGLFontTextureList = new GLFontTextureList(OrbiterLogic()->m_iImageHeight);
-	aGLFontTextureList->MapFont(pTextStyle->m_sFont, pTextStyle->m_iPixelHeight, style, pTextStyle->m_ForeColor.R(), 
-		pTextStyle->m_ForeColor.G(), pTextStyle->m_ForeColor.B());
+	aGLFontTextureList->MapFont(pTextStyle->m_sFont, pTextStyle->m_iPixelHeight, style, 
+		pTextStyle->m_ForeColor.R(), 
+		pTextStyle->m_ForeColor.G(), 
+		pTextStyle->m_ForeColor.B());
 	MeshContainer *Container = aGLFontTextureList->TextOut(point.X + Text->m_rPosition.X, 
 		point.Y + Text->m_rPosition.Y, const_cast<char *>(sTextToDisplay.c_str()));
 	MeshFrame *Frame = new MeshFrame();
 	Frame->SetMeshContainer(Container);
 	Engine->AddMeshFrameToDesktop(Frame);
+	
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point)

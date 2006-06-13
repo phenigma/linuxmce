@@ -43,7 +43,8 @@ void OpenGL3DEngine::Paint()
 
 	TextureManager::Instance()-> ConvertImagesToTextures();
 	GL.SetClearColor(.0f, .50f, 0.0f);
-	GL.ClearScreen(true, true);
+	GL.ClearScreen(true, false);
+	GL.EnableZBuffer(false);
 
 	MeshTransform Transform;
 	//TODO: need desktop for effects Desktop

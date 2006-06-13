@@ -22,7 +22,6 @@ GLFontTextureList::~GLFontTextureList()
 {
 	for(int i = 0; i < 256; i++)
 		delete Letters[i];
-
 }
 
 /*virtual*/ void GLFontTextureList::MapFont(
@@ -70,7 +69,6 @@ GLFontTextureList::~GLFontTextureList()
 		SDL_Surface * RenderedText = NULL;
 		Text[0] = i;
 
-		
 		try
 		{
 			RenderedText = TTF_RenderText_Blended(Font, Text, SDL_color);

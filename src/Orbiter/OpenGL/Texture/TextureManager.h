@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TextureManager_H_
+#define TextureManager_H_
 
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -32,3 +33,5 @@ public:
 	void ConvertImagesToTextures();
 		
 };
+
+#endif //TextureManager_H_
