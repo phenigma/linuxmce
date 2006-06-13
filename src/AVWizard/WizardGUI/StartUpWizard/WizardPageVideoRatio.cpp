@@ -39,6 +39,7 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 
 /*virtual*/ void WizardPageVideoRatio::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
+	system(COMMAND_SET_RATIO_4_3);
 	if(!AVWizardSettings->Exists("Video_Ratio"))
 	{
 		RatioMode = 0;

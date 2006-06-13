@@ -326,7 +326,8 @@ void Wizard::Resize(int Width, int Height, bool FullScreen)
 {
 	// if there is the same screen resolution, there is no need of resize
 	if (this->Width == Width &&  this->Height == Height)
-		return; 
+		return;
+
 	this->Width = Width;
 	this->Height = Height;
 
