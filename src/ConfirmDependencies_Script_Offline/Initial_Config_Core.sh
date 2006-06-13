@@ -1,9 +1,9 @@
 #!/bin/bash
 
 ## Test to see if we are in upgrade mode or not
-UpgradeMode=false
+UpgradeMode="false"
 if [[ -d /.backup ]] ;then
-	UpgradeMode=true
+	UpgradeMode="true"
 fi
 
 
