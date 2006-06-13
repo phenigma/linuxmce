@@ -317,7 +317,7 @@ function devices($output,$dbADO) {
 			}
 			if($type=='phones'){
 				$cmd='sudo -u root /usr/pluto/bin/sync_pluto2amp.pl '.join(' ',$displayedDevicesArray);
-				exec($cmd);
+				exec_batch_command($cmd);
 			}			
 			
 			$msg.='<br>Devices updated.';

@@ -2491,21 +2491,32 @@ function getAssocArray($table,$keyField,$labelField,$dbADO,$whereClause='',$orde
 	return $retArray;
 }
 
-function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,$dbADO,$childOfMD=0)
+function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,$dbADO,$childOfMD=0,$ipAddress,$macAddress)
 {
 	global $dbPlutoMainDatabase;
 	
 	$orbiterID=getMediaDirectorOrbiterChild($controlledBy,$dbADO);
-	
 	$parentID=($childOfMD==0)?$orbiterID:$controlledBy;
+	
 	/*
 	// old create device by calling directly the command
 	$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$FK_DeviceTemplate.' -i '.$FK_Installation.' -C '.$parentID;
 	$insertID=exec_batch_command($cmd);
 	*/
 	
-	$msgSendCommand='/usr/pluto/bin/MessageSend localhost -targetType template 0 27 1 718 44 '.$FK_DeviceTemplate.' 57 '.$roomID.' 156 '.$parentID;
-	$insertID=exec_batch_command($msgSendCommand);
+	$msgSendCommand='/usr/pluto/bin/MessageSend localhost -targetType template -o 0 27 1 718 44 '.$FK_DeviceTemplate;
+	$msgSendCommand.=((int)$roomID!='')?' 57 '.$roomID:'';
+	$msgSendCommand.=((int)$parentID!='')?' 156 '.$parentID:'';
+	$msgSendCommand.=($ipAddress!='')?' 58 \''.$ipAddress.'\'':'';
+	$msgSendCommand.=($macAddress!='')?' 47 \''.$macAddress.'\'':'';
+	
+	$out=exec_batch_command($msgSendCommand,1);
+	
+	if(substr($out,0,4)!='0:OK'){
+		error_redirect('ERROR: Error creating device.','');
+	}
+	
+	$insertID=substr($out,7);
 
 	if($insertID===false){
 		error_redirect('ERROR: device not created, check if DCE router is running.','');
@@ -2991,7 +3002,8 @@ function processRemotes($dbADO)
 	unset($_SESSION['from']);
 	$deviceTemplate=(int)@$_REQUEST['deviceTemplate'];
 	if($deviceTemplate!=0 && $mdID!=0){
-		$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID.' -C '.$mdID;
+		//$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID.' -C '.$mdID;
+		$insertID=createDevice($deviceTemplate,$installationID,$mdID,NULL,$dbADO);
 		$insertID=exec($cmd,$ret);
 		setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 		$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
@@ -5868,11 +5880,15 @@ function GetIRCodesForDevice($deviceID,$dbADO,$dtID=0){
 	return 1;
 }
 
-function exec_batch_command($cmd){
+function exec_batch_command($cmd,$all_output=0){
 	writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\t".$cmd."\n",'a+');
-	$last_line=exec($cmd,$ret_line,$retval);
+	$last_line=exec($cmd,$retArray,$retval);
 	if($retval===0){
-		return $last_line;
+		if($all_output==1){
+			return join("\n",$retArray);
+		}else{
+			return $last_line;
+		}
 	}else{
 		return false;
 	}

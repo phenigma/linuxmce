@@ -101,7 +101,8 @@
 				// add the device
 				global $dbPlutoMainDatabase;
 				$installationID=(int)$_SESSION['installationID'];
-				$deviceID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$dtID.' -i '.$installationID);				
+				//$deviceID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$dtID.' -i '.$installationID);				
+				$insertID=createDevice($dtID,$installationID,0,NULL,$dbADO);
 			}
 			
 			header('Location: index.php?section=addModel&step=2&dtID='.$dtID.'&isDef=1&deviceID='.@$deviceID);

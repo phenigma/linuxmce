@@ -440,9 +440,11 @@ function mediaDirectors($output,$dbADO) {
 							if($oldDevice==''){
 								// hard-coded: for BlueTooth dongle I create the device as child of media director instead of osd
 								$parent=($elem==$GLOBALS['BluetoothDongle'])?$value:$orbiterMDChild;
-								$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$elem.' -i '.$installationID.' -C '.$parent;
-
-								$insertID=exec_batch_command($cmd);
+								
+								//$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$elem.' -i '.$installationID.' -C '.$parent;
+								//$insertID=exec_batch_command($cmd);
+								$insertID=createDevice($elem,$installationID,$parent,NULL,$dbADO);				
+								
 								$dbADO->Execute('UPDATE Device SET Description=?,FK_Room=? WHERE PK_Device=?',array($OptionalDeviceName,$room,$insertID));
 							}
 						}else{
@@ -482,7 +484,9 @@ function mediaDirectors($output,$dbADO) {
 			unset($_SESSION['from']);
 			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
 			if($deviceTemplate!=0){
-				$insertID=exec_batch_command('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID,$ret);	
+				//$insertID=exec_batch_command('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID,$ret);	
+				$insertID=createDevice($deviceTemplate,$installationID,0,NULL,$dbADO);				
+				
 				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 				$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
 				exec_batch_command($commandToSend);

@@ -131,7 +131,8 @@
 				// create the instance
 				global $dbPlutoMainDatabase;
 				$installationID=(int)$_SESSION['installationID'];
-				$deviceID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$dtID.' -i '.$installationID);
+				//$deviceID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$dtID.' -i '.$installationID);
+				$insertID=createDevice($dtID,$installationID,0,NULL,$dbADO);
 			}
 			
 			$out=($opt==2)?$redirectJS:str_replace('model=','model='.$dtID,$redirectJS);				

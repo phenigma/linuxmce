@@ -447,7 +447,8 @@ $start_time=getmicrotime();
 			unset($_SESSION['from']);
 			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
 			if($deviceTemplate!=0){
-				$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID,$ret);
+				//$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID,$ret);
+				$insertID=createDevice($deviceTemplate,$installationID,0,NULL,$dbADO);
 				if((int)@$_SESSION['selectedEntArea']>0){
 					$dbADO->Execute('UPDATE Device,EntertainArea SET Device.FK_Room = EntertainArea.FK_Room WHERE PK_Device=? AND PK_EntertainArea=?',array($insertID,$_SESSION['selectedEntArea']));
 					$dbADO->Execute('INSERT INTO Device_EntertainArea (FK_Device,FK_EntertainArea) VALUES (?,?)',array($insertID,$_SESSION['selectedEntArea']));
