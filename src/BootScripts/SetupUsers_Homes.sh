@@ -168,6 +168,6 @@ if [[ "$MakeUsers" == yes ]]; then
 	done
 fi
 
-chmod -R 2770 "$BaseDir"/user_*
-chmod -R 2775 "$BaseDir"/public
+chmod -R 2770 "$BaseDir"/user_* 2>/dev/null
+chmod -R 2775 "$BaseDir"/public 2>/dev/null
 chgrp -R public "$BaseDir"/public
