@@ -111,6 +111,7 @@ namespace DCE
 			
 			int m_iSeekMuteStatus;
 			
+			string readMediaInfo();	
 		public:
 			int m_iTimeCodeReportFrequency;
 			bool m_bIsVDR;   // Is this live tv from VDR?

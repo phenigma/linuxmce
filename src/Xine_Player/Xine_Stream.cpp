@@ -5,6 +5,13 @@
 #include <xine/video_out.h>
 #include <xine/audio_out.h>
 
+#include <dvdnav/dvdnav.h>
+
+extern "C"
+{
+#include <cdda_interface.h>
+}
+
 #include "DCE/Logger.h"
 #include "DCE/DCEConfig.h"
 
@@ -15,11 +22,6 @@
 
 #include "pluto_main/Define_Button.h"
 #include "Gen_Devices/AllCommandsRequests.h"
-
-extern "C"
-{
-#include <cdda_interface.h>
-}
 
 #define POINTER_HIDE_SECONDS 2
 
@@ -427,90 +429,8 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		m_bIsVDR = fileName.substr( 0, 4 ) == "vdr:";
 	}
 	
-	
-	// pre-reading media information
-	g_pPlutoLogger->Write( LV_STATUS, "Reading stream media info: \n");
-	if (xine_open( m_pXineStream, fileName.c_str() ) )
-	{
-		sMediaInfo = "";
-		int titlesCount = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_TITLE_COUNT);
-		g_pPlutoLogger->Write( LV_STATUS, "Stream titles count: %d", titlesCount);
-		int hasChapters = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_HAS_CHAPTERS);
-		g_pPlutoLogger->Write( LV_STATUS, "Stream has chapters: %d", hasChapters);
-		
-		xine_close( m_pXineStream);
-		
-		// for the media with titles
-		if (titlesCount>0)
-		{
-			/*
-			int chaptersCount = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_CHAPTER_COUNT);
-			g_pPlutoLogger->Write( LV_STATUS, "Stream chapters count: %d", chaptersCount);*/
-			
-			//also simply enumerating as we can't find the number of chapters using the current xine api
-			for (int i=1; i<=titlesCount; i++)
-			{
-				int chaptersCount=0;
-				
-				if (xine_open( m_pXineStream, (fileName+"/"+StringUtils::itos(i)).c_str() ))
-				{
-					chaptersCount = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_CHAPTER_COUNT);
-					xine_close( m_pXineStream);
-				}
-				else
-				{
-					g_pPlutoLogger->Write( LV_STATUS, "Failed to get chapters count for title: %d", i);
-				}
-				
-			
-				if (chaptersCount==0)
-					sMediaInfo += "Title " + StringUtils::itos(i) + "\t\t" + StringUtils::itos(i) + "\n";
-				else
-				{
-					for (int j=1; j<=chaptersCount; j++)
-						sMediaInfo += "Title " + StringUtils::itos(i) + " Chapter "+ StringUtils::itos(j) +"\t"+ StringUtils::itos(j) +"\t" + StringUtils::itos(i) + "\n";
-				}
-			}		
-		}
-		
-		// if this is Audio CD disk, MRL is like cdda:///dev/cdrom/12 - for 12th track
-		if(StringUtils::StartsWith(m_sCurrentFile, "cdda://", true))
-		{
-			string drvName = m_sCurrentFile;
-			drvName = StringUtils::Replace(drvName, "cdda://", "");
-			int last_slash = drvName.find_last_of("/");
-			if (last_slash!=drvName.length())
-			{
-				drvName.erase(last_slash);
-				
-				cdrom_drive *pDrive = cdda_identify(drvName.c_str(), CDDA_MESSAGE_FORGETIT, NULL);
-				if (!pDrive)
-				{
-					g_pPlutoLogger->Write( LV_STATUS, "Failed to identify cd drive: %s", drvName.c_str());
-				}
-				else
-				{
-					if (!cdda_open(pDrive))
-					{
-						int tracksCount = cdda_tracks(pDrive);
-                				cdda_close(pDrive);
-						for (int i=1; i<=tracksCount; i++)
-						{
-							sMediaInfo += "Track " + StringUtils::itos(i) + "\t" + StringUtils::itos(i) + "\n";
-						}
-					}
-					else
-					{
-						g_pPlutoLogger->Write( LV_STATUS, "Failed to open cd drive: %s", drvName.c_str());
-					}
-				}				
-			}
-		}	
-		
-		g_pPlutoLogger->Write( LV_STATUS, "Stream media info (length=%i): \n%s", sMediaInfo.length(), sMediaInfo.c_str());
-	}
-	else
-		g_pPlutoLogger->Write( LV_STATUS, "Reading stream media info FAILED \n");
+	// reading info - # of titles/chapters/tracks
+	sMediaInfo = readMediaInfo();
 	
 	// getting possible suffix for media: chapters and titles
 	string sURLsuffix;
@@ -2537,6 +2457,105 @@ int Xine_Stream::CalculatePosition(string &sMediaPosition,string *sMRL,int *Subt
 void Xine_Stream::FireMenuOnScreen(int iButtons)
 {
 	m_pFactory->m_pPlayer->FireMenuOnScreen( m_iRequestingObject, m_iStreamID, iButtons != 0 );
+}
+
+string Xine_Stream::readMediaInfo()
+{
+	// pre-reading media information
+	g_pPlutoLogger->Write( LV_STATUS, "Reading stream media info: \n");
+	
+	string sMediaInfo = "";
+	
+	// is this DVD ? the MRL should be dvd:// + /dev/drive OR /path/file
+	if(StringUtils::StartsWith(m_sCurrentFile, "dvd://", true))
+	{
+		string dvdName = m_sCurrentFile;
+		dvdName = StringUtils::Replace(dvdName, "dvd://", "");
+		//HACK we often receive the MRL like dvd://dev/cdrom - this is WRONG, doing temporary fix
+		if (dvdName[0]!='/')
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "DVD name with bad syntax supplied(%s)! Please fix the CMD sender!", m_sCurrentFile.c_str());
+			dvdName = "/" + dvdName;
+		}
+		dvdnav_t *dvdHandle=NULL;
+		dvdnav_status_t res = dvdnav_open(&dvdHandle, dvdName.c_str());
+		if (res == DVDNAV_STATUS_ERR)
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "libdvdnav: Error opening DVD");
+		}
+		else
+		{
+			int titlesCount;
+			res = dvdnav_get_number_of_titles(dvdHandle, &titlesCount);
+			if (res == DVDNAV_STATUS_OK)
+			{
+				for (int i=1; i<=titlesCount; i++)
+				{
+					int chaptersCount;
+					res = dvdnav_get_number_of_parts(dvdHandle, i, &chaptersCount);
+					if (res == DVDNAV_STATUS_OK)
+					{
+						if (chaptersCount==0)
+							sMediaInfo += "Title " + StringUtils::itos(i) + "\t\t" + StringUtils::itos(i) + "\n";
+						else
+						{
+							for (int j=1; j<=chaptersCount; j++)
+								sMediaInfo += "Title " + StringUtils::itos(i) + " Chapter "+ StringUtils::itos(j) +"\t"+ StringUtils::itos(j) +"\t" + StringUtils::itos(i) + "\n";
+						}
+					}
+					else
+					{
+						g_pPlutoLogger->Write( LV_WARNING, "libdvdnav: Error reading chapters count for title %i", i);
+						sMediaInfo += "Title " + StringUtils::itos(i) + "\t\t" + StringUtils::itos(i) + "\n";
+					}
+				}
+			}
+			else
+				g_pPlutoLogger->Write( LV_WARNING, "libdvdnav: Error reading titles count");
+
+			dvdnav_close(dvdHandle);
+			
+		}
+		
+	}
+
+	// if this is Audio CD disk, MRL is like cdda:///dev/cdrom/12 - for 12th track
+	if(StringUtils::StartsWith(m_sCurrentFile, "cdda://", true))
+	{
+		string drvName = m_sCurrentFile;
+		drvName = StringUtils::Replace(drvName, "cdda://", "");
+		int last_slash = drvName.find_last_of("/");
+		if (last_slash!=drvName.length())
+		{
+			drvName.erase(last_slash);
+			
+			cdrom_drive *pDrive = cdda_identify(drvName.c_str(), CDDA_MESSAGE_FORGETIT, NULL);
+			if (!pDrive)
+			{
+				g_pPlutoLogger->Write( LV_STATUS, "Failed to identify cd drive: %s", drvName.c_str());
+			}
+			else
+			{
+				if (!cdda_open(pDrive))
+				{
+					int tracksCount = cdda_tracks(pDrive);
+					cdda_close(pDrive);
+					for (int i=1; i<=tracksCount; i++)
+					{
+						sMediaInfo += "Track " + StringUtils::itos(i) + "\t" + StringUtils::itos(i) + "\n";
+					}
+				}
+				else
+				{
+					g_pPlutoLogger->Write( LV_STATUS, "Failed to open cd drive: %s", drvName.c_str());
+				}
+			}				
+		}
+	}	
+	
+	g_pPlutoLogger->Write( LV_STATUS, "Stream media info (length=%i): \n%s", sMediaInfo.length(), sMediaInfo.c_str());
+	
+	return sMediaInfo;
 }
 
 } // DCE namespace end
