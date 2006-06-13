@@ -48,6 +48,4 @@ sed -i "s/_SESSION\\['skin'\\]=.;/_SESSION\\['skin'\\]=1;/" /var/www/pluto-admin
 
 # Append the vendor label in pluto.conf
 Vendor="Monster"
-cat /etc/pluto.conf | grep -v "Vendor *=" > /etc/pluto.conf.$$
-echo -e "\nVendor=$Vendor" >> /etc/pluto.$$
-mv /etc/pluto.conf.$$ /etc/pluto.conf
+ConfSet "Vendor" "$Vendor"
