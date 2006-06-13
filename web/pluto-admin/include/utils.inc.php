@@ -870,7 +870,10 @@ function grabFiles($path,$fileParm='-type f',$startingWith='') {
 	exec($cmd,$retArray);
 	foreach ($retArray AS $file){
 		if($file!=$path && stat($path)!==false){
-			$filesArray[]=str_replace($path.'/','',$file);
+			$cleanFile=str_replace($path.'/','',$file);
+			if($cleanFile!=''){
+				$filesArray[]=$cleanFile;
+			}
 		}
 	}
 	sort($filesArray,SORT_STRING);
@@ -2495,10 +2498,20 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 	$orbiterID=getMediaDirectorOrbiterChild($controlledBy,$dbADO);
 	
 	$parentID=($childOfMD==0)?$orbiterID:$controlledBy;
+	/*
+	// old create device by calling directly the command
 	$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$FK_DeviceTemplate.' -i '.$FK_Installation.' -C '.$parentID;
+	$insertID=exec_batch_command($cmd);
+	*/
+	
+	$msgSendCommand='/usr/pluto/bin/MessageSend localhost -targetType template 0 27 1 718 44 '.$FK_DeviceTemplate.' 57 '.$roomID.' 156 '.$parentID;
+	$insertID=exec_batch_command($msgSendCommand);
 
-	$insertID=exec($cmd);
-	$dbADO->Execute('UPDATE Device SET FK_Room=? WHERE PK_Device=?',array($roomID,$insertID));
+	if($insertID===false){
+		error_redirect('ERROR: device not created, check if DCE router is running.','');
+	}
+	
+//	$dbADO->Execute('UPDATE Device SET FK_Room=? WHERE PK_Device=?',array($roomID,$insertID));
 	
 	return $insertID;
 }
@@ -2706,7 +2719,7 @@ function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParent,$db
 	return $out;
 }
 
-// return the deviceID of the orbiter plugin from current installation
+// return the deviceID of the Infrared plugin from current installation
 function getInfraredPlugin($installationID,$dbADO)
 {
 	$res=$dbADO->Execute('SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=? AND FK_Installation=?',array($GLOBALS['InfraredPlugIn'],$installationID));
@@ -4770,6 +4783,7 @@ function deleteDC($deviceCategory,$dbADO){
 
 function error_redirect($message,$url){
 	$_SESSION['error_message']=$message;
+	$url=($url=='')?'javascript:history.back();':$url;
 	$_SESSION['retry_url']=$url;
 	header('Location: index.php?section=error_message');
 	exit();
@@ -5856,7 +5870,12 @@ function GetIRCodesForDevice($deviceID,$dbADO,$dtID=0){
 
 function exec_batch_command($cmd){
 	writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\t".$cmd."\n",'a+');
-	return exec($cmd);
+	$last_line=exec($cmd,$ret_line,$retval);
+	if($retval===0){
+		return $last_line;
+	}else{
+		return false;
+	}
 }
 
 function wikiLink($str){
@@ -5864,5 +5883,17 @@ function wikiLink($str){
 	$wikiLink=urlencode(str_replace('__','_',$wikiLink)); 
 	
 	return $wikiLink;
+}
+
+// return the deviceID of the plugin from current installation and selected device template
+function getPlugin($installationID,$dtID,$dbADO)
+{
+	$res=$dbADO->Execute('SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=? AND FK_Installation=?',array($dtID,$installationID));
+	if($res->RecordCount()==0){
+		return null;
+	}else{
+		$row=$res->Fetchrow();
+		return $row['PK_Device'];
+	}
 }
 ?>

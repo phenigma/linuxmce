@@ -327,7 +327,8 @@ function devices($output,$dbADO) {
 			unset($_SESSION['from']);
 			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
 			if($deviceTemplate!=0){
-				$insertID=exec_batch_command('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);
+				//$insertID=exec_batch_command('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);
+				$insertID=createDevice($deviceTemplate,$installationID,NULL,NULL,$dbADO);
 				setDCERouterNeedConfigure($installationID,$dbADO);
 			}
 			
