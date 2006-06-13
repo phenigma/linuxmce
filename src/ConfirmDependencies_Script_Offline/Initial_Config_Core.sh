@@ -295,7 +295,7 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
                 
 	while [ ! -d "/cdrom/bonuscd1" ]; do
 		echo "This in not a valid \"Pluto Bonus CD 1\". Please insert the correct CD and try again."
-	        /usr/bin/eject
+		/usr/bin/eject
 		echo "Press any key when you inserted the correct CD in drive."
 		read key
 
@@ -315,7 +315,7 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 	done
 
 	cd /cdrom/bonuscd1-cache
-        apt-get install dpkg-dev 2>/dev/null
+	apt-get install dpkg-dev 2>/dev/null
 	WorkDir="/usr/pluto/deb-cache/dists/sarge/main/binary-i386"
 	cp -r *.deb $WorkDir
 	cd $WorkDir
@@ -329,10 +329,10 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 	echo "Regenerating Packages file for debcache, this will take less than 1 min. Please wait."
 	while [[ "$pidofscreen" != "" ]];
 	do
-        	sleep 5
-        	pidofscreen=$(screen -r | grep pkgsrebuild )
+		sleep 5
+		pidofscreen=$(screen -r | grep pkgsrebuild )
 	done
-        cat $WorkDir/screenlog.0 | sed 's,\./,dists/replacements/main/binary-i386/,g' | gzip -9c > Packages.gz
+	cat $WorkDir/screenlog.0 | sed 's,\./,dists/replacements/main/binary-i386/,g' | gzip -9c > Packages.gz
 	rm -rf $WorkDir/screenlog.0
 	#/usr/bin/screen -A -m -d -S pkgsrebuild dpkg-scanpackages . /dev/null | sed 's,\./,dists/replacements/main/binary-i386/,g' | gzip -9c > Packages.gz
 	cd ..
