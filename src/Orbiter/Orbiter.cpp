@@ -654,6 +654,9 @@ void Orbiter::ScreenSaver( void *data )
 		GotoDesignObj(m_sMainMenu);
 
 		//make sure the display is on
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"::Screen saver m_bDisplayOn = true;");
+#endif
 		m_bDisplayOn = true;
 	}
 }
