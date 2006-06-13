@@ -135,7 +135,7 @@ void *BackgroundWorkerThread(void *p)
 			//with a lock file which must be ignored at the beginning, but must
 			//be deleted later; if nothing will be modified there, we won't 
 			//be able to scan that folder and delete it.
-
+*/
 			//timestamp on the disk
 			sItem = StringUtils::Replace(&sItem,"\\","/");  // Be sure no Windows \'s
 			sItem = FileUtils::ExcludeTrailingSlash(sItem);
@@ -154,22 +154,24 @@ void *BackgroundWorkerThread(void *p)
 			)
 				sDBModifiedDate = row[0];
 
-			//compare timestamps; also, always scan movies folder to remove any lock files
-			if((sModifiedDate > sDBModifiedDate && sDBModifiedDate != "") || sItem == "/home/public/data/videos")
+            g_pPlutoLogger->Write(LV_STATUS, "Folder timestamp %s: on disk %s - on database %s" , sItem.c_str(),
+	            sModifiedDate.c_str(), sDBModifiedDate.c_str());
+			
+			//compare timestamps
+			if(sModifiedDate != sDBModifiedDate && sDBModifiedDate != "")
 			{
 
-				g_pPlutoLogger->Write(LV_WARNING, "Need to sync folder %s: on disk %s - on database %s" , sItem.c_str(), 
+				g_pPlutoLogger->Write(LV_CRITICAL, "Need to sync folder %s: on disk %s - on database %s" , sItem.c_str(), 
 					sModifiedDate.c_str(), sDBModifiedDate.c_str());
 
 				//touch records in db
 				string sSQL = "UPDATE File SET psc_mod = '" + sModifiedDate + "' WHERE Path = '" + StringUtils::SQLEscape(sItem) + "'";
 				pFileNotifier->m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
-*/				
 
 				list<string> listFiles;
 				listFiles.push_back(sItem);
 				pFileNotifier->FireOnCreate(listFiles);
-			//}
+			}
 
 			Sleep(100);
 		}

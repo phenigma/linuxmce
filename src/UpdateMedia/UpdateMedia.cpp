@@ -205,9 +205,6 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
         PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation,
             sDirectory, sFile);
 
-        if(m_bAsDaemon)
-	        Sleep(500);
-            
 		// Is it in the database?
 		int PK_File=0;
 		map<string,pair<Row_File *,bool> >::iterator itMapFiles = mapFiles.find( *it );
@@ -215,7 +212,12 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 		{
 			PK_File = PlutoMediaFile_.HandleFileNotInDatabase();
 			if(!PK_File)
+			{
+				if(m_bAsDaemon)
+					Sleep(10);
+				
 				continue; // Nothing to do
+			}
 		}	
 		else
 		{
@@ -227,7 +229,10 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 			PlutoMediaFile_.SetFileAttribute(PK_File);  
 		}
 
-        int i = PlutoMediaFile_.GetPicAttribute(PK_File);
+        if(m_bAsDaemon)
+			Sleep(500);
+		
+		int i = PlutoMediaFile_.GetPicAttribute(PK_File);
 		if(!PK_Picture)
 			PK_Picture = i;
 
@@ -275,27 +280,26 @@ cout << sFile << " exists in db as: " << PK_File << endl;
         if(m_bAsDaemon)
 			Sleep(500);
 		
-/*
-		//This is not correct. If the user adds an attribute in pluto-admin
-		//we cannot decide if we need or not to scan the folder again.
 
-		string SQL = "select count(*) from File Where Path LIKE '" + 
-			StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sSubDir)) + "%' AND Missing = 0";
-		
-		PlutoSqlResult allresult;
-		MYSQL_ROW row;
-		if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+		if(m_bAsDaemon)
 		{
-			row = mysql_fetch_row(allresult.r);
-
-			if(row && atoi(row[0]) > 0 && !bRecursive)
+			string SQL = "select count(*) from File Where Path LIKE '" + 
+				StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sSubDir)) + "%' AND Missing = 0";
+		
+			PlutoSqlResult allresult;
+			MYSQL_ROW row;
+			if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Skipping subdir %s cause it's already scanned", sSubDir.c_str());
-				Sleep(1000); 
-				continue;
+				row = mysql_fetch_row(allresult.r);
+
+				if(row && atoi(row[0]) > 0 && !bRecursive)
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "Skipping subdir %s cause it's already scanned", sSubDir.c_str());
+					Sleep(1000); 
+					continue;
+				}
 			}
 		}
-*/		
 
         //is sDirectory a ripped dvd ?
 		if( 
