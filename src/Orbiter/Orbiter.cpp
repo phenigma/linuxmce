@@ -212,7 +212,8 @@ Constructors/Destructor
 
 //<-dceag-const-b->!
 Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  string sLocalDirectory,
-				 bool bLocalMode,  int iImageWidth,  int iImageHeight, pluto_pthread_mutex_t* pExternalScreenMutex/*=NULL*/)
+				 bool bLocalMode,  int iImageWidth,  int iImageHeight, pluto_pthread_mutex_t* pExternalScreenMutex/*=NULL*/,
+				 bool bFullScreen/*=false*/)
 				 : Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ),
 				 m_MaintThreadMutex("MaintThread"), m_ScreenMutex( "rendering" ),
 				 m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" )
@@ -221,9 +222,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	WriteStatusOutput((char *)(string("Orbiter version: ") + VERSION).c_str());
 	WriteStatusOutput("Orbiter constructor");
 
-	//TODO: read as param
-	m_bFullScreen = false;
-
+	m_bFullScreen = bFullScreen;
 	m_pInstance = this;
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_pOrbiterRenderer = OrbiterRendererFactory::CreateRenderer(this);

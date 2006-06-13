@@ -156,7 +156,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		* @brief constructor, assignes values to member data
 		*/
 		Orbiter( int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  string sLocalDirectory,  
-			bool bLocalMode,  int iImageWidth,  int iImageHeight, pluto_pthread_mutex_t* pExternalScreenMutex = NULL );
+			bool bLocalMode,  int iImageWidth,  int iImageHeight, pluto_pthread_mutex_t* pExternalScreenMutex = NULL, bool bFullScreen = false );
 		/**
 		* @brief destructor
 		*/
