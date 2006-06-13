@@ -181,13 +181,19 @@ void PlutoMediaFile::SyncDbAttributes()
 		{
 			PlutoMediaAttribute *pDBPlutoMediaAttribute = itdb->second;
 
+			//g_pPlutoLogger->Write(LV_STATUS, "# SyncDbAttributes: comparing attribute from db (%d, %s, %d, %d) with attr from file (%d, %s, %d, %d)",
+			//	pDBPlutoMediaAttribute->m_nType, pDBPlutoMediaAttribute->m_sName.c_str(), pDBPlutoMediaAttribute->m_nTrack, pDBPlutoMediaAttribute->m_nSection,
+			//	pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName.c_str(), pPlutoMediaAttribute->m_nTrack, pPlutoMediaAttribute->m_nSection
+			//);
+			
 			if(
 				pPlutoMediaAttribute->m_nType == pDBPlutoMediaAttribute->m_nType		&&
-				pPlutoMediaAttribute->m_sName == pDBPlutoMediaAttribute->m_sName		&&
+				StringUtils::ToLower(pPlutoMediaAttribute->m_sName) == StringUtils::ToLower(pDBPlutoMediaAttribute->m_sName)		&&
 				pPlutoMediaAttribute->m_nTrack == pDBPlutoMediaAttribute->m_nTrack		&&
 				pPlutoMediaAttribute->m_nSection == pDBPlutoMediaAttribute->m_nSection
 				)
 			{
+				//g_pPlutoLogger->Write(LV_STATUS, "# It's a match!");
 				bAttributeAlreadyAdded = true;
 				break;
 			}
