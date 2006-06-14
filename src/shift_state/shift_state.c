@@ -2,13 +2,14 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+//#include "shift_keys.h"
 
 int main()
 {
 	char c = 6;
 	errno = 0;
-	int r = ioctl(0, TIOCLINUX, &c);
-	printf("c:%d r:%d e:%s\n", c, r, strerror(errno));
+	if (ioctl(0, TIOCLINUX, &c) == 0)
+		printf("%d\n", c);
 
 	return 0;
 }
