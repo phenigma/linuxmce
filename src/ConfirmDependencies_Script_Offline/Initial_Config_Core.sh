@@ -319,22 +319,9 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 	WorkDir="/usr/pluto/deb-cache/dists/sarge/main/binary-i386"
 	cp -r *.deb $WorkDir
 	cd $WorkDir
-	pidofscreen=$(screen -r | grep pkgsrebuild )
-	rm -rf screenlog.0 2>/dev/null
-	if [[ "$pidofscreen" ==  "" ]]; then
-        /usr/bin/screen -L -A -m -d -S pkgsrebuild dpkg-scanpackages . /dev/null
-	fi
-	sleep 1
-	pidofscreen=$(screen -r | grep pkgsrebuild )
-	echo "Regenerating Packages file for debcache, this will take less than 1 min. Please wait."
-	while [[ "$pidofscreen" != "" ]];
-	do
-		sleep 5
-		pidofscreen=$(screen -r | grep pkgsrebuild )
-	done
-	cat $WorkDir/screenlog.0 | sed 's,\./,dists/replacements/main/binary-i386/,g' | gzip -9c > Packages.gz
-	rm -rf $WorkDir/screenlog.0
-	#/usr/bin/screen -A -m -d -S pkgsrebuild dpkg-scanpackages . /dev/null | sed 's,\./,dists/replacements/main/binary-i386/,g' | gzip -9c > Packages.gz
+	echo "Regenerating Packages.gz in debcache. This will require 1 minute. Please wait."
+	dpkg-scanpackages . /dev/null | sed 's,\./,dists/replacements/main/binary-i386/,g' | gzip -9c > Packages.gz
+	clear
 	cd ..
 	/usr/bin/eject
 	echo ""
