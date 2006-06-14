@@ -444,7 +444,9 @@ void OrbiterRenderer_SDL::EventLoop()
    // For now I'll assume that shift + arrows scrolls a grid
     while (!OrbiterLogic()->m_bQuit && !OrbiterLogic()->m_bReload)
     {
+		LockDisplay();
 		SDL_Event_Pending = SDL_PollEvent(&Event);
+		UnlockDisplay();
 
 		if (SDL_Event_Pending)
 		{
