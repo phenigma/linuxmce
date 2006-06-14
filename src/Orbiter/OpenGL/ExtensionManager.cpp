@@ -32,7 +32,11 @@ ExtensionManager::~ExtensionManager(void)
 {
 	if(!CleanColor && !CleanZBuffer)
 		return;
-	glClearColor(CleanRed, CleanGreen, CleanBlue, 0.0f);
+	
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	glClearColor(CleanRed, CleanGreen, CleanBlue, 1.f);
 	unsigned int uFlags = 0;
 	if(CleanColor)
 		uFlags |= GL_COLOR_BUFFER_BIT;
@@ -95,15 +99,15 @@ void ExtensionManager::Resize(int Width, int Height)
 	/* Sets up OpenGL double buffering */
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 #ifndef WIN32
-	SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT);
-	SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_WINDOW_BIT);
+// 	SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT);
+//	SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_WINDOW_BIT);
 #endif
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      1);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    1);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     1);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    1);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    1);
+//	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      1);
+//	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    1);
+//	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     1);
+////	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    1);
+//	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  1);
+//	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    1);
 
 	Uint32 uVideoModeFlags = SDL_OPENGL | SDL_RESIZABLE;
 

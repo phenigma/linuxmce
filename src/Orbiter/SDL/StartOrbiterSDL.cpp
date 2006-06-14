@@ -301,7 +301,7 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
         new OrbiterLinux(
             PK_Device, PK_DeviceTemplate, sRouter_IP,
             sLocalDirectory, bLocalMode, Width, Height, bFullScreen, Simulator::GetInstance()->m_bUseOpenGL);
-
+            
 	// Add a handler to take care of crashes
 	g_pCommand_Impl = pCLinux;
 	g_pDeadlockHandler=DeadlockHandler;
@@ -319,10 +319,13 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 			pCLinux->WaitForRelativesIfOSD();
 		}
         
+#ifdef ORBITER_OPENGL
+		
+#else /*SDL*/
 		OrbiterRenderer_SDL_Linux *pOrbiterRenderer_SDL_Linux = dynamic_cast<OrbiterRenderer_SDL_Linux *>(pCLinux->Renderer());
 		if(pOrbiterRenderer_SDL_Linux != NULL)
 			pOrbiterRenderer_SDL_Linux->InitializeAfterRelatives();
-
+#endif
 		g_pPlutoLogger->Write(LV_STATUS, "Creating the simulator");
 		Simulator::GetInstance()->m_pOrbiter = pCLinux;
 

@@ -1,7 +1,7 @@
 #include "ObjectRenderer_OpenGL.h"
 
-#include "Orbiter.h"
-#include "OrbiterRenderer.h"
+#include "../Orbiter.h"
+#include "../OrbiterRenderer.h"
 
 using namespace DCE;
 

@@ -2436,8 +2436,8 @@ bool Orbiter::RenderDesktop( class DesignObj_Orbiter *pObj,  PlutoRectangle rect
         //int k=2;  // Do in background
         if (! Simulator::GetInstance()->m_bUseOpenGL)
         {
-            //color.SetAlpha(128); // optimized semi-transparency
-            color.SetAlpha(0); // full-transparency
+            color.SetAlpha(128); // optimized semi-transparency
+            //color.SetAlpha(0); // full-transparency
         }
     }
 	m_pOrbiterRenderer->SolidRectangle(x, y, width, height, color);

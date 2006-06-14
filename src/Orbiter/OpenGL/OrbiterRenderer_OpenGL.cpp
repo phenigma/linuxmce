@@ -1,7 +1,8 @@
 #include "OrbiterRenderer_OpenGL.h"
 //-----------------------------------------------------------------------------------------------------
-#include "SelfUpdate.h"
-#include "MainDialog.h"
+#ifdef WIN32
+	#include "MainDialog.h"
+#endif	
 //-----------------------------------------------------------------------------------------------------
 #include "Orbiter.h"
 #include "DCE/Logger.h"
@@ -44,7 +45,12 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 	)
 	{
 		pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
+		std::cout << "*** Thread -- GL.InitVideoMode FAILED" << std::endl;
 		return NULL;
+	}
+	else 
+	{
+		std::cout << "*** Thread -- GL.InitVideoMode SUCCEEDED" << std::endl;
 	}
 
 	pOrbiterRenderer->Engine->GL.Setup();
@@ -54,9 +60,11 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 
 	while(pOrbiterRenderer->Engine && !pOrbiterRenderer->Engine->Quit)
 	{
+#ifdef WIN32	
 		SDL_Event SDL_Event_Pending;
 		while(SDL_PollEvent(&SDL_Event_Pending) && !pOrbiterRenderer->Engine->Quit)
 			SDL_PushEvent(&SDL_Event_Pending);
+#endif			
 
 		if(pOrbiterRenderer->NeedToUpdateScreen())
 		{
@@ -78,6 +86,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : 
 	OrbiterRenderer(pOrbiter), Mutex("open gl"), Engine(NULL), NeedToUpdateScreen_(false)
 {
+	std::cout << "*** OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL()" << std::endl;
 	GLThread = 0;
 	pthread_cond_init(&Condition, NULL);
 	Mutex.Init(NULL, &Condition);
