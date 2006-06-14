@@ -163,12 +163,16 @@ function setTimezone($output,$dbADO) {
 		if($newTimeZone!=$oldTimeZone){
 			$cmdToSend='sudo -u root /usr/pluto/bin/SetTimeZone.sh '.trim($newTimeZone);
 			//echo $cmdToSend;
-			exec($cmdToSend);	
+			exec_batch_command($cmdToSend);	
 		}
 			
 		$suffix=(isset($err))?'&error='.$err:'';
-		header("Location: index.php?section=setTimezone&from=$from&msg=$TEXT_TIMEZONE_UPDATED_CONST$suffix");
-		exit();
+		$out='
+		<script>
+				opener.location.reload();
+			 	self.location="index.php?section=setTimezone&from='.$from.'&msg='.$TEXT_TIMEZONE_UPDATED_CONST.$suffix.'";
+		</script>';
+		die($out);
 	}
 	
 	$output->setBody($out);
