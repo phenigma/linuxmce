@@ -339,7 +339,8 @@ printf("FileUtils::DelFile %s",sFileName.c_str());
 		list<string> listFiles;
 		FileUtils::FindFiles(listFiles,FileUtils::BasePath(sFileName),FileUtils::FilenameWithoutPath(sFileName),false,true);
 		for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
-			FileUtils::DelFile(*it);
+			if( (*it).find('*')==string::npos && (*it).find('?')==string::npos )
+				FileUtils::DelFile(*it);
 	}
 #endif
 
