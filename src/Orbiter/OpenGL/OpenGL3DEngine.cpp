@@ -41,6 +41,12 @@ void OpenGL3DEngine::Paint()
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 
+	if(CurrentLayer->Children.size() == 0)
+	{
+	    g_pPlutoLogger->Write(LV_CRITICAL, "NOTHING to paint (current layer: %p)", CurrentLayer);		
+		return;
+	}
+
 	TextureManager::Instance()-> ConvertImagesToTextures();
 	GL.SetClearColor(.0f, .50f, 0.0f);
 	GL.ClearScreen(true, false);

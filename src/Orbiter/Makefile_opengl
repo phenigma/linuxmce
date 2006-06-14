@@ -160,6 +160,8 @@ sources += \
 	OpenGL/Widgets/bezierwindow.cpp \
 	OpenGL/Widgets/basicwindow.cpp \
 	OpenGL/Widgets/DrawingWidgetsEngine.cpp \
+	OpenGL/Texture/GLFontManager.cpp \
+	OpenGL/Texture/GLFont.cpp \
 	$(ROOT)/utilities/linux/transparency/transparency.cpp \
 
 #<-dceag-mf-b->
