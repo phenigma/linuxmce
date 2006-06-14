@@ -8402,21 +8402,6 @@ void Orbiter::SetChildrenVisibilityContext(DesignObj_Orbiter *pObj,
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-//<-dceag-c697-b->
-
-	/** @brief COMMAND: #697 - Set Active Application */
-	/** Indicates if there is an active computing application, other than some media, such as a file browser. */
-		/** @param #2 PK_Device */
-			/** The media director */
-		/** @param #50 Name */
-			/** The name of the application */
-		/** @param #146 PK_QuickStartTemplate */
-			/** The quick start template */
-
-void Orbiter::CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,Message *pMessage)
-//<-dceag-c697-e->
-{
-}
 
 //<-dceag-c795-b->
 

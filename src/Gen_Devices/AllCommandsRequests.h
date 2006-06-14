@@ -18496,42 +18496,6 @@ namespace DCE
 			1 /* number of parameters */,
 			COMMANDPARAMETER_Name_CONST, sName.c_str()); }
 	};
-	class CMD_Set_Active_Application : public PreformedCommand {
-	public:
-		CMD_Set_Active_Application(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,string sName,int iPK_QuickStartTemplate) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
-			COMMAND_Set_Active_Application_CONST,
-			3 /* number of parameters */,
-			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
-			COMMANDPARAMETER_Name_CONST, sName.c_str(),
-			COMMANDPARAMETER_PK_QuickStartTemplate_CONST, StringUtils::itos(iPK_QuickStartTemplate).c_str()); }
-	};
-	class CMD_Set_Active_Application_DL : public PreformedCommand {
-	public:
-		CMD_Set_Active_Application_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,string sName,int iPK_QuickStartTemplate) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Set_Active_Application_CONST,
-			3 /* number of parameters */,
-			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
-			COMMANDPARAMETER_Name_CONST, sName.c_str(),
-			COMMANDPARAMETER_PK_QuickStartTemplate_CONST, StringUtils::itos(iPK_QuickStartTemplate).c_str()); }
-	};
-	class CMD_Set_Active_Application_DT : public PreformedCommand {
-	public:
-		CMD_Set_Active_Application_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,string sName,int iPK_QuickStartTemplate) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Set_Active_Application_CONST,
-			3 /* number of parameters */,
-			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
-			COMMANDPARAMETER_Name_CONST, sName.c_str(),
-			COMMANDPARAMETER_PK_QuickStartTemplate_CONST, StringUtils::itos(iPK_QuickStartTemplate).c_str()); }
-	};
-	class CMD_Set_Active_Application_Cat : public PreformedCommand {
-	public:
-		CMD_Set_Active_Application_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sName,int iPK_QuickStartTemplate) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Set_Active_Application_CONST,
-			3 /* number of parameters */,
-			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
-			COMMANDPARAMETER_Name_CONST, sName.c_str(),
-			COMMANDPARAMETER_PK_QuickStartTemplate_CONST, StringUtils::itos(iPK_QuickStartTemplate).c_str()); }
-	};
 	class CMD_Get_Extended_Media_Data : public PreformedCommand {
 	public:
 		CMD_Get_Extended_Media_Data(long DeviceIDFrom, long DeviceIDTo,string sPK_DesignObj,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 

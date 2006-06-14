@@ -2343,22 +2343,28 @@ void OrbiterGenerator::OutputCriteriaNest(Row_CriteriaParmNesting *row)
 {
 }
 
-void OrbiterGenerator::MatchChildDevicesToLocation(LocationInfo *li,Row_Device *pRow_Device)
+void OrbiterGenerator::MatchChildDevicesToLocation(LocationInfo *li,Row_Device *pRow_Device,bool bStartWithTopMost)
 {
 cout << "Matching child devices to " << pRow_Device->PK_Device_get() << " " << pRow_Device->Description_get() << endl;
+
+	if( bStartWithTopMost )
+		while( pRow_Device->FK_Device_ControlledVia_getrow() )
+			pRow_Device = pRow_Device->FK_Device_ControlledVia_getrow();
+
 	vector<Row_Device *> vectChildren;
 	pRow_Device->Device_FK_Device_ControlledVia_getrows(&vectChildren);
 
 	for(size_t s=0;s<vectChildren.size();++s)
 	{
 		Row_Device *pRow_Device_MDChild = vectChildren[s];
+		MatchChildDevicesToLocation(li,pRow_Device_MDChild,false);  // These devices may be children of an orbiter also
+
 cout << "Checking device " << pRow_Device_MDChild->PK_Device_get() << " " << pRow_Device_MDChild->Description_get() << endl;
 		switch( pRow_Device_MDChild->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get() )
 		{
 		case DEVICECATEGORY_App_Server_CONST:
 			li->m_dwPK_Device_AppServer = pRow_Device_MDChild->PK_Device_get();
 cout << "Set appserver to " << li->m_dwPK_Device_AppServer << endl;
-			MatchChildDevicesToLocation(li,pRow_Device_MDChild);  // These devices may be children of an app server also
 			break;
 		case DEVICECATEGORY_Infrared_Receivers_CONST:
 			li->m_dwPK_Device_IRReceiver = pRow_Device_MDChild->PK_Device_get();
@@ -2384,7 +2390,6 @@ cout << "Set appserver to " << li->m_dwPK_Device_AppServer << endl;
 //			break;
 		case DEVICECATEGORY_Standard_Orbiter_CONST:
 			li->m_dwPK_Device_Orbiter = pRow_Device_MDChild->PK_Device_get();
-			MatchChildDevicesToLocation(li,pRow_Device_MDChild);  // These devices may be children of an orbiter also
 			break;
 
 		};

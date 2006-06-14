@@ -111,7 +111,7 @@ private:
 	void OutputCriteriaNest(class Row_CriteriaParmNesting *row);
 	void SearchForGotos(class DesignObj_Data *pDesignObj_Data);
 	void SearchForGotos(class DesignObj_Data *pDesignObj_Data,DesignObjCommandList *alCommands);
-	void MatchChildDevicesToLocation(LocationInfo *li,Row_Device *pRow_Device);
+	void MatchChildDevicesToLocation(LocationInfo *li,Row_Device *pRow_Device,bool bStartWithTopMost=true);
 	void ScaleCommandList(DesignObj_Generator *pocDesignObj,DesignObjCommandList &CommandList);
 	class Row_Size *TranslateSize(string sSize);
 	bool CommonControlledVia(Row_Device *pRow_Device1,Row_Device *pRow_Device2);

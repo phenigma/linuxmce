@@ -506,6 +506,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		*/
 		void ContinuousRefresh( void *data );
 
+	bool IsYieldScreen() const;
+		bool IsYieldInput() const;
 		/**
 		* @brief Kill the maintenance thread that handles tasks like redraws.  This function will block until the thread exits
 		*/
@@ -1277,8 +1279,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard) { string sCMD_Result; CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,sCMD_Result,NULL);};
 	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,Message *pMessage);
 
-	bool IsYieldScreen() const;
-	bool IsYieldInput() const;
 
 	/** @brief COMMAND: #77 - Set Current Room */
 	/** If you don't know the location, you can also set just the room */
@@ -1679,19 +1679,6 @@ light, climate, media, security, telecom */
 
 	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection) { string sCMD_Result; CMD_Update_Time_Code(iStreamID,sTime.c_str(),sTotal.c_str(),sSpeed.c_str(),sTitle.c_str(),sSection.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #697 - Set Active Application */
-	/** Indicates if there is an active computing application, other than some media, such as a file browser. */
-		/** @param #2 PK_Device */
-			/** The media director */
-		/** @param #50 Name */
-			/** The name of the application */
-		/** @param #146 PK_QuickStartTemplate */
-			/** The quick start template */
-
-	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate) { string sCMD_Result; CMD_Set_Active_Application(iPK_Device,sName.c_str(),iPK_QuickStartTemplate,sCMD_Result,NULL);};
-	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #741 - Goto Screen */

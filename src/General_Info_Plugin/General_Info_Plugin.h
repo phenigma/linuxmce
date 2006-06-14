@@ -112,11 +112,11 @@ public:
 
 	class DataGridTable *AVIRCodesSets( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );	
 	class DataGridTable *IRCommands( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );	
-
+/*
 	void GetAppServerAndOsdForMD(DeviceData_Router *pDevice_MD,DeviceData_Router **pDevice_AppServer,DeviceData_Router **pDevice_Orbiter_OSD);
 	Message *BuildMessageToSpawnApp(DeviceData_Router *pDevice_OrbiterRequesting,DeviceData_Router *pDevice_MD,DeviceData_Router *pDevice_AppServer,DeviceData_Router *pDevice_Orbiter_OSD,
 		string sBinary,string sArguments,string sDescription,int PK_QuickStartTemplate=0);
-
+*/
 	bool ReportingChildDevices( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	bool LowSystemDiskSpace( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
@@ -284,19 +284,6 @@ public:
 
 	virtual void CMD_Check_for_updates_done() { string sCMD_Result; CMD_Check_for_updates_done(sCMD_Result,NULL);};
 	virtual void CMD_Check_for_updates_done(string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #697 - Set Active Application */
-	/** Tell General Info Plugin what computing application is running on an MD */
-		/** @param #2 PK_Device */
-			/** The media director */
-		/** @param #50 Name */
-			/** The name of the application */
-		/** @param #146 PK_QuickStartTemplate */
-			/** The quick start template */
-
-	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate) { string sCMD_Result; CMD_Set_Active_Application(iPK_Device,sName.c_str(),iPK_QuickStartTemplate,sCMD_Result,NULL);};
-	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #718 - Create Device */

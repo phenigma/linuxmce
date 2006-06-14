@@ -265,7 +265,7 @@ class DataGridTable *Plug_And_Play_Plugin::PNPDevices( string GridID, string Par
         pDataGrid->SetData( 0, RowCount++, pCell );
 	}
 
-	g_pPlutoLogger->Write(LV_CRITICAL, "Plug_And_Play_Plugin::PNPDevices Parms=%s returning templates %s", Parms.c_str(), sPK_DeviceTemplate.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Plug_And_Play_Plugin::PNPDevices Parms=%s returning templates %s", Parms.c_str(), sPK_DeviceTemplate.c_str());
 	return pDataGrid;
 }
 

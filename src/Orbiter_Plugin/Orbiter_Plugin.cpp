@@ -2523,6 +2523,7 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assi
 
 bool Orbiter_Plugin::CheckForNewWizardDevices(DeviceData_Router *pDevice_MD)
 {
+	// this was never implemented
 	vector<Row_Device *> vectRow_Device;
 	m_pDatabase_pluto_main->Device_get()->GetRows("IsNewDevice=1",&vectRow_Device);
 	if( vectRow_Device.size()==0 )
@@ -2539,16 +2540,18 @@ bool Orbiter_Plugin::CheckForNewWizardDevices(DeviceData_Router *pDevice_MD)
 				DeviceData_Router *pDeviceData_Router_MD=(*it).second;
 				if( (pDevice_MD && pDevice_MD==pDeviceData_Router_MD) || (!pDevice_MD && pDeviceData_Router_MD->WithinCategory(DEVICECATEGORY_Media_Director_CONST)) )
 				{
-					DeviceData_Router *pDevice_AppServer,*pDevice_Orbiter_OSD;
-					m_pGeneral_Info_Plugin->GetAppServerAndOsdForMD(pDeviceData_Router_MD,&pDevice_AppServer,&pDevice_Orbiter_OSD);
-					if( !pDevice_AppServer || !pDevice_Orbiter_OSD )
-						return false; // Should never happen
+//					DeviceData_Router *pDevice_AppServer,*pDevice_Orbiter_OSD;
+//					m_pGeneral_Info_Plugin->GetAppServerAndOsdForMD(pDeviceData_Router_MD,&pDevice_AppServer,&pDevice_Orbiter_OSD);
+//					if( !pDevice_AppServer || !pDevice_Orbiter_OSD )
+//						return false; // Should never happen
 
 					g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CheckForNewWizardDevices device %d needs config",pRow_Device->PK_Device_get());
+					/*
 					Message *pMessage = m_pGeneral_Info_Plugin->BuildMessageToSpawnApp(NULL,pDeviceData_Router_MD,
 						pDevice_AppServer,pDevice_Orbiter_OSD,
 						"/usr/pluto/bin/Mozilla.sh","0\thttp://www.cnn.com","New Device Wizard",1);
 					QueueMessageToRouter(pMessage);
+					*/
 				}
 			}
 			return true;

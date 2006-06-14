@@ -636,6 +636,8 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		return pDataGrid;
 	}
 
+	/*
+
 	DeviceData_Router *pDevice_AppServer,*pDevice_Orbiter_OSD;
 	GetAppServerAndOsdForMD(pDevice_MD,&pDevice_AppServer,&pDevice_Orbiter_OSD);
 
@@ -647,7 +649,7 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		SendCommand(SCREEN_DialogGenericError);
 		return pDataGrid;
 	}
-
+*/
 	vector<Row_Device_QuickStart *> vectRow_Device_QuickStart;
 	list<pair<string, string> > *p_Bookmarks=NULL;
 	size_t s=0;
@@ -661,7 +663,7 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 	}
 	else
 		pRow_Device->Device_QuickStart_FK_Device_getrows(&vectRow_Device_QuickStart);
-
+/*
 	LastApplication *pLastApplication = m_mapLastApplication_Find(pDevice_MD->m_dwPK_Device);
 	if( pLastApplication && pLastApplication->m_sName.size() )
 	{
@@ -710,7 +712,7 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		CMD_Show_Object.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
 		SendCommand(CMD_Show_Object);
 	}
-
+*/
 	// This will be the template we use for string applications
 	Row_QuickStartTemplate *pRow_QuickStartTemplate = p_Bookmarks ? m_pDatabase_pluto_main->QuickStartTemplate_get()->GetRow(1) : NULL;
 
@@ -756,8 +758,11 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		if( sDescription.size()==0 )
 			sDescription = sBinary;
 
-		pCellIcon = new DataGridCell( "", "" );
-		pCellText = new DataGridCell( sDescription, "" );
+		string sCellValue = pRow_QuickStartTemplate ? pRow_QuickStartTemplate->WindowClass_get() : "";
+		sCellValue += "\t" + sDescription + "\t" + sBinary + "\t" + sArguments;
+
+		pCellIcon = new DataGridCell( "", sCellValue );
+		pCellText = new DataGridCell( sDescription, sCellValue );
 		pCellText->m_Colspan=3;
 		pDataGrid->SetData( 0, iRow, pCellIcon );
 		pDataGrid->SetData( 1, iRow, pCellText );
@@ -766,12 +771,12 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
             pCellIcon->m_pGraphicData = pBuffer;
             pCellIcon->m_GraphicLength = iSize;
         }
-
+/*
 		pCellIcon->m_pMessage = BuildMessageToSpawnApp(m_pRouter->m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_From),
 			pDevice_MD,pDevice_AppServer,pDevice_Orbiter_OSD,
 			sBinary,sArguments,sDescription,(pRow_QuickStartTemplate ? pRow_QuickStartTemplate->PK_QuickStartTemplate_get() : 0));
 		pCellText->m_pMessage = new Message(pCellIcon->m_pMessage);
-
+*/
 		if( (p_Bookmarks && ++it == p_Bookmarks->end()) || 
 			(!p_Bookmarks && ++s>=vectRow_Device_QuickStart.size()) )
 				break;
@@ -1903,9 +1908,10 @@ list<pair<string, string> > General_Info_Plugin::GetUserBookmarks(string sPK_Use
 			/** The name of the application */
 		/** @param #146 PK_QuickStartTemplate */
 			/** The quick start template */
-
+/*
 void General_Info_Plugin::CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,Message *pMessage)
 //<-dceag-c697-e->
+
 {
 	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
 	LastApplication *pLastApplication = m_mapLastApplication_Find(iPK_Device);
@@ -1920,22 +1926,8 @@ void General_Info_Plugin::CMD_Set_Active_Application(int iPK_Device,string sName
 
 void General_Info_Plugin::GetAppServerAndOsdForMD(DeviceData_Router *pDevice_MD,DeviceData_Router **pDevice_AppServer,DeviceData_Router **pDevice_Orbiter_OSD)
 {
-	vector<DeviceData_Router *> vectDevice_AppServer;
-	if( pDevice_MD->m_pDevice_ControlledVia )  // Could be under the core
-		((DeviceData_Router *) pDevice_MD->m_pDevice_ControlledVia)->FindChildrenWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDevice_AppServer);
-	else
-		pDevice_MD->FindChildrenWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDevice_AppServer);
-	if( vectDevice_AppServer.size() )
-		*pDevice_AppServer = vectDevice_AppServer[0];
-	else
-		*pDevice_AppServer = NULL;
-
-	vector<DeviceData_Router *> vectDevice_Orbiter_OSD;
-	pDevice_MD->FindChildrenWithinCategory(DEVICECATEGORY_Standard_Orbiter_CONST,vectDevice_Orbiter_OSD);
-	if( vectDevice_Orbiter_OSD.size() )
-		*pDevice_Orbiter_OSD = vectDevice_Orbiter_OSD[0];
-	else
-		*pDevice_Orbiter_OSD = NULL;
+	pDevice_AppServer = pDevice_MD->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+	pDevice_Orbiter_OSD = pDevice_MD->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Standard_Orbiter_CONST);
 }
 
 Message *General_Info_Plugin::BuildMessageToSpawnApp(DeviceData_Router *pDevice_OrbiterRequesting,DeviceData_Router *pDevice_MD,
@@ -2027,6 +2019,7 @@ Message *General_Info_Plugin::BuildMessageToSpawnApp(DeviceData_Router *pDevice_
 	}
 	return CMD_Spawn_Application.m_pMessage;
 }
+*/
 
 bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {

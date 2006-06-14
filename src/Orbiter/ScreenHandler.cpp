@@ -492,6 +492,29 @@ void ScreenHandler::SCREEN_CurrentlyActiveRemote(long PK_Screen)
 		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::SCREEN_CurrentlyActiveRemote no remote");
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Computing(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_Computing(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Computing_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::Computing_DatagridSelected, new DatagridCellBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+
+	switch(GetCurrentScreen_PK_DesignObj())
+	{
+		case DESIGNOBJ_YourName_CONST:
+			break;
+	};
+}
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogCannotPlayMedia(long PK_Screen, string sErrors)
 {
 	DisplayMessageOnOrbiter(PK_Screen, "<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>" + sErrors);

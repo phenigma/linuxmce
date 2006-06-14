@@ -543,7 +543,6 @@ public:
 	virtual void CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,class Message *pMessage) {};
@@ -2504,34 +2503,6 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Update_Time_Code(iStreamID,sTime.c_str(),sTotal.c_str(),sSpeed.c_str(),sTitle.c_str(),sSection.c_str(),sCMD_Result,pMessage);
-						}
-					};
-					iHandled++;
-					continue;
-				case COMMAND_Set_Active_Application_CONST:
-					{
-						string sCMD_Result="OK";
-						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
-						string sName=pMessage->m_mapParameters[COMMANDPARAMETER_Name_CONST];
-						int iPK_QuickStartTemplate=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_QuickStartTemplate_CONST].c_str());
-						CMD_Set_Active_Application(iPK_Device,sName.c_str(),iPK_QuickStartTemplate,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							pMessageOut->m_mapParameters[0]=sCMD_Result;
-							SendMessage(pMessageOut);
-						}
-						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							SendString(sCMD_Result);
-						}
-						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
-						{
-							int iRepeat=atoi(itRepeat->second.c_str());
-							for(int i=2;i<=iRepeat;++i)
-								CMD_Set_Active_Application(iPK_Device,sName.c_str(),iPK_QuickStartTemplate,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
