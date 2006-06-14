@@ -929,9 +929,8 @@ void Slim_Server_Streamer::StartSlimServer()
 	DeviceData_Base *pDevice_AppServer = m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
 	if( pDevice_AppServer )
 	{
-		time_t tStart = time(NULL);
-		time_t tStop = tStart+15;
-		while( tStart<tStop )
+		time_t tStop = time(NULL)+15;
+		while( time(NULL)<tStop )
 		{
 			string sResponse;
 			DCE::CMD_Kill_Application CMD_Kill_Application(
@@ -939,7 +938,7 @@ void Slim_Server_Streamer::StartSlimServer()
 					"slim-server",                            // reference it with this name
 					true								// Send the message
 				);                                        // execute this serialized message on exit with success
-			if( !SendCommand(CMD_Kill_Application,&sResponse) )
+			if( !SendCommand(CMD_Kill_Application,&sResponse) && sResponse!="Cannot kill" )
 			{
 				Sleep(2000);  // App Server must not be registered yet.  Try again
 				continue;
@@ -954,6 +953,7 @@ void Slim_Server_Streamer::StartSlimServer()
 					"",											// execute this serialized message on exit with success
 					false,false,false);                         
 			SendCommand(spawnApplication);
+			break; //
 		}
 	}
 }
