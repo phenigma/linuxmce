@@ -363,9 +363,13 @@ if [ -x /etc/init.d/Pluto_Config_Device_Changes.sh ]; then
     /etc/init.d/Pluto_Config_Device_Changes.sh
 fi
 
-if [[ "$AVWizardDone" != "1" ]] ;then
+if [[ -x /usr/pluto/bin/shift_state ]]; then
+	ShiftState=$(/usr/pluto/bin/shift_state) # Shift=1; Ctrl=4; LAlt=8; RAlt=2; -- OR flags
+	ShiftMsg=" (shift pressed)"
+fi
+if [[ "$AVWizardDone" != "1" || "$ShiftState" == 1 ]] ;then
 	if [[ -x /usr/pluto/bin/AVWizard_Run.sh ]]; then	
-		Message "Starting Audio/Video Wizard"
+		Message "Starting Audio/Video Wizard${ShiftMsg}"
 		/usr/pluto/bin/AVWizard_Run.sh
 	fi
 fi
