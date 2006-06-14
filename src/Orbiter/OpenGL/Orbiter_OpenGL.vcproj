@@ -127,57 +127,6 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
-			<File
-				RelativePath="..\CacheImageManager.cpp">
-			</File>
-			<File
-				RelativePath="..\CallBackData.cpp">
-			</File>
-			<File
-				RelativePath="..\DesignObj_Data.cpp">
-			</File>
-			<File
-				RelativePath="..\DesignObj_DataGrid.cpp">
-			</File>
-			<File
-				RelativePath="..\DesignObj_Orbiter.cpp">
-			</File>
-			<File
-				RelativePath="..\GraphicBuilder.cpp">
-			</File>
-			<File
-				RelativePath="..\Win32\main.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Gen_Devices\OrbiterBase.cpp">
-			</File>
-			<File
-				RelativePath="..\OrbiterFileBrowser.cpp">
-			</File>
-			<File
-				RelativePath="..\PlutoGraphic.cpp">
-			</File>
-			<File
-				RelativePath="..\RendererMNG.cpp">
-			</File>
-			<File
-				RelativePath="..\ScreenHandler.cpp">
-			</File>
-			<File
-				RelativePath="..\ScreenHistory.cpp">
-			</File>
-			<File
-				RelativePath="..\SelfUpdate.cpp">
-			</File>
-			<File
-				RelativePath="..\Simulator.cpp">
-			</File>
-			<File
-				RelativePath="..\TextStyle.cpp">
-			</File>
 			<Filter
 				Name="OpenGL"
 				Filter="">
@@ -322,6 +271,12 @@
 					Name="Textures"
 					Filter="">
 					<File
+						RelativePath=".\Texture\GLFont.cpp">
+					</File>
+					<File
+						RelativePath=".\Texture\GLFontManager.cpp">
+					</File>
+					<File
 						RelativePath=".\Texture\GLFontRenderer.cpp">
 					</File>
 					<File
@@ -385,6 +340,61 @@
 					RelativePath="..\RendererOCG.cpp">
 				</File>
 			</Filter>
+			<Filter
+				Name="Common"
+				Filter="">
+				<File
+					RelativePath="..\CacheImageManager.cpp">
+				</File>
+				<File
+					RelativePath="..\CallBackData.cpp">
+				</File>
+				<File
+					RelativePath="..\DesignObj_Data.cpp">
+				</File>
+				<File
+					RelativePath="..\DesignObj_DataGrid.cpp">
+				</File>
+				<File
+					RelativePath="..\DesignObj_Orbiter.cpp">
+				</File>
+				<File
+					RelativePath="..\GraphicBuilder.cpp">
+				</File>
+				<File
+					RelativePath="..\Win32\main.cpp">
+				</File>
+				<File
+					RelativePath="..\Orbiter.cpp">
+				</File>
+				<File
+					RelativePath="..\..\Gen_Devices\OrbiterBase.cpp">
+				</File>
+				<File
+					RelativePath="..\OrbiterFileBrowser.cpp">
+				</File>
+				<File
+					RelativePath="..\PlutoGraphic.cpp">
+				</File>
+				<File
+					RelativePath="..\RendererMNG.cpp">
+				</File>
+				<File
+					RelativePath="..\ScreenHandler.cpp">
+				</File>
+				<File
+					RelativePath="..\ScreenHistory.cpp">
+				</File>
+				<File
+					RelativePath="..\SelfUpdate.cpp">
+				</File>
+				<File
+					RelativePath="..\Simulator.cpp">
+				</File>
+				<File
+					RelativePath="..\TextStyle.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -403,6 +413,12 @@
 			</File>
 			<File
 				RelativePath="..\DesignObj_Orbiter.h">
+			</File>
+			<File
+				RelativePath=".\GLFont.h">
+			</File>
+			<File
+				RelativePath=".\GLFontManager.h">
 			</File>
 			<File
 				RelativePath="..\GraphicBuilder.h">

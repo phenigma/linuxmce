@@ -135,6 +135,8 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderText(string &sTextToDisplay, DesignObjText *Text,
 	TextStyle *pTextStyle, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
+	return;
+
 	g_pPlutoLogger->Write(LV_CRITICAL, "Rendering text %s", sTextToDisplay.c_str());
 
 	if(sTextToDisplay.length() == 0)
@@ -156,25 +158,27 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	
 	GLFontRenderer * aGLTextRenderer = new GLFontRenderer(OrbiterLogic()->m_iImageHeight, 
-		pTextStyle->m_sFont,
-		pTextStyle->m_iPixelHeight,
-		style, 
-		pTextStyle->m_ForeColor.R(), 
-		pTextStyle->m_ForeColor.G(), 
-		pTextStyle->m_ForeColor.B()
+			pTextStyle->m_sFont,
+			pTextStyle->m_iPixelHeight,
+			style, 
+			pTextStyle->m_ForeColor.R(), 
+			pTextStyle->m_ForeColor.G(), 
+			pTextStyle->m_ForeColor.B()
 		);
-	
 
+	aGLTextRenderer->TextOut(sTextToDisplay, Text, pTextStyle, point);
+	MeshFrame *Frame = new MeshFrame();
+	Engine->AddMeshFrameToDesktop(Frame);
+
+	/*
 	GLFontTextureList* aGLFontTextureList = new GLFontTextureList(OrbiterLogic()->m_iImageHeight);
 	aGLFontTextureList->MapFont(pTextStyle->m_sFont, pTextStyle->m_iPixelHeight, style, 
 		pTextStyle->m_ForeColor.R(), 
 		pTextStyle->m_ForeColor.G(), 
 		pTextStyle->m_ForeColor.B());
 	MeshContainer *Container = aGLFontTextureList->TextOut(point.X + Text->m_rPosition.X, 
-		point.Y + Text->m_rPosition.Y, const_cast<char *>(sTextToDisplay.c_str()));
-	MeshFrame *Frame = new MeshFrame();
-	Frame->SetMeshContainer(Container);
-	Engine->AddMeshFrameToDesktop(Frame);
+		point.Y + Text->m_rPosition.Y, const_cast<char *>(sTextToDisplay.c_str()));*/
+	//Frame->SetMeshContainer(Container);
 	
 }
 //-----------------------------------------------------------------------------------------------------

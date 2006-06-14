@@ -45,9 +45,9 @@ void OpenGLGraphic::Initialize()
 
 bool OpenGLGraphic::SetupFromImage(std::string FileName)
 {
-	SDL_Surface *Surface = IMG_Load(FileName.c_str());
+	SDL_Surface *LocalSurface = IMG_Load(FileName.c_str());
 
-	Prepare(Surface);
+	Prepare();
 	
 	return true;
 }
@@ -65,18 +65,12 @@ bool OpenGLGraphic::SetupFromImage(std::string FileName)
 #endif 
 
 
-void OpenGLGraphic::Prepare(SDL_Surface* Surface)
+void OpenGLGraphic::Prepare()
 {    
-	if(Surface == NULL)
-	{
-		if (LocalSurface != NULL)
-		{
-			SDL_FreeSurface(LocalSurface);
-			LocalSurface = NULL;
-		}
-		LocalSurface = Surface;
+	if(LocalSurface == NULL)
 		return;
-	}
+
+	SDL_Surface* Surface = LocalSurface;
 	Width = GLMathUtils::MinPowerOf2(Surface->w);
 	Height = GLMathUtils::MinPowerOf2(Surface->h);
 	
@@ -96,9 +90,7 @@ void OpenGLGraphic::Prepare(SDL_Surface* Surface)
 	
 	SDL_BlitSurface(Surface, NULL, LocalSurface, NULL);
 
-	Width = Surface->w;
-	Height = Surface->h;
-		
+	SDL_FreeSurface(Surface);
 }
 
 void OpenGLGraphic::Convert()
@@ -126,7 +118,7 @@ void OpenGLGraphic::Convert()
 		GL_UNSIGNED_BYTE, 
 		LocalSurface->pixels );
 	else
-	// Generate The Texture 
+		// Generate The Texture 
 		glTexImage2D( GL_TEXTURE_2D, 
 			0, 3, 
 			LocalSurface->w, LocalSurface->h, 
@@ -166,18 +158,28 @@ bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 	SDL_RWops * rw = SDL_RWFromMem(pData, int(iSize));
 	LocalSurface = IMG_Load_RW(rw, 1); // rw is freed here
 
-	if(LocalSurface)
-	{
-		Width = LocalSurface->w;
-		Height = LocalSurface->h;
-	}
+	if(!LocalSurface)
+		return false;
+
+	Width = LocalSurface->w;
+	Height = LocalSurface->h;
+	//Prepare();
 
 	return LocalSurface != NULL;
 }
 
 void OpenGLGraphic::Clear()
 {
-
+	if(LocalSurface != NULL)
+	{
+		SDL_FreeSurface(LocalSurface);
+		LocalSurface = NULL;
+	}
+	if(Texture != 0)
+	{
+		glDeleteTextures(1, &Texture);
+		Texture = 0;
+	}
 }
 
 bool OpenGLGraphic::GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize)

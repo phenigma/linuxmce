@@ -28,7 +28,7 @@ SDL_Surface* LocalSurface;
 	~OpenGLGraphic();
 
 	bool SetupFromImage(std::string FileName);
-	void Prepare(SDL_Surface* Surface);
+	void Prepare();
 	void Convert();
 
 	//from PlutoGraphic
