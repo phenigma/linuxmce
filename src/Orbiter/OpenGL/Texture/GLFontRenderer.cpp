@@ -44,12 +44,8 @@ MeshFrame* GLFontRenderer::RenderText(string &TextToDisplay, PlutoRectangle &rPo
 MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Text,
 	TextStyle *pTextStyle, PlutoPoint point)
 {
-/*	
-	CHECK_STATUS();
-	PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
-	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
-*/
 	Font->GetFontStyle(R_, G_, B_, Style_);
+	PlutoRectangle rectLocation;
 
 	//handle escape sequences
 	if(TextToDisplay.find("~S") != string::npos)
@@ -113,28 +109,26 @@ MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Te
 				pPieceTextStyle->m_ForeColor.G(),
 				pPieceTextStyle->m_ForeColor.B()
 				);
-
+*/
 			RenderText(sTextToRender, Text->m_rPosition, Text->m_iPK_HorizAlignment, 
 				Text->m_iPK_VertAlignment, pPieceTextStyle->m_sFont,pPieceTextStyle->m_ForeColor,
 				pPieceTextStyle->m_iPixelHeight,pPieceTextStyle->m_bBold,pPieceTextStyle->m_bItalic,
 				pPieceTextStyle->m_bUnderline, point, rectLocation);
 
 			if(bMultiLine)
-				Text->m_rPosition.Y += rectLocation.bottom - rectLocation.top;
+				Text->m_rPosition.Y += rectLocation.Bottom() - rectLocation.Top();
 			else
-				Text->m_rPosition.X += rectLocation.right - rectLocation.left; 
-				*/
+				Text->m_rPosition.X += rectLocation.Right() - rectLocation.Left(); 
 
 		}
 
-		//Text->m_rPosition = plutoRect;
+		Text->m_rPosition = plutoRect;
 	}
 	else //normal rendering
 	{
-		/*
-		RenderText(hdc,TextToDisplay,Text->m_rPosition,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment,
+		RenderText(TextToDisplay,Text->m_rPosition,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment,
 			pTextStyle->m_sFont,pTextStyle->m_ForeColor,pTextStyle->m_iPixelHeight,pTextStyle->m_bBold,pTextStyle->m_bItalic,pTextStyle->m_bUnderline,
-			point, rectLocation);*/
+			point, rectLocation);
 	}
 
 	return NULL;
