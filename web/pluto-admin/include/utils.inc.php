@@ -2491,7 +2491,7 @@ function getAssocArray($table,$keyField,$labelField,$dbADO,$whereClause='',$orde
 	return $retArray;
 }
 
-function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,$dbADO,$childOfMD=0,$ipAddress,$macAddress)
+function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,$dbADO,$childOfMD=0,$ipAddress='',$macAddress='')
 {
 	global $dbPlutoMainDatabase;
 	

@@ -71,7 +71,6 @@ function addParameter($output,$dbADO) {
 				<script>
 					alert('$TEXT_PARAMETER_ADDED_CONST');
 				    opener.document.forms.{$from}.action.value='form';
-					opener.document.forms.{$from}.lastAction.value='newDeviceData';				
 					opener.document.forms.{$from}.submit();
 					self.close();
 				</script>

@@ -1424,7 +1424,12 @@ switch ($section) {
 	    include_once('operations/users_settings/setTimezone.php');
 	    setTimezone($output,$dbADO);	    
 	break;	
-	
+	case 'deviceCategoryDeviceData':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/dce/deviceCategoryDeviceData.php');
+	    deviceCategoryDeviceData($output,$dbADO);	    
+	break;	
 	case '';
 		$output = new Template($dbADO);	
 		

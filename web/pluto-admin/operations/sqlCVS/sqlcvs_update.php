@@ -5,6 +5,19 @@ function sqlcvs_update($output,$dbADO) {
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/sqlcvs.lang.php');
 	
 	global $dbPlutoMainDatabase;
+	global 	$dbMythType, $dbMythUser, $dbMythPass, $dbMythServer;
+	$dbPlutoMythDatabase='pluto_myth_devel';
+	$databasesArray=array($dbPlutoMainDatabase=>'pluto_main',$dbPlutoMythDatabase=>'pluto_myth');
+	
+	$database=(isset($_REQUEST['database']))?$_REQUEST['database']:$dbPlutoMainDatabase;
+	if($database==$dbPlutoMainDatabase){
+		$sqlcvsADO=$dbADO;
+	}else{
+	  	$sqlcvsADO= &ADONewConnection('mysql');
+	  	$sqlcvsADO->NConnect($dbMythServer,urlencode($dbMythUser),urlencode($dbMythPass),urlencode($dbPlutoMythDatabase));
+	}
+
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 
@@ -12,10 +25,9 @@ function sqlcvs_update($output,$dbADO) {
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];
 
-	$tablesArray=$dbADO->MetaTables('TABLES');	
+	$tablesArray=$sqlcvsADO->MetaTables('TABLES');	
 		
 	if ($action == 'form') {
-		
 		$out.='
 		<script>
 		function selAllCheckboxes(group,val)
@@ -50,23 +62,27 @@ function sqlcvs_update($output,$dbADO) {
 	<table width="400" cellpadding="3" cellspacing="0">
 		<tr>
 			<td colspan="3"><B>'.$TEXT_SQLCVS_HOST_CONST.':</B></td>
-			<td><input type="text" name="host" value=""></td>
+			<td><input type="text" name="host" value="'.@$_REQUEST['host'].'"></td>
 		</tr>
 		<tr>
 			<td colspan="3"><B>'.$TEXT_PORT_CONST.':</B></td>
-			<td><input type="text" name="port" value="3999"></td>
-		</tr>			
+			<td><input type="text" name="port" value="'.(($database==$dbPlutoMainDatabase)?'3999':'4000').'"></td>
+		</tr>		
 		<tr>
 			<td colspan="3"><B>'.$TEXT_USERNAME_CONST.':</B></td>
-			<td><input type="text" name="username" value=""></td>
+			<td><input type="text" name="username" value="'.@$_REQUEST['username'].'"></td>
 		</tr>
 		<tr>
 			<td colspan="3"><B>'.$TEXT_PASSWORD_CONST.':</B></td>
-			<td><input type="text" name="password" value=""></td>
+			<td><input type="text" name="password" value="'.@$_REQUEST['password'].'"></td>
+		</tr>
+		<tr>
+			<td colspan="3"><B>'.$TEXT_DATABASE_CONST.':</B></td>
+			<td>'.pulldownFromArray($databasesArray,'database',$database,'onchange="document.sqlcvs_update.action.value=\'form\';document.sqlcvs_update.submit();"','key','').'</td>
 		</tr>
 		<tr>
 			<td colspan="3">&nbsp;</td>
-			<td><input type="submit" class="button" name="submit" value="'.$TEXT_NEXT_CONST.'"></td>
+			<td><input type="submit" class="button" name="update" value="'.$TEXT_NEXT_CONST.'"></td>
 		</tr>		
 		';
 	
@@ -87,7 +103,7 @@ function sqlcvs_update($output,$dbADO) {
 				<td colspan="2">&nbsp;</td>
 				<td colspan="2"><a href="javascript:selAllCheckboxes(\''.$cleanTable.'\',true);">[ Check all ]</a> <a href="javascript:selAllCheckboxes(\''.$cleanTable.'\',false);">[ Uncheck all ]</a></td>
 			</tr>';
-			$fieldsArray=getAssocArray($table,'PK_'.$table,'Tablename',$dbADO,'','ORDER BY Tablename ASC');
+			$fieldsArray=getAssocArray($table,'PK_'.$table,'Tablename',$sqlcvsADO,'','ORDER BY Tablename ASC');
 			foreach ($fieldsArray AS $key=>$value){
 				$out.='
 			<tr>
@@ -102,7 +118,7 @@ function sqlcvs_update($output,$dbADO) {
 	$out.='	
 		<tr>
 			<td colspan="3">&nbsp;</td>
-			<td><input type="submit" class="button" name="submit" value="'.$TEXT_NEXT_CONST.'"></td>
+			<td><input type="submit" class="button" name="update" value="'.$TEXT_NEXT_CONST.'"></td>
 		</tr>		
 	</table>
 	</form>
@@ -135,7 +151,7 @@ function sqlcvs_update($output,$dbADO) {
 				if(isset($_POST['table_'.$cleanTable])){
 					$rParmArray[]=$cleanTable;	
 				}
-				$fieldsArray=getAssocArray($table,'PK_'.$table,'Tablename',$dbADO,'','ORDER BY Tablename ASC');
+				$fieldsArray=getAssocArray($table,'PK_'.$table,'Tablename',$sqlcvsADO,'','ORDER BY Tablename ASC');
 				foreach ($fieldsArray AS $key=>$value){
 					if(isset($_POST[$cleanTable.'_'.$value])){
 						if(!in_array($cleanTable,$rParmArray)){
@@ -157,7 +173,7 @@ function sqlcvs_update($output,$dbADO) {
 		}
 		$parmList.=join(',',$tParmArray);
 
-		$cmd='/usr/pluto/bin/sqlCVS -R '. $port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e update';
+		$cmd='/usr/pluto/bin/sqlCVS -R '. $port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$database.' -e update';
 
 		$out='
 		<script>

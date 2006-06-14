@@ -173,7 +173,7 @@ function sqlcvs_diff($output,$dbADO) {
 		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$database.' -e -f /tmp/'.$rand_tmp_file.' diff';
 
 		exec($cmd,$retArray,$retVal);
-echo $retVal.' '.$cmd;		
+
 		$out.='
 		<script>
 		function selAllCheckboxes(noItems,val)
@@ -330,7 +330,7 @@ echo $retVal.' '.$cmd;
 				$maskArray[]=$fileArray[$i];
 			}
 		}
-		exec('sudo -u root chmod 777 /tmp/tmp_sqlcvs_file');
+		exec_batch_command('sudo -u root chmod 777 /tmp/tmp_sqlcvs_file');
 		writeFile('/tmp/tmp_sqlcvs_file',join("\n",$maskArray)).' '.join("\n",$maskArray);
 		
 		$sqlcvsAction=(isset($_POST['revert']))?'revert':'checkin';
