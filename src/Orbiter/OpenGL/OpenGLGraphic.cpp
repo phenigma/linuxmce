@@ -25,12 +25,7 @@ OpenGLGraphic::OpenGLGraphic(string Filename, eGraphicManagement GraphicManageme
 
 OpenGLGraphic::~OpenGLGraphic()
 {
-	if(NULL != LocalSurface)
-	{
-		SDL_FreeSurface(LocalSurface);
-		LocalSurface = NULL;
-	}
-
+	Clear();
 }
 
 void OpenGLGraphic::Initialize()
@@ -79,18 +74,22 @@ void OpenGLGraphic::Prepare()
 	
 	/* Create a 32-bit surface with the bytes of each pixel in R,G,B,A order,
 	as expected by OpenGL for textures */
-	LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, Width, Height, 
+	
+	LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, 
 		Surface->format->BitsPerPixel, 
-		rmask, gmask, bmask, amask);
+		Surface->format->Rmask, Surface->format->Gmask, Surface->format->Bmask, Surface->format->Amask);
 		
 	if(LocalSurface == NULL) {
 		fprintf(stderr, "CreateRGBSurface failed: %s", SDL_GetError());
 		return;
 	}
 	
+	//TODO: check if LocalSurface is transparent after blit
+	SDL_SetAlpha(Surface, SDL_SRCALPHA | SDL_RLEACCEL , SDL_ALPHA_TRANSPARENT);
+
 	SDL_BlitSurface(Surface, NULL, LocalSurface, NULL);
 
-	SDL_FreeSurface(Surface);
+	SDL_FreeSurface(Surface); 
 }
 
 void OpenGLGraphic::Convert()
@@ -163,7 +162,7 @@ bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 
 	Width = LocalSurface->w;
 	Height = LocalSurface->h;
-	//Prepare();
+	Prepare();
 
 	return LocalSurface != NULL;
 }
