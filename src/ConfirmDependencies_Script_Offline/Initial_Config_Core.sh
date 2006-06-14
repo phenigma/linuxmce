@@ -311,11 +311,11 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 		pkgname=$(echo $files | awk -F '_' '{print $1}')
 		echo "Installing package name : $files"
 		cd /cdrom/bonuscd1
-		dpkg -i $files 1>/dev/null
+		dpkg -i $files 1>/dev/null 2>/dev/null
 	done
 
 	cd /cdrom/bonuscd1-cache
-	apt-get -y -f install dpkg-dev 2>/dev/null
+	apt-get -y -f install dpkg-dev 2>/dev/null 1>/dev/null
 	WorkDir="/usr/pluto/deb-cache/dists/sarge/main/binary-i386"
 	cp -r *.deb $WorkDir
 	cd $WorkDir
