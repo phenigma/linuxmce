@@ -2,7 +2,7 @@
 
 #include <GL/gl.h>
 
-#include "OpenGLGraphic.h"
+#include "../OpenGLGraphic.h"
 
 /*static*/ TextureManager* TextureManager::_Instance = NULL;
 

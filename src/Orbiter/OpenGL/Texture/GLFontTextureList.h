@@ -1,7 +1,7 @@
 #ifndef GLFONTTEXTURELIST_H_
 #define GLFONTTEXTURELIST_H_
 
-#include "OpenGLGraphic.h"
+#include "../OpenGLGraphic.h"
 
 #include "../Mesh/MeshBuilder.h"
 
