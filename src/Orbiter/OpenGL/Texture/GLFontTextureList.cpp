@@ -12,80 +12,58 @@
 #include "DCE/Logger.h"
 #include "../../SDL/PlutoSDLDefs.h"
 
-GLFontTextureList::GLFontTextureList(int ScreenHeight) : ScreenHeight_(ScreenHeight)
+GLFontTextureList::GLFontTextureList(int ScreenHeight, TTF_Font* Font, 
+									 int Style, int FontHeight,
+									 unsigned char R, 
+									 unsigned char G,
+									 unsigned char B) 
+	: ScreenHeight_(ScreenHeight),
+	  Font_(Font),
+	  Style_(Style),
+	  FontHeight_(FontHeight)
 {
-	for(int i = 0; i < 256; i++)
-		Letters[i] = new OpenGLGraphic();
+	FontColor.r = R;
+	FontColor.g = G;
+	FontColor.b = B;
+	FontColor.unused = 255; //opaque
 }
 
 GLFontTextureList::~GLFontTextureList()
 {
-	for(int i = 0; i < 256; i++)
-		delete Letters[i];
+	std::map<char, OpenGLGraphic*> ::iterator Item;
+	for(Item = Letters.begin(); Item != Letters.end(); Item++)
+	{
+		delete Item->second;
+	}
+	Letters.clear();
 }
 
-/*virtual*/ void GLFontTextureList::MapFont(
-		std::string FontName,
-		int Height, 
-		int Style,
-		unsigned char R, 
-		unsigned char G,
-		unsigned char B
-		)
+/*virtual*/ void GLFontTextureList::MapLetter(char Letter)
 {
-#ifdef WIN32
-#ifdef WINCE
-	string BasePath = "C:\\Windows\\Fonts\\";
-#else
-	char pWindowsDirector[MAX_PATH];
-	GetWindowsDirectory(pWindowsDirector, MAX_PATH);
-	string BasePath = string(pWindowsDirector) + "\\Fonts\\";
-#endif
-
-#else
-	string BasePath="/usr/share/fonts/truetype/msttcorefonts/";
-#endif //win32	
-
-	string sPathFont = BasePath + FontName + ".ttf";
-
-	TTF_Font *Font = TTF_OpenFont(sPathFont.c_str(), Height);
-	if(Font == NULL)
-	{
+	if(Exists(Letter))
 		return;
-	}
-	TTF_SetFontStyle(Font, Style);
+
+	Letters[Letter] = new OpenGLGraphic();
 	char Text[2];
+	Text[0] = Letter;
 	Text[1] = 0;
 	
-	for(int i = 1; i < 256; i++)
+	SDL_Surface * RenderedText = NULL;
+	TTF_SetFontStyle(Font_, Style_);
+
+	try
 	{
-		SDL_Color SDL_color;
-
-		SDL_color.r = R;
-		SDL_color.g = G;
-		SDL_color.b = B;
-		SDL_color.unused = 255; //opaque
-	
-		SDL_Surface * RenderedText = NULL;
-		Text[0] = i;
-
-		try
-		{
-			RenderedText = TTF_RenderText_Blended(Font, Text, SDL_color);
-		}
-		catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
-		{
-			std::cout<<"Renderer::RealRenderText : TTF_RenderText_Blended crashed!"<<std::endl;
-		}
-		
-		Letters[i]->LocalSurface = RenderedText;
-		Letters[i]->Width = RenderedText->w;
-		Letters[i]->Height = RenderedText->h;
-		TextureManager::Instance()->PrepareImage(Letters[i]);
+		RenderedText = TTF_RenderText_Blended(Font_, Text, FontColor);
 	}
-		
+	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
+	{
+		std::cout<<"Renderer::RealRenderText : TTF_RenderText_Blended crashed!"<<std::endl;
+	}
 	
-	TTF_CloseFont(Font);
+	Letters[Letter]->LocalSurface = RenderedText;
+	Letters[Letter]->Width = RenderedText->w;
+	Letters[Letter]->Height = RenderedText->h;
+	TextureManager::Instance()->PrepareImage(Letters[Letter]);
 }
 
 /*virtual*/ MeshContainer* GLFontTextureList::TextOut(int X, int Y, char* Text)
@@ -95,6 +73,7 @@ GLFontTextureList::~GLFontTextureList()
 		return NULL;
 	int LetterLen = 0, FontHeight;
 	unsigned char CharPos = 32;
+	
 	float MaxU, MaxV;
 	
 	MeshBuilder MB;
@@ -103,7 +82,7 @@ GLFontTextureList::~GLFontTextureList()
 	
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
 	MB.SetColor(1.0f, 1.0f, 1.0f);
-	
+
 	FontHeight = Letters[CharPos]->Height;
 	float PixelMaxV = Letters[CharPos]->MaxV;
 
@@ -112,6 +91,7 @@ GLFontTextureList::~GLFontTextureList()
 
 	for(int i = 0; i<Length; i++)
 	{
+		MapLetter(CharPos);
 		CharPos = (unsigned char)Text[i];
 		MaxU = Letters[CharPos]->MaxU;
 		MaxV = Letters[CharPos]->MaxV;
@@ -148,4 +128,9 @@ GLFontTextureList::~GLFontTextureList()
 	//Painter->PaintContainer(*Container, Transform);
 
 	return Container;
+}
+
+bool GLFontTextureList::Exists(unsigned char Letter)
+{
+	return (Letters.find(Letter) != Letters.end());
 }

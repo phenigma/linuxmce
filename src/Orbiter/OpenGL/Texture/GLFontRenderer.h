@@ -3,9 +3,11 @@
 
 #include<string>
 #include<vector>
-#include "../Mesh/MeshFrame.h"
-#include "GLFontTextureList.h"
 #include "../../Orbiter.h"
+
+#include "../Mesh/MeshFrame.h"
+//#include "GLFontTextureList.h"
+#include "GLFont.h"
 
 class GLFontRenderer
 {
@@ -13,7 +15,12 @@ class GLFontRenderer
 	std::vector <std::string> Words;
 
 	void WordCutter();
-	GLFontTextureList Font;
+
+	int Style_, Height_;
+	unsigned char R_, G_, B_; 
+
+	GLFont* Font;
+
 public:
 	/**
 	 * Utility class that render a font and create a mesh to be drawn.
@@ -31,10 +38,10 @@ public:
 
 	MeshFrame* RenderText(string &TextToDisplay, PlutoRectangle &rPosition, int iPK_HorizAlignment, 
 		int iPK_VertAlignment, string &sFont, PlutoColor &ForeColor, int iPixelHeight, bool bBold,
-		bool bItalic,bool bUnderline, PlutoPoint point, struct RECT &rectCalcLocation);
+		bool bItalic,bool bUnderline, PlutoPoint point, class PlutoRectangle &rectCalcLocation);
 	
-	MeshFrame* TextOut(std::string TextToDisplay, DesignObjText *Text, TextStyle* pTextStyle, 
-		PlutoPoint point, RECT &rectLocation);
+	MeshFrame* TextOut(std::string &TextToDisplay,class DesignObjText *Text,
+		class TextStyle *pTextStyle, class PlutoPoint point);
 	
 };
 

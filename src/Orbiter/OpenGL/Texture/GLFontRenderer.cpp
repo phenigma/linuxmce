@@ -3,6 +3,7 @@
 #include "../../Orbiter.h"
 #include "../../TextStyle.h"
 
+#include "GLFontManager.h"
 
 GLFontRenderer::GLFontRenderer(int ScreenHeight,
 							   std::string FontName,
@@ -10,11 +11,16 @@ GLFontRenderer::GLFontRenderer(int ScreenHeight,
 							   int Style,
 							   unsigned char R, 
 							   unsigned char G,
-							   unsigned char B)
-							   : Font(ScreenHeight)
-							   
+							   unsigned char B)						   
 {
-	Font.MapFont(FontName, Height, Style, R, G, B);
+	GLFontManager* FontManager = GLFontManager::GetInstance();
+	FontManager->Setup(ScreenHeight);
+	Font = FontManager->GetFont(FontName, Height);
+	this->R_ = R;
+	this->G_ = G;
+	this->B_ = B;
+	this->Height_ = Height;
+	this->Style_ = Style_;
 }
 
 GLFontRenderer::~GLFontRenderer()
@@ -26,19 +32,24 @@ Orbiter* GLFontRenderer::OrbiterLogic()
 	return NULL;
 }
 
-MeshFrame* GLFontRenderer::RenderText(string &TextToDisplay,PlutoRectangle &rPosition,int iPK_HorizAlignment,int iPK_VertAlignment,string &sFont,PlutoColor &ForeColor,int iPixelHeight,bool bBold,bool bItalic,bool bUnderline, PlutoPoint point, RECT &rectCalcLocation)
+MeshFrame* GLFontRenderer::RenderText(string &TextToDisplay, PlutoRectangle &rPosition, int iPK_HorizAlignment,
+									  int iPK_VertAlignment, string &sFont, PlutoColor &ForeColor, 
+									  int iPixelHeight, bool bBold, bool bItalic, bool bUnderline,  
+									  PlutoPoint point, PlutoRectangle &rectCalcLocation)
 {
+	
 	return NULL;
 }
 					  
-MeshFrame* GLFontRenderer::TextOut(std::string TextToDisplay, DesignObjText *Text, 
-								   TextStyle* pTextStyle, PlutoPoint point, RECT &rectLocation)
+MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Text,
+	TextStyle *pTextStyle, PlutoPoint point)
 {
-
-/*	CHECK_STATUS();
+/*	
+	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
 	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
-	*/
+*/
+	Font->GetFontStyle(R_, G_, B_, Style_);
 
 	//handle escape sequences
 	if(TextToDisplay.find("~S") != string::npos)
@@ -74,7 +85,9 @@ MeshFrame* GLFontRenderer::TextOut(std::string TextToDisplay, DesignObjText *Tex
 			string sTextPiece = *it;
 			string sTextToRender = sTextPiece;
 			size_t nPos = sTextPiece.find("~S");
-			TextStyle *pPieceTextStyle = pTextStyle;			if(nPos == 0)
+			TextStyle *pPieceTextStyle = pTextStyle;
+			
+			if(nPos == 0)
 			{
 				int nNextPos = int(sTextPiece.find("~", nPos + 1));
 				string sTextStyleNumber = sTextPiece.substr(nPos + 2, nNextPos - 2);
@@ -90,7 +103,7 @@ MeshFrame* GLFontRenderer::TextOut(std::string TextToDisplay, DesignObjText *Tex
 				}
 			}
 
-			/*
+/*
 			Font = new GLFontTextureList(pPieceTextStyle->m_iPixelHeight);
 			Font->MapFont(
 				pPieceTextStyle->m_sFont, 
@@ -105,11 +118,13 @@ MeshFrame* GLFontRenderer::TextOut(std::string TextToDisplay, DesignObjText *Tex
 				Text->m_iPK_VertAlignment, pPieceTextStyle->m_sFont,pPieceTextStyle->m_ForeColor,
 				pPieceTextStyle->m_iPixelHeight,pPieceTextStyle->m_bBold,pPieceTextStyle->m_bItalic,
 				pPieceTextStyle->m_bUnderline, point, rectLocation);
-*/
-			/*if(bMultiLine)
+
+			if(bMultiLine)
 				Text->m_rPosition.Y += rectLocation.bottom - rectLocation.top;
 			else
-				Text->m_rPosition.X += rectLocation.right - rectLocation.left; */
+				Text->m_rPosition.X += rectLocation.right - rectLocation.left; 
+				*/
+
 		}
 
 		//Text->m_rPosition = plutoRect;
@@ -119,8 +134,7 @@ MeshFrame* GLFontRenderer::TextOut(std::string TextToDisplay, DesignObjText *Tex
 		/*
 		RenderText(hdc,TextToDisplay,Text->m_rPosition,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment,
 			pTextStyle->m_sFont,pTextStyle->m_ForeColor,pTextStyle->m_iPixelHeight,pTextStyle->m_bBold,pTextStyle->m_bItalic,pTextStyle->m_bUnderline,
-			point, rectLocation);
-			*/
+			point, rectLocation);*/
 	}
 
 	return NULL;
