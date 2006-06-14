@@ -926,30 +926,36 @@ void Slim_Server_Streamer::CMD_Jump_Position_In_Playlist(string sValue_To_Assign
 
 void Slim_Server_Streamer::StartSlimServer()
 {
-	string sResponse;
-	DCE::CMD_Kill_Application_DT CMD_Kill_Application(
-            m_dwPK_Device,                      // send from here
-            DEVICETEMPLATE_App_Server_CONST,    // to an application server
-            BL_SameComputer,                    // on the same computer
-            "slim-server",                            // reference it with this name
-			true								// Send the message
-		);                                        // execute this serialized message on exit with success
-    CMD_Kill_Application.m_pMessage->m_bRelativeToSender = true;
-    SendCommand(CMD_Kill_Application,&sResponse);  // Make sure app server has time to complete the kill
+	DeviceData *pDevice_AppServer = m_pData->FirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
+	if( pDevice_AppServer )
+	{
+		time_t tStart = time(NULL);
+		time_t tStop = tStart+15;
+		while( tStart<tStop )
+		{
+			string sResponse;
+			DCE::CMD_Kill_Application CMD_Kill_Application(
+					m_dwPK_Device, pDevice_AppServer->m_dwPK_Device,
+					"slim-server",                            // reference it with this name
+					true								// Send the message
+				);                                        // execute this serialized message on exit with success
+			if( !SendCommand(CMD_Kill_Application,&sResponse) )
+			{
+				Sleep(2000);  // App Server must not be registered yet.  Try again
+				continue;
+			}
 
-	DCE::CMD_Spawn_Application_DT spawnApplication(
-            m_dwPK_Device,                      // send from here
-            DEVICETEMPLATE_App_Server_CONST,    // to an application server
-            BL_SameComputer,                    // on the same computer
-            "/usr/pluto/bin/LaunchSlimServer.sh",  // launch this
-            "slim-server",                              // reference it with this name
-            StringUtils::itos(m_iSlimServerCliPort),    // pass it the desired port number for reconnection.
-            "",                                         // execute this serialized message on exit with failure
-            "",											// execute this serialized message on exit with success
-			false,false,false);                         
-
-    spawnApplication.m_pMessage->m_bRelativeToSender = true;
-    SendCommand(spawnApplication);
+			DCE::CMD_Spawn_Application_DT spawnApplication(
+					m_dwPK_Device, pDevice_AppServer->m_dwPK_Device,
+					"/usr/pluto/bin/LaunchSlimServer.sh",  // launch this
+					"slim-server",                              // reference it with this name
+					StringUtils::itos(m_iSlimServerCliPort),    // pass it the desired port number for reconnection.
+					"",                                         // execute this serialized message on exit with failure
+					"",											// execute this serialized message on exit with success
+					false,false,false);                         
+			SendCommand(spawnApplication);
+		}
+	}
 }
 //<-dceag-c28-b->
 
