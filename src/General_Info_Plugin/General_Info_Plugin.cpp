@@ -758,8 +758,13 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		if( sDescription.size()==0 )
 			sDescription = sBinary;
 
-		string sCellValue = pRow_QuickStartTemplate ? pRow_QuickStartTemplate->WindowClass_get() : "";
-		sCellValue += "\t" + sDescription + "\t" + sBinary + "\t" + sArguments;
+		string sCellValue;
+		if( pRow_QuickStartTemplate )
+			sCellValue = pRow_QuickStartTemplate->WindowClass_get() + "\t" + StringUtils::itos(pRow_QuickStartTemplate->FK_DesignObj_get()) + "\t" + StringUtils::itos(pRow_QuickStartTemplate->FK_DesignObj_OSD_get()) + "\t";
+		else
+			sCellValue = "\t\t\t";
+
+		sCellValue += sDescription + "\t" + sBinary + "\t" + sArguments;
 
 		pCellIcon = new DataGridCell( "", sCellValue );
 		pCellText = new DataGridCell( sDescription, sCellValue );

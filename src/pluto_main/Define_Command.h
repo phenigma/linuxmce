@@ -650,7 +650,6 @@
 #define COMMAND_Get_Orbiter_Status_CONST 694
 #define COMMAND_Get_Orbiter_Options_CONST 695
 #define COMMAND_Application_is_Running_CONST 696
-#define COMMAND_Set_Active_Application_CONST 697
 #define COMMAND_Get_Extended_Media_Data_CONST 698
 #define COMMAND_Center_Parents_Text_If_Blank_CONST 699
 #define COMMAND_Choose_Pnp_Device_Template_CONST 700
@@ -732,6 +731,8 @@
 #define COMMAND_Get_Attributes_For_Media_CONST 807
 #define COMMAND_Get_Unused_Serial_Ports_CONST 808
 #define COMMAND_Display_Alert_CONST 809
+#define COMMAND_Set_Active_Application_CONST 810
+#define COMMAND_Get_Active_Application_CONST 811
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

@@ -21172,5 +21172,101 @@ namespace DCE
 			COMMANDPARAMETER_Tokens_CONST, sTokens.c_str(),
 			COMMANDPARAMETER_Timeout_CONST, sTimeout.c_str()); }
 	};
+	class CMD_Set_Active_Application : public PreformedCommand {
+	public:
+		CMD_Set_Active_Application(long DeviceIDFrom, long DeviceIDTo,string sName,string sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Set_Active_Application_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Name_CONST, sName.c_str(),
+			COMMANDPARAMETER_Identifier_CONST, sIdentifier.c_str()); }
+	};
+	class CMD_Set_Active_Application_DL : public PreformedCommand {
+	public:
+		CMD_Set_Active_Application_DL(long DeviceIDFrom, string DeviceIDTo,string sName,string sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Set_Active_Application_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Name_CONST, sName.c_str(),
+			COMMANDPARAMETER_Identifier_CONST, sIdentifier.c_str()); }
+	};
+	class CMD_Set_Active_Application_DT : public PreformedCommand {
+	public:
+		CMD_Set_Active_Application_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sName,string sIdentifier) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Set_Active_Application_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Name_CONST, sName.c_str(),
+			COMMANDPARAMETER_Identifier_CONST, sIdentifier.c_str()); }
+	};
+	class CMD_Set_Active_Application_Cat : public PreformedCommand {
+	public:
+		CMD_Set_Active_Application_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sName,string sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Set_Active_Application_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Name_CONST, sName.c_str(),
+			COMMANDPARAMETER_Identifier_CONST, sIdentifier.c_str()); }
+	};
+	class RESP_Get_Active_Application : public PreformedCommandResponse {
+		string *m_sName;string *m_sIdentifier;
+	public:
+		RESP_Get_Active_Application(string *sName,string *sIdentifier) { 
+		m_sName=sName; m_sIdentifier=sIdentifier; }
+		void ParseResponse(Message *pMessage) {
+			*m_sName=pMessage->m_mapParameters[COMMANDPARAMETER_Name_CONST]; *m_sIdentifier=pMessage->m_mapParameters[COMMANDPARAMETER_Identifier_CONST]; };
+	};
+	class CMD_Get_Active_Application : public PreformedCommand {
+	public:
+		CMD_Get_Active_Application(long DeviceIDFrom, long DeviceIDTo,string *sName,string *sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Get_Active_Application_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Name_CONST, (*sName).c_str(),
+			COMMANDPARAMETER_Identifier_CONST, (*sIdentifier).c_str());		m_pcResponse = new RESP_Get_Active_Application(sName,sIdentifier); }
+	};
+	class CMD_Get_Active_Application_DL : public PreformedCommand {
+	public:
+		CMD_Get_Active_Application_DL(long DeviceIDFrom, string DeviceIDTo,string *sName,string *sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Active_Application_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Name_CONST, (*sName).c_str(),
+			COMMANDPARAMETER_Identifier_CONST, (*sIdentifier).c_str());		m_pcResponse = new RESP_Get_Active_Application(sName,sIdentifier); }
+	};
+	class CMD_Get_Active_Application_DT : public PreformedCommand {
+	public:
+		CMD_Get_Active_Application_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string *sName,string *sIdentifier) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Active_Application_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Name_CONST, (*sName).c_str(),
+			COMMANDPARAMETER_Identifier_CONST, (*sIdentifier).c_str());		m_pcResponse = new RESP_Get_Active_Application(sName,sIdentifier); }
+	};
+	class CMD_Get_Active_Application_Cat : public PreformedCommand {
+	public:
+		CMD_Get_Active_Application_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string *sName,string *sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Active_Application_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Name_CONST, (*sName).c_str(),
+			COMMANDPARAMETER_Identifier_CONST, (*sIdentifier).c_str());		m_pcResponse = new RESP_Get_Active_Application(sName,sIdentifier); }
+	};
+	class CMD_NOREP_Get_Active_Application : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Active_Application(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Active_Application_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_NOREP_Get_Active_Application_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Active_Application_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Active_Application_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_NOREP_Get_Active_Application_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Active_Application_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Active_Application_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_NOREP_Get_Active_Application_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Active_Application_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Active_Application_CONST,
+			0 /* number of parameters */); }
+	};
 }
 #endif

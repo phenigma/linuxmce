@@ -501,18 +501,40 @@ void ScreenHandler::SCREEN_Computing(long PK_Screen)
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
 {
-	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 {
-	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
-
-	switch(GetCurrentScreen_PK_DesignObj())
+	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
+	if( pCellInfoData->m_sValue.size() && m_pOrbiter->m_pLocationInfo )
 	{
-		case DESIGNOBJ_YourName_CONST:
-			break;
-	};
+		string::size_type pos=0;
+		m_pOrbiter->m_sActiveApplication_Window = StringUtils::Tokenize(pCellInfoData->m_sValue,"\t",pos);
+		int PK_DesignObj_Remote = atoi(StringUtils::Tokenize(pCellInfoData->m_sValue,"\t",pos).c_str());
+		int PK_DesignObj_OSD = atoi(StringUtils::Tokenize(pCellInfoData->m_sValue,"\t",pos).c_str());
+		if( !PK_DesignObj_Remote )
+			PK_DesignObj_Remote = DESIGNOBJ_mnuGenericAppController_CONST;
+		if( !PK_DesignObj_OSD )
+			PK_DesignObj_OSD=DESIGNOBJ_generic_app_full_screen_CONST;
+		m_pOrbiter->m_sActiveApplication_Description = StringUtils::Tokenize(pCellInfoData->m_sValue,"\t",pos);
+		string sBinary = StringUtils::Tokenize(pCellInfoData->m_sValue,"\t",pos);
+		string sArguments = pos<pCellInfoData->m_sValue.size() ? pCellInfoData->m_sValue.substr(pos) : "";
+/*
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_AppServer,
+			sBinary,"generic-app",sArguments,"","",false,false,true);
+		
+		if( m_pOrbiter->m_dwPK_Device != m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter )  // Not us
+		{
+			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,0,
+				StringUtils::itos(device_osd),"","",false,false);
+			CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_DesignObj.m_pMessage);
+			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(remote),"","",fales,false);
+		}
+		else
+			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(device_osd),"","",fales,false);
+			*/
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogCannotPlayMedia(long PK_Screen, string sErrors)

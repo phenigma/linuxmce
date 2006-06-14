@@ -8639,3 +8639,33 @@ void Orbiter::ServiceAlerts( void *iData )
 	if( tNextStop )
 		CallMaintenanceInMiliseconds((tNextStop - t)*1000,&Orbiter::ServiceAlerts,NULL,pe_ALL);	
 }
+//<-dceag-c810-b->
+
+	/** @brief COMMAND: #810 - Set Active Application */
+	/** Tells an On screen orbiter what application is currently active */
+		/** @param #50 Name */
+			/** A description of the app */
+		/** @param #216 Identifier */
+			/** The window identifier */
+
+void Orbiter::CMD_Set_Active_Application(string sName,string sIdentifier,string &sCMD_Result,Message *pMessage)
+//<-dceag-c810-e->
+{
+	m_sActiveApplication_Description=sName;
+	m_sActiveApplication_Window=sIdentifier;
+}
+//<-dceag-c811-b->
+
+	/** @brief COMMAND: #811 - Get Active Application */
+	/**  */
+		/** @param #50 Name */
+			/** A description of the app */
+		/** @param #216 Identifier */
+			/** The window identifier */
+
+void Orbiter::CMD_Get_Active_Application(string *sName,string *sIdentifier,string &sCMD_Result,Message *pMessage)
+//<-dceag-c811-e->
+{
+	*sName=m_sActiveApplication_Description;
+	*sIdentifier=m_sActiveApplication_Window;
+}

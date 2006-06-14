@@ -306,6 +306,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		bool m_bBypassScreenSaver; /** < True if we don't want the screen to blank */
 		bool m_bRepeatingObject; /** < True if we're currently holding down a repeating button */
 		bool m_bRerenderScreen; /** <  Set to true means ignore the objects to redraw, and just redraw the whole screen */
+		string m_sActiveApplication_Description,m_sActiveApplication_Window; /** The name of any actively running application */
 
 		OrbiterFileBrowser_Collection *m_pOrbiterFileBrowser_Collection;
 
@@ -1727,6 +1728,28 @@ light, climate, media, security, telecom */
 
 	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout) { string sCMD_Result; CMD_Display_Alert(sText.c_str(),sTokens.c_str(),sTimeout.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #810 - Set Active Application */
+	/** Tells an On screen orbiter what application is currently active */
+		/** @param #50 Name */
+			/** A description of the app */
+		/** @param #216 Identifier */
+			/** The window identifier */
+
+	virtual void CMD_Set_Active_Application(string sName,string sIdentifier) { string sCMD_Result; CMD_Set_Active_Application(sName.c_str(),sIdentifier.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Active_Application(string sName,string sIdentifier,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #811 - Get Active Application */
+	/**  */
+		/** @param #50 Name */
+			/** A description of the app */
+		/** @param #216 Identifier */
+			/** The window identifier */
+
+	virtual void CMD_Get_Active_Application(string *sName,string *sIdentifier) { string sCMD_Result; CMD_Get_Active_Application(sName,sIdentifier,sCMD_Result,NULL);};
+	virtual void CMD_Get_Active_Application(string *sName,string *sIdentifier,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
