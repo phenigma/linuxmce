@@ -926,7 +926,7 @@ void Slim_Server_Streamer::CMD_Jump_Position_In_Playlist(string sValue_To_Assign
 
 void Slim_Server_Streamer::StartSlimServer()
 {
-	DeviceData *pDevice_AppServer = m_pData->FirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
+	DeviceData_Base *pDevice_AppServer = m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
 	if( pDevice_AppServer )
 	{
 		time_t tStart = time(NULL);
@@ -945,7 +945,7 @@ void Slim_Server_Streamer::StartSlimServer()
 				continue;
 			}
 
-			DCE::CMD_Spawn_Application_DT spawnApplication(
+			DCE::CMD_Spawn_Application spawnApplication(
 					m_dwPK_Device, pDevice_AppServer->m_dwPK_Device,
 					"/usr/pluto/bin/LaunchSlimServer.sh",  // launch this
 					"slim-server",                              // reference it with this name
