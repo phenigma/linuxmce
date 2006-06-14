@@ -320,7 +320,7 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 	cp -r *.deb $WorkDir
 	cd $WorkDir
 	echo "Regenerating Packages.gz in debcache. This will require 1 minute. Please wait."
-	dpkg-scanpackages . /dev/null | sed 's,\./,dists/replacements/main/binary-i386/,g' | gzip -9c > Packages.gz
+	dpkg-scanpackages . /dev/null | sed 's,\./,dists/sarge/main/binary-i386/,g' | gzip -9c > Packages.gz
 	clear
 	cd ..
 	/usr/bin/eject
