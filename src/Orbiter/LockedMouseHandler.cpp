@@ -58,7 +58,7 @@ void LockedMouseHandler::Start()
 	else
 		m_bTapAndRelease=false;
 
-	if( m_sOptions[0]=='H' )
+	if( m_sOptions[0]=='A' )
 		m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pOrbiter->m_iImageWidth/2,m_pMouseBehavior->m_pOrbiter->m_iImageHeight/2);
 }
 
@@ -144,7 +144,7 @@ void LockedMouseHandler::Move(int X,int Y,int PK_Direction)
 
 		if( pObj_ToHighlight && pObj_ToHighlight!=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 		{
-			if( m_sOptions[0]=='H' )
+			if( m_sOptions[0]=='A' )
 			{
 				NeedToRender render( m_pMouseBehavior->m_pOrbiter, "LockedMouseHandler::Move" );
 				m_bActivatedObject = true;
@@ -228,28 +228,11 @@ void LockedMouseHandler::ActivatedMainMenuPad()
 
 bool LockedMouseHandler::SlowDrift(int &X,int &Y)
 {
-	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
-	{
-		X = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.X + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint.X + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Width/2;
-		Y = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Y + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint.Y + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Height/2;
-		m_pMouseBehavior->SetMousePosition(X,Y);
-		return true;
-	}
 	return false;
 }
 
 bool LockedMouseHandler::MovedOutside(int PK_Direction)
 {
-	if( m_sOptions.size()>1 &&  m_sOptions[0]=='L' && m_sOptions[1]=='S' && PK_Direction==DIRECTION_Down_CONST )
-	{
-		LockedMouseHandler *pLockedMouseHandler = (LockedMouseHandler *) m_pMouseBehavior->m_pMouseHandler;
-		m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","submenu");
-		m_pMouseBehavior->HighlightObject(pLockedMouseHandler->m_pObj_Highlighted);
-		PlutoRectangle rect = m_pMouseBehavior->GetHighlighedObjectCoordinates();
-		m_pMouseBehavior->SetMousePosition( rect.X + rect.Width/2, rect.Y + rect.Height/2 );
-
-		return true;
-	}
 	return false;
 }
 

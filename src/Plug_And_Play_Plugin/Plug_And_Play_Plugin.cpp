@@ -417,8 +417,17 @@ void Plug_And_Play_Plugin::CMD_Ignore_PNP_Device(int iPK_PnpQueue,bool bAlways,s
 		Row_UnknownDevices *pRow_UnknownDevices = m_pDatabase_pluto_main->UnknownDevices_get()->AddRow();
 		pRow_UnknownDevices->MacAddress_set( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() );
 		pRow_UnknownDevices->IPAddress_set( pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get() );
-		pRow_UnknownDevices->VendorModelId_set( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() );
-		pRow_UnknownDevices->SerialNumber_set( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() );
+		pRow_UnknownDevices->FK_Device_PC_set( pPnpQueueEntry->m_dwPK_Device_TopLevel );
+		if( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get().size() )
+			pRow_UnknownDevices->VendorModelId_set( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() );
+		else if( pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() )
+			pRow_UnknownDevices->VendorModelId_set( "DT:" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get()) );
+
+		if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
+			pRow_UnknownDevices->SerialNumber_set( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() );
+		else
+			pRow_UnknownDevices->SerialNumber_set( pPnpQueueEntry->m_pRow_PnpQueue->Parms_get() );
+
 		pRow_UnknownDevices->FK_Device_PC_set( pPnpQueueEntry->m_dwPK_Device_TopLevel );
 		m_pDatabase_pluto_main->UnknownDevices_get()->Commit();
 	}

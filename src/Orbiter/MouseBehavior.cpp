@@ -129,6 +129,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 
 	switch(sOptions[0])
 	{
+	case 'A': // Auto select, means select whatever we highlight
 	case 'L':
 	case 'M':
 		m_pMouseHandler=new LockedMouseHandler(pObj,sOptions,this);

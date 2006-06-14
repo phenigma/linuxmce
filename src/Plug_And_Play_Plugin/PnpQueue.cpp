@@ -268,14 +268,6 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 	}
 	else
 	{
-		// It's a new device.  Did we get a valid device template already?
-		Row_DeviceTemplate *pRow_DeviceTemplate = pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_getrow() : NULL;  // This will be NULL if there's no device template
-		if( pRow_DeviceTemplate )
-		{
-			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
-			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Detected queue %d is new device, already know template",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
-			return Process_Detect_Stage_Prompting_User_For_DT(pPnpQueueEntry);
-		}
 		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_CONFIRMING_POSSIBLE_DT);
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Detected queue %d is new device, processing",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 		return Process_Detect_Stage_Confirm_Possible_DT(pPnpQueueEntry);
@@ -291,8 +283,13 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 
 	if( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get().size() )
 		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("VendorModelId='") + pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() + "'";
+	else if( pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() )
+		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("VendorModelId='DT:") + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get()) + "'";
+
 	if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
 		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("SerialNumber='") + pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() + "'";
+	else if( pPnpQueueEntry->m_pRow_PnpQueue->Parms_get().size() )
+		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("SerialNumber='") + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->Parms_get()) + "'";
 
 	if( sSqlWhere.size() )
 	{
@@ -305,6 +302,15 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
 			return true;
 		}
+	}
+
+	// It's a new device.  Did we get a valid device template already?
+	Row_DeviceTemplate *pRow_DeviceTemplate = pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_getrow() : NULL;  // This will be NULL if there's no device template
+	if( pRow_DeviceTemplate )
+	{
+		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Detected queue %d is new device, already know template",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		return Process_Detect_Stage_Prompting_User_For_DT(pPnpQueueEntry);
 	}
 
 	if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().size()>=11 )
@@ -942,14 +948,18 @@ void PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry)
 				continue;   // Shouldn't really happen
 			}
 			if( pOH_Orbiter->m_dwPK_Room!=pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get() && 
-				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Room!=pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get() &&
-				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device_MD!=pPnpQueueEntry->m_pRow_Device_Reported->FK_Device_ControlledVia_get() &&
-				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device_Core!=pPnpQueueEntry->m_pRow_Device_Reported->FK_Device_ControlledVia_get() )
+				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Room!=pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get() )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::DetermineOrbitersForPrompting queue %d orbiter %d reported %d in room %d/%d being skipped",
-					pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-					pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Room,pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get());
-				continue;   // It doesn't normally belong in this room, and it's not currently in this room, and it's totally unrelated, so don't use it
+				// This orbiter is not in the same room.  So unless it's an OSD, we will skip it
+				if(	!pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device_MD ||
+					(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device_MD!=pPnpQueueEntry->m_dwPK_Device_TopLevel &&
+					pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device_Core!=pPnpQueueEntry->m_dwPK_Device_TopLevel) )
+				{  // It's either not an OSD, or not the osd for this MD
+					g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::DetermineOrbitersForPrompting queue %d orbiter %d reported %d in room %d/%d being skipped",
+						pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+						pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Room,pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get());
+					continue;   // It doesn't normally belong in this room, and it's not currently in this room, and it's totally unrelated, so don't use it
+				}
 			}
 			pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts += sPK_Orbiter + ",";
 		}

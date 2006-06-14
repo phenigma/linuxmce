@@ -194,9 +194,8 @@ void PnpQueueEntry::FindTopLevelDevice()
 	Row_Device *pRow_Device=m_pRow_Device_Reported;
 	while(pRow_Device)
 	{
+		m_dwPK_Device_TopLevel = pRow_Device->PK_Device_get();
 		pRow_Device = pRow_Device->FK_Device_ControlledVia_get() ? pRow_Device->FK_Device_ControlledVia_getrow() : NULL;
-		if( pRow_Device )
-			m_dwPK_Device_TopLevel = pRow_Device->PK_Device_get();
 	}
 }
 
