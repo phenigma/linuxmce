@@ -31,7 +31,7 @@ function deviceCategoryDeviceData($output,$dbADO) {
 		
 			<table>
 				<tr>
-					<td width="150"><B>'.$TEXT_DEVICE_CATEGORY_CONST.'</B></td>
+					<td width="150"><B>'.$TEXT_DEVICE_CATEGORY_CONST.' '.(($categoryID>0)?'#'.$categoryID:'').'</B></td>
 					<td>'.$deviceCategoryFormElement.'</td>
 				</tr>
 				<tr>
