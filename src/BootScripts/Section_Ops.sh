@@ -16,6 +16,12 @@ PopulateSection()
 	local SectionName="$2"
 	local SectionData="$3"
 
+	## If the file exists and is not writable we should quit
+	if [[ -f "$File" && ! -w "$File" ]] ;then
+		echo "Section_Ops.sh: File $File is not writable !" >&2
+		return
+	fi
+
 	## Create the file if it doesn't exist
 	if [[ ! -f "$File" ]]; then
 		touch "$File"
@@ -30,7 +36,9 @@ PopulateSection()
 	## Replace the section
 	rep="## BEGIN : $SectionName\n$SectionData\n## END : $SectionName"
 	awk -vrep="$rep" "/^## BEGIN : $SectionName/{print rep}/^## BEGIN : $SectionName/,/## END : $SectionName/{next}1" < "$File" > "$File".$$
-	mv "$File"{.$$,}
+	
+	cat "$File.$$" > "$File"
+	rm "$File.$$"
 }
 
 ## Retrieves a section from a file
