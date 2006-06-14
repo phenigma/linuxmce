@@ -134,7 +134,9 @@ void PnpQueue::Run()
 				it++;
 		}
 
+		pnp.Release();
 		Sleep(1000); // In case we're in a polling loop, don't hog all the CPU.  Nothing here is that time critical 
+		pnp.Relock();
 	}
 	m_bThreadRunning=false;
 }
