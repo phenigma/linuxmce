@@ -79,7 +79,7 @@ bool Tira::GetConfig()
 	if( pDevice )
 	{
 		string sResult;
-		DCE::CMD_Get_Sibling_Remotes CMD_Get_Sibling_Remotes(m_dwPK_Device,pDevice->m_dwPK_Device, DEVICECATEGORY_IRTrans_Remote_Controls_CONST, &sResult);
+		DCE::CMD_Get_Sibling_Remotes CMD_Get_Sibling_Remotes(m_dwPK_Device,pDevice->m_dwPK_Device, DEVICECATEGORY_Tira_Remote_Controls_CONST, &sResult);
 		getCommandImpl()->SendCommand(CMD_Get_Sibling_Remotes);
 		vector<string> vectRemotes;
 
