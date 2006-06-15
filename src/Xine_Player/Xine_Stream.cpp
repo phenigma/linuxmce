@@ -5,7 +5,26 @@
 #include <xine/video_out.h>
 #include <xine/audio_out.h>
 
-#include <dvdnav/dvdnav.h>
+// HACK we have to link against local copy of libdvdnav.a - otherwise MPEG2 playback gets crazy
+/*declarations copied from xine-customized version of libdvd-nav	*/
+extern "C"
+{
+typedef struct dvdnav_s dvdnav_t;
+
+typedef int32_t dvdnav_status_t;
+
+#define DVDNAV_STATUS_ERR 0
+#define DVDNAV_STATUS_OK  1
+
+dvdnav_status_t dvdnav_open(dvdnav_t **dest, const char *path);
+
+dvdnav_status_t dvdnav_close(dvdnav_t *self);
+
+dvdnav_status_t dvdnav_get_number_of_titles(dvdnav_t *self, int32_t *titles);
+
+dvdnav_status_t dvdnav_get_number_of_parts(dvdnav_t *self, int32_t title, int32_t *parts);
+}
+/*	end of copied declarations	*/
 
 extern "C"
 {
@@ -538,6 +557,8 @@ bool Xine_Stream::EnableDeinterlacing()
 {
 	if (!m_pXineDeinterlacePlugin)
 	{
+		g_pPlutoLogger->Write( LV_STATUS, "Enabling deinterlacing" );
+		
 		// we need a NULL-terminated list of output ports
 		xine_video_port_t **volist;
 		volist = (xine_video_port_t **)malloc(2 * sizeof(xine_video_port_t*));

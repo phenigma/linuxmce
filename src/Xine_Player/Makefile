@@ -5,7 +5,7 @@ ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG -DTHREAD_LOG -DLOG_ALL_QUERIES -D_DEVEL_DEFINES
-LDFLAGS = -L$(ROOT)/lib
+LDFLAGS = -L$(ROOT)/lib -L$(ROOT)/Xine_Player
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread -ljpeg -lxine -lXtst -lX11 -lcdda_interface -ldvdnav
 
 MYNAME = Xine_Player
