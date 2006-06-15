@@ -7,7 +7,7 @@ Standards-Version: 3.6.1
 
 Package: nvidia-glx-ia32
 Architecture: amd64
-Depends: nvidia-kernel-#KVERS#, ia32-libs, ${shlibs:Depends}
+Depends: nvidia-kernel-#KVERS# (= #VERSION#), ia32-libs, ${shlibs:Depends}
 Recommends: nvidia-kernel-source (>= #VERSION#)
 Suggests: nvidia-settings
 Conflicts: nvidia-glx-src

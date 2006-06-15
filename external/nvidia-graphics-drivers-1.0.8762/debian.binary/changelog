@@ -1,4 +1,10 @@
-nvidia-graphics-drivers (1.0.8762-1) unstable; urgency=low
+nvidia-kernel (1.0.8762-2) unstable; urgency=low
+
+  * built for kernel 2.6.16.20-pluto-1-686
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Fri, 26 May 2006 11:56:58 +0300
+
+nvidia-kernel (1.0.8762-1) unstable; urgency=low
 
   * built with 8762
 
