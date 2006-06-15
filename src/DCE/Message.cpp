@@ -689,6 +689,12 @@ void Message::FromData( unsigned long dwSize, char *pcData )
     m_bRelativeToSender = Read_unsigned_char()==1;
     m_eExpectedResponse=(eExpectedResponse) Read_long();
     Read_string( m_sPK_Device_List_To );
+    
+    if( dwStart != 1234 ) {
+	// dump debug info
+	g_pPlutoLogger->Write( LV_CRITICAL, "**** dwStart: %d", dwStart );
+	Dump( LV_CRITICAL );
+    }
 
     unsigned long dwNumParms = Read_unsigned_long();
     for( unsigned long dwNP = 0; dwNP < dwNumParms; ++dwNP )
@@ -729,8 +735,26 @@ void Message::FromData( unsigned long dwSize, char *pcData )
     if( dwEnd!=6789 )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Badly formed message" );
+	// dump debug info
+	g_pPlutoLogger->Write( LV_CRITICAL, "**** dwEnd: %d", dwEnd );
+	Dump( LV_CRITICAL );
     }
 
     return;
 }
 
+void Message::Dump( int iLogLevel /*=LV_DEBUG*/)
+{
+	g_pPlutoLogger->Write( iLogLevel, "**** m_dwPK_Device_From: %d", m_dwPK_Device_From );
+	g_pPlutoLogger->Write( iLogLevel, "**** m_dwPK_Device_To: %d", m_dwPK_Device_To );
+	g_pPlutoLogger->Write( iLogLevel, "**** m_dwPK_Device_Group_ID_To: %d", m_dwPK_Device_Group_ID_To );
+	g_pPlutoLogger->Write( iLogLevel, "**** m_dwID: %d", m_dwID );
+	g_pPlutoLogger->Write( iLogLevel, "**** m_dwPriority: %d", m_dwPriority );
+	g_pPlutoLogger->Write( iLogLevel, "**** m_dwMessage_Type: %d", m_dwMessage_Type );
+	g_pPlutoLogger->Write( iLogLevel, "**** m_dwPK_Device_Category_To: %d", m_dwPK_Device_Category_To );
+	g_pPlutoLogger->Write( iLogLevel, "**** m_dwPK_Device_Template: %d", m_dwPK_Device_Template );
+	g_pPlutoLogger->Write( iLogLevel, "**** m_bIncludeChildren: %d", m_bIncludeChildren );
+	g_pPlutoLogger->Write( iLogLevel, "**** m_eBroadcastLevel: %d", m_eBroadcastLevel );
+	g_pPlutoLogger->Write( iLogLevel, "**** m_bRelativeToSender: %d", m_bRelativeToSender );
+	g_pPlutoLogger->Write( iLogLevel, "**** m_eExpectedResponse: %d", m_eExpectedResponse );
+}
