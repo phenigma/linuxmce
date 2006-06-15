@@ -11,4 +11,11 @@
  */
 bool SetWindowTransparency(Display * dpy, Window wnd, double transp);
 
+/**
+ * @param dpy
+ * @param wnd
+ * @return the parent of this window
+ */
+Window GetParentWnd( Display * dpy, Window wnd );
+
 #endif //__UTILITIES_TRANSPARENCY_H__

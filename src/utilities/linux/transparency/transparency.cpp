@@ -17,3 +17,20 @@ bool SetWindowTransparency(Display * dpy, Window wnd, double transp)
 	}
 	XSync(dpy, False);
 }
+
+Window GetParentWnd( Display * dpy, Window wnd )
+{
+	Window root;
+	Window parent;
+	Window grandparent; /* Grandparent is the WM frame */
+	Window *children;
+	unsigned int children_count;
+	
+	XQueryTree(	dpy,
+				wnd,
+				&root,
+				&parent,
+				&children,
+				&children_count);
+	return parent;
+}
