@@ -109,7 +109,7 @@ void ExtensionManager::Resize(int Width, int Height)
 //	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  1);
 //	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    1);
 
-	Uint32 uVideoModeFlags = SDL_OPENGL | SDL_RESIZABLE;
+	Uint32 uVideoModeFlags = SDL_OPENGL;
 
 	#if !defined(WIN32) || defined(WINCE)
 		if(FullScreen)

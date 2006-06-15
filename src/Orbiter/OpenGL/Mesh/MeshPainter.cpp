@@ -56,21 +56,39 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 
 		TextureManager::Instance()->SetupTexture(Triangle.Texture ? Triangle.Texture->Texture : 0);
 
-		MeshVertex& Vertex = Vertexes[Triangle.Vertex1];
-		glTexCoord2f(Vertex.UVW.X, Vertex.UVW.Y);
-		glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.UVW.Z);
-		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
-		
-		Vertex = Vertexes[Triangle.Vertex2];
-		glTexCoord2f(Vertex.UVW.X, Vertex.UVW.Y);
-		glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.UVW.Z);
-		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
-		
-		Vertex = Vertexes[Triangle.Vertex3];
-		glTexCoord2f(Vertex.UVW.X, Vertex.UVW.Y);
-		glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.UVW.Z);
-		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
-		
+		if (Triangle.Texture)
+		{
+			float MaxU = Triangle.Texture->MaxU;
+			float MaxV = Triangle.Texture->MaxV;
+			MeshVertex& Vertex = Vertexes[Triangle.Vertex1];
+			glTexCoord2f(Vertex.UVW.X*MaxU, Vertex.UVW.Y*MaxV);
+			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.UVW.Z);
+			glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
+
+			Vertex = Vertexes[Triangle.Vertex2];
+			glTexCoord2f(Vertex.UVW.X*MaxU, Vertex.UVW.Y*MaxV);
+			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.UVW.Z);
+			glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
+
+			Vertex = Vertexes[Triangle.Vertex3];
+			glTexCoord2f(Vertex.UVW.X*MaxU, Vertex.UVW.Y*MaxV);
+			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.UVW.Z);
+			glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
+		}
+		else
+		{
+			MeshVertex& Vertex = Vertexes[Triangle.Vertex1];
+			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.UVW.Z);
+			glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
+
+			Vertex = Vertexes[Triangle.Vertex2];
+			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.UVW.Z);
+			glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
+
+			Vertex = Vertexes[Triangle.Vertex3];
+			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.UVW.Z);
+			glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
+		}
 	}
 	glEnd();
 

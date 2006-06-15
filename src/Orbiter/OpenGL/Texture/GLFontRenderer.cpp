@@ -5,6 +5,10 @@
 
 #include "GLFontManager.h"
 
+#include "../../../pluto_main/Define_VertAlignment.h" 
+#include "../../../pluto_main/Define_HorizAlignment.h" 
+
+
 GLFontRenderer::GLFontRenderer(int ScreenHeight,
 							   std::string FontName,
 							   int Height, 
@@ -37,15 +41,57 @@ MeshFrame* GLFontRenderer::RenderText(string &TextToDisplay, PlutoRectangle &rPo
 									  int iPixelHeight, bool bBold, bool bItalic, bool bUnderline,  
 									  PlutoPoint point, PlutoRectangle &rectCalcLocation)
 {
+	GLFontTextureList * LetterWriter = Font->GetFontStyle(Style_, R_, G_, B_);
+	std::string StrMessage;
+	MeshContainer* Container;
+	MeshFrame* Frame = new MeshFrame();
+
+	if (TextToDisplay.find('\n') != TextToDisplay.npos)
+	{
+		StrMessage = TextToDisplay.substr(0, TextToDisplay.find('\n')-1);
+		TextToDisplay = TextToDisplay.substr(TextToDisplay.find('\n')+1, TextToDisplay.length());
+	}
+	else 
+	{
+		StrMessage = TextToDisplay;
+		TextToDisplay = "";
+	}
+
+	int Length = LetterWriter->TextOut(point.X, point.Y, StrMessage.c_str(), Container);
+	MeshTransform Transform;
+	switch (iPK_HorizAlignment)
+	{
+	case HORIZALIGNMENT_Left_CONST: 
+		Transform.Translate(rectCalcLocation.X , rectCalcLocation.Y, 0);
+		break;
+
+	case HORIZALIGNMENT_Center_CONST: 
+		Transform.Translate(rectCalcLocation.X + (rectCalcLocation.Width - Length)/2, rectCalcLocation.Y, 0);
+		break;
+
+	default: 
+		Transform.Translate(rectCalcLocation.X + (rectCalcLocation.Width - Length), rectCalcLocation.Y, 0);
+		break;			
+	}
+	Frame->ApplyTransform(Transform);
 	
-	return NULL;
+	Frame->SetMeshContainer(Container);
+
+	return Frame;
 }
 					  
 MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Text,
 	TextStyle *pTextStyle, PlutoPoint point)
 {
+	
+	MeshFrame * Result = new MeshFrame();
 	Font->GetFontStyle(R_, G_, B_, Style_);
 	PlutoRectangle rectLocation;
+	rectLocation.X = point.X + Text->m_rPosition.X;
+	rectLocation.Y = point.Y + Text->m_rPosition.Y;
+	rectLocation.Width = Text->m_rPosition.Width;
+	rectLocation.Height = Text->m_rPosition.Height;
+	bool bMultiLine = TextToDisplay.find("\n") != string::npos;
 
 	//handle escape sequences
 	if(TextToDisplay.find("~S") != string::npos)
@@ -53,10 +99,10 @@ MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Te
 		string sText = TextToDisplay;
 		vector<string> vectTextPieces;
 		size_t nPos = 0;
-		bool bMultiLine = TextToDisplay.find("\n") != string::npos;
 		while((nPos = sText.find("~S")) != string::npos)
 		{
 			size_t nNextPos = nPos;
+			bMultiLine = TextToDisplay.find("\n") != string::npos;
 			if(nPos == 0)
 			{
 				nNextPos = sText.find("~S", nPos + 1);
@@ -99,37 +145,42 @@ MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Te
 				}
 			}
 
-/*
-			Font = new GLFontTextureList(pPieceTextStyle->m_iPixelHeight);
-			Font->MapFont(
-				pPieceTextStyle->m_sFont, 
-				pPieceTextStyle->m_iPixelHeight,
-				Style_,
-				pPieceTextStyle->m_ForeColor.R(),
-				pPieceTextStyle->m_ForeColor.G(),
-				pPieceTextStyle->m_ForeColor.B()
-				);
-*/
-			RenderText(sTextToRender, Text->m_rPosition, Text->m_iPK_HorizAlignment, 
-				Text->m_iPK_VertAlignment, pPieceTextStyle->m_sFont,pPieceTextStyle->m_ForeColor,
-				pPieceTextStyle->m_iPixelHeight,pPieceTextStyle->m_bBold,pPieceTextStyle->m_bItalic,
-				pPieceTextStyle->m_bUnderline, point, rectLocation);
-
+			while(sTextToRender.length() != 0)
+			{
+				MeshFrame* Frame = RenderText(sTextToRender, Text->m_rPosition, Text->m_iPK_HorizAlignment, 
+					Text->m_iPK_VertAlignment, pPieceTextStyle->m_sFont,pPieceTextStyle->m_ForeColor,
+					pPieceTextStyle->m_iPixelHeight,pPieceTextStyle->m_bBold,pPieceTextStyle->m_bItalic,
+					pPieceTextStyle->m_bUnderline, point, rectLocation);
+				Result->AddChild(Frame);
+			}
+			
 			if(bMultiLine)
 				Text->m_rPosition.Y += rectLocation.Bottom() - rectLocation.Top();
 			else
 				Text->m_rPosition.X += rectLocation.Right() - rectLocation.Left(); 
 
+            
 		}
 
 		Text->m_rPosition = plutoRect;
 	}
 	else //normal rendering
 	{
-		RenderText(TextToDisplay,Text->m_rPosition,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment,
-			pTextStyle->m_sFont,pTextStyle->m_ForeColor,pTextStyle->m_iPixelHeight,pTextStyle->m_bBold,pTextStyle->m_bItalic,pTextStyle->m_bUnderline,
-			point, rectLocation);
-	}
 
-	return NULL;
+		MeshTransform Transform;
+		while(TextToDisplay.length() != 0)
+		{
+			MeshFrame* Frame = RenderText(
+			TextToDisplay,Text->m_rPosition,Text->m_iPK_HorizAlignment,
+			Text->m_iPK_VertAlignment,pTextStyle->m_sFont,pTextStyle->m_ForeColor,
+			pTextStyle->m_iPixelHeight,pTextStyle->m_bBold, pTextStyle->m_bItalic, 
+			pTextStyle->m_bUnderline, point, rectLocation);
+			Transform.ApplyTranslate(0, Height_*1, 0);
+			Frame->ApplyTransform(Transform);
+			
+			Result->AddChild(Frame);
+		}
+	}
+	
+	return Result;
 }

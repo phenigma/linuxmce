@@ -41,6 +41,7 @@ bool GLFont::OpenFont(std::string FontName,	int Height)
 	std::string sPathFont = BasePath + FontName + ".ttf";
 
 	Font = TTF_OpenFont(sPathFont.c_str(), Height);
+	Height_ = Height;
 
 	return Font != NULL;
 }

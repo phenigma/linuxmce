@@ -135,7 +135,6 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderText(string &sTextToDisplay, DesignObjText *Text,
 	TextStyle *pTextStyle, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
-	return;
 
 	g_pPlutoLogger->Write(LV_CRITICAL, "Rendering text %s", sTextToDisplay.c_str());
 
@@ -166,8 +165,8 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 			pTextStyle->m_ForeColor.B()
 		);
 
-	aGLTextRenderer->TextOut(sTextToDisplay, Text, pTextStyle, point);
-	MeshFrame *Frame = new MeshFrame();
+ 	MeshFrame *Frame  = aGLTextRenderer->TextOut(sTextToDisplay, Text, pTextStyle, point);
+	
 	Engine->AddMeshFrameToDesktop(Frame);
 
 	/*
@@ -217,22 +216,22 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		float(point.Y + rectTotal.Top()), 
 		float(OrbiterLogic()->m_iImageHeight / 2)
 		);
-	Builder->SetTexture2D(Graphic->MaxU, 0);
+	Builder->SetTexture2D(1.0f, 0);
 	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Right()), 
+		float(point.X + rectTotal.Right()+1), 
 		float(point.Y + rectTotal.Top()), 
 		float(OrbiterLogic()->m_iImageHeight / 2)
 		);
-	Builder->SetTexture2D(0.0f, Graphic->MaxV);
+	Builder->SetTexture2D(0.0f, 1.0f);
 	Builder->AddVertexFloat(
 		float(point.X + rectTotal.Left()), 
-		float(point.Y + rectTotal.Bottom()), 
+		float(point.Y + rectTotal.Bottom()+1), 
 		float(OrbiterLogic()->m_iImageHeight / 2)
 		);
-	Builder->SetTexture2D(Graphic->MaxU, Graphic->MaxV);
+	Builder->SetTexture2D(1.0f, 1.0f);
 	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Right()), 
-		float(point.Y + rectTotal.Bottom()), 
+		float(point.X + rectTotal.Right()+1), 
+		float(point.Y + rectTotal.Bottom()+1), 
 		float(OrbiterLogic()->m_iImageHeight / 2)
 		);
 

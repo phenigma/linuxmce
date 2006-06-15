@@ -6,7 +6,7 @@
 #include <GL/gl.h>
 
 #include "../Mesh/MeshPainter.h"
-
+#include "../GLMathUtils.h"
 
 //remove me
 #include "DCE/Logger.h"
@@ -43,7 +43,7 @@ GLFontTextureList::~GLFontTextureList()
 	if(Exists(Letter))
 		return;
 
-	Letters[Letter] = new OpenGLGraphic();
+	OpenGLGraphic* LetterGraphic = new OpenGLGraphic();
 	char Text[2];
 	Text[0] = Letter;
 	Text[1] = 0;
@@ -59,16 +59,18 @@ GLFontTextureList::~GLFontTextureList()
 	{
 		std::cout<<"Renderer::RealRenderText : TTF_RenderText_Blended crashed!"<<std::endl;
 	}
+	LetterGraphic->LocalSurface = RenderedText;
+	LetterGraphic->Width = RenderedText->w;
+	LetterGraphic->Height = RenderedText->h;
 	
-	Letters[Letter]->LocalSurface = RenderedText;
-	Letters[Letter]->Width = RenderedText->w;
-	Letters[Letter]->Height = RenderedText->h;
-	TextureManager::Instance()->PrepareImage(Letters[Letter]);
+	TextureManager::Instance()->PrepareImage(LetterGraphic);
+	Letters[Letter] = LetterGraphic;
 }
 
-/*virtual*/ MeshContainer* GLFontTextureList::TextOut(int X, int Y, char* Text)
+/*virtual*/ int GLFontTextureList::TextOut(int X, int Y, std::string Text, MeshContainer* &Geometry)
 {
-	int Length = int(strlen(Text));
+	int StartX = X;
+	size_t Length = Text.length();
 	if (Length == 0)
 		return NULL;
 	int LetterLen = 0, FontHeight;
@@ -83,23 +85,22 @@ GLFontTextureList::~GLFontTextureList()
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
 	MB.SetColor(1.0f, 1.0f, 1.0f);
 
-	FontHeight = Letters[CharPos]->Height;
-	float PixelMaxV = Letters[CharPos]->MaxV;
+	FontHeight = FontHeight_;
 
 	int PixelHgt = FontHeight;
 	MB.SetBlended(true);
 
-	for(int i = 0; i<Length; i++)
+	for(size_t i = 0; i<Length; i++)
 	{
-		MapLetter(CharPos);
 		CharPos = (unsigned char)Text[i];
+		MapLetter(CharPos);
+		
 		MaxU = Letters[CharPos]->MaxU;
 		MaxV = Letters[CharPos]->MaxV;
 
 		LetterLen = int(Letters[CharPos]->Width * MaxU);
 
 		int PixelLen = LetterLen;
-		float PixelMaxU = Letters[CharPos]->MaxU;
 
 		MB.SetTexture(Letters[CharPos]);
 		// Point 1
@@ -107,15 +108,15 @@ GLFontTextureList::~GLFontTextureList()
 		MB.AddVertexFloat(float(X), float(Y), ScreenHeight_ / 2.0f);
 
 		// Point 2
-		MB.SetTexture2D(0.0f, PixelMaxV);
+		MB.SetTexture2D(0.0f, MaxV);
 		MB.AddVertexFloat(float(X), float(Y+PixelHgt), ScreenHeight_ / 2.0f);
 
 		// Point 3
-		MB.SetTexture2D(PixelMaxU, 0.0f);
+		MB.SetTexture2D(MaxU, 0.0f);
 		MB.AddVertexFloat(float(X+PixelLen), float(Y), ScreenHeight_ / 2.0f);
 
 		// Point 4
-		MB.SetTexture2D(PixelMaxU, PixelMaxV);
+		MB.SetTexture2D(MaxU, MaxV);
 		MB.AddVertexFloat(float(X+PixelLen), float(Y+PixelHgt), ScreenHeight_ / 2.0f);
 
 		X+= PixelLen;
@@ -127,7 +128,9 @@ GLFontTextureList::~GLFontTextureList()
 	
 	//Painter->PaintContainer(*Container, Transform);
 
-	return Container;
+	Geometry = Container;
+
+	return X - StartX;
 }
 
 bool GLFontTextureList::Exists(unsigned char Letter)

@@ -37,8 +37,7 @@ public:
 	void MapLetter(char Letter);
 
 	//returns the length in pixels
-	virtual MeshContainer* TextOut(int X, int Y, char* Text);
-
+	virtual int TextOut(int X, int Y, std::string Text, MeshContainer* &Geometry);
 };
 
 #endif /*GLFONTTEXTURELIST_H_*/
