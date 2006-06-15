@@ -58,6 +58,8 @@ namespace DCE
 
 		virtual void RenderObjectAsync(DesignObj_Orbiter *pObj);
 
+		virtual int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
+		virtual bool DisplayProgress(string sMessage, int nProgress);
 		virtual void ShowProgress(int nPercent);
 
 		void WakeupFromCondWait();

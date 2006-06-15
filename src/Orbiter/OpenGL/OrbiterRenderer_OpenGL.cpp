@@ -2,6 +2,8 @@
 //-----------------------------------------------------------------------------------------------------
 #ifdef WIN32
 	#include "MainDialog.h"
+	#include "PopupMessage.h"
+	#include "ProgressDialog.h"
 #endif	
 //-----------------------------------------------------------------------------------------------------
 #include "Orbiter.h"
@@ -53,9 +55,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 		std::cout << "*** Thread -- GL.InitVideoMode SUCCEEDED" << std::endl;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "before after");
 	pOrbiterRenderer->InitializeAfterSetVideoMode();
-	g_pPlutoLogger->Write(LV_WARNING, "after after");
 
 	pOrbiterRenderer->Engine->GL.Setup();
 
@@ -428,5 +428,19 @@ void OrbiterRenderer_OpenGL::OnIdle()
 {
 	OrbiterRenderer::RedrawObjects();
 	NeedToUpdateScreen_ = true;
+}
+//-----------------------------------------------------------------------------------------------------
+int OrbiterRenderer_OpenGL::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> *p_mapPrompts)
+{
+#ifdef WIN32
+	return PromptUserEx(sPrompt, p_mapPrompts);
+#endif
+}
+//-----------------------------------------------------------------------------------------------------
+bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
+{
+#ifdef WIN32
+	return DialogProgressEx(sMessage, nProgress);
+#endif
 }
 //-----------------------------------------------------------------------------------------------------

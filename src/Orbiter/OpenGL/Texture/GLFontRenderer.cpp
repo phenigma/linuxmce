@@ -95,7 +95,6 @@ MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Te
 	bool bMultiLine = TextToDisplay.find("\n") != string::npos;
 
 	int nPos;
-	TextToDisplay = "~S11~C12Hello world";
 	//handle escape sequences
 	if(TextToDisplay.find("~S") != string::npos)
 	{
