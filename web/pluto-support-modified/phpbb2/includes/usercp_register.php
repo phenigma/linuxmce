@@ -1,4 +1,6 @@
 <?php
+header("Location: ../../index.php?section=register");
+exit();
 /***************************************************************************
  *                            usercp_register.php
  *                            -------------------
