@@ -22,6 +22,10 @@ Message() {
 }
 
 InitBootsplash() {
+   
+	if [[ -x /etc/init.d/bootsplash ]] ;then
+		/etc/init.d/bootsplash stop
+	fi
     progress=0
     kscripts=0
     sscripts=30
