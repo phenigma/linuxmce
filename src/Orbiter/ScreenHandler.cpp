@@ -499,12 +499,13 @@ void ScreenHandler::SCREEN_Computing(long PK_Screen)
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::Computing_DatagridSelected, new DatagridCellBackData());
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
+bool ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
+bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
 	if( pCellInfoData->m_sValue.size() && m_pOrbiter->m_pLocationInfo )
@@ -535,6 +536,8 @@ void ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(device_osd),"","",fales,false);
 			*/
 	}
+
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogCannotPlayMedia(long PK_Screen, string sErrors)
