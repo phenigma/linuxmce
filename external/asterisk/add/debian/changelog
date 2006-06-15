@@ -1,3 +1,9 @@
+asterisk-pluto (1.0.9-18) unstable; urgency=low
+
+  * Built for 2.6.16.20-pluto-1-686
+
+ -- Office Server Operator <root@activate.plutohome.com>  Thu, 15 Jun 2006 17:16:36 +0300
+
 asterisk-pluto (1.0.9-17) unstable; urgency=low
 
   * Create asterisk user if it doesn't exist, even if database exists
