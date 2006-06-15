@@ -23,7 +23,7 @@ GLFontRenderer::GLFontRenderer(int ScreenHeight,
 	this->G_ = G;
 	this->B_ = B;
 	this->Height_ = Height;
-	this->Style_ = Style_;
+	this->Style_ = Style;
 }
 
 GLFontRenderer::~GLFontRenderer()
@@ -94,9 +94,30 @@ MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Te
 	rectLocation.Height = Text->m_rPosition.Height;
 	bool bMultiLine = TextToDisplay.find("\n") != string::npos;
 
+	int nPos;
+	TextToDisplay = "~S11~C12Hello world";
 	//handle escape sequences
 	if(TextToDisplay.find("~S") != string::npos)
-	{   
+	{
+		string sText = TextToDisplay;
+		size_t nPos = 0;
+		while((nPos = sText.find("~S")) != string::npos)
+		{
+			size_t nNextPos = nPos;
+
+			nNextPos = sText.find("~", nNextPos + 1);
+			if(nNextPos == string::npos)
+				nNextPos = sText.length();
+				
+
+			string sPrevText = sText.substr(0, nPos);
+			string sNextText = sText.substr(nNextPos+1);
+			sText = sPrevText + sNextText;
+		}
+		TextToDisplay = sText;
+		//TODO: fix crusesh, right now use a simplest code that remove styles
+		// escape sequences
+		/*
 		string sText = TextToDisplay;
 		vector<string> vectTextPieces;
 		size_t nPos = 0;
@@ -160,12 +181,12 @@ MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Te
 			else
 				Text->m_rPosition.X += rectLocation.Right() - rectLocation.Left(); 
 
-            
 		}
 
 		Text->m_rPosition = plutoRect;
+		*/
 	}
-	else //normal rendering
+//	else //normal rendering
 	{
 		int NoLines = 0;
 		//Text->m_iPK_VertAlignment = VERTALIGNMENT_Middle_CONST;
