@@ -123,6 +123,45 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::SolidRectangle(int x, int y, int width, int height, PlutoColor color)
 {
+	MeshBuilder* Builder = new MeshBuilder();
+	Builder->Begin(MBMODE_TRIANGLE_STRIP);
+
+	Builder->SetColor(color.R() / 255.0f, color.G() / 255.0f, color.B() / 255.0f);
+
+	Builder->SetTexture2D(0.0f, 0.0f);
+	Builder->AddVertexFloat(
+		float(x-1), 
+		float(y-1), 
+		0
+		);
+	Builder->SetTexture2D(1.0f, 0);
+	Builder->AddVertexFloat(
+		float(x+width+1), 
+		float(y-1), 
+		0
+		);
+	Builder->SetTexture2D(0.0f, 1.0f);
+	Builder->AddVertexFloat(
+		float(x-1), 
+		float(y+height+1), 
+		0
+		);
+	Builder->SetTexture2D(1.0f, 1.0f);
+	Builder->AddVertexFloat(
+		float(x+width+1), 
+		float(y+height+1), 
+		0
+		);
+
+	MeshContainer* Container = new MeshContainer();
+	Container = Builder->End();
+
+	MeshFrame* Frame = new MeshFrame();
+	Frame->SetMeshContainer(Container);
+
+
+	//TODO: find a way to replace an existing object if the graphic is changed instead of adding it
+	Engine->AddMeshFrameToDesktop(Frame);
 
 
 }
@@ -173,16 +212,6 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
  	MeshFrame *Frame  = aGLTextRenderer->TextOut(sTextToDisplay, Text, pTextStyle, point);
 	
 	Engine->AddMeshFrameToDesktop(Frame);
-
-	/*
-	GLFontTextureList* aGLFontTextureList = new GLFontTextureList(OrbiterLogic()->m_iImageHeight);
-	aGLFontTextureList->MapFont(pTextStyle->m_sFont, pTextStyle->m_iPixelHeight, style, 
-		pTextStyle->m_ForeColor.R(), 
-		pTextStyle->m_ForeColor.G(), 
-		pTextStyle->m_ForeColor.B());
-	MeshContainer *Container = aGLFontTextureList->TextOut(point.X + Text->m_rPosition.X, 
-		point.Y + Text->m_rPosition.Y, const_cast<char *>(sTextToDisplay.c_str()));*/
-	//Frame->SetMeshContainer(Container);
 	
 }
 //-----------------------------------------------------------------------------------------------------
