@@ -618,7 +618,8 @@ bool Socket::SendData( int iSize, const char *pcData )
 		{
 			if( m_Socket == INVALID_SOCKET || m_bQuit || m_bCancelSocketOp)
 			{
-				g_pPlutoLogger->Write(LV_WARNING,"Socket::SendData m_Socket %d quit %d",(int) m_Socket,(int) m_bQuit);
+				// This causes a recursive failure
+//				g_pPlutoLogger->Write(LV_WARNING,"Socket::SendData m_Socket %d quit %d",(int) m_Socket,(int) m_bQuit);
 				return false;
 			}
 

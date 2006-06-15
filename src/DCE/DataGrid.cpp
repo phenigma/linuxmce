@@ -55,8 +55,10 @@ void DataGridCell::Initialize()
 	m_pGraphicData=NULL;
 	m_Text = NULL;
 	m_Value = NULL;
-	m_GraphicLength = m_MessageLength = m_TextLength = m_ValueLength = 0;
+	m_ImagePath = NULL;
+	m_GraphicLength = m_MessageLength = m_TextLength = m_ValueLength = m_ImagePathLength = 0;
 	m_GraphicFormat = GR_UNKNOWN;
+	m_pGraphic = NULL;
 }
 
 DataGridCell::~DataGridCell()
@@ -65,6 +67,8 @@ DataGridCell::~DataGridCell()
 		delete[] m_Text;
 	if (m_Value)
 		delete[] m_Value;
+	if (m_ImagePath)
+		delete[] m_ImagePath;
 
 	if(NULL != m_pMessage)
 	{
@@ -77,6 +81,7 @@ DataGridCell::~DataGridCell()
 		delete m_pGraphicData;
 		m_pGraphicData = NULL;
 	}
+	delete m_pGraphic;
 }
 
 DataGridCell::DataGridCell(string Text, string Value)
@@ -142,6 +147,12 @@ DataGridCell::DataGridCell(int Size, char *Data)
 		m_pMessage = new Message(m_MessageLength, Data);
 		Data+=m_MessageLength;
 	}
+	if (m_ImagePathLength)
+	{
+		m_ImagePath = new char[m_ImagePathLength+1];
+		memcpy(m_ImagePath, Data, m_ImagePathLength);
+		m_ImagePath[m_ImagePathLength]=0;
+	}
 }
 
 void DataGridCell::SetImage(char *Data, int Length, enum eGraphicFormat Format)
@@ -149,6 +160,15 @@ void DataGridCell::SetImage(char *Data, int Length, enum eGraphicFormat Format)
 	m_pGraphicData = Data;
 	m_GraphicLength = Length;
 	m_GraphicFormat = Format;
+}
+
+void DataGridCell::SetImagePath(const char *ImagePath)
+{
+	delete m_ImagePath;
+
+	m_ImagePath = new char[strlen(ImagePath)+1]; 
+	strcpy(m_ImagePath,ImagePath);
+	m_ValueLength = (int)strlen(ImagePath);
 }
 
 const char *DataGridCell::GetText()
@@ -197,7 +217,11 @@ void DataGridCell::ToData(unsigned long &Size, char* &Data)
 		memcpy(Datap, MessageData, m_MessageLength);
 		Datap+=m_MessageLength;
 	}
-
+	if (m_ImagePathLength)
+	{
+		memcpy(Datap, m_ImagePath, m_ImagePathLength);
+		Datap+=m_ImagePathLength;
+	}
 	if(NULL != MessageData)
 	{
 		delete[] MessageData;
