@@ -46,6 +46,8 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 
 void MeshFrame::Paint(MeshTransform ChildTransform)
 {
+	if(!Visible_)
+		return;
 	ChildTransform.ApplyTransform(Transform);
 	MeshPainter* Painter = MeshPainter::Instance();
 	if(Mesh!= NULL)
@@ -70,3 +72,7 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 	this->Transform.ApplyTransform(Transform);
 }
 
+/*virtual*/ void MeshFrame::SetVisible(bool Visible)
+{
+	Visible_ = Visible;
+}

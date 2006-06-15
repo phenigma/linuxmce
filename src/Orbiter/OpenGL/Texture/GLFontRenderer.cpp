@@ -62,15 +62,17 @@ MeshFrame* GLFontRenderer::RenderText(string &TextToDisplay, PlutoRectangle &rPo
 	switch (iPK_HorizAlignment)
 	{
 	case HORIZALIGNMENT_Left_CONST: 
-		Transform.Translate(rectCalcLocation.X , rectCalcLocation.Y, 0);
+		Transform.Translate(float(rectCalcLocation.X) , float(rectCalcLocation.Y), 0);
 		break;
 
 	case HORIZALIGNMENT_Center_CONST: 
-		Transform.Translate(rectCalcLocation.X + (rectCalcLocation.Width - Length)/2, rectCalcLocation.Y, 0);
+		Transform.Translate(float(rectCalcLocation.X + (rectCalcLocation.Width - Length)/2),
+			float(rectCalcLocation.Y), 0);
 		break;
 
 	default: 
-		Transform.Translate(rectCalcLocation.X + (rectCalcLocation.Width - Length), rectCalcLocation.Y, 0);
+		Transform.Translate(float(rectCalcLocation.X + (rectCalcLocation.Width - Length)), 
+			float(rectCalcLocation.Y), 0);
 		break;			
 	}
 	Frame->ApplyTransform(Transform);
@@ -166,6 +168,8 @@ MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Te
 	}
 	else //normal rendering
 	{
+		int NoLines = 0;
+		//Text->m_iPK_VertAlignment = VERTALIGNMENT_Middle_CONST;
 
 		MeshTransform Transform;
 		while(TextToDisplay.length() != 0)
@@ -175,11 +179,27 @@ MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Te
 			Text->m_iPK_VertAlignment,pTextStyle->m_sFont,pTextStyle->m_ForeColor,
 			pTextStyle->m_iPixelHeight,pTextStyle->m_bBold, pTextStyle->m_bItalic, 
 			pTextStyle->m_bUnderline, point, rectLocation);
-			Transform.ApplyTranslate(0, Height_*1, 0);
+			if (NoLines) 
+				Transform.ApplyTranslate(0, float(Height_), 0);
 			Frame->ApplyTransform(Transform);
 			
 			Result->AddChild(Frame);
+			NoLines++;
 		}
+		switch(Text->m_iPK_VertAlignment) {
+			case VERTALIGNMENT_Bottom_CONST:
+				Transform.SetIdentity();
+				Transform.Translate(0, rectLocation.Y+rectLocation.Height - Height_*NoLines, 0);
+				Result->ApplyTransform(Transform);
+				break;
+			case VERTALIGNMENT_Middle_CONST:
+				Transform.SetIdentity();
+				Transform.Translate(0, rectLocation.Y+rectLocation.Height/2 - Height_*NoLines/2, 0);
+				Result->ApplyTransform(Transform);
+				break;
+			default:;
+		};
+
 	}
 	
 	return Result;

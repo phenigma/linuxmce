@@ -10,6 +10,7 @@ class MeshFrame
 {
 	MeshContainer* Mesh;
 	MeshTransform Transform;
+	bool Visible_;
 
 	
 public:
@@ -31,6 +32,7 @@ std::vector<MeshFrame*> Children;
 	
 	virtual void SetTransform(MeshTransform& Transform);
 	virtual void ApplyTransform(MeshTransform& Transform);
+	virtual void SetVisible(bool Visible);
 };
 
 #endif

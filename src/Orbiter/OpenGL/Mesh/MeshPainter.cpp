@@ -92,6 +92,33 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 	}
 	glEnd();
 
+#ifdef DEBUG_LINES
+	for(Count = 0; Count < Container.NoTriangles; Count++) 
+	{
+		MeshTriangle& Triangle = Container.Triangles[Count];
+
+		glDisable(GL_TEXTURE_2D);
+		glBegin(GL_LINES);
+		glColor3f(1, 1, 1);
+		MeshVertex& Vertex = Vertexes[Triangle.Vertex1];
+		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
+		Vertex = Vertexes[Triangle.Vertex2];
+		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
+
+		Vertex = Vertexes[Triangle.Vertex2];
+		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
+		Vertex = Vertexes[Triangle.Vertex3];
+		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
+
+		Vertex = Vertexes[Triangle.Vertex3];
+		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
+		Vertex = Vertexes[Triangle.Vertex1];
+		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
+		glEnd();
+		glEnable(GL_TEXTURE_2D);
+	}
+#endif
+
 	if(Container.Blended_)
 	{
 		ExtensionManager_->EnableZBuffer(true);
