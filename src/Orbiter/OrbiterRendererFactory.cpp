@@ -16,11 +16,7 @@
 			#include "SDL/Win32/OrbiterRenderer_SDL_Win32.h"
 		#endif
 	#else
-		#if defined(ORBITER_OPENGL)
-			#include "OpenGL/OrbiterRenderer_OpenGL.h"
-		#else
-			#include "Linux/OrbiterRenderer_SDL_Linux.h"
-		#endif
+		#include "Linux/OrbiterRenderer_Linux.h"
 	#endif
 #endif
 
@@ -40,11 +36,7 @@
 			return new OrbiterRenderer_SDL_Win32(pOrbiter);
 		#endif
 	#else
-		#if defined(ORBITER_OPENGL)
-			return new OrbiterRenderer_OpenGL(pOrbiter);
-		#else
-			return new OrbiterRenderer_SDL_Linux(pOrbiter);
-		#endif
+		return new OrbiterRenderer_Linux(pOrbiter);
 	#endif
 #endif
 }

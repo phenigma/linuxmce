@@ -319,13 +319,10 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 			pCLinux->WaitForRelativesIfOSD();
 		}
         
-#ifdef ORBITER_OPENGL
-		
-#else /*SDL*/
-		OrbiterRenderer_SDL_Linux *pOrbiterRenderer_SDL_Linux = dynamic_cast<OrbiterRenderer_SDL_Linux *>(pCLinux->Renderer());
-		if(pOrbiterRenderer_SDL_Linux != NULL)
-			pOrbiterRenderer_SDL_Linux->InitializeAfterRelatives();
-#endif
+		OrbiterRenderer_Linux *pOrbiterRenderer_Linux = dynamic_cast<OrbiterRenderer_Linux *>(pCLinux->Renderer());
+		if(pOrbiterRenderer_Linux != NULL)
+			pOrbiterRenderer_Linux->InitializeAfterRelatives();
+
 		g_pPlutoLogger->Write(LV_STATUS, "Creating the simulator");
 		Simulator::GetInstance()->m_pOrbiter = pCLinux;
 

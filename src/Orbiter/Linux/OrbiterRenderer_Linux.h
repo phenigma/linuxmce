@@ -1,7 +1,11 @@
 #ifndef __ORBITER_RENDERER_LINUX_H__
 #define __ORBITER_RENDERER_LINUX_H__
 
-#include "../SDL/OrbiterRenderer_SDL.h"
+#ifdef ORBITER_OPENGL
+	#include "../OpenGL/OrbiterRenderer_OpenGL.h"
+#else
+	#include "../SDL/OrbiterRenderer_SDL.h"
+#endif
 
 class OrbiterLinux;
 
@@ -9,15 +13,19 @@ namespace DCE
 {
 	class Orbiter;
 
-	class OrbiterRenderer_SDL_Linux : public OrbiterRenderer_SDL
+#ifdef ORBITER_OPENGL
+	class OrbiterRenderer_Linux : public OrbiterRenderer_OpenGL	
+#else
+	class OrbiterRenderer_Linux : public OrbiterRenderer_SDL
+#endif
 	{
 	private:
 		friend class OrbiterRendererFactory;
-		OrbiterRenderer_SDL_Linux(Orbiter *pOrbiter);
+		OrbiterRenderer_Linux(Orbiter *pOrbiter);
 
 	public:
 
-		~OrbiterRenderer_SDL_Linux();
+		~OrbiterRenderer_Linux();
 
 		void RenderScreen(bool bRenderGraphicsOnly);
 		void EventLoop();

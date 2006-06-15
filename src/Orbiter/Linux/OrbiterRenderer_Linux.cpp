@@ -1,4 +1,4 @@
-#include "OrbiterRenderer_SDL_Linux.h"
+#include "OrbiterRenderer_Linux.h"
 
 #include "../Orbiter.h"
 #include "OrbiterLinux.h"
@@ -35,21 +35,28 @@ using namespace DCE;
 #include "../CallBackTypes.h"
 #include "../dialog_types.h"
 
-OrbiterRenderer_SDL_Linux::OrbiterRenderer_SDL_Linux(Orbiter *pOrbiter) : OrbiterRenderer_SDL(pOrbiter)
+#ifdef ORBITER_OPENGL
+	#define BASE_CLASS OrbiterRenderer_OpenGL
+#else
+	#define BASE_CLASS OrbiterRenderer_SDL
+#endif
+
+
+OrbiterRenderer_Linux::OrbiterRenderer_Linux(Orbiter *pOrbiter) : BASE_CLASS(pOrbiter)
 {
 
 }
 
-OrbiterRenderer_SDL_Linux::~OrbiterRenderer_SDL_Linux()
+OrbiterRenderer_Linux::~OrbiterRenderer_Linux()
 {
 
 }
 
-void OrbiterRenderer_SDL_Linux::RenderScreen( bool bRenderGraphicsOnly )
+void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 {
 	if( bRenderGraphicsOnly )
 	{
-		OrbiterRenderer_SDL::RenderScreen( bRenderGraphicsOnly );
+		BASE_CLASS::RenderScreen( bRenderGraphicsOnly );
 		return;
 	}
 
@@ -61,7 +68,7 @@ void OrbiterRenderer_SDL_Linux::RenderScreen( bool bRenderGraphicsOnly )
 
 		{
 			X11_Locker lock(pOrbiterLinux->GetDisplay());
-			OrbiterRenderer_SDL::RenderScreen(bRenderGraphicsOnly);
+			BASE_CLASS::RenderScreen(bRenderGraphicsOnly);
 			XFlush(pOrbiterLinux->GetDisplay()); // TODO: test and remove this
 		}
 
@@ -70,8 +77,10 @@ void OrbiterRenderer_SDL_Linux::RenderScreen( bool bRenderGraphicsOnly )
 	}
 }
 
-void OrbiterRenderer_SDL_Linux::InitializeAfterSetVideoMode()
+void OrbiterRenderer_Linux::InitializeAfterSetVideoMode()
 {
+	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::InitializeAfterSetVideoMode() START");
+
 	OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
 	if(NULL != pOrbiterLinux)
 	{
@@ -83,7 +92,7 @@ void OrbiterRenderer_SDL_Linux::InitializeAfterSetVideoMode()
 	}
 }
 
-void OrbiterRenderer_SDL_Linux::InitializeAfterRelatives()
+void OrbiterRenderer_Linux::InitializeAfterRelatives()
 {
 	OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
 	if(NULL != pOrbiterLinux)
@@ -96,7 +105,7 @@ void OrbiterRenderer_SDL_Linux::InitializeAfterRelatives()
 	}
 }
 
-bool OrbiterRenderer_SDL_Linux::DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress)
+bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress)
 {
     std::cout << "== DisplayProgress( " << sMessage << ", ChildDevices, " << nProgress << " );" << std::endl;
 
@@ -219,7 +228,7 @@ bool OrbiterRenderer_SDL_Linux::DisplayProgress(string sMessage, const map<strin
     return false;
 }
 
-bool OrbiterRenderer_SDL_Linux::DisplayProgress(string sMessage, int nProgress)
+bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, int nProgress)
 {
     std::cout << "== DisplayProgress waitlist( " << sMessage << ", " << nProgress << " );" << std::endl;
 
@@ -332,7 +341,7 @@ bool OrbiterRenderer_SDL_Linux::DisplayProgress(string sMessage, int nProgress)
     return false;
 }
 
-int OrbiterRenderer_SDL_Linux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string> *p_mapPrompts)
+int OrbiterRenderer_Linux::PromptUser(string sPrompt, int iTimeoutSeconds, map<int,string> *p_mapPrompts)
 {
     map<int,string> mapPrompts;
     mapPrompts[PROMPT_CANCEL]    = "Ok";
@@ -376,21 +385,21 @@ int OrbiterRenderer_SDL_Linux::PromptUser(string sPrompt, int iTimeoutSeconds, m
 	return 0;
 }
 
-void OrbiterRenderer_SDL_Linux::LockDisplay()
+void OrbiterRenderer_Linux::LockDisplay()
 {
 	OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
     if (pOrbiterLinux)
         pOrbiterLinux->X_LockDisplay();
 }
 
-void OrbiterRenderer_SDL_Linux::UnlockDisplay()
+void OrbiterRenderer_Linux::UnlockDisplay()
 {
 	OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
     if (pOrbiterLinux)
         pOrbiterLinux->X_UnlockDisplay();
 }
 
-void OrbiterRenderer_SDL_Linux::EventLoop()
+void OrbiterRenderer_Linux::EventLoop()
 {
 	int SDL_Event_Pending = 0;
 
@@ -399,7 +408,9 @@ void OrbiterRenderer_SDL_Linux::EventLoop()
 	// For now I'll assume that shift + arrows scrolls a grid
 	while (!OrbiterLogic()->m_bQuit && !OrbiterLogic()->m_bReload)
 	{
+		LockDisplay();
 		SDL_Event_Pending = SDL_PollEvent(&Event);
+		UnlockDisplay();
 
 		if (SDL_Event_Pending)
 		{

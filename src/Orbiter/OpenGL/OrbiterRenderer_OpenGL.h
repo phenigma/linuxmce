@@ -63,6 +63,15 @@ namespace DCE
 		void WakeupFromCondWait();
 		void OnIdle();
 
+		/**
+		* @brief initialize other classes, after the video mode was changed
+		*/
+		virtual void InitializeAfterSetVideoMode() {};
+
+		/**
+		* @brief initialize other classes, after WaitForRelativesIfOSD
+		*/
+		virtual void InitializeAfterRelatives() {};
 
 		virtual void OnQuit();
 

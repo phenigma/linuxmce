@@ -53,6 +53,10 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 		std::cout << "*** Thread -- GL.InitVideoMode SUCCEEDED" << std::endl;
 	}
 
+	g_pPlutoLogger->Write(LV_WARNING, "before after");
+	pOrbiterRenderer->InitializeAfterSetVideoMode();
+	g_pPlutoLogger->Write(LV_WARNING, "after after");
+
 	pOrbiterRenderer->Engine->GL.Setup();
 
 	pthread_cond_broadcast(&(pOrbiterRenderer->Condition));

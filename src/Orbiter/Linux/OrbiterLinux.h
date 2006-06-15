@@ -5,7 +5,6 @@
 #include "../Orbiter.h"
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
-//#include "utilities/linux/RatpoisonHandler.h"
 #include "XRecordExtensionHandler.h"
 
 #include "win_list_manager.h"
@@ -24,13 +23,13 @@ using namespace std;
 
 namespace DCE
 {
-	class OrbiterRenderer_SDL_Linux;
+	class OrbiterRenderer_Linux;
 };
 
 class OrbiterLinux : public Orbiter
 {
 private:
-	friend class OrbiterRenderer_SDL_Linux;
+	friend class OrbiterRenderer_Linux;
 
     string m_strWindowName;
     string m_strDisplayName;

@@ -3,7 +3,9 @@
 
 #include "../Orbiter.h"
 #include "../Linux/OrbiterLinux.h"
-#include "../Linux/OrbiterRenderer_SDL_Linux.h"
+#include "../Linux/OrbiterRenderer_Linux.h"
+
+#include <SDL.h>
 
 struct keyboardState
 {
