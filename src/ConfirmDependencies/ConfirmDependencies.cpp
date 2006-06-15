@@ -310,11 +310,13 @@ int main(int argc, char *argv[])
 		cout << "#!/bin/bash" << endl;
 		cout << "error=0" << endl;
 	}
+	PrintCmd(argc, argv);
 
 	Database_pluto_main database_pluto_main;
 	if(!database_pluto_main.Connect(&dceConfig))
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+		cout << "# ERROR: Cannot connect to database!" << endl;
 		return 0;
 	}
 
@@ -322,10 +324,10 @@ int main(int argc, char *argv[])
 	if( !pRow_Device )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot get device information!");
+		cout << "# ERROR: Cannot get device information!" << endl;
 		exit(1);
 	}
 
-	PrintCmd(argc, argv);
 	pRow_Installation = pRow_Device->FK_Installation_getrow();
 
 	if( !g_bSkipConfirmRelations )
