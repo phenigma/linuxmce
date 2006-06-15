@@ -124,7 +124,7 @@ if [[ "$Count" != "0" ]]; then
 fi
 
 echo "- Copying kernel package(s) for later use"
-cp /var/cache/apt/archives/kernel-image* /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ 2>/dev/null
+cp /var/cache/apt/archives/linux-image* /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ 2>/dev/null
 
 ## Save our state to file
 echo $UpdatesOkStamp > /etc/lastUpdate.stamp

@@ -33,15 +33,15 @@ InstallKernel()
 	done
 
 	sed -i 's/^ROOT=.*$/ROOT=/g' etc/mkinitrd/mkinitrd.conf
-	if chroot . dpkg -s "kernel-image-$KERNEL_VERSION" 2>/dev/null | grep -q 'Status: install ok installed'; then
+	if chroot . dpkg -s "linux-image-$KERNEL_VERSION" 2>/dev/null | grep -q 'Status: install ok installed'; then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Kernel already installed."
 		return 0
 	fi
 	
-	kernel="$(find /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ -name "kernel-image-$KERNEL_VERSION*.deb")"
+	kernel="$(find /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ -name "linux-image-$KERNEL_VERSION*.deb")"
 	words="$(echo "$kernel" | wc -w)"
 	if [[ "$words" -eq 0 ]]; then
-		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "No kernel matching 'kernel-image-$KERNEL_VERSION' was found"
+		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "No kernel matching 'linux-image-$KERNEL_VERSION' was found"
 		exit 1
 	elif [[ "$words" -gt 1 ]]; then
 		kernel="$(echo "$kernel" | cut -d' ' -f1)"
