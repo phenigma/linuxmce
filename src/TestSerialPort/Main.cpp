@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 		cout << "TestSerialPort, v." << VERSION << endl
 			<< "Usage: TestSerialPort [-p port] [-P N81|E81|O81] [-t transmit string]" << endl
 			<< "[-s Search String] [-m message to log] [-i Timeout] [-b baud] [-h]" << endl
-			<< "strings can include: \xx (xx is a hex char), \r and \n, and to delay x ms, \xm" << endl;
+			<< "strings can include: \\xx (xx is a hex char), \\r and \\n, and to delay x ms, \\xm" << endl;
 
 		exit(0);
 	}
