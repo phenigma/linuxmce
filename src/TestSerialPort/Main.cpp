@@ -99,7 +99,8 @@ int main(int argc, char *argv[])
 	{
 		cout << "TestSerialPort, v." << VERSION << endl
 			<< "Usage: TestSerialPort [-p port] [-P N81|E81|O81] [-t transmit string]" << endl
-			<< "[-s Search String] [-m message to log] [-i Timeout] [-b baud] [-h]" << endl;
+			<< "[-s Search String] [-m message to log] [-i Timeout] [-b baud] [-h]" << endl
+			<< "strings can include: \xx (xx is a hex char), \r and \n, and to delay x ms, \xm" << endl;
 
 		exit(0);
 	}
@@ -184,12 +185,19 @@ string ParseHex(string sInput)
 	        sInput.replace( s, 2, "\\" );
 		else if( sInput[s+1]!='s' ) // \s precedes a special command.  We don't handle that here
 		{
-			int iValue;
-			string sValue = sInput.substr(s+1,2);
-			sscanf(sValue.c_str(),"%x",&iValue);
-			string sR = " ";
-			sR[0]=(char) iValue;
-			sInput.replace( s, 3, sR );
+			if( sInput[s+1]=='r' )
+				sInput.replace( s, 2, "\r" );
+			else if( sInput[s+1]=='n' )
+				sInput.replace( s, 2, "\n" );
+			else
+			{
+				int iValue;
+				string sValue = sInput.substr(s+1,2);
+				sscanf(sValue.c_str(),"%x",&iValue);
+				string sR = " ";
+				sR[0]=(char) iValue;
+				sInput.replace( s, 3, sR );
+			}
 		}
 		s++;
     }
@@ -216,7 +224,7 @@ bool GetBlockToSend(string &sBlock,string &sTransmitString,string::size_type &po
 	string::size_type pos_delay=0;
 	if( (pos_delay=sTransmitString.find("\\s",pos))==string::npos )
 	{
-		sBlock=sTransmitString.substr(pos);  // Todo -- look for \s1000s to delay x milliseconds
+		sBlock=sTransmitString.substr(pos);  // Todo -- look for \s1000m to delay x milliseconds
 		pos=sTransmitString.size();
 		return true;
 	}
