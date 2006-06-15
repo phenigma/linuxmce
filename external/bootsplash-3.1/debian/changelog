@@ -1,3 +1,10 @@
+bootsplash (3.1-1pluto6) unstable; urgency=low
+
+  * Remove code that patched the initrd from postinst, it can mess up realy
+    bad  with the current kernel
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Thu, 15 Jun 2006 12:42:16 +0300
+
 bootsplash (3.1-1pluto5) unstable; urgency=low
 
   * Support for other themes

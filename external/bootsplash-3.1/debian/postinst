@@ -38,73 +38,73 @@ esac
 
 
 # Get the initrd file that we need to add the pictures to
-db_get shared/bootsplash-initrd
-INITRD="$RET"
+#db_get shared/bootsplash-initrd
+#INITRD="$RET"
 
-if [ "$INITRD" = "custom" ] ;then
-    db_get shared/bootsplash-custom-initrd
-    SPLASH_INITRD="$RET"
-elif [ "$INITRD" = "none" ] ;then
-    SPLASH_INITRD="/boot/initrd.splash"
-else
-    SPLASH_INITRD="$INITRD"
-fi
+#if [ "$INITRD" = "custom" ] ;then
+#    db_get shared/bootsplash-custom-initrd
+#    SPLASH_INITRD="$RET"
+#elif [ "$INITRD" = "none" ] ;then
+#    SPLASH_INITRD="/boot/initrd.splash"
+#else
+#    SPLASH_INITRD="$INITRD"
+#fi
 
-if [ "$SPLASH_INITRD" = "" ]
-then
-    SPLASH_INITRD="all"
-fi
+#if [ "$SPLASH_INITRD" = "" ]
+#then
+#    SPLASH_INITRD="all"
+#fi
 
 
 
-if [ ! -e "$THEME_SYMLINK" ]
-then
-    db_get shared/bootsplash-theme
-    NEW_THEME="$RET"
-    
-    ln -s /etc/bootsplash/themes/`echo $NEW_THEME | sed -e 's/^bootsplash-theme-//g;'` $THEME_SYMLINK || get_new_theme
-    
-    echo "Building bootsplash initrd image..."
-    
-    db_get $NEW_THEME/resolutions
-    RESOLUTIONS=`echo "$RET" | sed -e 's/, / /g;'`
-    
-    if [ "$SPLASH_INITRD" = "all" ] ;then
-	for ird in `ls /boot/initrd* | grep -v ".orig"` ;do
-	    if [ "$ird" = "/boot/initrd.splash" ] ;then
-		rm -f /boot/initrd.splash || true
-	    else
-		cp "$ird.orig" "$ird" || \
-		cp "$ird" "$ird.orig"
-	    fi
-    
-	    for i in $RESOLUTIONS ;do
-		splash -s -f /etc/bootsplash/themes/current/config/bootsplash-$i.cfg >> "$ird"
-	    done
-	done
-    else
-	if [ "$SPLASH_INITRD" = "/boot/initrd.splash" ]
-	then
-	    rm -f /boot/initrd.splash || true
-	else
-	    cp "$SPLASH_INITRD.orig" "$SPLASH_INITRD" || \
-	    cp "$SPLASH_INITRD" "$SPLASH_INITRD.orig"
-	fi
-    
-	for i in $RESOLUTIONS
-	do
-	    splash -s -f /etc/bootsplash/themes/current/config/bootsplash-$i.cfg >> "$SPLASH_INITRD"
-	done
-    fi
-    
-    # Update lilo if is used
-    if [ -f /sbin/lilo ]
-    then
-	lilo 1>/dev/null 2>/dev/null
-    fi
-    
-    echo "Using the $NEW_THEME bootsplash theme at $RESOLUTIONS resolution(s)."
-fi
+#if [ ! -e "$THEME_SYMLINK" ]
+#then
+#    db_get shared/bootsplash-theme
+#    NEW_THEME="$RET"
+#    
+#    ln -s /etc/bootsplash/themes/`echo $NEW_THEME | sed -e 's/^bootsplash-theme-//g;'` $THEME_SYMLINK || get_new_theme
+#    
+#    echo "Building bootsplash initrd image..."
+#    
+#    db_get $NEW_THEME/resolutions
+#    RESOLUTIONS=`echo "$RET" | sed -e 's/, / /g;'`
+#    
+#    if [ "$SPLASH_INITRD" = "all" ] ;then
+#	for ird in `ls /boot/initrd* | grep -v ".orig"` ;do
+#	    if [ "$ird" = "/boot/initrd.splash" ] ;then
+#		rm -f /boot/initrd.splash || true
+#	    else
+#		cp "$ird.orig" "$ird" || \
+#		cp "$ird" "$ird.orig"
+#	    fi
+#    
+#	    for i in $RESOLUTIONS ;do
+#		splash -s -f /etc/bootsplash/themes/current/config/bootsplash-$i.cfg >> "$ird"
+#	    done
+#	done
+#    else
+#	if [ "$SPLASH_INITRD" = "/boot/initrd.splash" ]
+#	then
+#	    rm -f /boot/initrd.splash || true
+#	else
+#	    cp "$SPLASH_INITRD.orig" "$SPLASH_INITRD" || \
+#	    cp "$SPLASH_INITRD" "$SPLASH_INITRD.orig"
+#	fi
+#    
+#	for i in $RESOLUTIONS
+#	do
+#	    splash -s -f /etc/bootsplash/themes/current/config/bootsplash-$i.cfg >> "$SPLASH_INITRD"
+#	done
+#    fi
+#    
+#    # Update lilo if is used
+#    if [ -f /sbin/lilo ]
+#    then
+#	lilo 1>/dev/null 2>/dev/null
+#    fi
+#    
+#    echo "Using the $NEW_THEME bootsplash theme at $RESOLUTIONS resolution(s)."
+#fi
 
 
 # Update grub's menu.lst so it can show the splash when booting
@@ -129,7 +129,7 @@ if [ -f /boot/grub/menu.lst ] ;then
         # Add the splash option by default
         if ! grep -q "^# kopt=.* splash=silent" /boot/grub/menu.lst ;then
                 oldKopt=$(grep "^# kopt=.*" /boot/grub/menu.lst)
-                newKopt="$oldKopt splash=silent"
+                newKopt="$oldKopt splash=silent quiet"
                 sed "s~$oldKopt~$newKopt~g" /boot/grub/menu.lst > /boot/grub/menu.lst.sed
                 mv /boot/grub/menu.lst.sed /boot/grub/menu.lst
                 update-grub
@@ -151,31 +151,6 @@ if [ -f /boot/grub/menu.lst ] ;then
         fi
 
 fi
-
-### INFO:Bootplash is not a default for pluto right now, so we comment this
-#
-#    # Add 'splash=silent'
-#    koptOld=`cat /boot/grub/menu.lst | grep "^# kopt*"` 
-#    if [ "$(echo $koptOld | grep 'splash=')" == "" ] ;then
-#	koptNew="$koptOld splash=silent"  
-#        koptNew=${koptNew//=/\\=}
-#	koptOld=${koptOld//=/\\=} 
-#	sed "s=$koptOld=$koptNew=g" /boot/grub/menu.lst > /boot/grub/menu.lst.new
-#	mv /boot/grub/menu.lst.new /boot/grub/menu.lst
-#	update-grub
-#    fi
-#
-#    # Add vga=
-#    koptOld=`cat /boot/grub/menu.lst | grep "^# kopt*"` 
-#    if [ "$(echo $koptOld | grep 'vga=')" == "" ] ;then
-#	koptNew="$koptOld vga=0x311"
-#        koptNew=${koptNew//=/\\=}
-#	koptOld=${koptOld//=/\\=} 
-#	sed "s=$koptOld=$koptNew=g" /boot/grub/menu.lst > /boot/grub/menu.lst.new
-#	mv /boot/grub/menu.lst.new /boot/grub/menu.lst
-#	update-grub
-#    fi
-#
 
 db_stop
 
