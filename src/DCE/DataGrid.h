@@ -1,6 +1,7 @@
 #ifndef DATAGRID2_H
 #define DATAGRID2_H
 
+#include "../Orbiter/PlutoGraphic.h"
 #include "PlutoUtils/GraphicFormat.h"
 #include "Message.h"
 
@@ -22,7 +23,7 @@ namespace DCE
 	class DataGridCellSerializableData
 	{
 	public:
-		unsigned long m_GraphicLength, m_MessageLength, m_TextLength, m_ValueLength;
+		unsigned long m_GraphicLength, m_MessageLength, m_TextLength, m_ValueLength, m_ImagePathLength;
 		int m_AltColor;
 		enum eGraphicFormat m_GraphicFormat;
 		bool m_bSelectable;
@@ -35,7 +36,8 @@ namespace DCE
 	{
 	public:
 		Message *m_pMessage;
-		char *m_pGraphicData, *m_Text, *m_Value;
+		PlutoGraphic *m_pGraphic;
+		char *m_pGraphicData, *m_Text, *m_Value, *m_ImagePath;
 
 		// Unique value REQUIRED for multi-select lists.
 		DataGridCell(string Text, string Value="");
@@ -45,11 +47,13 @@ namespace DCE
 
 		// Will display this image in the cell
 		void SetImage(char *Data, int Length, enum eGraphicFormat Format);
+		void SetImagePath(char *ImagePath);
 		void SetValue(string Value);
 		// Will fire off this message when touched.
 		void SetMessage(Message *pMessage);
 		const char *GetText();
 		const char *GetValue();
+		const char *GetImagePath() { return m_ImagePath; };
 
 		virtual void ToData(unsigned long &Size, char* &Data);
 	};
