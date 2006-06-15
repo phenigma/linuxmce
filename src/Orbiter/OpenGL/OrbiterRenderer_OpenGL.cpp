@@ -124,6 +124,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::SolidRectangle(int x, int y, int width, int height, PlutoColor color)
 {
 
+
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
@@ -216,27 +217,27 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	Builder->SetTexture2D(0.0f, 0.0f);
 	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Left()), 
-		float(point.Y + rectTotal.Top()), 
-		float(OrbiterLogic()->m_iImageHeight / 2)
+		float(point.X + rectTotal.Left()-1), 
+		float(point.Y + rectTotal.Top()-1), 
+		0
 		);
 	Builder->SetTexture2D(1.0f, 0);
 	Builder->AddVertexFloat(
 		float(point.X + rectTotal.Right()+1), 
-		float(point.Y + rectTotal.Top()), 
-		float(OrbiterLogic()->m_iImageHeight / 2)
+		float(point.Y + rectTotal.Top()-1), 
+		0
 		);
 	Builder->SetTexture2D(0.0f, 1.0f);
 	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Left()), 
+		float(point.X + rectTotal.Left()-1), 
 		float(point.Y + rectTotal.Bottom()+1), 
-		float(OrbiterLogic()->m_iImageHeight / 2)
+		0
 		);
 	Builder->SetTexture2D(1.0f, 1.0f);
 	Builder->AddVertexFloat(
 		float(point.X + rectTotal.Right()+1), 
 		float(point.Y + rectTotal.Bottom()+1), 
-		float(OrbiterLogic()->m_iImageHeight / 2)
+		0
 		);
 
 	MeshContainer* Container = new MeshContainer();

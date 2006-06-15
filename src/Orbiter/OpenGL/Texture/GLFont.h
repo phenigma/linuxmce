@@ -15,10 +15,9 @@ class GLFont
 	bool Exists(std::string Style);
 	std::string StyleToString(int R, int G, int B, int Style);
 
-	int ScreenHeight_;
 	int Height_;
 public:
-	GLFont(int ScreenHeight);
+	GLFont();
 	~GLFont(void);
 
 	bool OpenFont(std::string FontName,	int Height);

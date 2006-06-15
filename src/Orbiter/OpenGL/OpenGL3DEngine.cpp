@@ -73,6 +73,8 @@ void OpenGL3DEngine::NewScreen()
 
 	OldLayer = CurrentLayer;
 	CurrentLayer = new MeshFrame();
+	MeshTransform Transform;
+	Transform.Translate(0, 0, GL.Height/2);
 	Desktop.AddChild(CurrentLayer);
 
 	g_pPlutoLogger->Write(LV_CRITICAL, "Current layer is now %p", CurrentLayer);

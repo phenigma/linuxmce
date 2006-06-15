@@ -18,7 +18,6 @@ GLFontRenderer::GLFontRenderer(int ScreenHeight,
 							   unsigned char B)						   
 {
 	GLFontManager* FontManager = GLFontManager::GetInstance();
-	FontManager->Setup(ScreenHeight);
 	Font = FontManager->GetFont(FontName, Height);
 	this->R_ = R;
 	this->G_ = G;

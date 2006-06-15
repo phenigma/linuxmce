@@ -14,6 +14,7 @@
 #include "Mesh/MeshPainter.h"
 
 ExtensionManager::ExtensionManager(void)
+: Width(0), Height(0)
 {
 }
 
@@ -86,7 +87,7 @@ void ExtensionManager::Resize(int Width, int Height)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 	
 	glScalef(1.f, -1.f, -1.f);
-	glTranslatef(-Width/2, -Height/2, 0.f);
+	glTranslatef(-Width/2, -Height/2, Height/2.f);
 }
 
 /*virtual*/ bool ExtensionManager::InitVideoMode(int Width, int Height, int Bpp, bool FullScreen)

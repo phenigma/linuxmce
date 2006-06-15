@@ -16,7 +16,6 @@ class GLFontTextureList
 	 * Create a texture list with all ASCII images
 	 */
 	std::map<char, OpenGLGraphic*> Letters;
-	int ScreenHeight_;
 
 	int Style_;
 	int FontHeight_;
@@ -27,7 +26,7 @@ class GLFontTextureList
 	bool Exists(unsigned char Letter);
 
 public:
-	GLFontTextureList(int ScreenHeight, TTF_Font* Font, 
+	GLFontTextureList(TTF_Font* Font, 
 		int Style, int FontHeight,
 		unsigned char R, 
 		unsigned char G,

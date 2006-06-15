@@ -11,11 +11,6 @@
 	return Instance_;
 }
 
-void GLFontManager::Setup(int ScreenHeight)
-{
-	ScreenHeight_ = ScreenHeight;
-}
-
 void GLFontManager::CleanUp()
 {
 
@@ -37,7 +32,7 @@ GLFont* GLFontManager::GetFont(std::string FontName, int Height)
 	std::string FontStr = FontToString(FontName, Height);
 	if(Exists(FontStr))
 		return Fonts[FontStr];
-	GLFont* Result = new GLFont(ScreenHeight_); 
+	GLFont* Result = new GLFont(); 
 	Result->OpenFont(FontName, Height);
 	Fonts[FontStr] = Result;
 	return Result;

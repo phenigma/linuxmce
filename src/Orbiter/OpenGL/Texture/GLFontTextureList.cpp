@@ -12,13 +12,12 @@
 #include "DCE/Logger.h"
 #include "../../SDL/PlutoSDLDefs.h"
 
-GLFontTextureList::GLFontTextureList(int ScreenHeight, TTF_Font* Font, 
+GLFontTextureList::GLFontTextureList(TTF_Font* Font, 
 									 int Style, int FontHeight,
 									 unsigned char R, 
 									 unsigned char G,
 									 unsigned char B) 
-	: ScreenHeight_(ScreenHeight),
-	  Font_(Font),
+	: Font_(Font),
 	  Style_(Style),
 	  FontHeight_(FontHeight)
 {
@@ -105,19 +104,19 @@ GLFontTextureList::~GLFontTextureList()
 		MB.SetTexture(Letters[CharPos]);
 		// Point 1
 		MB.SetTexture2D(0.0f, 0.0f);
-		MB.AddVertexFloat(float(X), float(Y), ScreenHeight_ / 2.0f);
+		MB.AddVertexFloat(float(X), float(Y), 0);
 
 		// Point 2
 		MB.SetTexture2D(0.0f, MaxV);
-		MB.AddVertexFloat(float(X), float(Y+PixelHgt), ScreenHeight_ / 2.0f);
+		MB.AddVertexFloat(float(X), float(Y+PixelHgt), 0);
 
 		// Point 3
 		MB.SetTexture2D(MaxU, 0.0f);
-		MB.AddVertexFloat(float(X+PixelLen), float(Y), ScreenHeight_ / 2.0f);
+		MB.AddVertexFloat(float(X+PixelLen), float(Y), 0);
 
 		// Point 4
 		MB.SetTexture2D(MaxU, MaxV);
-		MB.AddVertexFloat(float(X+PixelLen), float(Y+PixelHgt), ScreenHeight_ / 2.0f);
+		MB.AddVertexFloat(float(X+PixelLen), float(Y+PixelHgt), 0);
 
 		X+= PixelLen;
 		

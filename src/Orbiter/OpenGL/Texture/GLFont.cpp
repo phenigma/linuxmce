@@ -8,8 +8,8 @@
 #include "PlutoUtils/StringUtils.h"
 
 
-GLFont::GLFont(int ScreenHeight)
-: ScreenHeight_(ScreenHeight)
+GLFont::GLFont()
+: Font(NULL)
 {
 }
 
@@ -73,7 +73,7 @@ GLFontTextureList* GLFont::GetFontStyle(int Style, int R, int G, int B)
 	std::string StrStyle = StyleToString(R, G, B, Style);
 	if(Exists(StrStyle))
 		return Styles[StrStyle];
-	Styles[StrStyle] = new GLFontTextureList(ScreenHeight_, Font, Style, Height_, R, G, B);
+	Styles[StrStyle] = new GLFontTextureList(Font, Style, Height_, R, G, B);
 
 	return Styles[StrStyle];
 }
