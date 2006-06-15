@@ -707,10 +707,18 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 		sSql_Model += " AND DHCPDevice.VendorModelId='" + sVendorModelId + "'";
 
 	if( pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
-		// This may be a serial device.  If we already have a device on this port we will use it
-		sSql_Port += " AND (ComPort.IK_DeviceData='" + pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST] + "' OR Device.Disabled=1)";
+	{
+		if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_RS232_CONST )
+			// This is just RS232.  There's no way to tell if the user moved a device or not.  If there's still an active device on this port
+			// We can assume it's a match, since it would have been disabled if the user didn't remove it.  We don't want to always re-identify the same devices
+			sSql_Port += " AND ComPort.IK_DeviceData='" + pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST] + "' AND Device.Disabled=0";
+		else if( sSql_Model.size() )
+			// This may be a usb-serial device.  We have some identifying attributes, so if there's a similar device on another port that's disabled, it's a match--the user must have moved it
+			sSql_Port += " AND (ComPort.IK_DeviceData='" + pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST] + "' OR Device.Disabled=1)";
+	}
 
-	if( sSql_Model.size()==0 )
+	// If we have no defining characteristics, skip it, unless it's an rs232 and we're  going to scan for an existing device on this port
+	if( sSql_Model.size()==0 && (pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()!=COMMMETHOD_RS232_CONST || sSql_Port.size()==0)  )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d has no identifying attributes",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 		return false;
@@ -730,7 +738,8 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 					continue;  // It's not the same hard drive
 		}
 
-		if( DeviceMatchesCriteria(pRow_Device,pPnpQueueEntry) )
+		// Don't bother checking criteria if this isn't a DHCP device
+		if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==0 || DeviceMatchesCriteria(pRow_Device,pPnpQueueEntry) )
 		{
 			pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(pRow_Device->PK_Device_get());
 			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice( queue %d mac:%s already a device",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str());
