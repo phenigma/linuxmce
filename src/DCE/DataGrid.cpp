@@ -162,7 +162,7 @@ void DataGridCell::SetImage(char *Data, int Length, enum eGraphicFormat Format)
 	m_GraphicFormat = Format;
 }
 
-void DataGridCell::SetImagePath(char *ImagePath)
+void DataGridCell::SetImagePath(const char *ImagePath)
 {
 	delete m_ImagePath;
 
