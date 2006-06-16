@@ -5289,20 +5289,28 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deviceTemplatePicker.lang.php');
 
+	$from=@$_REQUEST['from'];
+	parse_str($from);
+
+	if(isset($type) && $type!=''){
+		$restrictToCategory=$categoryID;
+	}
+	
+	
 	$manufacturersArray=getAssocArray('Manufacturer','PK_Manufacturer','Description',$dbADO,'','ORDER BY Description ASC');
 	$deviceCategoryPicker=(isset($_REQUEST['deviceCategoryPicker']))?$_REQUEST['deviceCategoryPicker']:0;
 	$dtID=(isset($_REQUEST['dtID']))?$_REQUEST['dtID']:0;
 
 	switch (@$deviceCategoryPicker){
 		case 1:
-			$deviceCategoriesArray=getHierachicalCategories($dbADO);
+			$deviceCategoriesArray=getHierachicalCategories($dbADO,$restrictToCategory);
 			$deviceCategoryFormElement=pulldownFromArray($deviceCategoriesArray,'categoryID',$categoryID,'class="input_big" onChange="setDeviceCategory(-1);"');
 		break;
 		case 2:
-			$deviceCategoryFormElement=getdTree($categoryID,$dbADO);
+			$deviceCategoryFormElement=getdTree($categoryID,$dbADO,$restrictToCategory);
 		break;
 		default:
-			$deviceCategoriesArray=getAlphaCategories($dbADO);
+			$deviceCategoriesArray=getAlphaCategories($dbADO,$restrictToCategory);
 			$deviceCategoryFormElement=pulldownFromArray($deviceCategoriesArray,'categoryID',$categoryID,'class="input_big" onChange="setDeviceCategory(-1);"');
 	}
 
@@ -5330,6 +5338,7 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 	<form action="index.php" method="post" name="deviceTemplatePicker">
 		<input type="hidden" name="section" value="'.$section.'">
 		<input type="hidden" name="action" value="choose">
+		<input type="hidden" name="from" value="'.$_REQUEST['from'].'">
 	
 	<table align="center" border="0" cellpadding="2" cellspacing="0" width="550">';
 	if($returnValue==1){
@@ -5435,16 +5444,29 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 }
 
 // get an associative array with device categories, and in description there are also displayed the parents
-function getAlphaCategories($dbADO){
-	$categoriesArray=getAssocArray('DeviceCategory','PK_DeviceCategory','Description',$dbADO,'','ORDER BY Description ASC');
-	$categoriesWithParents=$categoriesArray;
-	$categoriesParents=getAssocArray('DeviceCategory','PK_DeviceCategory','FK_DeviceCategory_Parent',$dbADO,'','ORDER BY Description ASC');
+function getAlphaCategories($dbADO,$restrictToCategory=0){
 	
+	$filter='';
+	if($restrictToCategory!=0){
+		$restrictedCategories=getDescendantsForCategory($restrictToCategory,$dbADO);
+		$filter='WHERE PK_DeviceCategory IN ('.join(',',$restrictedCategories).')';
+	}
+
+	$categoriesArray=getAssocArray('DeviceCategory','PK_DeviceCategory','Description',$dbADO,'','ORDER BY Description ASC');
+	$categoriesWithParents=($restrictToCategory!=0)?array():$categoriesArray;
+	$categoriesParents=getAssocArray('DeviceCategory','PK_DeviceCategory','FK_DeviceCategory_Parent',$dbADO,$filter,'ORDER BY Description ASC');
+
 	foreach ($categoriesArray AS $cID=>$description){
 		$parents=array();
 		$parents=getDCParents($parents,$cID,$categoriesParents,$categoriesArray);
 		$parentSuffix=(count($parents)>0)?' < '.join(' < ',$parents):'';
-		$categoriesWithParents[$cID]=$description.$parentSuffix;
+		if($restrictToCategory!=0){
+			if(in_array($cID,$restrictedCategories)){
+				$categoriesWithParents[$cID]=$description.$parentSuffix;
+			}
+		}else{
+			$categoriesWithParents[$cID]=$description.$parentSuffix;
+		}
 	}
 
 	return $categoriesWithParents;
@@ -5460,23 +5482,34 @@ function getDCParents($parents,$cID,$categoriesParents,$categoriesArray){
 	return $parents;
 }
 
-function getHierachicalCategories($dbADO){
-	$categoriesHierarchical=array();
+function getHierachicalCategories($dbADO,$restrictToCategory=0){
+	$restrictedCategories=array();
+	if($restrictToCategory!=0){
+		$restrictedCategories=getDescendantsForCategory($restrictToCategory,$dbADO);
+	}	
 	
+	$categoriesHierarchical=array();
+
 	$categoriesArray=getAssocArray('DeviceCategory','PK_DeviceCategory','Description',$dbADO,'','ORDER BY FK_DeviceCategory_Parent ASC,Description ASC');
 	$categoriesParents=getAssocArray('DeviceCategory','PK_DeviceCategory','FK_DeviceCategory_Parent',$dbADO,'','ORDER BY Description ASC');
 
 	foreach ($categoriesParents AS $cID=>$parent){
 		if($parent==''){
-			$categoriesHierarchical[$cID]=$categoriesArray[$cID];
-			$categoriesHierarchical=getHierachicalChilds($categoriesHierarchical,$cID,$categoriesArray,$categoriesParents,1);
+			if($restrictToCategory!=0){
+				if(in_array($cID,$restrictedCategories)){
+					$categoriesHierarchical[$cID]=$categoriesArray[$cID];
+				}
+			}else{
+				$categoriesHierarchical[$cID]=$categoriesArray[$cID];
+			}
+			$categoriesHierarchical=getHierachicalChilds($categoriesHierarchical,$cID,$categoriesArray,$categoriesParents,$restrictedCategories,1);			
 		}
 	}
 
 	return $categoriesHierarchical;
 }
 
-function getHierachicalChilds($categoriesHierarchical,$pid,$categoriesArray,$categoriesParents,$level=0){
+function getHierachicalChilds($categoriesHierarchical,$pid,$categoriesArray,$categoriesParents,$restrictedCategories=array(),$level=0){
 	foreach ($categoriesParents AS $cID=>$parent){
 		if($parent==$pid){
 			$prefix='';
@@ -5484,8 +5517,10 @@ function getHierachicalChilds($categoriesHierarchical,$pid,$categoriesArray,$cat
 				$prefix.='&nbsp;&nbsp;&nbsp;&nbsp;';
 			}
 			
-			$categoriesHierarchical[$cID]=$prefix.$categoriesArray[$cID];
-			$categoriesHierarchical=getHierachicalChilds($categoriesHierarchical,$cID,$categoriesArray,$categoriesParents,$level+1);
+			if(count($restrictedCategories)==0 || in_array($cID,$restrictedCategories)){
+				$categoriesHierarchical[$cID]=$prefix.$categoriesArray[$cID];
+			}
+			$categoriesHierarchical=getHierachicalChilds($categoriesHierarchical,$cID,$categoriesArray,$categoriesParents,$restrictedCategories,$level+1);
 		}
 	}
 	
@@ -5493,9 +5528,14 @@ function getHierachicalChilds($categoriesHierarchical,$pid,$categoriesArray,$cat
 }
 
 // build a treeview with categories
-function getdTree($categoryID,$dbADO){
+function getdTree($categoryID,$dbADO,$restrictToCategory=0){
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+
+	$restrictedCategories=array();
+	if($restrictToCategory!=0){
+		$restrictedCategories=getDescendantsForCategory($restrictToCategory,$dbADO);
+	}
 
 	$categoriesArray=getAssocArray('DeviceCategory','PK_DeviceCategory','Description',$dbADO,'','ORDER BY FK_DeviceCategory_Parent ASC,Description ASC');
 	$categoriesParents=getAssocArray('DeviceCategory','PK_DeviceCategory','FK_DeviceCategory_Parent',$dbADO,'','ORDER BY Description ASC');
@@ -5503,8 +5543,12 @@ function getdTree($categoryID,$dbADO){
 	$jsNodes='';
 	foreach ($categoriesParents AS $cID=>$parent){
 		if($parent==''){
-			$jsNodes.='d.add('.$cID.',0,\''.$categoriesArray[$cID].'\',\'javascript:setDeviceCategory('.$cID.');\');';
-			$jsNodes=getsTreeChilds($jsNodes,$cID,$categoriesArray,$categoriesParents);
+			$url='';
+			if(count($restrictedCategories)==0 || in_array($cID,$restrictedCategories)){
+				$url='javascript:setDeviceCategory('.$cID.');';
+			}
+			$jsNodes.='d.add('.$cID.',0,\''.$categoriesArray[$cID].'\',\''.$url.'\');';
+			$jsNodes=getsTreeChilds($jsNodes,$cID,$categoriesArray,$categoriesParents,$restrictedCategories);
 		}
 	}
 
@@ -5535,12 +5579,14 @@ function getdTree($categoryID,$dbADO){
 	return $out;
 }
 
-function getsTreeChilds($jsNodes,$pid,$categoriesArray,$categoriesParents){
+function getsTreeChilds($jsNodes,$pid,$categoriesArray,$categoriesParents,$restrictedCategories=array()){
 
 	foreach ($categoriesParents AS $cID=>$parent){
 		if($parent==$pid){
-			$jsNodes.='d.add('.$cID.','.$parent.',\''.addslashes($categoriesArray[$cID]).'\',\'javascript:setDeviceCategory('.$cID.');\');';
-			$jsNodes=getsTreeChilds($jsNodes,$cID,$categoriesArray,$categoriesParents);
+			if(count($restrictedCategories)==0 || in_array($cID,$restrictedCategories)){
+				$jsNodes.='d.add('.$cID.','.$parent.',\''.addslashes($categoriesArray[$cID]).'\',\'javascript:setDeviceCategory('.$cID.');\');';
+			}
+			$jsNodes=getsTreeChilds($jsNodes,$cID,$categoriesArray,$categoriesParents,$restrictedCategories);
 		}
 	}
 	
