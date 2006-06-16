@@ -7,4 +7,6 @@ $TEXT_CREATE_NEW_COMMAND_CONST='Create new command';
 $TEXT_CATEGORY_REQUIRED_CONST='Please select a category';
 $TEXT_DESCRIPTION_REQUIRED_CONST='Please enter a description';
 $TEXT_COMMAND_GROUP_UPDATED_CONST='Command Group updated';
+$TEXT_OTHER_DEVICE_TEMPLATES_WHO_USE_DCG_CONST='Other device templates who use this command group';
+$TEXT_CHANGING_CAN_BREAK_OTHERS_CONST='WARNING: changing this command group can break other device templates who are using it.';
 ?>

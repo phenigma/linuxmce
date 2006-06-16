@@ -26,6 +26,10 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 			$rs->Close();
 		}
 
+		$otherTemplates=getAssocArray('DeviceTemplate_DeviceCommandGroup','PK_DeviceTemplate','CONCAT(\'#\',PK_DeviceTemplate,\' \',DeviceTemplate.Description) AS Description',$dbADO,'INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCommandGroup='.$commandGroupID.' AND FK_DeviceTemplate!='.$deviceID,'ORDER BY DeviceTemplate.Description ASC');
+		$warning=(count($otherTemplates)>0)?$TEXT_CHANGING_CAN_BREAK_OTHERS_CONST:'';
+		$otherTemplatesText=(count($otherTemplates)>0)?join(', ',array_values($otherTemplates)):'N/A';
+		
 		$out.='
 		<script>
 			function windowOpen(locationA,attributes) {
@@ -40,13 +44,18 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 		<input type="hidden" name="commandGroupID" value="'.$commandGroupID.'">
 		<input type="hidden" name="from" value="'.$from.'">
 			<h3>'.$TEXT_EDIT_COMMAND_GROUP_CONST.' #'.$commandGroupID.'</h3>
-
+			<table width="100%">
+				<tr>
+					<td bgcolor="black"><img src="include/images/spacer.gif" border="0" height="1" width="1"></td>
+				</tr>
+			</table>
+		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		
 			<table>			
 				<tr>
-					<td>'.$TEXT_DEVICE_CATEGORY_CONST.':</td>
+					<td><B>'.$TEXT_DEVICE_CATEGORY_CONST.'</B></td>
 					<td>
 						<select name="deviceCategory">
 						<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>
@@ -64,11 +73,17 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td>'.$TEXT_DESCRIPTION_CONST.' *</td>
+					<td><B>'.$TEXT_DESCRIPTION_CONST.' *</B></td>
 					<td>
 						<input name="Description" value="'.stripslashes($commandGroupName).'" type="text" size="20"> <input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOVE_COMMANDS_FOR_CG_CONST.'" onClick="windowOpen(\'index.php?section=commandsPicker&dtID='.$deviceID.'&commandGroupID='.$commandGroupID.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">
 					</td>
 				</tr>		
+				<tr>
+					<td colspan="2"><B>'.$TEXT_OTHER_DEVICE_TEMPLATES_WHO_USE_DCG_CONST.': '.$otherTemplatesText.'</td>
+				</tr>					
+				<tr>
+					<td colspan="2" class="err"><B>'.$warning.'</b></td>
+				</tr>					
 				<tr>
 					<td colspan="2">		
 						<fieldset>

@@ -13,6 +13,18 @@ function editCommand($output,$dbADO) {
 						
 	if ($action=='form') {		
 		$commandID = (int)@$_REQUEST['commandID'];
+
+		// get device templates who are using this command
+		$res=$dbADO->Execute('
+			SELECT DISTINCT FK_DeviceTemplate, DeviceTemplate.Description
+			FROM DeviceCommandGroup_Command 
+			INNER JOIN DeviceTemplate_DeviceCommandGroup ON DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup=DeviceCommandGroup_Command.FK_DeviceCommandGroup
+			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			WHERE FK_Command=?',$commandID);
+		$deviceTemplatesWhoUseCommand=array();
+		while($row=$res->FetchRow()){
+			$deviceTemplatesWhoUseCommand[]='#'.$row['FK_DeviceTemplate'].' '.$row['Description'];
+		}
 		
 		$querySelectCommand = "
 			SELECT  * FROM
@@ -61,19 +73,31 @@ function editCommand($output,$dbADO) {
 		<input type="hidden" name="commandID" value="'.$commandID.'">
 		<input type="hidden" name="from" value="'.$from.'">
 			<h3>'.$TEXT_EDIT_COMMAND_CONST.' #'.$commandID.'</h3>
+			<table width="100%">
+				<tr>
+					<td bgcolor="black"><img src="include/images/spacer.gif" border="0" height="1" width="1"></td>
+				</tr>
+			</table>
+				
 			<table>			
 				<tr>
-					<td>'.$TEXT_COMMAND_CONST.' *	</td>
-					<td><input type="text" size="25" name="commandDescription" value="'.stripslashes($commandDescription).'"></td>
+					<td><B>'.$TEXT_COMMAND_CONST.' *</B>	</td>
+					<td><input type="text" size="25" name="commandDescription" value="'.stripslashes($commandDescription).'" class="input_big"></td>
 				</tr>
 				<tr>
-					<td>'.$TEXT_COMMAND_CATEGORY_CONST.' *</td>
+					<td><B>'.$TEXT_COMMAND_CATEGORY_CONST.' *</B></td>
 					<td>
-						<select name="commandCategs" >
+						<select name="commandCategs" class="input_big">
 						'.$commandsCategsTxt.'
 						</select>
 					</td>
 				</tr>
+				<tr>
+					<td><B>'.$TEXT_DEVICE_TEMPLATES_WHO_USE_COMMAND_CONST.' *</B></td>
+					<td class="'.((count($deviceTemplatesWhoUseCommand)>0)?'err':'').'">
+						'.join(', ',$deviceTemplatesWhoUseCommand).'
+					</td>
+				</tr>		
 				<tr><td colspan="2">
 				<fieldset>
 					<legend>'.$TEXT_PARAMETERS_CONST.'</legend>
