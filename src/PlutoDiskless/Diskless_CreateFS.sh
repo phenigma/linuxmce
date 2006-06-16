@@ -51,13 +51,23 @@ InstallKernel()
 	rm -rf lib/modules/"$KERNEL_VERSION"
 
 	cp "$kernel" tmp/
+
+	cp /usr/pluto/templates/yaird.Default.cfg /$DlPath/etc/yaird/Default.cfg
+
 	mount -t proc proc proc
+	mount sys sys -t sysfs
 	if ! Kout=$(echo | chroot . dpkg -i "/tmp/${kernel##*/}" 2>&1); then
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to install kernel '$KERNEL_VERSION' on '$IP'"
 		echo "Kernel package output was:"
 		echo "$Kout"
 	fi
+
+	## Hard way to do the inird
+	rm /boot/initrd.img-`uname -r`
+	yaird --output yaird --output /boot/initrd.img-`uname -r`
+
 	umount ./proc
+	umount ./sys
 }
 
 Upgrade_Monster()
