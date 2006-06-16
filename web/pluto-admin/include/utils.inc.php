@@ -1287,7 +1287,7 @@ function displayCriteria($FK_CriteriaParmNesting,$eventHandlerID,$installationID
 				<td>&nbsp;&nbsp;';
 			$out.='
 				<select name="CriteriaParmID_'.$rowCP['PK_CriteriaParm'].'" onChange="document.editCriteria.changedCP.value='.$rowCP['PK_CriteriaParm'].';document.editCriteria.submit();">
-					<option value="0">- Please select -</option>';
+					';
 				foreach ($cplArray AS $cplID=>$cplDescription){
 					$out.='<option value="'.$cplID.'" '.(($rowCP['FK_CriteriaParmList']==$cplID)?'selected':'').'>'.$cplDescription.'</option>';
 				}

@@ -19,8 +19,7 @@ function createAdvancedEvent($output,$dbADO) {
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		<form action="index.php" method="post" name="createAdvancedEvent">
 		<input type="hidden" name="section" value="createAdvancedEvent">
-		<input type="hidden" name="action" value="add">
-		<div align="center"><h3>'.$TEXT_CREATE_ADVANCED_EVENT_CONST.'</h3></div>';
+		<input type="hidden" name="action" value="add">';
 		
 		$queryEvents='
 			SELECT Event.*, EventCategory.Description AS EventCategory
@@ -29,16 +28,16 @@ function createAdvancedEvent($output,$dbADO) {
 			ORDER By EventCategory.Description ASC, Event.Description ASC';
 		$resEvents=$dbADO->Execute($queryEvents);
 		$out.='
-			<table align="center">
+			<table>
 			<tr>
 				<td colspan="3">&nbsp;</td>
 			</tr>
 			<tr>
-				<td><B>'.$TEXT_DESCRIPTION_CONST.'</B>:</td>
+				<td><B>'.$TEXT_DESCRIPTION_CONST.'</B>*</td>
 				<td colspan="2"><input type="text" name="Description" value=""></td>
 			</tr>		
 			<tr>
-				<td><B>'.$TEXT_NEW_EVENT_CONST.'</B>: </td>
+				<td><B>'.$TEXT_NEW_EVENT_CONST.'</B> </td>
 				<td colspan="2"><select name="event">
 					<option value="0">- '.$TEXT_PLEASE_SELECT_AN_EVENT_CONST.' -</option>';
 		$optgroup='';
@@ -58,6 +57,7 @@ function createAdvancedEvent($output,$dbADO) {
 		$out.='
 		</table>
 		</form>
+		<em>'.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 		<script>
 		 	var frmvalidator = new formValidator("createAdvancedEvent");			
  			frmvalidator.addValidation("Description","req","'.$TEXT_PLEASE_ENTER_THE_DESCRIPTION_CONST.'");
@@ -78,6 +78,8 @@ function createAdvancedEvent($output,$dbADO) {
 		header("Location: index.php?section=editEventCommands&ehID=$ehID");
 	}
 	
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_CREATE_ADVANCED_EVENT_CONST);
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_CREATE_ADVANCED_EVENT_CONST);			
 	$output->output();

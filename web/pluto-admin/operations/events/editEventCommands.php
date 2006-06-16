@@ -51,12 +51,11 @@ function editEventCommands($output,$dbADO) {
 		<input type="hidden" name="action" value="update">
 		<input type="hidden" name="ehID" value="'.$eventHandlerID.'">
 		
-		<div align="center"><h3>'.$TEXT_EDIT_EVENT_COMMANDS_CONST.'</h3></div>
 		<table border="0" align="center">
 		';
 		$out.='
 			<tr bgcolor="#E7E7E7">
-				<td>'.$TEXT_DESCRIPTION_CONST.':</td>
+				<td><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 				<td>'.$rowEH['Description'].'</td>
 			</tr>';
 
@@ -163,7 +162,7 @@ function editEventCommands($output,$dbADO) {
 			
 			$out.='
 				<tr>
-					<td><B>'.$TEXT_DEVICE_CONST.'</B>:</td>
+					<td><B>'.$TEXT_DEVICE_CONST.'</B></td>
 					<td colspan="2"><select name="device" onChange="document.editEventCommands.action.value=\'form\';document.editEventCommands.submit()">
 							<option value="">'.$TEXT_SELECT_A_DEVICE_CONST.'</option>';
 				$queryDevice='
@@ -308,7 +307,9 @@ function editEventCommands($output,$dbADO) {
 		
 		header('Location: index.php?section=editEventCommands&ehID='.$eventHandlerID.'&msg='.$TEXT_EVENT_HANDLER_UPDATED_CONST);
 	}
-	
+
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_EDIT_EVENT_COMMANDS_CONST);	
 	$output->setNavigationMenu(array($TEXT_ADVANCED_EVENTS_DEVICE_CONST=>'index.php?section=advancedEvents'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_EVENT_COMMANDS_CONST);

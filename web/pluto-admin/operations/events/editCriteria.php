@@ -30,7 +30,7 @@ function editCriteria($output,$dbADO) {
 		
 		$out.='
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
-		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
+		
 		<form action="index.php" method="post" name="editCriteria">
 		<input type="hidden" name="section" value="editCriteria">
 		<input type="hidden" name="action" value="update">
@@ -39,7 +39,7 @@ function editCriteria($output,$dbADO) {
 		
 		if($FK_CriteriaParmNesting>0){
 			$out.='
-		<div align="center"><h3>'.$TEXT_EDIT_CRITERIA_CONST.'</h3></div>
+		
 		<table border="0" align="center">';
 		$out.='
 			<tr>
@@ -76,12 +76,17 @@ function editCriteria($output,$dbADO) {
 		if(isset($_GET['dcpID'])){
 			$dcpID=$_GET['dcpID'];
 			$dbADO->Execute('DELETE FROM CriteriaParm WHERE PK_CriteriaParm=?',$dcpID);
-			header('Location: index.php?section=editCriteria&ehID='.$eventHandlerID.'&msg=The criteria was deleted');
+			header('Location: index.php?section=editCriteria&ehID='.$eventHandlerID.'&msg='.urlencode($TEXT_CRITERIA_DELETED_CONST));
+			exit();
 		}
 	
 		if(isset($_REQUEST['fkCPN'])){
 			$fkCPN=$_REQUEST['fkCPN'];
-			$dbADO->Execute('INSERT INTO CriteriaParm (FK_CriteriaParmNesting) VALUES(?)',$fkCPN);
+			$CriteriaParmListArray=array_keys(getAssocArray('CriteriaParmList','PK_CriteriaParmList','Description',$dbADO,'','ORDER BY Description ASC LIMIT 0,1'));
+			if(count($CriteriaParmListArray)==0){
+				error_redirect('No criteria parm list available.','index.php?section=editCriteria&ehID='.$eventHandlerID);
+			}
+			$dbADO->Execute('INSERT INTO CriteriaParm (FK_CriteriaParmNesting,FK_CriteriaParmList) VALUES(?,?)',array($fkCPN,$CriteriaParmListArray[0]));
 		}
 		
 		$changedCP=(int)@$_POST['changedCP'];
@@ -133,6 +138,8 @@ function editCriteria($output,$dbADO) {
 		header('Location: index.php?section=editCriteria&ehID='.$eventHandlerID.'&msg='.$TEXT_CRITERIA_UPDATED_CONST);
 	}
 	
+	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
+	$output->setPageTitle($TEXT_EDIT_CRITERIA_CONST);	
 	$output->setNavigationMenu(array($TEXT_ADVANCED_EVENTS_CONST=>'index.php?section=advancedEvents'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_CRITERIA_CONST);	
