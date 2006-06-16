@@ -129,6 +129,9 @@ Upgrade_Essential()
 		pluto-boot-scripts=2.0.0.36
 		lsb-base
 		module-init-tools=3.2.2
+		yaird
+		libparse-recdescent-perl
+		libhtml-template-perl
 	"
 	local NeededReq=""
 	local Pkg Name ReqVer InstVer InstState
