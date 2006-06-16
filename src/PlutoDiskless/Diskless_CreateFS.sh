@@ -56,7 +56,7 @@ InstallKernel()
 
 	mount -t proc proc proc
 	mount sys sys -t sysfs
-	if ! Kout=$(echo | chroot . dpkg -i "/tmp/${kernel##*/}" 2>&1); then
+	if ! Kout=$(echo | chroot . dpkg -i --force-all "/tmp/${kernel##*/}" 2>&1); then
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to install kernel '$KERNEL_VERSION' on '$IP'"
 		echo "Kernel package output was:"
 		echo "$Kout"
