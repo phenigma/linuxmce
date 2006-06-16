@@ -532,6 +532,7 @@ void OrbiterRenderer_SDL::EventLoop()
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL::CaptureRelativeMovements() 
 {
+    g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::CaptureRelativeMovements()");
 	m_bRelativeMode = true;
 
 //#ifndef WIN32 // linux
@@ -545,10 +546,12 @@ void OrbiterRenderer_SDL::CaptureRelativeMovements()
     // both keyboard and mouse
 	SDL_WM_GrabInput(SDL_GRAB_ON);
     SDL_ShowCursor(SDL_DISABLE);
+    g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::CaptureRelativeMovements() : done");
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL::ReleaseRelativeMovements()
 {
+    g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::ReleaseRelativeMovements()");
 	m_bRelativeMode = false;
 
     // warning: incompatible with constrain-mouse in linux
@@ -562,5 +565,6 @@ void OrbiterRenderer_SDL::ReleaseRelativeMovements()
 //    }
 //#endif
     SDL_ShowCursor(SDL_ENABLE);
+    g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::ReleaseRelativeMovements() : done");
 }
 //-----------------------------------------------------------------------------------------------------
