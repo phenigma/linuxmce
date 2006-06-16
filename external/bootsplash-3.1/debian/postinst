@@ -56,6 +56,12 @@ esac
 #fi
 
 
+if [ ! -e "$THEME_SYMLINK" ] ;then
+	db_get shared/bootsplash-theme
+	NEW_THEME="$RET"
+
+	ln -s /etc/bootsplash/themes/`echo $NEW_THEME | sed -e 's/^bootsplash-theme-//g;'` $THEME_SYMLINK || get_new_theme
+fi
 
 #if [ ! -e "$THEME_SYMLINK" ]
 #then
