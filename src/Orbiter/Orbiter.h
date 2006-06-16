@@ -1797,7 +1797,7 @@ light, climate, media, security, telecom */
 		~NeedToRender();
 
 		static void NeedToChangeScreens( class Orbiter *pOrbiter, class ScreenHistory *pScreenHistory);
-		class ScreenHistory *m_pScreenHistory_get();
+		static class ScreenHistory *m_pScreenHistory_get();
 	};
 
 	//------------------------------------------------------------------------

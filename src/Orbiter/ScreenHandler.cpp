@@ -497,6 +497,12 @@ void ScreenHandler::SCREEN_Computing(long PK_Screen)
 	ScreenHandlerBase::SCREEN_Computing(PK_Screen);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Computing_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::Computing_DatagridSelected, new DatagridCellBackData());
+	if( m_pOrbiter->m_sActiveApplication_Description.size() )
+	{
+		m_pOrbiter->CMD_Show_Object( NeedToRender::m_pScreenHistory_get()->GetObj()->m_ObjectID + "." TOSTRING(DESIGNOBJ_butResumeControl_CONST),0,"","","1");
+		m_pOrbiter->CMD_Show_Object(NeedToRender::m_pScreenHistory_get()->GetObj()->m_ObjectID + "." TOSTRING(DESIGNOBJ_objExitAppOnOSD_CONST),0,"","","1");
+		m_pOrbiter->CMD_Set_Text(NeedToRender::m_pScreenHistory_get()->GetObj()->m_ObjectID,m_pOrbiter->m_sActiveApplication_Description,TEXT_STATUS_CONST);
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
@@ -521,20 +527,25 @@ bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 		m_pOrbiter->m_sActiveApplication_Description = StringUtils::Tokenize(pCellInfoData->m_sValue,"\t",pos);
 		string sBinary = StringUtils::Tokenize(pCellInfoData->m_sValue,"\t",pos);
 		string sArguments = pos<pCellInfoData->m_sValue.size() ? pCellInfoData->m_sValue.substr(pos) : "";
-/*
+
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_AppServer,
 			sBinary,"generic-app",sArguments,"","",false,false,true);
 		
 		if( m_pOrbiter->m_dwPK_Device != m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter )  // Not us
 		{
-			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,0,
-				StringUtils::itos(device_osd),"","",false,false);
+			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,0,
+				StringUtils::itos(PK_DesignObj_OSD),"","",false,false);
 			CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_DesignObj.m_pMessage);
-			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(remote),"","",fales,false);
+
+			DCE::CMD_Set_Active_Application CMD_Set_Active_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,
+				m_pOrbiter->m_sActiveApplication_Description,m_pOrbiter->m_sActiveApplication_Window);
+			CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Active_Application.m_pMessage);
+
+			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(PK_DesignObj_Remote),"","",false,false);
 		}
 		else
-			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(device_osd),"","",fales,false);
-			*/
+			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(PK_DesignObj_OSD),"","",false,false);
+		m_pOrbiter->SendCommand(CMD_Spawn_Application);
 	}
 
 	return false;
