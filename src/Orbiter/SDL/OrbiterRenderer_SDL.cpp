@@ -178,12 +178,14 @@ void OrbiterRenderer_SDL::Configure()
 	    }
 	    Window parent = GetParentWnd( info.info.x11.display, info.info.x11.window );
 	    Window grandparent = GetParentWnd( info.info.x11.display, parent );
+	    Window ggrandparent = GetParentWnd( info.info.x11.display, grandparent );
 
 		g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_SDL(): setting transparency");
 		
 		SetWindowTransparency(info.info.x11.display, info.info.x11.window, 0.5);
 		SetWindowTransparency(info.info.x11.display, parent, 0.5);
 		SetWindowTransparency(info.info.x11.display, grandparent, 0.5);
+		SetWindowTransparency(info.info.x11.display, ggrandparent, 0.5);
 	}
 #endif
 }
