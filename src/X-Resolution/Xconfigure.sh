@@ -104,9 +104,8 @@ if [[ "$Defaults" == y ]]; then
 elif [[ -n "$UpdateVideoDriver" && "$DisplayDriver" != "$CurrentDisplayDriver" ]]; then
 	awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}
-else
-	/usr/pluto/bin/X-UpdateModules.sh --conffile "$ConfigFile"
 fi
+/usr/pluto/bin/X-UpdateModules.sh --conffile "$ConfigFile"
 
 # Test detected display driver
 # Don't test if driver is vesa (assumption: always works) or current driver (assumption: already tested and works)
