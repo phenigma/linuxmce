@@ -9,6 +9,7 @@
 #endif
 
 #include "wrapper_x11.h"
+
 #ifdef USE_DEBUG_CODE
 #include "define_all.h"
 #else
@@ -174,17 +175,23 @@ X11wrapper::X11wrapper(Display * pDisplay/*=NULL*/)
         Assign_Display(pDisplay);
     if (! g_bNoErrorHandler)
         ErrorHandler_Set();
+#ifdef USE_XDGA
+    _COND(XDGA_Init());
+#endif // USE_XDGA
 }
 
 X11wrapper::~X11wrapper()
 {
-    _LOG_NFO();
+    _LOG_NFO("pDisplay==%p", v_pDisplay);
+#ifdef USE_XDGA
+    _COND(XDGA_Exit());
+#endif // USE_XDGA
     Clean_Exit();
 }
 
 bool X11wrapper::IsInitialized()
 {
-    _LOG_NFO();
+    _LOG_NFO("pDisplay==%p", v_pDisplay);
     return (v_pDisplay != NULL);
 }
 
@@ -800,11 +807,13 @@ bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY, bool bRelative/*=fals
     X11_Locker x11_locker(v_pDisplay);
     do
     {
+        if (bRelative || !bRelative) break;
         if (bRelative)
         {
-            //XDGAMotionEvent xdgamotionevent;
-            //XDGAEvent xdgaevent;
-            //XDGASelectInput(GetDisplay(), GetScreen(), PointerMotionMask | PointerMotionHintMask);
+#ifdef USE_XDGA
+            XDGA_Mouse_GetPosition(nPosX, nPosY);
+            _LOG_NFO("nPosX==%d, nPosY==%d", nPosX, nPosY);
+#endif // USE_XDGA
         }
         else
         {
