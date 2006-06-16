@@ -6,8 +6,31 @@ CONFIG
 		#OPTIONAL MODULE fbcon
 		INPUT
 		MODULE		mousedev
-		MODULE		evdev		
-		NETWORK
+		MODULE		evdev
+
+		# Try blindly to load network interface cards
+		MODULE ne
+		MODULE 3c509
+		MODULE 3c59x
+		MODULE 8139cp
+		MODULE 8139too
+		MODULE dmfe
+		MODULE e100
+		MODULE eepro100
+		MODULE e1000
+		MODULE eexpress
+		MODULE epic100
+		MODULE hp100
+		MODULE ne2k-pci
+		MODULE sis900
+		MODULE tlan
+		MODULE de4x5
+		MODULE tulip
+		MODULE via-rhine
+		MODULE yellowfin
+		MODULE forcedeth
+		
+#		NETWORK
 		MODULE		nfs
 		MODULE		af_packet
 		TEMPLATE	nfsstart
