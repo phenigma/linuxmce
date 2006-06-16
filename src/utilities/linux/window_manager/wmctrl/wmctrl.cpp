@@ -311,6 +311,7 @@ int WmCtrl::LowLevelCommand(char action, Options cmd_options, std::list<WinInfo>
         fputs("Cannot open display.\n", stderr);
         return EXIT_FAILURE;
     }
+    p_verbose("WmCtrl::LowLevelCommand() : opened pDisplay=%p", disp)
     XLockDisplay(disp);
 
     switch (action)
@@ -374,6 +375,7 @@ int WmCtrl::LowLevelCommand(char action, Options cmd_options, std::list<WinInfo>
     XUnlockDisplay(disp);
     if (disp)
         XCloseDisplay(disp);
+    p_verbose("WmCtrl::LowLevelCommand() : closed pDisplay=%p", disp)
     return ret;
 }
 
