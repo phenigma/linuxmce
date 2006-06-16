@@ -11,12 +11,12 @@
 using namespace DCE;
 
 OpenGL3DEngine::OpenGL3DEngine()
-: OldLayer(NULL),
-  CurrentLayer(NULL),
-  Quit(false),
-  HighLight(NULL),
-  Selected(NULL),
-  SceneMutex("scene mutex")
+	: OldLayer(NULL),
+	CurrentLayer(NULL),
+	Quit(false),
+	HighLightFrame(NULL),
+	SelectedFrame(NULL),
+	SceneMutex("scene mutex")
 {
 	if(TTF_Init()==-1) {
 		printf("Error on TTF_Init: %s\n", TTF_GetError());
@@ -44,7 +44,8 @@ void OpenGL3DEngine::Paint()
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	if(NULL == CurrentLayer)
 		return;
-	TextureManager::Instance()-> ConvertImagesToTextures();
+	TextureManager::Instance()->ReleaseTextures();
+	TextureManager::Instance()->ConvertImagesToTextures();
 
 	if(CurrentLayer->Children.size() == 0)
 	{
@@ -52,51 +53,43 @@ void OpenGL3DEngine::Paint()
 		return;
 	}
 
-	GL.SetClearColor(.0f, .00f, 0.0f);
+	GL.SetClearColor(.0f, .0f, 0.0f);
 	GL.ClearScreen(true, false);
 	GL.EnableZBuffer(false);
 
 	//TODO: need desktop for effects Desktop
 	
-	/*MeshTransform Transform;
-	Transform.SetIdentity();
-	Transform.SetIdentity();
-	Transform.Translate(0, 0, GL.Height/2);
-	Transform.RotateY(Angle);
-	CurrentLayer->ApplyTransform(Transform);
-	*/
-/*
-
-	Transform.ApplyTranslate(-GL.Width/2, -GL.Height/2, -GL.Width/2);
-	static float Angle = -2.3f;
-	Angle += 2.3f;
-	Transform.ApplyRotateY(45+Angle);
-	Transform.ApplyTranslate(GL.Width/2, GL.Height/2, GL.Width/2);
-	CurrentLayer->SetTransform(Transform);
-	*/
 	MeshTransform Transform;
-	Desktop.Paint(Transform);
 
+	Transform.ApplyTranslate(-GL.Width/2, 0, -(GL.Width)/2);
+	int Tick;
+	if(this->AnimationRemain)
+	{
+		Tick = GetTick() - this->StartTick;
+		if(Tick>5*90)
+			AnimationRemain = false;
+	}
+	else
+		Tick = 5*90;
+	
+		Transform.ApplyRotateY(Tick / 5);
+		//Transform.ApplyTranslate(0, 0, GL.Width/2);
+
+	if(OldLayer)
+		OldLayer->SetTransform(Transform);
+	
+	Transform.ApplyRotateY(-90);
+	CurrentLayer->SetTransform(Transform);
+
+	Transform.SetIdentity();
+	Transform.Translate(0, -GL.Height/2, (GL.Width+GL.Height)/2);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+	Desktop.Paint(Transform);
 	g_pPlutoLogger->Write(LV_CRITICAL, "Painting using layer %p, num layers %d", CurrentLayer, 
 		Desktop.Children.size());
 
 	GL.Flip();
-}
-
-void OpenGL3DEngine::NewScreen()
-{
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
-
-	if(CurrentLayer)
-		Desktop.RemoveChild(CurrentLayer);
-
-	CurrentLayer = new MeshFrame();
-	MeshTransform Transform;
-	Transform.Translate(-GL.Width/2, -GL.Height/2, GL.Height/2);
-	Desktop.SetTransform(Transform);
-	Desktop.AddChild(CurrentLayer);
-
-	g_pPlutoLogger->Write(LV_CRITICAL, "Current layer is now %p", CurrentLayer);
 }
 
 void OpenGL3DEngine::AddMeshFrameToDesktop(MeshFrame* Frame)
@@ -127,32 +120,43 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(MeshFrame* Frame)
 		float(SelectedArea->Left()/GL.Width),
 		float(SelectedArea->Top()/GL.Height)
 		);
-	MB.AddVertexFloat(SelectedArea->Left(), SelectedArea->Top(), 0);
-
-	MB.SetTexture2D(
-		float(SelectedArea->Left()/GL.Width),
-		float(SelectedArea->Bottom()/GL.Height)
-		);
-	MB.AddVertexFloat(SelectedArea->Left(), SelectedArea->Bottom(), 0);
+	MB.AddVertexFloat(
+		float(SelectedArea->Left()), 
+		float(SelectedArea->Top()), 
+		0);
 
 	MB.SetTexture2D(
 		float(SelectedArea->Right()/GL.Width),
 		float(SelectedArea->Top()/GL.Height)
 		);
-	MB.AddVertexFloat(SelectedArea->Right(), SelectedArea->Top(), 0);
+	MB.AddVertexFloat(
+		float(SelectedArea->Right()),
+		float(SelectedArea->Top()),
+		0);
+
+	MB.SetTexture2D(
+		float(SelectedArea->Left()/GL.Width),
+		float(SelectedArea->Bottom()/GL.Height)
+		);
+	MB.AddVertexFloat(
+		float(SelectedArea->Left()),
+		float(SelectedArea->Bottom()),
+		0);
 
 	MB.SetTexture2D(
 		float(SelectedArea->Right()/GL.Width),
 		float(SelectedArea->Bottom()/GL.Height)
 		);
 
-	MB.AddVertexFloat(SelectedArea->Right(), SelectedArea->Bottom(), 0);
+	MB.AddVertexFloat(
+		float(SelectedArea->Right()), 
+		float(SelectedArea->Bottom()),
+		0);
 
-	CurrentLayer->RemoveChild(Selected);
-	delete Selected;
-	Selected = new MeshFrame();
-	Selected->SetMeshContainer(MB.End());
-	CurrentLayer->AddChild(Selected);
+	UnSelect();
+	SelectedFrame = new MeshFrame();
+	SelectedFrame->SetMeshContainer(MB.End());
+	CurrentLayer->AddChild(SelectedFrame);
 }
 
 /*virtual*/ void OpenGL3DEngine::Highlight(PlutoRectangle* HightlightArea, OpenGLGraphic* HighSurface)
@@ -160,12 +164,9 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(MeshFrame* Frame)
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	if(NULL == CurrentLayer)
 		return;
-	CurrentLayer->RemoveChild(HighLight);
-	delete HighLight;
 
 	if(NULL == HightlightArea)
 		return;
-	HighLight = new MeshFrame();
 	MeshBuilder MB;
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
 	MB.SetTexture(HighSurface);
@@ -175,31 +176,84 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(MeshFrame* Frame)
 		float(HightlightArea->Left()/GL.Width),
 		float(HightlightArea->Top()/GL.Height)
 		);
-	MB.AddVertexFloat(HightlightArea->Left(), HightlightArea->Top(), 0);
+	MB.AddVertexFloat(
+		float(HightlightArea->Left()), 
+		float(HightlightArea->Top()), 
+		0);
+
+	MB.SetTexture2D(
+		float(HightlightArea->Right()/GL.Width),
+		float(HightlightArea->Top()/GL.Height)
+		);
+	MB.AddVertexFloat(
+		float(HightlightArea->Right()),
+		float(HightlightArea->Top()),
+		0);
 
 	MB.SetTexture2D(
 		float(HightlightArea->Left()/GL.Width),
 		float(HightlightArea->Bottom()/GL.Height)
 		);
-	MB.AddVertexFloat(HightlightArea->Left(), HightlightArea->Bottom(), 0);
-	
-	MB.SetTexture2D(
-		float(HightlightArea->Right()/GL.Width),
-		float(HightlightArea->Top()/GL.Height)
-		);
-	MB.AddVertexFloat(HightlightArea->Right(), HightlightArea->Top(), 0);
+	MB.AddVertexFloat(
+		float(HightlightArea->Left()),
+		float(HightlightArea->Bottom()),
+		0);
 
 	MB.SetTexture2D(
 		float(HightlightArea->Right()/GL.Width),
 		float(HightlightArea->Bottom()/GL.Height)
 		);
 
-	MB.AddVertexFloat(HightlightArea->Right(), HightlightArea->Bottom(), 0);
-	HighLight->SetMeshContainer(MB.End());
-	CurrentLayer->AddChild(HighLight);
+	MB.AddVertexFloat(
+		float(HightlightArea->Right()), 
+		float(HightlightArea->Bottom()),
+		0);
+
+	UnHighlight();
+	HighLightFrame = new MeshFrame();
+	HighLightFrame->SetMeshContainer(MB.End());
+	CurrentLayer->AddChild(HighLightFrame);
 }
 
 /*virtual*/ void OpenGL3DEngine::UnHighlight()
 {
-
+	CurrentLayer->RemoveChild(HighLightFrame);
+	delete HighLightFrame;
+	HighLightFrame = NULL;
 }
+
+/*virtual*/ void OpenGL3DEngine::UnSelect()
+{
+	CurrentLayer->RemoveChild(SelectedFrame);
+	delete SelectedFrame;
+	SelectedFrame = NULL;
+}
+
+/*virtual*/ int OpenGL3DEngine::GetTick()
+{
+	return SDL_GetTicks();
+}
+
+void OpenGL3DEngine::NewScreen()
+{
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	
+	if(OldLayer)
+	{
+		Desktop.RemoveChild(OldLayer);
+		delete OldLayer;
+	}
+
+	OldLayer = CurrentLayer;
+	AnimationRemain = true;
+	StartTick = GetTick();
+
+	CurrentLayer = new MeshFrame();
+	Desktop.AddChild(CurrentLayer);
+	Desktop.RemoveChild(OldLayer);
+	Desktop.AddChild(OldLayer);
+
+	g_pPlutoLogger->Write(LV_CRITICAL, "Current layer is now %p", CurrentLayer);
+}
+
+

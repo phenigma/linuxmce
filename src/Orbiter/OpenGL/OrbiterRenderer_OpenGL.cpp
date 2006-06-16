@@ -71,7 +71,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 			SDL_PushEvent(&SDL_Event_Pending);
 #endif			
 
-		if(pOrbiterRenderer->NeedToUpdateScreen())
+		if(true || pOrbiterRenderer->NeedToUpdateScreen())
 		{
 			pOrbiterRenderer->Engine->Paint();
 			pOrbiterRenderer->ScreenUpdated();
@@ -276,7 +276,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	MeshTransform Transform;
 	
-	TextureManager::Instance()->PrepareImage(Graphic);
+	TextureManager::Instance()->PrepareConvert(Graphic);
 
 	g_pPlutoLogger->Write(LV_STATUS, "AddMeshFrameToDesktop %d - (%d,%d,%d,%d)",
 		point.X, point.Y, rectTotal.Width, rectTotal.Height);

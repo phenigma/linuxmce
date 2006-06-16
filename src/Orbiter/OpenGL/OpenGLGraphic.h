@@ -30,6 +30,7 @@ SDL_Surface* LocalSurface;
 	bool SetupFromImage(std::string FileName);
 	void Prepare();
 	void Convert();
+	void ReleaseTexture();
 
 	//from PlutoGraphic
 	PlutoGraphic* Clone(); 

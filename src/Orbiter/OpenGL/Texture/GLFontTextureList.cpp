@@ -62,7 +62,7 @@ GLFontTextureList::~GLFontTextureList()
 	LetterGraphic->Width = RenderedText->w;
 	LetterGraphic->Height = RenderedText->h;
 	
-	TextureManager::Instance()->PrepareImage(LetterGraphic);
+	TextureManager::Instance()->PrepareConvert(LetterGraphic);
 	Letters[Letter] = LetterGraphic;
 }
 
@@ -81,7 +81,7 @@ GLFontTextureList::~GLFontTextureList()
   	MeshContainer* Container;
   	MeshTransform Transform;
 	
-	MB.Begin(MBMODE_TRIANGLE_STRIP);
+	MB.Begin(MBMODE_TRIANGLES);
 	MB.SetColor(1.0f, 1.0f, 1.0f);
 
 	FontHeight = FontHeight_;
@@ -107,15 +107,23 @@ GLFontTextureList::~GLFontTextureList()
 		MB.AddVertexFloat(float(X), float(Y), 0);
 
 		// Point 2
-		MB.SetTexture2D(0.0f, MaxV);
+		MB.SetTexture2D(1.0f, 0.0f);
+		MB.AddVertexFloat(float(X+PixelLen), float(Y), 0);
+
+		// Point 3
+		MB.SetTexture2D(0.0f, 1.0f);
 		MB.AddVertexFloat(float(X), float(Y+PixelHgt), 0);
 
 		// Point 3
-		MB.SetTexture2D(MaxU, 0.0f);
+		MB.SetTexture2D(0.0f, 1.0f);
+		MB.AddVertexFloat(float(X), float(Y+PixelHgt), 0);
+
+		// Point 2
+		MB.SetTexture2D(1.0f, 0.0f);
 		MB.AddVertexFloat(float(X+PixelLen), float(Y), 0);
 
 		// Point 4
-		MB.SetTexture2D(MaxU, MaxV);
+		MB.SetTexture2D(1.0f, 1.0f);
 		MB.AddVertexFloat(float(X+PixelLen), float(Y+PixelHgt), 0);
 
 		X+= PixelLen;

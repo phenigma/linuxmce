@@ -22,6 +22,7 @@ class TextureManager
 	bool TextureEnable_;
 	
 	std::queue <OpenGLGraphic*> WaitForConvert;
+	std::queue <OpenGLGraphic*> WaitForRelease;
 public:
 	static TextureManager* Instance();
 
@@ -29,9 +30,10 @@ public:
 	
 	void SetupTexture(OpenGLTexture Texture);
 	
-	void PrepareImage(OpenGLGraphic* TextureGraphic);
+	void PrepareConvert(OpenGLGraphic* TextureGraphic);
 	void ConvertImagesToTextures();
-		
+	void PrepareRelease(OpenGLGraphic* TextureGraphic);
+	void ReleaseTextures();
 };
 
 #endif //TextureManager_H_

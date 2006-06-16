@@ -68,6 +68,9 @@ void OpenGLGraphic::Prepare()
 	SDL_Surface* Surface = LocalSurface;
 	Width = GLMathUtils::MinPowerOf2(Surface->w);
 	Height = GLMathUtils::MinPowerOf2(Surface->h);
+
+	if (Width == Surface->w && Height == Surface->h)
+		return;
 	
 	MaxU = ((float)Surface->w)/Width;
 	MaxV = ((float)Surface->h)/Height;
@@ -97,11 +100,7 @@ void OpenGLGraphic::Convert()
 	if( NULL == LocalSurface)
 		return;
 
-	if(Texture)
-	{
-		glDeleteTextures(1, &Texture);
-		Texture = 0;
-	}
+	ReleaseTexture();
 
 	/* Typical Texture Generation Using Data From The Bitmap */
 	OpenGLTexture FinalTexture;
@@ -169,15 +168,11 @@ bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 
 void OpenGLGraphic::Clear()
 {
+	TextureManager::Instance()->PrepareRelease(this);
 	if(LocalSurface != NULL)
 	{
 		SDL_FreeSurface(LocalSurface);
 		LocalSurface = NULL;
-	}
-	if(Texture != 0)
-	{
-		glDeleteTextures(1, &Texture);
-		Texture = 0;
 	}
 }
 
@@ -186,4 +181,13 @@ bool OpenGLGraphic::GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize)
 	pRawBitmapData = NULL;
 	ulSize = 0;
 	return false;
+}
+
+void OpenGLGraphic::ReleaseTexture()
+{
+	if(Texture)
+	{
+		glDeleteTextures(1, &Texture);
+		Texture = 0;
+	}
 }

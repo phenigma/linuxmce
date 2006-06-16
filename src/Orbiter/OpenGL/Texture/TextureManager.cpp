@@ -52,11 +52,18 @@ TextureManager::~TextureManager(void)
 	LastTexture = Texture;
 }
 
-void TextureManager::PrepareImage(OpenGLGraphic* TextureGraphic)
+void TextureManager::PrepareConvert(OpenGLGraphic* TextureGraphic)
 {
 	if(!TextureGraphic)
 		return;
 	WaitForConvert.push(TextureGraphic);
+}
+
+void TextureManager::PrepareRelease(OpenGLGraphic* TextureGraphic)
+{
+	if(!TextureGraphic)
+		return;
+	WaitForRelease.push(TextureGraphic);
 }
 
 void TextureManager::ConvertImagesToTextures()
@@ -68,6 +75,18 @@ void TextureManager::ConvertImagesToTextures()
 		WaitForConvert.pop();
 		if (Item)
 			Item->Convert();
+	};
+}
+
+void TextureManager::ReleaseTextures()
+{
+	OpenGLGraphic* Item;
+	while (!WaitForRelease.empty())
+	{
+		Item = WaitForRelease.front();
+		WaitForRelease.pop();
+		if (Item)
+			Item->ReleaseTexture();
 	};
 }
 

@@ -88,10 +88,16 @@ void MeshBuilder::Begin(unsigned char BuildMode)
 	break;
 	case MBMODE_TRIANGLE_STRIP:
 		if(NoVertexes >= 3)
+			if(NoVertexes % 2 == 1)
 			AddTriangle(
 				NoVertexes-3,
 				NoVertexes-2, 
-				NoVertexes-1);	
+				NoVertexes-1);
+			else
+				AddTriangle(
+				NoVertexes-2,
+				NoVertexes-3, 
+				NoVertexes-1);
 
 	break;
 	}

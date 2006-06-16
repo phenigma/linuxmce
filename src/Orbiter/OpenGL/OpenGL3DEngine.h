@@ -11,11 +11,13 @@ class OpenGL3DEngine
 {
 	pluto_pthread_mutex_t SceneMutex;
 	MeshFrame Desktop;
+	int StartTick;
+	bool AnimationRemain;
 
 	MeshFrame* CurrentLayer;
 	MeshFrame* OldLayer;
-	MeshFrame* Selected;
-	MeshFrame* HighLight;
+	MeshFrame* SelectedFrame;
+	MeshFrame* HighLightFrame;
 	
 public:
 	bool Quit;
@@ -31,8 +33,11 @@ public:
 	virtual void Paint();
 
 	virtual void Select(PlutoRectangle* SelectedArea);
+	virtual void UnSelect();
 	virtual void Highlight(PlutoRectangle* HightlightArea, OpenGLGraphic* HighSurface);
 	virtual void UnHighlight();
+
+	virtual int GetTick();
 
 };
 

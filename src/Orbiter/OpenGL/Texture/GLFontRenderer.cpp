@@ -94,7 +94,6 @@ MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Te
 	rectLocation.Height = Text->m_rPosition.Height;
 	bool bMultiLine = TextToDisplay.find("\n") != string::npos;
 
-	int nPos;
 	//handle escape sequences
 	if(TextToDisplay.find("~S") != string::npos)
 	{
@@ -117,6 +116,7 @@ MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Te
 		//TODO: fix crusesh, right now use a simplest code that remove styles
 		// escape sequences
 		/*
+		int nPos;
 		string sText = TextToDisplay;
 		vector<string> vectTextPieces;
 		size_t nPos = 0;
@@ -208,12 +208,12 @@ MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Te
 		switch(Text->m_iPK_VertAlignment) {
 			case VERTALIGNMENT_Bottom_CONST:
 				Transform.SetIdentity();
-				Transform.Translate(0, rectLocation.Height - Height_ * NoLines, 0);
+				Transform.Translate(0, float(rectLocation.Height - Height_ * NoLines), 0);
 				Result->ApplyTransform(Transform);
 				break;
 			case VERTALIGNMENT_Middle_CONST:
 				Transform.SetIdentity();
-				Transform.Translate(0, rectLocation.Height/2 - Height_ * NoLines/2, 0);
+				Transform.Translate(0, float(rectLocation.Height - Height_ * NoLines)/2, 0);
 				Result->ApplyTransform(Transform);
 				break;
 			default:;
