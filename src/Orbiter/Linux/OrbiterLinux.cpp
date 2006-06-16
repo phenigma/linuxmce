@@ -49,6 +49,7 @@
 #include "PlutoUtils/PlutoButtonsToX.h"
 #include "OSDScreenHandler.h"
 #include "MouseBehavior_Linux.h"
+#include "pluto_main/Define_DesignObjParameter.h"
 
 #include "../CallBackTypes.h"
 
@@ -258,11 +259,16 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
     vector<int> vectButtonMaps;
     GetButtonsInObject(pObj,vectButtonMaps);
 
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::RenderDesktop() : ptr=%p coord=[%d,%d,%d,%d]",
+	bool bApplicationInBackground = pObj->m_mapObjParms_Find(DESIGNOBJPARAMETER_In_Background_CONST) == "1";
+	
+	g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::RenderDesktop() : ptr=%p coord=[%d,%d,%d,%d], in background %d",
                           pObj,
-                          rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height
+                          rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height,
+						  bApplicationInBackground
                           );
-    m_pWinListManager->ShowSdlWindow(false);
+
+	
+	m_pWinListManager->ShowSdlWindow(bApplicationInBackground);
     if (pObj->m_ObjectType == DESIGNOBJTYPE_App_Desktop_CONST)
     {
         //g_pPlutoLogger->Write(LV_CRITICAL,"OrbiterLinux::RenderDesktop rendering of %s",pObj->m_ObjectID.c_str());
