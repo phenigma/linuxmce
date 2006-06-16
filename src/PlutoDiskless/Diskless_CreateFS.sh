@@ -52,7 +52,7 @@ InstallKernel()
 
 	cp "$kernel" tmp/
 
-	cp /usr/pluto/templates/yaird.Default.cfg /$DlPath/etc/yaird/Default.cfg
+	cp /usr/pluto/templates/yaird.Default.cfg.tmpl /$DlPath/etc/yaird/Default.cfg
 
 	mount -t proc proc proc
 	mount sys sys -t sysfs
