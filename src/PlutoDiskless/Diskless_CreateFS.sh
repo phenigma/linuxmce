@@ -64,7 +64,7 @@ InstallKernel()
 
 	## Hard way to do the inird
 	rm /boot/initrd.img-`uname -r`
-	yaird --output yaird --output /boot/initrd.img-`uname -r`
+	chroot . yaird --output yaird --output /boot/initrd.img-`uname -r`
 
 	umount ./proc
 	umount ./sys
@@ -139,9 +139,9 @@ Upgrade_Essential()
 		pluto-boot-scripts=2.0.0.36
 		lsb-base
 		module-init-tools=3.2.2
-		yaird
 		libparse-recdescent-perl
 		libhtml-template-perl
+		yaird
 	"
 	local NeededReq=""
 	local Pkg Name ReqVer InstVer InstState
