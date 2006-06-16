@@ -383,6 +383,7 @@ bool WmCtrl::ActionCommand(char action, const char *param_window/*=NULL*/, const
 {
     //fprintf(stderr, "WmCtrl::ActionCommand('%c', '%s', '%s', %d, %p)\n", action, param_window, param, use_id_in_param_window, pListWinInfo);
     Options options;
+    options.verbose = true;
     options.show_class = true;
     options.show_pid = true;
     options.show_geometry = true;
