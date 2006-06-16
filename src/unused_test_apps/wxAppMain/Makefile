@@ -64,7 +64,7 @@ LIBDIRNAME=$(WXWIN)/GCCBuildReleaseGTK2/lib
 RESPATH=--include-dir "$(WXWIN)/include" --include-dir "$(WXWIN)/contrib/include" --include-dir "$(WXWIN)/GCCBuildReleaseGTK2/lib/wx/include/gtk2-ansi-release-static-2.6"
 endif
 
-OBJECTS=$(OBJECTPATH)/wxappmain.o $(OBJECTPATH)/wxdialog_pointer.o $(OBJECTPATH)/wxframemain.o $(OBJECTPATH)/wxdialog_gl.o $(OBJECTPATH)/wxdialog_sdl.o $(OBJECTPATH)/wxpanel_arrow.o $(OBJECTPATH)/wxpanel_seek.o $(OBJECTPATH)/wxpanel_speed.o $(OBJECTPATH)/wxpanel_time.o $(OBJECTPATH)/wxdialog_speedcontrol.o $(OBJECTPATH)/wxpanel_volume.o $(OBJECTPATH)/wxdialog_volumecontrol.o $(OBJECTPATH)/wxpanel_light.o $(OBJECTPATH)/wxdialog_lightcontrol.o $(OBJECTPATH)/wxdialog_base.o $(OBJECTPATH)/wxdialog_roomwizard.o $(OBJECTPATH)/wxdialog_waitgrid.o $(OBJECTPATH)/wxdialog_waitlist.o $(OBJECTPATH)/wxdialog_waituser.o $(OBJECTPATH)/wx_all_include.o $(OBJECTPATH)/wx_debugging.o $(OBJECTPATH)/wx_dialog_types.o $(OBJECTPATH)/wx_event_dialog.o $(OBJECTPATH)/wx_event_thread.o $(OBJECTPATH)/wx_extern_app.o $(OBJECTPATH)/wx_extern_helpers.o $(OBJECTPATH)/wx_helpers.o $(OBJECTPATH)/wx_logger.o $(OBJECTPATH)/wx_main.o $(OBJECTPATH)/wx_safe_dialog.o $(OBJECTPATH)/wx_thread_bag.o $(OBJECTPATH)/wx_thread_cmd.o $(OBJECTPATH)/wx_thread_wrapper.o $(OBJECTPATH)/wrapper_base.o $(OBJECTPATH)/wrapper_sdl.o $(OBJECTPATH)/wrapper_wx.o $(OBJECTPATH)/wrapper_x11.o $(RESOURCEOBJECT)
+OBJECTS=$(OBJECTPATH)/wxappmain.o $(OBJECTPATH)/wxdialog_pointer.o $(OBJECTPATH)/wxframemain.o $(OBJECTPATH)/wxdialog_gl.o $(OBJECTPATH)/wxdialog_sdl.o $(OBJECTPATH)/wxpanel_arrow.o $(OBJECTPATH)/wxpanel_seek.o $(OBJECTPATH)/wxpanel_speed.o $(OBJECTPATH)/wxpanel_time.o $(OBJECTPATH)/wxdialog_speedcontrol.o $(OBJECTPATH)/wxpanel_volume.o $(OBJECTPATH)/wxdialog_volumecontrol.o $(OBJECTPATH)/wxpanel_light.o $(OBJECTPATH)/wxdialog_lightcontrol.o $(OBJECTPATH)/wxdialog_base.o $(OBJECTPATH)/wxdialog_roomwizard.o $(OBJECTPATH)/wxdialog_waitgrid.o $(OBJECTPATH)/wxdialog_waitlist.o $(OBJECTPATH)/wxdialog_waituser.o $(OBJECTPATH)/wx_all_include.o $(OBJECTPATH)/wx_debugging.o $(OBJECTPATH)/wx_dialog_types.o $(OBJECTPATH)/wx_event_dialog.o $(OBJECTPATH)/wx_event_thread.o $(OBJECTPATH)/wx_extern_app.o $(OBJECTPATH)/wx_extern_helpers.o $(OBJECTPATH)/wx_helpers.o $(OBJECTPATH)/wx_logger.o $(OBJECTPATH)/wx_main.o $(OBJECTPATH)/wx_safe_dialog.o $(OBJECTPATH)/wx_thread_bag.o $(OBJECTPATH)/wx_thread_cmd.o $(OBJECTPATH)/wx_thread_wrapper.o $(OBJECTPATH)/wrapper_base.o $(OBJECTPATH)/wrapper_sdl.o $(OBJECTPATH)/wrapper_wx.o $(OBJECTPATH)/wrapper_x11.o $(OBJECTPATH)/swp_xdga.o $(RESOURCEOBJECT)
 
 all:	$(OBJECTPATH) $(MACPACKAGEINFO)
 
@@ -216,6 +216,9 @@ $(OBJECTPATH)/wrapper_wx.o:	wrapper_wx.cpp wx/wx.h wrapper_wx.h
 
 $(OBJECTPATH)/wrapper_x11.o:	wrapper_x11.cpp wrapper_x11.h define_all.h define_cond.h define_logger.h define_other.h
 	$(CXX) -c -o $@ $(CPPFLAGS) wrapper_x11.cpp
+
+$(OBJECTPATH)/swp_xdga.o:	swp_xdga.cpp wrapper_x11.h define_all.h define_cond.h define_logger.h define_other.h
+	$(CXX) -c -o $@ $(CPPFLAGS) swp_xdga.cpp
 
 .PHONY:	all clean
 ### End DialogBlocks generated body

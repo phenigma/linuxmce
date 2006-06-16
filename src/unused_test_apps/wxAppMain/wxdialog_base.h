@@ -134,6 +134,7 @@ protected:
     Extern_Task_Data *v_pExtern_Task_Data_WaitUser;
     // wait the dialog to be fully initialized
     Extern_Task_Data *v_pExtern_Task_Data_WaitInitialized;
+
 };
 
 #endif

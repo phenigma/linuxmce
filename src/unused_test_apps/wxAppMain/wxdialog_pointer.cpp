@@ -412,6 +412,6 @@ void wxDialog_Pointer::OnTimer_CheckMouse(wxTimerEvent& event)
     _COND_RET(event.GetId() == ID_Timer_CheckMouse);
     int x=0;
     int y=0;
+    v_pX11->Mouse_GetPosition(x, y, true);
     v_pX11->Mouse_GetPosition(x, y);
-    _LOG_NFO("x==%d, y==%d", x, y);
 }
