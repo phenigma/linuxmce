@@ -139,6 +139,7 @@ sources += \
 	$(ROOT)/Splitter/TextWrapper.cpp \
 	$(ROOT)/OrbiterGen/Renderer.cpp \
 	Linux/X3DButton.cpp Linux/X3DWindow.cpp Linux/XProgressWnd.cpp Linux/XPromptUser.cpp\
+	$(ROOT)/utilities/transparency/transparency.cpp \
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

@@ -46,6 +46,13 @@
 #include <sge.h>
 #include <sge_surface.h>
 
+#include <SDL/SDL_syswm.h>
+
+#ifndef WIN32
+	#include "utilities/linux/transparency/transparency.h"
+	#include "utilities/linux/wrapper/wrapper_x11.h"
+#endif
+
 #if !defined(BLUETOOTH_DONGLE) && !defined(PROXY_ORBITER)
 #define USE_ONLY_SCREEN_SURFACE
 #endif
@@ -158,6 +165,27 @@ void OrbiterRenderer_SDL::Configure()
 	OrbiterLogic()->m_bWeCanRepeat = true;
 
 	g_pPlutoLogger->Write(LV_STATUS, "Created back screen surface!");
+
+#ifndef WIN32
+	{
+		X11_Locker_NewDisplay locker;
+	    SDL_SysWMinfo info;
+	    SDL_VERSION(&info.version); // this is important!
+	    bool bResult = SDL_GetWMInfo(&info);
+	    if (bResult == false)
+	    {
+	        g_pPlutoLogger->Write(LV_WARNING, "OrbiterRenderer_SDL(): error in SDL_GetWMInfo()");
+	    }
+	    Window parent = GetParentWnd( info.info.x11.display, info.info.x11.window );
+	    Window grandparent = GetParentWnd( info.info.x11.display, parent );
+
+		g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_SDL(): setting transparency");
+		
+		SetWindowTransparency(info.info.x11.display, info.info.x11.window, 0.5);
+		SetWindowTransparency(info.info.x11.display, parent, 0.5);
+		SetWindowTransparency(info.info.x11.display, grandparent, 0.5);
+	}
+#endif
 }
 //----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL::RenderScreen( bool bRenderGraphicsOnly )
