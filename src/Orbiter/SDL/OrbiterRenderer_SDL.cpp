@@ -529,42 +529,70 @@ void OrbiterRenderer_SDL::EventLoop()
 		}
     }  // while
 }
+
 //-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_SDL::CaptureRelativeMovements() 
+void OrbiterRenderer_SDL::CaptureRelativeMovements()
 {
-    g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::CaptureRelativeMovements()");
-	m_bRelativeMode = true;
+    // ERROR:
+    //
+    // this function does not return
+    // it causes the mouse to dissapear
+    // the mouse will not appear again because this thread will be
+    // blocked, so no one will release the mouse-movements
+    //
+    // Other notes:
+    // SDL is not fair here
+    // it opens a new display and probably new window
+    // it also installs his error handler, overriding our handler
+    // in this case X11 will use that bad handler
+    // and will not stop the app
+
+    if (0)
+    {
+        g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::CaptureRelativeMovements()");
+        m_bRelativeMode = true;
 
 //#ifndef WIN32 // linux
+//    // sample code
 //    if (OrbiterLogic()->IsYieldScreen())
 //    {
 //        GrabPointer(false);
 //        GrabKeyboard(false);
 //    }
+//    // sample code
 //#endif
-    // warning: incompatible with constrain-mouse in linux
-    // both keyboard and mouse
-	SDL_WM_GrabInput(SDL_GRAB_ON);
-    SDL_ShowCursor(SDL_DISABLE);
-    g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::CaptureRelativeMovements() : done");
+        // warning: incompatible with constrain-mouse in linux
+        // both keyboard and mouse
+        SDL_WM_GrabInput(SDL_GRAB_ON);
+        SDL_ShowCursor(SDL_DISABLE);
+        g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::CaptureRelativeMovements() : done");
+    }
 }
+
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL::ReleaseRelativeMovements()
 {
-    g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::ReleaseRelativeMovements()");
-	m_bRelativeMode = false;
+    // CaptureRelativeMovements() was deactivated above
+    if (0)
+    {
+        g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::ReleaseRelativeMovements()");
+        m_bRelativeMode = false;
 
-    // warning: incompatible with constrain-mouse in linux
-    // both keyboard and mouse
-	SDL_WM_GrabInput(SDL_GRAB_OFF);
+        // warning: incompatible with constrain-mouse in linux
+        // both keyboard and mouse
+        SDL_WM_GrabInput(SDL_GRAB_OFF);
 //#ifndef WIN32 // linux
+//    // sample code
 //    if (OrbiterLogic()->IsYieldScreen())
 //    {
 //        GrabPointer(true);
 //        GrabKeyboard(true);
 //    }
+//    // sample code
 //#endif
-    SDL_ShowCursor(SDL_ENABLE);
-    g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::ReleaseRelativeMovements() : done");
+        SDL_ShowCursor(SDL_ENABLE);
+        g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::ReleaseRelativeMovements() : done");
+    }
 }
+
 //-----------------------------------------------------------------------------------------------------
