@@ -48,7 +48,7 @@
 
 #include <SDL/SDL_syswm.h>
 
-#ifndef WIN32
+#if !defined(WIN32) && !defined(BLUETOOTH_DONGLE) && !defined(PROXY_ORBITER)
 	#include "utilities/linux/transparency/transparency.h"
 	#include "utilities/linux/wrapper/wrapper_x11.h"
 #endif
@@ -166,7 +166,7 @@ void OrbiterRenderer_SDL::Configure()
 
 	g_pPlutoLogger->Write(LV_STATUS, "Created back screen surface!");
 
-#ifndef WIN32
+#if !defined(WIN32) && !defined(BLUETOOTH_DONGLE) && !defined(PROXY_ORBITER)
 	{
 		X11_Locker_NewDisplay locker;
 	    SDL_SysWMinfo info;
