@@ -12,6 +12,7 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 #include "../ScreenHistory.h"
+#include "../../pluto_main/Define_Button.h"
 //-----------------------------------------------------------------------------------------------------
 #include "math3dutils.h"
 #include "Widgets/basicwindow.h"
@@ -130,26 +131,26 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	Builder->SetTexture2D(0.0f, 0.0f);
 	Builder->AddVertexFloat(
-		float(x-1), 
-		float(y-1), 
+		float(x), 
+		float(y), 
 		0
 		);
 	Builder->SetTexture2D(1.0f, 0);
 	Builder->AddVertexFloat(
-		float(x+width+1), 
-		float(y-1), 
+		float(x+width), 
+		float(y), 
 		0
 		);
 	Builder->SetTexture2D(0.0f, 1.0f);
 	Builder->AddVertexFloat(
-		float(x-1), 
-		float(y+height+1), 
+		float(x), 
+		float(y+height), 
 		0
 		);
 	Builder->SetTexture2D(1.0f, 1.0f);
 	Builder->AddVertexFloat(
-		float(x+width+1), 
-		float(y+height+1), 
+		float(x+width), 
+		float(y+height), 
 		0
 		);
 
@@ -179,12 +180,11 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderText(string &sTextToDisplay, DesignObjText *Text,
 	TextStyle *pTextStyle, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
-
-	g_pPlutoLogger->Write(LV_CRITICAL, "Rendering text %s", sTextToDisplay.c_str());
+	//g_pPlutoLogger->Write(LV_CRITICAL, "Rendering text %s at %d, %d", sTextToDisplay.c_str(), 
+	//	Text->m_rPosition.X, Text->m_rPosition.Y);
 
 	if(sTextToDisplay.length() == 0)
 		return;
-
 
 	int style = TTF_STYLE_NORMAL;
 	if (pTextStyle->m_bUnderline)
@@ -234,7 +234,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
 	bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
-	g_pPlutoLogger->Write(LV_CRITICAL, "Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
+	//g_pPlutoLogger->Write(LV_CRITICAL, "Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
 
 	OpenGLGraphic* Graphic = dynamic_cast<OpenGLGraphic*> (pPlutoGraphic);
 
@@ -246,26 +246,26 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	Builder->SetTexture2D(0.0f, 0.0f);
 	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Left()-1), 
-		float(point.Y + rectTotal.Top()-1), 
+		float(point.X + rectTotal.Left()), 
+		float(point.Y + rectTotal.Top()), 
 		0
 		);
 	Builder->SetTexture2D(1.0f, 0);
 	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Right()+1), 
-		float(point.Y + rectTotal.Top()-1), 
+		float(point.X + rectTotal.Right()), 
+		float(point.Y + rectTotal.Top()), 
 		0
 		);
 	Builder->SetTexture2D(0.0f, 1.0f);
 	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Left()-1), 
-		float(point.Y + rectTotal.Bottom()+1), 
+		float(point.X + rectTotal.Left()), 
+		float(point.Y + rectTotal.Bottom()), 
 		0
 		);
 	Builder->SetTexture2D(1.0f, 1.0f);
 	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Right()+1), 
-		float(point.Y + rectTotal.Bottom()+1), 
+		float(point.X + rectTotal.Right()), 
+		float(point.Y + rectTotal.Bottom()), 
 		0
 		);
 
@@ -370,6 +370,21 @@ void OrbiterRenderer_OpenGL::OnIdle()
 				orbiterEvent.data.region.m_iY = Event.button.y;
 				OrbiterLogic()->ProcessEvent(orbiterEvent);
 			}
+			else if (Event.type == SDL_KEYDOWN || Event.type == SDL_KEYUP)
+			{
+				orbiterEvent.type = SDL_KEYDOWN != Event.type ? Orbiter::Event::BUTTON_UP :
+				Orbiter::Event::BUTTON_DOWN;
+	
+				switch (Event.key.keysym.sym)
+				{
+					case SDLK_UP:		orbiterEvent.data.button.m_iPK_Button = BUTTON_Up_Arrow_CONST; break;
+					case SDLK_DOWN:		orbiterEvent.data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST; break;
+					case SDLK_LEFT:		orbiterEvent.data.button.m_iPK_Button = BUTTON_Left_Arrow_CONST; break;
+					case SDLK_RIGHT:    orbiterEvent.data.button.m_iPK_Button = BUTTON_Right_Arrow_CONST; break;
+				}
+
+				OrbiterLogic()->ProcessEvent(orbiterEvent);
+			}
 		}
 		else
 		{
@@ -407,7 +422,8 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderObjectAsync(DesignObj_Orbiter *pObj)
 {
-	pObj->RenderObject(OrbiterLogic()->m_pScreenHistory_Current->GetObj());
+	OrbiterRenderer::RenderObjectAsync(pObj);
+	//pObj->RenderObject(OrbiterLogic()->m_pScreenHistory_Current->GetObj());
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::ShowProgress(int nPercent) 

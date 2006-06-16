@@ -208,12 +208,12 @@ MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Te
 		switch(Text->m_iPK_VertAlignment) {
 			case VERTALIGNMENT_Bottom_CONST:
 				Transform.SetIdentity();
-				Transform.Translate(0, rectLocation.Y+rectLocation.Height - Height_*NoLines, 0);
+				Transform.Translate(0, rectLocation.Height - Height_ * NoLines, 0);
 				Result->ApplyTransform(Transform);
 				break;
 			case VERTALIGNMENT_Middle_CONST:
 				Transform.SetIdentity();
-				Transform.Translate(0, rectLocation.Y+rectLocation.Height/2 - Height_*NoLines/2, 0);
+				Transform.Translate(0, rectLocation.Height/2 - Height_ * NoLines/2, 0);
 				Result->ApplyTransform(Transform);
 				break;
 			default:;
