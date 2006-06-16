@@ -88,7 +88,8 @@ list<Row> & TextLineExtract::Extract(string text)
 		}
 		else if (c >= ' ' && c != '~')
 		{
-			if( word.size() > 0 || !isspace(c) ) /* Avoid adding space characters in front of words */
+			/* Avoid adding space characters at the beginning of a line */
+			if( !isspace(c) || line.size() > 0 || word.size() > 0 )
 			{
 				word += c;
 			}
