@@ -29,10 +29,10 @@ function deviceCategoryDeviceData($output,$dbADO) {
 			}
 		</script>
 		
-			<table>
+			<table border="0">
 				<tr>
-					<td width="150"><B>'.$TEXT_DEVICE_CATEGORY_CONST.' '.(($categoryID>0)?'#'.$categoryID:'').'</B></td>
-					<td>'.$deviceCategoryFormElement.'</td>
+					<td width="120"><B>'.$TEXT_DEVICE_CATEGORY_CONST.' '.(($categoryID>0)?'#'.$categoryID:'').'</B></td>
+					<td width="450">'.$deviceCategoryFormElement.'</td>
 				</tr>
 				<tr>
 					<td colspan="2">
@@ -118,16 +118,19 @@ function deviceCategoryDeviceData($output,$dbADO) {
 					<td align="center" colspan="8"><input type="submit" class="button" name="Update" value="'.$TEXT_UPDATE_CONST.'"></td>
 				</tr>';
 		}
-		$out.='
-			</table>
-		<br>';
+
 		if($categoryID!=0){
 			$out.='
-		<a name="deviceData_link"></a>'.$TEXT_ADD_A_NEW_PARAMETER_CONST.': '.pulldownFromArray($remainingDDArray,'newDeviceData',0,'class="input_big"').'&nbsp;&nbsp;
-		<input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'">
-		<br /> '.$TEXT_IF_PARAMETER_IS_NOT_IN_THE_LIST_CONST.' <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addParameter&from=deviceCategoryDeviceData&categoryID='.$categoryID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">click here to create a new parameter</a>';
+				<tr>
+					<td><a name="deviceData_link"></a>'.$TEXT_ADD_A_NEW_PARAMETER_CONST.'</td>
+					<td>'.pulldownFromArray($remainingDDArray,'newDeviceData',0,'class="input_big"').' <input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'"></td>
+				</tr>			
+				<tr>
+					<td colspan="2">'.$TEXT_IF_PARAMETER_IS_NOT_IN_THE_LIST_CONST.' <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addParameter&from=deviceCategoryDeviceData&categoryID='.$categoryID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">click here to create a new parameter</a></td>
+				</tr>';
 		}
 		$out.='
+			</table>
 		</form>';
 	}else{
 	// process area

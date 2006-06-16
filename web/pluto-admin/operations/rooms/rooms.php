@@ -77,36 +77,39 @@ function rooms($output,$dbADO) {
 		</script>";
 			$out.='<div class="err">'.(isset($_GET['error'])?stripslashes($_GET['error']):'').'</div>';
 			$out.='
-		<div class="confirm" align="center"><B>'.@$_GET['msg'].'</B></div>			
+		<div class="confirm" align="center"><B>'.@$_GET['msg'].'</B></div>		
 		<table border="0">
 			<form action="index.php" method="post" name="rooms" enctype="multipart/form-data">
 			<input type="hidden" name="section" value="rooms">
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="lastAction" value="">
-		<tr>
-			<td align="center" bgcolor="#F0F3F8"><B>'.$TEXT_ROOM_DESCRIPTION_CONST.' *</B></td>
-			<td align="center" bgcolor="#F0F3F8"><B>'.$TEXT_ROOM_TYPE_CONST.'</B></td>
-			<td align="center" bgcolor="#F0F3F8"><B>'.$TEXT_PICTURE_CONST.' **</B></td>
-			<td align="center" bgcolor="#F0F3F8"><B>'.$TEXT_DONT_SHOW_ROOM_ON_ORBITERS_CONST.'</B></td>
-			<td align="center" bgcolor="#DADDE4"><B>'.$TEXT_ENTERTAIN_AREAS_CONST.'</B></td>
+		<tr class="tablehead">
+			<td align="center"><B>'.$TEXT_ROOM_DESCRIPTION_CONST.' *</B></td>
+			<td align="center"><B>'.$TEXT_ROOM_TYPE_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_PICTURE_CONST.' **</B></td>
+			<td align="center"><B>'.$TEXT_DONT_SHOW_ROOM_ON_ORBITERS_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_ENTERTAIN_AREAS_CONST.'</B></td>
 		</tr>
 		';
 
 			$roomsFormValidation='';
 			$displayedEntertainArea=array();
+			$pos=0;
 			while ($rowRoom = $resRooms->FetchRow()) {
-
+				$pos++;
+				$class=($pos%2==0)?'alternate_back':'';
 				$filePath=$GLOBALS['roomsPicsPath'].$rowRoom['PK_Room'].'.png';
 				if(file_exists($filePath)){
 					$randNumber=rand(0,99999);
 					$roomImage='<img src="include/image.php?imagepath='.$filePath.'&rand='.$randNumber.'"><br>';
 				}else
 				$roomImage='';
+				
 				$out.='
-			<tr>
+			<tr class="'.$class.'">
 				<td align="center" valign="top">
 					<input type="text" name="roomDesc_'.$rowRoom['PK_Room'].'" value="'.$rowRoom['Description'].'"><br>
-					<a href="javascript:void(0);" onClick="if(confirm(\''.$TEXT_DELETE_ROOM_CONFIRMATION_CONST.' '.$rowRoom['NoDevices'].'\'))self.location=\'index.php?section=rooms&delRoom='.$rowRoom['PK_Room'].'&action=delete\';">'.$TEXT_DELETE_ROOM_CONST.' #'.$rowRoom['PK_Room'].'</a>
+					<a href="javascript:if(confirm(\''.$TEXT_DELETE_ROOM_CONFIRMATION_CONST.' '.$rowRoom['NoDevices'].'\')){self.location=\'index.php?section=rooms&action=delete&delRoom='.$rowRoom['PK_Room'].'\';}">'.$TEXT_DELETE_ROOM_CONST.' #'.$rowRoom['PK_Room'].'</a>
 				</td>
 				<td align="center" valign="top">'.pulldownFromArray($roomTypes,'roomType_'.$rowRoom['PK_Room'],$rowRoom['FK_RoomType']).'</td>
 				<td valign="top">'.@$roomImage.'<input type="file" name="pic_'.$rowRoom['PK_Room'].'"></td>
@@ -287,8 +290,10 @@ function rooms($output,$dbADO) {
 
 		if (strstr($locationGoTo,"#")) {
 			header("Location: index.php?section=rooms&msg=$TEXT_SAVED_CONST".$locationGoTo.'&error='.$errNotice);
+			exit();
 		} else {
 			header("Location: index.php?section=rooms&msg=$TEXT_SAVED_CONST&lastAction=".$locationGoTo.'&error='.$errNotice);
+			exit();
 		}
 
 	}

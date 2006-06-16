@@ -73,6 +73,17 @@
   
 function setTemplateFileType($type) { 	
 	$this->templateType = $type;
+	switch($type){
+		case 'large':
+			@$_SESSION['lastRightFrameSrc']='index.php?'.$_SERVER['QUERY_STRING'];
+		break;
+		case 'small':
+			if($_REQUEST['section']=='leftMenu' || $_REQUEST['section']=='wizard'){
+				@$_SESSION['lastLeftFrameSrc']='index.php?'.$_SERVER['QUERY_STRING'];
+			}
+		break;
+		
+	}
 	if (file_exists(APPROOT."include/templates/template.$type.tpl.html")) {
 		$this->content = implode('',file(APPROOT."include/templates/template.$type.tpl.html"));
 	} else {
@@ -122,11 +133,15 @@ function setTemplateFileType($type) {
   }
 
   function setLeftFrameSrc($myLeftFrameSrc) {
-  	$this->leftFrameSrc = $myLeftFrameSrc;
+	// use $this->lastLeftFrameSrc is available
+  	$this->leftFrameSrc = (@$_SESSION['lastLeftFrameSrc']!='')?$_SESSION['lastLeftFrameSrc']:$myLeftFrameSrc;
+  	@$_SESSION['lastLeftFrameSrc']=$myLeftFrameSrc;
   }
   
   function setRightFrameSrc($myRightFrameSrc) {
-  	$this->rightFrameSrc = $myRightFrameSrc;
+  	// use $this->lastRightFrameSrc
+  	$this->rightFrameSrc = (@$_SESSION['lastRightFrameSrc']!='')?$_SESSION['lastRightFrameSrc']:$myRightFrameSrc;
+  	@$_SESSION['lastRightFrameSrc']=$myRightFrameSrc;
   }
   
   function setScriptAnotherJS($myScript) {
