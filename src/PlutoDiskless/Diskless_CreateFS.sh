@@ -63,8 +63,8 @@ InstallKernel()
 	fi
 
 	## Hard way to do the inird
-	chroot . rm /boot/initrd.img-`uname -r`
-	chroot . yaird --output /boot/initrd.img-`uname -r`
+#	chroot . rm /boot/initrd.img-`uname -r`
+#	chroot . yaird --output /boot/initrd.img-`uname -r`
 	chroot . chmod 644 /boot/initrd.img-`uname -r`
 
 	umount ./proc
