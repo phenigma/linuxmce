@@ -11,8 +11,7 @@
 #   "Available Video Devices" would probably need to be added to the
 #   computer devices, just like "Available Serial Ports", motion would
 #   need to be updated to use the output of this script, and a UniqID to
-#   /dev-entry script should be written (not that hard if using the mappings
-#   this script already outputs
+#   /dev-entry translation script was written: TranslateVideoDevice.sh
 #
 #                                    -- Radu Cristescu
 
