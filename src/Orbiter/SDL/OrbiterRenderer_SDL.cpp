@@ -536,7 +536,8 @@ void OrbiterRenderer_SDL::CaptureRelativeMovements()
     // ERROR:
     //
     // this function does not return
-    // it causes the mouse to dissapear
+    // it will causes the mouse to vanish (only if SDL_WM_GrabInput returns)
+    // if SDL_WM_GrabInput returns, then usually SDL_ShowCursor does not return
     // the mouse will not appear again because this thread will be
     // blocked, so no one will release the mouse-movements
     //
