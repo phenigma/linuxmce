@@ -1,4 +1,4 @@
-# $Id: Cards+,v 1.82 2005/09/14 19:40:41 oblin Exp $
+# $Id: Cards+,v 1.86 2006/04/24 15:43:20 tvignaud Exp $
 # This is the database of card definitions used by XFdrake
 #
 
@@ -1469,6 +1469,12 @@ DRIVER vga
 NAME Diamond Viper Pro Video
 SEE Weitek P9100 (generic)
 
+
+# National Semiconductor (NSC)
+
+NAME NSC
+DRIVER nsc
+
 # Trident
 
 NAME Trident (generic)
@@ -1576,6 +1582,9 @@ NAME Toshiba Satellite 4080CDT
 SEE Trident Cyber 9525 (generic)
 
 # SiS
+
+NAME SiS USB
+DRIVER sisusb
 
 NAME SiS
 DRIVER sis
@@ -1945,6 +1954,12 @@ NAME NVIDIA GeForce FX (generic)
 SEE NVIDIA GeForce
 
 NAME NVIDIA GeForce 6800 (generic)
+SEE NVIDIA GeForce
+
+NAME NVIDIA GeForce 6 Series
+SEE NVIDIA GeForce
+
+NAME NVIDIA GeForce 7 Series
 SEE NVIDIA GeForce
 
 # IMS
@@ -2317,6 +2332,10 @@ DRIVER tdfx
 LINE Option	"nodri"
 
 NAME Voodoo3 (generic)
+DRIVER tdfx
+DRI_GLX
+
+NAME Voodoo4 (generic)
 DRIVER tdfx
 DRI_GLX
 

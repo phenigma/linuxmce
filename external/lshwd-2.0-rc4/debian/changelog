@@ -1,3 +1,9 @@
+lshwd (2.0-rc4-1pluto9) unstable; urgency=low
+
+  * Updated pcitables and Cards database
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Fri, 16 Jun 2006 12:31:21 +0300
+
 lshwd (2.0-rc4-1pluto8) unstable; urgency=high
   
   * X.org 7.0 video driver detection
