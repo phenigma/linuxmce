@@ -202,6 +202,7 @@ bool OrbiterLinux::X11_Init()
     {
         g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::X11_Init() : error in SDL_GetWMInfo()");
     }
+    g_pPlutoLogger->Write(LV_STATUS, "SDL uses pDisplay=%p, Window=%d", info.info.x11.display, info.info.x11.window);
     // save the SDL display
     m_pDisplay_SDL = info.info.x11.display;
     // initialize the X11wrapper
@@ -637,14 +638,6 @@ void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &
         XTestFakeButtonEvent(pDisplay, 1, true, 0);
         XTestFakeButtonEvent(pDisplay, 1, false, 0);
     }
-
-    // again ?
-    // TODO: clean this code
-    // note: caused hard-to-catch fatal-sync errors !?
-    //Display *dpy = XOpenDisplay(NULL);
-    //XTestFakeButtonEvent(dpy, 1, true, 0);
-    //XTestFakeButtonEvent(dpy, 1, false, 0);
-    //XCloseDisplay(dpy);
 }
 
 void OrbiterLinux::CMD_Surrender_to_OS(string sOnOff, bool bFully_release_keyboard, string &sCMD_Result, Message *pMessage)

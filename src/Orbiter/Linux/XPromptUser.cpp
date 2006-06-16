@@ -330,6 +330,7 @@ void XPromptUser::UnloadFonts()
 void XPromptUser::Init()
 {
 	Display *pDisplay = XOpenDisplay(NULL);
+    g_pPlutoLogger->Write(LV_STATUS, "XPromptUser::Init(): pDisplay=%d ->Opened", pDisplay);
 	int nScreenNo = DefaultScreen(pDisplay);
 	int nDesktopX = DisplayWidth(pDisplay, nScreenNo);
 	int nDesktopY = DisplayHeight(pDisplay, nScreenNo);
@@ -358,6 +359,7 @@ void XPromptUser::DeInit()
 	DestroyWindow();
 	XSync(m_pDisplay, false);
 	XCloseDisplay(m_pDisplay);
+    g_pPlutoLogger->Write(LV_STATUS, "XPromptUser::DeInit(): pDisplay=%d ->Closed", m_pDisplay);
 	m_pDisplay = NULL;
 	
 }

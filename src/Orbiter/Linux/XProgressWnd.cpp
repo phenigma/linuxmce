@@ -28,7 +28,9 @@ XProgressWnd::XProgressWnd()
 XProgressWnd::~XProgressWnd()
 {
     if (m_pButton) delete m_pButton;
+    g_pPlutoLogger->Write(LV_STATUS, "XProgressWnd::~XProgressWnd(): pDisplay=%d ->Closing", m_pDisplay);
     if (m_pDisplay) XCloseDisplay(m_pDisplay);
+    g_pPlutoLogger->Write(LV_STATUS, "XProgressWnd::~XProgressWnd(): pDisplay=%d ->Closed", m_pDisplay);
 }
 
 
@@ -204,6 +206,7 @@ pthread_t XProgressWnd::Run()
 
 	// don't put this in the thread (again) as that creates a race condition; leave it here :)
     Display *pDisplay = XOpenDisplay(NULL); // needs XCloseDisplay?
+    g_pPlutoLogger->Write(LV_STATUS, "XProgressWnd::Run(): pDisplay=%d ->Opened", pDisplay);
     int nScreenNo = DefaultScreen(pDisplay);
     int nDesktopX, nDesktopY;
     nDesktopX = DisplayWidth(pDisplay, nScreenNo);

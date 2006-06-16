@@ -63,12 +63,15 @@ void *XRecordExtensionHandler::recordingThreadMainFunction(void *arguments)
 
 	pDisplay_ControlConnection = XOpenDisplay(getenv(pXRecordObject->m_strDisplayName.c_str()));
 	pDisplay_DataConnection = XOpenDisplay(getenv(pXRecordObject->m_strDisplayName.c_str()));
+    g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::recordingThreadMainFunction(): pDisplay_ControlConnection=%d, pDisplay_DataConnection=%d ->Opened", pDisplay_ControlConnection, pDisplay_DataConnection);
 
 	if ( ! XRecordQueryVersion(pDisplay_ControlConnection, &iMinorVersion, &iMajorVersion) )
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "XRecordExtensionHandler::recordingThreadMainFunction(): XRecord extension not available.");
+        g_pPlutoLogger->Write(LV_WARNING, "XRecordExtensionHandler::recordingThreadMainFunction(): pDisplay_ControlConnection=%d, pDisplay_DataConnection=%d ->Closing", pDisplay_ControlConnection, pDisplay_DataConnection);
         XCloseDisplay(pDisplay_ControlConnection);
         XCloseDisplay(pDisplay_DataConnection);
+        g_pPlutoLogger->Write(LV_WARNING, "XRecordExtensionHandler::recordingThreadMainFunction(): pDisplay_ControlConnection=%d, pDisplay_DataConnection=%d ->Closed", pDisplay_ControlConnection, pDisplay_DataConnection);
 		return NULL;
 	}
 
@@ -142,8 +145,10 @@ void *XRecordExtensionHandler::recordingThreadMainFunction(void *arguments)
 	XRecordFreeContext( pDisplay_ControlConnection, pXRecordObject->m_recordingContext);
 	XFree(recordRange);
 
+    g_pPlutoLogger->Write(LV_WARNING, "XRecordExtensionHandler::recordingThreadMainFunction(): pDisplay_ControlConnection=%d, pDisplay_DataConnection=%d ->Closing", pDisplay_ControlConnection, pDisplay_DataConnection);
 	XCloseDisplay(pDisplay_ControlConnection);
 	XCloseDisplay(pDisplay_DataConnection);
+    g_pPlutoLogger->Write(LV_WARNING, "XRecordExtensionHandler::recordingThreadMainFunction(): pDisplay_ControlConnection=%d, pDisplay_DataConnection=%d ->Closed", pDisplay_ControlConnection, pDisplay_DataConnection);
 
 	return NULL;
 }
