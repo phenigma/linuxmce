@@ -25,6 +25,7 @@ Section "Module"
 	Load	"type1"
 	Load	"glx"
 	Load	"int10"
+	Load	"v4l"
 EndSection
 
 Section "InputDevice"
