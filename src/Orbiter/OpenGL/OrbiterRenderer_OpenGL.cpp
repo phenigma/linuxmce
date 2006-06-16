@@ -456,7 +456,6 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	OrbiterRenderer::RedrawObjects();
 	NeedToUpdateScreen_ = true;
 }
-/*
 //-----------------------------------------------------------------------------------------------------
 int OrbiterRenderer_OpenGL::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> *p_mapPrompts)
 {
@@ -472,4 +471,3 @@ bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
-*/
