@@ -82,6 +82,11 @@ if [[ ! -f /usr/pluto/bin/X-GetDisplayDriver.awk ]]; then
 	exit 1
 fi
 
+if [[ ! -f /usr/pluto/bin/X-ModulesSection.awk ]]; then
+	Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/bin/X-ModulesSection.awk."
+	exit 1
+fi
+
 if [[ ! -f "$ConfigFile" || ! -s "$ConfigFile" ]]; then
 	# TODO: Detect incomplete/corrupt config files too
 	Logging "$TYPE" "$SEVERITY_WARNING" "Xconfigure" "Config file '$ConfigFile' not found or empty. Forcing use of defaults."
@@ -99,6 +104,8 @@ if [[ "$Defaults" == y ]]; then
 elif [[ -n "$UpdateVideoDriver" && "$DisplayDriver" != "$CurrentDisplayDriver" ]]; then
 	awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}
+else
+	/usr/pluto/bin/X-UpdateModules.sh --conffile "$ConfigFile"
 fi
 
 # Test detected display driver

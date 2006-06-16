@@ -24,8 +24,8 @@ Mode == "read" && SectionModule == 1 && /Load/ {
 	next;
 }
 Mode == "update" && SectionModule == 1 {
-	split(ModList, ModArray);
-	for (i = 1; i <= length(ModArray); i++)
+	count = split(ModList, ModArray);
+	for (i = 1; i <= count; i++)
 	{
 		print "\tLoad\t\"" ModArray[i] "\"";
 	}

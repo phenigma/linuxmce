@@ -11,7 +11,7 @@ done
 XModulesAdd=(dbe extmod record xtrap speedo type1 glx int10 v4l)
 XModulesRemove=()
 
-XModulesActive=($(awk -f ./X-ModulesSection.awk "$ConfigFile"))
+XModulesActive=($(awk -f/usr/pluto/bin/X-ModulesSection.awk "$ConfigFile"))
 
 # Remove modules from active list
 for ((i = 0; i < "${#XModulesRemove[@]}"; i++)); do
@@ -38,5 +38,5 @@ for ((i = 0; i < "${#XModulesAdd[@]}"; i++)); do
 	fi
 done
 
-awk -v "ModList=${XModulesActive[*]}" -f ./X-ModulesSection.awk "$ConfigFile" >"$ConfigFile".$$
+awk -v"ModList=${XModulesActive[*]}" -f/usr/pluto/bin/X-ModulesSection.awk "$ConfigFile" >"$ConfigFile".$$
 mv "$ConfigFile"{.$$,}
