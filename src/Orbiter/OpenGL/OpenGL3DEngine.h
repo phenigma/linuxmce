@@ -14,6 +14,8 @@ class OpenGL3DEngine
 
 	MeshFrame* CurrentLayer;
 	MeshFrame* OldLayer;
+	MeshFrame* Selected;
+	MeshFrame* HighLight;
 	
 public:
 	bool Quit;
@@ -27,6 +29,11 @@ public:
 	virtual void NewScreen();
 
 	virtual void Paint();
+
+	virtual void Select(PlutoRectangle* SelectedArea);
+	virtual void Highlight(PlutoRectangle* HightlightArea, OpenGLGraphic* HighSurface);
+	virtual void UnHighlight();
+
 };
 
 #endif

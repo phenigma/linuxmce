@@ -269,11 +269,12 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		0
 		);
 
-	MeshContainer* Container = new MeshContainer();
-	Container = Builder->End();
+	MeshContainer* Container = Builder->End();
 
 	MeshFrame* Frame = new MeshFrame();
 	Frame->SetMeshContainer(Container);
+
+	MeshTransform Transform;
 	
 	TextureManager::Instance()->PrepareImage(Graphic);
 
@@ -316,12 +317,22 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::DoHighlightObject()
 {
+	if(sbNoSelection == OrbiterLogic()->m_nSelectionBehaviour || !OrbiterLogic()->m_pObj_Highlighted || !OrbiterLogic()->m_pObj_Highlighted->m_bOnScreen )
+		return;
 
+	UnHighlightObject();
+
+	if( !OrbiterLogic()->m_pObj_Highlighted )
+		return;
+
+	DesignObj_Orbiter *pObj = OrbiterLogic()->m_pObj_Highlighted;
+	//Engine->Select(&pObj->m_rPosition);
+	Engine->Highlight(&pObj->m_rPosition, NULL);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point )
 {
-
+	Engine->Select(&pObj->m_rPosition);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::EventLoop()
@@ -445,6 +456,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	OrbiterRenderer::RedrawObjects();
 	NeedToUpdateScreen_ = true;
 }
+/*
 //-----------------------------------------------------------------------------------------------------
 int OrbiterRenderer_OpenGL::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> *p_mapPrompts)
 {
@@ -460,3 +472,4 @@ bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
+*/

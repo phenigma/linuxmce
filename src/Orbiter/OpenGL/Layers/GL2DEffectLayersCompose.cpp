@@ -163,38 +163,7 @@ void LayersCompose::ClearScreen(unsigned char Red, unsigned char Green, unsigned
 
 void LayersCompose::PaintScreen3D()
 {
-
-	DrawingWidgetsEngine* Engine = new DrawingWidgetsEngine(Width, Height);
 	
-	
-	delete Engine;
-	/*
-	DrawingWidgetsEngine* Engine = new DrawingWidgetsEngine(Width, Height);
-	TBaseWidget* Screen3D = Commons3D::Instance().GetScreen3D();
-	TBaseWidget* Selected = Commons3D::Instance().GetSelected();
-	TBaseWidget* Highlight = Commons3D::Instance().GetHighLight();
-
-	Engine->AddWidget(Screen3D);
-	Engine->AddWidget(Selected);
-	Engine->AddWidget(Highlight);
-
-	Screen3D->SetVisible(true);
-	
-	Screen3D->SetTexture(TextureMan->NewScreen->Texture);
-	Selected->SetVisible(true);
-	Highlight->SetVisible(true);
-
-	MeshTransform Transform;
-	Engine->Paint(Transform);
-	Engine->RemoveWidgetFromList(Highlight);
-	Engine->RemoveWidgetFromList(Selected);
-	Engine->RemoveWidgetFromList(Screen3D);
-
-	Screen3D->SetVisible(false);
-	Selected->SetVisible(false);
-	Highlight->SetVisible(false);
-	delete Engine;
-	*/
 }
 
 OpenGLTexture LayersCompose::GetRenderedScreen()

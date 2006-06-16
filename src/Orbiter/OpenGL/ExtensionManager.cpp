@@ -9,6 +9,7 @@
 
 #include <SDL.h>
 #include <GL/gl.h>
+#include <GL/glext.h>
 #include <GL/glu.h>
 
 #include "Mesh/MeshPainter.h"
@@ -16,6 +17,7 @@
 ExtensionManager::ExtensionManager(void)
 : Width(0), Height(0)
 {
+	
 }
 
 ExtensionManager::~ExtensionManager(void)
@@ -33,9 +35,6 @@ ExtensionManager::~ExtensionManager(void)
 {
 	if(!CleanColor && !CleanZBuffer)
 		return;
-	
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glClearColor(CleanRed, CleanGreen, CleanBlue, 1.f);
 	unsigned int uFlags = 0;
@@ -83,11 +82,12 @@ void ExtensionManager::Resize(int Width, int Height)
     //glEnable(GL_DEPTH_TEST);                 // Enable Depth Buffer
     glDepthFunc(GL_LESS);		           // The Type Of Depth Test To Do
 
-	glEnable(GL_BLEND); 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-	
+	EnableBlended(true);
+
 	glScalef(1.f, -1.f, -1.f);
-	glTranslatef(-Width/2, -Height/2, Height/2.f);
+	//glTranslatef(-Width/2, -Height/2, Height);
+	this->Width = Width;
+	this->Height = Height;
 }
 
 /*virtual*/ bool ExtensionManager::InitVideoMode(int Width, int Height, int Bpp, bool FullScreen)

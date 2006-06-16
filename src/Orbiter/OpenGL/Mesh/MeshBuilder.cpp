@@ -127,6 +127,7 @@ void MeshBuilder::Begin(unsigned char BuildMode)
 /*virtual*/ void MeshBuilder::SetAlpha(float Alpha)
 {
 	this->GlobalAlpha = Alpha;
+	SetBlended(true);
 }
 
 /*virtual*/ void MeshBuilder::SetBlended(bool Blended)

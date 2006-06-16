@@ -39,9 +39,11 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 void MeshFrame::RemoveChild(MeshFrame* Frame)
 {
 	std::vector<MeshFrame*>::iterator Child;
-	for(Child = Children.begin(); Child!=Children.end(); Child++)
+	for(Child = Children.begin(); Child!=Children.end(); )
 		if((*Child) == Frame)
-			Child = Children.erase(Child);
+			Children.erase(Child);
+		else
+			++Child;
 }
 
 void MeshFrame::Paint(MeshTransform ChildTransform)
