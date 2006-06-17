@@ -164,6 +164,7 @@ void PnpQueueEntry::Stage_set(int Stage)
 
 void PnpQueueEntry::Block(EBlockedState eBlockedState)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "PnpQueueEntry::Block queue %d blocked state was %d, now %d", m_pRow_PnpQueue->PK_PnpQueue_get(),(int) m_EBlockedState,(int) eBlockedState);
 	m_EBlockedState=eBlockedState;
 	m_tTimeBlocked=time(NULL);
 }

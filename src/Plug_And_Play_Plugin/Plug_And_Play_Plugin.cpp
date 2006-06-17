@@ -466,7 +466,15 @@ void Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished(string sFilename,st
 		return;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d got %s %d", iPK_PnpQueue,sErrors.c_str(),iPK_DeviceTemplate);
+string sFilesInQueue;
+for(map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();)
+{
+	Row_DHCPDevice *pRow_DHCPDevice = it->second;
+	sFilesInQueue+=pRow_DHCPDevice->PnpDetectionScript_get() + "/";
+}
+g_pPlutoLogger->Write(LV_WARNING, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d got %s %d script: %s (NOW RUNNING %s).  files %d %s", 
+iPK_PnpQueue,sErrors.c_str(),iPK_DeviceTemplate,sFilename.c_str(),pPnpQueueEntry->m_sDetectionScript_Running.c_str(),pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size(),sFilesInQueue.c_str());
+
 	pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
 	pthread_cond_broadcast( &m_PnpCond );  // We got the mutex, it won't run until we're done anyway
 	if( iPK_DeviceTemplate )  // Great, we know what it is

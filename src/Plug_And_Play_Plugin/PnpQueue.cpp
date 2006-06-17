@@ -869,6 +869,7 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 			
 			// We have a detection script we need to run
 			pPnpQueueEntry->m_sDetectionScript_Running=pRow_DHCPDevice->PnpDetectionScript_get();
+			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts now running %s",pPnpQueueEntry->m_sDetectionScript_Running.c_str());
 			pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_running_detection_scripts);
 			return false;
 		}
