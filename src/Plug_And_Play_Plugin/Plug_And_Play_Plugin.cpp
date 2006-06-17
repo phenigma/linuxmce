@@ -467,7 +467,7 @@ void Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished(string sFilename,st
 	}
 
 string sFilesInQueue;
-for(map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();)
+for(map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();++it)
 {
 	Row_DHCPDevice *pRow_DHCPDevice = it->second;
 	sFilesInQueue+=pRow_DHCPDevice->PnpDetectionScript_get() + "/";
