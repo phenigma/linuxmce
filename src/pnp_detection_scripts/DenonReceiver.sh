@@ -1,12 +1,6 @@
 #!/bin/bash
 
-echo "device $1"
-echo "queue $2"
-echo "path $3"
-echo "name $4"
-
-
-echo "Denon Detection script"
+echo "Denon Detection script queue $2"
 /usr/pluto/bin/TestSerialPort -p /dev/ttyUSB0 -P N81 -b 9600 -t "PWSTANDBY\r\s500mPWON\r" -i 1 -s "PWON\r"
 if [[ "$?" -ne 0 ]]; then
 echo "It's not a Denon Receiver"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Yamaha Detection script"
+echo "Yamaha Detection script queue $2"
 /usr/pluto/bin/TestSerialPort -p $3 -P N81 -b 9600 -t "\s1000m\11000\03\s1000m\11000\03" -i 3 -s "\12R"
 if [[ "$?" -ne 0 ]]; then
 echo "It's not a Yamaha Receiver"
