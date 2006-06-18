@@ -80,19 +80,15 @@ class DECLSPECIFIER Row_TimeZone : public TableRow, public SerializeClass
 		long int m_PK_TimeZone;
 string m_ZoneName;
 string m_Coordinate;
-double m_TimeZoneOffset;
-double m_SummerTimeOffset;
 string m_Comments;
 string m_CountryCode;
 
-		bool is_null[7];
+		bool is_null[5];
 	
 	public:
 		long int PK_TimeZone_get();
 string ZoneName_get();
 string Coordinate_get();
-double TimeZoneOffset_get();
-double SummerTimeOffset_get();
 string Comments_get();
 string CountryCode_get();
 
@@ -100,24 +96,18 @@ string CountryCode_get();
 		void PK_TimeZone_set(long int val);
 void ZoneName_set(string val);
 void Coordinate_set(string val);
-void TimeZoneOffset_set(double val);
-void SummerTimeOffset_set(double val);
 void Comments_set(string val);
 void CountryCode_set(string val);
 
 		
 		bool ZoneName_isNull();
 bool Coordinate_isNull();
-bool TimeZoneOffset_isNull();
-bool SummerTimeOffset_isNull();
 bool Comments_isNull();
 bool CountryCode_isNull();
 
 			
 		void ZoneName_setNull(bool val);
 void Coordinate_setNull(bool val);
-void TimeZoneOffset_setNull(bool val);
-void SummerTimeOffset_setNull(bool val);
 void Comments_setNull(bool val);
 void CountryCode_setNull(bool val);
 	
@@ -140,7 +130,7 @@ void CountryCode_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_TimeZone+ m_ZoneName+ m_Coordinate+ m_TimeZoneOffset+ m_SummerTimeOffset+ m_Comments+ m_CountryCode;
+			StartSerializeList() + m_PK_TimeZone+ m_ZoneName+ m_Coordinate+ m_Comments+ m_CountryCode;
 		}
 	private:
 		void SetDefaultValues();
@@ -148,8 +138,6 @@ void CountryCode_setNull(bool val);
 		string PK_TimeZone_asSQL();
 string ZoneName_asSQL();
 string Coordinate_asSQL();
-string TimeZoneOffset_asSQL();
-string SummerTimeOffset_asSQL();
 string Comments_asSQL();
 string CountryCode_asSQL();
 

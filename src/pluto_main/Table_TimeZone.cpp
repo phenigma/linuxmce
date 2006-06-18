@@ -123,11 +123,7 @@ is_null[0] = false;
 is_null[1] = true;
 is_null[2] = true;
 is_null[3] = true;
-m_TimeZoneOffset = 0;
 is_null[4] = true;
-m_SummerTimeOffset = 0;
-is_null[5] = true;
-is_null[6] = true;
 
 
 	is_added=false;
@@ -144,12 +140,6 @@ return m_ZoneName;}
 string Row_TimeZone::Coordinate_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Coordinate;}
-double Row_TimeZone::TimeZoneOffset_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return m_TimeZoneOffset;}
-double Row_TimeZone::SummerTimeOffset_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return m_SummerTimeOffset;}
 string Row_TimeZone::Comments_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Comments;}
@@ -167,18 +157,12 @@ m_ZoneName = val; is_modified=true; is_null[1]=false;}
 void Row_TimeZone::Coordinate_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Coordinate = val; is_modified=true; is_null[2]=false;}
-void Row_TimeZone::TimeZoneOffset_set(double val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-m_TimeZoneOffset = val; is_modified=true; is_null[3]=false;}
-void Row_TimeZone::SummerTimeOffset_set(double val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-m_SummerTimeOffset = val; is_modified=true; is_null[4]=false;}
 void Row_TimeZone::Comments_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Comments = val; is_modified=true; is_null[5]=false;}
+m_Comments = val; is_modified=true; is_null[3]=false;}
 void Row_TimeZone::CountryCode_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_CountryCode = val; is_modified=true; is_null[6]=false;}
+m_CountryCode = val; is_modified=true; is_null[4]=false;}
 
 		
 bool Row_TimeZone::ZoneName_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -187,18 +171,12 @@ return is_null[1];}
 bool Row_TimeZone::Coordinate_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_TimeZone::TimeZoneOffset_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[3];}
-bool Row_TimeZone::SummerTimeOffset_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[4];}
 bool Row_TimeZone::Comments_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[5];}
+return is_null[3];}
 bool Row_TimeZone::CountryCode_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[6];}
+return is_null[4];}
 
 			
 void Row_TimeZone::ZoneName_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -209,20 +187,12 @@ void Row_TimeZone::Coordinate_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,
 is_null[2]=val;
 is_modified=true;
 }
-void Row_TimeZone::TimeZoneOffset_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_TimeZone::Comments_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_TimeZone::SummerTimeOffset_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[4]=val;
-is_modified=true;
-}
-void Row_TimeZone::Comments_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[5]=val;
-is_modified=true;
-}
 void Row_TimeZone::CountryCode_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[6]=val;
+is_null[4]=val;
 is_modified=true;
 }
 	
@@ -268,37 +238,11 @@ delete[] buf;
 return s;
 }
 
-string Row_TimeZone::TimeZoneOffset_asSQL()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-if (is_null[3])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%lf", m_TimeZoneOffset);
-
-return buf;
-}
-
-string Row_TimeZone::SummerTimeOffset_asSQL()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-if (is_null[4])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%lf", m_SummerTimeOffset);
-
-return buf;
-}
-
 string Row_TimeZone::Comments_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[5])
+if (is_null[3])
 return "NULL";
 
 char *buf = new char[201];
@@ -312,7 +256,7 @@ string Row_TimeZone::CountryCode_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[6])
+if (is_null[4])
 return "NULL";
 
 char *buf = new char[11];
@@ -360,10 +304,10 @@ bool Table_TimeZone::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInse
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_TimeZone_asSQL()+", "+pRow->ZoneName_asSQL()+", "+pRow->Coordinate_asSQL()+", "+pRow->TimeZoneOffset_asSQL()+", "+pRow->SummerTimeOffset_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->CountryCode_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_TimeZone_asSQL()+", "+pRow->ZoneName_asSQL()+", "+pRow->Coordinate_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->CountryCode_asSQL();
 
 	
-		string query = "insert into TimeZone (`PK_TimeZone`, `ZoneName`, `Coordinate`, `TimeZoneOffset`, `SummerTimeOffset`, `Comments`, `CountryCode`) values ("+
+		string query = "insert into TimeZone (`PK_TimeZone`, `ZoneName`, `Coordinate`, `Comments`, `CountryCode`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -419,7 +363,7 @@ condition = condition + "`PK_TimeZone`=" + tmp_PK_TimeZone;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_TimeZone`="+pRow->PK_TimeZone_asSQL()+", `ZoneName`="+pRow->ZoneName_asSQL()+", `Coordinate`="+pRow->Coordinate_asSQL()+", `TimeZoneOffset`="+pRow->TimeZoneOffset_asSQL()+", `SummerTimeOffset`="+pRow->SummerTimeOffset_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `CountryCode`="+pRow->CountryCode_asSQL();
+update_values_list = update_values_list + "`PK_TimeZone`="+pRow->PK_TimeZone_asSQL()+", `ZoneName`="+pRow->ZoneName_asSQL()+", `Coordinate`="+pRow->Coordinate_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `CountryCode`="+pRow->CountryCode_asSQL();
 
 	
 		string query = "update TimeZone set " + update_values_list + " where " + condition;
@@ -564,45 +508,23 @@ pRow->m_Coordinate = string(row[2],lengths[2]);
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_TimeZoneOffset = 0;
+pRow->m_Comments = "";
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%lf", &(pRow->m_TimeZoneOffset));
+pRow->m_Comments = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_SummerTimeOffset = 0;
-}
-else
-{
-pRow->is_null[4]=false;
-sscanf(row[4], "%lf", &(pRow->m_SummerTimeOffset));
-}
-
-if (row[5] == NULL)
-{
-pRow->is_null[5]=true;
-pRow->m_Comments = "";
-}
-else
-{
-pRow->is_null[5]=false;
-pRow->m_Comments = string(row[5],lengths[5]);
-}
-
-if (row[6] == NULL)
-{
-pRow->is_null[6]=true;
 pRow->m_CountryCode = "";
 }
 else
 {
-pRow->is_null[6]=false;
-pRow->m_CountryCode = string(row[6],lengths[6]);
+pRow->is_null[4]=false;
+pRow->m_CountryCode = string(row[4],lengths[4]);
 }
 
 
@@ -749,45 +671,23 @@ pRow->m_Coordinate = string(row[2],lengths[2]);
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_TimeZoneOffset = 0;
+pRow->m_Comments = "";
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%lf", &(pRow->m_TimeZoneOffset));
+pRow->m_Comments = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_SummerTimeOffset = 0;
-}
-else
-{
-pRow->is_null[4]=false;
-sscanf(row[4], "%lf", &(pRow->m_SummerTimeOffset));
-}
-
-if (row[5] == NULL)
-{
-pRow->is_null[5]=true;
-pRow->m_Comments = "";
-}
-else
-{
-pRow->is_null[5]=false;
-pRow->m_Comments = string(row[5],lengths[5]);
-}
-
-if (row[6] == NULL)
-{
-pRow->is_null[6]=true;
 pRow->m_CountryCode = "";
 }
 else
 {
-pRow->is_null[6]=false;
-pRow->m_CountryCode = string(row[6],lengths[6]);
+pRow->is_null[4]=false;
+pRow->m_CountryCode = string(row[4],lengths[4]);
 }
 
 
