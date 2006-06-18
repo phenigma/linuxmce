@@ -204,6 +204,7 @@ tblText=NULL;
 tblTextCategory=NULL;
 tblText_LS=NULL;
 tblText_LS_AltVersions=NULL;
+tblTimeZone=NULL;
 tblUI=NULL;
 tblUnknownDevices=NULL;
 tblUserMode=NULL;
@@ -803,6 +804,9 @@ if( tblText_LS!=NULL )
 if( tblText_LS_AltVersions!=NULL )
 	if( !Commit_Text_LS_AltVersions(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
+if( tblTimeZone!=NULL )
+	if( !Commit_TimeZone(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblUI!=NULL )
 	if( !Commit_UI(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
@@ -1136,6 +1140,7 @@ DeleteTable_Text();
 DeleteTable_TextCategory();
 DeleteTable_Text_LS();
 DeleteTable_Text_LS_AltVersions();
+DeleteTable_TimeZone();
 DeleteTable_UI();
 DeleteTable_UnknownDevices();
 DeleteTable_UserMode();

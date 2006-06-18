@@ -19,6 +19,7 @@ using namespace std;
 #include "Table_City.h"
 #include "Table_Country.h"
 #include "Table_Region.h"
+#include "Table_TimeZone.h"
 
 #include "Table_Installation.h"
 #include "Table_PostalCode.h"
@@ -133,10 +134,11 @@ m_Latitude = 0;
 is_null[5] = true;
 m_Longitude = 0;
 is_null[6] = true;
-is_null[7] = true;
 m_DmaId = 0;
+is_null[7] = true;
 is_null[8] = true;
 is_null[9] = true;
+m_FK_TimeZone = 0;
 
 
 	is_added=false;
@@ -162,9 +164,6 @@ return m_Latitude;}
 float Row_City::Longitude_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Longitude;}
-string Row_City::TimeZone_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return m_TimeZone;}
 short int Row_City::DmaId_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_DmaId;}
@@ -174,6 +173,9 @@ return m_County;}
 string Row_City::Code_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Code;}
+long int Row_City::FK_TimeZone_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_TimeZone;}
 
 		
 void Row_City::PK_City_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -194,18 +196,18 @@ m_Latitude = val; is_modified=true; is_null[4]=false;}
 void Row_City::Longitude_set(float val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Longitude = val; is_modified=true; is_null[5]=false;}
-void Row_City::TimeZone_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-m_TimeZone = val; is_modified=true; is_null[6]=false;}
 void Row_City::DmaId_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_DmaId = val; is_modified=true; is_null[7]=false;}
+m_DmaId = val; is_modified=true; is_null[6]=false;}
 void Row_City::County_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_County = val; is_modified=true; is_null[8]=false;}
+m_County = val; is_modified=true; is_null[7]=false;}
 void Row_City::Code_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Code = val; is_modified=true; is_null[9]=false;}
+m_Code = val; is_modified=true; is_null[8]=false;}
+void Row_City::FK_TimeZone_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_TimeZone = val; is_modified=true; is_null[9]=false;}
 
 		
 bool Row_City::FK_Region_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -220,16 +222,16 @@ return is_null[4];}
 bool Row_City::Longitude_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_City::TimeZone_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[6];}
 bool Row_City::DmaId_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[7];}
+return is_null[6];}
 bool Row_City::County_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[8];}
+return is_null[7];}
 bool Row_City::Code_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[8];}
+bool Row_City::FK_TimeZone_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
 
@@ -250,19 +252,19 @@ void Row_City::Longitude_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table
 is_null[5]=val;
 is_modified=true;
 }
-void Row_City::TimeZone_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_City::DmaId_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_City::DmaId_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_City::County_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_City::County_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_City::Code_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_City::Code_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_City::FK_TimeZone_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
@@ -347,25 +349,11 @@ sprintf(buf, "%f", m_Longitude);
 return buf;
 }
 
-string Row_City::TimeZone_asSQL()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-if (is_null[6])
-return "NULL";
-
-char *buf = new char[21];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_TimeZone.c_str(), (unsigned long) min((size_t)10,m_TimeZone.size()));
-string s=string()+"\""+buf+"\"";
-delete[] buf;
-return s;
-}
-
 string Row_City::DmaId_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[7])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -378,7 +366,7 @@ string Row_City::County_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[8])
+if (is_null[7])
 return "NULL";
 
 char *buf = new char[51];
@@ -392,7 +380,7 @@ string Row_City::Code_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[9])
+if (is_null[8])
 return "NULL";
 
 char *buf = new char[9];
@@ -400,6 +388,19 @@ mysql_real_escape_string(table->database->m_pMySQL, buf, m_Code.c_str(), (unsign
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
+}
+
+string Row_City::FK_TimeZone_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[9])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_TimeZone);
+
+return buf;
 }
 
 
@@ -440,10 +441,10 @@ bool Table_City::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRo
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_City_asSQL()+", "+pRow->FK_Country_asSQL()+", "+pRow->FK_Region_asSQL()+", "+pRow->City_asSQL()+", "+pRow->Latitude_asSQL()+", "+pRow->Longitude_asSQL()+", "+pRow->TimeZone_asSQL()+", "+pRow->DmaId_asSQL()+", "+pRow->County_asSQL()+", "+pRow->Code_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_City_asSQL()+", "+pRow->FK_Country_asSQL()+", "+pRow->FK_Region_asSQL()+", "+pRow->City_asSQL()+", "+pRow->Latitude_asSQL()+", "+pRow->Longitude_asSQL()+", "+pRow->DmaId_asSQL()+", "+pRow->County_asSQL()+", "+pRow->Code_asSQL()+", "+pRow->FK_TimeZone_asSQL();
 
 	
-		string query = "insert into City (`PK_City`, `FK_Country`, `FK_Region`, `City`, `Latitude`, `Longitude`, `TimeZone`, `DmaId`, `County`, `Code`) values ("+
+		string query = "insert into City (`PK_City`, `FK_Country`, `FK_Region`, `City`, `Latitude`, `Longitude`, `DmaId`, `County`, `Code`, `FK_TimeZone`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -499,7 +500,7 @@ condition = condition + "`PK_City`=" + tmp_PK_City;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_City`="+pRow->PK_City_asSQL()+", `FK_Country`="+pRow->FK_Country_asSQL()+", `FK_Region`="+pRow->FK_Region_asSQL()+", `City`="+pRow->City_asSQL()+", `Latitude`="+pRow->Latitude_asSQL()+", `Longitude`="+pRow->Longitude_asSQL()+", `TimeZone`="+pRow->TimeZone_asSQL()+", `DmaId`="+pRow->DmaId_asSQL()+", `County`="+pRow->County_asSQL()+", `Code`="+pRow->Code_asSQL();
+update_values_list = update_values_list + "`PK_City`="+pRow->PK_City_asSQL()+", `FK_Country`="+pRow->FK_Country_asSQL()+", `FK_Region`="+pRow->FK_Region_asSQL()+", `City`="+pRow->City_asSQL()+", `Latitude`="+pRow->Latitude_asSQL()+", `Longitude`="+pRow->Longitude_asSQL()+", `DmaId`="+pRow->DmaId_asSQL()+", `County`="+pRow->County_asSQL()+", `Code`="+pRow->Code_asSQL()+", `FK_TimeZone`="+pRow->FK_TimeZone_asSQL();
 
 	
 		string query = "update City set " + update_values_list + " where " + condition;
@@ -677,45 +678,45 @@ sscanf(row[5], "%f", &(pRow->m_Longitude));
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_TimeZone = "";
+pRow->m_DmaId = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_TimeZone = string(row[6],lengths[6]);
+sscanf(row[6], "%hi", &(pRow->m_DmaId));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_DmaId = 0;
+pRow->m_County = "";
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_DmaId));
+pRow->m_County = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_County = "";
+pRow->m_Code = "";
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_County = string(row[8],lengths[8]);
+pRow->m_Code = string(row[8],lengths[8]);
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_Code = "";
+pRow->m_FK_TimeZone = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-pRow->m_Code = string(row[9],lengths[9]);
+sscanf(row[9], "%li", &(pRow->m_FK_TimeZone));
 }
 
 
@@ -895,45 +896,45 @@ sscanf(row[5], "%f", &(pRow->m_Longitude));
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_TimeZone = "";
+pRow->m_DmaId = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_TimeZone = string(row[6],lengths[6]);
+sscanf(row[6], "%hi", &(pRow->m_DmaId));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_DmaId = 0;
+pRow->m_County = "";
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_DmaId));
+pRow->m_County = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_County = "";
+pRow->m_Code = "";
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_County = string(row[8],lengths[8]);
+pRow->m_Code = string(row[8],lengths[8]);
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_Code = "";
+pRow->m_FK_TimeZone = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-pRow->m_Code = string(row[9],lengths[9]);
+sscanf(row[9], "%li", &(pRow->m_FK_TimeZone));
 }
 
 
@@ -957,6 +958,13 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Region *pTable = table->database->Region_get();
 return pTable->GetRow(m_FK_Region);
+}
+class Row_TimeZone* Row_City::FK_TimeZone_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_TimeZone *pTable = table->database->TimeZone_get();
+return pTable->GetRow(m_FK_TimeZone);
 }
 
 

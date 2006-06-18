@@ -251,6 +251,8 @@
 #define COUNTRY_DEFINE_TABLE_FIELD "Country.Define"
 #define COUNTRY_USEPOSTALCODE_FIELD "UsePostalCode"
 #define COUNTRY_USEPOSTALCODE_TABLE_FIELD "Country.UsePostalCode"
+#define COUNTRY_COUNTRY_CODE_FIELD "country_code"
+#define COUNTRY_COUNTRY_CODE_TABLE_FIELD "Country.country_code"
 
 
 #endif

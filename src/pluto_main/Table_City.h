@@ -83,10 +83,10 @@ long int m_FK_Region;
 string m_City;
 float m_Latitude;
 float m_Longitude;
-string m_TimeZone;
 short int m_DmaId;
 string m_County;
 string m_Code;
+long int m_FK_TimeZone;
 
 		bool is_null[10];
 	
@@ -97,10 +97,10 @@ long int FK_Region_get();
 string City_get();
 float Latitude_get();
 float Longitude_get();
-string TimeZone_get();
 short int DmaId_get();
 string County_get();
 string Code_get();
+long int FK_TimeZone_get();
 
 		
 		void PK_City_set(long int val);
@@ -109,30 +109,30 @@ void FK_Region_set(long int val);
 void City_set(string val);
 void Latitude_set(float val);
 void Longitude_set(float val);
-void TimeZone_set(string val);
 void DmaId_set(short int val);
 void County_set(string val);
 void Code_set(string val);
+void FK_TimeZone_set(long int val);
 
 		
 		bool FK_Region_isNull();
 bool City_isNull();
 bool Latitude_isNull();
 bool Longitude_isNull();
-bool TimeZone_isNull();
 bool DmaId_isNull();
 bool County_isNull();
 bool Code_isNull();
+bool FK_TimeZone_isNull();
 
 			
 		void FK_Region_setNull(bool val);
 void City_setNull(bool val);
 void Latitude_setNull(bool val);
 void Longitude_setNull(bool val);
-void TimeZone_setNull(bool val);
 void DmaId_setNull(bool val);
 void County_setNull(bool val);
 void Code_setNull(bool val);
+void FK_TimeZone_setNull(bool val);
 	
 	
 		void Delete();
@@ -147,6 +147,7 @@ void Code_setNull(bool val);
 		// Return the rows for foreign keys 
 		class Row_Country* FK_Country_getrow();
 class Row_Region* FK_Region_getrow();
+class Row_TimeZone* FK_TimeZone_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -156,7 +157,7 @@ void PostalCode_FK_City_getrows(vector <class Row_PostalCode*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_City+ m_FK_Country+ m_FK_Region+ m_City+ m_Latitude+ m_Longitude+ m_TimeZone+ m_DmaId+ m_County+ m_Code;
+			StartSerializeList() + m_PK_City+ m_FK_Country+ m_FK_Region+ m_City+ m_Latitude+ m_Longitude+ m_DmaId+ m_County+ m_Code+ m_FK_TimeZone;
 		}
 	private:
 		void SetDefaultValues();
@@ -167,10 +168,10 @@ string FK_Region_asSQL();
 string City_asSQL();
 string Latitude_asSQL();
 string Longitude_asSQL();
-string TimeZone_asSQL();
 string DmaId_asSQL();
 string County_asSQL();
 string Code_asSQL();
+string FK_TimeZone_asSQL();
 
 	};
 

@@ -15,14 +15,14 @@
 #define CITY_LATITUDE_TABLE_FIELD "City.Latitude"
 #define CITY_LONGITUDE_FIELD "Longitude"
 #define CITY_LONGITUDE_TABLE_FIELD "City.Longitude"
-#define CITY_TIMEZONE_FIELD "TimeZone"
-#define CITY_TIMEZONE_TABLE_FIELD "City.TimeZone"
 #define CITY_DMAID_FIELD "DmaId"
 #define CITY_DMAID_TABLE_FIELD "City.DmaId"
 #define CITY_COUNTY_FIELD "County"
 #define CITY_COUNTY_TABLE_FIELD "City.County"
 #define CITY_CODE_FIELD "Code"
 #define CITY_CODE_TABLE_FIELD "City.Code"
+#define CITY_FK_TIMEZONE_FIELD "FK_TimeZone"
+#define CITY_FK_TIMEZONE_TABLE_FIELD "City.FK_TimeZone"
 
 
 #endif

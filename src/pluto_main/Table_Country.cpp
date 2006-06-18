@@ -130,6 +130,7 @@ m_Define = "";
 is_null[2] = false;
 m_UsePostalCode = 0;
 is_null[3] = false;
+is_null[4] = true;
 
 
 	is_added=false;
@@ -149,6 +150,9 @@ return m_Define;}
 short int Row_Country::UsePostalCode_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_UsePostalCode;}
+string Row_Country::country_code_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_country_code;}
 
 		
 void Row_Country::PK_Country_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -163,10 +167,20 @@ m_Define = val; is_modified=true; is_null[2]=false;}
 void Row_Country::UsePostalCode_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_UsePostalCode = val; is_modified=true; is_null[3]=false;}
+void Row_Country::country_code_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_country_code = val; is_modified=true; is_null[4]=false;}
 
 		
+bool Row_Country::country_code_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[4];}
 
 			
+void Row_Country::country_code_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[4]=val;
+is_modified=true;
+}
 	
 
 string Row_Country::PK_Country_asSQL()
@@ -223,6 +237,20 @@ sprintf(buf, "%hi", m_UsePostalCode);
 return buf;
 }
 
+string Row_Country::country_code_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[4])
+return "NULL";
+
+char *buf = new char[11];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_country_code.c_str(), (unsigned long) min((size_t)5,m_country_code.size()));
+string s=string()+"\""+buf+"\"";
+delete[] buf;
+return s;
+}
+
 
 
 
@@ -261,10 +289,10 @@ bool Table_Country::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInser
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Country_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->UsePostalCode_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Country_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->UsePostalCode_asSQL()+", "+pRow->country_code_asSQL();
 
 	
-		string query = "insert into Country (`PK_Country`, `Description`, `Define`, `UsePostalCode`) values ("+
+		string query = "insert into Country (`PK_Country`, `Description`, `Define`, `UsePostalCode`, `country_code`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -320,7 +348,7 @@ condition = condition + "`PK_Country`=" + tmp_PK_Country;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_Country`="+pRow->PK_Country_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `UsePostalCode`="+pRow->UsePostalCode_asSQL();
+update_values_list = update_values_list + "`PK_Country`="+pRow->PK_Country_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `UsePostalCode`="+pRow->UsePostalCode_asSQL()+", `country_code`="+pRow->country_code_asSQL();
 
 	
 		string query = "update Country set " + update_values_list + " where " + condition;
@@ -473,6 +501,17 @@ pRow->is_null[3]=false;
 sscanf(row[3], "%hi", &(pRow->m_UsePostalCode));
 }
 
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_country_code = "";
+}
+else
+{
+pRow->is_null[4]=false;
+pRow->m_country_code = string(row[4],lengths[4]);
+}
+
 
 
 		//checking for duplicates
@@ -623,6 +662,17 @@ else
 {
 pRow->is_null[3]=false;
 sscanf(row[3], "%hi", &(pRow->m_UsePostalCode));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_country_code = "";
+}
+else
+{
+pRow->is_null[4]=false;
+pRow->m_country_code = string(row[4],lengths[4]);
 }
 
 

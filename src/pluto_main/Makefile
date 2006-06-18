@@ -186,6 +186,7 @@ Table_Text.cpp \
 Table_TextCategory.cpp \
 Table_Text_LS.cpp \
 Table_Text_LS_AltVersions.cpp \
+Table_TimeZone.cpp \
 Table_UI.cpp \
 Table_UnknownDevices.cpp \
 Table_UserMode.cpp \

@@ -81,25 +81,30 @@ class DECLSPECIFIER Row_Country : public TableRow, public SerializeClass
 string m_Description;
 string m_Define;
 short int m_UsePostalCode;
+string m_country_code;
 
-		bool is_null[4];
+		bool is_null[5];
 	
 	public:
 		long int PK_Country_get();
 string Description_get();
 string Define_get();
 short int UsePostalCode_get();
+string country_code_get();
 
 		
 		void PK_Country_set(long int val);
 void Description_set(string val);
 void Define_set(string val);
 void UsePostalCode_set(short int val);
+void country_code_set(string val);
 
 		
-		
+		bool country_code_isNull();
+
 			
-			
+		void country_code_setNull(bool val);
+	
 	
 		void Delete();
 		void Reload();		
@@ -123,7 +128,7 @@ void RepositorySource_URL_FK_Country_getrows(vector <class Row_RepositorySource_
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Country+ m_Description+ m_Define+ m_UsePostalCode;
+			StartSerializeList() + m_PK_Country+ m_Description+ m_Define+ m_UsePostalCode+ m_country_code;
 		}
 	private:
 		void SetDefaultValues();
@@ -132,6 +137,7 @@ void RepositorySource_URL_FK_Country_getrows(vector <class Row_RepositorySource_
 string Description_asSQL();
 string Define_asSQL();
 string UsePostalCode_asSQL();
+string country_code_asSQL();
 
 	};
 

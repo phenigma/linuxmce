@@ -385,6 +385,8 @@ class Table_Text_LS* tblText_LS;
 bool Commit_Text_LS(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Text_LS_AltVersions* tblText_LS_AltVersions;
 bool Commit_Text_LS_AltVersions(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_TimeZone* tblTimeZone;
+bool Commit_TimeZone(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_UI* tblUI;
 bool Commit_UI(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_UnknownDevices* tblUnknownDevices;
@@ -664,6 +666,7 @@ class Table_Text* Text_get() { if( !tblText ) CreateTable_Text(); return tblText
 class Table_TextCategory* TextCategory_get() { if( !tblTextCategory ) CreateTable_TextCategory(); return tblTextCategory; }
 class Table_Text_LS* Text_LS_get() { if( !tblText_LS ) CreateTable_Text_LS(); return tblText_LS; }
 class Table_Text_LS_AltVersions* Text_LS_AltVersions_get() { if( !tblText_LS_AltVersions ) CreateTable_Text_LS_AltVersions(); return tblText_LS_AltVersions; }
+class Table_TimeZone* TimeZone_get() { if( !tblTimeZone ) CreateTable_TimeZone(); return tblTimeZone; }
 class Table_UI* UI_get() { if( !tblUI ) CreateTable_UI(); return tblUI; }
 class Table_UnknownDevices* UnknownDevices_get() { if( !tblUnknownDevices ) CreateTable_UnknownDevices(); return tblUnknownDevices; }
 class Table_UserMode* UserMode_get() { if( !tblUserMode ) CreateTable_UserMode(); return tblUserMode; }
@@ -899,6 +902,7 @@ void CreateTable_Text();
 void CreateTable_TextCategory();
 void CreateTable_Text_LS();
 void CreateTable_Text_LS_AltVersions();
+void CreateTable_TimeZone();
 void CreateTable_UI();
 void CreateTable_UnknownDevices();
 void CreateTable_UserMode();
@@ -1128,6 +1132,7 @@ void DeleteTable_Text();
 void DeleteTable_TextCategory();
 void DeleteTable_Text_LS();
 void DeleteTable_Text_LS_AltVersions();
+void DeleteTable_TimeZone();
 void DeleteTable_UI();
 void DeleteTable_UnknownDevices();
 void DeleteTable_UserMode();

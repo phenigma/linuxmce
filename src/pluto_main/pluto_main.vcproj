@@ -658,6 +658,9 @@
 				RelativePath=".\Table_Text_LS_AltVersions.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_TimeZone.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_UI.cpp">
 			</File>
 			<File
