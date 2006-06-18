@@ -462,7 +462,7 @@ void Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished(string sFilename,st
 	PnpQueueEntry *pPnpQueueEntry = m_pPnpQueue->m_mapPnpQueueEntry_Find(iPK_PnpQueue);
 	if( !pPnpQueueEntry )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Plug_And_Play_Plugin::CMD_Ignore_PNP_Device queue %d is invalid", iPK_PnpQueue);
+		g_pPlutoLogger->Write(LV_CRITICAL, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d is invalid", iPK_PnpQueue);
 		return;
 	}
 
@@ -491,7 +491,7 @@ iPK_PnpQueue,sErrors.c_str(),iPK_DeviceTemplate,sFilename.c_str(),pPnpQueueEntry
 	for(map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();)
 	{
 		Row_DHCPDevice *pRow_DHCPDevice = it->second;
-		if( pPnpQueueEntry->m_sDetectionScript_Running==pRow_DHCPDevice->PnpDetectionScript_get() )
+		if( sFilename==pRow_DHCPDevice->PnpDetectionScript_get() )
 		{
 			string sMessage;
 			if( sErrors=="OK" ) // This means the script finished running.  If so, it should have reported either an error, a device template, or a no match.  It shouldn't still be in the queue
