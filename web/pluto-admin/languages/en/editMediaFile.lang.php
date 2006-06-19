@@ -22,4 +22,5 @@ $TEXT_MEDIA_PLUGIN_NOT_FOUND_CONST='Media plugin not found.';
 $TEXT_RESPONSE_CONST='Response';
 $TEXT_JPG_ONLY_CONST='JPG only';
 $TEXT_DATE_ADDED_CONST='Date added';
+$TEXT_CONFIRM_DELETE_PICTURE_CONST='Are you sure you want to delete this picture?';
 ?>

@@ -72,7 +72,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		}
 
 		$out.='
-		<h4>'.$TEXT_EDIT_MEDIA_FILE_CONST.'</h4>
+		
 		<a href="javascript:syncPath(\''.$rowFile['Path'].'\')">Back</a>
 		<table border="0" cellspacing="0" cellpadding="3">
 			<tr bgColor="#EEEEEE">
@@ -137,7 +137,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			</tr>
 			<tr>
 				<td valign="top" align="left"><B>'.$TEXT_PICTURES_CONST.'</B></td>
-				<td valign="top" align="left" colspan="6"><table>
+				<td valign="top" align="left" colspan="6"><table border="0">
 			<tr>';
 			$queryPictures='
 				SELECT * FROM Picture_File
@@ -145,21 +145,31 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				WHERE FK_File=?';
 			$resPictures=$mediadbADO->Execute($queryPictures,$fileID);
 			$picsCount=0;
+			$picsArray=array();
 			while($rowPictures=$resPictures->FetchRow()){
+				if(!in_array($rowPictures['PK_Picture'],$picsArray)){
+					$picsArray[]=$rowPictures['PK_Picture'];
+				}
 				$picsCount++;
 				$out.='
-					<td style="background-color:#EEEEEE;" align="center"><a href="mediapics/'.$rowPictures['PK_Picture'].'.'.$rowPictures['Extension'].'" target="_blank"><img src="mediapics/'.$rowPictures['PK_Picture'].'_tn.'.$rowPictures['Extension'].'" border="0"></a> <br><a href="#" onClick="if(confirm(\'Are you sure you want to delete this picture?\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=properties&picID='.$rowPictures['PK_Picture'].'\';">'.$TEXT_DELETE_CONST.'</a></td>
+					<td style="background-color:#EEEEEE;" align="center"><a href="mediapics/'.$rowPictures['PK_Picture'].'.'.$rowPictures['Extension'].'" target="_blank"><img src="mediapics/'.$rowPictures['PK_Picture'].'_tn.'.$rowPictures['Extension'].'" border="0"></a> 
+						<br>
+						<input type="text" name="url_'.$rowPictures['PK_Picture'].'" value="'.$rowPictures['URL'].'">
+						<br>
+						<a href="#" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_PICTURE_CONST.'\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=properties&picID='.$rowPictures['PK_Picture'].'\';">'.$TEXT_DELETE_CONST.'</a></td>
 				';
 				if($picsCount%$picsPerLine==0)
 					$out.='</tr><tr>';
 			}
 			$out.='
 					</tr>
-				</table></td>
+				</table>
+				<input type="hidden" name="picsArray" value="'.join(',',$picsArray).'">
+				</td>
 			</tr>
 			<tr>
 				<td><B>'.$TEXT_ADD_PICTURE_CONST.'</B><br><em>'.$TEXT_JPG_ONLY_CONST.'</em></td>
-				<td colspan="6"> <input type="file" name="newPic" value=""> <input type="submit" class="button" name="addPic" value="'.$TEXT_ADD_PICTURE_CONST.'"></td>
+				<td colspan="6"> '.$TEXT_URL_CONST.' <input type="text" name="newUrl" value=""> '.$TEXT_FILE_CONST.' <input type="file" name="newPic" value=""> <input type="submit" class="button" name="addPic" value="'.$TEXT_ADD_PICTURE_CONST.'"></td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
@@ -311,18 +321,26 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			}
 			$mediadbADO->Execute('UPDATE File SET Filename=?, Path=?, EK_MediaType=? WHERE PK_File=?',array($fileName,$path,$type,$fileID));
 			
+			// update pics urls
+			$picsArray=explode(',',$_POST['picsArray']);
+			foreach ($picsArray AS $pic){
+				$picUrl=cleanString($_POST['url_'.$pic]);
+				$mediadbADO->Execute('UPDATE Picture SET URL=? WHERE PK_Picture=?',array($picUrl,$pic));
+			}
+			
 			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"';
-			exec($cmd);
+			exec_batch_command($cmd);
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_MEDIA_FILE_UPDATED_CONST.': '.$cmd);			
 			exit();
 		}
 		
 		if(isset($_REQUEST['addPic']) && isset($_FILES['newPic']) && $_FILES['newPic']['name']!=''){
+			$newUrl=cleanString($_POST['newUrl']);
 			$picExtension=str_replace('.','',strtolower(strrchr($_FILES['newPic']['name'],".")));
 			$picExtension=($picExtension=='jpeg')?'jpg':$picExtension;
 			
-			$insertPicture='INSERT INTO Picture (Extension) VALUES (?)';
-			$mediadbADO->Execute($insertPicture,$picExtension);
+			$insertPicture='INSERT INTO Picture (Extension,URL) VALUES (?,?)';
+			$mediadbADO->Execute($insertPicture,array($picExtension,$newUrl));
 			$insertID=$mediadbADO->Insert_ID();
 			$newPicName=$insertID.'.'.$picExtension;
 			
@@ -354,6 +372,9 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		
 		header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_MEDIA_FILE_UPDATED_CONST);			
 	}
+
+	$output->setMenuTitle($TEXT_FILES_AND_MEDIA_CONST.' |');
+	$output->setPageTitle($TEXT_EDIT_MEDIA_FILE_CONST);
 	$output->setReloadLeftFrame(false);
 	$output->setScriptInHead($scriptInHead);	
 	$output->setScriptCalendar('null');
