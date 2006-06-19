@@ -6,7 +6,7 @@ function sqlcvs_checkin($output,$dbADO) {
 	
 	global $dbPlutoMainDatabase;
 	global 	$dbMythType, $dbMythUser, $dbMythPass, $dbMythServer;
-	$dbPlutoMythDatabase='pluto_myth_devel';
+	$dbPlutoMythDatabase='pluto_myth';
 	$databasesArray=array($dbPlutoMainDatabase=>'pluto_main',$dbPlutoMythDatabase=>'pluto_myth');
 	
 	$database=(isset($_REQUEST['database']))?$_REQUEST['database']:$dbPlutoMainDatabase;
