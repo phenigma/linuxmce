@@ -24,6 +24,12 @@ if [[ "$Background" == y ]]; then
 	#if [[ -x /usr/pluto/bin/StartGyrationEvrouter.sh ]]; then
 	#	screen -d -m -S GyrationMouse /usr/pluto/bin/StartGyrationEvrouter.sh
 	#fi
+	sleep 1
+	UI_Version=$(/usr/pluto/bin/X-WhichUI.sh)
+	if [[ "$UI_Version" == 2 ]]; then
+		DISPLAY=:0 /usr/bin/xcompmgr -c &
+		disown -a
+	fi
 else
 	xinit "$XClient" "${XClientParm[@]}" -- :0 -ac -allowMouseOpenFail vt7 "${XServerParm[@]}"
 fi
