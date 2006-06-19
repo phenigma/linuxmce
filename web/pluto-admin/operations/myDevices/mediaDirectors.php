@@ -267,7 +267,7 @@ function mediaDirectors($output,$dbADO) {
 											'.$TEXT_FORCE_48K_CONST.' <input type="checkbox" name="force48k_'.$rowD['PK_Device'].'" value="K" '.@$oldForce48k[$rowD['PK_Device']].'>
 											</td>
 											<td valign="top" rowspan="2"></td>
-											<td align="right" valign="top" class="alternate_back">'.$TEXT_VIDEO_CARD_CONST.' '.htmlPulldown(@$videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'Standard Video Card').'<br>
+											<td align="right" valign="top" class="alternate_back">'.$TEXT_VIDEO_CARD_CONST.' '.pulldownFromArray(@$videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'onChange="if(confirm(\''.$TEXT_CHANGE_VIDEO_CARD_CONFIRMATION_CONST.'\')){document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();}"','key','Standard Video Card').'<br>
 											<input type="button" class="button_fixed" name="setResolution" value="'.$TEXT_SET_RESOLUTION_REFRESH_CONST.'" onclick="self.location=\'index.php?section=setResolution&mdID='.$rowD['PK_Device'].'\'";>
 											</td>
 										</tr>

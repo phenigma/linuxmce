@@ -19,4 +19,5 @@ $TEXT_PVR_CARD_DELETED_CONST='PVR card deleted.';
 $TEXT_REBUILD_DISKLESS_IMAGE_CONST='Rebuild image';
 $TEXT_CONFIRM_DELETE_MEDIA_DIRECTOR_CONST='Are you sure you want to delete this device?';
 $TEXT_FORCE_48K_CONST='Force 48 KHz output sample rate';
+$TEXT_CHANGE_VIDEO_CARD_CONFIRMATION_CONST='Are you sure you want to change the video card?';
 ?>
