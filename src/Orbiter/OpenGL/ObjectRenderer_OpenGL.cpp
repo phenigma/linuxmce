@@ -17,17 +17,23 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 
 /*virtual*/ void ObjectRenderer_OpenGL::RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "RenderGraphic %d - (%d,%d,%d,%d)", m_pOwner->m_iBaseObjectID,
-		rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
+	//g_pPlutoLogger->Write(LV_STATUS, "(1) RenderGraphic %d - (%d,%d,%d,%d)", m_pOwner->m_iBaseObjectID,
+	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
 
 	PlutoGraphic *pPlutoGraphic = NULL;
 	pPlutoGraphic = 
 		m_pOwner->m_pvectCurrentGraphic != NULL && m_pOwner->m_pvectCurrentGraphic->size() > 0 ?
-		(m_pOwner->m_pvectCurrentGraphic->operator [](0)) : NULL;
+		(m_pOwner->m_pvectCurrentGraphic->operator [](0)) : 
+		m_pOwner->m_vectGraphic.size() > 0 ? 
+			m_pOwner->m_vectGraphic[0] :
+			NULL;
 
 	//we have nothing to render
 	if(NULL == pPlutoGraphic)
 		return;
+		
+	//g_pPlutoLogger->Write(LV_STATUS, "(2) RenderGraphic %d - (%d,%d,%d,%d)", m_pOwner->m_iBaseObjectID,
+	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
 
 	string sFileName = "";
 	if(
@@ -82,6 +88,9 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 		pGraphicFile = NULL;
 	}
 
+	//g_pPlutoLogger->Write(LV_STATUS, "(3) RenderGraphic %d - (%d,%d,%d,%d)", m_pOwner->m_iBaseObjectID,
+	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
+	
 	if(pPlutoGraphic->IsEmpty() && !sFileName.empty())
 	{
 		if(!FileUtils::FileExists(sFileName))
@@ -116,17 +125,15 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 		}
 	}
 
-
+	//g_pPlutoLogger->Write(LV_STATUS, "(4) RenderGraphic %d - (%d,%d,%d,%d)", m_pOwner->m_iBaseObjectID,
+	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
+	
 	if(!pPlutoGraphic->IsEmpty())
 		m_pOwner->m_pOrbiter->Renderer()->RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
 #ifdef DEBUG
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", m_pOwner->m_ObjectID.c_str());
 #endif
-
-	//TODO:
-	//m_pOwner->m_GraphicToDisplay == GRAPHIC_SELECTED)
-	//m_pOwner->m_pOrbiter->SelectObject(m_pOwner, point);
 }
 
 

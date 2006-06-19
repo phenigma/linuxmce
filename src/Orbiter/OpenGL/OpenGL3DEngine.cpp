@@ -44,6 +44,7 @@ void OpenGL3DEngine::Paint()
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	if(NULL == CurrentLayer)
 		return;
+	
 	TextureManager::Instance()->ReleaseTextures();
 	TextureManager::Instance()->ConvertImagesToTextures();
 
@@ -53,15 +54,15 @@ void OpenGL3DEngine::Paint()
 		return;
 	}
 
-	GL.SetClearColor(.0f, .0f, 0.0f);
+	GL.SetClearColor(.0f, .0f, 0.5f);
 	GL.ClearScreen(true, false);
 	GL.EnableZBuffer(false);
 
 	//TODO: need desktop for effects Desktop
 	
 	MeshTransform Transform;
-
 	Transform.ApplyTranslate(-GL.Width/2, 0, -(GL.Width)/2);
+	
 	int Tick;
 	if(this->AnimationRemain)
 	{
@@ -72,8 +73,8 @@ void OpenGL3DEngine::Paint()
 	else
 		Tick = 5*90;
 	
-		Transform.ApplyRotateY(Tick / 5);
-		//Transform.ApplyTranslate(0, 0, GL.Width/2);
+	Transform.ApplyRotateY(Tick / 5);
+	//Transform.ApplyTranslate(0, 0, GL.Width/2);
 
 	if(OldLayer)
 		OldLayer->SetTransform(Transform);
@@ -83,11 +84,12 @@ void OpenGL3DEngine::Paint()
 
 	Transform.SetIdentity();
 	Transform.Translate(0, -GL.Height/2, (GL.Width+GL.Height)/2);
+	
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 	Desktop.Paint(Transform);
-	g_pPlutoLogger->Write(LV_CRITICAL, "Painting using layer %p, num layers %d", CurrentLayer, 
-		Desktop.Children.size());
+	//g_pPlutoLogger->Write(LV_CRITICAL, "Painting using layer %p, num layers %d", CurrentLayer, 
+	//	Desktop.Children.size());
 
 	GL.Flip();
 }
@@ -100,7 +102,7 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(MeshFrame* Frame)
 
 	CurrentLayer->AddChild(Frame);
 
-	g_pPlutoLogger->Write(LV_WARNING, "Adding child %p to layer %p", Frame, CurrentLayer);
+	//g_pPlutoLogger->Write(LV_WARNING, "Adding child %p to layer %p", Frame, CurrentLayer);
 }
 
 /*virtual*/ void OpenGL3DEngine::Select(PlutoRectangle* SelectedArea)
@@ -217,14 +219,20 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(MeshFrame* Frame)
 
 /*virtual*/ void OpenGL3DEngine::UnHighlight()
 {
-	CurrentLayer->RemoveChild(HighLightFrame);
+	//TODO: put me back
+	//CurrentLayer->RemoveChild(HighLightFrame);
+	
+	//TODO: this is crashing under linux
+	//the frame already deleted?
 	delete HighLightFrame;
 	HighLightFrame = NULL;
 }
 
 /*virtual*/ void OpenGL3DEngine::UnSelect()
 {
-	CurrentLayer->RemoveChild(SelectedFrame);
+	//TODO: put me back
+	//CurrentLayer->RemoveChild(SelectedFrame);
+	
 	delete SelectedFrame;
 	SelectedFrame = NULL;
 }
@@ -238,8 +246,9 @@ void OpenGL3DEngine::NewScreen()
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	
-	if(OldLayer)
+	if(NULL != OldLayer)
 	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "NewScreen, removing stuff...");
 		Desktop.RemoveChild(OldLayer);
 		delete OldLayer;
 	}
@@ -250,10 +259,11 @@ void OpenGL3DEngine::NewScreen()
 
 	CurrentLayer = new MeshFrame();
 	Desktop.AddChild(CurrentLayer);
+	
 	Desktop.RemoveChild(OldLayer);
 	Desktop.AddChild(OldLayer);
 
-	g_pPlutoLogger->Write(LV_CRITICAL, "Current layer is now %p", CurrentLayer);
+	g_pPlutoLogger->Write(LV_CRITICAL, "Current layer is now %p, size %d", CurrentLayer, Desktop.Children.size());
 }
 
 

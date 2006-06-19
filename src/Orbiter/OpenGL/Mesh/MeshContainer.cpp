@@ -1,6 +1,6 @@
 #include "MeshContainer.h"
 
-MeshContainer::MeshContainer(void) : Blended_(false)
+MeshContainer::MeshContainer(void) : Blended_(false), NoVertexes(0), NoTriangles(0)
 {
 }
 

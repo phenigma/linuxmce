@@ -4,6 +4,9 @@
 
 #include "../OpenGLGraphic.h"
 
+#include "DCE/Logger.h"
+using namespace DCE;
+
 /*static*/ TextureManager* TextureManager::_Instance = NULL;
 
 TextureManager* TextureManager::Instance() 
@@ -68,6 +71,9 @@ void TextureManager::PrepareRelease(OpenGLGraphic* TextureGraphic)
 
 void TextureManager::ConvertImagesToTextures()
 {
+	if(WaitForConvert.size())
+		g_pPlutoLogger->Write(LV_CRITICAL, "TextureManager::ConvertImagesToTextures size %d", WaitForConvert.size());
+	
 	OpenGLGraphic* Item;
 	while (!WaitForConvert.empty())
 	{
@@ -80,6 +86,9 @@ void TextureManager::ConvertImagesToTextures()
 
 void TextureManager::ReleaseTextures()
 {
+	if(WaitForRelease.size())
+		g_pPlutoLogger->Write(LV_CRITICAL, "TextureManager::ReleaseTextures size %d", WaitForRelease.size());
+
 	OpenGLGraphic* Item;
 	while (!WaitForRelease.empty())
 	{

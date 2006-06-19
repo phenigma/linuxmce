@@ -8,6 +8,8 @@
 
 #include <stdio.h>
 
+//#define DEBUG_LINES
+
 MeshPainter* MeshPainter::_Instance = NULL;
 
 /*static*/ MeshPainter* MeshPainter::Instance()

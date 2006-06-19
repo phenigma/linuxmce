@@ -124,7 +124,7 @@ void OpenGLGraphic::Convert()
 			GL_UNSIGNED_BYTE, 
 			LocalSurface->pixels );
 
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "Freeing surface %p" , LocalSurface);
+	//DCE::g_pPlutoLogger->Write(LV_STATUS, "Freeing surface %p" , LocalSurface);
 
 	SDL_FreeSurface(LocalSurface);
 	LocalSurface = NULL;
@@ -168,6 +168,8 @@ bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 
 void OpenGLGraphic::Clear()
 {
+	//DCE::g_pPlutoLogger->Write(LV_STATUS, "PrepareRelease %p", this);
+
 	TextureManager::Instance()->PrepareRelease(this);
 	if(LocalSurface != NULL)
 	{

@@ -4,7 +4,7 @@
 
 #include "DCE/Logger.h"
 
-MeshFrame::MeshFrame(MeshContainer* Mesh)
+MeshFrame::MeshFrame(MeshContainer* Mesh) : Visible_(true)
 {
 	this->Mesh = Mesh;
 }
@@ -21,8 +21,10 @@ MeshFrame::~MeshFrame(void)
 	std::vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); Child++)
 	{
-		(*Child)->CleanUp();
-		delete (*Child);
+		MeshFrame *pMeshFrame = *Child;
+	
+		pMeshFrame->CleanUp();
+		delete pMeshFrame;
 	}
 	Children.clear();
 }
@@ -35,14 +37,25 @@ void MeshFrame::SetMeshContainer(MeshContainer* Mesh)
 void MeshFrame::AddChild(MeshFrame* Frame)
 {
 	if(Frame == NULL)
+	{
+		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::AddChild: Frame is NULL!!!");	
 		return;
+	}
+	
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::AddChild: Added %p to %p", Frame, this);	
 	Children.push_back(Frame);
 }
 
 void MeshFrame::RemoveChild(MeshFrame* Frame)
 {
 	if(Frame == NULL)
+	{
+		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Frame is NULL!!!");
 		return;
+	}
+		
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::RemoveChild %p, is leaf %d", Frame, Frame->Children.size() == 0);
+		
 	std::vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); )
 		if((*Child) == Frame)
@@ -54,7 +67,11 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 void MeshFrame::Paint(MeshTransform ChildTransform)
 {
 	if(!Visible_)
+	{
+		DCE::g_pPlutoLogger->Write(LV_STATUS, "NOT Painting %p. It's invisible.", this);	
 		return;
+	}
+	
 	MeshTransform Transform;
 	Transform.ApplyTransform(this->Transform);
 	Transform.ApplyTransform(ChildTransform);
@@ -62,13 +79,13 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 	if(Mesh!= NULL)
 		Painter->PaintContainer(*Mesh, Transform);
 
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "Painting %p with %d children: ", this, Children.size());
+	//DCE::g_pPlutoLogger->Write(LV_STATUS, "Painting %p with %d children: ", this, Children.size());
 
-	std::vector<MeshFrame*>::iterator Child;
-	for(Child = Children.begin(); Child!=Children.end(); Child++)
+	std::vector<MeshFrame*>::iterator Child, EndChild;
+	for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
 		(*Child)->Paint(Transform);
 
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "Painting %p END ", this);
+	//DCE::g_pPlutoLogger->Write(LV_STATUS, "Painting %p END ", this);
 }
 
 /*virtual*/ void MeshFrame::SetTransform(MeshTransform& Transform)

@@ -71,7 +71,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 			SDL_PushEvent(&SDL_Event_Pending);
 #endif			
 
-		if(true || pOrbiterRenderer->NeedToUpdateScreen())
+		if(true)//pOrbiterRenderer->NeedToUpdateScreen())
 		{
 			pOrbiterRenderer->Engine->Paint();
 			pOrbiterRenderer->ScreenUpdated();
@@ -234,7 +234,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
 	bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
-	//g_pPlutoLogger->Write(LV_CRITICAL, "Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
+	//g_pPlutoLogger->Write(LV_CRITICAL, "(5) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
 
 	OpenGLGraphic* Graphic = dynamic_cast<OpenGLGraphic*> (pPlutoGraphic);
 
@@ -268,6 +268,8 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		float(point.Y + rectTotal.Bottom()), 
 		0
 		);
+		
+	//g_pPlutoLogger->Write(LV_CRITICAL, "(6) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
 
 	MeshContainer* Container = Builder->End();
 
@@ -276,11 +278,17 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	MeshTransform Transform;
 	
+	//g_pPlutoLogger->Write(LV_CRITICAL, "(7) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
+	
 	TextureManager::Instance()->PrepareConvert(Graphic);
 
-	g_pPlutoLogger->Write(LV_STATUS, "AddMeshFrameToDesktop %d - (%d,%d,%d,%d)",
+	//g_pPlutoLogger->Write(LV_CRITICAL, "(8) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
+	
+	g_pPlutoLogger->Write(LV_STATUS, "AddMeshFrameToDesktop (%d,%d,%d,%d)",
 		point.X, point.Y, rectTotal.Width, rectTotal.Height);
 
+	//g_pPlutoLogger->Write(LV_CRITICAL, "(9) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
+		
 	//TODO: find a way to replace an existing object if the graphic is changed instead of adding it
 	Engine->AddMeshFrameToDesktop(Frame);
 }
@@ -326,8 +334,8 @@ void OrbiterRenderer_OpenGL::OnIdle()
 		return;
 
 	DesignObj_Orbiter *pObj = OrbiterLogic()->m_pObj_Highlighted;
-	//Engine->Select(&pObj->m_rPosition);
-	Engine->Highlight(&pObj->m_rPosition, NULL);
+
+	//Engine->Highlight(&pObj->m_rPosition, NULL);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point )
@@ -392,6 +400,9 @@ void OrbiterRenderer_OpenGL::OnIdle()
 					case SDLK_DOWN:		orbiterEvent.data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST; break;
 					case SDLK_LEFT:		orbiterEvent.data.button.m_iPK_Button = BUTTON_Left_Arrow_CONST; break;
 					case SDLK_RIGHT:    orbiterEvent.data.button.m_iPK_Button = BUTTON_Right_Arrow_CONST; break;
+					
+					default:
+					break;
 				}
 
 				OrbiterLogic()->ProcessEvent(orbiterEvent);
@@ -425,6 +436,8 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderScreen(bool bRenderGraphicsOnly)
 {
+	g_pPlutoLogger->Write(LV_WARNING,"OrbiterRenderer_OpenGL::RenderScreen");
+
 	Engine->NewScreen();
 	OrbiterRenderer::RenderScreen(bRenderGraphicsOnly);
 
