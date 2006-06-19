@@ -87,6 +87,11 @@ if [[ ! -f /usr/pluto/bin/X-ModulesSection.awk ]]; then
 	exit 1
 fi
 
+if [[ ! -f /usr/pluto/bin/X-UI_Sections.awk ]]; then
+	Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/bin/X-UI_Sections.awk."
+	exit 1
+fi
+
 if [[ ! -f "$ConfigFile" || ! -s "$ConfigFile" ]]; then
 	# TODO: Detect incomplete/corrupt config files too
 	Logging "$TYPE" "$SEVERITY_WARNING" "Xconfigure" "Config file '$ConfigFile' not found or empty. Forcing use of defaults."
@@ -106,6 +111,9 @@ elif [[ -n "$UpdateVideoDriver" && "$DisplayDriver" != "$CurrentDisplayDriver" ]
 	mv "$ConfigFile"{.$$,}
 fi
 /usr/pluto/bin/X-UpdateModules.sh --conffile "$ConfigFile"
+UI_Version=$(/usr/pluto/bin/X-WhichUI.sh)
+awk -v"UI=$UI_Version" -f/usr/pluto/bin/X-UI_Sections.awk "$ConfigFile" >"$ConfigFile.$$"
+mv "$ConfigFile"{.$$,}
 
 # Test detected display driver
 # Don't test if driver is vesa (assumption: always works) or current driver (assumption: already tested and works)
