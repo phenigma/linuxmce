@@ -3004,7 +3004,7 @@ function processRemotes($dbADO)
 	if($deviceTemplate!=0 && $mdID!=0){
 		//$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID.' -C '.$mdID;
 		$insertID=createDevice($deviceTemplate,$installationID,$mdID,NULL,$dbADO);
-		$insertID=exec($cmd,$ret);
+		//$insertID=exec($cmd,$ret);
 		setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 		$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
 		exec($commandToSend);
@@ -5545,7 +5545,7 @@ function getdTree($categoryID,$dbADO,$restrictToCategory=0){
 		if($parent==''){
 			$url='';
 			if(count($restrictedCategories)==0 || in_array($cID,$restrictedCategories)){
-				$url='javascript:setDeviceCategory('.$cID.');';
+				$url='javascript:setDeviceCategory('.$cID.');3';
 			}
 			$jsNodes.='d.add('.$cID.',0,\''.$categoriesArray[$cID].'\',\''.$url.'\');';
 			$jsNodes=getsTreeChilds($jsNodes,$cID,$categoriesArray,$categoriesParents,$restrictedCategories);
