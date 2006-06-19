@@ -1768,25 +1768,29 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
         case ARRAY_All_Users_CONST:
             {
                 vector<Row_Installation_Users *> vectIUs;
-                m_pOrbiterGenerator->m_pRow_Device->FK_Installation_getrow()->Installation_Users_FK_Installation_getrows(&vectIUs);
-                for(size_t s=0;s<vectIUs.size();++s)
-                {
-                    Row_Installation_Users *drIU = vectIUs[s];
-					Row_Users *pRow_Users = drIU->FK_Users_getrow();
-					if( !pRow_Users )
-						continue;
+				Row_Installation *pRow_Installation = m_pOrbiterGenerator->m_pRow_Device->FK_Installation_getrow();
+				if( pRow_Installation )
+				{
+                    pRow_Installation->Installation_Users_FK_Installation_getrows(&vectIUs);
+					for(size_t s=0;s<vectIUs.size();++s)
+					{
+						Row_Installation_Users *drIU = vectIUs[s];
+						Row_Users *pRow_Users = drIU->FK_Users_getrow();
+						if( !pRow_Users )
+							continue;
 
-					if( pRow_Users->HideFromOrbiter_get()==1 )
-						continue;
-                    if( PK_Array==ARRAY_Phone_Users_CONST && drIU->FK_Users_getrow()->Extension_isNull() )
-                        continue;
-					string sName = pRow_Users->UserName_get();
-					if( drIU->FK_Users_getrow()->Nickname_get().size() )
-						sName = pRow_Users->Nickname_get();
+						if( pRow_Users->HideFromOrbiter_get()==1 )
+							continue;
+						if( PK_Array==ARRAY_Phone_Users_CONST && drIU->FK_Users_getrow()->Extension_isNull() )
+							continue;
+						string sName = pRow_Users->UserName_get();
+						if( drIU->FK_Users_getrow()->Nickname_get().size() )
+							sName = pRow_Users->Nickname_get();
 
-					alArray->push_back(new ArrayValue(StringUtils::itos(pRow_Users->PK_Users_get()),sName,NULL,0,0,
-                        0,0,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
-                }
+						alArray->push_back(new ArrayValue(StringUtils::itos(pRow_Users->PK_Users_get()),sName,NULL,0,0,
+							0,0,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
+					}
+				}
             }
             break;
         case ARRAY_Locations_CONST:
