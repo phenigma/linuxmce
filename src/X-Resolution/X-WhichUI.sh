@@ -13,7 +13,7 @@ Q="
 R=$(RunSQL "$Q")
 
 if [[ -n "$R" && "$R" -gt 0 ]]; then
-	return 2
+	echo 2
 else
-	return 1
+	echo 1
 fi
