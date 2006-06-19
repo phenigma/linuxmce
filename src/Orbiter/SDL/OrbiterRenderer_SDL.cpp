@@ -46,7 +46,11 @@
 #include <sge.h>
 #include <sge_surface.h>
 
-#include <SDL/SDL_syswm.h>
+#ifdef WIN32
+	#include <SDL_syswm.h>
+#else
+	#include <SDL/SDL_syswm.h>
+#endif
 
 #if !defined(WIN32) && !defined(BLUETOOTH_DONGLE) && !defined(PROXY_ORBITER)
 	#include "utilities/linux/transparency/transparency.h"
