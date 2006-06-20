@@ -1,3 +1,10 @@
+sysvinit (2.86.ds1-1.1pluto49) unstable; urgency=low
+
+  * Runlevel dependencies modified so it can fix race condition on PF socket
+    creation
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Tue, 20 Jun 2006 13:09:04 +0300
+
 sysvinit (2.86.ds1-1.1pluto48) unstable; urgency=low
 
   * Display the userland splash as soon as posible
