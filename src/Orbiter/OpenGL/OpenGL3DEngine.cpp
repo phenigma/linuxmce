@@ -39,11 +39,11 @@ void OpenGL3DEngine::Finalize(void)
 	SDL_Quit();
 }
 
-void OpenGL3DEngine::Paint()
+bool OpenGL3DEngine::Paint()
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	if(NULL == CurrentLayer)
-		return;
+		return false;
 	
 	TextureManager::Instance()->ReleaseTextures();
 	TextureManager::Instance()->ConvertImagesToTextures();
@@ -51,7 +51,7 @@ void OpenGL3DEngine::Paint()
 	if(CurrentLayer->Children.size() == 0)
 	{
 	    g_pPlutoLogger->Write(LV_CRITICAL, "NOTHING to paint (current layer: %p)", CurrentLayer);		
-		return;
+		return false;
 	}
 
 	GL.SetClearColor(.0f, .0f, 0.5f);
@@ -92,6 +92,8 @@ void OpenGL3DEngine::Paint()
 	//	Desktop.Children.size());
 
 	GL.Flip();
+
+	return this->AnimationRemain;
 }
 
 void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)

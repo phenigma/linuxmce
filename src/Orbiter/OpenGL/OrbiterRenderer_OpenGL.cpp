@@ -71,10 +71,10 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 			SDL_PushEvent(&SDL_Event_Pending);
 #endif			
 
-		if(true)//pOrbiterRenderer->NeedToUpdateScreen())
+		if(pOrbiterRenderer->NeedToUpdateScreen())
 		{
-			pOrbiterRenderer->Engine->Paint();
-			pOrbiterRenderer->ScreenUpdated();
+			if(!pOrbiterRenderer->Engine->Paint()) //animation finished ?
+				pOrbiterRenderer->ScreenUpdated();
 		}
 
 		//pOrbiterRenderer->Engine->GetDesktop().CleanUp();

@@ -36,7 +36,7 @@ public:
 	void AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame);
 	
 	virtual void NewScreen();
-	virtual void Paint();
+	virtual bool Paint();
 
 	virtual void Select(PlutoRectangle* SelectedArea);
 	virtual void Highlight(PlutoRectangle* HightlightArea, OpenGLGraphic* HighSurface);
