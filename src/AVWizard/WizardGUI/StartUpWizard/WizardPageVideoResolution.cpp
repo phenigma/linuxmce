@@ -92,14 +92,14 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 	if (ListBoxName == "ListBox1")
 	{
 		#ifdef DEBUG
-		std::cout<<COMMAND_SET_RESOLUTION_PLUS<<std::endl;
+//		std::cout<<COMMAND_SET_RESOLUTION_PLUS<<std::endl;
 		#endif
 		system(SkinGenerator::Instance()->CommandSetResolutionPlus.c_str());
 	}
 	else
 	{
 		#ifdef DEBUG
-		std::cout<<COMMAND_SET_REFRESH_PLUS<<std::endl;
+//		std::cout<<COMMAND_SET_REFRESH_PLUS<<std::endl;
 		#endif
 		system(SkinGenerator::Instance()->CommandSetRefreshPlus.c_str());
 	}
@@ -120,14 +120,14 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 	if (ListBoxName == "ListBox1")
 	{
 		#ifdef DEBUG
-		std::cout<<COMMAND_SET_RESOLUTION_MINUS<<std::endl;
+		//std::cout<<COMMAND_SET_RESOLUTION_MINUS<<std::endl;
 		#endif
 		system(SkinGenerator::Instance()->CommandSetResolutionMinus.c_str());
 	}
 	else
 	{
 		#ifdef DEBUG
-		std::cout<<COMMAND_SET_REFRESH_MINUS<<std::endl;
+//		std::cout<<COMMAND_SET_REFRESH_MINUS<<std::endl;
 		#endif
 		system(SkinGenerator::Instance()->CommandSetRefreshMinus.c_str());
 	}
