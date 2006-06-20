@@ -3002,9 +3002,8 @@ function processRemotes($dbADO)
 	unset($_SESSION['from']);
 	$deviceTemplate=(int)@$_REQUEST['deviceTemplate'];
 	if($deviceTemplate!=0 && $mdID!=0){
-		//$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID.' -C '.$mdID;
-		$insertID=createDevice($deviceTemplate,$installationID,$mdID,NULL,$dbADO);
-		//$insertID=exec($cmd,$ret);
+		$insertID=createDevice($deviceTemplate,$installationID,$mdID,NULL,$dbADO,1);
+
 		setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 		$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
 		exec($commandToSend);
@@ -5310,7 +5309,7 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 			$deviceCategoryFormElement=getdTree($categoryID,$dbADO,$restrictToCategory);
 		break;
 		default:
-			$deviceCategoriesArray=getAlphaCategories($dbADO,$restrictToCategory);
+			$deviceCategoriesArray=getAlphaCategories($dbADO,@$restrictToCategory);
 			$deviceCategoryFormElement=pulldownFromArray($deviceCategoriesArray,'categoryID',$categoryID,'class="input_big" onChange="setDeviceCategory(-1);"');
 	}
 

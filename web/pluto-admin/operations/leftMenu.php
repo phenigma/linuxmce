@@ -113,7 +113,7 @@ function leftMenu($output,$dbADO) {
 					$IDs.=serialize($devices);
 					writeFile($cachedDevices,$IDs,'w');
 					// reorder devices based on PK_Device
-					print_array($devicesArray);
+					asort($devicesArray,SORT_NUMERIC);
 					$quickJumpPulldown=pulldownFromArray($devicesArray,'quickJump',0,'');
 					writeFile($cachedQuickJump,$quickJumpPulldown,'w');
 				}
