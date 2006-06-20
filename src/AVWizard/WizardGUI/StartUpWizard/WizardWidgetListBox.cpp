@@ -28,8 +28,8 @@ WizardWidgetListBox::~WizardWidgetListBox()
 	}
 	else
 	{
-		LeftArrow = Page->GetSurface(SURFACE_HIGH_ARROW_LEFT);
-		RightArrow = Page->GetSurface(SURFACE_HIGH_ARROW_RIGHT);
+		LeftArrow = Page->GetSurface(SURFACE_ARROW_LEFT);
+		RightArrow = Page->GetSurface(SURFACE_ARROW_RIGHT);
 	}
 
 	if(LeftArrow == NULL)

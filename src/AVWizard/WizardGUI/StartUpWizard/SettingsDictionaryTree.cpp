@@ -231,9 +231,10 @@ bool SettingsDictionaryTree::ProcessNode(xmlTextReaderPtr Reader, int ParseDepth
 		if(pText == NULL)
 			pText = "";
 
-
-		Dictionary->SetType(pText);
-		
+		if(pText != NULL)
+			Dictionary->SetType(pText);
+		else
+			Dictionary->SetType("");
 	}
 
 	if ((NodeType == 1) &&(StringName == "Name"))
@@ -241,7 +242,10 @@ bool SettingsDictionaryTree::ProcessNode(xmlTextReaderPtr Reader, int ParseDepth
 		xmlTextReaderRead(Reader);
 
 		pText = (char*)xmlTextReaderConstValue(Reader);
-		Dictionary->SetName(pText);	
+		if(pText != NULL)
+			Dictionary->SetName(pText);
+		else
+			Dictionary->SetName("");
 	}
 
 	if ((NodeType == 1) &&(StringName == "Attributes"))

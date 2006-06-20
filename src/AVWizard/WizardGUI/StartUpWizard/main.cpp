@@ -17,12 +17,15 @@
 //---------------------------------------------------------------------------
 bool IsConsole = false;
 //---------------------------------------------------------------------------
+#include "SkinGenerator.h"
+//---------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-	int ExitCode;
+	int ExitCode = 0;
+
 	GenerateWizardConfigDefaults Generator;
 	Generator.GenerateDefaults();
-	Generator.GenerateDefaultPages("", PATH_PIXMAPS);
+	Generator.GenerateDefaultPages("", SkinGenerator::Instance()->PathPixmaps);
 
 	Wizard* m_Wizard = Wizard::GetInstance();
 	m_Wizard->ParseCommandLineParameters(argc, argv);
@@ -31,6 +34,7 @@ int main(int argc, char *argv[])
 	m_Wizard->MainLoop();
 	ExitCode = m_Wizard->GetExitCode();
 	m_Wizard->CleanUp();
+
 
 	return ExitCode;
 }

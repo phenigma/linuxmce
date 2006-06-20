@@ -8,17 +8,21 @@
 
 #include <iostream>
 
+#include "SkinGenerator.h"
+
 GenerateWizardConfigDefaults::GenerateWizardConfigDefaults()
 {
-	FontText = DEFAULT_FONT_TEXT;
+	SkinGenerator::Instance()->GetEnvironment();
+
+	FontText = SkinGenerator::Instance()->DefaultFontText;
 	if(Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Exists("DefaultFontText"))
 		FontText = Wizard::GetInstance()->AVWizardOptions->GetDictionary()->GetValue("DefaultFontText");
 
-	FontTitle = DEFAULT_FONT_STEP;
+	FontTitle = SkinGenerator::Instance()->DefaultFontStep;
 	if(Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Exists("DefaultFontTitle"))
 		FontTitle = Wizard::GetInstance()->AVWizardOptions->GetDictionary()->GetValue("DefaultFontTitle");
 
-	FontMiniTitle = DEFAULT_FONT_MINITITLE;
+	FontMiniTitle = SkinGenerator::Instance()->DefaultFontMiniTitle;
 	if(Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Exists("DefaultFontMiniTitle"))
 		FontMiniTitle = Wizard::GetInstance()->AVWizardOptions->GetDictionary()->GetValue("DefaultFontMiniTitle");
 
@@ -154,36 +158,16 @@ void GenerateWizardConfigDefaults::GeneratePage0(
 
 	Page->AddChild(GenerateTabContainer(-1, ImageFolder, FontFolder));
 
-
-//	Page->AddChild(CreateControlImage("BackImage", ImageFolder+"background.png", 0, 52));
-/*
-	std::string LabelCaption = "WELCOME TO SYSTEM";
-
-	SetFontStyle(24, "000000", "Regular");
-	Page->AddChild(CreateControlLabel(
-		"PageDesc", 
-		LabelCaption,
-		194, 102,
-		"Left"
-		));
-
-	LabelCaption = "CONFIGURATION WIZARD";
-
-	SetFontStyle(24, "000000", "Regular");
-	Page->AddChild(CreateControlLabel(
-		"PageDesc2", 
-		LabelCaption,
-		194, 128,
-		"Left"
-		));
-*/
 	std::string StringList[4];
 	StringList[0] = "From here you can set up the audio & video for your home";
 	StringList[1] = "For selections use \"UP/DOWN/LEFT/RIGHT\" arrows";
 	StringList[2] = "For validation use \"Enter\"";
 	StringList[3] = "IF you want to go back one step use \"Escape\"";
 
-	SetFontStyle(13, "000000", "Regular");
+	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
+	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
+
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
 	for(int i = 0; i<4; i++)
 	{
 		Page->AddChild(CreateControlLabel(
@@ -241,8 +225,10 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 	StringList[4] = "What type of TV do you have?";
 	StringList[5] = "Press the cursor left for 4:3, and right for 16:9";
 
+	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
+	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
 
-	SetFontStyle(14, "000000", "Regular");
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
 	for(int i = 0; i<4; i++)
 	{
 		Container->AddChild(CreateControlLabel(
@@ -254,7 +240,7 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 			));
 	}
 
-	SetFontStyle(14, "000000", "Bold");
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Bold");
 	Container->AddChild(CreateControlLabel(
 		"QuestionText",
 		StringList[4],
@@ -262,7 +248,7 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 		"Center"
 		));
 
-	SetFontStyle(13, "000000", "Regular");
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
 	Container->AddChild(CreateControlLabel(
 		"QuestionText",
 		StringList[5],
@@ -325,7 +311,10 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 	StringList[3] = "Since you have a widescreen TV, it is recomended to";
 	StringList[4] = "use component, VGA or DVI connectors.";
 
-	SetFontStyle(13, "000000", "Regular");
+	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
+	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
+
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
 	for(int i = 0; i<3; i++)
 	{
 		Container->AddChild(CreateControlLabel(
@@ -424,7 +413,11 @@ void GenerateWizardConfigDefaults::GeneratePage3(
 	StringList[8] = "refresh rate. Use the left and right arrows to adjust the resolution, and press";
 	StringList[9] = "enter when you're satisfied with the results.";
 
-	SetFontStyle(13, "000000", "Regular");
+
+	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
+	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
+
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
 	for(int i = 0; i<10; i++)
 	{
 		Container->AddChild(CreateControlLabel(
@@ -483,7 +476,11 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 	std::string StringList[1];
 	StringList[0] = "Which connector did you use?";
 
-	SetFontStyle(13, "000000", "Regular");
+	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
+	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
+
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
+
 	for(int i = 0; i<1; i++)
 	{
 		Container->AddChild(CreateControlLabel(
@@ -549,7 +546,10 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 	StringList[0] = "I am playing some music, press enter when you confirm that you can hear it";
 	StringList[1] = "and the volume is adjusted at a confortable level.";
 
-	SetFontStyle(13, "000000", "Regular");
+	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
+	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
+
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
 	for(int i = 0; i<2; i++)
 	{
 		Container->AddChild(CreateControlLabel(
@@ -570,19 +570,21 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 
 	Page->AddChild(CreateControlImage(
 		"SpeakerImage",
-		ImageFolder + "left_on.png",
+		ImageFolder + "left_off.png",
 		220, 270
 		));
 
 	Page->AddChild(CreateControlImage(
 		"SpeakerImage",
-		ImageFolder + "right_on.png",
+		ImageFolder + "right_off.png",
 		410,
 		270
 		));
 
 
-	SetFontStyle(40, "002900", "Regular");
+	std::string FontShadow = SkinGenerator::Instance()->StepFontColorShadow;	
+	int FontSize = Utils::StringToInt32(SkinGenerator::Instance()->TitleFontSize);
+	SetFontStyle(FontSize, FontShadow, "Regular");
 	Page->AddChild(CreateControlLabel(
 		"SpeakerVolumeTextShadow",
 		"50%",
@@ -590,7 +592,9 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 		351,
 		"Center"
 		));
-	SetFontStyle(40, "009900", "Regular");
+
+	std::string FontColor = SkinGenerator::Instance()->MiniTitleFontColor;
+	SetFontStyle(FontSize, FontColor, "Regular");
 	Page->AddChild(CreateControlLabel(
 		"SpeakerVolumeText",
 		"50%",
@@ -632,7 +636,10 @@ void GenerateWizardConfigDefaults::GeneratePage6(
 	StringList[1] = "I am playing some music in Dolby Digital 5.1. If you're able to hear the music,";
 	StringList[2] = "press the right arrow, otherwise press the left arrow.";
 	
-	SetFontStyle(13, "000000", "Regular");
+	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
+	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
+
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
 	for(int i = 0; i<1; i++)
 	{
 		Container->AddChild(CreateControlLabel(
@@ -699,14 +706,17 @@ void GenerateWizardConfigDefaults::GeneratePage7(
 	StringList[1] = "I am playing some music in DTS. If you're able to hear the music, press the";
 	StringList[2] = "right arrow, otherwise press the left arrow.";
 
-	SetFontStyle(13, "000000", "Bold");
+	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
+	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
+
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Bold");
 	Container->AddChild(CreateControlLabel(
 		"DescribeText0",
 		StringList[0],
 		320, 175,
 		"Center"
 		));
-	SetFontStyle(13, "000000", "Regular");
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
 	for(int i = 1; i<3; i++)
 	{
 		Container->AddChild(CreateControlLabel(
@@ -776,7 +786,10 @@ void GenerateWizardConfigDefaults::GeneratePage8(
 	StringList[3] = "This process can take up to 15 minutes, please be patient. If you want to";
 	StringList[4] = "change the settings, press the menu button to start again.";
 
-	SetFontStyle(16, "000000", "Italic");
+	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
+	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
+
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Italic");
 	Container->AddChild(CreateControlLabel(
 		"DescribeText0",
 		StringList[0],
@@ -785,7 +798,7 @@ void GenerateWizardConfigDefaults::GeneratePage8(
 		"Center"
 		));
 
-	SetFontStyle(13, "000000", "Regular");
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
 	for(int i = 1; i<5; i++)
 	{
 		Container->AddChild(CreateControlLabel(
@@ -797,7 +810,8 @@ void GenerateWizardConfigDefaults::GeneratePage8(
 			));
 	}
 
-	SetFontStyle(15, "000000", "Regular");
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
+
 	for(int i = 1; i<=8; i++)
 	Container->AddChild(CreateControlLabel(
 		"OptionText"+Utils::Int32ToString(i),
@@ -910,7 +924,11 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 		default:
 			LabelCaption = "WELCOME TO AV WIZARD";
 	};
-	SetFontStyle(24, "000000", "Regular");
+
+	std::string FontColor = SkinGenerator::Instance()->StepFontColorShadow;	
+	int FontSize = Utils::StringToInt32(SkinGenerator::Instance()->TitleFontSize);
+	SetFontStyle(FontSize, FontColor, "Regular");
+
 	Result->AddChild(CreateControlLabel(
 		"PageDesc" + Utils::Int32ToString(i+1), 
 		LabelCaption,
@@ -920,7 +938,10 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 
 	LabelCaption = "STEP " + Utils::Int32ToString(NoSelectedTab+1);
 
-	SetFontStyle(18, "009900", "Regular");
+	FontColor = SkinGenerator::Instance()->MiniTitleFontColor;	
+	FontSize = Utils::StringToInt32(SkinGenerator::Instance()->MiniTitleFontSize);
+	SetFontStyle(FontSize, FontColor, "Regular");
+
 	Result->AddChild(CreateControlLabel(
 		"PageDesc" + Utils::Int32ToString(i+1), 
 		LabelCaption,
@@ -937,15 +958,9 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 		std::string FontColor, Caption;
 		Caption = "STEP " + Utils::Int32ToString(i+1);
 
-		if (i == NoSelectedTab)
-			FontColor = "000000";
-		else
-		if(i <= NoSelectedTab)
-			FontColor = "AfCfAf";
-		else
-			FontColor = "A0C0A0";
-
-		SetFontStyle(19, "808080", "Regular");
+		FontColor = SkinGenerator::Instance()->StepFontColorShadow;
+		FontSize = Utils::StringToInt32(SkinGenerator::Instance()->StepFontSize);
+		SetFontStyle(FontSize, FontColor, "Regular");
 		Result->AddChild(CreateControlLabel(
 				"PageTab" + Utils::Int32ToString(i+1),
 				Caption, 
@@ -953,7 +968,15 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 				7,
 				"Center"
 				));
-		SetFontStyle(19, FontColor, "Regular");
+
+		if (i == NoSelectedTab)
+			FontColor = SkinGenerator::Instance()->StepFontColorHighlight;
+		else
+		if(i <= NoSelectedTab)
+			FontColor = SkinGenerator::Instance()->StepFontColorPassed;
+		else
+			FontColor = SkinGenerator::Instance()->StepFontColorStandard;
+		SetFontStyle(FontSize, FontColor, "Regular");
 
 		Result->AddChild(CreateControlLabel(
 				"PageTab" + Utils::Int32ToString(i+1),

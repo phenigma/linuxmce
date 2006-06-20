@@ -10,6 +10,8 @@
 
 #include "Wizard.h"
 
+#include "SkinGenerator.h"
+
 WizardPageVideoResolution::WizardPageVideoResolution(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
@@ -92,14 +94,14 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 		#ifdef DEBUG
 		std::cout<<COMMAND_SET_RESOLUTION_PLUS<<std::endl;
 		#endif
-		system(COMMAND_SET_RESOLUTION_PLUS);
+		system(SkinGenerator::Instance()->CommandSetResolutionPlus.c_str());
 	}
 	else
 	{
 		#ifdef DEBUG
 		std::cout<<COMMAND_SET_REFRESH_PLUS<<std::endl;
 		#endif
-		system(COMMAND_SET_REFRESH_PLUS);
+		system(SkinGenerator::Instance()->CommandSetRefreshPlus.c_str());
 	}
 
 }
@@ -120,14 +122,14 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 		#ifdef DEBUG
 		std::cout<<COMMAND_SET_RESOLUTION_MINUS<<std::endl;
 		#endif
-		system(COMMAND_SET_RESOLUTION_MINUS);
+		system(SkinGenerator::Instance()->CommandSetResolutionMinus.c_str());
 	}
 	else
 	{
 		#ifdef DEBUG
 		std::cout<<COMMAND_SET_REFRESH_MINUS<<std::endl;
 		#endif
-		system(COMMAND_SET_REFRESH_MINUS);
+		system(SkinGenerator::Instance()->CommandSetRefreshMinus.c_str());
 	}
 }
 

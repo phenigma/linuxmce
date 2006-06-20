@@ -49,4 +49,5 @@ XinePlayer.cpp \
 SocketRemoteServer.cpp \
 SocketRemoteClient.cpp \
 SafetyLock.cpp \
+SkinGenerator.cpp \
 XUtilities.cpp 

@@ -151,7 +151,7 @@ void WizardWidgetButton::PaintNonExpandedButton(
 {
 	SDL_Surface* BtnTexture, *BtnLeft, *BtnRight; 
 	WizardWidgetPage* Page = GetContainerPage();
-	if(!Focused)
+	if(Focused)
 	{
 		BtnTexture = Page->GetSurface(SURFACE_MAIN);
 		BtnLeft = Page->GetSurface(SURFACE_LEFT);

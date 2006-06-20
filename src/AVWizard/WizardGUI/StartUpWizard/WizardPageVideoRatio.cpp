@@ -6,6 +6,8 @@
 
 #include "ConfigureCommons.h"
 
+#include "SkinGenerator.h"
+
 WizardPageVideoRatio::WizardPageVideoRatio(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
@@ -26,12 +28,12 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 	if(Selected->GetName() == "Btn1")
 	{
 		OutputValue = "4_3";
-		system(COMMAND_SET_RATIO_4_3);
+		system(SkinGenerator::Instance()->CommandSetRatio4_3.c_str());
 	}	
 	else
 	{
 		OutputValue = "16_9";
-		system(COMMAND_SET_RATIO_16_9);
+		system(SkinGenerator::Instance()->CommandSetRatio16_9.c_str());
 	}
 	Dictionary->Set("Video_Ratio", OutputValue);
 	return 0;
@@ -39,7 +41,7 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 
 /*virtual*/ void WizardPageVideoRatio::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
-	system(COMMAND_SET_RATIO_4_3);
+	system(SkinGenerator::Instance()->CommandSetRatio4_3.c_str());
 	if(!AVWizardSettings->Exists("Video_Ratio"))
 	{
 		RatioMode = 0;
