@@ -244,9 +244,7 @@ else
 	Q="DELETE FROM Package_Device"
 	echo "$Q" | /usr/bin/mysql pluto_main;
 
-	/usr/pluto/bin/Diskless_Setup.sh
 	/usr/pluto/bin/DHCP_config.sh
-	/usr/pluto/bin/Diskless_ExportsNFS.sh
 fi
 
 ## Update startup scripts
@@ -277,6 +275,13 @@ clear
 
 /usr/pluto/bin/Network_Setup.sh
 /usr/pluto/bin/DHCP_config.sh
+
+if [[ "$UpgradeMode" == "true" ]]; then
+
+	/usr/pluto/bin/Diskless_Setup.sh
+	/usr/pluto/bin/Diskless_ExportsNFS.sh
+
+fi
 
 clear
 # XXX: Setup Bonus CD
