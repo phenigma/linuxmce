@@ -1,3 +1,9 @@
+lirc-pluto (0.8.0r+1modules2.6.16.20-1) unstable; urgency=low
+
+  * modules for 2.6.16.20-pluto-1-686
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Tue, 20 Jun 2006 10:49:16 +0300
+
 lirc-pluto (0.8.0r+1modules2.6.15-5) unstable; urgency=low
   
   * modules for kernel 2.6.15-pluto-2-686 
