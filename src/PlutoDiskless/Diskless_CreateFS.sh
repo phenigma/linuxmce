@@ -81,6 +81,7 @@ Upgrade_Monster()
 	shopt -s nullglob
 	# TODO: don't do anything (i.e. also skip download) for packages that match the requirements
 	local Requirements="bootsplash-theme-monster
+	pluto-avwizard-skin-monster
 	"
 	local NeededReq=""
 	local Pkg Name ReqVer InstVer InstState
