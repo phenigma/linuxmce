@@ -498,3 +498,10 @@ bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
+void OrbiterRenderer_OpenGL::GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic)
+{
+	//TODO: we don't need the clear the texture for now
+	//uncomment this when the effects will work
+	//OrbiterRenderer::GraphicOffScreen(pObj);
+}
+//-----------------------------------------------------------------------------------------------------

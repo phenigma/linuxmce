@@ -66,6 +66,8 @@ namespace DCE
 		virtual bool DisplayProgress(string sMessage, int nProgress);
 		virtual void ShowProgress(int nPercent);
 
+		virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic);
+
 		void WakeupFromCondWait();
 		void OnIdle();
 
