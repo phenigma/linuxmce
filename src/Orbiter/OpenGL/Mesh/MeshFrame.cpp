@@ -42,7 +42,7 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 		return;
 	}
 	
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::AddChild: Added %p to %p", Frame, this);	
+	//DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::AddChild: Added %p to %p", Frame, this);	
 	Children.push_back(Frame);
 }
 
@@ -54,7 +54,7 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 		return;
 	}
 		
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::RemoveChild %p, is leaf %d", Frame, Frame->Children.size() == 0);
+	//DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::RemoveChild %p, is leaf %d", Frame, Frame->Children.size() == 0);
 		
 	std::vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); )

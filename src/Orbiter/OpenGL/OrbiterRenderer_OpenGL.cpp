@@ -162,7 +162,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 
 	//TODO: find a way to replace an existing object if the graphic is changed instead of adding it
-	Engine->AddMeshFrameToDesktop(Frame);
+	Engine->AddMeshFrameToDesktop("", Frame);
 
 
 }
@@ -211,7 +211,10 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
  	MeshFrame *Frame  = aGLTextRenderer->TextOut(sTextToDisplay, Text, pTextStyle, point);
 	
-	Engine->AddMeshFrameToDesktop(Frame);
+	string TextUniqueID = Text->m_pObject->m_ObjectID + 
+		"-" + StringUtils::itos(Text->m_rPosition.X) + 
+		"-" + StringUtils::itos(Text->m_rPosition.Y);
+	Engine->AddMeshFrameToDesktop(TextUniqueID, Frame);
 	
 }
 //-----------------------------------------------------------------------------------------------------
@@ -234,6 +237,17 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
 	bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
+	RenderGraphic("", pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(string ObjectID, class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
+	bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/)
+{
+	if(ObjectID == "")
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "RenderGraphic with no object id!");
+	}
+
 	//g_pPlutoLogger->Write(LV_CRITICAL, "(5) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
 
 	OpenGLGraphic* Graphic = dynamic_cast<OpenGLGraphic*> (pPlutoGraphic);
@@ -290,7 +304,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	//g_pPlutoLogger->Write(LV_CRITICAL, "(9) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
 		
 	//TODO: find a way to replace an existing object if the graphic is changed instead of adding it
-	Engine->AddMeshFrameToDesktop(Frame);
+	Engine->AddMeshFrameToDesktop(ObjectID, Frame);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::BeginPaint()

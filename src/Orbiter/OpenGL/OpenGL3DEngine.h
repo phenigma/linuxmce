@@ -1,6 +1,8 @@
 #ifndef OpenGL3DEngine_H_
 #define OpenGL3DEngine_H_
 
+#include <map>
+
 #include "ExtensionManager.h"
 #include "Texture/GLFontRenderer.h"
 #include "Mesh/MeshFrame.h"
@@ -18,6 +20,11 @@ class OpenGL3DEngine
 	MeshFrame* OldLayer;
 	MeshFrame* SelectedFrame;
 	MeshFrame* HighLightFrame;
+
+	virtual void UnSelect();
+	virtual void UnHighlight();
+
+	std::map<string, MeshFrame *> CurrentLayerObjects_;
 	
 public:
 	bool Quit;
@@ -26,19 +33,15 @@ public:
 	virtual ~OpenGL3DEngine();
 	virtual void Finalize(void);
 	
-	void AddMeshFrameToDesktop(MeshFrame* Frame);
+	void AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame);
 	
 	virtual void NewScreen();
-
 	virtual void Paint();
 
 	virtual void Select(PlutoRectangle* SelectedArea);
-	virtual void UnSelect();
 	virtual void Highlight(PlutoRectangle* HightlightArea, OpenGLGraphic* HighSurface);
-	virtual void UnHighlight();
 
 	virtual int GetTick();
-
 };
 
 #endif

@@ -2,6 +2,7 @@
 
 #include "../Orbiter.h"
 #include "../OrbiterRenderer.h"
+#include "OrbiterRenderer_OpenGL.h"
 
 using namespace DCE;
 
@@ -129,7 +130,11 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
 	
 	if(!pPlutoGraphic->IsEmpty())
-		m_pOwner->m_pOrbiter->Renderer()->RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
+	{
+		OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = 
+			dynamic_cast<OrbiterRenderer_OpenGL *>(m_pOwner->m_pOrbiter->Renderer());
+		pOrbiterRenderer_OpenGL->RenderGraphic(m_pOwner->m_ObjectID, pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
+	}
 #ifdef DEBUG
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", m_pOwner->m_ObjectID.c_str());

@@ -94,15 +94,33 @@ void OpenGL3DEngine::Paint()
 	GL.Flip();
 }
 
-void OpenGL3DEngine::AddMeshFrameToDesktop(MeshFrame* Frame)
+void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	if(NULL == CurrentLayer)
 		return;
 
+	if(ObjectID != "")
+	{
+		std::map<string, MeshFrame *>::iterator it = CurrentLayerObjects_.find(ObjectID);
+		if(it != CurrentLayerObjects_.end())
+		{
+			MeshFrame* OldFrame = it->second;
+			g_pPlutoLogger->Write(LV_CRITICAL, "Replacing child %p, object %s of layer %p", 
+				OldFrame, ObjectID.c_str(), CurrentLayer);
+
+			CurrentLayer->RemoveChild(OldFrame);
+		}
+	}
+
 	CurrentLayer->AddChild(Frame);
 
-	//g_pPlutoLogger->Write(LV_WARNING, "Adding child %p to layer %p", Frame, CurrentLayer);
+	if(ObjectID != "")
+	{
+		CurrentLayerObjects_[ObjectID] = Frame;
+	}
+
+	g_pPlutoLogger->Write(LV_WARNING, "Adding child %p, object %s to layer %p", Frame, ObjectID.c_str(), CurrentLayer);
 }
 
 /*virtual*/ void OpenGL3DEngine::Select(PlutoRectangle* SelectedArea)
@@ -257,6 +275,7 @@ void OpenGL3DEngine::NewScreen()
 	AnimationRemain = true;
 	StartTick = GetTick();
 
+	CurrentLayerObjects_.clear();
 	CurrentLayer = new MeshFrame();
 	Desktop.AddChild(CurrentLayer);
 	
