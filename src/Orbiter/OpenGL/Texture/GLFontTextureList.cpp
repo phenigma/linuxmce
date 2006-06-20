@@ -81,7 +81,6 @@ GLFontTextureList::~GLFontTextureList()
 	float MaxU, MaxV;
 	
 	MeshBuilder MB;
-  	MeshContainer* Container;
   	MeshTransform Transform;
 	
 	MB.Begin(MBMODE_TRIANGLES);
@@ -134,10 +133,8 @@ GLFontTextureList::~GLFontTextureList()
 		//DCE::g_pPlutoLogger->Write(LV_STATUS, "TextOut: %f %f %f \n", (float)X, (float)Y, (float)FontHeight);
 	}
 
-	Container = MB.End();
+	MeshContainer* Container = MB.End();
 	
-	//Painter->PaintContainer(*Container, Transform);
-
 	Geometry = Container;
 
 	return X - StartX;

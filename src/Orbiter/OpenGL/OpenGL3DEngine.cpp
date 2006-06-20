@@ -67,11 +67,11 @@ void OpenGL3DEngine::Paint()
 	if(this->AnimationRemain)
 	{
 		Tick = GetTick() - this->StartTick;
-		if(Tick>5*90)
+		if(Tick > 5 * 90)
 			AnimationRemain = false;
 	}
 	else
-		Tick = 5*90;
+		Tick = 5 * 90;
 	
 	Transform.ApplyRotateY(Tick / 5);
 	//Transform.ApplyTranslate(0, 0, GL.Width/2);

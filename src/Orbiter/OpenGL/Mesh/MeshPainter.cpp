@@ -123,7 +123,7 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 
 	if(Container.Blended_)
 	{
-		ExtensionManager_->EnableZBuffer(true);
+		ExtensionManager_->EnableZBuffer(false);
 		ExtensionManager_->EnableBlended(false);
 	}
 	

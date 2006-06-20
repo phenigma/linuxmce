@@ -57,6 +57,7 @@ MeshFrame* GLFontRenderer::RenderText(string &TextToDisplay, PlutoRectangle &rPo
 	}
 
 	int Length = LetterWriter->TextOut(point.X, point.Y, StrMessage.c_str(), Container);
+
 	MeshTransform Transform;
 	switch (iPK_HorizAlignment)
 	{
@@ -205,6 +206,7 @@ MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Te
 			Result->AddChild(Frame);
 			NoLines++;
 		}
+
 		switch(Text->m_iPK_VertAlignment) {
 			case VERTALIGNMENT_Bottom_CONST:
 				Transform.SetIdentity();
@@ -218,7 +220,6 @@ MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Te
 				break;
 			default:;
 		};
-
 	}
 	
 	return Result;

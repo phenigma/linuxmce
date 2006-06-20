@@ -129,30 +129,10 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	Builder->SetColor(color.R() / 255.0f, color.G() / 255.0f, color.B() / 255.0f);
 
-	Builder->SetTexture2D(0.0f, 0.0f);
-	Builder->AddVertexFloat(
-		float(x), 
-		float(y), 
-		0
-		);
-	Builder->SetTexture2D(1.0f, 0);
-	Builder->AddVertexFloat(
-		float(x+width), 
-		float(y), 
-		0
-		);
-	Builder->SetTexture2D(0.0f, 1.0f);
-	Builder->AddVertexFloat(
-		float(x), 
-		float(y+height), 
-		0
-		);
-	Builder->SetTexture2D(1.0f, 1.0f);
-	Builder->AddVertexFloat(
-		float(x+width), 
-		float(y+height), 
-		0
-		);
+	Builder->AddVertexFloat(float(x),		float(y),			0);
+	Builder->AddVertexFloat(float(x+width), float(y),			0);
+	Builder->AddVertexFloat(float(x),		float(y+height),	0);
+	Builder->AddVertexFloat(float(x+width), float(y+height), 	0);
 
 	MeshContainer* Container = new MeshContainer();
 	Container = Builder->End();
@@ -160,11 +140,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	MeshFrame* Frame = new MeshFrame();
 	Frame->SetMeshContainer(Container);
 
-
-	//TODO: find a way to replace an existing object if the graphic is changed instead of adding it
 	Engine->AddMeshFrameToDesktop("", Frame);
-
-
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
@@ -303,7 +279,6 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	//g_pPlutoLogger->Write(LV_CRITICAL, "(9) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
 		
-	//TODO: find a way to replace an existing object if the graphic is changed instead of adding it
 	Engine->AddMeshFrameToDesktop(ObjectID, Frame);
 }
 //-----------------------------------------------------------------------------------------------------
