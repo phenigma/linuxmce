@@ -42,7 +42,7 @@ MeshFrame* GLFontRenderer::RenderText(string &TextToDisplay, PlutoRectangle &rPo
 {
 	GLFontTextureList * LetterWriter = Font->GetFontStyle(Style_, R_, G_, B_);
 	std::string StrMessage;
-	MeshContainer* Container;
+	MeshContainer* Container = NULL;
 	MeshFrame* Frame = new MeshFrame();
 
 	if (TextToDisplay.find('\n') != TextToDisplay.npos)

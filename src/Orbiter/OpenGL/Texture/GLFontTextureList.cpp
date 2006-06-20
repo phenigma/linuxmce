@@ -68,10 +68,13 @@ GLFontTextureList::~GLFontTextureList()
 
 /*virtual*/ int GLFontTextureList::TextOut(int X, int Y, std::string Text, MeshContainer* &Geometry)
 {
+	Geometry = NULL;
+
 	int StartX = X;
 	size_t Length = Text.length();
 	if (Length == 0)
-		return NULL;
+		return 0;
+
 	int LetterLen = 0, FontHeight;
 	unsigned char CharPos = 32;
 	
