@@ -7,13 +7,17 @@
 
 #include "GL2DEffectLayer.h"
 
+#include "../Mesh/MeshFrame.h"
+#include "GLRenderScreenToGraphic.h"
+
+
 namespace GLEffect2D 
 {
 
-	enum GL2DEffectDefaultLayers {
-		DesktopOffScreen = 2,
-		DesktopOnScreen = 3
-	};
+enum GL2DEffectDefaultLayers {
+	DesktopOffScreen = 2,
+	DesktopOnScreen = 3
+};
 
 
 /**
@@ -22,26 +26,25 @@ namespace GLEffect2D
 class LayersCompose
 {
 	int Width, Height;
-	std::map <int, GL2DEffectLayer*> LayerList;
-
-	int CurrentLayer;
+	std::map <int, Layer*> LayerList;
 
 	TextureManager* TextureMan;
+	MeshFrame* CurrentLayer;
+	MeshFrame* OldLayer;
 
-	static LayersCompose* Instance;
+	static LayersCompose* Instance_;
 	LayersCompose();
+
+	GLRenderScreenToGraphic *OldScreen;
+	GLRenderScreenToGraphic *NewScreen;
 public:
-	static LayersCompose* GetInstance();
+	static LayersCompose* Instance();
 	virtual ~LayersCompose(void);
 
 	void Setup(int Width, int Height);
 	void CleanUp();
 
-	OpenGLTexture GetNewScreen();
-
-	OpenGLTexture GetOldScreen();
-
-	void SetUpNextDisplay();
+	void UpdateLayers(MeshFrame* CurrentLayer, MeshFrame* OldLayer);
 
 	FloatRect GetDefaultFullScreenUVMapping();
 
@@ -49,7 +52,7 @@ public:
 	 *	Creates a custom layer that match the level. 
 	 *	If the layer level already exits, it returns the old layer
 	 */
-	GL2DEffectLayer* CreateLayer(int LayerLevel);
+	Layer* CreateLayer(int LayerLevel);
 
 	/**
 	 *	Returns if exist one layer at choosen layer level
@@ -75,21 +78,13 @@ public:
 	/**
 	 *	Creates a layer inside the chosed layer
 	 */
-	GL2DEffect* CreateEffect(int LayerLevel, int IDEffect, int TimeForComplete);
+	Effect* CreateEffect(int LayerLevel, int IDEffect, int StartAfter, int TimeForComplete);
 
 	/**
 	 *	Creates a widget inside the chosed layer
 	 */
 	TBaseWidget* CreateWidget(int LayerLevel, int WidgetType, int Top, 
 		int Left, int Width, int Height, char* Text);
-
-	/**
-	 * Clear the openGL screen using an RGB based color
-	 * @param Red Red component of the clear color
-	 * @param Green Green component of the clear color
-	 * @param Blue Blue component of the clear color
-	 */
-	void ClearScreen(unsigned char Red, unsigned char Green, unsigned char Blue);
 
 	void PaintScreen3D();
 
@@ -99,7 +94,15 @@ public:
 	 */
 	void Resize(int Width, int Height);
 
-	OpenGLTexture GetRenderedScreen();
+	/**
+	 * Layer management	
+	 */
+	MeshFrame* GetCurrentLayer();
+	MeshFrame* GetOldLayer();
+
+	OpenGLGraphic* GetOldScreen();
+	OpenGLGraphic* GetNewScreen();
+
 };
 
 }

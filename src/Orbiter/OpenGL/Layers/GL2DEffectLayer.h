@@ -3,28 +3,46 @@
 
 #include "../Effects/gl2deffectfactory.h"
 
+#include "../Mesh/MeshFrame.h"
+#include "../OpenGLGraphic.h"
+
 namespace GLEffect2D 
 {
 
-class GL2DEffectLayer
+class Layer
 {
 	int Width, Height;
-	GL2DEffectFactory* Effects;
+	EffectFactory* Effects;
 	DrawingWidgetsEngine* Widgets;
+
+	MeshFrame* RenderFrame;
+	OpenGLGraphic* RenderGraphic;
+
+
+	void CreateRenderTexture();
 public:
-	GL2DEffectLayer(int Width, int Height);
-	virtual ~GL2DEffectLayer(void);
+	Layer(int Width, int Height);
+	virtual ~Layer(void);
 
 	virtual void Paint();
 
-	GL2DEffect* CreateEffect(int IDEffect, int TimeForComplete);
+	Effect* CreateEffect(int IDEffect, int StartAfter, int TimeForComplete);
 	TBaseWidget* CreateWidget(int WidgetType, int Top, int Left, int Width, int Height, char* Text);
 
 	bool HasEffects();
+
 	
 	void Resize(int Width, int Height);
-	
 
+	/**
+	 *	Render-To-Texture a Render MeshFrame	
+	 */
+	void SetRenderFrame(MeshFrame* RenderFrame);
+	MeshFrame* GetRenderFrame();
+
+	OpenGLGraphic* GetRenderGraphic();
+
+	void RenderFrameToGraphic(MeshTransform& Transform);
 };
 
 }

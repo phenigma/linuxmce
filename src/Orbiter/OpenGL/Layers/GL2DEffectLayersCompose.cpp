@@ -3,26 +3,32 @@
 #include <iostream>
 
 #include "../OpenGLGraphic.h"
+#include "../Mesh/MeshPainter.h"
+
 
 namespace GLEffect2D 
 {
 
-LayersCompose* LayersCompose::Instance = NULL;
+LayersCompose* LayersCompose::Instance_ = NULL;
 
-LayersCompose::LayersCompose()
+LayersCompose::LayersCompose() : 
+	CurrentLayer(NULL), 
+	OldLayer(NULL),
+	TextureMan(NULL),
+	OldScreen(NULL),
+	NewScreen(NULL)
 {
-	TextureMan = TextureManager::Instance();
 }
 
 /*virtual*/ LayersCompose::~LayersCompose(void)
 {
 }
 
-/*static*/ LayersCompose* LayersCompose::GetInstance()
+/*static*/ LayersCompose* LayersCompose::Instance()
 {
-	if(Instance == NULL)
-		Instance = new LayersCompose();
-	return Instance;
+	if(Instance_ == NULL)
+		Instance_ = new LayersCompose();
+	return Instance_;
 }
 
 void LayersCompose::Setup(int Width, int Height)
@@ -30,29 +36,21 @@ void LayersCompose::Setup(int Width, int Height)
 	this->Width = Width;
 	this->Height = Height;
 	TextureMan = TextureManager::Instance();
+	OldScreen = new GLRenderScreenToGraphic(Width, Height);
+	NewScreen = new GLRenderScreenToGraphic(Width, Height);
+	CreateLayer(2);
+	CreateLayer(3);
 }
 
 void LayersCompose::CleanUp()
 {
+	delete OldScreen;
+	OldScreen = NULL;
+	delete NewScreen;
+	NewScreen = NULL;
 
-}
-
-OpenGLTexture LayersCompose::GetNewScreen()
-{
-	return 0;
-	//return TextureManager->GetNextScreen();
-}
-
-OpenGLTexture LayersCompose::GetOldScreen()
-{
-	//return TextureManager->GetLastScreen();
-	return 0;
-}
-
-void LayersCompose::SetUpNextDisplay()
-{
-//	if(TextureMan != NULL)
-//		TextureMan->SetUpNextDisplay();
+	this->RemoveLayer(3);
+	this->RemoveLayer(2);
 }
 
 bool LayersCompose::ExistsLayerLevel(int LayerLevel)
@@ -60,9 +58,9 @@ bool LayersCompose::ExistsLayerLevel(int LayerLevel)
 	return (LayerList.find(LayerLevel) != LayerList.end());
 }
 
-GL2DEffectLayer* LayersCompose::CreateLayer(int LayerLevel)
+Layer* LayersCompose::CreateLayer(int LayerLevel)
 {
-	GL2DEffectLayer* Result = new GL2DEffectLayer(Width, Height);
+	Layer* Result = new Layer(Width, Height);
 	LayerList[LayerLevel] = Result;
 	return Result;
 }
@@ -72,7 +70,7 @@ bool LayersCompose::RemoveLayer(int LayerLevel)
 	if(!ExistsLayerLevel(LayerLevel))
 		return false;
 
-	std::map <int, GL2DEffectLayer*>::iterator Item = LayerList.begin();
+	std::map <int, Layer*>::iterator Item = LayerList.begin();
 	while(Item != LayerList.end())
 	{
 		if(Item->first == LayerLevel)
@@ -96,12 +94,9 @@ FloatRect LayersCompose::GetDefaultFullScreenUVMapping()
 
 void LayersCompose::Paint()
 {
-	//TextureMan->SetUpNextDisplay();
-	ClearScreen(0, 0, 0);
-		
 	//Count the layers with effect
 	int NoLayers = 0;
-	std::map <int, GL2DEffectLayer*>::iterator Item;
+	std::map <int, Layer*>::iterator Item;
 	for(Item = LayerList.begin(); Item != LayerList.end(); ++Item)
 	{
 		if ((Item->second)->HasEffects())
@@ -116,6 +111,11 @@ void LayersCompose::Paint()
 		return;
 	}
 
+	
+	MeshTransform Transform;
+	OldScreen->RenderFrameToGraphic(Transform);
+	//NewScreen->RenderFrame();
+
 	//TextureManager->ResetRendering();
 	for(Item = LayerList.begin(); Item != LayerList.end(); ++Item)
 	{
@@ -123,17 +123,13 @@ void LayersCompose::Paint()
 		{
 			NoLayers--;
 			Item->second->Paint();
-
-//			if(NoLayers)
-//				TextureManager->CopyRenderSceneToTexture();
 		}
 	}
-
 }
 
 bool LayersCompose::HasEffects()
 {
-	std::map <int, GL2DEffectLayer*>::iterator Item;
+	std::map <int, Layer*>::iterator Item;
 	for(Item = LayerList.begin(); Item != LayerList.end(); ++Item)
 	{
 		if ((Item->second)->HasEffects())
@@ -142,10 +138,10 @@ bool LayersCompose::HasEffects()
 	return false;
 }
 
-GL2DEffect* LayersCompose::CreateEffect(int LayerLevel, int IDEffect, 
-	int TimeForComplete)
+Effect* LayersCompose::CreateEffect(int LayerLevel, int IDEffect, 
+	int StartAfter, int TimeForComplete)
 {
-	return LayerList[LayerLevel]->CreateEffect(IDEffect, TimeForComplete);
+	return LayerList[LayerLevel]->CreateEffect(IDEffect, StartAfter, TimeForComplete);
 }
 
 TBaseWidget* LayersCompose::CreateWidget(int LayerLevel, int WidgetType, int Top, 
@@ -155,31 +151,47 @@ TBaseWidget* LayersCompose::CreateWidget(int LayerLevel, int WidgetType, int Top
 		Height, Text);
 }
 
-void LayersCompose::ClearScreen(unsigned char Red, unsigned char Green, unsigned char Blue)
-{
-	glClearColor(Red/255.0f, Green/255.0f, Blue/255.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-}
-
 void LayersCompose::PaintScreen3D()
 {
-	
-}
-
-OpenGLTexture LayersCompose::GetRenderedScreen()
-{
-	if(!TextureMan)
-		return 0;
-	return 0; //TextureMan->GetRenderedScreen();
+	//CurrentLayer->Paint(Transform);
+	//LayerList[3]->SetRenderFrame(CurrentLayer);
+	//LayerList[3]->RenderFrameToGraphic(Transform);
+	MeshTransform Transform;
+	Transform.ApplyTranslate(-Width/2.0f, -Height/2.0f,1.2f* Height/2.0f);
+	CurrentLayer->Paint(Transform);
 }
 
 void LayersCompose::Resize(int Width, int Height)
 {
-	std::map <int, GL2DEffectLayer*>::iterator Item;
+	std::map <int, Layer*>::iterator Item;
 	for(Item = LayerList.begin(); Item != LayerList.end(); ++Item)
-	{
 		Item->second->Resize(Width, Height);
-	}	
+}
+
+void LayersCompose::UpdateLayers(MeshFrame* CurrentLayer, MeshFrame* OldLayer)
+{
+	this->CurrentLayer = CurrentLayer;
+	this->OldLayer = OldLayer;
+}
+
+MeshFrame* LayersCompose::GetCurrentLayer()
+{
+	return CurrentLayer;
+}
+
+MeshFrame* LayersCompose::GetOldLayer()
+{
+	return OldLayer;
+}
+
+OpenGLGraphic* LayersCompose::GetOldScreen()
+{
+	return NULL;
+}
+
+OpenGLGraphic* LayersCompose::GetNewScreen()
+{
+	return NULL;
 }
 
 }

@@ -1,21 +1,25 @@
 #include "GL2DEffectLayer.h"
 
+#include "../Mesh/MeshPainter.h"
+
 namespace GLEffect2D 
 {
 
-GL2DEffectLayer::GL2DEffectLayer(int Width, int Height)
+Layer::Layer(int Width, int Height)
+: RenderFrame(NULL),
+RenderGraphic(NULL)
 {
-	this->Widgets = new DrawingWidgetsEngine(Width, Height);
-	this->Effects = new GL2DEffectFactory(this->Widgets);
+	Widgets  = new DrawingWidgetsEngine(Width, Height);
+	Effects  = new EffectFactory(Widgets);	
 }
 
-GL2DEffectLayer::~GL2DEffectLayer(void)
+Layer::~Layer(void)
 {
 	delete Effects;
 	delete Widgets;
 }
 
-/*virtual*/ void GL2DEffectLayer::Paint()
+/*virtual*/ void Layer::Paint()
 {
 	if (!Effects->HasEffects())
 		return;
@@ -25,26 +29,26 @@ GL2DEffectLayer::~GL2DEffectLayer(void)
 }
 
 
-GL2DEffect* GL2DEffectLayer::CreateEffect(int IDEffect, int TimeForComplete)
+Effect* Layer::CreateEffect(int IDEffect, int StartAfter, int TimeForComplete)
 {
 	if(Effects == NULL)
 		return NULL;
-	return Effects->CreateEffect(IDEffect, TimeForComplete);
+	return Effects->CreateEffect(IDEffect, StartAfter, TimeForComplete);
 }
 
-TBaseWidget* GL2DEffectLayer::CreateWidget(int WidgetType, int Top, int Left, int Width, int Height, char* Text)
+TBaseWidget* Layer::CreateWidget(int WidgetType, int Top, int Left, int Width, int Height, char* Text)
 {
 	if (!Widgets)
 		return NULL;
 	return Widgets->CreateWidget(WidgetType, Top, Left, Width, Height, Text);
 }
 
-bool GL2DEffectLayer::HasEffects()
+bool Layer::HasEffects()
 {
 	return Effects->HasEffects();
 }
 
-void GL2DEffectLayer::Resize(int Width, int Height)
+void Layer::Resize(int Width, int Height)
 {
 	this->Width = Width;
 	this->Height = Height;
