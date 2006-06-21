@@ -11,7 +11,7 @@ WizardWidgetPage::WizardWidgetPage(SDLFrontEnd* FrontEnd, std::string Name)
 	for(int i = 0; i<10; i++)
 		ButtonSurfaces[i] = NULL;
 
-	Font_Color = NULL;
+	Font_Color = Utils::StringToColorDesc("000000");;
 }
 
 WizardWidgetPage::~WizardWidgetPage()
@@ -109,6 +109,8 @@ void WizardWidgetPage::SetSurface(std::string FileName, int IndexSurface)
 	else
 	if(Attribute == "FontColor")
 	{
+		if(Font_Color)
+			delete Font_Color;
 		Font_Color = Utils::StringToColorDesc(DataValue);
 	}
 	if(Attribute == "Caption")

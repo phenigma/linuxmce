@@ -82,6 +82,8 @@ WizardWidgetLabel::~WizardWidgetLabel()
 	else
 	if(Attribute == "FontColor")
 	{
+		if(Font_Color)
+			delete Font_Color;
 		Font_Color = Utils::StringToColorDesc(DataValue);
 	}
 	else
