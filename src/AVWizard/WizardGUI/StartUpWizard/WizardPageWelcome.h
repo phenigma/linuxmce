@@ -12,6 +12,7 @@ public:
 	virtual void DefaultSetup(SettingsDictionary* AVWizardSettings);
 
 	virtual int DoApplySetting(SettingsDictionary* Dictionary);
+	virtual void DoCancelSetting();
 
 	WizardPageWelcome(SDLFrontEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageWelcome();

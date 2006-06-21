@@ -10,6 +10,7 @@
 //
 //
 #include "WizardPageWelcome.h"
+#include "Wizard.h"
 
 WizardPageWelcome::WizardPageWelcome(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
@@ -36,3 +37,7 @@ WizardPageWelcome::WizardPageWelcome(SDLFrontEnd* FrontEnd, std::string Name)
 	return 0;
 }
 
+/*virtual*/ void WizardPageWelcome::DoCancelSetting()
+{
+	Wizard::GetInstance()->SetExitWithCode(3);
+}
