@@ -219,7 +219,7 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 	std::string StringList[6];
 
 	StringList[0] = "If the above objects are perfect square and circle, your TV has the tradi-";
-	StringList[1] = "tional aspect ration, meaning 4:3 proportions.";
+	StringList[1] = "tional aspect ratio, meaning 4:3 proportions.";
 	StringList[2] = "If the above objects are wide and than they are high, namely a wide rectangle and";
 	StringList[3] = "a wide oval, then you likely have a newer widescreen TV with a 16:9 proportions.";
 	StringList[4] = "What type of TV do you have?";
@@ -925,8 +925,11 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 			LabelCaption = "WELCOME TO AV WIZARD";
 	};
 
-	std::string FontColor = SkinGenerator::Instance()->StepFontColorShadow;	
+	std::string FontColor = SkinGenerator::Instance()->TitleFontColor;
 	int FontSize = Utils::StringToInt32(SkinGenerator::Instance()->TitleFontSize);
+	
+	
+	
 	SetFontStyle(FontSize, FontColor, "Regular");
 
 	Result->AddChild(CreateControlLabel(
