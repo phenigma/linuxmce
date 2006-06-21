@@ -162,6 +162,9 @@ function wizardOrbiters($output,$dbADO) {
 				if($pos>($page-1)*$orbitersPerPage && $pos<=$page*$orbitersPerPage){
 					$orbiterGroupDisplayed=$rowD['OrbiterGroup'];
 					
+					$itemDisabled=((isset($rowD['AllowedToModify']) && $rowD['AllowedToModify']==0)?'disabled':'');
+					$out.=($itemDisabled=='disabled')?'<input type="hidden" name="isDisabled_'.$rowD['PK_Device'].'_'.$rowD['FK_DeviceData'].'" value="1">':'';
+					
 					if(!in_array($rowD['PK_Device'],$devicesOnPage)){
 						$devicesOnPage[]=$rowD['PK_Device'];
 					}
@@ -383,22 +386,15 @@ function wizardOrbiters($output,$dbADO) {
 							$deviceData=(isset($_POST['timeoutSS_'.$value]))?$_POST['timeoutSS_'.$value].','.$_POST['timeoutPO_'.$value]:NULL;
 						}
 						$oldDeviceData=@$_POST['oldDeviceData_'.$value.'_'.$ddValue];
-						if($oldDeviceData!=$deviceData){
-							if($oldDeviceData=='NULL'){
-								$insertDDD='
-									INSERT INTO Device_DeviceData 
-										(FK_Device, FK_DeviceData, IK_DeviceData)
-									VALUES 
-										(?,?,?)';
-								$dbADO->Execute($insertDDD,array($value,$ddValue,$deviceData));
-							}
-							else{
-								$updateDDD='
-									UPDATE Device_DeviceData 
-										SET IK_DeviceData=? 
-									WHERE FK_Device=? AND FK_DeviceData=?';
-								$dbADO->Execute($updateDDD,array($deviceData,$value,$ddValue));
-							}
+						$isDisabled=(int)@$_POST['isDisabled_'.$value.'_'.$ddValue];
+						
+						if($oldDeviceData!=$deviceData && $isDisabled!=1){
+							$updateDDD='
+								UPDATE Device_DeviceData 
+									SET IK_DeviceData=? 
+								WHERE FK_Device=? AND FK_DeviceData=?';
+							$dbADO->Execute($updateDDD,array($deviceData,$value,$ddValue));
+							
 
 							if($ddValue==$GLOBALS['Size'] && (int)$deviceData!=0){
 								$sizeArray=getFieldsAsArray('Size','Width,Height',$dbADO,'WHERE PK_Size='.$deviceData);
