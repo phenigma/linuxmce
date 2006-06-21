@@ -138,9 +138,15 @@ Done=0
 while [[ "$Done" -eq 0 ]]; do
 	CleanUp
 	SetDefaults
-	if "$BaseDir"/AVWizardWrapper.sh; then
-		Done=1
-	fi
+	"$BaseDir"/AVWizardWrapper.sh
+	Ret="$?"
+	case "$Ret" in
+		0) Done=1 ;;
+		3)
+			rm -f "$XF86Config" "$XineConf"
+			exit 0 ;; # AV Wizard canceled; don't apply any changes
+		*) : ;; # All others re-loop (failures)
+	esac
 done
 
 # Finalize wizard: save settings
