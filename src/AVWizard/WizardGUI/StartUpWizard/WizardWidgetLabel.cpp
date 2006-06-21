@@ -8,14 +8,14 @@
 WizardWidgetLabel::WizardWidgetLabel(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardWidgetBase(FrontEnd, Name)
 {
-	Font_Color = NULL;
+	Font_Color = Utils::StringToColorDesc("000000");
 	Align = AlignLeft;
 	Style = 0;
 }
 
 WizardWidgetLabel::~WizardWidgetLabel()
 {
-
+	delete Font_Color;
 }
 
 /*virtual*/ void WizardWidgetLabel::SetUpAttribute(std::string Attribute, std::string DataValue)
