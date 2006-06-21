@@ -213,6 +213,9 @@
 					<File
 						RelativePath=".\Layers\GL2DEffectLayersCompose.cpp">
 					</File>
+					<File
+						RelativePath=".\Layers\GLRenderScreenToGraphic.cpp">
+					</File>
 				</Filter>
 				<Filter
 					Name="Commons"
@@ -419,6 +422,9 @@
 			</File>
 			<File
 				RelativePath=".\GLFontManager.h">
+			</File>
+			<File
+				RelativePath=".\GLRenderScreenToGraphic.h">
 			</File>
 			<File
 				RelativePath="..\GraphicBuilder.h">
