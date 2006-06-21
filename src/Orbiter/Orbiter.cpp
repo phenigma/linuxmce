@@ -4535,7 +4535,9 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 		map<DesignObj_Orbiter *, bool> mapVisibilityContext;
 		GetChildrenVisibilityContext(pScreenHistory_New->GetObj(), mapVisibilityContext);
 		pScreenHistory_New->SaveContext(m_mapVariable, mapVisibilityContext);
-		pScreenHistory_New->ScreenID(sID);
+
+		if(sID != "" && pScreenHistory_New->ScreenID() == "")
+			pScreenHistory_New->ScreenID(sID);
 	}
 	else
 		g_pPlutoLogger->Write(LV_WARNING, "We have all in screen history item. Nothing new to save.");
