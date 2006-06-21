@@ -975,7 +975,7 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c78-e->
 {
-	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
+ 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 		m_dwPK_Device, m_sPK_Device_AllOrbiters, "", SCREEN_NewPhoneDetected_CONST);
     SendCommand(CMD_Remove_Screen_From_History_DL);
 
@@ -1185,37 +1185,6 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 		Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
         string sPlutoMOInstallCmdLine = pRow_DeviceTemplate->Comments_get();
 		sPlutoMOInstallCmdLine = StringUtils::Replace(sPlutoMOInstallCmdLine, csMacToken, sMac_address);
-
-		/*
-        DeviceData_Base *pDevice_MD = pUnknownDeviceInfos->m_pDeviceFrom->m_pDevice_MD;
-        if(NULL != pDevice_MD)
-        {
-			g_pPlutoLogger->Write(LV_STATUS, "Searching for a App_Server associated to device %d", pDevice_MD->m_dwPK_Device);
-            DeviceData_Base *pDevice_AppServer = ((DeviceData_Impl *)pDevice_MD)->FindSelfOrChildWithinCategory(DEVICECATEGORY_App_Server_CONST);
-			
-			if(NULL == pDevice_AppServer)
-			{
-				g_pPlutoLogger->Write(LV_STATUS, "Searching for a App_Server associated to its parent %d (is this a hybrid?)", pDevice_MD->m_dwPK_Device);
-
-				//this might be a hybrid, which doesn't have an App_Server child anymore
-				//let's search for generic pc device and then let's grab its App_Server child
-				DeviceData_Base *pGeneric_PC_As_Core = pDevice_MD->FindSelfOrParentWithinCategory(DEVICETEMPLATE_Generic_PC_as_Core_CONST);
-				if(NULL != pGeneric_PC_As_Core)
-				{
-					pDevice_AppServer = ((DeviceData_Impl *)pGeneric_PC_As_Core)->FindSelfOrChildWithinCategory(DEVICECATEGORY_App_Server_CONST);
-				}
-			}
-
-			if(NULL != pDevice_AppServer)
-				CMD_Send_File_To_Phone(sMac_address, sPlutoMOInstallCmdLine, pDevice_AppServer->m_dwPK_Device);
-			else
-			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "Got the MD %d, but couldn't find the App_Server on it.", pDevice_MD->m_dwPK_Device);
-			}
-        }
-        else
-            g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't find the App_Server for %d's MD/HY", pUnknownDeviceInfos->m_pDeviceFrom->m_dwPK_Device);
-		*/
 
 		long dwPK_AppServer = GetAppServerAssociatedWithDevice(pUnknownDeviceInfos->m_pDeviceFrom);
 		if(dwPK_AppServer > 0)
@@ -2027,16 +1996,6 @@ void Orbiter_Plugin::SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDe
     string sPlutoMOInstallCmdLine = pRow_DeviceTemplate->Comments_get();
     sPlutoMOInstallCmdLine = StringUtils::Replace(sPlutoMOInstallCmdLine, csMacToken, sMacAddress);
 
-/*
-	DeviceData_Base *pDevice_MD = pDevice_Dongle->m_pDevice_MD;
-	if(pDevice_MD)
-	{
-		DeviceData_Base *pDevice_AppServer = ((DeviceData_Impl *)pDevice_MD)->FindSelfOrChildWithinCategory(DEVICECATEGORY_App_Server_CONST);
-		CMD_Send_File_To_Phone(sMacAddress, sPlutoMOInstallCmdLine, pDevice_AppServer->m_dwPK_Device);
-	}
-	else
-		g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't find the App_Server for %d's MD/HY", pDevice_Dongle->m_dwPK_Device);
-*/
 	long dwPK_AppServer = GetAppServerAssociatedWithDevice(pDevice_Dongle);
 	if(dwPK_AppServer > 0)
 		CMD_Send_File_To_Phone(sMacAddress, sPlutoMOInstallCmdLine, dwPK_AppServer);
