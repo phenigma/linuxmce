@@ -72,6 +72,7 @@ public:
 #define SERIALIZE_DATA_TYPE_VECT_PAIR_INT	11
 #define SERIALIZE_DATA_TYPE_FLOAT			12
 #define SERIALIZE_DATA_TYPE_INT_INT			13
+#define SERIALIZE_DATA_TYPE_DOUBLE			14
 
 #define SERIALIZE_DATA_TYPE_COLOR			50
 #define SERIALIZE_DATA_TYPE_POINT			51
@@ -222,6 +223,7 @@ public:
 	SerializeClass &operator+ (bool &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_CHAR,(void *) &i)); return (*this); } /** < @brief overloading + to take an bool */
 	SerializeClass &operator+ (char &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_CHAR,(void *) &i)); return (*this); } /** < @brief overloading + to take an char */
 	SerializeClass &operator+ (float &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_FLOAT,(void *) &i)); return (*this); } /** < @brief overloading + to take an float */
+	SerializeClass &operator+ (double &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_DOUBLE,(void *) &i)); return (*this); } /** < @brief overloading + to take an double */
 	SerializeClass &operator+ (short &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SHORT,(void *) &i)); return (*this); } /** < @brief overloading + to take an short */
 	SerializeClass &operator+ (string &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a string */
 	SerializeClass &operator+ (u_int64_t &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_INT64,(void *) &i)); return (*this); } /** < @brief overloading + to take an u_int64_t */
