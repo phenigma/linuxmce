@@ -3,11 +3,11 @@ function devices($output,$dbADO) {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/devices.lang.php');
-	
+
 	global $dbPlutoMainDatabase;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
-//	$dbADO->debug=true;
+	//$dbADO->debug=true;
 	$userID = (int)@$_SESSION['userID'];
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -61,25 +61,10 @@ function devices($output,$dbADO) {
 			$deviceCategory=$GLOBALS['rootLightsInterfaces'];
 	}
 
-	getDeviceCategoryChildsArray($deviceCategory,$dbADO);
-	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
-	$GLOBALS['childsDeviceCategoryArray'][]=$deviceCategory;
-	
-	foreach ($extraCategoryArray AS $extraCategory){
-		getDeviceCategoryChildsArray($extraCategory,$dbADO);
-		$GLOBALS['childsDeviceCategoryArray'][]=$extraCategory;
-	}
-	
-	$queryDeviceTemplate='
-		SELECT * FROM DeviceTemplate 
-			WHERE FK_DeviceCategory IN ('.join(',',$GLOBALS['childsDeviceCategoryArray']).')
-		ORDER BY Description ASC';
-	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate);
-	$DTArray=array();
-	$DTIDArray=array();
-	while($rowDeviceCategory=$resDeviceTemplate->FetchRow()){
-		$DTArray[]=$rowDeviceCategory['Description'];
-		$DTIDArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
+	// get the device categories for wizard
+	$restrictedCategories=getDescendantsForCategory($deviceCategory,$dbADO);
+	if(count($restrictedCategories)==0){
+		error_redirect('No devices categories for selected wizard.','');
 	}
 	
 	$roomsArray=getAssocArray('Room','PK_Room','Description',$dbADO,'WHERE FK_Installation='.$installationID,'ORDER BY Description ASC');
@@ -136,8 +121,6 @@ function devices($output,$dbADO) {
 		
 				$displayedDevices=array();
 				$GLOBALS['DeviceDataToDisplay']=array();
-				$joinArray=$DTIDArray;	// used only for query when there are no DT in selected category
-				$joinArray[]=0;
 				$queryDevice='
 					SELECT 
 						PK_Device,
@@ -169,7 +152,7 @@ function devices($output,$dbADO) {
 					LEFT JOIN DeviceTemplate_AV ON Device.FK_DeviceTemplate=DeviceTemplate_AV.FK_DeviceTemplate 
 					INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory 
 					INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer 			
-					WHERE Device.FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=? ';
+					WHERE DeviceTemplate.FK_DeviceCategory IN ('.join(',',$restrictedCategories).') AND FK_Installation=? ';
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
 				$firstDevice=0;
 				$deviceDataArray=array();

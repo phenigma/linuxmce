@@ -75,8 +75,8 @@ function setTemplateFileType($type) {
 	$this->templateType = $type;
 	switch($type){
 		case 'homeWithFrames':
-			$_SESSION['lastLeftFrameSrc']='';
-			$_SESSION['lastRightFrameSrc']='';
+			//$_SESSION['lastLeftFrameSrc']='';
+			//$_SESSION['lastRightFrameSrc']='';
 		break;
 		case 'large':
 			@$_SESSION['lastRightFrameSrc']='index.php?'.$_SERVER['QUERY_STRING'];

@@ -6,6 +6,7 @@ function keyboardLayout($output,$dbADO) {
 	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
+	//$dbADO->debug=true;
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];

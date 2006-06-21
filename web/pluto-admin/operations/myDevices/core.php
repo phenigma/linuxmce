@@ -8,7 +8,7 @@ function core($output,$dbADO) {
 /* @var $rs ADORecordSet */
 
 	$out='';
-	$dbADO->debug=false;
+//	$dbADO->debug=true;
 	$installationID = (int)@$_SESSION['installationID'];
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 
@@ -93,13 +93,10 @@ function core($output,$dbADO) {
 				$resIsPlugin=$dbADO->Execute($queryIsPlugin,$elem);
 				$parentDevice=($resIsPlugin->RecordCount()>0)?$coreDCERouterID:$coreID;
 
-				$insertDevice='
-					INSERT INTO Device 
-						(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia,FK_Room) 
-					VALUES (?,?,?,?,?)';
 				if($oldDevice==''){
-					$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$parentDevice,$coreRoom));
-					$childDeviceId=$dbADO->Insert_ID();
+					//$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$parentDevice,$coreRoom));
+					//$childDeviceId=$dbADO->Insert_ID();
+					$childDeviceId=createDevice($elem,$installationID,$parentDevice,$coreRoom,$dbADO);
 				}
 			}else{
 				$dbADO->Execute("DELETE FROM Device WHERE PK_Device='".$oldDevice."'");

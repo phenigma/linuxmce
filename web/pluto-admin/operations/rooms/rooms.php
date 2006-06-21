@@ -10,7 +10,7 @@ function rooms($output,$dbADO) {
 	/* @var $resRoomTypes ADORecordSet */
 	$out='';
 	$locationGoTo='';
-	$dbADO->debug=false;
+	//$dbADO->debug=true;
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$lastAction = isset($_REQUEST['lastAction'])?cleanString($_REQUEST['lastAction']):'';
 

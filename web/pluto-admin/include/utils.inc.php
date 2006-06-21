@@ -1018,46 +1018,14 @@ function multi_page_format($row, $art_index,$mediadbADO)
 	return $out;
 }
 
+// return the devices in selected category and its childs
 function getDevicesArrayFromCategory($categoryID,$dbADO)
 {
-	$GLOBALS['childsDeviceCategoryArray']=array();
-	getDeviceCategoryChildsArray($categoryID,$dbADO);
-	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
-	$GLOBALS['childsDeviceCategoryArray'][]=$categoryID;
-
-	$queryDeviceTemplate='
-		SELECT * FROM DeviceTemplate 
-			WHERE FK_DeviceCategory IN ('.join(',',$GLOBALS['childsDeviceCategoryArray']).')
-		ORDER BY Description ASC';
-	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate);
-	$DTArray=array();
-	$DTIDArray=array();
-	while($rowDeviceCategory=$resDeviceTemplate->FetchRow()){
-		$DTArray[]=$rowDeviceCategory['Description'];
-		$DTIDArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
-	}
-
-	$devicesList=array();
-	$joinArray=$DTIDArray;	// used only for query when there are no DT in selected category
-	$joinArray[]=0;
-	$queryDevice='
-		SELECT 
-			Device.*,
-			DeviceTemplate.Description AS Template,
-			Room.Description AS Room 
-		FROM Device 
-		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-		LEFT JOIN Room ON FK_Room=PK_Room
-		WHERE
-			FK_DeviceTemplate IN ('.join(',',$joinArray).') AND Device.FK_Installation=?';	
-	$resDevice=$dbADO->Execute($queryDevice,(int)$_SESSION['installationID']);
-	while($rowD=$resDevice->FetchRow()){
-		$label=(@$GLOBALS['DT_&_Room']==1)?$rowD['Description'].' ('.$rowD['Template'].') ('.$rowD['Room'].')':$rowD['Description'];
-		$devicesList[$rowD['PK_Device']]=$label;
-	}
-	unset($GLOBALS['childsDeviceCategoryArray']);
-	$GLOBALS['childsDeviceCategoryArray']=array();
-
+	$categories=getDescendantsForCategory($categoryID,$dbADO);
+	
+	$label=(@$GLOBALS['DT_&_Room']==1)?'CONCAT(Device.Description,\' (\',DeviceTemplate.Description,\') \',Room.Description) AS Description':'Device.Description AS Description';
+	$devicesList=getAssocArray('Device','PK_Device',$label,$dbADO,'INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate	LEFT JOIN Room ON FK_Room=PK_Room WHERE FK_DeviceCategory IN ('.join(',',$categories).') AND Device.FK_Installation='.(int)@$_SESSION['installationID'],'ORDER BY Description ASC');
+	
 	return $devicesList;
 }
 
@@ -1508,14 +1476,35 @@ function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='',$valueKey
 	return $out;
 }
 
-$GLOBALS['wizardChilds']=array();
+//$GLOBALS['wizardChilds']=array();
 function getChildsOfWizard($page,$dbADO)
 {
+	
+	$childs=array();
+	$res=$dbADO->Execute('
+		SELECT  
+		IF(PK_PageSetup=?,1,0) AS pos,
+		PageSetup.*
+		FROM PageSetup
+		ORDER BY pos desc,PK_PageSetup ASC',$page);
+	while($row=$res->FetchRow()){
+		if($row['PK_PageSetup']==$page){
+			$childs[$row['PK_PageSetup']]=$row['pageURL'];
+		}
+		if(in_array($row['FK_PageSetup_Parent'],array_keys($childs))){
+			$childs[$row['PK_PageSetup']]=$row['pageURL'];
+		}
+	}
+
+	return $childs;
+	
+	
 	$res=$dbADO->Execute('SELECT * FROM PageSetup WHERE FK_PageSetup_Parent=? ORDER BY OrderNum ASC',$page);
 	while($row=$res->FetchRow()){
 		$GLOBALS['wizardChilds'][$row['PK_PageSetup']]=$row['pageURL'];
 		getChildsOfWizard($row['PK_PageSetup'],$dbADO);
 	}
+	
 	return $GLOBALS['wizardChilds'];
 }
 
@@ -2543,7 +2532,7 @@ function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$co
 		<option value="'.@$zeroValues[0].'">'.$zeroValues[1].'</option>
 		'.$selectOptions.'
 	</select>';
-	
+
 	return $out;
 }
 
@@ -4484,7 +4473,6 @@ function deviceDataElement($name,$rowDDforDevice,$dbADO)
 
 function getParentsForControlledVia($deviceID,$dbADO)
 {
-	
 	$installationID=(int)$_SESSION['installationID'];
 
 	
@@ -4550,13 +4538,15 @@ function getParentsForControlledVia($deviceID,$dbADO)
 		}
 	}
 	
-	// if device is AV with UsesIR=1, override default controlled_via based on category and device template
-	$controlledByIfIR=getDevicesFromCategories(array($GLOBALS['specialized'],$GLOBALS['InfraredInterface']),$dbADO);
-	$controlledByIfNotIR=getDevicesFromCategories(array($GLOBALS['rootComputerID']),$dbADO);
-	
 	// get selected category Device Templates
 	$avArray=getDeviceTemplatesFromCategory($GLOBALS['rootAVEquipment'],$dbADO);
 	if(in_array(@$dtID,$avArray)){
+		
+		// if device is AV with UsesIR=1, override default controlled_via based on category and device template
+		$controlledByIfIR=getDevicesFromCategories(array($GLOBALS['specialized'],$GLOBALS['InfraredInterface']),$dbADO);
+		$controlledByIfNotIR=getDevicesFromCategories(array($GLOBALS['rootComputerID']),$dbADO);
+		
+		
 		$queryDevice='
 			SELECT 
 				Device.*,
@@ -4584,7 +4574,6 @@ function getParentsForControlledVia($deviceID,$dbADO)
 	foreach ($optionsArrayLowerCase As $id=>$label){
 		$optionsArrayOriginal[$id]=$optionsArray[$id];
 	}
-	
 	
 	return $optionsArrayOriginal;
 }

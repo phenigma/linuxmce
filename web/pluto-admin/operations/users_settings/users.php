@@ -9,7 +9,7 @@ function users($output,$dbADO) {
 	/* @var $resUserTypes ADORecordSet */
 	$out='';
 	$locationGoTo='';
-	$dbADO->debug=false;
+	//$dbADO->debug=true;
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$lastAction = isset($_REQUEST['lastAction'])?cleanString($_REQUEST['lastAction']):'';
 
@@ -60,11 +60,6 @@ function users($output,$dbADO) {
 			$selectLanguages = 'SELECT * FROM Language ORDER BY Description ASC';
 			$resLanguages = $dbADO->_Execute($selectLanguages);
 
-			$queryHisInstallations = 'SELECT * FROM Installation
-		INNER JOIN Installation_Users on FK_Installation = PK_Installation
-		WHERE FK_Users = ?';
-
-			$resHisInstallations = $dbADO->Execute($queryHisInstallations,array($_SESSION['userID']));
 
 			while ($rowUser = $resUsers->FetchRow()) {
 				if ($resLanguages) {
