@@ -114,7 +114,7 @@ function search($output,$dbADO,$conn){
 		SELECT summary,mantis_bug_table.id 
 		FROM mantis_bug_table
 		INNER JOIN mantis_bug_text_table ON mantis_bug_table.id=mantis_bug_text_table.id   
-		WHERE description LIKE '%".$searchString."%' OR summary LIKE '%".$searchString."%'";	
+		WHERE (description LIKE '%".$searchString."%' OR summary LIKE '%".$searchString."%') AND view_state!=50";	
 	$resMantis=mysql_query($queryMantis,$connMantis);
 
 	$mantisFound=mysql_num_rows($resMantis);
