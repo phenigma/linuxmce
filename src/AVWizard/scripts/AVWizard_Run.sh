@@ -29,6 +29,7 @@ SetDefaults()
 	WizSet DTSTestFile '/usr/pluto/sound/avwizard_dts_test.wav'
 	WizSet DolbyTestFile '/usr/pluto/sound/avwizard_ac3_test.ac3'
 	WizSet DefaultFontName '/usr/share/fonts/truetype/msttcorefonts/Arial.ttf'
+	WizSet ExitCode 1 # by default, we fail (i.e. on Ctrl+Alt+Bkspc)
 }
 
 # Update audio settings of this machine
