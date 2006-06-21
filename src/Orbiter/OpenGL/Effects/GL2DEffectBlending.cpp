@@ -4,8 +4,11 @@
 
 //#include "../Orbiter3DCommons.h"
 
-GL2DEffectBlending::GL2DEffectBlending (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
-	: GL2DEffectTransit(EffectsEngine, TimeForCompleteEffect)
+namespace GLEffect2D
+{
+
+GL2DEffectBlending::GL2DEffectBlending (EffectFactory * EffectsEngine, int StartAfter, int TimeForCompleteEffect)
+	: GL2DEffectTransit(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
 	/*
 	FullScreen.Left = 0;
@@ -99,4 +102,6 @@ void GL2DEffectBlending::Paint(int Now)
 	Destination->SetRectCoordinates(Animation);
 	Destination->SetAlpha(Step);
 */
+}
+
 }

@@ -16,6 +16,9 @@
 #include "../Widgets/basicwindow.h"
 #include <memory>
 
+namespace GLEffect2D
+{
+
 class GL2DEffectSlideFromLeft : public GL2DEffectTransit
 {
 	TBasicWindow* Destination;
@@ -24,7 +27,8 @@ class GL2DEffectSlideFromLeft : public GL2DEffectTransit
 	FloatRect FullScreen;
 	
 public:
-	GL2DEffectSlideFromLeft (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
+	GL2DEffectSlideFromLeft (EffectFactory * EffectsEngine, int StartAfter, 
+		int TimeForCompleteEffect);
 	virtual ~GL2DEffectSlideFromLeft();
 	
 	void Configure(PlutoRectangle* EffectSourceSize);
@@ -32,5 +36,7 @@ public:
 	virtual void Paint(int Time);	
 	
 };
+
+}
 
 #endif

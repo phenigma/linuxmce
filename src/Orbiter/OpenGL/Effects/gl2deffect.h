@@ -3,20 +3,23 @@
 
 #include "../math3dutils.h"
 
-class GL2DEffectFactory;
 /**
  * That class is the base class for 2D effects using OpenGL
  */
-class GL2DEffect
+namespace GLEffect2D
+{
+class EffectFactory;
+
+class Effect
 {
 protected:
-	GL2DEffectFactory* Effects;
+	EffectFactory* Effects;
 	int Start, Length;
 
 public:
 	bool Configured;
-	GL2DEffect(GL2DEffectFactory* EffectsEngine, int TimeForCompleteEffect);
-	virtual ~GL2DEffect();
+	Effect(EffectFactory* EffectsEngine, int StartAfter, int TimeForCompleteEffect);
+	virtual ~Effect();
 	
 	/**
 	 * Return the stage of the effect, from 0.0 to 1.0
@@ -26,7 +29,12 @@ public:
 	float Stage(float Time) {
 		if (Length<= 0) 
 			return 1.1f;
-		return ((float)Time-(float)Start) / (float)Length;
+		if(Time < Start)
+			return -0.0f;
+		if(Time > Start + Length)
+			return 1.05f;
+		float Result = ((float)Time-(float)Start) / (float)Length;
+		return Result;
 	} 
   
 	virtual void Paint(int Time) = 0;
@@ -35,5 +43,7 @@ public:
 	
 	//virtual void Configure(PlutoRectangle* EffectSourceSize) = 0;
 };
+
+}
 
 #endif

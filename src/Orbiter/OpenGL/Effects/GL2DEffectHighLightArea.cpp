@@ -4,8 +4,12 @@
 
 //#include "../Orbiter3DCommons.h"
 
-GL2DEffectHighLightArea::GL2DEffectHighLightArea(GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
-: GL2DEffectHighLight(EffectsEngine, TimeForCompleteEffect)
+namespace GLEffect2D
+{
+
+GL2DEffectHighLightArea::GL2DEffectHighLightArea(EffectFactory * EffectsEngine, int StartAfter,
+												 int TimeForCompleteEffect)
+: GL2DEffectHighLight(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
 	Configured = false;
 	/*
@@ -58,4 +62,6 @@ void GL2DEffectHighLightArea::Paint(int Time)
 		Button->SetBackgroundColor(1.0f, 1.0f, 0.0f, 0.5f - (Step-0.5f)*2.f*0.3f);
 	}
 	Commons3D::Instance().GetSelected()->SetVisible(true);*/
+}
+
 }

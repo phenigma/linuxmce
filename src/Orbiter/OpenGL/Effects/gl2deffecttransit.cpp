@@ -2,8 +2,12 @@
 
 #include "gl2deffectfactory.h"
 
-GL2DEffectTransit::GL2DEffectTransit(GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
-	: GL2DEffect(EffectsEngine, TimeForCompleteEffect)
+namespace GLEffect2D
+{
+
+GL2DEffectTransit::GL2DEffectTransit(EffectFactory * EffectsEngine, int StartAfter, 
+									 int TimeForCompleteEffect)
+	: Effect(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
 	//clean up the highlighted items to not have remain on the new screen
 /*	Commons3D::Instance().SetHighLightArea(NULL);
@@ -43,4 +47,6 @@ void GL2DEffectTransit::Paint()
 	}
 */
 	
+}
+
 }

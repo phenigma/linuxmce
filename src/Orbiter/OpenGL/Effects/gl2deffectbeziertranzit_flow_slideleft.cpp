@@ -3,8 +3,11 @@
 
 //#include "../Orbiter3DCommons.h"
 
-GL2DBezierEffectTransit_Flow_SlideLeft::GL2DBezierEffectTransit_Flow_SlideLeft (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
-: GL2DEffectTransit(EffectsEngine, TimeForCompleteEffect)
+namespace GLEffect2D 
+{
+
+GL2DBezierEffectTransit_Flow_SlideLeft::GL2DBezierEffectTransit_Flow_SlideLeft (EffectFactory * EffectsEngine, int StartAfter, int TimeForCompleteEffect)
+	: GL2DEffectTransit(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
 	/*
 	FullScreen.Left = 0.0f;
@@ -14,9 +17,9 @@ GL2DBezierEffectTransit_Flow_SlideLeft::GL2DBezierEffectTransit_Flow_SlideLeft (
 
 	//create the button which keep the source of the screen (the button part)
 	ButonTop = (TBezierWindow *)Effects->Widgets->CreateWidget(BEZIERWINDOW, 
-		0, 0, 
-		Effects->Widgets->GetWidth(), Effects->Widgets->GetHeight(), 
-		"Button");
+	0, 0, 
+	Effects->Widgets->GetWidth(), Effects->Widgets->GetHeight(), 
+	"Button");
 	ButonTop ->SetVisible(true);
 	*/
 }
@@ -50,11 +53,11 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 		//Set up the textures for triangles
 		//ButonTop->SetTexture(Effects->Widgets->NewScreen);
 
-/*		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
+		/*		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
 
 		ButonTop->SetTextureWraping(0.0, 0.0, 
-			MaxCoordU, MaxCoordV);
+		MaxCoordU, MaxCoordV);
 
 		ButonTop->BezierDefinition.Divisions = 50;
 
@@ -63,7 +66,7 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 		Configured = true;
 	}
 
-/*
+	/*
 	float Step = Stage((float)Now), Step2;
 	Step = 1-Step;
 	//Step2 = keeped for backup reason of Step variable
@@ -77,9 +80,9 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 	ButonTop->SetRectCoordinates(Animation);
 	Step = Step2;
 	if( Step < 0.5)
-		Step *= 2;
+	Step *= 2;
 	else
-		Step= 1-(Step - 0.5f)*2; 
+	Step= 1-(Step - 0.5f)*2; 
 
 	int i;
 	float Average = Animation.Width * 2/3;
@@ -93,31 +96,33 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 	Step = Step2;
 	LeftProfile[0] = 0.0f;
 	LeftProfile[1] = MathUtils::InterpolateValues(
-		0,
-		Animation.Width,
-		0.33f*Step);
+	0,
+	Animation.Width,
+	0.33f*Step);
 	LeftProfile[2] = LeftProfile[1];
 	LeftProfile[3] = 0.0f;
 
 	TopProfile[0] = 0.0f;
 	TopProfile[1] = MathUtils::InterpolateValues(
-		0,
-		Animation.Height,
-		0.33f*Step);
+	0,
+	Animation.Height,
+	0.33f*Step);
 	TopProfile[2] = TopProfile[1];
 	TopProfile[3] = 0.0f;
 
 	for(i = 0; i<4; i++)
 	{
-		ButonTop->BezierDefinition.anchors[i][0].y -= 
-			TopProfile[i];
-		ButonTop->BezierDefinition.anchors[i][3].y -= 
-			TopProfile[i];
+	ButonTop->BezierDefinition.anchors[i][0].y -= 
+	TopProfile[i];
+	ButonTop->BezierDefinition.anchors[i][3].y -= 
+	TopProfile[i];
 
-		ButonTop->BezierDefinition.anchors[0][i].x -= 
-			2*LeftProfile[i];
-		ButonTop->BezierDefinition.anchors[3][i].x -= 
-			LeftProfile[i];
+	ButonTop->BezierDefinition.anchors[0][i].x -= 
+	2*LeftProfile[i];
+	ButonTop->BezierDefinition.anchors[3][i].x -= 
+	LeftProfile[i];
 	}
 	*/
+}
+
 }

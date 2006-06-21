@@ -15,6 +15,9 @@
 #include "gl2deffecttransit.h"
 #include "../Widgets/basicwindow.h"
 
+namespace GLEffect2D
+{
+
 class GL2DEffectFadesFromTop : public GL2DEffectTransit
 {
 	TBasicWindow* Destination;
@@ -23,7 +26,7 @@ class GL2DEffectFadesFromTop : public GL2DEffectTransit
 	FloatRect FullScreen;
 	
 public:
-	GL2DEffectFadesFromTop (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
+	GL2DEffectFadesFromTop (EffectFactory * EffectsEngine, int StartAfter, int TimeForCompleteEffect);
 	virtual ~GL2DEffectFadesFromTop();
 	
 	void Configure(PlutoRectangle* EffectSourceSize);
@@ -31,5 +34,7 @@ public:
 	virtual void Paint(int Now);	
 	
 };
+
+}
 
 #endif

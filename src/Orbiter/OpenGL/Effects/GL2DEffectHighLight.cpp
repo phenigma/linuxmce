@@ -1,10 +1,16 @@
 #include "GL2DEffectHighLight.h"
 
-GL2DEffectHighLight::GL2DEffectHighLight(GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
-	: GL2DEffect(EffectsEngine, TimeForCompleteEffect)
+namespace GLEffect2D
+{
+
+GL2DEffectHighLight::GL2DEffectHighLight(EffectFactory * EffectsEngine, int StartAfter,
+										 int TimeForCompleteEffect)
+	: Effect(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
 }
 
 GL2DEffectHighLight::~GL2DEffectHighLight()
 {
+}
+
 }

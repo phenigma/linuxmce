@@ -16,6 +16,9 @@
 #include "../Widgets/basicwindow.h"
 #include <memory>
 
+namespace GLEffect2D
+{
+
 class GL2DEffectFadesFromUnderneath : public GL2DEffectTransit
 {
 	TBasicWindow* Background;
@@ -25,7 +28,7 @@ class GL2DEffectFadesFromUnderneath : public GL2DEffectTransit
 	FloatRect FullScreen;
 	
 public:
-	GL2DEffectFadesFromUnderneath (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
+	GL2DEffectFadesFromUnderneath (EffectFactory * EffectsEngine, int StartAfter, int TimeForCompleteEffect);
 	virtual ~GL2DEffectFadesFromUnderneath();
 	
 /**
@@ -38,5 +41,7 @@ public:
 	virtual void Paint(int Now);	
 	
 };
+
+}
 
 #endif

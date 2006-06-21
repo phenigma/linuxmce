@@ -40,80 +40,83 @@
 #include <iostream>
 #include <SDL.h>
 
-GL2DEffectFactory::GL2DEffectFactory (DrawingWidgetsEngine* WidgetsEngine)
+namespace GLEffect2D
+{
+
+EffectFactory::EffectFactory (DrawingWidgetsEngine* WidgetsEngine)
 	: Widgets(WidgetsEngine) {
 	StartTime = SDL_GetTicks();
 }
 
-int GL2DEffectFactory::MilisecondTimmer()
+int EffectFactory::MilisecondTimmer()
 { 
 	int m_tInterval = SDL_GetTicks() - StartTime;
 
 	return m_tInterval;
 }
 
-GL2DEffect* GL2DEffectFactory::CreateEffect(int IDEffect, int TimeForComplete)
+Effect* EffectFactory::CreateEffect(int IDEffect, int StartAfter, int TimeForComplete)
 {
-	std::cout << "GL2DEffectFactory::CreateEffect : " << IDEffect << std::endl;
+	std::cout << "EffectFactory::CreateEffect : " << IDEffect << std::endl;
 	
 	if(!Effects.empty())
 	{
-		std::vector<GL2DEffect*>::iterator Effect = Effects.begin();
+		std::vector<Effect*>::iterator Effect = Effects.begin();
 		if(NULL != dynamic_cast<GL2DEffectTransit*>(*Effect))
 		{
-			std::cout << "GL2DEffectFactory::CreateEffect : Transit effects running!" << std::endl;
+			std::cout << "EffectFactory::CreateEffect : Transit effects running!" << std::endl;
 			return NULL;
 		}
 	}
 
-	GL2DEffect* Effect = NULL;
+	Effect* Effect = NULL;
 	switch (IDEffect)
 	{
 		case GL2D_EFFECT_TRANSIT_NO_EFFECT:
-			Effect = new GL2DEffectTransitionNoEffect(this, TimeForComplete);
+			Effect = new GL2DEffectTransitionNoEffect(this, StartAfter, TimeForComplete);
 			break;
 	
 		case GL2D_EFFECT_TRANSIT:
-			Effect = new GL2DEffectBlending(this, TimeForComplete);
+			Effect = new GL2DEffectBlending(this, StartAfter, TimeForComplete);
 			break;
 
 		case GL2D_EFFECT_WIPE_IN:
-			Effect = new GL2DEffectWipeIn(this, TimeForComplete);
+			Effect = new GL2DEffectWipeIn(this, StartAfter, TimeForComplete);
 			break;
 			
 		
 		case GL2D_EFFECT_BEZIER_TRANSIT:
-			Effect = new GL2DBezierEffectTransit (this, TimeForComplete);
+			Effect = new GL2DBezierEffectTransit (this, StartAfter, TimeForComplete);
 			break;
 		case GL2D_EFFECT_SLIDE_FROM_LEFT:
-			Effect = new GL2DEffectSlideFromLeft (this, TimeForComplete);
+			Effect = new GL2DEffectSlideFromLeft (this, StartAfter, TimeForComplete);
 			break;
 		case GL2D_EFFECT_FADES_FROM_TOP:
-			Effect = new GL2DEffectFadesFromTop(this, TimeForComplete);
+			Effect = new GL2DEffectFadesFromTop(this, StartAfter, TimeForComplete);
 			break;
 		case GL2D_EFFECT_FADES_FROM_UNDERNEATH:
-			Effect = new GL2DEffectFadesFromUnderneath (this, TimeForComplete);
+			Effect = new GL2DEffectFadesFromUnderneath (this, StartAfter, TimeForComplete);
 			break;
 		case GL2D_EFFECT_NOEFFECT:
-			Effect = new GL2DEffectNoEffect(this, TimeForComplete);
+			Effect = new GL2DEffectNoEffect(this, StartAfter, TimeForComplete);
 			break;
 		case GL2D_EFFECT_HIGHLIGHT_AREA:
-			Effect = new GL2DEffectHighLightArea(this, TimeForComplete);
+			Effect = new GL2DEffectHighLightArea(this, StartAfter, TimeForComplete);
 			break;
 		case GL2D_EFFECT_SELECT_AREA:
-			Effect = new GL2DEffectSelectedArea(this, TimeForComplete);
+			Effect = new GL2DEffectSelectedArea(this, StartAfter, TimeForComplete);
 			break;
 		case GL2D_EFFECT_BEZIER_TRANSIT_PRISM:
-			Effect = new GL2DBezierEffectTransit_Prism(this, TimeForComplete);
+			Effect = new GL2DBezierEffectTransit_Prism(this, StartAfter, TimeForComplete);
 			break;
 		case GL2D_EFFECT_BEZIER_TRANSIT_TOPLEFT:
-			Effect = new GL2DBezierEffectTransit_TopLeft(this, TimeForComplete);
+			Effect = new GL2DBezierEffectTransit_TopLeft(this, StartAfter, TimeForComplete);
 			break;
 		case GL2D_EFFECT_BEZIER_TRANZIT_FLOW_SLIDELEFT:
-			Effect = new GL2DBezierEffectTransit_Flow_SlideLeft(this, TimeForComplete);
+			Effect = new GL2DBezierEffectTransit_Flow_SlideLeft(this, StartAfter, TimeForComplete);
 			break;
 		case GL2D_EFFECT_BEZIER_TRANZIT_FLOW_SLIDELEFT_REVERSE:
-			Effect = new GL2DBezierEffectTransit_Flow_SlideLeft_Reverse(this, TimeForComplete);
+			Effect = new GL2DBezierEffectTransit_Flow_SlideLeft_Reverse(this, StartAfter, TimeForComplete);
 			break;
 	}
 
@@ -125,20 +128,20 @@ GL2DEffect* GL2DEffectFactory::CreateEffect(int IDEffect, int TimeForComplete)
 	return Effect;
 }
 
-void GL2DEffectFactory::UpdateEffects()
+void EffectFactory::UpdateEffects()
 {
 	int CurrentTime = MilisecondTimmer();
 
 	if(Effects.empty())
 		return;
 	
-	std::vector<GL2DEffect*>::iterator Effect;
+	std::vector<Effect*>::iterator Effect;
 	
-	//std::cout<<"void GL2DEffectFactory::UpdateEffects()"<<std::endl;
+	//std::cout<<"void EffectFactory::UpdateEffects()"<<std::endl;
 	
 	for(Effect = Effects.begin(); Effect < Effects.end(); )
 	{
-		if(((*Effect)->Configured) &&((*Effect)->Stage(float(CurrentTime))>1) )
+		if(((*Effect)->Configured) &&((*Effect)->Stage(float(CurrentTime))>1.0f) )
 		{
 			delete *Effect;
 			Effect = Effects.erase(Effect);
@@ -146,37 +149,37 @@ void GL2DEffectFactory::UpdateEffects()
 		else
 			++Effect;
 	}
-	//std::cout<<"end of void GL2DEffectFactory::UpdateEffects()"<<std::endl;
+	//std::cout<<"end of void EffectFactory::UpdateEffects()"<<std::endl;
 	if (HasEffects())
 	{
-		std::vector<GL2DEffect*>::iterator Effect;	
+		std::vector<GLEffect2D::Effect*>::iterator Item;	
 		int CurrentTime = MilisecondTimmer();
-		for(Effect = Effects.begin(); HasEffects() && (Effect != Effects.end()); ++Effect)
+		for(Item = Effects.begin(); HasEffects() && (Item != Effects.end()); ++Item)
 		{
-			(*Effect)->Paint(CurrentTime);
+			(*Item)->Paint(CurrentTime);
 		}
 	}
 }
 
-void GL2DEffectFactory::ClearEffects()
+void EffectFactory::ClearEffects()
 {
 	if (Effects.size() == 0)
 		return;
 
-	std::vector<GL2DEffect*>::iterator Effect;
+	std::vector<Effect*>::iterator Item;
  
-	for(Effect = Effects.begin(); Effect < Effects.end(); ++Effect)
-		delete *Effect;
+	for(Item = Effects.begin(); Item < Effects.end(); ++Item)
+		delete *Item;
 
 	Effects.clear();
 }
 
-void GL2DEffectFactory::Paint(MeshTransform Transform)
+void EffectFactory::Paint(MeshTransform Transform)
 {
 	Widgets->Paint(Transform);
 }
 
-int GL2DEffectFactory::GetEffectCode(int DBEffectCode)
+int EffectFactory::GetEffectCode(int DBEffectCode)
 {
 	/*
 	switch(DBEffectCode) {
@@ -215,7 +218,10 @@ int GL2DEffectFactory::GetEffectCode(int DBEffectCode)
 	return 0;
 }
 
-void GL2DEffectFactory::Resize(int Width, int Height)
+void EffectFactory::Resize(int Width, int Height)
 {
 	
 }
+
+} // namespace GLEffect2D
+

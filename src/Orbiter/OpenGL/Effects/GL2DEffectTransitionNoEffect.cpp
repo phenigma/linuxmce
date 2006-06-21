@@ -13,8 +13,12 @@
 #include "GL2DEffectTransitionNoEffect.h"
 #include "gl2deffectfactory.h"
 
-GL2DEffectTransitionNoEffect::GL2DEffectTransitionNoEffect(GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
-	: GL2DEffectTransit(EffectsEngine, TimeForCompleteEffect)
+namespace GLEffect2D
+{
+
+GL2DEffectTransitionNoEffect::GL2DEffectTransitionNoEffect(EffectFactory * EffectsEngine, int StartAfter,
+														   int TimeForCompleteEffect)
+	: GL2DEffectTransit(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
 	Configured = false;
 }
@@ -43,4 +47,6 @@ void GL2DEffectTransitionNoEffect::Paint(int Now)
  */
 void GL2DEffectTransitionNoEffect::Configure(PlutoRectangle* EffectSourceSize)
 {
+}
+
 }

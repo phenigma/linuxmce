@@ -49,7 +49,10 @@
  * It saves "a snapshot" of the actual image and store it as a SnapshotTex
  * 
  */
-class GL2DEffectFactory {
+namespace GLEffect2D
+{
+
+class EffectFactory {
 	/**
 	 * Internal time, used to know when the 2D effects start, used for sincronisation
 	 */
@@ -59,7 +62,7 @@ class GL2DEffectFactory {
 	 * if the number of effects = 0 then 
 	 * will be displayed the desktop with no change
 	 */
-	std::vector <GL2DEffect*> Effects;
+	std::vector <Effect*> Effects;
 	/**
 	 *	Safe thread mutex
 	 */
@@ -70,12 +73,12 @@ public:
 	/**
 	 *	Default constructor, describes the widgets will be used
 	 */
-	GL2DEffectFactory (DrawingWidgetsEngine* Widgets);
+	EffectFactory (DrawingWidgetsEngine* Widgets);
 
 	/**
 	 *	Default no-op destructor
 	 */
-	~GL2DEffectFactory () {}
+	~EffectFactory () {}
 
 	/**
 	 * It gives the time from staring the effects GL2D engine in milisecond
@@ -88,7 +91,7 @@ public:
 	/**
 	 * Creation of one effect
 	 */
-	GL2DEffect* CreateEffect(int IDEffect, int TimeForComplete); 
+	Effect* CreateEffect(int IDEffect, int StartAfter, int TimeForComplete); 
 	/**
 	 * It tests if effects are enable, and if doesn't they are deleted from effect list
 	 */
@@ -114,5 +117,6 @@ public:
 	void Resize(int Width, int Height);
 };
 
+}
 
 #endif

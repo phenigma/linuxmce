@@ -1,8 +1,12 @@
 #include "gl2deffectbeziertranzit_prism.h"
 #include "gl2deffectfactory.h"
 
-GL2DBezierEffectTransit_Prism::GL2DBezierEffectTransit_Prism (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
-	: GL2DEffectTransit(EffectsEngine, TimeForCompleteEffect)
+namespace GLEffect2D
+{
+
+GL2DBezierEffectTransit_Prism::GL2DBezierEffectTransit_Prism (EffectFactory * EffectsEngine, int StartAfter, 
+															  int TimeForCompleteEffect)
+	: GL2DEffectTransit(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
 	FullScreen.Left = 0.0f;
 	FullScreen.Top = 0.0f;
@@ -119,5 +123,7 @@ void GL2DBezierEffectTransit_Prism::Paint(int Now)
 		Button->BezierDefinition.anchors[3][i].x -= 
 			LeftProfile[i];
 	}
+
+}
 
 }

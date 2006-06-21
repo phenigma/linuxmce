@@ -1,13 +1,17 @@
 
 #include "gl2deffect.h"
 
-GL2DEffect::GL2DEffect(GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
+namespace GLEffect2D 
+{
+
+Effect::Effect(EffectFactory * EffectsEngine, int StartAfter, int TimeForCompleteEffect)
 	: Effects(EffectsEngine),
-	  Start(0),
+	  Start(StartAfter),
 	  Length(TimeForCompleteEffect),
 	  Configured(false) {
 }
 
-GL2DEffect::~GL2DEffect() {
+Effect::~Effect() {
 }
 
+}

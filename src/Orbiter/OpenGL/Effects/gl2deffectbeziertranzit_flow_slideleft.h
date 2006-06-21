@@ -6,6 +6,8 @@
 #include "../Widgets/basicwindow.h"
 #include <memory>
 
+namespace GLEffect2D
+{
 
 class GL2DBezierEffectTransit_Flow_SlideLeft : public GL2DEffectTransit
 {
@@ -16,7 +18,8 @@ class GL2DBezierEffectTransit_Flow_SlideLeft : public GL2DEffectTransit
 	FloatRect FullScreen;
 
 public:
-	GL2DBezierEffectTransit_Flow_SlideLeft (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
+	GL2DBezierEffectTransit_Flow_SlideLeft (EffectFactory * EffectsEngine, int StartAfter,
+		int TimeForCompleteEffect);
 	virtual ~GL2DBezierEffectTransit_Flow_SlideLeft();
 
 	void Configure(PlutoRectangle* ButtonSourceSize);
@@ -24,5 +27,7 @@ public:
 	virtual void Paint(int Now);
 
 };
+
+}
 
 #endif

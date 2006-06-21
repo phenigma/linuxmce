@@ -5,6 +5,8 @@
 #include "../Widgets/bezierwindow.h"
 #include <memory>
 
+namespace GLEffect2D
+{
 
 class GL2DBezierEffectTransit_TopLeft : public GL2DEffectTransit
 {
@@ -14,7 +16,8 @@ class GL2DBezierEffectTransit_TopLeft : public GL2DEffectTransit
 	FloatRect FullScreen;
 	
 public:
-	GL2DBezierEffectTransit_TopLeft (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
+	GL2DBezierEffectTransit_TopLeft (EffectFactory * EffectsEngine, int StartAfter,
+		int TimeForCompleteEffect);
 	virtual ~GL2DBezierEffectTransit_TopLeft();
 	
 	void Configure(PlutoRectangle* ButtonSourceSize);
@@ -22,5 +25,7 @@ public:
 	virtual void Paint(int Now);
 	
 };
+
+}
 
 #endif

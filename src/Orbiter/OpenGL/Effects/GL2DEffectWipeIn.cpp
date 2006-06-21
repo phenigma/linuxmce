@@ -1,11 +1,16 @@
 #include "GL2DEffectWipeIn.h"
-
 #include "gl2deffectfactory.h"
 
-GL2DEffectWipeIn::GL2DEffectWipeIn (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
-	: GL2DEffectTransit(EffectsEngine, TimeForCompleteEffect)
+using namespace GLEffect2D;
+
+namespace GLEffect2D
 {
-/*	FullScreen.Left = 0;
+
+GL2DEffectWipeIn::GL2DEffectWipeIn (EffectFactory * EffectsEngine, int StartAfter, 
+									int TimeForCompleteEffect)
+	: GL2DEffectTransit(EffectsEngine, StartAfter, TimeForCompleteEffect)
+{
+	FullScreen.Left = 0;
 	FullScreen.Top = 0;
 	FullScreen.Width = float(Effects->Widgets->GetWidth());
 	FullScreen.Height = float(Effects->Widgets->GetHeight());
@@ -17,7 +22,7 @@ GL2DEffectWipeIn::GL2DEffectWipeIn (GL2DEffectFactory * EffectsEngine, int TimeF
 		Effects->Widgets->GetWidth(), Effects->Widgets->GetHeight(), 
 		"Destination");	
 	Destination->SetVisible(true);
-*/
+
 }
 
 
@@ -33,14 +38,14 @@ GL2DEffectWipeIn::~GL2DEffectWipeIn() {
  */
 void GL2DEffectWipeIn::Configure(PlutoRectangle* EffectSourceSize)
 {
-/*
+
   	ButtonSize.Left = float(EffectSourceSize->X);
 	ButtonSize.Top = float(EffectSourceSize->Y);
 	ButtonSize.Width = float(EffectSourceSize->Width);
 	ButtonSize.Height = float(EffectSourceSize->Height);
 	
 	Configured = false;
-*/
+
 }
 
 /**
@@ -49,7 +54,6 @@ void GL2DEffectWipeIn::Configure(PlutoRectangle* EffectSourceSize)
  */
 void GL2DEffectWipeIn::Paint(int Now)
 {
-	/*
 	GL2DEffectTransit::Paint();
 
 	float MaxCoordU = FullScreen.Width/MathUtils::MinPowerOf2((int)FullScreen.Width);
@@ -57,14 +61,15 @@ void GL2DEffectWipeIn::Paint(int Now)
 
 	if(!Configured) {
 		//Set up the textures for triangles
-		Destination->SetTexture(Effects->Widgets->NewScreen);
+		//Destination->SetTexture(Effects->Widgets->NewScreen);
 		
 		Start = Effects->MilisecondTimmer();
 		
 		Configured = true;
 	}
 	
-	float Step = Stage(float(Now));
+	float Step = Stage(float(Now-Start));
+
 	
 	FloatRect Animation = ButtonSize.Interpolate(FullScreen, Step);
 
@@ -80,5 +85,6 @@ void GL2DEffectWipeIn::Paint(int Now)
 	Destination->SetTextureWraping(
 		UVRect_
 		);
-*/
+}
+
 }

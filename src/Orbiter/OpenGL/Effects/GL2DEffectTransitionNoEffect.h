@@ -16,6 +16,9 @@
 #include "gl2deffecttransit.h"
 #include "../Widgets/basicwindow.h"
 
+namespace GLEffect2D
+{
+
 class GL2DEffectTransitionNoEffect : public GL2DEffectTransit
 {
 	TBasicWindow* Destination;
@@ -24,7 +27,8 @@ class GL2DEffectTransitionNoEffect : public GL2DEffectTransit
 	FloatRect FullScreen;
 	
 public:
-	GL2DEffectTransitionNoEffect (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
+	GL2DEffectTransitionNoEffect (EffectFactory * EffectsEngine, int StartAfter, 
+		int TimeForCompleteEffect);
 	virtual ~GL2DEffectTransitionNoEffect();
 	
 	virtual void Configure(PlutoRectangle* EffectSourceSize);
@@ -33,5 +37,6 @@ public:
 	
 };
 
+}
 
 #endif //#ifndef GL2DEffect_Transition_NoEffect_H

@@ -4,12 +4,17 @@
 #include "gl2deffect.h"
 #include "../Widgets/basicwindow.h"
 
+namespace GLEffect2D
+{
+
 class GL2DEffectHighLight :
-	public GL2DEffect
+	public Effect
 {
 public:
-	GL2DEffectHighLight(GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
+	GL2DEffectHighLight(EffectFactory * EffectsEngine, int StartAfter, int TimeForCompleteEffect);
 	virtual ~GL2DEffectHighLight(void);
 };
+
+}
 
 #endif

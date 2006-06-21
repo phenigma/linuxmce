@@ -16,6 +16,9 @@
 #include "../Widgets/basicwindow.h"
 #include <memory>
 
+namespace GLEffect2D
+{
+
 class GL2DEffectBlending : public GL2DEffectTransit
 {
 	TBasicWindow* Button;	
@@ -25,7 +28,7 @@ class GL2DEffectBlending : public GL2DEffectTransit
 	FloatRect FullScreen;
 	
 public:
-	GL2DEffectBlending (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
+	GL2DEffectBlending (EffectFactory * EffectsEngine, int StartAfter, int TimeForCompleteEffect);
 	virtual ~GL2DEffectBlending();
 	
 	void Configure(PlutoRectangle* ButtonSourceSize);
@@ -33,5 +36,7 @@ public:
 	virtual void Paint(int Now);	
 	
 };
+
+}
 
 #endif

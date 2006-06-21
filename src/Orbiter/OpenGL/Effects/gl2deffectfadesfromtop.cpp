@@ -2,8 +2,12 @@
 
 #include "gl2deffectfactory.h"
 
-GL2DEffectFadesFromTop::GL2DEffectFadesFromTop (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
-	: GL2DEffectTransit(EffectsEngine, TimeForCompleteEffect)
+namespace GLEffect2D
+{
+
+GL2DEffectFadesFromTop::GL2DEffectFadesFromTop (EffectFactory * EffectsEngine, int StartAfter,
+												int TimeForCompleteEffect)
+	: GL2DEffectTransit(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
 	/*
 	FullScreen.Left = 0;
@@ -62,4 +66,6 @@ void GL2DEffectFadesFromTop::Paint(int Now)
 	Destination->SetRectCoordinates(Animation);
 	Destination->SetAlpha(Step);
 	*/
+}
+
 }

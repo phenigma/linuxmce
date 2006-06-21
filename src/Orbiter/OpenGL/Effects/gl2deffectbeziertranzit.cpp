@@ -3,8 +3,13 @@
 
 //#include "../Orbiter3DCommons.h"
 
-GL2DBezierEffectTransit::GL2DBezierEffectTransit (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
-	: GL2DEffectTransit(EffectsEngine, TimeForCompleteEffect)
+
+namespace GLEffect2D 
+{
+
+GL2DBezierEffectTransit::GL2DBezierEffectTransit (EffectFactory * EffectsEngine, int StartAfter, 
+												  int TimeForCompleteEffect)
+	: GL2DEffectTransit(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
 	/*
 	FullScreen.Left = 0.0f;
@@ -150,4 +155,6 @@ void GL2DBezierEffectTransit::Paint(int Now)
 
 	}
 */
+}
+
 }

@@ -6,6 +6,8 @@
 #include "../Widgets/basicwindow.h"
 #include <memory>
 
+namespace GLEffect2D
+{
 
 class GL2DBezierEffectTransit_Prism : public GL2DEffectTransit
 {
@@ -15,7 +17,8 @@ class GL2DBezierEffectTransit_Prism : public GL2DEffectTransit
 	FloatRect FullScreen;
 	
 public:
-	GL2DBezierEffectTransit_Prism (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
+	GL2DBezierEffectTransit_Prism (EffectFactory * EffectsEngine, int StartAfter,
+		int TimeForCompleteEffect);
 	virtual ~GL2DBezierEffectTransit_Prism();
 	
 	void Configure(PlutoRectangle* ButtonSourceSize);
@@ -23,5 +26,7 @@ public:
 	virtual void Paint(int Now);
 	
 };
+
+}
 
 #endif

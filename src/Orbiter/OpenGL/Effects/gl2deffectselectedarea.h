@@ -3,17 +3,23 @@
 
 #include "GL2DEffectHighLight.h"
 
+namespace GLEffect2D
+{
+
 class GL2DEffectSelectedArea :
 	public GL2DEffectHighLight
 {
 	FloatRect EffectSourceSize;
 	TBasicWindow* Button;
 public:
-	GL2DEffectSelectedArea(GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
+	GL2DEffectSelectedArea(EffectFactory * EffectsEngine, int StartAfter,
+		int TimeForCompleteEffect);
 	virtual ~GL2DEffectSelectedArea();
 
 	void Configure(PlutoRectangle* EffectSourceSize);
 	void Paint(int Time);
 };
+
+}
 
 #endif

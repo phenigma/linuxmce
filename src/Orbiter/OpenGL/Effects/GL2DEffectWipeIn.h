@@ -16,6 +16,9 @@
 #include "../Widgets/basicwindow.h"
 #include <memory>
 
+namespace GLEffect2D
+{
+
 class GL2DEffectWipeIn : public GL2DEffectTransit
 {
 	TBasicWindow* Destination;
@@ -24,7 +27,7 @@ class GL2DEffectWipeIn : public GL2DEffectTransit
 	FloatRect FullScreen;
 	
 public:
-	GL2DEffectWipeIn (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
+	GL2DEffectWipeIn (EffectFactory * EffectsEngine, int StartAfter, int TimeForCompleteEffect);
 	virtual ~GL2DEffectWipeIn();
 	
 	void Configure(PlutoRectangle* ButtonSourceSize);
@@ -32,5 +35,7 @@ public:
 	virtual void Paint(int Now);	
 	
 };
+
+}
 
 #endif

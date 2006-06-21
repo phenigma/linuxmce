@@ -3,13 +3,19 @@
 
 #include "gl2deffect.h"
 
-class GL2DEffectTransit : public GL2DEffect
+namespace GLEffect2D
+{
+
+class GL2DEffectTransit : public Effect
 {
 public:
-	GL2DEffectTransit(GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
+	GL2DEffectTransit(EffectFactory * EffectsEngine, int StartAfter, 
+		int TimeForCompleteEffect);
 	virtual ~GL2DEffectTransit();
 
 	virtual void Paint();
 };
+
+}
 
 #endif //GL2D_EFFECTTRANSIT_H

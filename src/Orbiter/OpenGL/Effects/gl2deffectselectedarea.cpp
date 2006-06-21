@@ -4,8 +4,12 @@
 
 #include "gl2deffectfactory.h"
 
-GL2DEffectSelectedArea::GL2DEffectSelectedArea(GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
-: GL2DEffectHighLight(EffectsEngine, TimeForCompleteEffect)
+namespace GLEffect2D
+{
+
+GL2DEffectSelectedArea::GL2DEffectSelectedArea(EffectFactory * EffectsEngine, int StartAfter,
+											   int TimeForCompleteEffect)
+: GL2DEffectHighLight(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
 	Configured = false;
 	Button = dynamic_cast<TBasicWindow*> (Effects->Widgets->CreateWidget(
@@ -50,5 +54,7 @@ void GL2DEffectSelectedArea::Paint(int Time)
 	{
 		Button->SetBackgroundColor(1.0f, 0.0f, 0.0f, 0.5f - (Step-0.5f)*2.f*0.3f);
 	}
+
+}
 
 }

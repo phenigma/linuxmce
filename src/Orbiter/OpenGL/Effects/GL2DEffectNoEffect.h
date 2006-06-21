@@ -5,15 +5,22 @@
 /**
  * Effect that has only the duty to redraw the screen, it has no drawing code
  */
-class GL2DEffectNoEffect : public GL2DEffect
+
+namespace GLEffect2D
+{
+
+class GL2DEffectNoEffect : public Effect
 {
 public:
-	GL2DEffectNoEffect(GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect);
+	GL2DEffectNoEffect(EffectFactory * EffectsEngine, int StartAfter, 
+		int TimeForCompleteEffect);
 	virtual ~GL2DEffectNoEffect();
 
 	void Configure(PlutoRectangle* EffectSourceSize);
 
 	virtual void Paint(int Now);
 };
+
+}
 
 #endif

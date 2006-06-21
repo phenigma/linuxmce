@@ -2,9 +2,13 @@
 
 #include "gl2deffectfactory.h"
 
+namespace GLEffect2D
+{
 
-GL2DBezierEffectTransit_Flow_SlideLeft_Reverse::GL2DBezierEffectTransit_Flow_SlideLeft_Reverse (GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
-: GL2DEffectTransit(EffectsEngine, TimeForCompleteEffect)
+GL2DBezierEffectTransit_Flow_SlideLeft_Reverse
+	::GL2DBezierEffectTransit_Flow_SlideLeft_Reverse (EffectFactory * EffectsEngine, 
+		int StartAfter, int TimeForCompleteEffect)
+	: GL2DEffectTransit(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
 	FullScreen.Left = 0.0f;
 	FullScreen.Top = 0.0f;
@@ -113,4 +117,6 @@ void GL2DBezierEffectTransit_Flow_SlideLeft_Reverse::Paint(int Now)
 			LeftProfile[i];
 	}
 */
+}
+
 }

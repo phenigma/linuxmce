@@ -4,8 +4,12 @@
 
 //#include "../Orbiter3DCommons.h"
 
-GL2DEffectNoEffect::GL2DEffectNoEffect(GL2DEffectFactory * EffectsEngine, int TimeForCompleteEffect)
-	: GL2DEffect(EffectsEngine, TimeForCompleteEffect)
+namespace GLEffect2D
+{
+
+GL2DEffectNoEffect::GL2DEffectNoEffect(EffectFactory * EffectsEngine, int StartAfter, 
+									   int TimeForCompleteEffect)
+	: Effect(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
 	Configured = false;
 }
@@ -34,4 +38,6 @@ void GL2DEffectNoEffect::Paint(int Now)
 void GL2DEffectNoEffect::Configure(PlutoRectangle* EffectSourceSize)
 {
 	Configured = true;
+}
+
 }
