@@ -175,10 +175,6 @@ void Wizard::DoCancelScreen()
 	delete MainPage;
 	MainPage = NULL;
 	CurrentPage -- ;
-	if(CurrentPage == 0)
-	{
-		SetExitWithCode(1);
-	}
 	CreateDialogs();
 	StatusChange = true;
 }
