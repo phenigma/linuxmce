@@ -7,6 +7,15 @@ BaseDir=/usr/pluto/bin
 Wiz="$BaseDir"/AVWizard
 AudioMixerSettingsAwk="$BaseDir"/AudioMixerSettings.awk
 
+STEP_Start=1
+STEP_DisplayRatio=2
+STEP_VideoConnector=3
+STEP_ScreenResolution=4
+STEP_AudioVolume=5
+STEP_AudioAC3=6
+STEP_AudioDTS=7
+STEP_Final=8
+
 Resolutions_VESA=(
 	'640x480'
 	'800x600'

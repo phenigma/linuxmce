@@ -6,8 +6,9 @@ Param="$1"
 case "$Param" in
 	4[_:]3)
 		Video_Ratio=$(WizGet Video_Ratio)
-		echo "--> Aspect ratio 4:3 (was $Video_Ratio)"
-		if [[ "$Video_Ratio" == 4_3 ]]; then
+		VideoResolution=$(WizGet VideoResolution)
+		echo "--> Aspect ratio 4:3 (was $Video_Ratio; resolution: $VideoResolution)"
+		if [[ "$Video_Ratio" == 4_3 && "$VideoResolution" == 640x480 ]]; then
 			exit 0 # No change required
 		fi
 		kill -USR1 $PPID
@@ -17,10 +18,12 @@ case "$Param" in
 		WizSet VideoRefresh '60'
 		WizSet WindowWidth 640
 		WizSet WindowHeight 480
+		WizSet CurrentStep "-$STEP_DisplayRatio"
 	;;
 	16[_:]9)
 		Video_Ratio=$(WizGet Video_Ratio)
-		echo "--> Aspect ratio 16:9 (was $Video_Ratio)"
+		VideoResolution=$(WizGet VideoResolution)
+		echo "--> Aspect ratio 16:9 (was $Video_Ratio; resolution: $VideoResolution)"
 		if [[ "$Video_Ratio" == 16_9 ]]; then
 			exit 0 # No change required
 		fi
