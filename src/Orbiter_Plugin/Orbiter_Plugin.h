@@ -95,6 +95,7 @@ public:
     }
 
 	void SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDevice_Dongle, string sMacAddress);
+	long GetAppServerAssociatedWithDevice(DeviceData_Base *pDevice);
 
 	//from command_impl class
 	virtual bool PendingTasks(vector<string> *vectPendingTasks=NULL);
