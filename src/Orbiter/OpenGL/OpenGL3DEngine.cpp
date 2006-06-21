@@ -16,7 +16,8 @@ OpenGL3DEngine::OpenGL3DEngine()
 	Quit(false),
 	HighLightFrame(NULL),
 	SelectedFrame(NULL),
-	SceneMutex("scene mutex")
+	SceneMutex("scene mutex"),
+	Compose(NULL)
 {
 	if(TTF_Init()==-1) {
 		printf("Error on TTF_Init: %s\n", TTF_GetError());
@@ -54,14 +55,25 @@ bool OpenGL3DEngine::Paint()
 		return false;
 	}
 
+	GL.SetClearColor(1.0f, 1.0f, 0.0f);
 	GL.SetClearColor(.0f, .0f, 0.5f);
 	GL.ClearScreen(true, false);
 	GL.EnableZBuffer(false);
 
-	//TODO: need desktop for effects Desktop
+
+	if(Compose)
+	{
+		Compose->UpdateLayers(CurrentLayer, OldLayer);
+		Compose->Paint();
+
+		GL.Flip();
+		return true;
+	}
+
 	
+	//TODO: need desktop for effects Desktop
 	MeshTransform Transform;
-	Transform.ApplyTranslate(-GL.Width/2, 0, -(GL.Width)/2);
+	Transform.ApplyTranslate(-GL.Width/2.0f, 0, -(GL.Width)/2.0f);
 	
 	int Tick;
 	if(this->AnimationRemain)
@@ -73,24 +85,24 @@ bool OpenGL3DEngine::Paint()
 	else
 		Tick = 5 * 90;
 	
-	Transform.ApplyRotateY(Tick / 5);
-	//Transform.ApplyTranslate(0, 0, GL.Width/2);
+	Transform.ApplyRotateY(Tick / 5.0f);
+		//Transform.ApplyTranslate(0, 0, GL.Width/2);
 
 	if(OldLayer)
 		OldLayer->SetTransform(Transform);
 	
-	Transform.ApplyRotateY(-90);
+	Transform.ApplyRotateY(-90.0f);
 	CurrentLayer->SetTransform(Transform);
 
 	Transform.SetIdentity();
-	Transform.Translate(0, -GL.Height/2, (GL.Width+GL.Height)/2);
+	Transform.Translate(0, -GL.Height/2.0f, (GL.Width+GL.Height)/2.0f);
 	
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 	Desktop.Paint(Transform);
 	//g_pPlutoLogger->Write(LV_CRITICAL, "Painting using layer %p, num layers %d", CurrentLayer, 
 	//	Desktop.Children.size());
-
+	
 	GL.Flip();
 
 	return this->AnimationRemain;
@@ -239,9 +251,10 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 
 /*virtual*/ void OpenGL3DEngine::UnHighlight()
 {
-	//TODO: put me back
-	//CurrentLayer->RemoveChild(HighLightFrame);
-	
+	if(HighLightFrame == NULL)
+		return;
+	CurrentLayer->RemoveChild(HighLightFrame);
+
 	//TODO: this is crashing under linux
 	//the frame already deleted?
 	delete HighLightFrame;
@@ -250,9 +263,9 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 
 /*virtual*/ void OpenGL3DEngine::UnSelect()
 {
-	//TODO: put me back
-	//CurrentLayer->RemoveChild(SelectedFrame);
-	
+	if(SelectedFrame == NULL)
+		return;
+	CurrentLayer->RemoveChild(SelectedFrame);
 	delete SelectedFrame;
 	SelectedFrame = NULL;
 }
@@ -284,7 +297,14 @@ void OpenGL3DEngine::NewScreen()
 	Desktop.RemoveChild(OldLayer);
 	Desktop.AddChild(OldLayer);
 
-	g_pPlutoLogger->Write(LV_CRITICAL, "Current layer is now %p, size %d", CurrentLayer, Desktop.Children.size());
+	g_pPlutoLogger->Write(LV_CRITICAL, "Current layer is now %p, size %d", 
+		CurrentLayer, Desktop.Children.size());
 }
 
-
+void OpenGL3DEngine::Setup()
+{
+	GL.Setup();
+	Compose = GLEffect2D::LayersCompose::Instance();
+	Compose->Setup(GL.Width, GL.Height);
+	
+}

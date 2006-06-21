@@ -10,21 +10,20 @@
 
 class OpenGLGraphic : public PlutoGraphic
 {
-	
-
 public:
-
-
-	//move me
-SDL_Surface* LocalSurface;
+	SDL_Surface* LocalSurface;
 
 	OpenGLTexture Texture;
 	float MaxU, MaxV;
-	int Width, Height;
 
 	OpenGLGraphic();
 	OpenGLGraphic(OrbiterRenderer *pOrbiterRenderer);
 	OpenGLGraphic(string Filename, eGraphicManagement GraphicManagement, OrbiterRenderer *pOrbiterRenderer);
+	/**
+	 *	Use that only in OpenGL thread
+	 */
+	OpenGLGraphic(int Width, int Height);
+
 	~OpenGLGraphic();
 
 	bool SetupFromImage(std::string FileName);

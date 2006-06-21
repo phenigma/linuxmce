@@ -23,7 +23,8 @@ TBaseWidget::TBaseWidget(int ParamLeft, int ParamTop, int ParamWidth, int ParamH
 	  Parent(NULL),
 	  Text(ParamText),
 	  Visible(false),
-	  Transform() {
+	  Context(NULL){
+  Context = new MeshFrame();
 }
 
 TBaseWidget::~TBaseWidget()
@@ -36,15 +37,16 @@ TBaseWidget::~TBaseWidget()
 	Childs.clear();	
 }
 
-void TBaseWidget::Paint(MeshTransform& Transform)
+void TBaseWidget::Paint(MeshFrame* ParentContext)
 {
 	// if the actual window is not visible, will not be painted
 	if (!Visible)
 		return;
 	std::vector <TBaseWidget*>::iterator Widget; 
+	ParentContext->AddChild(Frame);
 	
 	for(Widget = Childs.begin(); Widget < Childs.end(); Widget++)
-		(*Widget)->Paint(Transform);
+		(*Widget)->Paint(Frame);
 }
 
 FloatRect TBaseWidget::GetTextureCoordinates()
@@ -78,4 +80,9 @@ TBaseWidget* TBaseWidget::GetChild(unsigned int NoChild) {
 	else
 		Result = Text;
 	return Result;
+}
+
+MeshFrame* TBaseWidget::GetContext()
+{
+	return Context;
 }

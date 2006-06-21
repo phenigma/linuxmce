@@ -46,9 +46,9 @@ namespace DCE
 		// Rendering
 		virtual void RenderScreen(bool bRenderGraphicsOnly);
 
-		virtual void RenderGraphic(string ObjectID, class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
-			bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
-
+		/*virtual void RenderGraphic(string ObjectID, class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
+			bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0)) {}
+		*/
 		virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
 			bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
 
@@ -66,7 +66,7 @@ namespace DCE
 		virtual bool DisplayProgress(string sMessage, int nProgress);
 		virtual void ShowProgress(int nPercent);
 
-		virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic);
+		//virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic) {}
 
 		void WakeupFromCondWait();
 		void OnIdle();

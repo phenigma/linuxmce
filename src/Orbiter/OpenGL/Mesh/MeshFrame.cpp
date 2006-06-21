@@ -4,7 +4,8 @@
 
 #include "DCE/Logger.h"
 
-MeshFrame::MeshFrame(MeshContainer* Mesh) : Visible_(true)
+MeshFrame::MeshFrame(MeshContainer* Mesh) 
+: Visible_(true)
 {
 	this->Mesh = Mesh;
 }
@@ -106,4 +107,10 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 /*virtual*/ void MeshFrame::SetVisible(bool Visible)
 {
 	Visible_ = Visible;
+}
+
+/*virtual*/ void MeshFrame::Paint()
+{
+    MeshTransform Transform;
+	Paint(Transform);
 }

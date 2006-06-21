@@ -8,15 +8,15 @@
 
 class MeshFrame
 {
-	MeshContainer* Mesh;
-	MeshTransform Transform;
 	bool Visible_;
 
 	
 public:
 
 //MOVE ME
-std::vector<MeshFrame*> Children;
+	MeshContainer* Mesh;
+	MeshTransform Transform;
+	std::vector<MeshFrame*> Children;
 
 	MeshFrame(MeshContainer* Mesh = NULL);
 	virtual ~MeshFrame(void);
@@ -28,11 +28,13 @@ std::vector<MeshFrame*> Children;
 	void AddChild(MeshFrame* Frame);
 	void RemoveChild(MeshFrame* Frame);
 
-	void Paint(MeshTransform ChildTransform);
+	virtual void Paint(MeshTransform ChildTransform);
 	
 	virtual void SetTransform(MeshTransform& Transform);
 	virtual void ApplyTransform(MeshTransform& Transform);
 	virtual void SetVisible(bool Visible);
+
+	virtual void Paint();
 };
 
 #endif

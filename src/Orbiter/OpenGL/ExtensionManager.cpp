@@ -95,7 +95,7 @@ void ExtensionManager::Resize(int Width, int Height)
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE)<0)
 		return false;
 		
-	SDL_WM_SetCaption("OrbiterSDL", "OrbiterSDL");
+	SDL_WM_SetCaption("OrbiterGL", "OrbiterGL");
 
 	/* Sets up OpenGL double buffering */
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );

@@ -40,11 +40,11 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 	if(NULL == pOrbiterRenderer)
 		throw string("OpenGL thread started, but Orbiter is null!");
 
+	int Width = pOrbiterRenderer->OrbiterLogic()->m_iImageWidth;
+	int Height = pOrbiterRenderer->OrbiterLogic()->m_iImageHeight;
+
 	pOrbiterRenderer->Engine = new OpenGL3DEngine();
-	if(!pOrbiterRenderer->Engine->GL.InitVideoMode(
-		pOrbiterRenderer->OrbiterLogic()->m_iImageWidth, 
-		pOrbiterRenderer->OrbiterLogic()->m_iImageHeight, 32, false
-		)
+	if(!pOrbiterRenderer->Engine->GL.InitVideoMode(Width, Height, 32, false)
 	)
 	{
 		pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
@@ -56,9 +56,10 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 		std::cout << "*** Thread -- GL.InitVideoMode SUCCEEDED" << std::endl;
 	}
 
+
 	pOrbiterRenderer->InitializeAfterSetVideoMode();
 
-	pOrbiterRenderer->Engine->GL.Setup();
+	pOrbiterRenderer->Engine->Setup();
 
 	pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
 	pOrbiterRenderer->Engine->Paint();
@@ -71,14 +72,14 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 			SDL_PushEvent(&SDL_Event_Pending);
 #endif			
 
-		if(pOrbiterRenderer->NeedToUpdateScreen())
+		if(true)//pOrbiterRenderer->NeedToUpdateScreen())
 		{
-			if(!pOrbiterRenderer->Engine->Paint()) //animation finished ?
-				pOrbiterRenderer->ScreenUpdated();
+			pOrbiterRenderer->Engine->Paint();
+			pOrbiterRenderer->ScreenUpdated();
 		}
 
 		//pOrbiterRenderer->Engine->GetDesktop().CleanUp();
-		Sleep(10);
+		Sleep(30);
 	}
 
 	pOrbiterRenderer->Engine->Finalize();	
@@ -129,10 +130,30 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	Builder->SetColor(color.R() / 255.0f, color.G() / 255.0f, color.B() / 255.0f);
 
-	Builder->AddVertexFloat(float(x),		float(y),			0);
-	Builder->AddVertexFloat(float(x+width), float(y),			0);
-	Builder->AddVertexFloat(float(x),		float(y+height),	0);
-	Builder->AddVertexFloat(float(x+width), float(y+height), 	0);
+	Builder->SetTexture2D(0.0f, 0.0f);
+	Builder->AddVertexFloat(
+		float(x), 
+		float(y), 
+		0
+		);
+	Builder->SetTexture2D(1.0f, 0);
+	Builder->AddVertexFloat(
+		float(x+width), 
+		float(y), 
+		0
+		);
+	Builder->SetTexture2D(0.0f, 1.0f);
+	Builder->AddVertexFloat(
+		float(x), 
+		float(y+height), 
+		0
+		);
+	Builder->SetTexture2D(1.0f, 1.0f);
+	Builder->AddVertexFloat(
+		float(x+width), 
+		float(y+height), 
+		0
+		);
 
 	MeshContainer* Container = new MeshContainer();
 	Container = Builder->End();
@@ -140,7 +161,11 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	MeshFrame* Frame = new MeshFrame();
 	Frame->SetMeshContainer(Container);
 
+
+	//TODO: find a way to replace an existing object if the graphic is changed instead of adding it
 	Engine->AddMeshFrameToDesktop("", Frame);
+
+
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
@@ -187,10 +212,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
  	MeshFrame *Frame  = aGLTextRenderer->TextOut(sTextToDisplay, Text, pTextStyle, point);
 	
-	string TextUniqueID = Text->m_pObject->m_ObjectID + 
-		"-" + StringUtils::itos(Text->m_rPosition.X) + 
-		"-" + StringUtils::itos(Text->m_rPosition.Y);
-	Engine->AddMeshFrameToDesktop(TextUniqueID, Frame);
+	Engine->AddMeshFrameToDesktop("", Frame);
 	
 }
 //-----------------------------------------------------------------------------------------------------
@@ -213,17 +235,6 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
 	bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
-	RenderGraphic("", pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
-}
-//-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(string ObjectID, class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
-	bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/)
-{
-	if(ObjectID == "")
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "RenderGraphic with no object id!");
-	}
-
 	//g_pPlutoLogger->Write(LV_CRITICAL, "(5) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
 
 	OpenGLGraphic* Graphic = dynamic_cast<OpenGLGraphic*> (pPlutoGraphic);
@@ -279,7 +290,8 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	//g_pPlutoLogger->Write(LV_CRITICAL, "(9) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
 		
-	Engine->AddMeshFrameToDesktop(ObjectID, Frame);
+	//TODO: find a way to replace an existing object if the graphic is changed instead of adding it
+	Engine->AddMeshFrameToDesktop("", Frame);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::BeginPaint()
@@ -423,16 +435,6 @@ void OrbiterRenderer_OpenGL::OnIdle()
 		pthread_join(GLThread, NULL);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterRenderer_OpenGL::RenderScreen(bool bRenderGraphicsOnly)
-{
-	g_pPlutoLogger->Write(LV_WARNING,"OrbiterRenderer_OpenGL::RenderScreen");
-
-	Engine->NewScreen();
-	OrbiterRenderer::RenderScreen(bRenderGraphicsOnly);
-
-	NeedToUpdateScreen_ = true;
-}
-//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderObjectAsync(DesignObj_Orbiter *pObj)
 {
 	OrbiterRenderer::RenderObjectAsync(pObj);
@@ -473,10 +475,34 @@ bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_OpenGL::GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic)
+/*virtual*/ void OrbiterRenderer_OpenGL::RenderScreen(bool bRenderGraphicsOnly)
 {
-	//TODO: we don't need the clear the texture for now
-	//uncomment this when the effects will work
-	//OrbiterRenderer::GraphicOffScreen(pObj);
+	g_pPlutoLogger->Write(LV_WARNING,"OrbiterRenderer_OpenGL::RenderScreen");
+
+	PlutoRectangle rectLastSelected(0, 0, 0, 0);
+
+	if(OrbiterLogic()->m_pObj_SelectedLastScreen)
+	{
+		rectLastSelected = PlutoRectangle(OrbiterLogic()->m_pObj_SelectedLastScreen->m_rPosition);
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "No object selected? :o");
+		rectLastSelected.X = 0;
+		rectLastSelected.Y = 0;
+		rectLastSelected.Width = 80;
+		rectLastSelected.Height = 80;
+	}
+
+
+	Engine->NewScreen();
+	OrbiterRenderer::RenderScreen(bRenderGraphicsOnly);
+
+	
+	GLEffect2D::Effect* Item = Engine->Compose->CreateEffect(2, GL2D_EFFECT_WIPE_IN, 0, 600);
+	if(Item)
+		Item->Configure(&rectLastSelected);
+
+	NeedToUpdateScreen_ = true;
 }
 //-----------------------------------------------------------------------------------------------------

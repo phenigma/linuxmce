@@ -8,6 +8,9 @@
 #include "basicwindow.h"
 #include "bezierwindow.h"
 
+namespace GLEffect2D
+{
+
 DrawingWidgetsEngine::DrawingWidgetsEngine(int Width, int Height)
 {
 	this->Width = Width;
@@ -18,7 +21,7 @@ DrawingWidgetsEngine::~DrawingWidgetsEngine()
 {
 }
 
-void DrawingWidgetsEngine::Paint(MeshTransform& Transform)
+void DrawingWidgetsEngine::Paint()
 {
 	std::vector<TBaseWidget*>::iterator Widget;
 	for(Widget = Widgets.begin(); Widget < Widgets.end(); Widget++)
@@ -26,8 +29,7 @@ void DrawingWidgetsEngine::Paint(MeshTransform& Transform)
 		TBaseWidget* WidgetPtr = *Widget;
 		if(WidgetPtr->GetParent() == NULL)
 		{
-			MeshTransform Transform;
-			WidgetPtr->Paint(Transform);
+			WidgetPtr->Paint(&Context);
 			std::string WidgetName = "Widget: " + WidgetPtr->GetName();
 
 			//g_pPlutoLogger->Write(LV_CRITICAL, WidgetName.c_str());
@@ -90,5 +92,6 @@ void DrawingWidgetsEngine::Resize(int Width, int Height)
 {
 	this->Width = Width;
 	this->Height = Height;
-	
+}
+
 }

@@ -13,7 +13,7 @@ Orbiter3DCommons::Orbiter3DCommons()
 {
 }
 
-void Orbiter3DCommons::BuildCommons (GL2DEffectFactory* Effects, 
+void Orbiter3DCommons::BuildCommons (GLEffect2D::EffectFactory* Effects, 
 									 TBasicWindow* Screen3D, 
 									 TBasicWindow* HighLight, 
 									 TBasicWindow* Selected,

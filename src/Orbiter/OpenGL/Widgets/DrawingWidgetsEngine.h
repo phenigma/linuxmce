@@ -6,17 +6,21 @@
 #define DRAWINGWIDGETSENGINE_H
 
 #include "basewidget.h"
+#include "../Mesh/MeshFrame.h"
 
 #include <vector>
 
 #define BASICWIDGET		1000
 #define BASICWINDOW		(BASICWIDGET+1)
 #define BEZIERWINDOW	(BASICWIDGET+2)
+namespace GLEffect2D
+{
 
 class DrawingWidgetsEngine
 {
 	int Width, Height;
 	std::vector<TBaseWidget*> Widgets;
+	MeshFrame Context;
 
 
 public:
@@ -49,7 +53,7 @@ public:
 
 	/** Paint all widgets registred
 	*/
-	void Paint(MeshTransform& Transform);
+	void Paint();
     	
 	/**
 		Widget list management
@@ -83,6 +87,8 @@ public:
 
 	void Resize(int Width, int Height);
 };
+
+}
 
 #endif	
 

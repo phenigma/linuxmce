@@ -45,7 +45,7 @@ public:
 	/**
 	* Paint the window using defaults
 	*/ 
-	virtual void Paint(MeshTransform& Transform);
+	virtual void Paint(MeshFrame* Context);
 
 	/**  Set up a background texture to one Window
 	 * @param Background That surface must be in size as power of two (e.g. 256 x 512)

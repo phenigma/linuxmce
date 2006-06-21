@@ -16,10 +16,11 @@
 using namespace cpp;
 using namespace cpp::Threading;
 //--------------------------------------------------------------------------------------------------------------
-
-class GL2DEffectFactory;
+namespace GLEffect2D
+{
+class EffectFactory;
 class DrawingWidgetsEngine;
-
+}
 class Orbiter3DCommons
 {
 	//Cached members
@@ -28,14 +29,14 @@ class Orbiter3DCommons
 	TBasicWindow* Selected;
 	TBasicWindow* MouseCursor;
 
-	GL2DEffectFactory* Effects;
-	DrawingWidgetsEngine * Widgets;
+	GLEffect2D::EffectFactory* Effects;
+	GLEffect2D::DrawingWidgetsEngine * Widgets;
 	OpenGLTexture MouseTexture;
 
 public:
 	Orbiter3DCommons();
 	void BuildCommons(
-		GL2DEffectFactory* Effects, 
+		GLEffect2D::EffectFactory* Effects, 
 		TBasicWindow* Screen3D, 
 		TBasicWindow* HighLight, 
 		TBasicWindow* Selected,

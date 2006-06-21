@@ -133,7 +133,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 	{
 		OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = 
 			dynamic_cast<OrbiterRenderer_OpenGL *>(m_pOwner->m_pOrbiter->Renderer());
-		pOrbiterRenderer_OpenGL->RenderGraphic(m_pOwner->m_ObjectID, pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
+		pOrbiterRenderer_OpenGL->RenderGraphic(/*m_pOwner->m_ObjectID, */ pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
 	}
 #ifdef DEBUG
 	else

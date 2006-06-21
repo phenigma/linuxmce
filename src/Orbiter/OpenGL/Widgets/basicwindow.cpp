@@ -3,7 +3,6 @@
 #include <GL/gl.h>
 
 #include "../Mesh/MeshBuilder.h"
-#include "../Mesh/MeshFrame.h"
 
 /**
  * Creates a basic window with with default color and settigs
@@ -24,12 +23,12 @@ TBasicWindow::~TBasicWindow() {
 /**
  * Paint the window using defaults
  */ 
-void TBasicWindow::Paint(MeshTransform& Transform)
+void TBasicWindow::Paint(MeshFrame* Context)
 {
 	if (!Visible)
 		return;
 		
-	TBaseWidget::Paint(Transform);
+	TBaseWidget::Paint(Context);
 	
 	MeshContainer* Container;
 	MeshBuilder MB;
@@ -55,13 +54,11 @@ void TBasicWindow::Paint(MeshTransform& Transform)
 
 	Container = MB.End();
 
-	MeshFrame* Frame = new MeshFrame();
+	Frame = new MeshFrame();
 
 	Frame->SetMeshContainer(Container);
-	Frame->Paint(Transform);
-	delete Container;
-	Frame->SetMeshContainer(NULL);
-	delete Frame;
+
+	Context->AddChild(Frame);
 }
 
 bool TBasicWindow::SetBackgroundImage(OpenGLGraphic* Background)

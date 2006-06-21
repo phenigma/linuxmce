@@ -19,7 +19,7 @@ public:
 	TBasicWindow(int Left, int Top, int Width, int Height, char* Text);
 	virtual ~TBasicWindow();
 
-	virtual void Paint(MeshTransform& Transform);
+	virtual void Paint(MeshFrame* Context);
 
 	/**
 	 *        Set up a background texture to one Window

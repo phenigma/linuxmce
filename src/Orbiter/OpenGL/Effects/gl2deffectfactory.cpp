@@ -176,7 +176,7 @@ void EffectFactory::ClearEffects()
 
 void EffectFactory::Paint(MeshTransform Transform)
 {
-	Widgets->Paint(Transform);
+	Widgets->Paint();
 }
 
 int EffectFactory::GetEffectCode(int DBEffectCode)

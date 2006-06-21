@@ -20,7 +20,7 @@ public:
 	TBaseWidget();
 	
 	virtual ~TBaseWidget();
-	virtual void Paint(MeshTransform& Transform);
+	virtual void Paint(MeshFrame* Context);
 	
 	/**
 	* That class defines one GL Widget
@@ -69,6 +69,8 @@ public:
 	 * return a specified children 
 	 */
 	TBaseWidget* GetChild(unsigned int NoChild);
+
+	MeshFrame* GetContext();
 		
 	// Setters
 	/**
@@ -87,6 +89,8 @@ public:
 	
 	
 protected:
+	MeshFrame* Context;
+
 	/**
 	 * Texture Wrapper apply the texturing coordinates system over the
 	 * window. For instance the (0.0, 0.0, 1.0, 0.5) means the top-half
@@ -123,9 +127,8 @@ protected:
 	 * True if the window will be displayed
 	 */
 	bool Visible; 
-	
-	MeshTransform Transform;
-	
+
+	MeshFrame* Frame;
 
 };
 #endif

@@ -7,6 +7,19 @@
 
 #include <iostream>
 
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+static Uint32 rmask = 0xff000000;
+static Uint32 gmask = 0x00ff0000;
+static Uint32 bmask = 0x0000ff00;
+static Uint32 amask = 0x000000ff;
+#else
+static Uint32 rmask = 0x000000ff;
+static Uint32 gmask = 0x0000ff00;
+static Uint32 bmask = 0x00ff0000;
+static Uint32 amask = 0xff000000;
+#endif 
+
+
 OpenGLGraphic::OpenGLGraphic() : PlutoGraphic()
 {
 	Initialize();
@@ -21,6 +34,37 @@ OpenGLGraphic::OpenGLGraphic(string Filename, eGraphicManagement GraphicManageme
 	: PlutoGraphic(Filename, GraphicManagement, pOrbiterRenderer)
 {
 	Initialize();
+}
+//Warning: That function must run in OpenGL thread
+OpenGLGraphic::OpenGLGraphic(int Width, int Height) : PlutoGraphic()
+{
+	Initialize();
+
+	this->Width = Width;
+	this->Height = Height;
+
+	LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, 
+		24, rmask, gmask, bmask, amask);
+
+	SDL_SetAlpha(LocalSurface, SDL_SRCALPHA | SDL_RLEACCEL , SDL_ALPHA_TRANSPARENT);
+
+	Prepare();
+
+	unsigned char* Pixels = (unsigned char*) malloc(Width*Height*3);
+
+	glGenTextures(1, &Texture);
+	glBindTexture(GL_TEXTURE_2D, Texture);
+	//Texture blends with object background
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);  
+
+	// Use when not wanting mipmaps to be built by openGL
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, Pixels);  
+	// only first two can be used 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
+	// all of the above can be used 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+
+	free(Pixels);
 }
 
 OpenGLGraphic::~OpenGLGraphic()
@@ -46,18 +90,6 @@ bool OpenGLGraphic::SetupFromImage(std::string FileName)
 	
 	return true;
 }
-
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	static Uint32 rmask = 0xff000000;
-	static Uint32 gmask = 0x00ff0000;
-	static Uint32 bmask = 0x0000ff00;
-	static Uint32 amask = 0x000000ff;
-#else
-	static Uint32 rmask = 0x000000ff;
-	static Uint32 gmask = 0x0000ff00;
-	static Uint32 bmask = 0x00ff0000;
-	static Uint32 amask = 0xff000000;
-#endif 
 
 
 void OpenGLGraphic::Prepare()
@@ -124,7 +156,7 @@ void OpenGLGraphic::Convert()
 			GL_UNSIGNED_BYTE, 
 			LocalSurface->pixels );
 
-	//DCE::g_pPlutoLogger->Write(LV_STATUS, "Freeing surface %p" , LocalSurface);
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "Freeing surface %p" , LocalSurface);
 
 	SDL_FreeSurface(LocalSurface);
 	LocalSurface = NULL;
@@ -168,8 +200,6 @@ bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 
 void OpenGLGraphic::Clear()
 {
-	//DCE::g_pPlutoLogger->Write(LV_STATUS, "PrepareRelease %p", this);
-
 	TextureManager::Instance()->PrepareRelease(this);
 	if(LocalSurface != NULL)
 	{
