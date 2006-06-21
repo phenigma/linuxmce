@@ -13,6 +13,11 @@ namespace DCE
 		friend class OrbiterRendererFactory;
 		Proxy_OrbiterRenderer_SDL(Orbiter *pOrbiter);
 
+		bool DisplayProgress(string sMessage, int nProgress);
+		bool DisplayProgress(string sMessage, const map<string, bool> &mapChildDevices, int nProgress);
+		int PromptUser(string sPrompt,int iTimeoutSeconds=10, map<int,string> *p_mapPrompts = NULL);
+		int PromptFor(string sToken);
+
 	public:
 
 		~Proxy_OrbiterRenderer_SDL();

@@ -126,3 +126,23 @@ void Proxy_OrbiterRenderer_SDL::RenderScreen(bool bRenderGraphicsOnly)
 	return OrbiterRenderer_SDL::RenderScreen(bRenderGraphicsOnly);
 }
 //-----------------------------------------------------------------------------------------------------
+bool Proxy_OrbiterRenderer_SDL::DisplayProgress(string, int)
+{
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+bool Proxy_OrbiterRenderer_SDL::DisplayProgress(string, const map<string, bool> &, int)
+{
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+int Proxy_OrbiterRenderer_SDL::PromptUser(string, int, map<int,string> *)
+{
+	return 0;
+}
+//-----------------------------------------------------------------------------------------------------
+int Proxy_OrbiterRenderer_SDL::PromptFor(string)
+{
+	return 0;
+}
+//-----------------------------------------------------------------------------------------------------
