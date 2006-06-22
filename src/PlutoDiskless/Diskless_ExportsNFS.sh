@@ -56,7 +56,7 @@ for Client in $DisklessMDs; do
 		continue
         fi
 
-	DisklessMD_Root="$DisklessFileSystemsLocation/$DisklessMD_IP"
+	DisklessMD_Root="$DisklessFileSystemsLocation/$DisklessMD_ID"
 
 	Q="
 	    SELECT PK_Device
@@ -68,7 +68,7 @@ for Client in $DisklessMDs; do
 	IsDiskless=$(RunSQL "$Q")
 
 	if [ -n "$IsDiskless" ]; then
-		Exports_DisklessMDRoots="$Exports_DisklessMDRoots\n$DisklessMD_Root $DisklessMD_IP/255.255.255.255(rw,no_root_squash,no_all_squash,sync)"
+		Exports_DisklessMDRoots="$Exports_DisklessMDRoots\n$DisklessMD_Root	$INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(rw,no_root_squash,no_all_squash,sync)"
 	fi
 done
 
