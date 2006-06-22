@@ -4700,6 +4700,7 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 	// todo 2.0?    NeedsUpdate( 2 ); // Moving grids is slow; take care of an animation if necessary
 
 	DesignObj_Orbiter *pObj=NULL;
+	m_pObj_Highlighted = NULL;
 
 	int LoopNum=-1;
 	if ( sPK_DesignObj.empty(  ) )
@@ -4722,12 +4723,6 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 		{
 			pObj_Datagrid = m_vectObjs_GridsOnScreen[LoopNum++];
 		}
-
-		//this is a scroll datagrid method. we don't want to go outside the datagrid.
-		if(iPK_Direction == DIRECTION_Down_CONST && pObj_Datagrid->m_iHighlightedRow + 1 >= pObj_Datagrid->m_iPopulatedHeight)
-			continue;
-		if(iPK_Direction == DIRECTION_Up_CONST && pObj_Datagrid->m_iHighlightedRow == 0)
-			continue;
 
 		if ( pObj_Datagrid && pObj_Datagrid->m_pDataGridTable )
 		{
