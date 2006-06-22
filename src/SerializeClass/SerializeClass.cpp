@@ -99,6 +99,9 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 			case SERIALIZE_DATA_TYPE_FLOAT:
 				Write_float( *((float *) pItem->m_pItem) );
 				break;
+			case SERIALIZE_DATA_TYPE_DOUBLE:
+				Write_double( *((double *) pItem->m_pItem) );
+				break;
 			case SERIALIZE_DATA_TYPE_SHORT:
 				Write_short( *((short *) pItem->m_pItem) );
 				break;
@@ -248,6 +251,9 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 				break;
 			case SERIALIZE_DATA_TYPE_FLOAT:
 				*((float *) pItem->m_pItem)=Read_float();
+				break;
+			case SERIALIZE_DATA_TYPE_DOUBLE:
+				*((double *) pItem->m_pItem)=Read_double();
 				break;
 			case SERIALIZE_DATA_TYPE_SHORT:
 				*((short *) pItem->m_pItem)=Read_short();

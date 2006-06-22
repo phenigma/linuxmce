@@ -456,6 +456,13 @@ public:
 		m_pcCurrentPosition += sizeof(float);
 	}
 
+	void Write_double(double v) {
+		CheckWrite(sizeof(double));
+		double *ps = (double *) m_pcCurrentPosition;
+		*ps = v;
+		m_pcCurrentPosition += sizeof(double);
+	}
+
 	void Write_short(short v) {
 		CheckWrite(sizeof(short));
 		 short *ps = (short *) m_pcCurrentPosition;
@@ -577,6 +584,14 @@ public:
 		float *pl = (float *) m_pcCurrentPosition;
 		m_pcCurrentPosition += sizeof(float);
 		return *pl;
+	}
+
+	double Read_double() {
+                if( !CheckRead(sizeof(double)) )
+                        return 0;
+                double *pl = (double *) m_pcCurrentPosition;
+                m_pcCurrentPosition += sizeof(double);
+                return *pl;
 	}
 
 	short Read_short() {
