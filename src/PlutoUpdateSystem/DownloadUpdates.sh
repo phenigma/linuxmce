@@ -119,7 +119,7 @@ for MD in $MD_List; do
 		continue
 	fi
 
-	MD_FsRoot="$MD_FsPath/$MD_IP"
+	MD_FsRoot="$MD_FsPath/$MD_DeviceID"
 
 	chroot $MD_FsRoot apt-get update &
 	MD_Update_PID[$MD_Index]=$!
@@ -147,7 +147,7 @@ for MD in $MD_List; do
 		continue
 	fi
 
-	MD_FsRoot="$MD_FsPath/$MD_IP"
+	MD_FsRoot="$MD_FsPath/$MD_DeviceID"
 	
 	## Sync MD from Core
 	archiveSyncMDfromCORE $MD_FsRoot
@@ -182,7 +182,7 @@ else
                 	continue
         	fi
 
-        	MD_FsRoot="$MD_FsPath/$MD_IP"
+        	MD_FsRoot="$MD_FsPath/$MD_DeviceID"
 
 		# Check if this particular MD is up
 		MD_IsUp="No"
