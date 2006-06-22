@@ -118,7 +118,7 @@ void VDRPlugin::FetchEPG()
 
 			sPath = "/var/cache/vdrdevel";
 			if( bIsHybrid )
-				sPath = "/usr/pluto/diskless/" + StringUtils::itos(pDevice_MD->m_dwPK_Device) + "/" + sPath;
+				sPath = "/usr/pluto/diskless/" + StringUtils::ltos(pDevice_MD->m_dwPK_Device) + "/" + sPath;
 #ifdef WIN32
 			sPath = "Y:/home/root/var/cache/vdrdevel";
 #endif
@@ -129,7 +129,7 @@ void VDRPlugin::FetchEPG()
 			// Read the logos
 			sPath = "/usr/share/vdrdevel-channellogos";
 			if( bIsHybrid )
-				sPath = "/usr/pluto/diskless/" + StringUtils::itos(pDevice_MD->m_dwPK_Device) + "/" + sPath;
+				sPath = "/usr/pluto/diskless/" + StringUtils::ltos(pDevice_MD->m_dwPK_Device) + "/" + sPath;
 #ifdef WIN32
 			sPath = "Y:/home/root/usr/share/vdrdevel-channellogos";
 #endif
@@ -137,7 +137,7 @@ void VDRPlugin::FetchEPG()
 
 			sPath = "/var/lib/vdrdevel";
 			if( bIsHybrid )
-				sPath = "/usr/pluto/diskless/" + StringUtils::itos(pDevice_MD->m_dwPK_Device) + "/" + sPath;
+				sPath = "/usr/pluto/diskless/" + StringUtils::ltos(pDevice_MD->m_dwPK_Device) + "/" + sPath;
 #ifdef WIN32
 			sPath = "Y:/home/root/var/lib/vdrdevel";
 #endif
