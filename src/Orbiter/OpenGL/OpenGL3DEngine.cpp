@@ -55,11 +55,9 @@ bool OpenGL3DEngine::Paint()
 		return false;
 	}
 
-	GL.SetClearColor(1.0f, 1.0f, 0.0f);
 	GL.SetClearColor(.0f, .0f, 0.5f);
 	GL.ClearScreen(true, false);
 	GL.EnableZBuffer(false);
-
 
 	if(Compose)
 	{
@@ -78,7 +76,7 @@ bool OpenGL3DEngine::Paint()
 	int Tick;
 	if(this->AnimationRemain)
 	{
-		Tick = GetTick() - this->StartTick;
+		Tick = GetTick() - this->StartTick; 
 		if(Tick > 5 * 90)
 			AnimationRemain = false;
 	}

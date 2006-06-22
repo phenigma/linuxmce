@@ -4723,6 +4723,12 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 			pObj_Datagrid = m_vectObjs_GridsOnScreen[LoopNum++];
 		}
 
+		//this is a scroll datagrid method. we don't want to go outside the datagrid.
+		if(iPK_Direction == DIRECTION_Down_CONST && pObj_Datagrid->m_iHighlightedRow + 1 >= pObj_Datagrid->m_iPopulatedHeight)
+			continue;
+		if(iPK_Direction == DIRECTION_Up_CONST && pObj_Datagrid->m_iHighlightedRow == 0)
+			continue;
+
 		if ( pObj_Datagrid && pObj_Datagrid->m_pDataGridTable )
 		{
 			m_pOrbiterRenderer->RenderObjectAsync(pObj_Datagrid);
