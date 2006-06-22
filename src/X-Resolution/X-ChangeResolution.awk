@@ -8,7 +8,7 @@ BEGIN {
 	Display = 0;
 	Screen = 0;
 }
-/Modeline/ || /Modes/ { next }
+/\<Modeline\>/ || /\<Modes\>/ { next }
 /Section..*"Monitor"/ { Monitor = 1; }
 Monitor == 1 && (/HorizSync/ || /VertRefresh/ || /Modeline/) { next; }
 Monitor == 1 && /EndSection/ {
@@ -26,7 +26,7 @@ Monitor == 1 && /EndSection/ {
 	Monitor = 0;
 }
 /SubSection..*"Display"/ { Display = 1; }
-Display == 1 && /Modes/ { next; }
+Display == 1 && /\<Modes\>/ { next; }
 /EndSubSection/ && Display == 1 {
 	print "\t\tModes\t\t\"" ResX "x" ResY "\"";
 	Display = 0;
