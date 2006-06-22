@@ -247,7 +247,7 @@ string PlutoDHCP::GetDHCPConfig()
 		if( bIsMediaDirector(pRow_Device) )
 		{
 			sMoonEntries += sDeviceComment;
-			sMoonEntries += "\n\thost moon" + StringUtils::itos(++iMoonNumber)
+			sMoonEntries += "\n\thost moon" + StringUtils::itos(pRow_Device->PK_Device_get())  
 				+ " { hardware ethernet " + pd_1.m_sMacAddress + "; fixed-address " + ip.AsText() + "; }";
 		}
 		else
