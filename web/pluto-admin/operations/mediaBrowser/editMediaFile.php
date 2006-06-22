@@ -276,7 +276,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_File=? AND FK_Attribute=?',array($fileID,$deleteAttribute));
 
 			$dpath=$_REQUEST['dpath'];
-			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$dpath.'"';
+			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -w -d "'.$dpath.'"';
 			exec($cmd);
 			
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_ATTRIBUTE_DELETED_FROM_FILE_CONST.': '.$cmd);	
