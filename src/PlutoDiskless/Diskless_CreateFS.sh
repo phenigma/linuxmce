@@ -243,9 +243,9 @@ set +x
 
 # Make sure the right kernel version is installed
 InstallKernel $KERNEL_VERSION || exit 1
-mkdir -p "/tftpboot/$IP"
-ln -sf "$DlPath/boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$IP/"
-ln -sf "$DlPath/boot/vmlinuz-$KERNEL_VERSION" "/tftpboot/$IP/"
+mkdir -p "/tftpboot/$Device"
+ln -sf "$DlPath/boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$Device/"
+ln -sf "$DlPath/boot/vmlinuz-$KERNEL_VERSION" "/tftpboot/$Device/"
 
 # Create the archives-cache directory
 mkdir -p "$DlPath"/usr/pluto/var
