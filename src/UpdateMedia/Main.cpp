@@ -37,6 +37,7 @@ namespace UpdateMediaVars
 {
     bool bError, bUpdateThumbnails, bUpdateSearchTokens, bRunAsDaemon;
     string sDirectory;
+	bool bSyncFilesOnly;
 	vector<string> vectModifiedFolders;
 
     Database_pluto_media *g_pDatabase_pluto_media = NULL;
@@ -142,6 +143,7 @@ int main(int argc, char *argv[])
 	bUpdateThumbnails=false;
 	bUpdateSearchTokens=false;
 	bRunAsDaemon=false;
+	bSyncFilesOnly=false;
 	sDirectory="/home/";
 
 	char c;
@@ -180,6 +182,9 @@ int main(int argc, char *argv[])
 		case 'B':
 			bRunAsDaemon=true;
 			break;
+		case 'w':
+			bSyncFilesOnly = true;
+			break;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
 			bError=true;
@@ -198,9 +203,8 @@ int main(int argc, char *argv[])
 			<< "database    -- database name.  default is pluto_main" << endl
 			<< "-s          -- Update all search tokens" << endl
 			<< "-t          -- Update all thumbnails" << endl
-#ifndef WIN32
+			<< "-w			-- Synchronize files only" << endl
 			<< "-B          -- Run as daemon" << endl
-#endif
 			<< "Directory defaults to /home" << endl;
 
 		exit(0);
@@ -208,7 +212,8 @@ int main(int argc, char *argv[])
 
 	if(!bRunAsDaemon)
 	{
-		UpdateMedia UpdateMedia(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_iDBPort,sDirectory);
+		UpdateMedia UpdateMedia(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,
+			dceConfig.m_iDBPort,sDirectory,bSyncFilesOnly);
 		if( sDirectory.size() )
 			UpdateMedia.DoIt();
 

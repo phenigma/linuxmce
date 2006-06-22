@@ -24,6 +24,8 @@ public:
 
 	string SerializeClassClassName();
 	void SetupSerialization(int iSC_Version);
+
+	bool operator ==(PlutoMediaAttribute& attribute);
 };
 //-----------------------------------------------------------------------------------------------------
 typedef multimap<long, PlutoMediaAttribute *> MapPlutoMediaAttributes;

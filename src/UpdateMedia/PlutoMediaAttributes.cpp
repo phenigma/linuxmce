@@ -35,9 +35,13 @@ void PlutoMediaAttribute::SetupSerialization(int iSC_Version)
 	StartSerializeList() + m_nType + m_sName + m_nTrack + m_nSection;
 }
 //-----------------------------------------------------------------------------------------------------
-string PlutoMediaAttributes::SerializeClassClassName() 
-{ 
-	return "PlutoMediaAttributes"; 
+bool PlutoMediaAttribute::operator ==(PlutoMediaAttribute& attribute)
+{
+	return 
+		attribute.m_nSection	== m_nSection	&&
+		attribute.m_nTrack		== m_nTrack		&&
+		attribute.m_nType		== m_nType		&&
+		attribute.m_sName		== m_sName;
 }
 //-----------------------------------------------------------------------------------------------------
 //
@@ -54,6 +58,11 @@ PlutoMediaAttributes::~PlutoMediaAttributes()
 {
 	for(MapPlutoMediaAttributes::iterator it = m_mapAttributes.begin(), end = m_mapAttributes.end(); it != end; ++it)
 		delete it->second;
+}
+//-----------------------------------------------------------------------------------------------------
+string PlutoMediaAttributes::SerializeClassClassName() 
+{ 
+	return "PlutoMediaAttributes"; 
 }
 //-----------------------------------------------------------------------------------------------------
 bool PlutoMediaAttributes::OkayToDeserialize(int iSC_Version)

@@ -66,12 +66,20 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::~PlutoMediaFile()
 {
-	SyncDbAttributes();
+	if(!m_bSyncFilesOnly)
+		SyncDbAttributes();
+	else
+		g_pPlutoLogger->Write(LV_STATUS, "Being called from pluto-admin. We won't add attributes back in db.");
 
 	delete m_pPlutoMediaAttributes;
 
 	g_pPlutoLogger->Write(LV_STATUS, "# PlutoMediaFile ENDED: dir %s file %s", 
 		m_sDirectory.c_str(), m_sFile.c_str());
+}
+//-----------------------------------------------------------------------------------------------------
+/*static*/ void PlutoMediaFile::SetupSyncFilesOnly(bool bSyncFilesOnly) 
+{ 
+	m_bSyncFilesOnly = bSyncFilesOnly; 
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ bool PlutoMediaFile::IsSupported(string sFileName)
@@ -233,7 +241,8 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 	//rows we can reuse, marked as 'Missing' (deleted before because the file was removed/moved)
 	//However, this should never happen. Added this code temporary to trace a possible logic flaw.
 	vector<Row_File *> vectRow_File;
-	m_pDatabase_pluto_media->File_get()->GetRows("Path = '" + StringUtils::SQLEscape(m_sDirectory) + 
+	m_pDatabase_pluto_media->File_get()->GetRows(
+		"Path = '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(m_sDirectory)) + 
 		"' AND Filename = '" + StringUtils::SQLEscape(m_sFile) + "' AND Missing = 1", &vectRow_File);
 
 	//Any luck to reuse a missing file record?
@@ -274,8 +283,8 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		//No record to reuse; we'll create a new one
 		pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
 		pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
-		pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(m_sDirectory));
-		pRow_File->Filename_set(m_sFile);
+		pRow_File->Path_set(StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(m_sDirectory)));
+		pRow_File->Filename_set(StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(m_sFile)));
 		pRow_File->IsDirectory_set(m_bIsDir);
 		pRow_File->EK_MediaType_set(!m_bIsDir ? PK_MediaType : 23 /*this is a folder. what media type to put?*/);
 		pRow_File->Table_File_get()->Commit();
@@ -605,6 +614,8 @@ void PlutoMediaFile::LoadAttributesFromDB(string sFullFileName, int PK_File)
 		"FROM Attribute JOIN File_Attribute ON PK_Attribute = FK_Attribute "
 		"WHERE FK_File = " + StringUtils::ltos(PK_File);
 
+	MapPlutoMediaAttributes mapDBAttributes;
+
 	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
 	{
 		while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
@@ -614,7 +625,15 @@ void PlutoMediaFile::LoadAttributesFromDB(string sFullFileName, int PK_File)
 			int nTrack = NULL != row[2] ? atoi(row[2]) : 0;
 			int nSection = NULL != row[3] ? atoi(row[3]) : 0;
 
+			g_pPlutoLogger->Write(LV_STATUS, "Attr in db : type %d\t\tvalue %s", nFK_AttributeType, sName.c_str());
+
 			bool bAttributeAlreadyAdded = false;
+
+			if(m_bSyncFilesOnly)
+			{
+				mapDBAttributes.insert(std::make_pair(nFK_AttributeType, 
+					new PlutoMediaAttribute(nFK_AttributeType, sName, nTrack, nSection)));
+			}
 
 			for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapAttributes.begin(),
 				end = m_pPlutoMediaAttributes->m_mapAttributes.end(); it != end; ++it)
@@ -638,13 +657,62 @@ void PlutoMediaFile::LoadAttributesFromDB(string sFullFileName, int PK_File)
 					nFK_AttributeType, sName.c_str());
 
 				m_pPlutoMediaAttributes->m_mapAttributes.insert(
-						std::make_pair(
-							nFK_AttributeType, 
-							new PlutoMediaAttribute(nFK_AttributeType, sName, nTrack, nSection)
-						)
-					);
+					std::make_pair(
+						nFK_AttributeType, 
+						new PlutoMediaAttribute(nFK_AttributeType, sName, nTrack, nSection)
+					)
+				);
 			}
 		}
+	}
+
+	if(m_bSyncFilesOnly)
+	{
+		//we need to check here if any attribute was deleted from website in order to delete it from 
+		//file's attribute too.
+		for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapAttributes.begin(),
+			end = m_pPlutoMediaAttributes->m_mapAttributes.end(); it != end;)
+		{
+			PlutoMediaAttribute *pPlutoMediaAttribute_File = it->second;
+			bool bAttributeFoundInDB = false;
+
+			g_pPlutoLogger->Write(LV_STATUS, "Attr in file : type %d\t\tvalue %s", 
+				pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName.c_str());
+
+			for(MapPlutoMediaAttributes::iterator it_DbAttr = mapDBAttributes.begin(), end_DbAttr = mapDBAttributes.end(); 
+				it_DbAttr != end_DbAttr; ++it_DbAttr)
+			{
+				PlutoMediaAttribute *pPlutoMediaAttribute_DB = it_DbAttr->second;
+				
+				if(*pPlutoMediaAttribute_File == *pPlutoMediaAttribute_DB)
+				{
+					bAttributeFoundInDB = true;
+					break;
+				}
+			}
+
+			if(!bAttributeFoundInDB)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Removing attribute from file %d, value %s, since it was remove from the site.",
+					pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName.c_str());
+
+				RemoveId3Tag(m_sDirectory + "/" + FileWithAttributes(), pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName);
+				it = m_pPlutoMediaAttributes->m_mapAttributes.erase(it);
+			}
+			else
+				++it;
+		}
+
+		g_pPlutoLogger->Write(LV_STATUS, "After sync'ing file, attr in db %d, attr in file %d", 
+			mapDBAttributes.size(), m_pPlutoMediaAttributes->m_mapAttributes.size());
+
+		//cleanup
+		for(MapPlutoMediaAttributes::iterator it = mapDBAttributes.begin(), end = mapDBAttributes.end(); it != end; ++it)
+		{
+			PlutoMediaAttribute *pPlutoMediaAttribute = it->second;
+			delete pPlutoMediaAttribute;
+		}
+        mapDBAttributes.clear();
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: pluto attributes merged with those from database %d", 

@@ -500,12 +500,6 @@ void SetId3Info(string sFilename, const map<int,string>& mapAttributes)
                 ID3_AddYear(&myTag, sValue.c_str(), true);
                 break;
 
-            /*
-            case ATTRIBUTETYPE_Comment_CONST: //todo
-                ID3_AddComment(&myTag, sValue.c_str(), "", true); 
-                break;
-            */
-
             case ATTRIBUTETYPE_Genre_CONST:
                 ID3_AddGenre(&myTag, sValue.c_str(), true); 
                 break;
@@ -523,6 +517,49 @@ void SetId3Info(string sFilename, const map<int,string>& mapAttributes)
         }
     }
     
+    myTag.Update(ID3TT_ID3); 
+}
+
+void RemoveId3Tag(string sFilename, int nTagType, string sValue)
+{
+	ID3_Tag myTag; 
+	myTag.Link(sFilename.c_str());
+
+	switch(nTagType)
+	{
+		case ATTRIBUTETYPE_Performer_CONST:
+			ID3_RemoveArtists(&myTag); 
+			break;
+
+		case ATTRIBUTETYPE_Album_CONST:
+			ID3_RemoveAlbums(&myTag);
+			break;
+
+		case ATTRIBUTETYPE_Song_CONST:
+		case ATTRIBUTETYPE_Title_CONST:
+			ID3_RemoveTitles(&myTag); 
+			break;
+
+		case ATTRIBUTETYPE_Release_Date_CONST:
+			ID3_RemoveYears(&myTag);
+			break;
+
+		case ATTRIBUTETYPE_Genre_CONST:
+			ID3_RemoveGenres(&myTag); 
+			break;
+
+		case ATTRIBUTETYPE_Track_CONST:
+			ID3_RemoveTracks(&myTag); 
+			break;
+
+		case ATTRIBUTETYPE_Composer_CONST:
+			ID3_RemoveComposers(&myTag);
+			break;
+
+		default:
+			cout << "Don't know yet how to remove tags with PK_Attr = " << nTagType << " and value " << sValue << endl;
+	}
+
     myTag.Update(ID3TT_ID3); 
 }
 

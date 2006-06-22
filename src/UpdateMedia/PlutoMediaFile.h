@@ -35,6 +35,7 @@ private:
 	int m_nOurInstallationID;
 	int m_nPK_MediaType;
 	bool m_bIsDir;
+	static bool m_bSyncFilesOnly;
 
     //internal helper functions
 	//This will add a record in the File table and additional attributes too in related tables
@@ -52,6 +53,8 @@ public:
         string sDirectory, string sFile, bool bIsDir = false);
     ~PlutoMediaFile();
 
+	static void SetupSyncFilesOnly(bool bSyncFilesOnly);
+
     int HandleFileNotInDatabase(int PK_MediaType = 0);
 
     void SetFileAttribute(int PK_File);
@@ -61,7 +64,8 @@ public:
     int GetPicAttribute(int PK_File);
 	static bool IsSupported(string sFileName);
 };
-
+//-----------------------------------------------------------------------------------------------------
+bool PlutoMediaFile::m_bSyncFilesOnly = false;
 //-----------------------------------------------------------------------------------------------------
 //
 //  PlutoMediaIdentifier class

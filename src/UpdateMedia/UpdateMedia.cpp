@@ -61,8 +61,10 @@ void sigtrap_hook(int sig)
 	UpdateMediaSig::bSignalTrapCaught = true;
 }
 
-UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string sDirectory)
+UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string sDirectory, bool bSyncFilesOnly)
 {
+	PlutoMediaFile::SetupSyncFilesOnly(bSyncFilesOnly);
+
 #ifndef WIN32
 	signal(SIGTRAP, &sigtrap_hook);
 #endif
@@ -100,7 +102,7 @@ UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string 
 }
 
 UpdateMedia::UpdateMedia(Database_pluto_media *pDatabase_pluto_media, 
-    Database_pluto_main *pDatabase_pluto_main, string sDirectory)
+	Database_pluto_main *pDatabase_pluto_main, string sDirectory) 
 {
 #ifndef WIN32
 	signal(SIGTRAP, &sigtrap_hook);
@@ -334,7 +336,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 		if(itMapFiles == mapFiles.end())
 		{
 			PlutoMediaFile PlutoMediaSubDir(m_pDatabase_pluto_media, m_nPK_Installation,
-				FileUtils::BasePath(sSubDir), "", true);
+				FileUtils::BasePath(sSubDir), FileUtils::FilenameWithoutPath(sSubDir), true);
 
 			PlutoMediaSubDir.HandleFileNotInDatabase();
 		}
