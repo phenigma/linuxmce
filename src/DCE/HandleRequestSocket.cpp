@@ -120,8 +120,10 @@ bool HandleRequestSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 	}
 
 	m_bTerminate = false;
-    pthread_create( &m_RequestHandlerThread, NULL, BeginHandleRequestThread, (void *)this );
-
+	
+	if( 0 != pthread_create( &m_RequestHandlerThread, NULL, BeginHandleRequestThread, (void *)this ) )
+		return false;
+	
 	return true;
 }
 
