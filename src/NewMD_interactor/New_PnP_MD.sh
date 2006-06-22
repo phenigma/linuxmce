@@ -8,7 +8,9 @@ Interactor_Port=7238
 
 RemoteIP="$1"
 RemoteMAC="$2"
-Room="$3"
+PK_Room="$3"
+shift 3
+Room="$*"
 
 FeedbackMD()
 {
@@ -28,13 +30,19 @@ Logging "$TYPE" "$SEVERITY_NORMAL" "Assigned permanent IP '$NewIP' to device '$N
 FeedbackMD "Assigned permanent IP '$NewIP' to device '$NewDevice'"
 
 # Create room
-sqlRoom="${Room//\'/\'}"
-Q="INSERT INTO Room(FK_Installation, FK_RoomType, Description)
-	VALUES('$PK_Installation', 9, '$sqlRoom');
-	SELECT LAST_INSERT_ID()"
-NewRoom=$(RunSQL "$Q")
-Logging "$TYPE" "$SEVERITY_NORMAL" "Created new room '$Room' with ID '$NewRoom'"
-FeedbackMD "Created new room '$Room' with ID '$NewRoom'"
+if [[ "$PK_Room" == 0 ]]; then
+	sqlRoom="${Room//\'/\'}"
+	Q="INSERT INTO Room(FK_Installation, FK_RoomType, Description)
+		VALUES('$PK_Installation', 9, '$sqlRoom');
+		SELECT LAST_INSERT_ID()"
+	NewRoom=$(RunSQL "$Q")
+	Logging "$TYPE" "$SEVERITY_NORMAL" "Created new room '$Room' with ID '$NewRoom'"
+	FeedbackMD "Created new room '$Room' with ID '$NewRoom'"
+else
+	NewRoom="$PK_Room"
+	Logging "$TYPE" "$SEVERITY_NORMAL" "Using existing room '$Room' with ID '$NewRoom'"
+	FeedbackMD "Using existing room '$Room' with ID '$NewRoom'"
+fi
 
 # Put machine in created room
 Q="UPDATE Device SET FK_Room='$NewRoom' WHERE PK_Device='$NewDevice'"

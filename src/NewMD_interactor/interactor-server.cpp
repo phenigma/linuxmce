@@ -1,5 +1,13 @@
 #include "common.h"
 
+#include <stdlib.h>
+#include <unistd.h>
+
+#include "GetCommandOutput.h"
+
+#include <string>
+using namespace std;
+
 int main()
 {
 	int s, s2;
@@ -63,9 +71,17 @@ int main()
 				memset(remoteIP, 0, 1024);
 				memset(remoteMAC, 0, 1024);
 				memset(remoteRoom, 0, 1024);
-				sscanf(buffer, "%*s %s %s %s", remoteIP, remoteMAC, remoteRoom);
-				snprintf(cmd, 1024, "/usr/pluto/bin/New_PnP_MD.sh %s %s %s", remoteIP, remoteMAC, remoteRoom);
+				int PK_Room;
+				sscanf(buffer, "%*s %s %s %d %100c", remoteIP, remoteMAC, &PK_Room, remoteRoom);
+				snprintf(cmd, 1024, "/usr/pluto/bin/New_PnP_MD.sh %s %s %d %s", remoteIP, remoteMAC, PK_Room, remoteRoom);
 				system(cmd);
+			}
+			else if (strcmp(cmd, "rooms") == 0)
+			{
+				string sOutput;
+				char * args[] = { "/usr/pluto/bin/NewMD_interactor_helper.sh", "--rooms", NULL };
+				GetCommandOutput(args[0], args, sOutput);
+				write(s2, sOutput.c_str(), sOutput.size());
 			}
 		}
 		
