@@ -65,8 +65,6 @@ public:
 	static bool IsSupported(string sFileName);
 };
 //-----------------------------------------------------------------------------------------------------
-bool PlutoMediaFile::m_bSyncFilesOnly = false;
-//-----------------------------------------------------------------------------------------------------
 //
 //  PlutoMediaIdentifier class
 //

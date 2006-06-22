@@ -40,6 +40,8 @@ using namespace DCE;
 //  PlutoMediaFile class
 //
 //-----------------------------------------------------------------------------------------------------
+bool PlutoMediaFile::m_bSyncFilesOnly = false;
+//-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation, 
 							   string sDirectory, string sFile, bool bIsDir/* = false*/) 
 {
@@ -697,7 +699,7 @@ void PlutoMediaFile::LoadAttributesFromDB(string sFullFileName, int PK_File)
 					pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName.c_str());
 
 				RemoveId3Tag(m_sDirectory + "/" + FileWithAttributes(), pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName);
-				it = m_pPlutoMediaAttributes->m_mapAttributes.erase(it);
+				//it = m_pPlutoMediaAttributes->m_mapAttributes.erase(it);
 			}
 			else
 				++it;
