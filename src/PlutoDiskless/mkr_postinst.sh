@@ -29,6 +29,9 @@ for directory in $( ls $DlPath ) ;do
 	## Move the filesystem
 	mv -f $DlPath/$IPaddress $DlPath/$PK_Device
 
+	## Move the tftpboot directories
+	mv -f /tftpboot/$IPaddress /tftpboot/$PK_Device
+
 	## Mark to run diskless setup on the MD
         Q="UPDATE Device SET NeedConfigure='1' WHERE PK_Device='$PK_Device'"
 	RunSQL "$Q"
