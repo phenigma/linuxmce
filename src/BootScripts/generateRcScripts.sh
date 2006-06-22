@@ -111,7 +111,7 @@ FindComputerRoot()
 		echo "/"
 		return 0
 	else
-		echo "/usr/pluto/diskless/$compIP"
+		echo "/usr/pluto/diskless/$PK_Device"
 		return 0
 	fi
 	

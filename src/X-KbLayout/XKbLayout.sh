@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/SQL_Ops.sh
+
 function getCurrentLayout {
 	currentLayout=$(cat $XConfFile 2>/dev/null  | grep "^.*Option.*\"XkbLayout\"" | cut -f5 | sed 's/"//g')
 	currentVariant=$(cat $XConfFile 2>/dev/null | grep "^.*Option.*\"XkbVariant\"" | cut -f5 | sed 's/"//g')
@@ -57,7 +59,10 @@ fi
 
 # Where is the X Config stored
 if [[ "$IP" != "127.0.0.1" ]]; then 
-	XConfPath="/usr/pluto/diskless/$IP"
+	Q="SELECT PK_Device FROM Device WHERE IPaddress LIKE '$IP'"
+	PK_Device=$(RunSQL "$Q")
+
+	XConfPath="/usr/pluto/diskless/$PK_Device"
 else
 	XConfPath=""
 fi
