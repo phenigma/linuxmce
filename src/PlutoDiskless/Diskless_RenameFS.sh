@@ -35,8 +35,8 @@ if [[ "$OldIP" != "$NewIP" ]]; then
 			# doing that here, prevents a "MD got deleted" symptom, because it was renamed
 			NewIP="$(/usr/pluto/bin/PlutoDHCP.sh -d "$DevID" -a)"
 		fi
-		mv -f /usr/pluto/diskless/{"$OldIP","$NewIP"}
-		rm -rf /tftpboot/"$OldIP"
+#		mv -f /usr/pluto/diskless/{"$OldIP","$NewIP"}
+#		rm -rf /tftpboot/"$OldIP"
 	fi
 	ChangesToBeMade=y
 fi

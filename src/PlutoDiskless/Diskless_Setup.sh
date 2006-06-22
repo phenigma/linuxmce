@@ -38,8 +38,9 @@ DefaultBootParams="noirqdebug vga=normal"
 # NOBOOT_ENTRIES
 # ENABLE_SPLASH
 # MOON_BOOTPARAMS
+# MOON_ID
 
-Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS MOON_IP NOBOOT_ENTRIES ENABLE_SPLASH MOON_BOOTPARAMS"
+Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS MOON_IP NOBOOT_ENTRIES ENABLE_SPLASH MOON_BOOTPARAMS MOON_ID"
 
 
 ## Set up some variables
@@ -86,7 +87,6 @@ Q="
 R=$(RunSQL "$Q")
 
 mkdir -p /tftpboot/pxelinux.cfg
-MoonNumber=1
 
 ## Processing Moons
 for Client in $R; do
@@ -110,8 +110,9 @@ for Client in $R; do
 	lcdMAC=$(echo ${MAC//:/-} | tr 'A-Z' 'a-z')
 	MAC=$(echo ${MAC//-/:} | tr 'a-z' 'A-Z')
 	MOON_IP="$IP"
-	MOON_ADDRESS="$IP moon$MoonNumber"
-	DlPath="$DlDir/$IP"
+	MOON_ID="$PK_Device"
+	MOON_ADDRESS="$IP moon$MOON_ID"
+	DlPath="$DlDir/$MOON_ID"
 	
 	## Check if this MD is diskless or not
 	Q="
@@ -161,8 +162,7 @@ for Client in $R; do
 			echo "* Setting up /tftpboot/pxelinux.cfg/01-$lcdMAC"
 			
 			OverrideDefaults=0
-			ExtraBootParams=
-			
+			ExtraBootParams=			
 			Q="
 				SELECT 
 					FK_DeviceData,
@@ -206,6 +206,8 @@ for Client in $R; do
 
 		
 		echo "* Setting local files"
+
+		## Setup pluto.conf
 		echo -n " pluto.conf"
 		if [[ ! -f $DlPath/etc/pluto.conf ]] ;then
 			if [[ "$OfflineMode" == "" ]]; then
@@ -218,31 +220,38 @@ for Client in $R; do
 			echo -e $pluto_conf > $DlPath/etc/pluto.conf
 		fi
 
+		## Setup fstab
 		echo -n " fstab"
 		cp /usr/pluto/templates/fstab.tmpl $DlPath/etc/fstab.$$
 		ReplaceVars $DlPath/etc/fstab.$$
 		mv $DlPath/etc/fstab.$$ $DlPath/etc/fstab
 
+		## Setup timezone
 		echo -n " timezone"
 		cp /etc/localtime $DlPath/etc/localtime	
 	        cat /etc/timezone > $DlPath/etc/timezone
 	
+		## Setup hosts
 		echo -n " hosts"
 		cp /usr/pluto/templates/hosts.tmpl $DlPath/etc/hosts.$$
 		ReplaceVars $DlPath/etc/hosts.$$
 		mv $DlPath/etc/hosts.$$ $DlPath/etc/hosts
 
+		## Setup Interfaces
 		echo -n " interfaces"
 		cp /usr/pluto/templates/interfaces.diskless.tmpl $DlPath/etc/network/interfaces.$$
 		ReplaceVars $DlPath/etc/network/interfaces.$$
 		mv $DlPath/etc/network/interfaces{.$$,}
 
+		## Setup resolv.conf
 		echo -n " DNS"
 		echo "nameserver $CORE_INTERNAL_ADDRESS" >$DlPath/etc/resolv.conf
 
+		## Setup hostname
 		echo -n " hostname"
-		echo "moon$MoonNumber" >$DlPath/etc/hostname
+		echo "moon$MOON_HOSTS" >$DlPath/etc/hostname
 
+		## Setup MythTC MySQL settings
 		echo -n " MythTV_DB_Settings"
 		mkdir -p $DlPath/etc/mythtv
 		cp /etc/mythtv/mysql.txt $DlPath/etc/mythtv/mysql.txt.$$
@@ -250,11 +259,13 @@ for Client in $R; do
 		sed -i "$SedCmd" $DlPath/etc/mythtv/mysql.txt.$$
 		mv $DlPath/etc/mythtv/mysql.txt.$$ $DlPath/etc/mythtv/mysql.txt
 
+		## Setup mysql access
 		echo -n " MySQL_access"
 		Q="GRANT ALL PRIVILEGES ON *.* TO 'root'@$IP;
 		GRANT ALL PRIVILEGES ON *.* TO 'eib'@$IP"
 		echo "$Q" | /usr/bin/mysql
 
+		## Copy installer files
 		echo -n " Install"
 		mkdir -p $DlPath/usr/pluto/install
 		Files="Common.sh ConfirmDependencies_Debian.sh Initial_Config_MD.sh Initial_Config_Finish.sh ramdisk.tar.bz2"
@@ -262,11 +273,13 @@ for Client in $R; do
 			cp /usr/pluto/install/$Stuff $DlPath/usr/pluto/install
 		done
 
+		## Generate another installer script
 		echo -n "activation.sh"
 		if [[ ! -f $DlPath/usr/pluto/install/activation.sh ]]; then
 			/usr/pluto/bin/ConfirmDependencies -r -D pluto_main -h dcerouter -u root -p '' -d $PK_Device install > $DlPath/usr/pluto/install/activation.sh
 		fi
 		
+		## Modify a install script to run as for diskless
 		sed '/^Type=/ s/^.*$/Type="diskless"/' /usr/pluto/install/Initial_Config.sh >$DlPath/usr/pluto/install/Initial_Config.sh
 		chmod +x $DlPath/usr/pluto/install/Initial_Config.sh
 		mkdir -p $DlPath/usr/pluto/deb-cache
@@ -282,6 +295,7 @@ for Client in $R; do
 		[ -f "$DlPath/etc/localtime" ] && rm -f $DlPath/etc/localtime # in case it's a file from the old (wrong) way of setting this up
 		ln -sf /usr/share/zoneinfo/$TimeZone $DlPath/etc/localtime
 
+		## Configure syslog to log on dcerouter
 		echo -n " syslog"
 		SysLogCfg1="*.*;auth,authpriv.none		/dev/tty12"
 		SysLogCfg2="*.*;auth,authpriv.none		@dcerouter"
@@ -292,9 +306,11 @@ for Client in $R; do
 			echo "$SysLogCfg2" >>$DlPath/etc/syslog.conf
 		fi
 
+		## Configure apt
 		echo -n " apt"
 		sed 's/localhost/dcerouter/g' /etc/apt/apt.conf.d/30pluto > $DlPath/etc/apt/apt.conf.d/30pluto
 
+		## Setup debconf to go noninteractive
 		echo " debconf"
 		awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Noninteractive"; else print; next}
 			{print}' $DlPath/var/cache/debconf/config.dat > $DlPath/var/cache/debconf/config.dat.$$
@@ -308,9 +324,8 @@ for Client in $R; do
 	fi
 
 	echo "* Adding to hosts"
-	MOON_HOSTS="$MOON_HOSTS\n$IP\tmoon$MoonNumber"
+	MOON_HOSTS="$MOON_HOSTS\n$IP\tmoon$MOON_ID"
 
-	: $((MoonNumber+=1))
 done
 
 DYNAMIC_IP_RANGE=

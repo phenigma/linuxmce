@@ -13,7 +13,7 @@ Device="$3"
 Architecture="${4:-686}"
 
 FSarchive=PlutoMD.tar.bz2
-DlPath="/usr/pluto/diskless/$IP"
+DlPath="/usr/pluto/diskless/$Device"
 HexIP=$(gethostip -x "$IP")
 
 Modules="pcnet32 tg3 e1000 sk98lin fealnx natsemi r8169 b44 via_velocity"
