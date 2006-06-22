@@ -50,7 +50,11 @@ void PopulatePlutoRooms(struct PlutoRooms_t * PlutoRooms, char * stream)
 		char * field_separator = strchr(stream, '\x01');
 		* field_separator = ' ';
 		sscanf(stream, "%d", &PlutoRooms->Rooms[room_idx].PK_Room);
-		sscanf(field_separator + 1, "%s", PlutoRooms->Rooms[room_idx].Description);
+		field_separator++;
+		if (* field_separator != ' ')
+			sscanf(field_separator, "%s", PlutoRooms->Rooms[room_idx].Description);
+		else
+			* PlutoRooms->Rooms[room_idx].Description = 0;
 		str_chr_replace(PlutoRooms->Rooms[room_idx].Description, '\x02', ' ');
 		room_idx++;
 	}
@@ -87,7 +91,7 @@ void ChooseRoom(struct PlutoRooms_t * PlutoRooms, char ** RoomName, int * PK_Roo
 	{
 		for (i = 0; i < PlutoRooms->count; i++)
 		{
-			printf("%d. %s\n", PlutoRooms->Rooms[i].PK_Room, PlutoRooms->Rooms[i].Description);
+			printf("%d. %s\n", i + 1, PlutoRooms->Rooms[i].Description);
 		}
 		printf("%s\n", "0. NEW ROOM");
 
@@ -95,7 +99,7 @@ void ChooseRoom(struct PlutoRooms_t * PlutoRooms, char ** RoomName, int * PK_Roo
 		fflush(stdout);
 		if (scanf("%d", &choice) <= 0)
 		{
-			scanf("%*s");
+			scanf("%*s"); // read the garbage that the user fed us, into /dev/null
 			continue;
 		}
 
@@ -106,18 +110,11 @@ void ChooseRoom(struct PlutoRooms_t * PlutoRooms, char ** RoomName, int * PK_Roo
 			* PK_Room = 0;
 			done = 1;
 		}
-		else
+		else if (choice > 0 && choice <= PlutoRooms->count)
 		{
-			for (i = 0; i < PlutoRooms->count; i++)
-			{
-				if (choice == PlutoRooms->Rooms[i].PK_Room)
-				{
-					* RoomName = strdup(PlutoRooms->Rooms[i].Description);
-					* PK_Room = choice;
-					done = 1;
-					break;
-				}
-			}
+			* RoomName = strdup(PlutoRooms->Rooms[choice - 1].Description);
+			* PK_Room = PlutoRooms->Rooms[choice - 1].PK_Room;
+			done = 1;
 		}
 	}
 }
