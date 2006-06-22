@@ -378,7 +378,7 @@ void PlutoMediaFile::SetFileAttribute(int PK_File)
 	SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes());
 }
 //-----------------------------------------------------------------------------------------------------
-int PlutoMediaFile::GetFileAttribute(bool bCreateId3File)
+int PlutoMediaFile::GetFileAttribute(bool)
 {
 	if(m_pPlutoMediaAttributes->m_nInstallationID == m_nOurInstallationID && m_pPlutoMediaAttributes->m_nFileID != 0)
 	{
@@ -600,7 +600,7 @@ void PlutoMediaFile::LoadPlutoAttributes(string sFullFileName)
 		m_pPlutoMediaAttributes->m_mapAttributes.size());
 }
 //-----------------------------------------------------------------------------------------------------
-void PlutoMediaFile::LoadAttributesFromDB(string sFullFileName, int PK_File)
+void PlutoMediaFile::LoadAttributesFromDB(string, int PK_File)
 {
 	if(!PK_File)
 	{
@@ -699,7 +699,7 @@ void PlutoMediaFile::LoadAttributesFromDB(string sFullFileName, int PK_File)
 					pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName.c_str());
 
 				RemoveId3Tag(m_sDirectory + "/" + FileWithAttributes(), pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName);
-				//it = m_pPlutoMediaAttributes->m_mapAttributes.erase(it);
+				m_pPlutoMediaAttributes->m_mapAttributes.erase(it++);
 			}
 			else
 				++it;

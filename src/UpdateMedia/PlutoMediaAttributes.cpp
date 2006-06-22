@@ -44,6 +44,16 @@ bool PlutoMediaAttribute::operator ==(PlutoMediaAttribute& attribute)
 		attribute.m_sName		== m_sName;
 }
 //-----------------------------------------------------------------------------------------------------
+PlutoMediaAttribute& PlutoMediaAttribute::operator =(PlutoMediaAttribute& attribute)
+{
+	m_nSection = attribute.m_nSection;
+	m_nTrack = attribute.m_nTrack;
+	m_nType = attribute.m_nType;
+	m_sName = attribute.m_sName;
+
+	return *this;
+}
+//-----------------------------------------------------------------------------------------------------
 //
 //  PlutoMediaAttributes class
 //

@@ -26,6 +26,7 @@ public:
 	void SetupSerialization(int iSC_Version);
 
 	bool operator ==(PlutoMediaAttribute& attribute);
+	PlutoMediaAttribute& operator =(PlutoMediaAttribute& attribute);
 };
 //-----------------------------------------------------------------------------------------------------
 typedef multimap<long, PlutoMediaAttribute *> MapPlutoMediaAttributes;
