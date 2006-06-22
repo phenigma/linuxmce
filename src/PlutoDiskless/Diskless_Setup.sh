@@ -249,7 +249,7 @@ for Client in $R; do
 
 		## Setup hostname
 		echo -n " hostname"
-		echo "moon$MOON_HOSTS" >$DlPath/etc/hostname
+		echo "moon$MOON_ID" >$DlPath/etc/hostname
 
 		## Setup MythTC MySQL settings
 		echo -n " MythTV_DB_Settings"
