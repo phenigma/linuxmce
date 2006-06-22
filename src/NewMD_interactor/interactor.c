@@ -5,6 +5,13 @@
 
 // TODO: beautify code
 
+#define BRIGHT "[1m"
+#define COLOR "[1;33m"
+#define NORMAL "[0m"
+
+#define MSG "Please wait while MD filesystem is created. System will reboot when done"
+#define FIL "************************************************************************"
+
 struct Room_t
 {
 	int PK_Room;
@@ -89,6 +96,7 @@ void ChooseRoom(struct PlutoRooms_t * PlutoRooms, char ** RoomName, int * PK_Roo
 
 	while (! done)
 	{
+		printf("\n--> Choose a room:\n");
 		for (i = 0; i < PlutoRooms->count; i++)
 		{
 			printf("%d. %s\n", i + 1, PlutoRooms->Rooms[i].Description);
@@ -117,6 +125,13 @@ void ChooseRoom(struct PlutoRooms_t * PlutoRooms, char ** RoomName, int * PK_Roo
 			done = 1;
 		}
 	}
+}
+
+void DisplayPleaseWait()
+{
+	printf(BRIGHT "**" FIL "**" NORMAL "\n");
+	printf(BRIGHT "* " COLOR MSG NORMAL BRIGHT " *" NORMAL "\n");
+	printf(BRIGHT "**" FIL "**" NORMAL "\n");
 }
 
 // ./interactor <Gateway> <IP> <MAC>
@@ -211,6 +226,7 @@ int main(int argc, char * argv[])
 		return 1;
 	}
 	
+	DisplayPleaseWait();
 	while (! do_reboot)
 	{
 		s2 = accept(s, NULL, NULL);
