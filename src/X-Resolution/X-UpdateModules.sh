@@ -8,7 +8,7 @@ for ((i = 1; i <= $#; i++)); do
 	esac
 done
 
-XModulesAdd=(dbe extmod record xtrap speedo type1 glx int10 v4l)
+XModulesAdd=(dbe extmod record xtrap speedo type1 glx int10 v4l dri)
 XModulesRemove=()
 
 XModulesActive=($(awk -f/usr/pluto/bin/X-ModulesSection.awk "$ConfigFile"))
