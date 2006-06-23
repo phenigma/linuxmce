@@ -73,23 +73,7 @@ awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Nonintera
 mv /var/cache/debconf/config.dat.$$ /var/cache/debconf/config.dat
 
 if [[ -x /usr/pluto/bin/alsaconf-noninteractive ]]; then
-	/usr/pluto/bin/alsaconf-noninteractive 
-fi
-
-if [[ -f /etc/exim4/update-exim4.conf.conf ]]; then
-        echo -e "dc_eximconfig_configtype='internet'
-dc_other_hostnames='dcerouter.pluto'
-dc_local_interfaces='127.0.0.1'
-dc_readhost=''
-dc_relay_domains=''
-dc_minimaldns='false'
-dc_relay_nets=''
-dc_smarthost=''
-CFILEMODE='644'
-dc_use_split_config='false'
-dc_hide_mailname=''
-dc_mailname_in_oh='true'\n">/etc/exim4/update-exim4.conf.conf
-        /etc/init.d/exim4 restart
+	/usr/pluto/bin/alsaconf-noninteractive -m 
 fi
 
 echo "$(CatMessages "$Message1" "$Message2")" | fmt
