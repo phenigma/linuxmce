@@ -5533,7 +5533,7 @@ function getdTree($categoryID,$dbADO,$restrictToCategory=0){
 		if($parent==''){
 			$url='';
 			if(count($restrictedCategories)==0 || in_array($cID,$restrictedCategories)){
-				$url='javascript:setDeviceCategory('.$cID.');3';
+				$url='javascript:setDeviceCategory('.$cID.');';
 			}
 			$jsNodes.='d.add('.$cID.',0,\''.$categoriesArray[$cID].'\',\''.$url.'\');';
 			$jsNodes=getsTreeChilds($jsNodes,$cID,$categoriesArray,$categoriesParents,$restrictedCategories);
@@ -5809,7 +5809,11 @@ function queryExternalServer($url){
 	$result=curl_exec($ch);
 	
 	// close CURL resource, and free up system resources
-	curl_close($ch);
+	if (curl_errno($ch)) {
+   		return curl_error($ch);
+	} else {
+   		curl_close($ch);
+	}
 	
 	return $result;
 }
