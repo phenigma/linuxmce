@@ -1,0 +1,14 @@
+Building DRM Kernel Module for Linux Kernel Version 2.6.x
+1. Prepare a linux kernel source under /usr/src/linux-(version)
+2. Copy all files here to /usr/src/linux-(version)/drivers/char/drm
+3. 'cd /usr/src/linux-(version)'
+4. 'make menuconfig'
+5. Enter item "Device Drivers" -> "Character Device"
+6. Find and check "<M> /dev/agpgart ( AGP Support )
+7. Find and check "<M> VIA chipset support
+8. Find "Direct Rendering Manager" and check item "<M> VIA CLE266/KM400/PM800"
+9. Quite and save changes.
+10. 'make modules'
+11. You can find via drm module under /usr/src/linux-(version)/drivers/char/drm/via.ko 
+12. You can find agpgart module under /usr/src/linux-(version)/drivers/char/agp/agpgart.ko 
+13. You can find via agp module under /usr/src/linux-(version)/drivers/char/agp/via-agp.ko 
