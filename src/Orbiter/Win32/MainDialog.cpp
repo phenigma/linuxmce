@@ -528,14 +528,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 else
                 {
-                    int iBase = g_iDialogHeight - 5 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT;
-                    g_hWnd_FullScreenCheckBox = CreateCheckBox(hWnd, 10, iBase, "Full screen", 120);
-                    g_hWnd_LogToServerCheckBox = CreateCheckBox(hWnd, 10, iBase + 20, "Log to server for debugging", 200);
-                    CreateLabel(hWnd, 10, iBase + 40, 80, "Device ID: ");	
-                    g_hWnd_DeviceIDEdit = CreateEdit(hWnd, 90, iBase + 40, 50, "", true, true);
-                    CreateLabel(hWnd, 10, iBase + 60, 80, "Router IP: ");	
-                    g_hWnd_RouterIPEdit = CreateEdit(hWnd, 90, iBase + 60, 120, "", false, false);
-                    g_hWnd_ApplyButton = CreateButton(hWnd, g_iDialogWidth - 60, iBase, "&Apply");
+                    int iBase = g_iDialogHeight - 5 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT - 10;
+                    g_hWnd_FullScreenCheckBox = CreateCheckBox(hWnd, 10, iBase, "Full screen", 
+#ifdef WIN32
+						120
+#else
+						180
+#endif						
+					);
+                    g_hWnd_LogToServerCheckBox = CreateCheckBox(hWnd, 10, iBase + 20, "Log to server for debugging", 400, 20);
+                    CreateLabel(hWnd, 10, iBase + 42, 80, "Device ID: ");	
+                    g_hWnd_DeviceIDEdit = CreateEdit(hWnd, 90, iBase + 42, 50, "", true, true);
+                    CreateLabel(hWnd, 10, iBase + 64, 80, "Router IP: ");	
+                    g_hWnd_RouterIPEdit = CreateEdit(hWnd, 90, iBase + 64, 120, "", false, false);
+                    g_hWnd_ApplyButton = CreateButton(hWnd, g_iDialogWidth - 70, iBase, "&Apply");
                 }
 
 				g_hWndTab = CreateTabControl(hWnd);
@@ -548,10 +554,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				g_hWndList = CreateListBox(g_hWndPage1, rt_list);
 
 				//page 2
-				g_hWndRecord_MouseCheckBox = CreateCheckBox(g_hWndPage2, 10, 10, "Record mouse clicks", 160);
+				g_hWndRecord_MouseCheckBox = CreateCheckBox(g_hWndPage2, 10, 10, "Record mouse clicks", 160, 36);
 				::SendMessage(g_hWndRecord_MouseCheckBox, BM_SETCHECK, BST_CHECKED, 0);
 
-				g_hWndRecord_KeyboardCheckBox = CreateCheckBox(g_hWndPage2, 10, 30, "Record keyboard");
+				g_hWndRecord_KeyboardCheckBox = CreateCheckBox(g_hWndPage2, 10, 50, "Record keyboard", 160, 36);
 				::SendMessage(g_hWndRecord_KeyboardCheckBox, BM_SETCHECK, BST_CHECKED, 0);
 				
 				RECT rt_record_list = { 170, 10, g_iDialogWidth - 190, g_iDialogHeight - 150 - BOTTOM_OFFSET - MENU_HEIGHT };
@@ -561,9 +567,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				g_hWndRecord_LoadButton = CreateButton(g_hWndPage2, 120 + 230, g_iDialogHeight - 140 - BOTTOM_OFFSET - MENU_HEIGHT, "&Load");
 				g_hWndRecord_ClearButton = CreateButton(g_hWndPage2, 120 + 290, g_iDialogHeight - 140 - BOTTOM_OFFSET - MENU_HEIGHT, "&Clear");
 
-				CreateLabel(g_hWndPage2, 10, 200, 25 + PLAYER_OFFSET, "Play");
-				g_hWndRecord_RepeatEdit = CreateEdit(g_hWndPage2, 35 + 2 * PLAYER_OFFSET, 200, 32, "1", true, true);
-				CreateLabel(g_hWndPage2, 70 + 3 * PLAYER_OFFSET, 200, 30 + PLAYER_OFFSET, "times");
+				CreateLabel(g_hWndPage2, 10, 200, 25 + PLAYER_OFFSET + 4, "Play");
+				g_hWndRecord_RepeatEdit = CreateEdit(g_hWndPage2, 35 + 4 * PLAYER_OFFSET + 4, 200, 32, "1", true, true);
+				CreateLabel(g_hWndPage2, 70 + 3 * PLAYER_OFFSET + 8, 200, 30 + PLAYER_OFFSET + 8, "times");
 				g_hWndRecord_GoButton = CreateButton(g_hWndPage2, 10, 230, "&Go");
 				g_hWndRecord_StopButton = CreateButton(g_hWndPage2, 80, 230, "&Stop");
 
@@ -578,15 +584,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CreateLabel(g_hWndPage3, 10, 40, 200, "Number of buttons per click: ");	
 				g_hWndRandom_ButtonsPerClick = CreateEdit(g_hWndPage3, 225, 40, 50, "0", true, true);
 
-				g_hWndRandom_MouseCheckBox = CreateCheckBox(g_hWndPage3, 10, 70, "Generate mouse clicks", 200);
+				g_hWndRandom_MouseCheckBox = CreateCheckBox(g_hWndPage3, 10, 70, "Generate mouse clicks", 400);
 				::SendMessage(g_hWndRandom_MouseCheckBox, BM_SETCHECK, BST_CHECKED, 0);
 
-				g_hWndRandom_KeyboardCheckBox = CreateCheckBox(g_hWndPage3, 10, 90, "Generate keyboard events", 200);
+				g_hWndRandom_KeyboardCheckBox = CreateCheckBox(g_hWndPage3, 10, 90, "Generate keyboard events", 400);
 				::SendMessage(g_hWndRandom_KeyboardCheckBox, BM_SETCHECK, BST_CHECKED, 0);
 
-				g_hWndRandom_KeyOption1RadioBox = CreateRadioBox(g_hWndPage3, 10, 120, "A - Z, 0 - 9", 250);
-				g_hWndRandom_KeyOption2RadioBox = CreateRadioBox(g_hWndPage3, 10, 140, "UP, DOWN, LEFT, RIGHT, ENTER", 250);
-				g_hWndRandom_KeyOption3RadioBox = CreateRadioBox(g_hWndPage3, 10, 160, "Phone keys: 0 - 9, *, #, C, n", 250);
+				g_hWndRandom_KeyOption1RadioBox = CreateRadioBox(g_hWndPage3, 10, 120, "A - Z, 0 - 9", 400);
+				g_hWndRandom_KeyOption2RadioBox = CreateRadioBox(g_hWndPage3, 10, 140, "UP, DOWN, LEFT, RIGHT, ENTER", 400);
+				g_hWndRandom_KeyOption3RadioBox = CreateRadioBox(g_hWndPage3, 10, 160, "Phone keys: 0 - 9, *, #, C, n", 400);
 				::SendMessage(g_hWndRandom_KeyOption2RadioBox, BM_SETCHECK, BST_CHECKED, 0);
 
 				CreateLabel(g_hWndPage3, 10, 200, 200, "Home screen: ");	
@@ -803,7 +809,7 @@ HWND CreateTabControl(HWND hWnd)
 	#define OFFSET 1
 #endif
 
-	RECT rt = {1, OFFSET, g_iDialogWidth - 5, g_iDialogHeight - 4 * MENU_HEIGHT - BOTTOM_OFFSET };
+	RECT rt = {1, OFFSET, g_iDialogWidth - 5, g_iDialogHeight - 4 * MENU_HEIGHT - BOTTOM_OFFSET - 10};
 
 	HWND hTabCtrl = CreateWindowEx(0, WC_TABCONTROL, NULL, WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | WS_VISIBLE ,
 		rt.left, rt.top, rt.right, rt.bottom, hWnd,(HMENU)"", g_hInst, NULL );
@@ -828,7 +834,7 @@ HWND CreateTabControl(HWND hWnd)
 //-----------------------------------------------------------------------------------------------------
 HWND CreatePage(HWND hWnd)
 {
-	RECT rt = {3, MENU_HEIGHT, g_iDialogWidth - 12, g_iDialogHeight - 5 * MENU_HEIGHT - BOTTOM_OFFSET - 4 };
+	RECT rt = {3, MENU_HEIGHT, g_iDialogWidth - 12, g_iDialogHeight - 5 * MENU_HEIGHT - BOTTOM_OFFSET - 4 - 10};
 
 	HWND hWndPage = CreateWindow(TEXT("STATIC"), NULL, WS_CHILD | WS_CLIPSIBLINGS | WS_BORDER,
 		rt.left, rt.top, rt.right, rt.bottom, hWnd, (HMENU)"", g_hInst, NULL );
@@ -941,7 +947,7 @@ HWND CreateEdit(HWND hParentWnd, int x, int y,  int width, char* caption, bool b
 #ifdef SMARTPHONE
 	RECT rt_edit = { x, y, width, 20 };
 #else
-	RECT rt_edit = { x, y, width, 18 };
+	RECT rt_edit = { x, y, width, 20 };
 #endif
 
 #ifdef WINCE
