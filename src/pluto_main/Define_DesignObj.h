@@ -1835,6 +1835,8 @@
 #define DESIGNOBJ_butZwaveLightsDownload_CONST 4690
 #define DESIGNOBJ_butLightsSetupLater_CONST 4691
 #define DESIGNOBJ_butLightsSetupRoom_CONST 4693
+#define DESIGNOBJ_butLightType2_CONST 4694
+#define DESIGNOBJ_butLightName2_CONST 4695
 #define DESIGNOBJ_butAlarmSensors_CONST 4696
 #define DESIGNOBJ_AlarmSensors_CONST 4697
 #define DESIGNOBJ_butVoipAccount_CONST 4698
