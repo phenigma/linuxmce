@@ -32,6 +32,7 @@ namespace DatabaseUtils
 	void SetDeviceData(MySqlHelper *pMySqlHelper,int PK_Device,int PK_DeviceData,string IK_DeviceData);
 	string GetDeviceData(MySqlHelper *pMySqlHelper,int PK_Device,int PK_DeviceData);
 	string GetDescriptionForDevice(MySqlHelper *pMySqlHelper,int PK_Device);
+	void SetDescriptionForDevice(MySqlHelper *pMySqlHelper,int PK_Device,string sDescription);
 	bool SetDeviceInRoom(MySqlHelper *pMySqlHelper,int PK_Device,int PK_Room);
 	bool SetDeviceControlledVia(MySqlHelper *pMySqlHelper,int PK_Device,int PK_Device_ControlledVia);
 	int GetCommMethodForDeviceTemplate(MySqlHelper *pMySqlHelper,int PK_DeviceTemplate);

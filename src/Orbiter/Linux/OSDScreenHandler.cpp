@@ -1453,6 +1453,34 @@ bool OSDScreenHandler::LightsSetup_ObjectSelected(CallBackData *pData)
 			}
 		}
 		break;
+		case DESIGNOBJ_LightSetupRooms_CONST:
+		{
+			if(DESIGNOBJ_butLightType2_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				int PK_Room = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST].c_str());
+				if( !PK_Room || !DatabaseUtils::SetDeviceInRoom(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,PK_Room) )
+					return true;  // This room isn't valid
+			}
+		}
+		break;
+		case DESIGNOBJ_LightType_CONST:
+		{
+			if(DESIGNOBJ_butLightName2_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				string sType = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
+				DatabaseUtils::SetDeviceData(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,
+											DEVICEDATA_PK_FloorplanObjectType_CONST,sType);
+			}
+		}
+		case DESIGNOBJ_LightName_CONST:
+		{
+			if(DESIGNOBJ_butLightsSetupRoom_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				DatabaseUtils::SetDescriptionForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST]);
+				m_nLightInDequeToAssign++;
+			}
+		}
+		break;
 	};
 
 	return false;
@@ -1462,16 +1490,14 @@ bool OSDScreenHandler::LightsSetup_SelectedGrid(CallBackData *pData)
 {
 	DatagridCellBackData *pDatagridCellBackData = (DatagridCellBackData *) pData;
 	if( pDatagridCellBackData->m_nPK_Datagrid == DATAGRID_Rooms_CONST )
-		if( !DatabaseUtils::SetDeviceInRoom(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,atoi(pDatagridCellBackData->m_sValue.c_str())) )
-			return true;  // This room isn't valid
-		else
-			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_LightType_CONST),"","",false,false);
+	{
+		int PK_Room = atoi(pDatagridCellBackData->m_sValue.c_str());
+		m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butLightType2_CONST), 0,"","", PK_Room ? "1" : "0" );
+	}
 	else if( pDatagridCellBackData->m_nPK_Datagrid == DATAGRID_LightType_CONST )
 	{
-		DatabaseUtils::SetDeviceData(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,
-                                     DEVICEDATA_PK_FloorplanObjectType_CONST,pDatagridCellBackData->m_sValue);
-		m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_LightSetupRooms_CONST),"","",false,false);
-		m_nLightInDequeToAssign++;
+		int PK_FloorplanObjecType = atoi(pDatagridCellBackData->m_sValue.c_str());
+		m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butLightName2_CONST), 0,"","", PK_FloorplanObjecType ? "1" : "0" );
 	}
 
 	return false;

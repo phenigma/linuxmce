@@ -236,6 +236,12 @@ string DatabaseUtils::GetDescriptionForDevice(MySqlHelper *pMySqlHelper,int PK_D
 	return "";
 }
 
+void DatabaseUtils::SetDescriptionForDevice(MySqlHelper *pMySqlHelper,int PK_Device,string sDescription)
+{
+	string sSQL = "UPDATE Device set Description='" + StringUtils::SQLEscape(sDescription) + "' WHERE PK_Device=" + StringUtils::itos(PK_Device);
+	pMySqlHelper->threaded_mysql_query(sSQL);	
+}
+
 bool DatabaseUtils::SetDeviceInRoom(MySqlHelper *pMySqlHelper,int PK_Device,int PK_Room)
 {
 	string sSQL = "SELECT PK_Room FROM Room WHERE PK_Room=" + StringUtils::itos(PK_Room);
