@@ -2,6 +2,7 @@
 
 echo "Gateway Detection script queue $2"
 
+sleep 5  # The gateway locks up for about 5 seconds whenever it receives stuff it doesn't recognize
 /usr/pluto/bin/TestSerialPort -p $3 -P N81 -b 9600 -t "\83\00\s1000m\83\01" -i 3 -s "\00\01"
 if [[ "$?" -ne 0 ]]; then
 echo "It's not a Gateway Plasma"

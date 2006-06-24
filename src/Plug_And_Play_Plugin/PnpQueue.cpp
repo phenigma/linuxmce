@@ -823,26 +823,27 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d has %d possibilities",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size());
+	Row_DHCPDevice *pRow_DHCPDevice_To_Detect = NULL;
 	for(map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();++it)
 	{
 		Row_DHCPDevice *pRow_DHCPDevice = it->second;
-		if( pRow_DHCPDevice->PnpDetectionScript_get().size() )
-		{  
-			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d checking detection %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_DHCPDevice->PnpDetectionScript_get().c_str());
-			DeviceData_Router *pDevice_AppServer=NULL,*pDevice_Detector=NULL;
-			pDevice_Detector = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceData_Router_Find(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
+		if( pRow_DHCPDevice->PnpDetectionScript_get().size() && (pRow_DHCPDevice_To_Detect==NULL || pRow_DHCPDevice->PnpDetectionScript_get()<pRow_DHCPDevice_To_Detect->PnpDetectionScript_get()) )  // Do them in alpha order
+			pRow_DHCPDevice_To_Detect = pRow_DHCPDevice;
+	}
 
-			if( pDevice_Detector )
-				pDevice_AppServer = (DeviceData_Router *) pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
+	if( pRow_DHCPDevice_To_Detect )
+	{  
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d checking detection %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_DHCPDevice_To_Detect->PnpDetectionScript_get().c_str());
+		DeviceData_Router *pDevice_AppServer=NULL,*pDevice_Detector=NULL;
+		pDevice_Detector = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceData_Router_Find(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
 
-			if( !pDevice_AppServer )
-			{
-				g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d has no app server",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
-				continue;
-			}
+		if( pDevice_Detector )
+			pDevice_AppServer = (DeviceData_Router *) pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
 
+		if( pDevice_AppServer )
+		{
 			string sPath;  // Where to find the device
-			Row_DeviceTemplate *pRow_DeviceTemplate = pRow_DHCPDevice->FK_DeviceTemplate_getrow();
+			Row_DeviceTemplate *pRow_DeviceTemplate = pRow_DHCPDevice_To_Detect->FK_DeviceTemplate_getrow();
 			if( pRow_DeviceTemplate )
 			{
 				if( pRow_DeviceTemplate->FK_CommMethod_get()==COMMMETHOD_RS232_CONST && pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
@@ -853,22 +854,22 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 
 			// The arguments are this device, the queue ie, the path where to find the device, the pnp script name
 			string sArguments = StringUtils::itos(m_pPlug_And_Play_Plugin->m_dwPK_Device) + "\t" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + 
-				"\t" + sPath + "\t" + pRow_DHCPDevice->PnpDetectionScript_get();
-			string sName = "PNP Detection " + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " " + pRow_DHCPDevice->PnpDetectionScript_get();
+				"\t" + sPath + "\t" + pRow_DHCPDevice_To_Detect->PnpDetectionScript_get();
+			string sName = "PNP Detection " + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " " + pRow_DHCPDevice_To_Detect->PnpDetectionScript_get();
 			string sMessage = "0 " + StringUtils::itos(m_pPlug_And_Play_Plugin->m_dwPK_Device) + " 1 " + TOSTRING(COMMAND_PNP_Detection_Script_Finished_CONST) + " "
 				+ TOSTRING(COMMANDPARAMETER_PK_PnpQueue_CONST) + " " 
 				+ StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " " + TOSTRING(COMMANDPARAMETER_Filename_CONST) + " \""
-				+ pRow_DHCPDevice->PnpDetectionScript_get() + "\" " + TOSTRING(COMMANDPARAMETER_Errors_CONST) + " ";
+				+ pRow_DHCPDevice_To_Detect->PnpDetectionScript_get() + "\" " + TOSTRING(COMMANDPARAMETER_Errors_CONST) + " ";
 
 			string sResponse;
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
-				"/usr/pluto/pnp/" + pRow_DHCPDevice->PnpDetectionScript_get(), sName,
+				"/usr/pluto/pnp/" + pRow_DHCPDevice_To_Detect->PnpDetectionScript_get(), sName,
 				sArguments,sMessage + "FAIL",sMessage + "OK",false,false,false);
 			if( !m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application,&sResponse) )
 				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts app server %d not responding",pDevice_AppServer->m_dwPK_Device);
 			
 			// We have a detection script we need to run
-			pPnpQueueEntry->m_sDetectionScript_Running=pRow_DHCPDevice->PnpDetectionScript_get();
+			pPnpQueueEntry->m_sDetectionScript_Running=pRow_DHCPDevice_To_Detect->PnpDetectionScript_get();
 			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts now running %s",pPnpQueueEntry->m_sDetectionScript_Running.c_str());
 			pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_running_detection_scripts);
 			return false;
