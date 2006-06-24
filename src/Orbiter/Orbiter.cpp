@@ -8584,11 +8584,16 @@ void Orbiter::CMD_Display_Alert(string sText,string sTokens,string sTimeout,stri
 
 	pPlutoAlert->m_sMessage = sText;
 	pPlutoAlert->m_tStartTime = time(NULL);
-	pPlutoAlert->m_tStopTime = pPlutoAlert->m_tStartTime + atoi(sTimeout.c_str());
+	if( sTimeout=="NONE ")
+		pPlutoAlert->m_tStopTime = 0;
+	else
+	{
+		pPlutoAlert->m_tStopTime = pPlutoAlert->m_tStartTime + atoi(sTimeout.c_str());
 
-	// Must be a positive number, and no more than 60 seconds
-	if( pPlutoAlert->m_tStopTime<=pPlutoAlert->m_tStartTime || pPlutoAlert->m_tStopTime-60>pPlutoAlert->m_tStartTime )
-		pPlutoAlert->m_tStopTime = pPlutoAlert->m_tStartTime + 3; // Default to 3 seconds
+		// Must be a positive number, and no more than 60 seconds
+		if( pPlutoAlert->m_tStopTime<=pPlutoAlert->m_tStartTime || pPlutoAlert->m_tStopTime-60>pPlutoAlert->m_tStartTime )
+			pPlutoAlert->m_tStopTime = pPlutoAlert->m_tStartTime + 3; // Default to 3 seconds
+	}
 
 	m_listPlutoAlert.push_back(pPlutoAlert);
 	vm.Release();
@@ -8607,7 +8612,7 @@ void Orbiter::ServiceAlerts( void *iData )
 	for( list<PlutoAlert *>::iterator it=m_listPlutoAlert.begin();it!=m_listPlutoAlert.end(); )
 	{
 		PlutoAlert *p = *it;
-		if( p->m_tStopTime <= t )
+		if( p->m_tStopTime && p->m_tStopTime <= t )
 		{
 			delete p;
 			m_listPlutoAlert.erase(it++);
@@ -8617,7 +8622,7 @@ void Orbiter::ServiceAlerts( void *iData )
 			if( sMessages.size() )
 				sMessages += "\n";
 			sMessages += p->m_sMessage;
-			if( tNextStop==0 || tNextStop>p->m_tStopTime )
+			if( p->m_tStopTime && (tNextStop==0 || tNextStop>p->m_tStopTime) )
 				tNextStop = p->m_tStopTime;
 			it++;
 		}

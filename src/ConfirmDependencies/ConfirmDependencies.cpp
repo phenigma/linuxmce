@@ -123,6 +123,7 @@ DCEConfig dceConfig;
 Row_Distro *pRow_Distro=NULL;
 map<int,Row_Package *> m_mapReportedErrors;
 vector<Row_Device *> m_vectDevicesNeedingConfigure;
+int iPK_Orbiter=0;
 
 string GetCommand()
 {
@@ -224,6 +225,12 @@ int main(int argc, char *argv[])
 		case 'D':
 			if (++optnum != argc)
 				dceConfig.m_sDBName = argv[optnum];
+			else
+				bError = true;
+			break;
+		case 'O':
+			if (++optnum != argc)
+				iPK_Orbiter = atoi(argv[optnum]);
 			else
 				bError = true;
 			break;
@@ -390,19 +397,22 @@ int main(int argc, char *argv[])
 			cout << "while [ \"$ok\" -eq 0 ]; do" << endl;
 			cout << "\tdpkg --configure -a --force-confold" << endl;
 			//			cout << endl << "-----------------------------------------------------" << endl;
-			if( pPackageInfo->m_pRow_Package_Source->FK_Package_get()==277 )
-			{
-				int k=2;
-			}
 			cout << "\t# PK_Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_get() << endl;
 			cout << "\t# Rep. type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << endl;
 			cout << "\t# Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
 				<< " Type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << endl;
+
+			if( iPK_Orbiter )
+				cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 NONE 9 'Downloading " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "...'" << endl;
+
 			/*
 			on package 277, it tried the targz before the DEB
 			makerelease isn't building all and isn't updating the versions
 			*/
 			InstallPackage(pPackageInfo);
+
+			if( iPK_Orbiter )
+				cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 5 9 'Downloading " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << " done'" << endl;
 
 			/* AB 1/26/05 - for the moment I'm going to comment this out so we don't keep trying alternate sources.  If one source failes, it really is a failure and we should stop
 			if (pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() != REPOSITORYTYPE_PACKAGE_CONST)

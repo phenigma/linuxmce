@@ -135,6 +135,7 @@ for ((i = 1; i <= "$#"; i++)); do
 		F) Force=y ;;
 		StartLocalDevice) StartLocalDevice=y ;;
 		NoVideo) NoVideo=y ;;
+		Alert) Alert=y ;;
 		*) echo "Unrecognized parameter '${!i}' skipped." ;;
 	esac
 done
@@ -155,11 +156,21 @@ if [[ "$Force" != "y" ]]; then
 	fi
 fi
 
+Orbiter_Alert=""
+if [[ "$Alert" == "y" ]]; then
+	Q="SELECT Device.PK_Device FROM Device LEFT JOIN Device as P1 ON Device.FK_Device_ControlledVia=P1.PK_Device WHERE Device.FK_DeviceTemplate=62 AND (Device.FK_Device_ControlledVia='$PK_Device' OR P1.FK_Device_ControlledVia='$PK_Device')"
+	R=$(RunSQL "$Q")
+	Orbiter=$(Field 1 "$R")
+	if [[ "$Orbiter" != "" ]]; then
+		Orbiter_Alert="-o $Orbiter"
+	fi
+fi
+
 [ -n "$MySqlPassword" ] && Pass="-p$MySqlPassword"
 CUsh="/usr/pluto/install/config_update.sh"
 
-echo /usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device install
-/usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device install >"$CUsh.$$"
+echo /usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device $Orbiter_Alert install
+/usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device $Orbiter_Alert install >"$CUsh.$$"
 linecount=$(cat "$CUsh.$$" | wc -l)
 awk "NR<$linecount-8" "$CUsh.$$" >"$CUsh"
 rm "$CUsh.$$"
@@ -174,13 +185,13 @@ fi
 Unlock "InstallNewDevice" "Config_Device_Changes"
 #rm "$CUsh"
 
-echo /usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device buildall
+echo /usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device $Orbiter_Alert buildall
 mkdir -p /usr/pluto/sources
 
 : >"/usr/pluto/sources/buildall.sh"
 echo '#!/bin/bash' >>"/usr/pluto/sources/buildall.sh"
 echo "cd /usr/pluto/sources" >>"/usr/pluto/sources/buildall.sh"
-/usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device buildall >>"/usr/pluto/sources/buildall.sh"
+/usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device $Orbiter_Alert buildall >>"/usr/pluto/sources/buildall.sh"
 rm -f "/usr/pluto/install/compile.sh" # old version mistake precaution
 ln -sf "/usr/pluto/sources/buildall.sh" "/usr/pluto/install/compile.sh"
 chmod +x "/usr/pluto/sources/buildall.sh"
