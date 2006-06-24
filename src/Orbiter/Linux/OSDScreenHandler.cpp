@@ -1245,25 +1245,47 @@ void OSDScreenHandler::HandleLightingScreen()
 {
 	NeedToRender render2( m_pOrbiter, "OSDScreenHandler::HandleLightingScreen" );  // Redraw anything that was changed by this command
 	int PK_DeviceTemplate = DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_Lighting);
-	int NumLights = DatabaseUtils::GetNumberOfChildDevices(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_Lighting);
+	int NumLights = m_pWizardLogic->GetNumLights();
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::itos(NumLights));
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,StringUtils::itos((int) m_pWizardLogic->m_dequeNumLights.size()));
+	m_nLightInDequeToAssign=0;
+
 	if( PK_DeviceTemplate==DEVICETEMPLATE_ZWave_CONST )
 	{
 		if( NumLights )
 		{
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::itos(NumLights));
-			DisplayMessageOnOrbiter(DESIGNOBJ_HouseSetupPopupWizard_CONST,m_pOrbiter->m_mapTextString[TEXT_Already_paired_lights_CONST],false,"0",false,
-				m_pOrbiter->m_mapTextString[TEXT_YES_CONST],
-				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AlarmPanel_CONST),
-				m_pOrbiter->m_mapTextString[TEXT_No_add_lights_again_CONST],
-				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_Explain_Pair_ZWave_Lights_CONST));
+			if( m_pWizardLogic->m_dequeNumLights.size()>0 )
+			{
+				// There are unassigned lights.  If user choses yes, assign lights.  No, he will re-pair
+				DisplayMessageOnOrbiter(DESIGNOBJ_HouseSetupPopupWizard_CONST,m_pOrbiter->m_mapTextString[TEXT_Already_paired_lights_CONST],false,"0",false,
+					m_pOrbiter->m_mapTextString[TEXT_YES_CONST],
+					"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_LightsSetupInclude_CONST),
+					m_pOrbiter->m_mapTextString[TEXT_No_add_lights_again_CONST],
+					"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_Explain_Pair_ZWave_Lights_CONST));
+			}
+			else
+			{
+				// There are lights, and all are assigned.  If user choses yes, skip ahead to alarm panel.  No, he will re-pair
+				DisplayMessageOnOrbiter(DESIGNOBJ_HouseSetupPopupWizard_CONST,m_pOrbiter->m_mapTextString[TEXT_Already_paired_lights_CONST],false,"0",false,
+					m_pOrbiter->m_mapTextString[TEXT_YES_CONST],
+					"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AlarmPanel_CONST),
+					m_pOrbiter->m_mapTextString[TEXT_No_add_lights_again_CONST],
+					"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_Explain_Pair_ZWave_Lights_CONST));
+			}
 		}
 		else
+			// There are no lights.  Help the user pair them
 			m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_Explain_Pair_ZWave_Lights_CONST),
 										"", "", false, false );
 	}
 	else if( NumLights )
-		m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_LightsSetupInclude_CONST),
-									"", "", false, false );
+	{
+		if( m_pWizardLogic->m_dequeNumLights.size()>0 )
+			m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_LightsSetupInclude_CONST),
+										"", "", false, false );
+		else
+			m_pOrbiter->CMD_Goto_Screen("",SCREEN_AlarmPanel_CONST);
+	}
 	else
 		DisplayMessageOnOrbiter(DESIGNOBJ_HouseSetupPopupWizard_CONST,m_pOrbiter->m_mapTextString[TEXT_Lighting_interface_with_no_lights_CONST],false,"0",false,
 			m_pOrbiter->m_mapTextString[TEXT_Ok_CONST],
@@ -1470,8 +1492,11 @@ bool OSDScreenHandler::LightsSetup_ObjectSelected(CallBackData *pData)
 				string sType = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
 				DatabaseUtils::SetDeviceData(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,
 											DEVICEDATA_PK_FloorplanObjectType_CONST,sType);
+				string sDefaultLightName = DatabaseUtils::GetDescriptionFromTable(m_pWizardLogic,FLOORPLANOBJECTTYPE_TABLE,atoi(sType.c_str()));
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sDefaultLightName);
 			}
 		}
+		break;
 		case DESIGNOBJ_LightName_CONST:
 		{
 			if(DESIGNOBJ_butLightsSetupRoom_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
@@ -1543,7 +1568,7 @@ bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
 				return false;
 			}
 
-			int iNumLightsTotal = m_pWizardLogic->GetNumLights(iNumLightsTotal);
+			int iNumLightsTotal = m_pWizardLogic->GetNumLights();
 
 			if( iNumLightsTotal==0 )
 			{
@@ -1903,6 +1928,11 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 				if(sPhoneNumber == "")
 					return true;
 			}
+			else if( atoi(pObjectInfoData->m_pObj->m_ObjectID.c_str())==DESIGNOBJ_VoipNumber_CONST ) // Don't do this yet if it's still doing selected objects from teh prior screen
+			{
+				string sPhoneNumber = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_butVoipUsername_CONST),0,"","",sPhoneNumber.size()==0 ? "0" : "1");
+			}
 		}
 		break;
 
@@ -1915,12 +1945,17 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 				if(sUsername == "")
 					return true;
 			}
+			else if( atoi(pObjectInfoData->m_pObj->m_ObjectID.c_str())==DESIGNOBJ_VoipUsername_CONST ) // Don't do this yet if it's still doing selected objects from teh prior screen
+			{
+				string sUsername = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_butVoipPassword_CONST),0,"","",sUsername.size()==0 ? "0" : "1");
+			}
 		}
 		break;
 
 		case DESIGNOBJ_VoipPassword_CONST:
 		{
-			if(DESIGNOBJ_butFinal_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			if(DESIGNOBJ_butMediaWizard_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
 				string sPassword = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
 				if(sPassword == "")
@@ -1933,6 +1968,11 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 				DCE::CMD_PL_Add_VOIP_Account CMD_PL_Add_VOIP_Account_(m_pOrbiter->m_dwPK_Device,
                                                                       m_pOrbiter->m_dwPK_Device_TelecomPlugIn, sVOIPProvider, sPhoneNumber, sPassword, sUsername);
 				m_pOrbiter->SendCommand(CMD_PL_Add_VOIP_Account_);
+			}
+			else if( atoi(pObjectInfoData->m_pObj->m_ObjectID.c_str())==DESIGNOBJ_VoipPassword_CONST ) // Don't do this yet if it's still doing selected objects from teh prior screen
+			{
+				string sPassword = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_butMediaWizard_CONST),0,"","",sPassword.size()==0 ? "0" : "1");
 			}
 		}
 		break;

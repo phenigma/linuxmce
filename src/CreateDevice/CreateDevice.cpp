@@ -88,6 +88,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	PlutoSqlResult result,result1,result1b,result2,result3,resultPackage;
 	MYSQL_ROW row;
 
+	g_pPlutoLogger->Write(LV_STATUS,"Create device -- querying packages for %d",iPK_DeviceTemplate);
 	int iPK_DeviceCategory;
 	string SQL = "SELECT FK_DeviceCategory,Description,ConfigureScript,IsPlugAndPlay,FK_Package,FK_InfraredGroup FROM DeviceTemplate WHERE PK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
 	if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
@@ -98,6 +99,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		return 0;
 	}
 
+	g_pPlutoLogger->Write(LV_STATUS,"Create device -- getting i/r codes for %d",iPK_DeviceTemplate);
 	if( row[5] && atoi(row[5]) )  // Only ask for the i/r codes if there is an infrared group
 		system((string("/usr/pluto/bin/WebDB_GetIR.sh 0 ") + StringUtils::itos(iPK_DeviceTemplate)).c_str());
 	
@@ -105,6 +107,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	// Use a temporary PK_Device_ControlledVia_temp because in rare circumstances this can't be determined until after the device is created
 	// because the controlling device doesn't exist.  In such cases we don't care because there can't be another such device if there's nothing
 	// to control it
+	g_pPlutoLogger->Write(LV_STATUS,"Create device -- finding controlled via for %d",iPK_DeviceTemplate);
 	int PK_Device_Existing,PK_Device_ControlledVia_temp = PK_Device_ControlledVia;
 	if( !PK_Device_ControlledVia_temp )
 		PK_Device_ControlledVia_temp=DatabaseUtils::FindControlledViaCandidate(this,0,iPK_DeviceTemplate,iPK_Device_RelatedTo,m_iPK_Installation);

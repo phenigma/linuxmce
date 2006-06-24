@@ -911,7 +911,7 @@ string WizardLogic::GetDeviceStatus(long nPK_Device)
 	return "";
 }
 
-int WizardLogic::GetNumLights(int &iNumLightsUnassigned)
+int WizardLogic::GetNumLights()
 {
 	m_dequeNumLights.clear();
 	string sSQL = "SELECT PK_Device,FK_Room,IK_DeviceData FROM Device "

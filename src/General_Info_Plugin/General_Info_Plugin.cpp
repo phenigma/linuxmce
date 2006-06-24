@@ -2258,9 +2258,11 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 	UpdateEntArea updateEntArea;
 	if( updateEntArea.Connect(m_pData->m_dwPK_Installation,m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d checking update ent area",*iPK_Device);
 		updateEntArea.GetMediaAndRooms();
 		updateEntArea.SetEAInRooms();
 		updateEntArea.AddDefaultScenarios();
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d done checking update ent area",*iPK_Device);
 	}
 
 	if( pRow_Device )

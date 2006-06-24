@@ -236,6 +236,16 @@ string DatabaseUtils::GetDescriptionForDevice(MySqlHelper *pMySqlHelper,int PK_D
 	return "";
 }
 
+string DatabaseUtils::GetDescriptionFromTable(MySqlHelper *pMySqlHelper,string sTable,int PK)
+{
+	string sSQL = "SELECT Description FROM " + sTable + " WHERE PK_" + sTable + "=" + StringUtils::itos(PK);
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) )!=NULL && (row=mysql_fetch_row(result.r))!=NULL && row[0] )
+		return row[0];
+	return "";
+}
+
 void DatabaseUtils::SetDescriptionForDevice(MySqlHelper *pMySqlHelper,int PK_Device,string sDescription)
 {
 	string sSQL = "UPDATE Device set Description='" + StringUtils::SQLEscape(sDescription) + "' WHERE PK_Device=" + StringUtils::itos(PK_Device);

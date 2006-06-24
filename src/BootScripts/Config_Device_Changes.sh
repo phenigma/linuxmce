@@ -162,7 +162,7 @@ if [[ "$Alert" == "y" ]]; then
 	R=$(RunSQL "$Q")
 	Orbiter=$(Field 1 "$R")
 	if [[ "$Orbiter" != "" ]]; then
-		Orbiter_Alert="-o $Orbiter"
+		Orbiter_Alert="-O $Orbiter"
 	fi
 fi
 
