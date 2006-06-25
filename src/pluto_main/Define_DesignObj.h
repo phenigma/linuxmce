@@ -2189,6 +2189,7 @@
 #define DESIGNOBJ_butFBSF_Show_Sort_CONST 5131
 #define DESIGNOBJ_popAlertMessage_CONST 5132
 #define DESIGNOBJ_objShowAlertPopup_CONST 5133
+#define DESIGNOBJ_butClearKeyboardEntry_CONST 5135
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
