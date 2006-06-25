@@ -29,6 +29,7 @@
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_PnpQueue.h"
 #include "pluto_main/Table_Device.h"
+#include "pluto_main/Table_Room.h"
 #include "pluto_main/Table_DHCPDevice.h"
 #include "pluto_main/Table_UnknownDevices.h"
 #include "pluto_main/Table_DeviceTemplate_DeviceData.h"
@@ -205,6 +206,21 @@ bool PnpQueue::Process(PnpQueueEntry *pPnpQueueEntry)
 
 bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 {
+	if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="serial" )
+	{
+		// The serial ports on this box probably changed
+		DeviceData_Router *pDevice_AppServer=NULL,*pDevice_Detector = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceData_Router_Find(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
+		if( pDevice_Detector )
+			pDevice_AppServer = (DeviceData_Router *) pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
+		if( pDevice_AppServer )
+		{
+			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
+				"/usr/pluto/bin/UpdateAvailableSerialPorts.sh", "serialports",
+				"","","",false,false,false);
+			m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application);
+		}
+	}
+
 	LocateDevice(pPnpQueueEntry);
 	Row_Device *pRow_Device_Created = pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_getrow() : NULL;  // This will be NULL if it's a new device
 	if( pRow_Device_Created )
@@ -513,6 +529,35 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_device_template);
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
+
+	if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==1 )
+	{
+		Row_DHCPDevice *pRow_DHCPDevice = pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin()->second;
+		Row_DeviceTemplate *pRow_DeviceTemplate = pRow_DHCPDevice ? pRow_DHCPDevice->FK_DeviceTemplate_getrow() : NULL;
+		if( pRow_DeviceTemplate )
+		{
+			Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(),DEVICEDATA_Autoassign_to_parents_room_CONST);
+			int PK_Room=0;
+			string sRoom;
+			if( pRow_DeviceTemplate->FK_CommMethod_get()!=COMMMETHOD_Ethernet_CONST && (!pRow_DeviceTemplate_DeviceData || atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str())==0) )
+			{
+				PK_Room = pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get();
+				Row_Room *pRow_Room = pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_getrow();
+				if( pRow_Room )
+					sRoom = pRow_Room->Description_get();
+			}
+
+			DCE::SCREEN_New_Pnp_Device_One_Possibility_DL SCREEN_New_Pnp_Device_One_Possibility_DL(m_pPlug_And_Play_Plugin->m_dwPK_Device, pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, 
+				PK_Room,
+				pRow_DHCPDevice->PK_DHCPDevice_get(),
+				pRow_DeviceTemplate->Description_get(),
+				sRoom,
+				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+			m_pPlug_And_Play_Plugin->SendCommand(SCREEN_New_Pnp_Device_One_Possibility_DL);
+			return false;
+		}
+	}
+
 	DCE::SCREEN_NewPnpDevice_DL SCREEN_NewPnpDevice_DL(m_pPlug_And_Play_Plugin->m_dwPK_Device, pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, GetDescription(pPnpQueueEntry), pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 	m_pPlug_And_Play_Plugin->SendCommand(SCREEN_NewPnpDevice_DL);
 	return false;  // Now we wait
@@ -553,7 +598,7 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 
 	int iPK_Device=0;
 	DCE::CMD_Create_Device CMD_Create_Device( m_pPlug_And_Play_Plugin->m_dwPK_Device, pCommand_Impl_GIP->m_dwPK_Device, 
-		pRow_DeviceTemplate->PK_DeviceTemplate_get(), pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get(), -1, pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get(),
+		pRow_DeviceTemplate->PK_DeviceTemplate_get(), pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get(), pPnpQueueEntry->m_iPK_Room ? pPnpQueueEntry->m_iPK_Room : -1, pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get(),
 		pPnpQueueEntry->DeviceDataAsString(),pPnpQueueEntry->m_iPK_DHCPDevice,0 /* let it find the parent based on the relationship */,
 		pPnpQueueEntry->m_pOH_Orbiter ? pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device : 0,
 		pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),&iPK_Device);
@@ -968,7 +1013,7 @@ void PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry)
 					(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device_MD!=pPnpQueueEntry->m_dwPK_Device_TopLevel &&
 					pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device_Core!=pPnpQueueEntry->m_dwPK_Device_TopLevel) )
 				{  // It's either not an OSD, or not the osd for this MD
-					g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::DetermineOrbitersForPrompting queue %d orbiter %d reported %d in room %d/%d being skipped",
+					g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::DetermineOrbitersForPrompting queue %d orbiter %d reported %d in room %d/%d being skipped",
 						pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 						pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Room,pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get());
 					continue;   // It doesn't normally belong in this room, and it's not currently in this room, and it's totally unrelated, so don't use it
@@ -980,7 +1025,7 @@ void PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry)
 	if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.size()==0 )
 	{
 		pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts=m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get();
-		g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::DetermineOrbitersForPrompting queue %d orbiter list was empty.  setting it to %s",
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::DetermineOrbitersForPrompting queue %d orbiter list was empty.  setting it to %s",
 			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.c_str());
 	}
 	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::DetermineOrbitersForPrompting queue %d returning %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.c_str());

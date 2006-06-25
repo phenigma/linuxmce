@@ -25,7 +25,7 @@ namespace DCE
 		Row_PnpQueue *m_pRow_PnpQueue;
 		class OH_Orbiter *m_pOH_Orbiter; // The Orbiter to use for displaying messages
 		map<int,Row_DHCPDevice *> m_mapPK_DHCPDevice_possible;
-		int m_iPK_DHCPDevice,m_dwPK_Device_TopLevel,m_dwPK_PnpQueue_BlockingFor;
+		int m_iPK_DHCPDevice,m_dwPK_Device_TopLevel,m_dwPK_PnpQueue_BlockingFor,m_iPK_Room;
 		map<int,string> m_mapPK_DeviceData;
 		Row_Device *m_pRow_Device_Reported;
 		string m_sPK_Orbiter_List_For_Prompts;

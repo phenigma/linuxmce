@@ -370,7 +370,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 	{
 		case DESIGNOBJ_Location_CONST:
 		{
-			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butPostalCode_CONST) // 4661
+			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butPostalCode_CONST) 
 			{
 				PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 				int PK_Country = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST].c_str());
@@ -383,12 +383,12 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 				{
 					if( PK_Country==COUNTRY_UNITED_STATES_CONST )  // Actually you can search for postal code no matter the country, but so far they're only populated for the U.S., and we call them 'Zip Codes'
 					{
-						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Enter_your_postal_code_CONST]; // 1593
+						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Enter_your_postal_code_CONST];
 						m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST,"enterpostal");
 					}
 					else
 					{
-						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Enter_city_CONST];  // 1557
+						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Enter_city_CONST];  
 						m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST,"entercity");
 					}
 				}
@@ -396,16 +396,45 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 		}
 		break;
 
-		case DESIGNOBJ_City_CONST: // 4662
+		case DESIGNOBJ_City_CONST: 
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butWizRooms_CONST )
 			{
+				string sUserInput = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				if( sUserInput.size() )
+				{
+					m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST,"");
+					int iWidth=0,iHeight=0,PK_Variable=0;
+					string sString;
+					bool bSuccessfull;
+					DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_DatagridPlugIn,"","city_" + StringUtils::itos(m_pOrbiter->m_dwPK_Device),DATAGRID_Cities_CONST,
+						m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST) + "," + sUserInput,0,&PK_Variable,&sString,&bSuccessfull,&iWidth,&iHeight);
+					m_pOrbiter->SendCommand(CMD_Populate_Datagrid);
+					DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_City_CONST),TEXT_STATUS_CONST );
+					if( pText )
+					{
+						if( iHeight )
+							pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Select_City_CONST];  
+						else
+							pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Cannot_find_City_CONST]; 
+					}
+					DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(DESIGNOBJ_dgCities_CONST);
+					if( pObj )
+					{
+						// Re-acquire the grid now
+						delete pObj->m_pDataGridTable;
+						pObj->m_pDataGridTable = NULL;
+						m_pOrbiter->CMD_Refresh("");
+					}
+					return true;
+				}
+
 				PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 				string sLocation = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
 				bool bLocationOk = m_pWizardLogic->SetLocation(sLocation);
 				if( !bLocationOk )
 				{
-					DisplayMessageOnOrbiter(DESIGNOBJ_HouseSetupPopupWizard_CONST,"Error retrieving longitude, latitude and time zone for that city.  Please try another city, perhaps a nearby larger one.",false,"0",false,"Try again","0 -300 1 741 159 194","Skip it","0 -300 1 741 159 192");
+					DisplayMessageOnOrbiter(DESIGNOBJ_HouseSetupPopupWizard_CONST,m_pOrbiter->m_mapTextString[TEXT_Cannot_find_City_CONST],false,"0",false,"Try again","0 -300 1 741 159 194","Skip it","0 -300 1 741 159 192");
 					return true;
 				}
 			}
@@ -1890,6 +1919,36 @@ void OSDScreenHandler::SCREEN_VOIP_Provider(long PK_Screen)
 	ScreenHandlerBase::SCREEN_VOIP_Provider(PK_Screen);
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::VOIP_Provider_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbCapturedKeyboardBufferChanged, (ScreenHandlerCallBack) &OSDScreenHandler::VOIP_CapturedKeyboardBufferChanged, new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+bool OSDScreenHandler::VOIP_CapturedKeyboardBufferChanged(CallBackData *pData)
+{
+	switch(GetCurrentScreen_PK_DesignObj())
+	{
+		case DESIGNOBJ_VoipNumber_CONST:
+		{
+			string sPhoneNumber = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+			m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_butVoipUsername_CONST),0,"","",sPhoneNumber.size()==0 ? "0" : "1");
+		}
+		break;
+
+		case DESIGNOBJ_VoipUsername_CONST:
+		{
+			string sUsername = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+			m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_butVoipPassword_CONST),0,"","",sUsername.size()==0 ? "0" : "1");
+		}
+		break;
+
+		case DESIGNOBJ_VoipPassword_CONST:
+		{
+			string sPassword = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+			m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_butMediaWizard_CONST),0,"","",sPassword.size()==0 ? "0" : "1");
+		}
+		break;
+	}
+
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)

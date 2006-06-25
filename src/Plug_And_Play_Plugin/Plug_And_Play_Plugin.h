@@ -70,13 +70,15 @@ public:
 
 	/** @brief COMMAND: #700 - Choose Pnp Device Template */
 	/** We have chosen a new pnp device template */
+		/** @param #57 PK_Room */
+			/** The room this is in.  0 if not known */
 		/** @param #150 PK_DHCPDevice */
 			/** The template for the device */
 		/** @param #224 PK_PnpQueue */
 			/** The queue entry we're selecting for */
 
-	virtual void CMD_Choose_Pnp_Device_Template(int iPK_DHCPDevice,int iPK_PnpQueue) { string sCMD_Result; CMD_Choose_Pnp_Device_Template(iPK_DHCPDevice,iPK_PnpQueue,sCMD_Result,NULL);};
-	virtual void CMD_Choose_Pnp_Device_Template(int iPK_DHCPDevice,int iPK_PnpQueue,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Choose_Pnp_Device_Template(int iPK_Room,int iPK_DHCPDevice,int iPK_PnpQueue) { string sCMD_Result; CMD_Choose_Pnp_Device_Template(iPK_Room,iPK_DHCPDevice,iPK_PnpQueue,sCMD_Result,NULL);};
+	virtual void CMD_Choose_Pnp_Device_Template(int iPK_Room,int iPK_DHCPDevice,int iPK_PnpQueue,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #804 - Set Pnp Options */

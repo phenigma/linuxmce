@@ -1050,6 +1050,11 @@
 #define TEXT_MediaType_Games_CONST 1763
 #define TEXT_MediaType_Data_CONST 1764
 #define TEXT_MediaType_Audio_CONST 1765
+#define TEXT_new_pnp_device_one_possibility_CONST 1766
+#define TEXT_I_think_it_is_in_the_room_CONST 1767
+#define TEXT_Yes_but_wrong_room_CONST 1768
+#define TEXT_Select_City_CONST 1769
+#define TEXT_Cannot_find_City_CONST 1770
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

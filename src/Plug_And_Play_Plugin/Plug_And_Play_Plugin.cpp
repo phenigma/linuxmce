@@ -176,12 +176,14 @@ bool Plug_And_Play_Plugin::DeviceRemoved( class Socket *pSocket, class Message *
 
 	/** @brief COMMAND: #700 - Choose Pnp Device Template */
 	/** We have chosen a new pnp device template */
+		/** @param #57 PK_Room */
+			/** The room this is in.  0 if not known */
 		/** @param #150 PK_DHCPDevice */
 			/** The template for the device */
 		/** @param #224 PK_PnpQueue */
 			/** The queue entry we're selecting for */
 
-void Plug_And_Play_Plugin::CMD_Choose_Pnp_Device_Template(int iPK_DHCPDevice,int iPK_PnpQueue,string &sCMD_Result,Message *pMessage)
+void Plug_And_Play_Plugin::CMD_Choose_Pnp_Device_Template(int iPK_Room,int iPK_DHCPDevice,int iPK_PnpQueue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c700-e->
 {
 	PLUTO_SAFETY_LOCK(pnp,m_PnpMutex);
@@ -199,6 +201,7 @@ void Plug_And_Play_Plugin::CMD_Choose_Pnp_Device_Template(int iPK_DHCPDevice,int
 	pPnpQueueEntry->m_pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 	pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
 	pPnpQueueEntry->m_iPK_DHCPDevice = iPK_DHCPDevice;
+	pPnpQueueEntry->m_iPK_Room = iPK_Room;
 	pthread_cond_broadcast( &m_PnpCond );
 }
 

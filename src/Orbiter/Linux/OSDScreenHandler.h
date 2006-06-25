@@ -91,6 +91,7 @@ public:
 
 	//10. VOIP Provider
 	virtual void SCREEN_VOIP_Provider(long PK_Screen);
+	bool VOIP_CapturedKeyboardBufferChanged(CallBackData *pData);
 	bool VOIP_Provider_ObjectSelected(CallBackData *pData);
 
     // RoomsWizard callbacks

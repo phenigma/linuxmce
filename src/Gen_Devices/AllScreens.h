@@ -9197,6 +9197,54 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_New_Pnp_Device_One_Possibility : public PreformedCommand
+	{
+	public:
+		SCREEN_New_Pnp_Device_One_Possibility(long DeviceIDFrom, long DeviceIDTo,
+			int iPK_Room, int iPK_DHCPDevice, string sDescription, string ssComments, int iPK_PnpQueue)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "235" /* screen ID */,
+				57 /* The default room.  If this is not 0, give the user the option of confirming/changing this room */, StringUtils::ltos(iPK_Room).c_str(), 150 /* The DHCP device ID */, StringUtils::ltos(iPK_DHCPDevice).c_str(), 163 /* What to call this for the user */, sDescription.c_str(), 164 /* A description for the room */, ssComments.c_str(), 224 /* The pnp queue event */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
+	class SCREEN_New_Pnp_Device_One_Possibility_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_New_Pnp_Device_One_Possibility_DL(long DeviceIDFrom, string sDeviceIDTo,
+			int iPK_Room, int iPK_DHCPDevice, string sDescription, string ssComments, int iPK_PnpQueue)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "235" /* screen ID */,
+				57 /* The default room.  If this is not 0, give the user the option of confirming/changing this room */, StringUtils::ltos(iPK_Room).c_str(), 150 /* The DHCP device ID */, StringUtils::ltos(iPK_DHCPDevice).c_str(), 163 /* What to call this for the user */, sDescription.c_str(), 164 /* A description for the room */, ssComments.c_str(), 224 /* The pnp queue event */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
+	class SCREEN_New_Pnp_Device_One_Possibility_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_New_Pnp_Device_One_Possibility_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			int iPK_Room, int iPK_DHCPDevice, string sDescription, string ssComments, int iPK_PnpQueue)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "235" /* screen ID */,
+				57 /* The default room.  If this is not 0, give the user the option of confirming/changing this room */, StringUtils::ltos(iPK_Room).c_str(), 150 /* The DHCP device ID */, StringUtils::ltos(iPK_DHCPDevice).c_str(), 163 /* What to call this for the user */, sDescription.c_str(), 164 /* A description for the room */, ssComments.c_str(), 224 /* The pnp queue event */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
+	class SCREEN_New_Pnp_Device_One_Possibility_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_New_Pnp_Device_One_Possibility_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			int iPK_Room, int iPK_DHCPDevice, string sDescription, string ssComments, int iPK_PnpQueue)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "235" /* screen ID */,
+				57 /* The default room.  If this is not 0, give the user the option of confirming/changing this room */, StringUtils::ltos(iPK_Room).c_str(), 150 /* The DHCP device ID */, StringUtils::ltos(iPK_DHCPDevice).c_str(), 163 /* What to call this for the user */, sDescription.c_str(), 164 /* A description for the room */, ssComments.c_str(), 224 /* The pnp queue event */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9443,6 +9491,7 @@ namespace DCE
 		virtual void SCREEN_This_Room(long PK_Screen, bool bAlways){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_MediaSortFilter(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_NAS_Options_when_Mounting_device(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_New_Pnp_Device_One_Possibility(long PK_Screen, int iPK_Room, int iPK_DHCPDevice, string sDescription, string ssComments, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -10632,6 +10681,16 @@ namespace DCE
 				case 234:
 				{
 					SCREEN_NAS_Options_when_Mounting_device(nPK_Screen);
+					break;
+				}
+				case 235:
+				{
+					int iPK_Room = atoi(pMessage->m_mapParameters[57].c_str());
+					int iPK_DHCPDevice = atoi(pMessage->m_mapParameters[150].c_str());
+					string sDescription = pMessage->m_mapParameters[163];
+					string ssComments = pMessage->m_mapParameters[164];
+					int iPK_PnpQueue = atoi(pMessage->m_mapParameters[224].c_str());
+					SCREEN_New_Pnp_Device_One_Possibility(nPK_Screen, iPK_Room, iPK_DHCPDevice, sDescription, ssComments, iPK_PnpQueue);
 					break;
 				}
 

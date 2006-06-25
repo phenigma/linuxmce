@@ -8584,7 +8584,7 @@ void Orbiter::CMD_Display_Alert(string sText,string sTokens,string sTimeout,stri
 
 	pPlutoAlert->m_sMessage = sText;
 	pPlutoAlert->m_tStartTime = time(NULL);
-	if( sTimeout=="NONE ")
+	if( sTimeout=="NONE")
 		pPlutoAlert->m_tStopTime = 0;
 	else
 	{

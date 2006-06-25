@@ -181,7 +181,7 @@ public:
 	//Data accessors
 	//Event accessors
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Choose_Pnp_Device_Template(int iPK_DHCPDevice,int iPK_PnpQueue,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Choose_Pnp_Device_Template(int iPK_Room,int iPK_DHCPDevice,int iPK_PnpQueue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Pnp_Options(string sValue_To_Assign,int iPK_DeviceData,int iPK_PnpQueue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Ignore_PNP_Device(int iPK_PnpQueue,bool bAlways,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PNP_Detection_Script_Finished(string sFilename,string sErrors,int iPK_DeviceTemplate,string sData_String,int iPK_PnpQueue,string &sCMD_Result,class Message *pMessage) {};
@@ -206,9 +206,10 @@ public:
 				case COMMAND_Choose_Pnp_Device_Template_CONST:
 					{
 						string sCMD_Result="OK";
+						int iPK_Room=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Room_CONST].c_str());
 						int iPK_DHCPDevice=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_DHCPDevice_CONST].c_str());
 						int iPK_PnpQueue=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_PnpQueue_CONST].c_str());
-						CMD_Choose_Pnp_Device_Template(iPK_DHCPDevice,iPK_PnpQueue,sCMD_Result,pMessage);
+						CMD_Choose_Pnp_Device_Template(iPK_Room,iPK_DHCPDevice,iPK_PnpQueue,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -225,7 +226,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Choose_Pnp_Device_Template(iPK_DHCPDevice,iPK_PnpQueue,sCMD_Result,pMessage);
+								CMD_Choose_Pnp_Device_Template(iPK_Room,iPK_DHCPDevice,iPK_PnpQueue,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

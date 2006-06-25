@@ -118,6 +118,40 @@ void ScreenHandler::SCREEN_NewPnpDevice(long PK_Screen, string sDescription, int
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), StringUtils::itos(iPK_PnpQueue), "", false, false );
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_New_Pnp_Device_One_Possibility(long PK_Screen, int iPK_Room, int iPK_DHCPDevice, string sDescription, string ssComments, int iPK_PnpQueue)
+{
+	string sTitle = m_pOrbiter->m_mapTextString[TEXT_new_pnp_device_one_possibility_CONST];
+	string sRoom;
+	if( iPK_Room )
+	{
+		sRoom = m_pOrbiter->m_mapTextString[TEXT_I_think_it_is_in_the_room_CONST];
+		StringUtils::Replace(&sRoom,"<%=ROOM%>",ssComments);
+	}
+	StringUtils::Replace(&sTitle,"<%=ROOM%>",sRoom);
+	StringUtils::Replace(&sTitle,"<%=DEVICE%>",sDescription);
+
+	string sMessageYesUseItWrongRoom = StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_PlugAndPlayPlugIn) + " 1 " + 
+		TOSTRING(COMMAND_Choose_Pnp_Device_Template_CONST) + " " + TOSTRING(COMMANDPARAMETER_PK_DHCPDevice_CONST) + " " + StringUtils::itos(iPK_DHCPDevice) +
+		" " + TOSTRING(COMMANDPARAMETER_PK_PnpQueue_CONST) + " " + StringUtils::itos(iPK_PnpQueue);
+
+	string sMessageYesUseIt = sMessageYesUseItWrongRoom +
+		" " + TOSTRING(COMMANDPARAMETER_PK_Room_CONST) + " " + StringUtils::itos(iPK_Room);
+
+	string sMessageNoIgnoreIt = StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_PlugAndPlayPlugIn) + " 1 " + 
+		TOSTRING(COMMAND_Ignore_PNP_Device_CONST) + " " + " " + TOSTRING(COMMANDPARAMETER_PK_PnpQueue_CONST) + " " + StringUtils::itos(iPK_PnpQueue);
+
+	string sMessageNoIgnoreItEveryTime = sMessageNoIgnoreIt + " " + TOSTRING(COMMANDPARAMETER_Always_CONST) + " 1";
+
+	if( iPK_Room )
+		DisplayMessageOnOrbiter(PK_Screen,sTitle, false, "0", true,
+			m_pOrbiter->m_mapTextString[TEXT_YES_CONST],sMessageYesUseIt,m_pOrbiter->m_mapTextString[TEXT_Yes_but_wrong_room_CONST],sMessageYesUseItWrongRoom,
+			m_pOrbiter->m_mapTextString[TEXT_No_ignore_it_CONST],sMessageNoIgnoreIt,m_pOrbiter->m_mapTextString[TEXT_Ignore_everytime_CONST],sMessageNoIgnoreItEveryTime);
+	else
+		DisplayMessageOnOrbiter(PK_Screen,sTitle, false, "0", true,
+			m_pOrbiter->m_mapTextString[TEXT_YES_CONST],sMessageYesUseIt,
+			m_pOrbiter->m_mapTextString[TEXT_No_ignore_it_CONST],sMessageNoIgnoreIt,m_pOrbiter->m_mapTextString[TEXT_Ignore_everytime_CONST],sMessageNoIgnoreItEveryTime);
+}
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sName)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::ltos(iPK_Users));
