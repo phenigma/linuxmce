@@ -101,14 +101,22 @@ void ChooseRoom(struct PlutoRooms_t * PlutoRooms, char ** RoomName, int * PK_Roo
 		{
 			printf("%d. %s\n", i + 1, PlutoRooms->Rooms[i].Description);
 		}
-		printf("%s\n", "0. NEW ROOM");
 
-		printf("Choice: ");
-		fflush(stdout);
-		if (scanf("%d", &choice) <= 0)
+		if (PlutoRooms->count > 0)
 		{
-			scanf("%*s"); // read the garbage that the user fed us, into /dev/null
-			continue;
+			printf("%s\n", "0. NEW ROOM");
+
+			printf("Choice: ");
+			fflush(stdout);
+			if (scanf("%d", &choice) <= 0)
+			{
+				scanf("%*s"); // read the garbage that the user fed us, into /dev/null
+				continue;
+			}
+		}
+		else
+		{
+			choice = 0; // no rooms found, default to "new room"
 		}
 
 		// validate choice
