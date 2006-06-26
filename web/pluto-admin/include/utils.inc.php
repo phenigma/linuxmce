@@ -4183,6 +4183,7 @@ function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
 	$installationID=(int)$_SESSION['installationID'];
 
 	$userID=(int)@$_SESSION['userID'];
+
 	$codesQuery='
 			SELECT 
 				PK_InfraredGroup_Command,
@@ -4196,7 +4197,7 @@ function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
 				FK_Command 
 			FROM InfraredGroup_Command 
 			JOIN Command ON FK_Command=PK_Command JOIN CommandCategory ON FK_CommandCategory=PK_CommandCategory 
-			WHERE '.(($infraredGroupID==0)?'FK_InfraredGroup IS NULL':'FK_InfraredGroup='.$infraredGroupID).' AND (FK_DeviceTemplate=? OR FK_DeviceTemplate IS NULL) '.$restriction.'
+			WHERE '.(($infraredGroupID==0)?'FK_InfraredGroup IS NULL':'(FK_InfraredGroup='.$infraredGroupID.' OR FK_InfraredGroup IS NULL)').' AND (FK_DeviceTemplate=? OR FK_DeviceTemplate IS NULL) '.$restriction.'
 			ORDER BY GroupOrder,CommandCategory.Description,Description,DefaultOrder';
 
 	$res=$dbADO->Execute($codesQuery,array($dtID));
@@ -4239,7 +4240,7 @@ function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
 }
 
 function getPreferredIRGC($installationID,$infraredGroupID,$dbADO){
-	$preferred=getFieldsAsArray('InfraredGroup_Command_Preferred','FK_Command,FK_InfraredGroup_Command',$dbADO,' INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command WHERE InfraredGroup_Command_Preferred.FK_Installation='.$installationID.(((int)$infraredGroupID!=0)?' AND FK_InfraredGroup='.$infraredGroupID:''));	
+	$preferred=getFieldsAsArray('InfraredGroup_Command_Preferred','FK_Command,FK_InfraredGroup_Command',$dbADO,' INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command WHERE InfraredGroup_Command_Preferred.FK_Installation='.$installationID);	
 	$preferredByCategory=array();
 	for($i=0;$i<count(@$preferred['FK_Command']);$i++){
 		// only the preferred which I display are used
