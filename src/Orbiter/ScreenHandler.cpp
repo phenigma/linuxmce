@@ -591,10 +591,13 @@ bool ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
 			m_pOrbiter->SendCommand(CMD_Goto_DesignObj);
 			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(m_PK_DesignObj_ActiveApp_Remote),"","",false,false);
 
-			DCE::CMD_Activate_Window cmd_Activate_Window(
-				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,
-				m_sActiveApplication_Window);
-			m_pOrbiter->SendCommand(cmd_Activate_Window);
+			if(m_sActiveApplication_Window != "")
+			{
+				DCE::CMD_Activate_Window cmd_Activate_Window(
+					m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,
+					m_sActiveApplication_Window);
+				m_pOrbiter->SendCommand(cmd_Activate_Window);
+			}
 		}
 		else
 		{
@@ -650,7 +653,7 @@ bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 			m_pOrbiter->m_sActiveApplication_Description = sActiveApplication_Description;
 			m_pOrbiter->m_PK_DesignObj_ActiveApp_OSD = PK_DesignObj_OSD;
 			m_pOrbiter->m_PK_DesignObj_ActiveApp_Remote = PK_DesignObj_Remote;
-			m_pOrbiter->CMD_Activate_Window(m_sActiveApplication_Window);
+			m_pOrbiter->CMD_Activate_Window(sActiveApplication_Window);
 		}
 		m_pOrbiter->SendCommand(CMD_Spawn_Application);
 	}
