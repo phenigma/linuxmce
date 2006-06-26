@@ -5,8 +5,20 @@
 GetListOfRooms()
 {
 	Q="
-		SELECT PK_Room, Description
+		SELECT PK_Room,
+			CONCAT(
+				CASE
+					WHEN FK_DeviceCategory IS NOT NULL THEN '* '
+					ELSE ''
+				END, 
+				Room.Description
+			) AS StarDesc,
+			FK_DeviceCategory
 		FROM Room
+		LEFT JOIN Device ON FK_Room=PK_Room
+		LEFT JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+		WHERE FK_DeviceCategory=8 OR FK_DeviceCategory IS NULL
+		GROUP BY Room.Description
 	"
 	Rooms=$(RunSQL "$Q")
 	Q="
