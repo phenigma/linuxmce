@@ -79,15 +79,13 @@ int main()
 				snprintf(sPK_Room, 1024, "%d", PK_Room);
 
 				char * args[] = { "/usr/pluto/bin/New_PnP_MD.sh", remoteIP, remoteMAC, sPK_Room, remoteRoom, NULL };
-				string sOutput;
-				GetCommandOutput(args[0], args, sOutput);
-				printf("New_PnP_MD output:\n%s\nEnd of New_PnP_MD output", sOutput.c_str());
+				GetCommandOutput(args[0], args, NULL);
 			}
 			else if (strcmp(cmd, "rooms") == 0)
 			{
 				string sOutput;
 				char * args[] = { "/usr/pluto/bin/NewMD_interactor_helper.sh", "--rooms", NULL };
-				GetCommandOutput(args[0], args, sOutput);
+				GetCommandOutput(args[0], args, &sOutput);
 				write(s2, sOutput.c_str(), sOutput.size());
 			}
 		}

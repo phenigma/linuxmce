@@ -4,6 +4,6 @@
 #include <string>
 using namespace std;
 
-bool GetCommandOutput(const char * path, char * args[], string & sOutput);
+bool GetCommandOutput(const char * path, char * args[], string * sOutput);
 
 #endif // GETCOMMANDOUTPUT_H

@@ -3,7 +3,7 @@
 
 #include "GetCommandOutput.h"
 
-bool GetCommandOutput(const char * path, char * args[], string & sOutput)
+bool GetCommandOutput(const char * path, char * args[], string * sOutput)
 {
 	int pid;
 	int output[2];
@@ -33,7 +33,10 @@ bool GetCommandOutput(const char * path, char * args[], string & sOutput)
 			memset(buffer, 0, sizeof(buffer));
 			while (read(output[0], buffer, sizeof(buffer) - 1) > 0)
 			{
-				sOutput += buffer;
+				if (sOutput != NULL)
+					* sOutput += buffer;
+				else
+					printf("%s", buffer);
 				memset(buffer, 0, sizeof(buffer));
 			}
 			
