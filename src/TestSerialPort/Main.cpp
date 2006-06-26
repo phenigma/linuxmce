@@ -37,6 +37,7 @@ namespace DCE
 
 string ParseHex(string sInput);
 string StripHex(const char *pBuffer,int Length);
+CSerialPort *p_serialPort;
 
 bool GetBlockToSend(string &sBlock,string &sTransmitString,string::size_type &pos);
 
@@ -46,7 +47,7 @@ int main(int argc, char *argv[])
 	g_pPlutoLogger = new FileLogger("/var/log/pluto/TestSerialPort.log");
 
 	string sPort,sTransmitString,sSearchString,sMessage;
-	bool bHardwareFlowControl=false;
+	bool bHardwareFlowControl=false,bMonitorHardwareFlowControlOnly=false;
 	unsigned int iTimeout=30,iBaud=9600;
 	eParityBitStop _eParityBitStop = epbsN81;
 
@@ -88,6 +89,9 @@ int main(int argc, char *argv[])
 		case 'h':
 			bHardwareFlowControl=true;
 			break;
+		case 'M':
+			bMonitorHardwareFlowControlOnly=true;
+			break;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
 			bError=true;
@@ -100,7 +104,10 @@ int main(int argc, char *argv[])
 		cout << "TestSerialPort, v." << VERSION << endl
 			<< "Usage: TestSerialPort [-p port] [-P N81|E81|O81] [-t transmit string]" << endl
 			<< "[-s Search String] [-m message to log] [-i Timeout] [-b baud] [-h]" << endl
-			<< "strings can include: \\xx (xx is a hex char), \\r and \\n, and to delay x ms, \\xm" << endl;
+			<< "strings can include: \\xx (xx is a hex char), \\r and \\n, and to delay x ms, \\xm" << endl
+			<< "\\b means send a break" << endl
+			<< "-M puts it in monitor mode where it just reports the state" << endl
+			<< "  of hardware flow control until ctrl+c is pressed" << endl;
 
 		exit(0);
 	}
@@ -112,6 +119,25 @@ int main(int argc, char *argv[])
 	try
 	{
 		CSerialPort serialPort(sPort,iBaud,_eParityBitStop,bHardwareFlowControl);
+		p_serialPort = &serialPort;
+		if( bMonitorHardwareFlowControlOnly )
+		{
+			int iLastState=-1;
+			while(true)
+			{
+				bool bIsBusy = serialPort.IsBusy();
+				if( iLastState==-1 || (bIsBusy && iLastState==0) || (!bIsBusy && iLastState==1) )
+				{
+					cout << "Flow control: ";
+					if( bIsBusy )
+						cout << "Y" << endl;
+					else
+						cout << "N" << endl;
+					iLastState == bIsBusy ? 1 : 0;
+				}
+				Sleep(100);
+			}
+		}
 		string::size_type pos=0;
 		while(true)
 		{
@@ -119,8 +145,6 @@ int main(int argc, char *argv[])
 			bool bResult = GetBlockToSend(sBlock,sTransmitString,pos);
 			if( !bResult )
 				break;
-			if( sTransmitString=="\\BREAK\\" )
-				int k=2;// Send Break;
 			else
 			{
 				sBlock = ParseHex(sBlock);
@@ -219,13 +243,35 @@ bool GetBlockToSend(string &sBlock,string &sTransmitString,string::size_type &po
 		if( pos==string::npos || pos>=sTransmitString.size()-1 )
 			return false;
 		pos++;
+		return GetBlockToSend(sBlock,sTransmitString,pos);
+	}
+	else if( sTransmitString.size()-pos>1 && sTransmitString[pos]=='\\' && sTransmitString[pos+1]=='b' )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"sending break");
+		p_serialPort->SendBreak();
+		pos+=2;
+		return GetBlockToSend(sBlock,sTransmitString,pos);
 	}
 
-	string::size_type pos_delay=0;
-	if( (pos_delay=sTransmitString.find("\\s",pos))==string::npos )
+	string::size_type pos_delay=sTransmitString.find("\\s",pos),pos_break=sTransmitString.find("\\b",pos);
+	string::size_type pos_lesser = pos_delay!=string::npos && (pos_break==string::npos || pos_delay<pos_break) ? pos_delay : pos_break;
+	if( pos_lesser!=string::npos && pos_lesser>0 && sTransmitString[pos_lesser-1]=='\\' )
+	{
+		// It's an escaped \b or \s
+		sBlock=sTransmitString.substr(pos,pos_lesser-pos+1);  // Todo -- look for \s1000m to delay x milliseconds
+		pos=pos_lesser+1;
+		return true;
+	}
+	else if( pos_delay==string::npos && pos_break==string::npos )
 	{
 		sBlock=sTransmitString.substr(pos);  // Todo -- look for \s1000m to delay x milliseconds
 		pos=sTransmitString.size();
+		return true;
+	}
+	else if( pos_break && (pos_delay==string::npos || pos_break<pos_delay) )
+	{
+		sBlock = sTransmitString.substr(pos,pos_break-pos);
+		pos = pos_break;
 		return true;
 	}
 
