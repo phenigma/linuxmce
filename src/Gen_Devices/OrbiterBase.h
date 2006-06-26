@@ -547,8 +547,8 @@ public:
 	virtual void CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Set_Active_Application(string sName,string sIdentifier,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Get_Active_Application(string *sName,string *sIdentifier,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Active_Application(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sName,string sIdentifier,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Active_Application(string *sPK_DesignObj,string *sPK_DesignObj_CurrentScreen,string *sName,string *sIdentifier,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -2622,9 +2622,11 @@ public:
 				case COMMAND_Set_Active_Application_CONST:
 					{
 						string sCMD_Result="OK";
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST];
 						string sName=pMessage->m_mapParameters[COMMANDPARAMETER_Name_CONST];
 						string sIdentifier=pMessage->m_mapParameters[COMMANDPARAMETER_Identifier_CONST];
-						CMD_Set_Active_Application(sName.c_str(),sIdentifier.c_str(),sCMD_Result,pMessage);
+						CMD_Set_Active_Application(sPK_DesignObj.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sName.c_str(),sIdentifier.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -2641,7 +2643,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Set_Active_Application(sName.c_str(),sIdentifier.c_str(),sCMD_Result,pMessage);
+								CMD_Set_Active_Application(sPK_DesignObj.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sName.c_str(),sIdentifier.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -2649,13 +2651,17 @@ public:
 				case COMMAND_Get_Active_Application_CONST:
 					{
 						string sCMD_Result="OK";
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST];
 						string sName=pMessage->m_mapParameters[COMMANDPARAMETER_Name_CONST];
 						string sIdentifier=pMessage->m_mapParameters[COMMANDPARAMETER_Identifier_CONST];
-						CMD_Get_Active_Application(&sName,&sIdentifier,sCMD_Result,pMessage);
+						CMD_Get_Active_Application(&sPK_DesignObj,&sPK_DesignObj_CurrentScreen,&sName,&sIdentifier,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST]=sPK_DesignObj;
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST]=sPK_DesignObj_CurrentScreen;
 						pMessageOut->m_mapParameters[COMMANDPARAMETER_Name_CONST]=sName;
 						pMessageOut->m_mapParameters[COMMANDPARAMETER_Identifier_CONST]=sIdentifier;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
@@ -2670,7 +2676,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Get_Active_Application(&sName,&sIdentifier,sCMD_Result,pMessage);
+								CMD_Get_Active_Application(&sPK_DesignObj,&sPK_DesignObj_CurrentScreen,&sName,&sIdentifier,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -2716,7 +2722,7 @@ public:
 				}
 			}
 			if( iHandled==0 && !pMessage->m_bRespondedToMessage &&
-			(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString) )
+			(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString || pMessage->m_eExpectedResponse==ER_DeliveryConfirmation) )
 			{
 				pMessage->m_bRespondedToMessage=true;
 				if( pMessage->m_eExpectedResponse==ER_ReplyMessage )

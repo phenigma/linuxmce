@@ -59,6 +59,8 @@ protected:
 	Orbiter *m_pOrbiter;
 	map<CallBackType, ScreenHandlerCallBack> m_mapCallBack;
 	map<CallBackType, CallBackData *> m_mapCallBackData;
+	string m_sActiveApplication_Description,m_sActiveApplication_Window;
+	int m_PK_DesignObj_ActiveApp_OSD,m_PK_DesignObj_ActiveApp_Remote;
 
 	pluto_pthread_mutex_t m_MapMutex; /** < Protected the access to our maps */
 

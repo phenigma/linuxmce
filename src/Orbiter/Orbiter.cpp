@@ -259,7 +259,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_bWeCanRepeat=false;
 	m_bRepeatingObject=false;
 	m_bShowShortcuts = false;
-	m_iPK_Screen_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_Screen_FileList=m_iPK_Screen_RemoteOSD=m_iPK_Screen_OSD_Speed=m_iPK_Screen_OSD_Track=0;
+	m_iPK_Screen_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_Screen_FileList=m_iPK_Screen_RemoteOSD=m_iPK_Screen_OSD_Speed=m_iPK_Screen_OSD_Track=m_PK_DesignObj_ActiveApp_OSD=m_PK_DesignObj_ActiveApp_Remote=0;
 	m_iPK_MediaType=0;
 
 	m_pScreenHistory_Current=NULL;
@@ -8651,29 +8651,42 @@ void Orbiter::ServiceAlerts( void *iData )
 
 	/** @brief COMMAND: #810 - Set Active Application */
 	/** Tells an On screen orbiter what application is currently active */
+		/** @param #3 PK_DesignObj */
+			/** The DesignObj for the OSD */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** The DesignObj for the orbiter remote */
 		/** @param #50 Name */
 			/** A description of the app */
 		/** @param #216 Identifier */
 			/** The window identifier */
 
-void Orbiter::CMD_Set_Active_Application(string sName,string sIdentifier,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Set_Active_Application(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sName,string sIdentifier,string &sCMD_Result,Message *pMessage)
 //<-dceag-c810-e->
 {
 	m_sActiveApplication_Description=sName;
 	m_sActiveApplication_Window=sIdentifier;
+	m_PK_DesignObj_ActiveApp_OSD = atoi(sPK_DesignObj.c_str());
+	m_PK_DesignObj_ActiveApp_Remote = atoi(sPK_DesignObj_CurrentScreen.c_str());
 }
+
 //<-dceag-c811-b->
 
 	/** @brief COMMAND: #811 - Get Active Application */
 	/**  */
+		/** @param #3 PK_DesignObj */
+			/** The DesignObj for the OSD */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** The DesignObj for the orbiter remote */
 		/** @param #50 Name */
 			/** A description of the app */
 		/** @param #216 Identifier */
 			/** The window identifier */
 
-void Orbiter::CMD_Get_Active_Application(string *sName,string *sIdentifier,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Get_Active_Application(string *sPK_DesignObj,string *sPK_DesignObj_CurrentScreen,string *sName,string *sIdentifier,string &sCMD_Result,Message *pMessage)
 //<-dceag-c811-e->
 {
 	*sName=m_sActiveApplication_Description;
 	*sIdentifier=m_sActiveApplication_Window;
+	*sPK_DesignObj = StringUtils::itos(m_PK_DesignObj_ActiveApp_OSD);
+	*sPK_DesignObj_CurrentScreen = StringUtils::itos(m_PK_DesignObj_ActiveApp_Remote);
 }

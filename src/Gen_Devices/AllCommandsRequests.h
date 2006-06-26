@@ -21178,75 +21178,91 @@ namespace DCE
 	};
 	class CMD_Set_Active_Application : public PreformedCommand {
 	public:
-		CMD_Set_Active_Application(long DeviceIDFrom, long DeviceIDTo,string sName,string sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Set_Active_Application(long DeviceIDFrom, long DeviceIDTo,string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sName,string sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Set_Active_Application_CONST,
-			2 /* number of parameters */,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_DesignObj_CONST, sPK_DesignObj.c_str(),
+			COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST, sPK_DesignObj_CurrentScreen.c_str(),
 			COMMANDPARAMETER_Name_CONST, sName.c_str(),
 			COMMANDPARAMETER_Identifier_CONST, sIdentifier.c_str()); }
 	};
 	class CMD_Set_Active_Application_DL : public PreformedCommand {
 	public:
-		CMD_Set_Active_Application_DL(long DeviceIDFrom, string DeviceIDTo,string sName,string sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Set_Active_Application_DL(long DeviceIDFrom, string DeviceIDTo,string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sName,string sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Set_Active_Application_CONST,
-			2 /* number of parameters */,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_DesignObj_CONST, sPK_DesignObj.c_str(),
+			COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST, sPK_DesignObj_CurrentScreen.c_str(),
 			COMMANDPARAMETER_Name_CONST, sName.c_str(),
 			COMMANDPARAMETER_Identifier_CONST, sIdentifier.c_str()); }
 	};
 	class CMD_Set_Active_Application_DT : public PreformedCommand {
 	public:
-		CMD_Set_Active_Application_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sName,string sIdentifier) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Set_Active_Application_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sName,string sIdentifier) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Set_Active_Application_CONST,
-			2 /* number of parameters */,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_DesignObj_CONST, sPK_DesignObj.c_str(),
+			COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST, sPK_DesignObj_CurrentScreen.c_str(),
 			COMMANDPARAMETER_Name_CONST, sName.c_str(),
 			COMMANDPARAMETER_Identifier_CONST, sIdentifier.c_str()); }
 	};
 	class CMD_Set_Active_Application_Cat : public PreformedCommand {
 	public:
-		CMD_Set_Active_Application_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sName,string sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Set_Active_Application_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sName,string sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Set_Active_Application_CONST,
-			2 /* number of parameters */,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_DesignObj_CONST, sPK_DesignObj.c_str(),
+			COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST, sPK_DesignObj_CurrentScreen.c_str(),
 			COMMANDPARAMETER_Name_CONST, sName.c_str(),
 			COMMANDPARAMETER_Identifier_CONST, sIdentifier.c_str()); }
 	};
 	class RESP_Get_Active_Application : public PreformedCommandResponse {
-		string *m_sName;string *m_sIdentifier;
+		string *m_sPK_DesignObj;string *m_sPK_DesignObj_CurrentScreen;string *m_sName;string *m_sIdentifier;
 	public:
-		RESP_Get_Active_Application(string *sName,string *sIdentifier) { 
-		m_sName=sName; m_sIdentifier=sIdentifier; }
+		RESP_Get_Active_Application(string *sPK_DesignObj,string *sPK_DesignObj_CurrentScreen,string *sName,string *sIdentifier) { 
+		m_sPK_DesignObj=sPK_DesignObj; m_sPK_DesignObj_CurrentScreen=sPK_DesignObj_CurrentScreen; m_sName=sName; m_sIdentifier=sIdentifier; }
 		void ParseResponse(Message *pMessage) {
-			*m_sName=pMessage->m_mapParameters[COMMANDPARAMETER_Name_CONST]; *m_sIdentifier=pMessage->m_mapParameters[COMMANDPARAMETER_Identifier_CONST]; };
+			*m_sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST]; *m_sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST]; *m_sName=pMessage->m_mapParameters[COMMANDPARAMETER_Name_CONST]; *m_sIdentifier=pMessage->m_mapParameters[COMMANDPARAMETER_Identifier_CONST]; };
 	};
 	class CMD_Get_Active_Application : public PreformedCommand {
 	public:
-		CMD_Get_Active_Application(long DeviceIDFrom, long DeviceIDTo,string *sName,string *sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Get_Active_Application(long DeviceIDFrom, long DeviceIDTo,string *sPK_DesignObj,string *sPK_DesignObj_CurrentScreen,string *sName,string *sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Get_Active_Application_CONST,
-			2 /* number of parameters */,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_DesignObj_CONST, (*sPK_DesignObj).c_str(),
+			COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST, (*sPK_DesignObj_CurrentScreen).c_str(),
 			COMMANDPARAMETER_Name_CONST, (*sName).c_str(),
-			COMMANDPARAMETER_Identifier_CONST, (*sIdentifier).c_str());		m_pcResponse = new RESP_Get_Active_Application(sName,sIdentifier); }
+			COMMANDPARAMETER_Identifier_CONST, (*sIdentifier).c_str());		m_pcResponse = new RESP_Get_Active_Application(sPK_DesignObj,sPK_DesignObj_CurrentScreen,sName,sIdentifier); }
 	};
 	class CMD_Get_Active_Application_DL : public PreformedCommand {
 	public:
-		CMD_Get_Active_Application_DL(long DeviceIDFrom, string DeviceIDTo,string *sName,string *sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Get_Active_Application_DL(long DeviceIDFrom, string DeviceIDTo,string *sPK_DesignObj,string *sPK_DesignObj_CurrentScreen,string *sName,string *sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Get_Active_Application_CONST,
-			2 /* number of parameters */,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_DesignObj_CONST, (*sPK_DesignObj).c_str(),
+			COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST, (*sPK_DesignObj_CurrentScreen).c_str(),
 			COMMANDPARAMETER_Name_CONST, (*sName).c_str(),
-			COMMANDPARAMETER_Identifier_CONST, (*sIdentifier).c_str());		m_pcResponse = new RESP_Get_Active_Application(sName,sIdentifier); }
+			COMMANDPARAMETER_Identifier_CONST, (*sIdentifier).c_str());		m_pcResponse = new RESP_Get_Active_Application(sPK_DesignObj,sPK_DesignObj_CurrentScreen,sName,sIdentifier); }
 	};
 	class CMD_Get_Active_Application_DT : public PreformedCommand {
 	public:
-		CMD_Get_Active_Application_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string *sName,string *sIdentifier) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Get_Active_Application_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string *sPK_DesignObj,string *sPK_DesignObj_CurrentScreen,string *sName,string *sIdentifier) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Get_Active_Application_CONST,
-			2 /* number of parameters */,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_DesignObj_CONST, (*sPK_DesignObj).c_str(),
+			COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST, (*sPK_DesignObj_CurrentScreen).c_str(),
 			COMMANDPARAMETER_Name_CONST, (*sName).c_str(),
-			COMMANDPARAMETER_Identifier_CONST, (*sIdentifier).c_str());		m_pcResponse = new RESP_Get_Active_Application(sName,sIdentifier); }
+			COMMANDPARAMETER_Identifier_CONST, (*sIdentifier).c_str());		m_pcResponse = new RESP_Get_Active_Application(sPK_DesignObj,sPK_DesignObj_CurrentScreen,sName,sIdentifier); }
 	};
 	class CMD_Get_Active_Application_Cat : public PreformedCommand {
 	public:
-		CMD_Get_Active_Application_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string *sName,string *sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Get_Active_Application_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string *sPK_DesignObj,string *sPK_DesignObj_CurrentScreen,string *sName,string *sIdentifier) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Get_Active_Application_CONST,
-			2 /* number of parameters */,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_DesignObj_CONST, (*sPK_DesignObj).c_str(),
+			COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST, (*sPK_DesignObj_CurrentScreen).c_str(),
 			COMMANDPARAMETER_Name_CONST, (*sName).c_str(),
-			COMMANDPARAMETER_Identifier_CONST, (*sIdentifier).c_str());		m_pcResponse = new RESP_Get_Active_Application(sName,sIdentifier); }
+			COMMANDPARAMETER_Identifier_CONST, (*sIdentifier).c_str());		m_pcResponse = new RESP_Get_Active_Application(sPK_DesignObj,sPK_DesignObj_CurrentScreen,sName,sIdentifier); }
 	};
 	class CMD_NOREP_Get_Active_Application : public PreformedCommand {
 	public:

@@ -161,6 +161,7 @@ bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string
 
 void UpdateEntArea::GetMediaAndRooms()
 {
+	// Be sure child devices are in the same installation as the parent
 	string sSQL="UPDATE Device "
 		" JOIN Device AS Parent ON Device.FK_Device_ControlledVia=Parent.PK_Device"
 		" SET Device.FK_Installation=" + StringUtils::itos(m_iPK_Installation) +
@@ -169,6 +170,7 @@ void UpdateEntArea::GetMediaAndRooms()
 	// Keep doing this in case any nested rows missing the installation
 	while( m_pDatabase_pluto_main->threaded_mysql_query(sSQL)>0 );
 
+	// Be sure hybrid media director's are in the same room as the core
 	sSQL = "UPDATE Device "
 		" JOIN Device AS Parent ON Parent.PK_Device=Device.FK_Device_ControlledVia "
 		" JOIN DeviceTemplate ON Device.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate "
@@ -176,6 +178,14 @@ void UpdateEntArea::GetMediaAndRooms()
 		" SET Device.FK_Room = Parent.FK_Room "
 		" WHERE DeviceTemplate.FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Media_Director_CONST) +
 		" AND DeviceTemplate_Parent.FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Core_CONST);
+	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+
+	// Be sure devices with auto assign to parent's room are in the same room as the parents
+	sSQL = "UPDATE Device "
+		"JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate AND FK_DeviceData=" TOSTRING(DEVICEDATA_Autoassign_to_parents_room_CONST) " "
+		"LEFT JOIN Device As Parent ON Parent.PK_Device=Device.FK_Device_ControlledVia "
+		"SET Device.FK_Room=Parent.FK_Room "
+		"WHERE IK_DeviceData=1";
 	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
 
 	// Get all the entertainment areas and populate them with all the devices in those areas

@@ -307,6 +307,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		bool m_bRepeatingObject; /** < True if we're currently holding down a repeating button */
 		bool m_bRerenderScreen; /** <  Set to true means ignore the objects to redraw, and just redraw the whole screen */
 		string m_sActiveApplication_Description,m_sActiveApplication_Window; /** The name of any actively running application */
+		int m_PK_DesignObj_ActiveApp_OSD,m_PK_DesignObj_ActiveApp_Remote;  /** The remotes to use for the running application */
+
 
 		OrbiterFileBrowser_Collection *m_pOrbiterFileBrowser_Collection;
 
@@ -1732,24 +1734,32 @@ light, climate, media, security, telecom */
 
 	/** @brief COMMAND: #810 - Set Active Application */
 	/** Tells an On screen orbiter what application is currently active */
+		/** @param #3 PK_DesignObj */
+			/** The DesignObj for the OSD */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** The DesignObj for the orbiter remote */
 		/** @param #50 Name */
 			/** A description of the app */
 		/** @param #216 Identifier */
 			/** The window identifier */
 
-	virtual void CMD_Set_Active_Application(string sName,string sIdentifier) { string sCMD_Result; CMD_Set_Active_Application(sName.c_str(),sIdentifier.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Set_Active_Application(string sName,string sIdentifier,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Active_Application(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sName,string sIdentifier) { string sCMD_Result; CMD_Set_Active_Application(sPK_DesignObj.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sName.c_str(),sIdentifier.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Active_Application(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sName,string sIdentifier,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #811 - Get Active Application */
 	/**  */
+		/** @param #3 PK_DesignObj */
+			/** The DesignObj for the OSD */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** The DesignObj for the orbiter remote */
 		/** @param #50 Name */
 			/** A description of the app */
 		/** @param #216 Identifier */
 			/** The window identifier */
 
-	virtual void CMD_Get_Active_Application(string *sName,string *sIdentifier) { string sCMD_Result; CMD_Get_Active_Application(sName,sIdentifier,sCMD_Result,NULL);};
-	virtual void CMD_Get_Active_Application(string *sName,string *sIdentifier,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Get_Active_Application(string *sPK_DesignObj,string *sPK_DesignObj_CurrentScreen,string *sName,string *sIdentifier) { string sCMD_Result; CMD_Get_Active_Application(sPK_DesignObj,sPK_DesignObj_CurrentScreen,sName,sIdentifier,sCMD_Result,NULL);};
+	virtual void CMD_Get_Active_Application(string *sPK_DesignObj,string *sPK_DesignObj_CurrentScreen,string *sName,string *sIdentifier,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
