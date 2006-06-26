@@ -71,10 +71,17 @@ int main()
 				memset(remoteIP, 0, 1024);
 				memset(remoteMAC, 0, 1024);
 				memset(remoteRoom, 0, 1024);
+
 				int PK_Room;
+				char sPK_Room[1024];
 				sscanf(buffer, "%*s %s %s %d %100c", remoteIP, remoteMAC, &PK_Room, remoteRoom);
 				snprintf(cmd, 1024, "/usr/pluto/bin/New_PnP_MD.sh %s %s %d %s", remoteIP, remoteMAC, PK_Room, remoteRoom);
-				system(cmd);
+				snprintf(sPK_Room, 1024, "%d", PK_Room);
+
+				char * args[] = { "/usr/pluto/bin/New_PnP_MD.sh", remoteIP, remoteMAC, sPK_Room, remoteRoom, NULL };
+				string sOutput;
+				GetCommandOutput(args[0], args, sOutput);
+				printf("New_PnP_MD output:\n%s\nEnd of New_PnP_MD output", sOutput.c_str());
 			}
 			else if (strcmp(cmd, "rooms") == 0)
 			{
