@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 						cout << "Y" << endl;
 					else
 						cout << "N" << endl;
-					iLastState == bIsBusy ? 1 : 0;
+					iLastState = bIsBusy ? 1 : 0;
 				}
 				Sleep(100);
 			}
