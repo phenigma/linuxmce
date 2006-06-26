@@ -135,9 +135,12 @@ void PnpQueue::Run()
 				it++;
 		}
 
-		pnp.Release();
-		Sleep(1000); // In case we're in a polling loop, don't hog all the CPU.  Nothing here is that time critical 
-		pnp.Relock();
+		if( !bOnlyBlockedEntries )  // If we have only blocked entries, we don't need to sleep here since we'll immediately hit the timedcondwait, and if we did, entries may become unblocked while we're sleeping
+		{
+			pnp.Release();
+			Sleep(1000); // In case we're in a polling loop, don't hog all the CPU.  Nothing here is that time critical 
+			pnp.Relock();
+		}
 	}
 	m_bThreadRunning=false;
 }
@@ -889,6 +892,13 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 
 		if( pDevice_AppServer )
 		{
+			if( time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_DETECTION_SCRIPT && pPnpQueueEntry->m_sDetectionScript_Running==pRow_DHCPDevice_To_Detect->PnpDetectionScript_get() )
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d started again, but stilll running %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_sDetectionScript_Running.c_str());
+				pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_running_detection_scripts);
+				return false;
+			}
+
 			string sPath;  // Where to find the device
 			Row_DeviceTemplate *pRow_DeviceTemplate = pRow_DHCPDevice_To_Detect->FK_DeviceTemplate_getrow();
 			if( pRow_DeviceTemplate )
@@ -917,7 +927,7 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 			
 			// We have a detection script we need to run
 			pPnpQueueEntry->m_sDetectionScript_Running=pRow_DHCPDevice_To_Detect->PnpDetectionScript_get();
-			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts now running %s",pPnpQueueEntry->m_sDetectionScript_Running.c_str());
+			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d now running %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_sDetectionScript_Running.c_str());
 			pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_running_detection_scripts);
 			return false;
 		}
