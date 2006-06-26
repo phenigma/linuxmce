@@ -285,8 +285,8 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		//No record to reuse; we'll create a new one
 		pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
 		pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
-		pRow_File->Path_set(StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(m_sDirectory)));
-		pRow_File->Filename_set(StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(m_sFile)));
+		pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(m_sDirectory));
+		pRow_File->Filename_set(FileUtils::ExcludeTrailingSlash(m_sFile));
 		pRow_File->IsDirectory_set(m_bIsDir);
 		pRow_File->EK_MediaType_set(!m_bIsDir ? PK_MediaType : 23 /*this is a folder. what media type to put?*/);
 		pRow_File->Table_File_get()->Commit();
