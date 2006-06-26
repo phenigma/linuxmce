@@ -590,12 +590,16 @@ bool ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
 				0,StringUtils::itos(m_PK_DesignObj_ActiveApp_OSD),"","",false,true);
 			m_pOrbiter->SendCommand(CMD_Goto_DesignObj);
 			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(m_PK_DesignObj_ActiveApp_Remote),"","",false,false);
-			// Chris -- m_sActiveApplication_Window contains the window to activate on m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter
+
+			DCE::CMD_Activate_Window cmd_Activate_Window(
+				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,
+				m_sActiveApplication_Window);
+			m_pOrbiter->SendCommand(cmd_Activate_Window);
 		}
 		else
 		{
 			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(m_PK_DesignObj_ActiveApp_OSD),"","",false,false);
-			// Chris -- m_sActiveApplication_Window contains the window to activate on this system
+			m_pOrbiter->CMD_Activate_Window(m_sActiveApplication_Window);
 		}
 	}
 
@@ -633,7 +637,11 @@ bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 			CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Active_Application.m_pMessage);
 
 			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(PK_DesignObj_Remote),"","",false,false);
-			// Chris -- sActiveApplication_Window contains the window to activate on m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter
+
+			DCE::CMD_Activate_Window cmd_Activate_Window(
+				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,
+				sActiveApplication_Window);
+			m_pOrbiter->SendCommand(cmd_Activate_Window);
 		}
 		else
 		{
@@ -642,7 +650,7 @@ bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 			m_pOrbiter->m_sActiveApplication_Description = sActiveApplication_Description;
 			m_pOrbiter->m_PK_DesignObj_ActiveApp_OSD = PK_DesignObj_OSD;
 			m_pOrbiter->m_PK_DesignObj_ActiveApp_Remote = PK_DesignObj_Remote;
-			// Chris -- sActiveApplication_Window contains the window to activate on this system
+			m_pOrbiter->CMD_Activate_Window(m_sActiveApplication_Window);
 		}
 		m_pOrbiter->SendCommand(CMD_Spawn_Application);
 	}
