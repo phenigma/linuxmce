@@ -551,11 +551,10 @@ void ScreenHandler::SCREEN_Computing(long PK_Screen)
 		m_PK_DesignObj_ActiveApp_Remote = m_pOrbiter->m_PK_DesignObj_ActiveApp_Remote;
 	}
 
-	if( m_sActiveApplication_Description.size() )
-	{
-		m_pOrbiter->CMD_Show_Object( NeedToRender::m_pScreenHistory_get()->GetObj()->m_ObjectID + "." TOSTRING(DESIGNOBJ_butResumeControl_CONST),0,"","","1");
-		m_pOrbiter->CMD_Show_Object(NeedToRender::m_pScreenHistory_get()->GetObj()->m_ObjectID + "." TOSTRING(DESIGNOBJ_objExitAppOnOSD_CONST),0,"","","1");
-	}
+	string sOnOff = m_sActiveApplication_Description.size() ? "1" : "0";
+	m_pOrbiter->CMD_Show_Object( NeedToRender::m_pScreenHistory_get()->GetObj()->m_ObjectID + "." TOSTRING(DESIGNOBJ_butResumeControl_CONST),0,"","",sOnOff);
+	m_pOrbiter->CMD_Show_Object(NeedToRender::m_pScreenHistory_get()->GetObj()->m_ObjectID + "." TOSTRING(DESIGNOBJ_objExitAppOnOSD_CONST),0,"","",sOnOff);
+
 	m_pOrbiter->CMD_Set_Text(NeedToRender::m_pScreenHistory_get()->GetObj()->m_ObjectID,m_sActiveApplication_Description,TEXT_STATUS_CONST);
 }
 //-----------------------------------------------------------------------------------------------------
