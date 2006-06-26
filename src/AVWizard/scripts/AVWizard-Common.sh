@@ -140,7 +140,7 @@ StartX()
 	for Parm in "$@"; do
 		XParm=("${XParm[@]}" -parm "$Parm")
 	done
-	"$BaseDir"/Start_X.sh -fg -client /usr/pluto/bin/AVWizard -srvparm '-config' -srvparm "$XF86Config" "${XParm[@]}"
+	"$BaseDir"/Start_X.sh -fg -client /usr/pluto/bin/AVWizard -srvparm '-config' -srvparm "$XF86Config" -display :1 "${XParm[@]}"
 }
 
 StopX()

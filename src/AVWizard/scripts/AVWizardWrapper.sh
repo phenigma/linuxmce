@@ -4,7 +4,7 @@
 
 Done=0
 NextStep=$STEP_Start
-export DISPLAY=:0
+export DISPLAY=:1
 while [[ "$Done" -eq 0 ]]; do
 	StartX -step "$NextStep"
 	Ret=$(WizGet ExitCode)
