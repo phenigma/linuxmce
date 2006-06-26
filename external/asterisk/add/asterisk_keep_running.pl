@@ -87,11 +87,11 @@ while (1 eq 1)
         }
         if($line =~ /No such host/i)
         {
-            $TROUBLE_LEVEL = 6;
+            $TROUBLE_LEVEL = 4;
         }
         if($line =~ /Host .+? not found/i)
         {
-            $TROUBLE_LEVEL = 6;
+            $TROUBLE_LEVEL = 4;
         }
         if($line =~ /Got a FRAME_CONTROL/i)
         {
@@ -146,7 +146,8 @@ while (1 eq 1)
         $SECONDS ++;
         if($SECONDS % 60 == 0)
         {
-            `chmod -R ug+rx /var/lib/asterisk/sounds/voicemail`;
+            `chown -R asterisk:www-data /var/lib/asterisk/sounds/voicemail/`;
+            `chmod -R ug+rx /var/lib/asterisk/sounds/voicemail/`;
         }
         #check in about 5 minutes (may be more because not ticking when performing test)
         if($SECONDS > 300)
