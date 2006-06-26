@@ -36,10 +36,25 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
                 dpkg -i $files 1>/dev/null 2>/dev/null
         done
 
-        cd /cdrom/bonuscd1-cache
-        apt-get -y -f install dpkg-dev 2>/dev/null 1>/dev/null
         WorkDir="/usr/pluto/deb-cache/dists/sarge/main/binary-i386"
+        cd /cdrom/bonuscd1-cache
         cp -r *.deb $WorkDir
+        cd /cdrom/bonuscd1-offline
+        cp -r *.deb $WorkDir
+
+        if [[ "$UseInternet" == "N" || "$UseInternet" == "n" ]]; then
+                cd $WorkDir
+                dpkg -i libsepol1_*.deb 1>/dev/null 2>/dev/null
+                dpkg -i libselinux1_*.deb 1>/dev/null 2>/dev/null
+                dpkg -i binutils_*.deb 1>/dev/null 2>/dev/null
+                dpkg -i patch_*.deb 1>/dev/null 2>/dev/null
+                dpkg -i dpkg_*.deb 1>/dev/null 2>/dev/null
+                dpkg -i dpkg-dev_*.deb 1>/dev/null 2>/dev/null
+        else
+                cd $WorkDir
+                apt-get -f -y dpkg-dev 1>/dev/null 2>/dev/null
+        fi
+
         cd $WorkDir
         echo "Regenerating Packages.gz in debcache. This will require 1 minute. Please wait."
         dpkg-scanpackages . /dev/null | sed 's,\./,dists/sarge/main/binary-i386/,g' | gzip -9c > Packages.gz
