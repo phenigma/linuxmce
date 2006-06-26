@@ -145,7 +145,7 @@ void DisplayPleaseWait()
 // ./interactor <Gateway> <IP> <MAC>
 int main(int argc, char * argv[])
 {
-	int s, s2;
+	int s, s2, s_srv;
 	struct sockaddr_in saddr_client, saddr_server;
 	int do_reboot = 0;
 	char buffer[1024], cmd[1024];
@@ -171,6 +171,28 @@ int main(int argc, char * argv[])
 	saddr_server.sin_port = htons(INTERACTOR_PORT);
 	saddr_server.sin_addr.s_addr = INADDR_ANY;
 
+	// Start interactor server on client for commands
+	s_srv = socket(PF_INET, SOCK_STREAM, 0);
+	if (s_srv == -1)
+	{
+		perror("socket2");
+		return 1;
+	}
+
+	set_close_on_exec(s_srv);
+
+	if (bind(s_srv, (struct sockaddr *) &saddr_server, sizeof(saddr_server)) == -1)
+	{
+		perror("bind");
+		return 1;
+	}
+	
+	if (listen(s_srv, 5) == -1)
+	{
+		perror("listen");
+		return 1;
+	}
+	
 	// Connect to the interactor server on the Core
 	s = socket(PF_INET, SOCK_STREAM, 0);
 	if (s == -1)
@@ -210,30 +232,9 @@ int main(int argc, char * argv[])
 	
 	close(s);
 
-	// TODO: fix gap between sockets
+	// Do the actual server stuff
+	s = s_srv;
 
-	// Start interactor server on client for commands
-	s = socket(PF_INET, SOCK_STREAM, 0);
-	if (s == -1)
-	{
-		perror("socket2");
-		return 1;
-	}
-
-	set_close_on_exec(s);
-
-	if (bind(s, (struct sockaddr *) &saddr_server, sizeof(saddr_server)) == -1)
-	{
-		perror("bind");
-		return 1;
-	}
-	
-	if (listen(s, 5) == -1)
-	{
-		perror("listen");
-		return 1;
-	}
-	
 	DisplayPleaseWait();
 	while (! do_reboot)
 	{
