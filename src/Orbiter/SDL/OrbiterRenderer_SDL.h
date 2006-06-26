@@ -44,6 +44,8 @@ public:
 	virtual PlutoGraphic *GetBackground( PlutoRectangle &rect );
 	virtual PlutoGraphic *CreateGraphic();
 
+	virtual void SetOrbiterWindowTransparency(double TransparencyLevel);
+
 	// Rendering
 	virtual void RenderScreen( bool bRenderGraphicsOnly );
 	virtual void DisplayImageOnScreen(SDL_Surface *m_pScreenImage);

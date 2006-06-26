@@ -170,27 +170,30 @@ void OrbiterRenderer_SDL::Configure()
 
 	g_pPlutoLogger->Write(LV_STATUS, "Created back screen surface!");
 
+	SetOrbiterWindowTransparency(0.5);
+}
+//----------------------------------------------------------------------------------------------------
+void OrbiterRenderer_SDL::SetOrbiterWindowTransparency(double TransparencyLevel)
+{
 #if !defined(WIN32) && !defined(BLUETOOTH_DONGLE) && !defined(PROXY_ORBITER)
+	X11_Locker_NewDisplay locker;
+	SDL_SysWMinfo info;
+	SDL_VERSION(&info.version); // this is important!
+	bool bResult = SDL_GetWMInfo(&info);
+	if (bResult == false)
 	{
-		X11_Locker_NewDisplay locker;
-	    SDL_SysWMinfo info;
-	    SDL_VERSION(&info.version); // this is important!
-	    bool bResult = SDL_GetWMInfo(&info);
-	    if (bResult == false)
-	    {
-	        g_pPlutoLogger->Write(LV_WARNING, "OrbiterRenderer_SDL(): error in SDL_GetWMInfo()");
-	    }
-	    Window parent = GetParentWnd( info.info.x11.display, info.info.x11.window );
-	    Window grandparent = GetParentWnd( info.info.x11.display, parent );
-	    Window ggrandparent = GetParentWnd( info.info.x11.display, grandparent );
-
-		g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_SDL(): setting transparency");
-		
-		SetWindowTransparency(info.info.x11.display, info.info.x11.window, 0.5);
-		SetWindowTransparency(info.info.x11.display, parent, 0.5);
-		SetWindowTransparency(info.info.x11.display, grandparent, 0.5);
-		SetWindowTransparency(info.info.x11.display, ggrandparent, 0.5);
+		g_pPlutoLogger->Write(LV_WARNING, "OrbiterRenderer_SDL(): error in SDL_GetWMInfo()");
 	}
+	Window parent = GetParentWnd( info.info.x11.display, info.info.x11.window );
+	Window grandparent = GetParentWnd( info.info.x11.display, parent );
+	Window ggrandparent = GetParentWnd( info.info.x11.display, grandparent );
+
+	g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_SDL(): setting transparency");
+
+	SetWindowTransparency(info.info.x11.display, info.info.x11.window, TransparencyLevel);
+	SetWindowTransparency(info.info.x11.display, parent, TransparencyLevel);
+	SetWindowTransparency(info.info.x11.display, grandparent, TransparencyLevel);
+	SetWindowTransparency(info.info.x11.display, ggrandparent, TransparencyLevel);
 #endif
 }
 //----------------------------------------------------------------------------------------------------
