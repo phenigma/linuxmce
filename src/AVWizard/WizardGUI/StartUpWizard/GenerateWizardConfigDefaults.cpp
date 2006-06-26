@@ -158,17 +158,18 @@ void GenerateWizardConfigDefaults::GeneratePage0(
 
 	Page->AddChild(GenerateTabContainer(-1, ImageFolder, FontFolder));
 
-	std::string StringList[4];
+	std::string StringList[5];
 	StringList[0] = "From here you can set up the audio & video for your home";
 	StringList[1] = "For selections use \"UP/DOWN/LEFT/RIGHT\" arrows";
 	StringList[2] = "For validation use \"Enter\"";
 	StringList[3] = "IF you want to go back one step use \"Escape\"";
+	StringList[4] = "Use Plus (\"+\") or Minus (\"-\") for escape overscanning effect";
 
 	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
 	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
 
 	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
-	for(int i = 0; i<4; i++)
+	for(int i = 0; i<5; i++)
 	{
 		Page->AddChild(CreateControlLabel(
 			"DescribeText"+Utils::Int32ToString(i),

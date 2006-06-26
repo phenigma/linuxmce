@@ -24,6 +24,9 @@
 #define WMET_ENTER_KEY			2010
 #define WMET_ESCAPE_KEY			2030
 
+#define WMET_PLUS_KEY			2021
+#define WMET_MINUS_KEY			2022
+
 #define WMET_SAVE				3010
 
 /**
@@ -71,7 +74,17 @@ public:
 	void EscapeKey();	
 
 	/**
-	 *	Set the current event as Escape key event
+	 *	Set the current event as Plus key event
+	 */
+	void PlusKey();	
+
+	/**
+	 *	Set the current event as Minus key event
+	 */
+	void MinusKey();
+
+	/**
+	 *	
 	 */
 	void Save();	
 

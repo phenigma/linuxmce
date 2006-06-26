@@ -60,6 +60,8 @@ class Wizard
 	int Height;
 	bool FullScreen;
 
+	int WizardBorder;
+
 	/**
 	 *	SettingsDictionary that keeps the options of command line
 	 */
@@ -124,6 +126,9 @@ class Wizard
 	void DoCancelScreen();
 	
 	void EvaluateEvent(WM_Event& Event);
+
+	void ZoomIn();
+	void ZoomOut();
 
 	void PaintStatus();
 

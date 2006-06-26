@@ -35,6 +35,16 @@ void WM_Event::EscapeKey()
 	this->Type = WMET_ESCAPE_KEY;
 }
 
+void WM_Event::MinusKey()
+{
+	this->Type = WMET_MINUS_KEY;
+}
+
+void WM_Event::PlusKey()
+{
+	this->Type = WMET_PLUS_KEY;
+}
+
 void WM_Event::Save()
 {
 	this->Type = WMET_SAVE;
@@ -65,6 +75,14 @@ void WM_Event::ConvertFromSDLEvent(SDL_Event& Event)
 					break;
 				case SDLK_ESCAPE:
 					EscapeKey();
+					break;
+				case SDLK_KP_PLUS:
+				case SDLK_PLUS:
+					PlusKey();
+					break;
+				case SDLK_KP_MINUS:
+				case SDLK_MINUS:
+					MinusKey();
 					break;
 				case SDLK_KP_ENTER:
 				case SDLK_RETURN:

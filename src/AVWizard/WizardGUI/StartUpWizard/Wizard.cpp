@@ -39,15 +39,16 @@ void signal_handler(int signal)
 #endif
 
 Wizard::Wizard()
-	: Quit(false),
-	  StatusChange(true)	
+	: WizardBorder(0),
+	Quit(false),
+	StatusChange(true)
 {
 	this->ExitCode = 0;
 	AVWizardConfParser ConfigurationParser;
 	this->AVWizardOptions = ConfigurationParser.ParseFile();
 	this->FrontEnd = NULL;
-	this->Width = 640;
-	this->Height = 480;
+	this->Width = 800;
+	this->Height = 600;
 
 	this->FullScreen = false;
 	MainPage = NULL;
@@ -80,6 +81,12 @@ void Wizard::MainLoop()
 	{
 		int Port = Utils::StringToInt32( AVWizardOptions->GetDictionary()->GetValue("RemoteAVWizardServerPort"));
 		Server.StartServer(Port);
+	}
+
+	if(AVWizardOptions->GetDictionary()->Exists("WizardBorder"))
+	{
+		WizardBorder = Utils::StringToInt32( AVWizardOptions->GetDictionary()->
+			GetValue("WizardBorder"));
 	}
 
 	PaintStatus();
@@ -163,7 +170,7 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	else
 	{
 		MainPage->GetPageLayout()->Paint();
-		FrontEnd->Flip();
+		FrontEnd->Flip(WizardBorder);
 	}	
 }
 
@@ -201,6 +208,12 @@ void Wizard::EvaluateEvent(WM_Event& Event)
 	case WMET_ENTER_KEY:
 		DoApplyScreen(AVWizardOptions->GetDictionary());
 		return;
+	case WMET_PLUS_KEY:
+		ZoomIn();
+		return;
+	case WMET_MINUS_KEY:
+		ZoomOut();
+		return;
 	case WMET_SAVE:
 		AVWizardOptions->GetDictionary()->Set("ExitCode", this->ExitCode);
 		AVWizardOptions->SaveToXMLFile(WizardCommandLineParser::GetInstance()->ConfigFileDefault);
@@ -216,7 +229,7 @@ void Wizard::PaintStatus()
 {
 	if(MainPage)
 		MainPage->GetPageLayout()->Paint();
-	FrontEnd->Flip();
+	FrontEnd->Flip(WizardBorder);
 
 	StatusChange = false;
 }
@@ -329,3 +342,18 @@ void Wizard::Resize(int Width, int Height, bool FullScreen)
 
 	FrontEnd->StartVideoMode(Width, Height, FullScreen);	
 }
+
+void Wizard::ZoomIn()
+{
+	if(WizardBorder > 0)
+		WizardBorder -= 1;
+	AVWizardOptions->GetDictionary()->Set("WizardBorder", WizardBorder);
+}
+
+void Wizard::ZoomOut()
+{
+	if(WizardBorder*5 < Width)
+		WizardBorder += 1;
+	AVWizardOptions->GetDictionary()->Set("WizardBorder", WizardBorder);
+}
+
