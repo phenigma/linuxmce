@@ -111,19 +111,33 @@ RingDetectHandler::handleToken(Token* ptoken) {
 					}
 					else
 					{
-						pos=newchan.find(MARK_DIALING);
-						if(pos>=0)
+					
+						string ringphoneid;
+						if(!Utils::ParseChannel(channel, &ringphoneid))
 						{
-							newpos = newchan.find(' ',pos+1);
-							newchan=newchan.substr(0,pos)+newchan.substr(newpos,newchan.length());
-							if((newpos=newchan.find_first_not_of(' '))<0)
+						    if(ringphoneid == exten)
+						    {
+							delete_list.push_back(it);
+							g_pPlutoLogger->Write(LV_STATUS, "Will delete as same extension");
+						
+						    }
+						}
+						else
+						{
+							pos=newchan.find(MARK_DIALING);
+							if(pos>=0)
 							{
-								delete_list.push_back(it);
-								g_pPlutoLogger->Write(LV_STATUS, "Will delete empty DIAL");
-							}
-							else
-							{
-								g_pPlutoLogger->Write(LV_STATUS, "DIAL is not empty '%s' %d",newchan.c_str(),newpos);
+								newpos = newchan.find(' ',pos+1);
+								newchan=newchan.substr(0,pos)+newchan.substr(newpos,newchan.length());
+								if((newpos=newchan.find_first_not_of(' '))<0)
+								{
+									delete_list.push_back(it);
+									g_pPlutoLogger->Write(LV_STATUS, "Will delete empty DIAL");
+	    							}
+								else
+								{
+									g_pPlutoLogger->Write(LV_STATUS, "DIAL is not empty '%s' %d",newchan.c_str(),newpos);
+								}
 							}
 						}
 					}
