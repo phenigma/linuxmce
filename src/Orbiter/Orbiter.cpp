@@ -7857,10 +7857,22 @@ int Orbiter::DeviceIdInvalid()
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::DeviceIdInvalid");
 	if( m_dwPK_Device )
 	{
-		m_pOrbiterRenderer->PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", is reported as invalid.");
-		OnQuit();
-		exit(0);
-		return 0;
+		map<int,string> mapPrompts;
+		enum PromptsResp {prYes, prNo};
+		mapPrompts[prYes] = "Yes - Clear the stored device id";
+		mapPrompts[prNo]  = "No - I'll do it later";
+
+		int nResponse = m_pOrbiterRenderer->PromptUser(
+			"The device number, " + StringUtils::itos(m_dwPK_Device) + 
+				", is reported as invalid. Shall I clear the stored device id and try again?",
+				300, &mapPrompts);
+
+		if(prYes != nResponse)
+		{
+			OnQuit();
+			exit(0);
+			return 0;
+		}
 	}
 
 	int PK_Device = 0;
