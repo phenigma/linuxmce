@@ -15,7 +15,7 @@ if [[ -r /var/run/bootsplash_progress ]] ;then
 fi
 	
 ## Redraw the progress bar (also clears previous text)
-echo "show $(( 65534 * ( $progress + 1 ) / 28 ))" > /proc/splash
+echo "show $progress" > /proc/splash
 
 ## Draw the text on the progressbar
 if [ "$text_x" != "" -a "$text_y" != "" -a "$text_color" != "" -a "$text_size" != "" ] ;then
