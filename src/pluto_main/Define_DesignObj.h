@@ -2190,6 +2190,9 @@
 #define DESIGNOBJ_popAlertMessage_CONST 5132
 #define DESIGNOBJ_objShowAlertPopup_CONST 5133
 #define DESIGNOBJ_butClearKeyboardEntry_CONST 5135
+#define DESIGNOBJ_butAddSoftware_CONST 5136
+#define DESIGNOBJ_mnuAddSoftware_CONST 5137
+#define DESIGNOBJ_dgInstallableApps_CONST 5138
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

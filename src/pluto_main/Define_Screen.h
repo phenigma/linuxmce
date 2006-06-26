@@ -223,6 +223,7 @@
 #define SCREEN_This_Room_CONST 232
 #define SCREEN_MediaSortFilter_CONST 233
 #define SCREEN_NAS_Options_when_Mounting_device_CONST 234
+#define SCREEN_New_Pnp_Device_One_Possibility_CONST 235
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
