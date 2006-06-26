@@ -1,3 +1,10 @@
+sysvinit (2.86.ds1-1.1pluto50) unstable; urgency=high
+  
+  * Save progress bar value in /var/run/bootsplash_progress so it can be read
+    by other scripts (ex BootMessage.sh)
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Mon, 26 Jun 2006 16:55:17 +0300
+
 sysvinit (2.86.ds1-1.1pluto49) unstable; urgency=low
 
   * Runlevel dependencies modified so it can fix race condition on PF socket
