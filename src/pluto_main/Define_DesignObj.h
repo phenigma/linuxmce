@@ -2193,6 +2193,7 @@
 #define DESIGNOBJ_butAddSoftware_CONST 5136
 #define DESIGNOBJ_mnuAddSoftware_CONST 5137
 #define DESIGNOBJ_dgInstallableApps_CONST 5138
+#define DESIGNOBJ_NoReceiver_CONST 5139
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

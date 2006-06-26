@@ -1057,6 +1057,8 @@
 #define TEXT_Cannot_find_City_CONST 1770
 #define TEXT_no_more_av_CONST 1771
 #define TEXT_Add_Software_CONST 1772
+#define TEXT_Waiting_for_device_to_startup_CONST 1773
+#define TEXT_Device_did_not_start_CONST 1774
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
