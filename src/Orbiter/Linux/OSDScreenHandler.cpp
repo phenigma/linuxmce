@@ -44,6 +44,7 @@ OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignO
 {
 	m_bWizardIsRunning = false;
 	m_bAlreadyPlaySeeAndHearMe = false;
+	m_bAlreadyPlayFinalGreeting = false;
 	m_bLightsFlashThreadRunning=m_bLightsFlashThreadQuit=false;
 	m_pWizardLogic = new WizardLogic(pOrbiter);
 	m_dwMessageInterceptorCounter_ReportingChildDevices = 0;
@@ -789,6 +790,8 @@ bool OSDScreenHandler::TV_OnTimer(CallBackData *pData)
 	{
 		NeedToRender render2( m_pOrbiter, "OSDScreenHandler::VideoWizard_OnTimer" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_DirectToTV_CONST),"","",false,false);
+		m_pWizardLogic->m_nPK_Device_TV=PK_Device_TV;
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_TV)));
 		return false;
 	}
 	return true;
@@ -942,6 +945,16 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 	m_pWizardLogic->m_nPK_Device_Receiver = 0;  // We will refind this
 	bool bHasReceiverInPath = m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
                                               m_pWizardLogic->m_nPK_Device_Receiver,1,PK_Command_Input,sReceiver,sInput);
+	if( m_pWizardLogic->m_nPK_Device_Receiver )
+	{
+		// Be sure it's really a receiver and not just the TV being used as the audio device
+		string sTV,sInput;
+		bool bHasTvInPath = m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
+												m_pWizardLogic->m_nPK_Device_TV,2,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV,sTV,sInput);
+		if( m_pWizardLogic->m_nPK_Device_TV==m_pWizardLogic->m_nPK_Device_Receiver ) // It's just the tv
+			m_pWizardLogic->m_nPK_Device_Receiver=0;
+	}
+
 	if( !m_pWizardLogic->m_nPK_Device_Receiver )
 		m_pWizardLogic->m_nPK_Device_Receiver = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST,&sReceiver);
 
@@ -959,7 +972,7 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 				m_pOrbiter->m_mapTextString[TEXT_right_receiver_wrong_input_CONST],
 				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_ReceiverInputs_CONST),
 				m_pOrbiter->m_mapTextString[TEXT_Wrong_receiver_CONST],
-				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_ReceiverManuf_CONST),
+				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_NoReceiver_CONST),
 				m_pOrbiter->m_mapTextString[TEXT_dont_control_my_receiver_CONST],
 				"0 " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn) + " 1 " TOSTRING(COMMAND_Delete_Device_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " " + StringUtils::itos(m_pWizardLogic->m_nPK_Device_Receiver) + "\n"
 				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AV_Devices_CONST));
@@ -971,7 +984,7 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 				m_pOrbiter->m_mapTextString[TEXT_YES_CONST],				
 				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_ReceiverInputs_CONST),
 				m_pOrbiter->m_mapTextString[TEXT_Wrong_receiver_CONST],
-				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_ReceiverManuf_CONST),
+				"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_NoReceiver_CONST),
 				m_pOrbiter->m_mapTextString[TEXT_dont_control_my_receiver_CONST],
 				"0 " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn) + " 1 " TOSTRING(COMMAND_Delete_Device_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " " + StringUtils::itos(m_pWizardLogic->m_nPK_Device_Receiver) + "\n"
 				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AV_Devices_CONST));
@@ -1004,6 +1017,8 @@ bool OSDScreenHandler::Receiver_OnTimer(CallBackData *pData)
 	{
 		NeedToRender render2( m_pOrbiter, "OSDScreenHandler::Receiver_OnTimer" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_ReceiverInputs_CONST),"","",false,false);
+		m_pWizardLogic->m_nPK_Device_Receiver = PK_Device_Receiver;
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_Receiver)));
 		return false;
 	}
 	return true;
@@ -1050,12 +1065,21 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 	{
 		case DESIGNOBJ_Receiver_CONST:
 		{
-			if(DESIGNOBJ_butNoReceiver_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			if(DESIGNOBJ_butNoReceiver_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject )
 			{
-				// No Receiver -- I use the tv for audio
-				m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
-                                          m_pWizardLogic->m_nPK_Device_TV,1,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV); // 1 = audio
-				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
+				string sTV,sInput;
+				bool bHasTvInPath = m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
+														m_pWizardLogic->m_nPK_Device_TV,2,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV,sTV,sInput);
+				if( !m_pWizardLogic->m_nPK_Device_TV )
+					m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST,&sTV);
+
+				if( m_pWizardLogic->m_nPK_Device_TV && m_pWizardLogic->m_nPK_Command_Input_Video_On_TV )
+				{
+					// No Receiver -- I use the tv for audio
+					m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
+											m_pWizardLogic->m_nPK_Device_TV,1,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV); // 1 = audio
+					m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
+				}
 			}
 		}
 		break;
@@ -1265,6 +1289,17 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 			}
 		}
 		break;
+
+		case DESIGNOBJ_Final_CONST:
+		{
+			if( !m_bAlreadyPlayFinalGreeting )
+			{
+				m_bAlreadyPlayFinalGreeting=true;
+				DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalMediaPlayer,"/home/monster/final.mpg",0,0,"");
+				m_pOrbiter->SendCommand(CMD_Play_Media);
+			}
+		}
+		break;
 	}
 
 	return false;
@@ -1324,6 +1359,7 @@ void OSDScreenHandler::HandleLightingScreen()
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 {
+	m_tWaitingForRegistration=0;
 	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butLightsWizard_CONST)); 
 
@@ -1389,13 +1425,33 @@ bool OSDScreenHandler::LightsSetup_OnScreen(CallBackData *pData)
 
 bool OSDScreenHandler::Lights_OnTimer(CallBackData *pData)
 {
-	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoLights_CONST )
+	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoLights_CONST || m_tWaitingForRegistration )
 	{
 		m_pWizardLogic->m_nPK_Device_Lighting =	m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Lighting_Interface_CONST);
 		if( m_pWizardLogic->m_nPK_Device_Lighting )
 		{
-			HandleLightingScreen();
-			return false;  // Kill the timer
+			char cRegistered = m_pOrbiter->DeviceIsRegistered(m_pWizardLogic->m_nPK_Device_Lighting);
+			if( cRegistered=='Y' )
+			{
+				m_tWaitingForRegistration=0;
+				HandleLightingScreen();
+				return false;  // Kill the timer
+			}
+			else if( !m_tWaitingForRegistration )
+			{
+				m_tWaitingForRegistration = time(NULL);
+				DisplayMessageOnOrbiter(0,m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST],false,"0",true,"nobuttons");
+			}
+			else if( time(NULL)-m_tWaitingForRegistration>60 )
+			{
+				m_tWaitingForRegistration=0;
+				DisplayMessageOnOrbiter(0,m_pOrbiter->m_mapTextString[TEXT_Device_did_not_start_CONST],false,"0",true,
+					m_pOrbiter->m_mapTextString[TEXT_Ok_CONST],
+					"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AlarmPanel_CONST));
+				return false;
+			}
+			else
+				return true;
 		}
 	}
 	return true;

@@ -533,11 +533,27 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_device_template);
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
 
-	if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==1 )
+	if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==1 || pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() )
 	{
-		Row_DHCPDevice *pRow_DHCPDevice = pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin()->second;
-		Row_DeviceTemplate *pRow_DeviceTemplate = pRow_DHCPDevice ? pRow_DHCPDevice->FK_DeviceTemplate_getrow() : NULL;
-		if( pRow_DeviceTemplate )
+		Row_DHCPDevice *pRow_DHCPDevice = pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==1 ? pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin()->second : NULL;
+		Row_DeviceTemplate *pRow_DeviceTemplate = NULL;
+		if( pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() )
+			pRow_DeviceTemplate = pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_getrow();
+		if( !pRow_DeviceTemplate && pRow_DHCPDevice )
+			pRow_DeviceTemplate	= pRow_DHCPDevice->FK_DeviceTemplate_getrow();
+		else if( !pRow_DHCPDevice )
+		{
+			for(map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();++it)
+			{
+				Row_DHCPDevice *pRow_DHCPDevice2 = it->second;
+				if( pRow_DHCPDevice2->FK_DeviceTemplate_get()==pRow_DeviceTemplate->PK_DeviceTemplate_get() )
+				{
+					pRow_DHCPDevice = pRow_DHCPDevice2;
+					break;
+				}
+			}
+		}
+		if( pRow_DeviceTemplate && pRow_DHCPDevice )
 		{
 			Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(),DEVICEDATA_Autoassign_to_parents_room_CONST);
 			int PK_Room=0;

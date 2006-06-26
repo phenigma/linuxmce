@@ -9,7 +9,8 @@ protected:
 	class WizardLogic *m_pWizardLogic;
 	int m_nLightInDequeToAssign; // To keep track of which light we're flashing
 	bool m_bLightsFlashThreadQuit,m_bLightsFlashThreadRunning;
-	bool m_bHasVideoWizardFiles,m_bWizardIsRunning,m_bAlreadyPlaySeeAndHearMe;
+	bool m_bHasVideoWizardFiles,m_bWizardIsRunning,m_bAlreadyPlaySeeAndHearMe,m_bAlreadyPlayFinalGreeting;
+	time_t m_tWaitingForRegistration;
 
 public:
 	OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj);

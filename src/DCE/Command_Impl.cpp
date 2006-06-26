@@ -1022,11 +1022,9 @@ void Command_Impl::FindUnregisteredRelativesLoop(DeviceData_Base *pDevice,map<in
 {
 	if( pDevice->m_dwPK_Device!=m_dwPK_Device && pDevice->m_bImplementsDCE && !pDevice->m_bIsEmbedded && !pDevice->m_bDisabled ) // Exclude ourself, only non-embedded DCE Devices
 	{
-		string sResponse = m_pEvent->m_pClientSocket->SendReceiveString("DEVICE_REGISTERED " + StringUtils::itos(pDevice->m_dwPK_Device));
-		if( sResponse.substr(0,17)!="DEVICE_REGISTERED" )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine if device %d registered",pDevice->m_dwPK_Device);
-		else if (sResponse[18] != 'D')
-			(*p_mapUnregisteredRelatives)[pDevice->m_dwPK_Device] = (sResponse[18]=='Y');
+		char cDeviceRegistered = DeviceIsRegistered(pDevice->m_dwPK_Device);
+		if (cDeviceRegistered != 'D')
+			(*p_mapUnregisteredRelatives)[pDevice->m_dwPK_Device] = (cDeviceRegistered=='Y');
 	}
 	for(size_t s=0;s<pDevice->m_vectDeviceData_Base_Children.size();++s)
 	{
@@ -1037,6 +1035,17 @@ void Command_Impl::FindUnregisteredRelativesLoop(DeviceData_Base *pDevice,map<in
 	}
 	if( bScanParent && pDevice->m_pDevice_ControlledVia )
 		FindUnregisteredRelativesLoop(pDevice->m_pDevice_ControlledVia,p_mapUnregisteredRelatives,false,pDevice->m_dwPK_Device);
+}
+
+char Command_Impl::DeviceIsRegistered(int PK_Device) // Returns Y, N, D (for disabled)
+{
+	string sResponse = m_pEvent->m_pClientSocket->SendReceiveString("DEVICE_REGISTERED " + StringUtils::itos(PK_Device));
+	if( sResponse.substr(0,17)!="DEVICE_REGISTERED" )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine if device %d registered",PK_Device);
+		return 'E';
+	}
+	return sResponse[18];
 }
 
 bool Command_Impl::GetChildDeviceData( int PK_Device, int PK_DeviceData, string &sValue, DeviceData_Impl *pDeviceData_Impl)

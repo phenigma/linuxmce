@@ -151,7 +151,10 @@ bool App_Server::Connect(int iPK_DeviceTemplate )
 
 	// Find the media director
 	DeviceData_Base *pDevice_This = m_pData->m_AllDevices.m_mapDeviceData_Base_Find( m_dwPK_Device );
+	if( !pDevice_This )
+		return bResult;  // Router must need a reload
 	DeviceData_Base *pDevice_MD = pDevice_This->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Director_CONST);
+	
 	if( !pDevice_MD )
 		pDevice_MD = pDevice_This->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Computers_CONST);  // Shouldn't happen.  Be more broad
 	if( pDevice_MD )

@@ -775,9 +775,10 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 	string sOption1, string sMessage1, string sOption2, string sMessage2,
 	string sOption3, string sMessage3, string sOption4, string sMessage4)
 {
+	NeedToRender render2( m_pOrbiter, "ScreenHandler::DisplayMessageOnOrbiter" );  // Redraw anything that was changed by this command
 	int PK_DesignObj = m_p_MapDesignObj_Find(PK_Screen);
 	if( !PK_DesignObj )
-		PK_DesignObj = PK_Screen;  // Allow the user to pass in a design obj to use instead
+		PK_DesignObj = PK_Screen ? PK_Screen : DESIGNOBJ_mnuPopupMessage_CONST;  // Allow the user to pass in a design obj to use instead
 	string sPK_DesignObj = StringUtils::ltos(PK_DesignObj);
 
 	//if(sMessage == "")
@@ -800,7 +801,7 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 		return;
 	}
 
-	if(sOption1.size())
+	if(sOption1.size() && sMessage1.size() )  // Let the user pass in dummy option with no message if he wants no button
 	{
 		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 0, "", "", "1" );
 		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), sOption1, TEXT_STATUS_CONST);

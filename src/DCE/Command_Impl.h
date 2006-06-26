@@ -139,6 +139,7 @@ namespace DCE
 		 */
 		int FindUnregisteredRelatives(map<int,bool> *p_mapUnregisteredRelatives);
 		void FindUnregisteredRelativesLoop(DeviceData_Base *pDevice,map<int,bool> *p_mapUnregisteredRelatives,bool bScanParent=true,int PK_Device_ExcludeChild=0);
+		char DeviceIsRegistered(int PK_Device); // Returns Y, N, D (for disabled), E (for error with sockets)
 
 		virtual void KillSpawnedDevices();
 
