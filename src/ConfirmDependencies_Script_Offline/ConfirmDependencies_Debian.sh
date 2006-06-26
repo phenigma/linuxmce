@@ -72,6 +72,9 @@ export DEBIAN_FRONTEND=noninteractive
 
 case "$URL_TYPE" in
 	apt)
+		## Display a bootsplash message
+		/usr/pluto/bin/BootMessage.sh "Installing: $PKG_NAME" || /bin/true
+
 		if [[ -z "$REPOS" ]]; then
 			echo "$0: Blank repository entry" >&2
 			exit $ERR_APT
