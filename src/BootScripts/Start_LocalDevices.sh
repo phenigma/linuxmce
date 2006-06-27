@@ -24,6 +24,21 @@ export DISPLAY=:0
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "Launching child devices for device: $CurrentDevice"
 
+GhostHuntQ="SELECT *
+    FROM Device
+    JOIN DeviceTemplate ON Device.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate
+    LEFT JOIN Device AS Device_Parent on Device.FK_Device_ControlledVia=Device_Parent.PK_Device
+    LEFT JOIN DeviceTemplate AS DeviceTemplate_Parent ON Device_Parent.FK_DeviceTemplate=DeviceTemplate_Parent.PK_DeviceTemplate
+    WHERE (Device.FK_Device_ControlledVia=1
+    OR (Device_Parent.FK_Device_ControlledVia=1 AND DeviceTemplate_Parent.FK_DeviceCategory IN (6,7,8) ) )
+    AND DeviceTemplate.FK_DeviceCategory <> 1
+"
+
+{
+	date -R
+	echo "$GhostHuntQ" | mysql pluto_main
+} >>/var/log/pluto/start_devices.log
+
 Q="SELECT Device.PK_Device, DeviceTemplate.Description, DeviceTemplate.CommandLine, Device.Disabled
 	FROM Device
 	JOIN DeviceTemplate ON Device.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate
