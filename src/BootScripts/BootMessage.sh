@@ -15,6 +15,7 @@ if [[ -r /var/run/bootsplash_progress ]] ;then
 fi
 	
 ## Redraw the progress bar (also clears previous text)
+echo "show $(( $progress + 1 ))" > /proc/splash
 echo "show $progress" > /proc/splash
 
 ## Draw the text on the progressbar
