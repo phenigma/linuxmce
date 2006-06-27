@@ -38,33 +38,6 @@ fi
 mkdir -p /tftpboot/pxelinux.cfg
 cp /usr/lib/syslinux/pxelinux.0 /tftpboot
 
-# Changed from 2.0.0.10 to 2.0.0.11: diskless filesystems were moved to /home
-if [[ ! -L /usr/pluto/diskless && -d /usr/pluto/diskless ]]; then
-	mv /usr/pluto/diskless /home
-else
-	mkdir -p /home/diskless
-fi
-rm -f /usr/pluto/diskless
-ln -s /home/diskless /usr/pluto/diskless
-
-# Changed from 2.0.0.24 to 2.0.0.25: pluto logs and core dumps were moved to /home
-if [[ ! -L /usr/pluto/coredump && -d /usr/pluto/coredump ]]; then
-	mv /usr/pluto/coredump /home
-else
-	mkdir -p /home/coredump
-fi
-rm -f /usr/pluto/coredump
-ln -s /home/coredump /usr/pluto/coredump
-
-if [[ ! -L /var/log/pluto && -d /var/log/pluto ]]; then
-	mkdir -p /home/logs
-	mv /var/log/pluto /home/logs
-else
-	mkdir -p /home/logs/pluto
-fi
-rm -f /var/log/pluto
-ln -s /home/logs/pluto /var/log/pluto
-
 if [[ "$TestInstallation" == 1 ]]; then 
 	sed -i 's/#log..= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf
 	sed -i 's/#log.= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf
