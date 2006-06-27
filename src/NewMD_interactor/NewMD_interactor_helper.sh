@@ -12,8 +12,7 @@ GetListOfRooms()
 					ELSE ''
 				END, 
 				Room.Description
-			) AS StarDesc,
-			FK_DeviceCategory
+			) AS StarDesc
 		FROM Room
 		LEFT JOIN Device ON FK_Room=PK_Room
 		LEFT JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
