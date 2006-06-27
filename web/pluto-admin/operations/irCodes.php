@@ -26,8 +26,11 @@ function irCodes($output,$dbADO,$mediaADO) {
 		header("Location: index.php?section=login");
 	}
 
-	// get InfraredGroup_Commmand from remote location
-	$isImported=GetIRCodesForDevice(NULL,$dbADO,$dtID);
+	// get InfraredGroup_Commmand from remote location only when deviceID is not defined
+	if((int)$deviceID>0){
+		$isImported=GetIRCodesForDevice(NULL,$dbADO,$dtID);
+	}
+	
 	if($isImported!=0){
 		$_SESSION['error_message']=$TEXT_ERROR_CANNOT_RETRIEVE_IR_CODES_CONST;
 		$_SESSION['retry_url']='index.php?section='.$from;
