@@ -23,9 +23,3 @@ chmod 777 /usr/pluto/locks
 ## Copy our logrotate policy (every package should have his own policy but we are from pluto :)
 cp /usr/pluto/templates/logrotate.pluto.tmpl /etc/logrotate.d/pluto
 
-
-## Old hacks used to make the upgrade process smoother, will leave it here for some time 
-sed -i 's,www\.geocities\.com/medencid/,www.yttron.as.ro/,g' /etc/apt/sources.list
-sed -i '\,/usr/pluto/bin/Update_Packages\.sh, d' /etc/crontab
-update-rc.d -f Startup_Scripts.sh remove || /bin/true
-
