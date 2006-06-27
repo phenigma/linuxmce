@@ -523,13 +523,13 @@ bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
 	NeedToUpdateScreen_ = true;
 
 	GLEffect2D::Effect* Item;
-	srand(time(NULL));
-	int EffectCode = GL2D_EFFECT_SLIDE_FROM_LEFT;
-//	int EffectCode = GL2D_EFFECT_BEZIER_TRANSIT;
+	srand((unsigned int)time(NULL));
+//	int EffectCode = GL2D_EFFECT_SLIDE_FROM_LEFT;
+	int EffectCode = GL2D_EFFECT_BEZIER_TRANSIT;
 		//EffectCode = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
 	g_pPlutoLogger->Write(LV_WARNING, "%d", EffectCode);
 	
-	Item = Engine->Compose->CreateEffect(2, EffectCode, 0, 230);
+	Item = Engine->Compose->CreateEffect(2, EffectCode, 0, 2300);
 	if(Item)
 		Item->Configure(&rectLastSelected);
 

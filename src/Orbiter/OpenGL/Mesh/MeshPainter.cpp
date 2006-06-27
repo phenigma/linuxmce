@@ -56,6 +56,7 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 	if(Container.NoTriangles)
 		DCE::g_pPlutoLogger->Write(LV_WARNING, "GL_TRIANGLES");
 #endif
+
 	glBegin(GL_TRIANGLES);
 	for(Count = 0; Count < Container.NoTriangles; Count++)
 	{
@@ -106,7 +107,7 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 		MeshTriangle& Triangle = Container.Triangles[Count];
 
 		glDisable(GL_TEXTURE_2D);
-		glBegin(GL_LINES);
+		glBegin(GL_LINE_STRIP);
 		glColor3f(1, 1, 1);
 		MeshVertex& Vertex = Vertexes[Triangle.Vertex1];
 		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
@@ -114,6 +115,9 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
 
 		Vertex = Vertexes[Triangle.Vertex3];
+		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
+
+		Vertex = Vertexes[Triangle.Vertex1];
 		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
 
 		glEnd();

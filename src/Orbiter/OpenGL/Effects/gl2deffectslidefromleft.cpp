@@ -59,11 +59,10 @@ void GL2DEffectSlideFromLeft::Paint(int Time)
 			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
 		Destination->SetBackgroundImage(ScreenRenderGraphic);
 
-		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
-		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
+		//float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
+		//float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
 		
-		Destination->SetTextureWraping(0.0, 0.0, 
-			MaxCoordU, MaxCoordV);
+		Destination->SetTextureWraping(0.0, 0.0, 1.0f, 1.0f);
 
 		Start = Effects->MilisecondTimmer();
 

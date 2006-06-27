@@ -13,7 +13,6 @@ MeshContainer* genBezier(BEZIER_PATCH patch, FloatRect TextureWrapper2D, ColorRG
 	int		u = 0, v;
 	double		py, px, pyold; 
 	POINT_3D	temp[4];
-	POINT_3D	first[2];
 	POINT_3D	*last = (POINT_3D*)malloc(sizeof(POINT_3D)*(divs+1));
 
 
@@ -31,7 +30,17 @@ MeshContainer* genBezier(BEZIER_PATCH patch, FloatRect TextureWrapper2D, ColorRG
 		last[v] = MathUtils::Bernstein((float)px, temp);
 	}
 
+
+
 	MeshBuilder MB;
+	MB.SetColor(1.0f, 1.0f, 1.0f);
+	MB.SetAlpha(Background.Alpha);
+	MB.SetTexture(BackgroundTexture);
+
+	MB.Begin(MBMODE_TRIANGLE_STRIP);
+
+	//glPushMatrix();
+	//glTranslatef(-400, -300, 00);
 	for (u=1;u<=divs;u++) {
 		py    = ((double)u)/((double)divs);			// Percent Along Y-Axis
 		pyold = ((double)u-1.0)/((double)divs);			// Percent Along Old Y Axis
@@ -41,15 +50,8 @@ MeshContainer* genBezier(BEZIER_PATCH patch, FloatRect TextureWrapper2D, ColorRG
 		temp[2] = MathUtils::Bernstein((float)py, patch.anchors[2]);
 		temp[3] = MathUtils::Bernstein((float)py, patch.anchors[3]);
 
-		MB.SetColor(1.0f, 1.0f, 1.0f);
-		MB.SetAlpha(Background.Alpha);
-		MB.SetTexture(BackgroundTexture);
-
-		MB.Begin(MBMODE_TRIANGLE_STRIP);
-
-		glTranslatef(-400, -300, 00);
-		glBegin(GL_TRIANGLE_STRIP);
-		glColor3f(1.0f, 1.0f, 0.0f);
+		//glBegin(GL_TRIANGLE_STRIP);
+		//glColor3f(1.0f, 1.0f, 0.0f);
 
 		for (v=0;v<=divs;v++) {
 			px = ((float)v)/((float)divs);			// Percent Along The X-Axis
@@ -61,11 +63,13 @@ MeshContainer* genBezier(BEZIER_PATCH patch, FloatRect TextureWrapper2D, ColorRG
 				TextureWrapper2D.Top+TextureWrapper2D.Height, 
 				1-(float)pyold);
 
-			MB.AddVertexFloatUV(last[v].x, last[v].y, last[v].z, CoordU, CoordV); 
-			/*
-			glTexCoord2f(CoordU*1.4, CoordV*1.8); 
-			glVertex3f(last[v].x, last[v].y, last[v].z);
-			*/
+			MB.AddVertexFloatUV(last[v].x, last[v].y, last[v].z, 
+				CoordU,
+				CoordV); 
+			
+			//glTexCoord2f(CoordU*1.4, CoordV*1.8); 
+			//glVertex3f(last[v].x, last[v].y, last[v].z);
+
 			last[v] = MathUtils::Bernstein((float)px, temp);			// Generate New Point
 
 			CoordU = (float)MathUtils::InterpolateValues(TextureWrapper2D.Left, 
@@ -75,30 +79,23 @@ MeshContainer* genBezier(BEZIER_PATCH patch, FloatRect TextureWrapper2D, ColorRG
 				TextureWrapper2D.Top+TextureWrapper2D.Height, 
 				1-(float)py);
 
-			MB.AddVertexFloatUV(last[v].x, last[v].y, last[v].z, CoordU, CoordV); 
-			/*
-			glTexCoord2f(CoordU*1.4, CoordV*1.8); 
-			glVertex3f(last[v].x, last[v].y, last[v].z);
-			*/
-			
-		}
+			MB.AddVertexFloatUV(last[v].x, last[v].y, last[v].z, 
+				CoordU, 
+				CoordV); 
 
+			//glTexCoord2f(CoordU*1.4, CoordV*1.8); 
+			//glVertex3f(last[v].x, last[v].y, last[v].z);
+		}
+		//glEnd();
 	}
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glEnd();
-	glTranslatef(400, 300, -000);
-	Container = MB.End();
+	//glColor3f(1.0f, 1.0f, 1.0f);
+	//glPopMatrix();
+	
 	free(last);							// Free The Old Vertices Array
 
-	MeshFrame* Frame = new MeshFrame();
-	MeshTransform Transform;
-	Transform.Translate(-400, -300, 400);
-	Frame->SetTransform(Transform);
-	Frame->SetMeshContainer(Container);
-	Frame->Paint();
+	Container = MB.End();
 
-	//return Container;
-	return NULL;
+	return Container;
 }
 
 TBezierWindow::TBezierWindow(MeshFrame* ParentContext,
@@ -117,6 +114,8 @@ TBezierWindow::TBezierWindow(MeshFrame* ParentContext,
 }
 
 TBezierWindow::~TBezierWindow() {
+	Context->RemoveChild(Frame);
+	delete Frame;
 }
 
 
@@ -160,5 +159,16 @@ void TBezierWindow::SetRectCoordinates(FloatRect Coordinates)
 				float(Top + Height), y/3.0f);
 			BezierDefinition.anchors[x][y].z = 0;
 		}
+}
+
+	/** Set the UV texture coordinates of the texture. That will make the texture to be streched without any 
+	  geometry modification. Too is used to fix the non power of 2 texture size. 
+	 */
+void TBezierWindow::SetTextureWraping(float LeftCoordinate, float TopCoordinate, 
+	float WidthCoordinate, float HeightCoordinate) {
+	TextureWrapper2D.Left = LeftCoordinate;
+	TextureWrapper2D.Top = 1-TopCoordinate;
+	TextureWrapper2D.Width = WidthCoordinate;
+	TextureWrapper2D.Height = -HeightCoordinate;
 }
 

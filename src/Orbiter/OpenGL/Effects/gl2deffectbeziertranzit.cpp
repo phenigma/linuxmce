@@ -52,12 +52,10 @@ void GL2DBezierEffectTransit::Paint(int Now)
 			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
 
 		Button->SetBackgroundImage(ScreenRenderGraphic);
-		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
-		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
+		float MaxCoordU = 1.0f;
+		float MaxCoordV = 1.0f;
 		
-		Button->SetTextureWraping(0.0, 0.0, 
-			MaxCoordU, MaxCoordV);
-			
+		Button->SetTextureWraping(0, 0, MaxCoordU, MaxCoordV);
 		Button->BezierDefinition.Divisions = 15;
 
 		Start = Effects->MilisecondTimmer();	
@@ -144,10 +142,11 @@ void GL2DBezierEffectTransit::Paint(int Now)
 	for(i = 0; i<4; i++)
 	{
 		for(j=0; j<4; j++)
-			Button->BezierDefinition.anchors[j][i].z = 300;
+			Button->BezierDefinition.anchors[j][i].z = 0;
 
 	}
-	Button->Paint();
+
+
 }
 
 }

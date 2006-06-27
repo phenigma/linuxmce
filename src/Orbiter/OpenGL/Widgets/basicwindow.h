@@ -90,19 +90,10 @@ public:
 	}
 	
 	void SetTextureWraping(float LeftCoordinate, float TopCoordinate, 
-		float WidthCoordinate, float HeightCoordinate) {
-		TextureWrapper2D.Left = LeftCoordinate;
-		TextureWrapper2D.Top = TopCoordinate;
-		TextureWrapper2D.Width = WidthCoordinate;
-		TextureWrapper2D.Height = HeightCoordinate;
-	}
+		float WidthCoordinate, float HeightCoordinate);
 	
-	void SetTextureWraping(FloatRect UVRect) {
-		TextureWrapper2D.Left = UVRect.Left;
-		TextureWrapper2D.Top = UVRect.Top;
-		TextureWrapper2D.Width = UVRect.Width;
-		TextureWrapper2D.Height = UVRect.Height;
-	}
+	void SetTextureWraping(FloatRect UVRect);
+
 	/**
 	 * Utility function: given one FloatRect it set the coordinates of the window
 	 * using the float based coordinates

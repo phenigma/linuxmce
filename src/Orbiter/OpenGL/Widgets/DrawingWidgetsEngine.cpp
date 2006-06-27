@@ -25,6 +25,7 @@ DrawingWidgetsEngine::~DrawingWidgetsEngine()
 
 void DrawingWidgetsEngine::Paint()
 {
+
 	std::vector<TBaseWidget*>::iterator Widget;
 	for(Widget = Widgets.begin(); Widget < Widgets.end(); Widget++)
 	{
@@ -39,6 +40,7 @@ void DrawingWidgetsEngine::Paint()
 	}
 	MeshTransform Transform;
 	Transform.ApplyTranslate(-400, -300, 300);
+
 	Context.Paint(Transform);
 	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "EndFrame");
 }

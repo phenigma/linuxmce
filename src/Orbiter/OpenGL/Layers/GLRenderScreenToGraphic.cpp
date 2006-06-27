@@ -26,13 +26,11 @@ OpenGLGraphic* GLRenderScreenToGraphic::GetRenderGraphic()
 
 void GLRenderScreenToGraphic::RenderFrameToGraphic()
 {
-	glViewport(0, 0, Width, Height);
-
 	glBindTexture(GL_TEXTURE_2D, RenderGraphic->Texture);
 	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 
-		Width, Height,
+		MathUtils::MinPowerOf2(Width),
+		MathUtils::MinPowerOf2(Height),
 		0); 
-
 }
 
 void GLRenderScreenToGraphic::CreateRenderTexture()

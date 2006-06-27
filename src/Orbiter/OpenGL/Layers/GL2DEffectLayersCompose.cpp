@@ -95,42 +95,37 @@ FloatRect LayersCompose::GetDefaultFullScreenUVMapping()
 
 void LayersCompose::Paint()
 {
-	//Count the layers with effect
-	int NoLayers = 0;
-	std::map <int, Layer*>::iterator Item;
-	for(Item = LayerList.begin(); Item != LayerList.end(); ++Item)
-	{
-		if ((Item->second)->HasEffects())
-			NoLayers++;
-	}
-
-	if(NoLayers == 0)
+	bool bHasEffects = HasEffects();
+	if(!bHasEffects)
 	{
 		NeedUpdateLayers = true;
 		this->PaintScreen3D();
-		ShowAnimationTextures();
+		//ShowAnimationTextures();
 
 		return;
 	}
 
-	if(NeedUpdateLayers && HasEffects())
+	if(NeedUpdateLayers && bHasEffects)
 	{
 		this->PaintScreen3D();
 		NeedUpdateLayers = false;
 		TakeNewScreenSnapshot();
-		PaintOldScreen3D();
 	}
-	
+
+	if(bHasEffects)
+		PaintOldScreen3D();
+
+	std::map <int, Layer*>::iterator Item;
 	for(Item = LayerList.begin(); Item != LayerList.end(); ++Item)
 	{
 		if ((Item->second)->HasEffects())
-		{
-			NoLayers--;
 			Item->second->Paint();
-		}
 	}
 
-	ShowAnimationTextures();
+	if(!HasEffects())
+		PaintScreen3D();
+
+	//ShowAnimationTextures();
 }
 
 bool LayersCompose::HasEffects()
@@ -175,6 +170,8 @@ void LayersCompose::PaintOldScreen3D()
 	TextureMan->SetupTexture(Texture);
 	glEnd();
 
+	float MaxU = float(Width)/MathUtils::MinPowerOf2(Width);
+	float MaxV = float(Height)/MathUtils::MinPowerOf2(Height);
 	glPushMatrix();
 	glTranslatef(-Width/2, Height/2, Height/2);
 	glScalef(1, -1, 1);
@@ -182,11 +179,13 @@ void LayersCompose::PaintOldScreen3D()
 	glColor3f(1, 1, 1);
 	glTexCoord2f(0.0, 0.0);
 	glVertex3d(0, 0, 0);
-	glTexCoord2f(1.0, 0.0);
+	glTexCoord2f(MaxU, 0.0);
 	glVertex3d(Width, 0, 0);
-	glTexCoord2f(0.0, 1.0);
+
+	glTexCoord2f(0.0, MaxV);
 	glVertex3d(0, Height, 0);
-	glTexCoord2f(1.0, 1.0);
+
+	glTexCoord2f(MaxU, MaxV);
 	glVertex3d(Width, Height, 0);
 
 	glColor3f(1, 1, 1);
@@ -194,12 +193,12 @@ void LayersCompose::PaintOldScreen3D()
 
 	glPopMatrix();
 
-	/*if(OldLayer)
-	{
-		MeshTransform Transform;
-		Transform.ApplyTranslate(-Width/2.0f, -Height/2.0f,Height/2.0f);
-		OldLayer->Paint(Transform);
-	}*/
+	//if(OldLayer)
+	//{
+	//	MeshTransform Transform;
+	//	Transform.ApplyTranslate(-Width/2.0f, -Height/2.0f,Height/2.0f);
+	//	OldLayer->Paint(Transform);
+	//}
 }
 
 void LayersCompose::Resize(int Width, int Height)
@@ -270,13 +269,17 @@ void LayersCompose::ShowAnimationTextures()
 	glScalef(1, -1, 1);
 	glBegin(GL_TRIANGLE_STRIP);
 	glColor3f(1, 1, 0);
+
 	glTexCoord2f(0.0, 0.0);
 	glVertex3d(-100, 0, 120);
+
 	glTexCoord2f(1.0, 0.0);
 	glVertex3d(0, 0, 120);
+	
 	glTexCoord2f(0.0, 1.0);
 	glVertex3d(-100, 100, 120);
-	glTexCoord2f(1.0, 1.0);
+	
+glTexCoord2f(1.0, 1.0);
 	glVertex3d(0, 100, 120);
 
 	glColor3f(1, 1, 1);

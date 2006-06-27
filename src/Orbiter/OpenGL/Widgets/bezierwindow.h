@@ -132,17 +132,9 @@ public:
 		Background.Alpha = Alpha;
 	}
 	
-	/** Set the UV texture coordinates of the texture. That will make the texture to be streched without any 
-	  geometry modification. Too is used to fix the non power of 2 texture size. 
-	 */
 	void SetTextureWraping(float LeftCoordinate, float TopCoordinate, 
-		float WidthCoordinate, float HeightCoordinate) {
-		TextureWrapper2D.Left = LeftCoordinate;
-		TextureWrapper2D.Top = TopCoordinate;
-		TextureWrapper2D.Width = WidthCoordinate;
-		TextureWrapper2D.Height = HeightCoordinate;
-	}
-	
+		float WidthCoordinate, float HeightCoordinate);	
+
 	/** Utility function: given one FloatRect it set the coordinates of the window
 	 * using the float based coordinates
 	 */

@@ -5,6 +5,8 @@
 #include "MeshTriangle.h"
 #include "../OpenGLGraphic.h"
 
+#include "math3dutils.h"
+
 class MeshContainer
 {
 public:
@@ -19,6 +21,8 @@ public:
 	
 	virtual void SetAlpha(float Alpha);
 	virtual void SetTexture(OpenGLGraphic* Texture);
+
+	virtual void SetUVMapping(FloatRect Rect);
 };
 
 #endif 

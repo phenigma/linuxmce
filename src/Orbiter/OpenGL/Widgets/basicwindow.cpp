@@ -103,3 +103,19 @@ void TBasicWindow::SetRectCoordinates(FloatRect Coordinates)
 	SetHeight(Coordinates.Height);
 }
 
+void TBasicWindow::SetTextureWraping(float LeftCoordinate, float TopCoordinate, 
+	float WidthCoordinate, float HeightCoordinate) 
+{
+	TextureWrapper2D.Left = LeftCoordinate;
+	TextureWrapper2D.Top = TopCoordinate;
+	TextureWrapper2D.Width = WidthCoordinate;
+	TextureWrapper2D.Height = HeightCoordinate;
+	SetTextureWraping(TextureWrapper2D);
+}
+
+void TBasicWindow::SetTextureWraping(FloatRect UVRect) 
+{
+	TextureWrapper2D = UVRect;
+	Container->SetUVMapping(UVRect);
+}
+
