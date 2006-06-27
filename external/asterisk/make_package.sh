@@ -6,25 +6,30 @@ TGZFOLDER=${MAINFOLDER}/tgz
 SRCFOLDER=${MAINFOLDER}/src
 PKGFOLDER=${MAINFOLDER}/pkg/root
 
+
 rm -rf ${PKGFOLDER} ${SRCFOLDER}
+
+
 rm -rf asterisk-pluto*
 mkdir -p ${PKGFOLDER}/etc
 mkdir -p ${SRCFOLDER}
 
+#########
 cd ${SRCFOLDER}
+
+
 for I in `ls ${TGZFOLDER}/*.tar.gz`
 do
 	echo "Unpacking $I"
 	tar -xzf $I
 done 
 
+
 chmod u+w -R ${SRCFOLDER}/bristuff-*
 
-#APPLY FLORZ PATCHES
-cd ${SRCFOLDER}/bristuff-*
-patch -p1 < ${TGZFOLDER}/zaphfc_0.2.0-RC8o_florz-9.diff.gz
 
 #APPLY BRISTUFF PATCHES
+
 cd ${SRCFOLDER}/zaptel-*
 echo "Apply patches in `pwd`"
 patch -p1 < ${SRCFOLDER}/bristuff-*/patches/zaptel.patch
@@ -37,6 +42,7 @@ cd ${SRCFOLDER}/asterisk-[0-9]*
 echo "Apply patches in `pwd`"
 patch -p1 < ${SRCFOLDER}/bristuff-*/patches/asterisk.patch
 
+
 #START COMPILING
 
 cd ${SRCFOLDER}/libpri-*
@@ -48,38 +54,46 @@ ln -sf libpri.so.1.0 libpri.so.1
 ln -sf libpri.so.1 libpri.so
 
 cd ${SRCFOLDER}
-ln -s f${SRCFOLDER}/libpri-*/libpri.h ${SRCFOLDER}/asterisk-[0-9]*/include/
+ln -sf ${SRCFOLDER}/libpri-*/libpri.h ${SRCFOLDER}/asterisk-[0-9]*/include/
 ln -sf asterisk-[0-9]* asterisk
 
 cd ${SRCFOLDER}/zaptel-*/
 sed -r -i "s/^ROOT_PREFIX=//" Makefile
 sed -r -i "s/^INSTALL_PREFIX=//" Makefile
-patch < ${ADDFOLDER}/zaptel_2.6.15.patch
-patch < ${ADDFOLDER}/zaptel_2.6.16.patch
+
+#patch < ${ADDFOLDER}/zaptel_2.6.15.patch
+#patch < ${ADDFOLDER}/zaptel_2.6.16.patch
+
 touch ${PKGFOLDER}/etc/conf.modules
+
 make clean
-make || exit
+make linux26 || exit
 make INSTALL_PREFIX=${PKGFOLDER} ROOT_PREFIX=${PKGFOLDER} DYNFS=yes install
 cp zaptel.conf.sample ${PKGFOLDER}/etc/
 
-cd ${SRCFOLDER}/bristuff-*/
-cd qozap
-sed -r -i "s/^(BRISTUFFBASE.*)$/\1\/..\//" Makefile
-make clean all || exit
-make INSTALL_PREFIX=${PKGFOLDER} install
-cd ..
-cd cwain
-sed -r -i "s/^(BRISTUFFBASE.*)$/\1\/..\//" Makefile
-make clean all || exit
-make INSTALL_PREFIX=${PKGFOLDER} install
-cd ..
+
+### temporary disable
+#cd ${SRCFOLDER}/bristuff-*/
+#cd qozap
+#sed -r -i "s/^(BRISTUFFBASE.*)$/\1\/..\//" Makefile
+#make clean all || exit
+#make INSTALL_PREFIX=${PKGFOLDER} install
+#cd ..
+
+#cd cwain
+#sed -r -i "s/^(BRISTUFFBASE.*)$/\1\/..\//" Makefile
+#make clean all || exit
+#make INSTALL_PREFIX=${PKGFOLDER} install
+#cd ..
+
 cd zaphfc
 sed -r -i "s/^(BRISTUFFBASE.*)$/\1\/..\//" Makefile
 make clean all || exit
 make INSTALL_PREFIX=${PKGFOLDER} install
 
+
 cd ${SRCFOLDER}/spandsp-*/asterisk-*/
-mv * ../../asterisk/apps/
+mv * ../../asterisk-*/apps/
 cd ${SRCFOLDER}/asterisk-[0-9]*/apps/
 patch < apps_makefile.patch
 
@@ -96,6 +110,9 @@ make DESTDIR=${PKGFOLDER} install || exit
 make DESTDIR=${PKGFOLDER} samples || exit
 
 cd ${SRCFOLDER}/asterisk-addons-*/
+### patch addons lib path
+sed -r -i "s/^CFLAGS\+\=\-I\.\.\/asterisk/CFLAGS\+\=\-I\.\.\/asterisk\/include/" Makefile
+sed -r -i "s/^INSTALL_PREFIX=//" Makefile
 make clean
 make || exit
 make INSTALL_PREFIX=${PKGFOLDER} install || exit
@@ -113,10 +130,11 @@ make clean
 make INSTALL_PREFIX=${PKGFOLDER} || exit
 make INSTALL_PREFIX=${PKGFOLDER} install || exit
 
-cd ${SRCFOLDER}/chan_capi-*/
-make clean
-make INSTALL_PREFIX=${PKGFOLDER} || exit
-make INSTALL_PREFIX=${PKGFOLDER} install || exit
+##################  out for moment
+#cd ${SRCFOLDER}/chan_capi-*/
+#make clean
+#make INSTALL_PREFIX=${PKGFOLDER} || exit
+#make INSTALL_PREFIX=${PKGFOLDER} install || exit
 
 cd ${SRCFOLDER}/iaxyprov/
 make clean
@@ -150,6 +168,7 @@ mkdir -p ${PKGFOLDER}/var/run/asterisk/
 #stuff for post install
 mkdir -p ${PKGFOLDER}/usr/local/amp/install/
 
+echo "Copy files for build deb packages...."
 #copy files needed for dpkg-buildpackage
 cp ${ADDFOLDER}/debian/* ${PKGFOLDER}/../debian
 cp ${ADDFOLDER}/Makefile ${PKGFOLDER}/../
@@ -236,4 +255,8 @@ rm -f ${PKGFOLDER}/var/lib/asterisk/sounds/*.mp3
 rm -f ${PKGFOLDER}/var/lib/asterisk/mohmp3/*
 cp ${ADDFOLDER}/short.mp3 ${PKGFOLDER}/var/lib/asterisk/mohmp3/
 
+
+#echo "Compiled successfull.."
+# Build packages
 dpkg-buildpackage -b -rfakeroot -us -uc
+
