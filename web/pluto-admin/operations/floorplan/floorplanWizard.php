@@ -224,7 +224,7 @@ function floorplanWizard($output,$dbADO) {
 			objSensor.SensorURL = "scripts/floorplan/images/'.$objColor[$rowCoord['PK_FloorplanObjectType']].'";
 			objSensor.SensorWidth = 20;
 			objSensor.SensorHeight = 20;
-			objSensor.Description = "'.$rowCoord['description'].' - '.$rowCoord['Room'].' #'.$rowCoord['id'].'";
+			objSensor.Description = "'.$rowCoord['description'].' - '.trim($rowCoord['Room']).' #'.$rowCoord['id'].'";
 			//objSensor.Description = "'.$item['x'].' '.$item['y'].'";
 			objSensor.ID = '.$rowCoord['id'].';
 			objSensor.Type = '.$rowCoord['itemtype'].';

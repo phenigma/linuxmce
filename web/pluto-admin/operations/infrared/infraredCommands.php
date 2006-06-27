@@ -110,7 +110,7 @@ function infraredCommands($output,$publicADO) {
 				}
 			}else{
 				if(in_array($commandID,$oldCheckedCommands)){
-					$publicADO->Execute('DELETE FROM InfraredGroup_Command WHERE (FK_InfraredGroup=? OR FK_InfraredGroup IS NULL) AND FK_Command=? AND FK_Users=? AND psc_user=?',array($GLOBALS['infraredGroup'],$commandID,$_SESSION['userID'],$_SESSION['userID']));
+					$publicADO->Execute('DELETE FROM InfraredGroup_Command WHERE (FK_InfraredGroup=? OR FK_InfraredGroup IS NULL) AND FK_Command=? AND FK_DeviceTemplate=?',array($GLOBALS['infraredGroup'],$commandID,$GLOBALS['dtID']));
 				}
 			}
 		}
