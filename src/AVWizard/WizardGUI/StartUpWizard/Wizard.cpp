@@ -47,8 +47,8 @@ Wizard::Wizard()
 	AVWizardConfParser ConfigurationParser;
 	this->AVWizardOptions = ConfigurationParser.ParseFile();
 	this->FrontEnd = NULL;
-	this->Width = 800;
-	this->Height = 600;
+	this->Width = 640;
+	this->Height = 480;
 
 	this->FullScreen = false;
 	MainPage = NULL;
