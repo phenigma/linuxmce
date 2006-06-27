@@ -3,5 +3,5 @@
 for UpgradePatch in /usr/share/pluto-upgrade-helper/* ;do
 	[[ -x $UpgradePatch ]] || continue
 
-	. $UpgradePatch
+	. $UpgradePatch || /bin/true
 done
