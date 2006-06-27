@@ -35,7 +35,7 @@
 #include "gl2deffectselectedarea.h"
 #include "GL2DEffectWipeIn.h"
 
-//#include "../../../pluto_main/Define_Effect.h"
+#include "../../../pluto_main/Define_Effect.h"
 
 #include <iostream>
 #include <SDL.h>
@@ -137,11 +137,15 @@ void EffectFactory::UpdateEffects()
 	
 	std::vector<Effect*>::iterator Effect;
 	
-	//std::cout<<"void EffectFactory::UpdateEffects()"<<std::endl;
-	
 	for(Effect = Effects.begin(); Effect < Effects.end(); )
 	{
-		if(((*Effect)->Configured) &&((*Effect)->Stage(float(CurrentTime))>1.0f) )
+		float EffectStage;
+		if((*Effect)->Configured)
+		{
+			EffectStage = (*Effect)->Stage((float)CurrentTime);
+		}
+		
+		if(((*Effect)->Configured) &&(EffectStage>1.0f) )
 		{
 			delete *Effect;
 			Effect = Effects.erase(Effect);
@@ -149,11 +153,10 @@ void EffectFactory::UpdateEffects()
 		else
 			++Effect;
 	}
-	//std::cout<<"end of void EffectFactory::UpdateEffects()"<<std::endl;
+	
 	if (HasEffects())
 	{
 		std::vector<GLEffect2D::Effect*>::iterator Item;	
-		int CurrentTime = MilisecondTimmer();
 		for(Item = Effects.begin(); HasEffects() && (Item != Effects.end()); ++Item)
 		{
 			(*Item)->Paint(CurrentTime);
@@ -179,9 +182,8 @@ void EffectFactory::Paint(MeshTransform Transform)
 	Widgets->Paint();
 }
 
-int EffectFactory::GetEffectCode(int DBEffectCode)
+/*static*/ int EffectFactory::GetEffectCode(int DBEffectCode)
 {
-	/*
 	switch(DBEffectCode) {
 		//transit
 		case EFFECT_No_transit_effect_CONST:
@@ -214,7 +216,6 @@ int EffectFactory::GetEffectCode(int DBEffectCode)
 		case EFFECT_Basic_select_effect_CONST:
 			return GL2D_EFFECT_SELECT_AREA;
  	}
-*/
 	return 0;
 }
 

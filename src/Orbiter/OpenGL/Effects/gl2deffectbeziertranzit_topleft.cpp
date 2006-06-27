@@ -10,7 +10,6 @@ GL2DBezierEffectTransit_TopLeft::GL2DBezierEffectTransit_TopLeft (EffectFactory 
 																  int TimeForCompleteEffect)
 	: GL2DEffectTransit(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
-	/*
 	FullScreen.Left = 0.0f;
 	FullScreen.Top = 0.0f;
 	FullScreen.Width = (float)Effects->Widgets->GetWidth();
@@ -22,27 +21,22 @@ GL2DBezierEffectTransit_TopLeft::GL2DBezierEffectTransit_TopLeft (EffectFactory 
 		Effects->Widgets->GetWidth(), Effects->Widgets->GetHeight(), 
 		"Button");
 	Button->SetVisible(true);
-	*/
 }
 
 
-GL2DBezierEffectTransit_TopLeft::~GL2DBezierEffectTransit_TopLeft() {
-/*	Effects->Widgets->DeleteWidget(Button);	
-
-	Button = NULL;
-	*/
+GL2DBezierEffectTransit_TopLeft::~GL2DBezierEffectTransit_TopLeft() 
+{
+	Effects->Widgets->DeleteWidget(Button);	
 }
 
 void GL2DBezierEffectTransit_TopLeft::Configure(PlutoRectangle* EffectSourceSize)
 {
-	/*
 	ButtonSize.Left = (float)EffectSourceSize->X;
 	ButtonSize.Top = (float)EffectSourceSize->Y;
 	ButtonSize.Width = (float)EffectSourceSize->Width;
 	ButtonSize.Height = (float)EffectSourceSize->Height;
 
 	Configured = false;
-	*/
 }
 
 void GL2DBezierEffectTransit_TopLeft::Paint(int Now)
@@ -56,7 +50,7 @@ void GL2DBezierEffectTransit_TopLeft::Paint(int Now)
 		//Commons3D::Instance().GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
 		
 		//Orbiter3DCommons::GetInstance()->GetScreen3D()->SetVisible(false);
-/*		
+
 		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
 		
@@ -68,11 +62,10 @@ void GL2DBezierEffectTransit_TopLeft::Paint(int Now)
 		Start = Effects->MilisecondTimmer();	
 
 		Button->BezierDefinition.Divisions = 25;
-*/
+
 		Configured = true;
 	}
 	
-	/*
 	float Step = Stage((float)Now);
 	//Step = 1-Step;
 	//Step2 = keeped for backup reason of Step variable
@@ -164,7 +157,6 @@ void GL2DBezierEffectTransit_TopLeft::Paint(int Now)
 					Button->BezierDefinition.anchors[j][i].z +
 					Delta;
 			}
-		*/			
 }
 
 }

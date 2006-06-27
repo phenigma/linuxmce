@@ -16,7 +16,8 @@ LayersCompose::LayersCompose() :
 	OldLayer(NULL),
 	TextureMan(NULL),
 	OldScreen(NULL),
-	NewScreen(NULL)
+	NewScreen(NULL),
+	NeedUpdateLayers(true)
 {
 }
 
@@ -36,11 +37,11 @@ void LayersCompose::Setup(int Width, int Height)
 	this->Width = Width;
 	this->Height = Height;
 	TextureMan = TextureManager::Instance();
-	OldScreen = new GLRenderScreenToGraphic(Width, Height);
-	NewScreen = new GLRenderScreenToGraphic(Width, Height);
 	CreateLayer(2);
 	CreateLayer(3);
-}
+	NewScreen = new GLRenderScreenToGraphic(Width, Height);
+	OldScreen = new GLRenderScreenToGraphic(Width, Height);
+}	
 
 void LayersCompose::CleanUp()
 {
@@ -103,20 +104,23 @@ void LayersCompose::Paint()
 			NoLayers++;
 	}
 
-	//NoLayers
 	if(NoLayers == 0)
 	{
+		NeedUpdateLayers = true;
 		this->PaintScreen3D();
-		
+		ShowAnimationTextures();
+
 		return;
 	}
 
+	if(NeedUpdateLayers && HasEffects())
+	{
+		this->PaintScreen3D();
+		NeedUpdateLayers = false;
+		TakeNewScreenSnapshot();
+		PaintOldScreen3D();
+	}
 	
-	MeshTransform Transform;
-	OldScreen->RenderFrameToGraphic(Transform);
-	//NewScreen->RenderFrame();
-
-	//TextureManager->ResetRendering();
 	for(Item = LayerList.begin(); Item != LayerList.end(); ++Item)
 	{
 		if ((Item->second)->HasEffects())
@@ -125,6 +129,8 @@ void LayersCompose::Paint()
 			Item->second->Paint();
 		}
 	}
+
+	ShowAnimationTextures();
 }
 
 bool LayersCompose::HasEffects()
@@ -153,12 +159,47 @@ TBaseWidget* LayersCompose::CreateWidget(int LayerLevel, int WidgetType, int Top
 
 void LayersCompose::PaintScreen3D()
 {
-	//CurrentLayer->Paint(Transform);
-	//LayerList[3]->SetRenderFrame(CurrentLayer);
-	//LayerList[3]->RenderFrameToGraphic(Transform);
-	MeshTransform Transform;
-	Transform.ApplyTranslate(-Width/2.0f, -Height/2.0f,1.2f* Height/2.0f);
-	CurrentLayer->Paint(Transform);
+	if(CurrentLayer)
+	{
+		MeshTransform Transform;
+		Transform.ApplyTranslate(-Width/2.0f, -Height/2.0f,Height/2.0f);
+		CurrentLayer->Paint(Transform);
+	}
+}
+
+void LayersCompose::PaintOldScreen3D()
+{
+ 	OpenGLTexture Texture = OldScreen->GetRenderGraphic()->Texture;
+
+	//glBindTexture(GL_TEXTURE_2D, Texture);
+	TextureMan->SetupTexture(Texture);
+	glEnd();
+
+	glPushMatrix();
+	glTranslatef(-Width/2, Height/2, Height/2);
+	glScalef(1, -1, 1);
+	glBegin(GL_TRIANGLE_STRIP);
+	glColor3f(1, 1, 1);
+	glTexCoord2f(0.0, 0.0);
+	glVertex3d(0, 0, 0);
+	glTexCoord2f(1.0, 0.0);
+	glVertex3d(Width, 0, 0);
+	glTexCoord2f(0.0, 1.0);
+	glVertex3d(0, Height, 0);
+	glTexCoord2f(1.0, 1.0);
+	glVertex3d(Width, Height, 0);
+
+	glColor3f(1, 1, 1);
+	glEnd();
+
+	glPopMatrix();
+
+	/*if(OldLayer)
+	{
+		MeshTransform Transform;
+		Transform.ApplyTranslate(-Width/2.0f, -Height/2.0f,Height/2.0f);
+		OldLayer->Paint(Transform);
+	}*/
 }
 
 void LayersCompose::Resize(int Width, int Height)
@@ -184,14 +225,66 @@ MeshFrame* LayersCompose::GetOldLayer()
 	return OldLayer;
 }
 
-OpenGLGraphic* LayersCompose::GetOldScreen()
+void LayersCompose::TakeNewScreenSnapshot()
 {
-	return NULL;
+	OpenGLTexture Texture = NewScreen->GetRenderGraphic()->Texture;
+	NewScreen->GetRenderGraphic()->Texture = OldScreen->GetRenderGraphic()->Texture;
+	OldScreen->GetRenderGraphic()->Texture = Texture;
+	NewScreen->RenderFrameToGraphic();	
 }
 
-OpenGLGraphic* LayersCompose::GetNewScreen()
+
+void LayersCompose::ShowAnimationTextures()
 {
-	return NULL;
+	OpenGLTexture Texture = NewScreen->GetRenderGraphic()->Texture;
+
+	TextureMan->SetupTexture(Texture);
+	glEnd();
+	//glBindTexture(GL_TEXTURE_2D, Texture);
+	glTranslatef(-400, -300, 300);
+	glScalef(1, -1, 1);
+	glBegin(GL_TRIANGLE_STRIP);
+	glColor3f(1, 0, 0);
+	glTexCoord2f(0.0, 0.0);
+	glVertex3d(0, 0, 120);
+	glTexCoord2f(1.0, 0.0);
+	glVertex3d(100, 0, 120);
+	glTexCoord2f(0.0, 1.0);
+	glVertex3d(0, 100, 120);
+	glTexCoord2f(1.0, 1.0);
+	glVertex3d(100, 100, 120);
+
+	glColor3f(1, 1, 1);
+	glEnd();
+
+	glScalef(1, -1, 1);
+	glTranslatef(400, 300, -300);
+
+	Texture = OldScreen->GetRenderGraphic()->Texture;
+
+	//glBindTexture(GL_TEXTURE_2D, Texture);
+	TextureMan->SetupTexture(Texture);
+	glEnd();
+
+	glTranslatef(-400, -300, 300);
+	glScalef(1, -1, 1);
+	glBegin(GL_TRIANGLE_STRIP);
+	glColor3f(1, 1, 0);
+	glTexCoord2f(0.0, 0.0);
+	glVertex3d(-100, 0, 120);
+	glTexCoord2f(1.0, 0.0);
+	glVertex3d(0, 0, 120);
+	glTexCoord2f(0.0, 1.0);
+	glVertex3d(-100, 100, 120);
+	glTexCoord2f(1.0, 1.0);
+	glVertex3d(0, 100, 120);
+
+	glColor3f(1, 1, 1);
+	glEnd();
+
+	glScalef(1, -1, 1);
+	glTranslatef(400, 300, -300);
 }
+
 
 }

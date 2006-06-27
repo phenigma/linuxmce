@@ -111,7 +111,7 @@ public:
 		return Effects.size()!= 0;
 	} 
 
-	int GetEffectCode(int DBEffectCode);
+	static int GetEffectCode(int DBEffectCode);
 	int GetEffectHighLighCode(int DBEffectCode);
 	
 	void Resize(int Width, int Height);

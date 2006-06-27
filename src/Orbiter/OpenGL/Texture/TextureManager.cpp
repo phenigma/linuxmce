@@ -27,8 +27,8 @@ TextureManager::~TextureManager(void)
 
 /*static*/ void TextureManager::SetupTexture(OpenGLTexture Texture)
 {
-	if(Texture == LastTexture)
-		return;
+	//if(Texture == LastTexture)
+	//	return;
 
 	glEnd();
 	

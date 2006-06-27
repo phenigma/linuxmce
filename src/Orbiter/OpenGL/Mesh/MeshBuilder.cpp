@@ -56,7 +56,8 @@ void MeshBuilder::Begin(unsigned char BuildMode)
 {
 	MeshVertex Vertex;
 	Vertex.X = X; Vertex.Y = Y; Vertex.Z = Z; 
-	Vertex.UVW.X = GlobalU; Vertex.UVW.Y = GlobalV; Vertex.UVW.Z = GlobalAlpha;
+	Vertex.UVW.X = GlobalU; Vertex.UVW.Y = GlobalV; 
+	Vertex.Alpha = GlobalAlpha;
 	Vertex.Color.X = GlobalRed; Vertex.Color.Y = GlobalGreen; Vertex.Color.Z = GlobalBlue;
 	Vertexes.push_back(Vertex);
 	BuildTriangle();
@@ -66,7 +67,8 @@ void MeshBuilder::Begin(unsigned char BuildMode)
 {
 	MeshVertex Vertex;
 	Vertex.X = X; Vertex.Y = Y; Vertex.Z = Z; 
-	Vertex.UVW.X = U; Vertex.UVW.Y = V; Vertex.UVW.Z = GlobalAlpha;
+	Vertex.UVW.X = U; Vertex.UVW.Y = V; 
+	Vertex.Alpha = GlobalAlpha;
 	Vertex.Color.X = GlobalRed; Vertex.Color.Y = GlobalGreen; Vertex.Color.Z = GlobalBlue;
 	
 	Vertexes.push_back(Vertex);
@@ -88,16 +90,17 @@ void MeshBuilder::Begin(unsigned char BuildMode)
 	break;
 	case MBMODE_TRIANGLE_STRIP:
 		if(NoVertexes >= 3)
-			if(NoVertexes % 2 == 1)
+			if(NoVertexes % 2 == 0)
 			AddTriangle(
 				NoVertexes-3,
 				NoVertexes-2, 
 				NoVertexes-1);
 			else
 				AddTriangle(
-				NoVertexes-2,
-				NoVertexes-3, 
-				NoVertexes-1);
+				NoVertexes-3,
+				NoVertexes-1,
+				NoVertexes-2
+				);
 
 	break;
 	}

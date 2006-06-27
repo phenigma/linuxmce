@@ -9,7 +9,6 @@ namespace GLEffect2D
 GL2DBezierEffectTransit_Flow_SlideLeft::GL2DBezierEffectTransit_Flow_SlideLeft (EffectFactory * EffectsEngine, int StartAfter, int TimeForCompleteEffect)
 	: GL2DEffectTransit(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
-	/*
 	FullScreen.Left = 0.0f;
 	FullScreen.Top = 0.0f;
 	FullScreen.Width = (float)Effects->Widgets->GetWidth();
@@ -21,28 +20,22 @@ GL2DBezierEffectTransit_Flow_SlideLeft::GL2DBezierEffectTransit_Flow_SlideLeft (
 	Effects->Widgets->GetWidth(), Effects->Widgets->GetHeight(), 
 	"Button");
 	ButonTop ->SetVisible(true);
-	*/
 }
 
 
-GL2DBezierEffectTransit_Flow_SlideLeft::~GL2DBezierEffectTransit_Flow_SlideLeft() {
-	/*
+GL2DBezierEffectTransit_Flow_SlideLeft::~GL2DBezierEffectTransit_Flow_SlideLeft() 
+{
 	Effects->Widgets->DeleteWidget(ButonTop);	
-
-	ButonTop = NULL;
-	*/
 }
 
 void GL2DBezierEffectTransit_Flow_SlideLeft::Configure(PlutoRectangle* EffectSourceSize)
 {
-	/*
 	ButtonSize.Left = (float)EffectSourceSize->X;
 	ButtonSize.Top = (float)EffectSourceSize->Y;
 	ButtonSize.Width = (float)EffectSourceSize->Width;
 	ButtonSize.Height = (float)EffectSourceSize->Height;
 
 	Configured = false;
-	*/
 }
 
 void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
@@ -53,7 +46,7 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 		//Set up the textures for triangles
 		//ButonTop->SetTexture(Effects->Widgets->NewScreen);
 
-		/*		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
+		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
 
 		ButonTop->SetTextureWraping(0.0, 0.0, 
@@ -62,11 +55,10 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 		ButonTop->BezierDefinition.Divisions = 50;
 
 		Start = Effects->MilisecondTimmer();	
-		*/
+
 		Configured = true;
 	}
 
-	/*
 	float Step = Stage((float)Now), Step2;
 	Step = 1-Step;
 	//Step2 = keeped for backup reason of Step variable
@@ -122,7 +114,6 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 	ButonTop->BezierDefinition.anchors[3][i].x -= 
 	LeftProfile[i];
 	}
-	*/
 }
 
 }

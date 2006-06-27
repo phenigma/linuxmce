@@ -19,7 +19,6 @@ enum GL2DEffectDefaultLayers {
 	DesktopOnScreen = 3
 };
 
-
 /**
  *	Singleton class that defines a layered based rendering
  */
@@ -35,9 +34,12 @@ class LayersCompose
 	static LayersCompose* Instance_;
 	LayersCompose();
 
+	bool NeedUpdateLayers;
+
+public:
 	GLRenderScreenToGraphic *OldScreen;
 	GLRenderScreenToGraphic *NewScreen;
-public:
+
 	static LayersCompose* Instance();
 	virtual ~LayersCompose(void);
 
@@ -87,6 +89,7 @@ public:
 		int Left, int Width, int Height, char* Text);
 
 	void PaintScreen3D();
+	void PaintOldScreen3D();
 
 	/**
 	 *	TODO: For Ciprian, to treat the cases of window resize
@@ -100,9 +103,8 @@ public:
 	MeshFrame* GetCurrentLayer();
 	MeshFrame* GetOldLayer();
 
-	OpenGLGraphic* GetOldScreen();
-	OpenGLGraphic* GetNewScreen();
-
+	void TakeNewScreenSnapshot();
+	void ShowAnimationTextures();
 };
 
 }

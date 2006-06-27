@@ -16,6 +16,7 @@ OpenGL3DEngine::OpenGL3DEngine()
 	Quit(false),
 	HighLightFrame(NULL),
 	SelectedFrame(NULL),
+	AnimationRemain (false),
 	SceneMutex("scene mutex"),
 	Compose(NULL)
 {
@@ -45,6 +46,9 @@ bool OpenGL3DEngine::Paint()
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	if(NULL == CurrentLayer)
 		return false;
+
+	if(Compose->HasEffects())
+		AnimationRemain = true;
 	
 	TextureManager::Instance()->ReleaseTextures();
 	TextureManager::Instance()->ConvertImagesToTextures();
@@ -56,54 +60,23 @@ bool OpenGL3DEngine::Paint()
 	}
 
 	GL.SetClearColor(.0f, .0f, 0.5f);
-	GL.ClearScreen(true, false);
+	//GL.ClearScreen(true, false);
+		
 	GL.EnableZBuffer(false);
 
-	if(Compose)
-	{
-		Compose->UpdateLayers(CurrentLayer, OldLayer);
-		Compose->Paint();
+	Compose->UpdateLayers(CurrentLayer, OldLayer);
+	Compose->Paint();
 
-		GL.Flip();
-		return true;
-	}
+	//glEnable(GL_CULL_FACE);
 
-	
-	//TODO: need desktop for effects Desktop
-	MeshTransform Transform;
-	Transform.ApplyTranslate(-GL.Width/2.0f, 0, -(GL.Width)/2.0f);
-	
-	int Tick;
-	if(this->AnimationRemain)
-	{
-		Tick = GetTick() - this->StartTick; 
-		if(Tick > 5 * 90)
-			AnimationRemain = false;
-	}
-	else
-		Tick = 5 * 90;
-	
-	Transform.ApplyRotateY(Tick / 5.0f);
-		//Transform.ApplyTranslate(0, 0, GL.Width/2);
-
-	if(OldLayer)
-		OldLayer->SetTransform(Transform);
-	
-	Transform.ApplyRotateY(-90.0f);
-	CurrentLayer->SetTransform(Transform);
-
-	Transform.SetIdentity();
-	Transform.Translate(0, -GL.Height/2.0f, (GL.Width+GL.Height)/2.0f);
-	
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
-	Desktop.Paint(Transform);
-	//g_pPlutoLogger->Write(LV_CRITICAL, "Painting using layer %p, num layers %d", CurrentLayer, 
-	//	Desktop.Children.size());
-	
 	GL.Flip();
 
-	return this->AnimationRemain;
+
+	bool Status = NULL != Compose && Compose->HasEffects() && AnimationRemain;
+	if (Compose->HasEffects() == false)
+		AnimationRemain = false;
+
+	return Status;
 }
 
 void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
@@ -285,7 +258,7 @@ void OpenGL3DEngine::NewScreen()
 	}
 
 	OldLayer = CurrentLayer;
-	AnimationRemain = true;
+	
 	StartTick = GetTick();
 
 	CurrentLayerObjects_.clear();
@@ -304,5 +277,4 @@ void OpenGL3DEngine::Setup()
 	GL.Setup();
 	Compose = GLEffect2D::LayersCompose::Instance();
 	Compose->Setup(GL.Width, GL.Height);
-	
 }

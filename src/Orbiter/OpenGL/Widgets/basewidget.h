@@ -20,7 +20,7 @@ public:
 	TBaseWidget();
 	
 	virtual ~TBaseWidget();
-	virtual void Paint(MeshFrame* Context);
+	virtual void Paint();
 	
 	/**
 	* That class defines one GL Widget
@@ -31,7 +31,12 @@ public:
 	* @param ParamHeight - height of the widget
 	* @param ParamText - the asociated text of the widget
 	*/
-	TBaseWidget(int Left, int Top, int Width, int Height, char* Text);
+	TBaseWidget(MeshFrame* ParentContext,
+		int Left, 
+		int Top, 
+		int Width, 
+		int Height, 
+		std::string Text);
 
 	/**
 	 *	Method that gives the rectangle of the textures coordinates
@@ -89,8 +94,6 @@ public:
 	
 	
 protected:
-	MeshFrame* Context;
-
 	/**
 	 * Texture Wrapper apply the texturing coordinates system over the
 	 * window. For instance the (0.0, 0.0, 1.0, 0.5) means the top-half
@@ -122,13 +125,14 @@ protected:
 	 * Set up the parent of the window
 	 */
 	TBaseWidget* Parent;
-	char* Text;
+	std::string Text;
 	/**
 	 * True if the window will be displayed
 	 */
 	bool Visible; 
 
+	MeshFrame* Context;
 	MeshFrame* Frame;
-
+	MeshContainer* Container;
 };
 #endif

@@ -1,10 +1,13 @@
 #include "GLRenderScreenToGraphic.h"
+#include "../Texture/TextureManager.h"
+
+#include "../GLMathUtils.h"
 
 namespace GLEffect2D 
 {
 
 GLRenderScreenToGraphic::GLRenderScreenToGraphic(int Width, int Height)
-: RenderFrame(NULL)
+: RenderGraphic(NULL)
 {
 	this->Width = Width;
 	this->Height = Height;
@@ -13,49 +16,31 @@ GLRenderScreenToGraphic::GLRenderScreenToGraphic(int Width, int Height)
 
 GLRenderScreenToGraphic::~GLRenderScreenToGraphic(void)
 {
-}
-
-void GLRenderScreenToGraphic::SetRenderFrame(MeshFrame* RenderFrame)
-{
-	this->RenderFrame = RenderFrame;
-}
-
-MeshFrame* GLRenderScreenToGraphic::GetRenderFrame()
-{
-	return RenderFrame;
+	delete RenderGraphic;
 }
 
 OpenGLGraphic* GLRenderScreenToGraphic::GetRenderGraphic()
 {
-	if(!RenderFrame)
-		return NULL;
-
-	return NULL;
+	return this->RenderGraphic;
 }
 
-void GLRenderScreenToGraphic::RenderFrameToGraphic(MeshTransform& Transform)
+void GLRenderScreenToGraphic::RenderFrameToGraphic()
 {
-	if(!RenderFrame)
-		return;
+	glViewport(0, 0, Width, Height);
 
-	//Transform.ApplyTranslate(-Width/2.0f, -Height/2.0f, 0);
-	RenderFrame->Paint(Transform);
+	glBindTexture(GL_TEXTURE_2D, RenderGraphic->Texture);
+	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 
+		Width, Height,
+		0); 
+
 }
 
 void GLRenderScreenToGraphic::CreateRenderTexture()
 {
-	if(!RenderFrame)
-	{
-		//if is nothing to render, there is no need for RenderToTexture
-		//there is no need to create a render texture
+	if(RenderGraphic)
 		return;
-	}
-	if(!RenderGraphic)
-		RenderGraphic = new OpenGLGraphic(Width, Height);
-
-	//RenderFrame->Paint();	
-
-	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, Width, Height, 0); 
+	RenderGraphic = new OpenGLGraphic(Width, Height);
+	TextureManager::Instance()->PrepareConvert(RenderGraphic);
 }
 
 }

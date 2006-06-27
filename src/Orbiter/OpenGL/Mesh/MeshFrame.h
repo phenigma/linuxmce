@@ -16,6 +16,7 @@ public:
 //MOVE ME
 	MeshContainer* Mesh;
 	MeshTransform Transform;
+	MeshTransform TextureTransform;
 	std::vector<MeshFrame*> Children;
 
 	MeshFrame(MeshContainer* Mesh = NULL);
@@ -32,6 +33,8 @@ public:
 	
 	virtual void SetTransform(MeshTransform& Transform);
 	virtual void ApplyTransform(MeshTransform& Transform);
+
+	virtual void SetTextureTransform(MeshTransform& TextureTransform);
 	virtual void SetVisible(bool Visible);
 
 	virtual void Paint();

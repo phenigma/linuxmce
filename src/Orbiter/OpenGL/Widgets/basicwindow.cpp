@@ -3,6 +3,9 @@
 #include <GL/gl.h>
 
 #include "../Mesh/MeshBuilder.h"
+#include "DCE/Logger.h"
+
+using namespace DCE;
 
 /**
  * Creates a basic window with with default color and settigs
@@ -13,52 +16,65 @@
  * @param Text 
  * @return 
  */
-TBasicWindow::TBasicWindow(int Left, int Top, int Width, int Height, char* Text)
-	: TBaseWidget(Left, Top, Width, Height, Text) {
+TBasicWindow::TBasicWindow(MeshFrame* Context,
+						   int Left, 
+						   int Top, 
+						   int Width, 
+						   int Height, 
+						   std::string Text)
+	: TBaseWidget(Context, Left, Top, Width, Height, Text)
+{
+		MeshBuilder MB;
+
+		MB.Begin(MBMODE_TRIANGLES);
+		MB.SetColor(1.0f, 1.0f, 1.0f);
+		MB.SetAlpha(Background.Alpha);
+		MB.SetTexture(BackgroundTex);
+		//1st
+		MB.SetTexture2D(0.0f, 0.0f); 
+		MB.AddVertexFloat(0.0f, 0.0f, 0.0f);
+		//2nd
+		MB.SetTexture2D(0.0f, -1024.0f/600.f); 
+		MB.AddVertexFloat( 0.0f, 1.0f, 0.0f);
+		//3rd
+		MB.SetTexture2D(1024.0f/800.f, 0.0f);
+		MB.AddVertexFloat( 1.0f, 0.0f, 0.0f);
+
+
+		//2nd
+		MB.SetTexture2D(0.0f, -1024.0f/600.f); 
+		MB.AddVertexFloat( 0.0f, 1.0f, 0.0f);
+		//3rd
+		MB.SetTexture2D(1024.0f/800.f, 0.0f);
+		MB.AddVertexFloat( 1.0f, 0.0f, 0.0f);
+		//4th
+		MB.SetTexture2D(1024.0f/800.f, -1024.0f/600.f); 
+		MB.AddVertexFloat(1.0f, 1.0f, 0.0f);
+
+		Container = MB.End();
+
+		Frame = new MeshFrame();
+
+		Frame->SetMeshContainer(Container);
+
+		Context->AddChild(Frame);
 }
 
 TBasicWindow::~TBasicWindow() {
+	Context->RemoveChild(Frame);
+	delete Frame;
 }
 
 /**
  * Paint the window using defaults
  */ 
-void TBasicWindow::Paint(MeshFrame* Context)
+void TBasicWindow::Paint()
 {
 	if (!Visible)
 		return;
 		
-	TBaseWidget::Paint(Context);
-	
-	MeshContainer* Container;
-	MeshBuilder MB;
-
-	MB.Begin(MBMODE_TRIANGLE_STRIP);
-	MB.SetColor(1.0f, 1.0f, 1.0f);
-	MB.SetAlpha(Background.Alpha);
-	MB.SetTexture(BackgroundTex);
-	//1st
-	MB.SetTexture2D(TextureWrapper2D.Left, TextureWrapper2D.Top ); 
-	MB.AddVertexFloat(float(Left), float(Top), 0.0f);
-	//2nd
-	MB.SetTexture2D(TextureWrapper2D.Left, TextureWrapper2D.Top + 
-		TextureWrapper2D.Height); 
-	MB.AddVertexFloat( float(Left), float(Top + Height), 0.0f);
-	//3rd
-	MB.SetTexture2D(TextureWrapper2D.Left+TextureWrapper2D.Width, TextureWrapper2D.Top);
-	MB.AddVertexFloat( float(Left + Width), float(Top), 0.0f);
-	//4th
-	MB.SetTexture2D(TextureWrapper2D.Left+TextureWrapper2D.Width, 
-		TextureWrapper2D.Top + TextureWrapper2D.Height); 
-	MB.AddVertexFloat(float(Left + Width), float(Top + Height), 0.0f);
-
-	Container = MB.End();
-
-	Frame = new MeshFrame();
-
-	Frame->SetMeshContainer(Container);
-
-	Context->AddChild(Frame);
+	TBaseWidget::Paint();
+	g_pPlutoLogger->Write(LV_WARNING, "TBasicWindow::Paint %d, %d", Width, Height);
 }
 
 bool TBasicWindow::SetBackgroundImage(OpenGLGraphic* Background)
@@ -69,15 +85,21 @@ bool TBasicWindow::SetBackgroundImage(OpenGLGraphic* Background)
 		
 	// set up the texture as texture background
 	BackgroundTex = Background;
+
+	Container->SetTexture(Background);
 	
 	return true;
 }
 
 void TBasicWindow::SetRectCoordinates(FloatRect Coordinates)
 {
-	SetLeft((int)Coordinates.Left);
-	SetTop((int)Coordinates.Top);
-	SetWidth((int)Coordinates.Width);
-	SetHeight((int)Coordinates.Height);
+	MeshTransform Transform;
+	Transform.ApplyScale(Coordinates.Width, Coordinates.Height, 1.0f);
+	Transform.ApplyTranslate(Coordinates.Left, Coordinates.Top, 0.0f);
+	Frame->SetTransform(Transform);
+	SetLeft(Coordinates.Left);
+	SetTop(Coordinates.Top);
+	SetWidth(Coordinates.Width);
+	SetHeight(Coordinates.Height);
 }
 

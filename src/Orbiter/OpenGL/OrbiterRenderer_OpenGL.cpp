@@ -56,7 +56,6 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 		std::cout << "*** Thread -- GL.InitVideoMode SUCCEEDED" << std::endl;
 	}
 
-
 	pOrbiterRenderer->InitializeAfterSetVideoMode();
 
 	pOrbiterRenderer->Engine->Setup();
@@ -72,14 +71,13 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 			SDL_PushEvent(&SDL_Event_Pending);
 #endif			
 
-		if(true)//pOrbiterRenderer->NeedToUpdateScreen())
+		if(pOrbiterRenderer->NeedToUpdateScreen())
 		{
+			if(!pOrbiterRenderer->Engine->Compose->HasEffects())
+				pOrbiterRenderer->ScreenUpdated();
 			pOrbiterRenderer->Engine->Paint();
-			pOrbiterRenderer->ScreenUpdated();
 		}
-
-		//pOrbiterRenderer->Engine->GetDesktop().CleanUp();
-		Sleep(30);
+		Sleep(15);
 	}
 
 	pOrbiterRenderer->Engine->Finalize();	
@@ -126,7 +124,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::SolidRectangle(int x, int y, int width, int height, PlutoColor color)
 {
 	MeshBuilder* Builder = new MeshBuilder();
-	Builder->Begin(MBMODE_TRIANGLE_STRIP);
+	Builder->Begin(MBMODE_TRIANGLES);
 
 	Builder->SetColor(color.R() / 255.0f, color.G() / 255.0f, color.B() / 255.0f);
 
@@ -136,16 +134,29 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		float(y), 
 		0
 		);
+	Builder->SetTexture2D(0.0f, 1.0f);
+	Builder->AddVertexFloat(
+		float(x), 
+		float(y+height), 
+		0
+		);
 	Builder->SetTexture2D(1.0f, 0);
 	Builder->AddVertexFloat(
 		float(x+width), 
 		float(y), 
 		0
 		);
+
 	Builder->SetTexture2D(0.0f, 1.0f);
 	Builder->AddVertexFloat(
 		float(x), 
 		float(y+height), 
+		0
+		);
+	Builder->SetTexture2D(1.0f, 0);
+	Builder->AddVertexFloat(
+		float(x+width), 
+		float(y), 
 		0
 		);
 	Builder->SetTexture2D(1.0f, 1.0f);
@@ -155,12 +166,9 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		0
 		);
 
-	MeshContainer* Container = new MeshContainer();
-	Container = Builder->End();
+	MeshContainer* Container = Builder->End();
 
-	MeshFrame* Frame = new MeshFrame();
-	Frame->SetMeshContainer(Container);
-
+	MeshFrame* Frame = new MeshFrame(Container);
 
 	//TODO: find a way to replace an existing object if the graphic is changed instead of adding it
 	Engine->AddMeshFrameToDesktop("", Frame);
@@ -240,7 +248,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	OpenGLGraphic* Graphic = dynamic_cast<OpenGLGraphic*> (pPlutoGraphic);
 
 	MeshBuilder* Builder = new MeshBuilder();
-	Builder->Begin(MBMODE_TRIANGLE_STRIP);
+	Builder->Begin(MBMODE_TRIANGLES);
 
 	Builder->SetColor(1.0f, 1.0f, 1.0f);
 	Builder->SetTexture(Graphic);
@@ -248,12 +256,6 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	Builder->SetTexture2D(0.0f, 0.0f);
 	Builder->AddVertexFloat(
 		float(point.X + rectTotal.Left()), 
-		float(point.Y + rectTotal.Top()), 
-		0
-		);
-	Builder->SetTexture2D(1.0f, 0);
-	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Right()), 
 		float(point.Y + rectTotal.Top()), 
 		0
 		);
@@ -269,7 +271,27 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		float(point.Y + rectTotal.Bottom()), 
 		0
 		);
-		
+
+	Builder->SetTexture2D(0.0f, 0.0f);
+	Builder->AddVertexFloat(
+		float(point.X + rectTotal.Left()), 
+		float(point.Y + rectTotal.Top()), 
+		0
+		);
+	Builder->SetTexture2D(1.0f, 0.0f);
+	Builder->AddVertexFloat(
+		float(point.X + rectTotal.Right()), 
+		float(point.Y + rectTotal.Top()), 
+		0
+		);
+	Builder->SetTexture2D(1.0f, 1.0f);
+	Builder->AddVertexFloat(
+		float(point.X + rectTotal.Right()), 
+		float(point.Y + rectTotal.Bottom()), 
+		0
+		);
+
+
 	//g_pPlutoLogger->Write(LV_CRITICAL, "(6) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
 
 	MeshContainer* Container = Builder->End();
@@ -494,15 +516,22 @@ bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
 		rectLastSelected.Height = 80;
 	}
 
-
 	Engine->NewScreen();
 	OrbiterRenderer::RenderScreen(bRenderGraphicsOnly);
 
 	
-	GLEffect2D::Effect* Item = Engine->Compose->CreateEffect(2, GL2D_EFFECT_WIPE_IN, 0, 600);
+	NeedToUpdateScreen_ = true;
+
+	GLEffect2D::Effect* Item;
+	srand(time(NULL));
+	int EffectCode = GL2D_EFFECT_SLIDE_FROM_LEFT;
+//	int EffectCode = GL2D_EFFECT_BEZIER_TRANSIT;
+		//EffectCode = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
+	g_pPlutoLogger->Write(LV_WARNING, "%d", EffectCode);
+	
+	Item = Engine->Compose->CreateEffect(2, EffectCode, 0, 230);
 	if(Item)
 		Item->Configure(&rectLastSelected);
 
-	NeedToUpdateScreen_ = true;
 }
 //-----------------------------------------------------------------------------------------------------

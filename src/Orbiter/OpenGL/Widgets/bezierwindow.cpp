@@ -5,19 +5,19 @@
 #include "../Mesh/MeshBuilder.h"
 #include "../Mesh/MeshFrame.h"
 
-// Generates A Display List Based On The Data In The Patch
-// And The Number Of Divisions
-void genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D, ColorRGB Background,
-					OpenGLGraphic* BackgroundTexture, MeshFrame* Context) {
+MeshContainer* genBezier(BEZIER_PATCH patch, FloatRect TextureWrapper2D, ColorRGB Background,
+					OpenGLGraphic* BackgroundTexture) 
+{
+	MeshContainer* Container = NULL;
+	int divs = patch.Divisions;
 	int		u = 0, v;
 	double		py, px, pyold; 
 	POINT_3D	temp[4];
+	POINT_3D	first[2];
 	POINT_3D	*last = (POINT_3D*)malloc(sizeof(POINT_3D)*(divs+1));
 
-	float CoordU, CoordV;
 
-	if(Context == NULL)
-		return;
+	float CoordU, CoordV;
 
 	// Array Of Points To Mark The First Line Of Polys
 	temp[0] = patch.anchors[0][3];					// The First Derived Curve (Along X-Axis)
@@ -31,7 +31,7 @@ void genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D, ColorRG
 		last[v] = MathUtils::Bernstein((float)px, temp);
 	}
 
-
+	MeshBuilder MB;
 	for (u=1;u<=divs;u++) {
 		py    = ((double)u)/((double)divs);			// Percent Along Y-Axis
 		pyold = ((double)u-1.0)/((double)divs);			// Percent Along Old Y Axis
@@ -41,19 +41,18 @@ void genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D, ColorRG
 		temp[2] = MathUtils::Bernstein((float)py, patch.anchors[2]);
 		temp[3] = MathUtils::Bernstein((float)py, patch.anchors[3]);
 
-		MeshContainer* Container;
-		MeshBuilder MB;
-
 		MB.SetColor(1.0f, 1.0f, 1.0f);
 		MB.SetAlpha(Background.Alpha);
 		MB.SetTexture(BackgroundTexture);
 
 		MB.Begin(MBMODE_TRIANGLE_STRIP);
 
+		glTranslatef(-400, -300, 00);
+		glBegin(GL_TRIANGLE_STRIP);
+		glColor3f(1.0f, 1.0f, 0.0f);
+
 		for (v=0;v<=divs;v++) {
 			px = ((float)v)/((float)divs);			// Percent Along The X-Axis
-
-			// Begin A New Triangle Strip
 
 			CoordU = (float)MathUtils::InterpolateValues(TextureWrapper2D.Left, 
 				TextureWrapper2D.Left+TextureWrapper2D.Width, 
@@ -62,9 +61,11 @@ void genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D, ColorRG
 				TextureWrapper2D.Top+TextureWrapper2D.Height, 
 				1-(float)pyold);
 
-			MB.SetTexture2D(CoordU, CoordV); 
-			MB.AddVertexFloat(last[v].x, last[v].y, last[v].z);
-
+			MB.AddVertexFloatUV(last[v].x, last[v].y, last[v].z, CoordU, CoordV); 
+			/*
+			glTexCoord2f(CoordU*1.4, CoordV*1.8); 
+			glVertex3f(last[v].x, last[v].y, last[v].z);
+			*/
 			last[v] = MathUtils::Bernstein((float)px, temp);			// Generate New Point
 
 			CoordU = (float)MathUtils::InterpolateValues(TextureWrapper2D.Left, 
@@ -73,47 +74,63 @@ void genBezier(BEZIER_PATCH patch, int divs, FloatRect TextureWrapper2D, ColorRG
 			CoordV = (float)MathUtils::InterpolateValues(TextureWrapper2D.Top, 
 				TextureWrapper2D.Top+TextureWrapper2D.Height, 
 				1-(float)py);
-			MB.SetTexture2D(CoordU, CoordV); 
-			MB.AddVertexFloat(last[v].x, last[v].y, last[v].z);
+
+			MB.AddVertexFloatUV(last[v].x, last[v].y, last[v].z, CoordU, CoordV); 
+			/*
+			glTexCoord2f(CoordU*1.4, CoordV*1.8); 
+			glVertex3f(last[v].x, last[v].y, last[v].z);
+			*/
+			
 		}
 
-		Container = MB.End();
-
-		MeshFrame* Frame = new MeshFrame();
-
-		Frame->SetMeshContainer(Container);
-		Context->AddChild(Frame);
 	}
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glEnd();
+	glTranslatef(400, 300, -000);
+	Container = MB.End();
 	free(last);							// Free The Old Vertices Array
+
+	MeshFrame* Frame = new MeshFrame();
+	MeshTransform Transform;
+	Transform.Translate(-400, -300, 400);
+	Frame->SetTransform(Transform);
+	Frame->SetMeshContainer(Container);
+	Frame->Paint();
+
+	//return Container;
+	return NULL;
 }
 
-
-
-TBezierWindow::TBezierWindow(int Left, int Top, int Width, int Height, char* Text)
-	: TBaseWidget(Left, Top, Width, Height, Text) {
-	BezierDefinition.Divisions = 15;
+TBezierWindow::TBezierWindow(MeshFrame* ParentContext,
+						int Left, 
+						int Top, 
+						int Width, 
+						int Height, 
+						std::string Text)
+: TBaseWidget(ParentContext, Left, Top, Width, Height, Text)
+{
+	BezierDefinition.Divisions = 7;
+	Frame = new MeshFrame();
+	Frame->SetMeshContainer(Container);
+	Context = ParentContext;
+	Context->AddChild(Frame);	
 }
 
 TBezierWindow::~TBezierWindow() {
 }
 
 
-void TBezierWindow::Paint(MeshFrame* Context)
+void TBezierWindow::Paint()
 {
 	if (!Visible)
 		return;
 		
-	TBaseWidget::Paint(Context);
+	TBaseWidget::Paint();
 	
-	//glBindTexture(GL_TEXTURE_2D, BackgroundTex);
-	//glBegin(GL_TRIANGLE_STRIP);				// Begin A New Triangle Strip
-
-	//glColor4f(Background.Red, Background.Green, Background.Blue, Background.Alpha);
-	genBezier(BezierDefinition, BezierDefinition.Divisions, TextureWrapper2D, Background, 
-		BackgroundTex, Context);
-
-	//glEnd();
-}
+	Container = genBezier(BezierDefinition, TextureWrapper2D, Background, 
+		BackgroundTex);
+	Frame->SetMeshContainer(Container);
+} 
 
 bool TBezierWindow::SetBackgroundImage(OpenGLGraphic* Background)
 {
@@ -141,7 +158,7 @@ void TBezierWindow::SetRectCoordinates(FloatRect Coordinates)
 					float(Left + Width), x/3.0f);
 			BezierDefinition.anchors[x][y].y = MathUtils::InterpolateValues(float(Top), 
 				float(Top + Height), y/3.0f);
-			BezierDefinition.anchors[x][y].z = -250.0f;
+			BezierDefinition.anchors[x][y].z = 0;
 		}
 }
 

@@ -2,6 +2,8 @@
 
 #include "gl2deffectfactory.h"
 
+#include "../Layers/GL2DEffectLayersCompose.h"
+
 namespace GLEffect2D
 {
 
@@ -9,7 +11,6 @@ GL2DEffectFadesFromUnderneath::GL2DEffectFadesFromUnderneath (EffectFactory * Ef
 															  int TimeForCompleteEffect)
 	: GL2DEffectTransit(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
-	/*
 	FullScreen.Left = 0;
 	FullScreen.Top = 0;
 	FullScreen.Width = float(Effects->Widgets->GetWidth());
@@ -21,22 +22,19 @@ GL2DEffectFadesFromUnderneath::GL2DEffectFadesFromUnderneath (EffectFactory * Ef
 		Effects->Widgets->GetWidth(), Effects->Widgets->GetHeight(), 
 		"Destination");	
 	Destination->SetVisible(true);
-	*/
 }
 
 
 GL2DEffectFadesFromUnderneath::~GL2DEffectFadesFromUnderneath() {
-//	Effects->Widgets->DeleteWidget(Destination);
+	Effects->Widgets->DeleteWidget(Destination);
 }
 
 void GL2DEffectFadesFromUnderneath::Configure(PlutoRectangle* EffectSourceSize)
 {
-	/*
 	ButtonSize.Left = 0;
 	ButtonSize.Top = -FullScreen.Height;
 	ButtonSize.Width = FullScreen.Width;
 	ButtonSize.Height = FullScreen.Height;
-*/
 	Configured = false;
 }
 
@@ -50,7 +48,9 @@ void GL2DEffectFadesFromUnderneath::Paint(int Now)
 
 	if(!Configured) {
 		//Set up the textures for triangles
-/*		Destination->SetTexture(Effects->Widgets->NewScreen);
+		OpenGLGraphic* OldScreenRenderGraphic =
+			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
+		Destination->SetBackgroundImage(OldScreenRenderGraphic);
 		
 		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
@@ -59,18 +59,16 @@ void GL2DEffectFadesFromUnderneath::Paint(int Now)
 			MaxCoordU, MaxCoordV);
 	
 		Start = Effects->MilisecondTimmer();
-		*/
+
 		Configured = true;
 	}
 	
-	/*
 	float Step = Stage(float(Now));
 	
 	FloatRect Animation = ButtonSize.Interpolate(FullScreen, Step);
 
 	Destination->SetRectCoordinates(Animation);
 	Destination->SetAlpha(Step);
-	*/
 }
 
 }

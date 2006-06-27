@@ -5,9 +5,12 @@
 #include "DCE/Logger.h"
 
 MeshFrame::MeshFrame(MeshContainer* Mesh) 
-: Visible_(true)
+	: Visible_(true),
+	TextureTransform(),
+	Transform()
 {
 	this->Mesh = Mesh;
+	
 }
 
 MeshFrame::~MeshFrame(void)
@@ -80,7 +83,7 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 	Transform.ApplyTransform(ChildTransform);
 	MeshPainter* Painter = MeshPainter::Instance();
 	if(Mesh!= NULL)
-		Painter->PaintContainer(*Mesh, Transform);
+		Painter->PaintContainer(*Mesh, Transform, TextureTransform);
 
 	//DCE::g_pPlutoLogger->Write(LV_STATUS, "Painting %p with %d children: ", this, Children.size());
 
@@ -113,4 +116,9 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 {
     MeshTransform Transform;
 	Paint(Transform);
+}
+
+/*virtual*/ void MeshFrame::SetTextureTransform(MeshTransform& TextureTransform)
+{
+	this->TextureTransform = TextureTransform;
 }

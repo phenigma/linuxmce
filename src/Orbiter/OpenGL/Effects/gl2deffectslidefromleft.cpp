@@ -1,6 +1,7 @@
 #include "gl2deffectslidefromleft.h"
 
 #include "gl2deffectfactory.h"
+#include "../Layers/GL2DEffectLayersCompose.h"
 
 namespace GLEffect2D
 {
@@ -8,7 +9,7 @@ namespace GLEffect2D
 GL2DEffectSlideFromLeft::GL2DEffectSlideFromLeft (EffectFactory * EffectsEngine, int StartAfter, int TimeForCompleteEffect)
 	: GL2DEffectTransit(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
-/*
+
  	FullScreen.Left = 0;
 	FullScreen.Top = 0;
 	FullScreen.Width = float(Effects->Widgets->GetWidth());
@@ -21,12 +22,11 @@ GL2DEffectSlideFromLeft::GL2DEffectSlideFromLeft (EffectFactory * EffectsEngine,
 		Effects->Widgets->GetWidth(), Effects->Widgets->GetHeight(), 
 		"Destination");	
 	Destination->SetVisible(true);
-	*/
 }
 
 
 GL2DEffectSlideFromLeft::~GL2DEffectSlideFromLeft() {
-//	Effects->Widgets->DeleteWidget(Destination);
+	Effects->Widgets->DeleteWidget(Destination);
 }
 
 /**
@@ -52,11 +52,13 @@ void GL2DEffectSlideFromLeft::Configure(PlutoRectangle* EffectSourceSize)
 void GL2DEffectSlideFromLeft::Paint(int Time)
 {
 	GL2DEffectTransit::Paint();
-/*
+
 	if(!Configured) {
 		//Set up the textures for triangles
-		Destination->SetTexture(Effects->Widgets->NewScreen);
-		
+		OpenGLGraphic* ScreenRenderGraphic =
+			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
+		Destination->SetBackgroundImage(ScreenRenderGraphic);
+
 		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
 		
@@ -73,7 +75,6 @@ void GL2DEffectSlideFromLeft::Paint(int Time)
 	FloatRect Animation = ButtonSize.Interpolate(FullScreen, Step);
 	
 	Destination->SetRectCoordinates(Animation);
-	*/
 }
 
 }

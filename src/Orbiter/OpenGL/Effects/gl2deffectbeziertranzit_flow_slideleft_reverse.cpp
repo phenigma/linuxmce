@@ -43,7 +43,7 @@ void GL2DBezierEffectTransit_Flow_SlideLeft_Reverse::Configure(PlutoRectangle* E
 void GL2DBezierEffectTransit_Flow_SlideLeft_Reverse::Paint(int Now)
 {
 	Configured = true;
-	/*
+
 	GL2DEffectTransit::Paint();
 	if(!Configured) 
 	{
@@ -116,7 +116,6 @@ void GL2DBezierEffectTransit_Flow_SlideLeft_Reverse::Paint(int Now)
 		ButonTop->BezierDefinition.anchors[3][i].x -= 
 			LeftProfile[i];
 	}
-*/
 }
 
 }

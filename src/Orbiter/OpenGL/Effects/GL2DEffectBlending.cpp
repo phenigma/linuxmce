@@ -2,7 +2,7 @@
 
 #include "gl2deffectfactory.h"
 
-//#include "../Orbiter3DCommons.h"
+#include "../Layers/GL2DEffectLayersCompose.h"
 
 namespace GLEffect2D
 {
@@ -10,7 +10,6 @@ namespace GLEffect2D
 GL2DEffectBlending::GL2DEffectBlending (EffectFactory * EffectsEngine, int StartAfter, int TimeForCompleteEffect)
 	: GL2DEffectTransit(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
-	/*
 	FullScreen.Left = 0;
 	FullScreen.Top = 0;
 	FullScreen.Width = float(Effects->Widgets->GetWidth());
@@ -30,7 +29,6 @@ GL2DEffectBlending::GL2DEffectBlending (EffectFactory * EffectsEngine, int Start
 		Effects->Widgets->GetWidth(), Effects->Widgets->GetHeight(), 
 		"Button");
 	Button->SetVisible(true);
-	*/
 }
 
 
@@ -47,12 +45,12 @@ GL2DEffectBlending::~GL2DEffectBlending() {
  */
 void GL2DEffectBlending::Configure(PlutoRectangle* EffectSourceSize)
 {
-	/*
+
 	ButtonSize.Left = float(EffectSourceSize->X);
 	ButtonSize.Top = float(EffectSourceSize->Y);
 	ButtonSize.Width = float(EffectSourceSize->Width);
 	ButtonSize.Height = float(EffectSourceSize->Height);
-*/	
+
 	Configured = false;
 }
 
@@ -63,14 +61,15 @@ void GL2DEffectBlending::Configure(PlutoRectangle* EffectSourceSize)
 void GL2DEffectBlending::Paint(int Now)
 {
 	Configured = true;
-	
-/*
+
 	GL2DEffectTransit::Paint();
 	if(!Configured) {
 		//Set up the textures for triangles
 		//Orbiter3DCommons::GetInstance()->GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
-		Button->SetTexture(Effects->Widgets->OldScreen);
-		Destination->SetTexture(Effects->Widgets->NewScreen);
+		//Button->SetTexture(Effects->Widgets->OldScreen);
+		OpenGLGraphic* OldScreenRenderGraphic =
+			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
+		Destination->SetBackgroundImage(OldScreenRenderGraphic);
 		
 		float MaxCoordU = 1.0f/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = 1.0f/MathUtils::MinPowerOf2((int)FullScreen.Height);
@@ -101,7 +100,6 @@ void GL2DEffectBlending::Paint(int Now)
 	
 	Destination->SetRectCoordinates(Animation);
 	Destination->SetAlpha(Step);
-*/
 }
 
 }

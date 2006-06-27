@@ -8,9 +8,11 @@
 
 #include <stdio.h>
 
-//#define DEBUG_LINES
+#include "DCE/Logger.h"
 
 MeshPainter* MeshPainter::_Instance = NULL;
+
+//#define DEBUG_LINES
 
 /*static*/ MeshPainter* MeshPainter::Instance()
 {
@@ -29,10 +31,9 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 	ExtensionManager_ = ExtensionManager;
 }
 
-/*virtual*/ void MeshPainter::PaintContainer(MeshContainer& Container, MeshTransform& Transform)
+/*virtual*/ void MeshPainter::PaintContainer(MeshContainer& Container, MeshTransform& Transform,
+	MeshTransform& TextureTransform)
 {
-	//GLSafetyLock LockArea(&SafetyPaintMutex);
-	
 	if(NULL == ExtensionManager_)
 		throw "ExtensionManager_ not set!";
 
@@ -51,6 +52,10 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 		Vertexes[Count].ApplyTransform(Transform);
 	}
 	
+#ifdef DEBUG
+	if(Container.NoTriangles)
+		DCE::g_pPlutoLogger->Write(LV_WARNING, "GL_TRIANGLES");
+#endif
 	glBegin(GL_TRIANGLES);
 	for(Count = 0; Count < Container.NoTriangles; Count++)
 	{
@@ -62,34 +67,35 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 		{
 			float MaxU = Triangle.Texture->MaxU;
 			float MaxV = Triangle.Texture->MaxV;
+
 			MeshVertex& Vertex = Vertexes[Triangle.Vertex1];
 			glTexCoord2f(Vertex.UVW.X*MaxU, Vertex.UVW.Y*MaxV);
-			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.UVW.Z);
+			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.Alpha);
 			glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
 
 			Vertex = Vertexes[Triangle.Vertex2];
 			glTexCoord2f(Vertex.UVW.X*MaxU, Vertex.UVW.Y*MaxV);
-			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.UVW.Z);
+			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.Alpha);
 			glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
 
 			Vertex = Vertexes[Triangle.Vertex3];
 			glTexCoord2f(Vertex.UVW.X*MaxU, Vertex.UVW.Y*MaxV);
-			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.UVW.Z);
+			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.Alpha);
 			glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
 		}
 		else
 		{
 			MeshVertex& Vertex = Vertexes[Triangle.Vertex1];
-			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.UVW.Z);
+			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.Alpha);
 			glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
 
 			Vertex = Vertexes[Triangle.Vertex2];
-			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.UVW.Z);
+			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.Alpha);
 			glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
 
 			Vertex = Vertexes[Triangle.Vertex3];
-			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.UVW.Z);
-			glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
+			glColor4f(Vertex.Color.X, Vertex.Color.Y, Vertex.Color.Z, Vertex.Alpha);
+			glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);			
 		}
 	}
 	glEnd();
@@ -107,15 +113,9 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 		Vertex = Vertexes[Triangle.Vertex2];
 		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
 
-		Vertex = Vertexes[Triangle.Vertex2];
-		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
 		Vertex = Vertexes[Triangle.Vertex3];
 		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
 
-		Vertex = Vertexes[Triangle.Vertex3];
-		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
-		Vertex = Vertexes[Triangle.Vertex1];
-		glVertex3f(Vertex.X, Vertex.Y, Vertex.Z);
 		glEnd();
 		glEnable(GL_TEXTURE_2D);
 	}
@@ -131,6 +131,5 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 }
 
 void MeshPainter::CleanUp()
-{
-	
+{	
 }

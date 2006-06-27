@@ -28,6 +28,8 @@ class OpenGL3DEngine
 
 
 	std::map<string, MeshFrame *> CurrentLayerObjects_;
+
+	void ShowAnimationTextures();
 	
 public:
 	GLEffect2D::LayersCompose* Compose;

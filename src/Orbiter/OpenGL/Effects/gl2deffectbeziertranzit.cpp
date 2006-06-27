@@ -1,8 +1,7 @@
 #include "gl2deffectbeziertranzit.h"
 #include "gl2deffectfactory.h"
 
-//#include "../Orbiter3DCommons.h"
-
+#include "../Layers/GL2DEffectLayersCompose.h"
 
 namespace GLEffect2D 
 {
@@ -11,7 +10,7 @@ GL2DBezierEffectTransit::GL2DBezierEffectTransit (EffectFactory * EffectsEngine,
 												  int TimeForCompleteEffect)
 	: GL2DEffectTransit(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
-	/*
+	
 	FullScreen.Left = 0.0f;
 	FullScreen.Top = 0.0f;
 	FullScreen.Width = (float)Effects->Widgets->GetWidth();
@@ -23,28 +22,24 @@ GL2DBezierEffectTransit::GL2DBezierEffectTransit (EffectFactory * EffectsEngine,
 		Effects->Widgets->GetWidth(), Effects->Widgets->GetHeight(), 
 		"Button");
 	Button->SetVisible(true);
-	*/
 }
 
 
 GL2DBezierEffectTransit::~GL2DBezierEffectTransit() {
-/*	Effects->Widgets->DeleteWidget(Button);	
-
-
+	Effects->Widgets->DeleteWidget(Button);	
 	Button = NULL;
-	*/
 }
 
 void GL2DBezierEffectTransit::Configure(PlutoRectangle* EffectSourceSize)
 {
-	/*
+	
 	ButtonSize.Left = (float)EffectSourceSize->X;
 	ButtonSize.Top = (float)EffectSourceSize->Y;
 	ButtonSize.Width = (float)EffectSourceSize->Width;
 	ButtonSize.Height = (float)EffectSourceSize->Height;
 
 	Configured = false;
-	*/
+	
 }
 
 void GL2DBezierEffectTransit::Paint(int Now)
@@ -53,8 +48,10 @@ void GL2DBezierEffectTransit::Paint(int Now)
 	if(!Configured) 
 	{
 		//Set up the textures for triangles
-		//Button->SetTexture(Effects->Widgets->NewScreen);
-		/*
+		OpenGLGraphic* ScreenRenderGraphic =
+			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
+
+		Button->SetBackgroundImage(ScreenRenderGraphic);
 		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
 		
@@ -64,11 +61,10 @@ void GL2DBezierEffectTransit::Paint(int Now)
 		Button->BezierDefinition.Divisions = 15;
 
 		Start = Effects->MilisecondTimmer();	
-		*/
+
 		Configured = true;
 	}
 	
-	/*
 	float Step = Stage((float)Now);
 	Button->SetAlpha(Step);
 
@@ -148,13 +144,10 @@ void GL2DBezierEffectTransit::Paint(int Now)
 	for(i = 0; i<4; i++)
 	{
 		for(j=0; j<4; j++)
-			Button->BezierDefinition.anchors[j][i].z = 
-				- 500 + 
-				Button->BezierDefinition.anchors[j][i].x
-				- BezierDefinition.anchors[j][i].x;
+			Button->BezierDefinition.anchors[j][i].z = 300;
 
 	}
-*/
+	Button->Paint();
 }
 
 }

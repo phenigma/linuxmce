@@ -17,7 +17,6 @@ GL2DEffectNoEffect::GL2DEffectNoEffect(EffectFactory * EffectsEngine, int StartA
 
 GL2DEffectNoEffect::~GL2DEffectNoEffect()
 {
-	//Commons3D::Instance().GetScreen3D()->SetBackgroundImage(Effects->Widgets->NewScreen);
 }
 
 /**

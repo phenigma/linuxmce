@@ -9,7 +9,7 @@ public:
 	Point3D UVW;
 	Point3D Normal;
 	Point3D Color;
-	
+	float Alpha;	
 };
 
 #endif

@@ -3,23 +3,23 @@
 
 #include "basewidget.h"
 
+#include "../Mesh/MeshContainer.h"
 /**
 @author ciplogic
 */
 
-/**
- * We use for FloatRect
- */
-
 class TBasicWindow : public TBaseWidget
-{
-
-	
+{	
 public:
-	TBasicWindow(int Left, int Top, int Width, int Height, char* Text);
+	TBasicWindow(MeshFrame* Context,
+		int Left, 
+		int Top, 
+		int Width, 
+		int Height, 
+		std::string Text);
 	virtual ~TBasicWindow();
 
-	virtual void Paint(MeshFrame* Context);
+	virtual void Paint();
 
 	/**
 	 *        Set up a background texture to one Window

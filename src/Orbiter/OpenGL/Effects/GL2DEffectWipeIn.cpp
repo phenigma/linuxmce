@@ -1,7 +1,9 @@
 #include "GL2DEffectWipeIn.h"
 #include "gl2deffectfactory.h"
 
-#include "../../../DCE/Logger.h"
+#include "DCE/Logger.h"
+
+#include "../Layers/GL2DEffectLayersCompose.h"
 
 namespace GLEffect2D
 {
@@ -27,7 +29,7 @@ GL2DEffectWipeIn::GL2DEffectWipeIn (EffectFactory * EffectsEngine, int StartAfte
 
 
 GL2DEffectWipeIn::~GL2DEffectWipeIn() {
-//	Effects->Widgets->DeleteWidget(Destination);
+	Effects->Widgets->DeleteWidget(Destination);
 }
 
 /**
@@ -38,12 +40,11 @@ GL2DEffectWipeIn::~GL2DEffectWipeIn() {
  */
 void GL2DEffectWipeIn::Configure(PlutoRectangle* EffectSourceSize)
 {
-	/*g_pPlutoLogger->Write(LV_CRITICAL, "Effect size: %d %d %d %d", 
+	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "Effect size: %d %d %d %d", 
 		EffectSourceSize->X,
 		EffectSourceSize->Y,
 		EffectSourceSize->Width,
 		EffectSourceSize->Height);
-		*/
 
   	ButtonSize.Left = float(EffectSourceSize->X);
 	ButtonSize.Top = float(EffectSourceSize->Y);
@@ -64,20 +65,18 @@ void GL2DEffectWipeIn::Paint(int Now)
 	float MaxCoordU = FullScreen.Width/MathUtils::MinPowerOf2((int)FullScreen.Width);
 	float MaxCoordV = FullScreen.Height/MathUtils::MinPowerOf2((int)FullScreen.Height);
 
-
-	
 	if(!Configured) {
 		//Set up the textures for triangles
-		//Destination->SetTexture(Effects->Widgets->NewScreen);
-		
 		Start = Effects->MilisecondTimmer();
+		OpenGLGraphic* OldScreenRenderGraphic =
+			GLEffect2D::LayersCompose::Instance()->OldScreen->GetRenderGraphic();
+		Destination->SetBackgroundImage(OldScreenRenderGraphic);
 		
 		Configured = true;
 	}
 	
-	float Step = Stage(float(Now-Start));
+	float Step = Stage(float(Now));
 
-	
 	FloatRect Animation = ButtonSize.Interpolate(FullScreen, Step);
 
 	Destination->SetRectCoordinates(Animation);
@@ -88,11 +87,10 @@ void GL2DEffectWipeIn::Paint(int Now)
 	UVRect_.Width = Animation.Width/FullScreen.Width*MaxCoordU;
 	UVRect_.Height = Animation.Height/FullScreen.Height*MaxCoordV;
 
-	/*
 	Destination->SetAlpha(0.7f + 0.3f * Step);
 	Destination->SetTextureWraping(
 		UVRect_
-		);*/
+		);
 }
 
 }

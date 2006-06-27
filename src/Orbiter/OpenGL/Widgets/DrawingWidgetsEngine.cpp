@@ -8,6 +8,8 @@
 #include "basicwindow.h"
 #include "bezierwindow.h"
 
+#include "DCE/Logger.h"
+
 namespace GLEffect2D
 {
 
@@ -29,13 +31,16 @@ void DrawingWidgetsEngine::Paint()
 		TBaseWidget* WidgetPtr = *Widget;
 		if(WidgetPtr->GetParent() == NULL)
 		{
-			WidgetPtr->Paint(&Context);
+			WidgetPtr->Paint();
 			std::string WidgetName = "Widget: " + WidgetPtr->GetName();
 
-			//g_pPlutoLogger->Write(LV_CRITICAL, WidgetName.c_str());
+			DCE::g_pPlutoLogger->Write(LV_CRITICAL, WidgetName.c_str());
 		}
 	}
-	//g_pPlutoLogger->Write(LV_CRITICAL, "EndFrame");
+	MeshTransform Transform;
+	Transform.ApplyTranslate(-400, -300, 300);
+	Context.Paint(Transform);
+	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "EndFrame");
 }
 
 TBaseWidget* DrawingWidgetsEngine::CreateWidget(int WidgetType, int Top, int Left, int Width, int Height, char* Text)
@@ -43,10 +48,10 @@ TBaseWidget* DrawingWidgetsEngine::CreateWidget(int WidgetType, int Top, int Lef
 	TBaseWidget * Result = NULL;
 	switch(WidgetType) {
 		case BASICWINDOW:
-			Result = new TBasicWindow(Top, Left, Width, Height, Text);
+			Result = new TBasicWindow(&Context, Top, Left, Width, Height, Text);
 			break;
 		case BEZIERWINDOW:
-			Result = new TBezierWindow(Top, Left, Width, Height, Text);
+			Result = new TBezierWindow(&Context,Top, Left, Width, Height, Text);
  			break;
 	}
 	

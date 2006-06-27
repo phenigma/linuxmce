@@ -12,19 +12,28 @@
  * @param ParamText - the asociated text of the widget
  * @return 
  */
-TBaseWidget::TBaseWidget(int ParamLeft, int ParamTop, int ParamWidth, int ParamHeight, char* ParamText)
+TBaseWidget::TBaseWidget(
+						 MeshFrame* ParentContext,
+						 int Left, 
+						 int Top, 
+						 int Width, 
+						 int Height, 
+						 std::string Text)
 	: TextureWrapper2D(0.0f, 0.0f, 1.0f, 1.0f),
 	  BackgroundTex(0),
 	  Background(1.0f, 1.0f, 1.0f, 1.0f),
-	  Left(ParamLeft),
-	  Top(ParamTop),  
-	  Width(ParamWidth), 
-	  Height(ParamHeight), 
 	  Parent(NULL),
-	  Text(ParamText),
 	  Visible(false),
-	  Context(NULL){
-  Context = new MeshFrame();
+	  Context(NULL),
+	  Container(NULL)
+{
+	this->Left = Left;
+	this->Top = Top;
+	this->Width = Width;
+	this->Height = Height;
+	this->Text = Text;
+
+	Context = ParentContext;
 }
 
 TBaseWidget::~TBaseWidget()
@@ -37,16 +46,15 @@ TBaseWidget::~TBaseWidget()
 	Childs.clear();	
 }
 
-void TBaseWidget::Paint(MeshFrame* ParentContext)
+void TBaseWidget::Paint()
 {
 	// if the actual window is not visible, will not be painted
 	if (!Visible)
 		return;
 	std::vector <TBaseWidget*>::iterator Widget; 
-	ParentContext->AddChild(Frame);
 	
 	for(Widget = Childs.begin(); Widget < Childs.end(); Widget++)
-		(*Widget)->Paint(Frame);
+		(*Widget)->Paint();
 }
 
 FloatRect TBaseWidget::GetTextureCoordinates()
@@ -74,12 +82,7 @@ TBaseWidget* TBaseWidget::GetChild(unsigned int NoChild) {
 
 /*virtual*/ std::string TBaseWidget::GetName()
 {
-	std::string Result;
-	if (Text == NULL)
-		Result = "";
-	else
-		Result = Text;
-	return Result;
+	return Text;
 }
 
 MeshFrame* TBaseWidget::GetContext()

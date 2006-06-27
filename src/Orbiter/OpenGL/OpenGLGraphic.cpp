@@ -40,31 +40,17 @@ OpenGLGraphic::OpenGLGraphic(int Width, int Height) : PlutoGraphic()
 {
 	Initialize();
 
-	this->Width = Width;
-	this->Height = Height;
+	int NewWidth = GLMathUtils::MinPowerOf2(Width);
+	MaxU = float(Width) / NewWidth;
+	this->Width = NewWidth;
+	int NewHeight = GLMathUtils::MinPowerOf2(Width);
+	MaxU = float(Width) / NewHeight ;
+	this->Height = NewHeight;
 
 	LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, 
-		24, rmask, gmask, bmask, amask);
-
-	SDL_SetAlpha(LocalSurface, SDL_SRCALPHA | SDL_RLEACCEL , SDL_ALPHA_TRANSPARENT);
-
+		32, 
+		rmask, gmask, bmask, amask);
 	Prepare();
-
-	unsigned char* Pixels = (unsigned char*) malloc(Width*Height*3);
-
-	glGenTextures(1, &Texture);
-	glBindTexture(GL_TEXTURE_2D, Texture);
-	//Texture blends with object background
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);  
-
-	// Use when not wanting mipmaps to be built by openGL
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, Pixels);  
-	// only first two can be used 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
-	// all of the above can be used 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
-
-	free(Pixels);
 }
 
 OpenGLGraphic::~OpenGLGraphic()

@@ -33,19 +33,25 @@ class TBezierWindow : public TBaseWidget
 public:
 	/**
 	* Creates a bezier window with with default color and settigs
+	* @param ParentContext Object hierarchy that match the drawing
 	* @param Left Left coordinate of the window (in pixels) 
 	* @param Top Top coordinate of the window (in pixels)
 	* @param Width Width size of the window (in pixels)
 	* @param Height Height size of the window (in pixels)
 	* @param Text Attached text of the window (for now, not used), maybe for future implementations
 	*/
- 	TBezierWindow(int Left, int Top, int Width, int Height, char* Text);
+	TBezierWindow(MeshFrame* ParentContext,
+		int Left, 
+		int Top, 
+		int Width, 
+		int Height, 
+		std::string Text);
 	virtual ~TBezierWindow();
 
 	/**
 	* Paint the window using defaults
 	*/ 
-	virtual void Paint(MeshFrame* Context);
+	virtual void Paint();
 
 	/**  Set up a background texture to one Window
 	 * @param Background That surface must be in size as power of two (e.g. 256 x 512)

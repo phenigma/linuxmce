@@ -1,6 +1,8 @@
 #include "gl2deffectfadesfromtop.h"
 
 #include "gl2deffectfactory.h"
+#include "../Layers/GL2DEffectLayersCompose.h"
+
 
 namespace GLEffect2D
 {
@@ -9,7 +11,6 @@ GL2DEffectFadesFromTop::GL2DEffectFadesFromTop (EffectFactory * EffectsEngine, i
 												int TimeForCompleteEffect)
 	: GL2DEffectTransit(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
-	/*
 	FullScreen.Left = 0;
 	FullScreen.Top = 0;
 	FullScreen.Width = float(Effects->Widgets->GetWidth());
@@ -21,22 +22,20 @@ GL2DEffectFadesFromTop::GL2DEffectFadesFromTop (EffectFactory * EffectsEngine, i
 		Effects->Widgets->GetWidth(), Effects->Widgets->GetHeight(), 
 		"Destination");	
 	Destination->SetVisible(true);
-*/
 }
 
 
 GL2DEffectFadesFromTop::~GL2DEffectFadesFromTop() {
-//	Effects->Widgets->DeleteWidget(Destination);
+	Effects->Widgets->DeleteWidget(Destination);
 }
 
 void GL2DEffectFadesFromTop::Configure(PlutoRectangle* EffectSourceSize)
 {
-	/*
 	ButtonSize.Left = 0;
 	ButtonSize.Top = FullScreen.Height;
 	ButtonSize.Width = FullScreen.Width;
 	ButtonSize.Height = FullScreen.Height;
-	*/
+
 	Configured = false;
 }
 
@@ -44,10 +43,12 @@ void GL2DEffectFadesFromTop::Paint(int Now)
 {
 	GL2DEffectTransit::Paint();
 	Configured = false;
-/*
+
 	if(!Configured) {
 		//Set up the textures for triangles
-		Destination->SetTexture(Effects->Widgets->NewScreen);
+		OpenGLGraphic* OldScreenRenderGraphic =
+			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
+		Destination->SetBackgroundImage(OldScreenRenderGraphic);
 
 		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
@@ -65,7 +66,7 @@ void GL2DEffectFadesFromTop::Paint(int Now)
 
 	Destination->SetRectCoordinates(Animation);
 	Destination->SetAlpha(Step);
-	*/
+
 }
 
 }
