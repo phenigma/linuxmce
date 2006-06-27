@@ -327,6 +327,11 @@ exec 1>&3 3>&-
 /usr/pluto/bin/generateRcScripts.sh
 sed -i 's/^ide-generic$/#&/g' /etc/modules
 
+# detect the timezone of this machine
+if [[ "$OfflineMode" == false ]]; then
+	/usr/pluto/bin/TimeZone_Detect.sh
+fi
+
 /usr/pluto/install/Initial_Config_Finish.sh
 
 
