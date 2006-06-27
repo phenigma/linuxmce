@@ -79,8 +79,7 @@ char * GetRoomName()
 		fflush(stdout);
 
 		fgets(buffer, 1024, stdin);
-		if (buffer[strlen(buffer) - 1] == '\n')
-			buffer[strlen(buffer) - 1] = 0;
+		chomp(buffer);
 		if (strlen(buffer) != 0)
 			done = 1;
 	}

@@ -19,4 +19,14 @@ void set_close_on_exec(int sock)
 	sock_flags |= FD_CLOEXEC;
 	fcntl(sock, F_SETFD, sock_flags);
 }
+
+char * chomp(char * buffer)
+{
+	if (buffer == NULL)
+		return NULL;
+
+	if (buffer[strlen(buffer) - 1] == '\n')
+		buffer[strlen(buffer) - 1] = 0;
+	return buffer;
+}
 #endif

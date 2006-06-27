@@ -75,6 +75,7 @@ int main()
 				int PK_Room;
 				char sPK_Room[1024];
 				sscanf(buffer, "%*s %s %s %d %100c", remoteIP, remoteMAC, &PK_Room, remoteRoom);
+				chomp(remoteRoom);
 				snprintf(cmd, 1024, "/usr/pluto/bin/New_PnP_MD.sh %s %s %d %s", remoteIP, remoteMAC, PK_Room, remoteRoom);
 				snprintf(sPK_Room, 1024, "%d", PK_Room);
 
