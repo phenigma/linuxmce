@@ -94,6 +94,8 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	GLThread = 0;
 	pthread_cond_init(&Condition, NULL);
 	Mutex.Init(NULL, &Condition);
+	m_spPendingGLEffects.reset(new PendingGLEffects());
+
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterRenderer_OpenGL::~OrbiterRenderer_OpenGL()
@@ -499,6 +501,16 @@ bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderScreen(bool bRenderGraphicsOnly)
 {
+	if(OrbiterLogic()->m_pObj_SelectedLastScreen)
+		m_spPendingGLEffects->m_nOnSelectWithChangeEffectID = 
+		OrbiterLogic()->m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange;
+
+
+
+	int a = m_spPendingGLEffects->m_nOffScreenTransitionEffectID;
+	int b = m_spPendingGLEffects->m_nOnScreenTransitionEffectID;
+	int c = m_spPendingGLEffects->m_nOnSelectWithChangeEffectID;
+
 	g_pPlutoLogger->Write(LV_WARNING,"OrbiterRenderer_OpenGL::RenderScreen");
 
 	PlutoRectangle rectLastSelected(0, 0, 0, 0);
@@ -524,12 +536,13 @@ bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
 
 	GLEffect2D::Effect* Item;
 	srand((unsigned int)time(NULL));
-//	int EffectCode = GL2D_EFFECT_SLIDE_FROM_LEFT;
-	int EffectCode = GL2D_EFFECT_BEZIER_TRANSIT;
-		//EffectCode = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
-	g_pPlutoLogger->Write(LV_WARNING, "%d", EffectCode);
+	//int EffectCode = GL2D_EFFECT_FADES_FROM_TOP;
+	//int EffectCode = GL2D_EFFECT_BEZIER_TRANSIT;
+	int EffectCode = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
+	//int EffectCode = GLEffect2D::EffectFactory::GetEffectCode(9);
+	//g_pPlutoLogger->Write(LV_WARNING, "%d", EffectCode);
 	
-	Item = Engine->Compose->CreateEffect(2, EffectCode, 0, 2300);
+	Item = Engine->Compose->CreateEffect(2, EffectCode, 0, 630);
 	if(Item)
 		Item->Configure(&rectLastSelected);
 

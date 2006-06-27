@@ -4,6 +4,8 @@
 #include "../OrbiterRenderer.h"
 #include "../DesignObj_Orbiter.h"
 
+#include "PendingGLEffects.h"
+
 class OpenGL3DEngine;
 //-----------------------------------------------------------------------------------------------------
 
@@ -14,6 +16,8 @@ namespace DCE
 	protected:
 		pthread_t GLThread;
 		bool NeedToUpdateScreen_;
+		std::auto_ptr<PendingGLEffects> m_spPendingGLEffects;
+
 
 	public:
 

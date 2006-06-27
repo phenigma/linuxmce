@@ -1,7 +1,7 @@
 #include "gl2deffectbeziertranzit_flow_slideleft.h"
 #include "gl2deffectfactory.h"
 
-//#include "../Orbiter3DCommons.h"
+#include "../Layers/GL2DEffectLayersCompose.h"
 
 namespace GLEffect2D 
 {
@@ -44,13 +44,15 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 	if(!Configured) 
 	{
 		//Set up the textures for triangles
-		//ButonTop->SetTexture(Effects->Widgets->NewScreen);
+		OpenGLGraphic* ScreenRenderGraphic =
+			GLEffect2D::LayersCompose::Instance()->OldScreen->GetRenderGraphic();
+		ButonTop->SetBackgroundImage(ScreenRenderGraphic);
 
-		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
-		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
+		float MaxCoordU = 1;
+		float MaxCoordV = 1;
 
 		ButonTop->SetTextureWraping(0.0, 0.0, 
-		MaxCoordU, MaxCoordV);
+			MaxCoordU, MaxCoordV);
 
 		ButonTop->BezierDefinition.Divisions = 50;
 
@@ -72,9 +74,9 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 	ButonTop->SetRectCoordinates(Animation);
 	Step = Step2;
 	if( Step < 0.5)
-	Step *= 2;
+		Step *= 2;
 	else
-	Step= 1-(Step - 0.5f)*2; 
+		Step= 1-(Step - 0.5f)*2; 
 
 	int i;
 	float Average = Animation.Width * 2/3;
@@ -88,31 +90,31 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 	Step = Step2;
 	LeftProfile[0] = 0.0f;
 	LeftProfile[1] = MathUtils::InterpolateValues(
-	0,
-	Animation.Width,
-	0.33f*Step);
+		0,
+		Animation.Width,
+		0.33f*Step);
 	LeftProfile[2] = LeftProfile[1];
 	LeftProfile[3] = 0.0f;
 
 	TopProfile[0] = 0.0f;
 	TopProfile[1] = MathUtils::InterpolateValues(
-	0,
-	Animation.Height,
-	0.33f*Step);
+		0,
+		Animation.Height,
+		0.33f*Step);
 	TopProfile[2] = TopProfile[1];
 	TopProfile[3] = 0.0f;
 
 	for(i = 0; i<4; i++)
 	{
-	ButonTop->BezierDefinition.anchors[i][0].y -= 
-	TopProfile[i];
-	ButonTop->BezierDefinition.anchors[i][3].y -= 
-	TopProfile[i];
+		ButonTop->BezierDefinition.anchors[i][0].y -= 
+			TopProfile[i];
+		ButonTop->BezierDefinition.anchors[i][3].y -= 
+			TopProfile[i];
 
-	ButonTop->BezierDefinition.anchors[0][i].x -= 
-	2*LeftProfile[i];
-	ButonTop->BezierDefinition.anchors[3][i].x -= 
-	LeftProfile[i];
+		ButonTop->BezierDefinition.anchors[0][i].x -= 
+			2*LeftProfile[i];
+		ButonTop->BezierDefinition.anchors[3][i].x -= 
+			LeftProfile[i];
 	}
 }
 

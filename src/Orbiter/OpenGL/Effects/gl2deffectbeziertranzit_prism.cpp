@@ -1,6 +1,8 @@
 #include "gl2deffectbeziertranzit_prism.h"
 #include "gl2deffectfactory.h"
 
+#include "../Layers/GL2DEffectLayersCompose.h"
+
 namespace GLEffect2D
 {
 
@@ -44,10 +46,12 @@ void GL2DBezierEffectTransit_Prism::Paint(int Now)
 	if(!Configured) 
 	{
 		//Set up the textures for triangles
-		//Button->SetTexture(Effects->Widgets->NewScreen);
+		OpenGLGraphic* OldScreenRenderGraphic =
+			GLEffect2D::LayersCompose::Instance()->OldScreen->GetRenderGraphic();
+		Button->SetBackgroundImage(OldScreenRenderGraphic);
 		
-		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
-		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
+		float MaxCoordU = 1;
+		float MaxCoordV = 1;
 		
 		Button->SetTextureWraping(0.0, 0.0, 
 			MaxCoordU, MaxCoordV);

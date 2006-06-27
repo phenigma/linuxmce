@@ -26,7 +26,7 @@ TBasicWindow::TBasicWindow(MeshFrame* Context,
 {
 		MeshBuilder MB;
 
-		MB.Begin(MBMODE_TRIANGLES);
+		MB.Begin(MBMODE_TRIANGLE_STRIP);
 		MB.SetColor(1.0f, 1.0f, 1.0f);
 		MB.SetAlpha(Background.Alpha);
 		MB.SetTexture(BackgroundTex);
@@ -34,21 +34,13 @@ TBasicWindow::TBasicWindow(MeshFrame* Context,
 		MB.SetTexture2D(0.0f, 0.0f); 
 		MB.AddVertexFloat(0.0f, 0.0f, 0.0f);
 		//2nd
-		MB.SetTexture2D(0.0f, -1024.0f/600.f); 
+		MB.SetTexture2D(0.0f, -1); 
 		MB.AddVertexFloat( 0.0f, 1.0f, 0.0f);
 		//3rd
-		MB.SetTexture2D(1024.0f/800.f, 0.0f);
-		MB.AddVertexFloat( 1.0f, 0.0f, 0.0f);
-
-
-		//2nd
-		MB.SetTexture2D(0.0f, -1024.0f/600.f); 
-		MB.AddVertexFloat( 0.0f, 1.0f, 0.0f);
-		//3rd
-		MB.SetTexture2D(1024.0f/800.f, 0.0f);
+		MB.SetTexture2D(1, 0.0f);
 		MB.AddVertexFloat( 1.0f, 0.0f, 0.0f);
 		//4th
-		MB.SetTexture2D(1024.0f/800.f, -1024.0f/600.f); 
+		MB.SetTexture2D(1, -1); 
 		MB.AddVertexFloat(1.0f, 1.0f, 0.0f);
 
 		Container = MB.End();
@@ -97,17 +89,17 @@ void TBasicWindow::SetRectCoordinates(FloatRect Coordinates)
 	Transform.ApplyScale(Coordinates.Width, Coordinates.Height, 1.0f);
 	Transform.ApplyTranslate(Coordinates.Left, Coordinates.Top, 0.0f);
 	Frame->SetTransform(Transform);
-	SetLeft(Coordinates.Left);
-	SetTop(Coordinates.Top);
-	SetWidth(Coordinates.Width);
-	SetHeight(Coordinates.Height);
+	SetLeft(float(Coordinates.Left));
+	SetTop(float(Coordinates.Top));
+	SetWidth(float(Coordinates.Width));
+	SetHeight(float(Coordinates.Height));
 }
 
 void TBasicWindow::SetTextureWraping(float LeftCoordinate, float TopCoordinate, 
 	float WidthCoordinate, float HeightCoordinate) 
 {
 	TextureWrapper2D.Left = LeftCoordinate;
-	TextureWrapper2D.Top = TopCoordinate;
+	TextureWrapper2D.Top = 1-TopCoordinate;
 	TextureWrapper2D.Width = WidthCoordinate;
 	TextureWrapper2D.Height = HeightCoordinate;
 	SetTextureWraping(TextureWrapper2D);
@@ -119,3 +111,19 @@ void TBasicWindow::SetTextureWraping(FloatRect UVRect)
 	Container->SetUVMapping(UVRect);
 }
 
+void TBasicWindow::SetAbsoluteUV(FloatRect UVRect) 
+{
+	Container->Vertexes[0].UVW.X = UVRect.Left;
+	Container->Vertexes[0].UVW.Y = 1 - UVRect.Top;
+
+	Container->Vertexes[1].UVW.X = UVRect.Left;
+	Container->Vertexes[1].UVW.Y = 1 - (UVRect.Top+ UVRect.Height);
+
+	Container->Vertexes[2].UVW.X = UVRect.Left + UVRect.Width;
+	Container->Vertexes[2].UVW.Y = 1 - UVRect.Top ;
+
+	Container->Vertexes[3].UVW.X = UVRect.Left + UVRect.Width;
+	Container->Vertexes[3].UVW.Y = 1 - (UVRect.Top+ UVRect.Height);
+	if(UVRect.Height < 0)
+		int f = 4;
+}

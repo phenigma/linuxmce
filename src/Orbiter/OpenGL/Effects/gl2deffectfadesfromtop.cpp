@@ -42,7 +42,6 @@ void GL2DEffectFadesFromTop::Configure(PlutoRectangle* EffectSourceSize)
 void GL2DEffectFadesFromTop::Paint(int Now)
 {
 	GL2DEffectTransit::Paint();
-	Configured = false;
 
 	if(!Configured) {
 		//Set up the textures for triangles
@@ -50,8 +49,8 @@ void GL2DEffectFadesFromTop::Paint(int Now)
 			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
 		Destination->SetBackgroundImage(OldScreenRenderGraphic);
 
-		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
-		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
+		float MaxCoordU = 1;
+		float MaxCoordV = 1;
 		
 		Destination->SetTextureWraping(0.0, 0.0, 
 			MaxCoordU, MaxCoordV);

@@ -100,9 +100,7 @@ public:
 	 */
 	void SetRectCoordinates(FloatRect Coordinates);
 			
-	//Test::
-	float RotateYVal;
-	void RotateY(float Step) {RotateYVal = Step;}
+	void SetAbsoluteUV(FloatRect UVRect);
 
 };
 

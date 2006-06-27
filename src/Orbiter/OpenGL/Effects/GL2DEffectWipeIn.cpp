@@ -62,15 +62,16 @@ void GL2DEffectWipeIn::Paint(int Now)
 {
 	GL2DEffectTransit::Paint();
 
-	float MaxCoordU = FullScreen.Width/MathUtils::MinPowerOf2((int)FullScreen.Width);
-	float MaxCoordV = FullScreen.Height/MathUtils::MinPowerOf2((int)FullScreen.Height);
+	float MaxCoordU = 1;
+	float MaxCoordV = 1;
 
 	if(!Configured) {
 		//Set up the textures for triangles
 		Start = Effects->MilisecondTimmer();
 		OpenGLGraphic* OldScreenRenderGraphic =
-			GLEffect2D::LayersCompose::Instance()->OldScreen->GetRenderGraphic();
+			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
 		Destination->SetBackgroundImage(OldScreenRenderGraphic);
+		Destination->SetTextureWraping(0.0, 0.0, 1.0f, 1.0f);
 		
 		Configured = true;
 	}
@@ -81,16 +82,14 @@ void GL2DEffectWipeIn::Paint(int Now)
 
 	Destination->SetRectCoordinates(Animation);
 
-	FloatRect UVRect_, UVRect_FullScreen;
-	UVRect_.Left = Animation.Left/FullScreen.Width*MaxCoordU;
-	UVRect_.Top = Animation.Top/FullScreen.Height*MaxCoordV;
-	UVRect_.Width = Animation.Width/FullScreen.Width*MaxCoordU;
-	UVRect_.Height = Animation.Height/FullScreen.Height*MaxCoordV;
+	FloatRect UVRect_;
+	UVRect_.Left = (Animation.Left)/FullScreen.Width;
+	UVRect_.Top = (Animation.Top) / FullScreen.Height;
+	UVRect_.Width = (Animation.Width)/FullScreen.Width;
+	UVRect_.Height = (Animation.Height) / FullScreen.Height;
 
 	Destination->SetAlpha(0.7f + 0.3f * Step);
-	Destination->SetTextureWraping(
-		UVRect_
-		);
+	Destination->SetAbsoluteUV(UVRect_);
 }
 
 }

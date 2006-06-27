@@ -25,7 +25,6 @@ class GL2DEffectWipeIn : public GL2DEffectTransit
 	
 	FloatRect ButtonSize;
 	FloatRect FullScreen;
-	
 public:
 	GL2DEffectWipeIn (EffectFactory * EffectsEngine, int StartAfter, int TimeForCompleteEffect);
 	virtual ~GL2DEffectWipeIn();

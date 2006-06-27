@@ -39,8 +39,6 @@ MeshContainer* genBezier(BEZIER_PATCH patch, FloatRect TextureWrapper2D, ColorRG
 
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
 
-	//glPushMatrix();
-	//glTranslatef(-400, -300, 00);
 	for (u=1;u<=divs;u++) {
 		py    = ((double)u)/((double)divs);			// Percent Along Y-Axis
 		pyold = ((double)u-1.0)/((double)divs);			// Percent Along Old Y Axis
@@ -49,9 +47,6 @@ MeshContainer* genBezier(BEZIER_PATCH patch, FloatRect TextureWrapper2D, ColorRG
 		temp[1] = MathUtils::Bernstein((float)py, patch.anchors[1]);
 		temp[2] = MathUtils::Bernstein((float)py, patch.anchors[2]);
 		temp[3] = MathUtils::Bernstein((float)py, patch.anchors[3]);
-
-		//glBegin(GL_TRIANGLE_STRIP);
-		//glColor3f(1.0f, 1.0f, 0.0f);
 
 		for (v=0;v<=divs;v++) {
 			px = ((float)v)/((float)divs);			// Percent Along The X-Axis
@@ -67,9 +62,6 @@ MeshContainer* genBezier(BEZIER_PATCH patch, FloatRect TextureWrapper2D, ColorRG
 				CoordU,
 				CoordV); 
 			
-			//glTexCoord2f(CoordU*1.4, CoordV*1.8); 
-			//glVertex3f(last[v].x, last[v].y, last[v].z);
-
 			last[v] = MathUtils::Bernstein((float)px, temp);			// Generate New Point
 
 			CoordU = (float)MathUtils::InterpolateValues(TextureWrapper2D.Left, 
@@ -82,15 +74,8 @@ MeshContainer* genBezier(BEZIER_PATCH patch, FloatRect TextureWrapper2D, ColorRG
 			MB.AddVertexFloatUV(last[v].x, last[v].y, last[v].z, 
 				CoordU, 
 				CoordV); 
-
-			//glTexCoord2f(CoordU*1.4, CoordV*1.8); 
-			//glVertex3f(last[v].x, last[v].y, last[v].z);
 		}
-		//glEnd();
 	}
-	//glColor3f(1.0f, 1.0f, 1.0f);
-	//glPopMatrix();
-	
 	free(last);							// Free The Old Vertices Array
 
 	Container = MB.End();
@@ -126,6 +111,8 @@ void TBezierWindow::Paint()
 		
 	TBaseWidget::Paint();
 	
+	if(Container)
+		delete Container;
 	Container = genBezier(BezierDefinition, TextureWrapper2D, Background, 
 		BackgroundTex);
 	Frame->SetMeshContainer(Container);

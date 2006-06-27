@@ -52,9 +52,9 @@ void GL2DEffectFadesFromUnderneath::Paint(int Now)
 			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
 		Destination->SetBackgroundImage(OldScreenRenderGraphic);
 		
-		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
-		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
-		
+		float MaxCoordU = 1;
+		float MaxCoordV = 1;
+
 		Destination->SetTextureWraping(0.0, 0.0, 
 			MaxCoordU, MaxCoordV);
 	

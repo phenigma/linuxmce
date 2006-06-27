@@ -1,7 +1,7 @@
 #include "gl2deffectbeziertranzit_topleft.h"
 #include "gl2deffectfactory.h"
 
-//#include "../Orbiter3DCommons.h"
+#include "../Layers/GL2DEffectLayersCompose.h"
 
 namespace GLEffect2D
 {
@@ -45,14 +45,14 @@ void GL2DBezierEffectTransit_TopLeft::Paint(int Now)
 	if(!Configured) 
 	{
 		//Set up the textures for triangles
-		//Button->SetTexture(Effects->Widgets->NewScreen);
-		
-		//Commons3D::Instance().GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
+		OpenGLGraphic* ScreenRenderGraphic =
+			GLEffect2D::LayersCompose::Instance()->OldScreen->GetRenderGraphic();
+		Button->SetBackgroundImage(ScreenRenderGraphic);
 		
 		//Orbiter3DCommons::GetInstance()->GetScreen3D()->SetVisible(false);
 
-		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
-		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);
+		float MaxCoordU = 1;
+		float MaxCoordV = 1;
 		
 		Button->SetTextureWraping(0.0, 0.0, 
 			MaxCoordU, MaxCoordV);
