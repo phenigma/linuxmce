@@ -1,9 +1,11 @@
 <?php
+require_once("../globalconfig/globalconfig.inc.php");
 define('main_path',dirname(__FILE__));
-define('host','localhost');
-define('user','root');
-define('password','');
-define('db','pluto_main');
+define('host',$dbPlutoMainServer);
+define('user',$dbPlutoMainUser);
+define('password',$dbPlutoMainPass);
+define('db',$dbPlutoMainDatabase);
+
 if (!isset($_SERVER["REMOTE_ADDR"])) exit;
 //print $_SERVER["REMOTE_ADDR"];
 include("geoipcity.inc");
