@@ -21,21 +21,7 @@ bool TextLineExtract::lineSplitter(char c)
  */ 
 bool TextLineExtract::wordSplitter(char c)
 {
-	if (
-		(c >= 'a' && c <='z')	  || 
-		(c >= 'A' && c <= 'Z')	  || 
-		(c >= '0' && c <= '9')    ||
-		(c == '\'') || (c == '"') ||
-		(c == '(')  || (c == ')') ||  
-		(c == '[')  || (c == ']')  
-		//|| c == ',' || c == '\'' || c == '(' || c == ')' || c == '/' 
-		//|| c == '?' || c == '!'  || c == ';' || c == '"' || c == '.'
-		//|| c == '[' || c == ']'  || c == '-' || c == '=' || c == '_'
-	)
-	{
-		return false;
-	}
-	return true;
+	return c == '-' || c == ' ';
 }
 
 void TextLineExtract::AddRow(Row line)
