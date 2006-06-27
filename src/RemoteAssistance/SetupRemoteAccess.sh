@@ -21,7 +21,7 @@ RAKey="/usr/pluto/keys/id_dsa_remoteassistance"
 
 shopt -s nullglob
 
-screen -wipe &>/dev/null
+#screen -wipe &>/dev/null
 
 AddCronEntry()
 {
