@@ -86,6 +86,9 @@ bool OpenGL3DEngine::Paint()
 
 void OpenGL3DEngine::NewScreen()
 {
+	UnHighlight();
+	UnSelect();
+
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	
 	if(NULL != OldLayer)
@@ -268,6 +271,7 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 	//the frame already deleted?
 	delete HighLightFrame;
 	HighLightFrame = NULL;
+	
 }
 
 /*virtual*/ void OpenGL3DEngine::UnSelect()
@@ -275,6 +279,7 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 	if(SelectedFrame == NULL)
 		return;
 	CurrentLayer->RemoveChild(SelectedFrame);
+
 	delete SelectedFrame;
 	SelectedFrame = NULL;
 }

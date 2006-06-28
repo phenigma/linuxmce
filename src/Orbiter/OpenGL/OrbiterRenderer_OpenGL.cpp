@@ -365,7 +365,9 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point )
 {
-	Engine->Select(&pObj->m_rPosition);
+		int EffectCode = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
+
+		Engine->Select(&pObj->m_rPosition);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::EventLoop()
@@ -559,6 +561,5 @@ bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
 	Item = Engine->Compose->CreateEffect(3, b, 0, 1200);
 	if(Item)
 		Item->Configure(&rectLastSelected);
-
 }
 //-----------------------------------------------------------------------------------------------------

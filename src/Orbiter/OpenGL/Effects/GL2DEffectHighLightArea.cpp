@@ -12,21 +12,19 @@ GL2DEffectHighLightArea::GL2DEffectHighLightArea(EffectFactory * EffectsEngine, 
 : GL2DEffectHighLight(EffectsEngine, StartAfter, TimeForCompleteEffect)
 {
 	Configured = false;
-	/*
+	
 	Button = dynamic_cast<TBasicWindow*> (Effects->Widgets->CreateWidget(
 		BASICWINDOW,
 		0, 0, 0, 0,
 		"None"
 		));
-		*/
+		
 }
 
 GL2DEffectHighLightArea::~GL2DEffectHighLightArea(void)
 {
-	/*
 	Effects->Widgets->DeleteWidget(Button);
 	Button = NULL;
-	*/
 }
 
 
@@ -34,17 +32,17 @@ void GL2DEffectHighLightArea::Configure(PlutoRectangle* EffectSourceSize)
 {
 	if (!EffectSourceSize)
 		return;
-	/*
+
 	this->EffectSourceSize.Left = (float)EffectSourceSize->X;
 	this->EffectSourceSize.Top = (float)EffectSourceSize->Y;
 	this->EffectSourceSize.Width = (float)EffectSourceSize->Width;
-	this->EffectSourceSize.Height = (float)EffectSourceSize->Height;*/
+	this->EffectSourceSize.Height = (float)EffectSourceSize->Height;
 }
 
 void GL2DEffectHighLightArea::Paint(int Time)
 {
 	Configured = true;
-	/*
+	
 	if(!Configured)
 	{
 		Start = Effects->MilisecondTimmer();
@@ -61,7 +59,7 @@ void GL2DEffectHighLightArea::Paint(int Time)
 	{
 		Button->SetBackgroundColor(1.0f, 1.0f, 0.0f, 0.5f - (Step-0.5f)*2.f*0.3f);
 	}
-	Commons3D::Instance().GetSelected()->SetVisible(true);*/
+	//Commons3D::Instance().GetSelected()->SetVisible(true);
 }
 
 }

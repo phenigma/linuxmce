@@ -63,7 +63,6 @@ void GL2DEffectFadesFromTop::Paint(int Now)
 
 	Destination->SetRectCoordinates(Animation);
 	Destination->SetAlpha(Step);
-
 }
 
 }
