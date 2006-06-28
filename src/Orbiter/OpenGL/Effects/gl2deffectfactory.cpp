@@ -40,11 +40,15 @@
 #include <iostream>
 #include <SDL.h>
 
+#include "../Layers/GL2DEffectLayer.h"
+
 namespace GLEffect2D
 {
 
-EffectFactory::EffectFactory (DrawingWidgetsEngine* WidgetsEngine)
-	: Widgets(WidgetsEngine) {
+EffectFactory::EffectFactory (Layer* ParentLayer, DrawingWidgetsEngine* WidgetsEngine)
+	: Widgets(WidgetsEngine)
+{
+	this->ParentLayer = ParentLayer;
 	StartTime = SDL_GetTicks();
 }
 
@@ -83,7 +87,6 @@ Effect* EffectFactory::CreateEffect(int IDEffect, int StartAfter, int TimeForCom
 		case GL2D_EFFECT_WIPE_IN:
 			Effect = new GL2DEffectWipeIn(this, StartAfter, TimeForComplete);
 			break;
-			
 		
 		case GL2D_EFFECT_BEZIER_TRANSIT:
 			Effect = new GL2DBezierEffectTransit (this, StartAfter, TimeForComplete);

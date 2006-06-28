@@ -68,9 +68,8 @@ void GL2DEffectWipeIn::Paint(int Now)
 	if(!Configured) {
 		//Set up the textures for triangles
 		Start = Effects->MilisecondTimmer();
-		OpenGLGraphic* OldScreenRenderGraphic =
-			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
-		Destination->SetBackgroundImage(OldScreenRenderGraphic);
+		OpenGLGraphic* ScreenRenderGraphic = Effects->ParentLayer->RenderGraphic;
+		Destination->SetBackgroundImage(ScreenRenderGraphic);
 		Destination->SetTextureWraping(0.0, 0.0, 1.0f, 1.0f);
 		
 		Configured = true;

@@ -79,6 +79,44 @@ bool OpenGL3DEngine::Paint()
 	return Status;
 }
 
+/*virtual*/ int OpenGL3DEngine::GetTick()
+{
+	return SDL_GetTicks();
+}
+
+void OpenGL3DEngine::NewScreen()
+{
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	
+	if(NULL != OldLayer)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "NewScreen, removing stuff...");
+		Desktop.RemoveChild(OldLayer);
+		delete OldLayer;
+	}
+
+	OldLayer = CurrentLayer;
+	
+	StartTick = GetTick();
+
+	CurrentLayerObjects_.clear();
+	CurrentLayer = new MeshFrame();
+	Desktop.AddChild(CurrentLayer);
+	
+	Desktop.RemoveChild(OldLayer);
+	Desktop.AddChild(OldLayer);
+
+	g_pPlutoLogger->Write(LV_CRITICAL, "Current layer is now %p, size %d", 
+		CurrentLayer, Desktop.Children.size());
+}
+
+void OpenGL3DEngine::Setup()
+{
+	GL.Setup();
+	Compose = GLEffect2D::LayersCompose::Instance();
+	Compose->Setup(GL.Width, GL.Height);
+}
+
 void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
@@ -241,40 +279,3 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 	SelectedFrame = NULL;
 }
 
-/*virtual*/ int OpenGL3DEngine::GetTick()
-{
-	return SDL_GetTicks();
-}
-
-void OpenGL3DEngine::NewScreen()
-{
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
-	
-	if(NULL != OldLayer)
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "NewScreen, removing stuff...");
-		Desktop.RemoveChild(OldLayer);
-		delete OldLayer;
-	}
-
-	OldLayer = CurrentLayer;
-	
-	StartTick = GetTick();
-
-	CurrentLayerObjects_.clear();
-	CurrentLayer = new MeshFrame();
-	Desktop.AddChild(CurrentLayer);
-	
-	Desktop.RemoveChild(OldLayer);
-	Desktop.AddChild(OldLayer);
-
-	g_pPlutoLogger->Write(LV_CRITICAL, "Current layer is now %p, size %d", 
-		CurrentLayer, Desktop.Children.size());
-}
-
-void OpenGL3DEngine::Setup()
-{
-	GL.Setup();
-	Compose = GLEffect2D::LayersCompose::Instance();
-	Compose->Setup(GL.Width, GL.Height);
-}

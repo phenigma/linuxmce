@@ -48,8 +48,11 @@ void GL2DBezierEffectTransit::Paint(int Now)
 	if(!Configured) 
 	{
 		//Set up the textures for triangles
+		/*
 		OpenGLGraphic* ScreenRenderGraphic =
 			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
+			*/
+		OpenGLGraphic* ScreenRenderGraphic = Effects->ParentLayer->RenderGraphic;
 
 		Button->SetBackgroundImage(ScreenRenderGraphic);
 		float MaxCoordU = 1.0f;

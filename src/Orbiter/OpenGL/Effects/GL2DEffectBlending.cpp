@@ -65,11 +65,8 @@ void GL2DEffectBlending::Paint(int Now)
 	GL2DEffectTransit::Paint();
 	if(!Configured) {
 		//Set up the textures for triangles
-		//Orbiter3DCommons::GetInstance()->GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
-		//Button->SetTexture(Effects->Widgets->OldScreen);
-		OpenGLGraphic* OldScreenRenderGraphic =
-			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
-		Destination->SetBackgroundImage(OldScreenRenderGraphic);
+		OpenGLGraphic* ScreenRenderGraphic = Effects->ParentLayer->RenderGraphic;
+		Destination->SetBackgroundImage(ScreenRenderGraphic);
 		
 		float MaxCoordU = 1.0f/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = 1.0f/MathUtils::MinPowerOf2((int)FullScreen.Height);
@@ -82,8 +79,8 @@ void GL2DEffectBlending::Paint(int Now)
 			);
 
 		Button->SetTextureWraping(0.0f, FullScreen.Width*0.5f*MaxCoordV,
-			FullScreen.Height*0.8*MaxCoordU, FullScreen.Width*0.9*MaxCoordV);
-		Destination->SetTextureWraping(0.0, 0.0, 
+			FullScreen.Height*0.8f*MaxCoordU, FullScreen.Width*0.9f*MaxCoordV);
+		Destination->SetTextureWraping(0.0f, 0.0f, 
 			MaxCoordU*FullScreen.Width, MaxCoordV*FullScreen.Height);
 		Start = Effects->MilisecondTimmer();
 

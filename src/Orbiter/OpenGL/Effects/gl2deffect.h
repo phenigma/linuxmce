@@ -18,6 +18,8 @@ protected:
 
 public:
 	bool Configured;
+	bool Reversed;
+
 	Effect(EffectFactory* EffectsEngine, int StartAfter, int TimeForCompleteEffect);
 	virtual ~Effect();
 	
@@ -26,16 +28,7 @@ public:
 	 * 0 = StartTime
 	 * 1.0 = StartTime+Length;
 	 */
-	float Stage(float Time) {
-		if (Length<= 0) 
-			return 1.1f;
-		if(Time < Start)
-			return -0.0f;
-		if(Time > Start + Length)
-			return 1.05f;
-		float Result = ((float)Time-(float)Start) / (float)Length;
-		return Result;
-	} 
+	float Stage(float Time);
   
 	virtual void Paint(int Time) = 0;
 

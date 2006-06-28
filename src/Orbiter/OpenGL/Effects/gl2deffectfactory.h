@@ -51,6 +51,7 @@
  */
 namespace GLEffect2D
 {
+class Layer;
 
 class EffectFactory {
 	/**
@@ -70,10 +71,12 @@ class EffectFactory {
 	pthread_cond_t ListMutexCond;
 
 public:
+
+	Layer* ParentLayer;
 	/**
 	 *	Default constructor, describes the widgets will be used
 	 */
-	EffectFactory (DrawingWidgetsEngine* Widgets);
+	EffectFactory (Layer* ParentLayer, DrawingWidgetsEngine* Widgets);
 
 	/**
 	 *	Default no-op destructor

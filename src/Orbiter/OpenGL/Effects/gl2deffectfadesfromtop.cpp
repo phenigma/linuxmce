@@ -3,7 +3,6 @@
 #include "gl2deffectfactory.h"
 #include "../Layers/GL2DEffectLayersCompose.h"
 
-
 namespace GLEffect2D
 {
 
@@ -45,9 +44,8 @@ void GL2DEffectFadesFromTop::Paint(int Now)
 
 	if(!Configured) {
 		//Set up the textures for triangles
-		OpenGLGraphic* OldScreenRenderGraphic =
-			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
-		Destination->SetBackgroundImage(OldScreenRenderGraphic);
+		OpenGLGraphic* ScreenRenderGraphic = Effects->ParentLayer->RenderGraphic;
+		Destination->SetBackgroundImage(ScreenRenderGraphic);
 
 		float MaxCoordU = 1;
 		float MaxCoordV = 1;

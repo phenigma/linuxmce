@@ -5,6 +5,7 @@
 #include "../OpenGLGraphic.h"
 #include "../Mesh/MeshPainter.h"
 
+#include "../ExtensionManager.h"
 
 namespace GLEffect2D 
 {
@@ -110,10 +111,15 @@ void LayersCompose::Paint()
 		this->PaintScreen3D();
 		NeedUpdateLayers = false;
 		TakeNewScreenSnapshot();
+		LayerList[2]->RenderGraphic = OldScreen->GetRenderGraphic();
+		LayerList[3]->RenderGraphic = NewScreen->GetRenderGraphic();
 	}
 
-	if(bHasEffects)
-		PaintOldScreen3D();
+//	if(bHasEffects)
+//		PaintOldScreen3D();
+	
+	ExtensionManager Extension;
+	Extension.ClearScreen(true, false);
 
 	std::map <int, Layer*>::iterator Item;
 	for(Item = LayerList.begin(); Item != LayerList.end(); ++Item)
@@ -261,6 +267,7 @@ void LayersCompose::ShowAnimationTextures()
 
 	Texture = OldScreen->GetRenderGraphic()->Texture;
 
+	
 	//glBindTexture(GL_TEXTURE_2D, Texture);
 	TextureMan->SetupTexture(Texture);
 	glEnd();

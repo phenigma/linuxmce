@@ -16,11 +16,11 @@ class Layer
 	DrawingWidgetsEngine* Widgets;
 
 	MeshFrame* RenderFrame;
-	OpenGLGraphic* RenderGraphic;
-
 
 	void CreateRenderTexture();
 public:
+	OpenGLGraphic* RenderGraphic;
+
 	Layer(int Width, int Height);
 	virtual ~Layer(void);
 

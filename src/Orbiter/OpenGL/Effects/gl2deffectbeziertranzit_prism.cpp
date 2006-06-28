@@ -46,9 +46,8 @@ void GL2DBezierEffectTransit_Prism::Paint(int Now)
 	if(!Configured) 
 	{
 		//Set up the textures for triangles
-		OpenGLGraphic* OldScreenRenderGraphic =
-			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
-		Button->SetBackgroundImage(OldScreenRenderGraphic);
+		OpenGLGraphic* ScreenRenderGraphic = Effects->ParentLayer->RenderGraphic;
+		Button->SetBackgroundImage(ScreenRenderGraphic);
 		
 		float MaxCoordU = 1;
 		float MaxCoordV = 1;

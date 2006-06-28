@@ -1,6 +1,7 @@
 #include "gl2deffectbeziertranzit_flow_slideleft_reverse.h"
 
 #include "gl2deffectfactory.h"
+#include "../Layers/GL2DEffectLayer.h"
 
 namespace GLEffect2D
 {
@@ -47,10 +48,8 @@ void GL2DBezierEffectTransit_Flow_SlideLeft_Reverse::Paint(int Now)
 	GL2DEffectTransit::Paint();
 	if(!Configured) 
 	{
-		//Set up the textures for triangles
-		//ButonTop->SetTexture(Effects->Widgets->OldScreen);
-
-		//Commons3D::Instance().GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);
+		OpenGLGraphic* ScreenRenderGraphic = Effects->ParentLayer->RenderGraphic;
+		ButonTop->SetBackgroundImage(ScreenRenderGraphic);
 
 		float MaxCoordU = (FullScreen.Width)/MathUtils::MinPowerOf2((int)FullScreen.Width);
 		float MaxCoordV = (FullScreen.Height)/MathUtils::MinPowerOf2((int)FullScreen.Height);

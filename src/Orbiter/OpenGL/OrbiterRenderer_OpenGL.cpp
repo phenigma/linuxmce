@@ -360,7 +360,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 
 	DesignObj_Orbiter *pObj = OrbiterLogic()->m_pObj_Highlighted;
 
-	//Engine->Highlight(&pObj->m_rPosition, NULL);
+	Engine->Highlight(&pObj->m_rPosition, NULL);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point )
@@ -541,8 +541,22 @@ bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
 	int EffectCode = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
 	//int EffectCode = GLEffect2D::EffectFactory::GetEffectCode(9);
 	//g_pPlutoLogger->Write(LV_WARNING, "%d", EffectCode);
+	a = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
+	b = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
+	c = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
 	
+	/*
 	Item = Engine->Compose->CreateEffect(2, EffectCode, 0, 630);
+	if(Item)
+		Item->Configure(&rectLastSelected);
+	*/
+	Item = Engine->Compose->CreateEffect(2, a, 0, 1200);
+	if(Item)
+	{
+		Item->Configure(&rectLastSelected);
+		Item->Reversed = true;
+	}
+	Item = Engine->Compose->CreateEffect(3, b, 0, 1200);
 	if(Item)
 		Item->Configure(&rectLastSelected);
 

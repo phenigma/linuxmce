@@ -45,8 +45,7 @@ void GL2DBezierEffectTransit_TopLeft::Paint(int Now)
 	if(!Configured) 
 	{
 		//Set up the textures for triangles
-		OpenGLGraphic* ScreenRenderGraphic =
-			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
+		OpenGLGraphic* ScreenRenderGraphic = Effects->ParentLayer->RenderGraphic;
 		Button->SetBackgroundImage(ScreenRenderGraphic);
 		
 		//Orbiter3DCommons::GetInstance()->GetScreen3D()->SetVisible(false);

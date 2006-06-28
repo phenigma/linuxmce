@@ -10,7 +10,7 @@ Layer::Layer(int Width, int Height)
 RenderGraphic(NULL)
 {
 	Widgets  = new DrawingWidgetsEngine(Width, Height);
-	Effects  = new EffectFactory(Widgets);	
+	Effects  = new EffectFactory(this, Widgets);	
 }
 
 Layer::~Layer(void)
