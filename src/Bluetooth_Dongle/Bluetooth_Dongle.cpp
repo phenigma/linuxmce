@@ -518,6 +518,9 @@ THE FOUND DEVICE IF WE'RE ALREADY CONNECTED.  WE'LL JUST PUT IT IN THE MAP AND D
 // This will also add the phone to the map
 void Bluetooth_Dongle::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 {
+	if(m_bQuit)
+		return;
+
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
 	if ( pBD_Orbiter==NULL || pBD_Orbiter->m_pOrbiter==NULL || pBD_Orbiter->m_pBDCommandProcessor==NULL || pBD_Orbiter->m_pBDCommandProcessor->m_bDead )
 	{
@@ -553,6 +556,9 @@ void Bluetooth_Dongle::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 
 void Bluetooth_Dongle::Intern_LostDevice(class PhoneDevice *pDevice)
 {
+	if(m_bQuit)
+		return;
+
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
 	if ( pBD_Orbiter==NULL || pBD_Orbiter->m_pOrbiter==NULL || pBD_Orbiter->m_pBDCommandProcessor==NULL || pBD_Orbiter->m_pBDCommandProcessor->m_bDead )
 	{
@@ -571,6 +577,9 @@ void Bluetooth_Dongle::Intern_LostDevice(class PhoneDevice *pDevice)
 
 void Bluetooth_Dongle::NewDeviceDetected( class PhoneDevice *pDevice )
 {
+	if(m_bQuit)
+		return;
+
 	// We'll just handle this the same way
 	SignalStrengthChanged( pDevice );
 }
@@ -579,6 +588,9 @@ void Bluetooth_Dongle::NewDeviceDetected( class PhoneDevice *pDevice )
 
 void Bluetooth_Dongle::LostDevice( class PhoneDevice *pDevice )
 {
+	if(m_bQuit)
+		return;
+
 	PLUTO_SAFETY_LOCK( bm, m_BTMutex );
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
 
@@ -613,6 +625,9 @@ void Bluetooth_Dongle::LostDevice( class PhoneDevice *pDevice )
 
 void Bluetooth_Dongle::SignalStrengthChanged( class PhoneDevice *pDevice )
 {
+	if(m_bQuit)
+		return;
+
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
 
 	if( NULL != pBD_Orbiter )
