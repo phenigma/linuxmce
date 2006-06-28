@@ -80,7 +80,6 @@ void OSDScreenHandler::DisableAllVideo()
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 {
-	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_bWizardIsRunning = true;
 
 	DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_Greetings_CONST),TEXT_STATUS_CONST );
@@ -210,7 +209,6 @@ bool OSDScreenHandler::VideoWizard_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_UsersWizard(long PK_Screen)
 {
-	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
@@ -335,7 +333,6 @@ bool OSDScreenHandler::UsersWizard_DatagridSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_CountryWizard(long PK_Screen)
 {
-	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butLocationWizard_CONST));
 	if( m_pWizardLogic->GetLocation() )
 	{
@@ -451,7 +448,6 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_RoomsWizard(long PK_Screen)
 {
-	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 /*
 #if (USE_WX_LIB)
     {
@@ -554,7 +550,6 @@ bool OSDScreenHandler::RoomsWizard_DatagridSelected(CallBackData *pData)
 
 void OSDScreenHandler::SCREEN_This_Room(long PK_Screen, bool bAlways)
 {
-	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butThisRoom_CONST));
 	if( !bAlways )
 	{
@@ -622,7 +617,6 @@ bool OSDScreenHandler::ThisRoom_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_TV_provider(long PK_Screen)
 {
-	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butTVProviderWizard_CONST));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "0");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "0");
@@ -713,7 +707,6 @@ bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 {
-	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butTVManufWizard_CONST));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
@@ -945,7 +938,6 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 {
-	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butReceiverWizard_CONST));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
@@ -1202,7 +1194,6 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_AV_Devices(long PK_Screen)
 {
-	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butAVDevicesWizard_CONST));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Filter_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
@@ -1386,7 +1377,6 @@ void OSDScreenHandler::HandleLightingScreen()
 void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 {
 	m_tWaitingForRegistration=0;
-	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butLightsWizard_CONST)); 
 
 	m_pWizardLogic->m_nPK_Device_Lighting =	m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Lighting_Interface_CONST);
@@ -1714,7 +1704,6 @@ bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_AlarmPanel(long PK_Screen)
 {
-	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
@@ -1994,7 +1983,6 @@ bool OSDScreenHandler::AlarmPanel_CapturedKeyboardBufferChanged(CallBackData *pD
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_VOIP_Provider(long PK_Screen)
 {
-	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::WizardIntercept_OnGotoScreen, new GotoScreenCallBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, "");
@@ -2498,17 +2486,18 @@ void OSDScreenHandler::SCREEN_PopupMessage(long PK_Screen, string sText, string 
 	ScreenHandler::SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, sDescription, sPromptToResetRouter, sTimeout, sCannotGoBack);
 }
 
-bool OSDScreenHandler::WizardIntercept_OnGotoScreen(CallBackData *pData)
+void OSDScreenHandler::ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 {
-	GotoScreenCallBackData *pGotoScreenCallBackData = (GotoScreenCallBackData *)pData;
-	if( pGotoScreenCallBackData->m_nPK_Screen == SCREEN_PopupMessage_CONST )
+	if( m_bWizardIsRunning )
 	{
-		if( pGotoScreenCallBackData->m_pMessage && pGotoScreenCallBackData->m_pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST]=="new_device_reload" )
-			return true;
+		g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::ReceivedGotoScreenMessage checking screen %d",nPK_Screen);
+		if( nPK_Screen == SCREEN_PopupMessage_CONST && pMessage && pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST]=="new_device_reload" )
+			return;
+		else if( nPK_Screen == SCREEN_Need_Regen_Orbiter_CONST || nPK_Screen == SCREEN_Need_Reload_Router_CONST )
+			return;
+		g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::ReceivedGotoScreenMessage letting through screen %d",nPK_Screen);
 	}
-	else if( pGotoScreenCallBackData->m_nPK_Screen == SCREEN_Need_Regen_Orbiter_CONST || pGotoScreenCallBackData->m_nPK_Screen == SCREEN_Need_Reload_Router_CONST )
-	{
-		return true;
-	}
-	return false;
+
+	ScreenHandler::ReceivedGotoScreenMessage(nPK_Screen,pMessage);
 }
+

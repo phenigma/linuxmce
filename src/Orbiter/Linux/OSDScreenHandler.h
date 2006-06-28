@@ -112,7 +112,7 @@ public:
 
 	bool NewAvDevice_ObjectSelected(int PK_DeviceCategory,ObjectInfoBackData *pObjectInfoData);
 	virtual void SCREEN_PopupMessage(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack);
-	bool WizardIntercept_OnGotoScreen(CallBackData *pData);
+	virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage);
 
     //virtual void SCREEN_TVManufNotListed(long PK_Screen);
 	//virtual bool SCREEN_TVManufNotListed_ObjectSelected(CallBackData *pData);
