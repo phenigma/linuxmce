@@ -1,0 +1,95 @@
+#!/bin/bash
+
+# A request from a device already configured for the network, even if it's a new device for pluto system
+
+#Dec 20 05:42:03 dcerouter dhcpd: DHCPREQUEST for 192.168.80.253 from 00:0f:23:fc:a4:ea via eth1
+#Dec 20 05:42:03 dcerouter dhcpd: DHCPACK on 192.168.80.253 to 00:0f:23:fc:a4:ea (SEP000F23FCA4EA) via eth1
+
+# This is a REAL dhcp offer
+#Dec 20 05:44:43 dcerouter dhcpd: DHCPDISCOVER from 00:0f:23:fc:a4:ea (SEP000F23FCA4EA) via eth1
+#Dec 20 05:44:43 dcerouter dhcpd: DHCPOFFER on 192.168.80.253 to 00:0f:23:fc:a4:ea (SEP000F23FCA4EA) via eth1
+#Dec 20 05:44:43 dcerouter dhcpd: DHCPREQUEST for 192.168.80.253 (192.168.80.1) from 00:0f:23:fc:a4:ea (SEP000F23FCA4EA) via eth1
+#Dec 20 05:44:43 dcerouter dhcpd: DHCPACK on 192.168.80.253 to 00:0f:23:fc:a4:ea (SEP000F23FCA4EA) via eth1
+
+. /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/SQL_Ops.sh
+
+log_plugin()
+{
+	local Type="$1" Data="$2"
+
+	case "$Type" in
+		err) Type="01" ;;
+		log) Type="00" ;;
+	esac
+
+	printf "%s\n" "$Type $(date -R) $Data" >>/var/log/pluto/dhcp_pnp.log
+}
+
+parse()
+{
+	local Line="$1"
+
+	local Word Ret
+	for Word in $Line; do
+		Ret="$Ret,$Word"
+	done
+
+	echo "$Ret"
+}
+
+extract_field()
+{
+	local Field="$1" Line="$2"
+
+	echo "$Line" | cut -d' ' -f"$Field"
+}
+
+log_plugin log "\n\n\n\nDhcp-Plugin Process Started"
+log_plugin log "Dhcp-Plugin Started"
+
+while :; do
+	read inline
+	found=0
+
+	line=$(parse "$inline")
+	tag=$(extract_field 5 "$line")
+	op=$(extract_field 6 "$line")
+	mac_found=$(extract_field 10 "$line")
+	ip_sent=$(extract_field 8 "$line")
+
+	if [[ "$tag" != "dhcpd:" ]]; then
+		continue
+	fi
+
+	case "$op" in
+		"DHCPACK")
+			log_plugin log "DHCP : MAC '$mac_found' IP '$ip_sent'"
+
+			Q="SELECT PK_Device FROM Device WHERE MACaddress='$mac_found' AND IPaddress='$ip_sent'"
+			R=$(RunSQL "$Q")
+
+			if [[ -z "$R" ]]; then
+				Q="SELECT PK_UnknownDevices FROM UnknownDevices WHERE MACaddress='$mac_found"
+				R=$(RunSQL "$Q")
+
+				if [[ -z "$R" ]]; then
+					log_plugin log "NEW DEVICE !!!"
+
+					for ((i = 0; i < 100; i++)); do
+						/usr/pluto/bin/MessageSend $DCERouter $PK_Device -1001 2 65 52 3 53 2 5 "$mac_found" 28 "$ip_sent"
+						if [[ $? -eq 0 ]]; then
+							break
+						else
+							sleep 10
+						fi
+					done
+				else
+					log_plugin log "Device already marked as unknown, ignore"
+				fi
+			else
+				log_plugin log "Device already exists: $R"
+			fi
+		;;
+	esac
+done
