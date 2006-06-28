@@ -86,7 +86,7 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
         , m_bButtonPressed_WaitList(false)
         , m_pWaitUser(NULL)
         , m_bOrbiterReady(false)
-        , m_bIsExclusiveMode(true)
+        , m_bIsExclusiveMode(false)
         , m_pDisplay_SDL(NULL)
         , m_pWinListManager(NULL)
         , m_pWMController(NULL)
