@@ -30,6 +30,8 @@ export SDL_VIDEODEVICE=dummy
 for OrbiterDev in $Orbiters; do
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Generating Orbiter on the fly nr. $OrbiterDev"
 
+	Q="UPDATE Orbiter set RegenPercent where PK_Orbiter=$OrbiterDev"
+	RunSQL "$Q"
 	/usr/pluto/bin/MessageSend localhost 0 $OrbiterDev 7 1
 
 	echo "on the fly regen of $OrbiterDev $2 $3" >> /var/log/pluto/orbitergen.log
