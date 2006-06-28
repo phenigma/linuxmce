@@ -197,7 +197,7 @@ if [[ -e /usr/pluto/install/.notdone ]]; then
 	exit 1
 fi
 
-Logging \"$TYPE\" \"$SEVERITY_NORMAL\" \"\$0\" \"Running '$scriptName' '$scriptParameter' ($scriptBackground \"$scriptCommand\" $scriptParameter)\"
+Logging \"$TYPE\" \"$SEVERITY_NORMAL\" \"\$0\" \"Running '$scriptName' '$scriptParameter' ($scriptBackground \\\"$scriptCommand\\\" $scriptParameter)\"
 
 mkdir -p /home/screenlogs/\"$dirName\"
 pushd /home/screenlogs/\"$dirName\" &>/dev/null
