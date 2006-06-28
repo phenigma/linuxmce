@@ -176,6 +176,7 @@ for line in $result; do
 	fi
 	
 	scriptName=${scriptCommand##*/}
+	dirName=$(basename "$scriptCommand")
 	
 	scriptContent="#!/bin/bash
 # 
@@ -189,16 +190,19 @@ for line in $result; do
 #   $(date -R)
 #
 
-PATH=\"/usr/pluto/bin:\$PATH\"
+export PATH=\"/usr/pluto/bin:\$PATH\"
 . /usr/pluto/bin/pluto.func
 
 if [[ -e /usr/pluto/install/.notdone ]]; then
 	exit 1
 fi
 
-Logging \"$TYPE\" \"$SEVERITY_NORMAL\" \"\$0\" \"Running '$scriptName' '$scriptParameter'\"
+Logging \"$TYPE\" \"$SEVERITY_NORMAL\" \"\$0\" \"Running '$scriptName' '$scriptParameter' ($scriptBackground \"$scriptCommand\" $scriptParameter)\"
 
+mkdir -p /home/screenlogs/\"$dirName\"
+pushd /home/screenlogs/\"$dirName\" &>/dev/null
 $scriptBackground \"$scriptCommand\" $scriptParameter
+popd &>/dev/null
 "  
 	CreateRcScript "$compRoot" "$scriptWhen" "$scriptName" "$scriptOrder" "$scriptContent"
 done
