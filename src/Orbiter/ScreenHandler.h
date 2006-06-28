@@ -61,6 +61,7 @@ protected:
 	map<CallBackType, CallBackData *> m_mapCallBackData;
 	string m_sActiveApplication_Description,m_sActiveApplication_Window;
 	int m_PK_DesignObj_ActiveApp_OSD,m_PK_DesignObj_ActiveApp_Remote;
+	time_t m_tLastDeviceAdded;
 
 	pluto_pthread_mutex_t m_MapMutex; /** < Protected the access to our maps */
 
@@ -98,6 +99,7 @@ public:
 	virtual void GotoDesignObj(int PK_DesignObj,string sID="",bool bStore_Variables=false,bool bCant_Go_Back=false);
 	virtual void SCREEN_NewPnpDevice(long PK_Screen, string sDescription, int iPK_PnpQueue);
 	virtual void SCREEN_New_Pnp_Device_One_Possibility(long PK_Screen, int iPK_Room, int iPK_DHCPDevice, string sDescription, string ssComments, int iPK_PnpQueue);
+	bool Pnp_ObjectSelected(CallBackData *pData);
 	virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sName); 
 	MediaFileBrowserOptions mediaFileBrowserOptions;  // Current sort/filter options for the media browser
 

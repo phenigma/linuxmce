@@ -433,6 +433,9 @@ int main(int argc, char *argv[])
 
 
 #define EOL "\n"
+			if( iPK_Orbiter )
+				cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 5 9 'Failed to get " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'" << endl;
+
 			cout <<
 				"\t\techo \"***************************************************\"" EOL
 				"\t\techo \"***ERROR*** Processing of package '" + pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() + "' failed\"" EOL

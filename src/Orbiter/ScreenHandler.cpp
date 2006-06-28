@@ -25,7 +25,7 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 	, mediaFileBrowserOptions(pOrbiter)
 {
 	m_pOrbiter = pOrbiter;
-
+	m_tLastDeviceAdded = 0;
 	m_MapMutex.Init(NULL);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -113,6 +113,7 @@ void ScreenHandler::SCREEN_PopupMessage(long PK_Screen, string sText, string sCo
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NewPnpDevice(long PK_Screen, string sDescription, int iPK_PnpQueue)
 {
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Pnp_ObjectSelected,	new ObjectInfoBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sDescription);
 	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::itos(iPK_PnpQueue));
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), StringUtils::itos(iPK_PnpQueue), "", false, false );
@@ -120,6 +121,7 @@ void ScreenHandler::SCREEN_NewPnpDevice(long PK_Screen, string sDescription, int
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_New_Pnp_Device_One_Possibility(long PK_Screen, int iPK_Room, int iPK_DHCPDevice, string sDescription, string ssComments, int iPK_PnpQueue)
 {
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Pnp_ObjectSelected,	new ObjectInfoBackData());
 	string sTitle = m_pOrbiter->m_mapTextString[TEXT_new_pnp_device_one_possibility_CONST];
 	string sRoom;
 	if( iPK_Room )
@@ -150,6 +152,17 @@ void ScreenHandler::SCREEN_New_Pnp_Device_One_Possibility(long PK_Screen, int iP
 		DisplayMessageOnOrbiter(PK_Screen,sTitle, false, "0", true,
 			m_pOrbiter->m_mapTextString[TEXT_YES_CONST],sMessageYesUseIt,
 			m_pOrbiter->m_mapTextString[TEXT_No_ignore_it_CONST],sMessageNoIgnoreIt,m_pOrbiter->m_mapTextString[TEXT_Ignore_everytime_CONST],sMessageNoIgnoreItEveryTime);
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::Pnp_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse1_CONST || pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse2_CONST || 
+		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse3_CONST || pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse4_CONST )
+	{
+		m_tLastDeviceAdded = time(NULL);
+	}
+	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sName)
@@ -436,6 +449,7 @@ void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,string &sVal
 	sValues += sArrayValue;
 int k=2;
 }
+
 void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,int &iValue)
 {
 	if( !pObj )

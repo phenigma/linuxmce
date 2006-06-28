@@ -2405,6 +2405,14 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 	else
 		SetRoomForDevice(pRow_Device,pRow_Room);
 
+	// Fix up any auto-assign child devices
+	string sSQL = "UPDATE Device "
+		"JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate AND FK_DeviceData=" TOSTRING(DEVICEDATA_Autoassign_to_parents_room_CONST) " "
+		"LEFT JOIN Device As Parent ON Parent.PK_Device=Device.FK_Device_ControlledVia "
+		"SET Device.FK_Room=Parent.FK_Room "
+		"WHERE IK_DeviceData=1";
+	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), 
 		StringUtils::itos(iPK_Device), SCREEN_NewPlugAndPlayDevice_CONST);

@@ -48,6 +48,7 @@ OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignO
 	m_bLightsFlashThreadRunning=m_bLightsFlashThreadQuit=false;
 	m_pWizardLogic = new WizardLogic(pOrbiter);
 	m_dwMessageInterceptorCounter_ReportingChildDevices = 0;
+	m_tWaitingForRegistration = 0;
 
 	if(!m_pWizardLogic->Setup())
 	{
@@ -776,6 +777,12 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 		new ObjectInfoBackData());
 	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::TV_OnScreen, new RenderScreenCallBackData());
 
+	if( !m_pWizardLogic->m_nPK_Device_TV && m_tLastDeviceAdded && time(NULL)-m_tLastDeviceAdded<10 ) // The user just recently added a new tv or other device.  Wait a few seconds to confirm
+	{
+		DisplayMessageOnOrbiter(0,m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST],false,"0",true,"no buttons");
+		m_pOrbiter->StartScreenHandlerTimer(10000); // Wait 10 seconds before continuing
+		m_tWaitingForRegistration=1;  // Special indicator for the timer that it should just return to this screen whenever it's called
+	}
 }
 bool OSDScreenHandler::TV_OnScreen(CallBackData *pData)
 {
@@ -784,6 +791,11 @@ bool OSDScreenHandler::TV_OnScreen(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::TV_OnTimer(CallBackData *pData)
 {
+	if( m_tWaitingForRegistration==1 )
+	{
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_TV_Manufacturer_CONST);
+		return false;
+	}
 	int PK_Device_TV = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST);
 
 	if(PK_Device_TV)
@@ -1001,6 +1013,13 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::Receiver_GridSelected, new DatagridCellBackData());
 	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &OSDScreenHandler::Receiver_OnTimer, new CallBackData());
 	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::Receiver_OnScreen, new RenderScreenCallBackData());
+
+	if( !m_pWizardLogic->m_nPK_Device_Receiver && m_tLastDeviceAdded && time(NULL)-m_tLastDeviceAdded<10 ) // The user just recently added a new receiver or other device.  Wait a few seconds to confirm
+	{
+		DisplayMessageOnOrbiter(0,m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST],false,"0",true,"no buttons");
+		m_pOrbiter->StartScreenHandlerTimer(10000); // Wait 10 seconds before continuing
+		m_tWaitingForRegistration=1;  // Special indicator for the timer that it should just return to this screen whenever it's called
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::Receiver_OnScreen(CallBackData *pData)
@@ -1011,6 +1030,12 @@ bool OSDScreenHandler::Receiver_OnScreen(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::Receiver_OnTimer(CallBackData *pData)
 {
+	if( m_tWaitingForRegistration==1 )
+	{
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Receiver_CONST);
+		return false;
+	}
+
 	int PK_Device_Receiver = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
 
 	if(PK_Device_Receiver)
@@ -1193,7 +1218,7 @@ void OSDScreenHandler::SCREEN_AV_Devices(long PK_Screen)
 bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
-
+g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::AV_Devices_ObjectSelected selected %d already played %d",(int) GetCurrentScreen_PK_DesignObj(),(int) m_bAlreadyPlayFinalGreeting);
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
 		case DESIGNOBJ_AVDevices_CONST:
@@ -1292,6 +1317,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 
 		case DESIGNOBJ_Final_CONST:
 		{
+g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::AV_Devices_ObjectSelected selected DESIGNOBJ_Final_CONST already played %d",(int) m_bAlreadyPlayFinalGreeting);
 			if( !m_bAlreadyPlayFinalGreeting )
 			{
 				m_bAlreadyPlayFinalGreeting=true;
@@ -1428,13 +1454,16 @@ bool OSDScreenHandler::Lights_OnTimer(CallBackData *pData)
 	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoLights_CONST || m_tWaitingForRegistration )
 	{
 		m_pWizardLogic->m_nPK_Device_Lighting =	m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Lighting_Interface_CONST);
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer light %d waiting %d",m_pWizardLogic->m_nPK_Device_Lighting,(int) m_tWaitingForRegistration );
 		if( m_pWizardLogic->m_nPK_Device_Lighting )
 		{
 			char cRegistered = m_pOrbiter->DeviceIsRegistered(m_pWizardLogic->m_nPK_Device_Lighting);
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer registered %c", cRegistered);
 			if( cRegistered=='Y' )
 			{
 				m_tWaitingForRegistration=0;
 				HandleLightingScreen();
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer now registered");
 				return false;  // Kill the timer
 			}
 			else if( !m_tWaitingForRegistration )
@@ -1444,6 +1473,7 @@ bool OSDScreenHandler::Lights_OnTimer(CallBackData *pData)
 			}
 			else if( time(NULL)-m_tWaitingForRegistration>60 )
 			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::Lights_OnTimer timed out waiting for %d",m_pWizardLogic->m_nPK_Device_Lighting);
 				m_tWaitingForRegistration=0;
 				DisplayMessageOnOrbiter(0,m_pOrbiter->m_mapTextString[TEXT_Device_did_not_start_CONST],false,"0",true,
 					m_pOrbiter->m_mapTextString[TEXT_Ok_CONST],

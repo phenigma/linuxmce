@@ -85,7 +85,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 
 	map<int,string> mapParametersAdded; // Keep track of what DeviceData we have added as we go through
 	
-	PlutoSqlResult result,result1,result1b,result2,result3,resultPackage;
+	PlutoSqlResult result,result1,result1b,result2,result3,resultPackage,resultAutoAssign;
 	MYSQL_ROW row;
 
 	g_pPlutoLogger->Write(LV_STATUS,"Create device -- querying packages for %d",iPK_DeviceTemplate);
@@ -277,6 +277,14 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 				return 0;
 			}
 		}
+	}
+
+	// See if auto assign to parent's room is specified
+	SQL = "SELECT IK_DeviceData FROM DeviceTemplate_DeviceData WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate) + " AND FK_DeviceData=" TOSTRING(DEVICEDATA_Autoassign_to_parents_room_CONST) " AND IK_DeviceData=1";
+	if( ( resultAutoAssign.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( resultAutoAssign.r ) ) )
+	{
+		SQL = "UPDATE Device JOIN Device AS Parent ON Device.FK_Device_ControlledVia=Parent.PK_Device SET Device.FK_Room=Parent.FK_Room WHERE Device.PK_Device=" + StringUtils::itos(PK_Device);
+		threaded_mysql_query(SQL);
 	}
 
 	// If this is an orbiter, and it's not an on-screen orbiter for the first device created (meaning we're still installing), then DCERouter should be running.  Send a regen message

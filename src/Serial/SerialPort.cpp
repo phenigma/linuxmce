@@ -6,6 +6,7 @@
 FILE *filer,*filew;
 CSerialPort::CSerialPort(string Port, unsigned BPS, eParityBitStop ParityBitStop, bool FlowControl)
 {
+	return;
 filer=fopen("C:\\serialread.cpp","wb");
 filew=fopen("C:\\serialwrite.txt","wb");
     m_Serio.port=NULL;
@@ -17,7 +18,8 @@ filew=fopen("C:\\serialwrite.txt","wb");
 
 CSerialPort::~CSerialPort()
 {
-fclose(filer);
+return;
+	fclose(filer);
 fclose(filew);
 	serio_close(&m_Serio);
 }
