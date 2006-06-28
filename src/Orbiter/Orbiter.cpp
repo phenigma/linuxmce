@@ -8330,11 +8330,11 @@ void Orbiter::ServiceScreenHandler(void *data)
 	PLUTO_SAFETY_LOCK(vm, m_VariableMutex);
 	if(!ExecuteScreenHandlerCallback(cbOnTimer))
 	{
-g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ServiceScreenHandler stopping"
+g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ServiceScreenHandler stopping");
 		return;
 	}
 
-g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ServiceScreenHandler keep going"
+g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ServiceScreenHandler keep going");
 	int *pInterval = (int *)data;
 	StartScreenHandlerTimer(*pInterval);
 	delete pInterval;
