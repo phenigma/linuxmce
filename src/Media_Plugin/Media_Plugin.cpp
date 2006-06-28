@@ -656,8 +656,24 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     int iStreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
+    MediaStream * pMediaStream = NULL;
+	if( iStreamID==0 )  // This is just informational that nothing is playing on this stream
+	{
+		for( MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it )
+		{
+			MediaStream *pMS = (*it).second;
+			if( pMS->m_pMediaDevice_Source && pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device==pMessage->m_dwPK_Device_From )
+			{
+				if( !pMS->m_bStopped )
+					pMS->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia(pMediaStream);
+				StreamEnded(pMS);
+			}
+		}
+		return false;
+	}
+	else
+	    pMediaStream = m_mapMediaStream_Find( iStreamID, pMessage->m_dwPK_Device_From );
 	bool bWithErrors = pMessage->m_mapParameters[EVENTPARAMETER_With_Errors_CONST]=="1";
-    MediaStream * pMediaStream = m_mapMediaStream_Find( iStreamID, pMessage->m_dwPK_Device_From );
 
     if ( pMediaStream == NULL )
     {
@@ -3387,22 +3403,28 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_MH_Set_Volume");
 	{
 		string s = StringUtils::Tokenize(sPK_EntertainArea,",",pos);
 		EntertainArea *pEntertainArea = m_mapEntertainAreas_Find(atoi(s.c_str()));
+		if( !pEntertainArea && atoi(s.c_str())==-1 )
+		{
+			OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
+			if( pOH_Orbiter )
+				pEntertainArea = pOH_Orbiter->m_pEntertainArea;
+		}
 		if( pEntertainArea && pEntertainArea->m_pMediaDevice_ActiveDest )
 		{
 g_pPlutoLogger->Write(LV_STATUS,"For EA %s found active device %d",s.c_str(),pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device);
 			if( sLevel=="-1" )
 			{
-				DCE::CMD_Vol_Down CMD_Vol_Down(m_dwPK_Device,pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device,1);
+				DCE::CMD_Vol_Down CMD_Vol_Down(pMessage->m_dwPK_Device_From,m_dwPK_Device,1);
 				SendCommand(CMD_Vol_Down);
 			}
 			else if( sLevel=="+1" )
 			{
-				DCE::CMD_Vol_Up CMD_Vol_Up(m_dwPK_Device,pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device,1);
+				DCE::CMD_Vol_Up CMD_Vol_Up(pMessage->m_dwPK_Device_From,m_dwPK_Device,1);
 				SendCommand(CMD_Vol_Up);
 			}
 			else
 			{
-				DCE::CMD_Set_Volume CMD_Set_Volume(m_dwPK_Device,pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device,sLevel);
+				DCE::CMD_Set_Volume CMD_Set_Volume(pMessage->m_dwPK_Device_From,m_dwPK_Device,sLevel);
 				SendCommand(CMD_Set_Volume);
 			}
 		}

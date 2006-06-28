@@ -243,7 +243,7 @@ int k=2;
 			else
 			{
 				if( pdrCachedScreen==NULL )
-					cout << "Regenerating:  cached screen in DB" << endl;
+					cout << "Regenerating:  cached screen not in DB" << endl;
 				else
 					cout << "Regenerating: schema changed from " <<  pdrCachedScreen->Schema_get() << " to " << ORBITER_SCHEMA << endl;
 			}

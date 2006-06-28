@@ -668,8 +668,12 @@ m_bNoEffects = true;
 			string::size_type pos=0;
 			m_rSpacing.Width = m_rSpacing.X = m_pRow_Size->Width_get() * ( Spacing/2 ) / 100;
 			m_rSpacing.Height = m_rSpacing.Y = m_pRow_Size->Height_get() * ( Spacing/2 ) / 100;
+			// We're not going to ever commit m_pRow_Size, so just change the scale accordingly
+			m_pRow_Size->ScaleX_set( m_pRow_Size->ScaleX_get() - (m_pRow_Size->ScaleX_get() * Spacing / 100) );
+			m_pRow_Size->ScaleY_set( m_pRow_Size->ScaleY_get() - (m_pRow_Size->ScaleY_get() * Spacing / 100) );
 		}
 	}
+
 
 	string sSize = StringUtils::itos(m_pRow_Size->Width_get()) + ","
 		+ StringUtils::itos(m_pRow_Size->Height_get()) + ","
