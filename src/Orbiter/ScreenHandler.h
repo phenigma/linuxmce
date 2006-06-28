@@ -120,6 +120,8 @@ public:
 	virtual void SCREEN_CurrentlyActiveRemote(long PK_Screen);
 	virtual void SCREEN_PopupMessage(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack);
 	virtual void SCREEN_GenericKeyboard(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sCannotGoBack){ SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, sDescription, "0", "0", sCannotGoBack); }  // Treat this like the popup message
+
+	virtual void SCREEN_GenericAppFullScreen(long PK_Screen);
 	virtual void SCREEN_Computing(long PK_Screen);
 	bool Computing_ObjectSelected(CallBackData *pData);
 	bool Computing_DatagridSelected(CallBackData *pData);

@@ -573,6 +573,12 @@ void ScreenHandler::SCREEN_Computing(long PK_Screen)
 	m_pOrbiter->CMD_Set_Text(NeedToRender::m_pScreenHistory_get()->GetObj()->m_ObjectID,m_sActiveApplication_Description,TEXT_STATUS_CONST);
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_GenericAppFullScreen(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_GenericAppFullScreen(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Computing_ObjectSelected, new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
@@ -645,9 +651,13 @@ bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 		
 		if( m_pOrbiter->m_dwPK_Device != m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter )  // Not us
 		{
-			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,0,
-				StringUtils::itos(PK_DesignObj_OSD),"","",false,false);
-			CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_DesignObj.m_pMessage);
+			//DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,0,
+			//	StringUtils::itos(PK_DesignObj_OSD),"","",false,false);
+			//CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_DesignObj.m_pMessage);
+
+			DCE::SCREEN_GenericAppFullScreen screen_GenericAppFullScreen(m_pOrbiter->m_dwPK_Device,
+				m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter);
+			CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(screen_GenericAppFullScreen.m_pMessage);
 
 			DCE::CMD_Set_Active_Application CMD_Set_Active_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,
 				StringUtils::itos(PK_DesignObj_OSD),StringUtils::itos(PK_DesignObj_Remote),sActiveApplication_Description,sActiveApplication_Window);
