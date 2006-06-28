@@ -2,6 +2,6 @@
 
 date -R
 echo Launched the script
-/usr/bin/tail -F /var/log/syslog | /usr/pluto/bin/Dhcpd-Plugin.pl 
+/usr/bin/tail -F /var/log/syslog | /usr/pluto/bin/Dhcpd-Plugin-Parser.sh
 
 echo Exiting
