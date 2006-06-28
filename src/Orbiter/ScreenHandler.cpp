@@ -46,7 +46,7 @@ void ScreenHandler::RegisterCallBack(CallBackType aCallBackType, ScreenHandlerCa
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::ResetCallBacks()
 {
-g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ResetCallBacks"
+g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ResetCallBacks");
 	PLUTO_SAFETY_LOCK(vm, m_MapMutex);
 	m_mapCallBack.clear();
 
