@@ -45,7 +45,7 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 	{
 		//Set up the textures for triangles
 		OpenGLGraphic* ScreenRenderGraphic =
-			GLEffect2D::LayersCompose::Instance()->OldScreen->GetRenderGraphic();
+			GLEffect2D::LayersCompose::Instance()->NewScreen->GetRenderGraphic();
 		ButonTop->SetBackgroundImage(ScreenRenderGraphic);
 
 		float MaxCoordU = 1;

@@ -56,7 +56,7 @@ MeshFrame* GLFontRenderer::RenderText(string &TextToDisplay, PlutoRectangle &rPo
 		TextToDisplay = "";
 	}
 
-	int Length = LetterWriter->TextOut(point.X, point.Y, StrMessage.c_str(), Container);
+	int Length = LetterWriter->TextOut(point.X, point.Y, rectCalcLocation.Width, StrMessage.c_str(), Container);
 
 	MeshTransform Transform;
 	switch (iPK_HorizAlignment)

@@ -89,10 +89,10 @@ void TBasicWindow::SetRectCoordinates(FloatRect Coordinates)
 	Transform.ApplyScale(Coordinates.Width, Coordinates.Height, 1.0f);
 	Transform.ApplyTranslate(Coordinates.Left, Coordinates.Top, 0.0f);
 	Frame->SetTransform(Transform);
-	SetLeft(float(Coordinates.Left));
-	SetTop(float(Coordinates.Top));
-	SetWidth(float(Coordinates.Width));
-	SetHeight(float(Coordinates.Height));
+	SetLeft(int(Coordinates.Left));
+	SetTop(int(Coordinates.Top));
+	SetWidth(int(Coordinates.Width));
+	SetHeight(int(Coordinates.Height));
 }
 
 void TBasicWindow::SetTextureWraping(float LeftCoordinate, float TopCoordinate, 
@@ -124,6 +124,4 @@ void TBasicWindow::SetAbsoluteUV(FloatRect UVRect)
 
 	Container->Vertexes[3].UVW.X = UVRect.Left + UVRect.Width;
 	Container->Vertexes[3].UVW.Y = 1 - (UVRect.Top+ UVRect.Height);
-	if(UVRect.Height < 0)
-		int f = 4;
 }

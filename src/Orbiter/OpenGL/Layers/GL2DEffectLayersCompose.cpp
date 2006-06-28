@@ -173,7 +173,7 @@ void LayersCompose::PaintOldScreen3D()
 	float MaxU = float(Width)/MathUtils::MinPowerOf2(Width);
 	float MaxV = float(Height)/MathUtils::MinPowerOf2(Height);
 	glPushMatrix();
-	glTranslatef(-Width/2, Height/2, Height/2);
+	glTranslatef(float(-Width/2), float(Height/2), float(Height/2));
 	glScalef(1, -1, 1);
 	glBegin(GL_TRIANGLE_STRIP);
 	glColor3f(1, 1, 1);
@@ -279,7 +279,7 @@ void LayersCompose::ShowAnimationTextures()
 	glTexCoord2f(0.0, 1.0);
 	glVertex3d(-100, 100, 120);
 	
-glTexCoord2f(1.0, 1.0);
+	glTexCoord2f(1.0, 1.0);
 	glVertex3d(0, 100, 120);
 
 	glColor3f(1, 1, 1);

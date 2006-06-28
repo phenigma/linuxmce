@@ -66,7 +66,7 @@ GLFontTextureList::~GLFontTextureList()
 	Letters[Letter] = LetterGraphic;
 }
 
-/*virtual*/ int GLFontTextureList::TextOut(int X, int Y, std::string Text, MeshContainer* &Geometry)
+/*virtual*/ int GLFontTextureList::TextOut(int X, int Y, int Width, std::string Text, MeshContainer* &Geometry)
 {
 	Geometry = NULL;
 
@@ -103,6 +103,13 @@ GLFontTextureList::~GLFontTextureList()
 
 		int PixelLen = LetterLen;
 
+		if(Width < X + PixelLen - StartX)
+		{
+			Geometry = MB.End();
+			return X - StartX;
+		}
+
+
 		MB.SetTexture(Letters[CharPos]);
 		// Point 1
 		MB.SetTexture2D(0.0f, 0.0f);
@@ -129,13 +136,11 @@ GLFontTextureList::~GLFontTextureList()
 		MB.AddVertexFloat(float(X+PixelLen), float(Y+PixelHgt), 0);
 
 		X+= PixelLen;
-		
+
 		//DCE::g_pPlutoLogger->Write(LV_STATUS, "TextOut: %f %f %f \n", (float)X, (float)Y, (float)FontHeight);
 	}
 
-	MeshContainer* Container = MB.End();
-	
-	Geometry = Container;
+	Geometry = MB.End();
 
 	return X - StartX;
 }
