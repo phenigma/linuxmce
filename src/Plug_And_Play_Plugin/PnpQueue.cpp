@@ -558,10 +558,10 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 			Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(),DEVICEDATA_Autoassign_to_parents_room_CONST);
 			int PK_Room=0;
 			string sRoom;
-			if( pRow_DeviceTemplate->FK_CommMethod_get()!=COMMMETHOD_Ethernet_CONST && (!pRow_DeviceTemplate_DeviceData || atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str())==0) )
+			if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()!=COMMMETHOD_Ethernet_CONST && (!pRow_DeviceTemplate_DeviceData || atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str())==0) )
 			{
 				PK_Room = pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get();
-				Row_Room *pRow_Room = pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_getrow();
+				Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(PK_Room);
 				if( pRow_Room )
 					sRoom = pRow_Room->Description_get();
 			}

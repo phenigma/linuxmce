@@ -8259,7 +8259,6 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 	if(NULL != m_pScreenHistory_Current && NULL != m_pScreenHistory_Current->GetObj())
 		FireDeleteWxWidget(m_pScreenHistory_Current->GetObj());
 
-	m_pScreenHandler->ResetCallBacks();
 	bool bCreatedMessage=pMessage==NULL;
 	if( pMessage==NULL )
 		pMessage = new Message();
