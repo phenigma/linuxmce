@@ -289,7 +289,7 @@ fi
 clear
 # XXX: Setup Bonus CD
 
-if [[ "$UseInternet" == "Y" || "$UseInternet" == "y" ]] ;then
+if [[ "$UseInternet" == "Y" || "$UseInternet" == "y" || "$UseInternet" == "" ]] ;then
 
 . /usr/pluto/install/BonusCdMenu.sh
 
