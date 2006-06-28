@@ -24,6 +24,8 @@ $GEN_CLASSES$
 		ScreenHandlerBase(map<int,int> *p_MapDesignObj) { m_p_MapDesignObj=p_MapDesignObj; }
 		virtual ~ScreenHandlerBase() {}
 
+		virtual void ResetCallBacks() {}
+
 		virtual void GotoDesignObj(int PK_DesignObj,string sID="",bool bStore_Variables=false,bool bCant_Go_Back=false)=0;
 		virtual void GotoScreen(int PK_Screen,string sID="",bool bStore_Variables=false,bool bCant_Go_Back=false)
 		{

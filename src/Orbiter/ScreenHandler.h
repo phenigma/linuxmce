@@ -84,7 +84,7 @@ public:
 	//callback related stuff
 	void RegisterCallBack(CallBackType aCallBackType, ScreenHandlerCallBack aScreenHandlerCallBack, 
 		CallBackData *pCallBackData);
-	void ResetCallBacks();
+	virtual void ResetCallBacks();
 	ScreenHandlerCallBack m_mapCallBack_Find(CallBackType aCallBackType);
 	CallBackData *m_mapCallBackData_Find(CallBackType aCallBackType);
 
