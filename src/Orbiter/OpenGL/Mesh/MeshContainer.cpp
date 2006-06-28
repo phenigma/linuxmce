@@ -1,6 +1,6 @@
 #include "MeshContainer.h"
 
-#include "math3dutils.h"
+#include "../math3dutils.h"
 
 MeshContainer::MeshContainer(void) : Blended_(false), NoVertexes(0), NoTriangles(0),
 	Vertexes(NULL), Triangles(NULL)
