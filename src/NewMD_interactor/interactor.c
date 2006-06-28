@@ -72,7 +72,6 @@ char * GetRoomName()
 	int done = 0;
 	static char buffer[1024];
 
-	fgetc(stdin); // hack: there's a \n in the buffer
 	while (!done)
 	{
 		printf("Room name: ");
@@ -95,14 +94,14 @@ void ChooseRoom(struct PlutoRooms_t * PlutoRooms, char ** RoomName, int * PK_Roo
 
 	while (! done)
 	{
-		printf("\n--> Choose a room:\n");
-		for (i = 0; i < PlutoRooms->count; i++)
-		{
-			printf("%d. %s\n", i + 1, PlutoRooms->Rooms[i].Description);
-		}
-
 		if (PlutoRooms->count > 0)
 		{
+			printf("\n--> Choose a room:\n");
+			for (i = 0; i < PlutoRooms->count; i++)
+			{
+				printf("%d. %s\n", i + 1, PlutoRooms->Rooms[i].Description);
+			}
+
 			printf("%s\n", "0. NEW ROOM");
 
 			printf("Choice: ");
@@ -112,6 +111,7 @@ void ChooseRoom(struct PlutoRooms_t * PlutoRooms, char ** RoomName, int * PK_Roo
 				scanf("%*s"); // read the garbage that the user fed us, into /dev/null
 				continue;
 			}
+			fgetc(stdin); // hack: there's a \n in the buffer
 		}
 		else
 		{
