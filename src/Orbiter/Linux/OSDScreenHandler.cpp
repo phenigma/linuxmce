@@ -1460,6 +1460,7 @@ g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer now registered"
 			{
 				m_tWaitingForRegistration = time(NULL);
 				DisplayMessageOnOrbiter(0,m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST],false,"0",true,"nobuttons");
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer displaying waiting message %d",(int) m_tWaitingForRegistration);
 			}
 			else if( time(NULL)-m_tWaitingForRegistration>60 )
 			{
@@ -1468,12 +1469,12 @@ g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer now registered"
 				DisplayMessageOnOrbiter(0,m_pOrbiter->m_mapTextString[TEXT_Device_did_not_start_CONST],false,"0",true,
 					m_pOrbiter->m_mapTextString[TEXT_Ok_CONST],
 					"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AlarmPanel_CONST));
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer registration failed");
 				return false;
 			}
-			else
-				return true;
 		}
 	}
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer keeping timer");
 	return true;
 }
 
