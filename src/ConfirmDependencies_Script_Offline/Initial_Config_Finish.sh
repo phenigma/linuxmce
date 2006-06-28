@@ -62,6 +62,7 @@ Switch to another console (Alt+F2), login as root and use an editor like
 
 # Set vimrc
 [[ -e /root/.vimrc ]] || cp /usr/share/vim/vim63/vimrc_example.vim /root/.vimrc
+grep -q 'set bg=dark' /root/.vimrc || echo 'set bg=dark' >>/root/.vimrc
 
 echo "Setting debconf front-end to Noninteractive"
 awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Noninteractive"; else print; next}
