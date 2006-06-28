@@ -125,6 +125,19 @@ bool isDriverPackage(int iPK_Package)
 	return false;
 }
 
+// isStrippablePackage
+// hardcoded lists of packages
+bool isStrippablePackage(int iPK_Package)
+{
+	static const int StripPkgs[] = { 237, -1 };
+	for (int i = 0; StripPkgs[i] != -1; i++)
+	{
+		if (iPK_Package == StripPkgs[i])
+			return true;
+	}
+	return false;
+}
+
 // Misc
 bool PackageIsCompatible(Row_Package *pRow_Package);
 bool CopySourceFile(string sInput,string sOutput)
@@ -1715,11 +1728,19 @@ string Makefile = "none:\n"
 		sed_cmd += "; /^Description: / { x; s/^.*$/Provides: " + provides + "/; p; x; }";
 	}
 	string cmd = string("sed -i '" + sed_cmd + "' " + Dir + "/debian/control");
-	
 	cout << cmd << endl;
-	cout << string(("dpkg-buildpackage -b -rfakeroot -us -uc")) << endl;
 	system(cmd.c_str());
 
+	// handle dh_strip
+	if (isStrippablePackage(pRow_Package_Source->FK_Package_get()))
+		sed_cmd = "s/^.*dh_strip.*$/dh_strip/g";
+	else
+		sed_cmd = "s/^.*dh_strip.*$/# dh_strip/g";
+	cmd = string("sed -i '" + sed_cmd + "' " + Dir + "/debian/rules");
+	cout << cmd << endl;
+	system(cmd.c_str());
+
+	cout << string(("dpkg-buildpackage -b -rfakeroot -us -uc")) << endl;
 	if (!g_bSimulate)
 	{
 		// in C++, the headers do a "*(int *) &(status)" - where C uses the "status" parameter verbatim
