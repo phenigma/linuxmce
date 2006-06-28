@@ -1733,9 +1733,9 @@ string Makefile = "none:\n"
 
 	// handle dh_strip
 	if (isStrippablePackage(pRow_Package_Source->FK_Package_get()))
-		sed_cmd = "s/^.*dh_strip.*$/dh_strip/g";
+		sed_cmd = "s/^.*dh_strip.*$/\tdh_strip/g";
 	else
-		sed_cmd = "s/^.*dh_strip.*$/# dh_strip/g";
+		sed_cmd = "s/^.*dh_strip.*$/\t# dh_strip/g";
 	cmd = string("sed -i '" + sed_cmd + "' " + Dir + "/debian/rules");
 	cout << cmd << endl;
 	system(cmd.c_str());
