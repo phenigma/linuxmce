@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto51) unstable; urgency=low
+
+  * Don't run make in a screen
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Wed, 28 Jun 2006 18:29:36 +0300
+
 sysvinit (2.86.ds1-1.1pluto50) unstable; urgency=high
   
   * Save progress bar value in /var/run/bootsplash_progress so it can be read
