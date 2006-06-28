@@ -42,7 +42,7 @@ for ($i = 0; $i < count($command); $i++)
 	print $command[$i].'<br><br>';
 	if($command[$i]!=''){
 		if(!isset($showTmpFile)){
-			system("bash -c '$command[$i] > >(tee -a /var/log/pluto/php-executeLog.log|/usr/pluto/bin/ansi2html)'", $retval);
+			system("bash -c '$command[$i] > >(tee -a /var/log/pluto/php-executeLog.log|/usr/pluto/bin/ansi2html); sleep 1'", $retval);
 			if ($retval != 0){
 				$message = "Failed setting up diskless Media Directors";
 				break;
