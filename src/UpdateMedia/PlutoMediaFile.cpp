@@ -86,7 +86,7 @@ PlutoMediaFile::~PlutoMediaFile()
 //-----------------------------------------------------------------------------------------------------
 /*static*/ bool PlutoMediaFile::IsSupported(string sFileName)
 {
-	const string csSupportedExtensions("mp3:ogg:aac:flac");
+	const string csSupportedExtensions("mp3:ogg:aac");
 	string sExtension = StringUtils::ToLower(FileUtils::FindExtension(sFileName));
     return csSupportedExtensions.find(sExtension) != string::npos;
 }
