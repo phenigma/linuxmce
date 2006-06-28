@@ -35,14 +35,14 @@ parse()
 		Ret="$Ret,$Word"
 	done
 
-	echo "$Ret"
+	echo "${Ret#,}"
 }
 
 extract_field()
 {
 	local Field="$1" Line="$2"
 
-	echo "$Line" | cut -d' ' -f"$Field"
+	echo "$Line" | cut -d',' -f"$Field"
 }
 
 log_plugin log "\n\n\n\nDhcp-Plugin Process Started"
@@ -70,7 +70,7 @@ while :; do
 			R=$(RunSQL "$Q")
 
 			if [[ -z "$R" ]]; then
-				Q="SELECT PK_UnknownDevices FROM UnknownDevices WHERE MACaddress='$mac_found"
+				Q="SELECT PK_UnknownDevices FROM UnknownDevices WHERE MACaddress='$mac_found'"
 				R=$(RunSQL "$Q")
 
 				if [[ -z "$R" ]]; then
