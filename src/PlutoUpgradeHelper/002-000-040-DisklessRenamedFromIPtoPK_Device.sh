@@ -4,6 +4,10 @@
 ## - change /usr/pluto/diskless/$IP to /usr/pluto/diskless/$PK_Device
 ## - change /tftpboot/$IP to /tftpboot/$PK_Device
 
+if [[ -d /etc/diskless.conf ]] ;then
+	exit 0
+fi
+
 DlPath="/usr/pluto/diskless"
 
 for directory in $( ls $DlPath ) ;do

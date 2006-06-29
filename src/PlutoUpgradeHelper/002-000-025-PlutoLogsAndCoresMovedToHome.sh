@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Changed from 2.0.0.24 to 2.0.0.25: pluto logs and core dumps were moved to /home
+
 if [[ ! -L /usr/pluto/coredump && -d /usr/pluto/coredump ]]; then
         mv /usr/pluto/coredump /home
 else
