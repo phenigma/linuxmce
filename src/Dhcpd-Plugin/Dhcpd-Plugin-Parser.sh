@@ -58,7 +58,7 @@ while :; do
 	mac_found=$(extract_field 10 "$line")
 	ip_sent=$(extract_field 8 "$line")
 
-	if [[ "$tag" != "dhcpd:" ]]; then
+	if [[ "$tag" != "dhcpd:" || -z "$mac_found" ]]; then
 		continue
 	fi
 
