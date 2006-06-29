@@ -15,6 +15,7 @@ bool GetCommandOutput(const char * path, char * args[], string * sOutput)
 			// treat stderr too someplace?
 			close(output[0]);
 			dup2(output[1], 1);
+			close(output[1]);
 			execv(path, args);
 			_exit(254);
 			/* Rationale for _exit instead of exit:
@@ -31,12 +32,18 @@ bool GetCommandOutput(const char * path, char * args[], string * sOutput)
 			
 			char buffer[4096];
 			memset(buffer, 0, sizeof(buffer));
-			while (read(output[0], buffer, sizeof(buffer) - 1) > 0)
+			int bytes;
+			while ((bytes = read(output[0], buffer, sizeof(buffer) - 1)) > 0)
 			{
 				if (sOutput != NULL)
+				{
 					* sOutput += buffer;
+				}
 				else
+				{
 					printf("%s", buffer);
+					fflush(stdout);
+				}
 				memset(buffer, 0, sizeof(buffer));
 			}
 			
