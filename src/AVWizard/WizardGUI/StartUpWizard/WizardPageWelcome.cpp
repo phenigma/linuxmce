@@ -15,7 +15,9 @@
 WizardPageWelcome::WizardPageWelcome(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
-
+#ifdef DEBUG
+		std::cout<<"WizardPageWelcome::WizardPageWelcome"<<std::endl;
+#endif
 }
 
 /*virtual*/ WizardPageWelcome::~WizardPageWelcome()
@@ -25,6 +27,9 @@ WizardPageWelcome::WizardPageWelcome(SDLFrontEnd* FrontEnd, std::string Name)
 
 /*virtual*/ void WizardPageWelcome::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
+#ifdef DEBUG
+		std::cout<<"WizardPageWelcome::DefaultSetup"<<std::endl;
+#endif
 	WizardWidgetButton* Btn = dynamic_cast<WizardWidgetButton*>
 		(Page->GetChildRecursive("MainBtn"));
 	if(Btn == NULL)
@@ -34,10 +39,16 @@ WizardPageWelcome::WizardPageWelcome(SDLFrontEnd* FrontEnd, std::string Name)
 
 /*virtual*/ int WizardPageWelcome::DoApplySetting(SettingsDictionary* Dictionary)
 {
+#ifdef DEBUG
+		std::cout<<"WizardPageWelcome::DoApplySetting"<<std::endl;
+#endif
 	return 0;
 }
 
 /*virtual*/ void WizardPageWelcome::DoCancelSetting()
 {
+#ifdef DEBUG
+		std::cout<<"WizardPageWelcome::DoCancelSetting"<<std::endl;
+#endif
 	Wizard::GetInstance()->SetExitWithCode(3);
 }

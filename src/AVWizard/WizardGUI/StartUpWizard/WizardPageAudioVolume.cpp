@@ -7,6 +7,9 @@
 WizardPageAudioVolume::WizardPageAudioVolume(SDLFrontEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageAudioVolume::WizardPageAudioVolume"<<std::endl;
+#endif
 	AudioVolumeMin = 0;
 	AudioVolumeMax = 31;
 	AudioVolumeCurrent = 15;
@@ -16,12 +19,18 @@ WizardPageAudioVolume::WizardPageAudioVolume(SDLFrontEnd* FrontEnd, std::string 
 
 WizardPageAudioVolume::~WizardPageAudioVolume()
 {
+#ifdef DEBUG
+	std::cout<<"dtor WizardPageAudioVolume"<<std::endl;
+#endif
 	Player->StopPlayerEngine();
 }
 
 
 int WizardPageAudioVolume::DoApplySetting(SettingsDictionary* Dictionary)
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageAudioVolume::WizardPageAudioVolume"<<std::endl;
+#endif
 	if(Dictionary == NULL)
 		return -1;
 	Dictionary->Set("AudioVolumeMin", AudioVolumeMin);
@@ -33,6 +42,9 @@ int WizardPageAudioVolume::DoApplySetting(SettingsDictionary* Dictionary)
 
 /*virtual*/ void WizardPageAudioVolume::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageAudioVolume::DefaultSetup"<<std::endl;
+#endif
 	std::string FileName, ConfigName;
 	Player = XinePlayer::GetInstance();
 	if(AVWizardSettings->Exists("XineConfigFile"))
@@ -66,6 +78,9 @@ int WizardPageAudioVolume::DoApplySetting(SettingsDictionary* Dictionary)
 
 void WizardPageAudioVolume::DoIncreaseSetting()
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageAudioVolume::DoIncreaseSetting"<<std::endl;
+#endif
 	int NewVolume = AudioVolumeCurrent + AudioVolumeIncrement;
 	if (NewVolume > AudioVolumeMax)
 		NewVolume = AudioVolumeMax;
@@ -89,6 +104,9 @@ void WizardPageAudioVolume::DoIncreaseSetting()
 
 void WizardPageAudioVolume::DoDecreaseSetting()
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageAudioVolume::DoDecreaseSetting"<<std::endl;
+#endif
 	int NewVolume = AudioVolumeCurrent - AudioVolumeIncrement;
 	if (NewVolume < AudioVolumeMin)
 		NewVolume = AudioVolumeMin;

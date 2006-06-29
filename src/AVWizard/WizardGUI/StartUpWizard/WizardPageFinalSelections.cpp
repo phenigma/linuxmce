@@ -8,6 +8,9 @@
 WizardPageFinalSelections::WizardPageFinalSelections(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageFinalSelections::WizardPageFinalSelections()"<<std::endl;
+#endif
 	Buttons["I do not agree"] = 1;
 	Buttons["I agree"] = 2;
 	OutputValue = "I agree";
@@ -20,6 +23,9 @@ WizardPageFinalSelections::~WizardPageFinalSelections(void)
 
 /*virtual*/ void WizardPageFinalSelections::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageFinalSelections::DefaultSetup()"<<std::endl;
+#endif
 	WizardWidgetLabel*Selected;
 	std::string LabelName;
 	std::string CaptionValue;
@@ -63,6 +69,9 @@ WizardPageFinalSelections::~WizardPageFinalSelections(void)
 
 std::string WizardPageFinalSelections::GetVideoRatio(SettingsDictionary* AVWizardSettings)
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageFinalSelections::GetVideoRatio()"<<std::endl;
+#endif
 	int RatioMode = 0;
 	if(!AVWizardSettings->Exists("Video_Ratio"))
 	{
@@ -80,6 +89,9 @@ std::string WizardPageFinalSelections::GetVideoRatio(SettingsDictionary* AVWizar
 
 std::string WizardPageFinalSelections::GetVideoOutput(SettingsDictionary* AVWizardSettings)
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageFinalSelections::GetVideoRatio()"<<std::endl;
+#endif
 	if(!AVWizardSettings->Exists("VideoOutput"))
 	{
 		return "VGA";
@@ -91,6 +103,9 @@ std::string WizardPageFinalSelections::GetVideoOutput(SettingsDictionary* AVWiza
 
 std::string WizardPageFinalSelections::GetVideoResolution(SettingsDictionary* AVWizardSettings)
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageFinalSelections::GetVideoRatio()"<<std::endl;
+#endif
 	std::string ResolutionStr = "640x480";
 	if(AVWizardSettings->Exists("VideoResolution"))
 		ResolutionStr =  AVWizardSettings->GetValue("VideoResolution");
@@ -100,6 +115,9 @@ std::string WizardPageFinalSelections::GetVideoResolution(SettingsDictionary* AV
 
 std::string WizardPageFinalSelections::GetVideoRefresh(SettingsDictionary* AVWizardSettings)
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageFinalSelections::GetVideoRatio()"<<std::endl;
+#endif
 	std::string RefreshStr = "60Hz";
 	if(AVWizardSettings->Exists("VideoRefresh"))
 		RefreshStr =  AVWizardSettings->GetValue("VideoRefresh");
@@ -111,14 +129,23 @@ std::string WizardPageFinalSelections::GetAudioConnector(SettingsDictionary* AVW
 {
 	if(!AVWizardSettings->Exists("AudioConnector"))
 	{
+#ifdef DEBUG
+	std::cout<<"AudioConnector: Toslink"<<std::endl;
+#endif
 		return "Toslink";
 	}
 	std::string OutputValue = AVWizardSettings->GetValue("AudioConnector");
+#ifdef DEBUG
+	std::cout<<"AudioConnector: "<<OutputValue<<std::endl;
+#endif
 	return OutputValue;
 }
 
 std::string WizardPageFinalSelections::GetVolume(SettingsDictionary* AVWizardSettings)
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageFinalSelections::GetVideoRatio()"<<std::endl;
+#endif
 	int AudioVolumeMin, AudioVolumeMax, AudioVolumeCurrent;
 	AudioVolumeMin = 0;
 	AudioVolumeMax = 31;
@@ -127,14 +154,25 @@ std::string WizardPageFinalSelections::GetVolume(SettingsDictionary* AVWizardSet
 	std::string OptionName = "AudioVolumeMin";
 	if(!AVWizardSettings->Exists(OptionName))
 		AudioVolumeMin = Utils::StringToInt32(AVWizardSettings->GetValue("AudioVolumeMin"));
+#ifdef DEBUG
+	std::cout<<"AudioVolumeMin:"<< OptionName <<std::endl;
+#endif
 
 	if(AVWizardSettings->Exists("AudioVolumeMax"))
 		AudioVolumeMax = Utils::StringToInt32(AVWizardSettings->GetValue("AudioVolumeMax"));
 
+#ifdef DEBUG
+	std::cout<<"AudioVolumeMax:"<< OptionName <<std::endl;
+#endif
+
 	if(AVWizardSettings->Exists("AudioVolumeCurrent"))
 		AudioVolumeCurrent = Utils::StringToInt32(AVWizardSettings->GetValue("AudioVolumeCurrent"));
 
+#ifdef DEBUG
+	std::cout<<"AudioVolumeCurrent:"<< OptionName <<std::endl;
+#endif
 	return Utils::Int32ToString((AudioVolumeCurrent - AudioVolumeMin)*100/(AudioVolumeMax - AudioVolumeMin)) + "%";;
+
 }
 
 std::string WizardPageFinalSelections::GetDolbyTestStatus(SettingsDictionary* AVWizardSettings)
@@ -142,13 +180,24 @@ std::string WizardPageFinalSelections::GetDolbyTestStatus(SettingsDictionary* AV
 	std::string Value = AVWizardSettings->GetValue("DolbyTest");
 	int PassDolbyTest = Utils::StringToInt32(Value) != 0;
 	if (PassDolbyTest)
+	{
+#ifdef DEBUG
+	std::cout<<"GetDolbyTestStatus: true"<<std::endl;
+#endif
 		return "true";
+	}
 	
+#ifdef DEBUG
+	std::cout<<"GetDolbyTestStatus: false"<<std::endl;
+#endif
 	return "false";
 }
 
 std::string WizardPageFinalSelections::GetDTSTestStatus(SettingsDictionary* AVWizardSettings)
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageFinalSelections::GetVideoRatio()"<<std::endl;
+#endif
 	std::string Value = AVWizardSettings->GetValue("DTSTest");
 	int PassDolbyTest = Utils::StringToInt32(Value) != 0;
 	if (PassDolbyTest)
@@ -160,6 +209,9 @@ std::string WizardPageFinalSelections::GetDTSTestStatus(SettingsDictionary* AVWi
 
 /*virtual*/ void WizardPageFinalSelections::DoIncreaseSetting()
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageFinalSelections::GetVideoRatio()"<<std::endl;
+#endif
 	std::string IndexText = Utils::CopyStr(Selected->GetName().c_str(), 3, 1);
 	int ButtonIndex = Utils::StringToInt32(IndexText);
 	if(ButtonIndex == 2)

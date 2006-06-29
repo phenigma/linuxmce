@@ -188,37 +188,70 @@ void Wizard::DoCancelScreen()
 
 void Wizard::EvaluateEvent(WM_Event& Event)
 {
+#ifdef DEBUG
+	std::cout<<"Key pressed: ";
+#endif
 	StatusChange = true;
 	switch(Event.Type) {
 	case WMET_QUIT:
+#ifdef DEBUG
+		std::cout<<"Quit"<<std::endl;
+#endif
 		Quit = true;
 		return;
 	case WMET_LEFT_KEY:
+#ifdef DEBUG
+		std::cout<<"Left"<<std::endl;
+#endif
 		DoDecreaseAction();
 		return;
 	case WMET_RIGHT_KEY:
+#ifdef DEBUG
+		std::cout<<"Right"<<std::endl;
+#endif
 		DoIncreaseAction();
 		return;
 	case WMET_UP_KEY:
+#ifdef DEBUG
+		std::cout<<"Up"<<std::endl;
+#endif
 		DoChangeActionBefore();
 		return;
 	case WMET_DOWN_KEY:
+#ifdef DEBUG
+		std::cout<<"Down"<<std::endl;
+#endif
 		DoChangeActionAfter();
 		return;
 	case WMET_ENTER_KEY:
+#ifdef DEBUG
+		std::cout<<"Enter"<<std::endl;
+#endif
 		DoApplyScreen(AVWizardOptions->GetDictionary());
 		return;
 	case WMET_PLUS_KEY:
+#ifdef DEBUG
+		std::cout<<"ZoomIn"<<std::endl;
+#endif
 		ZoomIn();
 		return;
 	case WMET_MINUS_KEY:
+#ifdef DEBUG
+		std::cout<<"ZoomOut"<<std::endl;
+#endif
 		ZoomOut();
 		return;
 	case WMET_SAVE:
+#ifdef DEBUG
+		std::cout<<"Save exit code"<<std::endl;
+#endif
 		AVWizardOptions->GetDictionary()->Set("ExitCode", this->ExitCode);
 		AVWizardOptions->SaveToXMLFile(WizardCommandLineParser::GetInstance()->ConfigFileDefault);
 		return;
 	case WMET_ESCAPE_KEY:
+#ifdef DEBUG
+		std::cout<<"Escape"<<std::endl;
+#endif
 		DoCancelScreen();
 		return;
 	}

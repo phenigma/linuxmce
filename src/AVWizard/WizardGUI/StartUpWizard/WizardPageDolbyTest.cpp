@@ -5,6 +5,9 @@
 WizardPageDolbyTest::WizardPageDolbyTest(SDLFrontEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageDolbyTest::WizardPageDolbyTest"<<std::endl;
+#endif
 	Buttons["No, I cannot hear it"] = 1;
 	Buttons["Yes, I can hear it"] = 2;
 	OutputValue = "Yes, I can hear it";
@@ -14,11 +17,17 @@ WizardPageDolbyTest::WizardPageDolbyTest(SDLFrontEnd* FrontEnd, std::string Name
 
 WizardPageDolbyTest::~WizardPageDolbyTest(void)
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageDolbyTest::WizardPageDolbyTest"<<std::endl;
+#endif
 	Player->StopPlayerEngine();
 }
 
 /*virtual*/ int WizardPageDolbyTest::DoApplySetting(SettingsDictionary* Dictionary)
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageDolbyTest::WizardPageDolbyTest"<<std::endl;
+#endif
 	if((Dictionary == NULL)|| (Selected == NULL))
 		return -1;
 	OutputValue = Selected->GetCaption();
@@ -28,6 +37,9 @@ WizardPageDolbyTest::~WizardPageDolbyTest(void)
 
 /*virtual*/ void WizardPageDolbyTest::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageDolbyTest::DefaultSetup"<<std::endl;
+#endif
 	std::string FileName, ConfigName;
 	Player = XinePlayer::GetInstance();
 	if(AVWizardSettings->Exists("XineConfigFile"))
@@ -55,6 +67,9 @@ WizardPageDolbyTest::~WizardPageDolbyTest(void)
 
 /*virtual*/ void WizardPageDolbyTest::DoIncreaseSetting()
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageDolbyTest::DoIncreaseSetting"<<std::endl;
+#endif
 	std::string IndexText = Utils::CopyStr(Selected->GetName().c_str(), 3, 1);
 	int ButtonIndex = Utils::StringToInt32(IndexText.c_str());
 	if(ButtonIndex == 2)
@@ -68,6 +83,9 @@ WizardPageDolbyTest::~WizardPageDolbyTest(void)
 
 /*virtual*/ void WizardPageDolbyTest::DoDecreaseSetting()
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageDolbyTest::DoDecreaseSetting"<<std::endl;
+#endif
 	std::string IndexText = Utils::CopyStr(Selected->GetName().c_str(), 3, 1);
 	int ButtonIndex = Utils::StringToInt32(IndexText.c_str());
 	if(ButtonIndex == 1)
@@ -81,6 +99,9 @@ WizardPageDolbyTest::~WizardPageDolbyTest(void)
 
 /*virtual*/ void WizardPageDolbyTest::SearchSelectedItem()
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageDolbyTest::SearchSelectedItem()"<<std::endl;
+#endif
 	int ButtonIndex = Buttons[OutputValue];
 	if(ButtonIndex == 0)
 		return;

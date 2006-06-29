@@ -928,9 +928,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 
 	std::string FontColor = SkinGenerator::Instance()->TitleFontColor;
 	int FontSize = Utils::StringToInt32(SkinGenerator::Instance()->TitleFontSize);
-	
-	
-	
+
 	SetFontStyle(FontSize, FontColor, "Regular");
 
 	Result->AddChild(CreateControlLabel(
@@ -962,9 +960,11 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 		std::string FontColor, Caption;
 		Caption = "STEP " + Utils::Int32ToString(i+1);
 
-		FontColor = SkinGenerator::Instance()->StepFontColorShadow;
 		FontSize = Utils::StringToInt32(SkinGenerator::Instance()->StepFontSize);
+
+		FontColor = SkinGenerator::Instance()->StepFontColorShadow;
 		SetFontStyle(FontSize, FontColor, "Regular");
+
 		Result->AddChild(CreateControlLabel(
 				"PageTab" + Utils::Int32ToString(i+1),
 				Caption, 
@@ -989,7 +989,6 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 				6,
 				"Center"
 				));
-		
 	}
 
 	Result->AddChild(CreateControlImage("WizPageVideoImage", ImageFolder+"video_settings.png", 6, 35));
