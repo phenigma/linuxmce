@@ -60,6 +60,9 @@ Wizard::Wizard()
 	signal(SIGUSR1, signal_handler);
 	signal(SIGPIPE, signal_handler);
 #endif
+
+	system("/usr/bin/X11/xset -display :0 -dpms s off");
+	system("/usr/bin/X11/xset r off");
 }
 
 Wizard::~Wizard()
