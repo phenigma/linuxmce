@@ -54,7 +54,7 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 		cd /cdrom/bonuscd1-cache
 		cp -r *.deb $WorkDir
                 cd $WorkDir
-		apt-get -f -y dpkg-dev 1>/dev/null 2>/dev/null
+		apt-get -f -y install dpkg-dev 1>/dev/null 2>/dev/null
         fi
 
         cd $WorkDir
