@@ -238,9 +238,6 @@
 					<File
 						RelativePath=".\OpenGL3DEngine.cpp">
 					</File>
-					<File
-						RelativePath=".\Orbiter3DCommons.cpp">
-					</File>
 				</Filter>
 				<Filter
 					Name="Mesh"
@@ -335,6 +332,9 @@
 				</File>
 				<File
 					RelativePath=".\OrbiterRenderer_OpenGL.cpp">
+				</File>
+				<File
+					RelativePath="..\Sdl\Win32\OrbiterRenderer_SDL_Win32.cpp">
 				</File>
 				<File
 					RelativePath="..\OrbiterRendererFactory.cpp">

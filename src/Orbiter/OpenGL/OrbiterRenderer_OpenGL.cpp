@@ -73,7 +73,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 
 		if(pOrbiterRenderer->NeedToUpdateScreen())
 		{
-			if(!pOrbiterRenderer->Engine->Compose->HasEffects())
+			if(!pOrbiterRenderer->Engine->NeedUpdateScreen())
 				pOrbiterRenderer->ScreenUpdated();
 			pOrbiterRenderer->Engine->Paint();
 		}
@@ -110,7 +110,9 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	pthread_create(&GLThread, NULL, OrbiterRenderer_OpenGLThread, (void*)this);	
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(cm, Mutex);// Keep this locked to protect the map
-	cm.CondWait(); 
+	cm.CondWait();
+
+	SetupWindow();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::GetWindowPosition(PlutoPoint& point)
@@ -416,24 +418,6 @@ void OrbiterRenderer_OpenGL::OnIdle()
 				orbiterEvent.data.region.m_iY = Event.button.y;
 				OrbiterLogic()->ProcessEvent(orbiterEvent);
 			}
-			else if (Event.type == SDL_KEYDOWN || Event.type == SDL_KEYUP)
-			{
-				orbiterEvent.type = SDL_KEYDOWN != Event.type ? Orbiter::Event::BUTTON_UP :
-				Orbiter::Event::BUTTON_DOWN;
-	
-				switch (Event.key.keysym.sym)
-				{
-					case SDLK_UP:		orbiterEvent.data.button.m_iPK_Button = BUTTON_Up_Arrow_CONST; break;
-					case SDLK_DOWN:		orbiterEvent.data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST; break;
-					case SDLK_LEFT:		orbiterEvent.data.button.m_iPK_Button = BUTTON_Left_Arrow_CONST; break;
-					case SDLK_RIGHT:    orbiterEvent.data.button.m_iPK_Button = BUTTON_Right_Arrow_CONST; break;
-					
-					default:
-					break;
-				}
-
-				OrbiterLogic()->ProcessEvent(orbiterEvent);
-			}
 		}
 		else
 		{
@@ -547,11 +531,6 @@ bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
 	b = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
 	c = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
 	
-	/*
-	Item = Engine->Compose->CreateEffect(2, EffectCode, 0, 630);
-	if(Item)
-		Item->Configure(&rectLastSelected);
-	*/
 	Item = Engine->Compose->CreateEffect(2, a, 0, 1200);
 	if(Item)
 	{
@@ -562,4 +541,7 @@ bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
 	if(Item)
 		Item->Configure(&rectLastSelected);
 }
-//-----------------------------------------------------------------------------------------------------
+
+void OrbiterRenderer_OpenGL::InitializeAfterSetVideoMode()
+{
+}

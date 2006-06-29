@@ -78,7 +78,7 @@ namespace DCE
 		/**
 		* @brief initialize other classes, after the video mode was changed
 		*/
-		virtual void InitializeAfterSetVideoMode() {};
+		virtual void InitializeAfterSetVideoMode();
 
 		/**
 		* @brief initialize other classes, after WaitForRelativesIfOSD
@@ -87,7 +87,7 @@ namespace DCE
 
 		virtual void OnQuit();
 
-		OpenGL3DEngine* Engine;		
+		OpenGL3DEngine* Engine;	
 		pthread_cond_t Condition;
 		pluto_pthread_mutex_t Mutex; 
 	};

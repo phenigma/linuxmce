@@ -21,7 +21,7 @@ public:
 	
 	virtual void SetAlpha(float Alpha);
 	virtual void SetTexture(OpenGLGraphic* Texture);
-
+	void SetColor(Point3D& Color);
 	virtual void SetUVMapping(FloatRect Rect);
 };
 

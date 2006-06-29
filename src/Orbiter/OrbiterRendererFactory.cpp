@@ -10,8 +10,6 @@
 	#ifdef WIN32
 		#if defined(POCKETFROG)
 			#include "PocketFrog/OrbiterRenderer_PocketFrog.h"
-		#elif defined(ORBITER_OPENGL)
-			#include "OpenGL/OrbiterRenderer_OpenGL.h"
 		#else
 			#include "SDL/Win32/OrbiterRenderer_SDL_Win32.h"
 		#endif
@@ -31,7 +29,7 @@
 		#if defined(POCKETFROG)
 			return new OrbiterRenderer_PocketFrog(pOrbiter);
 		#elif defined(ORBITER_OPENGL)
-			return new OrbiterRenderer_OpenGL(pOrbiter);
+			return new OrbiterRenderer_SDL_Win32(pOrbiter);
 		#else
 			return new OrbiterRenderer_SDL_Win32(pOrbiter);
 		#endif

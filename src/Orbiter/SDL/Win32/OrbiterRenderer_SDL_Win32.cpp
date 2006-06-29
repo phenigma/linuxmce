@@ -20,7 +20,11 @@ LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	if(pOrbiterRenderer_SDL_Win32 == NULL)
 		return 0L;
 
+#ifdef ORBITER_OPENGL
+	LRESULT Result = DefWindowProc(hWnd, uMsg, wParam, lParam);
+#else
 	LRESULT Result = pOrbiterRenderer_SDL_Win32->m_pfOldSDLWindowProc(hWnd, uMsg, wParam, lParam);
+#endif
 
 	switch(uMsg)
 	{
@@ -33,25 +37,14 @@ LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	return Result;
 }
 //-----------------------------------------------------------------------------------------------------
-OrbiterRenderer_SDL_Win32::OrbiterRenderer_SDL_Win32(Orbiter *pOrbiter) : OrbiterRenderer_SDL(pOrbiter)
+OrbiterRenderer_SDL_Win32::OrbiterRenderer_SDL_Win32(Orbiter *pOrbiter) : 
+#ifdef ORBITER_OPENGL
+	OrbiterRenderer_OpenGL(pOrbiter)
+#else
+	OrbiterRenderer_SDL(pOrbiter)
+#endif
 {
-	m_hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
-
-#pragma warning(disable:4312)
-#pragma warning(disable:4244)
-
-	if(NULL != m_hSDLWindow)
-	{
-		m_pfOldSDLWindowProc = reinterpret_cast<WNDPROC>(
-			::SetWindowLong(
-				m_hSDLWindow, 
-				GWL_WNDPROC, 
-				reinterpret_cast<LONG_PTR>(SDLWindowProc)
-			)
-		);
-	}
-#pragma warning(default:4312)
-#pragma warning(default:4244)
+	SetupWindow();
 }
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_SDL_Win32::~OrbiterRenderer_SDL_Win32()
@@ -111,5 +104,25 @@ int OrbiterRenderer_SDL_Win32::PromptUser(string sPrompt,int iTimeoutSeconds,map
 bool OrbiterRenderer_SDL_Win32::DisplayProgress(string sMessage, int nProgress)
 {
 	return DialogProgressEx(sMessage, nProgress);
+}
+//-----------------------------------------------------------------------------------------------------
+void OrbiterRenderer_SDL_Win32::SetupWindow()
+{
+	m_hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
+#pragma warning(disable:4312)
+#pragma warning(disable:4244)
+
+	if(NULL != m_hSDLWindow)
+	{
+		m_pfOldSDLWindowProc = reinterpret_cast<WNDPROC>(
+			::SetWindowLong(
+			m_hSDLWindow, 
+			GWL_WNDPROC, 
+			reinterpret_cast<LONG_PTR>(SDLWindowProc)
+			)
+			);
+	}
+#pragma warning(default:4312)
+#pragma warning(default:4244)
 }
 //-----------------------------------------------------------------------------------------------------

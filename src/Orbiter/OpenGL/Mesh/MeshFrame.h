@@ -10,11 +10,11 @@ class MeshFrame
 {
 	bool Visible_;
 
+	MeshContainer* Mesh;
 	
 public:
 
 //MOVE ME
-	MeshContainer* Mesh;
 	MeshTransform Transform;
 	MeshTransform TextureTransform;
 	std::vector<MeshFrame*> Children;
@@ -25,6 +25,7 @@ public:
 	virtual void CleanUp();
 
 	void SetMeshContainer(MeshContainer* Mesh);
+	MeshContainer* GetMeshContainer();
 
 	void AddChild(MeshFrame* Frame);
 	void RemoveChild(MeshFrame* Frame);

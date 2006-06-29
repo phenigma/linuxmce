@@ -122,3 +122,8 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 {
 	this->TextureTransform = TextureTransform;
 }
+
+MeshContainer* MeshFrame::GetMeshContainer()
+{
+	return Mesh;
+}

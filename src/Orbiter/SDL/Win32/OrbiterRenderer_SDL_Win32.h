@@ -1,13 +1,22 @@
 #ifndef __ORBITER_RENDERER_SDL_WIN32_H__
 #define __ORBITER_RENDERER_SDL_WIN32_H__
 
+#ifdef ORBITER_OPENGL
+#include "../../OpenGL/OrbiterRenderer_OpenGL.h"
+#else
 #include "../OrbiterRenderer_SDL.h"
+#endif
 
 namespace DCE
 {
 	class Orbiter;
 
-	class OrbiterRenderer_SDL_Win32 : public OrbiterRenderer_SDL
+	class OrbiterRenderer_SDL_Win32 : public 
+#ifdef ORBITER_OPENGL
+		OrbiterRenderer_OpenGL
+#else
+		OrbiterRenderer_SDL
+#endif
 	{
 	private:
 		friend class OrbiterRendererFactory;
@@ -24,6 +33,8 @@ namespace DCE
 
 		WNDPROC m_pfOldSDLWindowProc;
 		HWND m_hSDLWindow;
+
+		virtual void SetupWindow();
 	};
 }
 #endif //__ORBITER_RENDERER_SDL_WIN32_H__

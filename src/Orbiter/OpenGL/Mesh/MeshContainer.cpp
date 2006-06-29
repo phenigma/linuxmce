@@ -35,3 +35,12 @@ void MeshContainer::SetTexture(OpenGLGraphic* Texture)
 			Vertexes[i].UVW.Y);
 	}
 }
+
+void MeshContainer::SetColor(Point3D& Color)
+{
+	for(int i = 0; i < NoVertexes; i++)
+	{
+		Vertexes[i].Color = Color;
+	}
+
+}

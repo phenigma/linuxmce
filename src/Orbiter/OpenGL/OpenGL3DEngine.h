@@ -30,7 +30,7 @@ class OpenGL3DEngine
 	std::map<string, MeshFrame *> CurrentLayerObjects_;
 
 	void ShowAnimationTextures();
-	
+
 public:
 	GLEffect2D::LayersCompose* Compose;
 	bool Quit;
@@ -38,6 +38,8 @@ public:
 	OpenGL3DEngine(void);
 	virtual ~OpenGL3DEngine();
 	virtual void Finalize(void);
+
+	bool NeedUpdateScreen();
 	
 	void AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame);
 	

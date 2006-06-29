@@ -26,9 +26,6 @@ OpenGL3DEngine::OpenGL3DEngine()
 	}
 
 	SceneMutex.Init(NULL);
-
-	//TODO: do somthing with me here!!!
-	//CurrentLayer = new MeshFrame();
 }
 
 OpenGL3DEngine::~OpenGL3DEngine()
@@ -66,6 +63,15 @@ bool OpenGL3DEngine::Paint()
 
 	Compose->UpdateLayers(CurrentLayer, OldLayer);
 	Compose->Paint();
+	if(HighLightFrame)
+	{
+		Point3D Color;
+		Color.X = 1.0f;
+		Color.Y = 1.0f;
+		Color.Z = (GetTick() / 2 % 512) / 255.0f;
+		Color.Z = abs(Color.Z - 1.0f);
+		HighLightFrame->GetMeshContainer()->SetColor(Color);
+	}
 
 	//glEnable(GL_CULL_FACE);
 
@@ -215,48 +221,52 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 		return;
 	MeshBuilder MB;
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
-	MB.SetTexture(HighSurface);
-	MB.SetAlpha(0.4f);
-	MB.SetColor(1.0f, 1.0f, 0.0f);
-	MB.SetTexture2D(
-		float(HightlightArea->Left()/GL.Width),
-		float(HightlightArea->Top()/GL.Height)
-		);
-	MB.AddVertexFloat(
-		float(HightlightArea->Left()), 
-		float(HightlightArea->Top()), 
-		0);
+	MeshTransform Transform;
+	Compose->PaintScreen3D();
+	Compose->NewScreen->RenderFrameToGraphic();
+	MB.SetTexture(Compose->NewScreen->GetRenderGraphic());
+	//MB.SetAlpha(0.4f);
+	//MB.SetColor(1.0f, 1.0f, 0.0f);
 
 	MB.SetTexture2D(
-		float(HightlightArea->Right()/GL.Width),
-		float(HightlightArea->Top()/GL.Height)
+		float(HightlightArea->Left())/GL.Width,
+		1- float(HightlightArea->Top())/GL.Height
 		);
-	MB.AddVertexFloat(
-		float(HightlightArea->Right()),
-		float(HightlightArea->Top()),
-		0);
+	MB.AddVertexFloat(0, 0, 0);
 
 	MB.SetTexture2D(
-		float(HightlightArea->Left()/GL.Width),
-		float(HightlightArea->Bottom()/GL.Height)
+		float(HightlightArea->Right())/GL.Width,
+		1- float(HightlightArea->Top())/GL.Height
 		);
-	MB.AddVertexFloat(
-		float(HightlightArea->Left()),
-		float(HightlightArea->Bottom()),
-		0);
+	MB.AddVertexFloat(1, 0, 0);
 
 	MB.SetTexture2D(
-		float(HightlightArea->Right()/GL.Width),
-		float(HightlightArea->Bottom()/GL.Height)
+		float(HightlightArea->Left())/GL.Width,
+		1- float(HightlightArea->Bottom())/GL.Height
+		);
+	MB.AddVertexFloat(0, 1, 0);
+	MB.SetTexture2D(
+		float(HightlightArea->Right())/GL.Width,
+		1- float(HightlightArea->Bottom())/GL.Height
 		);
 
-	MB.AddVertexFloat(
-		float(HightlightArea->Right()), 
-		float(HightlightArea->Bottom()),
-		0);
+	MB.AddVertexFloat(1, 1, 0);
 
 	UnHighlight();
 	HighLightFrame = new MeshFrame();
+	Transform.ApplyTranslate(-0.1f, -0.1f, 0.f);
+	Transform.ApplyScale(1.2f, 1.2f, 1.0f);
+	Transform.ApplyScale(
+		float(HightlightArea->Width),
+		float(HightlightArea->Height),
+		1.0f);
+	Transform.ApplyTranslate(
+		float(HightlightArea->Left()),
+		float(HightlightArea->Top()),
+		0.f);
+
+
+	HighLightFrame->SetTransform(Transform);
 	HighLightFrame->SetMeshContainer(MB.End());
 	CurrentLayer->AddChild(HighLightFrame);
 }
@@ -267,8 +277,6 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 		return;
 	CurrentLayer->RemoveChild(HighLightFrame);
 
-	//TODO: this is crashing under linux
-	//the frame already deleted?
 	delete HighLightFrame;
 	HighLightFrame = NULL;
 	
@@ -282,5 +290,10 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 
 	delete SelectedFrame;
 	SelectedFrame = NULL;
+}
+
+bool OpenGL3DEngine::NeedUpdateScreen()
+{
+	return Compose->HasEffects() || HighLightFrame != NULL;
 }
 

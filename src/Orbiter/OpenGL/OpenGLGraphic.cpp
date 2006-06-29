@@ -115,7 +115,7 @@ void OpenGLGraphic::Prepare()
 
 void OpenGLGraphic::Convert()
 {
-	if( NULL == LocalSurface)
+	if( NULL == LocalSurface || NULL == LocalSurface->format)
 		return;
 
 	ReleaseTexture();
