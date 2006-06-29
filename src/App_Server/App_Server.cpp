@@ -109,6 +109,7 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
 	int pid = fork();
 	if (pid == 0)
 	{
+		Sleep(3000);  // Give this a chance to register and stuff
 		execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
 		exit(99);
 	}
@@ -362,6 +363,7 @@ void App_Server::EnsureLogoIsDisplayed()
 
 void App_Server::ProcessExited(int pid, int status)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "App_Server::ProcessExited() Child with pid %d", pid);
 	PLUTO_SAFETY_LOCK(ap,m_AppMutex);
 	string applicationName;
 	void *data;

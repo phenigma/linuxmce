@@ -567,10 +567,12 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 			string sRoom;
 			if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()!=COMMMETHOD_Ethernet_CONST && (!pRow_DeviceTemplate_DeviceData || atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str())==0) )
 			{
+				pPnpQueueEntry->m_pRow_Device_Reported->Reload();
 				PK_Room = pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get();
 				Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(PK_Room);
 				if( pRow_Room )
 					sRoom = pRow_Room->Description_get();
+				g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT Auto assign queue %d to parents room %d %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),PK_Room,sRoom.c_str());
 			}
 
 			DCE::SCREEN_New_Pnp_Device_One_Possibility_DL SCREEN_New_Pnp_Device_One_Possibility_DL(m_pPlug_And_Play_Plugin->m_dwPK_Device, pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, 
