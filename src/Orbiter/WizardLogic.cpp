@@ -124,7 +124,7 @@ void WizardLogic::FindPnpDevices(string sPK_DeviceCategory)
 
 bool WizardLogic::AlreadyHasUsers()
 {
-	return m_pUserUtils->AlreadyHasUsers();
+	return DatabaseUtils::AlreadyHasUsers(this,m_pOrbiter->m_pData->m_dwPK_Installation);
 }
 
 int WizardLogic::AddUser(string sUsername)
@@ -139,13 +139,7 @@ void WizardLogic::RemoveUser(int PK_User)
 
 bool WizardLogic::AlreadyHasRooms()
 {
-	string sSQL = "SELECT PK_Room FROM Room WHERE FK_Installation="
-		+ StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation) + " LIMIT 1";
-
-	PlutoSqlResult result_set_room;
-	if( (result_set_room.r=mysql_query_result(sSQL)) && result_set_room.r->row_count )
-		return true;
-	return false;
+	return DatabaseUtils::AlreadyHasRooms(this,m_pOrbiter->m_pData->m_dwPK_Installation);
 }
 
 // Get a map of RoomTypes to number of Rooms of that Type, and the total number of rooms

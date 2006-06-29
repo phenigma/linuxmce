@@ -15,17 +15,6 @@ UserUtils::UserUtils(MySqlHelper *pMySqlHelper, int PK_Installation)
 	m_PK_Installation=PK_Installation;
 }
 
-bool UserUtils::AlreadyHasUsers()
-{
-	string sSQL = "SELECT PK_Users FROM Users JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation="
-		+ StringUtils::itos(m_PK_Installation) + " LIMIT 1";
-
-	PlutoSqlResult result_set_room;
-	if( (result_set_room.r=m_pMySqlHelper->mysql_query_result(sSQL)) && result_set_room.r->row_count )
-		return true;
-	return false;
-}
-
 bool UserUtils::AlreadyHasMasterUsers()
 {
 	string sSQL = "SELECT PK_Users FROM Users JOIN Installation_Users ON FK_Users=PK_Users WHERE userCanModifyInstallation=1 and FK_Installation="

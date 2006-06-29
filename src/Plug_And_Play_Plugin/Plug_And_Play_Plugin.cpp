@@ -24,6 +24,7 @@ using namespace DCE;
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "DataGrid.h"
+#include "PlutoUtils/DatabaseUtils.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -34,6 +35,7 @@ Plug_And_Play_Plugin::Plug_And_Play_Plugin(int DeviceID, string ServerAddress,bo
 {
 	m_pDatabase_pluto_main=NULL;
 	m_pPnpQueue=NULL;
+	m_bSuspendProcessing=false;
 
 	pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
@@ -62,6 +64,12 @@ bool Plug_And_Play_Plugin::GetConfig()
         m_bQuit=true;
         return false;
     }
+
+	if( !DatabaseUtils::AlreadyHasRooms(m_pDatabase_pluto_main,m_pRouter->iPK_Installation_get()) || !DatabaseUtils::AlreadyHasUsers(m_pDatabase_pluto_main,m_pRouter->iPK_Installation_get()) )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::GetConfig System has no rooms or users yet.  Suspending processing.");
+		m_bSuspendProcessing=true;
+	}
 
 	return true;
 }
@@ -520,4 +528,42 @@ iPK_PnpQueue,sErrors.c_str(),iPK_DeviceTemplate,sFilename.c_str(),pPnpQueueEntry
 		}
 		++it;
 	}
+}
+//<-dceag-c192-b->
+
+	/** @brief COMMAND: #192 - On */
+	/** Start processing any incoming alerts again */
+		/** @param #97 PK_Pipe */
+			/** Normally when a device is turned on all the inputs and outputs are selected automatically.  If this parameter is specified, only the settings along this pipe will be set. */
+		/** @param #98 PK_Device_Pipes */
+			/** Normally when a device is turned on the corresponding "pipes" are enabled by default. if this parameter is blank.  If this parameter is 0, no pipes will be enabled.  This can also be a comma seperated list of devices, meaning only the pipes to those devic */
+
+void Plug_And_Play_Plugin::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
+//<-dceag-c192-e->
+{
+	PLUTO_SAFETY_LOCK(pnp,m_PnpMutex);
+	g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::CMD_On with %d entries",(int) m_pPnpQueue->m_mapPnpQueueEntry.size());
+	m_bSuspendProcessing=false;
+	for(map<int,class PnpQueueEntry *>::iterator it=m_pPnpQueue->m_mapPnpQueueEntry.begin();it!=m_pPnpQueue->m_mapPnpQueueEntry.end();++it)
+	{
+		PnpQueueEntry *pPnpQueueEntry = it->second;
+		if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_block_processing_suspended )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::CMD_On unblocking %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+			pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
+		}
+	}
+	pthread_cond_broadcast( &m_PnpCond );
+}
+//<-dceag-c193-b->
+
+	/** @brief COMMAND: #193 - Off */
+	/** Stop processing incoming pnp alerts unless they have 'auto create without prompting'.  Used during the video wizard when there are no rooms/users */
+		/** @param #97 PK_Pipe */
+			/** Normally when a device is turned on all the inputs and outputs are selected automatically.  If this parameter is specified, only the settings along this pipe will be set. */
+
+void Plug_And_Play_Plugin::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
+//<-dceag-c193-e->
+{
+	m_bSuspendProcessing=true;
 }

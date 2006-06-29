@@ -519,6 +519,13 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 		return true;
 	}
 
+	if( m_pPlug_And_Play_Plugin->m_bSuspendProcessing )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT blocking queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_block_processing_suspended);
+		return false; // We're waiting for user input.  Give the user more time.
+	}
+
 	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_prompting_device_template )
 	{
 		if( time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )

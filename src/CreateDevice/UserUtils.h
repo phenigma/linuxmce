@@ -19,7 +19,6 @@ class UserUtils
 
 public:
 	UserUtils(MySqlHelper *pMySqlHelper, int PK_Installation);
-	bool AlreadyHasUsers();
 	bool AlreadyHasMasterUsers();
 	string GetGoodExtension(map<int,bool> &mapUsedExtensions) ;
 	void CheckExtensions();

@@ -386,3 +386,24 @@ string DatabaseUtils::GetNameForRoom(MySqlHelper *pMySqlHelper,int PK_Room)
 		return "";
 }
 
+bool DatabaseUtils::AlreadyHasUsers(MySqlHelper *pMySqlHelper,int PK_Installation)
+{
+	string sSQL = "SELECT PK_Users FROM Users JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation="
+		+ StringUtils::itos(PK_Installation) + " LIMIT 1";
+
+	PlutoSqlResult result_set_room;
+	if( (result_set_room.r=pMySqlHelper->mysql_query_result(sSQL)) && result_set_room.r->row_count )
+		return true;
+	return false;
+}
+
+bool DatabaseUtils::AlreadyHasRooms(MySqlHelper *pMySqlHelper,int PK_Installation)
+{
+	string sSQL = "SELECT PK_Room FROM Room WHERE FK_Installation="
+		+ StringUtils::itos(PK_Installation) + " LIMIT 1";
+
+	PlutoSqlResult result_set_room;
+	if( (result_set_room.r=pMySqlHelper->mysql_query_result(sSQL)) && result_set_room.r->row_count )
+		return true;
+	return false;
+}

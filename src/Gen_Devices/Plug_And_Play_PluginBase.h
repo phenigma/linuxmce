@@ -181,6 +181,8 @@ public:
 	//Data accessors
 	//Event accessors
 	//Commands - Override these to handle commands from the server
+	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Choose_Pnp_Device_Template(int iPK_Room,int iPK_DHCPDevice,int iPK_PnpQueue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Pnp_Options(string sValue_To_Assign,int iPK_DeviceData,int iPK_PnpQueue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Ignore_PNP_Device(int iPK_PnpQueue,bool bAlways,string &sCMD_Result,class Message *pMessage) {};
@@ -203,6 +205,59 @@ public:
 					return rmr_Buffered;
 				switch(pMessage->m_dwID)
 				{
+				case COMMAND_Generic_On_CONST:
+					{
+						string sCMD_Result="OK";
+						int iPK_Pipe=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
+						string sPK_Device_Pipes=pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST];
+						CMD_On(iPK_Pipe,sPK_Device_Pipes.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_On(iPK_Pipe,sPK_Device_Pipes.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Generic_Off_CONST:
+					{
+						string sCMD_Result="OK";
+						int iPK_Pipe=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
+						CMD_Off(iPK_Pipe,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Off(iPK_Pipe,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
 				case COMMAND_Choose_Pnp_Device_Template_CONST:
 					{
 						string sCMD_Result="OK";
