@@ -53,6 +53,7 @@ void SkinGenerator::SetSkinEnvironment(std::string SkinName)
 	DefaultFontSize = "13";
 
 	PathPixmaps = "/usr/pluto/wiz_pixmaps";
+	CommandSetAudioConnector = "/usr/pluto/bin/AVWizard_AudioConnector.sh";
 }
 
 void SkinGenerator::SaveSkin(std::string XMLFile)
