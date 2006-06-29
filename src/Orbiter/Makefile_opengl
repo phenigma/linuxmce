@@ -160,10 +160,31 @@ sources += \
 	OpenGL/Widgets/basewidget.cpp \
 	OpenGL/Widgets/bezierwindow.cpp \
 	OpenGL/Widgets/basicwindow.cpp \
-	OpenGL/Widgets/DrawingWidgetsEngine.cpp \
+	OpenGL/Widgets/DrawingWidgetsEngine.cpp	\
 	OpenGL/Texture/GLFontManager.cpp \
 	OpenGL/Texture/GLFont.cpp \
-	$(ROOT)/utilities/linux/transparency/transparency.cpp \
+	OpenGL/Layers/GL2DEffectLayer.cpp \
+	OpenGL/Layers/GL2DEffectLayersCompose.cpp \
+	OpenGL/Layers/GLRenderScreenToGraphic.cpp \
+	OpenGL/Effects/gl2deffectbeziertranzit.cpp \
+	OpenGL/Effects/gl2deffectfadesfromunderneath.cpp \
+	OpenGL/Effects/gl2deffectbeziertranzit_flow_slideleft.cpp \
+	OpenGL/Effects/GL2DEffectHighLightArea.cpp \
+	OpenGL/Effects/gl2deffectbeziertranzit_flow_slideleft_reverse.cpp \
+	OpenGL/Effects/GL2DEffectHighLight.cpp \
+	OpenGL/Effects/gl2deffectbeziertranzit_prism.cpp \
+	OpenGL/Effects/GL2DEffectNoEffect.cpp \
+	OpenGL/Effects/gl2deffectbeziertranzit_topleft.cpp \
+	OpenGL/Effects/gl2deffectselectedarea.cpp \
+	OpenGL/Effects/GL2DEffectBlending.cpp \
+	OpenGL/Effects/gl2deffectslidefromleft.cpp \
+	OpenGL/Effects/gl2deffect.cpp \
+	OpenGL/Effects/gl2deffecttransit.cpp \
+	OpenGL/Effects/gl2deffectfactory.cpp \
+	OpenGL/Effects/GL2DEffectTransitionNoEffect.cpp \
+	OpenGL/Effects/gl2deffectfadesfromtop.cpp \
+	OpenGL/Effects/GL2DEffectWipeIn.cpp \
+	$(ROOT)/utilities/linux/transparency/transparency.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

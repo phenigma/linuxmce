@@ -13,6 +13,36 @@
 
 #include <math.h>
 
+FloatRect::FloatRect()
+	: Top(0),
+		Left(0),
+		Width(1),
+		Height(1)
+{
+}
+
+/**
+	* Constructor with setup the variables
+	*/
+FloatRect::FloatRect(float TopValue, float LeftValue, float WidthValue, float HeightValue) 
+	: Top(TopValue),
+		Left(LeftValue),
+		Width(WidthValue),
+		Height(HeightValue) 
+{
+}
+
+/**
+	* Copy onstructor
+	*/
+FloatRect::FloatRect(PlutoRectangle Rectangle)
+	: Top((float)Rectangle.Y),
+		Left((float)Rectangle.X),  
+		Width((float)Rectangle.Width),
+		Height((float)Rectangle.Height) 
+{
+}
+
 FloatRect FloatRect::Interpolate(FloatRect DestRect, float Value)
 {
 	FloatRect Result;
