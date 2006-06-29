@@ -21,7 +21,7 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 {
 	m_pObj_ListGrid=m_pObj_PicGrid=NULL;
 	m_pObj_CoverArtPopup=NULL;
-	m_bCapturingOffscreenMovement=FALSE;
+	m_bCapturingOffscreenMovement=false;
 
 	if( !m_pObj )
 		return; // Shouldn't happen
