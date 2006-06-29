@@ -107,7 +107,7 @@ void hexmemcpy( char *pDest, const char *pSource, int NumBytes )
 void* PingLoop( void* param ) // renamed to cancel link-time name collision in MS C++ 7.0 / VS .NET 2002
 {
 #ifdef WINCE //give Orbiter CE time to start
-	Sleep(30000); 
+	Sleep(40000); 
 #endif
 
 	Socket *pSocket = (Socket *) param;
