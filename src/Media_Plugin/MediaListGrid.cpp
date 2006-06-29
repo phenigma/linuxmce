@@ -50,6 +50,9 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 #ifdef DEBUG
 	clock_t cStart=clock(); // move this to within #debug
 #endif
+	
+
+g_pPlutoLogger->Write(LV_CRITICAL,"There are supposed to be %d items per page on the right.",RowCount * ColCount);
 
 	for(int row=*RowStart;row<=*RowStart+RowCount;++row)
 	{
@@ -65,7 +68,7 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 
 			pCell = m_pMediaListGrid_Master->GetData(0,OriginalRow);
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"MediaListGrid::row %d graphic data: %p rowstart: %d rowCount: %d totalrows: %d",
+	g_pPlutoLogger->Write(LV_STATUS,"MediaListGrid::row %d graphic data: %p rowstart: %d rowCount: %d totalrows: %d",
 	row,(pCell ? pCell->m_pGraphicData : NULL),*RowStart,RowCount,m_TotalRows);
 #endif
 			FileBrowserInfo *pFileBrowserInfo = m_pMediaListGrid_Master->m_pFileBrowserInfoPtr[OriginalRow];
@@ -76,10 +79,12 @@ g_pPlutoLogger->Write(LV_STATUS,"MediaListGrid::row %d graphic data: %p rowstart
 			char *pIconBuffer = NULL;
 			size_t stIconSize;
 			string PictureFile_Full;
-
+			pCell = new DataGridCell("",PictureFile_Full);
+			
 			if(pFileBrowserInfo->m_PK_Picture > 0)
-			{
+			{	
 				PictureFile_Full = "/home/mediapics/" + StringUtils::itos(pFileBrowserInfo->m_PK_Picture) + ".jpg";
+				/*
 				pIconBuffer = FileUtils::ReadFileIntoBuffer( "/home/mediapics/" + StringUtils::itos(pFileBrowserInfo->m_PK_Picture) + "_tn.jpg",stIconSize);
 #ifdef DEBUG
 				g_pPlutoLogger->Write(LV_STATUS, "Pic file: %d has size: %d", pFileBrowserInfo->m_PK_Picture,stIconSize);
@@ -87,11 +92,13 @@ g_pPlutoLogger->Write(LV_STATUS,"MediaListGrid::row %d graphic data: %p rowstart
 			}
 
 			if( pIconBuffer )
-			{
-				DataGridCell *pCell = new DataGridCell("",PictureFile_Full);
-				pCell->SetImage(pIconBuffer,(int) stIconSize,GR_JPG);
-				SetData(col,row,pCell);
+			{*/
+				pCell->SetImagePath(PictureFile_Full.c_str());
+				
+				/*
+				pCell->SetImage(pIconBuffer,(int) stIconSize,GR_JPG); */
 			}
+			SetData(col,row,pCell); 
 		}
 	}
 
