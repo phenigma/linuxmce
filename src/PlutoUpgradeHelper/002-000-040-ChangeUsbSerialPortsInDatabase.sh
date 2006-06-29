@@ -37,8 +37,8 @@ for Line in $R ;do
 	IK_DeviceData=$(Field "3" "$Line")
 
 	## Extract usb? and port number from the old database device data
-	usb_controler=$( echo $IK_DeviceData | sed 's|\(usb[0-9]*\)/[0-9]*-[0-9]*/.*|\1|' )
-	usb_port=$( echo $IK_DeviceData | sed 's|usb[0-9]*/[0-9]*-\([0-9]*\)/.*|\1|' )
+	usb_controler=$( echo $IK_DeviceData | sed 's|\(usb[0-9]*\)/.*|\1|' )
+	usb_port=$( echo $IK_DeviceData | sed 's|usb[0-9]*/.*-\(.*\):.*|\1|' )
 
 	if [[ $usb_port == "" || $usb_controler == "" ]] ;then
 		echo "Warning: can't extract usb controler id and port id from $IK_DeviceData ($FK_Device $FK_DeviceData)..."
