@@ -156,21 +156,21 @@ std::string WizardPageFinalSelections::GetVolume(SettingsDictionary* AVWizardSet
 	if(!AVWizardSettings->Exists(OptionName))
 		AudioVolumeMin = Utils::StringToInt32(AVWizardSettings->GetValue("AudioVolumeMin"));
 #ifdef DEBUG
-	std::cout<<"AudioVolumeMin:"<< OptionName <<std::endl;
+	std::cout<<"AudioVolumeMin:"<< AudioVolumeMin <<std::endl;
 #endif
 
 	if(AVWizardSettings->Exists("AudioVolumeMax"))
 		AudioVolumeMax = Utils::StringToInt32(AVWizardSettings->GetValue("AudioVolumeMax"));
 
 #ifdef DEBUG
-	std::cout<<"AudioVolumeMax:"<< OptionName <<std::endl;
+	std::cout<<"AudioVolumeMax:"<< AudioVolumeMax <<std::endl;
 #endif
 
 	if(AVWizardSettings->Exists("AudioVolumeCurrent"))
 		AudioVolumeCurrent = Utils::StringToInt32(AVWizardSettings->GetValue("AudioVolumeCurrent"));
 
 #ifdef DEBUG
-	std::cout<<"AudioVolumeCurrent:"<< OptionName <<std::endl;
+	std::cout<<"AudioVolumeCurrent:"<< AudioVolumeCurrent <<std::endl;
 #endif
 	return Utils::Int32ToString((AudioVolumeCurrent - AudioVolumeMin)*100/(AudioVolumeMax - AudioVolumeMin)) + "%";;
 
