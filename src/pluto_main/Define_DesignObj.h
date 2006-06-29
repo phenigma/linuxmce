@@ -1970,6 +1970,7 @@
 #define DESIGNOBJ_butShowVolume_CONST 4881
 #define DESIGNOBJ_butTVReceiverInputs_CONST 4886
 #define DESIGNOBJ_grpFaze2_CONST 4887
+#define DESIGNOBJ_butLightsFromRoom_CONST 4888
 #define DESIGNOBJ_butLightsPopup_CONST 4890
 #define DESIGNOBJ_butShowMediaPopup_CONST 4892
 #define DESIGNOBJ_butShowLightsPopup_CONST 4893

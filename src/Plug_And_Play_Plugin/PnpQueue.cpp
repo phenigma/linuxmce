@@ -977,9 +977,10 @@ bool PnpQueue::BlockIfOtherQueuesAtPromptingState(PnpQueueEntry *pPnpQueueEntry)
 	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
 	{
 		PnpQueueEntry *pPnpQueueEntry2 = it->second;
-		if( pPnpQueueEntry2!=pPnpQueueEntry && pPnpQueueEntry2->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_waiting_for_other_prompting && (pPnpQueueEntry2->m_pRow_PnpQueue->Stage_get()==PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT || pPnpQueueEntry2->m_pRow_PnpQueue->Stage_get()==PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT) )
+		if( pPnpQueueEntry2!=pPnpQueueEntry && pPnpQueueEntry2->m_EBlockedState!=PnpQueueEntry::pnpqe_block_processing_suspended && pPnpQueueEntry2->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_waiting_for_other_prompting && (pPnpQueueEntry2->m_pRow_PnpQueue->Stage_get()==PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT || pPnpQueueEntry2->m_pRow_PnpQueue->Stage_get()==PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT) )
 		{
-			pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_waiting_for_other_prompting;
+			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::BlockIfOtherQueuesAtPromptingState queue %d auto-blocking for others blocked",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+			pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_waiting_for_other_prompting);
 			pPnpQueueEntry->m_dwPK_PnpQueue_BlockingFor=pPnpQueueEntry2->m_pRow_PnpQueue->PK_PnpQueue_get();
 			return true;
 		}

@@ -503,6 +503,16 @@ bool OSDScreenHandler::RoomsWizard_ObjectSelected(CallBackData *pData)
 			}
 		}
 		break;
+		
+		case DESIGNOBJ_ConfirmNames_CONST:
+		{
+			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butLightsFromRoom_CONST && m_pWizardLogic->HouseAlreadySetup() )
+			{
+				DCE::CMD_On CMD_On(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_PlugAndPlayPlugIn,0,"");
+				m_pOrbiter->SendCommand(CMD_On);
+			}
+		}
+		break;
 	}
 
 	return false;
