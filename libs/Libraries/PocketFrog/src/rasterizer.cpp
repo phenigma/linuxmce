@@ -26,7 +26,7 @@
 #else
 inline float cosf( float angle )  { return (float)cos( angle ); }
 inline float sinf( float angle )  { return (float)sin( angle ); }
-inline float sqrtf( float angle ) { return (float)sqrt( angle ); }
+//inline float sqrtf( float angle ) { return (float)sqrt( angle ); }
 #endif
 
 
