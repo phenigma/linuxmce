@@ -38,10 +38,11 @@ bool IsPFG(string sFileName)
 
 	return "PFG" == sExtension || "pfg" == sExtension;
 }
-//-------------------------------------------------------------------------------------------------------
-void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type, string Filename, 
+
+PlutoGraphic *CreatePlutoGraphic(GraphicType Type, string Filename, 
 						 eGraphicManagement GraphicManagement, OrbiterRenderer *pOrbiterRenderer)
 {
+
 	eGraphicFormat eGF = GR_UNKNOWN;
 
 	if(IsMNG(Filename))
@@ -59,12 +60,23 @@ void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type,
 #else
 		= new SDLGraphic(pOrbiterRenderer); //we won't load the graphic yet
 #endif
-
-	if(NULL != pGraphic)
+	if (pGraphic!=NULL)
 	{
 		pGraphic->m_GraphicFormat = eGF;
 		pGraphic->m_GraphicManagement = GraphicManagement;
 		pGraphic->m_Filename = Filename;
+	}	
+	return pGraphic;
+}
+
+//-------------------------------------------------------------------------------------------------------
+void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type, string Filename, 
+						 eGraphicManagement GraphicManagement, OrbiterRenderer *pOrbiterRenderer)
+{
+	PlutoGraphic *pGraphic = CreatePlutoGraphic(Type, Filename, GraphicManagement, pOrbiterRenderer); 
+
+	if(NULL != pGraphic)
+	{
 		vectPlutoGraphic.push_back(pGraphic);
 	}
 }

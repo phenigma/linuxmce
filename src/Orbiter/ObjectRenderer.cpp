@@ -8,6 +8,8 @@
 
 ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pOwner(pOwner)
 {
+	// For now call this from the constructor, but should be 
+	// moved outside the constructor at some point.
 }
 
 /*virtual*/ ObjectRenderer::~ObjectRenderer()

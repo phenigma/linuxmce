@@ -149,6 +149,27 @@
 				RelativePath=".\Win32\main.cpp">
 			</File>
 			<File
+				RelativePath=".\OpenGL\Mesh\MeshBuilder.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\Mesh\MeshContainer.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\Mesh\MeshFrame.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\Mesh\MeshPainter.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\Mesh\MeshTransform.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\Mesh\MeshTriangle.cpp">
+			</File>
+			<File
+				RelativePath=".\OpenGL\Mesh\MeshVertex.cpp">
+			</File>
+			<File
 				RelativePath=".\ObjectRenderer.cpp">
 			</File>
 			<File
@@ -164,6 +185,9 @@
 				RelativePath=".\Linux\OSDCompass.cpp">
 			</File>
 			<File
+				RelativePath=".\OpenGL\Mesh\Point3D.cpp">
+			</File>
+			<File
 				RelativePath=".\ScreenHandler.cpp">
 			</File>
 			<File
@@ -173,8 +197,159 @@
 				RelativePath=".\Win32\StartOrbiter.cpp">
 			</File>
 			<Filter
+				Name="OpenGL"
+				Filter="">
+				<File
+					RelativePath=".\OpenGL\Widgets\basewidget.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Widgets\basewidget.h">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Widgets\basicwindow.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Widgets\basicwindow.h">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Widgets\bezierwindow.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Widgets\bezierwindow.h">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Widgets\DrawingWidgetsEngine.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Widgets\DrawingWidgetsEngine.h">
+				</File>
+				<File
+					RelativePath=".\OpenGL\ExtensionManager.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\gl2deffect.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\gl2deffectbeziertranzit.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\gl2deffectbeziertranzit_flow_slideleft.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\gl2deffectbeziertranzit_flow_slideleft_reverse.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\gl2deffectbeziertranzit_prism.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\gl2deffectbeziertranzit_topleft.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\GL2DEffectBlending.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\gl2deffectfactory.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\gl2deffectfadesfromtop.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\gl2deffectfadesfromunderneath.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\GL2DEffectHighLight.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\GL2DEffectHighLightArea.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\GL2DEffectNoEffect.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\gl2deffectselectedarea.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\gl2deffectslidefromleft.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\gl2deffecttransit.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\GL2DEffectTransitionNoEffect.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Effects\GL2DEffectWipeIn.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Texture\GLFont.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Texture\GLFont.h">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Texture\GLFontManager.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Texture\GLFontManager.h">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Texture\GLFontRenderer.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Texture\GLFontRenderer.h">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Texture\GLFontTextureList.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Texture\GLFontTextureList.h">
+				</File>
+				<File
+					RelativePath=".\OpenGL\GLMathUtils.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\GraphicSettings.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\math3dutils.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\ObjectRenderer_OpenGL.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\OpenGL3DEngine.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\OpenGLGraphic.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\OpenGLTextureConverter.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Orbiter3DCommons.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\OrbiterRenderer_OpenGL.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Texture\TextureManager.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Texture\TextureManager.h">
+				</File>
+			</Filter>
+			<Filter
 				Name="Renderer"
 				Filter="">
+				<File
+					RelativePath=".\OpenGL\Layers\GL2DEffectLayer.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Layers\GL2DEffectLayersCompose.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGL\Layers\GLRenderScreenToGraphic.cpp">
+				</File>
 				<File
 					RelativePath=".\GraphicBuilder.cpp">
 				</File>
@@ -327,6 +502,27 @@
 				RelativePath=".\Win32\MainDialog.h">
 			</File>
 			<File
+				RelativePath=".\OpenGL\Mesh\MeshBuilder.h">
+			</File>
+			<File
+				RelativePath=".\OpenGL\Mesh\MeshContainer.h">
+			</File>
+			<File
+				RelativePath=".\OpenGL\Mesh\MeshFrame.h">
+			</File>
+			<File
+				RelativePath=".\OpenGL\Mesh\MeshPainter.h">
+			</File>
+			<File
+				RelativePath=".\OpenGL\Mesh\MeshTransform.h">
+			</File>
+			<File
+				RelativePath=".\OpenGL\Mesh\MeshTriangle.h">
+			</File>
+			<File
+				RelativePath=".\OpenGL\Mesh\MeshVertex.h">
+			</File>
+			<File
 				RelativePath=".\OpenGL\nvidia\nv_combiners.h">
 			</File>
 			<File
@@ -340,6 +536,9 @@
 			</File>
 			<File
 				RelativePath=".\Sdl\PlutoSDLDefs.h">
+			</File>
+			<File
+				RelativePath=".\OpenGL\Mesh\Point3D.h">
 			</File>
 			<File
 				RelativePath="..\OrbiterGen\Renderer.h">

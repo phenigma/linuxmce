@@ -15,6 +15,7 @@ MouseBehavior_Win32::MouseBehavior_Win32(Orbiter *pOrbiter)
 void MouseBehavior_Win32::SetMousePosition(int X,int Y)
 {
 	MouseBehavior::SetMousePosition(X,Y);
+	
 	SetCursorPos(X,Y);
 }
 

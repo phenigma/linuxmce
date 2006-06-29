@@ -21,6 +21,7 @@ public:
 	ObjectRenderer(DesignObj_Orbiter *pOwner);
 	virtual ~ObjectRenderer(void);
 
+	virtual void Init() {};
 	virtual void RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
 	virtual void RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point = PlutoPoint(0, 0));
 

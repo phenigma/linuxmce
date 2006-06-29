@@ -7,12 +7,22 @@
 
 using namespace DCE;
 
-DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pOwner)
+DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pOwner), m_DataGridCacheMutex("DataGrid Cache")
 {
+	pthread_mutexattr_t MutexAttr;
+	pthread_mutexattr_init( &MutexAttr );
+	pthread_mutexattr_settype( &MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
+	m_DataGridCacheMutex.Init( &MutexAttr );
+	m_DataGridCacheThread = NULL;
+	pthread_cond_init(&m_DataGridCacheCond, NULL);	
 }
 
 /*virtual*/ DataGridRenderer::~DataGridRenderer(void)
 {
+	for( int Direction=1;Direction<=4;Direction++)
+	{
+		FlushCache(Direction);
+	}
 }
 
 /*virtual*/ void DataGridRenderer::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
@@ -280,13 +290,53 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		if ( !bTransparentCell )
 			m_pOwner->m_pOrbiter->Renderer()->SolidRectangle( point.X + x,  point.Y + y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor);
 
-		if ( pCell->m_pGraphicData )
+		PLUTO_SAFETY_LOCK(M,m_pOwner->m_pOrbiter->Renderer()->m_bgImageReqMutex);
+
+		const char *pPath = pCell->GetImagePath();
+
+		if (pPath && !pCell->m_pGraphicData && !pCell->m_pGraphic)
 		{
-			PlutoGraphic *pPlutoGraphic = m_pOwner->m_pOrbiter->Renderer()->CreateGraphic();
-			pPlutoGraphic->m_GraphicFormat = pCell->m_GraphicFormat;
-			pPlutoGraphic->LoadGraphic(pCell->m_pGraphicData,  pCell->m_GraphicLength, m_pOwner->m_pOrbiter->m_iRotation);
-			m_pOwner->m_pOrbiter->Renderer()->RenderGraphic(pPlutoGraphic, PlutoRectangle(x,  y,  w,  h), pDataGridOwner->m_bDisableAspectLock, point );
-			delete pPlutoGraphic;
+			if (1 == 1) // todo: if background image loading is requested
+ 			{
+				M.Release();
+				m_pOwner->m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, &pCell->m_pGraphic);              
+				M.Relock();
+			}
+			else
+			{
+				if (m_pOwner->m_pOrbiter->m_bIsOSD)
+				{
+					size_t Length; 
+
+					pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer(pPath, Length);
+					pCell->m_GraphicLength = (int)Length;
+				}
+				else
+				{
+					int Length=0;
+
+					DCE::CMD_Request_File_Cat CMD_Request_File_Cat( m_pOwner->m_pOrbiter->m_dwPK_Device, DEVICECATEGORY_General_Info_Plugins_CONST, false,  BL_SameHouse, pPath,
+						&pCell->m_pGraphicData, &Length );
+					m_pOwner->m_pOrbiter->SendCommand( CMD_Request_File_Cat );
+					if (Length > 0)
+					{
+						pCell->m_GraphicLength = Length;
+						pCell->m_GraphicFormat = GR_JPG;
+					}
+				}
+			}
+		} 
+		if ( pCell->m_pGraphicData && !pCell->m_pGraphic )
+		{
+			pCell->m_pGraphic = m_pOwner->m_pOrbiter->Renderer()->CreateGraphic();
+			pCell->m_pGraphic->m_GraphicFormat = pCell->m_GraphicFormat;
+			pCell->m_pGraphic->LoadGraphic(pCell->m_pGraphicData,  pCell->m_GraphicLength, m_pOwner->m_pOrbiter->m_iRotation);
+			// Todo, since we're leaving the graphic in native format from this point foward,
+			// we can probably delete the compressed-format image here.
+		}
+		if (pCell->m_pGraphic)
+		{
+			m_pOwner->m_pOrbiter->Renderer()->RenderGraphic(pCell->m_pGraphic, PlutoRectangle(x,  y,  w,  h), pDataGridOwner->m_bDisableAspectLock, point );
 		}
 		g_pPlutoLogger->Write(LV_WARNING,"Rendering cell with %s",pCell->GetText());        
 
@@ -313,3 +363,361 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 
 	return bTransparentCell;
 }
+
+void DataGridRenderer::Scroll_Grid(string sRelative_Level, int iPK_Direction)
+{
+	DesignObj_DataGrid *pDG = ( DesignObj_DataGrid * )m_pOwner;
+
+	if ( m_pOwner->m_pDataGridTable )
+	{
+		StopCacheThread();
+		m_pOwner->m_pOrbiter->Renderer()->RenderObjectAsync(m_pOwner);
+
+		if(  sRelative_Level=="-1"  )
+		{
+			if(  iPK_Direction == DIRECTION_Up_CONST  )
+				m_pOwner->m_GridCurRow = 0;
+		}
+		else
+		{
+			int CurrentRow = m_pOwner->m_GridCurRow;
+			int CurrentCol = m_pOwner->m_GridCurCol;
+			if(  iPK_Direction == DIRECTION_Up_CONST )
+			{
+				if (!CalculateGridMovement(DIRECTION_Up_CONST, m_pOwner->m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) ))
+				{
+					m_pOwner->m_pOrbiter->CMD_Move_Up();
+					return;
+				}
+				
+				PLUTO_SAFETY_LOCK( dgc, m_DataGridCacheMutex );
+
+				if (pDG->m_iCacheRows > 0) // Are we caching? 
+				{                            // If so the current table needs to be pushed onto the opposing cache list.
+					m_listDataGridCache[DIRECTION_Down_CONST].push_front(pDG->m_pDataGridTable); // The cache acquisition thread will delete the excess cache.
+				}
+				else 
+				{
+					delete m_pOwner->m_pDataGridTable;
+				}	
+				FlushCache(DIRECTION_Left_CONST);
+				FlushCache(DIRECTION_Right_CONST);
+
+				if (m_listDataGridCache[DIRECTION_Up_CONST].size() > 0)
+				{
+					pDG->m_pDataGridTable = m_listDataGridCache[DIRECTION_Up_CONST].front();
+					m_listDataGridCache[DIRECTION_Up_CONST].pop_front();
+				}
+				else
+				{
+					pDG->m_pDataGridTable = NULL;
+					pDG->bReAcquire=true;
+				}
+			}
+			else if(  iPK_Direction == DIRECTION_Down_CONST  )
+			{
+				if (!CalculateGridMovement(DIRECTION_Down_CONST, m_pOwner->m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) ) )
+				{
+					if (m_pOwner->m_pDataGridTable->getTotalRowCount() > 0)
+					{
+						m_pOwner->m_pOrbiter->CMD_Move_Down();
+					}
+					return;
+				}
+				PLUTO_SAFETY_LOCK( dgc, m_DataGridCacheMutex );
+				if (pDG->m_iCacheRows > 0) // Are we caching? 
+				{                            // If so the current table needs to be pushed onto the opposing cache list.
+					m_listDataGridCache[DIRECTION_Up_CONST].push_front(pDG->m_pDataGridTable); // The cache acquisition thread will delete the excess cache.
+				}
+				else 
+				{
+					delete m_pOwner->m_pDataGridTable;
+				}	
+				FlushCache(DIRECTION_Left_CONST);
+				FlushCache(DIRECTION_Right_CONST);
+
+				if (m_listDataGridCache[DIRECTION_Down_CONST].size() > 0)
+				{
+					pDG->m_pDataGridTable = m_listDataGridCache[DIRECTION_Down_CONST].front();
+					m_listDataGridCache[DIRECTION_Down_CONST].pop_front();
+				}
+				else
+				{
+					pDG->m_pDataGridTable = NULL;
+					pDG->bReAcquire=true;
+				}
+			}
+			else if(  iPK_Direction == DIRECTION_Left_CONST  )
+			{
+				if (!CalculateGridMovement(DIRECTION_Left_CONST,  m_pOwner->m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) ))
+				{
+					m_pOwner->m_pOrbiter->CMD_Move_Left();
+					return;
+				}
+				PLUTO_SAFETY_LOCK( dgc, m_DataGridCacheMutex );
+
+				if (pDG->m_iCacheRows > 0) // Are we caching? 
+				{                            // If so the current table needs to be pushed onto the opposing cache list.
+					m_listDataGridCache[DIRECTION_Right_CONST].push_front(pDG->m_pDataGridTable); // The cache acquisition thread will delete the excess cache.
+				}
+				else 
+				{
+					delete m_pOwner->m_pDataGridTable;
+				}	
+				FlushCache(DIRECTION_Left_CONST);
+				FlushCache(DIRECTION_Right_CONST);
+
+				if (m_listDataGridCache[DIRECTION_Left_CONST].size() > 0)
+				{
+					pDG->m_pDataGridTable = m_listDataGridCache[DIRECTION_Left_CONST].front();
+					m_listDataGridCache[DIRECTION_Left_CONST].pop_front();
+				}
+				else
+				{
+					pDG->m_pDataGridTable = NULL;
+					pDG->bReAcquire=true;
+				}
+			}
+			else if(  iPK_Direction == DIRECTION_Right_CONST  )
+			{
+				if (!CalculateGridMovement(DIRECTION_Right_CONST,  m_pOwner->m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) ))
+				{
+					m_pOwner->m_pOrbiter->CMD_Move_Right();
+					return;
+				}
+				PLUTO_SAFETY_LOCK( dgc, m_DataGridCacheMutex );
+
+				if (pDG->m_iCacheRows > 0) // Are we caching? 
+				{                            // If so the current table needs to be pushed onto the opposing cache list.
+					m_listDataGridCache[DIRECTION_Left_CONST].push_front(pDG->m_pDataGridTable); // The cache acquisition thread will delete the excess cache.
+				}
+				else 
+				{
+					delete m_pOwner->m_pDataGridTable;
+				}	
+				FlushCache(DIRECTION_Up_CONST);
+				FlushCache(DIRECTION_Down_CONST);
+
+				if (m_listDataGridCache[DIRECTION_Right_CONST].size() > 0)
+				{
+					pDG->m_pDataGridTable = m_listDataGridCache[DIRECTION_Right_CONST].front();
+					m_listDataGridCache[DIRECTION_Right_CONST].pop_front();
+				}
+				else
+				{
+					pDG->m_pDataGridTable = NULL;
+					pDG->bReAcquire=true;
+				}
+			}
+		}
+	}
+}
+
+bool DataGridRenderer::CalculateGridMovement(int Direction, int &Cur,  int CellsToSkip)
+{
+	PLUTO_SAFETY_LOCK( dg, m_pOwner->m_pOrbiter->m_DatagridMutex );
+
+	int InitialCur = Cur;
+
+	DesignObj_DataGrid *pObj = ( DesignObj_DataGrid * )m_pOwner;
+	switch(Direction)
+	{
+	case DIRECTION_Up_CONST:
+		if ( CellsToSkip == 0 )
+			CellsToSkip = pObj->m_MaxRow - ( pObj->m_pDataGridTable->m_bKeepRowHeader ? 1 : 0 );
+
+		// Are we going to display 'scroll up/down' cells?  If so, we may not be able to scroll up a full page
+		if(  pObj->m_sExtraInfo.find( 'P' )!=string::npos  )
+		{
+			// After doing the scroll, will we still be able to go up?  If so, reduce the cells to skip by 1
+			if( Cur - CellsToSkip > 0)
+				CellsToSkip--;
+			// After doing the scroll, will we still be able to go down?  If so, reduce the cells to skip by 1
+			if( pObj->m_pDataGridTable->GetRows() > (Cur - CellsToSkip) + pObj->m_MaxRow )
+				CellsToSkip--;
+		}
+
+		if ( CellsToSkip < 0 )
+			CellsToSkip = 0;
+
+		Cur -= CellsToSkip;
+		if ( Cur <= 1 )
+			Cur = 0;
+		break;
+	case DIRECTION_Down_CONST:
+		{
+			if ( !pObj->CanGoDown() && CellsToSkip == 0 )
+				return false;
+
+			if ( CellsToSkip == 0 )
+				CellsToSkip = pObj->m_MaxRow - ( pObj->m_pDataGridTable->m_bKeepRowHeader ? 1 : 0 );
+		
+			bool bCanGoDown = pObj->m_dwIDownRow >= 0;
+			bool bCanGoUp = pObj->m_iUpRow >= 0;
+			CellsToSkip -= ( bCanGoDown + bCanGoUp );
+
+			if ( CellsToSkip < 0 )
+				CellsToSkip = 0;
+
+			Cur += CellsToSkip;
+
+			if ( Cur+pObj->m_MaxRow > ( pObj->m_pDataGridTable )->GetRows(  ) )
+			{
+				// Add an extra 1,  becuase if we end  up making the top row an up ( unknown at this point )
+				// We'll be one short
+				Cur = pObj->m_pDataGridTable->GetRows(  ) - pObj->m_MaxRow + 1;
+				if ( Cur<0 )
+					Cur=0;
+			}
+		}
+		break;
+	case DIRECTION_Left_CONST:
+		if ( !pObj->CanGoRight() && CellsToSkip == 0 ) // Todo - This doesn't look right, don't we mean left? -- Rob
+			return false;
+
+		if ( CellsToSkip==0 )
+			CellsToSkip = pObj->m_MaxCol-( pObj->m_pDataGridTable->m_bKeepColumnHeader ? 2 : 1 );
+		if ( CellsToSkip<=0 )
+			CellsToSkip = 1;
+
+		Cur-=CellsToSkip;
+		if ( Cur<0 )
+			Cur=0;
+		break;
+	case DIRECTION_Right_CONST:
+		if ( CellsToSkip==0 )
+			CellsToSkip = pObj->m_MaxCol-( pObj->m_pDataGridTable->m_bKeepColumnHeader ? 2 : 1 );
+		if ( CellsToSkip<=0 )
+			CellsToSkip = 1;
+
+		Cur+=CellsToSkip;
+
+		if ( Cur+pObj->m_MaxCol > ( pObj->m_pDataGridTable )->GetCols(  ) )
+		{
+			Cur = ( pObj->m_pDataGridTable )->GetCols(  ) - pObj->m_MaxCol;
+			if ( Cur<0 )
+				Cur=0;
+		}
+		break;
+	}
+	return (Cur!=InitialCur);
+}
+
+void DataGridRenderer::FlushCache(int Direction)
+{
+	StopCacheThread();
+
+	while(m_listDataGridCache[Direction].size())
+	{
+		delete m_listDataGridCache[Direction].front();
+		m_listDataGridCache[Direction].pop_front();
+	}
+}
+
+void *StartDataGridCacheThread(void *p)
+{
+	DataGridRenderer *dgr = (DataGridRenderer *)p;
+
+	dgr->DataGridCacheThread();
+	return NULL;
+}
+
+void DataGridRenderer::StartCacheThread()
+{
+	StopCacheThread();
+	m_bStopCaching=false;
+	pthread_create(&m_DataGridCacheThread, NULL, StartDataGridCacheThread, (void*)this);
+}
+
+void DataGridRenderer::StopCacheThread()
+{
+	if (m_DataGridCacheThread)
+	{
+		m_bStopCaching = true;
+		pthread_join(m_DataGridCacheThread, NULL);
+	}
+}
+
+void DataGridRenderer::DataGridCacheThread()
+{
+	DesignObj_DataGrid *pDG = ( DesignObj_DataGrid * )m_pOwner;
+
+	int Direction, Step, MaxSteps = max(pDG->m_iCacheRows,pDG->m_iCacheColumns);
+	int DirectionCur[5];
+	for(Direction=1;Direction<=4;Direction++)
+		DirectionCur[Direction]=(Direction <= 2) ? pDG->m_GridCurRow : pDG->m_GridCurCol;
+
+	for(Step=1;Step<=MaxSteps && !m_bStopCaching;Step++)
+	{
+		for(Direction=1;Direction<=4 && !m_bStopCaching;Direction++)
+		{
+			if (DirectionCur[Direction]==-1)
+				continue;
+
+			int MaxCache = (Direction <= 2) ? pDG->m_iCacheRows : pDG->m_iCacheColumns;
+			if (Step > MaxCache)
+			{
+				DirectionCur[Direction] = -1;
+				continue;
+			}
+
+			PLUTO_SAFETY_LOCK( dgc, m_DataGridCacheMutex );
+
+			int CurSize = (int)m_listDataGridCache[Direction].size();
+			
+			if (CurSize > MaxCache)
+			{
+				// There's more cache than the specified amount (probably as a result of moving). Delete the back.
+				delete m_listDataGridCache[Direction].back();
+				m_listDataGridCache[Direction].pop_back();
+			}
+
+			if (CurSize > Step) 
+			{
+				// This step is already cached.
+				continue;
+			}
+
+			// Starting at the origin, we need to "walk" Step number of steps to request the appropriate grid.
+			dgc.Release();
+			if (!CalculateGridMovement( Direction, DirectionCur[Direction],  0 ))
+			{				
+				DirectionCur[Direction] = -1;
+				continue;
+			}
+			dgc.Relock();
+
+			int GridCurRow = (Direction <= 2) ? DirectionCur[Direction] : pDG->m_GridCurRow;
+			int GridCurCol = (Direction <= 2) ? pDG->m_GridCurCol : DirectionCur[Direction];
+			int size = 0;
+			char *data = NULL;
+
+			dgc.Release();
+			DCE::CMD_Request_Datagrid_Contents CMD_Request_Datagrid_Contents( pDG->m_pOrbiter->m_dwPK_Device,  pDG->m_pOrbiter->m_dwPK_Device_DatagridPlugIn,
+			StringUtils::itos( pDG->m_pOrbiter->m_dwIDataGridRequestCounter ), pDG->m_sGridID,
+			pDG->m_MaxRow, pDG->m_MaxCol, pDG->m_bKeepRowHeader, pDG->m_bKeepColHeader, true, pDG->m_sSeek, pDG->m_iSeekColumn, &data, &size, &GridCurRow, &GridCurCol );
+		
+			if(  !pDG->m_pOrbiter->SendCommand( CMD_Request_Datagrid_Contents )  )
+			{
+				g_pPlutoLogger->Write( LV_CRITICAL, "Request datagrid: %s failed", pDG->m_ObjectID.c_str(  ) );
+				DirectionCur[Direction] = -1;
+			}
+			else
+			{
+				if ( size && data )
+				{
+					dgc.Relock();
+
+					m_listDataGridCache[Direction].push_back(new DataGridTable( size,  data ));
+	
+					delete[] data;
+					data = NULL;
+				}
+			}
+			Sleep(0);
+		}
+	}
+	m_DataGridCacheThread = NULL;
+}
+
+

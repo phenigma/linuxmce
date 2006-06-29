@@ -36,10 +36,11 @@ using namespace ProgressBar;
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer::OrbiterRenderer(Orbiter *pOrbiter) : 
 	m_pOrbiter(pOrbiter),
-	m_NeedRedrawVarMutex("need redraw variables")
+	m_NeedRedrawVarMutex("need redraw variables"),
+	m_bgImageReqMutex("background image loading")
 {
 	m_NeedRedrawVarMutex.Init(NULL);
-
+	m_bgImageReqMutex.Init(NULL);
 	ConfigureDefaultTextStyle();
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1211,3 +1212,55 @@ void OrbiterRenderer::ObjectOffScreen( DesignObj_Orbiter *pObj )
 		ObjectOffScreen( ( DesignObj_Orbiter * )*iHao );
 	}
 }
+
+void *ImageLoadThread(void *p)
+{
+	OrbiterRenderer *pRenderer = (OrbiterRenderer *)p;
+
+	bool bContinue, bRedraw;
+	do
+	{
+		PLUTO_SAFETY_LOCK(M, pRenderer->m_bgImageReqMutex);
+		string ImageFilename = pRenderer->m_listbgImageFilename.front();
+		pRenderer->m_listbgImageFilename.pop_front();
+		PlutoGraphic **pGraphic = pRenderer->m_listbgImageGraphic.front();
+		pRenderer->m_listbgImageGraphic.pop_front();
+
+		char *pGraphicData;
+		size_t GraphicLength;
+
+		M.Release();
+		PlutoGraphic *pG = pRenderer->m_pOrbiter->Renderer()->CreateGraphic();
+		pG->LoadGraphicFile(ImageFilename.c_str(), pRenderer->m_pOrbiter->m_iRotation);
+
+		M.Relock();
+		(*pGraphic) = pG;
+		bContinue = (pRenderer->m_listbgImageFilename.size() > 0);
+		bRedraw = ((pRenderer->m_listbgImageFilename.size() % 10) == 0);
+		M.Release();
+		if (bRedraw)
+			pRenderer->m_pOrbiter->CMD_Refresh("");
+	} while(bContinue);
+	return NULL;
+}
+
+void OrbiterRenderer::BackgroundImageLoad(const char *Filename, PlutoGraphic **pGraphic)
+{
+	bool bNeedToStartThread;
+	PLUTO_SAFETY_LOCK(M, m_bgImageReqMutex);
+
+	bNeedToStartThread = (m_listbgImageFilename.size() == 0);
+	m_listbgImageFilename.push_back(string(Filename));
+	m_listbgImageGraphic.push_back(pGraphic);
+
+	M.Release();
+	if (bNeedToStartThread)
+	{
+		pthread_t pthread_id; 
+
+		if(pthread_create( &pthread_id, NULL, ImageLoadThread, (void*) this) )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start image loading thread");
+	}
+}
+
+

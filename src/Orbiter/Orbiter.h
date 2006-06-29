@@ -117,6 +117,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		friend class OSDScreenHandler;
 		friend class OrbiterRenderer;
 		friend class DesignObj_Orbiter;
+		friend class DataGridRenderer;
 		friend class ObjectRenderer;
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
@@ -1771,25 +1772,6 @@ light, climate, media, security, telecom */
 		* @brief calculates the new current row after the specified number of cells have been skiped (upwards)
 		* @todo ask
 		*/
-		void CalculateGridUp( DesignObj_DataGrid *pObj, int &iCurRow, int iCellsToSkip );
-
-		/**
-		* @brief calculates the new current row after the specified number of cells have been skiped (down)
-		* @todo ask
-		*/
-		void CalculateGridDown( DesignObj_DataGrid *pObj, int &iCurRow, int iCellsToSkip );
-
-		/**
-		* @brief calculates the new current column after the specified number of cells have been skiped (left)
-		* @todo ask
-		*/
-		void CalculateGridLeft( DesignObj_DataGrid *pObj, int &iCurCol, int iCellsToSkip );
-
-		/**
-		* @brief calculates the new current column after the specified number of cells have been skiped (right)
-		* @todo ask
-		*/
-		void CalculateGridRight( DesignObj_DataGrid *pObj, int &iCurCol, int iCellsToSkip );
 	};
 
 	extern int g_iDontRender; /** < @todo ask */

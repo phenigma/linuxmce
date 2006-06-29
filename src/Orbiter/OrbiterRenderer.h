@@ -22,7 +22,6 @@ class OrbiterRenderer
 private:
 
 	friend class OrbiterRendererFactory;
-	Orbiter *m_pOrbiter;
 
 	/**
 	* @brief stores objects that need to be redrawned
@@ -43,6 +42,11 @@ protected:
 	pluto_pthread_mutex_t m_NeedRedrawVarMutex; //this will protect needredraw vectors
 
 public:
+	Orbiter *m_pOrbiter;
+
+	pluto_pthread_mutex_t m_bgImageReqMutex;
+	list<PlutoGraphic **> m_listbgImageGraphic;
+	list<string> m_listbgImageFilename;
 
 	virtual ~OrbiterRenderer();
 
@@ -205,6 +209,8 @@ public:
 	* @param pObj the object to remove from screen
 	*/
 	virtual void ObjectOffScreen( DesignObj_Orbiter *pObj );
+	
+	void BackgroundImageLoad(const char *Filename, PlutoGraphic **pGraphic);
 };
 
 #endif //__ORBITER_RENDERER_H__

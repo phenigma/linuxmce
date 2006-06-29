@@ -8,20 +8,19 @@ using namespace DCE;
 //-------------------------------------------------------------------------------------------------------
 DesignObj_DataGrid::DesignObj_DataGrid(Orbiter *pOrbiter) : DesignObj_Orbiter(pOrbiter)
 {
-	for(int i=0;i<CACHE_SIZE;++i)
-		m_pDataGridTableCache[i]=NULL;
-
 	m_pObjLeft=m_pObjRight=m_pObjUp=m_pObjDown=NULL;
 	bReAcquire=false;
 	m_dwIDownRow=m_iUpRow=-1;
 	m_iPopulatedWidth=m_iPopulatedHeight=0;
 	m_bParsed=false;
+	// TODO: These should come from the database
+	m_iCacheColumns = 10;
+	m_iCacheRows = 10;
+
 }
 //-------------------------------------------------------------------------------------------------------
 DesignObj_DataGrid::~DesignObj_DataGrid() 
 {
-	for(int i=0;i<CACHE_SIZE;++i)
-		delete m_pDataGridTableCache[i];		
 }
 //-------------------------------------------------------------------------------------------------------
 bool DesignObj_DataGrid::CanGoUp()			

@@ -25,6 +25,9 @@ namespace DCE
 	{
 		friend class ScreenHandler;
 		int m_RelativeVirtualY;
+		bool m_bCapturingOffscreenMovement;
+		int m_saveX, m_saveY;
+		PlutoPoint m_Rel;
 
 		DesignObj_DataGrid *m_pObj_ListGrid,*m_pObj_PicGrid;
 		DesignObj_Orbiter *m_pObj_CoverArtPopup;
@@ -39,6 +42,7 @@ namespace DCE
 		bool ButtonDown(int PK_Button);
 		bool ButtonUp(int PK_Button);
 		void RelativeMove(int DeltaX, int DeltaY);
+		void ReleaseRelative();
 		void Move(int X,int Y,int PK_Direction);
 		void ShowCoverArtPopup();
 	};

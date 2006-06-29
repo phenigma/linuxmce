@@ -21,6 +21,8 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 {
 	m_pObj_ListGrid=m_pObj_PicGrid=NULL;
 	m_pObj_CoverArtPopup=NULL;
+	m_bCapturingOffscreenMovement=FALSE;
+
 	if( !m_pObj )
 		return; // Shouldn't happen
 
@@ -88,14 +90,15 @@ void MediaBrowserMouseHandler::RelativeMove(int DeltaX, int DeltaY)
 	::OutputDebugString(s.c_str());
 #endif
 
-	if (m_RelativeVirtualY <= 0) // We're at the top of the screen.
+	if (m_RelativeVirtualY <= 1) // We're at the top of the screen.
 	{
 		m_RelativeVirtualY+=DeltaY;
 		if (DeltaY > 0)
 		{
-			if (DeltaY >=5 || m_RelativeVirtualY > 0)
+			if (DeltaY >=5 || m_RelativeVirtualY > 2)
 			{
-				m_pMouseBehavior->ReleaseRelativeMovements();
+				m_saveY+=5;
+				ReleaseRelative();
 				return;
 			} 
 			else
@@ -105,7 +108,8 @@ void MediaBrowserMouseHandler::RelativeMove(int DeltaX, int DeltaY)
 		}
 		while (m_RelativeVirtualY < -100)
 		{
-			m_pMouseBehavior->m_pOrbiter->CMD_Scroll_Grid("", "", 	DIRECTION_Up_CONST);		// todo : scroll grid
+			m_pMouseBehavior->m_pOrbiter->CMD_Scroll_Grid("", "", 	DIRECTION_Up_CONST);	
+			m_pMouseBehavior->m_pOrbiter->CMD_Refresh("");
 			m_RelativeVirtualY += 100;
 		}
 	}
@@ -115,8 +119,9 @@ void MediaBrowserMouseHandler::RelativeMove(int DeltaX, int DeltaY)
 		if (DeltaY < 0)
 		{
 			if (DeltaY < -5 || m_RelativeVirtualY < m_pMouseBehavior->m_pOrbiter->m_Height)
-			{
-				m_pMouseBehavior->ReleaseRelativeMovements();
+			{			
+				m_saveY-=5;
+				ReleaseRelative();
 				return;
 			}
 			else
@@ -127,20 +132,53 @@ void MediaBrowserMouseHandler::RelativeMove(int DeltaX, int DeltaY)
 		while (m_RelativeVirtualY > m_pMouseBehavior->m_pOrbiter->m_Height + 100)
 		{
 			m_pMouseBehavior->m_pOrbiter->CMD_Scroll_Grid("", "", 	DIRECTION_Down_CONST);		
+			m_pMouseBehavior->m_pOrbiter->CMD_Refresh("");
 			m_RelativeVirtualY -= 100;
 		}
 		return;
 	}
 }
 
+
+void MediaBrowserMouseHandler::ReleaseRelative()
+{
+	m_bCapturingOffscreenMovement=false;
+	m_pMouseBehavior->ShowMouse(true);
+	m_pMouseBehavior->SetMousePosition(m_saveX, m_saveY);
+
+}
+
 void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 {
-	// add function .. is user at bottom.  If so... call function in mousebehavior capture relative movement
-	// 
+	if (m_bCapturingOffscreenMovement)
+	{
+		m_pMouseBehavior->GetMousePosition(&m_Rel);
+		// Todo: X and Y are in relative coordinates, where we have
+		// moved to an absolute.  This would be cleaner if
+		// SetMousePosition moved to the relative coords.
+		if (m_Rel.Y-100 != 0)
+		{
+			RelativeMove(m_Rel.X-300, m_Rel.Y-300);
+			if (m_bCapturingOffscreenMovement)
+	            m_pMouseBehavior->SetMousePosition(300,300);
+		}
+		return;
+	}
 	if (Y <= 1 || Y >= m_pMouseBehavior->m_pOrbiter->m_Height-2)
 	{
+		m_pMouseBehavior->GetMousePosition(&m_Rel);
+
+		m_saveX = m_Rel.X;
+		m_saveY = m_Rel.Y;
 		m_RelativeVirtualY = Y;
-		m_pMouseBehavior->CaptureRelativeMovements();
+		m_bCapturingOffscreenMovement=true;
+		// Todo: SetMousePosition is not relative to the window.
+		// If 100,100 is outside the orbiter, we won't receive the movement
+		// information.
+		m_pMouseBehavior->SetMousePosition(300,300);
+		m_pMouseBehavior->ShowMouse(false);
+		return;
+
 	}
 
 	if( m_pMouseBehavior->m_bMouseConstrained )  // There's a popup grabbing the mouse
@@ -199,11 +237,13 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 	if( m_pObj_PicGrid->m_pDataGridTable )
 		pCell = m_pObj_PicGrid->m_pDataGridTable->GetData(m_pObj_PicGrid->m_iHighlightedColumn,m_pObj_PicGrid->m_iHighlightedRow);
 
-	if( pCell && pCell->m_pGraphicData )
+	PLUTO_SAFETY_LOCK(M, m_pMouseBehavior->m_pOrbiter->Renderer()->m_bgImageReqMutex );
+
+	if( pCell && pCell->m_pGraphic && pCell->m_pGraphic->m_pGraphicData)
 	{
-		char *pDup = new char[pCell->m_GraphicLength];
-		memcpy(pDup,pCell->m_pGraphicData,pCell->m_GraphicLength);
-		m_pMouseBehavior->m_pOrbiter->CMD_Update_Object_Image(m_pObj_CoverArtPopup->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",pDup,pCell->m_GraphicLength,"0");
+		char *pDup = new char[pCell->m_pGraphic->m_GraphicLength];
+		memcpy(pDup,pCell->m_pGraphic->m_pGraphicData,pCell->m_pGraphic->m_GraphicLength);
+		m_pMouseBehavior->m_pOrbiter->CMD_Update_Object_Image(m_pObj_CoverArtPopup->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",pDup,pCell->m_pGraphic->m_GraphicLength,"0");
 		m_pMouseBehavior->m_pOrbiter->CMD_Show_Popup(m_pObj_CoverArtPopup->m_ObjectID,X,Y,"","coverart",false,false);
 	}
 	else

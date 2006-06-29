@@ -69,7 +69,10 @@ void ExtensionManager::Resize(int Width, int Height)
 	// Change Matrix Mode to Projection
 	glMatrixMode(GL_PROJECTION);
 	// Do the perspective calculations. Last value = max clipping depth
+#ifndef WIN32
+	// TODO: This is an unresolved external symbol under Windows on my box --Rob
 	gluPerspective(90.0, (float)Width/Height, 0.001, 5000);
+#endif
 	// Return to the modelview matrix
 	glMatrixMode(GL_MODELVIEW);
 	// Reset View

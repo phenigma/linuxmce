@@ -40,6 +40,7 @@ using namespace DCE;
 #include "PlutoUtils/ProcessUtils.h"
 #include "DesignObj_Orbiter.h"
 #include "DataGrid.h"
+#include "DataGridRenderer.h"
 #include "SerializeClass/ShapesColors.h"
 
 #include "pluto_main/Define_Variable.h"
@@ -4045,6 +4046,7 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int &GridCurCol,  int &Gri
 					pObj->m_iHighlightedColumn=-1;
 				}
 				pObj->m_sSeek="";  // Only do the seek 1 time
+				((DataGridRenderer *)pObj->Renderer())->StartCacheThread();		
 				return pDataGridTable!=NULL;
 			}
 			else
@@ -4723,86 +4725,12 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 		{
 			pObj_Datagrid = m_vectObjs_GridsOnScreen[LoopNum++];
 		}
-
-		if ( pObj_Datagrid && pObj_Datagrid->m_pDataGridTable )
+		if (pObj_Datagrid)
 		{
-			m_pOrbiterRenderer->RenderObjectAsync(pObj_Datagrid);
-
-			if(  sRelative_Level=="-1"  )
-			{
-				if(  iPK_Direction == DIRECTION_Up_CONST  )
-					pObj_Datagrid->m_GridCurRow = 0;
-			}
-			else
-			{
-				int CurrentRow = pObj_Datagrid->m_GridCurRow;
-				int CurrentCol = pObj_Datagrid->m_GridCurCol;
-				if(  iPK_Direction == DIRECTION_Up_CONST )
-				{
-					if( pObj_Datagrid->m_GridCurRow>0 ) // Don't bother calculating if we're already at the top, we're just going to move up anyway
-						CalculateGridUp( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) );
-					if( CurrentRow==pObj_Datagrid->m_GridCurRow )  // See if we can't page anymore, if so, just move 1 cell at a time so we'll be sure to hit the outer cell
-					{
-						CMD_Move_Up();
-						return;
-					}
-					( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Up_CONST]=NULL;
-					delete pObj_Datagrid->m_pDataGridTable;
-#ifdef DEBUG
-					g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable set to up cache",pObj_Datagrid->m_ObjectID.c_str());
-#endif
-					pObj_Datagrid->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Up_CONST];
-					pObj_Datagrid->bReAcquire=true;
-				}
-				else if(  iPK_Direction == DIRECTION_Down_CONST  )
-				{
-					CalculateGridDown( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) );
-					if( CurrentRow==pObj_Datagrid->m_GridCurRow )  // See if we can't page anymore, if so, just move 1 cell at a time so we'll be sure to hit the outer cell
-					{
-						CMD_Move_Down();
-						return;
-					}
-					( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Down_CONST]=NULL;
-					delete pObj_Datagrid->m_pDataGridTable;
-#ifdef DEBUG
-					g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable set to down cache",pObj_Datagrid->m_ObjectID.c_str());
-#endif
-					pObj_Datagrid->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Down_CONST];
-					pObj_Datagrid->bReAcquire=true;
-				}
-				else if(  iPK_Direction == DIRECTION_Left_CONST  )
-				{
-					CalculateGridLeft( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) );
-					if( CurrentCol==pObj_Datagrid->m_GridCurCol )  // See if we can't page anymore, if so, just move 1 cell at a time so we'll be sure to hit the outer cell
-					{
-						CMD_Move_Left();
-						return;
-					}
-					( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Left_CONST]=NULL;
-					delete pObj_Datagrid->m_pDataGridTable;
-#ifdef DEBUG
-					g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable set to left cache",pObj_Datagrid->m_ObjectID.c_str());
-#endif
-					pObj_Datagrid->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Left_CONST];
-					pObj_Datagrid->bReAcquire=true;
-				}
-				else if(  iPK_Direction == DIRECTION_Right_CONST  )
-				{
-					CalculateGridRight( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) );
-					if( CurrentCol==pObj_Datagrid->m_GridCurCol )  // See if we can't page anymore, if so, just move 1 cell at a time so we'll be sure to hit the outer cell
-					{
-						CMD_Move_Right();
-						return;
-					}
-					( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Right_CONST]=NULL;
-					delete pObj_Datagrid->m_pDataGridTable;
-#ifdef DEBUG
-					g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable set to right cache",pObj_Datagrid->m_ObjectID.c_str());
-#endif
-					pObj_Datagrid->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Right_CONST];
-					pObj_Datagrid->bReAcquire=true;
-				}
-			}
+			DataGridRenderer *pDGRenderer = (DataGridRenderer *)pObj_Datagrid->Renderer();
+			dng.Release();
+            pDGRenderer->Scroll_Grid(sRelative_Level, iPK_Direction);
+			dng.Relock();
 		}
 		if(  LoopNum==-1  )
 			break;
@@ -5384,95 +5312,6 @@ bool Orbiter::IsYieldInput() const
 
 // Radu -- implemented scrolling into Orbiter -- Up/Down for now
 //------------------------------------------------------------------------------------------------------------
-void Orbiter::CalculateGridUp( DesignObj_DataGrid *pObj,  int &CurRow,  int CellsToSkip )
-{
-	PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
-
-	if ( CellsToSkip == 0 )
-		CellsToSkip = pObj->m_MaxRow - ( pObj->m_pDataGridTable->m_bKeepRowHeader ? 1 : 0 );
-
-	// Are we going to display 'scroll up/down' cells?  If so, we may not be able to scroll up a full page
-	if(  pObj->m_sExtraInfo.find( 'P' )!=string::npos  )
-	{
-		// After doing the scroll, will we still be able to go up?  If so, reduce the cells to skip by 1
-		if( CurRow - CellsToSkip > 0)
-			CellsToSkip--;
-		// After doing the scroll, will we still be able to go down?  If so, reduce the cells to skip by 1
-		if( pObj->m_pDataGridTable->GetRows() > (CurRow - CellsToSkip) + pObj->m_MaxRow )
-			CellsToSkip--;
-	}
-
-	if ( CellsToSkip < 0 )
-		CellsToSkip = 0;
-
-	CurRow -= CellsToSkip;
-	if ( CurRow <= 1 )
-		CurRow = 0;
-}
-//------------------------------------------------------------------------------------------------------------
-void Orbiter::CalculateGridDown( DesignObj_DataGrid *pObj,  int &CurRow,  int CellsToSkip )
-{
-	PLUTO_SAFETY_LOCK( dg,  m_DatagridMutex );
-
-	if ( !pObj->CanGoDown() && CellsToSkip == 0 )
-		return;
-
-	if ( CellsToSkip == 0 )
-		CellsToSkip = pObj->m_MaxRow - ( pObj->m_pDataGridTable->m_bKeepRowHeader ? 1 : 0 );
-
-	bool bCanGoDown = pObj->m_dwIDownRow >= 0;
-	bool bCanGoUp = pObj->m_iUpRow >= 0;
-	CellsToSkip -= ( bCanGoDown + bCanGoUp );
-
-	if ( CellsToSkip < 0 )
-		CellsToSkip = 0;
-
-	CurRow += CellsToSkip;
-
-	if ( CurRow+pObj->m_MaxRow > ( pObj->m_pDataGridTable )->GetRows(  ) )
-	{
-		// Add an extra 1,  becuase if we end  up making the top row an up ( unknown at this point )
-		// We'll be one short
-		CurRow = pObj->m_pDataGridTable->GetRows(  ) - pObj->m_MaxRow + 1;
-		if ( CurRow<0 )
-			CurRow=0;
-	}
-}
-//------------------------------------------------------------------------------------------------------------
-void Orbiter::CalculateGridLeft( DesignObj_DataGrid *pObj,  int &CurCol,  int CellsToSkip )
-{
-	PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
-
-	if ( !pObj->CanGoRight() && CellsToSkip == 0 )
-		return;
-
-	if ( CellsToSkip==0 )
-		CellsToSkip = pObj->m_MaxCol-( pObj->m_pDataGridTable->m_bKeepColumnHeader ? 2 : 1 );
-	if ( CellsToSkip<=0 )
-		CellsToSkip = 1;
-
-	CurCol-=CellsToSkip;
-	if ( CurCol<0 )
-		CurCol=0;
-}
-//------------------------------------------------------------------------------------------------------------
-void Orbiter::CalculateGridRight( DesignObj_DataGrid *pObj,  int &CurCol,  int CellsToSkip )
-{
-	PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
-	if ( CellsToSkip==0 )
-		CellsToSkip = pObj->m_MaxCol-( pObj->m_pDataGridTable->m_bKeepColumnHeader ? 2 : 1 );
-	if ( CellsToSkip<=0 )
-		CellsToSkip = 1;
-
-	CurCol+=CellsToSkip;
-
-	if ( CurCol+pObj->m_MaxCol > ( pObj->m_pDataGridTable )->GetCols(  ) )
-	{
-		CurCol = ( pObj->m_pDataGridTable )->GetCols(  ) - pObj->m_MaxCol;
-		if ( CurCol<0 )
-			CurCol=0;
-	}
-}
 //------------------------------------------------------------------------------------------------------------
 DesignObjText *Orbiter::FindText( DesignObj_Orbiter *pObj,  int iPK_Text )
 {

@@ -81,6 +81,7 @@ public:
 
 	virtual void RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
 	virtual void RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point = PlutoPoint(0, 0));
+	ObjectRenderer *Renderer() { return m_pObjectRenderer; };
 
 	string GetArrayValue(); // If this is an item in an array, it will return the id of the array
 	// Runtime states
@@ -132,7 +133,6 @@ public:
 //-------------------------------------------------------------------------------------------------------
 typedef list<CHAEffect *> CHAEffectList;
 
-#define CACHE_SIZE 5 // The maximum number of directions
 //-------------------------------------------------------------------------------------------------------
 // Eventually it might be good to be able to ask the server to cache a fairly signficant amount of the grid
 class ProntoCCF;

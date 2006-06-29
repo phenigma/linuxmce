@@ -6,6 +6,10 @@
 //-------------------------------------------------------------------------------------------------------
 void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type, 
 						 string Filename, eGraphicManagement GraphicManagement, class OrbiterRenderer *pOrbiterRenderer);
+
+void CreatePlutoGraphic(PlutoGraphic& PlutoGraphic, GraphicType Type, 
+						 string Filename, eGraphicManagement GraphicManagement, class OrbiterRenderer *pOrbiterRenderer);
+
 //-------------------------------------------------------------------------------------------------------
 #endif //__GRAPHIC_BUILDER_H__
 

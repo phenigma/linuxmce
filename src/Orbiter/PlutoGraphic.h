@@ -53,18 +53,22 @@ public:
 	virtual GraphicType GraphicType_get()=0;  // Must be implemented
 	virtual bool IsEmpty()=0; //Must be implemented
 	virtual bool LoadGraphic(char *pData, size_t iSize,int iRotation=0) = 0; //Must be implemented
+	virtual bool LoadGraphicFile(const char *ImageFilename, int iRotation=0);
 	virtual void Clear() = 0; //Must be implemented
 	virtual PlutoGraphic *GetHighlightedVersion() { return NULL; } // Return the same object in a highlighted state
 	virtual bool GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize) = 0;
-
+	
 	enum eGraphicManagement m_GraphicManagement;
 	enum eGraphicFormat m_GraphicFormat;
+
+	char *m_pGraphicData;
+	size_t m_GraphicLength;
 
 	int Width, Height;
 	string m_Filename;
 };
 //-------------------------------------------------------------------------------------------------------
-typedef list<PlutoGraphic*> PlutoGraphicList;
+typedef list<PlutoGraphic*> PlutoGraphicList, AsyncLoadList;
 typedef vector<PlutoGraphic *> VectorPlutoGraphic;
 //-------------------------------------------------------------------------------------------------------
 #endif
