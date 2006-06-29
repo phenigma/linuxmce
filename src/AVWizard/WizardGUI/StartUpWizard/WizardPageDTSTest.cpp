@@ -2,6 +2,8 @@
 
 #include "GUIWizardUtils.h"
 
+#include <iostream>
+
 WizardPageDTSTest::WizardPageDTSTest(SDLFrontEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)
 {

@@ -4,6 +4,7 @@
 #include "GUIWizardUtils.h"
 
 #include "Wizard.h"
+#include <iostream>
 
 WizardPageFinalSelections::WizardPageFinalSelections(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)

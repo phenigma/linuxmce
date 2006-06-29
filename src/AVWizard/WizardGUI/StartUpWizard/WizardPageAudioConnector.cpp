@@ -5,6 +5,8 @@
 
 #include "SkinGenerator.h"
 
+#include <iostream>
+
 WizardPageAudioConnector::WizardPageAudioConnector(SDLFrontEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)
 {

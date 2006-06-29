@@ -1,6 +1,7 @@
 #include "WizardPageDolbyTest.h"
 
 #include "GUIWizardUtils.h"
+#include <iostream>
 
 WizardPageDolbyTest::WizardPageDolbyTest(SDLFrontEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)

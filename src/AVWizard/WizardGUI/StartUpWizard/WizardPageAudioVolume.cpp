@@ -3,6 +3,7 @@
 #include "GUIWizardUtils.h"
 
 #include <stdlib.h>
+#include <iostream>
 
 WizardPageAudioVolume::WizardPageAudioVolume(SDLFrontEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)

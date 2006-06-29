@@ -12,6 +12,8 @@
 #include "WizardPageWelcome.h"
 #include "Wizard.h"
 
+#include <iostream>
+
 WizardPageWelcome::WizardPageWelcome(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
