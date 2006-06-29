@@ -323,6 +323,7 @@ bool ProcessUtils::GetCommandOutput(const char * path, char * args[], string & s
 			// treat stderr too someplace?
 			close(output[0]);
 			dup2(output[1], 1);
+			close(output[1]);
 			execv(path, args);
 			_exit(254);
 			/* Rationale for _exit instead of exit:
