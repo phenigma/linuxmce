@@ -26,7 +26,9 @@ XinePlayer::XinePlayer()
 	  event_queue(NULL),
 	  tid(0)
 {
+#ifdef DEBUG
 	std::cout<<"Starting player!"<<std::endl;
+#endif
 	NeedToReplay = false;
 	this->Running = false;
 	pthread_mutex_init(&lockmutex, NULL);
@@ -45,6 +47,10 @@ XinePlayer::~XinePlayer()
 
 void XinePlayer::InitPlayerEngine(std::string ConfigName, std::string FileName)
 {
+#ifdef DEBUG
+	std::cout<<"InitPlayerEngine() with Xine config: "<<ConfigName<<" and filename " <<FileName<<std::endl;
+#endif
+
 	std::string ConfigFile;
 
 	pthread_mutex_lock(&lockmutex);
@@ -72,6 +78,9 @@ void XinePlayer::StopPlayerEngine()
 		return;
 
 	pthread_mutex_lock(&lockmutex);
+#ifdef DEBUG
+	std::cout<<"StopPlayerEngine()"<<std::endl;
+#endif
 
 	xine_close(stream);
 	xine_event_dispose_queue(event_queue);
@@ -88,6 +97,11 @@ void XinePlayer::StopPlayerEngine()
 bool XinePlayer::StartPlayingFile()
 {
 	pthread_mutex_lock(&lockmutex);
+
+#ifdef DEBUG
+	std::cout<<"StartPlayingFile()"<<std::endl;
+#endif
+
 	ao_port     = xine_open_audio_driver(xine , "auto", NULL);
 	stream      = xine_stream_new(xine, ao_port, NULL);
 	event_queue = xine_event_new_queue(stream);
@@ -110,6 +124,10 @@ bool XinePlayer::StartPlayingFile()
 
 void XinePlayer::Replay()
 {
+#ifdef DEBUG
+	std::cout<<"Replay()"<<std::endl;
+#endif
+
 	this->NeedToReplay = true;
 }
 
@@ -124,6 +142,9 @@ void XineEventFunction(void *XinePlayerPtr, const xine_event_t *XineEvent)
 
 	switch(XineEvent->type) { 
 	case XINE_EVENT_UI_PLAYBACK_FINISHED:
+#ifdef DEBUG
+	std::cout<<"Playback finished()"<<std::endl;
+#endif
 		Player->Replay();
 		break;
 	}
