@@ -71,7 +71,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 #ifdef WINCE
 	bFullScreen = true; //full-screen by default
-	sLogger = g_sBinaryPath + "Orbiter.log";
+	sLogger = "null";//g_sBinaryPath + "Orbiter.log";
 #endif
 
 	//parse command line
