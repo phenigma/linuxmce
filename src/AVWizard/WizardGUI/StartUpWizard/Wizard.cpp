@@ -61,7 +61,7 @@ Wizard::Wizard()
 	signal(SIGPIPE, signal_handler);
 #endif
 
-	system("/usr/bin/X11/xset -display :0 -dpms s off");
+	system("/usr/bin/X11/xset -display :1 -dpms s off");
 	system("/usr/bin/X11/xset r off");
 }
 
