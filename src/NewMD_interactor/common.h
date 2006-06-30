@@ -3,10 +3,13 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <sys/reboot.h>
 #include <string.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 #define INTERACTOR_PORT 7238
 

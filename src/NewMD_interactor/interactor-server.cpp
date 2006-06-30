@@ -8,13 +8,15 @@
 #include <string>
 using namespace std;
 
+char sDT_Generic_PC_as_MD[] = "28";
+
 int main()
 {
 	int s, s2;
 	struct sockaddr_in saddr;
 	int do_quit = 0;
 	char buffer[1024], cmd[1024];
-	char remoteIP[1024], remoteMAC[1024], remoteRoom[1024];
+	char remoteIP[1024], remoteMAC[1024];
 	int bytes, tmp;
 
 	saddr.sin_family = AF_INET;
@@ -70,16 +72,13 @@ int main()
 			{
 				memset(remoteIP, 0, 1024);
 				memset(remoteMAC, 0, 1024);
-				memset(remoteRoom, 0, 1024);
 
-				int PK_Room;
-				char sPK_Room[1024];
-				sscanf(buffer, "%*s %s %s %d %100c", remoteIP, remoteMAC, &PK_Room, remoteRoom);
-				chomp(remoteRoom);
-				snprintf(cmd, 1024, "/usr/pluto/bin/New_PnP_MD.sh %s %s %d %s", remoteIP, remoteMAC, PK_Room, remoteRoom);
-				snprintf(sPK_Room, 1024, "%d", PK_Room);
+				sscanf(buffer, "%*s %s %s", remoteIP, remoteMAC);
 
-				char * args[] = { "/usr/pluto/bin/New_PnP_MD.sh", remoteIP, remoteMAC, sPK_Room, remoteRoom, NULL };
+				char * args[] = { "/usr/pluto/bin/MessageSend", "localhost", "0", "-1000", "2", "65",
+					"28", remoteIP, "5", remoteMAC, "52", "3", "53", "5", "49", sDT_Generic_PC_as_MD,
+					"55", "9|1",
+					NULL };
 				GetCommandOutput(args[0], args, NULL);
 			}
 			else if (strcmp(cmd, "rooms") == 0)

@@ -9,130 +9,13 @@
 #define COLOR "[1;33m"
 #define NORMAL "[0m"
 
+#if 0
 #define MSG "Please wait while MD filesystem is created. System will reboot when done"
 #define FIL "************************************************************************"
-
-struct Room_t
-{
-	int PK_Room;
-	char Description[1024]; // ugly
-};
-
-struct PlutoRooms_t
-{
-	int count;
-	struct Room_t * Rooms;
-};
-
-void str_chr_replace(char * str, char oldch, char newch)
-{
-	int i = 0;
-
-	for (i = 0; str[i] != 0; i++)
-	{
-		if (str[i] == oldch)
-			str[i] = newch;
-	}
-}
-
-void PopulatePlutoRooms(struct PlutoRooms_t * PlutoRooms, char * stream)
-{
-	char * next_spc;
-	int room_idx = 0;
-
-	sscanf(stream, "%d", &PlutoRooms->count);
-	PlutoRooms->Rooms = NULL;
-	if (PlutoRooms->count <= 0)
-		return;
-
-	PlutoRooms->Rooms = (struct Room_t *) calloc(PlutoRooms->count, sizeof(struct Room_t));
-
-	next_spc = strchr(stream, ' ');
-	while (next_spc)
-	{
-		stream = next_spc + 1;
-		next_spc = strchr(stream, ' ');
-
-		// \x01 -> field separator; \x02 -> convert to space
-		char * field_separator = strchr(stream, '\x01');
-		* field_separator = ' ';
-		sscanf(stream, "%d", &PlutoRooms->Rooms[room_idx].PK_Room);
-		field_separator++;
-		if (* field_separator != ' ')
-			sscanf(field_separator, "%s", PlutoRooms->Rooms[room_idx].Description);
-		else
-			* PlutoRooms->Rooms[room_idx].Description = 0;
-		str_chr_replace(PlutoRooms->Rooms[room_idx].Description, '\x02', ' ');
-		room_idx++;
-	}
-}
-
-char * GetRoomName()
-{
-	int done = 0;
-	static char buffer[1024];
-
-	while (!done)
-	{
-		printf("Room name: ");
-		fflush(stdout);
-
-		fgets(buffer, 1024, stdin);
-		chomp(buffer);
-		if (strlen(buffer) != 0)
-			done = 1;
-	}
-
-	return buffer;
-}
-
-void ChooseRoom(struct PlutoRooms_t * PlutoRooms, char ** RoomName, int * PK_Room)
-{
-	int i;
-	int done = 0;
-	int choice;
-
-	while (! done)
-	{
-		if (PlutoRooms->count > 0)
-		{
-			printf("\n--> Choose a room:\n");
-			for (i = 0; i < PlutoRooms->count; i++)
-			{
-				printf("%d. %s\n", i + 1, PlutoRooms->Rooms[i].Description);
-			}
-
-			printf("%s\n", "0. NEW ROOM");
-
-			printf("Choice: ");
-			fflush(stdout);
-			if (scanf("%d", &choice) <= 0)
-			{
-				scanf("%*s"); // read the garbage that the user fed us, into /dev/null
-				continue;
-			}
-			fgetc(stdin); // hack: there's a \n in the buffer
-		}
-		else
-		{
-			choice = 0; // no rooms found, default to "new room"
-		}
-
-		// validate choice
-		if (choice == 0)
-		{
-			* RoomName = strdup(GetRoomName());
-			* PK_Room = 0;
-			done = 1;
-		}
-		else if (choice > 0 && choice <= PlutoRooms->count)
-		{
-			* RoomName = strdup(PlutoRooms->Rooms[choice - 1].Description);
-			* PK_Room = PlutoRooms->Rooms[choice - 1].PK_Room;
-			done = 1;
-		}
-	}
-}
+#else
+#define MSG "We announced ourselves to the router. Use a Orbiter to continue"
+#define FIL "***************************************************************"
+#endif
 
 void DisplayPleaseWait()
 {
@@ -150,7 +33,6 @@ int main(int argc, char * argv[])
 	char buffer[1024], cmd[1024];
 	int bytes, tmp;
 	const char * Gateway, * myIP, * myMAC;
-	char * myRoom;
 
 	if (argc != 4)
 	{
@@ -213,20 +95,7 @@ int main(int argc, char * argv[])
 		return 1;
 	}
 
-	// Ask for enumeration of rooms
-	// <count> <PK_Room>\x01<Description> [<PK_Room>\x01<Description] [...]
-	bytes = snprintf(buffer, 1024, "rooms\n");
-	write(s, buffer, bytes < 1024 ? bytes : 1024);
-	bytes = read(s, buffer, 1023);
-	buffer[bytes] = 0;
-	
-	struct PlutoRooms_t PlutoRooms;
-	PopulatePlutoRooms(&PlutoRooms, buffer);
-
-	int PK_Room;
-	ChooseRoom(&PlutoRooms, &myRoom, &PK_Room);
-
-	bytes = snprintf(buffer, 1024, "newmd %s %s %d %s\n", myIP, myMAC, PK_Room, myRoom);
+	bytes = snprintf(buffer, 1024, "newmd %s %s\n", myIP, myMAC);
 	write(s, buffer, bytes < 1024 ? bytes : 1024);
 	
 	close(s);

@@ -1,6 +1,6 @@
 PROGRAMS=interactor interactor-server
 
-CPPFLAGS=-g -ggdb3
+CPPFLAGS=-g -ggdb3 -W -Wall
 CXX=g++-3.3
 CC=gcc-3.3
 
