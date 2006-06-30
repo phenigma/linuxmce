@@ -359,6 +359,58 @@ bool ProcessUtils::GetCommandOutput(const char * path, char * args[], string & s
 #endif
 }
 
+// SpawnPaenguin
+bool ProcessUtils::SpawnDaemon(const char * path, char * args[])
+{
+	int pid;
+
+	switch (pid = fork())
+	{
+		case 0: /* child */
+			// separate us from the original parent
+			switch (pid = fork())
+			{
+				case 0: /* daemon */
+					dup2(open("/dev/null", O_RDONLY), 0);
+					dup2(open("/dev/null", O_WRONLY), 1);
+					dup2(open("/dev/null", O_WRONLY), 2);
+					execv(path, args);
+					_exit(254);
+					break;
+				case -1: /* failed to spawn daemon */
+					_exit(254);
+					break;
+				default: /* daemon's parent */
+					int status;
+
+					waitpid(pid, &status, 0); // wait for daemon to start
+					status = WEXITSTATUS(status);
+
+					if (status == 254)
+						_exit(254); // failed to start daemon
+					else
+						_exit(0); // daemon successfully started
+					break;
+			}
+			_exit(254); // if fork() fails
+
+			break;
+		case -1: /* error */
+			return false;
+			break;
+		default: /* parent */
+			int status;
+
+			waitpid(pid, &status, 0); // wait for daemon spawner to start
+			status = WEXITSTATUS(status);
+
+			if (status == 254)
+				return false;
+			break;
+	}
+	return true;
+}
+
 unsigned long ProcessUtils::g_SecondsReset=0;
 
 void ProcessUtils::ResetMsTime()

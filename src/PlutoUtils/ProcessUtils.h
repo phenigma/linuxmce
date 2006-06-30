@@ -34,6 +34,9 @@ namespace ProcessUtils
 	/** Execute a command with execv and return its stdout */
 	bool GetCommandOutput(const char * path, char * args[], string & sOutput);
 
+	/** Execute a daemon (paenguin?) - i.e. run it in the background and disown it */
+	bool SpawnDaemon(const char * path, char * args[]);
+
 	// This is used to get elapsed time in milliseconds for quick comparissons.
 	// clock is no good because it's only CPU time, not actual time.  timespec
 	// is cumbersome.  You must call ResetMsTime to 'start' the stop watch, and 
@@ -45,7 +48,6 @@ namespace ProcessUtils
 	extern unsigned long g_SecondsReset;
 	void ResetMsTime();
 	unsigned long GetMsTime();
-
 };
 
 #endif // PROCESSUTILS
