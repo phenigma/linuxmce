@@ -41,7 +41,8 @@ SerialIOConnection::Open() {
     g_pPlutoLogger->Write(LV_STATUS, "Opening connection to %s.", serport_.c_str());
     try {
         psp_ = new CSerialPort(serport_, bps_, bs_, fc_);
-    } catch(...) {
+		Sleep(100);
+	} catch(...) {
         g_pPlutoLogger->Write(LV_CRITICAL, "Failed Opening serial port: %s.", serport_.c_str());
 		Close();
         return false;

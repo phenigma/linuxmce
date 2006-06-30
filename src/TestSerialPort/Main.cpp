@@ -119,6 +119,7 @@ int main(int argc, char *argv[])
 	try
 	{
 		CSerialPort serialPort(sPort,iBaud,_eParityBitStop,bHardwareFlowControl);
+		Sleep(100);
 		p_serialPort = &serialPort;
 		if( bMonitorHardwareFlowControlOnly )
 		{
