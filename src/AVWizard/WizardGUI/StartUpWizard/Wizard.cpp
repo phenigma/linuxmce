@@ -343,7 +343,7 @@ void Wizard::StartSDLVideoMode()
 	FrontEnd->StartVideoMode(Width, Height, FullScreen);
 
 	// Disable DPMS, screen blanking
-	system("/usr/bin/X11/xset -display :1 -dpms s off");
+	system("/usr/bin/X11/xset -dpms s off");
 	system("/usr/bin/X11/xset r off");
 }
 
