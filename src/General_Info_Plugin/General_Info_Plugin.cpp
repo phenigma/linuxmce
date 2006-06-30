@@ -146,7 +146,7 @@ bool General_Info_Plugin::Register()
 	}
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
-        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::PendingTasks ) )
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::PendingTasksGrid ) )
         , DATAGRID_Pending_Tasks_CONST,PK_DeviceTemplate_get() );
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
@@ -614,7 +614,7 @@ bool General_Info_Plugin::PendingTasks(vector<string> *vectPendingTasks)
 	return bOkayToReload;
 }
 
-class DataGridTable *General_Info_Plugin::PendingTasks( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+class DataGridTable *General_Info_Plugin::PendingTasksGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
 	vector<string> vectPendingTasks;
 
