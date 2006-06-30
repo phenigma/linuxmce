@@ -72,6 +72,9 @@ public:
 	virtual bool AV_Devices_ObjectSelected(CallBackData *pData);
 	virtual bool AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pData);
 
+	//8. Done
+	virtual void SCREEN_Wizard_Done(long PK_Screen);
+
 	virtual void SCREEN_LightsSetup(long PK_Screen);
 	virtual bool LightsSetup_ObjectSelected(CallBackData *pData);
 	virtual bool LightsSetup_SelectedGrid(CallBackData *pData);

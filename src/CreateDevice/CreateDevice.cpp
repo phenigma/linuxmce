@@ -287,8 +287,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 		threaded_mysql_query(SQL);
 	}
 
-	// If this is an orbiter, and it's not an on-screen orbiter for the first device created (meaning we're still installing), then DCERouter should be running.  Send a regen message
-	if( bIsOrbiter && DatabaseUtils::GetTopMostDevice(this,PK_Device)!=1 )
+	// If this is an orbiter, and it's not an on-screen orbiter, which will get orbitergen'd after a/v wizard, then regen it now
+	if( bIsOrbiter && PK_Device_ControlledVia==0 )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"it's an orbiter, time to generate");
 		string SQL = "SELECT PK_Device FROM Device WHERE FK_Installation=" + StringUtils::itos(m_iPK_Installation) + " AND FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_Orbiter_Plugin_CONST);

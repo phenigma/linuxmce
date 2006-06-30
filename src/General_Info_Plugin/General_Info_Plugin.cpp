@@ -595,6 +595,25 @@ void General_Info_Plugin::CMD_Is_Daytime(bool *bTrueFalse,string &sCMD_Result,Me
 	(*bTrueFalse) = m_pEvent_Plugin->IsDaytime();
 }
 
+
+bool General_Info_Plugin::PendingTasks(vector<string> *vectPendingTasks)
+{
+	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
+	g_pPlutoLogger->Write( LV_STATUS, "General_Info_Plugin::PendingTasks %d %d",m_dwPK_Device, (int) m_mapMediaDirectors_PendingConfig.size());
+	bool bOkayToReload=true;
+	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
+	{
+		if( it->second )
+		{
+			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(it->first);
+			vectPendingTasks->push_back("Still downloading packages on: " + (pRow_Device ? pRow_Device->Description_get() : StringUtils::itos(it->first)));
+			g_pPlutoLogger->Write( LV_STATUS, "General_Info_Plugin::PendingTasks md %d is busy",it->first);
+			bOkayToReload=false;
+		}
+	}
+	return bOkayToReload;
+}
+
 class DataGridTable *General_Info_Plugin::PendingTasks( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
 	vector<string> vectPendingTasks;
@@ -1727,7 +1746,7 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 
 	if( PendingConfigs() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Schedule a m_bRerunConfigWhenDone");
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates Schedule a m_bRerunConfigWhenDone");
 		m_bRerunConfigWhenDone=true;
 		return;
 	}
@@ -1735,7 +1754,7 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 	ListDeviceData_Router *pListDeviceData_Router = 
 		m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_App_Server_CONST);
 
-	g_pPlutoLogger->Write(LV_WARNING,"General plugin checking for updates %p",pListDeviceData_Router);
+	g_pPlutoLogger->Write(LV_WARNING,"General_Info_Plugin::CMD_Check_for_updates launching now General plugin checking for updates %p",pListDeviceData_Router);
 
 	if( !pListDeviceData_Router )
 		return;
@@ -1757,7 +1776,7 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST),false,false,false);
 				string sResponse;
 				if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
-					g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send spawn application to %d",pDevice->m_dwPK_Device);
+					g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates Failed to send spawn application to %d",pDevice->m_dwPK_Device);
 				else
 					m_mapMediaDirectors_PendingConfig[pDevice->m_pDevice_ControlledVia->m_dwPK_Device]=true;
 			}
@@ -1773,7 +1792,7 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 			StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST),false,false,false);
 		string sResponse;
 		if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send spawn application to %d",pDevice_AppServerOnCore->m_dwPK_Device);
+			g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates Failed to send spawn application to %d",pDevice_AppServerOnCore->m_dwPK_Device);
 		else
 			m_mapMediaDirectors_PendingConfig[pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device]=true;
 	}
@@ -2370,10 +2389,10 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 	size_t sBefore=m_listNewPnpDevicesWaitingForARoom.size();
 
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
-	Row_Room *pRow_Room;
+	Row_Room *pRow_Room=NULL;
 	if( iPK_Room )
 		pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(iPK_Room);
-	else
+	if( !pRow_Room )
 	{
 		if( sName.size()==0 )
 		{
@@ -2387,13 +2406,17 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 		vector<Row_Room *> vectRow_Room;
 		m_pDatabase_pluto_main->Room_get()->GetRows("Description = '" + StringUtils::SQLEscape(sName) + "'",&vectRow_Room);
 		if( vectRow_Room.size() )
+		{
 			pRow_Room = vectRow_Room[0];
+			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Set_Room_For_Device found existing room %d",pRow_Room->PK_Room_get());
+		}
 		else
 		{
 			pRow_Room = m_pDatabase_pluto_main->Room_get()->AddRow();
 			pRow_Room->Description_set(sName);
 			pRow_Room->FK_Installation_set(m_pRouter->iPK_Installation_get());
 			m_pDatabase_pluto_main->Room_get()->Commit();
+			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Set_Room_For_Device added room %p %d %s",pRow_Room,pRow_Room->PK_Room_get(),pRow_Room->Description_get());
 		}
 	}
 

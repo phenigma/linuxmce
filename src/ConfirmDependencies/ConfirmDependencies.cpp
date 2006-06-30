@@ -379,6 +379,8 @@ int main(int argc, char *argv[])
 
 	if( sCommand=="install" )
 	{
+		if( iPK_Orbiter )
+			cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 NONE 9 'Installing software.  Please wait...'" << endl;
 		list<PackageInfo *>::iterator it;
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
 		{
@@ -471,10 +473,16 @@ int main(int argc, char *argv[])
 			Row_Device *pRow_Device = m_vectDevicesNeedingConfigure[s];
 			if( pRow_Device->FK_DeviceTemplate_getrow()->ConfigureScript_get().size() )
 			{
+				if( iPK_Orbiter )
+					cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 NONE 9 'Configuring " << pRow_Device->Description_get() << "...'" << endl;
+
 				cout << "#Running configure script" << endl;
 				cout << "/usr/pluto/bin/" << pRow_Device->FK_DeviceTemplate_getrow()->ConfigureScript_get()
 					<< " -d " + StringUtils::itos(pRow_Device->PK_Device_get()) << " -i \"" << pRow_Device->IPaddress_get()
 					<< "\" -m \"" + pRow_Device->MACaddress_get() + "\"" << endl;
+
+				if( iPK_Orbiter )
+					cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 5 9 'Configuring " << pRow_Device->Description_get() << " done.'" << endl;
 			}
 
 			pRow_Device->Status_set("");
@@ -498,6 +506,9 @@ int main(int argc, char *argv[])
 			"\techo \"Note: Some packages failed to install\"" EOL
 			"fi" EOL
 			;
+
+		if( iPK_Orbiter )
+			cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 5 9 'Installing software finished.'" << endl;
 
 		cout << "rm -f /usr/pluto/install/.notdone" << endl;
 		cout << "echo \"*************************\"" << endl;

@@ -3210,7 +3210,6 @@ bool Media_Plugin::PendingTasks(vector<string> *vectPendingTasks)
 	g_pPlutoLogger->Write( LV_STATUS, "checking ripping jobs %d %d",m_dwPK_Device, (int) m_mapRippingJobs.size());
 	if( m_mapRippingJobs.size() )
 	{
-		string sJobs;
 		if( vectPendingTasks )
 		{
 			for(map<int, class RippingJob *>::iterator it=m_mapRippingJobs.begin();it!=m_mapRippingJobs.end();++it)

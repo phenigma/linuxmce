@@ -1221,7 +1221,7 @@ void OSDScreenHandler::SCREEN_AV_Devices(long PK_Screen)
 bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
-g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::AV_Devices_ObjectSelected selected %d already played %d",(int) GetCurrentScreen_PK_DesignObj(),(int) m_bAlreadyPlayFinalGreeting);
+
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
 		case DESIGNOBJ_AVDevices_CONST:
@@ -1317,21 +1317,22 @@ g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::AV_Devices_ObjectSelected s
 			}
 		}
 		break;
-
-		case DESIGNOBJ_Final_CONST:
-		{
-g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::AV_Devices_ObjectSelected selected DESIGNOBJ_Final_CONST already played %d",(int) m_bAlreadyPlayFinalGreeting);
-			if( !m_bAlreadyPlayFinalGreeting )
-			{
-				m_bAlreadyPlayFinalGreeting=true;
-				DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalMediaPlayer,"/home/monster/final.mpg",0,0,"");
-				m_pOrbiter->SendCommand(CMD_Play_Media);
-			}
-		}
-		break;
 	}
 
 	return false;
+}
+
+void OSDScreenHandler::SCREEN_Wizard_Done(long PK_Screen)
+{
+	ScreenHandler::SCREEN_Wizard_Done(PK_Screen);
+
+g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::SCREEN_Wizard_Done selected DESIGNOBJ_Final_CONST already played %d",(int) m_bAlreadyPlayFinalGreeting);
+	if( !m_bAlreadyPlayFinalGreeting )
+	{
+		m_bAlreadyPlayFinalGreeting=true;
+		DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalMediaPlayer,"/home/monster/final.mpg",0,0,"");
+		m_pOrbiter->SendCommand(CMD_Play_Media);
+	}
 }
 
 void OSDScreenHandler::HandleLightingScreen()
