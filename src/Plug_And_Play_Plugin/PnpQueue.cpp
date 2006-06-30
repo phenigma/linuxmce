@@ -734,12 +734,18 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 	vector<Row_Device *> vectRow_Device;
 	string sSerialOrMac;
 	if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
+	{
 		sSerialOrMac = "LEFT JOIN Device AS P1 ON Device.FK_Device_ControlledVia = P1.PK_Device "
 			"LEFT JOIN Device AS P2 ON P1.FK_Device_ControlledVia = P2.PK_Device "
 			"LEFT JOIN Device_DeviceData As SerialNumber ON SerialNumber.FK_Device=Device.PK_Device AND SerialNumber.FK_DeviceData=" TOSTRING(DEVICEDATA_Serial_Number_CONST) " "
 			"WHERE (Device.FK_Device_ControlledVia=" + sPK_Device_TopLevel + " OR P1.FK_Device_ControlledVia=" + sPK_Device_TopLevel +
-			" OR P2.FK_Device_ControlledVia=" + sPK_Device_TopLevel + ")"
-			" AND SerialNumber.IK_DeviceData='" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get()) + "'";
+			" OR P2.FK_Device_ControlledVia=" + sPK_Device_TopLevel + ")";
+
+		if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().find("/org/freedesktop/Hal/devices")!=string::npos )
+			sSerialOrMac += " AND SerialNumber.IK_DeviceData like '" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get()) + "%'";  // Sometimes the serial number has extra information at the end
+		else
+			sSerialOrMac += " AND SerialNumber.IK_DeviceData='" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get()) + "'";
+	}
 	else if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().size() )
 		sSerialOrMac = "MACaddress='" + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + "'";
 
