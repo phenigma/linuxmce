@@ -42,7 +42,6 @@ $GEN_CLASSES$
 $GEN_METHODS$
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
-			ResetCallBacks();
 			switch(nPK_Screen) 
 			{
 $GEN_SWITCH_BLOCK$

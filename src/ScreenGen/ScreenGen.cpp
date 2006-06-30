@@ -448,6 +448,7 @@ string ScreenGenerator::GenerateSwitchBlock()
 		string sCaseData = 
 			"\t\t\t\tcase " + sPK_Screen + ":\r\n" + 
 			"\t\t\t\t{\r\n" +
+			(pRow_Screen->PreserveCallBacks_get() ? "" : "\t\t\t\t\tResetCallBacks();\r\n") +
 			sMessageParamsLines + 
 			"\t\t\t\t\t" + sMethodName + "(" + sParams + ");\r\n"
 			"\t\t\t\t\tbreak;\r\n"

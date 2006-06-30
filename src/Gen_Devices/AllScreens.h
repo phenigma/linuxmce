@@ -9538,110 +9538,128 @@ namespace DCE
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
-			ResetCallBacks();
 			switch(nPK_Screen) 
 			{
 				case 1:
 				{
+					ResetCallBacks();
 					string sLocation = pMessage->m_mapParameters[195];
 					SCREEN_Main(nPK_Screen, sLocation);
 					break;
 				}
 				case 2:
 				{
+					ResetCallBacks();
 					string sLocation = pMessage->m_mapParameters[195];
 					SCREEN_Lights(nPK_Screen, sLocation);
 					break;
 				}
 				case 3:
 				{
+					ResetCallBacks();
 					string sLocation = pMessage->m_mapParameters[195];
 					SCREEN_Media(nPK_Screen, sLocation);
 					break;
 				}
 				case 4:
 				{
+					ResetCallBacks();
 					string sLocation = pMessage->m_mapParameters[195];
 					SCREEN_Climate(nPK_Screen, sLocation);
 					break;
 				}
 				case 5:
 				{
+					ResetCallBacks();
 					string sLocation = pMessage->m_mapParameters[195];
 					SCREEN_Security(nPK_Screen, sLocation);
 					break;
 				}
 				case 6:
 				{
+					ResetCallBacks();
 					string sLocation = pMessage->m_mapParameters[195];
 					SCREEN_Telephony(nPK_Screen, sLocation);
 					break;
 				}
 				case 7:
 				{
+					ResetCallBacks();
 					string sLocation = pMessage->m_mapParameters[195];
 					SCREEN_Misc(nPK_Screen, sLocation);
 					break;
 				}
 				case 8:
 				{
+					ResetCallBacks();
 					SCREEN_UserStatus(nPK_Screen);
 					break;
 				}
 				case 9:
 				{
+					ResetCallBacks();
 					SCREEN_MakeCallPhonebook(nPK_Screen);
 					break;
 				}
 				case 10:
 				{
+					ResetCallBacks();
 					SCREEN_MakeCallFavorites(nPK_Screen);
 					break;
 				}
 				case 11:
 				{
+					ResetCallBacks();
 					SCREEN_MakeCallDialNumber(nPK_Screen);
 					break;
 				}
 				case 12:
 				{
+					ResetCallBacks();
 					SCREEN_MakeCallPlutoUser(nPK_Screen);
 					break;
 				}
 				case 13:
 				{
+					ResetCallBacks();
 					SCREEN_SecurityPanel(nPK_Screen);
 					break;
 				}
 				case 14:
 				{
+					ResetCallBacks();
 					SCREEN_SecurityStatusReport(nPK_Screen);
 					break;
 				}
 				case 15:
 				{
+					ResetCallBacks();
 					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
 					SCREEN_SingleCameraViewOnly(nPK_Screen, iPK_Device);
 					break;
 				}
 				case 16:
 				{
+					ResetCallBacks();
 					SCREEN_Intercom(nPK_Screen);
 					break;
 				}
 				case 17:
 				{
+					ResetCallBacks();
 					string sList_PK_Device = pMessage->m_mapParameters[103];
 					SCREEN_QuadViewCameras(nPK_Screen, sList_PK_Device);
 					break;
 				}
 				case 18:
 				{
+					ResetCallBacks();
 					SCREEN_VideoCallInProgress(nPK_Screen);
 					break;
 				}
 				case 19:
 				{
+					ResetCallBacks();
 					string sText = pMessage->m_mapParameters[9];
 					string sPrivate = pMessage->m_mapParameters[160];
 					string sPublic = pMessage->m_mapParameters[161];
@@ -9651,31 +9669,37 @@ namespace DCE
 				}
 				case 20:
 				{
+					ResetCallBacks();
 					SCREEN_ManagePlaylist(nPK_Screen);
 					break;
 				}
 				case 21:
 				{
+					ResetCallBacks();
 					SCREEN_MakeCallDevice(nPK_Screen);
 					break;
 				}
 				case 22:
 				{
+					ResetCallBacks();
 					SCREEN_MakeCallPhonebook2(nPK_Screen);
 					break;
 				}
 				case 23:
 				{
+					ResetCallBacks();
 					SCREEN_MakeCallIntercom(nPK_Screen);
 					break;
 				}
 				case 24:
 				{
+					ResetCallBacks();
 					SCREEN_CurrentUser(nPK_Screen);
 					break;
 				}
 				case 25:
 				{
+					ResetCallBacks();
 					int iPK_Users = atoi(pMessage->m_mapParameters[17].c_str());
 					string sName = pMessage->m_mapParameters[50];
 					SCREEN_CDTrackCopy(nPK_Screen, iPK_Users, sName);
@@ -9683,51 +9707,61 @@ namespace DCE
 				}
 				case 26:
 				{
+					ResetCallBacks();
 					SCREEN_CDRemote(nPK_Screen);
 					break;
 				}
 				case 27:
 				{
+					ResetCallBacks();
 					SCREEN_VoicemailMain(nPK_Screen);
 					break;
 				}
 				case 28:
 				{
+					ResetCallBacks();
 					SCREEN_TransferAllUsers(nPK_Screen);
 					break;
 				}
 				case 29:
 				{
+					ResetCallBacks();
 					SCREEN_Sleeping(nPK_Screen);
 					break;
 				}
 				case 30:
 				{
+					ResetCallBacks();
 					SCREEN_ControllerStatus(nPK_Screen);
 					break;
 				}
 				case 31:
 				{
+					ResetCallBacks();
 					SCREEN_OtherFolders(nPK_Screen);
 					break;
 				}
 				case 32:
 				{
+					ResetCallBacks();
 					SCREEN_ConfirmDelete(nPK_Screen);
 					break;
 				}
 				case 33:
 				{
+					ResetCallBacks();
 					SCREEN_WebURL(nPK_Screen);
 					break;
 				}
 				case 34:
 				{
+					ResetCallBacks();
 					SCREEN_Browser(nPK_Screen);
 					break;
 				}
 				case 35:
 				{
+					ResetCallBacks();
 					string sPK_HouseMode = pMessage->m_mapParameters[165];
 					string sHouseModeTime = pMessage->m_mapParameters[166];
 					string sExitDelay = pMessage->m_mapParameters[167];
@@ -9737,87 +9771,104 @@ namespace DCE
 				}
 				case 36:
 				{
+					ResetCallBacks();
 					string sDescription = pMessage->m_mapParameters[163];
 					SCREEN_SensorsNotReady(nPK_Screen, sDescription);
 					break;
 				}
 				case 37:
 				{
+					ResetCallBacks();
 					SCREEN_RecordedTVShows(nPK_Screen);
 					break;
 				}
 				case 38:
 				{
+					ResetCallBacks();
 					SCREEN_DeviceControl(nPK_Screen);
 					break;
 				}
 				case 39:
 				{
+					ResetCallBacks();
 					SCREEN_Computing(nPK_Screen);
 					break;
 				}
 				case 40:
 				{
+					ResetCallBacks();
 					SCREEN_OpenFile(nPK_Screen);
 					break;
 				}
 				case 41:
 				{
+					ResetCallBacks();
 					SCREEN_BrowserConsole(nPK_Screen);
 					break;
 				}
 				case 42:
 				{
+					ResetCallBacks();
 					SCREEN_FavoritesPDA(nPK_Screen);
 					break;
 				}
 				case 43:
 				{
+					ResetCallBacks();
 					SCREEN_PCFileTools(nPK_Screen);
 					break;
 				}
 				case 44:
 				{
+					ResetCallBacks();
 					SCREEN_AdvancedOptions(nPK_Screen);
 					break;
 				}
 				case 45:
 				{
+					ResetCallBacks();
 					SCREEN_MakingCall(nPK_Screen);
 					break;
 				}
 				case 46:
 				{
+					ResetCallBacks();
 					SCREEN_MakingLinPhoneBroadcast(nPK_Screen);
 					break;
 				}
 				case 47:
 				{
+					ResetCallBacks();
 					SCREEN_FileList_Music_Movies_Video(nPK_Screen);
 					break;
 				}
 				case 48:
 				{
+					ResetCallBacks();
 					SCREEN_PVR(nPK_Screen);
 					break;
 				}
 				case 49:
 				{
+					ResetCallBacks();
 					SCREEN_DVDRemote(nPK_Screen);
 					break;
 				}
 				case 50:
 				{
+					ResetCallBacks();
 					SCREEN_DVDMenu(nPK_Screen);
 					break;
 				}
 				case 51:
 				{
+					ResetCallBacks();
 					SCREEN_MapMedia(nPK_Screen);
 					break;
 				}
 				case 52:
 				{
+					ResetCallBacks();
 					SCREEN_AdvancedMediaOptions(nPK_Screen);
 					break;
 				}
@@ -9834,71 +9885,85 @@ namespace DCE
 				}
 				case 54:
 				{
+					ResetCallBacks();
 					SCREEN_MusicRemote(nPK_Screen);
 					break;
 				}
 				case 55:
 				{
+					ResetCallBacks();
 					SCREEN_LinPhones(nPK_Screen);
 					break;
 				}
 				case 56:
 				{
+					ResetCallBacks();
 					SCREEN_Orbiters(nPK_Screen);
 					break;
 				}
 				case 57:
 				{
+					ResetCallBacks();
 					SCREEN_Phones(nPK_Screen);
 					break;
 				}
 				case 58:
 				{
+					ResetCallBacks();
 					SCREEN_DVDOptions(nPK_Screen);
 					break;
 				}
 				case 59:
 				{
+					ResetCallBacks();
 					SCREEN_AnswertoLinPhones(nPK_Screen);
 					break;
 				}
 				case 60:
 				{
+					ResetCallBacks();
 					SCREEN_UserPinCode(nPK_Screen);
 					break;
 				}
 				case 61:
 				{
+					ResetCallBacks();
 					SCREEN_PreviewOptions(nPK_Screen);
 					break;
 				}
 				case 62:
 				{
+					ResetCallBacks();
 					SCREEN_TransferOutside(nPK_Screen);
 					break;
 				}
 				case 63:
 				{
+					ResetCallBacks();
 					SCREEN_SatelliteCableBox(nPK_Screen);
 					break;
 				}
 				case 64:
 				{
+					ResetCallBacks();
 					SCREEN_CurrentLocation(nPK_Screen);
 					break;
 				}
 				case 65:
 				{
+					ResetCallBacks();
 					SCREEN_MediaAttributeSearchInput(nPK_Screen);
 					break;
 				}
 				case 66:
 				{
+					ResetCallBacks();
 					SCREEN_MediaAttributeSearchResult(nPK_Screen);
 					break;
 				}
 				case 67:
 				{
+					ResetCallBacks();
 					string sMac_address = pMessage->m_mapParameters[47];
 					string sDescription = pMessage->m_mapParameters[163];
 					SCREEN_NewPhoneDetected(nPK_Screen, sMac_address, sDescription);
@@ -9906,41 +9971,49 @@ namespace DCE
 				}
 				case 68:
 				{
+					ResetCallBacks();
 					SCREEN_FirstTime(nPK_Screen);
 					break;
 				}
 				case 69:
 				{
+					ResetCallBacks();
 					SCREEN_FileList_PlayLists(nPK_Screen);
 					break;
 				}
 				case 70:
 				{
+					ResetCallBacks();
 					SCREEN_VideosRemote(nPK_Screen);
 					break;
 				}
 				case 71:
 				{
+					ResetCallBacks();
 					SCREEN_FileList_Pictures_Docs(nPK_Screen);
 					break;
 				}
 				case 72:
 				{
+					ResetCallBacks();
 					SCREEN_GenericTwoButtonQuestion(nPK_Screen);
 					break;
 				}
 				case 73:
 				{
+					ResetCallBacks();
 					SCREEN_TryCodes(nPK_Screen);
 					break;
 				}
 				case 74:
 				{
+					ResetCallBacks();
 					SCREEN_ScreenSaver(nPK_Screen);
 					break;
 				}
 				case 75:
 				{
+					ResetCallBacks();
 					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
 					string sDescription = pMessage->m_mapParameters[163];
 					string ssComments = pMessage->m_mapParameters[164];
@@ -9949,106 +10022,127 @@ namespace DCE
 				}
 				case 76:
 				{
+					ResetCallBacks();
 					SCREEN_Power(nPK_Screen);
 					break;
 				}
 				case 77:
 				{
+					ResetCallBacks();
 					SCREEN_GenericDvdRemote(nPK_Screen);
 					break;
 				}
 				case 78:
 				{
+					ResetCallBacks();
 					SCREEN_ViewPlaylist(nPK_Screen);
 					break;
 				}
 				case 79:
 				{
+					ResetCallBacks();
 					SCREEN_FileList_withPictures_Mobil(nPK_Screen);
 					break;
 				}
 				case 80:
 				{
+					ResetCallBacks();
 					SCREEN_GenericDvdMenu(nPK_Screen);
 					break;
 				}
 				case 81:
 				{
+					ResetCallBacks();
 					SCREEN_ViewAttributes(nPK_Screen);
 					break;
 				}
 				case 82:
 				{
+					ResetCallBacks();
 					SCREEN_PendingTasks(nPK_Screen);
 					break;
 				}
 				case 83:
 				{
+					ResetCallBacks();
 					SCREEN_AddAttribute(nPK_Screen);
 					break;
 				}
 				case 84:
 				{
+					ResetCallBacks();
 					SCREEN_RadioRemote(nPK_Screen);
 					break;
 				}
 				case 85:
 				{
+					ResetCallBacks();
 					SCREEN_GenericCDRemote(nPK_Screen);
 					break;
 				}
 				case 86:
 				{
+					ResetCallBacks();
 					SCREEN_FileList_Popup_Container(nPK_Screen);
 					break;
 				}
 				case 87:
 				{
+					ResetCallBacks();
 					SCREEN_CreateViewBookmarks(nPK_Screen);
 					break;
 				}
 				case 88:
 				{
+					ResetCallBacks();
 					SCREEN_BrowseBookmarks(nPK_Screen);
 					break;
 				}
 				case 89:
 				{
+					ResetCallBacks();
 					SCREEN_GenericAppController(nPK_Screen);
 					break;
 				}
 				case 90:
 				{
+					ResetCallBacks();
 					SCREEN_BookmarksByMediaType(nPK_Screen);
 					break;
 				}
 				case 92:
 				{
+					ResetCallBacks();
 					SCREEN_MythTvRemote(nPK_Screen);
 					break;
 				}
 				case 93:
 				{
+					ResetCallBacks();
 					SCREEN_Myth_all_commands(nPK_Screen);
 					break;
 				}
 				case 94:
 				{
+					ResetCallBacks();
 					SCREEN_Mytv_watching_tv(nPK_Screen);
 					break;
 				}
 				case 95:
 				{
+					ResetCallBacks();
 					SCREEN_Myth_live_tv_browse_mode(nPK_Screen);
 					break;
 				}
 				case 96:
 				{
+					ResetCallBacks();
 					SCREEN_Myth_playback_recording(nPK_Screen);
 					break;
 				}
 				case 97:
 				{
+					ResetCallBacks();
 					string sText = pMessage->m_mapParameters[9];
 					string sCommand_Line = pMessage->m_mapParameters[137];
 					string sDescription = pMessage->m_mapParameters[163];
@@ -10058,92 +10152,110 @@ namespace DCE
 				}
 				case 98:
 				{
+					ResetCallBacks();
 					SCREEN_PingPong(nPK_Screen);
 					break;
 				}
 				case 99:
 				{
+					ResetCallBacks();
 					SCREEN_TVEPG1(nPK_Screen);
 					break;
 				}
 				case 100:
 				{
+					ResetCallBacks();
 					SCREEN_TVEPG2(nPK_Screen);
 					break;
 				}
 				case 101:
 				{
+					ResetCallBacks();
 					SCREEN_TVEPG3(nPK_Screen);
 					break;
 				}
 				case 102:
 				{
+					ResetCallBacks();
 					SCREEN_ShowInfo(nPK_Screen);
 					break;
 				}
 				case 103:
 				{
+					ResetCallBacks();
 					SCREEN_CreateViewBookmarksTV(nPK_Screen);
 					break;
 				}
 				case 105:
 				{
+					ResetCallBacks();
 					SCREEN_WebSites(nPK_Screen);
 					break;
 				}
 				case 106:
 				{
+					ResetCallBacks();
 					string sMac_address = pMessage->m_mapParameters[47];
 					SCREEN_WhatModelMobileOrbiter(nPK_Screen, sMac_address);
 					break;
 				}
 				case 107:
 				{
+					ResetCallBacks();
 					SCREEN_Filelist(nPK_Screen);
 					break;
 				}
 				case 108:
 				{
+					ResetCallBacks();
 					SCREEN_DVDmenu(nPK_Screen);
 					break;
 				}
 				case 109:
 				{
+					ResetCallBacks();
 					SCREEN_Attributes(nPK_Screen);
 					break;
 				}
 				case 110:
 				{
+					ResetCallBacks();
 					SCREEN_DVDoptions(nPK_Screen);
 					break;
 				}
 				case 111:
 				{
+					ResetCallBacks();
 					SCREEN_AdvRemote(nPK_Screen);
 					break;
 				}
 				case 112:
 				{
+					ResetCallBacks();
 					SCREEN_Playlist(nPK_Screen);
 					break;
 				}
 				case 113:
 				{
+					ResetCallBacks();
 					SCREEN_AudioOptions(nPK_Screen);
 					break;
 				}
 				case 114:
 				{
+					ResetCallBacks();
 					SCREEN_Subtitles(nPK_Screen);
 					break;
 				}
 				case 115:
 				{
+					ResetCallBacks();
 					SCREEN_Angles(nPK_Screen);
 					break;
 				}
 				case 116:
 				{
+					ResetCallBacks();
 					string sDescription = pMessage->m_mapParameters[163];
 					int iPK_PnpQueue = atoi(pMessage->m_mapParameters[224].c_str());
 					SCREEN_NewPnpDevice(nPK_Screen, sDescription, iPK_PnpQueue);
@@ -10151,301 +10263,360 @@ namespace DCE
 				}
 				case 117:
 				{
+					ResetCallBacks();
 					SCREEN_VdrRemote(nPK_Screen);
 					break;
 				}
 				case 118:
 				{
+					ResetCallBacks();
 					SCREEN_CdRemote(nPK_Screen);
 					break;
 				}
 				case 119:
 				{
+					ResetCallBacks();
 					SCREEN_PowerFile(nPK_Screen);
 					break;
 				}
 				case 120:
 				{
+					ResetCallBacks();
 					SCREEN_DevCallInProgress(nPK_Screen);
 					break;
 				}
 				case 121:
 				{
+					ResetCallBacks();
 					SCREEN_DevIncomingCall(nPK_Screen);
 					break;
 				}
 				case 122:
 				{
+					ResetCallBacks();
 					SCREEN_DevMoveCallsInProgress(nPK_Screen);
 					break;
 				}
 				case 123:
 				{
+					ResetCallBacks();
 					SCREEN_MapSecurity(nPK_Screen);
 					break;
 				}
 				case 124:
 				{
+					ResetCallBacks();
 					SCREEN_MapLighting(nPK_Screen);
 					break;
 				}
 				case 125:
 				{
+					ResetCallBacks();
 					SCREEN_MapClimate(nPK_Screen);
 					break;
 				}
 				case 126:
 				{
+					ResetCallBacks();
 					SCREEN_MapTelecom(nPK_Screen);
 					break;
 				}
 				case 127:
 				{
+					ResetCallBacks();
 					SCREEN_NavMode(nPK_Screen);
 					break;
 				}
 				case 128:
 				{
+					ResetCallBacks();
 					SCREEN_PvrFullScreen(nPK_Screen);
 					break;
 				}
 				case 129:
 				{
+					ResetCallBacks();
 					SCREEN_Epg(nPK_Screen);
 					break;
 				}
 				case 130:
 				{
+					ResetCallBacks();
 					SCREEN_Help01(nPK_Screen);
 					break;
 				}
 				case 131:
 				{
+					ResetCallBacks();
 					SCREEN_Help02(nPK_Screen);
 					break;
 				}
 				case 132:
 				{
+					ResetCallBacks();
 					SCREEN_Help03(nPK_Screen);
 					break;
 				}
 				case 133:
 				{
+					ResetCallBacks();
 					SCREEN_SetupMythTv01(nPK_Screen);
 					break;
 				}
 				case 134:
 				{
+					ResetCallBacks();
 					SCREEN_SetupMythTv02(nPK_Screen);
 					break;
 				}
 				case 135:
 				{
+					ResetCallBacks();
 					SCREEN_SetupMythTv03(nPK_Screen);
 					break;
 				}
 				case 136:
 				{
+					ResetCallBacks();
 					SCREEN_SetupMythTv04(nPK_Screen);
 					break;
 				}
 				case 137:
 				{
+					ResetCallBacks();
 					SCREEN_PvrFullScreenOpt(nPK_Screen);
 					break;
 				}
 				case 138:
 				{
+					ResetCallBacks();
 					SCREEN_DVDFullScreen(nPK_Screen);
 					break;
 				}
 				case 139:
 				{
+					ResetCallBacks();
 					SCREEN_DVDFullScreenOpt(nPK_Screen);
 					break;
 				}
 				case 140:
 				{
+					ResetCallBacks();
 					SCREEN_VideosFullScreen(nPK_Screen);
 					break;
 				}
 				case 141:
 				{
+					ResetCallBacks();
 					SCREEN_VideosFullScreenOpt(nPK_Screen);
 					break;
 				}
 				case 142:
 				{
+					ResetCallBacks();
 					SCREEN_GenericAppFullScreen(nPK_Screen);
 					break;
 				}
 				case 143:
 				{
+					ResetCallBacks();
 					SCREEN_DVDMenuFullScreen(nPK_Screen);
 					break;
 				}
 				case 144:
 				{
+					ResetCallBacks();
 					SCREEN_DVDMenuFullScreenOpt(nPK_Screen);
 					break;
 				}
 				case 145:
 				{
+					ResetCallBacks();
 					SCREEN_VlcFullScreen(nPK_Screen);
 					break;
 				}
 				case 146:
 				{
+					ResetCallBacks();
 					SCREEN_VlcFullScreenOpt(nPK_Screen);
 					break;
 				}
 				case 147:
 				{
+					ResetCallBacks();
 					string sLocation = pMessage->m_mapParameters[195];
 					SCREEN_popLights(nPK_Screen, sLocation);
 					break;
 				}
 				case 148:
 				{
+					ResetCallBacks();
 					string sLocation = pMessage->m_mapParameters[195];
 					SCREEN_popMedia(nPK_Screen, sLocation);
 					break;
 				}
 				case 149:
 				{
+					ResetCallBacks();
 					string sLocation = pMessage->m_mapParameters[195];
 					SCREEN_popClimate(nPK_Screen, sLocation);
 					break;
 				}
 				case 150:
 				{
+					ResetCallBacks();
 					string sLocation = pMessage->m_mapParameters[195];
 					SCREEN_popTelecom(nPK_Screen, sLocation);
 					break;
 				}
 				case 151:
 				{
+					ResetCallBacks();
 					string sLocation = pMessage->m_mapParameters[195];
 					SCREEN_popSecurity(nPK_Screen, sLocation);
 					break;
 				}
 				case 152:
 				{
+					ResetCallBacks();
 					SCREEN_popOthers(nPK_Screen);
 					break;
 				}
 				case 153:
 				{
+					ResetCallBacks();
 					SCREEN_AudiCarSetup(nPK_Screen);
 					break;
 				}
 				case 154:
 				{
+					ResetCallBacks();
 					SCREEN_AudiMedia(nPK_Screen);
 					break;
 				}
 				case 155:
 				{
+					ResetCallBacks();
 					SCREEN_AudiComputing(nPK_Screen);
 					break;
 				}
 				case 156:
 				{
+					ResetCallBacks();
 					SCREEN_AudiRadio(nPK_Screen);
 					break;
 				}
 				case 157:
 				{
+					ResetCallBacks();
 					SCREEN_AudiTV(nPK_Screen);
 					break;
 				}
 				case 158:
 				{
+					ResetCallBacks();
 					SCREEN_AudiCD(nPK_Screen);
 					break;
 				}
 				case 159:
 				{
+					ResetCallBacks();
 					SCREEN_AudiStoredMedia(nPK_Screen);
 					break;
 				}
 				case 160:
 				{
+					ResetCallBacks();
 					SCREEN_AudiInternet(nPK_Screen);
 					break;
 				}
 				case 161:
 				{
+					ResetCallBacks();
 					SCREEN_AudiEmail(nPK_Screen);
 					break;
 				}
 				case 162:
 				{
+					ResetCallBacks();
 					SCREEN_AudiAgenda(nPK_Screen);
 					break;
 				}
 				case 163:
 				{
+					ResetCallBacks();
 					SCREEN_AudiOther(nPK_Screen);
 					break;
 				}
 				case 164:
 				{
+					ResetCallBacks();
 					SCREEN_AudiNav(nPK_Screen);
 					break;
 				}
 				case 165:
 				{
+					ResetCallBacks();
 					SCREEN_AudiInfo(nPK_Screen);
 					break;
 				}
 				case 166:
 				{
+					ResetCallBacks();
 					SCREEN_AudiCar(nPK_Screen);
 					break;
 				}
 				case 167:
 				{
+					ResetCallBacks();
 					SCREEN_AudiSetup(nPK_Screen);
 					break;
 				}
 				case 168:
 				{
+					ResetCallBacks();
 					SCREEN_AudiLighting(nPK_Screen);
 					break;
 				}
 				case 169:
 				{
+					ResetCallBacks();
 					SCREEN_AudiClimate(nPK_Screen);
 					break;
 				}
 				case 170:
 				{
+					ResetCallBacks();
 					SCREEN_AudiSecurity(nPK_Screen);
 					break;
 				}
 				case 171:
 				{
+					ResetCallBacks();
 					SCREEN_AudiTelecom(nPK_Screen);
 					break;
 				}
 				case 172:
 				{
+					ResetCallBacks();
 					SCREEN_AudiFullScreen(nPK_Screen);
 					break;
 				}
 				case 173:
 				{
+					ResetCallBacks();
 					SCREEN_AudiVideoRemote(nPK_Screen);
 					break;
 				}
 				case 174:
 				{
+					ResetCallBacks();
 					SCREEN_AudiAudioRemote(nPK_Screen);
 					break;
 				}
 				case 175:
 				{
+					ResetCallBacks();
 					SCREEN_VideoWizard(nPK_Screen);
 					break;
 				}
@@ -10547,67 +10718,80 @@ namespace DCE
 				}
 				case 191:
 				{
+					ResetCallBacks();
 					SCREEN_AudiHome(nPK_Screen);
 					break;
 				}
 				case 192:
 				{
+					ResetCallBacks();
 					SCREEN_RoomsWizard(nPK_Screen);
 					break;
 				}
 				case 193:
 				{
+					ResetCallBacks();
 					SCREEN_UsersWizard(nPK_Screen);
 					break;
 				}
 				case 194:
 				{
+					ResetCallBacks();
 					SCREEN_CountryWizard(nPK_Screen);
 					break;
 				}
 				case 195:
 				{
+					ResetCallBacks();
 					SCREEN_TV_provider(nPK_Screen);
 					break;
 				}
 				case 196:
 				{
+					ResetCallBacks();
 					SCREEN_TV_Manufacturer(nPK_Screen);
 					break;
 				}
 				case 197:
 				{
+					ResetCallBacks();
 					SCREEN_Receiver(nPK_Screen);
 					break;
 				}
 				case 198:
 				{
+					ResetCallBacks();
 					SCREEN_LightsSetup(nPK_Screen);
 					break;
 				}
 				case 199:
 				{
+					ResetCallBacks();
 					SCREEN_AlarmPanel(nPK_Screen);
 					break;
 				}
 				case 200:
 				{
+					ResetCallBacks();
 					SCREEN_VOIP_Provider(nPK_Screen);
 					break;
 				}
 				case 201:
 				{
+					ResetCallBacks();
 					SCREEN_AV_Devices(nPK_Screen);
 					break;
 				}
 				case 202:
 				{
+					ResetCallBacks();
 					int iPK_PnpQueue = atoi(pMessage->m_mapParameters[224].c_str());
 					SCREEN_NAS_Options(nPK_Screen, iPK_PnpQueue);
 					break;
 				}
 				case 203:
 				{
+					ResetCallBacks();
 					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
 					string sPhoneName = pMessage->m_mapParameters[191];
 					SCREEN_New_Phone_Enter_Number(nPK_Screen, iPK_Device, sPhoneName);
@@ -10615,32 +10799,38 @@ namespace DCE
 				}
 				case 204:
 				{
+					ResetCallBacks();
 					SCREEN_Need_Reload_Router(nPK_Screen);
 					break;
 				}
 				case 205:
 				{
+					ResetCallBacks();
 					SCREEN_Need_Regen_Orbiter(nPK_Screen);
 					break;
 				}
 				case 206:
 				{
+					ResetCallBacks();
 					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
 					SCREEN_Sensors_Viewed_By_Camera(nPK_Screen, iPK_Device);
 					break;
 				}
 				case 207:
 				{
+					ResetCallBacks();
 					SCREEN_mnuPVROSD(nPK_Screen);
 					break;
 				}
 				case 208:
 				{
+					ResetCallBacks();
 					SCREEN_mnuPVRRecording(nPK_Screen);
 					break;
 				}
 				case 209:
 				{
+					ResetCallBacks();
 					SCREEN_Demo_Media(nPK_Screen);
 					break;
 				}
@@ -10653,77 +10843,92 @@ namespace DCE
 				}
 				case 211:
 				{
+					ResetCallBacks();
 					SCREEN_mnuMainMenu2(nPK_Screen);
 					break;
 				}
 				case 212:
 				{
+					ResetCallBacks();
 					SCREEN_mnuAmbiance(nPK_Screen);
 					break;
 				}
 				case 216:
 				{
+					ResetCallBacks();
 					SCREEN_TVConfirmInputsToggle(nPK_Screen);
 					break;
 				}
 				case 218:
 				{
+					ResetCallBacks();
 					SCREEN_mnuPVR_OSD_Full_Screen(nPK_Screen);
 					break;
 				}
 				case 219:
 				{
+					ResetCallBacks();
 					SCREEN_mnuPVRRecording_Full_Screen(nPK_Screen);
 					break;
 				}
 				case 220:
 				{
+					ResetCallBacks();
 					SCREEN_CurrentlyActiveRemote(nPK_Screen);
 					break;
 				}
 				case 222:
 				{
+					ResetCallBacks();
 					SCREEN_mnuLights(nPK_Screen);
 					break;
 				}
 				case 223:
 				{
+					ResetCallBacks();
 					SCREEN_mnuPlaybackControl(nPK_Screen);
 					break;
 				}
 				case 224:
 				{
+					ResetCallBacks();
 					SCREEN_mnuSpeedControl(nPK_Screen);
 					break;
 				}
 				case 225:
 				{
+					ResetCallBacks();
 					SCREEN_mnuVolume(nPK_Screen);
 					break;
 				}
 				case 230:
 				{
+					ResetCallBacks();
 					SCREEN_Media_Tracks(nPK_Screen);
 					break;
 				}
 				case 231:
 				{
+					ResetCallBacks();
 					SCREEN_Which_Wizard(nPK_Screen);
 					break;
 				}
 				case 232:
 				{
+					ResetCallBacks();
 					bool bAlways = pMessage->m_mapParameters[225] == "1";
 					SCREEN_This_Room(nPK_Screen, bAlways);
 					break;
 				}
 				case 233:
 				{
+					ResetCallBacks();
 					SCREEN_MediaSortFilter(nPK_Screen);
 					break;
 				}
 				case 234:
 				{
+					ResetCallBacks();
 					SCREEN_NAS_Options_when_Mounting_device(nPK_Screen);
 					break;
 				}
@@ -10739,6 +10944,7 @@ namespace DCE
 				}
 				case 236:
 				{
+					ResetCallBacks();
 					SCREEN_Wizard_Done(nPK_Screen);
 					break;
 				}
