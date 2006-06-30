@@ -741,8 +741,8 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 			"WHERE (Device.FK_Device_ControlledVia=" + sPK_Device_TopLevel + " OR P1.FK_Device_ControlledVia=" + sPK_Device_TopLevel +
 			" OR P2.FK_Device_ControlledVia=" + sPK_Device_TopLevel + ")";
 
-		if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().find("/org/freedesktop/Hal/devices")!=string::npos )
-			sSerialOrMac += " AND SerialNumber.IK_DeviceData like '" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get()) + "%'";  // Sometimes the serial number has extra information at the end
+		if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().find("/org/freedesktop/Hal/devices")!=string::npos && pPnpQueueEntry->m_pRow_PnpQueue->Removed_get() )
+			sSerialOrMac += " AND SerialNumber.IK_DeviceData like '" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get()) + "%'";  // Sometimes the serial number has extra information at the end, this applies to removal only
 		else
 			sSerialOrMac += " AND SerialNumber.IK_DeviceData='" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get()) + "'";
 	}
