@@ -128,7 +128,6 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,Row_Pnp
 	m_pOH_Orbiter=NULL;
 	ParseDeviceData(m_pRow_PnpQueue->Parms_get());
 	FindTopLevelDevice();
-	m_pRow_Device_Reported = m_pDatabase_pluto_main->Device_get()->GetRow(m_pRow_PnpQueue->FK_Device_Reported_get());
 
 	// If we haven't yet determined the device template, start at the beginning.
 	// m_mapPK_DHCPDevice_possible isn't stored in the database
@@ -191,6 +190,8 @@ void PnpQueueEntry::ParseDeviceData(string sDeviceData)
 void PnpQueueEntry::FindTopLevelDevice()
 {
 	m_pRow_Device_Reported = m_pRow_PnpQueue->FK_Device_Reported_getrow();
+	if( !m_pRow_Device_Reported ) // Just use the plugin's device as the reporter if none was specified
+		m_pRow_Device_Reported = m_pDatabase_pluto_main->Device_get()->GetRow(m_pPlug_And_Play_Plugin->m_dwPK_Device);
 	m_dwPK_Device_TopLevel=0;
 	Row_Device *pRow_Device=m_pRow_Device_Reported;
 	while(pRow_Device)
