@@ -17,6 +17,7 @@
 
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/DatabaseUtils.h"
+#include "PlutoUtils/ProcessUtils.h"
 #include "PostCreateOptions.h"
 #include "DeviceData_Base.h"
 #include "Gen_Devices/AllScreens.h"
@@ -52,6 +53,8 @@ void PostCreateOptions::PostCreateDevice(Row_Device *pRow_Device, OH_Orbiter *pO
 		PostCreateDevice_Cameras(pRow_Device,pOH_Orbiter);
 	else if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Security_Device_CONST) )
 		PostCreateSecurityDevice(pRow_Device,pOH_Orbiter);
+	else if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Media_Director_CONST) )
+		PostCreateDevice_DisklessMD(pRow_Device,pOH_Orbiter);
 }
 
 void PostCreateOptions::PostCreateDevice_AlarmPanel(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
@@ -123,4 +126,16 @@ void PostCreateOptions::PostCreateDevice_Cameras(Row_Device *pRow_Device, OH_Orb
 			g_pCommand_Impl->SendCommand(SCREEN_Sensors_Viewed_By_Camera_DL);
 		}
 	}
+}
+
+void PostCreateOptions::PostCreateDevice_DisklessMD(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
+{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_DisklessMD device  %d template %d",
+		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get());
+#endif
+	// TODO: use strdup/free although it works like this too
+	char * args[] = { "/usr/pluto/bin/New_PnP_MD.sh", (char *)(pRow_Device->IPaddress_get().c_str()), (char *)(pRow_Device->MACaddress_get().c_str()),
+		(char *)(StringUtils::itos(pRow_Device->PK_Device_get()).c_str()), NULL };
+	ProcessUtils::SpawnDaemon(args[0], args);
 }
