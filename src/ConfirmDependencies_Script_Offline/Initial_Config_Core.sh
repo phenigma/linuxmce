@@ -329,7 +329,7 @@ sed -i 's/^ide-generic$/#&/g' /etc/modules
 
 # detect the timezone of this machine
 if [[ "$OfflineMode" == false ]]; then
-	/usr/pluto/bin/TimeZone_Detect.sh
+	/usr/pluto/bin/Timezone_Detect.sh
 fi
 
 /usr/pluto/install/Initial_Config_Finish.sh
