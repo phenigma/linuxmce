@@ -85,6 +85,6 @@ Q="SELECT PK_Device_QuickStart FROM Device_QuickStart where FK_Device=$PK_Device
 PK_Device_QuickStart="$(RunSQL "$Q")"
 
 if [ "$PK_Device_QuickStart" = "" ]; then
-	Q="INSERT INTO Device_QuickStart(FK_Device,Description,SortOrder,\`Binary\`,Arguments) VALUES($PK_Device_MD,'MythTV Setup',1,'/bin/bash','-c\\t/usr/pluto/bin/launchMythSetup.sh')"
+	Q="INSERT INTO Device_QuickStart(FK_Device,Description,SortOrder,\`Binary\`,Arguments,FK_QuickStartTemplate) SELECT $PK_Device_MD,Description,1,\`Binary\`,Arguments,PK_QuickStartTemplate FROM QuickStartTemplate WHERE Description='MythTV Setup'"
 	RunSQL "$Q"
 fi
