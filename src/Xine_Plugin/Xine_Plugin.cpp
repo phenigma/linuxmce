@@ -270,10 +270,13 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 
 	g_pPlutoLogger->Write(LV_STATUS, "Stopping media in Xine_Plugin!");
 
+/*
+ what if pMediaStream is null ? :)
 if( pMediaStream->m_iStreamID_get()<g_iLastStreamIDPlayed )
 {
 int k=2;
 }
+*/
 	XineMediaStream *pXineMediaStream = NULL;
 
 	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StopMedia() ")) == NULL )
