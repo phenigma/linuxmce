@@ -1226,9 +1226,6 @@ void *ImageLoadThread(void *p)
 		PlutoGraphic **pGraphic = pRenderer->m_listbgImageGraphic.front();
 		pRenderer->m_listbgImageGraphic.pop_front();
 
-		char *pGraphicData;
-		size_t GraphicLength;
-
 		M.Release();
 		PlutoGraphic *pG = pRenderer->m_pOrbiter->Renderer()->CreateGraphic();
 		pG->LoadGraphicFile(ImageFilename.c_str(), pRenderer->m_pOrbiter->m_iRotation);

@@ -3917,6 +3917,10 @@ g_pPlutoLogger->Write(LV_CRITICAL,"now playing active popup 8 now %p",m_pActiveP
 	}
 	Output+=Input.substr( pos );
 
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, "Substituted '%s' with '%s'", Input.c_str(), Output.c_str());
+#endif
+
 	return Output;
 }
 

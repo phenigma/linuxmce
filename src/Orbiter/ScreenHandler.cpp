@@ -806,14 +806,28 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 		PK_DesignObj = PK_Screen ? PK_Screen : DESIGNOBJ_mnuPopupMessage_CONST;  // Allow the user to pass in a design obj to use instead
 	string sPK_DesignObj = StringUtils::ltos(PK_DesignObj);
 
-	//if(sMessage == "")
-	//	sMessage = "Unable to save playlist";
-
 	m_pOrbiter->CMD_Set_Timeout(sPK_DesignObj, sTimeout);
-//	m_pOrbiter->CMD_Goto_DesignObj(0, sPK_DesignObj, "", "", false, false);
+
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Display_Message_Text_CONST, sMessage);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Display_Message_Button_1_CONST, sOption1);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Display_Message_Button_2_CONST, sOption2);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Display_Message_Button_3_CONST, sOption3);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Display_Message_Button_4_CONST, sOption4);
+
+	if( sOption1.size()==0 && sOption2.size()==0 && sOption3.size()==0 && sOption4.size()==0 )
+		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 0, "", "", "1" );
+	if(sOption1.size() && sMessage1.size() )  // Let the user pass in dummy option with no message if he wants no button
+		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 0, "", "", "1" );
+	if(sOption2.size())
+		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), 0, "", "", "1" );
+	if(sOption3.size())
+		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), 0, "", "", "1" );
+	if(sOption4.size())
+		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), 0, "", "", "1" );
 
 	m_pOrbiter->CMD_Goto_DesignObj(0, sPK_DesignObj, "", "", false, bCantGoBack );
-	m_pOrbiter->CMD_Set_Text(sPK_DesignObj, sMessage, TEXT_STATUS_CONST);
+
+	m_pOrbiter->CMD_Set_Text(sPK_DesignObj, "<%=" + StringUtils::ltos(VARIABLE_Display_Message_Text_CONST) + "%>", TEXT_STATUS_CONST);
 
 	if(bPromptToResetRouter)
 		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butRestartDCERouter_CONST), 0, "", "", "1" );
@@ -829,25 +843,29 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 	if(sOption1.size() && sMessage1.size() )  // Let the user pass in dummy option with no message if he wants no button
 	{
 		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 0, "", "", "1" );
-		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), sOption1, TEXT_STATUS_CONST);
+		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 
+			"<%=" + StringUtils::ltos(VARIABLE_Display_Message_Button_1_CONST) + "%>", TEXT_STATUS_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Message_1_CONST, sMessage1);
 	}
 	if(sOption2.size())
 	{
 		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), 0, "", "", "1" );
-		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), sOption2, TEXT_STATUS_CONST);
+		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), 
+			"<%=" + StringUtils::ltos(VARIABLE_Display_Message_Button_2_CONST) + "%>", TEXT_STATUS_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Message_2_CONST, sMessage2);
 	}
 	if(sOption3.size())
 	{
 		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), 0, "", "", "1" );
-		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), sOption3, TEXT_STATUS_CONST);
+		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), 
+			"<%=" + StringUtils::ltos(VARIABLE_Display_Message_Button_3_CONST) + "%>", TEXT_STATUS_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Message_3_CONST, sMessage3);
 	}
 	if(sOption4.size())
 	{
 		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), 0, "", "", "1" );
-		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), sOption4, TEXT_STATUS_CONST);
+		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), 
+			"<%=" + StringUtils::ltos(VARIABLE_Display_Message_Button_4_CONST) + "%>", TEXT_STATUS_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Message_4_CONST, sMessage4);
 	}
 }
