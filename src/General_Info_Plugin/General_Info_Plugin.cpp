@@ -2416,7 +2416,7 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 			pRow_Room->Description_set(sName);
 			pRow_Room->FK_Installation_set(m_pRouter->iPK_Installation_get());
 			m_pDatabase_pluto_main->Room_get()->Commit();
-			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Set_Room_For_Device added room %p %d %s",pRow_Room,pRow_Room->PK_Room_get(),pRow_Room->Description_get());
+			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Set_Room_For_Device added room %p %d %s",pRow_Room,pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
 		}
 	}
 
