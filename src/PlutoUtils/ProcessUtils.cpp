@@ -381,16 +381,7 @@ bool ProcessUtils::SpawnDaemon(const char * path, char * args[])
 					_exit(254);
 					break;
 				default: /* daemon's parent */
-					int status;
-
-					waitpid(pid, &status, 0); // wait for daemon to start
-					status = WEXITSTATUS(status);
-
-					if (status == 254)
-						_exit(254); // failed to start daemon
-					else
-						_exit(0); // daemon successfully started
-					break;
+					_exit(0); // daemon successfully started; what it does from here is none of our business
 			}
 			_exit(254); // if fork() fails
 
