@@ -60,9 +60,6 @@ Wizard::Wizard()
 	signal(SIGUSR1, signal_handler);
 	signal(SIGPIPE, signal_handler);
 #endif
-
-	system("/usr/bin/X11/xset -display :1 -dpms s off");
-	system("/usr/bin/X11/xset r off");
 }
 
 Wizard::~Wizard()
@@ -344,6 +341,10 @@ void Wizard::StartSDLVideoMode()
 	if (Dictionary->Exists("WindowHeight"))
 		Height = Utils::StringToInt32(Dictionary->GetValue("WindowHeight"));
 	FrontEnd->StartVideoMode(Width, Height, FullScreen);
+
+	// Disable DPMS, screen blanking
+	system("/usr/bin/X11/xset -display :1 -dpms s off");
+	system("/usr/bin/X11/xset r off");
 }
 
 void Wizard::GenerateCustomEvent(WM_Event Event)
