@@ -50,6 +50,11 @@
 #define VARIABLE_Message_2_CONST 47
 #define VARIABLE_Message_3_CONST 48
 #define VARIABLE_Message_4_CONST 49
+#define VARIABLE_Display_Message_Text_CONST 50
+#define VARIABLE_Display_Message_Button_1_CONST 51
+#define VARIABLE_Display_Message_Button_2_CONST 52
+#define VARIABLE_Display_Message_Button_3_CONST 53
+#define VARIABLE_Display_Message_Button_4_CONST 54
 
 #define VARIABLE_TABLE "Variable"
 #define VARIABLE_PK_VARIABLE_FIELD "PK_Variable"
