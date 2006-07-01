@@ -19,7 +19,7 @@ $record = geoip_record_by_addr($gi,$_SERVER["REMOTE_ADDR"]);
 //$record = geoip_record_by_addr($gi,'68.178.171.146');
 $handle = @mysql_connect(host,user,password);
 mysql_select_db(db,$handle);
-$query="select tz.ZoneName from City c 
+$query="select tz.ZoneName,c.PK_City,c.FK_Country,c.City,r.Region from City c
 left join Country co on UPPER(c.FK_Country)=UPPER(co.PK_Country)
 left join Region r on c.FK_Region=r.PK_Region
 left join TimeZone tz on tz.PK_TimeZone=c.FK_TimeZone
@@ -36,6 +36,6 @@ if(!($res=@mysql_query($query, $handle))) {
 	exit;
 };
 $tz=mysql_fetch_array($res,MYSQL_ASSOC);
-print $tz['ZoneName'];
+echo $tz['ZoneName'] . "\t" . $tz['PK_City'] . "\t" . $tz['City'] . "\t" . $tz['Region'] . "\t" . $tz['FK_Country'];
 geoip_close($gi);
 ?>
