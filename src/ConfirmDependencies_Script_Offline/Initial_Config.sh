@@ -1,6 +1,7 @@
 #!/bin/bash
 
 dmesg -n 1
+printf '\x1b\x5b\x39\x3b\x30\x5d' >/dev/console  # disable console blanking (like 'setterm -blank' does, but we don't have it at this point)
 
 # router/diskless
 Type="router"
