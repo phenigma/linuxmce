@@ -567,7 +567,13 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 			string sRoom;
 			if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()!=COMMMETHOD_Ethernet_CONST && (!pRow_DeviceTemplate_DeviceData || atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str())==0) )
 			{
+g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT pk: %d %s room %d",
+					  pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_pRow_Device_Reported->Description_get().c_str(),pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get());
+
 				pPnpQueueEntry->m_pRow_Device_Reported->Reload();
+g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT 2 pk: %d %s room %d",
+					  pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_pRow_Device_Reported->Description_get().c_str(),pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get());
+
 				PK_Room = pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get();
 				Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(PK_Room);
 				if( pRow_Room )
