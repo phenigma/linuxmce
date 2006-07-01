@@ -946,6 +946,11 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 					sPath = pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get();
 			}
 
+			string sAlert = "Running detection script: " + pRow_DHCPDevice_To_Detect->PnpDetectionScript_get();
+			DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
+				sAlert,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"60");
+			m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+
 			// The arguments are this device, the queue ie, the path where to find the device, the pnp script name
 			string sArguments = StringUtils::itos(m_pPlug_And_Play_Plugin->m_dwPK_Device) + "\t" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + 
 				"\t" + sPath + "\t" + pRow_DHCPDevice_To_Detect->PnpDetectionScript_get();
