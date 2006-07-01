@@ -757,6 +757,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 
 			DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 				sText,sMessage);
+			m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 		}
 		else
 		{
@@ -769,6 +770,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 
 			DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 				sText,sMessage);
+			m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 		}
 	}
 	else
@@ -794,6 +796,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 		string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|nobuttons";
 		DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 			sText,"");
+		m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 
 		m_pOrbiter->StartScreenHandlerTimer(10000); // Wait 10 seconds before continuing
 		m_tWaitingForRegistration=1;  // Special indicator for the timer that it should just return to this screen whenever it's called
@@ -914,6 +917,7 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 
 				DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 					sText,sMessage);
+				m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 			}
 		}
 		break;
@@ -1003,6 +1007,7 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 
 			DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 				sText,sMessage);
+			m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 		}
 		else
 		{
@@ -1015,6 +1020,7 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 
 			DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 				sText,sMessage);
+			m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 		}
 	}
 	else
@@ -1034,6 +1040,7 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 		string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|nobuttons";
 		DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 			sText,"");
+		m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 		m_pOrbiter->StartScreenHandlerTimer(10000); // Wait 10 seconds before continuing
 		m_tWaitingForRegistration=1;  // Special indicator for the timer that it should just return to this screen whenever it's called
 	}
@@ -1380,6 +1387,7 @@ void OSDScreenHandler::HandleLightingScreen()
 
 				DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 					sText,sMessage);
+				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 			}
 			else
 			{
@@ -1390,6 +1398,7 @@ void OSDScreenHandler::HandleLightingScreen()
 
 				DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 					sText,sMessage);
+				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 			}
 		}
 		else
@@ -1412,6 +1421,7 @@ void OSDScreenHandler::HandleLightingScreen()
 
 		DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 			sText,sMessage);
+		m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 	}
 }
 
@@ -1504,6 +1514,7 @@ g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer now registered"
 				string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|nobuttons";
 				DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 					sText,"");
+				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 
 g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer displaying waiting message %d",(int) m_tWaitingForRegistration);
 			}
@@ -1517,6 +1528,7 @@ g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer displaying wait
 
 				DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 					sText,sMessage);
+				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 
 g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer registration failed");
 				return false;
