@@ -1436,6 +1436,7 @@ void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 		HandleLightingScreen();
 	else
 	{
+		g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::SCREEN_LightsSetup setting pnp devices");
 		m_pWizardLogic->FindPnpDevices(TOSTRING(DEVICECATEGORY_Lighting_Interface_CONST));
 		ScreenHandlerBase::SCREEN_LightsSetup(PK_Screen);
 		m_pOrbiter->StartScreenHandlerTimer(500);

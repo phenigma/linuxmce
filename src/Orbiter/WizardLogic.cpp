@@ -116,6 +116,7 @@ void WizardLogic::FindPnpDevices(string sPK_DeviceCategory)
 			sPnpDevices += (sPnpDevices.size() ? ", " : "") + string(row[1]) + ":" + row[0];
 
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPnpDevices);
+	g_pPlutoLogger->Write(LV_STATUS,"WizardLogic::FindPnpDevices Category %s devices %s", sPK_DeviceCategory.c_str(), sPnpDevices.c_str());
 }
 
 /*
