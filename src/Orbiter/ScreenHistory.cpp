@@ -5,12 +5,16 @@
 #include "PlutoUtils/Other.h"
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
-ScreenHistory::ScreenHistory(int nPK_Screen, class ScreenHistory *pScreenHistory_Prior)
+ScreenHistory::ScreenHistory(int nPK_Screen, class ScreenHistory *pScreenHistory_Prior,Message *pMessage)
 {
 	m_nPK_Screen = nPK_Screen;
 	m_tTime = time(NULL);
 	m_pObj = NULL;
 	m_bCantGoBack = false; 
+
+	if( pMessage )
+		for(map<long, string>::iterator it = pMessage->m_mapParameters.begin(); it != pMessage->m_mapParameters.end(); it++)
+			m_mapParameters[it->first]=it->second;
 }
 //-----------------------------------------------------------------------------------------------------
 ScreenHistory::~ScreenHistory()

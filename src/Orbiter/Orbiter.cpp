@@ -4407,9 +4407,20 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 		m_pContextToBeRestored = pScreenHistory;
 		ScreenHistory::m_bAddToHistory = false;
 		m_pScreenHistory_NewEntry = pScreenHistory;
-
+ 
+		string sCMD_Result;
 		if( m_mapPK_Screen_GoBackToScreen.find(m_pScreenHistory_NewEntry->PK_Screen())!=m_mapPK_Screen_GoBackToScreen.end() )
-			CMD_Goto_Screen(m_pScreenHistory_NewEntry->ScreenID(),m_pScreenHistory_NewEntry->PK_Screen());
+		{
+			Message *pMessageTemp=NULL;
+			if( pScreenHistory->m_mapParameters.size() )
+			{
+				pMessageTemp = new Message();
+				for(map<long, string>::iterator it = pScreenHistory->m_mapParameters.begin(); it != pScreenHistory->m_mapParameters.end(); it++)
+					pMessageTemp->m_mapParameters[it->first]=it->second;
+			}
+			CMD_Goto_Screen(m_pScreenHistory_NewEntry->ScreenID(),m_pScreenHistory_NewEntry->PK_Screen(),sCMD_Result,pMessageTemp);
+			delete pMessageTemp;
+		}
 		else
 			CMD_Goto_DesignObj(0, pScreenHistory->GetObj()->m_ObjectID, pScreenHistory->ScreenID(),
 				"", false, pScreenHistory->GetObj()->m_bCantGoBack);
@@ -8121,7 +8132,7 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 		m_pMouseBehavior->Clear();
 #endif
 
-	m_pScreenHistory_NewEntry = new ScreenHistory(iPK_Screen, m_pScreenHistory_Current);
+	m_pScreenHistory_NewEntry = new ScreenHistory(iPK_Screen, m_pScreenHistory_Current,pMessage);
 	m_pScreenHistory_NewEntry->ScreenID(sID);
 	m_pScreenHandler->ReceivedGotoScreenMessage(iPK_Screen, pMessage);
 	if( bCreatedMessage )

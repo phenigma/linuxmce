@@ -8377,11 +8377,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_Sensors_Viewed_By_Camera(long DeviceIDFrom, long DeviceIDTo,
-			int iPK_Device)
+			int iPK_Device, string sOptions)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str());
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 39 /* 1=Sensors only, 2=Lights only, 3=both */, sOptions.c_str());
 		}
 	};
 
@@ -8389,11 +8389,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_Sensors_Viewed_By_Camera_DL(long DeviceIDFrom, string sDeviceIDTo,
-			int iPK_Device)
+			int iPK_Device, string sOptions)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str());
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 39 /* 1=Sensors only, 2=Lights only, 3=both */, sOptions.c_str());
 		}
 	};
 
@@ -8401,11 +8401,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_Sensors_Viewed_By_Camera_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			int iPK_Device)
+			int iPK_Device, string sOptions)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str());
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 39 /* 1=Sensors only, 2=Lights only, 3=both */, sOptions.c_str());
 		}
 	};
 
@@ -8413,11 +8413,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_Sensors_Viewed_By_Camera_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			int iPK_Device)
+			int iPK_Device, string sOptions)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str());
+				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 39 /* 1=Sensors only, 2=Lights only, 3=both */, sOptions.c_str());
 		}
 	};
 
@@ -9285,6 +9285,102 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_House_Setup_Popup_Message : public PreformedCommand
+	{
+	public:
+		SCREEN_House_Setup_Popup_Message(long DeviceIDFrom, long DeviceIDTo,
+			string sText, string sCommand_Line)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "237" /* screen ID */,
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+		}
+	};
+
+	class SCREEN_House_Setup_Popup_Message_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_House_Setup_Popup_Message_DL(long DeviceIDFrom, string sDeviceIDTo,
+			string sText, string sCommand_Line)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "237" /* screen ID */,
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+		}
+	};
+
+	class SCREEN_House_Setup_Popup_Message_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_House_Setup_Popup_Message_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			string sText, string sCommand_Line)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "237" /* screen ID */,
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+		}
+	};
+
+	class SCREEN_House_Setup_Popup_Message_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_House_Setup_Popup_Message_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			string sText, string sCommand_Line)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "237" /* screen ID */,
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+		}
+	};
+
+	class SCREEN_Media_Player_Setup_Popup_Message : public PreformedCommand
+	{
+	public:
+		SCREEN_Media_Player_Setup_Popup_Message(long DeviceIDFrom, long DeviceIDTo,
+			string sText, string sCommand_Line)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "238" /* screen ID */,
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+		}
+	};
+
+	class SCREEN_Media_Player_Setup_Popup_Message_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Media_Player_Setup_Popup_Message_DL(long DeviceIDFrom, string sDeviceIDTo,
+			string sText, string sCommand_Line)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "238" /* screen ID */,
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+		}
+	};
+
+	class SCREEN_Media_Player_Setup_Popup_Message_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Media_Player_Setup_Popup_Message_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			string sText, string sCommand_Line)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "238" /* screen ID */,
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+		}
+	};
+
+	class SCREEN_Media_Player_Setup_Popup_Message_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Media_Player_Setup_Popup_Message_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			string sText, string sCommand_Line)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "238" /* screen ID */,
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9513,7 +9609,7 @@ namespace DCE
 		virtual void SCREEN_New_Phone_Enter_Number(long PK_Screen, int iPK_Device, string sPhoneName){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Need_Reload_Router(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Need_Regen_Orbiter(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, int iPK_Device){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, int iPK_Device, string sOptions){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_mnuPVROSD(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_mnuPVRRecording(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Demo_Media(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -9535,6 +9631,8 @@ namespace DCE
 		virtual void SCREEN_NAS_Options_when_Mounting_device(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_New_Pnp_Device_One_Possibility(long PK_Screen, int iPK_Room, int iPK_DHCPDevice, string sDescription, string ssComments, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Wizard_Done(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_House_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Media_Player_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -10813,7 +10911,8 @@ namespace DCE
 				{
 					ResetCallBacks();
 					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
-					SCREEN_Sensors_Viewed_By_Camera(nPK_Screen, iPK_Device);
+					string sOptions = pMessage->m_mapParameters[39];
+					SCREEN_Sensors_Viewed_By_Camera(nPK_Screen, iPK_Device, sOptions);
 					break;
 				}
 				case 207:
@@ -10946,6 +11045,20 @@ namespace DCE
 				{
 					ResetCallBacks();
 					SCREEN_Wizard_Done(nPK_Screen);
+					break;
+				}
+				case 237:
+				{
+					string sText = pMessage->m_mapParameters[9];
+					string sCommand_Line = pMessage->m_mapParameters[137];
+					SCREEN_House_Setup_Popup_Message(nPK_Screen, sText, sCommand_Line);
+					break;
+				}
+				case 238:
+				{
+					string sText = pMessage->m_mapParameters[9];
+					string sCommand_Line = pMessage->m_mapParameters[137];
+					SCREEN_Media_Player_Setup_Popup_Message(nPK_Screen, sText, sCommand_Line);
 					break;
 				}
 

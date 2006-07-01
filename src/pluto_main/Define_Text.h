@@ -1059,6 +1059,7 @@
 #define TEXT_Add_Software_CONST 1772
 #define TEXT_Waiting_for_device_to_startup_CONST 1773
 #define TEXT_Device_did_not_start_CONST 1774
+#define TEXT_Which_lights_near_camera_CONST 1775
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

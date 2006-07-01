@@ -74,6 +74,8 @@ public:
 
 	//8. Done
 	virtual void SCREEN_Wizard_Done(long PK_Screen);
+	virtual void SCREEN_House_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line);
+	virtual void SCREEN_Media_Player_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line);
 
 	virtual void SCREEN_LightsSetup(long PK_Screen);
 	virtual bool LightsSetup_ObjectSelected(CallBackData *pData);

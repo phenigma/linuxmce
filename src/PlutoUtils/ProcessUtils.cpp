@@ -362,6 +362,7 @@ bool ProcessUtils::GetCommandOutput(const char * path, char * args[], string & s
 // SpawnPaenguin
 bool ProcessUtils::SpawnDaemon(const char * path, char * args[])
 {
+#ifndef WIN32
 	int pid;
 
 	switch (pid = fork())
@@ -399,6 +400,7 @@ bool ProcessUtils::SpawnDaemon(const char * path, char * args[])
 				return false;
 			break;
 	}
+#endif
 	return true;
 }
 

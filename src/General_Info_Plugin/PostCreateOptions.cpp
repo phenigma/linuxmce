@@ -107,22 +107,29 @@ void PostCreateOptions::PostCreateDevice_Cameras(Row_Device *pRow_Device, OH_Orb
 	g_pPlutoLogger->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_Cameras device  %d template %d",
 		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get());
 #endif
-	string sSQL = "SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory="
+	string sSqlSensors = "SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory="
 		+ StringUtils::itos(DEVICECATEGORY_Security_Device_CONST) + " LIMIT 1";
 
-	PlutoSqlResult result_set;
-	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && result_set.r->row_count )
+	string sSqlLights = "SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory="
+		+ StringUtils::itos(DEVICECATEGORY_Lighting_Device_CONST) + " LIMIT 1";
+
+	PlutoSqlResult result_set_sensors,result_set_lights;
+	bool bHasSensors = ( (result_set_sensors.r=m_pDatabase_pluto_main->mysql_query_result(sSqlSensors)) && result_set_sensors.r->row_count );
+	bool bHasLights = ( (result_set_lights.r=m_pDatabase_pluto_main->mysql_query_result(sSqlLights)) && result_set_lights.r->row_count );
+
+	if( bHasSensors || bHasLights )
 	{
+		string sOptions = (bHasSensors && bHasLights ? "3" : (bHasLights ? "1" : "2"));
 		if( pOH_Orbiter )
 		{
 			DCE::SCREEN_Sensors_Viewed_By_Camera SCREEN_Sensors_Viewed_By_Camera(g_pCommand_Impl->m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-				pRow_Device->PK_Device_get());
+				pRow_Device->PK_Device_get(),sOptions);
 			g_pCommand_Impl->SendCommand(SCREEN_Sensors_Viewed_By_Camera);
 		}
 		else
 		{
 			DCE::SCREEN_Sensors_Viewed_By_Camera_DL SCREEN_Sensors_Viewed_By_Camera_DL(g_pCommand_Impl->m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(),
-				pRow_Device->PK_Device_get());
+				pRow_Device->PK_Device_get(),sOptions);
 			g_pCommand_Impl->SendCommand(SCREEN_Sensors_Viewed_By_Camera_DL);
 		}
 	}

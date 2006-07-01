@@ -142,10 +142,6 @@ bool isStrippablePackage(int iPK_Package)
 bool PackageIsCompatible(Row_Package *pRow_Package);
 bool CopySourceFile(string sInput,string sOutput)
 {
-	g_pPlutoLogger->Write(LV_WARNING,"Track CopySourceFile: %s -> %s simulate %d 1: %d 2: %d",sInput.c_str(),sOutput.c_str(),(int) g_bSimulate, (int) (g_sDefines.find("-DDEBUG")!=string::npos),
-		(int) (sInput.find("Initial_Config_Real.sh")!=string::npos || sInput.find("Initial_Config_Core.sh")!=string::npos || sInput.find("Initial_Config_MD.sh")!=string::npos));
-
-
 	if( g_sReplacePluto.size() && sInput.find("MakeRelease.cpp")==string::npos )
 	{
 		StringUtils::Replace(sInput,"/tmp/MakeRelease.tmp", "Pluto", g_sReplacePluto );

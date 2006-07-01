@@ -30,6 +30,7 @@ namespace DCE
 		int m_nPK_Screen; /** < The PK_Screen of the screen */
 
 	public:
+		map<long, string> m_mapParameters; /** < Any parameters passed in when the screen was created */
 
 		/** < We'll know if we need to add an object to history or not (maybe we are doing a go back) */
 		static bool m_bAddToHistory; 
@@ -38,7 +39,7 @@ namespace DCE
 		bool m_bCantGoBack; 
 
 		/** < Constructor and destructor */
-		ScreenHistory(int nPK_Screen, class ScreenHistory *pScreenHistory_Prior);
+		ScreenHistory(int nPK_Screen, class ScreenHistory *pScreenHistory_Prior,Message *pMessage);
 		~ScreenHistory();
 
 		/** < Getter and setter for current design object for this screen */

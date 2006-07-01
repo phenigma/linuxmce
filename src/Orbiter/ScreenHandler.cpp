@@ -1037,10 +1037,40 @@ bool ScreenHandler::New_Phone_Enter_Number_DeviceConfigured(CallBackData *pData)
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, string sPK_Device)
+void ScreenHandler::SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, int iPK_Device, string sOptions)
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPK_Device);
-	GotoScreen(SCREEN_Sensors_Viewed_By_Camera_CONST,sPK_Device,true,true);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::itos(iPK_Device));
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sOptions);
+	int iOptions = atoi(sOptions.c_str());
+	if( iOptions & 1 ) // Need to do lights
+	{
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(DEVICECATEGORY_Lighting_Device_CONST));
+		m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuSensorsViewedByCamera_CONST), m_pOrbiter->m_mapTextString[TEXT_Which_lights_near_camera_CONST], TEXT_STATUS_CONST);
+	}
+	else
+	{
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(DEVICECATEGORY_Security_Device_CONST));
+		m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuSensorsViewedByCamera_CONST), m_pOrbiter->m_mapTextString[TEXT_Which_Sensors_Viewed_CONST], TEXT_STATUS_CONST);
+	}
+	ScreenHandlerBase::SCREEN_Sensors_Viewed_By_Camera(PK_Screen, iPK_Device, sOptions);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Sensors_ObjectSelected,	new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::Sensors_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butSetVisibleSensors_CONST )
+	{	
+		if( atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST).c_str())==DEVICECATEGORY_Lighting_Device_CONST && atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_3_CONST).c_str()) & 2 )
+		{
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(DEVICECATEGORY_Security_Device_CONST));
+			m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuSensorsViewedByCamera_CONST), m_pOrbiter->m_mapTextString[TEXT_Which_Sensors_Viewed_CONST], TEXT_STATUS_CONST);
+			GotoScreen(SCREEN_Sensors_Viewed_By_Camera_CONST,m_pOrbiter->m_pScreenHistory_Current->ScreenID(),true,true);
+		}
+		else
+			m_pOrbiter->CMD_Remove_Screen_From_History(m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+	}
+	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::BadGotoScreen(int PK_Screen)
