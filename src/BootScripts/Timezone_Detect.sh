@@ -12,18 +12,13 @@ if [[ -z "$Info" ]]; then
 fi
 
 TimeZone=$(echo "$Info" | cut -f1)
-
-if [[ -z "$TimeZone" ]]; then
-        exit # timezone/location could not be detected
-fi
-
 PK_City=$(echo "$Info" | cut -f2)
 City=$(echo "$Info" | cut -f3)
 Region=$(echo "$Info" | cut -f4)
 PK_Country=$(echo "$Info" | cut -f5)
 
-if [[ -z "$PK_City" ]]; then
-	exit # location could not be detected
+if [[ -z "$PK_City" || -z "$PK_City" || -z "$City" || -z "$Region" || -z "$PK_Country" ]]; then
+	exit # timezone/location could not be detected
 fi
 
 
