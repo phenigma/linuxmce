@@ -943,7 +943,24 @@ int WizardLogic::GetNumLights()
 
 int WizardLogic::GetNumSensors()
 {
-	return 0;
+	m_dequeNumSensors.clear();
+	string sSQL = "SELECT PK_Device,FK_Room,IK_DeviceData FROM Device "
+		"JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
+		"JOIN DeviceCategory ON FK_DeviceCategory = PK_DeviceCategory "
+		"LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) +
+		" WHERE PK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Security_Device_CONST) +
+		" OR FK_DeviceCategory_Parent=" + StringUtils::itos(DEVICECATEGORY_Security_Device_CONST);
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if( (result_set.r=mysql_query_result(sSQL)) )
+		while ((row = mysql_fetch_row(result_set.r)))
+		{
+			if( !row[1] || !atoi(row[1]) )
+				m_dequeNumLights.push_back(make_pair<int,string> (atoi(row[0]),row[2] ? row[2] : ""));
+		}
+
+	return (int) result_set.r->row_count;
 }
 
 string WizardLogic::GetDeviceName(string sPK_Device)

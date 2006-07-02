@@ -4404,20 +4404,20 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 	// We've got a screen to go back to
 	if(  pScreenHistory  )
 	{
-		m_pContextToBeRestored = pScreenHistory;
 		ScreenHistory::m_bAddToHistory = false;
 		m_pScreenHistory_NewEntry = pScreenHistory;
  
 		string sCMD_Result;
 		if( m_mapPK_Screen_GoBackToScreen.find(m_pScreenHistory_NewEntry->PK_Screen())!=m_mapPK_Screen_GoBackToScreen.end() )
 		{
+g_pPlutoLogger->Write(LV_CRITICAL,"Go back to %d is a gobacktoscreen",m_pScreenHistory_NewEntry->PK_Screen());
 			Message *pMessageTemp=NULL;
 			if( pScreenHistory->m_mapParameters.size() )
 			{
 				pMessageTemp = new Message();
 				for(map<long, string>::iterator it = pScreenHistory->m_mapParameters.begin(); it != pScreenHistory->m_mapParameters.end(); it++)
 				{
-g_pPlutoLogger->Write(LV_CRITICAL,"Go back to %d with %d=%s",pScreenHistory->PK_Screen(),it->first,it->second);
+g_pPlutoLogger->Write(LV_CRITICAL,"Go back to %d with %d=%s",pScreenHistory->PK_Screen(),it->first,it->second.c_str());
 					pMessageTemp->m_mapParameters[it->first]=it->second;
 				}
 
@@ -4426,8 +4426,12 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Go back to %d with %d=%s",pScreenHistory->PK_
 			delete pMessageTemp;
 		}
 		else
+		{
+			m_pContextToBeRestored = pScreenHistory;  // Don't do this if we're going to the screen
+			g_pPlutoLogger->Write(LV_STATUS,"Go back to %d is not a gobacktoscreen",m_pScreenHistory_NewEntry->PK_Screen());
 			CMD_Goto_DesignObj(0, pScreenHistory->GetObj()->m_ObjectID, pScreenHistory->ScreenID(),
 				"", false, pScreenHistory->GetObj()->m_bCantGoBack);
+		}
 	}
 	else
 		GotoMainMenu();
@@ -8562,4 +8566,12 @@ void Orbiter::CMD_Get_Active_Application(string *sPK_DesignObj,string *sPK_Desig
 	*sIdentifier=m_sActiveApplication_Window;
 	*sPK_DesignObj = StringUtils::itos(m_PK_DesignObj_ActiveApp_OSD);
 	*sPK_DesignObj_CurrentScreen = StringUtils::itos(m_PK_DesignObj_ActiveApp_Remote);
+}
+
+void Orbiter::ForceCurrentScreenIntoHistory()
+{
+	ScreenHistory *pScreenHistory = NeedToRender::m_pScreenHistory_get();
+	m_pScreenHistory_Current = pScreenHistory;
+	pScreenHistory->AddToHistory();
+	m_listScreenHistory.push_back( pScreenHistory );
 }

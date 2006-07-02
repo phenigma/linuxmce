@@ -31,6 +31,7 @@
 #include "pluto_main/Define_FloorplanObjectType.h"
 #include "DataGrid.h"
 #include "../OrbiterRenderer.h"
+#include "../ScreenHistory.h"
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 #	include "../MouseBehavior.h"
@@ -565,21 +566,23 @@ bool OSDScreenHandler::RoomsWizard_DatagridSelected(CallBackData *pData)
 
 void OSDScreenHandler::SCREEN_This_Room(long PK_Screen, bool bAlways)
 {
+	ScreenHandler::SCREEN_This_Room(PK_Screen,bAlways);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butThisRoom_CONST));
 	if( !bAlways )
 	{
 		int PK_Room = m_pWizardLogic->WhatRoomIsThisDeviceIn(m_pWizardLogic->GetTopMostDevice(m_pOrbiter->m_dwPK_Device));
 		if( PK_Room )
 		{
+			m_pOrbiter->ForceCurrentScreenIntoHistory();
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, DatabaseUtils::GetNameForRoom(m_pWizardLogic,PK_Room));
 
 			string sText=m_pOrbiter->m_mapTextString[TEXT_confirm_room_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_YES_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_NO_CONST];
 			string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_TV_provider_CONST) "|" 
 				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_This_Room_CONST) " " TOSTRING(COMMANDPARAMETER_Always_CONST) " 1";
 
-			DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
+			DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 				sText,sMessage);
-			m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
+			m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 
 			return;
 		}
@@ -587,7 +590,6 @@ void OSDScreenHandler::SCREEN_This_Room(long PK_Screen, bool bAlways)
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::ThisRoom_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::This_Room_GridSelected, new DatagridCellBackData());
-	return ScreenHandler::SCREEN_This_Room(PK_Screen,bAlways);
 }
 
 
@@ -1418,6 +1420,7 @@ void OSDScreenHandler::HandleLightingScreen()
 	}
 	else
 	{
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, DatabaseUtils::GetDescriptionForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_Lighting));
 		string sText=m_pOrbiter->m_mapTextString[TEXT_Lighting_interface_with_no_lights_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
 		string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AlarmPanel_CONST);
 
@@ -1779,33 +1782,6 @@ bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
-void OSDScreenHandler::SCREEN_AlarmPanel(long PK_Screen)
-{
-	m_tWaitingForRegistration=m_tRegistered=0;
-
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butAlarmPanelWizard_CONST)); // todo
-
-	m_pWizardLogic->m_nPK_Device_AlarmPanel = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Security_Interface_CONST);
-	if( m_pWizardLogic->m_nPK_Device_AlarmPanel )
-		m_pOrbiter->CMD_Goto_Screen("",SCREEN_AlarmPanel_CONST);
-	else
-	{
-		g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::SCREEN_AlarmPanel setting pnp devices");
-		m_pWizardLogic->FindPnpDevices(TOSTRING(DEVICECATEGORY_Security_Interface_CONST));
-		ScreenHandlerBase::SCREEN_AlarmPanel(PK_Screen);
-		m_pOrbiter->StartScreenHandlerTimer(500);
-	}
-
-	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AlarmPanel_ObjectSelected, new ObjectInfoBackData());
-	RegisterCallBack(cbOnTimer, (ScreenHandlerCallBack) &OSDScreenHandler::AlarmPanel_OnTimer, new CallBackData());
-	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AlarmPanel_DatagridSelected, new DatagridCellBackData());
-	RegisterCallBack(cbCapturedKeyboardBufferChanged, (ScreenHandlerCallBack) &OSDScreenHandler::AlarmPanel_CapturedKeyboardBufferChanged, new ObjectInfoBackData());
-	RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &OSDScreenHandler::AlarmPanel_Intercepted, new MsgInterceptorCellBackData());
-}
-//-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::HandleAlarmScreen()
 {
 	NeedToRender render2( m_pOrbiter, "OSDScreenHandler::HandleAlarmScreen" );  // Redraw anything that was changed by this command
@@ -1818,13 +1794,14 @@ void OSDScreenHandler::HandleAlarmScreen()
 	if( NumSensors )
 	{
 		if( m_pWizardLogic->m_dequeNumSensors.size()>0 )
-			m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_LightsSetupInclude_CONST),
+			m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_AlarmSetupInclude_CONST),
 										"", "", false, false );
 		else
 			m_pOrbiter->CMD_Goto_Screen("",SCREEN_VOIP_Provider_CONST);
 	}
 	else
 	{
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, DatabaseUtils::GetDescriptionForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_AlarmPanel));
 		string sText=m_pOrbiter->m_mapTextString[TEXT_Security_interface_with_no_sensors_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
 		string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_VOIP_Provider_CONST);
 
@@ -1834,49 +1811,80 @@ void OSDScreenHandler::HandleAlarmScreen()
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-bool OSDScreenHandler::AlarmPanel_Intercepted(CallBackData *pData)
+void OSDScreenHandler::SCREEN_AlarmPanel(long PK_Screen)
 {
-	return false;
-}
-//-----------------------------------------------------------------------------------------------------
-bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
-{
-	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	m_tWaitingForRegistration=m_tRegistered=0;
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butAlarmPanelWizard_CONST)); 
 
-	switch(GetCurrentScreen_PK_DesignObj())
+	m_pWizardLogic->m_nPK_Device_AlarmPanel =	m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Security_Interface_CONST);
+	if( m_pWizardLogic->m_nPK_Device_AlarmPanel )
+		HandleAlarmScreen();
+	else
 	{
-
+		g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::SCREEN_AlarmPanel setting pnp devices");
+		m_pWizardLogic->FindPnpDevices(TOSTRING(DEVICECATEGORY_Security_Interface_CONST));
+		ScreenHandlerBase::SCREEN_AlarmPanel(PK_Screen);
+		m_pOrbiter->StartScreenHandlerTimer(500);
 	}
 
+	m_nSensorInDequeToAssign=0;
+
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AlarmSetup_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AlarmSetup_SelectedGrid, new DatagridCellBackData());
+	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::AlarmSetup_OnScreen, new RenderScreenCallBackData());
+	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::AlarmSetup_OnGotoScreen, new GotoScreenCallBackData());
+	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &OSDScreenHandler::Alarm_OnTimer, new CallBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+bool OSDScreenHandler::AlarmSetup_OnGotoScreen(CallBackData *pData)
+{
+	//GotoScreenCallBackData *pGotoScreenCallBackData = (GotoScreenCallBackData *)pData;
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
-bool OSDScreenHandler::AlarmPanel_OnTimer(CallBackData *pData)
+bool OSDScreenHandler::AlarmSetup_OnScreen(CallBackData *pData)
+{
+	RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pData;
+	if( pRenderScreenCallBackData->m_pObj->m_iBaseObjectID==DESIGNOBJ_AlarmSetupRooms_CONST )
+	{
+		if( m_nSensorInDequeToAssign < (int) m_pWizardLogic->m_dequeNumSensors.size() )
+		{
+		}
+		else
+		{
+			m_pOrbiter->CMD_Goto_Screen("",SCREEN_VOIP_Provider_CONST);
+			m_pOrbiter->CMD_Refresh("");
+		}
+	}
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+bool OSDScreenHandler::Alarm_OnTimer(CallBackData *pData)
 {
 	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoAlarmPanel_CONST || m_tWaitingForRegistration )
 	{
-		m_pWizardLogic->m_nPK_Device_AlarmPanel = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Security_Interface_CONST);
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer alarm %d waiting %d",m_pWizardLogic->m_nPK_Device_AlarmPanel,(int) m_tWaitingForRegistration );
+		m_pWizardLogic->m_nPK_Device_AlarmPanel =	m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Security_Interface_CONST);
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer sensor %d waiting %d",m_pWizardLogic->m_nPK_Device_AlarmPanel,(int) m_tWaitingForRegistration );
 		if( m_pWizardLogic->m_nPK_Device_AlarmPanel )
 		{
 			char cRegistered = m_tRegistered ? 'Y' : m_pOrbiter->DeviceIsRegistered(m_pWizardLogic->m_nPK_Device_AlarmPanel);
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer registered %c", cRegistered);
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer registered %c", cRegistered);
 			if( cRegistered=='Y' )
 			{
 				// Wait another 10 seconds after the alarm device first registers so it has time to report all it's children
 				if( !m_tRegistered )
 				{
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer now registered, waiting 5 secs");
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer now registered, waiting 5 secs");
 					m_tRegistered=time(NULL);
 					m_tWaitingForRegistration=0;
 					return true;
 				}
 				else if( time(NULL)-m_tRegistered<10 )
 				{
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer more time to startup");
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer more time to startup");
 					return true;
 				}
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer now registered");
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer now registered");
 				HandleAlarmScreen();
 				return false;  // Kill the timer
 			}
@@ -1888,107 +1896,85 @@ g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer now registe
 					sText,"");
 				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer displaying waiting message %d",(int) m_tWaitingForRegistration);
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer displaying waiting message %d",(int) m_tWaitingForRegistration);
 			}
 			else if( time(NULL)-m_tWaitingForRegistration>60 )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::AlarmPanel_OnTimer timed out waiting for %d",m_pWizardLogic->m_nPK_Device_AlarmPanel);
+				g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::Alarm_OnTimer timed out waiting for %d",m_pWizardLogic->m_nPK_Device_AlarmPanel);
 				m_tWaitingForRegistration=0;
 
 				string sText=m_pOrbiter->m_mapTextString[TEXT_Device_did_not_start_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
-				string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AlarmPanel_CONST);
+				string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_VOIP_Provider_CONST);
 
 				DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 					sText,sMessage);
 				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer registration failed");
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer registration failed");
 				return false;
 			}
 		}
 	}
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer keeping timer");
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer keeping timer");
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
-bool OSDScreenHandler::AlarmPanel_DatagridSelected(CallBackData *pData)
+bool OSDScreenHandler::AlarmSetup_ObjectSelected(CallBackData *pData)
 {
-	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
-/*
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
-		case DESIGNOBJ_AlarmSensors_CONST:
+		case DESIGNOBJ_AlarmSetupRooms_CONST:
 		{
-			switch(pCellInfoData->m_nPK_Datagrid)
+			if(DESIGNOBJ_butAlarmType2_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				case DATAGRID_Devices_Children_Of_CONST:
-				{
-					string sSensorId = pCellInfoData->m_sValue;
-					string sSensorName = m_pWizardLogic->GetDeviceName(sSensorId);
-
-					m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sSensorName);
-					m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()),
-                                             sSensorName, TEXT_USR_ENTRY_CONST);
-					m_pOrbiter->CMD_Refresh("");
-
-					long FK_Room = m_pWizardLogic->GetRoomForDevice(sSensorId);
-					if(FK_Room)
-						m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, StringUtils::ltos(FK_Room));
-					else
-						m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
-					RefreshDatagrid(DESIGNOBJ_dgEditRooms_CONST);
-
-					long FK_DeviceTemplate = m_pWizardLogic->GetDeviceTemplateForDevice(sSensorId);
-					m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, StringUtils::ltos(FK_DeviceTemplate));
-					RefreshDatagrid(DESIGNOBJ_dgAlarmSensorTypes_CONST);
-				}
-				break;
-
-				case DATAGRID_Rooms_CONST:
-				{
-					string sSensorId = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
-					string sPK_Room = pCellInfoData->m_sValue;
-
-					m_pWizardLogic->SetRoomForDevice(sSensorId, sPK_Room);
-					RefreshDatagrid(DESIGNOBJ_dgAlarmSensors_CONST);
-				}
-				break;
-
-				case DATAGRID_Sensor_Type_CONST:
-				{
-					string sSensorId = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
-					string sPK_DeviceTemplate = pCellInfoData->m_sValue;
-
-					m_pWizardLogic->ChangeDeviceTemplateForDevice(sSensorId, sPK_DeviceTemplate);
-					RefreshDatagrid(DESIGNOBJ_dgAlarmSensors_CONST);
-				}
-				break;
+				int PK_Room = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST].c_str());
+				if( !PK_Room || !DatabaseUtils::SetDeviceInRoom(m_pWizardLogic,m_pWizardLogic->m_dequeNumSensors[m_nSensorInDequeToAssign].first,PK_Room) )
+					return true;  // This room isn't valid
 			}
 		}
 		break;
-	}
-*/
+		case DESIGNOBJ_AlarmType_CONST:
+		{
+			if(DESIGNOBJ_butAlarmName2_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				string sType = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
+				DatabaseUtils::SetDeviceData(m_pWizardLogic,m_pWizardLogic->m_dequeNumSensors[m_nSensorInDequeToAssign].first,
+											DEVICEDATA_PK_FloorplanObjectType_CONST,sType);
+				string sDefaultSensorName = DatabaseUtils::GetDescriptionFromTable(m_pWizardLogic,FLOORPLANOBJECTTYPE_TABLE,atoi(sType.c_str()));
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sDefaultSensorName);
+			}
+		}
+		break;
+		case DESIGNOBJ_AlarmName_CONST:
+		{
+			if(DESIGNOBJ_butAlarmSetupRoom_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				DatabaseUtils::SetDescriptionForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumSensors[m_nSensorInDequeToAssign].first,m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST]);
+				m_nSensorInDequeToAssign++;
+			}
+		}
+		break;
+	};
+
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
-bool OSDScreenHandler::AlarmPanel_CapturedKeyboardBufferChanged(CallBackData *pData)
-{/*
-	switch(GetCurrentScreen_PK_DesignObj())
+bool OSDScreenHandler::AlarmSetup_SelectedGrid(CallBackData *pData)
+{
+	DatagridCellBackData *pDatagridCellBackData = (DatagridCellBackData *) pData;
+	if( pDatagridCellBackData->m_nPK_Datagrid == DATAGRID_Rooms_CONST )
 	{
-		case DESIGNOBJ_AlarmSensors_CONST:
-		{
-			string sSensorId = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
-			string sName = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
-
-			if(sName != "")
-			{
-				m_pWizardLogic->SetDeviceName(sSensorId, sName);
-				RefreshDatagrid(DESIGNOBJ_dgAlarmSensors_CONST);
-			}
-		}
-		break;
+		int PK_Room = atoi(pDatagridCellBackData->m_sValue.c_str());
+		m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butAlarmType2_CONST), 0,"","", PK_Room ? "1" : "0" );
 	}
-*/
+	else if( pDatagridCellBackData->m_nPK_Datagrid == DATAGRID_Sensor_Type_CONST )
+	{
+		int PK_FloorplanObjecType = atoi(pDatagridCellBackData->m_sValue.c_str());
+		m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butAlarmName2_CONST), 0,"","", PK_FloorplanObjecType ? "1" : "0" );
+	}
+
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------

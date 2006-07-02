@@ -399,6 +399,10 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		void ServiceScreenHandler(void *data);
 		void StartScreenHandlerTimer(int nInterval /*in miliseconds*/);
 
+		// If in a screen's handler you are going to redirect to another screen, but want this one added to the history for go back's,
+		// call the base handler and then this function, like: 	ScreenHandler::SCREEN_This_Room(PK_Screen,bAlways); m_pOrbiter->ForceCurrentScreenIntoHistory();
+		void ForceCurrentScreenIntoHistory();
+
 	public: // temp - remove this
 
 		PlutoGraphic *m_pGraphicBeforeHighlight;

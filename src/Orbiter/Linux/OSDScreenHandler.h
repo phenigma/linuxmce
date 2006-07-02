@@ -77,6 +77,7 @@ public:
 	virtual void SCREEN_House_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line);
 	virtual void SCREEN_Media_Player_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line);
 
+	// Lights
 	virtual void SCREEN_LightsSetup(long PK_Screen);
 	virtual bool LightsSetup_ObjectSelected(CallBackData *pData);
 	virtual bool LightsSetup_SelectedGrid(CallBackData *pData);
@@ -89,11 +90,11 @@ public:
 
 	//9. Alarm Panel
 	virtual void SCREEN_AlarmPanel(long PK_Screen);
-	bool AlarmPanel_ObjectSelected(CallBackData *pData);
-	bool AlarmPanel_OnTimer(CallBackData *pData);
-	bool AlarmPanel_DatagridSelected(CallBackData *pData);
-	bool AlarmPanel_CapturedKeyboardBufferChanged(CallBackData *pData);
-	bool AlarmPanel_Intercepted(CallBackData *pData);
+	virtual bool AlarmSetup_ObjectSelected(CallBackData *pData);
+	virtual bool AlarmSetup_SelectedGrid(CallBackData *pData);
+	virtual bool AlarmSetup_OnScreen(CallBackData *pData);
+	virtual bool AlarmSetup_OnGotoScreen(CallBackData *pData);
+	virtual bool Alarm_OnTimer(CallBackData *pData);  // A normal thread for checking if we have Alarm yet
 	void HandleAlarmScreen();
 
 	//10. VOIP Provider

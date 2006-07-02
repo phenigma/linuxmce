@@ -800,6 +800,9 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 	string sOption1, string sMessage1, string sOption2, string sMessage2,
 	string sOption3, string sMessage3, string sOption4, string sMessage4)
 {
+	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::DisplayMessageOnOrbiter screen %d message %s option 1 %s / %s 2: %s / %s",
+		PK_Screen,sMessage.c_str(),sOption1.c_str(),sMessage1.c_str(),sOption2.c_str(),sMessage2.c_str());
+
 	NeedToRender render2( m_pOrbiter, "ScreenHandler::DisplayMessageOnOrbiter" );  // Redraw anything that was changed by this command
 	int PK_DesignObj = m_p_MapDesignObj_Find(PK_Screen);
 	if( !PK_DesignObj )
