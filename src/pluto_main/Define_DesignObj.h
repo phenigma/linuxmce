@@ -1768,7 +1768,7 @@
 #define DESIGNOBJ_butYourNameWizard_CONST 4619
 #define DESIGNOBJ_butTVManufWizard_CONST 4622
 #define DESIGNOBJ_butTVManufNotListed_CONST 4623
-#define DESIGNOBJ_AlarmDetect_CONST 4624
+#define DESIGNOBJ_AlarmSetupRooms_CONST 4624
 #define DESIGNOBJ_butWhichIRGroup_CONST 4626
 #define DESIGNOBJ_VoipNumber_CONST 4627
 #define DESIGNOBJ_butIRGroup_CONST 4628
@@ -1777,7 +1777,7 @@
 #define DESIGNOBJ_butConfirmCodes_CONST 4631
 #define DESIGNOBJ_butTypeTVmodel_CONST 4632
 #define DESIGNOBJ_AlarmPanelModel_CONST 4633
-#define DESIGNOBJ_AlarmNoPanelDetected_CONST 4634
+#define DESIGNOBJ_AlarmType_CONST 4634
 #define DESIGNOBJ_butWhatInputs_CONST 4635
 #define DESIGNOBJ_butLearnCodes_CONST 4636
 #define DESIGNOBJ_InWhichRoomIsTheSystem_CONST 4637
@@ -1823,7 +1823,7 @@
 #define DESIGNOBJ_AVDeviceModel_CONST 4677
 #define DESIGNOBJ_AVDeviceVideo_CONST 4678
 #define DESIGNOBJ_butLocationWizard_CONST 4679
-#define DESIGNOBJ_AlarmPanel_CONST 4680
+#define DESIGNOBJ_AlarmName_CONST 4680
 #define DESIGNOBJ_butTVProviderWizard_CONST 4681
 #define DESIGNOBJ_butAlarmPanelWizard_CONST 4682
 #define DESIGNOBJ_butTVBoxManuf_CONST 4683
@@ -1838,7 +1838,7 @@
 #define DESIGNOBJ_butLightType2_CONST 4694
 #define DESIGNOBJ_butLightName2_CONST 4695
 #define DESIGNOBJ_butAlarmSensors_CONST 4696
-#define DESIGNOBJ_AlarmSensors_CONST 4697
+#define DESIGNOBJ_AlarmSetupInclude_CONST 4697
 #define DESIGNOBJ_butVoipAccount_CONST 4698
 #define DESIGNOBJ_butFinal_CONST 4699
 #define DESIGNOBJ_Final_CONST 4700
