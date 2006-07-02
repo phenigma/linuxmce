@@ -1357,11 +1357,13 @@ g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::SCREEN_Wizard_Done selected
 
 void OSDScreenHandler::SCREEN_House_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line)
 {
+g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::SCREEN_House_Setup_Popup_Message text %s cmd line %s",sText.c_str(),sCommand_Line.c_str());
 	SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, "", "", "", "1");
 }
 
 void OSDScreenHandler::SCREEN_Media_Player_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line)
 {
+g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::SCREEN_Media_Player_Setup_Popup_Message text %s cmd line %s",sText.c_str(),sCommand_Line.c_str());
 	SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, "", "", "", "1");
 }
 
@@ -1811,9 +1813,9 @@ void OSDScreenHandler::HandleAlarmScreen()
 	int NumSensors = m_pWizardLogic->GetNumSensors();
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::itos(NumSensors));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,StringUtils::itos((int) m_pWizardLogic->m_dequeNumSensors.size()));
-	m_nSensorsInDequeToAssign=0;
+	m_nSensorInDequeToAssign=0;
 
-	if( NumLights )
+	if( NumSensors )
 	{
 		if( m_pWizardLogic->m_dequeNumSensors.size()>0 )
 			m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_LightsSetupInclude_CONST),
@@ -1875,7 +1877,7 @@ g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer more time t
 					return true;
 				}
 g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer now registered");
-				HandlealarmScreen();
+				HandleAlarmScreen();
 				return false;  // Kill the timer
 			}
 			else if( !m_tWaitingForRegistration )

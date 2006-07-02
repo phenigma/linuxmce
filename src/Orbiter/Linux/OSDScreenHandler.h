@@ -7,7 +7,7 @@ class OSDScreenHandler: public ScreenHandler
 {
 protected:
 	class WizardLogic *m_pWizardLogic;
-	int m_nLightInDequeToAssign; // To keep track of which light we're flashing
+	int m_nLightInDequeToAssign,m_nSensorInDequeToAssign; // To keep track of which light we're flashing, or sensor we're getting info on
 	bool m_bLightsFlashThreadQuit,m_bLightsFlashThreadRunning;
 	bool m_bHasVideoWizardFiles,m_bWizardIsRunning,m_bAlreadyPlaySeeAndHearMe,m_bAlreadyPlayFinalGreeting;
 	time_t m_tWaitingForRegistration,m_tRegistered;
@@ -94,6 +94,7 @@ public:
 	bool AlarmPanel_DatagridSelected(CallBackData *pData);
 	bool AlarmPanel_CapturedKeyboardBufferChanged(CallBackData *pData);
 	bool AlarmPanel_Intercepted(CallBackData *pData);
+	void HandleAlarmScreen();
 
 	//10. VOIP Provider
 	virtual void SCREEN_VOIP_Provider(long PK_Screen);

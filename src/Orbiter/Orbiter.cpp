@@ -4416,7 +4416,11 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 			{
 				pMessageTemp = new Message();
 				for(map<long, string>::iterator it = pScreenHistory->m_mapParameters.begin(); it != pScreenHistory->m_mapParameters.end(); it++)
+				{
+g_pPlutoLogger->Write(LV_CRITICAL,"Go back to %d with %d=%s",pScreenHistory->PK_Screen(),it->first,it->second);
 					pMessageTemp->m_mapParameters[it->first]=it->second;
+				}
+
 			}
 			CMD_Goto_Screen(m_pScreenHistory_NewEntry->ScreenID(),m_pScreenHistory_NewEntry->PK_Screen(),sCMD_Result,pMessageTemp);
 			delete pMessageTemp;

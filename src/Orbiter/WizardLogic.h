@@ -26,6 +26,7 @@ private:
 
 	string GetDeviceStatus(long nPK_Device);
 	deque< pair<int,string> > m_dequeNumLights;
+	deque< pair<int,string> > m_dequeNumSensors;
 
 	int m_dwPK_Manufacturer,m_dwPK_DeviceTemplate;
 
@@ -114,6 +115,7 @@ public:
 	/*
 		ALARM PANEL
 	*/
+	int GetNumSensors();
 
 	string GetDeviceName(string sPK_Device);
 	void SetDeviceName(string sPK_Device, string sName);

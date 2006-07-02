@@ -941,6 +941,11 @@ int WizardLogic::GetNumLights()
 	return (int) result_set.r->row_count;
 }
 
+int WizardLogic::GetNumSensors()
+{
+	return 0;
+}
+
 string WizardLogic::GetDeviceName(string sPK_Device)
 {
 	string sSQL = "SELECT Description FROM Device WHERE PK_Device = " + sPK_Device;
@@ -991,8 +996,14 @@ long WizardLogic::GetRoomForDevice(string sPK_Device)
 
 void WizardLogic::SetRoomForDevice(string sPK_Device, string sFK_Room)
 {
-	string sSQL = "UPDATE Device SET FK_Room = " + sFK_Room + " WHERE PK_Device = " + sPK_Device;
-	threaded_mysql_query(sSQL);
+	DCE::CMD_Set_Room_For_Device CMD_Set_Room_For_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,atoi(sPK_Device.c_str()),"",atoi(sFK_Room.c_str()));
+	string sResponse;
+	if( !m_pOrbiter->SendCommand(CMD_Set_Room_For_Device,&sResponse) )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"WizardLogic::SetRoomForDevice failed");
+		string sSQL = "UPDATE Device SET FK_Room = " + sFK_Room + " WHERE PK_Device = " + sPK_Device;
+		threaded_mysql_query(sSQL);
+	}
 }
 
 int WizardLogic::GetTopMostDevice(int PK_Device)
