@@ -485,6 +485,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		setDebuggingLevel( false );
 		{
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+			m_bHasAudio = xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_HAS_AUDIO );
 			m_bHasVideo = xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_HAS_VIDEO );
 
 			if ( m_iImgWidth == 0 ) m_iImgWidth++;
@@ -496,6 +497,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		{
 			g_pPlutoLogger->Write( LV_STATUS, "Media has video - enabling deinterlacing plugin" );
 			EnableDeinterlacing();
+			
 		}
 		else
 		{
@@ -542,7 +544,6 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 			g_pPlutoLogger->Write( LV_STATUS, "Stream is seekable: %d", xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_SEEKABLE ) );
 			xine_set_param( m_pXineStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE );
 		}
-
 	}
 	else
 	{
@@ -1434,6 +1435,13 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 					pXineStream->m_iChapter = atoi( p + 8 );
 			}
 			break;
+			
+		case XINE_EVENT_FRAME_FORMAT_CHANGE:
+		{
+			pXineStream->ReadAVInfo();
+			pXineStream->SendAVInfo();
+		}
+		break;
 
 		case XINE_EVENT_INPUT_MOUSE_MOVE:
 			if ( pXineStream->m_pDynamic_Pointer )
@@ -1519,6 +1527,9 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 				}
 				else
 					g_pPlutoLogger->Write( LV_STATUS, "Ignoring XINE_EVENT_UI_CHANNELS_CHANGED since there aren't multiple subtitles" );
+					
+				pXineStream->ReadAVInfo();
+				pXineStream->SendAVInfo();
 			}
 			break;
 
@@ -1645,7 +1656,10 @@ bool Xine_Stream::playStream( string mediaPosition)
 */
 		
 		ReportTimecode();
+				
+		ReadAVInfo();
 
+		
 		return true;
 	}
 	else
@@ -2576,7 +2590,96 @@ string Xine_Stream::readMediaInfo()
 	
 	g_pPlutoLogger->Write( LV_STATUS, "Stream media info (length=%i): \n%s", sMediaInfo.length(), sMediaInfo.c_str());
 	
+	m_sMediaInfo = sMediaInfo;
+	
 	return sMediaInfo;
+}
+
+void Xine_Stream::ReadAVInfo()
+{
+	m_sAudioInfo = "";
+	m_sVideoInfo = "";
+	
+	// temporary data
+	string sAudioInfo = "";
+	string sVideoInfo = "";
+	
+	if (m_bHasAudio)
+	{
+		const char *pInfo=NULL;
+		 {
+		 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		 	pInfo = xine_get_meta_info(m_pXineStream, XINE_META_INFO_AUDIOCODEC);
+		 }
+
+		if (pInfo)
+		{
+			sAudioInfo = pInfo;
+			
+			// is this dolby/dts?
+			if (StringUtils::StartsWith(sAudioInfo, "A/52"))
+			{
+				m_sAudioInfo = "dolby digital";
+			}
+			else 
+				if (StringUtils::StartsWith(sAudioInfo, "DTS"))
+				{
+					m_sAudioInfo = "dts";
+				}
+				else
+					m_sAudioInfo = "pcm";
+		}
+	}
+	
+	if (m_bHasVideo)
+	{
+		const char *pInfo = NULL;
+		 {
+		 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+			pInfo = xine_get_meta_info(m_pXineStream, XINE_META_INFO_VIDEOCODEC);
+		}
+		
+		if (pInfo)
+		{
+			int iVideoWidth = xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_VIDEO_WIDTH );
+			int iVideoHeight = xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_VIDEO_HEIGHT );
+			//detecting frame ratio (actual)
+			if ( (iVideoHeight!=0) && (iVideoWidth!=0) )
+			{
+				// calculating X:Y - minimal ratio
+				
+				int iW = iVideoWidth;
+				int iH = iVideoHeight;
+				
+				int div = 2;
+				
+				while ( iH >= 2*div )
+				{
+					if ( (iH%div==0) && (iW%div==0) )
+					{
+						iH /= div;
+						iW /= div;
+					}
+					else
+						div++;
+				}
+				
+				m_sVideoInfo = StringUtils::itos( iW ) + ":" + StringUtils::itos( iH );
+			}
+			
+			sVideoInfo = pInfo;
+			sVideoInfo += ", " + StringUtils::itos( iVideoWidth ) + "x" + StringUtils::itos( iVideoHeight );
+		}
+	}	
+
+	g_pPlutoLogger->Write( LV_WARNING, "Read media A/V information: [%s]/[%s] => [%s]/[%s]", sAudioInfo.c_str(), sVideoInfo.c_str(), m_sAudioInfo.c_str(), m_sVideoInfo.c_str() );
+}
+
+void Xine_Stream::SendAVInfo()
+{
+	g_pPlutoLogger->Write( LV_WARNING, "Send AV info PRE");
+	m_pFactory->ReportAVInfo( m_sCurrentFile, m_iStreamID, m_sMediaInfo, m_sAudioInfo, m_sVideoInfo);
+	g_pPlutoLogger->Write( LV_WARNING, "Send AV info POST");
 }
 
 } // DCE namespace end

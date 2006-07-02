@@ -216,14 +216,14 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 	{
 		if (pStream->playStream( sMediaPosition))
 		{
-			EVENT_Playback_Started(sFilename,iStreamID,sMediaInfo,"audio??","video??");
+			EVENT_Playback_Started(sFilename,iStreamID,sMediaInfo,pStream->m_sAudioInfo,pStream->m_sVideoInfo);
 		}
 		else
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Xine_Player::CMD_Play_Media() failed to play -- retrying without starting position info");
 			if (pStream->playStream( sMediaPosition))
 			{
-				
+				EVENT_Playback_Started(sFilename,iStreamID,sMediaInfo,pStream->m_sAudioInfo,pStream->m_sVideoInfo);
 			}
 			else
 			{

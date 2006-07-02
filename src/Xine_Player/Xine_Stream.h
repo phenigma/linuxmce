@@ -100,10 +100,13 @@ namespace DCE
 	
 			// stream properties
 			bool m_bHasVideo;
+			bool m_bHasAudio;
+			
 			int m_iImgWidth;
 			int m_iImgHeight;
 			int m_iImgXPos;
 			int m_iImgYPos;
+			string m_sMediaInfo;
 			
 			int m_iPlaybackSpeed;
 			
@@ -111,11 +114,14 @@ namespace DCE
 			
 			int m_iSeekMuteStatus;
 			
-			string readMediaInfo();	
+			string readMediaInfo();
+			void ReadAVInfo();
+			void SendAVInfo();
 		public:
 			int m_iTimeCodeReportFrequency;
 			bool m_bIsVDR;   // Is this live tv from VDR?
-			
+			string m_sAudioInfo;
+			string m_sVideoInfo;
 			
 		private:
 			int m_iSpecialSeekSpeed;

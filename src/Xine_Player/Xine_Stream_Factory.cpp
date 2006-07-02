@@ -294,6 +294,12 @@ void Xine_Stream_Factory::ReportSubtitles( string sSubtitles)
 	m_pPlayer->DATA_Set_Subtitles(sSubtitles);
 }
 
+void Xine_Stream_Factory::ReportAVInfo( string sFilename, int iStreamID, string sMediaInfo, string sAudioInfo, string sVideoInfo )
+{
+	m_pPlayer->EVENT_Playback_Started(sFilename, iStreamID, sMediaInfo, sAudioInfo, sVideoInfo);
+}
+
+
 void Xine_Stream_Factory::ReportTimecode(int iStreamID, int Speed)
 {
 	m_pPlayer->ReportTimecode( iStreamID, Speed);
