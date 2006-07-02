@@ -675,8 +675,9 @@ m_bNoEffects = true;
 			if( pRow_Device_DeviceData )
 			{
 				string::size_type pos=0;
-				m_rSpacing.X += atoi(StringUtils::Tokenize(pRow_Device_DeviceData->IK_DeviceData_get(),",",pos).c_str());
-				m_rSpacing.Y += atoi(StringUtils::Tokenize(pRow_Device_DeviceData->IK_DeviceData_get(),",",pos).c_str());
+				string sValue = pRow_Device_DeviceData->IK_DeviceData_get();
+				m_rSpacing.X += atoi(StringUtils::Tokenize(sValue,",",pos).c_str());
+				m_rSpacing.Y += atoi(StringUtils::Tokenize(sValue,",",pos).c_str());
 			}
 		}
 		else
