@@ -658,20 +658,29 @@ m_bNoEffects = true;
 
 	m_sScale.Width = m_pRow_Size->ScaleX_get();
 	m_sScale.Height = m_pRow_Size->ScaleY_get();
+	int iSpacingParameter=0;
 
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Spacing_CONST);
 	if( pRow_Device_DeviceData && atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) )
 	{
-		int Spacing = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str());
-		if( Spacing>0 && Spacing<50 )
+		iSpacingParameter = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str());
+		if( iSpacingParameter>0 && iSpacingParameter<50 )
 		{
-			string::size_type pos=0;
-			m_rSpacing.Width = m_rSpacing.X = m_pRow_Size->Width_get() * ( Spacing/2 ) / 100;
-			m_rSpacing.Height = m_rSpacing.Y = m_pRow_Size->Height_get() * ( Spacing/2 ) / 100;
+			m_rSpacing.Width = m_rSpacing.X = m_pRow_Size->Width_get() * ( iSpacingParameter/2 ) / 100;
+			m_rSpacing.Height = m_rSpacing.Y = m_pRow_Size->Height_get() * ( iSpacingParameter/2 ) / 100;
 			// We're not going to ever commit m_pRow_Size, so just change the scale accordingly
-			m_pRow_Size->ScaleX_set( m_pRow_Size->ScaleX_get() - (m_pRow_Size->ScaleX_get() * Spacing / 100) );
-			m_pRow_Size->ScaleY_set( m_pRow_Size->ScaleY_get() - (m_pRow_Size->ScaleY_get() * Spacing / 100) );
+			m_pRow_Size->ScaleX_set( m_pRow_Size->ScaleX_get() - (m_pRow_Size->ScaleX_get() * iSpacingParameter / 100) );
+			m_pRow_Size->ScaleY_set( m_pRow_Size->ScaleY_get() - (m_pRow_Size->ScaleY_get() * iSpacingParameter / 100) );
+			pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Offset_CONST);
+			if( pRow_Device_DeviceData )
+			{
+				string::size_type pos=0;
+				m_rSpacing.X += atoi(StringUtils::Tokenize(pRow_Device_DeviceData->IK_DeviceData_get(),",",pos).c_str());
+				m_rSpacing.Y += atoi(StringUtils::Tokenize(pRow_Device_DeviceData->IK_DeviceData_get(),",",pos).c_str());
+			}
 		}
+		else
+			iSpacingParameter=0;
 	}
 
 
@@ -682,7 +691,10 @@ m_bNoEffects = true;
 		+ StringUtils::itos(m_pRow_Skin->PK_Skin_get()) + ","
 		+ StringUtils::itos(m_pRow_UI->PK_UI_get()) + ","
 		+ StringUtils::itos(m_iRotation) 
-		+ StringUtils::itos(m_rSpacing.X) + ","
+		+ StringUtils::itos(m_rSpacing.X) + "," 
+		+ StringUtils::itos(m_rSpacing.Y) + "," 
+		+ StringUtils::itos(m_rSpacing.Width) + "," 
+		+ StringUtils::itos(m_rSpacing.Height) + "," 
 		+ (m_bUseOCG ? ",OCG" : ",NO_OCG");
 
 	if( m_pRow_Orbiter->Size_get()!=sSize && m_map_PK_DesignObj_SoleScreenToGen.size()==0 )
@@ -741,10 +753,10 @@ m_bNoEffects = true;
 
 	// See if we need to reduce the scaling because of borders around the screen
 	if( m_rSpacing.X || m_rSpacing.Width )
-		m_sScale.Width = (double) m_sScale.Width * (1 - ((double) m_rSpacing.X + m_rSpacing.Width) / m_pRow_Size->Width_get());
+		m_sScale.Width = (double) m_sScale.Width * (100-iSpacingParameter) / 100;
 
 	if( m_rSpacing.Y || m_rSpacing.Height )
-		m_sScale.Height = (double) m_sScale.Height * (1 - ((double) m_rSpacing.Y + m_rSpacing.Height) / m_pRow_Size->Height_get());
+		m_sScale.Height = (double) m_sScale.Height * (100-iSpacingParameter) / 100;
 
 	int i=0;
 
@@ -2274,10 +2286,13 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 	}
 
 	// Offset for the spacing
-	ocDesignObj->m_rPosition.X += m_rSpacing.X;
-	ocDesignObj->m_rPosition.Y += m_rSpacing.Y;
-	ocDesignObj->m_rBackgroundPosition.X += m_rSpacing.X;
-	ocDesignObj->m_rBackgroundPosition.Y += m_rSpacing.Y;
+	if( m_mapPopups.find(atoi(ParentScreen.c_str()))==m_mapPopups.end() )
+	{
+		ocDesignObj->m_rPosition.X += m_rSpacing.X;
+		ocDesignObj->m_rPosition.Y += m_rSpacing.Y;
+		ocDesignObj->m_rBackgroundPosition.X += m_rSpacing.X;
+		ocDesignObj->m_rBackgroundPosition.Y += m_rSpacing.Y;
+	}
 }
 
 

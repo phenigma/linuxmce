@@ -8508,7 +8508,7 @@ void Orbiter::ServiceAlerts( void *iData )
 		DesignObjText *pText = FindText( pObj,TEXT_STATUS_CONST );
 		if( pText )
 			pText->m_sText = sMessages;
-		CMD_Show_Popup(TOSTRING(DESIGNOBJ_popAlertMessage_CONST),0,0,"","popup_alert",false,true);
+		CMD_Show_Popup(TOSTRING(DESIGNOBJ_popAlertMessage_CONST),m_rSpacing.X,m_rSpacing.Y,"","popup_alert",false,true);
 	}
 	else
 		CMD_Remove_Popup("","popup_alert");

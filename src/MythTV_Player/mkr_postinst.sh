@@ -68,7 +68,7 @@ addEntries RecordFilePrefix /var/lib/mythtv/ $hostname;
 addEntries MasterServerIP	$routerip;
 addEntries MasterServerPort	6543;
 
-PID=`pidof /usr/bin/mythbackend`;
+PID=`pidof /usr/bin/mythbackend` || /bin/true;
 if [ "$PID" != "" ]; then
 	# It seems that in certain circumstances the backed refuses to notice the -9 signal
 	kill -9 $PID;

@@ -8,7 +8,7 @@
 
 #include <deque>
 
-#define ORBITER_SCHEMA		27	// Used to determine if cached screens can be used or if the schema has changed
+#define ORBITER_SCHEMA		28	// Used to determine if cached screens can be used or if the schema has changed
 
 #ifdef ORBITER
 #include "DesignObj_Orbiter.h"
@@ -72,6 +72,7 @@ public:
 	map<int,int> m_mapDesignObj; //Used to map a screen to a DesignObj
 	map<int,int> m_mapPK_Screen_GoBackToScreen;  // For screens in this map, if there's a go back
 	bool m_bIsOSD,m_bNewOrbiter;
+	PlutoRectangle m_rSpacing;  // Offsets for the screen image
 
 	// Some global devices
 	int m_dwPK_Device_Router,m_dwPK_Device_DatagridPlugIn,m_dwPK_Device_InfraredPlugIn,m_dwPK_Device_GeneralInfoPlugIn,m_dwPK_Device_EventPlugIn,m_dwPK_Device_OrbiterPlugIn,
@@ -125,7 +126,7 @@ public:
 	virtual void ShowProgress(int nPercent) {}
 	void SetupSerialization(int iSC_Version)
 	{
-		StartSerializeList() + m_mapVariable + m_Width + m_Height + m_AnimationStyle + m_sInitialScreen + m_sMainMenu + m_sSleepingMenu + m_sScreenSaveMenu + m_dwPK_Users_Default + m_iLocation_Initial + m_iUiVersion + m_sSkin
+		StartSerializeList() + m_mapVariable + m_Width + m_Height + m_rSpacing + m_AnimationStyle + m_sInitialScreen + m_sMainMenu + m_sSleepingMenu + m_sScreenSaveMenu + m_dwPK_Users_Default + m_iLocation_Initial + m_iUiVersion + m_sSkin
 			+ m_dwPK_Device_Router + m_dwPK_Device_DatagridPlugIn + m_dwPK_Device_EventPlugIn + m_dwPK_Device_InfraredPlugIn + m_dwPK_Device_GeneralInfoPlugIn + m_dwPK_Device_OrbiterPlugIn
 			+ m_dwPK_Device_LightingPlugIn + m_dwPK_Device_ClimatePlugIn + m_dwPK_Device_MediaPlugIn + m_dwPK_Device_TelecomPlugIn + m_dwPK_Device_SecurityPlugIn + m_dwPK_Device_PlugAndPlayPlugIn
 			+ m_dwPK_Device_LocalAppServer + m_dwPK_Device_LocalMediaPlayer + m_tGenerationTime + m_mapTextString + m_vectPK_Users_RequiringPIN + m_iRotation 

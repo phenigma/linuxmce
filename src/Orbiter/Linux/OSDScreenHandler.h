@@ -10,7 +10,7 @@ protected:
 	int m_nLightInDequeToAssign; // To keep track of which light we're flashing
 	bool m_bLightsFlashThreadQuit,m_bLightsFlashThreadRunning;
 	bool m_bHasVideoWizardFiles,m_bWizardIsRunning,m_bAlreadyPlaySeeAndHearMe,m_bAlreadyPlayFinalGreeting;
-	time_t m_tWaitingForRegistration;
+	time_t m_tWaitingForRegistration,m_tRegistered;
 
 public:
 	OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj);

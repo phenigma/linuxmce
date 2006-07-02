@@ -49,7 +49,7 @@ OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignO
 	m_bLightsFlashThreadRunning=m_bLightsFlashThreadQuit=false;
 	m_pWizardLogic = new WizardLogic(pOrbiter);
 	m_dwMessageInterceptorCounter_ReportingChildDevices = 0;
-	m_tWaitingForRegistration = 0;
+	m_tWaitingForRegistration = m_tRegistered = 0;
 
 	if(!m_pWizardLogic->Setup())
 	{
@@ -1428,7 +1428,7 @@ void OSDScreenHandler::HandleLightingScreen()
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 {
-	m_tWaitingForRegistration=0;
+	m_tWaitingForRegistration=m_tRegistered=0;
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butLightsWizard_CONST)); 
 
 	m_pWizardLogic->m_nPK_Device_Lighting =	m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Lighting_Interface_CONST);
@@ -1500,13 +1500,25 @@ bool OSDScreenHandler::Lights_OnTimer(CallBackData *pData)
 g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer light %d waiting %d",m_pWizardLogic->m_nPK_Device_Lighting,(int) m_tWaitingForRegistration );
 		if( m_pWizardLogic->m_nPK_Device_Lighting )
 		{
-			char cRegistered = m_pOrbiter->DeviceIsRegistered(m_pWizardLogic->m_nPK_Device_Lighting);
+			char cRegistered = m_tRegistered ? 'Y' : m_pOrbiter->DeviceIsRegistered(m_pWizardLogic->m_nPK_Device_Lighting);
 g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer registered %c", cRegistered);
 			if( cRegistered=='Y' )
 			{
-				m_tWaitingForRegistration=0;
-				HandleLightingScreen();
+				// Wait another 10 seconds after the lighting device first registers so it has time to report all it's children
+				if( !m_tRegistered )
+				{
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer now registered, waiting 5 secs");
+					m_tRegistered=time(NULL);
+					m_tWaitingForRegistration=0;
+					return true;
+				}
+				else if( time(NULL)-m_tRegistered<10 )
+				{
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer more time to startup");
+					return true;
+				}
 g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer now registered");
+				HandleLightingScreen();
 				return false;  // Kill the timer
 			}
 			else if( !m_tWaitingForRegistration )
@@ -1767,12 +1779,23 @@ bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_AlarmPanel(long PK_Screen)
 {
+	m_tWaitingForRegistration=m_tRegistered=0;
+
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butAlarmPanelWizard_CONST)); // todo
 
-	ScreenHandlerBase::SCREEN_AlarmPanel(PK_Screen);
+	m_pWizardLogic->m_nPK_Device_AlarmPanel = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Security_Interface_CONST);
+	if( m_pWizardLogic->m_nPK_Device_AlarmPanel )
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_AlarmPanel_CONST);
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::SCREEN_AlarmPanel setting pnp devices");
+		m_pWizardLogic->FindPnpDevices(TOSTRING(DEVICECATEGORY_Security_Interface_CONST));
+		ScreenHandlerBase::SCREEN_AlarmPanel(PK_Screen);
+		m_pOrbiter->StartScreenHandlerTimer(500);
+	}
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AlarmPanel_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbOnTimer, (ScreenHandlerCallBack) &OSDScreenHandler::AlarmPanel_OnTimer, new CallBackData());
@@ -1781,31 +1804,36 @@ void OSDScreenHandler::SCREEN_AlarmPanel(long PK_Screen)
 	RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &OSDScreenHandler::AlarmPanel_Intercepted, new MsgInterceptorCellBackData());
 }
 //-----------------------------------------------------------------------------------------------------
+void OSDScreenHandler::HandleAlarmScreen()
+{
+	NeedToRender render2( m_pOrbiter, "OSDScreenHandler::HandleAlarmScreen" );  // Redraw anything that was changed by this command
+	int PK_DeviceTemplate = DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_AlarmPanel);
+	int NumSensors = m_pWizardLogic->GetNumSensors();
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::itos(NumSensors));
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,StringUtils::itos((int) m_pWizardLogic->m_dequeNumSensors.size()));
+	m_nSensorsInDequeToAssign=0;
+
+	if( NumLights )
+	{
+		if( m_pWizardLogic->m_dequeNumSensors.size()>0 )
+			m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_LightsSetupInclude_CONST),
+										"", "", false, false );
+		else
+			m_pOrbiter->CMD_Goto_Screen("",SCREEN_VOIP_Provider_CONST);
+	}
+	else
+	{
+		string sText=m_pOrbiter->m_mapTextString[TEXT_Security_interface_with_no_sensors_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
+		string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_VOIP_Provider_CONST);
+
+		DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
+			sText,sMessage);
+		m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
+	}
+}
+//-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::AlarmPanel_Intercepted(CallBackData *pData)
 {
-	if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_AlarmDetect_CONST)
-	{
-		MsgInterceptorCellBackData *pMsgInterceptorCellBackData = (MsgInterceptorCellBackData *) pData;
-
-		if(pMsgInterceptorCellBackData->m_pMessage->m_dwMessage_Type == MESSAGETYPE_EVENT &&
-           pMsgInterceptorCellBackData->m_pMessage->m_dwID == EVENT_Reporting_Child_Devices_CONST )
-		{
-			string sResult = pMsgInterceptorCellBackData->m_pMessage->m_mapParameters[EVENTPARAMETER_Error_Message_CONST];
-			if(!sResult.size())
-			{
-				m_pWizardLogic->m_bAlarmPanelIsOk = true; //sensors discovered
-				return false;
-			}
-			else
-			{
-				m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_AlarmNoPanelDetected_CONST), "", "", false, false);
-				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sResult);
-				m_pOrbiter->CMD_Refresh("*");
-				return false; //wrong port or device
-			}
-		}
-	}
-
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1815,97 +1843,7 @@ bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
 
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
-		case DESIGNOBJ_AlarmPanel_CONST:
-		{
-			if(DESIGNOBJ_butAlarmPanelModel_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
-			{
-				string sAlarmManuf = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
-				if(sAlarmManuf == "")
-					return true;
-			}
-		}
-		break;
 
-		case DESIGNOBJ_AlarmPanelModel_CONST:
-		{
-			if(DESIGNOBJ_butAlarmPanelPort_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
-			{
-				string sAlarmModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
-				if(sAlarmModel == "")
-					return true;
-			}
-		}
-		break;
-
-		case DESIGNOBJ_SelectPort_CONST:
-		{
-			if(DESIGNOBJ_butSelectedPort_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
-			{
-				string sAlarmPort = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
-				if(sAlarmPort == "")
-					return true;
-
-				string::size_type pos=0;
-				int iPK_Device_ControlledVia = atoi(StringUtils::Tokenize(sAlarmPort,",",pos).c_str());
-				string sPort = StringUtils::Tokenize(sAlarmPort,",",pos);
-
-				string sAlarmModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
-				string sDeviceData = StringUtils::ltos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + sPort;
-
-				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_Security_Interface_CONST);
-				m_pWizardLogic->m_nPK_Device_AlarmPanel = m_pWizardLogic->AddDevice(atoi(sAlarmModel.c_str()), sDeviceData,
-                                                                                    iPK_Device_ControlledVia);
-// HACK!!!  This damn DSC panel doesn't seem to be able to report it's sensors automatically.  We're just going to fake it for now
-                {
-                    m_pWizardLogic->AddDevice(DEVICETEMPLATE_Door_Sensor_CONST,
-                                              StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) + "|" + StringUtils::itos(FLOORPLANOBJECTTYPE_SECURITY_DOOR_CONST)
-                                              + "|" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|3",
-                                              m_pWizardLogic->m_nPK_Device_AlarmPanel);
-                    m_pWizardLogic->AddDevice(DEVICETEMPLATE_Motion_Detector_CONST,
-                                              StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) + "|" + StringUtils::itos(FLOORPLANOBJECTTYPE_SECURITY_MOTION_DETECTOR_CONST)
-                                              + "|" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|1",
-                                              m_pWizardLogic->m_nPK_Device_AlarmPanel);
-                    m_pWizardLogic->AddDevice(DEVICETEMPLATE_Doorbell_button_CONST,
-                                              StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) + "|" + StringUtils::itos(FLOORPLANOBJECTTYPE_SECURITY_INTERCOM_CONST)
-                                              + "|" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|8",
-                                              m_pWizardLogic->m_nPK_Device_AlarmPanel);
-                    m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
-                    m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, "");
-                    m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
-                    m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
-                    m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
-                    m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Filter_CONST, StringUtils::ltos(m_pWizardLogic->m_nPK_Device_AlarmPanel));
-
-                    m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_AlarmSensors_CONST), "", "", false, false);
-                    m_pOrbiter->CMD_Refresh("*");
-                    return true;
-                }
-
-				m_pWizardLogic->m_bAlarmPanelCommandReceived = false;
-				m_pWizardLogic->m_bAlarmPanelIsOk = false;
-				m_pWizardLogic->m_nAlarmDeviceTimeout = 210 * 1000;// 3 min and 1/2 timeout
-
-				g_pPlutoLogger->Write(LV_WARNING, "AddDevice called for alarm device %d", m_pWizardLogic->m_nPK_Device_AlarmPanel);
-				m_pWizardLogic->m_bAlarmPanelDetectionStarted = false;
-			}
-		}
-		break;
-
-		case DESIGNOBJ_AlarmDetect_CONST:
-		{
-			if(!m_pWizardLogic->m_bAlarmPanelDetectionStarted)
-			{
-				m_pWizardLogic->m_bAlarmPanelDetectionStarted = true;
-                m_pOrbiter->StartScreenHandlerTimer(500);
-
-				g_pPlutoLogger->Write(LV_WARNING, "Started detection timer for alarm device %d", m_pWizardLogic->m_nPK_Device_AlarmPanel);
-
-				m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter::ScreenHandlerMsgInterceptor),0,0,0,0,MESSAGETYPE_EVENT,EVENT_Reporting_Child_Devices_CONST);
-
-				g_pPlutoLogger->Write(LV_WARNING, "Registered message interceptor for %d", m_pWizardLogic->m_nPK_Device_AlarmPanel);
-			}
-		}
-		break;
 	}
 
 	return false;
@@ -1913,51 +1851,61 @@ bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::AlarmPanel_OnTimer(CallBackData *pData)
 {
-	if(!m_pWizardLogic->m_nPK_Device_AlarmPanel)
-		return true;
-	else if(!m_pWizardLogic->m_bAlarmPanelCommandReceived)
+	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoAlarmPanel_CONST || m_tWaitingForRegistration )
 	{
-		string sResponse;
-		DCE::CMD_Report_Child_Devices CMD_Report_Child_Devices_(m_pOrbiter->m_dwPK_Device,
-                                                                m_pWizardLogic->m_nPK_Device_AlarmPanel);
-
-		if(!m_pOrbiter->SendCommand(CMD_Report_Child_Devices_, &sResponse) || sResponse != "OK" )
-			g_pPlutoLogger->Write(LV_WARNING, "Alarm panel is NOT registered. We'll try again later");
-		else
+		m_pWizardLogic->m_nPK_Device_AlarmPanel = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Security_Interface_CONST);
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer alarm %d waiting %d",m_pWizardLogic->m_nPK_Device_AlarmPanel,(int) m_tWaitingForRegistration );
+		if( m_pWizardLogic->m_nPK_Device_AlarmPanel )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Alarm panel is registered. We'll wait to be notified with Reporting event.");
-			m_pWizardLogic->m_bAlarmPanelCommandReceived = true;
+			char cRegistered = m_tRegistered ? 'Y' : m_pOrbiter->DeviceIsRegistered(m_pWizardLogic->m_nPK_Device_AlarmPanel);
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer registered %c", cRegistered);
+			if( cRegistered=='Y' )
+			{
+				// Wait another 10 seconds after the alarm device first registers so it has time to report all it's children
+				if( !m_tRegistered )
+				{
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer now registered, waiting 5 secs");
+					m_tRegistered=time(NULL);
+					m_tWaitingForRegistration=0;
+					return true;
+				}
+				else if( time(NULL)-m_tRegistered<10 )
+				{
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer more time to startup");
+					return true;
+				}
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer now registered");
+				HandlealarmScreen();
+				return false;  // Kill the timer
+			}
+			else if( !m_tWaitingForRegistration )
+			{
+				m_tWaitingForRegistration = time(NULL);
+				string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|nobuttons";
+				DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
+					sText,"");
+				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
+
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer displaying waiting message %d",(int) m_tWaitingForRegistration);
+			}
+			else if( time(NULL)-m_tWaitingForRegistration>60 )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::AlarmPanel_OnTimer timed out waiting for %d",m_pWizardLogic->m_nPK_Device_AlarmPanel);
+				m_tWaitingForRegistration=0;
+
+				string sText=m_pOrbiter->m_mapTextString[TEXT_Device_did_not_start_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
+				string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AlarmPanel_CONST);
+
+				DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
+					sText,sMessage);
+				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
+
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer registration failed");
+				return false;
+			}
 		}
 	}
-	else{
-		m_pWizardLogic->m_nAlarmDeviceTimeout -= 500;
-
-		g_pPlutoLogger->Write(LV_WARNING, "Check status for device %d... Milliseconds left: %d",
-                              m_pWizardLogic->m_nPK_Device_AlarmPanel, m_pWizardLogic->m_nAlarmDeviceTimeout);
-
-		if(m_pWizardLogic->m_bAlarmPanelIsOk)
-		{
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, "");
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Filter_CONST, StringUtils::ltos(m_pWizardLogic->m_nPK_Device_AlarmPanel));
-
-			m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_AlarmSensors_CONST), "", "", false, false);
-			m_pOrbiter->CMD_Refresh("*");
-			return false; //it's our guy
-		}
-
-		if(m_pWizardLogic->m_nAlarmDeviceTimeout <= 0)
-		{
-			m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_AlarmNoPanelDetected_CONST), "", "", false, false);
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "The alarm panel does not respond");
-			m_pOrbiter->CMD_Refresh("*");
-			return false; //wrong port or device
-		}
-	}
-
+g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer keeping timer");
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------

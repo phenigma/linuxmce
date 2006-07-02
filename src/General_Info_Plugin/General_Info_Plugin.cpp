@@ -952,14 +952,16 @@ class DataGridTable *General_Info_Plugin::CitiesGrid( string GridID, string Parm
 		string sSQL;
 		// Fields are 0=PK_City,1=PK_PostalCode,2=City,3=Region,4=PostalCode,5=Lat,6=Long,7=time zone
 		if( i==0 )
-			sSQL = "SELECT PK_City,PK_PostalCode,City.City,Region.Region,PostalCode.PostalCode,City.Latitude,City.Longitude,City.FK_TimeZone FROM PostalCode "
+			sSQL = "SELECT PK_City,PK_PostalCode,City.City,Region.Region,PostalCode.PostalCode,City.Latitude,City.Longitude,ZoneName FROM PostalCode "
 				"LEFT JOIN City ON FK_City=PK_City "
 				"LEFT JOIN Region on FK_Region=PK_Region "
+				"LEFT JOIN TimeZone ON PK_TimeZone=FK_TimeZone "
 				"WHERE PostalCode.FK_Country=" + StringUtils::itos(PK_Country) + " AND PostalCode.PostalCode LIKE '%" + Parms + "%' "
 				"ORDER BY City.City like '" + Parms + "%' desc,City.City,Region.Region";  // Put the cities that start with this string first
 		else
-			sSQL = "SELECT PK_City,0,City.City,Region.Region,'',City.Latitude,City.Longitude,City.FK_TimeZone FROM City "
+			sSQL = "SELECT PK_City,0,City.City,Region.Region,'',City.Latitude,City.Longitude,ZoneName FROM City "
 				"LEFT JOIN Region on FK_Region=PK_Region "
+				"LEFT JOIN TimeZone ON PK_TimeZone=FK_TimeZone "
 				"WHERE City.City LIKE '%" + Parms + "%' "
 				"AND City.FK_Country=" + StringUtils::itos(PK_Country) + " " 
 				"ORDER BY City.City like '" + Parms + "%' desc,City.City,Region.Region";  // Put the cities that start with this string first

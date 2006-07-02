@@ -163,11 +163,12 @@ bool CopySourceFile(string sInput,string sOutput)
 		return StringUtils::Replace( sOutput, sOutput, "<=version=>", g_pRow_Version->VersionName_get() );
 	}
 	// Little hack so we know what's a test installation
-	else if( !g_bSimulate && g_sDefines.find("-DDEBUG")!=string::npos && (sInput.find("Initial_Config_Real.sh")!=string::npos || sInput.find("Initial_Config_Core.sh")!=string::npos || sInput.find("Initial_Config_MD.sh")!=string::npos) )
+	else if( !g_bSimulate && g_sDefines.find("-DDEBUG")!=string::npos && (sInput.find("Diskless_CreateFS.sh")!=string::npos || sInput.find("Initial_Config_Real.sh")!=string::npos || sInput.find("Initial_Config_Core.sh")!=string::npos || sInput.find("Initial_Config_MD.sh")!=string::npos) )
 	{
 		StringUtils::Replace( sInput, "/temp.makerelease.test.installation1", "TestInstallation = 0", "TestInstallation = 1" );
 		StringUtils::Replace( "/temp.makerelease.test.installation1", "/temp.makerelease.test.installation2", "20dev", "20temp" );
-		StringUtils::Replace( "/temp.makerelease.test.installation2", "/temp.makerelease.test.installation", "replacements ", "replacementstemp " );
+		StringUtils::Replace( "/temp.makerelease.test.installation2", "/temp.makerelease.test.installation3", "replacements ", "replacementstemp " );
+		StringUtils::Replace( "/temp.makerelease.test.installation3", "/temp.makerelease.test.installation", "replacements.", "replacementstemp." );
 		FileUtils::PUCopyFile( "/temp.makerelease.test.installation", sInput);
 		FileUtils::PUCopyFile( "/temp.makerelease.test.installation", sOutput);
 		return true;

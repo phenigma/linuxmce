@@ -402,7 +402,7 @@ bool WizardLogic::SetLocation(string sLocation)
 	string Longitude = StringUtils::Tokenize(sLocation,"\t",pos);
 	string TimeZone = StringUtils::Tokenize(sLocation,"\t",pos);
 
-	if( !PK_City || City.size()==0 || Latitude.size()==0 || Longitude.size()==0 )
+	if( !PK_City || City.size()==0 || Latitude.size()==0 || Longitude.size()==0 || TimeZone.size()==0 )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"WizardLogic::SetLocation City %d %s lat %s long %s",PK_City,City.c_str(),Latitude.c_str(),Longitude.c_str());
 		return false;
@@ -415,6 +415,19 @@ bool WizardLogic::SetLocation(string sLocation)
 	threaded_mysql_query(sSQL);
 
 	SetLongLat(Longitude,Latitude);
+
+	DeviceData_Base *pDevice_Core = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Core_CONST);
+	if( pDevice_Core )
+	{
+		DeviceData_Base *pDevice_AppServer = 
+			pDevice_Core->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
+		if( pDevice_AppServer )
+		{
+			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
+				"/usr/pluto/bin/SetTimeZone.sh","set time zone",TimeZone,"","",false,false,false);
+			m_pOrbiter->SendCommand(CMD_Spawn_Application);
+		}
+	}
 
 	return true;
 }

@@ -514,12 +514,8 @@ int main(int argc, char *argv[])
 		cout << "echo \"*************************\"" << endl;
 		cout << "echo \"*************************\"" << endl;
 		cout << "echo \"Installation complete.\"" << endl;
-		cout << "echo \"If there was any source code that needed to be built,\"" << endl;
-		cout << "echo \"we created a file '/usr/pluto/install/compile.sh' which compiles them.\"" << endl;
-		cout << "echo \"Press enter to continue.\"" << endl;
 		cout << "echo \"*************************\"" << endl;
 		cout << "echo \"*************************\"" << endl;
-		cout << "read" << endl;
 	}
 	else if( sCommand=="build" || sCommand=="buildall" )
 	{
