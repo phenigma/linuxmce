@@ -2195,6 +2195,10 @@
 #define DESIGNOBJ_mnuAddSoftware_CONST 5137
 #define DESIGNOBJ_dgInstallableApps_CONST 5138
 #define DESIGNOBJ_NoReceiver_CONST 5139
+#define DESIGNOBJ_butAlarmSetupRoom_CONST 5140
+#define DESIGNOBJ_butAlarmSetupLater_CONST 5141
+#define DESIGNOBJ_butAlarmType2_CONST 5142
+#define DESIGNOBJ_butAlarmName2_CONST 5143
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
