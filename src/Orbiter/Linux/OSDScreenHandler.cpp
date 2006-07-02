@@ -1914,7 +1914,7 @@ g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::AlarmPanel_OnTimer keeping tim
 bool OSDScreenHandler::AlarmPanel_DatagridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
-
+/*
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
 		case DESIGNOBJ_AlarmSensors_CONST:
@@ -1967,12 +1967,12 @@ bool OSDScreenHandler::AlarmPanel_DatagridSelected(CallBackData *pData)
 		}
 		break;
 	}
-
+*/
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::AlarmPanel_CapturedKeyboardBufferChanged(CallBackData *pData)
-{
+{/*
 	switch(GetCurrentScreen_PK_DesignObj())
 	{
 		case DESIGNOBJ_AlarmSensors_CONST:
@@ -1988,7 +1988,7 @@ bool OSDScreenHandler::AlarmPanel_CapturedKeyboardBufferChanged(CallBackData *pD
 		}
 		break;
 	}
-
+*/
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
