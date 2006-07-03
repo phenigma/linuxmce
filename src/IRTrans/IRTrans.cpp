@@ -104,71 +104,70 @@ bool IRTrans::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	if( !m_Virtual_Device_Translator.GetConfig(m_pData) )
-		return false;
+	if( m_dwPK_Device!=DEVICEID_MESSAGESEND )
+	{
+		if( !m_Virtual_Device_Translator.GetConfig(m_pData) )
+			return false;
 
-	IRReceiverBase::GetConfig(m_pData);
-	IRBase::setCommandImpl(this);
-	IRBase::setAllDevices(&(GetData()->m_AllDevices));
+		IRReceiverBase::GetConfig(m_pData);
+		IRBase::setCommandImpl(this);
+		IRBase::setAllDevices(&(GetData()->m_AllDevices));
+	}
 
 	FileUtils::DelDir("remotes");
 	system("mkdir remotes");
 
-	DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Infrared_Plugins_CONST);
-	if( pDevice )
+	string sResult;
+	DCE::CMD_Get_Sibling_Remotes_Cat CMD_Get_Sibling_Remotes_Cat(m_dwPK_Device,DEVICECATEGORY_Infrared_Plugins_CONST,true,BL_AllHouses, DEVICECATEGORY_IRTrans_Remote_Controls_CONST, &sResult);
+	SendCommand(CMD_Get_Sibling_Remotes_Cat);
+	vector<string> vectRemotes;
+
+	StringUtils::Tokenize(sResult, "`", vectRemotes); 
+	int i;
+	for(i=0;i<vectRemotes.size();i++)
 	{
-		string sResult;
-		DCE::CMD_Get_Sibling_Remotes CMD_Get_Sibling_Remotes(m_dwPK_Device,pDevice->m_dwPK_Device, DEVICECATEGORY_IRTrans_Remote_Controls_CONST, &sResult);
-		getCommandImpl()->SendCommand(CMD_Get_Sibling_Remotes);
-		vector<string> vectRemotes;
-
-		StringUtils::Tokenize(sResult, "`", vectRemotes); 
-		int i;
-		for(i=0;i<vectRemotes.size();i++)
+		vector<string> vectRemoteConfigs;
+		StringUtils::Tokenize(vectRemotes[i], "~", vectRemoteConfigs);
+		if (vectRemoteConfigs.size() == 3)
 		{
-			vector<string> vectRemoteConfigs;
-			StringUtils::Tokenize(vectRemotes[i], "~", vectRemoteConfigs);
-			if (vectRemoteConfigs.size() == 3)
+			int PK_DeviceRemote = atoi(vectRemoteConfigs[0].c_str());
+			g_pPlutoLogger->Write(LV_STATUS, "Adding remote ID %d, layout %s\r\n", PK_DeviceRemote, vectRemoteConfigs[1].c_str());
+			char cRemoteLayout = 'W';
+			if( vectRemoteConfigs[1].size() )
+				cRemoteLayout = vectRemoteConfigs[1][0];
+			
+			m_mapRemoteLayout[PK_DeviceRemote]=cRemoteLayout;
+
+			string sConfiguration = vectRemoteConfigs[2];
+			const char *pConfig = sConfiguration.c_str();
+			FILE *fp = fopen(("remotes/" + StringUtils::itos(PK_DeviceRemote) + ".rem").c_str(),"wb");
+			fwrite(pConfig,1,vectRemoteConfigs[2].size(),fp);
+			fclose(fp);
+			string sUpper = StringUtils::ToUpper(sConfiguration);
+			string::size_type pos_name=0;
+			while( (pos_name=sUpper.find("[NAME]",pos_name))!=string::npos )
 			{
-				int PK_DeviceRemote = atoi(vectRemoteConfigs[0].c_str());
-				g_pPlutoLogger->Write(LV_STATUS, "Adding remote ID %d, layout %s\r\n", PK_DeviceRemote, vectRemoteConfigs[1].c_str());
-				char cRemoteLayout = 'W';
-				if( vectRemoteConfigs[1].size() )
-					cRemoteLayout = vectRemoteConfigs[1][0];
-				
-				m_mapRemoteLayout[pDevice->m_dwPK_Device]=cRemoteLayout;
+				// Be sure there's nothing but white space before this
+				string::size_type pos_space=pos_name-1;
+				while( pos_space>0 && (pConfig[pos_space]==' ' || pConfig[pos_space]=='\t') )
+					pos_space--;
 
-				string sConfiguration = vectRemoteConfigs[2];
-				const char *pConfig = sConfiguration.c_str();
-				FILE *fp = fopen(("remotes/" + StringUtils::itos(PK_DeviceRemote) + ".rem").c_str(),"wb");
-				fwrite(pConfig,1,vectRemoteConfigs[2].size(),fp);
-				fclose(fp);
-				string sUpper = StringUtils::ToUpper(sConfiguration);
-				string::size_type pos_name=0;
-				while( (pos_name=sUpper.find("[NAME]",pos_name))!=string::npos )
+				if( pos_space>0 && pConfig[pos_space]!='\r' && pConfig[pos_space]!='\n' )
 				{
-					// Be sure there's nothing but white space before this
-					string::size_type pos_space=pos_name-1;
-					while( pos_space>0 && (pConfig[pos_space]==' ' || pConfig[pos_space]=='\t') )
-						pos_space--;
-
-					if( pos_space>0 && pConfig[pos_space]!='\r' && pConfig[pos_space]!='\n' )
-					{
-						pos_name++;
-						continue; // It's a name embedded somewhere in the file, not the name we want
-					}
-
-					pos_name += 6; // skip the name
-					while( pConfig[pos_name] && (pConfig[pos_name]==' ' || pConfig[pos_name]=='\t') )
-						pos_name++;
-
-					pos_space = pos_name +1;
-					while( pConfig[pos_space] && pConfig[pos_space]!='\n' && pConfig[pos_space]!='\r' && pConfig[pos_space]!='\t' )
-						pos_space++;
-					m_mapNameToDevice[ sConfiguration.substr(pos_name,pos_space-pos_name) ] = PK_DeviceRemote;
-					g_pPlutoLogger->Write(LV_STATUS,"Added remote %s device %d layout %c",sConfiguration.substr(pos_name,pos_space-pos_name).c_str(),PK_DeviceRemote,cRemoteLayout);
-					break;
+					pos_name++;
+					continue; // It's a name embedded somewhere in the file, not the name we want
 				}
+
+				pos_name += 6; // skip the name
+				while( pConfig[pos_name] && (pConfig[pos_name]==' ' || pConfig[pos_name]=='\t') )
+					pos_name++;
+
+				pos_space = pos_name +1;
+				while( pConfig[pos_space] && pConfig[pos_space]!='\n' && pConfig[pos_space]!='\r' && pConfig[pos_space]!='\t' )
+					pos_space++;
+				m_mapNameToDevice[ sConfiguration.substr(pos_name,pos_space-pos_name) ] = PK_DeviceRemote;
+				g_pPlutoLogger->Write(LV_STATUS,"Added remote %s device %d layout %c",sConfiguration.substr(pos_name,pos_space-pos_name).c_str(),PK_DeviceRemote,cRemoteLayout);
+				break;
 			}
 		}
 	}
@@ -347,6 +346,12 @@ void IRTrans::StartIRServer()
 
 void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 {
+	if( m_dwPK_Device!=DEVICEID_MESSAGESEND )
+	{
+		ForceKeystroke(pCommand);
+		return;
+	}
+
 	if( m_sAltPort.size() && m_bIRServerRunning )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"IRTrans setting port to %s",m_sAltPort.c_str());
@@ -359,6 +364,15 @@ void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 		g_pPlutoLogger->Write(LV_CRITICAL,"Got command %s from unknown remote %s",pCommand,pRemote);
 	else
 		ReceivedCode(PK_Device,pCommand);
+}
+
+void IRTrans::ForceKeystroke(string sCommand)
+{
+	g_pPlutoLogger->Write(LV_STATUS,"IRTrans::ForceKeystrokeo %s",sCommand.c_str());
+	if(sCommand=="up")
+		g_pPlutoLogger->Write(LV_STATUS,"IRTrans::ForceKeystroke up");
+	else if(sCommand=="up")
+		g_pPlutoLogger->Write(LV_STATUS,"IRTrans::ForceKeystroke down");
 }
 
 void IRTrans::DoUpdateDisplay(vector<string> *vectString)

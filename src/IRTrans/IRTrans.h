@@ -10,7 +10,10 @@
 /*
 	We will set a call back function for IRTrans CallBackFn=&DoGotIRCommand; so GotIRCommand is called when
 	keys are pressed, and will receive the keyname and the remote.  We pass this back to IRReceiver Base with
-	ReceivedCode(PK_Device,pCommand);, which handles processing the code
+	ReceivedCode(PK_Device,pCommand);, which handles processing the code.
+
+	if run with device id -1003 (DEVICEID_MESSAGESEND) that means orbiter isn't running, we're just booting up,
+	and want to use the i/r remote to simulate the u/d/l/r/enter and +/- keys for A/V Wizard
 */
 
 #include "../LIRC_DCE/IRReceiverBase.h"
@@ -32,6 +35,7 @@ namespace DCE
 public:
 		// Public member variables
 		void StartIRServer();
+		void ForceKeystroke(string sCommand);
 		void GotIRCommand(const char *pRemote,const char *pCommand);
 		void DoUpdateDisplay(vector<string> *vectString);  // Put this message on the VFD Display
 		virtual void SendIR(string Port, string IRCode); // Required from IRBase

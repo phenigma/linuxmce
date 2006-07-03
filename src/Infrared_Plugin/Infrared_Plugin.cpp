@@ -24,6 +24,7 @@ using namespace DCE;
 #include "DCE/DataGrid.h"
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Device.h"
+#include "pluto_main/Table_DeviceTemplate_DeviceData.h"
 #include "pluto_main/Table_DeviceCategory.h"
 #include "pluto_main/Table_InfraredGroup.h"
 #include "pluto_main/Table_InfraredGroup_Command.h"
@@ -873,8 +874,31 @@ void Infrared_Plugin::CMD_Get_Remote_Control_Mapping(string *sValue_To_Assign,st
 void Infrared_Plugin::CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c793-e->
 {
-	// Find all our sibblings that are remote controls 
+	// This is a special workaround so that the remote control can work on the first boot before it's added to the database
+	// If the I/R receiver is running with this device id, that means nothing is in the database.  Just give it all remotes
+	if( pMessage->m_dwPK_Device_From==DEVICEID_MESSAGESEND )
+	{
+		vector<Row_DeviceTemplate *> vectRow_DeviceTemplate;
+		m_pDatabase_pluto_main->DeviceTemplate_get()->GetRows( DEVICETEMPLATE_FK_DEVICECATEGORY_FIELD "=" + StringUtils::itos(iPK_DeviceCategory), &vectRow_DeviceTemplate );
+		for( vector<Row_DeviceTemplate *>::iterator it=vectRow_DeviceTemplate.begin();it!=vectRow_DeviceTemplate.end();++it )
+		{
+			Row_DeviceTemplate *pRow_DeviceTemplate = *it;
+			Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData_Remote = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(), DEVICEDATA_Remote_Layout_CONST);
+			Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData_Config = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(), DEVICEDATA_Configuration_CONST);
+			string sRemoteLayout = pRow_DeviceTemplate_DeviceData_Remote ? pRow_DeviceTemplate_DeviceData_Remote->IK_DeviceData_get() : "";
+			string sConfiguration = pRow_DeviceTemplate_DeviceData_Config ? pRow_DeviceTemplate_DeviceData_Config->IK_DeviceData_get() : "";
 
+			if ( sRemoteLayout.size() && sConfiguration.size() )
+			{
+				if((*sValue_To_Assign).length() > 0)
+					(*sValue_To_Assign)+="`";
+				(*sValue_To_Assign)+=StringUtils::itos(pRow_DeviceTemplate->PK_DeviceTemplate_get())+"~"+sRemoteLayout+"~"+sConfiguration;
+			}
+		}
+		return;
+	}
+	
+	// Find all our sibblings that are remote controls 
 	Table_Device * pTable_Device = m_pDatabase_pluto_main->Device_get();
 
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pMessage->m_dwPK_Device_From);

@@ -455,6 +455,8 @@ bool Command_Impl::RouterNeedsReload()
 
 int Command_Impl::DeviceIdInvalid()
 {
+	if( m_dwPK_Device==DEVICEID_MESSAGESEND )
+		return 0;
 #ifndef WINCE
 	cout << "Device ID is invalid.  Exiting..." << endl;
 	exit(3);
