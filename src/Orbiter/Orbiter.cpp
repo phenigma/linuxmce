@@ -3523,7 +3523,7 @@ int k=2;
 			map<int,  string>::iterator iap;
 			for( iap=pCommand->m_ParameterList.begin(  );iap!=pCommand->m_ParameterList.end(  );++iap )
 			{
-				string Value = SubstituteVariables( ( *iap ).second, pObj, X, Y );
+				string Value = SubstituteVariables((*iap).second, pObj, X, Y);
 				pThisMessage->m_mapParameters[( *iap ).first]=Value;
 				if( ( *iap ).first==COMMANDPARAMETER_Repeat_Command_CONST )
 					bAlreadySetRepeat=true;
@@ -3638,6 +3638,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 
 		int PK_Variable=0;
 		string Variable = Input.substr( pos,  foundend-pos );
+
 		if(  Variable=="M"  )
 			Output += m_sMainMenu;
 		else if(  Variable=="!"  )
@@ -3910,8 +3911,10 @@ g_pPlutoLogger->Write(LV_CRITICAL,"now playing active popup 8 now %p",m_pActiveP
 		if(  PK_Variable>0  )
 		{
 			PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-				Output+=m_mapVariable[PK_Variable];
-			vm.Release(  );
+			string sVarValue = m_mapVariable[PK_Variable];
+			vm.Release();
+
+			Output += SubstituteVariables(sVarValue, NULL, 0, 0);
 		}
 		pos=foundend+2;
 	}
@@ -5888,7 +5891,12 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	m_iPK_Screen_RemoteOSD=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_Screen_OSD_Speed=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_Screen_OSD_Track=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
-	m_sDefaultRippingName = sFilename;
+
+	
+	//m_sDefaultRippingName = sFilename;
+	//temporary. remove me!
+	m_sDefaultRippingName = sFilename != " %=T1197% " ? sFilename : "<%=T1197%>";
+
 	m_sNowPlaying_TimeShort="";
 	m_sNowPlaying_TimeLong="";
 
