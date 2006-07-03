@@ -2548,10 +2548,10 @@ if(UsesUIVersion2())
 	if ( event.type == Orbiter::Event::BUTTON_UP )
 		return ButtonUp(event.data.button.m_iPK_Button);
 
-	if ( event.type == Orbiter::Event::REGION_DOWN )
+	if ( event.type == Orbiter::Event::REGION_DOWN && event.data.region.m_iButton == 1)
 		return RegionDown(event.data.region.m_iX, event.data.region.m_iY);
 
-	if ( event.type == Orbiter::Event::REGION_UP )
+	if ( event.type == Orbiter::Event::REGION_UP && event.data.region.m_iButton == 1)
 		return  RegionUp(event.data.region.m_iX, event.data.region.m_iY); // Shouldn't this be like the above?
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
