@@ -15,6 +15,7 @@ function users($output,$dbADO) {
 
 	if (@$_SESSION['userLoggedIn']!=true) {
 		header("Location: index.php?section=login&from=users");
+		exit();
 	}
 
 	$installationID = cleanInteger($_SESSION['installationID']);

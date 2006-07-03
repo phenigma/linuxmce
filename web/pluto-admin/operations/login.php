@@ -8,7 +8,14 @@ function login($output,$dbADO) {
 	$out='';
 	$actionX = cleanString(@$_REQUEST['action']);
 
+	$users=getAssocArray('Users','PK_Users','Username',$dbADO);
+	
 	$loginFormBig= '
+		<script>
+			function windowOpen(locationA,attributes) {
+				window.open(locationA,"",attributes);
+			}
+		</script>
 
 	<form name="form1" id="form1" method="post" action="'.$_SERVER['PHP_SELF'].'">
 	<input type="hidden" name="section" value="login">
@@ -22,7 +29,14 @@ function login($output,$dbADO) {
 			<td colspan="2" align="center">
 				<B>'.((isset($_SESSION['logout_msg']))?$_SESSION['logout_msg']:$TEXT_WELCOME_MSG_CONST).'</B>
 			</td>
-		</tr>		
+		</tr>';
+	if(count($users)==0){
+		$loginFormBig.='
+		<tr> 
+	      <td colspan="2" align="center"><span class="err">'.$TEXT_NO_USERS_CONST.'</span><br><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createUser&from=login\',\'width=600,height=650,toolbars=true, resizable=1\');">'.$TEXT_CREATE_NEW_ADMIN_USER_CONST.'</a><br><br><br></td>
+	    </tr>';
+	}else{
+		$loginFormBig.='		
 	    <tr> 
 	      <td>'.$TEXT_USERNAME_CONST.'</td>
 	      <td>
@@ -34,7 +48,10 @@ function login($output,$dbADO) {
 	    </tr>
 	    <tr>
 	      <td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_LOGIN_CONST.'" /></td>
-	    </tr>
+	    </tr>';
+	}
+	
+	$loginFormBig.='
 	    <tr>
 	    &nbsp;&nbsp;
 	    </tr>

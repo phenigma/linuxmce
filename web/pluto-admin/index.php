@@ -17,11 +17,21 @@ $GLOBALS['server_start_time']=getmicrotime();
 $section = @$_REQUEST['section'];
 if(!isset($_SESSION['userLoggedIn']) && $section!='' && $section!='login' && $section!='wizard' && $section!='proxySocket' && $section!='orbitersWin'){
 
-	// invalid session, destroy it and send user to login
-	unset($_SESSION);
-	session_destroy();
+	if($section=='createUser'){
+		$users=getAssocArray('Users','PK_Users','Username',$dbADO);
+		if(count($users)>0){
+			unset($_SESSION);
+			session_destroy();
 
-	die('<script>top.location="index.php?section=login"</script>');
+			die('<script>top.location="index.php?section=login"</script>');
+		}
+	}else{
+		// invalid session, destroy it and send user to login
+		unset($_SESSION);
+		session_destroy();
+
+		die('<script>top.location="index.php?section=login"</script>');
+	}
 }
 
 validate_installation((int)@$_SESSION['installationID'],$dbADO);
@@ -1430,6 +1440,27 @@ switch ($section) {
 	    include_once('operations/dce/deviceCategoryDeviceData.php');
 	    deviceCategoryDeviceData($output,$dbADO);	    
 	break;	
+	case 'checkAmazon':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/checkAmazon.php');
+	    checkAmazon($output,$mediadbADO,$dbADO);	    
+	break;	
+	case 'searchAmazon':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/mediaBrowser/searchAmazon.php');
+	    searchAmazon($output,$mediadbADO,$dbADO);	    
+	break;	
+	case 'grabAmazonAttributes':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/mediaBrowser/grabAmazonAttributes.php');
+	    grabAmazonAttributes($output,$mediadbADO,$dbADO);	    
+	break;	
+
+	
+	
 	case '';
 		$output = new Template($dbADO);	
 		

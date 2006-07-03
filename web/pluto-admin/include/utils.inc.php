@@ -4351,7 +4351,7 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 	}
 	
 	$viewParamsButton=($section=='rubyCodes')?'<input type="button" class="button_fixed" name="viewParams" value="View params" onClick="windowOpen(\'index.php?section=editCommand&from=rubyCodes&commandID='.$dataArray['FK_Command'][$pos].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');"><br>':'';
-	$testButton=((int)$deviceID!=0 && $section !='rubyCodes')?'<br> <input type="button" class="button" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irData=\'+escape(document.'.$section.'.irData_'.$pos.'.value)+\'&deviceID='.$deviceID.'&sender='.$section.'\';"> <a name="test_'.$pos.'">':'';
+	$testButton=((int)$deviceID!=0 && $section !='rubyCodes')?'<br> <input type="button" class="button_fixed" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irData=\'+escape(document.'.$section.'.irData_'.$pos.'.value)+\'&deviceID='.$deviceID.'&sender='.$section.'\';"> <a name="test_'.$pos.'">':'';
 	
 	$out='
 		<table width="100%">

@@ -120,26 +120,7 @@ function createUser($output,$dbADO) {
 						</tr>
 			';
 			
-			if ($resHisInstallations) {
-					$resHisInstallations->MoveFirst();
-					$hisInstallationsTxt='';
-					while ($rowHisInstallations=$resHisInstallations->fetchRow()) {
-						$hisInstallationsTxt.='<option '.(@$_SESSION['createUser']['userMainInstallation']==$rowHisInstallations['PK_Installation']?"selected='selected'":'').' value="'.$rowHisInstallations['PK_Installation'].'">'.$rowHisInstallations['Description'].'</option>';
-					}
-			}
-			$out.='<tr>
-						<td><B>'.$TEXT_MAIN_INSTALLATION_CONST.'</B><br>'.$TEXT_MAIN_INSTALLATION_INFO_CONST.'</td>
-						<td>
-							<select name="userMainInstallation">
-							<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>
-							'.$hisInstallationsTxt.'
-							</select>
-						</td>
-					</tr>
-			';
-			
-			$out.='</tr>';
-			
+		
 			$out.='
 					<tr>
 						<td colspan="2" align="left">* Required fields.</td>
@@ -169,8 +150,9 @@ function createUser($output,$dbADO) {
 		
 	//check if current user canModifyInstallation
 	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
+	$users=getAssocArray('Users','PK_Users','Username',$dbADO);
 	
-	if ($canModifyInstallation) {		
+	if ($canModifyInstallation || count($users)==0) {		
 		
 		$username = $_SESSION['createUser']['userUserName'] = cleanString($_POST['userUserName']);
 		
@@ -187,8 +169,7 @@ function createUser($output,$dbADO) {
 		
 		$userLanguage = $_SESSION['createUser']['userLanguage'] = cleanInteger(@$_POST['userLanguage']);
 		
-		$userMainInstallation = $_SESSION['createUser']['userMainInstallation'] = (cleanInteger($_POST['userMainInstallation'])==0?null:cleanInteger($_POST['userMainInstallation']));
-		
+	
 		$userPassword = $_SESSION['createUser']['userPassword'] = cleanString($_POST['userPassword']);
 		$userPassword2 = $_SESSION['createUser']['userPassword2'] = cleanString($_POST['userPassword2']);
 		$passMd5=md5($userPassword);
@@ -238,10 +219,9 @@ function createUser($output,$dbADO) {
 						FK_Language=?,
 						PINCode=?,
 						Password_Unix=?,
-						Password_Samba=?,
-						FK_Installation_Main=?
+						Password_Samba=?
 					WHERE PK_Users=?',
-				array($passMd5, $hasMailbox, $userAccessGeneralMailbox, $userFirstName, $userLastName, $userNickname, $userExtension, $userLanguage, $pinCodeMd5, $LinuxPass, $SambaPass,$userMainInstallation,$insertID));
+				array($passMd5, $hasMailbox, $userAccessGeneralMailbox, $userFirstName, $userLastName, $userNickname, $userExtension, $userLanguage, $pinCodeMd5, $LinuxPass, $SambaPass,$insertID));
 			
 					
 				$insertUserToInstallation = "
@@ -254,14 +234,20 @@ function createUser($output,$dbADO) {
 				$commandToSend='sudo -u root /usr/pluto/bin/SetupUsers.sh';
 				exec($commandToSend);
             			
-				$out.="
+				$out="
 				<script>
 					alert('$TEXT_USER_CREATED_CONST');
-				    opener.document.forms.{$from}.action.value='form';
-					opener.document.forms.{$from}.submit();
+					try{
+				    	opener.document.forms.{$from}.action.value='form';
+						opener.document.forms.{$from}.submit();
+					}catch(e){
+						// error
+						opener.location.reload();
+					}
 					self.close();
 				</script>
-				";			
+				";	
+				die($out);		
             }else{
 				header("Location: index.php?section=createUser&error=".urlencode(join("<br>",$retMessage)));
 				exit();
@@ -273,6 +259,7 @@ function createUser($output,$dbADO) {
 		
 	} else {
 			header("Location: index.php?section=createUser&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
+			exit();
 	}
 	
 }

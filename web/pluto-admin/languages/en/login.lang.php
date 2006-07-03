@@ -8,4 +8,6 @@ $TEXT_ERROR_NO_INSTALLATION_CONST='You don\'t have any installation.';
 $TEXT_ERROR_REMOTE_ACCES_FAILED_CONST='Remote acces failed: there is no user who can modify installation';
 $TEXT_ERROR_INVALID_USER_OR_PASSWORD_CONST='Invalid username or password, try again';
 $TEXT_LOGOUT_MSG_CONST='Thank you for your visit!';
+$TEXT_NO_USERS_CONST='There are no users in database.';
+$TEXT_CREATE_NEW_ADMIN_USER_CONST='Create new user.';
 ?>
