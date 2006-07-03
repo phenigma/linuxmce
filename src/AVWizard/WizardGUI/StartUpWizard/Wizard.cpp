@@ -43,9 +43,9 @@ Wizard::Wizard()
 	: 
 	Quit(false),
 	StatusChange(true),
-	LeftBorder(100),
-	TopBorder(100),
-	WizardBorder(100)
+	LeftBorder(0),
+	TopBorder(0),
+	WizardBorder(0)
 {
 	this->ExitCode = 0;
 	AVWizardConfParser ConfigurationParser;
