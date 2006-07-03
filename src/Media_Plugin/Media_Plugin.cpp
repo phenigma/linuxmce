@@ -4501,7 +4501,7 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 		pMediaStream->m_mapPK_Attribute.find(ATTRIBUTETYPE_Title_CONST)!=pMediaStream->m_mapPK_Attribute.end() )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Media_Identified stream is now identified disc");
-		m_bIdentifiedDisc=true;
+		pMediaStream->m_bIdentifiedDisc=true;
 	}
 }
 
