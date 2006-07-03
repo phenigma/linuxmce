@@ -24,6 +24,7 @@ namespace DatabaseUtils
 {
 	int GetTopMostDevice(MySqlHelper *pMySqlHelper,int PK_Device);
 	int GetNumberOfChildDevices(MySqlHelper *pMySqlHelper,int PK_Device);
+	void SetDeviceTemplateForDevice(MySqlHelper *pMySqlHelper,int PK_Device,int PK_DeviceTemplate);
 	int GetDeviceTemplateForDevice(MySqlHelper *pMySqlHelper,int PK_Device);
 	string HumanReadablePort(MySqlHelper *pMySqlHelper,int PK_Device,string sPort);
 	void GetUnusedPortsOnPC(MySqlHelper *pMySqlHelper,int PK_Device,vector<string> &vectPorts);

@@ -82,9 +82,15 @@ int DatabaseUtils::GetDeviceTemplateForDevice(MySqlHelper *pMySqlHelper,int PK_D
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) && row[0] && atoi(row[0]) )
-		return GetTopMostDevice(pMySqlHelper,atoi(row[0]));
+		return atoi(row[0]);
 	else
-		return PK_Device;
+		return 0;
+}
+
+void DatabaseUtils::SetDeviceTemplateForDevice(MySqlHelper *pMySqlHelper,int PK_Device,int PK_DeviceTemplate)
+{
+	string sSQL = "UPDATE Device SET FK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate) + " WHERE PK_Device=" + StringUtils::itos(PK_Device);
+	pMySqlHelper->threaded_mysql_query(sSQL);	
 }
 
 void DatabaseUtils::GetUnusedPortsOnAllPCs(MySqlHelper *pMySqlHelper,vector< pair<int,string> > &vectAllPorts, 

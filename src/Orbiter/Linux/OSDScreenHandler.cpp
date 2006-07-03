@@ -1789,18 +1789,17 @@ void OSDScreenHandler::HandleAlarmScreen()
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,StringUtils::itos((int) m_pWizardLogic->m_dequeNumSensors.size()));
 	m_nSensorInDequeToAssign=0;
 
-	if( NumSensors )
-	{
-		if( m_pWizardLogic->m_dequeNumSensors.size()>0 )
-			m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_AlarmSetupInclude_CONST),
+	if( NumSensors &&  m_pWizardLogic->m_dequeNumSensors.size()>0 )
+		m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_AlarmSetupInclude_CONST),
 										"", "", false, false );
-		else
-			m_pOrbiter->CMD_Goto_Screen("",SCREEN_VOIP_Provider_CONST);
-	}
 	else
 	{
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, DatabaseUtils::GetDescriptionForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_AlarmPanel));
-		string sText=m_pOrbiter->m_mapTextString[TEXT_Security_interface_with_no_sensors_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
+		string sText;
+		if( NumSensors )
+			sText=m_pOrbiter->m_mapTextString[TEXT_security_panel_already_setup_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
+		else
+			sText=m_pOrbiter->m_mapTextString[TEXT_Security_interface_with_no_sensors_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
 		string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_VOIP_Provider_CONST);
 
 		m_pOrbiter->ForceCurrentScreenIntoHistory();
@@ -1848,6 +1847,7 @@ bool OSDScreenHandler::AlarmSetup_OnScreen(CallBackData *pData)
 	{
 		if( m_nSensorInDequeToAssign < (int) m_pWizardLogic->m_dequeNumSensors.size() )
 		{
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, DatabaseUtils::GetDescriptionForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumSensors[m_nSensorInDequeToAssign].first));
 		}
 		else
 		{
@@ -1931,6 +1931,12 @@ bool OSDScreenHandler::AlarmSetup_ObjectSelected(CallBackData *pData)
 				int PK_Room = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST].c_str());
 				if( !PK_Room || !DatabaseUtils::SetDeviceInRoom(m_pWizardLogic,m_pWizardLogic->m_dequeNumSensors[m_nSensorInDequeToAssign].first,PK_Room) )
 					return true;  // This room isn't valid
+				int PK_DeviceTemplate = DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumSensors[m_nSensorInDequeToAssign].first);
+				if( PK_DeviceTemplate!=DEVICETEMPLATE_Generic_Sensor_CONST )
+				{
+					m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_AlarmName_CONST),"","",true,true);
+					return true;
+				}
 			}
 		}
 		break;
@@ -1938,11 +1944,14 @@ bool OSDScreenHandler::AlarmSetup_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butAlarmName2_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sType = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
-				DatabaseUtils::SetDeviceData(m_pWizardLogic,m_pWizardLogic->m_dequeNumSensors[m_nSensorInDequeToAssign].first,
-											DEVICEDATA_PK_FloorplanObjectType_CONST,sType);
-				string sDefaultSensorName = DatabaseUtils::GetDescriptionFromTable(m_pWizardLogic,FLOORPLANOBJECTTYPE_TABLE,atoi(sType.c_str()));
-				m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sDefaultSensorName);
+				int PK_DeviceTemplate = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST].c_str());
+				if( PK_DeviceTemplate )
+				{
+					DatabaseUtils::SetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumSensors[m_nSensorInDequeToAssign].first,
+												PK_DeviceTemplate);
+					string sDefaultSensorName = DatabaseUtils::GetDescriptionFromTable(m_pWizardLogic,DEVICETEMPLATE_TABLE,PK_DeviceTemplate);
+					m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sDefaultSensorName);
+				}
 			}
 		}
 		break;

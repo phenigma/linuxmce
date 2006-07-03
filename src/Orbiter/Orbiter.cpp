@@ -8573,6 +8573,11 @@ void Orbiter::ForceCurrentScreenIntoHistory()
 {
 	g_pPlutoLogger->Write(LV_WARNING, "Orbiter::ForceCurrentScreenIntoHistory m_listScreenHistory Adding to screens history list screen %d", m_pScreenHistory_Current->PK_Screen());
 	ScreenHistory *pScreenHistory = NeedToRender::m_pScreenHistory_get();
+	if( !pScreenHistory )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter::ForceCurrentScreenIntoHistory nothing to do!");
+		return;
+	}
 	m_pScreenHistory_Current = pScreenHistory;
 	pScreenHistory->AddToHistory();
 	m_listScreenHistory.push_back( pScreenHistory );
