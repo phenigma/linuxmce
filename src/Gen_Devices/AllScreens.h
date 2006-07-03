@@ -8377,11 +8377,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_Sensors_Viewed_By_Camera(long DeviceIDFrom, long DeviceIDTo,
-			int iPK_Device, string sOptions)
+			string sOptions, int iPK_PnpQueue)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 39 /* 1=Sensors only, 2=Lights only, 3=both */, sOptions.c_str());
+				39 /* 1=Sensors only, 2=Lights only, 3=both */, sOptions.c_str(), 224 /* The pnp queue id */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -8389,11 +8389,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_Sensors_Viewed_By_Camera_DL(long DeviceIDFrom, string sDeviceIDTo,
-			int iPK_Device, string sOptions)
+			string sOptions, int iPK_PnpQueue)
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 39 /* 1=Sensors only, 2=Lights only, 3=both */, sOptions.c_str());
+				39 /* 1=Sensors only, 2=Lights only, 3=both */, sOptions.c_str(), 224 /* The pnp queue id */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -8401,11 +8401,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_Sensors_Viewed_By_Camera_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			int iPK_Device, string sOptions)
+			string sOptions, int iPK_PnpQueue)
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 39 /* 1=Sensors only, 2=Lights only, 3=both */, sOptions.c_str());
+				39 /* 1=Sensors only, 2=Lights only, 3=both */, sOptions.c_str(), 224 /* The pnp queue id */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -8413,11 +8413,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_Sensors_Viewed_By_Camera_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			int iPK_Device, string sOptions)
+			string sOptions, int iPK_PnpQueue)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "206" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 39 /* 1=Sensors only, 2=Lights only, 3=both */, sOptions.c_str());
+				39 /* 1=Sensors only, 2=Lights only, 3=both */, sOptions.c_str(), 224 /* The pnp queue id */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -9609,7 +9609,7 @@ namespace DCE
 		virtual void SCREEN_New_Phone_Enter_Number(long PK_Screen, int iPK_Device, string sPhoneName){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Need_Reload_Router(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Need_Regen_Orbiter(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, int iPK_Device, string sOptions){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, string sOptions, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_mnuPVROSD(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_mnuPVRRecording(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Demo_Media(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -10910,9 +10910,9 @@ namespace DCE
 				case 206:
 				{
 					ResetCallBacks();
-					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
 					string sOptions = pMessage->m_mapParameters[39];
-					SCREEN_Sensors_Viewed_By_Camera(nPK_Screen, iPK_Device, sOptions);
+					int iPK_PnpQueue = atoi(pMessage->m_mapParameters[224].c_str());
+					SCREEN_Sensors_Viewed_By_Camera(nPK_Screen, sOptions, iPK_PnpQueue);
 					break;
 				}
 				case 207:

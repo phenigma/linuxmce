@@ -2292,8 +2292,9 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 		if( iPK_Room==-1 )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device adding %d to m_listNewPnpDevicesWaitingForARoom size: %d",
-				*iPK_Device,(int) m_listNewPnpDevicesWaitingForARoom.size());
-			m_listNewPnpDevicesWaitingForARoom.push_back(*iPK_Device);
+				*iPK_Device,(int) m_mapNewPnpDevicesWaitingForARoom.size());
+			m_mapNewPnpDevicesWaitingForARoom[*iPK_Device]=iPK_Orbiter;
+
 			if( iPK_Orbiter )
 			{
 				DCE::SCREEN_NewPlugAndPlayDevice SCREEN_NewPlugAndPlayDevice(m_dwPK_Device,iPK_Orbiter,*iPK_Device,
@@ -2389,7 +2390,7 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 //<-dceag-c274-e->
 {
     PLUTO_SAFETY_LOCK(mm, m_GipMutex);
-	size_t sBefore=m_listNewPnpDevicesWaitingForARoom.size();
+	size_t sBefore=m_mapNewPnpDevicesWaitingForARoom.size();
 
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
 	Row_Room *pRow_Room=NULL;
@@ -2443,7 +2444,10 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), 
 		StringUtils::itos(iPK_Device), SCREEN_NewPlugAndPlayDevice_CONST);
 	SendCommand(CMD_Remove_Screen_From_History_DL);
-	m_listNewPnpDevicesWaitingForARoom.remove(pRow_Device->PK_Device_get());
+
+	map<int,int>::iterator it=m_mapNewPnpDevicesWaitingForARoom.find(pRow_Device->PK_Device_get());
+	if( it!=m_mapNewPnpDevicesWaitingForARoom.end() )
+		m_mapNewPnpDevicesWaitingForARoom.erase(it);
 
 	UpdateEntArea updateEntArea;
 	if( updateEntArea.Connect(m_pData->m_dwPK_Installation,m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
@@ -2455,10 +2459,10 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 
 bool bStillRunningConfig = PendingConfigs();
 g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pending %d",
-(int) sBefore,(int) m_listNewPnpDevicesWaitingForARoom.size(),(int) bStillRunningConfig);
+(int) sBefore,(int) m_mapNewPnpDevicesWaitingForARoom.size(),(int) bStillRunningConfig);
 	// If there pnp devices waiting for the room, and we finished specifying the last one, and we're
 	// not still getting the software, let the user know his device is done
-	if( sBefore && m_listNewPnpDevicesWaitingForARoom.size()==0 && !bStillRunningConfig )
+	if( sBefore && m_mapNewPnpDevicesWaitingForARoom.size()==0 && !bStillRunningConfig )
 	{
 		if( !m_pOrbiter_Plugin->CheckForNewWizardDevices(NULL) )  // Don't display the 'device is done' if there are still some config settings we need
 			PromptUserToReloadAfterNewDevices();
@@ -2471,7 +2475,7 @@ void General_Info_Plugin::DoneCheckingForUpdates()
 
 	// We must have started the check for updates because we added a new device.  However we finished
 	// getting room info from the user, so he's ready to go
-	if( m_listNewPnpDevicesWaitingForARoom.size()==0 && !m_pOrbiter_Plugin->CheckForNewWizardDevices(NULL) )
+	if( m_mapNewPnpDevicesWaitingForARoom.size()==0 && !m_pOrbiter_Plugin->CheckForNewWizardDevices(NULL) )
 		PromptUserToReloadAfterNewDevices();
 }
 

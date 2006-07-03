@@ -75,7 +75,7 @@ public:
 
 	// Private methods
 	list<pair<string, string> > GetUserBookmarks(string sPK_User);
-	list<int> m_listNewPnpDevicesWaitingForARoom;
+	map<int,int> m_mapNewPnpDevicesWaitingForARoom,m_mapNewPnpDevicesWaitingForOptions;  // Map Device,Orbiter
 	void SetRoomForDevice(Row_Device *pRow_Device,Row_Room *pRow_Room);
 
 public:

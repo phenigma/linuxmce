@@ -52,6 +52,8 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice(PnpQueueEntry *pPnpQueueEntry)
 
 	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Storage_Devices_CONST) )
 		return OkayToCreateDevice_NetworkStorage(pPnpQueueEntry,pRow_DeviceTemplate);
+	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Surveillance_Cameras_CONST) )
+		return OkayToCreate_Cameras(pPnpQueueEntry,pRow_DeviceTemplate);
 
 	return true;
 }
@@ -102,4 +104,47 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnp
 		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_NAS_Options_DL);
 	}
 	return false;
+}
+
+bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)
+{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreate_Cameras queue %d,
+		pPnpQueueEntry->m_pRow_;
+#endif
+	string sSqlSensors = "SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory="
+		+ StringUtils::itos(DEVICECATEGORY_Security_Device_CONST) + " LIMIT 1";
+
+	string sSqlLights = "SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory="
+		+ StringUtils::itos(DEVICECATEGORY_Lighting_Device_CONST) + " LIMIT 1";
+
+	PlutoSqlResult result_set_sensors,result_set_lights;
+	bool bHasSensors = ( (result_set_sensors.r=m_pDatabase_pluto_main->mysql_query_result(sSqlSensors)) && result_set_sensors.r->row_count );
+	bool bHasLights = ( (result_set_lights.r=m_pDatabase_pluto_main->mysql_query_result(sSqlLights)) && result_set_lights.r->row_count );
+	if( !bHasSensors && !bHasLights )
+		return true;
+
+	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
+		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
+	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
+
+	// We just store the relations as lights\tsensors in device data 0 as a temporary holding place.  Post Create options will fix this up
+	if( pPnpQueueEntry->m_mapPK_DeviceData.find(0)==pPnpQueueEntry->m_mapPK_DeviceData.end() )
+	{
+		string sOptions = (bHasSensors && bHasLights ? "3" : (bHasLights ? "1" : "2"));
+		if( pPnpQueueEntry->m_pOH_Orbiter )
+		{
+			DCE::SCREEN_Sensors_Viewed_By_Camera SCREEN_Sensors_Viewed_By_Camera(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device, pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+				sOptions,pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+			m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_Sensors_Viewed_By_Camera);
+		}
+		else
+		{
+			DCE::SCREEN_Sensors_Viewed_By_Camera_DL SCREEN_Sensors_Viewed_By_Camera_DL(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device, m_pPnpQueue->m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,
+				sOptions,pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+			m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_Sensors_Viewed_By_Camera_DL);
+		}
+		return false;
+	}
+	return true;
 }
