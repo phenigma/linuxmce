@@ -19,8 +19,8 @@
 #include "GUIWizardUtils.h"
 
 #include "WizardCommandLineParser.h"
-
 #include "SafetyLock.h"
+#include "GenerateWizardConfigDefaults.h"
 
 #ifndef WIN32
 void signal_handler(int signal)
@@ -155,7 +155,7 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	delete MainPage;
 	MainPage = NULL;
 	CurrentPage ++ ;
-	if(CurrentPage == 10)
+	if(CurrentPage == WIZARD_NO_PAGES)
 	{
 		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 		SetExitWithCode(ExitCode);

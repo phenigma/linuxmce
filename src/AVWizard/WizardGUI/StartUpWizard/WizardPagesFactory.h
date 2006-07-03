@@ -13,11 +13,12 @@
 #define PAGE_VIDEORATIO			2
 #define PAGE_VIDEOOUTPUT		3
 #define PAGE_VIDEORESOLUTION	4
-#define PAGE_AUDIOCONNECTOR		5
-#define PAGE_AUDIOVOLUME		6
-#define PAGE_DOLBYTEST			7
-#define PAGE_DTSTEST			8
-#define PAGE_FINALSELECTIONS	9
+#define PAGE_VIDEOADJUSTSIZE	5
+#define PAGE_AUDIOCONNECTOR		6
+#define PAGE_AUDIOVOLUME		7
+#define PAGE_DOLBYTEST			8
+#define PAGE_DTSTEST			9
+#define PAGE_FINALSELECTIONS	10
 
 class WizardPagesFactory : public WizardWidgetsFactory
 {

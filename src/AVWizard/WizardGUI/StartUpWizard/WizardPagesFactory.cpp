@@ -1,13 +1,16 @@
 #include "WizardPagesFactory.h"
 //---------------------------------------------------------------------------
 #include <stdlib.h>
+//---------------------------------------------------------------------------
 #include "WizardWidgetsFactory.h"
+#include "GenerateWizardConfigDefaults.h"
 //---------------------------------------------------------------------------
 //classes for factory
 #include "WizardPageWelcome.h"
 #include "WizardPageVideoRatio.h"
 #include "WizardPageVideoOutput.h"
 #include "WizardPageVideoResolution.h"
+#include "WizardPageVideoAdjustSize.h"
 #include "WizardPageAudioConnector.h"
 #include "WizardPageAudioVolume.h"
 #include "WizardPageDolbyTest.h"
@@ -27,14 +30,15 @@ WizardPagesFactory::WizardPagesFactory()
 	PageNames[1] = "VideoRatio.xml";
 	PageNames[2] = "VideoOutput.xml";
 	PageNames[3] = "VideoResolution.xml";
-	PageNames[4] = "AudioConnector.xml";
-	PageNames[5] = "AudioVolume.xml";
-	PageNames[6] = "DolbyTest.xml";
-	PageNames[7] = "DTSTest.xml";
-	PageNames[8] = "FinalSelections.xml";
+	PageNames[4] = "VideoAdjustSize.xml";
+	PageNames[5] = "AudioConnector.xml";
+	PageNames[6] = "AudioVolume.xml";
+	PageNames[7] = "DolbyTest.xml";
+	PageNames[8] = "DTSTest.xml";
+	PageNames[9] = "FinalSelections.xml";
 
 	std::string TmpPrefix = "/tmp/";
-	for(int i = 0; i < 9; i++)
+	for(int i = 0; i < WIZARD_NO_PAGES; i++)
 		PageNames[i] = TmpPrefix + PageNames[i];
 }
 
@@ -146,6 +150,9 @@ WizardPage* WizardPagesFactory::CreatePredefinedWizardPage(int IndexPage)
 			break;
 		case PAGE_VIDEORESOLUTION:
 			Result = new WizardPageVideoResolution(FrontEnd, PageName);
+			break;
+		case PAGE_VIDEOADJUSTSIZE:
+			Result = new WizardPageVideoAdjustSize(FrontEnd, PageName);
 			break;
 		case PAGE_AUDIOCONNECTOR:
 			Result = new WizardPageAudioConnector(FrontEnd, PageName);

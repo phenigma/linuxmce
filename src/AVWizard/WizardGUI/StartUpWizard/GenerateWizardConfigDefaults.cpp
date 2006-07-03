@@ -60,27 +60,28 @@ void GenerateWizardConfigDefaults::GenerateDefaults(std::string FolderToSave)
 	PageNames[1] = "VideoRatio.xml";
 	PageNames[2] = "VideoOutput.xml";
 	PageNames[3] = "VideoResolution.xml";
-	PageNames[4] = "AudioConnector.xml";
-	PageNames[5] = "AudioVolume.xml";
-	PageNames[6] = "DolbyTest.xml";
-	PageNames[7] = "DTSTest.xml";
-	PageNames[8] = "FinalSelections.xml";
+	PageNames[4] = "VideoAdjustSize.xml";
+	PageNames[5] = "AudioConnector.xml";
+	PageNames[6] = "AudioVolume.xml";
+	PageNames[7] = "DolbyTest.xml";
+	PageNames[8] = "DTSTest.xml";
+	PageNames[9] = "FinalSelections.xml";
 
 	std::string TmpPrefix = "/tmp/";
-	for(int i = 0; i < 9; i++)
+	for(int i = 0; i < WIZARD_NO_PAGES; i++)
 		PageNames[i] = TmpPrefix + PageNames[i];
 
 	Options = new SettingsDictionaryTree();
 
-	for(int i = 0; i<8; i++)
+	for(int i = 1; i<WIZARD_NO_PAGES; i++)
 	{
 		PageDescription = new SettingsDictionaryTree();
 		Dictionary = PageDescription->GetDictionary();
 
-		Dictionary->SetName("ScreenStep"+Utils::Int32ToString(i+1));
+		Dictionary->SetName("ScreenStep"+Utils::Int32ToString(i));
 		Dictionary->SetType("Screen");
-		Dictionary->Set("FileName", PageNames[i].c_str());
-		Dictionary->Set("Index", i);
+		Dictionary->Set("FileName", PageNames[i-1].c_str());
+		Dictionary->Set("Index", i-1);
 
 		Options->AddChild(PageDescription);
 	}
@@ -140,6 +141,7 @@ void GenerateWizardConfigDefaults::GenerateDefaultPages(std::string FolderToSave
 	GeneratePage6(FolderToSave, ImageFolder, FontFolder);
 	GeneratePage7(FolderToSave, ImageFolder, FontFolder);
 	GeneratePage8(FolderToSave, ImageFolder, FontFolder);
+	GeneratePage9(FolderToSave, ImageFolder, FontFolder);
 }
 
 
@@ -470,6 +472,78 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 	Dictionary->Set("Fullscreen", 1);
 	Dictionary->Set("Caption", "AVWizard Configurator");
 
+	Container = GenerateTabContainer(2, ImageFolder, FontFolder);
+	Page->AddChild(Container);
+
+	//Create text area
+	std::string StringList[10];
+	StringList[0] = "Here are the appropiate resolutions for your TV. The lowest resolution is on";
+	StringList[1] = "the left, and the highest resolution is on the right. Use the left and the right arrows";
+	StringList[2] = "to select the resolution you want to use. The higher the resolution, in other";
+	StringList[3] = "words the futher right, the sharper the picture. However if you move to the";
+	StringList[4] = "right and the picture dissapears, that probably means your TV is not able to";
+	StringList[5] = "support that high of the resolution, and you should move to the left to select a";
+	StringList[6] = "lower resolution again.";
+	StringList[7] = "If you are an advanced user you can use the up and down arrow to adjust the";
+	StringList[8] = "refresh rate. Use the left and right arrows to adjust the resolution, and press";
+	StringList[9] = "enter when you're satisfied with the results.";
+
+
+	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
+	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
+
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
+	for(int i = 0; i<10; i++)
+	{
+		Container->AddChild(CreateControlLabel(
+				"DescribeText"+Utils::Int32ToString(i),
+				StringList[i],
+				320,
+				175+i*15,
+				"Center"
+			));
+	}
+
+	Page->AddChild(CreateControlListBox(
+			"ListBox1",
+			"640x480",
+			320, 350,
+			110, 335,
+			false
+		));
+
+	Page->AddChild(CreateControlListBox(
+		"ListBox2",
+		"75 Hz",
+		320, 390,
+		110, 335,
+		false
+		));
+
+	Page->SaveToXMLFile(PageNames[4]);
+}
+
+void GenerateWizardConfigDefaults::GeneratePage5(
+	std::string FolderToSave, 
+	std::string ImageFolder, 
+	std::string FontFolder
+	)
+{
+	SettingsDictionaryTree* Page;
+	SettingsDictionaryTree* Container;
+	SettingsDictionary* Dictionary;
+
+	Page = new SettingsDictionaryTree();
+	Dictionary = Page->GetDictionary();
+	SetDefaultBtnImages(Dictionary, ImageFolder);
+
+	Dictionary->SetName("ScreenStep1");
+	Dictionary->SetType("Page");
+	Dictionary->Set("Width", 640);
+	Dictionary->Set("Height", 480);
+	Dictionary->Set("Fullscreen", 1);
+	Dictionary->Set("Caption", "AVWizard Configurator");
+
 	Container = GenerateTabContainer(3, ImageFolder, FontFolder);
 	Page->AddChild(Container);
 
@@ -518,7 +592,7 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 	Page->SaveToXMLFile(PageNames[4]);
 }
 
-void GenerateWizardConfigDefaults::GeneratePage5(
+void GenerateWizardConfigDefaults::GeneratePage6(
 	std::string FolderToSave, 
 	std::string ImageFolder, 
 	std::string FontFolder
@@ -604,10 +678,10 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 		"Center"
 		));
 
-	Page->SaveToXMLFile(PageNames[5]);
+	Page->SaveToXMLFile(PageNames[6]);
 }
 
-void GenerateWizardConfigDefaults::GeneratePage6(
+void GenerateWizardConfigDefaults::GeneratePage7(
 	std::string FolderToSave, 
 	std::string ImageFolder, 
 	std::string FontFolder
@@ -673,10 +747,10 @@ void GenerateWizardConfigDefaults::GeneratePage6(
 		true
 		));
 
-	Page->SaveToXMLFile(PageNames[6]);
+	Page->SaveToXMLFile(PageNames[7]);
 }
 
-void GenerateWizardConfigDefaults::GeneratePage7(
+void GenerateWizardConfigDefaults::GeneratePage8(
 	std::string FolderToSave, 
 	std::string ImageFolder, 
 	std::string FontFolder
@@ -751,10 +825,10 @@ void GenerateWizardConfigDefaults::GeneratePage7(
 		true
 		));
 
-	Page->SaveToXMLFile(PageNames[7]);
+	Page->SaveToXMLFile(PageNames[8]);
 }
 
-void GenerateWizardConfigDefaults::GeneratePage8(
+void GenerateWizardConfigDefaults::GeneratePage9(
 	std::string FolderToSave, 
 	std::string ImageFolder, 
 	std::string FontFolder
@@ -838,7 +912,7 @@ void GenerateWizardConfigDefaults::GeneratePage8(
 		true
 		));
 
-	Page->SaveToXMLFile(PageNames[8]);
+	Page->SaveToXMLFile(PageNames[9]);
 }
 
 SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int NoSelectedTab, 
@@ -861,7 +935,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 	Dictionary->SetType("Container");
 	Dictionary->Set("Visible", 0);
 
-	for(i = 0; i<8; i++)
+	for(i = 0; i<WIZARD_NO_PAGES-1; i++)
 	{
 		Control = new SettingsDictionaryTree();
 		Dictionary = Control->GetDictionary();
@@ -882,7 +956,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 
 		Container->AddChild( CreateControlImage(ControlImageName, 
 			FileImageName,
-			5+i*79, 0
+			5+i*70, 0
 		));
 	}
 
@@ -955,7 +1029,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 
 	FontName = FontTitle;
 
-	for (i = 0; i< 8; i++)
+	for (i = 0; i< 9; i++)
 	{
 		std::string FontColor, Caption;
 		Caption = "STEP " + Utils::Int32ToString(i+1);
@@ -968,7 +1042,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 		Result->AddChild(CreateControlLabel(
 				"PageTab" + Utils::Int32ToString(i+1),
 				Caption, 
-				46+i*79,
+				38+i*70,
 				7,
 				"Center"
 				));
@@ -985,7 +1059,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 		Result->AddChild(CreateControlLabel(
 				"PageTab" + Utils::Int32ToString(i+1),
 				Caption, 
-				45+i*79,
+				37+i*70,
 				6,
 				"Center"
 				));

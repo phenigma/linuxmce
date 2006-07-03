@@ -5,6 +5,8 @@
 
 #include "SettingsDictionaryTree.h"
 
+#define WIZARD_NO_PAGES (10)
+
 class GenerateWizardConfigDefaults
 {
 	/**
@@ -18,7 +20,7 @@ class GenerateWizardConfigDefaults
 	/**
 	 *	File of XML files that stores the default dialogs
 	 */
-	std::string PageNames[9];
+	std::string PageNames[WIZARD_NO_PAGES];
 	/**
 	 *	Generate welcome page of the wizard: Welcome.xml
 	 */
@@ -32,29 +34,33 @@ class GenerateWizardConfigDefaults
 	 */
 	void GeneratePage2(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
-	 *	Generate first page of the wizard: VideoResolution.xml
+	 *	Generate page 3 of the wizard: VideoResolution.xml
 	 */
 	void GeneratePage3(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
-	 *	Generate first page of the wizard: AudioConnector.xml
+	 *	Generate page 4 of the wizard: VideoAdjustSize.xml
 	 */
 	void GeneratePage4(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
-	 *	Generate first page of the wizard: AudioVolume.xml
+	 *	Generate page 5 of the wizard: AudioConnector.xml
 	 */
 	void GeneratePage5(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
-	 *	Generate first page of the wizard: DolbyTest.xml
+	 *	Generate page 6 of the wizard: AudioVolume.xml
 	 */
 	void GeneratePage6(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
-	 *	Generate first page of the wizard: DTSTest.xml
+	 *	Generate page 7 of the wizard: DolbyTest.xml
 	 */
 	void GeneratePage7(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
-	 *	Generate first page of the wizard: FinalSelections.xml
+	 *	Generate page 8 of the wizard: DTSTest.xml
 	 */
 	void GeneratePage8(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
+	/**
+	 *	Generate page 9 of the wizard: FinalSelections.xml
+	 */
+	void GeneratePage9(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
 	 *	Generate container with tabs and highlight the specified item
 	 *	Too generates text items
