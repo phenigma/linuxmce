@@ -30,12 +30,12 @@ OpenGL3DEngine::OpenGL3DEngine()
 
 OpenGL3DEngine::~OpenGL3DEngine()
 {
-	pthread_mutex_destroy(&SceneMutex.mutex);
 }
 
 void OpenGL3DEngine::Finalize(void)
 {
 	SDL_Quit();
+//	pthread_mutex_destroy(&SceneMutex.mutex);
 }
 
 bool OpenGL3DEngine::Paint()
@@ -69,7 +69,11 @@ bool OpenGL3DEngine::Paint()
 		Color.X = 1.0f;
 		Color.Y = 1.0f;
 		Color.Z = (GetTick() / 2 % 512) / 255.0f;
-		Color.Z = abs(Color.Z - 1.0f);
+		Color.Z = abs(Color.Z - 1.0f)/2.0f+ 0.5;
+		Color.X = Color.Z;
+		Color.Y = Color.Z;
+		CurrentLayer->RemoveChild(HighLightFrame);
+		CurrentLayer->AddChild(HighLightFrame);
 		HighLightFrame->GetMeshContainer()->SetColor(Color);
 	}
 

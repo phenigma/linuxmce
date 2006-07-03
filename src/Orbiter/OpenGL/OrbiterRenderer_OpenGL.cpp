@@ -391,6 +391,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 			if (Event.type == SDL_QUIT)
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "Received sdl event SDL_QUIT");
+				
 				break;
 			} 
 			else if(Event.type == SDL_MOUSEMOTION)
@@ -544,4 +545,5 @@ bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
 
 void OrbiterRenderer_OpenGL::InitializeAfterSetVideoMode()
 {
+//	SetupWindow();
 }
