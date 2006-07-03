@@ -26,3 +26,13 @@ sed -i 's/allow-hotplug/auto/g' /target/etc/network/interfaces
 
 # The installer no longer does this for us, so we have to apply stage 2 preseed values ourselves
 chroot /target /usr/pluto/install/PreseedStage2.sh
+
+## Setup pluto's apt.conf
+pluto_apt_conf='// Pluto apt conf add-on
+Apt::Cache-Limit "12582912";
+Dpkg::Options { "--force-confold"; };
+Acquire::http::timeout "10";
+Acquire::ftp::timeout "10";
+APT::Get::AllowUnauthenticated "true";
+'
+echo -n "$pluto_apt_conf" >/etc/apt/apt.conf.d/30pluto
