@@ -39,7 +39,10 @@ void signal_handler(int signal)
 #endif
 
 Wizard::Wizard()
-	: WizardBorder(0),
+	: 
+	LeftBorder(100),
+	TopBorder(100),
+	WizardBorder(100),
 	Quit(false),
 	StatusChange(true)
 {
@@ -87,6 +90,18 @@ void Wizard::MainLoop()
 	{
 		WizardBorder = Utils::StringToInt32( AVWizardOptions->GetDictionary()->
 			GetValue("WizardBorder"));
+	}
+
+	if(AVWizardOptions->GetDictionary()->Exists("LeftBorder"))
+	{
+		LeftBorder = Utils::StringToInt32( AVWizardOptions->GetDictionary()->
+			GetValue("LeftBorder"));
+	}
+
+	if(AVWizardOptions->GetDictionary()->Exists("TopBorder"))
+	{
+		TopBorder = Utils::StringToInt32( AVWizardOptions->GetDictionary()->
+			GetValue("TopBorder"));
 	}
 
 	PaintStatus();
@@ -155,7 +170,7 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	delete MainPage;
 	MainPage = NULL;
 	CurrentPage ++ ;
-	if(CurrentPage == WIZARD_NO_PAGES)
+	if(CurrentPage == WIZARD_NO_PAGES+1)
 	{
 		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 		SetExitWithCode(ExitCode);
@@ -170,7 +185,7 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	else
 	{
 		MainPage->GetPageLayout()->Paint();
-		FrontEnd->Flip(WizardBorder);
+		FrontEnd->Flip(LeftBorder, TopBorder, WizardBorder);
 	}	
 }
 
@@ -262,7 +277,7 @@ void Wizard::PaintStatus()
 {
 	if(MainPage)
 		MainPage->GetPageLayout()->Paint();
-	FrontEnd->Flip(WizardBorder);
+	FrontEnd->Flip(LeftBorder, TopBorder, WizardBorder);
 
 	StatusChange = false;
 }
@@ -382,15 +397,30 @@ void Wizard::Resize(int Width, int Height, bool FullScreen)
 
 void Wizard::ZoomIn()
 {
-	if(WizardBorder > 0)
-		WizardBorder -= 1;
+	if (this->CurrentPage != 5)
+		return;
+	if(WizardBorder <= 0)
+		return;
+	WizardBorder -= 2;
+	if(LeftBorder>0)
+		LeftBorder-= 2;
+	if(TopBorder>0)
+		TopBorder-= 2;
 	AVWizardOptions->GetDictionary()->Set("WizardBorder", WizardBorder);
+	AVWizardOptions->GetDictionary()->Set("LeftBorder", LeftBorder);
+	AVWizardOptions->GetDictionary()->Set("TopBorder", TopBorder);
 }
 
 void Wizard::ZoomOut()
 {
-	if(WizardBorder*5 < Width)
-		WizardBorder += 1;
+	if (this->CurrentPage != 5)
+		return;
+	if(WizardBorder*5 >= Width)
+		return;
+	WizardBorder += 2;
+	LeftBorder+= 2;
+	TopBorder+= 2;
 	AVWizardOptions->GetDictionary()->Set("WizardBorder", WizardBorder);
+	AVWizardOptions->GetDictionary()->Set("LeftBorder", LeftBorder);
+	AVWizardOptions->GetDictionary()->Set("TopBorder", TopBorder);
 }
-

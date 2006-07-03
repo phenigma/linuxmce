@@ -57,7 +57,7 @@ public:
 	/**
 	 *	Display the final result 
 	 */
-	void Flip(int Border);
+	void Flip(int LeftBorder, int TopBorder, int Border);
 
 	void PaintBackground();
 

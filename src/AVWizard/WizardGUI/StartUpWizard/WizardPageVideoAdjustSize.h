@@ -11,7 +11,7 @@ class WizardPageVideoAdjustSize :
 	WizardWidgetListBox* Selected;
 	SettingsDictionary* GlobalSettings;
 
-	std::string PreviousAdjustSize;
+	std::string PreviousResolution;
 public:
 
 	virtual void DefaultSetup(SettingsDictionary* AVWizardSettings);

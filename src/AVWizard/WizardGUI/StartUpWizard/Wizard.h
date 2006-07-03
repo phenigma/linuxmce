@@ -60,8 +60,6 @@ class Wizard
 	int Height;
 	bool FullScreen;
 
-	int WizardBorder;
-
 	/**
 	 *	SettingsDictionary that keeps the options of command line
 	 */
@@ -141,6 +139,8 @@ class Wizard
 
 	SocketRemoteServer Server;
 public:
+	int LeftBorder, TopBorder;
+	int WizardBorder;
 	/**
 	 *	SettingsDictionary that keep global AVWizard Settings
 	 */

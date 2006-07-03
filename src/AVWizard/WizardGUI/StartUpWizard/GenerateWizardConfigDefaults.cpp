@@ -465,35 +465,27 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 	Dictionary = Page->GetDictionary();
 	SetDefaultBtnImages(Dictionary, ImageFolder);
 
-	Dictionary->SetName("ScreenStep1");
+	Dictionary->SetName("ScreenStep");
 	Dictionary->SetType("Page");
 	Dictionary->Set("Width", 640);
 	Dictionary->Set("Height", 480);
 	Dictionary->Set("Fullscreen", 1);
 	Dictionary->Set("Caption", "AVWizard Configurator");
 
-	Container = GenerateTabContainer(2, ImageFolder, FontFolder);
+	Container = GenerateTabContainer(3, ImageFolder, FontFolder);
 	Page->AddChild(Container);
 
 	//Create text area
-	std::string StringList[10];
-	StringList[0] = "Here are the appropiate resolutions for your TV. The lowest resolution is on";
-	StringList[1] = "the left, and the highest resolution is on the right. Use the left and the right arrows";
-	StringList[2] = "to select the resolution you want to use. The higher the resolution, in other";
-	StringList[3] = "words the futher right, the sharper the picture. However if you move to the";
-	StringList[4] = "right and the picture dissapears, that probably means your TV is not able to";
-	StringList[5] = "support that high of the resolution, and you should move to the left to select a";
-	StringList[6] = "lower resolution again.";
-	StringList[7] = "If you are an advanced user you can use the up and down arrow to adjust the";
-	StringList[8] = "refresh rate. Use the left and right arrows to adjust the resolution, and press";
-	StringList[9] = "enter when you're satisfied with the results.";
-
+	std::string StringList[3];
+	StringList[0] = "Adjust your screen position using using the folowing options: ";
+	StringList[1] = "Use Plus/Minus to Zoom In/Out the screen";
+	StringList[2] = "Use arrows keys to center the image to the desired position";
 
 	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
 	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
 
 	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
-	for(int i = 0; i<10; i++)
+	for(int i = 0; i<3; i++)
 	{
 		Container->AddChild(CreateControlLabel(
 				"DescribeText"+Utils::Int32ToString(i),
@@ -506,7 +498,7 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 
 	Page->AddChild(CreateControlListBox(
 			"ListBox1",
-			"640x480",
+			"Left-Right",
 			320, 350,
 			110, 335,
 			false
@@ -514,7 +506,7 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 
 	Page->AddChild(CreateControlListBox(
 		"ListBox2",
-		"75 Hz",
+		"Up-Down",
 		320, 390,
 		110, 335,
 		false
@@ -544,7 +536,7 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 	Dictionary->Set("Fullscreen", 1);
 	Dictionary->Set("Caption", "AVWizard Configurator");
 
-	Container = GenerateTabContainer(3, ImageFolder, FontFolder);
+	Container = GenerateTabContainer(4, ImageFolder, FontFolder);
 	Page->AddChild(Container);
 
 	//Create text area
@@ -589,7 +581,7 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 		true
 		));
 
-	Page->SaveToXMLFile(PageNames[4]);
+	Page->SaveToXMLFile(PageNames[5]);
 }
 
 void GenerateWizardConfigDefaults::GeneratePage6(
@@ -613,7 +605,7 @@ void GenerateWizardConfigDefaults::GeneratePage6(
 	Dictionary->Set("Fullscreen", 1);
 	Dictionary->Set("Caption", "AVWizard Configurator");
 
-	Container = GenerateTabContainer(4, ImageFolder, FontFolder);
+	Container = GenerateTabContainer(5, ImageFolder, FontFolder);
 	Page->AddChild(Container);
 
 	//Create text area
@@ -702,7 +694,7 @@ void GenerateWizardConfigDefaults::GeneratePage7(
 	Dictionary->Set("Fullscreen", 1);
 	Dictionary->Set("Caption", "AVWizard Configurator");
 
-	Container = GenerateTabContainer(5, ImageFolder, FontFolder);
+	Container = GenerateTabContainer(6, ImageFolder, FontFolder);
 	Page->AddChild(Container);
 
 	//Create text area
@@ -772,7 +764,7 @@ void GenerateWizardConfigDefaults::GeneratePage8(
 	Dictionary->Set("Fullscreen", 1);
 	Dictionary->Set("Caption", "AVWizard Configurator");
 
-	Container = GenerateTabContainer(6, ImageFolder, FontFolder);
+	Container = GenerateTabContainer(7, ImageFolder, FontFolder);
 	Page->AddChild(Container);
 
 	//Create text area
@@ -849,7 +841,7 @@ void GenerateWizardConfigDefaults::GeneratePage9(
 	Dictionary->Set("Fullscreen", 1);
 	Dictionary->Set("Caption", "AVWizard Configurator");
 
-	Container = GenerateTabContainer(7, ImageFolder, FontFolder);
+	Container = GenerateTabContainer(8, ImageFolder, FontFolder);
 	Page->AddChild(Container);
 
 
@@ -982,18 +974,21 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 			LabelCaption = "RESOLUTION AND REFRESH";
 			break;
 		case 3:
-			LabelCaption = "AUDIO OUTPUT CONNECTOR";
+			LabelCaption = "ADJUST IMAGE SIZE";
 			break;
 		case 4:
-			LabelCaption = "AUDIO VOLUME";
+			LabelCaption = "AUDIO OUTPUT CONNECTOR";
 			break;
 		case 5:
-			LabelCaption = "DOLBY AUDIO TEST";
+			LabelCaption = "AUDIO VOLUME";
 			break;
 		case 6:
-			LabelCaption = "DTS AUDIO TEST";
+			LabelCaption = "DOLBY AUDIO TEST";
 			break;
 		case 7:
+			LabelCaption = "DTS AUDIO TEST";
+			break;
+		case 8:
 			LabelCaption = "FINAL SETUP";
 			break;
 		default:
@@ -1065,9 +1060,9 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 				));
 	}
 
-	Result->AddChild(CreateControlImage("WizPageVideoImage", ImageFolder+"video_settings.png", 6, 35));
-	Result->AddChild(CreateControlImage("WizPageVideoImage", ImageFolder+"audio_settings.png", 242, 35));
-	Result->AddChild(CreateControlImage("WizPageVideoImage", ImageFolder+"final.png", 558, 35));
+	Result->AddChild(CreateControlImage("WizPageVideoImage", ImageFolder+"video_settings.png", 5, 35));
+	Result->AddChild(CreateControlImage("WizPageVideoImage", ImageFolder+"audio_settings.png", 285, 35));
+	Result->AddChild(CreateControlImage("WizPageVideoImage", ImageFolder+"final.png", 565, 35));
 
 	FontName = FontMiniTitle;
 	SetFontStyle(14, "FFFFFF", "BOLD");
@@ -1082,7 +1077,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 	Result->AddChild(CreateControlLabel(
 		"StepDefineAudio_INFO" + Utils::Int32ToString(i+1),
 		"AUDIO SETTINGS", 
-		400,
+		435,
 		37,
 		"Center"
 		));

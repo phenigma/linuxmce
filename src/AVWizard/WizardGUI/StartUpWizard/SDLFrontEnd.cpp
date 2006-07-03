@@ -75,7 +75,7 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 	return 0;
 }
 
-void SDLFrontEnd::Flip(int Border)
+void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 {
 	// TODO: Scale
 	double ZoomX = 1;
@@ -92,19 +92,21 @@ void SDLFrontEnd::Flip(int Border)
 		SDL_Rect Rect;
 		ZoomX = (Width-2*Border) / 640.0f;
 		ZoomY = (Height-2*Border) / 480.0f;
-		Rect.x = Border;
-		Rect.y = Border;
+		Rect.x = LeftBorder;
+		Rect.y = TopBorder;
 		Rect.w = Width - 2 * Border;
 		Rect.h = Height - 2 * Border;
 	
 		ScaledScreen = zoomSurface(Screen, ZoomX, ZoomY, SMOOTHING_ON);
-		SDL_FillRect(Screen, NULL, SDL_MapRGBA(Screen->format, 0, 0, 0, 255));
+		SDL_FillRect(Screen, NULL, SDL_MapRGBA(Screen->format, 63, 63, 63, 255));
+		SDL_FillRect(Screen, &Rect, SDL_MapRGBA(Screen->format, 0, 0, 0, 255));
+		SDL_SetAlpha(ScaledScreen, 0, 0);
 		SDL_BlitSurface(ScaledScreen, NULL, Screen, &Rect);
 		SDL_FreeSurface(ScaledScreen);
 	}
 	SDL_Flip(Screen);	
 	if (NeedScale)
-		SDL_FillRect(Screen, NULL, SDL_MapRGBA(Screen->format, 0, 0, 0, 255));
+		SDL_FillRect(Screen, NULL, SDL_MapRGBA(Screen->format, 63, 63, 63, 255));
 }
 
 void SDLFrontEnd::PaintBackground()

@@ -109,7 +109,7 @@ WizardPage* WizardPagesFactory::CreateWidget(SettingsDictionaryTree*
 
 WizardPage* WizardPagesFactory::CreatePredefinedWizardPage(int IndexPage)
 {
-	if (IndexPage<1 || IndexPage>9)
+	if (IndexPage<1 || IndexPage>WIZARD_NO_PAGES)
 		return NULL;
 
 
