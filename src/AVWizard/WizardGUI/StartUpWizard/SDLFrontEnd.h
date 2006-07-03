@@ -33,6 +33,7 @@ class SDLFrontEnd
 	 */
 	int PaintFont(char* Text, int Top, int Left, 
 		TColorDesc Color, int Mode);
+	void Arrows();
 public:
 
 	/**

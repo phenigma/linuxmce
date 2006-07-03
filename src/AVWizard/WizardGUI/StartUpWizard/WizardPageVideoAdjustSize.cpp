@@ -40,14 +40,16 @@ WizardPageVideoAdjustSize::~WizardPageVideoAdjustSize(void)
 {
 	if(Wizard::GetInstance()->WizardBorder*2 > 
 		Wizard::GetInstance()->LeftBorder )
-	Wizard::GetInstance()->LeftBorder +=2;
+	Wizard::GetInstance()->LeftBorder +=BORDER_JUMP;
 	UpdateSelected();
 }
 
 /*virtual*/ void WizardPageVideoAdjustSize::DoDecreaseSetting()
 {
-	if(Wizard::GetInstance()->LeftBorder>0)
-		Wizard::GetInstance()->LeftBorder -=2;
+	if(Wizard::GetInstance()->LeftBorder>BORDER_JUMP)
+		Wizard::GetInstance()->LeftBorder -=BORDER_JUMP;
+	else
+		Wizard::GetInstance()->LeftBorder = 0;
 	UpdateSelected();
 }
 
@@ -55,19 +57,24 @@ WizardPageVideoAdjustSize::~WizardPageVideoAdjustSize(void)
 {
 	if(Wizard::GetInstance()->WizardBorder*2 > 
 		Wizard::GetInstance()->TopBorder )
-	Wizard::GetInstance()->TopBorder +=2;
+	Wizard::GetInstance()->TopBorder +=BORDER_JUMP;
 	UpdateSelected();
 }
 
 /*virtual*/ void WizardPageVideoAdjustSize::DoPreviousFocusItem()
 {
-	if(Wizard::GetInstance()->TopBorder>0)
-		Wizard::GetInstance()->TopBorder -=2;
+	if(Wizard::GetInstance()->TopBorder>BORDER_JUMP)
+		Wizard::GetInstance()->TopBorder -= BORDER_JUMP;
+	else
+		Wizard::GetInstance()->TopBorder = 0;
 	UpdateSelected();
 }
 
 /*virtual*/ void WizardPageVideoAdjustSize::UpdateSelected()
 {
+	if (Wizard::GetInstance()->WizardBorder < 0)
+		Wizard::GetInstance()->WizardBorder = 0;
+
 	int LeftBorder = Wizard::GetInstance()->LeftBorder;
 	int TopBorder = Wizard::GetInstance()->TopBorder;
 	int Border = Wizard::GetInstance()->WizardBorder;
@@ -88,4 +95,13 @@ WizardPageVideoAdjustSize::~WizardPageVideoAdjustSize(void)
 	Button = dynamic_cast<WizardWidgetButton*> 
 		(Page->GetChildRecursive("ButtonDown"));
 	Button->SetFocus(TopBorder < Border*2);
+
+	Button = dynamic_cast<WizardWidgetButton*> 
+		(Page->GetChildRecursive("ButtonPlus"));
+	Button->SetFocus(0 < Border);
+
+	Button = dynamic_cast<WizardWidgetButton*> 
+		(Page->GetChildRecursive("ButtonMinus"));
+	Button->SetFocus(256  < Border);
+
 }

@@ -114,6 +114,7 @@ class GenerateWizardConfigDefaults
 		std::string ControlName, 
 		std::string Caption, 
 		int Left, int Top,
+		int Width,
 		bool Expands);
 
 	SettingsDictionaryTree* CreateControlListBox(

@@ -160,18 +160,17 @@ void GenerateWizardConfigDefaults::GeneratePage0(
 
 	Page->AddChild(GenerateTabContainer(-1, ImageFolder, FontFolder));
 
-	std::string StringList[5];
+	std::string StringList[4];
 	StringList[0] = "From here you can set up the audio & video for your home";
 	StringList[1] = "For selections use \"UP/DOWN/LEFT/RIGHT\" arrows";
 	StringList[2] = "For validation use \"Enter\"";
 	StringList[3] = "IF you want to go back one step use \"Escape\"";
-	StringList[4] = "Use Plus (\"+\") or Minus (\"-\") for escape overscanning effect";
 
 	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
 	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
 
 	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
-	for(int i = 0; i<5; i++)
+	for(int i = 0; i<4; i++)
 	{
 		Page->AddChild(CreateControlLabel(
 			"DescribeText"+Utils::Int32ToString(i),
@@ -185,8 +184,7 @@ void GenerateWizardConfigDefaults::GeneratePage0(
 	Page->AddChild(CreateControlButton(
 		"MainBtn",
 		" Continue ",
-		555,
-		440,
+		555, 440, 0,
 		true
 	));
 
@@ -262,16 +260,16 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 	Page->AddChild(CreateControlButton(
 		"Btn1",
 		" 4:3 ",
-		65,
-		440,
+		65, 440,
+		0,
 		true
 		));
 
 	Page->AddChild(CreateControlButton(
 		"Btn2",
 		" 16:9 ",
-		575,
-		440,
+		575, 440,
+		0,
 		true
 		));
 
@@ -333,6 +331,7 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 			"Btn1",
 			"Composite",
 			100, 285,
+			0,
 			true
 		));
 
@@ -340,6 +339,7 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 			"Btn2",
 			"S-Video",
 			230, 285,
+			0,
 			true
 		));
 
@@ -347,6 +347,7 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 			"Btn3",
 			"Component",
 			355, 285,
+			0,
 			true
 		));
 
@@ -354,6 +355,7 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 			"Btn4",
 			"VGA",
 			468, 285,
+			0,
 			true
 		));
 
@@ -361,6 +363,7 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 			"Btn5",
 			"DVI",
 			540, 285,
+			0,
 			true
 		));
 
@@ -495,11 +498,41 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 				"Center"
 			));
 	}
+	StringList[0] = "For Zoom In you should press: ";
+	StringList[1] = "For Zoom Out you should press: ";
+	for(int i = 0; i<2;
+ i++)
+	{
+		Container->AddChild(CreateControlLabel(
+				"DescribeText"+Utils::Int32ToString(i),
+				StringList[i],
+				320,
+				255+i*30,
+				"Center"
+			));
+	}
+
+	Page->AddChild(CreateControlButton(
+			"ButtonPlus",
+			"+",
+			520, 260,
+			10,
+			false
+		));
+	Page->AddChild(CreateControlButton(
+		"ButtonMinus",
+		"-",
+		520, 295,
+		10,
+		false
+		));
+
 
 	Page->AddChild(CreateControlButton(
 			"ButtonUp",
 			"  Up  ",
 			320, 350,
+			0,
 			true
 		));
 
@@ -507,12 +540,14 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 		"ButtonDown",
 		"Down",
 		320, 390,
+		0,
 		true
 		));
 	Page->AddChild(CreateControlButton(
 			"ButtonLeft",
 			" Left ",
 			220, 370,
+			0,
 			true
 		));
 
@@ -520,6 +555,7 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 		"ButtonRight",
 		"Right",
 		420, 370,
+		0,
 		true
 		));
 
@@ -575,6 +611,7 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 		"Btn1",
 		"Analog Stereo",
 		142, 285,
+		0,
 		true
 		));
 
@@ -582,6 +619,7 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 		"Btn2",
 		"SPDIF Coaxial",
 		315, 285,
+		0,
 		true
 		));
 
@@ -589,6 +627,7 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 		"Btn3",
 		"SPDIF Optical",
 		490, 285,
+		0,
 		true
 		));
 
@@ -732,14 +771,14 @@ void GenerateWizardConfigDefaults::GeneratePage7(
 	Page->AddChild(CreateControlImage(
 		"SpeakerImage",
 		ImageFolder + "speaker.png",
-		270,
-		250
-		));
+		270, 250
+	));
 
 	Page->AddChild(CreateControlButton(
 		"Btn1",
 		"No, I cannot hear it",
 		155, 310,
+		0,
 		true
 		));
 
@@ -747,6 +786,7 @@ void GenerateWizardConfigDefaults::GeneratePage7(
 		"Btn2",
 		"Yes, I can hear it",
 		495, 310,
+		0,
 		true
 		));
 
@@ -818,6 +858,7 @@ void GenerateWizardConfigDefaults::GeneratePage8(
 		"Btn1",
 		"No, I cannot hear it",
 		155, 310,
+		0,
 		true
 		));
 
@@ -825,6 +866,7 @@ void GenerateWizardConfigDefaults::GeneratePage8(
 		"Btn2",
 		"Yes, I can hear it",
 		495, 310,
+		0,
 		true
 		));
 
@@ -904,14 +946,15 @@ void GenerateWizardConfigDefaults::GeneratePage9(
 		"I do not agree",
 		120,
 		450,
+		0,
 		true
 		));
 
 	Page->AddChild(CreateControlButton(
 		"Btn2",
 		"I agree",
-		555,
-		450,
+		555, 450, 
+		0,
 		true
 		));
 
@@ -1182,7 +1225,7 @@ void GenerateWizardConfigDefaults::SetFontStyle(
 SettingsDictionaryTree* GenerateWizardConfigDefaults::CreateControlButton(
 	std::string ControlName, 
 	std::string Caption, 
-	int Left, int Top,
+	int Left, int Top, int Width,
 	bool Expands)
 {
 	SettingsDictionaryTree* Result  = new SettingsDictionaryTree();
@@ -1192,6 +1235,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::CreateControlButton(
 	Dictionary->SetType("Button");
 	Dictionary->Set("Left", Left);
 	Dictionary->Set("Top", Top);
+	Dictionary->Set("Width", Width);
 
 	if(Expands)
 		Dictionary->Set("Expands", 1);

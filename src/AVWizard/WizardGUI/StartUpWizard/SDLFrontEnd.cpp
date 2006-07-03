@@ -75,6 +75,45 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 	return 0;
 }
 
+void SDLFrontEnd::Arrows()
+{
+
+	int Width = Screen->w;
+	int Height = Screen->h;
+
+
+	SDL_Rect RectCorner;
+	RectCorner.w = 8;
+	RectCorner.h = 8;
+
+	RectCorner.x = 0;
+	RectCorner.y = 0;
+	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 0, 0, 255));
+	RectCorner.x = Width - 8;
+	RectCorner.y = Height - 8;
+	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 0, 0, 255));
+	RectCorner.x = 0;
+	RectCorner.y = Height - 8;
+	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 0, 0, 255));
+	RectCorner.x = Width - 8;
+	RectCorner.y = 0;
+	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 0, 0, 255));
+
+
+	RectCorner.x = 8;
+	RectCorner.y = 8;
+	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 255, 0, 255));
+	RectCorner.x = Width - 16;
+	RectCorner.y = Height - 16;
+	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 255, 0, 255));
+	RectCorner.x = Width - 16;
+	RectCorner.y = 8;
+	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 255, 0, 255));
+	RectCorner.x = 8;
+	RectCorner.y = Height - 16;
+	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 255, 0, 255));
+}
+
 void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 {
 	// TODO: Scale
@@ -101,38 +140,8 @@ void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 		SDL_FillRect(Screen, NULL, SDL_MapRGBA(Screen->format, 63, 63, 63, 255));
 
 		SDL_SetAlpha(ScaledScreen, 0, 0);
+		Arrows();
 		SDL_BlitSurface(ScaledScreen, NULL, Screen, &Rect);
-
-		SDL_Rect RectCorner;
-		RectCorner.w = 8;
-		RectCorner.h = 8;
-
-		RectCorner.x = 0;
-		RectCorner.y = 0;
-		SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 0, 0, 255));
-		RectCorner.x = Width - 8;
-		RectCorner.y = Height - 8;
-		SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 0, 0, 255));
-		RectCorner.x = 0;
-		RectCorner.y = Height - 8;
-		SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 0, 0, 255));
-		RectCorner.x = Width - 8;
-		RectCorner.y = 0;
-		SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 0, 0, 255));
-
-
-		RectCorner.x = 8;
-		RectCorner.y = 8;
-		SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 255, 0, 255));
-		RectCorner.x = Width - 16;
-		RectCorner.y = Height - 16;
-		SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 255, 0, 255));
-		RectCorner.x = Width - 16;
-		RectCorner.y = 8;
-		SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 255, 0, 255));
-		RectCorner.x = 8;
-		RectCorner.y = Height - 16;
-		SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 255, 0, 255));
 
 		SDL_FreeSurface(ScaledScreen);
 	}

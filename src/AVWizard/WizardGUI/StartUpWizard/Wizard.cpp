@@ -43,9 +43,9 @@ Wizard::Wizard()
 	: 
 	Quit(false),
 	StatusChange(true),
-	LeftBorder(0),
-	TopBorder(0),
-	WizardBorder(0)
+	LeftBorder(20),
+	TopBorder(20),
+	WizardBorder(20)
 {
 	this->ExitCode = 0;
 	AVWizardConfParser ConfigurationParser;
@@ -403,11 +403,12 @@ void Wizard::ZoomIn()
 		return;
 	if(WizardBorder <= 0)
 		return;
-	WizardBorder -= 2;
-	if(LeftBorder>0)
-		LeftBorder-= 2;
-	if(TopBorder>0)
-		TopBorder-= 2;
+	WizardBorder -= BORDER_JUMP;
+	if(LeftBorder>BORDER_JUMP)
+		LeftBorder-= BORDER_JUMP;
+	if(TopBorder>BORDER_JUMP
+)
+		TopBorder-= BORDER_JUMP;
 	if(TopBorder > 2*WizardBorder)
 		TopBorder = 2*WizardBorder;
 	if(LeftBorder > 2*WizardBorder)
@@ -427,9 +428,9 @@ void Wizard::ZoomOut()
 
 	if(WizardBorder*5 >= Width)
 		return;
-	WizardBorder += 2;
-	LeftBorder+= 2;
-	TopBorder+= 2;
+	WizardBorder += BORDER_JUMP;
+	LeftBorder+= BORDER_JUMP;
+	TopBorder+= BORDER_JUMP;
 	AVWizardOptions->GetDictionary()->Set("WizardBorder", WizardBorder);
 	AVWizardOptions->GetDictionary()->Set("LeftBorder", LeftBorder);
 	AVWizardOptions->GetDictionary()->Set("TopBorder", TopBorder);
