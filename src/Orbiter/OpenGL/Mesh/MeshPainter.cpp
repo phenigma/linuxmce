@@ -10,15 +10,15 @@
 
 #include "DCE/Logger.h"
 
-MeshPainter* MeshPainter::_Instance = NULL;
+MeshPainter* MeshPainter::Instance_ = NULL;
 
 //#define DEBUG_LINES
 
 /*static*/ MeshPainter* MeshPainter::Instance()
 {
-	if(_Instance == NULL)
-		_Instance = new MeshPainter();
-	return _Instance;
+	if(Instance_ == NULL)
+		Instance_ = new MeshPainter();
+	return Instance_;
 }
 
 MeshPainter::MeshPainter()
@@ -136,4 +136,6 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 
 void MeshPainter::CleanUp()
 {	
+	delete Instance_;
+	Instance_ = NULL;
 }

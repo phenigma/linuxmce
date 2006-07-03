@@ -170,13 +170,12 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		);
 
 	MeshContainer* Container = Builder->End();
-
 	MeshFrame* Frame = new MeshFrame(Container);
 
-	//TODO: find a way to replace an existing object if the graphic is changed instead of adding it
+	delete Builder;
+	Builder = NULL;
+
 	Engine->AddMeshFrameToDesktop("", Frame);
-
-
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
@@ -223,8 +222,11 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
  	MeshFrame *Frame  = aGLTextRenderer->TextOut(sTextToDisplay, Text, pTextStyle, point);
 	
-	Engine->AddMeshFrameToDesktop("", Frame);
-	
+	string TextUniqueID = 
+		(NULL != Text->m_pObject ? Text->m_pObject->m_ObjectID : string()) + 
+		"-" + StringUtils::itos(Text->m_rPosition.X) + 
+		"-" + StringUtils::itos(Text->m_rPosition.Y);
+	Engine->AddMeshFrameToDesktop(TextUniqueID, Frame);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point)
@@ -246,7 +248,16 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
 	bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
-	//g_pPlutoLogger->Write(LV_CRITICAL, "(5) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
+	RenderGraphic("", pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(string ObjectID, class PlutoGraphic *pPlutoGraphic, 
+	PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/)
+{
+	if(ObjectID == "")
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "RenderGraphic with no object id!");
+	}
 
 	OpenGLGraphic* Graphic = dynamic_cast<OpenGLGraphic*> (pPlutoGraphic);
 
@@ -294,29 +305,20 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		0
 		);
 
-
-	//g_pPlutoLogger->Write(LV_CRITICAL, "(6) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
-
 	MeshContainer* Container = Builder->End();
-
 	MeshFrame* Frame = new MeshFrame();
 	Frame->SetMeshContainer(Container);
 
+	delete Builder;
+	Builder = NULL;
+
 	MeshTransform Transform;
-	
-	//g_pPlutoLogger->Write(LV_CRITICAL, "(7) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
-	
 	TextureManager::Instance()->PrepareConvert(Graphic);
 
-	//g_pPlutoLogger->Write(LV_CRITICAL, "(8) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
-	
 	g_pPlutoLogger->Write(LV_STATUS, "AddMeshFrameToDesktop (%d,%d,%d,%d)",
 		point.X, point.Y, rectTotal.Width, rectTotal.Height);
 
-	//g_pPlutoLogger->Write(LV_CRITICAL, "(9) Rendering graphic size (%d, %d)", rectTotal.Width, rectTotal.Height);
-		
-	//TODO: find a way to replace an existing object if the graphic is changed instead of adding it
-	Engine->AddMeshFrameToDesktop("", Frame);
+	Engine->AddMeshFrameToDesktop(ObjectID, Frame);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::BeginPaint()

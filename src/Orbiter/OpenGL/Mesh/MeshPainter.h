@@ -11,7 +11,7 @@ class ExtensionManager;
 class MeshPainter
 {
 	pthread_mutex_t SafetyPaintMutex;
-	static MeshPainter* _Instance;
+	static MeshPainter* Instance_;
 	ExtensionManager *ExtensionManager_;
 	
 	MeshPainter();
@@ -24,7 +24,6 @@ public:
 
 	void Setup(ExtensionManager *ExtensionManager);
 	void CleanUp();
-	
 };
 
 #endif /*MESHPAINTER_H_*/

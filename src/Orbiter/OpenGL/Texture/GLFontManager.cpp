@@ -13,7 +13,8 @@
 
 void GLFontManager::CleanUp()
 {
-
+	delete Instance_;
+	Instance_ = NULL;
 }
 
 bool GLFontManager::Exists(std::string FontStr)

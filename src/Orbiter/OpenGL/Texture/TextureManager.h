@@ -18,7 +18,7 @@ class TextureManager
 {
 	OpenGLTexture LastTexture;
 	TextureManager();
-	static TextureManager* _Instance;
+	static TextureManager* Instance_;
 	bool TextureEnable_;
 	
 	std::queue <OpenGLGraphic*> WaitForConvert;
@@ -29,6 +29,7 @@ public:
 	virtual ~TextureManager(void);
 	
 	void SetupTexture(OpenGLTexture Texture);
+	void CleanUp();
 	
 	void PrepareConvert(OpenGLGraphic* TextureGraphic);
 	void ConvertImagesToTextures();

@@ -6,6 +6,9 @@
 #include <SDL_ttf.h>
 
 #include "Mesh/MeshPainter.h"
+#include "Layers/GL2DEffectLayersCompose.h"
+#include "Texture/TextureManager.h"
+#include "Texture/GLFontManager.h"
 
 #include "DCE/Logger.h"
 using namespace DCE;
@@ -30,6 +33,12 @@ OpenGL3DEngine::OpenGL3DEngine()
 
 OpenGL3DEngine::~OpenGL3DEngine()
 {
+	MeshPainter::Instance()->CleanUp();
+	GLEffect2D::LayersCompose::Instance()->CleanUp();
+	TextureManager::Instance()->CleanUp();
+	GLFontManager::GetInstance()->CleanUp();
+
+	TTF_Quit();
 }
 
 void OpenGL3DEngine::Finalize(void)
@@ -69,7 +78,7 @@ bool OpenGL3DEngine::Paint()
 		Color.X = 1.0f;
 		Color.Y = 1.0f;
 		Color.Z = (GetTick() / 2 % 512) / 255.0f;
-		Color.Z = abs(Color.Z - 1.0f)/2.0f+ 0.5;
+		Color.Z = abs(Color.Z - 1.0f)/2.0f+ 0.5f;
 		Color.X = Color.Z;
 		Color.Y = Color.Z;
 		CurrentLayer->RemoveChild(HighLightFrame);

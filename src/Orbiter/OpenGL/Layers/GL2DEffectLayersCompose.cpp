@@ -24,6 +24,13 @@ LayersCompose::LayersCompose() :
 
 /*virtual*/ LayersCompose::~LayersCompose(void)
 {
+	delete OldScreen;
+	OldScreen = NULL;
+	delete NewScreen;
+	NewScreen = NULL;
+
+	RemoveLayer(3);
+	RemoveLayer(2);
 }
 
 /*static*/ LayersCompose* LayersCompose::Instance()
@@ -46,13 +53,8 @@ void LayersCompose::Setup(int Width, int Height)
 
 void LayersCompose::CleanUp()
 {
-	delete OldScreen;
-	OldScreen = NULL;
-	delete NewScreen;
-	NewScreen = NULL;
-
-	this->RemoveLayer(3);
-	this->RemoveLayer(2);
+	delete Instance_;
+	Instance_ = NULL;
 }
 
 bool LayersCompose::ExistsLayerLevel(int LayerLevel)

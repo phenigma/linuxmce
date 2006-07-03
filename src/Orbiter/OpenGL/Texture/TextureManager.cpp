@@ -7,13 +7,13 @@
 #include "DCE/Logger.h"
 using namespace DCE;
 
-/*static*/ TextureManager* TextureManager::_Instance = NULL;
+/*static*/ TextureManager* TextureManager::Instance_ = NULL;
 
 TextureManager* TextureManager::Instance() 
 {
-	if(_Instance == NULL)
-		_Instance = new TextureManager();
-	return _Instance;
+	if(Instance_ == NULL)
+		Instance_ = new TextureManager();
+	return Instance_;
 }
 
 TextureManager::TextureManager(void)
@@ -53,6 +53,12 @@ TextureManager::~TextureManager(void)
 	
 	glBegin(GL_TRIANGLES);
 	LastTexture = Texture;
+}
+
+void TextureManager::CleanUp()
+{
+	delete Instance_;
+	Instance_ = NULL;
 }
 
 void TextureManager::PrepareConvert(OpenGLGraphic* TextureGraphic)
