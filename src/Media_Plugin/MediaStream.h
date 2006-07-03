@@ -75,6 +75,7 @@ namespace DCE
         int m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
         string m_sPlaylistName;      /** the name of the playlist which was loaded from the database. */
 		int m_discid;  /** A unique number to identify the disc inserted, if this is from a removable disc (CD/DVD) */
+		bool m_bIdentifiedDisc;
 		
 		/** When this media is identified, the priority of the identifying module is stored here so if another
 		module also identifies it, we can take the one with the highest priority */

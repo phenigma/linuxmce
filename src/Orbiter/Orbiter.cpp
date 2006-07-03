@@ -5892,10 +5892,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	m_iPK_Screen_OSD_Speed=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_Screen_OSD_Track=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 
-	
-	//m_sDefaultRippingName = sFilename;
-	//temporary. remove me!
-	m_sDefaultRippingName = sFilename != " %=T1197% " ? sFilename : "<%=T1197%>";
+	m_sDefaultRippingName = sFilename;
 
 	m_sNowPlaying_TimeShort="";
 	m_sNowPlaying_TimeLong="";

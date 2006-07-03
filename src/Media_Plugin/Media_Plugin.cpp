@@ -4496,6 +4496,13 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 	pMediaStream->UpdateDescriptions(true);
 	MediaInfoChanged(pMediaStream,true);
 	m_pMediaAttributes->m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);
+	if( pMediaStream->m_mapPK_Attribute.find(ATTRIBUTETYPE_Performer_CONST)!=pMediaStream->m_mapPK_Attribute.end() || 
+		pMediaStream->m_mapPK_Attribute.find(ATTRIBUTETYPE_Album_CONST)!=pMediaStream->m_mapPK_Attribute.end() || 
+		pMediaStream->m_mapPK_Attribute.find(ATTRIBUTETYPE_Title_CONST)!=pMediaStream->m_mapPK_Attribute.end() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Media_Identified stream is now identified disc");
+		m_bIdentifiedDisc=true;
+	}
 }
 
 void Media_Plugin::AlarmCallback(int id, void* param)

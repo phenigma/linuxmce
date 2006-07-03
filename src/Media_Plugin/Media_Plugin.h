@@ -518,20 +518,23 @@ public:
 			PK_Device_Source = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 			iDequeMediaFile = pMediaStream->m_iDequeMediaFile_Pos;
 
-			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+			if( pMediaStream->m_bIdentifiedDisc )
 			{
-				sFilename = FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Performer_CONST]));
-				if( sFilename.size() )
-					sFilename += "/"; // We got a performer
+				if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+				{
+					sFilename = FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Performer_CONST]));
+					if( sFilename.size() )
+						sFilename += "/"; // We got a performer
 
-				sFilename += FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]));
+					sFilename += FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]));
+				}
+				else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
+					sFilename = FileUtils::ValidFileName(pMediaStream->m_sMediaDescription);
 			}
-			else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
-				sFilename = FileUtils::ValidFileName(pMediaStream->m_sMediaDescription);
 			else if( pMediaStream->m_iPK_Playlist )
 				sFilename = FileUtils::ValidFileName(pMediaStream->m_sPlaylistName);
-			if( StringUtils::StartsWith(sFilename,"<%=") )
-				sFilename="";  // It's just a stock message--the user will have to pick
+			else
+				g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying, disc is not identified");
 
 			string sMediaDevices = StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device)
 				+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_Video ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_Video->m_dwPK_Device) : "")
