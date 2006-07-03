@@ -172,7 +172,7 @@ CUsh="/usr/pluto/install/config_update.sh"
 echo /usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device $Orbiter_Alert install
 /usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device $Orbiter_Alert install >"$CUsh.$$"
 linecount=$(cat "$CUsh.$$" | wc -l)
-awk "NR<$linecount-8" "$CUsh.$$" >"$CUsh"
+#--AB 02 Jul 06 I don't think we need this anymore since I removed the read from Confirm Dependencies-- awk "NR<$linecount-8" "$CUsh.$$" >"$CUsh"
 rm "$CUsh.$$"
 
 chmod +x "$CUsh"

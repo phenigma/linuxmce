@@ -180,6 +180,7 @@ namespace DCE
         set<int> m_RunningDevices;
         list<Message *> m_MessageQueue;
         Database_pluto_main *m_pDatabase_pluto_main;
+		Row_Installation *m_pRow_Installation;
 
         // Lots of maps
         map<int,class Room *> m_mapRoom;
@@ -214,6 +215,7 @@ namespace DCE
         const map<int,class CommandGroup *> *m_mapCommandGroup_get() { return &m_mapCommandGroup; }
 
         int iPK_Installation_get() { return m_dwPK_Installation; }
+		Row_Installation *m_pRow_Installation_get() { return m_pRow_Installation; }
 		int iPK_Device_get() { return m_dwPK_Device; }
         int iPK_Language_get() { return m_dwPK_Language; }
         string sBasePath_get() { return m_sBasePath; }

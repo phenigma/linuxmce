@@ -125,9 +125,9 @@ bool Event_Plugin::GetConfig()
 	m_fLongitude = DATA_Get_Longitude();
 	m_fLatitude = DATA_Get_Latitude();
 
-	if( m_fLongitude==0 && m_fLatitude==0 )
+	if( m_fLongitude==0 && m_fLatitude==0 && m_pRouter->m_pRow_Installation_get() )
 	{
-		Row_City *pRow_City = m_pDatabase_pluto_main->City_get()->GetRow(DATA_Get_PK_City());
+		Row_City *pRow_City = m_pRouter->m_pRow_Installation_get()->FK_City_getrow();
 		if( pRow_City )
 		{
 			m_fLongitude = pRow_City->Longitude_get();
@@ -135,9 +135,11 @@ bool Event_Plugin::GetConfig()
 		}
 	}
 
-	SetFirstSunriseSunset();
-	SetNextTimedEventCallback();
-
+	if( m_fLongitude==0 || m_fLatitude==0 )
+	{
+		SetFirstSunriseSunset();
+		SetNextTimedEventCallback();
+	}
 	return true;
 }
 

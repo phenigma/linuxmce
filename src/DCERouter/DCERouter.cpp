@@ -124,6 +124,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
     m_bIsLoading=false;
 	m_dwPK_Device_Largest=0;
 	m_bStopProcessingMessages=false;
+	m_pRow_Installation=NULL;
 
     m_CoreMutex.Init(NULL);
     m_InterceptorMutex.Init(NULL);
@@ -2429,7 +2430,7 @@ void Router::Configure()
 
 	// Build all the command groups
     vector<Row_CommandGroup *> vectRow_CommandGroup;
-	Row_Installation *pRow_Installation = GetDatabase()->Installation_get()->GetRow(m_dwPK_Installation);
+	m_pRow_Installation = GetDatabase()->Installation_get()->GetRow(m_dwPK_Installation);
     pRow_Installation->CommandGroup_FK_Installation_getrows(&vectRow_CommandGroup);  // All rows
     for(size_t s=0;s<vectRow_CommandGroup.size();++s)
     {

@@ -216,14 +216,13 @@ void OSDScreenHandler::SCREEN_UsersWizard(long PK_Screen)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butYourNameWizard_CONST));
 
+	ScreenHandlerBase::SCREEN_UsersWizard(PK_Screen);
 	if(m_pWizardLogic->AlreadyHasUsers())
 	{
 		//skip "what's your name" screen
 		m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_FamilyMembers_CONST),
                                        "", "", false, false );
 	}
-	else
-		ScreenHandlerBase::SCREEN_UsersWizard(PK_Screen);
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::UsersWizard_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::UsersWizard_DatagridSelected, new DatagridCellBackData());
@@ -336,11 +335,14 @@ bool OSDScreenHandler::UsersWizard_DatagridSelected(CallBackData *pData)
 void OSDScreenHandler::SCREEN_CountryWizard(long PK_Screen)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butLocationWizard_CONST));
+
+	ScreenHandlerBase::SCREEN_CountryWizard(PK_Screen);
 	if( m_pWizardLogic->GetLocation() )
 	{
 		PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 		if( m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_5_CONST]!="VALID_DATA_FOUND" )  // A keyword so we know when we already asked this question
 		{
+			m_pOrbiter->ForceCurrentScreenIntoHistory();
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, "VALID_DATA_FOUND");
 			DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 				"Is this your location?\n<%=31%>|Yes|No","0 -300 1 741 159 192|0 -300 1 741 159 194");
@@ -353,8 +355,6 @@ void OSDScreenHandler::SCREEN_CountryWizard(long PK_Screen)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
-
-	ScreenHandlerBase::SCREEN_CountryWizard(PK_Screen);
 
 	string sCountry = StringUtils::ltos(m_pWizardLogic->GetCountry());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sCountry);
@@ -646,15 +646,7 @@ void OSDScreenHandler::SCREEN_TV_provider(long PK_Screen)
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::TV_provider_ObjectSelected, 
 		new ObjectInfoBackData());
 
-	if(!m_pWizardLogic->WhatRoomIsThisDeviceIn(m_pOrbiter->m_dwPK_Device))
-	{
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
-		//the user removed the initial room while picking the room types; redirecting
-		m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_InWhichRoomIsTheSystem_CONST),
-                                        "", "", false, false);
-	}
-	else
-		ScreenHandlerBase::SCREEN_TV_provider(PK_Screen);
+	ScreenHandlerBase::SCREEN_TV_provider(PK_Screen);
 }
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
@@ -726,6 +718,7 @@ bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 {
+	ScreenHandlerBase::SCREEN_TV_Manufacturer(PK_Screen);
 	m_tWaitingForRegistration = 0;
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butTVManufWizard_CONST));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
@@ -745,6 +738,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_TV)));
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, sTV);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, sInput);
+		m_pOrbiter->ForceCurrentScreenIntoHistory();
 		if( m_pWizardLogic->m_nPK_Command_Input_Video_On_TV )
 		{
 
@@ -777,7 +771,6 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 	}
 	else
 	{
-		ScreenHandlerBase::SCREEN_TV_Manufacturer(PK_Screen);
 		m_pWizardLogic->FindPnpDevices(TOSTRING(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST));
 		m_pOrbiter->StartScreenHandlerTimer(500);
 	}
@@ -795,6 +788,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 
 	if( !m_pWizardLogic->m_nPK_Device_TV && m_tLastDeviceAdded && time(NULL)-m_tLastDeviceAdded<10 ) // The user just recently added a new tv or other device.  Wait a few seconds to confirm
 	{
+		m_pOrbiter->ForceCurrentScreenIntoHistory();
 		string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|nobuttons";
 		DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 			sText,"");
@@ -973,6 +967,7 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
+	ScreenHandlerBase::SCREEN_Receiver(PK_Screen);
 
 	long PK_Command_Input = 0;
 	string sReceiver,sInput;
@@ -997,6 +992,7 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_Receiver)));
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, sReceiver);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, sInput);
+		m_pOrbiter->ForceCurrentScreenIntoHistory();
 		if( PK_Command_Input )
 		{
 			string sText=m_pOrbiter->m_mapTextString[TEXT_confirm_receiver_and_input_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_YES_CONST] + "|" + 
@@ -1027,7 +1023,6 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 	}
 	else
 	{
-		ScreenHandlerBase::SCREEN_Receiver(PK_Screen);
 		m_pWizardLogic->FindPnpDevices(TOSTRING(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST));
 		m_pOrbiter->StartScreenHandlerTimer(500);
 	}
@@ -1039,6 +1034,7 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 
 	if( !m_pWizardLogic->m_nPK_Device_Receiver && m_tLastDeviceAdded && time(NULL)-m_tLastDeviceAdded<10 ) // The user just recently added a new receiver or other device.  Wait a few seconds to confirm
 	{
+		m_pOrbiter->ForceCurrentScreenIntoHistory();
 		string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|nobuttons";
 		DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 			sText,"");
@@ -1382,6 +1378,7 @@ void OSDScreenHandler::HandleLightingScreen()
 	{
 		if( NumLights )
 		{
+			m_pOrbiter->ForceCurrentScreenIntoHistory();
 			if( m_pWizardLogic->m_dequeNumLights.size()>0 )
 			{
 				// There are unassigned lights.  If user choses yes, assign lights.  No, he will re-pair
@@ -1424,6 +1421,7 @@ void OSDScreenHandler::HandleLightingScreen()
 		string sText=m_pOrbiter->m_mapTextString[TEXT_Lighting_interface_with_no_lights_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
 		string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AlarmPanel_CONST);
 
+		m_pOrbiter->ForceCurrentScreenIntoHistory();
 		DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 			sText,sMessage);
 		m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
@@ -1435,6 +1433,7 @@ void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 {
 	m_tWaitingForRegistration=m_tRegistered=0;
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butLightsWizard_CONST)); 
+	ScreenHandler::SCREEN_LightsSetup(PK_Screen);
 
 	m_pWizardLogic->m_nPK_Device_Lighting =	m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Lighting_Interface_CONST);
 	if( m_pWizardLogic->m_nPK_Device_Lighting )
@@ -1443,7 +1442,6 @@ void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::SCREEN_LightsSetup setting pnp devices");
 		m_pWizardLogic->FindPnpDevices(TOSTRING(DEVICECATEGORY_Lighting_Interface_CONST));
-		ScreenHandlerBase::SCREEN_LightsSetup(PK_Screen);
 		m_pOrbiter->StartScreenHandlerTimer(500);
 	}
 
@@ -1499,7 +1497,7 @@ bool OSDScreenHandler::LightsSetup_OnScreen(CallBackData *pData)
 
 bool OSDScreenHandler::Lights_OnTimer(CallBackData *pData)
 {
-	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoLights_CONST || m_tWaitingForRegistration )
+	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoLights_CONST || m_tWaitingForRegistration || m_tRegistered )
 	{
 		m_pWizardLogic->m_nPK_Device_Lighting =	m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Lighting_Interface_CONST);
 g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer light %d waiting %d",m_pWizardLogic->m_nPK_Device_Lighting,(int) m_tWaitingForRegistration );
@@ -1805,6 +1803,7 @@ void OSDScreenHandler::HandleAlarmScreen()
 		string sText=m_pOrbiter->m_mapTextString[TEXT_Security_interface_with_no_sensors_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
 		string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_VOIP_Provider_CONST);
 
+		m_pOrbiter->ForceCurrentScreenIntoHistory();
 		DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 			sText,sMessage);
 		m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
@@ -1815,6 +1814,7 @@ void OSDScreenHandler::SCREEN_AlarmPanel(long PK_Screen)
 {
 	m_tWaitingForRegistration=m_tRegistered=0;
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butAlarmPanelWizard_CONST)); 
+	ScreenHandlerBase::SCREEN_AlarmPanel(PK_Screen);
 
 	m_pWizardLogic->m_nPK_Device_AlarmPanel =	m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Security_Interface_CONST);
 	if( m_pWizardLogic->m_nPK_Device_AlarmPanel )
@@ -1823,7 +1823,6 @@ void OSDScreenHandler::SCREEN_AlarmPanel(long PK_Screen)
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::SCREEN_AlarmPanel setting pnp devices");
 		m_pWizardLogic->FindPnpDevices(TOSTRING(DEVICECATEGORY_Security_Interface_CONST));
-		ScreenHandlerBase::SCREEN_AlarmPanel(PK_Screen);
 		m_pOrbiter->StartScreenHandlerTimer(500);
 	}
 
@@ -1861,7 +1860,7 @@ bool OSDScreenHandler::AlarmSetup_OnScreen(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::Alarm_OnTimer(CallBackData *pData)
 {
-	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoAlarmPanel_CONST || m_tWaitingForRegistration )
+	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoAlarmPanel_CONST || m_tWaitingForRegistration || m_tRegistered )
 	{
 		m_pWizardLogic->m_nPK_Device_AlarmPanel =	m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Security_Interface_CONST);
 g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer sensor %d waiting %d",m_pWizardLogic->m_nPK_Device_AlarmPanel,(int) m_tWaitingForRegistration );
