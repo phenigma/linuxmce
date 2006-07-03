@@ -3,7 +3,7 @@
 . /usr/pluto/bin/AVWizard-Common.sh
 
 Done=0
-NextStep=$STEP_Start
+NextStep=$STEP_Welcome
 export DISPLAY=:1
 while [[ "$Done" -eq 0 ]]; do
 	StartX -step "$NextStep"
@@ -18,9 +18,9 @@ while [[ "$Done" -eq 0 ]]; do
 	VideoRefresh=$(WizGet VideoRefresh)
 
 	case "$WizStep" in
-		$STEP_DisplayRatio) NextStep=$STEP_VideoConnector ;;
-		-$STEP_DisplayRatio) NextStep=$STEP_DisplayRatio ;;
-		$STEP_ScreenResolution) NextStep=$STEP_ScreenResolution ;;
+		$STEP_VideoRatio) NextStep=$STEP_VideoOutput ;;
+		-$STEP_VideoRatio) NextStep=$STEP_VideoRatio ;;
+		$STEP_VideoResolution) NextStep=$STEP_VideoResolution ;;
 		*) echo "Interrupted in step '$WizStep', but shouldn't be" ;;
 	esac
 done

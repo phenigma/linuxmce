@@ -18,7 +18,7 @@ case "$Param" in
 		WizSet VideoRefresh '60'
 		WizSet WindowWidth 640
 		WizSet WindowHeight 480
-		WizSet CurrentStep "-$STEP_DisplayRatio"
+		WizSet CurrentStep "-$STEP_VideoRatio"
 	;;
 	16[_:]9)
 		Video_Ratio=$(WizGet Video_Ratio)
