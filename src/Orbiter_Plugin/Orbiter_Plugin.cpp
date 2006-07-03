@@ -1141,9 +1141,9 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 	mm.Relock();
 	if( !IsRegenerating(PK_Device) )
 	{
-		ProcessUtils::SpawnApplication("/usr/pluto/bin/RegenOrbiterOnTheFly.sh",
-			StringUtils::itos(PK_Device) + "\t" + StringUtils::itos(m_dwPK_Device),
-			"regen");
+		char * args[] = { "/usr/pluto/bin/RegenOrbiterOnTheFly.sh", (char *)(StringUtils::itos(PK_Device).c_str()),
+			(char *)(StringUtils::itos(m_dwPK_Device).c_str()), NULL };
+		ProcessUtils::SpawnDaemon(args[0], args);
 
 		m_listRegenCommands.push_back(PK_Device);
 		g_pPlutoLogger->Write(LV_STATUS,"Executing regen now m_listRegenCommands is: %d",(int) m_listRegenCommands.size());
@@ -1805,9 +1805,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with m_listRegenCommands
 			g_pPlutoLogger->Write(LV_STATUS,"Added %d to m_listRegenCommands %d size",iPK_Device,(int) m_listRegenCommands.size());
 		}
 
-		ProcessUtils::SpawnApplication("/usr/pluto/bin/RegenOrbiterOnTheFly.sh",
-			StringUtils::itos(iPK_Device) + "\t" + StringUtils::itos(m_dwPK_Device) + "\t" + sForce,
-			"regen");
+		char * args[] = { "/usr/pluto/bin/RegenOrbiterOnTheFly.sh", (char *)(StringUtils::itos(iPK_Device).c_str()),
+			(char *)(StringUtils::itos(m_dwPK_Device).c_str()), (char *)(sForce.c_str()), NULL };
+		ProcessUtils::SpawnDaemon(args[0], args);
 
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Execution returned");
 	}
