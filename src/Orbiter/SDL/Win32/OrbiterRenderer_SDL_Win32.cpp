@@ -32,6 +32,43 @@ LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	case WM_KEYUP:
 		pOrbiterRenderer_SDL_Win32->HandleKeyEvents(uMsg, wParam, lParam);
 		break;
+
+#ifdef ORBITER_OPENGL
+	case WM_CLOSE:
+		{
+			pOrbiterRenderer_SDL_Win32->OrbiterLogic()->OnQuit();
+		}
+	break;
+
+	case WM_PAINT:
+	case WM_MOVE:
+		{
+			pOrbiterRenderer_SDL_Win32->BeginPaint();
+			pOrbiterRenderer_SDL_Win32->EndPaint();
+		}
+	break;
+
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+	case WM_MOUSEMOVE:
+		{
+			Orbiter::Event orbiterEvent;
+			orbiterEvent.type = 
+				uMsg == WM_LBUTTONDOWN ? 
+					Orbiter::Event::REGION_DOWN :
+					uMsg == WM_RBUTTONDOWN ? 
+						Orbiter::Event::REGION_UP : 
+						Orbiter::Event::MOUSE_MOVE;
+
+			orbiterEvent.data.region.m_iX = (int)(short)LOWORD(lParam);
+			orbiterEvent.data.region.m_iY = (int)(short)HIWORD(lParam);
+			pOrbiterRenderer_SDL_Win32->OrbiterLogic()->ProcessEvent(orbiterEvent);
+		}
+		break;
+#endif
+
+	default:
+		break;
 	}
 
 	return Result;
@@ -43,8 +80,8 @@ OrbiterRenderer_SDL_Win32::OrbiterRenderer_SDL_Win32(Orbiter *pOrbiter) :
 #else
 	OrbiterRenderer_SDL(pOrbiter)
 #endif
+	, m_pfOldSDLWindowProc(NULL)
 {
-	SetupWindow();
 }
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_SDL_Win32::~OrbiterRenderer_SDL_Win32()
@@ -116,11 +153,11 @@ void OrbiterRenderer_SDL_Win32::SetupWindow()
 	{
 		m_pfOldSDLWindowProc = reinterpret_cast<WNDPROC>(
 			::SetWindowLong(
-			m_hSDLWindow, 
-			GWL_WNDPROC, 
-			reinterpret_cast<LONG_PTR>(SDLWindowProc)
+				m_hSDLWindow, 
+				GWL_WNDPROC, 
+				reinterpret_cast<LONG_PTR>(SDLWindowProc)
 			)
-			);
+		);
 	}
 #pragma warning(default:4312)
 #pragma warning(default:4244)

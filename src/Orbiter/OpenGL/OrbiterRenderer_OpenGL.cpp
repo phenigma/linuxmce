@@ -57,6 +57,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 	}
 
 	pOrbiterRenderer->InitializeAfterSetVideoMode();
+	pOrbiterRenderer->SetupWindow();
 
 	pOrbiterRenderer->Engine->Setup();
 
@@ -111,8 +112,6 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(cm, Mutex);// Keep this locked to protect the map
 	cm.CondWait();
-
-	SetupWindow();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::GetWindowPosition(PlutoPoint& point)
@@ -367,9 +366,9 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point )
 {
-		int EffectCode = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
+	int EffectCode = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
 
-		Engine->Select(&pObj->m_rPosition);
+	Engine->Select(&pObj->m_rPosition);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::EventLoop()
@@ -391,34 +390,8 @@ void OrbiterRenderer_OpenGL::OnIdle()
 			if (Event.type == SDL_QUIT)
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "Received sdl event SDL_QUIT");
-				
 				break;
 			} 
-			else if(Event.type == SDL_MOUSEMOTION)
-			{
-				orbiterEvent.type = Orbiter::Event::MOUSE_MOVE;
-				orbiterEvent.data.region.m_iX = Event.button.x;
-				orbiterEvent.data.region.m_iY = Event.button.y;
-				OrbiterLogic()->ProcessEvent(orbiterEvent);
-			} 
-			else if (Event.type == SDL_MOUSEBUTTONDOWN)
-			{
-				orbiterEvent.type = Orbiter::Event::REGION_DOWN;
-				orbiterEvent.data.region.m_iX = Event.button.x;
-				orbiterEvent.data.region.m_iY = Event.button.y;
-				OrbiterLogic()->ProcessEvent(orbiterEvent);
-
-#if defined(WIN32) && !defined(PROXY_ORBITER) && !defined(BLUETOOTH_DONGLE)
-				RecordMouseAction(Event.button.x, Event.button.y);
-#endif
-			}
-			else if (Event.type == SDL_MOUSEBUTTONUP)
-			{
-				orbiterEvent.type = Orbiter::Event::REGION_UP;
-				orbiterEvent.data.region.m_iX = Event.button.x;
-				orbiterEvent.data.region.m_iY = Event.button.y;
-				OrbiterLogic()->ProcessEvent(orbiterEvent);
-			}
 		}
 		else
 		{
@@ -454,6 +427,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::ShowProgress(int nPercent) 
 {
+	OrbiterRenderer::ShowProgress(nPercent);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool OrbiterRenderer_OpenGL::NeedToUpdateScreen()
@@ -470,20 +444,6 @@ void OrbiterRenderer_OpenGL::OnIdle()
 {
 	OrbiterRenderer::RedrawObjects();
 	NeedToUpdateScreen_ = true;
-}
-//-----------------------------------------------------------------------------------------------------
-int OrbiterRenderer_OpenGL::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> *p_mapPrompts)
-{
-#ifdef WIN32
-	return PromptUserEx(sPrompt, p_mapPrompts);
-#endif
-}
-//-----------------------------------------------------------------------------------------------------
-bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
-{
-#ifdef WIN32
-	return DialogProgressEx(sMessage, nProgress);
-#endif
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderScreen(bool bRenderGraphicsOnly)
@@ -541,9 +501,4 @@ bool OrbiterRenderer_OpenGL::DisplayProgress(string sMessage, int nProgress)
 	Item = Engine->Compose->CreateEffect(3, b, 0, 1200);
 	if(Item)
 		Item->Configure(&rectLastSelected);
-}
-
-void OrbiterRenderer_OpenGL::InitializeAfterSetVideoMode()
-{
-//	SetupWindow();
 }

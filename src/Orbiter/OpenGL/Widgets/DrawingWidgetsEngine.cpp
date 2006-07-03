@@ -39,7 +39,7 @@ void DrawingWidgetsEngine::Paint()
 		}
 	}
 	MeshTransform Transform;
-	Transform.ApplyTranslate(-400, -300, 300);
+	Transform.ApplyTranslate(- Width / 2, - Height / 2, Height / 2);
 
 	Context.Paint(Transform);
 	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "EndFrame");

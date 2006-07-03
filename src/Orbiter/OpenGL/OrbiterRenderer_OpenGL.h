@@ -65,9 +65,6 @@ namespace DCE
 		virtual void SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point );
 
 		virtual void RenderObjectAsync(DesignObj_Orbiter *pObj);
-
-		virtual int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
-		virtual bool DisplayProgress(string sMessage, int nProgress);
 		virtual void ShowProgress(int nPercent);
 
 		//virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic) {}
@@ -78,7 +75,7 @@ namespace DCE
 		/**
 		* @brief initialize other classes, after the video mode was changed
 		*/
-		virtual void InitializeAfterSetVideoMode();
+		virtual void InitializeAfterSetVideoMode() {}
 
 		/**
 		* @brief initialize other classes, after WaitForRelativesIfOSD
