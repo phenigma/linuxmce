@@ -35,4 +35,4 @@ Acquire::http::timeout "10";
 Acquire::ftp::timeout "10";
 APT::Get::AllowUnauthenticated "true";
 '
-echo -n "$pluto_apt_conf" >/etc/apt/apt.conf.d/30pluto
+echo -n "$pluto_apt_conf" >/target/etc/apt/apt.conf.d/30pluto
