@@ -33,7 +33,7 @@ class WizardPagesFactory : public WizardWidgetsFactory
 	/**
 	 *	Fixed names for XML based layouts for pages
 	 */
-	std::string PageNames[9];
+	std::string PageNames[10];
 
 public:
 	static WizardPagesFactory* GetInstance();
