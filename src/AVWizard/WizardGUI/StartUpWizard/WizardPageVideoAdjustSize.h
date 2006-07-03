@@ -3,12 +3,11 @@
 
 #include "WizardPage.h"
 
-#include "WizardWidgetListBox.h"
+#include "WizardWidgetButton.h"
 
 class WizardPageVideoAdjustSize :
 	public WizardPage
 {
-	WizardWidgetListBox* Selected;
 	SettingsDictionary* GlobalSettings;
 
 	std::string PreviousResolution;
@@ -25,6 +24,8 @@ public:
 
 	WizardPageVideoAdjustSize(SDLFrontEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageVideoAdjustSize();
+
+	virtual void UpdateSelected();
 };
 
 #endif

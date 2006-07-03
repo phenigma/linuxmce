@@ -15,7 +15,6 @@
 WizardPageVideoAdjustSize::WizardPageVideoAdjustSize(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
-	Selected = NULL;
 }
 
 WizardPageVideoAdjustSize::~WizardPageVideoAdjustSize(void)
@@ -28,81 +27,65 @@ WizardPageVideoAdjustSize::~WizardPageVideoAdjustSize(void)
 	if(Dictionary == NULL)
 		return -1;
 
-
-
 	return 0;
 }
 
 /*virtual*/ void WizardPageVideoAdjustSize::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
 	this->GlobalSettings = AVWizardSettings;
-	WizardWidgetListBox* ResListBox = dynamic_cast<WizardWidgetListBox*> 
-		(Page->GetChildRecursive("ListBox1"));
-	ResListBox->SetFocus(true);
-	Selected = ResListBox;
+	UpdateSelected();
 }
 
 /*virtual*/ void WizardPageVideoAdjustSize::DoIncreaseSetting()
 {
-	std::string ListBoxName = Selected->GetName();
-	#ifdef DEBUG
-	std::cout<<"Caption: "<<Selected->GetName()<<std::endl;
-	#endif
-	if (ListBoxName == "ListBox1")
-	{
-		if(Wizard::GetInstance()->WizardBorder*2 > 
-			Wizard::GetInstance()->LeftBorder )
-		Wizard::GetInstance()->LeftBorder ++;
-	}
-	else
-	{
-		if(Wizard::GetInstance()->WizardBorder*2 > 
-			Wizard::GetInstance()->TopBorder )
-		Wizard::GetInstance()->TopBorder ++;
-	}
+	if(Wizard::GetInstance()->WizardBorder*2 > 
+		Wizard::GetInstance()->LeftBorder )
+	Wizard::GetInstance()->LeftBorder +=2;
+	UpdateSelected();
 }
 
 /*virtual*/ void WizardPageVideoAdjustSize::DoDecreaseSetting()
 {
-	std::string ListBoxName = Selected->GetName();
-	#ifdef DEBUG
-	std::cout<<"Caption: "<<Selected->GetName()<<std::endl;
-	#endif
-	if (ListBoxName == "ListBox1")
-	{
-		if(Wizard::GetInstance()->LeftBorder>0)
-			Wizard::GetInstance()->LeftBorder --;
-	}
-	else
-	{
-		if(Wizard::GetInstance()->TopBorder>0)
-			Wizard::GetInstance()->TopBorder --;
-	}
+	if(Wizard::GetInstance()->LeftBorder>0)
+		Wizard::GetInstance()->LeftBorder -=2;
+	UpdateSelected();
 }
 
 /*virtual*/ void WizardPageVideoAdjustSize::DoNextFocusItem()
 {
-	Selected->SetFocus(false);
-	std::string ListBoxName = "ListBox2";
-	Selected = dynamic_cast<WizardWidgetListBox*> (Page->GetChildRecursive(ListBoxName));
-	if(Selected == NULL)
-		return;
-	Selected->SetFocus(true);
-	#ifdef DEBUG
-	std::cout<<"Caption: "<<Selected->GetName()<<std::endl;
-	#endif
-	Selected->SetFocus(true);
+	if(Wizard::GetInstance()->WizardBorder*2 > 
+		Wizard::GetInstance()->TopBorder )
+	Wizard::GetInstance()->TopBorder +=2;
+	UpdateSelected();
 }
 
 /*virtual*/ void WizardPageVideoAdjustSize::DoPreviousFocusItem()
 {
-	Selected->SetFocus(false);
-	std::string ListBoxName = "ListBox1";
-	Selected = dynamic_cast<WizardWidgetListBox*> (Page->GetChildRecursive(ListBoxName));
-	if(Selected == NULL)
-		return;
-	#ifdef DEBUG
-	std::cout<<"Caption: "<<Selected->GetName()<<std::endl;
-	#endif
-	Selected->SetFocus(true);
+	if(Wizard::GetInstance()->TopBorder>0)
+		Wizard::GetInstance()->TopBorder -=2;
+	UpdateSelected();
+}
+
+/*virtual*/ void WizardPageVideoAdjustSize::UpdateSelected()
+{
+	int LeftBorder = Wizard::GetInstance()->LeftBorder;
+	int TopBorder = Wizard::GetInstance()->TopBorder;
+	int Border = Wizard::GetInstance()->WizardBorder;
+
+	WizardWidgetButton* Button = NULL;
+	Button = dynamic_cast<WizardWidgetButton*> 
+		(Page->GetChildRecursive("ButtonLeft"));
+	Button->SetFocus(LeftBorder);
+
+	Button = dynamic_cast<WizardWidgetButton*> 
+		(Page->GetChildRecursive("ButtonUp"));
+	Button->SetFocus(TopBorder);
+
+	Button = dynamic_cast<WizardWidgetButton*> 
+		(Page->GetChildRecursive("ButtonRight"));
+	Button->SetFocus(LeftBorder < Border*2);
+	
+	Button = dynamic_cast<WizardWidgetButton*> 
+		(Page->GetChildRecursive("ButtonDown"));
+	Button->SetFocus(TopBorder < Border*2);
 }

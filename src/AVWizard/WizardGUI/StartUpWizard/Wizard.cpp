@@ -21,6 +21,7 @@
 #include "WizardCommandLineParser.h"
 #include "SafetyLock.h"
 #include "GenerateWizardConfigDefaults.h"
+#include "WizardPageVideoAdjustSize.h"
 
 #ifndef WIN32
 void signal_handler(int signal)
@@ -40,11 +41,11 @@ void signal_handler(int signal)
 
 Wizard::Wizard()
 	: 
+	Quit(false),
+	StatusChange(true),
 	LeftBorder(100),
 	TopBorder(100),
-	WizardBorder(100),
-	Quit(false),
-	StatusChange(true)
+	WizardBorder(100)
 {
 	this->ExitCode = 0;
 	AVWizardConfParser ConfigurationParser;
@@ -397,7 +398,8 @@ void Wizard::Resize(int Width, int Height, bool FullScreen)
 
 void Wizard::ZoomIn()
 {
-	if (this->CurrentPage != 5)
+	WizardPageVideoAdjustSize* ZoomPage = dynamic_cast <WizardPageVideoAdjustSize*> (MainPage);
+	if (!ZoomPage)
 		return;
 	if(WizardBorder <= 0)
 		return;
@@ -406,15 +408,23 @@ void Wizard::ZoomIn()
 		LeftBorder-= 2;
 	if(TopBorder>0)
 		TopBorder-= 2;
+	if(TopBorder > 2*WizardBorder)
+		TopBorder = 2*WizardBorder;
+	if(LeftBorder > 2*WizardBorder)
+		LeftBorder = 2*WizardBorder;
 	AVWizardOptions->GetDictionary()->Set("WizardBorder", WizardBorder);
 	AVWizardOptions->GetDictionary()->Set("LeftBorder", LeftBorder);
 	AVWizardOptions->GetDictionary()->Set("TopBorder", TopBorder);
+
+	ZoomPage->UpdateSelected();	
 }
 
 void Wizard::ZoomOut()
 {
-	if (this->CurrentPage != 5)
+	WizardPageVideoAdjustSize* ZoomPage = dynamic_cast <WizardPageVideoAdjustSize*> (MainPage);
+	if (!ZoomPage)
 		return;
+
 	if(WizardBorder*5 >= Width)
 		return;
 	WizardBorder += 2;
@@ -423,4 +433,5 @@ void Wizard::ZoomOut()
 	AVWizardOptions->GetDictionary()->Set("WizardBorder", WizardBorder);
 	AVWizardOptions->GetDictionary()->Set("LeftBorder", LeftBorder);
 	AVWizardOptions->GetDictionary()->Set("TopBorder", TopBorder);
+	ZoomPage->UpdateSelected();	
 }

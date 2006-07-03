@@ -496,20 +496,31 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 			));
 	}
 
-	Page->AddChild(CreateControlListBox(
-			"ListBox1",
-			"Left-Right",
+	Page->AddChild(CreateControlButton(
+			"ButtonUp",
+			"  Up  ",
 			320, 350,
-			110, 335,
-			false
+			true
 		));
 
-	Page->AddChild(CreateControlListBox(
-		"ListBox2",
-		"Up-Down",
+	Page->AddChild(CreateControlButton(
+		"ButtonDown",
+		"Down",
 		320, 390,
-		110, 335,
-		false
+		true
+		));
+	Page->AddChild(CreateControlButton(
+			"ButtonLeft",
+			" Left ",
+			220, 370,
+			true
+		));
+
+	Page->AddChild(CreateControlButton(
+		"ButtonRight",
+		"Right",
+		420, 370,
+		true
 		));
 
 	Page->SaveToXMLFile(PageNames[4]);
