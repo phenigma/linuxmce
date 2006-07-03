@@ -2431,7 +2431,7 @@ void Router::Configure()
 	// Build all the command groups
     vector<Row_CommandGroup *> vectRow_CommandGroup;
 	m_pRow_Installation = GetDatabase()->Installation_get()->GetRow(m_dwPK_Installation);
-    pRow_Installation->CommandGroup_FK_Installation_getrows(&vectRow_CommandGroup);  // All rows
+    m_pRow_Installation->CommandGroup_FK_Installation_getrows(&vectRow_CommandGroup);  // All rows
     for(size_t s=0;s<vectRow_CommandGroup.size();++s)
     {
         Row_CommandGroup *pRow_CommandGroup = vectRow_CommandGroup[s];
