@@ -194,6 +194,7 @@ tblScreen_DesignObj=NULL;
 tblSetupStep=NULL;
 tblSize=NULL;
 tblSkin=NULL;
+tblSoftware=NULL;
 tblStabilityStatus=NULL;
 tblStartupScript=NULL;
 tblStyle=NULL;
@@ -774,6 +775,9 @@ if( tblSize!=NULL )
 if( tblSkin!=NULL )
 	if( !Commit_Skin(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
+if( tblSoftware!=NULL )
+	if( !Commit_Software(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblStabilityStatus!=NULL )
 	if( !Commit_StabilityStatus(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
@@ -1130,6 +1134,7 @@ DeleteTable_Screen_DesignObj();
 DeleteTable_SetupStep();
 DeleteTable_Size();
 DeleteTable_Skin();
+DeleteTable_Software();
 DeleteTable_StabilityStatus();
 DeleteTable_StartupScript();
 DeleteTable_Style();

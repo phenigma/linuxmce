@@ -628,6 +628,9 @@
 				RelativePath=".\Table_Skin.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Software.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_StabilityStatus.cpp">
 			</File>
 			<File

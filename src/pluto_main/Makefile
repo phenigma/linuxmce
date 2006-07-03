@@ -176,6 +176,7 @@ Table_Screen_DesignObj.cpp \
 Table_SetupStep.cpp \
 Table_Size.cpp \
 Table_Skin.cpp \
+Table_Software.cpp \
 Table_StabilityStatus.cpp \
 Table_StartupScript.cpp \
 Table_Style.cpp \

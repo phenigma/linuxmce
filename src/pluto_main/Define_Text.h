@@ -1063,7 +1063,6 @@
 #define TEXT_Security_interface_with_no_sensors_CONST 1776
 #define TEXT_Confirm_Sensors_CONST 1777
 #define TEXT_Num_Sensors_CONST 1778
-#define TEXT_security_panel_already_setup_CONST 1779
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

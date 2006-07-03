@@ -365,6 +365,8 @@ class Table_Size* tblSize;
 bool Commit_Size(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Skin* tblSkin;
 bool Commit_Skin(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_Software* tblSoftware;
+bool Commit_Software(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_StabilityStatus* tblStabilityStatus;
 bool Commit_StabilityStatus(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_StartupScript* tblStartupScript;
@@ -656,6 +658,7 @@ class Table_Screen_DesignObj* Screen_DesignObj_get() { if( !tblScreen_DesignObj 
 class Table_SetupStep* SetupStep_get() { if( !tblSetupStep ) CreateTable_SetupStep(); return tblSetupStep; }
 class Table_Size* Size_get() { if( !tblSize ) CreateTable_Size(); return tblSize; }
 class Table_Skin* Skin_get() { if( !tblSkin ) CreateTable_Skin(); return tblSkin; }
+class Table_Software* Software_get() { if( !tblSoftware ) CreateTable_Software(); return tblSoftware; }
 class Table_StabilityStatus* StabilityStatus_get() { if( !tblStabilityStatus ) CreateTable_StabilityStatus(); return tblStabilityStatus; }
 class Table_StartupScript* StartupScript_get() { if( !tblStartupScript ) CreateTable_StartupScript(); return tblStartupScript; }
 class Table_Style* Style_get() { if( !tblStyle ) CreateTable_Style(); return tblStyle; }
@@ -892,6 +895,7 @@ void CreateTable_Screen_DesignObj();
 void CreateTable_SetupStep();
 void CreateTable_Size();
 void CreateTable_Skin();
+void CreateTable_Software();
 void CreateTable_StabilityStatus();
 void CreateTable_StartupScript();
 void CreateTable_Style();
@@ -1122,6 +1126,7 @@ void DeleteTable_Screen_DesignObj();
 void DeleteTable_SetupStep();
 void DeleteTable_Size();
 void DeleteTable_Skin();
+void DeleteTable_Software();
 void DeleteTable_StabilityStatus();
 void DeleteTable_StartupScript();
 void DeleteTable_Style();
