@@ -14,6 +14,7 @@ Apt::Cache-Limit "12582912";
 Dpkg::Options { "--force-confold"; };
 Acquire::http::timeout "10";
 Acquire::ftp::timeout "10";
+APT::Get::AllowUnauthenticated "true";
 '
 echo -n "$pluto_apt_conf" >/etc/apt/apt.conf.d/30pluto
 
