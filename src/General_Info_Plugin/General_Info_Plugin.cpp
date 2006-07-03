@@ -115,7 +115,6 @@ bool General_Info_Plugin::GetConfig()
 		m_bQuit=true;
 		return false;
 	}
-	m_pPostCreateOptions = new PostCreateOptions(m_pDatabase_pluto_main,m_pRouter);
 	return true;
 }
 
@@ -145,6 +144,8 @@ bool General_Info_Plugin::Register()
 		return false;
 	}
 
+	m_pPostCreateOptions = new PostCreateOptions(m_pDatabase_pluto_main,m_pRouter);
+	
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::PendingTasksGrid ) )
         , DATAGRID_Pending_Tasks_CONST,PK_DeviceTemplate_get() );
