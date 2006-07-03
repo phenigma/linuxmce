@@ -1,5 +1,6 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
 if [[ "$TimeZoneSet" == 1 ]]; then
