@@ -20,6 +20,14 @@ GLFont::~GLFont(void)
 		TTF_CloseFont(Font);
 		Font = NULL;
 	}  
+
+	for(map<string, GLFontTextureList *>::iterator it = Styles.begin(),
+		end = Styles.end(); it != end; ++it)
+	{
+		delete it->second;
+	}
+
+	Styles.clear();
 }
 
 bool GLFont::OpenFont(std::string FontName,	int Height)

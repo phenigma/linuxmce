@@ -11,6 +11,17 @@
 	return Instance_;
 }
 
+GLFontManager::~GLFontManager()
+{
+	for(map<std::string, GLFont*>::iterator it = Fonts.begin(), 
+		end = Fonts.end(); it != end; ++it)
+	{
+		delete it->second;
+	}
+
+	Fonts.clear();
+}
+
 void GLFontManager::CleanUp()
 {
 	delete Instance_;

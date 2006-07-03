@@ -12,6 +12,7 @@ class GLFontManager
 	static GLFontManager* Instance_;
 public:
 
+	~GLFontManager();
 	static GLFontManager* GetInstance();
 
 	void CleanUp();
