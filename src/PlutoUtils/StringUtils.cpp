@@ -293,7 +293,13 @@ bool StringUtils::Replace( string sInputFile, string sOutputFile, string sSearch
     StringUtils::Replace( &sInput, sSearch, sReplace );
 
 #ifndef WIN32
-    system(("mkdir -p \"" + FileUtils::BasePath(sOutputFile) + "\"").c_str());
+	string sBasePath = FileUtils::BasePath(sOutputFile);
+	if (sBasePath.size() != 0)
+	    system(("mkdir -p \"" + sBasePath + "\"").c_str());
+
+	struct stat statOutputFile;
+	stat(sOutputFile.c_str(), &statOutputFile);
+	mode_t accessOutputFile = statOutputFile.st_mode & 07777;
 #endif
 
     FILE *pFile = fopen( sOutputFile.c_str(), "wb" );
@@ -307,6 +313,9 @@ bool StringUtils::Replace( string sInputFile, string sOutputFile, string sSearch
     }
 
     fclose( pFile );
+#ifndef WIN32
+    chmod(sOutputFile.c_str(), accessOutputFile);
+#endif
     return true;
 }
 
