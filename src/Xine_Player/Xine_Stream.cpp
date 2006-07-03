@@ -2560,7 +2560,7 @@ string Xine_Stream::readMediaInfo()
 		string drvName = m_sCurrentFile;
 		drvName = StringUtils::Replace(drvName, "cdda://", "");
 		int last_slash = drvName.find_last_of("/");
-		if (last_slash!=drvName.length())
+		if (last_slash!=string::npos)
 		{
 			drvName.erase(last_slash);
 			
@@ -2620,11 +2620,31 @@ void Xine_Stream::ReadAVInfo()
 			if (StringUtils::StartsWith(sAudioInfo, "A/52"))
 			{
 				m_sAudioInfo = "dolby digital";
+				
+				// getting number of channels if present
+				string s = sAudioInfo;
+				s = StringUtils::Replace(s, "A/52", "");
+				s = StringUtils::TrimSpaces(s);
+				int pos = s.find_first_of(".");
+				if ( (pos!=string::npos) && (pos==1) )
+				{
+					m_sAudioInfo += " " + s.substr(0, 1);
+				}
 			}
 			else 
 				if (StringUtils::StartsWith(sAudioInfo, "DTS"))
 				{
 					m_sAudioInfo = "dts";
+				
+					// getting number of channels if present
+					string s = sAudioInfo;
+					s = StringUtils::Replace(s, "DTS", "");
+					s = StringUtils::TrimSpaces(s);
+					int pos = s.find_first_of(".");
+					if ( (pos!=string::npos) && (pos==1) )
+					{
+						m_sAudioInfo += " " + s.substr(0, 1);
+					}
 				}
 				else
 					m_sAudioInfo = "pcm";
@@ -2677,9 +2697,7 @@ void Xine_Stream::ReadAVInfo()
 
 void Xine_Stream::SendAVInfo()
 {
-	g_pPlutoLogger->Write( LV_WARNING, "Send AV info PRE");
 	m_pFactory->ReportAVInfo( m_sCurrentFile, m_iStreamID, m_sMediaInfo, m_sAudioInfo, m_sVideoInfo);
-	g_pPlutoLogger->Write( LV_WARNING, "Send AV info POST");
 }
 
 } // DCE namespace end
