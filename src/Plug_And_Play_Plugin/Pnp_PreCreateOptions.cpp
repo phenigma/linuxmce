@@ -109,8 +109,8 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnp
 bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreate_Cameras queue %d,
-		pPnpQueueEntry->m_pRow_;
+	g_pPlutoLogger->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreate_Cameras queue %d",
+		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 #endif
 	string sSqlSensors = "SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory="
 		+ StringUtils::itos(DEVICECATEGORY_Security_Device_CONST) + " LIMIT 1";
