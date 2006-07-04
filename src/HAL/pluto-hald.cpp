@@ -38,11 +38,19 @@ void PlutoHalD::mainloop_integration (LibHalContext *ctx, DBusConnection * dbus_
 
 void PlutoHalD::getPortIdentification(string portFromBus, string& portID)
 {
-	size_t startPos = portFromBus.find("usb");
+	size_t startPos = portFromBus.find("pci");
+	size_t usbPos = portFromBus.find("/usb");
+	size_t minus = portFromBus.rfind("-");
+	size_t colon = portFromBus.rfind(":");
 	
-	if( startPos != string::npos )
+	if( startPos != string::npos && usbPos != string::npos && usbPos > startPos &&
+		minus    != string::npos && colon  != string::npos && colon > minus )
 	{
-		portID = portFromBus.substr(startPos);
+		// Razvan G. 
+		// /sys/devices/pci0000:00/0000:00:02.0/usb1/1-4/1-4.5/1-4.5:1.0 => pci0000:00/0000:00:02.0+4.5
+		portID = portFromBus.substr(startPos, usbPos - startPos);
+		portID += "+";
+		portID += portFromBus.substr(minus + 1, colon - minus - 1);
 		g_pPlutoLogger->Write(LV_DEBUG, "port ID = %s\n", portID.c_str());
 	}
 }
