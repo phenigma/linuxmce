@@ -1,3 +1,6 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef SoundScreen_H_
 #define SoundScreen_H_
 

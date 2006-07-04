@@ -69,6 +69,8 @@ public:
 	bool SetCurrentFont(std::string FontName, int FontHeight, int Style);
 
 	void Blit(SDL_Surface* Surface, SDL_Rect SrcRect, SDL_Rect DestRect);
+
+	
 };
 
 #endif /*SDLFRONTEND_H_*/

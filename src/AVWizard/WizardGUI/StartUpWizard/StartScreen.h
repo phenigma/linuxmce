@@ -1,3 +1,6 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef StartScreen_H_
 #define StartScreen_H_
 

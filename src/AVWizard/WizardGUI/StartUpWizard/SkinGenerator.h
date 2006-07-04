@@ -1,14 +1,6 @@
-//
-// C++ Interface: SkinGenerator
-//
-// Description: 
-//
-//
-// Author: Ciprian Mustiata <ciprian.m@plutohome.com>, (C) 2006
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 
 #ifndef SkinGenerator_H_
 #define SkinGenerator_H_

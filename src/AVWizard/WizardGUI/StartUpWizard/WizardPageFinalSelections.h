@@ -1,3 +1,6 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef WizardPageFinalSelections_H_
 #define WizardPageFinalSelections_H_
 

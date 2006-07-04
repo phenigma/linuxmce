@@ -1,3 +1,6 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef WizardPageDTSTest_H_
 #define WizardPageDTSTest_H_ 
 

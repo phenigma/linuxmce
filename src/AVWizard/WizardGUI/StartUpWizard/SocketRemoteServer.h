@@ -1,3 +1,6 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef SOCKETREMOTESERVER_H
 #define SOCKETREMOTESERVER_H
 

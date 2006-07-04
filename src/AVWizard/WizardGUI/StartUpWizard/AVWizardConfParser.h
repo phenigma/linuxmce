@@ -1,3 +1,6 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef AVWizardConfParser_H_
 #define AVWizardConfParser_H_
 

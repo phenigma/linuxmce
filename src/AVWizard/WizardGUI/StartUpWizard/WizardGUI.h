@@ -1,3 +1,6 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef WIZARD_GUI_H
 #define  WIZARD_GUI_H
 

@@ -1,3 +1,6 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef GenerateWizardConfigDefaults_H_
 #define GenerateWizardConfigDefaults_H_
 

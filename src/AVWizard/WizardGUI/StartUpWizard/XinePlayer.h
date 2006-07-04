@@ -1,14 +1,6 @@
-//
-// C++ Interface: XinePlayer
-//
-// Description:	Xine player that loops on a thread. On close it destroys the 
-// thread.
-//
-// Author: Ciprian Mustiata <ciprian.m@plutohome.com>, (C) 2006
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 
 #ifndef XinePlayer_H_
 #define XinePlayer_H_

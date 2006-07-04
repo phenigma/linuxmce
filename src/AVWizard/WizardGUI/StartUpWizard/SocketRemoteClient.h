@@ -1,14 +1,6 @@
-//
-// C++ Interface: SocketRemoteClient
-//
-// Description: 
-//
-//
-// Author: Ciprian Mustiata <ciprian.m@plutohome.com>, (C) 2006
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef SOCKETREMOTECLIENT_H
 #define SOCKETREMOTECLIENT_H
 

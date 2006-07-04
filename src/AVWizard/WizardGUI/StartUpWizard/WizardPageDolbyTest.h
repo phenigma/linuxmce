@@ -1,3 +1,6 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef WizardPageDolbyTest_H_
 #define WizardPageDolbyTest_H_
 

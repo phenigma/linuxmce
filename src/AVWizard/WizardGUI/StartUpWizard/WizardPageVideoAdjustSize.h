@@ -1,3 +1,6 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef WizardPageVideoAdjustSize_H_
 #define WizardPageVideoAdjustSize_H_
 

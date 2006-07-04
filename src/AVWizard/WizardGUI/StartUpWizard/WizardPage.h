@@ -28,6 +28,8 @@ protected:
 	WizardWidgetPage* Page;
 	Wizard* MainWizard;
 
+	
+
 	/**
 	*	Must override function, used to get setup defaults of the dialog from the wizard
 	*/

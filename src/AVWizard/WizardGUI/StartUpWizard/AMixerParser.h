@@ -1,3 +1,6 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef AMIXER_PARSER_H
 #define AMIXER_PARSER_H
 

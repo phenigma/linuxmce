@@ -1,3 +1,6 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef WizardPageAudioConnector_H_
 #define WizardPageAudioConnector_H_
 

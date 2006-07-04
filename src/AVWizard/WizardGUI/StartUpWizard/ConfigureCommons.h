@@ -1,3 +1,6 @@
+/**
+ *	Created by CipLogic < ciprian dot m at plutohome dot com >
+ */
 #ifndef ConfigureCommons_H_
 #define ConfigureCommons_H_
 
