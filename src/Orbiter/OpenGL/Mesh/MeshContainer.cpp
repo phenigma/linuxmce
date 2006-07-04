@@ -9,8 +9,8 @@ MeshContainer::MeshContainer(void) : Blended_(false), NoVertexes(0), NoTriangles
 
 MeshContainer::~MeshContainer(void)
 {
-	delete Vertexes;
-	delete Triangles;
+	delete [] Vertexes;
+	delete [] Triangles;
 }
 
 void MeshContainer::SetAlpha(float Alpha)

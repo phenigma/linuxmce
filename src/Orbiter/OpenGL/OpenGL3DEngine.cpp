@@ -38,13 +38,15 @@ OpenGL3DEngine::~OpenGL3DEngine()
 	TextureManager::Instance()->CleanUp();
 	GLFontManager::GetInstance()->CleanUp();
 
+	CurrentLayerObjects_.clear();
 	TTF_Quit();
+
+	pthread_mutex_destroy(&SceneMutex.mutex);
 }
 
 void OpenGL3DEngine::Finalize(void)
 {
 	SDL_Quit();
-//	pthread_mutex_destroy(&SceneMutex.mutex);
 }
 
 bool OpenGL3DEngine::Paint()
