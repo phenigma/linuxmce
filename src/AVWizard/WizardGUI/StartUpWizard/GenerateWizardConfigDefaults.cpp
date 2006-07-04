@@ -510,7 +510,7 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 	}
 	StringList[0] = "For Zoom In you should press: ";
 	StringList[1] = "For Zoom Out you should press: ";
-	StringList[2] = "For Zoom Out you should press: ";
+	StringList[2] = "Press Enter to go to next screen! ";
 	for(int i = 0; i<2; i++)
 	{
 		Container->AddChild(CreateControlLabel(
