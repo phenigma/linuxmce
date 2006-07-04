@@ -166,6 +166,7 @@ void GenerateWizardConfigDefaults::GeneratePage0(
 	StringList[2] = "For validation use \"Enter\"";
 	StringList[3] = "IF you want to go back one step use \"Escape\"";
 
+	Page->AddChild(CreateControlBackground("Gray", "(none)", 0, 0));
 	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
 	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
 
@@ -405,6 +406,7 @@ void GenerateWizardConfigDefaults::GeneratePage3(
 
 	Container = GenerateTabContainer(2, ImageFolder, FontFolder);
 	Page->AddChild(Container);
+	Page->AddChild(CreateControlBackground("BackArrows", "(none)", 0, 0));
 
 	//Create text area
 	std::string StringList[10];
@@ -475,6 +477,8 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 	Dictionary->Set("Fullscreen", 1);
 	Dictionary->Set("Caption", "AVWizard Configurator");
 
+	Page->AddChild(CreateControlBackground("BackArrows", ImageFolder+"zoom.png", 0, 0));
+
 	Container = GenerateTabContainer(3, ImageFolder, FontFolder);
 	Page->AddChild(Container);
 
@@ -516,14 +520,14 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 			"ButtonPlus",
 			"+",
 			520, 260,
-			10,
+			0,
 			false
 		));
 	Page->AddChild(CreateControlButton(
 		"ButtonMinus",
 		"-",
 		520, 295,
-		10,
+		0,
 		false
 		));
 
@@ -582,7 +586,7 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 	Dictionary->Set("Height", 480);
 	Dictionary->Set("Fullscreen", 1);
 	Dictionary->Set("Caption", "AVWizard Configurator");
-
+	Page->AddChild(CreateControlBackground("BackArrows", "(none)", 0, 0));
 	Container = GenerateTabContainer(4, ImageFolder, FontFolder);
 	Page->AddChild(Container);
 
@@ -1164,6 +1168,25 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::CreateControlImage(std::st
 	return Result;
 }
 
+
+SettingsDictionaryTree* GenerateWizardConfigDefaults::CreateControlBackground(
+	std::string ControlName, 
+	std::string Picture, 
+	int Left, int Top)
+{
+	//Create an image control that shows a perfect square
+	SettingsDictionaryTree* Result= new SettingsDictionaryTree();
+	SettingsDictionary* Dictionary = Result->GetDictionary();
+
+	Dictionary->SetName(ControlName);
+	Dictionary->SetType("Background");
+	Dictionary->Set("Left", Left);
+	Dictionary->Set("Top", Top);
+	Dictionary->Set("Picture", Picture);
+
+	return Result;
+}
+
 SettingsDictionaryTree* GenerateWizardConfigDefaults::CreateControlLabel(std::string ControlName, 
 										   std::string Caption,
 										   int Left, 
@@ -1274,8 +1297,6 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::CreateControlListBox(
 	return Result;   
 }
 
-
-
 void GenerateWizardConfigDefaults::SetDefaultBtnImages(SettingsDictionary* Dictionary, std::string ImageFolder)
 {
 	Dictionary->Set("FontColor", "ffffff");
@@ -1287,7 +1308,6 @@ void GenerateWizardConfigDefaults::SetDefaultBtnImages(SettingsDictionary* Dicti
 	Dictionary->Set("PictureHigh ", ImageFolder+"button_high_tex.png");
 	Dictionary->Set("PictureHighLeft", ImageFolder+"button_high_left.png");
 	Dictionary->Set("PictureHighRight", ImageFolder+"button_high_right.png");
-
 
 	Dictionary->Set("PictureArrowLeft", ImageFolder+"left_off.png");
 	Dictionary->Set("PictureArrowRight", ImageFolder+"right_off.png");

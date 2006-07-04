@@ -20,11 +20,9 @@ class SDLFrontEnd
 	 *	Offscreen surface that does the drawing. At the end you should 
 	 *	show the results using Flip() method
 	 */
-	SDL_Surface* Screen;
+	SDL_Surface* Display;
 	SDL_Surface* BackSurface;
-
-	SDL_Surface* CurrentSurface;
-
+	SDL_Surface *ScaledScreen, *ScaledBack;
 
 	/**
 	 *	Current used font for rendering text	
@@ -38,7 +36,10 @@ class SDLFrontEnd
 	int PaintFont(char* Text, int Top, int Left, 
 		TColorDesc Color, int Mode);
 	void Arrows();
+
+	bool NeedUpdateScreen, NeedUpdateBack;
 public:
+	SDL_Surface* Screen;
 
 	/**
 	 *	Standard constructor for SDL frontend	
@@ -70,6 +71,10 @@ public:
 
 	void Blit(SDL_Surface* Surface, SDL_Rect SrcRect, SDL_Rect DestRect);
 
+	/**
+	 *	Paints a surface in the background and will not be in the zoomable area
+	 */
+	void BackBlit(SDL_Surface* Surface, SDL_Rect SrcRect, SDL_Rect DestRect);
 	
 };
 

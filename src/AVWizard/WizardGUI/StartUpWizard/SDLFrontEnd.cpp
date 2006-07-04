@@ -16,11 +16,25 @@ SDLFrontEnd::SDLFrontEnd()
 	}
 
 	CurrentFont = NULL;
+	Display = NULL;
+
 	Screen = NULL;
+	BackSurface = NULL;
+	ScaledScreen = NULL;
+	ScaledBack = NULL;
 }
 
 SDLFrontEnd::~SDLFrontEnd()
 {
+	if (Screen)
+		SDL_FreeSurface(Screen);
+	if (BackSurface)
+		SDL_FreeSurface(BackSurface);
+	if (ScaledScreen)
+		SDL_FreeSurface(ScaledScreen);
+	if (ScaledBack)
+		SDL_FreeSurface(ScaledBack);
+
 	if(CurrentFont!= NULL)
 		TTF_CloseFont(CurrentFont);
 	TTF_Quit();
@@ -62,8 +76,8 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 	if (FullScreen)
 		Flags = SDL_FULLSCREEN;
 		
-	Screen = SDL_SetVideoMode(Width, Height, 0, Flags);
-	if(!Screen)
+	Display = SDL_SetVideoMode(Width, Height, 0, Flags);
+	if(!Display)
 	{
 		std::cout<<"Cannot init the video mode!"<<std::endl;
 		Wizard::GetInstance()->SetExitWithCode(-1);
@@ -71,6 +85,9 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 	}
 	
 	SDL_WM_SetCaption("AVWizard", "AVWizard");
+
+	BackSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 24, 0, 0, 0, 0);
+	Screen = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 24, 0, 0, 0, 0);
 
 	return 0;
 }
@@ -120,39 +137,58 @@ void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 	double ZoomX = 1;
 	double ZoomY = 1;
 
-	SDL_Surface *ScaledScreen = NULL;
 	bool NeedScale = false;
 
 	int Width = Screen->w;
 	int Height = Screen->h;
 	NeedScale = (Width != 640) || (Height != 480);
-	if (NeedScale || Border)
+	SDL_Rect Rect;
+
+	ZoomX = Width / 640.0f;
+	ZoomY = Height / 480.0f;
+	Rect.x = 0;
+	Rect.y = 0;
+	Rect.w = Width;
+	Rect.h = Height;
+
+
+	if(NeedUpdateBack)
 	{
-		SDL_Rect Rect;
-		ZoomX = (Width-2*Border) / 640.0f;
-		ZoomY = (Height-2*Border) / 480.0f;
-		Rect.x = LeftBorder;
-		Rect.y = TopBorder;
-		Rect.w = Width - 2 * Border;
-		Rect.h = Height - 2 * Border;
-
-		ScaledScreen = zoomSurface(Screen, ZoomX, ZoomY, SMOOTHING_ON);
-		SDL_FillRect(Screen, NULL, SDL_MapRGBA(Screen->format, 63, 63, 63, 255));
-
-		SDL_SetAlpha(ScaledScreen, 0, 0);
-		Arrows();
-		SDL_BlitSurface(ScaledScreen, NULL, Screen, &Rect);
-
-		SDL_FreeSurface(ScaledScreen);
+		ScaledBack = zoomSurface(BackSurface, ZoomX, ZoomY, SMOOTHING_ON);
+		NeedUpdateBack = false;
 	}
-	SDL_Flip(Screen);	
-	if (NeedScale)
-		SDL_FillRect(Screen, NULL, SDL_MapRGBA(Screen->format, 63, 63, 63, 255));
+	SDL_SaveBMP(ScaledBack, "/home/ciplogic/Desktop/screen2.bmp");
+	SDL_BlitSurface(ScaledBack, NULL, Display, &Rect);
+
+	SDL_SaveBMP(Display, "/home/ciplogic/Desktop/screen.bmp");
+
+	//SDL_FillRect(Screen, NULL, SDL_MapRGBA(Screen->format, 63, 63, 63, 255));
+
+	ZoomX = (Width-2*Border) / 640.0f;
+	ZoomY = (Height-2*Border) / 480.0f;
+	Rect.x = LeftBorder;
+	Rect.y = TopBorder;
+	Rect.w = Width - 2 * Border;
+	Rect.h = Height - 2 * Border;
+
+	if(NeedUpdateScreen)
+	{
+		ScaledScreen = zoomSurface(Screen, ZoomX, ZoomY, SMOOTHING_ON);
+		NeedUpdateScreen = true;
+	}
+
+	SDL_SetAlpha(ScaledScreen, 0, 0);
+	SDL_BlitSurface(ScaledScreen, NULL, Display, &Rect);
+	//SDL_SaveBMP(Display, "/home/ciplogic/Desktop/screen2.bmp");
+
+	//SDL_SaveBMP(BackSurface, "/home/ciplogic/Desktop/screen.bmp");
+	SDL_Flip(Display);	
+	SDL_FillRect(BackSurface, NULL, SDL_MapRGBA(Screen->format, 63, 63, 63, 255));
 }
 
 void SDLFrontEnd::PaintBackground()
 {
-	SDL_FillRect(Screen, NULL, 0xffffff);
+	SDL_FillRect(Display, NULL, 0xffffff);
 }
 
 int SDLFrontEnd::TextOutWidth(std::string Text)
@@ -245,11 +281,6 @@ int SDLFrontEnd::TextOutput(char* Text, int Left, int Top, TColorDesc Color, int
 	return PaintFont(Text, Top, Left, Color, Mode);
 }
 
-void SDLFrontEnd::Blit(SDL_Surface* Surface, SDL_Rect SrcRect, SDL_Rect DestRect)
-{
-	SDL_BlitSurface(Surface, &SrcRect, Screen, &DestRect);
-}
-
 bool SDLFrontEnd::SetCurrentFont(std::string FontName, int FontHeight, int Style)
 {
 	TTF_Font *Font;
@@ -269,4 +300,35 @@ bool SDLFrontEnd::SetCurrentFont(std::string FontName, int FontHeight, int Style
 
 	TTF_SetFontStyle(CurrentFont, style);
 	return true;
+}
+
+void SDLFrontEnd::Blit(SDL_Surface* Surface, SDL_Rect SrcRect, SDL_Rect DestRect)
+{
+	NeedUpdateScreen = true;
+
+	if(ScaledScreen)
+	{
+		SDL_FreeSurface(ScaledScreen);
+		ScaledScreen = NULL;
+	}
+
+	SDL_BlitSurface(Surface, &SrcRect, Screen, &DestRect);
+}
+
+void SDLFrontEnd::BackBlit(SDL_Surface* Surface, SDL_Rect SrcRect, SDL_Rect DestRect)
+{
+	NeedUpdateBack = true;
+	if(ScaledBack)
+	{
+		SDL_FreeSurface(ScaledBack);
+		ScaledBack = NULL;
+	}
+
+	if(Surface == NULL)
+	{
+		SDL_FillRect(BackSurface, NULL, SDL_MapRGBA(Screen->format, 32, 64, 16, 255));
+		SDL_SaveBMP(BackSurface, "/home/ciplogic/Desktop/screen3.bmp");
+	}
+	else
+		SDL_BlitSurface(Surface, &SrcRect, BackSurface, &DestRect);	
 }

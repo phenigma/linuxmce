@@ -4,6 +4,7 @@
 #include "WizardWidgetPage.h"
 #include "WizardWidgetLabel.h"
 #include "WizardWidgetImage.h"
+#include "WizardWidgetBackground.h"
 #include "WizardWidgetListBox.h"
 #include "WizardWidgetButton.h"
 #include "WizardWidgetContainer.h"
@@ -15,10 +16,11 @@ WizardWidgetsFactory::WizardWidgetsFactory()
 	FrontEnd = NULL;
     WidgetTypes["Page"] = WIDGET_PAGE;
 	WidgetTypes["Image"] = WIDGET_IMAGE;
+	WidgetTypes["Background"] = WIDGET_BACKGROUND;
 	WidgetTypes["Label"] = WIDGET_LABEL;
 	WidgetTypes["ListBox"] = WIDGET_LISTBOX;
 	WidgetTypes["Button"] = WIDGET_BUTTON;
-	WidgetTypes["Container"] = WIDGET_CONTAINER;
+	WidgetTypes["Container"] = WIDGET_CONTAINER;	
 }
 //---------------------------------------------------------------------------
 WizardWidgetsFactory* WizardWidgetsFactory::GetInstance()
@@ -37,6 +39,8 @@ WizardWidgetBase* WizardWidgetsFactory::CreateWidget(int ID, std::string Name)
 			return new WizardWidgetPage(FrontEnd, Name);
 		case WIDGET_IMAGE:
 			return new WizardWidgetImage(FrontEnd, Name);
+		case WIDGET_BACKGROUND:
+			return new WizardWidgetBackground(FrontEnd, Name);
 		case WIDGET_LABEL:
 			return new WizardWidgetLabel(FrontEnd, Name);
 		case WIDGET_LISTBOX:

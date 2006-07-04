@@ -102,6 +102,6 @@ WizardPageVideoAdjustSize::~WizardPageVideoAdjustSize(void)
 
 	Button = dynamic_cast<WizardWidgetButton*> 
 		(Page->GetChildRecursive("ButtonMinus"));
-	Button->SetFocus(256  < Border);
+	Button->SetFocus(Border*5 < FrontEnd->Screen->w);
 
 }

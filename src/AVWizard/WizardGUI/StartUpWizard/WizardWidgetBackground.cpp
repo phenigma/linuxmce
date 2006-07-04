@@ -25,12 +25,13 @@ WizardWidgetBackground::~WizardWidgetBackground()
 
 /*virtual*/ void WizardWidgetBackground::Paint()
 {
+	SDL_Rect Src, Dest;
 	if(!Surface)
 	{
+		FrontEnd->BackBlit(Surface, Src, Dest);
 		WizardWidgetBase::Paint();
 		return;
 	}
-	SDL_Rect Src, Dest;
 	Src.x = 0; Src.y = 0;
 	Src.w = Surface->w;
 	Src.h = Surface->h;
@@ -47,8 +48,7 @@ WizardWidgetBackground::~WizardWidgetBackground()
 	else
 		Dest.h = Height;
 
-	//SDL_SaveBMP(Surface, "test.bmp");
-	FrontEnd->Blit(Surface, Src, Dest);
+	FrontEnd->BackBlit(Surface, Src, Dest);
 	WizardWidgetBase::Paint();
 }
 

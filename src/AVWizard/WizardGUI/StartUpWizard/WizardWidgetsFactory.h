@@ -9,10 +9,11 @@
 //---------------------------------------------------------------------------
 #define WIDGET_PAGE			1
 #define WIDGET_IMAGE		2
-#define WIDGET_LISTBOX		3
-#define WIDGET_LABEL		4
-#define WIDGET_BUTTON		5
-#define WIDGET_CONTAINER	6
+#define WIDGET_BACKGROUND	3
+#define WIDGET_LISTBOX		4
+#define WIDGET_LABEL		5
+#define WIDGET_BUTTON		6
+#define WIDGET_CONTAINER	7
 //---------------------------------------------------------------------------
 #include <map>
 #include <string>

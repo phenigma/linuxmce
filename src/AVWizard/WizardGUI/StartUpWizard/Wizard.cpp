@@ -401,14 +401,18 @@ void Wizard::ZoomIn()
 	WizardPageVideoAdjustSize* ZoomPage = dynamic_cast <WizardPageVideoAdjustSize*> (MainPage);
 	if (!ZoomPage)
 		return;
-	if(WizardBorder <= 0)
-		return;
 	WizardBorder -= BORDER_JUMP;
-	if(LeftBorder>BORDER_JUMP)
-		LeftBorder-= BORDER_JUMP;
-	if(TopBorder>BORDER_JUMP
-)
-		TopBorder-= BORDER_JUMP;
+	if(WizardBorder <= 0)
+		WizardBorder = 0;
+
+	LeftBorder-= BORDER_JUMP;
+	if(LeftBorder<0)
+		LeftBorder = 0;
+
+	TopBorder-= BORDER_JUMP;
+	if(TopBorder<0)
+		TopBorder = 0;
+
 	if(TopBorder > 2*WizardBorder)
 		TopBorder = 2*WizardBorder;
 	if(LeftBorder > 2*WizardBorder)

@@ -77,6 +77,13 @@ class GenerateWizardConfigDefaults
 		int Left, 
 		int Top);
 	/**
+	 *	Generate background control with minimum parameters
+	 */
+	SettingsDictionaryTree* CreateControlBackground(
+		std::string ControlName, 
+		std::string Picture, 
+		int Left, int Top);
+	/**
 	 *	Generate label control with minimum parameters
 	 */
 	SettingsDictionaryTree* CreateControlLabel(std::string ControlName, 
