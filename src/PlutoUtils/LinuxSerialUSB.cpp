@@ -20,13 +20,37 @@
 string TranslateSerialUSB(string sInput)
 {
 #ifndef WIN32
-
-	if( sInput.size()<6 || sInput.substr(0,3)!="usb" )
+	
+	if( sInput.size()<6 || sInput.substr(0,3)!="pci" )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB %s isn't serial usb",sInput.c_str());
 		return sInput;
 	}
 
+	size_t pos = 0;
+	string sPciId = StringUtils::Tokenize(sInput, "+", pos);
+	string sUsbId = StringUtils::Tokenize(sInput, "+", pos);
+	sUsbId = StringUtils::Replace(sUsbId,".","\\.");
+
+	char tmpFile[40] = "/tmp/devusbXXXXXX";
+	mktemp(tmpFile);
+	string sCmd = "ls -l /sys/bus/usb-serial/devices/ | grep '" + sPciId + ".*-" + sUsbId + ":.*' >" + tmpFile;
+	system(sCmd.c_str());
+
+	vector<string> vectStr;
+	FileUtils::ReadFileIntoVector(tmpFile,vectStr);
+	for(vector<string>::iterator it=vectStr.begin();it!=vectStr.end();++it)
+	{
+		if( (*it).find(sPciId)!=string::npos )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB found %s, returning %s",
+				(*it).c_str(),("/dev/" + FileUtils::FilenameWithoutPath(*it)).c_str());
+			return "/dev/" + FileUtils::FilenameWithoutPath(*it);
+		}
+	}
+	g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB %s couldn't find a match",sInput.c_str());
+	
+/*
 	char tmpFile[40] = "/tmp/devusbXXXXXX";
 	mktemp(tmpFile);
 	system(("ls -l /sys/bus/usb-serial/devices/ > " + string(tmpFile)).c_str());
@@ -43,7 +67,7 @@ string TranslateSerialUSB(string sInput)
 		}
 	}
 	g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB %s couldn't find a match",sInput.c_str());
-
+*/
 #endif
 
 	return sInput;
