@@ -15,6 +15,10 @@
 WizardPageVideoAdjustSize::WizardPageVideoAdjustSize(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
+	Wizard::GetInstance()->WizardBorder = 0;
+	Wizard::GetInstance()->LeftBorder = 0;	
+	Wizard::GetInstance()->TopBorder = 0;
+
 }
 
 WizardPageVideoAdjustSize::~WizardPageVideoAdjustSize(void)

@@ -25,6 +25,8 @@ class SDLFrontEnd
 	SDL_Surface* BackSurface;
 	SDL_Surface *ScaledScreen, *ScaledBack;
 
+	TColorDesc* BackColor;
+
 	/**
 	 *	Current used font for rendering text	
 	 */

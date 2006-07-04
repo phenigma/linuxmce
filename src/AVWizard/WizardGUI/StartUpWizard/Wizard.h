@@ -19,7 +19,8 @@
 #define WIZARD_SELECTED_LABEL_SIZE		30
 #define WIZARD_DESELECTED_FONT_SIZE		30
 #define WIZARD_DESELECTED_LABEL_SIZE	20
-#define BORDER_JUMP (15)
+#define BORDER_JUMP (10)
+#define ARROWS_BORDER (40)
 
 
 #ifdef WIN32
@@ -59,10 +60,6 @@ class Wizard
 	 */
 	SettingsDictionary CommandLineOptions;
 
-	/**
-	 *	Index to current page in the wizard
-	 */
-	int CurrentPage;
 	/**
 	 *	The current page of the wizard
 	 */
@@ -133,6 +130,11 @@ class Wizard
 
 	SocketRemoteServer Server;
 public:
+	/**
+	 *	Index to current page in the wizard
+	 */
+	int CurrentPage;
+
 	int LeftBorder, TopBorder;
 	int WizardBorder;
 	/**

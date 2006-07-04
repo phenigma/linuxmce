@@ -133,56 +133,71 @@ void SDLFrontEnd::Arrows()
 
 void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 {
-	// TODO: Scale
+	if (BackColor)
+		SDL_FillRect(Display, NULL, SDL_MapRGBA(Screen->format, BackColor->GetRed(), 
+			BackColor->GetGreen(), 
+			BackColor->GetBlue(), 
+			255));
+
 	double ZoomX = 1;
 	double ZoomY = 1;
+	double ZoomX2 = 1;
+	double ZoomY2 = 1;
 
-	bool NeedScale = false;
 
 	int Width = Screen->w;
 	int Height = Screen->h;
-	NeedScale = (Width != 640) || (Height != 480);
-	SDL_Rect Rect;
 
-	ZoomX = Width / 640.0f;
-	ZoomY = Height / 480.0f;
-	Rect.x = 0;
-	Rect.y = 0;
-	Rect.w = Width;
-	Rect.h = Height;
+	SDL_Rect Rect, RectZoom;
 
+	ZoomX = (Width-2*Border) / 640.0f;
+	ZoomY = (Height-2*Border) / 480.0f;
+	RectZoom.x = LeftBorder;
+	RectZoom.y = TopBorder;
+	RectZoom.w = Width - 2 * Border;
+	RectZoom.h = Height - 2 * Border;
 
 	if(NeedUpdateBack)
 	{
 		ScaledBack = zoomSurface(BackSurface, ZoomX, ZoomY, SMOOTHING_ON);
 		NeedUpdateBack = false;
 	}
+	if(Wizard::GetInstance()->CurrentPage == 5)
+	{
+		int Border2 = Border + ARROWS_BORDER;
+		ZoomX2 = (Width-2*Border2) / 640.0f;
+		ZoomY2 = (Height-2*Border2) / 480.0f;
+		Rect.x = LeftBorder + ARROWS_BORDER;
+		Rect.y = TopBorder + ARROWS_BORDER;
+		Rect.w = Width - 2 * Border2;
+		Rect.h = Height - 2 * Border2;
+	}
+	else
+	{
+		int Border2 = Border;
+		ZoomX2 = (Width-2*Border2) / 640.0f;
+		ZoomY2 = (Height-2*Border2) / 480.0f;
+		Rect.x = LeftBorder;
+		Rect.y = TopBorder;
+		Rect.w = Width - 2 * Border2;
+		Rect.h = Height - 2 * Border2;
+	}
 
-	SDL_BlitSurface(ScaledBack, NULL, Display, &Rect);
 
+	SDL_BlitSurface(ScaledBack, NULL, Display, &RectZoom);
 
-	//SDL_FillRect(Screen, NULL, SDL_MapRGBA(Screen->format, 63, 63, 63, 255));
-
-	ZoomX = (Width-2*Border) / 640.0f;
-	ZoomY = (Height-2*Border) / 480.0f;
-	Rect.x = LeftBorder;
-	Rect.y = TopBorder;
-	Rect.w = Width - 2 * Border;
-	Rect.h = Height - 2 * Border;
-
+	
 	if(NeedUpdateScreen)
 	{
-		ScaledScreen = zoomSurface(Screen, ZoomX, ZoomY, SMOOTHING_ON);
+		ScaledScreen = zoomSurface(Screen, ZoomX2, ZoomY2, SMOOTHING_ON);
 		NeedUpdateScreen = true;
 	}
 
-	SDL_SetAlpha(ScaledScreen, 0, 0);
 	SDL_BlitSurface(ScaledScreen, NULL, Display, &Rect);
 	//SDL_SaveBMP(Display, "/home/ciplogic/Desktop/screen2.bmp");
 
 	//SDL_SaveBMP(BackSurface, "/home/ciplogic/Desktop/screen.bmp");
 	SDL_Flip(Display);	
-	SDL_FillRect(BackSurface, NULL, SDL_MapRGBA(Screen->format, 63, 63, 63, 255));
 }
 
 void SDLFrontEnd::PaintBackground()
@@ -331,6 +346,9 @@ void SDLFrontEnd::BackBlit(SDL_Surface* Surface, SDL_Rect SrcRect, SDL_Rect Dest
 void SDLFrontEnd::BackFillColor(TColorDesc* Color)
 {
 	NeedUpdateBack = true;
+	if(BackColor == NULL)
+		delete BackColor;
+	this->BackColor = Color;
 	if(ScaledBack)
 	{
 		SDL_FreeSurface(ScaledBack);
