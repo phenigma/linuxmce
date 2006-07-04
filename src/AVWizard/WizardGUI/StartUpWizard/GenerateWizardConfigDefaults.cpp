@@ -510,8 +510,8 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 	}
 	StringList[0] = "For Zoom In you should press: ";
 	StringList[1] = "For Zoom Out you should press: ";
-	for(int i = 0; i<2;
- i++)
+	StringList[2] = "For Zoom Out you should press: ";
+	for(int i = 0; i<2; i++)
 	{
 		Container->AddChild(CreateControlLabel(
 				"DescribeText"+Utils::Int32ToString(i),
@@ -521,6 +521,14 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 				"Center"
 			));
 	}
+
+	Container->AddChild(CreateControlLabel(
+			"DescribeText2",
+			StringList[2],
+			320,
+			440,
+			"Center"
+		));
 
 	Page->AddChild(CreateControlButton(
 			"ButtonPlus",
