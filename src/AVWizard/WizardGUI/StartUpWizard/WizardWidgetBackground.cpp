@@ -3,6 +3,7 @@
 //---------------------------------------------------------------------------
 #include "SDL_image.h"
 //---------------------------------------------------------------------------
+#include "GUIWizardUtils.h"
 
 WizardWidgetBackground::WizardWidgetBackground(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardWidgetBase(FrontEnd, Name)
@@ -12,6 +13,7 @@ WizardWidgetBackground::WizardWidgetBackground(SDLFrontEnd* FrontEnd, std::strin
 	Left = 0;
 	Width = -1;
 	Height = -1;
+	Color = NULL;
 }
 
 WizardWidgetBackground::~WizardWidgetBackground()
@@ -21,6 +23,7 @@ WizardWidgetBackground::~WizardWidgetBackground()
 		SDL_FreeSurface(Surface);
 		Surface = NULL;
 	}
+	delete Color;
 }
 
 /*virtual*/ void WizardWidgetBackground::Paint()
@@ -28,7 +31,7 @@ WizardWidgetBackground::~WizardWidgetBackground()
 	SDL_Rect Src, Dest;
 	if(!Surface)
 	{
-		FrontEnd->BackBlit(Surface, Src, Dest);
+		FrontEnd->BackFillColor(Color);
 		WizardWidgetBase::Paint();
 		return;
 	}
@@ -69,6 +72,13 @@ void WizardWidgetBackground::SetSurface(std::string FileName)
 {
 	if(Attribute == "Picture")
 		SetSurface(DataValue);
+	else
+	if(Attribute == "Color")
+	{
+		if(Color)
+			delete Color;
+		Color = Utils::StringToColorDesc(DataValue);
+	}
 	else
         WizardWidgetBase::SetUpAttribute(Attribute, DataValue);
 }

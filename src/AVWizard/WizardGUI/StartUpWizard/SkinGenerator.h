@@ -54,6 +54,8 @@ public:
 
 	std::string ButtonTextFontColor;
 	std::string ButtonTextHighlightFontSize;
+
+	std::string BackgroundColor;
 	
 
 	void SetSkinEnvironment(std::string SkinName);

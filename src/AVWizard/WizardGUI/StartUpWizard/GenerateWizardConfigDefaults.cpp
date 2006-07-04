@@ -166,7 +166,11 @@ void GenerateWizardConfigDefaults::GeneratePage0(
 	StringList[2] = "For validation use \"Enter\"";
 	StringList[3] = "IF you want to go back one step use \"Escape\"";
 
-	Page->AddChild(CreateControlBackground("Gray", "(none)", 0, 0));
+	SettingsDictionaryTree* BackgroundControl = CreateControlBackground("Gray", "(none)", 0, 0);
+	std::string Color = SkinGenerator::Instance()->BackgroundColor;
+	BackgroundControl->GetDictionary()->Set("Color", Color);
+	Page->AddChild(BackgroundControl);
+	
 	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
 	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
 
@@ -406,8 +410,10 @@ void GenerateWizardConfigDefaults::GeneratePage3(
 
 	Container = GenerateTabContainer(2, ImageFolder, FontFolder);
 	Page->AddChild(Container);
-	Page->AddChild(CreateControlBackground("BackArrows", "(none)", 0, 0));
-
+	SettingsDictionaryTree* BackgroundControl = CreateControlBackground("Gray", "(none)", 0, 0);
+	BackgroundControl->GetDictionary()->Set("Color", SkinGenerator::Instance()->BackgroundColor);
+	Page->AddChild(BackgroundControl);
+	
 	//Create text area
 	std::string StringList[10];
 	StringList[0] = "Here are the appropiate resolutions for your TV. The lowest resolution is on";
@@ -520,14 +526,14 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 			"ButtonPlus",
 			"+",
 			520, 260,
-			0,
+			5,
 			false
 		));
 	Page->AddChild(CreateControlButton(
 		"ButtonMinus",
 		"-",
 		520, 295,
-		0,
+		5,
 		false
 		));
 
@@ -586,7 +592,11 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 	Dictionary->Set("Height", 480);
 	Dictionary->Set("Fullscreen", 1);
 	Dictionary->Set("Caption", "AVWizard Configurator");
-	Page->AddChild(CreateControlBackground("BackArrows", "(none)", 0, 0));
+
+	SettingsDictionaryTree* BackgroundControl = CreateControlBackground("Gray", "(none)", 0, 0);
+	BackgroundControl->GetDictionary()->Set("Color", SkinGenerator::Instance()->BackgroundColor);
+	Page->AddChild(BackgroundControl);
+
 	Container = GenerateTabContainer(4, ImageFolder, FontFolder);
 	Page->AddChild(Container);
 

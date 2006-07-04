@@ -20,6 +20,7 @@ class SDLFrontEnd
 	 *	Offscreen surface that does the drawing. At the end you should 
 	 *	show the results using Flip() method
 	 */
+	SDL_Surface* Screen;
 	SDL_Surface* Display;
 	SDL_Surface* BackSurface;
 	SDL_Surface *ScaledScreen, *ScaledBack;
@@ -39,7 +40,10 @@ class SDLFrontEnd
 
 	bool NeedUpdateScreen, NeedUpdateBack;
 public:
-	SDL_Surface* Screen;
+
+	int GetScreenWidth();
+
+	int GetScreenHeight();
 
 	/**
 	 *	Standard constructor for SDL frontend	
@@ -75,7 +79,7 @@ public:
 	 *	Paints a surface in the background and will not be in the zoomable area
 	 */
 	void BackBlit(SDL_Surface* Surface, SDL_Rect SrcRect, SDL_Rect DestRect);
-	
+	void BackFillColor(TColorDesc* Color);	
 };
 
 #endif /*SDLFRONTEND_H_*/

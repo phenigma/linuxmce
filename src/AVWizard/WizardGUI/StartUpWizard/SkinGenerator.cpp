@@ -54,6 +54,8 @@ void SkinGenerator::SetSkinEnvironment(std::string SkinName)
 
 	PathPixmaps = "/usr/pluto/wiz_pixmaps";
 	CommandSetAudioConnector = "/usr/pluto/bin/AVWizard_AudioConnector.sh";
+	
+	BackgroundColor = "000000";
 }
 
 void SkinGenerator::SaveSkin(std::string XMLFile)
@@ -95,6 +97,8 @@ void SkinGenerator::SaveSkin(std::string XMLFile)
 
 	Dictionary->Set("ButtonTextFontColor", MiniTitleFontColor);
 	Dictionary->Set("ButtonTextHighlightFontSize", MiniTitleFontSize);
+
+	Dictionary->Set("BackgroundColor", BackgroundColor);
 
 	Config.SaveToXMLFile(XMLFile);
 }
@@ -138,6 +142,7 @@ void SkinGenerator::GetEnvironment()
 	MiniTitleFontColor = Dictionary->GetValue("MiniTitleFontColor");
 	MiniTitleFontSize = Dictionary->GetValue("MiniTitleFontSize");
 
+	BackgroundColor = Dictionary->GetValue("BackgroundColor");
 }
 
 /*static*/ SkinGenerator* SkinGenerator::Instance_ = NULL;

@@ -316,6 +316,8 @@ void SDLFrontEnd::Blit(SDL_Surface* Surface, SDL_Rect SrcRect, SDL_Rect DestRect
 
 void SDLFrontEnd::BackBlit(SDL_Surface* Surface, SDL_Rect SrcRect, SDL_Rect DestRect)
 {
+	if (Surface == NULL)
+		return;
 	NeedUpdateBack = true;
 	if(ScaledBack)
 	{
@@ -323,10 +325,30 @@ void SDLFrontEnd::BackBlit(SDL_Surface* Surface, SDL_Rect SrcRect, SDL_Rect Dest
 		ScaledBack = NULL;
 	}
 
-	if(Surface == NULL)
+	SDL_BlitSurface(Surface, &SrcRect, BackSurface, &DestRect);	
+}
+
+void SDLFrontEnd::BackFillColor(TColorDesc* Color)
+{
+	NeedUpdateBack = true;
+	if(ScaledBack)
 	{
-		SDL_FillRect(BackSurface, NULL, SDL_MapRGBA(Screen->format, 32, 64, 16, 255));
-	}
-	else
-		SDL_BlitSurface(Surface, &SrcRect, BackSurface, &DestRect);	
+		SDL_FreeSurface(ScaledBack);
+		ScaledBack = NULL;
+	}	
+	SDL_FillRect(BackSurface, NULL, SDL_MapRGBA(Screen->format, 
+		Color->GetRed(), 
+		Color->GetGreen(), 
+		Color->GetBlue(), 
+		255));
+}
+
+int SDLFrontEnd::GetScreenWidth()
+{
+	return Display->w;
+}
+
+int GetScreenHeight()
+{
+	return Display->h;
 }

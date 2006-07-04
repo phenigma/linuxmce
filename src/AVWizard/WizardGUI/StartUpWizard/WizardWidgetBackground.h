@@ -10,6 +10,7 @@
 //---------------------------------------------------------------------------
 class WizardWidgetBackground : public WizardWidgetBase
 {
+	TColorDesc* Color;
 	SDL_Surface* Surface;
 	/**
 	 *	Set up the surface from an existing file
