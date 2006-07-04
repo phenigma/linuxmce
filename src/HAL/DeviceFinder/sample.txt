@@ -1,0 +1,3 @@
+0403f850|1783|USB UIRT 0038||pluto-usb-uirt-0038
+0403fc60|1715|IRTrans IRT-USB Transm/Receive|IRTrans|pluto-irtrans-wrapper
+0403fa78|1717|Tira (Pluto)|Tira|pluto-tira-wrapper
