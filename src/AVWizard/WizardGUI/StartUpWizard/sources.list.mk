@@ -29,6 +29,7 @@ WizardWidgetBase.cpp \
 WizardWidgetButton.cpp \
 WizardWidgetContainer.cpp \
 WizardWidgetEventManager.cpp \
+WizardWidgetBackground.cpp \
 WizardWidgetImage.cpp \
 WizardWidgetLabel.cpp \
 WizardWidgetListBox.cpp \
