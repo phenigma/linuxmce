@@ -157,10 +157,9 @@ void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 		ScaledBack = zoomSurface(BackSurface, ZoomX, ZoomY, SMOOTHING_ON);
 		NeedUpdateBack = false;
 	}
-	SDL_SaveBMP(ScaledBack, "/home/ciplogic/Desktop/screen2.bmp");
+
 	SDL_BlitSurface(ScaledBack, NULL, Display, &Rect);
 
-	SDL_SaveBMP(Display, "/home/ciplogic/Desktop/screen.bmp");
 
 	//SDL_FillRect(Screen, NULL, SDL_MapRGBA(Screen->format, 63, 63, 63, 255));
 
@@ -327,7 +326,6 @@ void SDLFrontEnd::BackBlit(SDL_Surface* Surface, SDL_Rect SrcRect, SDL_Rect Dest
 	if(Surface == NULL)
 	{
 		SDL_FillRect(BackSurface, NULL, SDL_MapRGBA(Screen->format, 32, 64, 16, 255));
-		SDL_SaveBMP(BackSurface, "/home/ciplogic/Desktop/screen3.bmp");
 	}
 	else
 		SDL_BlitSurface(Surface, &SrcRect, BackSurface, &DestRect);	
