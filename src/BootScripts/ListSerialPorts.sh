@@ -11,9 +11,8 @@ if [[ -d /sys/bus/usb-serial/devices ]]; then
 	pushd /sys/bus/usb-serial/devices &>/dev/null
 	Ports=
 	for dev in *; do
-		id=$(readlink "$dev" | sed 's,^.*/\(usb.*\)/tty.*$,\1,g')
-		## Use the next line to get output like: 'pciid usbport'
-		## id=$(readlink -f "$dev" | sed 's,^.*\(pci.*\)/usb[0-9]*/[0-9./-]*/[0-9]*-\([0-9.]*\):[0-9.]*/ttyUSB[0-9]*$,\1+\2,g')
+		##id=$(readlink "$dev" | sed 's,^.*/\(usb.*\)/tty.*$,\1,g')
+		id=$(readlink -f "$dev" | sed 's,^.*\(pci.*\)/usb[0-9]*/[0-9./-]*/[0-9]*-\([0-9.]*\):[0-9.]*/ttyUSB[0-9]*$,\1+\2,g')
 		Ports="$Ports $id"
 	done
 	echo "${Ports# }" | tr ' ' '\n'
