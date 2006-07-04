@@ -414,9 +414,9 @@ void Wizard::ZoomIn()
 		TopBorder = 0;
 
 	if(TopBorder >= 2*WizardBorder)
-		TopBorder = 2*WizardBorder-1;
+		TopBorder = 2*WizardBorder;
 	if(LeftBorder >= 2*WizardBorder)
-		LeftBorder = 2*WizardBorder-1;
+		LeftBorder = 2*WizardBorder;
 	AVWizardOptions->GetDictionary()->Set("WizardBorder", WizardBorder);
 	AVWizardOptions->GetDictionary()->Set("LeftBorder", LeftBorder);
 	AVWizardOptions->GetDictionary()->Set("TopBorder", TopBorder);
