@@ -104,6 +104,10 @@ void* SocketClientCallBack(void* SocketClientCallBackPtr)
 		Event.EnterKey();
 	if(Message == "escape")
 		Event.EscapeKey();
+	if(Message == "plus")
+		Event.PlusKey();
+	if(Message == "minus")
+		Event.MinusKey();
 
 	Wizard::GetInstance()->GenerateCustomEvent(Event);	
 	std::cout<<Message<<std::endl;
