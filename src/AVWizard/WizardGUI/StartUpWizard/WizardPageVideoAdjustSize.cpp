@@ -90,11 +90,11 @@ WizardPageVideoAdjustSize::~WizardPageVideoAdjustSize(void)
 
 	Button = dynamic_cast<WizardWidgetButton*> 
 		(Page->GetChildRecursive("ButtonRight"));
-	Button->SetFocus(LeftBorder < Border*2);
+	Button->SetFocus(LeftBorder < Border*2-1);
 	
 	Button = dynamic_cast<WizardWidgetButton*> 
 		(Page->GetChildRecursive("ButtonDown"));
-	Button->SetFocus(TopBorder < Border*2);
+	Button->SetFocus(TopBorder < Border*2-1);
 
 	Button = dynamic_cast<WizardWidgetButton*> 
 		(Page->GetChildRecursive("ButtonPlus"));
