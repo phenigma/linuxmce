@@ -348,7 +348,7 @@ int SDLFrontEnd::GetScreenWidth()
 	return Display->w;
 }
 
-int GetScreenHeight()
+int SDLFrontEnd::GetScreenHeight()
 {
 	return Display->h;
 }
