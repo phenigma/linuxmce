@@ -62,5 +62,5 @@ for Line in $R ;do
 		AND
 		FK_DeviceData = '$FK_DeviceData'
 	"
-	#RunSQL "$Q"
+	RunSQL "$Q"
 done
