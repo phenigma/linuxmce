@@ -214,6 +214,10 @@ bool General_Info_Plugin::Register()
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::DeviceTemplatesOfCategory)), 
 		DATAGRID_Device_Templates_By_Categ_CONST,PK_DeviceTemplate_get());
 
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AddSoftware)),
+		DATAGRID_Installable_Apps_CONST, PK_DeviceTemplate_get());
+
 	//AV Wizard - Template settings
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVWhatDelay)), 
@@ -1272,6 +1276,28 @@ class DataGridTable *General_Info_Plugin::SensorType(string GridID, string Parms
 	}
 
 	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage ){
+  g_pPlutoLogger->Write(LV_WARNING,"Starting Install list");
+  DataGridTable *pDataGrid = new DataGridTable();
+  g_pPlutoLogger->Write(LV_WARNING,"Stage 0");
+  DataGridCell *pCell;
+  int iRow=0;
+  string sql="SELECT PK_Software,iconstr,title FROM Software ORDER BY title";
+  PlutoSqlResult result;
+  MYSQL_ROW row;
+  g_pPlutoLogger->Write(LV_WARNING,"Stage 1");
+  if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))){
+    g_pPlutoLogger->Write(LV_WARNING,"Stage 2");
+    while((row=mysql_fetch_row(result.r))){
+      g_pPlutoLogger->Write(LV_WARNING,"Stage3");
+      g_pPlutoLogger->Write(LV_WARNING,row[2]);
+      pCell = new DataGridCell(row[2], row[0]);
+      pDataGrid->SetData(0, iRow++, pCell );
+    }
+  }
+  return pDataGrid;
 }
 
 //AV Wizard - Template settings
