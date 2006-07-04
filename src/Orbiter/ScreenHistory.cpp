@@ -44,7 +44,7 @@ void ScreenHistory::AddToHistory()
 	m_listObjs.push_front(m_pObj);
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "Added %d obj to stack (size %d) - screen %d this: %p", 
+	g_pPlutoLogger->Write(LV_STATUS, "Added %d obj to stack m_listObjs (size %d) - screen %d this: %p", 
 		m_pObj->m_iBaseObjectID, m_listObjs.size(), m_nPK_Screen, this);
 #endif
 }
@@ -57,7 +57,7 @@ bool ScreenHistory::HistoryEmpty()
 void ScreenHistory::PurgeHistory() 
 { 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "ScreenHistory::PurgeHistory %d obj (size %d) - screen %d this: %p", 
+	g_pPlutoLogger->Write(LV_STATUS, "ScreenHistory::PurgeHistory m_listObjs %d obj (size %d) - screen %d this: %p", 
 		m_pObj->m_iBaseObjectID, m_listObjs.size(), m_nPK_Screen, this);
 #endif
 	m_listObjs.clear(); 
@@ -68,7 +68,7 @@ bool ScreenHistory::GoBack()
 	if( m_bCantGoBack )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS, "obj %d cannot go back (size left %d) - screen %d, front left: %d this: %p", 
+		g_pPlutoLogger->Write(LV_STATUS, "m_listObjs obj %d cannot go back (size left %d) - screen %d, front left: %d this: %p", 
 			m_pObj->m_iBaseObjectID, m_listObjs.size(), m_nPK_Screen, 
 			m_listObjs.size() ? m_listObjs.front()->m_iBaseObjectID : 0, this);
 #endif
@@ -81,7 +81,7 @@ bool ScreenHistory::GoBack()
 		m_listObjs.pop_front();
 
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS, "Removing %d from stack (size left %d) - screen %d, front left: %d this: %p", 
+		g_pPlutoLogger->Write(LV_STATUS, "Removing  m_listObjs %d from stack (size left %d) - screen %d, front left: %d this: %p", 
 			m_pObj->m_iBaseObjectID, m_listObjs.size(), m_nPK_Screen, 
 			m_listObjs.size() ? m_listObjs.front()->m_iBaseObjectID : 0, this);
 #endif
@@ -89,7 +89,7 @@ bool ScreenHistory::GoBack()
 	}
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "Nothing to remove from queue screen %d", m_nPK_Screen);
+	g_pPlutoLogger->Write(LV_STATUS, "m_listObjs Nothing to remove from queue screen %d", m_nPK_Screen);
 #endif
 
 	return false;
