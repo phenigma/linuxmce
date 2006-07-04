@@ -52,7 +52,7 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 		RatioMode = (OutputValue == "4_3");
 	}
 
-	Wizard::GetInstance()->Resize(1024, 780, false);
+	Wizard::GetInstance()->Resize(640, 480, false);
 
 	SearchSelectedItem();
 }

@@ -21,6 +21,10 @@ class SDLFrontEnd
 	 *	show the results using Flip() method
 	 */
 	SDL_Surface* Screen;
+	SDL_Surface* BackSurface;
+
+	SDL_Surface* CurrentSurface;
+
 
 	/**
 	 *	Current used font for rendering text	
