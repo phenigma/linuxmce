@@ -346,7 +346,7 @@ void IRTrans::StartIRServer()
 
 void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 {
-	if( m_dwPK_Device!=DEVICEID_MESSAGESEND )
+	if( m_dwPK_Device==DEVICEID_MESSAGESEND )
 	{
 		ForceKeystroke(pCommand);
 		return;
