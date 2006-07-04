@@ -624,9 +624,9 @@ void *StartDataGridCacheThread(void *p)
 
 void DataGridRenderer::StartCacheThread()
 {
-	StopCacheThread();
+/*	StopCacheThread();
 	m_bStopCaching=false;
-	pthread_create(&m_DataGridCacheThread, NULL, StartDataGridCacheThread, (void*)this);
+	pthread_create(&m_DataGridCacheThread, NULL, StartDataGridCacheThread, (void*)this);*/
 }
 
 void DataGridRenderer::StopCacheThread()
