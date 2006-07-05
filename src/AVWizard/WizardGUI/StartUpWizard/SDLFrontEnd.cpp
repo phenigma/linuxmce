@@ -146,8 +146,8 @@ void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 	double ZoomY2 = 1;
 
 
-	int Width = Screen->w;
-	int Height = Screen->h;
+	int Width = Display->w;
+	int Height = Display->h;
 
 	SDL_Rect Rect, RectZoom;
 

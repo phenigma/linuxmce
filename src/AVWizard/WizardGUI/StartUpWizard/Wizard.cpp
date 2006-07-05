@@ -397,10 +397,10 @@ void Wizard::SetExitWithCode(int Code)
 
 void Wizard::Resize(bool FullScreen)
 {
-	int Width = 640;
+	Width = 640;
 	if(AVWizardOptions->GetDictionary()->Exists( "WindowWidth"))
 		Width = Utils::StringToInt32(AVWizardOptions->GetDictionary()->GetValue("WindowWidth"));
-	int Height = 480;
+	Height = 480;
 	if(AVWizardOptions->GetDictionary()->Exists( "WindowHeight"))
 		Height = Utils::StringToInt32(AVWizardOptions->GetDictionary()->GetValue("WindowHeight"));
 
