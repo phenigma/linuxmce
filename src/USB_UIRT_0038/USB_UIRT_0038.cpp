@@ -256,6 +256,8 @@ bool USB_UIRT_0038::GetConfig()
 	}
 #endif
 
+	g_pPlutoLogger->Write(LV_STATUS,"Opening on port %s",devicePath);
+
 	if (!loadDLL())
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to load uuirtdrv,dll!\n");
