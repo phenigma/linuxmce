@@ -296,11 +296,11 @@ bool USB_UIRT_0038::GetConfig()
 		}
 		else if (err == UUIRTDRV_ERR_NO_DEVICE)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to connect to USB-UIRT device on %s!  Please ensure device is connected to the computer!\n",devicePath.c_str());
+			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to connect to USB-UIRT device on %s!  Please ensure device is connected to the computer!\n",devicePath.);
 		}
 		else if (err == UUIRTDRV_ERR_NO_RESP)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to communicate with USB-UIRT device %s!  Please check connections and try again.  If you still have problems, try unplugging and reconnecting your USB-UIRT.  If problem persists, contact Technical Support!\n",devicePath.c_str());
+			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to communicate with USB-UIRT device %s!  Please check connections and try again.  If you still have problems, try unplugging and reconnecting your USB-UIRT.  If problem persists, contact Technical Support!\n",devicePath);
 		}
 		else if (err == UUIRTDRV_ERR_VERSION)
 		{
