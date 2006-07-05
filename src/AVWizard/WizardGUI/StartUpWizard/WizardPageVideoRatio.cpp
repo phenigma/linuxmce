@@ -52,7 +52,7 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 		RatioMode = (OutputValue == "4_3");
 	}
 
-	int Width = Utils::StringToInt32(AVWizardSettings->GetValue("WindowHeight"));
+	int Width = Utils::StringToInt32(AVWizardSettings->GetValue("WindowWidth"));
 	int Height = Utils::StringToInt32(AVWizardSettings->GetValue("WindowHeight"));
 	if ( !Width)
 		Width = 640;
