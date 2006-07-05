@@ -357,7 +357,6 @@ void Wizard::CleanUp()
 		Instance = NULL;
 	}
 
-	Server.Finish = true;
 }
 
 void Wizard::StartSDLVideoMode()

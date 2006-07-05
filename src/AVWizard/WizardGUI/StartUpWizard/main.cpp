@@ -36,5 +36,6 @@ int main(int argc, char *argv[])
 	m_Wizard->CleanUp();
 
 
-	return ExitCode;
+	exit(ExitCode);
+	return 0;
 }
