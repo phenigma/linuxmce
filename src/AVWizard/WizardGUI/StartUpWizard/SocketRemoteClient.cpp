@@ -103,6 +103,8 @@ void* SocketClientCallBack(void* SocketClientCallBackPtr)
 	std::cout<<"Start getting information from client"<<std::endl;
 	Message = Client->RecieveString();
 	Client->Disconnect();
+	std::cout<<"Client disconnected!"<<std::endl;
+
 	if(Message == "left")
 		Event.LeftKey();
 	if(Message == "right")

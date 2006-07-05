@@ -60,6 +60,13 @@ Wizard::Wizard()
 	AVWizardOptions->GetDictionary()->SetName("AVSettings");
 	AVWizardOptions->GetDictionary()->SetType("Config_file");
 
+	pthread_mutexattr_t m_MutexAttr;
+	pthread_mutexattr_init( &m_MutexAttr );	
+	pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
+	pthread_mutex_init(&SafeMutex, &m_MutexAttr);
+	pthread_mutexattr_destroy(&m_MutexAttr);
+
+
 #ifndef WIN32
 	signal(SIGUSR1, signal_handler);
 	signal(SIGPIPE, signal_handler);
@@ -68,6 +75,7 @@ Wizard::Wizard()
 
 Wizard::~Wizard()
 {
+	pthread_mutex_destroy(&SafeMutex);
 	Server.Finish = true;
 	delete FrontEnd;
 	FrontEnd = NULL;
@@ -115,22 +123,24 @@ void Wizard::MainLoop()
 			AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 
 			FrontEnd->TranslateEvent( Event);
-			EvaluateEvent(Event);
+			if(Event.Type)
+				EvaluateEvent(Event);
 		}
 
 		if(!Quit)
 		{
 			if(StatusChange)
 			{
+				SafetyLock Lock(&SafeMutex);
 				PaintStatus();
 			}
-		else
-		{
-			#ifdef WIN32
-				Sleep(10);
-			#else
-				usleep(10000);
-			#endif
+			else
+			{
+				#ifdef WIN32
+					Sleep(10);
+				#else
+					usleep(10000);
+				#endif
 			}
 		}
 	}
@@ -186,7 +196,6 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	}
 	else
 	{
-		StatusChange = true;
 		//MainPage->GetPageLayout()->Paint();
 		//FrontEnd->Flip(LeftBorder, TopBorder, WizardBorder);
 		
@@ -207,6 +216,8 @@ void Wizard::DoCancelScreen()
 
 void Wizard::EvaluateEvent(WM_Event& Event)
 {
+	SafetyLock Lock(&SafeMutex);
+
 #ifdef DEBUG
 	std::cout<<"Key pressed: ";
 #endif
@@ -280,11 +291,10 @@ void Wizard::EvaluateEvent(WM_Event& Event)
 
 void Wizard::PaintStatus()
 {
+	StatusChange = false;
 	if(MainPage)
 		MainPage->GetPageLayout()->Paint();
 	FrontEnd->Flip(LeftBorder, TopBorder, WizardBorder);
-
-	StatusChange = false;
 }
 
 int Wizard::ParseCommandLineParameters(int argc, char** argv)
@@ -346,6 +356,8 @@ void Wizard::CleanUp()
 		delete Instance;
 		Instance = NULL;
 	}
+
+	Server.Finish = true;
 }
 
 void Wizard::StartSDLVideoMode()
