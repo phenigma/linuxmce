@@ -16,6 +16,15 @@ IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl)
 {
 	m_pCommand_Impl=pCommand_Impl;
 	m_cCurrentScreen='M';
+	
+	m_mapAVWCommands["ok"] = "return";
+	m_mapAVWCommands["volup"] = "plus";
+	m_mapAVWCommands["voldn"] = "minus";
+	m_mapAVWCommands["chup"] = "plus";
+	m_mapAVWCommands["chdown"] = "minus";
+	m_mapAVWCommands["back"] = "escape";
+	m_mapAVWCommands["stop"] = "escape";
+	m_mapAVWCommands["power"] = "escape";
 }
 
 void IRReceiverBase::GetConfig(DeviceData_Impl *pData)
@@ -115,5 +124,96 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode)
 	}
 	else
 		g_pPlutoLogger->Write(LV_WARNING,"Cannot find code %s device %d",pCode,PK_Device_Remote);
+}
+
+std::string IRReceiverBase::GetSocketText(int Socket) const
+{
+	int Len = 0;
+	int iRecv = recv(Socket, &Len, sizeof(Len), 0);
+	if( iRecv != sizeof(Len) || Len <= 0 )
+	{
+		return std::string();
+	}
+	
+	std::string Buffer;
+	Buffer.reserve(Len);
+	Buffer.insert(0, Len, 0);
+	iRecv = recv(Socket, const_cast<char*>(Buffer.data()), Len, 0);
+	if( iRecv != Len )
+	{
+		return std::string();
+	}
+	
+	g_pPlutoLogger->Write(LV_STATUS, "Buffer %d = %s", Buffer.length(), Buffer.c_str());
+	
+	return Buffer;
+}
+
+bool IRReceiverBase::SendSocketText(int Socket, std::string Text) const
+{
+	int Len = Text.length();
+	
+	g_pPlutoLogger->Write(LV_STATUS, "SendSocketText %d = %s", Len, Text.c_str());
+	
+	if(  0 > write(Socket, &Len, sizeof(Len)) )
+	{
+		return false;
+	}
+	
+	if( Len != write(Socket, Text.c_str(), Len) )
+	{
+		return false;
+	}
+	
+	return true;
+}
+
+void IRReceiverBase::ForceKeystroke(string sCommand, string sAVWHost, int iAVWPort)
+{
+	g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::ForceKeystroke %s",sCommand.c_str());
+	
+	map<string, string>::iterator it = m_mapAVWCommands.find(sCommand);
+	if(it != m_mapAVWCommands.end())
+		sCommand = it->second;
+	
+	int sockfd = 0;
+	struct hostent *he = 0;
+	struct sockaddr_in their_addr; // connector's address information 
+
+	if ((he=gethostbyname(sAVWHost.c_str())) == NULL) {  // get the host info 
+		g_pPlutoLogger->Write(LV_CRITICAL, "Failed on gethostbyname");
+		return;
+	}
+
+	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to open a new socket");
+		return;
+	}
+
+	bzero(&their_addr, sizeof(their_addr));
+	their_addr.sin_family = AF_INET;    // host byte order 
+	their_addr.sin_port = htons(iAVWPort);  // short, network byte order 
+	their_addr.sin_addr = *((struct in_addr *)he->h_addr);
+
+	if (connect(sockfd, (struct sockaddr *)&their_addr, sizeof(struct sockaddr)) == -1) {
+		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to connect on AVW");
+		close(sockfd);
+		return;
+	}
+
+	std::string Text = GetSocketText(sockfd);
+	if( Text == "OPEN" )
+	{
+		if( !SendSocketText(sockfd, sCommand) )
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Failed to send to AVW: %s", sCommand.c_str());
+		}
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Received from AVW : %s", Text.c_str());
+	}
+	
+	close(sockfd);
 }
 

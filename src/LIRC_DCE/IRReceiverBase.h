@@ -19,12 +19,16 @@ namespace DCE
 		Virtual_Device_Translator m_Virtual_Device_Translator;
 		map<string,MapKeysToMessages *> m_mapKeyMapping;
 		char m_cCurrentScreen;
+ 		std::map<std::string, std::string> m_mapAVWCommands;
 
 		IRReceiverBase(Command_Impl *pCommand_Impl);
 		~IRReceiverBase();
         
 		void ReceivedCode(int PK_Device_Remote,const char *pCode);
 		void GetConfig(DeviceData_Impl *pData);
+		void ForceKeystroke(string sCommand, string sAVWHost, int iAVWPort);
+		bool SendSocketText(int Socket, std::string Text) const;
+		std::string GetSocketText(int Socket) const;
 	};
 }
 
