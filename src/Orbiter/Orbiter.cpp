@@ -4379,10 +4379,10 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 			// The last screen we went to
 			pScreenHistory = m_listScreenHistory.back(  );
 
-			if(!pScreenHistory->GoBack() || pScreenHistory->HistoryEmpty())
+			if(!pScreenHistory->GoBack())
 			{
 #ifdef DEBUG
-				g_pPlutoLogger->Write(LV_WARNING, "CMD_Go_back Removing from screen history screen %d there are %d", pScreenHistory->PK_Screen(),(int) m_listScreenHistory.size());
+				g_pPlutoLogger->Write(LV_WARNING, "Removing from screen history screen %d", pScreenHistory->PK_Screen());
 #endif
 
 				// We now took the prior screen off teh list
@@ -4390,10 +4390,13 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 				//if( pScreenHistory->m_bCantGoBack && sForce!="1"  )
 				continue;
 			}
+
+			if(pScreenHistory->HistoryEmpty())
+				m_listScreenHistory.pop_back();
+
 			break;   // We got one to go back to
 		}
 	}
-
 	vm.Release();
 
 #ifdef DEBUG
@@ -8485,11 +8488,17 @@ void Orbiter::ServiceAlerts( void *iData )
 	string sMessages;
 	time_t t = time(NULL);
 	time_t tNextStop = 0;
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ServiceAlerts in queue: %d",(int) m_listPlutoAlert.size());
+#endif
 
 	// See what alerts we need to display
 	for( list<PlutoAlert *>::iterator it=m_listPlutoAlert.begin();it!=m_listPlutoAlert.end(); )
 	{
 		PlutoAlert *p = *it;
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ServiceAlerts alert %s stop: %d now: %d",p->m_sMessage.c_str(),(int) p->m_tStopTime,(int) t);
+#endif
 		if( p->m_tStopTime && p->m_tStopTime <= t )
 		{
 			delete p;
@@ -8506,6 +8515,10 @@ void Orbiter::ServiceAlerts( void *iData )
 		}
 	}
 	vm.Release();
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ServiceAlerts in queue: %d messages %s",(int) m_listPlutoAlert.size(),sMessages.c_str());
+#endif
 
 	if( sMessages.size() )
 	{
