@@ -165,7 +165,7 @@ public:
 
 	void SetExitWithCode(int Code);
 
-	void Resize(int Width, int Height, bool FullScreen);
+	void Resize(bool FullScreen);
 };
 
 #endif /*Wizard_H_*/
