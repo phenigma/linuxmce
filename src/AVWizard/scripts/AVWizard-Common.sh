@@ -18,6 +18,8 @@ STEP_DolbyTest=8
 STEP_DTSTest=9
 STEP_FinalSelections=10
 
+AVWizard_Port=28949 # AVWIZ
+
 Resolutions_VESA=(
 	'640x480'
 	'800x600'

@@ -2,6 +2,7 @@
 
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Utils.sh
+. /usr/pluto/bin/AVWizard-Common.sh
 
 PipeField()
 {
@@ -38,3 +39,30 @@ RemotePkg=$(PipeField 4 "$Remote")
 if ! PackageIsInstalled "$RemotePkg"; then
 	apt-get -y install "$RemotePkg"
 fi
+
+PerlCommand="
+	chomp;
+	\$desc = \$_;
+	\$desc =~ s/[ :+=()<]/_/g;
+	\$desc =~ s/[->*?\\$\.%\\/]//g;
+	\$desc =~ s/#/Num/g;
+	\$desc =~ s/__/_/g;
+	\$desc =~ s/^_*//g;
+	\$desc =~ s/_*\$//g;
+	print \"\$desc\n\";
+"
+
+Q="
+	SELECT CommandLine,Description
+	FROM DeviceTemplate
+	WHERE PK_DeviceTemplate='$RemoteDT'
+"
+R=$(RunsQL "$Q")
+CommandLine=$(Field 1 "$R")
+Description=$(Field 2 "$R")
+
+if [[ -z "$CommandLine" ]]; then
+	CommandLine=$(echo "$Description" | perl -n -e "$PerlCommand")
+fi
+
+echo "/usr/pluto/bin/$CommandLine -p $RemotePort -l /var/log/pluto/avremote.log -d -1003 -H $DCERouter -P $AVWizard_Port"

@@ -29,6 +29,8 @@ SetDefaults()
 	WizSet DTSTestFile '/usr/pluto/sound/avwizard_dts_test.wav'
 	WizSet DolbyTestFile '/usr/pluto/sound/avwizard_ac3_test.ac3'
 	WizSet DefaultFontName '/usr/share/fonts/truetype/msttcorefonts/Arial.ttf'
+	WizSet RemoteAVWizardServerPort "$AVWizard_Port"
+	WizSet RemoteCmd "$RemoteCmd"
 	WizSet ExitCode 1 # by default, we fail (i.e. on Ctrl+Alt+Bkspc)
 }
 
@@ -144,6 +146,8 @@ UpdateOrbiterDimensions()
 
 	/usr/pluto/bin/MessageSend "$DCERouter" -targetType template "$OrbiterDev" "$DEVICETEMPLATE_OrbiterPlugin" 1 266 2 "$OrbiterDev" 21 "-r" 24 Y
 }
+
+RemoteCmd=$(/usr/pluto/bin/AVWizard_Remote_Detect.sh)
 
 Done=0
 while [[ "$Done" -eq 0 ]]; do
