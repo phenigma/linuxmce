@@ -57,7 +57,7 @@ Q="
 	FROM DeviceTemplate
 	WHERE PK_DeviceTemplate='$RemoteDT'
 "
-R=$(RunsQL "$Q")
+R=$(RunSQL "$Q")
 CommandLine=$(Field 1 "$R")
 Description=$(Field 2 "$R")
 
