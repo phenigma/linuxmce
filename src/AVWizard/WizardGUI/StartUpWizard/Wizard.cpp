@@ -68,6 +68,7 @@ Wizard::Wizard()
 
 Wizard::~Wizard()
 {
+	Server.Finish = true;
 	delete FrontEnd;
 	FrontEnd = NULL;
 }
@@ -185,8 +186,10 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	}
 	else
 	{
-		MainPage->GetPageLayout()->Paint();
-		FrontEnd->Flip(LeftBorder, TopBorder, WizardBorder);
+		StatusChange = true;
+		//MainPage->GetPageLayout()->Paint();
+		//FrontEnd->Flip(LeftBorder, TopBorder, WizardBorder);
+		
 	}	
 }
 
@@ -270,8 +273,9 @@ void Wizard::EvaluateEvent(WM_Event& Event)
 #endif
 		DoCancelScreen();
 		return;
+	default:
+		StatusChange = false;
 	}
-	StatusChange = false;
 }
 
 void Wizard::PaintStatus()

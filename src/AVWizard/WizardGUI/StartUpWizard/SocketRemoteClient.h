@@ -16,8 +16,8 @@ class SocketRemoteClient
 {
 	int Socket;
 	pthread_t ClientThread;
-	SocketRemoteServer* Server;
 public:
+	SocketRemoteServer* Server;
 	pthread_mutex_t SafeMutex;
 	bool Quit;
 

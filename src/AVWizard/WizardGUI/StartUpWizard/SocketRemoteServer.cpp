@@ -24,11 +24,13 @@ SocketRemoteServer::SocketRemoteServer()
 {
 	this->SocketDescriptor = 0;
 	ServerThreadID = 0;
+	pthread_mutex_init(&SafeMutex, NULL);
 }
 
 
 SocketRemoteServer::~SocketRemoteServer()
 {
+	pthread_mutex_destroy(&SafeMutex);	
 }
 
 int SocketRemoteServer::StartServer(int Port)
@@ -146,6 +148,7 @@ void SocketRemoteServer::MainLoop()
 		}
 		Sleep( 0 );
 	}
+	std::cout<<"Server closed!"<<std::endl;
 }
 
 void SocketRemoteServer::CreateClient(int SocketClient)

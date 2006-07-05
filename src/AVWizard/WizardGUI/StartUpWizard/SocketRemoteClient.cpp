@@ -42,6 +42,7 @@ SocketRemoteClient::SocketRemoteClient(SocketRemoteServer* Server, int Socket)
 
 SocketRemoteClient::~SocketRemoteClient()
 {
+	pthread_mutex_destroy(&SafeMutex);
 }
 
 std::string SocketRemoteClient::RecieveString()
@@ -50,6 +51,13 @@ std::string SocketRemoteClient::RecieveString()
 	std::string Message="";
 	int Len = 0;
 	if(recv(Socket, &Len, sizeof(Len), 0) < 0)
+	{
+		close(Socket);
+		Socket = 0;
+		return Message;
+	}
+
+	if(Len <= 0 || Len > 1024)
 	{
 		close(Socket);
 		Socket = 0;
@@ -90,9 +98,11 @@ void* SocketClientCallBack(void* SocketClientCallBackPtr)
 	SocketRemoteClient* Client = (SocketRemoteClient*)SocketClientCallBackPtr;
 	std::string Message = "OPEN";
 	Client->SendString(Message);
+	
 	WM_Event Event;
 	std::cout<<"Start getting information from client"<<std::endl;
 	Message = Client->RecieveString();
+	Client->Disconnect();
 	if(Message == "left")
 		Event.LeftKey();
 	if(Message == "right")
@@ -110,10 +120,12 @@ void* SocketClientCallBack(void* SocketClientCallBackPtr)
 	if(Message == "minus")
 		Event.MinusKey();
 
+	SafetyLock Lock(&Client->Server->SafeMutex);
+	
 	std::cout<<"Command get:"<<Message<<std::endl;
 	Wizard::GetInstance()->GenerateCustomEvent(Event);	
+	std::cout<<"Command executed:"<<Message<<std::endl;
 
-	Client->Disconnect();
 	return NULL;
 }
 

@@ -22,6 +22,8 @@ class SocketRemoteServer{
 	std::vector <SocketRemoteClient*> Clients;
 	pthread_t ServerThreadID;
 public:
+	pthread_mutex_t SafeMutex;
+
 	bool Finish;
 
     SocketRemoteServer();
