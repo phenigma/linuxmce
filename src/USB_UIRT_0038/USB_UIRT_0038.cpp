@@ -296,7 +296,7 @@ bool USB_UIRT_0038::GetConfig()
 		}
 		else if (err == UUIRTDRV_ERR_NO_DEVICE)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to connect to USB-UIRT device on %s!  Please ensure device is connected to the computer!\n",devicePath.);
+			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to connect to USB-UIRT device on %s!  Please ensure device is connected to the computer!\n",devicePath);
 		}
 		else if (err == UUIRTDRV_ERR_NO_RESP)
 		{
