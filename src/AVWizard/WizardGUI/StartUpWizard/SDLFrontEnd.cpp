@@ -64,7 +64,8 @@ void SDLFrontEnd::TranslateEvent(WM_Event& WMEvent)
 int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 {
 	int Flags = 0;
-	SDL_Quit();
+	if(Display)
+		SDL_Quit();
 	//Test if SDL inits nicely
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE)== -1)
 	{
@@ -341,8 +342,8 @@ void SDLFrontEnd::BackBlit(SDL_Surface* Surface, SDL_Rect SrcRect, SDL_Rect Dest
 		SDL_FreeSurface(ScaledBack);
 		ScaledBack = NULL;
 	}
-	if(Surface)
-		SDL_BlitSurface(Surface, &SrcRect, BackSurface, &DestRect);	
+
+	SDL_BlitSurface(Surface, &SrcRect, BackSurface, &DestRect);	
 }
 
 void SDLFrontEnd::BackFillColor(TColorDesc* Color)
@@ -355,13 +356,12 @@ void SDLFrontEnd::BackFillColor(TColorDesc* Color)
 	{
 		SDL_FreeSurface(ScaledBack);
 		ScaledBack = NULL;
-	}
-	if (BackSurface)	
-		SDL_FillRect(BackSurface, NULL, SDL_MapRGBA(Screen->format, 
-			Color->GetRed(), 
-			Color->GetGreen(), 
-			Color->GetBlue(), 
-			255));
+	}	
+	SDL_FillRect(BackSurface, NULL, SDL_MapRGBA(Screen->format, 
+		Color->GetRed(), 
+		Color->GetGreen(), 
+		Color->GetBlue(), 
+		255));
 }
 
 int SDLFrontEnd::GetScreenWidth()

@@ -84,6 +84,7 @@ Wizard::~Wizard()
 //#define DEBUG
 void Wizard::MainLoop()
 {
+	Resize(false);
 	WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
 
 	AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
@@ -404,9 +405,6 @@ void Wizard::Resize(bool FullScreen)
 		Height = Utils::StringToInt32(AVWizardOptions->GetDictionary()->GetValue("WindowHeight"));
 
 	// if there is the same screen resolution, there is no need of resize
-	if (this->Width == Width &&  this->Height == Height)
-		return;
-
 
 	this->Width = Width;
 	this->Height = Height;
