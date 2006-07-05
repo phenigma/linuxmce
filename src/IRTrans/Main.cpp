@@ -115,6 +115,8 @@ int main(int argc, char* argv[])
 	int PK_Device=0;
 	string sLogger="stdout";
 	string sPort;
+	string sAVWHost;
+	int iAVWPort = 0;
 
 	bool bLocalMode=false,bError=false; // An error parsing the command line
 	char c;
@@ -143,6 +145,12 @@ int main(int argc, char* argv[])
 			break;
 		case 'p':
 			sPort = argv[++optnum];
+			break;
+		case 'P':
+			iAVWPort = atoi(argv[++optnum]);
+			break;
+		case 'H':
+			sAVWHost = argv[++optnum];
 			break;
 		default:
 			bError=true;
@@ -198,17 +206,21 @@ int main(int argc, char* argv[])
 	{
 		IRTrans *pIRTrans = new IRTrans(PK_Device, sRouter_IP,true,bLocalMode);
 		pIRTrans->m_sPort = sPort;
+		pIRTrans->m_iAVWPort = iAVWPort;
+		pIRTrans->m_sAVWHost = sAVWHost;
 		if ( pIRTrans->GetConfig() && pIRTrans->Connect(pIRTrans->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pIRTrans;
 			g_pDeadlockHandler=DeadlockHandler;
 			g_pSocketCrashHandler=SocketCrashHandler;
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
-			pIRTrans->CreateChildren();
 			if( bLocalMode )
 				pIRTrans->RunLocalMode();
 			else
+			{
+				pIRTrans->CreateChildren();
 				pthread_join(pIRTrans->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			}
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 

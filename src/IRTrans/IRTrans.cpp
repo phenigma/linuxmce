@@ -348,7 +348,7 @@ void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 {
 	if( m_dwPK_Device==DEVICEID_MESSAGESEND )
 	{
-		ForceKeystroke(pCommand);
+		ForceKeystroke(pCommand, m_sAVWHost, m_iAVWPort);
 		return;
 	}
 
@@ -364,15 +364,6 @@ void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 		g_pPlutoLogger->Write(LV_CRITICAL,"Got command %s from unknown remote %s",pCommand,pRemote);
 	else
 		ReceivedCode(PK_Device,pCommand);
-}
-
-void IRTrans::ForceKeystroke(string sCommand)
-{
-	g_pPlutoLogger->Write(LV_STATUS,"IRTrans::ForceKeystrokeo %s",sCommand.c_str());
-	if(sCommand=="up")
-		g_pPlutoLogger->Write(LV_STATUS,"IRTrans::ForceKeystroke up");
-	else if(sCommand=="up")
-		g_pPlutoLogger->Write(LV_STATUS,"IRTrans::ForceKeystroke down");
 }
 
 void IRTrans::DoUpdateDisplay(vector<string> *vectString)

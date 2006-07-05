@@ -35,8 +35,10 @@ namespace DCE
 public:
 		// Public member variables
 		string m_sPort; // Only used when running local mode
+		string m_sAVWHost;
+		int m_iAVWPort;
+		
 		void StartIRServer();
-		void ForceKeystroke(string sCommand);
 		void GotIRCommand(const char *pRemote,const char *pCommand);
 		void DoUpdateDisplay(vector<string> *vectString);  // Put this message on the VFD Display
 		virtual void SendIR(string Port, string IRCode); // Required from IRBase
