@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 	if(argc < 2)
 	{
 		std::cout<<"Error on remote command."<<std::endl;
-		std::cout<<"AVWizardRemote [left|right|top|bottom|return|escape]"<<std::endl;
+		std::cout<<"AVWizardRemote [left|right|top|bottom|return|escape|plus|minus]"<<std::endl;
 		exit(2);
 	}
 	std::string Command = argv[1];
