@@ -367,11 +367,7 @@ void Wizard::StartSDLVideoMode()
 	FrontEnd = new SDLFrontEnd();
 
 	SettingsDictionary * Dictionary = AVWizardOptions->GetDictionary();
-	if (Dictionary->Exists("WindowWidth"))
-		Width = Utils::StringToInt32(Dictionary->GetValue("WindowWidth"));
-	if (Dictionary->Exists("WindowHeight"))
-		Height = Utils::StringToInt32(Dictionary->GetValue("WindowHeight"));
-	FrontEnd->StartVideoMode(Width, Height, FullScreen);
+	FrontEnd->Resize(FullScreen);
 
 	// Disable DPMS, screen blanking
 	system("/usr/bin/X11/xset -dpms s off");
@@ -399,11 +395,19 @@ void Wizard::SetExitWithCode(int Code)
 	GenerateCustomEvent(Event);
 }
 
-void Wizard::Resize(int Width, int Height, bool FullScreen)
+void Wizard::Resize(bool FullScreen)
 {
+	int Width = 640;
+	if(AVWizardSettings->Exists( "WindowWidth"))
+		Width = Utils::StringToInt32(AVWizardSettings->GetValue("WindowWidth"));
+	int Height = 480;
+	if(AVWizardSettings->Exists( "WindowHeight"))
+		Height = Utils::StringToInt32(AVWizardSettings->GetValue("WindowHeight"));
+
 	// if there is the same screen resolution, there is no need of resize
 	if (this->Width == Width &&  this->Height == Height)
 		return;
+
 
 	this->Width = Width;
 	this->Height = Height;

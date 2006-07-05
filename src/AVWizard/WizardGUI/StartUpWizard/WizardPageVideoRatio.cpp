@@ -52,12 +52,6 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 		RatioMode = (OutputValue == "4_3");
 	}
 
-	int Width = 640;
-	if(AVWizardSettings->Exists( "WindowWidth"))
-		Width = Utils::StringToInt32(AVWizardSettings->GetValue("WindowWidth"));
-	int Height = 480;
-	if(AVWizardSettings->Exists( "WindowHeight"))
-		Height = Utils::StringToInt32(AVWizardSettings->GetValue("WindowHeight"));
 	Wizard::GetInstance()->Resize(Width, Height, false);
 
 	SearchSelectedItem();
