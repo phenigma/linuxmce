@@ -630,8 +630,8 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 				bScrolledOutsideGrid=true;
 			// Continue only if we're not already highlighting the last cell
 			else if(
-				pDesignObj_DataGrid->m_GridCurRow + pDesignObj_DataGrid->m_iHighlightedRow +1 <
-				pDesignObj_DataGrid->m_pDataGridTable->GetRows() &&  // I just added the +1 on 17Apr06 because it was scrolling past the bottom, scroll right already did this
+				pDesignObj_DataGrid->m_GridCurRow + pDesignObj_DataGrid->m_iHighlightedRow + (pDesignObj_DataGrid->m_iUpRow >= 0 ? 0 : 1) <
+				pDesignObj_DataGrid->m_pDataGridTable->GetRows() &&  
 				pDesignObj_DataGrid->m_MaxRow > 1
 				)  // Add 1 since the highlight is 0 based and get rows is not, add 2 if the last row is just a 'scroll down'
 			{
