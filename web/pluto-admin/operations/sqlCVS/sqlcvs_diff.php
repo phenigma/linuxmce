@@ -97,25 +97,27 @@ function sqlcvs_diff($output,$dbADO) {
 		$table=$tablesArray[$i];
 		if(preg_match('/psc_(.*)_tables/',$table)){
 			$cleanTable=str_replace(array('psc_','_tables'),array('',''),$table);
-			$out.='
-			<tr bgcolor="#F0F3F8">
-				<td>&nbsp;</td>
-				<td width="20"><input type="checkbox" name="table_'.$cleanTable.'" value="1"></td>
-				<td colspan="2"><B>'.$cleanTable.'</B></td>
-			</tr>
-			<tr bgcolor="#F0F3F8">
-				<td colspan="2">&nbsp;</td>
-				<td colspan="2"><a href="javascript:selAllCheckboxes(\''.$cleanTable.'\',true);">[ Check all ]</a> <a href="javascript:selAllCheckboxes(\''.$cleanTable.'\',false);">[ Uncheck all ]</a></td>
-			</tr>			';
-			$fieldsArray=getAssocArray($table,'PK_'.$table,'Tablename',$sqlcvsADO,'','ORDER BY Tablename ASC');
-			foreach ($fieldsArray AS $key=>$value){
+			if($cleanTable!='local'){
 				$out.='
-			<tr>
-				<td>&nbsp;</td>
-				<td width="20">&nbsp;</td>
-				<td width="20"><input type="checkbox" name="'.$cleanTable.'_'.$value.'" value="1" onClick="groupCheck(\''.$cleanTable.'\',\''.$value.'\')"></td>
-				<td>'.$value.'</td>
-			</tr>';
+				<tr bgcolor="#F0F3F8">
+					<td>&nbsp;</td>
+					<td width="20"><input type="checkbox" name="table_'.$cleanTable.'" value="1"></td>
+					<td colspan="2"><B>'.$cleanTable.'</B></td>
+				</tr>
+				<tr bgcolor="#F0F3F8">
+					<td colspan="2">&nbsp;</td>
+					<td colspan="2"><a href="javascript:selAllCheckboxes(\''.$cleanTable.'\',true);">[ Check all ]</a> <a href="javascript:selAllCheckboxes(\''.$cleanTable.'\',false);">[ Uncheck all ]</a></td>
+				</tr>			';
+				$fieldsArray=getAssocArray($table,'PK_'.$table,'Tablename',$sqlcvsADO,'','ORDER BY Tablename ASC');
+				foreach ($fieldsArray AS $key=>$value){
+					$out.='
+				<tr>
+					<td>&nbsp;</td>
+					<td width="20">&nbsp;</td>
+					<td width="20"><input type="checkbox" name="'.$cleanTable.'_'.$value.'" value="1" onClick="groupCheck(\''.$cleanTable.'\',\''.$value.'\')"></td>
+					<td>'.$value.'</td>
+				</tr>';
+				}
 			}
 		}
 	}	
