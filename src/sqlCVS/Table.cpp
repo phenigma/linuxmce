@@ -606,6 +606,8 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 	int i_psc_batch_field = i_psc_id_field+1;
 	int i_psc_user_field = i_psc_batch_field+1;
 
+	cout << "GetChanges() query: " << sSql.str() << endl;
+
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
 	if( !( result_set.r=m_pDatabase->mysql_query_result( sSql.str( ) ) ) )
