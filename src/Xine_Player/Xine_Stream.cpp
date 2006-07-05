@@ -439,6 +439,8 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		return false;
 	}
 	
+	setDebuggingLevel(true );	
+	
 	g_pPlutoLogger->Write( LV_STATUS, "Attempting to open media for %s (%s)", fileName.c_str(), sMediaPosition.c_str() );
 	
 	g_pPlutoLogger->Write( LV_STATUS, "Calling xine_open" );
@@ -475,14 +477,14 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 	}
 	
 	
-	setDebuggingLevel(true );	
+	//setDebuggingLevel(true );	
 	
 	// opening media
 	if ( mediaOpened )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Media opened " );
 
-		setDebuggingLevel( false );
+		//setDebuggingLevel( false );
 		{
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 			m_bHasAudio = xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_HAS_AUDIO );
