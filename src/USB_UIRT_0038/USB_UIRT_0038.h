@@ -29,11 +29,14 @@ namespace DCE
 		pthread_cond_t m_TiraCond;
 		int m_iRepeat;
 		// Private methods
+		
 public:
 		// Public member variables
 		bool m_bLearningIR,m_bAbortLearning; // True when the next IR code that comes in should be learned
 		time_t m_tLearningStarted;
 		string m_sPort; // Only used when running local mode
+		string m_sAVWHost;
+		int m_iAVWPort;
 
 		void GotIRCommand(const char *pRemote,const char *pCommand);
 		virtual void SendIR(string Port, string IRCode); // Required from IRBase
@@ -43,7 +46,6 @@ public:
 		void StopLearning();
 		void LearningThread();
 		void LearningWatchdogThread();
-		void ForceKeystroke(string sCommand);
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor

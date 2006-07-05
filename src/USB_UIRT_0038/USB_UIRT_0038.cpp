@@ -207,7 +207,9 @@ void LearnWatchdogThread ( void *lpParameter )
 USB_UIRT_0038::USB_UIRT_0038(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: USB_UIRT_0038_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-	, IRReceiverBase(this), m_UIRTMutex("UIRT")
+	, IRReceiverBase(this)
+	, m_UIRTMutex("UIRT")
+	, m_iAVWPort(0)
 {
 	g_pUsbUirt=this; // Used for the callback
 
@@ -318,49 +320,50 @@ bool USB_UIRT_0038::GetConfig()
 		return 0;
 	}
 	
-	DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Infrared_Plugins_CONST);
-	if( pDevice )
-		m_dwPK_Device_IRPlugin = pDevice->m_dwPK_Device;
-	else
-		m_dwPK_Device_IRPlugin = 0;
-
-	m_iRepeat=1; // DATA_Get_Repeat();
-	m_LrnAbort = 1;
-
-	string sResult;
-	DCE::CMD_Get_Sibling_Remotes CMD_Get_Sibling_Remotes(m_dwPK_Device,m_dwPK_Device_IRPlugin, DEVICECATEGORY_USBUIRT_Remote_Controls_CONST, &sResult);
-	getCommandImpl()->SendCommand(CMD_Get_Sibling_Remotes);
-	vector<string> vectRemotes;
-
-	StringUtils::Tokenize(sResult, "`", vectRemotes); 
-	int i;
-	for(i=0;i<vectRemotes.size();i++)
+	if( !m_bLocalMode )
 	{
-		vector<string> vectRemoteConfigs;
-		StringUtils::Tokenize(vectRemotes[i], "~", vectRemoteConfigs);
-		if (vectRemoteConfigs.size() == 3)
+		DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Infrared_Plugins_CONST);
+		if( pDevice )
+			m_dwPK_Device_IRPlugin = pDevice->m_dwPK_Device;
+		else
+			m_dwPK_Device_IRPlugin = 0;
+	
+		m_iRepeat=1; // DATA_Get_Repeat();
+		m_LrnAbort = 1;
+	
+		string sResult;
+		DCE::CMD_Get_Sibling_Remotes CMD_Get_Sibling_Remotes(m_dwPK_Device,m_dwPK_Device_IRPlugin, DEVICECATEGORY_USBUIRT_Remote_Controls_CONST, &sResult);
+		/*getCommandImpl()->*/SendCommand(CMD_Get_Sibling_Remotes);
+		vector<string> vectRemotes;
+	
+		StringUtils::Tokenize(sResult, "`", vectRemotes); 
+		size_t i;
+		for(i=0;i<vectRemotes.size();i++)
 		{
-			vector<string> vectCodes;
-			int PK_DeviceRemote = atoi(vectRemoteConfigs[0].c_str());
-			g_pPlutoLogger->Write(LV_STATUS, "Adding remote ID %d, layout %s\r\n", PK_DeviceRemote, vectRemoteConfigs[1].c_str());
-			StringUtils::Tokenize(vectRemoteConfigs[2],"\r\n",vectCodes);
-			for(size_t s=0;s<vectCodes.size();++s)
+			vector<string> vectRemoteConfigs;
+			StringUtils::Tokenize(vectRemotes[i], "~", vectRemoteConfigs);
+			if (vectRemoteConfigs.size() == 3)
 			{
-				string::size_type pos=0;
-				string sButton = StringUtils::Tokenize(vectCodes[s]," ",pos);
-				while(pos<vectCodes[s].size())
+				vector<string> vectCodes;
+				int PK_DeviceRemote = atoi(vectRemoteConfigs[0].c_str());
+				g_pPlutoLogger->Write(LV_STATUS, "Adding remote ID %d, layout %s\r\n", PK_DeviceRemote, vectRemoteConfigs[1].c_str());
+				StringUtils::Tokenize(vectRemoteConfigs[2],"\r\n",vectCodes);
+				for(size_t s=0;s<vectCodes.size();++s)
 				{
-					string sCode = StringUtils::Tokenize(vectCodes[s]," ",pos);
-					m_mapCodesToButtons[sCode] = make_pair<string,int> (sButton,PK_DeviceRemote);
-					// Jon -- sCode will the code in whatever format you want.  sButton is the button name it corresponds to
-					g_pPlutoLogger->Write(LV_STATUS,"Code: %s will fire button %s",sCode.c_str(),sButton.c_str());
+					string::size_type pos=0;
+					string sButton = StringUtils::Tokenize(vectCodes[s]," ",pos);
+					while(pos<vectCodes[s].size())
+					{
+						string sCode = StringUtils::Tokenize(vectCodes[s]," ",pos);
+						m_mapCodesToButtons[sCode] = make_pair<string,int> (sButton,PK_DeviceRemote);
+						// Jon -- sCode will the code in whatever format you want.  sButton is the button name it corresponds to
+						g_pPlutoLogger->Write(LV_STATUS,"Code: %s will fire button %s",sCode.c_str(),sButton.c_str());
+					}
 				}
 			}
 		}
 	}
-
-
-
+	
 
 //DCE::CMD_Store_Infrared_Code_Cat CMD_Store_Infrared_Code_Cat(m_dwPK_Device,
 //							DEVICECATEGORY_Infrared_Plugins_CONST, false, BL_SameHouse,
@@ -609,23 +612,8 @@ void USB_UIRT_0038::CreateChildren()
 	Start();
 }
 
-void USB_UIRT_0038::ForceKeystroke(string sCommand)
-{
-	g_pPlutoLogger->Write(LV_STATUS,"USB_UIRT_0038::ForceKeystrokeo %s",sCommand.c_str());
-	if(sCommand=="up")
-		g_pPlutoLogger->Write(LV_STATUS,"USB_UIRT_0038::ForceKeystroke up");
-	else if(sCommand=="up")
-		g_pPlutoLogger->Write(LV_STATUS,"USB_UIRT_0038::ForceKeystroke down");
-}
-
 void USB_UIRT_0038::OurCallback(const char *szButton)
 {
-	if( m_dwPK_Device==DEVICEID_MESSAGESEND )
-	{
-		ForceKeystroke(szButton);
-		return;
-	}
-
 	timespec ts_now;
 	gettimeofday(&ts_now,NULL);
 
@@ -645,7 +633,15 @@ void USB_UIRT_0038::OurCallback(const char *szButton)
 	if( it==m_mapCodesToButtons.end() )
 		g_pPlutoLogger->Write(LV_WARNING,"Cannot find anything for IR %s",szButton);
 	else
+	{
 		ReceivedCode(it->second.second,it->second.first.c_str());
+		
+		if( m_dwPK_Device==DEVICEID_MESSAGESEND )
+		{
+			ForceKeystroke(it->second.first, m_sAVWHost, m_iAVWPort);
+			return;
+		}
+	}
 }
 
 void USB_UIRT_0038::LearningWatchdogThread()

@@ -115,6 +115,8 @@ int main(int argc, char* argv[])
 	int PK_Device=0;
 	string sLogger="stdout";
 	string sPort;
+	string sAVWHost;
+	int iAVWPort = 0;
 
 	bool bLocalMode=false,bError=false; // An error parsing the command line
 	char c;
@@ -143,6 +145,12 @@ int main(int argc, char* argv[])
 			break;
 		case 'p':
 			sPort = argv[++optnum];
+			break;
+		case 'P':
+			iAVWPort = atoi(argv[++optnum]);
+			break;
+		case 'H':
+			sAVWHost = argv[++optnum];
 			break;
 		default:
 			bError=true;
@@ -192,22 +200,28 @@ int main(int argc, char* argv[])
 
 	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
+	cout << "LocalMode = " << bLocalMode << endl;
 	bool bReload=false;
 	try
 	{
 		USB_UIRT_0038 *pUSB_UIRT_0038 = new USB_UIRT_0038(PK_Device, sRouter_IP,true,bLocalMode);
 		pUSB_UIRT_0038->m_sPort = sPort;
-		if ( pUSB_UIRT_0038->GetConfig() && pUSB_UIRT_0038->Connect(pUSB_UIRT_0038->PK_DeviceTemplate_get()) ) 
+		pUSB_UIRT_0038->m_iAVWPort = iAVWPort;
+		pUSB_UIRT_0038->m_sAVWHost = sAVWHost;
+		if ( pUSB_UIRT_0038->GetConfig() && 
+			 pUSB_UIRT_0038->Connect(pUSB_UIRT_0038->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pUSB_UIRT_0038;
 			g_pDeadlockHandler=DeadlockHandler;
 			g_pSocketCrashHandler=SocketCrashHandler;
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
-			pUSB_UIRT_0038->CreateChildren();
 			if( bLocalMode )
 				pUSB_UIRT_0038->RunLocalMode();
 			else
+			{
+				pUSB_UIRT_0038->CreateChildren();
 				pthread_join(pUSB_UIRT_0038->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			}
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 
