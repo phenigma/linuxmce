@@ -4184,6 +4184,9 @@ function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
 
 	$userID=(int)@$_SESSION['userID'];
 
+	if($infraredGroupID==0){
+		return array();
+	}
 	$codesQuery='
 			SELECT 
 				PK_InfraredGroup_Command,
@@ -4197,10 +4200,10 @@ function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
 				FK_Command 
 			FROM InfraredGroup_Command 
 			JOIN Command ON FK_Command=PK_Command JOIN CommandCategory ON FK_CommandCategory=PK_CommandCategory 
-			WHERE '.(($infraredGroupID==0)?'FK_InfraredGroup IS NULL':'(FK_InfraredGroup='.$infraredGroupID.' OR FK_InfraredGroup IS NULL)').' AND (FK_DeviceTemplate=? OR FK_DeviceTemplate IS NULL) '.$restriction.'
+			WHERE FK_InfraredGroup=? '.$restriction.'
 			ORDER BY GroupOrder,CommandCategory.Description,Description,DefaultOrder';
 
-	$res=$dbADO->Execute($codesQuery,array($dtID));
+	$res=$dbADO->Execute($codesQuery,array($infraredGroupID));
 	$codesArray=array();
 	while($row=$res->FetchRow()){
 		$categoryLabel=($row['CommandCategory']=='Generic')?'Power':$row['CommandCategory'];
@@ -4234,21 +4237,8 @@ function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
 			unset ($powerCommands[$row['FK_Command']]);
 		}
 	}
-	$GLOBALS['igcPrefered']=getPreferredIRGC($installationID,$infraredGroupID,$dbADO);
 	
 	return $codesArray;
-}
-
-function getPreferredIRGC($installationID,$infraredGroupID,$dbADO){
-	$preferred=getFieldsAsArray('InfraredGroup_Command_Preferred','FK_Command,FK_InfraredGroup_Command',$dbADO,' INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command WHERE InfraredGroup_Command_Preferred.FK_Installation='.$installationID);	
-	$preferredByCategory=array();
-	for($i=0;$i<count(@$preferred['FK_Command']);$i++){
-		// only the preferred which I display are used
-		if(in_array($preferred['FK_InfraredGroup_Command'][$i],$GLOBALS['displayedIRGC']))
-			$preferredByCategory[$preferred['FK_Command'][$i]][]=$preferred['FK_InfraredGroup_Command'][$i];
-	}
-	
-	return $preferredByCategory;
 }
 
 // parse the multidimensiona array with codes and return html code for table rows
@@ -4342,22 +4332,16 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 
 
 function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
-	if($dataArray['DefaultOrder'][$pos]==1){
-		$RowColor='lightblue';
-	}
-	else{
-		$RowColor='yellow';
-		$deleteButton='<input type="button" class="button_fixed" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.'.$section.'.action.value=\'delete\';document.'.$section.'.irgroup_command.value='.$pos.';document.'.$section.'.submit();}">';
-	}
+	$deleteButton='<input type="button" class="button_fixed" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.'.$section.'.action.value=\'delete\';document.'.$section.'.irgroup_command.value='.$pos.';document.'.$section.'.submit();}">';
+
 	
 	$viewParamsButton=($section=='rubyCodes')?'<input type="button" class="button_fixed" name="viewParams" value="View params" onClick="windowOpen(\'index.php?section=editCommand&from=rubyCodes&commandID='.$dataArray['FK_Command'][$pos].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');"><br>':'';
 	$testButton=((int)$deviceID!=0 && $section !='rubyCodes')?'<br> <input type="button" class="button_fixed" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irData=\'+escape(document.'.$section.'.irData_'.$pos.'.value)+\'&deviceID='.$deviceID.'&sender='.$section.'\';"> <a name="test_'.$pos.'">':'';
 	
 	$out='
 		<table width="100%">
-			<tr bgcolor="'.$RowColor.'">
+			<tr class="alternate_back">
 				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].(($dataArray['OriginalKey'][$pos]!='')?' ('.$dataArray['OriginalKey'][$pos].')':'').'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
-				<td align="center" width="20"><input type="radio" name="prefered_'.$dataArray['FK_Command'][$pos].'" value="'.$pos.'" '.((@in_array($pos,@$GLOBALS['igcPrefered'][$dataArray['FK_Command'][$pos]]))?'checked':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
 				<td align="center" width="120">'.$viewParamsButton.@$deleteButton.$testButton.'</td>
 			</tr>

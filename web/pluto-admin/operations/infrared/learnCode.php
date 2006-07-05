@@ -18,21 +18,6 @@ function learnCode($output,$dbADO) {
 			$res=$dbADO->Execute('SELECT psc_mod AS lastTime,PK_InfraredGroup_Command FROM InfraredGroup_Command ORDER BY psc_mod DESC LIMIT 0,1');
 			$row=$res->FetchRow();
 			if(isset($_SESSION['LastInfraredGroup_CommandTime']) && $_SESSION['LastInfraredGroup_CommandTime']!=$row['lastTime']){
-				if($infraredGroupID!=0)
-					$isSingleCode=$dbADO->Execute('
-						SELECT * 
-						FROM InfraredGroup_Command_Preferred
-						INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
-						WHERE FK_Command=? AND FK_InfraredGroup=?',array($commandID,$infraredGroupID));
-				else
-					$isSingleCode=$dbADO->Execute('
-						SELECT * 
-						FROM InfraredGroup_Command_Preferred
-						INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
-						WHERE FK_Command=? AND FK_InfraredGroup IS NULL',$commandID);
-				if($isSingleCode->RecordCount()==0){
-					$dbADO->Execute('INSERT IGNORE INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($row['PK_InfraredGroup_Command'],$_SESSION['installationID']));
-				}
 				$out='
 				<script>
 					alert(\''.$TEXT_IR_CODE_LEARNED_CONST.'\');
@@ -91,7 +76,7 @@ function learnCode($output,$dbADO) {
 				</tr>
 				<tr>
 					<td align="center">&nbsp;</td>
-					<td align="left"><textarea name="irData" rows="3" cols="100" '.(($noRefresh==0)?'disabled':'').'></textarea></td>
+					<td align="left"><textarea name="irData" rows="3" cols="100" '.(($noRefresh==0)?'disabled':'').' style="width:100%"></textarea></td>
 				</tr>
 				
 				<tr>
@@ -137,29 +122,15 @@ function learnCode($output,$dbADO) {
 
 			$irData=stripslashes($_POST['irData']);
 			$infraredGroupID=($infraredGroupID==0)?NULL:$infraredGroupID;
-			if($infraredGroupID!=0)
-				$isSingleCode=$dbADO->Execute('
-					SELECT * 
-					FROM InfraredGroup_Command_Preferred
-					INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
-					WHERE FK_Command=? AND FK_InfraredGroup=?',array($commandID,$infraredGroupID));
-			else
-				$isSingleCode=$dbADO->Execute('
-					SELECT * 
-					FROM InfraredGroup_Command_Preferred
-					INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
-					WHERE FK_Command=? AND FK_DeviceTemplate=? AND FK_InfraredGroup IS NULL',array($commandID,$dtID));
-			$isOtherCustomCode=$dbADO->Execute('SELECT * FROM InfraredGroup_Command WHERE (FK_InfraredGroup=? OR FK_InfraredGroup IS NULL) AND FK_Command=? AND FK_DeviceTemplate=?',array($infraredGroupID,$commandID, $dtID));
+
+			$isOtherCustomCode=$dbADO->Execute('SELECT * FROM InfraredGroup_Command WHERE FK_InfraredGroup=? AND FK_Command=?',array($infraredGroupID,$commandID));
 			if($isOtherCustomCode->RecordCount()>0){
 				$rowOther=$isOtherCustomCode->FetchRow();
 				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$rowOther['PK_InfraredGroup_Command']));
 			}else
-				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_DeviceTemplate, IRData) VALUES (?,?,?,?)',array($infraredGroupID,$commandID, $dtID,$irData));
+				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, IRData) VALUES (?,?,?)',array($infraredGroupID,$commandID, $irData));
 			$igcID=$dbADO->Insert_ID();
 			
-			if($isSingleCode->RecordCount()==0){
-				$dbADO->Execute('INSERT IGNORE INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($igcID,$_SESSION['installationID']));
-			}
 			$out.='<script>
 					opener.location.reload();
 					self.close();

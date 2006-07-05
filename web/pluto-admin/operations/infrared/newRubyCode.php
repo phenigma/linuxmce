@@ -44,7 +44,7 @@ function newRubyCode($output,$dbADO) {
 			</tr>
 			<tr>
 				<td align="center">&nbsp;</td>
-				<td align="left"><textarea name="irData" rows="30" cols="100"></textarea></td>
+				<td align="left"><textarea name="irData" rows="30" style="width:100%"></textarea></td>
 			</tr>
 			
 			<tr>
@@ -59,29 +59,14 @@ function newRubyCode($output,$dbADO) {
 		if(isset($_POST['add'])){
 			$irData=stripslashes($_POST['irData']);
 			$infraredGroupID=($infraredGroupID==0)?NULL:$infraredGroupID;
-			if($infraredGroupID!=0)
-				$isSingleCode=$dbADO->Execute('
-					SELECT * 
-					FROM InfraredGroup_Command_Preferred
-					INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
-					WHERE FK_Command=? AND FK_InfraredGroup=?',array($commandID,$infraredGroupID));
-			else
-				$isSingleCode=$dbADO->Execute('
-					SELECT * 
-					FROM InfraredGroup_Command_Preferred
-					INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
-					WHERE FK_Command=? AND FK_DeviceTemplate=? AND FK_InfraredGroup IS NULL',array($commandID,$dtID));
-			$isOtherCustomCode=$dbADO->Execute('SELECT * FROM InfraredGroup_Command WHERE FK_InfraredGroup=? AND FK_Command=? AND FK_DeviceTemplate=?',array($infraredGroupID,$commandID, $dtID));
+			$isOtherCustomCode=$dbADO->Execute('SELECT * FROM InfraredGroup_Command WHERE FK_InfraredGroup=? AND FK_Command=?',array($infraredGroupID,$commandID));
 			if($isOtherCustomCode->RecordCount()>0){
 				$rowOther=$isOtherCustomCode->FetchRow();
 				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$rowOther['PK_InfraredGroup_Command']));
 			}else
-				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_DeviceTemplate,IRData) VALUES (?,?,?,?)',array($infraredGroupID,$commandID, $dtID,$irData));
+				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,IRData) VALUES (?,?,?)',array($infraredGroupID,$commandID, $irData));
 			$igcID=$dbADO->Insert_ID();
 			
-			if($isSingleCode->RecordCount()==0){
-				$dbADO->Execute('INSERT IGNORE INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($igcID,$_SESSION['installationID']));
-			}
 			$out.='<script>
 					opener.location.reload();
 					self.close();

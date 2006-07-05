@@ -40,8 +40,6 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 	}else
 		$infraredGroupID=(int)$_REQUEST['infraredGroupID'];
 	$GLOBALS['displayedIRGC']=array();
-	$GLOBALS['preferredIGC']=array();
-	$GLOBALS['igcPrefered']=array();	
 	$GLOBALS['displayedCommands']=array();
 
 	if ($action=='form') {
@@ -51,14 +49,6 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 				window.open(locationA,\'\',attributes);
 			}
 		
-			function setPreferred(radioGroup,value)
-			{
-				eval("len=document.rubyCodes."+radioGroup+".length");
-				for(i=0;i<len;i++){
-					eval("if(document.rubyCodes."+radioGroup+"["+i+"].value=="+value+") document.rubyCodes."+radioGroup+"["+i+"].checked=true;");
-				}
-				
-			}
 		</script>	
 		
 	<div class="err"><br>'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
@@ -145,23 +135,11 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 
 		$out.='
 			<tr>
-				<td colspan="3" align="center"><table>
-					<tr>
-						<td><B>'.$TEXT_LEGEND_CONST.':</B> </td>
-						<td width="20" class="tablehead">&nbsp;</td>
-						<td>'.$TEXT_STANDARD_CODES_CONST.'</td>
-						<td width="20" bgcolor="yellow">&nbsp;</td>
-						<td>'.$TEXT_MY_CUSTOM_CODES_CONST.'</td>
-					</tr>
-				</table></td>
-			</tr>
-			<tr>
 				<td colspan="3" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'" '.((!isset($_SESSION['userID']))?'disabled':'').'> <input type="button" class="button" name="close" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 			</tr>
 	';
 		$out.='
 		</table>
-			<input type="hidden" name="igcPrefered" value="'.urlencode(serialize($GLOBALS['igcPrefered'])).'">
 			<input type="hidden" name="displayedCommands" value="'.join(',',$GLOBALS['displayedCommands']).'">
 			<input type="hidden" name="displayedIRGC" value="'.join(',',$GLOBALS['displayedIRGC']).'">
 		</form>
@@ -177,7 +155,6 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		if($newIRGroup!=$oldIRGroup){
 
 			$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($newIRGroup,$dtID));
-			$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND FK_InfraredGroup IS NOT NULL',array($newIRGroup,$dtID));
 
 			header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=$TEXT_IR_GROUP_CHANGED_FOR_SELECTED_DEVICE_TEMPLATE_CONST&label=".$GLOBALS['label']);
 			exit();
@@ -186,7 +163,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		if(isset($_POST['irgroup_command']) && (int)$_POST['irgroup_command']>0){
 			$irg_c=(int)$_POST['irgroup_command'];
 			if($action!='delete'){
-				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,FK_DeviceTemplate,IRData) SELECT FK_InfraredGroup,FK_Command,'.$deviceID.','.$dtID.',IRData FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
+				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,IRData) SELECT FK_InfraredGroup,FK_Command,'.$deviceID.',IRData FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
 
 				header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=$TEXT_RUBY_CODE_ADDED_CONST&label=".$GLOBALS['label']);
 				exit();
@@ -213,7 +190,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 						
 						foreach ($commands AS $commandID){
 							if(!in_array($commandID,$displayedCommands)){			
-								$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,FK_DeviceTemplate,IRData) VALUES (?,?,?,?,?)',array($infraredGroupID,$commandID,$deviceID,$dtID,''));
+								$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,IRData) VALUES (?,?,?,?)',array($infraredGroupID,$commandID,$deviceID,''));
 							}
 						}
 						if(!in_array($deviceCG,$oldCheckedDCG))
@@ -223,7 +200,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 						// delete from IRG_C
 						$commands=explode(',',$_POST['commands_'.$deviceCG]);
 						if(count($commands)>0){
-							$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE FK_Command in ('.join(',',$commands).') AND FK_DeviceTemplate=?',$dtID);
+							$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE FK_Command in ('.join(',',$commands).') AND FK_InfraredGroup=?',$infraredGroupID);
 	
 						}
 						$dbADO->Execute('DELETE FROM DeviceTemplate_DeviceCommandGroup WHERE FK_DeviceTemplate=? AND FK_DeviceCommandGroup=?',array($dtID,$deviceCG));
@@ -240,18 +217,6 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			}
 
 			$commandsDisplayed=array_unique(explode(',',$_POST['displayedCommands']));
-			$GLOBALS['igcPrefered']=unserialize(urldecode($_POST['igcPrefered']));
-
-			foreach ($commandsDisplayed AS $commandID){
-				$preferredCommand=(int)@$_POST['prefered_'.$commandID];
-				if($preferredCommand>0){
-					if(isset($GLOBALS['igcPrefered'][$commandID])){
-						$dbADO->Execute('DELETE FROM InfraredGroup_Command_Preferred WHERE FK_InfraredGroup_Command IN ('.join(',',$GLOBALS['igcPrefered'][$commandID]).') AND FK_Installation=?',array($installationID));
-					}
-					$dbADO->Execute('INSERT INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($preferredCommand,$installationID));
-				}
-			}
-	
 
 			$time_end= getmicrotime();
 			//print '<p class="normaltext">Page generated in '.round(($time_end-$time_start),3).' s.';

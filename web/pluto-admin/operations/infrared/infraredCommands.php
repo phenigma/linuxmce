@@ -44,8 +44,8 @@ function infraredCommands($output,$publicADO) {
 			</tr>
 		';
 		$GLOBALS['oldCheckedCommands']=array();
-		$queryOld='SELECT DISTINCT FK_Command FROM InfraredGroup_Command WHERE FK_DeviceTemplate=?';
-		$resOld=$publicADO->Execute($queryOld,array($GLOBALS['dtID']));
+		$queryOld='SELECT DISTINCT FK_Command FROM InfraredGroup_Command WHERE FK_InfraredGroup=?';
+		$resOld=$publicADO->Execute($queryOld,array($GLOBALS['infraredGroup']));
 		while($row=$resOld->FetchRow()){
 			$GLOBALS['oldCheckedCommands'][]=$row['FK_Command'];
 		}
@@ -104,13 +104,13 @@ function infraredCommands($output,$publicADO) {
 			if(isset($_POST['command_'.$commandID])){
 				$GLOBALS['infraredGroup']=($GLOBALS['infraredGroup']==0)?NULL:$GLOBALS['infraredGroup'];
 				if(!in_array($commandID,$oldCheckedCommands)){
-					$publicADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_DeviceTemplate) VALUES (?,?,?)',array($GLOBALS['infraredGroup'],$commandID, $GLOBALS['dtID']));
+					$publicADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command) VALUES (?,?)',array($GLOBALS['infraredGroup'],$commandID));
 					
 					$igcID=$publicADO->Insert_ID();
 				}
 			}else{
 				if(in_array($commandID,$oldCheckedCommands)){
-					$publicADO->Execute('DELETE FROM InfraredGroup_Command WHERE (FK_InfraredGroup=? OR FK_InfraredGroup IS NULL) AND FK_Command=? AND FK_DeviceTemplate=?',array($GLOBALS['infraredGroup'],$commandID,$GLOBALS['dtID']));
+					$publicADO->Execute('DELETE FROM InfraredGroup_Command WHERE FK_InfraredGroup=? FK_Command=? ',array($GLOBALS['infraredGroup'],$commandID));
 				}
 			}
 		}
