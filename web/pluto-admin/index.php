@@ -1460,7 +1460,13 @@ switch ($section) {
 	break;	
 
 	
-	
+	case 'index';
+		@$_SESSION['lastLeftFrameSrc']='';
+		@$_SESSION['lastRightFrameSrc']='';
+		
+		die('<script>self.location=\'index.php\'</script>');
+		exit();
+	break;
 	case '';
 		$output = new Template($dbADO);	
 		

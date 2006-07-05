@@ -164,6 +164,7 @@ function phoneLines($output,$astADO,$dbADO) {
 			$host=cleanString($_POST['host']);
 
 			$cmd='sudo -u root /usr/pluto/bin/'.$providerScript.' '.$username.' '.$password.' '.$phone.' '.$host;
+			echo $cmd;
 			system($cmd,$cmdStatus);
 			
 			if($cmdStatus!=0){

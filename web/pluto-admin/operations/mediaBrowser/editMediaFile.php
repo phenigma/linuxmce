@@ -71,6 +71,13 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			$attributeTypes[$rowTypes['PK_AttributeType']]=$rowTypes['Description'];
 		}
 
+		$externalAttributesBtn='';
+		if(in_array($rowFile['EK_MediaType'],array(3,4))){
+			$externalAttributesBtn='<input type="button" class="button_fixed" value="Check Amazon" onClick="self.location=\'index.php?section=checkAmazon&fileID='.$fileID.'\'">';
+		}
+
+
+		
 		$out.='
 		
 		<a href="javascript:syncPath(\''.$rowFile['Path'].'\')">Back</a>
@@ -99,7 +106,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				$out.='<option value="'.$rowType['PK_MediaType'].'" '.(($rowType['PK_MediaType']==$rowFile['EK_MediaType'])?'selected':'').'>'.$rowType['Description'].'</option>';
 			}
 			$out.='
-				</select></td>
+				</select> '.$externalAttributesBtn.'</td>
 			</tr>
 			<tr bgcolor="#EBEFF9">
 				<td valign="top"><B>'.$TEXT_ATTRIBUTES_CONST.':</B></td>
@@ -150,6 +157,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				if(!in_array($rowPictures['PK_Picture'],$picsArray)){
 					$picsArray[]=$rowPictures['PK_Picture'];
 				}
+
 				$picsCount++;
 				$out.='
 					<td style="background-color:#EEEEEE;" align="center"><a href="mediapics/'.$rowPictures['PK_Picture'].'.'.$rowPictures['Extension'].'" target="_blank"><img src="mediapics/'.$rowPictures['PK_Picture'].'_tn.'.$rowPictures['Extension'].'" border="0"></a> 

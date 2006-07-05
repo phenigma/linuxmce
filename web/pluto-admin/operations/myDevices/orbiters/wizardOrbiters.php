@@ -572,6 +572,9 @@ function orbiterTable($content,$orbiterGroupDisplayed,$properties){
 	global $excludedData;
 	$out='';
 	$pos=0;
+	if(!is_array($content)){
+		return $out;
+	}
 	foreach ($content AS $orbiter=>$valueArray){
 		$pos++;
 		$out.='<table width="100%" bgcolor="#DEDEDE" border="0">

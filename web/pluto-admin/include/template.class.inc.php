@@ -81,16 +81,18 @@ function setTemplateFileType($type) {
 			}
 		break;
 		case 'large':
-			@$_SESSION['lastRightFrameSrc']='index.php?'.$_SERVER['QUERY_STRING'];
+			if(@$_REQUEST['section']!='checkAmazon'){
+				@$_SESSION['lastRightFrameSrc']='index.php?'.$_SERVER['QUERY_STRING'];
+			}
 		break;
 		case 'small':
-			if($_REQUEST['section']=='leftMenu' || $_REQUEST['section']=='wizard' || $_REQUEST['section']=='leftMediaBrowser' || $_REQUEST['section']=='leftMediaFilesSync'){
+			if($_REQUEST['section']=='leftMenu' || $_REQUEST['section']=='wizard' || $_REQUEST['section']=='leftMediaBrowser'){
 				@$_SESSION['lastLeftFrameSrc']='index.php?'.$_SERVER['QUERY_STRING'];
 			}
 		break;
 		
 	}
-	writeFile('/home/users/vali/work/web/pluto-admin/cached/bubu.txt',"\n".@$_REQUEST['section'].": \t\t".@$_SESSION['lastRightFrameSrc']."\t\t".@$_SESSION['lastLeftFrameSrc'],'a+');
+	//writeFile('/home/users/vali/work/web/pluto-admin/cached/bubu.txt',"\n".@$_REQUEST['section'].": \t\t".@$_SESSION['lastRightFrameSrc']."\t\t".@$_SESSION['lastLeftFrameSrc'],'a+');
 	
 	if (file_exists(APPROOT."include/templates/template.$type.tpl.html")) {
 		$this->content = implode('',file(APPROOT."include/templates/template.$type.tpl.html"));

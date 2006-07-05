@@ -236,7 +236,7 @@ function devices($output,$dbADO) {
 				
 				if($type=='phones'){
 					$cmd='sudo -u root /usr/pluto/bin/sync_pluto2amp.pl '.$value;
-					exec($cmd);
+					exec_batch_command($cmd);
 				}
 			}
 		}
@@ -317,7 +317,7 @@ function devices($output,$dbADO) {
 			
 			if($type=='phones'){
 				$cmd='sudo -u root /usr/pluto/bin/sync_pluto2amp.pl '.$insertID;
-				exec($cmd);
+				exec_batch_command($cmd);
 			}
 			header("Location: index.php?section=devices&type=$type&lastAdded=$deviceTemplate");
 			exit();

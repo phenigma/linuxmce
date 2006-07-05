@@ -27,7 +27,7 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 	<table border="0" cellpading="2" cellspacing="0" width="100%">
 			<tr>
 				<td colspan="3" align="center" height="133" class="left_frame_logo">
-					<a href="index.php" target="_top"><img src="include/images/spacer.gif" border="0" width="220" height="90"></a>
+					<a href="index.php?section=index" target="_top"><img src="include/images/spacer.gif" border="0" width="220" height="90"></a>
 				</td>
 			</tr>
 			<tr>
