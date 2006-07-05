@@ -162,6 +162,9 @@ void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 		ScaledBack = zoomSurface(BackSurface, ZoomX, ZoomY, SMOOTHING_ON);
 		NeedUpdateBack = false;
 	}
+	if(ScaledBack)
+		SDL_BlitSurface(ScaledBack, NULL, Display, &RectZoom);
+
 	if(Wizard::GetInstance()->CurrentPage == 5)
 	{
 		int Border2 = Border + ARROWS_BORDER;
@@ -184,7 +187,6 @@ void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 	}
 
 
-	SDL_BlitSurface(ScaledBack, NULL, Display, &RectZoom);
 
 	
 	if(NeedUpdateScreen)
@@ -192,8 +194,8 @@ void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 		ScaledScreen = zoomSurface(Screen, ZoomX2, ZoomY2, SMOOTHING_ON);
 		NeedUpdateScreen = true;
 	}
-
-	SDL_BlitSurface(ScaledScreen, NULL, Display, &Rect);
+	if(ScaledScreen)
+		SDL_BlitSurface(ScaledScreen, NULL, Display, &Rect);
 	//SDL_SaveBMP(Display, "/home/ciplogic/Desktop/screen2.bmp");
 
 	//SDL_SaveBMP(BackSurface, "/home/ciplogic/Desktop/screen.bmp");

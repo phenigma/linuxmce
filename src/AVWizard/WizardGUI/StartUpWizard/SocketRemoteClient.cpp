@@ -47,7 +47,7 @@ SocketRemoteClient::~SocketRemoteClient()
 std::string SocketRemoteClient::RecieveString()
 {
 	SafetyLock Lock(&SafeMutex);
-	std::string Message;
+	std::string Message="";
 	int Len = 0;
 	if(recv(Socket, &Len, sizeof(Len), 0) < 0)
 	{
@@ -62,6 +62,7 @@ std::string SocketRemoteClient::RecieveString()
 	{
 		close(Socket);
 		Socket = 0;
+		free(Buffer);
 		return Message;
 	}
 	Message = Buffer;
@@ -109,8 +110,8 @@ void* SocketClientCallBack(void* SocketClientCallBackPtr)
 	if(Message == "minus")
 		Event.MinusKey();
 
+	std::cout<<"Command get:"<<Message<<std::endl;
 	Wizard::GetInstance()->GenerateCustomEvent(Event);	
-	std::cout<<Message<<std::endl;
 
 	Client->Disconnect();
 	return NULL;

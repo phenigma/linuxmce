@@ -23,7 +23,7 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 
 /*virtual*/ int WizardPageVideoRatio::DoApplySetting(SettingsDictionary* Dictionary)
 {
-	if(Dictionary == NULL)
+	if(Dictionary == NULL || Selected == NULL)
 		return -1;
 	if(Selected->GetName() == "Btn1")
 	{
@@ -52,12 +52,12 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 		RatioMode = (OutputValue == "4_3");
 	}
 
-	int Width = Utils::StringToInt32(AVWizardSettings->GetValue("WindowWidth"));
-	int Height = Utils::StringToInt32(AVWizardSettings->GetValue("WindowHeight"));
-	if ( !Width)
-		Width = 640;
-	if ( !Height)
-		Height = 480;
+	int Width = 640;
+	if(AVWizardSettings->Exists( "WindowWidth"))
+		Width = Utils::StringToInt32(AVWizardSettings->GetValue("WindowWidth"));
+	int Height = 480;
+	if(AVWizardSettings->Exists( "WindowHeight"))
+		Height = Utils::StringToInt32(AVWizardSettings->GetValue("WindowHeight"));
 	Wizard::GetInstance()->Resize(Width, Height, false);
 
 	SearchSelectedItem();

@@ -18,9 +18,10 @@
 
 /*static*/ int Utils::StringToInt32(std::string String)
 {
-	int Result;
+	int Result = 0;
 	char* Text = (char*) String.c_str();
 	sscanf(Text, "%d", &Result);
+		
 	return Result;
 }
 
