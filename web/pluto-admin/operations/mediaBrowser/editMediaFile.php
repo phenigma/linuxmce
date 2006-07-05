@@ -72,7 +72,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		}
 
 		$externalAttributesBtn='';
-		if(in_array($rowFile['EK_MediaType'],array(3,4))){
+		if(in_array($rowFile['EK_MediaType'],array(3,4,5))){
 			$externalAttributesBtn='<input type="button" class="button_fixed" value="Check Amazon" onClick="self.location=\'index.php?section=checkAmazon&fileID='.$fileID.'\'">';
 		}
 

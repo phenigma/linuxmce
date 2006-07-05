@@ -303,6 +303,9 @@ function processGrabAttributes($mediadbADO){
 		}
 	}
 	
+	$fileData=getFieldsAsArray('File','Path,Filename',$mediadbADO,'WHERE PK_File='.$fileID);
+	exec_batch_command('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$fileData['Path'][0].'"');
+	
 	die('<script>parent.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&msg=Attributes extracted from Amazon\';</script>');
 }
 ?>
