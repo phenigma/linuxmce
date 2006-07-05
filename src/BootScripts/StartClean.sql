@@ -1,0 +1,10 @@
+delete from PnpQueue;
+delete from Room;
+delete from Device where PK_Device>28;
+delete from Device_DeviceData where FK_Device>28;
+update Device set FK_Room=NULL;
+delete from Users;
+delete from Installation_Users;
+delete from Orbiter;
+delete from Device_EntertainArea;
+delete from EntertainArea;
