@@ -27,7 +27,8 @@ for Row in $R; do
 	PK_DeviceTemplate=$(Field 2 "$Row")
 	DTDescription=$(Field 3 "$Row")
 	CmdName=$(Field 4 "$Row")
-	echo "$VendorModelID|$PK_DeviceTemplate|$DTDescription|$CmdName" >>"$OutFile"
+	Name=$(Field 5 "$Row")
+	echo "$VendorModelID|$PK_DeviceTemplate|$DTDescription|$CmdName|$Name" >>"$OutFile"
 done
 
 Remote=$(/usr/pluto/bin/hal_device_finder -f "$OutFile")
