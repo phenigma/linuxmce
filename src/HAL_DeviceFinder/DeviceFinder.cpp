@@ -7,8 +7,8 @@
 #include <map>
 using namespace std;
 
-#include "../../PlutoUtils/FileUtils.h"
-#include "../../PlutoUtils/StringUtils.h"
+#include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/StringUtils.h"
 
 #ifndef WIN32
 #include "hald_helper.h"
