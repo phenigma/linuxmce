@@ -30,7 +30,7 @@ bin: hal_device_finder
 
 hal_device_finder: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
-	cp $@ ../../bin
+	cp $@ $(ROOT)/bin
 
 clean: clean-recursive
 	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) hal_device_finder.bin >/dev/null
