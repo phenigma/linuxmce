@@ -245,7 +245,7 @@ bool USB_UIRT_0038::GetConfig()
 #ifdef __linux
 	char devicePath[256];
 
-	if( m_sPath.size() )
+	if( m_sPort.size() )
 		strcpy(devicePath, m_sPath.c_str());
 	else
 		strcpy(devicePath, TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str());
