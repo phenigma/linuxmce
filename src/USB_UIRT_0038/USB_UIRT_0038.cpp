@@ -232,17 +232,23 @@ bool USB_UIRT_0038::GetConfig()
 	if( !USB_UIRT_0038_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-	if( !m_Virtual_Device_Translator.GetConfig(m_pData) )
-		return false;
+	if( m_dwPK_Device!=DEVICEID_MESSAGESEND )
+	{
+		if( !m_Virtual_Device_Translator.GetConfig(m_pData) )
+			return false;
 
-	IRBase::setCommandImpl(this);
-	IRBase::setAllDevices(&(GetData()->m_AllDevices));
-	IRReceiverBase::GetConfig(m_pData);
-	
+		IRBase::setCommandImpl(this);
+		IRBase::setAllDevices(&(GetData()->m_AllDevices));
+		IRReceiverBase::GetConfig(m_pData);
+	}	
+
 #ifdef __linux
 	char devicePath[256];
 
-	strcpy(devicePath, TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str());
+	if( m_sPath.size() )
+		strcpy(devicePath, m_sPath.c_str());
+	else
+		strcpy(devicePath, TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str());
 	if (devicePath[0]==0)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "No port specified.");
@@ -601,8 +607,23 @@ void USB_UIRT_0038::CreateChildren()
 	Start();
 }
 
+void USB_UIRT_0038::ForceKeystroke(string sCommand)
+{
+	g_pPlutoLogger->Write(LV_STATUS,"USB_UIRT_0038::ForceKeystrokeo %s",sCommand.c_str());
+	if(sCommand=="up")
+		g_pPlutoLogger->Write(LV_STATUS,"USB_UIRT_0038::ForceKeystroke up");
+	else if(sCommand=="up")
+		g_pPlutoLogger->Write(LV_STATUS,"USB_UIRT_0038::ForceKeystroke down");
+}
+
 void USB_UIRT_0038::OurCallback(const char *szButton)
 {
+	if( m_dwPK_Device==DEVICEID_MESSAGESEND )
+	{
+		ForceKeystroke(szButton);
+		return;
+	}
+
 	timespec ts_now;
 	gettimeofday(&ts_now,NULL);
 

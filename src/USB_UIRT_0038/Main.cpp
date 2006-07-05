@@ -114,6 +114,7 @@ int main(int argc, char* argv[])
 	string sRouter_IP="dcerouter";
 	int PK_Device=0;
 	string sLogger="stdout";
+	string sPort;
 
 	bool bLocalMode=false,bError=false; // An error parsing the command line
 	char c;
@@ -139,6 +140,9 @@ int main(int argc, char* argv[])
             break;
 		case 'l':
 			sLogger = argv[++optnum];
+			break;
+		case 'p':
+			sPort = argv[++optnum];
 			break;
 		default:
 			bError=true;
@@ -192,6 +196,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		USB_UIRT_0038 *pUSB_UIRT_0038 = new USB_UIRT_0038(PK_Device, sRouter_IP,true,bLocalMode);
+		pUSB_UIRT_0038->m_sPort = sPort;
 		if ( pUSB_UIRT_0038->GetConfig() && pUSB_UIRT_0038->Connect(pUSB_UIRT_0038->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pUSB_UIRT_0038;
