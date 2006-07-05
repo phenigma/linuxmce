@@ -66,7 +66,6 @@ Wizard::Wizard()
 	pthread_mutex_init(&SafeMutex, &m_MutexAttr);
 	pthread_mutexattr_destroy(&m_MutexAttr);
 
-
 #ifndef WIN32
 	signal(SIGUSR1, signal_handler);
 	signal(SIGPIPE, signal_handler);
@@ -114,6 +113,14 @@ void Wizard::MainLoop()
 		TopBorder = Utils::StringToInt32( AVWizardOptions->GetDictionary()->
 			GetValue("TopBorder"));
 	}
+
+	if (AVWizardOptions->GetDictionary()->Exists("RemoteCmd"))
+	{
+		RemoteCmd = AVWizardOptions->GetDictionary()->
+			GetValue("RemoteCmd");
+	}
+
+	m_WizardRemote.Start(RemoteCmd);
 
 	PaintStatus();
 	while(!Quit)

@@ -39,6 +39,8 @@
 
 #include <pthread.h>
 
+#include "WizardRemote.h"
+
 /**
  *	Singleton class that consist all the wizard, is singleton because 
  *	is the core class of the AVWizard
@@ -137,6 +139,13 @@ public:
 
 	int LeftBorder, TopBorder;
 	int WizardBorder;
+
+	/**
+	 * Process that handles remote control events
+	 */
+	std::string RemoteCmd;
+	RemoteProcess m_WizardRemote;
+
 	/**
 	 *	SettingsDictionary that keep global AVWizard Settings
 	 */

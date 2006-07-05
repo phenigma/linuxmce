@@ -21,6 +21,7 @@ SoundUtils.cpp \
 StartScreen.cpp \
 WizardCommandLineParser.cpp \
 WizardConfigParser.cpp \
+WizardRemote.cpp \
 Wizard.cpp \
 WizardPage.cpp \
 WizardPagesFactory.cpp \
