@@ -30,6 +30,7 @@ namespace DCE
 		bool m_bIRServerRunning;
 		map<string,int> m_mapNameToDevice;
 		string m_sAltPort; // We will set this if we were found to be running on an alt port
+		string m_sPort; // Only used when running local mode
 
 		// Private methods
 public:

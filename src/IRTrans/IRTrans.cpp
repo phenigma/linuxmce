@@ -273,7 +273,7 @@ void IRTrans::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessa
 
 void IRTrans::StartIRServer()
 {
-	string sComPortOnPC = DATA_Get_COM_Port_on_PC();
+	string sComPortOnPC = m_sPort.size() ? m_sPort : DATA_Get_COM_Port_on_PC();
 	g_pPlutoLogger->Write(LV_STATUS,"In start IR Server %s",sComPortOnPC.c_str());
 
 #ifndef WIN32

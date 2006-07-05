@@ -114,6 +114,7 @@ int main(int argc, char* argv[])
 	string sRouter_IP="dcerouter";
 	int PK_Device=0;
 	string sLogger="stdout";
+	string sPort;
 
 	bool bLocalMode=false,bError=false; // An error parsing the command line
 	char c;
@@ -140,6 +141,9 @@ int main(int argc, char* argv[])
 		case 'l':
 			sLogger = argv[++optnum];
 			break;
+		case 'p':
+			sPort = argv[++optnum];
+			break;
 		default:
 			bError=true;
 			break;
@@ -152,7 +156,8 @@ int main(int argc, char* argv[])
 			<< "Usage: IRTrans [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename]" << endl
 			<< "-r -- the IP address of the DCE Router  Defaults to 'dcerouter'." << endl
 			<< "-d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address." << endl
-			<< "-l -- Where to save the log files.  Specify 'dcerouter' to have the messages logged to the DCE Router.  Defaults to stdout." << endl;
+			<< "-l -- Where to save the log files.  Specify 'dcerouter' to have the messages logged to the DCE Router.  Defaults to stdout." << endl
+			<< "-p -- local port to use.  Specify with -d -1003 to control A/V Wizard" << endl;
 		exit(0);
 	}
 
@@ -192,6 +197,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		IRTrans *pIRTrans = new IRTrans(PK_Device, sRouter_IP,true,bLocalMode);
+		pIRTrans->m_sPort = sPort;
 		if ( pIRTrans->GetConfig() && pIRTrans->Connect(pIRTrans->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pIRTrans;
