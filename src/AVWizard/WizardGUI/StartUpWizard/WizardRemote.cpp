@@ -27,6 +27,7 @@ void RemoteProcess::Start(string sCmd)
 	switch (pid)
 	{
 		case 0: /* child */
+			chdir("/usr/pluto/bin");
 			system(m_sCmd.c_str()); // too lazy to split and execv :)
 			_exit(0);
 			break;
