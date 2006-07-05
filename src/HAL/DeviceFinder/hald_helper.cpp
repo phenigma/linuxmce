@@ -2,6 +2,8 @@
 #include "hald_helper.h"
 #include <iostream>
 
+#include "PlutoUtils/LinuxSerialUSB.h"
+
 using namespace std;
 DBusError HalDHelper::halError;
 
@@ -29,6 +31,8 @@ void HalDHelper::getPortIdentification(string portFromBus, string& portID)
 		portID = portFromBus.substr(startPos, usbPos - startPos);
 		portID += "+";
 		portID += portFromBus.substr(minus + 1, colon - minus - 1);
+		
+		portID = TranslateSerialUSB( portID );
 		//g_pPlutoLogger->Write(LV_DEBUG, "port ID = %s\n", portID.c_str());
 	}
 }
@@ -64,17 +68,20 @@ void HalDHelper::InternalFindDevice(LibHalContext * ctx, const std::map<unsigned
 			map<unsigned long, vector<string> >::const_iterator it = mapDevices.find(uiSerialID);
 			if( it != mapDevices.end() )
 			{
+				gchar *serialDevice = libhal_device_get_property_string (ctx, udi, "serial.device", NULL);
 				gchar *serial_port = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "linux.sysfs_path", NULL);
-				if(serial_port != NULL)
+				if(serial_port != NULL && serialDevice != NULL)
 				{
-					string portID;
-					getPortIdentification(string(serial_port), portID);
-					cout << portID << "|" 
+//					string portID;
+//					getPortIdentification(string(serial_port), portID);
+					cout << serialDevice << "|" 
 						<< it->second[fnPK_DeviceTemplate] << "|" 
 						<< it->second[fnDescription] << "|" 
 						<< it->second[fnName] << endl; 
 				}
 				
+				g_free (serialDevice);
+				serialDevice = NULL;
 				g_free (serial_port);
 				serial_port = NULL;
 			}
