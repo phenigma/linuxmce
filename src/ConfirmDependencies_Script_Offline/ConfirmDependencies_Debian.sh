@@ -133,10 +133,10 @@ case "$URL_TYPE" in
 					rm /var/lib/dpkg/statoverride
 					cp /var/lib/dpkg/statoverride-old /var/lib/dpkg/statoverride-old
 
-					apt-get -f install
+					apt-get -f -y install
 				fi
 
-				apt-get -f install
+				apt-get -f -y install
 				apt-get -y --reinstall install "$PKG_NAME"
                                 apt_err=$?
 
