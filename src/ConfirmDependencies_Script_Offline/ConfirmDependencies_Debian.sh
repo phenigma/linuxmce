@@ -93,15 +93,57 @@ case "$URL_TYPE" in
 		results=$(cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep -v "^#" | egrep -c -- "$FilteredRepos.+$REPOS.+$SECTIONS" 2>/dev/null)
 		if [ "$results" -eq 0 ]; then
 			echo "deb $FilteredRepos $REPOS $SECTIONS" >>/etc/apt/sources.list
+		
+			count="0"
 			apt-get update
-#			[ "$Type" == "router" ] && apt-proxy-import-simple /usr/pluto/install/deb-cache
+			apt_err=$?
+
+			## NFS Error fallback
+			while [[ "$apt_err" != "0" && "$count" != "3" ]] ;do
+				apt-get update
+				apt_err=$?
+
+				count=$(( $count + 1 ))
+			done
 		fi
 
 		if ! PackageIsInstalled "$PKG_NAME"; then
-			#export http_proxy="http://dcerouter:8123"
-			if ! apt-get -y --reinstall install "$PKG_NAME"; then
-				echo "$0: Apt error" >&2
-				exit $ERR_APT
+
+			count="0"
+			apt-get -y --reinstall install "$PKG_NAME"
+			apt_err=$?			
+
+			## NFS Error fallback
+			while [[ "$apt_err" != "0" && "$count" != "3" ]] ;do
+				case "$apt_err" in
+					"139" | "135" ) 
+						## Segmentation fault recovery 139
+						## Bus error recovery 135
+						echo -n ""
+					;;
+					"100")
+						## Posible dpkg/status error
+						dpkg -l test
+						dpkg_err=$?
+					
+						if [[ "$dpkg_err" == "2" ]] ;then
+							## It was a dpkg/status error , fixing
+							mv /var/lib/dpkg/status-old /var/lib/dpkg/status
+							apt-get -f install
+						fi
+					;;
+				esac
+
+				apt-get -y --reinstall install "$PKG_NAME"
+                                apt_err=$?
+
+				count=$(( $count + 1 ))
+			done
+
+	
+			if [[ "$apt_err" != "0" ]] ;then
+				echo "Problem installing $PKG_NAME ($apt_err)"
+				exit $apt_err
 			fi
 
 			#unset http_proxy
