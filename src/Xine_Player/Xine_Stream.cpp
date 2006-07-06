@@ -111,6 +111,12 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	m_pXineStreamEventQueue = NULL;
 	
 	m_pDynamic_Pointer = new Dynamic_Pointer(this, &cursors[0], &cursors[1]);
+	
+	// creating window
+	if ( !CreateWindows() )
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "Stream output window creation failed");
+	}
 }
 
 Xine_Stream::~Xine_Stream()
@@ -124,13 +130,7 @@ bool Xine_Stream::StartupStream()
 {
 	if (m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Double stream initialization attempted - aborting command");
-		return false;
-	}
-
-	if ( !CreateWindows() )
-	{
-		g_pPlutoLogger->Write( LV_WARNING, "Stream output window creation failed");
+		g_pPlutoLogger->Write( LV_WARNING, "Double stream initialization attempted - skipping");
 		return false;
 	}
 	
@@ -161,6 +161,9 @@ bool Xine_Stream::ShutdownStream()
 	
 	playbackCompleted(false );
 	
+	DisableDeinterlacing();
+	DisableVisualizing();
+	
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_bInitialized = false; 
@@ -178,6 +181,7 @@ bool Xine_Stream::ShutdownStream()
 
 		pthread_join( threadEventLoop, NULL );
 		g_pPlutoLogger->Write( LV_STATUS, "Done." );
+		threadEventLoop = NULL;
 	}
 	
 	if ( m_pXineStreamEventQueue )

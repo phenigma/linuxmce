@@ -258,7 +258,12 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 		
 		map<int, Xine_Stream*>::iterator stream = streamsMap.find(streamID);
 		if (stream != streamsMap.end())
-			return (*stream).second;
+		{
+			Xine_Stream *pStream = (*stream).second;
+			pStream->StartupStream();
+			g_pPlutoLogger->Write(LV_WARNING,"Opened stream AV with ID=%i", streamID);
+			return pStream;
+		}
 	}
 		
 	if (createIfNotExist)
@@ -327,6 +332,29 @@ void Xine_Stream_Factory::DestroyStream(int iStreamID)
 	}
 	
 	g_pPlutoLogger->Write(LV_WARNING,"Destroyed stream with ID=%i", iStreamID);
+}
+
+void Xine_Stream_Factory::CloseStreamAV(int iStreamID)
+{
+	Xine_Stream *pStream = NULL;
+	map<int, Xine_Stream*>::iterator stream;
+	
+	{	
+		PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
+		stream = streamsMap.find(iStreamID);
+		
+		if (stream != streamsMap.end())
+		{
+			pStream = (*stream).second;
+		}
+	}
+	
+	if (pStream)
+	{
+		pStream->ShutdownStream();
+	}
+	
+	g_pPlutoLogger->Write(LV_WARNING,"Closed stream AV with ID=%i", iStreamID);
 }
 
 } // DCE namespace end

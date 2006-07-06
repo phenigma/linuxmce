@@ -70,6 +70,8 @@ namespace DCE
 			void ReportTimecode(int iStreamID, int Speed);
 			void ReportAVInfo( string sFilename, int iStreamID, string sMediaInfo, string sAudioInfo, string sVideoInfo );
 			
+			void CloseStreamAV(int iStreamID);
+			
 			void DestroyStream(int iStreamID);
 	};
 
