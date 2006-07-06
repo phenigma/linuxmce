@@ -68,7 +68,7 @@ fi
 
 # Last line of output is our result
 if [[ -n "$RemotePort" ]]; then
-	echo "/usr/pluto/bin/$CommandLine -p $RemotePort -l /var/log/pluto/avremote.log -d -1003 -H $DCERouter -P $AVWizard_Port"
+	echo "/usr/pluto/bin/$CommandLine -p $RemotePort -l /var/log/pluto/avremote.log -r $DCERouter -d -1003 -H localhost -P $AVWizard_Port"
 else
 	echo "" # no remote
 fi
