@@ -25,16 +25,14 @@ namespace DCE
 class UnknownDeviceInfos
 {
 public:
-    class DeviceData_Router *m_pDeviceFrom;
     int m_iDeviceIDFrom;
     string m_sID;
     bool m_bProcessed;
     int m_iPK_DeviceTemplate;
 	bool m_bAppSent;
 
-    UnknownDeviceInfos(class DeviceData_Router *pDeviceFrom, int iDeviceIDFrom, string sID)
+    UnknownDeviceInfos(int iDeviceIDFrom, string sID)
     {
-        m_pDeviceFrom = pDeviceFrom;
         m_iDeviceIDFrom = iDeviceIDFrom;
         m_sID = sID;
         m_bProcessed = false;
@@ -94,8 +92,8 @@ public:
         return it == m_mapUnknownDevices.end() ? NULL : (*it).second;
     }
 
-	void SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDevice_Dongle, string sMacAddress);
-	long GetAppServerAssociatedWithDevice(DeviceData_Base *pDevice);
+	void SendAppToPhone(OH_Orbiter *pOH_Orbiter,int nDeviceID, string sMacAddress);
+	long GetAppServerAssociatedWithDevice(int nDeviceID);
 
 	//from command_impl class
 	virtual bool PendingTasks(vector<string> *vectPendingTasks=NULL);

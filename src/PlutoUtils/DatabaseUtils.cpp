@@ -413,3 +413,17 @@ bool DatabaseUtils::AlreadyHasRooms(MySqlHelper *pMySqlHelper,int PK_Installatio
 		return true;
 	return false;
 }
+
+long DatabaseUtils::GetRoomForDevice(MySqlHelper *pMySqlHelper, int nPK_Device)
+{
+	string sSQL = "SELECT PK_Room FROM Device LEFT JOIN Room "
+		"ON FK_Room=PK_Room AND Device.FK_Installation=Room.FK_Installation "
+		"WHERE PK_Device = " + StringUtils::ltos(nPK_Device);  
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if((result_set.r = pMySqlHelper->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0])
+		return row[0] != NULL ? atoi(row[0]) : 0;
+
+	return 0;
+}

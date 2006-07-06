@@ -74,6 +74,7 @@ using namespace DCE;
 #include "Gen_Devices/AllScreens.h"
 #include "pluto_main/Define_Screen.h"
 #include "SerializeClass/ShapesColors.h"
+#include "PlutoUtils/DatabaseUtils.h"
 
 #include "PopulateListsInVMC.h"
 
@@ -518,10 +519,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
     if (NULL == pDeviceFrom)
     {
         g_pPlutoLogger->Write(LV_WARNING, "Got orbiter detected, but pDeviceFrom is NULL. "
-			"We are assuming that it's a bluetooth_dongle and the router wasn't reloaded, "
-			"so we'll fake it and say the OrbiterPlugin reported the event");
-
-		pDeviceFrom = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
+			"We are assuming that it's a bluetooth_dongle and the router wasn't reloaded");
     }
 
     string sMacAddress = pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST];
@@ -552,7 +550,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
             {
                 PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
                 if(NULL == m_mapUnknownDevices_Find(sMacAddress))
-                    m_mapUnknownDevices[sMacAddress] = new UnknownDeviceInfos((DeviceData_Router *) pDeviceFrom, pMessage->m_dwPK_Device_From, sID);  // We need to remember who detected this device
+                    m_mapUnknownDevices[sMacAddress] = new UnknownDeviceInfos(pMessage->m_dwPK_Device_From, sID);  // We need to remember who detected this device
                 mm.Release();
 
 				g_pPlutoLogger->Write(LV_STATUS,"Need to process.  Bit flag is: %d",(int) m_bNoUnknownDeviceIsProcessing);
@@ -564,7 +562,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
             {
                 //this is a known 'unknown device' :)
                 g_pPlutoLogger->Write(LV_STATUS, "Skipping detection of %s. It is an 'unknown device'",sMacAddress.c_str());
-                DCE::CMD_Ignore_MAC_Address CMD_Ignore_MAC_Address(m_dwPK_Device, pDeviceFrom->m_dwPK_Device, sMacAddress);
+                DCE::CMD_Ignore_MAC_Address CMD_Ignore_MAC_Address(m_dwPK_Device, pMessage->m_dwPK_Device_From, sMacAddress);
                 SendCommand(CMD_Ignore_MAC_Address);
             }
 				
@@ -573,7 +571,10 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
     else
     {
 	    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
-        if(pOH_Orbiter->m_pDevice_CurrentDetected == pDeviceFrom)
+        if(
+			NULL != pOH_Orbiter->m_pDevice_CurrentDetected && 
+			pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device == pMessage->m_dwPK_Device_From
+		)
         {
             int SignalStrength = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Signal_Strength_CONST].c_str());
             pOH_Orbiter->m_iLastSignalStrength = SignalStrength;
@@ -646,10 +647,10 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
             {
                 //the current signal strength and the last signal strength are lower then the thresh hold
                 g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s told to link with %d (%d,%d,%d)", sMacAddress.c_str(),
-                    pDeviceFrom->m_dwPK_Device, iOldSignalStrength, iCurrentSignalStrength, m_iThreshHold);
+                    pMessage->m_dwPK_Device_From, iOldSignalStrength, iCurrentSignalStrength, m_iThreshHold);
 
 				if( pOH_Orbiter->NeedApp())
-					SendAppToPhone( pOH_Orbiter, pDeviceFrom, sMacAddress );
+					SendAppToPhone( pOH_Orbiter, pMessage->m_dwPK_Device_From, sMacAddress );
 
                 string sVmcFileToSend = "";
                 if(pOH_Orbiter->NeedVMC())
@@ -660,32 +661,32 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 
 				if(NULL != pOH_Orbiter->m_pDevice_CurrentDetected)
 				{
-                    //allow only 'pDeviceFrom->m_dwPK_Device' device to connect to PlutoMO in EXPIRATION_INTERVAL sec.
+                    //allow only 'pMessage->m_dwPK_Device_From' device to connect to PlutoMO in EXPIRATION_INTERVAL sec.
                     //this will prevent other dongle to connect to PlutoMO while it is disconnected and
-                    //it is waiting for the 'pDeviceFrom->m_dwPK_Device' to connect
+                    //it is waiting for the 'pMessage->m_dwPK_Device_From' to connect
                     //if that device will not connect to PlutoMO in EXPIRATION_INTERVAL seconds, any other device 
                     //will be allowed to connect to PlutoMO.
                     PLUTO_SAFETY_LOCK(ac, m_AllowedConnectionsMutex);
-                    m_mapAllowedConnections[sMacAddress] = new AllowedConnections(time(NULL) + EXPIRATION_INTERVAL, pDeviceFrom->m_dwPK_Device);
+                    m_mapAllowedConnections[sMacAddress] = new AllowedConnections(time(NULL) + EXPIRATION_INTERVAL, pMessage->m_dwPK_Device_From);
                     ac.Release();
 
-                    g_pPlutoLogger->Write(LV_WARNING, "Only %d dongle will be allow to connect to %s phone in %d seconds", pDeviceFrom->m_dwPK_Device,
+                    g_pPlutoLogger->Write(LV_WARNING, "Only %d dongle will be allow to connect to %s phone in %d seconds", pMessage->m_dwPK_Device_From,
                         sMacAddress.c_str(), EXPIRATION_INTERVAL);
 
                     //this dongle will send a link with mobile orbiter when it has finished disconnecting
 					DCE::CMD_Disconnect_From_Mobile_Orbiter cmd_Disconnect_From_Mobile_Orbiter(
 						m_dwPK_Device, pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
-						sMacAddress,sVmcFileToSend,pDeviceFrom->m_dwPK_Device,pOH_Orbiter->m_sConfigFile); 
+						sMacAddress,sVmcFileToSend,pMessage->m_dwPK_Device_From,pOH_Orbiter->m_sConfigFile); 
 					SendCommand(cmd_Disconnect_From_Mobile_Orbiter);
 				}
 				else 
 				{
-                    if(!ConnectionAllowed(pDeviceFrom->m_dwPK_Device, sMacAddress))
+                    if(!ConnectionAllowed(pMessage->m_dwPK_Device_From, sMacAddress))
                         return false;
 
                      //Only do this if there's no other dongle
 					DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
-						m_dwPK_Device, pDeviceFrom->m_dwPK_Device, 
+						m_dwPK_Device, pMessage->m_dwPK_Device_From, 
 						sMacAddress, sVmcFileToSend, pOH_Orbiter->m_sConfigFile);
 					SendCommand(CMD_Link_with_mobile_orbiter);
 				}
@@ -753,7 +754,7 @@ g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH
 		if( pOH_Orbiter->m_tSendAppTime && time(NULL)-pOH_Orbiter->m_tSendAppTime<900 )
 			g_pPlutoLogger->Write(LV_STATUS,"We already tried to send app to phone %s within the last 15 minutes",sMacAddress.c_str());
 		else
-			SendAppToPhone(pOH_Orbiter,pDeviceFrom, sMacAddress);
+			SendAppToPhone(pOH_Orbiter,pDeviceFrom->m_dwPK_Device, sMacAddress);
 	}
 
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
@@ -1001,14 +1002,6 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 		{
 			// We know this is a mobile mobile, since it was detected by bluetooth, but we can't identify the make
 			// So we must ask the user, on whatever orbiter he made this selection with
-			/*
-			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuWhatModelMobileOrbiter_CONST),
-				"","",false,true);
-		    DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device, pMessage->m_dwPK_Device_From, VARIABLE_Misc_Data_1_CONST, sMac_address);
-			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
-			SendCommand(CMD_Goto_DesignObj);
-			*/
-
 			DCE::SCREEN_WhatModelMobileOrbiter  SCREEN_WhatModelMobileOrbiter(m_dwPK_Device, pMessage->m_dwPK_Device_From, sMac_address);
 			SendCommand(SCREEN_WhatModelMobileOrbiter);
 
@@ -1109,8 +1102,9 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
     }
 
     int iFK_Room = 1;
-    if( pUnknownDeviceInfos && pUnknownDeviceInfos->m_iDeviceIDFrom && pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom)
-        iFK_Room = pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom->m_dwPK_Room;
+
+	if(NULL != pUnknownDeviceInfos)
+		iFK_Room = DatabaseUtils::GetRoomForDevice(m_pDatabase_pluto_main, pUnknownDeviceInfos->m_iDeviceIDFrom);
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
 	int PK_Device = createDevice.DoIt(0,iPK_DeviceTemplate,"",sMac_address);
@@ -1189,7 +1183,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
         string sPlutoMOInstallCmdLine = pRow_DeviceTemplate->Comments_get();
 		sPlutoMOInstallCmdLine = StringUtils::Replace(sPlutoMOInstallCmdLine, csMacToken, sMac_address);
 
-		long dwPK_AppServer = GetAppServerAssociatedWithDevice(pUnknownDeviceInfos->m_pDeviceFrom);
+		long dwPK_AppServer = GetAppServerAssociatedWithDevice(pUnknownDeviceInfos->m_iDeviceIDFrom);
 		if(dwPK_AppServer > 0)
 			CMD_Send_File_To_Phone(sMac_address, sPlutoMOInstallCmdLine, dwPK_AppServer);
 
@@ -1984,11 +1978,12 @@ void Orbiter_Plugin::SetBoundIcons(int iPK_Users,bool bOnOff,string sType)
 	}
 }
 
-void Orbiter_Plugin::SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDevice_Dongle, string sMacAddress)
+void Orbiter_Plugin::SendAppToPhone(OH_Orbiter *pOH_Orbiter, int nDeviceID, string sMacAddress)
 {
     g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - NeedApp: %d, NeedVMC: %d,  version: / %s / %s",
 		(int) pOH_Orbiter->NeedApp(),(int) pOH_Orbiter->NeedVMC(),
         g_sLatestMobilePhoneVersion.c_str(),pOH_Orbiter->m_sVersion.c_str());
+
 	pOH_Orbiter->m_sVersion = g_sLatestMobilePhoneVersion;
 	pOH_Orbiter->NeedApp(false);
 	pOH_Orbiter->m_tSendAppTime = time(NULL);
@@ -1998,14 +1993,16 @@ void Orbiter_Plugin::SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDe
     string sPlutoMOInstallCmdLine = pRow_DeviceTemplate->Comments_get();
     sPlutoMOInstallCmdLine = StringUtils::Replace(sPlutoMOInstallCmdLine, csMacToken, sMacAddress);
 
-	long dwPK_AppServer = GetAppServerAssociatedWithDevice(pDevice_Dongle);
+	long dwPK_AppServer = GetAppServerAssociatedWithDevice(nDeviceID);
 	if(dwPK_AppServer > 0)
 		CMD_Send_File_To_Phone(sMacAddress, sPlutoMOInstallCmdLine, dwPK_AppServer);
 }
 
-long Orbiter_Plugin::GetAppServerAssociatedWithDevice(DeviceData_Base *pDevice)
+long Orbiter_Plugin::GetAppServerAssociatedWithDevice(int nDeviceID)
 {
-	DeviceData_Base *pDevice_MD = pDevice->m_pDevice_MD;
+	int nDeviceMD_ID = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main, nDeviceID);
+	DeviceData_Base *pDevice_MD = this->m_pRouter->m_mapDeviceData_Router_Find(nDeviceMD_ID);
+
 	if(NULL != pDevice_MD)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Searching for a App_Server associated to device %d", pDevice_MD->m_dwPK_Device);
@@ -2030,7 +2027,7 @@ long Orbiter_Plugin::GetAppServerAssociatedWithDevice(DeviceData_Base *pDevice)
 			g_pPlutoLogger->Write(LV_CRITICAL, "Got the MD %d, but couldn't find the App_Server on it.", pDevice_MD->m_dwPK_Device);
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't find the App_Server for %d's MD/HY", pDevice->m_dwPK_Device);
+		g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't find the App_Server for %d's MD/HY", nDeviceID);
 
 	return 0;
 }
