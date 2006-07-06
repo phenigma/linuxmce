@@ -153,7 +153,7 @@ Done=0
 while [[ "$Done" -eq 0 ]]; do
 	CleanUp
 	SetDefaults
-	"$BaseDir"/AVWizardWrapper.sh
+	"$BaseDir"/AVWizardWrapper.sh >/var/log/pluto/AVWizard.log
 	Ret="$?"
 	case "$Ret" in
 		0) Done=1 ;;
