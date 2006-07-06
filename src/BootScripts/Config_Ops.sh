@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ -n "$HEADER_Config_Ops" ]]; then
+	return 0
+fi
+HEADER_Config_Ops=included
+
 NoSpace="s/ //g"
 LogSectionDelimiter="========== NEW LOG SECTION =========="
 ConfForbiddenNameChars="=\\"

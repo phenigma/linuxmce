@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ -n "$HEADER_LockUtils" ]]; then
+	return 0
+fi
+HEADER_LockUtils=included
+
 # TODO: real locks, with PID and locking host inside to detect stale locks
 
 # Note: when a process is killed, these locks remain active

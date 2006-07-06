@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ -n "$HEADER_Utils" ]]; then
+	return 0
+fi
+HEADER_Utils=included
+
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
 
