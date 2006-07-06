@@ -135,6 +135,12 @@ case "$URL_TYPE" in
 					rm /var/lib/dpkg/statoverride
 					cp /var/lib/dpkg/statoverride-old /var/lib/dpkg/statoverride-old
 
+					rm /var/cache/apt/*.bin
+					rm /var/cache/apt/archives/*.deb
+					
+					apt-get update 2>/dev/null 1>/dev/null
+					apt-get update 2>/dev/null 1>/dev/null
+
 					apt-get -f -y install
 				fi
 
