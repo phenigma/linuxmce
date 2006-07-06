@@ -227,10 +227,6 @@ void Wizard::EvaluateEvent(WM_Event& Event)
 {
 	SafetyLock Lock(&SafeMutex);
 
-	WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
-	AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
-	AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
-
 #ifdef DEBUG
 	std::cout<<"Key pressed: ";
 #endif
@@ -241,64 +237,71 @@ void Wizard::EvaluateEvent(WM_Event& Event)
 		std::cout<<"Quit"<<std::endl;
 #endif
 		Quit = true;
-		return;
+		break;
 	case WMET_LEFT_KEY:
 #ifdef DEBUG
 		std::cout<<"Left"<<std::endl;
 #endif
 		DoDecreaseAction();
-		return;
+		break;
 	case WMET_RIGHT_KEY:
 #ifdef DEBUG
 		std::cout<<"Right"<<std::endl;
 #endif
 		DoIncreaseAction();
-		return;
+		break;
 	case WMET_UP_KEY:
 #ifdef DEBUG
 		std::cout<<"Up"<<std::endl;
 #endif
 		DoChangeActionBefore();
-		return;
+		break;
 	case WMET_DOWN_KEY:
 #ifdef DEBUG
 		std::cout<<"Down"<<std::endl;
 #endif
 		DoChangeActionAfter();
-		return;
+		break;
 	case WMET_ENTER_KEY:
 #ifdef DEBUG
 		std::cout<<"Enter"<<std::endl;
 #endif
 		DoApplyScreen(AVWizardOptions->GetDictionary());
-		return;
+		break;
 	case WMET_PLUS_KEY:
 #ifdef DEBUG
 		std::cout<<"ZoomIn"<<std::endl;
 #endif
 		ZoomIn();
-		return;
+		break;
 	case WMET_MINUS_KEY:
 #ifdef DEBUG
 		std::cout<<"ZoomOut"<<std::endl;
 #endif
 		ZoomOut();
-		return;
+		break;
 	case WMET_SAVE:
 #ifdef DEBUG
 		std::cout<<"Save exit code"<<std::endl;
 #endif
 		AVWizardOptions->GetDictionary()->Set("ExitCode", this->ExitCode);
 		AVWizardOptions->SaveToXMLFile(WizardCommandLineParser::GetInstance()->ConfigFileDefault);
-		return;
+		break;
 	case WMET_ESCAPE_KEY:
 #ifdef DEBUG
 		std::cout<<"Escape"<<std::endl;
 #endif
 		DoCancelScreen();
-		return;
+		break;
 	default:
 		StatusChange = false;
+	}
+
+	WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
+	if (StatusChange)
+	{
+		AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
+		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 	}
 }
 
