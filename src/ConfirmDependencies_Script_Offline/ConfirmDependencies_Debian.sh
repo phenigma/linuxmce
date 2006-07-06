@@ -144,6 +144,8 @@ case "$URL_TYPE" in
 					apt-get -f -y install
 				fi
 
+				rm /var/cache/apt/archives/*.deb
+				
 				apt-get -f -y install
 				apt-get -y --reinstall install "$PKG_NAME"
                                 apt_err=$?
