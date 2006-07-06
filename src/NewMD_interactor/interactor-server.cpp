@@ -8,7 +8,7 @@
 #include <string>
 using namespace std;
 
-char sDT_Generic_PC_as_MD[] = "28";
+#define sDT_Generic_PC_as_MD "28"
 
 int main()
 {
@@ -75,7 +75,7 @@ int main()
 
 				sscanf(buffer, "%*s %s %s", remoteIP, remoteMAC);
 
-				char * args[] = { "/usr/pluto/bin/MessageSend", "localhost", "0", "-1000", "2", "65",
+				char * args[] = { "/usr/pluto/bin/MessageSend", "localhost", "0", "-1001", "2", "65",
 					"28", remoteIP, "5", remoteMAC, "52", "3", "53", "5", "49", sDT_Generic_PC_as_MD,
 					"55", "9|1",
 					NULL };
