@@ -94,6 +94,13 @@ void Wizard::MainLoop()
 	{
 		int Port = Utils::StringToInt32( AVWizardOptions->GetDictionary()->GetValue("RemoteAVWizardServerPort"));
 		Server.StartServer(Port);
+
+		if (AVWizardOptions->GetDictionary()->Exists("RemoteCmd"))
+		{
+			RemoteCmd = AVWizardOptions->GetDictionary()->
+				GetValue("RemoteCmd");
+			m_WizardRemote.Start(RemoteCmd);
+		}
 	}
 
 	if(AVWizardOptions->GetDictionary()->Exists("WizardBorder"))
@@ -113,14 +120,6 @@ void Wizard::MainLoop()
 		TopBorder = Utils::StringToInt32( AVWizardOptions->GetDictionary()->
 			GetValue("TopBorder"));
 	}
-
-	if (AVWizardOptions->GetDictionary()->Exists("RemoteCmd"))
-	{
-		RemoteCmd = AVWizardOptions->GetDictionary()->
-			GetValue("RemoteCmd");
-	}
-
-	m_WizardRemote.Start(RemoteCmd);
 
 	PaintStatus();
 	while(!Quit)
