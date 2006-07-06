@@ -515,10 +515,13 @@ bool Orbiter_Plugin::IdentifyDevice(const string& sMacAddress, string &sDeviceCa
 
 bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
-    if (!pDeviceFrom)
+    if (NULL == pDeviceFrom)
     {
-        g_pPlutoLogger->Write(LV_WARNING,"Got orbiter detected, but pDeviceFrom is NULL");
-        return false;
+        g_pPlutoLogger->Write(LV_WARNING, "Got orbiter detected, but pDeviceFrom is NULL. "
+			"We are assuming that it's a bluetooth_dongle and the router wasn't reloaded, "
+			"so we'll fake it and say the OrbiterPlugin reported the event");
+
+		pDeviceFrom = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
     }
 
     string sMacAddress = pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST];
