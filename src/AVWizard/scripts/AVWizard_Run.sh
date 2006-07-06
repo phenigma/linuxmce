@@ -158,7 +158,15 @@ UpdateOrbiterDimensions()
 	Q="UPDATE Device SET NeedConfigure=1 WHERE PK_Device='$OrbiterDev'"
 	RunSQL "$Q"
 
+	# Restart X
 	/usr/pluto/bin/MessageSend "$DCERouter" -targetType template "$OrbiterDev" "$DEVICETEMPLATE_OrbiterPlugin" 1 266 2 "$OrbiterDev" 21 "-r" 24 Y
+	ReloadDevicesOnThisMachine
+	pidOfX=$(ps ax|grep 'X :0 -ac -allowMouseOpenFail vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
+	if [[ -n "$pidOfX" ]]; then
+		kill $pidOfX
+		sleep 5
+		/usr/pluto/bin/Start_X.sh
+	fi
 }
 
 RemoteCmd=$(/usr/pluto/bin/AVWizard_Remote_Detect.sh | tail -1)
