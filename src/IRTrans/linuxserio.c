@@ -9,6 +9,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <stdlib.h>
+#include <sys/file.h>
 
 #include "remote.h"
 #include "errcode.h"
@@ -59,7 +61,8 @@ int WriteSerialStringEx (DEVICEINFO *dev,byte pnt[],int len)
 
 int ReadSerialStringEx (DEVICEINFO *dev,byte pnt[],int len,word timeout)
 {
-	int bytes,total = 0;
+	int bytes = 0;
+	int total = 0;
 	struct timeval tv;
 	fd_set fs;
 
@@ -69,11 +72,18 @@ int ReadSerialStringEx (DEVICEINFO *dev,byte pnt[],int len,word timeout)
 		tv.tv_sec = timeout / 1000;
 		tv.tv_usec = (timeout % 1000) * 1000;
 		bytes = select (dev->io.comport+1,&fs,NULL,NULL,&tv);
-		if (!bytes) return (total);
+		
+		// 0 bytes or error
+		if( bytes <= 0 )
+		{
+			return total;
+		}
+		
 		bytes = read (dev->io.comport,pnt+total,len-total);
 		total += bytes;
-		}
-	return (total);
+	}
+	
+	return total;
 }
 
 void FlushCom ()
@@ -113,7 +123,6 @@ void FlushComEx(HANDLE fp)
 
 int OpenSerialPortEx (char Pname[],int *port)
 {
-	int res,flg;
 	struct termios portterm;
 	if ((*port = open(Pname, O_RDWR | O_NOCTTY)) < 0) return (ERR_OPEN);
  
