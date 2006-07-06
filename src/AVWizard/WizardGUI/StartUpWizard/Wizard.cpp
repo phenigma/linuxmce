@@ -126,9 +126,6 @@ void Wizard::MainLoop()
 	{
 		while (!(Quit) && (FrontEnd->HasEventPending()))
 		{
-			AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
-			AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
-
 			FrontEnd->TranslateEvent( Event);
 			if(Event.Type)
 				EvaluateEvent(Event);
@@ -224,6 +221,9 @@ void Wizard::DoCancelScreen()
 void Wizard::EvaluateEvent(WM_Event& Event)
 {
 	SafetyLock Lock(&SafeMutex);
+
+	AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
+	AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 
 #ifdef DEBUG
 	std::cout<<"Key pressed: ";
