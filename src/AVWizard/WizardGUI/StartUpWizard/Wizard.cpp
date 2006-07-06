@@ -32,7 +32,7 @@ void signal_handler(int signal)
 			std::cout<<"Signal SIGPIPE treated"<<std::endl;
 			break;
 		case SIGUSR1:
-			std::cout<<"Signal SIGUSR1 treated"<<std::endl;
+			std::cout<<"Signal SIGUSR1 treated at step " << Wizard::GetInstance()->CurrentPage <<std::endl;
 			Wizard::GetInstance()->SetExitWithCode(2);
 			Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Set("InterruptedStep", Wizard::GetInstance()->CurrentPage);
 			break;
