@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/Config_Ops.sh
 
 FindDevice_Template()
 {
@@ -171,4 +172,11 @@ GetVideoDriver()
 		"") VideoDrivers="vesa" ;; # just-in-case default
 	esac
 	echo "$VideoDriver"
+}
+
+ReloadDevicesOnThisMachine()
+{
+	for Dev in $(cat /usr/pluto/locks/pluto_spawned_local_devices.txt); do
+		/usr/pluto/bin/MessageSend "$DCERouter" 0 "$Dev" 7 1
+	done
 }
