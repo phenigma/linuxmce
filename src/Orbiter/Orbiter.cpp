@@ -5904,7 +5904,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 		g_pPlutoLogger->Write(LV_WARNING, "CMD_Set_Now_Playing : Default ripping name is empty");
 #endif
 
-		m_sDefaultRippingName = "<%=T1197%>";
+		m_sDefaultRippingName = "Unknown disk"; // "<%=T1197%>";
 	}
 
 	m_sNowPlaying_TimeShort="";
