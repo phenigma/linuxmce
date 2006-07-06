@@ -123,6 +123,16 @@ case "$URL_TYPE" in
 					## It was a dpkg/status error , fixing
 					rm /var/lib/dpkg/status
 					cp /var/lib/dpkg/status-old /var/lib/dpkg/status
+
+					rm /var/lib/dpkg/available
+					cp /var/lib/dpkg/available-old /var/lib/dpkg/available
+
+					rm /var/lib/dpkg/diversions
+					cp /var/lib/dpkg/diversions-old /var/lib/dpkg/diversions
+
+					rm /var/lib/dpkg/statoverride
+					cp /var/lib/dpkg/statoverride-old /var/lib/dpkg/statoverride-old
+
 					apt-get -f install
 				fi
 
