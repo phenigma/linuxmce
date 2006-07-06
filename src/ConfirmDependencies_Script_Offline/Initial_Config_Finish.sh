@@ -38,8 +38,10 @@ a lot of new devices, and builds user interfaces for any Orbiters.
 If you are an advanced Linux user and want to access a terminal before the
 reboot, press ALT+F2.  Otherwise..."
 Key="the Enter key"
+Delay=10
 #Key="OK"
-Message2="Press $Key to reboot and startup your new Pluto $SysType."
+Message2="Press $Key to reboot and startup your new Pluto $SysType.
+The system will automatically reboot after $Delay seconds"
 
 Message24="
 [1;5;31m*** WARNING ***[0m You installed the system using the 2.4 kernel.
@@ -78,5 +80,5 @@ Kver=$(uname -r)
 if [ "${Kver:0:4}" == "2.4." ]; then
 	echo "$Message24"
 fi
-read
+read -t $Delay
 #MessageBox "$Message1" "$Message2" "$Message3"
