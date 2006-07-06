@@ -147,7 +147,7 @@ UpdateOrbiterDimensions()
 	/usr/pluto/bin/MessageSend "$DCERouter" -targetType template "$OrbiterDev" "$DEVICETEMPLATE_OrbiterPlugin" 1 266 2 "$OrbiterDev" 21 "-r" 24 Y
 }
 
-RemoteCmd=$(/usr/pluto/bin/AVWizard_Remote_Detect.sh)
+RemoteCmd=$(/usr/pluto/bin/AVWizard_Remote_Detect.sh | tail -1)
 
 Done=0
 while [[ "$Done" -eq 0 ]]; do
