@@ -33,7 +33,7 @@ if ! /usr/pluto/bin/Xconfigure.sh --conffile /etc/X11/xorg.conf.test --resolutio
 	exit 10
 fi
 
-X :1 -ac -config /etc/X11/xorg.conf.test &
+X :1 -ac -config /etc/X11/xorg.conf.test </dev/null &>/dev/null &
 pidOfX=
 Timeout=5
 while [[ -z "$pidOfX" && $Timeout > 0 ]]; do
@@ -53,7 +53,7 @@ refresh="${setting:39:4}"
 #DISPLAY=:1 Xdialog --default-no --yesno "Current resolution: $resolution @ $refresh Hz\nIs this OK?" 0x0
 Msg="Current resolution: $resolution @ $refresh Hz"
 echo "$Msg"
-ShowDialog "$pidOfX" "$Msg" &
+ShowDialog "$pidOfX" "$Msg" </dev/null &>/dev/null &
 
 disown -a
 exit 0
