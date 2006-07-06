@@ -41,7 +41,7 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 
 /*virtual*/ void WizardPageVideoRatio::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
-	system(SkinGenerator::Instance()->CommandSetRatio4_3.c_str());
+	system(SkinGenerator::Instance()->CommandResetResolution.c_str());
 	if(!AVWizardSettings->Exists("Video_Ratio"))
 	{
 		RatioMode = 0;

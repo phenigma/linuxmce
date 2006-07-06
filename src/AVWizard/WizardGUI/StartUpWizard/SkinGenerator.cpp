@@ -30,6 +30,7 @@ void SkinGenerator::SetSkinEnvironment(std::string SkinName)
 	CommandSetRatio = "/usr/pluto/bin/AVWizard_UpdateResolution.sh";
 	CommandSetRatio4_3 = CommandSetRatio + " 4_3";
 	CommandSetRatio16_9 = CommandSetRatio + " 16_9";
+	CommandResetResolution = CommandSetRatio + " reset";
 
 	StepFontColorHighlight = "FFFFFF";
 	StepFontColorStandard = "000000";

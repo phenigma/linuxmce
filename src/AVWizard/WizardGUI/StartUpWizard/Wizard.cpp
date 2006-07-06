@@ -26,6 +26,7 @@
 #ifndef WIN32
 void signal_handler(int signal)
 {
+	WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
 	switch (signal)
 	{
 		case SIGPIPE:
@@ -36,7 +37,13 @@ void signal_handler(int signal)
 			Wizard::GetInstance()->SetExitWithCode(2);
 			Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Set("InterruptedStep", Wizard::GetInstance()->CurrentPage);
 			
-			WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
+			Wizard::GetInstance()->AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
+			break;
+		case SIGUSR2:
+			std::cout<<"Signal SIGUSR2 treated at step " << Wizard::GetInstance()->CurrentPage <<std::endl;
+			Wizard::GetInstance()->SetExitWithCode(2);
+			Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Set("InterruptedStep", -Wizard::GetInstance()->CurrentPage);
+			
 			Wizard::GetInstance()->AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 			break;
 	}
@@ -72,6 +79,7 @@ Wizard::Wizard()
 
 #ifndef WIN32
 	signal(SIGUSR1, signal_handler);
+	signal(SIGUSR2, signal_handler);
 	signal(SIGPIPE, signal_handler);
 #endif
 }

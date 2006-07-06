@@ -1,5 +1,5 @@
 ROOT = ../../..
-CXX = g++
+CXX = g++-3.3
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -D_DEVEL_DEFINES -DDEBUG
 LDFLAGS = -L$(ROOT)/lib

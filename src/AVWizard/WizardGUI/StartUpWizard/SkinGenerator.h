@@ -29,6 +29,7 @@ public:
 	std::string CommandSetRatio; // "/usr/pluto/bin/AVWizard_UpdateResolution.sh"
 	std::string CommandSetRatio4_3;  // COMMAND_SET_RATIO + " 4_3"
 	std::string CommandSetRatio16_9; // COMMAND_SET_RATIO " 16_9"
+	std::string CommandResetResolution; // COMMAND_SET_RATIO + " reset"
 	
 	std::string CommandSetAudioConnector; // "/usr/pluto/bin/AVWizard_AudioConnector.sh"
 	std::string PathPixmaps; // "/usr/pluto/wiz_pixmaps"

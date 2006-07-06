@@ -4,6 +4,17 @@
 
 Param="$1"
 case "$Param" in
+	reset)
+		Video_Ratio=$(WizGet Video_Ratio)
+		VideoResolution=$(WizGet VideoResolution)
+		echo "--> Reset resolution to default (was $Video_Ratio; resolution: $VideoResolution)"
+		if [[ "$Video_Ratio" == 4_3 && "$VideoResolution" == 640x480 ]]; then
+			exit 0 # No change required
+		fi
+		kill -USR2 $PPID
+		"$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480'
+		echo '4_3 640x480 60 640 480' >/tmp/avwizard-resolution.txt
+	;;
 	4[_:]3)
 		Video_Ratio=$(WizGet Video_Ratio)
 		VideoResolution=$(WizGet VideoResolution)
@@ -13,12 +24,7 @@ case "$Param" in
 		fi
 		kill -USR1 $PPID
 		"$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480'
-		WizSet Video_Ratio '4_3'
-		WizSet VideoResolution '640x480'
-		WizSet VideoRefresh '60'
-		WizSet WindowWidth 640
-		WizSet WindowHeight 480
-		WizSet CurrentStep "-$STEP_VideoRatio"
+		echo '4_3 640x480 60 640 480' >/tmp/avwizard-resolution.txt
 	;;
 	16[_:]9)
 		Video_Ratio=$(WizGet Video_Ratio)
@@ -30,11 +36,7 @@ case "$Param" in
 		kill -USR1 $PPID
 		Video_Ratio=$(WizGet Video_Ratio)
 		"$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '848x480'
-		WizSet Video_Ratio '16_9'
-		WizSet VideoResolution '480p'
-		WizSet VideoRefresh '60'
-		WizSet WindowWidth 848
-		WizSet WindowHeight 480
+		echo '16_9 480p 60 848 480' >/tmp/avwizard-resolution.txt
 	;;
 	resolution[+-]|refresh[+-])
 		Video_Ratio=$(WizGet Video_Ratio)
@@ -75,12 +77,9 @@ case "$Param" in
 		kill -USR1 $PPID
 
 		"$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution "$VideoResolution_Size@$VideoRefresh_New"
-		WizSet VideoResolution "$VideoResolution_Name"
-		WizSet VideoRefresh "$VideoRefresh_New"
 		WindowWidth="${VideoResolution_Size%x*}"
 		WindowHeight="${VideoResolution_Size#*x}"
-		WizSet WindowWidth "$WindowWidth"
-		WizSet WindowHeight "$WindowHeight"
+		echo "$Video_Ratio $VideoResolution_Name $VideoRefresh_New $WindowWidth $WindowHeight" >/tmp/avwizard-resolution.txt
 	;;
 	*) echo "Unknown parameter: '$Param'"; exit 1 ;;
 esac
