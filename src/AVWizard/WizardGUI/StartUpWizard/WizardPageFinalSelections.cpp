@@ -28,7 +28,8 @@ WizardPageFinalSelections::~WizardPageFinalSelections(void)
 	std::cout<<"WizardPageFinalSelections::DefaultSetup()"<<std::endl;
 #endif
 
-	TabStatus(this, 0xC0);
+	if(Wizard::GetInstance()->GetAnalogSoundMode())
+		TabStatus(this, 0xC0);
 	WizardWidgetLabel*Selected;
 	std::string LabelName;
 	std::string CaptionValue;
