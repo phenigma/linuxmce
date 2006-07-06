@@ -296,13 +296,6 @@ void Wizard::EvaluateEvent(WM_Event& Event)
 	default:
 		StatusChange = false;
 	}
-
-	WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
-	if (StatusChange)
-	{
-		AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
-		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
-	}
 }
 
 void Wizard::PaintStatus()
@@ -351,6 +344,14 @@ void Wizard::CreateDialogs()
 	}
 
 	MainPage = Factory->CreatePredefinedWizardPage(CurrentPage);
+
+	WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
+	if (StatusChange)
+	{
+		AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
+		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
+	}
+
 	if(MainPage)
 		MainPage->SetWizard(this);
 	Factory->CleanUp();
