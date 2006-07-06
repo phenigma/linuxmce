@@ -6,6 +6,7 @@ Done=0
 NextStep=$STEP_Welcome
 export DISPLAY=:1
 while [[ "$Done" -eq 0 ]]; do
+	echo "Running Wizard from step '$NextStep'"
 	StartX -step "$NextStep"
 	Ret=$(WizGet ExitCode)
 	case "$Ret" in
@@ -17,10 +18,11 @@ while [[ "$Done" -eq 0 ]]; do
 	VideoResolution=$(WizGet VideoResolution)
 	VideoRefresh=$(WizGet VideoRefresh)
 
+	echo "Interrupted in step '$WizStep'"
 	case "$WizStep" in
 		$STEP_VideoRatio) NextStep=$STEP_VideoOutput ;;
 		-$STEP_VideoRatio) NextStep=$STEP_VideoRatio ;;
 		$STEP_VideoResolution) NextStep=$STEP_VideoResolution ;;
-		*) echo "Interrupted in step '$WizStep', but shouldn't be" ;;
+		*) echo "Interrupted in step '$WizStep', but shouldn't be"; NextStep=$WizStep ;;
 	esac
 done
