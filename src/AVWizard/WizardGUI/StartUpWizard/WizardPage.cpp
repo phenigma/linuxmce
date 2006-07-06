@@ -3,6 +3,13 @@
 #include "WizardWidgetButton.h"
 
 #include "Wizard.h"
+#include "GUIWizardUtils.h"
+
+#include "GenerateWizardConfigDefaults.h"
+
+#include "SkinGenerator.h"
+
+#include "WizardWidgetLabel.h"
 
 WizardPage::WizardPage(SDLFrontEnd* FrontEnd, std::string Name)
 {
@@ -98,4 +105,21 @@ void WizardPage::SetWizard(Wizard* MainWizard)
 /*virtual*/ void WizardPage::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
 
+}
+
+/*static*/ void WizardPage::TabStatus(WizardPage* Page, int EnableStatus)
+{
+	for(int i = 1; i < WIZARD_NO_PAGES; i++)
+	{
+		if((1 << (i-1)) &
+ EnableStatus)
+		{
+			std::string ControlName = "PageTab" + Utils::Int32ToString(i);
+				WizardWidgetLabel* Label = dynamic_cast <WizardWidgetLabel*>
+					(Page->Page->GetChildRecursive(ControlName));
+			if(Label)
+				Label->SetUpAttribute("FontColor",
+					SkinGenerator::Instance()->StepFontColorDisable); 
+		}
+	}
 }

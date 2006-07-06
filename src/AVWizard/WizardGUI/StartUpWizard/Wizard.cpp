@@ -192,7 +192,7 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 
 	CurrentPage ++ ;
 
-	if (CurrentPage == 6)
+	if (CurrentPage == 8)
 //		if(IsAnalogSound)
 //			CurrentPage += 2;
 
@@ -223,6 +223,9 @@ void Wizard::DoCancelScreen()
 	MainPage->DoCancelSetting();
 	delete MainPage;
 	MainPage = NULL;
+	if(CurrentPage == WIZARD_NO_PAGES)
+		if (IsAnalogSound)
+			CurrentPage -= 2;
 	CurrentPage -- ;
 	CreateDialogs();
 	StatusChange = true;

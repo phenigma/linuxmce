@@ -4,6 +4,7 @@
 #include "ConfigureCommons.h"
 
 #include "SkinGenerator.h"
+#include "Wizard.h"
 
 #include <iostream>
 
@@ -34,6 +35,7 @@ WizardPageAudioConnector::~WizardPageAudioConnector(void)
 		return -1;
 	OutputValue = Selected->GetCaption();
 	Dictionary->Set("AudioConnector", OutputValue);
+	Wizard::GetInstance()->SetAnalogSoundMode(Buttons[OutputValue] == 1);
 	std::string Command = SkinGenerator::Instance()->CommandSetAudioConnector;
 	Command = Command + " '" + OutputValue + "'";
 	system(Command.c_str());

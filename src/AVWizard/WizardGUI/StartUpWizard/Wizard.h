@@ -131,6 +131,11 @@ class Wizard
 	static Wizard* Instance;
 
 	SocketRemoteServer Server;
+
+	/**
+	 *	If is analog sound the pages with Dolby and DTS should be skipped
+	 */
+	bool IsAnalogSound;
 public:
 	/**
 	 *	Index to current page in the wizard
@@ -175,6 +180,9 @@ public:
 	void SetExitWithCode(int Code);
 
 	void Resize(bool FullScreen);
+
+	void SetAnalogSoundMode(bool IsAnalogSound);
+	bool GetAnalogSoundMode();
 };
 
 #endif /*Wizard_H_*/

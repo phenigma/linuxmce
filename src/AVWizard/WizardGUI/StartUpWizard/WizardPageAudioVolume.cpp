@@ -124,4 +124,3 @@ void WizardPageAudioVolume::DoDecreaseSetting()
 		" unmute >/dev/null";
 	system(Command.c_str());
 }
-

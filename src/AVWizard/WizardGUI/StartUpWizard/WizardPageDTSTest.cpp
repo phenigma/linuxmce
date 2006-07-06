@@ -112,3 +112,4 @@ WizardPageDTSTest::~WizardPageDTSTest(void)
 	Selected = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive(ButtonName));
 	Selected->SetFocus(true);	
 }
+

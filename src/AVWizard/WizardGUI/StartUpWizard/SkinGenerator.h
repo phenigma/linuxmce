@@ -37,6 +37,8 @@ public:
 	std::string StepFontColorStandard;
 	std::string StepFontColorPassed;
 	std::string StepFontColorShadow;
+	std::string StepFontColorDisable;
+
 	std::string StepFontSize;
 
 	std::string SubStepFontColor;
@@ -56,7 +58,6 @@ public:
 	std::string ButtonTextHighlightFontSize;
 
 	std::string BackgroundColor;
-	
 
 	void SetSkinEnvironment(std::string SkinName);
 	void SaveSkin(std::string XMLFile);

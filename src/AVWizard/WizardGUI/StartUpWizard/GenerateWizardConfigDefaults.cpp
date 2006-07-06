@@ -26,7 +26,6 @@ GenerateWizardConfigDefaults::GenerateWizardConfigDefaults()
 	if(Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Exists("DefaultFontMiniTitle"))
 		FontMiniTitle = Wizard::GetInstance()->AVWizardOptions->GetDictionary()->GetValue("DefaultFontMiniTitle");
 
-
 	FontName = FontText;
 }
 
@@ -1111,7 +1110,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 		SetFontStyle(FontSize, FontColor, "Regular");
 
 		Result->AddChild(CreateControlLabel(
-				"PageTab" + Utils::Int32ToString(i+1),
+				"PageTabShadow" + Utils::Int32ToString(i+1),
 				Caption, 
 				38+i*70,
 				7,

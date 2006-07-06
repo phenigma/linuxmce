@@ -95,6 +95,12 @@ public:
 	 */
 	void SetWizard(Wizard* MainWizard);
 
+	/**
+	 *	Enable/disable some tabs if they are in different by zero status
+	 * 	They are set-up in bits
+	 */
+	static void TabStatus(WizardPage* Page, int EnableStatus);
+
 };
 
 #endif

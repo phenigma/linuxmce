@@ -27,6 +27,8 @@ WizardPageFinalSelections::~WizardPageFinalSelections(void)
 #ifdef DEBUG
 	std::cout<<"WizardPageFinalSelections::DefaultSetup()"<<std::endl;
 #endif
+
+	TabStatus(this, 0xC0);
 	WizardWidgetLabel*Selected;
 	std::string LabelName;
 	std::string CaptionValue;
@@ -179,7 +181,18 @@ std::string WizardPageFinalSelections::GetVolume(SettingsDictionary* AVWizardSet
 std::string WizardPageFinalSelections::GetDolbyTestStatus(SettingsDictionary* AVWizardSettings)
 {
 	std::string Value = AVWizardSettings->GetValue("DolbyTest");
+
+	if (Wizard::GetInstance()->GetAnalogSoundMode())
+	{
+	#ifdef DEBUG
+		std::cout<<"GetDolbyTestStatus: not available - Analog sound selected"<<std::endl;
+	#endif
+		return "not available";
+	}
+
+
 	int PassDolbyTest = Utils::StringToInt32(Value) != 0;
+
 	if (PassDolbyTest)
 	{
 #ifdef DEBUG
@@ -196,8 +209,17 @@ std::string WizardPageFinalSelections::GetDolbyTestStatus(SettingsDictionary* AV
 
 std::string WizardPageFinalSelections::GetDTSTestStatus(SettingsDictionary* AVWizardSettings)
 {
+	if (Wizard::GetInstance()->GetAnalogSoundMode())
+	{
+	#ifdef DEBUG
+		std::cout<<"GetDolbyTestStatus: not available - Analog sound selected"<<std::endl;
+	#endif
+		return "not available";
+	}
+
+
 #ifdef DEBUG
-	std::cout<<"WizardPageFinalSelections::GetVideoRatio()"<<std::endl;
+	std::cout<<"WizardPageFinalSelections::GetDTSTestStatus()"<<std::endl;
 #endif
 	std::string Value = AVWizardSettings->GetValue("DTSTest");
 	int PassDolbyTest = Utils::StringToInt32(Value) != 0;
