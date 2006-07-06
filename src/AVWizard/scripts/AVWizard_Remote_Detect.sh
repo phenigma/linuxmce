@@ -66,4 +66,9 @@ if [[ -z "$CommandLine" ]]; then
 	CommandLine=$(echo "$Description" | perl -n -e "$PerlCommand")
 fi
 
-echo "/usr/pluto/bin/$CommandLine -p $RemotePort -l /var/log/pluto/avremote.log -d -1003 -H $DCERouter -P $AVWizard_Port"
+# Last line of output is our result
+if [[ -n "$RemotePort" ]]; then
+	echo "/usr/pluto/bin/$CommandLine -p $RemotePort -l /var/log/pluto/avremote.log -d -1003 -H $DCERouter -P $AVWizard_Port"
+else
+	echo "" # no remote
+fi
