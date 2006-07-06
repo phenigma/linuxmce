@@ -97,6 +97,7 @@ UpdateOrbiterDimensions()
 	DEVICEDATA_PK_Size=25
 	DEVICEDATA_Video_settings=89
 	DEVICEDATA_Spacing=150
+	DEVICEDATA_Offset=167
 
 	ComputerDev=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Media_Director" '' 'include-parent')
 	OrbiterDev=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_OnScreen_Orbiter")
@@ -111,11 +112,17 @@ UpdateOrbiterDimensions()
 	else
 		OrbiterResolution="$OrbiterResolutionName"
 	fi
+	
 	OrbiterWidth=${OrbiterResolution%x*}
 	OrbiterHeight=${OrbiterResolution#*x}
 
 	OrbiterBorder=$(WizGet 'WizardBorder')
+	OrbiterLeft=$(WizGet 'LeftBorder')
+	OrbiterTop=$(WizGet 'TopBorder')
+
 	ReducePercent=$(echo "2 * $OrbiterBorder / $OrbiterWidth * 100" | bc -l | cut -d. -f1)
+	OrbiterShiftX=$((OrbiterLeft-OrbiterBorder))
+	OrbiterShiftY=$((OrbiterTop-OrbiterBorder))
 
 	# Store screen width and hight
 	Q="UPDATE Device_DeviceData SET IK_DeviceData='$OrbiterWidth' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_ScreenWidth'"
@@ -138,6 +145,10 @@ UpdateOrbiterDimensions()
 
 	# Store value for "Reduce image size by %" (DeviceData 150, "Spacing")
 	Q="UPDATE Device_DeviceData SET IK_DeviceData='$ReducePercent' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_Spacing'"
+	RunSQL "$Q"
+
+	# Store value for "Offset"
+	Q="UPDATE Device_DeviceData SET IK_DeviceData='$OrbiterShiftX,$OrbiterShiftY' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_Offset'"
 	RunSQL "$Q"
 
 	# Regen Orbiter
