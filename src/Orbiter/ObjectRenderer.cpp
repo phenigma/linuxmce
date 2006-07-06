@@ -524,7 +524,7 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pOwner(pOwner)
 		PROFILE_START( ctText );
 		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
 		string TextToDisplay = m_pOwner->m_pOrbiter->SubstituteVariables(m_pOwner->m_pOrbiter->SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0), pText->m_pObject, 0, 0);
-		m_pOwner->m_pOrbiter->Renderer()->RenderText(TextToDisplay, pText, pTextStyle, point);
+		m_pOwner->m_pOrbiter->Renderer()->RenderText(TextToDisplay, pText, pTextStyle, PlutoPoint(0, 0));
 		PROFILE_STOP( ctText,  "Text ( obj below )" );
 	}
 	if(m_pOwner->m_pFloorplanObject && m_pOwner->m_pOrbiter->m_mapDevice_Selected.find(m_pOwner->m_pFloorplanObject->PK_Device) != m_pOwner->m_pOrbiter->m_mapDevice_Selected.end() )
