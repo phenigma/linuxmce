@@ -514,7 +514,7 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
         case XK_Escape: event.data.button.m_iPK_Button = BUTTON_escape_CONST; break;
         case XK_Tab:    event.data.button.m_iPK_Button = BUTTON_tab_CONST; break;
         case XK_KP_Enter: case XK_Return:       event.data.button.m_iPK_Button = BUTTON_Enter_CONST;  break;
-        case XK_KP_Space:       event.data.button.m_iPK_Button = BUTTON_space_CONST; break;
+		case XK_KP_Space: case XK_space:        event.data.button.m_iPK_Button = BUTTON_space_CONST; break;
         case XK_BackSpace:      event.data.button.m_iPK_Button = BUTTON_Back_CONST;  break;
         case XK_underscore:     event.data.button.m_iPK_Button = BUTTON_underscore_CONST;  break;
         case XK_minus:  event.data.button.m_iPK_Button = BUTTON_dash_CONST;  break;
@@ -527,7 +527,22 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
         case XK_colon:  event.data.button.m_iPK_Button = BUTTON_colon_CONST; break;
         case XK_semicolon:      event.data.button.m_iPK_Button = BUTTON_semicolumn_CONST; break;
         case XK_quotedbl:       event.data.button.m_iPK_Button = BUTTON_double_quote_CONST; break;
-
+	case 87:	event.data.button.m_iPK_Button = BUTTON_1_CONST;  break;
+        case 88:        event.data.button.m_iPK_Button = BUTTON_2_CONST;  break;
+	case 89:        event.data.button.m_iPK_Button = BUTTON_3_CONST;  break;
+        case 83:        event.data.button.m_iPK_Button = BUTTON_4_CONST;  break;
+        case 84:        event.data.button.m_iPK_Button = BUTTON_5_CONST;  break;
+        case 85:        event.data.button.m_iPK_Button = BUTTON_6_CONST;  break;
+        case 79:        event.data.button.m_iPK_Button = BUTTON_7_CONST;  break;
+        case 80:        event.data.button.m_iPK_Button = BUTTON_8_CONST;  break;
+        case 81:        event.data.button.m_iPK_Button = BUTTON_9_CONST;  break;
+        case 90:        event.data.button.m_iPK_Button = BUTTON_0_CONST;  break;
+	case 108:	event.data.button.m_iPK_Button = BUTTON_Enter_CONST;  break;		
+	case 91:	event.data.button.m_iPK_Button = BUTTON_dot_CONST;  break;
+	case 86:	event.data.button.m_iPK_Button = BUTTON_plus_CONST;  break;
+	case 63:	event.data.button.m_iPK_Button = BUTTON_Asterisk_CONST;  break;		
+	case 112:	event.data.button.m_iPK_Button = BUTTON_slash_CONST;  break;
+			
 /* end modificari */
 
         default:
@@ -542,7 +557,7 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
     }
 
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "The keysym was %d, the final event type %d", keysym, event.type);
+    g_pPlutoLogger->Write(LV_STATUS, "The keysym was %d, the final event type %d, button %d", keysym, event.type, event.data.button.m_iPK_Button);
 #endif
 
 	return true;
