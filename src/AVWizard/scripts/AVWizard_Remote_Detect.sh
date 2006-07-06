@@ -4,6 +4,11 @@
 . /usr/pluto/bin/Utils.sh
 . /usr/pluto/bin/AVWizard-Common.sh
 
+Log()
+{
+	echo "$1" >>/var/log/pluto/avremote_detect.log
+}
+
 PipeField()
 {
 	local Field="$1" local Data="$2"
@@ -29,6 +34,7 @@ for Row in $R; do
 	CmdName=$(Field 4 "$Row")
 	Name=$(Field 5 "$Row")
 	echo "$VendorModelID|$PK_DeviceTemplate|$DTDescription|$CmdName|$Name" >>"$OutFile"
+	Log "Query result: $VendorModelID|$PK_DeviceTemplate|$DTDescription|$CmdName|$Name"
 done
 
 Remote=$(/usr/pluto/bin/hal_device_finder -f "$OutFile")
@@ -37,8 +43,13 @@ RemoteDT=$(PipeField 2 "$Remote")
 RemoteDescription=$(PipeField 3 "$Remote")
 RemotePkg=$(PipeField 4 "$Remote")
 
+Log "Device finder result: $Remote"
+
 if ! PackageIsInstalled "$RemotePkg"; then
+	Log "Installing package '$RemotePkg'"
 	apt-get -y install "$RemotePkg"
+else
+	Log "Package is installed: '$RemotePkg'"
 fi
 
 PerlCommand="
@@ -65,10 +76,13 @@ Description=$(Field 2 "$R")
 if [[ -z "$CommandLine" ]]; then
 	CommandLine=$(echo "$Description" | perl -n -e "$PerlCommand")
 fi
+Log "CommandLine: $CommandLine; Description: $Description"
 
 # Last line of output is our result
 if [[ -n "$RemotePort" ]]; then
 	echo "/usr/pluto/bin/$CommandLine -p $RemotePort -l /var/log/pluto/avremote.log -r $DCERouter -d -1003 -H localhost -P $AVWizard_Port"
+	Log "End result: /usr/pluto/bin/$CommandLine -p $RemotePort -l /var/log/pluto/avremote.log -r $DCERouter -d -1003 -H localhost -P $AVWizard_Port"
 else
 	echo "" # no remote
+	Log "End result: no remote"
 fi
