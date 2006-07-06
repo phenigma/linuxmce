@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 
-#define PORT 5000 // the port client will be connecting to 
+#define PORT 28949 // the port client will be connecting to 
 
 #define MAXDATASIZE 100 // max number of bytes we can get at once 
 
@@ -80,7 +80,6 @@ int main(int argc, char *argv[])
 	std::string Text = GetSocketText(sockfd);
 	std::cout<<Text<<std::endl;
 	SendSocketText(sockfd, Command);
-	sleep(1);
 	close(sockfd);
 
 	return 0;
