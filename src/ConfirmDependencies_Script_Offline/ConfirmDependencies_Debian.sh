@@ -134,6 +134,7 @@ case "$URL_TYPE" in
 					;;
 				esac
 
+				apt-get -f install
 				apt-get -y --reinstall install "$PKG_NAME"
                                 apt_err=$?
 
