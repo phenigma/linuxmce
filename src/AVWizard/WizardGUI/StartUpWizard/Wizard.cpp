@@ -35,6 +35,9 @@ void signal_handler(int signal)
 			std::cout<<"Signal SIGUSR1 treated at step " << Wizard::GetInstance()->CurrentPage <<std::endl;
 			Wizard::GetInstance()->SetExitWithCode(2);
 			Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Set("InterruptedStep", Wizard::GetInstance()->CurrentPage);
+			
+			WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
+			Wizard::GetInstance()->AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 			break;
 	}
 }
