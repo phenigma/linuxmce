@@ -5897,6 +5897,16 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 
 	m_sDefaultRippingName = sFilename;
 
+	//TODO: this code is temporary. When the dvd is not identified correctly, the default ripping name is empty.
+	if(m_sDefaultRippingName.empty())
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_WARNING, "CMD_Set_Now_Playing : Default ripping name is empty");
+#endif
+
+		m_sDefaultRippingName = "<%=T1197%>";
+	}
+
 	m_sNowPlaying_TimeShort="";
 	m_sNowPlaying_TimeLong="";
 
