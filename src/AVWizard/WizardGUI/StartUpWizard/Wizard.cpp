@@ -34,6 +34,7 @@ void signal_handler(int signal)
 		case SIGUSR1:
 			std::cout<<"Signal SIGUSR1 treated"<<std::endl;
 			Wizard::GetInstance()->SetExitWithCode(2);
+			Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Set("InterruptedStep", Wizard::GetInstance()->CurrentPage);
 			break;
 	}
 }
@@ -185,6 +186,7 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	MainPage->DoApplySetting(Settings);
 	delete MainPage;
 	MainPage = NULL;
+
 	CurrentPage ++ ;
 
 	if (CurrentPage == 6)
@@ -345,15 +347,17 @@ void Wizard::CreateDialogs()
 
 	MainPage = Factory->CreatePredefinedWizardPage(CurrentPage);
 
-	WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
-	if (StatusChange)
-	{
-		AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
-		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
-	}
-
 	if(MainPage)
+	{
+		WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
+		if (StatusChange)
+		{
+			AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
+			AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
+		}
+
 		MainPage->SetWizard(this);
+	}
 	Factory->CleanUp();
 }
 

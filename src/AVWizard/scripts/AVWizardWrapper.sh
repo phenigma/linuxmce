@@ -12,7 +12,7 @@ while [[ "$Done" -eq 0 ]]; do
 		2) : ;; # programmed exit
 		*) exit $Ret ;; # 0 = I agree; 1 = I do not agree; 3 = Skip Wizard; * = other
 	esac
-	WizStep=$(WizGet CurrentStep)
+	WizStep=$(WizGet InterruptedStep)
 	Video_Ratio=$(WizGet Video_Radio)
 	VideoResolution=$(WizGet VideoResolution)
 	VideoRefresh=$(WizGet VideoRefresh)
