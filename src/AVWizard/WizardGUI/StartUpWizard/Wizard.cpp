@@ -222,6 +222,7 @@ void Wizard::EvaluateEvent(WM_Event& Event)
 {
 	SafetyLock Lock(&SafeMutex);
 
+	WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
 	AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
 	AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 
