@@ -188,8 +188,8 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	CurrentPage ++ ;
 
 	if (CurrentPage == 6)
-		if(IsAnalogSound)
-			CurrentPage += 2;
+//		if(IsAnalogSound)
+//			CurrentPage += 2;
 
 	if(CurrentPage == WIZARD_NO_PAGES+1)
 	{
@@ -469,6 +469,7 @@ void Wizard::ZoomOut()
 	ZoomPage->UpdateSelected();	
 }
 
+/*
 void Wizard::SetAnalogSoundMode(bool IsAnalogSound)
 {
 	this->IsAnalogSound = IsAnalogSound;
@@ -478,3 +479,4 @@ bool Wizard::GetAnalogSoundMode()
 {
 	return IsAnalogSound;
 }
+*/
