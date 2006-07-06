@@ -124,9 +124,9 @@ void Wizard::MainLoop()
 	PaintStatus();
 	while(!Quit)
 	{
-		while (!(Quit) && (FrontEnd->HasEventPending()))
+		while (!StatusChange && !Quit && (FrontEnd->HasEventPending()))
 		{
-			FrontEnd->TranslateEvent( Event);
+			FrontEnd->TranslateEvent(Event);
 			if(Event.Type)
 				EvaluateEvent(Event);
 		}
@@ -186,6 +186,11 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	delete MainPage;
 	MainPage = NULL;
 	CurrentPage ++ ;
+
+	if (CurrentPage == 6)
+		if(IsAnalogSound)
+			CurrentPage += 2;
+
 	if(CurrentPage == WIZARD_NO_PAGES+1)
 	{
 		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
@@ -462,4 +467,14 @@ void Wizard::ZoomOut()
 	AVWizardOptions->GetDictionary()->Set("LeftBorder", LeftBorder);
 	AVWizardOptions->GetDictionary()->Set("TopBorder", TopBorder);
 	ZoomPage->UpdateSelected();	
+}
+
+void Wizard::SetAnalogSoundMode(bool IsAnalogSound)
+{
+	this->IsAnalogSound = IsAnalogSound;
+}
+
+bool Wizard::GetAnalogSoundMode()
+{
+	return IsAnalogSound;
 }
