@@ -115,24 +115,16 @@ case "$URL_TYPE" in
 
 			## NFS Error fallback
 			while [[ "$apt_err" != "0" && "$count" != "3" ]] ;do
-				case "$apt_err" in
-					"139" | "135" ) 
-						## Segmentation fault recovery 139
-						## Bus error recovery 135
-						echo -n ""
-					;;
-					"100")
-						## Posible dpkg/status error
-						dpkg -l test
-						dpkg_err=$?
+			
+				dpkg -l test
+				dpkg_err=$?
 					
-						if [[ "$dpkg_err" == "2" ]] ;then
-							## It was a dpkg/status error , fixing
-							mv /var/lib/dpkg/status-old /var/lib/dpkg/status
-							apt-get -f install
-						fi
-					;;
-				esac
+				if [[ "$dpkg_err" == "2" ]] ;then
+					## It was a dpkg/status error , fixing
+					rm /var/lib/dpkg/status
+					cp /var/lib/dpkg/status-old /var/lib/dpkg/status
+					apt-get -f install
+				fi
 
 				apt-get -f install
 				apt-get -y --reinstall install "$PKG_NAME"
