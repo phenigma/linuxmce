@@ -47,14 +47,10 @@ UpdateXineConf()
 	if [[ "$AudioSetting" == *3* ]]; then
 		XineConfSet audio.speaker_arrangement "Pass Through"
 		XineConfSet audio.alsa_front_device spdif
-		XineConfSet audio.a52_pass_through 1 "$XineConf"
-		XineConfSet audio.five_lfe_channel 1 "$XineConf"
 		amixer sset 'IEC958 Playback Source' 'AC-Link' >/dev/null
 	else
 		XineConfSet audio.speaker_arrangement "Stereo 2.0"
 		XineConfSet audio.alsa_front_device default
-		XineConfSet audio.a52_pass_through 0 "$XineConf"
-		XineConfSet audio.five_lfe_channel 0 "$XineConf"
 	fi
 
 	if [[ "$AudioSetting" == *K* ]]; then
