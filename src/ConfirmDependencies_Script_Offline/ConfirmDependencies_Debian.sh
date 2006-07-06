@@ -115,8 +115,8 @@ case "$URL_TYPE" in
 			apt_err=$?			
 
 			## NFS Error fallback
-			while [[ "$apt_err" != "0" && "$count" != "4" ]] ;do
-				sleep .5
+			while [[ "$apt_err" != "0" && "$count" != "8" ]] ;do
+				sleep 1
 			
 				dpkg -l test
 				dpkg_err=$?
