@@ -126,7 +126,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 		char buffer[64];
 		snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 	
-		halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, "37|" + portID, category);
+		halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "37|" + portID, category);
 		g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 /*		string response;
 		if( !sendMessage(	"-targetType category " +
@@ -155,7 +155,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 				
 				char buffer[64];
 				snprintf(buffer, sizeof(buffer), "%08x", (*it).first);
-				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, "37|" + portID, category);
+				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "37|" + portID, category);
 				g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 			}
 			
@@ -181,7 +181,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 		char buffer[64];
 		snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 	
-		halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, "", category);
+		halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "", category);
 		g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 		
 		g_free (parent);
@@ -343,7 +343,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 				char buffer[64];
 				snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 			
-				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, "37|" + portID, category);
+				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "37|" + portID, category);
 				g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 			}
 			
@@ -363,7 +363,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 					
 					char buffer[64];
 					snprintf(buffer, sizeof(buffer), "%08x", (*it).first);
-					halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, "37|" + portID, category);
+					halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "37|" + portID, category);
 					g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 				}
 				
@@ -390,7 +390,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 			char buffer[64];
 			snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 			
-			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, "", category);
+			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "", category);
 			g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 			
 			g_free (parent);
