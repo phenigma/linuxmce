@@ -53,16 +53,20 @@ void XinePlayer::InitPlayerEngine(std::string ConfigName, std::string FileName)
 	std::cout<<"XinePlayer: InitPlayerEngine() with Xine config: "<<ConfigName<<" and filename " <<FileName<<std::endl;
 #endif
 
-	std::string ConfigFile;
 
 	{
 		SafetyLock Lock(&lockmutex);
+		Running = true;
 		
 		xine = xine_new();
 		std::cout << FileName <<std::endl;
-		ConfigFile = ConfigName;
-		xine_config_load(xine, ConfigFile.c_str());
+		xine_config_load(xine, ConfigName.c_str());
 		xine_init(xine);
+		ao_port     = xine_open_audio_driver(xine , "auto", NULL);
+		stream      = xine_stream_new(xine, ao_port, NULL);
+		event_queue = xine_event_new_queue(stream);
+		xine_event_create_listener_thread(event_queue, XineEventFunction, this);
+
 		this->FileName = FileName;
 	}
 
@@ -103,11 +107,6 @@ bool XinePlayer::StartPlayingFile()
 	std::cout<<"XinePlayer: StartPlayingFile()"<<std::endl;
 #endif
 	NeedToReplay = false;
-	ao_port     = xine_open_audio_driver(xine , "auto", NULL);
-	stream      = xine_stream_new(xine, ao_port, NULL);
-	event_queue = xine_event_new_queue(stream);
-	xine_event_create_listener_thread(event_queue, XineEventFunction, this);
-
 	if((!xine_open(stream, FileName.c_str())) || (!xine_play(stream, 0, 0))) 
 	{
 		printf("Unable to open file: '%s'\n", FileName.c_str());
@@ -139,6 +138,9 @@ void XineEventFunction(void *XinePlayerPtr, const xine_event_t *XineEvent)
 {
 	XinePlayer* Player = (XinePlayer*)XinePlayerPtr;
 
+#ifdef DEBUG
+	std::cout<<"XineEvent"<<std::endl;
+#endif
 	switch(XineEvent->type) { 
 	case XINE_EVENT_UI_PLAYBACK_FINISHED:
 #ifdef DEBUG
@@ -158,10 +160,7 @@ void* XinePlayerThread(void* XinePlayerPtr)
 		usleep(10000);
 		if (Player->NeedToReplay)
 		{
-			if (Player->stream)
-			{
-				xine_play(Player->stream, 0, 0);
-			}
+			Player->StartPlayingFile();
 		}
 	}
 

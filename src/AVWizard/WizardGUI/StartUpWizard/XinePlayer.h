@@ -14,7 +14,6 @@
 
 class XinePlayer
 {
-public:
 
 	xine_t              *xine;
 	xine_stream_t       *stream;
@@ -26,6 +25,7 @@ public:
 	pthread_mutex_t lockmutex;
 	XinePlayer();
 
+public:
 	static XinePlayer* Instance;
 
 	bool NeedToReplay;
