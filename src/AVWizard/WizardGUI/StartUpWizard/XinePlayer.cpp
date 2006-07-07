@@ -159,7 +159,10 @@ void* XinePlayerThread(void* XinePlayerPtr)
 		usleep(10000);
 		if (Player->NeedToReplay)
 		{
-			Player->StartPlayingFile();
+			if (stream)
+			{
+				xine_play(stream, 0, 0);
+			}
 		}
 	}
 
