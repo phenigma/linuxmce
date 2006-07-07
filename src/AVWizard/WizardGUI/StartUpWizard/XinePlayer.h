@@ -14,6 +14,8 @@
 
 class XinePlayer
 {
+public:
+
 	xine_t              *xine;
 	xine_stream_t       *stream;
 	xine_audio_port_t   *ao_port;
@@ -26,7 +28,6 @@ class XinePlayer
 
 	static XinePlayer* Instance;
 
-public:
 	bool NeedToReplay;
 	bool Running;
 
