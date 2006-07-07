@@ -733,6 +733,7 @@
 #define COMMAND_Display_Alert_CONST 809
 #define COMMAND_Set_Active_Application_CONST 810
 #define COMMAND_Get_Active_Application_CONST 811
+#define COMMAND_Application_Exited_CONST 812
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
