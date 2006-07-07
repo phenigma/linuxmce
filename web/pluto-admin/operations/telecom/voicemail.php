@@ -9,11 +9,23 @@ function voicemail($output,$dbADO) {
 	$dbADO->debug=false;
 	$reloadTree = @$_REQUEST['reloadTree']=='false'?false:true;
 
-	$_SESSION['Extension']=(isset($_REQUEST['general']))?100:$_SESSION['MyExtension'];
+	if(isset($_REQUEST['general'])){
+		if($_SESSION['AccessGeneralMailbox']==0){
+			$error=$TEXT_NO_ACCESS_TO_GENERAL_MAILBOX_CONST;
+		}else{
+			$_SESSION['Extension']=100;
+		}
+	}else{
+		$_SESSION['Extension']=$_SESSION['MyExtension'];
+	}
 
 	exec_batch_command('sudo -u root /usr/pluto/bin/Asterisk_FixVoicemailRights.sh');
 	
-	$out.=setLeftMenu($dbADO).'<iframe src="amp/recordings/index.php?s=voicemail" style="width:98%;height:600"></iframe>';
+	if(isset($error)){
+		$out.='<span class="err">'.$TEXT_NO_ACCESS_TO_GENERAL_MAILBOX_CONST.'</span>';
+	}else{
+		$out.=setLeftMenu($dbADO).'<iframe src="amp/recordings/index.php?s=voicemail" style="width:98%;height:600"></iframe>';
+	}
 
 	$output->setMenuTitle($TEXT_TELECOM_CONST.' |');
 	$output->setPageTitle($TEXT_VOICEMAIL_CONST);

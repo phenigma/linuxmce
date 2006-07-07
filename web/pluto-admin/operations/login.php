@@ -123,6 +123,7 @@ function login($output,$dbADO) {
 
 									$_SESSION['userID'] = (int)$rowRemote['PK_Users'];
 									$_SESSION['MyExtension'] = (int)$rowRemote['Extension'];
+									$_SESSION['AccessGeneralMailbox'] = (int)$rowRemote['AccessGeneralMailbox'];
 									$_SESSION['userLoggedIn'] = true;
 
 									$_SESSION['username'] = $rowRemote['UserName'];
@@ -173,6 +174,7 @@ function login($output,$dbADO) {
 						$_SESSION['hh_username'] = $row_users['FirstName'].' '.$row_users['LastName'];
 						$_SESSION['username'] = $usernameForm;
 						$_SESSION['MyExtension'] = (int)$row_users['Extension'];
+						$_SESSION['AccessGeneralMailbox'] = (int)$row_users['AccessGeneralMailbox'];
 
 						$installations=array();
 						while (!$res_installations->EOF) {
