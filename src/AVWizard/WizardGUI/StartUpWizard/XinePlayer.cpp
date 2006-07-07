@@ -101,7 +101,7 @@ bool XinePlayer::StartPlayingFile()
 #ifdef DEBUG
 	std::cout<<"XinePlayer: StartPlayingFile()"<<std::endl;
 #endif
-
+	NeedToReplay = false;
 	ao_port     = xine_open_audio_driver(xine , "auto", NULL);
 	stream      = xine_stream_new(xine, ao_port, NULL);
 	event_queue = xine_event_new_queue(stream);
