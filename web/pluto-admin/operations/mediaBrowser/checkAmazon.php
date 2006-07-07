@@ -14,7 +14,8 @@ function checkAmazon($output,$mediadbADO,$dbADO) {
 	if(count($fileData)==0){
 		error_redirect('Invalid file ID','');
 	}
-	$filename=str_replace('.mp3','',$fileData['Filename'][0]);
+	$extension=strtolower(str_replace('.','',strrchr($fileData['Filename'][0],".")));
+	$filename=str_replace($extension,'',$fileData['Filename'][0]);
 	$_SESSION['lastFileID']=$fileID;
 	
 	if($action=='form'){

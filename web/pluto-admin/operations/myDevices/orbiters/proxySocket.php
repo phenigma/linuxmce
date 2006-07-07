@@ -255,6 +255,7 @@ function getCoreIP($dbADO)
 function xml_die($deviceID,$address,$port,$command,$message,$userFriendlyMessage=''){
 	// the phone has 32 characters limit for values
 	write_log(trim($message));
+	write_log("\n$userFriendlyMessage");
 	$xmlMessage=($userFriendlyMessage!='')?$userFriendlyMessage:str_replace("\n","",trim($message));
 	$xml='
 <CiscoIPPhoneGraphicFileMenu>
@@ -274,6 +275,7 @@ function xml_die($deviceID,$address,$port,$command,$message,$userFriendlyMessage
 	Header("Refresh: 5; url=$refreshURL");
 	//writeFile(getcwd().'/security_images/urls.txt',$refreshURL."\n\n",'a+');
 	Header("Content-type: text/xml"); 
+	
 	write_log("\nRedirecting to $refreshURL\n");
 	die($xml);	
 }

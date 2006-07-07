@@ -9,6 +9,7 @@ function voicemail($output,$dbADO) {
 	$dbADO->debug=false;
 	$reloadTree = @$_REQUEST['reloadTree']=='false'?false:true;
 
+	$_SESSION['Extension']=(isset($_REQUEST['general']))?100:$_SESSION['MyExtension'];
 
 	$out.=setLeftMenu($dbADO).'<iframe src="amp/recordings/index.php?s=voicemail" style="width:98%;height:600"></iframe>';
 
