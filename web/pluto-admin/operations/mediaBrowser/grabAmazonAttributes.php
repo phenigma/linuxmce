@@ -7,20 +7,23 @@ function grabAmazonAttributes($output,$mediadbADO,$dbADO) {
 	$url=$_REQUEST['amazonURL'];
 	$fileID=(int)@$_REQUEST['fileID'];
 	
-	$cmd='wget \''.$url.'\' -O -';
-		
-	$html=exec_batch_command($cmd,1);	
-
 	if(isset($_REQUEST['grab'])){
 		if(isset($_POST['grabBtn'])){
 			$out=processGrabAttributes($mediadbADO);
 		}else{
+			$cmd='wget \''.$url.'\' -O -';
+			$html=exec_batch_command($cmd,1);	
+			
 			$out=grabAttributesForm($html,$mediadbADO);
 		}
 	
 		$output->setBody($out);
 		$output->output();	
 	}else{
+		$cmd='wget \''.$url.'\' -O -';
+		$html=exec_batch_command($cmd,1);	
+		
+		
 		$linksBar='<div align="right"><input type="button" name="back" value="Back" onClick="history.back();"> <input type="button" name="back" value="This is my file" onClick="self.location=\'index.php?section=grabAmazonAttributes&fileID='.$fileID.'&amazonURL='.$url.'&grab=1\'"></div><br>';
 		$output->setReloadLeftFrame(false);
 		die($linksBar.$html);
@@ -28,7 +31,7 @@ function grabAmazonAttributes($output,$mediadbADO,$dbADO) {
 }
 
 // return false if cover art is not found or the html path if found
-function getCoverArt($out,$path=''){
+function getCoverArt($out){
 	$coverUrl=preg_match_all('/return amz_js_PopWin\(\'(.*?)\',\'AmazonHelp\'/s',$out,$matches);
 	if(count($coverUrl)==0){
 		return false;
@@ -40,12 +43,6 @@ function getCoverArt($out,$path=''){
 
 			$isImg=preg_match('/<img src="http:\/\/(.*?)" id="prodImage" \/>/',$coverArtPage,$cmatches);
 			if(count($cmatches)>0){
-				// copy the pic localy if the param is specified
-				// path need to be a working path with write permission
-				if($path!=''){
-					$getPicCmd='wget --header=\'User-Agent: Lynx/2.8.5rel.1 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/1.0.16\' -O - \''.$cmatches[1].'\' > '.$path.'pic.jpg';
-					$coverArtPage=exec_batch_command($getPicCmd,1);
-				}
 				// picture found
 				return $cmatches[1];
 			}
@@ -258,6 +255,10 @@ function grabAttributesForm($html,$mediadbADO){
 }
 
 function processGrabAttributes($mediadbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editMediaFile.lang.php');
+	
 	$fileID=(int)$_POST['fileID'];
 	$import_cover_art=@$_POST['import_cover_art'];
 	$extension=strtolower(str_replace('.','',strrchr($import_cover_art,".")));
@@ -266,6 +267,26 @@ function processGrabAttributes($mediadbADO){
 		$mediadbADO->Execute('INSERT INTO Picture (Extension,URL) VALUES (?,?)',array($extension,$import_cover_art));
 		$picID=$mediadbADO->Insert_ID();
 		$mediadbADO->Execute('INSERT INTO Picture_File (FK_Picture,FK_File) VALUES (?,?)',array($picID,$fileID));
+
+		// create the file and the thumbnail
+		$extension=($extension=='jpeg')?'jpg':$extension;
+		$newPicName=$picID.'.'.$extension;
+			
+			$error='';
+			if($extension!='jpg'){
+				$error=$TEXT_ERROR_NOT_JPEG_CONST;
+			}
+			else{
+				// create thumbnail
+				savePic($import_cover_art,$GLOBALS['mediaPicsPath'].$newPicName);
+				if(file_exists($GLOBALS['mediaPicsPath'].$newPicName)){
+					$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$picID.'_tn.'.$extension, 100, 100);
+					if(!$resizeFlag){
+						$error=$TEXT_ERROR_UPLOAD_FAILS_PERMISIONS_CONST.' '.$GLOBALS['mediaPicsPath'];
+					}
+				}
+			}
+		
 	}
 	
 	$existingAttributeTypes=getAssocArray('AttributeType','Description','PK_AttributeType',$mediadbADO);
@@ -303,9 +324,22 @@ function processGrabAttributes($mediadbADO){
 		}
 	}
 	
+	
 	$fileData=getFieldsAsArray('File','Path,Filename',$mediadbADO,'WHERE PK_File='.$fileID);
 	exec_batch_command('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$fileData['Path'][0].'"');
 	
-	die('<script>parent.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&msg=Attributes extracted from Amazon\';</script>');
+	die('<script>parent.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&msg=Attributes extracted from Amazon&err='.@$error.'\';</script>');
+}
+
+function savePic($url,$path){
+	// remove \n from url
+	$url=str_replace("\n",'',$url);
+	
+	// copy the pic localy if the param is specified
+	// path need to be a working path with write permission
+	if($path!=''){
+		$getPicCmd='wget --header=\'User-Agent: Lynx/2.8.5rel.1 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/1.0.16\' -O - \''.$url.'\' > '.$path;
+		$coverArtPage=exec_batch_command($getPicCmd,1);
+	}
 }
 ?>

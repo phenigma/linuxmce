@@ -15,7 +15,7 @@ function checkAmazon($output,$mediadbADO,$dbADO) {
 		error_redirect('Invalid file ID','');
 	}
 	$extension=strtolower(str_replace('.','',strrchr($fileData['Filename'][0],".")));
-	$filename=str_replace($extension,'',$fileData['Filename'][0]);
+	$filename=str_replace('.'.$extension,'',$fileData['Filename'][0]);
 	$_SESSION['lastFileID']=$fileID;
 	
 	if($action=='form'){
