@@ -1,6 +1,8 @@
 #include "WizardRemote.h"
 
 #include "signal.h"
+#include <iostream>
+using namespace std;
 
 RemoteProcess::RemoteProcess()
 {
@@ -16,7 +18,8 @@ RemoteProcess::~RemoteProcess()
 
 void RemoteProcess::Start(string sCmd)
 {
-	if (pid >0)
+	cout << "RemoteProcess::Start: sCmd='" << sCmd << "'" << endl;
+	if (pid > 0)
 		throw "Attempted to start another process";
 	if (sCmd.size() == 0)
 		return; // don't start anything; remote support will be disabled
