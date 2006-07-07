@@ -83,19 +83,22 @@ void XinePlayer::StopPlayerEngine()
 	if(!xine)
 		return;
 
-	SafetyLock Lock(&lockmutex);
 #ifdef DEBUG
 	std::cout<<"XinePlayer: StopPlayerEngine()"<<std::endl;
 #endif
 
+	Running = false;
+	pthread_join(tid, NULL);
+	tid = 0;
+
+	SafetyLock Lock(&lockmutex);
+	
 	xine_event_dispose_queue(event_queue);
 	xine_dispose(stream);
 	if(ao_port)
 		xine_close_audio_driver(xine, ao_port);  
 	xine_exit(xine);
 	xine = NULL;
-
-	Running = false;
 }
 
 bool XinePlayer::StartPlayingFile()
@@ -110,7 +113,7 @@ bool XinePlayer::StartPlayingFile()
 	NeedToReplay = false;
 	if((!xine_open(stream, FileName.c_str())) || (!xine_play(stream, 0, 0))) 
 	{
-		printf("Unable to open file: '%s'\n", FileName.c_str());
+		std::cout << "Unable to open file: " <<  FileName << std::endl;
 
 		return false;
 	}
