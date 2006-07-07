@@ -115,7 +115,7 @@ bool XinePlayer::StartPlayingFile()
 		return false;
 	}
 
-	std::cout<<"XinePlayer: Playing..."<<std::endl;
+	std::cout<<"XinePlayer: Playing: "<<FileName<<std::endl;
 
 	return true;
 }
