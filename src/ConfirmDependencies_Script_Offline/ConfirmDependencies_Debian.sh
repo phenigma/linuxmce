@@ -1,5 +1,4 @@
 #!/bin/bash
-echo $0 $*
 
 . /usr/pluto/install/Common.sh
 if [[ -f /usr/pluto/bin/Config_Ops.sh ]]; then
@@ -116,37 +115,35 @@ case "$URL_TYPE" in
 
 			## NFS Error fallback
 			while [[ "$apt_err" != "0" && "$count" != "10" ]] ;do
-				sleep 5
+				sleep 4
 			
 				dpkg -l test
 				dpkg_err=$?
 					
 				if [[ "$dpkg_err" == "2" ]] ;then
 					## It was a dpkg/status error , fixing
-					rm /var/lib/dpkg/status
+					rm -f /var/lib/dpkg/status
 					cp /var/lib/dpkg/status-old /var/lib/dpkg/status
 
-					rm /var/lib/dpkg/available
+					rm -f /var/lib/dpkg/available
 					cp /var/lib/dpkg/available-old /var/lib/dpkg/available
 
-					rm /var/lib/dpkg/diversions
+					rm -f /var/lib/dpkg/diversions
 					cp /var/lib/dpkg/diversions-old /var/lib/dpkg/diversions
 
-					rm /var/lib/dpkg/statoverride
+					rm -f /var/lib/dpkg/statoverride
 					cp /var/lib/dpkg/statoverride-old /var/lib/dpkg/statoverride
 
-					rm -f /var/cache/apt/*.bin
-					rm -f /var/cache/apt/archives/*.deb
-					
-					apt-get update 2>/dev/null 1>/dev/null
-					apt-get update 2>/dev/null 1>/dev/null
-
-					apt-get -f -y install
 				fi
 
-				rm /var/cache/apt/archives/*.deb
-				
+				rm -f /var/cache/apt/*.bin
+				rm -f /var/cache/apt/archives/*.deb
+					
+				apt-get update 2>/dev/null 1>/dev/null
+				apt-get update 2>/dev/null 1>/dev/null
+
 				apt-get -f -y install
+				sleep 3
 				apt-get -y --reinstall install "$PKG_NAME"
                                 apt_err=$?
 
