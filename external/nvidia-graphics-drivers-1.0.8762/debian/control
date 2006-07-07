@@ -8,7 +8,7 @@ Standards-Version: 3.6.2
 
 Package: nvidia-glx-ia32
 Architecture: amd64
-Depends: nvidia-kernel-1.0.8762, ia32-libs, ${shlibs:Depends}
+Depends: nvidia-kernel-2.6.16-2-k7 (= 1.0.8762), ia32-libs, ${shlibs:Depends}
 Suggests: nvidia-settings, nvidia-kernel-source (>= 1.0.8762)
 Conflicts: nvidia-glx-src
 Replaces: nvidia-glx-src
@@ -31,7 +31,7 @@ Description: NVIDIA binary XFree86 4.x driver
 
 Package: nvidia-glx
 Architecture: i386 amd64
-Depends: nvidia-kernel-1.0.8762, x11-common (>= 1:7.0.0), ${shlibs:Depends}
+Depends: nvidia-kernel-2.6.16-2-k7 (= 1.0.8762), x11-common (>= 1:7.0.0), ${shlibs:Depends}
 Suggests: nvidia-settings, nvidia-kernel-source (>= 1.0.8762)
 Conflicts: nvidia-glx-src
 Provides: xserver-xorg-video
@@ -57,7 +57,7 @@ Package: nvidia-glx-dev
 Architecture: i386 amd64
 Depends: nvidia-glx (>= 1.0.8762)
 Provides: libgl-dev
-Conflicts: nvidia-glx (>= 1.0.8763), libgl-dev, mesa-common
+Conflicts: nvidia-glx (>= 1.0.8763), libgl-dev, mesa-common-dev
 Replaces: libgl-dev
 Description: NVIDIA binary XFree86 4.x / Xorg driver development files
  This package contains the NVIDIA binary XFree86 4.x and Xorg driver
