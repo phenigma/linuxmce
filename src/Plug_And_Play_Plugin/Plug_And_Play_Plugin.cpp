@@ -16,6 +16,7 @@ using namespace DCE;
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Screen.h"
+#include "pluto_main/Define_CommMethod.h"
 #include "pluto_main/Table_DHCPDevice.h"
 #include "pluto_main/Table_PnpQueue.h"
 #include "pluto_main/Table_UnknownDevices.h"
@@ -70,6 +71,16 @@ bool Plug_And_Play_Plugin::GetConfig()
 		g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::GetConfig System has no rooms or users yet.  Suspending processing.");
 		m_bSuspendProcessing=true;
 	}
+
+
+	// Serial->usb adapters don't keep valid serial numbers in between reboots
+	// Reset any serial numbers so the match will occur only on the usb bus
+	string sSQL="UPDATE Device_DeviceData "
+		" JOIN Device ON FK_Device=PK_Device "
+		" JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
+		" SET IK_DeviceData='' "
+		" WHERE FK_DeviceData=" TOSTRING(DEVICEDATA_Serial_Number_CONST) " AND FK_CommMethod=" TOSTRING(COMMMETHOD_RS232_CONST);
+	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
 
 	return true;
 }
@@ -204,6 +215,9 @@ void Plug_And_Play_Plugin::CMD_Choose_Pnp_Device_Template(int iPK_Room,int iPK_D
 
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_NewPnpDevice_CONST);
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL2(
+		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_New_Pnp_Device_One_Possibility_CONST);
+	CMD_Remove_Screen_From_History_DL.m_pMessage->m_vectExtraMessages.push_back(CMD_Remove_Screen_From_History_DL2.m_pMessage);
     SendCommand(CMD_Remove_Screen_From_History_DL);
 
 	pPnpQueueEntry->m_pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
@@ -445,6 +459,9 @@ void Plug_And_Play_Plugin::CMD_Ignore_PNP_Device(int iPK_PnpQueue,bool bAlways,s
 
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_NewPnpDevice_CONST);
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL2(
+		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_New_Pnp_Device_One_Possibility_CONST);
+	CMD_Remove_Screen_From_History_DL.m_pMessage->m_vectExtraMessages.push_back(CMD_Remove_Screen_From_History_DL2.m_pMessage);
     SendCommand(CMD_Remove_Screen_From_History_DL);
 
 	pthread_cond_broadcast( &m_PnpCond );
@@ -500,6 +517,13 @@ iPK_PnpQueue,sErrors.c_str(),iPK_DeviceTemplate,sFilename.c_str(),pPnpQueueEntry
 		pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_set(iPK_DeviceTemplate);
 		pPnpQueueEntry->ParseDeviceData(sData_String);
 		g_pPlutoLogger->Write(LV_STATUS, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d prompting user", iPK_PnpQueue);
+		Row_Device *pRow_Device = m_pPnpQueue->FindDisabledDeviceTemplateOnPC(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),iPK_DeviceTemplate);
+		if( pRow_Device )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d re-enabling %d", iPK_PnpQueue,pRow_Device->PK_Device_get());
+			m_pPnpQueue->ReenableDevice(pPnpQueueEntry,pRow_Device);
+
+		}
 		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
 		return; 
 	}

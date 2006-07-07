@@ -61,6 +61,9 @@ namespace DCE
 		bool DeviceMatchesCriteria(Row_Device *pRow_Device,PnpQueueEntry *pPnpQueueEntry);
 		void SetDisableFlagForDeviceAndChildren(Row_Device *pRow_Device,bool bDisabled);
 
+		bool ReenableDevice(PnpQueueEntry *pPnpQueueEntry,Row_Device *pRow_Device);
+		Row_Device *FindDisabledDeviceTemplateOnPC(int PK_Device_PC,int PK_DeviceTemplate);
+
 		// The various process functions,
 		bool Process(PnpQueueEntry *pPnpQueueEntry);
 		bool Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry);

@@ -148,11 +148,11 @@ void ScreenHandler::SCREEN_New_Pnp_Device_One_Possibility(long PK_Screen, int iP
 	if( iPK_Room )
 		DisplayMessageOnOrbiter(PK_Screen,sTitle, false, "0", true,
 			m_pOrbiter->m_mapTextString[TEXT_YES_CONST],sMessageYesUseIt,m_pOrbiter->m_mapTextString[TEXT_Yes_but_wrong_room_CONST],sMessageYesUseItWrongRoom,
-			m_pOrbiter->m_mapTextString[TEXT_No_ignore_it_CONST],sMessageNoIgnoreIt,m_pOrbiter->m_mapTextString[TEXT_Ignore_everytime_CONST],sMessageNoIgnoreItEveryTime);
+			m_pOrbiter->m_mapTextString[TEXT_No_ignore_it_CONST],sMessageNoIgnoreIt,m_pOrbiter->m_mapTextString[TEXT_Ignore_everytime_CONST],sMessageNoIgnoreItEveryTime,StringUtils::itos(iPK_PnpQueue));
 	else
 		DisplayMessageOnOrbiter(PK_Screen,sTitle, false, "0", true,
 			m_pOrbiter->m_mapTextString[TEXT_YES_CONST],sMessageYesUseIt,
-			m_pOrbiter->m_mapTextString[TEXT_No_ignore_it_CONST],sMessageNoIgnoreIt,m_pOrbiter->m_mapTextString[TEXT_Ignore_everytime_CONST],sMessageNoIgnoreItEveryTime);
+			m_pOrbiter->m_mapTextString[TEXT_No_ignore_it_CONST],sMessageNoIgnoreIt,m_pOrbiter->m_mapTextString[TEXT_Ignore_everytime_CONST],sMessageNoIgnoreItEveryTime,"","",StringUtils::itos(iPK_PnpQueue));
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Pnp_ObjectSelected(CallBackData *pData)
@@ -798,7 +798,7 @@ void ScreenHandler::SCREEN_DialogGC100Error(long PK_Screen, string sDescription,
 void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 	string sMessage, bool bPromptToResetRouter,string sTimeout, bool bCantGoBack,
 	string sOption1, string sMessage1, string sOption2, string sMessage2,
-	string sOption3, string sMessage3, string sOption4, string sMessage4)
+	string sOption3, string sMessage3, string sOption4, string sMessage4,string sID)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::DisplayMessageOnOrbiter screen %d message %s option 1 %s / %s 2: %s / %s",
 		PK_Screen,sMessage.c_str(),sOption1.c_str(),sMessage1.c_str(),sOption2.c_str(),sMessage2.c_str());
@@ -828,7 +828,7 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 	if(sOption4.size())
 		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), 0, "", "", "1" );
 
-	m_pOrbiter->CMD_Goto_DesignObj(0, sPK_DesignObj, "", "", false, bCantGoBack );
+	m_pOrbiter->CMD_Goto_DesignObj(0, sPK_DesignObj, sID, "", false, bCantGoBack );
 
 	m_pOrbiter->CMD_Set_Text(sPK_DesignObj, "<%=" + StringUtils::ltos(VARIABLE_Display_Message_Text_CONST) + "%>", TEXT_STATUS_CONST);
 

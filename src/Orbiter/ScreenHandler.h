@@ -71,7 +71,8 @@ protected:
 		string sOption1 = "", string sMessage1 = "",
 		string sOption2 = "", string sMessage2 = "", 
 		string sOption3 = "", string sMessage3 = "",
-		string sOption4 = "", string sMessage4 = "");
+		string sOption4 = "", string sMessage4 = "",
+		string sID="");
 
 
 public: 

@@ -261,17 +261,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 		}
 		else if( pRow_Device_Created->Disabled_get()!=0 )
 		{
-			SetDisableFlagForDeviceAndChildren(pRow_Device_Created,false);
-			m_pDatabase_pluto_main->Device_get()->Commit();
-			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_ADD_SOFTWARE);
-
-			string sMessage = StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " Enabled existing device: " + pRow_Device_Created->Description_get();
-			DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
-				sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
-			m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
-
-			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Detected queue %d was existing device, but disabled",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
-			return Process_Detect_Stage_Add_Software(pPnpQueueEntry);
+			return ReenableDevice(pPnpQueueEntry,pRow_Device_Created);
 		}
 		else
 		{
@@ -385,12 +375,10 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 			pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_set(0);  // there's a glitch in sql2cpp that setnull will set the field to null, but subsequent _get still report the same value
 			pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_set("");
 			pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_set("");
-			pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_set("");
 			pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_set("");
 			pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_setNull(true);
 			pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_setNull(true);
 			pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_setNull(true);
-			pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_setNull(true);
 			pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_setNull(true);
 			pPnpQueueEntry->m_pRow_PnpQueue->Path_set("");
 			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DETECTED);
@@ -717,6 +705,9 @@ bool PnpQueue::Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
 			pPnpQueueEntry2->Stage_set(PNP_DETECT_STAGE_DONE);
 			DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 				m_pPlug_And_Play_Plugin->m_dwPK_Device, m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry2->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_NewPnpDevice_CONST);
+			DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL2(
+				m_pPlug_And_Play_Plugin->m_dwPK_Device, m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry2->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_New_Pnp_Device_One_Possibility_CONST);
+			CMD_Remove_Screen_From_History_DL.m_pMessage->m_vectExtraMessages.push_back(CMD_Remove_Screen_From_History_DL2.m_pMessage);
 			m_pPlug_And_Play_Plugin->SendCommand(CMD_Remove_Screen_From_History_DL);
 			ReleaseQueuesBlockedFromPromptingState(pPnpQueueEntry2);
 			delete pPnpQueueEntry2;
@@ -761,6 +752,14 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 		if( vectRow_Device.size() )
 		{
 			pRow_Device = vectRow_Device[0];
+
+			// USB->RS232 devices often report a device removed without a serial_usb in the string that matches all usb->serial on the bus at the same time.  Skip this.  There should be 4
+			// removed events, and one will have the full serial number with serial_usb in the string
+			if( pPnpQueueEntry->m_pRow_PnpQueue->Removed_get()==1 && pRow_Device->FK_DeviceTemplate_getrow()->FK_CommMethod_get()==COMMMETHOD_RS232_CONST && pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_USB_CONST && pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().find("serial_usb")==string::npos )
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d skipped because serial %s isn't rs232->usb",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().c_str());
+				return false;
+			}
 			if( vectRow_Device.size()>1 )
 				g_pPlutoLogger->Write(LV_WARNING,"PnpQueue::LocateDevice queue %d more than 1 device matched %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sSerialOrMac.c_str());
 			pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(pRow_Device->PK_Device_get());
@@ -844,7 +843,7 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 		if( DeviceMatchesCriteria(pRow_Device,pPnpQueueEntry) )
 		{
 			pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(pRow_Device->PK_Device_get());
-			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice( queue %d mac:%s already a device",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str());
+			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice( - queue %d mac:%s already a device",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sMacAddress.c_str());
 			return true;
 		}
 	}
@@ -1108,8 +1107,56 @@ string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
 void PnpQueue::SetDisableFlagForDeviceAndChildren(Row_Device *pRow_Device,bool bDisabled)
 {
 	pRow_Device->Disabled_set(bDisabled ? 1 : 0);
+
+	// If this is a usb->serial device, something else may get plugged in to the old port, so be sure
+	// to clear out the serial number
+	Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
+	if( bDisabled && pRow_DeviceTemplate && pRow_DeviceTemplate->FK_CommMethod_get()==COMMMETHOD_RS232_CONST )
+		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,"");
+
 	vector<Row_Device *> vectRow_Device;
 	pRow_Device->Device_FK_Device_ControlledVia_getrows(&vectRow_Device);
 	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
 		SetDisableFlagForDeviceAndChildren(*it,bDisabled);
+}
+
+bool PnpQueue::ReenableDevice(PnpQueueEntry *pPnpQueueEntry,Row_Device *pRow_Device)
+{
+	pPnpQueueEntry->AssignDeviceData(pRow_Device);
+	SetDisableFlagForDeviceAndChildren(pRow_Device,false);
+	m_pDatabase_pluto_main->Device_get()->Commit();
+	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_ADD_SOFTWARE);
+
+	string sMessage = StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " Enabled existing device: " + pRow_Device->Description_get();
+	DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
+		sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
+	m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+
+	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::ReenableDevice queue %d was existing device, but disabled",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+	return Process_Detect_Stage_Add_Software(pPnpQueueEntry);
+}
+
+Row_Device *PnpQueue::FindDisabledDeviceTemplateOnPC(int PK_Device_PC,int PK_DeviceTemplate)
+{
+	int PK_Device_Topmost = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,PK_Device_PC);
+	if( !PK_Device_Topmost )
+		return NULL;
+
+	string sPK_Device = StringUtils::itos(PK_Device_Topmost);
+	string sSQL = "SELECT Device.PK_Device FROM Device "
+		"LEFT JOIN Device AS P1 on Device.FK_Device_ControlledVia=P1.PK_Device "
+		"LEFT JOIN Device AS P2 on P1.FK_Device_ControlledVia=P2.PK_Device "
+		"LEFT JOIN Device AS P3 on P2.FK_Device_ControlledVia=P3.PK_Device "
+		"LEFT JOIN Device AS P4 on P3.FK_Device_ControlledVia=P4.PK_Device "
+		"WHERE Device.FK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate) + 
+		" AND Device.Disabled=1 "
+		" AND (P1.PK_Device=" + sPK_Device + " OR P2.PK_Device=" + sPK_Device + 
+		" OR P3.PK_Device=" + sPK_Device + " OR P4.PK_Device=" + sPK_Device + " OR P4.FK_Device_ControlledVia=" + sPK_Device + ")";
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase_pluto_main->mysql_query_result( sSQL ) )==0 || ( row = mysql_fetch_row( result_set.r ) )==NULL || !row[0] )
+		return NULL;
+
+	return m_pDatabase_pluto_main->Device_get()->GetRow(atoi(row[0]));
 }
