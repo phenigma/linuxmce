@@ -1,38 +1,202 @@
-nvidia-graphics-drivers (1.0.8762-2) unstable; urgency=low
+nvidia-graphics-drivers (1.0.8762-2pluto1) unstable; urgency=low
 
   * built for kernel 2.6.16.20-pluto-1-686
 
- -- Radu Cristescu <radu.c@plutohome.com>  Fri, 26 May 2006 11:56:58 +0300
+ -- Radu Cristescu <radu.c@plutohome.com>  Fri, 07 Jul 2006 13:01:30 +0300
+
+nvidia-graphics-drivers (1.0.8762-2) unstable; urgency=low
+
+  * Have nvidia-glx-dev conflict with mesa-common-dev
+
+ -- Randall Donald <rdonald@debian.org>  Fri,  2 Jun 2006 20:44:38 -0700
 
 nvidia-graphics-drivers (1.0.8762-1) unstable; urgency=low
 
-  * built with 8762
+  * New upstream.
+  * take out dh_strip temporarily while the current strip fails on the
+    nvidia libs. 
 
- -- Radu Cristescu <radu.c@plutohome.com>  Fri, 26 May 2006 11:56:58 +0300
+ -- Randall Donald <rdonald@debian.org>  Mon, 22 May 2006 15:26:58 -0700
+
+nvidia-graphics-drivers (1.0.8756-4) unstable; urgency=low
+
+  * Include a good nvidia-kernel-source.tar.gz
+
+ -- Randall Donald <rdonald@debian.org>  Tue, 11 Apr 2006 22:48:33 -0700
+
+nvidia-graphics-drivers (1.0.8756-3) unstable; urgency=low
+
+  * Adjust for Xorg7.0 support. Thanks to Rasmus Bog Hansen <moffe@zz9.dk>
+
+ -- Randall Donald <rdonald@debian.org>  Tue, 11 Apr 2006 10:08:13 -0700
 
 nvidia-graphics-drivers (1.0.8756-2) unstable; urgency=low
 
-  * built with 8756
+  * nvidia-glx-dev: Add the missing Provides: libgl-dev (closes: #361589)  
 
- -- Radu Cristescu <radu.c@plutohome.com>  Tue, 18 Apr 2006 10:43:21 +0300
+ -- Randall Donald <rdonald@debian.org>  Sun,  9 Apr 2006 09:54:21 -0700
 
-nvidia-graphics-drivers (1.0.8178-4) unstable; urgency=low
+nvidia-graphics-drivers (1.0.8756-1) unstable; urgency=low
 
-  * added diversions for xorg
+  * New upstream (closes: #361352)
+  * Please don't file wishlist bugs after only a few hours.
+  * nvdia-glx-dev: put headers under /usr/include and conflict 
+    with other libgl-dev
+  * nvidia-glx-dev: stricter depends on nvidia-glx (closes: #335539)
+  * nvidia-glx: include libnvidia-cfg (closes: #356800)
+  * lower debhelper level back to sarge ver. 4 level (closes: #356775)
 
- -- Radu Cristescu <radu.c@plutohome.com>  Thu, 09 Mar 2006 12:24:40 +0200
+ -- Randall Donald <rdonald@debian.org>  Fri,  7 Apr 2006 18:55:06 -0700
 
 nvidia-graphics-drivers (1.0.8178-3) unstable; urgency=low
 
-  * added Conflicts with nvidia-driver
+  * upload fix for 2.6.16 (closes: #357992, #346355)
 
- -- Radu Cristescu <radu.c@plutohome.com>  Mon, 13 Feb 2006 19:56:00 +0200
+ -- Randall Donald <rdonald@debian.org>  Tue, 28 Mar 2006 19:48:59 -0800
+
+nvidia-graphics-drivers (1.0.8178-2.1) unstable; urgency=low
+
+  * add new upstream patch NVIDIA_kernel-1.0-8178-U012206.diff.txt,
+    closes #357992
+
+ -- Harald Dunkel <harald.dunkel@t-online.de>  Fri, 24 Mar 2006 06:51:49 +0100
+
+nvidia-graphics-drivers (1.0.8178-2) unstable; urgency=low
+
+  * very belated change of kernel-image to linux-image in Recommends. 
+
+ -- Randall Donald <rdonald@debian.org>  Mon, 13 Feb 2006 20:26:15 -0800
 
 nvidia-graphics-drivers (1.0.8178-1) unstable; urgency=low
 
-  * built with 8178
+  * Upload to archive.
 
- -- Radu Cristescu <radu.c@plutohome.com>  Mon, 13 Feb 2006 19:56:00 +0200
+ -- Randall Donald <rdonald@debian.org>  Tue, 27 Dec 2005 13:46:44 -0800
+
+nvidia-graphics-drivers (1.0.8178-0.1) unstable; urgency=low
+
+  * patch scheme added
+  * applied NVidia's patch NVIDIA_kernel-1.0-8178-U122205
+
+ -- Harald Dunkel <harald.dunkel@t-online.de>  Tue, 27 Dec 2005 15:23:41 +0100
+
+nvidia-graphics-drivers (1.0.8178-0) unstable; urgency=low
+
+  * new upstream
+
+ -- Harald Dunkel <harald.dunkel@t-online.de>  Sat, 24 Dec 2005 09:27:56 +0100
+
+nvidia-graphics-drivers (1.0.8174-1) unstable; urgency=low
+
+  * The "Radiohead" Release ;)
+  * New upstream.
+  * Upload to unstable.
+  * Thanks to Harald Dunkel for initial build.
+  * LEGACY GPUs: If you have a TNT, TNT2, Vanta, GeForce 256, GeForce DDR,
+    Quadro, GeForce2 Pro, GeForce2 GTS, GeForce2 Ultra, GeForce2 Ti,
+    Quadro2Pro, DO NOT INSTALL THIS RELEASE!!! They are not supported.
+  * update NEWS files again.
+  * add Xorg 6.8 to the descriptions to cut down on confusion.
+  * add reference to linux- kernel packages in README.Debian
+  * nvidia-xconfig will be in a separate package.  
+
+ -- Randall Donald <rdonald@debian.org>  Sat, 10 Dec 2005 18:33:37 -0800
+
+nvidia-graphics-drivers (1.0.8174-0) unstable; urgency=low
+
+  * new upstream
+
+ -- Harald Dunkel <harald.dunkel@t-online.de>  Wed,  7 Dec 2005 19:40:50 +0100
+
+nvidia-graphics-drivers (1.0.7676-2) experimental; urgency=low
+
+  * add exit 0 to module postrm (closes: #252018)
+  * add more documentation to /etc/default/nvidia-glx (closes: #280237)
+  * reorganize nvidia-glx init script
+  * remove xserver provides (man this was an old addition) (closes: #329320)
+  * fix nvidia-glx-dev missing links (closes: #336778)
+  * now that sarge is stable upgrade DH_COMPAT to 5 (closes: #336734)
+  * Supply diversion for libglx.so to work with newer xorg.
+
+ -- Randall Donald <rdonald@debian.org>  Wed, 23 Nov 2005 01:20:12 +0000
+
+nvidia-graphics-drivers (1.0.7676-1) experimental; urgency=low
+
+  * New Upstream. (includes fix for GeForce FX 7880)
+
+ -- Randall Donald <rdonald@debian.org>  Mon, 29 Aug 2005 15:48:27 -0700
+
+nvidia-graphics-drivers (1.0.7676-0) experimental; urgency=low
+
+  * new upstream
+
+ -- Harald Dunkel <harald.dunkel@t-online.de>  Mon, 15 Aug 2005 21:53:07 +0200
+
+nvidia-graphics-drivers (1.0.7667-3) experimental; urgency=low
+
+  * back out libGL.so mess until it upgrades properly.
+  * move back to experimental while work is being done on the above.
+
+ -- Randall Donald <rdonald@debian.org>  Mon, 18 Jul 2005 13:08:11 -0700
+
+nvidia-graphics-drivers (1.0.7667-2) unstable; urgency=low
+
+  * fix dangling libGL.so issue. nvidia-glx by itself will now
+    link to the diverted xlibmesa library (closes: #208198, #306533, #272438)
+  * Move nvidia-kernel-source to Suggests in nvidia-glx (closes: #295891)
+  * Modify description to make note of GPUs NOT supported
+  * update module README.Debian to refer to  nvnews.net forum.
+    (closes: #299916)
+  * Update nvidia-kernel-source README.Debian to mention module-assistant
+    and remove mention of patches that are unnecessary and other old
+    references.
+  * change upstream_info to not use bashisms. (closes: #304322)
+  * Update to policy 3.6.2
+  * Move GL headers to /usr/share/nvidia/includes/GL. (closes: #268274)
+  * Remove unnecessary dependancy on libglu
+  * Add NEWS item about using legacy packages.
+  * LEGACY GPUs: If you have a TNT, TNT2, Vanta, GeForce 256, GeForce DDR,
+  Quadro, GeForce2 Pro, GeForce2 GTS, GeForce2 Ultra, GeForce2 Ti, Quadro2Pro,
+  DO NOT INSTALL THIS RELEASE!!! Use the nvidia-glx-legacy and
+  nvidia-kernel-source-legacy packages instead.
+
+ -- Randall Donald <rdonald@debian.org>  Wed, 13 Jul 2005 14:23:26 -0700
+
+nvidia-graphics-drivers (1.0.7667-1) experimental; urgency=low
+
+  * New upstream (closes: #315446)
+  * Thanks again to Harald Dunkel for patch and amd64 testing.
+
+ -- Randall Donald <rdonald@debian.org>  Fri, 24 Jun 2005 22:51:46 -0700
+
+nvidia-graphics-drivers (1.0.7664-2) experimental; urgency=low
+
+  * downgrade the libc6 change back to the version in unstable. 
+    (closes: #315313) 
+
+ -- Randall Donald <rdonald@debian.org>  Tue, 21 Jun 2005 14:07:42 -0700
+
+nvidia-graphics-drivers (1.0.7664-1) experimental; urgency=low
+
+  * The "Commander Cool Drew Hess" release.
+  * New upstream. (Thanks to Harald Dunkel for initial work)
+  * uploaded to experimental due to needing GLIBC_2.3.3
+  and legacy support for some GPU's has been removed. 
+  * Add news item about legacy support.
+  * LEGACY GPUs: If you have a TNT, TNT2, Vanta, GeForce 256, GeForce DDR,
+  Quadro, GeForce2 Pro, GeForce2 GTS, GeForce2 Ultra, GeForce2 Ti, Quadro2Pro,
+  DO NOT INSTALL THIS RELEASE!!!  NVIDIA will be supporting these cards in a
+  special legacy driver (as yet unreleased and not included in this package).
+  So if you have the one of the above listed GPUs,
+  remain with the 1.0.7174-3 release.
+
+ -- Randall Donald <rdonald@debian.org>  Sat, 18 Jun 2005 16:46:48 -0700
+
+nvidia-graphics-drivers (1.0.7664-0) unstable; urgency=low
+
+  * New upstream.
+
+ -- Harald Dunkel <harald.dunkel@t-online.de>  Sat, 11 Jun 2005 22:42:26 +0200
 
 nvidia-graphics-drivers (1.0.7174-3) unstable; urgency=low
 
