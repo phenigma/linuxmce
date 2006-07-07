@@ -111,7 +111,6 @@ bool XinePlayer::StartPlayingFile()
 	if((!xine_open(stream, FileName.c_str())) || (!xine_play(stream, 0, 0))) 
 	{
 		printf("Unable to open file: '%s'\n", FileName.c_str());
-		pthread_mutex_unlock(&lockmutex);
 
 		return false;
 	}
