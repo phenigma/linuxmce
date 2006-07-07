@@ -59,6 +59,8 @@ public:
 	bool DATA_Get_Discrete_Volume();
 	int DATA_Get_Volume_Level();
 	void DATA_Set_Volume_Level(int Value);
+	bool DATA_Get_Only_One_Per_PC();
+	bool DATA_Get_Autoassign_to_parents_room();
 
 			*****EVENT***** accessors inherited from base class
 
@@ -175,6 +177,16 @@ public:
 	virtual void CMD_Application_is_Running(string sName,bool *bTrueFalse) { string sCMD_Result; CMD_Application_is_Running(sName.c_str(),bTrueFalse,sCMD_Result,NULL);};
 	virtual void CMD_Application_is_Running(string sName,bool *bTrueFalse,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #812 - Application Exited */
+	/** Used by the appserver to tell itself that it received a SIGCHLD, in order to avoid a deadlock */
+		/** @param #227 PID */
+			/** Process ID to be passed to the ApplicationExited function */
+		/** @param #228 Exit Code */
+			/** Exit Code to be passed to the ApplicationExited function */
+
+	virtual void CMD_Application_Exited(int iPID,int iExit_Code) { string sCMD_Result; CMD_Application_Exited(iPID,iExit_Code,sCMD_Result,NULL);};
+	virtual void CMD_Application_Exited(int iPID,int iExit_Code,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 };

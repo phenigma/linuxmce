@@ -73,20 +73,25 @@ void EnablePrivileges()
 
 #ifndef WIN32 // we only have signals on Linux and hte global var is only used there. so we ifndef it..
 App_Server *g_pAppServer = NULL;
+extern Command_Impl *g_pCommand_Impl;
 
 void sh(int i) /* signal handler */
 {
-    if ( g_pAppServer && g_pAppServer->m_bQuit )
+	if ( g_pAppServer && g_pAppServer->m_bQuit )
 		return;
 
-    int status = 0;
-    pid_t pid = 0;
+	int status = 0;
+	pid_t pid = 0;
 
+	pid = wait(&status);
 
-    pid = wait(&status);
-
-    if ( g_pAppServer )
-        g_pAppServer->ProcessExited(pid, WEXITSTATUS(status));
+	if (g_pAppServer)
+	{
+		// Send ourselves a message that calls the ApplicationExited function
+		// We don't call it directly to avoid a deadlock if the SIGCHLD signal was received while in ProcessUtils::SpawnApplication
+		DCE::CMD_Application_Exited CMD_Application_Exited(g_pAppServer->m_dwPK_Device, g_pAppServer->m_dwPK_Device, pid, WEXITSTATUS(status));
+		g_pCommand_Impl->SendCommand(CMD_Application_Exited);
+	}
 }
 #endif
 
@@ -662,4 +667,18 @@ void App_Server::CMD_Application_is_Running(string sName,bool *bTrueFalse,string
 #ifndef WIN32
 	*bTrueFalse = ProcessUtils::ApplicationIsLaunchedByMe(sName);
 #endif
+}
+//<-dceag-c812-b->
+
+	/** @brief COMMAND: #812 - Application Exited */
+	/** Used by the appserver to tell itself that it received a SIGCHLD, in order to avoid a deadlock */
+		/** @param #227 PID */
+			/** Process ID to be passed to the ApplicationExited function */
+		/** @param #228 Exit Code */
+			/** Exit Code to be passed to the ApplicationExited function */
+
+void App_Server::CMD_Application_Exited(int iPID,int iExit_Code,string &sCMD_Result,Message *pMessage)
+//<-dceag-c812-e->
+{
+		ProcessExited(iPID, iExit_Code);
 }

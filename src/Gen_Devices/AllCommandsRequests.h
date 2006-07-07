@@ -21288,5 +21288,37 @@ namespace DCE
 			COMMAND_Get_Active_Application_CONST,
 			0 /* number of parameters */); }
 	};
+	class CMD_Application_Exited : public PreformedCommand {
+	public:
+		CMD_Application_Exited(long DeviceIDFrom, long DeviceIDTo,int iPID,int iExit_Code) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Application_Exited_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PID_CONST, StringUtils::itos(iPID).c_str(),
+			COMMANDPARAMETER_Exit_Code_CONST, StringUtils::itos(iExit_Code).c_str()); }
+	};
+	class CMD_Application_Exited_DL : public PreformedCommand {
+	public:
+		CMD_Application_Exited_DL(long DeviceIDFrom, string DeviceIDTo,int iPID,int iExit_Code) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Application_Exited_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PID_CONST, StringUtils::itos(iPID).c_str(),
+			COMMANDPARAMETER_Exit_Code_CONST, StringUtils::itos(iExit_Code).c_str()); }
+	};
+	class CMD_Application_Exited_DT : public PreformedCommand {
+	public:
+		CMD_Application_Exited_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPID,int iExit_Code) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Application_Exited_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PID_CONST, StringUtils::itos(iPID).c_str(),
+			COMMANDPARAMETER_Exit_Code_CONST, StringUtils::itos(iExit_Code).c_str()); }
+	};
+	class CMD_Application_Exited_Cat : public PreformedCommand {
+	public:
+		CMD_Application_Exited_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPID,int iExit_Code) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Application_Exited_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PID_CONST, StringUtils::itos(iPID).c_str(),
+			COMMANDPARAMETER_Exit_Code_CONST, StringUtils::itos(iExit_Code).c_str()); }
+	};
 }
 #endif
