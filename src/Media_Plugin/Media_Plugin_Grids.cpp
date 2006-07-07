@@ -1341,10 +1341,18 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 	string::size_type pos=0;
 	int PK_MediaType = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
 	int PK_Users = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
-	
+
 	string sWhere;
 	if( PK_MediaType )
-		sWhere = "EK_MediaType=" + StringUtils::itos(PK_MediaType) + " AND FK_File IS NOT NULL AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(PK_Users)+")";
+	{
+		string sMediaTypes = StringUtils::ltos(PK_MediaType);
+		
+		//THIS IS A TEMPORARY SOLUTION. We must redesign this.
+		if(PK_MediaType == MEDIATYPE_pluto_StoredVideo_CONST)
+			sMediaTypes += string(",") + TOSTRING(MEDIATYPE_pluto_DVD_CONST);
+
+		sWhere = "EK_MediaType IN (" + sMediaTypes + ") AND FK_File IS NOT NULL AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(PK_Users)+")";
+	}
 	else
 	{
 		vector<EntertainArea *> vectEntertainArea;
