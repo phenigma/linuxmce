@@ -99,8 +99,8 @@ case "$URL_TYPE" in
 			apt_err=$?
 
 			## NFS Error fallback
-			while [[ "$apt_err" != "0" && "$count" != "4" ]] ;do
-				sleep .5
+			while [[ "$apt_err" != "0" && "$count" != "10" ]] ;do
+				sleep  2
 				apt-get update
 				apt_err=$?
 
@@ -115,8 +115,8 @@ case "$URL_TYPE" in
 			apt_err=$?			
 
 			## NFS Error fallback
-			while [[ "$apt_err" != "0" && "$count" != "8" ]] ;do
-				sleep 1
+			while [[ "$apt_err" != "0" && "$count" != "10" ]] ;do
+				sleep 5
 			
 				dpkg -l test
 				dpkg_err=$?
@@ -133,7 +133,7 @@ case "$URL_TYPE" in
 					cp /var/lib/dpkg/diversions-old /var/lib/dpkg/diversions
 
 					rm /var/lib/dpkg/statoverride
-					cp /var/lib/dpkg/statoverride-old /var/lib/dpkg/statoverride-old
+					cp /var/lib/dpkg/statoverride-old /var/lib/dpkg/statoverride
 
 					rm -f /var/cache/apt/*.bin
 					rm -f /var/cache/apt/archives/*.deb
