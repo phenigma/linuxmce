@@ -738,10 +738,7 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 			"WHERE (Device.FK_Device_ControlledVia=" + sPK_Device_TopLevel + " OR P1.FK_Device_ControlledVia=" + sPK_Device_TopLevel +
 			" OR P2.FK_Device_ControlledVia=" + sPK_Device_TopLevel + ")";
 
-		if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().find("/org/freedesktop/Hal/devices")!=string::npos && pPnpQueueEntry->m_pRow_PnpQueue->Removed_get() )
-			sSerialOrMac += " AND SerialNumber.IK_DeviceData like '" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get()) + "%'";  // Sometimes the serial number has extra information at the end, this applies to removal only
-		else
-			sSerialOrMac += " AND SerialNumber.IK_DeviceData='" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get()) + "'";
+		sSerialOrMac += " AND SerialNumber.IK_DeviceData='" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get()) + "'";
 	}
 	else if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().size() )
 		sSerialOrMac = "MACaddress='" + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + "'";
@@ -752,14 +749,6 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 		if( vectRow_Device.size() )
 		{
 			pRow_Device = vectRow_Device[0];
-
-			// USB->RS232 devices often report a device removed without a serial_usb in the string that matches all usb->serial on the bus at the same time.  Skip this.  There should be 4
-			// removed events, and one will have the full serial number with serial_usb in the string
-			if( pPnpQueueEntry->m_pRow_PnpQueue->Removed_get()==1 && pRow_Device->FK_DeviceTemplate_getrow()->FK_CommMethod_get()==COMMMETHOD_RS232_CONST && pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_USB_CONST && pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().find("serial_usb")==string::npos )
-			{
-				g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d skipped because serial %s isn't rs232->usb",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().c_str());
-				return false;
-			}
 			if( vectRow_Device.size()>1 )
 				g_pPlutoLogger->Write(LV_WARNING,"PnpQueue::LocateDevice queue %d more than 1 device matched %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sSerialOrMac.c_str());
 			pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(pRow_Device->PK_Device_get());
