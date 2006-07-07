@@ -17,6 +17,8 @@
 
 #include <iostream>
 
+#include "SafetyLock.h"
+
 /*static*/ XinePlayer* XinePlayer::Instance = NULL;
 
 XinePlayer::XinePlayer()
@@ -53,17 +55,17 @@ void XinePlayer::InitPlayerEngine(std::string ConfigName, std::string FileName)
 
 	std::string ConfigFile;
 
-	pthread_mutex_lock(&lockmutex);
+	{
+		SafetyLock Lock(&lockmutex);
+		
+		xine = xine_new();
+		std::cout << FileName <<std::endl;
+		ConfigFile = ConfigName;
+		xine_config_load(xine, ConfigFile.c_str());
+		xine_init(xine);
+		this->FileName = FileName;
+	}
 
-	xine = xine_new();
-	std::cout << FileName <<std::endl;
-	ConfigFile = ConfigName;
-	xine_config_load(xine, ConfigFile.c_str());
-	xine_init(xine);
-	this->FileName = FileName;
-
-
-	pthread_mutex_unlock(&lockmutex);
 
 	if(!StartPlayingFile())
 		return;
@@ -77,7 +79,7 @@ void XinePlayer::StopPlayerEngine()
 	if(!xine)
 		return;
 
-	pthread_mutex_lock(&lockmutex);
+	SafetyLock Lock(&lockmutex);
 #ifdef DEBUG
 	std::cout<<"XinePlayer: StopPlayerEngine()"<<std::endl;
 #endif
@@ -91,12 +93,11 @@ void XinePlayer::StopPlayerEngine()
 	xine = NULL;
 
 	Running = false;
-	pthread_mutex_unlock(&lockmutex);
 }
 
 bool XinePlayer::StartPlayingFile()
 {
-	pthread_mutex_lock(&lockmutex);
+	SafetyLock Lock(&lockmutex);
 
 #ifdef DEBUG
 	std::cout<<"XinePlayer: StartPlayingFile()"<<std::endl;
@@ -116,8 +117,6 @@ bool XinePlayer::StartPlayingFile()
 	}
 
 	std::cout<<"XinePlayer: Playing..."<<std::endl;
-
-	pthread_mutex_unlock(&lockmutex);
 
 	return true;
 }
