@@ -88,7 +88,6 @@ void XinePlayer::StopPlayerEngine()
 	std::cout<<"XinePlayer: StopPlayerEngine()"<<std::endl;
 #endif
 
-	xine_close(stream);
 	xine_event_dispose_queue(event_queue);
 	xine_dispose(stream);
 	if(ao_port)
@@ -102,6 +101,8 @@ void XinePlayer::StopPlayerEngine()
 bool XinePlayer::StartPlayingFile()
 {
 	SafetyLock Lock(&lockmutex);
+
+	xine_close(stream);
 
 #ifdef DEBUG
 	std::cout<<"XinePlayer: StartPlayingFile()"<<std::endl;
