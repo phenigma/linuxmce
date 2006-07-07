@@ -11,6 +11,8 @@ function voicemail($output,$dbADO) {
 
 	$_SESSION['Extension']=(isset($_REQUEST['general']))?100:$_SESSION['MyExtension'];
 
+	exec_batch_command('sudo -u root /usr/pluto/bin/Asterisk_FixVoicemailRights.sh');
+	
 	$out.=setLeftMenu($dbADO).'<iframe src="amp/recordings/index.php?s=voicemail" style="width:98%;height:600"></iframe>';
 
 	$output->setMenuTitle($TEXT_TELECOM_CONST.' |');
