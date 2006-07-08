@@ -1002,7 +1002,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 		{
 			// We know this is a mobile mobile, since it was detected by bluetooth, but we can't identify the make
 			// So we must ask the user, on whatever orbiter he made this selection with
-			DCE::SCREEN_WhatModelMobileOrbiter  SCREEN_WhatModelMobileOrbiter(m_dwPK_Device, pMessage->m_dwPK_Device_From, sMac_address);
+			DCE::SCREEN_WhatModelMobileOrbiter  SCREEN_WhatModelMobileOrbiter(m_dwPK_Device, pMessage->m_dwPK_Device_From, iPK_Users, sMac_address);
 			SendCommand(SCREEN_WhatModelMobileOrbiter);
 
 			return;
