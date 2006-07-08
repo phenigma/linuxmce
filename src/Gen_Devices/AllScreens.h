@@ -4273,11 +4273,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_WhatModelMobileOrbiter(long DeviceIDFrom, long DeviceIDTo,
-			string sMac_address)
+			int iPK_Users, string sMac_address)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "106" /* screen ID */,
-				47 /* Mac Address */, sMac_address.c_str());
+				17 /* The user to whom the phone belongs */, StringUtils::ltos(iPK_Users).c_str(), 47 /* Mac Address */, sMac_address.c_str());
 		}
 	};
 
@@ -4285,11 +4285,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_WhatModelMobileOrbiter_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sMac_address)
+			int iPK_Users, string sMac_address)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "106" /* screen ID */,
-				47 /* Mac Address */, sMac_address.c_str());
+				17 /* The user to whom the phone belongs */, StringUtils::ltos(iPK_Users).c_str(), 47 /* Mac Address */, sMac_address.c_str());
 		}
 	};
 
@@ -4297,11 +4297,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_WhatModelMobileOrbiter_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sMac_address)
+			int iPK_Users, string sMac_address)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "106" /* screen ID */,
-				47 /* Mac Address */, sMac_address.c_str());
+				17 /* The user to whom the phone belongs */, StringUtils::ltos(iPK_Users).c_str(), 47 /* Mac Address */, sMac_address.c_str());
 		}
 	};
 
@@ -4309,11 +4309,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_WhatModelMobileOrbiter_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sMac_address)
+			int iPK_Users, string sMac_address)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "106" /* screen ID */,
-				47 /* Mac Address */, sMac_address.c_str());
+				17 /* The user to whom the phone belongs */, StringUtils::ltos(iPK_Users).c_str(), 47 /* Mac Address */, sMac_address.c_str());
 		}
 	};
 
@@ -9510,7 +9510,7 @@ namespace DCE
 		virtual void SCREEN_ShowInfo(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_CreateViewBookmarksTV(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_WebSites(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_WhatModelMobileOrbiter(long PK_Screen, string sMac_address){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_WhatModelMobileOrbiter(long PK_Screen, int iPK_Users, string sMac_address){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Filelist(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DVDmenu(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Attributes(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -10293,8 +10293,9 @@ namespace DCE
 				case 106:
 				{
 					ResetCallBacks();
+					int iPK_Users = atoi(pMessage->m_mapParameters[17].c_str());
 					string sMac_address = pMessage->m_mapParameters[47];
-					SCREEN_WhatModelMobileOrbiter(nPK_Screen, sMac_address);
+					SCREEN_WhatModelMobileOrbiter(nPK_Screen, iPK_Users, sMac_address);
 					break;
 				}
 				case 107:

@@ -491,11 +491,12 @@ void ScreenHandler::SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, 
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sMacAddress, "", false, false );
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_WhatModelMobileOrbiter(long PK_Screen, string sMacAddress)
+void ScreenHandler::SCREEN_WhatModelMobileOrbiter(long PK_Screen, int iPK_Users, string sMac_address)
 {
-	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(sMacAddress);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sMacAddress);
-	ScreenHandlerBase::SCREEN_WhatModelMobileOrbiter(PK_Screen, sMacAddress);
+	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(sMac_address);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sMac_address);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(iPK_Users));
+	ScreenHandlerBase::SCREEN_WhatModelMobileOrbiter(PK_Screen, iPK_Users, sMac_address);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NewPlugAndPlayDevice(long PK_Screen, int iPK_Device,
