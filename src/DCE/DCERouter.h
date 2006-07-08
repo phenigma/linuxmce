@@ -337,6 +337,7 @@ namespace DCE
 				g_pPlutoLogger->Write(LV_STATUS,"Checking plugin %d for reload",pPlugIn->m_dwPK_Device);
 				if( !pPlugIn->PendingTasks(&vectPendingTasks) )
 				{
+					g_pPlutoLogger->Write(LV_STATUS,"plugin %d denied reload",pPlugIn->m_dwPK_Device);
 					if( PK_Device_Requesting )
 					{
 						string sPendingTasks;

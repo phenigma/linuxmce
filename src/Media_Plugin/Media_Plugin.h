@@ -966,9 +966,17 @@ Powerfile: 0, 1, ... */
 
 //<-dceag-h-e->
 };
-
 //<-dceag-end-b->
+	class MediaSectionGrid
+	{
+	public:
+		int m_iSort1,m_iSort2;
+		class DataGridCell *m_pDataGridCell;
+
+		MediaSectionGrid(int iSort1,int iSort2,DataGridCell *pDataGridCell) { m_pDataGridCell=pDataGridCell; m_iSort1=iSort1; m_iSort2=iSort2; }
+	};
 }
+
 #endif
 //<-dceag-end-e->
 //<-dceag-const2-b->!

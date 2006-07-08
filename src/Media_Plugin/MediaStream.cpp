@@ -184,7 +184,7 @@ bool MediaStream::CanPlayMore()
 
 MediaStream::~MediaStream( )
 {
-	g_pPlutoLogger->Write(LV_STATUS,"MediaStream::~MediaStream %p %d",this,m_iStreamID);
+	g_pPlutoLogger->Write(LV_STATUS,"MediaStream::~MediaStream %p %d mhi %p",this,m_iStreamID,m_pMediaHandlerInfo); 
 	for(size_t s=0;s<m_dequeMediaSection.size();++s)
 		if( m_dequeMediaSection[s] )
 			delete m_dequeMediaSection[s];
@@ -194,7 +194,11 @@ MediaStream::~MediaStream( )
 			delete m_dequeMediaTitle[s];
 
 	if ( m_pMediaHandlerInfo )
+	{
+		size_t sizebefore = m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaStream.size();
         m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaStream_Remove( m_iStreamID );
+		g_pPlutoLogger->Write(LV_STATUS,"MediaStream::~MediaStream size %d - %d",(int) sizebefore,(int) m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaStream.size());
+	}
     ClearPlaylist();
 }
 

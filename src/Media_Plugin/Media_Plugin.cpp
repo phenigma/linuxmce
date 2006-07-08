@@ -659,15 +659,24 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     MediaStream * pMediaStream = NULL;
 	if( iStreamID==0 )  // This is just informational that nothing is playing on this stream
 	{
-		for( MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it )
+		while(true)
 		{
-			MediaStream *pMS = (*it).second;
-			if( pMS->m_pMediaDevice_Source && pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device==pMessage->m_dwPK_Device_From )
+			bool bLoopAgain=false;  // If we delete a stream mid-way, just loop again through the whole list
+			for( MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it )
 			{
-				if( !pMS->m_bStopped )
-					pMS->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia(pMediaStream);
-				StreamEnded(pMS);
+				MediaStream *pMS = (*it).second;
+				if( pMS->m_pMediaDevice_Source && pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device==pMessage->m_dwPK_Device_From )
+				{
+					if( !pMS->m_bStopped )
+						pMS->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia(pMediaStream);
+					StreamEnded(pMS);
+					bLoopAgain=true;
+					break;
+				}
 			}
+			if( bLoopAgain )
+				continue;
+			break;
 		}
 		return false;
 	}
@@ -4493,8 +4502,6 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 		m_pMediaAttributes->LoadStreamAttributesForDisc(pMediaStream);
 	}
 
-	pMediaStream->UpdateDescriptions(true);
-	MediaInfoChanged(pMediaStream,true);
 	m_pMediaAttributes->m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);
 	if( pMediaStream->m_mapPK_Attribute.find(ATTRIBUTETYPE_Performer_CONST)!=pMediaStream->m_mapPK_Attribute.end() || 
 		pMediaStream->m_mapPK_Attribute.find(ATTRIBUTETYPE_Album_CONST)!=pMediaStream->m_mapPK_Attribute.end() || 
@@ -4503,6 +4510,8 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Media_Identified stream is now identified disc");
 		pMediaStream->m_bIdentifiedDisc=true;
 	}
+	pMediaStream->UpdateDescriptions(true);
+	MediaInfoChanged(pMediaStream,true);
 }
 
 void Media_Plugin::AlarmCallback(int id, void* param)

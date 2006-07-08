@@ -497,6 +497,14 @@ void Media_Plugin::PopulateWithDatabaseInfoOnPath(map<string,DatabaseInfoOnPath 
 	}
 */
 
+static bool MediaSectionGridComparer(MediaSectionGrid *x, MediaSectionGrid *y)
+{
+	if( x->m_iSort1==y->m_iSort1 )
+		return x->m_iSort2<y->m_iSort2;
+	else
+		return x->m_iSort1<y->m_iSort1;
+}
+
 class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
@@ -550,6 +558,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 		}
 	}
 
+	list<MediaSectionGrid *> listMediaSectionGrid;  // Store them here first so we can sort them
 	map< pair<int,int>,bool >::iterator itSections;
 	for(map< pair<int,int>,string >::iterator it = pMediaStream->m_mapSections.begin(); it!=pMediaStream->m_mapSections.end(); ++it)
 	{
@@ -559,17 +568,25 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ) // There's a title
 			{
 				string sCell;
-				if( it->first.first>=0 )
-					sCell += " CHAPTER:" + StringUtils::itos(it->first.first+1);  // Internally we're zero based
 				if( it->first.second>=0 )
 					sCell += " TITLE:" + StringUtils::itos(it->first.second+1);
-				pDataGrid->SetData(0, currentPos++,new DataGridCell(it->second,sCell));
+				if( it->first.first>=0 )
+					sCell += " CHAPTER:" + StringUtils::itos(it->first.first+1);  // Internally we're zero based
+				listMediaSectionGrid.push_back(new MediaSectionGrid(it->first.second,it->first.first,new DataGridCell(it->second,sCell)));
 			}
 			else
-				pDataGrid->SetData(0, currentPos++,new DataGridCell(it->second, StringUtils::itos(it->first.first)));
+				listMediaSectionGrid.push_back(new MediaSectionGrid(it->first.second,it->first.first,new DataGridCell(it->second, StringUtils::itos(it->first.first))));
+
 		}
 	}
 
+	listMediaSectionGrid.sort(MediaSectionGridComparer);
+	for(list<MediaSectionGrid *>::iterator it=listMediaSectionGrid.begin();it!=listMediaSectionGrid.end();++it)
+	{
+		MediaSectionGrid *pMediaSectionGrid = *it;
+		pDataGrid->SetData(0, currentPos++,pMediaSectionGrid->m_pDataGridCell);
+		delete pMediaSectionGrid;
+	}
     return pDataGrid;
 }
 
@@ -1345,13 +1362,16 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 	string sWhere;
 	if( PK_MediaType )
 	{
-		string sMediaTypes = StringUtils::ltos(PK_MediaType);
-		
-		//THIS IS A TEMPORARY SOLUTION. We must redesign this.
-		if(PK_MediaType == MEDIATYPE_pluto_StoredVideo_CONST)
-			sMediaTypes += string(",") + TOSTRING(MEDIATYPE_pluto_DVD_CONST);
+		// We're browsing all files of a type, not bookmars for a particular file or disc
+		string sTypes;
+		if( PK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST )
+			sTypes = TOSTRING(MEDIATYPE_pluto_StoredVideo_CONST) "," TOSTRING(MEDIATYPE_pluto_DVD_CONST);
+		else if( PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST )
+			sTypes = TOSTRING(MEDIATYPE_pluto_StoredAudio_CONST) "," TOSTRING(MEDIATYPE_pluto_CD_CONST);
+		else
+			sTypes = StringUtils::itos(PK_MediaType);
 
-		sWhere = "EK_MediaType IN (" + sMediaTypes + ") AND FK_File IS NOT NULL AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(PK_Users)+")";
+		sWhere = "EK_MediaType IN (" + sTypes + ") AND FK_File IS NOT NULL AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(PK_Users)+")";
 	}
 	else
 	{

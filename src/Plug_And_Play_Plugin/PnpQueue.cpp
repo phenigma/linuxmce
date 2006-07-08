@@ -550,6 +550,14 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 					break;
 				}
 			}
+			if( pRow_DeviceTemplate && !pRow_DHCPDevice )
+			{
+				vector<Row_DHCPDevice *> vectRow_DHCPDevice;
+				pRow_DeviceTemplate->DHCPDevice_FK_DeviceTemplate_getrows(&vectRow_DHCPDevice);
+g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT queue %d pRow_DeviceTemplate && !pRow_DHCPDevice %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) vectRow_DHCPDevice.size());
+				if( vectRow_DHCPDevice.size()==1 )
+					pRow_DHCPDevice = vectRow_DHCPDevice[0];
+			}
 		}
 		if( pRow_DeviceTemplate && pRow_DHCPDevice )
 		{
