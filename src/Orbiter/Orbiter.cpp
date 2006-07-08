@@ -1929,7 +1929,9 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 #endif
 			CMD_Set_Current_Location(m_pLocationInfo_Initial->iLocation);
 			m_pLocationInfo = m_pLocationInfo_Initial;
-			m_dwPK_Users = m_dwPK_Users_Default;
+			m_dwPK_Users = DATA_Get_PK_Users();
+			if( !m_dwPK_Users )
+				m_dwPK_Users = m_dwPK_Users_Default;
 
 			DesignObj_OrbiterMap::iterator iHao=m_ScreenMap.begin(  );
 			if ( iHao==m_ScreenMap.end(  ) )
