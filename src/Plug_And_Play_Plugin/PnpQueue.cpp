@@ -230,8 +230,11 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 	{
 		pPnpQueueEntry->AssignDeviceData(pRow_Device_Created);
 		int PK_Device_Topmost = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device_Created->PK_Device_get());
-		if( PK_Device_Topmost != pPnpQueueEntry->m_dwPK_Device_TopLevel )
+		// See if this is a local device that has since moved from one system to another, like rs232 or usb
+		if( PK_Device_Topmost != pPnpQueueEntry->m_dwPK_Device_TopLevel && 
+			(pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_RS232_CONST || pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_USB_CONST || pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_Firewire_CONST || pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_PCI_CONST) )
 		{
+			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Detected for queue %d device %d has moved",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get());
 			// This has moved from one machine to another.  It should have been disabled back when it was removed from the prior machine
 			if( pRow_Device_Created->Disabled_get()==0 )
 				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Detected for queue %d device %d moved but wasn't disbled",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get());
@@ -730,7 +733,9 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 	string sPK_Device_TopLevel = StringUtils::itos(pPnpQueueEntry->m_dwPK_Device_TopLevel);
 	vector<Row_Device *> vectRow_Device;
 	string sSerialOrMac;
-	if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
+	if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().size() )
+		sSerialOrMac = "MACaddress='" + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + "'";
+	else if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
 	{
 		sSerialOrMac = "LEFT JOIN Device AS P1 ON Device.FK_Device_ControlledVia = P1.PK_Device "
 			"LEFT JOIN Device AS P2 ON P1.FK_Device_ControlledVia = P2.PK_Device "
@@ -740,8 +745,6 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 
 		sSerialOrMac += " AND SerialNumber.IK_DeviceData='" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get()) + "'";
 	}
-	else if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().size() )
-		sSerialOrMac = "MACaddress='" + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + "'";
 
 	if( sSerialOrMac.size() )
 	{
