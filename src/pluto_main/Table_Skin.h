@@ -79,6 +79,7 @@ class DECLSPECIFIER Row_Skin : public TableRow, public SerializeClass
 		
 		long int m_PK_Skin;
 string m_Description;
+string m_Define;
 long int m_FK_UI;
 short int m_MergeStandardVariation;
 string m_DataSubdirectory;
@@ -97,11 +98,12 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[19];
+		bool is_null[20];
 	
 	public:
 		long int PK_Skin_get();
 string Description_get();
+string Define_get();
 long int FK_UI_get();
 short int MergeStandardVariation_get();
 string DataSubdirectory_get();
@@ -123,6 +125,7 @@ long int psc_restrict_get();
 		
 		void PK_Skin_set(long int val);
 void Description_set(string val);
+void Define_set(string val);
 void FK_UI_set(long int val);
 void MergeStandardVariation_set(short int val);
 void DataSubdirectory_set(string val);
@@ -142,7 +145,8 @@ void psc_mod_set(string val);
 void psc_restrict_set(long int val);
 
 		
-		bool FK_UI_isNull();
+		bool Define_isNull();
+bool FK_UI_isNull();
 bool DataSubdirectory_isNull();
 bool FK_Style_isNull();
 bool FK_Skin_TextPlacement_isNull();
@@ -154,7 +158,8 @@ bool psc_frozen_isNull();
 bool psc_restrict_isNull();
 
 			
-		void FK_UI_setNull(bool val);
+		void Define_setNull(bool val);
+void FK_UI_setNull(bool val);
 void DataSubdirectory_setNull(bool val);
 void FK_Style_setNull(bool val);
 void FK_Skin_TextPlacement_setNull(bool val);
@@ -199,13 +204,14 @@ void StyleVariation_FK_Skin_getrows(vector <class Row_StyleVariation*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Skin+ m_Description+ m_FK_UI+ m_MergeStandardVariation+ m_DataSubdirectory+ m_FK_Style+ m_FK_Skin_TextPlacement+ m_DrawTextBeforeChildren+ m_FK_StabilityStatus+ m_FK_Screen_MainMenu+ m_FK_Screen_Sleeping+ m_FK_Screen_ScreenSaver+ m_FK_Package+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Skin+ m_Description+ m_Define+ m_FK_UI+ m_MergeStandardVariation+ m_DataSubdirectory+ m_FK_Style+ m_FK_Skin_TextPlacement+ m_DrawTextBeforeChildren+ m_FK_StabilityStatus+ m_FK_Screen_MainMenu+ m_FK_Screen_Sleeping+ m_FK_Screen_ScreenSaver+ m_FK_Package+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_Skin_asSQL();
 string Description_asSQL();
+string Define_asSQL();
 string FK_UI_asSQL();
 string MergeStandardVariation_asSQL();
 string DataSubdirectory_asSQL();
