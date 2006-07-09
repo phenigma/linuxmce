@@ -220,7 +220,9 @@ bool PnpQueueEntry::IsDuplicate(PnpQueueEntry *pPnpQueueEntry)
 		m_pRow_PnpQueue->VendorModelId_get()==pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() &&
 		m_pRow_PnpQueue->IPaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get() &&
 		m_pRow_PnpQueue->MACaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() &&
-		m_pRow_PnpQueue->SerialNumber_get()==pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() )
+		m_pRow_PnpQueue->SerialNumber_get()==pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() &&
+		m_pRow_PnpQueue->Category_get()==pPnpQueueEntry->m_pRow_PnpQueue->Category_get() &&
+		m_pRow_PnpQueue->Parms_get()==pPnpQueueEntry->m_pRow_PnpQueue->Parms_get() )
 	{
 		// So far it's a match.  Check if there's a com port, since there can be the same identical device on 2 serial ports
 		if( m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)==m_mapPK_DeviceData.end() ||
