@@ -1,14 +1,28 @@
 #!/bin/bash
 
-monster="y"
+nobuild="-b"
+#upload=""
+upload="y"
 
+branch="trunk"
+#branch="2.0.0.40"
+
+echo "Marker: starting `date`"
 # if we receive a "force-build" parameter, ignore this setting
-if [[ "$1" != "force-build" ]]; then
-	nobuild="-b"
-	#nobuild=""
-else
-	shift
-fi
+for ((i = 1; i <= "$#"; i++)); do
+	case "${!i}" in
+		force-build)
+			monster=
+			nobuild=
+		;;
+		monster-build)
+			monster=y
+			#nobuild=
+		;;
+		nocheckout) nocheckout=y ;;
+		nosqlcvs) nosqlcvs=y ;;
+	esac
+done
 
 fastrun=""
 #fastrun="-f -DERROR_LOGGING_ONLY"
@@ -52,57 +66,124 @@ ReplacePluto()
 	WebSite="$3"
 
 	# What the?!  sed only replaces one instance per line so do it multipe times??
-	sed -i "s/Pluto/$ProperName/" $File
-	sed -i "s/plutohome.com/$WebSite/" $File
-	sed -i "s/Pluto/$ProperName/" $File
-	sed -i "s/Pluto/$ProperName/" $File
-	sed -i "s/Pluto/$ProperName/" $File
-	sed -i "s/plutohome.com/$WebSite/" $File
-	sed -i "s/plutohome.com/$WebSite/" $File
-	sed -i "s/plutohome.com/$WebSite/" $File
+	# Answer to that one: add the "g" modifier and it replaces all instances, like I did (Radu)
+	sed -i "s/Pluto/$ProperName/g" $File
+	sed -i "s/plutohome.com/$WebSite/g" $File
 }
 
 
 Q="select PK_Version from Version ORDER BY date desc, PK_Version limit 1"
 version=$(echo "$Q;" | mysql -N pluto_main)
+Q="update DeviceTemplate set FK_Package=307 where CommandLine='Generic_Serial_Device'" #  Be sure all GSD Devices use that package
+echo "$Q;" | mysql -N pluto_main
 
 echo Using version with id: "$version"
 
 if [ "$nobuild" = "" ]; then
-	rm /tmp/main_sqlcvs.dump
-	#This is a release build, so we want to get a real sqlCVS
-	#bash -x /home/database-dumps/sync-sqlcvs.sh
-	rm /tmp/main_sqlcvs.tar.gz
-	ssh uploads@plutohome.com "rm /tmp/main_sqlcvs.dump /home/uploads/main_sqlcvs.tar.gz; mysqldump --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata main_sqlcvs > /tmp/main_sqlcvs.dump; cd /tmp; tar zcvf /home/uploads/main_sqlcvs.tar.gz main_sqlcvs.dump"
-	scp uploads@plutohome.com:/home/uploads/main_sqlcvs.tar.gz /tmp/
-	cd /tmp
-	tar zxvf main_sqlcvs.tar.gz
+	if [[ -z "$nosqlcvs" ]]; then
+		rm /tmp/main_sqlcvs.dump
+		rm /tmp/myth_sqlcvs.dump
+		#This is a release build, so we want to get a real sqlCVS
+		bash -x /home/database-dumps/sync-sqlcvs.sh
+		rm /tmp/sqlcvs_dumps.tar.gz
+		ssh uploads@plutohome.com "
+			rm -f /tmp/main_sqlcvs.dump /tmp/myth_sqlcvs /home/uploads/sqlcvs_dumps.tar.gz;
+			mysqldump -e --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata main_sqlcvs > /tmp/main_sqlcvs.dump;
+			mysqldump -e --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata myth_sqlcvs > /tmp/myth_sqlcvs.dump;
+			cd /tmp;
+			tar zcvf /home/uploads/sqlcvs_dumps.tar.gz main_sqlcvs.dump myth_sqlcvs.dump"
+		scp uploads@plutohome.com:/home/uploads/sqlcvs_dumps.tar.gz /tmp/
+		cd /tmp
+		tar zxvf sqlcvs_dumps.tar.gz
 
-	if [ ! -f /tmp/main_sqlcvs.dump ]; then
-		echo "sqlcvs.dump not found.  aborting"
-		read
-		exit
+		if [ ! -f /tmp/main_sqlcvs.dump ]; then
+			echo "main_sqlcvs.dump not found.  aborting"
+			read
+			exit
+		fi
+
+		if [ ! -f /tmp/myth_sqlcvs.dump ]; then
+			echo "myth_sqlcvs.dump not found.  aborting"
+			read
+			exit
+		fi
+
+		mysql main_sqlcvs < /tmp/main_sqlcvs.dump
+		mysql myth_sqlcvs < /tmp/myth_sqlcvs.dump
+		
+		if [ $version -eq 1 ]; then
+			sqlCVS -h localhost -D main_sqlcvs update-psc
+		fi
+		sqlCVS -h localhost -D pluto_security update-psc
+		sqlCVS -h localhost -D pluto_media update-psc
 	fi
 
-	mysql main_sqlcvs < /tmp/main_sqlcvs.dump
-    
-	if [ $version -eq 1 ]; then
-		sqlCVS -h localhost -D main_sqlcvs update-psc
-	fi
-	sqlCVS -h localhost -D pluto_security update-psc
-	sqlCVS -h localhost -D pluto_media update-psc
+	if [[ -z "$nocheckout" ]]; then
+		echo "Marker: svm co `date`"
+		# Prepare build directory
+		rm -rf /home/MakeRelease
+		mkdir -p /home/MakeRelease/private
+		
+		# Check out private repository
+		cd /home/MakeRelease/private
+		if [[ "$branch" == trunk ]]; then
+			svn co http://10.0.0.170/pluto-private/trunk/. | tee /home/MakeRelease/svn.log
+		else
+			svn co http://10.0.0.170/pluto-private/branches/"$branch" | tee /home/MakeRelease/svn.log
+			rm -f trunk
+			ln -s "$branch" trunk # workaround as to not change all of the script
+		fi
 
-    rm -rf /home/MakeRelease
-    mkdir -p /home/MakeRelease
-    cd /home/MakeRelease
-	svn co http://10.0.0.170/pluto/trunk/. | tee /home/MakeRelease/svn.log
+		# Check out public repository
+		cd /home/MakeRelease
+		if [[ "$branch" == trunk ]]; then
+			svn co http://10.0.0.170/pluto/trunk/. | tee -a /home/MakeRelease/svn.log
+		else
+			svn co http://10.0.0.170/pluto/branches/"$branch" | tee -a /home/MakeRelease/svn.log
+			rm -f trunk
+			ln -s "$branch" trunk # workaround as to not change all of the script
+		fi
+		
+		# Clone Video4Linux Mercurial repository
+		cd /home/MakeRelease/trunk/src/drivers
+		hg clone /home/sources/mercurial-repositories/v4l-dvb/ | tee /home/MakeRelease/mercurial-v4l.log
+		
+		# Make symlinks from private copy to public copy
+		for Dir1 in /home/MakeRelease/private/trunk/*; do
+			BaseDir1=$(basename "$Dir1")
+			[[ -L "$Dir1" || ! -d /home/MakeRelease/trunk/"$BaseDir1" ]] && continue
+			for Dir2 in "$Dir1"/*; do
+				[[ -L "$Dir2" ]] && continue
+				BaseDir2=$(basename "$Dir2")
+				rm -f /home/MakeRelease/trunk/"$BaseDir1"/"$BaseDir2"
+				ln -s /home/MakeRelease{/private,}/trunk/"$BaseDir1"/"$BaseDir2"
+				echo ln -s /home/MakeRelease{/private,}/trunk/"$BaseDir1"/"$BaseDir2"
+			done
+		done
+		
+		# Make symlinks from public copy to private copy
+		for Dir1 in /home/MakeRelease/trunk/*; do
+			BaseDir1=$(basename "$Dir1")
+			[[ -L "$Dir1" || ! -d /home/MakeRelease/private/trunk/"$BaseDir1" ]] && continue
+			for Dir2 in "$Dir1"/*; do
+				[[ -L "$Dir2" ]] && continue
+				BaseDir2=$(basename "$Dir2")
+				rm -f /home/MakeRelease/private/trunk/"$BaseDir1"/"$BaseDir2"
+				ln -s /home/MakeRelease{,/private}/trunk/"$BaseDir1"/"$BaseDir2"
+				echo ln -s /home/MakeRelease{,/private}/trunk/"$BaseDir1"/"$BaseDir2"
+			done
+		done
+	fi
+		
 	mkdir -p /home/MakeRelease/trunk/src/bin
-	cp /home/builds/Windows_Output/src/bin/* /home/MakeRelease/trunk/src/bin
 	cd /home/MakeRelease/trunk/src/bin
 	rm ../pluto_main/*
 	# We have to use pluto_main so the class is named correctly, but that means we need to be sure  the local pluto_main is up to date
 	sql2cpp -D pluto_main -h localhost
 	cd ../pluto_main
+
+	## temporary
+	svn revert Table_Device.cpp  Table_Device_DeviceData.cpp Table_Orbiter.cpp Table_CommandGroup_D_Command_CommandParameter.cpp Table_CommandGroup_D.cpp Table_CommandGroup_D_Command.cpp
 	svn -m "Automatic Regen" --username aaron --password aaron --non-interactive commit
     cd /home/MakeRelease/trunk
     svn info > svn.info
@@ -115,6 +196,7 @@ if [ "$monster" = "y" ]; then
 	echo "update Text_LS set Description = replace(Description,'Pluto','Monster');" | mysql main_sqlcvs
 	echo "update Text_LS set Description = replace(Description,'pluto','monster');" | mysql main_sqlcvs
 	echo "update Text_LS set Description = replace(Description,'PLUTO','MONSTER');" | mysql main_sqlcvs
+	echo "update Package_Source set Repository=replace(Repository,'20dev','10monsterdev');" | mysql main_sqlcvs
 	ReplacePluto "web/pluto-admin/languages/en/login.lang.php" "Monster" "monstercable.com"
 	ReplacePluto "web/pluto-admin/languages/en/userHome.lang.php" "Monster" "monstercable.com"
 	ReplacePluto "web/pluto-admin/operations/login.php" "Monster" "monstercable.com"
@@ -123,7 +205,9 @@ if [ "$monster" = "y" ]; then
 	ReplacePluto "web/pluto-admin/include/template.class.inc.php" "Monster" "monstercable.com"
 	ReplacePluto "web/pluto-admin/include/weborbiter.inc.php" "Monster" "monstercable.com"
 	ReplacePluto "web/pluto-admin/languages/en/lightingScenarios.lang.php" "Monster" "monstercable.com"
-Fi
+
+	sed -i 's/20dev/10monsterdev/g' /home/MakeRelease/trunk/src/ConfirmDependencies_Script_Offline/Initial_Config_Core.sh
+fi
 
 #Do some database maintenance to correct any errors
 # Be sure all debian packages are marked as being compatible with debian distro
@@ -141,15 +225,16 @@ echo $O2 > /home/MakeRelease/query2
 Q3="select VersionName from Version WHERE PK_Version=$version"
 version_name=$(echo "$Q3;" | mysql -N pluto_main)
 
-DEST="mihai.t@newflavorstudio.com -c igor.s@newflavorstudio.com -c aaron@plutohome.com -c radu.c@newflavorstudio.com -c mtoader@gmail.com"
+DEST="aaron@plutohome.com -c radu.c@plutohome.com -c chris.m@plutohome.com"
 
 function reportError
 {
     echo "MakeRelease failed.";
 
-    [ -e "/home/MakeRelease/MakeRelease.log" ] && (echo -e "Make Release failed. Attached are the last 50 lines of the relevant log file\n\n"; tail -n 50 /home/MakeRelease/MakeRelease.log) | mail -s "MakeRelease failes" $DEST
+    [ -e "/home/MakeRelease/MakeRelease.log" ] && (echo -e "Make Release failed. Attached are the last 50 lines of the relevant log file\n\n"; tail -n 50 /home/MakeRelease/MakeRelease.log) | mail -s "MakeRelease failed" $DEST
 #   [ -e "$3/svn-checkout.log" ] && (echo -e "Build failed $1. Attached are the last 50 lines of the relevant log file\n\n"; tail -n 50 $3/svn-checkout.log) | mail -s "Build failure for revision $2" $DEST
 
+	cp /home/MakeRelease/MakeRelease*.log "$BASE_OUT_FOLDER"/"$version_name"
 }
 
 echo Building version $version_name 
@@ -167,16 +252,33 @@ fi;
 
 # Creating target folder.
 mkdir -p "$BASE_OUT_FOLDER/$version_name";
-
-if ! MakeRelease $fastrun $nobuild -a -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/trunk -n / -R $svninfo -v $version > /home/MakeRelease/MakeRelease1.log ; then
+echo "Marker: starting compilation `date`"
+if ! MakeRelease $fastrun $nobuild -c -a -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/trunk -n / -R $svninfo -v $version > >(tee /home/MakeRelease/MakeRelease1.log); then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
 	exit
 fi
 
+# We did a 'don't make package' above with -c so the windows builder may continue building/outputting the latest bins
+cp /home/builds/Windows_Output/src/bin/* /home/MakeRelease/trunk/src/bin
 
-`dirname $0`/scripts/propagate.sh "$BASE_OUT_FOLDER/$version_name/"
+echo "Marker: starting package building `date`"
+if ! MakeRelease $fastrun -b -a -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/trunk -n / -R $svninfo -v $version > >(tee /home/MakeRelease/MakeRelease1.log); then
+	echo "MakeRelease Failed.  Press any key"
+	reportError
+	read
+	exit
+fi
+	
+BuildScript="/home/MakeRelease/trunk/src/BUILD.sh"
+(echo '#!/bin/bash'; sed 's#cd /home/MakeRelease/trunk//src/#popd 2>/dev/null\npushd #g' Compile.script) >"$BuildScript"
+
+if [[ "$monster" == y ]]; then
+	`dirname $0`/scripts/propagate-monster.sh "$BASE_OUT_FOLDER/$version_name/"
+else
+	`dirname $0`/scripts/propagate.sh "$BASE_OUT_FOLDER/$version_name/"
+fi
 
 echo Setting this version as the current one.
 rm $BASE_OUT_FOLDER/current
@@ -228,31 +330,49 @@ cp -r /home/samba/builds/Windows_Output/winnetdlls $BASE_OUT_FOLDER/$version_nam
 #dcd /home/tmp/pluto-build/
 #./propagate.sh
 
-
 pushd /home/samba/repositories/pluto/replacements/main/binary-i386/
 ./update-repository
 popd
 
-if [ $version -ne 1 ]; then
-    mkdir -p /home/builds/upload
-    pushd /home/builds
-    rm upload/download.tar.gz
-	cd $version_name
+mkdir -p /home/builds/upload
+pushd /home/builds
+rm upload/download.tar.gz
+cd $version_name
+if [ "$monster" = "y" ]; then
+	md5sum installation-cd.iso > installation-cd.$version_name.monster.md5
+	mv installation-cd.iso installation-cd.$version_name.monster.iso
+	echo $version_name > current_version
+else
 	md5sum installation-cd.iso > installation-cd.$version_name.md5
 	mv installation-cd.iso installation-cd.$version_name.iso
 	echo $version_name > current_version
-    tar zcvf ../upload/download.tar.gz *
-    scp ../upload/download.tar.gz uploads@plutohome.com:~/
-
+fi
+	
+if [[ $version -ne 1 || $upload == y ]]; then
+	echo "Marker: uploading download.tar.gz `date`"
+	ssh uploads@plutohome.com "rm ~/*download* ~/*replace*"
+	if [ "$monster" = "y" ]; then
+		tar zcvf ../upload/download.monster.tar.gz *
+		scp ../upload/download.monster.tar.gz uploads@plutohome.com:~/
+	else
+		tar zcvf ../upload/download.tar.gz *
+		scp ../upload/download.tar.gz uploads@plutohome.com:~/
+	fi
     cd ../upload
     sh -x `dirname $0`/scripts/DumpVersionPackage.sh
     scp dumpvp.tar.gz uploads@plutohome.com:~/
 
+	echo "Marker: uploading replacements `date`"
+
 	cd /home/WorkNew/src/MakeRelease
-	sh -x DirPatch.sh
+	bash -x DirPatch.sh
 	scp replacements.tar.gz uploads@plutohome.com:~/
 	scp replacements.patch.sh uploads@plutohome.com:~/
     popd
+	
+	ssh uploads@plutohome.com "/home/uploads/SetupTemp.sh"
+	
+	echo "Marker: SourceForge `date`"
 	
 	# SourceForge CVS
 	if ! MakeRelease -a -o 1 -r 12 -m 1 -s /home/MakeRelease/trunk -n / -b -v $version  > /home/MakeRelease/MakeRelease6.log ; then
@@ -287,6 +407,9 @@ if [ $version -ne 1 ]; then
 	echo "Sent to server."
 fi
 
+cp /home/MakeRelease/MakeRelease*.log "$BASE_OUT_FOLDER"/"$version_name"
+
+echo "Marker: done `date`"
 echo "Everything okay.  Press any key"
 
 if [ "x$nobuild" = "x" ]; then
@@ -307,4 +430,14 @@ fi
 sh -x /home/SendToSwiss.sh
 read
 
-
+#if [[ "$monster" == y ]]; then
+#	mv /home/builds/$version_name{,.monster}
+#	rm -f /home/builds/current /home/builds/current-monster
+#	ln -s /home/builds/$version_name.monster /home/builds/current-monster
+#	echo "Last build used the monster flag. Reset it." | mail -s "** Reset Monster Flag **" radu.c@plutohome.com
+#else
+#	mv /home/builds/$version_name{,.pluto}
+#	rm -f /home/builds/current /home/builds/current-pluto
+#	ln -s /home/builds/$version_name.pluto /home/builds/current
+#	ln -s /home/builds/$version_name.pluto /home/builds/current-pluto
+#fi
