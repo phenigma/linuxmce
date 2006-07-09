@@ -1,12 +1,24 @@
 #ifndef __Define_Skin_H__
 #define __Define_Skin_H__
 
+#define SKIN_Basic_CONST 1
+#define SKIN_BO_CONST 2
+#define SKIN_Mobile_Phone_Basic_CONST 3
+#define SKIN_Mobile_Phone_BO_CONST 4
+#define SKIN_Audi_CONST 5
+#define SKIN_Small_UI_Basic_CONST 6
+#define SKIN_Monster_CONST 7
+#define SKIN_Marbella_CONST 9
+#define SKIN_Mobile_Phone_Monster_CONST 10
+#define SKIN_Small_UI_Monster_CONST 11
 
 #define SKIN_TABLE "Skin"
 #define SKIN_PK_SKIN_FIELD "PK_Skin"
 #define SKIN_PK_SKIN_TABLE_FIELD "Skin.PK_Skin"
 #define SKIN_DESCRIPTION_FIELD "Description"
 #define SKIN_DESCRIPTION_TABLE_FIELD "Skin.Description"
+#define SKIN_DEFINE_FIELD "Define"
+#define SKIN_DEFINE_TABLE_FIELD "Skin.Define"
 #define SKIN_FK_UI_FIELD "FK_UI"
 #define SKIN_FK_UI_TABLE_FIELD "Skin.FK_UI"
 #define SKIN_MERGESTANDARDVARIATION_FIELD "MergeStandardVariation"
