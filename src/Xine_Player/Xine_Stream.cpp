@@ -130,7 +130,6 @@ bool Xine_Stream::StartupStream()
 {
 	if (m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Double stream initialization attempted - skipping");
 		return false;
 	}
 	

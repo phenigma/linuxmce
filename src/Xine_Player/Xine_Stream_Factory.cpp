@@ -261,7 +261,6 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 		{
 			Xine_Stream *pStream = (*stream).second;
 			pStream->StartupStream();
-			g_pPlutoLogger->Write(LV_WARNING,"Opened stream AV with ID=%i", streamID);
 			return pStream;
 		}
 	}
