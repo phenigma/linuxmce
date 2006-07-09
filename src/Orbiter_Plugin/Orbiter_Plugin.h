@@ -81,6 +81,7 @@ public:
 	class FloorplanInfoProvider *m_pLighting_Floorplan,*m_pClimate_Floorplan,*m_pMedia_Floorplan,*m_pSecurity_Floorplan,*m_pTelecom_Floorplan;
 	class Media_Plugin *m_pMedia_Plugin;
 	class General_Info_Plugin *m_pGeneral_Info_Plugin;
+	class Plug_And_Play_Plugin *m_pPlug_And_Play_Plugin;
 
     // Private methods
     map<string,UnknownDeviceInfos *> m_mapUnknownDevices; // A temporary map to match Bluetooth Dongle's with devices they detect

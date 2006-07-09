@@ -54,6 +54,8 @@ public:
 
 		class DataGridTable *PNPDevices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
+		bool m_bSuspendProcessing_get() { return m_bSuspendProcessing; }
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

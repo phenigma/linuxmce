@@ -195,7 +195,7 @@ void PnpQueueEntry::FindTopLevelDevice()
 g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueueEntry::FindTopLevelDevice queue has no reporter %d",m_pRow_PnpQueue->FK_Device_Reported_get());
 		m_pRow_Device_Reported = m_pDatabase_pluto_main->Device_get()->GetRow(m_pPlug_And_Play_Plugin->m_dwPK_Device);
 	}
-g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueueEntry::FindTopLevelDevice queue has reporter %d/%d",m_pRow_Device_Reported->PK_Device_get(),m_pRow_Device_Reported->FK_Room_get());
+g_pPlutoLogger->Write(LV_STATUS,"PnpQueueEntry::FindTopLevelDevice queue has reporter %d/ room%d",m_pRow_Device_Reported->PK_Device_get(),m_pRow_Device_Reported->FK_Room_get());
 	m_dwPK_Device_TopLevel=0;
 	Row_Device *pRow_Device=m_pRow_Device_Reported;
 	while(pRow_Device)

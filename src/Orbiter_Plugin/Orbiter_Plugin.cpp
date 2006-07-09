@@ -87,6 +87,7 @@ string g_sLatestMobilePhoneVersion="2006.02.09";
 #include "../Media_Plugin/EntertainArea.h"
 #include "../Media_Plugin/Media_Plugin.h"
 #include "../General_Info_Plugin/General_Info_Plugin.h"
+#include "../Plug_And_Play_Plugin/Plug_And_Play_Plugin.h"
 
 #define EXPIRATION_INTERVAL 30
 
@@ -256,6 +257,7 @@ bool Orbiter_Plugin::Register()
 	m_pTelecom_Floorplan=( FloorplanInfoProvider * ) pTelecom_Plugin;
 
 	m_pGeneral_Info_Plugin=( General_Info_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST);
+	m_pPlug_And_Play_Plugin=( Plug_And_Play_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Plug_And_Play_Plugin_CONST);
 
 	if( !m_pLighting_Floorplan || !m_pClimate_Floorplan || !m_pMedia_Floorplan || !m_pSecurity_Floorplan || !m_pTelecom_Floorplan || !m_pGeneral_Info_Plugin )
 	{
@@ -516,6 +518,13 @@ bool Orbiter_Plugin::IdentifyDevice(const string& sMacAddress, string &sDeviceCa
 
 bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
+	if( m_pPlug_And_Play_Plugin && m_pPlug_And_Play_Plugin->m_bSuspendProcessing_get()==true )
+	{
+		// Just ignore this.  Another detected event will be fired soon.
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::MobileOrbiterDetected processing is now suspended.");
+		return false;
+	}
+
     if (NULL == pDeviceFrom)
     {
         g_pPlutoLogger->Write(LV_WARNING, "Got orbiter detected, but pDeviceFrom is NULL. "
