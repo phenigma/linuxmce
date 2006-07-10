@@ -2199,6 +2199,7 @@
 #define DESIGNOBJ_butAlarmSetupLater_CONST 5141
 #define DESIGNOBJ_butAlarmType2_CONST 5142
 #define DESIGNOBJ_butAlarmName2_CONST 5143
+#define DESIGNOBJ_dgUsersMobilePhone_CONST 5144
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
