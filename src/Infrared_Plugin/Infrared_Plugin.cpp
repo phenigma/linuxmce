@@ -700,6 +700,7 @@ g_pPlutoLogger->Write(LV_STATUS,"StoreIR Code.  Found %d rows for this already",
 	{
 		// we found no existing entry for the Command+Device pair; adding a new one
 		pRow_InfraredGroup_Command = pTable_InfraredGroup_Command->AddRow();
+		pRow_InfraredGroup_Command->FK_InfraredGroup_set(pRow_InfraredGroup->PK_InfraredGroup_get());
 		pRow_InfraredGroup_Command->FK_Command_set(iPK_Command_Input);
 		pRow_InfraredGroup_Command->IRData_set(sValue_To_Assign);
 		bNew = true;
