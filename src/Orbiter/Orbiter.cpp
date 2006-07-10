@@ -7420,6 +7420,7 @@ void Orbiter::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessa
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Monitor already off");
 #endif
+		CMD_Display_OnOff("0",false);
 		/*  TODO -- This makes it too easy to power off accidentally by hitting the button multiple times
 		For now the user will just hit the 'power' option
 		DCE::CMD_Halt_Device CMD_Halt_Device(m_dwPK_Device,m_dwPK_Device_LocalAppServer,m_dwPK_Device,"0");
