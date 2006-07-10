@@ -108,4 +108,14 @@ WizardPageVideoAdjustSize::~WizardPageVideoAdjustSize(void)
 		(Page->GetChildRecursive("ButtonMinus"));
 	Button->SetFocus(Border*5 < FrontEnd->GetScreenWidth());
 
+	Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Set("WizardBorder", Border);
+	Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Set("LeftBorder", LeftBorder);
+	Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Set("TopBorder", TopBorder);
+
+#ifdef DEBUG
+	cout << "WizardPageVideoAdjustSize::UpdateSelected()" << endl;
+	cout << "LeftBorder: " << LeftBorder << endl;
+	cout << "TopBorder: " << TopBorder << endl;
+	cout << "WizardBorder: " << Border << endl;
+#endif
 }
