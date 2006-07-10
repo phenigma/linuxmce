@@ -448,7 +448,25 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_CommandGrou
 
 
 //update modified
-	
+	FILE *fdebug = fopen("/var/log/pluto/Table_CommandGroup_D_Command_CommandParameter.cpp.log","ab");
+    timeval tv;
+#ifdef WIN32
+    SYSTEMTIME lt;
+    ::GetLocalTime( &lt );
+
+    /** @todo Need to fill tv */
+    tv.tv_sec = (long)time( NULL );
+    tv.tv_usec = lt.wMilliseconds * 1000;
+#else
+    gettimeofday( &tv, NULL );
+#endif
+struct tm *t = localtime((time_t *)&tv.tv_sec);
+char acBuff[50];
+double dwSec = (double)(tv.tv_usec/1E6) + t->tm_sec;
+snprintf( acBuff, sizeof(acBuff), "%02d/%02d/%02d %d:%02d:%06.3f", (int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year - 100, (int)t->tm_hour, (int)t->tm_min, dwSec );
+
+
+
 
 	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
@@ -474,6 +492,26 @@ update_values_list = update_values_list + "`FK_CommandGroup_D_Command`="+pRow->F
 	
 		string query = "update CommandGroup_D_Command_CommandParameter set " + update_values_list + " where " + condition;
 			
+
+fprintf(fdebug,"%s %s",acBuff,query.c_str());
+	string sql = "select * FROM Device where " + condition;
+	mysql_query(database->m_pMySQL, sql.c_str());
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
+	if( res )
+	{
+		MYSQL_ROW row;
+		while ((row = mysql_fetch_row(res)) != NULL)
+		{
+			string st;
+			for(int i=0;i<res->field_count;++i)
+			{
+				st += StringUtils::itos(i) + ":" + (row[i] ? row[i] : "NULL") + "      ";
+			}
+			fprintf(fdebug,"%s %s",acBuff,st.c_str());
+		}
+	}			
+
+
 		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -483,11 +521,13 @@ update_values_list = update_values_list + "`FK_CommandGroup_D_Command`="+pRow->F
 				cachedRows.erase(i);
 				delete pRow;
 			}
+fclose(fdebug);
 			return false;
 		}
 	
 		pRow->is_modified = false;	
 	}	
+fclose(fdebug);
 	
 
 //delete deleted added

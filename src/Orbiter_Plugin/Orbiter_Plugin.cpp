@@ -1626,12 +1626,12 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 
 		string sRegenAllDevicesRooms = m_pRegenMonitor->AllDevicesRooms();
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered sRegenAllDevicesRooms \n%s\n%s\n",m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered %d sRegenAllDevicesRooms \n%s\n%s\n",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
 #endif
 		if( m_sRegenAllDevicesRooms!=sRegenAllDevicesRooms )
 		{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered sRegenAllDevicesRooms not equal %s=%s",m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered sRegenAllDevicesRooms %d not equal %s=%s",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
 #endif
 			m_sRegenAllDevicesRooms=sRegenAllDevicesRooms;
 			DCE::SCREEN_Need_Reload_Router SCREEN_Need_Reload_Router(m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
@@ -1645,7 +1645,7 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 			{
 				pRow_Orbiter->Reload();
 #ifdef DEBUG
-				g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered sScenariosFloorplans %s=%s",pRow_Orbiter->ScenariosFloorplans_get().c_str(),sScenariosFloorplans.c_str());
+				g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered %d sScenariosFloorplans %s=%s",pMessage->m_dwPK_Device_From,pRow_Orbiter->ScenariosFloorplans_get().c_str(),sScenariosFloorplans.c_str());
 #endif
 				if( pRow_Orbiter->ScenariosFloorplans_get()!=sScenariosFloorplans )
 				{

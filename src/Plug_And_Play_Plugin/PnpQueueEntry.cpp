@@ -224,14 +224,29 @@ bool PnpQueueEntry::IsDuplicate(PnpQueueEntry *pPnpQueueEntry)
 		m_pRow_PnpQueue->Category_get()==pPnpQueueEntry->m_pRow_PnpQueue->Category_get() &&
 		m_pRow_PnpQueue->Parms_get()==pPnpQueueEntry->m_pRow_PnpQueue->Parms_get() )
 	{
+
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueueEntry::IsDuplicate queue %d and %d match so far.  comparing %d to %d",
+			m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),
+			(int) m_mapPK_DeviceData.size(),(int) pPnpQueueEntry->m_mapPK_DeviceData.size());
+#endif
+
 		// So far it's a match.  Check if there's a com port, since there can be the same identical device on 2 serial ports
 		if( m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)==m_mapPK_DeviceData.end() ||
 			pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() ||
 			m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST]==pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST] )
 		{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueueEntry::IsDuplicate queue %d and %d are a match",
+			m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+#endif
 			return true;
 		}
 	}
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueueEntry::IsDuplicate queue %d and %d are no match",
+			m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+#endif
 	return false;
 }
 

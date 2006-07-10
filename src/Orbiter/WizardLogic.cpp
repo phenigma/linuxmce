@@ -862,9 +862,9 @@ void WizardLogic::DeleteDevicesInThisRoomOfType(int PK_DeviceCategory)
 	string sSQL = "SELECT PK_Device FROM Device "
 		"join DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
 		"join DeviceCategory ON FK_DeviceCategory = PK_DeviceCategory "
-		"where PK_DeviceCategory=" + StringUtils::itos(PK_DeviceCategory) +
+		"where (PK_DeviceCategory=" + StringUtils::itos(PK_DeviceCategory) +
 		" OR FK_DeviceCategory_Parent=" + StringUtils::itos(PK_DeviceCategory) +
-		" AND FK_Room=" + StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Room);
+		") AND FK_Room=" + StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Room);
 
 	PlutoSqlResult result_set;
 	MYSQL_ROW row;

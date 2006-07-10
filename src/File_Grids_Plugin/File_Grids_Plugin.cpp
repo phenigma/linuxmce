@@ -350,6 +350,19 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 			return NULL;
 		}
 		Extensions = pRow_MediaType->Extensions_get();
+		// Include stored dvd's and stored cd's
+		if( PK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST )
+		{
+			pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(MEDIATYPE_pluto_DVD_CONST);
+			if( pRow_MediaType && pRow_MediaType->Extensions_get().size() )
+				Extensions += (Extensions.size() ? "," : "") + pRow_MediaType->Extensions_get();
+		}
+		else if( PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST )
+		{
+			pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(MEDIATYPE_pluto_CD_CONST);
+			if( pRow_MediaType && pRow_MediaType->Extensions_get().size() )
+				Extensions += (Extensions.size() ? "," : "") + pRow_MediaType->Extensions_get();
+		}
 	}
 	
 	string PathsToScan;

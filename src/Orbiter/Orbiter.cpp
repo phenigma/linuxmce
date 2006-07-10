@@ -4092,24 +4092,40 @@ void *MaintThread(void *p)
 			ts_NextCallBack.tv_sec=0;
 			gettimeofday(&ts_now,NULL);
 
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, "MaintThread woke up");
+#endif
+
 			//let's choose the one which must be processed first
 			for(map<int,PendingCallBackInfo *>::iterator it=pOrbiter->m_mapPendingCallbacks.begin();it!=pOrbiter->m_mapPendingCallbacks.end();)
 			{
 				PendingCallBackInfo *pCallBackInfo = (*it).second;
 				if( pCallBackInfo->m_bStop )
 				{
+#ifdef DEBUG
+					g_pPlutoLogger->Write(LV_STATUS,"MaintThread Going to delete member %p %d:%d",pCallBackInfoGood->m_fnCallBack,(int) pCallBackInfoGood->m_abstime.tv_sec,(int) pCallBackInfoGood->m_abstime.tv_nsec);
+#endif
 					pOrbiter->m_mapPendingCallbacks.erase( it++ );  // This is dead anyway
 					delete pCallBackInfo;
 					continue;
 				}
 				else if(pCallBackInfo->m_abstime <= ts_now)
 				{
+#ifdef DEBUG
+					g_pPlutoLogger->Write(LV_STATUS,"MaintThread Going to execute member %p %d:%d",pCallBackInfoGood->m_fnCallBack,(int) pCallBackInfoGood->m_abstime.tv_sec,(int) pCallBackInfoGood->m_abstime.tv_nsec);
+#endif
 					pOrbiter->m_mapPendingCallbacks.erase( it );
 					pCallBackInfoGood = pCallBackInfo;
 					break;  // We got one to execute now
 				}
-				else if( ts_NextCallBack.tv_sec==0 || pCallBackInfo->m_abstime<ts_NextCallBack )
-					ts_NextCallBack = pCallBackInfo->m_abstime;  // This is the next one to call
+				else
+				{
+#ifdef DEBUG
+					g_pPlutoLogger->Write(LV_STATUS,"MaintThread Going to wait for member %p %d:%d",pCallBackInfoGood->m_fnCallBack,(int) pCallBackInfoGood->m_abstime.tv_sec,(int) pCallBackInfoGood->m_abstime.tv_nsec);
+#endif
+					if( ts_NextCallBack.tv_sec==0 || pCallBackInfo->m_abstime<ts_NextCallBack )
+						ts_NextCallBack = pCallBackInfo->m_abstime;  // This is the next one to call
+				}
 				it++;
 			}
 
@@ -4117,7 +4133,7 @@ void *MaintThread(void *p)
 			{
 				cm.Release(); // Don't keep the mutex locked while executing
 #ifdef DEBUG
-				g_pPlutoLogger->Write(LV_STATUS,"Going to call member %p",pCallBackInfoGood->m_fnCallBack);
+				g_pPlutoLogger->Write(LV_STATUS,"MaintThread calling member %p %d:%d",pCallBackInfoGood->m_fnCallBack,(int) pCallBackInfoGood->m_abstime.tv_sec,(int) pCallBackInfoGood->m_abstime.tv_nsec);
 #endif
 				CALL_MEMBER_FN(*(pCallBackInfoGood->m_pOrbiter), pCallBackInfoGood->m_fnCallBack)(pCallBackInfoGood->m_pData);
 				cm.Relock();
@@ -4142,11 +4158,6 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 {
 	PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );
 
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "CallMaintenanceInMiliseconds started with mapPendingCallbacks size: %d",
-		m_mapPendingCallbacks.size());
-#endif
-
 	if( e_PurgeExisting!=pe_NO )
 	{
 		for(map<int,PendingCallBackInfo *>::iterator it=m_mapPendingCallbacks.begin();it!=m_mapPendingCallbacks.end();++it)
@@ -4166,6 +4177,11 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 	pCallBackInfo->m_fnCallBack=fnCallBack;
 	pCallBackInfo->m_pData=data;
 	pCallBackInfo->m_pOrbiter=this;
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, "CallMaintenanceInMiliseconds %p %d ms started with mapPendingCallbacks size: %d time %d:%d",
+		fnCallBack,(int) milliseconds,m_mapPendingCallbacks.size(),(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
+#endif
 
 	m_mapPendingCallbacks[pCallBackInfo->m_nCallbackID]=pCallBackInfo;
 
@@ -4466,7 +4482,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 //<-dceag-c5-e->
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_DesignObj: %s",sPK_DesignObj.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_DesignObj: %s with cant go back %d",sPK_DesignObj.c_str(),(int) bCant_Go_Back);
 #endif
 	PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );  // Nothing more can happen
 
@@ -4571,6 +4587,10 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	else
 		g_pPlutoLogger->Write(LV_WARNING, "We have all in screen history item. Nothing new to save.");
 
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_DesignObj: %s pScreenHistory_New->m_bCantGoBack %d bCant_Go_Back %d pObj_New->m_bCantGoBack %d",
+		(int) pScreenHistory_New->m_bCantGoBack,(int) bCant_Go_Back,(int) pObj_New->m_bCantGoBack);
+#endif
 	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->m_bCantGoBack;
 
 	if(ScreenHistory::m_bAddToHistory && m_pScreenHistory_Current != pScreenHistory_New)

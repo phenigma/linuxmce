@@ -1397,7 +1397,7 @@ loop_to_keep_looking_for_objs_to_include:
 		bUseVideoWizard = atoi(g_DCEConfig.ReadString("UseVideoWizard").c_str())==1;
 		cout << "First time generating this orbiter.  Wizard: " << bUseVideoWizard << endl;
 		Row_DesignObj *drNewDesignObj;
-		if( bUseVideoWizard )
+		if( bUseVideoWizard && m_pRow_Skin->PK_Skin_get()==SKIN_Monster_CONST )  // Temp -- remove this after video wizard works for pluto
 			drNewDesignObj = GetDesignObjFromScreen(SCREEN_VideoWizard_CONST);
 		else
 			drNewDesignObj = GetDesignObjFromScreen(SCREEN_FirstTime_CONST);

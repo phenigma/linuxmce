@@ -522,7 +522,7 @@ iPK_PnpQueue,sErrors.c_str(),iPK_DeviceTemplate,sFilename.c_str(),pPnpQueueEntry
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d re-enabling %d", iPK_PnpQueue,pRow_Device->PK_Device_get());
 			m_pPnpQueue->ReenableDevice(pPnpQueueEntry,pRow_Device);
-
+			return; 
 		}
 		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
 		return; 
