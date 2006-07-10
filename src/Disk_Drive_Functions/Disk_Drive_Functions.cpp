@@ -75,7 +75,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
         {
             case DISCTYPE_CD_MIXED: // treat a mixed CD as an audio CD for now.
             case DISCTYPE_CD_AUDIO:
-                mrl = getTracks("cdda://").c_str();
+                mrl = getTracks("cdda://" + m_sDrive).c_str();
                 status = MEDIATYPE_pluto_CD_CONST;
                 break;
 
