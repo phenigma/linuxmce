@@ -1188,7 +1188,8 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 
 			g_pPlutoLogger->Write( LV_CRITICAL, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a stream in it's entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
 			return rmr_NotProcessed;
-        	}
+        }
+
 		pEntertainArea=pOH_Orbiter->m_pEntertainArea;
 
 		// Add some stuff to the message parameters
@@ -1229,7 +1230,12 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 				pMessage->m_mapParameters[COMMANDPARAMETER_MediaPlaybackSpeed_CONST] = "0";
 				pMediaDevice->m_iLastPlaybackSpeed = 0;
 				MediaInfoChanged(pEntertainArea->m_pMediaStream,false);
-				}
+			}
+			else if (pMessage->m_dwID==COMMAND_Stop_CONST)
+			{
+				pMessage->m_dwID=COMMAND_MH_Stop_Media_CONST;
+				pMessage->m_dwPK_Device_To=m_dwPK_Device;
+			}
 			else if( pMessage->m_dwID==COMMAND_Change_Playback_Speed_CONST )
 			{
 				string sValue = pMessage->m_mapParameters[COMMANDPARAMETER_MediaPlaybackSpeed_CONST];
