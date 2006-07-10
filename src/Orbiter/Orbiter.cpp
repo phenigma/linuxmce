@@ -4589,7 +4589,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_DesignObj: %s pScreenHistory_New->m_bCantGoBack %d bCant_Go_Back %d pObj_New->m_bCantGoBack %d",
-		(int) pScreenHistory_New->m_bCantGoBack,(int) bCant_Go_Back,(int) pObj_New->m_bCantGoBack);
+		sPK_DesignObj.c_str(),(int) pScreenHistory_New->m_bCantGoBack,(int) bCant_Go_Back,(int) pObj_New->m_bCantGoBack);
 #endif
 	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->m_bCantGoBack;
 
