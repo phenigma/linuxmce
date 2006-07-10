@@ -4103,7 +4103,7 @@ void *MaintThread(void *p)
 				if( pCallBackInfo->m_bStop )
 				{
 #ifdef DEBUG
-					g_pPlutoLogger->Write(LV_STATUS,"MaintThread Going to delete member %p %d:%d",pCallBackInfoGood->m_fnCallBack,(int) pCallBackInfoGood->m_abstime.tv_sec,(int) pCallBackInfoGood->m_abstime.tv_nsec);
+					g_pPlutoLogger->Write(LV_STATUS,"MaintThread Going to delete member %p %d:%d",pCallBackInfo->m_fnCallBack,(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
 #endif
 					pOrbiter->m_mapPendingCallbacks.erase( it++ );  // This is dead anyway
 					delete pCallBackInfo;
@@ -4112,7 +4112,7 @@ void *MaintThread(void *p)
 				else if(pCallBackInfo->m_abstime <= ts_now)
 				{
 #ifdef DEBUG
-					g_pPlutoLogger->Write(LV_STATUS,"MaintThread Going to execute member %p %d:%d",pCallBackInfoGood->m_fnCallBack,(int) pCallBackInfoGood->m_abstime.tv_sec,(int) pCallBackInfoGood->m_abstime.tv_nsec);
+					g_pPlutoLogger->Write(LV_STATUS,"MaintThread Going to execute member %p %d:%d",pCallBackInfo->m_fnCallBack,(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
 #endif
 					pOrbiter->m_mapPendingCallbacks.erase( it );
 					pCallBackInfoGood = pCallBackInfo;
@@ -4121,7 +4121,7 @@ void *MaintThread(void *p)
 				else
 				{
 #ifdef DEBUG
-					g_pPlutoLogger->Write(LV_STATUS,"MaintThread Going to wait for member %p %d:%d",pCallBackInfoGood->m_fnCallBack,(int) pCallBackInfoGood->m_abstime.tv_sec,(int) pCallBackInfoGood->m_abstime.tv_nsec);
+					g_pPlutoLogger->Write(LV_STATUS,"MaintThread Going to wait for member %p %d:%d",pCallBackInfo->m_fnCallBack,(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
 #endif
 					if( ts_NextCallBack.tv_sec==0 || pCallBackInfo->m_abstime<ts_NextCallBack )
 						ts_NextCallBack = pCallBackInfo->m_abstime;  // This is the next one to call
