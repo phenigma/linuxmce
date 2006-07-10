@@ -8,6 +8,9 @@
 #   --stderr                 redirect stderr
 #   --stdboth                redirect both stdout and stderr
 #   --append                 run tee in append mode
+#
+# Environment:
+#   SHELLCMD="<shell command>" (ex: bash -x)
 
 if [[ -n "$TeeMyOutput" ]]; then
 	return 0
@@ -63,7 +66,7 @@ trap "rm -rf '$ExitCodeFile'" EXIT
 
 {
 	eval exec "${OurRedirect[@]}"
-	"$0" "${OrigParms[@]}"
+	$SHELLCMD "$0" "${OrigParms[@]}"
 	echo $? >"$ExitCodeFile"
 } | tee "${TeeParm[@]}" "$OutFile"
 
