@@ -104,6 +104,12 @@ bool IRTrans::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
+	if( m_pData->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_IRTrans_Dign_VFD_CONST )
+	{
+		m_bQuit_VL=true;
+		g_pPlutoLogger->Write(LV_STATUS,"This IRTrans doesn't have a display");
+	}
+
 	if( m_dwPK_Device!=DEVICEID_MESSAGESEND )
 	{
 		if( !m_Virtual_Device_Translator.GetConfig(m_pData) )

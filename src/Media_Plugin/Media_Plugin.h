@@ -226,7 +226,9 @@ public:
 		MapMediaStream::iterator it = m_mapMediaStream.find(StreamID);  
 		if( it!=m_mapMediaStream.end() )
 			return it->second; 
-		// Sometimes the stream ID is invalid or the media player doesn't use it.  If so we can't be 100% certain, but it's probably the media stream in that source device's ent area
+		// Sometimes the media player doesn't use the stream ID.  If so we can't be 100% certain, but it's probably the media stream in that source device's ent area.
+		if( StreamID!=0 )
+			return NULL; // The media player is using a stream ID, but it wasn't specified
 		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(iPK_Device_Source);
 		if( !pMediaDevice )
 			return NULL;
