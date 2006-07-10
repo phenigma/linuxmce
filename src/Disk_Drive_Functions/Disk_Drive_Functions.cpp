@@ -531,7 +531,7 @@ string Disk_Drive_Functions::getTracks(string mrl)
     string tracks = "";
 
 #ifndef WIN32
-    g_pPlutoLogger->Write(LV_STATUS, "Finding CD tracks.");
+    g_pPlutoLogger->Write(LV_STATUS, "Finding CD tracks for prefix %s",mrl.c_str());
 
 //     time_t startTime=time(NULL);
 
