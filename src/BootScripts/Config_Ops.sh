@@ -146,8 +146,15 @@ PackageStatus()
 InstalledPackages()
 {
 	local Pkg InstPkg=""
+	local PkgList
 
+	# Expand package list
+	PkgList=()
 	for Pkg in "$@"; do
+		PkgList=("${PkgList[@]}" $(PackageStatus "$Pkg" | grep '^Package: ' | sed 's/^Package: //') )
+	done
+
+	for Pkg in "${PkgList[@]}"; do
 		if PackageIsInstalled "$Pkg"; then
 			InstPkg="$InstPkg $(PackageStatus $Pkg | grep '^Package: ' | sed 's/^Package: //')"
 		fi
