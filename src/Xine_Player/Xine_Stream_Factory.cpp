@@ -300,6 +300,7 @@ void Xine_Stream_Factory::ReportSubtitles( string sSubtitles)
 
 void Xine_Stream_Factory::ReportAVInfo( string sFilename, int iStreamID, string sMediaInfo, string sAudioInfo, string sVideoInfo )
 {
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Started(streamID=%i) <= AV info", iStreamID);
 	m_pPlayer->EVENT_Playback_Started(sFilename, iStreamID, sMediaInfo, sAudioInfo, sVideoInfo);
 }
 

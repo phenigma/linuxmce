@@ -90,6 +90,10 @@ namespace DCE
 			//  audio and video drivers
 			string m_sXineAudioDriverName;
 			string m_sXineVideoDriverName;
+			
+			// actually used drivers
+			string m_sUsedVideoDriverName;
+			
 			// xine library link
 			xine_t *m_pXineLibrary;
 			// stream data objects
@@ -154,8 +158,11 @@ namespace DCE
 			
 			// stream thread state
 			bool m_bExitThread;
+			
+			public:
 			bool m_bIsRendering;
-
+			
+			private:
 			// Do the seeking in these functions
 			void StartSpecialSeek( int Speed );
 			void StopSpecialSeek();
@@ -174,9 +181,12 @@ namespace DCE
 			
 			int m_iPrebuffer;
 			
+			
+			public:
 			int m_iStreamID;
-			int m_iRequestingObject;
 
+			private:
+			int m_iRequestingObject;
 			KeySym translatePlutoKeySymToXKeySym( int plutoButton );
 
 			/**

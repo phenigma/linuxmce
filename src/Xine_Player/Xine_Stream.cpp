@@ -374,6 +374,14 @@ bool Xine_Stream::InitXineAVOutput()
 				g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's 'xshm' video driver. Giving up." );
 				return false;
 			}
+			else
+			{
+				m_sUsedVideoDriverName = "xshm";
+			}
+		}
+		else
+		{
+			m_sUsedVideoDriverName = m_sXineVideoDriverName;
 		}
 	}
 
@@ -2094,7 +2102,10 @@ void Xine_Stream::playbackCompleted( bool bWithErrors )
 	//XineStream * xineStream = getStreamForId( iStreamID, "Can't get the position of a nonexistent stream!" );
 
 	if ( ! m_isSlimClient )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", m_iStreamID);
 		m_pFactory->m_pPlayer->EVENT_Playback_Completed(m_sCurrentFile,m_iStreamID, bWithErrors );
+	}
 }
 
 int Xine_Stream::enableBroadcast( int iStreamID )
@@ -2379,6 +2390,11 @@ void Xine_Stream::getScreenShot( int iWidth, int iHeight, char *&pData, int &iDa
 		return;
 	}
 
+	if ( (m_sUsedVideoDriverName=="xvmc") || (m_sUsedVideoDriverName=="xxmc") )
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "getScreenshot called for XvMC picture - aborting command");
+		return;
+	}
 	
 	if ( !m_bHasVideo )
 	{
