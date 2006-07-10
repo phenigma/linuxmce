@@ -2738,10 +2738,10 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 	if( pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos<0 || 
 		pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() ||
 		pEntertainArea->m_pMediaStream->m_dequeMediaFile.size()==0 ||
-		( StringUtils::StartsWith(StringUtils::ToUpper(
-			pEntertainArea->m_pMediaStream->GetCurrentMediaFile()->FullyQualifiedFile()),"/DEV/")==false &&
-		  StringUtils::StartsWith(StringUtils::ToUpper(
-			pEntertainArea->m_pMediaStream->GetCurrentMediaFile()->FullyQualifiedFile()),"CDDA:/")==false 
+		( StringUtils::StartsWith(
+			pEntertainArea->m_pMediaStream->GetCurrentMediaFile()->FullyQualifiedFile(),"/dev/")==false &&
+		  StringUtils::StartsWith(
+			pEntertainArea->m_pMediaStream->GetCurrentMediaFile()->FullyQualifiedFile(),"cdda:/")==false 
 		) )
 	{
 		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Only_rip_drives_CONST) + "%>");
@@ -3987,7 +3987,8 @@ void Media_Plugin::CMD_Rename_Bookmark(string sValue_To_Assign,int iPK_Users,int
 
 void Media_Plugin::AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType)
 {
-	if( StringUtils::StartsWith(pMediaFile->m_sFilename,"/dev/",true) || StringUtils::StartsWith(pMediaFile->m_sFilename,"cdda:/",true) )
+	if( StringUtils::StartsWith(pMediaFile->m_sFilename,"/dev/",true) || 
+		StringUtils::StartsWith(pMediaFile->m_sFilename,"cdda:/",true) )
 		return;  // Don't add it if it's just a drive
 
 	vector<Row_File *> vectRow_File;
