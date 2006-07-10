@@ -77,16 +77,20 @@ CleanupVideo()
 	
 	# Check for video card changes and update system accordingly
 	# Package name lists are treated as prefixes
-	local Pkgs_nVidia="nvidia-driver nvidia-glx nvidia-kernel- pluto-nvidia-video-drivers"
-	local Pkgs_ATI="fglrx-driver pluto-ati-video-drivers"
+	local Pkgs_nVidia
+	Pkgs_nVidia=(nvidia-driver nvidia-glx "nvidia-kernel-.*" pluto-nvidia-video-drivers)
+	local Pkgs_ATI
+	Pkgs_ATI=(fglrx-driver pluto-ati-video-drivers)
 	local nV_inst ATI_inst nV_dev ATI_dev
 	local Pkg
 	
 	echo "$(date -R) --> Finding installed packages (nVidia)"
-	nV_inst="$(InstalledPackages $Pkgs_nVidia)"
+	nV_inst="$(InstalledPackages "${Pkgs_nVidia[@]}")"
+	echo "$(date -R) --- Installed packages (nVidia): " $nV_inst
 	echo "$(date -R) <-- Finding installed packages (nVidia)"
 	echo "$(date -R) --> Finding installed packages (ATI)"
-	ATI_inst="$(InstalledPackages $Pkgs_ATI)"
+	ATI_inst="$(InstalledPackages "${Pkgs_ATI[@]}")"
+	echo "$(date -R) --- Installed packages (ATI): " $ATI_inst
 	echo "$(date -R) <-- Finding installed packages (ATI)"
 
 	echo "$(date -R) --> Retreiving desired video card (nVidia)"
