@@ -639,8 +639,7 @@ void Infrared_Plugin::GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bN
 	irDevice.m_bUsesIR = (pRow_DeviceTemplate->FK_CommMethod_get()==COMMMETHOD_Infrared_CONST);
 	irDevice.m_bImplementsDCE = pRow_DeviceTemplate->ImplementsDCE_get()==1;
 
-	pRow_DeviceTemplate->InfraredGroup_Command_FK_DeviceTemplate_getrows(&vectRow_InfraredGroup_Command);
-
+	m_pDatabase_pluto_main->InfraredGroup_Command_get()->GetRows(INFRAREDGROUP_COMMAND_FK_INFRAREDGROUP_FIELD "=" + StringUtils::itos(pRow_DeviceTemplate->FK_InfraredGroup_get()),&vectRow_InfraredGroup_Command);
 
 	map<int,bool> mapCommandsWithoutCodes; // First store them here, then double check before we actually add them
 	vector<Row_InfraredGroup_Command *>::iterator it_vRIGC;

@@ -52,8 +52,8 @@ bool Slim_Server_Streamer::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	g_pPlutoLogger->Write(LV_STATUS, "Waiting 5 seconds before starting slim server so we can be sure app server has started");
-	Sleep(5000);
+	g_pPlutoLogger->Write(LV_STATUS, "Waiting 10 seconds before starting slim server so we can be sure app server has started");
+	Sleep(10000);
 
 	if (! ConnectToSlimServerCliCommandChannel())
 	{
@@ -61,7 +61,7 @@ bool Slim_Server_Streamer::GetConfig()
 
 		StartSlimServer();
 
-		Sleep(3000);
+		Sleep(10000);  // Wait 10 seconds for it to finish spawning
 		if (! ConnectToSlimServerCliCommandChannel()) // try again the connection after the command was sent.
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "I could not connect to the streaming server after i have launched it with the application server.");
@@ -330,7 +330,7 @@ bool Slim_Server_Streamer::ConnectToSlimServerCliCommandChannel()
             Sleep(500);
         }
 
-        if ( socketNotOpen && timeSpent >= 3 * 1000000 ) // wait at most three seconds;
+        if ( socketNotOpen && timeSpent >= 15 * 1000000 ) // wait at most 15 seconds;
         {
             g_pPlutoLogger->Write(LV_WARNING, "Couldn't contact the slim server for the past 3 seconds..");
             m_iServerSocket = -1;
