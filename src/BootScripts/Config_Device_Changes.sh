@@ -9,6 +9,12 @@ DEVICECATEGORY_Video_Cards=125
 DEVICETEMPLATE_GeForce_or_TNT2=1736
 DEVICETEMPLATE_Radeon_8500_or_newer=1721
 
+LogFile="/var/log/pluto/Config_Device_Changes.log"
+. /usr/pluto/bin/TeeMyOutput.sh --outfile "$LogFile" --stdboth --append -- "$@"
+
+echo "-----------------------------------"
+date -R
+
 NeedConfigure()
 {
 	local Device NeedConfigure PK_Device
@@ -177,9 +183,8 @@ rm "$CUsh.$$"
 
 chmod +x "$CUsh"
 WaitLock "InstallNewDevice" "Config_Device_Changes" # don't step on InstallNewDevices scripts that may be running in the background
-LogFile="/var/log/pluto/Config_Device_Changes.log"
-date -R >>"$LogFile"
-if bash -x "$CUsh" &> >(tee -a "$LogFile"); then
+date -R
+if bash -x "$CUsh"; then
 	Unset_NeedConfigure_Children "$PK_Device"
 fi
 Unlock "InstallNewDevice" "Config_Device_Changes"
