@@ -227,9 +227,6 @@
 						RelativePath=".\GLMathUtils.cpp">
 					</File>
 					<File
-						RelativePath=".\GLSafetyLock.cpp">
-					</File>
-					<File
 						RelativePath=".\GraphicSettings.cpp">
 					</File>
 					<File
