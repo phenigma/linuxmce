@@ -6,7 +6,7 @@
 
 HWND	g_hwndPopupDialog;		// The main dialog window handle
 static int g_nWindowWidth, g_nWindowHeight;
-const MAX_STRING_LEN = 4096;
+const int MAX_STRING_LEN = 4096;
 //-----------------------------------------------------------------------------------------------------
 static int g_nResponse;
 static string g_sPrompt;

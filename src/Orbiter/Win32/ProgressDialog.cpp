@@ -11,7 +11,7 @@ static HWND g_hwndCancelButton;
 static DWORD g_dwWorkerThreadId;
 
 static int g_nWindowWidth, g_nWindowHeight;
-static const MAX_STRING_LEN = 4096;
+static const int MAX_STRING_LEN = 4096;
 //-----------------------------------------------------------------------------------------------------
 static bool g_bResponse;
 static string g_sMessage;

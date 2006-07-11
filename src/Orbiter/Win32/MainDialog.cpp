@@ -38,7 +38,7 @@ static int g_iDialogHeight;
 static bool g_bSimplifyUI = false;
 static bool g_bSmartPhone = false;
 //-----------------------------------------------------------------------------------------------------
-const MAX_STRING_LEN = 4096;
+const int MAX_STRING_LEN = 4096;
 static bool bStartRecording = true;
 static long OldTick = ::GetTickCount();
 //-----------------------------------------------------------------------------------------------------
@@ -1000,7 +1000,7 @@ void WriteStatusOutput(const char* pMessage)
 	#define MESSAGE pMessage
 #endif
 
-	const cTimeOutInterval = 50; //miliseconds
+	const int cTimeOutInterval = 50; //miliseconds
 	DWORD Count;
 	if(0 == ::SendMessageTimeout(g_hWndList, LB_ADDSTRING, 0L, (LPARAM)MESSAGE, SMTO_NORMAL, cTimeOutInterval, &Count))
 		return; //send message timed out
@@ -1058,7 +1058,7 @@ void RecordAction(const char* sAction)
 	#define MESSAGE_RECORD sAction
 #endif
 
-	const cTimeOutInterval = 50; //miliseconds
+	const int cTimeOutInterval = 50; //miliseconds
 	DWORD Count;
 	if(0 == ::SendMessageTimeout(g_hWndRecord_List, LB_ADDSTRING, 0L, (LPARAM)MESSAGE_RECORD, SMTO_NORMAL, cTimeOutInterval, &Count))
 		return; //send message timed out
