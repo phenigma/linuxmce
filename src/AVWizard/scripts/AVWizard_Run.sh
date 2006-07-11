@@ -18,6 +18,7 @@ SetDefaults()
 	WizSet WindowHeight 480
 	WizSet VideoRefresh '60'
 	WizSet Video_Output 'VGA' #TODO: parse X log and extract autodetected output
+	WizSet ResolutionSelected 1
 	WizSet AudioConnector 'Analog Stereo'
 	GetAudioMixerSettings
 	WizSet AudioVolumeMin "$AudioVolumeMin"
