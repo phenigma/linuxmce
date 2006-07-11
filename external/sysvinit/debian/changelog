@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto52) unstable; urgency=low
+
+  * Corrected shift-state message
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Tue, 11 Jul 2006 16:23:47 +0300
+
 sysvinit (2.86.ds1-1.1pluto51) unstable; urgency=low
 
   * Don't run make in a screen

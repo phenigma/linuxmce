@@ -374,7 +374,9 @@ fi
 
 if [[ -x /usr/pluto/bin/shift_state ]]; then
 	ShiftState=$(/usr/pluto/bin/shift_state) # Shift=1; Ctrl=4; LAlt=8; RAlt=2; -- OR flags
-	ShiftMsg=" (shift pressed)"
+	if [[ "$ShiftState" == 1 ]]; then
+		ShiftMsg=" (shift pressed)"
+	fi
 fi
 if [[ "$AVWizardDone" != "1" || "$ShiftState" == 1 ]] ;then
 	if [[ -x /usr/pluto/bin/AVWizard_Run.sh ]]; then	
