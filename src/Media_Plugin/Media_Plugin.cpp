@@ -1154,6 +1154,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 
 ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 {
+if( pMessage->m_dwID==COMMAND_Stop_CONST )
+int k=2;
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
     g_pPlutoLogger->Write( LV_STATUS, "Media plug in received message id: %d", pMessage->m_dwID );
@@ -1230,11 +1232,6 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 				pMessage->m_mapParameters[COMMANDPARAMETER_MediaPlaybackSpeed_CONST] = "0";
 				pMediaDevice->m_iLastPlaybackSpeed = 0;
 				MediaInfoChanged(pEntertainArea->m_pMediaStream,false);
-			}
-			else if (pMessage->m_dwID==COMMAND_Stop_CONST)
-			{
-				pMessage->m_dwID=COMMAND_MH_Stop_Media_CONST;
-				pMessage->m_dwPK_Device_To=m_dwPK_Device;
 			}
 			else if( pMessage->m_dwID==COMMAND_Change_Playback_Speed_CONST )
 			{
