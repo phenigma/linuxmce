@@ -193,7 +193,7 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 //<-dceag-c37-e->
 {
 	Xine_Stream *prevStream =  ptrFactory->GetStream( 1 );
-	if ((prevStream != NULL) && (prevStream->m_bIsRendering))
+	if ((prevStream != NULL) && (prevStream->m_bIsRendering) && (iStreamID!=0) && (iStreamID!=prevStream->m_iStreamID) )
 	{
 		string mPosition;
 		CMD_Stop_Media( 1, &mPosition);

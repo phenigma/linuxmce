@@ -1010,6 +1010,9 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 
 	for ( int i = 0;i < 10;++i )
 	{
+		if (!m_bIsRendering)
+			break;
+
 		int positionTime, totalTime;
 		if ( abs( getStreamPlaybackPosition( positionTime, totalTime ) - pos ) < tolerance_ms )
 		{
