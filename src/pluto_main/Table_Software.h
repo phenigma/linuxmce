@@ -78,6 +78,8 @@ class DECLSPECIFIER Row_Software : public TableRow, public SerializeClass
 		Table_Software *table;
 		
 		long int m_PK_Software;
+long int m_FK_Device;
+string m_RepositoryName;
 string m_Iconstr;
 string m_Title;
 string m_Description;
@@ -104,10 +106,12 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[26];
+		bool is_null[28];
 	
 	public:
 		long int PK_Software_get();
+long int FK_Device_get();
+string RepositoryName_get();
 string Iconstr_get();
 string Title_get();
 string Description_get();
@@ -136,6 +140,8 @@ long int psc_restrict_get();
 
 		
 		void PK_Software_set(long int val);
+void FK_Device_set(long int val);
+void RepositoryName_set(string val);
 void Iconstr_set(string val);
 void Title_set(string val);
 void Description_set(string val);
@@ -163,7 +169,9 @@ void psc_mod_set(string val);
 void psc_restrict_set(long int val);
 
 		
-		bool Iconstr_isNull();
+		bool FK_Device_isNull();
+bool RepositoryName_isNull();
+bool Iconstr_isNull();
 bool Title_isNull();
 bool Description_isNull();
 bool HomeURL_isNull();
@@ -188,7 +196,9 @@ bool psc_frozen_isNull();
 bool psc_restrict_isNull();
 
 			
-		void Iconstr_setNull(bool val);
+		void FK_Device_setNull(bool val);
+void RepositoryName_setNull(bool val);
+void Iconstr_setNull(bool val);
 void Title_setNull(bool val);
 void Description_setNull(bool val);
 void HomeURL_setNull(bool val);
@@ -223,19 +233,22 @@ void psc_restrict_setNull(bool val);
 		class Table_Software *Table_Software_get() { return table; };
 
 		// Return the rows for foreign keys 
-		
+		class Row_Device* FK_Device_getrow();
+
 
 		// Return the rows in other tables with foreign keys pointing here
 		
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Software+ m_Iconstr+ m_Title+ m_Description+ m_HomeURL+ m_Category+ m_Downloadurl+ m_PackageName+ m_Misc+ m_Version+ m_Target+ m_Importance+ m_Sum_md5+ m_Sum_sha+ m_Rating+ m_Virus_Free+ m_PC_Type+ m_Required_Version_Min+ m_Required_Version_Max+ m_Installation_status+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Software+ m_FK_Device+ m_RepositoryName+ m_Iconstr+ m_Title+ m_Description+ m_HomeURL+ m_Category+ m_Downloadurl+ m_PackageName+ m_Misc+ m_Version+ m_Target+ m_Importance+ m_Sum_md5+ m_Sum_sha+ m_Rating+ m_Virus_Free+ m_PC_Type+ m_Required_Version_Min+ m_Required_Version_Max+ m_Installation_status+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_Software_asSQL();
+string FK_Device_asSQL();
+string RepositoryName_asSQL();
 string Iconstr_asSQL();
 string Title_asSQL();
 string Description_asSQL();

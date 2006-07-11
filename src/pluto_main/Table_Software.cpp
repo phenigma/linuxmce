@@ -17,6 +17,7 @@
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Software.h"
+#include "Table_Device.h"
 
 
 
@@ -120,50 +121,53 @@ void Row_Software::SetDefaultValues()
 	m_PK_Software = 0;
 is_null[0] = false;
 is_null[1] = true;
-m_Title = "unknown";
-is_null[2] = false;
+m_FK_Device = 0;
+is_null[2] = true;
 is_null[3] = true;
-m_HomeURL = "unknown";
+m_Title = "unknown";
 is_null[4] = false;
-m_Category = "unknown";
-is_null[5] = false;
-m_Downloadurl = "unknown";
+is_null[5] = true;
+m_HomeURL = "unknown";
 is_null[6] = false;
-m_PackageName = "unknown";
+m_Category = "unknown";
 is_null[7] = false;
-m_Misc = "unknown";
+m_Downloadurl = "unknown";
 is_null[8] = false;
-m_Version = "unknown";
+m_PackageName = "unknown";
 is_null[9] = false;
-m_Target = "unknown";
+m_Misc = "unknown";
 is_null[10] = false;
-m_Importance = "unknown";
+m_Version = "unknown";
 is_null[11] = false;
-m_Sum_md5 = "";
+m_Target = "unknown";
 is_null[12] = false;
-m_Sum_sha = "";
+m_Importance = "unknown";
 is_null[13] = false;
-m_Rating = 0.00;
+m_Sum_md5 = "";
 is_null[14] = false;
-m_Virus_Free = "No";
+m_Sum_sha = "";
 is_null[15] = false;
-m_PC_Type = "SM";
+m_Rating = 0.00;
 is_null[16] = false;
-is_null[17] = true;
-is_null[18] = true;
-m_Installation_status = "No";
-is_null[19] = false;
+m_Virus_Free = "No";
+is_null[17] = false;
+m_PC_Type = "SM";
+is_null[18] = false;
+is_null[19] = true;
 is_null[20] = true;
-m_psc_id = 0;
-is_null[21] = true;
-m_psc_batch = 0;
+m_Installation_status = "No";
+is_null[21] = false;
 is_null[22] = true;
+m_psc_id = 0;
+is_null[23] = true;
+m_psc_batch = 0;
+is_null[24] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
-is_null[23] = false;
+is_null[25] = false;
 m_psc_mod = "00000000000000";
-is_null[24] = false;
-is_null[25] = true;
+is_null[26] = false;
+is_null[27] = true;
 m_psc_restrict = 0;
 
 
@@ -175,6 +179,12 @@ m_psc_restrict = 0;
 long int Row_Software::PK_Software_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_Software;}
+long int Row_Software::FK_Device_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_Device;}
+string Row_Software::RepositoryName_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_RepositoryName;}
 string Row_Software::Iconstr_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Iconstr;}
@@ -255,244 +265,264 @@ return m_psc_restrict;}
 void Row_Software::PK_Software_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_Software = val; is_modified=true; is_null[0]=false;}
+void Row_Software::FK_Device_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_Device = val; is_modified=true; is_null[1]=false;}
+void Row_Software::RepositoryName_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_RepositoryName = val; is_modified=true; is_null[2]=false;}
 void Row_Software::Iconstr_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Iconstr = val; is_modified=true; is_null[1]=false;}
+m_Iconstr = val; is_modified=true; is_null[3]=false;}
 void Row_Software::Title_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Title = val; is_modified=true; is_null[2]=false;}
+m_Title = val; is_modified=true; is_null[4]=false;}
 void Row_Software::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Description = val; is_modified=true; is_null[3]=false;}
+m_Description = val; is_modified=true; is_null[5]=false;}
 void Row_Software::HomeURL_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_HomeURL = val; is_modified=true; is_null[4]=false;}
+m_HomeURL = val; is_modified=true; is_null[6]=false;}
 void Row_Software::Category_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Category = val; is_modified=true; is_null[5]=false;}
+m_Category = val; is_modified=true; is_null[7]=false;}
 void Row_Software::Downloadurl_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Downloadurl = val; is_modified=true; is_null[6]=false;}
+m_Downloadurl = val; is_modified=true; is_null[8]=false;}
 void Row_Software::PackageName_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_PackageName = val; is_modified=true; is_null[7]=false;}
+m_PackageName = val; is_modified=true; is_null[9]=false;}
 void Row_Software::Misc_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Misc = val; is_modified=true; is_null[8]=false;}
+m_Misc = val; is_modified=true; is_null[10]=false;}
 void Row_Software::Version_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Version = val; is_modified=true; is_null[9]=false;}
+m_Version = val; is_modified=true; is_null[11]=false;}
 void Row_Software::Target_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Target = val; is_modified=true; is_null[10]=false;}
+m_Target = val; is_modified=true; is_null[12]=false;}
 void Row_Software::Importance_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Importance = val; is_modified=true; is_null[11]=false;}
+m_Importance = val; is_modified=true; is_null[13]=false;}
 void Row_Software::Sum_md5_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Sum_md5 = val; is_modified=true; is_null[12]=false;}
+m_Sum_md5 = val; is_modified=true; is_null[14]=false;}
 void Row_Software::Sum_sha_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Sum_sha = val; is_modified=true; is_null[13]=false;}
+m_Sum_sha = val; is_modified=true; is_null[15]=false;}
 void Row_Software::Rating_set(float val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Rating = val; is_modified=true; is_null[14]=false;}
+m_Rating = val; is_modified=true; is_null[16]=false;}
 void Row_Software::Virus_Free_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Virus_Free = val; is_modified=true; is_null[15]=false;}
+m_Virus_Free = val; is_modified=true; is_null[17]=false;}
 void Row_Software::PC_Type_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_PC_Type = val; is_modified=true; is_null[16]=false;}
+m_PC_Type = val; is_modified=true; is_null[18]=false;}
 void Row_Software::Required_Version_Min_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Required_Version_Min = val; is_modified=true; is_null[17]=false;}
+m_Required_Version_Min = val; is_modified=true; is_null[19]=false;}
 void Row_Software::Required_Version_Max_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Required_Version_Max = val; is_modified=true; is_null[18]=false;}
+m_Required_Version_Max = val; is_modified=true; is_null[20]=false;}
 void Row_Software::Installation_status_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Installation_status = val; is_modified=true; is_null[19]=false;}
+m_Installation_status = val; is_modified=true; is_null[21]=false;}
 void Row_Software::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[20]=false;}
+m_psc_id = val; is_modified=true; is_null[22]=false;}
 void Row_Software::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[21]=false;}
+m_psc_batch = val; is_modified=true; is_null[23]=false;}
 void Row_Software::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[22]=false;}
+m_psc_user = val; is_modified=true; is_null[24]=false;}
 void Row_Software::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[23]=false;}
+m_psc_frozen = val; is_modified=true; is_null[25]=false;}
 void Row_Software::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[24]=false;}
+m_psc_mod = val; is_modified=true; is_null[26]=false;}
 void Row_Software::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_restrict = val; is_modified=true; is_null[25]=false;}
+m_psc_restrict = val; is_modified=true; is_null[27]=false;}
 
 		
-bool Row_Software::Iconstr_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::FK_Device_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[1];}
-bool Row_Software::Title_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::RepositoryName_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_Software::Description_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::Iconstr_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_Software::HomeURL_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::Title_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_Software::Category_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::Description_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_Software::Downloadurl_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::HomeURL_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_Software::PackageName_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::Category_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[7];}
-bool Row_Software::Misc_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::Downloadurl_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_Software::Version_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::PackageName_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
-bool Row_Software::Target_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::Misc_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[10];}
-bool Row_Software::Importance_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::Version_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[11];}
-bool Row_Software::Sum_md5_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::Target_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[12];}
-bool Row_Software::Sum_sha_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::Importance_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[13];}
-bool Row_Software::Virus_Free_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::Sum_md5_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[14];}
+bool Row_Software::Sum_sha_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[15];}
-bool Row_Software::PC_Type_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[16];}
-bool Row_Software::Required_Version_Min_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::Virus_Free_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[17];}
-bool Row_Software::Required_Version_Max_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::PC_Type_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[18];}
-bool Row_Software::Installation_status_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::Required_Version_Min_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[19];}
-bool Row_Software::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::Required_Version_Max_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[20];}
-bool Row_Software::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::Installation_status_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[21];}
-bool Row_Software::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[22];}
-bool Row_Software::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[23];}
-bool Row_Software::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[24];}
+bool Row_Software::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[25];}
+bool Row_Software::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[27];}
 
 			
-void Row_Software::Iconstr_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::FK_Device_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[1]=val;
 is_modified=true;
 }
-void Row_Software::Title_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::RepositoryName_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_Software::Description_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::Iconstr_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_Software::HomeURL_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::Title_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_Software::Category_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::Description_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_Software::Downloadurl_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::HomeURL_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_Software::PackageName_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::Category_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_Software::Misc_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::Downloadurl_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_Software::Version_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::PackageName_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_Software::Target_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::Misc_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_Software::Importance_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::Version_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[11]=val;
 is_modified=true;
 }
-void Row_Software::Sum_md5_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::Target_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[12]=val;
 is_modified=true;
 }
-void Row_Software::Sum_sha_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::Importance_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[13]=val;
 is_modified=true;
 }
-void Row_Software::Virus_Free_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::Sum_md5_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[14]=val;
+is_modified=true;
+}
+void Row_Software::Sum_sha_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[15]=val;
 is_modified=true;
 }
-void Row_Software::PC_Type_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[16]=val;
-is_modified=true;
-}
-void Row_Software::Required_Version_Min_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::Virus_Free_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[17]=val;
 is_modified=true;
 }
-void Row_Software::Required_Version_Max_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::PC_Type_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[18]=val;
 is_modified=true;
 }
-void Row_Software::Installation_status_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::Required_Version_Min_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[19]=val;
 is_modified=true;
 }
-void Row_Software::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::Required_Version_Max_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[20]=val;
 is_modified=true;
 }
-void Row_Software::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::Installation_status_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[21]=val;
 is_modified=true;
 }
-void Row_Software::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[22]=val;
 is_modified=true;
 }
-void Row_Software::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[23]=val;
 is_modified=true;
 }
-void Row_Software::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[24]=val;
+is_modified=true;
+}
+void Row_Software::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[25]=val;
+is_modified=true;
+}
+void Row_Software::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[27]=val;
 is_modified=true;
 }
 	
@@ -510,11 +540,38 @@ sprintf(buf, "%li", m_PK_Software);
 return buf;
 }
 
-string Row_Software::Iconstr_asSQL()
+string Row_Software::FK_Device_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Device);
+
+return buf;
+}
+
+string Row_Software::RepositoryName_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[2])
+return "NULL";
+
+char *buf = new char[201];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_RepositoryName.c_str(), (unsigned long) min((size_t)100,m_RepositoryName.size()));
+string s=string()+"\""+buf+"\"";
+delete[] buf;
+return s;
+}
+
+string Row_Software::Iconstr_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[3])
 return "NULL";
 
 char *buf = new char[131071];
@@ -528,7 +585,7 @@ string Row_Software::Title_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[2])
+if (is_null[4])
 return "NULL";
 
 char *buf = new char[41];
@@ -542,7 +599,7 @@ string Row_Software::Description_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[3])
+if (is_null[5])
 return "NULL";
 
 char *buf = new char[131071];
@@ -556,7 +613,7 @@ string Row_Software::HomeURL_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[4])
+if (is_null[6])
 return "NULL";
 
 char *buf = new char[201];
@@ -570,7 +627,7 @@ string Row_Software::Category_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[5])
+if (is_null[7])
 return "NULL";
 
 char *buf = new char[41];
@@ -584,7 +641,7 @@ string Row_Software::Downloadurl_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[6])
+if (is_null[8])
 return "NULL";
 
 char *buf = new char[201];
@@ -598,7 +655,7 @@ string Row_Software::PackageName_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[7])
+if (is_null[9])
 return "NULL";
 
 char *buf = new char[129];
@@ -612,7 +669,7 @@ string Row_Software::Misc_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[8])
+if (is_null[10])
 return "NULL";
 
 char *buf = new char[41];
@@ -626,7 +683,7 @@ string Row_Software::Version_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[9])
+if (is_null[11])
 return "NULL";
 
 char *buf = new char[21];
@@ -640,7 +697,7 @@ string Row_Software::Target_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[10])
+if (is_null[12])
 return "NULL";
 
 char *buf = new char[41];
@@ -654,7 +711,7 @@ string Row_Software::Importance_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[11])
+if (is_null[13])
 return "NULL";
 
 char *buf = new char[41];
@@ -668,7 +725,7 @@ string Row_Software::Sum_md5_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[12])
+if (is_null[14])
 return "NULL";
 
 char *buf = new char[41];
@@ -682,7 +739,7 @@ string Row_Software::Sum_sha_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[13])
+if (is_null[15])
 return "NULL";
 
 char *buf = new char[41];
@@ -696,7 +753,7 @@ string Row_Software::Rating_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[14])
+if (is_null[16])
 return "NULL";
 
 char buf[32];
@@ -709,7 +766,7 @@ string Row_Software::Virus_Free_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[15])
+if (is_null[17])
 return "NULL";
 
 char *buf = new char[7];
@@ -723,7 +780,7 @@ string Row_Software::PC_Type_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[16])
+if (is_null[18])
 return "NULL";
 
 char *buf = new char[5];
@@ -737,7 +794,7 @@ string Row_Software::Required_Version_Min_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[17])
+if (is_null[19])
 return "NULL";
 
 char *buf = new char[23];
@@ -751,7 +808,7 @@ string Row_Software::Required_Version_Max_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[18])
+if (is_null[20])
 return "NULL";
 
 char *buf = new char[23];
@@ -765,7 +822,7 @@ string Row_Software::Installation_status_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[19])
+if (is_null[21])
 return "NULL";
 
 char *buf = new char[7];
@@ -779,7 +836,7 @@ string Row_Software::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[20])
+if (is_null[22])
 return "NULL";
 
 char buf[32];
@@ -792,7 +849,7 @@ string Row_Software::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[21])
+if (is_null[23])
 return "NULL";
 
 char buf[32];
@@ -805,7 +862,7 @@ string Row_Software::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[22])
+if (is_null[24])
 return "NULL";
 
 char buf[32];
@@ -818,7 +875,7 @@ string Row_Software::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[23])
+if (is_null[25])
 return "NULL";
 
 char buf[32];
@@ -831,7 +888,7 @@ string Row_Software::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[24])
+if (is_null[26])
 return "NULL";
 
 char *buf = new char[29];
@@ -845,7 +902,7 @@ string Row_Software::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[25])
+if (is_null[27])
 return "NULL";
 
 char buf[32];
@@ -892,10 +949,10 @@ bool Table_Software::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInse
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Software_asSQL()+", "+pRow->Iconstr_asSQL()+", "+pRow->Title_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->HomeURL_asSQL()+", "+pRow->Category_asSQL()+", "+pRow->Downloadurl_asSQL()+", "+pRow->PackageName_asSQL()+", "+pRow->Misc_asSQL()+", "+pRow->Version_asSQL()+", "+pRow->Target_asSQL()+", "+pRow->Importance_asSQL()+", "+pRow->Sum_md5_asSQL()+", "+pRow->Sum_sha_asSQL()+", "+pRow->Rating_asSQL()+", "+pRow->Virus_Free_asSQL()+", "+pRow->PC_Type_asSQL()+", "+pRow->Required_Version_Min_asSQL()+", "+pRow->Required_Version_Max_asSQL()+", "+pRow->Installation_status_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Software_asSQL()+", "+pRow->FK_Device_asSQL()+", "+pRow->RepositoryName_asSQL()+", "+pRow->Iconstr_asSQL()+", "+pRow->Title_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->HomeURL_asSQL()+", "+pRow->Category_asSQL()+", "+pRow->Downloadurl_asSQL()+", "+pRow->PackageName_asSQL()+", "+pRow->Misc_asSQL()+", "+pRow->Version_asSQL()+", "+pRow->Target_asSQL()+", "+pRow->Importance_asSQL()+", "+pRow->Sum_md5_asSQL()+", "+pRow->Sum_sha_asSQL()+", "+pRow->Rating_asSQL()+", "+pRow->Virus_Free_asSQL()+", "+pRow->PC_Type_asSQL()+", "+pRow->Required_Version_Min_asSQL()+", "+pRow->Required_Version_Max_asSQL()+", "+pRow->Installation_status_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into Software (`PK_Software`, `Iconstr`, `Title`, `Description`, `HomeURL`, `Category`, `Downloadurl`, `PackageName`, `Misc`, `Version`, `Target`, `Importance`, `Sum_md5`, `Sum_sha`, `Rating`, `Virus_Free`, `PC_Type`, `Required_Version_Min`, `Required_Version_Max`, `Installation_status`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into Software (`PK_Software`, `FK_Device`, `RepositoryName`, `Iconstr`, `Title`, `Description`, `HomeURL`, `Category`, `Downloadurl`, `PackageName`, `Misc`, `Version`, `Target`, `Importance`, `Sum_md5`, `Sum_sha`, `Rating`, `Virus_Free`, `PC_Type`, `Required_Version_Min`, `Required_Version_Max`, `Installation_status`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -951,7 +1008,7 @@ condition = condition + "`PK_Software`=" + tmp_PK_Software;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_Software`="+pRow->PK_Software_asSQL()+", `Iconstr`="+pRow->Iconstr_asSQL()+", `Title`="+pRow->Title_asSQL()+", `Description`="+pRow->Description_asSQL()+", `HomeURL`="+pRow->HomeURL_asSQL()+", `Category`="+pRow->Category_asSQL()+", `Downloadurl`="+pRow->Downloadurl_asSQL()+", `PackageName`="+pRow->PackageName_asSQL()+", `Misc`="+pRow->Misc_asSQL()+", `Version`="+pRow->Version_asSQL()+", `Target`="+pRow->Target_asSQL()+", `Importance`="+pRow->Importance_asSQL()+", `Sum_md5`="+pRow->Sum_md5_asSQL()+", `Sum_sha`="+pRow->Sum_sha_asSQL()+", `Rating`="+pRow->Rating_asSQL()+", `Virus_Free`="+pRow->Virus_Free_asSQL()+", `PC_Type`="+pRow->PC_Type_asSQL()+", `Required_Version_Min`="+pRow->Required_Version_Min_asSQL()+", `Required_Version_Max`="+pRow->Required_Version_Max_asSQL()+", `Installation_status`="+pRow->Installation_status_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_Software`="+pRow->PK_Software_asSQL()+", `FK_Device`="+pRow->FK_Device_asSQL()+", `RepositoryName`="+pRow->RepositoryName_asSQL()+", `Iconstr`="+pRow->Iconstr_asSQL()+", `Title`="+pRow->Title_asSQL()+", `Description`="+pRow->Description_asSQL()+", `HomeURL`="+pRow->HomeURL_asSQL()+", `Category`="+pRow->Category_asSQL()+", `Downloadurl`="+pRow->Downloadurl_asSQL()+", `PackageName`="+pRow->PackageName_asSQL()+", `Misc`="+pRow->Misc_asSQL()+", `Version`="+pRow->Version_asSQL()+", `Target`="+pRow->Target_asSQL()+", `Importance`="+pRow->Importance_asSQL()+", `Sum_md5`="+pRow->Sum_md5_asSQL()+", `Sum_sha`="+pRow->Sum_sha_asSQL()+", `Rating`="+pRow->Rating_asSQL()+", `Virus_Free`="+pRow->Virus_Free_asSQL()+", `PC_Type`="+pRow->PC_Type_asSQL()+", `Required_Version_Min`="+pRow->Required_Version_Min_asSQL()+", `Required_Version_Max`="+pRow->Required_Version_Max_asSQL()+", `Installation_status`="+pRow->Installation_status_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update Software set " + update_values_list + " where " + condition;
@@ -1074,276 +1131,298 @@ sscanf(row[0], "%li", &(pRow->m_PK_Software));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Iconstr = "";
+pRow->m_FK_Device = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Iconstr = string(row[1],lengths[1]);
+sscanf(row[1], "%li", &(pRow->m_FK_Device));
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Title = "";
+pRow->m_RepositoryName = "";
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Title = string(row[2],lengths[2]);
+pRow->m_RepositoryName = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Description = "";
+pRow->m_Iconstr = "";
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_Description = string(row[3],lengths[3]);
+pRow->m_Iconstr = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_HomeURL = "";
+pRow->m_Title = "";
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_HomeURL = string(row[4],lengths[4]);
+pRow->m_Title = string(row[4],lengths[4]);
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Category = "";
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Category = string(row[5],lengths[5]);
+pRow->m_Description = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_Downloadurl = "";
+pRow->m_HomeURL = "";
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_Downloadurl = string(row[6],lengths[6]);
+pRow->m_HomeURL = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_PackageName = "";
+pRow->m_Category = "";
 }
 else
 {
 pRow->is_null[7]=false;
-pRow->m_PackageName = string(row[7],lengths[7]);
+pRow->m_Category = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_Misc = "";
+pRow->m_Downloadurl = "";
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_Misc = string(row[8],lengths[8]);
+pRow->m_Downloadurl = string(row[8],lengths[8]);
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_Version = "";
+pRow->m_PackageName = "";
 }
 else
 {
 pRow->is_null[9]=false;
-pRow->m_Version = string(row[9],lengths[9]);
+pRow->m_PackageName = string(row[9],lengths[9]);
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_Target = "";
+pRow->m_Misc = "";
 }
 else
 {
 pRow->is_null[10]=false;
-pRow->m_Target = string(row[10],lengths[10]);
+pRow->m_Misc = string(row[10],lengths[10]);
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_Importance = "";
+pRow->m_Version = "";
 }
 else
 {
 pRow->is_null[11]=false;
-pRow->m_Importance = string(row[11],lengths[11]);
+pRow->m_Version = string(row[11],lengths[11]);
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_Sum_md5 = "";
+pRow->m_Target = "";
 }
 else
 {
 pRow->is_null[12]=false;
-pRow->m_Sum_md5 = string(row[12],lengths[12]);
+pRow->m_Target = string(row[12],lengths[12]);
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_Sum_sha = "";
+pRow->m_Importance = "";
 }
 else
 {
 pRow->is_null[13]=false;
-pRow->m_Sum_sha = string(row[13],lengths[13]);
+pRow->m_Importance = string(row[13],lengths[13]);
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_Rating = 0;
+pRow->m_Sum_md5 = "";
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%f", &(pRow->m_Rating));
+pRow->m_Sum_md5 = string(row[14],lengths[14]);
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_Virus_Free = "";
+pRow->m_Sum_sha = "";
 }
 else
 {
 pRow->is_null[15]=false;
-pRow->m_Virus_Free = string(row[15],lengths[15]);
+pRow->m_Sum_sha = string(row[15],lengths[15]);
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_PC_Type = "";
+pRow->m_Rating = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-pRow->m_PC_Type = string(row[16],lengths[16]);
+sscanf(row[16], "%f", &(pRow->m_Rating));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_Required_Version_Min = "";
+pRow->m_Virus_Free = "";
 }
 else
 {
 pRow->is_null[17]=false;
-pRow->m_Required_Version_Min = string(row[17],lengths[17]);
+pRow->m_Virus_Free = string(row[17],lengths[17]);
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_Required_Version_Max = "";
+pRow->m_PC_Type = "";
 }
 else
 {
 pRow->is_null[18]=false;
-pRow->m_Required_Version_Max = string(row[18],lengths[18]);
+pRow->m_PC_Type = string(row[18],lengths[18]);
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_Installation_status = "";
+pRow->m_Required_Version_Min = "";
 }
 else
 {
 pRow->is_null[19]=false;
-pRow->m_Installation_status = string(row[19],lengths[19]);
+pRow->m_Required_Version_Min = string(row[19],lengths[19]);
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_psc_id = 0;
+pRow->m_Required_Version_Max = "";
 }
 else
 {
 pRow->is_null[20]=false;
-sscanf(row[20], "%li", &(pRow->m_psc_id));
+pRow->m_Required_Version_Max = string(row[20],lengths[20]);
 }
 
 if (row[21] == NULL)
 {
 pRow->is_null[21]=true;
-pRow->m_psc_batch = 0;
+pRow->m_Installation_status = "";
 }
 else
 {
 pRow->is_null[21]=false;
-sscanf(row[21], "%li", &(pRow->m_psc_batch));
+pRow->m_Installation_status = string(row[21],lengths[21]);
 }
 
 if (row[22] == NULL)
 {
 pRow->is_null[22]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[22]=false;
-sscanf(row[22], "%li", &(pRow->m_psc_user));
+sscanf(row[22], "%li", &(pRow->m_psc_id));
 }
 
 if (row[23] == NULL)
 {
 pRow->is_null[23]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[23]=false;
-sscanf(row[23], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[23], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[24] == NULL)
 {
 pRow->is_null[24]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[24]=false;
-pRow->m_psc_mod = string(row[24],lengths[24]);
+sscanf(row[24], "%li", &(pRow->m_psc_user));
 }
 
 if (row[25] == NULL)
 {
 pRow->is_null[25]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[25]=false;
-sscanf(row[25], "%li", &(pRow->m_psc_restrict));
+sscanf(row[25], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[26] == NULL)
+{
+pRow->is_null[26]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[26]=false;
+pRow->m_psc_mod = string(row[26],lengths[26]);
+}
+
+if (row[27] == NULL)
+{
+pRow->is_null[27]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[27]=false;
+sscanf(row[27], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1468,276 +1547,298 @@ sscanf(row[0], "%li", &(pRow->m_PK_Software));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Iconstr = "";
+pRow->m_FK_Device = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Iconstr = string(row[1],lengths[1]);
+sscanf(row[1], "%li", &(pRow->m_FK_Device));
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Title = "";
+pRow->m_RepositoryName = "";
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Title = string(row[2],lengths[2]);
+pRow->m_RepositoryName = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Description = "";
+pRow->m_Iconstr = "";
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_Description = string(row[3],lengths[3]);
+pRow->m_Iconstr = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_HomeURL = "";
+pRow->m_Title = "";
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_HomeURL = string(row[4],lengths[4]);
+pRow->m_Title = string(row[4],lengths[4]);
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Category = "";
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Category = string(row[5],lengths[5]);
+pRow->m_Description = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_Downloadurl = "";
+pRow->m_HomeURL = "";
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_Downloadurl = string(row[6],lengths[6]);
+pRow->m_HomeURL = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_PackageName = "";
+pRow->m_Category = "";
 }
 else
 {
 pRow->is_null[7]=false;
-pRow->m_PackageName = string(row[7],lengths[7]);
+pRow->m_Category = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_Misc = "";
+pRow->m_Downloadurl = "";
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_Misc = string(row[8],lengths[8]);
+pRow->m_Downloadurl = string(row[8],lengths[8]);
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_Version = "";
+pRow->m_PackageName = "";
 }
 else
 {
 pRow->is_null[9]=false;
-pRow->m_Version = string(row[9],lengths[9]);
+pRow->m_PackageName = string(row[9],lengths[9]);
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_Target = "";
+pRow->m_Misc = "";
 }
 else
 {
 pRow->is_null[10]=false;
-pRow->m_Target = string(row[10],lengths[10]);
+pRow->m_Misc = string(row[10],lengths[10]);
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_Importance = "";
+pRow->m_Version = "";
 }
 else
 {
 pRow->is_null[11]=false;
-pRow->m_Importance = string(row[11],lengths[11]);
+pRow->m_Version = string(row[11],lengths[11]);
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_Sum_md5 = "";
+pRow->m_Target = "";
 }
 else
 {
 pRow->is_null[12]=false;
-pRow->m_Sum_md5 = string(row[12],lengths[12]);
+pRow->m_Target = string(row[12],lengths[12]);
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_Sum_sha = "";
+pRow->m_Importance = "";
 }
 else
 {
 pRow->is_null[13]=false;
-pRow->m_Sum_sha = string(row[13],lengths[13]);
+pRow->m_Importance = string(row[13],lengths[13]);
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_Rating = 0;
+pRow->m_Sum_md5 = "";
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%f", &(pRow->m_Rating));
+pRow->m_Sum_md5 = string(row[14],lengths[14]);
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_Virus_Free = "";
+pRow->m_Sum_sha = "";
 }
 else
 {
 pRow->is_null[15]=false;
-pRow->m_Virus_Free = string(row[15],lengths[15]);
+pRow->m_Sum_sha = string(row[15],lengths[15]);
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_PC_Type = "";
+pRow->m_Rating = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-pRow->m_PC_Type = string(row[16],lengths[16]);
+sscanf(row[16], "%f", &(pRow->m_Rating));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_Required_Version_Min = "";
+pRow->m_Virus_Free = "";
 }
 else
 {
 pRow->is_null[17]=false;
-pRow->m_Required_Version_Min = string(row[17],lengths[17]);
+pRow->m_Virus_Free = string(row[17],lengths[17]);
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_Required_Version_Max = "";
+pRow->m_PC_Type = "";
 }
 else
 {
 pRow->is_null[18]=false;
-pRow->m_Required_Version_Max = string(row[18],lengths[18]);
+pRow->m_PC_Type = string(row[18],lengths[18]);
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_Installation_status = "";
+pRow->m_Required_Version_Min = "";
 }
 else
 {
 pRow->is_null[19]=false;
-pRow->m_Installation_status = string(row[19],lengths[19]);
+pRow->m_Required_Version_Min = string(row[19],lengths[19]);
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_psc_id = 0;
+pRow->m_Required_Version_Max = "";
 }
 else
 {
 pRow->is_null[20]=false;
-sscanf(row[20], "%li", &(pRow->m_psc_id));
+pRow->m_Required_Version_Max = string(row[20],lengths[20]);
 }
 
 if (row[21] == NULL)
 {
 pRow->is_null[21]=true;
-pRow->m_psc_batch = 0;
+pRow->m_Installation_status = "";
 }
 else
 {
 pRow->is_null[21]=false;
-sscanf(row[21], "%li", &(pRow->m_psc_batch));
+pRow->m_Installation_status = string(row[21],lengths[21]);
 }
 
 if (row[22] == NULL)
 {
 pRow->is_null[22]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[22]=false;
-sscanf(row[22], "%li", &(pRow->m_psc_user));
+sscanf(row[22], "%li", &(pRow->m_psc_id));
 }
 
 if (row[23] == NULL)
 {
 pRow->is_null[23]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[23]=false;
-sscanf(row[23], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[23], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[24] == NULL)
 {
 pRow->is_null[24]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[24]=false;
-pRow->m_psc_mod = string(row[24],lengths[24]);
+sscanf(row[24], "%li", &(pRow->m_psc_user));
 }
 
 if (row[25] == NULL)
 {
 pRow->is_null[25]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[25]=false;
-sscanf(row[25], "%li", &(pRow->m_psc_restrict));
+sscanf(row[25], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[26] == NULL)
+{
+pRow->is_null[26]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[26]=false;
+pRow->m_psc_mod = string(row[26],lengths[26]);
+}
+
+if (row[27] == NULL)
+{
+pRow->is_null[27]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[27]=false;
+sscanf(row[27], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1748,6 +1849,13 @@ sscanf(row[25], "%li", &(pRow->m_psc_restrict));
 }
 
 
+class Row_Device* Row_Software::FK_Device_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Device *pTable = table->database->Device_get();
+return pTable->GetRow(m_FK_Device);
+}
 
 
 
