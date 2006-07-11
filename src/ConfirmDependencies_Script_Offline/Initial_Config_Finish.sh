@@ -15,16 +15,26 @@ case "$R" in
 	# Core
 	7)
 		SysType="Core"
+		Delay=infinite
+		MessageReboot=""
+		MessageNote="**Note**  The first boot will take an unusually long time while it sets up
+a lot of new devices, and builds user interfaces for any Orbiters.
+If you are an advanced Linux user and want to access a terminal before the
+reboot, press ALT+F2."
 	;;
 
 	# Media Director
 	8)
 		SysType="Media Director"
+		Delay=10
+		MessageReboot="The system will automatically reboot after $Delay seconds"
 	;;
 
 	# Other (usually, this means it's a bug)
 	*)
 		SysType="Unknown Device Type '$R'"
+		Delay=infinite
+		MessageReboot=""
 	;;
 esac
 
@@ -32,16 +42,10 @@ Message1="Congratulations.  Pluto installation has completed.  The system will n
 reboot.  The Pluto Core software will be started automatically.  As soon as 
 the computer finishes rebooting you will be able to access the Pluto Admin
 website to configure it, and you can start plugging in your media directors
-and other plug-and-play devices.  
-**Note**  The first boot will take an unusually long time while it sets up
-a lot of new devices, and builds user interfaces for any Orbiters.
-If you are an advanced Linux user and want to access a terminal before the
-reboot, press ALT+F2.  Otherwise..."
+and other plug-and-play devices."
 Key="the Enter key"
-Delay=10
 #Key="OK"
-Message2="Press $Key to reboot and startup your new Pluto $SysType.
-The system will automatically reboot after $Delay seconds"
+Message2="Press $Key to reboot and startup your new Pluto $SysType."
 
 Message24="
 [1;5;31m*** WARNING ***[0m You installed the system using the 2.4 kernel.
@@ -75,10 +79,14 @@ if [[ -x /usr/pluto/bin/alsaconf-noninteractive ]]; then
 	/usr/pluto/bin/alsaconf-noninteractive -m 
 fi
 
-echo "$(CatMessages "$Message1" "$Message2")" | fmt
+echo "$(CatMessages "$Message1" "$MessageNote" "$Message2 $MessageReboot")" | fmt
 Kver=$(uname -r)
 if [ "${Kver:0:4}" == "2.4." ]; then
 	echo "$Message24"
 fi
-read -t $Delay
+if [[ "$Delay" != infinite ]]; then
+	read -t $Delay
+else
+	read
+fi
 #MessageBox "$Message1" "$Message2" "$Message3"
