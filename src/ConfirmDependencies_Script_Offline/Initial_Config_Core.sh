@@ -118,7 +118,7 @@ fi
 OfflineMode="false"
 if [[ "$UseInternet" == "N" || "$UseInternet" == "n" ]] ;then
 	OfflineMode="true"
-        OfflineApt='
+	OfflineApt='
 Acquire::http::timeout "-1";
 Acquire::ftp::timeout "-1";
 APT::Get::Download "false";
@@ -126,10 +126,10 @@ APT::Get::Fix-Missing "true";
 APT::Get::quiet "1";
 Dir::Etc::sourcelist "sources.list.offline";
 '
-        mkdir -p /etc/apt/apt.conf.d/
-        ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
+	mkdir -p /etc/apt/apt.conf.d/
+	ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
 	mkdir -p /usr/pluto/var
-        echo -e $OfflineApt > /usr/pluto/var/apt.conf.offline
+	echo -e $OfflineApt > /usr/pluto/var/apt.conf.offline
 
 # installing BonusCD at this point
 . /usr/pluto/install/BonusCdMenu.sh
