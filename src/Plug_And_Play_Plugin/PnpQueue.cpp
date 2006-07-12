@@ -273,6 +273,9 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 				sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
 			m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
 
+			if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
+				DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device_Created->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get());
+
 			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
 			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Detected queue %d was existing device, nothing to do",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 			return true;
