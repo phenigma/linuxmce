@@ -289,7 +289,7 @@ fi
 clear
 
 ## Install autoinstall packages from Bonus CD if needed
-. /usr/pluto/bin/BonusCdAutoInst.sh
+. /usr/pluto/install/BonusCdAutoInst.sh
 
 ## Install extra packages
 while :; do
