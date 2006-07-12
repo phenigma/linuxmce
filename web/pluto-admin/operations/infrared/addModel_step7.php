@@ -13,6 +13,13 @@
 	}
 
 	if($action=='form'){
+		//start cosmin
+		echo '<div id="preloader" style="display:block;color:red;width:100%;height:100%;text-align:center;background:#efefef;color:#000;padding-top:200px">Loading, please wait</div>';
+		flush();
+		GetIRCodesForDevice($deviceID, $dbADO, $dtID);
+		$output->setScriptInBody('onLoad="document.getElementById(\'preloader\').style.display=\'none\';document.getElementById(\'content\').style.display=\'\';";');
+		//end cosmin
+
 		$output->setScriptInHead('<script src="javascripts/user.js" type="text/javascript" language="JavaScript"></script>');
 		$out='
 		<script>
