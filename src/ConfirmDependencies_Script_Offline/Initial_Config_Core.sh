@@ -132,7 +132,7 @@ Dir::Etc::sourcelist "sources.list.offline";
 	echo -e $OfflineApt > /usr/pluto/var/apt.conf.offline
 fi
 
-# installing BonusCD at this point
+## installing BonusCD at this point
 . /usr/pluto/install/BonusCdMenu.sh
 
 ## Setup pluto.conf
@@ -287,6 +287,9 @@ if [[ "$UpgradeMode" == "true" ]]; then
 fi
 
 clear
+
+## Install autoinstall packages from Bonus CD if needed
+. /usr/pluto/bin/BonusCdAutoInst.sh
 
 ## Install extra packages
 while :; do

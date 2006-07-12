@@ -28,20 +28,17 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 	echo "Installing extra packages from \"Pluto Bonus CD 1\""
 	echo "... PLEASE WAIT ..."
 
-	for files in $(ls /cdrom/bonuscd1); do
-		pkgname=$(echo $files | awk -F '_' '{print $1}')
-		echo "Installing package name : $files"
-		cd /cdrom/bonuscd1
-		dpkg -i $files 1>/dev/null 2>/dev/null
-	done
+	BonusAutoInstDir=/usr/pluto/deb-cache/auto-inst
+	mkdir -p "$BonusAutoInstDir"
+	cp /cdrom/bonuscd1/*.deb "$BonusAutoInstDir"
 
-	WorkDir="/usr/pluto/deb-cache/dists/sarge/main/binary-i386"
+	BonusWorkDir="/usr/pluto/deb-cache/dists/sarge/main/binary-i386"
 
 	cd /cdrom/bonuscd1-cache
-	cp -r *.deb $WorkDir
+	cp -r *.deb "$BonusWorkDir"
 	cd /cdrom/bonuscd1-offline
-	cp -r *.deb $WorkDir
-	cd $WorkDir
+	cp -r *.deb "$BonusWorkDir"
+	cd "$BonusWorkDir"
 	dpkg -i libsepol1_*.deb 1>/dev/null 2>/dev/null
 	dpkg -i libselinux1_*.deb 1>/dev/null 2>/dev/null
 	dpkg -i binutils_*.deb 1>/dev/null 2>/dev/null
@@ -49,7 +46,7 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 	dpkg -i dpkg_*.deb 1>/dev/null 2>/dev/null
 	dpkg -i dpkg-dev_*.deb 1>/dev/null 2>/dev/null
 
-	cd $WorkDir
+	cd "$BonusWorkDir"
 	echo "Regenerating Packages.gz in debcache. This will require 1 minute. Please wait."
 	dpkg-scanpackages . /dev/null | sed 's,\./,dists/sarge/main/binary-i386/,g' | gzip -9c > Packages.gz
 	clear
