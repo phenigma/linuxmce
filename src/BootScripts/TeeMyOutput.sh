@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # Usage:
-# source TeeMyOutput.sh --outfile <file> [--infile <file>] [--stdout|--stderr|--stdboth] [--append] -- "$@"
+# source TeeMyOutput.sh --outfile <file> [--infile <file>] [--stdout|--stderr|--stdboth] [--append] [--exclude <egrep pattern>] -- "$@"
 #   --outfile <file>         the file to tee our output to
 #   --infile <file>          the file to feed ourselves with on stdin
 #   --stdout                 redirect stdout (default)
 #   --stderr                 redirect stderr
 #   --stdboth                redirect both stdout and stderr
 #   --append                 run tee in append mode
+#   --exclude <pattern>      strip matching lines from output; pattern is used with egrep
 #
 # Environment:
 #   SHELLCMD="<shell command>" (ex: bash -x)
@@ -25,6 +26,7 @@ for ((i = 1; i <= "$#"; i++)); do
 		--infile) ((i++)); InFile="${!i}" ;;
 		--stdout|--stderr|--stdboth) Mode="${!i#--std}" ;;
 		--append) Append=yes ;;
+		--exclude) ((i++)); Exclude="${!i}" ;;
 		--) LastParm="$i"; break ;;
 		*) echo "$Me: Unknown parameter '$Parm'"; exit 1
 	esac
@@ -64,11 +66,18 @@ export TeeMyOutput=yes
 ExitCodeFile="/tmp/TeeMyOutputExitCode_$$"
 trap "rm -rf '$ExitCodeFile'" EXIT
 
+Run()
 {
 	eval exec "${OurRedirect[@]}"
 	$SHELLCMD "$0" "${OrigParms[@]}"
 	echo $? >"$ExitCodeFile"
-} | tee "${TeeParm[@]}" "$OutFile"
+}
+
+if [[ -z "$Exclude" ]]; then
+	Run | tee "${TeeParm[@]}" "$OutFile"
+else
+	Run | grep -v "$Exclude" | tee "${TeeParm[@]}" "$OutFile"
+fi
 
 ExitCode=$(<"$ExitCodeFile")
 exit "$ExitCode"
