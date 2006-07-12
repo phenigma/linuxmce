@@ -10,7 +10,7 @@ DEVICETEMPLATE_GeForce_or_TNT2=1736
 DEVICETEMPLATE_Radeon_8500_or_newer=1721
 
 LogFile="/var/log/pluto/Config_Device_Changes.log"
-. /usr/pluto/bin/TeeMyOutput.sh --outfile "$LogFile" --stdboth --append -- "$@"
+. /usr/pluto/bin/TeeMyOutput.sh --outfile "$LogFile" --stdboth --append --exclude "^W: GPG error" -- "$@"
 
 echo "-----------------------------------"
 date -R
