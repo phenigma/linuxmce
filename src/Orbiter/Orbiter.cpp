@@ -4357,11 +4357,13 @@ void Orbiter::CMD_Display_OnOff(string sOnOff,bool bAlready_processed,string &sC
 	if( m_bDisplayOn )
 	{
 		DCE::CMD_On CMD_On(m_dwPK_Device,m_dwPK_Device,0,"");
+		CMD_On.m_pMessage->m_mapParameters[COMMANDPARAMETER_Force_CONST]="1";
 		SendCommand(CMD_On);
 	}
 	else
 	{
 		DCE::CMD_Off CMD_Off(m_dwPK_Device,m_dwPK_Device,0);
+		CMD_Off.m_pMessage->m_mapParameters[COMMANDPARAMETER_Force_CONST]="1";
 		SendCommand(CMD_Off);
 	}
 

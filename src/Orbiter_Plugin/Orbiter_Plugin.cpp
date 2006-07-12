@@ -1888,9 +1888,6 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 
 bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
-	if( pMessage->m_mapParameters.find(COMMANDPARAMETER_Already_processed_CONST)!=pMessage->m_mapParameters.end() )
-		return false; // This message originated with us
-
 	bool bDestIsMD=false; // Will be true if the destination was an MD, false if an OSD
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_To);
 	if( !pOH_Orbiter )
@@ -1901,6 +1898,36 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 
 	if( !pOH_Orbiter || !pDeviceTo->m_pDevice_MD )
 		return false;
+
+	// If this is coming from an OSD Orbiter, the Force parameter can be specified and set to 1, meaning even if there
+	// is no active pipe, still force an 'off' on all available pipes
+	if( bDestIsMD && pDeviceTo && 
+		pMessage->m_mapParameters.find(COMMANDPARAMETER_Force_CONST)!=pMessage->m_mapParameters.end() && pMessage->m_mapParameters[COMMANDPARAMETER_Force_CONST]=="1" &&
+		((DeviceData_Router *) pDeviceTo)->m_mapPipe_Active.size()==0 && ((DeviceData_Router *) pDeviceTo)->m_mapPipe_Available.size()>0 )
+	{
+		DeviceData_Router *pDeviceData_Router = (DeviceData_Router *) pDeviceTo;
+		int PK_Pipe=0;
+        if( pMessage->m_mapParameters.find(COMMANDPARAMETER_PK_Pipe_CONST)!=pMessage->m_mapParameters.end() )
+			PK_Pipe = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
+
+		for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
+        {
+            Pipe *pPipe = (*it).second;
+			if( (PK_Pipe && PK_Pipe!=pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()) || pPipe->m_bDontSendOff )
+				continue;
+
+			Message *pMessage_New = new Message( pMessage->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+                PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST,0);
+			if( PK_Pipe )
+				pMessage_New->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST] = pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST];
+	        if( pMessage->m_mapParameters.find(COMMANDPARAMETER_PK_Device_Pipes_CONST)!=pMessage->m_mapParameters.end() )
+				pMessage_New->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST] = pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST];
+            QueueMessageToRouter(pMessage_New);
+        }
+	}
+
+	if( pMessage->m_mapParameters.find(COMMANDPARAMETER_Already_processed_CONST)!=pMessage->m_mapParameters.end() )
+		return false; // This message originated with us
 
 	pOH_Orbiter->m_bDisplayOn = pMessage->m_dwID==COMMAND_Generic_On_CONST;
 	if( pOH_Orbiter->m_pDeviceData_Router->m_mapParameters.find(DEVICEDATA_Leave_Monitor_on_for_OSD_CONST)!=
@@ -1937,6 +1964,18 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 	}
 	else
 	{
+		MediaDevice *pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(pDeviceTo->m_pDevice_MD->m_dwPK_Device);
+		if( pMediaDevice && pMediaDevice->m_dwPK_Command_LastPower==pMessage->m_dwID && time(NULL)-pMediaDevice->m_tLastPowerCommand < DONT_RESEND_POWER_WITHIN_X_SECONDS )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::OSD_OnOff Not resending power command");
+			return false;
+		}
+		else if( pMediaDevice )
+		{
+			pMediaDevice->m_tLastPowerCommand=time(NULL);
+			pMediaDevice->m_dwPK_Command_LastPower=pMessage->m_dwID;
+		}
+
 		Message *pMessage_New = new Message(pMessage);
 		pMessage_New->m_dwPK_Device_To = pDeviceTo->m_pDevice_MD->m_dwPK_Device;
 		pMessage_New->m_mapParameters[COMMANDPARAMETER_Already_processed_CONST] = "1"; // So we know we already processed it and don't create an infinite loop

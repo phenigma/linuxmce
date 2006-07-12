@@ -4,6 +4,8 @@
 class Row_Device;
 class Row_MediaType;
 
+#define DONT_RESEND_POWER_WITHIN_X_SECONDS		3
+
 namespace DCE
 {
 	/** @brief This adds media specific information for a device, extending the DeviceData_Router */
@@ -33,6 +35,12 @@ namespace DCE
 		// orbiter originated the request
 		class OH_Orbiter *m_pOH_Orbiter_Reset;
 		time_t m_tReset;
+
+		// Keep track of the last time the media plugin turned this device on or off, so Orbiter Plugin doesn't
+		// repeat the same command.  This can happen when media plugin starts some media which causes the orbiter
+		// to simultaneously come on
+		time_t m_tLastPowerCommand;
+		int m_dwPK_Command_LastPower;
 
 		int FindUltimateDestinationViaPipe(class Pipe *pPipe,int PK_Pipe);
 	};

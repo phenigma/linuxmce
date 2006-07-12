@@ -116,6 +116,8 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	m_tReset=0;
 	m_pDevice_Audio=m_pDevice_Video=m_pDevice_Media_ID=NULL;
 	m_iPK_MediaProvider=atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_EK_MediaProvider_CONST).c_str());
+	m_tLastPowerCommand=0;
+	m_dwPK_Command_LastPower=0;
 
 	DeviceData_Router *pDeviceData_Router_Source = m_pDeviceData_Router;  // The source is ourselves unless we're a software source and then it's the MD
 	if( (m_pDeviceData_Router->m_pDevice_ControlledVia && m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Media_Director_CONST)) ||
@@ -2412,8 +2414,20 @@ int k=2;
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_WARNING,"Also turning on MD and OSD");
 #endif
-			DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device,PK_Pipe_Current,"");
-			SendCommand(CMD_On);
+
+			MediaDevice *pMediaDevice_MD = m_mapMediaDevice_Find(pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device);
+			if( pMediaDevice_MD && pMediaDevice_MD->m_dwPK_Command_LastPower==COMMAND_Generic_On_CONST && time(NULL)-pMediaDevice_MD->m_tLastPowerCommand < DONT_RESEND_POWER_WITHIN_X_SECONDS )
+				g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleOnOffs Not resending power command");
+			else
+			{
+				if( pMediaDevice_MD )
+				{
+					pMediaDevice_MD->m_tLastPowerCommand=time(NULL);
+					pMediaDevice_MD->m_dwPK_Command_LastPower=COMMAND_Generic_On_CONST;
+				}
+				DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device,PK_Pipe_Current,"");
+				SendCommand(CMD_On);
+			}
 
 			DCE::CMD_On CMD_On2(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device,PK_Pipe_Current,"");
 			SendCommand(CMD_On2);
