@@ -113,6 +113,7 @@ if [[ $UpgradeMode == "false" ]]; then
 	done
 fi
 
+exec 1>&3 3>&-
 
 ## Setup Offline Mode
 OfflineMode="false"
@@ -133,7 +134,9 @@ Dir::Etc::sourcelist "sources.list.offline";
 fi
 
 ## installing BonusCD at this point
+exec 3>&1 1>/dev/tty
 . /usr/pluto/install/BonusCdMenu.sh
+exec 1>&3 3>&-
 
 ## Setup pluto.conf
 PlutoConf="# Pluto config file
@@ -164,6 +167,7 @@ fi
 apt-get update
 if ! apt-get -y -f install pluto-dcerouter; then
 	echo "Installation failed"
+	read
 	exit 1
 fi
 
@@ -292,6 +296,7 @@ clear
 . /usr/pluto/install/BonusCdAutoInst.sh
 
 ## Install extra packages
+exec 3>&1 1>/dev/tty
 while :; do
 	ExtraPkg=$(Ask "Do you want to add extra packages? [y/N]")
 	if [[ "$ExtraPkg" == y || "$ExtraPkg" == Y ]]; then

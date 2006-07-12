@@ -25,7 +25,7 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 			/bin/mount /dev/cdrom /cdrom 2>/dev/null
 		fi
 	done
-	echo "Installing extra packages from \"Pluto Bonus CD 1\""
+	echo "Processing \"Pluto Bonus CD 1\""
 	echo "... PLEASE WAIT ..."
 
 	BonusAutoInstDir=/usr/pluto/deb-cache/auto-inst
@@ -53,8 +53,8 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 	cd ..
 	/usr/bin/eject
 	echo ""
-	echo "\"Pluto Bonus CD 1\" succesfuly installed !"
+	echo "Finished processing \"Pluto Bonus CD 1\""
 	echo ""
 else
-	echo "Skipping \"Pluto Bonus CD 1\" install ..."
+	echo "Skipping \"Pluto Bonus CD 1\"..."
 fi
