@@ -82,7 +82,8 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     $EXT_BUFFER .= "exten => $line-hm$hm,2,Goto($line-hm$hm-\${DIALSTATUS},1)\n";
     $EXT_BUFFER .= "exten => $line-hm$hm,3,Hangup\n";
     $EXT_BUFFER .= "exten => $line-hm$hm-BUSY,1,Goto(100,1)\n";
-    $EXT_BUFFER .= "exten => $line-hm$hm-NOANSWER,1,Goto(100,1)\n";
+    #$EXT_BUFFER .= "exten => $line-hm$hm-NOANSWER,1,Goto(100,1)\n";
+    $EXT_BUFFER .= "exten => $line-hm$hm-NOANSWER,1,Goto(voice-menu-pluto-custom,s,1)\n";
     $EXT_BUFFER .= "exten => $line-hm$hm-CONGESTION,1,Goto(100,1)\n";
     $EXT_BUFFER .= "exten => $line-hm$hm-CHANUNAVAIL,1,Goto(100,1)\n";
     $tmp = $line;
