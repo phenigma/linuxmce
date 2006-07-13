@@ -101,7 +101,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 
 	g_pPlutoLogger->Write(LV_STATUS,"Create device -- getting i/r codes for %d",iPK_DeviceTemplate);
 	if( row[5] && atoi(row[5]) )  // Only ask for the i/r codes if there is an infrared group
-		system((string("/usr/pluto/bin/WebDB_GetIR.sh 0 ") + StringUtils::itos(iPK_DeviceTemplate)).c_str());
+		ProcessUtils::SpawnApplication("/usr/pluto/bin/WebDB_GetIR.sh", "0\t" + StringUtils::itos(iPK_DeviceTemplate),"newdevice");
 	
 	// Check if this device template has 'one per pc' set and ther's already one
 	// Use a temporary PK_Device_ControlledVia_temp because in rare circumstances this can't be determined until after the device is created
