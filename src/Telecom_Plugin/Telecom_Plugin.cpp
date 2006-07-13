@@ -1637,6 +1637,14 @@ void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,stri
 bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
 	int userid = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Users_CONST].c_str());
+
+	// TODO: implement: for userid 0, send to all users on the system with Users.AccessGeneralVoiceMail=1
+	if (userid == 0)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Telecom_Plugin::VoiceMailChanged: Event for all users not implemented");
+		return true;
+	}
+
 	string vmcount = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
 	string::size_type pos=0;
 	int vm_new = atoi(StringUtils::Tokenize(vmcount," ",pos).c_str());
