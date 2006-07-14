@@ -270,7 +270,7 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 		Xine_Stream *new_stream = new Xine_Stream(this, m_pXineLibrary, streamID, m_pPlayer->DATA_Get_Time_Code_Report_Frequency(), requestingObject);
 		if ((new_stream!=NULL) && new_stream->StartupStream())
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Created new stream with ID=%i", streamID);
+			g_pPlutoLogger->Write(LV_WARNING,"Created new stream with internalID=%i", streamID);
 			
 			PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
 			streamsMap[streamID] = new_stream;
@@ -278,7 +278,7 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Cannot create new stream with ID=%i", streamID);
+			g_pPlutoLogger->Write(LV_WARNING,"Cannot create new stream with internalID=%i", streamID);
 			if (new_stream!=NULL)
 				delete new_stream;
 			return NULL;
@@ -331,7 +331,7 @@ void Xine_Stream_Factory::DestroyStream(int iStreamID)
 		delete pStream;
 	}
 	
-	g_pPlutoLogger->Write(LV_WARNING,"Destroyed stream with ID=%i", iStreamID);
+	g_pPlutoLogger->Write(LV_WARNING,"Destroyed stream with internalID=%i", iStreamID);
 }
 
 void Xine_Stream_Factory::CloseStreamAV(int iStreamID)
@@ -354,7 +354,7 @@ void Xine_Stream_Factory::CloseStreamAV(int iStreamID)
 		pStream->ShutdownStream();
 	}
 	
-	g_pPlutoLogger->Write(LV_WARNING,"Closed stream AV with ID=%i", iStreamID);
+	g_pPlutoLogger->Write(LV_WARNING,"Closed stream AV with internalID=%i", iStreamID);
 }
 
 } // DCE namespace end
