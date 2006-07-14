@@ -1379,8 +1379,8 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 				string sMD_IP=row[0];
 				sql="SELECT PackageName, Downloadurl, RepositoryName FROM Software WHERE PK_Software="+sSoftwareID;
 				if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))&&(row=mysql_fetch_row(result.r))){
-					string sArguments=sMD_IP+"\t"+row[0]+"\t"+row[1]+"\t"+row[2];
-					ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallSoftware.sh", sArguments, "InstallSoftware", NULL, true);
+					char * args[] = { "/usr/pluto/bin/InstallSoftware.sh", (char *)(sMD_IP.c_str()), row[0], row[1], row[2] };
+					ProcessUtils::SpawnDaemon(args[0], args);
 				}
 			}
 		}else{
@@ -2740,7 +2740,8 @@ void General_Info_Plugin::CMD_Force_Update_Packages(string &sCMD_Result,Message 
 //<-dceag-c789-e->
 {
 	g_pPlutoLogger->Write(LV_WARNING, "Forcing package update");
-	ProcessUtils::SpawnApplication("/usr/pluto/bin/ForceUpdates.sh", "", "ForceUpdates", NULL, false);
+	char * args[] = { "/usr/pluto/bin/ForceUpdates.sh", NULL };
+	ProcessUtils::SpawnDaemon(args[0], args);
 }
 
 //<-dceag-c791-b->
