@@ -36,8 +36,6 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 
 	cd /cdrom/bonuscd1-cache
 	cp -r *.deb "$BonusWorkDir"
-	cd /cdrom/bonuscd1-offline
-	cp -r *.deb "$BonusWorkDir"
 	cd "$BonusWorkDir"
 	dpkg -i libsepol1_*.deb 1>/dev/null 2>/dev/null
 	dpkg -i libselinux1_*.deb 1>/dev/null 2>/dev/null
