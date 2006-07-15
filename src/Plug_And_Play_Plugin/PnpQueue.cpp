@@ -115,8 +115,8 @@ void PnpQueue::Run()
 				( pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_running_detection_scripts || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_DETECTION_SCRIPT ) 
 				)
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Run queue %d blocked %d time %d now %d", pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),
-					(int) pPnpQueueEntry->m_EBlockedState,(int) pPnpQueueEntry->m_tTimeBlocked, (int) time(NULL));
+				g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Run queue %d blocked %d time %d now %d by %d", pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),
+					(int) pPnpQueueEntry->m_EBlockedState,(int) pPnpQueueEntry->m_tTimeBlocked, (int) time(NULL),pPnpQueueEntry->m_dwPK_PnpQueue_BlockingFor);
 				it++;
 				continue;
 			}
@@ -889,7 +889,7 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 	{
 		if( time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_DETECTION_SCRIPT )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d is blocked.  waiting...",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d is blocked by %d.  waiting...",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_dwPK_PnpQueue_BlockingFor);
 			return false; // We're waiting for user input.  Give the user more time.
 		}
 		else

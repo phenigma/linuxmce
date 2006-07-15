@@ -85,6 +85,8 @@ static bool LocationComparer(LocationInfo *x, LocationInfo *y)
 	return x->Description<y->Description;
 }
 
+bool g_bBootSplash=false;
+
 // For some reason windows won't compile with this in the same file???
 void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate,
 	char cDefaultScaleForMenuBackground,char cDefaultScaleForOtherGraphics,float fScaleX,float fScaleY);
@@ -125,6 +127,9 @@ int main(int argc, char *argv[])
 		c=argv[optnum][1];
 		switch (c)
 		{
+		case 'b':
+			g_bBootSplash = true;
+			break;
 		case 'h':
 			DBHost = argv[++optnum];
 			break;
@@ -1596,10 +1601,15 @@ loop_to_keep_looking_for_objs_to_include:
 				if( !m_iLastReportedPercentage || Percent - m_iLastReportedPercentage > 3 )
 				{
 					m_iLastReportedPercentage = max(1,Percent);
-					m_pRow_Orbiter->Reload();
-					m_pRow_Orbiter->RegenStatus_set("Stage 2 of 2 - Rendering screen " + StringUtils::itos(m_iScreensToRender) + " of " + StringUtils::itos(m_iScreensTotal));
-					m_pRow_Orbiter->RegenPercent_set(m_iLastReportedPercentage);
-					m_pRow_Orbiter->Table_Orbiter_get()->Commit();
+					if( g_bBootSplash )
+						system( ("/usr/pluto/bin/BootMessage.sh \"Stage 2 of 2 - Rendering screen " + StringUtils::itos(m_iScreensToRender) + " of " + StringUtils::itos(m_iScreensTotal) + "\"").c_str());
+					else
+					{
+						m_pRow_Orbiter->Reload();
+						m_pRow_Orbiter->RegenStatus_set("Stage 2 of 2 - Rendering screen " + StringUtils::itos(m_iScreensToRender) + " of " + StringUtils::itos(m_iScreensTotal));
+						m_pRow_Orbiter->RegenPercent_set(m_iLastReportedPercentage);
+						m_pRow_Orbiter->Table_Orbiter_get()->Commit();
+					}
 				}
 				OutputScreen(oco);
 

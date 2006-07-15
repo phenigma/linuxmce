@@ -71,6 +71,8 @@
 #include "pluto_media/Table_MediaSubType.h"
 #include "pluto_media/Table_MediaSource.h"
 
+extern bool g_bBootSplash;
+
 #define TOTAL_ESTIMATED_SCREENS 200
 
 DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_DesignObj * drDesignObj,class PlutoRectangle rPosition,class DesignObj_Generator *ocoParent,bool bAddToGenerated,bool bDontShare)
@@ -171,10 +173,15 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==4549 ) // ||  m_pRow_DesignObj->PK_Des
 		if( !m_pOrbiterGenerator->m_iLastReportedPercentage || Percent - m_pOrbiterGenerator->m_iLastReportedPercentage > 3 )
 		{
 			m_pOrbiterGenerator->m_iLastReportedPercentage = max(1,Percent);
-			m_pOrbiterGenerator->m_pRow_Orbiter->Reload();
-			m_pOrbiterGenerator->m_pRow_Orbiter->RegenStatus_set("Stage 1 of 2 - Generating screen " + StringUtils::itos(m_pOrbiterGenerator->m_iScreensTotal));
-			m_pOrbiterGenerator->m_pRow_Orbiter->RegenPercent_set(m_pOrbiterGenerator->m_iLastReportedPercentage);
-			m_pOrbiterGenerator->m_pRow_Orbiter->Table_Orbiter_get()->Commit();
+			if( g_bBootSplash )
+				system( ("/usr/pluto/bin/BootMessage.sh \"Stage 1 of 2 - Generating screen " + StringUtils::itos(m_pOrbiterGenerator->m_iScreensTotal) + "\"").c_str());
+			else
+			{
+				m_pOrbiterGenerator->m_pRow_Orbiter->Reload();
+				m_pOrbiterGenerator->m_pRow_Orbiter->RegenStatus_set("Stage 1 of 2 - Generating screen " + StringUtils::itos(m_pOrbiterGenerator->m_iScreensTotal));
+				m_pOrbiterGenerator->m_pRow_Orbiter->RegenPercent_set(m_pOrbiterGenerator->m_iLastReportedPercentage);
+				m_pOrbiterGenerator->m_pRow_Orbiter->Table_Orbiter_get()->Commit();
+			}
 		}
 
 		cout << StringUtils::PrecisionTime() << "Generating screen: " << drDesignObj->PK_DesignObj_get() << 

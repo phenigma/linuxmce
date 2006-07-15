@@ -2,13 +2,13 @@
 
 . /usr/pluto/install/Common.sh
 
-# XXX: Setup Bonus CD
-echo "The Pluto Bonus CD version 1 has some extras, such as a video setup"
-echo "wizard to help get you up and running. If you have the Pluto Bonus CD"
+# XXX: Setup Extras CD
+echo "The Pluto Extras CD version 1 has some extras, such as a video setup"
+echo "wizard to help get you up and running. If you have the Pluto Extras CD"
 echo "version 1, please insert it into your drive now and choose Y after it is in."
 echo "Otherwise, choose N."
 echo ""
-BonusCD=$(Ask "Did you insert the \"Pluto Bonus CD 1\" in drive ? [y/N]")
+BonusCD=$(Ask "Did you insert the \"Pluto Extras CD version 1\" in drive ? [y/N]")
 if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 	if [ ! -d /cdrom ]; then
 		mkdir /cdrom
@@ -16,7 +16,7 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 	/bin/mount /dev/cdrom /cdrom 2>/dev/null
 
 	while [ ! -d "/cdrom/bonuscd1" ]; do
-		echo "This in not a valid \"Pluto Bonus CD 1\". Please insert the correct CD and try again."
+		echo "This in not a valid \"Pluto Extras CD version 1\". Please insert the correct CD and try again."
 		/usr/bin/eject
 		echo "Press any key when you inserted the correct CD in drive."
 		read key
@@ -25,7 +25,7 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 			/bin/mount /dev/cdrom /cdrom 2>/dev/null
 		fi
 	done
-	echo "Processing \"Pluto Bonus CD 1\""
+	echo "Processing \"Pluto Extras CD version 1\""
 	echo "... PLEASE WAIT ..."
 
 	BonusAutoInstDir=/usr/pluto/deb-cache/auto-inst
@@ -51,8 +51,8 @@ if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
 	cd ..
 	/usr/bin/eject
 	echo ""
-	echo "Finished processing \"Pluto Bonus CD 1\""
+	echo "Finished processing \"Pluto Extras CD version 1\""
 	echo ""
 else
-	echo "Skipping \"Pluto Bonus CD 1\"..."
+	echo "Skipping \"Pluto Extras CD version 1\"..."
 fi
