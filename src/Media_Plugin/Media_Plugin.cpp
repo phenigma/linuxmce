@@ -3427,7 +3427,7 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_MH_Set_Volume");
 	while(pos<sPK_EntertainArea.size() && pos!=string::npos)
 	{
 		string s = StringUtils::Tokenize(sPK_EntertainArea,",",pos);
-		EntertainArea *pEntertainArea = m_mapEntertainAreas_Find(atoi(s.c_str()));
+		EntertainArea *pEntertainArea = m_mapEntertainAreas_Find(abs(atoi(s.c_str())));  // abs because orbiter floorplan sends ent areas as - to differentiate between devices
 		if( !pEntertainArea && atoi(s.c_str())==-1 )
 		{
 			OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
