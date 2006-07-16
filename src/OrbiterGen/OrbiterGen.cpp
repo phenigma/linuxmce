@@ -1403,19 +1403,20 @@ loop_to_keep_looking_for_objs_to_include:
 		cout << "First time generating this orbiter.  Wizard: " << bUseVideoWizard << endl;
 		Row_DesignObj *drNewDesignObj;
 		if( bUseVideoWizard && m_pRow_Skin->PK_Skin_get()==SKIN_Monster_CONST )  // Temp -- remove this after video wizard works for pluto
+		{
 			drNewDesignObj = GetDesignObjFromScreen(SCREEN_VideoWizard_CONST);
+			m_sInitialScreen=StringUtils::itos(SCREEN_VideoWizard_CONST);
+		}
 		else
+		{
 			drNewDesignObj = GetDesignObjFromScreen(SCREEN_FirstTime_CONST);
+			m_sInitialScreen=StringUtils::itos(SCREEN_FirstTime_CONST);
+		}
+
 		if( !drNewDesignObj )
 			cerr << "Cannot find 'first time' menu" << endl;
 		else
-		{
 			alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-			if( bUseVideoWizard )
-				m_sInitialScreen=StringUtils::itos(SCREEN_VideoWizard_CONST);
-			else
-				m_sInitialScreen=StringUtils::itos(SCREEN_FirstTime_CONST);
-		}
 	}
 	cout << "Initial screen: " << m_sInitialScreen << endl;
 
