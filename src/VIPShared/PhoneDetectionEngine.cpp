@@ -196,10 +196,14 @@ void PhoneDetectionEngine::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 
+	/*
+	//This is sooo wrong. The map is protected, but not the objects within the map
+	//deleting a pointer from the map is wrong, because a spawned thread might still use that pDevice (the old one)
 	PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDevice->m_iMacAddress);
 	
     if(pDExisting)
 		delete pDExisting;
+	*/
 
 	m_mapPhoneDevice_Detected[pDevice->m_iMacAddress] = pDevice;
 
@@ -211,8 +215,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Adding device to map1: %s m_mapPhoneDevice_Dete
 	if (ret == 0)
 		pthread_detach(t);
 
-g_pPlutoLogger->Write(LV_STATUS,"Sleeping 300 milliseconds. It's a pthread_create bug ? Let's see...");	
-	Sleep(300);
+//g_pPlutoLogger->Write(LV_STATUS,"Sleeping 300 milliseconds. It's a pthread_create bug ? Let's see...");	
+//	Sleep(300);
 
 g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
 }
@@ -280,12 +284,10 @@ g_pPlutoLogger->Write(LV_WARNING,"Ignoring MAC: %s",pDevice->m_sMacAddress.c_str
 	m_mapDevicesDetectedThisScan[pDevice->m_iMacAddress] = pDevice;
 
 	PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDevice->m_iMacAddress);
-
 	bool bConnected = pDExisting && pDExisting->m_bIsConnected;
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Analyzing device %s. Existing %p, connected %d ", pDevice->m_sMacAddress.c_str(),
 			pDExisting, bConnected);
-	
 	
 	//first time detected or not connected yet
 	if( !pDExisting || !pDExisting->m_bIsConnected)
