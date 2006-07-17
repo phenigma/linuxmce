@@ -272,6 +272,7 @@ namespace DCE
 			 * @brief Take a screenshot of the currenly playing stream.
 		 */
 			void make_snapshot( string sFormat, int iWidth, int iHeight, bool bKeepAspect, char*&pData, int &iDataSize );
+			void grab_x_window( int &width, int &height, char*&pData, int &iDataSize );
 			
 			//void setPlaybackSpeed( int speed );
 			

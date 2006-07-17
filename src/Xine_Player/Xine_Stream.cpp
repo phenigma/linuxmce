@@ -1873,6 +1873,79 @@ bool Xine_Stream::DestroyWindows()
 	return true;
 }
 
+void Xine_Stream::grab_x_window( int &width, int &height, char*&pData, int &iDataSize )
+{	
+	iDataSize=0;
+	
+	int iRetCode = system("xwd -silent -nobdrs -name pluto-xine-playback-window | convert - /tmp/pluto_xine_snapshot.jpg");
+	
+	if (iRetCode == 0)
+	{
+		FILE * file;
+		file = fopen( "/tmp/pluto_xine_snapshot.jpg", "rb" );
+		fseek(file, 0, SEEK_END);
+		int size = ftell(file);
+		fseek(file, 0, SEEK_SET);
+		pData = new char[size];
+		iDataSize = size*fread(pData, size, 1, file);
+		fclose( file );
+		
+		g_pPlutoLogger->Write( LV_WARNING, "grab_x_window() :: window grabbed, data size is %i", iDataSize);
+	}
+	else
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "grab_x_window() :: window grabbing failed, return code: %i", iRetCode);
+	}
+	
+	/*
+	XWindowAttributes win_info;
+	
+	if(!XGetWindowAttributes(m_pXDisplay, windows[m_iCurrentWindow], &win_info)) 
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "grab_x_window() :: cannot get window attributes");
+		return;
+	}
+	
+	int absx, absy, x, y, dwidth, dheight;
+	Window dummywin;
+	
+	if (!XTranslateCoordinates (m_pXDisplay, windows[m_iCurrentWindow], RootWindow (m_pXDisplay, m_iCurrentScreen), 0, 0, &absx, &absy, &dummywin)) 
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "grab_x_window() :: cannot get window coordinates");
+		return;
+	}
+	
+	win_info.x = absx;
+	win_info.y = absy;
+	width = win_info.width;
+	height = win_info.height;
+	
+	dwidth = DisplayWidth (m_pXDisplay, m_iCurrentScreen);
+	dheight = DisplayHeight (m_pXDisplay, m_iCurrentScreen);
+
+	// clip to window
+	if (absx < 0) width += absx, absx = 0;
+	if (absy < 0) height += absy, absy = 0;
+	if (absx + width > dwidth) width = dwidth - absx;
+	if (absy + height > dheight) height = dheight - absy;
+	
+	x = absx - win_info.x;
+	y = absy - win_info.y;
+	
+	// NOTE we do not handle multivisual regions
+	XImage *image;
+	
+	if ( !(image = XGetImage (m_pXDisplay, windows[m_iCurrentWindow], x, y, width, height, AllPlanes, ZPixmap)) )
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "grab_x_window() :: XGetImage failed");
+		return;
+	}
+	
+	unsigned int buffer_size = image->bytes_per_line * image->height;
+	XColor **colors;
+	*/
+}
+
 void Xine_Stream::make_snapshot( string sFormat, int iWidth, int iHeight, bool bKeepAspect, char*&pData, int &iDataSize )
 {
 	
@@ -1893,124 +1966,127 @@ void Xine_Stream::make_snapshot( string sFormat, int iWidth, int iHeight, bool b
 	int imageWidth = 0, imageHeight = 0, imageRatio = 0, imageFormat = 0;
 	uint8_t *imageData = NULL;
 
-	/*
-	if ( pStream == NULL )
+	// if we cannot use xine for making snapshots => using window grabbing
+	if ( (m_sUsedVideoDriverName=="xvmc") || (m_sUsedVideoDriverName=="xxmc") )
 	{
-	g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::make_snapshot(): The xine_stream_t object passed as parameter was null. Can't get the screen shot" );
-		return ;
-	}
-	*/
-
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Getting frame info" );
-	if ( ! xine_get_current_frame( m_pXineStream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, NULL ) )
-	{
-		g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::make_snapshot(): Error getting frame info. Returning!" );
-		return ;
-	}
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Got %d %d %d 0x%x", imageWidth, imageHeight, imageRatio, imageFormat );
-
-	imageData = ( uint8_t* ) malloc ( ( imageWidth + 8 ) * ( imageHeight + 1 ) * 2 );
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Getting frame data" );
-	{
-		if ( ! xine_get_current_frame ( m_pXineStream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, imageData ) )
-		{
-			g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::make_snapshot(): Error getting frame data. Returning!" );
-			return ;
-		}
-	}
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Got %d %d %d 0x%x", imageWidth, imageHeight, imageRatio, imageFormat );
-
-    // we should have the image in YV12 format aici
-    // if not then we try to convert it.
-	if ( imageFormat == XINE_IMGFMT_YUY2 )
-	{
-		uint8_t * yuy2Data = imageData;
-		imageData = ( uint8_t * ) malloc ( imageWidth * imageHeight * 2 );
-
-		Colorspace_Utils::yuy2toyv12 (
-				imageData,
-		imageData + imageWidth * imageHeight,
-		imageData + imageWidth * imageHeight * 5 / 4, yuy2Data, imageWidth, imageHeight );
-
-		free ( yuy2Data );
-	}
-
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Converted to YV12" );
-    // convert to RGB
-    // keep the yv12Data array around to be able to delete it
-	uint8_t *yv12Data = imageData;
-
-	/** @brief this function will allocate the output parameter */
-	imageData = Colorspace_Utils::yv12torgb (
-			imageData,
-	imageData + imageWidth * imageHeight,
-	imageData + imageWidth * imageHeight * 5 / 4,
-	imageWidth, imageHeight );
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Converted to RGB!" );
-	free( yv12Data );
-
-	double outputRatio;
-    // double currentRatio;
-
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Temp data was freed here!" );
-	switch ( imageRatio )
-	{
-		case XINE_VO_ASPECT_ANAMORPHIC:                   /* anamorphic     */
-			case XINE_VO_ASPECT_PAN_SCAN:                     /* we display pan&scan as widescreen */
-				outputRatio = 16.0 / 9.0;
-				break;
-
-				case XINE_VO_ASPECT_DVB:                          /* 2.11:1 */
-					outputRatio = 2.11 / 1.0;
-					break;
-
-					case XINE_VO_ASPECT_SQUARE:                       /* square pels */
-						case XINE_VO_ASPECT_DONT_TOUCH:                   /* probably non-mpeg m_m_pXineStream => don't touch aspect ratio */
-							outputRatio = ( double ) imageWidth / ( double ) imageHeight;
-							break;
-
-		default:
-			g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::make_snapshot(): Unknown aspect ratio for image (%d) using 4:3", imageRatio );
-
-			case XINE_VO_ASPECT_4_3:                          /* 4:3             */
-				outputRatio = 4.0 / 3.0;
-				break;
-	}
-
-	double f = outputRatio / ( ( double ) imageWidth / ( double ) imageHeight );
-
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): The ratio between the current ration and the output ratio is %f", f );
-	double t_width, t_height;
-    //     if( !bKeepAspect )
-    //     {
-	if ( f >= 1.0 )
-	{
-		t_width = imageWidth * f;
-		t_height = imageHeight;
+		g_pPlutoLogger->Write( LV_WARNING, "getScreenshot called for XvMC picture - grabbing window directly");
+		
+		grab_x_window( imageWidth, imageHeight, pData, iDataSize);
 	}
 	else
 	{
-		t_width = imageWidth;
-		t_height = imageHeight / f;
+		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Getting frame info" );
+		if ( ! xine_get_current_frame( m_pXineStream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, NULL ) )
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::make_snapshot(): Error getting frame info. Returning!" );
+			return ;
+		}
+		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Got %d %d %d 0x%x", imageWidth, imageHeight, imageRatio, imageFormat );
+	
+		imageData = ( uint8_t* ) malloc ( ( imageWidth + 8 ) * ( imageHeight + 1 ) * 2 );
+		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Getting frame data" );
+		{
+			if ( ! xine_get_current_frame ( m_pXineStream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, imageData ) )
+			{
+				g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::make_snapshot(): Error getting frame data. Returning!" );
+				return ;
+			}
+		}
+		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Got %d %d %d 0x%x", imageWidth, imageHeight, imageRatio, imageFormat );
+	
+	// we should have the image in YV12 format aici
+	// if not then we try to convert it.
+		if ( imageFormat == XINE_IMGFMT_YUY2 )
+		{
+			uint8_t * yuy2Data = imageData;
+			imageData = ( uint8_t * ) malloc ( imageWidth * imageHeight * 2 );
+	
+			Colorspace_Utils::yuy2toyv12 (
+					imageData,
+			imageData + imageWidth * imageHeight,
+			imageData + imageWidth * imageHeight * 5 / 4, yuy2Data, imageWidth, imageHeight );
+	
+			free ( yuy2Data );
+		}
+	
+		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Converted to YV12" );
+	// convert to RGB
+	// keep the yv12Data array around to be able to delete it
+		uint8_t *yv12Data = imageData;
+	
+		/** @brief this function will allocate the output parameter */
+		imageData = Colorspace_Utils::yv12torgb (
+				imageData,
+		imageData + imageWidth * imageHeight,
+		imageData + imageWidth * imageHeight * 5 / 4,
+		imageWidth, imageHeight );
+		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Converted to RGB!" );
+		free( yv12Data );
+	
+		double outputRatio;
+	// double currentRatio;
+	
+		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Temp data was freed here!" );
+		switch ( imageRatio )
+		{
+			case XINE_VO_ASPECT_ANAMORPHIC:                   /* anamorphic     */
+				case XINE_VO_ASPECT_PAN_SCAN:                     /* we display pan&scan as widescreen */
+					outputRatio = 16.0 / 9.0;
+					break;
+	
+					case XINE_VO_ASPECT_DVB:                          /* 2.11:1 */
+						outputRatio = 2.11 / 1.0;
+						break;
+	
+						case XINE_VO_ASPECT_SQUARE:                       /* square pels */
+							case XINE_VO_ASPECT_DONT_TOUCH:                   /* probably non-mpeg m_m_pXineStream => don't touch aspect ratio */
+								outputRatio = ( double ) imageWidth / ( double ) imageHeight;
+								break;
+	
+			default:
+				g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::make_snapshot(): Unknown aspect ratio for image (%d) using 4:3", imageRatio );
+	
+				case XINE_VO_ASPECT_4_3:                          /* 4:3             */
+					outputRatio = 4.0 / 3.0;
+					break;
+		}
+	
+		double f = outputRatio / ( ( double ) imageWidth / ( double ) imageHeight );
+	
+		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): The ratio between the current ration and the output ratio is %f", f );
+		double t_width, t_height;
+	//     if( !bKeepAspect )
+	//     {
+		if ( f >= 1.0 )
+		{
+			t_width = imageWidth * f;
+			t_height = imageHeight;
+		}
+		else
+		{
+			t_width = imageWidth;
+			t_height = imageHeight / f;
+		}
+	
+		t_width /= 2;
+		t_height /= 2;
+	
+	
+		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Making jpeg from RGB" );
+		JpegEncoderDecoder jpegEncoder;
+		
+		jpegEncoder.encodeIntoBuffer( ( char * ) imageData, imageWidth, imageHeight, 3, pData, iDataSize );
+	
+		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): final image size: %d", iDataSize );
+		free( imageData );
+	
+		FILE * file;
+		file = fopen( "/tmp/file.jpg", "wb" );
+		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): temporary image filep %p", file );
+	
+		fwrite( pData, iDataSize, 1, file );
+		fclose( file );
 	}
-
-	t_width /= 2;
-	t_height /= 2;
-
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Making jpeg from RGB" );
-	JpegEncoderDecoder jpegEncoder;
-
-	jpegEncoder.encodeIntoBuffer( ( char * ) imageData, imageWidth, imageHeight, 3, pData, iDataSize );
-
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): final image size: %d", iDataSize );
-	free( imageData );
-
-	FILE * file;
-	file = fopen( "/tmp/file.jpg", "wb" );
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): temporary image filep %p", file );
-
-	fwrite( pData, iDataSize, 1, file );
-	fclose( file );
 
 	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): At the end. Returning" );
 	return ;
@@ -2393,12 +2469,13 @@ void Xine_Stream::getScreenShot( int iWidth, int iHeight, char *&pData, int &iDa
 		return;
 	}
 
+/*
 	if ( (m_sUsedVideoDriverName=="xvmc") || (m_sUsedVideoDriverName=="xxmc") )
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "getScreenshot called for XvMC picture - aborting command");
 		return;
 	}
-	
+*/	
 	if ( !m_bHasVideo )
 	{
 		iDataSize = 0;
