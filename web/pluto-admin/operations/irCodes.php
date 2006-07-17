@@ -171,10 +171,12 @@ function irCodes($output,$dbADO,$mediaADO) {
 			</tr>';
 		}
 			$irGroups=getAssocArray('InfraredGroup','PK_InfraredGroup','Description',$dbADO,'WHERE FK_Manufacturer='.$manufacturerID.' AND FK_DeviceCategory='.$deviceCategoryID,'ORDER BY Description ASC');
+			$error_not_saved=(count($irGroups)>0 && ($infraredGroupID==0 || is_null($infraredGroupID)))?'<span class="err">'.$TEXT_ERROR_IRGROUP_NOT_SAVED_CONST.'</span>':'';
+			
 			$out.='
 			<tr>
 				<td>'.$TEXT_USES_GROUP_CODESET_CONST.' </td>
-				<td>'.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.irCodes.submit();"','key','').' <input type="button" class="button" name="step7" value="Help me choose" onclick="self.location=\'index.php?section=addModel&step=7&dtID='.$dtID.'&deviceID='.$deviceID.'\'"></td>
+				<td>'.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.irCodes.submit();"','key','').' <input type="button" class="button" name="step7" value="Help me choose" onclick="self.location=\'index.php?section=addModel&step=7&dtID='.$dtID.'&deviceID='.$deviceID.'\'"> '.$error_not_saved.'</td>
 		</tr>';
 			
 		$out.='

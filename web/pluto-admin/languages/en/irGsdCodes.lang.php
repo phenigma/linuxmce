@@ -33,4 +33,5 @@ $TEXT_RUBY_CODES_UPDATED_CONST='Ruby codes updated.';
 $TEXT_RUBY_CODE_ADDED_CONST='Ruby code added.';
 $TEXT_PAGE_GENERATED_IN_CONST='Page generated in';
 $TEXT_ERROR_CANNOT_RETRIEVE_IR_CODES_CONST='Cannot retrieve IR codes.';
+$TEXT_ERROR_IRGROUP_NOT_SAVED_CONST='WARNING: IR Group not saved. Click UPDATE to save.';
 ?>
