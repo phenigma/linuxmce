@@ -44,7 +44,7 @@ using namespace DCE;
 
 
 #ifndef WIN32
-#include "utilities/linux/RatpoisonHandler.h"
+//#include "utilities/linux/RatpoisonHandler.h"
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -127,9 +127,10 @@ bool App_Server::GetConfig()
 	if( !App_Server_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-	m_iLastVolume=DATA_Get_Volume_Level();
-	if( !m_iLastVolume )
-		m_iLastVolume=50;
+	string sVolume;
+	char * args[] = { "/usr/pluto/bin/AudioMixerVolumePercent.sh", NULL };
+	ProcessUtils::GetCommandOutput(args[0], args, sVolume);
+	m_iLastVolume = atoi(sVolume.c_str());
 	return true;
 }
 
