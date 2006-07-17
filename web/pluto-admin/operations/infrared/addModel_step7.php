@@ -16,42 +16,12 @@
 		//start cosmin
 		echo '<div id="preloader" style="display:block;color:red;width:100%;height:100%;text-align:center;background:#efefef;color:#000;padding-top:200px">Loading, please wait</div>';
 		flush();
-		GetIRCodesForDevice($deviceID, $dbADO, $dtID);
+		GetIRCodesForDevice($deviceID, $dbADO, $dtID,1);
 		$output->setScriptInBody('onLoad="document.getElementById(\'preloader\').style.display=\'none\';document.getElementById(\'content\').style.display=\'\';";');
 		//end cosmin
 
 		$output->setScriptInHead('<script src="javascripts/user.js" type="text/javascript" language="JavaScript"></script>');
 		$out='
-		<script>
-		function CopyPlusSelect(copyText) {
-		     if (window.clipboardData) { // IE send-to-clipboard method.
-		          window.clipboardData.setData(\'Text\', copyText);
-		          
-		     } else if (window.netscape) {
-		          // You have to sign the code to enable this or allow the action in about:config by changing user_pref("signed.applets.codebase_principal_support", true);
-		          netscape.security.PrivilegeManager.enablePrivilege(\'UniversalXPConnect\');
-		          
-		          // Store support string in an object.
-		          var str = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString);
-		          if (!str) return false;
-		          str.data=copyText;
-		          
-		          // Make transferable.
-		          var trans = Components.classes["@mozilla.org/widget/transferable;1"].createInstance(Components.interfaces.nsITransferable);
-		          if (!trans) return false;
-		          
-		          // Specify what datatypes we want to obtain, which is text in this case.
-		          trans.addDataFlavor("text/unicode");
-		          trans.setTransferData("text/unicode",str,copyText.length*2);
-		          
-		          var clipid=Components.interfaces.nsIClipboard;
-		          var clip = Components.classes["@mozilla.org/widget/clipboard;1"].getService(clipid);
-		          if (!clip) return false;
-		          
-		          clip.setData(trans,null,clipid.kGlobalClipboard);
-		     }
-		}
-		</script>
 		<br>
 		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'&deviceID='.$deviceID.'">&lt;&lt;</a></div>
 		<B>Pick the Infrared Group that works for your device</B><br><br>

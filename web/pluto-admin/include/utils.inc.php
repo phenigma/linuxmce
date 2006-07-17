@@ -2097,7 +2097,7 @@ function advancedCommandGroupCommandsTable($cgID,$section,$dbADO)
 	$out.='<tr>
 						<td colspan="2">
 							<a name="hook_0"></a>
-					 		<B>Device:</B>'.deviceForScenariosSelector('addNewDevice',cleanInteger(@$_REQUEST['addNewDevice']),$dbADO,1,'onChange="document.'.$section.'.oldWizard.value=\'-1\';this.form.submit();"');
+					 		<B>Device:</B>'.deviceForScenariosSelector('addNewDevice',cleanInteger(@$_REQUEST['addNewDevice']),$dbADO,1,'class="select" onChange="document.'.$section.'.oldWizard.value=\'-1\';this.form.submit();"');
 	$out.=(((int)@$_REQUEST['addNewDevice']!=0)?' Command: ':'').commandPulldownForDevice(cleanInteger(@$_REQUEST['addNewDevice']),$dbADO).'
 						<input type="submit" class="button" name="addNewDeviceButton" value="Add"  ></td>
 					</tr>
@@ -5858,10 +5858,10 @@ function import_remote_sql($remoteUrl,$dbADO,$table=''){
 }
 
 // PHP version of the .sh file who will do the same thing
-function GetIRCodesForDevice($deviceID,$dbADO,$dtID=0){
+function GetIRCodesForDevice($deviceID,$dbADO,$dtID=0,$restricted=0){
 	// TODO: comment all and call the sh instead
 
-	$cmd='/usr/pluto/bin/WebDB_GetIR.sh '.(int)$deviceID.' '.$dtID;
+	$cmd='/usr/pluto/bin/WebDB_GetIR.sh '.(int)$deviceID.' '.$dtID.' '.$restricted;
 	//echo $cmd;
 	return exec($cmd);
 

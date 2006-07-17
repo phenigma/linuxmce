@@ -149,11 +149,14 @@ function learnCode($output,$dbADO) {
 					exec($commandToSend);
 				
 					header("Location: index.php?section=learnCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID);
+					exit();
 				}else{
 					header("Location: index.php?section=learnCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID.'&error='.$TEXT_ERROR_IR_INTERFACE_NOT_PARENT_CONST.'&noRefresh=1');
+					exit();
 				}
 			}else{
 				header("Location: index.php?section=learnCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID.'&noRefresh=1');
+				exit();
 			}
 		}
 			

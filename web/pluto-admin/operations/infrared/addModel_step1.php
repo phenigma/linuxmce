@@ -105,10 +105,10 @@
 				$insertID=createDevice($dtID,$installationID,0,NULL,$dbADO);
 			}
 			
-			header('Location: index.php?section=addModel&step=2&dtID='.$dtID.'&isDef=1&deviceID='.@$deviceID);
+			header('Location: index.php?section=addModel&step=2&dtID='.$dtID.'&isDef=1&deviceID='.@$insertID);
 			exit();
 		}
 		
-		header('Location: index.php?section=addModel&step=1&mID='.$mID.'&dcID='.$dcID.'&deviceID='.@$deviceID);
+		header('Location: index.php?section=addModel&step=1&mID='.$mID.'&dcID='.$dcID.'&deviceID='.@$insertID);
 	}
 ?>
