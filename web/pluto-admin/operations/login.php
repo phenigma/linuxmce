@@ -3,7 +3,8 @@ function login($output,$dbADO) {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/login.lang.php');
-
+	global $wikiHost;
+	
 	/* @var $dbADO ADOConnection */
 	$out='';
 	$actionX = cleanString(@$_REQUEST['action']);
@@ -56,7 +57,7 @@ function login($output,$dbADO) {
 	    &nbsp;&nbsp;
 	    </tr>
 	    <tr>
-	      <td colspan="2" align="center"><a href="/wiki/index.php/Pluto_Admin_Website" target="_top">'.$TEXT_HELP_WITH_ADMIN_SITE_CONST.'</a></td>
+	      <td colspan="2" align="center"><a href="'.$wikiHost.'/index.php/Pluto_Admin_Website" target="_top">'.$TEXT_HELP_WITH_ADMIN_SITE_CONST.'</a></td>
 	    </tr>
 	    <tr>
 	      <td colspan="2" align="center">Learn about Pluto at <a href="http://www.plutohome.com" target="_top">www.plutohome.com</a><br><br>'.$TEXT_DOWNLOAD_CONST.' <a href="index.php?section=orbitersWin">'.$TEXT_ORBITER_WIN_INSTALLER_CONST.'</a></td>
