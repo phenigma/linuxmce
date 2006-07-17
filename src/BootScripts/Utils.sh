@@ -189,10 +189,13 @@ ReloadDevicesOnThisMachine()
 AudioMixerVolume_Percent()
 {
 	local VolMin VolMax VolCur VolPercent
+	local Settings
+
+	Settings=$(amixer sget Master)
 	
-	VolMin=$(amixer sget Master | grep -F 'Limits:' | sed 's/^  *//' | cut -d' ' -f3)
-	VolMax=$(amixer sget Master | grep -F 'Limits:' | sed 's/^  *//' | cut -d' ' -f5)
-	VolCur=$(amixer sget Master | grep -F 'Front Left:' | sed 's/^  *//' | cut -d' ' -f4)
+	VolMin=$(echo "$Settings" | grep -F 'Limits:' | sed 's/^  *//' | cut -d' ' -f3)
+	VolMax=$(echo "$Settings" | grep -F 'Limits:' | sed 's/^  *//' | cut -d' ' -f5)
+	VolCur=$(echo "$Settings" | grep -F 'Front Left:' | sed 's/^  *//' | cut -d' ' -f4)
 	VolPercent=$((100 * $VolCur / $VolMax))
 
 	echo "$VolPercent"
