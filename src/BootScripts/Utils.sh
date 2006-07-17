@@ -186,7 +186,7 @@ ReloadDevicesOnThisMachine()
 	done
 }
 
-AudioMixerSettings()
+AudioMixerVolume_Percent()
 {
 	local VolMin VolMax VolCur VolPercent
 	
