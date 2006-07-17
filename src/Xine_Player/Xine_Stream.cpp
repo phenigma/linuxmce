@@ -1896,54 +1896,6 @@ void Xine_Stream::grab_x_window( int &width, int &height, char*&pData, int &iDat
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "grab_x_window() :: window grabbing failed, return code: %i", iRetCode);
 	}
-	
-	/*
-	XWindowAttributes win_info;
-	
-	if(!XGetWindowAttributes(m_pXDisplay, windows[m_iCurrentWindow], &win_info)) 
-	{
-		g_pPlutoLogger->Write( LV_WARNING, "grab_x_window() :: cannot get window attributes");
-		return;
-	}
-	
-	int absx, absy, x, y, dwidth, dheight;
-	Window dummywin;
-	
-	if (!XTranslateCoordinates (m_pXDisplay, windows[m_iCurrentWindow], RootWindow (m_pXDisplay, m_iCurrentScreen), 0, 0, &absx, &absy, &dummywin)) 
-	{
-		g_pPlutoLogger->Write( LV_WARNING, "grab_x_window() :: cannot get window coordinates");
-		return;
-	}
-	
-	win_info.x = absx;
-	win_info.y = absy;
-	width = win_info.width;
-	height = win_info.height;
-	
-	dwidth = DisplayWidth (m_pXDisplay, m_iCurrentScreen);
-	dheight = DisplayHeight (m_pXDisplay, m_iCurrentScreen);
-
-	// clip to window
-	if (absx < 0) width += absx, absx = 0;
-	if (absy < 0) height += absy, absy = 0;
-	if (absx + width > dwidth) width = dwidth - absx;
-	if (absy + height > dheight) height = dheight - absy;
-	
-	x = absx - win_info.x;
-	y = absy - win_info.y;
-	
-	// NOTE we do not handle multivisual regions
-	XImage *image;
-	
-	if ( !(image = XGetImage (m_pXDisplay, windows[m_iCurrentWindow], x, y, width, height, AllPlanes, ZPixmap)) )
-	{
-		g_pPlutoLogger->Write( LV_WARNING, "grab_x_window() :: XGetImage failed");
-		return;
-	}
-	
-	unsigned int buffer_size = image->bytes_per_line * image->height;
-	XColor **colors;
-	*/
 }
 
 void Xine_Stream::make_snapshot( string sFormat, int iWidth, int iHeight, bool bKeepAspect, char*&pData, int &iDataSize )
