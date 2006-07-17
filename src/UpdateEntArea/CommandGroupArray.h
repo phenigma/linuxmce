@@ -35,8 +35,10 @@ public:
 	class CommandGroupArray *m_pCommandGroupArray;
 	class Row_CommandGroup *m_pRow_CommandGroup;
 	list<Command *> m_listCommand;
+	bool m_bIsModified;
 
 	CommandGroup(CommandGroupArray *pCommandGroupArray,Row_CommandGroup *pRow_CommandGroup);
+	~CommandGroup();
 	void AddCommand(int PK_Device,int PK_Command,int iOrder,int NumParms,...);
 	void Commit();
 };
