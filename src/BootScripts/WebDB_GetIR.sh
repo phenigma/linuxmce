@@ -4,6 +4,7 @@
 
 DeviceID="$1"
 DeviceTemplate="${2:-0}"
+Restricted="${3:-0}"
 
 #PlutohomeHost="http://10.0.0.175/plutohome-com/"
 PlutohomeHost="http://plutohome.com/"
@@ -42,14 +43,14 @@ Q="SHOW TABLES LIKE 'InfraredGroup_Command'"
 R="$(RunSQL "$Q")"
 
 if [[ -n "$R" ]]; then
-	/usr/pluto/bin/WebDB_Get.sh "$PlutohomeHost/GetInfraredCodes.php?PK_InfraredGroup=$FK_InfraredGroup&PK_DeviceTemplate=$FK_DeviceTemplate" "InfraredGroup_Command"
+	/usr/pluto/bin/WebDB_Get.sh "$PlutohomeHost/GetInfraredCodes.php?PK_InfraredGroup=$FK_InfraredGroup&PK_DeviceTemplate=$FK_DeviceTemplate&Restricted=$Restricted" "InfraredGroup_Command"
 	Ret1=$?
-	/usr/pluto/bin/WebDB_Get.sh "$PlutohomeHost/GetInfraredCodes.php?PK_Manufacturer=$FK_Manufacturer&PK_DeviceCategory=$FK_DeviceCategory" "InfraredGroup_Command"
+	/usr/pluto/bin/WebDB_Get.sh "$PlutohomeHost/GetInfraredCodes.php?PK_Manufacturer=$FK_Manufacturer&PK_DeviceCategory=$FK_DeviceCategory&Restricted=$Restricted" "InfraredGroup_Command"
 	Ret2=$?
 	Ret=$((Ret1 || Ret2))
 else
 	if /usr/pluto/bin/WebDB_Get.sh "$PlutohomeHost/GetInfraredCodes.php?Create=1"; then
-		/usr/pluto/bin/WebDB_Get.sh "$PlutohomeHost/GetInfraredCodes.php?PK_InfraredGroup=$FK_InfraredGroup&PK_DeviceTemplate=$FK_DeviceTemplate" "InfraredGroup_Command"
+		/usr/pluto/bin/WebDB_Get.sh "$PlutohomeHost/GetInfraredCodes.php?PK_InfraredGroup=$FK_InfraredGroup&PK_DeviceTemplate=$FK_DeviceTemplate&Restricted=$Restricted" "InfraredGroup_Command"
 		Ret=$?
 	else
 		Ret=1
