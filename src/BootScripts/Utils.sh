@@ -185,3 +185,15 @@ ReloadDevicesOnThisMachine()
 		/usr/pluto/bin/MessageSend "$DCERouter" 0 "$Dev" 7 1
 	done
 }
+
+AudioMixerSettings()
+{
+	local VolMin VolMax VolCur VolPercent
+	
+	VolMin=$(amixer sget Master | grep -F 'Limits:' | sed 's/^  *//' | cut -d' ' -f3)
+	VolMax=$(amixer sget Master | grep -F 'Limits:' | sed 's/^  *//' | cut -d' ' -f5)
+	VolCur=$(amixer sget Master | grep -F 'Front Left:' | sed 's/^  *//' | cut -d' ' -f4)
+	VolPercent=$((100 * $VolCur / $VolMax))
+
+	echo "$VolPercent"
+}
