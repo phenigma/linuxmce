@@ -29,7 +29,7 @@ print "-- Database import\n".$out."\n-- EOF\n";
 
 function getCodesByTemplate($PK_InfraredGroup,$PK_DeviceTemplate,$dbADO){
 	global $dbPlutoMainDatabase,$dbPlutoMainUser,$dbPlutoMainPass;
-	$restricted=(int)@$_REQUEST['restricted'];
+	$restricted=(int)@$_REQUEST['Restricted'];
 	
 	$andConditions=array();
 	if($restricted==1){
@@ -88,7 +88,7 @@ function getInfraredGroupCommandCreate($dbADO){
 
 function getCodesByManufacturer($PK_Manufacturer,$PK_DeviceCategory,$dbADO){
 	global $dbPlutoMainDatabase,$dbPlutoMainUser,$dbPlutoMainPass;
-	$restricted=(int)@$_REQUEST['restricted'];
+	$restricted=(int)@$_REQUEST['Restricted'];
 	
 	if($PK_Manufacturer==0 && $PK_DeviceCategory==0){
 		return 'ERROR: parameters not specified';
