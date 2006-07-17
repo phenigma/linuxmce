@@ -1877,7 +1877,11 @@ void Xine_Stream::grab_x_window( int &width, int &height, char*&pData, int &iDat
 {	
 	iDataSize=0;
 	
+	XRaiseWindow(m_pXDisplay, windows[m_iCurrentWindow]);
+	
 	int iRetCode = system("xwd -silent -nobdrs -name pluto-xine-playback-window | convert - /tmp/pluto_xine_snapshot.jpg");
+	
+	XLowerWindow(m_pXDisplay, windows[m_iCurrentWindow]);
 	
 	if (iRetCode == 0)
 	{
