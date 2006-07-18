@@ -109,15 +109,6 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
 
 #ifndef WIN32
 	g_pAppServer = this;
-    signal(SIGCHLD, sh); /* install handler */
-
-	int pid = fork();
-	if (pid == 0)
-	{
-		Sleep(3000);  // Give this a chance to register and stuff
-		execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
-		exit(99);
-	}
 #endif
 }
 
@@ -127,10 +118,23 @@ bool App_Server::GetConfig()
 	if( !App_Server_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-	string sVolume;
-	char * args[] = { "/usr/pluto/bin/AudioMixerVolumePercent.sh", NULL };
-	ProcessUtils::GetCommandOutput(args[0], args, sVolume);
-	m_iLastVolume = atoi(sVolume.c_str());
+
+#ifndef WIN32
+	{
+		char * args[] = { "/usr/bin/amixer", "sset", "Master", "unmute", NULL };
+		ProcessUtils::SpawnDaemon(args[0], args);
+	}
+	{
+		string sVolume;
+		char * args[] = { "/usr/pluto/bin/AudioMixerVolumePercent.sh", NULL };
+		ProcessUtils::GetCommandOutput(args[0], args, sVolume);
+		m_iLastVolume = atoi(sVolume.c_str());
+		g_pPlutoLogger->Write(LV_STATUS, "ALSA Master volume: %d", m_iLastVolume);
+	}
+
+    signal(SIGCHLD, sh); /* install signal handler */
+#endif
+
 	return true;
 }
 
