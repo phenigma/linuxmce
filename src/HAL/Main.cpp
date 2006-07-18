@@ -186,8 +186,6 @@ int main(int argc, char* argv[])
 		cerr << "Unable to create logger" << endl;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
-	Sleep(10000);
 	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
 	bool bReload=false;

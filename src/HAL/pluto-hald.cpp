@@ -408,6 +408,8 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 
 void* PlutoHalD::startUp(void *device)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "PlutoHalD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
+	Sleep(10000);
 	g_pPlutoLogger->Write(LV_DEBUG, "############ Start ");
 	
 	if( device == NULL )

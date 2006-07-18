@@ -31,6 +31,8 @@ SerialD::~SerialD()
 
 void* SerialD::startUp(void * device)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "PlutoHalD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
+	Sleep(10000);
 	g_pPlutoLogger->Write(LV_DEBUG, "############ SerialD Start ");
 	
 	if( device == NULL )
