@@ -47,11 +47,11 @@ public:
 	
 	// Private member variables
 	Database_pluto_main *m_pDatabase_pluto_main;
-    class Datagrid_Plugin *m_pDatagrid_Plugin;
-    class Orbiter_Plugin *m_pOrbiter_Plugin;
-    class Event_Plugin *m_pEvent_Plugin;
-    pluto_pthread_mutex_t m_GipMutex; // Other classes may need this
-    pthread_mutexattr_t m_MutexAttr;
+	class Datagrid_Plugin *m_pDatagrid_Plugin;
+	class Orbiter_Plugin *m_pOrbiter_Plugin;
+	class Event_Plugin *m_pEvent_Plugin;
+	pluto_pthread_mutex_t m_GipMutex; // Other classes may need this
+	pthread_mutexattr_t m_MutexAttr;
 	bool m_bRerunConfigWhenDone;
 	map<int,bool> m_mapMediaDirectors_PendingConfig;
 	map<int, LastApplication *> m_mapLastApplication;
@@ -81,10 +81,10 @@ public:
 public:
 	// Public member variables
 
-    class DataGridTable *PendingTasksGrid( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
-    class DataGridTable *QuickStartApps( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
-    class DataGridTable *MRUDocuments( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
-    class DataGridTable *Rooms( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
+	class DataGridTable *PendingTasksGrid( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
+	class DataGridTable *QuickStartApps( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
+	class DataGridTable *MRUDocuments( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
+	class DataGridTable *Rooms( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
 	class DataGridTable *RoomTypes(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage);
 	class DataGridTable *ChildrenInfo(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage);
 	class DataGridTable *AvailableSerialPorts(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage);
@@ -409,6 +409,15 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 	virtual void CMD_Get_Unused_Serial_Ports(int iPK_Device,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Unused_Serial_Ports(iPK_Device,sValue_To_Assign,sCMD_Result,NULL);};
 	virtual void CMD_Get_Unused_Serial_Ports(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
+	/** @brief COMMAND: #813 - Add Software */
+	/** Install Software on media director */
+		/** @param #2 PK_Device */
+			/** # of Media director */
+		/** @param #229 PK_Software */
+			/** ID of installing package */
+
+	virtual void CMD_Add_Software(int iPK_Device,int iPK_Software) { string sCMD_Result; CMD_Add_Software(iPK_Device,iPK_Software,sCMD_Result,NULL);};
+	virtual void CMD_Add_Software(int iPK_Device,int iPK_Software,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	private:

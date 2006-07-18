@@ -92,9 +92,9 @@ General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool
 //<-dceag-const-e->
 	, m_GipMutex("GeneralInfo")
 {
-    pthread_mutexattr_init( &m_MutexAttr );
-    pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
-    m_GipMutex.Init( &m_MutexAttr );
+	pthread_mutexattr_init( &m_MutexAttr );
+	pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
+	m_GipMutex.Init( &m_MutexAttr );
 
 	m_pPostCreateOptions=NULL;
 	m_bRerunConfigWhenDone=false;
@@ -147,24 +147,24 @@ bool General_Info_Plugin::Register()
 	m_pPostCreateOptions = new PostCreateOptions(m_pDatabase_pluto_main,m_pRouter);
 	
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
-        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::PendingTasksGrid ) )
-        , DATAGRID_Pending_Tasks_CONST,PK_DeviceTemplate_get() );
+			new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::PendingTasksGrid ) )
+			, DATAGRID_Pending_Tasks_CONST,PK_DeviceTemplate_get() );
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
-        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::QuickStartApps ) )
-        , DATAGRID_Quick_Start_Apps_CONST,PK_DeviceTemplate_get() );
+			new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::QuickStartApps ) )
+			, DATAGRID_Quick_Start_Apps_CONST,PK_DeviceTemplate_get() );
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
-        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::MRUDocuments ) )
-        , DATAGRID_MRU_Documents_CONST,PK_DeviceTemplate_get() );
+			new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::MRUDocuments ) )
+			, DATAGRID_MRU_Documents_CONST,PK_DeviceTemplate_get() );
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
-        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::Rooms ) )
-        , DATAGRID_Rooms_CONST,PK_DeviceTemplate_get() );
+			new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::Rooms ) )
+			, DATAGRID_Rooms_CONST,PK_DeviceTemplate_get() );
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::RoomTypes ) )
-		, DATAGRID_Room_Types_CONST,PK_DeviceTemplate_get() );
+			, DATAGRID_Room_Types_CONST,PK_DeviceTemplate_get() );
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::ChildrenInfo)), 
@@ -1046,8 +1046,8 @@ class DataGridTable *General_Info_Plugin::Rooms( string GridID, string Parms, vo
 	PlutoSqlResult result;
     MYSQL_ROW row;
 	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
-    {
-        while( ( row=mysql_fetch_row( result.r ) ) )
+	{
+			while( ( row=mysql_fetch_row( result.r ) ) )
 		{
 			pCell = new DataGridCell( row[1], row[0] );
 			pDataGrid->SetData( iCol++, iRow, pCell );
@@ -1284,16 +1284,20 @@ class DataGridTable *General_Info_Plugin::SensorType(string GridID, string Parms
 }
 
 class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage ){
+//	g_pPlutoLogger->Write(LV_WARNING,"Starting install list");
 	string::size_type pos = 0;
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	int iRow=0, iMaxRows=0;
+	static int iPage=0;
 	string sMD_ID = StringUtils::Tokenize(Parms,",",pos); // ID of media director
 	string sPK_Device_PC = StringUtils::itos( DatabaseUtils::GetTopMostDevice( m_pDatabase_pluto_main, atoi(sMD_ID.c_str())));
 	string sPage = StringUtils::Tokenize(Parms, ",", pos); // # of displayed page
-	if(!sPage.length())
-		sPage="0";
-	int iPage=atoi(sPage.c_str());
+	if(sPage.length()){
+		iPage=atoi(sPage.c_str());
+	}else{
+		sPage=StringUtils::itos(iPage);
+	}
 	string sSoftwareID = StringUtils::Tokenize(Parms, ",", pos); // ID of selected software
 	bool IsInstaled = (StringUtils::Tokenize(Parms, ",", pos)=="Yes");
 	string newParams;
@@ -1302,9 +1306,14 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 	int PK_Controller = atoi(StringUtils::Tokenize(GridID, "_", pos).c_str());
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
-	string sql="SELECT count(*) FROM Software";
+	string sql="SELECT count(*) FROM Software WHERE FK_Device="+sPK_Device_PC;
 	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))&&(row=mysql_fetch_row(result.r))){
 		iMaxRows=atoi(row[0]);
+	}
+	sql="SELECT count(*) FROM Software WHERE FK_Device="+sPK_Device_PC+" and Installation_status=\'Installing\'";
+	int IsInstalling=0;
+	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))&&(row=mysql_fetch_row(result.r))){
+		IsInstalling=atoi(row[0]);
 	}
 	sql="SELECT PK_Software, Iconstr, Title, Category, Rating, Virus_Free, Installation_status FROM Software WHERE FK_Device="+sPK_Device_PC+" ORDER BY Title LIMIT "+StringUtils::itos(iPage*8).c_str()+",8";
 	pCell = new DataGridCell("<-Previous", "-2");
@@ -1313,17 +1322,17 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 		CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, "", GridID, DATAGRID_Installable_Apps_CONST, newParams, 0);
 		pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
 	}
-	pCell->m_Colspan = 3;
+	pCell->m_Colspan=3;
 	pDataGrid->SetData(0, iRow, pCell );
-	pCell = new DataGridCell("Next->", "-2");
+	pCell=new DataGridCell("Next->", "-2");
 	if(iPage<=(iMaxRows/8)){
 		newParams=sMD_ID+(string)","+StringUtils::itos(iPage+1);
 		CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, "", GridID, DATAGRID_Installable_Apps_CONST, newParams, 0);
 		pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
 	}
-	pCell->m_Colspan = 3;
+	pCell->m_Colspan=3;
 	pDataGrid->SetData(3, iRow++, pCell );
-	pCell = new DataGridCell("Icon", "-1");
+	pCell=new DataGridCell("Icon", "-1");
 	pDataGrid->SetData(0, iRow, pCell );
 	pCell=new DataGridCell("Title","-1");
 	pDataGrid->SetData(1,iRow,pCell);
@@ -1340,8 +1349,13 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 		while((row=mysql_fetch_row(result.r))){
 			lengths=mysql_fetch_lengths(result.r);
 			newParams=row[0];
+			int size = 0;
+			char *data = NULL;
+			int GridCurRow=1, GridCurCol=1;
+			CMD_Request_Datagrid_Contents_DT CMDRDC(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, "", (string)"instappsdet_"+StringUtils::itos(PK_Controller), 1, 1, false, false, false, "", 0, &data, &size, &GridCurRow, &GridCurCol);
 			CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, "", (string)"instappsdet_"+StringUtils::itos(PK_Controller), DATAGRID_Installable_Apps_Details_CONST, newParams, 0);
-			pCell = new DataGridCell(row[2], row[0]);
+			CMDPDG.m_pMessage->m_vectExtraMessages.push_back(CMDRDC.m_pMessage);
+			pCell = new DataGridCell("", row[0]);
 			pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
 			if(lengths[1]){
 				char *Data=new char[lengths[1]];
@@ -1366,32 +1380,29 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 			}else{
 				pCell=new DataGridCell(row[6],row[0]);
 			}
-			newParams=sMD_ID+(string)","+sPage+(string)","+row[0]+(string)","+row[6];
-			CMD_NOREP_Populate_Datagrid_DT CMDPDG1(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, "", GridID, DATAGRID_Installable_Apps_CONST, newParams, 0);
-			pCell->m_pMessage = new Message(CMDPDG1.m_pMessage);
+			if(!IsInstalling){
+				newParams=sMD_ID+(string)","+sPage+(string)","+row[0]+(string)","+row[6];
+				CMD_NOREP_Populate_Datagrid_DT CMDPDG1(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, "", GridID, DATAGRID_Installable_Apps_CONST, newParams, 0);
+//				CMD_Add_Software_DT CMDAS(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,atoi(sPK_Device_PC.c_str()),atoi(row[0]));
+				pCell->m_pMessage = new Message(CMDPDG1.m_pMessage);
+			}
 			pDataGrid->SetData(5,iRow++,pCell);
 		}
 	}
-	if(sSoftwareID.length()){
+	if(sSoftwareID.length())
 		if(!IsInstaled){ //if not installed then install it
-			sql = "SELECT IPaddress FROM Device WHERE PK_Device="+sPK_Device_PC;
-			if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))&&(row=mysql_fetch_row(result.r))){
-				string sMD_IP=row[0];
-				sql="SELECT PackageName, Downloadurl, RepositoryName FROM Software WHERE PK_Software="+sSoftwareID;
-				if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))&&(row=mysql_fetch_row(result.r))){
-					char * args[] = { "/usr/pluto/bin/InstallSoftware.sh", (char *)(sMD_IP.c_str()), row[0], row[1], row[2] };
-					ProcessUtils::SpawnDaemon(args[0], args);
-				}
-			}
+			CMD_Add_Software(atoi(sPK_Device_PC.c_str()),atoi(sSoftwareID.c_str()));
+/*			CMD_Add_Software_DT CMDAS(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,atoi(sPK_Device_PC.c_str()),atoi(sSoftwareID.c_str()));
+			SendMessage(CMDAS.m_pMessage);*/
 		}else{
 			//TODO need to uninstall this package
 		}
-	}
+
 	return pDataGrid;
 }
 
 class DataGridTable *General_Info_Plugin::AddSoftwareDetails( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage ){
-	g_pPlutoLogger->Write(LV_WARNING,"Starting install list details");
+//	g_pPlutoLogger->Write(LV_WARNING,"Starting install list details");
 	string::size_type pos=0;
 	string sSoftwareID=StringUtils::Tokenize(Parms, ",", pos); // ID of selected software
 	DataGridTable *pDataGrid=new DataGridTable();
@@ -1399,23 +1410,23 @@ class DataGridTable *General_Info_Plugin::AddSoftwareDetails( string GridID, str
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	if(!sSoftwareID.length())
-		sSoftwareID="11";
-//		return pDataGrid;
+//		sSoftwareID="11";
+		return pDataGrid;
 	pos = 0;
 	StringUtils::Tokenize(GridID, "_", pos);
 	int PK_Controller = atoi(StringUtils::Tokenize(GridID, "_", pos).c_str());
 	string sql="SELECT Description, HomeURL FROM Software WHERE PK_Software="+sSoftwareID;
-	g_pPlutoLogger->Write(LV_WARNING,"Stage 1");
+//	g_pPlutoLogger->Write(LV_WARNING,"Stage 1");
 	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result(m_pDatabase_pluto_main->m_pMySQL))&&(row=mysql_fetch_row(result.r))){
-		g_pPlutoLogger->Write(LV_WARNING,"Stage 2");
-		CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, "", (string)"instappsdet_"+StringUtils::itos(PK_Controller), DATAGRID_Installable_Apps_Details_CONST, sSoftwareID , 0);
+//		g_pPlutoLogger->Write(LV_WARNING,"Stage 2");
+//		CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, "", (string)"instappsdet_"+StringUtils::itos(PK_Controller), DATAGRID_Installable_Apps_Details_CONST, sSoftwareID , 0);
 		pCell=new DataGridCell(row[0],sSoftwareID.c_str());
-		pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
-		pCell->m_Colspan=3;
+//		pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
+//		pCell->m_Colspan=3;
 		pDataGrid->SetData(0,0,pCell);
-		pCell=new DataGridCell(row[1],sSoftwareID.c_str());
-		pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
-		pDataGrid->SetData(3,0,pCell);
+//		pCell=new DataGridCell(row[1],sSoftwareID.c_str());
+//		pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
+//		pDataGrid->SetData(3,0,pCell);
 	}
 	return pDataGrid;
 }
@@ -2996,4 +3007,32 @@ void General_Info_Plugin::CMD_Get_Unused_Serial_Ports(int iPK_Device,string *sVa
 		sAvailablePorts += sPort;
 	}
 	*sValue_To_Assign = sAvailablePorts;
+}
+
+//<-dceag-c813-b->
+
+	/** @brief COMMAND: #813 - Add Software */
+	/** Install Software on media director */
+		/** @param #2 PK_Device */
+			/** # of Media director */
+		/** @param #229 PK_Software */
+			/** ID of installing package */
+
+ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,int iPK_Software,string &sCMD_Result,Message *pMessage)
+ //<-dceag-c813-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING,"Starting Add software");
+	string sql="SELECT IPaddress FROM Device WHERE PK_Device="+StringUtils::itos(iPK_Device);
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))&&(row=mysql_fetch_row(result.r))){
+		string sMD_IP=row[0];
+		sql="SELECT PackageName, Downloadurl, RepositoryName FROM Software WHERE PK_Software="+StringUtils::itos(iPK_Software);
+		if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))&&(row=mysql_fetch_row(result.r))){
+			string sArguments=sMD_IP+"\t"+row[0]+"\t"+row[1]+"\t"+row[2];
+			g_pPlutoLogger->Write(LV_WARNING,((string)"/usr/pluto/bin/InstallSoftware.sh "+sArguments).c_str());
+			ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallSoftware.sh", sArguments, "InstallSoftware", NULL, true);
+		}
+ 	}
+	g_pPlutoLogger->Write(LV_WARNING,"Finishing Add software");
 }
