@@ -497,13 +497,14 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	b = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
 	c = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
 	
-	Item = Engine->Compose->CreateEffect(2, a, 0, 1200);
+	
+	Item = Engine->Compose->CreateEffect(2, a, 0, Simulator::GetInstance()->m_iMilisecondsTransition);
 	if(Item)
 	{
 		Item->Configure(&rectLastSelected);
 		Item->Reversed = true;
 	}
-	Item = Engine->Compose->CreateEffect(3, b, 0, 1200);
+	Item = Engine->Compose->CreateEffect(3, b, 0, Simulator::GetInstance()->m_iMilisecondsTransition);
 	if(Item)
 		Item->Configure(&rectLastSelected);
 }

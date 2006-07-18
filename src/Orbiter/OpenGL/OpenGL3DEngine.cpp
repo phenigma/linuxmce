@@ -10,6 +10,8 @@
 #include "Texture/TextureManager.h"
 #include "Texture/GLFontManager.h"
 
+#include "Simulator.h"
+
 #include "DCE/Logger.h"
 using namespace DCE;
 
@@ -79,7 +81,7 @@ bool OpenGL3DEngine::Paint()
 		Point3D Color;
 		Color.X = 1.0f;
 		Color.Y = 1.0f;
-		Color.Z = (GetTick() / 2 % 512) / 255.0f;
+		Color.Z = (GetTick() / 2 % 512) / 255.0f*Simulator::GetInstance()->m_iMilisecondsHighLight/300;
 		Color.Z = abs(Color.Z - 1.0f)/2.0f+ 0.5f;
 		Color.X = Color.Z;
 		Color.Y = Color.Z;
