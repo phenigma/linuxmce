@@ -956,7 +956,7 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 	Xine_Stream *pStream =  ptrFactory->GetStream( 1 );	
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Set_Media_Position() called for filename: %s (%s) with stream %p.", 
-			      (pStream==NULL)?(pStream->m_sCurrentFile.c_str()):"",sMediaPosition.c_str(),pStream);
+			      (pStream!=NULL)?(pStream->m_sCurrentFile.c_str()):"",sMediaPosition.c_str(),pStream);
 	
 	if(	sMediaPosition.substr(0,5)==" POS:" && sMediaPosition.size()<15 ) // See if there's only a POS and nothing else.  If so, just do a seek
 	{
