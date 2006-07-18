@@ -35,4 +35,4 @@ QPass=
 if [[ -n "$MySqlPassword" ]]; then
 	QPass="-p$MySqlPassword"
 fi
-mysql -u $MySqlUser -h $MySqlHost $QPass "$MySqlDBName" <"$OutputFile"
+mysql -f -u $MySqlUser -h $MySqlHost $QPass "$MySqlDBName" <"$OutputFile"
