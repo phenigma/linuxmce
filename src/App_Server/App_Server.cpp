@@ -90,7 +90,7 @@ void sh(int i) /* signal handler */
 		// Send ourselves a message that calls the ApplicationExited function
 		// We don't call it directly to avoid a deadlock if the SIGCHLD signal was received while in ProcessUtils::SpawnApplication
 		DCE::CMD_Application_Exited CMD_Application_Exited(g_pAppServer->m_dwPK_Device, g_pAppServer->m_dwPK_Device, pid, WEXITSTATUS(status));
-		g_pCommand_Impl->SendCommand(CMD_Application_Exited);
+		g_pAppServer->SendCommand(CMD_Application_Exited);
 	}
 }
 #endif
