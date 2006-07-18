@@ -1,19 +1,21 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Config_Ops.sh
+
 Kver=$(uname -r)
 Kmaj=$(echo "$Kver" | cut -d. -f1)
 Kmin=$(echo "$Kver" | cut -d. -f2)
 
 if [ "$Kmaj.$Kmin" == "2.6" ]; then
 	if [[ ! -d /home/coredump ]] ;then
-		mkdir -p /home/coredump
+		mkdir -p "/home/coredump/$PK_Device"
 	fi
 
 	if [[ ! -s /usr/pluto/coredump ]] ;then
-		ln -s /home/coredump /usr/pluto/coredump
+		ln -s "/home/coredump/$PK_Device" /usr/pluto/coredump
 	fi
 
-	echo "/home/coredump/core_%e_%t_%s" >/proc/sys/kernel/core_pattern
+	echo "/home/coredump/$PK_Device/core_%e_%t_%s" >/proc/sys/kernel/core_pattern
 elif [ "$Kmaj.$Kmin" == "2.4" ]; then
 	echo 1 >/proc/sys/kernel/core_uses_pid
 else
