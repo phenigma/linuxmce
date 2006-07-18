@@ -106,12 +106,17 @@ if [[ "$Defaults" == y ]]; then
 		exit 1
 	fi
 	cat /usr/pluto/templates/xorg.conf.in | awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk >"$ConfigFile"
+	CurrentDisplayDriver="$DisplayDriver"
 elif [[ -n "$UpdateVideoDriver" && "$DisplayDriver" != "$CurrentDisplayDriver" ]]; then
 	awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk "$ConfigFile" >"$ConfigFile.$$"
+	CurrentDisplayDriver="$DisplayDriver"
 	mv "$ConfigFile"{.$$,}
 fi
 /usr/pluto/bin/X-UpdateModules.sh --conffile "$ConfigFile"
 UI_Version=$(/usr/pluto/bin/X-WhichUI.sh)
+if [[ "$CurrentDisplayDriver" == nvidia ]]; then
+	UI_Version=2 # force UI v2 options for nVidia
+fi
 awk -v"UI=$UI_Version" -f/usr/pluto/bin/X-UI_Sections.awk "$ConfigFile" >"$ConfigFile.$$"
 mv "$ConfigFile"{.$$,}
 
