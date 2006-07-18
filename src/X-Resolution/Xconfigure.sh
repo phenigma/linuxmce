@@ -98,7 +98,7 @@ if [[ ! -f "$ConfigFile" || ! -s "$ConfigFile" ]]; then
 	Defaults=y
 fi
 
-[[ -n "$Defaults" || -n "$UpdateVideoDriver" ]] && DisplayDriver=$(GetVideoDriver)
+DisplayDriver=$(GetVideoDriver)
 CurrentDisplayDriver=$(awk -f/usr/pluto/bin/X-GetDisplayDriver.awk "$ConfigFile")
 if [[ "$Defaults" == y ]]; then
 	if [[ ! -f /usr/pluto/templates/xorg.conf.in ]]; then
@@ -106,15 +106,14 @@ if [[ "$Defaults" == y ]]; then
 		exit 1
 	fi
 	cat /usr/pluto/templates/xorg.conf.in | awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk >"$ConfigFile"
-	CurrentDisplayDriver="$DisplayDriver"
 elif [[ -n "$UpdateVideoDriver" && "$DisplayDriver" != "$CurrentDisplayDriver" ]]; then
 	awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk "$ConfigFile" >"$ConfigFile.$$"
-	CurrentDisplayDriver="$DisplayDriver"
 	mv "$ConfigFile"{.$$,}
 fi
+
 /usr/pluto/bin/X-UpdateModules.sh --conffile "$ConfigFile"
 UI_Version=$(/usr/pluto/bin/X-WhichUI.sh)
-if [[ "$CurrentDisplayDriver" == nvidia ]]; then
+if [[ "$DisplayDriver" == nvidia ]]; then
 	UI_Version=2 # force UI v2 options for nVidia
 fi
 awk -v"UI=$UI_Version" -f/usr/pluto/bin/X-UI_Sections.awk "$ConfigFile" >"$ConfigFile.$$"
@@ -128,6 +127,26 @@ if [[ "$DisplayDriver" != "$CurrentDisplayDriver" && "$DisplayDriver" != vesa ]]
 	fi
 fi
 
+# XvMC setup
+case "$DisplayDriver" in
+	nvidia)
+		libXvMC="libXvMCNVIDIA.so.1"
+		XineVideoDriver="xxmc"
+	;;
+	via)
+		libXvMC="libviaXvMC.so.1"
+		XineVideoDriver="xxmc"
+	;;
+	*)
+		libXvMC="libXvMC.so.1"
+		XineVideoDriver="xv"
+	;;
+esac
+
+echo "$libXvMC" >/etc/X11/XvMCConfig
+XineConfSet video.driver "$XineVideoDriver"
+
+# Setup resolution
 if [[ -n "$Resolution" ]]; then
 	for Var in ${!resHD*}; do
 		if [[ "$Resolution" == "${!Var}" ]]; then
