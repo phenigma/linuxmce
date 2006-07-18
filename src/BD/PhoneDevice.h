@@ -84,6 +84,30 @@ public:
 		m_sMacAddress=StringUtils::ToUpper(m_sMacAddress);
 		CheckForPlutoID();
 	}
+
+	PhoneDevice(const PhoneDevice &aDevice)
+	{
+		m_sID = aDevice.m_sID;
+		m_sMacAddress = aDevice.m_sMacAddress;
+		m_UserVersion = aDevice.m_UserVersion;
+		m_PKID_Users = aDevice.m_PKID_Users;
+		m_iMacAddress = aDevice.m_iMacAddress;
+		m_bIsConnected = aDevice.m_bIsConnected;
+		m_tFirstDetected = aDevice.m_tFirstDetected;
+		m_tLastDetected = aDevice.m_tLastDetected;
+		m_iLinkQuality = aDevice.m_iLinkQuality;
+
+#ifndef WIN32	
+#ifndef NOBLUETOOTH
+		m_bdaddrDongle = aDevice.m_bdaddrDongle;
+#endif
+#endif
+
+		// These are just for using the Socket communication & the tester
+		m_sIPAddress = aDevice.m_sIPAddress;
+		m_iPort = aDevice.m_iPort;
+	}
+
 	void CheckForPlutoID()
 	{
 		m_sID = StringUtils::ToUpper(m_sID);

@@ -73,6 +73,7 @@ g_pPlutoLogger->Write(LV_STATUS,"NewDeviceThread started");
 	if( !ed->m_pEngine->m_bAbortScanLoop )
 		ed->m_pEngine->NewDeviceDetected(ed->m_pDevice);
 
+	delete ed->m_pDevice;
 	delete ed;
 	return NULL;
 }
@@ -196,29 +197,26 @@ void PhoneDetectionEngine::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 {
 	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 
-	/*
-	//This is sooo wrong. The map is protected, but not the objects within the map
-	//deleting a pointer from the map is wrong, because a spawned thread might still use that pDevice (the old one)
 	PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDevice->m_iMacAddress);
 	
-    if(pDExisting)
+    if(NULL != pDExisting)
+	{
 		delete pDExisting;
-	*/
+		pDExisting = NULL;
+	}
 
 	m_mapPhoneDevice_Detected[pDevice->m_iMacAddress] = pDevice;
 
-g_pPlutoLogger->Write(LV_STATUS,"Adding device to map1: %s m_mapPhoneDevice_Detected size is now: %d",pDevice->m_sID.c_str(),(int) m_mapPhoneDevice_Detected.size());
+	g_pPlutoLogger->Write(LV_STATUS,"Adding device to map1: %s m_mapPhoneDevice_Detected size is now: %d",
+		pDevice->m_sID.c_str(), (int) m_mapPhoneDevice_Detected.size());
 
 	pthread_t t;
-	EnginePlusDevice *pED = new EnginePlusDevice(this,pDevice);
+	EnginePlusDevice *pED = new EnginePlusDevice(this, new PhoneDevice(*pDevice));
 	int ret = pthread_create(&t, NULL, NewDeviceThread, (void*)pED);
 	if (ret == 0)
 		pthread_detach(t);
 
-//g_pPlutoLogger->Write(LV_STATUS,"Sleeping 300 milliseconds. It's a pthread_create bug ? Let's see...");	
-//	Sleep(300);
-
-g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
+	g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
 }
 
 void PhoneDetectionEngine::Intern_LostDevice(class PhoneDevice *pDevice)
