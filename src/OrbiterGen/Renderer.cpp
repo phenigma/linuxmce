@@ -1248,7 +1248,9 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 	SDL_Surface * RenderedText = NULL;
 	try
 	{
-	    RenderedText = TTF_RenderText_Blended((TTF_Font *)pTextStyle->m_pTTF_Font, pDesignObjText->m_sText.c_str(), SDL_color);
+		RenderedText = TTF_RenderUTF8_Blended((TTF_Font *)pTextStyle->m_pTTF_Font, pDesignObjText->m_sText.c_str(), SDL_color);
+
+	    //RenderedText = TTF_RenderText_Blended((TTF_Font *)pTextStyle->m_pTTF_Font, pDesignObjText->m_sText.c_str(), SDL_color);
 	}
 	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
 	{
