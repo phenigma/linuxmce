@@ -27,7 +27,7 @@ PSC=$(head -2 "$OutputFile" | tail -1)
 PSC="${PSC#-- psc_id: }"
 
 if [[ -n "$Table" && -n "$PSC" ]]; then
-	Q="DELETE FROM $Table WHERE psc_id IN ($PSC)"
+	Q="DELETE FROM $Table WHERE psc_id IN ($PSC) AND psc_mod=0"
 	RunSQL "$Q"
 fi
 
