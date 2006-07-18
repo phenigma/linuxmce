@@ -4,7 +4,7 @@ $TEXT_EDIT_GSD_CODES_CONST='Edit Ruby codes';
 $TEXT_WARNING_CHANGES_AFFECT_ALL_CONST='WARNING: the changes will afect all devices created from device template';
 $TEXT_DELAYS_CONST='Delays';
 $TEXT_POWER_CONST='Power';
-$TEXT_SECONDS_CONST='seconds';
+$TEXT_MILISECONDS_CONST='miliseconds';
 $TEXT_MODE_CONST='Mode';
 $TEXT_OTHER_CONST='Other';
 $TEXT_CHANGE_EXPLAIN_CONST='change/explain';
@@ -33,5 +33,5 @@ $TEXT_RUBY_CODES_UPDATED_CONST='Ruby codes updated.';
 $TEXT_RUBY_CODE_ADDED_CONST='Ruby code added.';
 $TEXT_PAGE_GENERATED_IN_CONST='Page generated in';
 $TEXT_ERROR_CANNOT_RETRIEVE_IR_CODES_CONST='Cannot retrieve IR codes.';
-$TEXT_ERROR_IRGROUP_NOT_SAVED_CONST='WARNING: IR Group not saved. Click UPDATE to save.';
+$TEXT_ERROR_IRGROUP_NOT_SAVED_CONST='WARNING: Command Group not saved. Click UPDATE to save.';
 ?>

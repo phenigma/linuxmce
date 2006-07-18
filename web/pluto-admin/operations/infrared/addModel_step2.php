@@ -28,13 +28,13 @@
 		
 		<table class="normaltext" align="center">
 			<tr>
-				<td>'.$TEXT_Q2_POWER_DELAY_TEXT_CONST.' <input type="text" name="IR_PowerDelay" value="'.(((int)@$_REQUEST['isDef']==1)?'7':@$dtArray['IR_PowerDelay'][0]).'" size="2"></td>
+				<td>'.$TEXT_Q2_POWER_DELAY_TEXT_CONST.' <input type="text" name="IR_PowerDelay" value="'.(((int)@$_REQUEST['isDef']==1)?'7000':@$dtArray['IR_PowerDelay'][0]).'" size="2"></td>
 			</tr>
 			<tr>
-				<td>'.$TEXT_Q2_MODE_DELAY_DELAY_TEXT_CONST.' <input type="text" name="IR_ModeDelay" value="2" size="'.(((int)@$_REQUEST['isDef']==1)?'2':@$dtArray['IR_ModeDelay'][0]).'"></td>
+				<td>'.$TEXT_Q2_MODE_DELAY_DELAY_TEXT_CONST.' <input type="text" name="IR_ModeDelay" size="2" value="'.(((int)@$_REQUEST['isDef']==1)?'2000':@$dtArray['IR_ModeDelay'][0]).'"></td>
 			</tr>		
 			<tr>
-				<td>'.$TEXT_Q2_DIGIT_DELAY_DELAY_TEXT_CONST.' <input type="text" name="DigitDelay" value="'.(((int)@$_REQUEST['isDef']==1)?'0.250':round(@$dtArray['DigitDelay'][0]/1000,3)).'" size="2"></td>
+				<td>'.$TEXT_Q2_DIGIT_DELAY_DELAY_TEXT_CONST.' <input type="text" name="DigitDelay" value="'.(((int)@$_REQUEST['isDef']==1)?'250':round(@$dtArray['DigitDelay'][0]/1000,3)).'" size="2"></td>
 			</tr>		
 			<tr>
 				<td align="center"><input type="submit" class="button" name="add" value="'.$submitLabel.'"> </td>

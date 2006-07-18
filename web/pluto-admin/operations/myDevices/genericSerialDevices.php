@@ -241,7 +241,7 @@ function genericSerialDevices($output,$dbADO) {
 					<td colspan="8">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="8" align="center">'.$updateBtns.' <input type="button" class="button" name="button" value="'.$TEXT_ADD_GSD_DEVICE_CONST.'" onClick="document.genericSerialDevices.action.value=\'externalSubmit\';document.genericSerialDevices.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=genericSerialDevices\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="8" align="center">'.@$updateBtns.' <input type="button" class="button" name="button" value="'.$TEXT_ADD_GSD_DEVICE_CONST.'" onClick="document.genericSerialDevices.action.value=\'externalSubmit\';document.genericSerialDevices.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=genericSerialDevices\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 		</form>

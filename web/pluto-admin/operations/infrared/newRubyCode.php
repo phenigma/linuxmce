@@ -63,15 +63,19 @@ function newRubyCode($output,$dbADO) {
 			if($isOtherCustomCode->RecordCount()>0){
 				$rowOther=$isOtherCustomCode->FetchRow();
 				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$rowOther['PK_InfraredGroup_Command']));
-			}else
+				$igcID=$rowOther['PK_InfraredGroup_Command'];
+			}else{
 				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,IRData) VALUES (?,?,?)',array($infraredGroupID,$commandID, $irData));
-			$igcID=$dbADO->Insert_ID();
+				$igcID=$dbADO->Insert_ID();
+			}
 			
-			$out.='<script>
+			$script='<script>
 					opener.location.reload();
+					opener.location=\'index.php?section=rubyCodes&dtID='.$dtID.'&deviceID='.$deviceID.'&from=genericSerialDevices&rand='.rand(1000,9999).'#code'.$igcID.'\';
 					self.close();
 				</script>
 			';
+			die($script);
 		}	
 		else{
 			header("Location: index.php?section=newRubyCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID);

@@ -103,6 +103,13 @@
 				$installationID=(int)$_SESSION['installationID'];
 				//$deviceID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$dtID.' -i '.$installationID);				
 				$insertID=createDevice($dtID,$installationID,0,NULL,$dbADO);
+				$script='
+				<script>
+				opener.location.reload();
+				self.location="index.php?section=addModel&step=2&dtID='.$dtID.'&isDef=1&deviceID='.@$insertID.'";
+				</script>
+				';
+				die($script);
 			}
 			
 			header('Location: index.php?section=addModel&step=2&dtID='.$dtID.'&isDef=1&deviceID='.@$insertID);

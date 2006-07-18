@@ -21,7 +21,7 @@ function learnCode($output,$dbADO) {
 				$out='
 				<script>
 					alert(\''.$TEXT_IR_CODE_LEARNED_CONST.'\');
-					opener.location.reload();
+					opener.location=\'index.php?section=irCodes&dtID='.$dtID.'&deviceID='.$deviceID.'&from=avWizard%26type%3DavEquipment&rand='.rand(1000,9999).'#code'.$row['PK_InfraredGroup_Command'].'\';
 					self.close();
 				</script>';
 			}
@@ -127,15 +127,18 @@ function learnCode($output,$dbADO) {
 			if($isOtherCustomCode->RecordCount()>0){
 				$rowOther=$isOtherCustomCode->FetchRow();
 				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$rowOther['PK_InfraredGroup_Command']));
-			}else
+				$igcID=$rowOther['PK_InfraredGroup_Command'];
+			}else{
 				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, IRData) VALUES (?,?,?)',array($infraredGroupID,$commandID, $irData));
-			$igcID=$dbADO->Insert_ID();
+				$igcID=$dbADO->Insert_ID();
+			}
 			
-			$out.='<script>
-					opener.location.reload();
+			$script='<script>
+					opener.location=\'index.php?section=irCodes&dtID='.$dtID.'&deviceID='.$deviceID.'&from=avWizard%26type%3DavEquipment&rand='.rand(1000,9999).'#code'.$igcID.'\';
 					self.close();
 				</script>
 			';
+			die($script);
 		}else{
 			if($deviceID>0){
 				$deviceInfo=getFieldsAsArray('Device','FK_Device_ControlledVia',$dbADO,'WHERE PK_Device='.$deviceID);

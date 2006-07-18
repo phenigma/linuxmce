@@ -1479,7 +1479,8 @@ switch ($section) {
 		
 		$output->setScriptCalendar('null');
 		$output->setTitle(APPLICATION_NAME);			
-  		$output->output();  		
+  		$output->output();  	
+  	break;	
 	default:			
 		$output = new Template($dbADO);	
 		

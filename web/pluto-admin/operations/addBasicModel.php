@@ -58,7 +58,7 @@
 		';
 	}else{
 		// process
-		$opt=(int)$_POST['opt'];
+		$opt=(int)@$_POST['opt'];
 		$description=stripslashes($_POST['description']);
 		if($from=='genericSerialDevices'){
 			$opt=2;

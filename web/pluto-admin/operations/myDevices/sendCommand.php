@@ -152,9 +152,9 @@ function sendCommand($output,$dbADO) {
 			
 		}
 		$commandToSend="/usr/pluto/bin/MessageSend localhost $firstParam 0 $deviceID 1 $commandID$parmsValues";		
-		$retMessage=exec_batch_command($commandToSend);
-		
-		header("Location: index.php?section=sendCommand&deviceID=$deviceID&command=$commandID&conf=$conf&msg='.$TEXT_MESSAGE_SENT_SUCCESFULLY_CONST.'  <br>$commandToSend<br>'.$TEXT_RESPONSE_WAS_CONST.':<br>".join('<br>',$retMessage));
+		exec($commandToSend,$retMessage);
+
+		header("Location: index.php?section=sendCommand&deviceID=$deviceID&command=$commandID&conf=$conf&msg=".urlencode($TEXT_MESSAGE_SENT_SUCCESFULLY_CONST)."  <br>$commandToSend<br>".urlencode($TEXT_RESPONSE_WAS_CONST.":<br>".join('<br>',$retMessage)));
 		exit();		
 	}
 

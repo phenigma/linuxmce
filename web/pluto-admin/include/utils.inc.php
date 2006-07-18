@@ -4341,7 +4341,7 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 	$out='
 		<table width="100%">
 			<tr class="alternate_back">
-				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].(($dataArray['OriginalKey'][$pos]!='')?' ('.$dataArray['OriginalKey'][$pos].')':'').'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
+				<td align="center" width="100"><a name="code'.$pos.'"></a><B>'.$dataArray['Description'][$pos].(($dataArray['OriginalKey'][$pos]!='')?' ('.$dataArray['OriginalKey'][$pos].')':'').'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
 				<td align="center" width="120">'.$viewParamsButton.@$deleteButton.$testButton.'</td>
 			</tr>
@@ -5290,11 +5290,12 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 	if(isset($_REQUEST['do_filter']) || (int)@$_REQUEST['autofilter']==1 || (int)@$_SESSION['parentID']>0 || (int)@$_REQUEST['categoryID']>0){
 		//echo 'do_filter categ: '.$categoryID.' manuf: '.$manufacturerID;
 		
-		$deviceTemplatesArray=getAllowedDT((int)@$_SESSION['parentID'],$categoryID,$manufacturerID,$dbADO);
+		$deviceTemplatesArray=getAllowedDT((int)@$_SESSION['parentID'],$categoryID,$manufacturerID,$dbADO,$from);
 		$deviceTemplatesPulldown=pulldownFromArray($deviceTemplatesArray,'template',$dtID,'class="input_big" onchange="setDeviceTemplate();"');
 		
 	}else{
-		$deviceTemplatesArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,'','ORDER BY Description ASC');
+		$filter=($from=='genericSerialDevices')?' WHERE CommandLine=\''.$GLOBALS['GenericSerialDeviceCommandLine'].'\'':'';
+		$deviceTemplatesArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,$filter,'ORDER BY Description ASC');
 		$deviceTemplatesPulldown=pulldownFromArray($deviceTemplatesArray,'template',$dtID,'class="input_big" onchange="setDeviceTemplate();"');
 	}
 	$parentDeviceText=$TEXT_NONE_CONST;
@@ -5762,12 +5763,14 @@ function jsManufCategories($deviceTemplatesArray,$dbADO){
 
 // return an associative array with the device templates allowed as childs for a specific device
 // if parent is not specified, return all device templates from category and its childs & manufacturer
-function getAllowedDT($parentID,$categoryID,$manufacturerID,$dbADO){
+function getAllowedDT($parentID,$categoryID,$manufacturerID,$dbADO,$from){
 	if($parentID!=0){
 		$allowedDevices=getDeviceTemplatesControlledBy($parentID,$dbADO);
 	}
 	$filter='WHERE 1=1 ';
 	$filter.=(count(@$allowedDevices)>0)?'AND PK_DeviceTemplate IN ('.join(',',$allowedDevices).') ':'';
+	$filter.=($from=='genericSerialDevices')?' AND CommandLine=\''.$GLOBALS['GenericSerialDeviceCommandLine'].'\'':'';
+	
 	if($categoryID>0){
 		$subcategories=getDescendantsForCategory($categoryID,$dbADO);
 		$filter.='AND FK_DeviceCategory IN ('.join(',',$subcategories).')';

@@ -24,6 +24,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 	$userID = (int)@$_SESSION['userID'];
 	if ($dtID==0) {
 		header("Location: index.php?section=login");
+		exit();
 	}
 
 	// get InfraredGroup_Commmand from remote location only when deviceID is not defined
@@ -149,7 +150,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 				<td valign="top" colspan="2">'.$TEXT_DEVICE_TEMPLATE_CONST.' <B>'.$rowDTData['Template'].'</B>, category <B>'.$rowDTData['Category'].'</B> and manufacturer <B>'.$rowDTData['Manufacturer'].'</B>.<td>
 			</tr>
 			<tr>
-				<td valign="top" colspan="2">'.$TEXT_DELAYS_CONST.': '.$TEXT_POWER_CONST.': <B>'.$rowDTData['IR_PowerDelay'].'</B> '.$TEXT_SECONDS_CONST.', '.$TEXT_MODE_CONST.': <B>'.$rowDTData['IR_ModeDelay'].'</B> '.$TEXT_SECONDS_CONST.', '.$TEXT_OTHER_CONST.': <B>'.round(($rowDTData['DigitDelay']/1000),3).'</B> seconds  <a href="index.php?section=addModel&step=2&dtID='.$dtID.'&deviceID='.$deviceID.'&return=1">['.$TEXT_CHANGE_EXPLAIN_CONST.']</a><td>
+				<td valign="top" colspan="2">'.$TEXT_DELAYS_CONST.': '.$TEXT_POWER_CONST.': <B>'.$rowDTData['IR_PowerDelay'].'</B> '.$TEXT_MILISECONDS_CONST.', '.$TEXT_MODE_CONST.': <B>'.$rowDTData['IR_ModeDelay'].'</B> '.$TEXT_MILISECONDS_CONST.', '.$TEXT_OTHER_CONST.': <B>'.round(($rowDTData['DigitDelay']/1000),3).'</B> '.$TEXT_MILISECONDS_CONST.'  <a href="index.php?section=addModel&step=2&dtID='.$dtID.'&deviceID='.$deviceID.'&return=1">['.$TEXT_CHANGE_EXPLAIN_CONST.']</a><td>
 			</tr>
 			<tr>
 				<td valign="top" colspan="2">'.$TEXT_TUNING_CONST.': <B>'.((str_replace('E','',$rowDTData['NumericEntry'])=='')?$TEXT_NO_FIXED_DIGITS_CONST:$TEXT_FIXED_DIGITS_CONST.': '.str_replace('E','',$rowDTData['NumericEntry'])).'</B>  ['.((strpos($rowDTData['NumericEntry'],'E')!==false)?'x':'').'] '.$TEXT_TERMINATE_WITH_ENTER_CONST.' <a href="index.php?section=addModel&step=3&dtID='.$dtID.'&deviceID='.$deviceID.'&return=1">['.$TEXT_CHANGE_EXPLAIN_CONST.']</a><td>
@@ -250,7 +251,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code added.&label=".$GLOBALS['label']);
 				exit();
 			}else{
-				$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
+				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array('',$irg_c));
 				
 				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=$TEXT_CUSTOM_CODE_DELETED_CONST&label=".$GLOBALS['label']);
 				exit();
@@ -264,6 +265,14 @@ function irCodes($output,$dbADO,$mediaADO) {
 			$displayedCommands=explode(',',$_POST['displayedCommands']);
 			$infraredGroupID=($infraredGroupID==0)?NULL:$infraredGroupID;
 			
+			$customCodesNoArray=explode(',',@$_POST['displayedIRGC']);
+			foreach ($customCodesNoArray as $ig_c){
+				if(isset($_POST['irData_'.$ig_c])){
+					$irData=stripslashes($_POST['irData_'.$ig_c]);
+					$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$ig_c));
+				}
+			}
+						
 			$commands_added=array();
 			foreach ($deviceCGArray AS $deviceCG){
 				if(isset($_POST['dcg_'.$deviceCG])){
@@ -283,7 +292,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 					// delete from IRG_C
 					$commands=explode(',',$_POST['commands_'.$deviceCG]);
 					if(count($commands)>0){
-						$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE FK_Command in ('.join(',',$commands).') AND FK_InfraredGroup=?',array($infraredGroupID));
+						$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE FK_Command in ('.join(',',$commands).') AND FK_InfraredGroup=?',array('',$infraredGroupID));
 
 					}
 					$dbADO->Execute('DELETE FROM DeviceTemplate_DeviceCommandGroup WHERE FK_DeviceTemplate=? AND FK_DeviceCommandGroup=?',array($dtID,$deviceCG));
@@ -291,13 +300,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 			}
 			
 			
-			$customCodesNoArray=explode(',',@$_POST['displayedIRGC']);
-			foreach ($customCodesNoArray as $ig_c){
-				if(isset($_POST['irData_'.$ig_c])){
-					$irData=stripslashes($_POST['irData_'.$ig_c]);
-					$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$ig_c));
-				}
-			}
+
 
 			$commandsDisplayed=array_unique(explode(',',$_POST['displayedCommands']));
 

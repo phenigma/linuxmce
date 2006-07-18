@@ -27,8 +27,14 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 	$userID = (int)@$_SESSION['userID'];
 	if ($dtID==0) {
 		header("Location: index.php?section=login");
+		exit();
 	}
-
+	
+	// get InfraredGroup_Commmand from remote location only when deviceID is not defined
+	if((int)$deviceID>0){
+		$isImported=GetIRCodesForDevice(NULL,$dbADO,$dtID);
+	}
+	
 	if(!isset($_REQUEST['infraredGroupID'])){
 		$resDefaultIG=$dbADO->Execute('SELECT FK_InfraredGroup FROM DeviceTemplate WHERE PK_DeviceTemplate=?',$dtID);
 		if($resDefaultIG->RecordCount()>0){
@@ -110,9 +116,11 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			</tr>
 		';
 			$irGroups=getAssocArray('InfraredGroup','PK_InfraredGroup','Description',$dbADO,'WHERE FK_Manufacturer='.$manufacturerID.' AND FK_DeviceCategory='.$deviceCategoryID,'ORDER BY Description ASC');
+			$error_not_saved=(count($irGroups)>0 && ($infraredGroupID==0 || is_null($infraredGroupID)))?'<span class="err">'.$TEXT_ERROR_IRGROUP_NOT_SAVED_CONST.'</span>':'';
+			
 			$out.='
 			<tr>
-				<td colspan="2">'.$TEXT_USES_GROUP_CODESET_CONST.' '.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.rubyCodes.submit();"','key','I don\'t know the group').'</td>
+				<td colspan="2">'.$TEXT_USES_GROUP_CODESET_CONST.' '.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.rubyCodes.submit();"','key','').' '.$error_not_saved.'</td>
 		</tr>';
 			
 		$out.='
@@ -168,7 +176,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 				header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=$TEXT_RUBY_CODE_ADDED_CONST&label=".$GLOBALS['label']);
 				exit();
 			}else{
-				$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
+				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array('',$irg_c));
 				
 				header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=$TEXT_CUSTOM_CODE_DELETED_CONST&label=".$GLOBALS['label']);
 				exit();
@@ -200,7 +208,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 						// delete from IRG_C
 						$commands=explode(',',$_POST['commands_'.$deviceCG]);
 						if(count($commands)>0){
-							$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE FK_Command in ('.join(',',$commands).') AND FK_InfraredGroup=?',$infraredGroupID);
+							$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE FK_Command in ('.join(',',$commands).') AND FK_InfraredGroup=?',array('',$infraredGroupID));
 	
 						}
 						$dbADO->Execute('DELETE FROM DeviceTemplate_DeviceCommandGroup WHERE FK_DeviceTemplate=? AND FK_DeviceCommandGroup=?',array($dtID,$deviceCG));
