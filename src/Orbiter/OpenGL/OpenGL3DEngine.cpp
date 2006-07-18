@@ -33,19 +33,19 @@ OpenGL3DEngine::OpenGL3DEngine()
 
 OpenGL3DEngine::~OpenGL3DEngine()
 {
-	MeshPainter::Instance()->CleanUp();
-	GLEffect2D::LayersCompose::Instance()->CleanUp();
-	TextureManager::Instance()->CleanUp();
-	GLFontManager::GetInstance()->CleanUp();
-
-	CurrentLayerObjects_.clear();
-	TTF_Quit();
-
 	pthread_mutex_destroy(&SceneMutex.mutex);
 }
 
 void OpenGL3DEngine::Finalize(void)
 {
+	MeshPainter::Instance()->CleanUp();
+	GLEffect2D::LayersCompose::Instance()->CleanUp();
+	GLFontManager::GetInstance()->CleanUp();
+	TextureManager::Instance()->CleanUp();
+
+	CurrentLayerObjects_.clear();
+	TTF_Quit();
+
 	SDL_Quit();
 }
 
@@ -269,8 +269,8 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 
 	UnHighlight();
 	HighLightFrame = new MeshFrame();
-	Transform.ApplyTranslate(-0.1f, -0.1f, 0.f);
-	Transform.ApplyScale(1.2f, 1.2f, 1.0f);
+	Transform.ApplyTranslate(-0.0f, -0.0f, 0.0f);
+	Transform.ApplyScale(1.0f, 1.0f, 1.0f);
 	Transform.ApplyScale(
 		float(HightlightArea->Width),
 		float(HightlightArea->Height),

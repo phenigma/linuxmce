@@ -127,6 +127,19 @@ void GL2DBezierEffectTransit_Prism::Paint(int Now)
 			LeftProfile[i];
 	}
 
+	for (i = 1; i< 3; i++)
+		for (int j = 1; j< 3; j++)
+		{
+			float Delta = 
+				fabs(BezierDefinition.anchors[j][i].x -
+				Button->BezierDefinition.anchors[j][i].x)+
+				fabs(BezierDefinition.anchors[j][i].y -
+				Button->BezierDefinition.anchors[j][i].y);
+			Button->BezierDefinition.anchors[j][i].z =
+				Button->BezierDefinition.anchors[j][i].z +
+				Delta;
+		}
+
 }
 
 }

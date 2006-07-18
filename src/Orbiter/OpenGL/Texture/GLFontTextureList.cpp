@@ -52,7 +52,9 @@ GLFontTextureList::~GLFontTextureList()
 
 	try
 	{
-		RenderedText = TTF_RenderText_Blended(Font_, Text, FontColor);
+		//RenderedText = TTF_RenderText_Blended(Font_, Text, FontColor);
+		
+		RenderedText = TTF_RenderUTF8_Blended(Font_, Text, FontColor);
 	}
 	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
 	{

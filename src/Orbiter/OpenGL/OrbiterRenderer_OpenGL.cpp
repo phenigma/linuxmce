@@ -74,8 +74,11 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 
 		if(pOrbiterRenderer->NeedToUpdateScreen())
 		{
+			//TODO: don't paint the screen if not needed
+
 			if(!pOrbiterRenderer->Engine->NeedUpdateScreen())
 				pOrbiterRenderer->ScreenUpdated();
+
 			pOrbiterRenderer->Engine->Paint();
 		}
 		Sleep(15);
@@ -101,6 +104,12 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterRenderer_OpenGL::~OrbiterRenderer_OpenGL()
 {
+	//cleanup here
+	if(NULL != Engine)
+		Engine->Quit = true;
+
+	if(GLThread != 0)
+		pthread_join(GLThread, NULL);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::Configure()
@@ -413,12 +422,6 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::Destroy()
 {
-	//cleanup here
-	if(NULL != Engine)
-		Engine->Quit = true;
-
-	if(GLThread != 0)
-		pthread_join(GLThread, NULL);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderObjectAsync(DesignObj_Orbiter *pObj)
@@ -484,7 +487,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	NeedToUpdateScreen_ = true;
 
 	GLEffect2D::Effect* Item;
-	srand((unsigned int)time(NULL));
+	//srand((unsigned int)time(NULL));
 	//int EffectCode = GL2D_EFFECT_FADES_FROM_TOP;
 	//int EffectCode = GL2D_EFFECT_BEZIER_TRANSIT;
 	int EffectCode = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);

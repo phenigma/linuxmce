@@ -82,7 +82,7 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 	else
 		Step= 1-(Step - 0.5f)*2; 
 
-	int i;
+	int i, j;
 	float Average = Animation.Width * 2/3;
 
 	// bit-to-bit copy 
@@ -120,6 +120,20 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 		ButonTop->BezierDefinition.anchors[3][i].x -= 
 			LeftProfile[i];
 	}
+
+	for (i = 1; i< 3; i++)
+		for (j = 1; j< 3; j++)
+		{
+			float Delta = 
+				fabs(BezierDefinition.anchors[j][i].x -
+				ButonTop->BezierDefinition.anchors[j][i].x)+
+				fabs(BezierDefinition.anchors[j][i].y -
+				ButonTop->BezierDefinition.anchors[j][i].y);
+			ButonTop->BezierDefinition.anchors[j][i].z =
+				ButonTop->BezierDefinition.anchors[j][i].z +
+				Delta;
+		}
+
 }
 
 }

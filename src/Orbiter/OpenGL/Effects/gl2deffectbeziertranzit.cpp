@@ -142,12 +142,18 @@ void GL2DBezierEffectTransit::Paint(int Now)
 				);
 		}
 	}
-	for(i = 0; i<4; i++)
-	{
-		for(j=0; j<4; j++)
-			Button->BezierDefinition.anchors[j][i].z = 0;
-
-	}
+	for (i = 1; i< 3; i++)
+			for (j = 1; j< 3; j++)
+			{
+				float Delta = 
+					fabs(BezierDefinition.anchors[j][i].x -
+					Button->BezierDefinition.anchors[j][i].x)+
+					fabs(BezierDefinition.anchors[j][i].y -
+					Button->BezierDefinition.anchors[j][i].y);
+				Button->BezierDefinition.anchors[j][i].z =
+					Button->BezierDefinition.anchors[j][i].z +
+					Delta;
+			}
 
 
 }

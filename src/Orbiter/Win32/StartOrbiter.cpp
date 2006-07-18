@@ -186,7 +186,7 @@ void StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string s
 				break;
 
 			case osRun:
-				g_pPlutoLogger->Write(LV_STATUS, "Stage run");
+ 				g_pPlutoLogger->Write(LV_STATUS, "Stage run");
 				if(Run(pOrbiter, bLocalMode))
 					stage = osQuit; 
 				else
