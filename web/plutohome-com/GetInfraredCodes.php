@@ -55,7 +55,7 @@ function getCodesByTemplate($PK_InfraredGroup,$PK_DeviceTemplate,$dbADO){
 			$codes[]=$row['psc_id'];
 	}
 	$out="-- psc_id: ".join(',',$codes)."\n";
-	$dumpCmd='mysqldump '.$dbPlutoMainDatabase.' -u'.$dbPlutoMainUser.' -p'.$dbPlutoMainPass.' InfraredGroup_Command --where "psc_id IN ('.join(',',$codes).')" --no-create-info --skip-comments';
+	$dumpCmd='mysqldump '.$dbPlutoMainDatabase.' -u'.$dbPlutoMainUser.' -p'.$dbPlutoMainPass.' InfraredGroup_Command --where "psc_id IN ('.join(',',$codes).')" --no-create-info --skip-comments --force';
 
 	exec($dumpCmd,$retArray);
 	$cleanInserts=array();
@@ -117,7 +117,7 @@ function getCodesByManufacturer($PK_Manufacturer,$PK_DeviceCategory,$dbADO){
 			$codes[]=$row['psc_id'];
 	}
 	$out="-- psc_id: ".join(',',$codes)."\n";
-	$dumpCmd='mysqldump '.$dbPlutoMainDatabase.' -u'.$dbPlutoMainUser.' -p'.$dbPlutoMainPass.' InfraredGroup_Command --where "psc_id IN ('.join(',',$codes).')" --no-create-info --skip-comments';
+	$dumpCmd='mysqldump '.$dbPlutoMainDatabase.' -u'.$dbPlutoMainUser.' -p'.$dbPlutoMainPass.' InfraredGroup_Command --where "psc_id IN ('.join(',',$codes).')" --no-create-info --skip-comments --force';
 
 	exec($dumpCmd,$retArray);
 	$cleanInserts=array();
