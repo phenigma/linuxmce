@@ -318,6 +318,15 @@ for Client in $R; do
 
 		echo 
 
+		## Setup cronjob daily for ntpdate
+		
+		SyncTime="/etc/cron.daily/synctime"
+
+		if [ -d /etc/cron.daily ]; then
+				echo "/usr/sbin/ntpdate 192.168.80.1" > $SyncTime
+				chmod +x $SyncTime
+		fi
+		
 		## Dome configuring this MD
 		Q="UPDATE Device SET NeedConfigure = 0 WHERE PK_Device=$PK_Device"
 		RunSQL "$Q"
