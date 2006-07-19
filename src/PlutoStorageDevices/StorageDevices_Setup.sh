@@ -1,6 +1,9 @@
 #!/bin/bash
 
 ## TrigerCascade="true" result in script being run on the other computers too
+
+TrigerCascade="true"
+
 Params=("$@")
 for ((i = 0; i < ${#Params[@]}; i++)); do
         case "${Params[$i]}" in
