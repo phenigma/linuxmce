@@ -30,7 +30,11 @@ OpenGL3DEngine::OpenGL3DEngine()
 		return;
 	}
 
-	SceneMutex.Init(NULL);
+	pthread_mutexattr_t m_SceneAttr;
+	pthread_mutexattr_init(&m_SceneAttr);
+	pthread_mutexattr_settype(&m_SceneAttr, PTHREAD_MUTEX_RECURSIVE_NP);
+	SceneMutex.Init(&m_SceneAttr);
+	pthread_mutexattr_destroy(&m_SceneAttr);
 }
 
 OpenGL3DEngine::~OpenGL3DEngine()
@@ -295,23 +299,30 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 
 /*virtual*/ void OpenGL3DEngine::UnHighlight()
 {
-	if(HighLightFrame == NULL)
-		return;
-	CurrentLayer->RemoveChild(HighLightFrame);
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 
-	delete HighLightFrame;
-	HighLightFrame = NULL;
-	
+	if(NULL != HighLightFrame)
+	{
+		CurrentLayer->RemoveChild(HighLightFrame);
+		HighLightFrame->CleanUp();
+
+		delete HighLightFrame;
+		HighLightFrame = NULL;
+	}
 }
 
 /*virtual*/ void OpenGL3DEngine::UnSelect()
 {
-	if(SelectedFrame == NULL)
-		return;
-	CurrentLayer->RemoveChild(SelectedFrame);
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 
-	delete SelectedFrame;
-	SelectedFrame = NULL;
+	if(NULL != SelectedFrame)
+	{
+		CurrentLayer->RemoveChild(SelectedFrame);
+		SelectedFrame->CleanUp();
+
+		delete SelectedFrame;
+		SelectedFrame = NULL;
+	}
 }
 
 bool OpenGL3DEngine::NeedUpdateScreen()
