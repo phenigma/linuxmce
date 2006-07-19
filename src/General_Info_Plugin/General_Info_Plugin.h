@@ -99,7 +99,6 @@ public:
 	class DataGridTable *DevicesOfCategory( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *DeviceTemplatesOfCategory( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *AddSoftware( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage);
-	class DataGridTable *AddSoftwareDetails( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage);
 
 	//AV Wizard
 	class DataGridTable *AVWhatDelay( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
@@ -409,15 +408,19 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 	virtual void CMD_Get_Unused_Serial_Ports(int iPK_Device,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Unused_Serial_Ports(iPK_Device,sValue_To_Assign,sCMD_Result,NULL);};
 	virtual void CMD_Get_Unused_Serial_Ports(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
+
 	/** @brief COMMAND: #813 - Add Software */
 	/** Install Software on media director */
 		/** @param #2 PK_Device */
-			/** # of Media director */
+			/** The MD to install it on */
+		/** @param #119 True/False */
+			/** True = add the package, false=remove it */
 		/** @param #229 PK_Software */
 			/** ID of installing package */
 
-	virtual void CMD_Add_Software(int iPK_Device,int iPK_Software) { string sCMD_Result; CMD_Add_Software(iPK_Device,iPK_Software,sCMD_Result,NULL);};
-	virtual void CMD_Add_Software(int iPK_Device,int iPK_Software,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iPK_Software) { string sCMD_Result; CMD_Add_Software(iPK_Device,bTrueFalse,iPK_Software,sCMD_Result,NULL);};
+	virtual void CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iPK_Software,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 	private:

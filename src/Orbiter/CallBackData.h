@@ -73,6 +73,11 @@ public:
 	string m_sText;
 	string m_sValue;
 	long m_nPK_Datagrid;
+	int m_Row,m_Column;
+	DataGridCell *m_pDataGridCell;
+	DesignObj_DataGrid *m_pDesignObj_DataGrid;
+
+	DatagridCellBackData() : m_pDataGridCell(NULL), m_pDesignObj_DataGrid(NULL), m_Row(0), m_Column(0) {}
 };
 //-----------------------------------------------------------------------------------------------------
 namespace DCE

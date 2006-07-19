@@ -7,6 +7,7 @@ enum CallBackType
     cbUnused,
     cbDataGridSelected,
     cbObjectSelected,
+	cbObjectHighlighted,
     cbOnDialogCreate,   // create a unique dialog
     cbOnDialogDelete,   // close dialog without saving data
     cbOnDialogRefresh,  // refresh dialog with new data

@@ -455,7 +455,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		* @brief
 		* @todo ask
 		*/
-		bool SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid, class DataGridCell *pCell, SelectionMethod selectionMethod );
+		bool SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid, class DataGridCell *pCell, SelectionMethod selectionMethod, int iRow, int iColumn );
 
 		/**
 		* @brief
@@ -828,6 +828,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		// Get the coordinates for the highlighted cell within this grid
 		void GetDataGridHighlightCellCoordinates(DesignObj_DataGrid *pGrid,PlutoRectangle &rect);
+		DataGridCell *GetDataGridHighlightCell(DesignObj_DataGrid *pGrid);
+		DataGridCell *GetDataGridSelectedCell(DesignObj_DataGrid *pGrid) { return NULL; }
 
 		void GotoMainMenu();
 

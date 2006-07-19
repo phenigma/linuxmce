@@ -331,6 +331,16 @@ void OrbiterRenderer::OnReload()
 	if( !OrbiterLogic()->m_pObj_Highlighted )
 		return;
 
+	CallBackData *pCallBackData = m_pOrbiter->m_pScreenHandler->m_mapCallBackData_Find(cbObjectHighlighted);
+	if(pCallBackData)
+	{
+		ObjectInfoBackData *pObjectData = (ObjectInfoBackData *)pCallBackData;
+		pObjectData->m_pObj = OrbiterLogic()->m_pObj_Highlighted;
+		pObjectData->m_PK_DesignObj_SelectedObject = OrbiterLogic()->m_pObj_Highlighted->m_iBaseObjectID;
+	}
+	if(m_pOrbiter->ExecuteScreenHandlerCallback(cbObjectHighlighted))
+		return;
+
 	OrbiterLogic()->ExecuteCommandsInList( &OrbiterLogic()->m_pObj_Highlighted->m_Action_HighlightList, 
 		OrbiterLogic()->m_pObj_Highlighted, smHighlight, 0, 0 );
 
@@ -1016,6 +1026,10 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 		}
 	}
 
+	m_vectObjs_NeedRedraw.clear();
+	m_vectTexts_NeedRedraw.clear();
+	nd.Release();
+
 	if(NULL != OrbiterLogic()->m_pObj_Highlighted && (bRehighlight || OrbiterLogic()->m_pObj_Highlighted != OrbiterLogic()->m_pObj_Highlighted_Last))
 	{
 		if(OrbiterLogic()->m_pObj_Highlighted->m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED && OrbiterLogic()->m_pObj_Highlighted->m_vectHighlightedGraphic.size())
@@ -1030,9 +1044,6 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 			DoHighlightObject();
 		}
 	}
-
-	m_vectObjs_NeedRedraw.clear();
-	m_vectTexts_NeedRedraw.clear();
 	EndPaint();
 }
 //-----------------------------------------------------------------------------------------------------

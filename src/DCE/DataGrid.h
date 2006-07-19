@@ -23,7 +23,7 @@ namespace DCE
 	class DataGridCellSerializableData
 	{
 	public:
-		unsigned long m_GraphicLength, m_MessageLength, m_TextLength, m_ValueLength, m_ImagePathLength;
+		unsigned long m_GraphicLength, m_MessageLength, m_TextLength, m_ValueLength, m_ImagePathLength, m_NumAttributes, m_AttributesLength;
 		int m_AltColor;
 		enum eGraphicFormat m_GraphicFormat;
 		bool m_bSelectable;
@@ -38,6 +38,7 @@ namespace DCE
 		Message *m_pMessage;
 		PlutoGraphic *m_pGraphic;
 		char *m_pGraphicData, *m_Text, *m_Value, *m_ImagePath;
+		map<string,string> m_mapAttributes;
 
 		// Unique value REQUIRED for multi-select lists.
 		DataGridCell(string Text, string Value="");

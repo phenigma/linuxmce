@@ -174,6 +174,9 @@ public:
 
 	virtual void SCREEN_New_Phone_Enter_Number(long PK_Screen, int iPK_Device, string sPhoneName);
 	virtual bool New_Phone_Enter_Number_DeviceConfigured(CallBackData *pData);
+	virtual void SCREEN_Add_Software(long PK_Screen);
+	bool AddSoftware_ObjectHighlighted(CallBackData *pData);
+	bool AddSoftware_GridSelected(CallBackData *pData);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

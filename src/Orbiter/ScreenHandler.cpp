@@ -1114,3 +1114,59 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 		"" //do nothing
 		);
 }
+
+/*virtual*/ void ScreenHandler::SCREEN_Add_Software(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_Add_Software(PK_Screen);
+	RegisterCallBack(cbObjectHighlighted, (ScreenHandlerCallBack) &ScreenHandler::AddSoftware_ObjectHighlighted,	new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::AddSoftware_GridSelected, new DatagridCellBackData());
+}
+
+bool ScreenHandler::AddSoftware_ObjectHighlighted(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_dgInstallableApps_CONST )
+	{
+		NeedToRender render2( m_pOrbiter, "ScreenHandler::AddSoftware_ObjectHighlighted" );  // Redraw anything that was changed by this command
+		m_pOrbiter->Renderer()->RenderTextAsync( m_pOrbiter->FindText( (DesignObj_Orbiter *) pObjectInfoData->m_pObj->m_pParentObject,TEXT_selected_add_software_CONST ) );
+
+//		DataGridCell *pCell = m_pOrbiter->GetDataGridHighlightCell( (DesignObj_DataGrid *) pObjectInfoData->m_pObj);
+//		m_pOrbiter->CMD_Refresh("");
+	}
+	return false; // Keep processing it
+}
+
+bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
+	if( pCellInfoData->m_pDataGridCell )
+	{
+		int PK_Software = atoi(pCellInfoData->m_pDataGridCell->GetValue());
+		string sText,sCommand;
+		if( PK_Software>0 )
+		{
+			sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_Add_Software_CONST];
+			sCommand = StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn)
+				+ " 1 " + TOSTRING(COMMAND_Add_Software_CONST) + " " + TOSTRING(COMMANDPARAMETER_PK_Software_CONST)
+				+ " " + pCellInfoData->m_pDataGridCell->GetValue() + " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " "
+				+ StringUtils::itos(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector) + " " TOSTRING(COMMANDPARAMETER_TrueFalse_CONST) "=";
+		}
+		else if( PK_Software<0 )
+		{
+			sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_Add_Software_CONST];
+			sCommand = StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn)
+				+ " 1 " + TOSTRING(COMMAND_Add_Software_CONST) + " " + TOSTRING(COMMANDPARAMETER_PK_Software_CONST)
+				+ " " + StringUtils::itos(PK_Software*-1) + " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " "
+				+ StringUtils::itos(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector) + " " TOSTRING(COMMANDPARAMETER_TrueFalse_CONST) "=";
+		}
+		else
+			return false; // No software was selected
+
+		DataGridCell *pCell = pCellInfoData->m_pDesignObj_DataGrid->m_pDataGridTable ? pCellInfoData->m_pDesignObj_DataGrid->m_pDataGridTable->GetData( 0, pCellInfoData->m_Row ) : NULL;
+		if( pCell )
+			sText+="\n" + pCell->m_mapAttributes["Title"];
+		DisplayMessageOnOrbiter(0,sText,false,"30",false,m_pOrbiter->m_mapTextString[TEXT_YES_CONST],sCommand,m_pOrbiter->m_mapTextString[TEXT_NO_CONST]);
+	}
+
+	return false; // Keep processing it
+}

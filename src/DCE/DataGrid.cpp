@@ -56,7 +56,7 @@ void DataGridCell::Initialize()
 	m_Text = NULL;
 	m_Value = NULL;
 	m_ImagePath = NULL;
-	m_GraphicLength = m_MessageLength = m_TextLength = m_ValueLength = m_ImagePathLength = 0;
+	m_GraphicLength = m_MessageLength = m_TextLength = m_ValueLength = m_ImagePathLength = m_NumAttributes = m_AttributesLength = 0;
 	m_GraphicFormat = GR_UNKNOWN;
 	m_pGraphic = NULL;
 }
@@ -153,6 +153,17 @@ DataGridCell::DataGridCell(int Size, char *Data)
 		memcpy(m_ImagePath, Data, m_ImagePathLength);
 		m_ImagePath[m_ImagePathLength]=0;
 	}
+	if (m_NumAttributes)
+	{
+		for(int i=0;i<m_NumAttributes;++i)
+		{
+			char *pAttribute = Data;
+			Data += strlen(pAttribute) +1;
+			char *pValue = Data;
+			Data += strlen(pValue) +1;
+			m_mapAttributes[pAttribute]=pValue;
+		}
+	}
 }
 
 void DataGridCell::SetImage(char *Data, int Length, enum eGraphicFormat Format)
@@ -192,7 +203,12 @@ void DataGridCell::ToData(unsigned long &Size, char* &Data)
 	if (m_pMessage)
 		m_pMessage->ToData(m_MessageLength, MessageData);
 
-	Size = sizeof(DataGridCellSerializableData)+m_ImagePathLength+m_TextLength+m_ValueLength+m_GraphicLength+m_MessageLength;
+	m_NumAttributes=(int) m_mapAttributes.size();
+	m_AttributesLength=0;
+	for(map<string,string>::iterator it=m_mapAttributes.begin();it!=m_mapAttributes.end();++it)
+		m_AttributesLength += (int) it->first.size() + (int) it->second.size() + 2;
+
+	Size = sizeof(DataGridCellSerializableData)+m_ImagePathLength+m_TextLength+m_ValueLength+m_GraphicLength+m_MessageLength+m_AttributesLength;
 	Data = new char[Size];
 	char *Datap = Data;
 	memcpy(Datap, (DataGridCellSerializableData *)this, sizeof(DataGridCellSerializableData));
@@ -222,6 +238,17 @@ void DataGridCell::ToData(unsigned long &Size, char* &Data)
 		memcpy(Datap, m_ImagePath, m_ImagePathLength);
 		Datap+=m_ImagePathLength;
 	}
+	if (m_NumAttributes)
+	{
+		for(map<string,string>::iterator it=m_mapAttributes.begin();it!=m_mapAttributes.end();++it)
+		{
+			strcpy(Datap, it->first.c_str());
+			Datap+=it->first.size()+1;
+			strcpy(Datap, it->second.c_str());
+			Datap+=it->second.size()+1;
+		}
+	}
+
 	if(NULL != MessageData)
 	{
 		delete[] MessageData;

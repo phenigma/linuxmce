@@ -9381,6 +9381,46 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_Add_Software : public PreformedCommand
+	{
+	public:
+		SCREEN_Add_Software(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "239" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Add_Software_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Add_Software_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "239" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Add_Software_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Add_Software_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "239" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Add_Software_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Add_Software_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "239" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9633,6 +9673,7 @@ namespace DCE
 		virtual void SCREEN_Wizard_Done(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_House_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Media_Player_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Add_Software(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -11060,6 +11101,12 @@ namespace DCE
 					string sText = pMessage->m_mapParameters[9];
 					string sCommand_Line = pMessage->m_mapParameters[137];
 					SCREEN_Media_Player_Setup_Popup_Message(nPK_Screen, sText, sCommand_Line);
+					break;
+				}
+				case 239:
+				{
+					ResetCallBacks();
+					SCREEN_Add_Software(nPK_Screen);
 					break;
 				}
 

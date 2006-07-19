@@ -205,7 +205,7 @@ public:
 	virtual void CMD_Get_Available_Storage_Device(int iSize,int *iPK_Device,string *sDescription,string *sPath,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_ControlledVia,string sBlock_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Unused_Serial_Ports(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Add_Software(int iPK_Device,int iPK_Software,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iPK_Software,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -892,8 +892,9 @@ public:
 					{
 						string sCMD_Result="OK";
 						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+						bool bTrueFalse=(pMessage->m_mapParameters[COMMANDPARAMETER_TrueFalse_CONST]=="1" ? true : false);
 						int iPK_Software=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Software_CONST].c_str());
-						CMD_Add_Software(iPK_Device,iPK_Software,sCMD_Result,pMessage);
+						CMD_Add_Software(iPK_Device,bTrueFalse,iPK_Software,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -910,7 +911,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Add_Software(iPK_Device,iPK_Software,sCMD_Result,pMessage);
+								CMD_Add_Software(iPK_Device,bTrueFalse,iPK_Software,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

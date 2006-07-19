@@ -1067,6 +1067,9 @@
 #define TEXT_which_room_is_sensor_in_CONST 1780
 #define TEXT_What_call_sensor_CONST 1781
 #define TEXT_what_type_of_sensor_CONST 1782
+#define TEXT_selected_add_software_CONST 1783
+#define TEXT_Confirm_Add_Software_CONST 1784
+#define TEXT_Confirm_delete_software_CONST 1785
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
