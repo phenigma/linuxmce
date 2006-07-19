@@ -107,6 +107,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 		case GR_TIF:
 		case GR_PNG:
 		case GR_BMP:
+		case GR_OCG:
 			{
 				size_t size = 0;
 				char *pData = FileUtils::ReadFileIntoBuffer(sFileName.c_str(), size);

@@ -26,6 +26,8 @@
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
+				ObjectFile="Debug_OpenGL/"
+				ProgramDataBaseFileName="Debug_OpenGL/vc70.pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"/>

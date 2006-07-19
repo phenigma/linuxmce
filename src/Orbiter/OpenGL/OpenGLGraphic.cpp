@@ -4,6 +4,8 @@
 
 #include "GLMathUtils.h"
 #include "DCE/Logger.h"
+#include "../OrbiterRenderer.h"
+#include "../Orbiter.h"
 
 #include <iostream>
 
@@ -171,8 +173,23 @@ bool OpenGLGraphic::IsEmpty()
 
 bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 {
-	SDL_RWops * rw = SDL_RWFromMem(pData, int(iSize));
-	LocalSurface = IMG_Load_RW(rw, 1); // rw is freed here
+	if(m_GraphicFormat == GR_OCG)
+	{
+		string sErrorMessage = 
+			"Cannot load OCG files in Orbiter. "
+			"Please uncheck 'Use OCG' device data for this device (" + 
+			StringUtils::ltos(m_pOrbiterRenderer->OrbiterLogic()->m_dwPK_Device) + ").";
+
+		g_pPlutoLogger->Write(LV_CRITICAL, sErrorMessage.c_str());
+		m_pOrbiterRenderer->PromptUser(sErrorMessage.c_str(), 100);
+		exit(1);
+		return false;
+	}
+	else
+	{
+		SDL_RWops * rw = SDL_RWFromMem(pData, int(iSize));
+		LocalSurface = IMG_Load_RW(rw, 1); // rw is freed here
+	}
 
 	if(!LocalSurface)
 		return false;
