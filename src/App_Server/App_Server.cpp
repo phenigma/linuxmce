@@ -83,14 +83,24 @@ void sh(int i) /* signal handler */
 	int status = 0;
 	pid_t pid = 0;
 
-	pid = wait(&status);
-
-	if (g_pAppServer)
+	// wait for all children that exited, not just one of them
+	// why: SIGCHLD is a POSIX standard signal, thus if a few children die very fast, we don't get one SIGCHLD per child
+	//      we only get the first one, and if a child dies while we're in the handler, only one instance is queued
+	//      not doing this, we risk leaving zombies behind in certain high-load situations
+	// thanks go to the RLUG mailing list for the pointer
+	while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
 	{
-		// Send ourselves a message that calls the ApplicationExited function
-		// We don't call it directly to avoid a deadlock if the SIGCHLD signal was received while in ProcessUtils::SpawnApplication
-		DCE::CMD_Application_Exited CMD_Application_Exited(g_pAppServer->m_dwPK_Device, g_pAppServer->m_dwPK_Device, pid, WEXITSTATUS(status));
-		g_pAppServer->SendCommand(CMD_Application_Exited);
+		if (g_pAppServer)
+		{
+			int ExitStatus = WEXITSTATUS(status);
+			int Signal = WIFSIGNALED(status) ? WTERMSIG(status) : 0;
+			
+			g_pPlutoLogger->Write(LV_STATUS, "SIGCHLD -- PID %d; Return code: %d; Signal: %d", pid, ExitStatus, Signal);
+			// Send ourselves a message that calls the ApplicationExited function
+			// We don't call it directly to avoid a deadlock if the SIGCHLD signal was received while in ProcessUtils::SpawnApplication
+			DCE::CMD_Application_Exited CMD_Application_Exited(g_pAppServer->m_dwPK_Device, g_pAppServer->m_dwPK_Device, pid, ExitStatus);
+			g_pAppServer->SendCommand(CMD_Application_Exited);
+		}
 	}
 }
 #endif
