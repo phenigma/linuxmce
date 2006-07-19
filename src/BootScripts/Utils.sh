@@ -168,9 +168,7 @@ GetVideoDriver()
 		return 0
 	fi
 	
-	lshwd -ox >/dev/null
-	local VideoDriver="$(grep 'Driver' /tmp/xinfo | awk -F'"' '{print $2}')"
-	rm /tmp/xinfo
+	local VideoDriver=$(lshwd | grep ' VGA ' | sed 's/^.*(\([^()]*\)).*$/\1/')
 	case "$VideoDriver" in
 		nv) PackageIsInstalled nvidia-glx && VideoDriver="nvidia" ;;
 		radeon|ati) PackageIsInstalled fglrx-driver && VideoDriver="fglrx" ;;
