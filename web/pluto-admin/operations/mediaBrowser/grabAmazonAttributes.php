@@ -11,7 +11,7 @@ function grabAmazonAttributes($output,$mediadbADO,$dbADO) {
 		if(isset($_POST['grabBtn'])){
 			$out=processGrabAttributes($mediadbADO);
 		}else{
-			$cmd='wget \''.$url.'\' -O -';
+			$cmd='wget \''.$url.'\' --header=\'User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4\' -O -';
 			$html=exec_batch_command($cmd,1);	
 			
 			$out=grabAttributesForm($html,$mediadbADO);
@@ -20,7 +20,7 @@ function grabAmazonAttributes($output,$mediadbADO,$dbADO) {
 		$output->setBody($out);
 		$output->output();	
 	}else{
-		$cmd='wget \''.$url.'\' -O -';
+		$cmd='wget \''.$url.'\' --header=\'User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4\' -O -';
 		$html=exec_batch_command($cmd,1);	
 		
 		
@@ -52,6 +52,14 @@ function getCoverArt($out){
 }
 
 function grabAttributes($string){
+	$attributes=array();
+
+	// extract page title as attribute
+	$hasTitle=preg_match('/<b class=\"sans\">(.*?)<\/b>/s',$string,$tmatches);
+	if($hasTitle!=0 && @count($tmatches)>0){
+		$attributes['Title']=$tmatches[1];
+	}
+	
 	
 	$atribs=preg_match('/<b class=h1>Product Details<\/b>(.*?)<\/ul>/s',$string,$matches);
 
@@ -73,7 +81,6 @@ function grabAttributes($string){
 	
 	$dataParts=explode("<li",$dataChunk);
 
-	$attributes=array();
 	for($i=0;$i<count($dataParts);$i++){
 		$isAttribute=preg_match('/<b\>(.*?)<\/b\>/s',$dataParts[$i],$amatches);
 		if($isAttribute>0){
@@ -88,10 +95,22 @@ function grabAttributes($string){
 			$attributeValue=str_replace($attributeType.':','',$attributeValue);
 			$attributeValue=str_replace($attributeType,'',$attributeValue);
 			
-			$attributes[$attributeType]=trim($attributeValue);
+			// if the attribute is 'Actors' or 'Starring' I'll break it after comas, and remove 'See more'
+			if($attributeType=='Actors' || $attributeType=='Starring'){
+				$actors=explode(',',strip_tags($attributeValue));
+				$cleanActors=array();
+				foreach ($actors AS $actor){
+					if($actor!='See more'){
+						$cleanActors[]=trim($actor);
+					}
+				}
+				$attributes[$attributeType]=$cleanActors;
+			}else{
+				$attributes[$attributeType]=trim($attributeValue);
+			}
 		}
 	}
-	
+
 	return $attributes;
 }
 
@@ -212,12 +231,25 @@ function grabAttributesForm($html,$mediadbADO){
 				</tr>';
 		$pos=0;
 		foreach ($attributes AS $type=>$value){
-		$out.='
-				<input type="hidden" name="attribute_value_'.$pos.'" value="'.urlencode($value).'">
+			$out.='<input type="hidden" name="attribute_value_'.$pos.'" value="'.urlencode(serialize($value)).'">';
+			if(!is_array($value)){
+				$out.='
 				<tr>
 					<td><input type="checkbox" name="attribute_type_'.$pos.'" value="'.$type.'" checked> <B>'.$type.'</B></td>
 					<td>'.$value.'</td>
 				</tr>';		
+			}else{
+				$subpos=0;
+				$out.='<input type="hidden" name="attribute_type_'.$pos.'_array" value="'.$type.'">';
+				foreach ($value AS $actor){
+					$out.='
+				<tr>
+					<td><input type="checkbox" name="attribute_type_'.$pos.'_'.$subpos.'" value="'.$type.'" checked> <B>'.$type.'</B></td>
+					<td>'.$actor.'</td>
+				</tr>';		
+					$subpos++;
+				}
+			}
 			$pos++;
 		}
 	}
@@ -258,7 +290,7 @@ function processGrabAttributes($mediadbADO){
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editMediaFile.lang.php');
-	
+
 	$fileID=(int)$_POST['fileID'];
 	$import_cover_art=@$_POST['import_cover_art'];
 	$extension=strtolower(str_replace('.','',strrchr($import_cover_art,".")));
@@ -290,26 +322,54 @@ function processGrabAttributes($mediadbADO){
 	}
 	
 	$existingAttributeTypes=getAssocArray('AttributeType','Description','PK_AttributeType',$mediadbADO);
-	
 	$attributes_count=(int)$_POST['attributes_count'];
 	for($i=0;$i<$attributes_count;$i++){
 		if(isset($_POST['attribute_type_'.$i])){
 			$atype=$_POST['attribute_type_'.$i];
-			$avalue=urldecode($_POST['attribute_value_'.$i]);
+			$avalue=unserialize(urldecode($_POST['attribute_value_'.$i]));
+
+			echo $atype.': '.$avalue.'<br>';
 			if(in_array($atype,array_keys($existingAttributeTypes))){
 				$attributeType=$existingAttributeTypes[$atype];
 			}else{
 				$mediadbADO->Execute('INSERT INTO AttributeType (Description) VALUES (?)',array($atype));
 				$attributeType=$mediadbADO->Insert_ID();
 			}
+			
 		
 			$mediadbADO->Execute('INSERT INTO Attribute (FK_AttributeType,Name) VALUES (?,?)',array($attributeType,$avalue));
 			$aID=$mediadbADO->Insert_ID();
 				
 			$mediadbADO->Execute('INSERT INTO File_Attribute (FK_Attribute,FK_File) VALUES (?,?)',array($aID,$fileID));
+		
+		}else{
+			if(@isset($_POST['attribute_type_'.$i.'_array'])){
+				// array
+				$avalue=unserialize(urldecode($_POST['attribute_value_'.$i]));
+				$atype=$_POST['attribute_type_'.$i.'_array'];
+
+				if(in_array($atype,array_keys($existingAttributeTypes))){
+					$attributeType=$existingAttributeTypes[$atype];
+				}else{
+					$mediadbADO->Execute('INSERT INTO AttributeType (Description) VALUES (?)',array($atype));
+					$attributeType=$mediadbADO->Insert_ID();
+				}				
+				
+				for($x=0;$x<count($avalue);$x++){
+					if(isset($_POST['attribute_type_'.$i.'_'.$x])){
+						
+						echo $atype.': '.$avalue[$x].'<br>';
+					
+						$mediadbADO->Execute('INSERT INTO Attribute (FK_AttributeType,Name) VALUES (?,?)',array($attributeType,$avalue[$x]));
+						$aID=$mediadbADO->Insert_ID();
+				
+						$mediadbADO->Execute('INSERT INTO File_Attribute (FK_Attribute,FK_File) VALUES (?,?)',array($aID,$fileID));
+					
+					}
+				}
+			}
 		}
 	}
-	
 	
 	$tracks_count=$_POST['tracks_count'];
 	for($i=0;$i<$tracks_count;$i++){

@@ -319,8 +319,10 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 						
 			if(file_exists($oldFilePath)){
 				if($path==$oldPath){
-					if($fileName!=$oldFilename)
-						rename($oldFilePath,$newFilePath);
+					if($fileName!=$oldFilename){
+						$isRenamed=web_rename($oldFilePath,$newFilePath);
+						$error=($isRenamed==0)?'Rename failed':'';
+					}
 				}
 				else{
 					copy($oldFilePath,$newFilePath);
@@ -338,7 +340,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			
 			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"';
 			exec_batch_command($cmd);
-			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_MEDIA_FILE_UPDATED_CONST.': '.$cmd);			
+			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_MEDIA_FILE_UPDATED_CONST.': '.$cmd.'&err='.@$error);			
 			exit();
 		}
 		
@@ -407,3 +409,9 @@ function addAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO){
 	
 	return $cmd.'<br>'.$TEXT_RESPONSE_CONST.': '.$suffix;
 }
+
+function web_rename($source, $destination){
+	$cmd='sudo -u root /usr/pluto/bin/Web_Rename.sh "'.$source.'" "'.$destination.'"';
+	return exec_batch_command($cmd);
+}
+?>

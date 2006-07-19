@@ -88,13 +88,19 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 					<tr>
 						<td colspan="2"><B>'.$TEXT_FILES_ON_DISK_CONST.'</B></td>
 					</tr>';
-			$queryDBFiles='SELECT * FROM File WHERE Path=?';
+			$queryDBFiles='
+				SELECT DISTINCT File.*,count(FK_Picture) AS picsNo
+				FROM File 
+				LEFT JOIN Picture_File ON FK_File=PK_File
+				WHERE Path=?
+				GROUP BY FK_File';
 			$rs=$mediadbADO->Execute($queryDBFiles,$path);
 			$dbFiles=array();
 			$dbPKFiles=array();
 			while($row=$rs->FetchRow()){
 				$dbFiles[]=$row['Filename'];
 				$dbPKFiles[]=$row['PK_File'];
+				$dbPicsNoFiles[]=$row['picsNo'];
 			}
 			if(count($physicalFiles)==0)
 				$out.='	<tr>
@@ -121,8 +127,9 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 							$addToDB='<td>&nbsp;</td>';
 						}
 					}
+					$coverArtIcon=(@$dbPicsNoFiles[$key]!=0)?'&nbsp;<img src="include/images/coverart.gif" border="0" style="vertical-align:middle;">':'';
 					$out.='	<tr style="background-color:'.(($physicalkey%2==0)?'#EEEEEE':'#EBEFF9').';">
-								<td '.(((@$inDB==1)?'colspan="2"':'')).'>'.((@$inDB==1)?'<img src=include/images/sync.gif align=middle border=0>':'<img src=include/images/disk.gif align=middle border=0>').' '.((@$inDB==1)?'<a href="index.php?section=editMediaFile&fileID='.$dbPKFiles[$key].'"><B>'.$filename.'</B></a>':'<B>'.$filename.'</B> '.$addToDB).'</td>
+								<td '.(((@$inDB==1)?'colspan="2"':'')).'>'.((@$inDB==1)?'<img src=include/images/sync.gif border=0 style="vertical-align:middle;">':'<img src=include/images/disk.gif border=0 style="vertical-align:middle;">').' '.((@$inDB==1)?'<a href="index.php?section=editMediaFile&fileID='.$dbPKFiles[$key].'"><B>'.$filename.'</B></a> '.$coverArtIcon:'<B>'.$filename.'</B> '.$addToDB).'</td>
 							</tr>';
 						if(@$inDB==1){	
 							$queryAttributes='
