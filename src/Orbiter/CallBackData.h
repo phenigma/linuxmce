@@ -2,6 +2,14 @@
 #define __CALLBACK_DATA_H__
 
 #include "SerializeClass/ShapesColors.h"
+
+namespace DCE
+{
+	class DataGridCell;
+};
+
+class DesignObj_DataGrid;
+using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
 class CallBackData
 {
