@@ -100,6 +100,7 @@ TBezierWindow::TBezierWindow(MeshFrame* ParentContext,
 
 TBezierWindow::~TBezierWindow() {
 	Context->RemoveChild(Frame);
+	Frame->CleanUp();
 	delete Frame;
 }
 

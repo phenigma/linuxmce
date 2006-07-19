@@ -35,6 +35,12 @@ OpenGL3DEngine::OpenGL3DEngine()
 
 OpenGL3DEngine::~OpenGL3DEngine()
 {
+	if(OldLayer)
+		OldLayer->CleanUp();
+	if(CurrentLayer)
+		CurrentLayer->CleanUp();
+	delete OldLayer;
+	delete CurrentLayer;
 	pthread_mutex_destroy(&SceneMutex.mutex);
 }
 
@@ -116,11 +122,10 @@ void OpenGL3DEngine::NewScreen()
 	
 	if(NULL != OldLayer)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "NewScreen, removing stuff...");
 		Desktop.RemoveChild(OldLayer);
+		OldLayer->CleanUp();
 		delete OldLayer;
 	}
-
 	OldLayer = CurrentLayer;
 	
 	StartTick = GetTick();

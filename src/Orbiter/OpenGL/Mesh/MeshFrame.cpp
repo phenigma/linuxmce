@@ -15,15 +15,14 @@ MeshFrame::MeshFrame(MeshContainer* Mesh)
 
 MeshFrame::~MeshFrame(void)
 {
-	CleanUp();
 }
 
 /*virtual*/ void MeshFrame::CleanUp()
 {
 	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::cleanup %p", this);	
-
 	delete Mesh;
 	Mesh = NULL;
+
 	std::vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); Child++)
 	{
