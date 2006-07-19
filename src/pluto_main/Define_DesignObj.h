@@ -2201,6 +2201,7 @@
 #define DESIGNOBJ_butAlarmName2_CONST 5143
 #define DESIGNOBJ_dgUsersMobilePhone_CONST 5144
 #define DESIGNOBJ_dgInstallableAppsDetails_CONST 5145
+#define DESIGNOBJ_butRefresh_CONST 5146
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
