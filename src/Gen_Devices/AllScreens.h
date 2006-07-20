@@ -3093,10 +3093,10 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_NewPlugAndPlayDevice : public PreformedCommand
+	class SCREEN_Pick_Room_For_Device : public PreformedCommand
 	{
 	public:
-		SCREEN_NewPlugAndPlayDevice(long DeviceIDFrom, long DeviceIDTo,
+		SCREEN_Pick_Room_For_Device(long DeviceIDFrom, long DeviceIDTo,
 			int iPK_Device, string sDescription, string ssComments)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
@@ -3105,10 +3105,10 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_NewPlugAndPlayDevice_DL : public PreformedCommand
+	class SCREEN_Pick_Room_For_Device_DL : public PreformedCommand
 	{
 	public:
-		SCREEN_NewPlugAndPlayDevice_DL(long DeviceIDFrom, string sDeviceIDTo,
+		SCREEN_Pick_Room_For_Device_DL(long DeviceIDFrom, string sDeviceIDTo,
 			int iPK_Device, string sDescription, string ssComments)
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
@@ -3117,10 +3117,10 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_NewPlugAndPlayDevice_DT : public PreformedCommand
+	class SCREEN_Pick_Room_For_Device_DT : public PreformedCommand
 	{
 	public:
-		SCREEN_NewPlugAndPlayDevice_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+		SCREEN_Pick_Room_For_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
 			int iPK_Device, string sDescription, string ssComments)
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
@@ -3129,10 +3129,10 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_NewPlugAndPlayDevice_Cat : public PreformedCommand
+	class SCREEN_Pick_Room_For_Device_Cat : public PreformedCommand
 	{
 	public:
-		SCREEN_NewPlugAndPlayDevice_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+		SCREEN_Pick_Room_For_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
 			int iPK_Device, string sDescription, string ssComments)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
@@ -9521,7 +9521,7 @@ namespace DCE
 		virtual void SCREEN_GenericTwoButtonQuestion(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TryCodes(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_ScreenSaver(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_NewPlugAndPlayDevice(long PK_Screen, int iPK_Device, string sDescription, string ssComments){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Pick_Room_For_Device(long PK_Screen, int iPK_Device, string sDescription, string ssComments){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Power(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_GenericDvdRemote(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_ViewPlaylist(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -10156,7 +10156,7 @@ namespace DCE
 					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
 					string sDescription = pMessage->m_mapParameters[163];
 					string ssComments = pMessage->m_mapParameters[164];
-					SCREEN_NewPlugAndPlayDevice(nPK_Screen, iPK_Device, sDescription, ssComments);
+					SCREEN_Pick_Room_For_Device(nPK_Screen, iPK_Device, sDescription, ssComments);
 					break;
 				}
 				case 76:

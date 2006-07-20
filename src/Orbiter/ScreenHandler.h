@@ -113,7 +113,7 @@ public:
 		string sPrivate, string sPublic, string sCaption);
 	virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, string sDescription);
 	virtual void SCREEN_WhatModelMobileOrbiter(long PK_Screen, int iPK_Users, string sMac_address);
-	virtual void SCREEN_NewPlugAndPlayDevice(long PK_Screen, int iPK_Device, string sDescription, 
+	virtual void SCREEN_Pick_Room_For_Device(long PK_Screen, int iPK_Device, string sDescription, string ssComments)(long PK_Screen, int iPK_Device, string sDescription, 
 		string sComments);
 	virtual void SCREEN_SensorsNotReady(long PK_Screen, string sDescription);
 	virtual void SCREEN_ModeChanged(long PK_Screen, string sPK_HouseMode, string sHouseModeTime, 

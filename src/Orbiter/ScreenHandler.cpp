@@ -499,13 +499,13 @@ void ScreenHandler::SCREEN_WhatModelMobileOrbiter(long PK_Screen, int iPK_Users,
 	ScreenHandlerBase::SCREEN_WhatModelMobileOrbiter(PK_Screen, iPK_Users, sMac_address);
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_NewPlugAndPlayDevice(long PK_Screen, int iPK_Device,
+void ScreenHandler::SCREEN_Pick_Room_For_Device(long PK_Screen, int iPK_Device,
 												   string sDescription, string sComments)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sDescription);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sComments);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, StringUtils::ltos(iPK_Device));
-	GotoScreen(SCREEN_NewPlugAndPlayDevice_CONST,StringUtils::ltos(iPK_Device),true,true);
+	GotoScreen(SCREEN_Pick_Room_For_Device_CONST,StringUtils::ltos(iPK_Device),true,true);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_SensorsNotReady(long PK_Screen, string sDescription)

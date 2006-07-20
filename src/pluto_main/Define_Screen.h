@@ -75,7 +75,7 @@
 #define SCREEN_GenericTwoButtonQuestion_CONST 72
 #define SCREEN_TryCodes_CONST 73
 #define SCREEN_ScreenSaver_CONST 74
-#define SCREEN_NewPlugAndPlayDevice_CONST 75
+#define SCREEN_Pick_Room_For_Device_CONST 75
 #define SCREEN_Power_CONST 76
 #define SCREEN_GenericDvdRemote_CONST 77
 #define SCREEN_ViewPlaylist_CONST 78
