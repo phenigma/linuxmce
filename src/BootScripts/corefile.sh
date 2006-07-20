@@ -7,13 +7,12 @@ Kmaj=$(echo "$Kver" | cut -d. -f1)
 Kmin=$(echo "$Kver" | cut -d. -f2)
 
 if [ "$Kmaj.$Kmin" == "2.6" ]; then
-	if [[ ! -d /home/coredump ]] ;then
+	if [[ ! -d /home/coredump/$PK_Device ]] ;then
 		mkdir -p "/home/coredump/$PK_Device"
 	fi
 
-	if [[ ! -s /usr/pluto/coredump ]] ;then
-		ln -s "/home/coredump/$PK_Device" /usr/pluto/coredump
-	fi
+	rm -f /usr/pluto/coredump	
+	ln -s "/home/coredump/$PK_Device" /usr/pluto/coredump
 
 	echo "/home/coredump/$PK_Device/core_%e_%t_%s" >/proc/sys/kernel/core_pattern
 elif [ "$Kmaj.$Kmin" == "2.4" ]; then
