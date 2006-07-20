@@ -87,7 +87,9 @@ void Generic_Serial_Device::ReceivedCommandForChild(DeviceData_Impl *pDeviceData
 		return;
 	}
 
-	DispatchMessage(pMessage);
+	g_pPlutoLogger->Write(LV_WARNING, "Message %d NOT processed.", pMessage->m_dwID);
+// Eugen C. - see MessageTranslationManager::ProcessReplicator
+// DispatchMessage(pMessage);
 }
 
 /*
@@ -106,8 +108,10 @@ void Generic_Serial_Device::ReceivedUnknownCommand(string &sCMD_Result,Message *
 	    g_pPlutoLogger->Write(LV_STATUS, "Message processed by Translator.");
 		return;
 	}
-	
-	DispatchMessage(pMessage);
+
+	g_pPlutoLogger->Write(LV_WARNING, "Message %d NOT processed.", pMessage->m_dwID);
+// Eugen C. - see MessageTranslationManager::ProcessReplicator
+// DispatchMessage(pMessage);
 }
 
 //<-dceag-sample-b->!
@@ -146,12 +150,25 @@ void Generic_Serial_Device::Transmit(const char *pData,int iSize)
 }
 
 void Generic_Serial_Device::DispatchMessage(Message* pmsg) {
+	if( pmsg == NULL )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Generic_Serial_Device::DispatchMessage( NULL )");
+		return;
+	}
+	
 	g_pPlutoLogger->Write(LV_STATUS, "Routing Message %d to %d...", pmsg->m_dwID, pmsg->m_dwPK_Device_To);
 
 	RubyIOManager* pmanager = RubyIOManager::getInstance();
 	DeviceData_Base *pDeviceData_Base = 
 			m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pmsg->m_dwPK_Device_To);
-	pmanager->RouteMessage(pDeviceData_Base, pmsg);
+	if( pDeviceData_Base != NULL )
+	{
+		pmanager->RouteMessage(pDeviceData_Base, pmsg);
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Routing Message for Device_To %d which is NULL", pmsg->m_dwPK_Device_To);
+	}
 }
 
 void Generic_Serial_Device::RunThread() {

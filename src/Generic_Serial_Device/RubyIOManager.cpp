@@ -273,12 +273,13 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
 		routeToDevice = ptmpdevdata->m_dwPK_Device;
 	}
 		
-    g_pPlutoLogger->Write(LV_STATUS, "Routing message to device %d.", routeToDevice);
 	mmsg_.Lock();
 	std::pair<unsigned, Message*> msg(routeToDevice, pMessage);
 	msgqueue_.push_back(msg);
+    g_pPlutoLogger->Write(LV_STATUS, "Routing message ID=%d to device %d.", pMessage->m_dwID, routeToDevice);
 	mmsg_.Unlock();
 	emsg_.Signal();
+	
 	time_t tTimeout=time(NULL)+DEFAULT_RESPONSE_TIME;
 	while( tTimeout>time(NULL) )
 	{
