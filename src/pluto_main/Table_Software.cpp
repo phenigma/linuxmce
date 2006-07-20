@@ -825,8 +825,8 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 if (is_null[21])
 return "NULL";
 
-char *buf = new char[7];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Installation_status.c_str(), (unsigned long) min((size_t)3,m_Installation_status.size()));
+char *buf = new char[21];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Installation_status.c_str(), (unsigned long) min((size_t)10,m_Installation_status.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
