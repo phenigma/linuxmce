@@ -150,6 +150,7 @@ void OpenGL3DEngine::Setup()
 	GL.Setup();
 	Compose = GLEffect2D::LayersCompose::Instance();
 	Compose->Setup(GL.Width, GL.Height);
+	CurrentLayer = new MeshFrame();
 }
 
 void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
