@@ -2373,15 +2373,15 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 
 			if( iPK_Orbiter )
 			{
-				DCE::SCREEN_NewPlugAndPlayDevice SCREEN_NewPlugAndPlayDevice(m_dwPK_Device,iPK_Orbiter,*iPK_Device,
+				DCE::SCREEN_Pick_Room_For_Device SCREEN_Pick_Room_For_Device(m_dwPK_Device,iPK_Orbiter,*iPK_Device,
 					pRow_Device->Description_get(),pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
-				SendCommand(SCREEN_NewPlugAndPlayDevice);
+				SendCommand(SCREEN_Pick_Room_For_Device);
 			}
 			else
 			{
-				DCE::SCREEN_NewPlugAndPlayDevice_DL SCREEN_NewPlugAndPlayDevice_DL(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,*iPK_Device,
+				DCE::SCREEN_Pick_Room_For_Device_DL SCREEN_Pick_Room_For_Device_DL(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,*iPK_Device,
 					pRow_Device->Description_get(),pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
-				SendCommand(SCREEN_NewPlugAndPlayDevice_DL);
+				SendCommand(SCREEN_Pick_Room_For_Device_DL);
 			}
 		}
 		else 
@@ -2476,10 +2476,10 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 	{
 		if( sName.size()==0 )
 		{
-			DCE::SCREEN_NewPlugAndPlayDevice SCREEN_NewPlugAndPlayDevice(m_dwPK_Device,pMessage->m_dwPK_Device_From,iPK_Device,
+			DCE::SCREEN_Pick_Room_For_Device SCREEN_Pick_Room_For_Device(m_dwPK_Device,pMessage->m_dwPK_Device_From,iPK_Device,
 				pRow_Device ? pRow_Device->Description_get() : "",
 				"That room was invalid.  Please specify the room, or choose 'New Room' and type in the name of the new room");
-			SendCommand(SCREEN_NewPlugAndPlayDevice);
+			SendCommand(SCREEN_Pick_Room_For_Device);
 			return;
 		}
 
@@ -2518,7 +2518,7 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), 
-		StringUtils::itos(iPK_Device), SCREEN_NewPlugAndPlayDevice_CONST);
+		StringUtils::itos(iPK_Device), SCREEN_Pick_Room_For_Device_CONST);
 	SendCommand(CMD_Remove_Screen_From_History_DL);
 
 	map<int,int>::iterator it=m_mapNewPnpDevicesWaitingForARoom.find(pRow_Device->PK_Device_get());
