@@ -156,7 +156,11 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	if(NULL == CurrentLayer)
+	{
+		Frame->CleanUp();
+		delete Frame;
 		return;
+	}
 
 	if(ObjectID != "")
 	{
@@ -184,10 +188,7 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 /*virtual*/ void OpenGL3DEngine::Select(PlutoRectangle* SelectedArea)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
-	if(NULL == CurrentLayer)
-		return;
-
-	if(NULL == SelectedArea)
+	if(NULL == CurrentLayer || NULL == SelectedArea)
 		return;
 	MeshBuilder MB;
 	MB.Begin(MBMODE_TRIANGLE_STRIP);

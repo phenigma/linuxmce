@@ -203,6 +203,8 @@ bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 
 void OpenGLGraphic::Clear()
 {
+	if (TextureManager::Instance() == NULL)
+		return;
 	TextureManager::Instance()->PrepareRelease(this);
 	if(LocalSurface != NULL)
 	{
@@ -220,6 +222,8 @@ bool OpenGLGraphic::GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize)
 
 void OpenGLGraphic::ReleaseTexture()
 {
+	if (TextureManager::Instance() == NULL)
+		return;
 	if(Texture)
 	{
 		glDeleteTextures(1, &Texture);
