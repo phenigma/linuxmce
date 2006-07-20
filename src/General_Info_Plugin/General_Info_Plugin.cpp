@@ -99,6 +99,7 @@ General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool
 	m_pPostCreateOptions=NULL;
 	m_bRerunConfigWhenDone=false;
 	m_pDatabase_pluto_main=NULL;
+	m_dwPK_Device_Prompting_For_A_Room=0;
 }
 
 //<-dceag-getconfig-b->
@@ -2370,19 +2371,7 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device adding %d to m_listNewPnpDevicesWaitingForARoom size: %d",
 				*iPK_Device,(int) m_mapNewPnpDevicesWaitingForARoom.size());
 			m_mapNewPnpDevicesWaitingForARoom[*iPK_Device]=iPK_Orbiter;
-
-			if( iPK_Orbiter )
-			{
-				DCE::SCREEN_Pick_Room_For_Device SCREEN_Pick_Room_For_Device(m_dwPK_Device,iPK_Orbiter,*iPK_Device,
-					pRow_Device->Description_get(),pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
-				SendCommand(SCREEN_Pick_Room_For_Device);
-			}
-			else
-			{
-				DCE::SCREEN_Pick_Room_For_Device_DL SCREEN_Pick_Room_For_Device_DL(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,*iPK_Device,
-					pRow_Device->Description_get(),pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
-				SendCommand(SCREEN_Pick_Room_For_Device_DL);
-			}
+			ServiceRoomPromptRequests();
 		}
 		else 
 		{
@@ -2408,6 +2397,55 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 		1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(*iPK_Device).c_str());
 	QueueMessageToRouter(pMessage_Event);
 
+}
+
+void General_Info_Plugin::ServiceRoomPromptRequests()
+{
+	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
+	if( m_dwPK_Device_Prompting_For_A_Room && time(NULL)-m_tTimePromptedForRoom<60 )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests keep waiting for %d",m_dwPK_Device_Prompting_For_A_Room);
+		return;
+	}
+
+	int PK_Device_To_Prompt_For_Room=0;  // The device we want to ask for a room for
+	if( m_dwPK_Device_Prompting_For_A_Room )
+	{
+		PK_Device_To_Prompt_For_Room = m_dwPK_Device_Prompting_For_A_Room;
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests user didn't specify room for %d.  Ask again.",m_dwPK_Device_Prompting_For_A_Room);
+	}
+	else
+	{
+		if( m_mapNewPnpDevicesWaitingForARoom.size() )
+		{
+			PK_Device_To_Prompt_For_Room = m_dwPK_Device_Prompting_For_A_Room = m_mapNewPnpDevicesWaitingForARoom.begin()->first;
+			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests service new request by device %d.  Ask again.",m_dwPK_Device_Prompting_For_A_Room);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests all done");
+			return;
+		}
+	}
+
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device_To_Prompt_For_Room);
+	if( !pRow_Device )
+		return; // Can't happen
+
+	int iPK_Orbiter = m_mapNewPnpDevicesWaitingForARoom[PK_Device_To_Prompt_For_Room];
+	m_tTimePromptedForRoom = time(NULL);
+	if( iPK_Orbiter )
+	{
+		DCE::SCREEN_Pick_Room_For_Device SCREEN_Pick_Room_For_Device(m_dwPK_Device,iPK_Orbiter,PK_Device_To_Prompt_For_Room,
+			pRow_Device->Description_get(),pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
+		SendCommand(SCREEN_Pick_Room_For_Device);
+	}
+	else
+	{
+		DCE::SCREEN_Pick_Room_For_Device_DL SCREEN_Pick_Room_For_Device_DL(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,PK_Device_To_Prompt_For_Room,
+			pRow_Device->Description_get(),pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
+		SendCommand(SCREEN_Pick_Room_For_Device_DL);
+	}
 }
 
 //<-dceag-c719-b->
@@ -2525,6 +2563,12 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 	if( it!=m_mapNewPnpDevicesWaitingForARoom.end() )
 		m_mapNewPnpDevicesWaitingForARoom.erase(it);
 
+	if( m_dwPK_Device_Prompting_For_A_Room==iPK_Room )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Set_Room_For_Device -- Room %d == device",iPK_Room);
+		m_dwPK_Device_Prompting_For_A_Room=0;
+	}
+
 	UpdateEntArea updateEntArea;
 	if( updateEntArea.Connect(m_pData->m_dwPK_Installation,m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
@@ -2543,16 +2587,24 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pen
 		if( !m_pOrbiter_Plugin->CheckForNewWizardDevices(NULL) )  // Don't display the 'device is done' if there are still some config settings we need
 			PromptUserToReloadAfterNewDevices();
 	}
+	else if( m_mapNewPnpDevicesWaitingForARoom.size()>0 )
+		ServiceRoomPromptRequests();
 }
 
 void General_Info_Plugin::DoneCheckingForUpdates()
 {
 	PLUTO_SAFETY_LOCK(mm, m_GipMutex);
 
+	bool bStillRunningConfig = PendingConfigs();
+	g_pPlutoLogger->Write(LV_STATUS,"DoneCheckingForUpdates: %d pending %d",
+		(int) m_mapNewPnpDevicesWaitingForARoom.size(),(int) bStillRunningConfig);
+
 	// We must have started the check for updates because we added a new device.  However we finished
 	// getting room info from the user, so he's ready to go
 	if( m_mapNewPnpDevicesWaitingForARoom.size()==0 && !m_pOrbiter_Plugin->CheckForNewWizardDevices(NULL) )
 		PromptUserToReloadAfterNewDevices();
+	else if( m_mapNewPnpDevicesWaitingForARoom.size()>0 )
+		ServiceRoomPromptRequests();
 }
 
 

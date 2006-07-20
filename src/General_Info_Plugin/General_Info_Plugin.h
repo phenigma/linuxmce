@@ -58,6 +58,8 @@ public:
 	LastApplication *m_mapLastApplication_Find(int PK_Device_MD) { map<int,class LastApplication *>::iterator it = m_mapLastApplication.find(PK_Device_MD); return it==m_mapLastApplication.end() ? NULL : (*it).second; }
 	class PostCreateOptions *m_pPostCreateOptions;
 	list<Row_Device *> m_listRow_Device_NewAdditions;
+	int m_dwPK_Device_Prompting_For_A_Room;
+	time_t m_tTimePromptedForRoom;
 
 	// Private methods
 	void SetNetBoot(DeviceData_Router *pDevice,bool bNetBoot);
@@ -127,6 +129,7 @@ public:
 	void DoneCheckingForUpdates();
 	Row_Device *ProcessChildDevice(Row_Device *pRow_Device,string sLine);
 	void PromptUserToReloadAfterNewDevices();
+	void ServiceRoomPromptRequests();
 
 //<-dceag-h-b->
 	/*
