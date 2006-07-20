@@ -78,10 +78,6 @@ elif [ -x /etc/init.d/hotplug ] ;then
 	/etc/init.d/hotplug start
 fi 
 
-## Syncronize clock via ntpdate
-if [[ -x /etc/init.d/ntpdate ]] ;then
-	/etc/init.d/ntpdate start &
-fi
 
 ## Enableing RAID devices
 if [[ -x /etc/init.d/mdadm ]]; then
@@ -92,7 +88,6 @@ fi
 ## Enable Swaping
 Message "Enable swaping"
 /sbin/swapon -a > /dev/null
-
 
 ## Check Filesystem
 Message "Checkeing Filesystem"
@@ -144,6 +139,11 @@ if [ "$UTC" == "yes" ] ;then
 	/sbin/hwclock --utc --hctosys > /dev/null
 else 
 	/sbin/hwclock --localtime --hctosys > /dev/null
+fi
+
+## Syncronize clock via ntpdate
+if [[ -x /etc/init.d/ntpdate ]] ;then
+	/etc/init.d/ntpdate start &
 fi
 
 ## Do some pluto specific cleanup
