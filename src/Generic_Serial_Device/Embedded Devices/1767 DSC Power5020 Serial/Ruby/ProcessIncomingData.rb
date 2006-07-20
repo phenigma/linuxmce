@@ -1,4 +1,4 @@
-#Event process  26-May-06 16:02 Power5020
+#Event process  20-Jul-06 16:30 Power5020
 
 #read event code from serial
 readLine()
@@ -116,7 +116,7 @@ when "652"    #pPartition armed. 1 byte partition
 	addPart(partNo,true)
 	
 	#change state to arm without error
-	changeStateEv= Command.new(devid_, -1001, 1, 2, 67); 
+	changeStateEv= Command.new(device_.devid_, -1001, 1, 2, 67); 
 	changeStateEv.params_[30]="1"
 	changeStateEv.params_[47]=partNo.to_s
 	SendCommand(changeStateEv)
@@ -128,7 +128,7 @@ when "655"    #Partition disarm. 1 byte partition
 	log( "Partition no: " + partNo )
 	
 	#change state to disarm without error
-	changeStateEv= Command.new(devid_, -1001, 1, 2, 67); 
+	changeStateEv= Command.new(device_.devid_, -1001, 1, 2, 67); 
 	changeStateEv.params_[30]="0"
 	changeStateEv.params_[47]=partNo.to_s
 	SendCommand(changeStateEv)

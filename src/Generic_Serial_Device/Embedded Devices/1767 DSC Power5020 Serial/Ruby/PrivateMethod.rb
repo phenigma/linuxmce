@@ -1,4 +1,4 @@
-#PrivateMethod  09-Jun-06 11:40   Power5020
+#PrivateMethod  20-Jul-06 15:30   Power5020
 class MyIO
 
 	def intialize
@@ -305,15 +305,15 @@ end
 end
 
 def DSCError(err)
-log( "System error: " + param + " " )
-if $errCode.has_key?(param) then 
-	log( $errCode[param]  + "\n" ) 
+log( "System error: " + err + " " )
+if $errCode.has_key?(err) then 
+	log( $errCode[err]  + "\n" ) 
 else 
 	log( "Unknown error" + "\n" )
 end
 #if error on arm/disarm send a message
 if( err==23 || err==24) then
-changeStateEv= Command.new(devid_, -1001, 1, 2, 67);      #67 PanelChangeState		
+changeStateEv= Command.new(device_.devid_, -1001, 1, 2, 67);      #67 PanelChangeState		
 
 if(err==23) then 
 	changeStateEv.params_[30] = "0," +$errCode[err] 
