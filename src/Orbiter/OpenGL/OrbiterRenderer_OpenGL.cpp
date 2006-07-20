@@ -434,7 +434,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::ShowProgress(int nPercent) 
 {
-	OrbiterRenderer::ShowProgress(nPercent);
+	//OrbiterRenderer::ShowProgress(nPercent);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool OrbiterRenderer_OpenGL::NeedToUpdateScreen()
