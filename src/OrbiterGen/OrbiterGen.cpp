@@ -2420,7 +2420,8 @@ cout << "Set appserver to " << li->m_dwPK_Device_AppServer << endl;
 //			li->m_dwPK_Device_CamcorderCapt = pRow_Device_MDChild->PK_Device_get();
 //			break;
 		case DEVICECATEGORY_Standard_Orbiter_CONST:
-			li->m_dwPK_Device_Orbiter = pRow_Device_MDChild->PK_Device_get();
+			if( pRow_Device_MDChild->FK_DeviceTemplate_get()==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
+				li->m_dwPK_Device_Orbiter = pRow_Device_MDChild->PK_Device_get();
 			break;
 
 		};
