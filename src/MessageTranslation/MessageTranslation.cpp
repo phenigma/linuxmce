@@ -96,6 +96,7 @@ MessageTranslationManager::ProcessMessage(Message* pmsg) {
 	msgqueue_.lock();
 	ret = ProcessReplicator(msgrepl, msgqueue_);
 	msgqueue_.unlock();
+	
 	return ret;
 }
 
@@ -110,7 +111,11 @@ bool
 MessageTranslationManager::ProcessReplicator(MessageReplicator& msgrepl, MessageReplicatorList& replicators) {
 	MessageReplicatorList lrepls;
 	if(!ptranslator_->Translate(msgrepl, lrepls)) {
-		return false;
+		g_pPlutoLogger->Write(LV_STATUS,"ProcessReplicator : not translatable");
+		// Eugen C. - forwarding all not translatable messages into the Translator queue
+		// to avoid mixing the messages into the dispatcher queue
+		replicators.push_back( msgrepl );
+		return true;
 	} else {
 		MessageReplicatorList::iterator it = lrepls.begin();
 		while(it != lrepls.end()) {
@@ -119,12 +124,24 @@ MessageTranslationManager::ProcessReplicator(MessageReplicator& msgrepl, Message
 			} else {
 				MessageReplicatorList prepls;
 				ProcessReplicator(*it, prepls);
-				for(int i = 0; i < msgrepl.getCount(); i++) {
-					replicators.push_back(*it);
+				for(int i = 0; i < msgrepl.getCount(); i++)
+				{
+					if( !prepls.empty() )
+					{
+						for(MessageReplicatorList::iterator itPrepls = prepls.begin(); itPrepls != prepls.end(); ++itPrepls)
+						{
+							replicators.push_back(*itPrepls);
+						}
+					}
+					else
+					{
+						replicators.push_back(*it);
+					}
 				}
 			}
 			it++;
 		}
+		
 		return (replicators.size() > 0);
 	}
 }
@@ -200,16 +217,19 @@ MessageTranslationManager::_QueueProc() {
 			MessageReplicator replmsg = (*it);
 			msgqueue_.erase(it);
 			msgqueue_.unlock();
-			sleep_delay = replmsg.getPreDelay();
+// Eugen C. - DispatchMessage will take care for delay
+/*			sleep_delay = replmsg.getPreDelay();
 			if(sleep_delay)
-				Sleep(sleep_delay);			
+				Sleep(sleep_delay);*/
 			assert(pdispatcher_);
 			if(pdispatcher_) {
+				g_pPlutoLogger->Write(LV_STATUS,"_QueueProc ------- %d", replmsg.getMessage().m_dwID);
 				pdispatcher_->DispatchMessage(replmsg);
 			}
-			sleep_delay = replmsg.getPostDelay();			
+// Eugen C. - DispatchMessage will take care for delay
+/*			sleep_delay = replmsg.getPostDelay();
 			if(sleep_delay)
-				Sleep(sleep_delay);			
+				Sleep(sleep_delay);*/
 		} else {
 			msgqueue_.unlock();
 			usleep(POOL_IDLE_SLEEP* 1000);

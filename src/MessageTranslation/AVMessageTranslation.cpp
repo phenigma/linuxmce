@@ -57,7 +57,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
-		sprintf(sql_buff,"SELECT IR_ModeDelay, TogglePower, ToggleInput, DigitDelay, NumericEntry FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='%d'",devtemplid);
+		sprintf(sql_buff,"SELECT IR_ModeDelay, TogglePower, ToggleInput, DigitDelay, NumericEntry FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='%d'", (int)devtemplid);
 		if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) && (row = mysql_fetch_row(result_set.r)) )
 		{
 			map_ModeDelay[devtemplid] = IR_ModeDelay = atoi(row[0]);
@@ -191,7 +191,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			    unsigned int i=0,count=0;
 				if(laststatus_input_[devid]!=0)
 				{
-					for(i=0;commandorder[i]!=laststatus_input_[devid] && i<commandorder.size(); i++);
+					for(i=0;i<commandorder.size() && commandorder[i]!=laststatus_input_[devid]; i++);
 				}
 				while(commandorder[i]!=cmd)
 				{
@@ -251,7 +251,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		
 		if(laststatus_input_[devid]!=0)
 		{
-			for(i=0;commandorder[i]!=laststatus_input_[devid] && i<commandorder.size(); i++);
+			for(i=0;i<commandorder.size() && commandorder[i]!=laststatus_input_[devid]; i++);
 		}
 		while(commandorder[i]!=pmsg->m_dwID)
 		{

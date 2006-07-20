@@ -49,7 +49,7 @@ DefaultMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicator
 		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
-		sprintf(sql_buff,"SELECT IR_PowerDelay FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='%d'",devtemplid);
+		sprintf(sql_buff,"SELECT IR_PowerDelay FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='%d'", (int)devtemplid);
 		if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) && (row = mysql_fetch_row(result_set.r)) )
 		{
 			map_PowerDelay[devtemplid] = IR_PowerDelay = atoi(row[0]);
@@ -72,7 +72,7 @@ DefaultMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicator
 	if(inrepl.getMessage().m_mapParameters.count(COMMANDPARAMETER_Repeat_Command_CONST) > 0 && 
 		inrepl.getMessage().m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST].length() > 0) {
 		repeat = atoi(inrepl.getMessage().m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST].c_str());
-		if(repeat == 0) {
+		if(repeat <= 0) {
 			repeat = 1;
 		}
 	}
@@ -105,9 +105,23 @@ DefaultMessageDispatcher
 void 
 DefaultMessageDispatcher::DispatchMessage(MessageReplicator& inrepl) {
 	for(int i = 0; i < inrepl.getCount(); i++) {
-		Sleep(inrepl.getPreDelay());
+	    int sleep_delay = inrepl.getPreDelay();
+		if( sleep_delay < 0 )
+			sleep_delay = 0;
+		else if( 10 > sleep_delay )
+			sleep_delay *= 1000;
+		if( sleep_delay != 0 )
+			Sleep(sleep_delay);
+		
 		DispatchMessage(&inrepl.getMessage());
-		Sleep(inrepl.getPostDelay());
+		
+	    sleep_delay = inrepl.getPostDelay();
+		if( sleep_delay < 0 )
+			sleep_delay = 0;
+		else if( 10 > sleep_delay )
+			sleep_delay *= 1000;
+		if( sleep_delay != 0 )
+			Sleep(sleep_delay);
 	}
 }
 
