@@ -5533,8 +5533,6 @@ bool Orbiter::CaptureKeyboard_EditText_DeleteLastChar(  )
 		}
 		else
 			m_bRerenderScreen = true;
-
-		return true;
 	}
 
 	return false;
