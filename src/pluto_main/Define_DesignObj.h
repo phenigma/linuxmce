@@ -816,7 +816,7 @@
 #define DESIGNOBJ_butRegenOrbiter_CONST 3322
 #define DESIGNOBJ_noconfirmationdelete_CONST 3323
 #define DESIGNOBJ_objAddGC100_CONST 3325
-#define DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST 3326
+#define DESIGNOBJ_mnuPickRoomForDevice_CONST 3326
 #define DESIGNOBJ_arrRooms_CONST 3327
 #define DESIGNOBJ_butRooms_CONST 3328
 #define DESIGNOBJ_butRegenAllOrbiters_CONST 3329
@@ -1888,6 +1888,7 @@
 #define DESIGNOBJ_butAVDeviceAudioInputs_CONST 4748
 #define DESIGNOBJ_mnuNewPhoneEnterNumber_CONST 4749
 #define DESIGNOBJ_butSaveMobileNumber_CONST 4750
+#define DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST 4756
 #define DESIGNOBJ_objLightStatus_CONST 4761
 #define DESIGNOBJ_dgInstalledAVDevices_NoTVRecei_CONST 4762
 #define DESIGNOBJ_mnuNeedReloadRouter_CONST 4763
