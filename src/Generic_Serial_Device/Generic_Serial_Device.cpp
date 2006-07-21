@@ -82,14 +82,17 @@ void Generic_Serial_Device::ReceivedCommandForChild(DeviceData_Impl *pDeviceData
 {
 	sCMD_Result = "UNHANDLED CHILD";
 
-	if(GSDMessageProcessor::ProcessMessage(pMessage)) {
-	    g_pPlutoLogger->Write(LV_STATUS, "Message processed by Translator.");
-		return;
+	if( (pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage) ||
+		 !GSDMessageProcessor::ProcessMessage(pMessage) )
+	{
+		// TODO: should those messages be translated in future ?
+		g_pPlutoLogger->Write(LV_STATUS, "Message %d NOT pre-processed.", pMessage->m_dwID);
+		DispatchMessage(pMessage);
 	}
-
-	g_pPlutoLogger->Write(LV_WARNING, "Message %d NOT processed.", pMessage->m_dwID);
-// Eugen C. - see MessageTranslationManager::ProcessReplicator
-// DispatchMessage(pMessage);
+	else
+	{
+	    g_pPlutoLogger->Write(LV_STATUS, "Message processed by Translator.");
+	}
 }
 
 /*
@@ -104,14 +107,17 @@ void Generic_Serial_Device::ReceivedUnknownCommand(string &sCMD_Result,Message *
 	sCMD_Result = "UNKNOWN DEVICE";
     g_pPlutoLogger->Write(LV_STATUS, "Received UNKNOWN command.");
 	
-	if(GSDMessageProcessor::ProcessMessage(pMessage)) {
-	    g_pPlutoLogger->Write(LV_STATUS, "Message processed by Translator.");
-		return;
+	if( (pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage) ||
+		 !GSDMessageProcessor::ProcessMessage(pMessage) )
+	{
+		// TODO: should those messages be translated in future ?
+		g_pPlutoLogger->Write(LV_STATUS, "Message %d NOT pre-processed.", pMessage->m_dwID);
+		DispatchMessage(pMessage);
 	}
-
-	g_pPlutoLogger->Write(LV_WARNING, "Message %d NOT processed.", pMessage->m_dwID);
-// Eugen C. - see MessageTranslationManager::ProcessReplicator
-// DispatchMessage(pMessage);
+	else
+	{
+	    g_pPlutoLogger->Write(LV_STATUS, "Message processed by Translator.");
+	}
 }
 
 //<-dceag-sample-b->!
