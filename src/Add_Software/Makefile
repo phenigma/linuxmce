@@ -32,4 +32,4 @@ instcheck:
 	cp $@ ../bin
 
 clean:
-	rm $(bin_PROGRAMS)
+	rm -f $(bin_PROGRAMS)
