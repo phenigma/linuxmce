@@ -8542,7 +8542,7 @@ void Orbiter::CMD_Display_Alert(string sText,string sTokens,string sTimeout,stri
 
 	m_listPlutoAlert.push_back(pPlutoAlert);
 	vm.Release();
-	CallMaintenanceInMiliseconds(0,&Orbiter::ServiceAlerts,NULL,pe_ALL);	
+	CallMaintenanceInMiliseconds(0,&Orbiter::ServiceAlerts,NULL,pe_ALL,false);	
 }
 
 void Orbiter::ServiceAlerts( void *iData )
@@ -8600,7 +8600,7 @@ void Orbiter::ServiceAlerts( void *iData )
 		CMD_Remove_Popup("","popup_alert");
 
 	if( tNextStop )
-		CallMaintenanceInMiliseconds((tNextStop - t)*1000,&Orbiter::ServiceAlerts,NULL,pe_ALL);	
+		CallMaintenanceInMiliseconds((tNextStop - t)*1000,&Orbiter::ServiceAlerts,NULL,pe_ALL,false);	
 }
 //<-dceag-c810-b->
 

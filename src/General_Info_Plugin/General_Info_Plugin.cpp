@@ -2401,6 +2401,8 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 void General_Info_Plugin::ServiceRoomPromptRequests()
 {
 	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests m_dwPK_Device_Prompting_For_A_Room %d m_tTimePromptedForRoom %d m_mapNewPnpDevicesWaitingForARoom %d",
+		m_dwPK_Device_Prompting_For_A_Room,(int) m_tTimePromptedForRoom,(int) m_mapNewPnpDevicesWaitingForARoom.size());
 	if( m_dwPK_Device_Prompting_For_A_Room && time(NULL)-m_tTimePromptedForRoom<60 )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests keep waiting for %d",m_dwPK_Device_Prompting_For_A_Room);
