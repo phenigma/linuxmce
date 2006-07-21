@@ -2564,9 +2564,9 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 	if( it!=m_mapNewPnpDevicesWaitingForARoom.end() )
 		m_mapNewPnpDevicesWaitingForARoom.erase(it);
 
-	if( m_dwPK_Device_Prompting_For_A_Room==iPK_Room )
+	if( m_dwPK_Device_Prompting_For_A_Room==iPK_Device )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Set_Room_For_Device -- Room %d == device",iPK_Room);
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Set_Room_For_Device -- Device %d == device",iPK_Device);
 		m_dwPK_Device_Prompting_For_A_Room=0;
 	}
 
