@@ -4203,7 +4203,7 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 	pCallBackInfo->m_pOrbiter=this;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "CallMaintenanceInMiliseconds %p %d ms started with mapPendingCallbacks size: %d time %d:%d",
+	g_pPlutoLogger->Write(LV_STATUS, "CallMaintenanceInMiliseconds 0x%X%X %d ms started with mapPendingCallbacks size: %d time %d:%d",
 		fnCallBack,(int) milliseconds,m_mapPendingCallbacks.size(),(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
 #endif
 
