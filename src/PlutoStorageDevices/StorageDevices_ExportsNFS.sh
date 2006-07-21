@@ -18,6 +18,7 @@ else
         INTERNAL_ADDRESS="$IntIP"
 fi
 
+INTERNAL_SUBNET=""
 for i in 1 2 3 4; do
 	IPDigit=$(echo $INTERNAL_ADDRESS | cut -d. -f$i)
 	MaskDigit=$(echo $INTERNAL_SUBNET_MASK | cut -d. -f$i)
