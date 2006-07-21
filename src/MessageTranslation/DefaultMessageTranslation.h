@@ -28,6 +28,7 @@ protected:
 
 protected:
 	virtual bool Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepls);
+	virtual bool InitDelaysMap(long devtemplid);
 
 protected:
 	std::map<int,int> map_PowerDelay;

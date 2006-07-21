@@ -51,42 +51,16 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		g_pPlutoLogger->Write(LV_STATUS,"WE HAVE RETRANSMIT=%d",retransmit);		
 	}
 	
-	if(map_ModeDelay.find(devtemplid) == map_ModeDelay.end())
-	{
-		DCEConfig dceconf;
-		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
-		PlutoSqlResult result_set;
-		MYSQL_ROW row=NULL;
-		sprintf(sql_buff,"SELECT IR_ModeDelay, TogglePower, ToggleInput, DigitDelay, NumericEntry FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='%d'", (int)devtemplid);
-		if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) && (row = mysql_fetch_row(result_set.r)) )
-		{
-			map_ModeDelay[devtemplid] = IR_ModeDelay = atoi(row[0]);
-			map_TogglePower[devtemplid] = TogglePower = atoi(row[1]);
-			map_ToggleInput[devtemplid] = ToggleInput = atoi(row[2]);
-			map_DigitDelay[devtemplid] = DigitDelay = atoi(row[3]);
-			if(row[4])
-			{
-				map_NumericEntry[devtemplid] = sNumDigits = row[4];
-			}
-			else
-			{
-				map_NumericEntry[devtemplid] = sNumDigits = "";
-			}
-		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
-		}
-	}
-	else
+	if( InitDelaysMap(devtemplid) )
 	{
 		IR_ModeDelay = map_ModeDelay[devtemplid];
 		TogglePower = map_TogglePower[devtemplid];
 		ToggleInput = map_ToggleInput[devtemplid];
 		DigitDelay = map_DigitDelay[devtemplid];
 		sNumDigits = map_NumericEntry[devtemplid];
-		IR_PowerDelay=map_PowerDelay[devtemplid];		
+		IR_PowerDelay=map_PowerDelay[devtemplid];
 	}
+	
 	if (input_commands_.empty())
 	{
 		DCEConfig dceconf;
@@ -478,6 +452,93 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	g_pPlutoLogger->Write(LV_STATUS,"AVMessageTranslator::Translate end");
 	
 	return false;
+}
+
+bool
+AVMessageTranslator::SetDelays(MessageReplicator& inrepl)
+{
+	DeviceData_Base* pTargetDev = DefaultMessageTranslator::FindTargetDevice(inrepl.getMessage().m_dwPK_Device_To);
+	if(!pTargetDev) {
+		g_pPlutoLogger->Write(LV_WARNING, "SetDelays Device %d Not Found.", inrepl.getMessage().m_dwPK_Device_To);
+		return false;
+	}
+	long devtemplid = pTargetDev->m_dwPK_DeviceTemplate;
+	
+	if( InitDelaysMap(devtemplid) )
+	{
+		int IR_PowerDelay = map_PowerDelay[devtemplid];
+		int IR_ModeDelay  = map_ModeDelay[devtemplid];
+		int DigitDelay    = map_DigitDelay[devtemplid];
+		
+		switch( inrepl.getMessage().m_dwID )
+		{
+			case COMMAND_Toggle_Power_CONST :
+			case COMMAND_Generic_Off_CONST :
+			case COMMAND_Generic_On_CONST :
+				inrepl.setPostDelay( IR_PowerDelay );
+				break;
+			
+			case COMMAND_Input_Select_CONST :
+				inrepl.setPostDelay( IR_ModeDelay );
+				break;
+			
+			case COMMAND_Tune_to_channel_CONST :
+				inrepl.setPostDelay( DigitDelay );
+				break;
+				
+			// TODO: Other
+			default :
+				break;
+		}
+	}
+	else
+	{
+		return false;
+	}
+	
+	return true;
+}
+
+bool
+AVMessageTranslator::InitDelaysMap(long devtemplid)
+{
+	static char init_sql_buff[1024];
+	if( !DefaultMessageTranslator::InitDelaysMap(devtemplid) )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
+		return false;
+	}
+	
+	if(map_ModeDelay.find(devtemplid) == map_ModeDelay.end())
+	{
+		DCEConfig dceconf;
+		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		sprintf(init_sql_buff,"SELECT IR_ModeDelay, TogglePower, ToggleInput, DigitDelay, NumericEntry FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='%d'", (int)devtemplid);
+		if( (result_set.r=mySqlHelper.mysql_query_result(init_sql_buff)) && (row = mysql_fetch_row(result_set.r)) )
+		{
+			map_ModeDelay[devtemplid] = atoi(row[0]);
+			map_TogglePower[devtemplid] = atoi(row[1]);
+			map_ToggleInput[devtemplid] = atoi(row[2]);
+			map_DigitDelay[devtemplid] = atoi(row[3]);
+			if(row[4])
+			{
+				map_NumericEntry[devtemplid] = row[4];
+			}
+			else
+			{
+				map_NumericEntry[devtemplid] = "";
+			}
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
+			return false;
+		}
+	}
+	
+	return true;
 }
 
 };

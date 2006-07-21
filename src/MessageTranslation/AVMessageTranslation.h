@@ -19,6 +19,8 @@ namespace DCE {
 class AVMessageTranslator : public DefaultMessageTranslator {
 public:
 	virtual bool Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepls);
+	virtual bool SetDelays(MessageReplicator& inrepl);
+	virtual bool InitDelaysMap(long devtemplid);
 
 public:
 	map<int, bool> lastcmdwaspause_; // So if we get 2 pauses in a row, we convert the 2nd one to a play

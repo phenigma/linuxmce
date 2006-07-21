@@ -95,6 +95,7 @@ MessageTranslationManager::ProcessMessage(Message* pmsg) {
 
 	msgqueue_.lock();
 	ret = ProcessReplicator(msgrepl, msgqueue_);
+	g_pPlutoLogger->Write(LV_WARNING, "#### Pre-Process Queue = %u", msgqueue_.size());
 	msgqueue_.unlock();
 	
 	return ret;
@@ -221,6 +222,7 @@ MessageTranslationManager::_QueueProc() {
 /*			sleep_delay = replmsg.getPreDelay();
 			if(sleep_delay)
 				Sleep(sleep_delay);*/
+			g_pPlutoLogger->Write(LV_WARNING,"_QueueProc Pre - %d : %d", replmsg.getMessage().m_dwID, replmsg.getPreDelay());
 			assert(pdispatcher_);
 			if(pdispatcher_) {
 				g_pPlutoLogger->Write(LV_STATUS,"_QueueProc ------- %d", replmsg.getMessage().m_dwID);
@@ -230,6 +232,7 @@ MessageTranslationManager::_QueueProc() {
 /*			sleep_delay = replmsg.getPostDelay();
 			if(sleep_delay)
 				Sleep(sleep_delay);*/
+			g_pPlutoLogger->Write(LV_WARNING,"_QueueProc Post - %d : %d", replmsg.getMessage().m_dwID, replmsg.getPostDelay());
 		} else {
 			msgqueue_.unlock();
 			usleep(POOL_IDLE_SLEEP* 1000);

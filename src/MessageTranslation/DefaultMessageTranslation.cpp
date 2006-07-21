@@ -40,29 +40,13 @@ DefaultMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicator
 		g_pPlutoLogger->Write(LV_WARNING, "Target Device %d Not Found.", inrepl.getMessage().m_dwPK_Device_To);
 		return false;
 	}
-	static char sql_buff[1024];
 	int IR_PowerDelay = 0;
 	long devtemplid = pTargetDev->m_dwPK_DeviceTemplate;
-	if(map_PowerDelay.find(devtemplid) == map_PowerDelay.end())
+	if( InitDelaysMap(devtemplid) )
 	{
-		DCEConfig dceconf;
-		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
-		PlutoSqlResult result_set;
-		MYSQL_ROW row=NULL;
-		sprintf(sql_buff,"SELECT IR_PowerDelay FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='%d'", (int)devtemplid);
-		if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) && (row = mysql_fetch_row(result_set.r)) )
-		{
-			map_PowerDelay[devtemplid] = IR_PowerDelay = atoi(row[0]);
-		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
-		}
+		IR_PowerDelay = map_PowerDelay[devtemplid];
 	}
-	else
-	{
-		IR_PowerDelay=map_PowerDelay[devtemplid];
-	}
+	
 	/**************************************************************************************
 	Determine message queue attributes
 	**************************************************************************************/
@@ -99,6 +83,31 @@ DefaultMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicator
 	return false;
 }
 
+bool
+DefaultMessageTranslator::InitDelaysMap(long devtemplid)
+{
+	static char sql_buff[1024];
+	if(map_PowerDelay.find(devtemplid) == map_PowerDelay.end())
+	{
+		DCEConfig dceconf;
+		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		sprintf(sql_buff,"SELECT IR_PowerDelay FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='%d'", (int)devtemplid);
+		if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) && (row = mysql_fetch_row(result_set.r)) )
+		{
+			map_PowerDelay[devtemplid] = atoi(row[0]);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
+			return false;
+		}
+	}
+	
+	return true;
+}
+
 /*****************************************************************
 DefaultMessageDispatcher
 *****************************************************************/
@@ -113,6 +122,8 @@ DefaultMessageDispatcher::DispatchMessage(MessageReplicator& inrepl) {
 		if( sleep_delay != 0 )
 			Sleep(sleep_delay);
 		
+		g_pPlutoLogger->Write(LV_WARNING, "GSD-Sleep Pre %d : %d", inrepl.getMessage().m_dwID, sleep_delay);
+		
 		DispatchMessage(&inrepl.getMessage());
 		
 	    sleep_delay = inrepl.getPostDelay();
@@ -122,6 +133,9 @@ DefaultMessageDispatcher::DispatchMessage(MessageReplicator& inrepl) {
 			sleep_delay *= 1000;
 		if( sleep_delay != 0 )
 			Sleep(sleep_delay);
+		
+		g_pPlutoLogger->Write(LV_WARNING, "GSD-Sleep Post %d : %d", inrepl.getMessage().m_dwID, sleep_delay);
+		
 	}
 }
 

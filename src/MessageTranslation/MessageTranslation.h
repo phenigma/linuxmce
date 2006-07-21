@@ -33,6 +33,13 @@ public:
 	MessageReplicator(const Message& msg, int count = 1, int predelay = 0, int postdelay = 0) 
 		: msg_(msg), count_(count), predelay_(predelay), postdelay_(postdelay)
 	{}
+	
+	MessageReplicator(const MessageReplicator& msg)
+		: msg_(msg.msg_),
+		  count_(msg.count_),
+		  predelay_(msg.predelay_),
+		  postdelay_(msg.postdelay_)
+	{}
 
 public:
 	Message& getMessage() {
