@@ -194,7 +194,7 @@ public:
 	virtual void CMD_Get_Room_Description(int iPK_Device,string *sText,int *iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Is_Daytime(bool *bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Check_for_updates(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Check_for_updates_done(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Check_for_updates_done(bool bFailed,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Delete_Device(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Check_Mounts(string &sCMD_Result,class Message *pMessage) {};
@@ -586,7 +586,8 @@ public:
 				case COMMAND_Check_for_updates_done_CONST:
 					{
 						string sCMD_Result="OK";
-						CMD_Check_for_updates_done(sCMD_Result,pMessage);
+						bool bFailed=(pMessage->m_mapParameters[COMMANDPARAMETER_Failed_CONST]=="1" ? true : false);
+						CMD_Check_for_updates_done(bFailed,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -603,7 +604,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Check_for_updates_done(sCMD_Result,pMessage);
+								CMD_Check_for_updates_done(bFailed,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

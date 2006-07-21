@@ -286,9 +286,11 @@ public:
 
 	/** @brief COMMAND: #396 - Check for updates done */
 	/** An App Server finished running /usr/pluto/bin/Config_Device_Changes.sh and notifies the g.i. plugin. */
+		/** @param #230 Failed */
+			/** This is true if the script used to check for updates fails. */
 
-	virtual void CMD_Check_for_updates_done() { string sCMD_Result; CMD_Check_for_updates_done(sCMD_Result,NULL);};
-	virtual void CMD_Check_for_updates_done(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Check_for_updates_done(bool bFailed) { string sCMD_Result; CMD_Check_for_updates_done(bFailed,sCMD_Result,NULL);};
+	virtual void CMD_Check_for_updates_done(bool bFailed,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #718 - Create Device */

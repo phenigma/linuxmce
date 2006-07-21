@@ -1850,9 +1850,15 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 
 			if( !m_mapMediaDirectors_PendingConfig[pDevice->m_pDevice_ControlledVia->m_dwPK_Device] )
 			{
+				string sResponseCommand = StringUtils::itos(pDevice->m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " +
+					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST);
+				string sFailureCommand = sResponseCommand + " " + StringUtils::itos(COMMANDPARAMETER_Failed_CONST) + " 1";
+				string sSuccessCommand = sResponseCommand + " " + StringUtils::itos(COMMANDPARAMETER_Failed_CONST) + " 0";
+
 				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice->m_dwPK_Device,"/usr/pluto/bin/Config_Device_Changes.sh","cdc",
-					"F\tStartLocalDevice\tNoVideo\tAlert","",StringUtils::itos(pDevice->m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " +
-					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST),false,false,false);
+					"F\tStartLocalDevice\tNoVideo\tAlert",
+					sFailureCommand,
+					sSuccessCommand,false,false,false);
 				string sResponse;
 				if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
 					g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates Failed to send spawn application to %d",pDevice->m_dwPK_Device);
@@ -1886,12 +1892,20 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 
 	/** @brief COMMAND: #396 - Check for updates done */
 	/** An App Server finished running /usr/pluto/bin/Config_Device_Changes.sh and notifies the g.i. plugin. */
+		/** @param #230 Failed */
+			/** This is true if the script used to check for updates fails. */
 
-void General_Info_Plugin::CMD_Check_for_updates_done(string &sCMD_Result,Message *pMessage)
+void General_Info_Plugin::CMD_Check_for_updates_done(bool bFailed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c396-e->
 {
 	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done");
 	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
+
+	if(bFailed)
+	{
+		//TODO : add more stuff here ?
+		g_pPlutoLogger->Write(LV_CRITICAL, "General_Info_Plugin::CMD_Check_for_updates_done Config_Device_Changes.sh failed!");
+	}
 
 	DeviceData_Router *pDevice_AppServer = m_pRouter->m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_From);
 	if( !pDevice_AppServer || !pDevice_AppServer->m_pDevice_ControlledVia )
