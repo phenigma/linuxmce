@@ -277,6 +277,7 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
 	std::pair<unsigned, Message*> msg(routeToDevice, pMessage);
 	msgqueue_.push_back(msg);
     g_pPlutoLogger->Write(LV_STATUS, "Routing message ID=%d to device %d.", pMessage->m_dwID, routeToDevice);
+	g_pPlutoLogger->Write(LV_WARNING, "Process Queue = %u", msgqueue_.size());
 	mmsg_.Unlock();
 	emsg_.Signal();
 	

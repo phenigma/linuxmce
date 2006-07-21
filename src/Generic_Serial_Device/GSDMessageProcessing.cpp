@@ -19,8 +19,11 @@ bool GSDMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicato
 	Message* pmsg = &inrepl.getMessage();
 	if(	pmanager->getCodeSupplier().isCmdImplemented(pmsg->m_dwPK_Device_To, pmsg->m_dwID))
 	{
+		AVMessageTranslator::SetDelays(inrepl);
+		g_pPlutoLogger->Write(LV_WARNING, "GSDMessageTranslator isCmdImplemented = true");
 		return false;
 	}
+	g_pPlutoLogger->Write(LV_WARNING, "GSDMessageTranslator isCmdImplemented = false");
 	if(AVMessageTranslator::Translate(inrepl, outrepls)) {
 //		MessageReplicator *new_msg=&outrepls.back();
 //		Message* pmsg = &new_msg->getMessage();
