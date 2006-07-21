@@ -340,28 +340,37 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	}
 
 	int PK_MediaType=0;
+	bool bFoldersOnly = false;
 	if( Extensions.length()>3 && Extensions.substr(0,3)=="~MT" )
 	{
 		PK_MediaType = atoi(Extensions.substr(3).c_str());
-		Row_MediaType *pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType);
-		if( !pRow_MediaType )
+
+		if(PK_MediaType == -1) //folders only
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find Media Type: %d",PK_MediaType);
-			return NULL;
+			bFoldersOnly = true;
 		}
-		Extensions = pRow_MediaType->Extensions_get();
-		// Include stored dvd's and stored cd's
-		if( PK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST )
+		else
 		{
-			pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(MEDIATYPE_pluto_DVD_CONST);
-			if( pRow_MediaType && pRow_MediaType->Extensions_get().size() )
-				Extensions += (Extensions.size() ? "," : "") + pRow_MediaType->Extensions_get();
-		}
-		else if( PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST )
-		{
-			pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(MEDIATYPE_pluto_CD_CONST);
-			if( pRow_MediaType && pRow_MediaType->Extensions_get().size() )
-				Extensions += (Extensions.size() ? "," : "") + pRow_MediaType->Extensions_get();
+			Row_MediaType *pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType);
+			if( !pRow_MediaType )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find Media Type: %d",PK_MediaType);
+				return NULL;
+			}
+			Extensions = pRow_MediaType->Extensions_get();
+			// Include stored dvd's and stored cd's
+			if( PK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST )
+			{
+				pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(MEDIATYPE_pluto_DVD_CONST);
+				if( pRow_MediaType && pRow_MediaType->Extensions_get().size() )
+					Extensions += (Extensions.size() ? "," : "") + pRow_MediaType->Extensions_get();
+			}
+			else if( PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST )
+			{
+				pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(MEDIATYPE_pluto_CD_CONST);
+				if( pRow_MediaType && pRow_MediaType->Extensions_get().size() )
+					Extensions += (Extensions.size() ? "," : "") + pRow_MediaType->Extensions_get();
+			}
 		}
 	}
 	
@@ -392,6 +401,10 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	for (list<FileDetails *>::iterator i = listFileDetails.begin(); i != listFileDetails.end(); i++)
 	{
 		FileDetails *pFileDetails = *i;
+
+		if(bFoldersOnly && !pFileDetails->m_bIsDir)
+			continue;
+
 		FileListInfo *flInfo;
 		flInfo = new FileListInfo(pFileDetails->m_bIsDir,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,false);
 
