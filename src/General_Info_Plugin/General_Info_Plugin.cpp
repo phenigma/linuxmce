@@ -1288,11 +1288,11 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 	MYSQL_ROW row;
 	string sMD_ID = StringUtils::Tokenize(Parms,",",pos); // ID of media director
 	string sPK_Device_PC = StringUtils::itos( DatabaseUtils::GetTopMostDevice( m_pDatabase_pluto_main, atoi(sMD_ID.c_str())));
-	int PK_Controller = pMessage->m_dwPK_Device_From;
+//	int PK_Controller = pMessage->m_dwPK_Device_From;
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
-	
-	string sql="SELECT PK_Software, Iconstr, Title, Category, Rating, Virus_Free, Installation_status FROM Software WHERE FK_Device="+sPK_Device_PC+" ORDER BY Title";
+
+	string sql="SELECT PK_Software, Iconstr, Title, Category, Rating, Virus_Free, Installation_status, Description, Homeurl FROM Software WHERE FK_Device="+sPK_Device_PC+" ORDER BY Title";
 
 	int iRow=0;
 	pCell=new DataGridCell("Icon", "-1");
@@ -1307,8 +1307,7 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 	pDataGrid->SetData(4,iRow,pCell);
 	pCell=new DataGridCell("Is instaled","-1");
 	pDataGrid->SetData(5,iRow++,pCell);
-	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL)))
-	{
+	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))){
 		unsigned long *lengths;
 		while((row=mysql_fetch_row(result.r))){
 			lengths=mysql_fetch_lengths(result.r);
@@ -1330,9 +1329,9 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 				memcpy(Data,row[1],lengths[1]);
 				pCell->SetImage(Data, lengths[1], GR_PNG);
 			}
-			pCell->m_mapAttributes["Description"] = "this is a description for" + string(row[2]);
+			pCell->m_mapAttributes["Description"] = string(row[7]);
 			pCell->m_mapAttributes["Title"] = string(row[2]);
-			pCell->m_mapAttributes["Location"] = "http://" + string(row[2]);
+			pCell->m_mapAttributes["Location"] = string(row[8]);
 			pDataGrid->SetData(0, iRow, pCell );
 			pCell=new DataGridCell(row[2],sValue);
 			pDataGrid->SetData(1,iRow,pCell);

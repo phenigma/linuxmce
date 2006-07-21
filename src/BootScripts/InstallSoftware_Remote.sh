@@ -1,11 +1,28 @@
 #!/bin/bash
 
 . /usr/pluto/bin/LockUtils.sh
+. /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/SQL_Ops.sh
 
 IP="$1"
 PackageName="$2"
 RepositoryURL="$3"
 RepositoryName="$4"
+
+Q="SELECT PK_Device FROM Device WHERE IPAddress='$IP'"
+Row="$(RunSQL "$Q")"
+PK_Device="$(Field 1 "$Row")"
+
+Q="SELECT COUNT(*) FROM Software WHERE FK_Device='$PK_Device' and Installation_status='Installing'"
+Row="$(RunSQL "$Q")"
+if [[ "$R" -ne 0 ]]; then
+	Result="Some package yet is installing"
+	echo "$Result"
+	exit 10
+fi
+
+Q="UPDATE Software SET Installation_status='Installing' WHERE FK_Device='$PK_Device' and PackageName='$PackageName'"
+$(RunSQL "$Q")
 
 IsDeb=
 NoAptSource=
@@ -69,6 +86,13 @@ else
 
 	rm -f /tmp/$PackageName
 fi
+
+if [ -z "$Result" ]; then
+	Q="UPDATE Software SET Installation_status='Yes' WHERE FK_Device='$PK_Device' and PackageName='$PackageName'"
+else
+	Q="UPDATE Software SET Installation_status='No' WHERE FK_Device='$PK_Device' and PackageName='$PackageName'"
+fi
+$(RunSQL "$Q")
 
 [ -z "$Result" ] && Result="Installation complete" || Err="yes"
 
