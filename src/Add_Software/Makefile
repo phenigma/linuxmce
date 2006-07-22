@@ -2,7 +2,6 @@ bin_PROGRAMS = getxmls instcheck
 
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-LDFLAGS = -L$(ROOT)/lib
 # the library search path.
 getxmls_LDADD = -lmysqlclient -ldancer-xml
 instcheck_LDADD = -lmysqlclient
@@ -13,7 +12,7 @@ VERSION_webinst = 0.0.1
 MYNAME_instcheck = instcheck
 VERSION_instcheck = 0.0.1
 
-getxmls_SOURCES = getxmls.cpp
+getxmls_SOURCES = getxmls.cpp ../PlutoUtils/uuencode.cpp
 instcheck_SOURCES = instcheck.cpp
 
 whattodo:

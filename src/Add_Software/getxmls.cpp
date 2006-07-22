@@ -40,9 +40,29 @@ extern "C"
 	#include <dancer-xml.h>
 	#include <mysql/mysql.h>
 }
+#include "../PlutoUtils/uuencode.h"
 #define MaxBuf 17
 
 using namespace std;
+
+static int pr2six[256] = {
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63, 
+	52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1, 
+	-1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 
+	15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1, 
+	-1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 
+	41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1, 
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+};
 
 string getParamValue(const char *pref,const char *paramName,dxml_element *package){
 	string tmp=pref;
@@ -80,7 +100,6 @@ int findURL(FILE *f,string &link){
 }
 
 int IsExists(MYSQL *mysql,const string packageName,const string version){
-	return 2;
 	string query="SELECT Version FROM `Software` where PackageName=\""+packageName+"\"";
 	MYSQL_RES *res;
 	MYSQL_ROW row;
@@ -91,10 +110,31 @@ int IsExists(MYSQL *mysql,const string packageName,const string version){
 	}
 	res=mysql_store_result(mysql);
 	if(row=mysql_fetch_row(res)){
-		cout<<row[0]<<"\t"<<version<<endl;
 		return (int)(strcmp(version.c_str(),row[0])>0);
 	}
 	return 2;
+}
+
+int decode(char *&dest,dxml_element *package){
+	string str=getParamValue("","icon",package);
+	size_t Size = str.length();
+	char *pDataEncoded=new char[Size];
+	char *d,*s;
+	d=pDataEncoded;
+	s=(char *)str.c_str();
+	while(*s){
+		if(pr2six[(int)*s]!=-1)
+			*d++=*s;
+		s++;
+	}
+	*d='\0';
+	Size = strlen(pDataEncoded);
+	dest=new char[Size];
+	int Bytes=0;
+	if(Size)
+		Bytes=Ns_HtuuDecode((unsigned char *) pDataEncoded, (unsigned char *) dest, Size);
+	delete pDataEncoded;
+	return Bytes;
 }
 
 int main(int argc, char *argv[]){
@@ -102,8 +142,10 @@ int main(int argc, char *argv[]){
 	MYSQL *mysql;
 	MYSQL_RES *mres;
 	MYSQL_ROW row;
-	string host="dcerouter",user="root",passwd="",db="pluto_main";
-	string query,query1;
+	string host="192.168.125.128",user="root",passwd="",db="pluto_main";
+	string sQuery,query1,sHeadQuery;
+	char *query, *pDataDecoded, *pGoodData;
+	int length=0,i,Bytes;
 	const string head="INSERT INTO `Software`(Iconstr, Title, Description, HomeURL, Category, Downloadurl, RepositoryName, PackageName, Misc, Version, Target, Importance, PC_Type, Required_Version_Min, Required_Version_Max, FK_Device) VALUES";
 	mysql=mysql_init(NULL);
 	if(!mysql_real_connect(mysql,host.c_str(),user.c_str(),passwd.c_str(),db.c_str(),0,NULL,0)){
@@ -111,6 +153,7 @@ int main(int argc, char *argv[]){
 		return false;
 	}
 	res=system("wget --user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\" -O search.html \"http://www.google.com/search?q=10faostb\"");
+	res=0;
 	if (!res){
 		FILE *fd,*fxml;
 		dxml_element *packages,*package;
@@ -121,14 +164,13 @@ int main(int argc, char *argv[]){
 		}
 		query="select PK_Device from Device where IPaddress is not NULL and IPaddress<>\'\'";
 		vector<string> vPK_Device;
-		if(mysql_real_query(mysql,query.c_str(),(unsigned int) strlen(query.c_str()))==0&&(mres=mysql_store_result(mysql))) {
+		if(mysql_real_query(mysql,query,(unsigned int) strlen(query))==0&&(mres=mysql_store_result(mysql))) {
 			while (row=mysql_fetch_row(mres))
 				vPK_Device.push_back(row[0]);
 		}
 		string link,packageName,version;
 		while (!findURL(fd,link)){
-//      cout << link.c_str() << endl;
-      res=system(link.c_str());
+			res=system(link.c_str());
 			if(!res){
 				fxml=fopen("out.xml","r");
 				if (!fxml){
@@ -147,6 +189,7 @@ int main(int argc, char *argv[]){
 					version=getParamValue("", "version",package);
 					if(!packageName.length()||!version.length())
 						continue;
+					sQuery="";
 					query="";
 					switch(IsExists(mysql,packageName,version)){
 						case -1:
@@ -155,49 +198,83 @@ int main(int argc, char *argv[]){
 							package=package->next;
 							continue;
 						case 1:
-							query="UPDATE `Software` set ";
-							query+=getParamValue("Iconstr=\"","icon",package);
-							query+=getParamValue("\",Title=\"", "title",package);
-							query+=getParamValue("\",Description=\"", "description",package);
-							query+=getParamValue("\",HomeURL=\"", "homeurl",package);
-							query+=getParamValue("\",Category=\"", "category",package);
-							query+=getParamValue("\",Downloadurl=\"", "downloadurl",package);
-							query+=getParamValue("\",RepositoryName=\"", "repositoryname",package);
-							query+=getParamValue("\",Misc=\"", "misc",package);
-							query+=getParamValue("\",Version=\"", "version",package);
-							query+=getParamValue("\",Target=\"", "target",package);
-							query+=getParamValue("\",Importance=\"", "importance",package);
-							query+=getParamValue("\",PC_Type=\"", "PC_Type",package);
-							query+=getParamValue("\",Required_Version_Min=\"", "Required_Version_Min",package);
-							query+=getParamValue("\",Required_Version_Max=\"", "Required_Version_Max",package);
-							query+="\" WHERE PackageName=\""+packageName+"\"";
+							sHeadQuery="UPDATE `Software` set Iconstr=\"";
+							Bytes=decode(pDataDecoded,package);
+							pGoodData=new char[Bytes*2+1];
+							length=Bytes=mysql_real_escape_string(mysql, pGoodData, pDataDecoded,Bytes);
+							delete pDataDecoded;
+							sQuery=getParamValue("\",Title=\"", "title",package);
+							sQuery+=getParamValue("\",Description=\"", "description",package);
+							sQuery+=getParamValue("\",HomeURL=\"", "homeurl",package);
+							sQuery+=getParamValue("\",Category=\"", "category",package);
+							sQuery+=getParamValue("\",Downloadurl=\"", "downloadurl",package);
+							sQuery+=getParamValue("\",RepositoryName=\"", "repositoryname",package);
+							sQuery+=getParamValue("\",Misc=\"", "misc",package);
+							sQuery+=getParamValue("\",Version=\"", "version",package);
+							sQuery+=getParamValue("\",Target=\"", "target",package);
+							sQuery+=getParamValue("\",Importance=\"", "importance",package);
+							sQuery+=getParamValue("\",PC_Type=\"", "PC_Type",package);
+							sQuery+=getParamValue("\",Required_Version_Min=\"", "Required_Version_Min",package);
+							sQuery+=getParamValue("\",Required_Version_Max=\"", "Required_Version_Max",package);
+							sQuery+="\" WHERE PackageName=\""+packageName+"\"";
+							length+=sHeadQuery.length();
+							length+=sQuery.length();
+							query=new char[length];
+							memcpy(query, sHeadQuery.c_str(), sHeadQuery.length());
+							i=sHeadQuery.length();
+							memcpy(query+i, pGoodData, Bytes);
+							i+=Bytes;
+							memcpy(query+i, sQuery.c_str(), sQuery.length());
+							delete pGoodData;
 							break;
 						case 2:
-							query1=getParamValue("(\"","icon",package);
-							query1+=getParamValue("\",\"", "title",package);
-							query1+=getParamValue("\",\"", "description",package);
-							query1+=getParamValue("\",\"", "homeurl",package);
-							query1+=getParamValue("\",\"", "category",package);
-							query1+=getParamValue("\",\"", "downloadurl",package);
-							query1+=getParamValue("\",\"", "repositoryname",package);
-							query1+=getParamValue("\",\"", "packagename",package);
-							query1+=getParamValue("\",\"", "misc",package);
-							query1+=getParamValue("\",\"", "version",package);
-							query1+=getParamValue("\",\"", "target",package);
-							query1+=getParamValue("\",\"", "importance",package);
-							query1+=getParamValue("\",\"", "PC_Type",package);
-							query1+=getParamValue("\",\"", "Required_Version_Min",package);
-							query1+=getParamValue("\",\"", "Required_Version_Max",package);
+							Bytes=decode(pDataDecoded,package);
+							pGoodData=new char[Bytes*2+1];
+							length=Bytes=mysql_real_escape_string(mysql, pGoodData, pDataDecoded,Bytes);
+							delete pDataDecoded;
+							sQuery=getParamValue("\",\"", "title",package);
+							sQuery+=getParamValue("\",\"", "description",package);
+							sQuery+=getParamValue("\",\"", "homeurl",package);
+							sQuery+=getParamValue("\",\"", "category",package);
+							sQuery+=getParamValue("\",\"", "downloadurl",package);
+							sQuery+=getParamValue("\",\"", "repositoryname",package);
+							sQuery+=getParamValue("\",\"", "packagename",package);
+							sQuery+=getParamValue("\",\"", "misc",package);
+							sQuery+=getParamValue("\",\"", "version",package);
+							sQuery+=getParamValue("\",\"", "target",package);
+							sQuery+=getParamValue("\",\"", "importance",package);
+							sQuery+=getParamValue("\",\"", "PC_Type",package);
+							sQuery+=getParamValue("\",\"", "Required_Version_Min",package);
+							sQuery+=getParamValue("\",\"", "Required_Version_Max",package);
+							length+=sQuery.length();
+							i=0;
 							for(size_t s=0;s<vPK_Device.size();++s)
-								query+=query1+"\","+vPK_Device[s]+"),";
-							query=head+query.substr(0,query.length()-1);
+								i+=vPK_Device[s].length()+3;
+							length=(length+3)*vPK_Device.size()+head.length()-1+i;
+							query=new char[length];
+							i=0;
+							memcpy(query, head.c_str(), head.length());
+							i=head.length();
+							for(size_t s=0;s<vPK_Device.size();++s){
+								memcpy(query+i, "(\"", 2);
+								i+=2;
+								memcpy(query+i, pGoodData, Bytes);
+								i+=Bytes;
+								memcpy(query+i, sQuery.c_str(), sQuery.length());
+								i+=sQuery.length();
+								memcpy(query+i, ((string)"\","+vPK_Device[s]+")").c_str(), vPK_Device[s].length()+3);
+								i+=vPK_Device[s].length()+3;
+								if(s<vPK_Device.size()-1)
+									memcpy(query+i++, ",", 1);
+							}
+							delete pGoodData;
 					}
-					if(query.length()){
-						cout<<query<<endl;
-						if(mysql_real_query(mysql,query.c_str(),(unsigned int) strlen(query.c_str()))){
+					if(length){
+						if(mysql_real_query(mysql,query,(unsigned int) length)){
 							cout<<"Error making query: "<<mysql_error(mysql)<<endl;
 							return false;
 						}
+						delete query;
 					}
 					package=package->next;
 				}
