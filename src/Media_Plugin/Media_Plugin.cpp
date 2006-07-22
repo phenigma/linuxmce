@@ -1531,18 +1531,6 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
 		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
 
-		// Unless this user has specified he doesn't ever want to resume this type of media, we should prompt him
-		if( m_mapPromptResume[make_pair<int,int> (pEntertainArea->m_pMediaStream->m_iPK_Users,pEntertainArea->m_pMediaStream->m_iPK_MediaType)]!='N' )
-		{
-			if( pEntertainArea->m_pMediaStream->m_dwPK_Disc )
-				SaveLastDiscPosition(pEntertainArea->m_pMediaStream);
-
-			if( pEntertainArea->m_pMediaStream->m_iPK_Playlist )
-				SaveLastPlaylistPosition(pEntertainArea->m_pMediaStream);
-
-			if( pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>=0 && pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() )
-				SaveLastFilePosition(pEntertainArea->m_pMediaStream);
-		}
 		StreamEnded(pEntertainArea->m_pMediaStream);
 	}
 }
@@ -1556,6 +1544,19 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 	}
 
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	// Unless this user has specified he doesn't ever want to resume this type of media, we should prompt him
+	if( m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]!='N' )
+	{
+		if( pMediaStream->m_dwPK_Disc )
+			SaveLastDiscPosition(pMediaStream);
+
+		if( pMediaStream->m_iPK_Playlist )
+			SaveLastPlaylistPosition(pMediaStream);
+
+		if( pMediaStream->m_iDequeMediaFile_Pos>=0 && pMediaStream->m_iDequeMediaFile_Pos<pMediaStream->m_dequeMediaFile.size() )
+			SaveLastFilePosition(pMediaStream);
+	}
 
 	// This could have been playing in lots of entertainment areas
     g_pPlutoLogger->Write( LV_STATUS, "Stream %s ended with %d ent areas", pMediaStream->m_sMediaDescription.c_str(), (int) pMediaStream->m_mapEntertainArea.size() );
