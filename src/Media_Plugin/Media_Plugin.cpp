@@ -729,7 +729,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 		if( !pMediaStream->m_bStopped )
 			pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia(pMediaStream);
 
-		StreamEnded(pMediaStream);
+		StreamEnded(pMediaStream,true,true,NULL,NULL,true);
 
 		g_pPlutoLogger->Write(LV_STATUS, "Playback completed. The stream can't play anything more.");
     }
@@ -1535,7 +1535,7 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 	}
 }
 
-void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream,MediaStream *pMediaStream_Replacement,vector<EntertainArea *> *p_vectEntertainArea)
+void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream,MediaStream *pMediaStream_Replacement,vector<EntertainArea *> *p_vectEntertainArea,bool bNoAutoResume)
 {
 	if ( pMediaStream == NULL )
 	{
@@ -1545,8 +1545,29 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
+	if( bNoAutoResume )
+	{
+		bool bError=false;
+		string sWhere = "EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + " AND ";
+		if( pMediaStream->m_dwPK_Disc )
+			sWhere += "FK_Playlist=" + StringUtils::itos(pMediaStream->m_iPK_Playlist) + " AND IsAutoResume=1";
+        else if( pMediaStream->m_iPK_Playlist )
+			sWhere += "FK_Playlist=" + StringUtils::itos(pMediaStream->m_iPK_Playlist) + " AND IsAutoResume=1";
+		else if( pMediaStream->m_iDequeMediaFile_Pos>=0 && pMediaStream->m_iDequeMediaFile_Pos<pMediaStream->m_dequeMediaFile.size() )
+		{
+			MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
+			if( pMediaFile->m_dwPK_File )
+				sWhere += "FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File) + " AND IsAutoResume=1";
+			else
+				bError=true;
+		}
+
+		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StreamEnded() no auto resume %s",sWhere.c_str());
+		if( !bError )
+			m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Bookmark WHERE " + sWhere);
+	}
 	// Unless this user has specified he doesn't ever want to resume this type of media, we should prompt him
-	if( m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]!='N' )
+	else if( m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]!='N' )
 	{
 		if( pMediaStream->m_dwPK_Disc )
 			SaveLastDiscPosition(pMediaStream);

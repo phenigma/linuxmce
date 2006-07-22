@@ -427,7 +427,7 @@ public:
 	// If the new stream we're starting has bResume true, then bDeleteStream==false so we don't delete the stream since we'll be resuming it
 	// If a new stream is replacing an old one, pMediaStream_Replacement is set to the new stream so we know if we should
 	// fire the watching/listening events again.
-	void StreamEnded(MediaStream *pMediaStream,bool bSendOff=true,bool bDeleteStream=true,MediaStream *pMediaStream_Replacement=NULL,vector<EntertainArea *> *p_vectEntertainArea=NULL);
+	void StreamEnded(MediaStream *pMediaStream,bool bSendOff=true,bool bDeleteStream=true,MediaStream *pMediaStream_Replacement=NULL,vector<EntertainArea *> *p_vectEntertainArea=NULL,bool bNoAutoResume=false);
 	void MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent=true);
 
 	virtual bool PendingTasks(vector<string> *vectPendingTasks=NULL);
