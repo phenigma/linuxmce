@@ -2203,6 +2203,14 @@
 #define DESIGNOBJ_dgUsersMobilePhone_CONST 5144
 #define DESIGNOBJ_dgInstallableAppsDetails_CONST 5145
 #define DESIGNOBJ_butRefresh_CONST 5146
+#define DESIGNOBJ_mnuChooseFolder_CONST 5147
+#define DESIGNOBJ_dgChooseFolder_CONST 5148
+#define DESIGNOBJ_butChoose_CONST 5149
+#define DESIGNOBJ_butCreateDir_CONST 5150
+#define DESIGNOBJ_butChooseFolder_CONST 5151
+#define DESIGNOBJ_mnuChooseDrive_CONST 5152
+#define DESIGNOBJ_dgChooseDrive_CONST 5153
+#define DESIGNOBJ_butChooseDrive_CONST 5154
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

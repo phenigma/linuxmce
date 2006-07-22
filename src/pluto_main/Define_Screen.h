@@ -228,6 +228,8 @@
 #define SCREEN_House_Setup_Popup_Message_CONST 237
 #define SCREEN_Media_Player_Setup_Popup_Message_CONST 238
 #define SCREEN_Add_Software_CONST 239
+#define SCREEN_Choose_Folder_CONST 240
+#define SCREEN_Choose_Drive_CONST 241
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"

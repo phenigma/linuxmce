@@ -1070,6 +1070,10 @@
 #define TEXT_selected_add_software_CONST 1783
 #define TEXT_Confirm_Add_Software_CONST 1784
 #define TEXT_Confirm_delete_software_CONST 1785
+#define TEXT_Choose_Folder_CONST 1786
+#define TEXT_Choose_CONST 1787
+#define TEXT_Create_Directory_CONST 1788
+#define TEXT_Choose_Drive_CONST 1789
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
