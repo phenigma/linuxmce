@@ -142,7 +142,7 @@ int main(int argc, char *argv[]){
 	MYSQL *mysql;
 	MYSQL_RES *mres;
 	MYSQL_ROW row;
-	string host="192.168.125.128",user="root",passwd="",db="pluto_main";
+	string host="dcerouter",user="root",passwd="",db="pluto_main";
 	string sQuery,query1,sHeadQuery;
 	char *query, *pDataDecoded, *pGoodData;
 	int length=0,i,Bytes;
