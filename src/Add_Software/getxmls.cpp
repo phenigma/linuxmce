@@ -77,7 +77,7 @@ int findURL(FILE *f,string &link){
 	char buf[MaxBuf+1];
 	int pos,pos2;
 	static string buf2="";
-	link="wget --user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\" -O out.xml ";
+	link="wget --user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\" -O /tmp/out.xml ";
 	while (fread(buf,MaxBuf,1,f)){
 		buf[MaxBuf]='\0';
 		buf2+=buf;
@@ -100,6 +100,7 @@ int findURL(FILE *f,string &link){
 }
 
 int IsExists(MYSQL *mysql,const string packageName,const string version){
+	return 2;
 	string query="SELECT Version FROM `Software` where PackageName=\""+packageName+"\"";
 	MYSQL_RES *res;
 	MYSQL_ROW row;
@@ -152,12 +153,13 @@ int main(int argc, char *argv[]){
 		cout<<"Error connecting to db:"<<mysql_error(mysql)<<endl;
 		return false;
 	}
-	res=system("wget --user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\" -O search.html \"http://www.google.com/search?q=10faostb\"");
+//	res=system("wget --user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\" -O /tmp/search.html \"http://www.google.com/search?q=10faostb\"");
+	res=system("wget --user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\" -O /tmp/search.html \"http://www.google.com/search?q=Debian\"");
 	res=0;
 	if (!res){
 		FILE *fd,*fxml;
 		dxml_element *packages,*package;
-		fd=fopen("search.html","r");
+		fd=fopen("/tmp/search.html","r");
 		if (!fd){
 			cout<<"Error opening file search.html\n";
 			return false;
@@ -170,9 +172,9 @@ int main(int argc, char *argv[]){
 		}
 		string link,packageName,version;
 		while (!findURL(fd,link)){
-			res=system(link.c_str());
+//			res=system(link.c_str());
 			if(!res){
-				fxml=fopen("out.xml","r");
+				fxml=fopen("/tmp/out.xml","r");
 				if (!fxml){
 					cout<<"Error opening file out.xml:"<<mysql_error(mysql)<<endl;
 					return false;
@@ -283,5 +285,6 @@ int main(int argc, char *argv[]){
 		}
 		fclose(fd);
 	}
+	system("rm -f /tmp/search.html /tmp/out.xml");
 	return true;
 }
