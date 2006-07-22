@@ -96,6 +96,8 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	m_iCurrentScreen = 0;
 	m_iCurrentWindow = 0;
 	
+	m_iMenuButtons = 0;
+	
 	m_iSpecialSeekSpeed = 0;
 	m_iSpecialOneTimeSeek = 0;
 	m_iPrebuffer = 90000;
@@ -787,7 +789,6 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 		  	jCounter = 0;
 		}
 		
-		
 		//updating time and speed when @trickplay mode
 		if (pStream->m_bTrickModeActive)
 		{
@@ -797,6 +798,16 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 				pStream->DisplaySpeedAndTimeCode();
 			}
 		}
+		
+		//updating time and speed when paused
+		if ( pStream->m_iPlaybackSpeed==0)
+		{
+			//only every 0.5s
+			if (iCounter%5==0)
+			{
+				pStream->DisplaySpeedAndTimeCode();
+			}
+		}		
 		
 		if ( pStream->m_iSpecialSeekSpeed )
 			pStream->HandleSpecialSeekSpeed();
@@ -1173,7 +1184,8 @@ void Xine_Stream::DisplaySpeedAndTimeCode()
 	else
 		sSpeed += StringUtils::itos( seconds );
 
-	if ( (( m_iSpecialSeekSpeed == 0 )&&!m_bTrickModeActive) || ( seconds_only == 1 ) )
+
+	if ( (( m_iSpecialSeekSpeed == 0 )&&!m_bTrickModeActive&&(m_iPlaybackSpeed!=0)) || ( seconds_only == 1 ) )
 		DisplayOSDText("");
 	else
 		DisplayOSDText( sSpeed );
@@ -2548,6 +2560,7 @@ int Xine_Stream::CalculatePosition(string &sMediaPosition,string *sMRL,int *Subt
 
 void Xine_Stream::FireMenuOnScreen(int iButtons)
 {
+	m_iMenuButtons = iButtons;
 	m_pFactory->m_pPlayer->FireMenuOnScreen( m_iRequestingObject, m_iStreamID, iButtons != 0 );
 }
 

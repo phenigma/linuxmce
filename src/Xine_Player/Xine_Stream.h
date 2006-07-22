@@ -114,7 +114,11 @@ namespace DCE
 			
 			int m_iPlaybackSpeed;
 			
+		public:
+			int m_iMenuButtons;			
 			void FireMenuOnScreen(int iButtons);
+			
+		private:
 			
 			int m_iSeekMuteStatus;
 			

@@ -197,6 +197,8 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 	{
 		string mPosition;
 		CMD_Stop_Media( 1, &mPosition);
+		if (prevStream->m_iMenuButtons!=0)
+			prevStream->FireMenuOnScreen( 0 );
 	}
 	
 
@@ -212,6 +214,11 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 	
 	pStream->m_iStreamID = iStreamID;
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() set actual stream ID=%i.",iStreamID);
+	
+	// hiding menu if it was on screen
+	if (pStream->m_iMenuButtons!=0)
+		pStream->FireMenuOnScreen( 0 );
+	
 	
 	if( sFilename.size()==0 && sMediaPosition.size()==0)
 	{
