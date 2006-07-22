@@ -213,14 +213,23 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 	pStream->m_iStreamID = iStreamID;
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() set actual stream ID=%i.",iStreamID);
 	
-	pStream->	m_sCurrentFile=sFilename;
-	
-	if( sFilename.size()==0 )
+	if( sFilename.size()==0 && sMediaPosition.size()==0)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() ");
+		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() with empty filename and position");
 		pStream->changePlaybackSpeed(Xine_Stream::PLAYBACK_NORMAL);		
 		return;
 	}
+	
+	if( sFilename.size()==0 && pStream->m_bIsRendering)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() with empty filename");
+		pStream->changePlaybackSpeed(Xine_Stream::PLAYBACK_STOP);
+		pStream->playStream( sMediaPosition);
+		return;
+	}
+	
+	pStream->m_sCurrentFile=sFilename;
+
 	
 	string sMediaInfo;
 	

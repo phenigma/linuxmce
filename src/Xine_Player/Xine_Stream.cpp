@@ -428,7 +428,9 @@ bool Xine_Stream::InitXineAVOutput()
 bool Xine_Stream::CloseMedia()
 {
 	if ( m_pXineStream )
-	{	
+	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+
 		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_stop for stream with id: %d", m_iStreamID );
 		xine_stop( m_pXineStream );
 
@@ -1072,6 +1074,8 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 
 int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime )
 {
+	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+
 	if ( m_pDynamic_Pointer )
 		m_pDynamic_Pointer->pointer_check_time();
 
@@ -1719,7 +1723,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 			StopSpecialSeek();
 		} 
 		else 
-		if ( trickModeSupported &&  trickModeActive )
+		if ( trickModeActive )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");
 			
@@ -1747,7 +1751,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 	const int UltraFastFWD = 16*1000;
 	if ( (desiredSpeed < 0)||( (desiredSpeed > 0) && !trickModeSupported )||(desiredSpeed>UltraFastFWD) ||!m_bHasVideo)
 	{	
-		if ( trickModeSupported &&  trickModeActive )
+		if ( trickModeActive )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");	
 			xine_stop_trick_play(m_pXineStream);
