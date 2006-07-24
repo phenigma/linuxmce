@@ -218,29 +218,23 @@ void PlutoMediaFile::SyncDbAttributes()
 				Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(m_nPK_MediaType,
 					pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName);
 
-				string SQL = 
-					"SELECT * FROM File_Attribute WHERE FK_File = " + StringUtils::ltos(PK_File) + 
-					" AND FK_Attribute = " + StringUtils::ltos(pRow_Attribute->PK_Attribute_get());
-
-				PlutoSqlResult result;
-				MYSQL_ROW row;
-				if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+				//already in the database?
+				if(NULL == m_pDatabase_pluto_media->File_Attribute_get()->GetRow(
+					PK_File, pRow_Attribute->PK_Attribute_get(),
+					pPlutoMediaAttribute->m_nTrack, pPlutoMediaAttribute->m_nSection)
+				)
 				{
-					//already in the database?
-					if(NULL == mysql_fetch_row(result.r))
-					{
-						Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
-						pRow_File_Attribute->FK_File_set(PK_File);
-						pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
-						pRow_File_Attribute->Section_set(pPlutoMediaAttribute->m_nSection);
-						pRow_File_Attribute->Track_set(pPlutoMediaAttribute->m_nTrack);
-						pRow_File_Attribute->Table_File_Attribute_get()->Commit();
+					Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+					pRow_File_Attribute->FK_File_set(PK_File);
+					pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+					pRow_File_Attribute->Section_set(pPlutoMediaAttribute->m_nSection);
+					pRow_File_Attribute->Track_set(pPlutoMediaAttribute->m_nTrack);
+					pRow_File_Attribute->Table_File_Attribute_get()->Commit();
 
-						g_pPlutoLogger->Write(LV_STATUS, "# SyncDbAttributes: Adding attribute to database: "
-							"for PK_File %d, AttrID %d, AttrType = %d with value %s, section %d, track %d", 
-							PK_File, pRow_Attribute->PK_Attribute_get(), pPlutoMediaAttribute->m_nType,
-							pPlutoMediaAttribute->m_sName.c_str(), pPlutoMediaAttribute->m_nSection, pPlutoMediaAttribute->m_nTrack); 
-					}
+					g_pPlutoLogger->Write(LV_STATUS, "# SyncDbAttributes: Adding attribute to database: "
+						"for PK_File %d, AttrID %d, AttrType = %d with value %s, section %d, track %d", 
+						PK_File, pRow_Attribute->PK_Attribute_get(), pPlutoMediaAttribute->m_nType,
+						pPlutoMediaAttribute->m_sName.c_str(), pPlutoMediaAttribute->m_nSection, pPlutoMediaAttribute->m_nTrack); 
 				}
 			}
 		}
