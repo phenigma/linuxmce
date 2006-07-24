@@ -191,3 +191,15 @@ diff -Naur icewm-1.2.26.orig/src/ywindow.h icewm-1.2.26/src/ywindow.h
      long fEventMask;
      int fWinGravity, fBitGravity;
  
+diff -u icewm-1.2.26.orig/src/Makefile.in icewm-1.2.26/src/Makefile.in
+--- icewm-1.2.26.orig/src/Makefile.in	2006-07-24 19:58:35.000000000 +0300
++++ icewm-1.2.26/src/Makefile.in	2006-07-24 19:59:50.000000000 +0300
+@@ -39,7 +39,7 @@
+ CXXFLAGS =      @CXXFLAGS@ $(DEBUG) $(DEFS) \
+ 	        @CORE_CFLAGS@ @IMAGE_CFLAGS@ @AUDIO_CFLAGS@ # `fc-config --cflags`
+ LFLAGS =	@LDFLAGS@
+-LIBS =        -lsupc++  @LIBS@
++LIBS =        -lsupc++ -lXrender  @LIBS@
+ 
+ CORE_LIBS =     @CORE_LIBS@ # `fc-config --libs`
+ IMAGE_LIBS =    @IMAGE_LIBS@
