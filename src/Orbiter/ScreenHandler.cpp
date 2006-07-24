@@ -1114,14 +1114,14 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 		"" //do nothing
 		);
 }
-
+//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void ScreenHandler::SCREEN_Add_Software(long PK_Screen)
 {
 	ScreenHandlerBase::SCREEN_Add_Software(PK_Screen);
 	RegisterCallBack(cbObjectHighlighted, (ScreenHandlerCallBack) &ScreenHandler::AddSoftware_ObjectHighlighted,	new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::AddSoftware_GridSelected, new DatagridCellBackData());
 }
-
+//-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::AddSoftware_ObjectHighlighted(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
@@ -1135,7 +1135,7 @@ bool ScreenHandler::AddSoftware_ObjectHighlighted(CallBackData *pData)
 	}
 	return false; // Keep processing it
 }
-
+//-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
@@ -1170,3 +1170,72 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 
 	return false; // Keep processing it
 }
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void ScreenHandler::SCREEN_Choose_Drive(long PK_Screen)
+{
+	sMountedFolderForDrive = "";
+	ScreenHandlerBase::SCREEN_Choose_Drive(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Choose_Drive_ObjectSelected,	
+		new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::Choose_Drive_GridSelected, 
+		new DatagridCellBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::Choose_Drive_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
+	
+	if(NULL != pObjectInfoData)
+	{
+		if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
+		{
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sMountedFolderForDrive + "\nMT-1\nP");
+			m_pOrbiter->CMD_Goto_Screen("", SCREEN_Choose_Folder_CONST);
+		}
+	}
+		
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::Choose_Drive_GridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = dynamic_cast<DatagridCellBackData *>(pData);
+
+	if(NULL != pCellInfoData && NULL != pCellInfoData->m_pDataGridCell)
+	{
+        sMountedFolderForDrive = string("/mnt/device/") + pCellInfoData->m_pDataGridCell->GetValue();
+	}
+
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Choose_Folder(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_Choose_Folder(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Choose_Folder_ObjectSelected,	
+		new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::Choose_Folder_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
+
+	if(NULL != pObjectInfoData)
+	{
+		if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
+		{
+			int bubu = 4;
+			//do something here
+		}
+		else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butCreateDir_CONST)
+		{
+			SCREEN_GenericKeyboard(SCREEN_GenericKeyboard_CONST, 
+				"Type the name of the folder|Create folder|Cancel", 
+				"create_folder_command_not_implemented|", 
+				"Folder creation", "0");
+		}
+	}
+
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------

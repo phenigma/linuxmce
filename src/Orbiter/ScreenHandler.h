@@ -176,6 +176,14 @@ public:
 	virtual void SCREEN_Add_Software(long PK_Screen);
 	bool AddSoftware_ObjectHighlighted(CallBackData *pData);
 	bool AddSoftware_GridSelected(CallBackData *pData);
+
+	virtual void SCREEN_Choose_Drive(long PK_Screen);
+	bool Choose_Drive_ObjectSelected(CallBackData *pData);
+	bool Choose_Drive_GridSelected(CallBackData *pData);
+	string sMountedFolderForDrive;
+
+	virtual void SCREEN_Choose_Folder(long PK_Screen);
+	bool Choose_Folder_ObjectSelected(CallBackData *pData);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

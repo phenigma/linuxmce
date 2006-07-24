@@ -881,8 +881,8 @@ class DataGridTable *General_Info_Plugin::DevicesOfCategory( string GridID, stri
 
 	int iRow=0,iCol=0;
 	vector<Row_Device *> vectRow_Device;
-	m_pDatabase_pluto_main->Device_get()->GetRows("JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + 
-		Parms + " ORDER BY Device.Description",&vectRow_Device);
+	m_pDatabase_pluto_main->Device_get()->GetRows("JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory IN (" + 
+		Parms + ") ORDER BY Device.Description",&vectRow_Device);
 	for(size_t s=0;s<vectRow_Device.size();++s)
 	{
 		Row_Device *pRow_Device = vectRow_Device[s];

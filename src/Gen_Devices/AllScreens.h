@@ -9421,6 +9421,86 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_Choose_Folder : public PreformedCommand
+	{
+	public:
+		SCREEN_Choose_Folder(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "240" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Choose_Folder_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Choose_Folder_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "240" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Choose_Folder_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Choose_Folder_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "240" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Choose_Folder_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Choose_Folder_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "240" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Choose_Drive : public PreformedCommand
+	{
+	public:
+		SCREEN_Choose_Drive(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "241" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Choose_Drive_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Choose_Drive_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "241" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Choose_Drive_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Choose_Drive_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "241" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Choose_Drive_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Choose_Drive_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "241" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9674,6 +9754,8 @@ namespace DCE
 		virtual void SCREEN_House_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Media_Player_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Add_Software(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Choose_Folder(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Choose_Drive(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -11107,6 +11189,18 @@ namespace DCE
 				{
 					ResetCallBacks();
 					SCREEN_Add_Software(nPK_Screen);
+					break;
+				}
+				case 240:
+				{
+					ResetCallBacks();
+					SCREEN_Choose_Folder(nPK_Screen);
+					break;
+				}
+				case 241:
+				{
+					ResetCallBacks();
+					SCREEN_Choose_Drive(nPK_Screen);
 					break;
 				}
 
