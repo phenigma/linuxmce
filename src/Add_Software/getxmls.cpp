@@ -140,7 +140,7 @@ int main(int argc, char *argv[]){
 	MYSQL_RES *mres;
 	MYSQL_ROW row;
 	string host="dcerouter",user="root",passwd="",db="pluto_main";
-	string sQuery,query1,sHeadQuery;
+	string sQuery,query1,sHeadQuery, url;
 	char *query, *pDataDecoded, *pGoodData;
 	int length=0,i,Bytes;
 	const string head="INSERT INTO `Software`(Iconstr, Title, Description, HomeURL, Category, Downloadurl, RepositoryName, PackageName, Misc, Version, Target, Importance, PC_Type, Required_Version_Min, Required_Version_Max, FK_Device) VALUES";
@@ -150,7 +150,7 @@ int main(int argc, char *argv[]){
 		return false;
 	}
 	if(argc>1){
-		string url=argv[1];
+		url=argv[1];
 	}else{
 		url="http://www.google.com/search?q=10faostb";
 	}
