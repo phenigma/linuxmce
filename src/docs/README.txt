@@ -12,5 +12,5 @@
 /pluto/trunk/src/utilities/linux/window_manager/WINDOW_MANAGER.txt
   - notes about the window manager used in Pluto
 
-/pluto/trunk/src/utilities/linux/window_manager/wm_icewm/README.txt
+/pluto/trunk/src/utilities/linux/window_manager/wm_icewm/ICEWM_CONFIG.txt
   - notes about Icewm config in Pluto
