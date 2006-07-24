@@ -113,9 +113,6 @@ fi
 
 /usr/pluto/bin/X-UpdateModules.sh --conffile "$ConfigFile"
 UI_Version=$(/usr/pluto/bin/X-WhichUI.sh)
-if [[ "$DisplayDriver" == nvidia ]]; then
-	UI_Version=2 # force UI v2 options for nVidia
-fi
 awk -v"UI=$UI_Version" -f/usr/pluto/bin/X-UI_Sections.awk "$ConfigFile" >"$ConfigFile.$$"
 mv "$ConfigFile"{.$$,}
 
