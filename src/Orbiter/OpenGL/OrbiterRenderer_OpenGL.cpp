@@ -44,8 +44,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 	int Height = pOrbiterRenderer->OrbiterLogic()->m_iImageHeight;
 
 	pOrbiterRenderer->Engine = new OpenGL3DEngine();
-	if(!pOrbiterRenderer->Engine->GL.InitVideoMode(Width, Height, 32, false)
-	)
+	if(!pOrbiterRenderer->Engine->GL.InitVideoMode(Width, Height, 32, false))
 	{
 		pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
 		std::cout << "*** Thread -- GL.InitVideoMode FAILED" << std::endl;
@@ -104,6 +103,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterRenderer_OpenGL::~OrbiterRenderer_OpenGL()
 {
+	g_pPlutoLogger->Write(LV_CRITICAL, "");
 	//cleanup here
 	if(NULL != Engine)
 		Engine->Quit = true;
@@ -495,10 +495,11 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	int EffectCode = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
 	//int EffectCode = GLEffect2D::EffectFactory::GetEffectCode(9);
 	//g_pPlutoLogger->Write(LV_WARNING, "%d", EffectCode);
+	/*
 	a = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
 	b = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
 	c = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
-	
+	*/
 	
 	Item = Engine->Compose->CreateEffect(2, a, 0, Simulator::GetInstance()->m_iMilisecondsTransition);
 	if(Item)
