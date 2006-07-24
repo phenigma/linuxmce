@@ -13,10 +13,6 @@
 	See the GNU General Public License for more details.
 */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <iostream>
 #include <cstdlib>
 #include <sys/types.h>
@@ -153,8 +149,12 @@ int main(int argc, char *argv[]){
 		cout<<"Error connecting to db:"<<mysql_error(mysql)<<endl;
 		return false;
 	}
-//	res=system("wget --user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\" -O /tmp/search.html \"http://www.google.com/search?q=10faostb\"");
-	res=system("wget --user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\" -O /tmp/search.html \"http://www.google.com/search?q=Debian\"");
+	if(argc>1){
+		string url=argv[1];
+	}else{
+		url="http://www.google.com/search?q=10faostb";
+	}
+	res=system((string("wget --user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\" -O /tmp/search.html \"")+url+"\"").c_str());
 	res=0;
 	if (!res){
 		FILE *fd,*fxml;
