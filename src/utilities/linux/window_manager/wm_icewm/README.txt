@@ -16,4 +16,7 @@ cd icewm-<version>.patched/
 ./configure --prefix=/opt/icewm-1.2.21pre1 --with-cfgdir=/opt/icewm-1.2.21pre1/etc/icewm
 ./configure --prefix=/opt/icewm-1.2.26 --with-cfgdir=/opt/icewm-1.2.26/etc/icewm
 
+launch example:
+env PATH="/opt/icewm-<version>/bin:$PATH" icewm-session
+
 EOF
