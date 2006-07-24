@@ -100,15 +100,15 @@ void ExtensionManager::Resize(int Width, int Height)
 	/* Sets up OpenGL double buffering */
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 #ifndef WIN32
-// 	SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT);
-//	SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_WINDOW_BIT);
+ 	SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT);
+	SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_WINDOW_BIT);
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      1);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    1);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     1);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    1);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    1);
 #endif
-//	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      1);
-//	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    1);
-//	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     1);
-////	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    1);
-//	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  1);
-//	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    1);
 
 	Uint32 uVideoModeFlags = SDL_OPENGL;
 
