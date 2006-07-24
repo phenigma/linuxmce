@@ -1,3 +1,9 @@
+bootsplash-theme-pluto (0.1-1pluto3) unstable; urgency=low
+
+  * Removed some unused debconf variables
+  
+ -- Razvan Gavril <razvan.g@plutohome.com>  Mon, 24 Jul 2006 18:30:48 +0300
+ 
 bootsplash-theme-pluto (0.1-1pluto2) unstable; urgency=low
 
   * Removed fonts from package and add them to bootsplash

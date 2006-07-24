@@ -1,3 +1,9 @@
+bootsplash (3.1-1pluto7) unstable; urgency=low
+
+  * Removed an old debconf option that was not used any more
+  
+ -- Razvan Gavril <razvan.g@plutohome.com>  Mon, 24 Jul 2006 18:25:24 +0300
+ 
 bootsplash (3.1-1pluto6) unstable; urgency=low
 
   * Remove code that patched the initrd from postinst, it can mess up realy
