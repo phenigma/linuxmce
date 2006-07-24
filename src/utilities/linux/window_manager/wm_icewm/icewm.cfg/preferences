@@ -35,7 +35,7 @@ LowerOnClickWhenRaised=0 # 0/1
 PassFirstClickToClient=1 # 0/1
 
 #  Change to the workspace of newly focused windows
-FocusChangesWorkspace=1 # 0/1
+FocusChangesWorkspace=0 # 0/1
 
 #  Focus normal window when initially mapped
 FocusOnMap=1 # 0/1
