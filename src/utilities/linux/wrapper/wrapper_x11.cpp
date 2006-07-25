@@ -9,6 +9,7 @@
 #endif
 
 #include "wrapper_x11.h"
+#include <X11/extensions/shape.h>
 
 #ifdef USE_DEBUG_CODE
 #include "define_all.h"
@@ -40,7 +41,7 @@ static const bool g_bXNoLock  = getenv("X11_NO_XLOCK");
   {
   // X11 result or status
   int code = -1;
-  X11_Locker x11_locker(v_pDisplay);
+  X11_Locker x11_locker(GetDisplay());
   do
   {
   .......
@@ -81,7 +82,7 @@ bool X11_Sync(Display *pDisplay)
         _LOG_ERR("NULL Display pointer");
         return false;
     }
-    //_LOG_NFO("pDisplay==%p", v_pDisplay);
+    //_LOG_NFO("pDisplay==%p", pDisplay);
     //XFlush(pDisplay); // already called by XSync
     XSync(pDisplay, false);
     return true;
@@ -94,7 +95,7 @@ bool X11_Lock(Display *pDisplay)
         _LOG_ERR("NULL Display pointer");
         return false;
     }
-    //_LOG_NFO("pDisplay==%p", v_pDisplay);
+    //_LOG_NFO("pDisplay==%p", pDisplay);
     if (g_bXSynchronize_Each)
         XSynchronize(pDisplay, true);
     if (! g_bXNoLock)
@@ -109,7 +110,7 @@ bool X11_Unlock(Display *pDisplay)
         _LOG_ERR("NULL Display pointer");
         return false;
     }
-    //_LOG_NFO("pDisplay==%p", v_pDisplay);
+    //_LOG_NFO("pDisplay==%p", pDisplay);
     X11_Sync(pDisplay);
     if (! g_bXNoLock)
         XUnlockDisplay(pDisplay);
@@ -182,7 +183,7 @@ X11wrapper::X11wrapper(Display * pDisplay/*=NULL*/)
 
 X11wrapper::~X11wrapper()
 {
-    _LOG_NFO("pDisplay==%p", v_pDisplay);
+    _LOG_NFO("pDisplay==%p", GetDisplay());
 #ifdef USE_XDGA
     _COND(XDGA_Exit());
 #endif // USE_XDGA
@@ -191,13 +192,13 @@ X11wrapper::~X11wrapper()
 
 bool X11wrapper::IsInitialized()
 {
-    _LOG_NFO("pDisplay==%p", v_pDisplay);
-    return (v_pDisplay != NULL);
+    _LOG_NFO("pDisplay==%p", GetDisplay());
+    return (GetDisplay() != NULL);
 }
 
 bool X11wrapper::Clean_Exit()
 {
-    if (v_pDisplay == NULL)
+    if (GetDisplay() == NULL)
         return true;
     _LOG_NFO();
     if (v_bIsChanged_X_AfterFunction)
@@ -217,43 +218,43 @@ void X11wrapper::Assign_Display(Display * pDisplay)
         _LOG_WRN("will overwrite the display");
     }
     v_pDisplay = pDisplay;
-    _LOG_NFO("pDisplay==%p", v_pDisplay);
-    v_bIsAssigned_Display = (v_pDisplay != NULL);
+    _LOG_NFO("pDisplay==%p", GetDisplay());
+    v_bIsAssigned_Display = (GetDisplay() != NULL);
     if (g_bXSynchronize_All)
-        XSynchronize(v_pDisplay, true);
+        XSynchronize(GetDisplay(), true);
     if (g_bXAfterFunction)
         AfterFunction_Set();
 }
 
 Display * X11wrapper::Display_Open()
 {
-    if (v_pDisplay != NULL)
+    if (GetDisplay() != NULL)
     {
-        _LOG_WRN("pDisplay==%p", v_pDisplay);
-        return v_pDisplay;
+        _LOG_WRN("pDisplay==%p", GetDisplay());
+        return GetDisplay();
     }
     v_pDisplay = XOpenDisplay(NULL);
-    if (v_pDisplay == NULL)
-        _LOG_ERR("pDisplay==%p", v_pDisplay);
+    if (GetDisplay() == NULL)
+        _LOG_ERR("pDisplay==%p", GetDisplay());
     else
-        _LOG_NFO("pDisplay==%p", v_pDisplay);
-    return v_pDisplay;
+        _LOG_NFO("pDisplay==%p", GetDisplay());
+    return GetDisplay();
 }
 
 bool X11wrapper::Display_Close()
 {
-    if (v_pDisplay == NULL)
+    if (GetDisplay() == NULL)
     {
-        _LOG_ERR("pDisplay==%p", v_pDisplay);
+        _LOG_ERR("pDisplay==%p", GetDisplay());
         return false;
     }
     if (v_bIsAssigned_Display)
     {
-        _LOG_NFO("pDisplay==%p was assigned, not closing", v_pDisplay);
+        _LOG_NFO("pDisplay==%p was assigned, not closing", GetDisplay());
         return true;
     }
-    _LOG_NFO("closing pDisplay==%p", v_pDisplay);
-    return XCloseDisplay(v_pDisplay);
+    _LOG_NFO("closing pDisplay==%p", GetDisplay());
+    return XCloseDisplay(GetDisplay());
 }
 
 void X11wrapper::Assign_MainWindow(Window window)
@@ -273,11 +274,6 @@ Window X11wrapper::GetMainWindow()
 
 Display * X11wrapper::GetDisplay()
 {
-    //if (v_pDisplay == NULL)
-    //{
-    //    _LOG_NFO("open a new one");
-    //    Display_Open();
-    //}
     return v_pDisplay;
 }
 
@@ -293,20 +289,18 @@ string X11wrapper::GetDisplayString()
 
 int X11wrapper::GetDisplayWidth()
 {
-    return XDisplayWidth(GetDisplay(), XDefaultScreen(GetDisplay()));
+    return XDisplayWidth(GetDisplay(), GetScreen());
 }
 
 int X11wrapper::GetDisplayHeight()
 {
-    return XDisplayHeight(GetDisplay(), XDefaultScreen(GetDisplay()));
+    return XDisplayHeight(GetDisplay(), GetScreen());
 }
 
 bool X11wrapper::GetDisplaySize(int &nWidth, int &nHeight)
 {
-    Display *pDisplay = GetDisplay();
-    int nScreen = XDefaultScreen(pDisplay);
-    nWidth = XDisplayWidth(pDisplay, nScreen);
-    nHeight = XDisplayHeight(pDisplay, nScreen);
+    nWidth = GetDisplayWidth();
+    nHeight = GetDisplayHeight();
     return true;
 }
 
@@ -378,17 +372,17 @@ bool X11wrapper::ErrorHandler_Restore()
 
 void X11wrapper::Sync()
 {
-    X11_Sync(v_pDisplay);
+    X11_Sync(GetDisplay());
 }
 
 void X11wrapper::Lock()
 {
-    X11_Lock(v_pDisplay);
+    X11_Lock(GetDisplay());
 }
 
 void X11wrapper::Unlock()
 {
-    X11_Unlock(v_pDisplay);
+    X11_Unlock(GetDisplay());
 }
 
 Window X11wrapper::Window_Create(int nPosX, int nPosY, unsigned int nWidth, unsigned int nHeight, Window parent_window/*=None*/)
@@ -400,7 +394,7 @@ Window X11wrapper::Window_Create(int nPosX, int nPosY, unsigned int nWidth, unsi
     }
     _LOG_NFO("pos==(%d, %d, %d, %d), parent_window==%d", nPosX, nPosY, nWidth, nHeight, parent_window);
     Window window = 0;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         window = XCreateSimpleWindow(
@@ -420,7 +414,7 @@ Window X11wrapper::Window_Create_Show(int nPosX, int nPosY, unsigned int nWidth,
 {
     _LOG_NFO("pos==(%d, %d, %d, %d), parent_window==%d", nPosX, nPosY, nWidth, nHeight, parent_window);
     Window window = 0;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         window = Window_Create(nPosX, nPosY, nWidth, nHeight, parent_window);
@@ -437,7 +431,7 @@ bool X11wrapper::Window_Destroy(Window window)
 {
     _LOG_NFO("window==%d", window);
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         code = XDestroyWindow(GetDisplay(), window);
@@ -450,7 +444,7 @@ bool X11wrapper::Window_Show(Window window, bool bShow/*=true*/)
 {
     _LOG_NFO("window==%d, bShow==%d", window, bShow);
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         if (bShow)
@@ -482,7 +476,7 @@ bool X11wrapper::Window_MoveResize(Window window, int nPosX, int nPosY, unsigned
 {
     _LOG_NFO("window==%d, pos==(%d, %d, %d, %d)", window, nPosX, nPosY, nWidth, nHeight);
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         code = XMoveResizeWindow(GetDisplay(), window, nPosX, nPosY, nWidth, nHeight);
@@ -495,7 +489,7 @@ bool X11wrapper::Window_ClassName(Window window, const char *s_class, const char
 {
     _LOG_NFO("window==%d, s_class=='%s', s_name=='%s')", window, s_class, s_name);
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         XClassHint classHint;
@@ -511,7 +505,7 @@ bool X11wrapper::Window_Name(Window window, const char *s_name)
 {
     _LOG_NFO("window==%d, s_name==%s", window, s_name);
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         code = XStoreName(GetDisplay(), window, s_name);
@@ -524,7 +518,7 @@ bool X11wrapper::Window_Raise(Window window)
 {
     _LOG_NFO("window==%d", window);
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         code = XRaiseWindow(GetDisplay(), window);
@@ -537,7 +531,7 @@ bool X11wrapper::Window_Lower(Window window)
 {
     _LOG_NFO("window==%d", window);
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         code = XLowerWindow(GetDisplay(), window);
@@ -550,7 +544,7 @@ bool X11wrapper::Keyboard_Grab(Window window_grab)
 {
     _LOG_NFO("window_grab==%d", window_grab);
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         code = XGrabKeyboard(
@@ -570,7 +564,7 @@ bool X11wrapper::Keyboard_Ungrab()
 {
     _LOG_NFO();
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         code = XUngrabKeyboard(GetDisplay(), CurrentTime);
@@ -583,7 +577,7 @@ bool X11wrapper::Keyboard_SetAutoRepeat(bool bOn)
 {
     _LOG_NFO("bOn==%d", bOn);
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         if (bOn)
@@ -599,7 +593,7 @@ bool X11wrapper::Mouse_Grab(Window window_grab, Window window_confine_to/*=None*
 {
     _LOG_NFO("window_grab==%d, window_confine_to==%d", window_grab, window_confine_to);
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         code = XGrabPointer(
@@ -622,7 +616,7 @@ bool X11wrapper::Mouse_Ungrab()
 {
     _LOG_NFO();
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         code = XUngrabPointer(GetDisplay(), CurrentTime);
@@ -641,18 +635,18 @@ bool X11wrapper::Mouse_HideCursor(Window window)
     _LOG_NFO("window==%d", window);
     static const char dataNoCursor[] = { 0x00 };
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
-        Pixmap pixmap = XCreateBitmapFromData( v_pDisplay, window, dataNoCursor, 1, 1 );
+        Pixmap pixmap = XCreateBitmapFromData(GetDisplay(), window, dataNoCursor, 1, 1);
         if (pixmap == None)
             _LOG_XERROR_BREAK("cannot create the pixmap");
         XColor color;
         memset(&color, 0, sizeof(color));
-        Cursor cursor = XCreatePixmapCursor(v_pDisplay, pixmap, pixmap, &color, &color, 0, 0);
+        Cursor cursor = XCreatePixmapCursor(GetDisplay(), pixmap, pixmap, &color, &color, 0, 0);
         if (! cursor)
             _LOG_XERROR_BREAK("Cannot create pixmap cursor");
-        code = XDefineCursor( v_pDisplay, window, cursor );
+        code = XDefineCursor(GetDisplay(), window, cursor);
         _COND_XERROR_LOG_BREAK(code);
     } while (0);
     return IsReturnCodeOk(code);
@@ -662,7 +656,7 @@ bool X11wrapper::Mouse_SetCursor_Inherit(Window window)
 {
     _LOG_NFO("window==%d", window);
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         code = XUndefineCursor(GetDisplay(), window);
@@ -680,7 +674,7 @@ bool X11wrapper::Mouse_SetCursor_Font(Window window, int nShape)
         return Mouse_SetCursor_Inherit(window);
     }
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         // create the cursor
@@ -700,7 +694,7 @@ bool X11wrapper::Mouse_SetCursor_Image(Window window, const string &sPath, const
     Pixmap pixmap = None;
     Pixmap pixmap_mask = None;
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         // read pixmap
@@ -721,15 +715,14 @@ bool X11wrapper::Mouse_SetCursor_Image(Window window, const string &sPath, const
         if ( ( width_return != width_return_mask ) || ( height_return != height_return_mask ) )
             _LOG_XERROR_BREAK("size of the x-bitmap and his mask differ");
         // prepare extra data
-        int nScreen = XDefaultScreen(GetDisplay());
-        Colormap colormap = XDefaultColormap(GetDisplay(), nScreen);
+        Colormap colormap = XDefaultColormap(GetDisplay(), GetScreen());
         XColor color_fg;
-        color_fg.pixel = BlackPixel(GetDisplay(), nScreen);
+        color_fg.pixel = BlackPixel(GetDisplay(), GetScreen());
         code = XQueryColor(GetDisplay(), colormap, &color_fg);
         _COND_XERROR_LOG_BREAK(code);
         Sync();
         XColor color_bg;
-        color_bg.pixel = WhitePixel(GetDisplay(), nScreen);
+        color_bg.pixel = WhitePixel(GetDisplay(), GetScreen());
         code = XQueryColor(GetDisplay(), colormap, &color_bg);
         _COND_XERROR_LOG_BREAK(code);
         Sync();
@@ -751,9 +744,8 @@ bool X11wrapper::Mouse_SetCursor_Image(Window window, const string &sPath, const
 
 bool X11wrapper::Mouse_QueryMaxCursorSize(Window window, unsigned int &width_return, unsigned int &height_return)
 {
-    int nScreen = XDefaultScreen(GetDisplay());
-    unsigned int width_max = XDisplayWidth(GetDisplay(), nScreen);
-    unsigned int height_max = XDisplayHeight(GetDisplay(), nScreen);
+    unsigned int width_max = GetDisplayWidth();
+    unsigned int height_max = GetDisplayWidth();
     bool bResult = XQueryBestCursor(GetDisplay(), window, width_max, height_max, &width_return, &height_return);
     _LOG_NFO("window==%d, width_return==%d, height_return==%d", window, width_return, height_return);
     return bResult;
@@ -763,7 +755,7 @@ bool X11wrapper::Mouse_SetSpeed(int accel_numerator/*=-1*/, int accel_denominato
 {
     _LOG_NFO("accel_numerator==%d, accel_denominator==%d, threshold==%d", accel_numerator, accel_denominator, threshold);
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         code = XChangePointerControl(GetDisplay(), true, true, accel_numerator, accel_denominator, threshold);
@@ -775,7 +767,7 @@ bool X11wrapper::Mouse_SetSpeed(int accel_numerator/*=-1*/, int accel_denominato
 bool X11wrapper::Mouse_GetSpeed(int &accel_numerator_return, int &accel_denominator_return, int &threshold_return)
 {
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         code = XGetPointerControl(GetDisplay(), &accel_numerator_return, &accel_denominator_return, &threshold_return);
@@ -790,7 +782,7 @@ bool X11wrapper::Mouse_SetPosition(int nPosX, int nPosY)
     _LOG_NFO("pos==(%d, %d)", nPosX, nPosY);
     Window window = Window_GetRoot();
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         code = XWarpPointer(GetDisplay(), window, window, 0, 0, 0, 0, nPosX, nPosY);
@@ -804,7 +796,7 @@ bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY, bool bRelative/*=fals
     //_LOG_NFO("previous pos==(%d, %d)", nPosX, nPosY);
     Window window = Window_GetRoot();
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         if (bRelative || !bRelative) break;
@@ -825,7 +817,7 @@ bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY, bool bRelative/*=fals
             int win_y_return;
             unsigned int mask_return;
             code = XQueryPointer(
-                v_pDisplay,
+                GetDisplay(),
                 window,
                 &root_return,
                 &child_return,
@@ -865,7 +857,7 @@ bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsi
     // show window case
     Window &window = v_window_Mouse_Constrain;
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         // check values
@@ -914,7 +906,7 @@ bool X11wrapper::Mouse_Constrain_Release()
     _LOG_NFO();
     Window &window = v_window_Mouse_Constrain;
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         if (! v_bIsActive_Mouse_Constrain)
@@ -954,11 +946,16 @@ bool X11wrapper::Mouse_IsConstrainActive()
     return v_bIsActive_Mouse_Constrain;
 }
 
+Window X11wrapper::Mouse_Constrain_GetWindow()
+{
+    return v_window_Mouse_Constrain;
+}
+
 bool X11wrapper::Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pixmap_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return)
 {
     _LOG_NFO("window==%d, sPath=='%s'", window, sPath.c_str());
     int code = -1;
-    X11_Locker x11_locker(v_pDisplay);
+    X11_Locker x11_locker(GetDisplay());
     do
     {
         // read x-bitmap from file
@@ -1106,7 +1103,7 @@ bool X11wrapper::AfterFunction_Set()
         _LOG_ERR("already changed");
         return false;
     }
-    v_pOld_X_AfterFunction = XSetAfterFunction(v_pDisplay, X11wrapper::AfterFunction_Grabber);
+    v_pOld_X_AfterFunction = XSetAfterFunction(GetDisplay(), X11wrapper::AfterFunction_Grabber);
     _LOG_NFO("pOld_X_AfterFunction==%p", v_pOld_X_AfterFunction);
     v_bIsChanged_X_AfterFunction = true;
     return true;
@@ -1120,7 +1117,104 @@ bool X11wrapper::AfterFunction_Restore()
         _LOG_WRN("nothing to restore");
         return true;
     }
-    XSetAfterFunction(v_pDisplay, v_pOld_X_AfterFunction);
+    XSetAfterFunction(GetDisplay(), v_pOld_X_AfterFunction);
     v_bIsChanged_X_AfterFunction = false;
     return true;
+}
+
+bool X11wrapper::Window_Shape(Window window, bool bOn, unsigned char nAlphaThreshold/*=128*/)
+{
+    _LOG_NFO("window==%d, bOn==%d, nAlphaThreshold==%d", window, bOn, nAlphaThreshold);
+    XImage *pXImage = NULL;
+    int code = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        int major_version = 0;
+        int minor_version = 0;
+        code = XShapeQueryVersion(GetDisplay(), &major_version, &minor_version);
+        if (code == 0)
+        {
+            _LOG_ERR("X11 SHAPE extension: not available");
+            code = -1;
+            break;
+        }
+        _LOG_NFO("X11 SHAPE extension: version %d.%d", major_version, minor_version);
+        if (! bOn)
+        {
+            XShapeCombineMask(GetDisplay(), window, ShapeBounding, 0, 0, None, ShapeSet);
+            break;
+        }
+        pXImage = Window_GetImage(window);
+        if (! pXImage)
+            _LOG_XERROR_BREAK("Window_Shape : GetImage");
+        Pixmap pixmap = ConvertImageToPixmap(pXImage, window);
+        XShapeCombineMask(GetDisplay(), window, ShapeBounding, 0, 0, pixmap, ShapeSet);
+        //--_COND_XERROR_LOG_BREAK(code);
+    } while (0);
+    // cleanup
+    if (pXImage)
+        XDestroyImage(pXImage);
+    return IsReturnCodeOk(code);
+}
+
+XImage * X11wrapper::Window_GetImage(Window window, bool bOnlyMask/*=false*/)
+{
+    // Note that bytes_per_line in concert with offset can be used to extract a subset of the image
+    // The first byte of the first line of plane n must be located at the address
+    // (data + (n * height * bytes_per_line))
+    _LOG_NFO("window==%d", window);
+    XImage *pXImage = NULL;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        int x = 0;
+        int y = 0;
+        unsigned int width = 0;
+        unsigned int height = 0;
+        if (! Window_GetPosition(window, x, y, width, height))
+            _LOG_XERROR_BREAK("Window_GetImage() : GetPosition");
+        if (bOnlyMask)
+            pXImage = XGetImage(GetDisplay(), window, 0, 0, width, height, 1, XYPixmap);
+        else
+            pXImage = XGetImage(GetDisplay(), window, 0, 0, width, height, AllPlanes, ZPixmap);
+        if (! pXImage)
+            _LOG_XERROR_BREAK("Window_GetImage() : GetImage");
+    } while (0);
+    return pXImage;
+}
+
+bool X11wrapper::Window_GetPosition(Window window, int &nPosX, int &nPosY, unsigned int &nWidth, unsigned int &nHeight)
+{
+    _LOG_NFO("window==%d", window);
+    int code = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        XWindowAttributes attr;
+        code = XGetWindowAttributes(GetDisplay(), window, &attr);
+        _COND_XERROR_LOG_BREAK(code);
+        nPosX = attr.x;
+        nPosY = attr.y;
+        nWidth = attr.width;
+        nHeight = attr.height;
+    } while (0);
+    return IsReturnCodeOk(code);
+}
+
+Pixmap X11wrapper::ConvertImageToPixmap(XImage *pXImage, Window window)
+{
+    _LOG_NFO("window==%d", window);
+    Pixmap pixmap = None;
+    int code = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        GC gc = XDefaultGC(GetDisplay(), GetScreen());
+        //--Pixmap pixmap = XCreatePixmap(GetDisplay(), Window_GetRoot(), width, height, depth);
+        //--XPutImage(GetDisplay(), pixmap, gc, image, 0, 0, 0, 0, width, height);
+        pixmap = XCreatePixmapFromBitmapData(GetDisplay(), window, pXImage->data, pXImage->width, pXImage->height, 0, 0, pXImage->depth);
+        XFlushGC(GetDisplay(), gc);
+    } while (0);
+    return pixmap;
 }

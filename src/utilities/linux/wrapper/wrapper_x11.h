@@ -20,7 +20,6 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
-#include <X11/extensions/xf86dga.h>
 
 #include <string>
 #include <iostream>
@@ -191,7 +190,8 @@ public:
     bool Mouse_Constrain_Release();
     bool Mouse_Constrain_ReactivateIfActive();
     bool Mouse_IsConstrainActive();
-
+    Window Mouse_Constrain_GetWindow();
+    
     /// graphics
 
     // XFreePixmap should be called
@@ -248,6 +248,17 @@ public:
 protected:
     X_AfterFunction v_pOld_X_AfterFunction;
     bool v_bIsChanged_X_AfterFunction;
+
+    // not yet finished
+public:
+    bool Window_Shape(Window window, bool bOn, unsigned char nAlphaThreshold=128);
+
+    // XDestroyImage should be called
+    XImage * Window_GetImage(Window window, bool bOnlyMask=false);
+
+    bool Window_GetPosition(Window window, int &nPosX, int &nPosY, unsigned int &nWidth, unsigned int &nHeight);
+
+    Pixmap ConvertImageToPixmap(XImage *pXImage, Window window);
 };
 
 #endif
