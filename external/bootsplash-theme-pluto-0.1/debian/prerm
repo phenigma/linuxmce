@@ -4,7 +4,6 @@
 # see: dh_installdeb(1)
 
 set -e
-. /usr/share/debconf/confmodule 
 
 # summary of how this script can be called:
 #        * <prerm> `remove'
@@ -19,20 +18,6 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        # I no longer claim this question.
-	db_unregister shared/bootsplash-theme
-	db_unregister bootsplash-theme-pluto
-    	# See if the shared question still exists.
-    	if db_get shared/bootsplash-theme; then
-    		db_metaget shared/bootsplash-theme owners
-		db_subst shared/bootsplash-theme choices $RET
-		db_metaget shared/bootsplash-theme value
-		if [ "<package>" = "$RET" ] ; then
-			db_fset shared/bootsplash-theme seen false
-			db_input high shared/bootsplash-theme || true
-			db_go || true
-	        fi
-	fi
         ;;
 
     failed-upgrade)

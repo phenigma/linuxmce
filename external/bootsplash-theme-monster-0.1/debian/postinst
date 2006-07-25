@@ -4,7 +4,6 @@
 # see: dh_installdeb(1)
 
 set -e
-. /usr/share/debconf/confmodule
 
 # summary of how this script can be called:
 #        * <postinst> `configure' <most-recently-configured-version>
@@ -20,7 +19,9 @@ set -e
 
 case "$1" in
     configure)
-	db_register shared/bootsplash-theme bootsplash-theme-monster
+        rm -f /usr/bootsplash/themes/current || /bin/true
+	ln -s /usr/bootsplash/themes/monster /usr/bootsplash/themes/current || /bin/true
+		    
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
