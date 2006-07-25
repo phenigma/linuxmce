@@ -38,7 +38,7 @@ extern "C"
 }
 #include "../PlutoUtils/uuencode.h"
 #define MaxBuf 17
-
+#define UserAgent "--user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\""
 using namespace std;
 
 static int pr2six[256] = {
@@ -73,7 +73,7 @@ int findURL(FILE *f,string &link){
 	char buf[MaxBuf+1];
 	int pos,pos2;
 	static string buf2="";
-	link="wget --user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\" -O /tmp/out.xml ";
+	link=(string)"wget "+UserAgent+" -O /tmp/out.xml ";
 	while (fread(buf,MaxBuf,1,f)){
 		buf[MaxBuf]='\0';
 		buf2+=buf;
@@ -154,8 +154,7 @@ int main(int argc, char *argv[]){
 	}else{
 		url="http://www.google.com/search?q=10faostb";
 	}
-	res=system((string("wget --user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\" -O /tmp/search.html \"")+url+"\"").c_str());
-	res=0;
+	res=system(((string)"wget "+UserAgent+" -O /tmp/search.html \""+url+"\"").c_str());
 	if (!res){
 		FILE *fd,*fxml;
 		dxml_element *packages,*package;
@@ -172,7 +171,7 @@ int main(int argc, char *argv[]){
 		}
 		string link,packageName,version;
 		while (!findURL(fd,link)){
-//			res=system(link.c_str());
+			res=system(link.c_str());
 			if(!res){
 				fxml=fopen("/tmp/out.xml","r");
 				if (!fxml){
