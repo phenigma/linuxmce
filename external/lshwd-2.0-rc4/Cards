@@ -293,6 +293,10 @@ SEE Cirrus Logic GD5465
 NAME Cirrus Logic GD5446 (noname card)
 DRIVER vga
 
+# Via Prop used for cx700 box
+NAME Via Prop
+Driver viaprop
+
 # S3 801/805
 
 NAME S3 801/805 (generic)

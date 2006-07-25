@@ -3563,6 +3563,7 @@
 0x1106	0x3148	"via-agp"	"VIA Technologies Inc.|CPU-to-PCI Bridge"
 0x1106	0x3149	"sata_via"	"VIA Technologies Inc.|VT6420 SATA RAID Controller"
 0x1106	0x3156	"via-agp"	"VIA Technologies Inc.|P/KN266 CPU to PCI Bridge"
+0x1106	0x3157	"Card:Via Prop"	"Via cx700 box video card"
 0x1106	0x3158	"unknown"	"VIA Technologies Inc.|CPU-to-PCI Bridge"
 0x1106	0x3164	"via82cxxx"	"VIA Technologies Inc.|VT6410 ATA133 RAID Controller"
 0x1106	0x3168	"via-agp"	"VIA Technologies Inc.|VT8374 P4X400 Host Controller/AGP Bridge"
