@@ -119,9 +119,11 @@ void ExtensionManager::Resize(int Width, int Height)
 	
 	Screen = SDL_SetVideoMode(Width, Height, Bpp, uVideoModeFlags);
 
-	Resize(Width, Height);	
-
-	glEnable(GL_TEXTURE_2D);
+	if(NULL != Screen)
+	{
+		Resize(Width, Height);	
+		glEnable(GL_TEXTURE_2D);
+	}
 
 	return Screen != NULL;
 }

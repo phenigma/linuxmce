@@ -48,6 +48,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 	{
 		pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
 		std::cout << "*** Thread -- GL.InitVideoMode FAILED" << std::endl;
+		pOrbiterRenderer->OrbiterLogic()->OnReload();
 		return NULL;
 	}
 	else 
