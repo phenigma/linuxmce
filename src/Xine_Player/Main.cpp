@@ -60,6 +60,11 @@ void SocketCrashHandler(Socket *pSocket)
 	{
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+		
+		// force reload - otherwise libxine locks can block us forever
+		pthread_t watchdog_thread;
+		g_WatchDogFlag = true;
+		pthread_create(&watchdog_thread, NULL,WatchDogRoutine, NULL);
 		g_pCommand_Impl->OnReload();
 	}
 }
