@@ -19,8 +19,8 @@ set -e
 
 case "$1" in
     configure)
-	rm -f /usr/bootsplash/themes/current || /bin/true
-	ln -s /usr/bootsplash/themes/pluto /usr/bootsplash/themes/current || /bin/true
+	rm -f /etc/bootsplash/themes/current || /bin/true
+	ln -s /etc/bootsplash/themes/pluto /etc/bootsplash/themes/current || /bin/true
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
