@@ -5,7 +5,7 @@
 
 #include "Texture/TextureManager.h"
 #include "../PlutoGraphic.h"
-#include "PlutoUtils/multithreadincludes.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
 
 #include <SDL.h>
 
