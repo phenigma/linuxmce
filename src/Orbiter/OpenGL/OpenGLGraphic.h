@@ -5,11 +5,16 @@
 
 #include "Texture/TextureManager.h"
 #include "../PlutoGraphic.h"
+#include "PlutoUtils/multithreadincludes.h"
 
 #include <SDL.h>
 
 class OpenGLGraphic : public PlutoGraphic
 {
+	/**
+	 *	Safeing texture operations
+	 */
+	pluto_pthread_mutex_t Mutex; 
 public:
 	SDL_Surface* LocalSurface;
 
@@ -22,6 +27,7 @@ public:
 	/**
 	 *	Use that only in OpenGL thread
 	 */
+
 	OpenGLGraphic(int Width, int Height);
 
 	~OpenGLGraphic();

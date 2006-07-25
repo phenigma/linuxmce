@@ -40,11 +40,13 @@ GL2DEffectWipeIn::~GL2DEffectWipeIn() {
  */
 void GL2DEffectWipeIn::Configure(PlutoRectangle* EffectSourceSize)
 {
+	/*
 	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "Effect size: %d %d %d %d", 
 		EffectSourceSize->X,
 		EffectSourceSize->Y,
 		EffectSourceSize->Width,
 		EffectSourceSize->Height);
+		*/
 
   	ButtonSize.Left = float(EffectSourceSize->X);
 	ButtonSize.Top = float(EffectSourceSize->Y);

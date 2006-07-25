@@ -75,7 +75,7 @@ bool OpenGL3DEngine::Paint()
 
 	if(CurrentLayer->Children.size() == 0)
 	{
-	    g_pPlutoLogger->Write(LV_CRITICAL, "NOTHING to paint (current layer: %p)", CurrentLayer);		
+	    //g_pPlutoLogger->Write(LV_CRITICAL, "NOTHING to paint (current layer: %p)", CurrentLayer);		
 		return false;
 	}
 
@@ -141,8 +141,8 @@ void OpenGL3DEngine::NewScreen()
 	Desktop.RemoveChild(OldLayer);
 	Desktop.AddChild(OldLayer);
 
-	g_pPlutoLogger->Write(LV_CRITICAL, "Current layer is now %p, size %d", 
-		CurrentLayer, Desktop.Children.size());
+	//g_pPlutoLogger->Write(LV_CRITICAL, "Current layer is now %p, size %d", 
+	//	CurrentLayer, Desktop.Children.size());
 }
 
 void OpenGL3DEngine::Setup()
