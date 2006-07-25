@@ -34,7 +34,7 @@ using namespace EMBRUBY;
 #define DEFAULT_POOL_TIME		10
 #define DEFAULT_DELAY_TIME		2000
 //this one is in seconds
-#define DEFAULT_RESPONSE_TIME	20
+#define DEFAULT_RESPONSE_TIME	18
 
 namespace DCE {
 
