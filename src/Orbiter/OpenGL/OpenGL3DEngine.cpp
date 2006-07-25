@@ -84,7 +84,6 @@ bool OpenGL3DEngine::Paint()
 		
 	GL.EnableZBuffer(false);
 
-	Compose->UpdateLayers(CurrentLayer, OldLayer);
 	Compose->Paint();
 	if(HighLightFrame)
 	{
@@ -136,6 +135,7 @@ void OpenGL3DEngine::NewScreen()
 
 	CurrentLayerObjects_.clear();
 	CurrentLayer = new MeshFrame();
+	Compose->UpdateLayers(CurrentLayer, OldLayer);
 	Desktop.AddChild(CurrentLayer);
 	
 	Desktop.RemoveChild(OldLayer);
