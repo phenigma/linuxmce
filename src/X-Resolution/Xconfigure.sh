@@ -99,6 +99,11 @@ if [[ ! -f "$ConfigFile" || ! -s "$ConfigFile" ]]; then
 fi
 
 DisplayDriver=$(GetVideoDriver)
+if [[ "$DisplayDriver" == viaprop ]]; then
+	DisplayDriver=via
+	ForcedXvMC=libXvMC.so.1
+fi
+
 CurrentDisplayDriver=$(awk -f/usr/pluto/bin/X-GetDisplayDriver.awk "$ConfigFile")
 if [[ "$Defaults" == y ]]; then
 	if [[ ! -f /usr/pluto/templates/xorg.conf.in ]]; then
@@ -139,6 +144,10 @@ case "$DisplayDriver" in
 		XineVideoDriver="xv"
 	;;
 esac
+
+if [[ -n "$ForcedXvMC" ]]; then
+	libXvMC="$ForcedXvMC"
+fi
 
 echo "$libXvMC" >/etc/X11/XvMCConfig
 XineConfSet video.driver "$XineVideoDriver"
