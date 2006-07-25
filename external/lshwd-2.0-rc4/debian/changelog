@@ -1,3 +1,10 @@
+lshwd (2.0-rc4-1pluto10) unstable; urgency=low
+
+  * Updated some pcitable video card that didn't work with nv but do work with
+    nvidia.
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Tue, 25 Jul 2006 11:23:10 +0300
+
 lshwd (2.0-rc4-1pluto9) unstable; urgency=low
 
   * Updated pcitables and Cards database
