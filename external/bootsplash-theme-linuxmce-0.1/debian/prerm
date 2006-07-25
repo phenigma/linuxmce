@@ -21,7 +21,7 @@ case "$1" in
     remove|upgrade|deconfigure)
         # I no longer claim this question.
 	db_unregister shared/bootsplash-theme
-	db_unregister bootsplash-theme-monster
+	db_unregister bootsplash-theme-linuxmce
     	# See if the shared question still exists.
     	if db_get shared/bootsplash-theme; then
     		db_metaget shared/bootsplash-theme owners
