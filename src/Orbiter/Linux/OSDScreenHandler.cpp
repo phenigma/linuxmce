@@ -83,6 +83,7 @@ void OSDScreenHandler::DisableAllVideo()
 void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 {
 	m_bWizardIsRunning = true;
+	m_pOrbiter->m_bBypassScreenSaver = true;
 
 	DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_Greetings_CONST),TEXT_STATUS_CONST );
 	if( !m_bHasVideoWizardFiles )

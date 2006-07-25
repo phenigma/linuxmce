@@ -639,18 +639,18 @@ bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 		string sBinary = StringUtils::Tokenize(pCellInfoData->m_sValue,"\t",pos);
 		string sArguments = pos<pCellInfoData->m_sValue.size() ? pCellInfoData->m_sValue.substr(pos) : "";
 
-		string sMessageOnComplete = "0 " + StringUtils::itos(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter) + 
-			" 1 4 16 " + StringUtils::itos(PK_DesignObj_OSD) + 
-			" & 0 " + StringUtils::itos(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter) + " 1 " + TOSTRING(COMMAND_Set_Active_Application_CONST) +
+		string sMessageOnComplete = "0 " + StringUtils::itos(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter) + " 1 " + TOSTRING(COMMAND_Set_Active_Application_CONST) +
 			" " + TOSTRING(COMMANDPARAMETER_Name_CONST) + " \"\" " + TOSTRING(COMMANDPARAMETER_Identifier_CONST) + " \"\" " +
-			TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) + " 0 " + TOSTRING(COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST) + " 0";
+			TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) + " 0 " + TOSTRING(COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST) + " 0"
+			" & 0 " + StringUtils::itos(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter) + 
+			" 1 4 16 " + StringUtils::itos(PK_DesignObj_OSD);
 
 		if( m_pOrbiter->m_dwPK_Device != m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter )  // Not us
-			sMessageOnComplete += " & 0 " + StringUtils::itos(m_pOrbiter->m_dwPK_Device) + 
-			" 1 4 16 " + StringUtils::itos(PK_DesignObj_Remote) +
-			" & 0 " + StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " 1 " + TOSTRING(COMMAND_Set_Active_Application_CONST) +
+			sMessageOnComplete += " & 0 " + StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " 1 " + TOSTRING(COMMAND_Set_Active_Application_CONST) +
 			" " + TOSTRING(COMMANDPARAMETER_Name_CONST) + " \"\" " + TOSTRING(COMMANDPARAMETER_Identifier_CONST) + " \"\" " +
-			TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) + " 0 " + TOSTRING(COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST) + " 0";
+			TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) + " 0 " + TOSTRING(COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST) + " 0"
+			" & 0 " + StringUtils::itos(m_pOrbiter->m_dwPK_Device) + 
+			" 1 4 16 " + StringUtils::itos(PK_DesignObj_Remote);
 
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_AppServer,
 			sBinary,"generic-app",sArguments,sMessageOnComplete,sMessageOnComplete,false,false,true);
