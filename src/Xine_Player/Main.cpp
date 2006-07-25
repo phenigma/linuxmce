@@ -19,6 +19,21 @@ namespace DCE
 }
 using namespace DCE;
 
+bool g_WatchDogFlag=false;
+void* WatchDogRoutine(void* param)
+{
+        g_pPlutoLogger->Write(LV_STATUS,"Started watchdog routine\n");
+        usleep(10000000);
+	if (g_WatchDogFlag)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Terminating Xine_Player: watchdog detected hard deadlock, seems soft reload failed\n");
+		fflush(stdout);
+		kill(getpid(), SIGTERM);
+	}
+		
+	return NULL;
+}
+
 // You can override this block if you don't want the app to reload in the event of a problem
 extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
 extern void (*g_pSocketCrashHandler)(Socket *pSocket);
@@ -30,6 +45,11 @@ void DeadlockHandler(PlutoLock *pPlutoLock)
 	{
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock problem.  %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+		
+		// force reload - otherwise libxine locks can block us forever
+		pthread_t watchdog_thread;
+		g_WatchDogFlag = true;
+		pthread_create(&watchdog_thread, NULL,WatchDogRoutine, NULL);
 		g_pCommand_Impl->OnReload();
 	}
 }
