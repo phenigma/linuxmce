@@ -2995,7 +2995,7 @@
 0x10de	0x0242	"Card:NVIDIA GeForce 6 Series"	"nVidia Corp.|C51G [GeForce 6100]"
 0x10de	0x0243	"unknown"	"nVidia Corp.|C51 PCI Express Bridge"
 0x10de	0x0244	"Card:NVIDIA GeForce 6 Series"	"nVidia Corp.|GeForce Go 6150"
-0x10de	0x0245	"unknown"	"nVidia Corp.|C51 PCI Express Bridge"
+0x10de	0x0245	"Card:NVIDIA GeForce 6 Series"	"nVidia Corp.|C51 PCI Express Bridge"
 0x10de	0x0246	"unknown"	"nVidia Corp.|C51 PCI Express Bridge"
 0x10de	0x0247	"Card:NVIDIA GeForce 6 Series"	"nVidia Corp.|GeForce Go 6100"
 0x10de	0x0248	"unknown"	"nVidia Corp.|C51 PCI Express Bridge"
