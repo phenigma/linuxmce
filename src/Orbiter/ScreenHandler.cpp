@@ -16,6 +16,7 @@
 #include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
+
 using namespace DCE;
 
 //-----------------------------------------------------------------------------------------------------
@@ -1227,6 +1228,12 @@ void ScreenHandler::SCREEN_Choose_Folder(long PK_Screen)
 	ScreenHandlerBase::SCREEN_Choose_Folder(PK_Screen);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Choose_Folder_ObjectSelected,	
 		new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::Choose_Folder_GridSelected, 
+		new DatagridCellBackData());
+
+	DesignObjText *pObjText = m_pOrbiter->FindText(m_pOrbiter->FindObject(DESIGNOBJ_mnuChooseFolder_CONST), 670);
+	if(NULL != pObjText)
+		pObjText->m_sText = "Folder : <%=" + StringUtils::ltos(VARIABLE_Path_CONST) + "%>";
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Choose_Folder_ObjectSelected(CallBackData *pData)
@@ -1237,16 +1244,39 @@ bool ScreenHandler::Choose_Folder_ObjectSelected(CallBackData *pData)
 	{
 		if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
 		{
-			int bubu = 4;
-			//do something here
+			m_pOrbiter->CMD_Go_back("", ""); //one for choose folder
+			m_pOrbiter->CMD_Go_back("", ""); //one for choose drive
 		}
 		else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butCreateDir_CONST)
 		{
+			string sParentFolder = m_pOrbiter->m_mapVariable[VARIABLE_Path_CONST];
+			string sNewFolder = "<%=" + StringUtils::ltos(VARIABLE_Seek_Value_CONST) + "%>";
+
+			int nAppServer = m_pOrbiter->TranslateVirtualDevice(DEVICETEMPLATE_VirtDev_AppServer_CONST);
+
 			SCREEN_GenericKeyboard(SCREEN_GenericKeyboard_CONST, 
 				"Type the name of the folder|Create folder|Cancel", 
-				"create_folder_command_not_implemented|", 
+				StringUtils::ltos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::ltos(nAppServer) + " " +
+				"1 " + StringUtils::ltos(COMMAND_Spawn_Application_CONST) + " " +
+				StringUtils::ltos(COMMANDPARAMETER_Filename_CONST) + " \"mkdir\" " + 
+				StringUtils::ltos(COMMANDPARAMETER_Name_CONST) + " \"create_folder\" " +
+				StringUtils::ltos(COMMANDPARAMETER_Arguments_CONST) + " \"" + sParentFolder + sNewFolder + "\"|", 
 				"Folder creation", "0");
+
+			//m_pOrbiter->CMD_Set_Variable(VARIABLE_Path_CONST, sParentFolder + sNewFolder + "/");
 		}
+	}
+
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::Choose_Folder_GridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = dynamic_cast<DatagridCellBackData *>(pData);
+
+	if(NULL != pCellInfoData && NULL != pCellInfoData->m_pDataGridCell)
+	{
+		m_pOrbiter->Renderer()->RenderObjectAsync(m_pOrbiter->FindObject(DESIGNOBJ_mnuChooseFolder_CONST));
 	}
 
 	return false;

@@ -184,6 +184,7 @@ public:
 
 	virtual void SCREEN_Choose_Folder(long PK_Screen);
 	bool Choose_Folder_ObjectSelected(CallBackData *pData);
+	bool Choose_Folder_GridSelected(CallBackData *pData);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif
