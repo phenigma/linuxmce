@@ -242,14 +242,16 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 /*virtual*/ void OpenGL3DEngine::Highlight(PlutoRectangle* HightlightArea, OpenGLGraphic* HighSurface)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	
 	if(NULL == CurrentLayer)
 		return;
-
+	Compose->UpdateLayers(CurrentLayer, OldLayer);
 	if(NULL == HightlightArea)
 		return;
 	MeshBuilder MB;
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
 	MeshTransform Transform;
+	
 	Compose->PaintScreen3D();
 	Compose->NewScreen->RenderFrameToGraphic();
 	MB.SetTexture(Compose->NewScreen->GetRenderGraphic());
