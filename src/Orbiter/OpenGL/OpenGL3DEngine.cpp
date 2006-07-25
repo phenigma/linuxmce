@@ -254,7 +254,7 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
 	MeshTransform Transform;
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step2");
-	Compose->PaintScreen3D();
+	//Compose->PaintScreen3D();
 	Compose->NewScreen->RenderFrameToGraphic();
 	MB.SetTexture(Compose->NewScreen->GetRenderGraphic());
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step3");
