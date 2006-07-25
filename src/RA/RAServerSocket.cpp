@@ -14,19 +14,44 @@ void *BeginClientThread(void *param)
 {	
 	RAServerSocket *pCS = (RAServerSocket *)param;
 	pCS->Run();
+	delete pCS;
 	return NULL;
 }
 
 RAServerSocket::RAServerSocket(class RAServer *pListener, SOCKET Sock) : Socket("raserver")
 {
+	m_bInitedOK = true;
 	m_Socket = Sock;
 	m_pListener = pListener;
 
-	pthread_create(&m_ClientThreadID, NULL, BeginClientThread, (void *)this);
+	pthread_attr_t threadAttr;
+	pthread_attr_init(&threadAttr);
+	pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
+
+	int iRes = pthread_create(&m_ClientThreadID, &threadAttr, BeginClientThread, (void *)this);
+
+	pthread_attr_destroy(&threadAttr);
+
+	if (iRes!=0)
+	{
+		printf("Error creating new thread, pthread_create returned: %i\n", iRes);
+		if (!SOCKFAIL(m_Socket))
+		{
+			closesocket(m_Socket);
+			m_Socket = INVALID_SOCKET;
+		}
+
+		m_bInitedOK = false;
+	}
 }
 
 RAServerSocket::~RAServerSocket()
 {
+}
+
+bool RAServerSocket::IsInitedOK()
+{
+	return m_bInitedOK;
 }
 
 void RAServerSocket::Run()
@@ -47,6 +72,5 @@ void RAServerSocket::Run()
 		closesocket(m_Socket);
 		m_Socket = INVALID_SOCKET;
 	}
-	delete this;
 	return;
 }

@@ -18,6 +18,11 @@ public:
 	virtual ~RAServerSocket();
 
 	void Run();
+
+	bool IsInitedOK();
+	
+private:
+	bool m_bInitedOK;
 };
 
 #endif

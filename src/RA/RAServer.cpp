@@ -25,9 +25,18 @@ RAServer::~RAServer()
 
 DCE::Socket *RAServer::CreateSocket( SOCKET newsock, string sName, string sIPAddress, string sMacAddress )
 {
-	DCE::Socket *pSocket = new RAServerSocket(this, newsock);
-	pSocket->m_sIPAddress = sIPAddress;
-	return pSocket;
+	RAServerSocket *pSocket = new RAServerSocket(this, newsock);
+	if (pSocket->IsInitedOK())
+	{
+		((DCE::Socket *)pSocket)->m_sIPAddress = sIPAddress;
+	}
+	else
+	{
+		delete pSocket;
+		pSocket = NULL;
+	}
+
+	return (DCE::Socket *)pSocket;
 }
 
 void RAServer::Initialize()
