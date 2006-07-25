@@ -109,8 +109,6 @@ public:
 	virtual void SCREEN_MediaSortFilter(long PK_Screen);
 	bool MediaSortFilter_ObjectSelected(CallBackData *pData);
 	void GetAttributesForMediaFile(const char *pFilename);
-	virtual void SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, 
-		string sPrivate, string sPublic, string sCaption);
 	virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, string sDescription);
 	virtual void SCREEN_WhatModelMobileOrbiter(long PK_Screen, int iPK_Users, string sMac_address);
 	virtual void SCREEN_Pick_Room_For_Device(long PK_Screen, int iPK_Device, string sDescription, string ssComments);
@@ -177,14 +175,11 @@ public:
 	bool AddSoftware_ObjectHighlighted(CallBackData *pData);
 	bool AddSoftware_GridSelected(CallBackData *pData);
 
-	virtual void SCREEN_Choose_Drive(long PK_Screen);
-	bool Choose_Drive_ObjectSelected(CallBackData *pData);
-	bool Choose_Drive_GridSelected(CallBackData *pData);
+	virtual void SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, 
+		string sPrivate, string sPublic, string sCaption);
+	bool FileSave_ObjectSelected(CallBackData *pData);
+	bool FileSave_GridSelected(CallBackData *pData);
 	string sMountedFolderForDrive;
-
-	virtual void SCREEN_Choose_Folder(long PK_Screen);
-	bool Choose_Folder_ObjectSelected(CallBackData *pData);
-	bool Choose_Folder_GridSelected(CallBackData *pData);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

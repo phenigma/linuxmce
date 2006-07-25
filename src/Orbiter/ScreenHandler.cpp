@@ -474,16 +474,7 @@ void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,int &iValue)
 	pObj->m_GraphicToDisplay = GRAPHIC_SELECTED;
 	iValue = iValue_New;
 }
-//-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, string sPrivate,
-									string sPublic, string sCaption)
-{
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPrivate);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPublic);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sDefaultUserValue);
-	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
-	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, sDefaultUserValue, sPrivate, sPublic, sCaption);
-}
+
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, string sDescription)
 {
@@ -1185,98 +1176,78 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void ScreenHandler::SCREEN_Choose_Drive(long PK_Screen)
+void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, string sPrivate,
+									string sPublic, string sCaption)
 {
 	sMountedFolderForDrive = "";
-	ScreenHandlerBase::SCREEN_Choose_Drive(PK_Screen);
-	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Choose_Drive_ObjectSelected,	
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPrivate);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPublic);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sDefaultUserValue);
+	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
+	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(DESIGNOBJ_mnuChooseFolder_CONST), "Folder : <%=" + StringUtils::ltos(VARIABLE_Path_CONST) + "%>", TEXT_STATUS_CONST);
+	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, sDefaultUserValue, sPrivate, sPublic, sCaption);
+
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::FileSave_ObjectSelected,	
 		new ObjectInfoBackData());
-	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::Choose_Drive_GridSelected, 
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::FileSave_GridSelected, 
 		new DatagridCellBackData());
 }
 //-----------------------------------------------------------------------------------------------------
-bool ScreenHandler::Choose_Drive_ObjectSelected(CallBackData *pData)
+bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
 	
 	if(NULL != pObjectInfoData)
 	{
-		if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
+		if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuChooseDrive_CONST)
 		{
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sMountedFolderForDrive + "\nMT-1\nP");
-			m_pOrbiter->CMD_Goto_Screen("", SCREEN_Choose_Folder_CONST);
+			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
+			{
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sMountedFolderForDrive + "\nMT-1\nP");
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sMountedFolderForDrive);
+				m_pOrbiter->CMD_Go_back("", "");
+			}
+		}
+		else if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuChooseFolder_CONST)
+		{
+			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
+			{
+				m_pOrbiter->CMD_Go_back("", ""); //one for choose folder
+			}
+			else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butCreateDir_CONST)
+			{
+				string sParentFolder = m_pOrbiter->m_mapVariable[VARIABLE_Path_CONST];
+				string sNewFolder = "<%=" + StringUtils::ltos(VARIABLE_Seek_Value_CONST) + "%>";
+
+				int nAppServer = m_pOrbiter->TranslateVirtualDevice(DEVICETEMPLATE_VirtDev_AppServer_CONST);
+
+				SCREEN_GenericKeyboard(SCREEN_GenericKeyboard_CONST, 
+					"Type the name of the folder|Create folder|Cancel", 
+					StringUtils::ltos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::ltos(nAppServer) + " " +
+					"1 " + StringUtils::ltos(COMMAND_Spawn_Application_CONST) + " " +
+					StringUtils::ltos(COMMANDPARAMETER_Filename_CONST) + " \"mkdir\" " + 
+					StringUtils::ltos(COMMANDPARAMETER_Name_CONST) + " \"create_folder\" " +
+					StringUtils::ltos(COMMANDPARAMETER_Arguments_CONST) + " \"" + sParentFolder + sNewFolder + "\"|", 
+					"Folder creation", "0");
+
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, sParentFolder + sNewFolder + "/");
+			}
 		}
 	}
-		
+
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
-bool ScreenHandler::Choose_Drive_GridSelected(CallBackData *pData)
+bool ScreenHandler::FileSave_GridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = dynamic_cast<DatagridCellBackData *>(pData);
 
 	if(NULL != pCellInfoData && NULL != pCellInfoData->m_pDataGridCell)
 	{
-        sMountedFolderForDrive = string("/mnt/device/") + pCellInfoData->m_pDataGridCell->GetValue();
-	}
-
-	return false;
-}
-//-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_Choose_Folder(long PK_Screen)
-{
-	ScreenHandlerBase::SCREEN_Choose_Folder(PK_Screen);
-	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Choose_Folder_ObjectSelected,	
-		new ObjectInfoBackData());
-	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::Choose_Folder_GridSelected, 
-		new DatagridCellBackData());
-
-	DesignObjText *pObjText = m_pOrbiter->FindText(m_pOrbiter->FindObject(DESIGNOBJ_mnuChooseFolder_CONST), 670);
-	if(NULL != pObjText)
-		pObjText->m_sText = "Folder : <%=" + StringUtils::ltos(VARIABLE_Path_CONST) + "%>";
-}
-//-----------------------------------------------------------------------------------------------------
-bool ScreenHandler::Choose_Folder_ObjectSelected(CallBackData *pData)
-{
-	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
-
-	if(NULL != pObjectInfoData)
-	{
-		if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
-		{
-			m_pOrbiter->CMD_Go_back("", ""); //one for choose folder
-			m_pOrbiter->CMD_Go_back("", ""); //one for choose drive
-		}
-		else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butCreateDir_CONST)
-		{
-			string sParentFolder = m_pOrbiter->m_mapVariable[VARIABLE_Path_CONST];
-			string sNewFolder = "<%=" + StringUtils::ltos(VARIABLE_Seek_Value_CONST) + "%>";
-
-			int nAppServer = m_pOrbiter->TranslateVirtualDevice(DEVICETEMPLATE_VirtDev_AppServer_CONST);
-
-			SCREEN_GenericKeyboard(SCREEN_GenericKeyboard_CONST, 
-				"Type the name of the folder|Create folder|Cancel", 
-				StringUtils::ltos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::ltos(nAppServer) + " " +
-				"1 " + StringUtils::ltos(COMMAND_Spawn_Application_CONST) + " " +
-				StringUtils::ltos(COMMANDPARAMETER_Filename_CONST) + " \"mkdir\" " + 
-				StringUtils::ltos(COMMANDPARAMETER_Name_CONST) + " \"create_folder\" " +
-				StringUtils::ltos(COMMANDPARAMETER_Arguments_CONST) + " \"" + sParentFolder + sNewFolder + "\"|", 
-				"Folder creation", "0");
-
-			//m_pOrbiter->CMD_Set_Variable(VARIABLE_Path_CONST, sParentFolder + sNewFolder + "/");
-		}
-	}
-
-	return false;
-}
-//-----------------------------------------------------------------------------------------------------
-bool ScreenHandler::Choose_Folder_GridSelected(CallBackData *pData)
-{
-	DatagridCellBackData *pCellInfoData = dynamic_cast<DatagridCellBackData *>(pData);
-
-	if(NULL != pCellInfoData && NULL != pCellInfoData->m_pDataGridCell)
-	{
-		m_pOrbiter->Renderer()->RenderObjectAsync(m_pOrbiter->FindObject(DESIGNOBJ_mnuChooseFolder_CONST));
+		if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuChooseDrive_CONST)
+			sMountedFolderForDrive = string("/mnt/device/") + pCellInfoData->m_pDataGridCell->GetValue();
+		else if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuChooseFolder_CONST)
+			m_pOrbiter->Renderer()->RenderObjectAsync(m_pOrbiter->FindObject(DESIGNOBJ_mnuChooseFolder_CONST));
 	}
 
 	return false;
