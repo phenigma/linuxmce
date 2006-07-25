@@ -75,11 +75,11 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		}	
 		while((row = mysql_fetch_row(result_set.r)))
 		{
-			input_commands_.push_back(atoi(row[0]));
+			input_commands_[atoi(row[0])] = atoi(row[0]);
 		}
-		for(list<int>::iterator it=input_commands_.begin(); it!=input_commands_.end();it++ )
+		for(map<int, int>::iterator it=input_commands_.begin(); it!=input_commands_.end();it++ )
 		{
-			int cmd=*it;
+			int cmd=(*it).first;
 			sprintf(sql_buff,"SELECT FK_DeviceTemplate, OrderNo FROM DeviceTemplate_Input WHERE FK_Command='%d'",cmd);
 			if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) == NULL )
 			{
@@ -449,46 +449,62 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		return true;
 	} 
 	
+	// well, it's not translated BUT it NEEDS to have the delays set
+	SetDelays(inrepl, devtemplid);
+	
 	g_pPlutoLogger->Write(LV_STATUS,"AVMessageTranslator::Translate end");
 	
 	return false;
 }
 
 bool
-AVMessageTranslator::SetDelays(MessageReplicator& inrepl)
+AVMessageTranslator::SetDelays(MessageReplicator& inrepl, long devtemplid)
 {
-	DeviceData_Base* pTargetDev = DefaultMessageTranslator::FindTargetDevice(inrepl.getMessage().m_dwPK_Device_To);
-	if(!pTargetDev) {
-		g_pPlutoLogger->Write(LV_WARNING, "SetDelays Device %d Not Found.", inrepl.getMessage().m_dwPK_Device_To);
-		return false;
+	if(devtemplid == -1)
+	{
+		DeviceData_Base* pTargetDev = DefaultMessageTranslator::FindTargetDevice(inrepl.getMessage().m_dwPK_Device_To);
+		if(!pTargetDev) {
+			g_pPlutoLogger->Write(LV_WARNING, "SetDelays Device %d Not Found.", inrepl.getMessage().m_dwPK_Device_To);
+			return false;
+		}
+		devtemplid = pTargetDev->m_dwPK_DeviceTemplate;
 	}
-	long devtemplid = pTargetDev->m_dwPK_DeviceTemplate;
 	
 	if( InitDelaysMap(devtemplid) )
 	{
 		int IR_PowerDelay = map_PowerDelay[devtemplid];
 		int IR_ModeDelay  = map_ModeDelay[devtemplid];
 		int DigitDelay    = map_DigitDelay[devtemplid];
+		int cmdID = inrepl.getMessage().m_dwID;
 		
-		switch( inrepl.getMessage().m_dwID )
+		// check if it's an input command
+		// 1) it's part of AV Input command category
+		// 2) it has an input command as parameter
+		if( input_commands_.find( cmdID ) != input_commands_.end() ||
+			0 < inrepl.getMessage().m_mapParameters.count(COMMANDPARAMETER_PK_Command_Input_CONST) )
 		{
-			case COMMAND_Toggle_Power_CONST :
-			case COMMAND_Generic_Off_CONST :
-			case COMMAND_Generic_On_CONST :
-				inrepl.setPostDelay( IR_PowerDelay );
-				break;
-			
-			case COMMAND_Input_Select_CONST :
-				inrepl.setPostDelay( IR_ModeDelay );
-				break;
-			
-			case COMMAND_Tune_to_channel_CONST :
-				inrepl.setPostDelay( DigitDelay );
-				break;
+			inrepl.setPostDelay( IR_ModeDelay );
+		}
+		else
+		{
+			switch( cmdID )
+			{
+				case COMMAND_Toggle_Power_CONST :
+				case COMMAND_Generic_Off_CONST :
+				case COMMAND_Generic_On_CONST :
+					inrepl.setPostDelay( IR_PowerDelay );
+					break;
 				
-			// TODO: Other
-			default :
-				break;
+				case COMMAND_Input_Select_CONST :
+					inrepl.setPostDelay( IR_ModeDelay );
+					break;
+				
+				// TODO: Other
+				case COMMAND_Tune_to_channel_CONST :
+				default :
+					inrepl.setPostDelay( DigitDelay );
+					break;
+			}
 		}
 	}
 	else

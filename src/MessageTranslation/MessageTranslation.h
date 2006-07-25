@@ -18,6 +18,9 @@
 #include "DCE/Message.h"
 #include "DCE/DeviceData_Base.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
+#include "PlutoUtils/ProcessUtils.h"
+
+#include "pluto_main/Define_Command.h"
 
 namespace DCE {
 
@@ -31,15 +34,28 @@ MessageReplicator
 class MessageReplicator {
 public:
 	MessageReplicator(const Message& msg, int count = 1, int predelay = 0, int postdelay = 0) 
-		: msg_(msg), count_(count), predelay_(predelay), postdelay_(postdelay)
-	{}
+		: msg_(msg),
+		  count_(count),
+		  predelay_(predelay),
+		  postdelay_(postdelay),
+		  timeStart_(0L)
+	{
+		// this should be something (Device Data) from database
+		if( msg_.m_dwID == COMMAND_Vol_Up_CONST ||
+			msg_.m_dwID == COMMAND_Vol_Down_CONST )
+		{
+			timeStart_ = ProcessUtils::GetMsTime();
+		}
+	}
 	
 	MessageReplicator(const MessageReplicator& msg)
 		: msg_(msg.msg_),
 		  count_(msg.count_),
 		  predelay_(msg.predelay_),
-		  postdelay_(msg.postdelay_)
-	{}
+		  postdelay_(msg.postdelay_),
+		  timeStart_(msg.timeStart_)
+	{
+	}
 
 public:
 	Message& getMessage() {
@@ -66,12 +82,20 @@ public:
 	void setPostDelay(int postdelay) {
 		postdelay_ = postdelay;
 	}
+	
+	unsigned long getTimeStart() {
+		return timeStart_;
+	}
+	void setTimeStart(unsigned long timeStart) {
+		timeStart_ = timeStart;
+	}
 
 private:
 	Message msg_;
 	int count_;
 	int predelay_;
 	int postdelay_;
+	unsigned long timeStart_;
 };
 
 /*****************************************************************

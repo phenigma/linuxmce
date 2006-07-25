@@ -62,10 +62,13 @@ MessageTranslationManager
 
 MessageTranslationManager::MessageTranslationManager()
 	: threadid_(0), stopqueue_(false)
-{}
+{
+	ProcessUtils::ResetMsTime();
+}
 
 MessageTranslationManager::MessageTranslationManager(MessageTranslator* ptranslator, MessageDispatcher* pdispatcher)
 {
+	ProcessUtils::ResetMsTime();
 	setTranslator(ptranslator);
 	setDispatcher(pdispatcher);
 }
@@ -91,9 +94,9 @@ MessageTranslationManager::ProcessMessage(Message* pmsg) {
 	}
 
 	bool ret = false;
-	MessageReplicator msgrepl(*pmsg);
-
+	
 	msgqueue_.lock();
+	MessageReplicator msgrepl(*pmsg);
 	ret = ProcessReplicator(msgrepl, msgqueue_);
 	g_pPlutoLogger->Write(LV_WARNING, "#### Pre-Process Queue = %u", msgqueue_.size());
 	msgqueue_.unlock();
@@ -208,32 +211,35 @@ MessageTranslationManager::_QueueProc() {
 
 void 
 MessageTranslationManager::_QueueProc() {
-    int sleep_delay=0;
 	handleStart();
 	while(!stopqueue_) {
-		sleep_delay=0;
 		msgqueue_.lock();
 		MessageReplicatorList::iterator it = msgqueue_.begin();
 		if(it != msgqueue_.end()) {
 			MessageReplicator replmsg = (*it);
 			msgqueue_.erase(it);
 			msgqueue_.unlock();
-// Eugen C. - DispatchMessage will take care for delay
-/*			sleep_delay = replmsg.getPreDelay();
-			if(sleep_delay)
-				Sleep(sleep_delay);*/
-			g_pPlutoLogger->Write(LV_WARNING,"_QueueProc Pre - %d : %d", replmsg.getMessage().m_dwID, replmsg.getPreDelay());
-			assert(pdispatcher_);
-			if(pdispatcher_) {
-				g_pPlutoLogger->Write(LV_STATUS,"_QueueProc ------- %d", replmsg.getMessage().m_dwID);
-				pdispatcher_->DispatchMessage(replmsg);
+			
+			// If it's less than 1 sec since it's in the queue
+			// then it's still available
+			// If NOT, it's ignored !
+			// Eugen C. + Aaron B.
+			if( 0L == replmsg.getTimeStart() ||
+				1000 > ProcessUtils::GetMsTime() - replmsg.getTimeStart() ) {
+				g_pPlutoLogger->Write(LV_WARNING,"_QueueProc Pre - %d : %d", replmsg.getMessage().m_dwID, replmsg.getPreDelay());
+				assert(pdispatcher_);
+				if(pdispatcher_) {
+					g_pPlutoLogger->Write(LV_STATUS,"_QueueProc ------- %d", replmsg.getMessage().m_dwID);
+					pdispatcher_->DispatchMessage(replmsg);
+				}
+				g_pPlutoLogger->Write(LV_WARNING,"_QueueProc Post - %d : %d", replmsg.getMessage().m_dwID, replmsg.getPostDelay());
 			}
-// Eugen C. - DispatchMessage will take care for delay
-/*			sleep_delay = replmsg.getPostDelay();
-			if(sleep_delay)
-				Sleep(sleep_delay);*/
-			g_pPlutoLogger->Write(LV_WARNING,"_QueueProc Post - %d : %d", replmsg.getMessage().m_dwID, replmsg.getPostDelay());
+			else
+			{
+				g_pPlutoLogger->Write(LV_WARNING,"---- _QueueProc Ignored - %d", replmsg.getMessage().m_dwID);
+			}
 		} else {
+			ProcessUtils::ResetMsTime();
 			msgqueue_.unlock();
 			usleep(POOL_IDLE_SLEEP* 1000);
 		}
