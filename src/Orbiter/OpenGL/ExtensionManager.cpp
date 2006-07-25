@@ -36,7 +36,7 @@ ExtensionManager::~ExtensionManager(void)
 	if(!CleanColor && !CleanZBuffer)
 		return;
 	
-	glClearColor(CleanRed, CleanGreen, CleanBlue, 0.2f);
+	glClearColor(CleanRed, CleanGreen, CleanBlue, 0.0f);
 	unsigned int uFlags = 0;
 	if(CleanColor)
 		uFlags |= GL_COLOR_BUFFER_BIT;
