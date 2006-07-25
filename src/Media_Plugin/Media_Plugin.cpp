@@ -1545,6 +1545,10 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::StreamEnded ID %d auto resume %d resume: %c",pMediaStream->m_iStreamID_get(),(int) bNoAutoResume,m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]);
+#endif
+
 	if( bNoAutoResume )
 	{
 		bool bError=false;
@@ -4118,6 +4122,9 @@ void Media_Plugin::SaveLastPlaylistPosition(MediaStream *pMediaStream)
 	}
 
 	pRow_Bookmark->Position_set(" QUEUE_POS:" + StringUtils::itos(pMediaStream->m_iDequeMediaFile_Pos) + " " + pMediaStream->m_sLastPosition);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SaveLastPlaylistPosition %s QUEUE_POS: %d %s",sWhere.c_str(),pMediaStream->m_iDequeMediaFile_Pos,pMediaStream->m_sLastPosition.c_str());
+#endif
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 }
 
@@ -4140,6 +4147,9 @@ void Media_Plugin::SaveLastDiscPosition(MediaStream *pMediaStream)
 	}
 
 	pRow_Bookmark->Position_set(" QUEUE_POS:" + StringUtils::itos(pMediaStream->m_iDequeMediaFile_Pos) + " " + pMediaStream->m_sLastPosition);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SaveLastDiscPosition %s QUEUE_POS: %d %s",sWhere.c_str(),pMediaStream->m_iDequeMediaFile_Pos,pMediaStream->m_sLastPosition.c_str());
+#endif
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 }
 
@@ -4166,6 +4176,9 @@ void Media_Plugin::SaveLastFilePosition(MediaStream *pMediaStream)
 	}
 
 	pRow_Bookmark->Position_set(pMediaStream->m_sLastPosition);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SaveLastDiscPosition %s %s",sWhere.c_str(),pMediaStream->m_sLastPosition.c_str());
+#endif
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 }
 

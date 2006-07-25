@@ -874,7 +874,7 @@ fprintf(fdebug,"%s %s",acBuff,query.c_str());
 			{
 				st += StringUtils::itos(i) + ":" + (row[i] ? row[i] : "NULL") + "      ";
 			}
-			fprintf(fdebug,"%s %s",acBuff,st.c_str());
+			fprintf(fdebug,"%s %s\n",acBuff,st.c_str());
 		}
 	}			
 

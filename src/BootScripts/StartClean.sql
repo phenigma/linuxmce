@@ -8,3 +8,4 @@ delete from Installation_Users;
 delete from Orbiter;
 delete from Device_EntertainArea;
 delete from EntertainArea;
+delete from UnknownDevices;

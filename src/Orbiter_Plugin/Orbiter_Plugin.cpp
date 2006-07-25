@@ -2588,6 +2588,7 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assi
 
 bool Orbiter_Plugin::CheckForNewWizardDevices(DeviceData_Router *pDevice_MD)
 {
+	return false;  // Don't think we're going to need to use this
 	// this was never implemented
 	vector<Row_Device *> vectRow_Device;
 	m_pDatabase_pluto_main->Device_get()->GetRows("IsNewDevice=1",&vectRow_Device);

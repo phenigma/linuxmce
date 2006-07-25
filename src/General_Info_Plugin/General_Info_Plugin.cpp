@@ -2390,11 +2390,14 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 		{
 			if( !iPK_Room )
 			{
+				/*
+					AB - 7/20/06  -- This shouldn't be here anymore.  If the child should be automatically set to the parent's room we'll do that with the device data.  Lights, for example, should not
 				Row_Device *pRow_Device_ControlledVia = pRow_Device->FK_Device_ControlledVia_getrow();
 				if( pRow_Device_ControlledVia )
 					iPK_Room = pRow_Device_ControlledVia->FK_Room_get();
 				g_pPlutoLogger->Write(LV_WARNING,"Temp - CreateDevice, room was empty, now it's %d %p %d",
 					iPK_Room,pRow_Device_ControlledVia,pRow_Device->FK_Device_ControlledVia_get());
+				*/
 			}
 			Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(iPK_Room);
 			if( pRow_Room )
