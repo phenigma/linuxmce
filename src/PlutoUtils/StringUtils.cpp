@@ -956,7 +956,7 @@ bool StringUtils::ContainsNonAscii(string &sInput)
 
 string StringUtils::BashPatternEscape(string sInput, string sCharsToNotEscape)
 {
-	string sDefaultCharsToEscape = "\\?*[]";
+	string sDefaultCharsToEscape = "\\?*[],";
 	string sCharsToEscape = "";
 
 	if (sCharsToNotEscape.size() == 0)
