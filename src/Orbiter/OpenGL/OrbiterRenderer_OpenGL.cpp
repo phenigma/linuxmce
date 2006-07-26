@@ -13,6 +13,8 @@
 #include "PlutoUtils/Other.h"
 #include "../ScreenHistory.h"
 #include "../../pluto_main/Define_Button.h"
+#include "DataGrid.h" 
+#include "DataGridRenderer.h"
 //-----------------------------------------------------------------------------------------------------
 #include "math3dutils.h"
 #include "Widgets/basicwindow.h"
@@ -375,7 +377,69 @@ void OrbiterRenderer_OpenGL::OnIdle()
 
 	DesignObj_Orbiter *pObj = OrbiterLogic()->m_pObj_Highlighted;
 
-	Engine->Highlight(&pObj->m_rPosition, NULL);
+	PlutoRectangle Position(pObj->m_rPosition);
+
+	if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	{
+		DesignObj_DataGrid *pGrid = (DesignObj_DataGrid *) pObj;
+		//PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
+
+		int nHColumn = pGrid->m_iHighlightedColumn!=-1 ? pGrid->m_iHighlightedColumn + pGrid->m_GridCurCol : pGrid->m_GridCurCol;
+		int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow - (pGrid->m_iUpRow >= 0 ? 1 : 0) : 0;
+
+		if( nHColumn==-1 && nHRow==-1 )
+			return;
+
+		if(!pGrid->m_pDataGridTable)
+			return;
+
+		if(nHRow < pGrid->m_pDataGridTable->m_StartingRow)
+		{
+			pGrid->m_iHighlightedRow = 1;
+			nHRow = pGrid->m_pDataGridTable->m_StartingRow; //set the highlighted row
+		}
+
+		DataGridCell *pCell = pGrid->m_pDataGridTable->GetData(nHColumn, nHRow); 
+		if( !pCell )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter::DoHighlightObject cell is null.  obj %s col %d row %d",
+				pObj->m_ObjectID.c_str(), nHColumn, nHRow);
+			return;
+
+		}
+
+		//the datagrid is highlighted, but no row is highlighted; we don't want to select the whole datagrid
+		if(pGrid->m_iHighlightedRow == -1)
+			pGrid->m_iHighlightedRow = 0;
+
+		PlutoRectangle r;
+		
+		((DataGridRenderer*) (pGrid->Renderer()))->
+		GetGridCellDimensions( 
+			pGrid->m_iHighlightedColumn==-1 ? pGrid->m_MaxCol : pCell->m_Colspan, 
+			pGrid->m_iHighlightedRow==-1 ? pGrid->m_MaxRow : pCell->m_Rowspan,
+			pGrid->m_iHighlightedColumn==-1 ? 0 : pGrid->m_iHighlightedColumn, 
+			pGrid->m_iHighlightedRow==-1 ? 0 : pGrid->m_iHighlightedRow, 
+			r.X,  r.Y,  r.Width,  r.Height );
+
+		Position.X = r.X;
+		Position.Y = r.Y;
+		Position.Right( r.Right());
+		Position.Bottom(r.Bottom());
+	}
+	else
+	{
+		
+//		m_rectLastHighlight = m_pObj_Highlighted->GetHighlightRegion();
+	}
+
+	if(OrbiterLogic()->m_pObj_Highlighted)
+	{
+		Position.X += OrbiterLogic()->m_pObj_Highlighted->m_pPopupPoint.X;
+		Position.Y += OrbiterLogic()->m_pObj_Highlighted->m_pPopupPoint.Y;
+	}
+
+	Engine->Highlight(&Position, NULL);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point )
