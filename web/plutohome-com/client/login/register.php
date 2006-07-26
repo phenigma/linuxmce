@@ -1,7 +1,10 @@
 <?
 function register($output,$conn){
 	global $addMasterUserUrl,$checkMasterUserUrl;
-
+  	
+	// image recognition script to prevent automated process
+  	include "include/captcha.php";
+	
 	if(isset($_SESSION['userIsLogged']) && $_SESSION['userIsLogged']=="yes"){
 		// the user is already logged
 		header("Location: index.php?section=myPluto");
@@ -11,7 +14,12 @@ function register($output,$conn){
 	$referrer = isset($_REQUEST['referrer'])?cleanString($_REQUEST['referrer']):'';
 	
   	$out.='
-
+  <style>
+.captcha {
+   border: 2px dashed: #331111;
+   padding: 5px;
+}
+  </style>
    <form action="index.php?section=register" method="POST" name="register">	
 <table cellspacing="0" cellpadding="3" align="center"  class="insidetable2">
      		<tr>
@@ -43,6 +51,9 @@ function register($output,$conn){
 				<td class="formextrainfo">Please confirm the password</td>
 			</tr>
 			<tr>
+				<td align="left" colspan="3">'.captcha::form().'</td>
+			</tr>  	
+			<tr>
 				<td colspan="3" align="left">* You must enable cookies and javascript in order to register.<br><input type="image" name="register" src="images/buttons/buton_sign_up.gif" onsubmit="validateEmail(this);"/></th>
 			</tr>
     	     <tr>
@@ -69,7 +80,7 @@ function register($output,$conn){
   		$errorsCount=0;
   		$mail=$_POST['email'];
 
-  		list($userName, $mailDomain) =split("@",$mail); 
+  		@list($userName, $mailDomain) =split("@",$mail); 
 		if (!checkdnsrr($mailDomain, "MX")) { 
   			$out.='
   				<table align="center">
@@ -98,6 +109,21 @@ function register($output,$conn){
   				</table>';
   			$errorsCount++;
   		}
+  		
+  		$res = captcha::check();
+   		if(isset($res)){
+  			if(!$res){
+  			$out.='
+  				<table align="center">
+  					<tr>
+  						<td align="center" colspan="3" class="err" style="font-size:16px;"> Please enter the text and numbers from the validation image.</td>
+  					</tr>
+  				</table>';
+  			$errorsCount++;
+  			}
+  		}
+  
+  
   		$pass=$_POST['password'];
   		if($referrer!=''){
   			// query MasterUsers table for PK_MasterUsers value
