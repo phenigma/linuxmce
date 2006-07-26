@@ -56,7 +56,9 @@ OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignO
 	{
 		//do something here; unable to connect to db
 	}
-	m_bHasVideoWizardFiles = FileUtils::FileExists("/home/monster/greetings.mpg");
+
+	//WARNING: HARDCODING!!!!
+	m_bHasVideoWizardFiles = FileUtils::FileExists("/home/videowiz/greetings.mpg");
 }
 //-----------------------------------------------------------------------------------------------------
 OSDScreenHandler::~OSDScreenHandler()
