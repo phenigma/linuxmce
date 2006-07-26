@@ -179,7 +179,9 @@ public:
 		string sPrivate, string sPublic, string sCaption);
 	bool FileSave_ObjectSelected(CallBackData *pData);
 	bool FileSave_GridSelected(CallBackData *pData);
-	string sMountedFolderForDrive;
+	string sSaveFile_MountedFolder;
+	string sSaveFile_RelativeFolder;
+	string sSaveFile_Drive;
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

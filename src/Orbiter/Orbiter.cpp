@@ -3938,6 +3938,10 @@ g_pPlutoLogger->Write(LV_CRITICAL,"now playing active popup 8 now %p",m_pActiveP
 		{
 			PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 			string sVarValue = m_mapVariable[PK_Variable];
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_CRITICAL," Variable: %d has value %s",PK_Variable,sVarValue.c_str());
+#endif
+
 			vm.Release();
 
 			Output += SubstituteVariables(sVarValue, NULL, 0, 0);
@@ -5164,7 +5168,7 @@ void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &
 //<-dceag-c27-e->
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Variable: %d set to %s",iPK_Variable,sValue_To_Assign.c_str());
+	g_pPlutoLogger->Write(LV_CRITICAL,"Variable: %d set to %s",iPK_Variable,sValue_To_Assign.c_str());
 #endif
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 		m_mapVariable[iPK_Variable] = sValue_To_Assign;

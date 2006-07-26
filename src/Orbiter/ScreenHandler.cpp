@@ -28,6 +28,9 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 	m_pOrbiter = pOrbiter;
 	m_tLastDeviceAdded = 0;
 	m_MapMutex.Init(NULL);
+
+	sSaveFile_RelativeFolder = "(no directory)";
+	sSaveFile_Drive = "Generic Internal Drive";
 }
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::~ScreenHandler()
@@ -1179,12 +1182,14 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, string sPrivate,
 									string sPublic, string sCaption)
 {
-	sMountedFolderForDrive = "";
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPrivate);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPublic);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sSaveFile_Drive);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, sSaveFile_RelativeFolder);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sDefaultUserValue);
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
-	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(DESIGNOBJ_mnuChooseFolder_CONST), "Folder : <%=" + StringUtils::ltos(VARIABLE_Path_CONST) + "%>", TEXT_STATUS_CONST);
+	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(DESIGNOBJ_mnuChooseFolder_CONST), 
+		"Folder : <%=" + StringUtils::ltos(VARIABLE_Display_Message_Button_1_CONST) + "%>", TEXT_STATUS_CONST);
 	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, sDefaultUserValue, sPrivate, sPublic, sCaption);
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::FileSave_ObjectSelected,	
@@ -1203,8 +1208,8 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
 			{
-				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sMountedFolderForDrive + "\nMT-1\nP");
-				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sMountedFolderForDrive);
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, sSaveFile_MountedFolder + "\nMT-1\nP");
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sSaveFile_Drive);
 				m_pOrbiter->CMD_Go_back("", "");
 			}
 		}
@@ -1233,6 +1238,20 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, sParentFolder + sNewFolder + "/");
 			}
 		}
+		else if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuFileSave_CONST)
+		{
+			if(
+				pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePrivate_CONST ||
+				pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePublic_CONST
+			)
+			{
+				string sFullFilePath = 
+					(sSaveFile_MountedFolder == "" ? "" : sSaveFile_MountedFolder + "/") + 
+					(sSaveFile_RelativeFolder != "(no directory)" ? sSaveFile_RelativeFolder + "/" : "") + 
+					m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sFullFilePath);
+			}
+		}
 	}
 
 	return false;
@@ -1245,9 +1264,26 @@ bool ScreenHandler::FileSave_GridSelected(CallBackData *pData)
 	if(NULL != pCellInfoData && NULL != pCellInfoData->m_pDataGridCell)
 	{
 		if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuChooseDrive_CONST)
-			sMountedFolderForDrive = string("/mnt/device/") + pCellInfoData->m_pDataGridCell->GetValue();
+		{
+			sSaveFile_Drive = pCellInfoData->m_pDataGridCell->GetText();
+			sSaveFile_MountedFolder = string("/mnt/device/") + pCellInfoData->m_pDataGridCell->GetValue();
+		}
 		else if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuChooseFolder_CONST)
+		{
+			sSaveFile_RelativeFolder = pCellInfoData->m_pDataGridCell->GetValue();
+
+			if(sSaveFile_RelativeFolder == sSaveFile_MountedFolder)
+				sSaveFile_RelativeFolder = ".";
+			else
+			{
+				int len = sSaveFile_MountedFolder.length();
+				if(len < sSaveFile_RelativeFolder.length())
+					sSaveFile_RelativeFolder = FileUtils::ExcludeTrailingSlash(sSaveFile_RelativeFolder.substr(len + 1));
+			}
+
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Display_Message_Button_1_CONST, sSaveFile_RelativeFolder);
 			m_pOrbiter->Renderer()->RenderObjectAsync(m_pOrbiter->FindObject(DESIGNOBJ_mnuChooseFolder_CONST));
+		}
 	}
 
 	return false;
