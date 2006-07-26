@@ -66,13 +66,16 @@ if [[ $UpgradeMode == "false" ]]; then
 	echo "a server only, and will not be used as a media station."
 
 	while :; do
-		Type=$(Ask "Should this be a Core, Hybrid or Other? [C/h/o]")
+		Type=$(Ask "Should this be a Core, Hybrid or Other? [c/H/o]")
 
 		CoreDT=7
 		if [[ "$Type" == o || "$Type" == O ]]; then
 			CoreDT=$(Ask "Enter the device template number")
 			break
 		elif [[ "$Type" == h || "$Type" == H || "$Type" == c || "$Type" == C || -z "$Type" ]]; then
+			if [[ -z "$Type" ]]; then
+				Type="H"
+			fi
 			break
 		else
 			echo "Invalid answer '$Type'"

@@ -8,8 +8,8 @@ echo "wizard to help get you up and running. If you have the Pluto Extras CD"
 echo "version 1, please insert it into your drive now and choose Y after it is in."
 echo "Otherwise, choose N."
 echo ""
-BonusCD=$(Ask "Did you insert the \"Pluto Extras CD version 1\" in drive ? [y/N]")
-if [[ "$BonusCD" == Y || "$BonusCD" == y ]]; then
+BonusCD=$(Ask "Did you insert the \"Pluto Extras CD version 1\" in drive ? [Y/n]")
+if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 	if [ ! -d /cdrom ]; then
 		mkdir /cdrom
 	fi
