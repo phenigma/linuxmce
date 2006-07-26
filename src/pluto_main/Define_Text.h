@@ -1074,6 +1074,8 @@
 #define TEXT_Choose_CONST 1787
 #define TEXT_Create_Directory_CONST 1788
 #define TEXT_Choose_Drive_CONST 1789
+#define TEXT_Choose_Folder_info_CONST 1790
+#define TEXT_Choose_Drive_info_CONST 1791
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

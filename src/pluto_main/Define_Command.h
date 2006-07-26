@@ -735,6 +735,7 @@
 #define COMMAND_Get_Active_Application_CONST 811
 #define COMMAND_Application_Exited_CONST 812
 #define COMMAND_Add_Software_CONST 813
+#define COMMAND_Get_Commands_Of_Category_CONST 814
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
