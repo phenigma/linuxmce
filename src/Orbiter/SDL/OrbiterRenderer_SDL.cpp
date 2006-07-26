@@ -170,11 +170,14 @@ void OrbiterRenderer_SDL::Configure()
 
 	g_pPlutoLogger->Write(LV_STATUS, "Created back screen surface!");
 
-	SetOrbiterWindowTransparency(0.5);
+    // we will use the per-pixel transparency
+	//SetOrbiterWindowTransparency(0.5);
 }
 //----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL::SetOrbiterWindowTransparency(double TransparencyLevel)
 {
+    // FIXME: we shold go until we find the root window
+    // FIXME: use GetMainWindow(), to avoid duplicate code
 #if !defined(WIN32) && !defined(BLUETOOTH_DONGLE) && !defined(PROXY_ORBITER)
 	X11_Locker_NewDisplay locker;
 	SDL_SysWMinfo info;
@@ -189,11 +192,10 @@ void OrbiterRenderer_SDL::SetOrbiterWindowTransparency(double TransparencyLevel)
 	Window ggrandparent = GetParentWnd( info.info.x11.display, grandparent );
 
 	g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_SDL(): setting transparency");
-
-	SetWindowTransparency(info.info.x11.display, info.info.x11.window, TransparencyLevel);
-	SetWindowTransparency(info.info.x11.display, parent, TransparencyLevel);
-	SetWindowTransparency(info.info.x11.display, grandparent, TransparencyLevel);
-	SetWindowTransparency(info.info.x11.display, ggrandparent, TransparencyLevel);
+	SetWindowTransparency(v_pX11_Locker_NewDisplay->GetDisplay(), info.info.x11.window, TransparencyLevel);
+	SetWindowTransparency(v_pX11_Locker_NewDisplay->GetDisplay(), parent, TransparencyLevel);
+	SetWindowTransparency(v_pX11_Locker_NewDisplay->GetDisplay(), grandparent, TransparencyLevel);
+	SetWindowTransparency(v_pX11_Locker_NewDisplay->GetDisplay(), ggrandparent, TransparencyLevel);
 #endif
 }
 //----------------------------------------------------------------------------------------------------
