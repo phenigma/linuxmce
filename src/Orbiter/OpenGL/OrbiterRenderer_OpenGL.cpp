@@ -460,7 +460,7 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 {
 	if(pObj->m_PK_Effect_On_Screen > 0)
 		m_spPendingGLEffects->m_nOnScreenTransitionEffectID = pObj->m_PK_Effect_On_Screen;
-	ObjectOnScreen(pVectDesignObj_Orbiter, pObj, ptPopup);
+	OrbiterRenderer::ObjectOnScreen(pVectDesignObj_Orbiter, pObj, ptPopup);
 }
 //----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::ObjectOffScreen(DesignObj_Orbiter *pObj)
@@ -468,7 +468,7 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	if(pObj->m_PK_Effect_Off_Screen > 0)
 		m_spPendingGLEffects->m_nOffScreenTransitionEffectID = pObj->m_PK_Effect_Off_Screen;
 
-	ObjectOffScreen(pObj);
+	OrbiterRenderer::ObjectOffScreen(pObj);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderScreen(bool bRenderGraphicsOnly)
