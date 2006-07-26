@@ -149,11 +149,6 @@ if [[ -n "$ForcedXvMC" ]]; then
 	libXvMC="$ForcedXvMC"
 fi
 
-## XXX: START - force 'xv' for video.driver and original XvMC lib for now, per Kirill's request
-libXvMC="libXvMC.so.1"
-XineVideoDriver="xv"
-## XXX: END - force 'xv' for video.driver and original XvMC lib for now, per Kirill's request
-
 echo "$libXvMC" >/etc/X11/XvMCConfig
 XineConfSet video.driver "$XineVideoDriver"
 
