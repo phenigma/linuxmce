@@ -453,6 +453,23 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	OrbiterRenderer::RedrawObjects();
 	NeedToUpdateScreen_ = true;
 }
+
+//----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_OpenGL::ObjectOnScreen(VectDesignObj_Orbiter *pVectDesignObj_Orbiter, 
+DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
+{
+	if(pObj->m_PK_Effect_On_Screen > 0)
+		m_spPendingGLEffects->m_nOnScreenTransitionEffectID = pObj->m_PK_Effect_On_Screen;
+	ObjectOnScreen(pVectDesignObj_Orbiter, pObj, ptPopup);
+}
+//----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_OpenGL::ObjectOffScreen(DesignObj_Orbiter *pObj)
+{
+	if(pObj->m_PK_Effect_Off_Screen > 0)
+		m_spPendingGLEffects->m_nOffScreenTransitionEffectID = pObj->m_PK_Effect_Off_Screen;
+
+	ObjectOffScreen(pObj);
+}
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderScreen(bool bRenderGraphicsOnly)
 {
@@ -462,9 +479,9 @@ void OrbiterRenderer_OpenGL::OnIdle()
 
 
 
-	int a = m_spPendingGLEffects->m_nOffScreenTransitionEffectID;
-	int b = m_spPendingGLEffects->m_nOnScreenTransitionEffectID;
-	int c = m_spPendingGLEffects->m_nOnSelectWithChangeEffectID;
+	int OffScreenTransition = m_spPendingGLEffects->m_nOffScreenTransitionEffectID;
+	int OnScreenTransition = m_spPendingGLEffects->m_nOnScreenTransitionEffectID;
+	int OnSelectWithChange = m_spPendingGLEffects->m_nOnSelectWithChangeEffectID;
 
 	g_pPlutoLogger->Write(LV_WARNING,"OrbiterRenderer_OpenGL::RenderScreen");
 
@@ -502,13 +519,13 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	c = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
 	*/
 	
-	Item = Engine->Compose->CreateEffect(2, a, 0, Simulator::GetInstance()->m_iMilisecondsTransition);
+	Item = Engine->Compose->CreateEffect(2, OffScreenTransition, 0, Simulator::GetInstance()->m_iMilisecondsTransition);
 	if(Item)
 	{
 		Item->Configure(&rectLastSelected);
 		Item->Reversed = true;
 	}
-	Item = Engine->Compose->CreateEffect(3, b, 0, Simulator::GetInstance()->m_iMilisecondsTransition);
+	Item = Engine->Compose->CreateEffect(3, OnScreenTransition, 0, Simulator::GetInstance()->m_iMilisecondsTransition);
 	if(Item)
 		Item->Configure(&rectLastSelected);
 }

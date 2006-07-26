@@ -69,6 +69,9 @@ namespace DCE
 
 		//virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic) {}
 
+		virtual void ObjectOnScreen(VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj,					PlutoPoint *ptPopup = NULL);
+		virtual void ObjectOffScreen(DesignObj_Orbiter *pObj);
+
 		void WakeupFromCondWait();
 		void OnIdle();
 
