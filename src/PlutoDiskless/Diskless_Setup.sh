@@ -322,9 +322,10 @@ for Client in $R; do
 		
 		SyncTime="/etc/cron.daily/synctime"
 
-		if [ -d /etc/cron.daily ]; then
-				echo "/usr/sbin/ntpdate 192.168.80.1" > $SyncTime
-				chmod +x $SyncTime
+		if [ ! -d $DlPath/etc/cron.daily ]; then
+				mkdir -p $DlPath/etc/cron.daily
+				echo "/usr/sbin/ntpdate 192.168.80.1" > $DlPath/$SyncTime
+				chmod +x $DlPath/$SyncTime
 		fi
 		
 		## Dome configuring this MD
