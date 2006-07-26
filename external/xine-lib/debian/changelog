@@ -1,3 +1,9 @@
+xine-lib (1.1.1-1pluto5) unstable; urgency=low
+
+  * Added alpha_blend patch
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Wed, 26 Jul 2006 15:45:59 +0300
+
 xine-lib (1.1.1-1pluto4) unstable; urgency=low
 
   * Built against libasound 1.0.10
