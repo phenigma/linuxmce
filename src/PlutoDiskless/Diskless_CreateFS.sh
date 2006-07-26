@@ -16,6 +16,7 @@ FSarchive=PlutoMD.tar.bz2
 DlPath="/usr/pluto/diskless/$Device"
 HexIP=$(gethostip -x "$IP")
 
+# Modules to be included in the initramfs
 Modules="ne 3c509 3c59x 8139cp 8139too dmfe e100 eepro100 eexpress epic100 hp100 ne2k-pci sis900 tlan de4x5 tulip via-rhine yellowfin forcedeth pcnet32 tg3 e1000 sk98lin fealnx natsemi r8169 b44 via_velocity skge sky2"
 
 KERNEL_VERSION="$(uname -r)"
@@ -27,12 +28,12 @@ InstallKernel()
 	local Module
 	local Kout
 
-	: >etc/mkinitrd/modules
+	local ModulesFile="etc/initramfs-tools/modules"
+	: >"$ModulesFile"
 	for Module in $Modules; do
-		echo $Module >>etc/mkinitrd/modules
+		echo $Module >>"$ModulesFile"
 	done
 
-	sed -i 's/^ROOT=.*$/ROOT=/g' etc/mkinitrd/mkinitrd.conf
 	if chroot . dpkg -s "linux-image-$KERNEL_VERSION" 2>/dev/null | grep -q 'Status: install ok installed'; then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Kernel already installed."
 		return 0
@@ -51,8 +52,6 @@ InstallKernel()
 	rm -rf lib/modules/"$KERNEL_VERSION"
 
 	cp "$kernel" tmp/
-
-	cp /usr/pluto/templates/yaird.Default.cfg.tmpl /$DlPath/etc/yaird/Default.cfg
 
 	mount -t proc proc proc
 	mount sys sys -t sysfs
