@@ -3953,10 +3953,12 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	if( pRow_Picture )
 		pRow_Bookmark->FK_Picture_set(pRow_Picture->PK_Picture_get());
 	string sName;
+	bool bIsStart=false;
 	if( sOptions=="START" )
 	{
 		pRow_Bookmark->IsAutoResume_set(1);
 		sName = "START";
+		bIsStart=true;
 	}
 	else
 		sName = pMediaStream->m_sMediaDescription + " " + sText;
@@ -3980,10 +3982,13 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	SendCommand(CMD_Goto_DesignObj);
 	*/
 
-	DCE::SCREEN_FileSave SCREEN_FileSave(m_dwPK_Device,pMessage->m_dwPK_Device_From, 
-		"", sCmdToRenameBookmark + " 17 <%=U%>", sCmdToRenameBookmark, 
-		"<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>");
-	SendCommand(SCREEN_FileSave);
+	if( !bIsStart )
+	{
+		DCE::SCREEN_FileSave SCREEN_FileSave(m_dwPK_Device,pMessage->m_dwPK_Device_From, 
+			"", sCmdToRenameBookmark + " 17 <%=U%>", sCmdToRenameBookmark, 
+			"<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>");
+		SendCommand(SCREEN_FileSave);
+	}
 }
 
 //<-dceag-c410-b->
