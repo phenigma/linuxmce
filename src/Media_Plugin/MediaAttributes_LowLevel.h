@@ -84,6 +84,8 @@ the attribute table.  If 0, there will be 2 entries in the attribute table with 
 
 class MediaAttributes_LowLevel
 {
+	friend class MediaFile;
+
 private:
     Database_pluto_media *m_pDatabase_pluto_media;
 	int m_nPK_Installation;

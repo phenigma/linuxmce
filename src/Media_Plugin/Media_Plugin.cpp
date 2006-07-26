@@ -1552,7 +1552,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 	if( bNoAutoResume )
 	{
 		bool bError=false;
-		string sWhere = "EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + " AND ";
+		string sWhere = "EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + " AND Description<>'START' AND ";
 		if( pMediaStream->m_dwPK_Disc )
 			sWhere += "FK_Playlist=" + StringUtils::itos(pMediaStream->m_iPK_Playlist) + " AND IsAutoResume=1";
         else if( pMediaStream->m_iPK_Playlist )
@@ -3952,7 +3952,14 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	pRow_Bookmark->EK_MediaType_set(pMediaStream->m_iPK_MediaType);
 	if( pRow_Picture )
 		pRow_Bookmark->FK_Picture_set(pRow_Picture->PK_Picture_get());
-	string sName = pMediaStream->m_sMediaDescription + " " + sText;
+	string sName;
+	if( sOptions=="START" )
+	{
+		pRow_Bookmark->IsAutoResume_set(1);
+		sName = "START";
+	}
+	else
+		sName = pMediaStream->m_sMediaDescription + " " + sText;
 	pRow_Bookmark->Description_set(sName);
 	pRow_Bookmark->Position_set(sPosition);
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
@@ -4105,7 +4112,7 @@ void Media_Plugin::CMD_Set_Auto_Resume_Options(string sValue_To_Assign,int iPK_U
 
 void Media_Plugin::SaveLastPlaylistPosition(MediaStream *pMediaStream)
 {
-	string sWhere = "EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + " AND FK_Playlist=" + StringUtils::itos(pMediaStream->m_iPK_Playlist) + " AND IsAutoResume=1";
+	string sWhere = "EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + " AND FK_Playlist=" + StringUtils::itos(pMediaStream->m_iPK_Playlist) + " AND IsAutoResume=1 AND Description<>'START'";
 
 	Row_Bookmark *pRow_Bookmark=NULL;
 	vector<Row_Bookmark *> vectRow_Bookmark;
@@ -4130,7 +4137,7 @@ void Media_Plugin::SaveLastPlaylistPosition(MediaStream *pMediaStream)
 
 void Media_Plugin::SaveLastDiscPosition(MediaStream *pMediaStream)
 {
-	string sWhere = "EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + " AND FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc) + " AND IsAutoResume=1";
+	string sWhere = "EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + " AND FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc) + " AND IsAutoResume=1 AND Description<>'START'";
 
 	Row_Bookmark *pRow_Bookmark=NULL;
 	vector<Row_Bookmark *> vectRow_Bookmark;
@@ -4159,7 +4166,7 @@ void Media_Plugin::SaveLastFilePosition(MediaStream *pMediaStream)
 	if( !pMediaFile->m_dwPK_File )
 		return; // The file isn't in the database
 
-	string sWhere = "EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + " AND FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File) + " AND IsAutoResume=1";
+	string sWhere = "EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + " AND FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File) + " AND IsAutoResume=1 AND Description<>'START'";
 
 	Row_Bookmark *pRow_Bookmark=NULL;
 	vector<Row_Bookmark *> vectRow_Bookmark;
@@ -4224,7 +4231,7 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 	{
 		m_pDatabase_pluto_media->Bookmark_get()->GetRows(
 			"EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + 
-			" AND FK_Disk=" + StringUtils::itos(pMediaStream->m_dwPK_Disc) + " AND IsAutoResume=1",
+			" AND FK_Disk=" + StringUtils::itos(pMediaStream->m_dwPK_Disc) + " AND IsAutoResume=1 AND Description<>'START'",
 			&vectRow_Bookmark);
 
 		if( vectRow_Bookmark.size() )
@@ -4239,7 +4246,7 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 	{
 		m_pDatabase_pluto_media->Bookmark_get()->GetRows(
 			"EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + 
-			" AND FK_Playlist=" + StringUtils::itos(pMediaStream->m_iPK_Playlist) + " AND IsAutoResume=1",
+			" AND FK_Playlist=" + StringUtils::itos(pMediaStream->m_iPK_Playlist) + " AND IsAutoResume=1 AND Description<>'START'",
 			&vectRow_Bookmark);
 
 		if( vectRow_Bookmark.size() )
@@ -4265,7 +4272,7 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 		{
 			m_pDatabase_pluto_media->Bookmark_get()->GetRows(
 				"EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + 
-				" AND FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File) + " AND IsAutoResume=1",
+				" AND FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File) + " AND IsAutoResume=1 AND Description<>'START'",
 				&vectRow_Bookmark);
 
 			if( vectRow_Bookmark.size() )
