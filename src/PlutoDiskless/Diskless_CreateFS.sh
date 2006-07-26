@@ -188,14 +188,6 @@ Upgrade_Essential()
 		# TODO: put replaced scripts back
 		#umount ./proc
 	fi
-
-	local Conf=etc/lessdisks/mkinitrd/initrd-netboot.conf
-	local Setting="nfs_opts=ro,async,nolock,tcp"
-	if ! grep -q 'nfs_opts=' "$Conf" 2>/dev/null; then
-		echo "$Setting" >>"$Conf"
-	else
-		sed -i 's/^.*nfs_opts=.*$/'"$Setting"'/g' "$Conf"
-	fi
 }
 
 mkdir -p "$DlPath"
