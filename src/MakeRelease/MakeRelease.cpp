@@ -1136,7 +1136,7 @@ cout << "Deciding to do snr on: " << sSourceDirectory << endl;
 		if( !g_bSimulate && pRow_Package->FK_Package_Sourcecode_get()!=446 ) // Don't do the snr on MakeRelease itself
 		{
 			list<string> listFiles;
-			FileUtils::FindFiles(listFiles,sSourceDirectory,"*.cpp,*.c,*.h,*.cs,login.php",true);
+			FileUtils::FindFiles(listFiles,sSourceDirectory,"*.cpp\t*.c\t*.h\t*.cs\tlogin.php",true);
 cout << "Found " << (int) listFiles.size() << endl;
 			for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 			{

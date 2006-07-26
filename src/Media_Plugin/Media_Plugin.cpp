@@ -1953,6 +1953,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 			}
 
 			string Extensions = pRow_MediaType->Extensions_get();
+			StringUtils::Replace(&Extensions,",","\t");
 			g_pPlutoLogger->Write(LV_STATUS, "Using there extensions to filter the results: %s", Extensions.c_str());
 			sFilename = sFilename.substr(0, sFilename.length()-1);
 			string::size_type posDirs=0;

@@ -121,15 +121,15 @@ char *FileUtils::ReadURL(string sUrl, size_t &Size,bool bNullTerminate)
 #else
 	char * buffer = NULL;
 	int iResult = http_fetch(sUrl.c_str(), &buffer);
-	if( bNullTerminate && iResult>0 )
-	{
-		buffer = (char *) realloc(buffer, iResult + 1); // http_fetch doesn't store a \0 in the end
-		buffer[iResult] = 0;
-		Size = iResult;
-	}
-	else
-		Size = 0;
-	return buffer;
+    if( bNullTerminate && iResult>0 )
+    {
+        buffer = (char *) realloc(buffer, iResult + 1); // http_fetch doesn't store a \0 in the end
+        buffer[iResult] = 0;
+        Size = iResult;
+    }
+    else
+        Size = 0;
+ 	return buffer;
 #endif
 }
 
@@ -571,7 +571,7 @@ time_t FileUtils::FileDate(string sFile)
 #include <iostream>
 using namespace std;
 
-bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV,bool bRecurse,bool bFullyQualifiedPath, int iMaxFileCount, string PrependedPath
+bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_TabSep,bool bRecurse,bool bFullyQualifiedPath, int iMaxFileCount, string PrependedPath
 #ifndef WIN32
 		,map<u_int64_t,bool> *pMapInodes
 #endif
@@ -592,11 +592,12 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
             string::size_type pos = 0;
             while(true)
             {
-                string s = StringUtils::Tokenize(sFileSpec_CSV, ",", pos);
+                string s = StringUtils::Tokenize(sFileSpec_TabSep, "\t", pos);
                 if (s.size() && s.substr(0,1) == "*")
                     s = s.substr(1);  // If it's a *.ext drop the *
-                if (sFileSpec_CSV.size()==0 || (s.size() && (s == ".*" || s == "*" || StringUtils::EndsWith(finddata.name, s.c_str(),true) )) ||
-					(sFileSpec_CSV[sFileSpec_CSV.size()-1]=='*' && StringUtils::StartsWith(finddata.name,sFileSpec_CSV.substr(0,sFileSpec_CSV.size()-1),true)) )
+
+                if ( sFileSpec_TabSep.size()==0 || (s.size() && (s == ".*" || s == "*" || StringUtils::EndsWith(finddata.name, s.c_str(),true) )) ||
+					(sFileSpec_TabSep[sFileSpec_TabSep.size()-1]=='*' && StringUtils::StartsWith(finddata.name,sFileSpec_TabSep.substr(0,sFileSpec_TabSep.size()-1),true)) )
                 {
 					if( bFullyQualifiedPath )
 	                    listFiles.push_back(sDirectory + finddata.name);
@@ -604,7 +605,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 	                    listFiles.push_back(PrependedPath + finddata.name);
                     break;
                 }
-                if (pos>=sFileSpec_CSV.size())
+                if (pos>=sFileSpec_TabSep.size())
                     break;
             }
 
@@ -613,7 +614,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
         }
         else if (bRecurse && (finddata.attrib & _A_SUBDIR) && finddata.name[0] != '.')
 		{
-			if ( FindFiles(listFiles, sDirectory + finddata.name, sFileSpec_CSV, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/") )
+			if ( FindFiles(listFiles, sDirectory + finddata.name, sFileSpec_TabSep, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/") )
 				return true; // if one recursive call hit the maximum depth then return now.
 		}
         if (_findnext(ptrFileList, & finddata) < 0)
@@ -674,12 +675,12 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
             size_t pos = 0;
             while(true)
             {
-                string sShellPattern = StringUtils::BashPatternEscape(StringUtils::Tokenize(sFileSpec_CSV, string(","), pos), "*?");
+                string sShellPattern = StringUtils::BashPatternEscape(StringUtils::Tokenize(sFileSpec_TabSep, "\t", pos), "*?");
 
 				/* somebody didn't test fnmatch well.  file: "The Patriot [Special Edition].dvd" doesn't match "The Patriot [Special Edition].*"
 				so I added the StringUtils::StartsWith */
-				if (sFileSpec_CSV.size()==0 || fnmatch(sShellPattern.c_str(), entry.d_name, 0) == 0 || StringUtils::EndsWith(entry.d_name, sShellPattern.c_str(), true)
-					|| (sFileSpec_CSV[sFileSpec_CSV.size() - 1] == '*' && StringUtils::StartsWith(entry.d_name, sFileSpec_CSV.substr(0, sFileSpec_CSV.size() - 1))))
+				if (sFileSpec_TabSep.size()==0 || fnmatch(sShellPattern.c_str(), entry.d_name, 0) == 0 || StringUtils::EndsWith(entry.d_name, sShellPattern.c_str(), true)
+					|| (sFileSpec_TabSep[sFileSpec_TabSep.size() - 1] == '*' && StringUtils::StartsWith(entry.d_name, sFileSpec_TabSep.substr(0, sFileSpec_TabSep.size() - 1))))
 				{
 					if( bFullyQualifiedPath )
 						listFiles.push_back(sDirectory + entry.d_name);
@@ -687,7 +688,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 						listFiles.push_back(PrependedPath + entry.d_name);
 					break;
 				}
-                if (pos>=sFileSpec_CSV.size())
+                if (pos>=sFileSpec_TabSep.size())
                     break;
             }
 
@@ -700,7 +701,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
         }
         else if (bRecurse && S_ISDIR(s.st_mode) && entry.d_name[0] != '.')
 		{
-			if ( FindFiles( listFiles, sDirectory + entry.d_name, sFileSpec_CSV, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + entry.d_name + "/",pMapInodes ) )
+			if ( FindFiles( listFiles, sDirectory + entry.d_name, sFileSpec_TabSep, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + entry.d_name + "/",pMapInodes ) )
 			{
 				if( bCreatedTempMap )
 					delete pMapInodes;
