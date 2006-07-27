@@ -2960,7 +2960,7 @@ function displayRemotes($mdID,$dbADO,$section)
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
 	
-	$out='<B>'.$TEXT_INFRARED_REMOTES_YOU_WILL_USE_CONST.'</B> ';
+	$out='';
 	$remotes=array();
 	
 	$DTarray=getDeviceTemplatesFromCategory($GLOBALS['RemoteControlls'],$dbADO);
@@ -3039,7 +3039,7 @@ function displayReceivers($mdID,$dbADO)
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
 
-	$out='<B>'.$TEXT_INFRARED_RECEIVERS_CONST.'</B> ';
+	$out='';
 
 	unset($GLOBALS['childsDeviceCategoryArray']);
 	$GLOBALS['childsDeviceCategoryArray']=array();
@@ -5937,5 +5937,33 @@ function getPlugin($installationID,$dtID,$dbADO)
 		$row=$res->Fetchrow();
 		return $row['PK_Device'];
 	}
+}
+
+// parameters: 
+//	onscreen orbiter ID who is parent of xine player
+//	database connection
+function getAcceleration($orbiterMDChild,$dbADO){
+	$res=$dbADO->Execute('
+		SELECT IK_DeviceData
+		FROM Device_DeviceData
+		INNER JOIN Device ON FK_Device=PK_Device
+		WHERE FK_Device_ControlledVia=? AND FK_DeviceData=?
+	',array($orbiterMDChild,$GLOBALS['hardware_acceleration_dd']));
+	
+	if($res->RecordCount()==0){
+		return false;
+	}
+	$row=$res->FetchRow();
+
+	return $row['IK_DeviceData'];
+}
+
+function setAcceleration($orbiterMDChild,$value,$dbADO){
+	$res=$dbADO->Execute('
+		UPDATE Device_DeviceData 
+		INNER JOIN Device ON FK_Device=PK_Device
+		SET IK_DeviceData=?
+		WHERE FK_Device_ControlledVia=? AND FK_DeviceData=?
+	',array($value,$orbiterMDChild,$GLOBALS['hardware_acceleration_dd']));
 }
 ?>

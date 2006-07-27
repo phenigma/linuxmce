@@ -277,7 +277,32 @@ function mediaDirectors($output,$dbADO) {
 	
 						$out.='
 							<tr>
-								<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$rowD['PK_Device'],$GLOBALS['mdDistro'],1).'<br>'.displayRemotes($rowD['PK_Device'],$dbADO,'mediaDirectors').'<br>'.displayReceivers($rowD['PK_Device'],$dbADO).'<br><input type="button" class="button" name="editCA_" value="Edit Computing Applications" onclick="windowOpen(\'index.php?section=editComputingApplications&mdID='.$rowD['PK_Device'].'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')"></td>
+								<td colspan="8">
+									'.getInstallWizardDeviceTemplates(6,$dbADO,$rowD['PK_Device'],$GLOBALS['mdDistro'],1).'<br>
+									<table>
+										<tr>
+											<td><B>'.$TEXT_INFRARED_REMOTES_YOU_WILL_USE_CONST.'</B></td>
+											<td>'.displayRemotes($rowD['PK_Device'],$dbADO,'mediaDirectors').'</td>
+										</tr>
+										<tr>
+											<td><B>'.$TEXT_INFRARED_RECEIVERS_CONST.'</B></td>
+											<td>'.displayReceivers($rowD['PK_Device'],$dbADO).'</td>
+										</tr>
+										<tr>
+											<td><B>'.$TEXT_INFRARED_RECEIVERS_CONST.'</B></td>
+											<td>'.displayReceivers($rowD['PK_Device'],$dbADO).'</td>
+										</tr>
+										<tr>
+											<td><B>'.$TEXT_COMPUTING_APPLICATIONS_CONST.'</B></td>
+											<td><input type="button" class="button" name="editCA_" value="Edit Computing Applications" onclick="windowOpen(\'index.php?section=editComputingApplications&mdID='.$rowD['PK_Device'].'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')"></td>
+										</tr>
+										<tr>
+											<td><B>'.$TEXT_HARDWARE_ACCELERATION_CONST.'</B></td>
+											<td>'.pulldownFromArray($GLOBALS['hardware_acceleration'],'acceleration_'.$rowD['PK_Device'],getAcceleration($orbiterMDChild,$dbADO),'','key','').'</td>
+										</tr>
+									</table>
+									
+								</td>
 							</tr>
 							<tr>
 								<td colspan="8" bgcolor="black" height="5"><img src="include/images/spacer.gif" border="0"></td>
@@ -431,6 +456,10 @@ function mediaDirectors($output,$dbADO) {
 					}
 					
 					$orbiterMDChild=getMediaDirectorOrbiterChild($value,$dbADO);
+					
+					//
+					setAcceleration($orbiterMDChild,cleanString($_REQUEST['acceleration_'.$value]),$dbADO);
+					
 					$installOptionsArray=explode(',',@$_POST['displayedTemplatesRequired_'.$value]);
 					foreach($installOptionsArray AS $elem){
 						$oldDevice=@$_POST['oldDevice_'.$value.'_requiredTemplate_'.$elem];

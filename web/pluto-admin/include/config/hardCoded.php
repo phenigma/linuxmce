@@ -185,7 +185,8 @@
 	$GLOBALS['PortChannel']=12;					// Port Channel
 	$GLOBALS['PortChannelChoices']=151;			// Port Channel Choices
 	$GLOBALS['DisklessBoot']=9;					// Diskless boot
-	
+	$GLOBALS['hardware_acceleration_dd']=168;	// Harware acceleration
+		
 	// PK_FloorplanType from table FloorplanType 
 
 	$GLOBALS['SecurityFoorplanType']=1;		// Security Zone
@@ -276,5 +277,6 @@
 	
 	// criticals device templates; user will be notified not to delete them
 	$GLOBALS['CriticalDeviceTemplates']=array(1,2,6,7,8,9,10,12,27,28,31,32,33,34,36,39);
-	
+
+	$GLOBALS['hardware_acceleration']=array('xv'=>'xv', 'xxmc'=>'xxmc', 'opengl'=>'opengl', 'sdl'=>'sdl','xshm'=>'xshm');
 ?>
