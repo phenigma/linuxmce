@@ -28,15 +28,14 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 	echo "Processing \"Pluto Extras CD version 1\""
 	echo "... PLEASE WAIT ..."
 
-	BonusAutoInstDir=/usr/pluto/deb-cache/auto-inst
-	mkdir -p "$BonusAutoInstDir"
-	cp /cdrom/bonuscd1/*.deb "$BonusAutoInstDir"
-
 	BonusWorkDir="/usr/pluto/deb-cache/dists/sarge/main/binary-i386"
+	
+	cp -r /cdrom/bonuscd1/*.deb "$BonusWorkDir"
 
 	cd /cdrom/bonuscd1-cache
 	cp -r *.deb "$BonusWorkDir"
 	cd "$BonusWorkDir"
+	# install dependencies for dpkg-scanpackages on offline installation
 	dpkg -i libsepol1_*.deb 1>/dev/null 2>/dev/null
 	dpkg -i libselinux1_*.deb 1>/dev/null 2>/dev/null
 	dpkg -i binutils_*.deb 1>/dev/null 2>/dev/null
@@ -47,8 +46,19 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 
 	cd "$BonusWorkDir"
 	if [ -f /usr/bin/dpkg-scanpackages ]; then
+	# regenerate packages.gz
 	echo "Regenerating Packages.gz in debcache. This will require 1 minute. Please wait."
 	dpkg-scanpackages . /dev/null | sed 's,\./,dists/sarge/main/binary-i386/,g' | gzip -9c > Packages.gz
+	# update apt cache
+	apt-get update
+	# install bonuscd packages
+	dpkg -i video-wizard-videos-*.deb 1>/dev/null 2>/dev/null
+	# if bonuscd monster was detected 
+	cd $BonusWorkDir
+	if [[ -f $(ls | grep monster-nucleus) && ! -z $(ls | grep monster-nucleus) ]]; then
+	apt-get -f -y install monster-nucleus 
+	apt-get -f -y install bootsplash-theme-monster
+	fi
 	else
 	echo "Command not found : dpkg-scanpackages. Packages.gz regeneration skipped."
 	fi
