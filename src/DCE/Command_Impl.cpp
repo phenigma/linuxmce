@@ -1022,6 +1022,9 @@ int Command_Impl::FindUnregisteredRelatives(map<int,bool> *p_mapUnregisteredRela
 
 void Command_Impl::FindUnregisteredRelativesLoop(DeviceData_Base *pDevice,map<int,bool> *p_mapUnregisteredRelatives,bool bScanParent,int PK_Device_ExcludeChild)
 {
+	if( pDevice->WithinCategory(DEVICECATEGORY_DCE_Router_CONST) )
+		return;  // Don't worry about the router
+
 	if( pDevice->m_dwPK_Device!=m_dwPK_Device && pDevice->m_bImplementsDCE && !pDevice->m_bIsEmbedded && !pDevice->m_bDisabled ) // Exclude ourself, only non-embedded DCE Devices
 	{
 		char cDeviceRegistered = DeviceIsRegistered(pDevice->m_dwPK_Device);
@@ -1035,8 +1038,9 @@ void Command_Impl::FindUnregisteredRelativesLoop(DeviceData_Base *pDevice,map<in
 			continue;
 		FindUnregisteredRelativesLoop(pDeviceData_Base,p_mapUnregisteredRelatives,false);
 	}
+
 	if( bScanParent && pDevice->m_pDevice_ControlledVia )
-		FindUnregisteredRelativesLoop(pDevice->m_pDevice_ControlledVia,p_mapUnregisteredRelatives,false,pDevice->m_dwPK_Device);
+		FindUnregisteredRelativesLoop(pDevice->m_pDevice_ControlledVia,p_mapUnregisteredRelatives,true,pDevice->m_dwPK_Device);
 }
 
 char Command_Impl::DeviceIsRegistered(int PK_Device) // Returns Y, N, D (for disabled)

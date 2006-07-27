@@ -929,7 +929,7 @@ void Slim_Server_Streamer::StartSlimServer()
 	DeviceData_Base *pDevice_AppServer = m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
 	if( pDevice_AppServer )
 	{
-		time_t tStop = time(NULL)+15;
+		time_t tStop = time(NULL)+90;
 		while( time(NULL)<tStop )
 		{
 			string sResponse;
