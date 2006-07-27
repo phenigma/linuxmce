@@ -33,6 +33,7 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 	sSaveFile_Drive = "Core";
 	sSaveFile_RelativeFolder = "(no directory)";
 	sSaveFile_MountedFolder = "/home/public/data/";
+	nSaveFile_PK_DeviceDrive = 0;
 }
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::~ScreenHandler()
@@ -1188,6 +1189,7 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, st
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPublic);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sSaveFile_Drive);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, sSaveFile_RelativeFolder);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, StringUtils::ltos(nSaveFile_PK_DeviceDrive));
 
 	if(sSaveFile_MountedFolder == "/home/public/data/")
 		sSaveFile_MountedFolder += (m_pOrbiter->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ? "videos/" : "audio/");
@@ -1245,6 +1247,7 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, sParentFolder + sNewFolder + "/");
 			}
 		}
+		/*
 		else if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuFileSave_CONST)
 		{
 			if(
@@ -1252,13 +1255,14 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePublic_CONST
 			)
 			{
-				string sFullFilePath = 
-					(sSaveFile_MountedFolder == "" ? "" : sSaveFile_MountedFolder) + 
-					(sSaveFile_RelativeFolder != "(no directory)" ? sSaveFile_RelativeFolder : "") + 
-					m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
-				m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sFullFilePath);
+				//string sFullFilePath = 
+				//	(sSaveFile_MountedFolder == "" ? "" : sSaveFile_MountedFolder) + 
+				//	(sSaveFile_RelativeFolder != "(no directory)" ? sSaveFile_RelativeFolder : "") + 
+				//	m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				//m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sFullFilePath);
 			}
 		}
+		*/
 	}
 
 	return false;
@@ -1272,9 +1276,20 @@ bool ScreenHandler::FileSave_GridSelected(CallBackData *pData)
 	{
 		if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuChooseDrive_CONST)
 		{
-			sSaveFile_Drive = pCellInfoData->m_pDataGridCell->GetText();
-			sSaveFile_MountedFolder = pCellInfoData->m_pDataGridCell->GetValue();
-			sSaveFile_RelativeFolder = "(no directory)";
+			string sValue = pCellInfoData->m_pDataGridCell->GetValue();
+			vector<string> vectStrings;
+			StringUtils::Tokenize(sValue, "\t", vectStrings);
+
+			if(vectStrings.size() >= 2)
+			{	
+				nSaveFile_PK_DeviceDrive = atoi(vectStrings[0].c_str());
+				sSaveFile_MountedFolder = vectStrings[1];
+
+				sSaveFile_Drive = pCellInfoData->m_pDataGridCell->GetText();
+				sSaveFile_RelativeFolder = "(no directory)";
+
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, StringUtils::ltos(nSaveFile_PK_DeviceDrive));
+			}
 		}
 		else if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuChooseFolder_CONST)
 		{

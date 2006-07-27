@@ -2743,8 +2743,12 @@ bool Media_Plugin::MediaFollowMe( class Socket *pSocket, class Message *pMessage
 			/** Disc unit index number
 Disk_Drive: 0
 Powerfile: 0, 1, ... */
+		/** @param #233 DriveID */
+			/** The ID of the storage drive. Can be the ID of the core. */
+		/** @param #234 Directory */
+			/** The relative directory for the file to rip */
 
-void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 	// we only have the sources device. This should be an orbiter
@@ -2768,6 +2772,7 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 	}
 
 	EntertainArea *pEntertainArea = vectEntertainArea[0];
+
 	if( !pEntertainArea->m_pMediaStream )
 	{
 		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>");
@@ -2852,14 +2857,18 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		bUsingUnknownDiscName=true;
 	}
 
-	if(!FileUtils::DirExists(FileUtils::BasePath(sName)))
+	string sBasePath = "/home";
+	DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(iDriveID);
+	if(NULL != pDeviceData_Router && pDeviceData_Router->m_pDeviceCategory->m_dwPK_DeviceCategory != DEVICECATEGORY_Core_CONST)
 	{
-		string sSubDir = pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "videos" : "audio";
-		if( iPK_Users==0 )
-			sName = "/home/public/data/" + sSubDir + "/" + sName;
-		else
-			sName = "/home/user_" + StringUtils::itos(iPK_Users) + "/data/" + sSubDir + "/" + sName;
+		sBasePath = "/mnt/device/" + StringUtils::ltos(iDriveID) + "/home";
 	}
+
+	string sSubDir = pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "videos" : "audio";
+	if( iPK_Users==0 )
+		sName = sBasePath + "/public/data/" + sSubDir + "/" + sName;
+	else
+		sName = sBasePath + "/user_" + StringUtils::itos(iPK_Users) + "/data/" + sSubDir + "/" + sName;
 
 	if( bUsingUnknownDiscName && FileUtils::DirExists(sName) )  // Be sure the directory name is unique if we're using the default
 	{
@@ -2910,7 +2919,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		sFormat = "flac";
 	string sResponse;
 	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, 
-		sFormat, sName, sTracks, PK_Disc, 0);
+		sFormat, sName, sTracks, PK_Disc, 0, iDriveID, sDirectory);
 	if( !SendCommand(cmdRipDisk,&sResponse) || sResponse!="OK" )
 	{
 		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Cannot copy disk " + sResponse,
@@ -3964,20 +3973,9 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 
 	int PK_Screen = pMediaStream->GetRemoteControlScreen(pMessage->m_dwPK_Device_From);
-	string sCmdToRenameBookmark="<%=!%> -300 1 741 159 " + StringUtils::itos(PK_Screen) + "\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
-
-	/*
-	DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuFileSave_CONST),"","",false,false);
-	DCE::CMD_Set_Variable CMD_Set_Variable_Private(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Misc_Data_1_CONST,
-		 sCmdToRenameBookmark + "17 <%=U%>");  // Private, add the user
-	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_Private.m_pMessage);
-	DCE::CMD_Set_Variable CMD_Set_Variable_Public(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Misc_Data_2_CONST,
-		 sCmdToRenameBookmark);
-	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_Public.m_pMessage);
-	DCE::CMD_Set_Text CMD_Set_Text( m_dwPK_Device,pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuFileSave_CONST), "<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>",TEXT_STATUS_CONST);
-	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
-	SendCommand(CMD_Goto_DesignObj);
-	*/
+	string sCmdToRenameBookmark= "<%=!%> -300 1 741 159 " + StringUtils::itos(PK_Screen) + 
+		"\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()) +
+		" " + StringUtils::ltos(COMMANDPARAMETER_DriveID_CONST) + " <%=" + StringUtils::ltos(VARIABLE_Device_List_CONST) + "%>";
 
 	if( !bIsStart )
 	{

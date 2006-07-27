@@ -772,9 +772,13 @@ public:
 			/** Disc unit index number
 Disk_Drive: 0
 Powerfile: 0, 1, ... */
+		/** @param #233 DriveID */
+			/** The ID of the storage drive. Can be the ID of the core. */
+		/** @param #234 Directory */
+			/** The relative directory for the file to rip */
 
-	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,iDrive_Number,sCMD_Result,NULL);};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,int iDriveID,string sDirectory) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,iDrive_Number,iDriveID,sDirectory.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #372 - MH Set Volume */
@@ -968,17 +972,18 @@ Powerfile: 0, 1, ... */
 
 //<-dceag-h-e->
 };
+
+class MediaSectionGrid
+{
+public:
+	int m_iSort1,m_iSort2;
+	class DataGridCell *m_pDataGridCell;
+
+	MediaSectionGrid(int iSort1,int iSort2,DataGridCell *pDataGridCell) { m_pDataGridCell=pDataGridCell; m_iSort1=iSort1; m_iSort2=iSort2; }
+};
+
 //<-dceag-end-b->
-	class MediaSectionGrid
-	{
-	public:
-		int m_iSort1,m_iSort2;
-		class DataGridCell *m_pDataGridCell;
-
-		MediaSectionGrid(int iSort1,int iSort2,DataGridCell *pDataGridCell) { m_pDataGridCell=pDataGridCell; m_iSort1=iSort1; m_iSort2=iSort2; }
-	};
 }
-
 #endif
 //<-dceag-end-e->
 //<-dceag-const2-b->!

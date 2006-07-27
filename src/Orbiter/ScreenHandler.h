@@ -182,6 +182,7 @@ public:
 	string sSaveFile_MountedFolder;
 	string sSaveFile_RelativeFolder;
 	string sSaveFile_Drive;
+	int nSaveFile_PK_DeviceDrive;
 };
 //-----------------------------------------------------------------------------------------------------
 #endif
