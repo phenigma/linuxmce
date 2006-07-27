@@ -2901,9 +2901,22 @@ bool Orbiter::ButtonUp( int iPK_Button )
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "Short key %d", iPK_Button);
 #endif
+
+	if(m_bShiftDown && m_bShiftDownOnScreenKeyboard)
+	{
+		if(iPK_Button == BUTTON_Shift_Up_Arrow_CONST)
+			iPK_Button = BUTTON_Up_Arrow_CONST;
+		else if(iPK_Button == BUTTON_Shift_Down_Arrow_CONST)
+			iPK_Button = BUTTON_Down_Arrow_CONST;
+		else if(iPK_Button == BUTTON_Shift_Left_Arrow_CONST)
+			iPK_Button = BUTTON_Left_Arrow_CONST;
+		else if(iPK_Button == BUTTON_Shift_Right_Arrow_CONST)
+			iPK_Button = BUTTON_Right_Arrow_CONST;
+	}
+
 	bool bResult = HandleButtonEvent(iPK_Button);
 
-	if(iPK_Button != BUTTON_left_shift_CONST && iPK_Button != BUTTON_right_shift_CONST)
+	if(iPK_Button != BUTTON_left_shift_CONST && iPK_Button != BUTTON_right_shift_CONST && iPK_Button > BUTTON_Enter_CONST)
 	{
 		if(m_bShiftDown && m_bShiftDownOnScreenKeyboard)
 			m_bShiftDown = false;
