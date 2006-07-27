@@ -22,6 +22,11 @@ cmd_line="$3"
 LogFile="/var/log/pluto/${device_id}_$(basename $cmd_line).log";
 valgrind_LogFile="/var/log/pluto/valgrind_${device_id}_$(basename $cmd_line).log";
 
+ReloadWatcher_Background()
+{
+	/usr/pluto/bin/Config_Device_Changes.sh
+	/usr/pluto/bin/Start_LocalDevices.sh
+}
 exec &> >(tee -a "$LogFile")
 
 echo "== ATTEMPT FRESH START =="
@@ -100,9 +105,9 @@ while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 
 	if [[ "$ReloadWatcher" -eq 1 ]]; then
 		Logging $TYPE $SEVERITY_WARNING "$module" "Reload watcher: running Start_LocalDevices"
-		/usr/pluto/bin/Config_Device_Changes.sh
 		/usr/pluto/bin/UpdateAvailableSerialPorts.sh
-		/usr/pluto/bin/Start_LocalDevices.sh
+		ReloadWatcher_Background &
+		disown -a
 	fi
 
 	if [[ "$cmd_line" == *App*Server* && ! -f "$ReloadLock" ]]; then
