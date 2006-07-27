@@ -274,8 +274,8 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 //<-dceag-c67-e->
 {
 	PLUTO_SAFETY_LOCK(ap,m_AppMutex);
-	g_pPlutoLogger->Write(LV_STATUS,"SpawnApp file: %s name %s args %s failure %s logo %d",
-		sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),(int) bShow_logo);
+	g_pPlutoLogger->Write(LV_STATUS,"SpawnApp file: %s; name: %s; args: %s; success: %s; failure: %s; logo: %d;",
+		sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnSuccess.c_str(),sSendOnFailure.c_str(),(int) bShow_logo);
 	if( bExclusive )
 		CMD_Kill_Application(sName,bRetransmit);
 
