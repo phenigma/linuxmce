@@ -93,7 +93,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 				FROM File 
 				LEFT JOIN Picture_File ON FK_File=PK_File
 				WHERE Path=?
-				GROUP BY FK_File';
+				GROUP BY PK_File';
 			$rs=$mediadbADO->Execute($queryDBFiles,$path);
 			$dbFiles=array();
 			$dbPKFiles=array();
