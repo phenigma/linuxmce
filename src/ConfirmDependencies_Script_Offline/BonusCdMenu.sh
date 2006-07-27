@@ -34,6 +34,11 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 
 	cd /cdrom/bonuscd1-cache
 	cp -r *.deb "$BonusWorkDir"
+	cd ..
+	/usr/bin/eject
+	echo ""
+	echo "Finished processing \"Pluto Extras CD version 1\""
+	echo ""
 	cd "$BonusWorkDir"
 	# install dependencies for dpkg-scanpackages on offline installation
 	dpkg -i libsepol1_*.deb 1>/dev/null 2>/dev/null
@@ -49,9 +54,11 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 	# regenerate packages.gz
 	echo "Regenerating Packages.gz in debcache. This will require 1 minute. Please wait."
 	dpkg-scanpackages . /dev/null | sed 's,\./,dists/sarge/main/binary-i386/,g' | gzip -9c > Packages.gz
+	clear
 	# update apt cache
 	apt-get update
 	# install bonuscd packages
+	echo "Processing video-wizard-videos package ..."
 	dpkg -i video-wizard-videos-*.deb 1>/dev/null 2>/dev/null
 	# if bonuscd monster was detected 
 	cd $BonusWorkDir
@@ -62,12 +69,6 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 	else
 	echo "Command not found : dpkg-scanpackages. Packages.gz regeneration skipped."
 	fi
-	clear
-	cd ..
-	/usr/bin/eject
-	echo ""
-	echo "Finished processing \"Pluto Extras CD version 1\""
-	echo ""
 else
 	echo "Skipping \"Pluto Extras CD version 1\"..."
 fi
