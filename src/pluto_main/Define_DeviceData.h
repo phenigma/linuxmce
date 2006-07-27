@@ -144,6 +144,7 @@
 #define DEVICEDATA_Immediate_Reload_Isnt_Necessar_CONST 165
 #define DEVICEDATA_Max_File_Size_CONST 166
 #define DEVICEDATA_Offset_CONST 167
+#define DEVICEDATA_Hardware_acceleration_CONST 168
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
