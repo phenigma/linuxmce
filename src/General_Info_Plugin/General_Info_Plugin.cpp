@@ -1937,9 +1937,15 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 
 	if( pDevice_AppServerOnCore && !bAlreadyRanOnCore && !m_mapMediaDirectors_PendingConfig[pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device] )
 	{
+		string sResponseCommand = StringUtils::itos(pDevice_AppServerOnCore->m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " +
+			StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST);
+		string sFailureCommand = sResponseCommand + " " + StringUtils::itos(COMMANDPARAMETER_Failed_CONST) + " 1";
+		string sSuccessCommand = sResponseCommand + " " + StringUtils::itos(COMMANDPARAMETER_Failed_CONST) + " 0";
+
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServerOnCore->m_dwPK_Device,"/usr/pluto/bin/Config_Device_Changes.sh","cdc",
-			"F\tStartLocalDevice\tNoVideo\tAlert","",StringUtils::itos(pDevice_AppServerOnCore->m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " +
-			StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST),false,false,false);
+			"F\tStartLocalDevice\tNoVideo\tAlert",
+			sFailureCommand,
+			sSuccessCommand,false,false,false);
 		string sResponse;
 		if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
 			g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates Failed to send spawn application to %d",pDevice_AppServerOnCore->m_dwPK_Device);
