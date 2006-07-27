@@ -117,11 +117,30 @@ g_pPlutoLogger->Write(LV_STATUS, "opened dir %s", BasePath.c_str());
         while (dirp != NULL && (readdir_r(dirp, direntp, & direntp) == 0) && direntp)
         {
 			// LSB-generic Large file support standard for accessing large files
-            if ( stat64((BasePath + "/" + entry.d_name).c_str(), &dirEntryStat) != 0 )
+            if ( lstat64((BasePath + "/" + entry.d_name).c_str(), &dirEntryStat) != 0 )
             {
                 g_pPlutoLogger->Write(LV_STATUS, "Could not stat directory entry: %s (%s)", entry.d_name, strerror(errno));
                 continue;
             }
+			
+			if (S_ISLNK(dirEntryStat.st_mode))
+			{
+				char buffer[1024];
+				memset(buffer, 0, 1024);
+				readlink((BasePath + "/" + entry.d_name).c_str(), buffer, 1023);
+				if (strstr(buffer, "/mnt/device/") == buffer)
+				{
+					FileDetails * fi = new FileDetails(BasePath, entry.d_name, true, iDirNumber, dirEntryStat.st_mtime);
+#ifdef DEBUG
+g_pPlutoLogger->Write(LV_STATUS, "adding autofs symlink as directory");
+#endif
+					listFileNames.push_back(fi);
+				}
+				else
+				{
+					stat64((BasePath + "/" + entry.d_name).c_str(), &dirEntryStat);
+				}
+			}
 
             // if (entry.d_type == DT_DIR )
             if ( S_ISDIR(dirEntryStat.st_mode) )
