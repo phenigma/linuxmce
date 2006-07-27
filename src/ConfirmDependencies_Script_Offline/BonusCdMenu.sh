@@ -41,8 +41,7 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 	dpkg -i libselinux1_*.deb 1>/dev/null 2>/dev/null
 	dpkg -i binutils_*.deb 1>/dev/null 2>/dev/null
 	dpkg -i patch_*.deb 1>/dev/null 2>/dev/null
-	dpkg -i perl-modules*.deb 1>/dev/null 2>/dev/null
-	dpkg -i perl*.deb 1>/dev/null 2>/dev/null
+	dpkg -i perl-modules_*.deb perl_*.deb 1>/dev/null 2>/dev/null
 	dpkg -i dpkg_*.deb 1>/dev/null 2>/dev/null
 	dpkg -i dpkg-dev_*.deb 1>/dev/null 2>/dev/null
 
