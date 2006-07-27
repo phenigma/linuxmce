@@ -189,6 +189,14 @@ public:
 			return m_mapParameters[DEVICEDATA_Name_CONST];
 	}
 
+	string Get_Hardware_acceleration()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Hardware_acceleration_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Hardware_acceleration_CONST];
+	}
+
 };
 
 
@@ -298,6 +306,7 @@ public:
 	void DATA_Set_Angles(string Value,bool bUpdateDatabase=false) { GetData()->Set_Angles(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,94,Value); }
 	int DATA_Get_Time_Code_Report_Frequency() { return GetData()->Get_Time_Code_Report_Frequency(); }
 	string DATA_Get_Name() { return GetData()->Get_Name(); }
+	string DATA_Get_Hardware_acceleration() { return GetData()->Get_Hardware_acceleration(); }
 	//Event accessors
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	void EVENT_Menu_Onscreen(int iStream_ID,bool bOnOff) { GetEvents()->Menu_Onscreen(iStream_ID,bOnOff); }
@@ -357,7 +366,6 @@ public:
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
 			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
-				//pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST]="1";
 				// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
 				if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
 					return rmr_Buffered;
@@ -1408,7 +1416,7 @@ public:
 					iHandled++;
 					continue;
 				}
-				iHandled += Command_Impl::ReceivedMessage(pMessage);
+				iHandled += (Command_Impl::ReceivedMessage(pMessage)==rmr_NotProcessed ? 0 : 1);
 			}
 			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
@@ -1448,7 +1456,7 @@ public:
 				}
 			}
 			if( iHandled==0 && !pMessage->m_bRespondedToMessage &&
-			(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString) )
+			(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString || pMessage->m_eExpectedResponse==ER_DeliveryConfirmation) )
 			{
 				pMessage->m_bRespondedToMessage=true;
 				if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
