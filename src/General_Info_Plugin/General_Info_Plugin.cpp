@@ -952,7 +952,7 @@ class DataGridTable *General_Info_Plugin::StorageDevices( string GridID, string 
 				if(atoi(row[3]) == DEVICECATEGORY_Core_CONST)
 					sValue = "/home/public/data/";
 				else
-					sValue = string("/mnt/device/") + row[0] + "/home/public/data/";
+					sValue = string("/mnt/device/") + row[0] + "/public/data/";
 
 				pCell = new DataGridCell(sText, sValue);
 				pDataGrid->SetData( iCol++, iRow, pCell );
