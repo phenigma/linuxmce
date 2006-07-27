@@ -16,6 +16,7 @@
 #include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
+#include "pluto_main/Define_MediaType.h"
 
 using namespace DCE;
 
@@ -31,6 +32,7 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 
 	sSaveFile_Drive = "Core";
 	sSaveFile_RelativeFolder = "(no directory)";
+	sSaveFile_MountedFolder = "/home/public/data/";
 }
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::~ScreenHandler()
@@ -1186,6 +1188,11 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, st
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPublic);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sSaveFile_Drive);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, sSaveFile_RelativeFolder);
+
+	if(sSaveFile_MountedFolder == "/home/public/data/")
+		sSaveFile_MountedFolder += (m_pOrbiter->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ? "videos/" : "audio/");
+
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, FileUtils::ExcludeTrailingSlash(sSaveFile_MountedFolder) + "\nMT-1\nP");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sDefaultUserValue);
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(DESIGNOBJ_mnuChooseFolder_CONST), 
