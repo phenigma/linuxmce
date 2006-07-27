@@ -10,10 +10,10 @@ pluto-xine-playback-window.pluto-xine-playback-window.geometry: 1x1+12345+12345
 # never focus
 pluto-xine-playback-window.pluto-xine-playback-window.noFocusOnAppRaise: 1
 
-# default hidden apps
-pluto-xine-playback-window.pluto-xine-playback-window.workspace: 1
-firefox-bin.Firefox-bin.workspace: 1
-mythfrontend.Mythfrontend.workspace: 1
+# default hidden apps : no full support yet
+# pluto-xine-playback-window.pluto-xine-playback-window.workspace: 1
+# firefox-bin.Firefox-bin.workspace: 1
+# mythfrontend.Mythfrontend.workspace: 1
 
 # always focus
 Orbiter.Orbiter.ignoreNoFocusHint: 1
