@@ -74,7 +74,10 @@ bool Xine_Stream_Factory::StartupFactory()
 	DetectOutputDrivers();
 	
 	// setting speakers arrangement
-	// setOutputSpeakerArrangement(m_pPlayer->DATA_Get_Output_Speaker_arrangement());
+	setOutputSpeakerArrangement(m_pPlayer->DATA_Get_Output_Speaker_arrangement());
+	
+	// setting output driver
+	setVideoDriver( m_pPlayer->DATA_Get_Hardware_acceleration() );
 	
 	m_bInitialized = true;
 	return true;
@@ -189,7 +192,6 @@ void Xine_Stream_Factory::DetectOutputDrivers()
 	free( driver_ids );
 }
 
-#if 0
 static const char *audio_out_types_strs[] =
 {
 	"Mono 1.0",
@@ -212,7 +214,7 @@ void Xine_Stream_Factory::setOutputSpeakerArrangement( string strOutputSpeakerAr
 {
 	xine_cfg_entry_t xineConfigEntry;
 
-	g_pPlutoLogger->Write( LV_STATUS, "Setting the audio output speaker arrangement: %s", strOutputSpeakerArrangement.c_str() );
+	g_pPlutoLogger->Write( LV_STATUS, "Setting the audio output speaker arrangement" );
 
 	xine_config_register_enum ( m_pXineLibrary, "audio.output.speaker_arrangement", 1, ( char ** ) audio_out_types_strs,
 															"Speaker arrangement",
@@ -224,7 +226,13 @@ void Xine_Stream_Factory::setOutputSpeakerArrangement( string strOutputSpeakerAr
 		return ;
 	}
 
-	g_pPlutoLogger->Write( LV_STATUS, "Current value: %s", audio_out_types_strs[ xineConfigEntry.num_value ] );
+	g_pPlutoLogger->Write( LV_STATUS, "Current value from /etc/pluto/xine.conf: %s", audio_out_types_strs[ xineConfigEntry.num_value ] );
+
+	if (strOutputSpeakerArrangement=="")
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Device data for output speaker arrangement is empty, leaving xine.conf value" );
+		return;
+	}
 
 	g_pPlutoLogger->Write( LV_STATUS, "Trying to set the value to: %s", strOutputSpeakerArrangement.c_str() );
 	int i = 0;
@@ -250,7 +258,6 @@ void Xine_Stream_Factory::setOutputSpeakerArrangement( string strOutputSpeakerAr
 
 	return ;
 }
-#endif
 
 // returns pointer to stream if exists/was created or NULL otherwise
 Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist, int requestingObject)
@@ -357,6 +364,19 @@ void Xine_Stream_Factory::CloseStreamAV(int iStreamID)
 	}
 	
 	g_pPlutoLogger->Write(LV_WARNING,"Closed stream AV with internalID=%i", iStreamID);
+}
+
+void Xine_Stream_Factory::setVideoDriver(string strVideoDriver)
+{
+	if ( (strVideoDriver!="") && (strVideoDriver=="xv"||strVideoDriver=="xxmc"||strVideoDriver=="opengl"||strVideoDriver=="sdl"||strVideoDriver=="xshm") )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Overriding video driver setting, using '%s' for video output", strVideoDriver.c_str());
+		m_sXineVideoDriverName = strVideoDriver;
+	}
+	else
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Not overriding video driver setting, device data is not acceptable: '%s'", strVideoDriver.c_str());
+	}
 }
 
 } // DCE namespace end

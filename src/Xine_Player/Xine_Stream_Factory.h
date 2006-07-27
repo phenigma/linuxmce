@@ -62,6 +62,7 @@ namespace DCE
 			string GetVideoDriver() { return m_sXineVideoDriverName; };
 			
 			void setOutputSpeakerArrangement( string strOutputSpeakerArrangement );
+			void setVideoDriver(string strVideoDriver);
 			
 			Xine_Stream *GetStream(int streamID, bool createIfNotExist=false, int requestingObject=-1);
 			
