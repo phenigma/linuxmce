@@ -29,3 +29,4 @@ RunSQL "$Query"
 
 /usr/pluto/bin/SetTimeZone.sh "$TimeZone"
 ConfSet TimeZoneSet 1
+/etc/init.d/ntpdate restart
