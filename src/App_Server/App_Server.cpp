@@ -312,7 +312,8 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 //#endif
 //	}
 
-	if (! ProcessUtils::SpawnApplication(sFilename, sArguments, sName, new pair<string, string>(sSendOnFailure, sSendOnSuccess)) )
+	int pid = ProcessUtils::SpawnApplication(sFilename, sArguments, sName, new pair<string, string>(sSendOnFailure, sSendOnSuccess));
+	if (pid == 0)
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Can't spawn '%s': %s %s.", sName.c_str(), sFilename.c_str(), sArguments.c_str());
         sCMD_Result = "Failed";
@@ -321,7 +322,7 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
     {
         sCMD_Result = "OK";
     }
-	g_pPlutoLogger->Write(LV_WARNING, "Finished spawning '%s': %s %s.", sName.c_str(), sFilename.c_str(), sArguments.c_str());
+	g_pPlutoLogger->Write(LV_WARNING, "Finished spawning '%s': %s %s. PID: %d", sName.c_str(), sFilename.c_str(), sArguments.c_str(), pid);
 }
 
 //<-dceag-c69-b->
@@ -388,7 +389,7 @@ void App_Server::ProcessExited(int pid, int status)
 	string applicationName;
 	void *data;
 
-	g_pPlutoLogger->Write(LV_STATUS, "PID %d exited with code %d", pid, status);
+	g_pPlutoLogger->Write(LV_WARNING, "PID %d exited with code %d", pid, status);
 	if ( ! ProcessUtils::ApplicationExited(pid, applicationName, data) )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "App_Server::ProcessExited() Child with pid %d was not found in our internal data structure. Ignoring signal!", pid);
