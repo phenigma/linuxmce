@@ -29,8 +29,8 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 	m_tLastDeviceAdded = 0;
 	m_MapMutex.Init(NULL);
 
+	sSaveFile_Drive = "Core";
 	sSaveFile_RelativeFolder = "(no directory)";
-	sSaveFile_Drive = "Generic Internal Drive";
 }
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::~ScreenHandler()
@@ -1208,7 +1208,7 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
 			{
-				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, sSaveFile_MountedFolder + "\nMT-1\nP");
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, FileUtils::ExcludeTrailingSlash(sSaveFile_MountedFolder) + "\nMT-1\nP");
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sSaveFile_Drive);
 				m_pOrbiter->CMD_Go_back("", "");
 			}
@@ -1246,8 +1246,8 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 			)
 			{
 				string sFullFilePath = 
-					(sSaveFile_MountedFolder == "" ? "" : sSaveFile_MountedFolder + "/") + 
-					(sSaveFile_RelativeFolder != "(no directory)" ? sSaveFile_RelativeFolder + "/" : "") + 
+					(sSaveFile_MountedFolder == "" ? "" : sSaveFile_MountedFolder) + 
+					(sSaveFile_RelativeFolder != "(no directory)" ? sSaveFile_RelativeFolder : "") + 
 					m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sFullFilePath);
 			}
@@ -1266,11 +1266,12 @@ bool ScreenHandler::FileSave_GridSelected(CallBackData *pData)
 		if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuChooseDrive_CONST)
 		{
 			sSaveFile_Drive = pCellInfoData->m_pDataGridCell->GetText();
-			sSaveFile_MountedFolder = string("/mnt/device/") + pCellInfoData->m_pDataGridCell->GetValue();
+			sSaveFile_MountedFolder = pCellInfoData->m_pDataGridCell->GetValue();
+			sSaveFile_RelativeFolder = "(no directory)";
 		}
 		else if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuChooseFolder_CONST)
 		{
-			sSaveFile_RelativeFolder = pCellInfoData->m_pDataGridCell->GetValue();
+			sSaveFile_RelativeFolder = FileUtils::IncludeTrailingSlash(pCellInfoData->m_pDataGridCell->GetValue());
 
 			if(sSaveFile_RelativeFolder == sSaveFile_MountedFolder)
 				sSaveFile_RelativeFolder = ".";
@@ -1278,7 +1279,10 @@ bool ScreenHandler::FileSave_GridSelected(CallBackData *pData)
 			{
 				int len = sSaveFile_MountedFolder.length();
 				if(len < sSaveFile_RelativeFolder.length())
-					sSaveFile_RelativeFolder = FileUtils::ExcludeTrailingSlash(sSaveFile_RelativeFolder.substr(len + 1));
+				{
+					string sTemp = sSaveFile_RelativeFolder;
+					sSaveFile_RelativeFolder = sTemp.substr(len);
+				}
 			}
 
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Display_Message_Button_1_CONST, sSaveFile_RelativeFolder);

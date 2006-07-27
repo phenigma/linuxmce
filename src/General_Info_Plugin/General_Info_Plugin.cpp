@@ -212,6 +212,10 @@ bool General_Info_Plugin::Register()
 		DATAGRID_Devices_Of_Category_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::StorageDevices)), 
+		DATAGRID_Storage_Devices_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::DeviceTemplatesOfCategory)), 
 		DATAGRID_Device_Templates_By_Categ_CONST,PK_DeviceTemplate_get());
 
@@ -898,6 +902,67 @@ class DataGridTable *General_Info_Plugin::DevicesOfCategory( string GridID, stri
 		{
 			iCol=0;
 			iRow++;
+		}
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::StorageDevices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	int iWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
+	if( !iWidth )
+		iWidth = 1;
+
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+	int iRow=0,iCol=0;
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	string sSQL = 
+		"SELECT PK_Device, Device.Description, Device_DeviceData.IK_DeviceData, FK_DeviceCategory "
+		"FROM Device "
+		"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
+		"JOIN Device_DeviceData ON FK_Device = PK_Device "
+		"WHERE FK_DeviceCategory IN (" + 
+			StringUtils::ltos(DEVICECATEGORY_Core_CONST) + ", " + 
+			StringUtils::ltos(DEVICECATEGORY_Hard_Drives_CONST) + ", " + 
+			StringUtils::ltos(DEVICECATEGORY_Storage_Devices_CONST) + ", " + 
+			StringUtils::ltos(DEVICECATEGORY_Network_Storage_CONST) + 
+			+ ") AND FK_DeviceData = " + 
+			StringUtils::ltos(DEVICEDATA_Free_Disk_Space_in_MBytes_CONST) + " " +
+		"ORDER BY Device.Description";
+
+	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sSQL.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	{
+		while((row = mysql_fetch_row(result.r)))
+		{
+			if(NULL != row[0] && NULL != row[1] && NULL != row[3])
+			{
+				string sFreeSpace;
+				if(0 == row[2] || string(row[2]).empty())
+					sFreeSpace = "0";
+				else
+					sFreeSpace = row[2];
+
+				string sText = string(row[1]) + " (#" + row[0] + ") " + sFreeSpace + "MB";
+				string sValue;
+
+				if(atoi(row[3]) == DEVICECATEGORY_Core_CONST)
+					sValue = "/home/public/data/";
+				else
+					sValue = string("/mnt/device/") + row[0] + "/home/public/data/";
+
+				pCell = new DataGridCell(sText, sValue);
+				pDataGrid->SetData( iCol++, iRow, pCell );
+
+				if( iCol>=iWidth )
+				{
+					iCol=0;
+					iRow++;
+				}
+			}
 		}
 	}
 

@@ -190,7 +190,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 		DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
 			"", GridID, DATAGRID_Directory_Listing_CONST, newParams, 0);
 
-		pCell = new DataGridCell("~S21~<-- Back (..) - " + FileUtils::FilenameWithoutPath(sSubDirectory), "");
+		pCell = new DataGridCell("~S21~<-- Back (..) - " + FileUtils::FilenameWithoutPath(sSubDirectory), sSubDirectory);
 		pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
 		if( PK_DataGrid==DATAGRID_Media_Browser_CONST )
 		{

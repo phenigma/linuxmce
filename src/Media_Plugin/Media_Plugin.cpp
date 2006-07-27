@@ -2801,13 +2801,6 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 	{
 		if( sTracks.size()==0 )
 		{
-			/*
-			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuCDTrackCopy_CONST),"","",false,true);
-			DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Misc_Data_1_CONST,StringUtils::itos(iPK_Users));
-			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable.m_pMessage );
-			SendCommand(CMD_Goto_DesignObj);
-			*/
-
 			SCREEN_CDTrackCopy SCREEN_CDTrackCopy(m_dwPK_Device,pMessage->m_dwPK_Device_From, iPK_Users,sName);
 			SendCommand(SCREEN_CDTrackCopy);
 			return;
@@ -2859,11 +2852,14 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		bUsingUnknownDiscName=true;
 	}
 
-	string sSubDir = pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "videos" : "audio";
-	if( iPK_Users==0 )
-		sName = "/home/public/data/" + sSubDir + "/" + sName;
-	else
-		sName = "/home/user_" + StringUtils::itos(iPK_Users) + "/data/" + sSubDir + "/" + sName;
+	if(!FileUtils::DirExists(FileUtils::BasePath(sName)))
+	{
+		string sSubDir = pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "videos" : "audio";
+		if( iPK_Users==0 )
+			sName = "/home/public/data/" + sSubDir + "/" + sName;
+		else
+			sName = "/home/user_" + StringUtils::itos(iPK_Users) + "/data/" + sSubDir + "/" + sName;
+	}
 
 	if( bUsingUnknownDiscName && FileUtils::DirExists(sName) )  // Be sure the directory name is unique if we're using the default
 	{
