@@ -20,17 +20,8 @@ void SkinGenerator::SetSkinEnvironment(std::string SkinName)
 	DefaultFontText = "/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf";
 
 	CommandSetResolution = "/usr/pluto/bin/AVWizard_UpdateResolution.sh";
-	CommandSetResolutionPlus = CommandSetResolution  + " resolution+";
-	CommandSetResolutionMinus = CommandSetResolution  + " resolution-";
-
-	CommandSetRefresh = "/usr/pluto/bin/AVWizard_UpdateResolution.sh";
-	CommandSetRefreshPlus = CommandSetRefresh + " refresh+";
-	CommandSetRefreshMinus = CommandSetRefresh + " refresh-";
-
-	CommandSetRatio = "/usr/pluto/bin/AVWizard_UpdateResolution.sh";
-	CommandSetRatio4_3 = CommandSetRatio + " 4_3";
-	CommandSetRatio16_9 = CommandSetRatio + " 16_9";
-	CommandResetResolution = CommandSetRatio + " reset";
+	CommandResetResolution = CommandSetResolution + " reset";
+	CommandChangeResolution = CommandSetResolution + " set_resolution";
 
 	StepFontColorHighlight = "FFFFFF";
 	StepFontColorStandard = "000000";
@@ -71,16 +62,6 @@ void SkinGenerator::SaveSkin(std::string XMLFile)
 	Dictionary->Set("DefaultFontText", DefaultFontText);
 
 	Dictionary->Set("CommandSetResolution", CommandSetResolution);
-	Dictionary->Set("CommandSetResolutionPlus", CommandSetResolutionPlus);
-	Dictionary->Set("CommandSetResolutionMinus", CommandSetResolutionMinus);
-
-	Dictionary->Set("CommandSetRefresh", CommandSetRefresh);
-	Dictionary->Set("CommandSetRefreshPlus", CommandSetRefreshPlus);
-	Dictionary->Set("CommandSetRefreshMinus", CommandSetRefreshMinus);
-
-	Dictionary->Set("CommandSetRatio", CommandSetRatio);
-	Dictionary->Set("CommandSetRatio4_3", CommandSetRatio4_3);
-	Dictionary->Set("CommandSetRatio16_9", CommandSetRatio16_9);
 
 	Dictionary->Set("PathPixmaps", PathPixmaps);
 
@@ -124,24 +105,6 @@ void SkinGenerator::GetEnvironment()
 
 	if(Dictionary->Exists("CommandSetResolution"))
 		CommandSetResolution = Dictionary->GetValue("CommandSetResolution");
-	if(Dictionary->Exists("CommandSetResolutionPlus"))
-		CommandSetResolutionPlus = Dictionary->GetValue("CommandSetResolutionPlus");
-	if(Dictionary->Exists("CommandSetResolutionMinus"))
-		CommandSetResolutionMinus = Dictionary->GetValue("CommandSetResolutionMinus");
-
-	if(Dictionary->Exists("CommandSetRefresh"))
-		CommandSetRefresh = Dictionary->GetValue("CommandSetRefresh");
-	if(Dictionary->Exists("CommandSetRefreshPlus"))
-		CommandSetRefreshPlus = Dictionary->GetValue("CommandSetRefreshPlus");
-	if(Dictionary->Exists("CommandSetRefreshMinus"))
-		CommandSetRefreshMinus = Dictionary->GetValue("CommandSetRefreshMinus");
-
-	if(Dictionary->Exists("CommandSetRatio"))
-		CommandSetRatio = Dictionary->GetValue("CommandSetRatio");
-	if(Dictionary->Exists("CommandSetRatio4_3"))
-		CommandSetRatio4_3 = Dictionary->GetValue("CommandSetRatio4_3");
-	if(Dictionary->Exists("CommandSetRatio16_9"))
-		CommandSetRatio16_9 = Dictionary->GetValue("CommandSetRatio16_9");
 
 	if(Dictionary->Exists("PathPixmaps"))
 		PathPixmaps = Dictionary->GetValue("PathPixmaps");
