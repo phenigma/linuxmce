@@ -1,6 +1,6 @@
 <?
 function editComputingApplications($output,$dbADO,$mediadbADO) {
-	// obsolete file
+	global $wikiHost;
 	
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
@@ -24,48 +24,6 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 		$picsByKey=array_flip($fullPicArray);
 		
 		
-	$appsTable='<table width="100%" cellpadding="3" cellspacing="0" border="0">';
-	$appArray=getFieldsAsArray('Device_QuickStart','FK_QuickStartTemplate,PK_Device_QuickStart,Description,SortOrder,`Binary`,Arguments,EK_Picture',$dbADO,'WHERE FK_Device='.$mdID,'ORDER BY SortOrder ASC');
-	$usedTemplates=array();
-	for($i=0;$i<count(@$appArray['PK_Device_QuickStart']);$i++){
-		if(!in_array($appArray['PK_Device_QuickStart'][$i],$usedTemplates)){
-			$usedTemplates[]=$appArray['FK_QuickStartTemplate'][$i];
-		}
-		
-		$color=($i%2!=0)?'#F0F3F8':'#FFFFFF';
-		$pic=(!is_null($appArray['EK_Picture'][$i]))?'<img src="include/image.php?imagepath='.$fixedPath.'/'.$picsByKey[$appArray['EK_Picture'][$i]].'" align="middle">':'&nbsp;';
-		$appsTable.='
-			<tr bgcolor="'.$color.'">
-				<td rowspan="3">'.$pic.'</td>
-				<td>'.$TEXT_DESCRIPTION_CONST.': </td>
-				<td><input type="text" name="description_'.$appArray['PK_Device_QuickStart'][$i].'" value="'.$appArray['Description'][$i].'"></td>
-				<td align="center" rowspan="3">
-					<input type="submit" class="button" value="U" name="u_'.$appArray['PK_Device_QuickStart'][$i].'" onClick="document.editComputingApplications.currentPos.value='.$appArray['SortOrder'][$i].';"><br>
-					<input type="submit" class="button" value="D" name="d_'.$appArray['PK_Device_QuickStart'][$i].'" onClick="document.editComputingApplications.currentPos.value='.$appArray['SortOrder'][$i].';"><br>
-					<input type="submit" class="button" name="del_'.$appArray['PK_Device_QuickStart'][$i].'" value="Delete" onClick="if(!confirm(\'Are you sure you want to delete this application?\'))return false;"></td>
-			</tr>
-			<tr bgcolor="'.$color.'">
-				<td>Path to binary: </td>
-				<td><input type="text" name="binary_'.$appArray['PK_Device_QuickStart'][$i].'" value="'.$appArray['Binary'][$i].'"></td>
-			</tr>
-			<tr bgcolor="'.$color.'">
-				<td>Arguments: </td>
-				<td><input type="text" name="arguments_'.$appArray['PK_Device_QuickStart'][$i].'" value="'.$appArray['Arguments'][$i].'"></td>
-			</tr>
-		';
-	}
-	if(count(@$appArray['PK_Device_QuickStart'])>0){
-		$appsTable.='
-			<tr>
-				<td colspan="4" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
-			</tr>
-		';
-	}
-	
-	$appsTable.='</table><input type="hidden" name="apps" value="'.@join(',',@array_values($appArray['PK_Device_QuickStart'])).'">';
-	
-		
-		
 	$mdArray=getDevicesArrayFromCategory($GLOBALS['rootMediaDirectors'],$dbADO);
 	unset($mdArray[$mdID]);
 	$mdCheckboxes='';
@@ -74,8 +32,6 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 	}
 	$mdCheckboxes.='<input type="hidden" name="mds" value="'.join(',',array_keys($mdArray)).'">';
 
-	$tree=getQuickStartTree($usedTemplates,$dbADO);
-	
 		$out.='
 	<script>
 		function showPreview()
@@ -101,53 +57,76 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 		<input type="hidden" name="action" value="add">	
 		<input type="hidden" name="mdID" value="'.$mdID.'">	
 		<input type="hidden" name="currentPos" value="">
+		<h3>'.$TEXT_EDIT_COMPUTING_APPLICATIONS_CONST.'</h3>
+		'.$TEXT_COMPUTING_INFO_CONST.'<br>
+		<table width="100%">
+			<tr>
+				<td bgcolor="black"><img src="include/images/spacer.gif" border="0" height="1" width="1"></td>
+			</tr>
+		</table>
+				
+	
 		
-	<div align="center"><h3>'.$TEXT_EDIT_COMPUTING_APPLICATIONS_CONST.'</h3>
-	'.$TEXT_COMPUTING_INFO_CONST.'</div><br>
-		
-	<table cellpadding="3" cellspacing="0" align="center">
-		<tr>
-			<td valign="top">'.$tree.'</td>
-			<td valign="top"><table cellpadding="3" cellspacing="0" align="center">
+		<table cellpadding="3" cellspacing="0">
 			<tr class="tablehead">
-				<td align="center" colspan="2"><B>'.$TEXT_APPLICATION_CONST.'</B></td>
+				<td align="center" colspan="8"><B>'.$TEXT_QUICK_START_TEMPLATES_CONST.'</B></td>
+			</tr>
+			<tr class="alternate_back">
+				<td align="center"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_TEMPLATE_CATEGORY_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_PACKAGE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_BINARY_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_ARGUMENTS_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_HOMEPAGE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_WINDOW_CLASS_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
+			</tr>';
+
+	$appArray=getFieldsAsArray('QuickStartTemplate','PK_QuickStartTemplate,PK_Device_QuickStart,QuickStartTemplate.Description AS Description,SortOrder,QuickStartTemplate.`Binary` AS `Binary`,QuickStartTemplate.Arguments AS Arguments,EK_Picture,Package.Description AS Package,QuickStartCategory.Description AS Category,QuickStartTemplate.Homepage AS Homepage,WindowClass',$dbADO,'LEFT JOIN Device_QuickStart ON FK_QuickStartTemplate=PK_QuickStartTemplate AND FK_Device='.$mdID.' LEFT JOIN Package ON FK_Package =PK_Package LEFT JOIN QuickStartCategory ON FK_QuickStartCategory=PK_QuickStartCategory','ORDER BY SortOrder ASC');
+	$existing=array();
+	for($i=0;$i<count(@$appArray['PK_Device_QuickStart']);$i++){
+		if(!is_null($appArray['PK_Device_QuickStart'][$i]))
+			$existing[]=$appArray['PK_QuickStartTemplate'][$i];
+		
+		
+		$color=($i%2!=0)?'#F0F3F8':'#FFFFFF';
+		$pic=(!is_null($appArray['EK_Picture'][$i]))?'<img src="include/image.php?imagepath='.$fixedPath.'/'.$picsByKey[$appArray['EK_Picture'][$i]].'" align="middle">':'&nbsp;';
+		$buttons=(!is_null($appArray['PK_Device_QuickStart'][$i]))?'<input type="submit" class="button" value="U" name="u_'.$appArray['PK_Device_QuickStart'][$i].'" onClick="document.editComputingApplications.currentPos.value='.$appArray['SortOrder'][$i].';">&nbsp;<input type="submit" class="button" value="D" name="d_'.$appArray['PK_Device_QuickStart'][$i].'" onClick="document.editComputingApplications.currentPos.value='.$appArray['SortOrder'][$i].';">':'';
+		$out.='
+			<input type="hidden" name="device_qs_'.$appArray['PK_QuickStartTemplate'][$i].'" value="'.$appArray['PK_Device_QuickStart'][$i].'">
+			<tr bgcolor="'.$color.'">
+				<td><input type="checkbox" value="1" name="qst_'.$appArray['PK_QuickStartTemplate'][$i].'" '.((!is_null($appArray['PK_Device_QuickStart'][$i]))?'checked':'').'> '.$appArray['Description'][$i].'</td>
+				<td>'.$appArray['Category'][$i].'</td>
+				<td>'.$appArray['Package'][$i].'</td>
+				<td>'.$appArray['Binary'][$i].'</td>
+				<td>'.$appArray['Arguments'][$i].'</td>
+				<td>'.$appArray['Homepage'][$i].'</td>
+				<td>'.$appArray['WindowClass'][$i].'</td>
+				<td align="center">'.$buttons.'</td>
+			</tr>
+		';
+	}
+	
+	$out.='
+		<input type="hidden" name="apps" value="'.@join(',',@array_values($appArray['PK_QuickStartTemplate'])).'">
+		<input type="hidden" name="existing" value="'.@join(',',$existing).'">';
+		
+		$out.='
+			<tr class="alternate_back">
+				<td colspan="8"><B>'.$TEXT_ADD_NEW_APPLICATION_CONST.'</B> &nbsp; <a href="javascript:windowOpen(\'index.php?section=editQuickStartTemplates\',\'\')">'.$TEXT_CLICK_HERE_CONST.'</a></td>
+			</tr>';
+	if(count(@$appArray['PK_Device_QuickStart'])>0){
+		$out.='
+			<tr>
+				<td colspan="8">Need help? <a href="'.$wikiHost.'index.php/Adding_new_computing_apps" target="_blank">Click here</a>.</td>
 			</tr>
 			<tr>
-				<td colspan="3">'.$appsTable.'</td>
-			</tr>		
-			<tr>
-				<td>&nbsp;</td>
+				<td colspan="8" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
 			</tr>
-			<tr class="tablehead">
-				<td colspan="3"><B>'.$TEXT_ADD_NEW_APPLICATION_CONST.'</B></td>
-			</tr>
-			<tr>
-				<td><B>'.$TEXT_SELECT_ICON_CONST.'</B></td>
-				<td><input type="file" name="picture" value=""></td>
-			</tr>
-			<tr>
-				<td><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
-				<td><input type="text" name="description"></td>
-			</tr>
-			<tr>
-				<td><B>'.$TEXT_PATH_TO_BINARY_CONST.'</B></td>
-				<td><input type="text" name="path"></td>
-			</tr>
-			<tr>
-				<td><B>'.$TEXT_ARGUMENTS_CONST.'</B></td>
-				<td><input type="text" name="arguments"></td>
-			</tr>
-			<tr>
-				<td><B>'.$TEXT_ADD_TO_MEDIA_DIRECTORS_CONST.'</B></td>
-				<td>'.$mdCheckboxes.'</td>
-			</tr>
-			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"> <input type="button" class="button" name="close" value="'.$TEXT_CLOSE_CONST.'" onclick="self.close();"></td>
-			</tr>
-		</table></td>
-		</tr>	
-	</table>
+		';
+	}
+	$out.='		
+		</table>
 	</form>
 	';
 	} else {
@@ -158,74 +137,47 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 			exit(0);
 		}
 		
-		if($action=='addFromTemplate'){
-			$qst=$_REQUEST['qst'];
-			$dbADO->Execute("INSERT INTO Device_QuickStart (FK_Device,Description,`Binary`,Arguments,FK_QuickStartTemplate) SELECT $mdID,Description,`Binary`,Arguments,? FROM QuickStartTemplate WHERE PK_QuickStartTemplate=?",array($qst,$qst));
-		}
-		
-		$description=stripslashes($_POST['description']);
-		$path=stripslashes($_POST['path']);
-		$arguments=stripslashes($_POST['arguments']);
-		if($description!=''){
-			$picture=NULL;
-			if($_FILES['picture']['name']!=''){
-				$extension=substr($_FILES['picture']['name'],strrpos($_FILES['picture']['name'],'.')+1);
-				$mediadbADO->Execute('INSERT INTO Picture (Extension) VALUES (?)',$extension);
-				$picture=$mediadbADO->Insert_ID();
-				if(!@move_uploaded_file($_FILES['picture']['tmp_name'],$fixedPath.'/'.$picture.'.'.$extension)){
-					$mediadbADO->Execute('DELETE FROM Picture WHERE PK_Picture=?',$picture);
-					$picture=NULL;
-					$err=$TEXT_ERROR_UPLOAD_PATH_CONST.' '.$fixedPath;
-				}
-				
-			}
-			$addQuery='
-				INSERT IGNORE INTO Device_QuickStart
-					(FK_Device,Description,`Binary`,Arguments,EK_Picture)
-				VALUES
-					(?,?,?,?,?)';
-			$dbADO->Execute($addQuery,array($mdID,$description,$path,$arguments,$picture));
-			$dbADO->Execute('UPDATE Device_QuickStart SET SortOrder=? WHERE PK_Device_QuickStart=?',array($dbADO->Insert_ID(),$dbADO->Insert_ID()));
-			
-			$mds=explode(',',$_POST['mds']);
-			foreach ($mds AS $md){
-				if(isset($_POST['md_'.$md])){
-					$dbADO->Execute($addQuery,array($md,$description,$path,$arguments,$picture));
-					$dbADO->Execute('UPDATE Device_QuickStart SET SortOrder=? WHERE PK_Device_QuickStart=?',array($dbADO->Insert_ID(),$dbADO->Insert_ID()));
-				}
-			}
-		}
-
 		$apps=explode(',',$_POST['apps']);
+		$existing=explode(',',$_POST['existing']);
 		$currentPos=(int)$_POST['currentPos'];
 		foreach ($apps AS $app){
-			if((int)$app!=0 && isset($_POST['del_'.$app])){
-				$dbADO->Execute('DELETE FROM Device_QuickStart WHERE PK_Device_QuickStart=?',$app);
+	
+			if(isset($_POST['qst_'.$app])){
+				if(!in_array($app,$existing)){
+					$dbADO->Execute("INSERT INTO Device_QuickStart (FK_Device,FK_QuickStartTemplate) VALUES (?,?)", array($mdID,$app));
+				}
+			}else{
+				if(in_array($app,$existing)){
+					$dbADO->Execute('DELETE FROM Device_QuickStart WHERE FK_QuickStartTemplate=? AND FK_Device=?',array($app,$mdID));				
+				}
 			}
 
+			$device_qs=$_POST['device_qs_'.$app];
+			
 			// move up
-			if((int)$app!=0 && isset($_POST['u_'.$app])){
+			if((int)$device_qs!=0 && isset($_POST['u_'.$device_qs])){
 				$res=$dbADO->Execute('SELECT * FROM Device_QuickStart WHERE FK_Device=? AND SortOrder<? ORDER BY SortOrder DESC LIMIT 0,1',array($mdID,$currentPos));
 				if($res->RecordCount()>0){
 					$row=$res->FetchRow();
-					$dbADO->Execute('UPDATE Device_QuickStart SET SortOrder=? WHERE PK_Device_QuickStart=?',array($row['SortOrder'],$app));
+					$dbADO->Execute('UPDATE Device_QuickStart SET SortOrder=? WHERE PK_Device_QuickStart=?',array($row['SortOrder'],$device_qs));
 					$dbADO->Execute('UPDATE Device_QuickStart SET SortOrder=? WHERE PK_Device_QuickStart=?',array($currentPos,$row['PK_Device_QuickStart']));
 				}
 			}
 
 			// move down
-			if((int)$app!=0 && isset($_POST['d_'.$app])){
+
+			if((int)$device_qs!=0 && isset($_POST['d_'.$device_qs])){
 				$res=$dbADO->Execute('SELECT * FROM Device_QuickStart WHERE FK_Device=? AND SortOrder>? ORDER BY SortOrder ASC LIMIT 0,1',array($mdID,$currentPos));
 				if($res->RecordCount()>0){
 					$row=$res->FetchRow();
-					$dbADO->Execute('UPDATE Device_QuickStart SET SortOrder=? WHERE PK_Device_QuickStart=?',array($row['SortOrder'],$app));
+					$dbADO->Execute('UPDATE Device_QuickStart SET SortOrder=? WHERE PK_Device_QuickStart=?',array($row['SortOrder'],$device_qs));
 					$dbADO->Execute('UPDATE Device_QuickStart SET SortOrder=? WHERE PK_Device_QuickStart=?',array($currentPos,$row['PK_Device_QuickStart']));
 				}
 			}
 			
-			$description=cleanString($_POST['description_'.$app]);
-			$binary=cleanString($_POST['binary_'.$app]);
-			$arguments=cleanString($_POST['arguments_'.$app]);
+			$description=cleanString(@$_POST['description_'.$app]);
+			$binary=cleanString(@$_POST['binary_'.$app]);
+			$arguments=cleanString(@$_POST['arguments_'.$app]);
 			$dbADO->Execute('UPDATE Device_QuickStart SET Description=?,`Binary`=?,Arguments=? WHERE PK_Device_QuickStart=?',array($description,$binary,$arguments,$app));
 		}
 		

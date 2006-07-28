@@ -162,4 +162,5 @@ $TEXT_NOTES_CONST='Notes';
 $TEXT_INVALID_MAC_ADDRESS_CONST='Invalid MAC address';
 $TEXT_INVALID_IP_ADDRESS_CONST='Invalid IP address';
 $TEXT_NO_ACCESS_TO_GENERAL_MAILBOX_CONST='You don\'t have permission to access general mailbox.';
+$TEXT_PACKAGE_CONST='Package';
 ?>

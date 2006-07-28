@@ -13,4 +13,9 @@ $TEXT_QUICK_START_TEMPLATES_CONST='Quick start templates';
 $TEXT_NO_QUICK_START_TEMPLATES_CATEGORY_CONST='No quick start templates in this category.';
 $TEXT_ADD_OTHER_SOFTWARE_CONST='Add other software';
 $TEXT_ADD_OTHER_SOFTWARE_NOTE_CONST='to permanently appear in this quick launch for all Pluto users';
+$TEXT_QUICK_START_TEMPLATES_CONST='Quick start templates';
+$TEXT_TEMPLATE_CATEGORY_CONST='Template category';
+$TEXT_BINARY_CONST='Binary';
+$TEXT_HOMEPAGE_CONST='Homepage';
+$TEXT_WINDOW_CLASS_CONST ='Window class';
 ?>
