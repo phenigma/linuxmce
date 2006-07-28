@@ -299,7 +299,10 @@ int OrbiterGenerator::DoIt()
 
 	m_pRow_Device = mds.Device_get()->GetRow(m_iPK_Orbiter);
 	if( !m_pRow_Device )
-		throw "No orbiter info for device: "; 
+	{
+		cout << "Device " << m_iPK_Orbiter << " doesn't exist" << endl;
+		exit(1);
+	}
 
 	m_bIsMobilePhone = m_pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Mobile_Orbiter_CONST;
 
@@ -1402,7 +1405,7 @@ loop_to_keep_looking_for_objs_to_include:
 		bUseVideoWizard = atoi(g_DCEConfig.ReadString("UseVideoWizard").c_str())==1;
 		cout << "First time generating this orbiter.  Wizard: " << bUseVideoWizard << endl;
 		Row_DesignObj *drNewDesignObj;
-		if( bUseVideoWizard && m_pRow_Skin->PK_Skin_get()==SKIN_Monster_CONST )  // Temp -- remove this after video wizard works for pluto
+		if( bUseVideoWizard )
 		{
 			drNewDesignObj = GetDesignObjFromScreen(SCREEN_VideoWizard_CONST);
 			m_sInitialScreen=StringUtils::itos(SCREEN_VideoWizard_CONST);

@@ -244,7 +244,7 @@ string RegenMonitor::AllDevicesRooms()
 {
 	string sSQL = "select count(PK_Device),max(Device.psc_mod),max(Device_DeviceData.psc_mod),"
 		"max(DeviceTemplate.psc_mod) from Device JOIN DeviceTemplate on Device.FK_DeviceTemplate=PK_DeviceTemplate "
-		"JOIN Device_DeviceData ON FK_Device=PK_Device "
+		"JOIN Device_DeviceData ON FK_Device=PK_Device AND Device_DeviceData.FK_DeviceData NOT IN (" TOSTRING(DEVICEDATA_Free_Disk_Space_in_MBytes_CONST) ") "
 		"LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData AND DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate "
 		"WHERE SetByDevice<>1";
 
