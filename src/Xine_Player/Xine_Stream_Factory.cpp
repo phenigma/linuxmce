@@ -74,7 +74,7 @@ bool Xine_Stream_Factory::StartupFactory()
 	DetectOutputDrivers();
 	
 	// setting speakers arrangement
-	setOutputSpeakerArrangement(m_pPlayer->DATA_Get_Output_Speaker_arrangement());
+	//setOutputSpeakerArrangement(m_pPlayer->DATA_Get_Output_Speaker_arrangement());
 	
 	// setting output driver
 	setVideoDriver( m_pPlayer->DATA_Get_Hardware_acceleration() );
@@ -192,6 +192,7 @@ void Xine_Stream_Factory::DetectOutputDrivers()
 	free( driver_ids );
 }
 
+#if 0
 static const char *audio_out_types_strs[] =
 {
 	"Mono 1.0",
@@ -258,6 +259,7 @@ void Xine_Stream_Factory::setOutputSpeakerArrangement( string strOutputSpeakerAr
 
 	return ;
 }
+#endif
 
 // returns pointer to stream if exists/was created or NULL otherwise
 Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist, int requestingObject)
