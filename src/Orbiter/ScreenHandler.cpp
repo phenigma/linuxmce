@@ -583,7 +583,7 @@ bool ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 	if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_objExitAppOnOSD_CONST )
 	{
-		DCE::CMD_Kill_Application CMD_Kill_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_AppServer,"generic_app",true);
+		DCE::CMD_Kill_Application CMD_Kill_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_AppServer,"generic-app",true);
 		m_pOrbiter->SendCommand(CMD_Kill_Application);
 
 		if( m_pOrbiter->m_dwPK_Device != m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter )  // Not us
@@ -1247,7 +1247,6 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, sParentFolder + sNewFolder + "/");
 			}
 		}
-		/*
 		else if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuFileSave_CONST)
 		{
 			if(
@@ -1260,9 +1259,12 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				//	(sSaveFile_RelativeFolder != "(no directory)" ? sSaveFile_RelativeFolder : "") + 
 				//	m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
 				//m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sFullFilePath);
+
+				string a = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				string b = m_pOrbiter->m_mapVariable[45];
+				int c = 4;
 			}
 		}
-		*/
 	}
 
 	return false;
