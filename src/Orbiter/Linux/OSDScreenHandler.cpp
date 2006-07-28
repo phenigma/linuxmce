@@ -1351,7 +1351,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::SCREEN_Wizard_Done selected
 	if( !m_bAlreadyPlayFinalGreeting )
 	{
 		m_bAlreadyPlayFinalGreeting=true;
-		DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalMediaPlayer,"/home/monster/final.mpg",0,0,"");
+		DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalMediaPlayer,"/home/videowiz/final.mpg",0,0,"");
 		m_pOrbiter->SendCommand(CMD_Play_Media);
 	}
 }
@@ -2044,7 +2044,7 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 	if(DESIGNOBJ_butFinal_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 	{
 		DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->TranslateVirtualDevice(DEVICETEMPLATE_VirtDev_Local_Media_Player_CONST),
-                                           "/home/monster/final.mpg",0,0,"");
+                                           "/home/videowiz/final.mpg",0,0,"");
 		m_pOrbiter->SendCommand(CMD_Play_Media);
 	}
 
