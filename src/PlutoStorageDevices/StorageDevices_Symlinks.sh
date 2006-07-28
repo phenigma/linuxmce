@@ -76,6 +76,11 @@ for Device in $InternalOwnStorageDevices; do
 			else
 				symlinkSource="/mnt/device/$Device_ID/"
 			fi
+			
+			if [[ -h "$symlinkDestination" ]] ;then
+				rm -f $symlinkDestination 
+			fi
+
 			ln -s "$symlinkSource" "$symlinkDestination"
 			echo "$symlinkDestination -> $symlinkSource"
 		done
