@@ -14,6 +14,7 @@ constrain_pointer.constrain_pointer.dTitleBar: 0
 
 firefox-bin.Firefox-bin.dBorder: 1
 firefox-bin.Firefox-bin.dTitleBar: 1
+firefox-bin.Firefox-bin.geometry: +1+1
 
 Orbiter.Orbiter.dBorder: 0
 Orbiter.Orbiter.dTitleBar: 0
