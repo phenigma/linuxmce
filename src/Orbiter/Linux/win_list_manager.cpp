@@ -63,6 +63,10 @@ void WinListManager::MaximizeWindow(const string &sWindowName)
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     g_pPlutoLogger->Write(LV_WARNING, "WinListManager::MaximizeWindow(%s)", sWindowName.c_str());
 	//m_pWMController->SetVisible(sWindowName, false);
+#ifdef ORBITER_OPENGL
+	m_pWMController->SetLayer(sWindowName, LayerBelow);
+	m_pWMController->SetLayer(sWindowName, LayerNormal);
+#endif	
 	m_pWMController->SetFullScreen(sWindowName, true);
     ShowWindow(sWindowName);
 }
@@ -74,7 +78,11 @@ void WinListManager::PositionWindow(const string &sWindowName, int x, int y, int
     //m_pWMController->SetVisible(sWindowName, false);
     m_pWMController->SetFullScreen(sWindowName, false);
 	m_pWMController->SetMaximized(sWindowName, false);
-    m_pWMController->SetPosition(sWindowName, x, y, w, h);
+	m_pWMController->SetPosition(sWindowName, x, y, w, h);
+#ifdef ORBITER_OPENGL	
+	m_pWMController->SetLayer(sWindowName, LayerBelow);
+    m_pWMController->SetLayer(sWindowName, LayerNormal);
+#endif	
     ShowWindow(sWindowName);
     g_pPlutoLogger->Write(LV_WARNING, "WinListManager::PositionWindow(%s) : done", sWindowName.c_str());
 }
