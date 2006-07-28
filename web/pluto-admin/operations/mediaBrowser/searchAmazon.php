@@ -23,7 +23,12 @@ function searchAmazon($output,$mediadbADO,$dbADO) {
 
 	$out=preg_replace($pattern,$replacement,$out);
 	
+	$pattern='/http:\/\/www.amazon.com\/gp\/product\/(.*)/';
+	$replacement='index.php?section=grabAmazonAttributes&fileID='.$fileID.'&amazonURL=http://www.amazon.com/gp/product/\\1';
 
+	$out=preg_replace($pattern,$replacement,$out);
+
+	
 	die($out);	
 }
 ?>
