@@ -286,6 +286,12 @@ function users($output,$dbADO) {
 				$userExtension,$userFirstName,$userLastName,$userNickname,
 				$userLanguage,$HideFromOrbiter,$user));
 
+				// if the user is current user, update session variables
+				if($user==$_SESSION['userID']){
+					$_SESSION['MyExtension'] = $userExtension;
+					$_SESSION['AccessGeneralMailbox'] = $userAccessGeneralMailbox;
+				}
+				
 				// check if is the last user who could modify this installation
 				$resLastUser=$dbADO->Execute('SELECT FK_Users FROM Installation_Users WHERE userCanModifyInstallation=1 AND FK_Installation =?',array($installationID));
 				$rowLastUser=$resLastUser->FetchRow();
