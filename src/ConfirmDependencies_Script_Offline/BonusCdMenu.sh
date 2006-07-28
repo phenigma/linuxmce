@@ -17,7 +17,7 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 
 	while [ ! -d "/cdrom/bonuscd1" ]; do
 		echo "This in not a valid \"Pluto Extras CD version 1\". Please insert the correct CD and try again."
-		/usr/bin/eject
+		/usr/bin/eject 1>/dev/null 2>/dev/null
 		echo "Press any key when you inserted the correct CD in drive."
 		read key
 
@@ -34,8 +34,9 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 
 	cd /cdrom/bonuscd1-cache
 	cp -r *.deb "$BonusWorkDir"
-	cd ..
-	/usr/bin/eject
+	sleep 1
+	cd 
+	/usr/bin/eject 1>/dev/null 2>/dev/null
 	echo ""
 	echo "Finished processing \"Pluto Extras CD version 1\""
 	echo ""
@@ -56,16 +57,17 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 	dpkg-scanpackages . /dev/null | sed 's,\./,dists/sarge/main/binary-i386/,g' | gzip -9c > Packages.gz
 	clear
 	# update apt cache
-	apt-get update
+	echo "Updating apt cache files ..."
+	apt-get update 1>/dev/null 2>/dev/null
 	# install bonuscd packages
-	echo "Processing video-wizard-videos package ..."
-	dpkg -i video-wizard-videos-*.deb 1>/dev/null 2>/dev/null
+#	echo "Processing video-wizard-videos package ..."
+#	dpkg -i video-wizard-videos-*.deb 1>/dev/null 2>/dev/null
 	# if bonuscd monster was detected 
-	cd $BonusWorkDir
-	if [[ -f $(ls | grep monster-nucleus) && ! -z $(ls | grep monster-nucleus) ]]; then
-	apt-get -f -y install monster-nucleus 
-	apt-get -f -y install bootsplash-theme-monster
-	fi
+#	cd $BonusWorkDir
+#	if [[ -f $(ls | grep monster-nucleus) && ! -z $(ls | grep monster-nucleus) ]]; then
+#	apt-get -f -y install monster-nucleus 
+#	apt-get -f -y install bootsplash-theme-monster
+#	fi
 	else
 	echo "Command not found : dpkg-scanpackages. Packages.gz regeneration skipped."
 	fi
