@@ -125,7 +125,7 @@ ShowPopupsAbovePointer=0 # 0/1
 ReplayMenuCancelClick=0 # 0/1
 
 #  Alt+Tab window switching
-QuickSwitch=0 # 0/1
+QuickSwitch=1 # 0/1
 
 #  Alt+Tab to minimized windows
 QuickSwitchToMinimized=0 # 0/1
@@ -575,7 +575,7 @@ KeyWinArrangeNW=""
 KeyWinArrangeC=""
 
 #
-KeySysSwitchNext=""
+KeySysSwitchNext="Alt+Tab"
 
 #
 KeySysSwitchLast=""
@@ -750,16 +750,16 @@ TitleBarJoinRight=0 # 0/1
 ShowMenuButtonIcon=1 # 0/1
 
 #  Horizontal window border
-BorderSizeX=0 # [0-128]
+BorderSizeX=1 # [0-128]
 
 #  Vertical window border
-BorderSizeY=0 # [0-128]
+BorderSizeY=1 # [0-128]
 
 #  Horizontal dialog window border
-DlgBorderSizeX=0 # [0-128]
+DlgBorderSizeX=1 # [0-128]
 
 #  Vertical dialog window border
-DlgBorderSizeY=0 # [0-128]
+DlgBorderSizeY=1 # [0-128]
 
 #  Resize corner width
 CornerSizeX=5 # [0-64]
@@ -768,7 +768,7 @@ CornerSizeX=5 # [0-64]
 CornerSizeY=5 # [0-64]
 
 #  Title bar height
-TitleBarHeight=0 # [0-128]
+TitleBarHeight=10 # [0-128]
 
 #  Justification of the window title
 TitleBarJustify=0 # [0-100]
@@ -822,10 +822,10 @@ ThemeDescription=""
 TitleButtonsLeft=""
 
 #  Titlebar buttons from right to left (x=close,  m=max,  i=min,  h=hide, r=rollup,       s=sysmenu,      d=depth)
-TitleButtonsRight=""
+TitleButtonsRight="x"
 
 #  Titlebar buttons supported by theme (x,m,i,r,h,s,d)
-TitleButtonsSupported=""
+TitleButtonsSupported="xmirhsd"
 
 #
 TitleFontName="-*-sans-medium-r-*-*-*-120-*-*-*-*-*-*"
@@ -1208,10 +1208,9 @@ DesktopTransparencyImage=""
 # DesktopBackgroundColor="rgb:20/40/80"
 # DesktopBackgroundScaled=0
 # DesktopBackgroundImage="/usr/share/pixmaps/debian-logo.png"
-# BorderSizeX=5
-# BorderSizeY=5
 # KeyWinClose="Alt+Shift+F4"
 # KeySysWorkspaceNext="Ctrl+Alt+Shift+Tab"
 # KeySysWorkspace1="Alt+Shift+F1"
 # KeySysWorkspace2="Alt+Shift+F2"
+
 # EOF

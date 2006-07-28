@@ -4,34 +4,41 @@
 # since modifications to this file will be discarded when you
 # (re)install icewm.
 
-# initial window geometry
-pluto-xine-playback-window.pluto-xine-playback-window.geometry: 1x1+12345+12345
+constrain_mouse.constrain_mouse.dBorder: 0
+constrain_mouse.constrain_mouse.dTitleBar: 0
+constrain_mouse.constrain_mouse.layer: Desktop
 
-# never focus
+constrain_pointer.constrain_pointer.layer: Desktop
+constrain_pointer.constrain_pointer.dBorder: 0
+constrain_pointer.constrain_pointer.dTitleBar: 0
+
+firefox-bin.Firefox-bin.dBorder: 1
+firefox-bin.Firefox-bin.dTitleBar: 1
+
+Orbiter.Orbiter.dBorder: 0
+Orbiter.Orbiter.dTitleBar: 0
+Orbiter.Orbiter.ignoreNoFocusHint: 1
+
+mythfrontend.Mythfrontend.dBorder: 0
+mythfrontend.Mythfrontend.dTitleBar: 0
+
+pluto-xine-playback-window.pluto-xine-playback-window.dBorder: 0
+pluto-xine-playback-window.pluto-xine-playback-window.dTitleBar: 0
+pluto-xine-playback-window.pluto-xine-playback-window.geometry: 1x1+12345+12345
 pluto-xine-playback-window.pluto-xine-playback-window.noFocusOnAppRaise: 1
 
-# default hidden apps : no full support yet
-# pluto-xine-playback-window.pluto-xine-playback-window.workspace: 1
-# firefox-bin.Firefox-bin.workspace: 1
-# mythfrontend.Mythfrontend.workspace: 1
-
-# always focus
-Orbiter.Orbiter.ignoreNoFocusHint: 1
+SDL_App.SDL_App.dBorder: 0
+SDL_App.SDL_App.dTitleBar: 0
 SDL_App.SDL_App.ignoreNoFocusHint: 1
-
-# pointer-constrain window
-# layer: Desktop / Below
-constrain_pointer.constrain_pointer.layer: Below
-constrain_mouse.constrain_mouse.layer: Below
 
 # ==== debugging ====
 # kdbgio.XTerm.allWorkspaces: 1
 # kdbgio.XTerm.layer: Menu
 # kdbg.Kdbg.allWorkspaces: 1
 # kdbg.Kdbg.layer: Menu
-# xterm.XTerm.allWorkspaces: 1
-# xterm.XTerm.layer: Menu
 # konsole.Konsole.allWorkspaces: 1
 # konsole.Konsole.layer: Menu
+# xterm.XTerm.allWorkspaces: 1
+# xterm.XTerm.layer: Menu
 
 # EOF
