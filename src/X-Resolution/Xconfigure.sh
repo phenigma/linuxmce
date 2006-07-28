@@ -101,7 +101,7 @@ fi
 DisplayDriver=$(GetVideoDriver)
 if [[ "$DisplayDriver" == viaprop ]]; then
 	DisplayDriver=via
-	ForcedXvMC=libXvMC.so.1
+#	ForcedXvMC=libXvMC.so.1
 fi
 
 CurrentDisplayDriver=$(awk -f/usr/pluto/bin/X-GetDisplayDriver.awk "$ConfigFile")
@@ -130,27 +130,27 @@ if [[ "$DisplayDriver" != "$CurrentDisplayDriver" && "$DisplayDriver" != vesa ]]
 fi
 
 # XvMC setup
-case "$DisplayDriver" in
-	nvidia)
-		libXvMC="libXvMCNVIDIA.so.1"
-		XineVideoDriver="xxmc"
-	;;
-	via)
-		libXvMC="libviaXvMC.so.1"
-		XineVideoDriver="xxmc"
-	;;
-	*)
-		libXvMC="libXvMC.so.1"
-		XineVideoDriver="xv"
-	;;
-esac
+#case "$DisplayDriver" in
+#	nvidia)
+#		libXvMC="libXvMCNVIDIA.so.1"
+#		XineVideoDriver="xxmc"
+#	;;
+#	via)
+#		libXvMC="libviaXvMC.so.1"
+#		XineVideoDriver="xxmc"
+#	;;
+#	*)
+#		libXvMC="libXvMC.so.1"
+#		XineVideoDriver="xv"
+#	;;
+#esac
 
-if [[ -n "$ForcedXvMC" ]]; then
-	libXvMC="$ForcedXvMC"
-fi
+#if [[ -n "$ForcedXvMC" ]]; then
+#	libXvMC="$ForcedXvMC"
+#fi
 
-echo "$libXvMC" >/etc/X11/XvMCConfig
-XineConfSet video.driver "$XineVideoDriver"
+#echo "$libXvMC" >/etc/X11/XvMCConfig
+#XineConfSet video.driver "$XineVideoDriver"
 
 # Setup resolution
 if [[ -n "$Resolution" ]]; then
