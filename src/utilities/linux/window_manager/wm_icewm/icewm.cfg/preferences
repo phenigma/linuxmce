@@ -182,16 +182,16 @@ ContinuousEdgeSwitch=0 # 0/1
 AutoReloadMenus=1 # 0/1
 
 #  Show task bar
-ShowTaskBar=0 # 0/1
+ShowTaskBar=1 # 0/1
 
 #  Task bar at top of the screen
 TaskBarAtTop=0 # 0/1
 
 #  Keep the task bar below regular windows
-TaskBarKeepBelow=0 # 0/1
+TaskBarKeepBelow=1 # 0/1
 
 #  Auto hide task bar after delay
-TaskBarAutoHide=0 # 0/1
+TaskBarAutoHide=1 # 0/1
 
 #  Show clock on task bar
 TaskBarShowClock=0 # 0/1
@@ -248,7 +248,7 @@ TaskBarShowNetStatus=1 # 0/1
 TaskBarShowCollapseButton=1 # 0/1
 
 #  Use double-height task bar
-TaskBarDoubleHeight=1 # 0/1
+TaskBarDoubleHeight=0 # 0/1
 
 #  Place workspace pager on left, not right
 TaskBarWorkspacesLeft=1 # 0/1
@@ -335,7 +335,7 @@ ToolTipDelay=1000 # [0-5000]
 ToolTipTime=0 # [0-60000]
 
 #  Delay before task bar is automatically hidden
-AutoHideDelay=300 # [0-5000]
+AutoHideDelay=1 # [0-5000]
 
 #  Delay before windows are auto raised
 AutoRaiseDelay=400 # [0-5000]
@@ -1205,8 +1205,6 @@ DesktopTransparencyImage=""
 
 # ==================================================
 # again, override options for debug
-# ShowTaskBar=1
-# TaskBarDoubleHeight=0
 # DesktopBackgroundColor="rgb:20/40/80"
 # DesktopBackgroundScaled=0
 # DesktopBackgroundImage="/usr/share/pixmaps/debian-logo.png"
