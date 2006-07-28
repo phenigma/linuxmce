@@ -58,6 +58,7 @@ fi
 ## Initalize udev
 Message "Initializing udev"
 /etc/init.d/udev start 1>/dev/null
+mount -t devpts none /dev/pts
 
 ## Loading modules
 Message "Loading modules"

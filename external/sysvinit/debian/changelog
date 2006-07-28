@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto53) unstable; urgency=low
+
+  * Mounting /dev/pts so we can access virtual terminals with udev
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Fri, 28 Jul 2006 15:09:01 +0300
+
 sysvinit (2.86.ds1-1.1pluto52) unstable; urgency=low
 
   * Corrected shift-state message
