@@ -53,8 +53,32 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 	if(!Seconds)
 		Seconds = 3;
 
-	Sleeper = new VideoResolutionSecondSleeper(Seconds);
+	std::string ResolutionValue;
+	std::string RefreshValue;
+	if(!AVWizardSettings->Exists("Resolution"))
+	{
+		std::cerr<<"Warning: Resolution not set at this step!"<<std::endl;
+	}
+	else
+		ResolutionValue = AVWizardSettings->GetValue("Resolution");
+
+	if(!AVWizardSettings->Exists("Refresh"))
+	{
+		std::cerr<<"Warning: Refresh not set at this step!"<<std::endl;
+	}
+	else
+		RefreshValue = AVWizardSettings->GetValue("Refresh");
+
 	WizardWidgetLabel* Label = dynamic_cast<WizardWidgetLabel*>
+		(Page->GetChildRecursive("DescribeText0"));
+
+	std::string LabelValue = "You chose the following resolution: ";
+
+	Label->SetCaption(LabelValue + ResolutionValue+ "@" + RefreshValue + " Hz");
+
+
+	Sleeper = new VideoResolutionSecondSleeper(Seconds);
+	Label = dynamic_cast<WizardWidgetLabel*>
 		(Page->GetChildRecursive("CounterLabel"));
 	Sleeper->SetLabel(Label);
 	

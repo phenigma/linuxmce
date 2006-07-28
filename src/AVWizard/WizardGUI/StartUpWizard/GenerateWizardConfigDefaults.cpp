@@ -239,23 +239,28 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 			));
 	}
 
+	std::string ScrollBackColor = SkinGenerator::Instance()->ScrollBackColor;
+	std::string ScrollBackFocusedColor = SkinGenerator::Instance()->ScrollBackFocusedColor;
+	std::string HighScrollBackColor = SkinGenerator::Instance()->HighScrollBackColor;
+	std::string HighScrollBackFocusedColor = SkinGenerator::Instance()->HighScrollBackFocusedColor;
+
 
 	Page->AddChild(CreateControlScrollList("ResolutionScroll",
 		80, 260,
 		200, 140,
-		"409B40",
-		"009B00",
-		"409B40",
-		"009B00",
+		ScrollBackColor,
+		ScrollBackFocusedColor,
+		HighScrollBackColor,
+		HighScrollBackFocusedColor,
 		false));
 
 	Page->AddChild(CreateControlScrollList("RefreshScroll",
 		340, 260,
 		200, 140,
-		"409B40",
-		"009B00",
-		"409B40",
-		"009B00",
+		ScrollBackColor,
+		ScrollBackFocusedColor,
+		HighScrollBackColor,
+		HighScrollBackFocusedColor,
 		false));
 
 	DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;
@@ -364,18 +369,10 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 	Page->AddChild(BackgroundControl);
 	
 	//Create text area
-	std::string StringList[10];
-	StringList[0] = "Here are the appropiate resolutions for your TV. The lowest resolution is on";
-	StringList[1] = "the left, and the highest resolution is on the right. Use the left and the right arrows";
-	StringList[2] = "to select the resolution you want to use. The higher the resolution, in other";
-	StringList[3] = "words the futher right, the sharper the picture. However if you move to the";
-	StringList[4] = "right and the picture dissapears, that probably means your TV is not able to";
-	StringList[5] = "support that high of the resolution, and you should move to the left to select a";
-	StringList[6] = "lower resolution again.";
-	StringList[7] = "If you are an advanced user you can use the up and down arrow to adjust the";
-	StringList[8] = "refresh rate. Use the left and right arrows to adjust the resolution, and press";
-	StringList[9] = "enter when you're satisfied with the results.";
-
+	std::string StringList[3];
+	StringList[0] = "You chose the following resolution:";
+	StringList[1] = "If you want to keep it, choose 'Continue'";
+	StringList[2] = "If you want to choose another resolution, press 'Back'";
 
 	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
 	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
@@ -391,6 +388,8 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 				"Center"
 			));
 	}
+
+	
 /*
 	Page->AddChild(CreateControlListBox(
 			"ListBox1",
@@ -1442,13 +1441,14 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::CreateControlScrollList(
 	Dictionary->Set("Top", Top);
 	Dictionary->Set("Width", Width);
 	Dictionary->Set("Height", Height);
-	Dictionary->Set("BackColor", BackColor);
+
 
 	Dictionary->Set("ScrollFocused", Focused);
+	Dictionary->Set("ScrollBackColor", BackColor);
 	Dictionary->Set("ScrollBackFocusedColor", BackFocusedColor);
 
-	Dictionary->Set("ScrollHighlightFocused", HighBackColor);
-	Dictionary->Set("ScrollHighlightBackFocusedColor", HighBackFocusedColor);
+	Dictionary->Set("HighScrollBackColor", HighBackColor);
+	Dictionary->Set("HighBackFocusedColor", HighBackFocusedColor);
 
 	return Result;
 }

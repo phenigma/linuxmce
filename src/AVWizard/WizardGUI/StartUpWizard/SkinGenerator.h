@@ -60,6 +60,11 @@ public:
 
 	std::string WaitForAcceptResolution;
 
+	std::string ScrollBackColor;
+	std::string ScrollBackFocusedColor;
+	std::string HighScrollBackColor;
+	std::string HighScrollBackFocusedColor;
+
 	void SetSkinEnvironment(std::string SkinName);
 	void SaveSkin(std::string XMLFile);
 

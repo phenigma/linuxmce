@@ -55,15 +55,15 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 	//La sfarsit: CommandSetResolution Resolution Refresh
 	if (NoResolutions == 0)
 	{
-		List->AddItem("640x480", "640x480");
-		List->AddItem("480p", "480p");
-		List->AddItem("800x600", "800x600");
-		List->AddItem("720p", "720p");
-		List->AddItem("1024x768", "1024x768");
-		List->AddItem("1280x1024", "1280x1024");
-		List->AddItem("1080i", "1080i");
-		List->AddItem("1080p", "1080p");
-		List->AddItem("1600x1200", "1600x1200");
+		List->AddItem("640x480 (4:3)", "640x480");
+		List->AddItem("480p (16:9)", "480p");
+		List->AddItem("800x600 (4:3)", "800x600");
+		List->AddItem("720p (16:9)", "720p");
+		List->AddItem("1024x768 (4:3)", "1024x768");
+		List->AddItem("1280x1024 (5:4)", "1280x1024");
+		List->AddItem("1080i (16:9)", "1080i");
+		List->AddItem("1080p (16:9)", "1080p");
+		List->AddItem("1600x1200 (4:3)", "1600x1200");
 	}
 	else
 	{
@@ -94,13 +94,13 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 
 
 	List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"));
-	List->AddItem("50", "50");
-	List->AddItem("60", "60");
-	List->AddItem("65", "65");
-	List->AddItem("70", "70");
-	List->AddItem("75", "75");
-	List->AddItem("80", "80");
-	List->AddItem("85", "85");
+	List->AddItem("50 Hz", "50");
+	List->AddItem("60 Hz", "60");
+	List->AddItem("65 Hz", "65");
+	List->AddItem("70 Hz", "70");
+	List->AddItem("75 Hz", "75");
+	List->AddItem("80 Hz", "80");
+	List->AddItem("85 Hz", "85");
 	List->SetFocus(false);
 
 	if(AVWizardSettings->Exists("Refresh"))

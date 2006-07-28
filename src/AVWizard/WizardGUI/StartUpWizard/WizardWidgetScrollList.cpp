@@ -28,10 +28,22 @@ WizardWidgetScrollList::~WizardWidgetScrollList()
 		BackColor = Utils::StringToColorDesc(DataValue);
 	}
 	else
-	if(Attribute == "BackFocusedColor")
+	if(Attribute == "ScrollBackFocusedColor")
 	{
-		delete BackColor;
+		delete BackFocusedColor;
 		BackFocusedColor = Utils::StringToColorDesc(DataValue);
+	}
+	else
+	if(Attribute == "HighScrollBackColor")
+	{
+		delete HighBackColor;
+		HighBackColor = Utils::StringToColorDesc(DataValue);
+	}
+	else
+	if(Attribute == "HighScrollBackFocusedColor")
+	{
+		delete HighBackFocusedColor;
+		HighBackFocusedColor = Utils::StringToColorDesc(DataValue);
 	}
 	else
 	if(Attribute == "Focused")

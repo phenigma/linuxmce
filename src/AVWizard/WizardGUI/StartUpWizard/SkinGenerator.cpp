@@ -51,6 +51,11 @@ void SkinGenerator::SetSkinEnvironment(std::string SkinName)
 	BackgroundColor = "000000";
 
 	WaitForAcceptResolution = "15";
+
+	ScrollBackColor = "409B40";
+	ScrollBackFocusedColor = "009B00";
+	HighScrollBackColor = "409B40";
+	HighScrollBackFocusedColor = "009B00";
 }
 
 void SkinGenerator::SaveSkin(std::string XMLFile)
@@ -87,7 +92,10 @@ void SkinGenerator::SaveSkin(std::string XMLFile)
 	Dictionary->Set("BackgroundColor", BackgroundColor);
 
 	Dictionary->Set("WaitForAcceptResolution", WaitForAcceptResolution);
-
+	Dictionary->Set("ScrollBackColor", ScrollBackColor);
+	Dictionary->Set("ScrollBackFocusedColor", ScrollBackFocusedColor);
+	Dictionary->Set("HighScrollBackColor", HighScrollBackColor);
+	Dictionary->Set("HighScrollBackFocusedColor", HighScrollBackFocusedColor);
 	Config.SaveToXMLFile(XMLFile);
 }
 
@@ -143,6 +151,15 @@ void SkinGenerator::GetEnvironment()
 
 	if(Dictionary->Exists("WaitForAcceptResolution"))
 		WaitForAcceptResolution = Dictionary->GetValue("WaitForAcceptResolution");
+
+	if(Dictionary->Exists("ScrollBackColor"))
+		ScrollBackColor = Dictionary->GetValue("ScrollBackColor");
+	if(Dictionary->Exists("ScrollBackFocusedColor"))
+		ScrollBackFocusedColor = Dictionary->GetValue("ScrollBackFocusedColor");
+	if(Dictionary->Exists("HighScrollBackColor"))
+		HighScrollBackColor = Dictionary->GetValue("HighScrollBackColor");
+	if(Dictionary->Exists("HighScrollBackFocusedColor"))
+		HighScrollBackFocusedColor = Dictionary->GetValue("HighScrollBackFocusedColor");
 }
 
 /*static*/ SkinGenerator* SkinGenerator::Instance_ = NULL;
