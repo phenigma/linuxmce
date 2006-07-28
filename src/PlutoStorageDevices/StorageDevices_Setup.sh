@@ -1,6 +1,11 @@
 #!/bin/bash
 
 ## TrigerCascade="true" result in script being run on the other computers too
+. /usr/pluto/bin/Section_Ops.sh
+AutoMaster_StorageDevices="/mnt/device /etc/auto.PlutoStorageDevices --timeout=10"
+PopulateSection "/etc/auto.master" "PlutoStorageDevices" "$AutoMaster_StorageDevices"
+mkdir -p /mnt/device
+
 
 TrigerCascade="true"
 
