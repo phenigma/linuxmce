@@ -8,9 +8,9 @@ Wiz="$BaseDir"/AVWizard
 AudioMixerSettingsAwk="$BaseDir"/AudioMixerSettings.awk
 
 STEP_Welcome=1
-STEP_VideoRatio=2
-STEP_VideoOutput=3
-STEP_VideoResolution=4
+STEP_VideoResolution=2 #AVWiz: VideoRatio
+STEP_VideoResolutionConfirm=3 #AVWiz: VideoResolution
+STEP_VideoOutput=4
 STEP_VideoAdjustSize=5
 STEP_AudioConnector=6
 STEP_AudioVolume=7
@@ -58,13 +58,10 @@ GetAudioMixerSettings()
 
 Resolution_GetFullName()
 {
-	local Ratio="$1" Prefix="$2"
+	local Prefix="$1"
 	local Idx Resolution_Array FullName
 
-	case "$Ratio" in
-		4_3) Resolution_Array=("${Resolutions_VESA[@]}") ;;
-		16_9) Resolution_Array=("${Resolutions_HDTV[@]}") ;;
-	esac
+	Resolution_Array=("${Resolutions_VESA[@]}" "${Resolutions_HDTV[@]}")
 	
 	Idx=$(FindInArray_Prefix "$Prefix" "${Resolution_Array[@]}")
 	if [[ -n "$Idx" ]]; then

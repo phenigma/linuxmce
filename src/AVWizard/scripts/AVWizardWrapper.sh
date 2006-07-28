@@ -16,6 +16,7 @@ while [[ "$Done" -eq 0 ]]; do
 	echo "Running Wizard from step '$NextStep'"
 	StartX -step "$NextStep"
 	Ret=$(WizGet ExitCode)
+	echo "Wizard exited with code: $Ret"
 	case "$Ret" in
 		2) : ;; # programmed exit
 		*) exit $Ret ;; # 0 = I agree; 1 = I do not agree; 3 = Skip Wizard; * = other
@@ -24,14 +25,12 @@ while [[ "$Done" -eq 0 ]]; do
 
 	if [[ -f /tmp/avwizard-resolution.txt ]]; then
 		WizResolution=$(< /tmp/avwizard-resolution.txt)
-		Video_Ratio=$(SpcField 1 "$WizResolution")
-		VideoResolution_Name=$(SpcField 2 "$WizResolution")
-		VideoRefresh=$(SpcField 3 "$WizResolution")
-		WindowWidth=$(SpcField 4 "$WizResolution")
-		WindowHeight=$(SpcField 5 "$WizResolution")
+		VideoResolution_Name=$(SpcField 1 "$WizResolution")
+		VideoRefresh=$(SpcField 2 "$WizResolution")
+		WindowWidth=$(SpcField 3 "$WizResolution")
+		WindowHeight=$(SpcField 4 "$WizResolution")
 
 		set -x
-		WizSet Video_Ratio "$Video_Ratio"
 		WizSet VideoResolution "$VideoResolution_Name"
 		WizSet VideoRefresh "$VideoRefresh"
 		WizSet WindowWidth "$WindowWidth"
@@ -44,9 +43,8 @@ while [[ "$Done" -eq 0 ]]; do
 	echo "Interrupted in step '$WizStep'"
 
 	case "$WizStep" in
-		$STEP_VideoRatio) NextStep=$STEP_VideoOutput ;;
-		-$STEP_VideoRatio) NextStep=$STEP_VideoRatio ;;
-		$STEP_VideoResolution) NextStep=$STEP_VideoResolution ;;
+		$STEP_VideoResolution) NextStep=$STEP_VideoResolutionConfirm ;;
+		-$STEP_VideoResolution) NextStep=$STEP_VideoResolution ;;
 		*) echo "Interrupted in step '$WizStep', but shouldn't be"; NextStep=$WizStep ;;
 	esac
 done

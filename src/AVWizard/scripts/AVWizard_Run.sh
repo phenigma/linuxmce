@@ -13,9 +13,11 @@ SetDefaults()
 {
 	"$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480@60'
 	WizSet Video_Ratio '4_3'
+	WizSet Resolution '640x480'
 	WizSet VideoResolution '640x480'
 	WizSet WindowWidth 640
 	WizSet WindowHeight 480
+	WizSet Refresh '60'
 	WizSet VideoRefresh '60'
 	WizSet Video_Output 'VGA' #TODO: parse X log and extract autodetected output
 	WizSet ResolutionSelected 1
