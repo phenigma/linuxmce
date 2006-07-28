@@ -249,15 +249,15 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 		return;
 
 	Compose->UpdateLayers(CurrentLayer, OldLayer);
-	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step1");
+	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight");
 	MeshBuilder MB;
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
 	MeshTransform Transform;
-	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step2");
+	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step2");
 	//Compose->PaintScreen3D();
 	//Compose->NewScreen->RenderFrameToGraphic();
 	//MB.SetTexture(Compose->NewScreen->GetRenderGraphic());
-	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step3");
+	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step3");
 	MB.SetAlpha(0.4f);
 	MB.SetColor(1.0f, 1.0f, 0.0f);
 
@@ -285,13 +285,13 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 
 	MB.AddVertexFloat(1, 1, 0);
 
-	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step4");
+	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step4");
 	UnHighlight();
-	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step5");
+	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step5");
 
 	HighLightFrame = new MeshFrame();
-	Transform.ApplyTranslate(-0.0f, -0.0f, 0.0f);
-	Transform.ApplyScale(1.0f, 1.0f, 1.0f);
+	Transform.ApplyScale(1.2f, 1.2f, 1.2f);
+	Transform.ApplyTranslate(-0.1f, -0.1f, 0.1f);
 	Transform.ApplyScale(
 		float(HightlightArea->Width),
 		float(HightlightArea->Height),
@@ -300,7 +300,7 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 		float(HightlightArea->Left()),
 		float(HightlightArea->Top()),
 		0.f);
-	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step6");
+	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step6");
 
 	HighLightFrame->SetTransform(Transform);
 	HighLightFrame->SetMeshContainer(MB.End());
