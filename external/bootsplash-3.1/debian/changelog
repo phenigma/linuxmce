@@ -1,3 +1,9 @@
+bootsplash (3.1-1pluto8) unstable; urgency=low
+
+  * Added helper script for removing bootsplash on the current console
+  
+ -- Radu Cristescu <radu.c@plutohome.com>  Fri, 28 Jul 2006 14:57:14 +0300
+ 
 bootsplash (3.1-1pluto7) unstable; urgency=low
 
   * Removed an old debconf option that was not used any more

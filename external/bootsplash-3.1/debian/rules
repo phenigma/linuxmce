@@ -70,6 +70,7 @@ install: build
 	$(MAKE) -C Utilities install DESTDIR=$(CURDIR)/debian/bootsplash
 	$(INSTALL_NOSTRIP) Scripts/splash.sh Scripts/bootanim "$(CURDIR)/debian/bootsplash/sbin/"
 	$(INSTALL) fonts/VeraBd.ttf "$(CURDIR)/debian/bootsplash/etc/bootsplash/fonts"
+	$(INSTALL) Splash_Remove.sh "$(CURDIR)/debian/bootsplash/usr/bin"
 
 
 # Build architecture-independent files here.
