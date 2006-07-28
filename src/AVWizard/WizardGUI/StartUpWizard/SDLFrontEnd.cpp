@@ -13,7 +13,7 @@ SDLFrontEnd::SDLFrontEnd()
 		printf("TTF_Init: %s\n", TTF_GetError());
 		Wizard::GetInstance()->SetExitWithCode(-1);
 		return;
-	}
+	} 
 
 	CurrentFont = NULL;
 	Display = NULL;
@@ -91,45 +91,6 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 	Screen = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 24, 0, 0, 0, 0);
 
 	return 0;
-}
-
-void SDLFrontEnd::Arrows()
-{
-
-	int Width = Screen->w;
-	int Height = Screen->h;
-
-
-	SDL_Rect RectCorner;
-	RectCorner.w = 8;
-	RectCorner.h = 8;
-
-	RectCorner.x = 0;
-	RectCorner.y = 0;
-	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 0, 0, 255));
-	RectCorner.x = Width - 8;
-	RectCorner.y = Height - 8;
-	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 0, 0, 255));
-	RectCorner.x = 0;
-	RectCorner.y = Height - 8;
-	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 0, 0, 255));
-	RectCorner.x = Width - 8;
-	RectCorner.y = 0;
-	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 0, 0, 255));
-
-
-	RectCorner.x = 8;
-	RectCorner.y = 8;
-	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 255, 0, 255));
-	RectCorner.x = Width - 16;
-	RectCorner.y = Height - 16;
-	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 255, 0, 255));
-	RectCorner.x = Width - 16;
-	RectCorner.y = 8;
-	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 255, 0, 255));
-	RectCorner.x = 8;
-	RectCorner.y = Height - 16;
-	SDL_FillRect(Screen, &RectCorner, SDL_MapRGBA(Screen->format, 255, 255, 0, 255));
 }
 
 void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
@@ -238,6 +199,11 @@ int SDLFrontEnd::PaintFont(char* Text,
 						   TColorDesc Color,
 						   int Mode)
 {
+	if(CurrentFont == NULL)
+	{
+		std::cout<<"Warning: there is no font setup for rendering!"<<std::endl;
+		return -1;
+	}
 	SDL_Color SDL_color;
 
 	SDL_color.r = Color.GetRed();
@@ -373,3 +339,39 @@ int SDLFrontEnd::GetScreenHeight()
 {
 	return Display->h;
 }
+
+void SDLFrontEnd::FillRectangle(int Left, int Top, int Width, int Height, TColorDesc Color)
+{
+	SDL_Rect Rect;
+	Rect.x = Left;
+	Rect.y = Top;
+	Rect.w = Width;
+	Rect.h = Height;
+
+	SDL_FillRect(Screen, &Rect, SDL_MapRGBA(Screen->format, Color.GetRed(),
+		Color.GetGreen(),
+		Color.GetBlue(),
+		255));
+
+}
+
+void SDLFrontEnd::HLine(int Left, int Width, int Top, TColorDesc Color)
+{
+	FillRectangle(Left, Top, Width, 1, Color);
+}
+
+void SDLFrontEnd::VLine(int Left, int Top, int Height, TColorDesc Color)
+{
+	FillRectangle(Left, Top, 1, Height, Color);
+}
+
+void SDLFrontEnd::Rectangle(int Left, int Top, int Width, int Height, TColorDesc Color)
+{
+	HLine(Left, Width, Top, Color);
+	HLine(Left, Width, Top+Height-1, Color);
+
+	VLine(Left, Top, Height, Color);
+	VLine(Left + Width - 1, Top, Height, Color);
+
+}
+

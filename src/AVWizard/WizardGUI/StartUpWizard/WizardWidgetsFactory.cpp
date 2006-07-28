@@ -8,19 +8,21 @@
 #include "WizardWidgetListBox.h"
 #include "WizardWidgetButton.h"
 #include "WizardWidgetContainer.h"
+#include "WizardWidgetScrollList.h"
 //---------------------------------------------------------------------------
 WizardWidgetsFactory* WizardWidgetsFactory::Instance = NULL;
 //---------------------------------------------------------------------------
 WizardWidgetsFactory::WizardWidgetsFactory()
 {
 	FrontEnd = NULL;
-    WidgetTypes["Page"] = WIDGET_PAGE;
+    	WidgetTypes["Page"] = WIDGET_PAGE;
 	WidgetTypes["Image"] = WIDGET_IMAGE;
 	WidgetTypes["Background"] = WIDGET_BACKGROUND;
 	WidgetTypes["Label"] = WIDGET_LABEL;
 	WidgetTypes["ListBox"] = WIDGET_LISTBOX;
 	WidgetTypes["Button"] = WIDGET_BUTTON;
 	WidgetTypes["Container"] = WIDGET_CONTAINER;	
+	WidgetTypes["ScrollList"] = WIDGET_SCROLLLIST;
 }
 //---------------------------------------------------------------------------
 WizardWidgetsFactory* WizardWidgetsFactory::GetInstance()
@@ -49,6 +51,8 @@ WizardWidgetBase* WizardWidgetsFactory::CreateWidget(int ID, std::string Name)
 			return new WizardWidgetButton(FrontEnd, Name);
 		case WIDGET_CONTAINER:
 			return new WizardWidgetContainer(FrontEnd, Name);
+		case WIDGET_SCROLLLIST:
+			return new WizardWidgetScrollList(FrontEnd, Name);
 	}
 	return NULL;
 }

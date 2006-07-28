@@ -12,15 +12,18 @@
 
 #include "SkinGenerator.h"
 
+
+
 WizardPageVideoResolution::WizardPageVideoResolution(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
 	Selected = NULL;
-	PreviousResolution = "640x480";
+	Sleeper = NULL;
 }
 
 WizardPageVideoResolution::~WizardPageVideoResolution(void)
 {
+	delete Sleeper;
 }
 
 
@@ -28,134 +31,88 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 {
 	if(Dictionary == NULL)
 		return -1;
-
-	WizardWidgetListBox* ResListBox = dynamic_cast<WizardWidgetListBox*> 
-		(Page->GetChildRecursive("ListBox1"));
-
-	Dictionary->Set("VideoResolution", ResListBox->GetCaption());
-
-	WizardWidgetListBox* RefreshListBox = dynamic_cast<WizardWidgetListBox*> 
-		(Page->GetChildRecursive("ListBox2"));
-
-	Dictionary->Set("VideoRefresh", RefreshListBox->GetCaption());
-
-	Dictionary->Set("ResolutionSelected", Selected->GetName() == "ListBox1" );
+	if (Selected->GetName() == "BackBtn")
+	{
+		return 1;
+	}
 
 	return 0;
 }
 
 /*virtual*/ void WizardPageVideoResolution::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
-	this->GlobalSettings = AVWizardSettings;
-	WizardWidgetListBox* ResListBox = dynamic_cast<WizardWidgetListBox*> 
-		(Page->GetChildRecursive("ListBox1"));
+	Selected = dynamic_cast<WizardWidgetButton*>
+		(Page->GetChildRecursive("BackBtn"));
+	if(Selected == NULL)
+	{
+		std::cout<<"Warning, no back button!";
+		return;
+	}
+	Selected->SetFocus(true);
+	int Seconds = Utils::StringToInt32(SkinGenerator::Instance()->WaitForAcceptResolution);
+	if(!Seconds)
+		Seconds = 3;
 
-	std::string ResolutionStr = "640x480";
-	if(AVWizardSettings->Exists("VideoResolution"))
-		ResolutionStr =  AVWizardSettings->GetValue("VideoResolution");
+	Sleeper = new VideoResolutionSecondSleeper(Seconds);
+	WizardWidgetLabel* Label = dynamic_cast<WizardWidgetLabel*>
+		(Page->GetChildRecursive("CounterLabel"));
+	Sleeper->SetLabel(Label);
 	
-	ResListBox->SetCaption(ResolutionStr);
-
-	WizardWidgetListBox* RefreshListBox = dynamic_cast<WizardWidgetListBox*> 
-		(Page->GetChildRecursive("ListBox2"));
-
-	std::string RefreshStr = "60Hz";
-	if(AVWizardSettings->Exists("VideoRefresh"))
-		RefreshStr =  AVWizardSettings->GetValue("VideoRefresh");
-	
-	RefreshListBox->SetCaption(RefreshStr);
-	
-	
-	if(AVWizardSettings->Exists("PreviousResolution"))
-		PreviousResolution = AVWizardSettings->GetValue("PreviousResolution");
-
-	bool IsSelectedResolutionListBox = Utils::StringToInt32(AVWizardSettings->GetValue("ResolutionSelected"));
-	ResListBox->SetFocus(IsSelectedResolutionListBox);
-	RefreshListBox->SetFocus(!IsSelectedResolutionListBox);
-	if(IsSelectedResolutionListBox)
-		Selected = ResListBox;
-	else
-		Selected = RefreshListBox;
 }
 
 /*virtual*/ void WizardPageVideoResolution::DoIncreaseSetting()
 {
-	DoApplySetting(GlobalSettings);
-	WM_Event Event;
-	Event.Save();
-	Wizard::GetInstance()->GenerateCustomEvent(Event);
-
-	std::string ListBoxName = Selected->GetName();
-	#ifdef DEBUG
-	std::cout<<"Caption: "<<Selected->GetName()<<std::endl;
-	#endif
-	if (ListBoxName == "ListBox1")
+	if(Selected)
+		Selected->SetFocus(false);
+	Selected = dynamic_cast<WizardWidgetButton*>
+		(Page->GetChildRecursive("ContinueBtn"));
+	if(Selected == NULL)
 	{
-		#ifdef DEBUG
-		std::cout<<SkinGenerator::Instance()->CommandSetResolutionPlus<<std::endl;
-		#endif
-		system(SkinGenerator::Instance()->CommandSetResolutionPlus.c_str());
+		std::cout<<"Warning, no continue button!";
+		return;
 	}
-	else
-	{
-		#ifdef DEBUG
-		std::cout<<SkinGenerator::Instance()->CommandSetRefreshPlus<<std::endl;
-		#endif
-		system(SkinGenerator::Instance()->CommandSetRefreshPlus.c_str());
-	}
-
+	Selected->SetFocus(true);
 }
 
 /*virtual*/ void WizardPageVideoResolution::DoDecreaseSetting()
 {
-	DoApplySetting(GlobalSettings);
+	if(Selected)
+		Selected->SetFocus(false);
+	Selected = dynamic_cast<WizardWidgetButton*>
+		(Page->GetChildRecursive("BackBtn"));
+	if(Selected == NULL)
+	{
+		std::cout<<"Warning, no back button!";
+		return;
+	}
+	Selected->SetFocus(true);
+
+}
+
+VideoResolutionSecondSleeper::VideoResolutionSecondSleeper(int Seconds)
+	: ThreadSleeper(Seconds)
+{
+}
+
+void VideoResolutionSecondSleeper::SecondTick()
+{
+	if(!Label)
+	{
+		std::cout<<"VideoResolutionSecondSleeper::SecondTick Warning! No label = nothing to draw";
+		return;
+	}
+	int Seconds = GetSecondRemaining();
+	std::string LabelCaption = Utils::Int32ToString(Seconds);
+	Label->SetCaption(LabelCaption);
 	WM_Event Event;
-	Event.Save();
-	Wizard::GetInstance()->GenerateCustomEvent(Event);
-
-	std::string ListBoxName = Selected->GetName();
-	#ifdef DEBUG
-	std::cout<<"Caption: "<<Selected->GetName()<<std::endl;
-	#endif
-	if (ListBoxName == "ListBox1")
-	{
-		#ifdef DEBUG
-		std::cout<<SkinGenerator::Instance()->CommandSetResolutionMinus<<std::endl;
-		#endif
-		system(SkinGenerator::Instance()->CommandSetResolutionMinus.c_str());
-	}
+	if(Seconds)
+		Event.DownKey();
 	else
-	{
-		#ifdef DEBUG
-		std::cout<<SkinGenerator::Instance()->CommandSetRefreshMinus<<std::endl;
-		#endif
-		system(SkinGenerator::Instance()->CommandSetRefreshMinus.c_str());
-	}
+		Event.EscapeKey();
+	Wizard::GetInstance()->GenerateCustomEvent(Event);
 }
 
-/*virtual*/ void WizardPageVideoResolution::DoNextFocusItem()
+/*virtual*/ void VideoResolutionSecondSleeper::SetLabel(WizardWidgetLabel* Label)
 {
-	Selected->SetFocus(false);
-	std::string ListBoxName = "ListBox2";
-	Selected = dynamic_cast<WizardWidgetListBox*> (Page->GetChildRecursive(ListBoxName));
-	if(Selected == NULL)
-		return;
-	#ifdef DEBUG
-	std::cout<<"Caption: "<<Selected->GetName()<<std::endl;
-	#endif
-	Selected->SetFocus(true);
-}
-
-/*virtual*/ void WizardPageVideoResolution::DoPreviousFocusItem()
-{
-	Selected->SetFocus(false);
-	std::string ListBoxName = "ListBox1";
-	Selected = dynamic_cast<WizardWidgetListBox*> (Page->GetChildRecursive(ListBoxName));
-	if(Selected == NULL)
-		return;
-	Selected->SetFocus(true);
-	#ifdef DEBUG
-	std::cout<<"Caption: "<<Selected->GetName()<<std::endl;
-	#endif
-	Selected->SetFocus(true);
+	this->Label = Label;
 }

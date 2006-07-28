@@ -3,6 +3,8 @@
 #include "SDL_image.h"
 #include "GUIWizardUtils.h"
 //---------------------------------------------------------------------------
+#include <iostream>
+//---------------------------------------------------------------------------
 
 WizardWidgetButton::WizardWidgetButton(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardWidgetBase(FrontEnd, Name)
@@ -98,19 +100,39 @@ void WizardWidgetButton::PaintNonExpandedButton(
 	int FW2 = FontWidth / 2, FH2 = FontHeight / 2;
 
 	//Left button area
-	Src.x = 0; Src.y = 0; Src.w = BtnLeft->w; Src.h = BtnLeft->h;
-	Dest.x = Left - FW2 - Src.w; Dest.y = Top - FontHeight; Dest.w = Src.w; Dest.h = Src.h; 
-	FrontEnd->Blit(BtnLeft, Src, Dest);
+	if(BtnLeft == NULL)
+	{
+		std::cout<<"Warning: there is no surface setup for left part of button!" <<std::endl;
+	}
+	else
+	{
+		Src.x = 0; Src.y = 0; Src.w = BtnLeft->w; Src.h = BtnLeft->h;
+		Dest.x = Left - FW2 - Src.w; Dest.y = Top - FontHeight; Dest.w = Src.w; Dest.h = Src.h; 
+		FrontEnd->Blit(BtnLeft, Src, Dest);
+	}
 
 	//Right button area
-	Src.x = 0; Src.y = 0; Src.w = BtnRight->w; Src.h = BtnRight->h;
-	Dest.x = Left + FW2; Dest.y = Top - FontHeight; Dest.w = Src.w; Dest.h = Src.h; 
-	FrontEnd->Blit(BtnRight, Src, Dest);
-
+	if(BtnRight == NULL)
+	{
+		std::cout<<"Warning: there is no surface setup for right part of button!" <<std::endl;
+	}
+	else
+	{
+		Src.x = 0; Src.y = 0; Src.w = BtnRight->w; Src.h = BtnRight->h;
+		Dest.x = Left + FW2; Dest.y = Top - FontHeight; Dest.w = Src.w; Dest.h = Src.h; 
+		FrontEnd->Blit(BtnRight, Src, Dest);
+	}
 
 	//Texture area
 	int TextureLeft = Left - FW2;
 	int TextureTop = Top - FontHeight;
+	//Right button area
+	if(BtnTexture == NULL)
+	{
+		std::cout<<"Warning: there is no surface setup for texture part of button!" <<std::endl;
+		return;
+	}
+
 	int XSteps = FontWidth/BtnTexture->w + 1;
 	int YSteps = BtnLeft->h/BtnTexture->h + 1;
 	for(x = 0; x < XSteps; x++)

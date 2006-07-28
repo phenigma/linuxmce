@@ -6,13 +6,25 @@
 
 #include "WizardPage.h"
 
-#include "WizardWidgetListBox.h"
+#include "WizardWidgetLabel.h"
+#include "WizardWidgetButton.h"
+#include "ThreadSleeper.h"
+
+class VideoResolutionSecondSleeper : public ThreadSleeper
+{
+	WizardWidgetLabel* Label;
+public:
+	VideoResolutionSecondSleeper(int Seconds);
+	virtual void SecondTick();
+	virtual void SetLabel(WizardWidgetLabel* Label);
+};
 
 class WizardPageVideoResolution :
 	public WizardPage
 {
-	WizardWidgetListBox* Selected;
+	WizardWidgetButton* Selected;
 	SettingsDictionary* GlobalSettings;
+	VideoResolutionSecondSleeper* Sleeper;
 
 	std::string PreviousResolution;
 public:
@@ -23,8 +35,6 @@ public:
 
 	virtual void DoIncreaseSetting();
 	virtual void DoDecreaseSetting();
-	virtual void DoNextFocusItem();
-	virtual void DoPreviousFocusItem();
 
 	WizardPageVideoResolution(SDLFrontEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageVideoResolution();

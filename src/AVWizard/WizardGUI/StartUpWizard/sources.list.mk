@@ -35,6 +35,7 @@ WizardWidgetImage.cpp \
 WizardWidgetLabel.cpp \
 WizardWidgetListBox.cpp \
 WizardWidgetPage.cpp \
+WizardWidgetScrollList.cpp \
 WizardWidgetsFactory.cpp \
 WM_Event.cpp \
 XRandrParser.cpp \
@@ -52,5 +53,6 @@ XinePlayer.cpp \
 SocketRemoteServer.cpp \
 SocketRemoteClient.cpp \
 SafetyLock.cpp \
+ThreadSleeper.cpp \
 SkinGenerator.cpp \
 XUtilities.cpp 

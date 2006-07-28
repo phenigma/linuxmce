@@ -27,5 +27,7 @@ class Utils
 
 		static TColorDesc* StringToColorDesc(std::string String);
 };
+
+void Sleep(int Miliseconds);
 //---------------------------------------------------------------------------
 #endif

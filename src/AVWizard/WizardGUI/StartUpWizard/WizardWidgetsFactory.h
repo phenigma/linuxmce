@@ -14,6 +14,7 @@
 #define WIDGET_LABEL		5
 #define WIDGET_BUTTON		6
 #define WIDGET_CONTAINER	7
+#define WIDGET_SCROLLLIST	8
 //---------------------------------------------------------------------------
 #include <map>
 #include <string>

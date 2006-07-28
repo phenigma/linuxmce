@@ -57,8 +57,8 @@ void GenerateWizardConfigDefaults::GenerateDefaults(std::string FolderToSave)
 
 	PageNames[0] = "Welcome.xml";
 	PageNames[1] = "VideoRatio.xml";
-	PageNames[2] = "VideoOutput.xml";
-	PageNames[3] = "VideoResolution.xml";
+	PageNames[2] = "VideoResolution.xml";
+	PageNames[3] = "VideoOutput.xml";
 	PageNames[4] = "VideoAdjustSize.xml";
 	PageNames[5] = "AudioConnector.xml";
 	PageNames[6] = "AudioVolume.xml";
@@ -214,11 +214,67 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 	Container = GenerateTabContainer(0, ImageFolder, FontFolder);
 	Page->AddChild(Container);
 
-	//Create an image control that shows a perfect square
+	std::string StringList[4];
+	StringList[0] = "Select the appropiate resolution that you consider";
+	StringList[1] = "is best for your machine";
+	StringList[2] = "After you choose one press \"Enter\"";
+
+	SettingsDictionaryTree* BackgroundControl = CreateControlBackground("Gray", "(none)", 0, 0);
+	std::string Color = SkinGenerator::Instance()->BackgroundColor;
+	BackgroundControl->GetDictionary()->Set("Color", Color);
+	Page->AddChild(BackgroundControl);
+	
+	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
+	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
+
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
+	for(int i = 0; i<3; i++)
+	{
+		Page->AddChild(CreateControlLabel(
+			"DescribeText"+Utils::Int32ToString(i),
+			StringList[i],
+			320,
+			200+i*15,
+			"Center"
+			));
+	}
+
+
+	Page->AddChild(CreateControlScrollList("ResolutionScroll",
+		80, 260,
+		200, 140,
+		"409B40",
+		"009B00",
+		"409B40",
+		"009B00",
+		false));
+
+	Page->AddChild(CreateControlScrollList("RefreshScroll",
+		340, 260,
+		200, 140,
+		"409B40",
+		"009B00",
+		"409B40",
+		"009B00",
+		false));
+
+	DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;
+/*	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
+
+	Page->GetDictionary()->Set("NoResolutions", 5);
+	Page->GetDictionary()->Set("Res1", "640x480");
+	Page->GetDictionary()->Set("Res2", "641x480");
+	Page->GetDictionary()->Set("Res3", "642x480");
+	Page->GetDictionary()->Set("Res4", "643x480");
+	Page->GetDictionary()->Set("Res5", "644x480");
+*/
+
+/*	//Create an image control that shows a perfect square
 	Container->AddChild(CreateControlImage("SquareImage", ImageFolder+"square.png", 175, 170));
 
 	//Create an image control that shows a perfect circle
 	Container->AddChild(CreateControlImage("CircleImage", ImageFolder+"circle.png", 320, 170));
+
 
 	//Create text area
 	std::string StringList[6];
@@ -230,8 +286,6 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 	StringList[4] = "What type of TV do you have?";
 	StringList[5] = "Press the cursor left for 4:3, and right for 16:9";
 
-	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
-	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
 
 	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
 	for(int i = 0; i<4; i++)
@@ -276,6 +330,7 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 		0,
 		true
 		));
+*/
 
 
 	Page->SaveToXMLFile(PageNames[1]);
@@ -300,12 +355,121 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 	Dictionary->Set("Width", 640);
 	Dictionary->Set("Height", 480);
 	Dictionary->Set("Fullscreen", 1);
+	Dictionary->Set("Caption", "AVWizard Configurator");
+
+	Container = GenerateTabContainer(1, ImageFolder, FontFolder);
+	Page->AddChild(Container);
+	SettingsDictionaryTree* BackgroundControl = CreateControlBackground("Gray", "(none)", 0, 0);
+	BackgroundControl->GetDictionary()->Set("Color", SkinGenerator::Instance()->BackgroundColor);
+	Page->AddChild(BackgroundControl);
+	
+	//Create text area
+	std::string StringList[10];
+	StringList[0] = "Here are the appropiate resolutions for your TV. The lowest resolution is on";
+	StringList[1] = "the left, and the highest resolution is on the right. Use the left and the right arrows";
+	StringList[2] = "to select the resolution you want to use. The higher the resolution, in other";
+	StringList[3] = "words the futher right, the sharper the picture. However if you move to the";
+	StringList[4] = "right and the picture dissapears, that probably means your TV is not able to";
+	StringList[5] = "support that high of the resolution, and you should move to the left to select a";
+	StringList[6] = "lower resolution again.";
+	StringList[7] = "If you are an advanced user you can use the up and down arrow to adjust the";
+	StringList[8] = "refresh rate. Use the left and right arrows to adjust the resolution, and press";
+	StringList[9] = "enter when you're satisfied with the results.";
+
+
+	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
+	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
+
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
+	for(int i = 0; i<3; i++)
+	{
+		Container->AddChild(CreateControlLabel(
+				"DescribeText"+Utils::Int32ToString(i),
+				StringList[i],
+				320,
+				175+i*15,
+				"Center"
+			));
+	}
+/*
+	Page->AddChild(CreateControlListBox(
+			"ListBox1",
+			"640x480",
+			320, 350,
+			110, 335,
+			false
+		));
+
+	Page->AddChild(CreateControlListBox(
+		"ListBox2",
+		"75 Hz",
+		320, 390,
+		110, 335,
+		false
+		));
+
+	*/
+	int CounterFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->CounterFontSize);
+	if (CounterFontSize == 0)
+	{
+		std::cout<<"Warning, CoutnerFontSize not set!"<<std::endl;
+		CounterFontSize = 55;
+	}
+
+	SetFontStyle(CounterFontSize, DefaultFontColor, "Regular");
+
+	Container->AddChild(CreateControlLabel(
+			"CounterLabel",
+			" ",
+			320,
+			365,
+			"Center"
+		));
+
+
+	Page->AddChild(CreateControlButton(
+		"BackBtn",
+		" Back ",
+		65, 440,
+		0,
+		true
+		));
+
+	Page->AddChild(CreateControlButton(
+		"ContinueBtn",
+		" Continue ",
+		555, 440, 0,
+		true
+	));
+
+	Page->SaveToXMLFile(PageNames[2]);
+}
+
+void GenerateWizardConfigDefaults::GeneratePage3(
+	std::string FolderToSave, 
+	std::string ImageFolder, 
+	std::string FontFolder
+	)
+{
+	SettingsDictionaryTree* Page;
+	SettingsDictionaryTree* Container;
+	SettingsDictionary* Dictionary;
+
+	Page = new SettingsDictionaryTree();
+	Dictionary = Page->GetDictionary();
+	SetDefaultBtnImages(Dictionary, ImageFolder);
+
+	Dictionary->SetName("ScreenStep1");
+	Dictionary->SetType("Page");
+	Dictionary->Set("Width", 640);
+	Dictionary->Set("Height", 480);
+	Dictionary->Set("Fullscreen", 1);
 	Dictionary->Set("Caption", "AV Wizard Configurator");
 
 	Dictionary->Set("Picture", ImageFolder+"button_tex.png");
 
 
-	Container = GenerateTabContainer(1, ImageFolder, FontFolder);
+	Container = GenerateTabContainer(2, ImageFolder, FontFolder);
 	Page->AddChild(Container);
 
 	//Create text area
@@ -383,81 +547,6 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 			));
 	}
 
-	Page->SaveToXMLFile(PageNames[2]);
-}
-
-void GenerateWizardConfigDefaults::GeneratePage3(
-	std::string FolderToSave, 
-	std::string ImageFolder, 
-	std::string FontFolder
-	)
-{
-	SettingsDictionaryTree* Page;
-	SettingsDictionaryTree* Container;
-	SettingsDictionary* Dictionary;
-
-	Page = new SettingsDictionaryTree();
-	Dictionary = Page->GetDictionary();
-	SetDefaultBtnImages(Dictionary, ImageFolder);
-
-	Dictionary->SetName("ScreenStep1");
-	Dictionary->SetType("Page");
-	Dictionary->Set("Width", 640);
-	Dictionary->Set("Height", 480);
-	Dictionary->Set("Fullscreen", 1);
-	Dictionary->Set("Caption", "AVWizard Configurator");
-
-	Container = GenerateTabContainer(2, ImageFolder, FontFolder);
-	Page->AddChild(Container);
-	SettingsDictionaryTree* BackgroundControl = CreateControlBackground("Gray", "(none)", 0, 0);
-	BackgroundControl->GetDictionary()->Set("Color", SkinGenerator::Instance()->BackgroundColor);
-	Page->AddChild(BackgroundControl);
-	
-	//Create text area
-	std::string StringList[10];
-	StringList[0] = "Here are the appropiate resolutions for your TV. The lowest resolution is on";
-	StringList[1] = "the left, and the highest resolution is on the right. Use the left and the right arrows";
-	StringList[2] = "to select the resolution you want to use. The higher the resolution, in other";
-	StringList[3] = "words the futher right, the sharper the picture. However if you move to the";
-	StringList[4] = "right and the picture dissapears, that probably means your TV is not able to";
-	StringList[5] = "support that high of the resolution, and you should move to the left to select a";
-	StringList[6] = "lower resolution again.";
-	StringList[7] = "If you are an advanced user you can use the up and down arrow to adjust the";
-	StringList[8] = "refresh rate. Use the left and right arrows to adjust the resolution, and press";
-	StringList[9] = "enter when you're satisfied with the results.";
-
-
-	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
-	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
-
-	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
-	for(int i = 0; i<10; i++)
-	{
-		Container->AddChild(CreateControlLabel(
-				"DescribeText"+Utils::Int32ToString(i),
-				StringList[i],
-				320,
-				175+i*15,
-				"Center"
-			));
-	}
-
-	Page->AddChild(CreateControlListBox(
-			"ListBox1",
-			"640x480",
-			320, 350,
-			110, 335,
-			false
-		));
-
-	Page->AddChild(CreateControlListBox(
-		"ListBox2",
-		"75 Hz",
-		320, 390,
-		110, 335,
-		false
-		));
-
 	Page->SaveToXMLFile(PageNames[3]);
 }
 
@@ -484,7 +573,7 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 
 	Page->AddChild(CreateControlBackground("BackArrows", ImageFolder+"zoom.png", 0, 0));
 
-	Container = GenerateTabContainer(3, ImageFolder, FontFolder);
+	Container = GenerateTabContainer(4, ImageFolder, FontFolder);
 	Page->AddChild(Container);
 
 	//Create text area
@@ -1040,13 +1129,13 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 	switch(NoSelectedTab)
 	{
 		case 0:
-			LabelCaption = "VIDEO RATIO";
+			LabelCaption = "RESOLUTION SETTINGS";
 			break;
 		case 1:
-			LabelCaption = "OUTPUT CONNECTOR";
+			LabelCaption = "ACCEPT CURRENT SETTINGS?";
 			break;
 		case 2:
-			LabelCaption = "RESOLUTION AND REFRESH";
+			LabelCaption = "OUTPUT CONNECTOR";
 			break;
 		case 3:
 			LabelCaption = "ADJUST IMAGE SIZE";
@@ -1331,4 +1420,35 @@ void GenerateWizardConfigDefaults::SetDefaultBtnImages(SettingsDictionary* Dicti
 	Dictionary->Set("PictureHighArrowLeft", ImageFolder+"left_on.png");
 	Dictionary->Set("PictureHighArrowRight", ImageFolder+"right_on.png");
 
+}
+
+SettingsDictionaryTree* GenerateWizardConfigDefaults::CreateControlScrollList(
+	std::string ControlName,
+	int Left, int Top,
+	int Width, int Height,
+	std::string BackColor,
+	std::string BackFocusedColor,
+	std::string HighBackColor,
+	std::string HighBackFocusedColor,
+	bool Focused
+)
+{
+	SettingsDictionaryTree* Result  = new SettingsDictionaryTree();
+	SettingsDictionary* Dictionary = Result->GetDictionary();
+
+	Dictionary->SetName(ControlName);
+	Dictionary->SetType("ScrollList");
+	Dictionary->Set("Left", Left);
+	Dictionary->Set("Top", Top);
+	Dictionary->Set("Width", Width);
+	Dictionary->Set("Height", Height);
+	Dictionary->Set("BackColor", BackColor);
+
+	Dictionary->Set("ScrollFocused", Focused);
+	Dictionary->Set("ScrollBackFocusedColor", BackFocusedColor);
+
+	Dictionary->Set("ScrollHighlightFocused", HighBackColor);
+	Dictionary->Set("ScrollHighlightBackFocusedColor", HighBackFocusedColor);
+
+	return Result;
 }

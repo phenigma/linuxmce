@@ -13,7 +13,7 @@ WizardWidgetBackground::WizardWidgetBackground(SDLFrontEnd* FrontEnd, std::strin
 	Left = 0;
 	Width = -1;
 	Height = -1;
-	Color = NULL;
+	Color = Utils::StringToColorDesc("009D00");
 }
 
 WizardWidgetBackground::~WizardWidgetBackground()

@@ -38,8 +38,6 @@ class SDLFrontEnd
 	 */
 	int PaintFont(char* Text, int Top, int Left, 
 		TColorDesc Color, int Mode);
-	void Arrows();
-
 	bool NeedUpdateScreen, NeedUpdateBack;
 public:
 
@@ -61,6 +59,25 @@ public:
 
 	int TextOutput(char* Text, int Left, int Top, TColorDesc Color, int Mode);
 
+	//Drawing routines
+	/**
+	 *	Fills a rectangle with a specified color
+	 */
+	void FillRectangle(int Left, int Top, int Width, int Height, TColorDesc Color);
+	/**
+	 *	Horizontal line
+	 */
+	void HLine(int Left, int Width, int Top, TColorDesc Color);
+	/**
+	 *	Vertical line
+	 */
+	void VLine(int Left, int Top, int Height, TColorDesc Color);
+	
+	/**
+	 *	Draws a rectangle
+	 */
+	void Rectangle(int Left, int Top, int Width, int Height, TColorDesc Desc);
+
 	/**
 	 *	Says the width in pixels of rendering text
 	 */
@@ -81,7 +98,9 @@ public:
 	 *	Paints a surface in the background and will not be in the zoomable area
 	 */
 	void BackBlit(SDL_Surface* Surface, SDL_Rect SrcRect, SDL_Rect DestRect);
-	void BackFillColor(TColorDesc* Color);	
+	void BackFillColor(TColorDesc* Color);
+
+
 };
 
 #endif /*SDLFRONTEND_H_*/

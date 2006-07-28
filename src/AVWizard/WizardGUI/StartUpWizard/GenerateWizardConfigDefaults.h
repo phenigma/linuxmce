@@ -97,6 +97,17 @@ class GenerateWizardConfigDefaults
 		bool FullScreen,
 		std::string Caption);
 
+	SettingsDictionaryTree* CreateControlScrollList(
+		std::string ControlName,
+		int Left, int Top,
+		int Width, int Height,
+		std::string BackColor,
+		std::string BackFocusedColor,
+		std::string HighBackColor,
+		std::string HighBackFocusedColor,
+		bool Focused
+	);
+
 	/**
 	 *	Adds to a specified page's dictionary default images for buttons
 	 */

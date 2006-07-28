@@ -28,8 +28,8 @@ WizardPagesFactory::WizardPagesFactory()
 
 	PageNames[0] = "Welcome.xml";
 	PageNames[1] = "VideoRatio.xml";
-	PageNames[2] = "VideoOutput.xml";
-	PageNames[3] = "VideoResolution.xml";
+	PageNames[2] = "VideoResolution.xml";
+	PageNames[3] = "VideoOutput.xml";
 	PageNames[4] = "VideoAdjustSize.xml";
 	PageNames[5] = "AudioConnector.xml";
 	PageNames[6] = "AudioVolume.xml";

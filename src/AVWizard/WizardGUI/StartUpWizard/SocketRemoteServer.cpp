@@ -15,11 +15,6 @@
 
 void signal_handler(int signal);
 
-void Sleep(int Miliseconds)
-{
-	usleep(Miliseconds*1000);
-}
-
 SocketRemoteServer::SocketRemoteServer()
 {
 	this->SocketDescriptor = 0;

@@ -95,7 +95,8 @@ Wizard::~Wizard()
 //#define DEBUG
 void Wizard::MainLoop()
 {
-	Resize(false);
+//Remove, previously done
+//	Resize(false);
 	WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
 
 	AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
@@ -114,6 +115,13 @@ void Wizard::MainLoop()
 			m_WizardRemote.Start(RemoteCmd);
 		}
 	}
+
+	AVWizardOptions->GetDictionary()->Set("NoResolutions", 5);
+	AVWizardOptions->GetDictionary()->Set("Res1", "640x480");
+	AVWizardOptions->GetDictionary()->Set("Res2", "641x480");
+	AVWizardOptions->GetDictionary()->Set("Res3", "642x480");
+	AVWizardOptions->GetDictionary()->Set("Res4", "643x480");
+	AVWizardOptions->GetDictionary()->Set("Res5", "644x480");
 
 	if(AVWizardOptions->GetDictionary()->Exists("WizardBorder"))
 	{
@@ -152,11 +160,7 @@ void Wizard::MainLoop()
 			}
 			else
 			{
-				#ifdef WIN32
-					Sleep(10);
-				#else
-					usleep(10000);
-				#endif
+				Sleep(10);
 			}
 		}
 	}
@@ -194,9 +198,11 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	if(MainPage == NULL)
 		return;
 	AVWizardOptions->LoadFromXMLFile(CmdLineParser->ConfigFileDefault);
-	MainPage->DoApplySetting(Settings);
-	delete MainPage;
+	int Result = MainPage->DoApplySetting(Settings);
+		delete MainPage;
 	MainPage = NULL;
+	if(Result != 0)
+		CurrentPage -=2;
 
 	CurrentPage ++ ;
 
@@ -500,4 +506,5 @@ bool Wizard::GetAnalogSoundMode()
 {
 	return IsAnalogSound;
 }
+
 

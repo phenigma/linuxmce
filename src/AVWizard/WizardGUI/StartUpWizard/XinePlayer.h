@@ -19,9 +19,9 @@ class XinePlayer
 	xine_stream_t       *stream;
 	xine_audio_port_t   *ao_port;
 	xine_event_queue_t  *event_queue;
-	pthread_t tid;
 	std::string FileName;
 
+	pthread_t tid;
 	pthread_mutex_t lockmutex;
 	XinePlayer();
 

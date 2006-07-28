@@ -8,12 +8,11 @@
 
 #include "SkinGenerator.h"
 
+#include <iostream>
+
 WizardPageVideoRatio::WizardPageVideoRatio(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
-	Buttons["4_3"] = 1;
-	Buttons["16_9"] = 2;
-	OutputValue = "4_3";
 	Selected = NULL;
 }
 
@@ -25,79 +24,115 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 {
 	if(Dictionary == NULL || Selected == NULL)
 		return -1;
-	if(Selected->GetName() == "Btn1")
-	{
-		OutputValue = "4_3";
-		system(SkinGenerator::Instance()->CommandSetRatio4_3.c_str());
-	}	
-	else
-	{
-		OutputValue = "16_9";
-		system(SkinGenerator::Instance()->CommandSetRatio16_9.c_str());
-	}
-	Dictionary->Set("Video_Ratio", OutputValue);
+	WizardWidgetScrollList* List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
+	std::string ResolutionValue = List->GetSelectedValue();
+	std::cout<<"Selected resolution is: "<< ResolutionValue;
+
+	List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"));
+	std::string RefreshValue = List->GetSelectedValue();
+	std::cout<<"Selected Refresh is: "<<RefreshValue;
+
+	Dictionary->Set("Resolution", ResolutionValue);
+	Dictionary->Set("Refresh", RefreshValue);
+
 	return 0;
 }
 
 /*virtual*/ void WizardPageVideoRatio::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
 	system(SkinGenerator::Instance()->CommandResetResolution.c_str());
-	if(!AVWizardSettings->Exists("Video_Ratio"))
+
+	WizardWidgetScrollList* List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
+	int NoResolutions = Utils::StringToInt32(AVWizardSettings->GetValue("ResolutionCount"));
+	//Resulution0 ... ResolutionN-1
+	//AspectRatio0...
+	//-> Resulution
+
+	//Comenzi: Reset la intrare in pagina
+	//La sfarsit: CommandSetResolution Resolution Refresh
+	if (NoResolutions == 0)
 	{
-		RatioMode = 0;
+		List->AddItem("640x480", "640x480");
+		List->AddItem("480p", "480p");
+		List->AddItem("800x600", "800x600");
+		List->AddItem("720p", "720p");
+		List->AddItem("1024x768", "1024x768");
+		List->AddItem("1280x1024", "1280x1024");
+		List->AddItem("1080i", "1080i");
+		List->AddItem("1080p", "1080p");
+		List->AddItem("1600x1200", "1600x1200");
 	}
 	else
 	{
-		OutputValue = AVWizardSettings->GetValue("Video_Ratio");
-		RatioMode = (OutputValue == "4_3");
+		std::string ResolutionIdentifier = "Resolution";
+		std::string AspectRatioIdentifier = "AspectRatio";
+		
+		for(int i = 0; i<NoResolutions; i++)
+		{
+			std::string ItemCaption, ItemValue;
+			ItemValue = AVWizardSettings->GetValue(ResolutionIdentifier +
+				Utils::Int32ToString(i) );
+			ItemCaption = ItemValue;
+			ItemCaption = ItemCaption + " (" + AVWizardSettings->GetValue(AspectRatioIdentifier +
+				Utils::Int32ToString(i) ) + ")";
+			List->AddItem( ItemCaption, ItemValue);
+		}
 	}
+	List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
+	if(AVWizardSettings->Exists("Resolution"))
+	{
+		std::string ResolutionValue = AVWizardSettings->GetValue("Resolution");
+		List->SetItemIndex(ResolutionValue);
+	}
+	else
+		List->SetItemIndex(0);
+	
+	List->SetFocus(true);
 
-	Wizard::GetInstance()->Resize(false);
 
-	SearchSelectedItem();
+	List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"));
+	List->AddItem("50", "50");
+	List->AddItem("60", "60");
+	List->AddItem("65", "65");
+	List->AddItem("70", "70");
+	List->AddItem("75", "75");
+	List->AddItem("80", "80");
+	List->AddItem("85", "85");
+	List->SetFocus(false);
+
+	if(AVWizardSettings->Exists("Refresh"))
+	{
+		std::string RefreshValue = AVWizardSettings->GetValue("Refresh");
+		List->SetItemIndex(RefreshValue);
+	}
+	else
+		List->SetItemIndex(0);
+
+
+
+	Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
 }
 
 void WizardPageVideoRatio::DoIncreaseSetting()
 {
-	std::string IndexText = Utils::CopyStr(Selected->GetName().c_str(), 3, 1);
-	int ButtonIndex = Utils::StringToInt32(IndexText);
-	if(ButtonIndex == 2)
-		return;
 	Selected->SetFocus(false);
-	ButtonIndex++;
-	std::string ButtonName = "Btn"+Utils::Int32ToString(ButtonIndex);
-	Selected = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive(ButtonName));
-	Selected->SetFocus(true);	
+	Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"));
+	Selected->SetFocus(true);
 }
 
 void WizardPageVideoRatio::DoDecreaseSetting()
 {
-	std::string IndexText = Utils::CopyStr(Selected->GetName().c_str(), 3, 1);
-	int ButtonIndex = Utils::StringToInt32(IndexText);
-	if(ButtonIndex == 1)
-		return;
 	Selected->SetFocus(false);
-	ButtonIndex--;
-	std::string ButtonName = "Btn"+Utils::Int32ToString(ButtonIndex);
-	Selected = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive(ButtonName));
+	Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
 	Selected->SetFocus(true);
 }
 
-
-/*virtual*/ void WizardPageVideoRatio::SearchSelectedItem()
+/*virtual*/ void WizardPageVideoRatio::DoNextFocusItem()
 {
-	int ButtonIndex = Buttons[OutputValue];
-	if(ButtonIndex == 0)
-		return;
-	std::string ButtonName = "Btn"+Utils::Int32ToString(ButtonIndex);
-	WizardWidgetButton* Btn43, *Btn169;
-	Btn43 = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive("Btn1"));
-	Btn169 = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive("Btn2"));
-	Btn43->SetFocus(false);
-	Btn169->SetFocus(false);
-	if(ButtonIndex == 1)
-		Selected = Btn43;
-	else
-		Selected = Btn169;
-	Selected->SetFocus(true);	
+	Selected->SetItemIndex(Selected->GetItemIndex()+1);
+}
+
+/*virtual*/ void WizardPageVideoRatio::DoPreviousFocusItem()
+{
+	Selected->SetItemIndex(Selected->GetItemIndex()-1);
 }

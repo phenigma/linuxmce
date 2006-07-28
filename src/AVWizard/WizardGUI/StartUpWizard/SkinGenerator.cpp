@@ -58,6 +58,8 @@ void SkinGenerator::SetSkinEnvironment(std::string SkinName)
 	CommandSetAudioConnector = "/usr/pluto/bin/AVWizard_AudioConnector.sh";
 	
 	BackgroundColor = "000000";
+
+	WaitForAcceptResolution = "15";
 }
 
 void SkinGenerator::SaveSkin(std::string XMLFile)
@@ -102,6 +104,8 @@ void SkinGenerator::SaveSkin(std::string XMLFile)
 	Dictionary->Set("ButtonTextHighlightFontSize", MiniTitleFontSize);
 
 	Dictionary->Set("BackgroundColor", BackgroundColor);
+
+	Dictionary->Set("WaitForAcceptResolution", WaitForAcceptResolution);
 
 	Config.SaveToXMLFile(XMLFile);
 }
@@ -173,6 +177,9 @@ void SkinGenerator::GetEnvironment()
 
 	if(Dictionary->Exists("BackgroundColor"))
 		BackgroundColor = Dictionary->GetValue("BackgroundColor");
+
+	if(Dictionary->Exists("WaitForAcceptResolution"))
+		WaitForAcceptResolution = Dictionary->GetValue("WaitForAcceptResolution");
 }
 
 /*static*/ SkinGenerator* SkinGenerator::Instance_ = NULL;

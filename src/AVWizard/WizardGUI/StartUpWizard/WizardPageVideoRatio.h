@@ -6,7 +6,7 @@
 
 #include "WizardPage.h"
 
-#include "WizardWidgetButton.h"
+#include "WizardWidgetScrollList.h"
 
 #include <map>
 #include <string>
@@ -18,7 +18,7 @@ class WizardPageVideoRatio :
 
 	std::string OutputValue;
 
-	WizardWidgetButton* Selected;
+	WizardWidgetScrollList* Selected;
 	int RatioMode;
 
 	void SearchSelectedItem();
@@ -29,6 +29,9 @@ public:
 
 	virtual void DoIncreaseSetting();
 	virtual void DoDecreaseSetting();
+	virtual void DoNextFocusItem();
+	virtual void DoPreviousFocusItem();
+
 
 	WizardPageVideoRatio(SDLFrontEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageVideoRatio(void);

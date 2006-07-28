@@ -99,3 +99,7 @@
     return Result;
 }
 
+void Sleep(int Miliseconds)
+{
+	usleep(Miliseconds*1000);
+}
