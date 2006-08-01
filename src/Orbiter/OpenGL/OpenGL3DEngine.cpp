@@ -85,8 +85,10 @@ bool OpenGL3DEngine::Paint()
 	GL.EnableZBuffer(false);
 
 	Compose->Paint();
+	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint before highlight");
 	if(HighLightFrame)
 	{
+		g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint after highlight");
 		Point3D Color;
 		Color.X = 1.0f;
 		Color.Y = 1.0f;
@@ -252,7 +254,6 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 		return;
 
 	Compose->UpdateLayers(CurrentLayer, OldLayer);
-	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight");
 	MeshBuilder MB;
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
 	MeshTransform Transform;
@@ -288,13 +289,8 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 
 	MB.AddVertexFloat(1, 1, 0);
 
-	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step4");
-	UnHighlight();
-	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step5");
-
-	HighLightFrame = new MeshFrame();
-	Transform.ApplyScale(1.2f, 1.2f, 1.2f);
-	Transform.ApplyTranslate(-0.1f, -0.1f, 0.1f);
+	//Transform.ApplyScale(1.2f, 1.2f, 1.2f);
+	//Transform.ApplyTranslate(-0.1f, -0.1f, 0.1f);
 	Transform.ApplyScale(
 		float(HightlightArea->Width),
 		float(HightlightArea->Height),
@@ -303,11 +299,18 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 		float(HightlightArea->Left()),
 		float(HightlightArea->Top()),
 		0.f);
-	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step6");
+
+	MeshContainer* Container = MB.End();
+	UnHighlight();
+
+	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight: %d %d %d %d",
+		HightlightArea->Left(), HightlightArea->Top(), 
+		HightlightArea->Width, HightlightArea->Height);
+
+	HighLightFrame = new MeshFrame();
 
 	HighLightFrame->SetTransform(Transform);
-	HighLightFrame->SetMeshContainer(MB.End());
-	CurrentLayer->AddChild(HighLightFrame);
+	HighLightFrame->SetMeshContainer(Container);
 }
 
 /*virtual*/ void OpenGL3DEngine::UnHighlight()
@@ -316,6 +319,7 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 
 	if(NULL != HighLightFrame)
 	{
+		g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
 		CurrentLayer->RemoveChild(HighLightFrame);
 		HighLightFrame->CleanUp();
 
