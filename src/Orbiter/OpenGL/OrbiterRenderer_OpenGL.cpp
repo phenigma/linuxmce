@@ -96,7 +96,8 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 }	
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : 
-	OrbiterRenderer(pOrbiter), Mutex("open gl"), Engine(NULL), NeedToUpdateScreen_(false)
+	OrbiterRenderer(pOrbiter), Mutex("open gl"), Engine(NULL), NeedToUpdateScreen_(false),
+	m_bWindowCreated(false)
 {
 	std::cout << "*** OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL()" << std::endl;
 	GLThread = 0;
@@ -130,11 +131,23 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::PostInitializeActions()
 {
-	if(!IsWindowCreated())
+	g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions");
+	
+	if(!OrbiterLogic()->m_bQuit && !IsWindowCreated())
 	{
+		g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions waiting the window to be created...");
+		
 		//wait here until the window will be created
 		PLUTO_SAFETY_LOCK_ERRORSONLY(cm, Mutex);// Keep this locked to protect the map
+		cm.CondWait();
+		g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions window created!");
 	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions window already created!");
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions END");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::GetWindowPosition(PlutoPoint& point)

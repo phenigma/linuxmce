@@ -312,24 +312,32 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 		pCLinux->Initialize(gtSDLGraphic);
+		g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter logic initialized!");
 
 		if (!bLocalMode)
 		{
 			pCLinux->CreateChildren();
 			pCLinux->WaitForRelativesIfOSD();
 		}
+
+		if(!pCLinux->m_bQuit)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "About to initialize after relatives...");
         
-		OrbiterRenderer_Linux *pOrbiterRenderer_Linux = dynamic_cast<OrbiterRenderer_Linux *>(pCLinux->Renderer());
-		if(pOrbiterRenderer_Linux != NULL)
-			pOrbiterRenderer_Linux->InitializeAfterRelatives();
+			OrbiterRenderer_Linux *pOrbiterRenderer_Linux = dynamic_cast<OrbiterRenderer_Linux *>(pCLinux->Renderer());
+			if(pOrbiterRenderer_Linux != NULL)
+			{
+				pOrbiterRenderer_Linux->InitializeAfterRelatives();
+			}
 
-		g_pPlutoLogger->Write(LV_STATUS, "Creating the simulator");
-		Simulator::GetInstance()->m_pOrbiter = pCLinux;
+			g_pPlutoLogger->Write(LV_STATUS, "Creating the simulator");
+			Simulator::GetInstance()->m_pOrbiter = pCLinux;
 
-		if(Simulator::GetInstance()->m_bEnableGenerator)
-			Simulator::GetInstance()->StartRandomEventGenerator();
+			if(Simulator::GetInstance()->m_bEnableGenerator)
+				Simulator::GetInstance()->StartRandomEventGenerator();
 
-		return pCLinux;
+			return pCLinux;
+		}
 	}
 	delete pCLinux;
 	return NULL;
