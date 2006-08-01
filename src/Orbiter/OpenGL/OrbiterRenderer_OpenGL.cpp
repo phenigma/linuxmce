@@ -51,6 +51,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 		pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
 		g_pPlutoLogger->Write(LV_CRITICAL, "Thread -- GL.InitVideoMode FAILED");
 		pOrbiterRenderer->OrbiterLogic()->OnReload();
+		pOrbiterRenderer->PromptUser("Orbiter failed to setup the transparency. Please check if the transparency manager is running!", 300);
 		return NULL;
 	}
 	else 
@@ -561,11 +562,12 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderScreen(bool bRenderGraphicsOnly)
 {
+	if(OrbiterLogic()->m_bQuit)
+		return; //we are about to quit
+	
 	if(OrbiterLogic()->m_pObj_SelectedLastScreen)
 		m_spPendingGLEffects->m_nOnSelectWithChangeEffectID = 
 		OrbiterLogic()->m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange;
-
-
 
 	int OffScreenTransition = m_spPendingGLEffects->m_nOffScreenTransitionEffectID;
 	int OnScreenTransition = m_spPendingGLEffects->m_nOnScreenTransitionEffectID;

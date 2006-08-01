@@ -236,6 +236,9 @@ bool OrbiterLinux::X11_Exit()
 Display * OrbiterLinux::GetDisplay()
 {
     //m_pX11 should be created by now
+	if(NULL == m_pX11)
+		return NULL;
+
     return m_pX11->GetDisplay();
 }
 

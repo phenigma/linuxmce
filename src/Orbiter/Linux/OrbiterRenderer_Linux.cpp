@@ -67,6 +67,12 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 		pOrbiterLinux->m_bIsExclusiveMode = true;
 
 		{
+			if(pOrbiterLinux->GetDisplay())
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "The display is not available");
+				return;
+			}
+			
 			X11_Locker lock(pOrbiterLinux->GetDisplay());
 			BASE_CLASS::RenderScreen(bRenderGraphicsOnly);
 			XFlush(pOrbiterLinux->GetDisplay()); // TODO: test and remove this

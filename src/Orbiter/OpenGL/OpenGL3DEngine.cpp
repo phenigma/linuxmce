@@ -135,7 +135,10 @@ void OpenGL3DEngine::NewScreen()
 
 	CurrentLayerObjects_.clear();
 	CurrentLayer = new MeshFrame();
-	Compose->UpdateLayers(CurrentLayer, OldLayer);
+	
+	if(NULL != Compose)
+		Compose->UpdateLayers(CurrentLayer, OldLayer);
+	
 	Desktop.AddChild(CurrentLayer);
 	
 	Desktop.RemoveChild(OldLayer);
