@@ -1301,7 +1301,7 @@ bool ScreenHandler::FileSave_GridSelected(CallBackData *pData)
 				sSaveFile_RelativeFolder = ".";
 			else
 			{
-				int len = sSaveFile_MountedFolder.length();
+				size_t len = sSaveFile_MountedFolder.length();
 				if(len < sSaveFile_RelativeFolder.length())
 				{
 					string sTemp = sSaveFile_RelativeFolder;

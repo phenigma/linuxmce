@@ -359,6 +359,9 @@ Orbiter::~Orbiter()
 		SendCommand( CMD_Orbiter_Registered );
 	}
 
+	delete m_pOrbiterRenderer;
+	m_pOrbiterRenderer = NULL;
+
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 	DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
 	for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
@@ -475,9 +478,6 @@ Orbiter::~Orbiter()
 
 	if(m_pScreenHandler)
 		delete m_pScreenHandler;
-
-	delete m_pOrbiterRenderer;
-	m_pOrbiterRenderer = NULL;
 
 	vm.Release();
 	pthread_mutexattr_destroy(&m_MutexAttr);
@@ -2549,6 +2549,12 @@ if(UsesUIVersion2())
 		bShowCursor=!bShowCursor;
 		m_pMouseBehavior->ShowMouse(bShowCursor);
 	}
+
+	if(event.type == Orbiter::Event::BUTTON_DOWN && !bSkipProcessing && NULL != m_pMouseBehavior)
+		bSkipProcessing=m_pMouseBehavior->ButtonDown(event.data.button.m_iPK_Button);
+	if(event.type == Orbiter::Event::BUTTON_UP && !bSkipProcessing && NULL != m_pMouseBehavior)
+		bSkipProcessing=m_pMouseBehavior->ButtonUp(event.data.button.m_iPK_Button);
+
 }
 #endif
 
