@@ -67,7 +67,7 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 		pOrbiterLinux->m_bIsExclusiveMode = true;
 
 		{
-			if(pOrbiterLinux->GetDisplay())
+			if(NULL == pOrbiterLinux->GetDisplay())
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "The display is not available");
 				return;
