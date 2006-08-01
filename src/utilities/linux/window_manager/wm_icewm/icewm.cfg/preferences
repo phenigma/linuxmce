@@ -227,7 +227,7 @@ TaskBarShowTray=1 # 0/1
 TrayShowAllWindows=1 # 0/1
 
 #  Show windows from all workspaces on task bar
-TaskBarShowAllWindows=0 # 0/1
+TaskBarShowAllWindows=1 # 0/1
 
 #  Show icons of windows on the task bar
 TaskBarShowWindowIcons=1 # 0/1
@@ -939,10 +939,10 @@ LabelFontNameXft="sans-serif:size=12"
 ColorDialog="rgb:C0/C0/C0"
 
 #  Border of inactive windows
-ColorNormalBorder="rgb:C0/C0/C0"
+ColorNormalBorder="rgb:00/00/00"
 
 #  Border of active windows
-ColorActiveBorder="rgb:C0/C0/C0"
+ColorActiveBorder="rgb:00/00/00"
 
 #  Background of regular buttons
 ColorNormalButton="rgb:C0/C0/C0"
@@ -1044,7 +1044,7 @@ ColorQuickSwitchText="rgb:00/00/00"
 ColorQuickSwitchActive=""
 
 #  Background of the taskbar
-ColorDefaultTaskBar="rgb:C0/C0/C0"
+ColorDefaultTaskBar="rgb:00/00/00"
 
 #  Background for task buttons of regular windows
 ColorNormalTaskBarApp="rgb:C0/C0/C0"
@@ -1065,10 +1065,10 @@ ColorMinimizedTaskBarApp="rgb:A0/A0/A0"
 ColorMinimizedTaskBarAppText="rgb:00/00/00"
 
 #  Background for task buttons of windows on other workspaces
-ColorInvisibleTaskBarApp="rgb:80/80/80"
+ColorInvisibleTaskBarApp="rgb:40/40/40"
 
 #  Textcolor for task buttons of windows on other workspaces
-ColorInvisibleTaskBarAppText="rgb:00/00/00"
+ColorInvisibleTaskBarAppText="rgb:80/80/80"
 
 #  Scrollbar background (sliding area)
 ColorScrollBar="rgb:A0/A0/A0"
@@ -1190,7 +1190,7 @@ SupportSemitransparency=1 # 0/1
 DesktopBackgroundScaled=1 # 0/1
 
 #  Desktop background color
-DesktopBackgroundColor="rgb:00/20/40"
+DesktopBackgroundColor="rgb:00/00/00"
 
 #  Desktop background image
 DesktopBackgroundImage=""
