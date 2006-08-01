@@ -191,7 +191,7 @@ public:
     bool Mouse_Constrain_ReactivateIfActive();
     bool Mouse_IsConstrainActive();
     Window Mouse_Constrain_GetWindow();
-    
+
     /// graphics
 
     // XFreePixmap should be called
@@ -237,6 +237,22 @@ protected:
     };
     Info_Mouse_Constrain previous_mouse_constrain;
 
+    /// shape extension
+public:
+    bool Extension_Shape_IsAvailable();
+    bool Extension_Shape_GetVersion_Major();
+    bool Extension_Shape_GetVersion_Minor();
+    bool Window_Shape_Reset(Window window);
+    bool Window_Shape_Hide(Window window);
+
+protected:
+    bool Extension_Shape_Initialize();
+
+    int v_bExtension_Shape_IsInitialized;
+    bool v_bExtension_Shape_IsAvailable;
+    int v_nExtension_Shape_Version_Major;
+    int v_nExtension_Shape_Version_Minor;
+
     /// debug
 public:
     Window Debug_Window(bool bCreate_NotClose=true);
@@ -245,13 +261,12 @@ public:
     bool AfterFunction_Set();
     bool AfterFunction_Restore();
 
-protected:
     X_AfterFunction v_pOld_X_AfterFunction;
     bool v_bIsChanged_X_AfterFunction;
 
-    // not yet finished
+    /// not yet finished
 public:
-    bool Window_Shape(Window window, bool bOn, unsigned char nAlphaThreshold=128);
+    bool Window_Shape_Alpha(Window window, unsigned char nAlphaThreshold=128);
 
     // XDestroyImage should be called
     XImage * Window_GetImage(Window window, bool bOnlyMask=false);
