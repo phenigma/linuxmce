@@ -310,12 +310,6 @@ for Client in $R; do
 		echo -n " apt"
 		sed 's/localhost/dcerouter/g' /etc/apt/apt.conf.d/30pluto > $DlPath/etc/apt/apt.conf.d/30pluto
 
-		## Setup debconf to go noninteractive
-		echo " debconf"
-		awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Noninteractive"; else print; next}
-			{print}' $DlPath/var/cache/debconf/config.dat > $DlPath/var/cache/debconf/config.dat.$$
-		mv $DlPath/var/cache/debconf/config.dat.$$ $DlPath/var/cache/debconf/config.dat
-
 		echo 
 
 		## Setup cronjob daily for ntpdate

@@ -117,9 +117,14 @@ Upgrade_Monster()
 		done
 		popd
 
+		local PkgList
+		PkgList=()
 		for Pkg in $NeededReq; do
-			chroot . dpkg -i -GE ./tmp/$Pkg*.deb
+			PkgList=("${PkgList[@]}" $(echo -n ./tmp/${Pkg}_*.deb))
 		done
+		if [[ "${#PkgList[@]}" -gt 0 ]]; then
+			chroot . dpkg -i -GE "${PkgList[@]}"
+		fi
 
 		rm -f tmp/*.deb 2>/dev/null
 
@@ -132,7 +137,9 @@ Upgrade_Essential()
 {
 	shopt -s nullglob
 	# TODO: don't do anything (i.e. also skip download) for packages that match the requirements
-	local Requirements="initrd-netboot-tools=0.5.3cvs.20040906-16
+	local Requirements="
+		locales
+		initrd-netboot-tools=0.5.3cvs.20040906-16
 		e2fsprogs=1.37-2sarge1
 		e2fslibs=1.37-2sarge1
 		libc6=2.3.2.ds1-22
@@ -143,6 +150,8 @@ Upgrade_Essential()
 		busybox-cvs-static
 		libklibc
 		klibc-utils
+		libvolume-id0
+		udev=0.086-1
 		initramfs-tools
 	"
 	local NeededReq=""
@@ -226,6 +235,15 @@ SuppressModules="ide-generic"
 for Module in $SuppressModules; do
 	sed -i "/$Module/ d" "$DlPath"/etc/modules
 done
+
+# Use core's locale
+cp /etc/locale.gen "$DlPath"/etc/
+
+## Setup debconf interface to 'noninteractive'
+echo "Setting Debconf interface to 'Noninteractive'"
+awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Noninteractive"; else print; next}
+	{print}' "$DlPath"/var/cache/debconf/config.dat >"$DlPath"/var/cache/debconf/config.dat.$$
+mv "$DlPath"/var/cache/debconf/config.dat{.$$,}
 
 # Pre-upgrade some packages
 set -x
