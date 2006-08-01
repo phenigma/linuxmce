@@ -68,7 +68,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		$deviceDisabled=$row['Disabled'];
 		$IsIPBased=$row['IsIPBased'];
 		$dcID=$row['FK_DeviceCategory'];
-		//$helpDocument=$row['FK_Document'];
+
 		$coreSystemLog=($row['FK_DeviceCategory']==$GLOBALS['CategoryCore'])?'&nbsp;&nbsp;&nbsp;<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.'&system_log=1\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">System log</a>':'';
 
 		// if the device is child of DCE router, append DCE router device ID to logs url to be able to use DCE router log instead of plugin log
