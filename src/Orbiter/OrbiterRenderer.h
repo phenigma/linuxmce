@@ -206,6 +206,11 @@ public:
 	virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic);
 
 	/**
+	 * Any post install actions here	
+	 */
+	virtual void PostInitializeActions() {}
+
+	/**
 	* @brief takes out the specified object from screen
 	* @param pObj the object to remove from screen
 	*/

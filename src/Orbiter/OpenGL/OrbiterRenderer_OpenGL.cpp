@@ -60,9 +60,11 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 
 	pOrbiterRenderer->InitializeAfterSetVideoMode();
 	pOrbiterRenderer->SetupWindow();
+	pOrbiterRenderer->WindowCreated();
 
 	pOrbiterRenderer->Engine->Setup();
 
+	//wake up every one. the window is created and ready to be used
 	pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
 	pOrbiterRenderer->Engine->Paint();
 
@@ -124,6 +126,15 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(cm, Mutex);// Keep this locked to protect the map
 	cm.CondWait();
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_OpenGL::PostInitializeActions()
+{
+	if(!IsWindowCreated())
+	{
+		//wait here until the window will be created
+		PLUTO_SAFETY_LOCK_ERRORSONLY(cm, Mutex);// Keep this locked to protect the map
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::GetWindowPosition(PlutoPoint& point)

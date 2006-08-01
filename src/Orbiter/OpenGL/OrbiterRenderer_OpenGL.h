@@ -17,7 +17,7 @@ namespace DCE
 		pthread_t GLThread;
 		bool NeedToUpdateScreen_;
 		std::auto_ptr<PendingGLEffects> m_spPendingGLEffects;
-
+		bool m_bWindowCreated;
 
 	public:
 
@@ -74,6 +74,21 @@ namespace DCE
 
 		void WakeupFromCondWait();
 		void OnIdle();
+
+		/**
+		 *	Notify Orbiter Renderer that OpenGL windows was created	
+		 */
+		void WindowCreated() { m_bWindowCreated = true; }
+
+		/**
+		 *  Window creation status
+		 */
+		bool IsWindowCreated() { return m_bWindowCreated; }
+
+		/**
+		* Any post install actions here	
+		*/
+		virtual void PostInitializeActions();
 
 		/**
 		* @brief initialize other classes, after the video mode was changed

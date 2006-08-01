@@ -2008,6 +2008,8 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			m_pScreenHistory_Current->GetObj()->m_rPosition.Height);
 
 		m_bStartingUp=false;
+
+		m_pOrbiterRenderer->PostInitializeActions();
 	}
 }
 
