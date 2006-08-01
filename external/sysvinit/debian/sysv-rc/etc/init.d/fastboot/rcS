@@ -91,20 +91,52 @@ Message "Enable swaping"
 /sbin/swapon -a > /dev/null
 
 ## Check Filesystem
-Message "Checkeing Filesystem"
-#etc/init.d/checkroot.sh start
 grep -qi " fsck " /proc/cmdline || grep -qi " fsck$" /proc/cmdline
 fsckRequested=$?
-if [[ ! -f /fastboot || $fsckRequested -eq 0 ]] ;then
-	if [[ -f /forcefsck || $fsckRequested -eq 0 ]] ;then
-		force='-f'
-	else
-		force=''
-	fi
 
-	fsck -C -A -a $force 
+if [[ $fsckRequested -eq 0 ]] ;then
+	Message "Checking Filesystem"
 
-	if [ $? -gt 1 ] ;then
+	## Run fsck in backround and make it display the
+	## progress in a pipe and the err code in a temp file
+	rm -f /dev/fsck_pipe
+	mknod /dev/fsck_pipe p
+	Fsck() {
+		exec 7>/dev/fsck_pipe	
+		fsck -C7 -A -a -f
+		echo $?>/dev/fsck_err
+	}
+	Fsck &
+	exec 8</dev/fsck_pipe
+	
+	## Read the progress from the pipe and display it in bootsplash
+	disk_no=0
+	while read -u 8 p_stage p_current p_total garbage ;do
+		pfsck_stage=$(( 100 * $p_current / $p_total ))
+		pfsck_total=$(( ($p_stage-1) * 20 + $pfsck_stage / 5 ))
+
+		
+		if [[ "$old_stage" != "$p_stage" ]] ;then
+			old_stage=$p_stage;
+			
+			if [[ "$p_stage" == "1" ]] ;then
+				disk_no=$(( disk_no + 1 ))
+			fi
+		fi
+
+		if [[ "$(date +%s)" != "$old" ]] ;then
+
+        		echo "show $(( 65534 * ( $progress + 1) / 28 + 1 ))" > /proc/splash
+
+			progress=$(( $progress - 1 ));
+			Message "Checking Filesystem [ $pfsck_total% of Disk $disk_no ]"
+			old=$(date +%s)
+		fi
+	done
+
+	## See if the check was ok else drop the user in a console
+	fsck_err=$(cat /dev/fsck_err)
+	if [ $fsck_err -gt 1 ] ;then
 		echo
 		echo "fsck failed. Please repair manualy."
 		echo
@@ -167,13 +199,9 @@ if [ -x /sbin/sysctl -a -r /etc/sysclt.conf ] ;then
 	/sbin/sysctl -e -p /etc/sysctl.conf > /dev/null
 fi
 
-## Check all non-root filesystems
-Message "Check/Mount all local non-root filesystems"
-if [ ! -r /etc/fastboot  ]; then
-	/sbin/fsck $force -C -R -A -a
-fi
-
 ## Mount all local non root filsystems except /proc witch was allready mounted
+Message "Mounting local filesystems"
+
 /bin/mount -a -v -t nonfs,nosmbfs,noproc > /dev/null
 
 ## Create /tmp/{.ICE-unix, .X11-unix} if they are not present
