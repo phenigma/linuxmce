@@ -179,6 +179,9 @@ done
 
 trap 'Unlock "CDC" "Config_Device_Changes"' EXIT
 WaitLock "CDC" "Config_Device_Changes" # don't run two copies of CDC simultaneously
+
+/usr/pluto/bin/InstallMissingSoftware.sh
+
 if [[ "$NoVideo" != "y" ]]; then
 	CleanupVideo
 fi
