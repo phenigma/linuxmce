@@ -546,9 +546,11 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 			(PK_Direction==DIRECTION_Left_CONST && rect.Left()>=rectCurrent.Left()) )
 			continue;
 
-		int Direction_Primary,Direction_Secondary,Distance;
-		PlutoPoint pp=p->m_pMidPoint+p->m_pPopupPoint;
-		(pObjCurrent->m_pMidPoint+pObjCurrent->m_pPopupPoint).RelativePosition(pp,Direction_Primary,Direction_Secondary,Distance);
+		int Direction_Primary = 0,Direction_Secondary = 0,Distance = 0;
+
+		PlutoPoint CandidateObjectPosition = p->m_pMidPoint + p->m_pPopupPoint;
+		PlutoPoint CurrentObjectPosition = pObjCurrent->m_pMidPoint + pObjCurrent->m_pPopupPoint;
+		CurrentObjectPosition.RelativePosition(CandidateObjectPosition, Direction_Primary, Direction_Secondary, Distance);
 
 		if( Direction_Primary==PK_Direction )
 		{
@@ -561,6 +563,7 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 				Test_Distance_Primary=(pObjCurrent->m_rPosition.Y+pObjCurrent->m_pPopupPoint.Y)-(p->m_rPosition.Bottom()+p->m_pPopupPoint.Y);
 			else if( PK_Direction==DIRECTION_Down_CONST )
 				Test_Distance_Primary=(p->m_rPosition.Y+p->m_pPopupPoint.Y)-(pObjCurrent->m_rPosition.Bottom()+pObjCurrent->m_pPopupPoint.Y);
+			
 			if(Test_Distance_Primary+Distance<Distance_Primary || Distance_Primary==-1)
 			{
 				Distance_Primary=Test_Distance_Primary+Distance;
@@ -571,6 +574,13 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 		{
 			Distance_Secondary=Distance;
 			pObj_Secondary=p;
+		}
+
+		//ok, not a primary as best direction, but maybe a good candidate for its second direction?
+		if(Direction_Primary!=PK_Direction && Distance < Distance_Primary)
+		{
+			Distance_Primary = Distance;
+			pObj_Primary=p;
 		}
 	}
 
