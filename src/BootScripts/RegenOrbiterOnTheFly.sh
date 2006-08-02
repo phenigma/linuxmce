@@ -20,7 +20,7 @@ if [ "$1" = "0" ]; then
 	AND Device.FK_Installation=$PK_Installation"
 else
 	Q="SELECT Device.PK_Device FROM Device
-	WHERE PK_Device=$1"
+	WHERE PK_Device in ($1)"
 fi
 
 Orbiters=$(echo "$Q;" | /usr/bin/mysql -h $MySqlHost pluto_main | tail +2 | tr '\n' ' ')

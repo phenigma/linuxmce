@@ -374,7 +374,7 @@ bool Orbiter_Plugin::PendingTasks(vector<string> *vectPendingTasks)
 	g_pPlutoLogger->Write(LV_STATUS,"Cannot reboot m_listRegenCommands %d pending %p",(int) m_listRegenCommands.size(),vectPendingTasks);
 
 	for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
-		g_pPlutoLogger->Write(LV_STATUS,"m_listRegenCommands %d",*it);
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::PendingTasks m_listRegenCommands %d",*it);
 
 	if( vectPendingTasks )
 	{
@@ -1152,12 +1152,12 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 		ProcessUtils::SpawnDaemon(args[0], args);
 
 		m_listRegenCommands.push_back(PK_Device);
-		g_pPlutoLogger->Write(LV_STATUS,"Executing regen now m_listRegenCommands is: %d",(int) m_listRegenCommands.size());
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_New_Orbiter Executing regen PK_Device: %d now m_listRegenCommands is: %d",PK_Device,(int) m_listRegenCommands.size());
 	}
 	else
 		g_pPlutoLogger->Write(LV_STATUS,"Already generating %d",iPK_Device);
 
-	g_pPlutoLogger->Write(LV_STATUS,"now pending jobs size is m_listRegenCommands: %d",(int) m_listRegenCommands.size());
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_New_Orbiter now pending jobs size is m_listRegenCommands: %d",(int) m_listRegenCommands.size());
 	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
 		g_pPlutoLogger->Write(LV_STATUS,"Still generating m_listRegenCommands %d",*it);
 
@@ -1748,6 +1748,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d set follow me to %s for user %d",iPK
 void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sReset,string &sCMD_Result,Message *pMessage)
 //<-dceag-c266-e->
 {
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Starting regen orbiter for %d reset: %s with m_listRegenCommands %d size",iPK_Device,sReset.c_str(),(int) m_listRegenCommands.size());
 	if( sReset.size() && (sReset[0]=='Y' || sReset[0]=='1') )
 	{
 		if( !m_pRouter->RequestReload(pMessage->m_dwPK_Device_From) )
@@ -1760,7 +1761,8 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 		m_pRouter->Reload();
 		return;
 	}
-g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with m_listRegenCommands %d size",(int) m_listRegenCommands.size());
+
+	string sOrbiterList;
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
     for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
     {
@@ -1798,8 +1800,11 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with m_listRegenCommands
 
 		if( iPK_Device==0 && !IsRegenerating(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) ) //we'll regen all of them
 		{
+			if( sOrbiterList.size() )
+				sOrbiterList += ",";
+			sOrbiterList += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			m_listRegenCommands.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-			g_pPlutoLogger->Write(LV_STATUS,"Added %d to m_listRegenCommands %d size",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,(int) m_listRegenCommands.size());
+			g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter iPK_Device==0 Added %d to m_listRegenCommands %d size",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,(int) m_listRegenCommands.size());
 		}
 	}
 
@@ -1808,17 +1813,17 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with m_listRegenCommands
 		if( iPK_Device )
 		{
 			m_listRegenCommands.push_back(iPK_Device);
-			g_pPlutoLogger->Write(LV_STATUS,"Added %d to m_listRegenCommands %d size",iPK_Device,(int) m_listRegenCommands.size());
+			g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Added %d to m_listRegenCommands %d size",iPK_Device,(int) m_listRegenCommands.size());
 		}
 
-		char * args[] = { "/usr/pluto/bin/RegenOrbiterOnTheFly.sh", (char *)(StringUtils::itos(iPK_Device).c_str()),
+		char * args[] = { "/usr/pluto/bin/RegenOrbiterOnTheFly.sh", iPK_Device ? (char *)(StringUtils::itos(iPK_Device).c_str()) : (char *) sOrbiterList.c_str(),
 			(char *)(StringUtils::itos(m_dwPK_Device).c_str()), (char *)(sForce.c_str()), NULL };
 		ProcessUtils::SpawnDaemon(args[0], args);
 
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Execution returned");
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Execution returned for %d",iPK_Device);
 	}
 	else
-		g_pPlutoLogger->Write(LV_STATUS,"Already generating %d",iPK_Device);
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Already generating %d",iPK_Device);
 }
 
 //<-dceag-c267-b->
@@ -1834,7 +1839,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 	g_pPlutoLogger->Write(LV_STATUS,"Got a CMD_Regen_Orbiter_Finished");
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Regen finished for: %d m_listRegenCommands size is: %d",iPK_Device,(int) m_listRegenCommands.size());
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter_Finished Regen finished for: %d m_listRegenCommands size is: %d",iPK_Device,(int) m_listRegenCommands.size());
 	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
 	{
 		if(*it == iPK_Device)
