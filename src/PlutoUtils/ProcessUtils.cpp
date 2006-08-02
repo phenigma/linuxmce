@@ -23,6 +23,7 @@
 using namespace std;
 
 #include "StringUtils.h"
+#include "FileUtils.h"
 
 namespace ProcessUtils
 {
@@ -360,10 +361,17 @@ bool ProcessUtils::GetCommandOutput(const char * path, char * args[], string & s
 }
 
 // SpawnPaenguin
-bool ProcessUtils::SpawnDaemon(const char * path, char * args[])
+bool ProcessUtils::SpawnDaemon(const char * path, char * args[], bool bLogOutput)
 {
 #ifndef WIN32
 	int pid;
+
+	{
+		string sArgs;
+		for (int i = 0; args[i] != NULL; i++)
+			sArgs += string("") + args[i] + ",";
+		printf("ProcessUtils::SpawnDaemon: path=%s; args=%s\n", path, sArgs.c_str());
+	}
 
 	switch (pid = fork())
 	{
@@ -372,11 +380,34 @@ bool ProcessUtils::SpawnDaemon(const char * path, char * args[])
 			switch (pid = fork())
 			{
 				case 0: /* daemon */
-					dup2(open("/dev/null", O_RDONLY), 0);
-					dup2(open("/dev/null", O_WRONLY), 1);
-					dup2(open("/dev/null", O_WRONLY), 2);
+				{ // start of variable scope limitation
+					string sAppIdentifier = FileUtils::FilenameWithoutPath(path);
+					string sLogFile;
+					if (bLogOutput)
+					{
+						sLogFile = string("") + "/var/log/pluto/SpawnDaemon_" + sAppIdentifier + "_" + StringUtils::itos(getpid()) + ".log";
+					}
+					else
+					{
+						sLogFile = "/dev/null";
+					}
+
+					// NEVER dup(open(...))!!! You lose the filedescriptor from open and that may cause problems in the child
+					
+					// redirect process output to log file, as selected above
+					int fd = open(sLogFile.c_str(), O_WRONLY | O_CREAT);
+					dup2(fd, 1);
+					dup2(fd, 2);
+					close(fd);
+
+					// get process input from /dev/null, to properly create a daemon
+					fd = open("/dev/null", O_RDONLY);
+					dup2(fd, 0);
+					close(fd);
+
 					execv(path, args);
 					_exit(254);
+				} // end of variable scope limitation
 					break;
 				case -1: /* failed to spawn daemon */
 					_exit(254);

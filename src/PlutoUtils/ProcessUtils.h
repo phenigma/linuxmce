@@ -35,7 +35,7 @@ namespace ProcessUtils
 	bool GetCommandOutput(const char * path, char * args[], string & sOutput);
 
 	/** Execute a daemon (paenguin?) - i.e. run it in the background and disown it */
-	bool SpawnDaemon(const char * path, char * args[]);
+	bool SpawnDaemon(const char * path, char * args[], bool bLogOutput = true);
 
 	// This is used to get elapsed time in milliseconds for quick comparissons.
 	// clock is no good because it's only CPU time, not actual time.  timespec
