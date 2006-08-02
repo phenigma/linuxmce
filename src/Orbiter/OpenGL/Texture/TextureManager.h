@@ -26,9 +26,6 @@ class TextureManager
 	std::queue <OpenGLGraphic*> WaitForConvert;
 	std::queue <OpenGLGraphic*> WaitForRelease;
 
-	//helper methods
-	bool CheckExtension(const GLubyte* extensions, const char* checkFor);
-
 public:
 	static TextureManager* Instance();
 	virtual ~TextureManager(void);

@@ -9,8 +9,8 @@
 
 #include <SDL.h>
 #include <GL/gl.h>
-//#include <GL/glext.h>
 #include <GL/glu.h>
+#include <GL/glext.h>
 
 #include "Mesh/MeshPainter.h"
 
@@ -144,4 +144,11 @@ void ExtensionManager::Resize(int Width, int Height)
 /*virtual*/ void ExtensionManager::Setup()
 {
 	MeshPainter::Instance()->Setup(this);
+}
+
+/*static*/ bool ExtensionManager::CheckExtension(const char* checkFor)
+{
+	const GLubyte* extensions = glGetString(GL_EXTENSIONS);
+	string sExtensions(reinterpret_cast<const char *>(extensions));
+	return sExtensions.find(checkFor) != string::npos;
 }

@@ -22,7 +22,8 @@ public:
 
 	virtual bool InitVideoMode(int Width, int Height, int Bpp, bool FullScreen);
 	virtual void Setup();
-	
+
+	static bool CheckExtension(const char* checkFor);
 };
 
 

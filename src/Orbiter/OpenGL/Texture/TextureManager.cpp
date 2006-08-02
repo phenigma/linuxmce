@@ -1,7 +1,7 @@
 #include "TextureManager.h"
+#include "../ExtensionManager.h"
 
 #include <GL/gl.h>
-#include <GL/glext.h>
 
 #include "../OpenGLGraphic.h"
 
@@ -24,13 +24,6 @@ TextureManager::TextureManager(void)
 
 TextureManager::~TextureManager(void)
 {
-}
-
-bool TextureManager::CheckExtension(const GLubyte* extensions, const char* checkFor)
-{
-	//char *endOfStr;	
-	string sExtensions(reinterpret_cast<const char *>(extensions));
-	return sExtensions.find(checkFor) != string::npos;
 }
 
 /*static*/ void TextureManager::SetupTexture(OpenGLTexture Texture)
@@ -118,9 +111,10 @@ bool TextureManager::SupportTextureNonPowerOfTwo()
 	if(SupportTextureNonPowerOfTwo_ == -1)
 	{
 		SupportTextureNonPowerOfTwo_ = 
-			CheckExtension(glGetString(GL_EXTENSIONS), "ARB_texture_rectangle") || 
-			CheckExtension(glGetString(GL_EXTENSIONS), "ARB_texture_non_power_of_two");
+			ExtensionManager::CheckExtension("ARB_texture_rectangle") || 
+			ExtensionManager::CheckExtension("ARB_texture_non_power_of_two");
 	}
 
 	return SupportTextureNonPowerOfTwo_ > 0;
 }
+
