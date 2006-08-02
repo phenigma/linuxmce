@@ -1816,8 +1816,10 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 			g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Added %d to m_listRegenCommands %d size",iPK_Device,(int) m_listRegenCommands.size());
 		}
 
-		char * args[] = { "/usr/pluto/bin/RegenOrbiterOnTheFly.sh", iPK_Device ? (char *)(StringUtils::itos(iPK_Device).c_str()) : (char *) sOrbiterList.c_str(),
-			(char *)(StringUtils::itos(m_dwPK_Device).c_str()), (char *)(sForce.c_str()), NULL };
+		// construct strings outside of array initializer so they don't destroy after the array is initialized, leaving us with invalid pointers
+		string sThingsToRegen = iPK_Device ? (char *)(StringUtils::itos(iPK_Device).c_str()) : (char *) sOrbiterList.c_str();
+		string sOrbiter = StringUtils::itos(m_dwPK_Device).c_str();
+		char * args[] = { "/usr/pluto/bin/RegenOrbiterOnTheFly.sh", (char*)(sThingsToRegen.c_str()), (char *)(sOrbiter.c_str()), (char *)(sForce.c_str()), NULL };
 		ProcessUtils::SpawnDaemon(args[0], args);
 
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Execution returned for %d",iPK_Device);
