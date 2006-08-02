@@ -572,7 +572,7 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 
 	Page->AddChild(CreateControlBackground("BackArrows", ImageFolder+"zoom.png", 0, 0));
 
-	Container = GenerateTabContainer(4, ImageFolder, FontFolder);
+	Container = GenerateTabContainer(3, ImageFolder, FontFolder);
 	Page->AddChild(Container);
 
 	//Create text area
@@ -719,7 +719,7 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 	Page->AddChild(CreateControlButton(
 		"Btn1",
 		"Analog Stereo",
-		142, 285,
+		105, 285,
 		0,
 		true
 		));
@@ -727,7 +727,7 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 	Page->AddChild(CreateControlButton(
 		"Btn2",
 		"SPDIF Coaxial",
-		315, 285,
+		265, 285,
 		0,
 		true
 		));
@@ -735,7 +735,15 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 	Page->AddChild(CreateControlButton(
 		"Btn3",
 		"SPDIF Optical",
-		490, 285,
+		420, 285,
+		0,
+		true
+		));
+
+	Page->AddChild(CreateControlButton(
+		"Btn4",
+		"No sound",
+		550, 285,
 		0,
 		true
 		));

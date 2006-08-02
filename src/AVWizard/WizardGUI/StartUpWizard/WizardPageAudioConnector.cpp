@@ -17,6 +17,7 @@ WizardPageAudioConnector::WizardPageAudioConnector(SDLFrontEnd* FrontEnd, std::s
 	Buttons["Analog Stereo"] = 1;
 	Buttons["SPDIF Coaxial"] = 2;
 	Buttons["SPDIF Optical"] = 3;
+	Buttons["No sound"] = 4;
 	OutputValue = "SPDIF Optical";
 	Selected = NULL;
 }
@@ -36,9 +37,19 @@ WizardPageAudioConnector::~WizardPageAudioConnector(void)
 	OutputValue = Selected->GetCaption();
 	Dictionary->Set("AudioConnector", OutputValue);
 	Wizard::GetInstance()->SetAnalogSoundMode(Buttons[OutputValue] == 1);
-	std::string Command = SkinGenerator::Instance()->CommandSetAudioConnector;
-	Command = Command + " '" + OutputValue + "'";
-	system(Command.c_str());
+	if(Buttons[OutputValue] == 4)
+		Dictionary->Set("NoAudioDevice", 1);
+	else
+	{
+		std::string Command = SkinGenerator::Instance()->CommandSetAudioConnector;
+		
+		Command = Command + " '" + OutputValue + "'";
+		system(Command.c_str());
+		Dictionary->Set("NoAudioDevice", 0);
+	}
+
+	
+
 	return 0;
 }
 
@@ -63,7 +74,7 @@ WizardPageAudioConnector::~WizardPageAudioConnector(void)
 #endif
 	std::string IndexText = Utils::CopyStr(Selected->GetName().c_str(), 3, 1);
 	int ButtonIndex = Utils::StringToInt32(IndexText);
-	if(ButtonIndex == 3)
+	if(ButtonIndex == 4)
 		return;
 	Selected->SetFocus(false);
 	ButtonIndex++;

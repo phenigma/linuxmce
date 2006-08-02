@@ -22,8 +22,9 @@
 #include "SafetyLock.h"
 #include "GenerateWizardConfigDefaults.h"
 #include "WizardPageVideoAdjustSize.h"
-
+#ifdef ALSA_DETECT
 #include <alsa/asoundlib.h>
+#endif
 
 #ifndef WIN32
 void signal_handler(int signal)
@@ -85,6 +86,8 @@ Wizard::Wizard()
 	signal(SIGPIPE, signal_handler);
 #endif
 
+	AVWizardOptions->GetDictionary()->Set("NoAudioDevice", 0);
+#ifdef ALSA_DETECT
 	int err;
 	short buf[128];
 	snd_pcm_t *playback_handle;
@@ -98,7 +101,7 @@ Wizard::Wizard()
 	}
 	else
 		snd_pcm_close(playback_handle);
-	AVWizardOptions->GetDictionary()->Set("NoAudioDevice", 1);
+#endif
 }
 
 Wizard::~Wizard()
@@ -266,15 +269,18 @@ void Wizard::DoCancelScreen()
 	MainPage = NULL;
 	if(CurrentPage == WIZARD_NO_PAGES)
 	{
-		if (IsAnalogSound)
-			CurrentPage -= 2;
+		bool IsNoAudioDevice = false;
 		if(AVWizardOptions->GetDictionary()->Exists("NoAudioDevice"))
 		{
 			std::string AudioDevice = AVWizardOptions->GetDictionary()->GetValue("NoAudioDevice");
-			bool IsAudioDevice = Utils::StringToInt32( AudioDevice);
-			if (IsAudioDevice)
+			IsNoAudioDevice = Utils::StringToInt32( AudioDevice);
+			if (IsNoAudioDevice)
 				CurrentPage-=3;
 		}
+		if(!IsNoAudioDevice)
+			if(IsAnalogSound)
+				CurrentPage -= 2;
+		
 
 	}
 	CurrentPage -- ;
