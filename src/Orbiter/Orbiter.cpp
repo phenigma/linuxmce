@@ -1741,7 +1741,7 @@ INITIALIZATION
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea )
 {
-	/*
+#ifdef WIN32
 	size_t iSize;
 	char * pData = FileUtils::ReadFileIntoBuffer("/usr/pluto/orbiter/skins/Basic/menu2/OrbiterBkg.png", iSize);
 	if (pData)
@@ -1750,7 +1750,8 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		m_pBackgroundImage->LoadGraphic(pData, iSize);
 		delete [] pData;
 	}
-	*/
+#endif
+
 	if ( !m_bQuit )
 	{
 		m_bStartingUp=true;
@@ -2451,7 +2452,9 @@ bool Orbiter::RenderDesktop( class DesignObj_Orbiter *pObj,  PlutoRectangle rect
             //color.SetAlpha(0); // full-transparency
         }
     }
+#ifndef WIN32
 	m_pOrbiterRenderer->SolidRectangle(x, y, width, height, color);
+#endif
 	return true;
 }
 
