@@ -23,6 +23,8 @@
 #include "GenerateWizardConfigDefaults.h"
 #include "WizardPageVideoAdjustSize.h"
 
+#include <alsa/asoundlib.h>
+
 #ifndef WIN32
 void signal_handler(int signal)
 {
@@ -82,6 +84,21 @@ Wizard::Wizard()
 	signal(SIGUSR2, signal_handler);
 	signal(SIGPIPE, signal_handler);
 #endif
+
+	int err;
+	short buf[128];
+	snd_pcm_t *playback_handle;
+	snd_pcm_hw_params_t *hw_params;
+
+	if ((err = snd_pcm_open (&playback_handle, "hw:0,0", SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
+		fprintf (stderr, "cannot open audio device %s (%s)\n",
+				"hw:0,0",
+				snd_strerror (err));
+		AVWizardOptions->GetDictionary()->Set("NoAudioDevice", 1);
+	}
+	else
+		snd_pcm_close(playback_handle);
+	AVWizardOptions->GetDictionary()->Set("NoAudioDevice", 1);
 }
 
 Wizard::~Wizard()
@@ -206,10 +223,20 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 
 	CurrentPage ++ ;
 
+	if(CurrentPage == 7)
+	{
+		if(AVWizardOptions->GetDictionary()->Exists("NoAudioDevice"))
+		{
+			std::string AudioDevice = AVWizardOptions->GetDictionary()->GetValue("NoAudioDevice");
+			bool IsAudioDevice = Utils::StringToInt32( AudioDevice);
+			if (IsAudioDevice)
+				CurrentPage+=3;
+		}
+	}
+
 	if (CurrentPage == 8)
 		if(IsAnalogSound)
 			CurrentPage += 2;
-
 	if(CurrentPage == WIZARD_NO_PAGES+1)
 	{
 		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
@@ -238,8 +265,18 @@ void Wizard::DoCancelScreen()
 	delete MainPage;
 	MainPage = NULL;
 	if(CurrentPage == WIZARD_NO_PAGES)
+	{
 		if (IsAnalogSound)
 			CurrentPage -= 2;
+		if(AVWizardOptions->GetDictionary()->Exists("NoAudioDevice"))
+		{
+			std::string AudioDevice = AVWizardOptions->GetDictionary()->GetValue("NoAudioDevice");
+			bool IsAudioDevice = Utils::StringToInt32( AudioDevice);
+			if (IsAudioDevice)
+				CurrentPage-=3;
+		}
+
+	}
 	CurrentPage -- ;
 	CreateDialogs();
 	StatusChange = true;
