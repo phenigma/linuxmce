@@ -1271,7 +1271,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butAVOutputs_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
+				string sModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
 				if(sModel == "")
 					return true;
 
