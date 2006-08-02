@@ -77,15 +77,15 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 			SDL_PushEvent(&SDL_Event_Pending);
 #endif			
 
-		if(pOrbiterRenderer->NeedToUpdateScreen())
-		{
-			//TODO: don't paint the screen if not needed
+		if(!pOrbiterRenderer->NeedToUpdateScreen())
+			Sleep(15);
 
-			if(!pOrbiterRenderer->Engine->NeedUpdateScreen())
-				pOrbiterRenderer->ScreenUpdated();
+		//TODO: don't paint the screen if not needed
+		if(!pOrbiterRenderer->Engine->NeedUpdateScreen())
+			pOrbiterRenderer->ScreenUpdated();
 
-			pOrbiterRenderer->Engine->Paint();
-		}
+		pOrbiterRenderer->Engine->Paint();
+
 		Sleep(15);
 	}
 
