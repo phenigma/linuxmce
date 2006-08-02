@@ -101,6 +101,9 @@ void OpenGLGraphic::Prepare()
 	if(LocalSurface == NULL)
 		return;
 
+	if(TextureManager::Instance()->SupportTextureNonPowerOfTwo())
+		return;
+
 	SDL_Surface* Surface = LocalSurface;
 	Width = GLMathUtils::MinPowerOf2(Surface->w);
 	Height = GLMathUtils::MinPowerOf2(Surface->h);
@@ -224,8 +227,6 @@ void OpenGLGraphic::Clear()
 {
 	PLUTO_SAFETY_LOCK(oglMutex, Mutex);
 
-	if (TextureManager::Instance() == NULL)
-		return;
 	TextureManager::Instance()->PrepareRelease(this);
 	if(LocalSurface != NULL)
 	{
