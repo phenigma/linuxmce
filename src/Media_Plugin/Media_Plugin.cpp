@@ -2861,7 +2861,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 	DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(iDriveID);
 	if(NULL != pDeviceData_Router && pDeviceData_Router->m_pDeviceCategory->m_dwPK_DeviceCategory != DEVICECATEGORY_Core_CONST)
 	{
-		sBasePath = "/mnt/device/" + StringUtils::ltos(iDriveID) + "/home";
+		sBasePath = "/mnt/device/" + StringUtils::ltos(iDriveID);
 	}
 
 	string sSubDir = pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "videos" : "audio";
