@@ -100,7 +100,7 @@ CleanupVideo()
 	echo "$(date -R) <-- Finding installed packages (ATI)"
 
 	echo "$(date -R) --> Finding installed packages (VIA)"
-	ATI_inst="$(InstalledPackages "${Pkgs_VIA[@]}")"
+	VIA_inst="$(InstalledPackages "${Pkgs_VIA[@]}")"
 	echo "$(date -R) --- Installed packages (VIA): " $VIA_inst
 	echo "$(date -R) <-- Finding installed packages (VIA)"
 	# END - Find installed packages
