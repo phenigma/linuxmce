@@ -27,7 +27,6 @@ using namespace std;
 #include "Table_Licensing.h"
 #include "Table_InfraredGroup.h"
 #include "Table_CommMethod.h"
-#include "Table_Document.h"
 
 #include "Table_CommandGroup_D_Command.h"
 #include "Table_ConfigType.h"
@@ -201,7 +200,6 @@ m_FK_InfraredGroup = 0;
 is_null[26] = true;
 m_FK_CommMethod = 0;
 is_null[27] = true;
-m_FK_Document = 0;
 is_null[28] = true;
 m_psc_id = 0;
 is_null[29] = true;
@@ -302,9 +300,9 @@ return m_FK_InfraredGroup;}
 long int Row_DeviceTemplate::FK_CommMethod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_CommMethod;}
-long int Row_DeviceTemplate::FK_Document_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_DeviceTemplate::HelpURL_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_FK_Document;}
+return m_HelpURL;}
 long int Row_DeviceTemplate::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
@@ -406,9 +404,9 @@ m_FK_InfraredGroup = val; is_modified=true; is_null[25]=false;}
 void Row_DeviceTemplate::FK_CommMethod_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_CommMethod = val; is_modified=true; is_null[26]=false;}
-void Row_DeviceTemplate::FK_Document_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate::HelpURL_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Document = val; is_modified=true; is_null[27]=false;}
+m_HelpURL = val; is_modified=true; is_null[27]=false;}
 void Row_DeviceTemplate::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_id = val; is_modified=true; is_null[28]=false;}
@@ -483,7 +481,7 @@ return is_null[25];}
 bool Row_DeviceTemplate::FK_CommMethod_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[26];}
-bool Row_DeviceTemplate::FK_Document_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DeviceTemplate::HelpURL_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[27];}
 bool Row_DeviceTemplate::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -575,7 +573,7 @@ void Row_DeviceTemplate::FK_CommMethod_setNull(bool val){PLUTO_SAFETY_LOCK_ERROR
 is_null[26]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::FK_Document_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate::HelpURL_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[27]=val;
 is_modified=true;
 }
@@ -961,17 +959,18 @@ sprintf(buf, "%li", m_FK_CommMethod);
 return buf;
 }
 
-string Row_DeviceTemplate::FK_Document_asSQL()
+string Row_DeviceTemplate::HelpURL_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[27])
 return "NULL";
 
-char buf[32];
-sprintf(buf, "%li", m_FK_Document);
-
-return buf;
+char *buf = new char[511];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_HelpURL.c_str(), (unsigned long) min((size_t)255,m_HelpURL.size()));
+string s=string()+"\""+buf+"\"";
+delete[] buf;
+return s;
 }
 
 string Row_DeviceTemplate::psc_id_asSQL()
@@ -1091,10 +1090,10 @@ bool Table_DeviceTemplate::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFail
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->ImplementsDCE_asSQL()+", "+pRow->IsEmbedded_asSQL()+", "+pRow->CommandLine_asSQL()+", "+pRow->IsPlugAndPlay_asSQL()+", "+pRow->IsIPBased_asSQL()+", "+pRow->IsPlugIn_asSQL()+", "+pRow->IRFrequency_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->DestinationDir_asSQL()+", "+pRow->FK_Users_Maintainer_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->InheritsMacFromPC_asSQL()+", "+pRow->ConfigureScript_asSQL()+", "+pRow->ManufacturerURL_asSQL()+", "+pRow->InternalURLSuffix_asSQL()+", "+pRow->WizardURL_asSQL()+", "+pRow->FK_Licensing_asSQL()+", "+pRow->FK_InfraredGroup_asSQL()+", "+pRow->FK_CommMethod_asSQL()+", "+pRow->FK_Document_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->ImplementsDCE_asSQL()+", "+pRow->IsEmbedded_asSQL()+", "+pRow->CommandLine_asSQL()+", "+pRow->IsPlugAndPlay_asSQL()+", "+pRow->IsIPBased_asSQL()+", "+pRow->IsPlugIn_asSQL()+", "+pRow->IRFrequency_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->DestinationDir_asSQL()+", "+pRow->FK_Users_Maintainer_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->InheritsMacFromPC_asSQL()+", "+pRow->ConfigureScript_asSQL()+", "+pRow->ManufacturerURL_asSQL()+", "+pRow->InternalURLSuffix_asSQL()+", "+pRow->WizardURL_asSQL()+", "+pRow->FK_Licensing_asSQL()+", "+pRow->FK_InfraredGroup_asSQL()+", "+pRow->FK_CommMethod_asSQL()+", "+pRow->HelpURL_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into DeviceTemplate (`PK_DeviceTemplate`, `Description`, `Comments`, `FK_DeviceCategory`, `FK_Manufacturer`, `Define`, `ImplementsDCE`, `IsEmbedded`, `CommandLine`, `IsPlugAndPlay`, `IsIPBased`, `IsPlugIn`, `IRFrequency`, `FK_StabilityStatus`, `FK_Package`, `DestinationDir`, `FK_Users_Maintainer`, `FK_OperatingSystem`, `FK_Distro`, `InheritsMacFromPC`, `ConfigureScript`, `ManufacturerURL`, `InternalURLSuffix`, `WizardURL`, `FK_Licensing`, `FK_InfraredGroup`, `FK_CommMethod`, `FK_Document`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into DeviceTemplate (`PK_DeviceTemplate`, `Description`, `Comments`, `FK_DeviceCategory`, `FK_Manufacturer`, `Define`, `ImplementsDCE`, `IsEmbedded`, `CommandLine`, `IsPlugAndPlay`, `IsIPBased`, `IsPlugIn`, `IRFrequency`, `FK_StabilityStatus`, `FK_Package`, `DestinationDir`, `FK_Users_Maintainer`, `FK_OperatingSystem`, `FK_Distro`, `InheritsMacFromPC`, `ConfigureScript`, `ManufacturerURL`, `InternalURLSuffix`, `WizardURL`, `FK_Licensing`, `FK_InfraredGroup`, `FK_CommMethod`, `HelpURL`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -1150,7 +1149,7 @@ condition = condition + "`PK_DeviceTemplate`=" + tmp_PK_DeviceTemplate;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_DeviceTemplate`="+pRow->PK_DeviceTemplate_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `FK_DeviceCategory`="+pRow->FK_DeviceCategory_asSQL()+", `FK_Manufacturer`="+pRow->FK_Manufacturer_asSQL()+", `Define`="+pRow->Define_asSQL()+", `ImplementsDCE`="+pRow->ImplementsDCE_asSQL()+", `IsEmbedded`="+pRow->IsEmbedded_asSQL()+", `CommandLine`="+pRow->CommandLine_asSQL()+", `IsPlugAndPlay`="+pRow->IsPlugAndPlay_asSQL()+", `IsIPBased`="+pRow->IsIPBased_asSQL()+", `IsPlugIn`="+pRow->IsPlugIn_asSQL()+", `IRFrequency`="+pRow->IRFrequency_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `DestinationDir`="+pRow->DestinationDir_asSQL()+", `FK_Users_Maintainer`="+pRow->FK_Users_Maintainer_asSQL()+", `FK_OperatingSystem`="+pRow->FK_OperatingSystem_asSQL()+", `FK_Distro`="+pRow->FK_Distro_asSQL()+", `InheritsMacFromPC`="+pRow->InheritsMacFromPC_asSQL()+", `ConfigureScript`="+pRow->ConfigureScript_asSQL()+", `ManufacturerURL`="+pRow->ManufacturerURL_asSQL()+", `InternalURLSuffix`="+pRow->InternalURLSuffix_asSQL()+", `WizardURL`="+pRow->WizardURL_asSQL()+", `FK_Licensing`="+pRow->FK_Licensing_asSQL()+", `FK_InfraredGroup`="+pRow->FK_InfraredGroup_asSQL()+", `FK_CommMethod`="+pRow->FK_CommMethod_asSQL()+", `FK_Document`="+pRow->FK_Document_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_DeviceTemplate`="+pRow->PK_DeviceTemplate_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `FK_DeviceCategory`="+pRow->FK_DeviceCategory_asSQL()+", `FK_Manufacturer`="+pRow->FK_Manufacturer_asSQL()+", `Define`="+pRow->Define_asSQL()+", `ImplementsDCE`="+pRow->ImplementsDCE_asSQL()+", `IsEmbedded`="+pRow->IsEmbedded_asSQL()+", `CommandLine`="+pRow->CommandLine_asSQL()+", `IsPlugAndPlay`="+pRow->IsPlugAndPlay_asSQL()+", `IsIPBased`="+pRow->IsIPBased_asSQL()+", `IsPlugIn`="+pRow->IsPlugIn_asSQL()+", `IRFrequency`="+pRow->IRFrequency_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `DestinationDir`="+pRow->DestinationDir_asSQL()+", `FK_Users_Maintainer`="+pRow->FK_Users_Maintainer_asSQL()+", `FK_OperatingSystem`="+pRow->FK_OperatingSystem_asSQL()+", `FK_Distro`="+pRow->FK_Distro_asSQL()+", `InheritsMacFromPC`="+pRow->InheritsMacFromPC_asSQL()+", `ConfigureScript`="+pRow->ConfigureScript_asSQL()+", `ManufacturerURL`="+pRow->ManufacturerURL_asSQL()+", `InternalURLSuffix`="+pRow->InternalURLSuffix_asSQL()+", `WizardURL`="+pRow->WizardURL_asSQL()+", `FK_Licensing`="+pRow->FK_Licensing_asSQL()+", `FK_InfraredGroup`="+pRow->FK_InfraredGroup_asSQL()+", `FK_CommMethod`="+pRow->FK_CommMethod_asSQL()+", `HelpURL`="+pRow->HelpURL_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update DeviceTemplate set " + update_values_list + " where " + condition;
@@ -1559,12 +1558,12 @@ sscanf(row[26], "%li", &(pRow->m_FK_CommMethod));
 if (row[27] == NULL)
 {
 pRow->is_null[27]=true;
-pRow->m_FK_Document = 0;
+pRow->m_HelpURL = "";
 }
 else
 {
 pRow->is_null[27]=false;
-sscanf(row[27], "%li", &(pRow->m_FK_Document));
+pRow->m_HelpURL = string(row[27],lengths[27]);
 }
 
 if (row[28] == NULL)
@@ -2041,12 +2040,12 @@ sscanf(row[26], "%li", &(pRow->m_FK_CommMethod));
 if (row[27] == NULL)
 {
 pRow->is_null[27]=true;
-pRow->m_FK_Document = 0;
+pRow->m_HelpURL = "";
 }
 else
 {
 pRow->is_null[27]=false;
-sscanf(row[27], "%li", &(pRow->m_FK_Document));
+pRow->m_HelpURL = string(row[27],lengths[27]);
 }
 
 if (row[28] == NULL)
@@ -2192,13 +2191,6 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_CommMethod *pTable = table->database->CommMethod_get();
 return pTable->GetRow(m_FK_CommMethod);
-}
-class Row_Document* Row_DeviceTemplate::FK_Document_getrow()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Document *pTable = table->database->Document_get();
-return pTable->GetRow(m_FK_Document);
 }
 
 

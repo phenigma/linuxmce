@@ -21,9 +21,6 @@ using namespace std;
 #include "Table_Package.h"
 #include "Table_License.h"
 #include "Table_Manufacturer.h"
-#include "Table_Document.h"
-#include "Table_Document.h"
-#include "Table_Document.h"
 
 #include "Table_DeviceTemplate.h"
 #include "Table_FAQ.h"
@@ -158,11 +155,8 @@ m_FK_License = 0;
 is_null[8] = true;
 m_FK_Manufacturer = 0;
 is_null[9] = true;
-m_FK_Document = 0;
 is_null[10] = true;
-m_FK_Document_UsersManual = 0;
 is_null[11] = true;
-m_FK_Document_ProgrammersGuide = 0;
 is_null[12] = true;
 is_null[13] = true;
 m_psc_id = 0;
@@ -210,15 +204,15 @@ return m_FK_License;}
 long int Row_Package::FK_Manufacturer_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Manufacturer;}
-long int Row_Package::FK_Document_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Package::HelpURL_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_FK_Document;}
-long int Row_Package::FK_Document_UsersManual_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+return m_HelpURL;}
+string Row_Package::HelpURL_UsersManual_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_FK_Document_UsersManual;}
-long int Row_Package::FK_Document_ProgrammersGuide_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+return m_HelpURL_UsersManual;}
+string Row_Package::HelpURL_ProgrammersGuide_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_FK_Document_ProgrammersGuide;}
+return m_HelpURL_ProgrammersGuide;}
 string Row_Package::Comments_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Comments;}
@@ -269,15 +263,15 @@ m_FK_License = val; is_modified=true; is_null[7]=false;}
 void Row_Package::FK_Manufacturer_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Manufacturer = val; is_modified=true; is_null[8]=false;}
-void Row_Package::FK_Document_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Package::HelpURL_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Document = val; is_modified=true; is_null[9]=false;}
-void Row_Package::FK_Document_UsersManual_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+m_HelpURL = val; is_modified=true; is_null[9]=false;}
+void Row_Package::HelpURL_UsersManual_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Document_UsersManual = val; is_modified=true; is_null[10]=false;}
-void Row_Package::FK_Document_ProgrammersGuide_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+m_HelpURL_UsersManual = val; is_modified=true; is_null[10]=false;}
+void Row_Package::HelpURL_ProgrammersGuide_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Document_ProgrammersGuide = val; is_modified=true; is_null[11]=false;}
+m_HelpURL_ProgrammersGuide = val; is_modified=true; is_null[11]=false;}
 void Row_Package::Comments_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Comments = val; is_modified=true; is_null[12]=false;}
@@ -319,13 +313,13 @@ return is_null[7];}
 bool Row_Package::FK_Manufacturer_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_Package::FK_Document_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Package::HelpURL_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
-bool Row_Package::FK_Document_UsersManual_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Package::HelpURL_UsersManual_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[10];}
-bool Row_Package::FK_Document_ProgrammersGuide_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Package::HelpURL_ProgrammersGuide_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[11];}
 bool Row_Package::Comments_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -372,15 +366,15 @@ void Row_Package::FK_Manufacturer_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY
 is_null[8]=val;
 is_modified=true;
 }
-void Row_Package::FK_Document_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Package::HelpURL_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_Package::FK_Document_UsersManual_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Package::HelpURL_UsersManual_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_Package::FK_Document_ProgrammersGuide_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Package::HelpURL_ProgrammersGuide_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[11]=val;
 is_modified=true;
 }
@@ -529,43 +523,46 @@ sprintf(buf, "%li", m_FK_Manufacturer);
 return buf;
 }
 
-string Row_Package::FK_Document_asSQL()
+string Row_Package::HelpURL_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[9])
 return "NULL";
 
-char buf[32];
-sprintf(buf, "%li", m_FK_Document);
-
-return buf;
+char *buf = new char[511];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_HelpURL.c_str(), (unsigned long) min((size_t)255,m_HelpURL.size()));
+string s=string()+"\""+buf+"\"";
+delete[] buf;
+return s;
 }
 
-string Row_Package::FK_Document_UsersManual_asSQL()
+string Row_Package::HelpURL_UsersManual_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[10])
 return "NULL";
 
-char buf[32];
-sprintf(buf, "%li", m_FK_Document_UsersManual);
-
-return buf;
+char *buf = new char[511];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_HelpURL_UsersManual.c_str(), (unsigned long) min((size_t)255,m_HelpURL_UsersManual.size()));
+string s=string()+"\""+buf+"\"";
+delete[] buf;
+return s;
 }
 
-string Row_Package::FK_Document_ProgrammersGuide_asSQL()
+string Row_Package::HelpURL_ProgrammersGuide_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[11])
 return "NULL";
 
-char buf[32];
-sprintf(buf, "%li", m_FK_Document_ProgrammersGuide);
-
-return buf;
+char *buf = new char[511];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_HelpURL_ProgrammersGuide.c_str(), (unsigned long) min((size_t)255,m_HelpURL_ProgrammersGuide.size()));
+string s=string()+"\""+buf+"\"";
+delete[] buf;
+return s;
 }
 
 string Row_Package::Comments_asSQL()
@@ -699,10 +696,10 @@ bool Table_Package::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInser
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_PackageType_asSQL()+", "+pRow->FK_Package_Sourcecode_asSQL()+", "+pRow->IsSource_asSQL()+", "+pRow->NonExecutable_asSQL()+", "+pRow->HomePage_asSQL()+", "+pRow->FK_License_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->FK_Document_asSQL()+", "+pRow->FK_Document_UsersManual_asSQL()+", "+pRow->FK_Document_ProgrammersGuide_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_PackageType_asSQL()+", "+pRow->FK_Package_Sourcecode_asSQL()+", "+pRow->IsSource_asSQL()+", "+pRow->NonExecutable_asSQL()+", "+pRow->HomePage_asSQL()+", "+pRow->FK_License_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->HelpURL_asSQL()+", "+pRow->HelpURL_UsersManual_asSQL()+", "+pRow->HelpURL_ProgrammersGuide_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into Package (`PK_Package`, `Description`, `FK_PackageType`, `FK_Package_Sourcecode`, `IsSource`, `NonExecutable`, `HomePage`, `FK_License`, `FK_Manufacturer`, `FK_Document`, `FK_Document_UsersManual`, `FK_Document_ProgrammersGuide`, `Comments`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into Package (`PK_Package`, `Description`, `FK_PackageType`, `FK_Package_Sourcecode`, `IsSource`, `NonExecutable`, `HomePage`, `FK_License`, `FK_Manufacturer`, `HelpURL`, `HelpURL_UsersManual`, `HelpURL_ProgrammersGuide`, `Comments`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -758,7 +755,7 @@ condition = condition + "`PK_Package`=" + tmp_PK_Package;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_Package`="+pRow->PK_Package_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_PackageType`="+pRow->FK_PackageType_asSQL()+", `FK_Package_Sourcecode`="+pRow->FK_Package_Sourcecode_asSQL()+", `IsSource`="+pRow->IsSource_asSQL()+", `NonExecutable`="+pRow->NonExecutable_asSQL()+", `HomePage`="+pRow->HomePage_asSQL()+", `FK_License`="+pRow->FK_License_asSQL()+", `FK_Manufacturer`="+pRow->FK_Manufacturer_asSQL()+", `FK_Document`="+pRow->FK_Document_asSQL()+", `FK_Document_UsersManual`="+pRow->FK_Document_UsersManual_asSQL()+", `FK_Document_ProgrammersGuide`="+pRow->FK_Document_ProgrammersGuide_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_Package`="+pRow->PK_Package_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_PackageType`="+pRow->FK_PackageType_asSQL()+", `FK_Package_Sourcecode`="+pRow->FK_Package_Sourcecode_asSQL()+", `IsSource`="+pRow->IsSource_asSQL()+", `NonExecutable`="+pRow->NonExecutable_asSQL()+", `HomePage`="+pRow->HomePage_asSQL()+", `FK_License`="+pRow->FK_License_asSQL()+", `FK_Manufacturer`="+pRow->FK_Manufacturer_asSQL()+", `HelpURL`="+pRow->HelpURL_asSQL()+", `HelpURL_UsersManual`="+pRow->HelpURL_UsersManual_asSQL()+", `HelpURL_ProgrammersGuide`="+pRow->HelpURL_ProgrammersGuide_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update Package set " + update_values_list + " where " + condition;
@@ -969,34 +966,34 @@ sscanf(row[8], "%li", &(pRow->m_FK_Manufacturer));
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_FK_Document = 0;
+pRow->m_HelpURL = "";
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_FK_Document));
+pRow->m_HelpURL = string(row[9],lengths[9]);
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_FK_Document_UsersManual = 0;
+pRow->m_HelpURL_UsersManual = "";
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_FK_Document_UsersManual));
+pRow->m_HelpURL_UsersManual = string(row[10],lengths[10]);
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_FK_Document_ProgrammersGuide = 0;
+pRow->m_HelpURL_ProgrammersGuide = "";
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_FK_Document_ProgrammersGuide));
+pRow->m_HelpURL_ProgrammersGuide = string(row[11],lengths[11]);
 }
 
 if (row[12] == NULL)
@@ -1286,34 +1283,34 @@ sscanf(row[8], "%li", &(pRow->m_FK_Manufacturer));
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_FK_Document = 0;
+pRow->m_HelpURL = "";
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_FK_Document));
+pRow->m_HelpURL = string(row[9],lengths[9]);
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_FK_Document_UsersManual = 0;
+pRow->m_HelpURL_UsersManual = "";
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_FK_Document_UsersManual));
+pRow->m_HelpURL_UsersManual = string(row[10],lengths[10]);
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_FK_Document_ProgrammersGuide = 0;
+pRow->m_HelpURL_ProgrammersGuide = "";
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_FK_Document_ProgrammersGuide));
+pRow->m_HelpURL_ProgrammersGuide = string(row[11],lengths[11]);
 }
 
 if (row[12] == NULL)
@@ -1428,27 +1425,6 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Manufacturer *pTable = table->database->Manufacturer_get();
 return pTable->GetRow(m_FK_Manufacturer);
-}
-class Row_Document* Row_Package::FK_Document_getrow()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Document *pTable = table->database->Document_get();
-return pTable->GetRow(m_FK_Document);
-}
-class Row_Document* Row_Package::FK_Document_UsersManual_getrow()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Document *pTable = table->database->Document_get();
-return pTable->GetRow(m_FK_Document_UsersManual);
-}
-class Row_Document* Row_Package::FK_Document_ProgrammersGuide_getrow()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Document *pTable = table->database->Document_get();
-return pTable->GetRow(m_FK_Document_ProgrammersGuide);
 }
 
 

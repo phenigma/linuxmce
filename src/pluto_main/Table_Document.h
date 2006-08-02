@@ -153,13 +153,8 @@ void psc_restrict_setNull(bool val);
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		void DesignObj_FK_Document_getrows(vector <class Row_DesignObj*> *rows);
-void DeviceTemplate_FK_Document_getrows(vector <class Row_DeviceTemplate*> *rows);
-void Document_FK_Document_Parent_getrows(vector <class Row_Document*> *rows);
+		void Document_FK_Document_Parent_getrows(vector <class Row_Document*> *rows);
 void Document_Comment_FK_Document_getrows(vector <class Row_Document_Comment*> *rows);
-void Package_FK_Document_getrows(vector <class Row_Package*> *rows);
-void Package_FK_Document_UsersManual_getrows(vector <class Row_Package*> *rows);
-void Package_FK_Document_ProgrammersGuide_getrows(vector <class Row_Package*> *rows);
 
 
 		// Setup binary serialization
