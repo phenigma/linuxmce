@@ -7,7 +7,7 @@ getxmls_LDADD = -lmysqlclient -ldancer-xml
 instcheck_LDADD = -lmysqlclient
 
 MYNAME_getxmls = getxmls
-VERSION_webinst = 0.0.1
+VERSION_getxmls = 0.0.1
 
 MYNAME_instcheck = instcheck
 VERSION_instcheck = 0.0.1
