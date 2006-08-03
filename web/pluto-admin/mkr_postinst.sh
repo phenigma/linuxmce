@@ -43,7 +43,7 @@ touch /var/log/pluto/webExecLog.log
 chown www-data.www-data /var/log/pluto/webExecLog.log
 
 # enable rewrite module
-ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/rewrite.load
+a2enmod rewrite
 
 a2dissite default || /bin/true
 
