@@ -20,6 +20,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
+#include <X11/Xatom.h>
 
 #include <string>
 #include <iostream>
@@ -31,6 +32,9 @@ typedef int (*XErrorHandler) (Display*, XErrorEvent*);
 
 // new type
 typedef int (*X_AfterFunction) (Display*);
+
+// constants
+const unsigned long WINDOW_OPAQUE = 0xFFFFFFFF;
 
 /// sync and lock functions
 bool X11_Sync(Display *pDisplay); // call flush
@@ -153,6 +157,16 @@ public:
     bool Window_Raise(Window window);
     bool Window_Lower(Window window);
 
+    // opacity will be set recursive to parents
+    // WINDOW_OPAQUE : normal window
+    // 1 : very transparent
+    // 0 : better not use it
+    bool Window_SetOpacity(Window window, unsigned long nOpacity);
+
+    // return 0 on error
+    // can return the root window
+    Window Window_GetParent(Window window);
+
     /// keyboard
 
     bool Keyboard_Grab(Window window_grab);
@@ -209,6 +223,11 @@ public:
     static int StdCursor_GetValueByName(const std::string &sName);
 
 protected:
+    int Mouse_Grab_Helper(Window window_grab, Window window_confine_to);
+    int Mouse_Ungrab_Helper();
+    // opacity only for this window
+    bool Window_SetOpacity_Helper(Window window, unsigned long nOpacity);
+
     Display *v_pDisplay;
     bool v_bIsAssigned_Display;
 
@@ -274,6 +293,9 @@ public:
     bool Window_GetPosition(Window window, int &nPosX, int &nPosY, unsigned int &nWidth, unsigned int &nHeight);
 
     Pixmap ConvertImageToPixmap(XImage *pXImage, Window window);
+
+    bool Window_PerPixel_Transparency(Window window, unsigned long nAlphaValue=1);
+
 };
 
 #endif

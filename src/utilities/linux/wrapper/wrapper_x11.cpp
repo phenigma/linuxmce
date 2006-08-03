@@ -544,6 +544,82 @@ bool X11wrapper::Window_Lower(Window window)
     return IsReturnCodeOk(code);
 }
 
+bool X11wrapper::Window_SetOpacity_Helper(Window window, unsigned long nOpacity)
+{
+    _LOG_NFO("window==%d, nOpacity==0x%lx", window, nOpacity);
+    if (nOpacity == 0)
+        _LOG_WRN("Opacity value should not be 0, using it anyway, you have been warned");
+    int code = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        Display *pDisplay = GetDisplay();
+        // create property if does not exist
+        Atom atom_property = XInternAtom(pDisplay, "_NET_WM_WINDOW_OPACITY", False);
+        if (atom_property == None)
+            _LOG_XERROR_BREAK("cannot use opacity property");
+        if (nOpacity == WINDOW_OPAQUE)
+        {
+            _LOG_NFO("deleting opacity property");
+            code = XDeleteProperty(pDisplay, window, atom_property);
+            _COND_XERROR_LOG_BREAK(code);
+        }
+        else
+        {
+            //_LOG_NFO("changing opacity property");
+            code = XChangeProperty(pDisplay, window, atom_property,
+                                   XA_CARDINAL, 32, PropModeReplace,
+                                   (unsigned char *) &nOpacity, 1L
+                                   );
+            _COND_XERROR_LOG_BREAK(code);
+        }
+    } while (0);
+    return IsReturnCodeOk(code);
+}
+
+bool X11wrapper::Window_SetOpacity(Window window, unsigned long nOpacity)
+{
+    Window root_window = Window_GetRoot();
+    _LOG_NFO("window==%d, root_window==%d, nOpacity==0x%lx", window, root_window, nOpacity);
+    bool bResult = true;
+    while ( (window) && (window != root_window) )
+    {
+        bResult = Window_SetOpacity_Helper(window, nOpacity);
+        if (! bResult)
+            _LOG_XERROR_BREAK("stopping tree-walk");
+        window = Window_GetParent(window);
+    }
+    return bResult;
+}
+
+Window X11wrapper::Window_GetParent(Window window)
+{
+    //_LOG_NFO("window==%d", window);
+    Window root_return = 0;
+    Window parent_return = 0;
+    Window *children_return = NULL;
+    unsigned int nchildren_return = 0;
+    int code = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        code = XQueryTree(
+            GetDisplay(), window,
+            &root_return, &parent_return, &children_return, &nchildren_return
+            );
+        //_LOG_NFO("window==%d, root_return==%d, parent_return==%d, children_return==%p, nchildren_return==%d", window, root_return, parent_return, children_return, nchildren_return);
+        if (code == 0)
+            _LOG_XERROR_BREAK("cannot read window tree");
+    } while (0);
+    // cleanup
+    if (children_return)
+        XFree(children_return);
+    if (! IsReturnCodeOk(code))
+        return 0;
+    _LOG_NFO("window==%d, parent==%d", window, parent_return);
+    return parent_return;
+}
+
 bool X11wrapper::Keyboard_Grab(Window window_grab)
 {
     _LOG_NFO("window_grab==%d", window_grab);
@@ -593,6 +669,22 @@ bool X11wrapper::Keyboard_SetAutoRepeat(bool bOn)
     return IsReturnCodeOk(code);
 }
 
+int X11wrapper::Mouse_Grab_Helper(Window window_grab, Window window_confine_to)
+{
+    int code = XGrabPointer(
+        GetDisplay(),
+        window_grab, // window_grab
+        false, // owner_events
+        ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | PointerMotionHintMask, // event_mask
+        GrabModeAsync, // pointer_mode
+        GrabModeAsync, // keyboard_mode
+        window_confine_to, // confine_to_window
+        None, // cursor
+        CurrentTime // time
+        );
+    return code;
+}
+
 bool X11wrapper::Mouse_Grab(Window window_grab, Window window_confine_to/*=None*/)
 {
     _LOG_NFO("window_grab==%d, window_confine_to==%d", window_grab, window_confine_to);
@@ -600,20 +692,16 @@ bool X11wrapper::Mouse_Grab(Window window_grab, Window window_confine_to/*=None*
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XGrabPointer(
-            GetDisplay(),
-            window_grab, // window_grab
-            false, // owner_events
-            ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | PointerMotionHintMask, // event_mask
-            GrabModeAsync, // pointer_mode
-            GrabModeAsync, // keyboard_mode
-            window_confine_to, // confine_to_window
-            None, // cursor
-            CurrentTime // time
-            );
+        code = Mouse_Grab_Helper(window_grab, window_confine_to);
         _COND_XERROR_LOG_BREAK(code);
     } while (0);
     return IsReturnCodeOk(code);
+}
+
+int X11wrapper::Mouse_Ungrab_Helper()
+{
+    int code = XUngrabPointer(GetDisplay(), CurrentTime);
+    return code;
 }
 
 bool X11wrapper::Mouse_Ungrab()
@@ -623,7 +711,7 @@ bool X11wrapper::Mouse_Ungrab()
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XUngrabPointer(GetDisplay(), CurrentTime);
+        code = Mouse_Ungrab_Helper();
         _COND_XERROR_LOG_BREAK(code);
     } while (0);
     return IsReturnCodeOk(code);
@@ -880,21 +968,34 @@ bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsi
         window = Window_Create_Show(nPosX, nPosY, nWidth, nHeight, 0);
         if (window <= 0)
             _LOG_XERROR_BREAK("cannot create window");
+        // (! Mouse_Grab(window_grab, window)) // needs double-checking
+        code = Mouse_Grab_Helper(window_grab, window);
+        Sync();
+        if (! IsReturnCodeOk(code))
+        {
+            _LOG_WRN("creating second window");
+            Window_Destroy(window);
+            window = Window_Create_Show(nPosX, nPosY, nWidth, nHeight, 0);
+            if (window <= 0)
+                _LOG_XERROR_BREAK("cannot create second window");
+            code = Mouse_Grab_Helper(window_grab, window);
+            Sync();
+            if (! IsReturnCodeOk(code))
+            {
+                _LOG_ERR("cannot grab pointer, closing window %d", window);
+                Window_Destroy(window);
+                window = 0;
+                break;
+            }
+        }
         if (! Window_ClassName(window, "constrain_mouse", "constrain_mouse"))
             _LOG_XERROR_BREAK("cannot set window class");
         if (! Window_Name(window, "constrain_mouse"))
             _LOG_XERROR_BREAK("cannot set window name");
+        if (! Window_SetOpacity(window, 1))
+            _LOG_WRN("cannot set opacity");
         if (! Window_Lower(window))
             _LOG_WRN("cannot lower window");
-        if (! Mouse_Grab(window_grab, window))
-        {
-            _LOG_ERR("cannot grab pointer, closing window %d", window);
-            Window_Destroy(window);
-            window = 0;
-            break;
-        }
-        //if (! Window_Shape_Hide(window))
-        //    _LOG_WRN("cannot shape window");
         // done
         code = 0;
         v_bIsActive_Mouse_Constrain = true;
@@ -1116,12 +1217,12 @@ bool X11wrapper::Window_Shape_Hide(Window window)
     {
         if (! Extension_Shape_IsAvailable())
             _LOG_XERROR_BREAK("X11 SHAPE extension: not available");
-        XRectangle rects[1];
-        rects[0].x = 0;
-        rects[0].y = 0;
-        rects[0].width = 0;
-        rects[0].height = 0;
-        XShapeCombineRectangles(GetDisplay(), window, ShapeBounding, 0, 0, rects, 0, ShapeSet, Unsorted);
+        XRectangle aXRectangle[1];
+        aXRectangle[0].x = 0;
+        aXRectangle[0].y = 0;
+        aXRectangle[0].width = 0;
+        aXRectangle[0].height = 0;
+        XShapeCombineRectangles(GetDisplay(), window, ShapeBounding, 0, 0, aXRectangle, 0, ShapeSet, Unsorted);
         code = 0;
     } while (0);
     return IsReturnCodeOk(code);
@@ -1284,4 +1385,26 @@ Pixmap X11wrapper::ConvertImageToPixmap(XImage *pXImage, Window window)
         XFlushGC(GetDisplay(), gc);
     } while (0);
     return pixmap;
+}
+
+bool X11wrapper::Window_PerPixel_Transparency(Window window, unsigned long nAlphaValue/*=1*/)
+{
+    _LOG_NFO();
+    int code = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        Display *pDisplay = GetDisplay();
+        //int screen = GetScreen();
+        //int blackColor = BlackPixel(pDisplay, screen);
+        //int whiteColor = WhitePixel(pDisplay, screen);
+        // draw something
+        GC gc = XCreateGC(pDisplay, window, 0, NULL);
+        XSetForeground(pDisplay, gc, nAlphaValue);
+        XSetBackground(pDisplay, gc, (unsigned long)-nAlphaValue);
+        for (int i=0; i<10; i++)
+            XDrawLine(pDisplay, window, gc, 10, i+60, 180, i+20);
+        XFlush(pDisplay);
+    } while (0);
+    return IsReturnCodeOk(code);
 }
