@@ -14,7 +14,7 @@ sources = DataGrid.cpp ClientSocket.cpp PlainClientSocket.cpp Logger.cpp Message
 	Socket.cpp ServerSocket.cpp SocketListener.cpp ServerLogger.cpp \
 	AlarmManager.cpp Command_Impl.cpp Event_Impl.cpp \
 	HandleRequestSocket.cpp \
-	DeviceData_Impl.cpp DeviceData_Base.cpp \
+	DeviceData_Router.cpp DeviceData_Impl.cpp DeviceData_Base.cpp \
 	DCEConfig.cpp DCEMySqlConfig.cpp \
 	Virtual_Device_Translator.cpp arp-cache.cpp \
 	MessageBuffer.cpp
