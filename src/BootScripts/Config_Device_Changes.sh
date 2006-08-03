@@ -69,6 +69,20 @@ Unset_NeedConfigure_Children()
 	done
 }
 
+Install_VIA_ALSA()
+{
+	local Pkgs_VIA
+	Pkgs_VIA=(via-alsa-2.6.16.20-pluto-1-686)
+
+	echo "$(date -R) --> Finding installed ALSA packages (VIA)"
+	VIA_inst="$(InstalledPackages "${Pkgs_VIA[@]}")"
+	echo "$(date -R) <-- Finding installed ALSA packages (VIA)"
+
+	if [[ -z "$VIA_inst" ]]; then
+		apt-get -y -f install "${Pkgs_VIA[@]}"
+	fi
+}
+
 # Clean up video driver packages
 # When a video card is removed/replaced, remove its packages
 # The new drivers for video cards are installed later in this script, not in this function
@@ -145,6 +159,7 @@ CleanupVideo()
 			if [[ -z "$VIA_dev" ]]; then
 				NewDeviceTemplate=$DEVICETEMPLATE_Unichrome
 				VIA_dev=$(/usr/pluto/bin/CreateDevice -d "$NewDeviceTemplate" -R "$PK_Device")
+				Install_VIA_ALSA
 			fi
 		;;
 	esac
