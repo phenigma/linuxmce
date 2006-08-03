@@ -1150,8 +1150,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 		// construct strings outside of array initializer so they don't destroy after the array is initialized, leaving us with invalid pointers
 		string sThingsToRegen = StringUtils::itos(PK_Device);
 		string sOrbiter = StringUtils::itos(m_dwPK_Device);
-		char * args[] = { "/usr/pluto/bin/RegenOrbiterOnTheFly.sh", (char *)(sThingsToRegen.c_str()),
-			(char *)(sOrbiter.c_str()), NULL };
+		char * args[] = { "/usr/pluto/bin/RegenOrbiterOnTheFly.sh", (char *)(sThingsToRegen.c_str()), (char *)(sOrbiter.c_str()), NULL };
 		ProcessUtils::SpawnDaemon(args[0], args);
 
 		m_listRegenCommands.push_back(PK_Device);

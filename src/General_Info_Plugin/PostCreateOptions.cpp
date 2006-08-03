@@ -134,8 +134,8 @@ void PostCreateOptions::PostCreateDevice_DisklessMD(Row_Device *pRow_Device, OH_
 	g_pPlutoLogger->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_DisklessMD device  %d template %d",
 		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get());
 #endif
-	// TODO: use strdup/free although it works like this too
+	string sPK_Device = StringUtils::itos(pRow_Device->PK_Device_get());
 	char * args[] = { "/usr/pluto/bin/New_PnP_MD.sh", (char *)(pRow_Device->IPaddress_get().c_str()), (char *)(pRow_Device->MACaddress_get().c_str()),
-		(char *)(StringUtils::itos(pRow_Device->PK_Device_get()).c_str()), NULL };
+		(char *)(sPK_Device.c_str()), NULL };
 	ProcessUtils::SpawnDaemon(args[0], args);
 }

@@ -102,7 +102,8 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	g_pPlutoLogger->Write(LV_STATUS,"Create device -- getting i/r codes for %d",iPK_DeviceTemplate);
 	if( row[5] && atoi(row[5]) )  // Only ask for the i/r codes if there is an infrared group
 	{
-		char * args[] = { "/usr/pluto/bin/WebDB_GetIR.sh", "0", (char *)(StringUtils::itos(iPK_DeviceTemplate).c_str()), NULL };
+		string sPK_DeviceTemplate = StringUtils::itos(iPK_DeviceTemplate);
+		char * args[] = { "/usr/pluto/bin/WebDB_GetIR.sh", "0", (char *)(sPK_DeviceTemplate.c_str()), NULL };
 		ProcessUtils::SpawnDaemon(args[0], args);
 	}
 	
@@ -322,7 +323,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 				{
 					g_pPlutoLogger->Write(LV_STATUS,"Executing /usr/pluto/bin/InstallNewDevice.sh %d %s",
 						PK_Device,(row[0] ? row[0] : ""));
-					char * args[] = { "/usr/pluto/bin/InstallNewDevice.sh", (char *)(StringUtils::itos(PK_Device).c_str()), (char *)(row[0] ? row[0] : ""), NULL };
+					string sPK_Device = StringUtils::itos(PK_Device);
+					char * args[] = { "/usr/pluto/bin/InstallNewDevice.sh", (char *)(sPK_Device.c_str()), (char *)(row[0] ? row[0] : ""), NULL };
 					ProcessUtils::SpawnDaemon(args[0], args);
 				}
 				else
