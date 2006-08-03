@@ -54,10 +54,19 @@ if [ -f /boot/grub/menu.lst ] ;then
                 update-grub
         fi
 
+	# Add the quiet option by default
+	if ! grep -q "^# kopt=.* quiet" /boot/grub/menu.lst ;then
+		oldKopt=$(grep "^# kopt=.*" /boot/grub/menu.lst)
+		newKopt="$oldKopt quiet"
+		sed "s~$oldKopt~$newKopt~g" /boot/grub/menu.lst > /boot/grub/menu.lst.sed
+                mv /boot/grub/menu.lst.sed /boot/grub/menu.lst
+                update-grub
+	fi
+
         # Add the splash option by default
         if ! grep -q "^# kopt=.* splash=silent" /boot/grub/menu.lst ;then
                 oldKopt=$(grep "^# kopt=.*" /boot/grub/menu.lst)
-                newKopt="$oldKopt splash=silent quiet"
+                newKopt="$oldKopt splash=silent"
                 sed "s~$oldKopt~$newKopt~g" /boot/grub/menu.lst > /boot/grub/menu.lst.sed
                 mv /boot/grub/menu.lst.sed /boot/grub/menu.lst
                 update-grub
