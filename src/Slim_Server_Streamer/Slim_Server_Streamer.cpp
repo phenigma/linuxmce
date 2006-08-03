@@ -52,8 +52,39 @@ bool Slim_Server_Streamer::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	g_pPlutoLogger->Write(LV_STATUS, "Waiting 10 seconds before starting slim server so we can be sure app server has started");
-	Sleep(10000);
+	DeviceData_Base *pDevice_AppServer = m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
+	if (! pDevice_AppServer)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "App_Server device not found in installation. Bailing out.");
+		return false;
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "Waiting for App_Server to start");
+
+	char AppServer_Status = 'N';
+	while (AppServer_Status != 'Y')
+	{
+		AppServer_Status = DeviceIsRegistered(pDevice_AppServer->m_dwPK_Device);
+		switch (AppServer_Status)
+		{
+			case 'Y': // is treated in the while loop
+				continue;
+				break;
+			case 'N': // not registered
+				Sleep(1000);
+				break;
+			case 'D':
+				g_pPlutoLogger->Write(LV_CRITICAL, "App_Server is disabled. I can't run without it. Bailing out.");
+				return false;
+				break;
+			case 'E':
+				g_pPlutoLogger->Write(LV_CRITICAL, "Communication error with the router. Bailing out.");
+				return false;
+				break;
+		}
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "App_Server started");
 
 	if (! ConnectToSlimServerCliCommandChannel())
 	{
