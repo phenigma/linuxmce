@@ -154,6 +154,7 @@ namespace DCE
 		 * @return true on success, false otherwise
 		 */		 
 		virtual bool Connect(int iPK_DeviceTemplate );
+		virtual void PostConnect() {}  // Placeholder function that is called after a connect
 		
 		/**
 		 * @brief Reports to the user on the console that the device cannot load because

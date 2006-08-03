@@ -108,7 +108,7 @@ int UserUtils::AddUser(string sUsername,Command_Impl *pCommand_Impl)
 		if( pDevice_Core )
 		{
 			DeviceData_Base *pDevice_AppServer = 
-				pDevice_Core->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
+				pDevice_Core->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST, pCommand_Impl );
 			if( pDevice_AppServer )
 			{
 				DCE::CMD_Spawn_Application CMD_Spawn_Application(pCommand_Impl->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,

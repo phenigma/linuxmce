@@ -102,7 +102,7 @@ bool Plug_And_Play::PnPPrivate::RunScript(int iPK_PnpQueue, long lFrom, string s
 			if( pDevice_From->m_pDevice_ControlledVia != NULL )
 			{
 				DeviceData_Base * pDevice_AppServer = 
-					pDevice_From->m_pDevice_ControlledVia->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
+					pDevice_From->m_pDevice_ControlledVia->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST, this );
 				if( pDevice_AppServer != NULL )
 				{
 					// Ex: script_detect_template parameters --queue_id iPK_PnpQueue

@@ -416,63 +416,13 @@ namespace DCE
 
 		// This will return the first device within the given category that is in any way
 		// related (ie also a child of the topmost device, meaning it runs on the same PC).  Call leaving the default parameters unspecified.
-		DeviceData_Base *FindFirstRelatedDeviceOfCategory(int PK_DeviceCategory,bool bScanParent=true,int PK_Device_ExcludeChild=0)
-		{
-			if( m_bDeviceData_Impl )
-			{
-				DeviceData_Base *pDeviceData_Base = m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device);
-				if( pDeviceData_Base )
-					return pDeviceData_Base->FindFirstRelatedDeviceOfCategory(PK_DeviceCategory);
-				else
-					return NULL;
-			}
-
-			if( WithinCategory(PK_DeviceCategory) )
-				return this;
-			for(size_t s=0;s<m_vectDeviceData_Base_Children.size();++s)
-			{
-				DeviceData_Base *pDeviceData_Base = m_vectDeviceData_Base_Children[s];
-				if( pDeviceData_Base->m_dwPK_Device==PK_Device_ExcludeChild )
-					continue;
-				DeviceData_Base *pDeviceData_Base_Result = pDeviceData_Base->FindFirstRelatedDeviceOfCategory(PK_DeviceCategory,false);
-				if( pDeviceData_Base_Result )
-					return pDeviceData_Base_Result;
-			}
-			if( bScanParent && m_pDevice_ControlledVia )
-				return m_pDevice_ControlledVia->FindFirstRelatedDeviceOfCategory(PK_DeviceCategory,true,m_dwPK_Device);
-			return NULL;
-		}
+		// If pCommand_Impl_Confirm_Registration is not null, that will be used to determine if the device registered, and will wait for it to register, and will not return the device unless it is
+		DeviceData_Base *FindFirstRelatedDeviceOfCategory(int PK_DeviceCategory,class Command_Impl *pCommand_Impl_Confirm_Registration=NULL,int TimeoutToWait=20,bool bScanParent=true,int PK_Device_ExcludeChild=0);
 
 		// This will return the first device of the given template that is in any way
 		// related (ie also a child of the topmost device, meaning it runs on the same PC).  Call leaving the default parameters unspecified.
-		DeviceData_Base *FindFirstRelatedDeviceOfTemplate(int PK_DeviceTemplate, bool bScanParent=true, int PK_Device_ExcludeChild = 0)
-		{
-			if( m_bDeviceData_Impl )
-			{
-				DeviceData_Base *pDeviceData_Base = m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device);
-				if( pDeviceData_Base )
-					return pDeviceData_Base->FindFirstRelatedDeviceOfTemplate(PK_DeviceTemplate);
-				else
-					return NULL;
-			}
-
-			if( m_dwPK_DeviceTemplate==PK_DeviceTemplate )
-				return this;
-
-			for(size_t s=0;s<m_vectDeviceData_Base_Children.size();++s)
-			{
-				DeviceData_Base *pDeviceData_Base = m_vectDeviceData_Base_Children[s];
-				if( pDeviceData_Base->m_dwPK_Device==PK_Device_ExcludeChild )
-					continue;
-				DeviceData_Base *pDeviceData_Base_Result = pDeviceData_Base->FindFirstRelatedDeviceOfTemplate(PK_DeviceTemplate,false);
-				if( pDeviceData_Base_Result )
-					return pDeviceData_Base_Result;
-			}
-			if( bScanParent && m_pDevice_ControlledVia )
-				return m_pDevice_ControlledVia->FindFirstRelatedDeviceOfTemplate(PK_DeviceTemplate,true,m_dwPK_Device);
-			return NULL;
-		}
-
+		// If pCommand_Impl_Confirm_Registration is not null, that will be used to determine if the device registered, and will wait for it to register, and will not return the device unless it is
+		DeviceData_Base *FindFirstRelatedDeviceOfTemplate(int PK_DeviceTemplate,class Command_Impl *pCommand_Impl_Confirm_Registration=NULL,int TimeoutToWait=20,bool bScanParent=true, int PK_Device_ExcludeChild = 0);
 		/**
 		 * @brief checks if the specified command is supported by the device
 		 */

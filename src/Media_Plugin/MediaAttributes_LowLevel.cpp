@@ -1051,6 +1051,9 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 {
 	if(FileUtils::DirExists(sDestination))
 	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is a dir: %s",sDestination.c_str(),sTracks.c_str());
+#endif
 		Row_File *pRow_File = AddDirectoryToDatabase(PK_MediaType==MEDIATYPE_pluto_CD_CONST ? MEDIATYPE_pluto_StoredAudio_CONST : PK_MediaType,sDestination);
 		AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,0);  // Track ==0
 		vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
@@ -1110,6 +1113,9 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 			pRow_File->Filename_set( sRippedFile );
 			m_pDatabase_pluto_media->File_get()->Commit();
 
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s calling AddDiscAttributesToFile for %s",sDestination.c_str(),s.c_str());
+#endif
 			AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,iTrack);
 
 			// Be sure the disc id is associated with each track
@@ -1133,6 +1139,9 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 	}
 	else
 	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is not a dir",sDestination.c_str());
+#endif
 		string sFileNameBase = FileUtils::FilenameWithoutPath(sDestination);
 		sDestination = FileUtils::BasePath(sDestination);
 		// It's not a directory, so it should be a file
@@ -1154,6 +1163,9 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 		}
 		string sRippedFile = listFiles.front();
 
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is not a dir, calling AddDirectoryToDatabase",sDestination.c_str());
+#endif
 		AddDirectoryToDatabase(PK_MediaType,FileUtils::BasePath(sDestination));
 
 		vector<Row_File *> vectRow_File;
@@ -1173,6 +1185,9 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 		pRow_File->Filename_set( FileUtils::FilenameWithoutPath(sRippedFile) );
 		m_pDatabase_pluto_media->File_get()->Commit();
 
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is not a dir, calling AddDiscAttributesToFile",sDestination.c_str());
+#endif
 		AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,-1);  // We won't have tracks then we ripped.  -1=ripped whole thing
 		FileUtils::DelFile(sDestination + "/" + sLockFile);
 	}

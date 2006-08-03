@@ -378,7 +378,10 @@ void Command_Impl::ReplaceParams( ::std::string sReplacement ) {
 bool Command_Impl::Connect(int iPK_DeviceTemplate)
 {
 	if( m_bLocalMode )
+	{
+		PostConnect();
 		return true;
+	}
 
 	bool bResult = true;
 
@@ -431,6 +434,9 @@ bool Command_Impl::Connect(int iPK_DeviceTemplate)
 #endif
 	
 	MiscCleanup();
+	if( bResult )
+		PostConnect();
+
 	return bResult;
 }
 

@@ -138,6 +138,9 @@
 				RelativePath=".\DeviceData_Impl.cpp">
 			</File>
 			<File
+				RelativePath=".\DeviceData_Router.cpp">
+			</File>
+			<File
 				RelativePath=".\Event_Impl.cpp">
 			</File>
 			<File

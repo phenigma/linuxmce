@@ -24,6 +24,8 @@
  */
 
 
+#include "Logger.h"
+#include "Command_Impl.h"
 #include "PlutoUtils/CommonIncludes.h"	
 #include "DeviceData_Base.h"
 
@@ -209,5 +211,131 @@ DeviceData_Base *AllDevices::m_mapDeviceData_Base_FindFirstOfTemplate( long dwPK
 	for(map<int,class DeviceData_Base *>::iterator it = m_mapDeviceData_Base.begin();it != m_mapDeviceData_Base.end();++it)
 		if( (*it).second->m_dwPK_DeviceTemplate==dwPK_DeviceTemplate )
 			return (*it).second;
+	return NULL;
+}
+
+
+// This will return the first device within the given category that is in any way
+// related (ie also a child of the topmost device, meaning it runs on the same PC).  Call leaving the default parameters unspecified.
+DeviceData_Base *DeviceData_Base::FindFirstRelatedDeviceOfCategory(int PK_DeviceCategory,Command_Impl *pCommand_Impl_Confirm_Registration,int TimeoutToWait,bool bScanParent,int PK_Device_ExcludeChild)
+{
+	if( m_bDeviceData_Impl )
+	{
+		DeviceData_Base *pDeviceData_Base = m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device);
+		if( pDeviceData_Base )
+			return pDeviceData_Base->FindFirstRelatedDeviceOfCategory(PK_DeviceCategory,pCommand_Impl_Confirm_Registration,TimeoutToWait);
+		else
+			return NULL;
+	}
+
+	if( WithinCategory(PK_DeviceCategory) )
+	{
+		if( pCommand_Impl_Confirm_Registration )
+		{
+			time_t tTimeout = time(NULL) + TimeoutToWait;
+			char Status = 'N';
+			while (Status != 'Y')
+			{
+				Status = pCommand_Impl_Confirm_Registration->DeviceIsRegistered(m_dwPK_Device);
+				switch (Status)
+				{
+					case 'Y': // is treated in the while loop
+						return this;
+					case 'N': // not registered
+						if( tTimeout < time(NULL) )
+						{
+							if( g_pPlutoLogger )
+								g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d never registered",m_dwPK_Device);
+							return NULL;
+						}
+						Sleep(1000);
+						break;
+					case 'D':
+						if( g_pPlutoLogger )
+							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d is disabled",m_dwPK_Device);
+						return NULL;
+					case 'E':
+						if( g_pPlutoLogger )
+							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d comm error",m_dwPK_Device);
+						return NULL;
+				}
+			}
+		}
+		return this;
+	}
+	for(size_t s=0;s<m_vectDeviceData_Base_Children.size();++s)
+	{
+		DeviceData_Base *pDeviceData_Base = m_vectDeviceData_Base_Children[s];
+		if( pDeviceData_Base->m_dwPK_Device==PK_Device_ExcludeChild )
+			continue;
+		DeviceData_Base *pDeviceData_Base_Result = pDeviceData_Base->FindFirstRelatedDeviceOfCategory(PK_DeviceCategory,pCommand_Impl_Confirm_Registration,TimeoutToWait,false);
+		if( pDeviceData_Base_Result )
+			return pDeviceData_Base_Result;
+	}
+	if( bScanParent && m_pDevice_ControlledVia )
+		return m_pDevice_ControlledVia->FindFirstRelatedDeviceOfCategory(PK_DeviceCategory,pCommand_Impl_Confirm_Registration,TimeoutToWait,true,m_dwPK_Device);
+	return NULL;
+}
+
+// This will return the first device of the given template that is in any way
+// related (ie also a child of the topmost device, meaning it runs on the same PC).  Call leaving the default parameters unspecified.
+DeviceData_Base *DeviceData_Base::FindFirstRelatedDeviceOfTemplate(int PK_DeviceTemplate,Command_Impl *pCommand_Impl_Confirm_Registration,int TimeoutToWait,bool bScanParent, int PK_Device_ExcludeChild)
+{
+	if( m_bDeviceData_Impl )
+	{
+		DeviceData_Base *pDeviceData_Base = m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device);
+		if( pDeviceData_Base )
+			return pDeviceData_Base->FindFirstRelatedDeviceOfTemplate(PK_DeviceTemplate,pCommand_Impl_Confirm_Registration,TimeoutToWait);
+		else
+			return NULL;
+	}
+
+	if( m_dwPK_DeviceTemplate==PK_DeviceTemplate )
+	{
+		if( pCommand_Impl_Confirm_Registration )
+		{
+			time_t tTimeout = time(NULL) + TimeoutToWait;
+			char Status = 'N';
+			while (Status != 'Y')
+			{
+				Status = pCommand_Impl_Confirm_Registration->DeviceIsRegistered(m_dwPK_Device);
+				switch (Status)
+				{
+					case 'Y': // is treated in the while loop
+						return this;
+					case 'N': // not registered
+						if( tTimeout < time(NULL) )
+						{
+							if( g_pPlutoLogger )
+								g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d never registered",m_dwPK_Device);
+							return NULL;
+						}
+						Sleep(1000);
+						break;
+					case 'D':
+						if( g_pPlutoLogger )
+							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d is disabled",m_dwPK_Device);
+						return NULL;
+					case 'E':
+						if( g_pPlutoLogger )
+							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d comm error",m_dwPK_Device);
+						return NULL;
+				}
+			}
+		}
+
+		return this;
+	}
+	for(size_t s=0;s<m_vectDeviceData_Base_Children.size();++s)
+	{
+		DeviceData_Base *pDeviceData_Base = m_vectDeviceData_Base_Children[s];
+		if( pDeviceData_Base->m_dwPK_Device==PK_Device_ExcludeChild )
+			continue;
+		DeviceData_Base *pDeviceData_Base_Result = pDeviceData_Base->FindFirstRelatedDeviceOfTemplate(PK_DeviceTemplate,pCommand_Impl_Confirm_Registration,TimeoutToWait,false);
+		if( pDeviceData_Base_Result )
+			return pDeviceData_Base_Result;
+	}
+	if( bScanParent && m_pDevice_ControlledVia )
+		return m_pDevice_ControlledVia->FindFirstRelatedDeviceOfTemplate(PK_DeviceTemplate,pCommand_Impl_Confirm_Registration,TimeoutToWait,true,m_dwPK_Device);
 	return NULL;
 }
