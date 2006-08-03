@@ -50,20 +50,19 @@ function createEventCategory($output,$dbADO) {
 		
 		$EventCategoryDescription = isset($_POST['EventCategoryDescription'])?cleanString($_POST['EventCategoryDescription']):'';
 		$category = cleanInteger($_POST['EventCategoryParent']);
-		if ($category == 0) {
-			$insertEvent = 'insert into EventCategory(Description) values(?)';
-		} else {
-			$insertEvent = 'insert into EventCategory(Description, FK_EventCategory_Parent) values(?,?)';
-		}
+		$insertEvent = 'insert into EventCategory(Description, FK_EventCategory_Parent) values(?,?)';
 		
 		if ($EventCategoryDescription!='') {
-			
+			$category=($category==0)?NULL:$category;
 			$query = $dbADO->Execute($insertEvent,array($EventCategoryDescription,$category));
 			$out.="
 			<script>
 				alert('$TEXT_EVENT_LIST_CATEGORY_ADDED_CONST');
-			    opener.document.forms.{$from}.action.value='form';				
-				opener.document.forms.{$from}.submit();
+				try{
+			    	opener.location.reload();				
+				}catch(e){
+					// error
+				}
 				self.close();
 			</script>
 			";			
