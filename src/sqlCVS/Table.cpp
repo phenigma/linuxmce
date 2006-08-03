@@ -818,7 +818,16 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 {
 	cout << "DetermineDeletions for table: " << m_sName << " from psc_id: " << m_psc_id_last_sync << " batch: " << m_psc_batch_last_sync << endl;
 	if( m_psc_id_last_sync<1 )
+	{
+		cout << "We haven't synced any records with the server yet, exiting" << endl;
 		return true; /** We haven't synced any records with the server anyway */
+	}
+		
+	if (m_sFilter != "")
+	{
+		cout << "Table has non-empty filter, skipping this stage {" << m_sFilter << "}" << endl;
+		return true;	
+	}
 
 	//number of intervals to divide
 	const int intervals_count = 10;
