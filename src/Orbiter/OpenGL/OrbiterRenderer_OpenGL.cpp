@@ -46,7 +46,8 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 	int Height = pOrbiterRenderer->OrbiterLogic()->m_iImageHeight;
 
 	pOrbiterRenderer->Engine = new OpenGL3DEngine();
-	if(!pOrbiterRenderer->Engine->GL.InitVideoMode(Width, Height, 32, false))
+	bool UseComposite = Simulator::GetInstance()->m_bUseOpenGLComposite;
+	if(!pOrbiterRenderer->Engine->GL.InitVideoMode(Width, Height, 32, false, UseComposite))
 	{
 		pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
 		g_pPlutoLogger->Write(LV_CRITICAL, "Thread -- GL.InitVideoMode FAILED");

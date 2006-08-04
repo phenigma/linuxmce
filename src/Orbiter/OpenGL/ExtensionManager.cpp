@@ -90,7 +90,8 @@ void ExtensionManager::Resize(int Width, int Height)
 	this->Height = Height;
 }
 
-/*virtual*/ bool ExtensionManager::InitVideoMode(int Width, int Height, int Bpp, bool FullScreen)
+/*virtual*/ bool ExtensionManager::InitVideoMode(int Width, int Height, int Bpp, bool FullScreen, 
+		bool UseComposite)
 {
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE)<0)
 		return false;
@@ -100,8 +101,11 @@ void ExtensionManager::Resize(int Width, int Height)
 	/* Sets up OpenGL double buffering */
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 #ifndef WIN32
- 	SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT);
-	SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_WINDOW_BIT);
+	if(UseComposite)
+	{
+ 		SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT);
+		SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_WINDOW_BIT);
+	}
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      1);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    1);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     1);

@@ -49,6 +49,7 @@ public: //data
 
 	bool m_bFullScreen;
 	/** Enable/disable OpenGL drawing effects */
+	bool m_bUseOpenGLComposite;
 	bool m_bUseOpenGL;
 	bool m_bLogToServer;
 
