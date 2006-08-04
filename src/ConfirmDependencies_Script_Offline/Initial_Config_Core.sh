@@ -117,6 +117,7 @@ if [[ $UpgradeMode == "false" ]]; then
 fi
 
 exec 1>&3 3>&-
+sleep 0.5
 
 ## Setup Offline Mode
 OfflineMode="false"
@@ -137,9 +138,11 @@ Dir::Etc::sourcelist "sources.list.offline";
 fi
 
 ## installing BonusCD at this point
+sleep 0.5
 exec 3>&1 1>/dev/tty
 . /usr/pluto/install/BonusCdMenu.sh
 exec 1>&3 3>&-
+sleep 0.5
 
 ## Setup pluto.conf
 PlutoConf="# Pluto config file
@@ -299,6 +302,7 @@ clear
 . /usr/pluto/install/BonusCdAutoInst.sh
 
 ## Install extra packages
+sleep 0.5
 exec 3>&1 1>/dev/tty
 while :; do
 	ExtraPkg=$(Ask "Do you want to add extra packages? [y/N]")
@@ -325,6 +329,7 @@ while :; do
 	fi
 done
 exec 1>&3 3>&-
+sleep 0.5
 # XXX: No error checking
 
 /usr/pluto/bin/SetupUsers.sh
