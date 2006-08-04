@@ -1658,11 +1658,12 @@ string Makefile = "none:\n"
 	if( pRow_Package_Source->FK_Package_getrow()->FK_Manufacturer_get()==1
 			&& !isDriverPackage(pRow_Package_Source->FK_Package_get()) ) // Pluto && ! kernel_module
 	{
-		sPreDepends = "pluto-kernel-upgrade, ";
+		sPreDepends = "pluto-kernel-upgrade ";
 	}
 	for (size_t s=0;s<vect_pRow_Package_Source_Dependencies.size();++s)
 	{
 		Row_Package_Source *pRow_Package_Source_Dependency = vect_pRow_Package_Source_Dependencies[s];
+		Row_Package_Package *pRow_Package_Package = g_pDatabase_pluto_main->Package_Package_get()->GetRow(pRow_Package_Source->FK_Package_get(),pRow_Package_Source_Dependency->FK_Package_get());
 		string sPkgName = pRow_Package_Source_Dependency->Name_get();
 		string sPkgVersion = pRow_Package_Source_Dependency->Version_get();
 		int count = 0;
@@ -1681,14 +1682,20 @@ string Makefile = "none:\n"
 		int iPkgManufacturer = pRow_Package_Source_Dependency->FK_Package_getrow()->FK_Manufacturer_get();
 		if (iPkgManufacturer == 1 ) /* HARDCODED: 1 = Pluto */
 		{
-			sDepends += ", " + sPkgName;
+			if( pRow_Package_Package->PreDependency_get()==1 )
+				sPreDepends += ", " + sPkgName;
+			else
+				sDepends += ", " + sPkgName;
 			if( sPkgVerBase != "" )
 			{
 				string::size_type iLastDotNext = sPkgVerBase.rfind(".", sPkgVerBase.length());
 				string sPkgVerBaseMajor = sPkgVerBase.substr(0, iLastDotNext + 1);
 				string sPkgVerBaseMinor = sPkgVerBase.substr(iLastDotNext + 1);
 				int iPkgVerBaseNext = atoi(sPkgVerBaseMinor.c_str()) + 1;
-				sDepends += string("")+ " (>= " + sPkgVerBase + ")" + ", " + sPkgName + " (<< " + sPkgVerBaseMajor + StringUtils::itos(iPkgVerBaseNext) + ")";
+				if( pRow_Package_Package->PreDependency_get()==1 )
+					sPreDepends += string("")+ " (>= " + sPkgVerBase + ")" + ", " + sPkgName + " (<< " + sPkgVerBaseMajor + StringUtils::itos(iPkgVerBaseNext) + ")";
+				else
+					sDepends += string("")+ " (>= " + sPkgVerBase + ")" + ", " + sPkgName + " (<< " + sPkgVerBaseMajor + StringUtils::itos(iPkgVerBaseNext) + ")";
 			}
 		}
 		else
