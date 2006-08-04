@@ -22,6 +22,7 @@ class WizardWidgetBase
 protected:
 	std::string Name;
 	std::map<std::string, std::string> Attributes;
+	bool Visible;
 	SDLFrontEnd* FrontEnd;
 public:
 	std::auto_ptr<WizardWidgetEventManager> EventManager;

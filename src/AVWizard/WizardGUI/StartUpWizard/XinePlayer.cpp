@@ -53,6 +53,14 @@ void XinePlayer::InitPlayerEngine(std::string ConfigName, std::string FileName)
 	std::cout<<"XinePlayer: InitPlayerEngine() with Xine config: "<<ConfigName<<" and filename " <<FileName<<std::endl;
 #endif
 
+	FILE* f = fopen(FileName.c_str(), "r");
+	if(!f)
+	{
+		std::cout<<"Warning, no file on disk to play: "<<FileName<<std::endl;
+		return;
+	}
+	else
+		fclose(f);
 
 	{
 		SafetyLock Lock(&lockmutex);

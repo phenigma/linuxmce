@@ -715,7 +715,6 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 			));
 	}
 
-
 	Page->AddChild(CreateControlButton(
 		"Btn1",
 		"Analog Stereo",
@@ -776,15 +775,31 @@ void GenerateWizardConfigDefaults::GeneratePage6(
 	Page->AddChild(Container);
 
 	//Create text area
-	std::string StringList[2];
+	std::string StringList[4];
 	StringList[0] = "I am playing some music, press enter when you confirm that you can hear it";
 	StringList[1] = "and the volume is adjusted at a confortable level.";
+
+	StringList[2] = "** NO AUDIO **";
+	StringList[3] = "Bonus CD with sample audio tracks was not installed";
 
 	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
 	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
 
 	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
 	for(int i = 0; i<2; i++)
+	{
+		Container->AddChild(CreateControlLabel(
+			"DescribeText"+Utils::Int32ToString(i),
+			StringList[i],
+			320,
+			175+i*15,
+			"Center"
+			));
+	}
+
+	DefaultFontColor = SkinGenerator::Instance()->MiniTitleFontColor;
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "BOLD");
+	for(int i = 2; i<4; i++)
 	{
 		Container->AddChild(CreateControlLabel(
 			"DescribeText"+Utils::Int32ToString(i),
@@ -865,16 +880,33 @@ void GenerateWizardConfigDefaults::GeneratePage7(
 	Page->AddChild(Container);
 
 	//Create text area
-	std::string StringList[3];
+	std::string StringList[5];
 	StringList[0] = "Can your stereo play Dolby Digital?";
 	StringList[1] = "I am playing some music in Dolby Digital 5.1. If you're able to hear the music,";
 	StringList[2] = "press the right arrow, otherwise press the left arrow.";
+
+	StringList[3] = "** NO AUDIO **";
+	StringList[4] = "Bonus CD with sample audio tracks was not installed";
+
 	
 	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
 	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
 
 	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
 	for(int i = 0; i<1; i++)
+	{
+		Container->AddChild(CreateControlLabel(
+			"DescribeText"+Utils::Int32ToString(i),
+			StringList[i],
+			320,
+			175+i*15,
+			"Center"
+			));
+	}
+
+	DefaultFontColor = SkinGenerator::Instance()->MiniTitleFontColor;
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "BOLD");
+	for(int i = 3; i<5; i++)
 	{
 		Container->AddChild(CreateControlLabel(
 			"DescribeText"+Utils::Int32ToString(i),
@@ -936,10 +968,13 @@ void GenerateWizardConfigDefaults::GeneratePage8(
 	Page->AddChild(Container);
 
 	//Create text area
-	std::string StringList[3];
+	std::string StringList[5];
 	StringList[0] = "Can your stereo play DTS?";
 	StringList[1] = "I am playing some music in DTS. If you're able to hear the music, press the";
 	StringList[2] = "right arrow, otherwise press the left arrow.";
+
+	StringList[3] = "** NO AUDIO **";
+	StringList[4] = "Bonus CD with sample audio tracks was not installed";
 
 	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
 	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
@@ -953,6 +988,21 @@ void GenerateWizardConfigDefaults::GeneratePage8(
 		));
 	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
 	for(int i = 1; i<3; i++)
+	{
+		Container->AddChild(CreateControlLabel(
+			"DescribeText"+Utils::Int32ToString(i),
+			StringList[i],
+			320,
+			175+i*15,
+			"Center"
+			));
+	}
+
+
+
+	DefaultFontColor = SkinGenerator::Instance()->MiniTitleFontColor;
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "BOLD");
+	for(int i = 3; i<5; i++)
 	{
 		Container->AddChild(CreateControlLabel(
 			"DescribeText"+Utils::Int32ToString(i),

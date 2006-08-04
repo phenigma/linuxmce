@@ -92,6 +92,8 @@ WizardWidgetLabel::~WizardWidgetLabel()
 
 /*virtual*/ void WizardWidgetLabel::Paint()
 {
+	if(!Visible)
+		return;
 	FrontEnd->SetCurrentFont(Font_Name, Font_Height, Style);
 	FrontEnd->TextOutput((char*)Caption.c_str(), Left, Top, *Font_Color, Align);
 	WizardWidgetBase::Paint();

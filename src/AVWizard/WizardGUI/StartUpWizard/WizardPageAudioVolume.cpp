@@ -52,11 +52,27 @@ int WizardPageAudioVolume::DoApplySetting(SettingsDictionary* Dictionary)
 	{
 		ConfigName = AVWizardSettings->GetValue("XineConfigFile");
 
-		if(AVWizardSettings->Exists("SoundTestFile"))
-			FileName = AVWizardSettings->GetValue("SoundTestFile");
-		Player->InitPlayerEngine(ConfigName, FileName);
 	}
 	
+	if(AVWizardSettings->Exists("SoundTestFile"))
+		FileName = AVWizardSettings->GetValue("SoundTestFile");
+	if(FileName != "")
+		Player->InitPlayerEngine(ConfigName, FileName);
+
+	WizardWidgetLabel* Label = NULL;
+	if(FileName != "")
+	{
+		FILE* f = fopen(FileName.c_str(), "r");
+		if(NULL != f)
+		{
+			fclose(f);
+			WizardWidgetLabel* Label = NULL;
+			Label = dynamic_cast<WizardWidgetLabel*>(Page->GetChildRecursive("DescribeText2"));
+			Label->SetUpAttribute( "Visible", "0");
+			Label = (WizardWidgetLabel*)Page->GetChildRecursive("DescribeText3");
+			Label->SetUpAttribute( "Visible", "0");
+		}
+	}
 	if(!AVWizardSettings->Exists("AudioVolumeMin"))
 		AudioVolumeMin = Utils::StringToInt32(AVWizardSettings->GetValue("AudioVolumeMin"));
 

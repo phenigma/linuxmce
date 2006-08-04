@@ -5,7 +5,7 @@
 //---------------------------------------------------------------------------
 
 WizardWidgetBase::WizardWidgetBase(SDLFrontEnd* FrontEnd, std::string Name)
-	: Parent(NULL)
+	: Parent(NULL), Visible(true)
 {
 	EventManager.reset(new WizardWidgetEventManager(this));
     this->Name = Name;
@@ -71,6 +71,11 @@ void WizardWidgetBase::SetUpAttribute(std::string Attribute, std::string DataVal
 	if(Attribute == "Top")
 	{
 		this->Top = Utils::StringToInt32(DataValue);
+	}
+	else
+	if(Attribute == "Visible")
+	{
+		this->Visible = Utils::StringToInt32(DataValue);
 	}
 
     Attributes[Attribute] = DataValue;

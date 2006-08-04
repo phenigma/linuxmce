@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+#include "WizardWidgetLabel.h"
+
 WizardPageDTSTest::WizardPageDTSTest(SDLFrontEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)
 {
@@ -50,9 +52,23 @@ WizardPageDTSTest::~WizardPageDTSTest(void)
 
 		if(AVWizardSettings->Exists("DTSTestFile"))
 			FileName = AVWizardSettings->GetValue("DTSTestFile");
-		Player->InitPlayerEngine(ConfigName, FileName);
+		if(FileName != "")
+			Player->InitPlayerEngine(ConfigName, FileName);
 	}
-	
+
+	if(FileName != "")
+	{
+		FILE* f = fopen(FileName.c_str(), "r");
+		if(NULL != f)
+		{
+			fclose(f);
+			WizardWidgetLabel* Label = NULL;
+			Label = dynamic_cast<WizardWidgetLabel*>(Page->GetChildRecursive("DescribeText3"));
+			Label->SetUpAttribute( "Visible", "0");
+			Label = (WizardWidgetLabel*)Page->GetChildRecursive("DescribeText4");
+			Label->SetUpAttribute( "Visible", "0");
+		}
+	}
 
 	if(!AVWizardSettings->Exists("DTSTest"))
 	{

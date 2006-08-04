@@ -3,6 +3,8 @@
 #include "GUIWizardUtils.h"
 #include <iostream>
 
+#include "WizardWidgetLabel.h"
+
 WizardPageDolbyTest::WizardPageDolbyTest(SDLFrontEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)
 {
@@ -49,7 +51,22 @@ WizardPageDolbyTest::~WizardPageDolbyTest(void)
 
 		if(AVWizardSettings->Exists("DolbyTestFile"))
 			FileName = AVWizardSettings->GetValue("DolbyTestFile");
-		Player->InitPlayerEngine(ConfigName, FileName);
+		if(FileName != "")
+			Player->InitPlayerEngine(ConfigName, FileName);
+	}
+
+	if(FileName != "")
+	{
+		FILE* f = fopen(FileName.c_str(), "r");
+		if(NULL != f)
+		{
+			fclose(f);
+			WizardWidgetLabel* Label = NULL;
+			Label = dynamic_cast<WizardWidgetLabel*>(Page->GetChildRecursive("DescribeText3"));
+			Label->SetUpAttribute( "Visible", "0");
+			Label = (WizardWidgetLabel*)Page->GetChildRecursive("DescribeText4");
+			Label->SetUpAttribute( "Visible", "0");
+		}
 	}
 
 	if(!AVWizardSettings->Exists("DolbyTest"))
