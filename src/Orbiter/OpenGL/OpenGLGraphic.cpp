@@ -119,7 +119,8 @@ void OpenGLGraphic::Prepare()
 	
 	LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, 
 		Surface->format->BitsPerPixel, 
-		Surface->format->Rmask, Surface->format->Gmask, Surface->format->Bmask, Surface->format->Amask);
+		Surface->format->Rmask, Surface->format->Gmask, Surface->format->Bmask,
+		Surface->format->Amask);
 		
 	if(LocalSurface == NULL) {
 		fprintf(stderr, "CreateRGBSurface failed: %s", SDL_GetError());
@@ -250,6 +251,8 @@ void OpenGLGraphic::ReleaseTexture()
 
 	if (TextureManager::Instance() == NULL)
 		return;
+
+	
 	if(Texture)
 	{
 		glDeleteTextures(1, &Texture);

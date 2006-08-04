@@ -2557,7 +2557,6 @@ if(UsesUIVersion2())
 		bSkipProcessing=m_pMouseBehavior->ButtonDown(event.data.button.m_iPK_Button);
 	if(event.type == Orbiter::Event::BUTTON_UP && !bSkipProcessing && NULL != m_pMouseBehavior)
 		bSkipProcessing=m_pMouseBehavior->ButtonUp(event.data.button.m_iPK_Button);
-
 }
 #endif
 
@@ -6968,13 +6967,16 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 
 	pPopup->m_bDontAutohide = bDont_Auto_Hide;
 
-	CMD_Refresh("");
+	//
 	/*
 	if( sName=="remote" )
 	{
 	int k=2;
 	}
 	*/
+
+	if(!Renderer()->HandleShowPopup(pPopup, PlutoPoint(iPosition_X, iPosition_Y)))
+		CMD_Refresh("");
 }
 
 //<-dceag-c398-b->
@@ -7000,11 +7002,15 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 		m_pOrbiterRenderer->UnHighlightObject();
 
 	DesignObj_Orbiter *pObj = FindObject(sPK_DesignObj_CurrentScreen);
+
 	g_pPlutoLogger->Write(LV_CRITICAL,"remove popup %s",sName.c_str());
+
+	bool bExistsPopupToHide = false;
+	bool bNeedRefresh = false;
 
 	if( pObj )
 	{
-		for(list<class PlutoPopup*>::iterator it=pObj->m_listPopups.begin();it!=pObj->m_listPopups.end();++it)
+		for(list<class PlutoPopup*>::iterator it=pObj->m_listPopups.begin();it!=pObj->m_listPopups.end();)
 		{
 			if( (*it)->m_sName==sName || sName.size()==0 )
 			{
@@ -7019,15 +7025,20 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 					g_pPlutoLogger->Write(LV_CRITICAL,"active popup 6 now %p",m_pActivePopup);
 				}
 
+				bExistsPopupToHide = true;
+				if(!Renderer()->HandleHidePopup(*it))
+					bNeedRefresh = true;
+
 				delete *it;
-				pObj->m_listPopups.erase(it);
-				break;
+				it = pObj->m_listPopups.erase(it);
 			}
+			else
+				++it;
 		}
 	}
 	else
 	{
-		for(list<class PlutoPopup*>::iterator it=m_listPopups.begin();it!=m_listPopups.end();++it)
+		for(list<class PlutoPopup*>::iterator it=m_listPopups.begin();it!=m_listPopups.end();)
 		{
 			if( (*it)->m_sName==sName || sName.size()==0 )
 			{
@@ -7035,6 +7046,7 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 					m_pOrbiterRenderer->ObjectOffScreen((*it)->m_pObj);
 				else
 					g_pPlutoLogger->Write(LV_CRITICAL,"Popup %s was already off screen",(*it)->m_pObj->m_ObjectID.c_str());
+					
 
 				if( m_pActivePopup==(*it) )
 				{
@@ -7042,18 +7054,21 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 					g_pPlutoLogger->Write(LV_CRITICAL,"active popup 7 now %p",m_pActivePopup);
 				}
 
+				bExistsPopupToHide = true;
+				if(!Renderer()->HandleHidePopup(*it))
+					bNeedRefresh = true;
+
 				delete *it;
-				m_listPopups.erase(it);
-				break;
+				it = m_listPopups.erase(it);
 			}
+			else
+				++it;
 		}
 	}
-//	if( m_pObj_Highlighted )
-//		HighlightFirstObject();
-	CMD_Refresh("");
+
+	if(bExistsPopupToHide && bNeedRefresh)
+		CMD_Refresh("");
 }
-
-
 
 //<-dceag-c399-b->
 
@@ -7161,6 +7176,7 @@ bool Orbiter::AddPopup(list<class PlutoPopup*> &listPopups,class PlutoPopup *pPo
 			break;
 		}
 	}
+
 	listPopups.push_back(pPopup);
 	return true;
 }

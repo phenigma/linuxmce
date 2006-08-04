@@ -23,8 +23,9 @@ class OpenGL3DEngine
 	MeshFrame* SelectedFrame;
 	MeshFrame* HighLightFrame;
 
+	MeshFrame* PopupMode;
+
 	virtual void UnSelect();
-	virtual void UnHighlight();
 
 
 	std::map<string, MeshFrame *> CurrentLayerObjects_;
@@ -42,6 +43,7 @@ public:
 	bool NeedUpdateScreen();
 	
 	void AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame);
+	MeshFrame* GetMeshFrameFromDesktop(string ObjectID);
 	
 	virtual void NewScreen();
 	virtual bool Paint();
@@ -49,8 +51,18 @@ public:
 	virtual void Select(PlutoRectangle* SelectedArea);
 	virtual void Highlight(PlutoRectangle* HightlightArea, OpenGLGraphic* HighSurface);
 
+	virtual void UnHighlight();
+
+	void RemoveMeshFrameFromDesktop(MeshFrame* Frame);
+
 	virtual int GetTick();
 	void Setup();
+
+	void StartPopupDrawing();
+	/**
+	 *	Return as result the popup
+	 */
+	MeshFrame* EndPopupMode();
 };
 
 #endif

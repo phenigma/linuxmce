@@ -133,7 +133,8 @@ void HorizMenuMouseHandler::ShowPopup(DesignObj_Orbiter *pObj_MenuPad)
 	if( pt.X + m_pObj_ActiveSubMenu->m_rPosition.Width > m_pMouseBehavior->m_pOrbiter->m_Width )
 		pt.X = m_pMouseBehavior->m_pOrbiter->m_Width-m_pObj_ActiveSubMenu->m_rPosition.Width;
 
-	m_pMouseBehavior->m_pOrbiter->CMD_Show_Popup(m_pObj_ActiveSubMenu->m_ObjectID,pt.X,pt.Y,"","submenu",false,false);
+	m_pMouseBehavior->m_pOrbiter->CMD_Show_Popup(m_pObj_ActiveSubMenu->m_ObjectID,pt.X,pt.Y,"",
+		"submenu",false,false);
 }
 
 string HorizMenuMouseHandler::GetFileBrowserPopup(DesignObj_Orbiter *pObj_MenuPad)

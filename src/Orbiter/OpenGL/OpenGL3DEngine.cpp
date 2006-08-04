@@ -23,7 +23,8 @@ OpenGL3DEngine::OpenGL3DEngine()
 	SelectedFrame(NULL),
 	AnimationRemain (false),
 	SceneMutex("scene mutex"),
-	Compose(NULL)
+	Compose(NULL),
+	PopupMode(NULL)
 {
 	if(TTF_Init()==-1) {
 		printf("Error on TTF_Init: %s\n", TTF_GetError());
@@ -347,3 +348,46 @@ bool OpenGL3DEngine::NeedUpdateScreen()
 	return Compose->HasEffects() || HighLightFrame != NULL;
 }
 
+MeshFrame* OpenGL3DEngine::GetMeshFrameFromDesktop(string ObjectID)
+{
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	std::map<string, MeshFrame *>::iterator it = CurrentLayerObjects_.find(ObjectID);
+	if(it == CurrentLayerObjects_.end())
+		return NULL;
+	return it->second;
+}
+
+void OpenGL3DEngine::RemoveMeshFrameFromDesktop(MeshFrame* Frame)
+{
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	if(NULL == CurrentLayer)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "RemoveMeshFrameFromDesktop: NULL CurrentLayer");
+		return;
+	}
+	g_pPlutoLogger->Write(LV_WARNING, "RemoveMeshFrameFromDesktop: %p", Frame);
+
+	CurrentLayer->RemoveChild(Frame);
+}
+
+void OpenGL3DEngine::StartPopupDrawing()
+{
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	if(NULL != PopupMode)
+		EndPopupMode();
+	PopupMode = CurrentLayer;
+	CurrentLayer = new MeshFrame();
+}
+
+/**
+*	Return as result the popup
+*/
+MeshFrame* OpenGL3DEngine::EndPopupMode()
+{
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	MeshFrame* Result = CurrentLayer;
+	CurrentLayer = PopupMode;
+	CurrentLayer->AddChild(Result);
+	PopupMode = NULL;
+	return Result;
+}

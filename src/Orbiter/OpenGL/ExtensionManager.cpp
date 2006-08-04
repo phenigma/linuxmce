@@ -133,11 +133,7 @@ void ExtensionManager::Resize(int Width, int Height)
 	if(Enable)
 	{
 		glEnable(GL_BLEND);
-#ifdef WIN32
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-#else
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-#endif
 	}
 	else
 	{

@@ -142,4 +142,3 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 #endif
 }
 
-

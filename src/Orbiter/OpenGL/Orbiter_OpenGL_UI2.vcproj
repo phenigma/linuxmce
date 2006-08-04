@@ -132,6 +132,12 @@
 			<Filter
 				Name="OpenGL"
 				Filter="">
+				<File
+					RelativePath=".\PopupCollection.cpp">
+				</File>
+				<File
+					RelativePath=".\PopupDescription.cpp">
+				</File>
 				<Filter
 					Name="Effects"
 					Filter="">
@@ -501,6 +507,12 @@
 			</File>
 			<File
 				RelativePath="..\OrbiterFileBrowser.h">
+			</File>
+			<File
+				RelativePath=".\PopupCollection.h">
+			</File>
+			<File
+				RelativePath=".\PopupDescription.h">
 			</File>
 			<Filter
 				Name="Win32"

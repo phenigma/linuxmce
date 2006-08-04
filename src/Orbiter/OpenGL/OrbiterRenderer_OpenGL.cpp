@@ -86,7 +86,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 
 		pOrbiterRenderer->Engine->Paint();
 
-		Sleep(15);
+		Sleep(25);
 	}
 
 	pOrbiterRenderer->Engine->Finalize();	
@@ -98,7 +98,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : 
 	OrbiterRenderer(pOrbiter), Mutex("open gl"), Engine(NULL), NeedToUpdateScreen_(false),
-	m_bWindowCreated(false)
+	m_bWindowCreated(false), Popups(NULL)
 {
 	std::cout << "*** OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL()" << std::endl;
 	GLThread = 0;
@@ -117,6 +117,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	if(GLThread != 0)
 		pthread_join(GLThread, NULL);
+	delete Popups;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::Configure()
@@ -128,6 +129,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(cm, Mutex);// Keep this locked to protect the map
 	cm.CondWait();
+	Popups = new PopupCollection(Engine);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::PostInitializeActions()
@@ -562,6 +564,7 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderScreen(bool bRenderGraphicsOnly)
 {
+	Popups->HidePopups();
 	if(OrbiterLogic()->m_bQuit)
 		return; //we are about to quit
 	
@@ -618,4 +621,29 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	Item = Engine->Compose->CreateEffect(3, OnScreenTransition, 0, Simulator::GetInstance()->m_iMilisecondsTransition);
 	if(Item)
 		Item->Configure(&rectLastSelected);
+}
+
+void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point)
+{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
+#endif
+	if(Popups)
+		Popups->PaintPopup(pPopup->m_pObj->m_ObjectID, pPopup);
+}
+
+/*virtual*/ bool OrbiterRenderer_OpenGL::HandleHidePopup(PlutoPopup* Popup)
+{
+	if(Popups)
+	{
+		Popups->HidePopup(Popup->m_pObj->m_ObjectID);
+	}
+	Engine->UnHighlight();
+	return true;
+}
+
+/*virtual*/ bool OrbiterRenderer_OpenGL::HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position)
+{
+	RenderPopup(Popup, Position);
+	return true;
 }

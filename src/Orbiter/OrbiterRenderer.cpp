@@ -925,7 +925,7 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 		pPopup->m_pObj->RenderObject(pPopup->m_pObj, point);
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot render the popup %s: object %s doesn't exist", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
+		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot render the popup %s: object doesn't exist", pPopup->m_sName.c_str()/*, pPopup->m_pObj->m_ObjectID.c_str()*/);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer::RedrawObjects()
@@ -950,9 +950,14 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );
 	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 	// We don't have a good solution for rendering objects under popups--so re-render the whole screen if there are popups and we're going to render something else anyway
+#ifndef ORBITER_OPENGL
 	if(  OrbiterLogic()->m_bRerenderScreen ||
-		((OrbiterLogic()->m_listPopups.size() || (OrbiterLogic()->m_pScreenHistory_Current && OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_listPopups.size())) && 
+		((OrbiterLogic()->m_listPopups.size() || 
+		(OrbiterLogic()->m_pScreenHistory_Current && OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_listPopups.size())) && 
 		(m_vectObjs_NeedRedraw.size() || m_vectTexts_NeedRedraw.size()) ))
+#else
+	if( OrbiterLogic()->m_bRerenderScreen )
+#endif
 	{
 		if(OrbiterLogic()->m_pGraphicBeforeHighlight)
 			UnHighlightObject(true);
@@ -1281,4 +1286,12 @@ void OrbiterRenderer::BackgroundImageLoad(const char *Filename, PlutoGraphic **p
 	}
 }
 
+/*virtual*/ bool OrbiterRenderer::HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position)
+{
+	return false;
+}
 
+/*virtual*/ bool OrbiterRenderer::HandleHidePopup(PlutoPopup* Popup)
+{
+	return false;
+}

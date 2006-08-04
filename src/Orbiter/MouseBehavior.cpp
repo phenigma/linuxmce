@@ -224,6 +224,8 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	m_iPK_Button_Mouse_Last=PK_Button;
 	m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();
 	m_iTime_Last_Mouse_Up=0;
+	if(!m_pOrbiter->m_pScreenHistory_Current)
+		return false;
 	int PK_Screen_OnScreen = m_pOrbiter->m_pScreenHistory_Current->PK_Screen();
 
 	// Special case for the media control
@@ -299,6 +301,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	{
 		return m_pMouseHandler->ButtonDown(PK_Button);
 	}
+
 	return false;
 }
 

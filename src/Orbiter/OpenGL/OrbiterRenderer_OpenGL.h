@@ -6,6 +6,8 @@
 
 #include "PendingGLEffects.h"
 
+#include "PopupCollection.h"
+
 class OpenGL3DEngine;
 //-----------------------------------------------------------------------------------------------------
 
@@ -18,6 +20,7 @@ namespace DCE
 		bool NeedToUpdateScreen_;
 		std::auto_ptr<PendingGLEffects> m_spPendingGLEffects;
 		bool m_bWindowCreated;
+		PopupCollection* Popups;
 
 	public:
 
@@ -67,7 +70,7 @@ namespace DCE
 		virtual void RenderObjectAsync(DesignObj_Orbiter *pObj);
 		virtual void ShowProgress(int nPercent);
 
-		//virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic) {}
+		virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic) {}
 
 		virtual void ObjectOnScreen(VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj,					PlutoPoint *ptPopup = NULL);
 		virtual void ObjectOffScreen(DesignObj_Orbiter *pObj);
@@ -90,6 +93,13 @@ namespace DCE
 		*/
 		virtual void PostInitializeActions();
 
+		/**
+		* @brief Render a popup
+		*/
+		virtual void RenderPopup(PlutoPopup *pPopup, PlutoPoint point);
+
+		virtual bool HandleHidePopup(PlutoPopup* Popup);
+		virtual bool HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position);
 		/**
 		* @brief initialize other classes, after the video mode was changed
 		*/

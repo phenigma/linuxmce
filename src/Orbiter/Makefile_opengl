@@ -184,6 +184,8 @@ sources += \
 	OpenGL/Effects/GL2DEffectTransitionNoEffect.cpp \
 	OpenGL/Effects/gl2deffectfadesfromtop.cpp \
 	OpenGL/Effects/GL2DEffectWipeIn.cpp \
+	OpenGL/PopupDescription.cpp \
+	OpenGL/PopupCollection.cpp \
 	$(ROOT)/utilities/linux/transparency/transparency.cpp
 
 #<-dceag-mf-b->

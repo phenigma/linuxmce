@@ -60,7 +60,7 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 	}
 		
 	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::RemoveChild %p, is leaf %d", Frame, Frame->Children.size() == 0);
-		
+
 	std::vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); )
 		if((*Child) == Frame)

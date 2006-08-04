@@ -222,6 +222,9 @@ public:
 	* @brief Setup the window related tasks 
 	*/
 	virtual void SetupWindow() {}
+
+	virtual bool HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position);
+	virtual bool HandleHidePopup(PlutoPopup* Popup);
 };
 
 #endif //__ORBITER_RENDERER_H__
