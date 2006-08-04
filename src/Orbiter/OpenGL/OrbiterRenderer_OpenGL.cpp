@@ -360,7 +360,11 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	g_pPlutoLogger->Write(LV_STATUS, "AddMeshFrameToDesktop (%d,%d,%d,%d)",
 		point.X, point.Y, rectTotal.Width, rectTotal.Height);
 
+	TextureManager::Instance()->AddCacheItem(ObjectID, Frame);
+
 	Engine->AddMeshFrameToDesktop(ObjectID, Frame);
+
+
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::BeginPaint()

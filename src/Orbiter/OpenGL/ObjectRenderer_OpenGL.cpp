@@ -3,6 +3,7 @@
 #include "../Orbiter.h"
 #include "../OrbiterRenderer.h"
 #include "OrbiterRenderer_OpenGL.h"
+#include "Texture/TextureManager.h"
 
 using namespace DCE;
 
@@ -20,6 +21,13 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 {
 	//g_pPlutoLogger->Write(LV_STATUS, "(1) RenderGraphic %d - (%d,%d,%d,%d)", m_pOwner->m_iBaseObjectID,
 	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
+
+	MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(m_pOwner->m_ObjectID);
+	if(NULL != Frame)
+	{
+		TextureManager::Instance()->AttachToScene(m_pOwner->m_ObjectID, Frame);
+		return;
+	}
 
 	PlutoGraphic *pPlutoGraphic = NULL;
 	pPlutoGraphic = 

@@ -1,10 +1,12 @@
 #include "TextureManager.h"
 #include "../ExtensionManager.h"
+#include "../Mesh/MeshFrame.h"
 
 #include <GL/gl.h>
 
 #include "../OpenGLGraphic.h"
 
+#include "../OpenGL3DEngine.h"
 #include "DCE/Logger.h"
 using namespace DCE;
 
@@ -18,12 +20,20 @@ TextureManager* TextureManager::Instance()
 }
 
 TextureManager::TextureManager(void)
-	: LastTexture(0), TextureEnable_(false), SupportTextureNonPowerOfTwo_(-1)
+	: LastTexture(0), 
+	TextureEnable_(false),
+	SupportTextureNonPowerOfTwo_(-1),
+	Engine(NULL)
 {
 }
 
 TextureManager::~TextureManager(void)
 {
+}
+
+void TextureManager::Setup(OpenGL3DEngine *Engine)
+{
+	this->Engine = Engine;
 }
 
 /*static*/ void TextureManager::SetupTexture(OpenGLTexture Texture)
@@ -118,3 +128,34 @@ bool TextureManager::SupportTextureNonPowerOfTwo()
 	return SupportTextureNonPowerOfTwo_ > 0;
 }
 
+
+MeshFrame* TextureManager::GetCacheItem(std::string ObjectID)
+{
+	std::map<std::string, MeshFrame*>::iterator Item = Graphics.find(ObjectID);
+
+	if(Item == Graphics.end())
+		return NULL;
+
+	
+	return Item->second;
+}
+
+void TextureManager::AddCacheItem(std::string ObjectID, MeshFrame* Frame)
+{
+	if(ExistInCache(ObjectID))
+		return;
+	Graphics[ObjectID] = Frame;
+}
+
+bool TextureManager::ExistInCache(std::string ObjectID)
+{
+	bool Result = Graphics.find(ObjectID) != Graphics.end();
+	return Result;
+	
+}
+
+void TextureManager::AttachToScene(string ObjectID, MeshFrame* Frame)
+{
+	if(NULL != Engine)
+		Engine->AddMeshFrameToDesktop(ObjectID, Frame);
+}

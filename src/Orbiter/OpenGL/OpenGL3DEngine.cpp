@@ -36,6 +36,8 @@ OpenGL3DEngine::OpenGL3DEngine()
 	pthread_mutexattr_settype(&m_SceneAttr, PTHREAD_MUTEX_RECURSIVE_NP);
 	SceneMutex.Init(&m_SceneAttr);
 	pthread_mutexattr_destroy(&m_SceneAttr);
+
+	TextureManager::Instance()->Setup(this);
 }
 
 OpenGL3DEngine::~OpenGL3DEngine()
@@ -129,7 +131,7 @@ void OpenGL3DEngine::NewScreen()
 	if(NULL != OldLayer)
 	{
 		Desktop.RemoveChild(OldLayer);
-		OldLayer->CleanUp();
+		//OldLayer->CleanUp();
 		delete OldLayer;
 	}
 	OldLayer = CurrentLayer;
@@ -180,6 +182,8 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 
 			CurrentLayer->RemoveChild(OldFrame);
 		}
+
+
 	}
 
 	CurrentLayer->AddChild(Frame);
