@@ -153,6 +153,7 @@ void OrbiterRenderer_SDL::Configure()
 	}
 	g_bResettingVideoMode=false;
     InitializeAfterSetVideoMode();
+	SetupWindow();
 #endif
 
 	g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight);
