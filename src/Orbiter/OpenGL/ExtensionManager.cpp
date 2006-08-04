@@ -141,7 +141,9 @@ void ExtensionManager::Resize(int Width, int Height)
 	}
 	else
 	{
+#ifndef WIN32
 		glDisable(GL_BLEND);
+#endif
 	}
 }
 
