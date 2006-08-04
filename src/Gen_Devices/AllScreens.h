@@ -1057,11 +1057,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_CDTrackCopy(long DeviceIDFrom, long DeviceIDTo,
-			int iPK_Users, string sName)
+			int iPK_Users, string sName, int iDriveID)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "25" /* screen ID */,
-				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 50 /* The name to save this disc as */, sName.c_str());
+				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 50 /* The name to save this disc as */, sName.c_str(), 233 /* The id of the external drive */, StringUtils::ltos(iDriveID).c_str());
 		}
 	};
 
@@ -1069,11 +1069,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_CDTrackCopy_DL(long DeviceIDFrom, string sDeviceIDTo,
-			int iPK_Users, string sName)
+			int iPK_Users, string sName, int iDriveID)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "25" /* screen ID */,
-				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 50 /* The name to save this disc as */, sName.c_str());
+				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 50 /* The name to save this disc as */, sName.c_str(), 233 /* The id of the external drive */, StringUtils::ltos(iDriveID).c_str());
 		}
 	};
 
@@ -1081,11 +1081,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_CDTrackCopy_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			int iPK_Users, string sName)
+			int iPK_Users, string sName, int iDriveID)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "25" /* screen ID */,
-				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 50 /* The name to save this disc as */, sName.c_str());
+				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 50 /* The name to save this disc as */, sName.c_str(), 233 /* The id of the external drive */, StringUtils::ltos(iDriveID).c_str());
 		}
 	};
 
@@ -1093,11 +1093,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_CDTrackCopy_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			int iPK_Users, string sName)
+			int iPK_Users, string sName, int iDriveID)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "25" /* screen ID */,
-				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 50 /* The name to save this disc as */, sName.c_str());
+				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 50 /* The name to save this disc as */, sName.c_str(), 233 /* The id of the external drive */, StringUtils::ltos(iDriveID).c_str());
 		}
 	};
 
@@ -9551,7 +9551,7 @@ namespace DCE
 		virtual void SCREEN_MakeCallPhonebook2(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_MakeCallIntercom(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_CurrentUser(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sName){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sName, int iDriveID){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_CDRemote(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_VoicemailMain(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TransferAllUsers(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -9923,7 +9923,8 @@ namespace DCE
 					ResetCallBacks();
 					int iPK_Users = atoi(pMessage->m_mapParameters[17].c_str());
 					string sName = pMessage->m_mapParameters[50];
-					SCREEN_CDTrackCopy(nPK_Screen, iPK_Users, sName);
+					int iDriveID = atoi(pMessage->m_mapParameters[233].c_str());
+					SCREEN_CDTrackCopy(nPK_Screen, iPK_Users, sName, iDriveID);
 					break;
 				}
 				case 26:

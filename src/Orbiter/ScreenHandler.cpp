@@ -173,11 +173,12 @@ bool ScreenHandler::Pnp_ObjectSelected(CallBackData *pData)
 	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sName)
+void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sName, int iDriveID)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::ltos(iPK_Users));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sName);
-	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, iPK_Users, sName);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, StringUtils::ltos(iDriveID));
+	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, iPK_Users, sName, iDriveID);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
@@ -1261,7 +1262,7 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				//m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sFullFilePath);
 
 				string a = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
-				string b = m_pOrbiter->m_mapVariable[45];
+				string b = m_pOrbiter->m_mapVariable[VARIABLE_Device_List_CONST];
 				int c = 4;
 			}
 		}

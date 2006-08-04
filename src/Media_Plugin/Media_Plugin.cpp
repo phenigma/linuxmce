@@ -2806,7 +2806,7 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 	{
 		if( sTracks.size()==0 )
 		{
-			SCREEN_CDTrackCopy SCREEN_CDTrackCopy(m_dwPK_Device,pMessage->m_dwPK_Device_From, iPK_Users,sName);
+			SCREEN_CDTrackCopy SCREEN_CDTrackCopy(m_dwPK_Device,pMessage->m_dwPK_Device_From, iPK_Users,sName,iDriveID);
 			SendCommand(SCREEN_CDTrackCopy);
 			return;
 		}

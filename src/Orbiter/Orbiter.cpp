@@ -325,9 +325,6 @@ Orbiter::~Orbiter()
 {
 	m_pOrbiterRenderer->Destroy();
 
-	if (m_pBackgroundImage)
-		delete m_pBackgroundImage;
-	
 	WriteStatusOutput("Orbiter destructor");
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter  %p is exiting",this);
 
@@ -361,6 +358,9 @@ Orbiter::~Orbiter()
 
 	delete m_pOrbiterRenderer;
 	m_pOrbiterRenderer = NULL;
+
+	if (m_pBackgroundImage)
+		delete m_pBackgroundImage;
 
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 	DesignObj_OrbiterMap::iterator itDesignObjOrbiter;

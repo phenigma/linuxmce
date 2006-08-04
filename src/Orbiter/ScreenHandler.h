@@ -101,7 +101,7 @@ public:
 	virtual void SCREEN_NewPnpDevice(long PK_Screen, string sDescription, int iPK_PnpQueue);
 	virtual void SCREEN_New_Pnp_Device_One_Possibility(long PK_Screen, int iPK_Room, int iPK_DHCPDevice, string sDescription, string ssComments, int iPK_PnpQueue);
 	bool Pnp_ObjectSelected(CallBackData *pData);
-	virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sName); 
+	virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sName, int iDriveID); 
 	MediaFileBrowserOptions mediaFileBrowserOptions;  // Current sort/filter options for the media browser
 
 	virtual void SCREEN_FileList_Music_Movies_Video(long PK_Screen);
