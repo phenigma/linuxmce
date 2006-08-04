@@ -1642,8 +1642,6 @@ void Xine_Stream::pushCurrentButton()
 
 bool Xine_Stream::playStream( string mediaPosition)
 {
-	StopSpecialSeek();
-
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "playStream called on non-initialized stream - aborting command");
@@ -1652,7 +1650,7 @@ bool Xine_Stream::playStream( string mediaPosition)
 
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-		m_iPlaybackSpeed = PLAYBACK_NORMAL;
+		changePlaybackSpeed( PLAYBACK_NORMAL );
 	}
 	time_t startTime = time( NULL );
 
@@ -2071,7 +2069,7 @@ void Xine_Stream::restartMediaStream()
 		return;
 	}
 
-	changePlaybackSpeed( PLAYBACK_FF_1 );
+	changePlaybackSpeed( PLAYBACK_NORMAL );
 }
 
 /**

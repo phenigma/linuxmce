@@ -385,7 +385,44 @@ void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 void Xine_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c42-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Jump_to_Position_in_Stream() Not implemented!");
+	Xine_Stream *pStream =  ptrFactory->GetStream( 1 );
+	if (pStream==NULL)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Jump_to_Position_in_Stream() stream is NULL, aborting - init failure?");
+		return;
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Change_Playback_Speed() with corresponding stream %p and value %s", pStream, sValue_To_Assign.c_str());
+		if (sValue_To_Assign!="")
+		{
+				int currentTime, totalTime;
+				int iMediaPosition = pStream->getStreamPlaybackPosition(currentTime, totalTime);
+				switch (sValue_To_Assign[0])
+				{
+					case '+':
+					case '-':
+						iMediaPosition += atoi(sValue_To_Assign.c_str())*1000;
+						break;
+					default:
+						iMediaPosition = atoi(sValue_To_Assign.c_str())*1000;
+						break;
+				}
+				
+				if (iMediaPosition>=totalTime)
+					iMediaPosition = totalTime-1*1000;
+				if (iMediaPosition<=0)
+					iMediaPosition = 0;
+				
+				g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Change_Playback_Speed() jumping to position %i", iMediaPosition);
+				pStream->Seek( iMediaPosition, 0 );
+				pStream->changePlaybackSpeed(Xine_Stream::PLAYBACK_NORMAL);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Jump_to_Position_in_Stream() - empty argument, skipping");
+		}
+	}
 }
 
 //<-dceag-c63-b->
@@ -407,7 +444,10 @@ void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message 
 		return;
 	}
 	else
+	{
+		pStream->changePlaybackSpeed( Xine_Stream::PLAYBACK_NORMAL );
 		pStream->sendInputEvent( XINE_EVENT_INPUT_NEXT );
+	}
 }
 
 //<-dceag-c64-b->
@@ -429,7 +469,10 @@ void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *
 		return;
 	}
 	else
+	{
+		pStream->changePlaybackSpeed( Xine_Stream::PLAYBACK_NORMAL );
 		pStream->sendInputEvent( XINE_EVENT_INPUT_PREVIOUS );
+	}
 }
 
 //<-dceag-c65-b->
@@ -457,6 +500,8 @@ void Xine_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &
 	}
 	else
 	{
+		pStream->changePlaybackSpeed( Xine_Stream::PLAYBACK_NORMAL);
+		
 		int ChaptersToSkip;
 		if( sValue_To_Assign[0]=='-' || sValue_To_Assign[0]=='+' )
 			ChaptersToSkip = atoi(sValue_To_Assign.c_str());
@@ -599,7 +644,7 @@ void Xine_Player::CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_R
 void Xine_Player::CMD_Pause(string &sCMD_Result,Message *pMessage)
 //<-dceag-c92-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Pause() Not implemented!");
+	CMD_Pause_Media(1);
 }
 
 //<-dceag-c95-b->
@@ -624,7 +669,7 @@ void Xine_Player::CMD_Stop(bool bEject,string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Play(string &sCMD_Result,Message *pMessage)
 //<-dceag-c139-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play() Not implemented!");
+	CMD_Play_Media( "", 0, 1, "");
 }
 
 //<-dceag-c140-b->
@@ -986,6 +1031,7 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 		else
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Set_Media_Position() just a seek within current called for filename: %s (%s) with stream %p. to pos %d", pStream->m_sCurrentFile.c_str(),sMediaPosition.c_str(),pStream,Position);
+			pStream->changePlaybackSpeed( Xine_Stream::PLAYBACK_NORMAL );
 			pStream->Seek( Position,0 );
 			pStream->DisplaySpeedAndTimeCode();
 			return;
