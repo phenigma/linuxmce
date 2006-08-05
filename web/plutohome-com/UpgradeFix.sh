@@ -38,6 +38,8 @@ if [[ "$DceRouterInstalled" != " not installed" ]] ;then
 	echo " ---------------------------------------------------------------------------"
 	sleep 10
 
+	/usr/sbin/alsactl restore || /bin/true
+	
 	## Update to be sure we get the latest files
 	apt-get update
 
@@ -67,7 +69,7 @@ if [[ "$DceRouterInstalled" != " not installed" ]] ;then
 	echo " ---------------------------------------------------------------------------"
 	sleep 10
 	
-	reboot
+	init 6
 	
 else
 
@@ -83,6 +85,10 @@ else
 		echo "  IMPORTANT: Don't reboot your computer until the update is completed ! "
 		echo 
 		echo " ---------------------------------------------------------------------------"
+		sleep 10
+	
+		/usr/sbin/alsactl restore || /bin/true
+	
 
 		apt-get update
 		dpkg --purge --force-all hotplug	
@@ -98,7 +104,7 @@ else
 		echo
 		echo " ---------------------------------------------------------------------------"
 		sleep 10	
-		reboot
+		init 6
 	fi
 	
 	exit 0
