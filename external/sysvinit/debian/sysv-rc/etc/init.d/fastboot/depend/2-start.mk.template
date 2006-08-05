@@ -13,7 +13,9 @@ Pluto_Update_StartupScrips.sh   : mysql
 Pluto_Network_Firewall.sh	: mysql
 Pluto_Diskless_Setup.sh         : mysql
 Pluto_SSH_Keys.sh		: ssh
+atftpd				: Pluto_Diskless_Setup.sh
 nfs-kernel-server		: Pluto_Diskless_Setup.sh
+dhcp3-server			: Pluto_Diskless_Setup.sh
 Pluto_WakeMDs.sh		: dhcp3-server nfs-common nfs-kernel-server
 #Pluto_Config_Device_Changes.sh 	: mysql
 Pluto_Dhcpd-Plugin.sh           : dhcp3-server
