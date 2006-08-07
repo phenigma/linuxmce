@@ -25,6 +25,6 @@ void PopupDescription::Hide()
 
 void PopupDescription::Show()
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Add the popup: %s", ObjectID.c_str());
+	g_pPlutoLogger->Write(LV_WARNING, "Add popup: %s to scene", ObjectID.c_str());
 	Engine->AddMeshFrameToDesktop(ObjectID, PopupFrame);
 }

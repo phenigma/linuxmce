@@ -16,12 +16,6 @@ PopupCollection::PopupCollection(OpenGL3DEngine* Engine)
 
 PopupCollection::~PopupCollection(void)
 {
-	HidePopups();
-}
-
-
-void PopupCollection::HidePopups()
-{
 	std::map<std::string, PopupDescription* >::iterator Item = Popups.begin(),
 		End = Popups.end();
 	for(; Item != End; ++Item)
@@ -29,6 +23,12 @@ void PopupCollection::HidePopups()
 		delete (Item->second);
 	}
 	Popups.clear();
+}
+
+
+void PopupCollection::HidePopups()
+{
+	Current = "";
 }
 
 void PopupCollection::HidePopup(std::string ID)
@@ -49,6 +49,7 @@ void PopupCollection::PaintPopup(std::string ID, PlutoPopup *Popup)
 	PopupDescription* Item;
 	if(Current == ID)
 		return;
+
 	if(Current!= "")
 	{
 		Item = Popups[Current];
@@ -57,6 +58,7 @@ void PopupCollection::PaintPopup(std::string ID, PlutoPopup *Popup)
 	}		
 
 	Current = ID;
+	
 	if (Exists(ID))
 	{
 		Item = Popups[ID];
@@ -67,12 +69,14 @@ void PopupCollection::PaintPopup(std::string ID, PlutoPopup *Popup)
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Added in map popup %s, now size is %d", ID.c_str(), Popups.size());
 
+		
 		Engine->StartPopupDrawing();
+
 		Popup->m_pObj->RenderObject(Popup->m_pObj, Popup->m_Position); 
 		Item = new PopupDescription(Engine, ID);
 		Popups[ID] = Item;
-
 	}
+	
 }
 
 bool PopupCollection::Exists(std::string ID)

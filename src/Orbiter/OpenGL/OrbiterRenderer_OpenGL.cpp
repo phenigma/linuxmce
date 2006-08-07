@@ -577,6 +577,8 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 		m_spPendingGLEffects->m_nOnSelectWithChangeEffectID = 
 		OrbiterLogic()->m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange;
 
+	Popups->HidePopups();
+
 	int OffScreenTransition = m_spPendingGLEffects->m_nOffScreenTransitionEffectID;
 	int OnScreenTransition = m_spPendingGLEffects->m_nOnScreenTransitionEffectID;
 	int OnSelectWithChange = m_spPendingGLEffects->m_nOnSelectWithChangeEffectID;
@@ -600,22 +602,11 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 
 	Engine->NewScreen();
 	OrbiterRenderer::RenderScreen(bRenderGraphicsOnly);
-
 	
 	NeedToUpdateScreen_ = true;
 
 	GLEffect2D::Effect* Item;
-	//srand((unsigned int)time(NULL));
-	//int EffectCode = GL2D_EFFECT_FADES_FROM_TOP;
-	//int EffectCode = GL2D_EFFECT_BEZIER_TRANSIT;
 	int EffectCode = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
-	//int EffectCode = GLEffect2D::EffectFactory::GetEffectCode(9);
-	//g_pPlutoLogger->Write(LV_WARNING, "%d", EffectCode);
-	/*
-	a = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
-	b = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
-	c = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
-	*/
 	
 	Item = Engine->Compose->CreateEffect(2, OffScreenTransition, 0, Simulator::GetInstance()->m_iMilisecondsTransition);
 	if(Item)
