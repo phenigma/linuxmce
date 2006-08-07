@@ -23,6 +23,7 @@
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
 #include "pluto_media/Define_AttributeType.h"
+#include "pluto_main/Define_MediaType.h"
 
 #include "Media_Plugin/MediaAttributes_LowLevel.h"
 #include "UpdateMedia/PlutoMediaAttributes.h"
@@ -107,6 +108,25 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 		{
             PK_MediaType = PlutoMediaIdentifier::Identify(m_sDirectory + "/" + m_sFile);
 			m_nPK_MediaType = PK_MediaType;
+		}
+
+		if(PK_MediaType == 0)
+		{
+			PK_MediaType = MEDIATYPE_misc_DocViewer_CONST;
+
+			if(m_bIsDir)
+			{
+				string sFullPath = FileUtils::IncludeTrailingSlash(m_sDirectory) + m_sFile;
+				string sBasePath = "/home/public/data/";
+				if(sFullPath.find(sBasePath + "videos") == 0)
+					PK_MediaType = MEDIATYPE_pluto_StoredVideo_CONST;
+				else if(sFullPath.find(sBasePath + "audio") == 0)
+					PK_MediaType = MEDIATYPE_pluto_StoredAudio_CONST;
+				else if(sFullPath.find(sBasePath + "pictures") == 0)
+					PK_MediaType = MEDIATYPE_pluto_Pictures_CONST;
+				else if(sFullPath.find(sBasePath + "documents") == 0)
+					PK_MediaType = MEDIATYPE_misc_DocViewer_CONST;
+			}
 		}
 
 		g_pPlutoLogger->Write(LV_STATUS, "Media Type is: %d, is folder %d", PK_MediaType, m_bIsDir);
@@ -295,7 +315,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(m_sDirectory));
 		pRow_File->Filename_set(FileUtils::ExcludeTrailingSlash(m_sFile));
 		pRow_File->IsDirectory_set(m_bIsDir);
-		pRow_File->EK_MediaType_set(!m_bIsDir ? PK_MediaType : 23 /*this is a folder. what media type to put?*/);
+		pRow_File->EK_MediaType_set(PK_MediaType);
 		pRow_File->Table_File_get()->Commit();
 
 		g_pPlutoLogger->Write(LV_STATUS, "PlutoMediaFile::AddFileToDatabase -> created new record PK_File %d",
