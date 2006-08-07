@@ -289,8 +289,13 @@ function editMasterDevice($output,$dbADO) {
 			while ($row=$resDeviceData->FetchRow()) {
 				$out.="
 												<tr ".((trim($row['Description'])=='')?(' bgColor = "lightgreen"'):('')).">
-													<td>#{$row['FK_DeviceData']} {$row['DD_desc']}({$row['PT_Desc']}) 
-													<input type=\"button\" class=\"button\" onClick=\"windowOpen('index.php?section=editDeviceData&from=editMasterDevice&deviceID=$deviceID&deviceDataID={$row['PK_DeviceData']}','status=0,resizable=1,width=500,height=250,toolbars=true');\" value=\"$TEXT_EDIT_CONST\"></td>
+													<td><table width=\"100%\">
+														<tr>
+															<td>#{$row['FK_DeviceData']} {$row['DD_desc']}({$row['PT_Desc']})</td>
+															<td width=\"50\"><input type=\"button\" class=\"button\" onClick=\"windowOpen('index.php?section=editDeviceData&from=editMasterDevice&deviceID=$deviceID&deviceDataID={$row['PK_DeviceData']}','status=0,resizable=1,width=500,height=250,toolbars=true');\" value=\"$TEXT_EDIT_CONST\"></td>
+														</tr>
+													</table>
+													</td>
 													<td><textarea name='Data_Description_{$row['FK_DeviceData']}' rows='1'>{$row['Description']}</textarea></td>
 													<td><textarea name='Data_DefaultValue_{$row['FK_DeviceData']}' rows='1'>{$row['IK_DeviceData']}</textarea></td>
 													<td align=\"center\"><input type='checkbox' value='1' name='Data_Required_{$row['FK_DeviceData']}' ".($row['Required']==1?' checked="checked" ':'')."></td>
