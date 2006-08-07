@@ -248,6 +248,7 @@ function mediaDirectors($output,$dbADO) {
 					if($orbiterMDChild){
 						$soundDevice=getSubDT($rowD['PK_Device'],$GLOBALS['SoundCards'],$dbADO);
 						$videoDevice=getSubDT($rowD['PK_Device'],$GLOBALS['VideoCards'],$dbADO);
+						$alphaBlended=getDeviceData($orbiterMDChild,$GLOBALS['UsealphablendedUI'],$dbADO);
 						$out.='
 							<input type="hidden" name="oldSound_'.$rowD['PK_Device'].'" value="'.$soundDevice.'">
 							<input type="hidden" name="oldVideo_'.$rowD['PK_Device'].'" value="'.$videoDevice.'">
@@ -289,10 +290,6 @@ function mediaDirectors($output,$dbADO) {
 											<td>'.displayReceivers($rowD['PK_Device'],$dbADO).'</td>
 										</tr>
 										<tr>
-											<td><B>'.$TEXT_INFRARED_RECEIVERS_CONST.'</B></td>
-											<td>'.displayReceivers($rowD['PK_Device'],$dbADO).'</td>
-										</tr>
-										<tr>
 											<td><B>'.$TEXT_COMPUTING_APPLICATIONS_CONST.'</B></td>
 											<td><input type="button" class="button" name="editCA_" value="Edit Computing Applications" onclick="windowOpen(\'index.php?section=editComputingApplications&mdID='.$rowD['PK_Device'].'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')"></td>
 										</tr>
@@ -300,6 +297,11 @@ function mediaDirectors($output,$dbADO) {
 											<td><B>'.$TEXT_HARDWARE_ACCELERATION_CONST.'</B></td>
 											<td>'.pulldownFromArray($GLOBALS['hardware_acceleration'],'acceleration_'.$rowD['PK_Device'],getAcceleration($orbiterMDChild,$dbADO),'','key','').'</td>
 										</tr>
+										<tr>
+											<td><B>'.$TEXT_USE_ALPHA_BLENDED_UI_CONST.'</B></td>
+											<td><input type="checkbox" name="alpha_blended_'.$rowD['PK_Device'].'" value="1" '.(($alphaBlended==1)?'checked':'').'></td>
+										</tr>
+						
 									</table>
 									
 								</td>
@@ -459,6 +461,7 @@ function mediaDirectors($output,$dbADO) {
 					
 					//
 					setAcceleration($orbiterMDChild,cleanString($_REQUEST['acceleration_'.$value]),$dbADO);
+					setAlphaBlend($orbiterMDChild,(int)@$_REQUEST['alpha_blended_'.$value],$dbADO);
 					
 					$installOptionsArray=explode(',',@$_POST['displayedTemplatesRequired_'.$value]);
 					foreach($installOptionsArray AS $elem){
@@ -628,5 +631,9 @@ function isDiskless($deviceID,$deviceData){
 	}
 	
 	return false;
+}
+
+function setAlphaBlend($orbiterID,$alphaBlend,$dbADO){
+	$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array($alphaBlend,$orbiterID,$GLOBALS['UsealphablendedUI']));
 }
 ?>

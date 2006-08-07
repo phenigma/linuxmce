@@ -186,7 +186,8 @@
 	$GLOBALS['PortChannelChoices']=151;			// Port Channel Choices
 	$GLOBALS['DisklessBoot']=9;					// Diskless boot
 	$GLOBALS['hardware_acceleration_dd']=168;	// Harware acceleration
-		
+	$GLOBALS['UsealphablendedUI']=169;			// Use alpha blended UI
+	
 	// PK_FloorplanType from table FloorplanType 
 
 	$GLOBALS['SecurityFoorplanType']=1;		// Security Zone

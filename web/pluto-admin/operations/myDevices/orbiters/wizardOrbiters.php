@@ -87,7 +87,8 @@ function wizardOrbiters($output,$dbADO) {
 			$orbiterDD[]=104;		// UI
 			$orbiterDD[]=111;		// Using Infrared
 			$orbiterDD[]=150;		// Spacing - Reduce image by
-
+			$orbiterDD[]=169;		// Use alpha blended UI
+			
 			$excludedData['standard_roaming_orbiters']=array('state',84,150);
 			$excludedData['mobile_orbiters']=array(84,20,'room','wifi',56,150);
 			$excludedData['on_screen_orbiters']=array('dt','ip_mac','wifi','state',25);
