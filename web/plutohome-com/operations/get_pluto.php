@@ -28,23 +28,23 @@ function get_pluto($output,$conn){
 
 1.  Download the latest kick-start CDs:<br><br>
 	<B>CD #1:</B><br>
-	&nbsp;&nbsp;&nbsp;&nbsp;Version ****KICK_START_NAME_1****<br>
+	&nbsp;&nbsp;&nbsp;&nbsp;Version ====KICK_START_NAME_1====<br>
 
-    &nbsp;&nbsp;&nbsp;&nbsp;MD5: ****MD5SUM_1****<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;MD5: ====MD5SUM_1====<br>
 
-	&nbsp;&nbsp;&nbsp;&nbsp;<a href="****HTTP_URL_CD_1****">HTTP download</a><br>
+	&nbsp;&nbsp;&nbsp;&nbsp;<a href="====HTTP_URL_CD_1====">HTTP download</a><br>
 
-	&nbsp;&nbsp;&nbsp;&nbsp;<a href="****FTP_URL_CD_1****">FTP download</a><br><br>
+	&nbsp;&nbsp;&nbsp;&nbsp;<a href="====FTP_URL_CD_1====">FTP download</a><br><br>
 
 
 	<B>CD #2:</B> Mandatory if your Pluto Core doesn\'t have broadband.  If you do, it is optional, but still highly recommended.  It contains sample a/v files that make setup much easier.<br>
-	&nbsp;&nbsp;&nbsp;&nbsp;Version ****KICK_START_NAME_2****<br>
+	&nbsp;&nbsp;&nbsp;&nbsp;Version ====KICK_START_NAME_2====<br>
 
-    &nbsp;&nbsp;&nbsp;&nbsp;MD5: ****MD5SUM_2****<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;MD5: ====MD5SUM_2====<br>
 
-	&nbsp;&nbsp;&nbsp;&nbsp;<a href="****HTTP_URL_CD_2****">HTTP download</a><br>
+	&nbsp;&nbsp;&nbsp;&nbsp;<a href="====HTTP_URL_CD_2====">HTTP download</a><br>
 
-	&nbsp;&nbsp;&nbsp;&nbsp;<a href="****FTP_URL_CD_2****">FTP download</a><br><br>
+	&nbsp;&nbsp;&nbsp;&nbsp;<a href="====FTP_URL_CD_2====">FTP download</a><br><br>
 
  
 
