@@ -73,7 +73,7 @@ case "$Template" in
 			fi
 		
 			## Do the mount
-			echo "-fstype=nfs,udp,proto=udp,soft,timeo=20,retrans=1,retry=1 $IPaddress:/mnt/device/$StorageDevice"
+			echo "-fstype=nfs,udp,proto=udp,soft,timeo=20,retrans=1,retry=1,rsize=8192,wsize=8192 $IPaddress:/mnt/device/$StorageDevice"
 		fi
 		;;
 	
