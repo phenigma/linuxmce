@@ -22,6 +22,7 @@ namespace DCE
 		bool m_bWindowCreated;
 		PopupCollection* Popups;
 
+	
 	public:
 
 		OrbiterRenderer_OpenGL(Orbiter *pOrbiter);
@@ -100,6 +101,11 @@ namespace DCE
 
 		virtual bool HandleHidePopup(PlutoPopup* Popup);
 		virtual bool HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position);
+
+		
+		virtual void UpdateObjectImage(string sPK_DesignObj, string sType, char *pData, int iData_Size, 
+			string sDisable_Aspect_Lock);
+			
 		/**
 		* @brief initialize other classes, after the video mode was changed
 		*/
@@ -115,6 +121,8 @@ namespace DCE
 		OpenGL3DEngine* Engine;	
 		pthread_cond_t Condition;
 		pluto_pthread_mutex_t Mutex; 
+
+		
 	};
 }
 

@@ -5275,55 +5275,7 @@ void Orbiter::CMD_Store_Variables(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,Message *pMessage)
 //<-dceag-c32-e->
 {
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // We don't want to allow this while we're rendering a screen
-	DesignObj_Orbiter *pObj = FindObject( sPK_DesignObj );
-	if(  !pObj  )
-	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Got update object image but cannot find: %s", sPK_DesignObj.c_str(  ) );
-		return;
-	}
-
-	int PriorWidth=0, PriorHeight=0;
-	if(  pObj->m_pvectCurrentGraphic  )
-		pObj->m_pvectCurrentGraphic = NULL;
-	if ( pObj->m_vectGraphic.size() )
-	{
-		PriorWidth = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Width;
-		PriorHeight = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height;
-	}
-
-	for(size_t i = 0; i < pObj->m_vectGraphic.size(); i++)
-	{
-		delete pObj->m_vectGraphic[i];
-	}
-	pObj->m_vectGraphic.clear();
-	pObj->m_iCurrentFrame = 0;
-
-	if(  iData_Size==0  )
-	{
-		//pObj->m_pGraphic=NULL;*
-		return;
-	}
-
-	PlutoGraphic *pPlutoGraphic = m_pOrbiterRenderer->CreateGraphic();
-
-	if(sType == "bmp")
-		pPlutoGraphic->m_GraphicFormat = GR_BMP;
-	else if(sType == "jpg")
-		pPlutoGraphic->m_GraphicFormat = GR_JPG;
-	else if(sType == "png")
-		pPlutoGraphic->m_GraphicFormat = GR_PNG;
-	else
-		pPlutoGraphic->m_GraphicFormat = GR_UNKNOWN;
-
-	pPlutoGraphic->LoadGraphic(pData, iData_Size, m_iRotation);  // These weren't pre-rotated
-	pObj->m_vectGraphic.push_back(pPlutoGraphic);
-	pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
-
-	if (  sDisable_Aspect_Lock.length(  )  )
-		pObj->m_bDisableAspectLock = ( sDisable_Aspect_Lock=="1" ) ? true : false;
-
-	m_pOrbiterRenderer->RenderObjectAsync(pObj);
+	m_pOrbiterRenderer->UpdateObjectImage(sPK_DesignObj, sType, pData, iData_Size, sDisable_Aspect_Lock);
 }
 
 void Orbiter::DelayedSelectObject( void *data )

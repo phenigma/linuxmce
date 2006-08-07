@@ -64,7 +64,22 @@ OpenGLGraphic::OpenGLGraphic(int Width, int Height) :
 
 OpenGLGraphic::~OpenGLGraphic()
 {
-	Clear();
+	
+	PLUTO_SAFETY_LOCK(oglMutex, Mutex);
+
+	if(NULL != LocalSurface)
+	{
+		SDL_FreeSurface(LocalSurface);
+		LocalSurface = NULL;
+	}
+
+	oglMutex.Release();
+
+	TextureManager::Instance()->RemoveFromConvertQueue(this);
+	TextureManager::Instance()->PrepareRelease(Texture);	
+
+	pthread_mutex_destroy(&Mutex.mutex);
+
 }
 
 void OpenGLGraphic::Initialize()
@@ -145,9 +160,8 @@ void OpenGLGraphic::Convert()
 	ReleaseTexture();
 
 	/* Typical Texture Generation Using Data From The Bitmap */
-	OpenGLTexture FinalTexture;
-	glGenTextures( 1, &FinalTexture);
-	glBindTexture(GL_TEXTURE_2D, FinalTexture);
+	glGenTextures( 1, &Texture);
+	glBindTexture(GL_TEXTURE_2D, Texture);
 
 	if(LocalSurface->format->BytesPerPixel == 4)
 		// Generate The Texture 
@@ -174,8 +188,6 @@ void OpenGLGraphic::Convert()
 	/* Linear Filtering */
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	
-	Texture = FinalTexture;
 }
 
 PlutoGraphic* OpenGLGraphic::Clone()
@@ -195,6 +207,7 @@ bool OpenGLGraphic::IsEmpty()
 
 bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 {
+	Clear();
 
 	if(m_GraphicFormat == GR_OCG)
 	{
@@ -228,7 +241,7 @@ void OpenGLGraphic::Clear()
 {
 	PLUTO_SAFETY_LOCK(oglMutex, Mutex);
 
-	TextureManager::Instance()->PrepareRelease(this);
+	TextureManager::Instance()->PrepareRelease(Texture);
 	if(LocalSurface != NULL)
 	{
 		SDL_FreeSurface(LocalSurface);

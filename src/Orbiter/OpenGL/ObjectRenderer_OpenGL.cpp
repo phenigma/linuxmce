@@ -22,7 +22,9 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 	//g_pPlutoLogger->Write(LV_STATUS, "(1) RenderGraphic %d - (%d,%d,%d,%d)", m_pOwner->m_iBaseObjectID,
 	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
 
-	MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(m_pOwner->m_ObjectID);
+	MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(
+			m_pOwner->GenerateObjectHash(point)
+		);
 	if(NULL != Frame)
 	{
 		TextureManager::Instance()->AttachToScene(m_pOwner->m_ObjectID, Frame);

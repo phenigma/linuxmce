@@ -99,6 +99,8 @@ public:
 	string GetParameterValue(int ParameterID);
 	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
 
+	std::string GenerateObjectHash(const PlutoPoint& point);
+
 protected:
 
 	virtual bool PreRenderActions(DesignObj_Orbiter *pObj_Screen, PlutoPoint point = PlutoPoint(0, 0));

@@ -23,12 +23,15 @@ TextureManager::TextureManager(void)
 	: LastTexture(0), 
 	TextureEnable_(false),
 	SupportTextureNonPowerOfTwo_(-1),
-	Engine(NULL)
+	Engine(NULL),
+	TextureLock("test") 
 {
+	TextureLock.Init(NULL);
 }
 
 TextureManager::~TextureManager(void)
 {
+	pthread_mutex_destroy(&TextureLock.mutex);
 }
 
 void TextureManager::Setup(OpenGL3DEngine *Engine)
@@ -76,44 +79,54 @@ void TextureManager::PrepareConvert(OpenGLGraphic* TextureGraphic)
 {
 	if(!TextureGraphic)
 		return;
-	WaitForConvert.push(TextureGraphic);
+
+	PLUTO_SAFETY_LOCK(sm, TextureLock);
+	WaitForConvert.push_back(TextureGraphic);
 }
 
-void TextureManager::PrepareRelease(OpenGLGraphic* TextureGraphic)
+void TextureManager::RemoveFromConvertQueue(OpenGLGraphic* TextureGraphic)
+{
+	PLUTO_SAFETY_LOCK(sm, TextureLock);
+	WaitForConvert.remove(TextureGraphic);
+}
+
+void TextureManager::PrepareRelease(OpenGLTexture TextureGraphic)
 {
 	if(!TextureGraphic)
 		return;
-	WaitForRelease.push(TextureGraphic);
+
+	PLUTO_SAFETY_LOCK(sm, TextureLock);
+	WaitForRelease.push_back(TextureGraphic);
 }
 
 void TextureManager::ConvertImagesToTextures()
 {
 	if(WaitForConvert.size())
 		g_pPlutoLogger->Write(LV_CRITICAL, "TextureManager::ConvertImagesToTextures size %d", WaitForConvert.size());
-	
-	OpenGLGraphic* Item;
-	while (!WaitForConvert.empty())
+	PLUTO_SAFETY_LOCK(sm, TextureLock);
+	std::list <OpenGLGraphic*>::iterator Item, End = WaitForConvert.end();
+	for(Item = WaitForConvert.begin(); Item != End; ++Item)
 	{
-		Item = WaitForConvert.front();
-		WaitForConvert.pop();
-		if (Item)
-			Item->Convert();
-	};
+		if (*Item)
+			(*Item)->Convert();
+	}
+	WaitForConvert.clear();
 }
 
 void TextureManager::ReleaseTextures()
 {
 	if(WaitForRelease.size())
 		g_pPlutoLogger->Write(LV_CRITICAL, "TextureManager::ReleaseTextures size %d", WaitForRelease.size());
-
-	OpenGLGraphic* Item;
-	while (!WaitForRelease.empty())
+	PLUTO_SAFETY_LOCK(sm, TextureLock);
+	std::list <OpenGLTexture>::iterator Item, End = WaitForRelease.end();
+	for(Item = WaitForRelease.begin(); Item != End; ++Item)
 	{
-		Item = WaitForRelease.front();
-		WaitForRelease.pop();
-		if (Item)
-			Item->ReleaseTexture();
-	};
+		if (*Item)
+		{
+			glDeleteTextures(1, &(*Item));
+		}
+	}
+	WaitForRelease.clear();
 }
 
 bool TextureManager::SupportTextureNonPowerOfTwo()

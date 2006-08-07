@@ -11,6 +11,8 @@
 #include <queue>
 #include <map>
 #include <string>
+#include <pthread.h>
+#include "PlutoUtils/MultiThreadIncludes.h"
 
 typedef GLuint OpenGLTexture; 
 
@@ -26,9 +28,11 @@ class TextureManager
 	bool TextureEnable_;
 
 	int SupportTextureNonPowerOfTwo_;
+
+	pluto_pthread_mutex_t TextureLock;
 	
-	std::queue <OpenGLGraphic*> WaitForConvert;
-	std::queue <OpenGLGraphic*> WaitForRelease;
+	std::list <OpenGLGraphic*> WaitForConvert;
+	std::list <OpenGLTexture> WaitForRelease;
 	std::map<std::string, MeshFrame*> Graphics;
 
 	bool ExistInCache(std::string ObjectID);
@@ -46,7 +50,10 @@ public:
 	
 	void PrepareConvert(OpenGLGraphic* TextureGraphic);
 	void ConvertImagesToTextures();
-	void PrepareRelease(OpenGLGraphic* TextureGraphic);
+
+	void RemoveFromConvertQueue(OpenGLGraphic* TextureGraphic);
+ 
+	void PrepareRelease(OpenGLTexture Texture);
 	void ReleaseTextures();
 
 	bool SupportTextureNonPowerOfTwo();

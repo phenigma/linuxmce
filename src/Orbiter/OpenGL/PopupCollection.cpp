@@ -36,12 +36,13 @@ void PopupCollection::HidePopup(std::string ID)
 	g_pPlutoLogger->Write(LV_STATUS, "PopupCollection::HidePopup %s", ID.c_str());
 
 	PopupDescription* Item;
-	if (!Exists(ID))
-	{
-	}
 	Item = Popups[ID];
 	if(Item)
+	{
 		Item->Hide();
+		if(ID == Current)
+			Current = "";
+	}
 }
 
 void PopupCollection::PaintPopup(std::string ID, PlutoPopup *Popup)

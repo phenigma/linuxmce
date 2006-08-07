@@ -625,7 +625,7 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point)
 	g_pPlutoLogger->Write(LV_STATUS,"ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
 #endif
 	if(Popups)
-		Popups->PaintPopup(pPopup->m_pObj->m_ObjectID, pPopup);
+		Popups->PaintPopup(pPopup->m_pObj->GenerateObjectHash(point), pPopup);
 }
 
 /*virtual*/ bool OrbiterRenderer_OpenGL::HandleHidePopup(PlutoPopup* Popup)
@@ -642,4 +642,71 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point)
 {
 	RenderPopup(Popup, Position);
 	return true;
+}
+
+/*virtual*/ void OrbiterRenderer_OpenGL::UpdateObjectImage(string sPK_DesignObj, string sType, 
+	char *pData, int iData_Size, string sDisable_Aspect_Lock)
+{
+	DesignObj_Orbiter *pObj = OrbiterLogic()->FindObject( sPK_DesignObj );
+	if(!pObj)
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Got update object image but cannot find: %s", sPK_DesignObj.c_str());
+		return;
+	}
+
+	if(  iData_Size==0  )
+	{
+		return;
+	}
+
+	int PriorWidth=0, PriorHeight=0;
+	if(  pObj->m_pvectCurrentGraphic  )
+		pObj->m_pvectCurrentGraphic = NULL;
+	if ( pObj->m_vectGraphic.size() )
+	{
+		PriorWidth = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Width;
+		PriorHeight = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height;
+	}
+
+	PlutoGraphic *pPlutoGraphic = NULL;
+	if(pObj->m_vectGraphic.size() > 0)
+	{
+		pPlutoGraphic = pObj->m_vectGraphic[0];
+		if(NULL == pPlutoGraphic)
+			pPlutoGraphic = CreateGraphic();
+	}
+	else
+	{
+		pPlutoGraphic = CreateGraphic();
+		pObj->m_vectGraphic.push_back(pPlutoGraphic);
+	}
+
+	pObj->m_iCurrentFrame = 0;
+
+	if(sType == "bmp")
+		pPlutoGraphic->m_GraphicFormat = GR_BMP;
+	else if(sType == "jpg")
+		pPlutoGraphic->m_GraphicFormat = GR_JPG;
+	else if(sType == "png")
+		pPlutoGraphic->m_GraphicFormat = GR_PNG;
+	else
+		pPlutoGraphic->m_GraphicFormat = GR_UNKNOWN;
+
+	pPlutoGraphic->LoadGraphic(pData, iData_Size, OrbiterLogic()->m_iRotation);  // These weren't pre-rotated
+	OpenGLGraphic* Graphic = dynamic_cast<OpenGLGraphic*>(pPlutoGraphic);
+	if(NULL == Graphic)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Warning: NULL graphic for PlutoGraphic, wrong code!");
+	}
+	else
+		TextureManager::Instance()->PrepareConvert(Graphic);
+
+
+	pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
+
+	if (  sDisable_Aspect_Lock.length(  )  )
+		pObj->m_bDisableAspectLock = ( sDisable_Aspect_Lock=="1" ) ? true : false;
+
+	RenderObjectAsync(pObj);
+
 }

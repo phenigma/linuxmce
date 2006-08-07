@@ -225,6 +225,9 @@ public:
 
 	virtual bool HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position);
 	virtual bool HandleHidePopup(PlutoPopup* Popup);
+
+	virtual void UpdateObjectImage(string sPK_DesignObj, string sType, char *pData, int iData_Size, 
+		string sDisable_Aspect_Lock);
 };
 
 #endif //__ORBITER_RENDERER_H__

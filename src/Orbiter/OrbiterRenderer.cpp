@@ -1295,3 +1295,57 @@ void OrbiterRenderer::BackgroundImageLoad(const char *Filename, PlutoGraphic **p
 {
 	return false;
 }
+
+/*virtual*/ void OrbiterRenderer::UpdateObjectImage(string sPK_DesignObj, string sType, 
+char *pData, int iData_Size, string sDisable_Aspect_Lock)
+{
+	DesignObj_Orbiter *pObj = OrbiterLogic()->FindObject( sPK_DesignObj );
+	if(!pObj)
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Got update object image but cannot find: %s", sPK_DesignObj.c_str());
+		return;
+	}
+
+	int PriorWidth=0, PriorHeight=0;
+	if(  pObj->m_pvectCurrentGraphic  )
+		pObj->m_pvectCurrentGraphic = NULL;
+	if ( pObj->m_vectGraphic.size() )
+	{
+		PriorWidth = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Width;
+		PriorHeight = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height;
+	}
+
+	for(size_t i = 0; i < pObj->m_vectGraphic.size(); i++)
+	{
+		delete pObj->m_vectGraphic[i];
+	}
+	pObj->m_vectGraphic.clear();
+	pObj->m_iCurrentFrame = 0;
+
+	if(  iData_Size==0  )
+	{
+		//pObj->m_pGraphic=NULL;*
+		return;
+	}
+
+	PlutoGraphic *pPlutoGraphic = CreateGraphic();
+
+	if(sType == "bmp")
+		pPlutoGraphic->m_GraphicFormat = GR_BMP;
+	else if(sType == "jpg")
+		pPlutoGraphic->m_GraphicFormat = GR_JPG;
+	else if(sType == "png")
+		pPlutoGraphic->m_GraphicFormat = GR_PNG;
+	else
+		pPlutoGraphic->m_GraphicFormat = GR_UNKNOWN;
+
+	pPlutoGraphic->LoadGraphic(pData, iData_Size, OrbiterLogic()->m_iRotation);  // These weren't pre-rotated
+	pObj->m_vectGraphic.push_back(pPlutoGraphic);
+	pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
+
+	if (  sDisable_Aspect_Lock.length(  )  )
+		pObj->m_bDisableAspectLock = ( sDisable_Aspect_Lock=="1" ) ? true : false;
+
+	RenderObjectAsync(pObj);
+	
+}
