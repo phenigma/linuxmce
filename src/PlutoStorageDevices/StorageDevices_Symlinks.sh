@@ -81,7 +81,7 @@ for Device in $InternalOwnStorageDevices; do
 				rm -f $symlinkDestination 
 			fi
 
-			ln -s "$symlinkSource" "$symlinkDestination"
+			ln -sn "$symlinkSource" "$symlinkDestination"
 			echo "$symlinkDestination -> $symlinkSource"
 		done
 	done
