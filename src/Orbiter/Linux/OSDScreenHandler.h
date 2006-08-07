@@ -71,6 +71,7 @@ public:
 	virtual void SCREEN_AV_Devices(long PK_Screen);
 	virtual bool AV_Devices_ObjectSelected(CallBackData *pData);
 	virtual bool AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pData);
+	virtual bool AV_Devices_GridSelected(CallBackData *pData);
 
 	//8. Done
 	virtual void SCREEN_Wizard_Done(long PK_Screen);

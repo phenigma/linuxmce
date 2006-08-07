@@ -163,7 +163,7 @@ while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 			break
 		fi
 		echo "$(date) Restart"
-		sleep 10
+		sleep 8
 	else
 		Logging $TYPE $SEVERITY_CRITICAL "$module" "Device died... $i $device_name"
 		echo "$(date) died"
@@ -180,13 +180,11 @@ while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 		if [[ "$count" -gt 3 ]]; then
 			Logging $TYPE $SEVERITY_WARNING "$module" "Found $count cores. Deleted all but latest 3. $i $device_name"
 		fi
-		sleep 20
+		sleep 10
 		((i++))
 	fi
 	echo out
 done
 if [[ "$i" -gt "$MAX_RESPAWN_COUNT"  ]]; then
 	Logging $TYPE $SEVERITY_CRITICAL $module "Aborting restart of device $device_id..."
-#	printf "01\tAborting restart of device $device_name\n" >> /var/log/pluto/PlutoServer.log
-#	wget -O /dev/null "www.1control.com/critical_error.php?installation=$INSTALLATION&Message=Device_${device_id}_failed"
 fi

@@ -1294,10 +1294,20 @@ class DataGridTable *General_Info_Plugin::InstalledAVDevices(string GridID, stri
 		"AND D.FK_Installation = " + StringUtils::itos(m_pRouter->iPK_Installation_get());
 	if( Parms.size() )
 	{
-		string sExcludeCategories = " NOT IN (" + Parms + ")";
-		sql += " AND (DT.FK_DeviceCategory IS NULL OR DT.FK_DeviceCategory " + sExcludeCategories + ") " + 
-		"AND (DC1.FK_DeviceCategory_Parent IS NULL OR DC1.FK_DeviceCategory_Parent " + sExcludeCategories + ") " + 
-		"AND (DC2.FK_DeviceCategory_Parent IS NULL OR DC2.FK_DeviceCategory_Parent " + sExcludeCategories + ") ";
+		string::size_type pos=0;
+		string sCategories = StringUtils::Tokenize(Parms,"|",pos);
+		string sDevices = StringUtils::Tokenize(Parms,"|",pos);
+
+		if( sDevices.size() )
+			sql += " AND D.PK_Device<>" + sDevices;
+
+		if( sCategories.size() )
+		{
+			string sExcludeCategories = " NOT IN (" + sCategories + ")";
+			sql += " AND (DT.FK_DeviceCategory IS NULL OR DT.FK_DeviceCategory " + sExcludeCategories + ") " + 
+			"AND (DC1.FK_DeviceCategory_Parent IS NULL OR DC1.FK_DeviceCategory_Parent " + sExcludeCategories + ") " + 
+			"AND (DC2.FK_DeviceCategory_Parent IS NULL OR DC2.FK_DeviceCategory_Parent " + sExcludeCategories + ") ";
+		}
 	}
 
 	PlutoSqlResult result;

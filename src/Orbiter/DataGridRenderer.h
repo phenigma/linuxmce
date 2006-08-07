@@ -29,8 +29,9 @@ public:
 	virtual bool RenderCell(DataGridTable *pT, DataGridCell *pCell, int j, int i, int iGraphicToDisplay, PlutoPoint point = PlutoPoint(0, 0));
 	virtual void Scroll_Grid(string sRelative_Level, int iPK_Direction);
 	virtual bool CalculateGridMovement(int Direction, int &Cur,  int CellsToSkip);
+	virtual void Flush(bool bFlushGraphics) { FlushCache(); }
 
-	void FlushCache(int Direction);
+	void FlushCache(int Direction=0);
 	void StartCacheThread();
 	void StopCacheThread();
 	void DataGridCacheThread();

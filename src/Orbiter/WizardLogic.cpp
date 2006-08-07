@@ -26,7 +26,7 @@ WizardLogic::~WizardLogic()
 bool WizardLogic::Setup()
 {
 #ifdef WIN32
-	if( !MySQLConnect("192.168.80.1", "root", "", "pm") )
+	if( !MySQLConnect("192.168.80.1", "root", "", "pluto_main") )
 #else
 	if( !MySQLConnect(m_pOrbiter->m_sIPAddress, "root", "", "pluto_main") )
 #endif
@@ -63,9 +63,9 @@ bool WizardLogic::HouseAlreadySetup()
 	return AlreadyHasUsers() && AlreadyHasRooms();	
 }
 
-int WizardLogic::FindFirstDeviceInCategoryOnThisPC(int PK_DeviceCategory,string *sDescription)
+int WizardLogic::FindFirstDeviceInCategory(int PK_DeviceCategory,int PK_Device_RelatedTo,string *sDescription)
 {
-	int PK_Device_PC = DatabaseUtils::GetTopMostDevice(this,m_pOrbiter->m_dwPK_Device);
+	int PK_Device_PC = PK_Device_RelatedTo ? DatabaseUtils::GetTopMostDevice(this,m_pOrbiter->m_dwPK_Device) : 0;
 	string sSQL = "SELECT Device.PK_Device,Device.Description FROM Device "
 		"JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate "
 		"JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory " 
@@ -73,7 +73,10 @@ int WizardLogic::FindFirstDeviceInCategoryOnThisPC(int PK_DeviceCategory,string 
 		"LEFT JOIN Device As P2 ON P1.FK_Device_ControlledVia=P2.PK_Device " 
 		"LEFT JOIN Device As P3 ON P2.FK_Device_ControlledVia=P3.PK_Device "
 		"WHERE "
-		"(PK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory) + " OR FK_DeviceCategory_Parent=" + StringUtils::itos(PK_DeviceCategory) + ") AND "
+		"(PK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory) + " OR FK_DeviceCategory_Parent=" + StringUtils::itos(PK_DeviceCategory) + ")";
+	
+	if( PK_Device_PC )
+		sSQL += " AND "
 		"(Device.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + " " 
 		"OR P1.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + " " 
 		"OR P2.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + " "
@@ -92,7 +95,7 @@ int WizardLogic::FindFirstDeviceInCategoryOnThisPC(int PK_DeviceCategory,string 
 
 bool WizardLogic::HasRemoteControl(bool bPopulateListOfOptions)
 {
-	int PK_Device_Remote = 	FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Remote_Controls_CONST);
+	int PK_Device_Remote = 	FindFirstDeviceInCategory(DEVICECATEGORY_Remote_Controls_CONST,m_pOrbiter->m_dwPK_Device);
 	if( !bPopulateListOfOptions || PK_Device_Remote )
 		return PK_Device_Remote!=0;
 

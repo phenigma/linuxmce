@@ -82,6 +82,7 @@ public:
 	virtual void RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
 	virtual void RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point = PlutoPoint(0, 0));
 	ObjectRenderer *Renderer() { return m_pObjectRenderer; };
+	virtual void Flush(bool bFlushGraphics=false); // Flush data that is cached with this object, such as the contents of a datagrid.  If bFlushGraphics, then any cached graphics are also purged
 
 	string GetArrayValue(); // If this is an item in an array, it will return the id of the array
 	// Runtime states

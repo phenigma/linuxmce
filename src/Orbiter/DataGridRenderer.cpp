@@ -605,6 +605,14 @@ bool DataGridRenderer::CalculateGridMovement(int Direction, int &Cur,  int Cells
 
 void DataGridRenderer::FlushCache(int Direction)
 {
+	if( !Direction )
+	{
+		FlushCache(DIRECTION_Left_CONST);
+		FlushCache(DIRECTION_Right_CONST);
+		FlushCache(DIRECTION_Up_CONST);
+		FlushCache(DIRECTION_Down_CONST);
+		return;
+	}
 	StopCacheThread();
 
 	while(m_listDataGridCache[Direction].size())

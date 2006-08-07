@@ -1256,6 +1256,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 			pDesignObj_DataGrid->m_GridCurCol = pDesignObj_DataGrid->m_iInitialColNum;
 			pDesignObj_DataGrid->m_GridCurRow = pDesignObj_DataGrid->m_iInitialRowNum;
 			pDesignObj_DataGrid->bReAcquire=true;
+			pDesignObj_DataGrid->Flush();
 
 			if(  bRefreshGrids  )
 			{
@@ -2086,6 +2087,7 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 			g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid );
 		else if(iPK_Variable)
 			CMD_Set_Variable(iPK_Variable, sValue_To_Assign);
+		pObj->Flush();
 	}
 	/* todo 2.0
 	if ( !sSelVariable.empty(  ) && !bEPG )
@@ -3644,6 +3646,7 @@ int k=2;
 		{
 			DesignObj_DataGrid *pDesignObj_DataGrid=m_vectObjs_GridsOnScreen[grid];
 			pDesignObj_DataGrid->bReAcquire=true;
+			pDesignObj_DataGrid->Flush();
 		}
 
 		m_pOrbiterRenderer->RenderObjectAsync(m_pScreenHistory_Current->GetObj());

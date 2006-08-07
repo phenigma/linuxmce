@@ -734,7 +734,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 	bool bHasTvInPath = m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
                                               m_pWizardLogic->m_nPK_Device_TV,2,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV,sTV,sInput);
 	if( !m_pWizardLogic->m_nPK_Device_TV )
-		m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST,&sTV);
+		m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST,m_pOrbiter->m_dwPK_Device,&sTV);
 
 	if(m_pWizardLogic->m_nPK_Device_TV )
 	{
@@ -813,7 +813,7 @@ bool OSDScreenHandler::TV_OnTimer(CallBackData *pData)
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_TV_Manufacturer_CONST);
 		return false;
 	}
-	int PK_Device_TV = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST);
+	int PK_Device_TV = m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST,m_pOrbiter->m_dwPK_Device);
 
 	if(PK_Device_TV)
 	{
@@ -988,7 +988,7 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 	}
 
 	if( !m_pWizardLogic->m_nPK_Device_Receiver )
-		m_pWizardLogic->m_nPK_Device_Receiver = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST,&sReceiver);
+		m_pWizardLogic->m_nPK_Device_Receiver = m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST,m_pOrbiter->m_dwPK_Device,&sReceiver);
 
 	if( m_pWizardLogic->m_nPK_Device_Receiver )
 	{
@@ -1061,7 +1061,7 @@ bool OSDScreenHandler::Receiver_OnTimer(CallBackData *pData)
 		return false;
 	}
 
-	int PK_Device_Receiver = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
+	int PK_Device_Receiver = m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST,m_pOrbiter->m_dwPK_Device);
 
 	if(PK_Device_Receiver)
 	{
@@ -1121,7 +1121,7 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 				bool bHasTvInPath = m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
 														m_pWizardLogic->m_nPK_Device_TV,2,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV,sTV,sInput);
 				if( !m_pWizardLogic->m_nPK_Device_TV )
-					m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST,&sTV);
+					m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST,m_pOrbiter->m_dwPK_Device,&sTV);
 
 				if( m_pWizardLogic->m_nPK_Device_TV && m_pWizardLogic->m_nPK_Command_Input_Video_On_TV )
 				{
@@ -1236,6 +1236,8 @@ void OSDScreenHandler::SCREEN_AV_Devices(long PK_Screen)
 	ScreenHandlerBase::SCREEN_AV_Devices(PK_Screen);
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AV_Devices_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::AV_Devices_GridSelected, 
+		new DatagridCellBackData());
 }
 //-----------------------------------------------------------------------------------------------------
 
@@ -1277,6 +1279,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 
 				//we have the AV Device Manufacturer and AV Device Model!
 				m_pWizardLogic->m_nPK_Device_Last_AV = m_pWizardLogic->AddDevice(atoi(sModel.c_str()));
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,StringUtils::itos(m_pWizardLogic->m_nPK_Device_Last_AV));
 			}
 		}
 		break;
@@ -1340,6 +1343,46 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 		break;
 	}
 
+	return false;
+}
+
+bool OSDScreenHandler::AV_Devices_GridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
+
+	switch(GetCurrentScreen_PK_DesignObj())
+	{
+		case DESIGNOBJ_AVDevices_CONST:
+			{
+				int PK_DeviceCategory = atoi(pCellInfoData->m_sValue.c_str());
+				m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butAVDevicesManuf_CONST), 0,"","", PK_DeviceCategory ? "1" : "0" );
+			}
+			break;
+		case DESIGNOBJ_AVDeviceManuf_CONST:
+			{
+				int PK_Manufacturer = atoi(pCellInfoData->m_sValue.c_str());
+				m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butAVDeviceModel_CONST), 0,"","",PK_Manufacturer ? "1" : "0" );
+			}
+			break;
+		case DESIGNOBJ_AVDeviceModel_CONST:
+			{
+				int PK_DeviceTemplate_AV = atoi(pCellInfoData->m_sValue.c_str());
+				m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butAVOutputs_CONST), 0,"","", PK_DeviceTemplate_AV ? "1" : "0" );
+			}
+			break;
+		case DESIGNOBJ_AVDeviceAudio_CONST:
+			{
+				int PK_Device = atoi(pCellInfoData->m_sValue.c_str());
+				m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butAVDeviceAudioInputs_CONST), 0,"","", PK_Device ? "1" : "0" );
+			}
+			break;
+		case DESIGNOBJ_AVDeviceVideo_CONST:
+			{
+				int PK_Device = atoi(pCellInfoData->m_sValue.c_str());
+				m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butAVDeviceVideoInputs_CONST), 0,"","", PK_Device ? "1" : "0" );
+			}
+			break;
+	}
 	return false;
 }
 
@@ -1438,7 +1481,7 @@ void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butLightsWizard_CONST)); 
 	ScreenHandler::SCREEN_LightsSetup(PK_Screen);
 
-	m_pWizardLogic->m_nPK_Device_Lighting =	m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Lighting_Interface_CONST);
+	m_pWizardLogic->m_nPK_Device_Lighting =	m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_Lighting_Interface_CONST,0);
 	if( m_pWizardLogic->m_nPK_Device_Lighting )
 		HandleLightingScreen();
 	else
@@ -1502,7 +1545,7 @@ bool OSDScreenHandler::Lights_OnTimer(CallBackData *pData)
 {
 	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoLights_CONST || m_tWaitingForRegistration || m_tRegistered )
 	{
-		m_pWizardLogic->m_nPK_Device_Lighting =	m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Lighting_Interface_CONST);
+		m_pWizardLogic->m_nPK_Device_Lighting =	m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_Lighting_Interface_CONST,0);
 g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer light %d waiting %d",m_pWizardLogic->m_nPK_Device_Lighting,(int) m_tWaitingForRegistration );
 		if( m_pWizardLogic->m_nPK_Device_Lighting )
 		{
@@ -1818,7 +1861,7 @@ void OSDScreenHandler::SCREEN_AlarmPanel(long PK_Screen)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butAlarmPanelWizard_CONST)); 
 	ScreenHandlerBase::SCREEN_AlarmPanel(PK_Screen);
 
-	m_pWizardLogic->m_nPK_Device_AlarmPanel =	m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Security_Interface_CONST);
+	m_pWizardLogic->m_nPK_Device_AlarmPanel =	m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_Security_Interface_CONST,0);
 	if( m_pWizardLogic->m_nPK_Device_AlarmPanel )
 		HandleAlarmScreen();
 	else
@@ -1865,7 +1908,7 @@ bool OSDScreenHandler::Alarm_OnTimer(CallBackData *pData)
 {
 	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoAlarmPanel_CONST || m_tWaitingForRegistration || m_tRegistered )
 	{
-		m_pWizardLogic->m_nPK_Device_AlarmPanel =	m_pWizardLogic->FindFirstDeviceInCategoryOnThisPC(DEVICECATEGORY_Security_Interface_CONST);
+		m_pWizardLogic->m_nPK_Device_AlarmPanel =	m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_Security_Interface_CONST,0);
 g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer sensor %d waiting %d",m_pWizardLogic->m_nPK_Device_AlarmPanel,(int) m_tWaitingForRegistration );
 		if( m_pWizardLogic->m_nPK_Device_AlarmPanel )
 		{

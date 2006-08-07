@@ -103,7 +103,7 @@ public:
 	void DeleteDevicesInThisRoomOfType(int PK_DeviceCategory);
 	void AddExternalTuner(long something) {}
 	void DeleteDevicesInThisRoomOfType(long something) {}
-	int FindFirstDeviceInCategoryOnThisPC(int PK_DeviceCategory,string *sDescription=NULL);
+	int FindFirstDeviceInCategory(int PK_DeviceCategory,int PK_Device_RelatedTo,string *sDescription=NULL);
 	int FindManufacturer(string sName);
 	int FindModel(int PK_DeviceCategory,string sModel);
 	void FindPnpDevices(string sPK_DeviceCategory);
