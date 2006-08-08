@@ -1065,6 +1065,13 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 	int positionTime, totalTime;
 	getStreamPlaybackPosition( positionTime, totalTime );
 
+	if (abs(positionTime-seekTime)<1000)
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed: too small interval for seek, skipping this time");
+		return;
+	}
+
+
 	g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed %d elapsed: %d ms last: %d this: %d pos %d",
 												m_iSpecialSeekSpeed, msElapsed,
 												m_posLastSpecialSeek,seekTime,positionTime);
