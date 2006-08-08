@@ -1058,24 +1058,6 @@ Window X11wrapper::Mouse_Constrain_GetWindow()
     return v_window_Mouse_Constrain;
 }
 
-bool X11wrapper::Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pixmap_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return)
-{
-    _LOG_NFO("window==%d, sPath=='%s'", window, sPath.c_str());
-    int code = -1;
-    X11_Locker x11_locker(GetDisplay());
-    do
-    {
-        // read x-bitmap from file
-        code = XReadBitmapFile(GetDisplay(), window, sPath.c_str(), &width_return, &height_return, &pixmap_return, &x_hot_return, &y_hot_return);
-        _COND_XERROR_LOG_BREAK(code);
-        if (x_hot_return < 0)
-            x_hot_return = 0;
-        if (y_hot_return < 0)
-            y_hot_return = 0;
-    } while (0);
-    return IsReturnCodeOk(code);
-}
-
 // all from : /usr/include/X11/cursorfont.h
 const X11wrapper::string_int X11wrapper::v_aStdCursors_NameValue[] =
 {
@@ -1170,9 +1152,99 @@ int X11wrapper::StdCursor_GetValueByName(const std::string &sName)
     return -1;
 }
 
+Pixmap X11wrapper::Pixmap_Create(Window window, unsigned int width, unsigned int height, unsigned int depth)
+{
+    _LOG_NFO("window==%d, width==%d, height==%d, depth==%d", window, width, height, depth);
+    Pixmap pixmap = XCreatePixmap(GetDisplay(), window, width, height, depth);
+    if (pixmap == 0)
+        _LOG_ERR("cannot create pixmap: window==%d, width==%d, height==%d, depth==%d", window, width, height, depth);
+    else
+        _LOG_NFO("window==%d, width==%d, height==%d, depth==%d => pixmap==%d", window, width, height, depth, pixmap);
+    return pixmap;
+}
+
+bool X11wrapper::Pixmap_Delete(Pixmap &pixmap)
+{
+    _LOG_NFO("pixmap==%d", pixmap);
+    X11_Locker x11_locker(GetDisplay());
+    int code = -1;
+    do
+    {
+        code = XFreePixmap(GetDisplay(), pixmap);
+        _COND_XERROR_LOG_BREAK(code);
+    } while (0);
+    return IsReturnCodeOk(code);
+}
+
+bool X11wrapper::Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pixmap_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return)
+{
+    _LOG_NFO("window==%d, sPath=='%s'", window, sPath.c_str());
+    int code = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        // read x-bitmap from file
+        code = XReadBitmapFile(GetDisplay(), window, sPath.c_str(), &width_return, &height_return, &pixmap_return, &x_hot_return, &y_hot_return);
+        _COND_XERROR_LOG_BREAK(code);
+        if (x_hot_return < 0)
+            x_hot_return = 0;
+        if (y_hot_return < 0)
+            y_hot_return = 0;
+    } while (0);
+    return IsReturnCodeOk(code);
+}
+
+bool X11wrapper::Object_GetGeometry(Drawable drawable, int *x_return, int *y_return, unsigned int *width_return, unsigned int *height_return)
+{
+    _LOG_NFO("Drawable==%d, x_return==%p, y_return==%p, width_return==%p, height_return==%p",
+             drawable, x_return, y_return, width_return, height_return
+             );
+    int code = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        Window root_ret = 0;
+        int x_ret = 0;
+        int y_ret = 0;
+        unsigned int width_ret = 0;
+        unsigned int height_ret = 0;
+        unsigned int border_width_ret = 0;
+        unsigned int depth_ret = 0;
+        code = XGetGeometry(
+            GetDisplay(), drawable,
+            &root_ret,
+            &x_ret, &y_ret, &width_ret, &height_ret,
+            &border_width_ret,
+            &depth_ret
+            );
+        if (code == 0)
+            _LOG_XERROR_BREAK("cannot read window geometry");
+        if (x_return)
+        {
+            *x_return = x_ret;
+            _LOG_NFO("x_return->%d", *x_return);
+        }
+        if (y_return)
+        {
+            *y_return = y_ret;
+            _LOG_NFO("y_return->%d", *y_return);
+        }
+        if (width_return)
+        {
+            *width_return = width_ret;
+            _LOG_NFO("width_return->%d", *width_return);
+        }
+        if (height_return)
+        {
+            *height_return = height_ret;
+            _LOG_NFO("height_return->%d", *height_return);
+        }
+    } while (0);
+    return IsReturnCodeOk(code);
+}
+
 bool X11wrapper::Extension_Shape_IsAvailable()
 {
-    _LOG_NFO();
     if (! v_bExtension_Shape_IsInitialized)
         Extension_Shape_Initialize();
     return v_bExtension_Shape_IsAvailable;
@@ -1180,7 +1252,6 @@ bool X11wrapper::Extension_Shape_IsAvailable()
 
 bool X11wrapper::Extension_Shape_GetVersion_Major()
 {
-    _LOG_NFO();
     if (! v_bExtension_Shape_IsInitialized)
         Extension_Shape_Initialize();
     return v_nExtension_Shape_Version_Major;
@@ -1188,13 +1259,89 @@ bool X11wrapper::Extension_Shape_GetVersion_Major()
 
 bool X11wrapper::Extension_Shape_GetVersion_Minor()
 {
-    _LOG_NFO();
     if (! v_bExtension_Shape_IsInitialized)
         Extension_Shape_Initialize();
     return v_nExtension_Shape_Version_Minor;
 }
 
-bool X11wrapper::Window_Shape_Reset(Window window)
+bool X11wrapper::Shape_Context_Enter(Window window, unsigned int width, unsigned int height, Pixmap &bitmap_mask, GC &gc, Display * &pDisplay)
+{
+    _LOG_NFO("window==%d, width==%d, height==%d", window, width, height);
+    bool bResult = false;
+    bool b_gc_created = false;
+    int code = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        if (! Extension_Shape_IsAvailable())
+            _LOG_XERROR_BREAK("X11 SHAPE extension: not available");
+        pDisplay = GetDisplay();
+        bitmap_mask = XCreatePixmap(pDisplay, window, width, height, 1);
+        if (bitmap_mask == None)
+            _LOG_XERROR_BREAK("cannot create bitmap for mask");
+        gc = XCreateGC(pDisplay, bitmap_mask, 0, NULL);
+        b_gc_created = true;
+        // clean background
+        code = XFillRectangle(pDisplay, bitmap_mask, gc, 0, 0, width, height);
+        _COND_XERROR_LOG_BREAK(code);
+        code = XSetForeground(pDisplay, gc, 1);
+        _COND_XERROR_LOG_BREAK(code);
+        // done
+        bResult = true;
+    } while (0);
+    // cleanup
+    if (! bResult)
+    {
+        if (bitmap_mask != None)
+            XFreePixmap(GetDisplay(), bitmap_mask);
+        if (b_gc_created)
+            XFreeGC(GetDisplay(), gc);
+    }
+    if (bResult)
+    {
+        _LOG_NFO("window==%d, width==%d, height==%d => bitmap_mask==%d, gc==%d, pDisplay==%p", window, width, height, bitmap_mask, gc, pDisplay);
+    }
+    return (IsReturnCodeOk(code) && bResult);
+}
+
+bool X11wrapper::Shape_Context_Leave(Window window, Pixmap &bitmap_mask, GC &gc, Display * &pDisplay)
+{
+    _LOG_NFO("window==%d, bitmap_mask==%d, gc==%d, pDisplay==%p", window, bitmap_mask, gc, pDisplay);
+    bool bResult = Shape_Window_Apply(window, bitmap_mask);
+    if (! bResult)
+        _LOG_ERR("cannot apply shape");
+    int code = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        code = XFreeGC(pDisplay, gc);
+        if (! IsReturnCodeOk(code))
+            _LOG_WRN("XFreeGC() retCode==%d", code);
+        code = XFreePixmap(GetDisplay(), bitmap_mask);
+        if (! IsReturnCodeOk(code))
+            _LOG_WRN("XFreePixmap() retCode==%d", code);
+        code = 0;
+    } while (0);
+    // cleanup
+    return (IsReturnCodeOk(code) && bResult);
+}
+
+bool X11wrapper::Shape_Window_Apply(Window window, Pixmap &pixmap)
+{
+    _LOG_NFO("window==%d, pixmap==%d", window, pixmap);
+    int code = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        if (! Extension_Shape_IsAvailable())
+            _LOG_XERROR_BREAK("X11 SHAPE extension: not available");
+        XShapeCombineMask(GetDisplay(), window, ShapeBounding, 0, 0, pixmap, ShapeSet);
+        code = 0;
+    } while (0);
+    return IsReturnCodeOk(code);
+}
+
+bool X11wrapper::Shape_Window_Reset(Window window)
 {
     _LOG_NFO("window==%d", window);
     int code = -1;
@@ -1208,7 +1355,7 @@ bool X11wrapper::Window_Shape_Reset(Window window)
     return IsReturnCodeOk(code);
 }
 
-bool X11wrapper::Window_Shape_Hide(Window window)
+bool X11wrapper::Shape_Window_Hide(Window window)
 {
     _LOG_NFO("window==%d", window);
     int code = -1;
@@ -1235,14 +1382,22 @@ bool X11wrapper::Extension_Shape_Initialize()
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XShapeQueryVersion(GetDisplay(), &v_nExtension_Shape_Version_Major, &v_nExtension_Shape_Version_Minor);
         v_bExtension_Shape_IsInitialized = true;
+        int major_opcode = 0;
+        int first_event = 0;
+        int first_error = 0;
+        code = XQueryExtension(GetDisplay(),"SHAPE",&major_opcode,&first_event,&first_error);
+        if (! code)
+            _LOG_XERROR_BREAK("X11 SHAPE extension not available : major_opcode==%d, first_event==%d, first_error==%d",
+                              major_opcode, first_event, first_error
+                              );
+        code = XShapeQueryVersion(GetDisplay(), &v_nExtension_Shape_Version_Major, &v_nExtension_Shape_Version_Minor);
         if (code == 0)
             _LOG_XERROR_BREAK("X11 SHAPE extension: not available");
         v_bExtension_Shape_IsAvailable = true;
         _LOG_NFO("X11 SHAPE extension: version %d.%d", v_nExtension_Shape_Version_Major, v_nExtension_Shape_Version_Minor);
     } while (0);
-    return IsReturnCodeOk(code);
+    return v_bExtension_Shape_IsAvailable;
 }
 
 Window X11wrapper::Debug_Window(bool bCreate_NotClose/*=true*/)
@@ -1268,6 +1423,38 @@ Window X11wrapper::Debug_Window(bool bCreate_NotClose/*=true*/)
         }
     }
     return windowDebug;
+}
+
+bool X11wrapper::Debug_Shape_Context_Example(Window window, unsigned int width, unsigned int height)
+{
+    // remembered values
+    Pixmap bitmap_mask = 0;
+    GC gc;
+    Display *pDisplay = NULL;
+    // get display
+    // initialize
+    bool bResult = Shape_Context_Enter(window, width, height, bitmap_mask, gc, pDisplay);
+    if (! bResult)
+    {
+        _LOG_ERR("Shape_Context_Enter() retCode==%d, window==%d, width==%d, height==%d, bitmap_mask==%d, gc==%d, pDisplay==%p",
+             bResult, window, width, height, bitmap_mask, gc, pDisplay);
+        return false;
+    }
+    // creating the desired shape
+    for (unsigned int x=0; x<width; ++x)
+        for (unsigned int y=0; y<height; ++y)
+        {
+            if (x<y)
+                XDrawPoint(pDisplay, bitmap_mask, gc, x, y);
+        }
+    // done
+    bResult = Shape_Context_Leave(window, bitmap_mask, gc, pDisplay);
+    if (! bResult)
+    {
+        _LOG_WRN("Shape_Context_Leave() retCode==%d, window==%d, width==%d, height==%d, bitmap_mask==%d, gc==%d, pDisplay==%p",
+             bResult, window, width, height, bitmap_mask, gc, pDisplay);
+    }
+    return true;
 }
 
 int X11wrapper::AfterFunction_Grabber(Display *pDisplay)
@@ -1304,7 +1491,7 @@ bool X11wrapper::AfterFunction_Restore()
     return true;
 }
 
-bool X11wrapper::Window_Shape_Alpha(Window window, unsigned char nAlphaThreshold/*=128*/)
+bool X11wrapper::Shape_Window_Alpha(Window window, unsigned char nAlphaThreshold/*=128*/)
 {
     _LOG_NFO("window==%d, nAlphaThreshold==%d", window, nAlphaThreshold);
     XImage *pXImage = NULL;

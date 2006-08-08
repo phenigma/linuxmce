@@ -206,10 +206,7 @@ public:
     bool Mouse_IsConstrainActive();
     Window Mouse_Constrain_GetWindow();
 
-    /// graphics
-
-    // XFreePixmap should be called
-    bool Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pixmap_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return);
+    /// cursors
 
     struct string_int
     {
@@ -221,6 +218,25 @@ public:
 
     // return -1 on error
     static int StdCursor_GetValueByName(const std::string &sName);
+
+    /// graphics
+
+    // Pixmap_Delete() should be called
+    // depth==1 for a bitmap
+    Pixmap Pixmap_Create(Window window, unsigned int width, unsigned int height, unsigned int depth);
+
+    // actually XFreePixmap() with error-checking
+    bool Pixmap_Delete(Pixmap &pixmap);
+
+    // Pixmap_Delete() should be called
+    bool Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pixmap_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return);
+
+    /// other
+
+    // drawable can be: Window, Pixmap
+    // NULL arguments can be passed, for un-needed values
+    // x and y are always 0 for a Pixmap
+    bool Object_GetGeometry(Drawable drawable, int *x_return, int *y_return, unsigned int *width_return, unsigned int *height_return);
 
 protected:
     int Mouse_Grab_Helper(Window window_grab, Window window_confine_to);
@@ -261,8 +277,29 @@ public:
     bool Extension_Shape_IsAvailable();
     bool Extension_Shape_GetVersion_Major();
     bool Extension_Shape_GetVersion_Minor();
-    bool Window_Shape_Reset(Window window);
-    bool Window_Shape_Hide(Window window);
+
+    // creating a callback for drawing :  not flexible enough
+    // usage:
+    //   call Shape_Context_Enter()
+    //   remember the return values : Pixmap, GC, Display
+    //   DRAW ONLY masked pixels in the Pixmap, using GC and Display
+    //   call Shape_Window_Apply()
+    //   call Shape_Context_Leave()
+
+    // if returns false, then the return values are not valid
+    // return values : Pixmap, GC, Display
+    // Pixmap depth == 1
+    bool Shape_Context_Enter(Window window, unsigned int width, unsigned int height, Pixmap &bitmap_mask, GC &gc, Display * &pDisplay);
+
+    // returns false if the shape cannot be set
+    // cleans up : Pixmap, GC, Display
+    bool Shape_Context_Leave(Window window, Pixmap &bitmap_mask, GC &gc, Display * &pDisplay);
+
+    // Pixmap should have depth==1
+    bool Shape_Window_Apply(Window window, Pixmap &pixmap);
+
+    bool Shape_Window_Reset(Window window);
+    bool Shape_Window_Hide(Window window);
 
 protected:
     bool Extension_Shape_Initialize();
@@ -275,6 +312,7 @@ protected:
     /// debug
 public:
     Window Debug_Window(bool bCreate_NotClose=true);
+    bool Debug_Shape_Context_Example(Window window, unsigned int width, unsigned int height);
 
     static int AfterFunction_Grabber(Display *);
     bool AfterFunction_Set();
@@ -285,7 +323,7 @@ public:
 
     /// not yet finished
 public:
-    bool Window_Shape_Alpha(Window window, unsigned char nAlphaThreshold=128);
+    bool Shape_Window_Alpha(Window window, unsigned char nAlphaThreshold=128);
 
     // XDestroyImage should be called
     XImage * Window_GetImage(Window window, bool bOnlyMask=false);
