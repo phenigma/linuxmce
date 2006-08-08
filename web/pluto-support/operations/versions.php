@@ -52,11 +52,11 @@ if ($package == 0) {
 						</tr>
 						<tr>
 							<td bgcolor="lightblue"><center><B>Comments</B></center></td>
-							<td'.$col.' colspan="2">'.$rowVers['Comments'].'</td>
+							<td'.$col.' colspan="2">'.nl2br($rowVers['Comments']).'</td>
 						</tr>
 						<tr>
 							<td bgcolor="lightblue"><center><B>Next Steps</B></center></td>
-							<td'.$col.' colspan="2">'.$rowVers['NextSteps'].'</td>
+							<td'.$col.' colspan="2">'.nl2br($rowVers['NextSteps']).'</td>
 						</tr>
 						<tr>
 							<td bgcolor="lightblue"><center><B>Change Logs</B></center></td>
