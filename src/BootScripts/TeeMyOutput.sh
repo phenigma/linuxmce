@@ -76,7 +76,7 @@ Run()
 if [[ -z "$Exclude" ]]; then
 	Run | tee "${TeeParm[@]}" "$OutFile"
 else
-	Run | grep -v "$Exclude" | tee "${TeeParm[@]}" "$OutFile"
+	Run | grep --line-buffered -v "$Exclude" | tee "${TeeParm[@]}" "$OutFile"
 fi
 
 ExitCode=$(<"$ExitCodeFile")
