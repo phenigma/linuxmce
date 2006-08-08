@@ -14,10 +14,14 @@ for ((i = 1; i <= "$#"; i++)); do
 		force-build)
 			monster=
 			nobuild=
+			linuxmce=
 		;;
 		monster-build)
 			monster=y
 			#nobuild=
+		;;
+		linuxmce-build)
+			linuxmce=y
 		;;
 		nocheckout) nocheckout=y ;;
 		nosqlcvs) nosqlcvs=y ;;
@@ -70,7 +74,6 @@ ReplacePluto()
 	sed -i "s/Pluto/$ProperName/g" $File
 	sed -i "s/plutohome.com/$WebSite/g" $File
 }
-
 
 Q="select PK_Version from Version ORDER BY date desc, PK_Version limit 1"
 version=$(echo "$Q;" | mysql -N pluto_main)
@@ -183,7 +186,7 @@ if [ "$nobuild" = "" ]; then
 	cd ../pluto_main
 
 	## temporary
-	svn revert Table_Device.cpp  Table_Device_DeviceData.cpp Table_Orbiter.cpp Table_CommandGroup_D_Command_CommandParameter.cpp Table_CommandGroup_D.cpp Table_CommandGroup_D_Command.cpp
+	svn revert Table_Device.cpp  Table_Device_DeviceData.cpp Table_Orbiter.cpp Table_CommandGroup_Command_CommandParameter.cpp Table_CommandGroup.cpp Table_CommandGroup_Command.cpp
 	svn -m "Automatic Regen" --username aaron --password aaron --non-interactive commit
     cd /home/MakeRelease/trunk
     svn info > svn.info
@@ -191,6 +194,7 @@ else
     cd /home/MakeRelease/trunk
 fi
 
+# monster build
 if [ "$monster" = "y" ]; then
 	echo "Doing a Monster build"
 	echo "update Text_LS set Description = replace(Description,'Pluto','Monster');" | mysql main_sqlcvs
@@ -205,8 +209,31 @@ if [ "$monster" = "y" ]; then
 	ReplacePluto "web/pluto-admin/include/template.class.inc.php" "Monster" "monstercable.com"
 	ReplacePluto "web/pluto-admin/include/weborbiter.inc.php" "Monster" "monstercable.com"
 	ReplacePluto "web/pluto-admin/languages/en/lightingScenarios.lang.php" "Monster" "monstercable.com"
-
+	ReplacePluto "src/ConfirmDependencies_Script_Offline/BonusCdAutoInst.sh" "Monster" "monstercable.com"
+	ReplacePluto "src/ConfirmDependencies_Script_Offline/BonusCdMenu.sh" "Monster" "monstercable.com"
+		
 	sed -i 's/20dev/10monsterdev/g' /home/MakeRelease/trunk/src/ConfirmDependencies_Script_Offline/Initial_Config_Core.sh
+fi
+
+# linuxmce build
+if [ "$linuxmce" = "y" ]; then
+	echo "Doing a LinuxMCE build"
+	echo "update Text_LS set Description = replace(Description,'Pluto','LinuxMCE');" | mysql main_sqlcvs
+	echo "update Text_LS set Description = replace(Description,'pluto','linuxmce');" | mysql main_sqlcvs
+	echo "update Text_LS set Description = replace(Description,'PLUTO','LINUXMCE');" | mysql main_sqlcvs
+#	echo "update Package_Source set Repository=replace(Repository,'20dev','10monsterdev');" | mysql main_sqlcvs
+	ReplacePluto "web/pluto-admin/languages/en/login.lang.php" "LinuxMCE" "linuxmce.com"
+	ReplacePluto "web/pluto-admin/languages/en/userHome.lang.php" "LinuxMCE" "linuxmce.com"
+	ReplacePluto "web/pluto-admin/operations/login.php" "LinuxMCE" "linuxmce.com"
+	ReplacePluto "web/pluto-admin/operations/userHome.php" "LinuxMCE" "linuxmce.com"
+	ReplacePluto "web/pluto-admin/orbiter.php" "LinuxMCE" "linuxmce.com"
+	ReplacePluto "web/pluto-admin/include/template.class.inc.php" "LinuxMCE" "linuxmce.com"
+	ReplacePluto "web/pluto-admin/include/weborbiter.inc.php" "LinuxMCE" "linuxmce.com"
+	ReplacePluto "web/pluto-admin/languages/en/lightingScenarios.lang.php" "LinuxMCE" "linuxmce.com"
+	ReplacePluto "src/ConfirmDependencies_Script_Offline/BonusCdAutoInst.sh" "LinuxMCE" "linuxmce.com"
+	ReplacePluto "src/ConfirmDependencies_Script_Offline/BonusCdMenu.sh" "LinuxMCE" "linuxmce.com"
+		
+#	sed -i 's/20dev/10monsterdev/g' /home/MakeRelease/trunk/src/ConfirmDependencies_Script_Offline/Initial_Config_Core.sh
 fi
 
 #Do some database maintenance to correct any errors
@@ -276,6 +303,11 @@ BuildScript="/home/MakeRelease/trunk/src/BUILD.sh"
 
 if [[ "$monster" == y ]]; then
 	`dirname $0`/scripts/propagate-monster.sh "$BASE_OUT_FOLDER/$version_name/"
+
+elif [[ "$linuxmce" == y ]]; then
+# build linuxmce 
+#	`dirname $0`/scripts/propagate-linuxmce.sh "$BASE_OUT_FOLDER/$version_name/"
+:
 else
 	`dirname $0`/scripts/propagate.sh "$BASE_OUT_FOLDER/$version_name/"
 fi
@@ -290,10 +322,20 @@ ln -s $BASE_OUT_FOLDER/$version_name $BASE_OUT_FOLDER/current
 #pushd "$BASE_INSTALLATION_2_6_10_CD_FOLDER"
 #"$BASE_INSTALLATION_2_6_10_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache
 #popd
-pushd "$BASE_INSTALLATION_2_6_12_CD_FOLDER"
-"$BASE_INSTALLATION_2_6_12_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache
-popd
 
+if [ "$monster" = "y" ]; then
+	pushd "$BASE_INSTALLATION_2_6_12_CD_FOLDER"
+	"$BASE_INSTALLATION_2_6_12_CD_FOLDER/go-netinst-monster.pl" "$BASE_OUT_FOLDER/$version_name" cache
+	popd
+elif [ "$linuxmce" = "y" ]; then
+	pushd "$BASE_INSTALLATION_2_6_12_CD_FOLDER"
+	"$BASE_INSTALLATION_2_6_12_CD_FOLDER/go-netinst-linuxmce.pl" "$BASE_OUT_FOLDER/$version_name" cache
+	popd
+else 
+	pushd "$BASE_INSTALLATION_2_6_12_CD_FOLDER"
+	"$BASE_INSTALLATION_2_6_12_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache
+	popd
+fi 
 #mv /home/builds/$version_name/debian-packages.tmp /home/builds/$version_name/debian-packages.list
 
 if ! MakeRelease -a -o 7 -n / -s /home/samba/builds/Windows_Output/ -r 10 -v $version -b -k 116,119,124,126,154,159,193,203,213,226,237,242,255,277,204,118,303,128,162,191,195,280,272,363,364,341 > /home/MakeRelease/MakeRelease2.log ; then
@@ -339,38 +381,46 @@ pushd /home/builds
 rm upload/download.tar.gz
 cd $version_name
 if [ "$monster" = "y" ]; then
-	md5sum installation-cd.iso > installation-cd.$version_name.monster.md5
-	mv installation-cd.iso installation-cd.$version_name.monster.iso
+	md5sum installation-cd.iso > installation-cd-1-$version_name.monster.md5
+	mv installation-cd.iso installation-cd-1-$version_name.monster.iso
+	echo $version_name > current_version
+
+elif [ "$linuxmce" = "y" ]; then
+
+	md5sum installation-cd.iso > installation-cd-1-$version_name.linuxmce.md5
+	mv installation-cd.iso installation-cd-1-$version_name.linuxmce.iso
 	echo $version_name > current_version
 else
-	md5sum installation-cd.iso > installation-cd.$version_name.md5
-	mv installation-cd.iso installation-cd.$version_name.iso
+	md5sum installation-cd.iso > installation-cd-1-$version_name.pluto.md5
+	mv installation-cd.iso installation-cd-1-$version_name.pluto.iso
 	echo $version_name > current_version
 fi
 	
 if [[ $version -ne 1 || $upload == y ]]; then
 	echo "Marker: uploading download.tar.gz `date`"
-	ssh uploads@plutohome.com "rm ~/*download* ~/*replace*"
 	if [ "$monster" = "y" ]; then
 		tar zcvf ../upload/download.monster.tar.gz *
 		scp ../upload/download.monster.tar.gz uploads@plutohome.com:~/
 	else
+		ssh uploads@plutohome.com "rm ~/*download* ~/*replace*"
 		tar zcvf ../upload/download.tar.gz *
 		scp ../upload/download.tar.gz uploads@plutohome.com:~/
+		cd ../upload
+	    sh -x `dirname $0`/scripts/DumpVersionPackage.sh
+		scp dumpvp.tar.gz uploads@plutohome.com:~/
+
+		echo "Marker: uploading replacements `date`"
+
+		cd /home/WorkNew/src/MakeRelease
+		bash -x DirPatch.sh
+		scp replacements.tar.gz uploads@plutohome.com:~/
+		scp replacements.patch.sh uploads@plutohome.com:~/
+	    popd
 	fi
-    cd ../upload
-    sh -x `dirname $0`/scripts/DumpVersionPackage.sh
-    scp dumpvp.tar.gz uploads@plutohome.com:~/
 
-	echo "Marker: uploading replacements `date`"
-
-	cd /home/WorkNew/src/MakeRelease
-	bash -x DirPatch.sh
-	scp replacements.tar.gz uploads@plutohome.com:~/
-	scp replacements.patch.sh uploads@plutohome.com:~/
-    popd
-	
-	ssh uploads@plutohome.com "/home/uploads/SetupTemp.sh"
+	if [ $version -eq 1 ]; then
+		ssh uploads@plutohome.com "/home/uploads/SetupTemp.sh"
+	fi
 	
 	echo "Marker: SourceForge `date`"
 	
