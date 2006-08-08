@@ -88,10 +88,10 @@ bool OpenGL3DEngine::Paint()
 	GL.EnableZBuffer(false);
 
 	Compose->Paint();
-	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint before highlight");
+	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint before highlight");
 	if(HighLightFrame)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint after highlight");
+		//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint after highlight");
 		Point3D Color;
 		Color.X = 1.0f;
 		Color.Y = 1.0f;
@@ -193,7 +193,7 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 		CurrentLayerObjects_[ObjectID] = Frame;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "Adding child %p, object %s to layer %p", Frame, ObjectID.c_str(), CurrentLayer);
+	//g_pPlutoLogger->Write(LV_WARNING, "Adding child %p, object %s to layer %p", Frame, ObjectID.c_str(), CurrentLayer);
 }
 
 /*virtual*/ void OpenGL3DEngine::Select(PlutoRectangle* SelectedArea)
@@ -366,10 +366,10 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktop(MeshFrame* Frame)
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	if(NULL == CurrentLayer)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "RemoveMeshFrameFromDesktop: NULL CurrentLayer");
+		//g_pPlutoLogger->Write(LV_CRITICAL, "RemoveMeshFrameFromDesktop: NULL CurrentLayer");
 		return;
 	}
-	g_pPlutoLogger->Write(LV_WARNING, "RemoveMeshFrameFromDesktop: %p", Frame);
+	//g_pPlutoLogger->Write(LV_WARNING, "RemoveMeshFrameFromDesktop: %p", Frame);
 
 	CurrentLayer->RemoveChild(Frame);
 }

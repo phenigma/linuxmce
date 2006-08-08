@@ -19,7 +19,7 @@ MeshFrame::~MeshFrame(void)
 
 /*virtual*/ void MeshFrame::CleanUp()
 {
-	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::cleanup %p", this);	
+	//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::cleanup %p", this);	
 	delete Mesh;
 	Mesh = NULL;
 
@@ -55,11 +55,11 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 {
 	if(Frame == NULL)
 	{
-		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Frame is NULL!!!");
+		//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Frame is NULL!!!");
 		return;
 	}
 		
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::RemoveChild %p, is leaf %d", Frame, Frame->Children.size() == 0);
+	//DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::RemoveChild %p, is leaf %d", Frame, Frame->Children.size() == 0);
 
 	std::vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); )
@@ -73,7 +73,7 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 {
 	if(!Visible_)
 	{
-		DCE::g_pPlutoLogger->Write(LV_STATUS, "NOT Painting %p. It's invisible.", this);	
+		//DCE::g_pPlutoLogger->Write(LV_STATUS, "NOT Painting %p. It's invisible.", this);	
 		return;
 	}
 	
