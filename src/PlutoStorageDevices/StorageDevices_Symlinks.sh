@@ -10,6 +10,7 @@ fi
 TPL_BUFFALO_HDHG300LAN=1794
 TPL_GENERIC_INTERNAL_DRIVE=1790
 TPL_MAXTOR_NAS=1770
+TPL_GENERIC_SAMBA_SHARE=1768
 DD_USE_PLUTO_DIR_STRUCTURE=130
 DD_DIRECTORIES=153
 DD_USERS=3
@@ -18,7 +19,7 @@ DD_USERS=3
 find /home/ -lname "*/mnt/device/*" -print0 | xargs -0 rm -f
 
 ## Lookup our internal storage devices in the db
-Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_BUFFALO_HDHG300LAN)"
+Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_BUFFALO_HDHG300LAN, $TPL_GENERIC_SAMBA_SHARE)"
 InternalOwnStorageDevices=$(RunSQL "$Q")
 
 for Device in $InternalOwnStorageDevices; do

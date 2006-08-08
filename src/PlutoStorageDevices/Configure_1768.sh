@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Configuration script for : Device Template 1794 - Buffalo NAS HD-HG300LAN
+# Configuration script for : Device Template 1768 - Generic Samba Share
 #
 
 . /usr/pluto/bin/SQL_Ops.sh

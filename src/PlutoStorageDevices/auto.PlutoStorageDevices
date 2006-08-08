@@ -38,7 +38,11 @@ ControlledVia=$(Field "2" "$R")
 
 TPL_GENERIC_INTERNAL_DRIVE=1790
 TPL_BUFFALO_HDHG300LAN=1794
+TPL_GENERIC_SAMBA_SHARE=1768
 DD_BLOCK_DEVICE=152
+DD_SHARE_NAME=126
+DD_USERNAME=127
+DD_PASSWORD=128
 
 case "$Template" in
 	
@@ -93,6 +97,43 @@ case "$Template" in
 
 		echo "-fstype=smbfs,guest,dmask=777,fmask=777 ://${IPaddress}/share"
 		;;
+
+	## Generic Windows Share
+	$TPL_GENERIC_SAMBA_SHARE)
+		## Get the ip address of the windows computer/device that has the share
+		Q="SELECT IPaddress FROM Device WHERE PK_DEvice = '$StorageDevice' LIMIT 1"
+		IPaddress=$(RunSQL "$Q")
+
+		## Test to see if that computer is up and running
+		ping -qnc 1 -W 1 "$IPaddress" &> /dev/null
+		HostIsUp=$?
+		if [[ "$HostIsUp" != 0 ]] ;then
+			Log $LOG_WARN "Device with ip '$IPaddress' that has the samba share associated with device '$StorageDevice' is not responding to our ping"
+			exit 0
+		fi
+
+		## Samba share name
+		Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$StorageDevice' AND FK_DeviceData=$DD_SHARE_NAME"
+		Share=$(RunSQL "$Q")
+		if [[ "$Share" == "" ]] ;then
+			Log $LOG_ERR "Device '$StorageDevice' doesn't have a samba share name associated with it"
+			exit 0
+		fi
+		
+		## Username for the samba share
+		Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$StorageDevice' AND FK_DeviceData=$DD_USERNAME"
+		Username=$(RunSQL "$Q")
+
+		## Password for the samba share
+		Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$StorageDevice' AND FK_DeviceData=$DD_PASSWORD"
+		Password=$(RunSQL "$Q")
+		
+		## Do the mount
+		if [[ "$Username" == "" || "$Username" == "guest"]] ;then
+			echo "-fstype=smbfs,guest,dmask=777,fmask=777 ://${IPaddress}/{$Share}"
+		then
+			echo "-fstype=smbfs,username=$Username,password=$Password,dmask=777,fmask=777 ://${IPaddress}/{$Share}"
+		fi
 
 	## Some unknown device
 	*)
