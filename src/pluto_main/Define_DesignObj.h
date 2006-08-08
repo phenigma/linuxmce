@@ -2211,6 +2211,7 @@
 #define DESIGNOBJ_mnuChooseDrive_CONST 5152
 #define DESIGNOBJ_dgChooseDrive_CONST 5153
 #define DESIGNOBJ_butChooseDrive_CONST 5154
+#define DESIGNOBJ_dgAvailableInputs2_CONST 5155
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

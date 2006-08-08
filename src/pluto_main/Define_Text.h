@@ -1076,6 +1076,7 @@
 #define TEXT_Choose_Drive_CONST 1789
 #define TEXT_Choose_Folder_info_CONST 1790
 #define TEXT_Choose_Drive_info_CONST 1791
+#define TEXT_Add_Device_CONST 1792
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
