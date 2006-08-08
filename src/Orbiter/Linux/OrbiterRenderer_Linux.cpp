@@ -57,6 +57,7 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 	if( bRenderGraphicsOnly )
 	{
 		BASE_CLASS::RenderScreen( bRenderGraphicsOnly );
+        RenderScreen_ApplyMask();
 		return;
 	}
 
@@ -76,11 +77,38 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 			X11_Locker lock(pOrbiterLinux->GetDisplay());
 			BASE_CLASS::RenderScreen(bRenderGraphicsOnly);
 			XFlush(pOrbiterLinux->GetDisplay()); // TODO: test and remove this
+            RenderScreen_ApplyMask();
 		}
 
 		if(pOrbiterLinux->m_bOrbiterReady)
 			pOrbiterLinux->m_pWinListManager->ShowSdlWindow(pOrbiterLinux->m_bIsExclusiveMode);
+
 	}
+}
+
+bool OrbiterRenderer_Linux::RenderScreen_ApplyMask()
+{
+    //if (false) // TODO: ask about the condition // OrbiterLogic()->DATA_??
+    //    return false;
+    //SDL_Surface *pImage = Screen;
+    //// remembered values
+    //Pixmap bitmap_mask = 0;
+    //GC gc;
+    //Display *pDisplay = NULL;
+    //// initialize
+    //bool bResult = Shape_Context_Enter(window, width, height, bitmap_mask, gc, pDisplay);
+    //if (! bResult)
+    //    return false;
+    //// creating the desired shape
+    //for (unsigned int x=0; x<width; ++x)
+    //    for (unsigned int y=0; y<height; ++y)
+    //    {
+    //        if (x<y)
+    //            XDrawPoint(pDisplay, bitmap_mask, gc, x, y);
+    //    }
+    //// done
+    //Shape_Context_Leave(window, bitmap_mask, gc, pDisplay);
+    return true;
 }
 
 void OrbiterRenderer_Linux::InitializeAfterSetVideoMode()

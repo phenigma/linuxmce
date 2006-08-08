@@ -28,6 +28,7 @@ namespace DCE
 		~OrbiterRenderer_Linux();
 
 		void RenderScreen(bool bRenderGraphicsOnly);
+		bool RenderScreen_ApplyMask();
 		void EventLoop();
 
 		void InitializeAfterSetVideoMode();
