@@ -39,6 +39,8 @@ ControlledVia=$(Field "2" "$R")
 TPL_GENERIC_INTERNAL_DRIVE=1790
 TPL_BUFFALO_HDHG300LAN=1794
 TPL_GENERIC_SAMBA_SHARE=1768
+TPL_GENERIC_NFS_SHARE=1769
+
 DD_BLOCK_DEVICE=152
 DD_SHARE_NAME=126
 DD_USERNAME=127
@@ -101,7 +103,7 @@ case "$Template" in
 	## Generic Windows Share
 	$TPL_GENERIC_SAMBA_SHARE)
 		## Get the ip address of the windows computer/device that has the share
-		Q="SELECT IPaddress FROM Device WHERE PK_DEvice = '$StorageDevice' LIMIT 1"
+		Q="SELECT IPaddress FROM Device WHERE PK_Device = '$StorageDevice' LIMIT 1"
 		IPaddress=$(RunSQL "$Q")
 
 		## Test to see if that computer is up and running
@@ -132,8 +134,34 @@ case "$Template" in
 		if [[ "$Username" == "" || "$Username" == "guest"]] ;then
 			echo "-fstype=smbfs,guest,dmask=777,fmask=777 ://${IPaddress}/{$Share}"
 		then
-			echo "-fstype=smbfs,username=$Username,password=$Password,dmask=777,fmask=777 ://${IPaddress}/{$Share}"
+			echo "-fstype=smbfs,username=$Username,password=$Password,dmask=777,fmask=777 ://${IPaddress}/${Share}"
 		fi
+		;;
+
+	$TPL_GENERIC_NFS_SHARE)
+		## Get the ip address of the nfs server that has this share
+                Q="SELECT IPaddress FROM Device WHERE PK_Device = '$StorageDevice' LIMIT 1"
+                IPaddress=$(RunSQL "$Q")
+
+                ## Test to see if that computer is up and running
+                ping -qnc 1 -W 1 "$IPaddress" &> /dev/null
+                HostIsUp=$?
+                if [[ "$HostIsUp" != 0 ]] ;then
+                        Log $LOG_WARN "Device with ip '$IPaddress' that has the nfs share associated with device '$StorageDevice' is not responding to our ping"
+			exit 0
+		fi
+
+		## Shared nfs directory name
+                Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$StorageDevice AND FK_DeviceData=$DD_SHARE_NAME"
+                Share=$(RunSQL "$Q")
+                if [[ "$Share" == "" ]] ;then
+                        Log $LOG_ERR "Device '$StorageDevice' doesn't have a nfs directory name associated with it"
+                        exit 0
+                fi
+
+		## Do the mount
+		echo "-fstype=nfs,udp,proto=udp,soft,timeo=40,retrans=1,retry=2,rsize=8192,wsize=8192 ${IPaddress}:${Share}"
+		;;
 
 	## Some unknown device
 	*)
