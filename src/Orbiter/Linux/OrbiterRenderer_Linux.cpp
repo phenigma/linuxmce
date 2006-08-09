@@ -73,7 +73,7 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 				g_pPlutoLogger->Write(LV_WARNING, "The display is not available");
 				return;
 			}
-			
+
 			X11_Locker lock(pOrbiterLinux->GetDisplay());
 			BASE_CLASS::RenderScreen(bRenderGraphicsOnly);
 			XFlush(pOrbiterLinux->GetDisplay()); // TODO: test and remove this
@@ -88,26 +88,48 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 
 bool OrbiterRenderer_Linux::RenderScreen_ApplyMask()
 {
-    //if (false) // TODO: ask about the condition // OrbiterLogic()->DATA_??
-    //    return false;
+    if (false) // TODO: ask about the condition // OrbiterLogic()->DATA_??
+        return false;
     //SDL_Surface *pImage = Screen;
-    //// remembered values
-    //Pixmap bitmap_mask = 0;
-    //GC gc;
-    //Display *pDisplay = NULL;
-    //// initialize
-    //bool bResult = Shape_Context_Enter(window, width, height, bitmap_mask, gc, pDisplay);
-    //if (! bResult)
-    //    return false;
-    //// creating the desired shape
-    //for (unsigned int x=0; x<width; ++x)
-    //    for (unsigned int y=0; y<height; ++y)
-    //    {
-    //        if (x<y)
-    //            XDrawPoint(pDisplay, bitmap_mask, gc, x, y);
-    //    }
-    //// done
-    //Shape_Context_Leave(window, bitmap_mask, gc, pDisplay);
+    OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
+    if (pOrbiterLinux == NULL)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "MouseBehavior_Linux::ptrOrbiterLinux() : NULL dynamic_cast<OrbiterLinux *>(%p)", m_pOrbiter);
+        return false;
+    }
+    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ptrOrbiterLinux() : start");
+    // remembered values
+    Pixmap bitmap_mask = 0;
+    GC gc;
+    Display *pDisplay = NULL;
+    // initialize
+    Window window = pOrbiterLinux->m_pX11->GetMainWindow();
+    unsigned int width = 0;
+    unsigned int height = 0;
+    pOrbiterLinux->m_pX11->Object_GetGeometry(window, NULL, NULL, &width, &height);
+    bool bResult = pOrbiterLinux->m_pX11->Shape_Context_Enter(window, width, height, bitmap_mask, gc, pDisplay);
+    if (! bResult)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "MouseBehavior_Linux::ptrOrbiterLinux() : cannot use the shape extension");
+        return false;
+    }
+    // creating the desired shape
+    // TODO : replace with the real algorithm, expecting a pre-calculated shape here
+    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ptrOrbiterLinux() : computing the shape");
+    for (unsigned int x=0; x<width; ++x)
+        for (unsigned int y=0; y<height; ++y)
+        {
+            if (x % 100 < y % 100)
+                XDrawPoint(pDisplay, bitmap_mask, gc, x, y);
+        }
+    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ptrOrbiterLinux() : computing the shape : done");
+    // done
+    bResult = pOrbiterLinux->m_pX11->Shape_Context_Leave(window, bitmap_mask, gc, pDisplay);
+    if (! bResult)
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "MouseBehavior_Linux::ptrOrbiterLinux() : cannot set the window shape");
+    }
+    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ptrOrbiterLinux() : done");
     return true;
 }
 
@@ -455,7 +477,7 @@ void OrbiterRenderer_Linux::EventLoop()
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "Received sdl event SDL_QUIT");
 				break;
-			} 
+			}
 		}
 		else
 		{
