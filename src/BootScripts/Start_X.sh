@@ -32,7 +32,7 @@ if [[ "$Background" == y ]]; then
 	sleep 1
 	UI_Version=$(/usr/pluto/bin/X-WhichUI.sh)
 	if [[ "$UI_Version" == 2 ]]; then
-		DISPLAY=:0 /usr/bin/xcompmgr -c &
+		DISPLAY=:0 /usr/bin/xcompmgr &
 		disown -a
 	fi
 else
