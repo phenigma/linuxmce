@@ -149,6 +149,9 @@ function search($output,$dbADO,$conn){
 	  	</table>
 		</td>
 	</tr>
+	<tr>
+		<td>'.searchWiki($searchString).'</td>
+	</tr>
 </table>';
          
 	  $output->setScriptCalendar('null');
@@ -173,6 +176,75 @@ function getPartialContent($target,$str)
 function highlight($target,$str)
 {
 	return str_replace($target,'<font color="blue"><b>'.$target.'</b></font>',$str);
+}
+
+function searchWiki($string){
+	global $dbServer,$dbUser,$dbPass,$dbDatabase,$wikiHost;	
+	$connWiki=mysql_connect($dbServer,$dbUser,$dbPass,true) or die('could not connect to mySQL server.');
+	$dbWiki=mysql_select_db('wikidb',$connWiki) or die("could not select wiki database.");
+	
+	$parts=explode(' ',$string);
+	if(count($parts)==1){
+		$sstring=$string;
+	}else{
+		$sstring='+'.join(' +',$parts);
+	}
+	
+	$qTitle='SELECT page_id, page_namespace, page_title FROM `page`,`searchindex` WHERE page_id=si_page AND  MATCH(si_title) AGAINST(\''.$sstring.'\' IN BOOLEAN MODE)  AND page_is_redirect=0 AND page_namespace IN (0)'; 
+	$qPages='SELECT page_id, page_namespace, page_title FROM `page`,`searchindex` WHERE page_id=si_page AND  MATCH(si_text) AGAINST(\''.$sstring.'\' IN BOOLEAN MODE)  AND page_is_redirect=0 AND page_namespace IN (0)';
+	$resT=mysql_query($qTitle,$connWiki);
+	if(!$resT){
+		die(mysql_error($connWiki));
+	}
+	$titleRecords=mysql_num_rows($resT);
+
+	
+	$resP=mysql_query($qPages,$connWiki);
+	if(!$resP){
+		die(mysql_error($connWiki));
+	}
+	$pagesRecords=mysql_num_rows($resP);
+	
+	$totalRecords=$titleRecords+@$pagesRecords;
+	
+	$out='
+		<table width="100%">
+			<tr>
+				<td colspan="2" class="insidetable2"><span class="title">Results found in Wiki : '.$totalRecords.'</span></td>
+			</tr>	
+			<tr>
+				<td width="20"></td>
+				<td class="insidetable2">';
+	$pos=0;
+	while($row=mysql_fetch_assoc($resT)){
+  		$pos++;
+  		$out.=$row['page_title'];
+  		$out.='<div align="right" style="background:#EEEEEE;"><a href="'.$wikiHost.'index.php/'.$row['page_title'].'">Link</a></div>';
+  		if($pos==5)
+  			break;
+  	}
+
+  	$pos=0;
+	while($row=mysql_fetch_assoc($resP)){
+  		$pos++;
+  		$out.=$row['page_title'];
+  		$out.='<div align="right" style="background:#EEEEEE;"><a href="'.$wikiHost.'index.php/'.$row['page_title'].'">Link</a></div>';
+  		if($pos==5)
+  			break;
+  	}
+  	
+	$out.='		</td>
+			</tr>	
+	';
+	$out.='
+		<tr>
+			<td colspan="2" class="insidetable2"><div align="left"><a href="'.$wikiHost.'index.php/Special:Search?search='.$sstring.'&go=Go"><B>More wiki search</B></a></div></td>
+		</tr>	
+	</table>';
+	
+	mysql_close($connWiki);	 
+	
+	return $out;
 }
 ?>
 
