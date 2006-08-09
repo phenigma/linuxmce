@@ -1443,7 +1443,7 @@ bool X11wrapper::Debug_Shape_Context_Example(Window window, unsigned int width, 
     for (unsigned int x=0; x<width; ++x)
         for (unsigned int y=0; y<height; ++y)
         {
-            if (x<y)
+            if (x % 100 < y % 100)
                 XDrawPoint(pDisplay, bitmap_mask, gc, x, y);
         }
     // done
