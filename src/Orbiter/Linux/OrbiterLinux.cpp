@@ -524,7 +524,7 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
         case XK_equal:  case XK_KP_Equal:
 			event.data.button.m_iPK_Button = BUTTON_equals_sign_CONST;
 			break;
-
+	case XK_slash:	event.data.button.m_iPK_Button = BUTTON_slash_CONST;  break;
         case XK_period: event.data.button.m_iPK_Button = BUTTON_dot_CONST;  break;
         case XK_comma:  case XK_KP_Separator:   event.data.button.m_iPK_Button =  BUTTON_comma_CONST; break;
         case XK_colon:  event.data.button.m_iPK_Button = BUTTON_colon_CONST; break;
