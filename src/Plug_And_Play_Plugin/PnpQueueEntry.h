@@ -18,6 +18,7 @@ namespace DCE
 		friend class Pnp_PreCreateOptions;
 		friend class Pnp_PostCreateOptions;
 
+		bool m_bCreateWithoutPrompting;
 		typedef enum { pnpqe_blocked_none=0, pnpqe_blocked_running_detection_scripts, pnpqe_blocked_prompting_device_template, pnpqe_blocked_prompting_options, pnpqe_blocked_installing_software, pnpqe_blocked_waiting_for_other_prompting, pnpqe_block_processing_suspended } EBlockedState;
 		EBlockedState m_EBlockedState;
 		time_t m_tTimeBlocked;

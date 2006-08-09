@@ -501,6 +501,7 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DHCPDevice->FK_DeviceTemplate_get(),DEVICEDATA_PNP_Create_Without_Prompting_CONST);
 		if( pRow_DeviceTemplate_DeviceData && atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str()) )
 		{
+			pPnpQueueEntry->m_bCreateWithoutPrompting=true;
 			pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_set(pRow_DHCPDevice->FK_DeviceTemplate_get());
 			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT);
 			return Process_Detect_Stage_Prompting_User_For_Options(pPnpQueueEntry);
@@ -601,8 +602,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Prompting_User
 
 bool PnpQueue::Process_Detect_Stage_Prompting_User_For_Options(PnpQueueEntry *pPnpQueueEntry)
 {
-	if( BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
-		return false; // Let this one get backed up
+	if( pPnpQueueEntry->m_bCreateWithoutPrompting==false && BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
+		return false; // Let this one get backed up, if it's not one to just auto create regardless
 
 	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_prompting_options )
 	{

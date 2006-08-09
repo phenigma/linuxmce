@@ -25,6 +25,7 @@
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Define_DeviceData.h"
+#include "pluto_main/Define_CommMethod.h"
 #include "Plug_And_Play_Plugin.h"
 
 using namespace DCE;
@@ -69,6 +70,7 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
 	m_tTimeBlocked=0;
 	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=m_iPK_Room=0;
 	m_pOH_Orbiter=NULL;
+	m_bCreateWithoutPrompting=false;
 	ParseDeviceData(sDeviceData);
 	FindTopLevelDevice();
 }
@@ -112,6 +114,7 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
 	m_tTimeBlocked=0;
 	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=m_iPK_Room=0;
 	m_pOH_Orbiter=NULL;
+	m_bCreateWithoutPrompting=false;
 	ParseDeviceData(sDeviceData);
 	FindTopLevelDevice();
 }
@@ -126,6 +129,7 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,Row_Pnp
 	m_tTimeBlocked=0;
 	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=m_iPK_Room=0;
 	m_pOH_Orbiter=NULL;
+	m_bCreateWithoutPrompting=false;
 	ParseDeviceData(m_pRow_PnpQueue->Parms_get());
 	FindTopLevelDevice();
 
@@ -215,7 +219,8 @@ void PnpQueueEntry::AssignDeviceData(Row_Device *pRow_Device)
 
 bool PnpQueueEntry::IsDuplicate(PnpQueueEntry *pPnpQueueEntry)
 {
-	if( m_pRow_PnpQueue->Removed_get()==pPnpQueueEntry->m_pRow_PnpQueue->Removed_get() && 
+	if( m_pRow_PnpQueue->FK_CommMethod_get()==pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get() &&
+		m_pRow_PnpQueue->Removed_get()==pPnpQueueEntry->m_pRow_PnpQueue->Removed_get() && 
 		m_pRow_PnpQueue->Path_get()==pPnpQueueEntry->m_pRow_PnpQueue->Path_get() &&
 		m_pRow_PnpQueue->VendorModelId_get()==pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() &&
 		m_pRow_PnpQueue->IPaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get() &&
@@ -224,7 +229,16 @@ bool PnpQueueEntry::IsDuplicate(PnpQueueEntry *pPnpQueueEntry)
 		m_pRow_PnpQueue->Category_get()==pPnpQueueEntry->m_pRow_PnpQueue->Category_get() &&
 		m_pRow_PnpQueue->Parms_get()==pPnpQueueEntry->m_pRow_PnpQueue->Parms_get() )
 	{
-
+		if( m_pRow_PnpQueue->FK_CommMethod_get()!=COMMMETHOD_Ethernet_CONST && 
+			m_pRow_PnpQueue->FK_Device_Reported_get()!=pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Reported_get() )
+		{
+			// It's a local, internal device and it's on a different machine so it's not a match
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueueEntry::IsDuplicate queue %d and %d are on different systems",
+			m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+#endif
+	return false;
+		}
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueueEntry::IsDuplicate queue %d and %d match so far.  comparing %d to %d",
 			m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),

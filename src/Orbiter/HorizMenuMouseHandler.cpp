@@ -112,7 +112,14 @@ void HorizMenuMouseHandler::Move(int X,int Y,int PK_Direction)
 
 void HorizMenuMouseHandler::ShowPopup(DesignObj_Orbiter *pObj_MenuPad)
 {
+	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "HorizMenuMouseHandler::ShowPopup" );
 	pObj_MenuPad->m_GraphicToDisplay=GRAPHIC_SELECTED;
+	m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(pObj_MenuPad);
+	if( m_pObj_ActiveMenuPad && m_pObj_ActiveMenuPad!=pObj_MenuPad )
+	{
+		m_pObj_ActiveMenuPad->m_GraphicToDisplay=GRAPHIC_NORMAL;
+		m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_ActiveMenuPad);
+	}
 	string sSubMenu;
 
 	if( m_pObj->m_iBaseObjectID==DESIGNOBJ_popMainMenu_CONST )

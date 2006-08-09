@@ -8177,6 +8177,7 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 	if( ExecuteScreenHandlerCallback(cbOnGotoScreen) )
 		return;
 
+	m_pContextToBeRestored = NULL; // Won't restore any pending context.  It's possible there was a go back that set this and hasn't yet finished rendering before a goto screen
 	if(NULL != m_pScreenHistory_Current && NULL != m_pScreenHistory_Current->GetObj())
 		FireDeleteWxWidget(m_pScreenHistory_Current->GetObj());
 

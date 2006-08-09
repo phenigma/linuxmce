@@ -106,7 +106,7 @@ private:
 
 	void OutputScreen(class DesignObj_Generator *ocDesignObj);
 	void OutputDesignObjs(class DesignObj_Generator *ocDesignObj,int ArrayPage,bool bIsChild,string ParentScreen);
-	void OutputText(class DesignObj_Generator *ocDesignObj,class CGText *ot,bool bPrerender);
+	void OutputText(class DesignObj_Generator *ocDesignObj,class CGText *ot,bool bPrerender,string ParentScreen);
 	void OutputCriteriaNest(class Row_CriteriaParmNesting *row);
 	void SearchForGotos(class DesignObj_Data *pDesignObj_Data);
 	void SearchForGotos(class DesignObj_Data *pDesignObj_Data,DesignObjCommandList *alCommands);

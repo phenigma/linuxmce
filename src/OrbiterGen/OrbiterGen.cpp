@@ -2245,7 +2245,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 	for(size_t s=0;s<ocDesignObj->m_vectDesignObjText.size();++s)
 	{
 		CGText *pDesignObjText = (CGText *) ocDesignObj->m_vectDesignObjText[s];
-		OutputText(ocDesignObj,pDesignObjText,pDesignObjText->m_bPreRender);
+		OutputText(ocDesignObj,pDesignObjText,pDesignObjText->m_bPreRender,ParentScreen);
 		if( pDesignObjText->m_bPreRender )
 			continue;
 
@@ -2311,7 +2311,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 }
 
 
-void OrbiterGenerator::OutputText(DesignObj_Generator *ocDesignObj,CGText *p_DesignObjText,bool bPrerender)
+void OrbiterGenerator::OutputText(DesignObj_Generator *ocDesignObj,CGText *p_DesignObjText,bool bPrerender,string ParentScreen)
 {
 	p_DesignObjText->m_PK_Text = p_DesignObjText->m_pdrText_LS->FK_Text_get();
 	if( p_DesignObjText->m_rPosition.Right()>m_sScaledSize.Width )
@@ -2369,8 +2369,11 @@ AB 1/17/2005 - text styles are shared -- this was causing it to change backgroun
 		}
 	}
 	// Offset for the spacing
-	p_DesignObjText->m_rPosition.X += m_rSpacing.X;
-	p_DesignObjText->m_rPosition.Y += m_rSpacing.Y;
+	if( m_mapPopups.find(atoi(ParentScreen.c_str()))==m_mapPopups.end() )
+	{
+		p_DesignObjText->m_rPosition.X += m_rSpacing.X;
+		p_DesignObjText->m_rPosition.Y += m_rSpacing.Y;
+	}
 }
 
 void OrbiterGenerator::OutputCriteriaNest(Row_CriteriaParmNesting *row)

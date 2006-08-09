@@ -71,10 +71,16 @@ void Slim_Server_Streamer::PostConnect()
 
 		StartSlimServer();
 
-		Sleep(10000);  // Wait 10 seconds for it to finish spawning
+		Sleep(3000);  // Wait 3 seconds for it to finish spawning
 		if (! ConnectToSlimServerCliCommandChannel()) // try again the connection after the command was sent.
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "I could not connect to the streaming server after i have launched it with the application server.");
+			Sleep(3000);  // Wait another 3 seconds for it to finish spawning
+			if (! ConnectToSlimServerCliCommandChannel()) // try again the connection after the command was sent.
+			{
+				Sleep(6000);  // Wait another 6 seconds for it to finish spawning
+				if (! ConnectToSlimServerCliCommandChannel()) // try again the connection after the command was sent.
+					g_pPlutoLogger->Write(LV_WARNING, "I could not connect to the streaming server after i have launched it with the application server.");
+			}
 		}
 	}
 	
