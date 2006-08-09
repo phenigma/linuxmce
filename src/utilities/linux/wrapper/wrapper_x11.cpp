@@ -1431,7 +1431,6 @@ bool X11wrapper::Debug_Shape_Context_Example(Window window, unsigned int width, 
     Pixmap bitmap_mask = 0;
     GC gc;
     Display *pDisplay = NULL;
-    // get display
     // initialize
     bool bResult = Shape_Context_Enter(window, width, height, bitmap_mask, gc, pDisplay);
     if (! bResult)
