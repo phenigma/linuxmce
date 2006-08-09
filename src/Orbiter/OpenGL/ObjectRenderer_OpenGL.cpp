@@ -4,6 +4,7 @@
 #include "../OrbiterRenderer.h"
 #include "OrbiterRenderer_OpenGL.h"
 #include "Texture/TextureManager.h"
+#include "../../pluto_main/Define_DesignObjParameter.h"
 
 using namespace DCE;
 
@@ -144,7 +145,14 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 	{
 		OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = 
 			dynamic_cast<OrbiterRenderer_OpenGL *>(m_pOwner->m_pOrbiter->Renderer());
-		pOrbiterRenderer_OpenGL->RenderGraphic(m_pOwner->m_ObjectID, pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
+
+		int nAlphaChannel = atoi(m_pOwner->GetParameterValue(DESIGNOBJPARAMETER_Alpha_channel_CONST).c_str());
+
+		if(nAlphaChannel == 0)
+			nAlphaChannel = 100;
+
+		pOrbiterRenderer_OpenGL->RenderGraphic(m_pOwner->m_ObjectID, pPlutoGraphic, rectTotal, 
+			bDisableAspectRatio, point, nAlphaChannel);
 	}
 #ifdef DEBUG
 	else

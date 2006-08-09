@@ -22,6 +22,8 @@ namespace DCE
 		bool m_bWindowCreated;
 		PopupCollection* Popups;
 
+		DesignObj_Orbiter *m_pObj_Highlighted_Before;
+
 	
 	public:
 
@@ -55,10 +57,10 @@ namespace DCE
 		virtual void RenderScreen(bool bRenderGraphicsOnly);
 
 		virtual void RenderGraphic(string ObjectID, class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
-			bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
+			bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0), int nAlphaChannel = 100);
 
 		virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
-			bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
+			bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0));
 
 		virtual void BeginPaint();
 		virtual void EndPaint();
@@ -66,6 +68,7 @@ namespace DCE
 
 		virtual void AdjustWindowSize(int iWidth, int iHeight);
 		virtual void DoHighlightObject();
+		virtual void UnHighlightObject(bool bDeleteOnly = false);
 		virtual void SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point );
 
 		virtual void RenderObjectAsync(DesignObj_Orbiter *pObj);

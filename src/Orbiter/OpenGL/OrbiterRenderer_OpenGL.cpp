@@ -99,7 +99,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : 
 	OrbiterRenderer(pOrbiter), Mutex("open gl"), Engine(NULL), NeedToUpdateScreen_(false),
-	m_bWindowCreated(false), Popups(NULL)
+	m_bWindowCreated(false), Popups(NULL), m_pObj_Highlighted_Before(NULL)
 {
 	std::cout << "*** OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL()" << std::endl;
 	GLThread = 0;
@@ -210,6 +210,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		);
 
 	MeshContainer* Container = Builder->End();
+	//Container->SetAlpha(0.3f);
 	MeshFrame* Frame = new MeshFrame(Container);
 
 	delete Builder;
@@ -294,7 +295,8 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(string ObjectID, class PlutoGraphic *pPlutoGraphic, 
-	PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/)
+	PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/,
+	int nAlphaChannel/* = 100*/)
 {
 	if(ObjectID == "")
 	{
@@ -348,6 +350,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		);
 
 	MeshContainer* Container = Builder->End();
+	Container->SetAlpha(nAlphaChannel / 100.0f);
 	MeshFrame* Frame = new MeshFrame();
 	Frame->SetMeshContainer(Container);
 
@@ -363,8 +366,6 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	TextureManager::Instance()->AddCacheItem(ObjectID, Frame);
 
 	Engine->AddMeshFrameToDesktop(ObjectID, Frame);
-
-
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::BeginPaint()
@@ -397,6 +398,19 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	Sleep(5);
 }
 //-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_OpenGL::UnHighlightObject(bool bDeleteOnly/*=false*/)
+{
+	if(NULL != m_pObj_Highlighted_Before && m_pObj_Highlighted_Before != OrbiterLogic()->m_pObj_Highlighted &&
+		m_pObj_Highlighted_Before->m_ObjectType != DESIGNOBJTYPE_Datagrid_CONST)
+	{
+		m_pObj_Highlighted_Before->m_GraphicToDisplay = GRAPHIC_NORMAL;
+		m_pObj_Highlighted_Before->m_pvectCurrentGraphic = &(m_pObj_Highlighted_Before->m_vectGraphic);
+		m_pObj_Highlighted_Before->RenderGraphic(m_pObj_Highlighted_Before->m_rPosition, false);
+	}
+
+	m_pObj_Highlighted_Before = NULL;
+}
+//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::DoHighlightObject()
 {
 	if(sbNoSelection == OrbiterLogic()->m_nSelectionBehaviour || !OrbiterLogic()->m_pObj_Highlighted || !OrbiterLogic()->m_pObj_Highlighted->m_bOnScreen )
@@ -404,11 +418,13 @@ void OrbiterRenderer_OpenGL::OnIdle()
 
 	UnHighlightObject();
 
-	if( !OrbiterLogic()->m_pObj_Highlighted )
+	m_pObj_Highlighted_Before = NULL;
+
+	if(!OrbiterLogic()->m_pObj_Highlighted)
 		return;
 
 	DesignObj_Orbiter *pObj = OrbiterLogic()->m_pObj_Highlighted;
-
+	m_pObj_Highlighted_Before = pObj;
 	PlutoRectangle Position(pObj->m_rPosition);
 
 	if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
@@ -461,8 +477,9 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	}
 	else
 	{
-		
-//		m_rectLastHighlight = m_pObj_Highlighted->GetHighlightRegion();
+		pObj->m_GraphicToDisplay = GRAPHIC_HIGHLIGHTED;
+		pObj->m_pvectCurrentGraphic = &(pObj->m_vectHighlightedGraphic);		
+		pObj->RenderGraphic(pObj->m_rPosition, false);
 	}
 
 	if(OrbiterLogic()->m_pObj_Highlighted)
