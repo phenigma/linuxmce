@@ -638,18 +638,23 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 
 void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point)
 {
+	PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
+
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
 #endif
+
 	if(Popups)
-		Popups->PaintPopup(pPopup->m_pObj->GenerateObjectHash(point), pPopup);
+		Popups->PaintPopup(pPopup->m_pObj->GenerateObjectHash(pPopup->m_Position), pPopup);
 }
 
 /*virtual*/ bool OrbiterRenderer_OpenGL::HandleHidePopup(PlutoPopup* Popup)
 {
+	PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex );
+
 	if(Popups)
 	{
-		Popups->HidePopup(Popup->m_pObj->m_ObjectID);
+		Popups->HidePopup(Popup->m_pObj->GenerateObjectHash(Popup->m_Position));
 	}
 	Engine->UnHighlight();
 	return true;

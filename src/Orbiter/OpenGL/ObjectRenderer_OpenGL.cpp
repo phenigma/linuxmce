@@ -22,13 +22,12 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 {
 	//g_pPlutoLogger->Write(LV_STATUS, "(1) RenderGraphic %d - (%d,%d,%d,%d)", m_pOwner->m_iBaseObjectID,
 	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
+	string sObjectHash = m_pOwner->GenerateObjectHash(point);
 
-	MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(
-			m_pOwner->GenerateObjectHash(point)
-		);
+	MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(sObjectHash);
 	if(NULL != Frame)
 	{
-		TextureManager::Instance()->AttachToScene(m_pOwner->m_ObjectID, Frame);
+		TextureManager::Instance()->AttachToScene(sObjectHash, Frame);
 		return;
 	}
 
@@ -151,7 +150,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 		if(nAlphaChannel == 0)
 			nAlphaChannel = 100;
 
-		pOrbiterRenderer_OpenGL->RenderGraphic(m_pOwner->m_ObjectID, pPlutoGraphic, rectTotal, 
+		pOrbiterRenderer_OpenGL->RenderGraphic(sObjectHash, pPlutoGraphic, rectTotal, 
 			bDisableAspectRatio, point, nAlphaChannel);
 	}
 #ifdef DEBUG

@@ -231,5 +231,6 @@ std::string DesignObj_Orbiter::GenerateObjectHash(const PlutoPoint& point)
 		"-" + StringUtils::ltos(m_rPosition.X) +
 		":" + StringUtils::ltos(m_rPosition.Y) + 
 		"-" + StringUtils::ltos(point.X) + 
-		":" + StringUtils::ltos(point.Y);
+		":" + StringUtils::ltos(point.Y) + 
+		"G:" + StringUtils::ltos(m_GraphicToDisplay);
 }
