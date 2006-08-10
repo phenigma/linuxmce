@@ -45,6 +45,12 @@ then
 	poweroff=""
 fi
 
+/usr/sbin/splash -s -u 0
+chvt 1
+clear > /dev/tty0
+/sbin/fbtruetype -t 00FF00 -x 190 -y 220 -s 58 "Power Off" 
+/sbin/fbtruetype -x 191 -y 219 -s 58 -t 00AA00 "Power Off"
+
 halt -d -f -i $poweroff $hddown
 
 : exit 0
