@@ -6,7 +6,7 @@
 #	pci0000:00/0000:00:02.0+2
 # This script old format to the new fromat in an allready existing database 
 
-if [[ -f /usr/pluto/diskless.conf ]] ;then
+if [[ -f /etc/diskless.conf ]] ;then
 	exit 0
 fi
 
