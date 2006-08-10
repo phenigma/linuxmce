@@ -88,7 +88,7 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 
 bool OrbiterRenderer_Linux::RenderScreen_ApplyMask()
 {
-    if (false) // TODO: ask about the condition // OrbiterLogic()->DATA_??
+    if (true) // TODO: ask about the condition // OrbiterLogic()->DATA_??
         return false;
     //SDL_Surface *pImage = Screen;
     OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
