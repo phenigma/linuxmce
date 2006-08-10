@@ -327,11 +327,8 @@ public:
 
     // XDestroyImage should be called
     XImage * Window_GetImage(Window window, bool bOnlyMask=false);
-
     bool Window_GetPosition(Window window, int &nPosX, int &nPosY, unsigned int &nWidth, unsigned int &nHeight);
-
     Pixmap ConvertImageToPixmap(XImage *pXImage, Window window);
-
     bool Window_PerPixel_Transparency(Window window, unsigned long nAlphaValue=1);
 
 };
