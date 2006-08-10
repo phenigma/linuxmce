@@ -114,7 +114,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 					}else{
 						$notInDBArray[]=$physicalkey; 
 						$inDB=0;
-						if(@stat($path.'/'.$filename)!==false && !is_dir($path.'/'.$filename)){
+						if(!is_dir64($path.'/'.$filename)){
 							$addToDB='<td align="right"> '.$TEXT_TYPE_CONST.': <select name="type_'.$physicalkey.'">
 								<option value="">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
 							foreach ($typeArray AS $typeID=>$typeDescription){

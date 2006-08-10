@@ -5966,4 +5966,18 @@ function setAcceleration($orbiterMDChild,$value,$dbADO){
 		WHERE FK_Device_ControlledVia=? AND FK_DeviceData=?
 	',array($value,$orbiterMDChild,$GLOBALS['hardware_acceleration_dd']));
 }
+
+/**
+ * @return true/false
+ * @param string $file
+ * @desc check if the file is directory, to avoid 4G limitation
+ * execute command line stat --format="%F" <director/fisier>
+*/
+function is_dir64($file){
+	$type=exec('stat --format="%F" -L \''.$file.'\'');
+	if($type=='directory'){
+		return true;
+	}
+	return false;
+}
 ?>
