@@ -241,9 +241,9 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
             sSaveToFile=pDesignObj_Generator->m_ObjectID;
             if( !pRenderImage )
             {
-                // This is a new screen, start with a clean canvas
+                // This is a new screen or a pop-up, so start with a clean canvas
 				if( pDesignObj_Generator->m_bIsPopup && pDesignObj_Generator->m_rPosition.Width && pDesignObj_Generator->m_rPosition.Height )
-	                pRenderImage = CreateBlankCanvas(PlutoSize(pDesignObj_Generator->m_rPosition.Width,pDesignObj_Generator->m_rPosition.Height), sInputFile.length() == 0);
+	                pRenderImage = CreateBlankCanvas(PlutoSize(pDesignObj_Generator->m_rPosition.Width,pDesignObj_Generator->m_rPosition.Height), sInputFile.length() == 0 && ! pDesignObj_Generator->m_bIsPopup);
 				else
 	                pRenderImage = CreateBlankCanvas(PlutoSize(m_Width,m_Height), sInputFile.length() == 0); // TROUBLE nr 1: this pointer is lost each time the for loop starts
                 bIsMenu=true;
@@ -315,8 +315,16 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
         }
 		else if( pRenderImageOriginal==NULL && iIteration==-2 )
 		{
-			// This is a top-level object (ie the background for a screen), but there is no image
-			SDL_FillRect(pRenderImage->m_pSDL_Surface, NULL,SDL_MapRGBA(pRenderImage->m_pSDL_Surface->format, 0, 0, 0, 255));
+			if (! pDesignObj_Generator->m_bIsPopup)
+			{
+				// This is a top-level object (ie the background for a screen), but there is no image
+				SDL_FillRect(pRenderImage->m_pSDL_Surface, NULL,SDL_MapRGBA(pRenderImage->m_pSDL_Surface->format, 0, 0, 0, 255));
+			}
+			else
+			{
+				// This is a popup. The is no background image, but it has to be transparent
+				SDL_FillRect(pRenderImage->m_pSDL_Surface, NULL,SDL_MapRGBA(pRenderImage->m_pSDL_Surface->format, 0, 0, 0, 0));
+			}
 			pRenderImage->NewSurface = false;
 		}
 
