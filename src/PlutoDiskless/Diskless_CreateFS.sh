@@ -240,9 +240,24 @@ done
 cp /etc/locale.gen "$DlPath"/etc/
 
 ## Setup debconf interface to 'noninteractive'
-echo "Setting Debconf interface to 'Noninteractive'"
-awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Noninteractive"; else print; next}
-	{print}' "$DlPath"/var/cache/debconf/config.dat >"$DlPath"/var/cache/debconf/config.dat.$$
+echo "Setting Debconf interface to 'noninteractive' and default priority 'critical'"
+awk '
+/^Name: debconf\/frontend$/,/^$/ {
+	if ($1 == "Value:")
+		print "Value: noninteractive";
+	else
+		print;
+	next;
+}
+/^Name: debconf\/priority$/,/^$/ {
+	if ($1 == "Value:")
+		print "Value: critical";
+	else
+		print;
+	next;
+}
+{print}
+' "$DlPath"/var/cache/debconf/config.dat >"$DlPath"/var/cache/debconf/config.dat.$$
 mv "$DlPath"/var/cache/debconf/config.dat{.$$,}
 
 # Pre-upgrade some packages
