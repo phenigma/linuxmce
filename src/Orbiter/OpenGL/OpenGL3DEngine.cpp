@@ -44,8 +44,13 @@ OpenGL3DEngine::~OpenGL3DEngine()
 {
 	if(OldLayer)
 		OldLayer->CleanUp();
-	if(CurrentLayer)
-		CurrentLayer->CleanUp();
+
+	//THIS IS CRASHING. WE HAVE A LOGIC FLAW HERE
+	//WE'LL ANALYSE THIS LATER
+	//
+	//	if(CurrentLayer)
+	//		CurrentLayer->CleanUp();
+
 	delete OldLayer;
 	delete CurrentLayer;
 	pthread_mutex_destroy(&SceneMutex.mutex);
