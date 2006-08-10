@@ -11,6 +11,7 @@
 
 #if defined(ORBITER_OPENGL)
 	#include "OpenGL/ObjectRenderer_OpenGL.h"
+	#include "OpenGL/DataGridRenderer_OpenGL.h"
 #endif
 
 ObjectRendererFactory::ObjectRendererFactory()
@@ -31,6 +32,8 @@ ObjectRendererFactory::~ObjectRendererFactory()
 			return new DataGridRenderer_Bluetooth(pOwner);
 #elif defined(PROXY_ORBITER)
 			return new DataGridRenderer_Proxy(pOwner);
+#elif defined(ORBITER_OPENGL)
+			return new DataGridRenderer_OpenGL(pOwner);
 #else
 			return new DataGridRenderer(pOwner);
 #endif
