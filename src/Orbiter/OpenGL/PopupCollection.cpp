@@ -59,7 +59,6 @@ void PopupCollection::PaintPopup(std::string ID, PlutoPopup *Popup)
 	}		
 
 	Current = ID;
-	
 	if (Exists(ID))
 	{
 		Item = Popups[ID];

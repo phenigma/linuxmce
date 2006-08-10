@@ -7,8 +7,8 @@
 #include "../OpenGLGraphic.h"
 
 #include "../OpenGL3DEngine.h"
-#include "DCE/Logger.h"
-using namespace DCE;
+//#include "DCE/Logger.h"
+//using namespace DCE;
 
 /*static*/ TextureManager* TextureManager::Instance_ = NULL;
 
@@ -101,8 +101,8 @@ void TextureManager::PrepareRelease(OpenGLTexture TextureGraphic)
 
 void TextureManager::ConvertImagesToTextures()
 {
-	if(WaitForConvert.size())
-		g_pPlutoLogger->Write(LV_CRITICAL, "TextureManager::ConvertImagesToTextures size %d", WaitForConvert.size());
+	//if(WaitForConvert.size())
+	//	g_pPlutoLogger->Write(LV_CRITICAL, "TextureManager::ConvertImagesToTextures size %d", WaitForConvert.size());
 	PLUTO_SAFETY_LOCK(sm, TextureLock);
 	std::list <OpenGLGraphic*>::iterator Item, End = WaitForConvert.end();
 	for(Item = WaitForConvert.begin(); Item != End; ++Item)
@@ -115,8 +115,8 @@ void TextureManager::ConvertImagesToTextures()
 
 void TextureManager::ReleaseTextures()
 {
-	if(WaitForRelease.size())
-		g_pPlutoLogger->Write(LV_CRITICAL, "TextureManager::ReleaseTextures size %d", WaitForRelease.size());
+//	if(WaitForRelease.size())
+//		g_pPlutoLogger->Write(LV_CRITICAL, "TextureManager::ReleaseTextures size %d", WaitForRelease.size());
 	PLUTO_SAFETY_LOCK(sm, TextureLock);
 	std::list <OpenGLTexture>::iterator Item, End = WaitForRelease.end();
 	for(Item = WaitForRelease.begin(); Item != End; ++Item)

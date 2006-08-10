@@ -404,8 +404,8 @@ void OrbiterRenderer_OpenGL::OnIdle()
 		m_pObj_Highlighted_Before->m_ObjectType != DESIGNOBJTYPE_Datagrid_CONST)
 	{
 		m_pObj_Highlighted_Before->m_GraphicToDisplay = GRAPHIC_NORMAL;
-		m_pObj_Highlighted_Before->m_pvectCurrentGraphic = &(m_pObj_Highlighted_Before->m_vectGraphic);
-		m_pObj_Highlighted_Before->RenderGraphic(m_pObj_Highlighted_Before->m_rPosition, false);
+		//m_pObj_Highlighted_Before->m_pvectCurrentGraphic = &(m_pObj_Highlighted_Before->m_vectGraphic);
+		//m_pObj_Highlighted_Before->RenderGraphic(m_pObj_Highlighted_Before->m_rPosition, false);
 	}
 
 	m_pObj_Highlighted_Before = NULL;
@@ -477,9 +477,9 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	}
 	else
 	{
-		pObj->m_GraphicToDisplay = GRAPHIC_HIGHLIGHTED;
-		pObj->m_pvectCurrentGraphic = &(pObj->m_vectHighlightedGraphic);		
-		pObj->RenderGraphic(pObj->m_rPosition, false);
+		//pObj->m_GraphicToDisplay = GRAPHIC_HIGHLIGHTED;
+		//pObj->m_pvectCurrentGraphic = &(pObj->m_vectHighlightedGraphic);		
+		//pObj->RenderGraphic(pObj->m_rPosition, false);
 	}
 
 	if(OrbiterLogic()->m_pObj_Highlighted)

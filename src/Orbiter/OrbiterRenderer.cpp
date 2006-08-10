@@ -860,7 +860,7 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 
 	if(sCharToRender != "")
 	{
-		PlutoPoint AbsPos = NULL != OrbiterLogic()->m_pActivePopup ? OrbiterLogic()->m_pActivePopup->m_Position : PlutoPoint(0, 0);
+		PlutoPoint AbsPos = NULL != OrbiterLogic()->GetActivePopup() ? OrbiterLogic()->GetActivePopup()->m_Position : PlutoPoint(0, 0);
 		PlutoPoint textPos(AbsPos.X + pObj->m_rPosition.X + 5, AbsPos.Y + pObj->m_rPosition.Y + 5);
 
 		TextStyle *pTextStyle = OrbiterLogic()->m_mapTextStyle_Find(1);
@@ -884,7 +884,7 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"hide popups");
 #endif
-	OrbiterLogic()->m_pActivePopup=NULL;
+	OrbiterLogic()->SetActivePopup(NULL);
 	if( pObj )
 	{
 		for(list<class PlutoPopup*>::iterator it=pObj->m_listPopups.begin();it!=pObj->m_listPopups.end();)
@@ -996,7 +996,7 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 		UnHighlightObject();
 	}
 
-	PlutoPoint AbsolutePosition = NULL != OrbiterLogic()->m_pActivePopup ? OrbiterLogic()->m_pActivePopup->m_Position : PlutoPoint(0, 0);
+	PlutoPoint AbsolutePosition = NULL != OrbiterLogic()->GetActivePopup() ? OrbiterLogic()->GetActivePopup()->m_Position : PlutoPoint(0, 0);
 
 	//render objects
 	for(vector<DesignObj_Orbiter *>::iterator it = m_vectObjs_NeedRedraw.begin(), 
@@ -1026,8 +1026,8 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
 		if( pTextStyle )
 		{
-			if(NULL != OrbiterLogic()->m_pActivePopup)
-				SolidRectangle( OrbiterLogic()->m_pActivePopup->m_Position.X + pText->m_rPosition.Left(),  OrbiterLogic()->m_pActivePopup->m_Position.Y + pText->m_rPosition.Top(), pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
+			if(NULL != OrbiterLogic()->GetActivePopup())
+				SolidRectangle( OrbiterLogic()->GetActivePopup()->m_Position.X + pText->m_rPosition.Left(),  OrbiterLogic()->GetActivePopup()->m_Position.Y + pText->m_rPosition.Top(), pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
 			else
 				SolidRectangle( pText->m_rPosition.Left(),  pText->m_rPosition.Top(), pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
 

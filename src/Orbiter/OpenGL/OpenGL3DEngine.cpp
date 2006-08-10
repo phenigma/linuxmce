@@ -177,8 +177,8 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 		if(it != CurrentLayerObjects_.end())
 		{
 			MeshFrame* OldFrame = it->second;
-			g_pPlutoLogger->Write(LV_CRITICAL, "Replacing child %p, object %s of layer %p", 
-				OldFrame, ObjectID.c_str(), CurrentLayer);
+			//g_pPlutoLogger->Write(LV_CRITICAL, "Replacing child %p, object %s of layer %p", 
+			//	OldFrame, ObjectID.c_str(), CurrentLayer);
 
 			CurrentLayer->RemoveChild(OldFrame);
 		}
@@ -308,9 +308,9 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 	MeshContainer* Container = MB.End();
 	UnHighlight();
 
-	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight: %d %d %d %d",
-		HightlightArea->Left(), HightlightArea->Top(), 
-		HightlightArea->Width, HightlightArea->Height);
+	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight: %d %d %d %d",
+	//	HightlightArea->Left(), HightlightArea->Top(), 
+	//	HightlightArea->Width, HightlightArea->Height);
 
 	HighLightFrame = new MeshFrame();
 
@@ -324,7 +324,7 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 
 	if(NULL != HighLightFrame)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
+		//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
 		CurrentLayer->RemoveChild(HighLightFrame);
 		HighLightFrame->CleanUp();
 
