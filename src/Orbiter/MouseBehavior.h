@@ -145,7 +145,7 @@ namespace DCE
 		// Override these for OS specific handling
 		virtual void SetMousePosition(int X,int Y) { m_pLastPosition.X=X; m_pLastPosition.Y=Y; /*g_pPlutoLogger->Write(LV_FESTIVAL,"SetMousePosition %d,%d",X,Y);*/ }
 		virtual void SetMousePosition(DesignObj_Orbiter *pObj) { SetMousePosition( pObj->m_rPosition.X + pObj->m_pPopupPoint.X + pObj->m_rPosition.Width/2 , pObj->m_rPosition.Bottom() + pObj->m_pPopupPoint.Y ); }
-		virtual void GetMousePosition(PlutoPoint *p) { }
+		virtual void GetMousePosition(PlutoPoint *p) { *p = m_pLastPosition; }
 		virtual void ShowMouse(bool bShow) { }
 
 		void SetMediaInfo(string sTime,string sTotal,string sSpeed,string sTitle,string sSection);
@@ -156,6 +156,7 @@ namespace DCE
         virtual bool ConstrainMouse(const PlutoRectangle &rect) { return false; }
         virtual bool ConstrainMouse() { PlutoRectangle rect; return ConstrainMouse(rect); }
 		virtual void SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle) {}
+		virtual bool SetMouseCursorImage(const string &sPath, const string &sPathMask) {}
 		virtual void CaptureRelativeMovements();
 		virtual void ReleaseRelativeMovements();
     };

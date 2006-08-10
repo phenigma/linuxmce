@@ -26,6 +26,7 @@ namespace DCE
 		virtual void ShowMouse(bool bShow);
         virtual bool ConstrainMouse(const PlutoRectangle &rect);
 		virtual void SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle);
+		virtual bool SetMouseCursorImage(const string &sPath, const string &sPathMask);
     protected:
         OrbiterLinux * ptrOrbiterLinux();
 	};

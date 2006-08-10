@@ -18,6 +18,8 @@ using namespace DCE;
 
 MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior)
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
+    , m_nRelativePointer_SpeedShape(0)
+    , m_pRelativePointer_Image(NULL)
 {
 	m_pObj_ListGrid=m_pObj_PicGrid=NULL;
 	m_pObj_CoverArtPopup=NULL;
@@ -48,12 +50,23 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 	m_pObj_CoverArtPopup=m_pMouseBehavior->m_pOrbiter->FindObject(5087);
 }
 
+MediaBrowserMouseHandler::~MediaBrowserMouseHandler()
+{
+    if (m_pRelativePointer_Image)
+    {
+        delete m_pRelativePointer_Image;
+        m_pRelativePointer_Image = NULL;
+    }
+}
+
 void MediaBrowserMouseHandler::Start()
 {
+    g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Start()");
 }
 
 void MediaBrowserMouseHandler::Stop()
 {
+    g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Stop()");
 }
 
 bool MediaBrowserMouseHandler::ButtonDown(int PK_Button)
@@ -85,6 +98,10 @@ bool MediaBrowserMouseHandler::ButtonUp(int PK_Button)
 
 void MediaBrowserMouseHandler::RelativeMove(int DeltaX, int DeltaY)
 {
+    g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::RelativeMove(%d, %d)", DeltaX, DeltaY);
+    //RelativePointer_SetStatus(-1);//delete this debug-only lines
+    // DeltaY is always 0 here ? -1 should be DeltaY
+    // not working here, because the position is always reset
 #ifdef WIN32
 	string s = StringUtils::Format("DeltaX:=%d, DeltaY=%d, VY=%d\r\n", DeltaX, DeltaY, m_RelativeVirtualY);
 	::OutputDebugString(s.c_str());
@@ -142,6 +159,7 @@ void MediaBrowserMouseHandler::RelativeMove(int DeltaX, int DeltaY)
 
 void MediaBrowserMouseHandler::ReleaseRelative()
 {
+    g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::ReleaseRelative()");
 	m_bCapturingOffscreenMovement=false;
 	m_pMouseBehavior->ShowMouse(true);
 	m_pMouseBehavior->SetMousePosition(m_saveX, m_saveY);
@@ -150,7 +168,14 @@ void MediaBrowserMouseHandler::ReleaseRelative()
 
 void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 {
-	if (m_bCapturingOffscreenMovement)
+    g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d)", X, Y, PK_Direction);
+
+    //RelativePointer_SetStatus(Y-300);//delete this debug-only lines
+    // here seems to be working, somehow
+    // but this class is heavily broken,
+    // and the effect does not look good at all
+
+    if (m_bCapturingOffscreenMovement)
 	{
 		m_pMouseBehavior->GetMousePosition(&m_Rel);
 		// Todo: X and Y are in relative coordinates, where we have
@@ -248,4 +273,84 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 	}
 	else
 		m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
+}
+
+bool MediaBrowserMouseHandler::RelativePointer_SetStatus(int nSpeedShape)
+{
+    const int nPeakSpeed = 5;
+    g_pPlutoLogger->Write(LV_STATUS, "MediaBrowserMouseHandler::RelativePointer_SetStatus(%d)", nSpeedShape);
+    // check range
+    if ( (nSpeedShape > 0) && (nSpeedShape > nPeakSpeed) )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::RelativePointer_SetStatus(%d) : decreasing shape to %d", nSpeedShape, nPeakSpeed);
+        nSpeedShape = nPeakSpeed;
+    }
+    if ( (nSpeedShape < 0) && (nSpeedShape < nPeakSpeed) )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::RelativePointer_SetStatus(%d) : increasing shape to %d", nSpeedShape, -nPeakSpeed);
+        nSpeedShape = -nPeakSpeed;
+    }
+    // compare with current status
+    if (m_nRelativePointer_SpeedShape == nSpeedShape)
+        return true;
+    m_nRelativePointer_SpeedShape = nSpeedShape;
+    // restore the normal behavior in this case
+    if (nSpeedShape == 0)
+    {
+        m_pMouseBehavior->ShowMouse(true);
+    }
+    // hide the pointer : will draw a fake one
+    m_pMouseBehavior->ShowMouse(false);
+    // get current screen size
+    PlutoSize oSizeScreen = m_pMouseBehavior->m_pOrbiter->m_sScreenSize;
+    // get current mouse position
+    PlutoPoint posFakeMouse;
+    m_pMouseBehavior->GetMousePosition(&posFakeMouse);
+    // pointer move to the middle of the screen
+    m_pMouseBehavior->SetMousePosition(oSizeScreen.Width/2, oSizeScreen.Height/2);
+    // compute the image path
+    char buffer[100];
+    sprintf(buffer, "speed_shape_%d.xbm", nSpeedShape);
+    string sPath = "/usr/pluto/orbiter/skins/Basic/cursors/pointers_bw/";
+    sPath = sPath + buffer;
+
+    //delete this debug-only block
+    // with a real pointer, not a fake one
+    if (0)
+    {
+        string sPathMask = sPath + ".msk";
+        m_pMouseBehavior->SetMouseCursorImage(sPath, sPathMask);
+        if (nSpeedShape > 0)
+            m_pMouseBehavior->SetMousePosition(posFakeMouse.X, posFakeMouse.Y - nPeakSpeed);
+        else
+            m_pMouseBehavior->SetMousePosition(posFakeMouse.X, posFakeMouse.Y + nPeakSpeed);
+    }
+    
+    // read the image from disk
+    sPath = "/usr/pluto/orbiter/skins/Basic/cursors/pointers/standard_big_b.png";//delete this debug-only line
+    PlutoRectangle rectFakePointer;
+	size_t iSize = 0;
+    char * pData = FileUtils::ReadFileIntoBuffer(sPath.c_str(), iSize);
+    if (pData == NULL)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "MediaBrowserMouseHandler::RelativePointer_SetStatus(%d) : cannot load graphic file %s", nSpeedShape, sPath);
+        return false;
+    }
+    // creating the image in memory
+    m_pRelativePointer_Image = m_pMouseBehavior->m_pOrbiter->m_pOrbiterRenderer->CreateGraphic();
+    m_pRelativePointer_Image->LoadGraphic(pData, iSize);
+    delete [] pData;
+    rectFakePointer.Width = m_pRelativePointer_Image->Width;
+    rectFakePointer.Height = m_pRelativePointer_Image->Height;
+    // X coordinate : keep the pointer on the screen
+    rectFakePointer.X = posFakeMouse.X;
+    if (rectFakePointer.X + rectFakePointer.Width > oSizeScreen.Width)
+        rectFakePointer.X = oSizeScreen.Width - rectFakePointer.Width;
+    // Y coordinate
+    if (nSpeedShape > 0)
+        rectFakePointer.Y = oSizeScreen.Height - rectFakePointer.Height;
+    else
+        rectFakePointer.Y = 0;
+    // draw fake pointer
+    m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(m_pRelativePointer_Image, rectFakePointer);
 }

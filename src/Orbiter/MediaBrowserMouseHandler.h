@@ -34,6 +34,7 @@ namespace DCE
 
 	public:
 		MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
+		~MediaBrowserMouseHandler();
 		virtual EMouseHandler TypeOfMouseHandler() { return mh_MediaBrowser; }
 
 		void Start();
@@ -45,7 +46,23 @@ namespace DCE
 		void ReleaseRelative();
 		void Move(int X,int Y,int PK_Direction);
 		void ShowCoverArtPopup();
-	};
+
+        /// relative mouse pointer
+        ///   hide when relative motion is wanted
+        ///   show the standard pointer whdn relative motion is not wanted
+    public:
+        // speed == 0 : normal pointer
+        // speed < 0 : up
+        // speed > 0 : down
+        bool RelativePointer_SetStatus(int nSpeedShape);
+    protected:
+        // holds both speed and shape
+        int m_nRelativePointer_SpeedShape;
+        // path to the pointer image
+        // which will be displayed instead of the real pointer
+		class PlutoGraphic * m_pRelativePointer_Image;
+
+    };
 
 }
 //-----------------------------------------------------------------------------------------------------

@@ -50,7 +50,7 @@ OrbiterLinux * MouseBehavior_Linux::ptrOrbiterLinux()
 void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 {
 	MouseBehavior::SetMousePosition(X,Y);
-    g_pPlutoLogger->Write(LV_STATUS, "Moving mouse (relative %d,%d)",X,Y);
+    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::SetMousePosition() : Moving mouse (relative %d,%d)",X,Y);
     ptrOrbiterLinux()->m_pX11->Mouse_SetPosition(X, Y);
 }
 
@@ -146,12 +146,18 @@ void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
     std::string sPath = sDir + sName;
     std::string sPathMask = sPath + ".msk";
     // try to change the cursor
+    SetMouseCursorImage(sPath, sPathMask);
+}
+
+bool MouseBehavior_Linux::SetMouseCursorImage(const string &sPath, const string &sPathMask)
+{
     if (! ptrOrbiterLinux()->m_pX11->Mouse_SetCursor_Image(ptrOrbiterLinux()->GetMainWindow(), sPath, sPathMask))
     {
         g_pPlutoLogger->Write(
-            LV_CRITICAL, "MouseBehavior_Linux::SetMousePointerStyle(%d) : path==%s, pathmask==%s",
-            mouseCursorStyle, sPath.c_str(), sPathMask.c_str()
+            LV_CRITICAL, "MouseBehavior_Linux::SetMouseCursorImage() : path==%s, pathmask==%s",
+            sPath.c_str(), sPathMask.c_str()
             );
-        return;
+        return false;
     }
+    return true;
 }
