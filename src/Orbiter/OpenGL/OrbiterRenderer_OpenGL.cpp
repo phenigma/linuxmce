@@ -210,7 +210,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		);
 
 	MeshContainer* Container = Builder->End();
-	//Container->SetAlpha(0.3f);
+	Container->SetAlpha(color.A() / 255.0f);
 	MeshFrame* Frame = new MeshFrame(Container);
 
 	delete Builder;

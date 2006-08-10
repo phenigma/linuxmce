@@ -4,6 +4,7 @@
 #include "OrbiterRenderer.h"
 #include "DesignObj_DataGrid.h"
 #include "../DCE/DataGrid.h"
+#include "pluto_main/Define_DesignObjParameter.h"
 
 using namespace DCE;
 
@@ -61,9 +62,11 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 	if( !pDataGridOwner->m_pDataGridTable )
 		return;
 
+	int nAlphaChannel = GetAlphaLevel();
+
 	m_pOwner->m_pOrbiter->Renderer()->SolidRectangle( point.X + m_pOwner->m_rPosition.X, 
 		point.Y + m_pOwner->m_rPosition.Y, m_pOwner->m_rPosition.Width, 
-		m_pOwner->m_rPosition.Height, PlutoColor( 0, 0, 0 ) );
+		m_pOwner->m_rPosition.Height, PlutoColor(0, 0, 0, nAlphaChannel));
 
 	// short for "number of ARRow ROWS": ArrRows
 	// last screen exception: we consider one up arrow as not being there so we don't skip a row when we scroll up
@@ -244,6 +247,8 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 	if(NULL == pDataGridOwner)
 		return false;
 
+	int nAlphaChannel = GetAlphaLevel();
+
 	TextStyle *pTextStyle = pDataGridOwner->m_pTextStyle;
 	bool bTransparentCell = false; // todo,  is transparency in PlutoColor? ( strchr( GetParameterValue( C_PARAMETER_CELL_COLOR_CONST ).c_str(  ),  ', ' )==NULL );
 
@@ -288,7 +293,11 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 	if ( w>4 && h >4 )
 	{
 		if ( !bTransparentCell )
-			m_pOwner->m_pOrbiter->Renderer()->SolidRectangle( point.X + x,  point.Y + y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor);
+		{
+			PlutoColor CellColor = pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor;
+			CellColor.SetAlpha(nAlphaChannel);
+			m_pOwner->m_pOrbiter->Renderer()->SolidRectangle( point.X + x,  point.Y + y,  w,  h,  CellColor);
+		}
 
 		PLUTO_SAFETY_LOCK(M,m_pOwner->m_pOrbiter->Renderer()->m_bgImageReqMutex);
 
@@ -728,4 +737,18 @@ void DataGridRenderer::DataGridCacheThread()
 	m_DataGridCacheThread = NULL;
 }
 
+int DataGridRenderer::GetAlphaLevel()
+{
+	int nAlphaChannel = atoi(m_pOwner->GetParameterValue(DESIGNOBJPARAMETER_Alpha_channel_CONST).c_str());
 
+	if(nAlphaChannel == 0) //if it's 0, it means it's not set
+		nAlphaChannel = 100;
+
+	//temp code until we find why orbitergen doesn't serialize this param (?)
+	if(m_pOwner->m_pOrbiter->UsesUIVersion2())
+		nAlphaChannel = 30;
+
+	nAlphaChannel = nAlphaChannel * 255 / 100; //translate from procents to 0-255
+
+	return nAlphaChannel;
+}

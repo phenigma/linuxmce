@@ -35,6 +35,10 @@ public:
 	void StartCacheThread();
 	void StopCacheThread();
 	void DataGridCacheThread();
+
+protected:
+
+	int GetAlphaLevel();
 };
 
 #endif //__DATAGRID_RENDERER_H__
