@@ -139,7 +139,7 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 
 	$out='
 		<tr class="'.(($art_index%2==0)?'alternate_back':'').'">
-			<td align="center">'.$row['Description'].'</td>
+			<td align="center"><B>'.$row['Description'].'</B></td>
 			<td align="center">'.date($GLOBALS['defaultDateFormat'],$row['DetectionTime']).'</td>
 			<td align="center">'.date($GLOBALS['defaultDateFormat'],$row['ExpirationTime']).'</td>
 			<td align="center"><input type="checkbox" name="checkb" '.(($row['ResetBeforeExpiration']==1)?'checked':'').' disabled></td>
@@ -153,9 +153,10 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 	while($rowAD=$resAD->FetchRow()){
 		$resD=$dbADO->Execute('SELECT * FROM Device WHERE PK_Device =?',$rowAD['EK_Device']);
 		while($rowD=$resD->FetchRow()){
+			$alertPic=(file_exists($GLOBALS['SecurityPicsPath'].'alert_'.$rowAD['PK_Alert_Device'].'.png'))?$GLOBALS['SecurityPicsPath'].'alert_'.$rowAD['PK_Alert_Device'].'.png':APPROOT.'include/images/alert_no_pic.png';
 		$out.='
 			<tr bgcolor="'.(($art_index%2==0)?'#F0F3F8':'').'">
-				<td align="center"><img src="include/image.php?imagepath='.$GLOBALS['SecurityPicsPath'].'alert_'.$rowAD['PK_Alert_Device'].'.png"></td>
+				<td align="center"><img src="include/image.php?imagepath='.$alertPic.'"></td>
 				<td align="center">'.date($GLOBALS['defaultDateFormat'],$rowAD['DetectionTime']).'</td>
 				<td align="left" colspan="5"><B>Device: </B><a href="index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'">'.$rowD['Description'].'</a></td>
 			</tr>
