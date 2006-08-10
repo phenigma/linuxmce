@@ -52,8 +52,6 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 #endif
 	
 
-g_pPlutoLogger->Write(LV_CRITICAL,"There are supposed to be %d items per page on the right.",RowCount * ColCount);
-
 	for(int row=*RowStart;row<=*RowStart+RowCount;++row)
 	{
 		for(int col=*ColStart;col<=*ColStart+ColCount;++col)
