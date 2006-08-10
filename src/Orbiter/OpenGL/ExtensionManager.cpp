@@ -159,10 +159,3 @@ void ExtensionManager::Resize(int Width, int Height)
 	string sExtensions(reinterpret_cast<const char *>(extensions));
 	return sExtensions.find(checkFor) != string::npos;
 }
-
-/*virtual*/ void ExtensionManager::DrawArea(int X, int Y, int Width, int Height)
-{
-	glViewport(X, Y, Width, Height);
-	glTranslatef(float(-Width/2), float(Height/2), float(Height/2));
-	glScalef(1, -1, 1);
-}

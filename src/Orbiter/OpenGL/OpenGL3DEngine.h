@@ -11,8 +11,6 @@
 
 #include "Layers/GL2DEffectLayersCompose.h"
 
-class AnimationScrollDatagrid;
-
 class OpenGL3DEngine
 {
 	pluto_pthread_mutex_t SceneMutex;
@@ -25,11 +23,9 @@ class OpenGL3DEngine
 	MeshFrame* SelectedFrame;
 	MeshFrame* HighLightFrame;
 
-	MeshFrame* FrameBuilder, *FrameDatagrid;
+	MeshFrame* PopupMode;
 
 	virtual void UnSelect();
-
-	std::vector<AnimationScrollDatagrid*> AnimationDatagrid;
 
 
 	std::map<string, MeshFrame *> CurrentLayerObjects_;
@@ -62,22 +58,11 @@ public:
 	virtual int GetTick();
 	void Setup();
 
+	void StartPopupDrawing();
 	/**
-	 *	Store the MeshFrame which keeps the Datagrid	
+	 *	Return as result the popup
 	 */
-	void StartDatagridDrawing();
-	MeshFrame* EndDatagridDrawing();
-
-	/**
-	 *	Store the current frame, for instance a popup
-	 */
-	void StartFrameDrawing();
-	MeshFrame* EndFrameDrawing();
-
-	void CubeAnimateDatagridFrames(MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
-		int MilisecondTime, int Direction);
-
-
+	MeshFrame* EndPopupMode();
 };
 
 #endif

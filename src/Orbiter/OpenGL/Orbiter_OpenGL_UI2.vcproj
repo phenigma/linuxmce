@@ -133,12 +133,6 @@
 				Name="OpenGL"
 				Filter="">
 				<File
-					RelativePath=".\AnimationScrollDatagrid.cpp">
-				</File>
-				<File
-					RelativePath=".\DataGridRenderer_OpenGL.cpp">
-				</File>
-				<File
 					RelativePath=".\PopupCollection.cpp">
 				</File>
 				<File
@@ -473,9 +467,6 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
-				RelativePath=".\AnimationScrollDatagrid.h">
-			</File>
-			<File
 				RelativePath="..\CacheImageManager.h">
 			</File>
 			<File
@@ -483,9 +474,6 @@
 			</File>
 			<File
 				RelativePath="..\CallBackTypes.h">
-			</File>
-			<File
-				RelativePath=".\DataGridRenderer_OpenGL.h">
 			</File>
 			<File
 				RelativePath="..\DesignObj_Data.h">

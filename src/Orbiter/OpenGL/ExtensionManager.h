@@ -24,8 +24,6 @@ public:
 	virtual void Setup();
 
 	static bool CheckExtension(const char* checkFor);
-
-	virtual void DrawArea(int X, int Y, int Width, int Height);
 };
 
 

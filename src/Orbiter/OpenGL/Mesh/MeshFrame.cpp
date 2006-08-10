@@ -28,7 +28,7 @@ MeshFrame::~MeshFrame(void)
 	{
 		MeshFrame *pMeshFrame = *Child;
 	
- 		pMeshFrame->CleanUp();
+		pMeshFrame->CleanUp();
 		delete pMeshFrame;
 	}
 	Children.clear();
@@ -46,12 +46,6 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::AddChild: Frame is NULL!!!");	
 		return;
 	}
-/*	for(Child = Children.begin(); Child!=Children.end(); )
-		if((*Child) == Frame)
-		{
-			Child = Children.erase(Child);
-		}
-		*/
 	
 	//DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::AddChild: Added %p to %p", Frame, this);	
 	Children.push_back(Frame);
@@ -131,16 +125,4 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 MeshContainer* MeshFrame::GetMeshContainer()
 {
 	return Mesh;
-}
-
-/*virtual*/ void MeshFrame::SetAlpha(float Alpha)
-{
-	if(Mesh)
-		Mesh->SetAlpha(Alpha);
-
-	std::vector<MeshFrame *>::iterator Child = Children.begin(), EndChild = Children.end();
-	for(; Child != EndChild; ++Child)
-	{
-		(*Child)->SetAlpha(Alpha);
-	}
 }
