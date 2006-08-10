@@ -49,7 +49,8 @@ bool
 RubyDCEDeviceNode::Init(RubyDCECodeSupplier* pcs) {
 	try {
 		if(!pdevdata_) {
-			g_pPlutoLogger->Write(LV_WARNING, "Serial IO pool was not initialized with device Data.");			return false;
+			g_pPlutoLogger->Write(LV_WARNING, "Serial IO pool was not initialized with device Data.");
+			return false;
 		}
 		
 		pembclass_ = new RubyDCEEmbededClass(pcs, pdevdata_->m_dwPK_Device);

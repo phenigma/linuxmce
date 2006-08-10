@@ -115,9 +115,10 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 				}
 			}
 			pMessageOut->m_mapParameters[0]=sCMD_Result;
-			pMessage->m_bRespondedToMessage=true;
 			mm.Release();
 			pmanager->SendMessage(pMessageOut);
+			mm.Relock();
+			pMessage->m_bRespondedToMessage=true;
 		}
 		else
 		{

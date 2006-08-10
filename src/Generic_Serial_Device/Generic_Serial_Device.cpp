@@ -87,6 +87,7 @@ void Generic_Serial_Device::ReceivedCommandForChild(DeviceData_Impl *pDeviceData
 	{
 		// TODO: should those messages be translated in future ?
 		g_pPlutoLogger->Write(LV_STATUS, "Message %d NOT pre-processed.", pMessage->m_dwID);
+		sCMD_Result = "OK";
 		DispatchMessage(pMessage);
 	}
 	else
@@ -112,6 +113,7 @@ void Generic_Serial_Device::ReceivedUnknownCommand(string &sCMD_Result,Message *
 	{
 		// TODO: should those messages be translated in future ?
 		g_pPlutoLogger->Write(LV_STATUS, "Message %d NOT pre-processed.", pMessage->m_dwID);
+		sCMD_Result = "OK";
 		DispatchMessage(pMessage);
 	}
 	else
