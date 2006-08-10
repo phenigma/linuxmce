@@ -29,7 +29,7 @@
 	$update_hours_actual=0;
 	# hardcoded to allow only Eugen or Aaron to modify it
 	$current_user=auth_get_current_user_id();
-	if($current_user==33129 || $current_user==37162 || $current_user==37294){
+	if($current_user==33129 || $current_user==37162 || $current_user==37294 || $current_user==33341){
 		$master=1;
 	}
 

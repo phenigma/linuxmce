@@ -1,6 +1,4 @@
 <?php
-header("Location: http://plutohome.com/index.php?section=myPluto");
-exit();
 	# Mantis - a php based bugtracking system
 	# Copyright (C) 2000 - 2002  Kenzaburo Ito - kenito@300baud.org
 	# Copyright (C) 2002 - 2004  Mantis Team   - mantisbt-dev@lists.sourceforge.net
@@ -82,7 +80,6 @@ exit();
 <br />
 <?php } ?>
 <div align="center">
-<form method="post" action="account_update.php">
 <table class="width75" cellspacing="1">
 
 	<!-- Headings -->
@@ -129,31 +126,7 @@ exit();
 		</td>
 	</tr>
 
-	<!-- Password -->
-	<tr class="row-2">
-		<td class="category">
-			<?php echo lang_get( 'password' ) ?>
-			<?php if ( $t_force_pw_reset ) { ?>
-			<span class="required">*</span>
-			<?php } ?>
-		</td>
-		<td>
-			<input type="password" size="32" maxlength="32" name="password" />
-		</td>
-	</tr>
 
-	<!-- Password confirmation -->
-	<tr class="row-1">
-		<td class="category">
-			<?php echo lang_get( 'confirm_password' ) ?>
-			<?php if ( $t_force_pw_reset ) { ?>
-			<span class="required">*</span>
-			<?php } ?>
-		</td>
-		<td>
-			<input type="password" size="32" maxlength="32" name="password_confirm" />
-		</td>
-	</tr>
 
 <?php } ?> <!-- End LDAP conditional -->
 
@@ -171,27 +144,9 @@ exit();
 
 <?php } else { ?> <!-- Without LDAP Email -->
 
-	<!-- Email -->
-	<tr class="row-2">
-		<td class="category">
-			<?php echo lang_get( 'email' ) ?>
-		</td>
-		<td>
-			<?php print_email_input( 'email', $u_email ) ?>
-		</td>
-	</tr>
 
 <?php } ?> <!-- End LDAP Email conditional -->
 
-	<!-- Realname -->
-	<tr class="row-1" valign="top">
-		<td class="category">
-			<?php echo lang_get( 'realname' ) ?>
-		</td>
-		<td>
-			<input type="text" size="32" maxlength="64" name="realname" value="<?php echo $u_realname ?>" />
-		</td>
-	</tr>
 
 	<!-- Access level -->
 	<tr class="row-2">
@@ -224,17 +179,6 @@ exit();
 	</tr>
 
 	<!-- BUTTONS -->
-	<tr>
-		<td class="left">
-			<?php if ( $t_force_pw_reset ) { ?>
-			<span class="required"> * <?php echo lang_get( 'required' ) ?></span>
-			<?php } ?>
-		</td>
-		<!-- Update Button -->
-		<td>
-			<input type="submit" class="button" value="<?php echo lang_get( 'update_user_button' ) ?>" />
-		</td>
-	</tr>
 </table>
 </form>
 </div>
