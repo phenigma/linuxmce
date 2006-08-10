@@ -242,6 +242,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",pData,int(Size),"0");
 		m_pOrbiter->m_pObj_Highlighted = pObj_Play;
 		m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
+		m_pOrbiter->CMD_Remove_Popup("","coverart");
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		m_pOrbiter->m_pMouseBehavior->ConstrainMouse(pObj_Play->m_pParentObject->m_rPosition + pObj_Play->m_pPopupPoint );
 		m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
