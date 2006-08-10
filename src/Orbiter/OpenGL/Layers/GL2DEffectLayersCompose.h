@@ -24,7 +24,6 @@ enum GL2DEffectDefaultLayers {
  */
 class LayersCompose
 {
-	int Width, Height;
 	std::map <int, Layer*> LayerList;
 
 	TextureManager* TextureMan;
@@ -37,6 +36,8 @@ class LayersCompose
 	bool NeedUpdateLayers;
 
 public:
+	int Width, Height;
+
 	GLRenderScreenToGraphic *OldScreen;
 	GLRenderScreenToGraphic *NewScreen;
 

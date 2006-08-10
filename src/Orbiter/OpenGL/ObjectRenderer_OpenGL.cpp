@@ -4,7 +4,6 @@
 #include "../OrbiterRenderer.h"
 #include "OrbiterRenderer_OpenGL.h"
 #include "Texture/TextureManager.h"
-#include "../../pluto_main/Define_DesignObjParameter.h"
 
 using namespace DCE;
 
@@ -22,12 +21,16 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 {
 	//g_pPlutoLogger->Write(LV_STATUS, "(1) RenderGraphic %d - (%d,%d,%d,%d)", m_pOwner->m_iBaseObjectID,
 	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
-	string sObjectHash = m_pOwner->GenerateObjectHash(point);
 
-	MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(sObjectHash);
+	//ObjectRenderer::RenderGraphic(rectTotal, bDisableAspectRatio, point);
+	//return;
+
+	MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(
+			m_pOwner->GenerateObjectHash(point)
+		);
 	if(NULL != Frame)
 	{
-		TextureManager::Instance()->AttachToScene(sObjectHash, Frame);
+		TextureManager::Instance()->AttachToScene(m_pOwner->m_ObjectID, Frame);
 		return;
 	}
 
@@ -144,14 +147,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 	{
 		OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = 
 			dynamic_cast<OrbiterRenderer_OpenGL *>(m_pOwner->m_pOrbiter->Renderer());
-
-		int nAlphaChannel = atoi(m_pOwner->GetParameterValue(DESIGNOBJPARAMETER_Alpha_channel_CONST).c_str());
-
-		if(nAlphaChannel == 0)
-			nAlphaChannel = 100;
-
-		pOrbiterRenderer_OpenGL->RenderGraphic(sObjectHash, pPlutoGraphic, rectTotal, 
-			bDisableAspectRatio, point, nAlphaChannel);
+		pOrbiterRenderer_OpenGL->RenderGraphic(m_pOwner->m_ObjectID, pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
 	}
 #ifdef DEBUG
 	else

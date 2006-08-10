@@ -70,7 +70,7 @@ void PopupCollection::PaintPopup(std::string ID, PlutoPopup *Popup)
 		g_pPlutoLogger->Write(LV_WARNING, "Added in map popup %s, now size is %d", ID.c_str(), Popups.size());
 
 		
-		Engine->StartPopupDrawing();
+		Engine->StartFrameDrawing();
 
 		Popup->m_pObj->RenderObject(Popup->m_pObj, Popup->m_Position); 
 		Item = new PopupDescription(Engine, ID);

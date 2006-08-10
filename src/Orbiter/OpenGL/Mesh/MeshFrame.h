@@ -38,6 +38,8 @@ public:
 	virtual void SetTextureTransform(MeshTransform& TextureTransform);
 	virtual void SetVisible(bool Visible);
 
+	virtual void SetAlpha(float Alpha);
+
 	virtual void Paint();
 };
 

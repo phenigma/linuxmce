@@ -586,6 +586,7 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderScreen(bool bRenderGraphicsOnly)
 {
+	g_pPlutoLogger->Write(LV_WARNING, "OrbiterRenderer_OpenGL::RenderScreen");
 	Popups->HidePopups();
 	if(OrbiterLogic()->m_bQuit)
 		return; //we are about to quit

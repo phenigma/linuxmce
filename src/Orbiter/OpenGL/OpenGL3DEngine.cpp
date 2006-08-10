@@ -9,6 +9,7 @@
 #include "Layers/GL2DEffectLayersCompose.h"
 #include "Texture/TextureManager.h"
 #include "Texture/GLFontManager.h"
+#include "AnimationScrollDatagrid.h"
 
 #include "Simulator.h"
 
@@ -24,7 +25,9 @@ OpenGL3DEngine::OpenGL3DEngine()
 	AnimationRemain (false),
 	SceneMutex("scene mutex"),
 	Compose(NULL),
-	PopupMode(NULL)
+	FrameBuilder(NULL),
+	FrameDatagrid(NULL),
+	AnimationDatagrid(NULL)
 {
 	if(TTF_Init()==-1) {
 		printf("Error on TTF_Init: %s\n", TTF_GetError());
@@ -44,13 +47,8 @@ OpenGL3DEngine::~OpenGL3DEngine()
 {
 	if(OldLayer)
 		OldLayer->CleanUp();
-
-	//THIS IS CRASHING. WE HAVE A LOGIC FLAW HERE
-	//WE'LL ANALYSE THIS LATER
-	//
-	//	if(CurrentLayer)
-	//		CurrentLayer->CleanUp();
-
+	//if(CurrentLayer)
+	//	CurrentLayer->CleanUp();
 	delete OldLayer;
 	delete CurrentLayer;
 	pthread_mutex_destroy(&SceneMutex.mutex);
@@ -93,7 +91,26 @@ bool OpenGL3DEngine::Paint()
 	GL.EnableZBuffer(false);
 
 	Compose->Paint();
+
 	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint before highlight");
+	if(AnimationDatagrid.size())
+	{
+		std::vector<AnimationScrollDatagrid*>::iterator Item ;
+		for(Item = AnimationDatagrid.begin(); Item != AnimationDatagrid.end(); )
+		{
+			AnimationScrollDatagrid *pThing = *Item;
+			if (pThing->Update())
+			{
+				RemoveMeshFrameFromDesktop(pThing->BeforeGrid);
+				pThing->BeforeGrid->CleanUp();
+				delete pThing;
+				Item = AnimationDatagrid.erase(Item);
+			}
+			else
+				++Item;
+		}
+	}
+	else
 	if(HighLightFrame)
 	{
 		//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint after highlight");
@@ -379,24 +396,72 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktop(MeshFrame* Frame)
 	CurrentLayer->RemoveChild(Frame);
 }
 
-void OpenGL3DEngine::StartPopupDrawing()
+void OpenGL3DEngine::StartFrameDrawing()
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
-	if(NULL != PopupMode)
-		EndPopupMode();
-	PopupMode = CurrentLayer;
+	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::StartFrameDrawing!");
+	if(NULL != FrameBuilder)
+		EndFrameDrawing();
+	FrameBuilder = CurrentLayer;
 	CurrentLayer = new MeshFrame();
+}
+
+void OpenGL3DEngine::StartDatagridDrawing()
+{
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::StartFrameDrawing!");
+	if(NULL != FrameDatagrid)
+		EndFrameDrawing();
+	FrameDatagrid = CurrentLayer;
+	CurrentLayer = new MeshFrame();
+}
+
+MeshFrame* OpenGL3DEngine::EndDatagridDrawing()
+{
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+
+	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
+
+	MeshFrame* Result = CurrentLayer;
+	CurrentLayer = FrameDatagrid;
+	if(!CurrentLayer)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Current layer = NULL, that should not happend!");
+	}
+	else
+		CurrentLayer->AddChild(Result);
+	FrameDatagrid = NULL;
+	return Result;
 }
 
 /**
 *	Return as result the popup
 */
-MeshFrame* OpenGL3DEngine::EndPopupMode()
+MeshFrame* OpenGL3DEngine::EndFrameDrawing()
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+
+	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
+
 	MeshFrame* Result = CurrentLayer;
-	CurrentLayer = PopupMode;
-	CurrentLayer->AddChild(Result);
-	PopupMode = NULL;
+	CurrentLayer = FrameBuilder;
+	if(!CurrentLayer)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Current layer = NULL, that should not happend!");
+	}
+	else
+		CurrentLayer->AddChild(Result);
+	FrameBuilder = NULL;
 	return Result;
+}
+
+void OpenGL3DEngine::CubeAnimateDatagridFrames(MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
+							   int MilisecondTime, int Direction)
+{
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+
+	AnimationScrollDatagrid* Animation = new AnimationScrollDatagrid(this, BeforeGrid, AfterGrid, MilisecondTime, Direction); 
+	AnimationDatagrid.push_back(Animation);
+
+	Animation->StartAnimation();
 }

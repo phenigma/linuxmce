@@ -10,7 +10,7 @@ PopupDescription::PopupDescription(OpenGL3DEngine* Engine, string ID)
 {
 	this->Engine = Engine;
 	ObjectID = ID;
-	PopupFrame = Engine->EndPopupMode();
+	PopupFrame = Engine->EndFrameDrawing();
 }
 
 PopupDescription::~PopupDescription(void)
