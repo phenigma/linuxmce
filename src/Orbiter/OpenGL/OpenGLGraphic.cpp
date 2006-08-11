@@ -239,9 +239,9 @@ bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 
 void OpenGLGraphic::Clear()
 {
-	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
-
 	TextureManager::Instance()->PrepareRelease(Texture);
+
+	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 	if(LocalSurface != NULL)
 	{
 		SDL_FreeSurface(LocalSurface);
@@ -262,10 +262,6 @@ void OpenGLGraphic::ReleaseTexture()
 {
 	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 
-	if (TextureManager::Instance() == NULL)
-		return;
-
-	
 	if(Texture)
 	{
 		glDeleteTextures(1, &Texture);
