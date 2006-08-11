@@ -474,8 +474,8 @@ MeshFrame* OpenGL3DEngine::EndFrameDrawing()
 	return Result;
 }
 
-void OpenGL3DEngine::CubeAnimateDatagridFrames(MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
-							   int MilisecondTime, int Direction)
+void OpenGL3DEngine::CubeAnimateDatagridFrames(string ObjectID, MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
+		int MilisecondTime, int Direction, float fMaxAlphaLevel)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 
