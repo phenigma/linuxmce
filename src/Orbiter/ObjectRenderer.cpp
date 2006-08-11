@@ -564,12 +564,17 @@ CacheImageManager *ObjectRenderer::GetCacheImageManager()
 //-----------------------------------------------------------------------------------------------------
 int ObjectRenderer::GetAlphaLevel()
 {
-	int nAlphaChannel = atoi(m_pOwner->GetParameterValue(DESIGNOBJPARAMETER_Alpha_channel_CONST).c_str());
+	int nAlphaChannel;
+	string sAlphaChannel = m_pOwner->GetParameterValue(DESIGNOBJPARAMETER_Alpha_channel_CONST);
 
-	//if(nAlphaChannel == 0) //if it's 0, it means it's not set
-	//	nAlphaChannel = 100;
+	if(sAlphaChannel == "")
+		nAlphaChannel = 255;
+	else
+	{
+		nAlphaChannel = atoi(sAlphaChannel.c_str());
+		nAlphaChannel = nAlphaChannel * 255 / 100; //translate from procents to 0-255
+	}
 
-	nAlphaChannel = nAlphaChannel * 255 / 100; //translate from procents to 0-255
 	return nAlphaChannel;
 }
 //-----------------------------------------------------------------------------------------------------
