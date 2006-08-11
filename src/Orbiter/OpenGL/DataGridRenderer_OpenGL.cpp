@@ -48,6 +48,12 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 		Engine->CubeAnimateDatagridFrames(BeforeDataGrid, RenderFrame, 1200, iPK_Direction);
 		StartAnimation = 0;
 	}
+	else
+	{
+		Engine->RemoveMeshFrameFromDesktop(BeforeDataGrid);
+		//delete BeforeDataGrid;
+		//BeforeDataGrid = NULL;
+	}
 }
 
 bool DataGridRenderer_OpenGL::Scroll_Grid(string sRelative_Level, int iPK_Direction,bool bMoveOneLineIfCannotPage)

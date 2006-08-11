@@ -90,7 +90,9 @@ bool OpenGL3DEngine::Paint()
 		
 	GL.EnableZBuffer(false);
 
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Paint START");
 	Compose->Paint();
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Paint END");
 
 	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint before highlight");
 	if(AnimationDatagrid.size())
@@ -111,20 +113,20 @@ bool OpenGL3DEngine::Paint()
 		}
 	}
 	else
-	if(HighLightFrame)
-	{
-		//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint after highlight");
-		Point3D Color;
-		Color.X = 1.0f;
-		Color.Y = 1.0f;
-		Color.Z = (GetTick() / 2 % 512) / 255.0f*Simulator::GetInstance()->m_iMilisecondsHighLight/300;
-		Color.Z = abs(Color.Z - 1.0f)/2.0f+ 0.5f;
-		Color.X = Color.Z;
-		Color.Y = Color.Z;
-		CurrentLayer->RemoveChild(HighLightFrame);
-		CurrentLayer->AddChild(HighLightFrame);
-		HighLightFrame->GetMeshContainer()->SetColor(Color);
-	}
+		if(HighLightFrame)
+		{
+			//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint after highlight");
+			Point3D Color;
+			Color.X = 1.0f;
+			Color.Y = 1.0f;
+			Color.Z = (GetTick() / 2 % 512) / 255.0f*Simulator::GetInstance()->m_iMilisecondsHighLight/300;
+			Color.Z = abs(Color.Z - 1.0f)/2.0f+ 0.5f;
+			Color.X = Color.Z;
+			Color.Y = Color.Z;
+			HighlightCurrentLayer->RemoveChild(HighLightFrame);
+			HighlightCurrentLayer->AddChild(HighLightFrame);
+			HighLightFrame->GetMeshContainer()->SetColor(Color);
+		}
 
 	//glEnable(GL_CULL_FACE);
 
@@ -162,6 +164,7 @@ void OpenGL3DEngine::NewScreen()
 
 	CurrentLayerObjects_.clear();
 	CurrentLayer = new MeshFrame();
+	HighlightCurrentLayer = CurrentLayer;
 	
 	if(NULL != Compose)
 		Compose->UpdateLayers(CurrentLayer, OldLayer);
@@ -275,12 +278,12 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	
-	if(NULL == CurrentLayer)
+	if(NULL == HighlightCurrentLayer)
 		return;
 	if(NULL == HightlightArea)
 		return;
 
-	Compose->UpdateLayers(CurrentLayer, OldLayer);
+	Compose->UpdateLayers(HighlightCurrentLayer, OldLayer);
 	MeshBuilder MB;
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
 	MeshTransform Transform;

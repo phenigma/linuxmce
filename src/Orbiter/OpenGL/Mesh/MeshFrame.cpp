@@ -19,9 +19,7 @@ MeshFrame::~MeshFrame(void)
 
 /*virtual*/ void MeshFrame::CleanUp()
 {
-	//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::cleanup %p", this);	
-	delete Mesh;
-	Mesh = NULL;
+	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "xxxxx MeshFrame::cleanup %p", this);	
 
 	std::vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); Child++)
@@ -30,8 +28,12 @@ MeshFrame::~MeshFrame(void)
 	
 		pMeshFrame->CleanUp();
 		delete pMeshFrame;
+		pMeshFrame = NULL;
 	}
 	Children.clear();
+
+	delete Mesh;
+	Mesh = NULL;
 }
 
 void MeshFrame::SetMeshContainer(MeshContainer* Mesh)
@@ -46,7 +48,7 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::AddChild: Frame is NULL!!!");	
 		return;
 	}
-	
+
 	//DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::AddChild: Added %p to %p", Frame, this);	
 	Children.push_back(Frame);
 }
@@ -84,7 +86,7 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 	if(Mesh!= NULL)
 		Painter->PaintContainer(*Mesh, Transform, TextureTransform);
 
-	//DCE::g_pPlutoLogger->Write(LV_STATUS, "Painting %p with %d children: ", this, Children.size());
+	//DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Painting %p with %d children: ", this, Children.size());
 
 	std::vector<MeshFrame *>::iterator Child, EndChild;
 	for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
@@ -93,7 +95,7 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 		pMeshFrame->Paint(Transform);
 	}
 
-	//DCE::g_pPlutoLogger->Write(LV_STATUS, "Painting %p END ", this);
+	//DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Painting %p END ", this);
 }
 
 /*virtual*/ void MeshFrame::SetTransform(MeshTransform& Transform)

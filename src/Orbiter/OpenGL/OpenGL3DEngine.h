@@ -21,6 +21,7 @@ class OpenGL3DEngine
 	bool AnimationRemain;
 
 	MeshFrame* CurrentLayer;
+	MeshFrame* HighlightCurrentLayer; //alias for CurrentLayer
 	MeshFrame* OldLayer;
 	MeshFrame* SelectedFrame;
 	MeshFrame* HighLightFrame;
