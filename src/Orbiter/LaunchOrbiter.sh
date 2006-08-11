@@ -6,7 +6,7 @@ Executable=./Orbiter
 OrbiterConf=/etc/Orbiter.conf
 
 # TODO: update Config_Ops.sh to support user-specified files, and use that here
-if grep -q "UseOpenGL.*=,*1" "$OrbiterConf"; then
+if grep -q "UseOpenGL.*=.*1" "$OrbiterConf"; then
 	Executable=./OrbiterGL
 fi
 
