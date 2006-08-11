@@ -41,10 +41,18 @@ public:
 		  timeStart_(0L)
 	{
 		// this should be something (Device Data) from database
-		if( msg_.m_dwID == COMMAND_Vol_Up_CONST ||
-			msg_.m_dwID == COMMAND_Vol_Down_CONST )
+		switch( msg_.m_dwID )
 		{
-			timeStart_ = ProcessUtils::GetMsTime();
+			case COMMAND_Vol_Up_CONST :
+			case COMMAND_Vol_Down_CONST :
+			case COMMAND_Set_Volume_CONST :
+			case COMMAND_Center_Volume_Down_CONST :
+			case COMMAND_Center_Volume_Up_CONST :
+				timeStart_ = ProcessUtils::GetMsTime();
+				break;
+			
+			default :
+				break;
 		}
 	}
 	
