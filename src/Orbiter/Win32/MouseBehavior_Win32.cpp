@@ -14,9 +14,12 @@ MouseBehavior_Win32::MouseBehavior_Win32(Orbiter *pOrbiter)
 
 void MouseBehavior_Win32::SetMousePosition(int X,int Y)
 {
-	MouseBehavior::SetMousePosition(X,Y);
+	int nWindowX = 0, nWindowY = 0;
+	GetWindowPosition(nWindowX, nWindowY);
+
+	MouseBehavior::SetMousePosition(nWindowX + X, nWindowY + Y);
 	
-	SetCursorPos(X,Y);
+	SetCursorPos(nWindowY + X, nWindowY + Y);
 }
 
 void MouseBehavior_Win32::ShowMouse(bool bShow)
@@ -27,10 +30,8 @@ g_pPlutoLogger->Write(LV_ACTION,"**SHOW*** %d",(int) bShow);
 
 bool MouseBehavior_Win32::ConstrainMouse(const PlutoRectangle &rect)
 {
-	//we'll need to window's position in order to apply the constrain relatively to the window's position
-	HWND hWnd = ::FindWindow("SDL_app", "OrbiterGL");
-	RECT rectWin;
-	::GetWindowRect(hWnd, &rectWin);
+	int nWindowX = 0, nWindowY = 0;
+	GetWindowPosition(nWindowX, nWindowY);
 
 	m_bMouseConstrained = rect.X!=0 || rect.Y!=0 || rect.Width!=0 || rect.Height!=0;
 	if( rect.Width==0 || rect.Height==0 )
@@ -40,10 +41,10 @@ bool MouseBehavior_Win32::ConstrainMouse(const PlutoRectangle &rect)
 	}
 
 	RECT rcClip;           // new area for ClipCursor
-	rcClip.left=rectWin.left + rect.X;
-	rcClip.right=rectWin.left + rect.X + rect.Width;
-	rcClip.top=rectWin.top + rect.Y;
-	rcClip.bottom=rectWin.top + rect.Y + rect.Height;
+	rcClip.left=nWindowX + rect.X;
+	rcClip.right=nWindowX + rect.X + rect.Width;
+	rcClip.top=nWindowY + rect.Y;
+	rcClip.bottom=nWindowY + rect.Y + rect.Height;
 	ClipCursor(&rcClip); 
 	return true;
 }
@@ -74,3 +75,13 @@ void MouseBehavior_Win32::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
 	SetCursor(hCursor);
 }
 
+void MouseBehavior_Win32::GetWindowPosition(int &x, int &y)
+{
+	//we'll need to window's position in order to apply the constrain relatively to the window's position
+	HWND hWnd = ::FindWindow("SDL_app", "OrbiterGL");
+	RECT rectWin;
+	::GetWindowRect(hWnd, &rectWin);
+
+	x = rectWin.left;
+	y = rectWin.top;
+}

@@ -26,6 +26,9 @@ namespace DCE
 
 		bool ConstrainMouse(const PlutoRectangle &rect);
 		void SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle);
+
+	private:
+		void GetWindowPosition(int &x, int &y);
 	};
 }
 //-----------------------------------------------------------------------------------------------------

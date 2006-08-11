@@ -241,7 +241,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 */
 		m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
 			NULL != pCell_Pic && NULL != pCell_Pic->m_pGraphic ? pCell_Pic->m_pGraphic->m_pGraphicData : NULL,
-			NULL != pCell_Pic && NULL != pCell_Pic->m_pGraphic ? pCell_Pic->m_pGraphic->m_GraphicLength : 0,"0");
+			NULL != pCell_Pic && NULL != pCell_Pic->m_pGraphic ? int(pCell_Pic->m_pGraphic->m_GraphicLength) : 0,"0");
 		m_pOrbiter->m_pObj_Highlighted = pObj_Play;
 		m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
 		m_pOrbiter->CMD_Remove_Popup("","coverart");
