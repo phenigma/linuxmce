@@ -11,7 +11,7 @@ daemon=30
 syslog=yes
 pid=/var/run/ddclient.pid
 use=if
-if=eth0
+if=%DD_ETH%
 
 login=%DD_LOGIN%
 password=%DD_PASS%

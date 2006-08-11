@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/bin/Config_Ops.sh 2>/dev/null || exit 1
+. /usr/pluto/bin/Network_Parameters.sh 2>/dev/null || exit 1
 
 function DisplayUsage() {
 	echo
@@ -18,7 +19,7 @@ function DisplayUsage() {
 	echo " --------------------------"
 	echo "  DynamicDNS.sh get"
 	echo
-	echo "    Will display the 'login', 'password', 'service_params' and 'domains' on separate lines"
+	echo "    Will display the 'login', 'service_params' and 'domains' on separate lines"
 	echo 
 	echo
 	echo " LIST OF service_params FOR KNOWN DYNAMIC DNS PROVIDERS:"
@@ -47,9 +48,11 @@ if [[ "$1" == "set" ]] ;then
 	DD_PASS="$2"
 	DD_SERVICE="$3"
 	DD_DOMAINS="$4"
+	DD_ETH="$ExtIf"
 
-	cp /usr/pluto/teamplates/ddclient.conf.template /etc/ddclient.conf.$$
-	ReplaceVars /etc/ddclient.conf
+	Vars="DD_LOGIN DD_PASS DD_SERVICE DD_DOMAINS DD_ETH"
+	cp /usr/pluto/templates/ddclient.conf.template /etc/ddclient.conf.$$
+	ReplaceVars /etc/ddclient.conf.$$
 	mv /etc/ddclient.conf.$$ /etc/ddclient.conf
 
 	/etc/init.d/ddclient restart
@@ -69,7 +72,6 @@ elif [[ "$1" == "get" ]] ;then
 	fi
 
 	echo $DD_LOGIN
-	echo $DD_PASS
 	echo $DD_SERVICE
 	echo $DD_DOMAINS
 
