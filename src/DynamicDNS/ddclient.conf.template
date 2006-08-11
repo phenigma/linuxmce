@@ -1,23 +1,20 @@
+# Pluto - ddclient.conf
+#
+# WARNING :
+#  This configuration file is created by automaticaly by Pluto.
+#
+#  Please use the web admin interface to change your dynamic dns parameters
+#  or use the DynamicDns.sh script.
+#
+
 daemon=30
 syslog=yes
 pid=/var/run/ddclient.pid
 use=if
 if=eth0
 
-login=%LOGIN%
-password=%PASSWORD%
-%DNS_SERVICE_STRING%
-%DOMAINS_STRING%
-domain1,domain2
-
-# DynDNS (dynamic) 			: server=members.dyndns.org,protocol=dyndns2
-# DynDNS (static)  			: server=members.dyndns.org,protocol=dyndns2,static=yes
-# DynDNS (custom)  			: server=members.dyndns.org,protocol=dyndns2,custom=yes
-# ZoneEdit (zoneedit.com) 		: server=www.zoneedit.com,protocol=zoneedit1
-# EasyDNS (easydns.com)			: server=members.easydns.com,protocol=easydns
-# Hammernode (hn.org) dynamic addresses	: server=dup.hn.org,protocol=hammernode1
-# DslReports.com dynamic-host monitoring: server=members.dslreports.com,protocol=dslreports1
-# OrgDNS.org account-configuration	: use=web,web=members.orgdns.org/nic/ip,server=www.orgnds.org,protocol=dyndns2
-# DnsPark.com				: use=web, web=ipdetect.dnspark.com, web-skip='Current Address:',protocol=dnspark
-# NameCheap (namecheap.com)		: server=dynamicdns.park-your-domain.com,protocol=namecheap
+login=%DD_LOGIN%
+password=%DD_PASS%
+%DD_SERVICE%
+%DD_DOMAINS%
 
