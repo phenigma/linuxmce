@@ -53,11 +53,7 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 
 MediaBrowserMouseHandler::~MediaBrowserMouseHandler()
 {
-    if (m_pRelativePointer_Image)
-    {
-        delete m_pRelativePointer_Image;
-        m_pRelativePointer_Image = NULL;
-    }
+    RelativePointer_Clear();
 }
 
 void MediaBrowserMouseHandler::Start()
@@ -114,14 +110,19 @@ void MediaBrowserMouseHandler::RelativeMove(int X, int Y)
 		Notch = (m_pMouseBehavior->m_pOrbiter->m_Height - Y) / (m_pMouseBehavior->m_pOrbiter->m_Height/10);
 		if( Notch==m_iLastNotch )
 			return;
-		m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
-			X-40,0,
-			80,5,
-			PlutoColor::White());
-		m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
-			X-Notch*2,0,
-			Notch*2,5,
-			PlutoColor::Green());
+		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
+		//	X-40,0,
+		//	80,5,
+		//	PlutoColor::White());
+		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
+		//	X-Notch*2,0,
+		//	Notch*2,5,
+		//	PlutoColor::Green());
+        RelativePointer_ImageLoad(Notch);
+        //PlutoRectangle rectFakePointer(X-40,0,80,5);
+        PlutoRectangle rectFakePointer(X-40,0,m_pRelativePointer_Image->Width, m_pRelativePointer_Image->Height);
+        if (m_pRelativePointer_Image)
+            m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(m_pRelativePointer_Image, rectFakePointer);
 	}
 	else
 	{
@@ -131,14 +132,19 @@ void MediaBrowserMouseHandler::RelativeMove(int X, int Y)
 			return;
 		}
 		Notch = Y / (m_pMouseBehavior->m_pOrbiter->m_Height/10);
-		m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
-			X-40,m_pMouseBehavior->m_pOrbiter->m_Height-5,
-			80,5,
-			PlutoColor::White());
-		m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
-			X-Notch*2,m_pMouseBehavior->m_pOrbiter->m_Height-5,
-			Notch*2,5,
-			PlutoColor::Green());
+		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
+		//	X-40,m_pMouseBehavior->m_pOrbiter->m_Height-5,
+		//	80,5,
+		//	PlutoColor::White());
+		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
+		//	X-Notch*2,m_pMouseBehavior->m_pOrbiter->m_Height-5,
+		//	Notch*2,5,
+		//	PlutoColor::Green());
+        RelativePointer_ImageLoad(Notch);
+        //PlutoRectangle rectFakePointer(X-40,m_pMouseBehavior->m_pOrbiter->m_Height-5,80,5);
+        PlutoRectangle rectFakePointer(X-40,m_pMouseBehavior->m_pOrbiter->m_Height-m_pRelativePointer_Image->Height,m_pRelativePointer_Image->Width, m_pRelativePointer_Image->Height);
+        if (m_pRelativePointer_Image)
+            m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(m_pRelativePointer_Image, rectFakePointer);
 	}
 
 	m_iLastNotch=Notch;
@@ -201,9 +207,9 @@ g_pPlutoLogger->Write(LV_ACTION, "**go**");
 
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 	DesignObj_DataGrid *pObj_ListGrid_Active=NULL;
-	if( m_pObj_ListGrid->m_rPosition.Contains(X,Y) ) 
+	if( m_pObj_ListGrid->m_rPosition.Contains(X,Y) )
 		pObj_ListGrid_Active = m_pObj_ListGrid;
-	else if( m_pObj_PicGrid->m_rPosition.Contains(X,Y) ) 
+	else if( m_pObj_PicGrid->m_rPosition.Contains(X,Y) )
 		pObj_ListGrid_Active = m_pObj_PicGrid;
 	else
 		return;
@@ -266,87 +272,6 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 	}
 	else
 		m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
-}
-
-bool MediaBrowserMouseHandler::RelativePointer_SetStatus(int nSpeedShape)
-{
-    const int nPeakSpeed = 5;
-    g_pPlutoLogger->Write(LV_STATUS, "MediaBrowserMouseHandler::RelativePointer_SetStatus(%d)", nSpeedShape);
-    // check range
-    if ( (nSpeedShape > 0) && (nSpeedShape > nPeakSpeed) )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::RelativePointer_SetStatus(%d) : decreasing shape to %d", nSpeedShape, nPeakSpeed);
-        nSpeedShape = nPeakSpeed;
-    }
-    if ( (nSpeedShape < 0) && (nSpeedShape < nPeakSpeed) )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::RelativePointer_SetStatus(%d) : increasing shape to %d", nSpeedShape, -nPeakSpeed);
-        nSpeedShape = -nPeakSpeed;
-    }
-    // compare with current status
-    if (m_nRelativePointer_SpeedShape == nSpeedShape)
-        return true;
-    m_nRelativePointer_SpeedShape = nSpeedShape;
-    // restore the normal behavior in this case
-    if (nSpeedShape == 0)
-    {
-        m_pMouseBehavior->ShowMouse(true);
-    }
-    // hide the pointer : will draw a fake one
-    m_pMouseBehavior->ShowMouse(false);
-    // get current screen size
-    PlutoSize oSizeScreen = m_pMouseBehavior->m_pOrbiter->m_sScreenSize;
-    // get current mouse position
-    PlutoPoint posFakeMouse;
-    m_pMouseBehavior->GetMousePosition(&posFakeMouse);
-    // pointer move to the middle of the screen
-    m_pMouseBehavior->SetMousePosition(oSizeScreen.Width/2, oSizeScreen.Height/2);
-    // compute the image path
-    char buffer[100];
-    sprintf(buffer, "speed_shape_%d.xbm", nSpeedShape);
-    string sPath = "/usr/pluto/orbiter/skins/Basic/cursors/pointers_bw/";
-    sPath = sPath + buffer;
-
-    //delete this debug-only block
-    // with a real pointer, not a fake one
-    if (0)
-    {
-        string sPathMask = sPath + ".msk";
-        m_pMouseBehavior->SetMouseCursorImage(sPath, sPathMask);
-        if (nSpeedShape > 0)
-            m_pMouseBehavior->SetMousePosition(posFakeMouse.X, posFakeMouse.Y - nPeakSpeed);
-        else
-            m_pMouseBehavior->SetMousePosition(posFakeMouse.X, posFakeMouse.Y + nPeakSpeed);
-    }
-    
-    // read the image from disk
-    sPath = "/usr/pluto/orbiter/skins/Basic/cursors/pointers/standard_big_b.png";//delete this debug-only line
-    PlutoRectangle rectFakePointer;
-	size_t iSize = 0;
-    char * pData = FileUtils::ReadFileIntoBuffer(sPath.c_str(), iSize);
-    if (pData == NULL)
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "MediaBrowserMouseHandler::RelativePointer_SetStatus(%d) : cannot load graphic file %s", nSpeedShape, sPath.c_str());
-        return false;
-    }
-    // creating the image in memory
-    m_pRelativePointer_Image = m_pMouseBehavior->m_pOrbiter->m_pOrbiterRenderer->CreateGraphic();
-    m_pRelativePointer_Image->LoadGraphic(pData, iSize);
-    delete [] pData;
-    rectFakePointer.Width = m_pRelativePointer_Image->Width;
-    rectFakePointer.Height = m_pRelativePointer_Image->Height;
-    // X coordinate : keep the pointer on the screen
-    rectFakePointer.X = posFakeMouse.X;
-    if (rectFakePointer.X + rectFakePointer.Width > oSizeScreen.Width)
-        rectFakePointer.X = oSizeScreen.Width - rectFakePointer.Width;
-    // Y coordinate
-    if (nSpeedShape > 0)
-        rectFakePointer.Y = oSizeScreen.Height - rectFakePointer.Height;
-    else
-        rectFakePointer.Y = 0;
-    // draw fake pointer
-    m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(m_pRelativePointer_Image, rectFakePointer);
-	return true;
 }
 
 bool MediaBrowserMouseHandler::DoIteration()
@@ -419,4 +344,136 @@ bool MediaBrowserMouseHandler::DoIteration()
 	}
 
 	return bResult;
+}
+
+bool MediaBrowserMouseHandler::RelativePointer_SetStatus(int nSpeedShape)
+{
+    g_pPlutoLogger->Write(LV_STATUS, "MediaBrowserMouseHandler::RelativePointer_SetStatus(%d)", nSpeedShape);
+    nSpeedShape = RelativePointer_AdjustSpeedShape(nSpeedShape);
+    // check range
+    // compare with current status
+    if (m_nRelativePointer_SpeedShape == nSpeedShape)
+        return true;
+    m_nRelativePointer_SpeedShape = nSpeedShape;
+
+    // load image from disk
+    RelativePointer_ImageLoad(nSpeedShape);
+    
+    // restore the normal behavior in this case
+    if (nSpeedShape == 0)
+    {
+        m_pMouseBehavior->ShowMouse(true);
+    }
+    // hide the pointer : will draw a fake one
+    m_pMouseBehavior->ShowMouse(false);
+    // get current screen size
+    PlutoSize oSizeScreen = m_pMouseBehavior->m_pOrbiter->m_sScreenSize;
+    // get current mouse position
+    PlutoPoint posFakeMouse;
+    m_pMouseBehavior->GetMousePosition(&posFakeMouse);
+    // pointer move to the middle of the screen, on Y axis only
+    m_pMouseBehavior->SetMousePosition(posFakeMouse.X, oSizeScreen.Height/2);
+
+    //delete this debug-only block
+    // with a real pointer, not a fake one
+    if (0)
+    {
+        string sPathMask = m_sImagePath + ".msk";
+        m_pMouseBehavior->SetMouseCursorImage(m_sImagePath, sPathMask);
+        if (nSpeedShape > 0)
+            m_pMouseBehavior->SetMousePosition(posFakeMouse.X, posFakeMouse.Y - 2);
+        else
+            m_pMouseBehavior->SetMousePosition(posFakeMouse.X, posFakeMouse.Y + 2);
+    }
+
+    // draw fake pointer
+    PlutoRectangle rectFakePointer = RelativePointer_ComputeRectangle(posFakeMouse.X, posFakeMouse.Y, oSizeScreen.Width, oSizeScreen.Height);
+    m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(m_pRelativePointer_Image, rectFakePointer);
+	return true;
+}
+
+void MediaBrowserMouseHandler::RelativePointer_Clear()
+{
+    m_nRelativePointer_SpeedShape = 0;
+    if (m_pRelativePointer_Image)
+    {
+        delete m_pRelativePointer_Image;
+        m_pRelativePointer_Image = NULL;
+    }
+}
+
+int MediaBrowserMouseHandler::RelativePointer_AdjustSpeedShape(int nSpeedShape)
+{
+    // check range
+    const int nPeakSpeed = 5;
+    if ( (nSpeedShape > 0) && (nSpeedShape > nPeakSpeed) )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::RelativePointer_AdjustSpeedShape(%d) : decreasing shape to %d", nSpeedShape, nPeakSpeed);
+        nSpeedShape = nPeakSpeed;
+    }
+    if ( (nSpeedShape < 0) && (nSpeedShape < nPeakSpeed) )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::RelativePointer_AdjustSpeedShape(%d) : increasing shape to %d", nSpeedShape, -nPeakSpeed);
+        nSpeedShape = -nPeakSpeed;
+    }
+    return nSpeedShape;
+}
+
+bool MediaBrowserMouseHandler::RelativePointer_ImageLoad(int nSpeedShape)
+{
+    g_pPlutoLogger->Write(LV_STATUS, "MediaBrowserMouseHandler::RelativePointer_ImageLoad(%d)", nSpeedShape);
+    nSpeedShape = RelativePointer_AdjustSpeedShape(nSpeedShape);
+
+    // compare with current status
+    if (m_nRelativePointer_SpeedShape == nSpeedShape)
+        return true;
+    m_nRelativePointer_SpeedShape = nSpeedShape;
+
+    // restore the normal behavior in this case
+    if (nSpeedShape == 0)
+    {
+        RelativePointer_Clear();
+        return false;
+    }
+
+    // compute the image path
+    char buffer[100];
+    sprintf(buffer, "speed_shape_%d.png", nSpeedShape);
+    m_sImagePath = "/usr/pluto/orbiter/skins/Basic/cursors/pointers/";
+    m_sImagePath = m_sImagePath + buffer;
+
+    // read the image from disk
+	size_t iSize = 0;
+    char * pData = FileUtils::ReadFileIntoBuffer(m_sImagePath.c_str(), iSize);
+    if (pData == NULL)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "MediaBrowserMouseHandler::RelativePointer_ImageLoad(%d) : cannot load graphic file %s", nSpeedShape, m_sImagePath.c_str());
+        return false;
+    }
+    g_pPlutoLogger->Write(LV_STATUS, "MediaBrowserMouseHandler::RelativePointer_ImageLoad(%d) : loaded graphic file %s", nSpeedShape, m_sImagePath.c_str());
+    m_pRelativePointer_Image = m_pMouseBehavior->m_pOrbiter->m_pOrbiterRenderer->CreateGraphic();
+    m_pRelativePointer_Image->LoadGraphic(pData, iSize);
+    delete [] pData;
+    pData = NULL;
+    return true;
+}
+
+PlutoRectangle MediaBrowserMouseHandler::RelativePointer_ComputeRectangle(int X, int Y, int screenWidth, int screenHeight)
+{
+    PlutoRectangle rectFakePointer;
+    if (m_pRelativePointer_Image == NULL)
+        return rectFakePointer;
+    //compute fake image position
+    rectFakePointer.Width = m_pRelativePointer_Image->Width;
+    rectFakePointer.Height = m_pRelativePointer_Image->Height;
+    // X coordinate : keep the pointer on the screen
+    rectFakePointer.X = X;
+    if (rectFakePointer.X + rectFakePointer.Width > screenWidth)
+        rectFakePointer.X = screenWidth - rectFakePointer.Width;
+    // Y coordinate
+    if (m_nRelativePointer_SpeedShape > 0)
+        rectFakePointer.Y = screenHeight - rectFakePointer.Height;
+    else
+        rectFakePointer.Y = 0;
+    return rectFakePointer;
 }

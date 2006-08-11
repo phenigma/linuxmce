@@ -57,18 +57,34 @@ namespace DCE
         /// relative mouse pointer
         ///   hide when relative motion is wanted
         ///   show the standard pointer whdn relative motion is not wanted
-    public:
         // speed == 0 : normal pointer
         // speed < 0 : up
         // speed > 0 : down
+    public:
+        // changed algorithm for relative pointer
+        // (may not match the current code structure)
         bool RelativePointer_SetStatus(int nSpeedShape);
+
+        // reset variables
+        void RelativePointer_Clear();
+
+        // returns the number in the desired range
+        int RelativePointer_AdjustSpeedShape(int nSpeedShape);
+
+        // read the image from disk
+        bool RelativePointer_ImageLoad(int nSpeedShape);
+
+        // compute the image rectangle, based on the pre-loaded image
+        // X and Y are the desired pointer coordinates
+        PlutoRectangle RelativePointer_ComputeRectangle(int X, int Y, int screenWidth, int screenHeight);
+
     protected:
         // holds both speed and shape
         int m_nRelativePointer_SpeedShape;
-        // path to the pointer image
-        // which will be displayed instead of the real pointer
+        // path to the fake pointer image
+        string m_sImagePath;
+        // image for the fake pointer
 		class PlutoGraphic * m_pRelativePointer_Image;
-
     };
 
 }
