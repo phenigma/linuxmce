@@ -126,3 +126,15 @@ MeshContainer* MeshFrame::GetMeshContainer()
 {
 	return Mesh;
 }
+
+/*virtual*/ void MeshFrame::SetAlpha(float Alpha)
+{
+	if(Mesh)
+		Mesh->SetAlpha(Alpha);
+	std::vector<MeshFrame *>::iterator Child, EndChild;
+	for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
+	{  
+		MeshFrame *pMeshFrame = *Child;
+		pMeshFrame->Paint(Transform);
+	}
+}

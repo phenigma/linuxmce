@@ -39,6 +39,8 @@ public:
 	virtual void SetVisible(bool Visible);
 
 	virtual void Paint();
+
+	virtual void SetAlpha(float Alpha);
 };
 
 #endif
