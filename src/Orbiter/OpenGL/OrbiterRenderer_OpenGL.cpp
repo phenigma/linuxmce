@@ -400,6 +400,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::UnHighlightObject(bool bDeleteOnly/*=false*/)
 {
+	/*
 	if(NULL != m_pObj_Highlighted_Before && m_pObj_Highlighted_Before != OrbiterLogic()->m_pObj_Highlighted &&
 		m_pObj_Highlighted_Before->m_ObjectType != DESIGNOBJTYPE_Datagrid_CONST)
 	{
@@ -409,6 +410,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	}
 
 	m_pObj_Highlighted_Before = NULL;
+	*/
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::DoHighlightObject()
@@ -416,9 +418,9 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	if(sbNoSelection == OrbiterLogic()->m_nSelectionBehaviour || !OrbiterLogic()->m_pObj_Highlighted || !OrbiterLogic()->m_pObj_Highlighted->m_bOnScreen )
 		return;
 
-	UnHighlightObject();
+	//UnHighlightObject();
 
-	m_pObj_Highlighted_Before = NULL;
+	//m_pObj_Highlighted_Before = NULL;
 
 	if(!OrbiterLogic()->m_pObj_Highlighted)
 		return;

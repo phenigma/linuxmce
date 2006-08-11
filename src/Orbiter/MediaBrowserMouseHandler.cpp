@@ -235,8 +235,8 @@ g_pPlutoLogger->Write(LV_ACTION, "**go**");
 	{
 		m_LastRow=m_pObj_ListGrid->m_iHighlightedRow;
 		// This takes care of the list grid
-		m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
 		ShowCoverArtPopup();
+		m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
 	}
 }
 
