@@ -20,6 +20,7 @@ namespace DCE
 		friend class MediaMouseHandler;
 		friend class KeyboardMouseHandler;
 		friend class DatagridMouseHandlerHelper;
+		friend class MediaBrowserMouseHandler;
 
 		class MouseBehavior *m_pMouseBehavior;
 		class MouseHandler *m_pMouseHandler;
@@ -29,17 +30,18 @@ namespace DCE
 		pthread_cond_t m_IteratorCond;
 
 		// Pointers to keep track of states
-		enum EIteratorFunction { if_None, if_Volume, if_Light, if_MediaTracks, if_Keyboard } m_EIteratorFunction;
+		enum EIteratorFunction { if_None, if_Volume, if_Light, if_MediaTracks, if_Keyboard, if_MediaGrid } m_EIteratorFunction;
 		int m_dwParm; // Parm for the function
 		int m_dwFrequency_Ms;  // Frequency for doing the iteration in milliseconds
 		int m_dwTime_Last_Iterated;  // When we last did our iteration
+		string m_sParm;
 
 	public:
 		MouseIterator(MouseBehavior *pMouseBehavior);
 		virtual ~MouseIterator();
 
 		void Run(); // Runs in a separate thread
-		void SetIterator(EIteratorFunction eIteratorFunction,int dwParm,int dwFrequency_Ms,MouseHandler *pMouseHandler);
+		void SetIterator(EIteratorFunction eIteratorFunction,int dwParm,string sParm,int dwFrequency_Ms,MouseHandler *pMouseHandler);
 		void DoIteration();
 	};
 }

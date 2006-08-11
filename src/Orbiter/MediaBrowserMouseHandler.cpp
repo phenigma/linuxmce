@@ -13,6 +13,7 @@
 #include "pluto_main/Define_Screen.h"
 #include "DataGrid.h"
 #include "ScreenHistory.h"
+#include "DataGridRenderer.h"
 
 using namespace DCE;
 
@@ -23,7 +24,7 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 {
 	m_pObj_ListGrid=m_pObj_PicGrid=NULL;
 	m_pObj_CoverArtPopup=NULL;
-	m_bCapturingOffscreenMovement=false;
+	m_eCapturingOffscreenMovement=cosm_NO;
 
 	if( !m_pObj )
 		return; // Shouldn't happen
@@ -62,11 +63,13 @@ MediaBrowserMouseHandler::~MediaBrowserMouseHandler()
 void MediaBrowserMouseHandler::Start()
 {
     g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Start()");
+	m_iLastNotch=m_LastRow=-1;
 }
 
 void MediaBrowserMouseHandler::Stop()
 {
     g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Stop()");
+	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
 }
 
 bool MediaBrowserMouseHandler::ButtonDown(int PK_Button)
@@ -96,120 +99,106 @@ bool MediaBrowserMouseHandler::ButtonUp(int PK_Button)
 	return false; // Keep processing
 }
 
-void MediaBrowserMouseHandler::RelativeMove(int DeltaX, int DeltaY)
+void MediaBrowserMouseHandler::RelativeMove(int X, int Y)
 {
-    g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::RelativeMove(%d, %d)", DeltaX, DeltaY);
-    //RelativePointer_SetStatus(-1);//delete this debug-only lines
-    // DeltaY is always 0 here ? -1 should be DeltaY
-    // not working here, because the position is always reset
-#ifdef WIN32
-	string s = StringUtils::Format("DeltaX:=%d, DeltaY=%d, VY=%d\r\n", DeltaX, DeltaY, m_RelativeVirtualY);
-	::OutputDebugString(s.c_str());
-#endif
-
-	if (m_RelativeVirtualY <= 1) // We're at the top of the screen.
+	m_LastX=X;
+   g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::RelativeMove(%d, %d, %d)", X, Y, Notch);
+	int Notch;
+	if( m_eCapturingOffscreenMovement == cosm_UP )
 	{
-		m_RelativeVirtualY+=DeltaY;
-		if (DeltaY > 0)
+		if( Y >= m_pMouseBehavior->m_pOrbiter->m_Height-10 )  // Should be 2
 		{
-			if (DeltaY >=5 || m_RelativeVirtualY > 2)
-			{
-				m_saveY+=5;
-				ReleaseRelative();
-				return;
-			} 
-			else
-			{
-				m_RelativeVirtualY = max(m_RelativeVirtualY, DeltaY-5);
-			}
+			ReleaseRelative(X,Y);
+			return;
 		}
-		while (m_RelativeVirtualY < -100)
-		{
-			m_pMouseBehavior->m_pOrbiter->CMD_Scroll_Grid("", "", 	DIRECTION_Up_CONST);	
-			m_pMouseBehavior->m_pOrbiter->CMD_Refresh("");
-			m_RelativeVirtualY += 100;
-		}
+		Notch = (m_pMouseBehavior->m_pOrbiter->m_Height - Y) / (m_pMouseBehavior->m_pOrbiter->m_Height/10);
+		if( Notch==m_iLastNotch )
+			return;
+		m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
+			X-40,0,
+			80,5,
+			PlutoColor::White());
+		m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
+			X-Notch*2,0,
+			Notch*2,5,
+			PlutoColor::Green());
 	}
 	else
 	{
-		m_RelativeVirtualY+=DeltaY;
-		if (DeltaY < 0)
+		if (Y <= 10 && m_eCapturingOffscreenMovement == cosm_DOWN)  // Should be 1
 		{
-			if (DeltaY < -5 || m_RelativeVirtualY < m_pMouseBehavior->m_pOrbiter->m_Height)
-			{			
-				m_saveY-=5;
-				ReleaseRelative();
-				return;
-			}
-			else
-			{
-				m_RelativeVirtualY = min(m_RelativeVirtualY, m_pMouseBehavior->m_pOrbiter->m_Height-DeltaY);
-			}
+			ReleaseRelative(X,Y);
+			return;
 		}
-		while (m_RelativeVirtualY > m_pMouseBehavior->m_pOrbiter->m_Height + 100)
-		{
-			m_pMouseBehavior->m_pOrbiter->CMD_Scroll_Grid("", "", 	DIRECTION_Down_CONST);		
-			m_pMouseBehavior->m_pOrbiter->CMD_Refresh("");
-			m_RelativeVirtualY -= 100;
-		}
+		Notch = Y / (m_pMouseBehavior->m_pOrbiter->m_Height/10);
+		m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
+			X-40,m_pMouseBehavior->m_pOrbiter->m_Height-5,
+			80,5,
+			PlutoColor::White());
+		m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
+			X-Notch*2,m_pMouseBehavior->m_pOrbiter->m_Height-5,
+			Notch*2,5,
+			PlutoColor::Green());
+	}
+
+	m_iLastNotch=Notch;
+	if( Notch==0 )
+	{
+		m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
 		return;
 	}
+
+	int Frequency;
+	Frequency = (11-Notch)*200;
+g_pPlutoLogger->Write(LV_ACTION, "Frequency: %d Y: %d",Frequency,Y);
+	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaGrid,0,"",Frequency,this);
 }
 
 
-void MediaBrowserMouseHandler::ReleaseRelative()
+void MediaBrowserMouseHandler::ReleaseRelative(int X, int Y)
 {
+g_pPlutoLogger->Write(LV_ACTION, "**stop**");
+	m_iLastNotch=-1;
     g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::ReleaseRelative()");
-	m_bCapturingOffscreenMovement=false;
+	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
+	m_pMouseBehavior->SetMousePosition(X, m_eCapturingOffscreenMovement == cosm_DOWN ? m_pMouseBehavior->m_pOrbiter->m_Height-20 : 20); // Should be 2 (-2) and 1
 	m_pMouseBehavior->ShowMouse(true);
-	m_pMouseBehavior->SetMousePosition(m_saveX, m_saveY);
-
+	m_eCapturingOffscreenMovement=cosm_NO;
 }
 
 void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 {
     g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d)", X, Y, PK_Direction);
 
-    //RelativePointer_SetStatus(Y-300);//delete this debug-only lines
-    // here seems to be working, somehow
-    // but this class is heavily broken,
-    // and the effect does not look good at all
+	if( m_pMouseBehavior->m_bMouseConstrained )  // There's a popup grabbing the mouse
+		return;
+	if( !m_pObj_ListGrid || !m_pObj_PicGrid )
+		return;  // Shouldn't happen
 
-    if (m_bCapturingOffscreenMovement)
+    if (m_eCapturingOffscreenMovement != cosm_NO)
 	{
-		m_pMouseBehavior->GetMousePosition(&m_Rel);
-		// Todo: X and Y are in relative coordinates, where we have
-		// moved to an absolute.  This would be cleaner if
-		// SetMousePosition moved to the relative coords.
-		if (m_Rel.Y-100 != 0)
-		{
-			RelativeMove(m_Rel.X-300, m_Rel.Y-300);
-			if (m_bCapturingOffscreenMovement)
-	            m_pMouseBehavior->SetMousePosition(300,300);
-		}
+		RelativeMove(X,Y);
 		return;
 	}
-	if (Y <= 1 || Y >= m_pMouseBehavior->m_pOrbiter->m_Height-2)
+	if (Y <= 10 || Y >= m_pMouseBehavior->m_pOrbiter->m_Height-10)  // Should be 1 and 2
 	{
-		m_pMouseBehavior->GetMousePosition(&m_Rel);
+g_pPlutoLogger->Write(LV_ACTION, "**go**");
+		if( Y <= 10 ) // should be 1
+		{
+			m_eCapturingOffscreenMovement = cosm_UP;
+			m_pMouseBehavior->SetMousePosition(X,m_pMouseBehavior->m_pOrbiter->m_Height-20);  // Temp should be 2
+		}
+		else
+		{
+			m_eCapturingOffscreenMovement = cosm_DOWN;
+			m_pMouseBehavior->SetMousePosition(X,20);   // Temp, should be 2
+		}
 
-		m_saveX = m_Rel.X;
-		m_saveY = m_Rel.Y;
-		m_RelativeVirtualY = Y;
-		m_bCapturingOffscreenMovement=true;
-		// Todo: SetMousePosition is not relative to the window.
-		// If 100,100 is outside the orbiter, we won't receive the movement
-		// information.
-		m_pMouseBehavior->SetMousePosition(300,300);
 		m_pMouseBehavior->ShowMouse(false);
 		return;
 
 	}
 
-	if( m_pMouseBehavior->m_bMouseConstrained )  // There's a popup grabbing the mouse
-		return;
-	if( !m_pObj_ListGrid || !m_pObj_PicGrid )
-		return;  // Shouldn't happen
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 	DesignObj_DataGrid *pObj_ListGrid_Active=NULL;
 	if( m_pObj_ListGrid->m_rPosition.Contains(X,Y) ) 
@@ -242,9 +231,13 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 		m_pObj_PicGrid->m_iHighlightedRow=Row;
 	}
 
-	// This takes care of the list grid
-	m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
-	ShowCoverArtPopup();
+	if( m_pObj_ListGrid->m_iHighlightedRow!=m_LastRow )
+	{
+		m_LastRow=m_pObj_ListGrid->m_iHighlightedRow;
+		// This takes care of the list grid
+		m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
+		ShowCoverArtPopup();
+	}
 }
 
 void MediaBrowserMouseHandler::ShowCoverArtPopup()
@@ -353,4 +346,77 @@ bool MediaBrowserMouseHandler::RelativePointer_SetStatus(int nSpeedShape)
         rectFakePointer.Y = 0;
     // draw fake pointer
     m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(m_pRelativePointer_Image, rectFakePointer);
+	return true;
+}
+
+bool MediaBrowserMouseHandler::DoIteration()
+{
+	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "iterator grid" );  // Redraw anything that was changed by this command
+	bool bResult;
+	if( m_eCapturingOffscreenMovement==cosm_UP )
+		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ListGrid->m_ObjectID,DIRECTION_Up_CONST,false);
+	else
+		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ListGrid->m_ObjectID,DIRECTION_Down_CONST,false);
+
+	if( !bResult )
+	{
+		m_pMouseBehavior->SetMousePosition(m_LastX, m_eCapturingOffscreenMovement == cosm_DOWN ? m_pMouseBehavior->m_pOrbiter->m_Height-20 : 20); // Should be 2 (-2) and 1
+		m_pMouseBehavior->ShowMouse(true);
+		m_eCapturingOffscreenMovement=cosm_NO;
+		return false;
+	}
+
+	m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_PicGrid);
+
+	// Now sync the pic grid
+	PLUTO_SAFETY_LOCK( dg, m_pMouseBehavior->m_pOrbiter->m_DatagridMutex );
+	DataGridRenderer *pDataGridRenderer = (DataGridRenderer *) m_pObj_PicGrid->Renderer();
+	PLUTO_SAFETY_LOCK( dgc, pDataGridRenderer->m_DataGridCacheMutex );
+	m_pObj_PicGrid->m_GridCurRow = m_pObj_ListGrid->m_GridCurRow / m_pObj_PicGrid->m_MaxCol;
+	if( m_eCapturingOffscreenMovement==cosm_UP )
+	{
+		if( m_pObj_PicGrid->m_iCacheRows > 0) // Are we caching? 
+		{                            // If so the current table needs to be pushed onto the opposing cache list.
+			pDataGridRenderer->m_listDataGridCache[DIRECTION_Up_CONST].push_front(m_pObj_PicGrid->m_pDataGridTable); // The cache acquisition thread will delete the excess cache.
+		}
+		else 
+		{
+			delete m_pObj_PicGrid->m_pDataGridTable;
+		}	
+
+		if (pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].size() > 0)
+		{
+			m_pObj_PicGrid->m_pDataGridTable = pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].front();
+			pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].pop_front();
+		}
+		else
+		{
+			m_pObj_PicGrid->m_pDataGridTable = NULL;
+			m_pObj_PicGrid->bReAcquire=true;
+		}
+	}
+	else
+	{
+		if (m_pObj_PicGrid->m_iCacheRows > 0) // Are we caching? 
+		{                            // If so the current table needs to be pushed onto the opposing cache list.
+			pDataGridRenderer->m_listDataGridCache[DIRECTION_Up_CONST].push_front(m_pObj_PicGrid->m_pDataGridTable); // The cache acquisition thread will delete the excess cache.
+		}
+		else 
+		{
+			delete m_pObj_PicGrid->m_pDataGridTable;
+		}	
+
+		if (pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].size() > 0)
+		{
+			m_pObj_PicGrid->m_pDataGridTable = pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].front();
+			pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].pop_front();
+		}
+		else
+		{
+			m_pObj_PicGrid->m_pDataGridTable = NULL;
+			m_pObj_PicGrid->bReAcquire=true;
+		}
+	}
+
+	return bResult;
 }

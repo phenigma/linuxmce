@@ -85,7 +85,7 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 	delete m_pMouseHandler;
 	m_pMouseHandler=NULL;
 	m_pMouseGovernor->SetBuffer(0);
-	m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL);
+	m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL);
 	m_dwTime_Last_Notch=0;
 	m_dwLastSampleShift=0;
 

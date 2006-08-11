@@ -14,6 +14,8 @@ namespace DCE
 
 class DataGridRenderer : public ObjectRenderer
 {
+	friend class MediaBrowserMouseHandler;  // This handles a special case caching with 2 grids that must stay sync'd
+
 	pluto_pthread_mutex_t m_DataGridCacheMutex;
     pthread_t m_DataGridCacheThread;
 	pthread_cond_t m_DataGridCacheCond;
@@ -27,7 +29,7 @@ public:
 	virtual void RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point = PlutoPoint(0, 0));
 	virtual void GetGridCellDimensions(int Colspan,  int Rowspan,  int Column,  int Row,  int &x,  int &y,  int &w,  int &h );
 	virtual bool RenderCell(DataGridTable *pT, DataGridCell *pCell, int j, int i, int iGraphicToDisplay, PlutoPoint point = PlutoPoint(0, 0));
-	virtual void Scroll_Grid(string sRelative_Level, int iPK_Direction);
+	virtual bool Scroll_Grid(string sRelative_Level, int iPK_Direction,bool bMoveOneLineIfCannotPage);
 	virtual bool CalculateGridMovement(int Direction, int &Cur,  int CellsToSkip);
 	virtual void Flush(bool bFlushGraphics) { FlushCache(); }
 

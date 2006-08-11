@@ -62,7 +62,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 	}
 
 	//if we don't have the file in cache or on our localdrive
-	if(pPlutoGraphic->IsEmpty() && sFileName.empty())
+	if(pPlutoGraphic->IsEmpty() && sFileName.empty() && !pPlutoGraphic->m_Filename.empty())
 	{
 		// Request our config info
 		char *pGraphicFile=NULL;

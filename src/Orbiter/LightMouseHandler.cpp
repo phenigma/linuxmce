@@ -105,9 +105,9 @@ void LightMouseHandler::Move(int X,int Y,int PK_Direction)
 		else
 		{
 			if( Notch==0 )
-				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL);
+				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL);
 			else
-				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Light,Notch,500,this);
+				m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Light,Notch,"",500,this);
 			m_iLastNotch = Notch;
 		}
 	}

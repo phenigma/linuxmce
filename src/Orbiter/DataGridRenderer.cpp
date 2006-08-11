@@ -308,6 +308,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 			if (1 == 1) // todo: if background image loading is requested
  			{
 				M.Release();
+g_pPlutoLogger->Write(LV_EVENT,"DataGridRenderer::RenderCell loading %s in bg for %d,%d",pPath,j,i);
 				m_pOwner->m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, &pCell->m_pGraphic);              
 				M.Relock();
 			}
@@ -373,14 +374,13 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 	return bTransparentCell;
 }
 
-void DataGridRenderer::Scroll_Grid(string sRelative_Level, int iPK_Direction)
+bool DataGridRenderer::Scroll_Grid(string sRelative_Level, int iPK_Direction,bool bMoveOneLineIfCannotPage)
 {
 	DesignObj_DataGrid *pDG = ( DesignObj_DataGrid * )m_pOwner;
 
 	if ( m_pOwner->m_pDataGridTable )
 	{
 		StopCacheThread();
-		m_pOwner->m_pOrbiter->Renderer()->RenderObjectAsync(m_pOwner);
 
 		if(  sRelative_Level=="-1"  )
 		{
@@ -395,8 +395,9 @@ void DataGridRenderer::Scroll_Grid(string sRelative_Level, int iPK_Direction)
 			{
 				if (!CalculateGridMovement(DIRECTION_Up_CONST, m_pOwner->m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) ))
 				{
-					m_pOwner->m_pOrbiter->CMD_Move_Up();
-					return;
+					if( bMoveOneLineIfCannotPage )
+						m_pOwner->m_pOrbiter->CMD_Move_Up();
+					return false;
 				}
 				
 				PLUTO_SAFETY_LOCK( dgc, m_DataGridCacheMutex );
@@ -427,11 +428,11 @@ void DataGridRenderer::Scroll_Grid(string sRelative_Level, int iPK_Direction)
 			{
 				if (!CalculateGridMovement(DIRECTION_Down_CONST, m_pOwner->m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) ) )
 				{
-					if (m_pOwner->m_pDataGridTable->getTotalRowCount() > 0)
+					if (m_pOwner->m_pDataGridTable->getTotalRowCount() > 0 && bMoveOneLineIfCannotPage)
 					{
 						m_pOwner->m_pOrbiter->CMD_Move_Down();
 					}
-					return;
+					return false;
 				}
 				PLUTO_SAFETY_LOCK( dgc, m_DataGridCacheMutex );
 				if (pDG->m_iCacheRows > 0) // Are we caching? 
@@ -460,8 +461,9 @@ void DataGridRenderer::Scroll_Grid(string sRelative_Level, int iPK_Direction)
 			{
 				if (!CalculateGridMovement(DIRECTION_Left_CONST,  m_pOwner->m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) ))
 				{
-					m_pOwner->m_pOrbiter->CMD_Move_Left();
-					return;
+					if( bMoveOneLineIfCannotPage )
+						m_pOwner->m_pOrbiter->CMD_Move_Left();
+					return false;
 				}
 				PLUTO_SAFETY_LOCK( dgc, m_DataGridCacheMutex );
 
@@ -491,8 +493,9 @@ void DataGridRenderer::Scroll_Grid(string sRelative_Level, int iPK_Direction)
 			{
 				if (!CalculateGridMovement(DIRECTION_Right_CONST,  m_pOwner->m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) ))
 				{
-					m_pOwner->m_pOrbiter->CMD_Move_Right();
-					return;
+					if( bMoveOneLineIfCannotPage )
+						m_pOwner->m_pOrbiter->CMD_Move_Right();
+					return false;
 				}
 				PLUTO_SAFETY_LOCK( dgc, m_DataGridCacheMutex );
 
@@ -520,6 +523,8 @@ void DataGridRenderer::Scroll_Grid(string sRelative_Level, int iPK_Direction)
 			}
 		}
 	}
+	m_pOwner->m_pOrbiter->Renderer()->RenderObjectAsync(m_pOwner);
+	return true;
 }
 
 bool DataGridRenderer::CalculateGridMovement(int Direction, int &Cur,  int CellsToSkip)
@@ -641,9 +646,9 @@ void *StartDataGridCacheThread(void *p)
 
 void DataGridRenderer::StartCacheThread()
 {
-/*	StopCacheThread();
+	StopCacheThread();
 	m_bStopCaching=false;
-	pthread_create(&m_DataGridCacheThread, NULL, StartDataGridCacheThread, (void*)this);*/
+	pthread_create(&m_DataGridCacheThread, NULL, StartDataGridCacheThread, (void*)this);
 }
 
 void DataGridRenderer::StopCacheThread()
@@ -697,11 +702,36 @@ void DataGridRenderer::DataGridCacheThread()
 
 			// Starting at the origin, we need to "walk" Step number of steps to request the appropriate grid.
 			dgc.Release();
+
+			// CalculateGridMovement is going to try to lock the m_DatagridMutex.  But it's possible a rendering thread
+			// is locking it and will try to kill us.  So we're doing a peek to see if the thread is locked manually 
+			// using trylock, and if it is, will keep checking if we're supposed to exit.  If it's not,
+			// we need to manually unluck it below
+			bool bKeepTryingToLock=true;
+			while( bKeepTryingToLock )
+			{
+				int iResult = pthread_mutex_trylock(&m_pOwner->m_pOrbiter->m_DatagridMutex.mutex);
+				if( iResult!=0 )
+				{
+					if( m_bStopCaching )
+					{
+						m_DataGridCacheThread = NULL;
+						return;
+					}
+					else
+						Sleep(50);  // Something else is rendering or something using grids, give it a moment
+				}
+				else
+					bKeepTryingToLock=false;
+			}
+
 			if (!CalculateGridMovement( Direction, DirectionCur[Direction],  0 ))
 			{				
+				pthread_mutex_unlock(&m_pOwner->m_pOrbiter->m_DatagridMutex.mutex);  // See try lock above
 				DirectionCur[Direction] = -1;
 				continue;
 			}
+			pthread_mutex_unlock(&m_pOwner->m_pOrbiter->m_DatagridMutex.mutex);  // See try lock above
 			dgc.Relock();
 
 			int GridCurRow = (Direction <= 2) ? DirectionCur[Direction] : pDG->m_GridCurRow;
@@ -710,6 +740,7 @@ void DataGridRenderer::DataGridCacheThread()
 			char *data = NULL;
 
 			dgc.Release();
+g_pPlutoLogger->Write(LV_ACTION, "renderer grid %s max row %d max col %d cur row %d cur col %d", pDG->m_sGridID.c_str(),pDG->m_MaxRow,pDG->m_MaxCol,GridCurRow,GridCurCol);
 			DCE::CMD_Request_Datagrid_Contents CMD_Request_Datagrid_Contents( pDG->m_pOrbiter->m_dwPK_Device,  pDG->m_pOrbiter->m_dwPK_Device_DatagridPlugIn,
 			StringUtils::itos( pDG->m_pOrbiter->m_dwIDataGridRequestCounter ), pDG->m_sGridID,
 			pDG->m_MaxRow, pDG->m_MaxCol, pDG->m_bKeepRowHeader, pDG->m_bKeepColHeader, true, pDG->m_sSeek, pDG->m_iSeekColumn, &data, &size, &GridCurRow, &GridCurCol );

@@ -155,7 +155,7 @@ void DatagridMouseHandlerHelper::ScrollGrid(int dwPK_Direction,int X,int Y)
 g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid direction changed from %d to %d",
 					  m_dwPK_Direction_ScrollGrid,dwPK_Direction);
 		// We moved past the top
-		m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,0,NULL); // In case we're scrolling a grid
+		m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
 
 		if( m_dwPK_Direction_ScrollGrid==DIRECTION_Up_CONST )
 			m_pMouseBehavior->SetMousePosition( m_pObj_ScrollingGrid->m_rPosition.X + m_pObj_ScrollingGrid->m_pPopupPoint.X + m_pObj_ScrollingGrid->m_rPosition.Width/2 , m_pObj_ScrollingGrid->m_rPosition.Y + m_pObj_ScrollingGrid->m_pPopupPoint.Y );
@@ -224,7 +224,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid Notch 
 		int Frequency;
 		bool bPage=false;
 		Frequency = (11-Notch)*100;
-		m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,dwPK_Direction==DIRECTION_Down_CONST ? 2 : -2,Frequency,NULL);
+		m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,dwPK_Direction==DIRECTION_Down_CONST ? 2 : -2,"",Frequency,NULL);
 		m_pMouseHandler->m_iLastNotch=Notch;
 		if( dwPK_Direction==DIRECTION_Down_CONST && m_pObj_MediaBrowser_Down )
 		{

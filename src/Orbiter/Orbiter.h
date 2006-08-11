@@ -453,6 +453,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		* @todo ask
 		*/
 		bool SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid, int iX, int iY, SelectionMethod selectionMethod );
+		bool Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,bool bMoveOneLineIfCannotPage);
 
 		/**
 		* @brief

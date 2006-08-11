@@ -4,6 +4,7 @@
 #include "KeyboardMouseHandler.h"
 #include "VolumeMouseHandler.h"
 #include "LightMouseHandler.h"
+#include "MediaBrowserMouseHandler.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
@@ -84,13 +85,14 @@ void MouseIterator::Run()
 	m_bThreadRunning=false;
 }
 
-void MouseIterator::SetIterator(EIteratorFunction eIteratorFunction,int dwParm,int dwFrequency_Ms,MouseHandler *pMouseHandler)
+void MouseIterator::SetIterator(EIteratorFunction eIteratorFunction,int dwParm,string sParm,int dwFrequency_Ms,MouseHandler *pMouseHandler)
 {
 	PLUTO_SAFETY_LOCK(sm,m_pOrbiter->m_ScreenMutex);
 	PLUTO_SAFETY_LOCK(m,m_IteratorMutex);
 	m_pMouseHandler=pMouseHandler;
 	m_EIteratorFunction=eIteratorFunction;
 	m_dwParm=dwParm;
+	m_sParm=sParm;
 	m_dwFrequency_Ms=dwFrequency_Ms;
 	if( m_dwFrequency_Ms<0 )
 	{
@@ -132,12 +134,23 @@ void MouseIterator::DoIteration()
 			pKeyboardMouseHandler->DoIteration();
 		}			
 		break;
+	case if_MediaGrid:
+		{
+			// Since there's quite a bit of logic here, call back the keyboard handler
+			// and we'll put the logic there
+			MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pMouseHandler;
+			if( !pMediaBrowserMouseHandler->DoIteration() )
+				m_EIteratorFunction=if_None;
+		}			
+		break;
 	case if_MediaTracks:
 		{
+			bool bResult=true;
+g_pPlutoLogger->Write(LV_ACTION, "Scrolling: %d",m_dwParm);
 			if( m_dwParm==-2 )
 			{
 				NeedToRender render( m_pOrbiter, "iterator grid" );  // Redraw anything that was changed by this command
-				m_pOrbiter->CMD_Scroll_Grid("","",DIRECTION_Up_CONST);
+				bResult = m_pOrbiter->Scroll_Grid("",m_sParm,DIRECTION_Up_CONST,false);
 			}
 			else if( m_dwParm==-1 )
 				m_pOrbiter->CMD_Move_Up();
@@ -146,8 +159,11 @@ void MouseIterator::DoIteration()
 			else if( m_dwParm==2 )
 			{
 				NeedToRender render( m_pOrbiter, "iterator grid" );  // Redraw anything that was changed by this command
-				m_pOrbiter->CMD_Scroll_Grid("","",DIRECTION_Down_CONST);
+				bResult = m_pOrbiter->Scroll_Grid("",m_sParm,DIRECTION_Down_CONST,false);
 			}
+
+			if( !bResult )
+				m_EIteratorFunction=if_None;
 			/*
 			if( !m_pMouseBehavior->m_pMouseHandler_Vertical || !m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj || m_pMouseBehavior->m_pMouseHandler_Vertical->m_pObj->m_ChildObjects.size()==0 )
 				return; // Shouldn't happen, this should be the datagris control
@@ -166,4 +182,3 @@ void MouseIterator::DoIteration()
 		break;
 	};
 }
-

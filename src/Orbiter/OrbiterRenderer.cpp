@@ -1247,10 +1247,14 @@ void *ImageLoadThread(void *p)
 	do
 	{
 		PLUTO_SAFETY_LOCK(M, pRenderer->m_bgImageReqMutex);
-		string ImageFilename = pRenderer->m_listbgImageFilename.front();
-		pRenderer->m_listbgImageFilename.pop_front();
-		PlutoGraphic **pGraphic = pRenderer->m_listbgImageGraphic.front();
-		pRenderer->m_listbgImageGraphic.pop_front();
+		// Do them in the reverse order so if we're paging through lots of cells we'll always be rendering
+		// the visible ones first
+		if( pRenderer->m_listbgImageFilename.size()==0 )
+			return NULL;  // Must have had another imageloadthread also running that serviced the last one at the same split second.  No problem.
+		string ImageFilename = pRenderer->m_listbgImageFilename.back();
+		pRenderer->m_listbgImageFilename.pop_back();
+		PlutoGraphic **pGraphic = pRenderer->m_listbgImageGraphic.back();
+		pRenderer->m_listbgImageGraphic.pop_back();
 
 		M.Release();
 		PlutoGraphic *pG = pRenderer->m_pOrbiter->Renderer()->CreateGraphic();
@@ -1260,6 +1264,7 @@ void *ImageLoadThread(void *p)
 		(*pGraphic) = pG;
 		bContinue = (pRenderer->m_listbgImageFilename.size() > 0);
 		bRedraw = ((pRenderer->m_listbgImageFilename.size() % 10) == 0);
+g_pPlutoLogger->Write(LV_EVENT,"ImageLoadThread %s size: %d (%d) %d",ImageFilename.c_str(),(int) pRenderer->m_listbgImageFilename.size(),(int) bRedraw,(int) bContinue);
 		M.Release();
 		if (bRedraw)
 			pRenderer->m_pOrbiter->CMD_Refresh("");
@@ -1271,6 +1276,7 @@ void OrbiterRenderer::BackgroundImageLoad(const char *Filename, PlutoGraphic **p
 {
 	bool bNeedToStartThread;
 	PLUTO_SAFETY_LOCK(M, m_bgImageReqMutex);
+g_pPlutoLogger->Write(LV_EVENT,"OrbiterRenderer::BackgroundImageLoad %s size: %d",Filename,(int) m_listbgImageFilename.size());
 
 	bNeedToStartThread = (m_listbgImageFilename.size() == 0);
 	m_listbgImageFilename.push_back(string(Filename));

@@ -2352,8 +2352,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 	{
 		pObj->m_iBaseObjectID = atoi( pObj->m_ObjectID.c_str(  ) );
 	}
-if( pObj->m_iBaseObjectID==4870 )
-int k=2;
+
 	// On any screen all child objects should inherit the screen's priority so the whole screen is cached
 	pObj->m_Priority = pObj_Screen->m_Priority;
 
@@ -2486,6 +2485,17 @@ bool Orbiter::PreprocessEvent(Orbiter::Event &event)
 
 bool Orbiter::ProcessEvent( Orbiter::Event &event )
 {
+	static int LastX=-1,LastY=-1; // For some reason we keep getting move events with the same coordinates over and over
+	if ( event.type == Orbiter::Event::MOUSE_MOVE )
+	{
+		if( event.data.region.m_iX==LastX && event.data.region.m_iY==LastY )
+			return false;
+		LastX=event.data.region.m_iX;
+		LastY=event.data.region.m_iY;
+	}
+
+
+
 #ifdef DEBUG
 	// a switch would be good but kdevelop somehow doesn't like the syntax and mekes it red :-(
 	if ( event.type != Orbiter::Event::QUIT && event.type != Orbiter::Event::NOT_PROCESSED )
@@ -2579,7 +2589,7 @@ if(UsesUIVersion2())
 	{
 		if ( event.type == Orbiter::Event::MOUSE_RELATIVE_MOVE && m_pMouseBehavior )
 			m_pMouseBehavior->RelativeMove(event.data.region.m_iX, event.data.region.m_iY);
-
+g_pPlutoLogger->Write(LV_ACTION,"***MOVE*** %d,%d",event.data.region.m_iX, event.data.region.m_iY);
 		if ( event.type == Orbiter::Event::MOUSE_MOVE && m_pMouseBehavior )
 			m_pMouseBehavior->Move(event.data.region.m_iX, event.data.region.m_iY);
 	}
@@ -4083,6 +4093,7 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int &GridCurCol,  int &Gri
 #endif
 		int size = 0;
 		char *data = NULL;
+g_pPlutoLogger->Write(LV_ACTION, "orbiter grid %s max row %d max col %d cur row %d cur col %d", pObj->m_sGridID.c_str(),pObj->m_MaxRow,pObj->m_MaxCol,GridCurRow,GridCurCol);
 
 		DCE::CMD_Request_Datagrid_Contents CMD_Request_Datagrid_Contents( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,
 			StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID,
@@ -4147,7 +4158,7 @@ void *MaintThread(void *p)
 			gettimeofday(&ts_now,NULL);
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "MaintThread woke up");
+	g_pPlutoLogger->Write(LV_STATUS, "MaintThread woke up with %d callbacks",(int) pOrbiter->m_mapPendingCallbacks.size());
 #endif
 
 			//let's choose the one which must be processed first
@@ -4800,6 +4811,12 @@ void Orbiter::CMD_Remove_Screen_From_History(string sID,int iPK_Screen,string &s
 void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage)
 //<-dceag-c9-e->
 {
+	Scroll_Grid(sRelative_Level,sPK_DesignObj,iPK_Direction,true);
+}
+
+// Do this is a separate function that will return false when it can't scroll anymore
+bool Orbiter::Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,bool bMoveOneLineIfCannotPage)
+{
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 	PLUTO_SAFETY_LOCK( dng, m_DatagridMutex );  // Lock them in the same order as render screen
 	// todo 2.0?    NeedsUpdate( 2 ); // Moving grids is slow; take care of an animation if necessary
@@ -4819,9 +4836,10 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 	else if( pObj )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Trying to scroll a non-grid %s",sPK_DesignObj.c_str());
-		return;
+		return false;
 	}
 
+	bool bResult=false;
 	while( LoopNum<( int ) m_vectObjs_GridsOnScreen.size(  ) )
 	{
 		if(  LoopNum!=-1  )
@@ -4832,12 +4850,14 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 		{
 			DataGridRenderer *pDGRenderer = (DataGridRenderer *)pObj_Datagrid->Renderer();
 			dng.Release();
-            pDGRenderer->Scroll_Grid(sRelative_Level, iPK_Direction);
+            if( pDGRenderer->Scroll_Grid(sRelative_Level, iPK_Direction,bMoveOneLineIfCannotPage) )
+				bResult=true;
 			dng.Relock();
 		}
 		if(  LoopNum==-1  )
 			break;
 	}
+	return bResult;
 }
 
 //<-dceag-c10-b->
@@ -8662,8 +8682,8 @@ void Orbiter::ForceCurrentScreenIntoHistory()
 
 void Orbiter::SetActivePopup(PlutoPopup *popup)
 {
-	if(popup == NULL)
-		return;
+//	if(popup == NULL)
+//		return;
 
 	m_pActivePopup = popup;
 }

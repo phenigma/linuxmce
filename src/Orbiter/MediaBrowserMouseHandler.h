@@ -25,12 +25,18 @@ namespace DCE
 	{
 		friend class ScreenHandler;
 		int m_RelativeVirtualY;
-		bool m_bCapturingOffscreenMovement;
-		int m_saveX, m_saveY;
-		PlutoPoint m_Rel;
+		enum CapturingOffscreenMovement
+		{
+			cosm_NO,
+			cosm_UP,
+			cosm_DOWN
+		};
+
+		CapturingOffscreenMovement m_eCapturingOffscreenMovement;
 
 		DesignObj_DataGrid *m_pObj_ListGrid,*m_pObj_PicGrid;
 		DesignObj_Orbiter *m_pObj_CoverArtPopup;
+		int m_iLastNotch,m_LastRow,m_LastX;
 
 	public:
 		MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
@@ -42,10 +48,11 @@ namespace DCE
 
 		bool ButtonDown(int PK_Button);
 		bool ButtonUp(int PK_Button);
-		void RelativeMove(int DeltaX, int DeltaY);
-		void ReleaseRelative();
+		void RelativeMove(int X, int Y);
+		void ReleaseRelative(int X, int Y);
 		void Move(int X,int Y,int PK_Direction);
 		void ShowCoverArtPopup();
+		bool DoIteration();
 
         /// relative mouse pointer
         ///   hide when relative motion is wanted

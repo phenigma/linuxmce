@@ -100,6 +100,10 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 		}
 	}
 
+	m_TotalRows = m_pMediaListGrid_Master->m_TotalRows / ColCount;
+	if( m_pMediaListGrid_Master->m_TotalRows % ColCount )
+		m_TotalRows++;
+
 #ifdef DEBUG
 	//profiling
 	clock_t cStop = clock();

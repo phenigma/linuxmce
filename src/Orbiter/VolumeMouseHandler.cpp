@@ -105,7 +105,7 @@ void VolumeMouseHandler::Move(int X,int Y,int PK_Direction)
 		{
 			NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
 			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);
-			m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Volume,Notch,500,this);
+			m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_Volume,Notch,"",500,this);
 			m_iLastNotch = Notch;
 		}
 	}

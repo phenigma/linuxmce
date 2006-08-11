@@ -200,7 +200,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 
 	if(	pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgFileList2_CONST	|| pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgFileList2_Pics_CONST || pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objCDCover_CONST ) // todo
 	{
-		DesignObj_Orbiter *pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(5089) );
+		DesignObj_Orbiter *pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
 		if( !pObj_Play || !pObj_Play->m_pParentObject )
 			return false; // Shouldn't happen
 
@@ -223,10 +223,10 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 
 
 		GetAttributesForMediaFile(pCell_List->m_Value);
-
+/*
 		size_t Size=0;
 		char *pData = NULL;
-		if( pCell_Pic && pCell_Pic->m_ValueLength )
+		if( pCell_Pic && pCell_Pic->m_ImagePath )
 		{
 			pData = FileUtils::ReadFileIntoBuffer(pCell_Pic->m_Value,Size);
 			if( !pData )
@@ -238,8 +238,10 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 				Size=i;
 			}
 		}
-
-		m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",pData,int(Size),"0");
+*/
+		m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
+			pCell_Pic ? pCell_Pic->m_pGraphic->m_pGraphicData : NULL,
+			pCell_Pic ? pCell_Pic->m_pGraphic->m_GraphicLength : 0,"0");
 		m_pOrbiter->m_pObj_Highlighted = pObj_Play;
 		m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
 		m_pOrbiter->CMD_Remove_Popup("","coverart");
@@ -256,7 +258,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
 #endif
 	}
-	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == 5089 )
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Play_CONST )
 	{
 		if( !mediaFileBrowserOptions.m_pObj_ListGrid->m_pDataGridTable )
 			return false; //shouldn't happen

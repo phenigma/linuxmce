@@ -14,7 +14,7 @@ class OpenGLGraphic : public PlutoGraphic
 	/**
 	 *	Safeing texture operations
 	 */
-	pluto_pthread_mutex_t Mutex; 
+	pluto_pthread_mutex_t m_OpenGlMutex; 
 public:
 	SDL_Surface* LocalSurface;
 

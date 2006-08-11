@@ -24,28 +24,28 @@ static Uint32 amask = 0xff000000;
 
 OpenGLGraphic::OpenGLGraphic() : 
 	PlutoGraphic(), 
-	Mutex("OpenGLGraphicMutex")
+	m_OpenGlMutex("OpenGLGraphicMutex")
 {
 	Initialize();
 }
 
 OpenGLGraphic::OpenGLGraphic(OrbiterRenderer *pOrbiterRenderer) : 
 	PlutoGraphic(pOrbiterRenderer), 
-	Mutex("OpenGLGraphicMutex")
+	m_OpenGlMutex("OpenGLGraphicMutex")
 {
 	Initialize();
 }
 
 OpenGLGraphic::OpenGLGraphic(string Filename, eGraphicManagement GraphicManagement, OrbiterRenderer *pOrbiterRenderer) : 
 	PlutoGraphic(Filename, GraphicManagement, pOrbiterRenderer), 
-	Mutex("OpenGLGraphicMutex")
+	m_OpenGlMutex("OpenGLGraphicMutex")
 {
 	Initialize();
 }
 //Warning: That function must run in OpenGL thread
 OpenGLGraphic::OpenGLGraphic(int Width, int Height) : 
 	PlutoGraphic(), 
-	Mutex("OpenGLGraphicMutex")
+	m_OpenGlMutex("OpenGLGraphicMutex")
 {
 	Initialize();
 
@@ -65,7 +65,7 @@ OpenGLGraphic::OpenGLGraphic(int Width, int Height) :
 OpenGLGraphic::~OpenGLGraphic()
 {
 	
-	PLUTO_SAFETY_LOCK(oglMutex, Mutex);
+	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 
 	if(NULL != LocalSurface)
 	{
@@ -78,7 +78,7 @@ OpenGLGraphic::~OpenGLGraphic()
 	TextureManager::Instance()->RemoveFromConvertQueue(this);
 	TextureManager::Instance()->PrepareRelease(Texture);	
 
-	pthread_mutex_destroy(&Mutex.mutex);
+	pthread_mutex_destroy(&m_OpenGlMutex.mutex);
 
 }
 
@@ -87,7 +87,7 @@ void OpenGLGraphic::Initialize()
 	pthread_mutexattr_t m_MutexAttr;
 	pthread_mutexattr_init(&m_MutexAttr);
 	pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
-	Mutex.Init(&m_MutexAttr);
+	m_OpenGlMutex.Init(&m_MutexAttr);
 	pthread_mutexattr_destroy(&m_MutexAttr);
 
 
@@ -101,7 +101,7 @@ void OpenGLGraphic::Initialize()
 
 bool OpenGLGraphic::SetupFromImage(std::string FileName)
 {
-	PLUTO_SAFETY_LOCK(oglMutex, Mutex);
+	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 	SDL_Surface *LocalSurface = IMG_Load(FileName.c_str());
 
 	Prepare();
@@ -112,7 +112,7 @@ bool OpenGLGraphic::SetupFromImage(std::string FileName)
 
 void OpenGLGraphic::Prepare()
 {    
-	PLUTO_SAFETY_LOCK(oglMutex, Mutex);
+	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 	if(LocalSurface == NULL)
 		return;
 
@@ -152,7 +152,7 @@ void OpenGLGraphic::Prepare()
 
 void OpenGLGraphic::Convert()
 {
-	PLUTO_SAFETY_LOCK(oglMutex, Mutex);
+	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 
 	if( NULL == LocalSurface || NULL == LocalSurface->format)
 		return;
@@ -239,7 +239,7 @@ bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 
 void OpenGLGraphic::Clear()
 {
-	PLUTO_SAFETY_LOCK(oglMutex, Mutex);
+	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 
 	TextureManager::Instance()->PrepareRelease(Texture);
 	if(LocalSurface != NULL)
@@ -251,7 +251,7 @@ void OpenGLGraphic::Clear()
 
 bool OpenGLGraphic::GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize)
 {
-	PLUTO_SAFETY_LOCK(oglMutex, Mutex);
+	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 
 	pRawBitmapData = NULL;
 	ulSize = 0;
@@ -260,7 +260,7 @@ bool OpenGLGraphic::GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize)
 
 void OpenGLGraphic::ReleaseTexture()
 {
-	PLUTO_SAFETY_LOCK(oglMutex, Mutex);
+	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 
 	if (TextureManager::Instance() == NULL)
 		return;
