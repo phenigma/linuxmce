@@ -479,7 +479,7 @@ void OpenGL3DEngine::CubeAnimateDatagridFrames(string ObjectID, MeshFrame *Befor
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 
-	AnimationScrollDatagrid* Animation = new AnimationScrollDatagrid(this, BeforeGrid, AfterGrid, MilisecondTime, Direction); 
+	AnimationScrollDatagrid* Animation = new AnimationScrollDatagrid("", this, BeforeGrid, AfterGrid, MilisecondTime, Direction, fMaxAlphaLevel); 
 	AnimationDatagrid.push_back(Animation);
 
 	Animation->StartAnimation();
