@@ -5,6 +5,7 @@
 #include "ScreenHandler.h"
 #include "RendererMNG.h"
 #include "OrbiterRenderer.h"
+#include "pluto_main/Define_DesignObjParameter.h"
 
 ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pOwner(pOwner)
 {
@@ -559,5 +560,16 @@ std::string ObjectRenderer::GetLocalDirectory()
 CacheImageManager *ObjectRenderer::GetCacheImageManager()
 {
 	return m_pOwner->m_pOrbiter->m_pCacheImageManager;
+}
+//-----------------------------------------------------------------------------------------------------
+int ObjectRenderer::GetAlphaLevel()
+{
+	int nAlphaChannel = atoi(m_pOwner->GetParameterValue(DESIGNOBJPARAMETER_Alpha_channel_CONST).c_str());
+
+	//if(nAlphaChannel == 0) //if it's 0, it means it's not set
+	//	nAlphaChannel = 100;
+
+	nAlphaChannel = nAlphaChannel * 255 / 100; //translate from procents to 0-255
+	return nAlphaChannel;
 }
 //-----------------------------------------------------------------------------------------------------

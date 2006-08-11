@@ -4,7 +4,6 @@
 #include "OrbiterRenderer.h"
 #include "DesignObj_DataGrid.h"
 #include "../DCE/DataGrid.h"
-#include "pluto_main/Define_DesignObjParameter.h"
 
 using namespace DCE;
 
@@ -768,18 +767,3 @@ g_pPlutoLogger->Write(LV_ACTION, "renderer grid %s max row %d max col %d cur row
 	m_DataGridCacheThread = NULL;
 }
 
-int DataGridRenderer::GetAlphaLevel()
-{
-	int nAlphaChannel = atoi(m_pOwner->GetParameterValue(DESIGNOBJPARAMETER_Alpha_channel_CONST).c_str());
-
-	if(nAlphaChannel == 0) //if it's 0, it means it's not set
-		nAlphaChannel = 100;
-
-	//temp code until we find why orbitergen doesn't serialize this param (?)
-	if(m_pOwner->m_pOrbiter->UsesUIVersion2())
-		nAlphaChannel = 30;
-
-	nAlphaChannel = nAlphaChannel * 255 / 100; //translate from procents to 0-255
-
-	return nAlphaChannel;
-}

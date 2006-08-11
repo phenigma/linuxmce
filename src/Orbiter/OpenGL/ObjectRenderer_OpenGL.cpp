@@ -145,10 +145,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 		OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = 
 			dynamic_cast<OrbiterRenderer_OpenGL *>(m_pOwner->m_pOrbiter->Renderer());
 
-		int nAlphaChannel = atoi(m_pOwner->GetParameterValue(DESIGNOBJPARAMETER_Alpha_channel_CONST).c_str());
-
-		if(nAlphaChannel == 0)
-			nAlphaChannel = 100;
+		int nAlphaChannel = GetAlphaLevel();
 
 		pOrbiterRenderer_OpenGL->RenderGraphic(sObjectHash, pPlutoGraphic, rectTotal, 
 			bDisableAspectRatio, point, nAlphaChannel);

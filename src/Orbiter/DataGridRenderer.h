@@ -22,6 +22,7 @@ class DataGridRenderer : public ObjectRenderer
 
 	listDataGridTablePtr m_listDataGridCache[5];
 	bool m_bStopCaching;
+
 public:
 	DataGridRenderer(DesignObj_Orbiter *pOwner);
 	virtual ~DataGridRenderer(void);
@@ -37,10 +38,6 @@ public:
 	void StartCacheThread();
 	void StopCacheThread();
 	void DataGridCacheThread();
-
-protected:
-
-	int GetAlphaLevel();
 };
 
 #endif //__DATAGRID_RENDERER_H__

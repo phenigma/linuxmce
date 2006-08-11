@@ -296,7 +296,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(string ObjectID, class PlutoGraphic *pPlutoGraphic, 
 	PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/,
-	int nAlphaChannel/* = 100*/)
+	int nAlphaChannel/* = 255*/)
 {
 	if(ObjectID == "")
 	{
@@ -350,7 +350,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		);
 
 	MeshContainer* Container = Builder->End();
-	Container->SetAlpha(nAlphaChannel / 100.0f);
+	Container->SetAlpha(nAlphaChannel / 255.0f);
 	MeshFrame* Frame = new MeshFrame();
 	Frame->SetMeshContainer(Container);
 

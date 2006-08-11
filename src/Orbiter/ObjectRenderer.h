@@ -30,6 +30,8 @@ protected:
 
 	virtual bool PreRenderActions(DesignObj_Orbiter *pObj_Screen, PlutoPoint point = PlutoPoint(0, 0));
 	virtual bool PostRenderActions(DesignObj_Orbiter *pObj_Screen, PlutoPoint point = PlutoPoint(0, 0));
+
+	int GetAlphaLevel();
 };
 
 #endif //__OBJECT_RENDERER_H__
