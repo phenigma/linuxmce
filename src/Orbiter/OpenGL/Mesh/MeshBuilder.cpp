@@ -143,3 +143,30 @@ void MeshBuilder::Begin(unsigned char BuildMode)
 {
 	Blended_ = Blended;
 }
+
+
+/*static*/ MeshContainer* MeshBuilder::BuildRectangle(PlutoRectangle* Rectangle, 
+OpenGLGraphic* Graphic)
+{
+	MeshBuilder MB;
+	MB.Begin(MBMODE_TRIANGLE_STRIP);
+	MB.SetColor(1.0f, 1.0f, 1.0f);
+
+	MB.SetTexture(Graphic);
+
+	MB.SetTexture2D(0, 1);
+	MB.AddVertexFloat(Rectangle->Left(), Rectangle->Top(), 0);
+
+	MB.SetTexture2D(0, 1);
+	MB.AddVertexFloat(Rectangle->Right(), Rectangle->Top(), 0);
+
+	MB.SetTexture2D(0, 0);
+	MB.AddVertexFloat(Rectangle->Left(), Rectangle->Bottom(), 0);
+
+	MB.SetTexture2D(1, 0);
+	MB.AddVertexFloat(Rectangle->Right(), Rectangle->Bottom(), 0);
+
+
+	return MB.End();
+
+}
