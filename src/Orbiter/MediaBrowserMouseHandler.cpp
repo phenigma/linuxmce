@@ -394,8 +394,11 @@ bool MediaBrowserMouseHandler::RelativePointer_SetStatus(int nSpeedShape)
     }
 
     // draw fake pointer
-    PlutoRectangle rectFakePointer = RelativePointer_ComputeRectangle(posFakeMouse.X, posFakeMouse.Y, oSizeScreen.Width, oSizeScreen.Height);
-    m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(m_pRelativePointer_Image, rectFakePointer);
+	if( m_pRelativePointer_Image )
+	{
+	    PlutoRectangle rectFakePointer = RelativePointer_ComputeRectangle(posFakeMouse.X, posFakeMouse.Y, oSizeScreen.Width, oSizeScreen.Height);
+		m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(m_pRelativePointer_Image, rectFakePointer);
+	}
 	return true;
 }
 
