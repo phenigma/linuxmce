@@ -14,6 +14,12 @@ fi
 OutputFile=$(mktemp)
 trap "rm -f '$OutputFile'" EXIT
 wget --timeout=10 -O "$OutputFile" "$URL"
+# test if offline
+RET=$?
+if [[ "$RET" == "1" ]]; then
+        /usr/pluto/bin/MessageSend dcerouter 0 20 1 741 159 53 9 'The device was added but is missing some config data witch can be downloaded only from internet. The device will not work properly until that info is downloaded.'
+        exit 1
+fi
 
 Header=$(head -1 "$OutputFile")
 Footer=$(tail -1 "$OutputFile")
