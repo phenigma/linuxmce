@@ -156,7 +156,7 @@ namespace DCE
         virtual bool ConstrainMouse(const PlutoRectangle &rect) { return false; }
         virtual bool ConstrainMouse() { PlutoRectangle rect; return ConstrainMouse(rect); }
 		virtual void SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle) {}
-		virtual bool SetMouseCursorImage(const string &sPath, const string &sPathMask) {}
+		virtual bool SetMouseCursorImage(const string &sPath, const string &sPathMask) { return false;}
 		virtual void CaptureRelativeMovements();
 		virtual void ReleaseRelativeMovements();
     };
