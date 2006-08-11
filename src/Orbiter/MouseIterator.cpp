@@ -146,7 +146,7 @@ void MouseIterator::DoIteration()
 	case if_MediaTracks:
 		{
 			bool bResult=true;
-g_pPlutoLogger->Write(LV_ACTION, "Scrolling: %d",m_dwParm);
+
 			if( m_dwParm==-2 )
 			{
 				NeedToRender render( m_pOrbiter, "iterator grid" );  // Redraw anything that was changed by this command

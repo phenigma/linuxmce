@@ -938,6 +938,7 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 	)
 		return; // Nothing to do anyway
 
+g_pPlutoLogger->Write(LV_ACTION,"RedrawObjects");
 	OrbiterLogic()->CallMaintenanceInMiliseconds( 0, (OrbiterCallBack) &Orbiter::RealRedraw, NULL, pe_ALL );
 }
 //-----------------------------------------------------------------------------------------------------

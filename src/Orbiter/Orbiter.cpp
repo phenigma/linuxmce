@@ -709,7 +709,9 @@ void Orbiter::RedrawObject( void *iData )
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RealRedraw( void *data )
 {
+	g_pPlutoLogger->Write(LV_ACTION, "Orbiter::RealRedraw start");
 	m_pOrbiterRenderer->RefreshScreen(data);
+	g_pPlutoLogger->Write(LV_ACTION, "Orbiter::RealRedraw stop");
 }
 //-----------------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter::NeedToChangeScreens( ScreenHistory *pScreenHistory/*, bool bAddToHistory*/ )
@@ -2482,7 +2484,8 @@ bool Orbiter::PreprocessEvent(Orbiter::Event &event)
 	// nothing. This is here because i need a prepropcessing phase in key translation ( the XRecord callback doesn't allow XLib calls inside it so i need to make in another thread );
 	return true;
 }
-
+//temptest
+#include "MediaBrowserMouseHandler.h"
 bool Orbiter::ProcessEvent( Orbiter::Event &event )
 {
 	static int LastX=-1,LastY=-1; // For some reason we keep getting move events with the same coordinates over and over
@@ -2494,6 +2497,15 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 		LastY=event.data.region.m_iY;
 	}
 
+//temptest
+if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior && event.data.button.m_iPK_Button == BUTTON_F9_CONST )
+{
+MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pMouseBehavior->m_pMouseHandler;
+pMediaBrowserMouseHandler->m_eCapturingOffscreenMovement=MediaBrowserMouseHandler::cosm_DOWN;
+pMediaBrowserMouseHandler->DoIteration();
+pMediaBrowserMouseHandler->m_eCapturingOffscreenMovement=MediaBrowserMouseHandler::cosm_NO;
+return false;
+}
 
 
 #ifdef DEBUG
@@ -2589,7 +2601,6 @@ if(UsesUIVersion2())
 	{
 		if ( event.type == Orbiter::Event::MOUSE_RELATIVE_MOVE && m_pMouseBehavior )
 			m_pMouseBehavior->RelativeMove(event.data.region.m_iX, event.data.region.m_iY);
-g_pPlutoLogger->Write(LV_ACTION,"***MOVE*** %d,%d",event.data.region.m_iX, event.data.region.m_iY);
 		if ( event.type == Orbiter::Event::MOUSE_MOVE && m_pMouseBehavior )
 			m_pMouseBehavior->Move(event.data.region.m_iX, event.data.region.m_iY);
 	}
@@ -4070,6 +4081,7 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int &GridCurCol,  int &Gri
 {
 	if (  pObj->bReAcquire || !pDataGridTable || pDataGridTable->m_StartingColumn != GridCurCol || pDataGridTable->m_StartingRow != GridCurRow || pObj->m_sSeek.length() )
 	{
+g_pPlutoLogger->Write(LV_ACTION,"acquiring %s",pObj->m_ObjectID.c_str());
 		if ( pDataGridTable )
 		{
 			delete pDataGridTable;
@@ -4093,7 +4105,6 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int &GridCurCol,  int &Gri
 #endif
 		int size = 0;
 		char *data = NULL;
-g_pPlutoLogger->Write(LV_ACTION, "orbiter grid %s max row %d max col %d cur row %d cur col %d", pObj->m_sGridID.c_str(),pObj->m_MaxRow,pObj->m_MaxCol,GridCurRow,GridCurCol);
 
 		DCE::CMD_Request_Datagrid_Contents CMD_Request_Datagrid_Contents( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,
 			StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID,

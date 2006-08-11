@@ -564,6 +564,7 @@ CacheImageManager *ObjectRenderer::GetCacheImageManager()
 //-----------------------------------------------------------------------------------------------------
 int ObjectRenderer::GetAlphaLevel()
 {
+
 	int nAlphaChannel;
 	string sAlphaChannel = m_pOwner->GetParameterValue(DESIGNOBJPARAMETER_Alpha_channel_CONST);
 

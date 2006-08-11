@@ -739,7 +739,7 @@ void DataGridRenderer::DataGridCacheThread()
 			char *data = NULL;
 
 			dgc.Release();
-g_pPlutoLogger->Write(LV_ACTION, "renderer grid %s max row %d max col %d cur row %d cur col %d", pDG->m_sGridID.c_str(),pDG->m_MaxRow,pDG->m_MaxCol,GridCurRow,GridCurCol);
+
 			DCE::CMD_Request_Datagrid_Contents CMD_Request_Datagrid_Contents( pDG->m_pOrbiter->m_dwPK_Device,  pDG->m_pOrbiter->m_dwPK_Device_DatagridPlugIn,
 			StringUtils::itos( pDG->m_pOrbiter->m_dwIDataGridRequestCounter ), pDG->m_sGridID,
 			pDG->m_MaxRow, pDG->m_MaxCol, pDG->m_bKeepRowHeader, pDG->m_bKeepColHeader, true, pDG->m_sSeek, pDG->m_iSeekColumn, &data, &size, &GridCurRow, &GridCurCol );
@@ -754,11 +754,22 @@ g_pPlutoLogger->Write(LV_ACTION, "renderer grid %s max row %d max col %d cur row
 				if ( size && data )
 				{
 					dgc.Relock();
-
-					m_listDataGridCache[Direction].push_back(new DataGridTable( size,  data ));
-	
+					DataGridTable *pDataGridTable = new DataGridTable( size,  data );
+					m_listDataGridCache[Direction].push_back(pDataGridTable);
 					delete[] data;
 					data = NULL;
+					PLUTO_SAFETY_LOCK(M,m_pOwner->m_pOrbiter->Renderer()->m_bgImageReqMutex);
+					for(MemoryDataTable::iterator it=pDataGridTable->m_MemoryDataTable.begin();it!=pDataGridTable->m_MemoryDataTable.end();++it)
+					{
+						DataGridCell *pDataGridCell = it->second;
+						const char *pPath = pDataGridCell->GetImagePath();
+						if (pPath && !pDataGridCell->m_pGraphicData && !pDataGridCell->m_pGraphic)
+ 						{
+							M.Release();
+							m_pOwner->m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, &pDataGridCell->m_pGraphic);              
+							M.Relock();
+						}
+					}
 				}
 			}
 			Sleep(0);

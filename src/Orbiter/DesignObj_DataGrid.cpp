@@ -65,7 +65,9 @@ bool DesignObj_DataGrid::HasMoreDown()
 //-------------------------------------------------------------------------------------------------------
 /*virtual*/ void DesignObj_DataGrid::PrepareRenderDataGrid(string& delSelections )
 {
+g_pPlutoLogger->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %d max col %d cur row %d cur col %d", m_sGridID.c_str(),m_MaxRow,m_MaxCol,m_GridCurRow,m_GridCurCol);
 	m_pOrbiter->AcquireGrid(this,  m_GridCurCol,  m_GridCurRow,  m_pDataGridTable );
+g_pPlutoLogger->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %d max col %d cur row %d cur col %d", m_sGridID.c_str(),m_MaxRow,m_MaxCol,m_GridCurRow,m_GridCurCol);
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",m_ObjectID.c_str(),m_pDataGridTable);
 #endif

@@ -24,7 +24,6 @@ void MouseBehavior_Win32::SetMousePosition(int X,int Y)
 
 void MouseBehavior_Win32::ShowMouse(bool bShow)
 {
-g_pPlutoLogger->Write(LV_ACTION,"**SHOW*** %d",(int) bShow);
 	ShowCursor(bShow);
 }
 

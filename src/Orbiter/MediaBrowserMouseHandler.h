@@ -23,6 +23,8 @@ namespace DCE
 	//-----------------------------------------------------------------------------------------------------
 	class MediaBrowserMouseHandler : public MouseHandler
 	{
+	public://temptest
+
 		friend class ScreenHandler;
 		int m_RelativeVirtualY;
 		enum CapturingOffscreenMovement

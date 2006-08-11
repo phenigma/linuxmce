@@ -200,7 +200,7 @@ g_pPlutoLogger->Write(LV_ACTION, "**go**");
 			m_pMouseBehavior->SetMousePosition(X,20);   // Temp, should be 2
 		}
 
-		m_pMouseBehavior->ShowMouse(false);
+//		m_pMouseBehavior->ShowMouse(false);
 		return;
 
 	}
@@ -276,6 +276,8 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 
 bool MediaBrowserMouseHandler::DoIteration()
 {
+g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
+
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "iterator grid" );  // Redraw anything that was changed by this command
 	bool bResult;
 	if( m_eCapturingOffscreenMovement==cosm_UP )
@@ -342,6 +344,7 @@ bool MediaBrowserMouseHandler::DoIteration()
 			m_pObj_PicGrid->bReAcquire=true;
 		}
 	}
+g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  STOP***");
 
 	return bResult;
 }
