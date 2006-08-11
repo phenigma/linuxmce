@@ -903,6 +903,13 @@ switch ($section) {
 	    $output->setHelpSrc('/wiki/index.php/Firewall_Rules');
 	    firewall($output,$dbADO);
 	break;
+        case 'dynamicDNS';
+                $output=new Template($dbADO);
+                $output->setTemplateFileType('large');
+                include_once('operations/network/dynamicDNS.php');
+                $output->setHelpSrc('');
+                dynamicDNS($output,$dbADO);
+        break;
 	case 'usersOrbiters';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');

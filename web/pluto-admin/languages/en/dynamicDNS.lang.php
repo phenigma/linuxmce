@@ -1,0 +1,10 @@
+<?php
+$TEXT_DYNAMIC_DNS="Dynamic DNS Settings";
+
+$TEXT_DYNAMIC_DNS_PROVIDER="Dynamic DNS Provider";
+$TEXT_DYNAMIC_DNS_DOMAINS="Domain(s)";
+$TEXT_DYNAMIC_DNS_LOGIN="Login";
+$TEXT_DYNAMIC_DNS_PASSWORD="Password";
+
+$TEXT_DYNAMIC_DNS_UPDATED="Dynamic DNS Settings Updated";
+?>
