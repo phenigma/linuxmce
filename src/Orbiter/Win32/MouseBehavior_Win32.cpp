@@ -27,6 +27,11 @@ g_pPlutoLogger->Write(LV_ACTION,"**SHOW*** %d",(int) bShow);
 
 bool MouseBehavior_Win32::ConstrainMouse(const PlutoRectangle &rect)
 {
+	//we'll need to window's position in order to apply the constrain relatively to the window's position
+	HWND hWnd = ::FindWindow("SDL_app", "OrbiterGL");
+	RECT rectWin;
+	::GetWindowRect(hWnd, &rectWin);
+
 	m_bMouseConstrained = rect.X!=0 || rect.Y!=0 || rect.Width!=0 || rect.Height!=0;
 	if( rect.Width==0 || rect.Height==0 )
 	{
@@ -35,10 +40,10 @@ bool MouseBehavior_Win32::ConstrainMouse(const PlutoRectangle &rect)
 	}
 
 	RECT rcClip;           // new area for ClipCursor
-	rcClip.left=rect.X;
-	rcClip.right=rect.X + rect.Width;
-	rcClip.top=rect.Y;
-	rcClip.bottom=rect.Y + rect.Height;
+	rcClip.left=rectWin.left + rect.X;
+	rcClip.right=rectWin.left + rect.X + rect.Width;
+	rcClip.top=rectWin.top + rect.Y;
+	rcClip.bottom=rectWin.top + rect.Y + rect.Height;
 	ClipCursor(&rcClip); 
 	return true;
 }
