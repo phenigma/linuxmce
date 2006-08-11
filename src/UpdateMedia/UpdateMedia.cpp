@@ -192,7 +192,8 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 			time_t tFileTimestamp = FileUtils::GetLastModifiedDate(sLockFile);
 
 			time_t tNow = time(NULL);
-			if(tFileTimestamp == -1 || tNow - tFileTimestamp > 600) //Media_Plugin has more the enough time to add the file in the database
+			// deleting locks if they are >2hours old
+			if(tFileTimestamp == -1 || tNow - tFileTimestamp > 7200) //Media_Plugin has more the enough time to add the file in the database
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "The lock file %s is old (%d seconds). Deleting it!", sLockFile.c_str(), tNow - tFileTimestamp);
 				FileUtils::DelFile(sLockFile);
