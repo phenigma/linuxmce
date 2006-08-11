@@ -2497,6 +2497,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 		LastY=event.data.region.m_iY;
 	}
 
+#ifdef ENABLE_MOUSE_BEHAVIOR
 //temptest
 if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior && event.data.button.m_iPK_Button == BUTTON_F9_CONST )
 {
@@ -2506,7 +2507,7 @@ pMediaBrowserMouseHandler->DoIteration();
 pMediaBrowserMouseHandler->m_eCapturingOffscreenMovement=MediaBrowserMouseHandler::cosm_NO;
 return false;
 }
-
+#endif
 
 #ifdef DEBUG
 	// a switch would be good but kdevelop somehow doesn't like the syntax and mekes it red :-(
