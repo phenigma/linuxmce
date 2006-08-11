@@ -19,8 +19,6 @@ MeshFrame::~MeshFrame(void)
 
 /*virtual*/ void MeshFrame::CleanUp()
 {
-	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "xxxxx MeshFrame::cleanup %p", this);	
-
 	std::vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); Child++)
 	{
@@ -133,10 +131,11 @@ MeshContainer* MeshFrame::GetMeshContainer()
 {
 	if(Mesh)
 		Mesh->SetAlpha(Alpha);
+
 	std::vector<MeshFrame *>::iterator Child, EndChild;
 	for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
 	{  
 		MeshFrame *pMeshFrame = *Child;
-		pMeshFrame->Paint(Transform);
+		pMeshFrame->SetAlpha(Alpha);
 	}
 }

@@ -90,9 +90,9 @@ bool OpenGL3DEngine::Paint()
 		
 	GL.EnableZBuffer(false);
 
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Paint START");
+	//DCE::g_pPlutoLogger->Write(LV_WARNING, "xxxxx Paint START");
 	Compose->Paint();
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Paint END");
+	//DCE::g_pPlutoLogger->Write(LV_WARNING, "xxxxx Paint END");
 
 	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint before highlight");
 	if(AnimationDatagrid.size())
@@ -459,11 +459,12 @@ MeshFrame* OpenGL3DEngine::EndFrameDrawing()
 }
 
 void OpenGL3DEngine::CubeAnimateDatagridFrames(MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
-							   int MilisecondTime, int Direction)
+							   int MilisecondTime, int Direction, float fMaxAlphaLevel)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 
-	AnimationScrollDatagrid* Animation = new AnimationScrollDatagrid(this, BeforeGrid, AfterGrid, MilisecondTime, Direction); 
+	AnimationScrollDatagrid* Animation = new AnimationScrollDatagrid(this, BeforeGrid, AfterGrid, 
+		MilisecondTime, Direction, fMaxAlphaLevel); 
 	AnimationDatagrid.push_back(Animation);
 
 	Animation->StartAnimation();

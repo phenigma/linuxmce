@@ -76,7 +76,7 @@ public:
 	MeshFrame* EndFrameDrawing();
 
 	void CubeAnimateDatagridFrames(MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
-		int MilisecondTime, int Direction);
+		int MilisecondTime, int Direction, float fMaxAlphaLevel);
 
 
 };

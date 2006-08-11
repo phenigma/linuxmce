@@ -33,7 +33,7 @@ ObjectRendererFactory::~ObjectRendererFactory()
 #elif defined(PROXY_ORBITER)
 			return new DataGridRenderer_Proxy(pOwner);
 #elif defined(ORBITER_OPENGL)
-			return new DataGridRenderer(pOwner);
+			//return new DataGridRenderer(pOwner);
 			return new DataGridRenderer_OpenGL(pOwner);
 #else
 			return new DataGridRenderer(pOwner);

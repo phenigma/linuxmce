@@ -120,9 +120,11 @@ void MediaBrowserMouseHandler::RelativeMove(int X, int Y)
 		//	PlutoColor::Green());
         RelativePointer_ImageLoad(Notch);
         //PlutoRectangle rectFakePointer(X-40,0,80,5);
-        PlutoRectangle rectFakePointer(X-40,0,m_pRelativePointer_Image->Width, m_pRelativePointer_Image->Height);
         if (m_pRelativePointer_Image)
-            m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(m_pRelativePointer_Image, rectFakePointer);
+		{
+			PlutoRectangle rectFakePointer(X-40,0,m_pRelativePointer_Image->Width, m_pRelativePointer_Image->Height);
+			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(m_pRelativePointer_Image, rectFakePointer);
+		}
 	}
 	else
 	{
@@ -142,9 +144,11 @@ void MediaBrowserMouseHandler::RelativeMove(int X, int Y)
 		//	PlutoColor::Green());
         RelativePointer_ImageLoad(Notch);
         //PlutoRectangle rectFakePointer(X-40,m_pMouseBehavior->m_pOrbiter->m_Height-5,80,5);
-        PlutoRectangle rectFakePointer(X-40,m_pMouseBehavior->m_pOrbiter->m_Height-m_pRelativePointer_Image->Height,m_pRelativePointer_Image->Width, m_pRelativePointer_Image->Height);
-        if (m_pRelativePointer_Image)
-            m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(m_pRelativePointer_Image, rectFakePointer);
+		if (m_pRelativePointer_Image)
+		{
+			PlutoRectangle rectFakePointer(X-40,m_pMouseBehavior->m_pOrbiter->m_Height-m_pRelativePointer_Image->Height,m_pRelativePointer_Image->Width, m_pRelativePointer_Image->Height);
+			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(m_pRelativePointer_Image, rectFakePointer);
+		}
 	}
 
 	m_iLastNotch=Notch;

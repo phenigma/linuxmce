@@ -3,14 +3,17 @@
 #include "Mesh/MeshFrame.h"
 #include "OpenGL3DEngine.h"
 
+#include "DCE/Logger.h"
+
 AnimationScrollDatagrid::AnimationScrollDatagrid(OpenGL3DEngine* Engine, MeshFrame *BeforeGrid, 
-	MeshFrame *AfterGrid, int MilisecondTime, int Direction)
+	MeshFrame *AfterGrid, int MilisecondTime, int Direction, float fMaxAlphaLevel)
 {
 	this->Engine = Engine;
 	this->BeforeGrid = BeforeGrid;
 	this->AfterGrid = AfterGrid;
 	this->MilisecondTime = MilisecondTime;
 	this->Direction = Direction;
+	this->MaxAlpha = fMaxAlphaLevel;
 }
 
 AnimationScrollDatagrid::~AnimationScrollDatagrid(void)
@@ -61,8 +64,10 @@ bool AnimationScrollDatagrid::Update()
 		AfterGrid->SetTransform(Transform2);
 	}
 
-	BeforeGrid->SetAlpha(1-Progress);
-	AfterGrid->SetAlpha(Progress);
+	//DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Animation step: %f", 100 * Progress);
+
+	//BeforeGrid->SetAlpha((1-Progress) * MaxAlpha);
+	//AfterGrid->SetAlpha(Progress * MaxAlpha);
 
 	if(CurrentTime - StartTime > MilisecondTime)
 		return true;

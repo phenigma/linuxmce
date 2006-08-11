@@ -54,7 +54,7 @@ g_pPlutoLogger->Write(LV_ACTION, "DataGridRenderer::RenderObject-stop %s start r
 
 	if(StartAnimation>0)
 	{
-		Engine->CubeAnimateDatagridFrames(BeforeDataGrid, RenderFrame, 1200, iPK_Direction);
+		Engine->CubeAnimateDatagridFrames(BeforeDataGrid, RenderFrame, 1200, iPK_Direction, GetAlphaLevel() / 255.0f);
 		StartAnimation = 0;
 	}
 	else
