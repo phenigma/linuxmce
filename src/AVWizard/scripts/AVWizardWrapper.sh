@@ -48,5 +48,5 @@ while [[ "$Done" -eq 0 ]]; do
 		*) echo "Interrupted in step '$WizStep', but shouldn't be"; NextStep=$WizStep ;;
 	esac
 	
-	sleep 1 # things seem to mess up at random when X is stopped and started too fast
+	sleep 2 # things seem to mess up at random when X is stopped and started too fast
 done
