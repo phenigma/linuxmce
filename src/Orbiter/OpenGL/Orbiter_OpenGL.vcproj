@@ -133,6 +133,12 @@
 				Name="OpenGL"
 				Filter="">
 				<File
+					RelativePath=".\AnimationScrollDatagrid.cpp">
+				</File>
+				<File
+					RelativePath=".\DataGridRenderer_OpenGL.cpp">
+				</File>
+				<File
 					RelativePath=".\PopupCollection.cpp">
 				</File>
 				<File
