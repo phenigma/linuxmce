@@ -102,7 +102,7 @@ bool MediaBrowserMouseHandler::ButtonUp(int PK_Button)
 void MediaBrowserMouseHandler::RelativeMove(int X, int Y)
 {
 	m_LastX=X;
-   g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::RelativeMove(%d, %d, %d)", X, Y, Notch);
+    g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::RelativeMove(%d, %d, %d)", X, Y, m_iLastNotch);
 	int Notch;
 	if( m_eCapturingOffscreenMovement == cosm_UP )
 	{
@@ -326,7 +326,7 @@ bool MediaBrowserMouseHandler::RelativePointer_SetStatus(int nSpeedShape)
     char * pData = FileUtils::ReadFileIntoBuffer(sPath.c_str(), iSize);
     if (pData == NULL)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "MediaBrowserMouseHandler::RelativePointer_SetStatus(%d) : cannot load graphic file %s", nSpeedShape, sPath);
+        g_pPlutoLogger->Write(LV_CRITICAL, "MediaBrowserMouseHandler::RelativePointer_SetStatus(%d) : cannot load graphic file %s", nSpeedShape, sPath.c_str());
         return false;
     }
     // creating the image in memory
