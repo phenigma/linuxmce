@@ -15,8 +15,11 @@ class AnimationScrollDatagrid
 	float MaxAlpha;
 
 public:
+	string ObjectID;
 	MeshFrame *BeforeGrid, *AfterGrid;
-	AnimationScrollDatagrid(OpenGL3DEngine* Engine, MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
+
+	AnimationScrollDatagrid(string ObjectID, OpenGL3DEngine* Engine, 
+		MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
 		int MilisecondTime, int Direction, float fMaxAlphaLevel);
 	virtual ~AnimationScrollDatagrid(void);
 

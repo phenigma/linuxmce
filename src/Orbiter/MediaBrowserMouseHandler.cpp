@@ -288,13 +288,13 @@ g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
 	{
 		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ListGrid->m_ObjectID,DIRECTION_Up_CONST,false);
 		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("", m_pObj_PicGrid->m_ObjectID,DIRECTION_Up_CONST,false);
-		m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
+		//m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
 	}
 	else
 	{
 		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ListGrid->m_ObjectID,DIRECTION_Down_CONST,false);
 		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("", m_pObj_PicGrid->m_ObjectID,DIRECTION_Down_CONST,false);
-		m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
+		//m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
 	}
 
 	if( !bResult )

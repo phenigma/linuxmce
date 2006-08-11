@@ -223,7 +223,7 @@ public:
 	*/
 	virtual void SetupWindow() {}
 
-	virtual bool HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position);
+	virtual bool HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position, int EffectID);
 	virtual bool HandleHidePopup(PlutoPopup* Popup);
 
 	virtual void UpdateObjectImage(string sPK_DesignObj, string sType, char *pData, int iData_Size, 

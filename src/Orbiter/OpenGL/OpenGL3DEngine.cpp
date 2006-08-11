@@ -27,7 +27,8 @@ OpenGL3DEngine::OpenGL3DEngine()
 	Compose(NULL),
 	FrameBuilder(NULL),
 	FrameDatagrid(NULL),
-	AnimationDatagrid(NULL)
+	AnimationDatagrid(NULL),
+	HighLightPopup(NULL)
 {
 	if(TTF_Init()==-1) {
 		printf("Error on TTF_Init: %s\n", TTF_GetError());
@@ -90,9 +91,7 @@ bool OpenGL3DEngine::Paint()
 		
 	GL.EnableZBuffer(false);
 
-	//DCE::g_pPlutoLogger->Write(LV_WARNING, "xxxxx Paint START");
 	Compose->Paint();
-	//DCE::g_pPlutoLogger->Write(LV_WARNING, "xxxxx Paint END");
 
 	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint before highlight");
 	if(AnimationDatagrid.size())
@@ -113,6 +112,22 @@ bool OpenGL3DEngine::Paint()
 		}
 	}
 	else
+	{
+		if(HighLightPopup)
+		{
+			//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint after highlight");
+			Point3D Color;
+			Color.X = 1.0f;
+			Color.Y = 1.0f;
+			Color.Z = (GetTick() / 2 % 512) / 255.0f*Simulator::GetInstance()->m_iMilisecondsHighLight/300;
+			Color.Z = abs(Color.Z - 1.0f)/2.0f+ 0.5f;
+			Color.X = Color.Z;
+			Color.Y = Color.Z;
+			CurrentLayer->RemoveChild(HighLightFrame);
+			CurrentLayer->AddChild(HighLightFrame);
+			HighLightFrame->GetMeshContainer()->SetColor(Color);
+		}
+
 		if(HighLightFrame)
 		{
 			//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint after highlight");
@@ -123,11 +138,11 @@ bool OpenGL3DEngine::Paint()
 			Color.Z = abs(Color.Z - 1.0f)/2.0f+ 0.5f;
 			Color.X = Color.Z;
 			Color.Y = Color.Z;
-			HighlightCurrentLayer->RemoveChild(HighLightFrame);
-			HighlightCurrentLayer->AddChild(HighLightFrame);
+			CurrentLayer->RemoveChild(HighLightFrame);
+			CurrentLayer->AddChild(HighLightFrame);
 			HighLightFrame->GetMeshContainer()->SetColor(Color);
 		}
-
+	}
 	//glEnable(GL_CULL_FACE);
 
 	GL.Flip();
@@ -164,7 +179,6 @@ void OpenGL3DEngine::NewScreen()
 
 	CurrentLayerObjects_.clear();
 	CurrentLayer = new MeshFrame();
-	HighlightCurrentLayer = CurrentLayer;
 	
 	if(NULL != Compose)
 		Compose->UpdateLayers(CurrentLayer, OldLayer);
@@ -278,21 +292,23 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	
-	if(NULL == HighlightCurrentLayer)
+	if(NULL == CurrentLayer)
 		return;
 	if(NULL == HightlightArea)
 		return;
 
-	Compose->UpdateLayers(HighlightCurrentLayer, OldLayer);
-	MeshBuilder MB;
-	MB.Begin(MBMODE_TRIANGLE_STRIP);
+	Compose->UpdateLayers(CurrentLayer, OldLayer);
 	MeshTransform Transform;
 	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step2");
 	//Compose->PaintScreen3D();
 	//Compose->NewScreen->RenderFrameToGraphic();
 	//MB.SetTexture(Compose->NewScreen->GetRenderGraphic());
 	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step3");
+
+
+	MeshBuilder MB;
 	MB.SetAlpha(0.4f);
+	MB.Begin(MBMODE_TRIANGLE_STRIP);
 	MB.SetColor(1.0f, 1.0f, 1.0f);
 
 	MB.SetTexture2D(
@@ -351,7 +367,7 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 	{
 		//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
 		CurrentLayer->RemoveChild(HighLightFrame);
-		HighLightFrame->CleanUp();
+		//HighLightFrame->CleanUp();
 
 		delete HighLightFrame;
 		HighLightFrame = NULL;
@@ -459,13 +475,67 @@ MeshFrame* OpenGL3DEngine::EndFrameDrawing()
 }
 
 void OpenGL3DEngine::CubeAnimateDatagridFrames(MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
-							   int MilisecondTime, int Direction, float fMaxAlphaLevel)
+							   int MilisecondTime, int Direction)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 
-	AnimationScrollDatagrid* Animation = new AnimationScrollDatagrid(this, BeforeGrid, AfterGrid, 
-		MilisecondTime, Direction, fMaxAlphaLevel); 
+	AnimationScrollDatagrid* Animation = new AnimationScrollDatagrid(this, BeforeGrid, AfterGrid, MilisecondTime, Direction); 
 	AnimationDatagrid.push_back(Animation);
 
 	Animation->StartAnimation();
 }
+
+void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
+{
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+
+	MeshFrame * LeftBar = new MeshFrame();
+	MeshFrame * TopBar = new MeshFrame();
+	MeshFrame * RightBar = new MeshFrame();
+	MeshFrame * BottomBar = new MeshFrame();
+	
+
+	LeftBar->SetMeshContainer(
+		MeshBuilder::BuildRectangle(&Rect, NULL)
+		);
+
+	LeftBar->SetMeshContainer(
+		MeshBuilder::BuildRectangle(&Rect, NULL)
+		);
+	LeftBar->SetMeshContainer(
+		MeshBuilder::BuildRectangle(&Rect, NULL)
+		);
+	LeftBar->SetMeshContainer(
+		MeshBuilder::BuildRectangle(&Rect, NULL)
+		);
+
+	HideHighlightRectangle();
+
+	HighLightPopup->AddChild(LeftBar);
+	HighLightPopup->AddChild(TopBar);
+	HighLightPopup->AddChild(RightBar);
+	HighLightPopup->AddChild(BottomBar);
+
+
+	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight: %d %d %d %d",
+	//	HightlightArea->Left(), HightlightArea->Top(), 
+	//	HightlightArea->Width, HightlightArea->Height);
+
+
+}
+
+void OpenGL3DEngine::HideHighlightRectangle()
+{
+	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+
+	if(NULL != HighLightFrame)
+	{
+		//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
+		CurrentLayer->RemoveChild(HighLightFrame);
+		HighLightFrame->CleanUp();
+
+		delete HighLightFrame;
+		HighLightFrame = NULL;
+	}
+}
+

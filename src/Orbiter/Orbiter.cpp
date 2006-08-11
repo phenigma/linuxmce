@@ -6961,7 +6961,7 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 	}
 	*/
 
-	if(!Renderer()->HandleShowPopup(pPopup, PlutoPoint(iPosition_X, iPosition_Y)))
+	if(!Renderer()->HandleShowPopup(pPopup, PlutoPoint(iPosition_X, iPosition_Y), 1))
 		CMD_Refresh("");
 }
 

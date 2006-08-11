@@ -100,10 +100,10 @@ namespace DCE
 		/**
 		* @brief Render a popup
 		*/
-		virtual void RenderPopup(PlutoPopup *pPopup, PlutoPoint point);
+		virtual void RenderPopup(PlutoPopup *pPopup, PlutoPoint point, int EffectID);
 
 		virtual bool HandleHidePopup(PlutoPopup* Popup);
-		virtual bool HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position);
+		virtual bool HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position, int EffectID);
 
 		
 		virtual void UpdateObjectImage(string sPK_DesignObj, string sType, char *pData, int iData_Size, 

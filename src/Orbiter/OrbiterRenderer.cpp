@@ -920,6 +920,8 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 #endif
 	PLUTO_SAFETY_LOCK(sm, OrbiterLogic()->m_ScreenMutex);
 
+	int nPopupEffect = 1;
+
 	if(pPopup->m_pObj)
 	{
 		pPopup->m_pObj->RenderObject(pPopup->m_pObj, point);
@@ -1293,7 +1295,7 @@ g_pPlutoLogger->Write(LV_EVENT,"OrbiterRenderer::BackgroundImageLoad %s size: %d
 	}
 }
 
-/*virtual*/ bool OrbiterRenderer::HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position)
+/*virtual*/ bool OrbiterRenderer::HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position, int EffectID)
 {
 	return false;
 }

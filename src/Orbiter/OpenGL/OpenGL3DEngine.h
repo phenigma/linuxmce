@@ -26,6 +26,8 @@ class OpenGL3DEngine
 	MeshFrame* SelectedFrame;
 	MeshFrame* HighLightFrame;
 
+	MeshFrame* HighLightPopup;
+
 	MeshFrame* FrameBuilder, *FrameDatagrid;
 
 	virtual void UnSelect();
@@ -75,8 +77,11 @@ public:
 	void StartFrameDrawing();
 	MeshFrame* EndFrameDrawing();
 
-	void CubeAnimateDatagridFrames(MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
+	void CubeAnimateDatagridFrames(string ObjectID, MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
 		int MilisecondTime, int Direction, float fMaxAlphaLevel);
+
+	void ShowHighlightRectangle(PlutoRectangle Rect);
+	void HideHighlightRectangle();
 
 
 };

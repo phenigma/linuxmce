@@ -41,6 +41,7 @@ public:
 	virtual void Paint();
 
 	virtual void SetAlpha(float Alpha);
+	virtual void SetColor(Point3D& Color);
 };
 
 #endif

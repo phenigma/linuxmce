@@ -6,7 +6,7 @@
 
 #include "DCE/Logger.h"
 
-PopupDescription::PopupDescription(OpenGL3DEngine* Engine, string ID)
+PopupDescription::PopupDescription(OpenGL3DEngine* Engine, string ID, PlutoRectangle* HighLight)
 {
 	this->Engine = Engine;
 	ObjectID = ID;

@@ -139,3 +139,15 @@ MeshContainer* MeshFrame::GetMeshContainer()
 		pMeshFrame->SetAlpha(Alpha);
 	}
 }
+
+/*virtual*/ void MeshFrame::SetColor(Point3D& Color)
+{
+	if(Mesh)
+		Mesh->SetColor(Color);
+	std::vector<MeshFrame *>::iterator Child, EndChild;
+	for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
+	{  
+		MeshFrame *pMeshFrame = *Child;
+		pMeshFrame->SetColor(Color);
+	}
+}

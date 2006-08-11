@@ -73,7 +73,7 @@ void PopupCollection::PaintPopup(std::string ID, PlutoPopup *Popup)
 		Engine->StartFrameDrawing();
 
 		Popup->m_pObj->RenderObject(Popup->m_pObj, Popup->m_Position); 
-		Item = new PopupDescription(Engine, ID);
+		Item = new PopupDescription(Engine, ID, NULL);
 		Popups[ID] = Item;
 	}
 	

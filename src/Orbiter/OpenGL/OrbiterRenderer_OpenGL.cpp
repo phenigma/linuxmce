@@ -639,7 +639,7 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 		Item->Configure(&rectLastSelected);
 }
 
-void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point)
+void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, int EffectID)
 {
 	PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
 
@@ -649,6 +649,11 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point)
 
 	if(Popups)
 		Popups->PaintPopup(pPopup->m_pObj->GenerateObjectHash(pPopup->m_Position), pPopup);
+	if (EffectID)
+	{
+		//PlutoRectangle Rect(pPopup->m_Position);
+		//Engine->
+	}
 }
 
 /*virtual*/ bool OrbiterRenderer_OpenGL::HandleHidePopup(PlutoPopup* Popup)
@@ -663,9 +668,9 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point)
 	return true;
 }
 
-/*virtual*/ bool OrbiterRenderer_OpenGL::HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position)
+/*virtual*/ bool OrbiterRenderer_OpenGL::HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position, int EfectID)
 {
-	RenderPopup(Popup, Position);
+	RenderPopup(Popup, Position, EfectID);
 	return true;
 }
 

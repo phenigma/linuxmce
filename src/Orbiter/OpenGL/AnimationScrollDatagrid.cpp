@@ -5,7 +5,7 @@
 
 #include "DCE/Logger.h"
 
-AnimationScrollDatagrid::AnimationScrollDatagrid(OpenGL3DEngine* Engine, MeshFrame *BeforeGrid, 
+AnimationScrollDatagrid::AnimationScrollDatagrid(string ObjectID, OpenGL3DEngine* Engine, MeshFrame *BeforeGrid, 
 	MeshFrame *AfterGrid, int MilisecondTime, int Direction, float fMaxAlphaLevel)
 {
 	this->Engine = Engine;
@@ -14,6 +14,7 @@ AnimationScrollDatagrid::AnimationScrollDatagrid(OpenGL3DEngine* Engine, MeshFra
 	this->MilisecondTime = MilisecondTime;
 	this->Direction = Direction;
 	this->MaxAlpha = fMaxAlphaLevel;
+	this->ObjectID = ObjectID;
 }
 
 AnimationScrollDatagrid::~AnimationScrollDatagrid(void)
