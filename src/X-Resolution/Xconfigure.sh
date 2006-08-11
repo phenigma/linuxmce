@@ -116,7 +116,7 @@ elif [[ -n "$UpdateVideoDriver" && "$DisplayDriver" != "$CurrentDisplayDriver" ]
 	mv "$ConfigFile"{.$$,}
 fi
 
-/usr/pluto/bin/X-UpdateModules.sh --conffile "$ConfigFile"
+/usr/pluto/bin/X-UpdateModules.sh --conffile "$ConfigFile" --driver "$DisplayDriver"
 UI_Version=$(/usr/pluto/bin/X-WhichUI.sh)
 awk -v"UI=$UI_Version" -f/usr/pluto/bin/X-UI_Sections.awk "$ConfigFile" >"$ConfigFile.$$"
 mv "$ConfigFile"{.$$,}

@@ -4,14 +4,24 @@ ConfigFile="/etc/X11/xorg.conf"
 for ((i = 1; i <= $#; i++)); do
 	case "${!i}" in
 		--conffile) ((i++)); ConfigFile="${!i}" ;;
+		--driver) ((i++)); Driver="${!i}" ;;
 		*) echo "Unknown option '$1'"; exit 1 ;;
 	esac
 done
 
-XModulesAdd=(dbe extmod record xtrap speedo type1 glx int10 v4l dri)
+XModulesAdd=(dbe extmod record xtrap speedo type1 glx int10 v4l)
 XModulesRemove=()
 
 XModulesActive=($(awk -f/usr/pluto/bin/X-ModulesSection.awk "$ConfigFile"))
+
+# if driver is 'nvidia', disable the 'dri' module
+# nVidia implements its own DRI, and the X DRI module causes big problems with the nVidia drivers - vox populi
+if [[ "$Driver" == nvidia ]]; then
+	XModulesRemove=("${XModulesRemove[@]}" dri)
+else
+	# all other cards will load the 'dri' module
+	XModulesAdd=("${XModulesAdd[@]}" dri)
+fi
 
 # Remove modules from active list
 for ((i = 0; i < "${#XModulesRemove[@]}"; i++)); do
