@@ -1,3 +1,9 @@
+linphone (1.2.0-2pluto1) unstable; urgency=low
+
+  * Relaxed libjack dependencies from 0.100 to 0.80, to build on Sarge
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Sat, 12 Aug 2006 14:50:05 +0300
+
 linphone (1.2.0-2) unstable; urgency=low
 
   * Updated liblinphone1's shlibs, closes: #345457.
