@@ -217,7 +217,7 @@ void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,
     g_pPlutoLogger->Write(LV_STATUS, "Try to call %s", tmp);
     DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"");
     SendCommand(CMD_MH_Stop_Media_);
-    iaxc_millisleep(1000);
+    Sleep(1000);
     StopRingTone();
     iaxc_call(tmp);
     sCMD_Result="OK";
@@ -240,11 +240,11 @@ void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 {
     if(phone_status>0)
     {
-        iaxc_millisleep(1000);
+        Sleep(1000);
         StopRingTone();
         DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia);
         SendCommand(SCREEN_DevCallInProgress_);
-        iaxc_millisleep(1000);
+        Sleep(1000);
         iaxc_answer_call(0);
         iaxc_select_call(0);
         sCMD_Result="OK";
@@ -270,7 +270,7 @@ void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 
     if(haveActiveCall)
     {
-        iaxc_millisleep(1000);
+        Sleep(1000);
         iaxc_dump_call();
         sCMD_Result="OK";
         haveActiveCall=false;
@@ -341,7 +341,7 @@ void SimplePhone::doProccess(void)
     while(!m_bQuit)
     {
         iaxc_process_calls();
-        iaxc_millisleep(5);
+        Sleep(5);
         if((phone_status>0) && (haveActiveCall==false))
         {
             if(event_status != phone_status)
@@ -359,7 +359,7 @@ void SimplePhone::doProccess(void)
                 else
                 {
                     GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));
-                    iaxc_millisleep(1000);
+                    Sleep(1000);
                     PlayRingTone();
                 }
                 calling_id[0]='\0';
@@ -441,7 +441,7 @@ void SimplePhone::registerWithAsterisk()
 void SimplePhone::unregisterWithAsterisk()
 {
     iaxc_dump_all_calls();
-    iaxc_millisleep(1000);
+    Sleep(1000);
 //    free(deviceExtension);
 //    free(asteriskHost);
 }
@@ -478,6 +478,8 @@ void SimplePhone::CreateChildren()
 void SimplePhone::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 {
+	(void) sName; // prevent warning of unused variable
+
     char ch;
 
     g_pPlutoLogger->Write(LV_STATUS, "Received '%s'",sPK_Button.c_str());

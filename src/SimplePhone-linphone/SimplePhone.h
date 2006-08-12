@@ -7,8 +7,6 @@
 #include "Gen_Devices/SimplePhoneBase.h"
 //<-dceag-d-e->
 
-#include <linphonecore.h>
-
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -20,14 +18,11 @@ private:
         void PlayRingTone();
         void StopRingTone();
         // Private member variables
-        iaxc_sound* ringTone;
         char* deviceExtension;
         char* devicePassword;
         char* asteriskHost;
 		bool haveActiveCall;
         pthread_t iaxThread;
-		LinphoneCore m_LinphoneCore;
-		LinphoneCoreVTable m_LinphoneCoreVTable;
 public:
         // Public member variables
         // Public methods

@@ -22,7 +22,7 @@ LDFLAGS += $(shell pkg-config --libs-only-L glib-2.0 linphone)
 XTRALDLIBS = $(shell pkg-config --libs-only-l glib-2.0 linphone)
 
 Gen_Dev_Files +=
-sources +=
+sources += SIP_Thread.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
