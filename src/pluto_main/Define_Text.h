@@ -1077,6 +1077,11 @@
 #define TEXT_Choose_Folder_info_CONST 1790
 #define TEXT_Choose_Drive_info_CONST 1791
 #define TEXT_Add_Device_CONST 1792
+#define TEXT_Failed_to_get_codes_CONST 1793
+#define TEXT_Retransmit_Infrared_2_CONST 1794
+#define TEXT_ViewSet_Attributes_2_CONST 1795
+#define TEXT_Bookmarks_2_CONST 1796
+#define TEXT_Manage_Playlist_2_CONST 1797
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
