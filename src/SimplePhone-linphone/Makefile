@@ -16,15 +16,15 @@ Gen_Dev_Files = $(GENDEV)/SimplePhoneBase.cpp
 sources = Main.cpp SimplePhone.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
-CXXFLAGS += -Ilib
-CPPFLAGS += -Ilib
-LDFLAGS += -L./lib
-XTRALDLIBS = -liaxclient -lm -lasound
+CXXFLAGS += $(shell pkg-config --cflags glib-2.0 linphone)
+CPPFLAGS += $(shell pkg-config --cflags glib-2.0 linphone)
+LDFLAGS += $(shell pkg-config --libs-only-L glib-2.0 linphone)
+XTRALDLIBS = $(shell pkg-config --libs-only-l glib-2.0 linphone)
 
 Gen_Dev_Files +=
 sources +=
 
-#<-dceag-mf-b->!
+#<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
 whattodo:
@@ -32,7 +32,7 @@ whattodo:
 
 all: bin so 
 
-bin: lib/libiaxclient.a SimplePhone 
+bin: SimplePhone 
 
 so: SimplePhone.so
 
@@ -49,7 +49,6 @@ SimplePhone: $(sources:.cpp=.o)
 
 clean: clean-recursive
 	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) SimplePhone.bin SimplePhone.so >/dev/null
-	make -C lib clean
 
 package:
 	chmod +x make_package.sh
@@ -60,6 +59,3 @@ ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include $(sources:.cpp=.d)
 endif
 #<-dceag-mf-e->
-
-lib/libiaxclient.a:
-	make -C lib

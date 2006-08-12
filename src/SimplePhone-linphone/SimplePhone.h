@@ -7,7 +7,8 @@
 #include "Gen_Devices/SimplePhoneBase.h"
 //<-dceag-d-e->
 
-#include "iaxclient.h"
+#include <linphonecore.h>
+
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -25,6 +26,8 @@ private:
         char* asteriskHost;
 		bool haveActiveCall;
         pthread_t iaxThread;
+		LinphoneCore m_LinphoneCore;
+		LinphoneCoreVTable m_LinphoneCoreVTable;
 public:
         // Public member variables
         // Public methods
