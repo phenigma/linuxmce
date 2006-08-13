@@ -295,10 +295,6 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		}
 		g_pPlutoLogger->Write(LV_WARNING,"Rendering cell with %s",pCell->GetText());        
 
-		// TODO -- temp hack -- don't show text on the media browser grid if we have cover art
-		if( m_pObj_Owner_DataGrid->m_iPK_Datagrid==63 && pCell->m_pGraphicData )
-			return bTransparentCell;
-
 		DesignObjText Text(m_pObj_Owner_DataGrid);
 		// todo         Text.m_Rect = PlutoRectangle( x+pObj->BorderWidth,  y+pObj->BorderWidth,  w-( 2*pObj->BorderWidth ),  h-( 2*pObj->BorderWidth ) );
 		Text.m_rPosition = PlutoRectangle( x,  y,  w,  h );

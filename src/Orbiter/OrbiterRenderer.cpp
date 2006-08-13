@@ -6,7 +6,7 @@
 #include "DataGrid.h"
 #include "OrbiterRendererFactory.h"
 #include "Gen_Devices/AllCommandsRequests.h"
-
+#include "DataGridRenderer.h"
 #include "../pluto_main/Define_VertAlignment.h" 
 #include "../pluto_main/Define_HorizAlignment.h" 
 #include "../pluto_main/Define_Button.h"
@@ -1234,7 +1234,6 @@ void OrbiterRenderer::ObjectOffScreen( DesignObj_Orbiter *pObj )
 void *ImageLoadThread(void *p)
 {
 	OrbiterRenderer *pRenderer = (OrbiterRenderer *)p;
-
 	bool bContinue, bRedraw;
 	do
 	{
@@ -1251,13 +1250,20 @@ void *ImageLoadThread(void *p)
 
 		M.Relock();
 		if( pBackgroundImage->m_pCell )
+		{
+			delete pBackgroundImage->m_pCell->m_pGraphic;
 			pBackgroundImage->m_pCell->m_pGraphic=pG;
+			int j=pBackgroundImage->m_ColRow.first;
+			int i=pBackgroundImage->m_ColRow.second;
+			int x, y, w, h;
+			PlutoPoint point(0,0);
+			pBackgroundImage->m_pObj_Grid->GetGridCellDimensions(pBackgroundImage->m_pCell->m_Colspan,  pBackgroundImage->m_pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
+			pBackgroundImage->m_pObj_Grid->m_pOrbiter->Renderer()->RenderGraphic(pBackgroundImage->m_pCell->m_pGraphic, PlutoRectangle(x,  y,  w,  h), pBackgroundImage->m_pObj_Grid->m_bDisableAspectLock, point );
+		}
 		bContinue = (pRenderer->m_listBackgroundImage.size() > 0);
 		bRedraw = ((pRenderer->m_listBackgroundImage.size() % 10) == 0);
 g_pPlutoLogger->Write(LV_EVENT,"ImageLoadThread %s size: %d (%d) %d",pBackgroundImage->m_sPic.c_str(),(int) pRenderer->m_listBackgroundImage.size(),(int) bRedraw,(int) bContinue);
 		M.Release();
-		if (bRedraw)
-			pRenderer->m_pOrbiter->CMD_Refresh("");
 	} while(bContinue);
 	return NULL;
 }

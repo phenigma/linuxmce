@@ -7353,10 +7353,10 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
 		(pObj_Datagrid->m_MaxRow - 1) * (pObj_Datagrid->m_RowSpacing + 1);
 
 	// TODO -- Pull the m_mapNumberOfPagesToCache from a designobjparameter
-	pObj_Datagrid->m_mapNumberOfPagesToCache[DIRECTION_Up_CONST]=10;
-	pObj_Datagrid->m_mapNumberOfPagesToCache[DIRECTION_Down_CONST]=10;
-	pObj_Datagrid->m_mapNumberOfPagesToCache[DIRECTION_Left_CONST]=10;
-	pObj_Datagrid->m_mapNumberOfPagesToCache[DIRECTION_Right_CONST]=10;
+	pObj_Datagrid->m_mapNumberOfPagesToCache[DIRECTION_Up_CONST]=2;
+	pObj_Datagrid->m_mapNumberOfPagesToCache[DIRECTION_Down_CONST]=2;
+	pObj_Datagrid->m_mapNumberOfPagesToCache[DIRECTION_Left_CONST]=2;
+	pObj_Datagrid->m_mapNumberOfPagesToCache[DIRECTION_Right_CONST]=2;
 	pObj_Datagrid->m_bParsed=true;
 }
 
