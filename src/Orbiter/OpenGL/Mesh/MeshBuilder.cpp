@@ -20,6 +20,7 @@ MeshBuilder::~MeshBuilder(void)
 
 void MeshBuilder::CleanUp()
 {
+	return;
 	Vertexes.clear();
 	Triangles.clear();	
 }

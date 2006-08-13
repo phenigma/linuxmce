@@ -433,24 +433,25 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 	{
 		DesignObj_DataGrid *pGrid = (DesignObj_DataGrid *) pObj;
-		//PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
+		PLUTO_SAFETY_LOCK( dg, m_pOrbiter->m_DatagridMutex );
+
+		DataGridTable *pDataGridTable = pGrid->DataGridTable_Get();
+		if( !pDataGridTable )
+			return;
 
 		int nHColumn = pGrid->m_iHighlightedColumn!=-1 ? pGrid->m_iHighlightedColumn + pGrid->m_GridCurCol : pGrid->m_GridCurCol;
-		int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow - (pGrid->m_iUpRow >= 0 ? 1 : 0) : 0;
+		int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow - (pDataGridTable->m_iUpRow >= 0 ? 1 : 0) : 0;
 
 		if( nHColumn==-1 && nHRow==-1 )
 			return;
 
-		if(!pGrid->DataGridTable_Get())
-			return;
-
-		if(nHRow < pGrid->DataGridTable_Get()->m_StartingRow)
+		if(nHRow <pDataGridTable->m_StartingRow)
 		{
 			pGrid->m_iHighlightedRow = 1;
-			nHRow = pGrid->DataGridTable_Get()->m_StartingRow; //set the highlighted row
+			nHRow =pDataGridTable->m_StartingRow; //set the highlighted row
 		}
 
-		DataGridCell *pCell = pGrid->DataGridTable_Get()->GetData(nHColumn, nHRow); 
+		DataGridCell *pCell = pDataGridTable->GetData(nHColumn, nHRow); 
 		if( !pCell )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter::DoHighlightObject cell is null.  obj %s col %d row %d",

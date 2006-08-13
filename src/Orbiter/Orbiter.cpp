@@ -1161,6 +1161,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 //------------------------------------------------------------------------
 bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCell *pCell, SelectionMethod selectionMethod, int iRow, int iColumn )
 {
+	list<DesignObj_DataGrid *> listObj_ToFlush; // A list of grids which are being redrawn within this action and must be refreshed
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbDataGridSelected);
 	if(pCallBackData)
 	{
@@ -1192,7 +1193,6 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 #ifdef DEBUG
 			g_pPlutoLogger->Write( LV_CONTROLLER, "re-rendering grid: ( %s", pDesignObj_DataGrid->GetParameterValue( DESIGNOBJPARAMETER_Data_grid_ID_CONST ).c_str(  ) );
 #endif
-			bool bRefreshGrids=false;
 			string GridID = pMessage->m_mapParameters[COMMANDPARAMETER_DataGrid_ID_CONST];
 			DesignObj_DataGrid *pDesignObj_DataGrid_OnScreen=NULL;
 			// See if this grid is onscreen
@@ -1213,7 +1213,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 						pDesignObj_DataGrid->m_iHighlightedRow=-1;
 						pDesignObj_DataGrid->m_iHighlightedColumn=-1;
 					}
-					bRefreshGrids=true;
+					listObj_ToFlush.push_back(pDesignObj_DataGrid);
 				}
 			}
 
@@ -1240,12 +1240,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 			}
 			pDesignObj_DataGrid->m_GridCurCol = pDesignObj_DataGrid->m_iInitialColNum;
 			pDesignObj_DataGrid->m_GridCurRow = pDesignObj_DataGrid->m_iInitialRowNum;
-			pDesignObj_DataGrid->Flush();
-
-			if(  bRefreshGrids  )
-			{
-				m_pOrbiterRenderer->RenderObjectAsync(pDesignObj_DataGrid);
-			}
+			
 		}
 		else if( pMessage->m_dwPK_Device_To==m_dwPK_Device || pMessage->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
 		{
@@ -1330,6 +1325,11 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 #endif
 
 	CMD_Set_Variable(PK_Variable, NewValue);
+	for(list<DesignObj_DataGrid *>::iterator it=listObj_ToFlush.begin();it!=listObj_ToFlush.end();++it)
+	{
+		m_pOrbiterRenderer->RenderObjectAsync(*it);
+		(*it)->Flush();
+	}
 	return true;
 }
 //------------------------------------------------------------------------
@@ -2026,6 +2026,14 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 	{
 		pObj->m_iHighlightedRow=-1;
 		pObj->m_iHighlightedColumn=-1;
+	}
+
+	if( pObj->m_sExtraInfo.find('S')!=string::npos && !pObj->sSelVariable.empty(  ) )
+	{
+		PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
+		string s = m_mapVariable[atoi( pObj->sSelVariable.c_str(  ) )];
+		if( !s.empty() )
+			pObj->m_sSeek = "~" + s;
 	}
 
 	pObj->Flush();
@@ -7212,7 +7220,7 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
 	pObj_Datagrid->m_ColumnSpacing = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Column_Spacing_CONST ).c_str(  ) );
 	pObj_Datagrid->m_FirstRowHeight = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_First_Row_Height_CONST ).c_str(  ) );
 	pObj_Datagrid->m_FirstColumnWidth =  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_First_Column_Width_CONST ).c_str(  ) );
-	pObj_Datagrid->m_bKeepRowHeader = true; //pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Keep_Row_Header_CONST )=="1";
+	pObj_Datagrid->m_bKeepRowHeader = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Keep_Row_Header_CONST )=="1";
 	pObj_Datagrid->m_bKeepColHeader = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Keep_Column_Header_CONST )=="1";
 	pObj_Datagrid->m_bPersistXY = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Persist_XY_Position_CONST )=="1";
 	pObj_Datagrid->m_iInitialRowNum = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Initial_Row_Number_CONST ).c_str(  ) );

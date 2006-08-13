@@ -19,6 +19,7 @@ MeshFrame::~MeshFrame(void)
 
 /*virtual*/ void MeshFrame::CleanUp()
 {
+	return;
 	std::vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); Child++)
 	{

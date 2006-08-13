@@ -71,7 +71,7 @@ bool DesignObj_DataGrid::HasMoreDown()
 {
 g_pPlutoLogger->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %d max col %d cur row %d cur col %d", m_sGridID.c_str(),m_MaxRow,m_MaxCol,m_GridCurRow,m_GridCurCol);
 	DataGridTable *pDataGridTable = RequestDatagridContents( m_GridCurCol,  m_GridCurRow );
-//	m_pOrbiter->CallMaintenanceInMiliseconds(100,&Orbiter::StartCachingGrid,this,pe_Match_Data);
+	m_pOrbiter->CallMaintenanceInMiliseconds(100,&Orbiter::StartCachingGrid,this,pe_Match_Data);
 	m_PagesCached = make_pair<int,int> (0,0); // Start caching again
 
 g_pPlutoLogger->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %d max col %d cur row %d cur col %d", m_sGridID.c_str(),m_MaxRow,m_MaxCol,m_GridCurRow,m_GridCurCol);
@@ -107,11 +107,6 @@ DataGridTable *DesignObj_DataGrid::RequestDatagridContents( int &GridCurCol, int
 	if (  bReAcquire || !pDataGridTable || m_sSeek.length() )
 	{
 g_pPlutoLogger->Write(LV_ACTION,"acquiring %s",m_ObjectID.c_str());
-		if( m_sExtraInfo.find('S')!=string::npos && m_sSeek.length()==0 && !sSelVariable.empty(  ) && !bReAcquire )
-		{
-			PLUTO_SAFETY_LOCK( vm, m_pOrbiter->m_VariableMutex )
-				m_sSeek = "~" + m_pOrbiter->m_mapVariable[atoi( sSelVariable.c_str(  ) )];
-		}
 		bReAcquire=false;
 
 		++m_pOrbiter->m_dwIDataGridRequestCounter;
@@ -339,9 +334,6 @@ bool DesignObj_DataGrid::CalculateGridMovement(int Direction, int &Cur,  int Cel
 		break;
 	case DIRECTION_Down_CONST:
 		{
-			if ( !CanGoDown() && CellsToSkip == 0 )
-				return false;
-
 			if ( CellsToSkip == 0 )
 				CellsToSkip = m_MaxRow - ( pDataGridTable->m_bKeepRowHeader ? 1 : 0 );
 		
@@ -352,8 +344,11 @@ bool DesignObj_DataGrid::CalculateGridMovement(int Direction, int &Cur,  int Cel
 			if ( CellsToSkip < 0 )
 				CellsToSkip = 0;
 
-			Cur += CellsToSkip;
+			if( Cur+CellsToSkip >= pDataGridTable->GetRows() )
+				return false;
 
+			Cur += CellsToSkip;
+/*
 			if ( Cur+m_MaxRow > pDataGridTable->GetRows(  ) )
 			{
 				// Add an extra 1,  becuase if we end  up making the top row an up ( unknown at this point )
@@ -362,12 +357,10 @@ bool DesignObj_DataGrid::CalculateGridMovement(int Direction, int &Cur,  int Cel
 				if ( Cur<0 )
 					Cur=0;
 			}
+			*/
 		}
 		break;
 	case DIRECTION_Left_CONST:
-		if ( !CanGoRight() && CellsToSkip == 0 ) // Todo - This doesn't look right, don't we mean left? -- Rob
-			return false;
-
 		if ( CellsToSkip==0 )
 			CellsToSkip = m_MaxCol-( pDataGridTable->m_bKeepColumnHeader ? 2 : 1 );
 		if ( CellsToSkip<=0 )
@@ -383,14 +376,18 @@ bool DesignObj_DataGrid::CalculateGridMovement(int Direction, int &Cur,  int Cel
 		if ( CellsToSkip<=0 )
 			CellsToSkip = 1;
 
-		Cur+=CellsToSkip;
+		if( Cur+CellsToSkip >= pDataGridTable->GetCols() )
+			return false;
 
+		Cur+=CellsToSkip;
+/*
 		if ( Cur+m_MaxCol > pDataGridTable->GetCols(  ) )
 		{
 			Cur = pDataGridTable->GetCols(  ) - m_MaxCol;
 			if ( Cur<0 )
 				Cur=0;
 		}
+		*/
 		break;
 	}
 	return (Cur!=InitialCur);

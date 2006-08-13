@@ -63,6 +63,7 @@ void DataGridCell::Initialize()
 
 DataGridCell::~DataGridCell()
 {
+	g_pPlutoLogger->Write(LV_CRITICAL,"~DataGridCell %p",this);
 	if (m_Text) 
 		delete[] m_Text;
 	if (m_Value)
@@ -86,6 +87,7 @@ DataGridCell::~DataGridCell()
 
 DataGridCell::DataGridCell(string Text, string Value)
 {
+	g_pPlutoLogger->Write(LV_CRITICAL,"DataGridCell %p",this);
 	Initialize();
 
 	m_Text = new char[Text.length()+1];
@@ -116,6 +118,7 @@ void DataGridCell::SetValue(string Value)
 
 DataGridCell::DataGridCell(int Size, char *Data)
 {
+	g_pPlutoLogger->Write(LV_CRITICAL,"DataGridCell %p",this);
 	Initialize();
 
 	// The first chunk of the data is the serializable part
@@ -302,6 +305,8 @@ DataGridTable::DataGridTable(int Size, char *Data,bool bShiftDown)
 	DataGridTableCellIndex *ntIndex = new DataGridTableCellIndex[m_CellCount];
 	memcpy(ntIndex, Datap, IndexSize);
 	Datap+=IndexSize;
+	if( bShiftDown )
+		m_RowCount++;
     for(int i=0;i<m_CellCount;++i)
 	{
 		int CellSize = ntIndex[i].m_Size;

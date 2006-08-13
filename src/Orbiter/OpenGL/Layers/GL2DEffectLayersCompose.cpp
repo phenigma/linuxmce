@@ -53,6 +53,7 @@ void LayersCompose::Setup(int Width, int Height)
 
 void LayersCompose::CleanUp()
 {
+	return;
 	delete Instance_;
 	Instance_ = NULL;
 }

@@ -71,6 +71,7 @@ void TextureManager::Setup(OpenGL3DEngine *Engine)
 
 void TextureManager::CleanUp()
 {
+	return;
 	delete Instance_;
 	Instance_ = NULL;
 }

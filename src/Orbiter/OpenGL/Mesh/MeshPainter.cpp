@@ -136,6 +136,7 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 
 void MeshPainter::CleanUp()
 {	
+	return;
 	delete Instance_;
 	Instance_ = NULL;
 }
