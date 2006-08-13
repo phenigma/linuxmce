@@ -44,7 +44,7 @@ bool DatagridMouseHandlerHelper::StayInGrid(int PK_Direction,int X,int Y)
 {
 	if( (m_pObj_ScrollingGrid->m_rPosition + m_pObj_ScrollingGrid->m_pPopupPoint).Contains(X,Y) )
 	{
-		if( !m_pObj_ScrollingGrid->m_pDataGridTable )
+		if( !m_pObj_ScrollingGrid->DataGridTable_Get() )
 			return true;  // Must be in the middle of rendering
 
 		// We're still inside the grid, just highlight whatever cell is underneath us, figure that out
@@ -72,11 +72,11 @@ bool DatagridMouseHandlerHelper::StayInGrid(int PK_Direction,int X,int Y)
 		if( m_pObj_ScrollingGrid->m_iHighlightedColumn > m_pObj_ScrollingGrid->m_MaxCol - 1 )
 			m_pObj_ScrollingGrid->m_iHighlightedColumn = m_pObj_ScrollingGrid->m_MaxCol - 1;
 
-		if( m_pObj_ScrollingGrid->m_iHighlightedRow!=-1 && m_pObj_ScrollingGrid->m_GridCurRow + m_pObj_ScrollingGrid->m_iHighlightedRow >= m_pObj_ScrollingGrid->m_pDataGridTable->GetRows() )
-			m_pObj_ScrollingGrid->m_iHighlightedRow = m_pObj_ScrollingGrid->m_pDataGridTable->GetRows() - m_pObj_ScrollingGrid->m_GridCurRow - 1;
+		if( m_pObj_ScrollingGrid->m_iHighlightedRow!=-1 && m_pObj_ScrollingGrid->m_GridCurRow + m_pObj_ScrollingGrid->m_iHighlightedRow >= m_pObj_ScrollingGrid->DataGridTable_Get()->GetRows() )
+			m_pObj_ScrollingGrid->m_iHighlightedRow = m_pObj_ScrollingGrid->DataGridTable_Get()->GetRows() - m_pObj_ScrollingGrid->m_GridCurRow - 1;
 
-		if( m_pObj_ScrollingGrid->m_iHighlightedColumn!=-1 && m_pObj_ScrollingGrid->m_GridCurCol + m_pObj_ScrollingGrid->m_iHighlightedColumn >= m_pObj_ScrollingGrid->m_pDataGridTable->GetCols() )
-			m_pObj_ScrollingGrid->m_iHighlightedColumn = m_pObj_ScrollingGrid->m_pDataGridTable->GetCols() - m_pObj_ScrollingGrid->m_GridCurCol - 1;
+		if( m_pObj_ScrollingGrid->m_iHighlightedColumn!=-1 && m_pObj_ScrollingGrid->m_GridCurCol + m_pObj_ScrollingGrid->m_iHighlightedColumn >= m_pObj_ScrollingGrid->DataGridTable_Get()->GetCols() )
+			m_pObj_ScrollingGrid->m_iHighlightedColumn = m_pObj_ScrollingGrid->DataGridTable_Get()->GetCols() - m_pObj_ScrollingGrid->m_GridCurCol - 1;
 g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::StayInGrid %d-%d,%d  old row:%d col %d, now row:%d,col:%d",PK_Direction,X,Y,Row_Before,Column_Before,Row,Column);
 if( Row_Before==Row && Column_Before==Column )
 int k=2;
@@ -131,8 +131,8 @@ bool DatagridMouseHandlerHelper::MovedPastTopBottomOfDataGrid(DesignObj_DataGrid
 
 		m_dwPK_Direction_ScrollGrid = DIRECTION_Down_CONST;
 		pObj->m_iHighlightedRow=pObj->m_MaxRow-1;
-		if( pObj->m_iHighlightedRow!=-1 && pObj->m_GridCurRow + pObj->m_iHighlightedRow >= pObj->m_pDataGridTable->GetRows() )
-			pObj->m_iHighlightedRow = pObj->m_pDataGridTable->GetRows() - pObj->m_GridCurRow - 1;
+		if( pObj->m_iHighlightedRow!=-1 && pObj->m_GridCurRow + pObj->m_iHighlightedRow >= pObj->DataGridTable_Get()->GetRows() )
+			pObj->m_iHighlightedRow = pObj->DataGridTable_Get()->GetRows() - pObj->m_GridCurRow - 1;
 
 		// Move to the top of the grid, since all up movements are now setting the iterator
 		m_pMouseBehavior->SetMousePosition( pObj->m_rPosition.X + pObj->m_pPopupPoint.X + pObj->m_rPosition.Width/2 , pObj->m_rPosition.Y + pObj->m_pPopupPoint.Y );
@@ -161,8 +161,8 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid direct
 			m_pMouseBehavior->SetMousePosition( m_pObj_ScrollingGrid->m_rPosition.X + m_pObj_ScrollingGrid->m_pPopupPoint.X + m_pObj_ScrollingGrid->m_rPosition.Width/2 , m_pObj_ScrollingGrid->m_rPosition.Y + m_pObj_ScrollingGrid->m_pPopupPoint.Y );
 		else
 		{
-			if( m_pObj_ScrollingGrid->m_pDataGridTable && m_pObj_ScrollingGrid->m_iHighlightedRow!=-1 && m_pObj_ScrollingGrid->m_GridCurRow + m_pObj_ScrollingGrid->m_iHighlightedRow >= m_pObj_ScrollingGrid->m_pDataGridTable->GetRows() )
-				m_pObj_ScrollingGrid->m_iHighlightedRow = m_pObj_ScrollingGrid->m_pDataGridTable->GetRows() - m_pObj_ScrollingGrid->m_GridCurRow - 1;
+			if( m_pObj_ScrollingGrid->DataGridTable_Get() && m_pObj_ScrollingGrid->m_iHighlightedRow!=-1 && m_pObj_ScrollingGrid->m_GridCurRow + m_pObj_ScrollingGrid->m_iHighlightedRow >= m_pObj_ScrollingGrid->DataGridTable_Get()->GetRows() )
+				m_pObj_ScrollingGrid->m_iHighlightedRow = m_pObj_ScrollingGrid->DataGridTable_Get()->GetRows() - m_pObj_ScrollingGrid->m_GridCurRow - 1;
 
 			PlutoRectangle r;
 			m_pObj_ScrollingGrid->GetGridCellDimensions(

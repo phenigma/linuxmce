@@ -206,7 +206,6 @@ string DesignObj_Orbiter::GetArrayValue()
 //-------------------------------------------------------------------------------------------------------
 /*virtual*/ void DesignObj_Orbiter::Flush(bool bFlushGraphics)
 { 
-	Renderer()->Flush(bFlushGraphics); 
 } 
 //-------------------------------------------------------------------------------------------------------
 /*virtual*/ bool DesignObj_Orbiter::PreRenderActions(DesignObj_Orbiter *pObj_Screen, PlutoPoint point)

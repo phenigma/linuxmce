@@ -259,14 +259,16 @@ void DataGridCell::ToData(unsigned long &Size, char* &Data)
 
 DataGridTable::DataGridTable()
 {
+	m_iDownRow=m_iUpRow=-1;
 	m_iPK_Datagrid = 0;
 	m_bRePopulateEachTimeRequested = false;
 	Message::Message();
 	ClearData();
 }
 
-DataGridTable::DataGridTable(int Size, char *Data) 
+DataGridTable::DataGridTable(int Size, char *Data,bool bShiftDown) 
 {
+	m_iDownRow=m_iUpRow=-1;
 	m_iPK_Datagrid = 0;
 	m_bRePopulateEachTimeRequested = false;
 #ifndef DISABLE_LZO_DATAGRID
@@ -305,7 +307,14 @@ DataGridTable::DataGridTable(int Size, char *Data)
 		int CellSize = ntIndex[i].m_Size;
 		DataGridCell *pNewCell = new DataGridCell(CellSize, Datap);
 		Datap+=CellSize;
-		m_MemoryDataTable[ntIndex[i].m_ColRow]=pNewCell;
+		ColRowType colRowType = ntIndex[i].m_ColRow;
+		if( bShiftDown )
+		{
+			int r = colRowType & 0x3FFF;  // If we're keeping the row header, keep row 0 and move the rest down
+			if( !m_bKeepRowHeader || r>0 )
+				colRowType++;
+		}
+		m_MemoryDataTable[colRowType]=pNewCell;
 	}
 
 	delete[] ntIndex;

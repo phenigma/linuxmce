@@ -205,10 +205,10 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 			return false; // Shouldn't happen
 
 		DataGridCell *pCell_Pic=NULL,*pCell_List=NULL;
-		if( mediaFileBrowserOptions.m_pObj_PicGrid->m_pDataGridTable )
-			pCell_Pic = mediaFileBrowserOptions.m_pObj_PicGrid->m_pDataGridTable->GetData(mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn,mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow);
-		if( mediaFileBrowserOptions.m_pObj_ListGrid->m_pDataGridTable )
-			pCell_List = mediaFileBrowserOptions.m_pObj_ListGrid->m_pDataGridTable->GetData(0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
+		if( mediaFileBrowserOptions.m_pObj_PicGrid->DataGridTable_Get() )
+			pCell_Pic = mediaFileBrowserOptions.m_pObj_PicGrid->DataGridTable_Get()->GetData(mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn,mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow);
+		if( mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get() )
+			pCell_List = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get()->GetData(0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
 
 		if( !pCell_List )
 			return false; // Shouldn't happen
@@ -260,11 +260,11 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Play_CONST )
 	{
-		if( !mediaFileBrowserOptions.m_pObj_ListGrid->m_pDataGridTable )
+		if( !mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get() )
 			return false; //shouldn't happen
 
 		DataGridCell *pCell_List=NULL;
-		pCell_List = mediaFileBrowserOptions.m_pObj_ListGrid->m_pDataGridTable->GetData(0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
+		pCell_List = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get()->GetData(0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
 
 		if( !pCell_List || !pCell_List->m_Value )
 			return false; // Shouldn't happen
@@ -1177,7 +1177,7 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 		else
 			return false; // No software was selected
 
-		DataGridCell *pCell = pCellInfoData->m_pDesignObj_DataGrid->m_pDataGridTable ? pCellInfoData->m_pDesignObj_DataGrid->m_pDataGridTable->GetData( 0, pCellInfoData->m_Row ) : NULL;
+		DataGridCell *pCell = pCellInfoData->m_pDesignObj_DataGrid->DataGridTable_Get() ? pCellInfoData->m_pDesignObj_DataGrid->DataGridTable_Get()->GetData( 0, pCellInfoData->m_Row ) : NULL;
 		if( pCell )
 			sText+="\n" + pCell->m_mapAttributes["Title"];
 		DisplayMessageOnOrbiter(0,sText,false,"30",false,m_pOrbiter->m_mapTextString[TEXT_YES_CONST],sCommand,m_pOrbiter->m_mapTextString[TEXT_NO_CONST]);

@@ -174,7 +174,7 @@ void MouseIterator::DoIteration()
 			if( pObj_Child->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST )
 				return; // Also shouldn't happen
 			DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObj_Child;
-			if( !pObj_Grid->m_pDataGridTable )
+			if( !pObj_Grid->DataGridTable_Get() )
 				return; // Again shouldn't happen
 				*/
 		}

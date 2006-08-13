@@ -262,8 +262,8 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 		Y = (m_pObj_PicGrid->m_iHighlightedRow*m_pObj_PicGrid->m_FixedRowHeight) - ((m_pObj_CoverArtPopup->m_rPosition.Height - m_pObj_PicGrid->m_FirstRowHeight)/2);
 
 	DataGridCell *pCell = NULL;
-	if( m_pObj_PicGrid->m_pDataGridTable )
-		pCell = m_pObj_PicGrid->m_pDataGridTable->GetData(m_pObj_PicGrid->m_iHighlightedColumn,m_pObj_PicGrid->m_iHighlightedRow);
+	if( m_pObj_PicGrid->DataGridTable_Get() )
+		pCell = m_pObj_PicGrid->DataGridTable_Get()->GetData(m_pObj_PicGrid->m_iHighlightedColumn,m_pObj_PicGrid->m_iHighlightedRow);
 
 	PLUTO_SAFETY_LOCK(M, m_pMouseBehavior->m_pOrbiter->Renderer()->m_bgImageReqMutex );
 
@@ -306,7 +306,7 @@ g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
 	}
 
 	m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_PicGrid);
-
+/*
 	// Now sync the pic grid
 	PLUTO_SAFETY_LOCK( dg, m_pMouseBehavior->m_pOrbiter->m_DatagridMutex );
 	DataGridRenderer *pDataGridRenderer = (DataGridRenderer *) m_pObj_PicGrid->Renderer();
@@ -316,46 +316,46 @@ g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
 	{
 		if( m_pObj_PicGrid->m_iCacheRows > 0) // Are we caching? 
 		{                            // If so the current table needs to be pushed onto the opposing cache list.
-			pDataGridRenderer->m_listDataGridCache[DIRECTION_Up_CONST].push_front(m_pObj_PicGrid->m_pDataGridTable); // The cache acquisition thread will delete the excess cache.
+			pDataGridRenderer->m_listDataGridCache[DIRECTION_Up_CONST].push_front(m_pObj_PicGrid->DataGridTable_Get()); // The cache acquisition thread will delete the excess cache.
 		}
 		else 
 		{
-			delete m_pObj_PicGrid->m_pDataGridTable;
+//			delete m_pObj_PicGrid->DataGridTable_Get();
 		}	
 
 		if (pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].size() > 0)
 		{
-			m_pObj_PicGrid->m_pDataGridTable = pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].front();
+			m_pObj_PicGrid->DataGridTable_Get() = pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].front();
 			pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].pop_front();
 		}
 		else
 		{
-			m_pObj_PicGrid->m_pDataGridTable = NULL;
+			m_pObj_PicGrid->DataGridTable_Get() = NULL;
 		}
 	}
 	else
 	{
 		if (m_pObj_PicGrid->m_iCacheRows > 0) // Are we caching? 
 		{                            // If so the current table needs to be pushed onto the opposing cache list.
-			pDataGridRenderer->m_listDataGridCache[DIRECTION_Up_CONST].push_front(m_pObj_PicGrid->m_pDataGridTable); // The cache acquisition thread will delete the excess cache.
+			pDataGridRenderer->m_listDataGridCache[DIRECTION_Up_CONST].push_front(m_pObj_PicGrid->DataGridTable_Get()); // The cache acquisition thread will delete the excess cache.
 		}
 		else 
 		{
-			delete m_pObj_PicGrid->m_pDataGridTable;
+			//delete m_pObj_PicGrid->DataGridTable_Get();
 		}	
 
 		if (pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].size() > 0)
 		{
-			m_pObj_PicGrid->m_pDataGridTable = pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].front();
+			m_pObj_PicGrid->DataGridTable_Get() = pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].front();
 			pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].pop_front();
 		}
 		else
 		{
-			m_pObj_PicGrid->m_pDataGridTable = NULL;
+			m_pObj_PicGrid->DataGridTable_Get() = NULL;
 		}
 	}
 g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  STOP***");
-
+*/
 	return bResult;
 }
 

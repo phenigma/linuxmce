@@ -224,12 +224,12 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint po
     string Unused;
     Orbiter::PrepareRenderDataGrid(pObj, Unused);
 
-	if(pObj->m_pDataGridTable)
+	if(pObj->DataGridTable_Get())
     {
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "Got to render a datagrid with %d columns", pObj->m_pDataGridTable->m_ColumnCount);
+		g_pPlutoLogger->Write(LV_WARNING, "Got to render a datagrid with %d columns", pObj->DataGridTable_Get()->m_ColumnCount);
 #endif
-		if(pObj->m_pDataGridTable->m_ColumnCount == 1)//we can render on column datagrid
+		if(pObj->DataGridTable_Get()->m_ColumnCount == 1)//we can render on column datagrid
 			bUsePhoneGrid = true;
 
         if(!bUsePhoneGrid)
@@ -239,7 +239,7 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint po
             return;
         }
 
-		pObj->m_MaxRow = pObj->m_pDataGridTable->getTotalRowCount();
+		pObj->m_MaxRow = pObj->DataGridTable_Get()->getTotalRowCount();
 
         int x       = pObj->m_rPosition.X;
         int y       = pObj->m_rPosition.Y;
@@ -259,12 +259,12 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint po
 
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_WARNING, "About to send BD_CP_ShowList command, column %d, turnon %d, items count %d, selected item %d, send 'selected item' %d",
-				iSelectedColumn, bTurnOn, pObj->m_pDataGridTable->getTotalRowCount(), iHighlightedRow, (int)bSendSelectedOnMove);
+				iSelectedColumn, bTurnOn, pObj->DataGridTable_Get()->getTotalRowCount(), iHighlightedRow, (int)bSendSelectedOnMove);
 #endif
 
-        for(int i = 0; i < pObj->m_pDataGridTable->getTotalRowCount(); i++)
+        for(int i = 0; i < pObj->DataGridTable_Get()->getTotalRowCount(); i++)
         {
-            DataGridCell * pCell = pObj->m_pDataGridTable->GetData(iSelectedColumn, i);
+            DataGridCell * pCell = pObj->DataGridTable_Get()->GetData(iSelectedColumn, i);
 			string sItem = pCell != NULL ? pCell->GetText() : "<empty>";
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS, "Item %d : '%s'. Ignoring esc seq for now...", i, sItem.c_str());

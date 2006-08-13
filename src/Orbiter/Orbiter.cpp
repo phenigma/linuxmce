@@ -881,6 +881,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 	if ( pObj->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST )
 	{
 		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) pObj;
+		DataGridTable *pDataGridTable = pDesignObj_DataGrid->DataGridTable_Get();
 		PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 		if( X>=0 && Y>=0 )
 		{
@@ -890,7 +891,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 			if ( !SelectedGrid( ( DesignObj_DataGrid * ) pObj,  X-pObj->m_rPosition.X,  Y-pObj->m_rPosition.Y, selectionMethod ) )
 				return;
 		}
-		else if( pDesignObj_DataGrid->m_pDataGridTable )
+		else if( pDataGridTable )
 		{
 			PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 #ifdef DEBUG
@@ -899,8 +900,8 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 				pDesignObj_DataGrid->m_iHighlightedRow, pDesignObj_DataGrid->m_GridCurRow);
 #endif
 			int Column = pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : pDesignObj_DataGrid->m_GridCurCol;
-			int Row = pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow - (pDesignObj_DataGrid->HasMoreUp() && pDesignObj_DataGrid->m_iUpRow!=-1 ? 1 : 0) : 0;
-			DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(
+			int Row = pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow - (pDesignObj_DataGrid->HasMoreUp() && pDataGridTable->m_iUpRow!=-1 ? 1 : 0) : 0;
+			DataGridCell *pCell = pDataGridTable->GetData(
 				Column,
 				Row);
 			if(pCell)
@@ -1055,10 +1056,10 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  int Y, SelectionMethod selectionMethod )
 {
 	PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
-	if ( !pDesignObj_DataGrid->m_pDataGridTable )
+	if ( !pDesignObj_DataGrid->DataGridTable_Get() )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL",pDesignObj_DataGrid->m_ObjectID.c_str());
+		g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but DataGridTable_Get() is NULL",pDesignObj_DataGrid->m_ObjectID.c_str());
 #endif
 		return false;
 	}
@@ -1078,7 +1079,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 	// There's a variable associated with this,  so it's a selectable grid.  Which cell was touched?
 	// Go through the cells on the screen
 	int i, j;
-	DataGridTable *pT = pDesignObj_DataGrid->m_pDataGridTable;
+	DataGridTable *pT = pDesignObj_DataGrid->DataGridTable_Get();
 
 	// Let's say we have six rows,  and we are on the last page.  We'll only show 5 plus an
 	// up,  so datagrid will set the row count to be 5 ( you can't past the number of rows left )
@@ -1089,55 +1090,15 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 		for( j=pT->m_ColumnCount-1;j>=0 && !bFinishLoop;j-- )
 		{
 			int x, y, w, h;
-			if(  i==pDesignObj_DataGrid->m_iUpRow  || i==pDesignObj_DataGrid->m_dwIDownRow  )
-			{
-				if(  pDesignObj_DataGrid->m_iUpRow!=-1 && i!=pDesignObj_DataGrid->m_dwIDownRow && i!=pDesignObj_DataGrid->m_iUpRow  )
-					pDesignObj_DataGrid->GetGridCellDimensions(1,  1,  j,  i+1,  x,  y,  w,  h );
-				else
-					pDesignObj_DataGrid->GetGridCellDimensions(1,  1,  j,  i,  x,  y,  w,  h );
-				PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-					int ContainsX=X+pDesignObj_DataGrid->m_rPosition.X;
-				int ContainsY=Y+pDesignObj_DataGrid->m_rPosition.Y;
-				vm.Release(  );
-				if ( PlutoRectangle( x,  y,  w,  h ).Contains( ContainsX,  ContainsY ) )
-				{
-					if(  i==pDesignObj_DataGrid->m_dwIDownRow  )
-					{
-						pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
-						if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'X' )!=string::npos  )
-						{
-							CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable, "");
-						}
-						dg.Release();
-						CMD_Scroll_Grid( "",  pDesignObj_DataGrid->m_ObjectID,  DIRECTION_Down_CONST );
-						return false;  // No more processing
-					}
-					else
-					{
-						pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
-						if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'X' )!=string::npos  )
-						{
-							CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable, "");
-						}
-						dg.Release();
-						CMD_Scroll_Grid( "",  pDesignObj_DataGrid->m_ObjectID,  DIRECTION_Up_CONST );
-						return false;  // No more processing
-					}
-				}
-				else
-					continue;
-			}
-
 			int DGColumn = ( j==0 && pT->m_bKeepColumnHeader ) ? 0 : j+pT->m_StartingColumn;
 			int DGRow = ( i==0 && pT->m_bKeepRowHeader ) ? 0 : i+pT->m_StartingRow;
-			if(  pDesignObj_DataGrid->m_iUpRow!=-1  )
-				DGRow--; // Everything is shifted up
+
 			DataGridCell *pCell=pT->GetData( DGColumn,  DGRow );
 			if ( pCell )
 			{
 				pDesignObj_DataGrid->GetGridCellDimensions(pCell->m_Colspan,  pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
 				PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-					int ContainsX=X+pDesignObj_DataGrid->m_rPosition.X;
+				int ContainsX=X+pDesignObj_DataGrid->m_rPosition.X;
 				int ContainsY=Y+pDesignObj_DataGrid->m_rPosition.Y;
 				vm.Release(  );
 				if ( ( delSelections.length(  ) > 2 && delSelections.find( "|"+string( pCell->GetValue(  ) )+"|" )!=string::npos ) )
@@ -1157,12 +1118,34 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 
 				if ( PlutoRectangle( x,  y,  w,  h ).Contains( ContainsX,  ContainsY ) )
 				{
+					if( DGRow == pT->m_iUpRow )
+					{
+						pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
+						if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'X' )!=string::npos  )
+						{
+							CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable, "");
+						}
+						dg.Release();
+						CMD_Scroll_Grid( "",  pDesignObj_DataGrid->m_ObjectID,  DIRECTION_Up_CONST );
+						return false;  // No more processing
+					}
+					else if( DGRow == pT->m_iDownRow )
+					{
+						pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
+						if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'X' )!=string::npos  )
+						{
+							CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable, "");
+						}
+						dg.Release();
+						CMD_Scroll_Grid( "",  pDesignObj_DataGrid->m_ObjectID,  DIRECTION_Down_CONST );
+						return false;  // No more processing
+					}
 
 					if( pDesignObj_DataGrid->m_sExtraInfo.find( 'R' )==string::npos )
 						pDesignObj_DataGrid->m_iHighlightedColumn=DGColumn;
 
-					if(pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )==string::npos && pDesignObj_DataGrid->m_pDataGridTable->m_StartingRow)
-						pDesignObj_DataGrid->m_iHighlightedRow = DGRow - pDesignObj_DataGrid->m_pDataGridTable->m_StartingRow + 1;
+					if(pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )==string::npos && pDesignObj_DataGrid->DataGridTable_Get()->m_StartingRow)
+						pDesignObj_DataGrid->m_iHighlightedRow = DGRow - pDesignObj_DataGrid->DataGridTable_Get()->m_StartingRow + 1;
 
 					SelectedGrid( pDesignObj_DataGrid,  pCell, selectionMethod, DGRow, DGColumn );
 					bFinishLoop = true;
@@ -1308,7 +1291,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 	//handle multi select
 	if(pDesignObj_DataGrid->m_bIsMultiSelect)
 	{
-		//DataGridTable *pT = pDesignObj_DataGrid->m_pDataGridTable;
+		//DataGridTable *pT = pDesignObj_DataGrid->DataGridTable_Get();
 
 		PLUTO_SAFETY_LOCK(vm, m_VariableMutex);
 		string delSelections = "|"+m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable]+"|";
@@ -1378,7 +1361,7 @@ bool Orbiter::SelectedGrid( int DGRow )
 			iSelectedColumn = pDesignObj_DataGrid->m_sExtraInfo[sPos + 1] - '0';
 	}
 
-	DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData( iSelectedColumn,  DGRow );
+	DataGridCell *pCell = pDesignObj_DataGrid->DataGridTable_Get()->GetData( iSelectedColumn,  DGRow );
 
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
 	if(m_pObj_Highlighted == pDesignObj_DataGrid) //datagrid already highlighted. remove first old highlighting
@@ -2045,14 +2028,7 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 		pObj->m_iHighlightedColumn=-1;
 	}
 
-	if ( pObj->m_pDataGridTable )
-	{
-		delete pObj->m_pDataGridTable;
-		pObj->m_pDataGridTable = NULL;
-#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_WARNING,"from grid %s deleting m_pDataGridTable 1",pObj->m_ObjectID.c_str());
-#endif
-	}
+	pObj->Flush();
 
 	if(  !pObj->m_bPersistXY || pObj->m_GridCurCol==-1 || pObj->m_GridCurRow==-1  )
 	{
@@ -2088,7 +2064,6 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 			g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid );
 		else if(iPK_Variable)
 			CMD_Set_Variable(iPK_Variable, sValue_To_Assign);
-		pObj->Flush();
 	}
 	/* todo 2.0
 	if ( !sSelVariable.empty(  ) && !bEPG )
@@ -4083,73 +4058,6 @@ void Orbiter::FindDGArrows( DesignObj_Orbiter *pObj, DesignObj_DataGrid *pDGObj 
 		FindDGArrows( ( DesignObj_Orbiter * )( *iHao ), pDGObj );
 	}
 }
-bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int &GridCurCol,  int &GridCurRow,  DataGridTable* &pDataGridTable )
-{
-//	xx_set_cur_row_col && delete blow?
-	if (  pObj->bReAcquire || !pDataGridTable || pDataGridTable->m_StartingColumn != GridCurCol || pDataGridTable->m_StartingRow != GridCurRow || pObj->m_sSeek.length() )
-	{
-g_pPlutoLogger->Write(LV_ACTION,"acquiring %s",pObj->m_ObjectID.c_str());
-		if ( pDataGridTable )
-		{
-			delete pDataGridTable;
-#ifdef DEBUG
-			g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable deleted indirectly",pObj->m_ObjectID.c_str());
-#endif
-			pDataGridTable = NULL;
-		}
-		else if( pObj->m_sExtraInfo.find('S')!=string::npos && pObj->m_sSeek.length()==0 && !pObj->sSelVariable.empty(  ) && !pObj->bReAcquire )
-		{
-			PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-				pObj->m_sSeek = "~" + m_mapVariable[atoi( pObj->sSelVariable.c_str(  ) )];
-		}
-		pObj->bReAcquire=false;
-
-		++m_dwIDataGridRequestCounter;
-
-#ifdef DEBUG
-		g_pPlutoLogger->Write( LV_STATUS,  "requesting grid ( # %d ),  %s.",  m_dwIDataGridRequestCounter,
-			pObj->m_sGridID.c_str(  ) );
-#endif
-		int size = 0;
-		char *data = NULL;
-
-		DCE::CMD_Request_Datagrid_Contents CMD_Request_Datagrid_Contents( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,
-			StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID,
-			pObj->m_MaxRow, pObj->m_MaxCol, pObj->m_bKeepRowHeader, pObj->m_bKeepColHeader, true, pObj->m_sSeek, pObj->m_iSeekColumn, &data, &size, &GridCurRow, &GridCurCol );
-
-		if(  !SendCommand( CMD_Request_Datagrid_Contents )  )
-			g_pPlutoLogger->Write( LV_CRITICAL, "Request datagrid: %s failed", pObj->m_ObjectID.c_str(  ) );
-		else
-		{
-			if ( size && data )
-			{
-				pDataGridTable = new DataGridTable( size,  data );
-
-				delete[] data;
-				data = NULL;
-
-#ifdef DEBUG
-				g_pPlutoLogger->Write( LV_STATUS, "Got %d rows %d cols in new %s m_pDataGridTable %p", pDataGridTable->GetRows(  ), pDataGridTable->GetCols(  ), pObj->m_ObjectID.c_str(), pDataGridTable );
-#endif
-				if(  !pDataGridTable->GetRows(  ) || !pDataGridTable->GetCols(  )  )
-				{
-					// Initialize grid will set these to 0,  assuming there will be data.  If the grid is empty,  change that
-					pObj->m_iHighlightedRow=-1;
-					pObj->m_iHighlightedColumn=-1;
-				}
-				pObj->m_sSeek="";  // Only do the seek 1 time
-				((DataGridRenderer *)pObj->Renderer())->StartCacheThread();		
-				return pDataGridTable!=NULL;
-			}
-			else
-			{
-				g_pPlutoLogger->Write( LV_CRITICAL,  "Error loading grid ID: %d (not implemented?)",  m_dwIDataGridRequestCounter );
-			}
-		}
-	}
-	return false;
-}
-
 
 void *MaintThread(void *p)
 {
@@ -4315,6 +4223,13 @@ void Orbiter::DeselectObjects( void *data )
 	{
 		//int foo=2;
 	}
+}
+
+void Orbiter::StartCachingGrid( void *iData )
+{
+	DesignObj_DataGrid *pObj = (DesignObj_DataGrid *) iData;
+	if( pObj && pObj->m_bOnScreen )
+		pObj->CacheGrid();
 }
 
 void Orbiter::GetVideoFrame( void *data )
@@ -4866,9 +4781,8 @@ bool Orbiter::Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Di
 		}
 		if (pObj_Datagrid)
 		{
-			DataGridRenderer *pDGRenderer = (DataGridRenderer *)pObj_Datagrid->Renderer();
 			dng.Release();
-            if( pDGRenderer->Scroll_Grid(sRelative_Level, iPK_Direction,bMoveOneLineIfCannotPage) )
+            if( pObj_Datagrid->Scroll_Grid(sRelative_Level, iPK_Direction,bMoveOneLineIfCannotPage) )
 				bResult=true;
 			dng.Relock();
 		}
@@ -5980,7 +5894,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 				int nGridCurRow = pDesignObj->m_GridCurRow;
 				int nGridCurCol = pDesignObj->m_GridCurCol;
 				int nOldSelectedIndex = atoi(m_mapVariable[atoi(pDesignObj->sSelVariable.c_str())].c_str());
-				int nStartingRow = pDesignObj->m_pDataGridTable ? pDesignObj->m_pDataGridTable->m_StartingRow : 0;
+				int nStartingRow = pDesignObj->DataGridTable_Get() ? pDesignObj->DataGridTable_Get()->m_StartingRow : 0;
 
 				InitializeGrid(pDesignObj);
 				pDesignObj->Flush();
@@ -7291,16 +7205,6 @@ void Orbiter::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_
 
 void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
 {
-	if( pObj_Datagrid->m_ObjectID.find("5138")!=string::npos )
-	{
-		for(map<int,string>::iterator it=pObj_Datagrid->m_mapObjParms.begin();it!=pObj_Datagrid->m_mapObjParms.end();++it)
-		{
-			int i1=it->first;
-			string s1=it->second;
-			int k=2;
-		}
-	}
-
 	pObj_Datagrid->m_sExtraInfo = pObj_Datagrid->m_mapObjParms[DESIGNOBJPARAMETER_Extra_Info_CONST];
 	pObj_Datagrid->m_FixedRowHeight = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Fixed_Row_Height_CONST ).c_str(  ) );
 	pObj_Datagrid->m_FixedColumnWidth =  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Fixed_Column_Width_CONST ).c_str(  ) );
@@ -7308,7 +7212,7 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
 	pObj_Datagrid->m_ColumnSpacing = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Column_Spacing_CONST ).c_str(  ) );
 	pObj_Datagrid->m_FirstRowHeight = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_First_Row_Height_CONST ).c_str(  ) );
 	pObj_Datagrid->m_FirstColumnWidth =  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_First_Column_Width_CONST ).c_str(  ) );
-	pObj_Datagrid->m_bKeepRowHeader = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Keep_Row_Header_CONST )=="1";
+	pObj_Datagrid->m_bKeepRowHeader = true; //pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Keep_Row_Header_CONST )=="1";
 	pObj_Datagrid->m_bKeepColHeader = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Keep_Column_Header_CONST )=="1";
 	pObj_Datagrid->m_bPersistXY = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Persist_XY_Position_CONST )=="1";
 	pObj_Datagrid->m_iInitialRowNum = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Initial_Row_Number_CONST ).c_str(  ) );
@@ -7439,6 +7343,11 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
 		pObj_Datagrid->m_MaxRow * pObj_Datagrid->m_FixedRowHeight +
 		(pObj_Datagrid->m_MaxRow - 1) * (pObj_Datagrid->m_RowSpacing + 1);
 
+	// TODO -- Pull the m_mapNumberOfPagesToCache from a designobjparameter
+	pObj_Datagrid->m_mapNumberOfPagesToCache[DIRECTION_Up_CONST]=10;
+	pObj_Datagrid->m_mapNumberOfPagesToCache[DIRECTION_Down_CONST]=10;
+	pObj_Datagrid->m_mapNumberOfPagesToCache[DIRECTION_Left_CONST]=10;
+	pObj_Datagrid->m_mapNumberOfPagesToCache[DIRECTION_Right_CONST]=10;
 	pObj_Datagrid->m_bParsed=true;
 }
 
@@ -8422,6 +8331,10 @@ void Orbiter::FireDeleteWxWidget(DesignObj_Orbiter *pObj)
 DataGridCell *Orbiter::GetDataGridHighlightCell(DesignObj_DataGrid *pGrid)
 {
 	PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
+	DataGridTable *pDataGridTable = pGrid->DataGridTable_Get();
+	if( !pDataGridTable )
+		return NULL;
+
 	if( pGrid->m_iHighlightedColumn==-1 && pGrid->m_iHighlightedRow==-1 )
 	{
 		if(  pGrid->m_sExtraInfo.find( 'C' )==string::npos )
@@ -8431,18 +8344,18 @@ DataGridCell *Orbiter::GetDataGridHighlightCell(DesignObj_DataGrid *pGrid)
 	}
 
 	int nHColumn = pGrid->m_iHighlightedColumn!=-1 ? pGrid->m_iHighlightedColumn + pGrid->m_GridCurCol : pGrid->m_GridCurCol;
-	int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow - (pGrid->m_iUpRow >= 0 ? 1 : 0) : 0;
+	int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow - (pDataGridTable->m_iUpRow >= 0 ? 1 : 0) : 0;
 
-	if( nHColumn==-1 && nHRow==-1 || !pGrid->m_pDataGridTable)
+	if( nHColumn==-1 && nHRow==-1 )
 		return NULL;
 
-	if(nHRow < pGrid->m_pDataGridTable->m_StartingRow)
+	if(nHRow < pGrid->DataGridTable_Get()->m_StartingRow)
 	{
 		pGrid->m_iHighlightedRow = 1;
-		nHRow = pGrid->m_pDataGridTable->m_StartingRow; //set the highlighted row
+		nHRow = pGrid->DataGridTable_Get()->m_StartingRow; //set the highlighted row
 	}
 
-	return pGrid->m_pDataGridTable->GetData(nHColumn, nHRow);
+	return pGrid->DataGridTable_Get()->GetData(nHColumn, nHRow);
 }
 
 void Orbiter::GetDataGridHighlightCellCoordinates(DesignObj_DataGrid *pGrid,PlutoRectangle &rect)

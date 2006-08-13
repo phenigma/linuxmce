@@ -213,6 +213,14 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		pluto_pthread_mutex_t m_DatagridMutex; /** < Don't allow 2 threads to operate on datagrids at the same time */
 		pthread_cond_t m_MaintThreadCond;
 
+		/**
+		* This is an internal counter. When we start doing stuff that may include lots of embedded commands which want to update the screen, we can create
+		* a NeedToRender object on the stack. Each one will increment this counter, and decrement in the destructor. When it's 0, it will call RedrawObjects automatically
+		* @todo ask if I placed this comment where it should be
+		*/
+
+		int m_dwIDataGridRequestCounter;  // For testing purposes we can log all datagrid requests
+
 		//<-dceag-const-e->
 
 		map<int, PendingCallBackInfo *> m_mapPendingCallbacks; //The map with pending callbacks
@@ -316,14 +324,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		OrbiterFileBrowser_Collection *m_pOrbiterFileBrowser_Collection;
 
-		/**
-		* This is an internal counter. When we start doing stuff that may include lots of embedded commands which want to update the screen, we can create
-		* a NeedToRender object on the stack. Each one will increment this counter, and decrement in the destructor. When it's 0, it will call RedrawObjects automatically
-		* @todo ask if I placed this comment where it should be
-		*/
-
-		int m_dwIDataGridRequestCounter;  // For testing purposes we can log all datagrid requests
-
 		DesignObj_OrbiterMap m_mapObj_All; /** < All objects with the object ID in x.y.z.a.b format */
 
 		map < string, DesignObj_DataList * > m_mapObj_AllNoSuffix; /** < All object with the object ID as a string */
@@ -410,6 +410,12 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		PlutoGraphic *m_pGraphicBeforeHighlight;
 		PlutoRectangle m_rectLastHighlight;
+
+		/**
+		* @brief Starts caching the grid in the background
+		* 
+		*/
+		 void StartCachingGrid( void *iData );
 
 		/**
 		* @brief Timeout the object, which is data
@@ -809,12 +815,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		* @todo ask
 		*/
 		void FindDGArrows( DesignObj_Orbiter *pObj, DesignObj_DataGrid *pDGObj );
-
-		/**
-		* @brief gets the grid from the DesignObj_DataGrid object into the pDataGridTable parmeter.  This may change the
-		* value of GridCurRow if the pObj->m_sSeek is set to seek to a given position
-		*/
-		bool AcquireGrid( DesignObj_DataGrid *pObj, int &GridCurCol, int &GridCurRow, class DataGridTable* &pDataGridTable );
 
 		/**
 		* @brief returns the selected identifiing it by the row number

@@ -428,8 +428,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 					if( pObj )
 					{
 						// Re-acquire the grid now
-						delete pObj->m_pDataGridTable;
-						pObj->m_pDataGridTable = NULL;
+						pObj->Flush();
 						m_pOrbiter->CMD_Refresh("");
 					}
 					return true;

@@ -42,9 +42,9 @@ void MediaMouseHandler::Start()
 	else
 	{
 		m_bTapAndRelease=false;
-		if( pObj_Grid->m_pDataGridTable )
+		if( pObj_Grid->DataGridTable_Get() )
 		{
-			int Rows = pObj_Grid->m_pDataGridTable->GetRows();
+			int Rows = pObj_Grid->DataGridTable_Get()->GetRows();
 			int CurrentRow = pObj_Grid->m_iHighlightedRow>0 ? pObj_Grid->m_iHighlightedRow : 0;
 			double RowHeight = (double) pObj_Grid->m_rPosition.Height / Rows;
 			int Y = int(CurrentRow * RowHeight + pObj_Grid->m_rPosition.Y + pObj_Grid->m_pPopupPoint.Y);
@@ -96,10 +96,10 @@ void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 	if( !m_pObj || m_pObj->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST )
 		return; // Also shouldn't happen
 	DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) m_pObj;
-	if( !pObj_Grid->m_pDataGridTable )
+	if( !pObj_Grid->DataGridTable_Get() )
 		return; // Again shouldn't happen
 
-	int Rows = pObj_Grid->m_pDataGridTable->GetRows();
+	int Rows = pObj_Grid->DataGridTable_Get()->GetRows();
 	if( m_bTapAndRelease==false )  // Discrete positioning
 	{
 		double RowHeight = (double) pObj_Grid->m_rPosition.Height / Rows;
@@ -114,8 +114,7 @@ void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 			pObj_Grid->m_GridCurRow = Row;
 	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::MediaTracks  *discrete* highlighted row %d",Row);
 			m_pMouseBehavior->m_pOrbiter->SelectedObject(pObj_Grid,smMouseGovernor);
-			delete pObj_Grid->m_pDataGridTable;
-			pObj_Grid->m_pDataGridTable=NULL;
+			pObj_Grid->Flush();
 			NeedToRender render( m_pMouseBehavior->m_pOrbiter, "MOUSE BEHAVIOR SCROLL" );
 			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Grid);
 		}

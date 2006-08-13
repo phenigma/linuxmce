@@ -102,8 +102,12 @@ namespace DCE
 		string m_sOptions;
 		bool m_bRePopulateEachTimeRequested; 
 
+		// Used only by Orbiter, these are the rows which have up/down arrows.  If up==-1, there is no up arrow, same for down.  Otherwise it's 0 based
+		// Orbiter may shift data around to make room for up/down arrows
+		int m_iDownRow,m_iUpRow;  
+
 		DataGridTable();
-		DataGridTable(int Size, char *Data);
+		DataGridTable(int Size, char *Data,bool bShiftDown=false);  // If Shift down = true, while deserializing we will shift the cells down by 1
 		virtual ~DataGridTable();
 
 		virtual int GetRows();  // The total number of rows in the whole grid

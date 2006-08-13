@@ -441,16 +441,16 @@ void OrbiterRenderer_OpenGL::OnIdle()
 		if( nHColumn==-1 && nHRow==-1 )
 			return;
 
-		if(!pGrid->m_pDataGridTable)
+		if(!pGrid->DataGridTable_Get())
 			return;
 
-		if(nHRow < pGrid->m_pDataGridTable->m_StartingRow)
+		if(nHRow < pGrid->DataGridTable_Get()->m_StartingRow)
 		{
 			pGrid->m_iHighlightedRow = 1;
-			nHRow = pGrid->m_pDataGridTable->m_StartingRow; //set the highlighted row
+			nHRow = pGrid->DataGridTable_Get()->m_StartingRow; //set the highlighted row
 		}
 
-		DataGridCell *pCell = pGrid->m_pDataGridTable->GetData(nHColumn, nHRow); 
+		DataGridCell *pCell = pGrid->DataGridTable_Get()->GetData(nHColumn, nHRow); 
 		if( !pCell )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter::DoHighlightObject cell is null.  obj %s col %d row %d",
