@@ -20,9 +20,9 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 
 /*virtual*/ void ObjectRenderer_OpenGL::RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point)
 {
-	//g_pPlutoLogger->Write(LV_STATUS, "(1) RenderGraphic %d - (%d,%d,%d,%d)", m_pOwner->m_iBaseObjectID,
+	//g_pPlutoLogger->Write(LV_STATUS, "(1) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
 	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
-	string sObjectHash = m_pOwner->GenerateObjectHash(point);
+	string sObjectHash = m_pObj_Owner->GenerateObjectHash(point);
 
 	MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(sObjectHash);
 	if(NULL != Frame)
@@ -33,23 +33,23 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 
 	PlutoGraphic *pPlutoGraphic = NULL;
 	pPlutoGraphic = 
-		m_pOwner->m_pvectCurrentGraphic != NULL && m_pOwner->m_pvectCurrentGraphic->size() > 0 ?
-		(m_pOwner->m_pvectCurrentGraphic->operator [](0)) : 
-		m_pOwner->m_vectGraphic.size() > 0 ? 
-			m_pOwner->m_vectGraphic[0] :
+		m_pObj_Owner->m_pvectCurrentGraphic != NULL && m_pObj_Owner->m_pvectCurrentGraphic->size() > 0 ?
+		(m_pObj_Owner->m_pvectCurrentGraphic->operator [](0)) : 
+		m_pObj_Owner->m_vectGraphic.size() > 0 ? 
+			m_pObj_Owner->m_vectGraphic[0] :
 			NULL;
 
 	//we have nothing to render
 	if(NULL == pPlutoGraphic)
 		return;
 		
-	//g_pPlutoLogger->Write(LV_STATUS, "(2) RenderGraphic %d - (%d,%d,%d,%d)", m_pOwner->m_iBaseObjectID,
+	//g_pPlutoLogger->Write(LV_STATUS, "(2) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
 	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
 
 	string sFileName = "";
 	if(
 		pPlutoGraphic->IsEmpty() && NULL != GetCacheImageManager() && pPlutoGraphic->m_Filename.length() &&
-		GetCacheImageManager()->IsImageInCache(pPlutoGraphic->m_Filename, m_pOwner->m_Priority)
+		GetCacheImageManager()->IsImageInCache(pPlutoGraphic->m_Filename, m_pObj_Owner->m_Priority)
 		)
 	{
 		//if we have the file in cache
@@ -69,10 +69,10 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 		int iSizeGraphicFile=0;
 
 		DCE::CMD_Request_File CMD_Request_File(
-			m_pOwner->m_pOrbiter->m_dwPK_Device,m_pOwner->m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,
-			"orbiter/C" + StringUtils::itos(m_pOwner->m_pOrbiter->m_dwPK_Device) + "/" + pPlutoGraphic->m_Filename,
+			m_pObj_Owner->m_pOrbiter->m_dwPK_Device,m_pObj_Owner->m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,
+			"orbiter/C" + StringUtils::itos(m_pObj_Owner->m_pOrbiter->m_dwPK_Device) + "/" + pPlutoGraphic->m_Filename,
 			&pGraphicFile,&iSizeGraphicFile);
-		m_pOwner->m_pOrbiter->SendCommand(CMD_Request_File);
+		m_pObj_Owner->m_pOrbiter->SendCommand(CMD_Request_File);
 
 		if (!iSizeGraphicFile)
 		{
@@ -83,7 +83,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 		//save the image in cache
 		if(NULL != GetCacheImageManager()) //cache manager is enabled ?
 		{
-			GetCacheImageManager()->CacheImage(pGraphicFile, iSizeGraphicFile, pPlutoGraphic->m_Filename, m_pOwner->m_Priority);
+			GetCacheImageManager()->CacheImage(pGraphicFile, iSizeGraphicFile, pPlutoGraphic->m_Filename, m_pObj_Owner->m_Priority);
 			
 			sFileName = GetCacheImageManager()->GetCacheImageFileName(pPlutoGraphic->m_Filename);
 		}
@@ -99,7 +99,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 		pGraphicFile = NULL;
 	}
 
-	//g_pPlutoLogger->Write(LV_STATUS, "(3) RenderGraphic %d - (%d,%d,%d,%d)", m_pOwner->m_iBaseObjectID,
+	//g_pPlutoLogger->Write(LV_STATUS, "(3) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
 	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
 	
 	if(pPlutoGraphic->IsEmpty() && !sFileName.empty())
@@ -137,13 +137,13 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 		}
 	}
 
-	//g_pPlutoLogger->Write(LV_STATUS, "(4) RenderGraphic %d - (%d,%d,%d,%d)", m_pOwner->m_iBaseObjectID,
+	//g_pPlutoLogger->Write(LV_STATUS, "(4) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
 	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
 	
 	if(!pPlutoGraphic->IsEmpty())
 	{
 		OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = 
-			dynamic_cast<OrbiterRenderer_OpenGL *>(m_pOwner->m_pOrbiter->Renderer());
+			dynamic_cast<OrbiterRenderer_OpenGL *>(m_pObj_Owner->m_pOrbiter->Renderer());
 
 		int nAlphaChannel = GetAlphaLevel();
 
@@ -152,7 +152,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 	}
 #ifdef DEBUG
 	else
-		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", m_pOwner->m_ObjectID.c_str());
+		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", m_pObj_Owner->m_ObjectID.c_str());
 #endif
 }
 

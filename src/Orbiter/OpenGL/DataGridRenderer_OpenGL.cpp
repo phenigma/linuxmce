@@ -72,7 +72,7 @@ bool DataGridRenderer_OpenGL::Scroll_Grid(string sRelative_Level, int iPK_Direct
 {
 	g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::Scroll_Grid");
 	this->iPK_Direction = iPK_Direction;
-	bool bResult = m_pDataGridOwner->Scroll_Grid(sRelative_Level, iPK_Direction, bMoveOneLineIfCannotPage);
+	bool bResult = m_pObj_Owner_DataGrid->Scroll_Grid(sRelative_Level, iPK_Direction, bMoveOneLineIfCannotPage);
 	StartAnimation = 1;
 	return bResult;
 }

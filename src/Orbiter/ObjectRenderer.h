@@ -11,7 +11,7 @@ class ObjectRenderer
 protected:
 
 
-	DesignObj_Orbiter *m_pOwner;
+	DesignObj_Orbiter *m_pObj_Owner;
 
 	CacheImageManager *GetCacheImageManager();
 	std::string GetLocalDirectory();

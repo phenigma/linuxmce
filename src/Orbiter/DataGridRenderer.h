@@ -16,7 +16,7 @@ class DataGridRenderer : public ObjectRenderer
 {
 	friend class MediaBrowserMouseHandler;  // This handles a special case caching with 2 grids that must stay sync'd
 protected:
-	DesignObj_DataGrid *m_pDataGridOwner;
+	DesignObj_DataGrid *m_pObj_Owner_DataGrid;
 
 public:
 	DataGridRenderer(DesignObj_Orbiter *pOwner);

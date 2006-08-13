@@ -19,7 +19,7 @@ bool DataGridRenderer_Proxy::RenderCell(DataGridTable *pT, DataGridCell *pCell, 
 {
 	bool bRetValue = DataGridRenderer::RenderCell(pT, pCell, j, i, iGraphicToDisplay, point);
 
-	Proxy_Orbiter *pProxy_Orbiter = dynamic_cast<Proxy_Orbiter *>(m_pOwner->m_pOrbiter);
+	Proxy_Orbiter *pProxy_Orbiter = dynamic_cast<Proxy_Orbiter *>(m_pObj_Owner->m_pOrbiter);
 	if(NULL == pProxy_Orbiter)
 		return bRetValue;
 

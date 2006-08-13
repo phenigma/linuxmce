@@ -25,13 +25,12 @@ DataGridRenderer_Bluetooth::~DataGridRenderer_Bluetooth(void)
 
 void DataGridRenderer_Bluetooth::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
-	OrbiterBluetooth *pOrbiterBluetooth = dynamic_cast<OrbiterBluetooth *>(m_pOwner->m_pOrbiter);
-	DesignObj_DataGrid *pDesignObj_DataGrid = dynamic_cast<DesignObj_DataGrid *>(m_pOwner);
-	if(NULL == pOrbiterBluetooth || NULL == pDesignObj_DataGrid)
+	OrbiterBluetooth *pOrbiterBluetooth = dynamic_cast<OrbiterBluetooth *>(m_pObj_Owner->m_pOrbiter);
+	if(NULL == pOrbiterBluetooth || NULL == m_pObj_Owner_DataGrid)
 		return;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", pDesignObj_DataGrid->m_sExtraInfo.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", m_pObj_Owner_DataGrid->m_sExtraInfo.c_str());
 #endif
 
 #if (defined(PROFILING))
@@ -45,20 +44,20 @@ void DataGridRenderer_Bluetooth::RenderObject(DesignObj_Orbiter *pObj_Screen, Pl
 	if( pOrbiterBluetooth->m_pBDCommandProcessor )
 		pOrbiterBluetooth->m_pBDCommandProcessor->AddCommand(pBD_CP_ShowList_Off);
 
-	int iSelectedColumn = pDesignObj_DataGrid->m_iInitialColNum;
+	int iSelectedColumn = m_pObj_Owner_DataGrid->m_iInitialColNum;
 	bool bUsePhoneGrid = false;
 
 	//if 'c' - column  extraoption is specified, we'll send to phone the specified column
 	size_t sPos;
-	if((sPos = pDesignObj_DataGrid->m_sExtraInfo.find( 'c' )) != string::npos)
+	if((sPos = m_pObj_Owner_DataGrid->m_sExtraInfo.find( 'c' )) != string::npos)
 	{
 		bUsePhoneGrid=true;
-		if(sPos + 1 < pDesignObj_DataGrid->m_sExtraInfo.size())
-			iSelectedColumn = pDesignObj_DataGrid->m_sExtraInfo[sPos + 1] - '0';
+		if(sPos + 1 < m_pObj_Owner_DataGrid->m_sExtraInfo.size())
+			iSelectedColumn = m_pObj_Owner_DataGrid->m_sExtraInfo[sPos + 1] - '0';
 	}
 
 	//if 'F' option is specified, we'll let the base the render the grid
-	if(pDesignObj_DataGrid->m_sExtraInfo.find( 'F' ) != string::npos) 
+	if(m_pObj_Owner_DataGrid->m_sExtraInfo.find( 'F' ) != string::npos) 
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_WARNING, "OrbiterBluetooth: I won't render this grid on the phone");
@@ -67,52 +66,53 @@ void DataGridRenderer_Bluetooth::RenderObject(DesignObj_Orbiter *pObj_Screen, Pl
 		return;
 	}
 
-	pDesignObj_DataGrid->m_MaxRow = 0; //get all rows
+	m_pObj_Owner_DataGrid->m_MaxRow = 0; //get all rows
 
 	string Unused;
-	pDesignObj_DataGrid->PrepareRenderDataGrid(Unused);
+	m_pObj_Owner_DataGrid->PrepareRenderDataGrid(Unused);
 
-	if(pDesignObj_DataGrid->m_pDataGridTable)
+	DataGridTable *pDataGridTable = m_pObj_Owner_DataGrid->DataGridTable_Get();
+	if(pDataGridTable)
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "Got to render a datagrid with %d columns", pDesignObj_DataGrid->m_pDataGridTable->m_ColumnCount);
+		g_pPlutoLogger->Write(LV_WARNING, "Got to render a datagrid with %d columns", m_pObj_Owner_DataGrid->m_pDataGridTable->m_ColumnCount);
 #endif
-		if(pDesignObj_DataGrid->m_pDataGridTable->m_ColumnCount == 1)//we can render on column datagrid
+		if(pDataGridTable->m_ColumnCount == 1)//we can render on column datagrid
 			bUsePhoneGrid = true;
 
 		if(!bUsePhoneGrid)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "OrbiterBluetooth: I won't render this grid on the phone");
-			pDesignObj_DataGrid->RenderObject(pObj_Screen);
+			m_pObj_Owner_DataGrid->RenderObject(pObj_Screen);
 			return;
 		}
 
-		pDesignObj_DataGrid->m_MaxRow = pDesignObj_DataGrid->m_pDataGridTable->getTotalRowCount();
+		m_pObj_Owner_DataGrid->m_MaxRow = pDataGridTable->getTotalRowCount();
 
-		int x       = pDesignObj_DataGrid->m_rPosition.X;
-		int y       = pDesignObj_DataGrid->m_rPosition.Y;
-		int Width   = pDesignObj_DataGrid->m_rPosition.Width;
-		int Height  = pDesignObj_DataGrid->m_rPosition.Height;
+		int x       = m_pObj_Owner_DataGrid->m_rPosition.X;
+		int y       = m_pObj_Owner_DataGrid->m_rPosition.Y;
+		int Width   = m_pObj_Owner_DataGrid->m_rPosition.Width;
+		int Height  = m_pObj_Owner_DataGrid->m_rPosition.Height;
 		list<string> listGrid;
 		bool bSendSelectedOnMove = false; 
 
 		//if 'T' extraoptions is specified, then when user presses up/down buttons, PlutoMO will send a SelectedItem command
-		if(pDesignObj_DataGrid->m_sExtraInfo.find( 'T' ) != string::npos)
+		if(m_pObj_Owner_DataGrid->m_sExtraInfo.find( 'T' ) != string::npos)
 			bSendSelectedOnMove = true;
 
 		bool bTurnOn = true;
 
-		string sCurrentSelected = pOrbiterBluetooth->m_mapVariable[atoi(pDesignObj_DataGrid->sSelVariable.c_str())];
-		int iHighlightedRow = pDesignObj_DataGrid->m_iHighlightedRow >= 0 ? pDesignObj_DataGrid->m_iHighlightedRow : atoi(sCurrentSelected.c_str());
+		string sCurrentSelected = pOrbiterBluetooth->m_mapVariable[atoi(m_pObj_Owner_DataGrid->sSelVariable.c_str())];
+		int iHighlightedRow = m_pObj_Owner_DataGrid->m_iHighlightedRow >= 0 ? m_pObj_Owner_DataGrid->m_iHighlightedRow : atoi(sCurrentSelected.c_str());
 
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_WARNING, "About to send BD_CP_ShowList command, column %d, turnon %d, items count %d, selected item %d, send 'selected item' %d",
-			iSelectedColumn, bTurnOn, pDesignObj_DataGrid->m_pDataGridTable->getTotalRowCount(), iHighlightedRow, (int)bSendSelectedOnMove);
+			iSelectedColumn, bTurnOn, m_pObj_Owner_DataGrid->m_pDataGridTable->getTotalRowCount(), iHighlightedRow, (int)bSendSelectedOnMove);
 #endif
 
-		for(int i = 0; i < pDesignObj_DataGrid->m_pDataGridTable->getTotalRowCount(); i++)
+		for(int i = 0; i < pDataGridTable->getTotalRowCount(); i++)
 		{
-			DataGridCell * pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(iSelectedColumn, i);
+			DataGridCell * pCell = pDataGridTable->GetData(iSelectedColumn, i);
 			string sItem = pCell != NULL ? pCell->GetText() : "<empty>";
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS, "Item %d : '%s'. Ignoring esc seq for now...", i, sItem.c_str());
