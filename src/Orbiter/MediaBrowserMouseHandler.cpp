@@ -265,17 +265,20 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 	if( m_pObj_PicGrid->DataGridTable_Get() )
 		pCell = m_pObj_PicGrid->DataGridTable_Get()->GetData(m_pObj_PicGrid->m_iHighlightedColumn,m_pObj_PicGrid->m_iHighlightedRow);
 
-	PLUTO_SAFETY_LOCK(M, m_pMouseBehavior->m_pOrbiter->Renderer()->m_bgImageReqMutex );
-
+	PLUTO_SAFETY_LOCK(M, m_pMouseBehavior->m_pOrbiter->m_VariableMutex );
 	if( pCell && pCell->m_pGraphic && pCell->m_pGraphic->m_pGraphicData)
 	{
 		char *pDup = new char[pCell->m_pGraphic->m_GraphicLength];
 		memcpy(pDup,pCell->m_pGraphic->m_pGraphicData,pCell->m_pGraphic->m_GraphicLength);
+		M.Release();
 		m_pMouseBehavior->m_pOrbiter->CMD_Update_Object_Image(m_pObj_CoverArtPopup->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",pDup,int(pCell->m_pGraphic->m_GraphicLength),"0");
 		m_pMouseBehavior->m_pOrbiter->CMD_Show_Popup(m_pObj_CoverArtPopup->m_ObjectID,X,Y,"","coverart",false,false);
 	}
 	else
+	{
+		M.Release();
 		m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
+	}
 }
 
 bool MediaBrowserMouseHandler::DoIteration()

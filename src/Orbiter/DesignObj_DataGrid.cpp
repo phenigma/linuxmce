@@ -139,6 +139,21 @@ g_pPlutoLogger->Write(LV_ACTION,"acquiring %s",m_ObjectID.c_str());
 				delete[] data;
 				data = NULL;
 
+				for(MemoryDataTable::iterator it=pDataGridTable->m_MemoryDataTable.begin();it!=pDataGridTable->m_MemoryDataTable.end();++it)
+				{
+					DataGridCell *pCell = it->second;
+					const char *pPath = pCell->GetImagePath();
+					if (pPath && !pCell->m_pGraphicData && !pCell->m_pGraphic)
+					{
+//				M.Release();
+#ifdef DEBUG
+						g_pPlutoLogger->Write(LV_EVENT,"DataGridRenderer::RenderCell loading %s in bg for %d,%d",pPath,pDataGridTable->CovertColRowType(it->first).first,pDataGridTable->CovertColRowType(it->first).second);
+#endif
+						m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, this, pCell, pDataGridTable->CovertColRowType(it->first));
+					}
+	//				M.Relock();
+				}
+				
 				DataGridTable_Set(pDataGridTable,GridCurRow, GridCurCol );
 				pDataGridTable->m_iUpRow=pDataGridTable->m_iDownRow=-1;
 				if( bAddArrows )

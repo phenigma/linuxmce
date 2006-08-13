@@ -255,40 +255,29 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 			m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->SolidRectangle( point.X + x,  point.Y + y,  w,  h,  CellColor);
 		}
 
-		PLUTO_SAFETY_LOCK(M,m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->m_bgImageReqMutex);
+		PLUTO_SAFETY_LOCK(M,m_pObj_Owner_DataGrid->m_pOrbiter->m_VariableMutex);
 
 		const char *pPath = pCell->GetImagePath();
-
-		if (pPath && !pCell->m_pGraphicData && !pCell->m_pGraphic)
+		if (pPath && !pCell->m_pGraphicData && !pCell->m_pGraphic && !m_pObj_Owner->m_pOrbiter->m_bLoadDatagridImagesInBackground)
 		{
-			if (1 == 1) // todo: if background image loading is requested
- 			{
-				M.Release();
-g_pPlutoLogger->Write(LV_EVENT,"DataGridRenderer::RenderCell loading %s in bg for %d,%d",pPath,j,i);
-				m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, &pCell->m_pGraphic);              
-				M.Relock();
+			if (m_pObj_Owner_DataGrid->m_pOrbiter->m_bIsOSD)
+			{
+				size_t Length; 
+
+				pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer(pPath, Length);
+				pCell->m_GraphicLength = (int)Length;
 			}
 			else
 			{
-				if (m_pObj_Owner_DataGrid->m_pOrbiter->m_bIsOSD)
-				{
-					size_t Length; 
+				int Length=0;
 
-					pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer(pPath, Length);
-					pCell->m_GraphicLength = (int)Length;
-				}
-				else
+				DCE::CMD_Request_File_Cat CMD_Request_File_Cat( m_pObj_Owner_DataGrid->m_pOrbiter->m_dwPK_Device, DEVICECATEGORY_General_Info_Plugins_CONST, false,  BL_SameHouse, pPath,
+					&pCell->m_pGraphicData, &Length );
+				m_pObj_Owner_DataGrid->m_pOrbiter->SendCommand( CMD_Request_File_Cat );
+				if (Length > 0)
 				{
-					int Length=0;
-
-					DCE::CMD_Request_File_Cat CMD_Request_File_Cat( m_pObj_Owner_DataGrid->m_pOrbiter->m_dwPK_Device, DEVICECATEGORY_General_Info_Plugins_CONST, false,  BL_SameHouse, pPath,
-						&pCell->m_pGraphicData, &Length );
-					m_pObj_Owner_DataGrid->m_pOrbiter->SendCommand( CMD_Request_File_Cat );
-					if (Length > 0)
-					{
-						pCell->m_GraphicLength = Length;
-						pCell->m_GraphicFormat = GR_JPG;
-					}
+					pCell->m_GraphicLength = Length;
+					pCell->m_GraphicFormat = GR_JPG;
 				}
 			}
 		} 
@@ -453,7 +442,7 @@ void DataGridRenderer::DataGridCacheThread()
 					m_listDataGridCache[Direction].push_back(pDataGridTable);
 					delete[] data;
 					data = NULL;
-					PLUTO_SAFETY_LOCK(M,m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->m_bgImageReqMutex);
+					PLUTO_SAFETY_LOCK(M,m_pObj_Owner_DataGrid->m_pOrbiter->m_VariableMutex);
 					for(MemoryDataTable::iterator it=pDataGridTable->m_MemoryDataTable.begin();it!=pDataGridTable->m_MemoryDataTable.end();++it)
 					{
 						DataGridCell *pDataGridCell = it->second;

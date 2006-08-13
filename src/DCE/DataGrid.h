@@ -62,7 +62,7 @@ namespace DCE
 	// We're currently supporting many more columns than rows, because the EPG grid with column span may need quite a bit of granularity, but
 	// not much vertically.  We may opt to make this a 64 bit integer, but in the interest of speed we're trying it with 32.
 
-#define MAKECOLROW(col, row) (((col)  << 14) | ((row) & 0x3FFF))
+	#define MAKECOLROW(col, row) (((col)  << 14) | ((row) & 0x3FFF))
 
 	typedef unsigned int ColRowType;
 	typedef map<ColRowType, DataGridCell *> MemoryDataTable;
@@ -119,6 +119,8 @@ namespace DCE
 		virtual void ToData(string GridID,int &Size, char* &Data);
 		// Serialize just a chunk of the data.
 		virtual void ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount);
+
+		static pair<int,int> CovertColRowType(ColRowType colRowType) { return make_pair<int,int> (colRowType >> 14,colRowType & 0x3FFF); };
 	};
 }
 

@@ -11,9 +11,20 @@
 namespace DCE
 {
 	class Orbiter;
-	//class DesignObj_Orbiter;
-	//class DesignObjText;
+	class DataGridCell;
 }
+class DesignObj_DataGrid;
+
+class BackgroundImage  // Information on an image to load in the background
+{
+public:
+	string m_sPic;
+	DesignObj_DataGrid *m_pObj_Grid;
+	DataGridCell *m_pCell;
+	pair<int,int> m_ColRow;
+
+	BackgroundImage(string sPic,DesignObj_DataGrid *pObj_Grid,DataGridCell *pCell,pair<int,int> ColRow) { m_pObj_Grid=pObj_Grid; m_pCell=pCell; m_ColRow=ColRow; m_sPic=sPic; }
+};
 
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
@@ -45,9 +56,7 @@ public:
 
 	Orbiter *m_pOrbiter;
 
-	pluto_pthread_mutex_t m_bgImageReqMutex;
-	list<PlutoGraphic **> m_listbgImageGraphic;
-	list<string> m_listbgImageFilename;
+	list<BackgroundImage *> m_listBackgroundImage;
 
 	virtual ~OrbiterRenderer();
 
@@ -216,7 +225,7 @@ public:
 	*/
 	virtual void ObjectOffScreen( DesignObj_Orbiter *pObj );
 
-	void BackgroundImageLoad(const char *Filename, PlutoGraphic **pGraphic);
+	void BackgroundImageLoad(const char *Filename, DesignObj_DataGrid *pObj_DataGrid, DataGridCell *pCell, pair<int,int> ColRow );
 
 	/**
 	* @brief Setup the window related tasks 

@@ -148,6 +148,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		int m_iImageWidth; /** < image width */
 		int m_iImageHeight; /** < image height */
 		bool m_bFullScreen;
+		bool m_bLoadDatagridImagesInBackground;
 		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
 
 		//<-dceag-const-b->!
