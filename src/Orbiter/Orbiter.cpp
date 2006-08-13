@@ -2499,7 +2499,15 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 //temptest
-if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior && event.data.button.m_iPK_Button == BUTTON_F9_CONST )
+if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler && m_pMouseBehavior->m_pMouseHandler->TypeOfMouseHandler()==MouseHandler::mh_MediaBrowser && event.data.button.m_iPK_Button == BUTTON_u_CONST )
+{
+MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pMouseBehavior->m_pMouseHandler;
+pMediaBrowserMouseHandler->m_eCapturingOffscreenMovement=MediaBrowserMouseHandler::cosm_UP;
+pMediaBrowserMouseHandler->DoIteration();
+pMediaBrowserMouseHandler->m_eCapturingOffscreenMovement=MediaBrowserMouseHandler::cosm_NO;
+return false;
+}
+else if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler && m_pMouseBehavior->m_pMouseHandler->TypeOfMouseHandler()==MouseHandler::mh_MediaBrowser && event.data.button.m_iPK_Button == BUTTON_d_CONST )
 {
 MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pMouseBehavior->m_pMouseHandler;
 pMediaBrowserMouseHandler->m_eCapturingOffscreenMovement=MediaBrowserMouseHandler::cosm_DOWN;
