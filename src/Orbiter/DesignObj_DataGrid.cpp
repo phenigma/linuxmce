@@ -9,6 +9,12 @@ using namespace DCE;
 DesignObj_DataGrid::DesignObj_DataGrid(Orbiter *pOrbiter) : DesignObj_Orbiter(pOrbiter)
 {
 	m_pObjLeft=m_pObjRight=m_pObjUp=m_pObjDown=NULL;
+	m_pDataGridTable_Current=NULL;
+	m_MaxRow=m_MaxCol=0;
+	m_GridCurRow=-1;
+	m_GridCurCol=-1;
+	m_CachedCurRow=-1;
+	m_CachedCurCol=-1;
 	bReAcquire=false;
 	m_dwIDownRow=m_iUpRow=-1;
 	m_iPopulatedWidth=m_iPopulatedHeight=0;
@@ -21,6 +27,7 @@ DesignObj_DataGrid::DesignObj_DataGrid(Orbiter *pOrbiter) : DesignObj_Orbiter(pO
 //-------------------------------------------------------------------------------------------------------
 DesignObj_DataGrid::~DesignObj_DataGrid() 
 {
+	FlushCache();
 }
 //-------------------------------------------------------------------------------------------------------
 bool DesignObj_DataGrid::CanGoUp()			

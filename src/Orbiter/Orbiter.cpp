@@ -700,7 +700,7 @@ void Orbiter::RedrawObject( void *iData )
 	if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 	{
 		DesignObj_DataGrid *pGrid = (DesignObj_DataGrid *) pObj;
-		pGrid->bReAcquire=true;
+		pGrid->Flush();
 	}
 
 	m_pOrbiterRenderer->RenderObjectAsync(pObj);
@@ -880,6 +880,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 
 	if ( pObj->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST )
 	{
+		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) pObj;
 		PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 		if( X>=0 && Y>=0 )
 		{
@@ -889,9 +890,8 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 			if ( !SelectedGrid( ( DesignObj_DataGrid * ) pObj,  X-pObj->m_rPosition.X,  Y-pObj->m_rPosition.Y, selectionMethod ) )
 				return;
 		}
-		else if( pObj->m_pDataGridTable )
+		else if( pDesignObj_DataGrid->m_pDataGridTable )
 		{
-			DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) pObj;
 			PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS, "Enter key press. Status: iHighlightedColumn %d, GridCurCol %d, iHighlightedRow %d, GridCurRow %d",
@@ -1257,7 +1257,6 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 			}
 			pDesignObj_DataGrid->m_GridCurCol = pDesignObj_DataGrid->m_iInitialColNum;
 			pDesignObj_DataGrid->m_GridCurRow = pDesignObj_DataGrid->m_iInitialRowNum;
-			pDesignObj_DataGrid->bReAcquire=true;
 			pDesignObj_DataGrid->Flush();
 
 			if(  bRefreshGrids  )
@@ -3354,9 +3353,6 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 	if(  pDesignObjCommandList->size(  )==0  )
 		return;
 
-if( pObj->m_iBaseObjectID==4890 )
-	int k=2;
-
 	if( pObj->m_iRepeatIntervalInMS && m_bWeCanRepeat )
 	{
 		m_bRepeatingObject=true;
@@ -3518,6 +3514,7 @@ int k=2;
 				string GridID = pCommand->m_ParameterList[COMMANDPARAMETER_DataGrid_ID_CONST];
 				DesignObj_DataGrid *pDesignObj_DataGrid_OnScreen=NULL;
 				// See if this grid is onscreen
+				int iWidth=0,iHeight=0;
 				for( size_t s=0;s<m_vectObjs_GridsOnScreen.size(  );++s )
 				{
 					DesignObj_DataGrid *pDesignObj_DataGrid=m_vectObjs_GridsOnScreen[s];
@@ -3526,6 +3523,8 @@ int k=2;
 						pDesignObj_DataGrid_OnScreen=pDesignObj_DataGrid;
 						pDesignObj_DataGrid_OnScreen->m_iHighlightedRow=0;
 						pDesignObj_DataGrid_OnScreen->m_iHighlightedColumn=0;
+						iWidth=pDesignObj_DataGrid_OnScreen->m_MaxCol;
+						iHeight=pDesignObj_DataGrid_OnScreen->m_MaxRow;
 						bRefreshGrids=true;
 					}
 				}
@@ -3533,7 +3532,6 @@ int k=2;
 				bool bResponse;
 				int iPK_Variable=atoi(pCommand->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST].c_str());;
 				string sValue_To_Assign=pCommand->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST];
-				int iWidth=pObj->m_MaxCol,iHeight=pObj->m_MaxRow;
 				/*
 				if( iWidth<0 )
 				{
@@ -3675,7 +3673,6 @@ int k=2;
 		for( size_t grid=0;grid<m_vectObjs_GridsOnScreen.size(  );++grid )
 		{
 			DesignObj_DataGrid *pDesignObj_DataGrid=m_vectObjs_GridsOnScreen[grid];
-			pDesignObj_DataGrid->bReAcquire=true;
 			pDesignObj_DataGrid->Flush();
 		}
 
@@ -4088,6 +4085,7 @@ void Orbiter::FindDGArrows( DesignObj_Orbiter *pObj, DesignObj_DataGrid *pDGObj 
 }
 bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int &GridCurCol,  int &GridCurRow,  DataGridTable* &pDataGridTable )
 {
+//	xx_set_cur_row_col && delete blow?
 	if (  pObj->bReAcquire || !pDataGridTable || pDataGridTable->m_StartingColumn != GridCurCol || pDataGridTable->m_StartingRow != GridCurRow || pObj->m_sSeek.length() )
 	{
 g_pPlutoLogger->Write(LV_ACTION,"acquiring %s",pObj->m_ObjectID.c_str());
@@ -4940,7 +4938,7 @@ void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMess
 		{
 			PLUTO_SAFETY_LOCK( cm, m_DatagridMutex );
 			InitializeGrid(pDesignObj);
-			pDesignObj->bReAcquire = true;
+			pDesignObj->Flush();
 			m_pOrbiterRenderer->RenderObjectAsync(pDesignObj);
 		}
 	}
@@ -5985,7 +5983,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 				int nStartingRow = pDesignObj->m_pDataGridTable ? pDesignObj->m_pDataGridTable->m_StartingRow : 0;
 
 				InitializeGrid(pDesignObj);
-				pDesignObj->bReAcquire = true;
+				pDesignObj->Flush();
 				m_pOrbiterRenderer->RenderObjectAsync(pDesignObj);
 
 				if(nOldHightlightedRow + nStartingRow == nOldSelectedIndex + !!nStartingRow)

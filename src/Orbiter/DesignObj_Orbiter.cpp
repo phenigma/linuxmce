@@ -36,10 +36,8 @@ DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pOrbiter)
 {
 	m_pDesignObj_Orbiter_Up=m_pDesignObj_Orbiter_Down=m_pDesignObj_Orbiter_Left=m_pDesignObj_Orbiter_Right=
 		m_pDesignObj_Orbiter_TiedTo=NULL;
-	m_pDataGridTable=NULL;
 	m_pOrbiter = pOrbiter;
 
-	m_MaxRow=m_MaxCol=0;
 	m_vectGraphic.clear();
 	m_vectSelectedGraphic.clear();
 	m_vectHighlightedGraphic.clear();
@@ -55,8 +53,6 @@ DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pOrbiter)
 	m_pCriteria=NULL;
 	m_GraphicToDisplay=GRAPHIC_NORMAL;
 	m_GraphicToPlay=GRAPHIC_NORMAL;
-	m_GridCurRow=-1;
-	m_GridCurCol=-1;
 	m_bOneTimeDontReset=false;
 	m_pParentObject=NULL;
 	m_pWebWindow=NULL;
@@ -140,8 +136,6 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 	//we don't want to delete here children of the object 
 	//their children will be deleted in Orbiter destructor using map_ObjAll
 	m_ChildObjects.clear();
-
-	delete m_pDataGridTable;
 
 #ifdef PRONTO
 	delete m_pCCF;

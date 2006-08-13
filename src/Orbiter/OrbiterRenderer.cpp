@@ -408,7 +408,7 @@ DesignObj_Orbiter *OrbiterRenderer::FindFirstObjectByDirection(char cDirection /
 		DesignObj_Orbiter *p = OrbiterLogic()->m_vectObjs_TabStops[s];
 		if( p->IsHidden() || !p->m_bOnScreen || (pObj_Parent && !p->ChildOf(pObj_Parent)) )
 			continue;
-		if( p->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && (!p->m_pDataGridTable || !p->m_pDataGridTable->m_RowCount))
+		if( p->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && (!((DesignObj_DataGrid *)p)->m_pDataGridTable || !((DesignObj_DataGrid *)p)->m_pDataGridTable->m_RowCount))
 			continue;
 
 		int OldPositionGrid = PositionGrid;
@@ -452,9 +452,10 @@ DesignObj_Orbiter *OrbiterRenderer::FindFirstObjectByDirection(char cDirection /
 		}
 		if( bPreferGrid && p->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 		{
+			DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) p;
 			if( ThisPosition<PositionGrid || PositionGrid==-1 )
 			{
-				if(!p->m_pDataGridTable || !p->m_pDataGridTable->m_RowCount)
+				if(!pDesignObj_DataGrid->m_pDataGridTable || !pDesignObj_DataGrid->m_pDataGridTable->m_RowCount)
 					PositionGrid = OldPositionGrid;
 				else
 				{
@@ -505,7 +506,7 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 		if( p==pObjCurrent || p->IsHidden() || !p->m_bOnScreen )
 			continue;
 
-		if( p->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && (!p->m_pDataGridTable || !p->m_pDataGridTable->m_RowCount))
+		if( p->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && (!((DesignObj_DataGrid *)p)->m_pDataGridTable || !((DesignObj_DataGrid *)p)->m_pDataGridTable->m_RowCount))
 			continue;
 
 		PlutoRectangle rectCurrent=pObjCurrent->m_rPosition+pObjCurrent->m_pPopupPoint;
@@ -610,14 +611,14 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 
 	if( OrbiterLogic()->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 	{
-		if( !OrbiterLogic()->m_pObj_Highlighted->m_pDataGridTable )
+		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) OrbiterLogic()->m_pObj_Highlighted;
+		if( !pDesignObj_DataGrid->m_pDataGridTable )
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"OrbiterRenderer::HighlightNextObject !m_pObj_Highlighted->m_pDataGridTable");
 			return false;
 		}
 		bool bScrolledOutsideGrid=false;  // Will be true if we scroll past the edge of the grid
 		PLUTO_SAFETY_LOCK( dg, OrbiterLogic()->m_DatagridMutex );
-		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) OrbiterLogic()->m_pObj_Highlighted;
 
 		switch( PK_Direction )
 		{

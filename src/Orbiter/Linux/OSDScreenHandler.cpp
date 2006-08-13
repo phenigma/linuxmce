@@ -424,7 +424,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 						else
 							pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Cannot_find_City_CONST]; 
 					}
-					DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(DESIGNOBJ_dgCities_CONST);
+					DesignObj_DataGrid *pObj = (DesignObj_DataGrid *) m_pOrbiter->FindObject(DESIGNOBJ_dgCities_CONST);
 					if( pObj )
 					{
 						// Re-acquire the grid now

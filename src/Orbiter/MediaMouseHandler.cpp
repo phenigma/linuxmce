@@ -116,7 +116,6 @@ void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 			m_pMouseBehavior->m_pOrbiter->SelectedObject(pObj_Grid,smMouseGovernor);
 			delete pObj_Grid->m_pDataGridTable;
 			pObj_Grid->m_pDataGridTable=NULL;
-			pObj_Grid->bReAcquire=true;
 			NeedToRender render( m_pMouseBehavior->m_pOrbiter, "MOUSE BEHAVIOR SCROLL" );
 			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Grid);
 		}

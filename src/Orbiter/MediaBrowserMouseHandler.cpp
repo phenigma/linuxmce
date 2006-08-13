@@ -331,7 +331,6 @@ g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
 		else
 		{
 			m_pObj_PicGrid->m_pDataGridTable = NULL;
-			m_pObj_PicGrid->bReAcquire=true;
 		}
 	}
 	else
@@ -353,7 +352,6 @@ g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
 		else
 		{
 			m_pObj_PicGrid->m_pDataGridTable = NULL;
-			m_pObj_PicGrid->bReAcquire=true;
 		}
 	}
 g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  STOP***");

@@ -390,11 +390,11 @@ void KeyboardMouseHandler::IterateExternalApp()
 void KeyboardMouseHandler::TempHack_DrawAlphaSquare()
 {
 	DesignObj_Orbiter *pObj = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
-	if( !pObj || pObj->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST || !pObj->m_pDataGridTable || !m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha )
+	if( !pObj || pObj->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST || !m_spDatagridMouseHandlerHelper->m_pObj_MediaBrowser_Alpha )
 		return;
 	
 	DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObj;
-	if( pObj_Grid->m_iHighlightedRow==-1 )
+	if( pObj_Grid->m_iHighlightedRow==-1 || !pObj_Grid->m_pDataGridTable)
 		return;
 
 	DataGridCell *pCell=pObj_Grid->m_pDataGridTable->GetData( 1,  pObj_Grid->m_GridCurRow + pObj_Grid->m_iHighlightedRow );

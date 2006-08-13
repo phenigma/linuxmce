@@ -16,12 +16,7 @@ class DataGridRenderer : public ObjectRenderer
 {
 	friend class MediaBrowserMouseHandler;  // This handles a special case caching with 2 grids that must stay sync'd
 
-	pluto_pthread_mutex_t m_DataGridCacheMutex;
-    pthread_t m_DataGridCacheThread;
-	pthread_cond_t m_DataGridCacheCond;
-
-	listDataGridTablePtr m_listDataGridCache[5];
-	bool m_bStopCaching;
+	DesignObj_DataGrid *m_pDataGridOwner;
 
 public:
 	DataGridRenderer(DesignObj_Orbiter *pOwner);
@@ -34,9 +29,6 @@ public:
 	virtual bool CalculateGridMovement(int Direction, int &Cur,  int CellsToSkip);
 	virtual void Flush(bool bFlushGraphics) { FlushCache(); }
 
-	void FlushCache(int Direction=0);
-	void StartCacheThread();
-	void StopCacheThread();
 	void DataGridCacheThread();
 };
 
