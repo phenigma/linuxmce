@@ -3,7 +3,7 @@
 . /usr/share/debconf/confmodule
 
 while read owner variable type value; do
-	if [[ -z "$owner" || "$owner" == "#"* || "$owner" == "d-i" || "$owner" == "debconf" ]]; then
+	if [[ -z "$owner" || "$owner" == "#"* || "$owner" == "d-i" ]]; then
 		continue
 	fi
 	preseed=("${preseed[@]}" "$variable=$value")
