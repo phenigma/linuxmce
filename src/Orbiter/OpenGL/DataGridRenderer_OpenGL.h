@@ -2,7 +2,7 @@
 #define DataGridRenderer_OpenGL_H_
 
 
-#include "DataGridRenderer.h"
+#include "../DataGridRenderer.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
 
 class OpenGL3DEngine;
