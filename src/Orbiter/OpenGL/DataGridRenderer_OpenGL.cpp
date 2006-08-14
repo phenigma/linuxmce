@@ -10,7 +10,6 @@ DataGridRenderer_OpenGL::DataGridRenderer_OpenGL(DesignObj_Orbiter *pOwner)
 {
 	Orbiter* pOrbiter = pOwner->m_pOrbiter;
 	OrbiterRenderer_OpenGL* pRendererGL = dynamic_cast<OrbiterRenderer_OpenGL*>(pOrbiter->Renderer());
-	StartAnimation = 0;
 	if(NULL == pRendererGL)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot get a reference to the OrbiterRenderer!... quiting");
@@ -66,13 +65,4 @@ g_pPlutoLogger->Write(LV_ACTION, "DataGridRenderer::RenderObject-stop %s start r
 	}
 if( pDataGridOwner )
 g_pPlutoLogger->Write(LV_ACTION, "DataGridRenderer_OpenGL::RenderObject-stop %s start row %d",pDataGridOwner->m_sGridID.c_str(),pDataGridOwner->m_GridCurRow);
-}
-
-bool DataGridRenderer_OpenGL::Scroll_Grid(string sRelative_Level, int iPK_Direction,bool bMoveOneLineIfCannotPage)
-{
-	g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::Scroll_Grid");
-	this->iPK_Direction = iPK_Direction;
-	bool bResult = m_pObj_Owner_DataGrid->Scroll_Grid(sRelative_Level, iPK_Direction, bMoveOneLineIfCannotPage);
-	StartAnimation = 1;
-	return bResult;
 }

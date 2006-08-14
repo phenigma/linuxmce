@@ -419,8 +419,6 @@ bool DesignObj_DataGrid::Scroll_Grid(string sRelative_Level, int iPK_Direction,b
 		}
 		else
 		{
-//			int CurrentRow = m_GridCurRow;
-//			int CurrentCol = m_GridCurCol;
 			if(  iPK_Direction == DIRECTION_Up_CONST )
 			{
 				if (!CalculateGridMovement(DIRECTION_Up_CONST, m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) ))
@@ -429,27 +427,6 @@ bool DesignObj_DataGrid::Scroll_Grid(string sRelative_Level, int iPK_Direction,b
 						m_pOrbiter->CMD_Move_Up();
 					return false;
 				}
-/*				
-				if (m_iCacheRows > 0) // Are we caching? 
-				{                            // If so the current table needs to be pushed onto the opposing cache list.
-//					m_listDataGridCache[DIRECTION_Down_CONST].push_front(DataGridTable_Get()); // The cache acquisition thread will delete the excess cache.
-				}
-				else 
-				{
-					// delete DataGridTable_Get();
-				}	
-
-				if (m_listDataGridCache[DIRECTION_Up_CONST].size() > 0)
-				{
-					DataGridTable_Get() = m_listDataGridCache[DIRECTION_Up_CONST].front();
-					m_listDataGridCache[DIRECTION_Up_CONST].pop_front();
-				}
-				else
-				{
-					DataGridTable_Get() = NULL;
-					bReAcquire=true;
-				}
-*/
 			}
 			else if(  iPK_Direction == DIRECTION_Down_CONST  )
 			{
@@ -461,30 +438,6 @@ bool DesignObj_DataGrid::Scroll_Grid(string sRelative_Level, int iPK_Direction,b
 					}
 					return false;
 				}
-/*
-				PLUTO_SAFETY_LOCK( dgc, m_DataGridCacheMutex );
-				if (m_iCacheRows > 0) // Are we caching? 
-				{                            // If so the current table needs to be pushed onto the opposing cache list.
-					m_listDataGridCache[DIRECTION_Up_CONST].push_front(DataGridTable_Get()); // The cache acquisition thread will delete the excess cache.
-				}
-				else 
-				{
-					//delete DataGridTable_Get();
-				}	
-				Flush(DIRECTION_Left_CONST);
-				Flush(DIRECTION_Right_CONST);
-
-				if (m_listDataGridCache[DIRECTION_Down_CONST].size() > 0)
-				{
-					DataGridTable_Get() = m_listDataGridCache[DIRECTION_Down_CONST].front();
-					m_listDataGridCache[DIRECTION_Down_CONST].pop_front();
-				}
-				else
-				{
-					DataGridTable_Get() = NULL;
-					bReAcquire=true;
-				}
-*/
 			}
 			else if(  iPK_Direction == DIRECTION_Left_CONST  )
 			{
@@ -494,31 +447,6 @@ bool DesignObj_DataGrid::Scroll_Grid(string sRelative_Level, int iPK_Direction,b
 						m_pOrbiter->CMD_Move_Left();
 					return false;
 				}
-/*
-				PLUTO_SAFETY_LOCK( dgc, m_DataGridCacheMutex );
-
-				if (m_iCacheRows > 0) // Are we caching? 
-				{                            // If so the current table needs to be pushed onto the opposing cache list.
-					m_listDataGridCache[DIRECTION_Right_CONST].push_front(DataGridTable_Get()); // The cache acquisition thread will delete the excess cache.
-				}
-				else 
-				{
-					//delete DataGridTable_Get();
-				}	
-				Flush(DIRECTION_Left_CONST);
-				Flush(DIRECTION_Right_CONST);
-
-				if (m_listDataGridCache[DIRECTION_Left_CONST].size() > 0)
-				{
-					DataGridTable_Get() = m_listDataGridCache[DIRECTION_Left_CONST].front();
-					m_listDataGridCache[DIRECTION_Left_CONST].pop_front();
-				}
-				else
-				{
-					DataGridTable_Get() = NULL;
-					bReAcquire=true;
-				}
-				*/
 			}
 			else if(  iPK_Direction == DIRECTION_Right_CONST  )
 			{
@@ -528,34 +456,12 @@ bool DesignObj_DataGrid::Scroll_Grid(string sRelative_Level, int iPK_Direction,b
 						m_pOrbiter->CMD_Move_Right();
 					return false;
 				}
-				/*
-				PLUTO_SAFETY_LOCK( dgc, m_DataGridCacheMutex );
-
-				if (m_iCacheRows > 0) // Are we caching? 
-				{                            // If so the current table needs to be pushed onto the opposing cache list.
-					m_listDataGridCache[DIRECTION_Left_CONST].push_front(DataGridTable_Get()); // The cache acquisition thread will delete the excess cache.
-				}
-				else 
-				{
-					//delete DataGridTable_Get();
-				}	
-				Flush(DIRECTION_Up_CONST);
-				Flush(DIRECTION_Down_CONST);
-
-				if (m_listDataGridCache[DIRECTION_Right_CONST].size() > 0)
-				{
-					DataGridTable_Get() = m_listDataGridCache[DIRECTION_Right_CONST].front();
-					m_listDataGridCache[DIRECTION_Right_CONST].pop_front();
-				}
-				else
-				{
-					DataGridTable_Get() = NULL;
-					bReAcquire=true;
-				}
-				*/
 			}
 		}
 	}
+	DataGridRenderer *pDataGridRenderer = dynamic_cast<DataGridRenderer *>(m_pObjectRenderer);
+	pDataGridRenderer->iPK_Direction = iPK_Direction;
+	pDataGridRenderer->StartAnimation = 1;
 	m_pOrbiter->Renderer()->RenderObjectAsync(this);
 	return true;
 }

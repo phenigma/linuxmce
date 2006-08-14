@@ -10,6 +10,8 @@ using namespace DCE;
 DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pOwner)
 {
 	m_pObj_Owner_DataGrid = dynamic_cast<DesignObj_DataGrid *>(pOwner);
+	StartAnimation = 0;
+	iPK_Direction = 0;
 }
 
 /*virtual*/ DataGridRenderer::~DataGridRenderer(void)

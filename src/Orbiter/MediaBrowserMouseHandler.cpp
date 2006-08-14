@@ -291,23 +291,23 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 	}
 }
 
+#include "OpenGL/DataGridRenderer_OpenGL.h"
 bool MediaBrowserMouseHandler::DoIteration()
 {
 g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
 	m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "iterator grid" );  // Redraw anything that was changed by this command
 	bool bResult;
+
 	if( m_eCapturingOffscreenMovement==cosm_UP )
 	{
 		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ListGrid->m_ObjectID,DIRECTION_Up_CONST,false);
 		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("", m_pObj_PicGrid->m_ObjectID,DIRECTION_Up_CONST,false);
-		//m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
 	}
 	else
 	{
 		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ListGrid->m_ObjectID,DIRECTION_Down_CONST,false);
 		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("", m_pObj_PicGrid->m_ObjectID,DIRECTION_Down_CONST,false);
-		//m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
 	}
 
 	if( !bResult )
