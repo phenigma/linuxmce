@@ -131,6 +131,8 @@ namespace DCE
 			string m_sAudioInfo;
 			string m_sVideoInfo;
 			
+			bool m_bUseDeinterlacing;
+			
 		private:
 			int m_iSpecialSeekSpeed;
 			int m_iSpecialOneTimeSeek;

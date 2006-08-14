@@ -104,6 +104,8 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	
 	m_iTimeCodeReportFrequency = iTimeCodeReportFrequency;
 	
+	m_bUseDeinterlacing = false;
+	
 	m_bExitThread = false;
 	m_bTrickModeActive = false;
 	m_iStreamID = ID;
@@ -573,6 +575,9 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 
 bool Xine_Stream::EnableDeinterlacing()
 {
+	if (!m_bUseDeinterlacing)
+		return false;
+
 	if (!m_pXineDeinterlacePlugin)
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Enabling deinterlacing" );
@@ -671,6 +676,9 @@ bool Xine_Stream::EnableDeinterlacing()
 
 void Xine_Stream::DisableDeinterlacing()
 {
+	if (!m_bUseDeinterlacing)
+		return;
+	
 	if (m_pXineDeinterlacePlugin)
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Disabling deinterlacing" );

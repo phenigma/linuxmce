@@ -79,6 +79,9 @@ bool Xine_Stream_Factory::StartupFactory()
 	// setting output driver
 	setVideoDriver( m_pPlayer->DATA_Get_Hardware_acceleration() );
 	
+	m_bUseDeinterlacing = m_pPlayer->DATA_Get_Use_Deinterlacing();
+	g_pPlutoLogger->Write( LV_STATUS, "Deinterlacing is %s", m_bUseDeinterlacing?"on":"off" );
+	
 	m_bInitialized = true;
 	return true;
 }
@@ -279,6 +282,7 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 	if (createIfNotExist)
 	{
 		Xine_Stream *new_stream = new Xine_Stream(this, m_pXineLibrary, streamID, m_pPlayer->DATA_Get_Time_Code_Report_Frequency(), requestingObject);
+		new_stream->m_bUseDeinterlacing = m_bUseDeinterlacing;
 		if ((new_stream!=NULL) && new_stream->StartupStream())
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"Created new stream with internalID=%i", streamID);

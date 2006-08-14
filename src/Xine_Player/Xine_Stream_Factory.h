@@ -41,6 +41,8 @@ namespace DCE
 			string m_sXineAudioDriverName;
 			string m_sXineVideoDriverName;
 			
+			bool m_bUseDeinterlacing;
+			
 			// detects current output video and audio drivers
 			void DetectOutputDrivers();
 			
