@@ -491,6 +491,7 @@ void OpenGL3DEngine::CubeAnimateDatagridFrames(string ObjectID, MeshFrame *Befor
 
 void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 {
+	return;
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 
 	MeshFrame * LeftBar = new MeshFrame();
