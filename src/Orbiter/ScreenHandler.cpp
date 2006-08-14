@@ -206,9 +206,9 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 
 		DataGridCell *pCell_Pic=NULL,*pCell_List=NULL;
 		if( mediaFileBrowserOptions.m_pObj_PicGrid->DataGridTable_Get() )
-			pCell_Pic = mediaFileBrowserOptions.m_pObj_PicGrid->DataGridTable_Get()->GetData(mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn,mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow);
+			pCell_Pic = mediaFileBrowserOptions.m_pObj_PicGrid->DataGridTable_Get()->GetData(mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn + mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurCol,mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurRow);
 		if( mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get() )
-			pCell_List = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get()->GetData(0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
+			pCell_List = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get()->GetData(0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow);
 
 		if( !pCell_List )
 			return false; // Shouldn't happen

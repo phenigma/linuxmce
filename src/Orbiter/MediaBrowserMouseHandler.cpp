@@ -246,6 +246,7 @@ g_pPlutoLogger->Write(LV_ACTION, "**go**");
 		m_LastRow=m_pObj_ListGrid->m_iHighlightedRow;
 		// This takes care of the list grid
 		ShowCoverArtPopup();
+		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = m_pObj_ListGrid;
 		m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
 	}
 }
@@ -293,7 +294,7 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 bool MediaBrowserMouseHandler::DoIteration()
 {
 g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
-//	m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
+	m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "iterator grid" );  // Redraw anything that was changed by this command
 	bool bResult;
 	if( m_eCapturingOffscreenMovement==cosm_UP )
