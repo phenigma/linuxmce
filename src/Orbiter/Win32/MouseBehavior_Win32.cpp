@@ -81,6 +81,9 @@ void MouseBehavior_Win32::GetWindowPosition(int &x, int &y)
 	RECT rectWin;
 	::GetWindowRect(hWnd, &rectWin);
 
-	x = rectWin.left;
-	y = rectWin.top;
+	int nTitleHeigth = ::GetSystemMetrics(SM_CYSIZE);
+	int nBorderWidth = ::GetSystemMetrics(SM_CXBORDER);
+
+	x = rectWin.left + nBorderWidth;
+	y = rectWin.top + nTitleHeigth + nBorderWidth;
 }
