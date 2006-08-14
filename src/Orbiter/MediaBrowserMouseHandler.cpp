@@ -206,7 +206,7 @@ g_pPlutoLogger->Write(LV_ACTION, "**go**");
 			m_pMouseBehavior->SetMousePosition(X,20);   // Temp, should be 2
 		}
 
-//		m_pMouseBehavior->ShowMouse(false);
+		m_pMouseBehavior->ShowMouse(false);
 		return;
 
 	}

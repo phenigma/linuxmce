@@ -363,16 +363,6 @@ bool DesignObj_DataGrid::CalculateGridMovement(int Direction, int &Cur,  int Cel
 				return false;
 
 			Cur += CellsToSkip;
-/*
-			if ( Cur+m_MaxRow > pDataGridTable->GetRows(  ) )
-			{
-				// Add an extra 1,  becuase if we end  up making the top row an up ( unknown at this point )
-				// We'll be one short
-				Cur = pDataGridTable->GetRows(  ) - m_MaxRow + 1;
-				if ( Cur<0 )
-					Cur=0;
-			}
-			*/
 		}
 		break;
 	case DIRECTION_Left_CONST:
@@ -395,14 +385,7 @@ bool DesignObj_DataGrid::CalculateGridMovement(int Direction, int &Cur,  int Cel
 			return false;
 
 		Cur+=CellsToSkip;
-/*
-		if ( Cur+m_MaxCol > pDataGridTable->GetCols(  ) )
-		{
-			Cur = pDataGridTable->GetCols(  ) - m_MaxCol;
-			if ( Cur<0 )
-				Cur=0;
-		}
-		*/
+
 		break;
 	}
 	return (Cur!=InitialCur);
@@ -476,8 +459,8 @@ void DesignObj_DataGrid::m_pDataGridTable_Current_set(DataGridTable *pDataGridTa
 			DataGridCell *pCell = it->second;
 			if( pCell->m_pGraphic )
 			{
-//				delete pCell->m_pGraphic;
-//				pCell->m_pGraphic=NULL;
+				delete pCell->m_pGraphic;
+				pCell->m_pGraphic=NULL;
 			}
 		}
 	}
