@@ -83,7 +83,7 @@ void PopupCollection::PaintPopup(std::string ID, PlutoPopup *Popup, int EffectID
 				Popup->m_pObj->m_rPosition.Width, 
 				Popup->m_pObj->m_rPosition.Height);
 
-			Engine->ShowHighlightRectangle(Popup->m_pObj->m_rPosition);
+			//Engine->ShowHighlightRectangle(Popup->m_pObj->m_rPosition);
 		}
 		Popups[ID] = Item;
 	}
