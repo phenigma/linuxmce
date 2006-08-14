@@ -128,7 +128,7 @@ bool OpenGL3DEngine::Paint()
 
 			CurrentLayer->RemoveChild(HighLightPopup);
 			CurrentLayer->AddChild(HighLightPopup);
-			HighLightPopup->GetMeshContainer()->SetColor(Color);
+			HighLightPopup->SetColor(Color);
 		}
 
 		if(HighLightFrame)
@@ -143,7 +143,7 @@ bool OpenGL3DEngine::Paint()
 			Color.Y = Color.Z;
 			HighlightCurrentLayer->RemoveChild(HighLightFrame);
 			HighlightCurrentLayer->AddChild(HighLightFrame);
-			HighLightFrame->GetMeshContainer()->SetColor(Color);
+			HighLightFrame->SetColor(Color);
 		}
 	}
 	//glEnable(GL_CULL_FACE);
@@ -498,18 +498,28 @@ void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 	MeshFrame * RightBar = new MeshFrame();
 	MeshFrame * BottomBar = new MeshFrame();
 	
+	PlutoRectangle Original (Rect);
 
+	Rect.Width = 2;
 	LeftBar->SetMeshContainer(
+		MeshBuilder::BuildRectangle(&Rect, NULL)
+		);
+	Rect = Original;
+	Rect.Height = 2;
+	TopBar->SetMeshContainer(
 		MeshBuilder::BuildRectangle(&Rect, NULL)
 		);
 
-	LeftBar->SetMeshContainer(
+	Rect = Original;
+	Rect.Width = 2;
+	RightBar->SetMeshContainer(
 		MeshBuilder::BuildRectangle(&Rect, NULL)
 		);
-	LeftBar->SetMeshContainer(
-		MeshBuilder::BuildRectangle(&Rect, NULL)
-		);
-	LeftBar->SetMeshContainer(
+
+	Rect = Original;
+	
+	Rect.Height = 2;
+	BottomBar->SetMeshContainer(
 		MeshBuilder::BuildRectangle(&Rect, NULL)
 		);
 

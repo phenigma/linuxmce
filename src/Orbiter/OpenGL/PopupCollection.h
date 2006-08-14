@@ -25,7 +25,7 @@ public:
 	void ChangeScene(MeshFrame* Scene);
 
 	void HidePopups();
-	void PaintPopup(std::string ID, PlutoPopup *Popup);
+	void PaintPopup(std::string ID, PlutoPopup *Popup, int EffectID);
 	void HidePopup(std::string ID);
 
 	bool Exists(std::string ID);

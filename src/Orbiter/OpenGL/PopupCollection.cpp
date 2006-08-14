@@ -45,7 +45,7 @@ void PopupCollection::HidePopup(std::string ID)
 	}
 }
 
-void PopupCollection::PaintPopup(std::string ID, PlutoPopup *Popup)
+void PopupCollection::PaintPopup(std::string ID, PlutoPopup *Popup, int EffectID)
 {
 	PopupDescription* Item;
 	if(Current == ID)
@@ -74,6 +74,17 @@ void PopupCollection::PaintPopup(std::string ID, PlutoPopup *Popup)
 
 		Popup->m_pObj->RenderObject(Popup->m_pObj, Popup->m_Position); 
 		Item = new PopupDescription(Engine, ID, NULL);
+		if(EffectID)
+		{
+			
+			PlutoRectangle HighlightRectangle(
+				Popup->m_pObj->m_rPosition.X + Popup->m_Position.X,
+				Popup->m_pObj->m_rPosition.Y + Popup->m_Position.Y,
+				Popup->m_pObj->m_rPosition.Width, 
+				Popup->m_pObj->m_rPosition.Height);
+
+			Engine->ShowHighlightRectangle(Popup->m_pObj->m_rPosition);
+		}
 		Popups[ID] = Item;
 	}
 	

@@ -76,7 +76,7 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 	if(!Visible_)
 	{
 		//DCE::g_pPlutoLogger->Write(LV_STATUS, "NOT Painting %p. It's invisible.", this);	
-		return;
+		return; 
 	}
 	
 	MeshTransform Transform;
