@@ -171,7 +171,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		if(isset($_POST['irgroup_command']) && (int)$_POST['irgroup_command']>0){
 			$irg_c=(int)$_POST['irgroup_command'];
 			if($action!='delete'){
-				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,IRData) SELECT FK_InfraredGroup,FK_Command,'.$deviceID.',IRData FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
+				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,IRData) SELECT FK_InfraredGroup,FK_Command,IRData FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
 
 				header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=$TEXT_RUBY_CODE_ADDED_CONST&label=".$GLOBALS['label']);
 				exit();
@@ -198,7 +198,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 						
 						foreach ($commands AS $commandID){
 							if(!in_array($commandID,$displayedCommands)){			
-								$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,IRData) VALUES (?,?,?,?)',array($infraredGroupID,$commandID,$deviceID,''));
+								$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,IRData) VALUES (?,?,?)',array($infraredGroupID,$commandID,''));
 							}
 						}
 						if(!in_array($deviceCG,$oldCheckedDCG))
