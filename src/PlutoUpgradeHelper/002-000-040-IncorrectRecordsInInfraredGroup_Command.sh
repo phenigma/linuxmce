@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Suspended for the moment
+exit 0
+
 # Mantis 2692: 
 #
 # The table InfraredGroup_Command in .39 contain all IR codes, and it wasn't updated on .40 upgrade.
@@ -21,7 +24,7 @@ psc_ids=""
 if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 	. /usr/pluto/bin/SQL_Ops.sh
 	
-	Q="SELECT psc_id FROM InfraredGroup_Command WHERE FK_InfraredGroup IS NULL"
+	Q="SELECT psc_id FROM InfraredGroup_Command WHERE FK_InfraredGroup IS NULL AND psc_mod=0"
 	R=$(RunSQL "$Q")
 
 	for psc_id in $R; do

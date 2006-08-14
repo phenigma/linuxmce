@@ -41,20 +41,29 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 	R=$(RunSQL "$Q")
 
 	for Record in $R ;do
+		echo $DT
 		DT=$(Field "1" "$Record")
 		IRG=$(Field "2" "$Record")
 		M=$(Field "3" "$Record")
 		DC=$(Field "4" "$Record")
 		CM=$(Field "5" "$Record")
+		if [[ $CM == "NULL" ]] ;then
+			CM='1';
+		fi
 
 		if [[ $IRG != "NULL" ]] ;then
-			Q="UPDATE InfraredGroup_Command SET InfraredGroup = $IRG WHERE FK_DeviceTemplate = $DT"
-			RunSQL "$Q"
-		else
-			Q="INSERT INTO InfraredGroup_Command (Description,FK_Manufacturer,FK_DeviceCategory,FK_CommMethod) VALUES ('Custom codes',$M,$DC,$CM); SELECT LAST_INSERT_ID()"
+			Q="UPDATE InfraredGroup_Command SET FK_InfraredGroup = $IRG WHERE FK_DeviceTemplate = $DT"
 			InsertID=$(RunSQL "$Q")
 
-			Q="UPDATE InfraredGroup_Command SET InfraredGroup = $InsertID WHERE FK_DeviceTemplate = $DT"
+			RunSQL "$Q"
+		else
+			Q="INSERT INTO InfraredGroup (Description,FK_Manufacturer,FK_DeviceCategory,FK_CommMethod) VALUES ('Custom codes',$M,$DC,$CM); SELECT LAST_INSERT_ID()"
+			InsertID=$(RunSQL "$Q")
+
+			Q="UPDATE InfraredGroup_Command SET FK_InfraredGroup = $InsertID WHERE FK_DeviceTemplate = $DT"
+			InsertID=$(RunSQL "$Q")
+
+			
 		fi
 	done
 
