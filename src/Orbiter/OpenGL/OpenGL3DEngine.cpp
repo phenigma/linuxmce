@@ -88,7 +88,7 @@ bool OpenGL3DEngine::Paint()
 		return false;
 	}
 
-	GL.SetClearColor(.0f, .0f, 0.5f);
+	GL.SetClearColor(.0f, .0f, 0.0f);
 	GL.ClearScreen(true, false);
 		
 	GL.EnableZBuffer(false);
