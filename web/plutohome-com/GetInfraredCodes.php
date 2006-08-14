@@ -24,6 +24,10 @@ if(isset($_GET['PK_Manufacturer'])){
 	$out=getCodesByManufacturer((int)$_GET['PK_Manufacturer'],(int)@$_GET['PK_DeviceCategory'],$dbADO);
 }
 
+if(isset($_GET['psc_ids'])){
+	$out=getCodesByIDs($_GET['psc_ids'],$dbADO);
+}
+
 print "-- Database import\n".$out."\n-- EOF\n";
 
 
@@ -131,4 +135,35 @@ function getCodesByManufacturer($PK_Manufacturer,$PK_DeviceCategory,$dbADO){
 	return $out;
 }
 
+function getCodesByIDs($IDs,$dbADO){
+	global $dbPlutoMainDatabase,$dbPlutoMainUser,$dbPlutoMainPass;
+	
+	if($IDs==''){
+		return 'ERROR: parameters not specified';
+	}
+	$arrayIDs=explode(',',$IDs);
+	
+	$filter='WHERE InfraredGroup_Command.psc_id IN ('.join(',',$arrayIDs).')';
+	$res=$dbADO->Execute('SELECT InfraredGroup_Command.psc_id FROM InfraredGroup_Command INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup '.@$filter);
+
+	$codes=array();
+	while($row=$res->FetchRow()){
+		if((int)$row['psc_id']>0)
+			$codes[]=$row['psc_id'];
+	}
+	$out="-- psc_id: ".join(',',$codes)."\n";
+	$dumpCmd='mysqldump '.$dbPlutoMainDatabase.' -u'.$dbPlutoMainUser.' -p'.$dbPlutoMainPass.' InfraredGroup_Command --where "psc_id IN ('.join(',',$codes).')" --no-create-info --skip-comments --force';
+
+	exec($dumpCmd,$retArray);
+	$cleanInserts=array();
+	foreach ($retArray As $line){
+		if(trim($line)!=''){
+			$cleanInserts[]=$line;
+		}
+	}
+	$out.=join("\n",$cleanInserts);
+	
+	return $out;
+	
+}
 ?>
