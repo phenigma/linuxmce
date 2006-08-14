@@ -2,7 +2,7 @@ Source: linphone
 Section: sound
 Priority: optional
 Maintainer: Samuel Mimram <smimram@debian.org>
-Build-Depends: debhelper (>= 4.0.0), autotools-dev, pkg-config, libglib2.0-dev, libosip2-dev (>= 2.2.0), libasound2-dev, libjack0.80.0-dev, libspeex-dev, libsamplerate0-dev, libxml-parser-perl, gtk-doc-tools, docbook-utils, libgnomeui-dev, libgnome2-dev, gnome-applets, libpanel-applet2-dev, dpatch
+Build-Depends: debhelper (>= 4.0.0), autotools-dev, pkg-config, libglib2.0-dev, libosip2-dev (>= 2.2.0), libasound2-dev, libjack0.80.0-dev | libjack0.100.0-dev, libspeex-dev, libsamplerate0-dev, libxml-parser-perl, gtk-doc-tools, docbook-utils, libgnomeui-dev, libgnome2-dev, gnome-applets, libpanel-applet2-dev, dpatch
 Standards-Version: 3.6.2
 
 Package: linphone
@@ -68,7 +68,7 @@ Description: linphone web phone's library (supporting the SIP protocol)
 Package: liblinphone1-dev
 Section: libdevel
 Architecture: any
-Depends: liblinphone1 (=${Source-Version}), libc6-dev | libc-dev, libortp2-dev, libosip2-dev (>= 2.2.0), libjack0.80.0-dev, libspeex-dev, libsamplerate0-dev, libasound2-dev
+Depends: liblinphone1 (=${Source-Version}), libc6-dev | libc-dev, libortp2-dev, libosip2-dev (>= 2.2.0), libjack0.80.0-dev | libjack0.100.0-dev, libspeex-dev, libsamplerate0-dev, libasound2-dev
 Conflicts: liblinphone0-dev
 Description: linphone web phone's library (supporting the SIP protocol)
  Linphone is a web phone: it lets you phone to your friends anywhere in the
