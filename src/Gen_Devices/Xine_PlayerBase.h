@@ -197,6 +197,14 @@ public:
 			return m_mapParameters[DEVICEDATA_Hardware_acceleration_CONST];
 	}
 
+	bool Get_Use_Deinterlacing()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Use_Deinterlacing_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Use_Deinterlacing_CONST]=="1" ? true : false);
+	}
+
 };
 
 
@@ -307,6 +315,7 @@ public:
 	int DATA_Get_Time_Code_Report_Frequency() { return GetData()->Get_Time_Code_Report_Frequency(); }
 	string DATA_Get_Name() { return GetData()->Get_Name(); }
 	string DATA_Get_Hardware_acceleration() { return GetData()->Get_Hardware_acceleration(); }
+	bool DATA_Get_Use_Deinterlacing() { return GetData()->Get_Use_Deinterlacing(); }
 	//Event accessors
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	void EVENT_Menu_Onscreen(int iStream_ID,bool bOnOff) { GetEvents()->Menu_Onscreen(iStream_ID,bOnOff); }
