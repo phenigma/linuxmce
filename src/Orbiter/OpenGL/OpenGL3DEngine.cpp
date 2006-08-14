@@ -48,8 +48,10 @@ OpenGL3DEngine::~OpenGL3DEngine()
 {
 	if(OldLayer)
 		OldLayer->CleanUp();
-	//if(CurrentLayer)
-	//	CurrentLayer->CleanUp();
+	
+	if(CurrentLayer)
+		CurrentLayer->CleanUp();
+
 	delete OldLayer;
 	delete CurrentLayer;
 	pthread_mutex_destroy(&SceneMutex.mutex);
@@ -123,6 +125,7 @@ bool OpenGL3DEngine::Paint()
 			Color.Z = abs(Color.Z - 1.0f)/2.0f+ 0.5f;
 			Color.X = Color.Z;
 			Color.Y = Color.Z;
+
 			CurrentLayer->RemoveChild(HighLightFrame);
 			CurrentLayer->AddChild(HighLightFrame);
 			HighLightFrame->GetMeshContainer()->SetColor(Color);
@@ -138,8 +141,8 @@ bool OpenGL3DEngine::Paint()
 			Color.Z = abs(Color.Z - 1.0f)/2.0f+ 0.5f;
 			Color.X = Color.Z;
 			Color.Y = Color.Z;
-			CurrentLayer->RemoveChild(HighLightFrame);
-			CurrentLayer->AddChild(HighLightFrame);
+			HighlightCurrentLayer->RemoveChild(HighLightFrame);
+			HighlightCurrentLayer->AddChild(HighLightFrame);
 			HighLightFrame->GetMeshContainer()->SetColor(Color);
 		}
 	}
@@ -179,6 +182,7 @@ void OpenGL3DEngine::NewScreen()
 
 	CurrentLayerObjects_.clear();
 	CurrentLayer = new MeshFrame();
+	HighlightCurrentLayer = CurrentLayer;
 	
 	if(NULL != Compose)
 		Compose->UpdateLayers(CurrentLayer, OldLayer);
@@ -367,7 +371,7 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 	{
 		//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
 		CurrentLayer->RemoveChild(HighLightFrame);
-		//HighLightFrame->CleanUp();
+		HighLightFrame->CleanUp();
 
 		delete HighLightFrame;
 		HighLightFrame = NULL;

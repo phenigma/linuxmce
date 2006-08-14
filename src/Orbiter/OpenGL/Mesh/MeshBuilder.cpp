@@ -2,7 +2,7 @@
 
 #include "../GLMathUtils.h"
 
-MeshBuilder::MeshBuilder(void) : Blended_(false)
+MeshBuilder::MeshBuilder(void) : Blended_(true/*false*/)
 {
 	this->GlobalRed = 1.0f;
 	this->GlobalGreen = 1.0f;
@@ -20,7 +20,6 @@ MeshBuilder::~MeshBuilder(void)
 
 void MeshBuilder::CleanUp()
 {
-	return;
 	Vertexes.clear();
 	Triangles.clear();	
 }

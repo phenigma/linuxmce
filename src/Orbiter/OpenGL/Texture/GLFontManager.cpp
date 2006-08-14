@@ -24,7 +24,6 @@ GLFontManager::~GLFontManager()
 
 void GLFontManager::CleanUp()
 {
-	return;
 	delete Instance_;
 	Instance_ = NULL;
 }
