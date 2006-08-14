@@ -334,7 +334,14 @@ sleep 0.5
 
 /usr/pluto/bin/SetupUsers.sh
 /usr/pluto/bin/generateRcScripts.sh
+
+# remove ide-generic from /etc/modules
 sed -i 's/^ide-generic$/#&/g' /etc/modules
+
+# add mousedev to /etc/modules
+if ! grep -q '^mousedev$' /etc/modules; then
+	echo mousedev >>/etc/modules
+fi
 
 # detect the timezone of this machine
 if [[ "$OfflineMode" == false ]]; then
