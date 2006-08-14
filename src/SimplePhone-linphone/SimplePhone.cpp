@@ -12,19 +12,13 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
-#include "DCE/DCEConfig.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_Variable.h"
 
 #include "Gen_Devices/AllScreens.h"
 
-static int phone_status=0;
-static int call_status=0;
-static char calling_id[IAXC_EVENT_BUFSIZ]="\0";
-static char calling_nr[IAXC_EVENT_BUFSIZ]="\0";
-
-#include "RingData.h"
+#include "SIP_Thread.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -46,7 +40,7 @@ SimplePhone::SimplePhone(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *p
 SimplePhone::~SimplePhone()
 //<-dceag-dest-e->
 {
-    unregisterWithAsterisk();
+	LS_bQuit = true;
 }
 
 //<-dceag-getconfig-b->
@@ -58,7 +52,6 @@ bool SimplePhone::GetConfig()
 
     // Put your code here to initialize the data in this class
     // The configuration parameters DATA_ are now populated
-    ringTone = NULL;
     return true;
 }
 
@@ -206,20 +199,17 @@ void SimplePhone::SomeFunction()
 void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,Message *pMessage)
 //<-dceag-c334-e->
 {
-    char tmp[1024];
-    if(haveActiveCall)
+    if(LS_ActiveCall())
     {
         g_pPlutoLogger->Write(LV_STATUS, "Already have a call");
         sCMD_Result="ERROR";
         return;
     }
-    snprintf(tmp,sizeof(tmp)-1,"%s:%s@%s/%s",deviceExtension,devicePassword,asteriskHost,sPhoneExtension.c_str());
-    g_pPlutoLogger->Write(LV_STATUS, "Try to call %s", tmp);
+    g_pPlutoLogger->Write(LV_STATUS, "Try to call %s", sPhoneExtension.c_str());
     DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"");
     SendCommand(CMD_MH_Stop_Media_);
     Sleep(1000);
-    StopRingTone();
-    iaxc_call(tmp);
+	LS_InitiateCall(sPhoneExtension.c_str());
     sCMD_Result="OK";
     CMD_Set_Variable CMD_Set_Variable_name(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_name_CONST,string(""));
     SendCommand(CMD_Set_Variable_name);
@@ -227,7 +217,6 @@ void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,
     SendCommand(CMD_Set_Variable_number);
     DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia);
     SendCommand(SCREEN_DevCallInProgress_);
-    haveActiveCall=true;
 }
 
 //<-dceag-c335-b->
@@ -238,17 +227,11 @@ void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,
 void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 //<-dceag-c335-e->
 {
-    if(phone_status>0)
+    if(LS_ActiveCall())
     {
         Sleep(1000);
-        StopRingTone();
-        DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia);
-        SendCommand(SCREEN_DevCallInProgress_);
-        Sleep(1000);
-        iaxc_answer_call(0);
-        iaxc_select_call(0);
+		LS_AcceptCall();
         sCMD_Result="OK";
-        haveActiveCall=true;
     }
     else
     {
@@ -264,16 +247,14 @@ void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 //<-dceag-c336-e->
 {
-    StopRingTone();
     DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"");
     SendCommand(SCREEN_Main_);
 
-    if(haveActiveCall)
+    if(LS_ActiveCall())
     {
         Sleep(1000);
-        iaxc_dump_call();
+        LS_DropCall();
         sCMD_Result="OK";
-        haveActiveCall=false;
     }
     else
     {
@@ -281,190 +262,32 @@ void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
     }
 }
 
-/* IAXCLIENT PART */
-int iaxCallback(iaxc_event e)
+void SimplePhone::IncomingCallScreen(string sCallerID)
 {
-    if(e.type == IAXC_EVENT_STATE)
-    {
-        phone_status=0;
-        call_status=e.ev.call.state;
-        if(e.ev.call.state == IAXC_CALL_STATE_FREE)
-        {
-            phone_status=-1;
-        }
-        if(e.ev.call.state & IAXC_CALL_STATE_RINGING)
-        {
-            phone_status=1;
-            strcpy(calling_nr,e.ev.call.remote);
-            strcpy(calling_id,e.ev.call.remote_name);
-            if(!strcmp(e.ev.call.remote_name,"plutosecurity"))
-            {
-                /* the call is actually a speak in the house */
-                phone_status=2;
-                g_pPlutoLogger->Write(LV_STATUS, "PLUTO AUTOANSWER\n");
-            }
-            return 0;
-        }
-    }
-    return 0;
+	DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"");
+	SendCommand(CMD_MH_Stop_Media_);
+	CMD_Set_Variable CMD_Set_Variable_name(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_name_CONST,sCallerID);
+	SendCommand(CMD_Set_Variable_name);
+	CMD_Set_Variable CMD_Set_Variable_number(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_number_CONST,sCallerID);
+	SendCommand(CMD_Set_Variable_number);
+	GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));
 }
 
-void SimplePhone::StopRingTone()
+void SimplePhone::CallInProgressScreen()
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Stop RING");
-    if(ringTone)
-    {
-        iaxc_stop_sound(ringTone->id);
-        free(ringTone);
-        ringTone=NULL;
-    }
-}
-void SimplePhone::PlayRingTone()
-{
-    if(ringTone)
-    {
-        StopRingTone();
-    }
-    ringTone = (iaxc_sound *)calloc(1,sizeof(iaxc_sound));
-    ringTone->channel = 1;
-    ringTone->len  = sizeof(ringData)/sizeof(short);
-    ringTone->data = ringData;
-    ringTone->repeat = -1;
-    iaxc_play_sound(ringTone, 1);
-    g_pPlutoLogger->Write(LV_STATUS, "Play RING");
-}
-
-void SimplePhone::doProccess(void)
-{
-    string tmp;
-    int event_status = 0;
-    while(!m_bQuit)
-    {
-        iaxc_process_calls();
-        Sleep(5);
-        if((phone_status>0) && (haveActiveCall==false))
-        {
-            if(event_status != phone_status)
-            {
-                DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"");
-                SendCommand(CMD_MH_Stop_Media_);
-                CMD_Set_Variable CMD_Set_Variable_name(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_name_CONST,calling_id);
-                SendCommand(CMD_Set_Variable_name);
-                CMD_Set_Variable CMD_Set_Variable_number(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_number_CONST,calling_nr);
-                SendCommand(CMD_Set_Variable_number);
-                if(phone_status>1)
-                {
-                    CMD_Phone_Answer(tmp,NULL);
-                }
-                else
-                {
-                    GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));
-                    Sleep(1000);
-                    PlayRingTone();
-                }
-                calling_id[0]='\0';
-                calling_nr[0]='\0';
-            }
-        }
-        if(phone_status<0)
-        {
-            if(event_status != phone_status)
-            {
-                CMD_Phone_Drop(tmp,NULL);
-            }
-        }
-        event_status = phone_status;
-    }
-}
-
-void SimplePhone::registerWithAsterisk()
-{
-    DCEConfig dceconf;
-
-    struct iaxc_audio_device *devices;
-    int                      nDevs;
-    int                      i;
-    int                      input  = 0;
-    int                      output = 0;
-    int                      ring   = 0;
-    haveActiveCall=false;
-
-    if(iaxc_initialize(AUDIO_INTERNAL_PA,1)<0)
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Could not start (maybe a sound issue?)");
-        m_bQuit = 1;
-        exit(1);
-    }
-
-    if(iaxc_audio_devices_get(&devices, &nDevs, &input, &output, &ring)<0)
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Could not get access to audio device, will quit now");
-        m_bQuit = 1;
-        exit(1);
-    }
-
-    for(i=0; i<nDevs; i++) {
-        if(devices->capabilities & IAXC_AD_INPUT) {
-            input = devices->devID;
-        }
-
-        if(devices->capabilities & IAXC_AD_OUTPUT) {
-            output = devices->devID;
-        }
-
-        if(devices->capabilities & IAXC_AD_RING) {
-            ring = devices->devID;
-        }
-        devices++;
-    }
-    iaxc_audio_devices_set(input,output,ring);
-
-    iaxc_set_formats(IAXC_FORMAT_ALAW,IAXC_FORMAT_ALAW|IAXC_FORMAT_ULAW|IAXC_FORMAT_GSM);
-    iaxc_set_silence_threshold(-99);
-    iaxc_set_event_callback(iaxCallback);
-
-    deviceExtension = strdup(DATA_Get_PhoneNumber().c_str());
-    devicePassword = deviceExtension;
-    asteriskHost = strdup(dceconf.m_sDBHost.c_str());
-    if(strlen(deviceExtension)>0)
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "Will try to register as %s:%s@%s",deviceExtension,devicePassword,asteriskHost);
-        iaxc_register(deviceExtension,devicePassword,asteriskHost);
-    }
-    else
-    {
-        system("/usr/pluto/bin/LaunchRemoteCmd.sh dcerouter \"/usr/pluto/bin/sync_pluto2amp.pl\"");
-        m_bQuit=true;
-    }
-}
-
-void SimplePhone::unregisterWithAsterisk()
-{
-    iaxc_dump_all_calls();
-    Sleep(1000);
-//    free(deviceExtension);
-//    free(asteriskHost);
-}
-
-void * startIaxThread(void * Arg)
-{
-    SimplePhone *phone = (SimplePhone *) Arg;
-    g_pPlutoLogger->Write(LV_STATUS, "Started IAX2 Thread");
-    phone->registerWithAsterisk();
-    phone->doProccess();
-    phone->unregisterWithAsterisk();
-    return NULL;
+	DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia);
+	SendCommand(SCREEN_DevCallInProgress_);
 }
 
 void SimplePhone::CreateChildren()
 {
-    if (pthread_create(&iaxThread, NULL, startIaxThread, (void *) this))
+    if (pthread_create(&m_SIP_Thread, NULL, LS_Thread, (void *) this))
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create IAX2 Thread");
+        g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Linphone SIP Thread");
         m_bQuit = 1;
         exit(1);
     }
-    pthread_detach(iaxThread);
+    pthread_detach(m_SIP_Thread);
 }
 //<-dceag-c28-b->
 
@@ -484,13 +307,13 @@ void SimplePhone::CMD_Simulate_Keypress(string sPK_Button,string sName,string &s
 
     g_pPlutoLogger->Write(LV_STATUS, "Received '%s'",sPK_Button.c_str());
     sCMD_Result="ERROR";
-    if(call_status && IAXC_CALL_STATE_COMPLETE)
+    if(LS_ActiveCall())
     {
-        sscanf(sPK_Button.c_str(),"%d",&ch);
+		ch = atoi(sPK_Button.c_str());
         if((ch>='0' && ch<='9') || (ch=='*') || (ch == '#'))
         {
             g_pPlutoLogger->Write(LV_STATUS, "Will send '%d'(%c) as DTMF",ch,ch);
-            iaxc_send_dtmf(ch);
+            LS_SentDTMF(ch);
             sCMD_Result="OK";
         }
         else

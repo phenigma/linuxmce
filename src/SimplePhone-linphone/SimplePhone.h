@@ -15,21 +15,14 @@ namespace DCE
 //<-dceag-decl-e->
 private:
         // Private methods
-        void PlayRingTone();
-        void StopRingTone();
         // Private member variables
-        char* deviceExtension;
-        char* devicePassword;
-        char* asteriskHost;
-		bool haveActiveCall;
-        pthread_t iaxThread;
+        pthread_t m_SIP_Thread;
 public:
         // Public member variables
         // Public methods
-        void registerWithAsterisk();
-        void unregisterWithAsterisk();
-        void doProccess();
         virtual void CreateChildren();
+        void IncomingCallScreen(string sCallerID);
+        void CallInProgressScreen();
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor
