@@ -50,6 +50,7 @@ public:
 	bool NeedUpdateScreen();
 	
 	void AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame);
+	void RemoveMeshFrameFromDesktopFromID(std::string ObjectID);
 	MeshFrame* GetMeshFrameFromDesktop(string ObjectID);
 	
 	virtual void NewScreen();

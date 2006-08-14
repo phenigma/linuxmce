@@ -126,9 +126,9 @@ bool OpenGL3DEngine::Paint()
 			Color.X = Color.Z;
 			Color.Y = Color.Z;
 
-			CurrentLayer->RemoveChild(HighLightFrame);
-			CurrentLayer->AddChild(HighLightFrame);
-			HighLightFrame->GetMeshContainer()->SetColor(Color);
+			CurrentLayer->RemoveChild(HighLightPopup);
+			CurrentLayer->AddChild(HighLightPopup);
+			HighLightPopup->GetMeshContainer()->SetColor(Color);
 		}
 
 		if(HighLightFrame)
@@ -515,6 +515,13 @@ void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 
 	HideHighlightRectangle();
 
+	if(HighLightPopup)
+	{
+		HighLightPopup->CleanUp();
+		delete HighLightPopup;
+		HighLightPopup = NULL;
+	}
+	HighLightPopup = new MeshFrame();
 	HighLightPopup->AddChild(LeftBar);
 	HighLightPopup->AddChild(TopBar);
 	HighLightPopup->AddChild(RightBar);
@@ -543,3 +550,17 @@ void OpenGL3DEngine::HideHighlightRectangle()
 	}
 }
 
+void OpenGL3DEngine::RemoveMeshFrameFromDesktopFromID(std::string ObjectID)
+{
+	if(ObjectID == "")
+		return;
+	std::map<string, MeshFrame *>::iterator it = CurrentLayerObjects_.find(ObjectID);
+	if(it != CurrentLayerObjects_.end())
+	{
+		MeshFrame* OldFrame = it->second;
+		//g_pPlutoLogger->Write(LV_CRITICAL, "Replacing child %p, object %s of layer %p", 
+		//	OldFrame, ObjectID.c_str(), CurrentLayer);
+
+		CurrentLayer->RemoveChild(OldFrame);
+	}
+}

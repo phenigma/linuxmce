@@ -649,7 +649,7 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 #endif
 
 	if(Popups)
-		Popups->PaintPopup(pPopup->m_pObj->GenerateObjectHash(pPopup->m_Position), pPopup);
+		Popups->PaintPopup(pPopup->m_pObj->GenerateObjectHash(pPopup->m_Position), pPopup, EffectID);
 	if (EffectID)
 	{
 		//PlutoRectangle Rect(pPopup->m_Position);
@@ -740,4 +740,9 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 
 	RenderObjectAsync(pObj);
 
+}
+
+void OrbiterRenderer_OpenGL::RemoveGraphic(string ObjectID)
+{
+	Engine->RemoveMeshFrameFromDesktopFromID(ObjectID);
 }
