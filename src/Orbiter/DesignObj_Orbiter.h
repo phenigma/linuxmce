@@ -48,6 +48,7 @@ public:
 	int m_iRepeatParm;  // A temporary value used to track how many times this button has repeated
 
 	vector<DesignObj_Orbiter *> m_vectObj_TabStops;  // If this is a screen, this is all the tab stops
+	vector<DesignObj_Orbiter *> m_vectObj_TiedToUs;  // All objects with m_pDesignObj_Orbiter_TiedTo pointing here
     list<class PlutoPopup*> m_listPopups; // If this is a screen, these are the local popups
 	DesignObj_DataList m_OverlayObjects;
 

@@ -2137,6 +2137,9 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 			string Column = StringUtils::Tokenize( pObj->m_sPK_DesignObj_TiedTo, ":", pos );
 			string Row = StringUtils::Tokenize( pObj->m_sPK_DesignObj_TiedTo, ":", pos );
 			pObj->m_pDesignObj_Orbiter_TiedTo = FindObject( Object, pObj );
+			if( pObj->m_pDesignObj_Orbiter_TiedTo )
+				pObj->m_pDesignObj_Orbiter_TiedTo->m_vectObj_TiedToUs.push_back(pObj);
+
 			pObj->m_iColumnTiedTo = Column=="" ? -1 : atoi( Column.c_str(  ) );
 			pObj->m_iRowTiedTo = Row=="" ? -1 : atoi( Row.c_str(  ) );
 		}

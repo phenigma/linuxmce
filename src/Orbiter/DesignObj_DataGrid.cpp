@@ -442,6 +442,15 @@ bool DesignObj_DataGrid::Scroll_Grid(string sRelative_Level, int iPK_Direction,b
 			}
 		}
 	}
+	for( vector<DesignObj_Orbiter *>::iterator it=m_vectObj_TiedToUs.begin();it!=m_vectObj_TiedToUs.end();++it )
+	{
+		DesignObj_Orbiter *pObj = *it;
+		if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+		{
+			DesignObj_DataGrid *pObj_Datagrid = (DesignObj_DataGrid *) pObj;
+			pObj_Datagrid->Scroll_Grid(sRelative_Level, iPK_Direction, bMoveOneLineIfCannotPage);
+		}
+	}
 	DataGridRenderer *pDataGridRenderer = dynamic_cast<DataGridRenderer *>(m_pObjectRenderer);
 	pDataGridRenderer->iPK_Direction = iPK_Direction;
 	pDataGridRenderer->StartAnimation = 1;

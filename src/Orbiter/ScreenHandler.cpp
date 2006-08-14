@@ -274,7 +274,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 			return false; //shouldn't happen
 
 		DataGridCell *pCell_List=NULL;
-		pCell_List = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get()->GetData(0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
+		pCell_List = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get()->GetData(0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow);
 
 		if( !pCell_List || !pCell_List->m_Value )
 			return false; // Shouldn't happen
