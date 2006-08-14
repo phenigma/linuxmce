@@ -15,6 +15,7 @@ namespace DCE
 class DesignObj_DataGrid : public DesignObj_Orbiter 
 {
 	friend class DataGridRenderer;
+	DataGridTable *m_pDataGridTable_Current;
 
 public:
 	DesignObj_DataGrid(Orbiter *pOrbiter);
@@ -35,7 +36,8 @@ public:
 	int m_iInitialColNum,m_iInitialRowNum,m_iPK_Datagrid,m_iPK_Variable,m_iSeekColumn,m_iPK_DeviceTemplate;
 	string m_sGridID,m_sOptions,m_sExtraInfo,m_sSeek;
 	DesignObj_Orbiter *m_pObjLeft, *m_pObjRight, *m_pObjUp, *m_pObjDown;
-	DataGridTable *m_pDataGridTable_Current;
+	DataGridTable *m_pDataGridTable_Current_get() { return m_pDataGridTable_Current; }
+	void m_pDataGridTable_Current_set(DataGridTable *pDataGridTable_Current);
 	int m_CachedCurRow,m_CachedCurCol;
 	map< pair<int,int>, DataGridTable *> m_mapDataGridTable_Cache; // Map Row,Col to the cached grid.  These are all pages, or views of the grid that we've cached
 	map<int,int> m_mapNumberOfPagesToCache;  // Map of PK_Direction to a number of pages to cache in that direction
@@ -45,7 +47,8 @@ public:
 	/**
 	* @brief Fetches the contents of the datagrid at the given start points
 	*/
-	class DataGridTable* RequestDatagridContents( int &GridCurCol, int &GridCurRow );
+	class DataGridTable* RequestDatagridContents( int &GridCurCol, int &GridCurRow, bool bCache );
+	bool CellIsVisible(int Column,int Row);
 
 	bool CanGoUp();
 	bool CanGoDown();

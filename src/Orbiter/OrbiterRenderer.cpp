@@ -1237,22 +1237,26 @@ void *ImageLoadThread(void *p)
 	bool bContinue, bRedraw;
 	do
 	{
-		PLUTO_SAFETY_LOCK(M, pRenderer->m_pOrbiter->m_VariableMutex);
+		PLUTO_SAFETY_LOCK(M, pRenderer->m_pOrbiter->m_DatagridMutex);
 		// Do them in the reverse order so if we're paging through lots of cells we'll always be rendering
 		// the visible ones first
 		if( pRenderer->m_listBackgroundImage.size()==0 )
 			return NULL;  // Must have had another imageloadthread also running that serviced the last one at the same split second.  No problem.
-		BackgroundImage *pBackgroundImage = pRenderer->m_listBackgroundImage.back();
-		pRenderer->m_listBackgroundImage.pop_back();
-		M.Release();
-		PlutoGraphic *pG = pRenderer->m_pOrbiter->Renderer()->CreateGraphic();
-		pG->LoadGraphicFile(pBackgroundImage->m_sPic.c_str(), pRenderer->m_pOrbiter->m_iRotation);
+		BackgroundImage *pBackgroundImage = pRenderer->m_listBackgroundImage.front();
+		pRenderer->m_listBackgroundImage.pop_front();
 
-		M.Relock();
-		if( pBackgroundImage->m_pCell )
+		if( !pBackgroundImage->m_pObj_Grid->m_bOnScreen )  // This may have gone off screen, if so ignore it
+			continue;
+		
+		size_t l;
+		pBackgroundImage->m_pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer(pBackgroundImage->m_sPic, l);
+		pBackgroundImage->m_pCell->m_GraphicLength=l;
+		if( pBackgroundImage->m_pObj_Grid->CellIsVisible( pBackgroundImage->m_ColRow.first, pBackgroundImage->m_ColRow.second ) )
 		{
 			delete pBackgroundImage->m_pCell->m_pGraphic;
-			pBackgroundImage->m_pCell->m_pGraphic=pG;
+			pBackgroundImage->m_pCell->m_pGraphic = pBackgroundImage->m_pObj_Grid->m_pOrbiter->Renderer()->CreateGraphic();
+			pBackgroundImage->m_pCell->m_pGraphic->m_GraphicFormat = pBackgroundImage->m_pCell->m_GraphicFormat;
+			pBackgroundImage->m_pCell->m_pGraphic->LoadGraphic(pBackgroundImage->m_pCell->m_pGraphicData,  pBackgroundImage->m_pCell->m_GraphicLength, pBackgroundImage->m_pObj_Grid->m_pOrbiter->m_iRotation);
 			int j=pBackgroundImage->m_ColRow.first;
 			int i=pBackgroundImage->m_ColRow.second;
 			int x, y, w, h;
@@ -1260,20 +1264,27 @@ void *ImageLoadThread(void *p)
 			pBackgroundImage->m_pObj_Grid->GetGridCellDimensions(pBackgroundImage->m_pCell->m_Colspan,  pBackgroundImage->m_pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
 			pBackgroundImage->m_pObj_Grid->m_pOrbiter->Renderer()->RenderGraphic(pBackgroundImage->m_pCell->m_pGraphic, PlutoRectangle(x,  y,  w,  h), pBackgroundImage->m_pObj_Grid->m_bDisableAspectLock, point );
 		}
+else
+{
+int k=2;
+}
+
 		bContinue = (pRenderer->m_listBackgroundImage.size() > 0);
 		bRedraw = ((pRenderer->m_listBackgroundImage.size() % 10) == 0);
 g_pPlutoLogger->Write(LV_EVENT,"ImageLoadThread %s size: %d (%d) %d",pBackgroundImage->m_sPic.c_str(),(int) pRenderer->m_listBackgroundImage.size(),(int) bRedraw,(int) bContinue);
-		M.Release();
 	} while(bContinue);
 	return NULL;
 }
 
-void OrbiterRenderer::BackgroundImageLoad(const char *Filename, DesignObj_DataGrid *pObj_DataGrid, DataGridCell *pCell, pair<int,int> ColRow )
+void OrbiterRenderer::BackgroundImageLoad(const char *Filename, DesignObj_DataGrid *pObj_DataGrid, DataGridCell *pCell, pair<int,int> ColRow, bool bDoFirst )
 {
 	bool bNeedToStartThread;
 	PLUTO_SAFETY_LOCK(M, m_pOrbiter->m_VariableMutex);
 	bNeedToStartThread = (m_listBackgroundImage.size() == 0);
-	m_listBackgroundImage.push_back( new BackgroundImage(Filename,pObj_DataGrid,pCell,ColRow) );
+	if( bDoFirst )
+		m_listBackgroundImage.push_front( new BackgroundImage(Filename,pObj_DataGrid,pCell,ColRow) );
+	else
+		m_listBackgroundImage.push_back( new BackgroundImage(Filename,pObj_DataGrid,pCell,ColRow) );
 g_pPlutoLogger->Write(LV_EVENT,"OrbiterRenderer::BackgroundImageLoad %s size: %d",Filename,(int) m_listBackgroundImage.size());
 
 	M.Release();

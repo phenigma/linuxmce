@@ -41,7 +41,7 @@ using namespace std;
 
 void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount)
 {
-	if( !m_pMediaListGrid_Master )  // It's just the list -- nothing special to do here
+	if( !m_pMediaListGrid_Master || *ColStart>0 )  // It's just the list -- nothing special to do here.  And there's no horizontal paging
 	{
 		DataGridTable::ToData(GridID,Size,Data,ColStart,RowStart,ColCount,RowCount);
 		return;
@@ -52,9 +52,9 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 #endif
 	
 
-	for(int row=*RowStart;row<=*RowStart+RowCount;++row)
+	for(int row=*RowStart;row<*RowStart+RowCount;++row)
 	{
-		for(int col=*ColStart;col<=*ColStart+ColCount;++col)
+		for(int col=*ColStart;col<*ColStart+ColCount;++col)
 		{
 			int OriginalRow = row*ColCount+col;
 			if( OriginalRow>=m_pMediaListGrid_Master->m_TotalRows )

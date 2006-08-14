@@ -25,7 +25,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		return;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING,"RenderDataGrid %s %p",m_pObj_Owner_DataGrid->m_ObjectID.c_str(),m_pObj_Owner_DataGrid->m_pDataGridTable_Current);
+	g_pPlutoLogger->Write(LV_WARNING,"RenderDataGrid %s %p",m_pObj_Owner_DataGrid->m_ObjectID.c_str(),m_pObj_Owner_DataGrid->m_pDataGridTable_Current_get());
 #endif
 	PLUTO_SAFETY_LOCK( dg, m_pObj_Owner_DataGrid->m_pOrbiter->m_DatagridMutex );
 	string delSelections;
@@ -48,7 +48,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 	clock_t clkAcquired = clock(  );
 #endif
 
-	if( !m_pObj_Owner_DataGrid->m_pDataGridTable_Current )
+	if( !m_pObj_Owner_DataGrid->m_pDataGridTable_Current_get() )
 		return;
 
 	int nAlphaChannel = GetAlphaLevel();
@@ -59,14 +59,14 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 
 	int i,  j; //indexes
 
-	for ( i = 0; i < m_pObj_Owner_DataGrid->m_pDataGridTable_Current->m_RowCount; i++ )
+	for ( i = 0; i < m_pObj_Owner_DataGrid->m_pDataGridTable_Current_get()->m_RowCount; i++ )
 	{
-		for ( j = 0; j < m_pObj_Owner_DataGrid->m_pDataGridTable_Current->m_ColumnCount; j++ )
+		for ( j = 0; j < m_pObj_Owner_DataGrid->m_pDataGridTable_Current_get()->m_ColumnCount; j++ )
 		{
-			int DGRow = ( ( i == 0 && m_pObj_Owner_DataGrid->m_pDataGridTable_Current->m_bKeepRowHeader ) ? 0 : i + m_pObj_Owner_DataGrid->m_pDataGridTable_Current->m_StartingRow );
-			int DGColumn = ( j == 0 && m_pObj_Owner_DataGrid->m_pDataGridTable_Current->m_bKeepColumnHeader ) ? 0 : j + m_pObj_Owner_DataGrid->m_pDataGridTable_Current->m_StartingColumn;
+			int DGRow = ( ( i == 0 && m_pObj_Owner_DataGrid->m_pDataGridTable_Current_get()->m_bKeepRowHeader ) ? 0 : i + m_pObj_Owner_DataGrid->m_pDataGridTable_Current_get()->m_StartingRow );
+			int DGColumn = ( j == 0 && m_pObj_Owner_DataGrid->m_pDataGridTable_Current_get()->m_bKeepColumnHeader ) ? 0 : j + m_pObj_Owner_DataGrid->m_pDataGridTable_Current_get()->m_StartingColumn;
 
-			DataGridCell * pCell = m_pObj_Owner_DataGrid->m_pDataGridTable_Current->GetData( DGColumn,  DGRow );
+			DataGridCell * pCell = m_pObj_Owner_DataGrid->m_pDataGridTable_Current_get()->GetData( DGColumn,  DGRow );
 
 			if ( pCell )
 			{
@@ -84,12 +84,12 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 						}
 					}
 
-					RenderCell(m_pObj_Owner_DataGrid->m_pDataGridTable_Current,  pCell,  j,  i,  GraphicType, point );
+					RenderCell(m_pObj_Owner_DataGrid->m_pDataGridTable_Current_get(),  pCell,  j,  i,  GraphicType, point );
 				}
 				else
-					RenderCell(m_pObj_Owner_DataGrid->m_pDataGridTable_Current,  pCell,  j,  i,  GRAPHIC_NORMAL, point );
+					RenderCell(m_pObj_Owner_DataGrid->m_pDataGridTable_Current_get(),  pCell,  j,  i,  GRAPHIC_NORMAL, point );
 
-				if( DGRow==m_pObj_Owner_DataGrid->m_pDataGridTable_Current->m_iUpRow || DGRow==m_pObj_Owner_DataGrid->m_pDataGridTable_Current->m_iDownRow )
+				if( DGRow==m_pObj_Owner_DataGrid->m_pDataGridTable_Current_get()->m_iUpRow || DGRow==m_pObj_Owner_DataGrid->m_pDataGridTable_Current_get()->m_iDownRow )
 					break;  // Only the first column
 
 				pCell = NULL;

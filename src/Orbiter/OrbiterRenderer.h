@@ -225,7 +225,8 @@ public:
 	*/
 	virtual void ObjectOffScreen( DesignObj_Orbiter *pObj );
 
-	void BackgroundImageLoad(const char *Filename, DesignObj_DataGrid *pObj_DataGrid, DataGridCell *pCell, pair<int,int> ColRow );
+	// If bDoFirst is true it's added to the front of the list, otherwise to the back
+	void BackgroundImageLoad(const char *Filename, DesignObj_DataGrid *pObj_DataGrid, DataGridCell *pCell, pair<int,int> ColRow, bool bDoFirst);
 
 	/**
 	* @brief Setup the window related tasks 

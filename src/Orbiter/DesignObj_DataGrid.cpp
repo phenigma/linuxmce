@@ -70,7 +70,7 @@ bool DesignObj_DataGrid::HasMoreDown()
 /*virtual*/ void DesignObj_DataGrid::PrepareRenderDataGrid(string& delSelections )
 {
 g_pPlutoLogger->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %d max col %d cur row %d cur col %d", m_sGridID.c_str(),m_MaxRow,m_MaxCol,m_GridCurRow,m_GridCurCol);
-	DataGridTable *pDataGridTable = RequestDatagridContents( m_GridCurCol,  m_GridCurRow );
+	DataGridTable *pDataGridTable = RequestDatagridContents( m_GridCurCol,  m_GridCurRow, false );
 	m_pOrbiter->CallMaintenanceInMiliseconds(100,&Orbiter::StartCachingGrid,this,pe_Match_Data);
 	m_PagesCached = make_pair<int,int> (0,0); // Start caching again
 
@@ -81,7 +81,7 @@ g_pPlutoLogger->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %
 
 	m_CachedCurRow=m_GridCurRow;
 	m_CachedCurCol=m_GridCurCol;
-	m_pDataGridTable_Current=pDataGridTable;
+	m_pDataGridTable_Current_set(pDataGridTable);
 
 	if (pDataGridTable )
 	{
@@ -100,7 +100,7 @@ g_pPlutoLogger->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %
 
 	}
 }
-DataGridTable *DesignObj_DataGrid::RequestDatagridContents( int &GridCurCol, int &GridCurRow )
+DataGridTable *DesignObj_DataGrid::RequestDatagridContents( int &GridCurCol, int &GridCurRow, bool bCache )
 {
 	PLUTO_SAFETY_LOCK( vm, m_pOrbiter->m_VariableMutex );
 	DataGridTable *pDataGridTable = DataGridTable_Get(GridCurRow,GridCurCol);
@@ -149,7 +149,7 @@ g_pPlutoLogger->Write(LV_ACTION,"acquiring %s",m_ObjectID.c_str());
 #ifdef DEBUG
 						g_pPlutoLogger->Write(LV_EVENT,"DataGridRenderer::RenderCell loading %s in bg for %d,%d",pPath,pDataGridTable->CovertColRowType(it->first).first,pDataGridTable->CovertColRowType(it->first).second);
 #endif
-						m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, this, pCell, pDataGridTable->CovertColRowType(it->first));
+						m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, this, pCell, pDataGridTable->CovertColRowType(it->first),!bCache);
 					}
 	//				M.Relock();
 				}
@@ -231,7 +231,7 @@ DataGridTable *DesignObj_DataGrid::DataGridTable_Get(int CurRow,int CurCol)
 		else
 			return it->second;
 	}
-	return m_pDataGridTable_Current;
+	return m_pDataGridTable_Current_get();
 }
 
 void DesignObj_DataGrid::DataGridTable_Set(DataGridTable *pDataGridTable,int CurRow,int CurCol)
@@ -303,7 +303,7 @@ void DesignObj_DataGrid::CacheGrid()
 		bResult = CalculateGridMovement(  m_PagesCached.first, m_CurrentLocation.second, 0, pDataGridTable );
 	if( bResult )  // We succeeded
 	{
-		pDataGridTable = RequestDatagridContents(m_CurrentLocation.second,m_CurrentLocation.first);  // Get the grid at this location
+		pDataGridTable = RequestDatagridContents(m_CurrentLocation.second,m_CurrentLocation.first, true);  // Get the grid at this location
 		m_PagesCached.second++;
 	}
 	else
@@ -377,7 +377,7 @@ bool DesignObj_DataGrid::CalculateGridMovement(int Direction, int &Cur,  int Cel
 		break;
 	case DIRECTION_Left_CONST:
 		if ( CellsToSkip==0 )
-			CellsToSkip = m_MaxCol-( pDataGridTable->m_bKeepColumnHeader ? 2 : 1 );
+			CellsToSkip = m_MaxCol-( pDataGridTable->m_bKeepColumnHeader ? 1 : 0 );
 		if ( CellsToSkip<=0 )
 			CellsToSkip = 1;
 
@@ -387,7 +387,7 @@ bool DesignObj_DataGrid::CalculateGridMovement(int Direction, int &Cur,  int Cel
 		break;
 	case DIRECTION_Right_CONST:
 		if ( CellsToSkip==0 )
-			CellsToSkip = m_MaxCol-( pDataGridTable->m_bKeepColumnHeader ? 2 : 1 );
+			CellsToSkip = m_MaxCol-( pDataGridTable->m_bKeepColumnHeader ? 1 : 0 );
 		if ( CellsToSkip<=0 )
 			CellsToSkip = 1;
 
@@ -559,3 +559,47 @@ bool DesignObj_DataGrid::Scroll_Grid(string sRelative_Level, int iPK_Direction,b
 	m_pOrbiter->Renderer()->RenderObjectAsync(this);
 	return true;
 }
+
+void DesignObj_DataGrid::m_pDataGridTable_Current_set(DataGridTable *pDataGridTable_Current)
+{
+	PLUTO_SAFETY_LOCK( vm, m_pOrbiter->m_DatagridMutex );
+	if( m_pDataGridTable_Current && m_pDataGridTable_Current!=pDataGridTable_Current )
+	{
+		for(MemoryDataTable::iterator it=m_pDataGridTable_Current->m_MemoryDataTable.begin();it!=m_pDataGridTable_Current->m_MemoryDataTable.end();++it)
+		{
+			DataGridCell *pCell = it->second;
+			if( pCell->m_pGraphic )
+			{
+//				delete pCell->m_pGraphic;
+//				pCell->m_pGraphic=NULL;
+			}
+		}
+	}
+	m_pDataGridTable_Current=pDataGridTable_Current;
+}
+
+bool DesignObj_DataGrid::CellIsVisible(int Column,int Row)
+{
+	if( Row<m_GridCurRow && (Row!=0 || !m_bKeepRowHeader) )
+		return false;
+
+	if( Column<m_GridCurCol && (Column!=0 || !m_bKeepColHeader) )
+		return false;
+
+	int ExtraRows=0;
+	if( m_bKeepRowHeader )
+		ExtraRows++;
+	if( DataGridTable_Get() && DataGridTable_Get()->m_iDownRow!=-1 )
+		ExtraRows++;
+	if( DataGridTable_Get() && DataGridTable_Get()->m_iUpRow!=-1 )
+		ExtraRows++;
+
+	if( Row>m_GridCurRow + m_MaxRow - ExtraRows )
+		return false;
+	if( m_bKeepColHeader && Column > m_GridCurCol + m_MaxCol - 1 )
+		return false;
+	if( !m_bKeepColHeader && Column > m_GridCurCol + m_MaxCol )
+		return false;
+	return true;
+}
+
