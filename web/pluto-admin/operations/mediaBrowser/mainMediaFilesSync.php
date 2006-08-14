@@ -212,7 +212,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 				header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&error='.$TEXT_ERROR_INVALID_DIRECTORY_NAME_CONST);
 			}else{
 				$newPath=str_replace($oldDir,$newDir,$path);
-				exec('sudo -u root mv "'.$oldDir.'" "'.$newDir.'"');
+				exec('sudo -u root mv "'.$path.'" "'.$newPath.'"');
 				$out.='
 				<script>
 					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($newPath).'&msg='.$TEXT_DIRECTORY_RENAMED_CONST.'";
