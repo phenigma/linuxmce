@@ -10,6 +10,11 @@
 # If the device template X already had a FK_InfraredGroup not null, the new group won't be created, 
 # but instead the codes will be assigned to it.
 
+
+if [[ -f /etc/diskless.conf ]] ;then
+        exit 0
+fi
+
 MyName="002-000-040-UsersIRandGSDcodes.sh"
 
 JobDone="false"

@@ -8,6 +8,11 @@
 # Having FK_InfraredGroup null prevent codes to be displayed on web pages, and since the table wasn't 
 # updated, even running sqlCVS for them won't update them (they have psc_mod=0).
 
+if [[ -f /etc/diskless.conf ]] ;then
+        exit 0
+fi
+
+
 MyName="002-000-040-IncorrectRecordsInInfraredGroup_Command.sh"
 
 
