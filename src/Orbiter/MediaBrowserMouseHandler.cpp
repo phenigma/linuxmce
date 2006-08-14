@@ -262,8 +262,9 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 		Y = (m_pObj_PicGrid->m_iHighlightedRow*m_pObj_PicGrid->m_FixedRowHeight) - ((m_pObj_CoverArtPopup->m_rPosition.Height - m_pObj_PicGrid->m_FirstRowHeight)/2);
 
 	DataGridCell *pCell = NULL;
-	if( m_pObj_PicGrid->DataGridTable_Get() )
-		pCell = m_pObj_PicGrid->DataGridTable_Get()->GetData(m_pObj_PicGrid->m_iHighlightedColumn,m_pObj_PicGrid->m_iHighlightedRow);
+	DataGridTable *pDataGridTable = m_pObj_PicGrid->DataGridTable_Get();
+	if( pDataGridTable )
+		pCell = pDataGridTable->GetData(m_pObj_PicGrid->m_iHighlightedColumn + m_pObj_PicGrid->m_GridCurCol,m_pObj_PicGrid->m_iHighlightedRow + m_pObj_PicGrid->m_GridCurRow );
 
 	PLUTO_SAFETY_LOCK(M, m_pMouseBehavior->m_pOrbiter->m_VariableMutex );
 	if( pCell && pCell->m_pGraphic && pCell->m_pGraphic->m_pGraphicData)
@@ -292,7 +293,7 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 bool MediaBrowserMouseHandler::DoIteration()
 {
 g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
-
+//	m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "iterator grid" );  // Redraw anything that was changed by this command
 	bool bResult;
 	if( m_eCapturingOffscreenMovement==cosm_UP )
