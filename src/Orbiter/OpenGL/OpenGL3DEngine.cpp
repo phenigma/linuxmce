@@ -511,6 +511,7 @@ void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 		);
 
 	Rect = Original;
+	Rect.Y += Rect.Width;
 	Rect.Width = 2;
 	RightBar->SetMeshContainer(
 		MeshBuilder::BuildRectangle(&Rect, NULL)
@@ -518,6 +519,7 @@ void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 
 	Rect = Original;
 	
+	Rect.Y += Rect.Height;
 	Rect.Height = 2;
 	BottomBar->SetMeshContainer(
 		MeshBuilder::BuildRectangle(&Rect, NULL)
@@ -527,9 +529,9 @@ void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 
 	if(HighLightPopup)
 	{
-		HighLightPopup->CleanUp();
-		delete HighLightPopup;
-		HighLightPopup = NULL;
+		//HighLightPopup->CleanUp();
+//		delete HighLightPopup;
+		//HighLightPopup = NULL;
 	}
 	HighLightPopup = new MeshFrame();
 	HighLightPopup->AddChild(LeftBar);
