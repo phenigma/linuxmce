@@ -76,6 +76,13 @@ namespace DCE
         // read the image from disk
         bool RelativePointer_ImageLoad(int nSpeedShape);
 
+        // draw the image
+        // if it was loaded succesfully
+        void RelativePointer_ImageDraw(PlutoGraphic *pImage, const PlutoRectangle &rectFakePointer);
+
+        // remove the image from the list of objects
+        void RelativePointer_ImageRemove();
+
         // compute the image rectangle, based on the pre-loaded image
         // X and Y are the desired pointer coordinates
         PlutoRectangle RelativePointer_ComputeRectangle(int X, int Y, int screenWidth, int screenHeight);

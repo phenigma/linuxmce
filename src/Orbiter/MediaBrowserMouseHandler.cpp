@@ -15,6 +15,10 @@
 #include "ScreenHistory.h"
 #include "DataGridRenderer.h"
 
+#ifdef ORBITER_OPENGL
+#include "OpenGL/OrbiterRenderer_OpenGL.h"
+#endif
+
 using namespace DCE;
 
 MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior)
@@ -118,12 +122,11 @@ void MediaBrowserMouseHandler::RelativeMove(int X, int Y)
 		//	X-Notch*2,0,
 		//	Notch*2,5,
 		//	PlutoColor::Green());
-        RelativePointer_ImageLoad(Notch);
-        //PlutoRectangle rectFakePointer(X-40,0,80,5);
+        RelativePointer_ImageLoad(-Notch);
         if (m_pRelativePointer_Image)
 		{
 			PlutoRectangle rectFakePointer(X-40,0,m_pRelativePointer_Image->Width, m_pRelativePointer_Image->Height);
-			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(m_pRelativePointer_Image, rectFakePointer);
+            RelativePointer_ImageDraw(m_pRelativePointer_Image, rectFakePointer);
 		}
 	}
 	else
@@ -143,11 +146,10 @@ void MediaBrowserMouseHandler::RelativeMove(int X, int Y)
 		//	Notch*2,5,
 		//	PlutoColor::Green());
         RelativePointer_ImageLoad(Notch);
-        //PlutoRectangle rectFakePointer(X-40,m_pMouseBehavior->m_pOrbiter->m_Height-5,80,5);
 		if (m_pRelativePointer_Image)
 		{
 			PlutoRectangle rectFakePointer(X-40,m_pMouseBehavior->m_pOrbiter->m_Height-m_pRelativePointer_Image->Height,m_pRelativePointer_Image->Width, m_pRelativePointer_Image->Height);
-			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(m_pRelativePointer_Image, rectFakePointer);
+            RelativePointer_ImageDraw(m_pRelativePointer_Image, rectFakePointer);
 		}
 	}
 
@@ -416,7 +418,7 @@ bool MediaBrowserMouseHandler::RelativePointer_SetStatus(int nSpeedShape)
 	if( m_pRelativePointer_Image )
 	{
 	    PlutoRectangle rectFakePointer = RelativePointer_ComputeRectangle(posFakeMouse.X, posFakeMouse.Y, oSizeScreen.Width, oSizeScreen.Height);
-		m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(m_pRelativePointer_Image, rectFakePointer);
+        RelativePointer_ImageDraw(m_pRelativePointer_Image, rectFakePointer);
 	}
 	return true;
 }
@@ -429,6 +431,8 @@ void MediaBrowserMouseHandler::RelativePointer_Clear()
         delete m_pRelativePointer_Image;
         m_pRelativePointer_Image = NULL;
     }
+    RelativePointer_ImageRemove();
+    //m_pMouseBehavior->ShowMouse(true);
 }
 
 int MediaBrowserMouseHandler::RelativePointer_AdjustSpeedShape(int nSpeedShape)
@@ -464,7 +468,6 @@ bool MediaBrowserMouseHandler::RelativePointer_ImageLoad(int nSpeedShape)
         RelativePointer_Clear();
         return false;
     }
-
     // compute the image path
     char buffer[100];
     sprintf(buffer, "speed_shape_%d.png", nSpeedShape);
@@ -484,7 +487,38 @@ bool MediaBrowserMouseHandler::RelativePointer_ImageLoad(int nSpeedShape)
     m_pRelativePointer_Image->LoadGraphic(pData, iSize);
     delete [] pData;
     pData = NULL;
+    // hide the real pointer
+    m_pMouseBehavior->ShowMouse(false);
     return true;
+}
+
+void MediaBrowserMouseHandler::RelativePointer_ImageDraw(PlutoGraphic *pImage, const PlutoRectangle &rectFakePointer)
+{
+#ifdef ORBITER_OPENGL
+    OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = dynamic_cast<OrbiterRenderer_OpenGL *>(m_pMouseBehavior->m_pOrbiter->Renderer());
+    if (pOrbiterRenderer_OpenGL)
+    {
+        // opengl mode
+        // reusing the same image id
+        pOrbiterRenderer_OpenGL->RenderGraphic("image_fake_pointer", pImage, rectFakePointer);
+        return;
+    }
+#endif
+    // sdl mode, not tested
+    m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(pImage, rectFakePointer);
+}
+
+void MediaBrowserMouseHandler::RelativePointer_ImageRemove()
+{
+#ifdef ORBITER_OPENGL
+    OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = dynamic_cast<OrbiterRenderer_OpenGL *>(m_pMouseBehavior->m_pOrbiter->Renderer());
+    if (pOrbiterRenderer_OpenGL)
+    {
+        pOrbiterRenderer_OpenGL->RemoveGraphic("image_fake_pointer");
+        return;
+    }
+#endif
+    // sdl mode, no method implemented yet in sdl
 }
 
 PlutoRectangle MediaBrowserMouseHandler::RelativePointer_ComputeRectangle(int X, int Y, int screenWidth, int screenHeight)
