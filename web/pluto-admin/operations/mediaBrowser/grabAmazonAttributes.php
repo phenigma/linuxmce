@@ -312,6 +312,12 @@ function processGrabAttributes($mediadbADO){
 				// create thumbnail
 				savePic($import_cover_art,$GLOBALS['mediaPicsPath'].$newPicName);
 				if(file_exists($GLOBALS['mediaPicsPath'].$newPicName)){
+					// try to delete exisitng thumbnail if user messed the files and database
+					if(file_exists($GLOBALS['mediaPicsPath'].$picID.'_tn.'.$extension)){
+						$cmd='sudo -u root rm -f "'.$GLOBALS['mediaPicsPath'].$picID.'_tn.'.$extension.'"';
+						exec_batch_command($cmd);
+					}
+					
 					$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$picID.'_tn.'.$extension, 100, 100);
 					if(!$resizeFlag){
 						$error=$TEXT_ERROR_UPLOAD_FAILS_PERMISIONS_CONST.' '.$GLOBALS['mediaPicsPath'];
@@ -398,6 +404,10 @@ function savePic($url,$path){
 	// copy the pic localy if the param is specified
 	// path need to be a working path with write permission
 	if($path!=''){
+		if(file_exists($path)){
+			$cmd='sudo -u root rm -f "'.$path.'"';
+			exec_batch_command($cmd);
+		}
 		$getPicCmd='wget --header=\'User-Agent: Lynx/2.8.5rel.1 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/1.0.16\' -O - \''.$url.'\' > '.$path;
 		$coverArtPage=exec_batch_command($getPicCmd,1);
 	}
