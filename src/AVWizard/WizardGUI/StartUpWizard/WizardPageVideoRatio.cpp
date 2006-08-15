@@ -14,10 +14,12 @@ WizardPageVideoRatio::WizardPageVideoRatio(SDLFrontEnd* FrontEnd, std::string Na
 	: WizardPage(FrontEnd, Name)
 {
 	Selected = NULL;
+	std::cout << "WizardPageVideoRatio constructor" << std::endl;
 }
 
 WizardPageVideoRatio::~WizardPageVideoRatio(void)
 {
+	std::cout << "WizardPageVideoRatio destructor" << std::endl;
 }
 
 /*virtual*/ int WizardPageVideoRatio::DoApplySetting(SettingsDictionary* Dictionary)
@@ -60,6 +62,7 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 		List->AddItem("800x600 (4:3)", "800x600");
 		List->AddItem("720p (16:9)", "720p");
 		List->AddItem("1024x768 (4:3)", "1024x768");
+		List->AddItem("1280x800 (custom)", "1280x800");
 		List->AddItem("1280x1024 (5:4)", "1280x1024");
 		List->AddItem("1080i (16:9)", "1080i");
 		List->AddItem("1080p (16:9)", "1080p");

@@ -32,6 +32,7 @@ Resolutions_HDTV=(
 	'720p=1280x720'
 	'1080i=1920x1080i'
 	'1080p=1920x1080'
+	'1280x800'
 )
 Refresh_Rates=(
 	'50'
@@ -142,6 +143,7 @@ StartX()
 		XParm=("${XParm[@]}" -parm "$Parm")
 	done
 	"$BaseDir"/Start_X.sh -fg -client /usr/pluto/bin/AVWizard -srvparm '-config' -srvparm "$XF86Config" -display :1 "${XParm[@]}"
+	#"$BaseDir"/Start_X.sh -fg -client /usr/bin/valgrind -parm --tool=memcheck -parm --leak-check=yes -parm --show-reachable=yes -parm --num-callers=15 -parm /usr/pluto/bin/AVWizard -srvparm '-config' -srvparm "$XF86Config" -display :1 "${XParm[@]}"
 }
 
 StopX()
