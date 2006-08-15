@@ -15,6 +15,7 @@ public:
 	ThreadSleeper(int NoSeconds);
 	virtual ~ThreadSleeper();
 	int GetSecondRemaining();
+	virtual void Init();
 	bool Quit();
 	virtual void SecondTick() = 0;
 };

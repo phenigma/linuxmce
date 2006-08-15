@@ -78,6 +78,7 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 
 
 	Sleeper = new VideoResolutionSecondSleeper(Seconds);
+	Sleeper->Init();
 	Label = dynamic_cast<WizardWidgetLabel*>
 		(Page->GetChildRecursive("CounterLabel"));
 	Sleeper->SetLabel(Label);
@@ -115,6 +116,9 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 
 VideoResolutionSecondSleeper::VideoResolutionSecondSleeper(int Seconds)
 	: ThreadSleeper(Seconds)
+{
+}
+/*virtual*/ VideoResolutionSecondSleeper::~VideoResolutionSecondSleeper()
 {
 }
 

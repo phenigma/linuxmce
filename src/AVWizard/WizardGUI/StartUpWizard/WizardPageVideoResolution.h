@@ -15,6 +15,7 @@ class VideoResolutionSecondSleeper : public ThreadSleeper
 	WizardWidgetLabel* Label;
 public:
 	VideoResolutionSecondSleeper(int Seconds);
+	virtual ~VideoResolutionSecondSleeper();
 	virtual void SecondTick();
 	virtual void SetLabel(WizardWidgetLabel* Label);
 };
