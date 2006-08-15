@@ -46,8 +46,9 @@ OpenGL3DEngine::OpenGL3DEngine()
 
 OpenGL3DEngine::~OpenGL3DEngine()
 {
-	if(OldLayer)
-		OldLayer->CleanUp();
+	//TODO: shared objects between old and current layer? let's debug this
+	//if(OldLayer)
+	//	OldLayer->CleanUp();
 	
 	if(CurrentLayer)
 		CurrentLayer->CleanUp();

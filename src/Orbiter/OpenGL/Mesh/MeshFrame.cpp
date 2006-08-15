@@ -29,7 +29,7 @@ MeshFrame::~MeshFrame(void)
 		pMeshFrame->CleanUp();
 		delete pMeshFrame;
 		pMeshFrame = NULL;
-	}
+	}	
 	Children.clear();
 
 	delete Mesh;

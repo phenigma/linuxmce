@@ -650,11 +650,12 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 
 	if(Popups)
 		Popups->PaintPopup(pPopup->m_pObj->GenerateObjectHash(pPopup->m_Position), pPopup, EffectID);
-	if (EffectID)
-	{
+
+	//if (EffectID)
+	//{
 		//PlutoRectangle Rect(pPopup->m_Position);
 		//Engine->
-	}
+	//}
 }
 
 /*virtual*/ bool OrbiterRenderer_OpenGL::HandleHidePopup(PlutoPopup* Popup)
@@ -739,7 +740,6 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 		pObj->m_bDisableAspectLock = ( sDisable_Aspect_Lock=="1" ) ? true : false;
 
 	RenderObjectAsync(pObj);
-
 }
 
 void OrbiterRenderer_OpenGL::RemoveGraphic(string ObjectID)

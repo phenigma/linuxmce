@@ -103,7 +103,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		class PlutoGraphic * m_pBackgroundImage;
 		static Orbiter *m_pInstance; 
 		list<PlutoAlert *> m_listPlutoAlert;  // Current alerts displayed on the screen as a popup message
-		PlutoPopup *m_pActivePopup;
 
 	protected:
 		void DumpScreenHistory(); // temporary function
@@ -291,9 +290,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		int m_iPK_MediaType;
 		int m_dwPK_Device_NowPlaying,m_dwPK_Device_NowPlaying_Video,m_dwPK_Device_NowPlaying_Audio;  /** < set by the media engine, this is whatever media device is currently playing */
 		bool m_bPK_Device_NowPlaying_Audio_DiscreteVolume;
-
-		void SetActivePopup(PlutoPopup *popup);
-		PlutoPopup *GetActivePopup();
 
 		int m_iTimeoutScreenSaver,m_iTimeoutBlank;  /** < When we're not on the screen saver screen how long to timeout before going to it, and when we are, how long before blacking the screen */
 		time_t m_tTimeoutTime;  /** < On the screen saver screen, this is the time when the display will go blank */

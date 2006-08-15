@@ -238,6 +238,8 @@ public:
 
 	virtual void UpdateObjectImage(string sPK_DesignObj, string sType, char *pData, int iData_Size, 
 		string sDisable_Aspect_Lock);
+
+	virtual void RemoveGraphic(string ObjectID) {}
 };
 
 #endif //__ORBITER_RENDERER_H__

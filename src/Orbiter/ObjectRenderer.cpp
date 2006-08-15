@@ -542,7 +542,7 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 
 		//force an update because the object boundaries are not respected
 		PlutoRectangle rect(point.X + m_pObj_Owner->m_rBackgroundPosition.X-i, point.Y + m_pObj_Owner->m_rBackgroundPosition.Y-i, m_pObj_Owner->m_rBackgroundPosition.Width+i+i, m_pObj_Owner->m_rBackgroundPosition.Height+i+i);
-		m_pObj_Owner->m_pOrbiter->Renderer()->UpdateRect(rect, NULL != m_pObj_Owner->m_pOrbiter->GetActivePopup() ? m_pObj_Owner->m_pOrbiter->GetActivePopup()->m_Position : PlutoPoint(0, 0));
+		m_pObj_Owner->m_pOrbiter->Renderer()->UpdateRect(rect, m_pObj_Owner->m_pPopupPoint);
 	}
 
 	if(m_pObj_Owner->m_pOrbiter->m_bShowShortcuts && m_pObj_Owner->m_iPK_Button)

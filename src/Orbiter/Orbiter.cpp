@@ -271,7 +271,6 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_pContextToBeRestored=NULL;
 	m_LastActivityTime=time( NULL );
 	m_iLastEntryInDeviceGroup=-1;
-	m_pActivePopup=NULL;
 	m_dwIDataGridRequestCounter=0;
 	m_bCaptureKeyboard_OnOff = false;
 	m_bCaptureKeyboard_Reset = false;
@@ -771,9 +770,6 @@ void Orbiter::RealRedraw( void *data )
 		{
 			PlutoPopup *pPlutoPopup = *it;
 			m_pOrbiterRenderer->ObjectOffScreen( pPlutoPopup->m_pObj );
-			if( GetActivePopup()==pPlutoPopup )
-				SetActivePopup(NULL);
-g_pPlutoLogger->Write(LV_CRITICAL,"active popup 1 now NULL");
 		}
 
 		if(
@@ -942,7 +938,8 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 
 			if(pPlutoGraphic->m_GraphicFormat != GR_MNG)
 			{
-				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, NULL != GetActivePopup() ? GetActivePopup()->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+				// Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, pObj->m_pPopupPoint);  
 				if(  !pObj->m_bDontResetState  )
 					CallMaintenanceInMiliseconds( 500, &Orbiter::DeselectObjects, ( void * ) pObj, pe_NO );
 			}
@@ -3106,8 +3103,6 @@ bool Orbiter::RegionDown( int x,  int y )
 		//any popup in this location ?
 		DesignObj_Orbiter* pTopMostObject = m_pScreenHistory_Current->GetObj();
 		PlutoPoint RelativePoint(x, y);
-		SetActivePopup(NULL);
-g_pPlutoLogger->Write(LV_CRITICAL,"active popup 2 now NULL");
 
 		if( m_pScreenHistory_Current )
 		{
@@ -3120,28 +3115,21 @@ g_pPlutoLogger->Write(LV_CRITICAL,"active popup 2 now NULL");
 				{
 					pTopMostObject = pPopup->m_pObj;
 					RelativePoint = PlutoPoint(x - pPopup->m_Position.X, y - pPopup->m_Position.Y);
-					SetActivePopup(pPopup);
-g_pPlutoLogger->Write(LV_CRITICAL,"active popup 3 now %p",GetActivePopup());
 					break;
 				}
 			}
 		}
 
-		if( !GetActivePopup() )
+		for(list<class PlutoPopup*>::reverse_iterator it=m_listPopups.rbegin();it!=m_listPopups.rend();++it)
 		{
-			for(list<class PlutoPopup*>::reverse_iterator it=m_listPopups.rbegin();it!=m_listPopups.rend();++it)
+			PlutoPopup *pPopup = *it;
+			if(
+				pPopup->m_Position.X <= x && x <= pPopup->m_Position.X + pPopup->m_pObj->m_rPosition.Right()    &&
+				pPopup->m_Position.Y <= y && y <= pPopup->m_Position.Y + pPopup->m_pObj->m_rPosition.Bottom())
 			{
-				PlutoPopup *pPopup = *it;
-				if(
-					pPopup->m_Position.X <= x && x <= pPopup->m_Position.X + pPopup->m_pObj->m_rPosition.Right()    &&
-					pPopup->m_Position.Y <= y && y <= pPopup->m_Position.Y + pPopup->m_pObj->m_rPosition.Bottom())
-				{
-					pTopMostObject = pPopup->m_pObj;
-					RelativePoint = PlutoPoint(x - pPopup->m_Position.X, y - pPopup->m_Position.Y);
-					SetActivePopup(pPopup);
-g_pPlutoLogger->Write(LV_CRITICAL,"active popup 4 now %p",GetActivePopup());
-					break;
-				}
+				pTopMostObject = pPopup->m_pObj;
+				RelativePoint = PlutoPoint(x - pPopup->m_Position.X, y - pPopup->m_Position.Y);
+				break;
 			}
 		}
 
@@ -3747,37 +3735,36 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		{
 			Output += m_sNowPlaying;
 			m_pObj_NowPlayingOnScreen=pObj;
-g_pPlutoLogger->Write(LV_CRITICAL,"now playing active popup 8 now %p",GetActivePopup());
 			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
-				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, NULL != GetActivePopup() ? GetActivePopup()->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+				m_pOrbiterRenderer->SaveBackgroundForDeselect(pObj, pObj->m_pPopupPoint);  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
 		else if(  Variable=="NP_SEC" )
 		{
 			Output += m_sNowPlaying_Section;
 			m_pObj_NowPlaying_Section_OnScreen=pObj;
 			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
-				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, NULL != GetActivePopup() ? GetActivePopup()->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, pObj->m_pPopupPoint);  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
 		else if(  Variable=="NP_TIME_SHORT" )
 		{
 			Output += m_sNowPlaying_TimeShort;
 			m_pObj_NowPlaying_TimeShort_OnScreen=pObj;
 			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
-				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, NULL != GetActivePopup() ? GetActivePopup()->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, pObj->m_pPopupPoint);  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
 		else if(  Variable=="NP_TIME_LONG" )
 		{
 			Output += m_sNowPlaying_TimeLong;
 			m_pObj_NowPlaying_TimeLong_OnScreen=pObj;
 			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
-				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, NULL != GetActivePopup() ? GetActivePopup()->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, pObj->m_pPopupPoint);  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
 		else if(  Variable=="NP_SPEED" )
 		{
 			Output += m_sNowPlaying_Speed;
 			m_pObj_NowPlaying_Speed_OnScreen=pObj;
 			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
-				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, NULL != GetActivePopup() ? GetActivePopup()->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, pObj->m_pPopupPoint);  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
 		else if(  Variable=="NPD" )
 		{
@@ -4208,7 +4195,7 @@ void Orbiter::DeselectObjects( void *data )
 	PLUTO_SAFETY_LOCK( vm, m_ScreenMutex )
 		DesignObj_Orbiter *pObj = ( DesignObj_Orbiter * ) data;
 
-	if( m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()!=pObj->m_pObj_Screen && !GetActivePopup())
+	if( m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()!=pObj->m_pObj_Screen /*&& !GetActivePopup()*/)
 		return; // We must have since changed screens
 
 #ifdef DEBUG
@@ -4965,7 +4952,7 @@ void Orbiter::CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string 
 	pObj->m_GraphicToDisplay=atoi( sID.c_str(  ) );
 	if(  pObj->m_GraphicToDisplay==GRAPHIC_SELECTED  )
 	{
-		m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, NULL != GetActivePopup() ? GetActivePopup()->m_Position : PlutoPoint(0, 0) );  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+		m_pOrbiterRenderer->SaveBackgroundForDeselect(pObj, pObj->m_pPopupPoint);  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		m_vectObjs_Selected.push_back( pObj );
 	}
 
@@ -6314,7 +6301,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		if(pObj == m_pObj_Highlighted)
 			m_pOrbiterRenderer->DoHighlightObject();
 
-		m_pOrbiterRenderer->UpdateRect(pObj->m_rPosition, NULL != GetActivePopup() ? GetActivePopup()->m_Position : PlutoPoint(0, 0));
+		m_pOrbiterRenderer->UpdateRect(pObj->m_rPosition, pObj->m_pPopupPoint);
 		m_pOrbiterRenderer->EndPaint();
 	}
 
@@ -6938,12 +6925,6 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 				else
 					g_pPlutoLogger->Write(LV_CRITICAL,"Popup %s was already off screen",(*it)->m_pObj->m_ObjectID.c_str());
 
-				if( GetActivePopup() ==(*it) )
-				{
-					SetActivePopup(NULL);
-					g_pPlutoLogger->Write(LV_CRITICAL,"active popup 6 now %p",GetActivePopup());
-				}
-
 				bExistsPopupToHide = true;
 				if(!Renderer()->HandleHidePopup(*it))
 					bNeedRefresh = true;
@@ -6966,13 +6947,6 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 				else
 					g_pPlutoLogger->Write(LV_CRITICAL,"Popup %s was already off screen",(*it)->m_pObj->m_ObjectID.c_str());
 					
-
-				if( GetActivePopup()==(*it) )
-				{
-					SetActivePopup(NULL);
-					g_pPlutoLogger->Write(LV_CRITICAL,"active popup 7 now %p",GetActivePopup());
-				}
-
 				bExistsPopupToHide = true;
 				if(!Renderer()->HandleHidePopup(*it))
 					bNeedRefresh = true;
@@ -8621,18 +8595,5 @@ void Orbiter::ForceCurrentScreenIntoHistory()
 	m_pScreenHistory_Current = pScreenHistory;
 	pScreenHistory->AddToHistory();
 	m_listScreenHistory.push_back( pScreenHistory );
-}
-
-void Orbiter::SetActivePopup(PlutoPopup *popup)
-{
-//	if(popup == NULL)
-//		return;
-
-	m_pActivePopup = popup;
-}
-
-PlutoPopup * Orbiter::GetActivePopup()
-{
-	return m_pActivePopup;
 }
 

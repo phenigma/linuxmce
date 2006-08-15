@@ -197,10 +197,10 @@ void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	DesignObj_Orbiter *pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
 
 	if(	pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgFileList2_CONST	|| pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgFileList2_Pics_CONST || pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objCDCover_CONST ) // todo
 	{
-		DesignObj_Orbiter *pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
 		if( !pObj_Play || !pObj_Play->m_pParentObject )
 			return false; // Shouldn't happen
 
@@ -239,6 +239,9 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 			}
 		}
 */
+		m_pOrbiter->CMD_Remove_Popup("","coverart");
+		m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
+
 		if( pCell_Pic && pCell_Pic->m_pGraphic && pCell_Pic->m_pGraphic->m_pGraphicData )
 			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
 				pCell_Pic->m_pGraphic->m_pGraphicData,
@@ -253,8 +256,6 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 				0,"0");
 
 		m_pOrbiter->m_pObj_Highlighted = pObj_Play;
-		m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
-		m_pOrbiter->CMD_Remove_Popup("","coverart");
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		m_pOrbiter->m_pMouseBehavior->ConstrainMouse(pObj_Play->m_pParentObject->m_rPosition + pObj_Play->m_pPopupPoint );
 		m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
@@ -264,6 +265,11 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 	{
 		m_pOrbiter->m_pObj_Highlighted = mediaFileBrowserOptions.m_pObj_ListGrid;
 		m_pOrbiter->CMD_Remove_Popup("","filedetails");
+
+		DesignObj_Orbiter *pObj_CoverArt = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST) );
+		if(NULL != pObj_CoverArt)
+			m_pOrbiter->Renderer()->RemoveGraphic(pObj_CoverArt->GenerateObjectHash(pObj_CoverArt->m_pPopupPoint));
+
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
 #endif

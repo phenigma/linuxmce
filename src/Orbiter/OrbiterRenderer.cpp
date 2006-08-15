@@ -849,8 +849,7 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 
 	if(sCharToRender != "")
 	{
-		PlutoPoint AbsPos = NULL != OrbiterLogic()->GetActivePopup() ? OrbiterLogic()->GetActivePopup()->m_Position : PlutoPoint(0, 0);
-		PlutoPoint textPos(AbsPos.X + pObj->m_rPosition.X + 5, AbsPos.Y + pObj->m_rPosition.Y + 5);
+		PlutoPoint textPos(pObj->m_pPopupPoint.X + pObj->m_rPosition.X + 5, pObj->m_pPopupPoint.Y + pObj->m_rPosition.Y + 5);
 
 		TextStyle *pTextStyle = OrbiterLogic()->m_mapTextStyle_Find(1);
 		PlutoColor OldColor = pTextStyle->m_ForeColor;
@@ -873,7 +872,6 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"hide popups");
 #endif
-	OrbiterLogic()->SetActivePopup(NULL);
 	if( pObj )
 	{
 		for(list<class PlutoPopup*>::iterator it=pObj->m_listPopups.begin();it!=pObj->m_listPopups.end();)
@@ -988,8 +986,6 @@ g_pPlutoLogger->Write(LV_ACTION,"RedrawObjects");
 		UnHighlightObject();
 	}
 
-	PlutoPoint AbsolutePosition = NULL != OrbiterLogic()->GetActivePopup() ? OrbiterLogic()->GetActivePopup()->m_Position : PlutoPoint(0, 0);
-
 	//render objects
 	for(vector<DesignObj_Orbiter *>::iterator it = m_vectObjs_NeedRedraw.begin(), 
 		end = m_vectObjs_NeedRedraw.end(); it != end; ++it )
@@ -1005,8 +1001,8 @@ g_pPlutoLogger->Write(LV_ACTION,"RedrawObjects");
 				bRehighlight=true;
 				UnHighlightObject();
 			}
-			pObj->RenderObject(OrbiterLogic()->m_pScreenHistory_Current->GetObj(), AbsolutePosition );
-			UpdateRect(pObj->m_rPosition, AbsolutePosition);
+			pObj->RenderObject(OrbiterLogic()->m_pScreenHistory_Current->GetObj(), pObj->m_pPopupPoint);
+			UpdateRect(pObj->m_rPosition, pObj->m_pPopupPoint);
 		}
 	}
 
@@ -1018,14 +1014,13 @@ g_pPlutoLogger->Write(LV_ACTION,"RedrawObjects");
 		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
 		if( pTextStyle )
 		{
-			if(NULL != OrbiterLogic()->GetActivePopup())
-				SolidRectangle( OrbiterLogic()->GetActivePopup()->m_Position.X + pText->m_rPosition.Left(),  OrbiterLogic()->GetActivePopup()->m_Position.Y + pText->m_rPosition.Top(), pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
-			else
-				SolidRectangle( pText->m_rPosition.Left(),  pText->m_rPosition.Top(), pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
+			SolidRectangle(pText->m_pObject->m_pPopupPoint.X + pText->m_rPosition.Left(), 
+				pText->m_pObject->m_pPopupPoint.Y + pText->m_rPosition.Top(), 
+				pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
 
 			string TextToDisplay = OrbiterLogic()->SubstituteVariables(OrbiterLogic()->SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0), pText->m_pObject, 0, 0).c_str();
-			RenderText(TextToDisplay,pText, pTextStyle, AbsolutePosition);
-			UpdateRect(pText->m_rPosition, AbsolutePosition);
+			RenderText(TextToDisplay,pText, pTextStyle, pText->m_pObject->m_pPopupPoint);
+			UpdateRect(pText->m_rPosition, pText->m_pObject->m_pPopupPoint);
 		}
 		else
 		{

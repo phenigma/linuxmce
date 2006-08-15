@@ -31,6 +31,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 		return;
 	}
 
+
 	PlutoGraphic *pPlutoGraphic = NULL;
 	pPlutoGraphic = 
 		m_pObj_Owner->m_pvectCurrentGraphic != NULL && m_pObj_Owner->m_pvectCurrentGraphic->size() > 0 ?
