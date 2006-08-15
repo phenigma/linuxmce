@@ -180,6 +180,13 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 		
 		string sFile = *it;
 
+		if(!FileUtils::FileExists(sDirectory + "/" + sFile)) //the file was just being deleted
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "The file %s/%s was just being deleted. We'll skip it!",
+				sDirectory.c_str(), sFile.c_str());
+			continue;
+		}
+
 		//ignore id3 and lock files
 		if(StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "id3" || StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "lock")
 			continue;
