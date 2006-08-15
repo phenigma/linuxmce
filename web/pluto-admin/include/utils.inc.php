@@ -2514,7 +2514,7 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 	
 	$msgSendCommand='/usr/pluto/bin/MessageSend localhost -targetType template -o 0 27 1 718 44 '.$FK_DeviceTemplate;
 	$msgSendCommand.=((int)$roomID!='')?' 57 '.$roomID:'';
-	$msgSendCommand.=((int)$parentID!='')?' 156 '.$parentID:'';
+	$msgSendCommand.=((int)$controlledBy!=0)?' 156 '.$controlledBy:'';
 	$msgSendCommand.=($ipAddress!='')?' 58 \''.$ipAddress.'\'':'';
 	$msgSendCommand.=($macAddress!='')?' 47 \''.$macAddress.'\'':'';
 	
