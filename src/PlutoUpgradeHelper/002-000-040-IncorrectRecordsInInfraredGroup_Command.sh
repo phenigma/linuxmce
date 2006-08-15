@@ -31,7 +31,7 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 		if [[ "$psc_ids" != "" ]] ;then
 			psc_ids="${psc_ids},${psc_id}"
 		else
-			psc_id="${psc_id}"
+			psc_ids="${psc_id}"
 		fi
 	done
 fi
