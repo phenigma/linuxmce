@@ -1394,12 +1394,12 @@ function addScenariosToRoom($roomID, $installationID, $dbADO)
 	$CG_C_insertID=$dbADO->Insert_ID();
 
 	$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-	$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamID'],''));
-	$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['TelecomMenu']));
-	$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamDesignObjCurrentScreen'],''));
-	$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_Device'],''));
-	$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamStoreVariables'],''));
-
+	
+	$values=array();
+	$values[$GLOBALS['commandParamPK_DesignObj']]=$GLOBALS['TelecomMenu'];
+			
+	addScenarioCommandParameters($CG_C_insertID,$GLOBALS['commandGotoScreen'],$dbADO,$values);						
+	
 	$insertCG_Room='INSERT INTO CommandGroup_Room (FK_CommandGroup, FK_Room,Sort) VALUES (?,?,?)';
 	$insertCG_C='
 		INSERT INTO CommandGroup_Command 
@@ -1428,7 +1428,12 @@ function addScenariosToRoom($roomID, $installationID, $dbADO)
 
 		$dbADO->Execute($insertCG_C,array($armDisarmCG,$GLOBALS['commandGotoScreen'],0,0,$GLOBALS['localOrbiter']));
 		$cg_cID=$dbADO->Insert_ID();
-		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
+	
+		$values=array();
+		$values[$GLOBALS['commandParameterObjectScreen']]=$GLOBALS['mnuSecurityCamerasDesignObj'];
+			
+		addScenarioCommandParameters($cg_cID,$GLOBALS['commandGotoScreen'],$dbADO,$values);						
+		
 	}
 	$dbADO->Execute($insertCG_Room,array($armDisarmCG,$roomID,$armDisarmCG));
 	
@@ -2143,8 +2148,12 @@ function processLightingScenario($cgID,$dbADO)
 					$dbADO->Execute($insertCG_C,array($cgID,$elem,$GLOBALS['genericSetLevelCommand']));
 					$cgcInsertID=$dbADO->Insert_ID();
 
-					$insertCG_C_P='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-					$dbADO->Execute($insertCG_C_P,array($cgcInsertID,$GLOBALS['commandParamAbsoluteLevel'],$dimValue));
+					
+					$values=array();
+					$values[$GLOBALS['commandParamAbsoluteLevel']]=$dimValue;
+						
+					addScenarioCommandParameters($cgcInsertID,$GLOBALS['genericSetLevelCommand'],$dbADO,$values);						
+					
 				break;
 			}
 		}
@@ -2187,16 +2196,22 @@ function processClimateScenario($cgID,$dbADO)
 					$dbADO->Execute($insertCG_C,array($cgID,$elem,$GLOBALS['setCoolHeat']));
 					$cgcInsertID=$dbADO->Insert_ID();
 	
-					$insertCG_C_P='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-					$dbADO->Execute($insertCG_C_P,array($cgcInsertID,$GLOBALS['commandParameterOnOff'],'H'));
+					$values=array();
+					$values[$GLOBALS['commandParameterOnOff']]='H';
+						
+					addScenarioCommandParameters($cgcInsertID,$GLOBALS['setCoolHeat'],$dbADO,$values);						
+
 				break;
 				case 4:
 					$insertCG_C='INSERT INTO CommandGroup_Command (FK_CommandGroup, FK_Device, FK_Command) VALUES (?,?,?)';
 					$dbADO->Execute($insertCG_C,array($cgID,$elem,$GLOBALS['setCoolHeat']));
 					$cgcInsertID=$dbADO->Insert_ID();
 	
-					$insertCG_C_P='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-					$dbADO->Execute($insertCG_C_P,array($cgcInsertID,$GLOBALS['commandParameterOnOff'],'C'));
+					$values=array();
+					$values[$GLOBALS['commandParameterOnOff']]='C';
+						
+					addScenarioCommandParameters($cgcInsertID,$GLOBALS['setCoolHeat'],$dbADO,$values);						
+					
 				break;
 				case 5:
 					$insertCG_C='INSERT INTO CommandGroup_Command (FK_CommandGroup, FK_Device, FK_Command) VALUES (?,?,?)';
@@ -2209,8 +2224,12 @@ function processClimateScenario($cgID,$dbADO)
 				$dbADO->Execute($insertCG_C,array($cgID,$elem,$GLOBALS['genericSetLevelCommand']));
 				$cgcInsertID=$dbADO->Insert_ID();
 
-				$insertCG_C_P='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-				$dbADO->Execute($insertCG_C_P,array($cgcInsertID,$GLOBALS['commandParamAbsoluteLevel'],$dimValue));
+
+				$values=array();
+				$values[$GLOBALS['commandParamAbsoluteLevel']]=$dimValue;
+						
+				addScenarioCommandParameters($cgcInsertID,$GLOBALS['genericSetLevelCommand'],$dbADO,$values);						
+				
 			}
 
 		}
@@ -2501,7 +2520,7 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 	
 	$out=exec_batch_command($msgSendCommand,1);
 	
-	if(substr($out,0,4)!='0:OK'){
+	if(strpos($out,'0:OK')===false){
 		error_redirect('ERROR: Error creating device.','');
 	}
 	
@@ -5979,5 +5998,27 @@ function is_dir64($file){
 		return true;
 	}
 	return false;
+}
+
+/**
+ * @return void
+ * @param int $cgcID
+ * @param int $commandID
+ * @param ADOConnection $dbADO
+ * @param array $values
+ * @desc create the parameters for the command specified as parameter, from Command_CommandParameter
+*/
+function addScenarioCommandParameters($cgcID,$commandID,$dbADO,$values=array()){
+	$cmdParams=array_keys(getAssocArray('Command_CommandParameter','FK_CommandParameter','Description',$dbADO,'WHERE FK_Command='.$commandID));
+	
+	$insertCG_C_CP='
+		INSERT INTO CommandGroup_Command_CommandParameter 
+			(FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter)
+		VALUES
+			(?,?,?)';
+	
+	foreach ($cmdParams AS $param){
+		$dbADO->Execute($insertCG_C_CP,array($cgcID,$param,@$values[$param]));
+	}
 }
 ?>
