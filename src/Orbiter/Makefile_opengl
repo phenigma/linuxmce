@@ -145,7 +145,6 @@ sources += \
 	OpenGL/GraphicSettings.cpp \
 	OpenGL/OpenGLGraphic.cpp \
 	OpenGL/math3dutils.cpp \
-	OpenGL/OpenGLTextureConverter.cpp \
 	OpenGL/Mesh/MeshBuilder.cpp \
 	OpenGL/Mesh/MeshPainter.cpp \
 	OpenGL/Mesh/MeshVertex.cpp \
