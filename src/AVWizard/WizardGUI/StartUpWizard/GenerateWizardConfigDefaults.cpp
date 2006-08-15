@@ -411,7 +411,7 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 	int CounterFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->CounterFontSize);
 	if (CounterFontSize == 0)
 	{
-		std::cerr<<"Warning, CoutnerFontSize not set!"<<std::endl;
+		std::cerr<<"Warning, CounterFontSize not set!"<<std::endl;
 		CounterFontSize = 55;
 	}
 
