@@ -34,6 +34,17 @@ void* WatchDogRoutine(void* param)
 	return NULL;
 }
 
+// handling signals
+void signal_handler(int signal)
+{
+	switch (signal)
+	{
+		case SIGPIPE:
+			cout << "Signal SIGPIPE received and ignored" << endl;
+			break;
+	}
+}
+
 // You can override this block if you don't want the app to reload in the event of a problem
 extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
 extern void (*g_pSocketCrashHandler)(Socket *pSocket);
@@ -139,6 +150,8 @@ int main(int argc, char* argv[])
 	string sRouter_IP="dcerouter";
 	int PK_Device=0;
 	string sLogger="stdout";
+
+	signal(SIGPIPE, signal_handler);
 
 	bool bLocalMode=false,bError=false; // An error parsing the command line
 	char c;
