@@ -104,6 +104,8 @@ if [[ "$DisplayDriver" == viaprop ]]; then
 #	ForcedXvMC=libXvMC.so.1
 fi
 
+Logging "$TYPE" "$SEVERITY_STATUS" "Xconfigure" "Display Driver: $DisplayDriver"
+
 CurrentDisplayDriver=$(awk -f/usr/pluto/bin/X-GetDisplayDriver.awk "$ConfigFile")
 if [[ "$Defaults" == y ]]; then
 	if [[ ! -f /usr/pluto/templates/xorg.conf.in ]]; then
