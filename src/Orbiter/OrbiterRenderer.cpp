@@ -1250,7 +1250,7 @@ void *ImageLoadThread(void *p)
 		
 		size_t l;
 		pBackgroundImage->m_pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer(pBackgroundImage->m_sPic, l);
-		pBackgroundImage->m_pCell->m_GraphicLength=l;
+		pBackgroundImage->m_pCell->m_GraphicLength=(unsigned long)l;
 		if( pBackgroundImage->m_pObj_Grid->CellIsVisible( pBackgroundImage->m_ColRow.first, pBackgroundImage->m_ColRow.second ) )
 		{
 			delete pBackgroundImage->m_pCell->m_pGraphic;

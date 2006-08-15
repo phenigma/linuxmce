@@ -242,7 +242,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		if( pCell_Pic && pCell_Pic->m_pGraphic && pCell_Pic->m_pGraphic->m_pGraphicData )
 			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
 				pCell_Pic->m_pGraphic->m_pGraphicData,
-				pCell_Pic->m_pGraphic->m_GraphicLength,"0");
+				int(pCell_Pic->m_pGraphic->m_GraphicLength),"0");
 		else if( pCell_Pic && pCell_Pic->m_pGraphicData )
 			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
 				pCell_Pic->m_pGraphicData,

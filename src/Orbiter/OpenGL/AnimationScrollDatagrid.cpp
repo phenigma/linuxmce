@@ -39,29 +39,29 @@ bool AnimationScrollDatagrid::Update()
 	if(Direction != 2)
 	{
 		MeshTransform Transform;
-		Transform.Translate(-0, -Height/2, -Height/2);
-		Transform.ApplyRotateX((-Progress)*90);
-		Transform.ApplyTranslate(0, Height/2, Height/2);
+		Transform.Translate(-0, float(-Height/2), float(-Height/2));
+		Transform.ApplyRotateX(float((-Progress)*90));
+		Transform.ApplyTranslate(0, float(Height/2), float(Height/2));
 		BeforeGrid->SetTransform(Transform);
 
 		MeshTransform Transform2;
-		Transform2.Translate(0, -Height/2, -Height/2);
-		Transform2.ApplyRotateX((1-Progress)*90);
-		Transform2.ApplyTranslate(0, Height/2, Height/2);
+		Transform2.Translate(0, float(-Height/2), float(-Height/2));
+		Transform2.ApplyRotateX(float((1-Progress)*90));
+		Transform2.ApplyTranslate(0, float(Height/2), float(Height/2));
 		AfterGrid->SetTransform(Transform2);
 	}
 	else
 	{
 		MeshTransform Transform;
-		Transform.Translate(-0, -Height/2, -Height/2);
-		Transform.ApplyRotateX((Progress)*90);
-		Transform.ApplyTranslate(0, Height/2, Height/2);
+		Transform.Translate(-0, float(-Height/2), float(-Height/2));
+		Transform.ApplyRotateX(float((Progress)*90));
+		Transform.ApplyTranslate(0, float(Height/2), float(Height/2));
 		BeforeGrid->SetTransform(Transform);
 
 		MeshTransform Transform2;
-		Transform2.Translate(0, -Height/2, -Height/2);
-		Transform2.ApplyRotateX((-1+Progress)*90);
-		Transform2.ApplyTranslate(0, Height/2, Height/2);
+		Transform2.Translate(0, float(-Height/2), float(-Height/2));
+		Transform2.ApplyRotateX(float((-1+Progress)*90));
+		Transform2.ApplyTranslate(0, float(Height/2), float(Height/2));
 		AfterGrid->SetTransform(Transform2);
 	}
 

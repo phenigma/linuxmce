@@ -65,10 +65,15 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 
 	std::vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); )
+	{
+		MeshFrame *pChildFrame = *Child;
+		pChildFrame->RemoveChild(Frame);
+
 		if((*Child) == Frame)
 			Child = Children.erase(Child);
 		else
 			++Child;
+	}
 }
 
 void MeshFrame::Paint(MeshTransform ChildTransform)
