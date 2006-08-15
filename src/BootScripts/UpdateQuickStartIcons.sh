@@ -1,11 +1,30 @@
 #!/bin/bash
 
-. /usr/pluto/bin/SQL_Ops.sh
+PIXDIR="/home/quick_start_icons"
 
-Q="SELECT Icon FROM QuickStartTemplate"
-R=$(RunSQL "$Q")
+if [[ ! -d $PIXDIR ]]; then
+        mkdir -p $PIXDIR
+fi
 
-for Icon in $R; do
-	#TODO: when inmplementing the wget, don't forget the OfflineMode flag
-	#wget "$Icon" # where to put this?
+icon=$(mysql -u root -D pluto_main -N -e "SELECT Icon FROM QuickStartTemplate")
+template=$(mysql -u root -D pluto_main -N -e "SELECT PK_QuickStartTemplate FROM QuickStartTemplate")
+
+ICON=( $icon )
+TEMPLATE=( $template )
+counter=${#ICON[@]}
+
+
+index=0
+
+while [[ $index -le $(($counter-1)) ]]; do
+
+        wget --timeout=10 -O $PIXDIR/${TEMPLATE[$index]} ${ICON[$index]}
+        convert $PIXDIR/${TEMPLATE[$index]} $PIXDIR/template_${TEMPLATE[$index]}.jpg
+        rm $PIXDIR/${TEMPLATE[$index]}
+        RET=$?
+        if [[ "$RET" == "1" ]]; then
+        echo "Internet connection problem or bad URL !"
+        fi
+        index=$[$index + 1]
 done
+
