@@ -80,7 +80,7 @@ static void LS_InitProxy()
 	DCEConfig dceconf;
 	
 	string sProxy = dceconf.m_sDBHost.c_str();
-	string sExtension = LS_pSimplePhone->DATA_Get_PhoneNumber().c_str();
+	string sExtension = LS_pSimplePhone->DATA_Get_PhoneNumber();
 	string sPassword = sExtension;
 	string sIdentity = "sip:" + sExtension + ":" +sPassword + "@" + sProxy;
 	sProxy = "sip:" + sProxy;
@@ -183,6 +183,11 @@ static void bye_received(LinphoneCore *linphoneCore, const char *from)
 static void auth_requested(LinphoneCore *linphoneCore, const char *realm, const char *username)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "SimplePhone: Authorisation requested, realm: '%s', username '%s'", realm, username);
+	
+	LinphoneAuthInfo * pLinphoneAuthInfo = linphone_auth_info_new(username, NULL, NULL, NULL, realm);
+	string sPassword = LS_pSimplePhone->DATA_Get_PhoneNumber();
+	linphone_auth_info_set_passwd(pLinphoneAuthInfo, sPassword.c_str());
+	linphone_core_add_auth_info(&LS_LinphoneCore, pLinphoneAuthInfo);
 }
 
 static void display_something(LinphoneCore * linphoneCore, char *something)
