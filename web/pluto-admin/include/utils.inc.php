@@ -5331,7 +5331,7 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 	<form action="index.php" method="post" name="deviceTemplatePicker">
 		<input type="hidden" name="section" value="'.$section.'">
 		<input type="hidden" name="action" value="choose">
-		<input type="hidden" name="from" value="'.$_REQUEST['from'].'">
+		<input type="hidden" name="from" value="'.@$_REQUEST['from'].'">
 	
 	<table align="center" border="0" cellpadding="2" cellspacing="0" width="550">';
 	if($returnValue==1){
@@ -5735,7 +5735,17 @@ function dtPickerJS($returnValue){
 		manuf=parseInt(document.deviceTemplatePicker.manufSelected.value);
 		categ=parseInt(document.deviceTemplatePicker.dcSelected.value);
 		if(!isNaN(manuf) && !isNaN(categ) && manuf>0 && categ>0){
-			self.location="index.php?section=addModel&mID="+manuf+"&dcID="+categ+"&step=1&from='.urlencode(@$_SESSION['from']).'";
+			url="index.php?section=addModel&mID="+manuf+"&dcID="+categ+"&step=1&from='.urlencode(@$_SESSION['from']).'";
+			try{
+				if(typeof opener=="undefined"){
+					window.open(url,"popup","status=0,resizable=1,width=800,height=600");
+				}else{
+					self.location=url;
+				}
+				
+			}catch(e){
+				self.location=url;
+			}
 		}else{
 			setErrorMessage("'.$TEXT_ERROR_PICK_MANUF_AND_DC_CONST.'");
 		}

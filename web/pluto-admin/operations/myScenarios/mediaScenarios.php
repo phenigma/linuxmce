@@ -296,11 +296,14 @@ function mediaScenarios($output,$dbADO) {
 
 						$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
 
-						$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_Device'],$newPKDevice));
-						$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamFilename'],''));
-						$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_MediaType'],$newType));
-						$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DeviceTemplate'],$newFKDeviceTemplate));
-						$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_EntertainArea'],$newEntArea));
+						$values=array();
+						$values[$GLOBALS['commandParamPK_Device']]=$newPKDevice;
+						$values[$GLOBALS['commandParamPK_MediaType']]=$newType;
+						$values[$GLOBALS['commandParamPK_DeviceTemplate']]=$newFKDeviceTemplate;		
+						$values[$GLOBALS['commandParamPK_EntertainArea']]=$newEntArea;		
+						
+						addScenarioCommandParameters($CG_C_insertID,$GLOBALS['MediaScenariosCommand'],$dbADO,$values);						
+					
 					}
 					setOrbitersNeedConfigure($installationID,$dbADO);
 					$msg=$TEXT_MEDIA_SCENARIO_ADDED_CONST;

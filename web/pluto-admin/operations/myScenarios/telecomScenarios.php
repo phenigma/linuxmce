@@ -272,9 +272,11 @@ function telecomScenarios($output,$dbADO) {
 									
 				$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
 				$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandPhoneExtension'],$number));
-				
-				$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-				$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_Device'],$phone));
+
+				$values=array();
+				$values[$GLOBALS['commandPhoneExtension']]=$number;
+					
+				addScenarioCommandParameters($CG_C_insertID,$GLOBALS['commandPL_Originate'],$dbADO,$values);						
 				
 				setOrbitersNeedConfigure($installationID,$dbADO);	
 				header("Location: index.php?section=telecomScenarios&msg=$TEXT_SPEED_DIAL_ADDED_CONST");

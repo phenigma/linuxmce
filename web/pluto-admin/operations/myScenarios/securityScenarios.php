@@ -125,12 +125,6 @@ if($action=='form') {
 	}
 	$out.='		</td>
 			</tr>';
-		if(count($displayedRooms)!=0){
-			$out.='
-			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="updateScenario" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
-			</tr>';
-		}
 			$out.='
 		</table>
 	<input type="hidden" name="displayedRooms" value="'.join(',',$displayedRooms).'">
@@ -344,14 +338,20 @@ if($action=='form') {
 			
 			$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,(17+$i),$GLOBALS['localOrbiter']));
 			$cg_cID=$dbADO->Insert_ID();
-				
-			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterVariableNumber'],$GLOBALS['camerasVariableNumbersArray'][$i-1]));
-			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterValueToAsign'],$camera));
+			
+			$values=array();
+			$values[$GLOBALS['commandParameterVariableNumber']]=$GLOBALS['camerasVariableNumbersArray'][$i-1];
+			$values[$GLOBALS['commandParameterValueToAsign']]=$camera;
+			
+			addScenarioCommandParameters($cg_cID,$GLOBALS['commandSetVar'],$dbADO,$values);	
 		}
 		
 		$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandGotoScreen'],0,30,$GLOBALS['localOrbiter']));
 		$cg_cID=$dbADO->Insert_ID();
-		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuSecurityCamerasDesignObj']));
+		
+		$values=array();
+		$values[$GLOBALS['commandParamPK_DesignObj']]=$GLOBALS['mnuSecurityCamerasDesignObj'];
+		addScenarioCommandParameters($cg_cID,$GLOBALS['commandGotoScreen'],$dbADO,$values);	
 		$msg=$TEXT_SECURITY_SCENARIO_ADDED_CONST;
 	}
 
@@ -403,8 +403,12 @@ if($action=='form') {
 					$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,$cameraNO,$GLOBALS['localOrbiter']));
 					$cg_cID=$dbADO->Insert_ID();
 				
-					$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterVariableNumber'],$cameraNO));
-					$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterValueToAsign'],$camera));
+					$values=array();
+					$values[$GLOBALS['commandParameterVariableNumber']]=$camera;
+					$values[$GLOBALS['commandParameterVariableNumber']]=$cameraNO;
+			
+					addScenarioCommandParameters($cg_cID,$GLOBALS['commandSetVar'],$dbADO,$values);						
+		
 				}
 			}elseif($camera==0 || $camera!=$oldCamera){
 				$deleteCG_C='DELETE FROM CommandGroup_Command WHERE PK_CommandGroup_Command=?';
@@ -421,8 +425,12 @@ if($action=='form') {
 					$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,$cameraNO,$GLOBALS['localOrbiter']));
 					$cg_cID=$dbADO->Insert_ID();
 				
-					$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterVariableNumber'],$cameraNO));
-					$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterValueToAsign'],$camera));
+					$values=array();
+					$values[$GLOBALS['commandParameterVariableNumber']]=$cameraNO;
+					$values[$GLOBALS['commandParameterValueToAsign']]=$camera;
+			
+					addScenarioCommandParameters($cg_cID,$GLOBALS['commandSetVar'],$dbADO,$values);						
+					
 				}
 			}
 		}
