@@ -319,6 +319,8 @@ int k=2;
 time_t GetEndTime(string sTaskID,time_t tStartTime)
 {
 	int Duration = GetDuration(sTaskID);
+	if( Duration<1 )
+		Duration=1;
 	while(true)
 	{
 		int Hours;
