@@ -55,7 +55,7 @@ void OutputUser(string sUser,int iHourStart,int iHourStop,string sComment);
 
 int main(int argc, char *argv[])
 {
-	g_pPlutoLogger = new FileLogger(stdout);
+	g_pPlutoLogger = new FileLogger("MantisAssign.log");
 
 	if( argc!=5 )
 	{
@@ -234,6 +234,7 @@ void AssignWorkDaysForUser(string sUserID)
 void AssignTaskByDate(string sFirstTask,string sUserID,time_t tFirstDate,time_t tEndTime,list<int> &listNextTasks)
 {
 	int Hours;
+	g_pPlutoLogger->Write(LV_STATUS,"AssignTaskByDate task %s user %s number %d",sFirstTask.c_str(),sUserID.c_str(),(int) listNextTasks.size());
 	tFirstDate = GetActualStartTimeAndWorkHours(GetUserForTask(sFirstTask),tFirstDate,Hours);
 
 	if( g_mapBugs[atoi(sFirstTask.c_str())] )
@@ -244,8 +245,7 @@ void AssignTaskByDate(string sFirstTask,string sUserID,time_t tFirstDate,time_t 
 
 	g_mapBugs[atoi(sFirstTask.c_str())]=true;
 	cout << "Bug " << sFirstTask << " assigned" << endl;
-if( sFirstTask=="1978" )
-int k=2;
+	
 	g_mapBugs[atoi(sFirstTask.c_str())]=true;
 	string sSQL = "INSERT INTO assigned_time(id,assigned_time) VALUES(" + sFirstTask + ",'" + StringUtils::SQLDateTime(tFirstDate) + "')";
 	g_MySqlHelper.threaded_mysql_query(sSQL);
@@ -318,9 +318,11 @@ int k=2;
 
 time_t GetEndTime(string sTaskID,time_t tStartTime)
 {
+	g_pPlutoLogger->Write(LV_STATUS,"GetEndTime %s",sTaskID.c_str());
 	int Duration = GetDuration(sTaskID);
 	if( Duration<1 )
 		Duration=1;
+	g_pPlutoLogger->Write(LV_STATUS,"GetEndTime %s duration is %d",sTaskID.c_str(),Duration);
 	while(true)
 	{
 		int Hours;
@@ -335,6 +337,7 @@ time_t GetEndTime(string sTaskID,time_t tStartTime)
 
 int GetDuration(string sTaskID)
 {
+	g_pPlutoLogger->Write(LV_STATUS,"GetDuration %s",sTaskID.c_str());
 	string sSQL = "select hours_estimate,hours_actual from mantis_bug_table where id=" + sTaskID;
 	PlutoSqlResult result;
 	MYSQL_ROW row;
