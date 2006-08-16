@@ -11,43 +11,40 @@
 //
 #include "ThreadSleeper.h"
 
-#include "SafetyLock.h"
 #include "GUIWizardUtils.h"
+
+#include "WizardWidgetLabel.h"
+#include "Wizard.h"
+#include "SafetyLock.h"
 
 #include <SDL.h>
 #include <iostream>
 
 void* SleeperThreadFunc(void* Instance);
 
-ThreadSleeper::ThreadSleeper(int NoSeconds) : tid(0)
+ThreadSleeper::ThreadSleeper()
 {
-	std::cout<<"ThreadSleeper::ThreadSleeper"<<std::endl;
-	bQuit = false;
-
-
-	TickRemaining = NoSeconds*1000;
-	LastTime = SDL_GetTicks();
+	tid = 0;
+	pthread_mutex_init(&LockMutex, NULL);
 }
 
-ThreadSleeper::~ThreadSleeper()
-{	
-}
-
-void ThreadSleeper::Init()
+void ThreadSleeper::Init(int NoSeconds)
 {
+	if(tid != 0)
+	{
+		std::cout<<"ThreadSleeper::Init-> Race condition,should not happend"<<std::endl;
+		return;
+	}
+	this->TickRemaining = NoSeconds*1000;
 	std::cout<<"ThreadSleeper::Init"<<std::endl;
-	pthread_mutexattr_t MutexAttr;
-	pthread_mutexattr_init(&MutexAttr);
-	pthread_mutexattr_settype(&MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
-	pthread_mutex_init(&lockmutex, &MutexAttr);
-	pthread_mutexattr_destroy(&MutexAttr);
-
+	LastTime = SDL_GetTicks();
+	bQuit = false;
 	pthread_create(&tid, NULL, SleeperThreadFunc,this);
-
 }
 
 int ThreadSleeper::GetSecondRemaining()
 {
+	SafetyLock Lock(&LockMutex);
 	std::cout<<"ThreadSleeper::GetSecondRemaining()"<<std::endl;
 	int CurrentTime = SDL_GetTicks();
 	TickRemaining = TickRemaining - (CurrentTime - LastTime);
@@ -60,12 +57,55 @@ int ThreadSleeper::GetSecondRemaining()
 	return Result;
 }
 
-bool ThreadSleeper::Quit()
+void ThreadSleeper::Quit()
 {
+	{
+	SafetyLock Lock(&LockMutex);
 	std::cout<<"ThreadSleeper::Quit"<<std::endl;
 	bQuit = true;
-	pthread_join(tid, NULL);
-	return true;
+	}
+
+	if(tid)
+		pthread_join(tid, NULL);
+	tid = 0;
+}
+
+void ThreadSleeper::SecondTick()
+{
+#ifdef DEBUG
+	std::cout<< "VideoResolutionSecondSleeper::SecondTick()" << std::endl;
+#endif
+	if(!Label)
+	{
+		std::cout<<"VideoResolutionSecondSleeper::SecondTick Warning! No label = nothing to draw";
+		return;
+	}
+	int Seconds = GetSecondRemaining();
+
+	SafetyLock Lock(&LockMutex);
+	std::string LabelCaption = Utils::Int32ToString(Seconds);
+	Label->SetCaption(LabelCaption);
+	WM_Event Event;
+	std::cout<<"Seconds: "<<Seconds<<std::endl;
+	if(Seconds)
+		Event.DownKey();
+	else
+		Event.EscapeKey();
+	Wizard::GetInstance()->GenerateCustomEvent(Event);
+}
+
+/*virtual*/ void ThreadSleeper::SetLabel(WizardWidgetLabel* Label)
+{
+	SafetyLock Lock(&LockMutex);
+	this->Label = Label;
+}
+
+ThreadSleeper* ThreadSleeper::Instance_ = NULL;
+ThreadSleeper* ThreadSleeper::Instance()
+{
+	if(!Instance_)
+		Instance_ = new ThreadSleeper();
+	return Instance_;
 }
 
 void* SleeperThreadFunc(void* Instance)
@@ -75,7 +115,7 @@ void* SleeperThreadFunc(void* Instance)
 	int Seconds1 = ThreadPtr->GetSecondRemaining();
 	while(!ThreadPtr->bQuit && ThreadPtr->GetSecondRemaining())
 	{
-		Sleep(100);
+		Sleep(50);
 		int Seconds2 = ThreadPtr->GetSecondRemaining();
 
 		if (Seconds2 != Seconds1)
@@ -89,3 +129,4 @@ void* SleeperThreadFunc(void* Instance)
 	std::cout<<"TreadQuit"<<std::endl;
 	return NULL;
 }
+

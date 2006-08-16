@@ -1,29 +1,23 @@
 #include "WizardPageVideoResolution.h"
 
 #include "ConfigureCommons.h"
-
 #include "GUIWizardUtils.h"
-
-#include <iostream>
-
 #include "SettingsDictionaryTree.h"
-
 #include "Wizard.h"
-
 #include "SkinGenerator.h"
+#include "WizardWidgetLabel.h"
+#include <iostream>
+#include "ThreadSleeper.h"
 
 WizardPageVideoResolution::WizardPageVideoResolution(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
 	Selected = NULL;
-	Sleeper = NULL;
 }
 
 WizardPageVideoResolution::~WizardPageVideoResolution(void)
 {
-	//Sleeper->bQuit = true;
-	Sleeper->Quit();
-	delete Sleeper;
+	ThreadSleeper::Instance()->Quit();
 }
 
 
@@ -77,11 +71,10 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 	Label->SetCaption(LabelValue + ResolutionValue+ "@" + RefreshValue + " Hz");
 
 
-	Sleeper = new VideoResolutionSecondSleeper(Seconds);
-	Sleeper->Init();
+	ThreadSleeper::Instance()->Init(Seconds);
 	Label = dynamic_cast<WizardWidgetLabel*>
 		(Page->GetChildRecursive("CounterLabel"));
-	Sleeper->SetLabel(Label);
+	ThreadSleeper::Instance()->SetLabel(Label);
 	
 }
 
@@ -114,43 +107,3 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 
 }
 
-VideoResolutionSecondSleeper::VideoResolutionSecondSleeper(int Seconds)
-	: ThreadSleeper(Seconds)
-{
-#ifdef DEBUG
-	std::cout<< "VideoResolutionSecondSleeper::VideoResolutionSecondSleeper" << std::endl;
-#endif
-}
-/*virtual*/ VideoResolutionSecondSleeper::~VideoResolutionSecondSleeper()
-{
-#ifdef DEBUG
-	std::cout<< "VideoResolutionSecondSleeper dtor" << std::endl;
-#endif
-}
-
-/*virtual*/ void VideoResolutionSecondSleeper::SecondTick()
-{
-#ifdef DEBUG
-	std::cout<< "VideoResolutionSecondSleeper::SecondTick()" << std::endl;
-#endif
-	if(!Label)
-	{
-		std::cout<<"VideoResolutionSecondSleeper::SecondTick Warning! No label = nothing to draw";
-		return;
-	}
-	int Seconds = GetSecondRemaining();
-	std::string LabelCaption = Utils::Int32ToString(Seconds);
-	Label->SetCaption(LabelCaption);
-	WM_Event Event;
-	std::cout<<"Seconds: "<<Seconds<<std::endl;
-	if(Seconds)
-		Event.DownKey();
-	else
-		Event.EscapeKey();
-	Wizard::GetInstance()->GenerateCustomEvent(Event);
-}
-
-/*virtual*/ void VideoResolutionSecondSleeper::SetLabel(WizardWidgetLabel* Label)
-{
-	this->Label = Label;
-}

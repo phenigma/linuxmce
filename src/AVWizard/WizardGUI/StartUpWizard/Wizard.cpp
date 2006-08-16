@@ -219,7 +219,8 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 		return;
 	AVWizardOptions->LoadFromXMLFile(CmdLineParser->ConfigFileDefault);
 	int Result = MainPage->DoApplySetting(Settings);
-		delete MainPage;
+
+	delete MainPage;
 	MainPage = NULL;
 	if(Result != 0)
 		CurrentPage -=2;
@@ -265,6 +266,7 @@ void Wizard::DoCancelScreen()
 	if(MainPage == NULL)
 		return;
 	MainPage->DoCancelSetting();
+
 	delete MainPage;
 	MainPage = NULL;
 	if(CurrentPage == WIZARD_NO_PAGES)

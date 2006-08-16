@@ -158,7 +158,8 @@ void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 	{
 		if(NeedUpdateScreen)
 		{
-			ScaledScreen = zoomSurface(Screen, ZoomX2, ZoomY2, SMOOTHING_ON);
+			//ScaledScreen = zoomSurface(Screen, ZoomX2, ZoomY2, SMOOTHING_ON);
+			ScaledScreen = zoomSurface(Screen, ZoomX2, ZoomY2, SMOOTHING_OFF);
 			NeedUpdateScreen = true;
 		}
 		if(ScaledScreen)

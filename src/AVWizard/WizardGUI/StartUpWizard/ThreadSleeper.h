@@ -3,22 +3,25 @@
 
 #include <pthread.h>
 
+class WizardWidgetLabel;
 class ThreadSleeper
 {
-	int LastTime;
-public:
 	int TickRemaining;
-
+	WizardWidgetLabel* Label;
+	static ThreadSleeper* Instance_;
 	pthread_t tid;
-	pthread_mutex_t lockmutex;
+	pthread_mutex_t LockMutex;
+	int LastTime;
+	ThreadSleeper();
+public:
 	bool bQuit;
-	
-	ThreadSleeper(int NoSeconds);
-	virtual ~ThreadSleeper();
+	static ThreadSleeper* Instance();
+
 	int GetSecondRemaining();
-	virtual void Init();
-	bool Quit();
-	virtual void SecondTick() = 0;
+	void Init(int NoSeconds);
+	void Quit();
+	void SecondTick();
+	void SetLabel(WizardWidgetLabel* Label);
 };
 
 #endif //ThreadSleeper_H_

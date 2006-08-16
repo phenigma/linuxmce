@@ -6,26 +6,12 @@
 
 #include "WizardPage.h"
 
-#include "WizardWidgetLabel.h"
 #include "WizardWidgetButton.h"
-#include "ThreadSleeper.h"
-
-class VideoResolutionSecondSleeper : public ThreadSleeper
-{
-	WizardWidgetLabel* Label;
-public:
-	VideoResolutionSecondSleeper(int Seconds);
-	virtual ~VideoResolutionSecondSleeper();
-	virtual void SecondTick();
-	virtual void SetLabel(WizardWidgetLabel* Label);
-};
-
 class WizardPageVideoResolution :
 	public WizardPage
 {
 	WizardWidgetButton* Selected;
 	SettingsDictionary* GlobalSettings;
-	VideoResolutionSecondSleeper* Sleeper;
 
 	std::string PreviousResolution;
 public:
