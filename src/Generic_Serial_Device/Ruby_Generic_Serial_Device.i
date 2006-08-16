@@ -27,8 +27,15 @@
    if(result <= 0) {
 		$result = rb_str_new2("");
    } else {
-	   $result = rb_str_new(arg2, result);	
+		$result = rb_str_new(arg2, result);
    }
+#ifdef __cplusplus
+		delete [] arg2;
+		arg2 = NULL;
+#else
+		free(arg2);
+		arg2 = NULL;
+#endif
 }
 
 %include "std_map.i"

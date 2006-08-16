@@ -107,8 +107,11 @@ NetworkIOConnection::Recv(char* buff, unsigned int size, int timeout) {
 		}
 	}
 	
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "Received buffer from %s: <%s>", 
 									host_.c_str(), IOUtils::FormatHexAsciiBuffer(buff, retsize).c_str(),"33");
+#endif
+
 	return retsize;
 }
 
