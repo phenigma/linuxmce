@@ -69,8 +69,8 @@ namespace DCE
 			string GetPosition();
 			
 			//reports timecode
-			void ReportTimecode();
-			
+			void ReportTimecode(bool bViaIP=false);
+						
 			static int CalculatePosition(string &sMediaPosition,string *sMRL,int *Subtitle,int *Angle,int *AudioTrack);
 			
 		private:

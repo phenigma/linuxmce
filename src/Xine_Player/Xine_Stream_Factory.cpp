@@ -79,8 +79,9 @@ bool Xine_Stream_Factory::StartupFactory()
 	// setting output driver
 	setVideoDriver( m_pPlayer->DATA_Get_Hardware_acceleration() );
 	
-	m_bUseDeinterlacing = m_pPlayer->DATA_Get_Use_Deinterlacing();
-	g_pPlutoLogger->Write( LV_STATUS, "Deinterlacing is %s", m_bUseDeinterlacing?"on":"off" );
+	m_sDeinterlacingConfig = m_pPlayer->DATA_Get_Deinterlacing_Mode();
+	m_bUseDeinterlacing = (m_sDeinterlacingConfig!="");
+	g_pPlutoLogger->Write( LV_STATUS, "Deinterlacing Mode is %s => deinterlacing is %s", m_sDeinterlacingConfig.c_str(), m_bUseDeinterlacing?"on":"off" );
 	
 	m_bInitialized = true;
 	return true;
@@ -323,6 +324,11 @@ void Xine_Stream_Factory::ReportAVInfo( string sFilename, int iStreamID, string 
 void Xine_Stream_Factory::ReportTimecode(int iStreamID, int Speed)
 {
 	m_pPlayer->ReportTimecode( iStreamID, Speed);
+}
+
+void Xine_Stream_Factory::ReportTimecodeViaIP(int iStreamID, int Speed)
+{
+	m_pPlayer->ReportTimecodeViaIP( iStreamID, Speed);
 }
 
 void Xine_Stream_Factory::DestroyStream(int iStreamID)

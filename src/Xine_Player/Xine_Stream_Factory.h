@@ -42,6 +42,7 @@ namespace DCE
 			string m_sXineVideoDriverName;
 			
 			bool m_bUseDeinterlacing;
+			string m_sDeinterlacingConfig;
 			
 			// detects current output video and audio drivers
 			void DetectOutputDrivers();
@@ -71,6 +72,7 @@ namespace DCE
 			void ReportAudioTracks(string sTracks);
 			void ReportSubtitles(string sSubtitles);
 			void ReportTimecode(int iStreamID, int Speed);
+			void ReportTimecodeViaIP(int iStreamID, int Speed);
 			void ReportAVInfo( string sFilename, int iStreamID, string sMediaInfo, string sAudioInfo, string sVideoInfo );
 			
 			void CloseStreamAV(int iStreamID);

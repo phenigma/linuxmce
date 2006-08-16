@@ -23,6 +23,9 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 {
 	m_pDeviceData_MediaPlugin = NULL;
 	ptrFactory = new Xine_Stream_Factory(this);
+	
+	m_pNotificationSocket = new XineNotification_SocketListener(string("m_pNotificationSocket"));
+	m_pNotificationSocket->m_bSendOnlySocket = true; // one second
 }
 
 //<-dceag-const2-b->
@@ -42,7 +45,13 @@ Xine_Player::~Xine_Player()
 	{
 		ptrFactory->ShutdownFactory();
 		delete ptrFactory;
-	}	
+	}
+	
+	if (m_pNotificationSocket)
+	{
+		delete m_pNotificationSocket;
+		m_pNotificationSocket = NULL;
+	}
 }
 
 //<-dceag-getconfig-b->
@@ -1054,6 +1063,32 @@ void Xine_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 	CMD_Goto_Media_Menu(1,0);
 }
 
+void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
+{
+	Xine_Stream *pStream =  ptrFactory->GetStream( 1, false );	
+	if (pStream == NULL)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::ReportTimecode() stream is NULL");
+		return;
+	}
+
+	if( !m_pDeviceData_MediaPlugin )
+		return;
+
+	g_pPlutoLogger->Write(LV_WARNING,"reporting timecode");
+	int currentTime, totalTime;	
+	int iMediaPosition = pStream->getStreamPlaybackPosition( currentTime, totalTime);
+
+	// IP speed an position notification
+	char buffer[32];
+	snprintf(buffer, 32, "%02i:%02i:%02i.%03i", iMediaPosition / 1000 / 3600, iMediaPosition / 1000 % 3600 / 60, iMediaPosition / 1000 % 3600 % 60, iMediaPosition % 1000);
+	
+	string sIPTimeCodeInfo = StringUtils::itos(Speed) + "," + buffer;
+	
+	m_pNotificationSocket->SendStringToAll( sIPTimeCodeInfo );
+}
+
+
 void Xine_Player::ReportTimecode(int iStreamID, int Speed)
 {
 	Xine_Stream *pStream =  ptrFactory->GetStream( 1, false );	
@@ -1070,6 +1105,8 @@ void Xine_Player::ReportTimecode(int iStreamID, int Speed)
 	int currentTime, totalTime;	
 	int iMediaPosition = pStream->getStreamPlaybackPosition( currentTime, totalTime);
 
+	// DCE level notification
+	
 	DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDeviceData_MediaPlugin->m_dwPK_Device,
 			iStreamID,StringUtils::SecondsAsTime(currentTime/1000),StringUtils::SecondsAsTime(totalTime/1000),
 			(Speed==1000 ? string("") : StringUtils::itos(Speed/1000) + "x"),StringUtils::itos(pStream->m_iTitle),
@@ -1086,6 +1123,8 @@ bool Xine_Player::Connect(int iPK_DeviceTemplate )
 	if (!ptrFactory->StartupFactory())
 		return false;
 	
+	m_pNotificationSocket->StartListening (DATA_Get_Port());
+
 	return true;
 }
 

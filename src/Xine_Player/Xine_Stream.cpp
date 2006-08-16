@@ -766,7 +766,7 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 		}
 
 		// updating every second - position
-		if ( iCounter++ > 10 )
+		if ( ++iCounter >= 10 )
 		{
 			g_pPlutoLogger->Write( LV_WARNING, "%s (seek %d) t.c. ctr %d freq %d,", pStream->GetPosition().c_str(), pStream->m_iSpecialSeekSpeed, iCounter_TimeCode, pStream->m_iTimeCodeReportFrequency );
 			iCounter = 0;
@@ -778,6 +778,7 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 				iCounter_TimeCode = 1;
 			}
 			
+			pStream->ReportTimecode(true);
 		}
 		
 		// We need to wait 500ms after the stream starts before doing the seek!
@@ -1879,6 +1880,10 @@ bool Xine_Stream::DestroyWindows()
 {
 	if ( m_pXDisplay != NULL )
 	{
+		if (!m_pDynamic_Pointer)
+			delete m_pDynamic_Pointer;
+		m_pDynamic_Pointer = NULL;
+		
 		XLockDisplay( m_pXDisplay );
 
 		XUnmapWindow( m_pXDisplay, windows[ m_iCurrentWindow ] );
@@ -1893,10 +1898,6 @@ bool Xine_Stream::DestroyWindows()
 		XCloseDisplay ( m_pXDisplay );
 
 		m_pXDisplay = NULL;
-
-		if (!m_pDynamic_Pointer)
-			delete m_pDynamic_Pointer;
-		m_pDynamic_Pointer = NULL;
 	}
 
 	return true;
@@ -2511,7 +2512,7 @@ string Xine_Stream::GetPosition()
 	return sPosition;
 }
 
-void Xine_Stream::ReportTimecode()
+void Xine_Stream::ReportTimecode(bool bViaIP)
 {
 	if (!m_bInitialized)
 	{
@@ -2528,7 +2529,10 @@ void Xine_Stream::ReportTimecode()
 		return;
 	}
 	
-	m_pFactory->ReportTimecode( m_iStreamID, m_iPlaybackSpeed);
+	if (bViaIP)
+		m_pFactory->ReportTimecodeViaIP( m_iStreamID, m_iPlaybackSpeed);
+	else
+		m_pFactory->ReportTimecode( m_iStreamID, m_iPlaybackSpeed);
 }
 
 int Xine_Stream::CalculatePosition(string &sMediaPosition,string *sMRL,int *Subtitle,int *Angle,int *AudioTrack)

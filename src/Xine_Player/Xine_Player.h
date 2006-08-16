@@ -7,6 +7,10 @@
 #include "Gen_Devices/Xine_PlayerBase.h"
 //<-dceag-d-e->
 
+#include "DCE/SocketListener.h"
+#include "DCE/ServerSocket.h"
+
+
 #include "Xine_Stream_Factory.h"
 
 //<-dceag-decl-b->
@@ -57,7 +61,8 @@ public:
 	int DATA_Get_Time_Code_Report_Frequency();
 	string DATA_Get_Name();
 	string DATA_Get_Hardware_acceleration();
-	bool DATA_Get_Use_Deinterlacing();
+	string DATA_Get_Use_Deinterlacing();
+	int DATA_Get_Port();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription);
@@ -430,12 +435,45 @@ public:
 
 //<-dceag-h-e->
 	void ReportTimecode(int iStreamID, int Speed);
+	void ReportTimecodeViaIP(int iStreamID, int Speed);
 	bool Connect(int iPK_DeviceTemplate );
 	virtual void FireMenuOnScreen(int iDestinationDevice, int iStream_ID, bool bOnOff);
 private:
 	// xine streams factory ptr
 	Xine_Stream_Factory *ptrFactory;
 	DeviceData_Base *m_pDeviceData_MediaPlugin;
+	
+	// socket listener for playback info notification
+	
+	class XineNotification_SocketListener : public SocketListener
+	{
+	public:
+		XineNotification_SocketListener(string sName):SocketListener(sName){};
+	
+		virtual void ReceivedMessage( Socket *pSocket, Message* pMessage ){};
+		virtual bool ReceivedString( Socket *pSocket, string sLine, int nTimeout = - 1 )
+		{
+			std::cout << "Socket got: " << sLine << std::endl; 
+			return true; 
+		};
+		
+		void SendStringToAll(string sString)
+		{
+			for(std::vector<ServerSocket *>::iterator i=m_vectorServerSocket.begin(); i!=m_vectorServerSocket.end(); i++)
+			{
+				if ((*i)->SendString(sString))
+				{
+					std::cout << "Sent timecode to " << (*i)->m_sHostName<<  std::endl;
+				}
+				else
+				{
+					std::cout << "Not sent timecode to " << (*i)->m_sHostName<<  std::endl;
+				}
+			}
+		}
+	};
+	
+	XineNotification_SocketListener *m_pNotificationSocket;
 	};
 
 //<-dceag-end-b->
