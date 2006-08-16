@@ -13,7 +13,6 @@
 #include "pluto_main/Define_Screen.h"
 
 #include "Simulator.h"
-//#include "OpenGL/Orbiter3DCommons.h"
 
 #include "MediaBrowserMouseHandler.h"
 #include "HorizMenuMouseHandler.h"

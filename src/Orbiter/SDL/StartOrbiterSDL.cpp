@@ -480,7 +480,6 @@ void SDL_App_Object::SetExitCode(int nExitCode)
     m_nExitCode = nExitCode;
 };
 
-#if (! USE_WX_LIB)
 int main(int argc, char *argv[])
 {
     int nExitCode = 0;
@@ -492,5 +491,3 @@ int main(int argc, char *argv[])
     delete pSDL_App_Object;
     return nExitCode;
 }
-
-#endif // (! USE_WX_LIB)

@@ -16,18 +16,6 @@
 */
 
 #include <stdlib.h>
-#define USE_X11_LIB (! USE_WX_LIB)
-
-#if (USE_WX_LIB)
-#include "../wxAppMain/wx_all_include.cpp"
-#include "../wxAppMain/wx_safe_dialog.h"
-#include "../wxAppMain/wxdialog_waitgrid.h"
-#include "../wxAppMain/wxdialog_waitlist.h"
-#include "../wxAppMain/wxdialog_waituser.h"
-#define USE_TASK_MANAGER true
-#include "../Task.h"
-#include "../TaskManager.h"
-#endif // (USE_WX_LIB)
 
 #include "DCE/Logger.h"
 #include "OrbiterLinux.h"
@@ -113,21 +101,11 @@ OrbiterLinux::~OrbiterLinux()
     pthread_t hackthread;
     pthread_create(&hackthread, NULL, HackThread, (void*)this);
 
-#if (USE_X11_LIB)
     if (m_pProgressWnd)
     {
         m_pProgressWnd->Terminate();
         delete m_pProgressWnd;
     }
-#endif // (USE_X11_LIB)
-#if (USE_WX_LIB)
-    if (m_pWaitGrid)
-        Safe_Close<wxDialog_WaitGrid>(m_pWaitGrid);
-    if (m_pWaitList)
-        Safe_Close<wxDialog_WaitList>(m_pWaitList);
-    if (m_pWaitUser)
-        Safe_Close<wxDialog_WaitUser>(m_pWaitUser);
-#endif // (USE_WX_LIB)
 
     KillMaintThread();
 

@@ -24,7 +24,6 @@
 #include "Effects/gl2deffectslidefromleft.h"
 #include "Effects/gl2deffectfadesfromtop.h"
 #include "Effects/gl2deffectfadesfromunderneath.h"
-#include "Orbiter3DCommons.h" 
 #include "Simulator.h" 
 #include "OpenGLGraphic.h"
 #include "OpenGL3DEngine.h"

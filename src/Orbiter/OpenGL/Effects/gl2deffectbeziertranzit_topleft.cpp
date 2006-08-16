@@ -48,8 +48,6 @@ void GL2DBezierEffectTransit_TopLeft::Paint(int Now)
 		OpenGLGraphic* ScreenRenderGraphic = Effects->ParentLayer->RenderGraphic;
 		Button->SetBackgroundImage(ScreenRenderGraphic);
 		
-		//Orbiter3DCommons::GetInstance()->GetScreen3D()->SetVisible(false);
-
 		float MaxCoordU = 1;
 		float MaxCoordV = 1;
 		

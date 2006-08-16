@@ -1,15 +1,5 @@
-#if (USE_WX_LIB)
-#include "../wxAppMain/wx_all_include.cpp"
-#include "../wxAppMain/wx_safe_dialog.h"
-#include "../wxAppMain/wxdialog_roomwizard.h"
-#define USE_TASK_MANAGER true
-#endif // (USE_WX_LIB)
-
-#include "../Task.h"
-#include "../TaskManager.h"
-
 #ifndef WIN32
-#include "OrbiterLinux.h"
+	#include "OrbiterLinux.h"
 #endif
 
 #include "OSDScreenHandler.h"
@@ -456,20 +446,6 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_RoomsWizard(long PK_Screen)
 {
-/*
-#if (USE_WX_LIB)
-    {
-        ScreenHandler::SCREEN_RoomsWizard(PK_Screen);
-        // register the RoomWizard callbacks
-        g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_RoomsWizard()" );
-        RegisterCallBack( cbOnDialogCreate, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardCreate, new PositionCallBackData() );
-        RegisterCallBack( cbOnDialogDelete, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardDelete, new PositionCallBackData() );
-        RegisterCallBack( cbOnDialogRefresh, (ScreenHandlerCallBack)&OSDScreenHandler::RoomsWizardRefresh, new PositionCallBackData() );
-        return;
-    } // USE_WX_LIB
-#endif
-*/
-
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butRoomsWizard_CONST));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
@@ -2164,106 +2140,6 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 	}
 
 	return false;
-}
-
-//-----------------------------------------------------------------------------------------------------
-bool OSDScreenHandler::RoomsWizardCreate( CallBackData *pData )
-{
-    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate()" );
-
-    PositionCallBackData * pPositionCallBackData = dynamic_cast<PositionCallBackData *>( pData );
-    if (pPositionCallBackData == NULL)
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardCreate(), NULL Data");
-        return false;
-    }
-    PlutoRectangle plutoRect = pPositionCallBackData->m_rectPosition;
-    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate(), x=%d, y=%d, w=%d, h=%d",
-                           plutoRect.X, plutoRect.Y, plutoRect.Width, plutoRect.Height );
-#if (USE_WX_LIB)
-#if (USE_TASK_MANAGER)
-    {
-        CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, plutoRect);
-        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_RoomWizard, pCallBackData);
-        TaskManager::Instance().AddTaskAndWait(pTask);
-    }
-    {
-        CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, plutoRect);
-        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, E_Dialog_RoomWizard, pCallBackData);
-        TaskManager::Instance().AddTask(pTask);
-    }
-#else // (USE_TASK_MANAGER)
-    wxDialog_RoomWizard *pwxDialog = Safe_CreateUnique<wxDialog_RoomWizard>(m_pWizardLogic);
-    Safe_Show(pwxDialog);
-    wxDialog_RoomWizard::Data_Refresh data_refresh = { wxRect(plutoRect.X, plutoRect.Y, plutoRect.Width, plutoRect.Height) };
-    Safe_Gui_Refresh(pwxDialog, &data_refresh);
-#endif // (USE_TASK_MANAGER)
-#endif // (USE_WX_LIB)
-
-    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardCreate() END" );
-    return false;
-}
-
-//-----------------------------------------------------------------------------------------------------
-bool OSDScreenHandler::RoomsWizardDelete( CallBackData *pData )
-{
-    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardDelete()" );
-#if (USE_WX_LIB)
-#if (USE_TASK_MANAGER)
-    {
-        CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, PlutoRectangle());
-        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogSave, E_Dialog_RoomWizard, pCallBackData);
-        TaskManager::Instance().AddTask(pTask);
-    }
-    {
-        CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, PlutoRectangle());
-        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogDelete, E_Dialog_RoomWizard, pCallBackData);
-        TaskManager::Instance().AddTaskAndWait(pTask);
-    }
-    {
-        // when AppDesktop restores main window
-        OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(m_pOrbiter);
-        if(NULL != pOrbiterLinux)
-            pOrbiterLinux->m_pWMController->SetVisible("dialog.dialog", false);
-    }
-#else // (USE_TASK_MANAGER)
-    wxDialog_RoomWizard *pwxDialog = ptr_wxDialogByType<wxDialog_RoomWizard>();
-    Safe_Gui_DataSave(pwxDialog, m_pWizardLogic);
-    Safe_Close(pwxDialog);
-#endif // (USE_TASK_MANAGER)
-#endif // (USE_WX_LIB)
-    return false;
-}
-
-//-----------------------------------------------------------------------------------------------------
-bool OSDScreenHandler::RoomsWizardRefresh( CallBackData *pData )
-{
-    PositionCallBackData * pPositionCallBackData = dynamic_cast<PositionCallBackData *>( pData );
-    if (pPositionCallBackData == NULL)
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardRefresh(), NULL Data");
-        return false;
-    }
-    PlutoRectangle plutoRect = pPositionCallBackData->m_rectPosition;
-    g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::RoomsWizardRefresh(), x=%d, y=%d, w=%d, h=%d",
-                           plutoRect.X, plutoRect.Y, plutoRect.Width, plutoRect.Height );
-
-#if (USE_WX_LIB)
-#if (USE_TASK_MANAGER)
-    {
-        CallBackData *pCallBackData = new RoomWizardCallBackData(m_pWizardLogic, plutoRect);
-        Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogRefresh, E_Dialog_RoomWizard, pCallBackData);
-        TaskManager::Instance().AddTask(pTask);
-    }
-#else // (USE_TASK_MANAGER)
-    wxDialog_RoomWizard *pwxDialog = ptr_wxDialogByType<wxDialog_RoomWizard>();
-    wxDialog_RoomWizard::Data_Refresh data_refresh = { wxRect(plutoRect.X, plutoRect.Y, plutoRect.Width, plutoRect.Height) };
-    Safe_Gui_Refresh(pwxDialog, &data_refresh);
-#endif // (USE_TASK_MANAGER)
-#endif // (USE_WX_LIB)
-
-    g_pPlutoLogger->Write( LV_CRITICAL, "OSDScreenHandler::RoomsWizardRefresh(), END");
-    return false;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_mnuSpeedControl(long PK_Screen)

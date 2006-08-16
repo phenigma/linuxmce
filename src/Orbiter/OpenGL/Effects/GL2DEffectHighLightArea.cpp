@@ -2,8 +2,6 @@
 
 #include "gl2deffectfactory.h"
 
-//#include "../Orbiter3DCommons.h"
-
 namespace GLEffect2D
 {
 

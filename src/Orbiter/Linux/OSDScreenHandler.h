@@ -103,11 +103,6 @@ public:
 	bool VOIP_CapturedKeyboardBufferChanged(CallBackData *pData);
 	bool VOIP_Provider_ObjectSelected(CallBackData *pData);
 
-    // RoomsWizard callbacks
-    bool RoomsWizardCreate( CallBackData *pData );
-    bool RoomsWizardDelete( CallBackData *pData );
-    bool RoomsWizardRefresh( CallBackData *pData );
-	
 	virtual void SCREEN_mnuSpeedControl(long PK_Screen);	
 	bool SpeedControlCreate(CallBackData *pData);
 	bool SpeedControlDelete(CallBackData *pData);

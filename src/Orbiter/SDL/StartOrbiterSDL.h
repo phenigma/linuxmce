@@ -68,9 +68,7 @@ protected:
     int m_nExitCode;
 };
 
-#if (! USE_WX_LIB)
 int main(int argc, char *argv[]);
-#endif // (! USE_WX_LIB)
 
 #endif
 // __START_ORBITER_SDL_H__

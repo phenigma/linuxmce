@@ -13,12 +13,6 @@
 #include "pluto_main/Define_Text.h"
 #include "OrbiterRenderer.h"
 
-#ifndef WIN32
-#	include "Task.h"
-#	include "TaskManager.h"
-#	include "CallBackData.h"
-#endif
-
 using namespace DCE;
 
 const int SpeedMouseHandler::m_iSpeeds[] = {0,250,500,1000,2000,3000,4000,6000,8000,10000,15000,20000,30000,50000,100000,200000,400000};

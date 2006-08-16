@@ -5,18 +5,6 @@
 using namespace DCE;
 
 #include <stdlib.h>
-#define USE_X11_LIB (! USE_WX_LIB)
-
-#if (USE_WX_LIB)
-#include "../wxAppMain/wx_all_include.cpp"
-#include "../wxAppMain/wx_safe_dialog.h"
-#include "../wxAppMain/wxdialog_waitgrid.h"
-#include "../wxAppMain/wxdialog_waitlist.h"
-#include "../wxAppMain/wxdialog_waituser.h"
-#define USE_TASK_MANAGER true
-#include "../Task.h"
-#include "../TaskManager.h"
-#endif // (USE_WX_LIB)
 
 #include "DCE/Logger.h"
 #include "pluto_main/Define_DesignObj.h"
@@ -169,81 +157,6 @@ bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, const map<string, b
 	if(NULL ==	pOrbiterLinux)
 		return false;
 
-/////////////////////////////////////////////////////////////////
-//  WX dialogs
-/////////////////////////////////////////////////////////////////
-#if (USE_WX_LIB)
-#if (USE_TASK_MANAGER)
-	static bool bDialogRunning = false;
-	PositionCallBackData *pCallBackData = new WaitUserGridCallBackData(sMessage, mapChildDevices, nProgress);
-    pCallBackData->m_bShowFullScreen = true;
-	CallBackType callbackType = cbOnDialogRefresh;
-	if(nProgress != -1)
-	{
-		if(!bDialogRunning)
-		{
-			callbackType = cbOnDialogCreate;
-			bDialogRunning = true;
-		}
-		//else assuming it's a refresh
-	}
-	else
-	{
-		callbackType = cbOnDialogDelete;
-		bDialogRunning = false;
-	}
-	Task *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitGrid, pCallBackData);
-    if (callbackType == cbOnDialogCreate)
-    {
-        TaskManager::Instance().AddTaskAndWait(pTask);
-        m_pWinListManager->MaximizeWindow("dialog.dialog");
-    }
-    else
-    {
-        if (callbackType == cbOnDialogDelete)
-		{
-            m_pWinListManager->HideAllWindows();
-			TaskManager::Instance().AddTaskAndWait(pTask);
-		}
-		else
-        	TaskManager::Instance().AddTask(pTask);
-    }
-#else // (USE_TASK_MANAGER)
-    if ( (m_pWaitGrid != NULL) && m_bButtonPressed_WaitGrid )
-    {
-        // window already closed
-        m_pWaitGrid = NULL;
-        // notify by return value
-        return true;
-    }
-    if ( (m_pWaitGrid == NULL) && (nProgress >= 0) )
-    {
-        // create new window
-        m_pWaitGrid = Safe_CreateUnique<wxDialog_WaitGrid>();
-        Safe_Show<wxDialog_WaitGrid>(m_pWaitGrid);
-        m_pWinListManager->MaximizeWindow("dialog.dialog");
-        return false;
-    }
-    if ( (m_pWaitGrid != NULL) && (nProgress >= 0) )
-    {
-        // update
-        wxDialog_WaitGrid::Data_Refresh data_refresh = { sMessage, mapChildDevices, nProgress };
-        Safe_Gui_Refresh<wxDialog_WaitGrid>(m_pWaitGrid, &data_refresh);
-        return false;
-    }
-    if ( (m_pWaitGrid != NULL) && (nProgress < 0) )
-    {
-        Safe_Close<wxDialog_WaitGrid>(m_pWaitGrid);
-        m_pWaitGrid = NULL;
-        return false;
-    }
-#endif // (USE_TASK_MANAGER)
-#endif // (USE_WX_LIB)
-
-/////////////////////////////////////////////////////////////////
-//  NON - WX dialogs
-/////////////////////////////////////////////////////////////////
-#if (USE_X11_LIB)
     sMessage += ": ";
     for(map<string, bool>::const_iterator it = mapChildDevices.begin(); it != mapChildDevices.end(); ++it)
         if(!it->second)
@@ -279,7 +192,6 @@ bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, const map<string, b
         pOrbiterLinux->reinitGraphics();
         return false;
     }
-#endif // (USE_X11_LIB)
 
     return false;
 }
@@ -292,76 +204,6 @@ bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, int nProgress)
 	if(NULL ==	pOrbiterLinux)
 		return false;
 
-#if (USE_WX_LIB)
-#if (USE_TASK_MANAGER)
-	static bool bDialogRunning = false;
-	PositionCallBackData *pCallBackData = new WaitUserListCallBackData(sMessage, nProgress);
-    pCallBackData->m_bShowFullScreen = true;
-	CallBackType callbackType = cbOnDialogRefresh;
-	if(nProgress != -1)
-	{
-		if(!bDialogRunning)
-		{
-			callbackType = cbOnDialogCreate;
-			bDialogRunning = true;
-        }
-		//else assuming it's a refresh
-	}
-	else
-	{
-		callbackType = cbOnDialogDelete;
-		bDialogRunning = false;
-	}
-	Task *pTask = TaskManager::Instance().CreateTask(callbackType, E_Dialog_WaitList, pCallBackData);
-    if (callbackType == cbOnDialogCreate)
-    {
-        TaskManager::Instance().AddTaskAndWait(pTask);
-        pOrbiterLinux->m_pWinListManager->MaximizeWindow("dialog.dialog");
-    }
-    else
-    {
-        if (callbackType == cbOnDialogDelete)
-		{
-            pOrbiterLinux->m_pWinListManager->HideAllWindows();
-			TaskManager::Instance().AddTaskAndWait(pTask);
-		}
-		else
-        	TaskManager::Instance().AddTask(pTask);
-    }
-#else // (USE_TASK_MANAGER)
-	//TODO:
-    if ( (m_pWaitList != NULL) && m_bButtonPressed_WaitList )
-    {
-        // window already closed
-        m_pWaitList = NULL;
-        // notify by return value
-        return true;
-    }
-    if ( (m_pWaitList == NULL) && (nProgress >= 0) )
-    {
-        // create new window
-        m_pWaitList = Safe_CreateUnique<wxDialog_WaitList>();
-        Safe_Show<wxDialog_WaitList>(m_pWaitList);
-        m_pWinListManager->MaximizeWindow("dialog.dialog");
-        return false;
-    }
-    if ( (m_pWaitList != NULL) && (nProgress >= 0) )
-    {
-        // update
-        wxDialog_WaitList::Data_Refresh data_refresh = { sMessage, nProgress };
-        Safe_Gui_Refresh<wxDialog_WaitList>(m_pWaitList, &data_refresh);
-        return false;
-    }
-	if ( (m_pWaitList != NULL) && (nProgress < 0) )
-    {
-        Safe_Close<wxDialog_WaitList>(m_pWaitList);
-        m_pWaitList = NULL;
-        return false;
-    }
-#endif // (USE_TASK_MANAGER)
-#endif // (USE_WX_LIB)
-
-#if (USE_X11_LIB)
     if (pOrbiterLinux->m_pProgressWnd && pOrbiterLinux->m_pProgressWnd->IsCancelled())
     {
         delete pOrbiterLinux->m_pProgressWnd;
@@ -392,7 +234,6 @@ bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, int nProgress)
         pOrbiterLinux->reinitGraphics();
         return false;
     }
-#endif // (USE_X11_LIB)
 
     return false;
 }
@@ -410,25 +251,6 @@ int OrbiterRenderer_Linux::PromptUser(string sPrompt, int iTimeoutSeconds, map<i
 	if(NULL ==	pOrbiterLinux)
 		return false;
 
-#if (USE_WX_LIB)
-#if (USE_TASK_MANAGER)
-	PositionCallBackData *pCallBackData = new WaitUserPromptCallBackData(sPrompt, iTimeoutSeconds, *p_mapPrompts);
-    pCallBackData->m_bShowFullScreen = true;
-	Task *pTask = TaskManager::Instance().CreateTask(cbOnDialogCreate, E_Dialog_WaitUser, pCallBackData);
-	TaskManager::Instance().AddTaskAndWait(pTask);
-    m_pWinListManager->MaximizeWindow("dialog.dialog");
-	Task *pTaskWait = TaskManager::Instance().CreateTask(cbOnDialogWaitUser, E_Dialog_WaitUser, pCallBackData);
-	TaskManager::Instance().AddTaskAndWait(pTaskWait);
-    std::cout << "== PromptUser( " << sPrompt << ", " << iTimeoutSeconds << ", " << p_mapPrompts << " );" << std::endl;
-#else // (USE_TASK_MANAGER)
-    m_pWaitUser = Safe_CreateUnique<wxDialog_WaitUser>();
-    m_pWinListManager->MaximizeWindow("dialog.dialog");
-    int nButtonId = Safe_ShowModal<wxDialog_WaitUser>(m_pWaitUser);
-    return nButtonId;
-#endif // (USE_TASK_MANAGER)
-#endif // (USE_WX_LIB)
-
-#if (USE_X11_LIB)
     XPromptUser promptDlg(sPrompt, iTimeoutSeconds, p_mapPrompts);
     promptDlg.SetButtonPlacement(XPromptUser::BTN_VERT);
     promptDlg.Init();
@@ -436,9 +258,6 @@ int OrbiterRenderer_Linux::PromptUser(string sPrompt, int iTimeoutSeconds, map<i
     int nUserAnswer = promptDlg.RunModal();
     promptDlg.DeInit();
     return nUserAnswer;
-#endif // (USE_X11_LIB)
-
-	return 0;
 }
 
 void OrbiterRenderer_Linux::LockDisplay()
