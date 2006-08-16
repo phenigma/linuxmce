@@ -40,7 +40,6 @@ HorizMenuMouseHandler::HorizMenuMouseHandler(DesignObj_Orbiter *pObj,string sOpt
 		//if( m_pObj_ActiveMenuPad )
 		//	ShowPopup(m_pObj_ActiveMenuPad);
 	}
-	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 }
 
 void HorizMenuMouseHandler::Start()

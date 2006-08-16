@@ -99,6 +99,8 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 		else
 			m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
 	}
+	else
+		ShowMouse(false);
 }
 
 // If options contains a 's', this will be selected by default
@@ -234,6 +236,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing main menu");
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_mnuMainMenu2_CONST);
+		SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 		return true;
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_3_CONST && !m_bMouseKilled )
@@ -258,6 +261,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 			m_pOrbiter->CMD_Goto_Screen("", m_pOrbiter->m_iPK_Screen_OSD_Speed);
 		else if( m_pOrbiter->m_iPK_Screen_OSD_Track )
 			m_pOrbiter->CMD_Goto_Screen("", m_pOrbiter->m_iPK_Screen_OSD_Track);
+		SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 		return true;
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && PK_Screen_OnScreen!=SCREEN_mnuAmbiance_CONST 
@@ -266,6 +270,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing ambiance menu");
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuAmbiance_CONST);
+		SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 		return true;
 	}
 	else if( (m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && (PK_Screen_OnScreen==SCREEN_mnuPlaybackControl_CONST || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_OSD_Speed || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_OSD_Track)) ||

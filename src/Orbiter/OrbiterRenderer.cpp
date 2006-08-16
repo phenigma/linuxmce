@@ -1308,9 +1308,13 @@ char *pData, int iData_Size, string sDisable_Aspect_Lock)
 	DesignObj_Orbiter *pObj = OrbiterLogic()->FindObject( sPK_DesignObj );
 	if(!pObj)
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Got update object image but cannot find: %s", sPK_DesignObj.c_str());
+		g_pPlutoLogger->Write( LV_CRITICAL, "OrbiterRenderer::UpdateObjectImage Got update object image but cannot find: %s", sPK_DesignObj.c_str());
 		return;
 	}
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer::UpdateObjectImage with image of size %d",iData_Size);
+#endif
 
 	int PriorWidth=0, PriorHeight=0;
 	if(  pObj->m_pvectCurrentGraphic  )

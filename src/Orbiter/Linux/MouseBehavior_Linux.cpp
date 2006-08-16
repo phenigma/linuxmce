@@ -61,6 +61,7 @@ void MouseBehavior_Linux::ShowMouse(bool bShow)
 	//SDL_ShowCursor(bShow ? SDL_ENABLE : SDL_DISABLE);
 
     // at show, we want to show the standard mouse cursor
+    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ShowMouse %d",(int) bShow);
     if (bShow)
         ptrOrbiterLinux()->m_pX11->Mouse_ShowStandardCursor(ptrOrbiterLinux()->GetMainWindow());
     else
@@ -96,7 +97,7 @@ bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
 
 void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::SetMousePointerStyle(%d)");
+    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::SetMousePointerStyle(%d)",(int) mouseCursorStyle);
     // convert enum values
     std::string sErr;
     std::string sDir = "/usr/pluto/orbiter/skins/Basic/cursors/pointers_bw/";
