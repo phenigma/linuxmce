@@ -197,12 +197,20 @@ public:
 			return m_mapParameters[DEVICEDATA_Hardware_acceleration_CONST];
 	}
 
-	bool Get_Use_Deinterlacing()
+	string Get_Deinterlacing_Mode()
 	{
 		if( m_bRunningWithoutDeviceData )
-			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Use_Deinterlacing_CONST)=="1" ? true : false);
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Deinterlacing_Mode_CONST);
 		else
-			return (m_mapParameters[DEVICEDATA_Use_Deinterlacing_CONST]=="1" ? true : false);
+			return m_mapParameters[DEVICEDATA_Deinterlacing_Mode_CONST];
+	}
+
+	int Get_Port()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Port_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_Port_CONST].c_str());
 	}
 
 };
@@ -315,7 +323,8 @@ public:
 	int DATA_Get_Time_Code_Report_Frequency() { return GetData()->Get_Time_Code_Report_Frequency(); }
 	string DATA_Get_Name() { return GetData()->Get_Name(); }
 	string DATA_Get_Hardware_acceleration() { return GetData()->Get_Hardware_acceleration(); }
-	bool DATA_Get_Use_Deinterlacing() { return GetData()->Get_Use_Deinterlacing(); }
+	string DATA_Get_Deinterlacing_Mode() { return GetData()->Get_Deinterlacing_Mode(); }
+	int DATA_Get_Port() { return GetData()->Get_Port(); }
 	//Event accessors
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	void EVENT_Menu_Onscreen(int iStream_ID,bool bOnOff) { GetEvents()->Menu_Onscreen(iStream_ID,bOnOff); }
