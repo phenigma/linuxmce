@@ -110,7 +110,7 @@ case "$URL_TYPE" in
 		if ! PackageIsInstalled "$PKG_NAME"; then
 
 			count="0"
-			apt-get -y --reinstall install "$PKG_NAME"
+			apt-get -y install "$PKG_NAME"
 			apt_err=$?			
 
 			## NFS Error fallback
