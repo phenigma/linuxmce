@@ -49,7 +49,7 @@ public:
 
 	bool NeedUpdateScreen();
 	
-	void AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame);
+	void AddMeshFrameToDesktop(string ParentObjectID, string ObjectID, MeshFrame* Frame);
 	void RemoveMeshFrameFromDesktopFromID(std::string ObjectID);
 	MeshFrame* GetMeshFrameFromDesktop(string ObjectID);
 	

@@ -501,7 +501,7 @@ void MediaBrowserMouseHandler::RelativePointer_ImageDraw(PlutoGraphic *pImage, c
     {
         // opengl mode
         // reusing the same image id
-        pOrbiterRenderer_OpenGL->RenderGraphic("image_fake_pointer", pImage, rectFakePointer);
+        pOrbiterRenderer_OpenGL->RenderGraphic("", "image_fake_pointer", pImage, rectFakePointer);
         return;
     }
 #endif

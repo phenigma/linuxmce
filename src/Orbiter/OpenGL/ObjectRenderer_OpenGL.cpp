@@ -20,14 +20,15 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 
 /*virtual*/ void ObjectRenderer_OpenGL::RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point)
 {
-	//g_pPlutoLogger->Write(LV_STATUS, "(1) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
-	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
-	string sObjectHash = m_pObj_Owner->GenerateObjectHash(point);
+	string sParentObjectID = "";
+	DesignObj_Orbiter *pParentObj = dynamic_cast<DesignObj_Orbiter *>(m_pObj_Owner->m_pParentObject);
+	if(NULL != pParentObj)
+		sParentObjectID = pParentObj->GenerateObjectHash(point, false);
 
-	MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(sObjectHash);
+	MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(m_pObj_Owner->GenerateObjectHash(point));
 	if(NULL != Frame)
 	{
-		TextureManager::Instance()->AttachToScene(sObjectHash, Frame);
+		TextureManager::Instance()->AttachToScene(sParentObjectID, m_pObj_Owner->GenerateObjectHash(point, false), Frame);
 		return;
 	}
 
@@ -147,7 +148,8 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 
 		int nAlphaChannel = GetAlphaLevel();
 
-		pOrbiterRenderer_OpenGL->RenderGraphic(m_pObj_Owner->GenerateObjectHash(point, false), pPlutoGraphic, rectTotal, 
+		pOrbiterRenderer_OpenGL->RenderGraphic(sParentObjectID, 
+			m_pObj_Owner->GenerateObjectHash(point, false), pPlutoGraphic, rectTotal, 
 			bDisableAspectRatio, point, nAlphaChannel);
 	}
 #ifdef DEBUG

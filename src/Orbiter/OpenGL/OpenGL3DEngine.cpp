@@ -16,6 +16,8 @@
 #include "DCE/Logger.h"
 using namespace DCE;
 
+//#define SCENE_DEBUG 1
+
 OpenGL3DEngine::OpenGL3DEngine()
 	: OldLayer(NULL),
 	CurrentLayer(NULL),
@@ -211,7 +213,7 @@ void OpenGL3DEngine::Setup()
 	CurrentLayer = new MeshFrame();
 }
 
-void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
+void OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, string ObjectID, MeshFrame* Frame)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 
@@ -222,8 +224,8 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 		return;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "sss Adding child %p, object %s to layer %p, size is now %d", 
-		Frame, ObjectID.c_str(), CurrentLayer, CurrentLayer->Children.size());
+	g_pPlutoLogger->Write(LV_WARNING, "sss Adding child object %s to parent %s, layer %p, size is now %d", 
+		ObjectID.c_str(), ParentObjectID.c_str(), CurrentLayer, CurrentLayer->Children.size());
 
 	if(ObjectID != "")
 	{
@@ -247,7 +249,15 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 	Frame->ApplyTransform(trans);
 #endif
 
-	CurrentLayer->AddChild(Frame);
+	MeshFrame *pParentFrame = CurrentLayer;
+	if(ParentObjectID != "")
+	{
+		std::map<string, MeshFrame *>::iterator it = CurrentLayerObjects_.find(ParentObjectID);
+		if(it != CurrentLayerObjects_.end())
+			pParentFrame = it->second;
+	}
+
+	pParentFrame->AddChild(Frame);
 
 	if(ObjectID != "")
 	{

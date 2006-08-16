@@ -150,9 +150,9 @@ bool TextureManager::SupportTextureNonPowerOfTwo()
 }
 
 
-MeshFrame* TextureManager::GetCacheItem(std::string ObjectID)
+MeshFrame* TextureManager::GetCacheItem(std::string ObjectHash)
 {
-	std::map<std::string, MeshFrame*>::iterator Item = Graphics.find(ObjectID);
+	std::map<std::string, MeshFrame*>::iterator Item = Graphics.find(ObjectHash);
 
 	if(Item == Graphics.end())
 		return NULL;
@@ -161,22 +161,22 @@ MeshFrame* TextureManager::GetCacheItem(std::string ObjectID)
 	return Item->second;
 }
 
-void TextureManager::AddCacheItem(std::string ObjectID, MeshFrame* Frame)
+void TextureManager::AddCacheItem(std::string ObjectHash, MeshFrame* Frame)
 {
-	if(ExistInCache(ObjectID))
+	if(ExistInCache(ObjectHash))
 		return;
-	Graphics[ObjectID] = Frame;
+	Graphics[ObjectHash] = Frame;
 }
 
-bool TextureManager::ExistInCache(std::string ObjectID)
+bool TextureManager::ExistInCache(std::string ObjectHash)
 {
-	bool Result = Graphics.find(ObjectID) != Graphics.end();
+	bool Result = Graphics.find(ObjectHash) != Graphics.end();
 	return Result;
 	
 }
 
-void TextureManager::AttachToScene(string ObjectID, MeshFrame* Frame)
+void TextureManager::AttachToScene(string ParentObjectID, string ObjectID, MeshFrame* Frame)
 {
 	if(NULL != Engine)
-		Engine->AddMeshFrameToDesktop(ObjectID, Frame);
+		Engine->AddMeshFrameToDesktop(ParentObjectID, ObjectID, Frame);
 }

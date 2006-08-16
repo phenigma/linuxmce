@@ -56,7 +56,7 @@ namespace DCE
 		// Rendering
 		virtual void RenderScreen(bool bRenderGraphicsOnly);
 
-		virtual void RenderGraphic(string ObjectID, class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
+		virtual void RenderGraphic(string ParentObjectID, string ObjectID, class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
 			bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0), int nAlphaChannel = 255);
 
 		void RemoveGraphic(string ObjectID);

@@ -35,7 +35,7 @@ class TextureManager
 	std::list <OpenGLTexture> WaitForRelease;
 	std::map<std::string, MeshFrame*> Graphics;
 
-	bool ExistInCache(std::string ObjectID);
+	bool ExistInCache(std::string ObjectHash);
 	OpenGL3DEngine *Engine;
 
 public:
@@ -58,10 +58,10 @@ public:
 
 	bool SupportTextureNonPowerOfTwo();
 
-	MeshFrame* GetCacheItem(std::string ObjectID);
-	void AddCacheItem(std::string ObjectID, MeshFrame* Frame);
+	MeshFrame* GetCacheItem(std::string ObjectHash);
+	void AddCacheItem(std::string ObjectHash, MeshFrame* Frame);
 
-	void AttachToScene(std::string ObjectID, MeshFrame* Frame);
+	void AttachToScene(std::string ParentObjectID, std::string ObjectID, MeshFrame* Frame);
 };
 
 #endif //TextureManager_H_

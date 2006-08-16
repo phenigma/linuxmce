@@ -216,7 +216,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	delete Builder;
 	Builder = NULL;
 
-	Engine->AddMeshFrameToDesktop("", Frame);
+	Engine->AddMeshFrameToDesktop("", "", Frame);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
@@ -267,7 +267,12 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		(NULL != Text->m_pObject ? Text->m_pObject->m_ObjectID : string()) + 
 		"-" + StringUtils::itos(Text->m_rPosition.X) + 
 		"-" + StringUtils::itos(Text->m_rPosition.Y);
-	Engine->AddMeshFrameToDesktop(TextUniqueID, Frame);
+
+	string sParentObjectID = "";
+	if(NULL != Text->m_pObject)
+		sParentObjectID = Text->m_pObject->GenerateObjectHash(point, false);
+
+	Engine->AddMeshFrameToDesktop(sParentObjectID, TextUniqueID, Frame);
 
 	delete aGLTextRenderer;
 }
@@ -291,10 +296,11 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
 	bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
-	RenderGraphic("", pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
+	RenderGraphic("", "", pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(string ObjectID, class PlutoGraphic *pPlutoGraphic, 
+/*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(string ParentObjectID, string ObjectID, 
+	class PlutoGraphic *pPlutoGraphic, 
 	PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/,
 	int nAlphaChannel/* = 255*/)
 {
@@ -365,7 +371,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	TextureManager::Instance()->AddCacheItem(ObjectID, Frame);
 
-	Engine->AddMeshFrameToDesktop(ObjectID, Frame);
+	Engine->AddMeshFrameToDesktop(ParentObjectID, ObjectID, Frame);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::BeginPaint()
