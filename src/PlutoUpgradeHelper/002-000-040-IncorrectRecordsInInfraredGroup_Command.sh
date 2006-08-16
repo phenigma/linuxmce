@@ -19,12 +19,68 @@ fi
 MyName="002-000-040-IncorrectRecordsInInfraredGroup_Command.sh"
 
 
+function WebDB_Get() {
+	local URL="$1"
+	local Table="$2"
+
+	local OutputFile=$(mktemp)
+	wget --timeout=10 -O "$OutputFile" "$URL"
+
+	local Header=$(head -1 "$OutputFile")
+	local Footer=$(tail -1 "$OutputFile")
+
+	if [[ "$Header" != "-- Database import" || "$Footer" != "-- EOF" ]]; then
+		echo "ERROR. Header: $Header; Footer: $Footer"
+		exit 1
+	fi
+
+	local PSC=$(head -2 "$OutputFile" | tail -1)
+	local PSC="${PSC#-- psc_id: }"
+
+	if [[ -n "$Table" && -n "$PSC" ]]; then
+		local Q="DELETE FROM $Table WHERE psc_id IN ($PSC)"
+		RunSQL "$Q"
+	fi
+
+	local QPass=
+	if [[ -n "$MySqlPassword" ]]; then
+		QPass="-p$MySqlPassword"
+	fi
+	mysql -u $MySqlUser -h $MySqlHost $QPass "$MySqlDBName" <"$OutputFile"
+
+	local psc_ids_used=$(head -3 $OutputFile | grep -m 1 "^-- psc_id:" | cut -d ':' -f2 | tr ',' ' ')
+	local psc_ids_old=$(echo $psc_ids | tr ',' ' ')
+	psc_ids=""
+
+	# psc_ids = psc_ids_old - psc_ids_used  / isn't bash fun ? X-(
+	for psc_id_old in $psc_ids_old ;do
+
+		local isUsed="false"
+		for psc_id_used in $psc_ids_used ;do
+			if [[ "$psc_id_old" == "$psc_id_used" ]] ;then
+				local isUsed="true"
+				break
+			fi
+		done
+		
+		if [[ "$isUsed" == "false" ]] ;then
+	                if [[ "$psc_ids" != "" ]] ;then
+        	                psc_ids="${psc_ids},${psc_id_old}"
+                	else
+                        	psc_ids="${psc_id_old}"
+ 	               fi	
+		fi
+	done
+
+	rm -rf $OutputFile
+}
+
 psc_ids=""
 
 if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 	. /usr/pluto/bin/SQL_Ops.sh
 	
-	Q="SELECT psc_id FROM InfraredGroup_Command WHERE FK_InfraredGroup IS NULL AND psc_mod=0"
+	Q="SELECT psc_id FROM InfraredGroup_Command WHERE FK_InfraredGroup IS NULL AND psc_mod=0 AND psc_batch > 0"
 	R=$(RunSQL "$Q")
 
 	for psc_id in $R; do
@@ -34,7 +90,12 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 			psc_ids="${psc_id}"
 		fi
 	done
+	
+	# This function also updates psc_ids (removes the updated ones)
+	WebDB_Get "http://plutohome.com/GetInfraredCodes.php?psc_ids=${psc_ids}" 'InfraredGroup_Command'
 fi
+	
+
 
 ## If the records are not updated
 if [[ "$psc_ids" != "" ]] ;then
@@ -42,10 +103,6 @@ if [[ "$psc_ids" != "" ]] ;then
 	if [[ ! -f /etc/cron.hourly/$MyName ]] ;then
 		cp /usr/share/pluto-upgrade-helper/$MyName /etc/cron.hourly/
 	fi
-
-	## Try an update right now
-	/usr/pluto/bin/WebDB_Get.sh "http://plutohome.com/GetInfraredCodes.php?psc_ids=${psc_ids}" 'InfraredGroup_Command'
-
 else
 	## My job here is done, I'll be back .. 
 	rm -rf /etc/cron.hourly/$MyName
