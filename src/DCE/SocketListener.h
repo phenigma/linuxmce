@@ -11,7 +11,7 @@
 
 
 #ifndef SOCKETLISTENER_H
-#define SocketLISTENER_H
+#define SOCKETLISTENER_H
 
 #include <map>
 #include <list>
