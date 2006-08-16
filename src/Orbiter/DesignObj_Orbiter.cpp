@@ -218,12 +218,15 @@ string DesignObj_Orbiter::GetArrayValue()
 	return m_pObjectRenderer->PostRenderActions(pObj_Screen, point);	
 }
 //-------------------------------------------------------------------------------------------------------
-std::string DesignObj_Orbiter::GenerateObjectHash(const PlutoPoint& point)
+std::string DesignObj_Orbiter::GenerateObjectHash(const PlutoPoint& point, bool bObjectState/* = true*/)
 {
-	return m_ObjectID + 
-		"-" + StringUtils::ltos(m_rPosition.X) +
-		":" + StringUtils::ltos(m_rPosition.Y) + 
-		"-" + StringUtils::ltos(point.X) + 
-		":" + StringUtils::ltos(point.Y) + 
-		"G:" + StringUtils::ltos(m_GraphicToDisplay);
+	if(bObjectState)
+		return m_ObjectID + 
+			"-" + StringUtils::ltos(m_rPosition.X) +
+			":" + StringUtils::ltos(m_rPosition.Y) + 
+			"-" + StringUtils::ltos(point.X) + 
+			":" + StringUtils::ltos(point.Y) + 
+			"G:" + StringUtils::ltos(m_GraphicToDisplay);
+	else
+		return m_ObjectID;
 }

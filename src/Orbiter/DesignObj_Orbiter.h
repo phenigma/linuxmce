@@ -95,7 +95,7 @@ public:
 	string GetParameterValue(int ParameterID);
 	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
 
-	std::string GenerateObjectHash(const PlutoPoint& point);
+	std::string GenerateObjectHash(const PlutoPoint& point, bool bObjectState = true);
 
 protected:
 

@@ -31,7 +31,6 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 		return;
 	}
 
-
 	PlutoGraphic *pPlutoGraphic = NULL;
 	pPlutoGraphic = 
 		m_pObj_Owner->m_pvectCurrentGraphic != NULL && m_pObj_Owner->m_pvectCurrentGraphic->size() > 0 ?
@@ -148,7 +147,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 
 		int nAlphaChannel = GetAlphaLevel();
 
-		pOrbiterRenderer_OpenGL->RenderGraphic(sObjectHash, pPlutoGraphic, rectTotal, 
+		pOrbiterRenderer_OpenGL->RenderGraphic(m_pObj_Owner->GenerateObjectHash(point, false), pPlutoGraphic, rectTotal, 
 			bDisableAspectRatio, point, nAlphaChannel);
 	}
 #ifdef DEBUG

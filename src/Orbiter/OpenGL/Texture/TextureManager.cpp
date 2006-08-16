@@ -123,6 +123,14 @@ void TextureManager::ReleaseTextures()
 	{
 		if (*Item)
 		{
+			for(std::list <OpenGLGraphic*>::iterator it = WaitForConvert.begin(), 
+				end = WaitForConvert.end();	it != end; ++it)
+			{
+				//we'll handle the release
+				if((*it)->Texture == *Item)
+					(*it)->Texture = 0;
+			}
+
 			glDeleteTextures(1, &(*Item));
 		}
 	}

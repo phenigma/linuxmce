@@ -184,7 +184,7 @@ void OpenGLGraphic::Convert()
 
 	SDL_FreeSurface(LocalSurface);
 	LocalSurface = NULL;
-		
+
 	/* Linear Filtering */
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -239,7 +239,8 @@ bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 
 void OpenGLGraphic::Clear()
 {
-	TextureManager::Instance()->PrepareRelease(Texture);
+	if(Texture)
+		TextureManager::Instance()->PrepareRelease(Texture);
 
 	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 	if(LocalSurface != NULL)

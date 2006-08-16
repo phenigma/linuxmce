@@ -184,6 +184,12 @@ void OpenGL3DEngine::NewScreen()
 	CurrentLayerObjects_.clear();
 	CurrentLayer = new MeshFrame();
 	HighlightCurrentLayer = CurrentLayer;
+
+#ifdef SCENE_DEBUG
+	MeshTransform transform;
+	transform.ApplyRotateY(5.0f);
+	CurrentLayer->ApplyTransform(transform);
+#endif
 	
 	if(NULL != Compose)
 		Compose->UpdateLayers(CurrentLayer, OldLayer);
@@ -208,6 +214,7 @@ void OpenGL3DEngine::Setup()
 void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+
 	if(NULL == CurrentLayer)
 	{
 		Frame->CleanUp();
@@ -215,20 +222,30 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 		return;
 	}
 
+	g_pPlutoLogger->Write(LV_WARNING, "sss Adding child %p, object %s to layer %p, size is now %d", 
+		Frame, ObjectID.c_str(), CurrentLayer, CurrentLayer->Children.size());
+
 	if(ObjectID != "")
 	{
 		std::map<string, MeshFrame *>::iterator it = CurrentLayerObjects_.find(ObjectID);
 		if(it != CurrentLayerObjects_.end())
 		{
 			MeshFrame* OldFrame = it->second;
-			//g_pPlutoLogger->Write(LV_CRITICAL, "Replacing child %p, object %s of layer %p", 
-			//	OldFrame, ObjectID.c_str(), CurrentLayer);
+			g_pPlutoLogger->Write(LV_CRITICAL, "sss Replacing child %p, object %s of layer %p", 
+				OldFrame, ObjectID.c_str(), CurrentLayer);
 
 			CurrentLayer->RemoveChild(OldFrame);
 		}
-
-
 	}
+
+#ifdef SCENE_DEBUG
+	static float bubu = 0;
+
+	MeshTransform trans;
+	trans.Translate(0.0f, 0.0f, bubu);
+	bubu = bubu + 2.0f;
+	Frame->ApplyTransform(trans);
+#endif
 
 	CurrentLayer->AddChild(Frame);
 
@@ -237,7 +254,8 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ObjectID, MeshFrame* Frame)
 		CurrentLayerObjects_[ObjectID] = Frame;
 	}
 
-	//g_pPlutoLogger->Write(LV_WARNING, "Adding child %p, object %s to layer %p", Frame, ObjectID.c_str(), CurrentLayer);
+	g_pPlutoLogger->Write(LV_WARNING, "sss Added child %p, object %s to layer %p, size is now %d", 
+		Frame, ObjectID.c_str(), CurrentLayer, CurrentLayer->Children.size());
 }
 
 /*virtual*/ void OpenGL3DEngine::Select(PlutoRectangle* SelectedArea)
@@ -415,9 +433,14 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktop(MeshFrame* Frame)
 		//g_pPlutoLogger->Write(LV_CRITICAL, "RemoveMeshFrameFromDesktop: NULL CurrentLayer");
 		return;
 	}
-	//g_pPlutoLogger->Write(LV_WARNING, "RemoveMeshFrameFromDesktop: %p", Frame);
+
+	g_pPlutoLogger->Write(LV_CRITICAL, "sss RemoveMeshFrameFromDesktop Removing object %p, size is not %d", 
+		Frame, CurrentLayer->Children.size());
 
 	CurrentLayer->RemoveChild(Frame);
+
+	g_pPlutoLogger->Write(LV_CRITICAL, "sss RemoveMeshFrameFromDesktop Removed object %p, size is not %d", 
+		Frame, CurrentLayer->Children.size());
 }
 
 void OpenGL3DEngine::StartFrameDrawing()
@@ -572,9 +595,13 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktopFromID(std::string ObjectID)
 	if(it != CurrentLayerObjects_.end())
 	{
 		MeshFrame* OldFrame = it->second;
-		//g_pPlutoLogger->Write(LV_CRITICAL, "Replacing child %p, object %s of layer %p", 
-		//	OldFrame, ObjectID.c_str(), CurrentLayer);
+
+		g_pPlutoLogger->Write(LV_CRITICAL, "sss Removing object %s, size is not %d", 
+			ObjectID.c_str(), CurrentLayer->Children.size());
 
 		CurrentLayer->RemoveChild(OldFrame);
+
+		g_pPlutoLogger->Write(LV_CRITICAL, "sss Removed object %s, size is not %d", 
+			ObjectID.c_str(), CurrentLayer->Children.size());
 	}
 }
