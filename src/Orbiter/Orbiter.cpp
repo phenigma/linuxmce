@@ -2556,6 +2556,11 @@ if(UsesUIVersion2())
 			bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
 		if ( event.type == Orbiter::Event::REGION_UP && event.data.button.m_iPK_Button==3 )
 			bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
+		// The middle mouse button, temporarily being used as a kill switch
+		if ( event.type == Orbiter::Event::REGION_DOWN && event.data.button.m_iPK_Button==2  )
+			bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_3_CONST);
+		if ( event.type == Orbiter::Event::REGION_UP && event.data.button.m_iPK_Button==2 )
+			bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_3_CONST);
 	}
 
 	if( bSkipProcessing )

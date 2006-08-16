@@ -113,6 +113,8 @@ namespace DCE
 		PlutoPoint m_pSamples[NUM_SAMPLES];
 		PlutoPoint m_pLastPosition;
 		PlutoPoint m_pStartMovement;
+		PlutoRectangle m_rMouseConstrained;
+		bool m_bMouseKilled; // If true, the user wants to reposition the mouse without moving the cursor
 		string m_sOptions;
 		int m_iPK_Button_Mouse_Last; // The last mouse button
 		unsigned long m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up; // When it was pressed

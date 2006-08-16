@@ -52,7 +52,8 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = m_pObj_ListGrid;
 		m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
 	}
-	m_pObj_CoverArtPopup=m_pMouseBehavior->m_pOrbiter->FindObject(5087);
+	m_pObj_CoverArtPopup=m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_popCoverArt_CONST);
+	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 }
 
 MediaBrowserMouseHandler::~MediaBrowserMouseHandler()

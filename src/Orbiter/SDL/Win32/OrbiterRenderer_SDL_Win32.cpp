@@ -66,6 +66,36 @@ LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			pOrbiterRenderer_SDL_Win32->OrbiterLogic()->ProcessEvent(orbiterEvent);
 		}
 		break;
+
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+		{
+			Orbiter::Event orbiterEvent;
+			orbiterEvent.type = 
+				uMsg == WM_RBUTTONDOWN ? 
+					Orbiter::Event::REGION_DOWN : Orbiter::Event::REGION_UP;
+
+			orbiterEvent.data.region.m_iButton = 3;
+			orbiterEvent.data.region.m_iX = (int)(short)LOWORD(lParam);
+			orbiterEvent.data.region.m_iY = (int)(short)HIWORD(lParam);
+			pOrbiterRenderer_SDL_Win32->OrbiterLogic()->ProcessEvent(orbiterEvent);
+		}
+		break;
+
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+		{
+			Orbiter::Event orbiterEvent;
+			orbiterEvent.type = 
+				uMsg == WM_MBUTTONDOWN ? 
+					Orbiter::Event::REGION_DOWN : Orbiter::Event::REGION_UP;
+
+			orbiterEvent.data.region.m_iButton = 2;
+			orbiterEvent.data.region.m_iX = (int)(short)LOWORD(lParam);
+			orbiterEvent.data.region.m_iY = (int)(short)HIWORD(lParam);
+			pOrbiterRenderer_SDL_Win32->OrbiterLogic()->ProcessEvent(orbiterEvent);
+		}
+		break;
 #endif
 
 	default:

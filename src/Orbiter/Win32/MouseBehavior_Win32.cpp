@@ -30,6 +30,7 @@ return;
 
 bool MouseBehavior_Win32::ConstrainMouse(const PlutoRectangle &rect)
 {
+	m_rMouseConstrained = rect;
 	int nWindowX = 0, nWindowY = 0;
 	GetWindowPosition(nWindowX, nWindowY);
 

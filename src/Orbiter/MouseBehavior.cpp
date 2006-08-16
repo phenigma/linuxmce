@@ -55,6 +55,7 @@ MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 	m_iPK_Button_Mouse_Last=0;
     m_iTime_Last_Mouse_Down=m_iTime_Last_Mouse_Up=0;
 	m_bMouseConstrained=false;
+	m_bMouseKilled=false;
 	Clear();
 }
 
@@ -235,6 +236,17 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_mnuMainMenu2_CONST);
 		return true;
 	}
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_3_CONST && !m_bMouseKilled )
+	{
+		PlutoRectangle r = m_rMouseConstrained;
+		PlutoPoint p;
+		GetMousePosition(&p);
+		PlutoRectangle rp = PlutoRectangle(p.X,p.Y,1,1);
+		g_pPlutoLogger->Write(LV_STATUS,"Constraining mouse to %d,%d",p.X,p.Y);
+		ConstrainMouse(rp);
+		m_rMouseConstrained = r;  // Don't really update this.  We're going to use this as the 'last known valid' contrain so we can restore normal behavior
+		m_bMouseKilled = true;
+	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && PK_Screen_OnScreen!=SCREEN_mnuPlaybackControl_CONST 
 		&& PK_Screen_OnScreen!=m_pOrbiter->m_iPK_Screen_OSD_Speed && PK_Screen_OnScreen!=m_pOrbiter->m_iPK_Screen_OSD_Track )
 	{
@@ -290,6 +302,12 @@ bool MouseBehavior::ButtonUp(int PK_Button)
     PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
     m_iPK_Button_Mouse_Last=PK_Button;
     m_iTime_Last_Mouse_Up=ProcessUtils::GetMsTime();
+
+	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_3_CONST && m_bMouseKilled )
+	{
+		ConstrainMouse(m_rMouseConstrained);
+		m_bMouseKilled = false;
+	}
 
     if( m_pMouseHandler )
     {
