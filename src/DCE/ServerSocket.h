@@ -38,6 +38,7 @@ namespace DCE
 		SocketListener *m_pListener; /** the listener that created this command handler */
 
 		int m_iInstanceID; // The ID from Command_Impl.  See notes for same variable in Command_Impl.h
+		bool m_bSendOnlySocket; // This socket doesn't receive anything
 
 		bool m_bThreadRunning,m_bAlreadyRemoved;
 		/**

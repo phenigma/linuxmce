@@ -66,10 +66,14 @@ void *ServerSocket::BeginWapClientThread( void *SvSock )
 	// 		- look to see if this is the case and remove the socket in this case.
 	if( pCS->_Run() && !pCS->m_bAlreadyRemoved )
 	{
+		/*
 		if( pCS->m_dwPK_Device==DEVICEID_MESSAGESEND )
 			delete pCS;  // Don't waste the time for RemoveAndDeleteSocket if it's just a message send--it was never registered anyway
 		else
 			pCS->m_pListener->RemoveAndDeleteSocket(pCS);
+		*/
+		// now always doing RemoveAndDeleteSocket because we must free the vector of sockets
+		pCS->m_pListener->RemoveAndDeleteSocket(pCS);
 	}
 
 	return NULL;
@@ -79,6 +83,7 @@ ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName
 	Socket( sName, sIPAddress, sMacAddress ), m_ConnectionMutex( "connection " + sName )
 {
 	m_iInstanceID = 0;
+	m_bSendOnlySocket = false;
 	m_bAlreadyRemoved = false;
 	m_iReferencesOutstanding=0;
 	m_dwPK_Device = (long unsigned int)-1;
@@ -145,6 +150,17 @@ bool ServerSocket::_Run()
 	string sMessage;
 	while( !m_pListener->m_bTerminate )
 	{
+		if (m_bSendOnlySocket)
+		{
+			if (m_Socket == INVALID_SOCKET)
+				break;
+			else
+			{
+				usleep(100000); // sleep 100ms
+				continue;
+			}
+		}
+	
 		if ( !ReceiveString( sMessage ) || m_pListener->m_bTerminate )
 		{
 			break;

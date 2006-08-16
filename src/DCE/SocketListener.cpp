@@ -49,8 +49,9 @@ SocketListener::SocketListener( string sName ) : m_ListenerMutex( "listener " + 
 {
 	m_sName = sName;
 	m_ListenerThreadID = 0;
-    pthread_mutexattr_init( &m_MutexAttr );
-    pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
+	m_bSendOnlySocket = false;
+	pthread_mutexattr_init( &m_MutexAttr );
+	pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
 	m_ListenerMutex.Init( &m_MutexAttr );
 }
 
@@ -220,6 +221,8 @@ void SocketListener::Run()
 Socket *SocketListener::CreateSocket( SOCKET newsock, string sName, string sIPAddress, string sMacAddress )
 {
 	ServerSocket *pSocket = new ServerSocket( this, newsock, sName, sIPAddress, sMacAddress );
+	pSocket->m_bSendOnlySocket = m_bSendOnlySocket;
+	m_vectorServerSocket.push_back(pSocket);
 	pSocket->Run();
 	return pSocket;
 }
@@ -249,6 +252,15 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 		else
 		{
 			g_pPlutoLogger->Write( LV_REGISTRATION, "Stale Command handler %d for \x1b[34;1m%d\x1b[0m closed.", pServerSocket, pServerSocket->m_dwPK_Device );
+		}
+		
+		for (ServerSocketVector::iterator j=m_vectorServerSocket.begin(); j!=m_vectorServerSocket.end(); j++)
+		{
+			if ( (*j) == pServerSocket )
+			{
+				m_vectorServerSocket.erase(j);
+				break;
+			}
 		}
 	}
 	if( !bDontDelete )  // Will be true if teh socket's destructor is calling this
