@@ -12,8 +12,6 @@
 
 #include "SkinGenerator.h"
 
-
-
 WizardPageVideoResolution::WizardPageVideoResolution(SDLFrontEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
@@ -23,6 +21,8 @@ WizardPageVideoResolution::WizardPageVideoResolution(SDLFrontEnd* FrontEnd, std:
 
 WizardPageVideoResolution::~WizardPageVideoResolution(void)
 {
+	//Sleeper->bQuit = true;
+	Sleeper->Quit();
 	delete Sleeper;
 }
 
@@ -117,13 +117,22 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 VideoResolutionSecondSleeper::VideoResolutionSecondSleeper(int Seconds)
 	: ThreadSleeper(Seconds)
 {
+#ifdef DEBUG
+	std::cout<< "VideoResolutionSecondSleeper::VideoResolutionSecondSleeper" << std::endl;
+#endif
 }
 /*virtual*/ VideoResolutionSecondSleeper::~VideoResolutionSecondSleeper()
 {
+#ifdef DEBUG
+	std::cout<< "VideoResolutionSecondSleeper dtor" << std::endl;
+#endif
 }
 
-void VideoResolutionSecondSleeper::SecondTick()
+/*virtual*/ void VideoResolutionSecondSleeper::SecondTick()
 {
+#ifdef DEBUG
+	std::cout<< "VideoResolutionSecondSleeper::SecondTick()" << std::endl;
+#endif
 	if(!Label)
 	{
 		std::cout<<"VideoResolutionSecondSleeper::SecondTick Warning! No label = nothing to draw";
@@ -133,6 +142,7 @@ void VideoResolutionSecondSleeper::SecondTick()
 	std::string LabelCaption = Utils::Int32ToString(Seconds);
 	Label->SetCaption(LabelCaption);
 	WM_Event Event;
+	std::cout<<"Seconds: "<<Seconds<<std::endl;
 	if(Seconds)
 		Event.DownKey();
 	else

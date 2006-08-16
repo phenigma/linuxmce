@@ -37,9 +37,10 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 	Dictionary->Set("Resolution", ResolutionValue);
 	Dictionary->Set("Refresh", RefreshValue);
 
+/*
 	system((SkinGenerator::Instance()->CommandChangeResolution + " " + ResolutionValue
 		+ " " + RefreshValue).c_str());
-
+*/
 	return 0;
 }
 

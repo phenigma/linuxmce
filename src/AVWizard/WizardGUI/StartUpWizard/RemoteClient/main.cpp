@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 
-#define PORT 28949 // the port client will be connecting to 
+#define PORT 11222 // the port client will be connecting to 
 
 #define MAXDATASIZE 100 // max number of bytes we can get at once 
 

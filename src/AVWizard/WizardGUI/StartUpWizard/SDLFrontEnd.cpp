@@ -150,14 +150,20 @@ void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 
 
 
-	
-	if(NeedUpdateScreen)
+	if(Border == 0)
 	{
-		ScaledScreen = zoomSurface(Screen, ZoomX2, ZoomY2, SMOOTHING_ON);
-		NeedUpdateScreen = true;
+		SDL_BlitSurface(Screen, NULL, Display, NULL);
 	}
-	if(ScaledScreen)
-		SDL_BlitSurface(ScaledScreen, NULL, Display, &Rect);
+	else
+	{
+		if(NeedUpdateScreen)
+		{
+			ScaledScreen = zoomSurface(Screen, ZoomX2, ZoomY2, SMOOTHING_ON);
+			NeedUpdateScreen = true;
+		}
+		if(ScaledScreen)
+			SDL_BlitSurface(ScaledScreen, NULL, Display, &Rect);
+	}
 	//SDL_SaveBMP(Display, "/home/ciplogic/Desktop/screen2.bmp");
 
 	//SDL_SaveBMP(BackSurface, "/home/ciplogic/Desktop/screen.bmp");

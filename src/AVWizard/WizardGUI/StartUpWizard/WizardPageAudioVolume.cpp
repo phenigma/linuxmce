@@ -59,7 +59,6 @@ int WizardPageAudioVolume::DoApplySetting(SettingsDictionary* Dictionary)
 	if(FileName != "")
 		Player->InitPlayerEngine(ConfigName, FileName);
 
-	WizardWidgetLabel* Label = NULL;
 	if(FileName != "")
 	{
 		FILE* f = fopen(FileName.c_str(), "r");

@@ -5,6 +5,7 @@
 
 class ThreadSleeper
 {
+	int LastTime;
 public:
 	int TickRemaining;
 
@@ -19,7 +20,5 @@ public:
 	bool Quit();
 	virtual void SecondTick() = 0;
 };
-
-void* SleeperThreadFunc(void* Instance);
 
 #endif //ThreadSleeper_H_
