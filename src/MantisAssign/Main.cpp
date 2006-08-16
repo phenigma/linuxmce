@@ -322,12 +322,13 @@ time_t GetEndTime(string sTaskID,time_t tStartTime)
 	int Duration = GetDuration(sTaskID);
 	if( Duration<1 )
 		Duration=1;
-	g_pPlutoLogger->Write(LV_STATUS,"GetEndTime %s duration is %d",sTaskID.c_str(),Duration);
+
 	while(true)
 	{
 		int Hours;
 		tStartTime = GetActualStartTimeAndWorkHours(GetUserForTask(sTaskID),tStartTime,Hours);
 		time_t tStopTime = tStartTime + Hours * 3600;
+		g_pPlutoLogger->Write(LV_STATUS,"GetEndTime %s duration is %d  start %d  stop %d Hours %d",sTaskID.c_str(),Duration,(int) tStartTime, (int) tStopTime, Hours);
 		if( (tStopTime - tStartTime)/3600 >= Duration )
 			return tStartTime + Duration * 3600;
 		Duration -= Hours; // Subtract the hours for this day, and continue to the next
