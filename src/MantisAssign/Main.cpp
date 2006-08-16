@@ -359,6 +359,7 @@ time_t GetActualStartTimeAndWorkHours(string sUser,time_t tStartTime,int &Hours)
 	string sSQL = "select workday,hour_start,hour_stop from work_day where user_id=" + sUser +
 		" and workday>='" + StringUtils::SQLDateTime(tStartTime) + "' order by workday";
 	
+	Hours=8;
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	if( ( result.r=g_MySqlHelper.mysql_query_result( sSQL ) ) )
@@ -381,12 +382,18 @@ time_t GetActualStartTimeAndWorkHours(string sUser,time_t tStartTime,int &Hours)
 			if( tStartTime>=tStartOfDay ) // The start time is during the day
 			{
 				Hours = (tEndOfDay-tStartTime)/3600;
+				if( Hours<1 )
+					Hours=8;
 				return tStartTime;
 			}
 			Hours = atoi(row[2])-atoi(row[1]);
+			if( Hours<1 )
+				Hours=8;
 			return tStartOfDay;
 		}
 	}
+	if( Hours<1 )
+		Hours=8;
 	return tStartTime;
 }
 
