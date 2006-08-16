@@ -284,6 +284,7 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 	{
 		Xine_Stream *new_stream = new Xine_Stream(this, m_pXineLibrary, streamID, m_pPlayer->DATA_Get_Time_Code_Report_Frequency(), requestingObject);
 		new_stream->m_bUseDeinterlacing = m_bUseDeinterlacing;
+		new_stream->m_sDeinterlacingConfig = m_sDeinterlacingConfig;
 		if ((new_stream!=NULL) && new_stream->StartupStream())
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"Created new stream with internalID=%i", streamID);

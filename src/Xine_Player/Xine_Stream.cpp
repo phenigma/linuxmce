@@ -575,12 +575,17 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 
 bool Xine_Stream::EnableDeinterlacing()
 {
+//	m_sDeinterlacingConfig is a 
+// 	filtername:parameter=value,parameter=value...
+
 	if (!m_bUseDeinterlacing)
 		return false;
 
 	if (!m_pXineDeinterlacePlugin)
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Enabling deinterlacing" );
+		
+		
 		
 		// we need a NULL-terminated list of output ports
 		xine_video_port_t **volist;

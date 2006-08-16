@@ -132,6 +132,7 @@ namespace DCE
 			string m_sVideoInfo;
 			
 			bool m_bUseDeinterlacing;
+			string m_sDeinterlacingConfig;
 			
 		private:
 			int m_iSpecialSeekSpeed;
