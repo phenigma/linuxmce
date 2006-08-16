@@ -117,6 +117,8 @@ public:
     /// static functions
 public:
     inline static bool IsReturnCodeOk(int code);
+    inline static bool IsReturnBoolOk(int code);
+    inline static bool IsReturnStatOk(int code);
     static string GetErrorText(Display *pDisplay, int error_code);
     static int ErrorHandler_Grabber(Display *, XErrorEvent *);
 
@@ -239,8 +241,6 @@ public:
     bool Object_GetGeometry(Drawable drawable, int *x_return, int *y_return, unsigned int *width_return, unsigned int *height_return);
 
 protected:
-    int Mouse_Grab_Helper(Window window_grab, Window window_confine_to);
-    int Mouse_Ungrab_Helper();
     // opacity only for this window
     bool Window_SetOpacity_Helper(Window window, unsigned long nOpacity);
 
@@ -252,7 +252,6 @@ protected:
     XErrorHandler v_pOld_XErrorHandler;
     bool v_bIsChanged_XErrorHandler;
 
-    bool v_bIsActive_Mouse_Constrain;
     Window v_window_Mouse_Constrain;
     struct Info_Mouse_Constrain
     {

@@ -52,7 +52,8 @@ static const bool g_bXNoLock  = getenv("X11_NO_XLOCK");
   .......
   code = 0;
   } while (0);
-  return IsReturnCodeOk(code);
+  return IsReturnStatOk(code);
+  return IsReturnBoolOk(code);
   }
 */
 
@@ -61,6 +62,15 @@ static const bool g_bXNoLock  = getenv("X11_NO_XLOCK");
     if (! IsReturnCodeOk(code)) \
     { \
         _LOG_ERR("%s", GetErrorText(GetDisplay(), code).c_str()); \
+        break; \
+    } \
+    do {} while (0)
+
+// code : X11 status return
+#define _COND_XSTAT_ERROR_LOG_BREAK(code) \
+    if (! IsReturnStatOk(code)) \
+    { \
+        _LOG_ERR("error_code==%d => ErrorText=='%s'", code, GetErrorText(GetDisplay(), code).c_str()); \
         break; \
     } \
     do {} while (0)
@@ -161,7 +171,6 @@ X11wrapper::X11wrapper(Display * pDisplay/*=NULL*/)
         , v_oMainWindow(0)
         , v_pOld_XErrorHandler(NULL)
         , v_bIsChanged_XErrorHandler(false)
-        , v_bIsActive_Mouse_Constrain(false)
         , v_window_Mouse_Constrain(0)
         , v_bExtension_Shape_IsInitialized(false)
         , v_bExtension_Shape_IsAvailable(false)
@@ -313,9 +322,19 @@ Window X11wrapper::Window_GetRoot()
     return XDefaultRootWindow(GetDisplay());
 }
 
-inline bool X11wrapper::IsReturnCodeOk(int code)
+inline bool X11wrapper::IsReturnCodeOk(int code)//del, remove this
 {
-    return ( (code == 0) || (code == 1) );
+    return ( IsReturnBoolOk(code) || IsReturnStatOk(code) );
+}
+
+inline bool X11wrapper::IsReturnBoolOk(int code)
+{
+    return (code == True);
+}
+
+inline bool X11wrapper::IsReturnStatOk(int code)
+{
+    return (code == 0);
 }
 
 string X11wrapper::GetErrorText(Display * pDisplay, int error_code)
@@ -547,8 +566,6 @@ bool X11wrapper::Window_Lower(Window window)
 bool X11wrapper::Window_SetOpacity_Helper(Window window, unsigned long nOpacity)
 {
     _LOG_NFO("window==%d, nOpacity==0x%lx", window, nOpacity);
-    if (nOpacity == 0)
-        _LOG_WRN("Opacity value should not be 0, using it anyway, you have been warned");
     int code = -1;
     X11_Locker x11_locker(GetDisplay());
     do
@@ -581,6 +598,8 @@ bool X11wrapper::Window_SetOpacity(Window window, unsigned long nOpacity)
 {
     Window root_window = Window_GetRoot();
     _LOG_NFO("window==%d, root_window==%d, nOpacity==0x%lx", window, root_window, nOpacity);
+    if (nOpacity == 0)
+        _LOG_WRN("Opacity value should not be 0, using it anyway, you have been warned");
     bool bResult = true;
     while ( (window) && (window != root_window) )
     {
@@ -636,6 +655,7 @@ bool X11wrapper::Keyboard_Grab(Window window_grab)
             CurrentTime // time
             );
         _COND_XERROR_LOG_BREAK(code);
+        _LOG_NFO("XGrabKeyboard(%d) => retCode==%d", window_grab, code);
     } while (0);
     return IsReturnCodeOk(code);
 }
@@ -649,6 +669,7 @@ bool X11wrapper::Keyboard_Ungrab()
     {
         code = XUngrabKeyboard(GetDisplay(), CurrentTime);
         _COND_XERROR_LOG_BREAK(code);
+        _LOG_NFO("XUngrabKeyboard() => retCode==%d", code);
     } while (0);
     return IsReturnCodeOk(code);
 }
@@ -669,22 +690,6 @@ bool X11wrapper::Keyboard_SetAutoRepeat(bool bOn)
     return IsReturnCodeOk(code);
 }
 
-int X11wrapper::Mouse_Grab_Helper(Window window_grab, Window window_confine_to)
-{
-    int code = XGrabPointer(
-        GetDisplay(),
-        window_grab, // window_grab
-        false, // owner_events
-        ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | PointerMotionHintMask, // event_mask
-        GrabModeAsync, // pointer_mode
-        GrabModeAsync, // keyboard_mode
-        window_confine_to, // confine_to_window
-        None, // cursor
-        CurrentTime // time
-        );
-    return code;
-}
-
 bool X11wrapper::Mouse_Grab(Window window_grab, Window window_confine_to/*=None*/)
 {
     _LOG_NFO("window_grab==%d, window_confine_to==%d", window_grab, window_confine_to);
@@ -692,16 +697,31 @@ bool X11wrapper::Mouse_Grab(Window window_grab, Window window_confine_to/*=None*
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = Mouse_Grab_Helper(window_grab, window_confine_to);
-        _COND_XERROR_LOG_BREAK(code);
+        // in a loop, forcing the grab again
+        // because the time moment may not be good right now
+        for (int i=0; i<100; i++)
+        {
+            Sync();
+            code = XGrabPointer(
+                GetDisplay(),
+                window_grab, // window_grab
+                false, // owner_events
+                ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | PointerMotionHintMask | Button1MotionMask | Button2MotionMask | Button3MotionMask | Button4MotionMask | Button5MotionMask | ButtonMotionMask, // event_mask
+                GrabModeAsync, // pointer_mode
+                GrabModeAsync, // keyboard_mode
+                window_confine_to, // confine_to_window
+                None, // cursor
+                CurrentTime // time
+                );
+            if (code == 0)
+                break;
+            //_LOG_WRN("i==%d, code==%d => ErrorText=='%s'", i, code, GetErrorText(GetDisplay(), code).c_str());
+            usleep(1000); // sleep just a little
+        }
+        _COND_XSTAT_ERROR_LOG_BREAK(code);
+        _LOG_NFO("XGrabPointer(window_grab==%d, window_confine_to==%d) => retCode==%d", window_grab, window_confine_to, code);
     } while (0);
-    return IsReturnCodeOk(code);
-}
-
-int X11wrapper::Mouse_Ungrab_Helper()
-{
-    int code = XUngrabPointer(GetDisplay(), CurrentTime);
-    return code;
+    return IsReturnStatOk(code);
 }
 
 bool X11wrapper::Mouse_Ungrab()
@@ -711,7 +731,8 @@ bool X11wrapper::Mouse_Ungrab()
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = Mouse_Ungrab_Helper();
+        code = XUngrabPointer(GetDisplay(), CurrentTime);
+        _LOG_NFO("XUngrabPointer() => retCode==%d", code);
         _COND_XERROR_LOG_BREAK(code);
     } while (0);
     return IsReturnCodeOk(code);
@@ -957,36 +978,26 @@ bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsi
         // Note: The Xlib manual doesn't mention this restriction ?
         if ( (nWidth <= 0) || (nHeight <= 0) )
             _LOG_XERROR_BREAK("bad arguments, size must be greater than 0");
-        if (v_bIsActive_Mouse_Constrain)
-            _LOG_XERROR_BREAK("window is already created");
-        if (window > 0)
+        if (window != 0)
         {
-            _LOG_NFO("closing previous window");
+            _LOG_NFO("closing previous window==%d", window);
             if (! Window_Destroy(window))
-                _LOG_XERROR_BREAK("cannot destroy window %d", window);
+            {
+                _LOG_WRN("cannot destroy window %d", window);
+                window = 0;
+            }
+            Sync();
         }
         window = Window_Create_Show(nPosX, nPosY, nWidth, nHeight, 0);
         if (window <= 0)
             _LOG_XERROR_BREAK("cannot create window");
-        // (! Mouse_Grab(window_grab, window)) // needs double-checking
-        code = Mouse_Grab_Helper(window_grab, window);
-        Sync();
-        if (! IsReturnCodeOk(code))
+        bool bResult = Mouse_Grab(window_grab, window);
+        if (! bResult)
         {
-            _LOG_WRN("creating second window");
+            _LOG_ERR("cannot grab pointer, closing window==%d", window);
             Window_Destroy(window);
-            window = Window_Create_Show(nPosX, nPosY, nWidth, nHeight, 0);
-            if (window <= 0)
-                _LOG_XERROR_BREAK("cannot create second window");
-            code = Mouse_Grab_Helper(window_grab, window);
-            Sync();
-            if (! IsReturnCodeOk(code))
-            {
-                _LOG_ERR("cannot grab pointer, closing window %d", window);
-                Window_Destroy(window);
-                window = 0;
-                break;
-            }
+            window = 0;
+            break;
         }
         if (! Window_ClassName(window, "constrain_mouse", "constrain_mouse"))
             _LOG_XERROR_BREAK("cannot set window class");
@@ -997,14 +1008,14 @@ bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsi
         if (! Window_Lower(window))
             _LOG_WRN("cannot lower window");
         // done
+        previous_mouse_constrain.window_grab = window_grab;
+        previous_mouse_constrain.nPosX = nPosX;
+        previous_mouse_constrain.nPosY = nPosY;
+        previous_mouse_constrain.nWidth = nWidth;
+        previous_mouse_constrain.nHeight = nHeight;
         code = 0;
-        v_bIsActive_Mouse_Constrain = true;
     } while (0);
-    previous_mouse_constrain.window_grab = window_grab;
-    previous_mouse_constrain.nPosX = nPosX;
-    previous_mouse_constrain.nPosY = nPosY;
-    previous_mouse_constrain.nWidth = nWidth;
-    previous_mouse_constrain.nHeight = nHeight;
+    _LOG_NFO("pos==(%d, %d, %d, %d), window_grab==%d => retCode==%d", nPosX, nPosY, nWidth, nHeight, window_grab, code);
     return IsReturnCodeOk(code);
 }
 
@@ -1016,7 +1027,7 @@ bool X11wrapper::Mouse_Constrain_Release()
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        if (! v_bIsActive_Mouse_Constrain)
+        if (! Mouse_IsConstrainActive())
         {
             _LOG_WRN("constrain not active");
             code = 0;
@@ -1029,7 +1040,6 @@ bool X11wrapper::Mouse_Constrain_Release()
         // done
         code = 0;
         window = 0;
-        v_bIsActive_Mouse_Constrain = false;
     } while (0);
     // not deleting the previous info
     return IsReturnCodeOk(code);
@@ -1037,7 +1047,7 @@ bool X11wrapper::Mouse_Constrain_Release()
 
 bool X11wrapper::Mouse_Constrain_ReactivateIfActive()
 {
-    if (! v_bIsActive_Mouse_Constrain)
+    if (! Mouse_IsConstrainActive())
     {
         _LOG_NFO("constrain is not active, nothing to do");
         return true;
@@ -1045,12 +1055,12 @@ bool X11wrapper::Mouse_Constrain_ReactivateIfActive()
     _LOG_NFO("constrain is active, reactivating");
     Mouse_Constrain_Release();
     Mouse_Constrain(previous_mouse_constrain.nPosX, previous_mouse_constrain.nPosY, previous_mouse_constrain.nWidth, previous_mouse_constrain.nHeight, previous_mouse_constrain.window_grab);
-    return v_bIsActive_Mouse_Constrain;
+    return Mouse_IsConstrainActive();
 }
 
 bool X11wrapper::Mouse_IsConstrainActive()
 {
-    return v_bIsActive_Mouse_Constrain;
+    return (v_window_Mouse_Constrain != 0);
 }
 
 Window X11wrapper::Mouse_Constrain_GetWindow()
@@ -1316,10 +1326,10 @@ bool X11wrapper::Shape_Context_Leave(Window window, Pixmap &bitmap_mask, GC &gc,
     {
         code = XFreeGC(pDisplay, gc);
         if (! IsReturnCodeOk(code))
-            _LOG_WRN("XFreeGC() retCode==%d", code);
+            _LOG_WRN("XFreeGC() => retCode==%d", code);
         code = XFreePixmap(GetDisplay(), bitmap_mask);
         if (! IsReturnCodeOk(code))
-            _LOG_WRN("XFreePixmap() retCode==%d", code);
+            _LOG_WRN("XFreePixmap() => retCode==%d", code);
         code = 0;
     } while (0);
     // cleanup
@@ -1435,8 +1445,8 @@ bool X11wrapper::Debug_Shape_Context_Example(Window window, unsigned int width, 
     bool bResult = Shape_Context_Enter(window, width, height, bitmap_mask, gc, pDisplay);
     if (! bResult)
     {
-        _LOG_ERR("Shape_Context_Enter() retCode==%d, window==%d, width==%d, height==%d, bitmap_mask==%d, gc==%d, pDisplay==%p",
-             bResult, window, width, height, bitmap_mask, gc, pDisplay);
+        _LOG_ERR("Shape_Context_Enter(window==%d, width==%d, height==%d, bitmap_mask==%d, gc==%d, pDisplay==%p) => retCode==%d",
+             window, width, height, bitmap_mask, gc, pDisplay, bResult);
         return false;
     }
     // creating the desired shape
@@ -1450,8 +1460,8 @@ bool X11wrapper::Debug_Shape_Context_Example(Window window, unsigned int width, 
     bResult = Shape_Context_Leave(window, bitmap_mask, gc, pDisplay);
     if (! bResult)
     {
-        _LOG_WRN("Shape_Context_Leave() retCode==%d, window==%d, width==%d, height==%d, bitmap_mask==%d, gc==%d, pDisplay==%p",
-             bResult, window, width, height, bitmap_mask, gc, pDisplay);
+        _LOG_WRN("Shape_Context_Leave(window==%d, width==%d, height==%d, bitmap_mask==%d, gc==%d, pDisplay==%p) => retCode==%d",
+             window, width, height, bitmap_mask, gc, pDisplay, bResult);
     }
     return true;
 }
