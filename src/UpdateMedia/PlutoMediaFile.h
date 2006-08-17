@@ -41,6 +41,7 @@ private:
 	//This will add a record in the File table and additional attributes too in related tables
     int AddFileToDatabase(int PK_MediaType);
 	string FileWithAttributes(bool bCreateId3File = true);
+	string FileWithAttributes_PreviousVersion(); //for upgrading. to be removed next release
 
 	void SavePlutoAttributes(string sFullFileName);
 	void LoadPlutoAttributes(string sFullFileName);

@@ -58,10 +58,28 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 		m_sDirectory.c_str(), m_sFile.c_str());
 
 	//get the path to id3 file
-	string sAttributeFile = m_sDirectory + "/" + FileWithAttributes(false);
+	string sAttributeFile = FileWithAttributes(false);
+	string sAttributeFullFilePath = m_sDirectory + "/" + sAttributeFile;
 
-	//get all attributes
-	LoadPlutoAttributes(sAttributeFile);
+//START code for upgrade ////////////////////////////////////
+	if(sAttributeFile == "")		
+	{
+		string sAttributeFile_PrevVersion = FileWithAttributes_PreviousVersion();
+		string sAttributeFullFilePath_PrevVersion = m_sDirectory + "/" + sAttributeFile_PrevVersion;
+
+		LoadPlutoAttributes(sAttributeFullFilePath_PrevVersion);
+		
+		if(sAttributeFile_PrevVersion != "")
+		{
+			FileUtils::DelFile(sAttributeFullFilePath_PrevVersion);
+		}
+	}
+	else
+//END code for upgrade ////////////////////////////////////
+	{
+		//get all attributes
+		LoadPlutoAttributes(sAttributeFullFilePath);
+	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "Processing path %s, file %s. Found %d attributes in id3 file", 
 		m_sDirectory.c_str(), m_sFile.c_str(), m_pPlutoMediaAttributes->m_mapAttributes.size());
@@ -533,7 +551,7 @@ string PlutoMediaFile::FileWithAttributes(bool bCreateId3File)
 	string sFileWithAttributes = m_sFile;
 	if(!IsSupported(m_sFile))
 	{
-		sFileWithAttributes = FileUtils::FileWithoutExtension(m_sFile) + ".id3";
+		sFileWithAttributes = m_sFile + ".id3";
 		if(FileUtils::FileExists(m_sDirectory + "/" + sFileWithAttributes))
 			return sFileWithAttributes;
 
@@ -542,6 +560,22 @@ string PlutoMediaFile::FileWithAttributes(bool bCreateId3File)
 
 		if(!FileUtils::DirExists(m_sDirectory + "/" + sFileWithAttributes))
 			FileUtils::WriteTextFile(m_sDirectory + "/" + sFileWithAttributes, ""); //touch it
+	}
+
+	return sFileWithAttributes;
+}
+//-----------------------------------------------------------------------------------------------------
+//For upgrading. To be removed next release.
+string PlutoMediaFile::FileWithAttributes_PreviousVersion()
+{
+	string sFileWithAttributes = m_sFile;
+	if(!IsSupported(m_sFile))
+	{
+		sFileWithAttributes = FileUtils::FileWithoutExtension(m_sFile) + ".id3";
+		if(FileUtils::FileExists(m_sDirectory + "/" + sFileWithAttributes))
+			return sFileWithAttributes;
+		else
+			return "";
 	}
 
 	return sFileWithAttributes;
