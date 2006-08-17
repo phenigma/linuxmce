@@ -30,6 +30,8 @@ ThreadSleeper::ThreadSleeper()
 
 void ThreadSleeper::Init(int NoSeconds)
 {
+	std::cout << "1 tid: " << tid << std::endl;
+
 	if(tid != 0)
 	{
 		std::cout<<"ThreadSleeper::Init-> Race condition,should not happend"<<std::endl;
@@ -40,12 +42,15 @@ void ThreadSleeper::Init(int NoSeconds)
 	LastTime = SDL_GetTicks();
 	bQuit = false;
 	pthread_create(&tid, NULL, SleeperThreadFunc,this);
+
+	std::cout << "2 tid: " << tid << std::endl;
 }
 
 int ThreadSleeper::GetSecondRemaining()
 {
-	SafetyLock Lock(&LockMutex);
 	std::cout<<"ThreadSleeper::GetSecondRemaining()"<<std::endl;
+	SafetyLock Lock(&LockMutex);
+	std::cout<<"ThreadSleeper::GetSecondRemaining() got lock"<<std::endl;
 	int CurrentTime = SDL_GetTicks();
 	TickRemaining = TickRemaining - (CurrentTime - LastTime);
 	LastTime = CurrentTime;
@@ -60,14 +65,15 @@ int ThreadSleeper::GetSecondRemaining()
 void ThreadSleeper::Quit()
 {
 	{
-	SafetyLock Lock(&LockMutex);
+	//SafetyLock Lock(&LockMutex);
 	std::cout<<"ThreadSleeper::Quit"<<std::endl;
 	bQuit = true;
 	}
 
-	if(tid)
-		pthread_join(tid, NULL);
+	//if(tid)
+//		pthread_join(tid, NULL);
 	tid = 0;
+	std::cout<<"ThreadSleeper::Quit: tid is 0"<<std::endl;
 }
 
 void ThreadSleeper::SecondTick()
@@ -113,8 +119,11 @@ void* SleeperThreadFunc(void* Instance)
 	ThreadSleeper* ThreadPtr= (ThreadSleeper*) Instance;
 	ThreadPtr->SecondTick();
 	int Seconds1 = ThreadPtr->GetSecondRemaining();
+	std::cout<<"SleeperThreadFunc..."<<std::endl;
+
 	while(!ThreadPtr->bQuit && ThreadPtr->GetSecondRemaining())
 	{
+		std::cout<<"sleeper..."<<std::endl;
 		Sleep(50);
 		int Seconds2 = ThreadPtr->GetSecondRemaining();
 
@@ -124,9 +133,12 @@ void* SleeperThreadFunc(void* Instance)
 			std::cout<<"ThreadSleeper::SecondTick()"<<std::endl;
 			ThreadPtr->SecondTick();
 		}
+		else
+			std::cout<<"else-ul"<<std::endl;
 	}
 
 	std::cout<<"TreadQuit"<<std::endl;
+	ThreadPtr->Quit();
 	return NULL;
 }
 

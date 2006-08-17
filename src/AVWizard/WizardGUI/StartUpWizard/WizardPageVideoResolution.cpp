@@ -25,6 +25,7 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 {
 	if(Dictionary == NULL)
 		return -1;
+
 	if (Selected->GetName() == "BackBtn")
 	{
 		return 1;
