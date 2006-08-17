@@ -646,7 +646,8 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktopFromID(std::string ObjectID)
 			MeshFrame* pFrame = it->second.first;
 			RemoveMeshFrameFromDesktop(pFrame);
 
-			it = CurrentLayerObjects_.erase(it);
+			CurrentLayerObjects_.erase(it++);
+				//.erase(it);
 
 			g_pPlutoLogger->Write(LV_CRITICAL, "Removed object %s, frame %p, size is now %d", 
 				ObjectHash.c_str(), pFrame, CurrentLayerObjects_.size());
