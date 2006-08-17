@@ -581,11 +581,20 @@ bool Xine_Stream::EnableDeinterlacing()
 	if (!m_bUseDeinterlacing)
 		return false;
 
+	string::size_type tokenPos = 0;
+	string sConfig = m_sDeinterlacingConfig;
+	string sFilter;
+
 	if (!m_pXineDeinterlacePlugin)
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Enabling deinterlacing" );
 		
-		
+		sFilter = StringUtils::Tokenize(sConfig, string(":"), tokenPos);
+		if (sFilter!="tvtime")
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "Currently we support only 'tvtime' filter" );
+			return false;
+		} 
 		
 		// we need a NULL-terminated list of output ports
 		xine_video_port_t **volist;
@@ -596,11 +605,28 @@ bool Xine_Stream::EnableDeinterlacing()
 
 		{
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-			m_pXineDeinterlacePlugin = xine_post_init(m_pXineLibrary, "tvtime", 0, NULL, &m_pXineVideoOutput);
+			m_pXineDeinterlacePlugin = xine_post_init(m_pXineLibrary, sFilter.c_str(), 0, NULL, &m_pXineVideoOutput);
 		}
 		
 		free(volist);
 	}
+	
+	
+	//setting parameters
+	map <string,string> mSettings;
+	sConfig = StringUtils::Tokenize(sConfig, string(":"), tokenPos);
+	tokenPos=0;
+	string sPV = StringUtils::Tokenize(sConfig, string(","), tokenPos);
+	while(sPV!="")
+	{
+		string::size_type paramPos=0;
+		string sParam = StringUtils::Tokenize(sPV,string("="), paramPos);
+		string sValue = StringUtils::Tokenize(sPV,string("="), paramPos);
+		mSettings[sParam] = sValue;
+		cout << sParam << "=" << sValue << endl;
+		sPV = StringUtils::Tokenize(sConfig, string(","), tokenPos);
+	}
+	
 	
 	bool rewiringResult = false;
 	
@@ -626,41 +652,83 @@ bool Xine_Stream::EnableDeinterlacing()
 			
 		while (parm->type != POST_PARAM_TYPE_LAST)
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"parm: %s, %s\n", parm->name, parm->description);
+			string sType = "UNKNOWN";
+			switch ( parm->type )
+			{
+			case POST_PARAM_TYPE_LAST:
+				sType = "LAST";
+				break;
+			case POST_PARAM_TYPE_INT:
+				sType = "INT";
+				break;
+			case POST_PARAM_TYPE_DOUBLE:
+				sType = "DOUBLE";
+				break;
+			case POST_PARAM_TYPE_CHAR:
+				sType = "CHAR";
+				break;
+			case POST_PARAM_TYPE_STRING:
+				sType = "STRING";
+				break;
+			case POST_PARAM_TYPE_STRINGLIST:
+				sType = "STRINGLIST";
+				break;
+			case POST_PARAM_TYPE_BOOL:
+				sType = "BOOL";
+				break;
+			default:
+				break;
+			}
+			
+			g_pPlutoLogger->Write(LV_STATUS,"Parameter: <%s>, type=%s, \"%s\"", parm->name, sType.c_str(), parm->description);
 			int i = 0;
 			if(parm->enum_values != NULL)
 				while(parm->enum_values[i] != NULL)
+				{
+					g_pPlutoLogger->Write(LV_STATUS,"Value[%d]: %s", i, parm->enum_values[i]);
+					i++;
+				}
+			
+			string sP = parm->name;
+			map<string,string>::iterator p=mSettings.find(sP);
+			bool paramFound = false;
+			
+			if ( p!=mSettings.end() )
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"parm[%d]: %s\n", i, parm->enum_values[i]);
-				i++;
+				switch ( parm->type )
+				{
+				case POST_PARAM_TYPE_BOOL:
+					*(int *)(data + parm->offset) = atoi( (*p).second.c_str() );
+					paramFound = true;
+					break;
+				
+				case POST_PARAM_TYPE_INT:
+					{
+						int i = 0;
+						if(parm->enum_values != NULL)
+							while(parm->enum_values[i] != NULL)
+							{
+								if ( (*p).second == parm->enum_values[i])
+								{
+									*(int *)(data + parm->offset) = i;
+									paramFound = true;
+									break;
+								} 
+								i++;
+							}
+					}
+					break;
+				
+				default:
+					g_pPlutoLogger->Write(LV_WARNING,"Cannot convert value %s to required type %s", (*p).second.c_str(), sType.c_str() );
+				}
 			}
-			if(!strncasecmp(parm->name, "method", 6) &&
-						 parm->type == POST_PARAM_TYPE_INT)
-			{
-				*(int *)(data + parm->offset) = 4;
-			}
-			else if(!strncasecmp(parm->name, "enabled", 7) &&
-									parm->type == POST_PARAM_TYPE_BOOL)
-			{
-				*(int *)(data + parm->offset) = 1;
-			}
-			else if(!strncasecmp(parm->name, "cheap_mode", 10) &&
-									parm->type == POST_PARAM_TYPE_BOOL)
-			{
-				*(int *)(data + parm->offset) = 0;
-			}
-			else if(!strncasecmp(parm->name, "use_progressive_frame_flag", 26) &&
-									parm->type == POST_PARAM_TYPE_BOOL)
-			{
-				*(int *)(data + parm->offset) = 1;
-			}
-			else if(!strncasecmp(parm->name, "pulldown", 8) &&
-									parm->type == POST_PARAM_TYPE_INT)
-			{
-				*(int *)(data + parm->offset) = 1;
-			}
+			
+			g_pPlutoLogger->Write(LV_STATUS,"Using [%d]%s\n", *(int *)(data + parm->offset), paramFound?"":" - default" );
+			
 			parm++;
 		}
+
 		api->set_parameters(m_pXineDeinterlacePlugin, (void *)data);
 		free(data);
 		
