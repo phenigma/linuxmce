@@ -552,7 +552,6 @@ void OrbiterRenderer_OpenGL::OnIdle()
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderObjectAsync(DesignObj_Orbiter *pObj)
 {
 	OrbiterRenderer::RenderObjectAsync(pObj);
-	//pObj->RenderObject(OrbiterLogic()->m_pScreenHistory_Current->GetObj());
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::ShowProgress(int nPercent) 
@@ -711,7 +710,10 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 	{
 		pPlutoGraphic = pObj->m_vectGraphic[0];
 		if(NULL == pPlutoGraphic)
+		{
 			pPlutoGraphic = CreateGraphic();
+			pObj->m_vectGraphic[0] = pPlutoGraphic;
+		}
 	}
 	else
 	{
@@ -731,21 +733,13 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 		pPlutoGraphic->m_GraphicFormat = GR_UNKNOWN;
 
 	pPlutoGraphic->LoadGraphic(pData, iData_Size, OrbiterLogic()->m_iRotation);  // These weren't pre-rotated
-	OpenGLGraphic* Graphic = dynamic_cast<OpenGLGraphic*>(pPlutoGraphic);
-	if(NULL == Graphic)
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "Warning: NULL graphic for PlutoGraphic, wrong code!");
-	}
-	else
-		TextureManager::Instance()->PrepareConvert(Graphic);
-
-
 	pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
 
 	if (  sDisable_Aspect_Lock.length(  )  )
 		pObj->m_bDisableAspectLock = ( sDisable_Aspect_Lock=="1" ) ? true : false;
 
 	RenderObjectAsync(pObj);
+	RedrawObjects();
 }
 
 void OrbiterRenderer_OpenGL::RemoveGraphic(string ObjectID)

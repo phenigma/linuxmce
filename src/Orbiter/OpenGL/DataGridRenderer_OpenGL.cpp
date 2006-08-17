@@ -28,11 +28,6 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 
 /*virtual*/ void DataGridRenderer_OpenGL::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
-DesignObj_DataGrid *pDataGridOwner = dynamic_cast<DesignObj_DataGrid *>(pObj_Screen);
-if( pDataGridOwner )
-g_pPlutoLogger->Write(LV_ACTION, "DataGridRenderer_OpenGL::RenderObject-start %s start row %d",pDataGridOwner->m_sGridID.c_str(),pDataGridOwner->m_GridCurRow);
-else
-g_pPlutoLogger->Write(LV_ACTION, "DataGridRenderer_OpenGL::RenderObject-NULL");
 	g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject");
 	MeshFrame * BeforeDataGrid = RenderFrame;
 	if(RenderFrame)
@@ -43,11 +38,7 @@ g_pPlutoLogger->Write(LV_ACTION, "DataGridRenderer_OpenGL::RenderObject-NULL");
 
 	Engine->StartDatagridDrawing();
 
-if( pDataGridOwner )
-g_pPlutoLogger->Write(LV_ACTION, "DataGridRenderer::RenderObject-start %s start row %d",pDataGridOwner->m_sGridID.c_str(),pDataGridOwner->m_GridCurRow);
 	DataGridRenderer::RenderObject(pObj_Screen, point);
-if( pDataGridOwner )
-g_pPlutoLogger->Write(LV_ACTION, "DataGridRenderer::RenderObject-stop %s start row %d",pDataGridOwner->m_sGridID.c_str(),pDataGridOwner->m_GridCurRow);
 
 	RenderFrame = Engine->EndDatagridDrawing();
 
@@ -63,6 +54,4 @@ g_pPlutoLogger->Write(LV_ACTION, "DataGridRenderer::RenderObject-stop %s start r
 		//delete BeforeDataGrid;
 		//BeforeDataGrid = NULL;
 	}
-if( pDataGridOwner )
-g_pPlutoLogger->Write(LV_ACTION, "DataGridRenderer_OpenGL::RenderObject-stop %s start row %d",pDataGridOwner->m_sGridID.c_str(),pDataGridOwner->m_GridCurRow);
 }
