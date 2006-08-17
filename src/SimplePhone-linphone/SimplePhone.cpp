@@ -227,7 +227,7 @@ void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,
 void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 //<-dceag-c335-e->
 {
-    if(LS_ActiveCall())
+    if(!LS_ActiveCall())
     {
         Sleep(1000);
 		LS_AcceptCall();
