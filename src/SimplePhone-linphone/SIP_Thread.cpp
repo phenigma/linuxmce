@@ -116,8 +116,7 @@ static void LS_InitProxy()
 	DCEConfig dceconf;
 	
 	string sProxy = /* dceconf.m_sDBHost.c_str() */ "dcerouter";
-	string sExtension = /* LS_pSimplePhone->DATA_Get_PhoneNumber() */ "210";
-	string sPassword = sExtension;
+	string sExtension = LS_pSimplePhone->DATA_Get_PhoneNumber() /*"210"*/;
 	string sIdentity = "sip:" + sExtension + "@" + sProxy;
 	sProxy = "sip:" + sProxy;
 	
@@ -151,7 +150,7 @@ static void LS_SetupAuth()
 {
 	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
 
-	string sPassword = /* LS_pSimplePhone->DATA_Get_PhoneNumber() */ "210";
+	string sPassword = LS_pSimplePhone->DATA_Get_PhoneNumber() /*"210"*/;
 	linphone_auth_info_set_passwd(LS_pLinphoneAuthInfo, sPassword.c_str());
 	linphone_core_add_auth_info(&LS_LinphoneCore, LS_pLinphoneAuthInfo);
 	LS_Auth_Received = 0;
