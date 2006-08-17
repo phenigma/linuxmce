@@ -44,6 +44,9 @@ if(isset($_POST['reseted_codes_log'])){
 			$isSaved=write_to_file($path.'reseted_codes.'.$now,$toLog);
 			if($isSaved){
 				db_query("INSERT INTO ResetedCodesLog (IPAddress,LastSubmitted,Downloads) VALUES ('$ip',FROM_UNIXTIME('$now'),1)",$conn);
+				echo 'Saved';
+			}else{
+				echo 'Log not saved, check permission for '.$path;
 			}
 			
 		break;
@@ -51,12 +54,17 @@ if(isset($_POST['reseted_codes_log'])){
 			$isSaved=write_to_file($path.'reseted_codes.'.$now,$toLog);
 			if($isSaved){
 				db_query("UPDATE ResetedCodesLog SET LastSubmitted=FROM_UNIXTIME('$now'),Downloads=Downloads+1 WHERE id=$id",$conn);
+				echo 'Saved';
+			}else{
+				echo 'Log not saved, check permission for '.$path;
 			}
-			
 		break;
 		
 	}
+}else{
+	die('Parameters not specified');
 }
+
 
 // generic function to extract rows from a table
 function getFields($table,$where,$conn,$order='',$fields='*'){
