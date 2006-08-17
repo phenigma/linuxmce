@@ -66,7 +66,8 @@ foreach my $I (sort keys %DEVICES)
         }
         &writelog("Processing #$DEVICE_ID ($DEVICE_EXT)\n");
         $DEVICE_PORT = 4569 if($DEVICE_TYPE =~ /^iax/i);
-        $DEVICE_PORT = 5060 if($DEVICE_TYPE =~ /^sip/i);
+        $DEVICE_PORT = 5060 if($DEVICE_TYPE =~ /^sip$/i);
+	$DEVICE_PORT = 5061 if($DEVICE_TYPE =~ /^sip5061$/i);
         &update_asterisk_db();
         #export the extension for other scripts
         `echo $DEVICE_EXT > /tmp/phone${DEVICE_ID}extension`;
@@ -233,6 +234,7 @@ sub add_to_asterisk_db()
     $EXT_VARS{'vm'}="disabled";
     $EXT_VARS{'secret'}=$DEVICE_EXT if ($DEVICE_TYPE ne 'custom');
     $EXT_VARS{'dial'}="SCCP/".$DEVICE_EXT if ($DEVICE_TYPE eq 'custom');
+    $EXT_VARS{'port'}=$DEVICE_PORT;
     foreach my $var (keys %EXT_VARS)
     {
         my $str = $EXT_VARS{$var};
