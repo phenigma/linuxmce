@@ -25,4 +25,5 @@ $TEXT_INFRARED_RECEIVERS_CONST='Infrared Receivers';
 $TEXT_COMPUTING_APPLICATIONS_CONST='Computing application';
 $TEXT_HARDWARE_ACCELERATION_CONST='Hardware acceleration';
 $TEXT_USE_ALPHA_BLENDED_UI_CONST='Use alpha blended UI';
+$TEXT_DEINTERLACE_QUALITY_CONST='Deinterlace Quality';
 ?>

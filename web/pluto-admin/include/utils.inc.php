@@ -6031,4 +6031,29 @@ function addScenarioCommandParameters($cgcID,$commandID,$dbADO,$values=array()){
 		$dbADO->Execute($insertCG_C_CP,array($cgcID,$param,@$values[$param]));
 	}
 }
+
+function get_child_device_data($orbiterID,$deviceDataID,$dbADO){
+	$res=$dbADO->Execute('
+		SELECT IK_DeviceData
+		FROM Device_DeviceData
+		INNER JOIN Device ON FK_Device=PK_Device
+		WHERE FK_Device_ControlledVia=? AND FK_DeviceData=?
+	',array($orbiterID,$deviceDataID));
+	
+	if($res->RecordCount()==0){
+		return false;
+	}
+	$row=$res->FetchRow();
+
+	return $row['IK_DeviceData'];
+}
+
+function set_child_device_data($orbiterID,$deviceDataID,$value,$dbADO){
+	$res=$dbADO->Execute('
+		UPDATE Device_DeviceData 
+		INNER JOIN Device ON FK_Device=PK_Device
+		SET IK_DeviceData=?
+		WHERE FK_Device_ControlledVia=? AND FK_DeviceData=?
+	',array($value,$orbiterID,$deviceDataID));
+}
 ?>

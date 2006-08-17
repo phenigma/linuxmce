@@ -17,6 +17,16 @@ function mediaDirectors($output,$dbADO) {
 	$soundArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['SoundCards'],'ORDER BY Description ASC');
 	$videoArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['VideoCards'],'ORDER BY Description ASC');
 	$audioSettingsArray=array('M'=>'Manual settings', 'C'=>'SPDIF Coax', 'O'=>'SPDIF TosLink', 'S'=>'Stereo', 'L'=>'Multi-channel analog');
+	$deinterlaceQualityArray=array_flip(array(
+		"None" => "",
+		"Lowest" => "tvtime:method=LineDoubler,enabled=1,pulldown=none,framerate_mode=half_top,judder_correction=0,use_progressive_frame_flag=1,chroma_filter=0,cheap_mode=>1",
+		"Low" => "tvtime:method=LinearBlend,enabled=1,pulldown=none,framerate_mode=half_top,judder_correction=0,use_progressive_frame_flag=1,chroma_filter=0,cheap_mode=>1",
+		"Medium" => "tvtime:method=Greedy,enabled=1,pulldown=none,framerate_mode=half_top,judder_correction=0,use_progressive_frame_flag=1,chroma_filter=0,cheap_mode=1",
+		"High" => "tvtime:method=Greedy,enabled=1,pulldown=none,framerate_mode=half_top,judder_correction=0,use_progressive_frame_flag=1,chroma_filter=0,cheap_mode=0",
+		"Higher" => "tvtime:method=Greedy2Frame,enabled=1,pulldown=vektor,framerate_mode=full,judder_correction=0,use_progressive_frame_flag=1,chroma_filter=0,cheap_mode=0",
+		"Highest" => "tvtime:method=Greedy2Frame,enabled=1,pulldown=vektor,framerate_mode=full,judder_correction=1,use_progressive_frame_flag=1,chroma_filter=1,cheap_mode=0",
+		"Custom"=>"*"));
+	
 	
 	$deviceCategory=$GLOBALS['rootMediaDirectors'];
 	$specificFloorplanType=$GLOBALS['EntertainmentZone'];
@@ -249,6 +259,11 @@ function mediaDirectors($output,$dbADO) {
 						$soundDevice=getSubDT($rowD['PK_Device'],$GLOBALS['SoundCards'],$dbADO);
 						$videoDevice=getSubDT($rowD['PK_Device'],$GLOBALS['VideoCards'],$dbADO);
 						$alphaBlended=getDeviceData($orbiterMDChild,$GLOBALS['UsealphablendedUI'],$dbADO);
+						
+						// if deinterlaced mode is custom, replace with * for pulldown
+						$raw_diq=get_child_device_data($orbiterMDChild,$GLOBALS['DeinterlacingMode'],$dbADO);
+						$diq=(!in_array($raw_diq,array_keys($deinterlaceQualityArray)))?'*':$raw_diq;
+
 						$out.='
 							<input type="hidden" name="oldSound_'.$rowD['PK_Device'].'" value="'.$soundDevice.'">
 							<input type="hidden" name="oldVideo_'.$rowD['PK_Device'].'" value="'.$videoDevice.'">
@@ -296,6 +311,10 @@ function mediaDirectors($output,$dbADO) {
 										<tr>
 											<td><B>'.$TEXT_HARDWARE_ACCELERATION_CONST.'</B></td>
 											<td>'.pulldownFromArray($GLOBALS['hardware_acceleration'],'acceleration_'.$rowD['PK_Device'],getAcceleration($orbiterMDChild,$dbADO),'','key','').'</td>
+										</tr>
+										<tr>
+											<td><B>'.$TEXT_DEINTERLACE_QUALITY_CONST.'</B></td>
+											<td>'.pulldownFromArray($deinterlaceQualityArray,'diq_'.$rowD['PK_Device'],$diq,'','key','').'</td>
 										</tr>
 										<tr>
 											<td><B>'.$TEXT_USE_ALPHA_BLENDED_UI_CONST.'</B></td>
@@ -461,6 +480,9 @@ function mediaDirectors($output,$dbADO) {
 					
 					//
 					setAcceleration($orbiterMDChild,cleanString($_REQUEST['acceleration_'.$value]),$dbADO);
+					if($_REQUEST['diq_'.$value]!='*'){
+						set_child_device_data($orbiterMDChild,$GLOBALS['DeinterlacingMode'],cleanString($_REQUEST['diq_'.$value]),$dbADO);
+					}
 					setAlphaBlend($orbiterMDChild,(int)@$_REQUEST['alpha_blended_'.$value],$dbADO);
 					
 					$installOptionsArray=explode(',',@$_POST['displayedTemplatesRequired_'.$value]);

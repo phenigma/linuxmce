@@ -187,6 +187,8 @@
 	$GLOBALS['DisklessBoot']=9;					// Diskless boot
 	$GLOBALS['hardware_acceleration_dd']=168;	// Harware acceleration
 	$GLOBALS['UsealphablendedUI']=169;			// Use alpha blended UI
+	$GLOBALS['DeinterlacingMode']=170;			// Deinterlacing Mode
+	
 	
 	// PK_FloorplanType from table FloorplanType 
 
@@ -197,6 +199,7 @@
 	$GLOBALS['EntertainmentZone']=5;		// Entertainment Zone
 	$GLOBALS['AVEquipmentFlorplanType']=6;	// AV Equipment
 	$GLOBALS['PhonesFoorplanType']=7;		// Phones
+	$GLOBALS['RoomsZone']=8;				// Rooms
 	
 	// PK_DesignObj from table DesignObj
 	
