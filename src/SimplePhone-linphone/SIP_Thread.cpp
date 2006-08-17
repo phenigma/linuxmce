@@ -31,6 +31,7 @@ static LinphoneProxyConfig * LS_pLinphoneProxyConfig = NULL;
 static LinphoneAuthInfo * LS_pLinphoneAuthInfo = NULL;
 
 static SimplePhone * LS_pSimplePhone;
+pluto_pthread_mutex_t LS_linphone_mutex("linphone_simplephone"); // this mutex protects the access to the linphone library
 
 static bool LS_bActiveCall = false;
 static string LS_Auth_Username;
@@ -48,13 +49,17 @@ static void LS_InitVTable();
 static void LS_InitProxy();
 static void LS_SetupAuth();
 static void LS_SignalHandler(int ExitStatus);
+static void LS_DropCall_nolock();
+static void LS_ProcessEvents();
 
 /* C Object, private methods - implementation */
 
 /** Register with Asterisk */
 static void LS_RegisterWithAsterisk()
 {
+	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
 	func_enter("LS_RegisterWithAsterisk");
+	
 	//linphone_core_enable_logs(stdout);
 	linphone_core_disable_logs();
 	linphone_core_init(&LS_LinphoneCore, &LS_LinphoneCoreVTable, NULL, NULL);
@@ -70,7 +75,8 @@ static void LS_Main_Loop()
 	func_enter("LS_Main_Loop");
 	while (!LS_bQuit)
 	{
-		linphone_core_iterate(&LS_LinphoneCore);
+		LS_ProcessEvents();
+
 		Sleep(20);
 		if (LS_Auth_Received == 1)
 			LS_SetupAuth();
@@ -81,6 +87,8 @@ static void LS_Main_Loop()
 /** Unregister with Asterisk */
 static void LS_UnregisterWithAsterisk()
 {
+	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
+
 	func_enter("LS_UnregisterWithAsterisk");
 	linphone_core_terminate_dialog(&LS_LinphoneCore, NULL);
 	linphone_core_uninit(&LS_LinphoneCore);
@@ -141,6 +149,8 @@ static void LS_InitProxy()
 /** Setup SIP authentication */
 static void LS_SetupAuth()
 {
+	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
+
 	string sPassword = /* LS_pSimplePhone->DATA_Get_PhoneNumber() */ "210";
 	linphone_auth_info_set_passwd(LS_pLinphoneAuthInfo, sPassword.c_str());
 	linphone_core_add_auth_info(&LS_LinphoneCore, LS_pLinphoneAuthInfo);
@@ -163,6 +173,8 @@ void * LS_Thread(void * arg)
 	signal(SIGTERM, LS_SignalHandler);
 	signal(SIGINT, LS_SignalHandler);
 	
+	LS_linphone_mutex.Init(NULL);
+
 	LS_InitVTable();
 	LS_InitProxy();
 	
@@ -180,27 +192,39 @@ void * LS_Thread(void * arg)
 	return NULL;
 }
 
-/* Returns true of a call is in progress, false otherwise */
+/** Returns true of a call is in progress, false otherwise */
 bool LS_ActiveCall()
 {
 	return LS_bActiveCall;
 }
 
-/* Send a DTMF tone though and active call */
+/** Send a DTMF tone though and active call */
 void LS_SentDTMF(char cDTMF)
 {
+	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
+
 	linphone_core_send_dtmf(&LS_LinphoneCore, cDTMF);
 }
 
-/* Initiate a call */
+/** Initiate a call */
 void LS_InitiateCall(string sNumber)
 {
+	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
+
 	linphone_core_invite(&LS_LinphoneCore, sNumber.c_str());
 	LS_bActiveCall = true;
 }
 
-/* Drop the active call */
+/** Drop the active call */
 void LS_DropCall()
+{
+	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
+
+	LS_DropCall_nolock();
+}
+
+/** Drop the active call - version without mutex */
+void LS_DropCall_nolock()
 {
 	func_enter("LS_DropCall");
 	linphone_core_terminate_dialog(&LS_LinphoneCore, NULL);
@@ -211,14 +235,26 @@ void LS_DropCall()
 	func_exit("LS_DropCall");
 }
 
-/* Accept the incoming call */
+/** Process linphone events */
+void LS_ProcessEvents()
+{
+		PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
+
+		linphone_core_iterate(&LS_LinphoneCore);
+}
+
+/** Accept the incoming call */
 void LS_AcceptCall()
 {
+	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
+
 	linphone_core_accept_dialog(&LS_LinphoneCore, NULL);
 	LS_bActiveCall = true;
 }
 
 /* Linphone callbacks - implementation */
+/* Note: the lock is already taken in LS_ProcessEvents; these functions are called from linphone_core_iterate */
+
 static void call_received(LinphoneCore *linphoneCore, const char *from)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "SimplePhone: Received call, from '%s'", from);
@@ -236,7 +272,7 @@ static void call_received(LinphoneCore *linphoneCore, const char *from)
 static void bye_received(LinphoneCore *linphoneCore, const char *from)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "SimplePhone: Received bye, from '%s'", from);
-	LS_DropCall();
+	LS_DropCall_nolock(); // lock is already taken in LS_Main_Loop
 }
 
 static void auth_requested(LinphoneCore *linphoneCore, const char *realm, const char *username)
