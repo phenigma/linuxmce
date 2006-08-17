@@ -8,6 +8,7 @@
 #define FLOORPLANTYPE_Entertainment_Zone_CONST 5
 #define FLOORPLANTYPE_AV_Equipment_CONST 6
 #define FLOORPLANTYPE_Phones_CONST 7
+#define FLOORPLANTYPE_Rooms_CONST 8
 
 #define FLOORPLANTYPE_TABLE "FloorplanType"
 #define FLOORPLANTYPE_PK_FLOORPLANTYPE_FIELD "PK_FloorplanType"
