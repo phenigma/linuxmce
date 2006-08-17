@@ -48,6 +48,34 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 	$GLOBALS['displayedIRGC']=array();
 	$GLOBALS['displayedCommands']=array();
 
+	$selectDTData='
+			SELECT 
+				DeviceTemplate.Description AS Template, 
+				DeviceCategory.Description AS Category,
+				Manufacturer.Description AS Manufacturer, 
+				FK_Manufacturer,
+				FK_DeviceCategory,
+				FK_InfraredGroup,
+				DeviceTemplate_AV.*
+			FROM DeviceTemplate
+			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
+			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
+			LEFT JOIN DeviceTemplate_AV ON DeviceTemplate_AV.FK_DeviceTemplate=PK_DeviceTemplate
+			WHERE PK_DeviceTemplate=?';
+	$resDTData=$dbADO->Execute($selectDTData,$dtID);
+	if($resDTData->RecordCount()==0){
+		header("Location: index.php?section=userHome");
+		exit();
+	}
+	$rowDTData=$resDTData->FetchRow();
+
+	$togglePower=(@$rowDTData['TogglePower']==1)?1:0;
+	$toggleInput=(@$rowDTData['ToggleInput']==1)?1:0;
+	$toggleDSP=(@$rowDTData['ToggleDSP']==1)?1:0;
+	$manufacturerID=$rowDTData['FK_Manufacturer'];
+	$deviceCategoryID=$rowDTData['FK_DeviceCategory'];
+	
+	
 	if ($action=='form') {
 		$out.='
 		<script>
@@ -68,32 +96,6 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			<input type="hidden" name="infraredGroupID" value="'.$infraredGroupID.'">
 			<input type="hidden" name="irgroup_command" value="">
 			<input type="hidden" name="label" value="'.$label.'">';
-		$selectDTData='
-			SELECT 
-				DeviceTemplate.Description AS Template, 
-				DeviceCategory.Description AS Category,
-				Manufacturer.Description AS Manufacturer, 
-				FK_Manufacturer,
-				FK_DeviceCategory,
-				FK_InfraredGroup,
-				DeviceTemplate_AV.*
-			FROM DeviceTemplate
-			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
-			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
-			LEFT JOIN DeviceTemplate_AV ON DeviceTemplate_AV.FK_DeviceTemplate=PK_DeviceTemplate
-			WHERE PK_DeviceTemplate=?';
-		$resDTData=$dbADO->Execute($selectDTData,$dtID);
-		if($resDTData->RecordCount()==0){
-			header("Location: index.php?section=userHome");
-			exit();
-		}
-		$rowDTData=$resDTData->FetchRow();
-
-		$togglePower=(@$rowDTData['TogglePower']==1)?1:0;
-		$toggleInput=(@$rowDTData['ToggleInput']==1)?1:0;
-		$toggleDSP=(@$rowDTData['ToggleDSP']==1)?1:0;
-		$manufacturerID=$rowDTData['FK_Manufacturer'];
-		$deviceCategoryID=$rowDTData['FK_DeviceCategory'];
 
 
 		$selectedIRGrops=array();
@@ -120,8 +122,13 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			
 			$out.='
 			<tr>
-				<td colspan="2">'.$TEXT_USES_GROUP_CODESET_CONST.' '.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.rubyCodes.submit();"','key','').' '.$error_not_saved.'</td>
-		</tr>';
+				<td colspan="2">'.$TEXT_USES_GROUP_CODESET_CONST.' '.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.rubyCodes.submit();"','key','').' '.$error_not_saved.'
+			</td>
+			</tr>
+			<tr>
+				<td colspan="2"><input type="text" name="new_group_description" value=""> <input type="submit" name="add_group" value="'.$TEXT_CREATE_GROUP_CONST.'" class="button"></td>
+		</tr>			
+			';
 			
 		$out.='
 			<tr>
@@ -132,7 +139,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		
 		$out.='		
 			<tr>
-				<td colspan="3" align="center"><input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOVE_COMMANDS_CONST.'" onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$infraredGroupID.'&deviceID='.$deviceID.'&dtID='.$dtID.(($GLOBALS['label']!='infrared')?'&rootNode=1':'').'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="submit" class="button" name="update" value="Update" '.((!isset($_SESSION['userID']))?'disabled':'').'> <input type="button" class="button" name="close" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
+				<td colspan="3" align="center"><input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOVE_COMMANDS_CONST.'" onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$infraredGroupID.'&deviceID='.$deviceID.'&dtID='.$dtID.'&rootNode=1&norestrict=1\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="submit" class="button" name="update" value="Update" '.((!isset($_SESSION['userID']))?'disabled':'').'> <input type="button" class="button" name="close" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 			</tr>';
 		
 		// extract data from InfraredGroup_Command an put it in multi-dimmensional array
@@ -233,6 +240,16 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			exit();
 		}
 
+		if(isset($_POST['add_group'])){
+			$description=cleanString($_POST['new_group_description']);
+			$res=$dbADO->Execute('INSERT INTO InfraredGroup (FK_DeviceCategory,FK_Manufacturer,Description) VALUES (?,?,?)',array($deviceCategoryID,$manufacturerID,$description));
+			$infraredGroupID=$dbADO->Insert_ID();
+			$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($infraredGroupID,$dtID));
+			
+			header("Location: index.php?section=rubyCodes&from=$from&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&msg=$TEXT_CODES_GROUP_ADDED_CONST");
+			exit();
+		}
+		
 		header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&lastAction=".@$lastAction);
 	}
 	$time_end = getmicrotime();

@@ -12,6 +12,12 @@ function infraredCommands($output,$publicADO) {
 	$installationID = (int)@$_SESSION['installationID'];
 	$GLOBALS['excludedCategories']=array($GLOBALS['DSPModeCommandCategory'], $GLOBALS['InputsCommandCategory'],$GLOBALS['OutputsCommandCategory']);
 	$GLOBALS['excludedCommands']=array($GLOBALS['genericONCommand'],$GLOBALS['genericOFFCommand'],$GLOBALS['powerCommand']);
+	
+	// if page was called from Ruby codes, no restrictions
+	if(isset($_REQUEST['norestrict'])){
+		$GLOBALS['excludedCategories']=array(0);
+		$GLOBALS['excludedCommands']=array(0);
+	}
 	$GLOBALS['infraredGroup']=(int)@$_REQUEST['infraredGroup'];	
 	$GLOBALS['deviceID']=((int)@$_REQUEST['deviceID']!=0)?(int)@$_REQUEST['deviceID']:NULL;	
 	$GLOBALS['dtID']=(int)@$_REQUEST['dtID'];	
@@ -51,6 +57,7 @@ function infraredCommands($output,$publicADO) {
 		}
 
 		$GLOBALS['displayedCommands']=array();
+		$publicADO->debug=true;
 		$query='
 			SELECT DISTINCT
 				Command.Description,

@@ -106,7 +106,7 @@ function editMasterDevice($output,$dbADO) {
 						<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>
 		';
 		$manufacturersArray=array();
-		$queryManufacturers = 'select Description, PK_Manufacturer from Manufacturer order by Description asc';
+		$queryManufacturers = 'select CONCAT(Description,\' #\',PK_Manufacturer) AS Description, PK_Manufacturer from Manufacturer order by Description asc';
 		$rs = $dbADO->_Execute($queryManufacturers);
 		while ($row = $rs->FetchRow()) {
 			$manufacturersArray[$row['PK_Manufacturer']]=$row['Description'];
