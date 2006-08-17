@@ -81,7 +81,7 @@ bool Xine_Stream_Factory::StartupFactory()
 	
 	m_sDeinterlacingConfig = m_pPlayer->DATA_Get_Deinterlacing_Mode();
 	m_bUseDeinterlacing = (m_sDeinterlacingConfig!="");
-	g_pPlutoLogger->Write( LV_STATUS, "Deinterlacing Mode is %s => deinterlacing is %s", m_sDeinterlacingConfig.c_str(), m_bUseDeinterlacing?"on":"off" );
+	g_pPlutoLogger->Write( LV_STATUS, "Deinterlacing Mode is '%s' => deinterlacing is %s", m_sDeinterlacingConfig.c_str(), m_bUseDeinterlacing?"on":"off" );
 	
 	m_bInitialized = true;
 	return true;
