@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Suspended for the moment
-exit 0
 
 # Mantis 2692: 
 #
@@ -20,6 +19,7 @@ MyName="002-000-040-IncorrectRecordsInInfraredGroup_Command.sh"
 
 
 function WebDB_Get() {
+	error = 0
 	local URL="$1"
 	local Table="$2"
 
@@ -30,8 +30,9 @@ function WebDB_Get() {
 	local Footer=$(tail -1 "$OutputFile")
 
 	if [[ "$Header" != "-- Database import" || "$Footer" != "-- EOF" ]]; then
-		echo "ERROR. Header: $Header; Footer: $Footer"
-		exit 1
+		echo "* Can't get an correct sql script from the server."
+		error=1
+		return
 	fi
 
 	local PSC=$(head -2 "$OutputFile" | tail -1)
@@ -49,6 +50,7 @@ function WebDB_Get() {
 	mysql -u $MySqlUser -h $MySqlHost $QPass "$MySqlDBName" <"$OutputFile"
 
 	local psc_ids_used=$(head -3 $OutputFile | grep -m 1 "^-- psc_id:" | cut -d ':' -f2 | tr ',' ' ')
+	echo "* The server updated : $psc_ids_used"
 	local psc_ids_old=$(echo $psc_ids | tr ',' ' ')
 	psc_ids=""
 
@@ -71,9 +73,12 @@ function WebDB_Get() {
  	               fi	
 		fi
 	done
+	echo "* This remain to be manualy updated: $psc_ids"
 
 	rm -rf $OutputFile
 }
+
+
 
 psc_ids=""
 
@@ -90,9 +95,60 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 			psc_ids="${psc_id}"
 		fi
 	done
+
+
+	# This function modifies $psc_ids (removes the updated ones) and $error (to 1 in case of error)
+
+	if [[ $psc_ids != "" ]] ;then
+		echo "* Found folowing psc_ids: $psc_ids"
+		error=0
+		WebDB_Get "http://plutohome.com/GetInfraredCodes.php?psc_ids=${psc_ids}" 'InfraredGroup_Command'
+	else
+		echo "* No psc_ids to update"
+		error="1"
+	fi
 	
-	# This function also updates psc_ids (removes the updated ones)
-	WebDB_Get "http://plutohome.com/GetInfraredCodes.php?psc_ids=${psc_ids}" 'InfraredGroup_Command'
+	if [[ "$error" == "0" ]] ;then
+		for psc_id in $( echo $psc_ids | tr ',' ' ') ;do
+			Q="
+				SELECT
+					FK_DeviceTemplate,
+					DeviceTemplate.FK_InfraredGroup,
+					DeviceTemplate.FK_Manufacturer,
+					DeviceTemplate.FK_DeviceCategory,
+					FK_CommMethod
+				FROM
+					InfraredGroup_Command
+					INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+				WHERE
+					InfraredGroup_Command.psc_id = '${psc_id}'
+				LIMIT 1
+			"
+			Record=$(RunSQL "$Q")
+
+			DT=$(Field "1" "$Record")
+			IRG=$(Field "2" "$Record")
+			M=$(Field "3" "$Record")
+			DC=$(Field "4" "$Record")
+			CM=$(Field "5" "$Record")
+
+			if [[ $IRG != "NULL" ]] ;then
+				echo "* $psc_id : Is assigned to existing infrared group $IRG"
+				Q="UPDATE InfraredGroup_Command SET FK_InfraredGroup = $IRG WHERE InfraredGroup_Command.psc_id = $psc_id"
+				RunSQL "$Q"
+			else
+				Q="INSERT INTO InfraredGroup (Description,FK_Manufacturer,FK_DeviceCategory,FK_CommMethod) VALUES ('Custom codes',$M,$DC,$CM); SELECT LAST_INSERT_ID()"
+				InsertID=$(RunSQL "$Q")
+
+				Q="UPDATE InfraredGroup_Command SET FK_InfraredGroup = $InsertID WHERE FK_DeviceTemplate = $psc_id"
+				RunSQL "$Q"
+				echo "* $psc_id : Is assigned to newly created infrared group $InsertID"
+			fi
+		done
+		
+		psc_ids=""
+	fi
+	
 fi
 	
 
