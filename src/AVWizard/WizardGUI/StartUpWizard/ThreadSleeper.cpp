@@ -48,38 +48,29 @@ void ThreadSleeper::Init(int NoSeconds)
 
 int ThreadSleeper::GetSecondRemaining()
 {
-	std::cout<<"ThreadSleeper::GetSecondRemaining()"<<std::endl;
 	SafetyLock Lock(&LockMutex);
-	std::cout<<"ThreadSleeper::GetSecondRemaining() got lock"<<std::endl;
 	int CurrentTime = SDL_GetTicks();
 	TickRemaining = TickRemaining - (CurrentTime - LastTime);
 	LastTime = CurrentTime;
 	int Result = 0;
 	if ((TickRemaining + 999) / 1000 > 0)
 		Result = (TickRemaining + 999) / 1000;
-	std::cout<<"remaining: " <<TickRemaining<<std::endl;
-	std::cout<<"Seconds: " <<Result<<std::endl;
 	return Result;
 }
 
 void ThreadSleeper::Quit()
 {
-	{
-	//SafetyLock Lock(&LockMutex);
-	std::cout<<"ThreadSleeper::Quit"<<std::endl;
 	bQuit = true;
-	}
 
-	//if(tid)
+//	if(tid)
 //		pthread_join(tid, NULL);
 	tid = 0;
-	std::cout<<"ThreadSleeper::Quit: tid is 0"<<std::endl;
 }
 
 void ThreadSleeper::SecondTick()
 {
 #ifdef DEBUG
-	std::cout<< "VideoResolutionSecondSleeper::SecondTick()" << std::endl;
+	//std::cout<< "VideoResolutionSecondSleeper::SecondTick()" << std::endl;
 #endif
 	if(!Label)
 	{
@@ -123,18 +114,14 @@ void* SleeperThreadFunc(void* Instance)
 
 	while(!ThreadPtr->bQuit && ThreadPtr->GetSecondRemaining())
 	{
-		std::cout<<"sleeper..."<<std::endl;
 		Sleep(50);
 		int Seconds2 = ThreadPtr->GetSecondRemaining();
 
 		if (Seconds2 != Seconds1)
 		{
 			Seconds1 = Seconds2;
-			std::cout<<"ThreadSleeper::SecondTick()"<<std::endl;
 			ThreadPtr->SecondTick();
 		}
-		else
-			std::cout<<"else-ul"<<std::endl;
 	}
 
 	std::cout<<"TreadQuit"<<std::endl;
