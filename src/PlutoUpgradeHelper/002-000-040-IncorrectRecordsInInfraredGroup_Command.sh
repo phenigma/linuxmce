@@ -19,12 +19,12 @@ MyName="002-000-040-IncorrectRecordsInInfraredGroup_Command.sh"
 
 
 function WebDB_Get() {
-	error = 0
+	error=0
 	local URL="$1"
 	local Table="$2"
 
 	local OutputFile=$(mktemp)
-	wget --timeout=10 -O "$OutputFile" "$URL"
+	wget --timeout=10 -O "$OutputFile" "$URL" 1>/dev/null 2>/dev/null
 
 	local Header=$(head -1 "$OutputFile")
 	local Footer=$(tail -1 "$OutputFile")
@@ -109,6 +109,9 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 	fi
 	
 	if [[ "$error" == "0" ]] ;then
+		
+		reseted_codes_log=""
+
 		for psc_id in $( echo $psc_ids | tr ',' ' ') ;do
 			Q="
 				SELECT
@@ -116,7 +119,8 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 					DeviceTemplate.FK_InfraredGroup,
 					DeviceTemplate.FK_Manufacturer,
 					DeviceTemplate.FK_DeviceCategory,
-					FK_CommMethod
+					FK_CommMethod,
+					InfraredGroup_Command.psc_batch
 				FROM
 					InfraredGroup_Command
 					INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
@@ -131,6 +135,7 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 			M=$(Field "3" "$Record")
 			DC=$(Field "4" "$Record")
 			CM=$(Field "5" "$Record")
+			psc_batch=$(Field 6 "$Record")
 
 			if [[ $IRG != "NULL" ]] ;then
 				echo "* $psc_id : Is assigned to existing infrared group $IRG"
@@ -144,8 +149,19 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 				RunSQL "$Q"
 				echo "* $psc_id : Is assigned to newly created infrared group $InsertID"
 			fi
+
+			reseted_codes_log="${reseted_codes_log}InfraredGroup_Command,${psc_id},${psc_batch}\n"
 		done
 		
+		if [[ "$reseted_codes_log" != "" ]] ;then
+			. /usr/pluto/bin/Network_Parameters.sh
+
+			reseted_codes_log="${ExtIP},${PK_Installation},$(date +%s)\n${reseted_codes_log}"
+			echo -e $reseted_codes_log
+
+			reseted_codes_log=$(echo $reseted_codes_log | sed -e 's/\\n/%0a/g')
+			curl -d reseted_codes_log=${reseted_codes_log} http://www.plutohome.com/log.php
+		fi
 		psc_ids=""
 	fi
 	
