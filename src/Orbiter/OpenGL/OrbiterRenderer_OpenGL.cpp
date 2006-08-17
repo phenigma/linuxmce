@@ -595,15 +595,14 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderScreen(bool bRenderGraphicsOnly)
 {
-	Popups->HidePopups();
 	if(OrbiterLogic()->m_bQuit)
 		return; //we are about to quit
-	
+
+	Popups->Reset();
+
 	if(OrbiterLogic()->m_pObj_SelectedLastScreen)
 		m_spPendingGLEffects->m_nOnSelectWithChangeEffectID = 
 		OrbiterLogic()->m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange;
-
-	Popups->HidePopups();
 
 	int OffScreenTransition = m_spPendingGLEffects->m_nOffScreenTransitionEffectID;
 	int OnScreenTransition = m_spPendingGLEffects->m_nOnScreenTransitionEffectID;
@@ -654,7 +653,8 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 #endif
 
 	if(Popups)
-		Popups->PaintPopup(pPopup->m_pObj->GenerateObjectHash(pPopup->m_Position), pPopup, EffectID);
+		Popups->PaintPopup(pPopup->m_pObj->GenerateObjectHash(pPopup->m_Position, false), 
+			pPopup->m_pObj->GenerateObjectHash(pPopup->m_Position), pPopup, EffectID);
 
 	//if (EffectID)
 	//{
@@ -669,7 +669,8 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 
 	if(Popups)
 	{
-		Popups->HidePopup(Popup->m_pObj->GenerateObjectHash(Popup->m_Position));
+		Popups->HidePopup(Popup->m_pObj->GenerateObjectHash(Popup->m_Position, false),
+			Popup->m_pObj->GenerateObjectHash(Popup->m_Position));
 	}
 	Engine->UnHighlight();
 	return true;

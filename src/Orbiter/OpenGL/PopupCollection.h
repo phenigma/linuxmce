@@ -22,11 +22,10 @@ public:
 	PopupCollection(OpenGL3DEngine* Engine);
 	~PopupCollection();
 
-	void ChangeScene(MeshFrame* Scene);
+	void PaintPopup(std::string ID, std::string ObjectHash, PlutoPopup *Popup, int EffectID);
+	void HidePopup(std::string ID, std::string ObjectHash);
 
-	void HidePopups();
-	void PaintPopup(std::string ID, PlutoPopup *Popup, int EffectID);
-	void HidePopup(std::string ID);
+	void Reset();
 
 	bool Exists(std::string ID);
 };

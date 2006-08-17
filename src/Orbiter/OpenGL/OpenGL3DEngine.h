@@ -25,19 +25,22 @@ class OpenGL3DEngine
 	MeshFrame* OldLayer;
 	MeshFrame* SelectedFrame;
 	MeshFrame* HighLightFrame;
-
 	MeshFrame* HighLightPopup;
 
 	MeshFrame* FrameBuilder, *FrameDatagrid;
+
+	std::string CurrentLayerName;
 
 	virtual void UnSelect();
 
 	std::vector<AnimationScrollDatagrid*> AnimationDatagrid;
 
 
-	std::map<string, MeshFrame *> CurrentLayerObjects_;
+	std::map<string, std::pair<MeshFrame *, std::string> > CurrentLayerObjects_;
 
 	void ShowAnimationTextures();
+
+	void DumpScene();
 
 public:
 	GLEffect2D::LayersCompose* Compose;
@@ -75,8 +78,8 @@ public:
 	/**
 	 *	Store the current frame, for instance a popup
 	 */
-	void StartFrameDrawing();
-	MeshFrame* EndFrameDrawing();
+	void StartFrameDrawing(std::string ObjectHash);
+	MeshFrame* EndFrameDrawing(std::string sObjectHash);
 
 	void CubeAnimateDatagridFrames(string ObjectID, MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
 		int MilisecondTime, int Direction, float fMaxAlphaLevel);

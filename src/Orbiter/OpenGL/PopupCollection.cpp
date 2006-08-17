@@ -16,6 +16,12 @@ PopupCollection::PopupCollection(OpenGL3DEngine* Engine)
 
 PopupCollection::~PopupCollection(void)
 {
+	Reset();
+}
+
+void PopupCollection::Reset()
+{
+	Current = "";
 	std::map<std::string, PopupDescription* >::iterator Item = Popups.begin(),
 		End = Popups.end();
 	for(; Item != End; ++Item)
@@ -26,29 +32,24 @@ PopupCollection::~PopupCollection(void)
 }
 
 
-void PopupCollection::HidePopups()
-{
-	Current = "";
-}
-
-void PopupCollection::HidePopup(std::string ID)
+void PopupCollection::HidePopup(std::string ID, std::string ObjectHash)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "PopupCollection::HidePopup %s", ID.c_str());
 
 	PopupDescription* Item;
-	Item = Popups[ID];
+	Item = Popups[ObjectHash];
 	if(Item)
 	{
 		Item->Hide();
-		if(ID == Current)
+		if(ObjectHash == Current)
 			Current = "";
 	}
 }
 
-void PopupCollection::PaintPopup(std::string ID, PlutoPopup *Popup, int EffectID)
+void PopupCollection::PaintPopup(std::string ID, std::string ObjectHash, PlutoPopup *Popup, int EffectID)
 {
 	PopupDescription* Item;
-	if(Current == ID)
+	if(Current == ObjectHash)
 		return;
 
 	if(Current!= "")
@@ -58,10 +59,10 @@ void PopupCollection::PaintPopup(std::string ID, PlutoPopup *Popup, int EffectID
 			Item->Hide();
 	}		
 
-	Current = ID;
-	if (Exists(ID))
+	Current = ObjectHash;
+	if (Exists(ObjectHash))
 	{
-		Item = Popups[ID];
+		Item = Popups[ObjectHash];
 		if(Item)
 			Item->Show();
 	}
@@ -70,10 +71,10 @@ void PopupCollection::PaintPopup(std::string ID, PlutoPopup *Popup, int EffectID
 		g_pPlutoLogger->Write(LV_WARNING, "Added in map popup %s, now size is %d", ID.c_str(), Popups.size());
 
 		
-		Engine->StartFrameDrawing();
+		Engine->StartFrameDrawing(ObjectHash);
 
 		Popup->m_pObj->RenderObject(Popup->m_pObj, Popup->m_Position); 
-		Item = new PopupDescription(Engine, ID, NULL);
+		Item = new PopupDescription(Engine, ID, ObjectHash, NULL);
 		if(EffectID)
 		{
 			
@@ -85,7 +86,7 @@ void PopupCollection::PaintPopup(std::string ID, PlutoPopup *Popup, int EffectID
 
 			//Engine->ShowHighlightRectangle(Popup->m_pObj->m_rPosition);
 		}
-		Popups[ID] = Item;
+		Popups[ObjectHash] = Item;
 	}
 	
 }
@@ -100,8 +101,4 @@ bool PopupCollection::Exists(std::string ID)
 	return Result; 
 }
 
-void PopupCollection::ChangeScene(MeshFrame* Scene)
-{
-	HidePopups();
-	this->Scene = Scene;
-}
+

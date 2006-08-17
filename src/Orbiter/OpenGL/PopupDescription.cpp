@@ -6,11 +6,12 @@
 
 #include "DCE/Logger.h"
 
-PopupDescription::PopupDescription(OpenGL3DEngine* Engine, string ID, PlutoRectangle* HighLight)
+PopupDescription::PopupDescription(OpenGL3DEngine* Engine, string ID, string ObjHash, PlutoRectangle* HighLight)
 {
 	this->Engine = Engine;
 	ObjectID = ID;
-	PopupFrame = Engine->EndFrameDrawing();
+	ObjectHash = ObjHash;
+	PopupFrame = Engine->EndFrameDrawing(ObjHash);
 }
 
 PopupDescription::~PopupDescription(void)
@@ -19,15 +20,13 @@ PopupDescription::~PopupDescription(void)
 
 void PopupDescription::Hide()
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Remove popup: %s", ObjectID.c_str());
+	g_pPlutoLogger->Write(LV_WARNING, "Remove popup: %s", ObjectHash.c_str());
 	
-	//This might look like a hack! Need to re-think naming for popups.
-	Engine->RemoveMeshFrameFromDesktop(PopupFrame);
-	Engine->RemoveMeshFrameFromDesktopFromID(ObjectID);
+	Engine->RemoveMeshFrameFromDesktopFromID(ObjectHash);
 }
 
 void PopupDescription::Show()
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Add popup: %s to scene", ObjectID.c_str());
-	Engine->AddMeshFrameToDesktop("", ObjectID, PopupFrame);
+	g_pPlutoLogger->Write(LV_WARNING, "Add popup: %s to scene", ObjectHash.c_str());
+	Engine->AddMeshFrameToDesktop("", ObjectHash, PopupFrame);
 }
