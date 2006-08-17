@@ -14,6 +14,9 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
+		DeviceData_Base *m_pDevice_Xine;
+		map<string, long> m_mapFilesTimeCode;
+		bool m_bIsActive;
 
 		// Private methods
 public:
@@ -35,6 +38,8 @@ public:
 		// You can delete this whole section and put an ! after dceag-const2-b tag if you don't want this constructor.  Do the same in the implementation file
 		SMPTE_Fountain(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
 //<-dceag-const2-e->
+
+		bool MediaPlaying( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 //<-dceag-h-b->
 	/*
