@@ -23,6 +23,7 @@ public:
         virtual void CreateChildren();
         void IncomingCallScreen(string sCallerID);
         void CallInProgressScreen();
+		void CallDroppedScreen();
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor
