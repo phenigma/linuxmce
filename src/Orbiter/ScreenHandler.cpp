@@ -266,11 +266,10 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		m_pOrbiter->m_pObj_Highlighted = mediaFileBrowserOptions.m_pObj_ListGrid;
 		m_pOrbiter->CMD_Remove_Popup("","filedetails");
 
-/*
 		DesignObj_Orbiter *pObj_CoverArt = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST) );
 		if(NULL != pObj_CoverArt)
-			m_pOrbiter->Renderer()->RemoveGraphic(pObj_CoverArt->GenerateObjectHash(pObj_CoverArt->m_pPopupPoint));
-*/
+			m_pOrbiter->Renderer()->RemoveGraphic(pObj_CoverArt->GenerateObjectHash(pObj_CoverArt->m_pPopupPoint, false));
+
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
