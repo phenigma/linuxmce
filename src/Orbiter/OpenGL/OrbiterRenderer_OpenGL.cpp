@@ -654,7 +654,7 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 #endif
 
 	if(Popups)
-		Popups->PaintPopup(pPopup->m_pObj->GenerateObjectHash(pPopup->m_Position, false), pPopup, EffectID);
+		Popups->PaintPopup(pPopup->m_pObj->GenerateObjectHash(pPopup->m_Position), pPopup, EffectID);
 
 	//if (EffectID)
 	//{
@@ -669,7 +669,7 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 
 	if(Popups)
 	{
-		Popups->HidePopup(Popup->m_pObj->GenerateObjectHash(Popup->m_Position, false));
+		Popups->HidePopup(Popup->m_pObj->GenerateObjectHash(Popup->m_Position));
 	}
 	Engine->UnHighlight();
 	return true;
