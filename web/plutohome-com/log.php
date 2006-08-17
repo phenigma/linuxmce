@@ -12,7 +12,7 @@ $submitInterval=3;
 
 $GLOBALS['db_in_debug']=1;
 $ip=$_SERVER['REMOTE_ADDR']	;
-$toLog=cleanString(@$_POST['reseted_codes_log']);
+$toLog=cleanString(@urldecode($_POST['reseted_codes_log']));
 $now=time();
 
 
