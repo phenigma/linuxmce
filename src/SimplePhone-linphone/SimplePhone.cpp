@@ -227,6 +227,9 @@ void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,
 void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 //<-dceag-c335-e->
 {
+	CallInProgressScreen();
+	Sleep(1000);
+
     if(!LS_ActiveCall())
     {
         Sleep(1000);
@@ -247,9 +250,6 @@ void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 //<-dceag-c336-e->
 {
-    DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"");
-    SendCommand(SCREEN_Main_);
-
     if(LS_ActiveCall())
     {
         Sleep(1000);
@@ -271,6 +271,12 @@ void SimplePhone::IncomingCallScreen(string sCallerID)
 	CMD_Set_Variable CMD_Set_Variable_number(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_number_CONST,sCallerID);
 	SendCommand(CMD_Set_Variable_number);
 	GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));
+}
+
+void SimplePhone::CallDroppedScreen()
+{
+    DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"");
+    SendCommand(SCREEN_Main_);
 }
 
 void SimplePhone::CallInProgressScreen()

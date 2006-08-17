@@ -176,6 +176,7 @@ void * LS_Thread(void * arg)
 	signal(SIGTERM, SIG_DFL);
 	signal(SIGINT, SIG_DFL);
 
+	exit(0);
 	return NULL;
 }
 
@@ -195,21 +196,24 @@ void LS_SentDTMF(char cDTMF)
 void LS_InitiateCall(string sNumber)
 {
 	linphone_core_invite(&LS_LinphoneCore, sNumber.c_str());
+	LS_bActiveCall = true;
 }
 
 /* Drop the active call */
 void LS_DropCall()
 {
+	func_enter("LS_DropCall");
 	linphone_core_terminate_dialog(&LS_LinphoneCore, NULL);
-	LS_bActiveCall = true;
+	LS_bActiveCall = false;
+
+	string tmp;
+	LS_pSimplePhone->CallDroppedScreen();
+	func_exit("LS_DropCall");
 }
 
 /* Accept the incoming call */
 void LS_AcceptCall()
 {
-	LS_pSimplePhone->CallInProgressScreen();
-	Sleep(1000);
-
 	linphone_core_accept_dialog(&LS_LinphoneCore, NULL);
 	LS_bActiveCall = true;
 }
@@ -232,6 +236,7 @@ static void call_received(LinphoneCore *linphoneCore, const char *from)
 static void bye_received(LinphoneCore *linphoneCore, const char *from)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "SimplePhone: Received bye, from '%s'", from);
+	LS_DropCall();
 }
 
 static void auth_requested(LinphoneCore *linphoneCore, const char *realm, const char *username)
