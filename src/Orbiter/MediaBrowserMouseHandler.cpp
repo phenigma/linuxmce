@@ -294,7 +294,6 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 	}
 }
 
-#include "OpenGL/DataGridRenderer_OpenGL.h"
 bool MediaBrowserMouseHandler::DoIteration()
 {
 g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
@@ -305,12 +304,12 @@ g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
 	if( m_eCapturingOffscreenMovement==cosm_UP )
 	{
 		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ListGrid->m_ObjectID,DIRECTION_Up_CONST,false);
-//		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("", m_pObj_PicGrid->m_ObjectID,DIRECTION_Up_CONST,false);
+		bResult = bResult && m_pMouseBehavior->m_pOrbiter->Scroll_Grid("", m_pObj_PicGrid->m_ObjectID,DIRECTION_Up_CONST,false);
 	}
 	else
 	{
 		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ListGrid->m_ObjectID,DIRECTION_Down_CONST,false);
-//		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("", m_pObj_PicGrid->m_ObjectID,DIRECTION_Down_CONST,false);
+		bResult = bResult && m_pMouseBehavior->m_pOrbiter->Scroll_Grid("", m_pObj_PicGrid->m_ObjectID,DIRECTION_Down_CONST,false);
 	}
 
 	if( !bResult )
