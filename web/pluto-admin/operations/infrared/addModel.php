@@ -19,9 +19,8 @@ function addModel($output,$dbADO,$mediadbADO)
 	$mID=@$_REQUEST['mID'];
 	$dcID=@$_REQUEST['dcID'];
 
-	getDeviceCategoryChildsArray($GLOBALS['rootAVEquipment'],$dbADO);
-	$avDeviceCategories=cleanArray($GLOBALS['childsDeviceCategoryArray']);
-
+	$avDeviceCategories=getDescendantsForCategory($GLOBALS['rootAVEquipment'],$dbADO);
+	
 	if(isset($_REQUEST['dcID']) && !in_array($dcID,$avDeviceCategories)){
 		include('operations/addBasicModel.php');
 	}else{
