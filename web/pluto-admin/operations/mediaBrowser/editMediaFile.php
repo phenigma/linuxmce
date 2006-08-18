@@ -77,7 +77,6 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		}
 
 
-		
 		$out.='
 		
 		<a href="javascript:syncPath(\''.$rowFile['Path'].'\')">Back</a>
@@ -301,8 +300,12 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		
 		if($action=='del'){
 			// delete physical file
-			$cmd='sudo -u root rm -f "'.$oldFilePath.'"';
-			exec($cmd);
+			$delFile='sudo -u root rm -f "'.$oldFilePath.'"';
+			exec_batch_command($delFile);
+			
+			$delID3='sudo -u root rm -f "'.$oldFilePath.'.id3"';
+			exec_batch_command($delID3);
+			
 			$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_File=?',$fileID);
 			$mediadbADO->Execute('DELETE FROM Picture_File WHERE FK_File=?',$fileID);
 			$mediadbADO->Execute('DELETE FROM File WHERE PK_File=?',$fileID);
