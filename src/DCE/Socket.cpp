@@ -154,11 +154,6 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 
 Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMutex("socket mutex " + Name)
 {
-#ifndef WINCE
-#ifdef THREAD_LOG
-	printf("start const %p\n",this);
-#endif
-#endif
     m_bCancelSocketOp = false;
 	m_pcSockLogFile=m_pcSockLogErrorFile=NULL;
 	m_sHostName = sIPAddress;
@@ -271,12 +266,6 @@ Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMute
 		m_LL_DEBUG_Mutex = new pluto_pthread_mutex_t( "debug" );
 		m_LL_DEBUG_Mutex->Init( NULL );
 	}
-#endif
-
-#ifndef WINCE
-#ifdef THREAD_LOG
-	printf("stop const %p\n",this);
-#endif
 #endif
 }
 

@@ -156,7 +156,7 @@ bool ServerSocket::_Run()
 				break;
 			else
 			{
-				usleep(100000); // sleep 100ms
+				Sleep(100); // sleep 100ms
 				continue;
 			}
 		}
