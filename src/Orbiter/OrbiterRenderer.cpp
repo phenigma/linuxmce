@@ -231,7 +231,8 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 
 	if (OrbiterLogic()->m_pBackgroundImage)
 	{
-		RenderGraphic(OrbiterLogic()->m_pBackgroundImage, PlutoRectangle(0, 0, OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight), false);
+		RenderGraphic(OrbiterLogic()->m_pBackgroundImage, PlutoRectangle(0, 0, OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight), false, 
+			PlutoPoint(), 255, "", "background-image-test");
 	}
 
 	if ( OrbiterLogic()->m_pScreenHistory_Current  )
@@ -1257,7 +1258,10 @@ void *ImageLoadThread(void *p)
 			int x, y, w, h;
 			PlutoPoint point(0,0);
 			pBackgroundImage->m_pObj_Grid->GetGridCellDimensions(pBackgroundImage->m_pCell->m_Colspan,  pBackgroundImage->m_pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
-			pBackgroundImage->m_pObj_Grid->m_pOrbiter->Renderer()->RenderGraphic(pBackgroundImage->m_pCell->m_pGraphic, PlutoRectangle(x,  y,  w,  h), pBackgroundImage->m_pObj_Grid->m_bDisableAspectLock, point );
+			pBackgroundImage->m_pObj_Grid->m_pOrbiter->Renderer()->RenderGraphic(pBackgroundImage->m_pCell->m_pGraphic, PlutoRectangle(x,  y,  w,  h), 
+				pBackgroundImage->m_pObj_Grid->m_bDisableAspectLock, point, 255, 
+				"datagrid " + pBackgroundImage->m_pObj_Grid->GenerateObjectHash(pBackgroundImage->m_pObj_Grid->m_pPopupPoint, false),
+				"datagrid-thumb-" + StringUtils::ltos(x) + "-" + StringUtils::ltos(y));
 		}
 else
 {

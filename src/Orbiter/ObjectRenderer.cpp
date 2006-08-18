@@ -552,7 +552,7 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 }
 
 //-----------------------------------------------------------------------------------------------------
-std::string ObjectRenderer::GetLocalDirectory()
+string ObjectRenderer::GetLocalDirectory()
 {
 	return m_pObj_Owner->m_pOrbiter->m_sLocalDirectory;
 }

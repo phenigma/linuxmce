@@ -199,6 +199,8 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 	DesignObj_Orbiter *pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
 
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_ScreenMutex);
+
 	if(	pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgFileList2_CONST	|| pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgFileList2_Pics_CONST || pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objCDCover_CONST ) // todo
 	{
 		if( !pObj_Play || !pObj_Play->m_pParentObject )

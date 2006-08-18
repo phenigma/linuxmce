@@ -23,12 +23,14 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 	string sParentObjectID = "";
 	DesignObj_Orbiter *pParentObj = dynamic_cast<DesignObj_Orbiter *>(m_pObj_Owner->m_pParentObject);
 	if(NULL != pParentObj)
+	{
 		sParentObjectID = pParentObj->GenerateObjectHash(point, false);
+	}
 
 	MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(m_pObj_Owner->GenerateObjectHash(point));
 	if(NULL != Frame)
 	{
-		TextureManager::Instance()->AttachToScene(sParentObjectID, m_pObj_Owner->GenerateObjectHash(point, false), Frame);
+		TextureManager::Instance()->AttachToScene(sParentObjectID, Frame);
 		return;
 	}
 
@@ -148,9 +150,9 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 
 		int nAlphaChannel = GetAlphaLevel();
 
-		pOrbiterRenderer_OpenGL->RenderGraphic(sParentObjectID, 
-			m_pObj_Owner->GenerateObjectHash(point, false), pPlutoGraphic, rectTotal, 
-			bDisableAspectRatio, point, nAlphaChannel);
+		pOrbiterRenderer_OpenGL->RenderGraphic(pPlutoGraphic, rectTotal, 
+			bDisableAspectRatio, point, nAlphaChannel, sParentObjectID, 
+			m_pObj_Owner->GenerateObjectHash(point, false));
 	}
 #ifdef DEBUG
 	else

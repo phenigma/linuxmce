@@ -17,19 +17,20 @@
 using namespace DCE;
 
 //#define SCENE_DEBUG 1
+//#define DUMP_SCENE_DEBUG 1
 
-OpenGL3DEngine::OpenGL3DEngine()
-	: OldLayer(NULL),
-	CurrentLayer(NULL),
+OpenGL3DEngine::OpenGL3DEngine() : 
 	Quit(false),
-	HighLightFrame(NULL),
-	SelectedFrame(NULL),
 	AnimationRemain (false),
 	SceneMutex("scene mutex"),
 	Compose(NULL),
+	AnimationDatagrid(NULL),
+	OldLayer(NULL),
+	CurrentLayer(NULL),
+	HighLightFrame(NULL),
+	SelectedFrame(NULL),
 	FrameBuilder(NULL),
 	FrameDatagrid(NULL),
-	AnimationDatagrid(NULL),
 	HighLightPopup(NULL)
 {
 	if(TTF_Init()==-1) {
@@ -67,7 +68,6 @@ void OpenGL3DEngine::Finalize(void)
 	GLFontManager::GetInstance()->CleanUp();
 	TextureManager::Instance()->CleanUp();
 
-	CurrentLayerObjects_.clear();
 	TTF_Quit();
 
 	SDL_Quit();
@@ -166,7 +166,7 @@ bool OpenGL3DEngine::Paint()
 	return SDL_GetTicks();
 }
 
-void OpenGL3DEngine::NewScreen()
+void OpenGL3DEngine::NewScreen(string ScreenName)
 {
 	UnHighlight();
 	UnSelect();
@@ -175,16 +175,13 @@ void OpenGL3DEngine::NewScreen()
 	
 	if(NULL != OldLayer)
 	{
-		Desktop.RemoveChild(OldLayer);
-		//OldLayer->CleanUp();
 		delete OldLayer;
 	}
 	OldLayer = CurrentLayer;
 	
 	StartTick = GetTick();
 
-	CurrentLayerObjects_.clear();
-	CurrentLayer = new MeshFrame();
+	CurrentLayer = new MeshFrame(ScreenName);
 	HighlightCurrentLayer = CurrentLayer;
 
 #ifdef SCENE_DEBUG
@@ -195,14 +192,6 @@ void OpenGL3DEngine::NewScreen()
 	
 	if(NULL != Compose)
 		Compose->UpdateLayers(CurrentLayer, OldLayer);
-	
-	Desktop.AddChild(CurrentLayer);
-	
-	Desktop.RemoveChild(OldLayer);
-	Desktop.AddChild(OldLayer);
-
-	//g_pPlutoLogger->Write(LV_CRITICAL, "Current layer is now %p, size %d", 
-	//	CurrentLayer, Desktop.Children.size());
 }
 
 void OpenGL3DEngine::Setup()
@@ -210,10 +199,10 @@ void OpenGL3DEngine::Setup()
 	GL.Setup();
 	Compose = GLEffect2D::LayersCompose::Instance();
 	Compose->Setup(GL.Width, GL.Height);
-	CurrentLayer = new MeshFrame();
+	CurrentLayer = new MeshFrame("desktop");
 }
 
-void OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, string ObjectID, MeshFrame* Frame)
+void OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFrame* Frame)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 
@@ -226,72 +215,64 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, string ObjectI
 		return;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "sss Adding child object %s to parent %s, frame %p, size is now %d", 
-		ObjectID.c_str(), ParentObjectID.c_str(), Frame, CurrentLayer->Children.size());
-
-	MeshFrame* ParentFrame = CurrentLayer;
-	string InternalParentID = ParentObjectID;
-
-	if(ObjectID != "")
+	if(Frame->Name().find("thumb") != string::npos)
 	{
-		std::map<string, std::pair<MeshFrame *, std::string> >::iterator it = CurrentLayerObjects_.find(ObjectID);
-		if(it != CurrentLayerObjects_.end())
+		int k = 4;
+	}
+
+	MeshFrame *Parent = NULL;
+	
+	if(ParentObjectID != "")
+		Parent = CurrentLayer->FindChild(ParentObjectID);
+
+	if(NULL != Parent)
+	{
+		MeshFrame *OldChild = Parent->FindChild(Frame->Name());
+		if(NULL != OldChild)
 		{
-			InternalParentID = it->second.second;
-			MeshFrame* OldFrame = it->second.first;
-
-			if(InternalParentID != "")
+			if(OldChild->GetParent() != Parent)
 			{
-				std::map<string, std::pair<MeshFrame *, std::string> >::iterator it_parent = CurrentLayerObjects_.find(InternalParentID);
-				if(it_parent != CurrentLayerObjects_.end())
-					ParentFrame = it_parent->second.first;
+				g_pPlutoLogger->Write(LV_CRITICAL, "Got child, but I'm not its parent!");
+				//throw "Got child, but I'm not its parent!";
 			}
-
-			g_pPlutoLogger->Write(LV_CRITICAL, "sss Replacing child %p, object %s of layer %p", 
-				OldFrame, ObjectID.c_str(), ParentFrame);
-
-			ParentFrame->RemoveChild(OldFrame);
-
-			DumpScene();
+			else
+			{
+				Parent->RemoveChild(OldChild);
+			}
 		}
 	}
-
-#ifdef SCENE_DEBUG
-	static float bubu = 0;
-
-	MeshTransform trans;
-	trans.Translate(0.0f, 0.0f, bubu);
-	bubu = bubu + 1.0f;
-	Frame->ApplyTransform(trans);
-#endif
-
-	if(InternalParentID == "")
-		InternalParentID = CurrentLayerName;
-
-	ParentFrame->AddChild(Frame);
-	if(ObjectID != "")
+	else
 	{
-		CurrentLayerObjects_[ObjectID] = std::make_pair(Frame, InternalParentID);
+		Parent = CurrentLayer;
+		MeshFrame *DuplicatedFrame = CurrentLayer->FindChild(Frame->Name());
+		if(NULL != DuplicatedFrame)
+			if(DuplicatedFrame->GetParent() != CurrentLayer)
+			{	
+				g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::AddMeshFrameToDesktop: Ignoring object %s"
+					", already in the scene with a valid parent", Frame->Name().c_str());
+
+				Frame->CleanUp();
+				delete Frame;
+				return;
+			}
+			else
+			{
+				CurrentLayer->RemoveChild(DuplicatedFrame);
+			}
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "sss Added child %p, object %s to layer %p, main current layer size is now %d", 
-		Frame, ObjectID.c_str(), ParentFrame, CurrentLayer->Children.size());
+	Parent->AddChild(Frame);
 
 	DumpScene();
 }
 
 inline void OpenGL3DEngine::DumpScene()
 {
-#ifdef SCENE_DEBUG
+#ifdef DUMP_SCENE_DEBUG
 	g_pPlutoLogger->Write(LV_WARNING, "DUMPING SCENE: current layer %p, size %d",
 		CurrentLayer, CurrentLayer->Children.size());
 
-	for(std::map<string, std::pair<MeshFrame *, std::string> >::iterator it = CurrentLayerObjects_.begin();
-		it != CurrentLayerObjects_.end();++it)
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "Object %s, mesh %p with parent %s",
-			it->first.c_str(), it->second.first, it->second.second.c_str());
-	}
+	CurrentLayer->Print("##");
 #endif
 }
 
@@ -343,7 +324,7 @@ inline void OpenGL3DEngine::DumpScene()
 		0);
 
 	UnSelect();
-	SelectedFrame = new MeshFrame();
+	SelectedFrame = new MeshFrame("select");
 	SelectedFrame->SetMeshContainer(MB.End());
 	CurrentLayer->AddChild(SelectedFrame);
 }
@@ -359,12 +340,6 @@ inline void OpenGL3DEngine::DumpScene()
 
 	Compose->UpdateLayers(CurrentLayer, OldLayer);
 	MeshTransform Transform;
-	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step2");
-	//Compose->PaintScreen3D();
-	//Compose->NewScreen->RenderFrameToGraphic();
-	//MB.SetTexture(Compose->NewScreen->GetRenderGraphic());
-	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight-Step3");
-
 
 	MeshBuilder MB;
 	MB.SetAlpha(0.4f);
@@ -413,10 +388,12 @@ inline void OpenGL3DEngine::DumpScene()
 	//	HightlightArea->Left(), HightlightArea->Top(), 
 	//	HightlightArea->Width, HightlightArea->Height);
 
-	HighLightFrame = new MeshFrame();
+	HighLightFrame = new MeshFrame("highlight");
 
 	HighLightFrame->SetTransform(Transform);
 	HighLightFrame->SetMeshContainer(Container);
+
+	HighlightCurrentLayer->AddChild(HighLightFrame);
 }
 
 /*virtual*/ void OpenGL3DEngine::UnHighlight()
@@ -456,10 +433,7 @@ bool OpenGL3DEngine::NeedUpdateScreen()
 MeshFrame* OpenGL3DEngine::GetMeshFrameFromDesktop(string ObjectID)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
-	std::map<string, std::pair<MeshFrame *, std::string> >::iterator it = CurrentLayerObjects_.find(ObjectID);
-	if(it == CurrentLayerObjects_.end())
-		return NULL;
-	return it->second.first;
+	return CurrentLayer->FindChild(ObjectID);
 }
 
 void OpenGL3DEngine::RemoveMeshFrameFromDesktop(MeshFrame* Frame)
@@ -483,22 +457,23 @@ void OpenGL3DEngine::StartFrameDrawing(std::string ObjectHash)
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::StartFrameDrawing!");
 	if(NULL != FrameBuilder)
 		EndFrameDrawing("");
+
 	FrameBuilder = CurrentLayer;
-	CurrentLayer = new MeshFrame();
-	CurrentLayerName = ObjectHash;
+	CurrentLayer = new MeshFrame(ObjectHash);
 }
 
-void OpenGL3DEngine::StartDatagridDrawing()
+void OpenGL3DEngine::StartDatagridDrawing(std::string ObjectHash)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::StartFrameDrawing!");
 	if(NULL != FrameDatagrid)
-		EndDatagridDrawing();
+		EndDatagridDrawing("");
+
 	FrameDatagrid = CurrentLayer;
-	CurrentLayer = new MeshFrame();
+	CurrentLayer = new MeshFrame(ObjectHash);
 }
 
-MeshFrame* OpenGL3DEngine::EndDatagridDrawing()
+MeshFrame* OpenGL3DEngine::EndDatagridDrawing(std::string ObjectHash)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 
@@ -511,7 +486,7 @@ MeshFrame* OpenGL3DEngine::EndDatagridDrawing()
 		g_pPlutoLogger->Write(LV_CRITICAL, "Current layer = NULL, that should not happend!");
 	}
 	else
-		CurrentLayer->AddChild(Result);
+		AddMeshFrameToDesktop("", Result);
 
 	FrameDatagrid = NULL;
 	return Result;
@@ -529,15 +504,13 @@ MeshFrame* OpenGL3DEngine::EndFrameDrawing(string sObjectHash)
 	MeshFrame* Result = CurrentLayer;
 
 	CurrentLayer = FrameBuilder;
-	CurrentLayerName = "";
-
 	if(!CurrentLayer)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Current layer = NULL, that should not happend!");
 	}
 	else
 	{
-		AddMeshFrameToDesktop("", sObjectHash, Result);
+		AddMeshFrameToDesktop("", Result);
 	}
 
 	FrameBuilder = NULL;
@@ -548,6 +521,8 @@ void OpenGL3DEngine::CubeAnimateDatagridFrames(string ObjectID, MeshFrame *Befor
 		int MilisecondTime, int Direction, float fMaxAlphaLevel)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+
+	UnHighlight();
 
 	AnimationScrollDatagrid* Animation = new AnimationScrollDatagrid("", this, BeforeGrid, AfterGrid, MilisecondTime, Direction, fMaxAlphaLevel); 
 	AnimationDatagrid.push_back(Animation);
@@ -560,10 +535,10 @@ void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 	return;
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 
-	MeshFrame * LeftBar = new MeshFrame();
-	MeshFrame * TopBar = new MeshFrame();
-	MeshFrame * RightBar = new MeshFrame();
-	MeshFrame * BottomBar = new MeshFrame();
+	MeshFrame * LeftBar = new MeshFrame("highlight-frame-left");
+	MeshFrame * TopBar = new MeshFrame("highlight-frame-top");
+	MeshFrame * RightBar = new MeshFrame("highlight-frame-right");
+	MeshFrame * BottomBar = new MeshFrame("highlight-frame-bottom");
 	
 	PlutoRectangle Original (Rect);
 
@@ -600,7 +575,7 @@ void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 //		delete HighLightPopup;
 		//HighLightPopup = NULL;
 	}
-	HighLightPopup = new MeshFrame();
+	HighLightPopup = new MeshFrame("highlight-frame");
 	HighLightPopup->AddChild(LeftBar);
 	HighLightPopup->AddChild(TopBar);
 	HighLightPopup->AddChild(RightBar);
@@ -629,32 +604,16 @@ void OpenGL3DEngine::HideHighlightRectangle()
 	}
 }
 
-void OpenGL3DEngine::RemoveMeshFrameFromDesktopFromID(std::string ObjectID)
+void OpenGL3DEngine::RemoveMeshFrameFromDesktopForID(std::string ObjectID)
 {
 	DumpScene();
 
 	if(ObjectID == "")
 		return;
 
-	for(std::map<string, std::pair<MeshFrame *, std::string> >::iterator it = CurrentLayerObjects_.begin();
-		it != CurrentLayerObjects_.end();)
-	{
-		string ObjectHash = it->first;
-
-		if(ObjectHash.find(ObjectID) != string::npos && ObjectHash.find(ObjectID + ".") == string::npos)
-		{
-			MeshFrame* pFrame = it->second.first;
-			RemoveMeshFrameFromDesktop(pFrame);
-
-			CurrentLayerObjects_.erase(it++);
-				//.erase(it);
-
-			g_pPlutoLogger->Write(LV_CRITICAL, "Removed object %s, frame %p, size is now %d", 
-				ObjectHash.c_str(), pFrame, CurrentLayerObjects_.size());
-		}
-		else
-			++it;
-	}
+	MeshFrame *Frame = CurrentLayer->FindChild(ObjectID);
+	if(NULL != Frame)
+		RemoveMeshFrameFromDesktop(Frame);
 
 	DumpScene();
 }

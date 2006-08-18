@@ -4,12 +4,14 @@
 
 #include "DCE/Logger.h"
 
-MeshFrame::MeshFrame(MeshContainer* Mesh) 
+MeshFrame::MeshFrame(string Name, MeshContainer* Mesh) 
 	: Visible_(true),
 	TextureTransform(),
-	Transform()
+	Transform(),
+	Parent(NULL)
 {
 	this->Mesh = Mesh;
+	this->Name_ = Name;
 	
 }
 
@@ -49,8 +51,17 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 		return;
 	}
 
+	if(NULL != Frame->Parent)
+	{
+		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::AddChild: Frame %p/%s already has a parent %p/%s!",
+			Frame, Frame->Name_.c_str(), Parent, Parent->Name_.c_str());	
+
+		//throw "Frame already has a parent";
+	}
+
 	//DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::AddChild: Added %p to %p", Frame, this);	
 	Children.push_back(Frame);
+	Frame->Parent = this;
 }
 
 void MeshFrame::RemoveChild(MeshFrame* Frame)
@@ -60,19 +71,37 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 		//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Frame is NULL!!!");
 		return;
 	}
-		
-	//DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::RemoveChild %p, is leaf %d", Frame, Frame->Children.size() == 0);
 
-	std::vector<MeshFrame*>::iterator Child;
-	for(Child = Children.begin(); Child!=Children.end(); )
+	if(Frame->Name().find("thumb") != string::npos)
 	{
-		MeshFrame *pChildFrame = *Child;
-		pChildFrame->RemoveChild(Frame);
+		int k = 4;
+	}
+		
+	if(NULL != Frame->Parent)
+	{
+		std::vector<MeshFrame*>::iterator Child = 
+			std::find(Frame->Parent->Children.begin(), Frame->Parent->Children.end(), Frame);
+		if(Child == Frame->Parent->Children.end())
+		{
+			DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Got a parent, but doesn't have us as child!");
+			//throw "Got a parent, but doesn't have us as child";
+			
 
-		if((*Child) == Frame)
-			Child = Children.erase(Child);
+		}
 		else
-			++Child;
+		{
+			Frame->Parent->Children.erase(Child);
+
+			DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::RemoveChild %p/%s from parent %p/%s", 
+				Frame, Frame->Name_.c_str(), Frame->Parent, Frame->Parent->Name_.c_str());
+
+			Frame->Parent = NULL;
+		}
+	}
+	else
+	{
+		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Got no parent! :(");
+		//throw "Got no parent! :( I'm all alone!";
 	}
 }
 
@@ -157,4 +186,59 @@ MeshContainer* MeshFrame::GetMeshContainer()
 		MeshFrame *pMeshFrame = *Child;
 		pMeshFrame->SetColor(Color);
 	}
+}
+
+MeshFrame *MeshFrame::Clone()
+{
+	MeshFrame *Result = new MeshFrame(Name_ + " clone");
+	Result->Visible_ = Visible_;
+
+	if(NULL != Mesh)
+		Result->Mesh = Mesh->Clone();
+
+	Result->Transform = Transform;
+	Result->TextureTransform = TextureTransform;
+
+	for(std::vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
+	{
+		Result->AddChild((*it)->Clone());
+	}
+	return Result;
+}
+
+void MeshFrame::Print(string sIndent)
+{
+	if(Name_.find("rectangle") != string::npos)
+		return;
+
+	if(Name_.find("text") != string::npos)
+		return;
+
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "%s%s '%s' (frame) %p", sIndent.c_str(), 
+		Children.size() ? "+ " : "- ", Name_.c_str(), this);
+
+	for(std::vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
+	{
+		(*it)->Print(sIndent + "`-");
+	}
+}
+
+MeshFrame *MeshFrame::FindChild(string Name)
+{
+	MeshFrame *ChildMesh = NULL;
+
+	if(Name_ == Name)
+		ChildMesh = this;
+	else
+	{
+		for(std::vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
+		{
+			ChildMesh = (*it)->FindChild(Name);
+
+			if(NULL != ChildMesh)
+				return ChildMesh;
+		}
+	}
+
+	return ChildMesh;
 }

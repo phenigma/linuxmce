@@ -133,8 +133,13 @@ void MeshTransform::ApplyTransform(MeshTransform& Transform)
 	CopyFrom(Final);
 }
 
-void MeshTransform::CopyFrom(MeshTransform& Transform)
+void MeshTransform::CopyFrom(const MeshTransform& Transform)
 {
 	for(int i = 0; i<16; i++)
 		this->TransformMatrix[i] = Transform.TransformMatrix[i];
+}
+
+void MeshTransform::operator= (const MeshTransform& Transform)
+{
+	CopyFrom(Transform);
 }

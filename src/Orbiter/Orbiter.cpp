@@ -8528,7 +8528,6 @@ void Orbiter::ServiceAlerts( void *iData )
 
 	if( sMessages.size() )
 	{
-		NeedToRender render( this, "alert message" );
 		DesignObj_Orbiter *pObj = FindObject(DESIGNOBJ_popAlertMessage_CONST);
 		if( !pObj )
 			return; // Shouldn't ever happen

@@ -34,7 +34,7 @@ void PopupCollection::Reset()
 
 void PopupCollection::HidePopup(std::string ID, std::string ObjectHash)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "PopupCollection::HidePopup %s", ID.c_str());
+	g_pPlutoLogger->Write(LV_CRITICAL, "PopupCollection::HidePopup %s", ObjectHash.c_str());
 
 	PopupDescription* Item;
 	Item = Popups[ObjectHash];
@@ -48,6 +48,8 @@ void PopupCollection::HidePopup(std::string ID, std::string ObjectHash)
 
 void PopupCollection::PaintPopup(std::string ID, std::string ObjectHash, PlutoPopup *Popup, int EffectID)
 {
+	g_pPlutoLogger->Write(LV_CRITICAL, "PopupCollection::PaintPopup %s", ObjectHash.c_str());
+
 	PopupDescription* Item;
 	if(Current == ObjectHash)
 		return;

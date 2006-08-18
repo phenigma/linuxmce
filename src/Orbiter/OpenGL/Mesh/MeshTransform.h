@@ -27,7 +27,9 @@ public:
 	void ApplyRotateZ(float Angle);
 	void ApplyTransform(MeshTransform& Transform);
 
-	void CopyFrom(MeshTransform& Transform);
+	void CopyFrom(const MeshTransform& Transform);
+
+	void operator= (const MeshTransform& Transform);
 };
 
 #endif

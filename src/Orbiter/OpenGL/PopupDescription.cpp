@@ -22,11 +22,11 @@ void PopupDescription::Hide()
 {
 	g_pPlutoLogger->Write(LV_WARNING, "Remove popup: %s", ObjectHash.c_str());
 	
-	Engine->RemoveMeshFrameFromDesktopFromID(ObjectHash);
+	Engine->RemoveMeshFrameFromDesktopForID(ObjectHash);
 }
 
 void PopupDescription::Show()
 {
 	g_pPlutoLogger->Write(LV_WARNING, "Add popup: %s to scene", ObjectHash.c_str());
-	Engine->AddMeshFrameToDesktop("", ObjectHash, PopupFrame);
+	Engine->AddMeshFrameToDesktop("", PopupFrame);
 }

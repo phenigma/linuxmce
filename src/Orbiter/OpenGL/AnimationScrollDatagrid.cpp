@@ -71,7 +71,10 @@ bool AnimationScrollDatagrid::Update()
 	//AfterGrid->SetAlpha(Progress * MaxAlpha);
 
 	if(CurrentTime - StartTime > MilisecondTime)
+	{
+		TextureManager::Instance()->ResumeTextureRelease();
 		return true;
+	}
 
 	return false;
 }

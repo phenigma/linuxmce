@@ -92,7 +92,7 @@ TBezierWindow::TBezierWindow(MeshFrame* ParentContext,
 : TBaseWidget(ParentContext, Left, Top, Width, Height, Text)
 {
 	BezierDefinition.Divisions = 7;
-	Frame = new MeshFrame();
+	Frame = new MeshFrame("bezier window");
 	Frame->SetMeshContainer(Container);
 	Context = ParentContext;
 	Context->AddChild(Frame);	

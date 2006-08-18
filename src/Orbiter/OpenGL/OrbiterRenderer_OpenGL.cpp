@@ -211,12 +211,17 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	MeshContainer* Container = Builder->End();
 	Container->SetAlpha(color.A() / 255.0f);
-	MeshFrame* Frame = new MeshFrame(Container);
+
+	string RectangleUniqueID = "rectangle " + 
+		StringUtils::ltos(x) + "," + StringUtils::ltos(y) + "," +
+		StringUtils::ltos(width) + "," + StringUtils::ltos(height);
+
+	MeshFrame* Frame = new MeshFrame(RectangleUniqueID, Container);
 
 	delete Builder;
 	Builder = NULL;
 
-	Engine->AddMeshFrameToDesktop("", "", Frame);
+	Engine->AddMeshFrameToDesktop("", Frame);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
@@ -261,9 +266,9 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 			pTextStyle->m_ForeColor.B()
 		);
 
- 	MeshFrame *Frame  = aGLTextRenderer->TextOut(sTextToDisplay, Text, pTextStyle, point);
-	
+
 	string TextUniqueID = 
+		"text " +
 		(NULL != Text->m_pObject ? Text->m_pObject->m_ObjectID : string()) + 
 		"-" + StringUtils::itos(Text->m_rPosition.X) + 
 		"-" + StringUtils::itos(Text->m_rPosition.Y);
@@ -272,7 +277,9 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	if(NULL != Text->m_pObject)
 		sParentObjectID = Text->m_pObject->GenerateObjectHash(point, false);
 
-	Engine->AddMeshFrameToDesktop(sParentObjectID, TextUniqueID, Frame);
+ 	MeshFrame *Frame  = aGLTextRenderer->TextOut(TextUniqueID, sTextToDisplay, Text, pTextStyle, point);
+	
+	Engine->AddMeshFrameToDesktop(sParentObjectID, Frame);
 
 	delete aGLTextRenderer;
 }
@@ -293,16 +300,9 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	return new OpenGLGraphic(this);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
-	bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/)
-{
-	RenderGraphic("", "", pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
-}
-//-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(string ParentObjectID, string ObjectID, 
-	class PlutoGraphic *pPlutoGraphic, 
+/*virtual*/ void OrbiterRenderer_OpenGL::RenderGraphic(class PlutoGraphic *pPlutoGraphic, 
 	PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/,
-	int nAlphaChannel/* = 255*/)
+	int nAlphaChannel/* = 255*/, string ParentObjectID/* = ""*/, string ObjectID/* = ""*/)
 {
 	if(ObjectID == "")
 	{
@@ -357,7 +357,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	MeshContainer* Container = Builder->End();
 	Container->SetAlpha(nAlphaChannel / 255.0f);
-	MeshFrame* Frame = new MeshFrame();
+	MeshFrame* Frame = new MeshFrame(ObjectID);
 	Frame->SetMeshContainer(Container);
 
 	delete Builder;
@@ -371,7 +371,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 	TextureManager::Instance()->AddCacheItem(ObjectID, Frame);
 
-	Engine->AddMeshFrameToDesktop(ParentObjectID, ObjectID, Frame);
+	Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::BeginPaint()
@@ -624,7 +624,11 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 		rectLastSelected.Height = 80;
 	}
 
-	Engine->NewScreen();
+	string sScreenName = "desktop";
+	if(NULL != OrbiterLogic()->m_pScreenHistory_Current)
+		sScreenName = "desktop - " + OrbiterLogic()->m_pScreenHistory_Current->GetObj()->GenerateObjectHash(PlutoPoint(0, 0), false);
+
+	Engine->NewScreen(sScreenName);
 	OrbiterRenderer::RenderScreen(bRenderGraphicsOnly);
 	
 	NeedToUpdateScreen_ = true;
@@ -738,11 +742,14 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 	if (  sDisable_Aspect_Lock.length(  )  )
 		pObj->m_bDisableAspectLock = ( sDisable_Aspect_Lock=="1" ) ? true : false;
 
+	//if(NULL != OrbiterLogic()->m_pScreenHistory_Current)
+	//	pObj->RenderObject(OrbiterLogic()->m_pScreenHistory_Current->GetObj(), pObj->m_pPopupPoint);
+
 	RenderObjectAsync(pObj);
 	RedrawObjects();
 }
 
 void OrbiterRenderer_OpenGL::RemoveGraphic(string ObjectID)
 {
-	Engine->RemoveMeshFrameFromDesktopFromID(ObjectID);
+	Engine->RemoveMeshFrameFromDesktopForID(ObjectID);
 }

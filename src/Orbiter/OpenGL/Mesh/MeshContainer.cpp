@@ -2,6 +2,8 @@
 
 #include "../math3dutils.h"
 
+#include <map>
+
 MeshContainer::MeshContainer(void) : Blended_(false), NoVertexes(0), NoTriangles(0),
 	Vertexes(NULL), Triangles(NULL)
 {
@@ -43,4 +45,42 @@ void MeshContainer::SetColor(Point3D& Color)
 		Vertexes[i].Color = Color;
 	}
 
+}
+
+MeshContainer* MeshContainer::Clone()
+{
+	MeshContainer* Result = new MeshContainer();
+	Result->Vertexes = new MeshVertex[NoVertexes];
+	Result->NoVertexes = NoVertexes;
+	for(int Counter = 0; Counter < NoVertexes; Counter++)
+		Result->Vertexes[Counter] = Vertexes[Counter];
+
+	std::map<OpenGLGraphic*, OpenGLGraphic*> TextureClones;
+
+	Result->Triangles = new MeshTriangle[NoTriangles];
+	Result->NoTriangles = NoTriangles;
+	for(int Counter = 0; Counter < NoTriangles; Counter++)
+	{
+		Result->Triangles[Counter] = Triangles[Counter];
+
+		OpenGLGraphic* Texture = Triangles[Counter].Texture;
+		OpenGLGraphic* GraphicClone = NULL;
+		if(NULL != Texture)
+		{
+			std::map<OpenGLGraphic*, OpenGLGraphic*>::iterator TextureIterator = TextureClones.find(Texture);
+			if(TextureIterator == TextureClones.end())
+			{
+				GraphicClone = new OpenGLGraphic();
+				GraphicClone->Texture = Triangles[0].Texture->Texture;
+				TextureClones[Texture] = GraphicClone;
+			}
+			else
+				GraphicClone = TextureIterator->second;
+		}
+		Result->Triangles[Counter].Texture = GraphicClone;
+	}
+
+	Result->Blended_ = Blended_;
+
+	return Result;
 }

@@ -298,8 +298,9 @@ void OrbiterRenderer_SDL::SolidRectangle(int x, int y, int width, int height, Pl
 }
 
 //-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_SDL::RenderGraphic(PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal,
-    bool bDisableAspectRatio, PlutoPoint point)
+void OrbiterRenderer_SDL::RenderGraphic(class PlutoGraphic *pPlutoGraphic, 
+	PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/,
+	int nAlphaChannel/* = 255*/, string ParentObjectID/* = ""*/, string ObjectID/* = ""*/)
 {
 
 	if(!pPlutoGraphic || pPlutoGraphic->GraphicType_get() != gtSDLGraphic)

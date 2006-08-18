@@ -293,7 +293,11 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		}
 		if (pCell->m_pGraphic)
 		{
-			m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->RenderGraphic(pCell->m_pGraphic, PlutoRectangle(x,  y,  w,  h), m_pObj_Owner_DataGrid->m_bDisableAspectLock, point );
+			m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->RenderGraphic(pCell->m_pGraphic, 
+				PlutoRectangle(x,  y,  w,  h), m_pObj_Owner_DataGrid->m_bDisableAspectLock, point,
+				255, "datagrid " + m_pObj_Owner_DataGrid->GenerateObjectHash(m_pObj_Owner_DataGrid->m_pPopupPoint, false),
+				"datagrid-thumb-" + StringUtils::ltos(x) + "-" + StringUtils::ltos(y)
+			);
 		}
 		g_pPlutoLogger->Write(LV_WARNING,"Rendering cell with %s",pCell->GetText());        
 

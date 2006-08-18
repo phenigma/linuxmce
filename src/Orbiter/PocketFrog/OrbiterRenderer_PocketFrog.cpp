@@ -436,8 +436,9 @@ void OrbiterRenderer_PocketFrog::RenderScreen( bool bRenderGraphicsOnly )
 	UpdateScreen();
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_PocketFrog::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
-    bool bDisableAspectRatio, PlutoPoint point)
+void OrbiterRenderer_PocketFrog::RenderGraphic(class PlutoGraphic *pPlutoGraphic, 
+	PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point/* = PlutoPoint(0, 0)*/,
+	int nAlphaChannel/* = 255*/, string ParentObjectID/* = ""*/, string ObjectID/* = ""*/)
 {
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);

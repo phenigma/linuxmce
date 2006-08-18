@@ -45,7 +45,7 @@ TBasicWindow::TBasicWindow(MeshFrame* Context,
 
 		Container = MB.End();
 
-		Frame = new MeshFrame();
+		Frame = new MeshFrame("basic window");
 
 		Frame->SetMeshContainer(Container);
 

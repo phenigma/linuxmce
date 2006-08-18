@@ -16,7 +16,6 @@ class AnimationScrollDatagrid;
 class OpenGL3DEngine
 {
 	pluto_pthread_mutex_t SceneMutex;
-	MeshFrame Desktop;
 	int StartTick;
 	bool AnimationRemain;
 
@@ -26,20 +25,12 @@ class OpenGL3DEngine
 	MeshFrame* SelectedFrame;
 	MeshFrame* HighLightFrame;
 	MeshFrame* HighLightPopup;
-
 	MeshFrame* FrameBuilder, *FrameDatagrid;
-
-	std::string CurrentLayerName;
 
 	virtual void UnSelect();
 
 	std::vector<AnimationScrollDatagrid*> AnimationDatagrid;
-
-
-	std::map<string, std::pair<MeshFrame *, std::string> > CurrentLayerObjects_;
-
 	void ShowAnimationTextures();
-
 	void DumpScene();
 
 public:
@@ -52,28 +43,26 @@ public:
 
 	bool NeedUpdateScreen();
 	
-	void AddMeshFrameToDesktop(string ParentObjectID, string ObjectID, MeshFrame* Frame);
-	void RemoveMeshFrameFromDesktopFromID(std::string ObjectID);
+	void AddMeshFrameToDesktop(string ParentObjectID, MeshFrame* Frame);
+	void RemoveMeshFrameFromDesktopForID(std::string ObjectID);
+	void RemoveMeshFrameFromDesktop(MeshFrame* Frame);
 	MeshFrame* GetMeshFrameFromDesktop(string ObjectID);
 	
-	virtual void NewScreen();
+	virtual void NewScreen(string Name);
 	virtual bool Paint();
 
 	virtual void Select(PlutoRectangle* SelectedArea);
 	virtual void Highlight(PlutoRectangle* HightlightArea, OpenGLGraphic* HighSurface);
 
 	virtual void UnHighlight();
-
-	void RemoveMeshFrameFromDesktop(MeshFrame* Frame);
-
 	virtual int GetTick();
 	void Setup();
 
 	/**
 	 *	Store the MeshFrame which keeps the Datagrid	
 	 */
-	void StartDatagridDrawing();
-	MeshFrame* EndDatagridDrawing();
+	void StartDatagridDrawing(std::string ObjectHash);
+	MeshFrame* EndDatagridDrawing(std::string ObjectHash);
 
 	/**
 	 *	Store the current frame, for instance a popup

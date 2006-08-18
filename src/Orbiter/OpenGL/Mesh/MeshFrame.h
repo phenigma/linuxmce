@@ -6,20 +6,23 @@
 
 #include <vector>
 
+using namespace std;
+
 class MeshFrame
 {
 	bool Visible_;
 
 	MeshContainer* Mesh;
-	
-public:
+	MeshFrame* Parent;
+	string Name_;
 
+public:
 //MOVE ME
 	MeshTransform Transform;
 	MeshTransform TextureTransform;
-	std::vector<MeshFrame*> Children;
+	vector<MeshFrame*> Children;
 
-	MeshFrame(MeshContainer* Mesh = NULL);
+	MeshFrame(string Name = "unknown", MeshContainer* Mesh = NULL);
 	virtual ~MeshFrame(void);
 
 	virtual void CleanUp();
@@ -42,6 +45,14 @@ public:
 
 	virtual void SetAlpha(float Alpha);
 	virtual void SetColor(Point3D& Color);
+
+	MeshFrame *Clone();
+	MeshFrame *GetParent() { return Parent; }
+	void ResetParent() { Parent = NULL; }
+	MeshFrame *FindChild(string Name);
+
+	void Print(string sIndent);
+	string Name() { return Name_; }
 };
 
 #endif

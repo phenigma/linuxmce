@@ -49,8 +49,10 @@ public:
 	// Rendering
 	virtual void RenderScreen( bool bRenderGraphicsOnly );
 	virtual void DisplayImageOnScreen(SDL_Surface *m_pScreenImage);
-	virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
-
+	virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
+		bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0), int nAlphaChannel = 255,
+		string ParentObjectID = "", string ObjectID = "");
+	
 	virtual void BeginPaint();
 	virtual void EndPaint();
 	virtual void UpdateRect(PlutoRectangle rect, PlutoPoint point=PlutoPoint(0,0));

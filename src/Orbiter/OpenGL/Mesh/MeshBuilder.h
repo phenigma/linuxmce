@@ -20,8 +20,8 @@ class MeshBuilder
 	unsigned char BuildMode;
 	bool Blended_;
 
-	std::vector<MeshVertex> Vertexes;
-	std::vector<MeshTriangle>Triangles;
+	vector<MeshVertex> Vertexes;
+	vector<MeshTriangle>Triangles;
 	
 	float GlobalU, GlobalV, GlobalAlpha;
 	float GlobalRed, GlobalGreen, GlobalBlue;

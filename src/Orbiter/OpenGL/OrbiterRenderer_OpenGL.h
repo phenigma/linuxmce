@@ -56,13 +56,11 @@ namespace DCE
 		// Rendering
 		virtual void RenderScreen(bool bRenderGraphicsOnly);
 
-		virtual void RenderGraphic(string ParentObjectID, string ObjectID, class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
-			bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0), int nAlphaChannel = 255);
+		virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
+			bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0), int nAlphaChannel = 255,
+			string ParentObjectID = "", string ObjectID = "");
 
 		void RemoveGraphic(string ObjectID);
-
-		virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
-			bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0));
 
 		virtual void BeginPaint();
 		virtual void EndPaint();

@@ -35,7 +35,7 @@ Orbiter* GLFontRenderer::OrbiterLogic()
 	return NULL;
 }
 
-MeshFrame* GLFontRenderer::RenderText(string &TextToDisplay, PlutoRectangle &rPosition, int iPK_HorizAlignment,
+MeshFrame* GLFontRenderer::RenderText(string TextUniqueID, string &TextToDisplay, PlutoRectangle &rPosition, int iPK_HorizAlignment,
 									  int iPK_VertAlignment, string &sFont, PlutoColor &ForeColor, 
 									  int iPixelHeight, bool bBold, bool bItalic, bool bUnderline,  
 									  PlutoPoint point, PlutoRectangle &rectCalcLocation)
@@ -43,7 +43,6 @@ MeshFrame* GLFontRenderer::RenderText(string &TextToDisplay, PlutoRectangle &rPo
 	GLFontTextureList * LetterWriter = Font->GetFontStyle(Style_, R_, G_, B_);
 	std::string StrMessage;
 	MeshContainer* Container = NULL;
-	MeshFrame* Frame = new MeshFrame();
 
 	if (TextToDisplay.find('\n') != TextToDisplay.npos)
 	{
@@ -75,18 +74,19 @@ MeshFrame* GLFontRenderer::RenderText(string &TextToDisplay, PlutoRectangle &rPo
 			float(rectCalcLocation.Y), 0);
 		break;			
 	}
+
+	MeshFrame* Frame = new MeshFrame(TextUniqueID);
 	Frame->ApplyTransform(Transform);
-	
 	Frame->SetMeshContainer(Container);
 
 	return Frame;
 }
 					  
-MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Text,
+MeshFrame* GLFontRenderer::TextOut(string TextUniqueID, string &TextToDisplay,class DesignObjText *Text,
 	TextStyle *pTextStyle, PlutoPoint point)
 {
 	
-	MeshFrame * Result = new MeshFrame();
+	MeshFrame * Result = new MeshFrame(TextUniqueID);
 	Font->GetFontStyle(R_, G_, B_, Style_);
 	PlutoRectangle rectLocation;
 	rectLocation.X = point.X + Text->m_rPosition.X;
@@ -195,7 +195,7 @@ MeshFrame* GLFontRenderer::TextOut(string &TextToDisplay,class DesignObjText *Te
 		while(TextToDisplay.length() != 0)
 		{
 			MeshFrame* Frame = RenderText(
-			TextToDisplay,Text->m_rPosition,Text->m_iPK_HorizAlignment,
+			TextUniqueID, TextToDisplay,Text->m_rPosition,Text->m_iPK_HorizAlignment,
 			Text->m_iPK_VertAlignment,pTextStyle->m_sFont,pTextStyle->m_ForeColor,
 			pTextStyle->m_iPixelHeight,pTextStyle->m_bBold, pTextStyle->m_bItalic, 
 			pTextStyle->m_bUnderline, point, rectLocation);

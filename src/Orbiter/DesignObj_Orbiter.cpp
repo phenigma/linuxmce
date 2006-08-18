@@ -218,7 +218,7 @@ string DesignObj_Orbiter::GetArrayValue()
 	return m_pObjectRenderer->PostRenderActions(pObj_Screen, point);	
 }
 //-------------------------------------------------------------------------------------------------------
-std::string DesignObj_Orbiter::GenerateObjectHash(const PlutoPoint& point, bool bObjectState/* = true*/)
+string DesignObj_Orbiter::GenerateObjectHash(const PlutoPoint& point, bool bObjectState/* = true*/)
 {
 	if(bObjectState)
 		return m_ObjectID + 

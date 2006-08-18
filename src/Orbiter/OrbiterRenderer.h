@@ -103,7 +103,9 @@ public:
 	*/
 	virtual void FloodFill(int iX, int iY, PlutoColor ColorToReplace, PlutoColor ReplacementColor) = 0;
 
-	virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0)) = 0;
+	virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
+		bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0), int nAlphaChannel = 255,
+		string ParentObjectID = "", string ObjectID = "") = 0;
 
 	virtual PlutoGraphic *CreateGraphic() = 0;
 

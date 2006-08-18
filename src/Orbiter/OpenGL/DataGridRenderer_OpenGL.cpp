@@ -36,22 +36,26 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 	}
 	g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject Engine->StartFrameDrawing");
 
-	Engine->StartDatagridDrawing();
+	MeshFrame *BeforeDataGridClone = NULL;
+	if(StartAnimation > 0)
+	{
+		TextureManager::Instance()->SuspendTextureRelease();
+		BeforeDataGridClone = BeforeDataGrid->Clone();
+	}
+
+	string DatagridFrameID = "datagrid " + m_pObj_Owner->GenerateObjectHash(point, false);
+
+	Engine->RemoveMeshFrameFromDesktop(BeforeDataGrid);
+	Engine->StartDatagridDrawing(DatagridFrameID);
 
 	DataGridRenderer::RenderObject(pObj_Screen, point);
 
-	RenderFrame = Engine->EndDatagridDrawing();
+	RenderFrame = Engine->EndDatagridDrawing(DatagridFrameID);
 
 	if(StartAnimation>0)
 	{
-		Engine->CubeAnimateDatagridFrames("",
-			BeforeDataGrid, RenderFrame, 800, iPK_Direction, GetAlphaLevel() / 255.0f);
+		Engine->AddMeshFrameToDesktop("", BeforeDataGridClone);
+		Engine->CubeAnimateDatagridFrames("", BeforeDataGridClone, RenderFrame, 800, iPK_Direction, GetAlphaLevel() / 255.0f);
 		StartAnimation = 0;
-	}
-	else
-	{
-		Engine->RemoveMeshFrameFromDesktop(BeforeDataGrid);
-		//delete BeforeDataGrid;
-		//BeforeDataGrid = NULL;
 	}
 }

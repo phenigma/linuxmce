@@ -37,6 +37,7 @@ class TextureManager
 
 	bool ExistInCache(std::string ObjectHash);
 	OpenGL3DEngine *Engine;
+	int ReleaseTextureSuspended;
 
 public:
 	static TextureManager* Instance();
@@ -55,13 +56,15 @@ public:
  
 	void PrepareRelease(OpenGLTexture Texture);
 	void ReleaseTextures();
+	void SuspendTextureRelease() { ++ReleaseTextureSuspended; }
+	void ResumeTextureRelease()  { --ReleaseTextureSuspended; }
 
 	bool SupportTextureNonPowerOfTwo();
 
 	MeshFrame* GetCacheItem(std::string ObjectHash);
 	void AddCacheItem(std::string ObjectHash, MeshFrame* Frame);
 
-	void AttachToScene(std::string ParentObjectID, std::string ObjectID, MeshFrame* Frame);
+	void AttachToScene(std::string ParentObjectID, MeshFrame* Frame);
 };
 
 #endif //TextureManager_H_

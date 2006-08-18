@@ -7,7 +7,9 @@
 #include "../OpenGLGraphic.h"
 
 #include "../OpenGL3DEngine.h"
-//#include "DCE/Logger.h"
+
+
+#include "DCE/Logger.h"
 //using namespace DCE;
 
 /*static*/ TextureManager* TextureManager::Instance_ = NULL;
@@ -19,12 +21,13 @@ TextureManager* TextureManager::Instance()
 	return Instance_;
 }
 
-TextureManager::TextureManager(void)
+TextureManager::TextureManager(void) 
 	: LastTexture(0), 
 	TextureEnable_(false),
 	SupportTextureNonPowerOfTwo_(-1),
 	Engine(NULL),
-	TextureLock("test") 
+	TextureLock("test"),
+	ReleaseTextureSuspended(0)
 {
 	TextureLock.Init(NULL);
 }
@@ -115,8 +118,12 @@ void TextureManager::ConvertImagesToTextures()
 
 void TextureManager::ReleaseTextures()
 {
-//	if(WaitForRelease.size())
-//		g_pPlutoLogger->Write(LV_CRITICAL, "TextureManager::ReleaseTextures size %d", WaitForRelease.size());
+	if(ReleaseTextureSuspended > 0)
+		return;
+
+	if(WaitForRelease.size())
+		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "TextureManager::ReleaseTextures size %d", WaitForRelease.size());
+
 	PLUTO_SAFETY_LOCK(sm, TextureLock);
 	std::list <OpenGLTexture>::iterator Item, End = WaitForRelease.end();
 	for(Item = WaitForRelease.begin(); Item != End; ++Item)
@@ -175,8 +182,8 @@ bool TextureManager::ExistInCache(std::string ObjectHash)
 	
 }
 
-void TextureManager::AttachToScene(string ParentObjectID, string ObjectID, MeshFrame* Frame)
+void TextureManager::AttachToScene(string ParentObjectID, MeshFrame* Frame)
 {
 	if(NULL != Engine)
-		Engine->AddMeshFrameToDesktop(ParentObjectID, ObjectID, Frame);
+		Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);
 }
