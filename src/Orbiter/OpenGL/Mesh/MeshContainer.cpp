@@ -71,7 +71,7 @@ MeshContainer* MeshContainer::Clone()
 			if(TextureIterator == TextureClones.end())
 			{
 				GraphicClone = new OpenGLGraphic();
-				GraphicClone->Texture = Triangles[0].Texture->Texture;
+				GraphicClone->Texture = Triangles[Counter].Texture->Texture;
 				TextureClones[Texture] = GraphicClone;
 			}
 			else
