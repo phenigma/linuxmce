@@ -6,6 +6,7 @@
 . /usr/pluto/bin/Utils.sh
 
 DEVICECATEGORY_Video_Cards=125
+DEVICECATEGORY_Media_Director=8
 DEVICETEMPLATE_GeForce_or_TNT2=1736
 DEVICETEMPLATE_Radeon_8500_or_newer=1721
 DEVICETEMPLATE_Unichrome=1814
@@ -88,6 +89,14 @@ Install_VIA_ALSA()
 # The new drivers for video cards are installed later in this script, not in this function
 CleanupVideo()
 {
+	local MD
+	MD=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Media_Director" "" parent)
+
+	if [[ -z "$MD" ]]; then
+		echo "$(date -R) --- CleanupVideo: this machine is not a hybrid or MD; no video card operations required"
+		return 0
+	fi
+
 	echo "$(date -R) --> CleanupVideo"
 	
 	# Check for video card changes and update system accordingly
