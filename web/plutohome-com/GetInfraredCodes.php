@@ -4,6 +4,9 @@ require('include/template.class.inc.php');
 require('include/utils.inc.php');
 /* @var $mainSqlCVSADO ADOConnection */
 /* @var $res ADORecordSet */ 
+
+$dbPlutoMainDatabase='main_sqlcvs';
+
 $dsn = $dbPlutoMainType.'://'.urlencode($dbPlutoMainUser).':'.urlencode($dbPlutoMainPass).'@'.$dbPlutoMainServer.'/'.urlencode('main_sqlcvs'); 
 $mainSqlCVSADO = &ADONewConnection($dsn);
 
