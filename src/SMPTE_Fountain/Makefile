@@ -19,10 +19,10 @@ sources = Main.cpp SMPTE_Fountain.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS =
+XTRALDLIBS = -lasound
 
-Gen_Dev_Files +=
-sources +=
+Gen_Dev_Files += 
+sources += SMPTEGen.cpp AlsaSoundOut.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
