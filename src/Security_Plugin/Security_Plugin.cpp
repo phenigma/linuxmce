@@ -698,7 +698,7 @@ bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool 
 	{
 		if( bIsTripped==false )  // We're not waiting any more
 			pDevice->m_sState_set(Mode + ",," + sPK_ModeChange );
-		return true;
+		return false;
 	}
 
 	// if the BabySitter mode is on and is a door log the alert
@@ -734,7 +734,7 @@ bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool 
 		if( PK_AlertType!=ALERTTYPE_DONOTHING && !bNotify )  // If there's a notification, we're going to process it anyway
 			LogAlert( m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_Information_CONST),pDevice,bAnnouncementOnly,bNotify);
 		if( !bNotify )
-			return true;
+			return false;
 		else
 			// Get the real alert type.  We already set bAnnouncementOnly=true so we know not to fire the event
 			PK_AlertType = atoi(pDevice->m_mapParameters[DEVICEDATA_EK_AlertType_CONST].c_str());
@@ -760,7 +760,7 @@ bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool 
 			if( tChange + pRow_AlertType->ExitDelay_get() > time(NULL) )
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"Still in exit delay");
-				return true;
+				return false;
 			}
 		}
 	}
@@ -789,7 +789,7 @@ bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool 
 		}
 	}
 
-	return true;
+	return false;
 }
 
 int Security_Plugin::GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice,bool *bNotify)
@@ -992,7 +992,7 @@ bool Security_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMe
 		SetHouseModeBoundIcon(-1,pOH_Orbiter);
 		SetMonitorModeBoundIcon(pOH_Orbiter);
 	}
-	return true;
+	return false;
 }
 //<-dceag-createinst-b->!
 

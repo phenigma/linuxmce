@@ -162,7 +162,7 @@ bool Plug_And_Play_Plugin::DeviceDetected( class Socket *pSocket, class Message 
 	g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::DeviceDetected %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 	m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry);
 	m_pPnpQueue->NewEntry(pPnpQueueEntry);
-	return true;
+	return false;
 }
 
 bool Plug_And_Play_Plugin::DeviceRemoved( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
@@ -185,7 +185,7 @@ bool Plug_And_Play_Plugin::DeviceRemoved( class Socket *pSocket, class Message *
 	m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry);
 	m_pPnpQueue->NewEntry(pPnpQueueEntry);
 
-	return true;
+	return false;
 }
 
 //<-dceag-const2-b->!

@@ -167,7 +167,7 @@ bool SMPTE_Fountain::MediaPlaying( class Socket *pSocket, class Message *pMessag
 		return false;
 	}
 
-	// Do whatever we need to do
+	
 
-	return false;
+	return true;
 }

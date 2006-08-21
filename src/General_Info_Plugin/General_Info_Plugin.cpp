@@ -2226,7 +2226,7 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::ReportingChildDevices Device %d failed to report its children: %s",
 			pMessage->m_dwPK_Device_From,sError.c_str());
-		return true;
+		return false;
 	}
 
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pMessage->m_dwPK_Device_From);
@@ -2234,7 +2234,7 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::ReportingChildDevices Device %d is invalid",
 			pMessage->m_dwPK_Device_From);
-		return true;
+		return false;
 	}
 
 	string sChildren = pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST];
@@ -2266,7 +2266,7 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 	m_pDatabase_pluto_main->Device_get()->Commit();
 	m_pDatabase_pluto_main->Device_DeviceData_get()->Commit();
 
-	return true;
+	return false;
 }
 
 bool General_Info_Plugin::LowSystemDiskSpace ( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
@@ -2280,7 +2280,7 @@ bool General_Info_Plugin::LowSystemDiskSpace ( class Socket *pSocket, class Mess
 		"1"); // sCannotGoBack
 
 	SendCommand(SCREEN_PopupMessage_DL);
-	return true;
+	return false;
 }
 
 // It will be like this:

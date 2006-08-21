@@ -385,7 +385,7 @@ Telecom_Plugin::CommandResult( class Socket *pSocket, class Message *pMessage,
 	string sMessage = pMessage->m_mapParameters[EVENTPARAMETER_Message_CONST];
 
 	ProcessResult(iCommandID, iResult, sMessage);
-	return true;
+	return false;
 }
 
 void
@@ -441,7 +441,7 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage,
 	string sPhoneCallerID = pMessage->m_mapParameters[EVENTPARAMETER_PhoneCallerID_CONST];
 
 	ProcessRing(sPhoneExtension, sPhoneCallerID, sPhoneCallID);
-	return true;
+	return false;
 }
 
 void
@@ -925,7 +925,7 @@ Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage,
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
 	SCREEN_DevIncomingCall SCREEN_DevIncomingCall_(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia);
 	SendCommand(SCREEN_DevIncomingCall_);
-	return true;
+	return false;
 }
 //<-dceag-c28-b->
 
@@ -1136,7 +1136,7 @@ bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMes
 			g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::OrbiterRegistered Set_Bound_Icon(usermode = %d, user = %d)",pRow_Users->FK_UserMode_get(),pRow_Users->PK_Users_get());
 		}
 	}
-	return true;
+	return false;
 }
 
 class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
@@ -1377,7 +1377,7 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage,
 		g_pPlutoLogger->Write(LV_STATUS, "Will hangup on device %d callid %s",map_ext2device[iPhoneExtension],pCallData->getID().c_str());
 		CallManager::getInstance()->removeCall(pCallData);
 	}
-	return true;
+	return false;
 }
 
 int Telecom_Plugin::ParseChannel(const std::string channel, int* iextension, string *sextension)
@@ -1448,7 +1448,7 @@ bool Telecom_Plugin::VoIP_Problem(class Socket *pSocket,class Message *pMessage,
 			"1"); // sCannotGoBack
 		SendCommand(SCREEN_PopupMessage_DL);
 	}
-	return true;
+	return false;
 }
 
 void * startDisplayThread(void * Arg)
@@ -1642,7 +1642,7 @@ bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMess
 	if (userid == 0)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Telecom_Plugin::VoiceMailChanged: Event for all users not implemented");
-		return true;
+		return false;
 	}
 
 	string vmcount = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
@@ -1669,7 +1669,7 @@ bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMess
 		SendCommand(CMD_Set_Bound_Icon);
 	}
 
-	return true;	
+	return false;	
 }
 
 /* this makes the plugin asterisk dependend */

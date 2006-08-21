@@ -926,9 +926,19 @@ void Command_Impl::InterceptedMessage(Message *pMessage)
 
 
 	Message *pMessageOriginal = pMessage->m_vectExtraMessages[0];
-	CALL_MEMBER_FN(*this,pMessageInterceptorFn) (NULL, pMessageOriginal,
+	if( CALL_MEMBER_FN(*this,pMessageInterceptorFn) (NULL, pMessageOriginal,
 		m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessageOriginal->m_dwPK_Device_From),
-		m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessageOriginal->m_dwPK_Device_To));
+		m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessageOriginal->m_dwPK_Device_To)) )
+	{
+		if( pMessage->m_eExpectedResponse==ER_ReplyMessage ) // Should always be true
+		{
+			pMessage->m_bRespondedToMessage=true;
+			Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+			pMessageOut->m_mapParameters[0]="OK";
+			pMessageOut->m_mapParameters[-1]="ABORT";
+			SendMessage(pMessageOut);
+		}
+	}
 #endif
 }
 

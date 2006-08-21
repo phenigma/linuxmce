@@ -198,7 +198,21 @@ public:
 	{
 		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal)==rmr_Processed )
+		{
+			if( pMessageOriginal->m_eExpectedResponse==ER_ReplyMessage && !pMessageOriginal->m_bRespondedToMessage )
+			{
+				pMessageOriginal->m_bRespondedToMessage=true;
+				Message *pMessageOut=new Message(m_dwPK_Device,pMessageOriginal->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+				pMessageOut->m_mapParameters[0]="OK";
+				SendMessage(pMessageOut);
+			}
+			else if( (pMessageOriginal->m_eExpectedResponse==ER_DeliveryConfirmation || pMessageOriginal->m_eExpectedResponse==ER_ReplyString) && !pMessageOriginal->m_bRespondedToMessage )
+			{
+				pMessageOriginal->m_bRespondedToMessage=true;
+				SendString("OK");
+			}
 			return rmr_Processed;
+		}
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{

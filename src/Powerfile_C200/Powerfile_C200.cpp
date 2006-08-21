@@ -113,7 +113,7 @@ bool Powerfile_C200::RippingProgress(class Socket *pSocket, class Message *pMess
 		m_pJob->RippingProgress_End(iDrive_Number, iResult);
 	}
 	
-	return true;
+	return false;
 }
 
 // Return Disk_Drive_Functions instance for requested drive

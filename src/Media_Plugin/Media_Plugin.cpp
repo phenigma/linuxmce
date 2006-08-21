@@ -644,7 +644,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 				SendCommand(CMD_Identify_Media);
 			}
 
-			return true;
+			return false;
         }
     }
 
@@ -734,7 +734,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 		g_pPlutoLogger->Write(LV_STATUS, "Playback completed. The stream can't play anything more.");
     }
 
-    return true;
+    return false;
 }
 
 bool Media_Plugin::PlaybackStarted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
@@ -2959,7 +2959,7 @@ bool Media_Plugin::RippingAborted( class Socket *pSocket, class Message *pMessag
 	g_pPlutoLogger->Write(LV_STATUS,"Aborted ripping of job %p %s",pRippingJob,pRippingJob ? pRippingJob->m_sName.c_str() : "");
 	if( pRippingJob )
 		pRippingJob->m_bAborted=true;
-	return true;
+	return false;
 }
 
 bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
@@ -2972,7 +2972,7 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 	if ( iResult <= RIP_RESULT_BEGIN_ENUM || iResult >= RIP_RESULT_END_ENUM )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Invalid result parameters. Ignoring event.");
-		return true;
+		return false;
 	}
 
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
@@ -2981,7 +2981,7 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 	if ( !pRippingJob )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Unrecognized ripping job: %s. Ignoring event.", sJobName.c_str());
-		return true;
+		return false;
 	}
 	g_pPlutoLogger->Write(LV_STATUS, "Got a ripping completed event for job named \"%s\" from device: \"%d\" job %p aborted %d iResult: %d", 
 		sJobName.c_str(), pMessage->m_dwPK_Device_From,pRippingJob,(int) pRippingJob->m_bAborted,iResult);
@@ -3058,7 +3058,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pR
 			}
 		}
 
-		return true;
+		return false;
 	}
 	else if( iResult==RIP_RESULT_SUCCESS )
 		m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddRippedDiscToDatabase(pRippingJob->m_iPK_Disc,
@@ -3098,7 +3098,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pR
 
 	delete pRippingJob;
 	m_mapRippingJobs.erase(pMessage->m_dwPK_Device_From);
-	return true;
+	return false;
 }
 
 
@@ -3110,7 +3110,7 @@ bool Media_Plugin::DeviceOnOff( class Socket *pSocket, class Message *pMessage, 
 	if( !pMediaDevice )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Got an on/off from a non-media device");
-		return true;  // It's not for us
+		return false;  // It's not for us
 	}
 
 	return HandleDeviceOnOffEvent(pMediaDevice,bIsOn);
@@ -3129,12 +3129,12 @@ bool Media_Plugin::HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn)
 	if( bIsOn && iIsSource_OrDest )  // Nothing to report, we turned on something we already knew was on
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleDeviceOnOffEvent Nothing to report, we turned on something we already knew was on");
-		return true;
+		return false;
 	}
 	if( !bIsOn && !iIsSource_OrDest )  // Nothing to report, we turned off something we already knew was off
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleDeviceOnOffEvent Nothing to report, we turned off something we already knew was off");
-		return true;
+		return false;
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleDeviceOnOffEvent IsOn %d iSource_OrDest %d",
@@ -3190,7 +3190,7 @@ bool Media_Plugin::HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn)
 */
 		}
 	}
-	return true;
+	return false;
 }
 
 bool Media_Plugin::MediaDescriptionChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
@@ -3201,7 +3201,7 @@ bool Media_Plugin::MediaDescriptionChanged( class Socket *pSocket, class Message
 	if( !pMediaDevice )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Got an on/off from a non-media device");
-		return true;  // It's not for us
+		return false;  // It's not for us
 	}
 
 	// First figure out if this device is involved in any streams
@@ -3217,13 +3217,13 @@ bool Media_Plugin::MediaDescriptionChanged( class Socket *pSocket, class Message
 		pMediaStream->m_sMediaDescription = pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST];
 		MediaInfoChanged(pMediaStream,false);
 	}
-	return true;
+	return false;
 }
 
 bool Media_Plugin::AvInputChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 	if( !pDeviceFrom )
-		return true;
+		return false;
 
 	DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceFrom;
 	int PK_Command = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Command_CONST].c_str());
@@ -3252,7 +3252,7 @@ bool Media_Plugin::AvInputChanged( class Socket *pSocket, class Message *pMessag
 		}
 	}
 
-	return true;
+	return false;
 }
 
 bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)

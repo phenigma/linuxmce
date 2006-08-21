@@ -26,7 +26,7 @@ namespace DCE
 	typedef list<class Command_Impl *> ListCommand_Impl;
 
 	/**
-	 * @brief Function definition for a callback
+	 * @brief Function definition for a callback, return true to stop all further processing of the message and abort it's delivery to the destination
 	 */
 	typedef  bool ( Command_Impl::*MessageInterceptorFn )( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 

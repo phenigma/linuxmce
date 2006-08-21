@@ -216,7 +216,7 @@ bool Climate_Plugin::ClimateCommand( class Socket *pSocket, class Message *pMess
 		}
 	}
 
-	return true;
+	return false;
 }
 
 void Climate_Plugin::PreprocessClimateMessage(DeviceData_Router *pDevice,Message *pMessage)

@@ -703,7 +703,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
         }
     }
 
-    return true;
+    return false;
 }
 
 bool Orbiter_Plugin::ConnectionAllowed(int iDevice, string sMacAddress)
@@ -812,7 +812,7 @@ bool Orbiter_Plugin::ReloadAborted(class Socket *pSocket,class Message *pMessage
 	SCREEN_DialogGenericError SCREEN_DialogGenericError(m_dwPK_Device, PK_Orbiter, Message, "0", "0", "0");
 	SendCommand(SCREEN_DialogGenericError);
 
-	return true;
+	return false;
 }
 
 bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
@@ -852,7 +852,7 @@ bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMes
 
     }
 
-    return true;
+    return false;
 }
 
 
@@ -2668,5 +2668,5 @@ bool Orbiter_Plugin::DeviceConfigured(class Socket *pSocket,class Message *pMess
 
 	g_pPlutoLogger->Write(LV_STATUS,"Device %s configured! Processing next unknown device...", sName.c_str());
     ProcessUnknownDevice();
-	return true;
+	return false;
 }

@@ -380,7 +380,7 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 		}
 	}
 
-	return true;
+	return false;
 }
 
 //<-dceag-sample-b->!

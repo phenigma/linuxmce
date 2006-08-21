@@ -234,7 +234,7 @@ namespace DCE
      */
     class SafetyMessage
     {
-
+		bool m_bAutoDelete;
     public:
 
         Message *m_pMessage;
@@ -252,9 +252,9 @@ namespace DCE
 
         }
 
-        SafetyMessage( Message *pMessage ) { m_pMessage = pMessage; };
+        SafetyMessage( Message *pMessage, bool bAutoDelete=true ) { m_pMessage = pMessage; m_bAutoDelete = bAutoDelete; };
 
-        ~SafetyMessage() { delete m_pMessage; };
+        ~SafetyMessage() { if( m_bAutoDelete ) delete m_pMessage; };
     };
 }
 

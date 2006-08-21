@@ -199,7 +199,7 @@ bool Lighting_Plugin::DeviceOnOff( class Socket *pSocket, class Message *pMessag
 		}
 	}
 	
-	return true;
+	return false;
 }
 
 bool Lighting_Plugin::LightingFollowMe( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
@@ -226,7 +226,7 @@ bool Lighting_Plugin::LightingCommand( class Socket *pSocket, class Message *pMe
 		}
 	}
 
-	return true;
+	return false;
 }
 
 void Lighting_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar)

@@ -241,7 +241,7 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 	if( pListEventHandler==NULL ) // No handlers for this type of event
 	{
 		g_pPlutoLogger->Write(LV_EVENT,"Event #%d has no handlers",pMessage->m_dwID);
-		return true;
+		return false;
 	}
 
 	EventInfo *pEventInfo = new EventInfo(pMessage->m_dwID,pMessage,(DeviceData_Router *)pDeviceFrom,1 /*m_iPKID_C_HouseMode*/);
@@ -283,7 +283,7 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 	}
 
 	delete pEventInfo;
-	return true;
+	return false;
 }
 
 void Event_Plugin::ExecuteEvent(EventInstance *pEventInstance)

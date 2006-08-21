@@ -197,6 +197,12 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
     {
         vector<Row_Device *> vectRow_Device;
         m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_INSTALLATION_FIELD) + "=" + StringUtils::itos(m_dwPK_Installation) + " AND " + string(DEVICE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(DEVICETEMPLATE_DCERouter_CONST),&vectRow_Device);
+        if( vectRow_Device.size()==0 )
+		{
+	        m_pDatabase_pluto_main->Device_get()->GetRows( DEVICE_FK_DEVICETEMPLATE_FIELD "=" TOSTRING(DEVICETEMPLATE_DCERouter_CONST),&vectRow_Device);
+	        if( vectRow_Device.size()==1 )
+				g_pPlutoLogger->Write(LV_WARNING,"Not using the installation #%d you specified",m_dwPK_Installation);
+		}
         if( vectRow_Device.size()!=1 )
         {
             g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine my device ID automatically.  # of records in DB: %d",(int) vectRow_Device.size());
@@ -699,12 +705,12 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand)
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot execute command group db error: %d",PK_CommandGroup);
 }
 
-void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
+void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bool bAutoDelete)
 {
 	if( m_bStopProcessingMessages )
 		return;
 
-	SafetyMessage SafetyMessage(pMessageWillBeDeleted);
+	SafetyMessage SafetyMessage(pMessageWillBeDeleted, bAutoDelete);
     DeviceData_Router *pDeviceFrom = m_mapDeviceData_Router_Find(pMessageWillBeDeleted->m_dwPK_Device_From);
     DeviceData_Router *pDeviceTo = m_mapDeviceData_Router_Find(pMessageWillBeDeleted->m_dwPK_Device_To);
 
@@ -814,14 +820,28 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 
 
 			if( pMessageInterceptorFn )  // It's a plug-in
-				CALL_MEMBER_FN(*pPlugIn,pMessageInterceptorFn) (pSocket, pMessageWillBeDeleted, pDeviceFrom, pDeviceTo);
+			{
+				if( CALL_MEMBER_FN(*pPlugIn,pMessageInterceptorFn) (pSocket, pMessageWillBeDeleted, pDeviceFrom, pDeviceTo) )
+				{
+					g_pPlutoLogger->Write(LV_STATUS,"void Router::ReceivedMessage -- Aborting further processing of message type %d id %d as per interceptor plugin",(*SafetyMessage)->m_dwMessage_Type,(*SafetyMessage)->m_dwID);
+					return;
+				}
+			}
 			else
 			{
 				Message *pMessageOriginator = new Message(pMessageWillBeDeleted);
 				Message *pMessageInterceptor = new Message(0,pMessageInterceptorCallBack->m_dwPK_Device,PRIORITY_NORMAL,
 					MESSAGETYPE_MESSAGE_INTERCEPTED,pMessageInterceptorCallBack->m_dwID,0);
 				pMessageInterceptor->m_vectExtraMessages.push_back( pMessageOriginator );
-				ReceivedMessage(NULL,pMessageInterceptor);
+				pMessageInterceptor->m_eExpectedResponse=ER_ReplyMessage;
+				ReceivedMessage(NULL,pMessageInterceptor,false);
+				bool bAbort = pMessageInterceptor->m_mapParameters.find(-1) != pMessageInterceptor->m_mapParameters.end() && pMessageInterceptor->m_mapParameters[-1]=="ABORT" ;
+				delete pMessageInterceptor;
+				if( bAbort ) // Special case
+				{
+					g_pPlutoLogger->Write(LV_STATUS,"void Router::ReceivedMessage -- Aborting further processing of message type %d id %d as per interceptor",(*SafetyMessage)->m_dwMessage_Type,(*SafetyMessage)->m_dwID);
+					return;
+				}
 			}
 		}
 	}
@@ -1902,7 +1922,7 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
 #ifdef DEBUG
                             g_pPlutoLogger->Write(LV_STATUS, "1 pSocket=%p", pSocket);
 #endif
-                            if (pSocket && !(*(*pSafetyMessage))->m_bRespondedToMessage)
+                            if (!(*(*pSafetyMessage))->m_bRespondedToMessage)
                             {
                                 DCE::Message *pMessage;
 								
@@ -1915,9 +1935,15 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
 								{
 									g_pPlutoLogger->Write(LV_CRITICAL,"Sent message, got response but it's not a real message: %s",sResponse.c_str());
 								}
-								else if ( pSocket->SendMessage(pMessage) == false )
+								else if ( pSocket && pSocket->SendMessage(pMessage) == false )
 								{
 									g_pPlutoLogger->Write(LV_WARNING, "Failed to forward response message properly" );
+								}
+								else if( !pSocket )  // This must be past in internally.  Just merge the resulting output values
+								{
+									map<long,string>::iterator i;
+									for(i=pMessage->m_mapParameters.begin();i!=pMessage->m_mapParameters.end();++i)
+										(*(*pSafetyMessage))->m_mapParameters[ i->first ] = i->second;
 								}
                                 (*(*pSafetyMessage))->m_bRespondedToMessage = true;
                             }

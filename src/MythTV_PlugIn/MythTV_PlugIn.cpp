@@ -516,7 +516,7 @@ bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMes
 		m_pMedia_Plugin->MediaInfoChanged(pMythTvStream);
     }
 #endif
-    return true;
+    return false;
 }
 /*
 
