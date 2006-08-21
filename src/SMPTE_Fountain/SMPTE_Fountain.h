@@ -27,12 +27,31 @@ public:
 //<-dceag-decl-b->
 namespace DCE
 {
+	class StartMediaInfo
+	{
+	public:
+		bool m_bManuallyStart;
+		string m_sFilename; 
+		int m_iPK_MediaType, m_iStreamID;
+		string m_sMediaPosition;
+	};
+
+	class TimeCodeInfo
+	{
+	public:
+		long m_PadBefore,m_PadAfter;  // Seconds to pad 
+		long m_StartTime; // The actual start time
+
+		TimeCodeInfo(long PadBefore, long PadAfter, long StartTime) { m_PadBefore=PadBefore; m_PadAfter=PadAfter; m_StartTime=StartTime; }
+	};
+
 	class SMPTE_Fountain : public SMPTE_Fountain_Command
 	{
 //<-dceag-decl-e->
 		// Private member variables
+		StartMediaInfo *m_pStartMediaInfo;
 		DeviceData_Base *m_pDevice_Xine;
-		map<string, string> m_mapFilesTimeCode;
+		map<string, TimeCodeInfo *> m_mapFilesTimeCode;
 
 		long m_smpteDefaultPreDelay, m_smpteXineStartupOffset;
 		long m_smpteAdjustmentThreshold;
@@ -61,11 +80,7 @@ public:
 		void SynchronizationThread();
 		void AskXineThread();
 
-//<-dceag-const2-b->
-		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
-		// You can delete this whole section and put an ! after dceag-const2-b tag if you don't want this constructor.  Do the same in the implementation file
-		SMPTE_Fountain(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
-//<-dceag-const2-e->
+//<-dceag-const2-b->!
 
 		bool MediaPlaying( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 

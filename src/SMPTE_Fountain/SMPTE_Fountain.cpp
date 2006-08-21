@@ -13,21 +13,24 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#ifdef WIN32
+	long smpte_cur, smpte_stop;
+	bool alsa_soundout_shutdown;
+	void *OutputThread(void* param) { return NULL; }
+#else
+	extern void *OutputThread(void* param);
+#endif
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 SMPTE_Fountain::SMPTE_Fountain(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: SMPTE_Fountain_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+	m_pStartMediaInfo=NULL;
 }
 
-//<-dceag-const2-b->
-// The constructor when the class is created as an embedded instance within another stand-alone device
-SMPTE_Fountain::SMPTE_Fountain(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-	: SMPTE_Fountain_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
-//<-dceag-const2-e->
-{
-}
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 SMPTE_Fountain::~SMPTE_Fountain()
@@ -35,8 +38,6 @@ SMPTE_Fountain::~SMPTE_Fountain()
 {
 	alsa_soundout_shutdown = true;	
 }
-
-extern void *OutputThread(void* param);
 
 //<-dceag-getconfig-b->
 bool SMPTE_Fountain::GetConfig()
@@ -53,6 +54,10 @@ bool SMPTE_Fountain::GetConfig()
 		return false;
 	}
 
+	m_smpteDefaultPreDelay=SMPTEGen::FromTimecode("00:00:10"); // Default of 10 second pre-delay
+	m_smpteXineStartupOffset=SMPTEGen::FromTimecode("00:00:00:12"); // Half-second Xine startup allowance
+	m_smpteAdjustmentThreshold=SMPTEGen::FromTimecode("00:00:01"); // Allow generated SMPTE and Xine to drift by a maximum of 1 second	
+
 	string sConfiguration = DATA_Get_Configuration();
 	string::size_type pos = 0;
 	while( true )
@@ -65,19 +70,23 @@ bool SMPTE_Fountain::GetConfig()
 			else
 				continue;
 		}
-		string::size_type tab = sToken.find('\t');
-		if( tab==string::npos )
+		string::size_type tab = 0;
+		string sFile = StringUtils::Tokenize(sToken,"\t",tab);
+		string sTimeCode = StringUtils::Tokenize(sToken,"\t",tab);
+		if( sFile.empty() || sTimeCode.empty() )
 			continue;
-		string sFile = sToken.substr(0,tab);
-		string sTime = sToken.substr(tab+1);  // Replace with a long that's the real int value of time code
-		m_mapFilesTimeCode[sFile] = sTime;
+		long TimeCode = SMPTEGen::FromTimecode(sTimeCode.c_str());
+		string sPrepend = StringUtils::Tokenize(sToken,"\t",tab);
+		long Prepend;
+		if( sPrepend.empty() )
+			Prepend=m_smpteDefaultPreDelay;
+		else
+			Prepend = SMPTEGen::FromTimecode(sPrepend.c_str());
+		long Append = SMPTEGen::FromTimecode(StringUtils::Tokenize(sToken,"\t",tab).c_str());
+		m_mapFilesTimeCode[sFile] = new TimeCodeInfo(Prepend,Append,TimeCode);
 	}
 	PurgeInterceptors();  // Since this is not a plugin, be sure to purge so we're not registered more than once
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &SMPTE_Fountain::MediaPlaying ), 0, m_pDevice_Xine->m_dwPK_Device, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Play_Media_CONST );
-	
-	m_smpteDefaultPreDelay=SMPTEGen::FromTimecode("00:00:10"); // Default of 10 second pre-delay
-	m_smpteXineStartupOffset=SMPTEGen::FromTimecode("00:00:00:12"); // Half-second Xine startup allowance
-	m_smpteAdjustmentThreshold=SMPTEGen::FromTimecode("00:00:01"); // Allow generated SMPTE and Xine to drift by a maximum of 1 second
 	
 	pthread_t threadid;
 	pthread_create(	&threadid, NULL, OutputThread, NULL); 
@@ -92,16 +101,7 @@ bool SMPTE_Fountain::Register()
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
-/*  Since several parents can share the same child class, and each has it's own implementation, the base class in Gen_Devices
-	cannot include the actual implementation.  Instead there's an extern function declared, and the actual new exists here.  You 
-	can safely remove this block (put a ! after the dceag-createinst-b block) if this device is not embedded within other devices. */
-//<-dceag-createinst-b->
-SMPTE_Fountain_Command *Create_SMPTE_Fountain(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-{
-	return new SMPTE_Fountain(pPrimaryDeviceCommand, pData, pEvent, pRouter);
-}
-//<-dceag-createinst-e->
-
+//<-dceag-createinst-b->!
 /*
 	When you receive commands that are destined to one of your children,
 	then if that child implements DCE then there will already be a separate class
@@ -178,24 +178,32 @@ bool SMPTE_Fountain::MediaPlaying( class Socket *pSocket, class Message *pMessag
 		return false;
 	}
 
-	string sOffsetSettings = m_mapFilesTimeCode[sFileName];
-	string::size_type pos;
-	
-	pos = sOffsetSettings.find(',');
+	if( m_pStartMediaInfo )
+		delete m_pStartMediaInfo;
 
-	long smptePreDelay = m_smpteDefaultPreDelay;
-	if (pos!=string::npos)
-	{
-		g_pPlutoLogger->Write(LV_STATUS,"Found predelay override to: %s", sOffsetSettings.substr(pos+1).c_str());
-		smptePreDelay = SMPTEGen::FromTimecode(sOffsetSettings.substr(pos+1).c_str());
-		sOffsetSettings = sOffsetSettings.substr(0, pos);
-	}
-	g_pPlutoLogger->Write(LV_STATUS,"Setting Time Offset to: %s", sOffsetSettings.c_str());
-	smpte_stop = m_smpteSongOffset = SMPTEGen::FromTimecode(sOffsetSettings.c_str());
-	smpte_cur = smpte_stop - smptePreDelay;
+	TimeCodeInfo *pTimeCodeInfo = m_mapFilesTimeCode[sFileName];
+
+	m_pStartMediaInfo = new StartMediaInfo();
+	m_pStartMediaInfo->m_sFilename = sFileName;
+	m_pStartMediaInfo->m_iPK_MediaType = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST].c_str()); 
+	m_pStartMediaInfo->m_iStreamID = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str()); 
+	m_pStartMediaInfo->m_sMediaPosition = pMessage->m_mapParameters[COMMANDPARAMETER_MediaPosition_CONST]; 
+
+	g_pPlutoLogger->Write(LV_STATUS,"Setting Time Offset to: %d", pTimeCodeInfo->m_PadBefore);
+	smpte_stop = m_smpteSongOffset = pTimeCodeInfo->m_PadBefore;
+	smpte_cur = smpte_stop - pTimeCodeInfo->m_PadBefore;
 	m_smpteStartXineTime = smpte_stop - m_smpteXineStartupOffset;
 
-	return false;
+	if( pTimeCodeInfo->m_PadBefore )
+	{
+		m_pStartMediaInfo->m_bManuallyStart = true;
+		return true;
+	}
+	else
+	{
+		m_pStartMediaInfo->m_bManuallyStart = false;
+		return false;
+	}
 }
 
 void SMPTE_Fountain::SynchronizationThread()
@@ -209,6 +217,9 @@ void SMPTE_Fountain::SynchronizationThread()
 				m_smpteXineReportedTime = 0;
 				m_smpteXineSongStop = 0;
 				g_pPlutoLogger->Write(LV_STATUS, "Sending Xine start command");
+				DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,m_pDevice_Xine->m_dwPK_Device,m_pStartMediaInfo->m_sFilename,
+					m_pStartMediaInfo->m_iPK_MediaType,m_pStartMediaInfo->m_iStreamID,m_pStartMediaInfo->m_sMediaPosition);
+				SendCommand(CMD_Play_Media);
 			}
 		}
 		else
@@ -239,7 +250,7 @@ void SMPTE_Fountain::AskXineThread()
 		if (!pS->Connect())
 		{
 			cout << "Failed to connect to socket!" << endl;
-			sleep(1000);
+			Sleep(1000);
 		}
 		else
 		{	
