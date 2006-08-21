@@ -258,9 +258,10 @@ void SMPTE_Fountain::AskXineThread()
 			while (pS->ReceiveString(sLine, 30) && alsa_soundout_shutdown==false)
 			{
 				cout << "Read next line:" << sLine << endl; 
-				m_smpteXineReportedTime = SMPTEGen::FromTimecode(sLine.c_str());
+				int Sp, H, M, S, Ms;
+				sscanf(sLine.c_str(), "%i,%02i:%02i:%02i.%03i", &Sp, &H, &M, &S, &Ms);
+				m_smpteXineReportedTime = SMPTEGen::FromTimecode(StringUtils::Format("%d:%d:%d:%d", H, M, S, (Ms*25 / 1000)).c_str());			
 			}
-			
 			pS->Disconnect();
 		}
 		
