@@ -286,53 +286,51 @@ static int write_buffer(snd_pcm_t *handle, uint8_t *ptr, int cptr)
 
 static int write_loop(snd_pcm_t *handle, int channel, int periods, uint8_t *frames)
 {
-  int    err, n=0;
+  int    err, frameoffset=0;
 
-  int bufsize = snd_pcm_frames_to_bytes(handle, period_size);
+  int framesize = snd_pcm_frames_to_bytes(handle, period_size);
   int smptesize = 320;  // 320 is the typical size of a 8khz smpte frame.
 
   SMPTEGen smptegen;
 
   do
   {
-			char *smptedata;
-			if (smpte_cur > smpte_stop)
-			{
-				// Null pad this frame.  We don't want to just
-				// fill the whole buffer, since another thread
-				// might give us a new smpte value by the next iteration. 
-				smptedata = new char[smptesize];
-				memset(smptedata, 0, smptesize);
-			}
-			else
-			{
-				smptedata = smptegen.GetSMPTE(smpte_cur++, smptesize);
-			}
+		char *smptedata;
+		if (smpte_cur > smpte_stop)
+		{
+			// Null pad this frame.  We don't want to just
+			// fill the whole buffer, since another thread
+			// might give us a new smpte value by the next iteration. 
+			smptedata = new char[smptesize];
+			memset(smptedata, 0, smptesize);
+		}
+		else
+		{
+			smptedata = smptegen.GetSMPTE(smpte_cur++, smptesize);
+		}
+		int smptedataoffset=0;
+		do
+		{
 			char *fp = (char *)frames;
-			fp+=n;
-			int fr = min(smptesize, bufsize-n);
-			memcpy(fp, smptedata, fr);
-			n+=fr;
-			if (n==bufsize)
+			fp+=frameoffset;
+			int fr = min(smptesize-smptedataoffset, framesize-frameoffset);
+			memcpy(fp, smptedata+smptedataoffset, fr);
+			frameoffset+=fr;
+			smptedataoffset+=fr;
+			if (frameoffset==framesize)
 			{
-			    if ((err = write_buffer(handle, frames, bufsize)) < 0)
+				if ((err = write_buffer(handle, frames, framesize)) < 0)
 					break;
 				
-				printf("SMPTE %d: Buffer written to ALSA.\r", smpte_cur);
-			
-				if (fr < smptesize)
-				{
-					printf("%d Partial block write %p size %d of %d, buffer size is %d\n", smpte_cur, smptedata+fr, smptesize-fr, smptesize, bufsize);
-					fp = (char *)frames;
-					memcpy(fp, smptedata+fr, smptesize-fr);
-				}
-				n=smptesize-fr; 
+				printf("SMPTE %d: Frame written to ALSA.\n", smpte_cur);
+				frameoffset=0;
 			}
-			delete smptedata;
+		} while(smptedataoffset < smptesize);
+		delete smptedata;
   } while(smpte_cur <= smpte_stop);
-  if (n > 0)
+  if (frameoffset > 0)
   {
-	  write_buffer(handle, frames, n); 
+	  write_buffer(handle, frames, frameoffset); 
   }
 	  
   snd_pcm_drain(handle);
