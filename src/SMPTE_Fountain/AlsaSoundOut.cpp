@@ -43,7 +43,7 @@ static snd_pcm_uframes_t  buffer_size;
 static snd_pcm_uframes_t  period_size;
 
 static long smpte_cur = 0;
-static long smpte_stop = 4500; // test for 3 minutes.
+static long smpte_stop = 75; // test for 3 minutes.
 
 static const int	channels4[] = {
   0,
@@ -286,7 +286,7 @@ static int write_buffer(snd_pcm_t *handle, uint8_t *ptr, int cptr)
 
 static int write_loop(snd_pcm_t *handle, int channel, int periods, uint8_t *frames)
 {
-  int    err, n;
+  int    err, n=0;
 
   int bufsize = snd_pcm_frames_to_bytes(handle, period_size);
   int smptesize = 320;  // 320 is the typical size of a 8khz smpte frame.
@@ -295,9 +295,6 @@ static int write_loop(snd_pcm_t *handle, int channel, int periods, uint8_t *fram
 
   do
   {
-		n = 0;
-		while(n < bufsize)
-		{
 			char *smptedata;
 			if (smpte_cur > smpte_stop)
 			{
@@ -325,14 +322,19 @@ static int write_loop(snd_pcm_t *handle, int channel, int periods, uint8_t *fram
 			
 				if (fr < smptesize)
 				{
+					printf("%d Partial block write %p size %d of %d, buffer size is %d\n", smpte_cur, smptedata+fr, smptesize-fr, smptesize, bufsize);
 					fp = (char *)frames;
 					memcpy(fp, smptedata+fr, smptesize-fr);
 				}
 				n=smptesize-fr; 
 			}
-		}
+			delete smptedata;
   } while(smpte_cur <= smpte_stop);
-
+  if (n > 0)
+  {
+	  write_buffer(handle, frames, n); 
+  }
+	  
   snd_pcm_drain(handle);
   snd_pcm_prepare(handle);
   return 0;
