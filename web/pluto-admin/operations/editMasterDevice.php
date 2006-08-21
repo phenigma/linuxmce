@@ -529,6 +529,7 @@ function editMasterDevice($output,$dbADO) {
 								<td colspan="6">'.(($resDHCP->RecordCount()==0)?$TEXT_NO_RECORDS_CONST:$TEXT_RANGE_OF_MAC_CONST).'</td>
 							</tr>
 						';
+		$pnpProtocolArray=getAssocArray('PnpProtocol','PK_PnpProtocol','Description',$dbADO,'','ORDER BY Description ASC');
 		while($rowDHCP=$resDHCP->FetchRow()){
 			$dhcpArray[]=$rowDHCP['PK_DHCPDevice'];
 			$out.='
@@ -540,8 +541,20 @@ function editMasterDevice($output,$dbADO) {
 							</tr>
 							<tr>
 								<td>'.$TEXT_VENDOR_MODEL_ID_CONST.'</td>
-								<td colspan="4"><input type="text" name="VendorModelID_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['VendorModelID'].'" class="input_big"></td>
-							</tr>			
+								<td><input type="text" name="VendorModelID_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['VendorModelID'].'" class="input_big"></td>
+								<td>'.$TEXT_PNP_PROTOCOL_CONST.'</td>
+								<td colspan="2">'.pulldownFromArray($pnpProtocolArray,'pnpProtocol_'.$rowDHCP['PK_DHCPDevice'],$rowDHCP['FK_PnpProtocol']).'</td>
+							</tr>
+							<tr bgcolor="#EEEEEE">
+								<td>'.$TEXT_SERIAL_NUMBER_CONST.'</td>
+								<td><input type="text" name="SerialNumber_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['SerialNumber'].'" class="input_big"></td>
+								<td>'.$TEXT_PARMS_CONST.'</td>
+								<td><input type="text" name="Parms_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Parms'].'" class="input_big"></td>
+							</tr>
+							<tr bgcolor="#EEEEEE">
+								<td>'.$TEXT_PNP_DETECTION_SCRIPT_CONST.'</td>
+								<td colspan="4"><input type="text" name="PnpDetectionScript_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['PnpDetectionScript'].'" class="input_big"></td>
+							</tr>
 							<tr>
 								<td align="right">'.$TEXT_COMMENT_CONST.': </td>
 								<td colspan="4"><textarea name="commentPnp_'.$rowDHCP['PK_DHCPDevice'].'" rows="2" style="width:100%">'.$rowDHCP['Description'].'</textarea></td>
@@ -560,8 +573,20 @@ function editMasterDevice($output,$dbADO) {
 							</tr>
 							<tr bgcolor="#EEEEEE">
 								<td>'.$TEXT_VENDOR_MODEL_ID_CONST.'</td>
-								<td colspan="4"><input type="text" name="VendorModelID" value="" class="input_big"></td>
-							</tr>		
+								<td><input type="text" name="VendorModelID" value="" class="input_big"></td>
+								<td>'.$TEXT_PNP_PROTOCOL_CONST.'</td>
+								<td colspan="2">'.pulldownFromArray($pnpProtocolArray,'pnpProtocol',0).'</td>
+							</tr>
+							<tr bgcolor="#EEEEEE">
+								<td>'.$TEXT_SERIAL_NUMBER_CONST.'</td>
+								<td><input type="text" name="SerialNumber" value="" class="input_big"></td>
+								<td>'.$TEXT_PARMS_CONST.'</td>
+								<td><input type="text" name="Parms" value="" class="input_big"></td>
+							</tr>
+							<tr bgcolor="#EEEEEE">
+								<td>'.$TEXT_PNP_DETECTION_SCRIPT_CONST.'</td>
+								<td colspan="4"><input type="text" name="PnpDetectionScript" value="" class="input_big"></td>
+							</tr>						
 							<tr bgcolor="#EEEEEE">
 								<td align="right">'.$TEXT_COMMENT_CONST.': </td>
 								<td colspan="4"><textarea name="commentPnp" rows="2" style="width:100%"></textarea></td>
@@ -695,14 +720,18 @@ function editMasterDevice($output,$dbADO) {
 		$manufacturerURL=($_POST['manufacturerURL']!='')?$_POST['manufacturerURL']:NULL;
 		$internalURLsufix=($_POST['internalURLsufix']!='')?$_POST['internalURLsufix']:NULL;
 		$newCategory=((int)@$_POST['categoryPnp']>0)?(int)$_POST['categoryPnp']:NULL;
-		$newComment=@$_POST['commentPnp'];
+		$newComment=cleanString(@$_POST['commentPnp']);
+		$SerialNumber=cleanString($_POST['SerialNumber']);
+		$Parms=cleanString($_POST['Parms']);
+		$PnpDetectionScript=cleanString($_POST['PnpDetectionScript']);
+		$PnpProtocol=((int)$_POST['pnpProtocol']==0)?NULL:$_POST['pnpProtocol'];
 		$dhcpArray=explode(',',@$_POST['dhcpArray']);
 		$isAVDevice = cleanInteger(@$_POST['isAVDevice']);
 		$old_isAVDevice = cleanInteger(@$_POST['old_isAVDevice']);
 
 
 		if(($newMacFrom!='' && $newMacTo!='') || $VendorModelID!=''){
-			$dbADO->Execute('INSERT INTO DHCPDevice (FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High,Description,VendorModelID) VALUES (?,?,?,?,?)',array($deviceID,$newMacFrom,$newMacTo,$newComment,$VendorModelID));
+			$dbADO->Execute('INSERT INTO DHCPDevice (FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High,Description,VendorModelID,SerialNumber,Parms,PnpDetectionScript,FK_PnpProtocol) VALUES (?,?,?,?,?,?,?,?,?)',array($deviceID,$newMacFrom,$newMacTo,$newComment,$VendorModelID,$SerialNumber,$Parms,$PnpDetectionScript,$PnpProtocol));
 			$locationGoTo='plugAndPlay';
 		}
 
@@ -711,7 +740,13 @@ function editMasterDevice($output,$dbADO) {
 			$macTo=@$_POST['mac_to_'.$dhcpID];
 			$VendorModelID=cleanString(@$_POST['VendorModelID_'.$dhcpID]);
 			$newComment=cleanString(@$_POST['commentPnp_'.$dhcpID]);
-			$dbADO->Execute('UPDATE DHCPDevice SET Mac_Range_Low=?, Mac_Range_High=?,Description=?,VendorModelID=? WHERE PK_DHCPDevice=?',array($macFrom, $macTo,$newComment,$VendorModelID,$dhcpID));
+			$SerialNumber=cleanString($_POST['SerialNumber_'.$dhcpID]);
+			$Parms=cleanString($_POST['Parms_'.$dhcpID]);
+			$PnpDetectionScript=cleanString($_POST['PnpDetectionScript_'.$dhcpID]);
+			$PnpProtocol=((int)$_POST['pnpProtocol_'.$dhcpID]==0)?NULL:$_POST['pnpProtocol_'.$dhcpID];
+			
+			
+			$dbADO->Execute('UPDATE DHCPDevice SET Mac_Range_Low=?, Mac_Range_High=?,Description=?,VendorModelID=?,SerialNumber=?,Parms=?,PnpDetectionScript=?,FK_PnpProtocol=? WHERE PK_DHCPDevice=?',array($macFrom, $macTo,$newComment,$VendorModelID,$SerialNumber,$Parms,$PnpDetectionScript,$PnpProtocol,$dhcpID));
 		}
 
 		if($_REQUEST['toDel']!=''){
