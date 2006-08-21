@@ -48,7 +48,7 @@ function dynamicDNS($output, $dbADO) {
 				<tr>
 					<td><b>'.$TEXT_DYNAMIC_DNS_PROVIDER.'</b></td>
 					<td>
-					<select name="ddDomain">
+					<select name="ddProvider">
 						'.$ddProvider_options.'
 					</select>
 					</td>
