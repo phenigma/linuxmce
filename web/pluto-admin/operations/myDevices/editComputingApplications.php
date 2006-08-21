@@ -144,7 +144,9 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 	
 			if(isset($_POST['qst_'.$app])){
 				if(!in_array($app,$existing)){
-					$dbADO->Execute("INSERT INTO Device_QuickStart (FK_Device,FK_QuickStartTemplate) VALUES (?,?)", array($mdID,$app));
+					$dbADO->Execute("INSERT INTO Device_QuickStart (FK_Device,FK_QuickStartTemplate,`Binary`,Arguments,Description) SELECT ?,?,`Binary`,Arguments,Description FROM QuickStartTemplate WHERE PK_QuickStartTemplate=?", array($mdID,$app,$app));
+					$id=$dbADO->Insert_ID();
+					$dbADO->Execute("UPDATE Device_QuickStart SET SortOrder=? WHERE PK_Device_QuickStart=?",array($id,$id));
 				}
 			}else{
 				if(in_array($app,$existing)){
