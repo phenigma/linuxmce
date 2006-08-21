@@ -298,6 +298,14 @@ if [ -x /etc/init.d/mysql ] ;then
     /etc/init.d/mysql start 2>/dev/null
 fi
 
+# restore mysql if restore point found
+
+if [[ -d /home/backup ]]; then
+        Message "Restore point found. Starting restore operation. Please wait !"
+        /usr/pluto/bin/PlutoRestorePoint.sh --restore
+        Message "System restore completed."
+fi
+
 if [ -x /etc/init.d/dbus ] ;then
     /etc/init.d/dbus start &
 fi
