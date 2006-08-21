@@ -1122,8 +1122,11 @@ bool Xine_Player::Connect(int iPK_DeviceTemplate )
 
 	if (!ptrFactory->StartupFactory())
 		return false;
-	
-	m_pNotificationSocket->StartListening (DATA_Get_Port());
+
+	int iPort = DATA_Get_Port();
+	g_pPlutoLogger->Write(LV_STATUS, "Configured port for time/speed notification is: %i", iPort);
+
+	m_pNotificationSocket->StartListening (iPort);
 
 	return true;
 }
