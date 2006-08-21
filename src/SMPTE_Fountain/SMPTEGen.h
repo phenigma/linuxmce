@@ -18,6 +18,6 @@ public:
 	char *GetAndClearBuffer(int &length);  // Returns the current buffer and begins a new one.
 	char *GetSMPTE(long SMTPE, int &length); // Most useful with single-slice buffer, just gets and returns one smpte frame
 
-	static long FromTimecode(char *s);
+	static long FromTimecode(const char *s);
 };
 

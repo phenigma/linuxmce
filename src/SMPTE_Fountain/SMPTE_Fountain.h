@@ -7,6 +7,23 @@
 #include "Gen_Devices/SMPTE_FountainBase.h"
 //<-dceag-d-e->
 
+extern long smpte_cur, smpte_stop;
+extern bool alsa_soundout_shutdown;
+
+#include "DCE/ClientSocket.h"
+
+using namespace DCE;
+
+class AskXine_Socket : public ClientSocket
+{
+public:
+	// more simple c-tor: we don't need deviceID here
+	AskXine_Socket(string sIPAddress, string sName ):ClientSocket(0, sIPAddress, sName){};
+	// overriding on connect event handler, because we use custom protocol (actually just reading)
+	virtual bool OnConnect( int PK_DeviceTemplate,string sExtraInfo="" ){return true;};
+};
+
+
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -15,8 +32,17 @@ namespace DCE
 //<-dceag-decl-e->
 		// Private member variables
 		DeviceData_Base *m_pDevice_Xine;
-		map<string, long> m_mapFilesTimeCode;
+		map<string, string> m_mapFilesTimeCode;
+
+		long m_smpteDefaultPreDelay, m_smpteXineStartupOffset;
+		long m_smpteAdjustmentThreshold;
+	
+		long m_smpteSongOffset;
+
+		long m_smpteStartXineTime, m_smpteXineReportedTime, m_smpteXineSongStop;
+
 		bool m_bIsActive;
+
 
 		// Private methods
 public:
@@ -32,6 +58,8 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
+		void SynchronizationThread();
+		void AskXineThread();
 
 //<-dceag-const2-b->
 		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router

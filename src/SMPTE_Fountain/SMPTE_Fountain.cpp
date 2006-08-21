@@ -4,6 +4,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "SMPTEGen.h"
 
 #include <iostream>
 using namespace std;
@@ -32,8 +33,10 @@ SMPTE_Fountain::SMPTE_Fountain(Command_Impl *pPrimaryDeviceCommand, DeviceData_I
 SMPTE_Fountain::~SMPTE_Fountain()
 //<-dceag-dest-e->
 {
-	
+	alsa_soundout_shutdown = true;	
 }
+
+extern void *OutputThread(void* param);
 
 //<-dceag-getconfig-b->
 bool SMPTE_Fountain::GetConfig()
@@ -67,10 +70,17 @@ bool SMPTE_Fountain::GetConfig()
 			continue;
 		string sFile = sToken.substr(0,tab);
 		string sTime = sToken.substr(tab+1);  // Replace with a long that's the real int value of time code
-		m_mapFilesTimeCode[sFile] = atoi(sTime.c_str());
+		m_mapFilesTimeCode[sFile] = sTime;
 	}
 	PurgeInterceptors();  // Since this is not a plugin, be sure to purge so we're not registered more than once
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &SMPTE_Fountain::MediaPlaying ), 0, m_pDevice_Xine->m_dwPK_Device, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Play_Media_CONST );
+	
+	m_smpteDefaultPreDelay=SMPTEGen::FromTimecode("00:00:10"); // Default of 10 second pre-delay
+	m_smpteXineStartupOffset=SMPTEGen::FromTimecode("00:00:00:12"); // Half-second Xine startup allowance
+	m_smpteAdjustmentThreshold=SMPTEGen::FromTimecode("00:00:01"); // Allow generated SMPTE and Xine to drift by a maximum of 1 second
+	
+	pthread_t threadid;
+	pthread_create(	&threadid, NULL, OutputThread, NULL); 
 	return true;
 }
 
@@ -155,6 +165,7 @@ void SMPTE_Fountain::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 	m_bIsActive = false;
 }
 
+
 bool SMPTE_Fountain::MediaPlaying( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 	if( !m_bIsActive )
@@ -167,7 +178,82 @@ bool SMPTE_Fountain::MediaPlaying( class Socket *pSocket, class Message *pMessag
 		return false;
 	}
 
+	string sOffsetSettings = m_mapFilesTimeCode[sFileName];
+	string::size_type pos;
 	
+	pos = sOffsetSettings.find(',');
 
-	return true;
+	long smptePreDelay = m_smpteDefaultPreDelay;
+	if (pos!=string::npos)
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Found predelay override to: %s", sOffsetSettings.substr(pos+1).c_str());
+		smptePreDelay = SMPTEGen::FromTimecode(sOffsetSettings.substr(pos+1).c_str());
+		sOffsetSettings = sOffsetSettings.substr(0, pos);
+	}
+	g_pPlutoLogger->Write(LV_STATUS,"Setting Time Offset to: %s", sOffsetSettings.c_str());
+	smpte_stop = m_smpteSongOffset = SMPTEGen::FromTimecode(sOffsetSettings.c_str());
+	smpte_cur = smpte_stop - smptePreDelay;
+	m_smpteStartXineTime = smpte_stop - m_smpteXineStartupOffset;
+
+	return false;
+}
+
+void SMPTE_Fountain::SynchronizationThread()
+{
+	while(alsa_soundout_shutdown == false)
+	{
+		if (m_smpteStartXineTime)
+		{
+			if (smpte_cur > m_smpteStartXineTime)
+			{
+				m_smpteXineReportedTime = 0;
+				m_smpteXineSongStop = 0;
+				g_pPlutoLogger->Write(LV_STATUS, "Sending Xine start command");
+			}
+		}
+		else
+		{
+			if (m_smpteXineReportedTime)
+			{
+				int AdjustedXineTime = m_smpteXineReportedTime + m_smpteSongOffset;
+				if ((smpte_cur < AdjustedXineTime - m_smpteAdjustmentThreshold) ||
+					(smpte_cur > AdjustedXineTime + m_smpteAdjustmentThreshold))
+				{
+					g_pPlutoLogger->Write(LV_STATUS, "Adjusting smpte time to match xine time (%d to %d)",smpte_cur, AdjustedXineTime);
+					smpte_cur = AdjustedXineTime;
+				}
+			}
+		}
+		Sleep(100);
+	}
+}
+
+void SMPTE_Fountain::AskXineThread()
+{
+	while(alsa_soundout_shutdown == false)
+	{
+		string sConnectInfo = "127.0.0.1:12000";
+		string sName = "ask-xine-socket";
+		AskXine_Socket *pS = new AskXine_Socket(sConnectInfo, sName);
+		
+		if (!pS->Connect())
+		{
+			cout << "Failed to connect to socket!" << endl;
+			sleep(1000);
+		}
+		else
+		{	
+			string sLine;
+			while (pS->ReceiveString(sLine, 30) && alsa_soundout_shutdown==false)
+			{
+				cout << "Read next line:" << sLine << endl; 
+				m_smpteXineReportedTime = SMPTEGen::FromTimecode(sLine.c_str());
+			}
+			
+			pS->Disconnect();
+		}
+		
+		delete pS;
+		pS = NULL;
+	}
 }

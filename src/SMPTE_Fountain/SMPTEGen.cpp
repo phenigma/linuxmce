@@ -98,7 +98,7 @@ char *SMPTEGen::GetSMPTE(long SMPTE, int &length)
 	return GetAndClearBuffer(length);
 }
 
-long SMPTEGen::FromTimecode(char *s)
+long SMPTEGen::FromTimecode(const char *s)
 {
 	int hh=0, mm=0, ss=0, ff=0;
 

@@ -42,8 +42,9 @@ static unsigned int       nperiods    = 4;                  /* number of periods
 static snd_pcm_uframes_t  buffer_size;
 static snd_pcm_uframes_t  period_size;
 
-static long smpte_cur = 0;
-static long smpte_stop = 75; // test for 3 minutes.
+long smpte_cur = 0;
+long smpte_stop = 75; // test for 3 minutes.
+bool alsa_soundout_shutdown = false;
 
 static const int	channels4[] = {
   0,
@@ -326,13 +327,12 @@ static int write_loop(snd_pcm_t *handle, int channel, int periods, uint8_t *fram
 				frameoffset=0;
 			}
 		} while(smptedataoffset < smptesize);
-		delete smptedata;
-  } while(smpte_cur <= smpte_stop);
+		delete[] smptedata;
+  } while(alsa_soundout_shutdown == false);
   if (frameoffset > 0)
   {
 	  write_buffer(handle, frames, frameoffset); 
   }
-	  
   snd_pcm_drain(handle);
   snd_pcm_prepare(handle);
   return 0;
@@ -345,6 +345,7 @@ void *OutputThread(void* param)
   snd_pcm_hw_params_t  *hwparams;
   snd_pcm_sw_params_t  *swparams;
   uint8_t              *frames;
+  alsa_soundout_shutdown = false;
 
   snd_pcm_hw_params_alloca(&hwparams);
   snd_pcm_sw_params_alloca(&swparams);
