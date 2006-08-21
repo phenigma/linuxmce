@@ -60,12 +60,12 @@ public:
     /**
      * @brief returns the next numeric parameter
      */
-    int FastParser::GetNextNumParm();
+    int GetNextNumParm();
 
     /**
      * @brief returns the next parameter
      */
-    const char *FastParser::GetNextParm();
+    const char *GetNextParm();
 };
 
 #ifndef WIN32

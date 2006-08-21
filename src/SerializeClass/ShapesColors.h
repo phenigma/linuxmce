@@ -275,7 +275,7 @@ public:
 			Height=W;
 		}
 	}
-	static PlutoRectangle PlutoRectangle::Union(PlutoRectangle &r1,PlutoRectangle &r2)
+	static PlutoRectangle Union(PlutoRectangle &r1,PlutoRectangle &r2)
 	{
 		return PlutoRectangle(
 			PlutoPoint(min(r1.X,r2.X),min(r1.Y,r2.Y)),

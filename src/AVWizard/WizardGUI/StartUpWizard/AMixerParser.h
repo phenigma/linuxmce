@@ -12,7 +12,7 @@
  */
 class AMixerParser
 {
-	void AMixerParser::GetControlLowerAndUpper(char* Line, int& LowerBound, int& UpperBound);
+	void GetControlLowerAndUpper(char* Line, int& LowerBound, int& UpperBound);
 	bool GetControlLimits(char* Line, int& LowerBound, int& UpperBound, int& Value);
 
 	void GetControlValue(char* Line, int& Value);

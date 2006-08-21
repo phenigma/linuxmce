@@ -33,7 +33,7 @@ protected:
 	/**
 	*	Must override function, used to get setup defaults of the dialog from the wizard
 	*/
-	virtual void WizardPage::DefaultSetup(SettingsDictionary* AVWizardSettings);
+	virtual void DefaultSetup(SettingsDictionary* AVWizardSettings);
 public:
 	/**
 	 * Default constructor

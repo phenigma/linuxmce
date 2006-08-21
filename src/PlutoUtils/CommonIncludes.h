@@ -48,6 +48,8 @@ using namespace std;
 	#define closesocket(a) close(a)
 #else
 // Windows Stuff ----------------------
+	#pragma warning( disable : 4996 )
+
 	#define trunc(s) s 
 
 	typedef __int8  int8_t;

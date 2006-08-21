@@ -431,7 +431,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_CommandGrou
 		{
 			
 			
-			long int id = (long int) mysql_insert_id(database->m_pMySQL);
+			/*long int id = (long int) */mysql_insert_id(database->m_pMySQL);
 		
 				
 			
@@ -500,7 +500,7 @@ fprintf(fdebug,"%s %s",acBuff,query.c_str());
 		while ((row = mysql_fetch_row(res)) != NULL)
 		{
 			string st;
-			for(int i=0;i<res->field_count;++i)
+			for(unsigned int i=0;i<res->field_count;++i)
 			{
 				st += StringUtils::itos(i) + ":" + (row[i] ? row[i] : "NULL") + "      ";
 			}

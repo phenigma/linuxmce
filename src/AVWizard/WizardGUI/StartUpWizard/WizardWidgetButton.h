@@ -31,7 +31,7 @@ protected:
 	/**
 	 *	Paint expanded button, it gets the text size
 	 */
-	void WizardWidgetButton::PaintExpandedButton(
+	void PaintExpandedButton(
 		SDL_Surface* BtnTexture, 
 		SDL_Surface *BtnLeft, 
 		SDL_Surface *BtnRight);
