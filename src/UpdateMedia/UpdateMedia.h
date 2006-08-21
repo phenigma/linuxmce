@@ -12,6 +12,8 @@ class UpdateMedia
 	bool m_bAsDaemon;
 	int m_nPK_Installation;
 
+	void ReadConfigFile();
+
 	//Helper method
 	void SetupInstallation();
 

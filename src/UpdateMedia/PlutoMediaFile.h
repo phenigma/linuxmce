@@ -36,6 +36,7 @@ private:
 	int m_nPK_MediaType;
 	bool m_bIsDir;
 	static bool m_bSyncFilesOnly;
+	static bool m_bSyncId3Files;
 
     //internal helper functions
 	//This will add a record in the File table and additional attributes too in related tables
@@ -55,6 +56,7 @@ public:
     ~PlutoMediaFile();
 
 	static void SetupSyncFilesOnly(bool bSyncFilesOnly);
+	static void SetupSyncId3Files(bool bSyncId3Files);
 
     int HandleFileNotInDatabase(int PK_MediaType = 0);
 

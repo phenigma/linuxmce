@@ -69,6 +69,8 @@ UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string 
 	signal(SIGTRAP, &sigtrap_hook);
 #endif
 
+	ReadConfigFile();
+
     string sPlutoMediaDbName = "pluto_media";
     string sPlutoMainDbName = "pluto_main";
 
@@ -108,6 +110,8 @@ UpdateMedia::UpdateMedia(Database_pluto_media *pDatabase_pluto_media,
 	signal(SIGTRAP, &sigtrap_hook);
 #endif
 
+	ReadConfigFile();
+
     //reusing connections
     m_pDatabase_pluto_main = pDatabase_pluto_main;
     m_pDatabase_pluto_media = pDatabase_pluto_media;
@@ -119,6 +123,44 @@ UpdateMedia::UpdateMedia(Database_pluto_media *pDatabase_pluto_media,
 
     m_sDirectory = StringUtils::Replace(&sDirectory,"\\","/");  // Be sure no Windows \'s
     FileUtils::ExcludeTrailingSlash(m_sDirectory);
+}
+
+void UpdateMedia::ReadConfigFile()
+{
+        ifstream fUpdateMediaConfig;
+        string sConfFileValue;
+        string::size_type sPosBeginIdx, sPosEndIdx;
+        string sConfVar, sConfVal;
+
+        sPosBeginIdx=0;
+        sPosEndIdx=0;
+
+        fUpdateMediaConfig.open("/etc/UpdateMedia.conf");
+        if(fUpdateMediaConfig.is_open())
+        {
+                while(!fUpdateMediaConfig.eof())
+                {
+                        getline(fUpdateMediaConfig, sConfFileValue);
+                        if(sConfFileValue.empty());
+                        else
+                        {
+                                sPosEndIdx=sConfFileValue.find_first_of("=");
+								sConfVar=sConfFileValue.substr(sPosBeginIdx, sPosEndIdx);
+                                sPosBeginIdx = sPosEndIdx + 1;
+                                sPosEndIdx=sConfFileValue.length();
+                                sConfVal=sConfFileValue.substr(sPosBeginIdx, sPosEndIdx);
+
+                                if(sConfVar=="SyncId3Files")
+                                {
+                                        if(sConfVal=="false" || sConfVal=="0")
+                                        {
+											PlutoMediaFile::SetupSyncId3Files(false);
+                                        }	
+                                }
+                        }
+                }
+                fUpdateMediaConfig.close();
+        }
 }
 
 void UpdateMedia::SetupInstallation()

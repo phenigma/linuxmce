@@ -42,6 +42,7 @@ using namespace DCE;
 //
 //-----------------------------------------------------------------------------------------------------
 bool PlutoMediaFile::m_bSyncFilesOnly = false;
+bool PlutoMediaFile::m_bSyncId3Files = true;
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation, 
 							   string sDirectory, string sFile, bool bIsDir/* = false*/) 
@@ -101,6 +102,11 @@ PlutoMediaFile::~PlutoMediaFile()
 /*static*/ void PlutoMediaFile::SetupSyncFilesOnly(bool bSyncFilesOnly) 
 { 
 	m_bSyncFilesOnly = bSyncFilesOnly; 
+}
+//-----------------------------------------------------------------------------------------------------
+/*static*/ void PlutoMediaFile::SetupSyncId3Files(bool bSyncId3Files)
+{
+	m_bSyncId3Files = bSyncId3Files;
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ bool PlutoMediaFile::IsSupported(string sFileName)
@@ -583,6 +589,12 @@ string PlutoMediaFile::FileWithAttributes_PreviousVersion()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SavePlutoAttributes(string sFullFileName)
 {
+	if(!m_bSyncId3Files)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "# NOT saving attributes in id3 files. Read only mode!");
+		return;
+	}
+
 	//Temporary map with attributes for common tags
 	map<int, string> mapAttributes;
 	for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapAttributes.begin(), 
