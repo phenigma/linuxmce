@@ -17,7 +17,7 @@
 using namespace DCE;
 
 //#define SCENE_DEBUG 1
-#define DUMP_SCENE_DEBUG 1
+//#define DUMP_SCENE_DEBUG 1
 
 OpenGL3DEngine::OpenGL3DEngine() : 
 	Quit(false),
