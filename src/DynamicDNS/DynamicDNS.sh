@@ -55,6 +55,11 @@ if [[ "$1" == "set" ]] ;then
 	ReplaceVars /etc/ddclient.conf.$$
 	mv /etc/ddclient.conf.$$ /etc/ddclient.conf
 
+	echo > /etc/default/ddclient
+	echo 'run_ipup="true"' >> /etc/default/ddclient
+	echo 'run_daemon="true"' >> /etc/default/ddclient
+	echo 'daemon_interval="300"' >> /etc/default/ddclient
+
 	/etc/init.d/ddclient restart
 
 ## Called to display the dynamic dns settings
