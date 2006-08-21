@@ -206,6 +206,18 @@ bool SMPTE_Fountain::MediaPlaying( class Socket *pSocket, class Message *pMessag
 	}
 }
 
+int SMPTE_Fountain::GetLengthOfActiveXineStream()
+{
+	string sText,sMediaPosition;
+	DCE::CMD_Report_Playback_Position CMD_Report_Playback_Position(m_dwPK_Device,m_pDevice_Xine->m_dwPK_Device,0,&sText,&sMediaPosition);
+	SendCommand(CMD_Report_Playback_Position);
+	string::size_type pos = sMediaPosition.find("TOTAL:");
+	if( pos==string::npos )
+		return -1; // Couldn't get it
+	
+	return atoi( sMediaPosition.substr(pos+6).c_str() );
+}
+
 void SMPTE_Fountain::SynchronizationThread()
 {
 	while(alsa_soundout_shutdown == false)
