@@ -215,11 +215,6 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFrame* Fra
 		return;
 	}
 
-	if(Frame->Name().find("thumb") != string::npos)
-	{
-		int k = 4;
-	}
-
 	MeshFrame *Parent = NULL;
 	
 	if(ParentObjectID != "")

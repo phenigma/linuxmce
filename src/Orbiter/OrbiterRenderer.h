@@ -80,7 +80,7 @@ public:
 	/**
 	* @brief draws an rectangle
 	*/
-	virtual void SolidRectangle(int iX, int iY, int iWidth, int iHeight, PlutoColor color) = 0;
+	virtual void SolidRectangle(int iX, int iY, int iWidth, int iHeight, PlutoColor color, string ParentObjectID = "") = 0;
 
 	/**
 	* @brief draws an x-or'd rectangle outline.  Used to highlight something on screen

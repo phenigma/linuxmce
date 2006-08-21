@@ -74,7 +74,7 @@ public:
 	void TryToUpdate();
 
 	// Drawing routines
-	void SolidRectangle(int x, int y, int width, int height, PlutoColor color);
+	void SolidRectangle(int x, int y, int width, int height, PlutoColor color, string ParentObjectID = "");
 	void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color);
 	void DrawLine(int x, int y, int width, int height, PlutoColor color) {};
 	void ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor);

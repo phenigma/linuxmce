@@ -164,7 +164,8 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	NeedToUpdateScreen_ = true;
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterRenderer_OpenGL::SolidRectangle(int x, int y, int width, int height, PlutoColor color)
+/*virtual*/ void OrbiterRenderer_OpenGL::SolidRectangle(int x, int y, int width, int height, PlutoColor color, 
+	string ParentObjectID/* = ""*/)
 {
 	MeshBuilder* Builder = new MeshBuilder();
 	Builder->Begin(MBMODE_TRIANGLES);
@@ -221,7 +222,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	delete Builder;
 	Builder = NULL;
 
-	Engine->AddMeshFrameToDesktop("", Frame);
+	Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
