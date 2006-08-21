@@ -61,14 +61,14 @@ int EffectFactory::MilisecondTimmer()
 
 Effect* EffectFactory::CreateEffect(int IDEffect, int StartAfter, int TimeForComplete)
 {
-	std::cout << "EffectFactory::CreateEffect : " << IDEffect << std::endl;
+	cout << "EffectFactory::CreateEffect : " << IDEffect << endl;
 	
 	if(!Effects.empty())
 	{
-		std::vector<Effect*>::iterator Effect = Effects.begin();
+		vector<Effect*>::iterator Effect = Effects.begin();
 		if(NULL != dynamic_cast<GL2DEffectTransit*>(*Effect))
 		{
-			std::cout << "EffectFactory::CreateEffect : Transit effects running!" << std::endl;
+			cout << "EffectFactory::CreateEffect : Transit effects running!" << endl;
 			return NULL;
 		}
 	}
@@ -138,7 +138,7 @@ void EffectFactory::UpdateEffects()
 	if(Effects.empty())
 		return;
 	
-	std::vector<Effect*>::iterator Effect;
+	vector<Effect*>::iterator Effect;
 	
 	for(Effect = Effects.begin(); Effect < Effects.end(); )
 	{
@@ -159,7 +159,7 @@ void EffectFactory::UpdateEffects()
 	
 	if (HasEffects())
 	{
-		std::vector<GLEffect2D::Effect*>::iterator Item;	
+		vector<GLEffect2D::Effect*>::iterator Item;	
 		for(Item = Effects.begin(); HasEffects() && (Item != Effects.end()); ++Item)
 		{
 			(*Item)->Paint(CurrentTime);
@@ -172,7 +172,7 @@ void EffectFactory::ClearEffects()
 	if (Effects.size() == 0)
 		return;
 
-	std::vector<Effect*>::iterator Item;
+	vector<Effect*>::iterator Item;
  
 	for(Item = Effects.begin(); Item < Effects.end(); ++Item)
 		delete *Item;

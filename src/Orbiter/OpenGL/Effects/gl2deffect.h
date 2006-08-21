@@ -1,7 +1,7 @@
 #ifndef GL2DEffect_H
 #define GL2DEffect_H
 
-#include "../math3dutils.h"
+#include "../GLMathUtils.h"
 
 /**
  * That class is the base class for 2D effects using OpenGL

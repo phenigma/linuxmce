@@ -18,7 +18,7 @@ TBaseWidget::TBaseWidget(
 						 int Top, 
 						 int Width, 
 						 int Height, 
-						 std::string Text)
+						 string Text)
 	: TextureWrapper2D(0.0f, 0.0f, 1.0f, 1.0f),
 	  BackgroundTex(0),
 	  Background(1.0f, 1.0f, 1.0f, 1.0f),
@@ -38,7 +38,7 @@ TBaseWidget::TBaseWidget(
 
 TBaseWidget::~TBaseWidget()
 {
-	std::vector <TBaseWidget*>::iterator Widget; 
+	vector <TBaseWidget*>::iterator Widget; 
 	
 	for(Widget = Childs.begin(); Widget < Childs.end(); Widget++)
 		delete(*Widget);
@@ -51,7 +51,7 @@ void TBaseWidget::Paint()
 	// if the actual window is not visible, will not be painted
 	if (!Visible)
 		return;
-	std::vector <TBaseWidget*>::iterator Widget; 
+	vector <TBaseWidget*>::iterator Widget; 
 	
 	for(Widget = Childs.begin(); Widget < Childs.end(); Widget++)
 		(*Widget)->Paint();
@@ -80,7 +80,7 @@ TBaseWidget* TBaseWidget::GetChild(unsigned int NoChild) {
 	return Childs[NoChild];
 }
 
-/*virtual*/ std::string TBaseWidget::GetName()
+/*virtual*/ string TBaseWidget::GetName()
 {
 	return Text;
 }

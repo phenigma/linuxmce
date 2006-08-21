@@ -13,7 +13,7 @@ That class is an abstract class that should be overwriten for basic purposes. It
 #include "../GLMathUtils.h"
 #include "../Mesh/MeshFrame.h"
 #include "../OpenGLGraphic.h"
-#include "../math3dutils.h"
+#include "../GLMathUtils.h"
 
 class TBaseWidget{
 public:

@@ -22,7 +22,7 @@ PopupCollection::~PopupCollection(void)
 void PopupCollection::Reset()
 {
 	Current = "";
-	std::map<std::string, PopupDescription* >::iterator Item = Popups.begin(),
+	map<string, PopupDescription* >::iterator Item = Popups.begin(),
 		End = Popups.end();
 	for(; Item != End; ++Item)
 	{
@@ -32,7 +32,7 @@ void PopupCollection::Reset()
 }
 
 
-void PopupCollection::HidePopup(std::string ID, std::string ObjectHash)
+void PopupCollection::HidePopup(string ID, string ObjectHash)
 {
 	g_pPlutoLogger->Write(LV_CRITICAL, "PopupCollection::HidePopup %s", ObjectHash.c_str());
 
@@ -46,7 +46,7 @@ void PopupCollection::HidePopup(std::string ID, std::string ObjectHash)
 	}
 }
 
-void PopupCollection::PaintPopup(std::string ID, std::string ObjectHash, PlutoPopup *Popup, int EffectID)
+void PopupCollection::PaintPopup(string ID, string ObjectHash, PlutoPopup *Popup, int EffectID)
 {
 	g_pPlutoLogger->Write(LV_CRITICAL, "PopupCollection::PaintPopup %s", ObjectHash.c_str());
 
@@ -93,7 +93,7 @@ void PopupCollection::PaintPopup(std::string ID, std::string ObjectHash, PlutoPo
 	
 }
 
-bool PopupCollection::Exists(std::string ID)
+bool PopupCollection::Exists(string ID)
 {
 	bool Result = Popups.find(ID) != Popups.end();
 	g_pPlutoLogger->Write(LV_WARNING, "Searching in map (size = %d): %s and the result is: %d ", 

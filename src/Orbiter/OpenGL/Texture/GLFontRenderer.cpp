@@ -35,7 +35,7 @@ Orbiter* GLFontRenderer::OrbiterLogic()
 	return NULL;
 }
 
-MeshFrame* GLFontRenderer::RenderText(string TextUniqueID, string &TextToDisplay, PlutoRectangle &rPosition, int iPK_HorizAlignment,
+MeshFrame* GLFontRenderer::RenderText(string TextUniqueID, string& TextToDisplay, PlutoRectangle &rPosition, int iPK_HorizAlignment,
 									  int iPK_VertAlignment, string &sFont, PlutoColor &ForeColor, 
 									  int iPixelHeight, bool bBold, bool bItalic, bool bUnderline,  
 									  PlutoPoint point, PlutoRectangle &rectCalcLocation)
@@ -82,7 +82,7 @@ MeshFrame* GLFontRenderer::RenderText(string TextUniqueID, string &TextToDisplay
 	return Frame;
 }
 					  
-MeshFrame* GLFontRenderer::TextOut(string TextUniqueID, string &TextToDisplay,class DesignObjText *Text,
+MeshFrame* GLFontRenderer::TextOut(string TextUniqueID, string TextToDisplay,class DesignObjText *Text,
 	TextStyle *pTextStyle, PlutoPoint point)
 {
 	

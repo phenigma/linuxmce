@@ -16,7 +16,7 @@
 #include "DataGrid.h" 
 #include "DataGridRenderer.h"
 //-----------------------------------------------------------------------------------------------------
-#include "math3dutils.h"
+#include "GLMathUtils.h"
 #include "Widgets/basicwindow.h"
 #include "Widgets/DrawingWidgetsEngine.h"
 #include "Effects/gl2deffecttransit.h"

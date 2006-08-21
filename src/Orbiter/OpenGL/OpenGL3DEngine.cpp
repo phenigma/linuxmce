@@ -17,7 +17,7 @@
 using namespace DCE;
 
 //#define SCENE_DEBUG 1
-//#define DUMP_SCENE_DEBUG 1
+#define DUMP_SCENE_DEBUG 1
 
 OpenGL3DEngine::OpenGL3DEngine() : 
 	Quit(false),
@@ -101,7 +101,7 @@ bool OpenGL3DEngine::Paint()
 	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint before highlight");
 	if(AnimationDatagrid.size())
 	{
-		std::vector<AnimationScrollDatagrid*>::iterator Item ;
+		vector<AnimationScrollDatagrid*>::iterator Item ;
 		for(Item = AnimationDatagrid.begin(); Item != AnimationDatagrid.end(); )
 		{
 			AnimationScrollDatagrid *pThing = *Item;
@@ -451,7 +451,7 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktop(MeshFrame* Frame)
 		Frame, CurrentLayer->Children.size());
 }
 
-void OpenGL3DEngine::StartFrameDrawing(std::string ObjectHash)
+void OpenGL3DEngine::StartFrameDrawing(string ObjectHash)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::StartFrameDrawing!");
@@ -462,7 +462,7 @@ void OpenGL3DEngine::StartFrameDrawing(std::string ObjectHash)
 	CurrentLayer = new MeshFrame(ObjectHash);
 }
 
-void OpenGL3DEngine::StartDatagridDrawing(std::string ObjectHash)
+void OpenGL3DEngine::StartDatagridDrawing(string ObjectHash)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::StartFrameDrawing!");
@@ -473,7 +473,7 @@ void OpenGL3DEngine::StartDatagridDrawing(std::string ObjectHash)
 	CurrentLayer = new MeshFrame(ObjectHash);
 }
 
-MeshFrame* OpenGL3DEngine::EndDatagridDrawing(std::string ObjectHash)
+MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
 {
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 
@@ -604,7 +604,7 @@ void OpenGL3DEngine::HideHighlightRectangle()
 	}
 }
 
-void OpenGL3DEngine::RemoveMeshFrameFromDesktopForID(std::string ObjectID)
+void OpenGL3DEngine::RemoveMeshFrameFromDesktopForID(string ObjectID)
 {
 	DumpScene();
 

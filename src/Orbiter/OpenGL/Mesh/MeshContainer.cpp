@@ -1,6 +1,6 @@
 #include "MeshContainer.h"
 
-#include "../math3dutils.h"
+#include "../GLMathUtils.h"
 
 #include <map>
 
@@ -55,7 +55,7 @@ MeshContainer* MeshContainer::Clone()
 	for(int Counter = 0; Counter < NoVertexes; Counter++)
 		Result->Vertexes[Counter] = Vertexes[Counter];
 
-	std::map<OpenGLGraphic*, OpenGLGraphic*> TextureClones;
+	map<OpenGLGraphic*, OpenGLGraphic*> TextureClones;
 
 	Result->Triangles = new MeshTriangle[NoTriangles];
 	Result->NoTriangles = NoTriangles;
@@ -67,7 +67,7 @@ MeshContainer* MeshContainer::Clone()
 		OpenGLGraphic* GraphicClone = NULL;
 		if(NULL != Texture)
 		{
-			std::map<OpenGLGraphic*, OpenGLGraphic*>::iterator TextureIterator = TextureClones.find(Texture);
+			map<OpenGLGraphic*, OpenGLGraphic*>::iterator TextureIterator = TextureClones.find(Texture);
 			if(TextureIterator == TextureClones.end())
 			{
 				GraphicClone = new OpenGLGraphic();

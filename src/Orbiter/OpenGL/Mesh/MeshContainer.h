@@ -5,7 +5,7 @@
 #include "MeshTriangle.h"
 #include "../OpenGLGraphic.h"
 
-#include "../math3dutils.h"
+#include "../GLMathUtils.h"
 
 class MeshContainer
 {

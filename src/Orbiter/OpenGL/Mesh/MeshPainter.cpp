@@ -12,7 +12,7 @@
 
 MeshPainter* MeshPainter::Instance_ = NULL;
 
-//#define DEBUG_LINES
+#define DEBUG_LINES
 
 /*static*/ MeshPainter* MeshPainter::Instance()
 {

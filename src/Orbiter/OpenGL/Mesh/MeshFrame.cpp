@@ -23,7 +23,7 @@ MeshFrame::~MeshFrame(void)
 {
 	//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "xxxxx MeshFrame::CleanUp: %p", this);	
 
-	std::vector<MeshFrame*>::iterator Child;
+	vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); Child++)
 	{
 		MeshFrame *pMeshFrame = *Child;
@@ -79,8 +79,8 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 		
 	if(NULL != Frame->Parent)
 	{
-		std::vector<MeshFrame*>::iterator Child = 
-			std::find(Frame->Parent->Children.begin(), Frame->Parent->Children.end(), Frame);
+		vector<MeshFrame*>::iterator Child = 
+			find(Frame->Parent->Children.begin(), Frame->Parent->Children.end(), Frame);
 		if(Child == Frame->Parent->Children.end())
 		{
 			DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Got a parent, but doesn't have us as child!");
@@ -122,7 +122,7 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 
 	//DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Painting %p with %d children: ", this, Children.size());
 
-	std::vector<MeshFrame *>::iterator Child, EndChild;
+	vector<MeshFrame *>::iterator Child, EndChild;
 	for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
 	{  
 		MeshFrame *pMeshFrame = *Child;
@@ -168,7 +168,7 @@ MeshContainer* MeshFrame::GetMeshContainer()
 	if(Mesh)
 		Mesh->SetAlpha(Alpha);
 
-	std::vector<MeshFrame *>::iterator Child, EndChild;
+	vector<MeshFrame *>::iterator Child, EndChild;
 	for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
 	{  
 		MeshFrame *pMeshFrame = *Child;
@@ -180,7 +180,7 @@ MeshContainer* MeshFrame::GetMeshContainer()
 {
 	if(Mesh)
 		Mesh->SetColor(Color);
-	std::vector<MeshFrame *>::iterator Child, EndChild;
+	vector<MeshFrame *>::iterator Child, EndChild;
 	for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
 	{  
 		MeshFrame *pMeshFrame = *Child;
@@ -199,7 +199,7 @@ MeshFrame *MeshFrame::Clone()
 	Result->Transform = Transform;
 	Result->TextureTransform = TextureTransform;
 
-	for(std::vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
+	for(vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
 	{
 		Result->AddChild((*it)->Clone());
 	}
@@ -208,16 +208,16 @@ MeshFrame *MeshFrame::Clone()
 
 void MeshFrame::Print(string sIndent)
 {
-	if(Name_.find("rectangle") != string::npos)
-		return;
+//	if(Name_.find("rectangle") != string::npos)
+//		return;
 
-	if(Name_.find("text") != string::npos)
-		return;
+//	if(Name_.find("text") != string::npos)
+//		return;
 
 	DCE::g_pPlutoLogger->Write(LV_STATUS, "%s%s '%s' (frame) %p", sIndent.c_str(), 
 		Children.size() ? "+ " : "- ", Name_.c_str(), this);
 
-	for(std::vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
+	for(vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
 	{
 		(*it)->Print(sIndent + "`-");
 	}
@@ -231,7 +231,7 @@ MeshFrame *MeshFrame::FindChild(string Name)
 		ChildMesh = this;
 	else
 	{
-		for(std::vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
+		for(vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
 		{
 			ChildMesh = (*it)->FindChild(Name);
 

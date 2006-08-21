@@ -36,11 +36,11 @@ public:
 	virtual ~GLFontRenderer();
 	DCE::Orbiter* OrbiterLogic();
 
-	MeshFrame* RenderText(string TextUniqueID, string &TextToDisplay, PlutoRectangle &rPosition, int iPK_HorizAlignment, 
+	MeshFrame* RenderText(string TextUniqueID, string& TextToDisplay, PlutoRectangle &rPosition, int iPK_HorizAlignment, 
 		int iPK_VertAlignment, string &sFont, PlutoColor &ForeColor, int iPixelHeight, bool bBold,
 		bool bItalic,bool bUnderline, PlutoPoint point, class PlutoRectangle &rectCalcLocation);
 	
-	MeshFrame* TextOut(string TextUniqueID, std::string &TextToDisplay,class DesignObjText *Text,
+	MeshFrame* TextOut(string TextUniqueID, string TextToDisplay,class DesignObjText *Text,
 		class TextStyle *pTextStyle, class PlutoPoint point);
 	
 };

@@ -26,14 +26,14 @@ DrawingWidgetsEngine::~DrawingWidgetsEngine()
 void DrawingWidgetsEngine::Paint()
 {
 
-	std::vector<TBaseWidget*>::iterator Widget;
+	vector<TBaseWidget*>::iterator Widget;
 	for(Widget = Widgets.begin(); Widget < Widgets.end(); Widget++)
 	{
 		TBaseWidget* WidgetPtr = *Widget;
 		if(WidgetPtr->GetParent() == NULL)
 		{
 			WidgetPtr->Paint();
-			std::string WidgetName = "Widget: " + WidgetPtr->GetName();
+			string WidgetName = "Widget: " + WidgetPtr->GetName();
 
 			DCE::g_pPlutoLogger->Write(LV_CRITICAL, WidgetName.c_str());
 		}
@@ -67,7 +67,7 @@ void DrawingWidgetsEngine::AddWidget(TBaseWidget * Widget) {
 }
 
 void DrawingWidgetsEngine::DeleteWidget(TBaseWidget* Widget) {
-	std::vector<TBaseWidget*>::iterator FindItem;
+	vector<TBaseWidget*>::iterator FindItem;
 	for(FindItem = Widgets.begin(); FindItem < Widgets.end(); FindItem++)
 		if((*FindItem) == Widget) {
 			delete Widget;
@@ -78,7 +78,7 @@ void DrawingWidgetsEngine::DeleteWidget(TBaseWidget* Widget) {
 
 void DrawingWidgetsEngine::RemoveAll()
 {
-	std::vector<TBaseWidget*>::iterator FindItem;
+	vector<TBaseWidget*>::iterator FindItem;
 	for(FindItem = Widgets.begin(); FindItem < Widgets.end(); FindItem++)
 		delete *FindItem;
 	Widgets.clear();
@@ -86,7 +86,7 @@ void DrawingWidgetsEngine::RemoveAll()
 
 bool DrawingWidgetsEngine::RemoveWidgetFromList(TBaseWidget* Widget)
 {
-	std::vector<TBaseWidget*>::iterator FindItem;
+	vector<TBaseWidget*>::iterator FindItem;
 	for(FindItem = Widgets.begin(); FindItem < Widgets.end(); FindItem++)
 		if((*FindItem) == Widget) {
 			FindItem = Widgets.erase(FindItem);
