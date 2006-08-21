@@ -17,6 +17,10 @@
 #include "../../defines/define_all.h"
 #endif // USE_DEBUG_CODE
 
+// used in loops which waits the WM or X11 to complete an action
+#define WAIT_FOR_COMPLETION_MAX_ITERATIONS  100
+#define WAIT_FOR_COMPLETION_INTERVAL_USLEEP 1000
+
 // do not use the error handler grabber
 static const bool g_bNoErrorHandler    = getenv("X11_NO_ERRORHANDLER");
 
@@ -477,6 +481,7 @@ bool X11wrapper::Window_Show(Window window, bool bShow/*=true*/)
             // show here
             code = XMapWindow(GetDisplay(), window);
             _COND_XERROR_LOG_BREAK(code);
+            Sync();
             // Wait for the MapNotify event
             for(;;)
             {
@@ -495,7 +500,7 @@ bool X11wrapper::Window_Show(Window window, bool bShow/*=true*/)
     return IsReturnCodeOk(code);
 }
 
-bool X11wrapper::Window_MoveResize(Window window, int nPosX, int nPosY, unsigned int nWidth, unsigned int nHeight)
+bool X11wrapper::Window_MoveResize_Basic(const Window window, const int nPosX, const int nPosY, const unsigned int nWidth, const unsigned int nHeight)
 {
     _LOG_NFO("window==%d, pos==(%d, %d, %d, %d)", window, nPosX, nPosY, nWidth, nHeight);
     int code = -1;
@@ -503,9 +508,119 @@ bool X11wrapper::Window_MoveResize(Window window, int nPosX, int nPosY, unsigned
     do
     {
         code = XMoveResizeWindow(GetDisplay(), window, nPosX, nPosY, nWidth, nHeight);
-        _COND_XERROR_LOG_BREAK(code);
+        _COND_XSTAT_ERROR_LOG_BREAK(code);
+        _LOG_NFO("window==%d => pos==(%d, %d, %d, %d)", window, nPosX, nPosY, nWidth, nHeight);
     } while (0);
     return IsReturnCodeOk(code);
+}
+
+bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const int nPosY, const unsigned int nWidth, const unsigned int nHeight)
+{
+    _LOG_NFO("window==%d, pos==(%d, %d, %d, %d)", window, nPosX, nPosY, nWidth, nHeight);
+    // deepest wm-window container
+    // will try first with our window directly
+    Window window_wm = window;
+    // real positioning action coordinates
+    int x_req = nPosX;
+    int y_req = nPosY;
+    unsigned int w_req = nWidth;
+    unsigned int h_req = nHeight;
+    // coordinates for the corresponding wm-parent-window
+    int x_wm = 0;
+    int y_wm = 0;
+    unsigned int w_wm = 0;
+    unsigned int h_wm = 0;
+    // coordinates for our window
+    int x = 0;
+    int y = 0;
+    unsigned int w = 0;
+    unsigned int h = 0;
+    // correct position checker
+    bool bGoodPos = false;
+    bool bGoodPos_wm = false;
+    // start
+    int code = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        for (int i=0; i<WAIT_FOR_COMPLETION_MAX_ITERATIONS; i++)
+        {
+            //_LOG_NFO("i==%d/%d", i, WAIT_FOR_COMPLETION_MAX_ITERATIONS);
+            //_LOG_NFO("window_req==%d => pos==(%d, %d, %d, %d)", window_wm, x_req, y_req, w_req, h_req);
+            Sync();
+            code = XMoveResizeWindow(GetDisplay(), window_wm, x_req, y_req, w_req, h_req);
+            Sync();
+            // cannot wait for Expose events: they may be generated or not
+            if (code != true)
+            {
+                _LOG_WRN("XMoveResizeWindow() => retCode==%d", code);
+                usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
+                continue;
+            }
+            //_LOG_NFO("XMoveResizeWindow() => retCode==%d", code);
+            // check the real position
+            if (! Window_GetGeometry(window, &x, &y, &w, &h))
+            {
+                _LOG_WRN("Window_GetGeometry() => retCode==false");
+                usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
+                continue;
+            }
+            //_LOG_NFO("window==%d => pos==(%d, %d, %d, %d)", window, x, y, w, h);
+            bGoodPos = ( (x==nPosX) && (y==nPosY) && (w==nWidth) && (h==nHeight) );
+            if (bGoodPos)
+            {
+                _LOG_NFO("window position is good");
+                break;
+            }
+            // check if the wm reparented the window
+            window_wm = Window_GetDeepestParent(window);
+            if ( (window_wm == 0) || (window_wm == window) )
+            {
+                _LOG_WRN("Window_GetDeepestParent() => window_wm==%d", window_wm);
+                usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
+                continue;
+            }
+            // we have a container wm-window here
+            // will translate the origin
+            int x_delta = 0;
+            int y_delta = 0;
+            bool bResult = Window_TranslateCoordinates(window, window_wm, 0, 0, &x_delta, &y_delta, NULL);
+            if (! bResult)
+            {
+                _LOG_WRN("cannot translate coordinates");
+                usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
+                continue;
+            }
+            //_LOG_NFO("x_delta==%d, y_delta==%d", x_delta, y_delta);
+            // check the real position for window_wm
+            if (! Window_GetGeometry(window_wm, &x_wm, &y_wm, &w_wm, &h_wm))
+            {
+                _LOG_WRN("Window_GetGeometry(window_wm) => retCode==false");
+                usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
+                continue;
+            }
+            //_LOG_NFO("window_wm==%d => pos==(%d, %d, %d, %d)", window_wm, x_wm, y_wm, w_wm, h_wm);
+            bGoodPos_wm = ( (x_req==x_wm) && (y_req==y_wm) && (w_req==w_wm) && (h_req==h_wm) );
+            if (bGoodPos_wm)
+            {
+                _LOG_NFO("wm_window position is good");
+                break;
+            }
+            // compute the new coordinates
+            x_req = nPosX - x_delta;
+            y_req = nPosY - y_delta;
+            w_req = w_wm;
+            h_req = h_wm;
+            usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
+        }
+    } while (0);
+    if (bGoodPos)
+        _LOG_NFO("window==%d => pos==(%d, %d, %d, %d)", window, x, y, w, h);
+    else if (bGoodPos_wm)
+        _LOG_NFO("window_wm==%d => pos==(%d, %d, %d, %d)", window_wm, x_wm, y_wm, w_wm, h_wm);
+    else
+        _LOG_ERR("cannot re-position window==%d", window);
+    return (bGoodPos || bGoodPos_wm);
 }
 
 bool X11wrapper::Window_ClassName(Window window, const char *s_class, const char *s_name)
@@ -631,11 +746,48 @@ Window X11wrapper::Window_GetParent(Window window)
             _LOG_XERROR_BREAK("cannot read window tree");
     } while (0);
     // cleanup
-    if (children_return)
+    if (children_return != None)
         XFree(children_return);
     if (! IsReturnCodeOk(code))
         return 0;
-    _LOG_NFO("window==%d, parent==%d", window, parent_return);
+    //if (parent_return == root_return)
+    //    _LOG_NFO("window==%d => root parent==%d", window, parent_return);
+    //else
+    //    _LOG_NFO("window==%d => parent==%d", window, parent_return);
+    return parent_return;
+}
+
+Window X11wrapper::Window_GetDeepestParent(Window window)
+{
+    //_LOG_NFO("window==%d", window);
+    Window parent_return = 0;
+    if (window == None)
+    {
+        _LOG_WRN("window==%d => parent_return==%d", window, parent_return);
+        return parent_return;
+    }
+    Window root_window = Window_GetRoot();
+    if (window == root_window)
+    {
+        _LOG_WRN("root window==%d => parent_return==%d", window, parent_return);
+        return parent_return;
+    }
+    parent_return = window;
+    // going recursive
+    Window some_window = window;
+    do
+    {
+        some_window = Window_GetParent(some_window);
+        if (some_window == 0)
+        {
+            _LOG_ERR("cannot get parent for window==%d", window);
+            return 0;
+        }
+        if (some_window == root_window)
+            break;
+        parent_return = some_window;
+    } while (true);
+    //_LOG_NFO("window==%d => parent_return==%d", window, parent_return);
     return parent_return;
 }
 
@@ -699,8 +851,9 @@ bool X11wrapper::Mouse_Grab(Window window_grab, Window window_confine_to/*=None*
     {
         // in a loop, forcing the grab again
         // because the time moment may not be good right now
-        for (int i=0; i<100; i++)
+        for (int i=0; i<WAIT_FOR_COMPLETION_MAX_ITERATIONS; i++)
         {
+            //_LOG_NFO("i==%d/%d", i, WAIT_FOR_COMPLETION_MAX_ITERATIONS);
             Sync();
             code = XGrabPointer(
                 GetDisplay(),
@@ -716,7 +869,7 @@ bool X11wrapper::Mouse_Grab(Window window_grab, Window window_confine_to/*=None*
             if (code == 0)
                 break;
             //_LOG_WRN("i==%d, code==%d => ErrorText=='%s'", i, code, GetErrorText(GetDisplay(), code).c_str());
-            usleep(1000); // sleep just a little
+            usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
         }
         _COND_XSTAT_ERROR_LOG_BREAK(code);
         _LOG_NFO("XGrabPointer(window_grab==%d, window_confine_to==%d) => retCode==%d", window_grab, window_confine_to, code);
@@ -890,64 +1043,61 @@ bool X11wrapper::Mouse_GetSpeed(int &accel_numerator_return, int &accel_denomina
     return IsReturnCodeOk(code);
 }
 
-bool X11wrapper::Mouse_SetPosition(int nPosX, int nPosY)
+bool X11wrapper::Mouse_SetPosition(int nPosX, int nPosY, Window relative_to_window/*=None*/)
 {
-    _LOG_NFO("pos==(%d, %d)", nPosX, nPosY);
-    Window window = Window_GetRoot();
+    _LOG_NFO("pointer pos==(%d, %d), relative to window==%d", nPosX, nPosY, relative_to_window);
+    if (relative_to_window == 0)
+    {
+        //_LOG_WRN("changing the relative window to root window");
+        relative_to_window = Window_GetRoot();
+    }
     int code = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XWarpPointer(GetDisplay(), window, window, 0, 0, 0, 0, nPosX, nPosY);
+        code = XWarpPointer(GetDisplay(), None, relative_to_window, 0, 0, 0, 0, nPosX, nPosY);
         _COND_XERROR_LOG_BREAK(code);
     } while (0);
     return IsReturnCodeOk(code);
 }
 
-bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY, bool bRelative/*=false*/)
+bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY, Window relative_to_window/*=None*/)
 {
-    //_LOG_NFO("previous pos==(%d, %d)", nPosX, nPosY);
-    Window window = Window_GetRoot();
+    if (relative_to_window == 0)
+    {
+        //_LOG_WRN("changing the relative window to root window");
+        relative_to_window = Window_GetRoot();
+    }
     int code = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        if (bRelative || !bRelative) break;
-        if (bRelative)
-        {
-#ifdef USE_XDGA
-            XDGA_Mouse_GetPosition(nPosX, nPosY);
-            _LOG_NFO("nPosX==%d, nPosY==%d", nPosX, nPosY);
-#endif // USE_XDGA
-        }
-        else
-        {
-            Window root_return;
-            Window child_return;
-            int root_x_return;
-            int root_y_return;
-            int win_x_return;
-            int win_y_return;
-            unsigned int mask_return;
-            code = XQueryPointer(
-                GetDisplay(),
-                window,
-                &root_return,
-                &child_return,
-                &root_x_return,
-                &root_y_return,
-                &win_x_return,
-                &win_y_return,
-                &mask_return
-                );
-            _COND_XERROR_LOG_BREAK(code);
-            _LOG_NFO(
-                "root_return==%d, child_return==%d, root_x_return==%d, root_y_return==%d, win_x_return==%d, win_y_return==%d, mask_return==%d",
-                root_return, child_return, root_x_return, root_y_return, win_x_return, win_y_return, mask_return
-                );
-            nPosX = root_x_return;
-            nPosY = root_y_return;
-        }
+        Window root_return;
+        Window child_return;
+        int root_x_return;
+        int root_y_return;
+        int win_x_return;
+        int win_y_return;
+        unsigned int mask_return;
+        code = XQueryPointer(
+            GetDisplay(),
+            relative_to_window,
+            &root_return,
+            &child_return,
+            &root_x_return,
+            &root_y_return,
+            &win_x_return,
+            &win_y_return,
+            &mask_return
+            );
+        _COND_XERROR_LOG_BREAK(code);
+        //_LOG_NFO(
+        //    "root_return==%d, child_return==%d, root_x_return==%d, root_y_return==%d, win_x_return==%d, win_y_return==%d, mask_return==%d",
+        //    root_return, child_return, root_x_return, root_y_return, win_x_return, win_y_return, mask_return
+        //    );
+        nPosX = win_x_return;
+        nPosY = win_y_return;
+        _LOG_NFO("pointer pos==(%d, %d), relative to window==%d", nPosX, nPosY, relative_to_window);
     } while (0);
     return IsReturnCodeOk(code);
 }
@@ -1182,6 +1332,7 @@ bool X11wrapper::Pixmap_Delete(Pixmap &pixmap)
     {
         code = XFreePixmap(GetDisplay(), pixmap);
         _COND_XERROR_LOG_BREAK(code);
+        pixmap = None;
     } while (0);
     return IsReturnCodeOk(code);
 }
@@ -1206,9 +1357,9 @@ bool X11wrapper::Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pix
 
 bool X11wrapper::Object_GetGeometry(Drawable drawable, int *x_return, int *y_return, unsigned int *width_return, unsigned int *height_return)
 {
-    _LOG_NFO("Drawable==%d, x_return==%p, y_return==%p, width_return==%p, height_return==%p",
-             drawable, x_return, y_return, width_return, height_return
-             );
+    //_LOG_NFO("drawable==%d, x_return->%p, y_return->%p, width_return->%p, height_return->%p",
+    //         drawable, x_return, y_return, width_return, height_return
+    //         );
     int code = -1;
     X11_Locker x11_locker(GetDisplay());
     do
@@ -1220,6 +1371,7 @@ bool X11wrapper::Object_GetGeometry(Drawable drawable, int *x_return, int *y_ret
         unsigned int height_ret = 0;
         unsigned int border_width_ret = 0;
         unsigned int depth_ret = 0;
+        // XGetWindowAttributes is only for windows
         code = XGetGeometry(
             GetDisplay(), drawable,
             &root_ret,
@@ -1228,27 +1380,104 @@ bool X11wrapper::Object_GetGeometry(Drawable drawable, int *x_return, int *y_ret
             &depth_ret
             );
         if (code == 0)
-            _LOG_XERROR_BREAK("cannot read window geometry");
+            _LOG_XERROR_BREAK("cannot read object geometry");
+        // write results
         if (x_return)
-        {
             *x_return = x_ret;
-            _LOG_NFO("x_return->%d", *x_return);
-        }
         if (y_return)
-        {
             *y_return = y_ret;
-            _LOG_NFO("y_return->%d", *y_return);
-        }
         if (width_return)
-        {
             *width_return = width_ret;
-            _LOG_NFO("width_return->%d", *width_return);
-        }
         if (height_return)
-        {
             *height_return = height_ret;
-            _LOG_NFO("height_return->%d", *height_return);
+        //_LOG_NFO("drawable==%d => pos==(%d, %d, %d, %d)", drawable, x_ret, y_ret, width_ret, height_ret);
+    } while (0);
+    return IsReturnCodeOk(code);
+}
+
+bool X11wrapper::Window_GetGeometry(Window window, int *x_return, int *y_return, unsigned int *width_return, unsigned int *height_return)
+{
+    //_LOG_NFO("window==%d, x_return->%p, y_return->%p, width_return->%p, height_return->%p",
+    //         window, x_return, y_return, width_return, height_return
+    //         );
+    int code = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        XWindowAttributes attr;
+        code = XGetWindowAttributes(GetDisplay(), window, &attr);
+        if (code == 0)
+        {
+            code = -1;
+            _LOG_XERROR_BREAK("cannot read window geometry");
         }
+        // check the deepest parent window
+        Window window_wm = Window_GetDeepestParent(window);
+        if ( (window_wm != 0) && (window_wm != window) )
+        {
+            // we have a container wm-window here
+            // will translate the origin
+            int x_delta = 0;
+            int y_delta = 0;
+            bool bResult = Window_TranslateCoordinates(window, window_wm, 0, 0, &x_delta, &y_delta, NULL);
+            if (! bResult)
+            {
+                _LOG_WRN("cannot translate coordinates");
+            }
+            else
+            {
+                XWindowAttributes attr_wm;
+                code = XGetWindowAttributes(GetDisplay(), window_wm, &attr_wm);
+                if (code == 0)
+                    _LOG_XERROR_BREAK("cannot read window_wm geometry");
+                attr.x  = attr_wm.x + x_delta;
+                attr.y  = attr_wm.y + y_delta;
+            }
+        }
+        // write results
+        if (x_return)
+            *x_return = attr.x;
+        if (y_return)
+            *y_return = attr.y;
+        if (width_return)
+            *width_return = attr.width;
+        if (height_return)
+            *height_return = attr.height;
+        //_LOG_NFO("window==%d => pos==(%d, %d, %d, %d)", window, attr.x, attr.y, attr.width, attr.height);
+    } while (0);
+    return IsReturnCodeOk(code);
+}
+
+bool X11wrapper::Window_TranslateCoordinates(Window window_src, Window window_dest, int x_src, int y_src, int *x_dest_return, int *y_dest_return, Window *inner_window_dest_return)
+{
+    //_LOG_NFO("window_src==%d, window_dest==%d, x_src==%d, y_src==%d, x_dest_return->%p, y_dest_return->%p, inner_window_dest_return->%p",
+    //         window_src, window_dest, x_src, y_src, x_dest_return, y_dest_return, inner_window_dest_return
+    //         );
+    int code = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        int delta_x_return = 0;
+        int delta_y_return = 0;
+        Window inner_window_return = 0;
+        bool bResult = XTranslateCoordinates(
+            GetDisplay(),
+            window_src, window_dest,
+            x_src, y_src, &delta_x_return, &delta_y_return, &inner_window_return
+            );
+        if (! bResult)
+            _LOG_XERROR_BREAK("cannot translate coordinates");
+        // write results
+        if (x_dest_return)
+            *x_dest_return = delta_x_return;
+        if (y_dest_return)
+            *y_dest_return = delta_y_return;
+        if (inner_window_dest_return)
+            *inner_window_dest_return = inner_window_return;
+        //_LOG_NFO("window_src==%d, window_dest==%d, x_src==%d, y_src==%d => x_dest_return==%d, y_dest_return==%d, inner_window_dest_return==%d",
+        //         window_src, window_dest, x_src, y_src, delta_x_return, delta_y_return, inner_window_return
+        //         );
+        code = 0;
     } while (0);
     return IsReturnCodeOk(code);
 }
@@ -1446,7 +1675,7 @@ bool X11wrapper::Debug_Shape_Context_Example(Window window, unsigned int width, 
     if (! bResult)
     {
         _LOG_ERR("Shape_Context_Enter(window==%d, width==%d, height==%d, bitmap_mask==%d, gc==%d, pDisplay==%p) => retCode==%d",
-             window, width, height, bitmap_mask, gc, pDisplay, bResult);
+                 window, width, height, bitmap_mask, gc, pDisplay, bResult);
         return false;
     }
     // creating the desired shape
@@ -1461,7 +1690,7 @@ bool X11wrapper::Debug_Shape_Context_Example(Window window, unsigned int width, 
     if (! bResult)
     {
         _LOG_WRN("Shape_Context_Leave(window==%d, width==%d, height==%d, bitmap_mask==%d, gc==%d, pDisplay==%p) => retCode==%d",
-             window, width, height, bitmap_mask, gc, pDisplay, bResult);
+                 window, width, height, bitmap_mask, gc, pDisplay, bResult);
     }
     return true;
 }
@@ -1536,7 +1765,7 @@ XImage * X11wrapper::Window_GetImage(Window window, bool bOnlyMask/*=false*/)
         int y = 0;
         unsigned int width = 0;
         unsigned int height = 0;
-        if (! Window_GetPosition(window, x, y, width, height))
+        if (! Object_GetGeometry(window, &x, &y, &width, &height))
             _LOG_XERROR_BREAK("Window_GetImage() : GetPosition");
         if (bOnlyMask)
             pXImage = XGetImage(GetDisplay(), window, 0, 0, width, height, 1, XYPixmap);
@@ -1546,24 +1775,6 @@ XImage * X11wrapper::Window_GetImage(Window window, bool bOnlyMask/*=false*/)
             _LOG_XERROR_BREAK("Window_GetImage() : GetImage");
     } while (0);
     return pXImage;
-}
-
-bool X11wrapper::Window_GetPosition(Window window, int &nPosX, int &nPosY, unsigned int &nWidth, unsigned int &nHeight)
-{
-    _LOG_NFO("window==%d", window);
-    int code = -1;
-    X11_Locker x11_locker(GetDisplay());
-    do
-    {
-        XWindowAttributes attr;
-        code = XGetWindowAttributes(GetDisplay(), window, &attr);
-        _COND_XERROR_LOG_BREAK(code);
-        nPosX = attr.x;
-        nPosY = attr.y;
-        nWidth = attr.width;
-        nHeight = attr.height;
-    } while (0);
-    return IsReturnCodeOk(code);
 }
 
 Pixmap X11wrapper::ConvertImageToPixmap(XImage *pXImage, Window window)

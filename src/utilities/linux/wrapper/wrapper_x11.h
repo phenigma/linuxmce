@@ -151,7 +151,11 @@ public:
     // show or hide a window
     bool Window_Show(Window window, bool bShow=true);
 
-    bool Window_MoveResize(Window window, int nPosX, int nPosY, unsigned int nWidth, unsigned int nHeight);
+    // basic window positioning
+    bool Window_MoveResize_Basic(const Window window, const int nPosX, const int nPosY, const unsigned int nWidth, const unsigned int nHeight);
+
+    // wm-style window positioning
+    bool Window_MoveResize(const Window window, const int nPosX, const int nPosY, const unsigned int nWidth, const unsigned int nHeight);
 
     bool Window_ClassName(Window window, const char *s_class, const char *s_name);
     bool Window_Name(Window window, const char *s_name);
@@ -168,6 +172,11 @@ public:
     // return 0 on error
     // can return the root window
     Window Window_GetParent(Window window);
+
+    // returns the last parent before the root window
+    // can return the same window
+    // returns 0 if there is none, or an error occurs
+    Window Window_GetDeepestParent(Window window);
 
     /// keyboard
 
@@ -197,8 +206,13 @@ public:
 
     bool Mouse_GetSpeed(int &accel_numerator_return, int &accel_denominator_return, int &threshold_return);
 
-    bool Mouse_SetPosition(int nPosX, int nPosY);
-    bool Mouse_GetPosition(int &nPosX, int &nPosY, bool bRelative=false);
+    // change the position relative to the given window
+    // using the root window by default
+    bool Mouse_SetPosition(int nPosX, int nPosY, Window relative_to_window=None);
+
+    // returns the position relative to the given window
+    // using the root window by default
+    bool Mouse_GetPosition(int &nPosX, int &nPosY, Window relative_to_window=None);
 
     // activate   : both width and height must be > 0
     // deactivate : both width and height == 0
@@ -228,6 +242,7 @@ public:
     Pixmap Pixmap_Create(Window window, unsigned int width, unsigned int height, unsigned int depth);
 
     // actually XFreePixmap() with error-checking
+    // and zeroing the id in case of success
     bool Pixmap_Delete(Pixmap &pixmap);
 
     // Pixmap_Delete() should be called
@@ -238,7 +253,22 @@ public:
     // drawable can be: Window, Pixmap
     // NULL arguments can be passed, for un-needed values
     // x and y are always 0 for a Pixmap
+    // x and y members are set to the upper-left outer corner relative to the parent window's origin
+    // in case of error, nothing is changed
     bool Object_GetGeometry(Drawable drawable, int *x_return, int *y_return, unsigned int *width_return, unsigned int *height_return);
+
+    // only for windows
+    // NULL arguments can be passed, for un-needed values
+    // deepest parent window, if exist, is checked
+    // x and y are absolute
+    // in case of error, nothing is changed
+    bool Window_GetGeometry(Window window, int *x_return, int *y_return, unsigned int *width_return, unsigned int *height_return);
+
+    // NULL arguments can be passed, for un-needed values
+    // inner_window_dest_return is a mapped child of the destination window
+    //   which contains those coordinates
+    // in case of error, nothing is changed
+    bool Window_TranslateCoordinates(Window window_src, Window window_dest, int x_src, int y_src, int *x_dest_return, int *y_dest_return, Window *inner_window_dest_return);
 
 protected:
     // opacity only for this window
@@ -326,7 +356,6 @@ public:
 
     // XDestroyImage should be called
     XImage * Window_GetImage(Window window, bool bOnlyMask=false);
-    bool Window_GetPosition(Window window, int &nPosX, int &nPosY, unsigned int &nWidth, unsigned int &nHeight);
     Pixmap ConvertImageToPixmap(XImage *pXImage, Window window);
     bool Window_PerPixel_Transparency(Window window, unsigned long nAlphaValue=1);
 
