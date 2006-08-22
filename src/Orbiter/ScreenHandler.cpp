@@ -1271,6 +1271,7 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 			{
 				if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
 				{
+					m_pOrbiter->CMD_Set_Variable(VARIABLE_Path_CONST, FileUtils::IncludeTrailingSlash(m_pOrbiter->m_mapVariable[VARIABLE_Path_CONST]));
 					m_pOrbiter->CMD_Send_Message(m_sSaveFile_Command, false);
 					m_pOrbiter->GotoMainMenu();
 
@@ -1377,6 +1378,8 @@ bool ScreenHandler::FileSave_GridSelected(CallBackData *pData)
 						m_sSaveFile_RelativeFolder += "/";
 				}
 			}
+
+
 
 			m_pOrbiter->CMD_Set_Text(StringUtils::ltos(DESIGNOBJ_mnuChooseFolder_CONST), 
 				"Folder : " + m_sSaveFile_FullBasePath + m_sSaveFile_RelativeFolder, TEXT_STATUS_CONST);
