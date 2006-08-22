@@ -1205,13 +1205,15 @@ DesktopTransparencyImage=""
 
 # ==================================================
 # again, override options for debug
+# ColorActiveBorder="rgb:EE/EE/EE"
+# ColorNormalBorder="rgb:AA/AA/AA"
 # DesktopBackgroundColor="rgb:20/40/80"
-# DesktopBackgroundScaled=0
 # DesktopBackgroundImage="/usr/share/pixmaps/debian-logo.png"
-# KeyWinClose="Alt+Shift+F4"
-# KeySysWorkspaceNext="Ctrl+Alt+Shift+Tab"
+# DesktopBackgroundScaled=0
 # KeySysWorkspace1="Alt+Shift+F1"
 # KeySysWorkspace2="Alt+Shift+F2"
+# KeySysWorkspaceNext="Ctrl+Alt+Shift+Tab"
+# KeyWinClose="Alt+Shift+F4"
 # TaskBarAutoHide=0
 
 # EOF
