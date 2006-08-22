@@ -352,10 +352,10 @@ bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
 		DeviceData_Impl *pDeviceData_Impl = m_pData->m_vectDeviceData_Impl_Children[i];
 
 		// Firewire cameras don't have a v4l device, we need to use vloopback to create it	
-/*		if (iPK_DeviceTemplate == UNKNOWN_FIREWIRE_CAMERA_DEVICE_TEMPLATE) {
+		if (iPK_DeviceTemplate == DEVICETEMPLATE_Generic_Firewire_Camera_CONST) {
 			CreateVideoDeviceFor1394(pDeviceData_Impl);
 		} 
-*/		
+
 		if(!bFirstAdded) {
 			if(AddChildDeviceToConfigFile(mconffile, pDeviceData_Impl, i)) {
 				bFirstAdded = true;
@@ -496,15 +496,12 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 	//video device
 	string sDevice = pDeviceData->mapParameters_Find(DEVICEDATA_Device_CONST);
 
-	if(!sDevice.empty()) {
-		/*
-		if (pDeviceData->m_dwPK_DeviceTemplate != UNKNOWN_FIREWIRE_CAMERA_DEVICE_TEMPLATE) {	
-		*/
-			conffile 	<< "videodevice /dev/video" << sDevice << endl;
-		/*
-		} else {
+	if(!sDevice.empty()) {		
+		if (pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Firewire_Camera_CONST) {		
 			conffile	<< "videodevice /dev/video" << StringUtils::itos((atoi(sDevice.c_str()) - 1 ) * 2 + 30) << endl;
-		}*/
+		} else {
+			conffile 	<< "videodevice /dev/video" << sDevice << endl;		
+		}
 	} else {
 		g_pPlutoLogger->Write(LV_WARNING, "Device number not specified for device: %d.", PK_Device);
 		return false;
