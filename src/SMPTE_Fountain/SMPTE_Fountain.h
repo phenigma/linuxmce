@@ -23,6 +23,28 @@ public:
 	virtual bool OnConnect( int PK_DeviceTemplate,string sExtraInfo="" ){return true;};
 };
 
+namespace DCE
+{
+	class StartMediaInfo
+	{
+	public:
+		bool m_bManuallyStart;
+		string m_sFilename; 
+		int m_iPK_MediaType, m_iStreamID;
+		string m_sMediaPosition;
+	};
+
+	class TimeCodeInfo
+	{
+	public:
+		long m_PadBefore,m_PadAfter;  // Seconds to pad 
+		long m_StartTime; // The actual start time
+
+		TimeCodeInfo(long PadBefore, long PadAfter, long StartTime) { m_PadBefore=PadBefore; m_PadAfter=PadAfter; m_StartTime=StartTime; }
+	};
+
+}
+
 
 //<-dceag-decl-b->
 namespace DCE
