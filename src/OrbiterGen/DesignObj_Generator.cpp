@@ -832,7 +832,10 @@ int k=2;
 
 		string sRegenMonitor = m_pOrbiterGenerator->m_pRegenMonitor->GetModInfo_Floorplan(FloorplanType);
 		if( sRegenMonitor.size()>0 )
+		{
+			cout << "obj: " << m_pRow_DesignObj->PK_DesignObj_get() << " regen cache " << m_pDesignObj_TopMost->m_vectRegenMonitor.size() << " is: " << sRegenMonitor << "-" << endl;
 			m_pDesignObj_TopMost->m_vectRegenMonitor.push_back( sRegenMonitor );
+		}
 
 		Row_Device_DeviceData *pRow_Device_DeviceData_FPInfo=NULL;  // We may need this down below
 		for(size_t s=0;s< (FloorplanType==FLOORPLANTYPE_Entertainment_Zone_CONST ? vectRow_EntertainArea.size() : vectRow_Device_DeviceData.size());++s)
@@ -1843,7 +1846,10 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
 	string sRegenMonitor = m_pOrbiterGenerator->m_pRegenMonitor->GetModInfo_Array(PK_Array);
 	if( sRegenMonitor.size()>0 )
+	{
+		cout << "obj: " << m_pRow_DesignObj->PK_DesignObj_get() << " regen cache " << m_pDesignObj_TopMost->m_vectRegenMonitor.size() << " is: " << sRegenMonitor << "-" << endl;
 		m_pDesignObj_TopMost->m_vectRegenMonitor.push_back( sRegenMonitor );
+	}
     return alArray;
 
 }
@@ -2153,6 +2159,7 @@ bool DesignObj_Generator::CachedVersionOK()
 
 	for(size_t s=0;s<m_vectRegenMonitor.size();++s)
 	{
+		cout << "obj: " << m_pRow_DesignObj->PK_DesignObj_get() << " regen cache " << s << " of " << m_vectRegenMonitor.size() << " is: " << m_vectRegenMonitor[s] << "-" << endl;
 		if( !m_pOrbiterGenerator->m_pRegenMonitor->CachedVersionOK(m_vectRegenMonitor[s]) )
 			return false;
 	}

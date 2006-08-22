@@ -310,6 +310,7 @@ int OrbiterGenerator::DoIt()
 	m_pRow_Orbiter = mds.Orbiter_get()->GetRow(m_iPK_Orbiter);
 	if( !m_pRow_Orbiter )
 	{
+		g_pPlutoLogger->Write(LV_STATUS,"new orbiter %d",m_iPK_Orbiter);
 		m_bNewOrbiter=true;
 		m_pRow_Orbiter = mds.Orbiter_get()->AddRow();
 		m_pRow_Orbiter->PK_Orbiter_set(m_iPK_Orbiter);
@@ -709,7 +710,10 @@ m_bNoEffects = true;
 	if( m_pRow_Orbiter->Size_get()!=sSize && m_map_PK_DesignObj_SoleScreenToGen.size()==0 )
 	{
 		if( m_pRow_Orbiter->Size_get().size()==0  )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"new orbiter size was 0");
 			m_bNewOrbiter=true;
+		}
 
 		cout << "Regenerating all: Orbiter data changed from " << m_pRow_Orbiter->Size_get() << " to " << sSize << endl;
 		m_pRow_Orbiter->Size_set(sSize);
@@ -727,7 +731,10 @@ m_bNoEffects = true;
 		mds.Users_get()->GetRows("WHERE 1=1 LIMIT 1",&vectRow_Users);
 
 		if( vectRow_Room.size()==0 || vectRow_Users.size()==0 )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"new orbiter no rooms/users");
 			m_bNewOrbiter = true;
+		}
 	}
 
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_ScreenWidth_CONST);

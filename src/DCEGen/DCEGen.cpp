@@ -668,7 +668,21 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\tmap<long, string>::iterator itRepeat;" << endl;
 
 	fstr_DeviceCommand << "\t\tif( Command_Impl::ReceivedMessage(pMessageOriginal)==rmr_Processed )" << endl;
+	fstr_DeviceCommand << "\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\tif( pMessageOriginal->m_eExpectedResponse==ER_ReplyMessage && !pMessageOriginal->m_bRespondedToMessage )" << endl;
+	fstr_DeviceCommand << "\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\tpMessageOriginal->m_bRespondedToMessage=true;" << endl;
+	fstr_DeviceCommand << "\t\t\t\tMessage *pMessageOut=new Message(m_dwPK_Device,pMessageOriginal->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);" << endl;
+	fstr_DeviceCommand << "\t\t\t\tpMessageOut->m_mapParameters[0]=\"OK\";" << endl;
+	fstr_DeviceCommand << "\t\t\t\tSendMessage(pMessageOut);" << endl;
+	fstr_DeviceCommand << "\t\t\t}" << endl;
+	fstr_DeviceCommand << "\t\t\telse if( (pMessageOriginal->m_eExpectedResponse==ER_DeliveryConfirmation || pMessageOriginal->m_eExpectedResponse==ER_ReplyString) && !pMessageOriginal->m_bRespondedToMessage )" << endl;
+	fstr_DeviceCommand << "\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\tpMessageOriginal->m_bRespondedToMessage=true;" << endl;
+	fstr_DeviceCommand << "\t\t\t\tSendString(\"OK\");" << endl;
+	fstr_DeviceCommand << "\t\t\t}" << endl;
 	fstr_DeviceCommand << "\t\t\treturn rmr_Processed;" << endl;
+	fstr_DeviceCommand << "\t\t}" << endl;
 
 	fstr_DeviceCommand << "\t\tint iHandled=0;" << endl;
 	fstr_DeviceCommand << "\t\tfor(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)" << endl;

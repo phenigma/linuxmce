@@ -529,11 +529,6 @@ bool Orbiter::GetConfig()
 
 	WriteStatusOutput("Got the config");
 
-	if( !m_bNewOrbiter && DATA_Get_Leave_Monitor_on_for_OSD() )
-		m_bDisplayOn=false;  // So the first touch will turn it on
-	else
-		m_bDisplayOn=true;  // The display should already be on.  If this is the first time it's run, the user must have left the tv on already
-
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"monitor m_bDisplayOn initially set to %d",(int) m_bDisplayOn);
 #endif
@@ -547,14 +542,9 @@ bool Orbiter::GetConfig()
 	}
 
 	string::size_type pos=0;
-	if( m_bNewOrbiter )
-		m_iTimeoutScreenSaver=m_iTimeoutBlank=0;
-	else
-	{
-		string sTimeout = DATA_Get_Timeout();
-		m_iTimeoutScreenSaver = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
-		m_iTimeoutBlank = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
-	}
+	string sTimeout = DATA_Get_Timeout();
+	m_iTimeoutScreenSaver = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
+	m_iTimeoutBlank = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
 	m_sCacheFolder = DATA_Get_CacheFolder();
 	m_iCacheSize = DATA_Get_CacheSize();
 
@@ -1956,6 +1946,13 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 						ExecuteCommandsInList( &pObj->m_Action_StartupList, pObj, smLoadUnload );
 				}
 			}
+
+			if( !m_bNewOrbiter && DATA_Get_Leave_Monitor_on_for_OSD() )
+				m_bDisplayOn=false;  // So the first touch will turn it on
+			else
+				m_bDisplayOn=true;  // The display should already be on.  If this is the first time it's run, the user must have left the tv on already
+			if( m_bNewOrbiter )
+				m_iTimeoutScreenSaver=m_iTimeoutBlank=0;
 
 			char *pData=NULL; int iSize=0;
 			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1",
@@ -6560,6 +6557,8 @@ void Orbiter::CMD_Keep_Screen_On(string sOnOff,string &sCMD_Result,Message *pMes
 void Orbiter::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
 //<-dceag-c192-e->
 {
+	m_bDisplayOn = true;
+	CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
 }
 
 //<-dceag-c193-b->
@@ -6572,6 +6571,7 @@ void Orbiter::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Me
 void Orbiter::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 //<-dceag-c193-e->
 {
+	m_bDisplayOn = false;
 	m_pOrbiterRenderer->BeginPaint();
 	PlutoColor color(200, 200, 200, 100);
 	m_pOrbiterRenderer->SolidRectangle(5, m_iImageHeight - 30, 200, 25, color);
