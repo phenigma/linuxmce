@@ -1212,5 +1212,6 @@ DesktopTransparencyImage=""
 # KeySysWorkspaceNext="Ctrl+Alt+Shift+Tab"
 # KeySysWorkspace1="Alt+Shift+F1"
 # KeySysWorkspace2="Alt+Shift+F2"
+# TaskBarAutoHide=0
 
 # EOF

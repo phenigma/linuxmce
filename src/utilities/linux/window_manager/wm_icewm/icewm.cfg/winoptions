@@ -4,13 +4,8 @@
 # since modifications to this file will be discarded when you
 # (re)install icewm.
 
-constrain_mouse.constrain_mouse.dBorder: 0
-constrain_mouse.constrain_mouse.dTitleBar: 0
 constrain_mouse.constrain_mouse.layer: Desktop
-
 constrain_pointer.constrain_pointer.layer: Desktop
-constrain_pointer.constrain_pointer.dBorder: 0
-constrain_pointer.constrain_pointer.dTitleBar: 0
 
 firefox-bin.Firefox-bin.dBorder: 1
 firefox-bin.Firefox-bin.dTitleBar: 1
