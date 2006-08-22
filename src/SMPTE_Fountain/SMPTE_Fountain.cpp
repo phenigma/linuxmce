@@ -39,6 +39,21 @@ SMPTE_Fountain::~SMPTE_Fountain()
 	alsa_soundout_shutdown = true;	
 }
 
+
+void *StartSynchronizationThread(void *p)
+{
+	SMPTE_Fountain *pF = (SMPTE_Fountain*)p;
+	pF->SynchronizationThread();
+	return NULL;
+}
+
+void *StartAskXineThread(void *p)
+{
+	SMPTE_Fountain *pF = (SMPTE_Fountain*)p;
+	pF->AskXineThread();
+	return NULL;
+}
+
 //<-dceag-getconfig-b->
 bool SMPTE_Fountain::GetConfig()
 {
@@ -57,6 +72,7 @@ bool SMPTE_Fountain::GetConfig()
 	m_smpteDefaultPreDelay=SMPTEGen::FromTimecode("00:00:10"); // Default of 10 second pre-delay
 	m_smpteXineStartupOffset=SMPTEGen::FromTimecode("00:00:00:12"); // Half-second Xine startup allowance
 	m_smpteAdjustmentThreshold=SMPTEGen::FromTimecode("00:00:01"); // Allow generated SMPTE and Xine to drift by a maximum of 1 second	
+	m_smpteXineSongStop=-1;
 
 	string sConfiguration = DATA_Get_Configuration();
 	string::size_type pos = 0;
@@ -90,6 +106,9 @@ bool SMPTE_Fountain::GetConfig()
 	
 	pthread_t threadid;
 	pthread_create(	&threadid, NULL, OutputThread, NULL); 
+	pthread_create(	&threadid, NULL, StartAskXineThread, (void *)this); 
+	pthread_create(	&threadid, NULL, StartSynchronizationThread, (void *)this); 
+
 	return true;
 }
 
@@ -168,8 +187,8 @@ void SMPTE_Fountain::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 
 bool SMPTE_Fountain::MediaPlaying( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
-	if( !m_bIsActive )
-		return false;
+	//if( !m_bIsActive )
+	//	return false;
 
 	string sFileName = pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
 	if( m_mapFilesTimeCode.find(sFileName)==m_mapFilesTimeCode.end() )
@@ -190,10 +209,13 @@ bool SMPTE_Fountain::MediaPlaying( class Socket *pSocket, class Message *pMessag
 	m_pStartMediaInfo->m_sMediaPosition = pMessage->m_mapParameters[COMMANDPARAMETER_MediaPosition_CONST]; 
 
 	g_pPlutoLogger->Write(LV_STATUS,"Setting Time Offset to: %d", pTimeCodeInfo->m_PadBefore);
-	smpte_stop = m_smpteSongOffset = pTimeCodeInfo->m_PadBefore;
+	smpte_stop = m_smpteSongOffset = pTimeCodeInfo->m_StartTime;
 	smpte_cur = smpte_stop - pTimeCodeInfo->m_PadBefore;
 	m_smpteStartXineTime = smpte_stop - m_smpteXineStartupOffset;
+	m_smpteXineSongStop = -1;
 
+	g_pPlutoLogger->Write(LV_STATUS,"SMPTE start: %d, stop %d, xine-start %d", smpte_cur, smpte_stop, m_smpteStartXineTime);
+	
 	if( pTimeCodeInfo->m_PadBefore )
 	{
 		m_pStartMediaInfo->m_bManuallyStart = true;
@@ -215,8 +237,9 @@ int SMPTE_Fountain::GetLengthOfActiveXineStream()
 	if( pos==string::npos )
 		return -1; // Couldn't get it
 	
-	return atoi( sMediaPosition.substr(pos+6).c_str() );
+	return atoi( sMediaPosition.substr(pos+6).c_str() ) * 25 / 1000;
 }
+
 
 void SMPTE_Fountain::SynchronizationThread()
 {
@@ -272,7 +295,12 @@ void SMPTE_Fountain::AskXineThread()
 				cout << "Read next line:" << sLine << endl; 
 				int Sp, H, M, S, Ms;
 				sscanf(sLine.c_str(), "%i,%02i:%02i:%02i.%03i", &Sp, &H, &M, &S, &Ms);
-				m_smpteXineReportedTime = SMPTEGen::FromTimecode(StringUtils::Format("%d:%d:%d:%d", H, M, S, (Ms*25 / 1000)).c_str());			
+				m_smpteXineReportedTime = SMPTEGen::FromTimecode(StringUtils::Format("%d:%d:%d:%d", H, M, S, (Ms*25 / 1000)).c_str());		
+				if (m_smpteXineSongStop<0)
+				{
+					m_smpteXineSongStop = GetLengthOfActiveXineStream();
+					smpte_stop = m_smpteSongOffset+m_smpteXineSongStop;
+				}
 			}
 			pS->Disconnect();
 		}

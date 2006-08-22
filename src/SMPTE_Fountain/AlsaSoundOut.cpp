@@ -31,7 +31,7 @@ enum {
 
 #define MAX_CHANNELS	16
 
-static char              *device      = "hw:1"; //"default";       /* playback device */
+static char              *device      = "plug:rearx"; //"rear";       /* playback device */
 static snd_pcm_format_t   format      = SND_PCM_FORMAT_S8; /* sample format */
 static unsigned int       rate        = 8000;	            /* stream rate */
 static unsigned int       channels    = 1;	            /* count of channels */
@@ -43,7 +43,7 @@ static snd_pcm_uframes_t  buffer_size;
 static snd_pcm_uframes_t  period_size;
 
 long smpte_cur = 0;
-long smpte_stop = 75; // test for 3 minutes.
+long smpte_stop = -1; // test for 3 minutes.
 bool alsa_soundout_shutdown = false;
 
 static const int	channels4[] = {
@@ -323,7 +323,7 @@ static int write_loop(snd_pcm_t *handle, int channel, int periods, uint8_t *fram
 				if ((err = write_buffer(handle, frames, framesize)) < 0)
 					break;
 				
-				printf("SMPTE %d: Frame written to ALSA.\n", smpte_cur);
+				//printf("SMPTE %d: Frame written to ALSA.\n", smpte_cur);
 				frameoffset=0;
 			}
 		} while(smptedataoffset < smptesize);
