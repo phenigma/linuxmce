@@ -248,7 +248,7 @@ if (is_null[1])
 return "NULL";
 
 char *buf = new char[101];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_ZoneName.c_str(), (unsigned long) min(50,m_ZoneName.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_ZoneName.c_str(), (unsigned long) min((size_t)50,m_ZoneName.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -262,7 +262,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[31];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Coordinate.c_str(), (unsigned long) min(15,m_Coordinate.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Coordinate.c_str(), (unsigned long) min((size_t)15,m_Coordinate.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -302,7 +302,7 @@ if (is_null[5])
 return "NULL";
 
 char *buf = new char[201];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Comments.c_str(), (unsigned long) min(100,m_Comments.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Comments.c_str(), (unsigned long) min((size_t)100,m_Comments.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -316,7 +316,7 @@ if (is_null[6])
 return "NULL";
 
 char *buf = new char[11];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_CountryCode.c_str(), (unsigned long) min(5,m_CountryCode.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_CountryCode.c_str(), (unsigned long) min((size_t)5,m_CountryCode.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
