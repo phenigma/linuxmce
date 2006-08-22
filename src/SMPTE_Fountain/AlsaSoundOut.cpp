@@ -45,6 +45,7 @@ static snd_pcm_uframes_t  period_size;
 long smpte_cur = 0;
 long smpte_stop = -1; // test for 3 minutes.
 bool alsa_soundout_shutdown = false;
+bool smpte_pause = 0;
 
 static const int	channels4[] = {
   0,
@@ -308,6 +309,8 @@ static int write_loop(snd_pcm_t *handle, int channel, int periods, uint8_t *fram
 		else
 		{
 			smptedata = smptegen.GetSMPTE(smpte_cur++, smptesize);
+			if (smpte_pause)
+				smpte_cur--;
 		}
 		int smptedataoffset=0;
 		do

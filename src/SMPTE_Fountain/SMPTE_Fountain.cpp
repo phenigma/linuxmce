@@ -15,13 +15,14 @@ using namespace DCE;
 #include "SMPTEGen.h"
 
 #ifdef WIN32
-	long smpte_cur, smpte_stop;
+	long smpte_cur, smpte_stop, smpte_pause;
 	bool alsa_soundout_shutdown;
 	const char *device;
 	void *OutputThread(void* param) { return NULL; }
 #else
 	extern void *OutputThread(void* param);
 	extern const char *device;
+	extern int smpte_pause;
 #endif
 
 //<-dceag-const-b->
@@ -288,6 +289,7 @@ void SMPTE_Fountain::SynchronizationThread()
 					m_pStartMediaInfo->m_iPK_MediaType,m_pStartMediaInfo->m_iStreamID,m_pStartMediaInfo->m_sMediaPosition);
 				CMD_Play_Media.m_pMessage->m_mapParameters[COMMANDPARAMETER_OriginatorNumber_CONST] = StringUtils::itos(m_dwPK_Device);
 				SendCommand(CMD_Play_Media);
+				g_pPlutoLogger->Write(LV_STATUS, "Finished sending Xine start command");
 			}
 		}
 		else
@@ -330,6 +332,15 @@ void SMPTE_Fountain::AskXineThread()
 				int Sp, H, M, S, Ms;
 				sscanf(sLine.c_str(), "%i,%02i:%02i:%02i.%03i", &Sp, &H, &M, &S, &Ms);
 				m_smpteXineReportedTime = SMPTEGen::FromTimecode(StringUtils::Format("%d:%d:%d:%d", H, M, S, (Ms*25 / 1000)).c_str());		
+				if (Sp == 1000)
+				{
+					smpte_pause = 0;
+				}
+				else
+				{
+					if (m_smpteXineReportedTime > 0)
+						smpte_pause = 1;
+				}
 				if (m_smpteXineSongStop<0 && m_smpteXineReportedTime > 0)
 				{
 					m_smpteXineSongStop = GetLengthOfActiveXineStream();
