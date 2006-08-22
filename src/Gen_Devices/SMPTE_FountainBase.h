@@ -88,6 +88,14 @@ public:
 			return m_mapParameters[DEVICEDATA_Configuration_CONST];
 	}
 
+	string Get_Alsa_Output_Device()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Alsa_Output_Device_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Alsa_Output_Device_CONST];
+	}
+
 };
 
 
@@ -188,6 +196,7 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	string DATA_Get_Configuration() { return GetData()->Get_Configuration(); }
+	string DATA_Get_Alsa_Output_Device() { return GetData()->Get_Alsa_Output_Device(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,class Message *pMessage) {};
