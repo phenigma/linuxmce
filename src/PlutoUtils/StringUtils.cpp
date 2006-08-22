@@ -363,6 +363,65 @@ string StringUtils::Format( const char *pcFormat, ... )
     return string( acS );
 }
 
+string StringUtils::Escape(string Input)
+{
+	string sOutput;
+	for(string::size_type s=0;s<Input.size();++s)
+	{
+		unsigned char c = Input[s];
+		if( c<' ' || c>'~' )
+		{
+			if( c=='\t' )
+				sOutput += "\\t";
+			else if( c=='\r' )
+				sOutput += "\\r";
+			else if( c=='\n' )
+				sOutput += "\\n";
+			else
+			{
+				char sHex[3];
+				sprintf(sHex,"%x",(int) c);
+				sOutput += "\\" + string(sHex);
+			}
+		}
+		else
+			sOutput += c;
+	}
+	return sOutput;
+}
+
+string StringUtils::UnEscape(string Input)
+{
+	string sOutput;
+	for(string::size_type s=0;s<Input.size();++s)
+	{
+		unsigned char c = Input[s];
+		if( c=='\\' && s<Input.size()-1 )
+		{
+			s++;
+			unsigned char c2 = Input[s];
+			if( c2=='\\' )
+				sOutput += '\\';
+			else if( c2=='t' )
+				sOutput += '\t';
+			else if( c2=='r' )
+				sOutput += '\r';
+			else if( c2=='n' )
+				sOutput += '\n';
+			else
+			{
+				int i;
+		        sscanf( Input.substr(s,2).c_str(), "%x", &i );
+				sOutput += (char) i;
+				s++;
+			}
+		}
+		else
+			sOutput += c;
+	}
+	return sOutput;
+}
+
 string StringUtils::EscapeChars( string sInput )
 {
     string sReturnValue;

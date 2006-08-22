@@ -132,7 +132,15 @@ namespace StringUtils
      */
     string Format( const char *pcFormat, ... );
 
-    /**
+
+	/**
+     * @brief Escape tabs, cr/lf, and non-asci characters as \t, \r, \n and \xx where xx is a 2-digit hex
+	 * UnEscape restores the string afterward
+     */
+	string Escape(string Input);
+	string UnEscape(string Input);
+
+	/**
      * @brief @todo ask
      */
     string EscapeChars( string sInput );
