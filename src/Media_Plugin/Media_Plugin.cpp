@@ -4734,15 +4734,9 @@ void Media_Plugin::CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,
 	if(vectEntertainArea.size() == 1)
 	{
 		EntertainArea *pEntertainArea = vectEntertainArea[0];
-		if(NULL != pEntertainArea->m_pMediaStream)
+		if(NULL != pEntertainArea && NULL != pEntertainArea->m_pMediaStream)
 		{
 			MediaStream *pMediaStream = pEntertainArea->m_pMediaStream;
-
-			//bool bIsOSD=pMediaStream->OrbiterIsOSD(dwPK_Device,&pEntertainArea_OSD);
-			//int PK_Screen = pMediaStream->GetRemoteControlScreen(dwPK_Device);
-			//PK_Device_Source = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
-			//iDequeMediaFile = pMediaStream->m_iDequeMediaFile_Pos;
-
 			if( pMediaStream->m_bIdentifiedDisc )
 			{
 				if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
