@@ -4,7 +4,6 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "SMPTEGen.h"
 
 #include <iostream>
 using namespace std;
@@ -13,12 +12,16 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "SMPTEGen.h"
+
 #ifdef WIN32
 	long smpte_cur, smpte_stop;
 	bool alsa_soundout_shutdown;
+	const char *device;
 	void *OutputThread(void* param) { return NULL; }
 #else
 	extern void *OutputThread(void* param);
+	extern const char *device;
 #endif
 
 //<-dceag-const-b->
@@ -54,6 +57,7 @@ void *StartAskXineThread(void *p)
 	return NULL;
 }
 
+
 //<-dceag-getconfig-b->
 bool SMPTE_Fountain::GetConfig()
 {
@@ -70,10 +74,11 @@ bool SMPTE_Fountain::GetConfig()
 	}
 
 	m_smpteDefaultPreDelay=SMPTEGen::FromTimecode("00:00:10"); // Default of 10 second pre-delay
-	m_smpteXineStartupOffset=SMPTEGen::FromTimecode("00:00:01:00"); // Half-second Xine startup allowance
+	m_smpteXineStartupOffset=SMPTEGen::FromTimecode("00:00:00:20"); // Half-second Xine startup allowance
 	m_smpteAdjustmentThreshold=SMPTEGen::FromTimecode("00:00:02"); // Allow generated SMPTE and Xine to drift by a maximum of 1 second	
 	m_smpteXineSongStop=-1;
 
+	device = DATA_Get_Alsa_Output_Device().c_str();
 	string sConfiguration = DATA_Get_Configuration();
 	string::size_type pos = 0;
 	while( true )
@@ -103,7 +108,7 @@ bool SMPTE_Fountain::GetConfig()
 	}
 	PurgeInterceptors();  // Since this is not a plugin, be sure to purge so we're not registered more than once
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &SMPTE_Fountain::MediaPlaying ), 0, m_pDevice_Xine->m_dwPK_Device, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Play_Media_CONST );
-	RegisterMsgInterceptor( ( MessageInterceptorFn )( &SMPTE_Fountain::MediaStopped ), 0, m_pDevice_Xine->m_dwPK_Device, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Completed_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &SMPTE_Fountain::MediaStopped ), m_pDevice_Xine->m_dwPK_Device, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Completed_CONST );
 	
 	pthread_t threadid;
 	pthread_create(	&threadid, NULL, OutputThread, NULL); 
@@ -192,9 +197,12 @@ bool SMPTE_Fountain::MediaStopped( class Socket *pSocket, class Message *pMessag
 		g_pPlutoLogger->Write(LV_STATUS,"Ignoring -- we're not active");
 		return false;
 	}
+	g_pPlutoLogger->Write(LV_STATUS,"Stopping SMPTE output");
 	smpte_stop = -1;
 	smpte_cur = 0;
 	m_smpteXineReportedTime=0;
+
+	return false;
 }
 
 bool SMPTE_Fountain::MediaPlaying( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )

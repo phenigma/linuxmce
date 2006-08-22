@@ -31,7 +31,7 @@ enum {
 
 #define MAX_CHANNELS	16
 
-static char              *device      = "plug:rearx"; //"rear";       /* playback device */
+const char              *device      = "plug:rearx"; //"rear";       /* playback device */
 static snd_pcm_format_t   format      = SND_PCM_FORMAT_S8; /* sample format */
 static unsigned int       rate        = 8000;	            /* stream rate */
 static unsigned int       channels    = 1;	            /* count of channels */

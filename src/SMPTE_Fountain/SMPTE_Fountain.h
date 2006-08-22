@@ -49,24 +49,6 @@ namespace DCE
 //<-dceag-decl-b->
 namespace DCE
 {
-	class StartMediaInfo
-	{
-	public:
-		bool m_bManuallyStart;
-		string m_sFilename; 
-		int m_iPK_MediaType, m_iStreamID;
-		string m_sMediaPosition;
-	};
-
-	class TimeCodeInfo
-	{
-	public:
-		long m_PadBefore,m_PadAfter;  // Seconds to pad 
-		long m_StartTime; // The actual start time
-
-		TimeCodeInfo(long PadBefore, long PadAfter, long StartTime) { m_PadBefore=PadBefore; m_PadAfter=PadAfter; m_StartTime=StartTime; }
-	};
-
 	class SMPTE_Fountain : public SMPTE_Fountain_Command
 	{
 //<-dceag-decl-e->
@@ -119,6 +101,7 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_Configuration();
+	string DATA_Get_Alsa_Output_Device();
 
 			*****EVENT***** accessors inherited from base class
 
@@ -144,7 +127,6 @@ public:
 
 	virtual void CMD_Off(int iPK_Pipe) { string sCMD_Result; CMD_Off(iPK_Pipe,sCMD_Result,NULL);};
 	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
-
 
 //<-dceag-h-e->
 	};
