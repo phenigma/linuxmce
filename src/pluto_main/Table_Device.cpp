@@ -46,6 +46,7 @@ using namespace std;
 #include "Table_PaidLicense.h"
 #include "Table_PnpQueue.h"
 #include "Table_PnpQueue.h"
+#include "Table_Software.h"
 #include "Table_UnknownDevices.h"
 
 
@@ -524,7 +525,7 @@ if (is_null[5])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) min((size_t)30,m_Description.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) min(30,m_Description.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -564,7 +565,7 @@ if (is_null[8])
 return "NULL";
 
 char *buf = new char[31];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_IPaddress.c_str(), (unsigned long) min((size_t)15,m_IPaddress.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_IPaddress.c_str(), (unsigned long) min(15,m_IPaddress.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -578,7 +579,7 @@ if (is_null[9])
 return "NULL";
 
 char *buf = new char[37];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_MACaddress.c_str(), (unsigned long) min((size_t)18,m_MACaddress.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_MACaddress.c_str(), (unsigned long) min(18,m_MACaddress.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -631,7 +632,7 @@ if (is_null[13])
 return "NULL";
 
 char *buf = new char[81];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_State.c_str(), (unsigned long) min((size_t)40,m_State.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_State.c_str(), (unsigned long) min(40,m_State.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -645,7 +646,7 @@ if (is_null[14])
 return "NULL";
 
 char *buf = new char[81];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Status.c_str(), (unsigned long) min((size_t)40,m_Status.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Status.c_str(), (unsigned long) min(40,m_Status.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -750,7 +751,7 @@ if (is_null[22])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -849,26 +850,6 @@ pRow->m_PK_Device=id;
 
 //update modified
 	
-FILE *fdebug = fopen("/var/log/pluto/DeviceCommit.log","ab");
-    timeval tv;
-#ifdef WIN32
-    SYSTEMTIME lt;
-    ::GetLocalTime( &lt );
-
-    /** @todo Need to fill tv */
-    tv.tv_sec = (long)time( NULL );
-    tv.tv_usec = lt.wMilliseconds * 1000;
-#else
-    gettimeofday( &tv, NULL );
-#endif
-struct tm *t = localtime((time_t *)&tv.tv_sec);
-char acBuff[50];
-double dwSec = (double)(tv.tv_usec/1E6) + t->tm_sec;
-snprintf( acBuff, sizeof(acBuff), "%02d/%02d/%02d %d:%02d:%06.3f", (int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year - 100, (int)t->tm_hour, (int)t->tm_min, dwSec );
-
-
-
-
 
 	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
@@ -890,29 +871,7 @@ update_values_list = update_values_list + "`PK_Device`="+pRow->PK_Device_asSQL()
 
 	
 		string query = "update Device set " + update_values_list + " where " + condition;
-
-
-fprintf(fdebug,"%s %s",acBuff,query.c_str());
-	string sql = "select * FROM Device where " + condition;
-	mysql_query(database->m_pMySQL, sql.c_str());
-	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
-	if( res )
-	{
-		MYSQL_ROW row;
-		while ((row = mysql_fetch_row(res)) != NULL)
-		{
-			string st;
-			for(unsigned int i=0;i<res->field_count;++i)
-			{
-				st += StringUtils::itos(i) + ":" + (row[i] ? row[i] : "NULL") + "      ";
-			}
-			fprintf(fdebug,"%s %s\n",acBuff,st.c_str());
-		}
-	}			
-
-
-
-
+			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -922,15 +881,12 @@ fprintf(fdebug,"%s %s",acBuff,query.c_str());
 				cachedRows.erase(i);
 				delete pRow;
 			}
-fclose(fdebug);
 			return false;
 		}
 	
 		pRow->is_modified = false;	
-	}
+	}	
 	
-
-fclose(fdebug);
 
 //delete deleted added
 	while (!deleted_addedRows.empty())
@@ -1861,6 +1817,13 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_PnpQueue *pTable = table->database->PnpQueue_get();
 pTable->GetRows("`FK_Device_Reported`=" + StringUtils::itos(m_PK_Device),rows);
+}
+void Row_Device::Software_FK_Device_getrows(vector <class Row_Software*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Software *pTable = table->database->Software_get();
+pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
 }
 void Row_Device::UnknownDevices_FK_Device_PC_getrows(vector <class Row_UnknownDevices*> *rows)
 {
