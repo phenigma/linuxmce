@@ -4726,6 +4726,42 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 void Media_Plugin::CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
 //<-dceag-c817-e->
 {
-	*sFilename = "default";
+	*sFilename = "Unknown disk";
+
+	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+	vector<EntertainArea *> vectEntertainArea;
+	DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
+	if(vectEntertainArea.size() == 1)
+	{
+		EntertainArea *pEntertainArea = vectEntertainArea[0];
+		if(NULL != pEntertainArea->m_pMediaStream)
+		{
+			MediaStream *pMediaStream = pEntertainArea->m_pMediaStream;
+
+			//bool bIsOSD=pMediaStream->OrbiterIsOSD(dwPK_Device,&pEntertainArea_OSD);
+			//int PK_Screen = pMediaStream->GetRemoteControlScreen(dwPK_Device);
+			//PK_Device_Source = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+			//iDequeMediaFile = pMediaStream->m_iDequeMediaFile_Pos;
+
+			if( pMediaStream->m_bIdentifiedDisc )
+			{
+				if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+				{
+					*sFilename = FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Performer_CONST]));
+					if(sFilename->size())
+						*sFilename += "/"; // We got a performer
+
+					*sFilename += FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]));
+				}
+				else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
+					*sFilename = FileUtils::ValidFileName(pMediaStream->m_sMediaDescription);
+			}
+			else if( pMediaStream->m_iPK_Playlist )
+				*sFilename = FileUtils::ValidFileName(pMediaStream->m_sPlaylistName);
+		}
+	}
+
+	mm.Release();
+
 	*iDriveID = GetStorageDeviceWithMostFreeSpace(*sStorage_Device_Name, *sPath);
 }

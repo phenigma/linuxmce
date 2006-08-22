@@ -514,7 +514,6 @@ public:
 		EntertainArea *pEntertainArea_OSD=NULL;
 
 		int PK_Device_Source=0,iDequeMediaFile=0;
-		string sFilename;
 		if( pMediaStream )
 		{
 			bool bIsOSD=pMediaStream->OrbiterIsOSD(dwPK_Device,&pEntertainArea_OSD);
@@ -522,32 +521,12 @@ public:
 			PK_Device_Source = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 			iDequeMediaFile = pMediaStream->m_iDequeMediaFile_Pos;
 
-			if( pMediaStream->m_bIdentifiedDisc )
-			{
-				if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
-				{
-					sFilename = FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Performer_CONST]));
-					if( sFilename.size() )
-						sFilename += "/"; // We got a performer
-
-					sFilename += FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]));
-				}
-				else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
-					sFilename = FileUtils::ValidFileName(pMediaStream->m_sMediaDescription);
-			}
-			else if( pMediaStream->m_iPK_Playlist )
-				sFilename = FileUtils::ValidFileName(pMediaStream->m_sPlaylistName);
-			else
-				g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying, disc is not identified");
-
 			string sMediaDevices = StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device)
 				+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_Video ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_Video->m_dwPK_Device) : "")
 				+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_dwPK_Device) : "");
 
 			if( pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio && pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_mapParameters_Find(DEVICEDATA_Discrete_Volume_CONST)=="1" )
 				sMediaDevices += ",1";
-
-			//TODO: learn how to use filename
 
 			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 
 				sRemotes, pMediaStream->m_sMediaDescription, pMediaStream->m_sSectionDescription, 
