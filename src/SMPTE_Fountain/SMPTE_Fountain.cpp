@@ -187,8 +187,19 @@ void SMPTE_Fountain::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 
 bool SMPTE_Fountain::MediaPlaying( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
-	//if( !m_bIsActive )
-	//	return false;
+	if( false && !m_bIsActive )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Ignoring -- we're not active");
+		return false;
+	}
+
+	if( pMessage->m_mapParameters.find(COMMANDPARAMETER_OriginatorNumber_CONST)!=pMessage->m_mapParameters.end() && 
+		atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OriginatorNumber_CONST].c_str()) == m_dwPK_Device )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Ignoring -- it came from us");
+		return false;
+	}
+
 
 	string sFileName = pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
 	if( m_mapFilesTimeCode.find(sFileName)==m_mapFilesTimeCode.end() )
@@ -254,6 +265,7 @@ void SMPTE_Fountain::SynchronizationThread()
 				g_pPlutoLogger->Write(LV_STATUS, "Sending Xine start command");
 				DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,m_pDevice_Xine->m_dwPK_Device,m_pStartMediaInfo->m_sFilename,
 					m_pStartMediaInfo->m_iPK_MediaType,m_pStartMediaInfo->m_iStreamID,m_pStartMediaInfo->m_sMediaPosition);
+				CMD_Play_Media.m_pMessage->m_mapParameters[COMMANDPARAMETER_OriginatorNumber_CONST] = m_dwPK_Device;
 				SendCommand(CMD_Play_Media);
 			}
 		}
