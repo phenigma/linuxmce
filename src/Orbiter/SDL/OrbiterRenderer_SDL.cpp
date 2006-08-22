@@ -271,7 +271,8 @@ void OrbiterRenderer_SDL::HollowRectangle(int X, int Y, int Width, int Height, P
 
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL::SolidRectangle(int x, int y, int width, int height, PlutoColor color, 
-	string ParentObjectID/* = ""*/)
+										 string ParentObjectID/* = ""*/,
+										 string ObjectID/* = ""*/)
 {
 	ClipRectangle(x, y, width, height);
 

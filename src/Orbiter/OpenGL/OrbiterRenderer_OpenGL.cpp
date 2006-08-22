@@ -165,7 +165,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::SolidRectangle(int x, int y, int width, int height, PlutoColor color, 
-	string ParentObjectID/* = ""*/)
+	string ParentObjectID/* = ""*/, string ObjectID /* = ""*/)
 {
 	MeshBuilder* Builder = new MeshBuilder();
 	Builder->Begin(MBMODE_TRIANGLES);
@@ -213,9 +213,15 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	MeshContainer* Container = Builder->End();
 	Container->SetAlpha(color.A() / 255.0f);
 
-	string RectangleUniqueID = "rectangle " + 
-		StringUtils::ltos(x) + "," + StringUtils::ltos(y) + "," +
-		StringUtils::ltos(width) + "," + StringUtils::ltos(height);
+
+
+	string RectangleUniqueID; 
+	if ("" == ObjectID)
+		RectangleUniqueID = "rectangle " + 
+			StringUtils::ltos(x) + "," + StringUtils::ltos(y) + "," +
+			StringUtils::ltos(width) + "," + StringUtils::ltos(height);
+	else
+		RectangleUniqueID = ObjectID;
 
 	MeshFrame* Frame = new MeshFrame(RectangleUniqueID, Container);
 

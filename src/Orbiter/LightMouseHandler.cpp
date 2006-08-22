@@ -134,7 +134,7 @@ void LightMouseHandler::CustomRender()
     m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
 		X,m_pObj->m_rPosition.Bottom()-CurrentLevel,
 		int(m_pObj->m_rPosition.Width * .1), CurrentLevel,
-		PlutoColor::Green().SetAlpha(128));
+		PlutoColor::Green().SetAlpha(128), "", "BaseLightRect");
 
 	if( m_bTapAndRelease )
 	{
@@ -144,7 +144,7 @@ void LightMouseHandler::CustomRender()
 		m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
 			m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X + int(m_pObj->m_rPosition.Width*.5), NotchStart,
 			int(m_pObj->m_rPosition.Width*.1), NotchWidth,
-			PlutoColor::Blue());
+			PlutoColor::Blue(), "", "TapReleaseLightRect");
 	}
 
 	return;

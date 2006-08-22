@@ -1016,7 +1016,7 @@ void OrbiterRenderer_PocketFrog::BatchedTextRendering(bool bValue)
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::SolidRectangle(int x, int y, int width, int height, PlutoColor color,
-	string ParentObjectID /* = ""*/)
+	string ParentObjectID /* = ""*/, string ObjectID /* =  ""*/)
 {
 	ClipRectangle(x, y, width, height);
 

@@ -149,7 +149,9 @@ void VolumeMouseHandler::CustomRender()
     m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
 		m_pObj->m_rPosition.X, Y,
 		CurrentLevel, int(m_pObj->m_rPosition.Height * .1),
-		PlutoColor::White().SetAlpha(128));
+		PlutoColor::White().SetAlpha(128),
+		"",
+		"VolumeRectangle");
 }
 
 void VolumeMouseHandler::DoIteration(int Parm)

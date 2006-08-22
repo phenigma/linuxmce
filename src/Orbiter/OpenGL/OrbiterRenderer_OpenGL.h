@@ -43,7 +43,7 @@ namespace DCE
 		virtual void RedrawObjects();
 
 		// Drawing routines
-		virtual void SolidRectangle(int x, int y, int width, int height, PlutoColor color, string ParentObjectID = "");
+		virtual void SolidRectangle(int x, int y, int width, int height, PlutoColor color, string ParentObjectID = "", string ObjectID = "");
 		virtual void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color);
 		virtual void DrawLine(int x, int y, int width, int height, PlutoColor color) {};
 		virtual void ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor);

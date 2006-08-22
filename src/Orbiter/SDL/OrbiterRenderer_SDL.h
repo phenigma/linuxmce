@@ -34,8 +34,8 @@ public:
 	// Public methods
 
 	// Drawing routines
-	virtual void SolidRectangle(int iX, int iY, int iWidth, int iHeight, PlutoColor color, 
-		string ParentObjectID = "");
+	virtual void SolidRectangle(int iX, int iY, int iWidth, int iHeight, PlutoColor color,  string ParentObjectID = "", 
+		string ObjectID = "");
 	virtual void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color);
 	virtual void DrawLine(int x, int y, int width, int height, PlutoColor color) {};
 	virtual void ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor);

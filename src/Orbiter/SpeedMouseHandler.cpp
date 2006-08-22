@@ -224,7 +224,9 @@ void SpeedMouseHandler::DrawInfo()
 		m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
 			m_pObj->m_rPosition.X + Offset, m_pObj->m_rPosition.Y,
 			int(m_pObj->m_rPosition.Width * .01), int(m_pObj->m_rPosition.Height * .25),
-			PlutoColor::White().SetAlpha(128));
+			PlutoColor::White().SetAlpha(128),
+			"",
+			"BasePercentSpeed");
 	}
 
 	DesignObjText *pText = m_pMouseBehavior->m_pOrbiter->FindText(m_pObj,TEXT_Current_Speed_CONST);
@@ -238,7 +240,9 @@ void SpeedMouseHandler::DrawInfo()
 		m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
 			m_pObj->m_rPosition.X + Offset, Y,
 			int(m_pObj->m_rPosition.Width * .035), int(m_pObj->m_rPosition.Height * .25),
-			PlutoColor::Blue().SetAlpha(128));
+			PlutoColor::Blue().SetAlpha(128), 
+			"",
+			"BasePercentSpeed");
 
 		if( pText )
 		{
@@ -269,7 +273,9 @@ void SpeedMouseHandler::DrawInfo()
 			m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
 				m_pObj->m_rPosition.X, m_pObj->m_rPosition.Y + int(m_pObj->m_rPosition.Height * .6),
 				Offset, int(m_pObj->m_rPosition.Height * .12),
-				PlutoColor::White().SetAlpha(128));
+				PlutoColor::White().SetAlpha(128),
+				"",
+				"TimeLine");
 			pText->m_rPosition.X = Offset + m_pObj->m_rPosition.X;
 			pText->m_sText = FormatTime(m_CurrentMedia_Pos);
 		}
