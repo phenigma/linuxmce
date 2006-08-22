@@ -2857,6 +2857,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		bUsingUnknownDiscName=true;
 	}
 
+	/*
 	string sBasePath = "/home";
 	DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(iDriveID);
 	if(NULL != pDeviceData_Router && pDeviceData_Router->m_pDeviceCategory->m_dwPK_DeviceCategory != DEVICECATEGORY_Core_CONST)
@@ -2869,6 +2870,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		sName = sBasePath + "/public/data/" + sSubDir + "/" + sName;
 	else
 		sName = sBasePath + "/user_" + StringUtils::itos(iPK_Users) + "/data/" + sSubDir + "/" + sName;
+	*/
+
+	sName = sDirectory + sName;
 
 	if( bUsingUnknownDiscName && FileUtils::DirExists(sName) )  // Be sure the directory name is unique if we're using the default
 	{
@@ -3591,7 +3595,7 @@ void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID
 //<-dceag-c392-b->
 
 	/** @brief COMMAND: #392 - Set Media Attribute Text */
-	/** Adds a new attribute */
+	/** Updates the text for an attribute */
 		/** @param #5 Value To Assign */
 			/** The new value.  If it's a name, LastName^Firstname format */
 		/** @param #123 EK_Attribute */
@@ -3706,6 +3710,50 @@ int Media_Plugin::DetermineInvolvement(MediaDevice *pMediaDevice, MediaDevice *&
 	return 0; // No involvement
 }
 
+int Media_Plugin::GetStorageDeviceWithMostFreeSpace(string& sFullDescription, string& sMountedPath)
+{
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	string sSQL = 
+		"SELECT PK_Device, Device.Description, Device_DeviceData.IK_DeviceData, FK_DeviceCategory "
+		"FROM Device "
+		"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
+		"JOIN Device_DeviceData ON FK_Device = PK_Device "
+		"WHERE FK_DeviceCategory IN (" + 
+		StringUtils::ltos(DEVICECATEGORY_Core_CONST) + ", " + 
+		StringUtils::ltos(DEVICECATEGORY_Hard_Drives_CONST) + ", " + 
+		StringUtils::ltos(DEVICECATEGORY_Storage_Devices_CONST) + ", " + 
+		StringUtils::ltos(DEVICECATEGORY_Network_Storage_CONST) + 
+		+ ") AND FK_DeviceData = " + 
+		StringUtils::ltos(DEVICEDATA_Free_Disk_Space_in_MBytes_CONST) + " " +
+		"ORDER BY Device_DeviceData.IK_DeviceData DESC " +
+		"LIMIT 1";
+
+	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sSQL.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	{
+		if((row = mysql_fetch_row(result.r)))
+		{
+			if(NULL != row[0] && NULL != row[1] && NULL != row[3])
+			{
+				string sFreeSpace;
+				if(0 == row[2] || string(row[2]).empty())
+					sFreeSpace = "0";
+				else
+					sFreeSpace = row[2];
+
+				if(atoi(row[3]) == DEVICECATEGORY_Core_CONST)
+					sMountedPath = "/home/";
+				else
+					sMountedPath = string("/mnt/device/") + row[0] + "/";
+
+				sFullDescription = string(row[1]) + " (#" + row[0] + ") " + sFreeSpace + "MB";
+				return atoi(row[0]);
+			}
+		}
+	}
+
+	return 0;
+}
 
 void Media_Plugin::RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class MediaHandlerBase *pMediaHandlerBase,vector<int> &vectPK_DeviceTemplate,bool bUsesDCE)
 {
@@ -3980,8 +4028,7 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	if( !bIsStart )
 	{
 		DCE::SCREEN_FileSave SCREEN_FileSave(m_dwPK_Device,pMessage->m_dwPK_Device_From, 
-			"", sCmdToRenameBookmark + " 17 <%=U%>", sCmdToRenameBookmark, 
-			"<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>");
+			"", "<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>", sCmdToRenameBookmark);
 		SendCommand(SCREEN_FileSave);
 	}
 }
@@ -4662,4 +4709,23 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 {
 	*sValue_To_Assign = "FILE\t/home/public/data/movies/whatever\t"
 		"TITLE\tMy movie title\t";	
+}
+//<-dceag-c817-b->
+
+	/** @brief COMMAND: #817 - Get Default Ripping Info */
+	/** Get default ripping info: default filename, id and name of the storage device with most free space. */
+		/** @param #13 Filename */
+			/** Default ripping name. */
+		/** @param #219 Path */
+			/** Base path for ripping. */
+		/** @param #233 DriveID */
+			/** The id of the storage device with most free space. */
+		/** @param #235 Storage Device Name */
+			/** The name of the storage device with most free space. */
+
+void Media_Plugin::CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
+//<-dceag-c817-e->
+{
+	*sFilename = "default";
+	*iDriveID = GetStorageDeviceWithMostFreeSpace(*sStorage_Device_Name, *sPath);
 }

@@ -809,11 +809,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_FileSave(long DeviceIDFrom, long DeviceIDTo,
-			string sText, string sPrivate, string sPublic, string sCaption)
+			string sText, string sCaption, string sCommand)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "19" /* screen ID */,
-				9 /* Default User Value */, sText.c_str(), 160 /* Private */, sPrivate.c_str(), 161 /* Public */, sPublic.c_str(), 162 /* Caption */, sCaption.c_str());
+				9 /* Default User Value */, sText.c_str(), 162 /* Caption */, sCaption.c_str(), 236 /* Command to be executed */, sCommand.c_str());
 		}
 	};
 
@@ -821,11 +821,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_FileSave_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sText, string sPrivate, string sPublic, string sCaption)
+			string sText, string sCaption, string sCommand)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "19" /* screen ID */,
-				9 /* Default User Value */, sText.c_str(), 160 /* Private */, sPrivate.c_str(), 161 /* Public */, sPublic.c_str(), 162 /* Caption */, sCaption.c_str());
+				9 /* Default User Value */, sText.c_str(), 162 /* Caption */, sCaption.c_str(), 236 /* Command to be executed */, sCommand.c_str());
 		}
 	};
 
@@ -833,11 +833,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_FileSave_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sText, string sPrivate, string sPublic, string sCaption)
+			string sText, string sCaption, string sCommand)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "19" /* screen ID */,
-				9 /* Default User Value */, sText.c_str(), 160 /* Private */, sPrivate.c_str(), 161 /* Public */, sPublic.c_str(), 162 /* Caption */, sCaption.c_str());
+				9 /* Default User Value */, sText.c_str(), 162 /* Caption */, sCaption.c_str(), 236 /* Command to be executed */, sCommand.c_str());
 		}
 	};
 
@@ -845,11 +845,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_FileSave_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sText, string sPrivate, string sPublic, string sCaption)
+			string sText, string sCaption, string sCommand)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "19" /* screen ID */,
-				9 /* Default User Value */, sText.c_str(), 160 /* Private */, sPrivate.c_str(), 161 /* Public */, sPublic.c_str(), 162 /* Caption */, sCaption.c_str());
+				9 /* Default User Value */, sText.c_str(), 162 /* Caption */, sCaption.c_str(), 236 /* Command to be executed */, sCommand.c_str());
 		}
 	};
 
@@ -9545,7 +9545,7 @@ namespace DCE
 		virtual void SCREEN_Intercom(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_QuadViewCameras(long PK_Screen, string sList_PK_Device){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_VideoCallInProgress(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_FileSave(long PK_Screen, string sText, string sPrivate, string sPublic, string sCaption){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_FileSave(long PK_Screen, string sText, string sCaption, string sCommand){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_ManagePlaylist(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_MakeCallDevice(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_MakeCallPhonebook2(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -9882,10 +9882,9 @@ namespace DCE
 				{
 					ResetCallBacks();
 					string sText = pMessage->m_mapParameters[9];
-					string sPrivate = pMessage->m_mapParameters[160];
-					string sPublic = pMessage->m_mapParameters[161];
 					string sCaption = pMessage->m_mapParameters[162];
-					SCREEN_FileSave(nPK_Screen, sText, sPrivate, sPublic, sCaption);
+					string sCommand = pMessage->m_mapParameters[236];
+					SCREEN_FileSave(nPK_Screen, sText, sCaption, sCommand);
 					break;
 				}
 				case 20:

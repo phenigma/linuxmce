@@ -17,6 +17,7 @@
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Define_MediaType.h"
+#include "pluto_main/Define_Command.h"
 
 using namespace DCE;
 
@@ -30,10 +31,8 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 	m_tLastDeviceAdded = 0;
 	m_MapMutex.Init(NULL);
 
-	sSaveFile_Drive = "Core";
-	sSaveFile_RelativeFolder = "(no directory)";
-	sSaveFile_MountedFolder = "/home/public/data/";
-	nSaveFile_PK_DeviceDrive = 0;
+	m_nSaveFile_PK_DeviceDrive = 0;
+	m_bSaveFile_CreatingFolder = false;
 }
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::~ScreenHandler()
@@ -1205,29 +1204,50 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, string sPrivate,
-									string sPublic, string sCaption)
+void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sText, string sCaption, string sCommand)
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPrivate);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPublic);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sSaveFile_Drive);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, sSaveFile_RelativeFolder);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, StringUtils::ltos(nSaveFile_PK_DeviceDrive));
+	//the command to execute with the selected file
+	m_sSaveFile_Command = sCommand;
 
-	if(sSaveFile_MountedFolder == "/home/public/data/")
-		sSaveFile_MountedFolder += (m_pOrbiter->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ? "videos/" : "audio/");
+	//get default ripping info
+	string sMounterFolder;
+	CMD_Get_Default_Ripping_Info cmd_CMD_Get_Default_Ripping_Info(m_pOrbiter->m_dwPK_Device,
+		m_pOrbiter->m_dwPK_Device_MediaPlugIn, &m_pOrbiter->m_sDefaultRippingName,
+		&sMounterFolder, &m_pOrbiter->m_nDefaultStorageDeviceForRipping, 
+		&m_pOrbiter->m_sDefaultStorageDeviceForRippingName);
+	m_pOrbiter->SendCommand(cmd_CMD_Get_Default_Ripping_Info);
 
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, FileUtils::ExcludeTrailingSlash(sSaveFile_MountedFolder) + "\nMT-1\nP");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sDefaultUserValue);
+	if(m_nSaveFile_PK_DeviceDrive == 0)
+		m_nSaveFile_PK_DeviceDrive = m_pOrbiter->m_nDefaultStorageDeviceForRipping;
+
+	if(m_sSaveFile_Drive == "")
+		m_sSaveFile_Drive = m_pOrbiter->m_sDefaultStorageDeviceForRippingName; 
+
+	if(m_sSaveFile_FileName == "")
+		m_sSaveFile_FileName = m_pOrbiter->m_sDefaultRippingName;
+
+	if(m_sSaveFile_MountedFolder == "")
+		m_sSaveFile_MountedFolder = sMounterFolder;
+
+	//setup variables
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, m_sSaveFile_Drive);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, m_sSaveFile_RelativeFolder);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, StringUtils::ltos(m_nSaveFile_PK_DeviceDrive));
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, FileUtils::ExcludeTrailingSlash(m_sSaveFile_MountedFolder) + "\nMT-1\nP");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, m_sSaveFile_FileName /*sDefaultUserValue*/);
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
-	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(DESIGNOBJ_mnuChooseFolder_CONST), 
-		"Folder : <%=" + StringUtils::ltos(VARIABLE_Display_Message_Button_1_CONST) + "%>", TEXT_STATUS_CONST);
-	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, sDefaultUserValue, sPrivate, sPublic, sCaption);
+	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, sText, sCaption, sCommand);
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::FileSave_ObjectSelected,	
 		new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::FileSave_GridSelected, 
 		new DatagridCellBackData());
+
+	if(m_bSaveFile_CreatingFolder)
+	{
+		SaveFile_GotoChooseFolderDesignObj();
+		m_bSaveFile_CreatingFolder = false;
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
@@ -1240,8 +1260,7 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
 			{
-				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, FileUtils::ExcludeTrailingSlash(sSaveFile_MountedFolder) + "\nMT-1\nP");
-				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sSaveFile_Drive);
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, m_sSaveFile_Drive);
 				m_pOrbiter->CMD_Go_back("", "");
 			}
 		}
@@ -1249,14 +1268,29 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
 			{
-				m_pOrbiter->CMD_Go_back("", ""); //one for choose folder
+				if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
+				{
+					m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, m_sSaveFile_Command);
+
+					//reset file save info
+					m_sSaveFile_MountedFolder = "";
+					m_sSaveFile_RelativeFolder = "";
+					m_sSaveFile_Drive = "";
+					m_sSaveFile_FullBasePath = "";
+					m_sSaveFile_FileName = "";
+					m_sSaveFile_Command = "";
+					m_bSaveFile_CreatingFolder = false;
+					m_nSaveFile_PK_DeviceDrive = 0;
+				}
 			}
 			else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butCreateDir_CONST)
 			{
-				string sParentFolder = m_pOrbiter->m_mapVariable[VARIABLE_Path_CONST];
+				string sParentFolder = m_pOrbiter->m_mapVariable[VARIABLE_Path_CONST] + "/";
 				string sNewFolder = "<%=" + StringUtils::ltos(VARIABLE_Seek_Value_CONST) + "%>";
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 
 				int nAppServer = m_pOrbiter->TranslateVirtualDevice(DEVICETEMPLATE_VirtDev_AppServer_CONST);
+				m_bSaveFile_CreatingFolder = true;
 
 				SCREEN_GenericKeyboard(SCREEN_GenericKeyboard_CONST, 
 					"Type the name of the folder|Create folder|Cancel", 
@@ -1277,15 +1311,21 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePublic_CONST
 			)
 			{
-				//string sFullFilePath = 
-				//	(sSaveFile_MountedFolder == "" ? "" : sSaveFile_MountedFolder) + 
-				//	(sSaveFile_RelativeFolder != "(no directory)" ? sSaveFile_RelativeFolder : "") + 
-				//	m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
-				//m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sFullFilePath);
+				m_sSaveFile_FileName = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
 
-				string a = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
-				string b = m_pOrbiter->m_mapVariable[VARIABLE_Device_List_CONST];
-				int c = 4;
+				string sSubDir = m_pOrbiter->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ? "videos" : "audio";
+				if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePublic_CONST)
+					m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder + "public/data/" + sSubDir + "/";
+				else
+					m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder + "user_" + StringUtils::itos(m_pOrbiter->m_dwPK_Users) + "/data/" + sSubDir + "/";
+
+				SaveFile_GotoChooseFolderDesignObj();
+
+				return true;
+			}
+			else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChooseDrive_CONST)
+			{
+                m_sSaveFile_FileName = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];				
 			}
 		}
 	}
@@ -1307,36 +1347,49 @@ bool ScreenHandler::FileSave_GridSelected(CallBackData *pData)
 
 			if(vectStrings.size() >= 2)
 			{	
-				nSaveFile_PK_DeviceDrive = atoi(vectStrings[0].c_str());
-				sSaveFile_MountedFolder = vectStrings[1];
+				m_nSaveFile_PK_DeviceDrive = atoi(vectStrings[0].c_str());
+				m_sSaveFile_MountedFolder = vectStrings[1];
 
-				sSaveFile_Drive = pCellInfoData->m_pDataGridCell->GetText();
-				sSaveFile_RelativeFolder = "(no directory)";
+				m_sSaveFile_Drive = pCellInfoData->m_pDataGridCell->GetText();
+				m_sSaveFile_RelativeFolder = "";
 
-				m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, StringUtils::ltos(nSaveFile_PK_DeviceDrive));
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, StringUtils::ltos(m_nSaveFile_PK_DeviceDrive));
 			}
 		}
 		else if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuChooseFolder_CONST)
 		{
-			sSaveFile_RelativeFolder = FileUtils::IncludeTrailingSlash(pCellInfoData->m_pDataGridCell->GetValue());
+			m_sSaveFile_RelativeFolder = FileUtils::IncludeTrailingSlash(pCellInfoData->m_pDataGridCell->GetValue());
 
-			if(sSaveFile_RelativeFolder == sSaveFile_MountedFolder)
-				sSaveFile_RelativeFolder = ".";
+			if(m_sSaveFile_FullBasePath.length() < m_sSaveFile_RelativeFolder.length())
+				m_sSaveFile_RelativeFolder = m_sSaveFile_RelativeFolder.substr(m_sSaveFile_FullBasePath.length());
 			else
 			{
-				size_t len = sSaveFile_MountedFolder.length();
-				if(len < sSaveFile_RelativeFolder.length())
+				m_sSaveFile_RelativeFolder = FileUtils::BasePath(m_sSaveFile_RelativeFolder);
+
+				if(m_sSaveFile_RelativeFolder.length() > 0)
 				{
-					string sTemp = sSaveFile_RelativeFolder;
-					sSaveFile_RelativeFolder = sTemp.substr(len);
+					if(m_sSaveFile_RelativeFolder[m_sSaveFile_RelativeFolder.length() - 1] != '/')
+						m_sSaveFile_RelativeFolder += "/";
 				}
 			}
 
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Display_Message_Button_1_CONST, sSaveFile_RelativeFolder);
+			m_pOrbiter->CMD_Set_Text(StringUtils::ltos(DESIGNOBJ_mnuChooseFolder_CONST), 
+				"Folder : " + m_sSaveFile_FullBasePath + m_sSaveFile_RelativeFolder, TEXT_STATUS_CONST);
+
 			m_pOrbiter->Renderer()->RenderObjectAsync(m_pOrbiter->FindObject(DESIGNOBJ_mnuChooseFolder_CONST));
 		}
 	}
 
 	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SaveFile_GotoChooseFolderDesignObj()
+{
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, FileUtils::ExcludeTrailingSlash(m_sSaveFile_FullBasePath) + "\nMT-1\nP");
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_mnuChooseFolder_CONST), "", "", 
+		false, true);
+
+	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(DESIGNOBJ_mnuChooseFolder_CONST), 
+		"Folder : " + m_sSaveFile_FullBasePath, TEXT_STATUS_CONST);
 }
 //-----------------------------------------------------------------------------------------------------

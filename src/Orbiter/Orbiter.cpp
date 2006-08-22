@@ -3796,6 +3796,10 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += StringUtils::itos((int) m_mapDevice_Selected.size());
 		else if(  Variable=="DFN"  )
 			Output += m_sDefaultRippingName;
+		else if(Variable=="DSDR")
+			Output += StringUtils::ltos(m_nDefaultStorageDeviceForRipping);
+		else if(Variable=="DSDRN")
+			Output += m_sDefaultStorageDeviceForRippingName;
 		else if(  Variable.length()>1 && Variable[0]=='G' && Variable[1]=='D' )
 		{
 			DesignObj_Orbiter *pObjGD = pObj;
@@ -5833,8 +5837,6 @@ void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScree
 			/** The description of the media */
 		/** @param #9 Text */
 			/** The description of the current section (ie chapter in a dvd, etc.) */
-		/** @param #13 Filename */
-			/** The default name to use if the user wants to rip this.  Only applies to discs. */
 		/** @param #29 PK_MediaType */
 			/** The type of media playing */
 		/** @param #48 Value */
@@ -5846,7 +5848,7 @@ void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScree
 		/** @param #120 Retransmit */
 			/** If true, it will re-request the plist (current playlist) grid */
 
-void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit,string &sCMD_Result,Message *pMessage)
 //<-dceag-c242-e->
 {
 	if(m_bQuit)
@@ -5879,7 +5881,6 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	m_iPK_Screen_OSD_Speed=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_Screen_OSD_Track=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 
-	m_sDefaultRippingName = sFilename;
 	m_sNowPlaying_TimeShort="";
 	m_sNowPlaying_TimeLong="";
 
@@ -8116,8 +8117,6 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 		return;
 
 	m_pContextToBeRestored = NULL; // Won't restore any pending context.  It's possible there was a go back that set this and hasn't yet finished rendering before a goto screen
-	if(NULL != m_pScreenHistory_Current && NULL != m_pScreenHistory_Current->GetObj())
-		FireDeleteWxWidget(m_pScreenHistory_Current->GetObj());
 
 	bool bCreatedMessage=pMessage==NULL;
 	if( pMessage==NULL )
@@ -8304,19 +8303,6 @@ void Orbiter::CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool b
 			m_pMouseBehavior->Set_Mouse_Behavior(sOptions,bExclusive,sDirection,sPK_DesignObj);
 	}
 #endif
-}
-
-void Orbiter::FireDeleteWxWidget(DesignObj_Orbiter *pObj)
-{
-	DesignObj_DataList::iterator it;
-	for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it)
-	{
-		DesignObj_Orbiter *pChildObj = (DesignObj_Orbiter *)*it;
-		if(pChildObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
-			ExecuteScreenHandlerCallback(cbOnDialogDelete);
-
-		FireDeleteWxWidget(pChildObj);
-	}
 }
 
 DataGridCell *Orbiter::GetDataGridHighlightCell(DesignObj_DataGrid *pGrid)

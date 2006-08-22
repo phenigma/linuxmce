@@ -1126,19 +1126,6 @@ g_pPlutoLogger->Write(LV_ACTION,"RedrawObjects");
 // If an object has the don't reset state true,  it won't reset to normal,  and it's children won't reset either
 void OrbiterRenderer::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj, PlutoPoint *ptPopup )
 {
-	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
-	{
-		CallBackData *pCallBackData = OrbiterLogic()->m_pScreenHandler->m_mapCallBackData_Find(cbOnDialogCreate);
-		if(pCallBackData)
-		{
-			PositionCallBackData *pPositionData = (PositionCallBackData *)pCallBackData;
-			pPositionData->m_rectPosition = pObj->m_rPosition;
-		}
-
-		if(OrbiterLogic()->ExecuteScreenHandlerCallback(cbOnDialogCreate))
-			return;
-	}
-
 	// Do this again since sometimes there will be several grids with the same name within the application and if
 	// we're going to do a lookup, such as with seek grid, we want to find the one most recently on screen
 	if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
@@ -1199,9 +1186,6 @@ void OrbiterRenderer::ObjectOffScreen( DesignObj_Orbiter *pObj )
 	if( OrbiterLogic()->m_pObj_Highlighted==pObj )
 		OrbiterLogic()->m_pObj_Highlighted = NULL;  // Otherwise an object on popup removed from the screen may remain highlighted
 		
-	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST && OrbiterLogic()->ExecuteScreenHandlerCallback(cbOnDialogDelete))
-		return;
-
 	pObj->m_bOnScreen=false;
 	if(  pObj->m_pGraphicToUndoSelect  )
 	{

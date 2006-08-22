@@ -287,6 +287,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		// The remotes for the current media
 		int m_iPK_Screen_Remote,m_iPK_DesignObj_Remote_Popup,m_iPK_Screen_FileList,m_iPK_Screen_RemoteOSD,m_iPK_Screen_OSD_Speed,m_iPK_Screen_OSD_Track;
 		string m_sNowPlaying,m_sNowPlaying_Section,m_sNowPlaying_TimeShort,m_sNowPlaying_TimeLong,m_sNowPlaying_Speed,m_sDefaultRippingName; /** < set by the media engine, this is whatever media is currently playing */
+		int m_nDefaultStorageDeviceForRipping;
+		string m_sDefaultStorageDeviceForRippingName;
 		int m_iPK_MediaType;
 		int m_dwPK_Device_NowPlaying,m_dwPK_Device_NowPlaying_Video,m_dwPK_Device_NowPlaying_Audio;  /** < set by the media engine, this is whatever media device is currently playing */
 		bool m_bPK_Device_NowPlaying_Audio_DiscreteVolume;
@@ -790,11 +792,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		*/
 		void SetChildrenVisibilityContext(DesignObj_Orbiter *pObj, 
 			const map<DesignObj_Orbiter *, bool>& mapVisibilityContext);
-
-		/**
-		* @brief when the screen is changed, before all registered callbacks are erased, any fire delete wx widget will be fired
-		*/
-		void FireDeleteWxWidget(DesignObj_Orbiter *pObj);
 
 		/**
 		* @brief A helper function we can call internally rather than the full CMD_GotoScreen
@@ -1413,8 +1410,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 			/** The description of the media */
 		/** @param #9 Text */
 			/** The description of the current section (ie chapter in a dvd, etc.) */
-		/** @param #13 Filename */
-			/** The default name to use if the user wants to rip this.  Only applies to discs. */
 		/** @param #29 PK_MediaType */
 			/** The type of media playing */
 		/** @param #48 Value */
@@ -1426,8 +1421,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		/** @param #120 Retransmit */
 			/** If true, it will re-request the plist (current playlist) grid */
 
-	virtual void CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit) { string sCMD_Result; CMD_Set_Now_Playing(sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sText.c_str(),sFilename.c_str(),iPK_MediaType,iValue,sName.c_str(),sList_PK_Device.c_str(),bRetransmit,sCMD_Result,NULL);};
-	virtual void CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit) { string sCMD_Result; CMD_Set_Now_Playing(sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sText.c_str(),iPK_MediaType,iValue,sName.c_str(),sList_PK_Device.c_str(),bRetransmit,sCMD_Result,NULL);};
+	virtual void CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #254 - Bind Icon */

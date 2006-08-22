@@ -441,6 +441,8 @@ public:
 		EntertainArea *&pEntertainArea,MediaStream *&pMediaStream);
 
 
+	int GetStorageDeviceWithMostFreeSpace(string& sFullDescription, string& sMountedPath);
+
 
 	/*
 	*	Since this class is so big, all the datagrid function have been moved to Media_Plugin_Grids.cpp
@@ -545,10 +547,12 @@ public:
 			if( pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio && pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_mapParameters_Find(DEVICEDATA_Discrete_Volume_CONST)=="1" )
 				sMediaDevices += ",1";
 
+			//TODO: learn how to use filename
+
 			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 
-				sRemotes, pMediaStream->m_sMediaDescription, pMediaStream->m_sSectionDescription, sFilename, 
+				sRemotes, pMediaStream->m_sMediaDescription, pMediaStream->m_sSectionDescription, 
 				pMediaStream->m_iPK_MediaType, iDequeMediaFile, pMediaStream->m_sAppName, 
-				sMediaDevices, bRefreshScreen );
+				sMediaDevices, bRefreshScreen);
 
 			if( pMessage )
 			{
@@ -572,7 +576,7 @@ public:
 		else
 		{
 			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 
-				"", "", "", "", 0, 0, "", "", bRefreshScreen );
+				"", "", "", 0, 0, "", "", bRefreshScreen);
 			if( pMessage )
 			{
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
@@ -823,7 +827,7 @@ Powerfile: 0, 1, ... */
 
 
 	/** @brief COMMAND: #392 - Set Media Attribute Text */
-	/** Adds a new attribute */
+	/** Updates the text for an attribute */
 		/** @param #5 Value To Assign */
 			/** The new value.  If it's a name, LastName^Firstname format */
 		/** @param #123 EK_Attribute */
@@ -968,6 +972,21 @@ Powerfile: 0, 1, ... */
 
 	virtual void CMD_Get_Attributes_For_Media(string sFilename,string sPK_EntertainArea,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Attributes_For_Media(sFilename.c_str(),sPK_EntertainArea.c_str(),sValue_To_Assign,sCMD_Result,NULL);};
 	virtual void CMD_Get_Attributes_For_Media(string sFilename,string sPK_EntertainArea,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #817 - Get Default Ripping Info */
+	/** Get default ripping info: default filename, id and name of the storage device with most free space. */
+		/** @param #13 Filename */
+			/** Default ripping name. */
+		/** @param #219 Path */
+			/** Base path for ripping. */
+		/** @param #233 DriveID */
+			/** The id of the storage device with most free space. */
+		/** @param #235 Storage Device Name */
+			/** The name of the storage device with most free space. */
+
+	virtual void CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name) { string sCMD_Result; CMD_Get_Default_Ripping_Info(sFilename,sPath,iDriveID,sStorage_Device_Name,sCMD_Result,NULL);};
+	virtual void CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

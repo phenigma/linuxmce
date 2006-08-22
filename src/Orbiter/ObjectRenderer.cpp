@@ -244,7 +244,6 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 		break;
 
 	case DESIGNOBJTYPE_App_Desktop_CONST:
-	case DESIGNOBJTYPE_wxWidgets_Applet_CONST:
 		if(m_pObj_Owner->m_rPosition.Width == 0 && m_pObj_Owner->m_rPosition.Height == 0 && m_pObj_Owner->m_rPosition.X == 0 && m_pObj_Owner->m_rPosition.Y == 0)
 			m_pObj_Owner->m_pOrbiter->RenderDesktop( m_pObj_Owner, PlutoRectangle( 0, 0, -1, -1 ), point );  // Full screen
 		else
@@ -319,19 +318,6 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 
 /*virtual*/ bool ObjectRenderer::PreRenderActions(DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
-	if(m_pObj_Owner->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
-	{
-		CallBackData *pCallBackData = m_pObj_Owner->m_pOrbiter->m_pScreenHandler->m_mapCallBackData_Find(cbOnDialogRefresh);
-		if(pCallBackData)
-		{
-			PositionCallBackData *pPositionData = (PositionCallBackData *)pCallBackData;
-			pPositionData->m_rectPosition = m_pObj_Owner->m_rPosition;
-		}
-
-		if(m_pObj_Owner->m_pOrbiter->ExecuteScreenHandlerCallback(cbOnDialogRefresh))
-			return false;
-	}
-
 	if(m_pObj_Owner->m_pDesignObj_Orbiter_TiedTo)
 	{
 		m_pObj_Owner->m_bHidden = m_pObj_Owner->m_pDesignObj_Orbiter_TiedTo->IsHidden();
