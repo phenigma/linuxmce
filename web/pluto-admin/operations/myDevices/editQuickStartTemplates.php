@@ -67,9 +67,10 @@ function editQuickStartTemplates($output,$dbADO) {
 							Homepage=?,
 							Icon=?,
 							FK_DesignObj=?,
-							FK_DesignObj_OSD=?
+							FK_DesignObj_OSD=?,
+							WindowClass=?
 						WHERE PK_QuickStartTemplate=?',
-				array($description,$package,$binary,$arguments,$homepage,$icon,$designobj,$osd,$qst));
+				array($description,$package,$binary,$arguments,$homepage,$icon,$designobj,$osd,$windowclass,$qst));
 			}
 		}
 
