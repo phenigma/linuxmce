@@ -441,16 +441,24 @@ Window X11wrapper::Window_Create_Show(int nPosX, int nPosY, unsigned int nWidth,
 {
     _LOG_NFO("pos==(%d, %d, %d, %d), parent_window==%d", nPosX, nPosY, nWidth, nHeight, parent_window);
     Window window = 0;
+    int code = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
         window = Window_Create(nPosX, nPosY, nWidth, nHeight, parent_window);
         _COND_XERROR_LOG_BREAK(window != 0);
         if (! Window_Show(window))
-            _LOG_XERROR_BREAK("Window_Show");
-        if (! Window_MoveResize(window, nPosX, nPosY, nWidth, nHeight))
-            _LOG_XERROR_BREAK("Window_MoveResize");
+            _LOG_XERROR_BREAK("cannot show window==%d", window);
+        if (! Window_MoveResize(window, nPosX, nPosY, nWidth, nHeight, true, true))
+            _LOG_XERROR_BREAK("cannot re-position window==%d", window);
+        code = 0;
     } while (0);
+    // cleanup
+    if (code != 0)
+    {
+        Window_Destroy(window);
+        window = 0;
+    }
     return window;
 }
 
@@ -500,125 +508,125 @@ bool X11wrapper::Window_Show(Window window, bool bShow/*=true*/)
     return IsReturnCodeOk(code);
 }
 
-bool X11wrapper::Window_MoveResize_Basic(const Window window, const int nPosX, const int nPosY, const unsigned int nWidth, const unsigned int nHeight)
+bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const int nPosY, const unsigned int nWidth, const unsigned int nHeight, bool bUse_WM_Window=true, bool bWaitForCompletion=true)
 {
     _LOG_NFO("window==%d, pos==(%d, %d, %d, %d)", window, nPosX, nPosY, nWidth, nHeight);
-    int code = -1;
-    X11_Locker x11_locker(GetDisplay());
-    do
-    {
-        code = XMoveResizeWindow(GetDisplay(), window, nPosX, nPosY, nWidth, nHeight);
-        _COND_XSTAT_ERROR_LOG_BREAK(code);
-        _LOG_NFO("window==%d => pos==(%d, %d, %d, %d)", window, nPosX, nPosY, nWidth, nHeight);
-    } while (0);
-    return IsReturnCodeOk(code);
-}
-
-bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const int nPosY, const unsigned int nWidth, const unsigned int nHeight)
-{
-    _LOG_NFO("window==%d, pos==(%d, %d, %d, %d)", window, nPosX, nPosY, nWidth, nHeight);
-    // deepest wm-window container
-    // will try first with our window directly
-    Window window_wm = window;
-    // real positioning action coordinates
-    int x_req = nPosX;
-    int y_req = nPosY;
-    unsigned int w_req = nWidth;
-    unsigned int h_req = nHeight;
-    // coordinates for the corresponding wm-parent-window
-    int x_wm = 0;
-    int y_wm = 0;
-    unsigned int w_wm = 0;
-    unsigned int h_wm = 0;
-    // coordinates for our window
-    int x = 0;
-    int y = 0;
-    unsigned int w = 0;
-    unsigned int h = 0;
+    // cannot wait for Expose events: they may be generated or not
     // correct position checker
-    bool bGoodPos = false;
-    bool bGoodPos_wm = false;
+    bool bGoodPos = false; // initial window
+    bool bGoodPos_wm = false; // wm window
     // start
     int code = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        for (int i=0; i<WAIT_FOR_COMPLETION_MAX_ITERATIONS; i++)
+        // coordinates for our window
+        int x = 0;
+        int y = 0;
+        unsigned int w = 0;
+        unsigned int h = 0;
+        // checking again in a loop
+        int nIterations = bWaitForCompletion ? WAIT_FOR_COMPLETION_MAX_ITERATIONS : 1;
+        for (int i=1; i<=nIterations; usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP), ++i)
         {
-            //_LOG_NFO("i==%d/%d", i, WAIT_FOR_COMPLETION_MAX_ITERATIONS);
-            //_LOG_NFO("window_req==%d => pos==(%d, %d, %d, %d)", window_wm, x_req, y_req, w_req, h_req);
+            //_LOG_NFO("i==%d/%d", i, nIterations);
+            // required window which will be changed according to arguments
+            Window window_req = window;
+            int x_req = nPosX;
+            int y_req = nPosY;
+            unsigned int w_req = nWidth;
+            unsigned int h_req = nHeight;
+            // coordinates for the corresponding wm-parent-window
+            Window window_wm = 0;
+            int x_wm = 0;
+            int y_wm = 0;
+            unsigned int w_wm = 0;
+            unsigned int h_wm = 0;
+            if (bUse_WM_Window)
+            {
+                // check if the wm reparented the window
+                window_wm = Window_GetDeepestParent(window);
+                if ( (window_wm == 0) || (window_wm == window) )
+                {
+                    //_LOG_WRN("Window_GetDeepestParent(window==%d) => window_wm==%d", window, window_wm);
+                    continue;
+                }
+                else
+                {
+                    // we have a container wm-window here
+                    // will translate the origin
+                    int x_delta = 0;
+                    int y_delta = 0;
+                    bool bResult = Window_TranslateCoordinates(window, window_wm, 0, 0, &x_delta, &y_delta, NULL);
+                    if (! bResult)
+                    {
+                        _LOG_ERR("cannot translate coordinates");
+                        continue;
+                    }
+                    //_LOG_NFO("x_delta==%d, y_delta==%d", x_delta, y_delta);
+                    // read the actual position for window_wm
+                    if (! Window_GetGeometry(window_wm, &x_wm, &y_wm, &w_wm, &h_wm))
+                    {
+                        _LOG_ERR("get delta Window_GetGeometry(window_wm) => retCode==false");
+                        continue;
+                    }
+                    //_LOG_NFO("window_wm==%d => pos==(%d, %d, %d, %d)", window_wm, x_wm, y_wm, w_wm, h_wm);
+                    // compute the new coordinates
+                    window_req = window_wm;
+                    x_req = nPosX - x_delta;
+                    y_req = nPosY - y_delta;
+                    w_req = w_wm;
+                    h_req = h_wm;
+                }
+            }
+            // real call
+            //_LOG_NFO("window_req==%d => pos==(%d, %d, %d, %d)", window_req, x_req, y_req, w_req, h_req);
+            code = XMoveResizeWindow(GetDisplay(), window_req, x_req, y_req, w_req, h_req);
+            usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
             Sync();
-            code = XMoveResizeWindow(GetDisplay(), window_wm, x_req, y_req, w_req, h_req);
-            Sync();
-            // cannot wait for Expose events: they may be generated or not
             if (code != true)
             {
                 _LOG_WRN("XMoveResizeWindow() => retCode==%d", code);
-                usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
                 continue;
             }
             //_LOG_NFO("XMoveResizeWindow() => retCode==%d", code);
-            // check the real position
+            // read the actual position
             if (! Window_GetGeometry(window, &x, &y, &w, &h))
             {
                 _LOG_WRN("Window_GetGeometry() => retCode==false");
-                usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
                 continue;
             }
             //_LOG_NFO("window==%d => pos==(%d, %d, %d, %d)", window, x, y, w, h);
             bGoodPos = ( (x==nPosX) && (y==nPosY) && (w==nWidth) && (h==nHeight) );
+            //_LOG_NFO("bGoodPos==%d", bGoodPos);
+            // read the actual position for window_wm
+            if (bUse_WM_Window)
+            {
+                if (! Window_GetGeometry(window_wm, &x_wm, &y_wm, &w_wm, &h_wm))
+                {
+                    _LOG_ERR("Window_GetGeometry(window_wm) => retCode==false");
+                    continue;
+                }
+                bGoodPos_wm = ( (x_req==x_wm) && (y_req==y_wm) && (w_req==w_wm) && (h_req==h_wm) );
+                //_LOG_NFO("bGoodPos_wm==%d", bGoodPos_wm);
+                // check the real position
+                if (bGoodPos && bGoodPos_wm)
+                {
+                    _LOG_NFO("both correct : window==%d pos(%d, %d, %d, %d), window_wm==%d pos==(%d, %d, %d, %d)",
+                             window, x, y, w, h,
+                             window_wm, x_wm, y_wm, w_wm, h_wm);
+                    break;
+                }
+            }
+            // check the real position
             if (bGoodPos)
             {
-                _LOG_NFO("window position is good");
+                _LOG_NFO("correct : window==%d pos(%d, %d, %d, %d)", window, x, y, w, h);
                 break;
             }
-            // check if the wm reparented the window
-            window_wm = Window_GetDeepestParent(window);
-            if ( (window_wm == 0) || (window_wm == window) )
-            {
-                _LOG_WRN("Window_GetDeepestParent() => window_wm==%d", window_wm);
-                usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
-                continue;
-            }
-            // we have a container wm-window here
-            // will translate the origin
-            int x_delta = 0;
-            int y_delta = 0;
-            bool bResult = Window_TranslateCoordinates(window, window_wm, 0, 0, &x_delta, &y_delta, NULL);
-            if (! bResult)
-            {
-                _LOG_WRN("cannot translate coordinates");
-                usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
-                continue;
-            }
-            //_LOG_NFO("x_delta==%d, y_delta==%d", x_delta, y_delta);
-            // check the real position for window_wm
-            if (! Window_GetGeometry(window_wm, &x_wm, &y_wm, &w_wm, &h_wm))
-            {
-                _LOG_WRN("Window_GetGeometry(window_wm) => retCode==false");
-                usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
-                continue;
-            }
-            //_LOG_NFO("window_wm==%d => pos==(%d, %d, %d, %d)", window_wm, x_wm, y_wm, w_wm, h_wm);
-            bGoodPos_wm = ( (x_req==x_wm) && (y_req==y_wm) && (w_req==w_wm) && (h_req==h_wm) );
-            if (bGoodPos_wm)
-            {
-                _LOG_NFO("wm_window position is good");
-                break;
-            }
-            // compute the new coordinates
-            x_req = nPosX - x_delta;
-            y_req = nPosY - y_delta;
-            w_req = w_wm;
-            h_req = h_wm;
-            usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
         }
     } while (0);
-    if (bGoodPos)
-        _LOG_NFO("window==%d => pos==(%d, %d, %d, %d)", window, x, y, w, h);
-    else if (bGoodPos_wm)
-        _LOG_NFO("window_wm==%d => pos==(%d, %d, %d, %d)", window_wm, x_wm, y_wm, w_wm, h_wm);
-    else
+    if (!bGoodPos && !bGoodPos_wm)
         _LOG_ERR("cannot re-position window==%d", window);
     return (bGoodPos || bGoodPos_wm);
 }
@@ -680,7 +688,7 @@ bool X11wrapper::Window_Lower(Window window)
 
 bool X11wrapper::Window_SetOpacity_Helper(Window window, unsigned long nOpacity)
 {
-    _LOG_NFO("window==%d, nOpacity==0x%lx", window, nOpacity);
+    //_LOG_NFO("window==%d, nOpacity==0x%lx", window, nOpacity);
     int code = -1;
     X11_Locker x11_locker(GetDisplay());
     do
@@ -851,7 +859,7 @@ bool X11wrapper::Mouse_Grab(Window window_grab, Window window_confine_to/*=None*
     {
         // in a loop, forcing the grab again
         // because the time moment may not be good right now
-        for (int i=0; i<WAIT_FOR_COMPLETION_MAX_ITERATIONS; i++)
+        for (int i=0; i<WAIT_FOR_COMPLETION_MAX_ITERATIONS; usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP), ++i)
         {
             //_LOG_NFO("i==%d/%d", i, WAIT_FOR_COMPLETION_MAX_ITERATIONS);
             Sync();
@@ -869,7 +877,6 @@ bool X11wrapper::Mouse_Grab(Window window_grab, Window window_confine_to/*=None*
             if (code == 0)
                 break;
             //_LOG_WRN("i==%d, code==%d => ErrorText=='%s'", i, code, GetErrorText(GetDisplay(), code).c_str());
-            usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
         }
         _COND_XSTAT_ERROR_LOG_BREAK(code);
         _LOG_NFO("XGrabPointer(window_grab==%d, window_confine_to==%d) => retCode==%d", window_grab, window_confine_to, code);
@@ -1110,13 +1117,11 @@ bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsi
         window_grab = Window_GetRoot();
     }
     _LOG_NFO("pos==(%d, %d, %d, %d), window_grab==%d", nPosX, nPosY, nWidth, nHeight, window_grab);
-
     // hide window case
     if ( (nWidth == 0) && (nHeight == 0) )
     {
         return Mouse_Constrain_Release();
     }
-
     // show window case
     Window &window = v_window_Mouse_Constrain;
     int code = -1;
@@ -1141,14 +1146,8 @@ bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsi
         window = Window_Create_Show(nPosX, nPosY, nWidth, nHeight, 0);
         if (window <= 0)
             _LOG_XERROR_BREAK("cannot create window");
-        bool bResult = Mouse_Grab(window_grab, window);
-        if (! bResult)
-        {
-            _LOG_ERR("cannot grab pointer, closing window==%d", window);
-            Window_Destroy(window);
-            window = 0;
-            break;
-        }
+        if (! Mouse_Grab(window_grab, window))
+            _LOG_XERROR_BREAK("cannot grab pointer");
         if (! Window_ClassName(window, "constrain_mouse", "constrain_mouse"))
             _LOG_XERROR_BREAK("cannot set window class");
         if (! Window_Name(window, "constrain_mouse"))
@@ -1165,8 +1164,19 @@ bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsi
         previous_mouse_constrain.nHeight = nHeight;
         code = 0;
     } while (0);
+    // cleanup
+    if (code != 0)
+    {
+        Window_Destroy(window);
+        window = 0;
+    }
+    if (! IsReturnCodeOk(code))
+    {
+        _LOG_ERR("pos==(%d, %d, %d, %d), window_grab==%d => retCode==%d", nPosX, nPosY, nWidth, nHeight, window_grab, code);
+        return false;
+    }
     _LOG_NFO("pos==(%d, %d, %d, %d), window_grab==%d => retCode==%d", nPosX, nPosY, nWidth, nHeight, window_grab, code);
-    return IsReturnCodeOk(code);
+    return true;
 }
 
 bool X11wrapper::Mouse_Constrain_Release()

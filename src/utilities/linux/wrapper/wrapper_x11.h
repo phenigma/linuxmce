@@ -151,11 +151,10 @@ public:
     // show or hide a window
     bool Window_Show(Window window, bool bShow=true);
 
-    // basic window positioning
-    bool Window_MoveResize_Basic(const Window window, const int nPosX, const int nPosY, const unsigned int nWidth, const unsigned int nHeight);
-
-    // wm-style window positioning
-    bool Window_MoveResize(const Window window, const int nPosX, const int nPosY, const unsigned int nWidth, const unsigned int nHeight);
+    // will check if the window was actually moved
+    // bUse_WM_Window : use the associated wm-window
+    // bWaitForCompletion : try again few times if the operation failed
+    bool Window_MoveResize(const Window window, const int nPosX, const int nPosY, const unsigned int nWidth, const unsigned int nHeight, bool bUse_WM_Window, bool bWaitForCompletion);
 
     bool Window_ClassName(Window window, const char *s_class, const char *s_name);
     bool Window_Name(Window window, const char *s_name);
