@@ -83,7 +83,10 @@ public:
 //<-dceag-const2-b->!
 
 		bool MediaPlaying( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+		bool MediaStopped( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
 		int GetLengthOfActiveXineStream();  // Returns the length of the currently active xine stream in milliseconds
+
 
 //<-dceag-h-b->
 	/*

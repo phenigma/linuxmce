@@ -116,7 +116,7 @@ long SMPTEGen::FromTimecode(const char *s)
 			if (p)
 			{
 				ss = atoi(p);
-				p = strtok(NULL, ":");
+				p = strtok(NULL, ":.");
 				if (p)
 				{
 					ff = atoi(p);
@@ -134,3 +134,20 @@ long SMPTEGen::FromTimecode(const char *s)
 	return gm;
 }
 
+const char *SMPTEGen::FromSMPTECode(long SMPTE)
+{
+	int hh, mm, ss, ff;
+
+	ff = SMPTE % 25;
+	SMPTE = SMPTE / 25;
+	ss = SMPTE % 60;
+	SMPTE = SMPTE / 60;
+	mm = SMPTE % 60;
+	SMPTE = SMPTE / 60;
+	hh = SMPTE;
+
+	static char s[25];
+	sprintf(s, "%02d:%02d:%02d.%02d", hh, mm, ss, ff);
+	return s;
+}
+	

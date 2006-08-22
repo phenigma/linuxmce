@@ -70,8 +70,8 @@ bool SMPTE_Fountain::GetConfig()
 	}
 
 	m_smpteDefaultPreDelay=SMPTEGen::FromTimecode("00:00:10"); // Default of 10 second pre-delay
-	m_smpteXineStartupOffset=SMPTEGen::FromTimecode("00:00:00:12"); // Half-second Xine startup allowance
-	m_smpteAdjustmentThreshold=SMPTEGen::FromTimecode("00:00:01"); // Allow generated SMPTE and Xine to drift by a maximum of 1 second	
+	m_smpteXineStartupOffset=SMPTEGen::FromTimecode("00:00:01:00"); // Half-second Xine startup allowance
+	m_smpteAdjustmentThreshold=SMPTEGen::FromTimecode("00:00:02"); // Allow generated SMPTE and Xine to drift by a maximum of 1 second	
 	m_smpteXineSongStop=-1;
 
 	string sConfiguration = DATA_Get_Configuration();
@@ -103,6 +103,7 @@ bool SMPTE_Fountain::GetConfig()
 	}
 	PurgeInterceptors();  // Since this is not a plugin, be sure to purge so we're not registered more than once
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &SMPTE_Fountain::MediaPlaying ), 0, m_pDevice_Xine->m_dwPK_Device, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Play_Media_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &SMPTE_Fountain::MediaStopped ), 0, m_pDevice_Xine->m_dwPK_Device, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Completed_CONST );
 	
 	pthread_t threadid;
 	pthread_create(	&threadid, NULL, OutputThread, NULL); 
@@ -184,6 +185,17 @@ void SMPTE_Fountain::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 	m_bIsActive = false;
 }
 
+bool SMPTE_Fountain::MediaStopped( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	if( false && !m_bIsActive )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Ignoring -- we're not active");
+		return false;
+	}
+	smpte_stop = -1;
+	smpte_cur = 0;
+	m_smpteXineReportedTime=0;
+}
 
 bool SMPTE_Fountain::MediaPlaying( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
@@ -261,11 +273,12 @@ void SMPTE_Fountain::SynchronizationThread()
 			if (smpte_cur > m_smpteStartXineTime)
 			{
 				m_smpteXineReportedTime = 0;
-				m_smpteXineSongStop = 0;
+				m_smpteXineSongStop = -1;
+				m_smpteStartXineTime = 0;
 				g_pPlutoLogger->Write(LV_STATUS, "Sending Xine start command");
 				DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,m_pDevice_Xine->m_dwPK_Device,m_pStartMediaInfo->m_sFilename,
 					m_pStartMediaInfo->m_iPK_MediaType,m_pStartMediaInfo->m_iStreamID,m_pStartMediaInfo->m_sMediaPosition);
-				CMD_Play_Media.m_pMessage->m_mapParameters[COMMANDPARAMETER_OriginatorNumber_CONST] = m_dwPK_Device;
+				CMD_Play_Media.m_pMessage->m_mapParameters[COMMANDPARAMETER_OriginatorNumber_CONST] = StringUtils::itos(m_dwPK_Device);
 				SendCommand(CMD_Play_Media);
 			}
 		}
@@ -277,7 +290,8 @@ void SMPTE_Fountain::SynchronizationThread()
 				if ((smpte_cur < AdjustedXineTime - m_smpteAdjustmentThreshold) ||
 					(smpte_cur > AdjustedXineTime + m_smpteAdjustmentThreshold))
 				{
-					g_pPlutoLogger->Write(LV_STATUS, "Adjusting smpte time to match xine time (%d to %d)",smpte_cur, AdjustedXineTime);
+					cout << "Adjusting smpte time to match xine time (" << SMPTEGen::FromSMPTECode(smpte_cur);
+					cout << "to " << SMPTEGen::FromSMPTECode(AdjustedXineTime) << " diff: " << smpte_cur - AdjustedXineTime << "thresh: " << m_smpteAdjustmentThreshold << endl;
 					smpte_cur = AdjustedXineTime;
 				}
 			}
@@ -304,16 +318,17 @@ void SMPTE_Fountain::AskXineThread()
 			string sLine;
 			while (pS->ReceiveString(sLine, 30) && alsa_soundout_shutdown==false)
 			{
-				cout << "Read next line:" << sLine << endl; 
+			//	cout << "Read next line:" << sLine << endl; 
 				int Sp, H, M, S, Ms;
 				sscanf(sLine.c_str(), "%i,%02i:%02i:%02i.%03i", &Sp, &H, &M, &S, &Ms);
 				m_smpteXineReportedTime = SMPTEGen::FromTimecode(StringUtils::Format("%d:%d:%d:%d", H, M, S, (Ms*25 / 1000)).c_str());		
-				if (m_smpteXineSongStop<0)
+				if (m_smpteXineSongStop<0 && m_smpteXineReportedTime > 0)
 				{
 					m_smpteXineSongStop = GetLengthOfActiveXineStream();
+					cout << "\nLength of stream " << m_smpteXineSongStop << "\n" << endl;
 					smpte_stop = m_smpteSongOffset+m_smpteXineSongStop;
 				}
-			}
+			} 
 			pS->Disconnect();
 		}
 		

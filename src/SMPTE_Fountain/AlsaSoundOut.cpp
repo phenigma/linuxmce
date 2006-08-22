@@ -323,7 +323,7 @@ static int write_loop(snd_pcm_t *handle, int channel, int periods, uint8_t *fram
 				if ((err = write_buffer(handle, frames, framesize)) < 0)
 					break;
 				
-				//printf("SMPTE %d: Frame written to ALSA.\n", smpte_cur);
+				printf("SMPTE %s: Frame written to ALSA.\r", SMPTEGen::FromSMPTECode(smpte_cur));
 				frameoffset=0;
 			}
 		} while(smptedataoffset < smptesize);

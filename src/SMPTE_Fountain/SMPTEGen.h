@@ -19,5 +19,6 @@ public:
 	char *GetSMPTE(long SMTPE, int &length); // Most useful with single-slice buffer, just gets and returns one smpte frame
 
 	static long FromTimecode(const char *s);
+	static const char *FromSMPTECode(long SMPTE);
 };
 
