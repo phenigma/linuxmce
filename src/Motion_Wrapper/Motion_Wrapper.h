@@ -69,7 +69,8 @@ public:
 //<-dceag-h-e->
 	private:
 		bool AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_Impl* pDeviceData, size_t i);
-		
+		bool CreateVideoDeviceFor1394(DeviceData_Impl* pDeviceData);
+
 	private:
 		DeviceData_Router* find_Device(int iPK_Device);
 			

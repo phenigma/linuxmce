@@ -346,10 +346,16 @@ bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot open %s for writing...", sPath.c_str());
 		return false;
 	}
-				
+					
 	bool bFirstAdded = true;
 	for(size_t i = 0; i < m_pData->m_vectDeviceData_Impl_Children.size(); ++i) {
-        DeviceData_Impl *pDeviceData_Impl = m_pData->m_vectDeviceData_Impl_Children[i];
+		DeviceData_Impl *pDeviceData_Impl = m_pData->m_vectDeviceData_Impl_Children[i];
+
+		// Firewire cameras don't have a v4l device, we need to use vloopback to create it	
+/*		if (iPK_DeviceTemplate == UNKNOWN_FIREWIRE_CAMERA_DEVICE_TEMPLATE) {
+			CreateVideoDeviceFor1394(pDeviceData_Impl);
+		} 
+*/		
 		if(!bFirstAdded) {
 			if(AddChildDeviceToConfigFile(mconffile, pDeviceData_Impl, i)) {
 				bFirstAdded = true;
@@ -453,6 +459,31 @@ void Motion_Wrapper::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 }
 
 
+bool
+Motion_Wrapper::CreateVideoDeviceFor1394(DeviceData_Impl* pDeviceData) {
+	int PK_Device = pDeviceData->m_dwPK_Device;
+	g_pPlutoLogger->Write(LV_STATUS, "Generating v4l device for %d ieee1394 video device", PK_Device);
+
+	string sDevice = pDeviceData->mapParameters_Find(DEVICEDATA_Device_CONST);
+
+
+	if( ! fork() )
+        {
+		// V4L devices for video1394 get piped to: 30 + ( video1394# - 1) * 2 [ video30, video32 ]
+		string v4lParam = "--vloopback=/dev/video"+StringUtils::itos((atoi(sDevice.c_str()) - 1 ) * 2 + 30);
+		string ieeeParam = "--video1394=/dev/video1394/"+sDevice;
+					
+                g_pPlutoLogger->Write(LV_STATUS, "In child process.");
+                g_pPlutoLogger->Write(LV_STATUS, "Launching dc1394_vloopback ...");
+                execl("/usr/bin/dc1394_vloopback",v4lParam.c_str() , ieeeParam.c_str() ,NULL);
+                g_pPlutoLogger->Write(LV_CRITICAL, "Could not launch dc1394_vloopback !");
+
+		return false;
+        }
+
+	return true;
+}
+
 bool 
 Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_Impl* pDeviceData,size_t i) {
 	int PK_Device = pDeviceData->m_dwPK_Device;
@@ -466,7 +497,14 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 	string sDevice = pDeviceData->mapParameters_Find(DEVICEDATA_Device_CONST);
 
 	if(!sDevice.empty()) {
-		conffile 	<< "videodevice /dev/video" << sDevice << endl;
+		/*
+		if (pDeviceData->m_dwPK_DeviceTemplate != UNKNOWN_FIREWIRE_CAMERA_DEVICE_TEMPLATE) {	
+		*/
+			conffile 	<< "videodevice /dev/video" << sDevice << endl;
+		/*
+		} else {
+			conffile	<< "videodevice /dev/video" << StringUtils::itos((atoi(sDevice.c_str()) - 1 ) * 2 + 30) << endl;
+		}*/
 	} else {
 		g_pPlutoLogger->Write(LV_WARNING, "Device number not specified for device: %d.", PK_Device);
 		return false;
