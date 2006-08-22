@@ -36,7 +36,7 @@ function setValue {
 	
 	## Set the options to MD's also
 	for DlDir in /usr/pluto/diskless/*; do 
-		chroot $DlDir bash -c "source /usr/pluto/bin/ConfigOps.sh && ConfSet OfflineMode $Value"
+		chroot $DlDir bash -c "source /usr/pluto/bin/Config_Ops.sh && ConfSet OfflineMode $Value"
 	done
 	
 }
