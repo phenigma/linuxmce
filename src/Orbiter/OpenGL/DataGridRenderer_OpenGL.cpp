@@ -28,13 +28,12 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 
 /*virtual*/ void DataGridRenderer_OpenGL::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
+	string DatagridFrameID = "datagrid " + m_pObj_Owner->GenerateObjectHash(point, false);
+	if(Engine->IsCubeAnimatedDatagrid(DatagridFrameID))
+		return;
+
 	g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject");
 	MeshFrame * BeforeDataGrid = RenderFrame;
-	if(RenderFrame)
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject release old frame");
-	}
-	g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject Engine->StartFrameDrawing");
 
 	MeshFrame *BeforeDataGridClone = NULL;
 	if(StartAnimation > 0)
@@ -43,7 +42,6 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 		BeforeDataGridClone = BeforeDataGrid->Clone();
 	}
 
-	string DatagridFrameID = "datagrid " + m_pObj_Owner->GenerateObjectHash(point, false);
 
 	Engine->RemoveMeshFrameFromDesktop(BeforeDataGrid);
 	Engine->StartDatagridDrawing(DatagridFrameID);
@@ -52,10 +50,12 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 
 	RenderFrame = Engine->EndDatagridDrawing(DatagridFrameID);
 
-	if(StartAnimation>0)
+	if(0 != StartAnimation)
 	{
+		g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::StartAnimation");
+		Engine->CubeAnimateDatagridFrames(DatagridFrameID, BeforeDataGridClone, RenderFrame, 800, iPK_Direction, 
+			GetAlphaLevel() / 255.0f);
 		Engine->AddMeshFrameToDesktop("", BeforeDataGridClone);
-		Engine->CubeAnimateDatagridFrames("", BeforeDataGridClone, RenderFrame, 800, iPK_Direction, GetAlphaLevel() / 255.0f);
 		StartAnimation = 0;
 	}
 }

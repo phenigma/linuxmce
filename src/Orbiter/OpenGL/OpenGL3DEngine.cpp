@@ -519,11 +519,13 @@ void OpenGL3DEngine::CubeAnimateDatagridFrames(string ObjectID, MeshFrame *Befor
 
 	UnHighlight();
 
-	AnimationScrollDatagrid* Animation = new AnimationScrollDatagrid("", this, BeforeGrid, AfterGrid, MilisecondTime, Direction, fMaxAlphaLevel); 
+	AnimationScrollDatagrid* Animation = new AnimationScrollDatagrid(ObjectID, this, BeforeGrid, AfterGrid, MilisecondTime, Direction, fMaxAlphaLevel); 
 	AnimationDatagrid.push_back(Animation);
 
 	Animation->StartAnimation();
 }
+
+
 
 void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 {
@@ -611,4 +613,17 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktopForID(string ObjectID)
 		RemoveMeshFrameFromDesktop(Frame);
 
 	DumpScene();
+}
+
+bool OpenGL3DEngine::IsCubeAnimatedDatagrid(string ObjectID)
+{
+	std::vector<AnimationScrollDatagrid*>::iterator AnimatedDatagridIterator = AnimationDatagrid.begin(),
+		EndIterator = AnimationDatagrid.end();
+	for(; AnimatedDatagridIterator != EndIterator; ++AnimatedDatagridIterator)
+	{
+		AnimationScrollDatagrid* Animation = *AnimatedDatagridIterator;	
+		if (ObjectID == Animation->ObjectID)
+			return true;
+	}
+	return false;
 }

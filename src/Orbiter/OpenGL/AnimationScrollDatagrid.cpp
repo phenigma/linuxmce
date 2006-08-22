@@ -75,6 +75,7 @@ bool AnimationScrollDatagrid::Update()
 		TextureManager::Instance()->ResumeTextureRelease();
 		return true;
 	}
+	Engine->UnHighlight();
 
 	return false;
 }

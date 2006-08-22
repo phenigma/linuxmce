@@ -76,6 +76,8 @@ public:
 	void ShowHighlightRectangle(PlutoRectangle Rect);
 	void HideHighlightRectangle();
 
+	bool IsCubeAnimatedDatagrid(string ObjectID);
+
 
 };
 
