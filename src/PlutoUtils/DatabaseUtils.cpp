@@ -427,3 +427,20 @@ long DatabaseUtils::GetRoomForDevice(MySqlHelper *pMySqlHelper, int nPK_Device)
 
 	return 0;
 }
+
+long DatabaseUtils::GetRoomByName(MySqlHelper *pMySqlHelper, string sDescription, int PK_RoomType)
+{
+	string sSQL = "SELECT PK_Room FROM Room where Description = '" + StringUtils::SQLEscape(sDescription) + "'";
+	if( PK_RoomType )
+		sSQL += " AND FK_RoomType = " + StringUtils::itos(PK_RoomType);
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if((result_set.r = pMySqlHelper->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0])
+		return atoi(row[0]);
+
+	sSQL = "INSERT INTO Room(Description,FK_RoomType) VALUES('"  + StringUtils::SQLEscape(sDescription) + "'," + StringUtils::itos(PK_RoomType);
+
+	return pMySqlHelper->threaded_mysql_query_withID(sSQL);
+}
+

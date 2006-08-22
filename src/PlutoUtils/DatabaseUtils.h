@@ -45,6 +45,7 @@ namespace DatabaseUtils
 	bool AlreadyHasUsers(MySqlHelper *pMySqlHelper,int PK_Installation);
 	bool AlreadyHasRooms(MySqlHelper *pMySqlHelper,int PK_Installation);
 	long GetRoomForDevice(MySqlHelper *pMySqlHelper, int nPK_Device);
+	long GetRoomByName(MySqlHelper *pMySqlHelper, string sDescription, int PK_RoomType);
 };
 
 #endif //#ifndef _DatabaseUtils

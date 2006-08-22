@@ -35,20 +35,101 @@ namespace DCE
 	Logger *g_pPlutoLogger;
 }
 
-
 #include "PlutoUtils/DatabaseUtils.h"
 
+void ExportChildDevices(CreateDevice &createDevice,int iPK_Device_Controlled_Via,string sExportFile)
+{
+	FILE *file = fopen(sExportFile.c_str(),"wb");
+	if( !file )
+	{
+		cerr << "Cannot open " << sExportFile << endl;
+		exit(1);
+	}
 
+	string sSQL = "SELECT PK_Device,Device.Description,Room.Description,Room.FK_RoomType,FK_DeviceTemplate,IPaddress,MACaddress FROM Device LEFT JOIN Room ON FK_Room=PK_Room where FK_Device_ControlledVia=" + StringUtils::itos(iPK_Device_Controlled_Via);
+	PlutoSqlResult result_child_devices;
+	MYSQL_ROW row_child_device;
+	if( ( result_child_devices.r=createDevice.mysql_query_result( sSQL ) ) )
+	{
+		while( row_child_device=mysql_fetch_row( result_child_devices.r ) )
+		{
+			// output the FK_DeviceTemplate,Device.Description,Room.Description,Room.FK_RoomType,IP Address, Mac Address
+			fprintf(file,"%s\t%s\t%s\t%s\t%s\t%s",
+				row_child_device[4],
+				StringUtils::Escape(row_child_device[1]).c_str(),
+				row_child_device[2] ? StringUtils::Escape(row_child_device[2]).c_str() : "",
+				row_child_device[3] ? row_child_device[3] : "",
+				row_child_device[5] ? row_child_device[5] : "",
+				row_child_device[6] ? row_child_device[6] : "");
+			
+			PlutoSqlResult result_device_data;
+			MYSQL_ROW row;
+			sSQL = "SELECT FK_DeviceData,IK_DeviceData FROM Device_DeviceData WHERE FK_Device=" + string(row_child_device[0]);
+			if( ( result_device_data.r=createDevice.mysql_query_result( sSQL ) ) )
+			{
+				while( row=mysql_fetch_row( result_device_data.r ) )
+				{
+					fprintf(file,"\t%s\t%s",
+						row[0],
+						row[1] ? StringUtils::Escape(row[1]).c_str() : "");
+				}
+			}
+			fprintf(file,"\n");
+		};
+	}
+	fclose(file);
+}
 
+void ImportChildDevices(CreateDevice &createDevice,int iPK_Device_Controlled_Via,string sExportFile)
+{
+	size_t size;
+	char *pPtr = FileUtils::ReadFileIntoBuffer(sExportFile,size);
+	if( !pPtr )
+		return;
 
+	vector<string> vectChildDevices;
+	string s = pPtr;
+	StringUtils::Tokenize(s,"\r\n",vectChildDevices);
+	for(vector<string>::iterator it=vectChildDevices.begin();it!=vectChildDevices.end();++it)
+	{
+		s = *it;
+		string::size_type pos=0;
+		int PK_DeviceTemplate = atoi( StringUtils::Tokenize( s, "\t", pos ).c_str() );
+		string sDescription = StringUtils::UnEscape(StringUtils::Tokenize( s, "\t", pos ));
+		string sRoomName = StringUtils::UnEscape(StringUtils::Tokenize( s, "\t", pos ));
+		string sFK_RoomType = StringUtils::Tokenize( s, "\t", pos );
+		string sIPAddress = StringUtils::Tokenize( s, "\t", pos );
+		string sMacAddress = StringUtils::Tokenize( s, "\t", pos );
+		if( PK_DeviceTemplate )
+		{
+			int PK_Device=createDevice.DoIt(0,PK_DeviceTemplate,sIPAddress,sMacAddress,iPK_Device_Controlled_Via,"",0);
+			if( PK_Device )
+			{
+				if( sRoomName.size() )
+				{
+					int PK_Room = DatabaseUtils::GetRoomByName(&createDevice, sRoomName, atoi(sFK_RoomType.c_str()));
+					if( PK_Room )
+						DatabaseUtils::SetDeviceInRoom(&createDevice,PK_Device,PK_Room);
+				}
+
+				while( pos<s.size() )
+				{
+					int PK_DeviceData = atoi( StringUtils::Tokenize( s, "\t", pos ).c_str() );
+					string sIK_DeviceData = StringUtils::Tokenize( s, "\t", pos );
+					DatabaseUtils::SetDeviceData(&createDevice, PK_Device, PK_DeviceData, StringUtils::UnEscape(sIK_DeviceData));
+				}
+			}
+		}
+	}
+}
 
 int main(int argc, char *argv[])
 {
 	g_pPlutoLogger = new FileLogger("/var/log/pluto/CreateDevice.log");
 
 	int iPK_DeviceTemplate=0,iPK_DHCPDevice=0,iPK_Device_Controlled_Via=0,iPK_Device_RelatedTo=0;
-	string sIPAddress,sMacAddress,sDeviceData,sUserName;
-	bool bDontCallConfigureScript=false,bDontInstallPackages=false,bInstallPackagesInBackground=false;
+	string sIPAddress,sMacAddress,sDeviceData,sUserName,sExportFile;
+	bool bDontCallConfigureScript=false,bDontInstallPackages=false,bInstallPackagesInBackground=false,bExport=false;
 
 	bool bError=false;
 	char c;
@@ -58,6 +139,14 @@ int main(int argc, char *argv[])
 		c=argv[optnum][1];
 		switch (c)
 		{
+		case 'e':
+			sExportFile = argv[++optnum];
+			bExport = true;
+			break;
+		case 'm':
+			sExportFile = argv[++optnum];
+			bExport = false;
+			break;
 		case 'h':
 			dceConfig.m_sDBHost = argv[++optnum];
 			break;
@@ -116,7 +205,7 @@ int main(int argc, char *argv[])
 		};
 	}
 
-	if ( bError || (!iPK_DHCPDevice && !iPK_DeviceTemplate && sUserName.size()==0) )
+	if ( bError || (!iPK_DHCPDevice && !iPK_DeviceTemplate && sUserName.size()==0 && sExportFile.size()==0) )
 	{
 		cout << "CreateDevice, v." << VERSION << endl
 			<< "Usage: CreateDevice [-h hostname] [-u username] [-p password] [-D database] [-P mysql port]" << endl
@@ -127,6 +216,8 @@ int main(int argc, char *argv[])
 			<< "[-x don't call InstallNewDevice to add packages]" << endl
 			<< "[-b Install packages in background]" << endl
 			<< "[-U Username] CreateUser--not device" << endl
+			<< "[-e Filename] Export all child devices of PK_Device_Controlled_Via to Filename" << endl
+			<< "[-i Filename] Import devices in Filename as children of PK_Device_Controlled_Via" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
@@ -161,6 +252,20 @@ int main(int argc, char *argv[])
 	createDevice.m_bDontInstallPackages=bDontInstallPackages;
 	createDevice.m_bDontCallConfigureScript=bDontCallConfigureScript;
 	createDevice.m_bInstallPackagesInBackground=bInstallPackagesInBackground;
+
+	if( sExportFile.size() )
+	{
+		if( !iPK_Device_Controlled_Via )
+		{
+			cerr << "Must specify controlled via for import/export" << endl;
+			exit(1);
+		}
+		if( bExport )
+			ExportChildDevices(createDevice,iPK_Device_Controlled_Via,sExportFile);
+		else
+			ImportChildDevices(createDevice,iPK_Device_Controlled_Via,sExportFile);
+		return 0;
+	}
 
 	int PK_Device=createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIPAddress,sMacAddress,iPK_Device_Controlled_Via,sDeviceData,iPK_Device_RelatedTo);
 	if( PK_Device==0 )
