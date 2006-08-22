@@ -1327,7 +1327,8 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 
 				return true;
 			}
-			else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChooseDrive_CONST)
+			else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChooseDrive_CONST ||
+				pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objCurrentUser_CONST)
 			{
                 m_sSaveFile_FileName = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];				
 			}
