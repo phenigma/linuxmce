@@ -1262,6 +1262,7 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 			{
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, m_sSaveFile_Drive);
 				m_pOrbiter->CMD_Go_back("", "");
+				return true;
 			}
 		}
 		else if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuChooseFolder_CONST)
@@ -1270,7 +1271,8 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 			{
 				if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
 				{
-					m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, m_sSaveFile_Command);
+					m_pOrbiter->CMD_Send_Message(m_sSaveFile_Command, false);
+					m_pOrbiter->GotoMainMenu();
 
 					//reset file save info
 					m_sSaveFile_MountedFolder = "";
@@ -1281,6 +1283,8 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 					m_sSaveFile_Command = "";
 					m_bSaveFile_CreatingFolder = false;
 					m_nSaveFile_PK_DeviceDrive = 0;
+
+					return true;
 				}
 			}
 			else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butCreateDir_CONST)
