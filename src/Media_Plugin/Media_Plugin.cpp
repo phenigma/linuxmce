@@ -3587,6 +3587,7 @@ void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID
 
             PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), 
                 pRow_File->Path_get(), pRow_File->Filename_get());
+			PlutoMediaFile_.SetupSyncFilesOnly(true);
             PlutoMediaFile_.SetFileAttribute(iEK_File); //also updates id3tags
 		}
 	}
@@ -3623,6 +3624,7 @@ void Media_Plugin::CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_
 
             PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), 
                 pRow_File->Path_get(), pRow_File->Filename_get());
+			PlutoMediaFile_.SetupSyncFilesOnly(true);
             PlutoMediaFile_.SetFileAttribute(pRow_File->PK_File_get()); //also updates id3tags
         }
 
