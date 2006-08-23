@@ -63,8 +63,7 @@ static void LS_RegisterWithAsterisk()
 	
 	//linphone_core_enable_logs(stdout);
 	linphone_core_disable_logs();
-	linphone_core_init(&LS_LinphoneCore, &LS_LinphoneCoreVTable, NULL, NULL);
-	linphone_core_set_sip_port(&LS_LinphoneCore, 5061);
+	linphone_core_init(&LS_LinphoneCore, &LS_LinphoneCoreVTable, "/etc/pluto/simplephone.conf", NULL);
 	linphone_core_add_proxy_config(&LS_LinphoneCore, LS_pLinphoneProxyConfig);
 	linphone_core_set_default_proxy(&LS_LinphoneCore, LS_pLinphoneProxyConfig);
 	func_exit("LS_RegisterWithAsterisk");
