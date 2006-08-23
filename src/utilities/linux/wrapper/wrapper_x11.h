@@ -116,9 +116,9 @@ public:
 
     /// static functions
 public:
-    inline static bool IsReturnCodeOk(int code);
-    inline static bool IsReturnBoolOk(int code);
-    inline static bool IsReturnStatOk(int code);
+    inline static bool IsReturnCodeOk(int xcode);
+    inline static bool IsReturnBoolOk(int xcode);
+    inline static bool IsReturnStatOk(int xcode);
     static string GetErrorText(Display *pDisplay, int error_code);
     static int ErrorHandler_Grabber(Display *, XErrorEvent *);
 

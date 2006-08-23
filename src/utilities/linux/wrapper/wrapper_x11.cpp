@@ -43,41 +43,52 @@ static const bool g_bXNoLock  = getenv("X11_NO_XLOCK");
 // algorithm
 /*
   {
-  // X11 result or status
-  int code = -1;
+  // X11 status return
+  int xcode = -1;
   X11_Locker x11_locker(GetDisplay());
   do
   {
   .......
-  code = Xfunction(args);
-  _COND_XERROR_LOG_BREAK(code);
+  xcode = Xfunction(args); // status return
+  _COND_XSTAT_LOG_ERR_BREAK(xcode);
+  xcode = Xfunction(args); // bool return
+  _COND_XBOOL_LOG_ERR_BREAK(xcode)
   .......
   _LOG_XERROR_BREAK("error");
   .......
-  code = 0;
+  xcode = 0;
   } while (0);
-  return IsReturnStatOk(code);
-  return IsReturnBoolOk(code);
+  return IsReturnStatOk(xcode);
+  return IsReturnBoolOk(xcode);
   }
 */
 
-// code : X11 result or status
-#define _COND_XERROR_LOG_BREAK(code) \
-    if (! IsReturnCodeOk(code)) \
+// xcode : X11 status return
+#define _COND_XERROR_LOG_BREAK(xcode) \
+    if (! IsReturnCodeOk(xcode)) \
     { \
-        _LOG_ERR("%s", GetErrorText(GetDisplay(), code).c_str()); \
+        _LOG_ERR("%s", GetErrorText(GetDisplay(), xcode).c_str()); \
         break; \
     } \
-    do {} while (0)
+    else do {} while (0)
 
-// code : X11 status return
-#define _COND_XSTAT_ERROR_LOG_BREAK(code) \
-    if (! IsReturnStatOk(code)) \
+// xcode : X11 status return
+#define _COND_XSTAT_LOG_ERR_BREAK(xcode) \
+    if (! IsReturnStatOk(xcode)) \
     { \
-        _LOG_ERR("error_code==%d => ErrorText=='%s'", code, GetErrorText(GetDisplay(), code).c_str()); \
+        _LOG_ERR("error_code==%d => ErrorText=='%s'", xcode, GetErrorText(GetDisplay(), xcode).c_str()); \
         break; \
     } \
-    do {} while (0)
+    else do {} while (0)
+
+// xcode : X11 boolean return
+#define _COND_XBOOL_LOG_ERR_BREAK(xcode) \
+    if (! IsReturnBoolOk(xcode)) \
+    { \
+        _LOG_ERR("(%s) retBool==false", #xcode); \
+        break; \
+    } \
+    else do {} while (0)
 
 #define _LOG_XERROR_BREAK(...) \
     if (true) \
@@ -326,19 +337,19 @@ Window X11wrapper::Window_GetRoot()
     return XDefaultRootWindow(GetDisplay());
 }
 
-inline bool X11wrapper::IsReturnCodeOk(int code)//del, remove this
+inline bool X11wrapper::IsReturnCodeOk(int xcode)//del, remove this
 {
-    return ( IsReturnBoolOk(code) || IsReturnStatOk(code) );
+    return ( IsReturnBoolOk(xcode) || IsReturnStatOk(xcode) );
 }
 
-inline bool X11wrapper::IsReturnBoolOk(int code)
+inline bool X11wrapper::IsReturnBoolOk(int xcode)
 {
-    return (code == True);
+    return (xcode == True);
 }
 
-inline bool X11wrapper::IsReturnStatOk(int code)
+inline bool X11wrapper::IsReturnStatOk(int xcode)
 {
-    return (code == 0);
+    return (xcode == 0);
 }
 
 string X11wrapper::GetErrorText(Display * pDisplay, int error_code)
@@ -432,7 +443,7 @@ Window X11wrapper::Window_Create(int nPosX, int nPosY, unsigned int nWidth, unsi
             0, // BorderColor
             0 // BgColor
             );
-        _COND_XERROR_LOG_BREAK(window != 0);
+        _COND_XBOOL_LOG_ERR_BREAK(window != 0);
     } while (0);
     return window;
 }
@@ -441,20 +452,20 @@ Window X11wrapper::Window_Create_Show(int nPosX, int nPosY, unsigned int nWidth,
 {
     _LOG_NFO("pos==(%d, %d, %d, %d), parent_window==%d", nPosX, nPosY, nWidth, nHeight, parent_window);
     Window window = 0;
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
         window = Window_Create(nPosX, nPosY, nWidth, nHeight, parent_window);
-        _COND_XERROR_LOG_BREAK(window != 0);
+        _COND_XBOOL_LOG_ERR_BREAK(window != 0);
         if (! Window_Show(window))
             _LOG_XERROR_BREAK("cannot show window==%d", window);
         if (! Window_MoveResize(window, nPosX, nPosY, nWidth, nHeight, true, true))
             _LOG_XERROR_BREAK("cannot re-position window==%d", window);
-        code = 0;
+        xcode = 0;
     } while (0);
     // cleanup
-    if (code != 0)
+    if (xcode != 0)
     {
         Window_Destroy(window);
         window = 0;
@@ -465,20 +476,20 @@ Window X11wrapper::Window_Create_Show(int nPosX, int nPosY, unsigned int nWidth,
 bool X11wrapper::Window_Destroy(Window window)
 {
     _LOG_NFO("window==%d", window);
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XDestroyWindow(GetDisplay(), window);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XDestroyWindow(GetDisplay(), window);
+        _COND_XERROR_LOG_BREAK(xcode);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Window_Show(Window window, bool bShow/*=true*/)
 {
     _LOG_NFO("window==%d, bShow==%d", window, bShow);
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -487,8 +498,8 @@ bool X11wrapper::Window_Show(Window window, bool bShow/*=true*/)
             // We want to get MapNotify events
             XSelectInput(GetDisplay(), window, StructureNotifyMask);
             // show here
-            code = XMapWindow(GetDisplay(), window);
-            _COND_XERROR_LOG_BREAK(code);
+            xcode = XMapWindow(GetDisplay(), window);
+            _COND_XERROR_LOG_BREAK(xcode);
             Sync();
             // Wait for the MapNotify event
             for(;;)
@@ -501,11 +512,11 @@ bool X11wrapper::Window_Show(Window window, bool bShow/*=true*/)
         }
         else
         {
-            code = XUnmapWindow(GetDisplay(), window);
-            _COND_XERROR_LOG_BREAK(code);
+            xcode = XUnmapWindow(GetDisplay(), window);
+            _COND_XERROR_LOG_BREAK(xcode);
         }
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const int nPosY, const unsigned int nWidth, const unsigned int nHeight, bool bUse_WM_Window=true, bool bWaitForCompletion=true)
@@ -516,7 +527,7 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
     bool bGoodPos = false; // initial window
     bool bGoodPos_wm = false; // wm window
     // start
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -581,15 +592,15 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
             }
             // real call
             //_LOG_NFO("window_req==%d => pos==(%d, %d, %d, %d)", window_req, x_req, y_req, w_req, h_req);
-            code = XMoveResizeWindow(GetDisplay(), window_req, x_req, y_req, w_req, h_req);
+            xcode = XMoveResizeWindow(GetDisplay(), window_req, x_req, y_req, w_req, h_req);
             usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
             Sync();
-            if (code != true)
+            if (xcode != true)
             {
-                _LOG_WRN("XMoveResizeWindow() => retCode==%d", code);
+                _LOG_WRN("XMoveResizeWindow() => retCode==%d", xcode);
                 continue;
             }
-            //_LOG_NFO("XMoveResizeWindow() => retCode==%d", code);
+            //_LOG_NFO("XMoveResizeWindow() => retCode==%d", xcode);
             // read the actual position
             if (! Window_GetGeometry(window, &x, &y, &w, &h))
             {
@@ -634,62 +645,62 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
 bool X11wrapper::Window_ClassName(Window window, const char *s_class, const char *s_name)
 {
     _LOG_NFO("window==%d, s_class=='%s', s_name=='%s')", window, s_class, s_name);
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
         XClassHint classHint;
         classHint.res_name = const_cast<char *>(s_name);
         classHint.res_class = const_cast<char *>(s_class);
-        code = XSetClassHint(GetDisplay(), window, &classHint);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XSetClassHint(GetDisplay(), window, &classHint);
+        _COND_XERROR_LOG_BREAK(xcode);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Window_Name(Window window, const char *s_name)
 {
     _LOG_NFO("window==%d, s_name==%s", window, s_name);
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XStoreName(GetDisplay(), window, s_name);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XStoreName(GetDisplay(), window, s_name);
+        _COND_XERROR_LOG_BREAK(xcode);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Window_Raise(Window window)
 {
     _LOG_NFO("window==%d", window);
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XRaiseWindow(GetDisplay(), window);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XRaiseWindow(GetDisplay(), window);
+        _COND_XERROR_LOG_BREAK(xcode);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Window_Lower(Window window)
 {
     _LOG_NFO("window==%d", window);
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XLowerWindow(GetDisplay(), window);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XLowerWindow(GetDisplay(), window);
+        _COND_XERROR_LOG_BREAK(xcode);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Window_SetOpacity_Helper(Window window, unsigned long nOpacity)
 {
     //_LOG_NFO("window==%d, nOpacity==0x%lx", window, nOpacity);
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -701,20 +712,20 @@ bool X11wrapper::Window_SetOpacity_Helper(Window window, unsigned long nOpacity)
         if (nOpacity == WINDOW_OPAQUE)
         {
             _LOG_NFO("deleting opacity property");
-            code = XDeleteProperty(pDisplay, window, atom_property);
-            _COND_XERROR_LOG_BREAK(code);
+            xcode = XDeleteProperty(pDisplay, window, atom_property);
+            _COND_XERROR_LOG_BREAK(xcode);
         }
         else
         {
             //_LOG_NFO("changing opacity property");
-            code = XChangeProperty(pDisplay, window, atom_property,
+            xcode = XChangeProperty(pDisplay, window, atom_property,
                                    XA_CARDINAL, 32, PropModeReplace,
                                    (unsigned char *) &nOpacity, 1L
                                    );
-            _COND_XERROR_LOG_BREAK(code);
+            _COND_XERROR_LOG_BREAK(xcode);
         }
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Window_SetOpacity(Window window, unsigned long nOpacity)
@@ -741,22 +752,22 @@ Window X11wrapper::Window_GetParent(Window window)
     Window parent_return = 0;
     Window *children_return = NULL;
     unsigned int nchildren_return = 0;
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XQueryTree(
+        xcode = XQueryTree(
             GetDisplay(), window,
             &root_return, &parent_return, &children_return, &nchildren_return
             );
         //_LOG_NFO("window==%d, root_return==%d, parent_return==%d, children_return==%p, nchildren_return==%d", window, root_return, parent_return, children_return, nchildren_return);
-        if (code == 0)
+        if (xcode == 0)
             _LOG_XERROR_BREAK("cannot read window tree");
     } while (0);
     // cleanup
     if (children_return != None)
         XFree(children_return);
-    if (! IsReturnCodeOk(code))
+    if (! IsReturnCodeOk(xcode))
         return 0;
     //if (parent_return == root_return)
     //    _LOG_NFO("window==%d => root parent==%d", window, parent_return);
@@ -802,11 +813,11 @@ Window X11wrapper::Window_GetDeepestParent(Window window)
 bool X11wrapper::Keyboard_Grab(Window window_grab)
 {
     _LOG_NFO("window_grab==%d", window_grab);
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XGrabKeyboard(
+        xcode = XGrabKeyboard(
             GetDisplay(),
             window_grab, // window_grab
             false, // owner_events
@@ -814,46 +825,46 @@ bool X11wrapper::Keyboard_Grab(Window window_grab)
             GrabModeAsync, // keyboard_mode
             CurrentTime // time
             );
-        _COND_XERROR_LOG_BREAK(code);
-        _LOG_NFO("XGrabKeyboard(%d) => retCode==%d", window_grab, code);
+        _COND_XERROR_LOG_BREAK(xcode);
+        _LOG_NFO("XGrabKeyboard(%d) => retCode==%d", window_grab, xcode);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Keyboard_Ungrab()
 {
     _LOG_NFO();
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XUngrabKeyboard(GetDisplay(), CurrentTime);
-        _COND_XERROR_LOG_BREAK(code);
-        _LOG_NFO("XUngrabKeyboard() => retCode==%d", code);
+        xcode = XUngrabKeyboard(GetDisplay(), CurrentTime);
+        _COND_XERROR_LOG_BREAK(xcode);
+        _LOG_NFO("XUngrabKeyboard() => retCode==%d", xcode);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Keyboard_SetAutoRepeat(bool bOn)
 {
     _LOG_NFO("bOn==%d", bOn);
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
         if (bOn)
-            code = XAutoRepeatOn(GetDisplay());
+            xcode = XAutoRepeatOn(GetDisplay());
         else
-            code = XAutoRepeatOff(GetDisplay());
-        _COND_XERROR_LOG_BREAK(code);
+            xcode = XAutoRepeatOff(GetDisplay());
+        _COND_XERROR_LOG_BREAK(xcode);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Mouse_Grab(Window window_grab, Window window_confine_to/*=None*/)
 {
     _LOG_NFO("window_grab==%d, window_confine_to==%d", window_grab, window_confine_to);
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -863,7 +874,7 @@ bool X11wrapper::Mouse_Grab(Window window_grab, Window window_confine_to/*=None*
         {
             //_LOG_NFO("i==%d/%d", i, WAIT_FOR_COMPLETION_MAX_ITERATIONS);
             Sync();
-            code = XGrabPointer(
+            xcode = XGrabPointer(
                 GetDisplay(),
                 window_grab, // window_grab
                 false, // owner_events
@@ -874,28 +885,28 @@ bool X11wrapper::Mouse_Grab(Window window_grab, Window window_confine_to/*=None*
                 None, // cursor
                 CurrentTime // time
                 );
-            if (code == 0)
+            if (xcode == 0)
                 break;
-            //_LOG_WRN("i==%d, code==%d => ErrorText=='%s'", i, code, GetErrorText(GetDisplay(), code).c_str());
+            //_LOG_WRN("i==%d, xcode==%d => ErrorText=='%s'", i, xcode, GetErrorText(GetDisplay(), xcode).c_str());
         }
-        _COND_XSTAT_ERROR_LOG_BREAK(code);
-        _LOG_NFO("XGrabPointer(window_grab==%d, window_confine_to==%d) => retCode==%d", window_grab, window_confine_to, code);
+        _COND_XSTAT_LOG_ERR_BREAK(xcode);
+        _LOG_NFO("XGrabPointer(window_grab==%d, window_confine_to==%d) => retCode==%d", window_grab, window_confine_to, xcode);
     } while (0);
-    return IsReturnStatOk(code);
+    return IsReturnStatOk(xcode);
 }
 
 bool X11wrapper::Mouse_Ungrab()
 {
     _LOG_NFO();
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XUngrabPointer(GetDisplay(), CurrentTime);
-        _LOG_NFO("XUngrabPointer() => retCode==%d", code);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XUngrabPointer(GetDisplay(), CurrentTime);
+        _LOG_NFO("XUngrabPointer() => retCode==%d", xcode);
+        _COND_XERROR_LOG_BREAK(xcode);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Mouse_ShowStandardCursor(Window window)
@@ -907,7 +918,7 @@ bool X11wrapper::Mouse_HideCursor(Window window)
 {
     _LOG_NFO("window==%d", window);
     static const char dataNoCursor[] = { 0x00 };
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -919,23 +930,23 @@ bool X11wrapper::Mouse_HideCursor(Window window)
         Cursor cursor = XCreatePixmapCursor(GetDisplay(), pixmap, pixmap, &color, &color, 0, 0);
         if (! cursor)
             _LOG_XERROR_BREAK("Cannot create pixmap cursor");
-        code = XDefineCursor(GetDisplay(), window, cursor);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XDefineCursor(GetDisplay(), window, cursor);
+        _COND_XERROR_LOG_BREAK(xcode);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Mouse_SetCursor_Inherit(Window window)
 {
     _LOG_NFO("window==%d", window);
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XUndefineCursor(GetDisplay(), window);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XUndefineCursor(GetDisplay(), window);
+        _COND_XERROR_LOG_BREAK(xcode);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Mouse_SetCursor_Font(Window window, int nShape)
@@ -946,7 +957,7 @@ bool X11wrapper::Mouse_SetCursor_Font(Window window, int nShape)
     {
         return Mouse_SetCursor_Inherit(window);
     }
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -955,10 +966,10 @@ bool X11wrapper::Mouse_SetCursor_Font(Window window, int nShape)
         if (! cursor)
             _LOG_XERROR_BREAK("cannot create the font cursor");
         // change the cursor
-        code = XDefineCursor(GetDisplay(), window, cursor);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XDefineCursor(GetDisplay(), window, cursor);
+        _COND_XERROR_LOG_BREAK(xcode);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Mouse_SetCursor_Image(Window window, const string &sPath, const string &sPathMask)
@@ -966,7 +977,7 @@ bool X11wrapper::Mouse_SetCursor_Image(Window window, const string &sPath, const
     _LOG_NFO("window==%d, sPath=='%s', sPathMask=='%s'", window, sPath.c_str(), sPathMask.c_str());
     Pixmap pixmap = None;
     Pixmap pixmap_mask = None;
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -991,28 +1002,28 @@ bool X11wrapper::Mouse_SetCursor_Image(Window window, const string &sPath, const
         Colormap colormap = XDefaultColormap(GetDisplay(), GetScreen());
         XColor color_fg;
         color_fg.pixel = BlackPixel(GetDisplay(), GetScreen());
-        code = XQueryColor(GetDisplay(), colormap, &color_fg);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XQueryColor(GetDisplay(), colormap, &color_fg);
+        _COND_XERROR_LOG_BREAK(xcode);
         Sync();
         XColor color_bg;
         color_bg.pixel = WhitePixel(GetDisplay(), GetScreen());
-        code = XQueryColor(GetDisplay(), colormap, &color_bg);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XQueryColor(GetDisplay(), colormap, &color_bg);
+        _COND_XERROR_LOG_BREAK(xcode);
         Sync();
         // create the cursor
         Cursor cursor = XCreatePixmapCursor(GetDisplay(), pixmap, pixmap_mask, &color_fg, &color_bg, x_hot_return, y_hot_return);
         if (! cursor)
             _LOG_XERROR_BREAK("Cannot create pixmap cursor");
         // change the cursor
-        code = XDefineCursor(GetDisplay(), window, cursor);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XDefineCursor(GetDisplay(), window, cursor);
+        _COND_XERROR_LOG_BREAK(xcode);
     } while (0);
     // cleanup
     if (pixmap != None)
         XFreePixmap(GetDisplay(), pixmap);
     if (pixmap_mask != None)
         XFreePixmap(GetDisplay(), pixmap_mask);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Mouse_QueryMaxCursorSize(Window window, unsigned int &width_return, unsigned int &height_return)
@@ -1027,27 +1038,27 @@ bool X11wrapper::Mouse_QueryMaxCursorSize(Window window, unsigned int &width_ret
 bool X11wrapper::Mouse_SetSpeed(int accel_numerator/*=-1*/, int accel_denominator/*=-1*/, int threshold/*=-1*/)
 {
     _LOG_NFO("accel_numerator==%d, accel_denominator==%d, threshold==%d", accel_numerator, accel_denominator, threshold);
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XChangePointerControl(GetDisplay(), true, true, accel_numerator, accel_denominator, threshold);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XChangePointerControl(GetDisplay(), true, true, accel_numerator, accel_denominator, threshold);
+        _COND_XERROR_LOG_BREAK(xcode);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Mouse_GetSpeed(int &accel_numerator_return, int &accel_denominator_return, int &threshold_return)
 {
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XGetPointerControl(GetDisplay(), &accel_numerator_return, &accel_denominator_return, &threshold_return);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XGetPointerControl(GetDisplay(), &accel_numerator_return, &accel_denominator_return, &threshold_return);
+        _COND_XERROR_LOG_BREAK(xcode);
         _LOG_NFO("accel_numerator==%d, accel_denominator==%d, threshold==%d", accel_numerator_return, accel_denominator_return, threshold_return);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Mouse_SetPosition(int nPosX, int nPosY, Window relative_to_window/*=None*/)
@@ -1058,14 +1069,14 @@ bool X11wrapper::Mouse_SetPosition(int nPosX, int nPosY, Window relative_to_wind
         //_LOG_WRN("changing the relative window to root window");
         relative_to_window = Window_GetRoot();
     }
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XWarpPointer(GetDisplay(), None, relative_to_window, 0, 0, 0, 0, nPosX, nPosY);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XWarpPointer(GetDisplay(), None, relative_to_window, 0, 0, 0, 0, nPosX, nPosY);
+        _COND_XERROR_LOG_BREAK(xcode);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY, Window relative_to_window/*=None*/)
@@ -1075,7 +1086,7 @@ bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY, Window relative_to_wi
         //_LOG_WRN("changing the relative window to root window");
         relative_to_window = Window_GetRoot();
     }
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -1086,7 +1097,7 @@ bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY, Window relative_to_wi
         int win_x_return;
         int win_y_return;
         unsigned int mask_return;
-        code = XQueryPointer(
+        xcode = XQueryPointer(
             GetDisplay(),
             relative_to_window,
             &root_return,
@@ -1097,7 +1108,7 @@ bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY, Window relative_to_wi
             &win_y_return,
             &mask_return
             );
-        _COND_XERROR_LOG_BREAK(code);
+        _COND_XERROR_LOG_BREAK(xcode);
         //_LOG_NFO(
         //    "root_return==%d, child_return==%d, root_x_return==%d, root_y_return==%d, win_x_return==%d, win_y_return==%d, mask_return==%d",
         //    root_return, child_return, root_x_return, root_y_return, win_x_return, win_y_return, mask_return
@@ -1106,7 +1117,7 @@ bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY, Window relative_to_wi
         nPosY = win_y_return;
         _LOG_NFO("pointer pos==(%d, %d), relative to window==%d", nPosX, nPosY, relative_to_window);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsigned int nHeight, Window window_grab/*=None*/)
@@ -1124,7 +1135,7 @@ bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsi
     }
     // show window case
     Window &window = v_window_Mouse_Constrain;
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -1162,20 +1173,20 @@ bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsi
         previous_mouse_constrain.nPosY = nPosY;
         previous_mouse_constrain.nWidth = nWidth;
         previous_mouse_constrain.nHeight = nHeight;
-        code = 0;
+        xcode = 0;
     } while (0);
     // cleanup
-    if (code != 0)
+    if (xcode != 0)
     {
         Window_Destroy(window);
         window = 0;
     }
-    if (! IsReturnCodeOk(code))
+    if (! IsReturnCodeOk(xcode))
     {
-        _LOG_ERR("pos==(%d, %d, %d, %d), window_grab==%d => retCode==%d", nPosX, nPosY, nWidth, nHeight, window_grab, code);
+        _LOG_ERR("pos==(%d, %d, %d, %d), window_grab==%d => retCode==%d", nPosX, nPosY, nWidth, nHeight, window_grab, xcode);
         return false;
     }
-    _LOG_NFO("pos==(%d, %d, %d, %d), window_grab==%d => retCode==%d", nPosX, nPosY, nWidth, nHeight, window_grab, code);
+    _LOG_NFO("pos==(%d, %d, %d, %d), window_grab==%d => retCode==%d", nPosX, nPosY, nWidth, nHeight, window_grab, xcode);
     return true;
 }
 
@@ -1183,14 +1194,14 @@ bool X11wrapper::Mouse_Constrain_Release()
 {
     _LOG_NFO();
     Window &window = v_window_Mouse_Constrain;
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
         if (! Mouse_IsConstrainActive())
         {
             _LOG_WRN("constrain not active");
-            code = 0;
+            xcode = 0;
             break;
         }
         if (! Mouse_Ungrab())
@@ -1198,11 +1209,11 @@ bool X11wrapper::Mouse_Constrain_Release()
         if (! Window_Destroy(window))
             _LOG_WRN("Window_Destroy");
         // done
-        code = 0;
+        xcode = 0;
         window = 0;
     } while (0);
     // not deleting the previous info
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Mouse_Constrain_ReactivateIfActive()
@@ -1337,32 +1348,32 @@ bool X11wrapper::Pixmap_Delete(Pixmap &pixmap)
 {
     _LOG_NFO("pixmap==%d", pixmap);
     X11_Locker x11_locker(GetDisplay());
-    int code = -1;
+    int xcode = -1;
     do
     {
-        code = XFreePixmap(GetDisplay(), pixmap);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XFreePixmap(GetDisplay(), pixmap);
+        _COND_XERROR_LOG_BREAK(xcode);
         pixmap = None;
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pixmap_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return)
 {
     _LOG_NFO("window==%d, sPath=='%s'", window, sPath.c_str());
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
         // read x-bitmap from file
-        code = XReadBitmapFile(GetDisplay(), window, sPath.c_str(), &width_return, &height_return, &pixmap_return, &x_hot_return, &y_hot_return);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XReadBitmapFile(GetDisplay(), window, sPath.c_str(), &width_return, &height_return, &pixmap_return, &x_hot_return, &y_hot_return);
+        _COND_XERROR_LOG_BREAK(xcode);
         if (x_hot_return < 0)
             x_hot_return = 0;
         if (y_hot_return < 0)
             y_hot_return = 0;
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Object_GetGeometry(Drawable drawable, int *x_return, int *y_return, unsigned int *width_return, unsigned int *height_return)
@@ -1370,7 +1381,7 @@ bool X11wrapper::Object_GetGeometry(Drawable drawable, int *x_return, int *y_ret
     //_LOG_NFO("drawable==%d, x_return->%p, y_return->%p, width_return->%p, height_return->%p",
     //         drawable, x_return, y_return, width_return, height_return
     //         );
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -1382,14 +1393,14 @@ bool X11wrapper::Object_GetGeometry(Drawable drawable, int *x_return, int *y_ret
         unsigned int border_width_ret = 0;
         unsigned int depth_ret = 0;
         // XGetWindowAttributes is only for windows
-        code = XGetGeometry(
+        xcode = XGetGeometry(
             GetDisplay(), drawable,
             &root_ret,
             &x_ret, &y_ret, &width_ret, &height_ret,
             &border_width_ret,
             &depth_ret
             );
-        if (code == 0)
+        if (xcode == 0)
             _LOG_XERROR_BREAK("cannot read object geometry");
         // write results
         if (x_return)
@@ -1402,7 +1413,7 @@ bool X11wrapper::Object_GetGeometry(Drawable drawable, int *x_return, int *y_ret
             *height_return = height_ret;
         //_LOG_NFO("drawable==%d => pos==(%d, %d, %d, %d)", drawable, x_ret, y_ret, width_ret, height_ret);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Window_GetGeometry(Window window, int *x_return, int *y_return, unsigned int *width_return, unsigned int *height_return)
@@ -1410,15 +1421,15 @@ bool X11wrapper::Window_GetGeometry(Window window, int *x_return, int *y_return,
     //_LOG_NFO("window==%d, x_return->%p, y_return->%p, width_return->%p, height_return->%p",
     //         window, x_return, y_return, width_return, height_return
     //         );
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
         XWindowAttributes attr;
-        code = XGetWindowAttributes(GetDisplay(), window, &attr);
-        if (code == 0)
+        xcode = XGetWindowAttributes(GetDisplay(), window, &attr);
+        if (xcode == 0)
         {
-            code = -1;
+            xcode = -1;
             _LOG_XERROR_BREAK("cannot read window geometry");
         }
         // check the deepest parent window
@@ -1437,8 +1448,8 @@ bool X11wrapper::Window_GetGeometry(Window window, int *x_return, int *y_return,
             else
             {
                 XWindowAttributes attr_wm;
-                code = XGetWindowAttributes(GetDisplay(), window_wm, &attr_wm);
-                if (code == 0)
+                xcode = XGetWindowAttributes(GetDisplay(), window_wm, &attr_wm);
+                if (xcode == 0)
                     _LOG_XERROR_BREAK("cannot read window_wm geometry");
                 attr.x  = attr_wm.x + x_delta;
                 attr.y  = attr_wm.y + y_delta;
@@ -1455,7 +1466,7 @@ bool X11wrapper::Window_GetGeometry(Window window, int *x_return, int *y_return,
             *height_return = attr.height;
         //_LOG_NFO("window==%d => pos==(%d, %d, %d, %d)", window, attr.x, attr.y, attr.width, attr.height);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Window_TranslateCoordinates(Window window_src, Window window_dest, int x_src, int y_src, int *x_dest_return, int *y_dest_return, Window *inner_window_dest_return)
@@ -1463,7 +1474,7 @@ bool X11wrapper::Window_TranslateCoordinates(Window window_src, Window window_de
     //_LOG_NFO("window_src==%d, window_dest==%d, x_src==%d, y_src==%d, x_dest_return->%p, y_dest_return->%p, inner_window_dest_return->%p",
     //         window_src, window_dest, x_src, y_src, x_dest_return, y_dest_return, inner_window_dest_return
     //         );
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -1487,9 +1498,9 @@ bool X11wrapper::Window_TranslateCoordinates(Window window_src, Window window_de
         //_LOG_NFO("window_src==%d, window_dest==%d, x_src==%d, y_src==%d => x_dest_return==%d, y_dest_return==%d, inner_window_dest_return==%d",
         //         window_src, window_dest, x_src, y_src, delta_x_return, delta_y_return, inner_window_return
         //         );
-        code = 0;
+        xcode = 0;
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Extension_Shape_IsAvailable()
@@ -1518,7 +1529,7 @@ bool X11wrapper::Shape_Context_Enter(Window window, unsigned int width, unsigned
     _LOG_NFO("window==%d, width==%d, height==%d", window, width, height);
     bool bResult = false;
     bool b_gc_created = false;
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -1531,10 +1542,10 @@ bool X11wrapper::Shape_Context_Enter(Window window, unsigned int width, unsigned
         gc = XCreateGC(pDisplay, bitmap_mask, 0, NULL);
         b_gc_created = true;
         // clean background
-        code = XFillRectangle(pDisplay, bitmap_mask, gc, 0, 0, width, height);
-        _COND_XERROR_LOG_BREAK(code);
-        code = XSetForeground(pDisplay, gc, 1);
-        _COND_XERROR_LOG_BREAK(code);
+        xcode = XFillRectangle(pDisplay, bitmap_mask, gc, 0, 0, width, height);
+        _COND_XERROR_LOG_BREAK(xcode);
+        xcode = XSetForeground(pDisplay, gc, 1);
+        _COND_XERROR_LOG_BREAK(xcode);
         // done
         bResult = true;
     } while (0);
@@ -1550,7 +1561,7 @@ bool X11wrapper::Shape_Context_Enter(Window window, unsigned int width, unsigned
     {
         _LOG_NFO("window==%d, width==%d, height==%d => bitmap_mask==%d, gc==%d, pDisplay==%p", window, width, height, bitmap_mask, gc, pDisplay);
     }
-    return (IsReturnCodeOk(code) && bResult);
+    return (IsReturnCodeOk(xcode) && bResult);
 }
 
 bool X11wrapper::Shape_Context_Leave(Window window, Pixmap &bitmap_mask, GC &gc, Display * &pDisplay)
@@ -1559,41 +1570,41 @@ bool X11wrapper::Shape_Context_Leave(Window window, Pixmap &bitmap_mask, GC &gc,
     bool bResult = Shape_Window_Apply(window, bitmap_mask);
     if (! bResult)
         _LOG_ERR("cannot apply shape");
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        code = XFreeGC(pDisplay, gc);
-        if (! IsReturnCodeOk(code))
-            _LOG_WRN("XFreeGC() => retCode==%d", code);
-        code = XFreePixmap(GetDisplay(), bitmap_mask);
-        if (! IsReturnCodeOk(code))
-            _LOG_WRN("XFreePixmap() => retCode==%d", code);
-        code = 0;
+        xcode = XFreeGC(pDisplay, gc);
+        if (! IsReturnCodeOk(xcode))
+            _LOG_WRN("XFreeGC() => retCode==%d", xcode);
+        xcode = XFreePixmap(GetDisplay(), bitmap_mask);
+        if (! IsReturnCodeOk(xcode))
+            _LOG_WRN("XFreePixmap() => retCode==%d", xcode);
+        xcode = 0;
     } while (0);
     // cleanup
-    return (IsReturnCodeOk(code) && bResult);
+    return (IsReturnCodeOk(xcode) && bResult);
 }
 
 bool X11wrapper::Shape_Window_Apply(Window window, Pixmap &pixmap)
 {
     _LOG_NFO("window==%d, pixmap==%d", window, pixmap);
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
         if (! Extension_Shape_IsAvailable())
             _LOG_XERROR_BREAK("X11 SHAPE extension: not available");
         XShapeCombineMask(GetDisplay(), window, ShapeBounding, 0, 0, pixmap, ShapeSet);
-        code = 0;
+        xcode = 0;
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Shape_Window_Reset(Window window)
 {
     _LOG_NFO("window==%d", window);
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -1601,13 +1612,13 @@ bool X11wrapper::Shape_Window_Reset(Window window)
             _LOG_XERROR_BREAK("X11 SHAPE extension: not available");
         XShapeCombineMask(GetDisplay(), window, ShapeBounding, 0, 0, None, ShapeSet);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Shape_Window_Hide(Window window)
 {
     _LOG_NFO("window==%d", window);
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -1619,15 +1630,15 @@ bool X11wrapper::Shape_Window_Hide(Window window)
         aXRectangle[0].width = 0;
         aXRectangle[0].height = 0;
         XShapeCombineRectangles(GetDisplay(), window, ShapeBounding, 0, 0, aXRectangle, 0, ShapeSet, Unsorted);
-        code = 0;
+        xcode = 0;
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 bool X11wrapper::Extension_Shape_Initialize()
 {
     _LOG_NFO();
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -1635,13 +1646,13 @@ bool X11wrapper::Extension_Shape_Initialize()
         int major_opcode = 0;
         int first_event = 0;
         int first_error = 0;
-        code = XQueryExtension(GetDisplay(),"SHAPE",&major_opcode,&first_event,&first_error);
-        if (! code)
+        xcode = XQueryExtension(GetDisplay(),"SHAPE",&major_opcode,&first_event,&first_error);
+        if (! xcode)
             _LOG_XERROR_BREAK("X11 SHAPE extension not available : major_opcode==%d, first_event==%d, first_error==%d",
                               major_opcode, first_event, first_error
                               );
-        code = XShapeQueryVersion(GetDisplay(), &v_nExtension_Shape_Version_Major, &v_nExtension_Shape_Version_Minor);
-        if (code == 0)
+        xcode = XShapeQueryVersion(GetDisplay(), &v_nExtension_Shape_Version_Major, &v_nExtension_Shape_Version_Minor);
+        if (xcode == 0)
             _LOG_XERROR_BREAK("X11 SHAPE extension: not available");
         v_bExtension_Shape_IsAvailable = true;
         _LOG_NFO("X11 SHAPE extension: version %d.%d", v_nExtension_Shape_Version_Major, v_nExtension_Shape_Version_Minor);
@@ -1743,7 +1754,7 @@ bool X11wrapper::Shape_Window_Alpha(Window window, unsigned char nAlphaThreshold
 {
     _LOG_NFO("window==%d, nAlphaThreshold==%d", window, nAlphaThreshold);
     XImage *pXImage = NULL;
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -1758,7 +1769,7 @@ bool X11wrapper::Shape_Window_Alpha(Window window, unsigned char nAlphaThreshold
     // cleanup
     if (pXImage)
         XDestroyImage(pXImage);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
 
 XImage * X11wrapper::Window_GetImage(Window window, bool bOnlyMask/*=false*/)
@@ -1791,7 +1802,7 @@ Pixmap X11wrapper::ConvertImageToPixmap(XImage *pXImage, Window window)
 {
     _LOG_NFO("window==%d", window);
     Pixmap pixmap = None;
-    //int code = -1;
+    //int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -1807,7 +1818,7 @@ Pixmap X11wrapper::ConvertImageToPixmap(XImage *pXImage, Window window)
 bool X11wrapper::Window_PerPixel_Transparency(Window window, unsigned long nAlphaValue/*=1*/)
 {
     _LOG_NFO();
-    int code = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -1823,5 +1834,5 @@ bool X11wrapper::Window_PerPixel_Transparency(Window window, unsigned long nAlph
             XDrawLine(pDisplay, window, gc, 10, i+60, 180, i+20);
         XFlush(pDisplay);
     } while (0);
-    return IsReturnCodeOk(code);
+    return IsReturnCodeOk(xcode);
 }
