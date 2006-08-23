@@ -795,6 +795,22 @@ void PlutoMediaFile::LoadAttributesFromDB(string, int PK_File)
 }
 
 //-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::RenameAttribute(int Attribute_Type, string sOldValue, string sNewValue)
+{
+	g_pPlutoLogger->Write(LV_STATUS, "# RenameAttribute : need to rename attribute type %d, value %s with %s", 
+		Attribute_Type, sOldValue.c_str(), sNewValue.c_str());
+
+	for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapAttributes.begin(), 
+		end = m_pPlutoMediaAttributes->m_mapAttributes.end(); it != end; ++it)
+	{
+		if(it->first == Attribute_Type && it->second->m_sName == sOldValue)
+		{
+			it->second->m_sName = sOldValue;
+			break;
+		}
+	}
+}
+//-----------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------
 //

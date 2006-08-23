@@ -3609,6 +3609,8 @@ void Media_Plugin::CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_
 	Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(iEK_Attribute);
 	if( pRow_Attribute )
 	{
+		string sOldValue = pRow_Attribute->Name_get();
+
 		pRow_Attribute->Name_set(sValue_To_Assign);
 		pRow_Attribute->Table_Attribute_get()->Commit();
 		m_pMediaAttributes->m_pMediaAttributes_LowLevel->UpdateSearchTokens(pRow_Attribute);
@@ -3625,6 +3627,7 @@ void Media_Plugin::CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_
             PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), 
                 pRow_File->Path_get(), pRow_File->Filename_get());
 			PlutoMediaFile_.SetupSyncFilesOnly(true);
+			PlutoMediaFile_.RenameAttribute(pRow_Attribute->FK_AttributeType_get(), sOldValue, sValue_To_Assign);
             PlutoMediaFile_.SetFileAttribute(pRow_File->PK_File_get()); //also updates id3tags
         }
 

@@ -66,6 +66,8 @@ public:
     void SetPicAttribute(int PK_Picture, string sPictureUrl);
     int GetPicAttribute(int PK_File);
 	static bool IsSupported(string sFileName);
+
+	void RenameAttribute(int Attribute_Type, string sOldValue, string sNewValue);
 };
 //-----------------------------------------------------------------------------------------------------
 //
