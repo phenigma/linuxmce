@@ -32,7 +32,8 @@ $start_time=getmicrotime();
 					top.basefrm.document.forms[0].action.value=\'externalSubmit\';
 					top.basefrm.document.forms[0].submit();
 				}
-				top.basefrm.location=mainUrl;
+				setTimeout("top.basefrm.location=\'"+mainUrl+"\';", 50);
+				
 			}
 			else{
 				top.basefrm.location=\'index.php?section=installationSettings\';
