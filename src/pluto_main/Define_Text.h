@@ -1082,6 +1082,7 @@
 #define TEXT_ViewSet_Attributes_2_CONST 1795
 #define TEXT_Bookmarks_2_CONST 1796
 #define TEXT_Manage_Playlist_2_CONST 1797
+#define TEXT_Arrows_CONST 1798
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

@@ -2213,6 +2213,15 @@
 #define DESIGNOBJ_butChooseDrive_CONST 5154
 #define DESIGNOBJ_dgAvailableInputs2_CONST 5155
 #define DESIGNOBJ_butClosePopup_CONST 5156
+#define DESIGNOBJ_grpMediaNavigation2_CONST 5158
+#define DESIGNOBJ_butUp_CONST 5159
+#define DESIGNOBJ_butDown_CONST 5160
+#define DESIGNOBJ_butRight_CONST 5161
+#define DESIGNOBJ_butLeft_CONST 5162
+#define DESIGNOBJ_butEnterGo_CONST 5163
+#define DESIGNOBJ_butArrows_CONST 5164
+#define DESIGNOBJ_mnuPDAArrows_CONST 5165
+#define DESIGNOBJ_butGenericDVDMenuRemote_CONST 5166
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
