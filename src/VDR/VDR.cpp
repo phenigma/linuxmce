@@ -28,7 +28,7 @@ VDR *g_pVDR = NULL;
 #ifndef WIN32
 #include <sys/wait.h>
 #endif
-
+// NEW
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
