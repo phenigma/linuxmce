@@ -85,10 +85,11 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 
 	m_Socket = socket( AF_INET, SOCK_STREAM, 0 );
 
-#ifdef DEBUG
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write( LV_SOCKET, "ClientSocket::Connect - created m_Socket: %d", m_Socket );
-#endif
+//#ifdef DEBUG
+		//commented this because we don't want messagesend to output debug info like this.
+		//if( g_pPlutoLogger )
+		//	g_pPlutoLogger->Write( LV_SOCKET, "ClientSocket::Connect - created m_Socket: %d", m_Socket );
+//#endif
 
 	/** @todo check comment */
 	//int b = 1;
