@@ -49,6 +49,7 @@ static void LS_InitVTable();
 static void LS_InitProxy();
 static void LS_SetupAuth();
 static void LS_SignalHandler(int ExitStatus);
+static void LS_AcceptCall_nolock();
 static void LS_DropCall_nolock();
 static void LS_ProcessEvents();
 
@@ -247,6 +248,12 @@ void LS_AcceptCall()
 {
 	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
 
+	LS_AcceptCall_nolock();
+}
+
+/** Accept the incoming call - version without mutex */
+void LS_AcceptCall_nolock()
+{
 	linphone_core_accept_dialog(&LS_LinphoneCore, NULL);
 	LS_bActiveCall = true;
 }
@@ -257,10 +264,12 @@ void LS_AcceptCall()
 static void call_received(LinphoneCore *linphoneCore, const char *from)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "SimplePhone: Received call, from '%s'", from);
-	if (strcmp(from, "plutosecurity") == 0)
+	if (strstr(from, "\"plutosecurity\"") == from)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "SimplePhone: It's a 'speak in the house' call");
-		LS_AcceptCall();
+		LS_pSimplePhone->StopMedia();
+		LS_pSimplePhone->CallInProgressScreen();
+		LS_AcceptCall_nolock();
 	}
 	else
 	{

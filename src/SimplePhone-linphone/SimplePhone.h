@@ -24,6 +24,7 @@ public:
         void IncomingCallScreen(string sCallerID);
         void CallInProgressScreen();
 		void CallDroppedScreen();
+		void StopMedia();
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor

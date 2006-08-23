@@ -206,9 +206,7 @@ void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,
         return;
     }
     g_pPlutoLogger->Write(LV_STATUS, "Try to call %s", sPhoneExtension.c_str());
-    DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"");
-    SendCommand(CMD_MH_Stop_Media_);
-    Sleep(1000);
+	StopMedia();
 	LS_InitiateCall(sPhoneExtension.c_str());
     sCMD_Result="OK";
     CMD_Set_Variable CMD_Set_Variable_name(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_name_CONST,string(""));
@@ -262,10 +260,17 @@ void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
     }
 }
 
-void SimplePhone::IncomingCallScreen(string sCallerID)
+void SimplePhone::StopMedia()
 {
+	g_pPlutoLogger->Write(LV_STATUS, "SimplePhone::StopMedia()");
 	DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"");
 	SendCommand(CMD_MH_Stop_Media_);
+	Sleep(1000);
+}
+
+void SimplePhone::IncomingCallScreen(string sCallerID)
+{
+	StopMedia();
 	CMD_Set_Variable CMD_Set_Variable_name(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_name_CONST,sCallerID);
 	SendCommand(CMD_Set_Variable_name);
 	CMD_Set_Variable CMD_Set_Variable_number(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_number_CONST,sCallerID);
