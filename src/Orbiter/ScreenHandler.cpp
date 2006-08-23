@@ -1209,25 +1209,28 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sText, string sCaptio
 	//the command to execute with the selected file
 	m_sSaveFile_Command = sCommand;
 
-	//get default ripping info
-	string sMounterFolder;
-	CMD_Get_Default_Ripping_Info cmd_CMD_Get_Default_Ripping_Info(m_pOrbiter->m_dwPK_Device,
-		m_pOrbiter->m_dwPK_Device_MediaPlugIn, &m_pOrbiter->m_sDefaultRippingName,
-		&sMounterFolder, &m_pOrbiter->m_nDefaultStorageDeviceForRipping, 
-		&m_pOrbiter->m_sDefaultStorageDeviceForRippingName);
-	m_pOrbiter->SendCommand(cmd_CMD_Get_Default_Ripping_Info);
+	if(!m_bSaveFile_CreatingFolder)
+	{
+		//get default ripping info
+		string sMounterFolder;
+		CMD_Get_Default_Ripping_Info cmd_CMD_Get_Default_Ripping_Info(m_pOrbiter->m_dwPK_Device,
+			m_pOrbiter->m_dwPK_Device_MediaPlugIn, &m_pOrbiter->m_sDefaultRippingName,
+			&sMounterFolder, &m_pOrbiter->m_nDefaultStorageDeviceForRipping, 
+			&m_pOrbiter->m_sDefaultStorageDeviceForRippingName);
+		m_pOrbiter->SendCommand(cmd_CMD_Get_Default_Ripping_Info);
 
-	if(m_nSaveFile_PK_DeviceDrive == 0)
-		m_nSaveFile_PK_DeviceDrive = m_pOrbiter->m_nDefaultStorageDeviceForRipping;
+		if(m_nSaveFile_PK_DeviceDrive == 0)
+			m_nSaveFile_PK_DeviceDrive = m_pOrbiter->m_nDefaultStorageDeviceForRipping;
 
-	if(m_sSaveFile_Drive == "")
-		m_sSaveFile_Drive = m_pOrbiter->m_sDefaultStorageDeviceForRippingName; 
+		if(m_sSaveFile_Drive == "")
+			m_sSaveFile_Drive = m_pOrbiter->m_sDefaultStorageDeviceForRippingName; 
 
-	if(m_sSaveFile_FileName == "")
-		m_sSaveFile_FileName = m_pOrbiter->m_sDefaultRippingName;
+		if(m_sSaveFile_FileName == "")
+			m_sSaveFile_FileName = m_pOrbiter->m_sDefaultRippingName;
 
-	if(m_sSaveFile_MountedFolder == "")
-		m_sSaveFile_MountedFolder = sMounterFolder;
+		if(m_sSaveFile_MountedFolder == "")
+			m_sSaveFile_MountedFolder = sMounterFolder;
+	}
 
 	//setup variables
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, m_sSaveFile_Drive);
