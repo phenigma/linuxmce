@@ -32,6 +32,7 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 	if(Engine->IsCubeAnimatedDatagrid(DatagridFrameID))
 		return;
 
+	Engine->BeginModifyGeometry();
 	g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject");
 	MeshFrame * BeforeDataGrid = RenderFrame;
 
@@ -58,4 +59,6 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 		Engine->AddMeshFrameToDesktop("", BeforeDataGridClone);
 		StartAnimation = 0;
 	}
+	Engine->EndModifyGeometry();
+
 }

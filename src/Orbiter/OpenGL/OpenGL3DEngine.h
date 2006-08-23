@@ -15,9 +15,9 @@ class AnimationScrollDatagrid;
 
 class OpenGL3DEngine
 {
-	pluto_pthread_mutex_t SceneMutex;
 	int StartTick;
 	bool AnimationRemain;
+	pluto_pthread_mutex_t SceneMutex;
 
 	MeshFrame* CurrentLayer;
 	MeshFrame* HighlightCurrentLayer; //alias for CurrentLayer
@@ -32,6 +32,11 @@ class OpenGL3DEngine
 	std::vector<AnimationScrollDatagrid*> AnimationDatagrid;
 	void ShowAnimationTextures();
 	void DumpScene();
+
+	/**
+	 *	Block painting because there is a need of bigger geometry painting
+	 */
+	bool ModifyGeometry;
 
 public:
 	GLEffect2D::LayersCompose* Compose;
@@ -78,7 +83,8 @@ public:
 
 	bool IsCubeAnimatedDatagrid(string ObjectID);
 
-
+	void BeginModifyGeometry();
+	void EndModifyGeometry();
 };
 
 #endif

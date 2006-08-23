@@ -31,7 +31,8 @@ OpenGL3DEngine::OpenGL3DEngine() :
 	SelectedFrame(NULL),
 	FrameBuilder(NULL),
 	FrameDatagrid(NULL),
-	HighLightPopup(NULL)
+	HighLightPopup(NULL),
+	ModifyGeometry(false)
 {
 	if(TTF_Init()==-1) {
 		printf("Error on TTF_Init: %s\n", TTF_GetError());
@@ -75,6 +76,10 @@ void OpenGL3DEngine::Finalize(void)
 
 bool OpenGL3DEngine::Paint()
 {
+	// some geometry changes are expected, means we will not paint the "broken painting tree"
+	if(ModifyGeometry)
+		return false;
+
 	PLUTO_SAFETY_LOCK(sm, SceneMutex);
 	if(NULL == CurrentLayer)
 		return false;
@@ -626,4 +631,14 @@ bool OpenGL3DEngine::IsCubeAnimatedDatagrid(string ObjectID)
 			return true;
 	}
 	return false;
+}
+
+void OpenGL3DEngine::BeginModifyGeometry()
+{
+	this->ModifyGeometry = true;
+}
+
+void OpenGL3DEngine::EndModifyGeometry()
+{
+	this->ModifyGeometry = false;
 }
