@@ -3,7 +3,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mainMediaBrowser.lang.php');
-	
+
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -254,17 +254,17 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 			$mediadbADO->Execute($deleteCurrentAttribute,$attributeID);
 			
 			//	asign Files and Pictures from current attribute to existing one
-			$updateFileAttribute='UPDATE File_Attribute SET FK_Attribute=? WHERE FK_Attribute=?';
+			$updateFileAttribute='UPDATE IGNORE File_Attribute SET FK_Attribute=? WHERE FK_Attribute=?';
 			$mediadbADO->Execute($updateFileAttribute,array($existingAttributeID,$attributeID));
 			
-			$updatePictureAttribute='UPDATE Picture_Attribute SET FK_Attribute=? WHERE FK_Attribute=?';
+			$updatePictureAttribute='UPDATE IGNORE Picture_Attribute SET FK_Attribute=? WHERE FK_Attribute=?';
 			$mediadbADO->Execute($updatePictureAttribute,array($existingAttributeID,$attributeID));
 
 			// set return attribute to existing one
 			$attributeID=$existingAttributeID;
 
 		}		
-		
+
 		$newFile=stripslashes(@$_POST['newFile']);
 		$newPath=stripslashes(@$_POST['newPath']);
 		$newType=(@$_POST['newPath']!='0')?@$_POST['newPath']:NULL;
@@ -331,8 +331,8 @@ function updateAttribute($name,$attributeID,$dbADO){
 	}
 
 	$cmd='/usr/pluto/bin/MessageSend localhost -targetType device -r 0 '.$mediaPlugin.' 1 392 123 '.$attributeID.' 5 "'.$name.'"';
-	exec($cmd,$ret);
-	$response=join('<br>',$ret);
+
+	$response=exec_batch_command($cmd,1);
 
 	return $cmd.'<br>Response: '.$response;
 	
