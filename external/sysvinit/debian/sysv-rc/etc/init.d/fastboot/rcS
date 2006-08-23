@@ -432,6 +432,11 @@ if [ -x /etc/init.d/Pluto_Start_X.sh ] ;then
     /etc/init.d/Pluto_Start_X.sh
 fi
 
+if [ -x /usr/pluto/bin/Firewire2Video4Linux.sh ] ;then
+	Message "Creating Firewire 2 Video4Linux Pipes"
+	/usr/pluto/bin/Firewire2Video4Linux.sh
+fi
+
 if [ -x /etc/init.d/Pluto_Start_LocalDevices.sh ] ;then
     Message "Starting Local Devices"
     /etc/init.d/Pluto_Start_LocalDevices.sh
