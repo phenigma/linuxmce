@@ -1379,8 +1379,6 @@ bool ScreenHandler::FileSave_GridSelected(CallBackData *pData)
 				}
 			}
 
-
-
 			m_pOrbiter->CMD_Set_Text(StringUtils::ltos(DESIGNOBJ_mnuChooseFolder_CONST), 
 				"Folder : " + m_sSaveFile_FullBasePath + m_sSaveFile_RelativeFolder, TEXT_STATUS_CONST);
 
@@ -1393,11 +1391,13 @@ bool ScreenHandler::FileSave_GridSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SaveFile_GotoChooseFolderDesignObj()
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, FileUtils::ExcludeTrailingSlash(m_sSaveFile_FullBasePath) + "\nMT-1\nP");
+	string sNewPath = FileUtils::IncludeTrailingSlash(m_sSaveFile_FullBasePath) + m_sSaveFile_RelativeFolder;
+
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, FileUtils::ExcludeTrailingSlash(sNewPath) + "\nMT-1\nP");
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_mnuChooseFolder_CONST), "", "", 
 		false, true);
 
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(DESIGNOBJ_mnuChooseFolder_CONST), 
-		"Folder : " + m_sSaveFile_FullBasePath, TEXT_STATUS_CONST);
+		"Folder : " + sNewPath, TEXT_STATUS_CONST);
 }
 //-----------------------------------------------------------------------------------------------------
