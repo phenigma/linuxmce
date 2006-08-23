@@ -57,4 +57,5 @@ $TEXT_PNP_PROTOCOL_CONST='PNP protocol';
 $TEXT_SERIAL_NUMBER_CONST='Serial Number';
 $TEXT_PARMS_CONST='Parms';
 $TEXT_PNP_DETECTION_SCRIPT_CONST='PNP detection script';
+$TEXT_RUBY_CODES_CONST='Edit ruby codes';
 ?>
