@@ -352,7 +352,7 @@ bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
 		DeviceData_Impl *pDeviceData_Impl = m_pData->m_vectDeviceData_Impl_Children[i];
 
 		// Firewire cameras don't have a v4l device, we need to use vloopback to create it	
-		if (iPK_DeviceTemplate == DEVICETEMPLATE_Generic_Firewire_Camera_CONST) {
+		if (pDeviceData_Impl->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Firewire_Camera_CONST) {
 			CreateVideoDeviceFor1394(pDeviceData_Impl);
 		} 
 
