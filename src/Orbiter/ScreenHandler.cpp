@@ -1272,24 +1272,21 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
 			{
-				if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
-				{
-					m_pOrbiter->CMD_Set_Variable(VARIABLE_Path_CONST, FileUtils::IncludeTrailingSlash(m_pOrbiter->m_mapVariable[VARIABLE_Path_CONST]));
-					m_pOrbiter->CMD_Send_Message(m_sSaveFile_Command, false);
-					m_pOrbiter->GotoMainMenu();
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Path_CONST, FileUtils::IncludeTrailingSlash(m_pOrbiter->m_mapVariable[VARIABLE_Path_CONST]));
+				m_pOrbiter->CMD_Send_Message(m_sSaveFile_Command, false);
+				m_pOrbiter->GotoMainMenu();
 
-					//reset file save info
-					m_sSaveFile_MountedFolder = "";
-					m_sSaveFile_RelativeFolder = "";
-					m_sSaveFile_Drive = "";
-					m_sSaveFile_FullBasePath = "";
-					m_sSaveFile_FileName = "";
-					m_sSaveFile_Command = "";
-					m_bSaveFile_CreatingFolder = false;
-					m_nSaveFile_PK_DeviceDrive = 0;
+				//reset file save info
+				m_sSaveFile_MountedFolder = "";
+				m_sSaveFile_RelativeFolder = "";
+				m_sSaveFile_Drive = "";
+				m_sSaveFile_FullBasePath = "";
+				m_sSaveFile_FileName = "";
+				m_sSaveFile_Command = "";
+				m_bSaveFile_CreatingFolder = false;
+				m_nSaveFile_PK_DeviceDrive = 0;
 
-					return true;
-				}
+				return true;
 			}
 			else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butCreateDir_CONST)
 			{

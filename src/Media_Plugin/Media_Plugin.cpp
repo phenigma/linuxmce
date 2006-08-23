@@ -3726,7 +3726,7 @@ int Media_Plugin::GetStorageDeviceWithMostFreeSpace(string& sFullDescription, st
 		StringUtils::ltos(DEVICECATEGORY_Network_Storage_CONST) + 
 		+ ") AND FK_DeviceData = " + 
 		StringUtils::ltos(DEVICEDATA_Free_Disk_Space_in_MBytes_CONST) + " " +
-		"ORDER BY Device_DeviceData.IK_DeviceData DESC " +
+		"ORDER BY CAST(Device_DeviceData.IK_DeviceData AS UNSIGNED) DESC " +
 		"LIMIT 1";
 
 	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sSQL.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
