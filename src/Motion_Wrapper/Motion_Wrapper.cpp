@@ -470,7 +470,7 @@ Motion_Wrapper::CreateVideoDeviceFor1394(DeviceData_Impl* pDeviceData) {
 	if( ! fork() )
         {
 		// V4L devices for video1394 get piped to: 30 + ( video1394# - 1) * 2 [ video30, video32 ]
-		string v4lParam = "--vloopback=/dev/video"+StringUtils::itos((atoi(sDevice.c_str()) - 1 ) * 2 + 30);
+		string v4lParam = "--vloopback=/dev/video"+StringUtils::itos(atoi(sDevice.c_str()) * 2 + 30);
 		string ieeeParam = "--video1394=/dev/video1394/"+sDevice;
 					
                 g_pPlutoLogger->Write(LV_STATUS, "In child process.");
@@ -498,7 +498,7 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 
 	if(!sDevice.empty()) {		
 		if (pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Firewire_Camera_CONST) {		
-			conffile	<< "videodevice /dev/video" << StringUtils::itos((atoi(sDevice.c_str()) - 1 ) * 2 + 30) << endl;
+			conffile	<< "videodevice /dev/video" << StringUtils::itos(atoi(sDevice.c_str()) * 2 + 31) << endl;
 		} else {
 			conffile 	<< "videodevice /dev/video" << sDevice << endl;		
 		}
