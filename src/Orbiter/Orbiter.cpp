@@ -886,11 +886,15 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 				pDesignObj_DataGrid->m_iHighlightedColumn, pDesignObj_DataGrid->m_GridCurCol,
 				pDesignObj_DataGrid->m_iHighlightedRow, pDesignObj_DataGrid->m_GridCurRow);
 #endif
-			int Column = pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : pDesignObj_DataGrid->m_GridCurCol;
-			int Row = pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow - (pDesignObj_DataGrid->HasMoreUp() && pDataGridTable->m_iUpRow!=-1 ? 1 : 0) : 0;
-			DataGridCell *pCell = pDataGridTable->GetData(
-				Column,
-				Row);
+			int Column = pDesignObj_DataGrid->m_iHighlightedColumn != -1 ? 
+				pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : 
+				pDesignObj_DataGrid->m_GridCurCol;
+
+			int Row = pDesignObj_DataGrid->m_iHighlightedRow != -1 ? 
+				pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow :
+				0;
+
+			DataGridCell *pCell = pDataGridTable->GetData(Column, Row);
 			if(pCell)
 			{
 				SelectedGrid(pDesignObj_DataGrid, pCell, selectionMethod,Row,Column);
