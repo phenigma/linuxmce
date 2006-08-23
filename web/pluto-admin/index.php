@@ -34,6 +34,7 @@ if(!isset($_SESSION['userLoggedIn']) && $section!='' && $section!='login' && $se
 	}
 }
 
+// if installation ID is 1 (offline installation), check if it doesn't changed
 validate_installation((int)@$_SESSION['installationID'],$dbADO);
 
 switch ($section) {	
@@ -1464,6 +1465,18 @@ switch ($section) {
 		$output->setTemplateFileType('small');
 	    include_once('operations/mediaBrowser/grabAmazonAttributes.php');
 	    grabAmazonAttributes($output,$mediadbADO,$dbADO);	    
+	break;	
+	case 'backup':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/others/backup.php');
+	    backup($output,$dbADO);	    
+	break;	
+	case 'restoreChildDevices':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/restoreChildDevices.php');
+	    restoreChildDevices($output,$dbADO);	    
 	break;	
 
 	

@@ -139,8 +139,13 @@ $installationID = (int)@$_SESSION['installationID'];
 	<table width="100%">
 		<tr>
 			<td><a href="index.php?section=addMyDevice&parentID='.$deviceID.'">'.($deviceID==0?$TEXT_CREATE_TOP_LEVEL_DEVICE_CONST:$TEXT_CREATE_CHILD_DEVICE_CONST).'</a> &nbsp; &nbsp; &nbsp;
-			'.$deleteLink.' &nbsp; &nbsp; &nbsp; 
+			'.$deleteLink.' &nbsp;&nbsp; 
 			<a href="javascript:windowOpen(\'index.php?section=sendCommand&deviceID='.$deviceID.'\',\'width=800,height=600,scrollbars=1,resizable=1\');">'.$TEXT_SEND_COMMAND_TO_DEVICE_CONST.'</a> &nbsp; &nbsp; &nbsp; '.$resetDeviceLink.'
+			&nbsp;&nbsp;
+			<a href="backupChildDevices.php?deviceID='.$deviceID.'" target="_blank">'.$TEXT_BACKUP_CHILD_DEVICES_CONST.'</a>
+			&nbsp;&nbsp;
+			<a href="index.php?section=restoreChildDevices&deviceID='.$deviceID.'">'.$TEXT_RESTORE_CHILD_DEVICES_CONST.'</a>
+	
 			</td>
 			<td align="right"><a href="javascript:windowOpen(\'index.php?section=errorLog&deviceID='.$deviceID.$dceRouterSuffix.@$orbiterSuffix.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_VIEW_ERRORS_IN_LOG_CONST.'</a>&nbsp;&nbsp;&nbsp;
 				<a href="javascript:windowOpen(\'index.php?section=fullLog&deviceID='.$deviceID.$dceRouterSuffix.@$orbiterSuffix.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">'.$TEXT_VIEW_WHOLE_LOG_CONST.'</a>&nbsp;&nbsp;&nbsp;

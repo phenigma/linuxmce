@@ -29,4 +29,6 @@ $TEXT_RELATED_DEVICES_CONST='Related Devices';
 $TEXT_CONFIRM_DELETE_PIPE_CONST='Are you sure you want to delete this pipe?';
 $TEXT_CONFIRM_DELETE_DEVICE_FROM_GROUP_CONST='Are you sure you want to delete this device from the group?';
 $TEXT_CONFIRM_DELETE_DEVICE_CONST='Are you sure you want to delete this device?';
+$TEXT_BACKUP_CHILD_DEVICES_CONST='Backup child devices';
+$TEXT_RESTORE_CHILD_DEVICES_CONST='Restore child devices';
 ?>
