@@ -523,12 +523,21 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 	}
 	
 
-	//input port
+	//description: device description and roomname
 	string sDescription =  pDeviceData->m_sDescription ;
-	if(!sDescription.empty()) {
-
-///////    RoomName should be replaced with name of room, where the camera is ....
-		conffile	<< "text_left " << StringUtils::Replace(&sDescription, " ", "_") << "\\nRoomName" << endl << endl << endl;
+	
+	string sRoom = "Unknown Room";
+	string sSQL = "SELECT Description FROM Room WHERE PK_Room = " + StringUtils::itos(pDeviceData->m_dwPK_Room);
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if ( (result_set.r = mysql_query_result(sSQL)) ) {
+		row = mysql_fetch_row(result_set.r);
+		sRoom = row[0];
+	}
+	
+	
+	if(!sDescription.empty() || !sRoom.empty()) {
+		conffile	<< "text_left " << StringUtils::Replace(&sDescription, " ", "_") << "\\n" << StringUtils::Replace(&sRoom, " ", "_") << endl << endl << endl;
 	}
 
 					

@@ -14,12 +14,13 @@
 #include <iostream>
 
 #include "DCE/DeviceData_Router.h"
+#include "PlutoUtils/MySQLHelper.h"
 class Database_pluto_main;
 
 //<-dceag-decl-b->
 namespace DCE
 {
-	class Motion_Wrapper : public Motion_Wrapper_Command
+	class Motion_Wrapper : public Motion_Wrapper_Command, public MySqlHelper
 	{
 //<-dceag-decl-e->
 		// Private member variables
