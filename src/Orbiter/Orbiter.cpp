@@ -2670,6 +2670,8 @@ if(UsesUIVersion2())
 				bHandled |= CaptureKeyboard_EditText_AppendChar( '+' );
 			if( PK_Button == BUTTON_colon_CONST )
 				bHandled |= CaptureKeyboard_EditText_AppendChar( ':' );
+			if( PK_Button == BUTTON_slash_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( '/' );
 			else if(
 				( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ||
 				( PK_Button >= BUTTON_A_CONST && PK_Button <= BUTTON_Z_CONST ) ||
@@ -2806,6 +2808,7 @@ bool Orbiter::ButtonDown( int iPK_Button )
 			return true;
 	}
 
+	//purge any 'DeselectObjects' callbacks from pending callbacks map
 	PLUTO_SAFETY_LOCK( mt, m_MaintThreadMutex );
 	for(map<int,PendingCallBackInfo *>::iterator it=m_mapPendingCallbacks.begin();it!=m_mapPendingCallbacks.end();)
 	{
