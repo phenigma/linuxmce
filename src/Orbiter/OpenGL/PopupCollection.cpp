@@ -54,13 +54,6 @@ void PopupCollection::PaintPopup(string ID, string ObjectHash, PlutoPopup *Popup
 	if(Current == ObjectHash)
 		return;
 
-	if(Current!= "")
-	{
-		Item = Popups[Current];
-		if(Item)
-			Item->Hide();
-	}		
-
 	Current = ObjectHash;
 	if (Exists(ObjectHash))
 	{

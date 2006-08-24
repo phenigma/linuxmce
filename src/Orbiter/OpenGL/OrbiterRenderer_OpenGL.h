@@ -22,9 +22,6 @@ namespace DCE
 		bool m_bWindowCreated;
 		PopupCollection* Popups;
 
-		DesignObj_Orbiter *m_pObj_Highlighted_Before;
-
-	
 	public:
 
 		OrbiterRenderer_OpenGL(Orbiter *pOrbiter);
@@ -58,7 +55,7 @@ namespace DCE
 
 		virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
 			bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0), int nAlphaChannel = 255,
-			string ParentObjectID = "", string ObjectID = "");
+			string ParentObjectID = "", string ObjectID = "", string ObjectHash = "");
 
 		void RemoveGraphic(string ObjectID);
 

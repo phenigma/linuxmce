@@ -18,6 +18,7 @@ using namespace DCE;
 
 //#define SCENE_DEBUG 1
 //#define DUMP_SCENE_DEBUG 1
+//#define DISABLE_HIGHLIGHT 
 
 OpenGL3DEngine::OpenGL3DEngine() : 
 	Quit(false),
@@ -80,7 +81,7 @@ bool OpenGL3DEngine::Paint()
 	if(ModifyGeometry)
 		return false;
 
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 	if(NULL == CurrentLayer)
 		return false;
 
@@ -174,7 +175,7 @@ void OpenGL3DEngine::NewScreen(string ScreenName)
 	UnHighlight();
 	UnSelect();
 
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 	
 	if(NULL != OldLayer)
 	{
@@ -207,7 +208,7 @@ void OpenGL3DEngine::Setup()
 
 void OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFrame* Frame)
 {
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
 	DumpScene();
 
@@ -235,7 +236,9 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFrame* Fra
 			}
 			else
 			{
-				Parent->RemoveChild(OldChild);
+				Parent->ReplaceChild(OldChild, Frame);
+				DumpScene();
+				return;
 			}
 		}
 	}
@@ -243,7 +246,12 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFrame* Fra
 	{
 		Parent = CurrentLayer;
 		MeshFrame *DuplicatedFrame = CurrentLayer->FindChild(Frame->Name());
+
+		if(DuplicatedFrame == Frame)
+			return;
+
 		if(NULL != DuplicatedFrame)
+		{
 			if(DuplicatedFrame->GetParent() != CurrentLayer)
 			{	
 				g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::AddMeshFrameToDesktop: Ignoring object %s"
@@ -251,12 +259,14 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFrame* Fra
 
 				Frame->CleanUp();
 				delete Frame;
-				return;
 			}
 			else
 			{
-				CurrentLayer->RemoveChild(DuplicatedFrame);
+				CurrentLayer->ReplaceChild(DuplicatedFrame, Frame);
+				DumpScene();
 			}
+			return;
+		}
 	}
 
 	Parent->AddChild(Frame);
@@ -276,7 +286,7 @@ inline void OpenGL3DEngine::DumpScene()
 
 /*virtual*/ void OpenGL3DEngine::Select(PlutoRectangle* SelectedArea)
 {
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 	if(NULL == CurrentLayer || NULL == SelectedArea)
 		return;
 	MeshBuilder MB;
@@ -329,7 +339,11 @@ inline void OpenGL3DEngine::DumpScene()
 
 /*virtual*/ void OpenGL3DEngine::Highlight(PlutoRectangle* HightlightArea, OpenGLGraphic* HighSurface)
 {
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+#ifdef DISABLE_HIGHLIGHT
+	return;
+#endif
+
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 	
 	if(NULL == CurrentLayer)
 		return;
@@ -396,7 +410,7 @@ inline void OpenGL3DEngine::DumpScene()
 
 /*virtual*/ void OpenGL3DEngine::UnHighlight()
 {
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
 	if(NULL != HighLightFrame)
 	{
@@ -411,7 +425,7 @@ inline void OpenGL3DEngine::DumpScene()
 
 /*virtual*/ void OpenGL3DEngine::UnSelect()
 {
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
 	if(NULL != SelectedFrame)
 	{
@@ -430,13 +444,13 @@ bool OpenGL3DEngine::NeedUpdateScreen()
 
 MeshFrame* OpenGL3DEngine::GetMeshFrameFromDesktop(string ObjectID)
 {
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 	return CurrentLayer->FindChild(ObjectID);
 }
 
 void OpenGL3DEngine::RemoveMeshFrameFromDesktop(MeshFrame* Frame)
 {
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 	if(NULL == CurrentLayer)
 	{
 		//g_pPlutoLogger->Write(LV_CRITICAL, "RemoveMeshFrameFromDesktop: NULL CurrentLayer");
@@ -451,7 +465,7 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktop(MeshFrame* Frame)
 
 void OpenGL3DEngine::StartFrameDrawing(string ObjectHash)
 {
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::StartFrameDrawing!");
 	if(NULL != FrameBuilder)
 		EndFrameDrawing("");
@@ -462,7 +476,7 @@ void OpenGL3DEngine::StartFrameDrawing(string ObjectHash)
 
 void OpenGL3DEngine::StartDatagridDrawing(string ObjectHash)
 {
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::StartFrameDrawing!");
 	if(NULL != FrameDatagrid)
 		EndDatagridDrawing("");
@@ -473,7 +487,7 @@ void OpenGL3DEngine::StartDatagridDrawing(string ObjectHash)
 
 MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
 {
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
 
@@ -495,7 +509,7 @@ MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
 */
 MeshFrame* OpenGL3DEngine::EndFrameDrawing(string sObjectHash)
 {
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
 
@@ -518,7 +532,7 @@ MeshFrame* OpenGL3DEngine::EndFrameDrawing(string sObjectHash)
 void OpenGL3DEngine::CubeAnimateDatagridFrames(string ObjectID, MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
 		int MilisecondTime, int Direction, float fMaxAlphaLevel)
 {
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
 	UnHighlight();
 
@@ -533,7 +547,7 @@ void OpenGL3DEngine::CubeAnimateDatagridFrames(string ObjectID, MeshFrame *Befor
 void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 {
 	return;
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
 	MeshFrame * LeftBar = new MeshFrame("highlight-frame-left");
 	MeshFrame * TopBar = new MeshFrame("highlight-frame-top");
@@ -591,7 +605,7 @@ void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 
 void OpenGL3DEngine::HideHighlightRectangle()
 {
-	PLUTO_SAFETY_LOCK(sm, SceneMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
 	if(NULL != HighLightFrame)
 	{

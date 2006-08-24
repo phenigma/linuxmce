@@ -52,7 +52,7 @@ public:
 	virtual void DisplayImageOnScreen(SDL_Surface *m_pScreenImage);
 	virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
 		bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0), int nAlphaChannel = 255,
-		string ParentObjectID = "", string ObjectID = "");
+		string ParentObjectID = "", string ObjectID = "", string ObjectHash = "");
 	
 	virtual void BeginPaint();
 	virtual void EndPaint();

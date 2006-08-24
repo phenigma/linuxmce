@@ -8,6 +8,8 @@
 
 using namespace DCE;
 
+//#define DISABLE_MESHFRAME_CACHE
+
 ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : ObjectRenderer(pOwner)
 {
 	
@@ -27,12 +29,14 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 		sParentObjectID = pParentObj->GenerateObjectHash(point, false);
 	}
 
+#ifndef DISABLE_MESHFRAME_CACHE
 	MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(m_pObj_Owner->GenerateObjectHash(point));
 	if(NULL != Frame)
 	{
 		TextureManager::Instance()->AttachToScene(sParentObjectID, Frame);
 		return;
 	}
+#endif
 
 	PlutoGraphic *pPlutoGraphic = NULL;
 	pPlutoGraphic = 
@@ -152,7 +156,8 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 
 		pOrbiterRenderer_OpenGL->RenderGraphic(pPlutoGraphic, rectTotal, 
 			bDisableAspectRatio, point, nAlphaChannel, sParentObjectID, 
-			m_pObj_Owner->GenerateObjectHash(point, false));
+			m_pObj_Owner->GenerateObjectHash(point, false),
+			m_pObj_Owner->GenerateObjectHash(point));
 	}
 #ifdef DEBUG
 	else

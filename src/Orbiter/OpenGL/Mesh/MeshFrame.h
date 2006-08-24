@@ -32,6 +32,7 @@ public:
 
 	void AddChild(MeshFrame* Frame);
 	void RemoveChild(MeshFrame* Frame);
+	void ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame);
 
 	virtual void Paint(MeshTransform ChildTransform);
 	

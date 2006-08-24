@@ -54,7 +54,7 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 	if(NULL != Frame->Parent)
 	{
 		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::AddChild: Frame %p/%s already has a parent %p/%s!",
-			Frame, Frame->Name_.c_str(), Parent, Parent->Name_.c_str());	
+			Frame, Frame->Name_.c_str(), Parent, NULL != Parent ? Parent->Name_.c_str() : "no parent");	
 
 		//throw "Frame already has a parent";
 	}
@@ -72,11 +72,6 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 		return;
 	}
 
-	if(Frame->Name().find("thumb") != string::npos)
-	{
-		int k = 4;
-	}
-		
 	if(NULL != Frame->Parent)
 	{
 		vector<MeshFrame*>::iterator Child = 
@@ -85,8 +80,6 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 		{
 			DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Got a parent, but doesn't have us as child!");
 			//throw "Got a parent, but doesn't have us as child";
-			
-
 		}
 		else
 		{
@@ -103,6 +96,45 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Got no parent! :(");
 		//throw "Got no parent! :( I'm all alone!";
 	}
+}
+
+void MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
+{
+	RemoveChild(OldFrame);
+	AddChild(NewFrame);
+	return;
+/*
+	if(OldFrame == NULL)
+	{
+		//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: Frame is NULL!!!");
+		return;
+	}
+
+	if(NULL != OldFrame->Parent)
+	{
+		vector<MeshFrame*>::iterator Child = find(OldFrame->Parent->Children.begin(), 
+			OldFrame->Parent->Children.end(), OldFrame);
+
+		if(Child == OldFrame->Parent->Children.end())
+		{
+			DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: Got a parent, but doesn't have us as child!");
+			//throw "Got a parent, but doesn't have us as child";
+		}
+		else
+		{
+			*Child = NewFrame;
+
+			DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
+				OldFrame, OldFrame->Name_.c_str(), OldFrame->Parent, OldFrame->Parent->Name_.c_str(),
+				NewFrame, NewFrame->Name_.c_str());
+		}
+	}
+	else
+	{
+		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: Got no parent! :(");
+		//throw "Got no parent! :( I'm all alone!";
+	}
+*/
 }
 
 void MeshFrame::Paint(MeshTransform ChildTransform)
@@ -211,11 +243,11 @@ MeshFrame *MeshFrame::Clone()
 
 void MeshFrame::Print(string sIndent)
 {
-//	if(Name_.find("rectangle") != string::npos)
-//		return;
+	if(Name_.find("rectangle") != string::npos)
+		return;
 
-//	if(Name_.find("text") != string::npos)
-//		return;
+	if(Name_.find("text") != string::npos)
+		return;
 
 	DCE::g_pPlutoLogger->Write(LV_STATUS, "%s%s '%s' (frame) %p", sIndent.c_str(), 
 		Children.size() ? "+ " : "- ", Name_.c_str(), this);

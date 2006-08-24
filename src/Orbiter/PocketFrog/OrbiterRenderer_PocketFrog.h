@@ -92,7 +92,7 @@ public:
 	void RenderScreen( bool bRenderGraphicsOnly );
 	void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
 		bool bDisableAspectRatio = false, PlutoPoint point = PlutoPoint(0, 0), int nAlphaChannel = 255,
-		string ParentObjectID = "", string ObjectID = "");
+		string ParentObjectID = "", string ObjectID = "", string ObjectHash = "");
 
 	void BeginPaint();
 	void EndPaint();
