@@ -86,6 +86,7 @@ endif
 	  $(tmp)$(doc)/sysvinit/copyright
 	cat COPYRIGHT >> $(tmp)$(doc)/sysvinit/copyright
 	install -g root -m 755 debian/postinst $(tmp)/DEBIAN/postinst
+	find $(tmp) -type d -name .svn -exec rm -rf '{}' ';' -prune
 	dpkg-shlibdeps src/init
 	dpkg-gencontrol -psysvinit -P$(tmp) -isp
 	dpkg --build $(tmp) ..
@@ -134,6 +135,7 @@ endif
 	install -g root -m 755 debian/initscripts/postinst $(tmp)/DEBIAN
 	install -g root -m 644 -o root debian/initscripts/conffiles \
 	  $(tmp)/DEBIAN/conffiles
+	find $(tmp) -type d -name .svn -exec rm -rf '{}' ';' -prune
 	dpkg-shlibdeps debian/readlink
 	sh debian/deps-mount >> debian/substvars
 	sh debian/deps-glibc >> debian/substvars
@@ -185,6 +187,7 @@ binary-indep:   build checkroot
 	  $(tmp)$(doc)/sysv-rc/copyright
 	install -g root -m 755 debian/sysv-rc/postinst $(tmp)/DEBIAN/postinst
 	install -g root -m 755 debian/sysv-rc/postrm $(tmp)/DEBIAN/postrm
+	find $(tmp) -type d -name .svn -exec rm -rf '{}' ';' -prune
 	dpkg-gencontrol -psysv-rc -P$(tmp) -isp
 	dpkg --build $(tmp) ..
 	rm -rf $(tmp)

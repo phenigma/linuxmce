@@ -1,3 +1,1 @@
 shlibs:Depends=libc6 (>= 2.3.2.ds1-21)
-mount:Depends=mount (>= 2.11l-1)
-glibc:Depends=libc6 (>= 2.3.2.ds1-12)
