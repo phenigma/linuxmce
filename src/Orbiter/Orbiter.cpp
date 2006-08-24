@@ -2806,6 +2806,22 @@ bool Orbiter::ButtonDown( int iPK_Button )
 			return true;
 	}
 
+	PLUTO_SAFETY_LOCK( mt, m_MaintThreadMutex );
+	for(map<int,PendingCallBackInfo *>::iterator it=m_mapPendingCallbacks.begin();it!=m_mapPendingCallbacks.end();)
+	{
+		PendingCallBackInfo *pCallBackInfo = (*it).second;
+		if( pCallBackInfo->m_fnCallBack == &Orbiter::DeselectObjects)
+		{
+			DesignObj_Orbiter *pObj = (DesignObj_Orbiter *)pCallBackInfo->m_pData;
+			pObj->m_GraphicToDisplay = GRAPHIC_NORMAL;
+
+			m_mapPendingCallbacks.erase(it++);
+		}
+		else
+			++it;
+	}
+	mt.Release();
+
 	//if this is a repeated button, we'll handle it right away
 	if(m_pScreenHistory_Current && IsRepeatedKeyForScreen(m_pScreenHistory_Current->GetObj(), iPK_Button, true))
 	{
