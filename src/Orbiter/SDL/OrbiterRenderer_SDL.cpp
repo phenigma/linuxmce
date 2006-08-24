@@ -515,6 +515,7 @@ void OrbiterRenderer_SDL::EventLoop()
 					orbiterEvent.data.region.m_iX = Event.button.x;
 					orbiterEvent.data.region.m_iY = Event.button.y;
 				}
+				orbiterEvent.data.region.m_iButton = Event.button.button;
 				OrbiterLogic()->ProcessEvent(orbiterEvent);
 			} 
 			else if (Event.type == SDL_MOUSEBUTTONDOWN)
@@ -522,17 +523,15 @@ void OrbiterRenderer_SDL::EventLoop()
 				orbiterEvent.type = Orbiter::Event::REGION_DOWN;
 				orbiterEvent.data.region.m_iX = Event.button.x;
 				orbiterEvent.data.region.m_iY = Event.button.y;
+				orbiterEvent.data.region.m_iButton = Event.button.button;
 				OrbiterLogic()->ProcessEvent(orbiterEvent);
-
-#if defined(WIN32) && !defined(PROXY_ORBITER) && !defined(BLUETOOTH_DONGLE)
-				RecordMouseAction(Event.button.x, Event.button.y);
-#endif
 			}
 			else if (Event.type == SDL_MOUSEBUTTONUP)
 			{
 				orbiterEvent.type = Orbiter::Event::REGION_UP;
 				orbiterEvent.data.region.m_iX = Event.button.x;
 				orbiterEvent.data.region.m_iY = Event.button.y;
+				orbiterEvent.data.region.m_iButton = Event.button.button;
 				OrbiterLogic()->ProcessEvent(orbiterEvent);
 			}
 		}
