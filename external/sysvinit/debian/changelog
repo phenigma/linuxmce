@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto58) unstable; urgency=low
+
+  * Save dmesg at boot
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Thu, 24 Aug 2006 18:37:34 +0300
+
 sysvinit (2.86.ds1-1.1pluto57) unstable; urgency=low
 
   * Start firewire -> video4linux pipes

@@ -229,6 +229,11 @@ touch /var/run/utmp
 chown root.utmp /var/run/utmp
 chmod  664 /var/run/utmp
 
+## Save dmesg
+savelog -q -p -c 5 /var/log/dmesg
+dmesg -s 524288 > /var/log/dmesg
+chgrp adm /var/log/dmesg || :
+
 Message "Setting console fonts"
 if [ -x /etc/init.d/console-screen.sh ]; then
 	/usr/sbin/termwrap /bin/true
