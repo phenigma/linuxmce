@@ -1,22 +1,37 @@
 #!/bin/bash
 
+## Includes
+. /usr/pluto/bin/SQL_Ops.sh 2>/dev/null || exit 1
+
+## Read command line params
+Params=("$@")
+for ((i = 0; i < ${#Params[@]}; i++)); do
+        case "${Params[$i]}" in
+                -d) ((i++)); DeviceID="${Params[$i]}" ;;
+        esac
+done
+
+## SDL Exports 
 export SDL_VIDEO_X11_WMCLASS="Orbiter"
+export SDL_MOUSE_RELATIVE=0
+
+## Check to see if we use OpenGL efects or not
+DD_USE_OPENGL_EFECTS=172
+Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$DeviceID' AND FK_DeviceData=${DD_USE_OPENGL_EFECTS}"
+UseOpenGL=$(RunSQL "$Q")
 
 Executable=./Orbiter
-OrbiterConf=/etc/Orbiter.conf
-
-# TODO: update Config_Ops.sh to support user-specified files, and use that here
-if grep -q "UseOpenGL.*=.*1" "$OrbiterConf"; then
+if [[ "$UseOpenGL" == "1"  ]]; then
 	Executable=./OrbiterGL
 fi
 
-# test if XFree86 is running else manualy start it
+## Test if XFree86 is running else manualy start it
 isX11Running=$(ps -A | grep Xorg | wc -l)
 if [[ "$isX11Running" != "1" ]]; then
 	/usr/pluto/bin/Start_X.sh
 	export DISPLAY=:0
 fi
 
+## Run Orbiter
 xset m 1 1
-export SDL_MOUSE_RELATIVE=0
 exec "$Executable" "$@"
