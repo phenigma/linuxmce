@@ -154,8 +154,6 @@ bool OpenGL3DEngine::Paint()
 			HighLightFrame->SetColor(Color);
 		}
 	}
-	//glEnable(GL_CULL_FACE);
-
 	GL.Flip();
 
 

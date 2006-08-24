@@ -67,8 +67,8 @@ bool AnimationScrollDatagrid::Update()
 
 	//DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Animation step: %f", 100 * Progress);
 
-	//BeforeGrid->SetAlpha((1-Progress) * MaxAlpha);
-	//AfterGrid->SetAlpha(Progress * MaxAlpha);
+	BeforeGrid->SetAlpha((1-Progress) * MaxAlpha, "text");
+	AfterGrid->SetAlpha(Progress * MaxAlpha, "text");
 
 	if(CurrentTime - StartTime > MilisecondTime)
 	{

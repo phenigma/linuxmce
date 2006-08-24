@@ -43,7 +43,7 @@ public:
 
 	virtual void Paint();
 
-	virtual void SetAlpha(float Alpha);
+	virtual void SetAlpha(float Alpha, string ExcludePattern = "");
 	virtual void SetColor(Point3D& Color);
 
 	MeshFrame *Clone();

@@ -117,14 +117,6 @@ GLFontTextureList::~GLFontTextureList()
 		MB.SetTexture2D(0.0f, 0.0f);
 		MB.AddVertexFloat(float(X), float(Y), 0);
 
-		// Point 2
-		MB.SetTexture2D(1.0f, 0.0f);
-		MB.AddVertexFloat(float(X+PixelLen), float(Y), 0);
-
-		// Point 3
-		MB.SetTexture2D(0.0f, 1.0f);
-		MB.AddVertexFloat(float(X), float(Y+PixelHgt), 0);
-
 		// Point 3
 		MB.SetTexture2D(0.0f, 1.0f);
 		MB.AddVertexFloat(float(X), float(Y+PixelHgt), 0);
@@ -132,6 +124,14 @@ GLFontTextureList::~GLFontTextureList()
 		// Point 2
 		MB.SetTexture2D(1.0f, 0.0f);
 		MB.AddVertexFloat(float(X+PixelLen), float(Y), 0);
+
+		// Point 2
+		MB.SetTexture2D(1.0f, 0.0f);
+		MB.AddVertexFloat(float(X+PixelLen), float(Y), 0);
+
+		// Point 3
+		MB.SetTexture2D(0.0f, 1.0f);
+		MB.AddVertexFloat(float(X), float(Y+PixelHgt), 0);
 
 		// Point 4
 		MB.SetTexture2D(1.0f, 1.0f);

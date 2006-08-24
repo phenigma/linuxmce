@@ -191,16 +191,16 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		0
 		);
 
-	Builder->SetTexture2D(0.0f, 1.0f);
-	Builder->AddVertexFloat(
-		float(x), 
-		float(y+height), 
-		0
-		);
 	Builder->SetTexture2D(1.0f, 0);
 	Builder->AddVertexFloat(
 		float(x+width), 
 		float(y), 
+		0
+		);
+	Builder->SetTexture2D(0.0f, 1.0f);
+	Builder->AddVertexFloat(
+		float(x), 
+		float(y+height), 
 		0
 		);
 	Builder->SetTexture2D(1.0f, 1.0f);
@@ -349,16 +349,16 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		float(point.Y + rectTotal.Top()), 
 		0
 		);
-	Builder->SetTexture2D(1.0f, 0.0f);
-	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Right()), 
-		float(point.Y + rectTotal.Top()), 
-		0
-		);
 	Builder->SetTexture2D(1.0f, 1.0f);
 	Builder->AddVertexFloat(
 		float(point.X + rectTotal.Right()), 
 		float(point.Y + rectTotal.Bottom()), 
+		0
+		);
+	Builder->SetTexture2D(1.0f, 0.0f);
+	Builder->AddVertexFloat(
+		float(point.X + rectTotal.Right()), 
+		float(point.Y + rectTotal.Top()), 
 		0
 		);
 

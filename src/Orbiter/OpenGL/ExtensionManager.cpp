@@ -105,13 +105,14 @@ void ExtensionManager::Resize(int Width, int Height)
 	{
  		SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT);
 		SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_WINDOW_BIT);
+
+		SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      1);
+		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    1);
+		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     1);
+		SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    1);
+		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  1);
+		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    1);
 	}
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      1);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    1);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     1);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    1);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    1);
 #endif
 
 	Uint32 uVideoModeFlags = SDL_OPENGL;
@@ -125,8 +126,9 @@ void ExtensionManager::Resize(int Width, int Height)
 
 	if(NULL != Screen)
 	{
-		Resize(Width, Height);	
+		Resize(Width, Height);
 		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_CULL_FACE);
 	}
 
 	return Screen != NULL;

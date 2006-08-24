@@ -163,8 +163,11 @@ MeshContainer* MeshFrame::GetMeshContainer()
 	return Mesh;
 }
 
-/*virtual*/ void MeshFrame::SetAlpha(float Alpha)
+/*virtual*/ void MeshFrame::SetAlpha(float Alpha, string ExcludePattern /* = "" */)
 {
+	//we don't want to setup alpha for Frames that have their name starting with exclude pattern
+	if(this->Name_.find(ExcludePattern) == 0)
+		return;
 	if(Mesh)
 		Mesh->SetAlpha(Alpha);
 
