@@ -18,4 +18,5 @@ if [[ "$isX11Running" != "1" ]]; then
 fi
 
 xset m 1 1
+export SDL_MOUSE_RELATIVE=0
 exec "$Executable" "$@"
