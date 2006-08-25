@@ -1,3 +1,9 @@
+asterisk-pluto (1.2.9-2) unstable; urgency=low
+
+  * Fixed postinstall to work with the recovery procedure
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Fri, 25 Aug 2006 13:22:16 +0300
+
 asterisk-pluto (1.2.9-1) unstable; urgency=low
 
   * Upgrade to new version of asterisk 1.2.9.1
