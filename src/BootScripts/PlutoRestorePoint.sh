@@ -11,6 +11,7 @@ echo "$0 [command]"
 echo "Commands :"
 echo "	--backup -> create a system backup"
 echo "	--restore -> restore system from a backup file"
+echo "	--restore --skip-md5 -> system restore without md5 control file"
 exit
 }
 
@@ -18,7 +19,6 @@ exit
 if [[ -z $1 ]]; then
 Usage
 fi
-
 
 # create restore point
 if [[ "$1" == "--backup" ]]; then 
@@ -55,6 +55,7 @@ if [[ "$1" == "--backup" ]]; then
 	# make archive
 	cd $MASTERDIR/download	
 	tar cfj backup-$BKPDIR.tar.bz2 $BKPDIR
+	md5sum backup-$BKPDIR.tar.bz2 > backup-$BKPDIR.md5
 	echo "Restore point created."
 	rm -rf $FULLPATH
 fi  
@@ -62,26 +63,54 @@ fi
 # restore system from backup
 if [[ "$1" == "--restore" ]]; then
 	cd $MASTERDIR/upload
-	backupexists=$(ls $MASTERDIR/upload)
-	if [[ "$backupexists" != "" ]]; then
-		echo "Restore Point found. Starting restore process ..."
-		tar xfj backup-*.tar.bz2
-		BKPDIR=$(find $MASTERDIR/upload -type d -maxdepth 1 -mindepth 1)
-		# process data from backup
-		cp -r $BKPDIR/etc /etc
-		cp -r $BKPDIR/usr /usr
-		# restore mysql
-		cd $BKPDIR/mysql
-		dbtables=$(ls)
-		# restore old mysql data
-		for table in $dbtables
-		do
-			/usr/bin/mysql -u root -D pluto_main < $table
-		done
-		apt-get update 1>/dev/null 2>/dev/null
-		apt-get -f install --reinstall pluto-local-database 1>/dev/null 2>/dev/null
-		rm -rf $MASTERDIR/upload/*
+	backupfile=$(ls $MASTERDIR/upload | grep tar.bz2)
+	md5file=$(ls $MASTERDIR/upload | grep md5)
+	if [[ "$2" == "--skip-md5" ]]; then
 	
-	fi	
+		if [[ "$backupfile" != "" ]]; then
+			tar xfj backup-*.tar.bz2
+			BKPDIR=$(find $MASTERDIR/upload -type d -maxdepth 1 -mindepth 1)
+			# process data from backup
+			cp -r $BKPDIR/etc /etc
+			cp -r $BKPDIR/usr /usr
+			# restore mysql
+			cd $BKPDIR/mysql
+			dbtables=$(ls)
+			# restore old mysql data
+			for table in $dbtables
+			do
+				/usr/bin/mysql -u root -D pluto_main < $table
+			done
+			rm -rf $MASTERDIR/upload/*
+		fi
+	else	
+		if [[ "$md5file" == "" ]]; then
+			echo "Control file not found. Exiting ..."
+		fi
+		md5test=$(md5sum -c $md5file | awk '{print $2}')
+		if [[ "$md5test" != "OK" ]]; then
+			echo "File integrity check failed ! Process stopped !"
+			exit
+		else 
+			echo ""
+                	if [[ "$backupfile" != "" ]]; then
+                        	tar xfj backup-*.tar.bz2
+                        	BKPDIR=$(find $MASTERDIR/upload -type d -maxdepth 1 -mindepth 1)
+                        	# process data from backup
+                        	cp -r $BKPDIR/etc /etc
+                        	cp -r $BKPDIR/usr /usr
+                        	# restore mysql
+                        	cd $BKPDIR/mysql
+                        	dbtables=$(ls)
+                        	# restore old mysql data
+                        	for table in $dbtables
+                        	do
+                                	/usr/bin/mysql -u root -D pluto_main < $table
+                        	done
+                        	rm -rf $MASTERDIR/upload/*
+                	fi
+
+		fi
+	fi
 fi
 
