@@ -8,6 +8,7 @@ function addCommand($output,$dbADO) {
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
+	$commandCateg=(int)@$_REQUEST['commandCateg'];
 	
 		
 	$querySelectCategoryMainForDevice = "
@@ -18,7 +19,7 @@ function addCommand($output,$dbADO) {
 	$commandsCategsTxt = '<option value="0">-please select-</option>';
 	$rs = $dbADO->_Execute($querySelectCategoryMainForDevice);
 	while ($row = $rs->FetchRow()) {
-				$commandsCategsTxt.='<option value="'.$row['PK_CommandCategory'].'">'.$row['Description'].'</option>';
+				$commandsCategsTxt.='<option value="'.$row['PK_CommandCategory'].'" '.(($commandCateg==$row['PK_CommandCategory'])?'selected':'').'>'.$row['Description'].'</option>';
 				$querySelectCategoryForDevice = "
 					select  PK_CommandCategory,Description from CommandCategory
 					where  
@@ -27,7 +28,7 @@ function addCommand($output,$dbADO) {
 						";
 				$rs2 = $dbADO->_Execute($querySelectCategoryForDevice);				
 					while ($row2 = $rs2->FetchRow()) {
-						$commandsCategsTxt.='<option value="'.$row2['PK_CommandCategory'].'">'.$row['Description'].'-'.$row2['Description'].'</option>';
+						$commandsCategsTxt.='<option value="'.$row2['PK_CommandCategory'].'" '.(($commandCateg==$row2['PK_CommandCategory'])?'selected':'').'>'.$row['Description'].'-'.$row2['Description'].'</option>';
 					}
 			
 	}
@@ -39,6 +40,13 @@ function addCommand($output,$dbADO) {
 		<input type="hidden" name="section" value="addCommand">
 		<input type="hidden" name="action" value="add">		
 		<input type="hidden" name="from" value="'.$from.'">
+			<h3>'.$TEXT_ADD_COMMAND_CONST.'</h3>
+			<table width="100%">
+				<tr>
+					<td bgcolor="black"><img src="include/images/spacer.gif" border="0" height="1" width="1"></td>
+				</tr>
+			</table>		
+		
 			<table>			
 				<tr>
 					<td>'.$TEXT_COMMAND_NAME_CONST.' *</td>
@@ -51,13 +59,14 @@ function addCommand($output,$dbADO) {
 				<tr>
 					<td>'.$TEXT_COMMAND_CATEGORY_CONST.' *</td>
 					<td>
-						<select name="commandCategs" >
+						<select name="commandCateg" >
 						'.$commandsCategsTxt.'
 						</select>
 					</td>
 				</tr>
 				<tr>
 							<td colspan="2">
+							<em>'.$TEXT_REQUIRED_FIELDS_CONST.'</em>
 								<fieldset>
 									<legend>'.$TEXT_PIPES_THIS_COMMAND_USES_CONST.'</legend>
 										<table>
@@ -70,17 +79,20 @@ function addCommand($output,$dbADO) {
 						$out.='<tr><td><input type="checkbox" value="1" name="commandPipe_'.$rowPipes['PK_Pipe'].'"></td><td>'.$rowPipes['Description'].'</td></tr>';
 					}
 				}
-				$out.='
+				$out.='</table>
+						</fieldset>
+					</td>
+				</tr>
 				<tr>
 					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 				</tr>
 			</table>
 		</form>
-		<em>* '.$TEXT_REQUIRED_FIELDS_CONST.'</em>
+		
 		<script>
 		 	var frmvalidator = new formValidator("addCommand"); 			
 			frmvalidator.addValidation("CommandDescription","req","'.$TEXT_VALIDATE_COMMAND_CONST.'");
-			frmvalidator.addValidation("commandCategs","dontselect=0","'.$TEXT_VALIDATE_COMMAND_CATEGORY_CONST.'");
+			frmvalidator.addValidation("commandCateg","dontselect=0","'.$TEXT_VALIDATE_COMMAND_CATEGORY_CONST.'");
 		</script>
 		';
 		
@@ -88,15 +100,15 @@ function addCommand($output,$dbADO) {
 
 		$commandDescription = cleanString(@$_POST['CommandDescription'],50);		
 		$AVCommand = cleanInteger(@$_POST['AVCommand']);
-		$commandCategs = (int)@$_POST['commandCategs'];
+		$commandCateg = (int)@$_POST['commandCateg'];
 
 		
-		if ($commandDescription!='' && $commandCategs!=0) {
+		if ($commandDescription!='' && $commandCateg!=0) {
 
 			
 		
 		$queryInsertCmdGroup = 'insert into Command (Description,FK_CommandCategory,AVCommand) values(?,?,?)';
-		$dbADO->Execute($queryInsertCmdGroup,array($commandDescription,$commandCategs,$AVCommand));
+		$dbADO->Execute($queryInsertCmdGroup,array($commandDescription,$commandCateg,$AVCommand));
 
 		$commandID = $dbADO->Insert_ID();	
 		
@@ -133,7 +145,9 @@ function addCommand($output,$dbADO) {
 				<script>
 					alert('$TEXT_COMMAND_ADDED_CONST');
 				    opener.document.forms.{$from}.action.value='form';
-					opener.document.forms.{$from}.lastAction.value='addNewCommandToDeviceCommandGroup';
+					if(opener.document.forms.{$from}.lastAction){
+						opener.document.forms.{$from}.lastAction.value='addNewCommandToDeviceCommandGroup';
+					}
 					opener.document.forms.{$from}.submit();
 					self.close();
 				</script>

@@ -1180,7 +1180,7 @@ function generatePullDown($name,$tableName,$valueField,$labelField,$selectedValu
 	$query="SELECT $tableName.$valueField,$tableName.$labelField FROM $tableName $filterTable ORDER BY $labelField ASC";
 	$res=$dbADO->Execute($query);
 	while($row=$res->FetchRow()){
-		$pullDown.='<option value="'.$row[$valueField].'" '.(($row[$valueField]==$selectedValue)?'selected':'').'>'.$row[$labelField].'</option>';
+		$pullDown.='<option value="'.$row[$valueField].'" '.(($row[$valueField]==$selectedValue)?'selected':'').' title="'.$row[$labelField].'">'.$row[$labelField].'</option>';
 	}
 	$pullDown.='</select>';
 	return $pullDown;
@@ -1474,7 +1474,7 @@ function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='',$valueKey
 		$out.='<option value="0">'.$zeroValueDescription.'</option>';
 	foreach ($valuesArray AS $key=>$value){
 		$optionValue=($valueKey=='key')?$key:$value;
-		$out.='<option value="'.$optionValue.'" '.(($optionValue==$selectedValue)?'selected':'').' '.((in_array($optionValue,explode(',',$highlightValue)))?'style="background:lightgreen;"':'').'>'.$value.'</option>
+		$out.='<option value="'.$optionValue.'" '.(($optionValue==$selectedValue)?'selected':'').' '.((in_array($optionValue,explode(',',$highlightValue)))?'style="background:lightgreen;"':'').' title="'.$value.'">'.$value.'</option>
 		';
 	}
 	$out.='</select>';
@@ -1754,7 +1754,7 @@ function commandPulldownForDevice($deviceID,$dbADO)
 			$out.='<select name="addNewDeviceCommand">
 					<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
 			while ($rowNewCommand = $resNewCommand->FetchRow()) {
-				$out.='<option value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
+				$out.='<option value="'.$rowNewCommand['PK_Command'].'" title="'.$rowNewCommand['Description'].'">'.$rowNewCommand['Description'].'</option>';
 			}
 			if ($resNewCommand->RecordCount()==0) {
 				$out.='<option value="0">-'.$TEXT_NO_COMMAND_CONST.'-</option>';
@@ -2049,7 +2049,7 @@ function advancedCommandGroupCommandsTable($cgID,$section,$dbADO)
 			if ($resNewCommand) {
 				$out.='<select name="deviceCommand_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">';
 				while ($rowNewCommand = $resNewCommand->FetchRow()) {
-					$out.='<option '.($rowCommandAssigned['FK_Command']==$rowNewCommand['PK_Command']?'selected="selected"':'').' value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
+					$out.='<option '.($rowCommandAssigned['FK_Command']==$rowNewCommand['PK_Command']?'selected="selected"':'').' value="'.$rowNewCommand['PK_Command'].'" title="'.$rowNewCommand['Description'].'">'.$rowNewCommand['Description'].'</option>';
 				}
 				if ($resNewCommand->RecordCount()==0) {
 					$out.='<option value="0">-'.$TEXT_NO_COMMAND_CONST.'-</option>';
@@ -2482,7 +2482,7 @@ function htmlPulldown($contentArray,$name,$selectedValue='None',$unselectedLabel
 	$out='<select name="'.$name.'">
 		<option value="0">'.$unselectedLabel.'</option>';
 	foreach ($contentArray AS $key=>$label){
-		$out.='<option value="'.$key.'" '.(($key==$selectedValue)?'selected':'').'>'.$label.'</option>';
+		$out.='<option value="'.$key.'" '.(($key==$selectedValue)?'selected':'').' title="'.$label.'">'.$label.'</option>';
 	}
 	$out.='</select>';
 	return $out;
@@ -2542,13 +2542,13 @@ function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$co
 
 	$selectOptions='';
 	foreach ($optionsArray AS $key=>$value){
-		$selectOptions.='<option value="'.$key.'" '.(($key==$controlledVia)?'selected':'').'>'.$value.'</option>';
+		$selectOptions.='<option value="'.$key.'" '.(($key==$controlledVia)?'selected':'').' title="'.$value.'">'.$value.'</option>';
 	}
 	
 	$zeroValues=explode(',',$zeroOption);
 	$out='
 	<select name="'.$pulldownName.'" '.$jsEvent.'>
-		<option value="'.@$zeroValues[0].'">'.$zeroValues[1].'</option>
+		<option value="'.@$zeroValues[0].'" title="'.$zeroValues[1].'">'.$zeroValues[1].'</option>
 		'.$selectOptions.'
 	</select>';
 
@@ -3221,7 +3221,7 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specif
 												<option value="0"></option>';
 					while($rowTable=$resTable->FetchRow()){
 						$itemStyle=($tableName=='FloorplanObjectType' && is_null(@$rowTable['FK_DesignObj_Control']))?' style="background-color:red;"':'';
-						$deviceDataBox.='<option value="'.$rowTable[$rowDDforDevice['dd_Description']].'" '.(($rowTable[$rowDDforDevice['dd_Description']]==@$ddValue)?'selected':'').' '.$itemStyle.'>'.$rowTable['Description'].'</option>';
+						$deviceDataBox.='<option value="'.$rowTable[$rowDDforDevice['dd_Description']].'" '.(($rowTable[$rowDDforDevice['dd_Description']]==@$ddValue)?'selected':'').' '.$itemStyle.' title="'.$rowTable['Description'].'">'.$rowTable['Description'].'</option>';
 					}
 					$deviceDataBox.='</select>';
 				}
@@ -4209,18 +4209,16 @@ function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
 	$codesQuery='
 			SELECT 
 				PK_InfraredGroup_Command,
-				FK_DeviceTemplate,
 				IRData,
 				Command.Description,
 				OriginalKey,
 				IF(PK_Command=192 OR PK_Command=193 OR PK_Command=194,1, IF(FK_CommandCategory=22,2, IF(FK_CommandCategory=27,3, IF(FK_CommandCategory=21,4,5) ) ) ) AS GroupOrder,
-				IF( FK_DeviceTemplate IS NULL,1,3) As DefaultOrder,
 				CommandCategory.Description AS CommandCategory,
 				FK_Command 
 			FROM InfraredGroup_Command 
 			JOIN Command ON FK_Command=PK_Command JOIN CommandCategory ON FK_CommandCategory=PK_CommandCategory 
 			WHERE FK_InfraredGroup=? '.$restriction.'
-			ORDER BY GroupOrder,CommandCategory.Description,Description,DefaultOrder';
+			ORDER BY GroupOrder,CommandCategory.Description,Description';
 
 	$res=$dbADO->Execute($codesQuery,array($infraredGroupID));
 	$codesArray=array();
@@ -4231,13 +4229,12 @@ function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
 		// move DSP mode commands to DSP mode
 		$categoryLabel=($row['FK_Command']==$GLOBALS['DSPModeCommand'])?'DSP Modes':$categoryLabel;
 		
-		$codesArray[$categoryLabel]['FK_DeviceTemplate'][$row['PK_InfraredGroup_Command']]=$row['FK_DeviceTemplate'];
+		$codesArray[$categoryLabel]['PK_IGC'][$row['PK_InfraredGroup_Command']]=$row['PK_InfraredGroup_Command'];
 		$codesArray[$categoryLabel]['Description'][$row['PK_InfraredGroup_Command']]=$row['Description'];
 		$codesArray[$categoryLabel]['OriginalKey'][$row['PK_InfraredGroup_Command']]=$row['OriginalKey'];
 		$codesArray[$categoryLabel]['CommandCategory'][$row['PK_InfraredGroup_Command']]=$categoryLabel;
 		$codesArray[$categoryLabel]['FK_Command'][$row['PK_InfraredGroup_Command']]=$row['FK_Command'];
 		$codesArray[$categoryLabel]['IRData'][$row['PK_InfraredGroup_Command']]=$row['IRData'];
-		$codesArray[$categoryLabel]['DefaultOrder'][$row['PK_InfraredGroup_Command']]=$row['DefaultOrder'];
 		$GLOBALS['displayedIRGC'][]=$row['PK_InfraredGroup_Command'];
 		$GLOBALS['displayedCommands'][]=$row['FK_Command'];
 
@@ -4331,9 +4328,9 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 			}
 		}
 
-		if(isset($codesArray[$categNames[$i]]['FK_DeviceTemplate'])){
-			for($pos=0;$pos<count($codesArray[$categNames[$i]]['FK_DeviceTemplate']);$pos++){
-				$codeCommandsKeys=array_keys($codesArray[$categNames[$i]]['FK_DeviceTemplate']);
+		if(isset($codesArray[$categNames[$i]]['PK_IGC'])){
+			for($pos=0;$pos<count($codesArray[$categNames[$i]]['PK_IGC']);$pos++){
+				$codeCommandsKeys=array_keys($codesArray[$categNames[$i]]['PK_IGC']);
 				$irg_c=$codeCommandsKeys[$pos];
 				$out.=formatCode($section,$codesArray[$categNames[$i]],$irg_c,$infraredGroupID,$dtID,$deviceID);
 			}
@@ -4351,6 +4348,7 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 
 
 function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
+
 	$deleteButton='<input type="button" class="button_fixed" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.'.$section.'.action.value=\'delete\';document.'.$section.'.irgroup_command.value='.$pos.';document.'.$section.'.submit();}">';
 
 	
@@ -4360,7 +4358,7 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 	$out='
 		<table width="100%">
 			<tr class="alternate_back">
-				<td align="center" width="100"><a name="code'.$pos.'"></a><B>'.$dataArray['Description'][$pos].(($dataArray['OriginalKey'][$pos]!='')?' ('.$dataArray['OriginalKey'][$pos].')':'').'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
+				<td align="center" width="100"><a name="code'.$pos.'"></a><B>#'.$dataArray['FK_Command'][$pos].' '.$dataArray['Description'][$pos].(($dataArray['OriginalKey'][$pos]!='')?' ('.$dataArray['OriginalKey'][$pos].')':'').'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
 				<td align="center" width="120">'.$viewParamsButton.@$deleteButton.$testButton.'</td>
 			</tr>
@@ -4451,7 +4449,7 @@ function deviceDataElement($name,$rowDDforDevice,$dbADO)
 											<option value="0"></option>';
 				while($rowTable=$resTable->FetchRow()){
 					$itemStyle=($tableName=='FloorplanObjectType' && is_null(@$rowTable['FK_DesignObj_Control']))?' style="background-color:red;"':'';
-					$deviceDataElement.='<option value="'.$rowTable[$DeviceDataDescriptionToDisplay[$key]].'" '.(($rowTable[$DeviceDataDescriptionToDisplay[$key]]==@$ddValue)?'selected':'').' '.$itemStyle.'>'.$rowTable['dd_Description'].'</option>';
+					$deviceDataElement.='<option value="'.$rowTable[$DeviceDataDescriptionToDisplay[$key]].'" '.(($rowTable[$DeviceDataDescriptionToDisplay[$key]]==@$ddValue)?'selected':'').' '.$itemStyle.' title="'.$rowTable['dd_Description'].'">'.$rowTable['dd_Description'].'</option>';
 				}
 				$deviceDataElement.='</select>';
 			}
@@ -5295,11 +5293,11 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 
 	switch (@$deviceCategoryPicker){
 		case 1:
-			$deviceCategoriesArray=getHierachicalCategories($dbADO,$restrictToCategory);
+			$deviceCategoriesArray=getHierachicalCategories($dbADO,@$restrictToCategory);
 			$deviceCategoryFormElement=pulldownFromArray($deviceCategoriesArray,'categoryID',$categoryID,'class="input_big" onChange="setDeviceCategory(-1);"');
 		break;
 		case 2:
-			$deviceCategoryFormElement=getdTree($categoryID,$dbADO,$restrictToCategory);
+			$deviceCategoryFormElement=getdTree($categoryID,$dbADO,@$restrictToCategory);
 		break;
 		default:
 			$deviceCategoriesArray=getAlphaCategories($dbADO,@$restrictToCategory);

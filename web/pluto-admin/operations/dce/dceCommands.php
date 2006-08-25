@@ -6,6 +6,7 @@ function dceCommands($output,$dbADO) {
 
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
+	// $dbADO->debug=true;
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];
@@ -93,7 +94,9 @@ function formatOutput($resRootCC,$dbADO,$level)
 
 		$out.='
 			<tr bgcolor="#EEEEEE">
-				<td colspan="3">'.$indent.' <a href="#" onClick="windowOpen(\'index.php?section=editCommandCategory&from=dceCommands&ccID='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>'.$rowRootCC['Description'].'</B></a></td>
+				<td colspan="3">'.$indent.' <a href="#" onClick="windowOpen(\'index.php?section=editCommandCategory&from=dceCommands&ccID='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>'.$rowRootCC['Description'].'</B></a>
+					<a href="#" onClick="windowOpen(\'index.php?section=addCommand&from=dceCommands&commandCateg='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">[ Add command ]</a>
+				</td>
 				<td align="center"><B>'.$TEXT_DEVICE_TEMPLATES_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_DEVICES_CONST.'</B></td>
 			</tr>';
