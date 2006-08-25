@@ -7192,7 +7192,14 @@ void Orbiter::CMD_Show_Floorplan(int iPosition_X,int iPosition_Y,string sType,st
 		return;
 	}
 	if( !m_pScreenHistory_Current || (pObj->m_rPosition.Width==m_pScreenHistory_Current->GetObj()->m_rPosition.Width && pObj->m_rPosition.Height==m_pScreenHistory_Current->GetObj()->m_rPosition.Height) )
+	{
+#ifdef ENABLE_MOUSE_BEHAVIOR
+		// With the new UI 
+		if(UsesUIVersion2() && m_pMouseBehavior )
+			m_pMouseBehavior->Clear();
+#endif
 		GotoDesignObj(pObj->m_ObjectID);
+	}
 	else
 		CMD_Show_Popup(pObj->m_ObjectID,iPosition_X,iPosition_Y,"","floorplan",false,false);
 }

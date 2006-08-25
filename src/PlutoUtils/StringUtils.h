@@ -116,7 +116,13 @@ namespace StringUtils
      */
     bool EndsWith( string sFirst, string sSecond, bool bIgnoreCase=false );
 
-    /**
+	/**
+     * @brief returns true if sInput contains only white space
+     */
+    bool OnlyWhiteSpace( const char *pInput );
+	bool OnlyWhiteSpace( string &sInput );
+
+	/**
      * @brief returns the value folowing the parameter name in the parameter list tokenized using the delimiters
      */
     string ParseValueFromString( string sParameterList, string sParameterName, string sDefaultValue, const char *pcDelimiters = NULL );

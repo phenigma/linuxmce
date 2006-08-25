@@ -26,6 +26,8 @@ namespace DatabaseUtils
 	int GetNumberOfChildDevices(MySqlHelper *pMySqlHelper,int PK_Device);
 	void SetDeviceTemplateForDevice(MySqlHelper *pMySqlHelper,int PK_Device,int PK_DeviceTemplate);
 	int GetDeviceTemplateForDevice(MySqlHelper *pMySqlHelper,int PK_Device);
+	string GetDeviceCategoryForDeviceTemplate(MySqlHelper *pMySqlHelper,int PK_DeviceTemplate,bool IncludeParents=true);
+	bool IsValidControlledVia(MySqlHelper *pMySqlHelper,int PK_DeviceTemplate,int PK_Device_ControlledVia);
 	string HumanReadablePort(MySqlHelper *pMySqlHelper,int PK_Device,string sPort);
 	void GetUnusedPortsOnPC(MySqlHelper *pMySqlHelper,int PK_Device,vector<string> &vectPorts);
 	void GetUnusedPortsOnAllPCs(MySqlHelper *pMySqlHelper,vector< pair<int,string> > &vectAllPorts, long nFK_Installation = 0);

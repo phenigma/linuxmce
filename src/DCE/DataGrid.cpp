@@ -87,7 +87,6 @@ DataGridCell::~DataGridCell()
 
 DataGridCell::DataGridCell(string Text, string Value)
 {
-	g_pPlutoLogger->Write(LV_CRITICAL,"DataGridCell %p",this);
 	Initialize();
 
 	m_Text = new char[Text.length()+1];
@@ -118,7 +117,6 @@ void DataGridCell::SetValue(string Value)
 
 DataGridCell::DataGridCell(int Size, char *Data)
 {
-	g_pPlutoLogger->Write(LV_CRITICAL,"DataGridCell %p",this);
 	Initialize();
 
 	// The first chunk of the data is the serializable part

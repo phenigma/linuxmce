@@ -485,6 +485,16 @@ bool OSDScreenHandler::RoomsWizard_ObjectSelected(CallBackData *pData)
 					RefreshDatagrid(DESIGNOBJ_dgRoomTypes_CONST);
 				}
 			}
+			else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butConfirmNames_CONST)
+			{
+				if( m_pWizardLogic->AlreadyHasRooms()==false )
+				{
+					DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
+						m_pOrbiter->m_mapTextString[TEXT_Must_Create_1_room_CONST],"");
+					m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
+					return true;
+				}
+			}
 		}
 		break;
 		

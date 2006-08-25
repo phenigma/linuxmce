@@ -444,3 +444,56 @@ long DatabaseUtils::GetRoomByName(MySqlHelper *pMySqlHelper, string sDescription
 	return pMySqlHelper->threaded_mysql_query_withID(sSQL);
 }
 
+string DatabaseUtils::GetDeviceCategoryForDeviceTemplate(MySqlHelper *pMySqlHelper,int PK_DeviceTemplate,bool IncludeParents)
+{
+	string sResult;
+	string sSQL = "SELECT FK_DeviceCategory FROM DeviceTemplate where PK_DeviceTemplate = " + StringUtils::itos(PK_DeviceTemplate);
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if((result_set.r = pMySqlHelper->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0])
+	{
+		sResult = row[0];
+		if( IncludeParents )
+		{
+			int PK_DeviceCategory = atoi(sResult.c_str());
+			while(PK_DeviceCategory)
+			{
+				string sSQL = "SELECT FK_DeviceCategory_Parent FROM DeviceCategory where PK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory);
+				PlutoSqlResult result_set;
+				MYSQL_ROW row;
+				if((result_set.r = pMySqlHelper->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0])
+				{
+					sResult += "," + string(row[0]);
+					PK_DeviceCategory = atoi(row[0]);
+				}
+				else
+					PK_DeviceCategory = 0;
+			}
+		}
+	}
+	
+	return sResult;
+}
+
+bool DatabaseUtils::IsValidControlledVia(MySqlHelper *pMySqlHelper,int PK_DeviceTemplate,int PK_Device_ControlledVia)
+{
+	int PK_DeviceTemplate_ControlledVia = DatabaseUtils::GetDeviceTemplateForDevice(pMySqlHelper,PK_Device_ControlledVia);
+	string sSQL = "SELECT PK_DeviceTemplate_DeviceTemplate_ControlledVia FROM DeviceTemplate_DeviceTemplate_ControlledVia "
+		"WHERE FK_DeviceTemplate_ControlledVia=" + StringUtils::itos(PK_DeviceTemplate_ControlledVia) + " AND FK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate);
+
+	PlutoSqlResult result1;
+	result1.r=pMySqlHelper->mysql_query_result( sSQL );
+	if( result1.r && result1.r->row_count>0 )
+		return true; // It's a match. 
+
+	sSQL = "SELECT PK_DeviceTemplate_DeviceCategory_ControlledVia FROM DeviceTemplate_DeviceCategory_ControlledVia "
+		"WHERE FK_DeviceCategory IN (" + DatabaseUtils::GetDeviceCategoryForDeviceTemplate(pMySqlHelper,PK_DeviceTemplate_ControlledVia) + ") AND FK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate);
+
+	PlutoSqlResult result2;
+	result2.r=pMySqlHelper->mysql_query_result( sSQL );
+	if( result2.r && result2.r->row_count>0 )
+		return true; // It's a match.
+
+	return false;
+}

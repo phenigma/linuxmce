@@ -21,6 +21,8 @@ public:
 	void AssignDeviceData(int PK_Device,int PK_DeviceData,string sValue);
 	void GetAllDevicesInTree(int PK_Device,map<int,int> &mapDeviceTree,bool bCheckParent=true,int PK_Device_ChildExclude=0);
 
+	void FixControlledViaIfEmbeddedIsMoreValid(int PK_DeviceTemplate,int &PK_Device_ControlledVia);
+
 	bool m_bDontCallConfigureScript;
 };
 #endif

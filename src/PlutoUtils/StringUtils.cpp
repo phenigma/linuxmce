@@ -792,6 +792,31 @@ bool StringUtils::EndsWith( string sFirst, string sSecond, bool bIgnoreCase )
         return sFirst.length()>=sSecond.length() && sFirst.substr(sFirst.length()-sSecond.length())==sSecond;
 }
 
+bool StringUtils::OnlyWhiteSpace( const char *pInput )
+{
+	const char *pPtr = pInput;
+	while( *pPtr )
+	{
+		switch(*pPtr)
+		{
+		case ' ':
+		case '\t':
+		case '\n':
+		case '\r':
+			pPtr++;
+			continue;
+		default:
+			return false;
+		}
+	}
+	return true;
+}
+
+bool StringUtils::OnlyWhiteSpace( string &sInput )
+{ 
+	return OnlyWhiteSpace( (const char *) sInput.c_str()); 
+}
+
 time_t StringUtils::StringToDate(string Value)
 {
 	return 0;

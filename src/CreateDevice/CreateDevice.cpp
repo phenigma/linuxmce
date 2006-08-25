@@ -43,9 +43,12 @@ using namespace DCE;
 
 int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia,string sDeviceData,int iPK_Device_RelatedTo,int iPK_Room)
 {
-	cerr << "CreateDevice::DoIt called with: iPK_DHCPDevice=" << iPK_DHCPDevice << "; iPK_DeviceTemplate=" << iPK_DeviceTemplate
-		<< "; sIPAddress=" << sIPAddress << "; sMacAddress=" << sMacAddress << "; PK_Device_ControlledVia=" << PK_Device_ControlledVia 
-		<< "; sDeviceData=" << sDeviceData << "; iPK_Device_RelatedToendl=" << iPK_Device_RelatedTo << endl;
+	g_pPlutoLogger->Write(LV_STATUS,"CreateDevice::DoIt called with: iPK_DHCPDevice=%d; iPK_DeviceTemplate=%d"
+		"; sIPAddress=%s; sMacAddress=%d; PK_Device_ControlledVia=%d" 
+		"; sDeviceData=%s; iPK_Device_RelatedToendl=%d",
+		iPK_DHCPDevice,iPK_DeviceTemplate,sIPAddress.c_str(),sMacAddress.c_str(),
+		PK_Device_ControlledVia,sDeviceData.c_str(),iPK_Device_RelatedTo);
+
 	if( !m_bConnected )
 	{
 		cerr << "Cannot connect to database" << endl;
@@ -122,6 +125,8 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	}
 		
 	int iPK_Package = row[4] ? atoi(row[4]) : 0;
+
+	FixControlledViaIfEmbeddedIsMoreValid(iPK_DeviceTemplate,PK_Device_ControlledVia);
 
 	SQL = "INSERT INTO Device(Description,FK_DeviceTemplate,FK_Installation,FK_Room,IPAddress,MACaddress,Status";
 	if( PK_Device_ControlledVia )
@@ -584,3 +589,30 @@ void CreateDevice::AssignDeviceData(int PK_Device,int PK_DeviceData,string sValu
 		"FK_Device=" + StringUtils::itos(PK_Device) + 
 		" AND FK_DeviceData=" + StringUtils::itos(PK_DeviceData) );
 }
+
+void CreateDevice::FixControlledViaIfEmbeddedIsMoreValid(int PK_DeviceTemplate,int &PK_Device_ControlledVia)
+{
+	// 1. If the controlled via is a valid choice, return without doing anything.
+	if( DatabaseUtils::IsValidControlledVia(this,PK_DeviceTemplate,PK_Device_ControlledVia) )
+		return;
+
+	// 2. Check if there are embedded devices that are valid options
+	string sSQL = "SELECT PK_Device FROM Device WHERE FK_Device_RouteTo=" + StringUtils::itos(PK_Device_ControlledVia);
+	PlutoSqlResult result3;
+	result3.r=mysql_query_result( sSQL );
+	if( result3.r )
+	{
+		MYSQL_ROW row;
+		while( row=mysql_fetch_row( result3.r ) )
+		{
+			// If this is a valid choice use it instead
+			int PK_Device = atoi(row[0]);
+			if( PK_Device && DatabaseUtils::IsValidControlledVia(this,PK_DeviceTemplate,PK_Device) )
+			{
+				PK_Device_ControlledVia = PK_Device;
+				return;
+			}
+		}
+	}
+}
+
