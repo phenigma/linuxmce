@@ -77,8 +77,8 @@ int Renderer::m_Rotate=0;
 float Renderer::m_fScaleX,Renderer::m_fScaleY;
 
 #ifndef ORBITER
-bool Renderer::m_bUseAlphaBlending = true;
-bool Renderer::m_bCreateMask = false;
+bool Renderer::m_bUseAlphaBlending = false;
+bool Renderer::m_bCreateMask = true;
 #endif
 
 Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo)
@@ -176,7 +176,7 @@ Renderer::~Renderer()
     const int size_coord = sizeof(LINT);
     size_t size_buffer = size_coord * 2 + width * height;
     // allocate the buffer
-    BYTE *pBuffer = new (BYTE)[size_buffer];
+    BYTE *pBuffer = new BYTE[size_buffer];
     if (pBuffer == NULL)
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "cannot allocate memory");
@@ -588,7 +588,7 @@ void Renderer::RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator
     }
 }
 
-void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, bool Signature)
+void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, string sFilename, bool Signature)
 {
     // we can't just save NULL pointers...
     if (pRendererImage == NULL || pRendererImage->m_pSDL_Surface == NULL)
@@ -600,8 +600,8 @@ void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, b
 
 	if (!m_bUseAlphaBlending)
     {
-        //if (m_bCreateMask)
-        //    SaveImageToXbmMaskFile(pSDL_Surface, 0, "name_of_xbm_file");
+        if (m_bCreateMask)
+            SaveImageToXbmMaskFile(pSDL_Surface, 0, sFilename);
 		SetGeneralSurfaceOpacity(pSDL_Surface, SDL_ALPHA_OPAQUE); // remove all transparency from the surface
     }
     
@@ -686,19 +686,10 @@ void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFil
 		cout << "Saving " << FileName << endl;
 #endif
 		FILE * File = fopen(FileName.c_str(), "wb");
-		SaveImageToPNGFile(pRendererImage, File);
+		SaveImageToPNGFile(pRendererImage, File, FileName);
 		fclose(File);
 	}
 #endif
-//	{
-//		string FileName = sSaveToFile + ".xbm";
-//#ifndef WINCE
-//		cout << "Saving " << FileName << endl;
-//#endif
-//		FILE * File = fopen(FileName.c_str(), "wb");
-//		SaveImageToXbmFile(pRendererImage, File);
-//		fclose(File);
-//	}
 }
 
 // load image from file and possibly scale/stretch it
@@ -1109,7 +1100,7 @@ void Renderer::SaveMNGToFile(string FileName, RendererMNG * MNG)
 
 	for (size_t i = 0; i < MNG->count() ; i++)
 	{
-		SaveImageToPNGFile(MNG->GetFrame(i), File, false);
+		SaveImageToPNGFile(MNG->GetFrame(i), File, FileName, false);
 	}
 
 	const char * MEND = "\x00\x00\x00\x00MEND\x21\x20\xF7\xD5";

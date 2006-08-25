@@ -66,7 +66,7 @@ public:
 	void RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iOnlyVersion);
 	void RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iIteration);
 	static void SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile, bool bUseOCG=false);
-	static void SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, bool Signature = true);
+	static void SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, string sFilename, bool Signature = true);
 
     // returns true on success
     static bool SaveImageToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName);
