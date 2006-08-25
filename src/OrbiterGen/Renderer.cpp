@@ -65,23 +65,18 @@ int myCounter=0;
 // Nasty hack -- Ask Radu why the fuck he decided to reinitialize the entire font engine for every word todo
 #ifdef WIN32
 	#ifndef WINCE
-		Renderer r("C:/windows/fonts/", "", 800, 600, FLAG_DISABLE_VIDEO);
+		Renderer r("C:/windows/fonts/", "", 800, 600, FLAG_DISABLE_VIDEO,false,false);
 	#else
-		Renderer r("\\", "", 800, 600, FLAG_DISABLE_VIDEO);
+		Renderer r("\\", "", 800, 600, FLAG_DISABLE_VIDEO,false,false);
 	#endif
 #else
-Renderer r("/usr/share/fonts/truetype/msttcorefonts/", "", 800, 600, FLAG_DISABLE_VIDEO);
+Renderer r("/usr/share/fonts/truetype/msttcorefonts/", "", 800, 600, FLAG_DISABLE_VIDEO,false,false);
 #endif
 
 int Renderer::m_Rotate=0;
 float Renderer::m_fScaleX,Renderer::m_fScaleY;
 
-#ifndef ORBITER
-bool Renderer::m_bUseAlphaBlending = false;
-bool Renderer::m_bCreateMask = true;
-#endif
-
-Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo)
+Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo,bool bUseAlphaBlending, bool bCreateMask)
 {
 #ifndef WIN32
     if( bDisableVideo )
@@ -92,6 +87,8 @@ Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,b
     m_sOutputDirectory=OutputDirectory;
     m_Width=Width;
     m_Height=Height;
+	m_bUseAlphaBlending=bUseAlphaBlending;
+	m_bCreateMask=bCreateMask;
 
 	if (! (SDL_WasInit(SDL_INIT_VIDEO) == SDL_INIT_VIDEO))
 	{
@@ -1236,9 +1233,9 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
 }
 
 void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate,
-	char cDefaultScaleForMenuBackground,char cDefaultScaleForOtherGraphics,float fScaleX,float fScaleY)
+	char cDefaultScaleForMenuBackground,char cDefaultScaleForOtherGraphics,float fScaleX,float fScaleY,bool bUseAlphaBlending, bool bCreateMask)
 {
-    static Renderer r(font,output,width,height);
+    static Renderer r(font,output,width,height,false,bUseAlphaBlending, bCreateMask);
 	r.m_cDefaultScaleForMenuBackground=cDefaultScaleForMenuBackground;
 	r.m_cDefaultScaleForOtherGraphics=cDefaultScaleForOtherGraphics;
 	r.m_fScaleX=fScaleX;

@@ -46,7 +46,7 @@ public:
 	static int m_Rotate;
 	SDL_Surface * Screen;
 
-	Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo=false);
+	Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo,bool bUseAlphaBlending, bool bCreateMask);
 	~Renderer();
 
 	static RendererImage * CreateBlankCanvas(PlutoSize size,bool bFillIt=false);
@@ -59,14 +59,14 @@ public:
 	static float m_fScaleX,m_fScaleY;
 
 #ifndef ORBITER
-	static bool m_bUseAlphaBlending, m_bCreateMask;
+	bool m_bUseAlphaBlending, m_bCreateMask;
 
 	void RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,
 		PlutoPoint Position,int iRenderStandard,int iOnlyVersion=-999);
 	void RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iOnlyVersion);
 	void RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iIteration);
-	static void SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile, bool bUseOCG=false);
-	static void SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, string sFilename, bool Signature = true);
+	void SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile, bool bUseOCG=false);
+	void SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, string sFilename, bool Signature = true);
 
     // returns true on success
     static bool SaveImageToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName);
@@ -90,7 +90,7 @@ public:
 
 	static RendererMNG * CreateMNGFromFile(string FileName, PlutoSize Size);
 	static RendererMNG * CreateMNGFromFiles(const vector<string> & FileNames, PlutoSize Size);
-	static void SaveMNGToFile(string FileName, RendererMNG * MNG);
+	void SaveMNGToFile(string FileName, RendererMNG * MNG);
     static void SetTransparentColor(SDL_Surface *pSurface, int R, int G, int B);
     static void SetGeneralSurfaceOpacity(SDL_Surface *pSurface, int SDL_Opacity);
 #endif

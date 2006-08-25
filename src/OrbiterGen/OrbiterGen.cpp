@@ -89,7 +89,7 @@ bool g_bBootSplash=false;
 
 // For some reason windows won't compile with this in the same file???
 void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate,
-	char cDefaultScaleForMenuBackground,char cDefaultScaleForOtherGraphics,float fScaleX,float fScaleY);
+	char cDefaultScaleForMenuBackground,char cDefaultScaleForOtherGraphics,float fScaleX,float fScaleY,bool bUseAlphaBlending, bool bCreateMask);
 #ifdef WIN32
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -494,6 +494,16 @@ int OrbiterGenerator::DoIt()
 	else
 		m_bNoEffects = false;
 
+	// Get the use alpha blended gui flag
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Use_alpha_blended_UI_CONST);
+	if( pRow_Device_DeviceData )
+		m_bUseAlphaBlending = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str())==1;
+	else
+		m_bUseAlphaBlending = false;
+
+	m_bUseMask = (m_pRow_UI->PK_UI_get()==UI_V2_Normal_Horizontal_16_9_CONST && m_bUseAlphaBlending==false);
+
+	g_pPlutoLogger->Write(LV_STATUS,"Use alpha %d use mask %d",(int) m_bUseAlphaBlending,(int) m_bUseMask);
 // HACK - TEMPORARILY DISABLE EFFECTS
 m_bNoEffects = true;
 
@@ -1640,7 +1650,7 @@ loop_to_keep_looking_for_objs_to_include:
 				try
 				{
 //if( oco->m_ObjectID.find("2211")!=string::npos )
-					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,oco,m_iRotation,cScaleMenuBg,cScaleOtherGraphics,((float) m_pRow_Size->ScaleX_get())/1000,((float) m_pRow_Size->ScaleY_get())/1000);
+					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,oco,m_iRotation,cScaleMenuBg,cScaleOtherGraphics,((float) m_pRow_Size->ScaleX_get())/1000,((float) m_pRow_Size->ScaleY_get())/1000,m_bUseAlphaBlending,m_bUseMask);
 					oco->HandleRotation(m_iRotation);
 				}
 				catch(string s)
