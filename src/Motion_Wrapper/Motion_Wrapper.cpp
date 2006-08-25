@@ -478,7 +478,7 @@ Motion_Wrapper::CreateVideoDeviceFor1394(DeviceData_Impl* pDeviceData) {
                 execl("/usr/bin/dc1394_vloopback", "dc1394_vloopback", v4lParam.c_str() , ieeeParam.c_str() ,NULL);
                 g_pPlutoLogger->Write(LV_CRITICAL, "Could not launch dc1394_vloopback !");
 
-		return false;
+		_exit(1);
         }
 
 	return true;
