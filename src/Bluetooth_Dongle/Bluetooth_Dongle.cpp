@@ -456,6 +456,22 @@ void Bluetooth_Dongle::ReceivedUnknownCommand(string &sCMD_Result,Message *pMess
 	sCMD_Result = "UNKNOWN DEVICE";
 }
 
+
+void Bluetooth_Dongle::BugReport() 
+{
+#ifndef WIN32
+	if ( !fork() ) 
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "In child process.");
+		g_pPlutoLogger->Write(LV_STATUS, "Creating bug report in /var/log/BluetoothDongle_BugReport.log ...");
+		execl ("/usr/pluto/bin/BluetoothDongle_BugReport.sh",NULL);
+		g_pPlutoLogger->Write(LV_CRITICAL, "Could not launch BluetoothDongle_BugReport.sh !");
+
+		_exit(1);
+	}
+#endif
+}
+
 //-----------------------------------------------------------------------------------------------------
 
 bool Bluetooth_Dongle::ScanningLoop()
@@ -498,9 +514,12 @@ bool Bluetooth_Dongle::ScanningLoop()
 
     if(!bResult) //something wrong happened
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "The detection loop is broken. Going to reload...");
+        g_pPlutoLogger->Write(LV_CRITICAL, "The detection loop is broken.");
         extern Command_Impl *g_pCommand_Impl;
 
+	BugReport();
+	
+	g_pPlutoLogger->Write(LV_CRITICAL, "Going to reload.");
 		if(NULL != g_pCommand_Impl)
 			g_pCommand_Impl->OnReload();
     }

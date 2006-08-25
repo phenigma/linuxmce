@@ -147,6 +147,9 @@ public:
         pthread_cond_t m_MessageQueueCond; /** < @todo ask */
         pluto_pthread_mutex_t m_ScreenMutex; /** < Anything that should not be done during a screen render, change, etc. Blocking this will prevent screen changes */
 
+	private:
+		// Create a bug reports
+		static void BugReport( void );
 	
 	public:
 		// Public member variables
