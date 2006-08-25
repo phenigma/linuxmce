@@ -43,6 +43,7 @@ public:
 	int m_nFileID;
 	int m_nPictureID;
 	string m_sPictureUrl;
+	string m_sStartPosition;
 	MapPlutoMediaAttributes m_mapAttributes;
 
 	PlutoMediaAttributes();

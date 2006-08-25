@@ -85,6 +85,8 @@ void PlutoMediaAttributes::SetupSerialization(int iSC_Version)
 	StartSerializeList() + m_nInstallationID + m_nFileID + m_nPictureID + m_sPictureUrl;
 	
 	(*this) + m_mapAttributes;
+
+	(*(static_cast<SerializeClass *>(this))) + (m_sStartPosition);
 }
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaAttributes &PlutoMediaAttributes::operator+ (MapPlutoMediaAttributes &i) 

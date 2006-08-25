@@ -22,6 +22,7 @@
 #include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
+#include "pluto_media/Table_Bookmark.h"
 #include "pluto_media/Define_AttributeType.h"
 #include "pluto_main/Define_MediaType.h"
 
@@ -192,6 +193,44 @@ void PlutoMediaFile::SyncDbAttributes()
 	if(!m_nPK_MediaType)
 		return;
 
+	//save/update start position in the database, if needed
+	if(m_pPlutoMediaAttributes->m_sStartPosition != "")
+	{
+		vector<Row_Bookmark *> vectBookmarks;
+		m_pDatabase_pluto_media->Bookmark_get()->GetRows("Description = 'START' AND IsAutoResume = 1 "
+			"AND FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID), &vectBookmarks);
+
+		if(vectBookmarks.size() > 0)
+		{
+			Row_Bookmark *pRow_Bookmark = vectBookmarks[0];
+			if(pRow_Bookmark->Position_get() != m_pPlutoMediaAttributes->m_sStartPosition)
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "# SyncDbAttributes: got different start position. Updating to %s...",
+					m_pPlutoMediaAttributes->m_sStartPosition.c_str());
+
+				pRow_Bookmark->Position_set(m_pPlutoMediaAttributes->m_sStartPosition);
+				pRow_Bookmark->Table_Bookmark_get()->Commit();
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "# SyncDbAttributes: already got same start position. Ignoring...");
+			}
+		}
+		else
+		{
+            g_pPlutoLogger->Write(LV_STATUS, "# SyncDbAttributes: No start position in the database for this file. "
+				"Adding %s start position.", m_pPlutoMediaAttributes->m_sStartPosition.c_str());
+
+			Row_Bookmark *pRow_Bookmark_New = m_pDatabase_pluto_media->Bookmark_get()->AddRow();
+			pRow_Bookmark_New->Position_set(m_pPlutoMediaAttributes->m_sStartPosition);
+			pRow_Bookmark_New->Description_set("START");
+			pRow_Bookmark_New->FK_File_set(m_pPlutoMediaAttributes->m_nFileID);
+			pRow_Bookmark_New->EK_MediaType_set(m_nPK_MediaType);
+			pRow_Bookmark_New->IsAutoResume_set(1);
+			m_pDatabase_pluto_media->Bookmark_get()->Commit();
+		}
+	}
+
 	int PK_File = m_pPlutoMediaAttributes->m_nFileID;
 
 	string SQL = 
@@ -306,7 +345,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 
 		//Get the first record and reuse it
 		pRow_File = vectRow_File[0];
-		pRow_File->Missing_set(1);
+		pRow_File->Missing_set(0);
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		pRow_File->Table_File_get()->Commit();
 
@@ -679,6 +718,20 @@ void PlutoMediaFile::LoadAttributesFromDB(string, int PK_File)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: not in the database %d");
 		return;
+	}
+
+	//load start position from the database
+	vector<Row_Bookmark *> vectBookmarks;
+	m_pDatabase_pluto_media->Bookmark_get()->GetRows("Description = 'START' AND IsAutoResume = 1 "
+		"AND FK_File = " + StringUtils::ltos(PK_File), &vectBookmarks);
+
+	if(vectBookmarks.size() > 0)
+	{
+		Row_Bookmark *pRow_Bookmark = vectBookmarks[0];	
+		m_pPlutoMediaAttributes->m_sStartPosition = pRow_Bookmark->Position_get();
+
+		g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: read start position from db: %s",
+			m_pPlutoMediaAttributes->m_sStartPosition.c_str());
 	}
 
 	//also merge the attributes from the database
