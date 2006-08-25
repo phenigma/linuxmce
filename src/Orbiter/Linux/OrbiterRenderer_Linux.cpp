@@ -76,8 +76,6 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 
 bool OrbiterRenderer_Linux::RenderScreen_ApplyMask()
 {
-    if (true) // TODO: ask about the condition // OrbiterLogic()->DATA_??
-        return false;
     //SDL_Surface *pImage = Screen;
     OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
     if (pOrbiterLinux == NULL)
@@ -85,7 +83,9 @@ bool OrbiterRenderer_Linux::RenderScreen_ApplyMask()
         g_pPlutoLogger->Write(LV_CRITICAL, "MouseBehavior_Linux::ptrOrbiterLinux() : NULL dynamic_cast<OrbiterLinux *>(%p)", m_pOrbiter);
         return false;
     }
-    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ptrOrbiterLinux() : start");
+    if (!pOrbiterLinux->m_bUseMask)
+        return false;
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_Linux::RenderScreen_ApplyMask : start");
     // remembered values
     Pixmap bitmap_mask = 0;
     GC gc;
