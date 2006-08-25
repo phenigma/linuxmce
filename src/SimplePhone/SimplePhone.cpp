@@ -63,7 +63,7 @@ bool SimplePhone::GetConfig()
 		if (strstr(pcConfigLine, "alsadev=") == pcConfigLine)
 		{
 			// currently a NOOP, but should change the ALSA device according to system settings
-			// vectLinphoneConfig[i] = "alsadev=plug:spdif";
+			// vectLinphoneConfig[i] = "alsadev=asym_spdif";
 		}
 	}
 	FileUtils::WriteVectorToFile("/etc/pluto/simplephone.conf", vectLinphoneConfig);
