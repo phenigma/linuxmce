@@ -714,8 +714,8 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 //         return false;
 //     }
 
-	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::PlaybackCompleted() Checking conditions: canPlayMore: %d, shouldResume %d", pMediaStream->CanPlayMore(), pMediaStream->m_bResume);
-    if ( !bWithErrors && pMediaStream->CanPlayMore() && !pMediaStream->m_bResume )
+	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::PlaybackCompleted() Checking conditions: canPlayMore: %d, shouldResume %d parked: %d", pMediaStream->CanPlayMore(), pMediaStream->m_bResume, (int) pMediaStream->m_tTime_Parked);
+    if ( !bWithErrors && pMediaStream->CanPlayMore() && !pMediaStream->m_bResume && !pMediaStream->m_tTime_Parked )
     {
         pMediaStream->ChangePositionInPlaylist(1);
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from playback completed");
@@ -2335,11 +2335,11 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 	    DetermineEntArea(0,0,sPK_EntertainArea,vectEntertainArea);
 
 	bool bNothingMoreToPlay = vectEntertainArea.size()==0;
-	g_pPlutoLogger->Write( LV_STATUS, "Calling StopMedia parked %d", (int) pMediaStream->m_tTime_Parked );
+	g_pPlutoLogger->Write( LV_STATUS, "Calling StopMedia parked %d vectea: %d", (int) pMediaStream->m_tTime_Parked, (int) vectEntertainArea.size());
 	
 	if( pMediaStream->m_tTime_Parked==0 )
 	{
-		// Don't bother stopping the media if it's already parked
+		// Don't bother stopping the media if it's already parked.  This media is not parked
 		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream );
 		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
 		StreamEnded(pMediaStream,true,false,NULL,&vectEntertainArea);

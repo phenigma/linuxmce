@@ -38,6 +38,7 @@ public:
 			{
 				Row_Bookmark *pRow_Bookmark = m_vectRow_Bookmark[0];
 				m_sStartPosition = pRow_Bookmark->Position_get();
+				g_pPlutoLogger->Write(LV_STATUS,"MediaFile::MediaFile File %d has start position %s",m_sStartPosition.c_str());
 			}
 		}
 		m_dwPK_Bookmark=0;
