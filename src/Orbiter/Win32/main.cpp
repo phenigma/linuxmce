@@ -231,7 +231,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
                             mbstowcs(LoggerFileNameW, sLogger.c_str(), 256);
                             ::DeleteFile(LoggerFileNameW);
                         #else
-                            ::DeleteFile(sLogger.c_str());
+                            //::DeleteFile(sLogger.c_str());
                         #endif		
 #endif
 						g_pPlutoLogger = new FileLogger(sLogger.c_str());

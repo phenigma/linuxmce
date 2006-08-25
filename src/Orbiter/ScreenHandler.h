@@ -175,11 +175,15 @@ public:
 	bool AddSoftware_ObjectHighlighted(CallBackData *pData);
 	bool AddSoftware_GridSelected(CallBackData *pData);
 
-	virtual void SCREEN_FileSave(long PK_Screen, string sText, string sCaption, string sCommand);
+	virtual void SCREEN_FileSave(long PK_Screen, string sCaption, string sCommand, bool bAdvanced_options);
 	bool FileSave_ObjectSelected(CallBackData *pData);
 	bool FileSave_GridSelected(CallBackData *pData);
 
+	//helper methods
 	void SaveFile_GotoChooseFolderDesignObj();
+	void SaveFile_SendCommand();
+
+	//savefile data
 	string m_sSaveFile_MountedFolder;
 	string m_sSaveFile_RelativeFolder;
 	string m_sSaveFile_Drive;
@@ -187,6 +191,7 @@ public:
 	string m_sSaveFile_FileName;
 	string m_sSaveFile_Command;
 	bool m_bSaveFile_CreatingFolder;
+	bool m_bSaveFile_Advanced_options;
 	int m_nSaveFile_PK_DeviceDrive;
 };
 //-----------------------------------------------------------------------------------------------------

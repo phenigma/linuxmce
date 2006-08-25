@@ -33,6 +33,7 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 
 	m_nSaveFile_PK_DeviceDrive = 0;
 	m_bSaveFile_CreatingFolder = false;
+	m_bSaveFile_Advanced_options = true;
 }
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::~ScreenHandler()
@@ -1204,10 +1205,11 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sText, string sCaption, string sCommand)
+void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sCaption, string sCommand, bool bAdvanced_options)
 {
 	//the command to execute with the selected file
 	m_sSaveFile_Command = sCommand;
+	m_bSaveFile_Advanced_options = bAdvanced_options;
 
 	if(!m_bSaveFile_CreatingFolder)
 	{
@@ -1237,9 +1239,9 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sText, string sCaptio
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, m_sSaveFile_RelativeFolder);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, StringUtils::ltos(m_nSaveFile_PK_DeviceDrive));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, FileUtils::ExcludeTrailingSlash(m_sSaveFile_MountedFolder) + "\nMT-1\nP");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, m_sSaveFile_FileName /*sDefaultUserValue*/);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, m_sSaveFile_FileName);
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
-	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, sText, sCaption, sCommand);
+	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, sCaption, sCommand, bAdvanced_options);
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::FileSave_ObjectSelected,	
 		new ObjectInfoBackData());
@@ -1250,6 +1252,11 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sText, string sCaptio
 	{
 		SaveFile_GotoChooseFolderDesignObj();
 		m_bSaveFile_CreatingFolder = false;
+	}
+	else
+	{
+		m_pOrbiter->CMD_Show_Object(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + ".0.0." + StringUtils::ltos(DESIGNOBJ_butChooseDrive_CONST), 0, "", "", 
+			m_bSaveFile_Advanced_options ? "1" : "0");
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1272,20 +1279,7 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
 			{
-				m_pOrbiter->CMD_Set_Variable(VARIABLE_Path_CONST, FileUtils::IncludeTrailingSlash(m_pOrbiter->m_mapVariable[VARIABLE_Path_CONST]));
-				m_pOrbiter->CMD_Send_Message(m_sSaveFile_Command, false);
-				m_pOrbiter->GotoMainMenu();
-
-				//reset file save info
-				m_sSaveFile_MountedFolder = "";
-				m_sSaveFile_RelativeFolder = "";
-				m_sSaveFile_Drive = "";
-				m_sSaveFile_FullBasePath = "";
-				m_sSaveFile_FileName = "";
-				m_sSaveFile_Command = "";
-				m_bSaveFile_CreatingFolder = false;
-				m_nSaveFile_PK_DeviceDrive = 0;
-
+				SaveFile_SendCommand();
 				return true;
 			}
 			else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butCreateDir_CONST)
@@ -1324,7 +1318,10 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				else
 					m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder + "user_" + StringUtils::itos(m_pOrbiter->m_dwPK_Users) + "/data/" + sSubDir + "/";
 
-				SaveFile_GotoChooseFolderDesignObj();
+				if(m_bSaveFile_Advanced_options)
+					SaveFile_GotoChooseFolderDesignObj();
+				else
+					SaveFile_SendCommand();
 
 				return true;
 			}
@@ -1399,5 +1396,24 @@ void ScreenHandler::SaveFile_GotoChooseFolderDesignObj()
 
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(DESIGNOBJ_mnuChooseFolder_CONST), 
 		"Folder : " + sNewPath, TEXT_STATUS_CONST);
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SaveFile_SendCommand()
+{
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Path_CONST, FileUtils::IncludeTrailingSlash(m_pOrbiter->m_mapVariable[VARIABLE_Path_CONST]));
+
+	m_pOrbiter->CMD_Send_Message(m_sSaveFile_Command, false);
+	m_pOrbiter->GotoMainMenu();
+
+	//reset file save info
+	m_sSaveFile_MountedFolder = "";
+	m_sSaveFile_RelativeFolder = "";
+	m_sSaveFile_Drive = "";
+	m_sSaveFile_FullBasePath = "";
+	m_sSaveFile_FileName = "";
+	m_sSaveFile_Command = "";
+	m_bSaveFile_CreatingFolder = false;
+	m_nSaveFile_PK_DeviceDrive = 0;
+	m_bSaveFile_Advanced_options = true;
 }
 //-----------------------------------------------------------------------------------------------------
