@@ -131,9 +131,9 @@ case "$Template" in
 		Password=$(RunSQL "$Q")
 		
 		## Do the mount
-		if [[ "$Username" == "" || "$Username" == "guest"]] ;then
+		if [[ "$Username" == "" || "$Username" == "guest" ]] ;then
 			echo "-fstype=smbfs,guest,dmask=777,fmask=777 ://${IPaddress}/{$Share}"
-		then
+		else
 			echo "-fstype=smbfs,username=$Username,password=$Password,dmask=777,fmask=777 ://${IPaddress}/${Share}"
 		fi
 		;;
