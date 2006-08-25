@@ -197,8 +197,10 @@ Renderer::~Renderer()
             *(pImage + x*width + y) = (char)(pD[3] <= nMaxOpacity);
         }
     }
-    g_pPlutoLogger->Write(LV_STATUS, "saving xbm mask file '%s'", sFileName.c_str());
-    g_pPlutoLogger->Write(LV_CRITICAL, "saving xbm mask file '%s'", sFileName.c_str());
+    // FIXME: g_pPlutoLogger->Write() does not work here, why?
+    g_pPlutoLogger->Write(LV_STATUS, "saving xbm mask file '%s', size=%d", sFileName.c_str(), size_buffer);
+    // TODO: delete this log line
+    fprintf(stderr, "\n****saving xbm mask file '%s', size=%d\n", sFileName.c_str(), size_buffer);
     bool bResult = FileUtils::WriteBufferIntoFile(sFileName, pBuffer, size_buffer);
 	delete pBuffer;
     if (! bResult)
