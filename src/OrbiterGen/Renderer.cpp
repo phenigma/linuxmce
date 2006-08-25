@@ -168,7 +168,7 @@ Renderer::~Renderer()
 
 /*static*/ bool Renderer::SaveImageToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName)
 {
-    typedef long int COORD_TYPE; // size
+    typedef long int COORD_TYPE;
     int width = pSurface->w;
     int height = pSurface->h;
     // size of coordinates in the buffer
@@ -189,18 +189,19 @@ Renderer::~Renderer()
     ++pCoordinate;
     // compute the image
     char *pImage = (char *)pCoordinate;
-    for(int x = 0; x < pSurface->w; x++)
+    for(int x = 0; x < width; x++)
     {
-        for(int y = 0; y < pSurface->h; y++)
+        for(int y = 0; y < height; y++)
         {
             char *pD = (char *) pSurface->pixels + y * pSurface->pitch + x * 4;
-            *(pImage + x*width + y) = (char)(pD[3] <= nMaxOpacity);
+            *(pImage + y*width + x) = (char)(pD[3] <= nMaxOpacity);
         }
     }
     // FIXME: g_pPlutoLogger->Write() does not work here, why?
-    g_pPlutoLogger->Write(LV_STATUS, "saving xbm mask file '%s', size=%d", sFileName.c_str(), size_buffer);
-    // TODO: delete this log line
-    fprintf(stderr, "\n****saving xbm mask file '%s', size=%d\n", sFileName.c_str(), size_buffer);
+    //g_pPlutoLogger->Write(LV_STATUS, "saving xbm mask file '%s', size=(%dx%d), buffer_size=%d", sFileName.c_str(), width, height, size_buffer);
+#ifndef WINCE
+		cout << "Saving " << sFileName << endl;
+#endif
     bool bResult = FileUtils::WriteBufferIntoFile(sFileName, pBuffer, size_buffer);
 	delete pBuffer;
     if (! bResult)
@@ -213,7 +214,7 @@ Renderer::~Renderer()
 
 /*static*/ bool Renderer::ReadImageFromXbmMaskFile(const string &sFileName, char *&pBufferReturn, int &widthReturn, int &heightReturn, char *&pImageDataReturn)
 {
-    typedef long int COORD_TYPE; // size
+    typedef long int COORD_TYPE;
     size_t size_buffer = 0;
     pBufferReturn = FileUtils::ReadFileIntoBuffer(sFileName, size_buffer);
     if (pBufferReturn == NULL)
