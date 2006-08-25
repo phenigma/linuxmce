@@ -46,7 +46,7 @@ function addSoftware($output,$dbADO) {
 		
 		$queryComputers='
 			SELECT Description,IPaddress,PK_Device FROM Device 
-			WHERE FK_DeviceTemplate IN ('.join(',',$computersDTArray).') AND FK_Installation=? 
+			WHERE FK_DeviceTemplate IN ('.join(',',$computersDTArray).') AND FK_Installation=? AND FK_Device_ControlledVia IS NULL
 			ORDER BY Description ASC';
 		$resComputers=$dbADO->Execute($queryComputers,array($installationID));
 		while($row=$resComputers->FetchRow()){
