@@ -4002,7 +4002,7 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	{
 		pRow_Picture = m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPicture(pData,iData_Size,sFormat,"");
 	}
-
+ONLY 1 FOR START
 	Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->AddRow();
 	if( pMediaStream->m_dwPK_Disc )
 		pRow_Bookmark->FK_Disc_set(pMediaStream->m_dwPK_Disc);
