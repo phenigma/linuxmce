@@ -766,9 +766,10 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
                 return pDataGrid;
 
 			Row_Device_QuickStart *pRow_Device_QuickStart = vectRow_Device_QuickStart[s];
+			Row_QuickStartTemplate *pRow_QuickStartTemplate = pRow_Device_QuickStart->FK_QuickStartTemplate_getrow();
 			sDescription = pRow_Device_QuickStart->Description_get();
-			sBinary = pRow_Device_QuickStart->Binary_get();
-			sArguments = pRow_Device_QuickStart->Arguments_get();
+			sBinary = pRow_QuickStartTemplate ? pRow_QuickStartTemplate->Binary_get() : "";
+			sArguments = pRow_QuickStartTemplate ? pRow_QuickStartTemplate->Arguments_get() : "";
 			pRow_QuickStartTemplate=pRow_Device_QuickStart->FK_QuickStartTemplate_getrow();
             if( pRow_Device_QuickStart->EK_Picture_get() )
                 pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Device_QuickStart->EK_Picture_get()) + "_tn.jpg",iSize);
@@ -2305,8 +2306,9 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 
 	// Find the child device with this internal id
 	vector<Row_Device *> vectRow_Device_Child;
-	m_pDatabase_pluto_main->Device_get()->GetRows("JOIN Device_DeviceData ON FK_Device=PK_Device "
-		" WHERE FK_Device_ControlledVia=" + StringUtils::itos(pRow_Device->PK_Device_get()) +
+	m_pDatabase_pluto_main->Device_get()->GetRows("JOIN Device_DeviceData ON FK_Device=Device.PK_Device "
+		" LEFT JOIN Device AS Device_Parent ON Device.FK_Device_ControlledVia = Device_Parent.PK_Device "
+		" WHERE (Device.FK_Device_ControlledVia=" + StringUtils::itos(pRow_Device->PK_Device_get()) + " OR Device_Parent.FK_Device_ControlledVia=" + StringUtils::itos(pRow_Device->PK_Device_get()) + ") "
 		" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) +
 		" AND IK_DeviceData='" + StringUtils::SQLEscape(sInternalID) + "'",&vectRow_Device_Child);
 	
