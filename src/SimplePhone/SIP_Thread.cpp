@@ -237,9 +237,9 @@ void LS_DropCall_nolock()
 /** Process linphone events */
 void LS_ProcessEvents()
 {
-		PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl, LS_linphone_mutex);
 
-		linphone_core_iterate(&LS_LinphoneCore);
+	linphone_core_iterate(&LS_LinphoneCore);
 }
 
 /** Accept the incoming call */
