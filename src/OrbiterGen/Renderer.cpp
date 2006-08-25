@@ -601,7 +601,7 @@ void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, s
 	if (!m_bUseAlphaBlending)
     {
         if (m_bCreateMask)
-            SaveImageToXbmMaskFile(pSDL_Surface, 0, sFilename);
+            SaveImageToXbmMaskFile(pSDL_Surface, 0, sFilename + ".mask");
 		SetGeneralSurfaceOpacity(pSDL_Surface, SDL_ALPHA_OPAQUE); // remove all transparency from the surface
     }
     
