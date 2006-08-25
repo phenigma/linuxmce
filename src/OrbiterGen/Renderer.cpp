@@ -166,7 +166,7 @@ Renderer::~Renderer()
     }
 }
 
-/*static*/ bool Renderer::SaveImageToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sSaveToFile)
+/*static*/ bool Renderer::SaveImageToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName)
 {
     typedef unsigned char BYTE;
     typedef long int LINT; // size
@@ -175,9 +175,13 @@ Renderer::~Renderer()
     // size of coordinates in the buffer
     const int size_coord = sizeof(LINT);
     size_t size_buffer = size_coord * 2 + width * height;
+    // allocate the buffer
     BYTE *pBuffer = new (BYTE)[size_buffer];
     if (pBuffer == NULL)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "cannot allocate memory");
         return false;
+    }
     // save coordinates
     LINT *pCoordinate = (LINT *)pBuffer;
     *pCoordinate = width;
@@ -194,23 +198,42 @@ Renderer::~Renderer()
             *(pImage + x*width + y) = (BYTE)(pD[3] <= nMaxOpacity);
         }
     }
-    return FileUtils::WriteBufferIntoFile(sSaveToFile, (const char *)pBuffer, size_buffer);
+    bool bResult = FileUtils::WriteBufferIntoFile(sFileName, (const char *)pBuffer, size_buffer);
+    if (! bResult)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "cannot write to file '%s'", sFileName.c_str());
+        return false;
+    }
+    return true;
 }
 
-/*static*/ bool Renderer::ReadImageFromXbmMaskFile(const string &sReadFromFile, char *&pBufferReturn, int &widthReturn, int &heightReturn, char *&pImageDataReturn)
+/*static*/ bool Renderer::ReadImageFromXbmMaskFile(const string &sFileName, char *&pBufferReturn, int &widthReturn, int &heightReturn, char *&pImageDataReturn)
 {
     typedef unsigned char BYTE;
     typedef long int LINT; // size
     size_t size_buffer = 0;
-    pBufferReturn = FileUtils::ReadFileIntoBuffer(sReadFromFile, size_buffer);
+    pBufferReturn = FileUtils::ReadFileIntoBuffer(sFileName, size_buffer);
     if (*pBufferReturn == NULL)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "cannot read file '%s'", sFileName.c_str());
         return false;
+    }
     // read coordinates
     LINT *pCoordinate = (LINT *)pBufferReturn;
     widthReturn = *pCoordinate;
     ++pCoordinate;
     heightReturn = *pCoordinate;
     ++pCoordinate;
+    // size of coordinates in the buffer
+    const int size_coord = sizeof(LINT);
+    size_t size_buffer_computed = size_coord * 2 + widthReturn * heightReturn;
+    // little error checking
+    if (size_buffer_computed != size_buffer)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "computed_size(%d) != buffer_size(%d)", size_buffer_computed, size_buffer);
+        delete pBufferReturn;
+        pBufferReturn = NULL;
+    }
     pImageDataReturn = (char *)pCoordinate;
     return true;
 }
