@@ -647,7 +647,7 @@ void Infrared_Plugin::GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bN
 	{
 		Row_InfraredGroup_Command * pRow_InfraredGroup_Command = * it_vRIGC;
 		pRow_InfraredGroup_Command->Reload();  // Be sure we have the latest in case the user is debugging stuff
-		if( pRow_InfraredGroup_Command->IRData_get().size()==0 || StringUtils::OnlyWhiteSpace(pRow_InfraredGroup_Command->IRData_get()) )
+		if( pRow_InfraredGroup_Command->IRData_get().size()==0 || StringUtils::OnlyWhiteSpace(pRow_InfraredGroup_Command->IRData_get().c_str()) )
 			mapCommandsWithoutCodes[pRow_InfraredGroup_Command->FK_Command_get()]=true;
 		else
 			irDevice.m_mapCodes[pRow_InfraredGroup_Command->FK_Command_get()] = pRow_InfraredGroup_Command->IRData_get();
