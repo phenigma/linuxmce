@@ -199,6 +199,7 @@ Renderer::~Renderer()
         }
     }
     bool bResult = FileUtils::WriteBufferIntoFile(sFileName, (const char *)pBuffer, size_buffer);
+	delete pBuffer;
     if (! bResult)
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "cannot write to file '%s'", sFileName.c_str());
