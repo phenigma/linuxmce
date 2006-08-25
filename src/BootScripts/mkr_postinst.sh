@@ -21,6 +21,8 @@ echo -n "$pluto_apt_conf" >/etc/apt/apt.conf.d/30pluto
 ## Ouch 
 chmod 777 /usr/pluto/locks
 
-## Copy our logrotate policy (every package should have his own policy but we are from pluto :)
+## Copy our logrotate policy -- every package should have its own policy but we are from Pluto :)
 cp /usr/pluto/templates/logrotate.pluto.tmpl /etc/logrotate.d/pluto
 
+## Copy our asound.conf to the system
+cp /usr/pluto/templates/asound.conf /etc/asound.conf
