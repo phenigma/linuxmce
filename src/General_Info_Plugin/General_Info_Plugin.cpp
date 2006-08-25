@@ -2258,6 +2258,8 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 		Row_Device *pRow_Device = vectRow_Device[s];
 		if( mapCurrentChildren[pRow_Device->PK_Device_get()]==false )
 		{
+			if( pRow_Device->FK_Device_RouteTo_isNull()==false )
+				continue;
 			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::ReportingChildDevices removing dead device %d %s",
 				pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str());
 			CMD_Delete_Device(pRow_Device->PK_Device_get());
