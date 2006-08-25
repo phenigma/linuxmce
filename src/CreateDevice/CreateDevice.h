@@ -15,6 +15,7 @@ public:
 	int DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia=0,string sDeviceData="",int iPK_Device_RelatedTo=0,int iPK_Room=0);
 	void CreateChildrenByCategory(int iPK_Device,int iPK_DeviceCategory);
 	void CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplate);
+	void ConfirmAllRelations();
 	void ConfirmRelations(int PK_Device,bool bRecurseChildren=true,bool bOnlyAddDevicesOnCore=false);
 
 	void AssignDeviceData(int PK_Device,int PK_DeviceData,string sValue);

@@ -441,6 +441,22 @@ void CreateDevice::CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplat
 	}
 }
 
+void CreateDevice::ConfirmAllRelations()
+{
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+
+	string SQL = "SELECT PK_Device FROM Device WHERE FK_Installation=" + StringUtils::itos(m_iPK_Installation);
+	if( ( result.r=mysql_query_result( SQL ) ) )
+	{
+		while( row=mysql_fetch_row( result.r ) )
+		{
+			int PK_Device = atoi(row[0]);
+			ConfirmRelations(PK_Device);
+		}
+	}
+}
+
 void CreateDevice::ConfirmRelations(int PK_Device,bool bRecurseChildren,bool bOnlyAddDevicesOnCore)
 {
 	PlutoSqlResult result_dt,result_related,result_related2,result_related3,result_related4,result_related5;

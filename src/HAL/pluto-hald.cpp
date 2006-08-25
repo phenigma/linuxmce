@@ -189,6 +189,8 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 		g_free (info_udi);
 		info_udi = NULL;
 	}
+	else
+		g_pPlutoLogger->Write(LV_DEBUG, "Not processing bus: %s category: %s",bus ? bus : "*none*", category ? category : "*none");
 
 	g_free (bus);
 	bus = NULL;

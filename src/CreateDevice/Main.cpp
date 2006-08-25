@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 
 	int iPK_DeviceTemplate=0,iPK_DHCPDevice=0,iPK_Device_Controlled_Via=0,iPK_Device_RelatedTo=0;
 	string sIPAddress,sMacAddress,sDeviceData,sUserName,sExportFile;
-	bool bDontCallConfigureScript=false,bDontInstallPackages=false,bInstallPackagesInBackground=false,bExport=false;
+	bool bDontCallConfigureScript=false,bDontInstallPackages=false,bInstallPackagesInBackground=false,bExport=false,bConfirmRelations=false;
 
 	bool bError=false;
 	char c;
@@ -189,6 +189,9 @@ int main(int argc, char *argv[])
 		case 'R':
 			iPK_Device_RelatedTo = atoi(argv[++optnum]);
 			break;
+		case 'r':
+			bConfirmRelations = true;
+			break;
 		case 'x':
 			bDontInstallPackages = true;
 			break;
@@ -205,7 +208,7 @@ int main(int argc, char *argv[])
 		};
 	}
 
-	if ( bError || (!iPK_DHCPDevice && !iPK_DeviceTemplate && sUserName.size()==0 && sExportFile.size()==0) )
+	if ( bError || (!iPK_DHCPDevice && !iPK_DeviceTemplate && sUserName.size()==0 && sExportFile.size()==0 && bConfirmRelations==false) )
 	{
 		cout << "CreateDevice, v." << VERSION << endl
 			<< "Usage: CreateDevice [-h hostname] [-u username] [-p password] [-D database] [-P mysql port]" << endl
@@ -218,6 +221,7 @@ int main(int argc, char *argv[])
 			<< "[-U Username] CreateUser--not device" << endl
 			<< "[-e Filename] Export all child devices of PK_Device_Controlled_Via to Filename" << endl
 			<< "[-i Filename] Import devices in Filename as children of PK_Device_Controlled_Via" << endl
+			<< "[-r] Don't create a new device, just confirm relations" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
@@ -264,6 +268,12 @@ int main(int argc, char *argv[])
 			ExportChildDevices(createDevice,iPK_Device_Controlled_Via,sExportFile);
 		else
 			ImportChildDevices(createDevice,iPK_Device_Controlled_Via,sExportFile);
+		return 0;
+	}
+
+	if( bConfirmRelations )
+	{
+		createDevice.ConfirmAllRelations();
 		return 0;
 	}
 
