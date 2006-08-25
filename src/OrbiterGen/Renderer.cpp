@@ -233,6 +233,7 @@ Renderer::~Renderer()
         g_pPlutoLogger->Write(LV_CRITICAL, "computed_size(%d) != buffer_size(%d)", size_buffer_computed, size_buffer);
         delete pBufferReturn;
         pBufferReturn = NULL;
+        return false;
     }
     pImageDataReturn = (char *)pCoordinate;
     return true;
