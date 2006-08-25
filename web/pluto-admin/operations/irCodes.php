@@ -28,22 +28,23 @@ function irCodes($output,$dbADO,$mediaADO) {
 	}
 
 	// get InfraredGroup_Commmand from remote location only when deviceID is not defined
-	if((int)$deviceID>0){
+	if((int)$deviceID==0){
 		$isImported=GetIRCodesForDevice(NULL,$dbADO,$dtID);
+		
+		if($isImported!=0){
+			$_SESSION['error_message']=$TEXT_ERROR_CANNOT_RETRIEVE_IR_CODES_CONST;
+			$_SESSION['retry_url']='index.php?section='.$from;
+	
+			$out='
+			<script>
+				opener.location="index.php?section=error_message";
+				self.close();
+			</script>
+			';
+			die($out);
+		}
 	}
 	
-	if($isImported!=0){
-		$_SESSION['error_message']=$TEXT_ERROR_CANNOT_RETRIEVE_IR_CODES_CONST;
-		$_SESSION['retry_url']='index.php?section='.$from;
-
-		$out='
-		<script>
-			opener.location="index.php?section=error_message";
-			self.close();
-		</script>
-		';
-		die($out);
-	}
 	
 	
 	if(!isset($_REQUEST['infraredGroupID'])){
@@ -231,13 +232,11 @@ function irCodes($output,$dbADO,$mediaADO) {
 			exit();
 		}
 
-		
-		$newIRGroup=((int)@$_POST['irGroup']>0)?(int)$_POST['irGroup']:NULL;
-		$oldIRGroup=(int)$_POST['oldIRGroup'];
+		$newIRGroup=((int)@$_REQUEST['irGroup']>0)?(int)$_REQUEST['irGroup']:NULL;
+		$oldIRGroup=(int)@$_REQUEST['oldIRGroup'];
 		if($newIRGroup!=$oldIRGroup){
 
 			$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($newIRGroup,$dtID));
-			$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND (FK_InfraredGroup IS NULL OR FK_InfraredGroup=?)',array($newIRGroup,$dtID,$oldIRGroup));
 
 			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=$TEXT_IR_GROUP_CHANGED_FOR_SELECTED_DEVICE_TEMPLATE_CONST&label=".$GLOBALS['label']);
 			exit();

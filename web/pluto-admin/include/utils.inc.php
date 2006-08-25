@@ -3677,11 +3677,11 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 		$color=($i%2==0)?'#F0F3F8':'#FFFFFF';
 		$out.='
 		<tr class="normaltext" bgcolor="'.$color.'">
-			<td><B><a href="index.php?section=irCodes&dtID='.$dtID.'&infraredGroupID='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'">'.$irgNames[$keysArray[$i]].'</a></B></td>';
+			<td><B><a href="index.php?section=irCodes&dtID='.$dtID.'&irGroup='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'&action=pick_code">'.$irgNames[$keysArray[$i]].'</a></B></td>';
 		foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
 			$pk_irgc=@$commandGrouped[$keysArray[$i]][$cmdID];
 			$testCodeBtn=(session_name()=='Pluto-admin' && isset($pk_irgc))?' <input type="button" class="button" name="testCode" value="T" 
-			onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irData=\'+escape(\''.$irDataArray[$pk_irgc].'\')+\'&deviceID='.@$_REQUEST['deviceID'].'&sender='.urlencode('addModel&step=7').'\';">':'';
+			onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irData=\'+escape(\''.urlencode($irDataArray[$pk_irgc]).'\')+\'&deviceID='.@$_REQUEST['deviceID'].'&sender='.urlencode('addModel&step=7').'\';">':'';
 			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'\',\'_blank\',\'\');">'.$testCodeBtn:'N/A').'</td>';
 		}
 		$out.='
@@ -5892,8 +5892,10 @@ function GetIRCodesForDevice($deviceID,$dbADO,$dtID=0,$restricted=0){
 	// TODO: comment all and call the sh instead
 
 	$cmd='/usr/pluto/bin/WebDB_GetIR.sh '.(int)$deviceID.' '.$dtID.' '.$restricted;
-	//echo $cmd;
-	return exec($cmd);
+	
+	exec($cmd,$out,$retvar);
+	
+	return $retvar;
 
 	// get device template ID and infrared group ID for the device
 	// if $dtID!=0 ignore device and only get FK_InfraredGroup

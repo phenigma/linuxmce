@@ -242,10 +242,6 @@ $start_time=getmicrotime();
 		while($rowD=$resDevice->FetchRow()){
 			if($rowD['PK_Device']!=$deviceDisplayed){
 				
-				// *****************************
-				GetIRCodesForDevice($rowD['PK_Device'],$dbADO);
-				// *****************************
-				
 				$deviceDisplayed=$rowD['PK_Device'];
 				$pos++;
 	
@@ -262,7 +258,9 @@ $start_time=getmicrotime();
 						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'/wiki/index.php/Documentation_by_Device_Templates#'.wikiLink($rowD['TemplateName']).'\'"><br>
 						<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
 						<input type="button" class="button_fixed" name="btn" value="'.$TEXT_AV_PROPERTIES_CONST.'" onClick="windowOpen(\'index.php?section=irCodes&dtID='.$rowD['FK_DeviceTemplate'].'&deviceID='.$rowD['PK_Device'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>
-						<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\''.$TEXT_DELETE_DEVICE_CONFIRMATION_CONST.'\'))return true;else return false;"></td>';
+						<input type="button" class="button_fixed" name="resync_'.$rowD['PK_Device'].'" value="'.$TEXT_RESYNC_CONST.'"  onclick="self.location=\'index.php?section=resyncCodes&from=avWizard&dtID='.$rowD['FK_DeviceTemplate'].'\';"><br>
+						<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\''.$TEXT_DELETE_DEVICE_CONFIRMATION_CONST.'\'))return true;else return false;">
+				</td>';
 	
 				$controlledByPulldown=controlledViaPullDown('controlledBy_'.$rowD['PK_Device'],$rowD['PK_Device'],$rowD['FK_DeviceTemplate'],$rowD['FK_DeviceCategory'],$rowD['FK_Device_ControlledVia'],$dbADO);
 				$devicePipes=getPipes($rowD['PK_Device'],$dbADO);

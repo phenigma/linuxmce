@@ -1478,6 +1478,13 @@ switch ($section) {
 	    include_once('operations/myDevices/restoreChildDevices.php');
 	    restoreChildDevices($output,$dbADO);	    
 	break;	
+	case 'resyncCodes':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/resyncCodes.php');
+	    resyncCodes($output,$dbADO);	    
+	break;	
+
 
 	
 	case 'index';
