@@ -33,7 +33,7 @@ OpenGL3DEngine::OpenGL3DEngine() :
 	FrameBuilder(NULL),
 	FrameDatagrid(NULL),
 	HighLightPopup(NULL),
-	ModifyGeometry(false)
+	ModifyGeometry(0)
 {
 	if(TTF_Init()==-1) {
 		printf("Error on TTF_Init: %s\n", TTF_GetError());
@@ -206,17 +206,30 @@ void OpenGL3DEngine::Setup()
 	CurrentLayer = new MeshFrame("desktop");
 }
 
-void OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFrame* Frame)
+MeshFrame* OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFrame* Frame)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
 	DumpScene();
 
+#ifdef SCENE_DEBUG
+	static float ZThing = 0.0f;
+	ZThing += 0.2f;
+	MeshTransform transform;
+	transform.Translate(0.0f, 0.0f, ZThing);
+	Frame->ApplyTransform(transform);
+#endif
+
+	if(Frame->Name().find("4890") != string::npos)
+	{
+		int a = 4;
+	}
+
 	if(NULL == CurrentLayer)
 	{
 		Frame->CleanUp();
 		delete Frame;
-		return;
+		return NULL;
 	}
 
 	MeshFrame *Parent = NULL;
@@ -236,9 +249,7 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFrame* Fra
 			}
 			else
 			{
-				Parent->ReplaceChild(OldChild, Frame);
-				DumpScene();
-				return;
+				return Parent->ReplaceChild(OldChild, Frame);
 			}
 		}
 	}
@@ -248,30 +259,36 @@ void OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFrame* Fra
 		MeshFrame *DuplicatedFrame = CurrentLayer->FindChild(Frame->Name());
 
 		if(DuplicatedFrame == Frame)
-			return;
+			return Frame;
 
 		if(NULL != DuplicatedFrame)
 		{
+			/*
 			if(DuplicatedFrame->GetParent() != CurrentLayer)
 			{	
 				g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::AddMeshFrameToDesktop: Ignoring object %s"
 					", already in the scene with a valid parent", Frame->Name().c_str());
 
-				Frame->CleanUp();
-				delete Frame;
+				if(!TextureManager::Instance()->ExistInCache(Frame))
+				{
+					Frame->CleanUp();
+					delete Frame;
+				}
+
+				return DuplicatedFrame;
 			}
 			else
 			{
-				CurrentLayer->ReplaceChild(DuplicatedFrame, Frame);
-				DumpScene();
-			}
-			return;
+				*/
+				return CurrentLayer->ReplaceChild(DuplicatedFrame, Frame);
+			//}
 		}
 	}
 
 	Parent->AddChild(Frame);
 
 	DumpScene();
+	return Frame;
 }
 
 inline void OpenGL3DEngine::DumpScene()
@@ -647,10 +664,10 @@ bool OpenGL3DEngine::IsCubeAnimatedDatagrid(string ObjectID)
 
 void OpenGL3DEngine::BeginModifyGeometry()
 {
-	this->ModifyGeometry = true;
+	++ModifyGeometry;
 }
 
 void OpenGL3DEngine::EndModifyGeometry()
 {
-	this->ModifyGeometry = false;
+	--ModifyGeometry;
 }

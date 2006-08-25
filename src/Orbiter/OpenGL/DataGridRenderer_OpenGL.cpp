@@ -41,10 +41,9 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 	{
 		TextureManager::Instance()->SuspendTextureRelease();
 		BeforeDataGridClone = BeforeDataGrid->Clone();
+		Engine->RemoveMeshFrameFromDesktop(BeforeDataGrid);
 	}
 
-
-	Engine->RemoveMeshFrameFromDesktop(BeforeDataGrid);
 	Engine->StartDatagridDrawing(DatagridFrameID);
 
 	DataGridRenderer::RenderObject(pObj_Screen, point);

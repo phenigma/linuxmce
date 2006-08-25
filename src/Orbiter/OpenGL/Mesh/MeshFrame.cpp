@@ -21,7 +21,7 @@ MeshFrame::~MeshFrame(void)
 
 /*virtual*/ void MeshFrame::CleanUp()
 {
-	//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "xxxxx MeshFrame::CleanUp: %p", this);	
+	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "xxxxx MeshFrame::CleanUp: %p", this);	
 
 	vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); Child++)
@@ -98,16 +98,12 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 	}
 }
 
-void MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
+MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 {
-	RemoveChild(OldFrame);
-	AddChild(NewFrame);
-	return;
-/*
 	if(OldFrame == NULL)
 	{
 		//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: Frame is NULL!!!");
-		return;
+		return NULL;
 	}
 
 	if(NULL != OldFrame->Parent)
@@ -123,10 +119,13 @@ void MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 		else
 		{
 			*Child = NewFrame;
+			NewFrame->Parent = this;
 
 			DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
 				OldFrame, OldFrame->Name_.c_str(), OldFrame->Parent, OldFrame->Parent->Name_.c_str(),
 				NewFrame, NewFrame->Name_.c_str());
+
+			return NewFrame;
 		}
 	}
 	else
@@ -134,7 +133,8 @@ void MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: Got no parent! :(");
 		//throw "Got no parent! :( I'm all alone!";
 	}
-*/
+
+	return OldFrame;
 }
 
 void MeshFrame::Paint(MeshTransform ChildTransform)

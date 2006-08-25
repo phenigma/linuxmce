@@ -36,6 +36,7 @@ class TextureManager
 	std::map<std::string, MeshFrame*> Graphics;
 
 	bool ExistInCache(std::string ObjectHash);
+
 	OpenGL3DEngine *Engine;
 	int ReleaseTextureSuspended;
 
@@ -43,7 +44,7 @@ public:
 	static TextureManager* Instance();
 	virtual ~TextureManager(void);
 	
-
+	bool ExistInCache(MeshFrame *pFrame);
 	void Setup(OpenGL3DEngine *Engine);
 
 	void SetupTexture(OpenGLTexture Texture);

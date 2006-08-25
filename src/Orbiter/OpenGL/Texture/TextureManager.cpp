@@ -179,11 +179,26 @@ bool TextureManager::ExistInCache(std::string ObjectHash)
 {
 	bool Result = Graphics.find(ObjectHash) != Graphics.end();
 	return Result;
-	
+}
+
+bool TextureManager::ExistInCache(MeshFrame *pFrame)
+{
+	for(std::map<std::string, MeshFrame*>::const_iterator it = Graphics.begin(),
+		end = Graphics.end(); it != end; ++it)
+	{
+		if(it->second == pFrame)
+			return true;
+	}
+
+	return false;
 }
 
 void TextureManager::AttachToScene(string ParentObjectID, MeshFrame* Frame)
 {
 	if(NULL != Engine)
-		Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);
+	{
+		MeshFrame *pFrameFromDesktop = Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);
+		if(NULL != pFrameFromDesktop && pFrameFromDesktop != Frame)
+			Graphics[pFrameFromDesktop->Name()]	= pFrameFromDesktop;
+	}
 }

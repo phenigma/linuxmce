@@ -36,7 +36,7 @@ class OpenGL3DEngine
 	/**
 	 *	Block painting because there is a need of bigger geometry painting
 	 */
-	bool ModifyGeometry;
+	int ModifyGeometry;
 
 public:
 	GLEffect2D::LayersCompose* Compose;
@@ -48,7 +48,7 @@ public:
 
 	bool NeedUpdateScreen();
 	
-	void AddMeshFrameToDesktop(string ParentObjectID, MeshFrame* Frame);
+	MeshFrame* AddMeshFrameToDesktop(string ParentObjectID, MeshFrame* Frame);
 	void RemoveMeshFrameFromDesktopForID(std::string ObjectID);
 	void RemoveMeshFrameFromDesktop(MeshFrame* Frame);
 	MeshFrame* GetMeshFrameFromDesktop(string ObjectID);
