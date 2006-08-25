@@ -17,6 +17,7 @@ using namespace DCE;
 #include "pluto_main/Define_Variable.h"
 
 #include "Gen_Devices/AllScreens.h"
+#include "PlutoUtils/FileUtils.h"
 
 #include "SIP_Thread.h"
 
@@ -52,6 +53,21 @@ bool SimplePhone::GetConfig()
 
     // Put your code here to initialize the data in this class
     // The configuration parameters DATA_ are now populated
+
+	/* Read config file template, replace certain settings and write Linphone config file for SIP Thread */
+	vector<string> vectLinphoneConfig;
+	FileUtils::ReadFileIntoVector("/usr/pluto/templates/simplephone.conf", vectLinphoneConfig);
+	for (size_t i = 0; i < vectLinphoneConfig.size(); i++)
+	{
+		const char * pcConfigLine = vectLinphoneConfig[i].c_str();
+		if (strstr(pcConfigLine, "alsadev=") == pcConfigLine)
+		{
+			// currently a NOOP, but should change the ALSA device according to system settings
+			// vectLinphoneConfig[i] = "alsadev=plug:spdif";
+		}
+	}
+	FileUtils::WriteVectorToFile("/etc/pluto/simplephone.conf", vectLinphoneConfig);
+
     return true;
 }
 
