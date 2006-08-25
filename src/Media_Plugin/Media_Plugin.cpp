@@ -714,7 +714,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 //         return false;
 //     }
 
-	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::PlaybackCompleted() Checking conditions: canPlayMore: %d, shouldResume %d parked: %d", pMediaStream->CanPlayMore(), pMediaStream->m_bResume, (int) pMediaStream->m_tTime_Parked);
+	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::PlaybackCompleted() Checking conditions: canPlayMore: %d, shouldResume %d parked: %d  # of eas %d", pMediaStream->CanPlayMore(), pMediaStream->m_bResume, (int) pMediaStream->m_tTime_Parked, (int) pMediaStream->m_mapEntertainArea.size() );
     if ( !bWithErrors && pMediaStream->CanPlayMore() && !pMediaStream->m_bResume && !pMediaStream->m_tTime_Parked )
     {
         pMediaStream->ChangePositionInPlaylist(1);
