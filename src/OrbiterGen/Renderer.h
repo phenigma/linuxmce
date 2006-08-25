@@ -55,9 +55,9 @@ public:
 	// This comes from the Size table,ScaleMenuBg & ScaleOtherGraphics.  For both, options are: 'Y', make the Y axis fit, crop the X, 'X' is opposite
 	// 'S', means scale according to the ScaleX and ScaleY, which come from the table
 	// 'F', means stretch the image so it fits
-	char m_cDefaultScaleForMenuBackground,m_cDefaultScaleForOtherGraphics; 
+	char m_cDefaultScaleForMenuBackground,m_cDefaultScaleForOtherGraphics;
 	static float m_fScaleX,m_fScaleY;
-	
+
 #ifndef ORBITER
 	static bool m_bUseAlphaBlending, m_bCreateMask;
 
@@ -67,6 +67,16 @@ public:
 	void RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iIteration);
 	static void SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile, bool bUseOCG=false);
 	static void SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, bool Signature = true);
+
+    // returns true on success
+    static bool SaveImageToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sSaveToFile);
+
+    // returns true on success
+    // delete only pBufferReturn
+    // pImageDataReturn is the start of image data
+    // image data ends at the end of the buffer
+    static bool ReadImageFromXbmMaskFile(const string &sReadFromFile, char *&pBufferReturn, int &widthReturn, int &heightReturn, char *&pImageDataReturn);
+
 	static RendererImage *Subset(RendererImage *pRenderImage,PlutoRectangle rect);
 	// If Crop is true and PreserveAspectRatio is true, then instead of shrinking to fit within the given space, it will
 	// fill the target space, and any excess will be cropped

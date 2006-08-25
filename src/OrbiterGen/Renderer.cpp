@@ -102,13 +102,13 @@ Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,b
 #else
 			printf("Failed to initialize SDL %s\n", SDL_GetError());
 #endif //WINCE
-			
+
 #ifndef WIN32 //linux
     	    string sCmd = "/usr/pluto/bin/Start_X.sh; /usr/pluto/bin/Start_ratpoison.sh";
         	printf("X is not running! Starting X and ratpoison: %s\n", sCmd.c_str());
         	system(sCmd.c_str());
 #endif //linux
-			
+
 			exit(1);
 		}
 		atexit(SDL_Quit);
@@ -151,7 +151,7 @@ Renderer::~Renderer()
                 pD[3] = 0x00;
             }
         }
-    }  
+    }
 }
 
 /*static*/ void Renderer::SetGeneralSurfaceOpacity(SDL_Surface *pSurface, int SDL_Opacity)
@@ -163,7 +163,56 @@ Renderer::~Renderer()
             unsigned char *pD = (unsigned char *) pSurface->pixels + h * pSurface->pitch + w * 4;
             pD[3] = SDL_Opacity;
         }
-    }  
+    }
+}
+
+/*static*/ bool Renderer::SaveImageToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sSaveToFile)
+{
+    typedef unsigned char BYTE;
+    typedef long int LINT; // size
+    int width = pSurface->w;
+    int height = pSurface->h;
+    // size of coordinates in the buffer
+    const int size_coord = sizeof(LINT);
+    size_t size_buffer = size_coord * 2 + width * height;
+    BYTE *pBuffer = new (BYTE)[size_buffer];
+    if (pBuffer == NULL)
+        return false;
+    // save coordinates
+    LINT *pCoordinate = (LINT *)pBuffer;
+    *pCoordinate = width;
+    ++pCoordinate;
+    *pCoordinate = height;
+    ++pCoordinate;
+    // compute the image
+    BYTE *pImage = pBuffer;
+    for(int x = 0; x < pSurface->w; x++)
+    {
+        for(int y = 0; y < pSurface->h; y++)
+        {
+            BYTE *pD = (BYTE *) pSurface->pixels + y * pSurface->pitch + x * 4;
+            *(pImage + x*width + y) = (BYTE)(pD[3] <= nMaxOpacity);
+        }
+    }
+    return FileUtils::WriteBufferIntoFile(sSaveToFile, (const char *)pBuffer, size_buffer);
+}
+
+/*static*/ bool Renderer::ReadImageFromXbmMaskFile(const string &sReadFromFile, char *&pBufferReturn, int &widthReturn, int &heightReturn, char *&pImageDataReturn)
+{
+    typedef unsigned char BYTE;
+    typedef long int LINT; // size
+    size_t size_buffer = 0;
+    pBufferReturn = FileUtils::ReadFileIntoBuffer(sReadFromFile, size_buffer);
+    if (*pBufferReturn == NULL)
+        return false;
+    // read coordinates
+    LINT *pCoordinate = (LINT *)pBufferReturn;
+    widthReturn = *pCoordinate;
+    ++pCoordinate;
+    heightReturn = *pCoordinate;
+    ++pCoordinate;
+    pImageDataReturn = (char *)pCoordinate;
+    return true;
 }
 
 // This takes an incoming pRenderImage of what's been rendered so far, and will add this new object and it's
@@ -248,9 +297,9 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
         }
 
         bool bIsMenu=false;
-		// If iOnlyVersion is -999, then we've already hit an object with non-standard versions, so we're not 
+		// If iOnlyVersion is -999, then we've already hit an object with non-standard versions, so we're not
 		// going to write out children as separate objects anymore
-        if( iOnlyVersion==-999 && (iIteration!=-2 || pDesignObj_Generator->m_bCanBeHidden || !pRenderImage || 
+        if( iOnlyVersion==-999 && (iIteration!=-2 || pDesignObj_Generator->m_bCanBeHidden || !pRenderImage ||
 			pDesignObj_Generator->m_vectOrigAltGraphicFilename.size() || pDesignObj_Generator->m_sOrigHighlightGraphicFilename.size() || pDesignObj_Generator->m_sOrigSelectedFile.size()) )
         {
             // We're going to save this out as a separate file
@@ -312,7 +361,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 				pDesignObj_Generator->m_dbHitTest.m_dwSize = LineWidth * Y;
 				pDesignObj_Generator->m_dbHitTest.m_pBlock = (char *) pHitTest;
 				memset(pHitTest,255,LineWidth * Y);
-				
+
 				for(int y=0;y<Y;++y)
 				{
 					for(int x=0;x<X;++x)
@@ -347,7 +396,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 		int iOnlyVersion_Children=-999;  // By default render all of our children
 		if( iOnlyVersion!=-999 )
 			iOnlyVersion_Children = iOnlyVersion;
-		else if( iIteration!=-2 || pDesignObj_Generator->m_sOrigHighlightGraphicFilename.size() || 
+		else if( iIteration!=-2 || pDesignObj_Generator->m_sOrigHighlightGraphicFilename.size() ||
 			pDesignObj_Generator->m_sOrigSelectedFile.size() || pDesignObj_Generator->m_vectOrigAltGraphicFilename.size() )
 		{
 			iOnlyVersion_Children = iIteration;
@@ -524,10 +573,14 @@ void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, b
     }
 
 	SDL_Surface *pSDL_Surface = pRendererImage->m_pSDL_Surface;
-	
+
 	if (!m_bUseAlphaBlending)
+    {
+        //if (m_bCreateMask)
+        //    SaveImageToXbmMaskFile(pSDL_Surface, 0, "name_of_xbm_file");
 		SetGeneralSurfaceOpacity(pSDL_Surface, SDL_ALPHA_OPAQUE); // remove all transparency from the surface
-	
+    }
+    
 if( pSDL_Surface->w==0 || pSDL_Surface->h==0 )
 int k=2;
 	if( m_Rotate )
@@ -613,6 +666,15 @@ void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFil
 		fclose(File);
 	}
 #endif
+//	{
+//		string FileName = sSaveToFile + ".xbm";
+//#ifndef WINCE
+//		cout << "Saving " << FileName << endl;
+//#endif
+//		FILE * File = fopen(FileName.c_str(), "wb");
+//		SaveImageToXbmFile(pRendererImage, File);
+//		fclose(File);
+//	}
 }
 
 // load image from file and possibly scale/stretch it
@@ -696,7 +758,7 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
 	    SDL_FreeSurface(SurfaceFromFile);
 		SurfaceFromFile = pCropped_Surface;
 	}
-	
+
     int W = size.Width == 0 ? SurfaceFromFile->w : size.Width;
     int H = size.Height == 0 ? SurfaceFromFile->h : size.Height;
 	PlutoSize new_size(W, H);
@@ -742,7 +804,7 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
 		{
 			scaleX = (float) RIFromFile->m_pSDL_Surface->w / SurfaceFromFile->w;
 			scaleY = (float) RIFromFile->m_pSDL_Surface->h / SurfaceFromFile->h;
-		
+
 			if( cScale=='Y' )
 				scaleX = scaleY;
 			else if( cScale=='X' )
@@ -867,10 +929,10 @@ void Renderer::CompositeAlpha(RendererImage * pRenderImage_Parent, RendererImage
 	const Uint32 rmask = 0x000000ff, gmask = 0x0000ff00, bmask = 0x00ff0000, amask = 0xff000000;
 	const int rshift = 0, gshift = 8, bshift = 16, ashift = 24;
 #endif
-	
+
 	int iChildHeight = pRenderImage_Child->m_pSDL_Surface->h;
 	int iChildWidth = pRenderImage_Child->m_pSDL_Surface->w;
-	
+
 	for (int j = 0; j < iChildHeight; j++)
 	{
 		for (int i = 0; i < iChildWidth; i++)
@@ -881,7 +943,7 @@ void Renderer::CompositeAlpha(RendererImage * pRenderImage_Parent, RendererImage
 			Uint32 iPixel_Child = getpixel(pRenderImage_Child, i, j);
 			Uint8 iAlpha_Parent = iPixel_Parent >> ashift & 0xff;
 			Uint8 iAlpha_Child = iPixel_Child >> ashift & 0xff;
-			
+
 			// in SDL, the alpha value represents the opacity, not transparency (255 = opaque, 0 = transparent)
 			// the most opaque one establishes resulting opacity
 			//Uint8 iAlpha_Result = iAlpha_Parent > iAlpha_Child ? iAlpha_Parent : iAlpha_Child; // Formula 1: not correct
@@ -982,7 +1044,7 @@ RendererMNG * Renderer::CreateMNGFromFile(string FileName, PlutoSize Size)
 				BuildingPNG = false;
 				char * pGraphicFile;
 				size_t iSizeGraphicFile = InMemoryPNG->CatChunks(pGraphicFile);
-				
+
 				SDL_RWops * rw = SDL_RWFromMem(pGraphicFile, iSizeGraphicFile);
 				RendererImage * pRendererImage = CreateFromRWops(rw, true, Size);
 
@@ -1212,7 +1274,7 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 #if ( defined( PROFILING_TEMP ) )
 	clock_t clkStart = clock(  );
 #endif
- 
+
 	int nPixelHeight = pTextStyle->m_iPixelHeight; // * 17 / 20;
     if( !pTextStyle->m_pTTF_Font )
     {
@@ -1284,7 +1346,7 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Renderer::RealRenderText : TTF_RenderText_Blended crashed!");
 	}
-	
+
     if (RenderedText == NULL)
     {
         TTF_Quit();
@@ -1321,13 +1383,13 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 #if ( defined( PROFILING_TEMP ) )
 	clock_t clkFinished = clock(  );
 
-	g_pPlutoLogger->Write( 
-		LV_CONTROLLER, 
+	g_pPlutoLogger->Write(
+		LV_CONTROLLER,
 		"PlutoSize Renderer::RealRenderText: %s took %d ms: \n"
 			"\t- Start: %d ms\n"
 			"\t- Blended: %d ms\n"
 			"\t- Blited: %d ms",
-		pDesignObjText->m_sText.c_str(), 
+		pDesignObjText->m_sText.c_str(),
 		clkFinished - clkStart,
 		clkBlending - clkStart,
 		clkBliting - clkBlending,
