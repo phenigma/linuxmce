@@ -6172,7 +6172,16 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	m_pOrbiterRenderer->UpdateRect(PlutoRectangle(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25), PlutoPoint(0, 0));
 	m_pOrbiterRenderer->EndPaint();
 
-	RegionDown(x, y);
+	Orbiter::Event orbiterEvent;
+	orbiterEvent.data.region.m_iButton = 1;
+	orbiterEvent.data.region.m_iX = x;
+	orbiterEvent.data.region.m_iY = y;
+
+	orbiterEvent.type = Orbiter::Event::REGION_DOWN;
+	ProcessEvent(orbiterEvent);
+
+	orbiterEvent.type = Orbiter::Event::REGION_UP;
+	ProcessEvent(orbiterEvent);
 }
 
 /*virtual*/ void Orbiter::SimulateKeyPress(long key)
@@ -6210,8 +6219,14 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	m_pOrbiterRenderer->UpdateRect(PlutoRectangle(5, m_iImageHeight - 30, 200, 25), PlutoPoint(0, 0));
 	m_pOrbiterRenderer->EndPaint();
 
-	HandleButtonEvent(key);
-	StopRepeatRelatedEvents();
+	Orbiter::Event orbiterEvent;
+	orbiterEvent.data.button.m_iPK_Button = key;
+
+	orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
+	ProcessEvent(orbiterEvent);
+
+	orbiterEvent.type = Orbiter::Event::BUTTON_UP;
+	ProcessEvent(orbiterEvent);
 }
 
 time_t Orbiter::GetLastScreenChangedTime()

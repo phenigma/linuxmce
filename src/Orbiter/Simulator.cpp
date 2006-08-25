@@ -143,7 +143,12 @@ void *GeneratorThread( void *p)
 				int index = rand() % sizeof(list)/sizeof(list[0]);
 
 				if(!pOrbiter->m_bQuit)
-					pOrbiter->SimulateKeyPress(list[index]);
+				{
+					if(pOrbiter->UsesUIVersion2() && !(rand() % 10))
+						pOrbiter->SimulateKeyPress(BUTTON_F6_CONST + (rand() % 3));
+					else
+						pOrbiter->SimulateKeyPress(list[index]);
+				}
 			}
 			else if(bOption3) //phone keys
 			{
