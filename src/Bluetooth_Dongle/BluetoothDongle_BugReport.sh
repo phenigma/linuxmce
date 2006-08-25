@@ -2,7 +2,7 @@
 
 REPORT_FILE=/tmp/BluetoothDongle_BugReport	# The file to save the report in
 TIME_INTERVAL=2 				# No of hours between sending reports
-MAIL_ADDRESS="bugs@plutohome.com"		# Mail address to send bugs to
+MAIL_ADDRESS="bugs@monsternet.us"		# Mail address to send bugs to
 
 ## Check to see if $TIME_INTERVAL hours passed since last report
 LastReport=$(stat -c %Y $REPORT_FILE 2>/dev/null)
