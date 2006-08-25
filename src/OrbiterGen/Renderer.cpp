@@ -168,41 +168,42 @@ Renderer::~Renderer()
 
 /*static*/ bool Renderer::SaveImageToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName)
 {
-    typedef unsigned char BYTE;
-    typedef long int LINT; // size
+    typedef long int COORD_TYPE; // size
     int width = pSurface->w;
     int height = pSurface->h;
     // size of coordinates in the buffer
-    const int size_coord = sizeof(LINT);
+    const int size_coord = sizeof(COORD_TYPE);
     size_t size_buffer = size_coord * 2 + width * height;
     // allocate the buffer
-    BYTE *pBuffer = new BYTE[size_buffer];
+    char *pBuffer = new char[size_buffer];
     if (pBuffer == NULL)
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "cannot allocate memory");
         return false;
     }
     // save coordinates
-    LINT *pCoordinate = (LINT *)pBuffer;
+    COORD_TYPE *pCoordinate = (COORD_TYPE *)pBuffer;
     *pCoordinate = width;
     ++pCoordinate;
     *pCoordinate = height;
     ++pCoordinate;
     // compute the image
-    BYTE *pImage = pBuffer;
+    char *pImage = (char *)pCoordinate;
     for(int x = 0; x < pSurface->w; x++)
     {
         for(int y = 0; y < pSurface->h; y++)
         {
-            BYTE *pD = (BYTE *) pSurface->pixels + y * pSurface->pitch + x * 4;
-            *(pImage + x*width + y) = (BYTE)(pD[3] <= nMaxOpacity);
+            char *pD = (char *) pSurface->pixels + y * pSurface->pitch + x * 4;
+            *(pImage + x*width + y) = (char)(pD[3] <= nMaxOpacity);
         }
     }
-    bool bResult = FileUtils::WriteBufferIntoFile(sFileName, (const char *)pBuffer, size_buffer);
+    g_pPlutoLogger->Write(LV_STATUS, "saving xbm mask file '%s'", sFileName.c_str());
+    g_pPlutoLogger->Write(LV_CRITICAL, "saving xbm mask file '%s'", sFileName.c_str());
+    bool bResult = FileUtils::WriteBufferIntoFile(sFileName, pBuffer, size_buffer);
 	delete pBuffer;
     if (! bResult)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "cannot write to file '%s'", sFileName.c_str());
+        g_pPlutoLogger->Write(LV_CRITICAL, "cannot write to xbm mask file '%s'", sFileName.c_str());
         return false;
     }
     return true;
@@ -210,23 +211,22 @@ Renderer::~Renderer()
 
 /*static*/ bool Renderer::ReadImageFromXbmMaskFile(const string &sFileName, char *&pBufferReturn, int &widthReturn, int &heightReturn, char *&pImageDataReturn)
 {
-    typedef unsigned char BYTE;
-    typedef long int LINT; // size
+    typedef long int COORD_TYPE; // size
     size_t size_buffer = 0;
     pBufferReturn = FileUtils::ReadFileIntoBuffer(sFileName, size_buffer);
-    if (*pBufferReturn == NULL)
+    if (pBufferReturn == NULL)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "cannot read file '%s'", sFileName.c_str());
+        g_pPlutoLogger->Write(LV_CRITICAL, "cannot read xbm mask file '%s'", sFileName.c_str());
         return false;
     }
     // read coordinates
-    LINT *pCoordinate = (LINT *)pBufferReturn;
+    COORD_TYPE *pCoordinate = (COORD_TYPE *)pBufferReturn;
     widthReturn = *pCoordinate;
     ++pCoordinate;
     heightReturn = *pCoordinate;
     ++pCoordinate;
     // size of coordinates in the buffer
-    const int size_coord = sizeof(LINT);
+    const int size_coord = sizeof(COORD_TYPE);
     size_t size_buffer_computed = size_coord * 2 + widthReturn * heightReturn;
     // little error checking
     if (size_buffer_computed != size_buffer)
@@ -234,6 +234,7 @@ Renderer::~Renderer()
         g_pPlutoLogger->Write(LV_CRITICAL, "computed_size(%d) != buffer_size(%d)", size_buffer_computed, size_buffer);
         delete pBufferReturn;
         pBufferReturn = NULL;
+        pImageDataReturn = NULL;
         return false;
     }
     pImageDataReturn = (char *)pCoordinate;
