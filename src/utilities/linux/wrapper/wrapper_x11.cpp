@@ -42,39 +42,29 @@ static const bool g_bXNoLock  = getenv("X11_NO_XLOCK");
 
 // algorithm
 /*
-  {
-  // X11 status return
-  int xcode = -1;
-  X11_Locker x11_locker(GetDisplay());
-  do
-  {
-  .......
-  xcode = Xfunction(args); // status return
-  _COND_XSTAT_LOG_ERR_BREAK(xcode);
-  xcode = Xfunction(args); // bool return
-  _COND_XBOOL_LOG_ERR_BREAK(xcode)
-  .......
-  _LOG_XERROR_BREAK("error");
-  .......
-  xcode = 0;
-  } while (0);
-  return IsReturnStatOk(xcode);
-  return IsReturnBoolOk(xcode);
-  }
+    {
+    // X11 status return
+    int xcode = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+    .......
+    xcode = Xfunction(args); // status return
+    _COND_XSTAT_LOG_ERR_BREAK(xcode);
+    xcode = Xfunction(args); // bool return
+    _COND_XBOOL_LOG_ERR_BREAK(xcode)
+    .......
+    _LOG_XERROR_BREAK("error");
+    .......
+    } while ((xcode = 0));
+    // cleanup
+    return (xcode == 0);
+    }
 */
 
 // xcode : X11 status return
-#define _COND_XERROR_LOG_BREAK(xcode) \
-    if (! IsReturnCodeOk(xcode)) \
-    { \
-        _LOG_ERR("%s", GetErrorText(GetDisplay(), xcode).c_str()); \
-        break; \
-    } \
-    else do {} while (0)
-
-// xcode : X11 status return
 #define _COND_XSTAT_LOG_ERR_BREAK(xcode) \
-    if (! IsReturnStatOk(xcode)) \
+    if (xcode != 0) \
     { \
         _LOG_ERR("error_code==%d => ErrorText=='%s'", xcode, GetErrorText(GetDisplay(), xcode).c_str()); \
         break; \
@@ -83,7 +73,7 @@ static const bool g_bXNoLock  = getenv("X11_NO_XLOCK");
 
 // xcode : X11 boolean return
 #define _COND_XBOOL_LOG_ERR_BREAK(xcode) \
-    if (! IsReturnBoolOk(xcode)) \
+    if (xcode != True) \
     { \
         _LOG_ERR("(%s) retBool==false", #xcode); \
         break; \
@@ -337,21 +327,6 @@ Window X11wrapper::Window_GetRoot()
     return XDefaultRootWindow(GetDisplay());
 }
 
-inline bool X11wrapper::IsReturnCodeOk(int xcode)//del, remove this
-{
-    return ( IsReturnBoolOk(xcode) || IsReturnStatOk(xcode) );
-}
-
-inline bool X11wrapper::IsReturnBoolOk(int xcode)
-{
-    return (xcode == True);
-}
-
-inline bool X11wrapper::IsReturnStatOk(int xcode)
-{
-    return (xcode == 0);
-}
-
 string X11wrapper::GetErrorText(Display * pDisplay, int error_code)
 {
     if (error_code == 0)
@@ -432,6 +407,7 @@ Window X11wrapper::Window_Create(int nPosX, int nPosY, unsigned int nWidth, unsi
     }
     _LOG_NFO("pos==(%d, %d, %d, %d), parent_window==%d", nPosX, nPosY, nWidth, nHeight, parent_window);
     Window window = 0;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -444,7 +420,9 @@ Window X11wrapper::Window_Create(int nPosX, int nPosY, unsigned int nWidth, unsi
             0 // BgColor
             );
         _COND_XBOOL_LOG_ERR_BREAK(window != 0);
-    } while (0);
+    } while ((xcode = 0));
+    if (xcode != 0)
+        return 0;
     return window;
 }
 
@@ -462,8 +440,7 @@ Window X11wrapper::Window_Create_Show(int nPosX, int nPosY, unsigned int nWidth,
             _LOG_XERROR_BREAK("cannot show window==%d", window);
         if (! Window_MoveResize(window, nPosX, nPosY, nWidth, nHeight, true, true))
             _LOG_XERROR_BREAK("cannot re-position window==%d", window);
-        xcode = 0;
-    } while (0);
+    } while ((xcode = 0));
     // cleanup
     if (xcode != 0)
     {
@@ -481,9 +458,9 @@ bool X11wrapper::Window_Destroy(Window window)
     do
     {
         xcode = XDestroyWindow(GetDisplay(), window);
-        _COND_XERROR_LOG_BREAK(xcode);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Window_Show(Window window, bool bShow/*=true*/)
@@ -499,7 +476,7 @@ bool X11wrapper::Window_Show(Window window, bool bShow/*=true*/)
             XSelectInput(GetDisplay(), window, StructureNotifyMask);
             // show here
             xcode = XMapWindow(GetDisplay(), window);
-            _COND_XERROR_LOG_BREAK(xcode);
+            _COND_XBOOL_LOG_ERR_BREAK(xcode);
             Sync();
             // Wait for the MapNotify event
             for(;;)
@@ -513,10 +490,10 @@ bool X11wrapper::Window_Show(Window window, bool bShow/*=true*/)
         else
         {
             xcode = XUnmapWindow(GetDisplay(), window);
-            _COND_XERROR_LOG_BREAK(xcode);
+            _COND_XBOOL_LOG_ERR_BREAK(xcode);
         }
-    } while (0);
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const int nPosY, const unsigned int nWidth, const unsigned int nHeight, bool bUse_WM_Window=true, bool bWaitForCompletion=true)
@@ -595,7 +572,7 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
             xcode = XMoveResizeWindow(GetDisplay(), window_req, x_req, y_req, w_req, h_req);
             usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
             Sync();
-            if (xcode != true)
+            if (xcode != True)
             {
                 _LOG_WRN("XMoveResizeWindow() => retCode==%d", xcode);
                 continue;
@@ -636,7 +613,7 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
                 break;
             }
         }
-    } while (0);
+    } while ((xcode = 0));
     if (!bGoodPos && !bGoodPos_wm)
         _LOG_ERR("cannot re-position window==%d", window);
     return (bGoodPos || bGoodPos_wm);
@@ -653,9 +630,9 @@ bool X11wrapper::Window_ClassName(Window window, const char *s_class, const char
         classHint.res_name = const_cast<char *>(s_name);
         classHint.res_class = const_cast<char *>(s_class);
         xcode = XSetClassHint(GetDisplay(), window, &classHint);
-        _COND_XERROR_LOG_BREAK(xcode);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Window_Name(Window window, const char *s_name)
@@ -666,9 +643,9 @@ bool X11wrapper::Window_Name(Window window, const char *s_name)
     do
     {
         xcode = XStoreName(GetDisplay(), window, s_name);
-        _COND_XERROR_LOG_BREAK(xcode);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Window_Raise(Window window)
@@ -679,9 +656,9 @@ bool X11wrapper::Window_Raise(Window window)
     do
     {
         xcode = XRaiseWindow(GetDisplay(), window);
-        _COND_XERROR_LOG_BREAK(xcode);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Window_Lower(Window window)
@@ -692,9 +669,9 @@ bool X11wrapper::Window_Lower(Window window)
     do
     {
         xcode = XLowerWindow(GetDisplay(), window);
-        _COND_XERROR_LOG_BREAK(xcode);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Window_SetOpacity_Helper(Window window, unsigned long nOpacity)
@@ -713,7 +690,7 @@ bool X11wrapper::Window_SetOpacity_Helper(Window window, unsigned long nOpacity)
         {
             _LOG_NFO("deleting opacity property");
             xcode = XDeleteProperty(pDisplay, window, atom_property);
-            _COND_XERROR_LOG_BREAK(xcode);
+            _COND_XBOOL_LOG_ERR_BREAK(xcode);
         }
         else
         {
@@ -722,10 +699,10 @@ bool X11wrapper::Window_SetOpacity_Helper(Window window, unsigned long nOpacity)
                                    XA_CARDINAL, 32, PropModeReplace,
                                    (unsigned char *) &nOpacity, 1L
                                    );
-            _COND_XERROR_LOG_BREAK(xcode);
+            _COND_XBOOL_LOG_ERR_BREAK(xcode);
         }
-    } while (0);
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Window_SetOpacity(Window window, unsigned long nOpacity)
@@ -763,11 +740,11 @@ Window X11wrapper::Window_GetParent(Window window)
         //_LOG_NFO("window==%d, root_return==%d, parent_return==%d, children_return==%p, nchildren_return==%d", window, root_return, parent_return, children_return, nchildren_return);
         if (xcode == 0)
             _LOG_XERROR_BREAK("cannot read window tree");
-    } while (0);
+    } while ((xcode = 0));
     // cleanup
     if (children_return != None)
         XFree(children_return);
-    if (! IsReturnCodeOk(xcode))
+    if (xcode != 0)
         return 0;
     //if (parent_return == root_return)
     //    _LOG_NFO("window==%d => root parent==%d", window, parent_return);
@@ -825,10 +802,10 @@ bool X11wrapper::Keyboard_Grab(Window window_grab)
             GrabModeAsync, // keyboard_mode
             CurrentTime // time
             );
-        _COND_XERROR_LOG_BREAK(xcode);
+        _COND_XSTAT_LOG_ERR_BREAK(xcode);
         _LOG_NFO("XGrabKeyboard(%d) => retCode==%d", window_grab, xcode);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Keyboard_Ungrab()
@@ -839,10 +816,10 @@ bool X11wrapper::Keyboard_Ungrab()
     do
     {
         xcode = XUngrabKeyboard(GetDisplay(), CurrentTime);
-        _COND_XERROR_LOG_BREAK(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
         _LOG_NFO("XUngrabKeyboard() => retCode==%d", xcode);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Keyboard_SetAutoRepeat(bool bOn)
@@ -856,9 +833,9 @@ bool X11wrapper::Keyboard_SetAutoRepeat(bool bOn)
             xcode = XAutoRepeatOn(GetDisplay());
         else
             xcode = XAutoRepeatOff(GetDisplay());
-        _COND_XERROR_LOG_BREAK(xcode);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Mouse_Grab(Window window_grab, Window window_confine_to/*=None*/)
@@ -891,8 +868,8 @@ bool X11wrapper::Mouse_Grab(Window window_grab, Window window_confine_to/*=None*
         }
         _COND_XSTAT_LOG_ERR_BREAK(xcode);
         _LOG_NFO("XGrabPointer(window_grab==%d, window_confine_to==%d) => retCode==%d", window_grab, window_confine_to, xcode);
-    } while (0);
-    return IsReturnStatOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Mouse_Ungrab()
@@ -904,9 +881,9 @@ bool X11wrapper::Mouse_Ungrab()
     {
         xcode = XUngrabPointer(GetDisplay(), CurrentTime);
         _LOG_NFO("XUngrabPointer() => retCode==%d", xcode);
-        _COND_XERROR_LOG_BREAK(xcode);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Mouse_ShowStandardCursor(Window window)
@@ -931,9 +908,9 @@ bool X11wrapper::Mouse_HideCursor(Window window)
         if (! cursor)
             _LOG_XERROR_BREAK("Cannot create pixmap cursor");
         xcode = XDefineCursor(GetDisplay(), window, cursor);
-        _COND_XERROR_LOG_BREAK(xcode);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Mouse_SetCursor_Inherit(Window window)
@@ -944,9 +921,9 @@ bool X11wrapper::Mouse_SetCursor_Inherit(Window window)
     do
     {
         xcode = XUndefineCursor(GetDisplay(), window);
-        _COND_XERROR_LOG_BREAK(xcode);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Mouse_SetCursor_Font(Window window, int nShape)
@@ -967,9 +944,9 @@ bool X11wrapper::Mouse_SetCursor_Font(Window window, int nShape)
             _LOG_XERROR_BREAK("cannot create the font cursor");
         // change the cursor
         xcode = XDefineCursor(GetDisplay(), window, cursor);
-        _COND_XERROR_LOG_BREAK(xcode);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Mouse_SetCursor_Image(Window window, const string &sPath, const string &sPathMask)
@@ -1003,12 +980,12 @@ bool X11wrapper::Mouse_SetCursor_Image(Window window, const string &sPath, const
         XColor color_fg;
         color_fg.pixel = BlackPixel(GetDisplay(), GetScreen());
         xcode = XQueryColor(GetDisplay(), colormap, &color_fg);
-        _COND_XERROR_LOG_BREAK(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
         Sync();
         XColor color_bg;
         color_bg.pixel = WhitePixel(GetDisplay(), GetScreen());
         xcode = XQueryColor(GetDisplay(), colormap, &color_bg);
-        _COND_XERROR_LOG_BREAK(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
         Sync();
         // create the cursor
         Cursor cursor = XCreatePixmapCursor(GetDisplay(), pixmap, pixmap_mask, &color_fg, &color_bg, x_hot_return, y_hot_return);
@@ -1016,14 +993,12 @@ bool X11wrapper::Mouse_SetCursor_Image(Window window, const string &sPath, const
             _LOG_XERROR_BREAK("Cannot create pixmap cursor");
         // change the cursor
         xcode = XDefineCursor(GetDisplay(), window, cursor);
-        _COND_XERROR_LOG_BREAK(xcode);
-    } while (0);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
+    } while ((xcode = 0));
     // cleanup
-    if (pixmap != None)
-        XFreePixmap(GetDisplay(), pixmap);
-    if (pixmap_mask != None)
-        XFreePixmap(GetDisplay(), pixmap_mask);
-    return IsReturnCodeOk(xcode);
+    Pixmap_Delete(pixmap);
+    Pixmap_Delete(pixmap_mask);
+    return (xcode == 0);
 }
 
 bool X11wrapper::Mouse_QueryMaxCursorSize(Window window, unsigned int &width_return, unsigned int &height_return)
@@ -1043,9 +1018,9 @@ bool X11wrapper::Mouse_SetSpeed(int accel_numerator/*=-1*/, int accel_denominato
     do
     {
         xcode = XChangePointerControl(GetDisplay(), true, true, accel_numerator, accel_denominator, threshold);
-        _COND_XERROR_LOG_BREAK(xcode);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Mouse_GetSpeed(int &accel_numerator_return, int &accel_denominator_return, int &threshold_return)
@@ -1055,10 +1030,10 @@ bool X11wrapper::Mouse_GetSpeed(int &accel_numerator_return, int &accel_denomina
     do
     {
         xcode = XGetPointerControl(GetDisplay(), &accel_numerator_return, &accel_denominator_return, &threshold_return);
-        _COND_XERROR_LOG_BREAK(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
         _LOG_NFO("accel_numerator==%d, accel_denominator==%d, threshold==%d", accel_numerator_return, accel_denominator_return, threshold_return);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Mouse_SetPosition(int nPosX, int nPosY, Window relative_to_window/*=None*/)
@@ -1074,9 +1049,9 @@ bool X11wrapper::Mouse_SetPosition(int nPosX, int nPosY, Window relative_to_wind
     do
     {
         xcode = XWarpPointer(GetDisplay(), None, relative_to_window, 0, 0, 0, 0, nPosX, nPosY);
-        _COND_XERROR_LOG_BREAK(xcode);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY, Window relative_to_window/*=None*/)
@@ -1108,7 +1083,7 @@ bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY, Window relative_to_wi
             &win_y_return,
             &mask_return
             );
-        _COND_XERROR_LOG_BREAK(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
         //_LOG_NFO(
         //    "root_return==%d, child_return==%d, root_x_return==%d, root_y_return==%d, win_x_return==%d, win_y_return==%d, mask_return==%d",
         //    root_return, child_return, root_x_return, root_y_return, win_x_return, win_y_return, mask_return
@@ -1116,8 +1091,8 @@ bool X11wrapper::Mouse_GetPosition(int &nPosX, int &nPosY, Window relative_to_wi
         nPosX = win_x_return;
         nPosY = win_y_return;
         _LOG_NFO("pointer pos==(%d, %d), relative to window==%d", nPosX, nPosY, relative_to_window);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsigned int nHeight, Window window_grab/*=None*/)
@@ -1173,15 +1148,14 @@ bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsi
         previous_mouse_constrain.nPosY = nPosY;
         previous_mouse_constrain.nWidth = nWidth;
         previous_mouse_constrain.nHeight = nHeight;
-        xcode = 0;
-    } while (0);
+    } while ((xcode = 0));
     // cleanup
     if (xcode != 0)
     {
         Window_Destroy(window);
         window = 0;
     }
-    if (! IsReturnCodeOk(xcode))
+    if (xcode != 0)
     {
         _LOG_ERR("pos==(%d, %d, %d, %d), window_grab==%d => retCode==%d", nPosX, nPosY, nWidth, nHeight, window_grab, xcode);
         return false;
@@ -1209,11 +1183,9 @@ bool X11wrapper::Mouse_Constrain_Release()
         if (! Window_Destroy(window))
             _LOG_WRN("Window_Destroy");
         // done
-        xcode = 0;
         window = 0;
-    } while (0);
-    // not deleting the previous info
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Mouse_Constrain_ReactivateIfActive()
@@ -1347,15 +1319,17 @@ Pixmap X11wrapper::Pixmap_Create(Window window, unsigned int width, unsigned int
 bool X11wrapper::Pixmap_Delete(Pixmap &pixmap)
 {
     _LOG_NFO("pixmap==%d", pixmap);
+    if (pixmap==None)
+        return true;
     X11_Locker x11_locker(GetDisplay());
     int xcode = -1;
     do
     {
         xcode = XFreePixmap(GetDisplay(), pixmap);
-        _COND_XERROR_LOG_BREAK(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
         pixmap = None;
-    } while (0);
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pixmap_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return)
@@ -1367,13 +1341,20 @@ bool X11wrapper::Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pix
     {
         // read x-bitmap from file
         xcode = XReadBitmapFile(GetDisplay(), window, sPath.c_str(), &width_return, &height_return, &pixmap_return, &x_hot_return, &y_hot_return);
-        _COND_XERROR_LOG_BREAK(xcode);
+        _COND_XSTAT_LOG_ERR_BREAK(xcode);
         if (x_hot_return < 0)
             x_hot_return = 0;
         if (y_hot_return < 0)
             y_hot_return = 0;
-    } while (0);
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    //if (1)
+    //{
+    //    string sNewPath = sPath + "._new";
+    //    _LOG_NFO("sNewPath==%s", sNewPath.c_str());
+    //    bool bResult = Pixmap_WriteFile(sNewPath, pixmap_return, width_return, height_return, x_hot_return, y_hot_return);
+    //    _LOG_NFO("bResult==%d", bResult);
+    //}
+    return (xcode == 0);
 }
 
 bool X11wrapper::Object_GetGeometry(Drawable drawable, int *x_return, int *y_return, unsigned int *width_return, unsigned int *height_return)
@@ -1412,8 +1393,8 @@ bool X11wrapper::Object_GetGeometry(Drawable drawable, int *x_return, int *y_ret
         if (height_return)
             *height_return = height_ret;
         //_LOG_NFO("drawable==%d => pos==(%d, %d, %d, %d)", drawable, x_ret, y_ret, width_ret, height_ret);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Window_GetGeometry(Window window, int *x_return, int *y_return, unsigned int *width_return, unsigned int *height_return)
@@ -1465,8 +1446,8 @@ bool X11wrapper::Window_GetGeometry(Window window, int *x_return, int *y_return,
         if (height_return)
             *height_return = attr.height;
         //_LOG_NFO("window==%d => pos==(%d, %d, %d, %d)", window, attr.x, attr.y, attr.width, attr.height);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Window_TranslateCoordinates(Window window_src, Window window_dest, int x_src, int y_src, int *x_dest_return, int *y_dest_return, Window *inner_window_dest_return)
@@ -1498,9 +1479,8 @@ bool X11wrapper::Window_TranslateCoordinates(Window window_src, Window window_de
         //_LOG_NFO("window_src==%d, window_dest==%d, x_src==%d, y_src==%d => x_dest_return==%d, y_dest_return==%d, inner_window_dest_return==%d",
         //         window_src, window_dest, x_src, y_src, delta_x_return, delta_y_return, inner_window_return
         //         );
-        xcode = 0;
-    } while (0);
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Extension_Shape_IsAvailable()
@@ -1543,17 +1523,16 @@ bool X11wrapper::Shape_Context_Enter(Window window, unsigned int width, unsigned
         b_gc_created = true;
         // clean background
         xcode = XFillRectangle(pDisplay, bitmap_mask, gc, 0, 0, width, height);
-        _COND_XERROR_LOG_BREAK(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
         xcode = XSetForeground(pDisplay, gc, 1);
-        _COND_XERROR_LOG_BREAK(xcode);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
         // done
         bResult = true;
-    } while (0);
+    } while ((xcode = 0));
     // cleanup
     if (! bResult)
     {
-        if (bitmap_mask != None)
-            XFreePixmap(GetDisplay(), bitmap_mask);
+        Pixmap_Delete(bitmap_mask);
         if (b_gc_created)
             XFreeGC(GetDisplay(), gc);
     }
@@ -1561,7 +1540,7 @@ bool X11wrapper::Shape_Context_Enter(Window window, unsigned int width, unsigned
     {
         _LOG_NFO("window==%d, width==%d, height==%d => bitmap_mask==%d, gc==%d, pDisplay==%p", window, width, height, bitmap_mask, gc, pDisplay);
     }
-    return (IsReturnCodeOk(xcode) && bResult);
+    return ((xcode == 0) && bResult);
 }
 
 bool X11wrapper::Shape_Context_Leave(Window window, Pixmap &bitmap_mask, GC &gc, Display * &pDisplay)
@@ -1575,15 +1554,12 @@ bool X11wrapper::Shape_Context_Leave(Window window, Pixmap &bitmap_mask, GC &gc,
     do
     {
         xcode = XFreeGC(pDisplay, gc);
-        if (! IsReturnCodeOk(xcode))
+        if (xcode != True)
             _LOG_WRN("XFreeGC() => retCode==%d", xcode);
-        xcode = XFreePixmap(GetDisplay(), bitmap_mask);
-        if (! IsReturnCodeOk(xcode))
-            _LOG_WRN("XFreePixmap() => retCode==%d", xcode);
-        xcode = 0;
-    } while (0);
+    } while ((xcode = 0));
     // cleanup
-    return (IsReturnCodeOk(xcode) && bResult);
+    Pixmap_Delete(bitmap_mask);
+    return ((xcode == 0) && bResult);
 }
 
 bool X11wrapper::Shape_Window_Apply(Window window, Pixmap &pixmap)
@@ -1596,9 +1572,8 @@ bool X11wrapper::Shape_Window_Apply(Window window, Pixmap &pixmap)
         if (! Extension_Shape_IsAvailable())
             _LOG_XERROR_BREAK("X11 SHAPE extension: not available");
         XShapeCombineMask(GetDisplay(), window, ShapeBounding, 0, 0, pixmap, ShapeSet);
-        xcode = 0;
-    } while (0);
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Shape_Window_Reset(Window window)
@@ -1611,8 +1586,8 @@ bool X11wrapper::Shape_Window_Reset(Window window)
         if (! Extension_Shape_IsAvailable())
             _LOG_XERROR_BREAK("X11 SHAPE extension: not available");
         XShapeCombineMask(GetDisplay(), window, ShapeBounding, 0, 0, None, ShapeSet);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Shape_Window_Hide(Window window)
@@ -1630,9 +1605,8 @@ bool X11wrapper::Shape_Window_Hide(Window window)
         aXRectangle[0].width = 0;
         aXRectangle[0].height = 0;
         XShapeCombineRectangles(GetDisplay(), window, ShapeBounding, 0, 0, aXRectangle, 0, ShapeSet, Unsorted);
-        xcode = 0;
-    } while (0);
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }
 
 bool X11wrapper::Extension_Shape_Initialize()
@@ -1656,7 +1630,7 @@ bool X11wrapper::Extension_Shape_Initialize()
             _LOG_XERROR_BREAK("X11 SHAPE extension: not available");
         v_bExtension_Shape_IsAvailable = true;
         _LOG_NFO("X11 SHAPE extension: version %d.%d", v_nExtension_Shape_Version_Major, v_nExtension_Shape_Version_Minor);
-    } while (0);
+    } while ((xcode = 0));
     return v_bExtension_Shape_IsAvailable;
 }
 
@@ -1765,11 +1739,14 @@ bool X11wrapper::Shape_Window_Alpha(Window window, unsigned char nAlphaThreshold
             _LOG_XERROR_BREAK("GetImage");
         Pixmap pixmap = ConvertImageToPixmap(pXImage, window);
         XShapeCombineMask(GetDisplay(), window, ShapeBounding, 0, 0, pixmap, ShapeSet);
-    } while (0);
+    } while ((xcode = 0));
     // cleanup
     if (pXImage)
+    {
         XDestroyImage(pXImage);
-    return IsReturnCodeOk(xcode);
+        pXImage = None;
+    }
+    return (xcode == 0);
 }
 
 XImage * X11wrapper::Window_GetImage(Window window, bool bOnlyMask/*=false*/)
@@ -1779,6 +1756,7 @@ XImage * X11wrapper::Window_GetImage(Window window, bool bOnlyMask/*=false*/)
     // (data + (n * height * bytes_per_line))
     _LOG_NFO("window==%d", window);
     XImage *pXImage = NULL;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -1787,14 +1765,14 @@ XImage * X11wrapper::Window_GetImage(Window window, bool bOnlyMask/*=false*/)
         unsigned int width = 0;
         unsigned int height = 0;
         if (! Object_GetGeometry(window, &x, &y, &width, &height))
-            _LOG_XERROR_BREAK("Window_GetImage() : GetPosition");
+            _LOG_XERROR_BREAK("GetPosition");
         if (bOnlyMask)
             pXImage = XGetImage(GetDisplay(), window, 0, 0, width, height, 1, XYPixmap);
         else
             pXImage = XGetImage(GetDisplay(), window, 0, 0, width, height, AllPlanes, ZPixmap);
         if (! pXImage)
-            _LOG_XERROR_BREAK("Window_GetImage() : GetImage");
-    } while (0);
+            _LOG_XERROR_BREAK("GetImage");
+    } while ((xcode = 0));
     return pXImage;
 }
 
@@ -1802,7 +1780,7 @@ Pixmap X11wrapper::ConvertImageToPixmap(XImage *pXImage, Window window)
 {
     _LOG_NFO("window==%d", window);
     Pixmap pixmap = None;
-    //int xcode = -1;
+    int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
     {
@@ -1811,7 +1789,7 @@ Pixmap X11wrapper::ConvertImageToPixmap(XImage *pXImage, Window window)
         //XPutImage(GetDisplay(), pixmap, gc, image, 0, 0, 0, 0, width, height);
         pixmap = XCreatePixmapFromBitmapData(GetDisplay(), window, pXImage->data, pXImage->width, pXImage->height, 0, 0, pXImage->depth);
         XFlushGC(GetDisplay(), gc);
-    } while (0);
+    } while ((xcode = 0));
     return pixmap;
 }
 
@@ -1833,6 +1811,20 @@ bool X11wrapper::Window_PerPixel_Transparency(Window window, unsigned long nAlph
         for (int i=0; i<10; i++)
             XDrawLine(pDisplay, window, gc, 10, i+60, 180, i+20);
         XFlush(pDisplay);
-    } while (0);
-    return IsReturnCodeOk(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
+}
+
+bool X11wrapper::Pixmap_WriteFile(const string &sPath, const Pixmap &pixmap, unsigned int width, unsigned int height, int x_hot/*=-1*/, int y_hot/*=-1*/)
+{
+    _LOG_NFO("sPath=='%s', pixmap==%d, width==%d, height==%d, x_hot==%d, y_hot==%d",
+             sPath.c_str(), pixmap, width, height, x_hot, y_hot);
+    int xcode = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        xcode = XWriteBitmapFile(GetDisplay(), sPath.c_str(), width, height, pixmap, x_hot, y_hot);
+        _COND_XSTAT_LOG_ERR_BREAK(xcode);
+    } while ((xcode = 0));
+    return (xcode == 0);
 }

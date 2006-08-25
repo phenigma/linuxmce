@@ -116,9 +116,6 @@ public:
 
     /// static functions
 public:
-    inline static bool IsReturnCodeOk(int xcode);
-    inline static bool IsReturnBoolOk(int xcode);
-    inline static bool IsReturnStatOk(int xcode);
     static string GetErrorText(Display *pDisplay, int error_code);
     static int ErrorHandler_Grabber(Display *, XErrorEvent *);
 
@@ -236,7 +233,7 @@ public:
 
     /// graphics
 
-    // Pixmap_Delete() should be called
+    // Pixmap_Delete() should be called to free the memory
     // depth==1 for a bitmap
     Pixmap Pixmap_Create(Window window, unsigned int width, unsigned int height, unsigned int depth);
 
@@ -244,7 +241,7 @@ public:
     // and zeroing the id in case of success
     bool Pixmap_Delete(Pixmap &pixmap);
 
-    // Pixmap_Delete() should be called
+    // Pixmap_Delete() should be called to free the memory
     bool Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pixmap_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return);
 
     /// other
@@ -357,6 +354,9 @@ public:
     XImage * Window_GetImage(Window window, bool bOnlyMask=false);
     Pixmap ConvertImageToPixmap(XImage *pXImage, Window window);
     bool Window_PerPixel_Transparency(Window window, unsigned long nAlphaValue=1);
+
+    // works only in X
+    bool Pixmap_WriteFile(const string &sPath, const Pixmap &pixmap, unsigned int width, unsigned int height, int x_hot=-1, int y_hot=-1);
 
 };
 
