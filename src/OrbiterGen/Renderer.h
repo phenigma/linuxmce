@@ -57,6 +57,8 @@ public:
 	// 'F', means stretch the image so it fits
 	char m_cDefaultScaleForMenuBackground,m_cDefaultScaleForOtherGraphics; 
 	static float m_fScaleX,m_fScaleY;
+	
+	static bool m_bUseAlphaBlending, m_bCreateMask;
 
 #ifndef ORBITER
 	void RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,
@@ -80,6 +82,7 @@ public:
 	static RendererMNG * CreateMNGFromFiles(const vector<string> & FileNames, PlutoSize Size);
 	static void SaveMNGToFile(string FileName, RendererMNG * MNG);
     static void SetTransparentColor(SDL_Surface *pSurface, int R, int G, int B);
+    static void SetGeneralSurfaceOpacity(SDL_Surface *pSurface, int SDL_Opacity);
 #endif
 
 protected:

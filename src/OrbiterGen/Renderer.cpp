@@ -89,6 +89,9 @@ Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,b
     m_Width=Width;
     m_Height=Height;
 
+	m_bUseAlphaBlending = true;
+	m_bCreateMask = false;
+
 	if (! (SDL_WasInit(SDL_INIT_VIDEO) == SDL_INIT_VIDEO))
 	{
 		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
@@ -146,6 +149,18 @@ Renderer::~Renderer()
                 pD[2] = 0xFF;
                 pD[3] = 0x00;
             }
+        }
+    }  
+}
+
+/*static*/ void Renderer::SetGeneralSurfaceOpacity(SDL_Surface *pSurface, int SDL_Opacity)
+{
+    for(int w = 0; w < pSurface->w; w++)
+    {
+        for(int h = 0; h < pSurface->h; h++)
+        {
+            unsigned char *pD = (unsigned char *) pSurface->pixels + h * pSurface->pitch + w * 4;
+            pD[3] = SDL_Opacity;
         }
     }  
 }
@@ -508,6 +523,10 @@ void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, b
     }
 
 	SDL_Surface *pSDL_Surface = pRendererImage->m_pSDL_Surface;
+	
+	if (!m_bUseAlphaBlending)
+		SetGeneralSurfaceOpacity(pSDL_Surface, SDL_ALPHA_OPAQUE); // remove all transparency from the surface
+	
 if( pSDL_Surface->w==0 || pSDL_Surface->h==0 )
 int k=2;
 	if( m_Rotate )
