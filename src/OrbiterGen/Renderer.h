@@ -58,9 +58,9 @@ public:
 	char m_cDefaultScaleForMenuBackground,m_cDefaultScaleForOtherGraphics; 
 	static float m_fScaleX,m_fScaleY;
 	
+#ifndef ORBITER
 	static bool m_bUseAlphaBlending, m_bCreateMask;
 
-#ifndef ORBITER
 	void RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,
 		PlutoPoint Position,int iRenderStandard,int iOnlyVersion=-999);
 	void RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iOnlyVersion);

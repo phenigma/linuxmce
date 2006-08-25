@@ -76,6 +76,10 @@ Renderer r("/usr/share/fonts/truetype/msttcorefonts/", "", 800, 600, FLAG_DISABL
 int Renderer::m_Rotate=0;
 float Renderer::m_fScaleX,Renderer::m_fScaleY;
 
+#ifndef ORBITER
+bool Renderer::m_bUseAlphaBlending = true;
+bool Renderer::m_bCreateMask = false;
+#endif
 
 Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo)
 {
@@ -88,9 +92,6 @@ Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,b
     m_sOutputDirectory=OutputDirectory;
     m_Width=Width;
     m_Height=Height;
-
-	m_bUseAlphaBlending = true;
-	m_bCreateMask = false;
 
 	if (! (SDL_WasInit(SDL_INIT_VIDEO) == SDL_INIT_VIDEO))
 	{
