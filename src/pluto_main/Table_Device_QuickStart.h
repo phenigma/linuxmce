@@ -81,8 +81,6 @@ class DECLSPECIFIER Row_Device_QuickStart : public TableRow, public SerializeCla
 long int m_FK_Device;
 string m_Description;
 long int m_SortOrder;
-string m_Binary;
-string m_Arguments;
 long int m_EK_Picture;
 long int m_FK_QuickStartTemplate;
 long int m_psc_id;
@@ -92,15 +90,13 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[14];
+		bool is_null[12];
 	
 	public:
 		long int PK_Device_QuickStart_get();
 long int FK_Device_get();
 string Description_get();
 long int SortOrder_get();
-string Binary_get();
-string Arguments_get();
 long int EK_Picture_get();
 long int FK_QuickStartTemplate_get();
 long int psc_id_get();
@@ -115,8 +111,6 @@ long int psc_restrict_get();
 void FK_Device_set(long int val);
 void Description_set(string val);
 void SortOrder_set(long int val);
-void Binary_set(string val);
-void Arguments_set(string val);
 void EK_Picture_set(long int val);
 void FK_QuickStartTemplate_set(long int val);
 void psc_id_set(long int val);
@@ -129,8 +123,6 @@ void psc_restrict_set(long int val);
 		
 		bool Description_isNull();
 bool SortOrder_isNull();
-bool Binary_isNull();
-bool Arguments_isNull();
 bool EK_Picture_isNull();
 bool FK_QuickStartTemplate_isNull();
 bool psc_id_isNull();
@@ -142,8 +134,6 @@ bool psc_restrict_isNull();
 			
 		void Description_setNull(bool val);
 void SortOrder_setNull(bool val);
-void Binary_setNull(bool val);
-void Arguments_setNull(bool val);
 void EK_Picture_setNull(bool val);
 void FK_QuickStartTemplate_setNull(bool val);
 void psc_id_setNull(bool val);
@@ -172,7 +162,7 @@ class Row_QuickStartTemplate* FK_QuickStartTemplate_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Device_QuickStart+ m_FK_Device+ m_Description+ m_SortOrder+ m_Binary+ m_Arguments+ m_EK_Picture+ m_FK_QuickStartTemplate+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Device_QuickStart+ m_FK_Device+ m_Description+ m_SortOrder+ m_EK_Picture+ m_FK_QuickStartTemplate+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -181,8 +171,6 @@ class Row_QuickStartTemplate* FK_QuickStartTemplate_getrow();
 string FK_Device_asSQL();
 string Description_asSQL();
 string SortOrder_asSQL();
-string Binary_asSQL();
-string Arguments_asSQL();
 string EK_Picture_asSQL();
 string FK_QuickStartTemplate_asSQL();
 string psc_id_asSQL();
