@@ -140,7 +140,7 @@ m_FK_Pipe = 0;
 m_CanBookmark = 0;
 is_null[9] = false;
 is_null[10] = true;
-m_EK_Attribute_DefaultSort = 0;
+m_EK_AttributeType_DefaultSort = 0;
 is_null[11] = true;
 m_psc_id = 0;
 is_null[12] = true;
@@ -190,9 +190,9 @@ return m_FK_Pipe;}
 short int Row_MediaType::CanBookmark_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_CanBookmark;}
-long int Row_MediaType::EK_Attribute_DefaultSort_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_MediaType::EK_AttributeType_DefaultSort_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_EK_Attribute_DefaultSort;}
+return m_EK_AttributeType_DefaultSort;}
 long int Row_MediaType::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
@@ -243,9 +243,9 @@ m_FK_Pipe = val; is_modified=true; is_null[8]=false;}
 void Row_MediaType::CanBookmark_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_CanBookmark = val; is_modified=true; is_null[9]=false;}
-void Row_MediaType::EK_Attribute_DefaultSort_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_MediaType::EK_AttributeType_DefaultSort_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_EK_Attribute_DefaultSort = val; is_modified=true; is_null[10]=false;}
+m_EK_AttributeType_DefaultSort = val; is_modified=true; is_null[10]=false;}
 void Row_MediaType::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_id = val; is_modified=true; is_null[11]=false;}
@@ -281,7 +281,7 @@ return is_null[5];}
 bool Row_MediaType::FK_Pipe_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_MediaType::EK_Attribute_DefaultSort_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_MediaType::EK_AttributeType_DefaultSort_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[10];}
 bool Row_MediaType::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -321,7 +321,7 @@ void Row_MediaType::FK_Pipe_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,ta
 is_null[8]=val;
 is_modified=true;
 }
-void Row_MediaType::EK_Attribute_DefaultSort_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_MediaType::EK_AttributeType_DefaultSort_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[10]=val;
 is_modified=true;
 }
@@ -481,7 +481,7 @@ sprintf(buf, "%hi", m_CanBookmark);
 return buf;
 }
 
-string Row_MediaType::EK_Attribute_DefaultSort_asSQL()
+string Row_MediaType::EK_AttributeType_DefaultSort_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -489,7 +489,7 @@ if (is_null[10])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_EK_Attribute_DefaultSort);
+sprintf(buf, "%li", m_EK_AttributeType_DefaultSort);
 
 return buf;
 }
@@ -611,10 +611,10 @@ bool Table_MediaType::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedIns
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_MediaType_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->DCEAware_asSQL()+", "+pRow->Extensions_asSQL()+", "+pRow->Subdirectory_asSQL()+", "+pRow->IsExternalTransmission_asSQL()+", "+pRow->FK_Pipe_asSQL()+", "+pRow->CanBookmark_asSQL()+", "+pRow->EK_Attribute_DefaultSort_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_MediaType_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->DCEAware_asSQL()+", "+pRow->Extensions_asSQL()+", "+pRow->Subdirectory_asSQL()+", "+pRow->IsExternalTransmission_asSQL()+", "+pRow->FK_Pipe_asSQL()+", "+pRow->CanBookmark_asSQL()+", "+pRow->EK_AttributeType_DefaultSort_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into MediaType (`PK_MediaType`, `Define`, `Description`, `FK_DesignObj`, `DCEAware`, `Extensions`, `Subdirectory`, `IsExternalTransmission`, `FK_Pipe`, `CanBookmark`, `EK_Attribute_DefaultSort`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into MediaType (`PK_MediaType`, `Define`, `Description`, `FK_DesignObj`, `DCEAware`, `Extensions`, `Subdirectory`, `IsExternalTransmission`, `FK_Pipe`, `CanBookmark`, `EK_AttributeType_DefaultSort`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -670,7 +670,7 @@ condition = condition + "`PK_MediaType`=" + tmp_PK_MediaType;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_MediaType`="+pRow->PK_MediaType_asSQL()+", `Define`="+pRow->Define_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_DesignObj`="+pRow->FK_DesignObj_asSQL()+", `DCEAware`="+pRow->DCEAware_asSQL()+", `Extensions`="+pRow->Extensions_asSQL()+", `Subdirectory`="+pRow->Subdirectory_asSQL()+", `IsExternalTransmission`="+pRow->IsExternalTransmission_asSQL()+", `FK_Pipe`="+pRow->FK_Pipe_asSQL()+", `CanBookmark`="+pRow->CanBookmark_asSQL()+", `EK_Attribute_DefaultSort`="+pRow->EK_Attribute_DefaultSort_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_MediaType`="+pRow->PK_MediaType_asSQL()+", `Define`="+pRow->Define_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_DesignObj`="+pRow->FK_DesignObj_asSQL()+", `DCEAware`="+pRow->DCEAware_asSQL()+", `Extensions`="+pRow->Extensions_asSQL()+", `Subdirectory`="+pRow->Subdirectory_asSQL()+", `IsExternalTransmission`="+pRow->IsExternalTransmission_asSQL()+", `FK_Pipe`="+pRow->FK_Pipe_asSQL()+", `CanBookmark`="+pRow->CanBookmark_asSQL()+", `EK_AttributeType_DefaultSort`="+pRow->EK_AttributeType_DefaultSort_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update MediaType set " + update_values_list + " where " + condition;
@@ -892,12 +892,12 @@ sscanf(row[9], "%hi", &(pRow->m_CanBookmark));
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_EK_Attribute_DefaultSort = 0;
+pRow->m_EK_AttributeType_DefaultSort = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_EK_Attribute_DefaultSort));
+sscanf(row[10], "%li", &(pRow->m_EK_AttributeType_DefaultSort));
 }
 
 if (row[11] == NULL)
@@ -1187,12 +1187,12 @@ sscanf(row[9], "%hi", &(pRow->m_CanBookmark));
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_EK_Attribute_DefaultSort = 0;
+pRow->m_EK_AttributeType_DefaultSort = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_EK_Attribute_DefaultSort));
+sscanf(row[10], "%li", &(pRow->m_EK_AttributeType_DefaultSort));
 }
 
 if (row[11] == NULL)
