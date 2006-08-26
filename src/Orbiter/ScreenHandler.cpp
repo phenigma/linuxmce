@@ -247,15 +247,15 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		if( pCell_Pic && pCell_Pic->m_pGraphic && pCell_Pic->m_pGraphic->m_pGraphicData )
 			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
 				pCell_Pic->m_pGraphic->m_pGraphicData,
-				int(pCell_Pic->m_pGraphic->m_GraphicLength),"0");
+				int(pCell_Pic->m_pGraphic->m_GraphicLength),"1");
 		else if( pCell_Pic && pCell_Pic->m_pGraphicData )
 			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
 				pCell_Pic->m_pGraphicData,
-				pCell_Pic->m_GraphicLength,"0");
+				pCell_Pic->m_GraphicLength,"1");
 		else
 			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
 				NULL,
-				0,"0");
+				0,"1");
 
 		m_pOrbiter->m_pObj_Highlighted = pObj_Play;
 #ifdef ENABLE_MOUSE_BEHAVIOR

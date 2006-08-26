@@ -492,11 +492,11 @@ bool DesignObj_DataGrid::CellIsVisible(int Column,int Row)
 	if( DataGridTable_Get() && DataGridTable_Get()->m_iUpRow!=-1 )
 		ExtraRows++;
 
-	if( Row>m_GridCurRow + m_MaxRow - ExtraRows )
+	if( Row>=m_GridCurRow + m_MaxRow - ExtraRows )
 		return false;
-	if( m_bKeepColHeader && Column > m_GridCurCol + m_MaxCol - 1 )
+	if( m_bKeepColHeader && Column >= m_GridCurCol + m_MaxCol - 1 )
 		return false;
-	if( !m_bKeepColHeader && Column > m_GridCurCol + m_MaxCol )
+	if( !m_bKeepColHeader && Column >= m_GridCurCol + m_MaxCol )
 		return false;
 	return true;
 }

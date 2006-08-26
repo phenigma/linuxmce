@@ -1222,17 +1222,19 @@ void *ImageLoadThread(void *p)
 	bool bContinue, bRedraw;
 	do
 	{
-		PLUTO_SAFETY_LOCK(M, pRenderer->m_pOrbiter->m_DatagridMutex);
+		PLUTO_SAFETY_LOCK(vm, pRenderer->m_pOrbiter->m_VariableMutex);
 		// Do them in the reverse order so if we're paging through lots of cells we'll always be rendering
 		// the visible ones first
 		if( pRenderer->m_listBackgroundImage.size()==0 )
 			return NULL;  // Must have had another imageloadthread also running that serviced the last one at the same split second.  No problem.
 		BackgroundImage *pBackgroundImage = pRenderer->m_listBackgroundImage.front();
 		pRenderer->m_listBackgroundImage.pop_front();
-
 		if( !pBackgroundImage->m_pObj_Grid->m_bOnScreen )  // This may have gone off screen, if so ignore it
 			continue;
 		
+		vm.Release();
+		PLUTO_SAFETY_LOCK(M, pRenderer->m_pOrbiter->m_DatagridMutex);
+		vm.Relock();
 		size_t l;
 		pBackgroundImage->m_pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer(pBackgroundImage->m_sPic, l);
 		pBackgroundImage->m_pCell->m_GraphicLength=(unsigned long)l;
@@ -1252,10 +1254,6 @@ void *ImageLoadThread(void *p)
 				"datagrid " + pBackgroundImage->m_pObj_Grid->GenerateObjectHash(pBackgroundImage->m_pObj_Grid->m_pPopupPoint, false),
 				"datagrid-thumb-" + StringUtils::ltos(x) + "-" + StringUtils::ltos(y));
 		}
-else
-{
-int k=2;
-}
 
 		bContinue = (pRenderer->m_listBackgroundImage.size() > 0);
 		bRedraw = ((pRenderer->m_listBackgroundImage.size() % 10) == 0);

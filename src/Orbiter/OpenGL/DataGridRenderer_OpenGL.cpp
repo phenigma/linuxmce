@@ -17,6 +17,7 @@ DataGridRenderer_OpenGL::DataGridRenderer_OpenGL(DesignObj_Orbiter *pOwner)
 		return;
 	}
 	this->Engine = pRendererGL->Engine;
+	m_AnimationSpeed = 800;
 
 }
 
@@ -53,7 +54,7 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 	if(0 != StartAnimation)
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::StartAnimation");
-		Engine->CubeAnimateDatagridFrames(DatagridFrameID, BeforeDataGridClone, RenderFrame, 800, iPK_Direction, 
+		Engine->CubeAnimateDatagridFrames(DatagridFrameID, BeforeDataGridClone, RenderFrame, m_AnimationSpeed, iPK_Direction, 
 			GetAlphaLevel() / 255.0f);
 		Engine->AddMeshFrameToDesktop("", BeforeDataGridClone);
 		StartAnimation = 0;

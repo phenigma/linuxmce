@@ -24,7 +24,7 @@ public:
 	MediaFileBrowserOptions(Orbiter *pOrbiter) 
 	{ 
 		m_pOrbiter=pOrbiter; 
-		ClearAll(0,0); 
+		ClearAll(0,0,0); 
 		m_pObj_ListGrid=m_pObj_PicGrid=NULL;
 	}
 
@@ -34,11 +34,12 @@ public:
 			"|" + m_sPK_Users_Private + "|" + StringUtils::itos(m_PK_AttributeType_Sort) + "|" + StringUtils::itos(m_PK_Users);
 	}
 
-	void ClearAll(int PK_MediaType,int PK_Screen)
+	void ClearAll(int PK_MediaType,int PK_Screen,int PK_AttributeType_Sort)
 	{
 		m_iPK_Screen=PK_Screen;
 		m_PK_MediaType=PK_MediaType;
-		m_PK_AttributeType_Sort=m_PK_Users=0;
+		m_PK_Users=0;
+		m_PK_AttributeType_Sort = PK_AttributeType_Sort;
 		m_sPK_MediaSubType=""; m_sPK_FileFormat=""; m_sPK_Attribute_Genres=""; m_sSources=""; m_sPK_Users_Private="";
 		m_mapObjectsValues.clear();
 		if( !m_pObj_ListGrid )

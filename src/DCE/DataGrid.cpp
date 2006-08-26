@@ -63,7 +63,6 @@ void DataGridCell::Initialize()
 
 DataGridCell::~DataGridCell()
 {
-	g_pPlutoLogger->Write(LV_CRITICAL,"~DataGridCell %p",this);
 	if (m_Text) 
 		delete[] m_Text;
 	if (m_Value)
