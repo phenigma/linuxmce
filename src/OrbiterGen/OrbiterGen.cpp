@@ -68,7 +68,7 @@ static HEAP_ALLOC(wrkmem,LZO1X_1_MEM_COMPRESS);
 #include "pluto_main/Table_EventHandler.h"
 #include "pluto_main/Table_CommandGroup_Command_CommandParameter.h"
 #include "pluto_main/Table_CommandGroup_Command.h"
-#include "pluto_main/Define_MediaType.h"
+#include "pluto_main/Table_MediaType.h"
 #include "DCE/DCEConfig.h"
 
 DCEConfig g_DCEConfig;
@@ -419,6 +419,14 @@ int OrbiterGenerator::DoIt()
 
 	//this will map each effect type to an effect based on the skin
 	PopulateEffects(m_mapEffects, m_pRow_Skin->PK_Skin_get());
+
+	vector<Row_MediaType *> vectRow_MediaType;
+	mds.MediaType_get()->GetRows("1=1",&vectRow_MediaType);
+	for(vector<Row_MediaType *>::iterator it=vectRow_MediaType.begin();it!=vectRow_MediaType.end();++it)
+	{
+		Row_MediaType *pRow_MediaType = *it;
+		m_mapPK_MediaType_PK_Attribute_Sort[ pRow_MediaType->PK_MediaType_get() ] = pRow_MediaType->EK_Attribute_DefaultSort_get();
+	}
 
 	PopulateScreenMap(&mds, m_mapDesignObj, m_pRow_UI, pRow_Skin_For_Translation, m_pRow_Device);
 	vector<Row_Screen *> vectRow_Screen_GoBack;
