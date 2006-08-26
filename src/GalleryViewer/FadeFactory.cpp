@@ -1,0 +1,27 @@
+#include "FadeFactory.h"
+
+#include "FadeBlending.h"
+
+FadeFactory* FadeFactory::Instance_ = NULL;
+
+FadeFactory* FadeFactory::Instance(void)
+{
+	if(NULL == Instance_)
+		Instance_ = new FadeFactory();
+	return Instance_;
+}
+
+FadeFactory::FadeFactory(void)
+{
+}
+
+FadeFactory::~FadeFactory(void)
+{
+}
+
+
+FadeBase* FadeFactory::CreateFadeMode(int Mode, MeshFrame* AfterFrame, MeshFrame*BeforeFrame, 
+										int StartTime, int TimeToFade)
+{
+	return new FadeBlending(AfterFrame, BeforeFrame, StartTime, TimeToFade);
+}
