@@ -75,14 +75,10 @@ void MediaBrowserMouseHandler::Stop()
 
 bool MediaBrowserMouseHandler::ButtonDown(int PK_Button)
 {
-		return false;
+	if( m_eCapturingOffscreenMovement != cosm_NO )
+		return true;
 	if( m_pMouseBehavior->m_bMouseConstrained )
 		return false;
-	if( PK_Button==BUTTON_Mouse_1_CONST )
-	{
-		m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
-		return true; // Don't process any more
-	}
 
 	return false; // Keep processing
 }
