@@ -35,7 +35,7 @@ public:
     ~RubyDCEEmbededClass();
 
 public:
-	void CallCmdHandler(Message *pMessage);
+	bool CallCmdHandler(Message *pMessage);
 	void CallCmdForChildHandler(unsigned devid, Message *pMessage);
 
 private:

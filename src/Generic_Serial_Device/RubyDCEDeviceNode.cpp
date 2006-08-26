@@ -133,8 +133,10 @@ RubyDCEDeviceNode::handleMessage(Message* pmsg) {
     bool ret = false;
     if(getDeviceData()->m_dwPK_Device == (unsigned long)pmsg->m_dwPK_Device_To) {
 		g_pPlutoLogger->Write(LV_STATUS, "handleMessage directly");
-        getEmbClass()->CallCmdHandler(pmsg);
-		ret = true;
+        if( getEmbClass()->CallCmdHandler(pmsg) )
+		{
+			ret = true;
+		}
     } else {
     	std::list<RubyDCEDeviceNode*>& children = getChildren();
 	    for(std::list<RubyDCEDeviceNode*>::iterator it = children.begin(); it != children.end(); it++) {

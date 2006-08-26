@@ -43,14 +43,14 @@ RubyDCEEmbededClass::~RubyDCEEmbededClass()
 {
 }
 
-void 
+bool
 RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 	if(!pcs_->isCmdImplemented(pMessage->m_dwPK_Device_To, pMessage->m_dwID)) {
 		if(pMessage->m_dwID != COMMAND_Process_IDLE_CONST) {
 			g_pPlutoLogger->Write(LV_STATUS, "Command %d not supported.", pMessage->m_dwID);
 			pMessage->m_bRespondedToMessage=true;
 		}
-		return;
+		return false;
 	}
 	
 	std::list<int> paramids;
@@ -126,14 +126,15 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 			{
 				pmanager->SendString(sCMD_Result);
 			}
-			pMessage->m_bRespondedToMessage=true;			
+			pMessage->m_bRespondedToMessage=true;
 			mm.Release();
 		}
 	} catch(RubyException e) {
 		g_pPlutoLogger->Write(LV_CRITICAL, (string("Error while calling method: ") + e.getMessage()).c_str());
+		return false;
 	}
 
-		
+	return true;
 }
 
 void 

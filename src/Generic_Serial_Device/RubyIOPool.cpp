@@ -97,7 +97,16 @@ void
 RubyIOPool::RubyIOState::handleRead(IOConnection* pconn) {
 	RubyIOPool* psm = reinterpret_cast<RubyIOPool*>(getSM());
 	Message datamsg(0, psm->getDeviceData()->m_dwPK_Device, 0, MESSAGETYPE_COMMAND, COMMAND_Process_Incoming_Data_CONST, 0);
-	psm->handleMessage(&datamsg);
+	// if it's not able to process the available bytes
+	// then let's log and flush them
+	if( !psm->handleMessage(&datamsg) )
+	{
+		char readBuffer[4096];
+		while( pconn->isDataAvailable(10) )
+		{
+			pconn->Recv(readBuffer, sizeof(readBuffer), 100);
+		}
+	}
 }
 
 };
