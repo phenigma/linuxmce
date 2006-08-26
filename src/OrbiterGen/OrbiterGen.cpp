@@ -425,7 +425,7 @@ int OrbiterGenerator::DoIt()
 	for(vector<Row_MediaType *>::iterator it=vectRow_MediaType.begin();it!=vectRow_MediaType.end();++it)
 	{
 		Row_MediaType *pRow_MediaType = *it;
-		m_mapPK_MediaType_PK_Attribute_Sort[ pRow_MediaType->PK_MediaType_get() ] = pRow_MediaType->EK_Attribute_DefaultSort_get();
+		m_mapPK_MediaType_PK_Attribute_Sort[ pRow_MediaType->PK_MediaType_get() ] = pRow_MediaType->EK_AttributeType_DefaultSort_get();
 	}
 
 	PopulateScreenMap(&mds, m_mapDesignObj, m_pRow_UI, pRow_Skin_For_Translation, m_pRow_Device);
