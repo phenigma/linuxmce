@@ -87,6 +87,7 @@ string m_Subdirectory;
 short int m_IsExternalTransmission;
 long int m_FK_Pipe;
 short int m_CanBookmark;
+long int m_EK_Attribute_DefaultSort;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -94,7 +95,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[16];
+		bool is_null[17];
 	
 	public:
 		long int PK_MediaType_get();
@@ -107,6 +108,7 @@ string Subdirectory_get();
 short int IsExternalTransmission_get();
 long int FK_Pipe_get();
 short int CanBookmark_get();
+long int EK_Attribute_DefaultSort_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -125,6 +127,7 @@ void Subdirectory_set(string val);
 void IsExternalTransmission_set(short int val);
 void FK_Pipe_set(long int val);
 void CanBookmark_set(short int val);
+void EK_Attribute_DefaultSort_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -138,6 +141,7 @@ bool Description_isNull();
 bool FK_DesignObj_isNull();
 bool Extensions_isNull();
 bool FK_Pipe_isNull();
+bool EK_Attribute_DefaultSort_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -150,6 +154,7 @@ void Description_setNull(bool val);
 void FK_DesignObj_setNull(bool val);
 void Extensions_setNull(bool val);
 void FK_Pipe_setNull(bool val);
+void EK_Attribute_DefaultSort_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -179,7 +184,7 @@ void MediaType_DesignObj_FK_MediaType_getrows(vector <class Row_MediaType_Design
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_MediaType+ m_Define+ m_Description+ m_FK_DesignObj+ m_DCEAware+ m_Extensions+ m_Subdirectory+ m_IsExternalTransmission+ m_FK_Pipe+ m_CanBookmark+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_MediaType+ m_Define+ m_Description+ m_FK_DesignObj+ m_DCEAware+ m_Extensions+ m_Subdirectory+ m_IsExternalTransmission+ m_FK_Pipe+ m_CanBookmark+ m_EK_Attribute_DefaultSort+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -194,6 +199,7 @@ string Subdirectory_asSQL();
 string IsExternalTransmission_asSQL();
 string FK_Pipe_asSQL();
 string CanBookmark_asSQL();
+string EK_Attribute_DefaultSort_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
