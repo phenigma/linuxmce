@@ -4002,8 +4002,35 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	{
 		pRow_Picture = m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPicture(pData,iData_Size,sFormat,"");
 	}
-ONLY 1 FOR START
-	Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->AddRow();
+
+	Row_Bookmark *pRow_Bookmark;
+	string sName;
+	bool bIsStart=false;
+	if( sOptions=="START" )
+	{
+		vector<Row_Bookmark *> vectRow_Bookmark;
+		if( pMediaStream->m_dwPK_Disc )
+			m_pDatabase_pluto_media->Bookmark_get()->GetRows(
+				"Description='NAME' AND FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc),&vectRow_Bookmark);
+		else
+			m_pDatabase_pluto_media->Bookmark_get()->GetRows(
+				"Description='NAME' AND FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File),&vectRow_Bookmark);
+
+		if( vectRow_Bookmark.size() )
+			pRow_Bookmark = vectRow_Bookmark[0];
+		else
+			pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->AddRow();
+
+		pRow_Bookmark->IsAutoResume_set(1);
+		sName = "START";
+		bIsStart=true;
+	}
+	else
+	{
+		sName = pMediaStream->m_sMediaDescription + " " + sText;
+		pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->AddRow();
+	}
+
 	if( pMediaStream->m_dwPK_Disc )
 		pRow_Bookmark->FK_Disc_set(pMediaStream->m_dwPK_Disc);
 	else
@@ -4011,16 +4038,6 @@ ONLY 1 FOR START
 	pRow_Bookmark->EK_MediaType_set(pMediaStream->m_iPK_MediaType);
 	if( pRow_Picture )
 		pRow_Bookmark->FK_Picture_set(pRow_Picture->PK_Picture_get());
-	string sName;
-	bool bIsStart=false;
-	if( sOptions=="START" )
-	{
-		pRow_Bookmark->IsAutoResume_set(1);
-		sName = "START";
-		bIsStart=true;
-	}
-	else
-		sName = pMediaStream->m_sMediaDescription + " " + sText;
 	pRow_Bookmark->Description_set(sName);
 	pRow_Bookmark->Position_set(sPosition);
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
