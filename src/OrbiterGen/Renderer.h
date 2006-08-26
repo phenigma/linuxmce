@@ -57,9 +57,9 @@ public:
 	// 'F', means stretch the image so it fits
 	char m_cDefaultScaleForMenuBackground,m_cDefaultScaleForOtherGraphics;
 	static float m_fScaleX,m_fScaleY;
+	bool m_bUseAlphaBlending, m_bCreateMask;
 
 #ifndef ORBITER
-	bool m_bUseAlphaBlending, m_bCreateMask;
 
 	void RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,
 		PlutoPoint Position,int iRenderStandard,int iOnlyVersion=-999);
