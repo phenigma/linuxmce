@@ -264,8 +264,6 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_bLoadDatagridImagesInBackground=true;
 	m_iPK_Screen_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_Screen_FileList=m_iPK_Screen_RemoteOSD=m_iPK_Screen_OSD_Speed=m_iPK_Screen_OSD_Track=m_PK_DesignObj_ActiveApp_OSD=m_PK_DesignObj_ActiveApp_Remote=0;
 	m_iPK_MediaType=0;
-m_iPK_Screen_OSD_Speed=224;
-m_iPK_Screen_OSD_Track=230;
 	m_pScreenHistory_Current=NULL;
 	m_pObj_LastSelected=m_pObj_Highlighted=m_pObj_Highlighted_Last=NULL;
 	m_pObj_SelectedLastScreen=NULL;

@@ -507,6 +507,7 @@ static bool MediaSectionGridComparer(MediaSectionGrid *x, MediaSectionGrid *y)
 
 class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
+	/*
 DataGridTable *pDataGridtmp = new DataGridTable();
 for(int i=0;i<40;++i)
 {
@@ -516,7 +517,7 @@ for(int i=0;i<40;++i)
 *iPK_Variable=VARIABLE_Track_or_Playlist_Positio_CONST;
 *sValue_To_Assign=StringUtils::itos(20);
 return pDataGridtmp;
-
+*/
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
     class MediaStream *pMediaStream = DetermineStreamOnOrbiter( pMessage->m_dwPK_Device_From, true );
@@ -548,7 +549,13 @@ return pDataGridtmp;
 			{
 				MediaSection *pMediaSection = pMediaTitle->m_dequeMediaSection[sSection];
 				string sCell = StringUtils::itos(sSection+1) + " " + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaSection->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Chapter_CONST));
-				pDataGrid->SetData(0, currentPos++,new DataGridCell(sCell," TITLE:" + StringUtils::itos(sTitle+1) + " CHAPTER:" + StringUtils::itos(sSection+1)));
+				string sValue = " TITLE:" + StringUtils::itos(sTitle+1) + " CHAPTER:" + StringUtils::itos(sSection+1);
+				pDataGrid->SetData(0, currentPos++,new DataGridCell(sCell,sValue));
+				if( sTitle==pMediaStream->m_iDequeMediaTitle_Pos && sSection==pMediaStream->m_iDequeMediaSection_Pos )
+				{
+					*iPK_Variable=VARIABLE_Track_or_Playlist_Positio_CONST;
+					*sValue_To_Assign=sValue;
+				}
 				mapSections[ make_pair<int,int> (sSection,sTitle) ] = true;
 			}
 		}
@@ -582,6 +589,13 @@ return pDataGridtmp;
 					sCell += " TITLE:" + StringUtils::itos(it->first.second+1);
 				if( it->first.first>=0 )
 					sCell += " CHAPTER:" + StringUtils::itos(it->first.first+1);  // Internally we're zero based
+
+				if( it->first.second==pMediaStream->m_iDequeMediaTitle_Pos && it->first.first==pMediaStream->m_iDequeMediaSection_Pos )
+				{
+					*iPK_Variable=VARIABLE_Track_or_Playlist_Positio_CONST;
+					*sValue_To_Assign=sCell;
+				}
+
 				listMediaSectionGrid.push_back(new MediaSectionGrid(it->first.second,it->first.first,new DataGridCell(it->second,sCell)));
 			}
 			else
