@@ -103,9 +103,10 @@ void HorizMenuMouseHandler::Move(int X,int Y,int PK_Direction)
 	{
 		if( m_pObj_ActiveSubMenu )
 		{
-			DesignObj_Orbiter *pObj_ToHighlight=m_pMouseBehavior->FindChildObjectAtPosition(m_pObj_ActiveSubMenu,X,Y);
-			if( pObj_ToHighlight )
-				m_pMouseBehavior->HighlightObject(pObj_ToHighlight);
+			DesignObj_Orbiter *pObj_ToHighlight_TopMost=NULL;
+			DesignObj_Orbiter *pObj_ToHighlight=m_pMouseBehavior->FindChildObjectAtPosition(m_pObj_ActiveSubMenu,X,Y,&pObj_ToHighlight_TopMost,DIRECTION_Up_CONST);
+			if( pObj_ToHighlight || pObj_ToHighlight_TopMost)
+				m_pMouseBehavior->HighlightObject(pObj_ToHighlight ? pObj_ToHighlight : pObj_ToHighlight_TopMost);
 		}
 	}
 }

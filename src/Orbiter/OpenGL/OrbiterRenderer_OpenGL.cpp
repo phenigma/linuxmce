@@ -312,6 +312,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	int nAlphaChannel/* = 255*/, string ParentObjectID/* = ""*/, string ObjectID/* = ""*/, 
 	string ObjectHash/* = ""*/)
 {
+g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 	if(ObjectID == "")
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "RenderGraphic with no object id!");
@@ -380,6 +381,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	TextureManager::Instance()->AddCacheItem(ObjectHash, Frame);
 
 	Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);
+g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic2");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::BeginPaint()

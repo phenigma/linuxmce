@@ -110,6 +110,29 @@ public:
 		else
 			return m_sFilename; 
 	}
+	string HumanReadableFullyQualifiedFile() {
+		if( m_sPath.size()==0 )
+			return m_sFilename; 
+
+		string::size_type pos=1;
+		string sHome = StringUtils::Tokenize(m_sPath,"/",pos);
+		string sPublic = StringUtils::Tokenize(m_sPath,"/",pos);
+		string sData = StringUtils::Tokenize(m_sPath,"/",pos);
+		if( sHome!="home" || sData!="data" )
+			return FullyQualifiedFile(); // It's a format we don't recognize
+
+		string sResult;
+		if( sPublic=="public" )
+			sResult = "PUBLIC : ";
+		else if ( sPublic.find("user_")==0 )
+			sResult = "PRIVATE: ";
+		else
+			sResult = sPublic + "/";
+
+		if( pos < m_sPath.size() )
+			sResult += m_sPath.substr(pos) + "/";
+		return sResult + m_sFilename;
+	}
 };
 
 void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional);

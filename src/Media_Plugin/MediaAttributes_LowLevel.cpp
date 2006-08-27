@@ -1247,3 +1247,36 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 		}
 	}
 }
+
+string MediaAttributes_LowLevel::GetDefaultDescriptionForMediaFile(MediaFile *pMediaFile)
+{
+	string sSQL = "SELECT FK_AttributeType,Attribute.Name FROM File_Attribute JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_File = "
+			+ StringUtils::itos(pMediaFile->m_dwPK_File) + " AND Track=0 AND Section=0 AND FK_AttributeType IN ("
+			TOSTRING(ATTRIBUTETYPE_Title_CONST) "," TOSTRING(ATTRIBUTETYPE_Performer_CONST) "," TOSTRING(ATTRIBUTETYPE_Album_CONST) ")";
+		
+    PlutoSqlResult result;
+    MYSQL_ROW row;
+	string sAlbum,sPerformer;
+    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL ) ) )
+	{
+		while ( row=mysql_fetch_row( result.r ) )
+		{
+			switch( atoi(row[0]) )
+			{
+			case ATTRIBUTETYPE_Title_CONST:
+				return row[1]; // This has highest priority
+			case ATTRIBUTETYPE_Performer_CONST:
+				sPerformer = row[1];
+			case ATTRIBUTETYPE_Album_CONST:
+				sAlbum = row[1];
+			}
+		}
+	}
+	if( sPerformer.size() )  // Performer has higher priority than album
+		return sPerformer;
+	else if( sAlbum.size() )
+		return sAlbum;
+	else
+		return pMediaFile->m_sFilename;
+}
+

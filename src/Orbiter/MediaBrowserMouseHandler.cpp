@@ -28,7 +28,7 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
     , m_pRelativePointer_Image(NULL)
 {
 	m_pObj_ListGrid=m_pObj_PicGrid=NULL;
-	m_pObj_CoverArtPopup=NULL;
+	m_pObj_FileDetailsText=m_pObj_CoverArtPopup=NULL;
 	m_eCapturingOffscreenMovement=cosm_NO;
 
 	if( !m_pObj )
@@ -39,9 +39,9 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 	for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
 	{
 		DesignObj_Orbiter *pDesignObj_Orbiter=( DesignObj_Orbiter * )*iHao;
-		if( pDesignObj_Orbiter->m_iBaseObjectID==4949 )
+		if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_dgFileList2_CONST )
 			m_pObj_ListGrid = (DesignObj_DataGrid *) pDesignObj_Orbiter;
-		else if( pDesignObj_Orbiter->m_iBaseObjectID==5086 )
+		else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_dgFileList2_Pics_CONST )
 			m_pObj_PicGrid = (DesignObj_DataGrid *) pDesignObj_Orbiter;
 	}
 	if( !m_pObj_ListGrid || !m_pObj_PicGrid )
@@ -54,6 +54,7 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 		m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
 	}
 	m_pObj_CoverArtPopup=m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_popCoverArt_CONST);
+	m_pObj_FileDetailsText = m_pMouseBehavior->m_pOrbiter->FindObject(5168);
 	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 }
 
@@ -300,6 +301,17 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 	{
 		M.Release();
 		m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
+	}
+
+	if( m_pObj_FileDetailsText && m_pObj_FileDetailsText->m_vectDesignObjText.size() )
+	{
+		DataGridTable *pDataGridTable = m_pObj_ListGrid->DataGridTable_Get();
+		if( pDataGridTable )
+		{
+			pCell = pDataGridTable->GetData(0,m_pObj_ListGrid->m_iHighlightedRow + m_pObj_ListGrid->m_GridCurRow );
+			m_pObj_FileDetailsText->m_vectDesignObjText[0]->m_sText = pCell ? pCell->GetText() : "";
+			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderTextAsync(m_pObj_FileDetailsText->m_vectDesignObjText[0]);
+		}
 	}
 }
 

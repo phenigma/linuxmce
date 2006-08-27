@@ -177,7 +177,7 @@ void MouseBehavior::RelativeMove(int DeltaX,int DeltaY)
 		m_pMouseHandler->RelativeMove(DeltaX, DeltaY);
 }
 
-DesignObj_Orbiter *MouseBehavior::FindChildObjectAtPosition(DesignObj_Orbiter *pObj_Parent,int X,int Y)
+DesignObj_Orbiter *MouseBehavior::FindChildObjectAtPosition(DesignObj_Orbiter *pObj_Parent,int X,int Y,DesignObj_Orbiter **pObj_Furthest, int PK_Direction)
 {
 	if( pObj_Parent==NULL )
 		pObj_Parent = m_pOrbiter->m_pScreenHistory_Current->GetObj();
@@ -185,7 +185,7 @@ DesignObj_Orbiter *MouseBehavior::FindChildObjectAtPosition(DesignObj_Orbiter *p
 	for( iHao=pObj_Parent->m_ChildObjects.begin(  ); iHao != pObj_Parent->m_ChildObjects.end(  ); ++iHao )
 	{
 		DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) *iHao;
-		DesignObj_Orbiter *pObj_Child = FindChildObjectAtPosition(pObj,X,Y);
+		DesignObj_Orbiter *pObj_Child = FindChildObjectAtPosition(pObj,X,Y,pObj_Furthest, PK_Direction);
 		if( pObj_Child )
 			return pObj_Child;
 	}
@@ -198,6 +198,13 @@ DesignObj_Orbiter *MouseBehavior::FindChildObjectAtPosition(DesignObj_Orbiter *p
 		}
 		else if( (pObj_Parent->m_rPosition+pObj_Parent->m_pPopupPoint).Contains(X,Y) )
 			return pObj_Parent;
+		else if( pObj_Furthest )
+		{
+			if( !*pObj_Furthest 
+				|| ( PK_Direction==DIRECTION_Up_CONST && pObj_Parent->m_rPosition.Y<(*pObj_Furthest)->m_rPosition.Y )
+				)
+					*pObj_Furthest = pObj_Parent;
+		}
 	}
 	return NULL;
 }

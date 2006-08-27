@@ -17,7 +17,7 @@ DataGridRenderer_OpenGL::DataGridRenderer_OpenGL(DesignObj_Orbiter *pOwner)
 		return;
 	}
 	this->Engine = pRendererGL->Engine;
-	m_AnimationSpeed = 800;
+	m_AnimationSpeed = 100;
 
 }
 
@@ -26,9 +26,28 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 
 }
 
-
+#include "DCE/DataGrid.h"
 /*virtual*/ void DataGridRenderer_OpenGL::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
+
+string sValue;
+DataGridTable *pDataGridTable = m_pObj_Owner_DataGrid->DataGridTable_Get();
+if( pDataGridTable )
+{
+for(MemoryDataTable::iterator it=pDataGridTable->m_MemoryDataTable.begin();it!=pDataGridTable->m_MemoryDataTable.end();++it)
+{
+DataGridCell *pDataGridCell = it->second;
+if( pDataGridCell->GetText() )
+sValue += pDataGridCell->GetText() + string(",");
+}
+}
+else
+{
+DataGridTable *pDataGridTable = m_pObj_Owner_DataGrid->DataGridTable_Get();
+}
+g_pPlutoLogger->Write(LV_EVENTHANDLER,"DataGridRenderer_OpenGL::RenderObject datagrid %s to row %d col %d value %s",
+					  m_pObj_Owner_DataGrid->m_sGridID.c_str(),m_pObj_Owner_DataGrid->m_GridCurRow,m_pObj_Owner_DataGrid->m_GridCurCol,sValue.c_str());
+
 	string DatagridFrameID = "datagrid " + m_pObj_Owner->GenerateObjectHash(point, false);
 	if(Engine->IsCubeAnimatedDatagrid(DatagridFrameID))
 		return;

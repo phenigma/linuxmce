@@ -36,7 +36,6 @@ public:
 	int m_iInitialColNum,m_iInitialRowNum,m_iPK_Datagrid,m_iPK_Variable,m_iSeekColumn,m_iPK_DeviceTemplate;
 	string m_sGridID,m_sOptions,m_sExtraInfo,m_sSeek;
 	DesignObj_Orbiter *m_pObjLeft, *m_pObjRight, *m_pObjUp, *m_pObjDown;
-	DataGridTable *m_pDataGridTable_Current_get() { return m_pDataGridTable_Current; }
 	void m_pDataGridTable_Current_set(DataGridTable *pDataGridTable_Current);
 	int m_CachedCurRow,m_CachedCurCol;
 	map< pair<int,int>, DataGridTable *> m_mapDataGridTable_Cache; // Map Row,Col to the cached grid.  These are all pages, or views of the grid that we've cached

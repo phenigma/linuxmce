@@ -133,7 +133,8 @@ namespace DCE
 		void Move(int X,int Y);
 		void RelativeMove(int DeltaX, int DeltaY);
 
-		DesignObj_Orbiter *FindChildObjectAtPosition(DesignObj_Orbiter *pObj_Parent,int X,int Y);
+		// If pObj_Furthest is specified, then whether or not there is an exact match, the object furthest in the PK_Direction will be assigned to it
+		DesignObj_Orbiter *FindChildObjectAtPosition(DesignObj_Orbiter *pObj_Parent,int X,int Y,DesignObj_Orbiter **pObj_Furthest=NULL, int PK_Direction=0);
 
 		void ResetSamples() { for(int i=0;i<NUM_SAMPLES;++i) m_dwSamples[i]=0; }
 		void ShiftSamples() { for(int i=NUM_SAMPLES-2;i>=0;--i) { m_dwSamples[i+1]=m_dwSamples[i]; m_pSamples[i+1]=m_pSamples[i]; } m_pSamples[0].X=m_pSamples[0].Y=0; m_dwSamples[0]=0; }

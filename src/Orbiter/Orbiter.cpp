@@ -81,6 +81,7 @@ using namespace DCE;
 #endif
 
 //#define PROFILING_GRID
+PlutoProfiler *g_PlutoProfiler = new PlutoProfiler();
 
 #if defined(WIN32) && !defined(BLUETOOTH_DONGLE)
 #include "MainDialog.h" //for debugging in main window
@@ -699,9 +700,13 @@ void Orbiter::RedrawObject( void *iData )
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RealRedraw( void *data )
 {
+g_PlutoProfiler->ClearResults();
+g_PlutoProfiler->Start("RealRedraw");
 	g_pPlutoLogger->Write(LV_ACTION, "Orbiter::RealRedraw start");
 	m_pOrbiterRenderer->RefreshScreen(data);
 	g_pPlutoLogger->Write(LV_ACTION, "Orbiter::RealRedraw stop");
+g_PlutoProfiler->Stop("RealRedraw");
+g_PlutoProfiler->DumpResults();
 }
 //-----------------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter::NeedToChangeScreens( ScreenHistory *pScreenHistory/*, bool bAddToHistory*/ )
@@ -2485,6 +2490,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 //temptest
 if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler && m_pMouseBehavior->m_pMouseHandler->TypeOfMouseHandler()==MouseHandler::mh_MediaBrowser && event.data.button.m_iPK_Button == BUTTON_u_CONST )
 {
+g_pPlutoLogger->Write(LV_ACTION, "Orbiter::ProcessEvent -- got a up");
 MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pMouseBehavior->m_pMouseHandler;
 pMediaBrowserMouseHandler->m_eCapturingOffscreenMovement=MediaBrowserMouseHandler::cosm_UP;
 pMediaBrowserMouseHandler->DoIteration();
@@ -2493,6 +2499,7 @@ return false;
 }
 else if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler && m_pMouseBehavior->m_pMouseHandler->TypeOfMouseHandler()==MouseHandler::mh_MediaBrowser && event.data.button.m_iPK_Button == BUTTON_d_CONST )
 {
+g_pPlutoLogger->Write(LV_ACTION, "Orbiter::ProcessEvent -- got a down");
 MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pMouseBehavior->m_pMouseHandler;
 pMediaBrowserMouseHandler->m_eCapturingOffscreenMovement=MediaBrowserMouseHandler::cosm_DOWN;
 pMediaBrowserMouseHandler->DoIteration();

@@ -37,7 +37,7 @@ namespace DCE
 		CapturingOffscreenMovement m_eCapturingOffscreenMovement;
 
 		DesignObj_DataGrid *m_pObj_ListGrid,*m_pObj_PicGrid;
-		DesignObj_Orbiter *m_pObj_CoverArtPopup;
+		DesignObj_Orbiter *m_pObj_CoverArtPopup,*m_pObj_FileDetailsText;
 		int m_iLastNotch,m_LastRow,m_LastX;
 
 	public:

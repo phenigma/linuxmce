@@ -22,6 +22,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 
 /*virtual*/ void ObjectRenderer_OpenGL::RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point)
 {
+g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic1");
 	string sParentObjectID = "";
 	DesignObj_Orbiter *pParentObj = dynamic_cast<DesignObj_Orbiter *>(m_pObj_Owner->m_pParentObject);
 	if(NULL != pParentObj)
@@ -34,6 +35,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 	if(NULL != Frame)
 	{
 		TextureManager::Instance()->AttachToScene(sParentObjectID, Frame);
+g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 		return;
 	}
 #endif
@@ -48,7 +50,10 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 
 	//we have nothing to render
 	if(NULL == pPlutoGraphic)
+	{
+g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 		return;
+	}
 		
 	//g_pPlutoLogger->Write(LV_STATUS, "(2) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
 	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
@@ -84,6 +89,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 		if (!iSizeGraphicFile)
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to get file from server %s", pPlutoGraphic->m_Filename.c_str());
+g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 			return;
 		}
 
@@ -99,6 +105,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 		{
 			delete pGraphicFile;
 			pGraphicFile = NULL;
+g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 			return;
 		}
 
@@ -114,6 +121,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 		if(!FileUtils::FileExists(sFileName))
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read file %s", (sFileName).c_str());
+g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 			return;
 		}
 
@@ -130,10 +138,16 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 				char *pData = FileUtils::ReadFileIntoBuffer(sFileName.c_str(), size);
 
 				if(!size)
+				{
+g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 					return;
+				}
 
 				if(!pPlutoGraphic->LoadGraphic(pData, size))
+				{
+g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 					return;
+				}
 
 				delete [] pData;
 			}
@@ -163,5 +177,6 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", m_pObj_Owner->m_ObjectID.c_str());
 #endif
+g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 }
 

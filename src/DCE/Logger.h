@@ -56,6 +56,7 @@
 #define LV_MEDIA		34
 #define LV_DEBUG		35
 #define LV_ZWAVE		36
+#define LV_PROFILER		37
 
 #include "SerializeClass/SerializeClass.h"
 #include "PlutoUtils/MultiThreadIncludes.h"

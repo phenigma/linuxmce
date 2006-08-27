@@ -207,6 +207,7 @@ bool OpenGLGraphic::IsEmpty()
 
 bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 {
+g_PlutoProfiler->Start("OpenGLGraphic::LoadGraphic");
 	Clear();
 
 	if(m_GraphicFormat == GR_OCG)
@@ -228,11 +229,15 @@ bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 	}
 
 	if(!LocalSurface)
+	{
+g_PlutoProfiler->Stop("OpenGLGraphic::LoadGraphic");
 		return false;
+	}
 
 	Width = LocalSurface->w;
 	Height = LocalSurface->h;
 	Prepare();
+g_PlutoProfiler->Stop("OpenGLGraphic::LoadGraphic");
 
 	return LocalSurface != NULL;
 }

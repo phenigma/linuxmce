@@ -115,6 +115,7 @@ public:
     int GetAttributeFromFileID(int PK_File);
     int GetAttributeFromFilePath(string File);
     int GetFileIDFromAttributeID(int PK_Attribute);
+	string GetDefaultDescriptionForMediaFile(MediaFile *pMediaFile);
 	// First name can either be a separate parameter, or part of Name delimited by a tab
     Row_Attribute *GetAttributeFromDescription(int PK_MediaType,int PK_AttributeType,string sName); 
 	void TransformFilenameToDeque(string sFilename,deque<MediaFile *> &dequeMediaFile);

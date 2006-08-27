@@ -64,13 +64,16 @@ bool DesignObj_DataGrid::HasMoreDown()
 //-------------------------------------------------------------------------------------------------------
 /*virtual*/ void DesignObj_DataGrid::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
+g_PlutoProfiler->Start("send command");
 	m_pObjectRenderer->RenderObject(pObj_Screen, point);
 }
 //-------------------------------------------------------------------------------------------------------
 /*virtual*/ void DesignObj_DataGrid::PrepareRenderDataGrid(string& delSelections )
 {
 g_pPlutoLogger->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %d max col %d cur row %d cur col %d", m_sGridID.c_str(),m_MaxRow,m_MaxCol,m_GridCurRow,m_GridCurCol);
+g_PlutoProfiler->Start("RequestDatagridContents");
 	DataGridTable *pDataGridTable = RequestDatagridContents( m_GridCurCol,  m_GridCurRow, false );
+g_PlutoProfiler->Stop("RequestDatagridContents");
 	m_pOrbiter->CallMaintenanceInMiliseconds(100,&Orbiter::StartCachingGrid,this,pe_Match_Data);
 	m_PagesCached = make_pair<int,int> (0,0); // Start caching again
 
@@ -122,10 +125,12 @@ g_pPlutoLogger->Write(LV_ACTION,"acquiring %s",m_ObjectID.c_str());
 			StringUtils::itos( m_pOrbiter->m_dwIDataGridRequestCounter ), m_sGridID,
 			m_MaxRow, m_MaxCol, m_bKeepRowHeader, m_bKeepColHeader, true, m_sSeek, m_iSeekColumn, &data, &size, &GridCurRow, &GridCurCol );
 
+g_PlutoProfiler->Start("send command");
 		if(  !m_pOrbiter->SendCommand( CMD_Request_Datagrid_Contents )  )
 			g_pPlutoLogger->Write( LV_CRITICAL, "Request datagrid: %s failed", m_ObjectID.c_str(  ) );
 		else
 		{
+g_PlutoProfiler->Stop("send command");
 			if ( size && data )
 			{
 				// See if we should add page up/down cells -- see notes at top of file
@@ -231,7 +236,7 @@ DataGridTable *DesignObj_DataGrid::DataGridTable_Get(int CurRow,int CurCol)
 		else
 			return it->second;
 	}
-	return m_pDataGridTable_Current_get();
+	return m_pDataGridTable_Current;
 }
 
 void DesignObj_DataGrid::DataGridTable_Set(DataGridTable *pDataGridTable,int CurRow,int CurCol)
@@ -451,6 +456,7 @@ bool DesignObj_DataGrid::Scroll_Grid(string sRelative_Level, int iPK_Direction,b
 			pObj_Datagrid->Scroll_Grid(sRelative_Level, iPK_Direction, bMoveOneLineIfCannotPage);
 		}
 	}
+g_pPlutoLogger->Write(LV_EVENTHANDLER,"Scrolled datagrid %s to row %d col %d",m_sGridID.c_str(),m_GridCurRow,m_GridCurCol);
 	DataGridRenderer *pDataGridRenderer = dynamic_cast<DataGridRenderer *>(m_pObjectRenderer);
 	pDataGridRenderer->iPK_Direction = iPK_Direction;
 	pDataGridRenderer->StartAnimation = 1;

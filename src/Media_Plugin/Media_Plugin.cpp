@@ -340,8 +340,6 @@ continue;
 	return true;
 }
 
-
-
 //<-dceag-const2-b->!
 
 //<-dceag-dest-b->
@@ -4729,8 +4727,30 @@ void Media_Plugin::CMD_Remove_playlist(int iEK_Playlist,string &sCMD_Result,Mess
 void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_EntertainArea,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c807-e->
 {
-	*sValue_To_Assign = "FILE\t/home/public/data/movies/whatever\t"
-		"TITLE\tMy movie title\t";	
+	MediaFile *pMediaFile = NULL;
+	if( !sFilename.c_str() )
+	{
+		EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(sPK_EntertainArea.c_str()) );
+		if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Get_Attributes_For_Media no filename nor valid EA w/ stream %s (%p) specified",sPK_EntertainArea.c_str(),pEntertainArea);
+			return;
+		}
+		pMediaFile = pEntertainArea->m_pMediaStream->GetCurrentMediaFile();
+	}
+    deque<MediaFile *> dequeMediaFile;
+	m_pMediaAttributes->m_pMediaAttributes_LowLevel->TransformFilenameToDeque(sFilename, dequeMediaFile);  // This will convert any !A, !F, !B etc.
+	if( dequeMediaFile.size() )
+		pMediaFile = dequeMediaFile[0];
+	
+	if( !pMediaFile )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Get_Attributes_For_Media no valid file found %s",sFilename.c_str());
+		return;
+	}
+	*sValue_To_Assign = "FILE\t" + pMediaFile->HumanReadableFullyQualifiedFile() +
+		"\tTITLE\t" + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetDefaultDescriptionForMediaFile(pMediaFile) +
+		"\t";	
 }
 //<-dceag-c817-b->
 
