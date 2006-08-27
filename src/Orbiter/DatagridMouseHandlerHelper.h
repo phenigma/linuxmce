@@ -48,6 +48,7 @@ namespace DCE
     public:
 	
 		DatagridMouseHandlerHelper(MouseHandler *pMouseHandler);
+		~DatagridMouseHandlerHelper();
 		void Start(DesignObj_DataGrid *pObj_ScrollingGrid,int NumNotches,int Top,int Bottom);
 		void Stop();
 		bool StayInGrid(int PK_Direction,int X,int Y);
