@@ -20,7 +20,7 @@ public:
 	virtual ~DataGridRenderer_OpenGL(void);
 
 	virtual void RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point = PlutoPoint(0, 0));
-	void m_AnimationSpeed_set(int AnimationSpeed) { m_AnimationSpeed=AnimationSpeed; }
+	void m_AnimationSpeed_set(int AnimationSpeed);
 };
 
 #endif

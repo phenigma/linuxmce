@@ -25,15 +25,12 @@ namespace DCE
 	//-----------------------------------------------------------------------------------------------------
 	class MediaMouseHandler : public MouseHandler
 	{
-		std::auto_ptr<DatagridMouseHandlerHelper> m_spDatagridMouseHandlerHelper;
+		DatagridMouseHandlerHelper *m_pDatagridMouseHandlerHelper;
 
 	public:
 		MediaMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
 		virtual EMouseHandler TypeOfMouseHandler() { return mh_Media; }
-		~MediaMouseHandler()
-		{
-			int k=2;
-		}
+		virtual ~MediaMouseHandler();
 
 		void Start();
 		void Stop();

@@ -29,7 +29,7 @@ MouseIterator::MouseIterator(MouseBehavior *pMouseBehavior) : m_IteratorMutex("I
 	m_pOrbiter=m_pMouseBehavior->m_pOrbiter;
 
 	pthread_cond_init(&m_IteratorCond, NULL);
-	m_IteratorMutex.Init(NULL,&m_IteratorCond);
+	m_IteratorMutex.Init(&m_pOrbiter->m_MutexAttr,&m_IteratorCond);
 
 	m_bQuit=false;
 	m_bThreadRunning=true;
@@ -139,7 +139,7 @@ void MouseIterator::DoIteration()
 			// Since there's quite a bit of logic here, call back the keyboard handler
 			// and we'll put the logic there
 			MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pMouseHandler;
-			if( !pMediaBrowserMouseHandler->DoIteration() )
+			if( !pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->DoIteration() )
 				m_EIteratorFunction=if_None;
 		}			
 		break;

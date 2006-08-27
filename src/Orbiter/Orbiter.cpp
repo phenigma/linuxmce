@@ -264,7 +264,8 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_bLoadDatagridImagesInBackground=true;
 	m_iPK_Screen_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_Screen_FileList=m_iPK_Screen_RemoteOSD=m_iPK_Screen_OSD_Speed=m_iPK_Screen_OSD_Track=m_PK_DesignObj_ActiveApp_OSD=m_PK_DesignObj_ActiveApp_Remote=0;
 	m_iPK_MediaType=0;
-
+m_iPK_Screen_OSD_Speed=224;
+m_iPK_Screen_OSD_Track=230;
 	m_pScreenHistory_Current=NULL;
 	m_pObj_LastSelected=m_pObj_Highlighted=m_pObj_Highlighted_Last=NULL;
 	m_pObj_SelectedLastScreen=NULL;
@@ -1605,27 +1606,6 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
 	if( PK_DesignObj_Toolbar_ToTurnOff )
 		CMD_Show_Object(pDesignObj_Orbiter->TopMostObject()->m_ObjectID + "." + StringUtils::itos(PK_DesignObj_Toolbar_ToTurnOff),0,"","","0");
 
-	/*
-	if( pDesignObj_Orbiter->m_pParentObject->m_iBaseObjectID==OBJECT_FPENTERTAINMENT_CONST )
-	{
-	bool bResponse;
-	int iPK_Variable=0;
-	string sValue_To_Assign;
-	DCE::CMD_Populate_Datagrid_DT CMD_Populate_Datagrid_DT(m_dwPK_Device, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, StringUtils::itos(m_dwIDataGridRequestCounter),"HAGA_" + StringUtils::itos(m_dwPK_Device),
-	pObj->m_iPK_Datagrid,SubstituteVariables(pObj->m_sOptions,pObj,0,0),&iPK_Variable,&sValue_To_Assign,&bResponse);
-	if( !SendCommand(CMD_Populate_Datagrid_DT) || !bResponse ) // wait for a response
-	g_pPlutoLogger->Write(LV_CRITICAL,"Populate datagrid: %d failed",pObj->m_iPK_Datagrid);
-
-	// We're on the house-at-a-glance floorplan.  These are the activies at the bottom, not the streams
-	m_pRequestSocket->SendOCMessage(new OCMessage(m_DeviceID, DEVICEID_DATAGRID, PRIORITY_NORMAL,
-	MESSAGETYPE_COMMAND, ACTION_POPULATE_DATAGRID_CONST, 2,
-	C_ACTIONPARAMETER_DATAGRID_ID_CONST, ("HAGA_" + StringUtils::itos(m_DeviceID)).c_str(),
-	C_ACTIONPARAMETER_TYPE_CONST, (StringUtils::itos(DGTYPE_HAG_ACTIVITIES) + "," + m_sSelectedDevices).c_str()));
-	}
-
-	Invalidate();
-	return;
-	*/
 	CMD_Refresh("");
 }
 //------------------------------------------------------------------------
@@ -2031,15 +2011,6 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 		pObj->m_iHighlightedRow=-1;
 		pObj->m_iHighlightedColumn=-1;
 	}
-
-	if( pObj->m_sExtraInfo.find('S')!=string::npos && !pObj->sSelVariable.empty(  ) )
-	{
-		PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-		string s = m_mapVariable[atoi( pObj->sSelVariable.c_str(  ) )];
-		if( !s.empty() )
-			pObj->m_sSeek = "~" + s;
-	}
-
 	pObj->Flush();
 
 	if(  !pObj->m_bPersistXY || pObj->m_GridCurCol==-1 || pObj->m_GridCurRow==-1  )
@@ -2063,12 +2034,7 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 		WaitForMessageQueue();  // There might still be some messages in the queue which will affect this grid
 		pObj->m_iPopulatedWidth=pObj->m_MaxCol;  // Pass in the grid's on screen width/height -- we'll get back the total populated size
 		pObj->m_iPopulatedHeight=pObj->m_MaxRow;
-		/*
-		if( pObj->m_iPopulatedWidth<0 )
-		{
-		int k=2;
-		}
-		*/
+
 		string sParams = SubstituteVariables( pObj->m_sOptions, pObj, 0, 0 );
 		DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,  StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID,
 			pObj->m_iPK_Datagrid, sParams, pObj->m_iPK_DeviceTemplate, &iPK_Variable, &sValue_To_Assign, &bResponse, &pObj->m_iPopulatedWidth, &pObj->m_iPopulatedHeight  );
@@ -2077,30 +2043,14 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 		else if(iPK_Variable)
 			CMD_Set_Variable(iPK_Variable, sValue_To_Assign);
 	}
-	/* todo 2.0
-	if ( !sSelVariable.empty(  ) && !bEPG )
+	if( pObj->m_sExtraInfo.find('S')!=string::npos && !pObj->sSelVariable.empty(  ) )
 	{
-	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-	m_mapVariable[atoi( sSelVariable.c_str(  ) )] = "";
-	vm.Release(  );
+		PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
+		string s = m_mapVariable[atoi( pObj->sSelVariable.c_str(  ) )];
+		if( !s.empty() )
+			pObj->m_sSeek = "~" + s;
 	}
-	*/
-	/* todo 2.0
-	if(  GridID.substr( 0, 4 )=="EPG_"  )
-	{
-	time_t EPGStartingTime = atoi( m_mapVariable[VARIABLE_EPG_START_TIME_CONST].c_str(  ) );
-	if(  EPGStartingTime>0  )
-	{
-	int CurrentMinutes = int( time( NULL ) - EPGStartingTime ) / 60;
 
-	//      time_t t_t = time( NULL );
-	//      struct tm *t = localtime( &t_t );
-	pObj->m_GridCurCol = CurrentMinutes/MINS_PER_COLUMN-NUM_COLUMNSPAN_HEADER;
-	PositionEPGMarker( pObj );
-	}
-	g_pPlutoLogger->Write( LV_WARNING, "Marker set: start time: %d column: %d", ( int ) EPGStartingTime, pObj->m_GridCurCol );
-	}
-	*/
 }
 //------------------------------------------------------------------------
 bool Orbiter::ParseConfigurationData( GraphicType Type )
@@ -2492,18 +2442,18 @@ if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior && m_pM
 {
 g_pPlutoLogger->Write(LV_ACTION, "Orbiter::ProcessEvent -- got a up");
 MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pMouseBehavior->m_pMouseHandler;
-pMediaBrowserMouseHandler->m_eCapturingOffscreenMovement=MediaBrowserMouseHandler::cosm_UP;
-pMediaBrowserMouseHandler->DoIteration();
-pMediaBrowserMouseHandler->m_eCapturingOffscreenMovement=MediaBrowserMouseHandler::cosm_NO;
+pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->m_eCapturingOffscreenMovement=DatagridMouseHandlerHelper::cosm_UP;
+pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->DoIteration();
+pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->m_eCapturingOffscreenMovement=DatagridMouseHandlerHelper::cosm_NO;
 return false;
 }
 else if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler && m_pMouseBehavior->m_pMouseHandler->TypeOfMouseHandler()==MouseHandler::mh_MediaBrowser && event.data.button.m_iPK_Button == BUTTON_d_CONST )
 {
 g_pPlutoLogger->Write(LV_ACTION, "Orbiter::ProcessEvent -- got a down");
 MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pMouseBehavior->m_pMouseHandler;
-pMediaBrowserMouseHandler->m_eCapturingOffscreenMovement=MediaBrowserMouseHandler::cosm_DOWN;
-pMediaBrowserMouseHandler->DoIteration();
-pMediaBrowserMouseHandler->m_eCapturingOffscreenMovement=MediaBrowserMouseHandler::cosm_NO;
+pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->m_eCapturingOffscreenMovement=DatagridMouseHandlerHelper::cosm_DOWN;
+pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->DoIteration();
+pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->m_eCapturingOffscreenMovement=DatagridMouseHandlerHelper::cosm_NO;
 return false;
 }
 #endif

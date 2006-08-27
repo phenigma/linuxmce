@@ -15,21 +15,14 @@
 #include "ScreenHistory.h"
 #include "DataGridRenderer.h"
 
-#ifdef ORBITER_OPENGL
-#include "OpenGL/OrbiterRenderer_OpenGL.h"
-#include "OpenGL/DataGridRenderer_OpenGL.h"
-#endif
-
 using namespace DCE;
 
 MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior)
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
-    , m_nRelativePointer_SpeedShape(0)
-    , m_pRelativePointer_Image(NULL)
 {
+	m_pDatagridMouseHandlerHelper = new DatagridMouseHandlerHelper(this);
 	m_pObj_ListGrid=m_pObj_PicGrid=NULL;
 	m_pObj_FileDetailsText=m_pObj_CoverArtPopup=NULL;
-	m_eCapturingOffscreenMovement=cosm_NO;
 
 	if( !m_pObj )
 		return; // Shouldn't happen
@@ -60,24 +53,25 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 
 MediaBrowserMouseHandler::~MediaBrowserMouseHandler()
 {
-    RelativePointer_Clear();
+	delete m_pDatagridMouseHandlerHelper;
 }
 
 void MediaBrowserMouseHandler::Start()
 {
     g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Start()");
-	m_iLastNotch=m_LastRow=-1;
+	m_LastRow=-1;
+	m_pDatagridMouseHandlerHelper->Start(m_pObj_ListGrid,5,10,m_pMouseBehavior->m_pOrbiter->m_iImageHeight-10);
 }
 
 void MediaBrowserMouseHandler::Stop()
 {
     g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Stop()");
-	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
+	m_pDatagridMouseHandlerHelper->Stop();
 }
 
 bool MediaBrowserMouseHandler::ButtonDown(int PK_Button)
 {
-	if( m_eCapturingOffscreenMovement != cosm_NO )
+	if( m_pDatagridMouseHandlerHelper->CapturingMouse() )
 		return true;
 	if( m_pMouseBehavior->m_bMouseConstrained )
 		return false;
@@ -87,7 +81,6 @@ bool MediaBrowserMouseHandler::ButtonDown(int PK_Button)
 
 bool MediaBrowserMouseHandler::ButtonUp(int PK_Button)
 {
-		return false;
 	if( m_pMouseBehavior->m_bMouseConstrained )
 		return false;
 	if( PK_Button==BUTTON_Mouse_7_CONST && m_bTapAndRelease==false && m_bStartedMovement )
@@ -98,88 +91,6 @@ bool MediaBrowserMouseHandler::ButtonUp(int PK_Button)
 	return false; // Keep processing
 }
 
-void MediaBrowserMouseHandler::RelativeMove(int X, int Y)
-{
-	m_LastX=X;
-    g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::RelativeMove(%d, %d, %d)", X, Y, m_iLastNotch);
-	int Notch;
-	if( m_eCapturingOffscreenMovement == cosm_UP )
-	{
-		if( Y >= m_pMouseBehavior->m_pOrbiter->m_Height-10 )  // Should be 2
-		{
-			ReleaseRelative(X,Y);
-			return;
-		}
-		Notch = (m_pMouseBehavior->m_pOrbiter->m_Height - Y) / (m_pMouseBehavior->m_pOrbiter->m_Height/5) +1;
-		if( Notch==m_iLastNotch )
-			return;
-		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
-		//	X-40,0,
-		//	80,5,
-		//	PlutoColor::White());
-		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
-		//	X-Notch*2,0,
-		//	Notch*2,5,
-		//	PlutoColor::Green());
-        RelativePointer_ImageLoad(-Notch);
-        if (m_pRelativePointer_Image)
-		{
-			PlutoRectangle rectFakePointer(X-40,0,m_pRelativePointer_Image->Width, m_pRelativePointer_Image->Height);
-            RelativePointer_ImageDraw(m_pRelativePointer_Image, rectFakePointer);
-		}
-	}
-	else
-	{
-		if (Y <= 10 && m_eCapturingOffscreenMovement == cosm_DOWN)  // Should be 1
-		{
-			ReleaseRelative(X,Y);
-			return;
-		}
-		Notch = Y / (m_pMouseBehavior->m_pOrbiter->m_Height/5) +1;
-		if( Notch==m_iLastNotch )
-			return;
-		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
-		//	X-40,m_pMouseBehavior->m_pOrbiter->m_Height-5,
-		//	80,5,
-		//	PlutoColor::White());
-		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
-		//	X-Notch*2,m_pMouseBehavior->m_pOrbiter->m_Height-5,
-		//	Notch*2,5,
-		//	PlutoColor::Green());
-        RelativePointer_ImageLoad(Notch);
-		if (m_pRelativePointer_Image)
-		{
-			PlutoRectangle rectFakePointer(X-40,m_pMouseBehavior->m_pOrbiter->m_Height-m_pRelativePointer_Image->Height,m_pRelativePointer_Image->Width, m_pRelativePointer_Image->Height);
-            RelativePointer_ImageDraw(m_pRelativePointer_Image, rectFakePointer);
-		}
-	}
-
-	m_iLastNotch=Notch;
-
-	int Frequency;
-	Frequency = (6-Notch)*400;
-g_pPlutoLogger->Write(LV_ACTION, "Frequency: %d Y: %d notch %d",Frequency,Y,Notch);
-	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaGrid,0,"",Frequency,this);
-	#ifdef ORBITER_OPENGL
-		if( m_pObj_ListGrid )
-			(dynamic_cast<DataGridRenderer_OpenGL *>(m_pObj_ListGrid->Renderer()))->m_AnimationSpeed_set(Frequency*.5);
-		if( m_pObj_PicGrid )
-			(dynamic_cast<DataGridRenderer_OpenGL *>(m_pObj_PicGrid->Renderer()))->m_AnimationSpeed_set(Frequency*.5);
-	#endif
-}
-
-
-void MediaBrowserMouseHandler::ReleaseRelative(int X, int Y)
-{
-g_pPlutoLogger->Write(LV_ACTION, "**stop**");
-	m_iLastNotch=-1;
-    g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::ReleaseRelative()");
-	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
-    RelativePointer_Clear();
-	m_pMouseBehavior->SetMousePosition(X, m_eCapturingOffscreenMovement == cosm_DOWN ? m_pMouseBehavior->m_pOrbiter->m_Height-20 : 20); // Should be 2 (-2) and 1
-	m_pMouseBehavior->ShowMouse(true);
-	m_eCapturingOffscreenMovement=cosm_NO;
-}
 
 void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 {
@@ -190,32 +101,8 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 	if( !m_pObj_ListGrid || !m_pObj_PicGrid )
 		return;  // Shouldn't happen
 
-    if (m_eCapturingOffscreenMovement != cosm_NO)
-	{
-		RelativeMove(X,Y);
+    if (m_pDatagridMouseHandlerHelper->Move(X,Y,PK_Direction))
 		return;
-	}
-	if (Y <= 10 || Y >= m_pMouseBehavior->m_pOrbiter->m_Height-10)  // Should be 1 and 2
-	{
-g_pPlutoLogger->Write(LV_ACTION, "**go**");
-		if( Y <= 10 ) // should be 1
-		{
-			m_eCapturingOffscreenMovement = cosm_UP;
-			m_pMouseBehavior->SetMousePosition(X,m_pMouseBehavior->m_pOrbiter->m_Height-20);  // Temp should be 2
-			m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
-
-		}
-		else
-		{
-			m_eCapturingOffscreenMovement = cosm_DOWN;
-			m_pMouseBehavior->SetMousePosition(X,20);   // Temp, should be 2
-			m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
-		}
-
-		m_pMouseBehavior->ShowMouse(false);
-		return;
-
-	}
 
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 	DesignObj_DataGrid *pObj_ListGrid_Active=NULL;
@@ -315,254 +202,3 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 	}
 }
 
-bool MediaBrowserMouseHandler::DoIteration()
-{
-g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
-	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "iterator grid" );  // Redraw anything that was changed by this command
-	bool bResult;
-
-	if( m_eCapturingOffscreenMovement==cosm_UP )
-	{
-		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ListGrid->m_ObjectID,DIRECTION_Up_CONST,false);
-	}
-	else
-	{
-		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ListGrid->m_ObjectID,DIRECTION_Down_CONST,false);
-	}
-
-	if( !bResult )
-	{
-		m_pMouseBehavior->SetMousePosition(m_LastX, m_eCapturingOffscreenMovement == cosm_DOWN ? m_pMouseBehavior->m_pOrbiter->m_Height-20 : 20); // Should be 2 (-2) and 1
-		m_pMouseBehavior->ShowMouse(true);
-		m_eCapturingOffscreenMovement=cosm_NO;
-		return false;
-	}
-
-	m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_PicGrid);
-
-	// For the first notch, scroll only 1 time
-	if( m_iLastNotch==1 )
-		return false;
-
-/*
-	// Now sync the pic grid
-	PLUTO_SAFETY_LOCK( dg, m_pMouseBehavior->m_pOrbiter->m_DatagridMutex );
-	DataGridRenderer *pDataGridRenderer = (DataGridRenderer *) m_pObj_PicGrid->Renderer();
-	PLUTO_SAFETY_LOCK( dgc, pDataGridRenderer->m_DataGridCacheMutex );
-	m_pObj_PicGrid->m_GridCurRow = m_pObj_ListGrid->m_GridCurRow / m_pObj_PicGrid->m_MaxCol;
-	if( m_eCapturingOffscreenMovement==cosm_UP )
-	{
-		if( m_pObj_PicGrid->m_iCacheRows > 0) // Are we caching? 
-		{                            // If so the current table needs to be pushed onto the opposing cache list.
-			pDataGridRenderer->m_listDataGridCache[DIRECTION_Up_CONST].push_front(m_pObj_PicGrid->DataGridTable_Get()); // The cache acquisition thread will delete the excess cache.
-		}
-		else 
-		{
-//			delete m_pObj_PicGrid->DataGridTable_Get();
-		}	
-
-		if (pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].size() > 0)
-		{
-			m_pObj_PicGrid->DataGridTable_Get() = pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].front();
-			pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].pop_front();
-		}
-		else
-		{
-			m_pObj_PicGrid->DataGridTable_Get() = NULL;
-		}
-	}
-	else
-	{
-		if (m_pObj_PicGrid->m_iCacheRows > 0) // Are we caching? 
-		{                            // If so the current table needs to be pushed onto the opposing cache list.
-			pDataGridRenderer->m_listDataGridCache[DIRECTION_Up_CONST].push_front(m_pObj_PicGrid->DataGridTable_Get()); // The cache acquisition thread will delete the excess cache.
-		}
-		else 
-		{
-			//delete m_pObj_PicGrid->DataGridTable_Get();
-		}	
-
-		if (pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].size() > 0)
-		{
-			m_pObj_PicGrid->DataGridTable_Get() = pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].front();
-			pDataGridRenderer->m_listDataGridCache[DIRECTION_Down_CONST].pop_front();
-		}
-		else
-		{
-			m_pObj_PicGrid->DataGridTable_Get() = NULL;
-		}
-	}
-g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  STOP***");
-*/
-	return bResult;
-}
-
-bool MediaBrowserMouseHandler::RelativePointer_SetStatus(int nSpeedShape)
-{
-    g_pPlutoLogger->Write(LV_STATUS, "MediaBrowserMouseHandler::RelativePointer_SetStatus(%d)", nSpeedShape);
-    nSpeedShape = RelativePointer_AdjustSpeedShape(nSpeedShape);
-    // check range
-    // compare with current status
-    if (m_nRelativePointer_SpeedShape == nSpeedShape)
-        return true;
-    m_nRelativePointer_SpeedShape = nSpeedShape;
-
-    // load image from disk
-    RelativePointer_ImageLoad(nSpeedShape);
-    
-    // restore the normal behavior in this case
-    if (nSpeedShape == 0)
-    {
-        m_pMouseBehavior->ShowMouse(true);
-    }
-    // hide the pointer : will draw a fake one
-    m_pMouseBehavior->ShowMouse(false);
-    // get current screen size
-    PlutoSize oSizeScreen = m_pMouseBehavior->m_pOrbiter->m_sScreenSize;
-    // get current mouse position
-    PlutoPoint posFakeMouse;
-    m_pMouseBehavior->GetMousePosition(&posFakeMouse);
-    // pointer move to the middle of the screen, on Y axis only
-    m_pMouseBehavior->SetMousePosition(posFakeMouse.X, oSizeScreen.Height/2);
-
-    //delete this debug-only block
-    // with a real pointer, not a fake one
-    if (0)
-    {
-        string sPathMask = m_sImagePath + ".msk";
-        m_pMouseBehavior->SetMouseCursorImage(m_sImagePath, sPathMask);
-        if (nSpeedShape > 0)
-            m_pMouseBehavior->SetMousePosition(posFakeMouse.X, posFakeMouse.Y - 2);
-        else
-            m_pMouseBehavior->SetMousePosition(posFakeMouse.X, posFakeMouse.Y + 2);
-    }
-
-    // draw fake pointer
-	if( m_pRelativePointer_Image )
-	{
-	    PlutoRectangle rectFakePointer = RelativePointer_ComputeRectangle(posFakeMouse.X, posFakeMouse.Y, oSizeScreen.Width, oSizeScreen.Height);
-        RelativePointer_ImageDraw(m_pRelativePointer_Image, rectFakePointer);
-	}
-	return true;
-}
-
-void MediaBrowserMouseHandler::RelativePointer_Clear()
-{
-    m_nRelativePointer_SpeedShape = 0;
-    if (m_pRelativePointer_Image)
-    {
-        delete m_pRelativePointer_Image;
-        m_pRelativePointer_Image = NULL;
-    }
-    RelativePointer_ImageRemove();
-    //m_pMouseBehavior->ShowMouse(true);
-}
-
-int MediaBrowserMouseHandler::RelativePointer_AdjustSpeedShape(int nSpeedShape)
-{
-    // check range
-    const int nPeakSpeed = 5;
-    if ( (nSpeedShape > 0) && (nSpeedShape > nPeakSpeed) )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::RelativePointer_AdjustSpeedShape(%d) : decreasing shape to %d", nSpeedShape, nPeakSpeed);
-        nSpeedShape = nPeakSpeed;
-    }
-    if ( (nSpeedShape < 0) && (nSpeedShape < nPeakSpeed*-1) )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::RelativePointer_AdjustSpeedShape(%d) : increasing shape to %d", nSpeedShape, -nPeakSpeed);
-        nSpeedShape = -nPeakSpeed;
-    }
-    return nSpeedShape;
-}
-
-bool MediaBrowserMouseHandler::RelativePointer_ImageLoad(int nSpeedShape)
-{
-    g_pPlutoLogger->Write(LV_STATUS, "MediaBrowserMouseHandler::RelativePointer_ImageLoad(%d)", nSpeedShape);
-    nSpeedShape = RelativePointer_AdjustSpeedShape(nSpeedShape);
-
-    // compare with current status
-    if (m_nRelativePointer_SpeedShape == nSpeedShape)
-        return true;
-    m_nRelativePointer_SpeedShape = nSpeedShape;
-
-    // restore the normal behavior in this case
-    if (nSpeedShape == 0)
-    {
-        RelativePointer_Clear();
-        return false;
-    }
-    // compute the image path
-    char buffer[100];
-    sprintf(buffer, "speed_shape_%d.png", nSpeedShape);
-    m_sImagePath = "/usr/pluto/orbiter/skins/Basic/cursors/pointers/";
-    m_sImagePath = m_sImagePath + buffer;
-
-    // read the image from disk
-	size_t iSize = 0;
-    char * pData = FileUtils::ReadFileIntoBuffer(m_sImagePath.c_str(), iSize);
-    if (pData == NULL)
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "MediaBrowserMouseHandler::RelativePointer_ImageLoad(%d) : cannot load graphic file %s", nSpeedShape, m_sImagePath.c_str());
-        return false;
-    }
-    g_pPlutoLogger->Write(LV_STATUS, "MediaBrowserMouseHandler::RelativePointer_ImageLoad(%d) : loaded graphic file %s", nSpeedShape, m_sImagePath.c_str());
-    m_pRelativePointer_Image = m_pMouseBehavior->m_pOrbiter->m_pOrbiterRenderer->CreateGraphic();
-    m_pRelativePointer_Image->LoadGraphic(pData, iSize);
-    delete [] pData;
-    pData = NULL;
-    // hide the real pointer
-    m_pMouseBehavior->ShowMouse(false);
-    return true;
-}
-
-void MediaBrowserMouseHandler::RelativePointer_ImageDraw(PlutoGraphic *pImage, const PlutoRectangle &rectFakePointer)
-{
-#ifdef ORBITER_OPENGL
-	g_pPlutoLogger->Write(LV_ACTION,"MediaBrowserMouseHandler::RelativePointer_ImageDraw");
-    OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = dynamic_cast<OrbiterRenderer_OpenGL *>(m_pMouseBehavior->m_pOrbiter->Renderer());
-    if (pOrbiterRenderer_OpenGL)
-    {
-        // opengl mode
-        // reusing the same image id
-        pOrbiterRenderer_OpenGL->RenderGraphic(pImage, rectFakePointer, false, PlutoPoint(), 255,
-			"", "image_fake_pointer");
-        return;
-    }
-#endif
-    // sdl mode, not tested
-    m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(pImage, rectFakePointer);
-}
-
-void MediaBrowserMouseHandler::RelativePointer_ImageRemove()
-{
-#ifdef ORBITER_OPENGL
-	g_pPlutoLogger->Write(LV_ACTION,"MediaBrowserMouseHandler::RelativePointer_ImageRemove");
-    OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = dynamic_cast<OrbiterRenderer_OpenGL *>(m_pMouseBehavior->m_pOrbiter->Renderer());
-    if (pOrbiterRenderer_OpenGL)
-    {
-        pOrbiterRenderer_OpenGL->RemoveGraphic("image_fake_pointer");
-        return;
-    }
-#endif
-    // sdl mode, no method implemented yet in sdl
-}
-
-PlutoRectangle MediaBrowserMouseHandler::RelativePointer_ComputeRectangle(int X, int Y, int screenWidth, int screenHeight)
-{
-    PlutoRectangle rectFakePointer;
-    if (m_pRelativePointer_Image == NULL)
-        return rectFakePointer;
-    //compute fake image position
-    rectFakePointer.Width = m_pRelativePointer_Image->Width;
-    rectFakePointer.Height = m_pRelativePointer_Image->Height;
-    // X coordinate : keep the pointer on the screen
-    rectFakePointer.X = X;
-    if (rectFakePointer.X + rectFakePointer.Width > screenWidth)
-        rectFakePointer.X = screenWidth - rectFakePointer.Width;
-    // Y coordinate
-    if (m_nRelativePointer_SpeedShape > 0)
-        rectFakePointer.Y = screenHeight - rectFakePointer.Height;
-    else
-        rectFakePointer.Y = 0;
-    return rectFakePointer;
-}

@@ -25,7 +25,7 @@
 #include "SerializeClass/ShapesColors.h"
 #include "CallBackTypes.h"
 #include "pluto_main/Define_UI.h"
-#include "PlutoUtils/profiler.h"
+#include "PlutoUtils/Profiler.h"
 
 class OrbiterFileBrowser_Collection;
 class ScreenHandler;

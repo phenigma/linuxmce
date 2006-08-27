@@ -81,3 +81,17 @@ g_pPlutoLogger->Write(LV_EVENTHANDLER,"DataGridRenderer_OpenGL::RenderObject dat
 	Engine->EndModifyGeometry();
 
 }
+
+void DataGridRenderer_OpenGL::m_AnimationSpeed_set(int AnimationSpeed)
+{
+	m_AnimationSpeed=AnimationSpeed;
+	for( vector<DesignObj_Orbiter *>::iterator it=m_pObj_Owner_DataGrid->m_vectObj_TiedToUs.begin();it!=m_pObj_Owner_DataGrid->m_vectObj_TiedToUs.end();++it )
+	{
+		DesignObj_Orbiter *pObj = *it;
+		if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+		{
+			DataGridRenderer_OpenGL *pDataGridRenderer_OpenGL = (DataGridRenderer_OpenGL *) pObj->Renderer();
+			pDataGridRenderer_OpenGL->m_AnimationSpeed_set(AnimationSpeed);
+		}
+	}
+}

@@ -17,7 +17,12 @@ using namespace DCE;
 MediaMouseHandler::MediaMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior)
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
-	m_spDatagridMouseHandlerHelper.reset(new DatagridMouseHandlerHelper(this));
+	m_pDatagridMouseHandlerHelper = new DatagridMouseHandlerHelper(this);
+}
+
+MediaMouseHandler::~MediaMouseHandler()
+{
+	delete m_pDatagridMouseHandlerHelper;
 }
 
 void MediaMouseHandler::Start()
@@ -36,8 +41,7 @@ void MediaMouseHandler::Start()
 		m_bTapAndRelease=true;
 		m_pMouseBehavior->SetMousePosition(pObj_Grid->m_rPosition.X + pObj_Grid->m_pPopupPoint.X + (pObj_Grid->m_rPosition.Width/2),
 			pObj_Grid->m_rPosition.Y + pObj_Grid->m_pPopupPoint.Y + (pObj_Grid->m_rPosition.Height/2));
-		m_spDatagridMouseHandlerHelper->Start(pObj_Grid);
-
+		m_pDatagridMouseHandlerHelper->Start(pObj_Grid,10,pObj_Grid->m_rPosition.Y,pObj_Grid->m_rPosition.Bottom());
 	}
 	else
 	{
@@ -57,11 +61,14 @@ void MediaMouseHandler::Start()
 
 void MediaMouseHandler::Stop()
 {
+	m_pDatagridMouseHandlerHelper->Stop();
 	m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=NULL;
 }
 
 bool MediaMouseHandler::ButtonDown(int PK_Button)
 {
+	if( m_pDatagridMouseHandlerHelper->CapturingMouse() )
+		return true;
 	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_6_CONST || PK_Button==BUTTON_Mouse_2_CONST )
 	{
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
@@ -93,8 +100,13 @@ void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 {
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Always lock this before datagrid to prevent a deadlock
 	PLUTO_SAFETY_LOCK( dng, m_pMouseBehavior->m_pOrbiter->m_DatagridMutex );
+
 	if( !m_pObj || m_pObj->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST )
 		return; // Also shouldn't happen
+
+    if (m_bTapAndRelease && m_pDatagridMouseHandlerHelper->Move(X,Y,PK_Direction))
+		return;
+
 	DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) m_pObj;
 	if( !pObj_Grid->DataGridTable_Get() )
 		return; // Again shouldn't happen
@@ -119,6 +131,4 @@ void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Grid);
 		}
 	}
-	else
-		m_spDatagridMouseHandlerHelper->StayInGrid(PK_Direction,X,Y);
 }

@@ -50,7 +50,7 @@ void KeyboardMouseHandler::Start()
 	}
 
 	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
-		m_spDatagridMouseHandlerHelper->Start( (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
+		m_spDatagridMouseHandlerHelper->Start( (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted,10,m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Y,m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Bottom());
 }
 
 void KeyboardMouseHandler::Stop()
@@ -160,7 +160,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::Move was %s now %s afte
 			PlutoRectangle rect = m_pMouseBehavior->GetHighlighedObjectCoordinates();
 
 			if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
-				m_spDatagridMouseHandlerHelper->Start( (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
+				m_spDatagridMouseHandlerHelper->Start( (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted,10,m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Y,m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Bottom());
 		}
 	}
 }

@@ -12,6 +12,11 @@
 #include "OrbiterRenderer.h"
 #include "DataGrid.h"
 
+#ifdef ORBITER_OPENGL
+#include "OpenGL/OrbiterRenderer_OpenGL.h"
+#include "OpenGL/DataGridRenderer_OpenGL.h"
+#endif
+
 using namespace DCE;
 
 DatagridMouseHandlerHelper::DatagridMouseHandlerHelper(MouseHandler *pMouseHandler)
@@ -19,27 +24,33 @@ DatagridMouseHandlerHelper::DatagridMouseHandlerHelper(MouseHandler *pMouseHandl
 	m_pMouseHandler=pMouseHandler;
 	m_pMouseBehavior=m_pMouseHandler->m_pMouseBehavior;
 	m_dwPK_Direction_ScrollGrid=0; m_pObj_MediaBrowser_Alpha=m_pObj_ScrollingGrid=NULL;
+    m_nRelativePointer_SpeedShape=0;
+    m_pRelativePointer_Image=NULL;
+	m_eCapturingOffscreenMovement=cosm_NO;
 }
 
-void DatagridMouseHandlerHelper::Start(DesignObj_DataGrid *pObj_ScrollingGrid)
+DatagridMouseHandlerHelper::~DatagridMouseHandlerHelper()
+{
+	RelativePointer_Clear();
+}
+
+void DatagridMouseHandlerHelper::Start(DesignObj_DataGrid *pObj_ScrollingGrid,int NumNotches,int Top,int Bottom)
 {
 	m_dwPK_Direction_ScrollGrid = 0;
 	m_pObj_ScrollingGrid=pObj_ScrollingGrid;
-	m_pObj_MediaBrowser_Down = m_pMouseBehavior->m_pOrbiter->FindObject(m_pMouseHandler->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoDownIndicator_CONST));
-	m_pObj_MediaBrowser_Up = m_pMouseBehavior->m_pOrbiter->FindObject(m_pMouseHandler->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoUpIndicator_CONST));
+	m_NumNotches=NumNotches; m_Top=Top; m_Bottom=Bottom;
+	m_iLastNotch=-1;
 	m_pObj_MediaBrowser_Alpha = m_pMouseBehavior->m_pOrbiter->FindObject(m_pMouseHandler->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoAlpha_CONST));
-	if( m_pObj_MediaBrowser_Down && !m_pObj_MediaBrowser_Down->m_bOnScreen )
-		m_pObj_MediaBrowser_Down = NULL;
-	if( m_pObj_MediaBrowser_Up && !m_pObj_MediaBrowser_Up->m_bOnScreen )
-		m_pObj_MediaBrowser_Up = NULL;
 	if( m_pObj_MediaBrowser_Alpha && !m_pObj_MediaBrowser_Alpha->m_bOnScreen )
 		m_pObj_MediaBrowser_Alpha = NULL;
-	if( m_pObj_MediaBrowser_Down )
-		m_pObj_MediaBrowser_Down->m_GraphicToDisplay=GRAPHIC_NORMAL;
-	if( m_pObj_MediaBrowser_Up )
-		m_pObj_MediaBrowser_Up->m_GraphicToDisplay=GRAPHIC_NORMAL;
 }
 
+void DatagridMouseHandlerHelper::Stop()
+{
+	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
+}
+
+// todo -- delete this
 bool DatagridMouseHandlerHelper::StayInGrid(int PK_Direction,int X,int Y)
 {
 	if( (m_pObj_ScrollingGrid->m_rPosition + m_pObj_ScrollingGrid->m_pPopupPoint).Contains(X,Y) )
@@ -96,7 +107,7 @@ int k=2;
 	return false;
 }
 		
-
+// todo -- delete this
 bool DatagridMouseHandlerHelper::MovedPastTopBottomOfDataGrid(DesignObj_DataGrid *pObj,int PK_Direction,int Y)
 {
 	// Moving past the bottom causes it to start the iterator and begin first scrolling
@@ -140,10 +151,6 @@ bool DatagridMouseHandlerHelper::MovedPastTopBottomOfDataGrid(DesignObj_DataGrid
 
 	m_pObj_ScrollingGrid = (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
 	m_pMouseHandler->m_iLastNotch = -999; // Start with no movement
-	if( m_pObj_MediaBrowser_Down )
-		m_pObj_MediaBrowser_Down->m_GraphicToDisplay=GRAPHIC_SELECTED;
-	if( m_pObj_MediaBrowser_Up )
-		m_pObj_MediaBrowser_Up->m_GraphicToDisplay=GRAPHIC_SELECTED;
 
 	return true;
 }
@@ -179,10 +186,6 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid direct
 		// Unhighlight the speed
 		m_dwPK_Direction_ScrollGrid = 0;
 		m_pMouseHandler->m_iLastNotch = -999;
-		if( m_pObj_MediaBrowser_Down )
-			m_pObj_MediaBrowser_Down->m_GraphicToDisplay=GRAPHIC_SELECTED;
-		if( m_pObj_MediaBrowser_Up )
-			m_pObj_MediaBrowser_Up->m_GraphicToDisplay=GRAPHIC_SELECTED;
 
 		return;
 	}
@@ -226,16 +229,315 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid Notch 
 		Frequency = (11-Notch)*100;
 		m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,dwPK_Direction==DIRECTION_Down_CONST ? 2 : -2,"",Frequency,NULL);
 		m_pMouseHandler->m_iLastNotch=Notch;
-		if( dwPK_Direction==DIRECTION_Down_CONST && m_pObj_MediaBrowser_Down )
-		{
-			m_pObj_MediaBrowser_Down->m_GraphicToDisplay=m_pMouseHandler->m_iLastNotch-5;
-			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_MediaBrowser_Down);
-		}
-		else if( dwPK_Direction==DIRECTION_Up_CONST && m_pObj_MediaBrowser_Up )
-		{
-			m_pObj_MediaBrowser_Up->m_GraphicToDisplay=m_pMouseHandler->m_iLastNotch-5;
-			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_MediaBrowser_Up);
-		}
-//remus  m_pObj_ScrollingGrid->SetSpeed(Speed);
 	}
+}
+
+
+void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
+{
+	m_LastX=X;
+    g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativeMove(%d, %d, %d)", X, Y, m_iLastNotch);
+	int Notch;
+	if( m_eCapturingOffscreenMovement == cosm_UP )
+	{
+		if( Y >= m_Bottom )  // Should be 2
+		{
+			ReleaseRelative();
+			return;
+		}
+		Notch = (m_pMouseBehavior->m_pOrbiter->m_Height - Y) / (m_pMouseBehavior->m_pOrbiter->m_Height/5) +1;
+		if( Notch==m_iLastNotch )
+			return;
+		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
+		//	X-40,0,
+		//	80,5,
+		//	PlutoColor::White());
+		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
+		//	X-Notch*2,0,
+		//	Notch*2,5,
+		//	PlutoColor::Green());
+        RelativePointer_ImageLoad(-Notch);
+        if (m_pRelativePointer_Image)
+		{
+			PlutoRectangle rectFakePointer(X-40,0,m_pRelativePointer_Image->Width, m_pRelativePointer_Image->Height);
+            RelativePointer_ImageDraw(m_pRelativePointer_Image, rectFakePointer);
+		}
+	}
+	else
+	{
+		if (Y <=m_Top )  // Should be 1
+		{
+			ReleaseRelative();
+			return;
+		}
+		Notch = Y / (m_pMouseBehavior->m_pOrbiter->m_Height/5) +1;
+		if( Notch==m_iLastNotch )
+			return;
+		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
+		//	X-40,m_pMouseBehavior->m_pOrbiter->m_Height-5,
+		//	80,5,
+		//	PlutoColor::White());
+		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
+		//	X-Notch*2,m_pMouseBehavior->m_pOrbiter->m_Height-5,
+		//	Notch*2,5,
+		//	PlutoColor::Green());
+        RelativePointer_ImageLoad(Notch);
+		if (m_pRelativePointer_Image)
+		{
+			PlutoRectangle rectFakePointer(X-40,m_pMouseBehavior->m_pOrbiter->m_Height-m_pRelativePointer_Image->Height,m_pRelativePointer_Image->Width, m_pRelativePointer_Image->Height);
+            RelativePointer_ImageDraw(m_pRelativePointer_Image, rectFakePointer);
+		}
+	}
+
+	m_iLastNotch=Notch;
+
+	int Frequency;
+	Frequency = (6-Notch)*400;
+g_pPlutoLogger->Write(LV_ACTION, "Frequency: %d Y: %d notch %d",Frequency,Y,Notch);
+	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaGrid,0,"",Frequency,this->m_pMouseHandler);
+	#ifdef ORBITER_OPENGL
+		if( m_pObj_ScrollingGrid )
+			(dynamic_cast<DataGridRenderer_OpenGL *>(m_pObj_ScrollingGrid->Renderer()))->m_AnimationSpeed_set(Frequency*.5);
+	#endif
+}
+
+
+void DatagridMouseHandlerHelper::ReleaseRelative()
+{
+g_pPlutoLogger->Write(LV_ACTION, "**stop**");
+	m_iLastNotch=-1;
+    g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::ReleaseRelative()");
+	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
+    RelativePointer_Clear();
+	m_pMouseBehavior->SetMousePosition(m_LastX, m_eCapturingOffscreenMovement == cosm_DOWN ? m_Bottom-10 : m_Top+10); // Should be 2 (-2) and 1
+	m_pMouseBehavior->ShowMouse(true);
+	m_eCapturingOffscreenMovement=cosm_NO;
+}
+
+bool DatagridMouseHandlerHelper::Move(int X,int Y,int PK_Direction)
+{
+	if (m_eCapturingOffscreenMovement != cosm_NO)
+	{
+		RelativeMove(X,Y);
+		return true;
+	}
+	
+	if (Y <= m_Top || Y >= m_Bottom)  // Should be 1 and 2
+	{
+g_pPlutoLogger->Write(LV_ACTION, "**go**");
+		if( Y <= m_Top ) // should be 1
+		{
+			m_eCapturingOffscreenMovement = cosm_UP;
+			m_pMouseBehavior->SetMousePosition(X,m_Bottom-10);  // Temp should be no -10 -- ask cristi
+			m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
+
+		}
+		else
+		{
+			m_eCapturingOffscreenMovement = cosm_DOWN;
+			m_pMouseBehavior->SetMousePosition(X,m_Top+10);   // Temp, should be 2
+			m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
+		}
+
+		m_pMouseBehavior->ShowMouse(false);
+		return true;
+	}
+	return false;
+}
+
+bool DatagridMouseHandlerHelper::DoIteration()
+{
+g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
+	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "iterator grid" );  // Redraw anything that was changed by this command
+	bool bResult;
+
+	if( m_eCapturingOffscreenMovement==cosm_UP )
+	{
+		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ScrollingGrid->m_ObjectID,DIRECTION_Up_CONST,false);
+	}
+	else
+	{
+		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ScrollingGrid->m_ObjectID,DIRECTION_Down_CONST,false);
+	}
+
+	if( !bResult )
+	{
+		ReleaseRelative();
+		return false;
+	}
+	// For the first notch, scroll only 1 time
+	if( m_iLastNotch==1 )
+		return false;
+
+	return bResult;
+}
+
+bool DatagridMouseHandlerHelper::RelativePointer_SetStatus(int nSpeedShape)
+{
+    g_pPlutoLogger->Write(LV_STATUS, "DatagridMouseHandlerHelper::RelativePointer_SetStatus(%d)", nSpeedShape);
+    nSpeedShape = RelativePointer_AdjustSpeedShape(nSpeedShape);
+    // check range
+    // compare with current status
+    if (m_nRelativePointer_SpeedShape == nSpeedShape)
+        return true;
+    m_nRelativePointer_SpeedShape = nSpeedShape;
+
+    // load image from disk
+    RelativePointer_ImageLoad(nSpeedShape);
+    
+    // restore the normal behavior in this case
+    if (nSpeedShape == 0)
+    {
+        m_pMouseBehavior->ShowMouse(true);
+    }
+    // hide the pointer : will draw a fake one
+    m_pMouseBehavior->ShowMouse(false);
+    // get current screen size
+    PlutoSize oSizeScreen = m_pMouseBehavior->m_pOrbiter->m_sScreenSize;
+    // get current mouse position
+    PlutoPoint posFakeMouse;
+    m_pMouseBehavior->GetMousePosition(&posFakeMouse);
+    // pointer move to the middle of the screen, on Y axis only
+    m_pMouseBehavior->SetMousePosition(posFakeMouse.X, oSizeScreen.Height/2);
+
+    //delete this debug-only block
+    // with a real pointer, not a fake one
+    if (0)
+    {
+        string sPathMask = m_sImagePath + ".msk";
+        m_pMouseBehavior->SetMouseCursorImage(m_sImagePath, sPathMask);
+        if (nSpeedShape > 0)
+            m_pMouseBehavior->SetMousePosition(posFakeMouse.X, posFakeMouse.Y - 2);
+        else
+            m_pMouseBehavior->SetMousePosition(posFakeMouse.X, posFakeMouse.Y + 2);
+    }
+
+    // draw fake pointer
+	if( m_pRelativePointer_Image )
+	{
+	    PlutoRectangle rectFakePointer = RelativePointer_ComputeRectangle(posFakeMouse.X, posFakeMouse.Y, oSizeScreen.Width, oSizeScreen.Height);
+        RelativePointer_ImageDraw(m_pRelativePointer_Image, rectFakePointer);
+	}
+	return true;
+}
+
+void DatagridMouseHandlerHelper::RelativePointer_Clear()
+{
+    m_nRelativePointer_SpeedShape = 0;
+    if (m_pRelativePointer_Image)
+    {
+        delete m_pRelativePointer_Image;
+        m_pRelativePointer_Image = NULL;
+    }
+    RelativePointer_ImageRemove();
+    //m_pMouseBehavior->ShowMouse(true);
+}
+
+int DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(int nSpeedShape)
+{
+    // check range
+    const int nPeakSpeed = 5;
+    if ( (nSpeedShape > 0) && (nSpeedShape > nPeakSpeed) )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : decreasing shape to %d", nSpeedShape, nPeakSpeed);
+        nSpeedShape = nPeakSpeed;
+    }
+    if ( (nSpeedShape < 0) && (nSpeedShape < nPeakSpeed*-1) )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : increasing shape to %d", nSpeedShape, -nPeakSpeed);
+        nSpeedShape = -nPeakSpeed;
+    }
+    return nSpeedShape;
+}
+
+bool DatagridMouseHandlerHelper::RelativePointer_ImageLoad(int nSpeedShape)
+{
+    g_pPlutoLogger->Write(LV_STATUS, "DatagridMouseHandlerHelper::RelativePointer_ImageLoad(%d)", nSpeedShape);
+    nSpeedShape = RelativePointer_AdjustSpeedShape(nSpeedShape);
+
+    // compare with current status
+    if (m_nRelativePointer_SpeedShape == nSpeedShape)
+        return true;
+    m_nRelativePointer_SpeedShape = nSpeedShape;
+
+    // restore the normal behavior in this case
+    if (nSpeedShape == 0)
+    {
+        RelativePointer_Clear();
+        return false;
+    }
+    // compute the image path
+    char buffer[100];
+    sprintf(buffer, "speed_shape_%d.png", nSpeedShape);
+    m_sImagePath = "/usr/pluto/orbiter/skins/Basic/cursors/pointers/";
+    m_sImagePath = m_sImagePath + buffer;
+
+    // read the image from disk
+	size_t iSize = 0;
+    char * pData = FileUtils::ReadFileIntoBuffer(m_sImagePath.c_str(), iSize);
+    if (pData == NULL)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "DatagridMouseHandlerHelper::RelativePointer_ImageLoad(%d) : cannot load graphic file %s", nSpeedShape, m_sImagePath.c_str());
+        return false;
+    }
+    g_pPlutoLogger->Write(LV_STATUS, "DatagridMouseHandlerHelper::RelativePointer_ImageLoad(%d) : loaded graphic file %s", nSpeedShape, m_sImagePath.c_str());
+    m_pRelativePointer_Image = m_pMouseBehavior->m_pOrbiter->m_pOrbiterRenderer->CreateGraphic();
+    m_pRelativePointer_Image->LoadGraphic(pData, iSize);
+    delete [] pData;
+    pData = NULL;
+    // hide the real pointer
+    m_pMouseBehavior->ShowMouse(false);
+    return true;
+}
+
+void DatagridMouseHandlerHelper::RelativePointer_ImageDraw(PlutoGraphic *pImage, const PlutoRectangle &rectFakePointer)
+{
+#ifdef ORBITER_OPENGL
+	g_pPlutoLogger->Write(LV_ACTION,"DatagridMouseHandlerHelper::RelativePointer_ImageDraw");
+    OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = dynamic_cast<OrbiterRenderer_OpenGL *>(m_pMouseBehavior->m_pOrbiter->Renderer());
+    if (pOrbiterRenderer_OpenGL)
+    {
+        // opengl mode
+        // reusing the same image id
+        pOrbiterRenderer_OpenGL->RenderGraphic(pImage, rectFakePointer, false, PlutoPoint(), 255,
+			"", "image_fake_pointer");
+        return;
+    }
+#endif
+    // sdl mode, not tested
+    m_pMouseBehavior->m_pOrbiter->Renderer()->RenderGraphic(pImage, rectFakePointer);
+}
+
+void DatagridMouseHandlerHelper::RelativePointer_ImageRemove()
+{
+#ifdef ORBITER_OPENGL
+	g_pPlutoLogger->Write(LV_ACTION,"DatagridMouseHandlerHelper::RelativePointer_ImageRemove");
+    OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = dynamic_cast<OrbiterRenderer_OpenGL *>(m_pMouseBehavior->m_pOrbiter->Renderer());
+    if (pOrbiterRenderer_OpenGL)
+    {
+        pOrbiterRenderer_OpenGL->RemoveGraphic("image_fake_pointer");
+        return;
+    }
+#endif
+    // sdl mode, no method implemented yet in sdl
+}
+
+PlutoRectangle DatagridMouseHandlerHelper::RelativePointer_ComputeRectangle(int X, int Y, int screenWidth, int screenHeight)
+{
+    PlutoRectangle rectFakePointer;
+    if (m_pRelativePointer_Image == NULL)
+        return rectFakePointer;
+    //compute fake image position
+    rectFakePointer.Width = m_pRelativePointer_Image->Width;
+    rectFakePointer.Height = m_pRelativePointer_Image->Height;
+    // X coordinate : keep the pointer on the screen
+    rectFakePointer.X = X;
+    if (rectFakePointer.X + rectFakePointer.Width > screenWidth)
+        rectFakePointer.X = screenWidth - rectFakePointer.Width;
+    // Y coordinate
+    if (m_nRelativePointer_SpeedShape > 0)
+        rectFakePointer.Y = screenHeight - rectFakePointer.Height;
+    else
+        rectFakePointer.Y = 0;
+    return rectFakePointer;
 }
