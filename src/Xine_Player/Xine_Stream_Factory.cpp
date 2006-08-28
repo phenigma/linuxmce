@@ -73,8 +73,8 @@ bool Xine_Stream_Factory::StartupFactory()
 	// detecting output drivers
 	DetectOutputDrivers();
 	
-	// setting speakers arrangement
-	//setOutputSpeakerArrangement(m_pPlayer->DATA_Get_Output_Speaker_arrangement());
+	// setting audio settings 
+	setAudioSettings();
 	
 	// setting output driver
 	setVideoDriver( m_pPlayer->DATA_Get_Hardware_acceleration() );
@@ -196,7 +196,6 @@ void Xine_Stream_Factory::DetectOutputDrivers()
 	free( driver_ids );
 }
 
-#if 0
 static const char *audio_out_types_strs[] =
 {
 	"Mono 1.0",
@@ -215,55 +214,129 @@ static const char *audio_out_types_strs[] =
 	NULL
 };
 
-void Xine_Stream_Factory::setOutputSpeakerArrangement( string strOutputSpeakerArrangement )
+void Xine_Stream_Factory::setAudioSettings()
 {
-	xine_cfg_entry_t xineConfigEntry;
+	string sAudioSettings = m_pPlayer->Get_MD_AudioSettings();
 
-	g_pPlutoLogger->Write( LV_STATUS, "Setting the audio output speaker arrangement" );
-
-	xine_config_register_enum ( m_pXineLibrary, "audio.output.speaker_arrangement", 1, ( char ** ) audio_out_types_strs,
-															"Speaker arrangement",
-															NULL, 0, NULL, NULL );
-
-	if ( xine_config_lookup_entry( m_pXineLibrary, "audio.output.speaker_arrangement", &xineConfigEntry ) == 0 )
+	if (sAudioSettings=="")
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Could not lookup the current Speaker Arrangement Value" );
-		return ;
+		g_pPlutoLogger->Write( LV_STATUS, "M/D Audio Settings are empty, assuming 'M'");
+		sAudioSettings = "M";
 	}
-
-	g_pPlutoLogger->Write( LV_STATUS, "Current value from /etc/pluto/xine.conf: %s", audio_out_types_strs[ xineConfigEntry.num_value ] );
-
-	if (strOutputSpeakerArrangement=="")
+	else
+		g_pPlutoLogger->Write( LV_STATUS, "M/D Audio Settings: %s", sAudioSettings.c_str());
+	
+	bool updateConfig = true;
+	
+	// if value remains empty after scan, it won't be set
+	string sAlsaFrontDevice = "";
+	string sSpeakersArrangement = "Stereo 2.0";
+	
+	for (int i=0; i<sAudioSettings.length(); i++)
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Device data for output speaker arrangement is empty, leaving xine.conf value" );
-		return;
-	}
-
-	g_pPlutoLogger->Write( LV_STATUS, "Trying to set the value to: %s", strOutputSpeakerArrangement.c_str() );
-	int i = 0;
-	while ( audio_out_types_strs[ i ] != NULL )
-	{
-		if ( strncmp( strOutputSpeakerArrangement.c_str( ), audio_out_types_strs[ i ], strlen( audio_out_types_strs[ i ] ) ) == 0 )
+		switch (sAudioSettings[i])
 		{
-			xineConfigEntry.num_value = i;
-			xine_config_update_entry( m_pXineLibrary, &xineConfigEntry );
-
-			if ( xine_config_lookup_entry( m_pXineLibrary, "audio.output.speaker_arrangement", &xineConfigEntry ) == 0 )
-			{
-				g_pPlutoLogger->Write( LV_STATUS, "Could not lookup the current Speaker Arrangement Value after update." );
-				return ;
-			}
-
-			g_pPlutoLogger->Write( LV_STATUS, "Value changed to: %s", audio_out_types_strs[ xineConfigEntry.num_value ] );
-			return ;
+		case 'C':
+		case 'O':
+			sAlsaFrontDevice = "asym_spdif";
+			break;
+		case 'S':
+		case 'L':
+			sAlsaFrontDevice = "plughw:0";
+			break;
+		case '3':
+			sSpeakersArrangement = "Pass Through";
+			break;
+		case 'M':
+			updateConfig = false;
+			break;
+		default:
+			g_pPlutoLogger->Write( LV_STATUS, "Unknown audio settings flag: '%c'", sAudioSettings[i]);
 		}
-
-		i++;
 	}
-
-	return ;
+	
+	if (!updateConfig)
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Flag 'M' found, we won't override the defaults from /etc/pluto/xine.conf");
+	}
+	
+	
+	// processing ALSA front device
+	xine_cfg_entry_t cfgAlsaFrontDevice;
+	xine_config_register_string(m_pXineLibrary, "audio.alsa_front_device", "default", "ALSA front device setting", NULL, 0, NULL, NULL);
+	if (xine_config_lookup_entry(m_pXineLibrary, "audio.alsa_front_device", &cfgAlsaFrontDevice) == 0)
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Could not lookup the current 'ALSA front device', skipping" );
+	}
+	else
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Current value for 'ALSA front device': %s", cfgAlsaFrontDevice.str_value );
+		if (updateConfig)
+		if (sAlsaFrontDevice=="")
+		{
+			g_pPlutoLogger->Write( LV_STATUS, "Configured value for 'ALSA front device' is empty, not overriding it" );
+		}
+		else
+		{
+			g_pPlutoLogger->Write( LV_STATUS, "Updating value for 'ALSA front device' to: %s", sAlsaFrontDevice.c_str() );
+			cfgAlsaFrontDevice.str_value = strdup(sAlsaFrontDevice.c_str());
+			xine_config_update_entry( m_pXineLibrary, &cfgAlsaFrontDevice );
+			if (xine_config_lookup_entry(m_pXineLibrary, "audio.alsa_front_device", &cfgAlsaFrontDevice) == 0)
+			{
+				g_pPlutoLogger->Write( LV_STATUS, "Could not lookup the 'ALSA front device' after update" );
+			}
+			else
+			{
+				g_pPlutoLogger->Write( LV_STATUS, "Updated value for 'ALSA front device': %s", cfgAlsaFrontDevice.str_value );
+			}			
+		}
+	}
+	
+	// processing Speakers Arrangement
+	xine_cfg_entry_t cfgSpeakersArrangement;
+	xine_config_register_enum ( m_pXineLibrary, "audio.output.speaker_arrangement", 1, ( char ** ) audio_out_types_strs, 
+		"Speakers arrangement", NULL, 0, NULL, NULL );
+	if ( xine_config_lookup_entry( m_pXineLibrary, "audio.output.speaker_arrangement", &cfgSpeakersArrangement ) == 0 )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Could not lookup the current 'Speakers Arrangement', skipping" );
+	}
+	else
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Current value for 'Speakers Arrangement': %s", audio_out_types_strs[ cfgSpeakersArrangement.num_value ] );
+		if (updateConfig)
+		if (sSpeakersArrangement=="")
+		{
+			g_pPlutoLogger->Write( LV_STATUS, "Configured value for 'Speakers Arrangement' is empty, not overriding it" );
+		}
+		else
+		{
+			g_pPlutoLogger->Write( LV_STATUS, "Updating value for 'Speakers Arrangement' to: %s", sSpeakersArrangement.c_str() );
+			int i = 0;
+			while ( audio_out_types_strs[ i ] != NULL )
+			{
+				if ( strncmp( sSpeakersArrangement.c_str( ), audio_out_types_strs[ i ], strlen( audio_out_types_strs[ i ] ) ) == 0 )
+				{
+					cfgSpeakersArrangement.num_value = i;
+					xine_config_update_entry( m_pXineLibrary, &cfgSpeakersArrangement );
+		
+					if ( xine_config_lookup_entry( m_pXineLibrary, "audio.output.speaker_arrangement", &cfgSpeakersArrangement ) == 0 )
+					{
+						g_pPlutoLogger->Write( LV_STATUS, "Could not lookup the 'Speakers Arrangement' after update" );
+					}
+					else
+					{
+						g_pPlutoLogger->Write( LV_STATUS, "Updated value for 'Speakers Arrangement': %s", audio_out_types_strs[ cfgSpeakersArrangement.num_value ] );
+					}
+					
+					break;
+				}
+		
+				i++;
+			}
+		}
+	}
 }
-#endif
+
 
 // returns pointer to stream if exists/was created or NULL otherwise
 Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist, int requestingObject)
@@ -321,11 +394,6 @@ void Xine_Stream_Factory::ReportAVInfo( string sFilename, int iStreamID, string 
 	m_pPlayer->EVENT_Playback_Started(sFilename, iStreamID, sMediaInfo, sAudioInfo, sVideoInfo);
 }
 
-
-void Xine_Stream_Factory::ReportTimecode(int iStreamID, int Speed)
-{
-	m_pPlayer->ReportTimecode( iStreamID, Speed);
-}
 
 void Xine_Stream_Factory::ReportTimecodeViaIP(int iStreamID, int Speed)
 {

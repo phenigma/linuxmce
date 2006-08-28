@@ -64,14 +64,13 @@ namespace DCE
 			string GetAudioDriver() { return m_sXineAudioDriverName; };
 			string GetVideoDriver() { return m_sXineVideoDriverName; };
 			
-			void setOutputSpeakerArrangement( string strOutputSpeakerArrangement );
+			void setAudioSettings();
 			void setVideoDriver(string strVideoDriver);
 			
 			Xine_Stream *GetStream(int streamID, bool createIfNotExist=false, int requestingObject=-1);
 			
 			void ReportAudioTracks(string sTracks);
 			void ReportSubtitles(string sSubtitles);
-			void ReportTimecode(int iStreamID, int Speed);
 			void ReportTimecodeViaIP(int iStreamID, int Speed);
 			void ReportAVInfo( string sFilename, int iStreamID, string sMediaInfo, string sAudioInfo, string sVideoInfo );
 			

@@ -1115,3 +1115,11 @@ void Xine_Player::FireMenuOnScreen(int iDestinationDevice, int iStreamID, bool b
     g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Menu_Onscreen(streamID=%i)", iStreamID);
     EVENT_Menu_Onscreen(iStreamID, bOnOff);
 }
+
+string Xine_Player::Get_MD_AudioSettings()
+{
+	// M/D where we are attached to
+	int PK_MD = m_pData->m_dwPK_Device_MD;
+
+	return m_pData->m_pEvent_Impl->GetDeviceDataFromDatabase(PK_MD,DEVICEDATA_Audio_settings_CONST);
+}

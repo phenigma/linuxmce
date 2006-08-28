@@ -436,6 +436,7 @@ public:
 	void ReportTimecodeViaIP(int iStreamID, int Speed);
 	bool Connect(int iPK_DeviceTemplate );
 	virtual void FireMenuOnScreen(int iDestinationDevice, int iStream_ID, bool bOnOff);
+	string Get_MD_AudioSettings();
 private:
 	// xine streams factory ptr
 	Xine_Stream_Factory *ptrFactory;
