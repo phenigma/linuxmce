@@ -1070,7 +1070,7 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
 	Xine_Stream *pStream =  ptrFactory->GetStream( 1, false );	
 	if (pStream == NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::ReportTimecode() stream is NULL");
+		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::ReportTimecodeViaIP() stream is NULL");
 		return;
 	}
 
@@ -1090,32 +1090,6 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
 	m_pNotificationSocket->SendStringToAll( sIPTimeCodeInfo );
 }
 
-
-void Xine_Player::ReportTimecode(int iStreamID, int Speed)
-{
-	Xine_Stream *pStream =  ptrFactory->GetStream( 1, false );	
-	if (pStream == NULL)
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::ReportTimecode() stream is NULL");
-		return;
-	}
-	
-	if( !m_pDeviceData_MediaPlugin )
-		return;
-
-	g_pPlutoLogger->Write(LV_WARNING,"reporting timecode");
-	int currentTime, totalTime;	
-	int iMediaPosition = pStream->getStreamPlaybackPosition( currentTime, totalTime);
-
-	// DCE level notification
-	
-	DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDeviceData_MediaPlugin->m_dwPK_Device,
-			iStreamID,StringUtils::SecondsAsTime(currentTime/1000),StringUtils::SecondsAsTime(totalTime/1000),
-			(Speed==1000 ? string("") : StringUtils::itos(Speed/1000) + "x"),StringUtils::itos(pStream->m_iTitle),
-			StringUtils::itos(pStream->m_iChapter));
-	
-	SendCommand(CMD_Update_Time_Code_);
-}
 
 bool Xine_Player::Connect(int iPK_DeviceTemplate )
 {

@@ -433,7 +433,6 @@ public:
 	virtual void CMD_Menu(string sText,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
-	void ReportTimecode(int iStreamID, int Speed);
 	void ReportTimecodeViaIP(int iStreamID, int Speed);
 	bool Connect(int iPK_DeviceTemplate );
 	virtual void FireMenuOnScreen(int iDestinationDevice, int iStream_ID, bool bOnOff);

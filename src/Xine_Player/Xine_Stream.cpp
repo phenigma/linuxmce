@@ -840,19 +840,7 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 
 		// updating every second - position
 		if ( ++iCounter >= 10 )
-		{
-			g_pPlutoLogger->Write( LV_WARNING, "%s (seek %d) t.c. ctr %d freq %d,", pStream->GetPosition().c_str(), pStream->m_iSpecialSeekSpeed, iCounter_TimeCode, pStream->m_iTimeCodeReportFrequency );
-			iCounter = 0;
-			
-			//if it is a time - reporting our timecode to player object
-			if ( pStream->m_iTimeCodeReportFrequency && ++iCounter_TimeCode >= pStream->m_iTimeCodeReportFrequency )
-			{
-				pStream->ReportTimecode();
-				iCounter_TimeCode = 1;
-			}
-			
-			pStream->ReportTimecode(true);
-		}
+			pStream->ReportTimecode();
 		
 		// We need to wait 500ms after the stream starts before doing the seek!
 		if ( pStream->m_iSpecialOneTimeSeek )
@@ -862,7 +850,6 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 			{
 				pStream->Seek(pStream->m_iSpecialOneTimeSeek,10000); // As long as we're within 10 seconds that's fine
 				pStream->m_iSpecialOneTimeSeek = 0;
-				pStream->ReportTimecode();
 				pStream->changePlaybackSpeed( PLAYBACK_NORMAL );
 			}
 		}
@@ -1162,7 +1149,6 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "aborting seek" );
 		StopSpecialSeek();
-		ReportTimecode();
 		return;
 	}
 
@@ -1505,7 +1491,6 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 		case XINE_EVENT_UI_PLAYBACK_FINISHED:
 			g_pPlutoLogger->Write( LV_STATUS, "Got XINE_EVENT_UI_PLAYBACK_FINISHED" );
 			pXineStream->StopSpecialSeek();
-			pXineStream->ReportTimecode();
 			pXineStream->playbackCompleted( false );
 			{			
 				PLUTO_SAFETY_LOCK(streamLock, pXineStream->m_streamMutex);
@@ -1527,7 +1512,6 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 		case XINE_EVENT_UI_NUM_BUTTONS:
 		{
 			pXineStream->StopSpecialSeek();
-			pXineStream->ReportTimecode();
 			int iButtons = ( ( xine_ui_data_t * ) event->data ) ->num_buttons;
 
 			g_pPlutoLogger->Write( LV_STATUS, "Menu with %d buttons", iButtons );
@@ -1774,8 +1758,6 @@ bool Xine_Stream::playStream( string mediaPosition)
 			xine_set_param( m_pXineStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL );
 */
 		
-		ReportTimecode();
-				
 		ReadAVInfo();
 
 		
@@ -2585,7 +2567,7 @@ string Xine_Stream::GetPosition()
 	return sPosition;
 }
 
-void Xine_Stream::ReportTimecode(bool bViaIP)
+void Xine_Stream::ReportTimecode()
 {
 	if (!m_bInitialized)
 	{
@@ -2602,10 +2584,7 @@ void Xine_Stream::ReportTimecode(bool bViaIP)
 		return;
 	}
 	
-	if (bViaIP)
-		m_pFactory->ReportTimecodeViaIP( m_iStreamID, m_iPlaybackSpeed);
-	else
-		m_pFactory->ReportTimecode( m_iStreamID, m_iPlaybackSpeed);
+	m_pFactory->ReportTimecodeViaIP( m_iStreamID, m_iPlaybackSpeed);
 }
 
 int Xine_Stream::CalculatePosition(string &sMediaPosition,string *sMRL,int *Subtitle,int *Angle,int *AudioTrack)
