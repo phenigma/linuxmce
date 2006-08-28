@@ -2494,6 +2494,7 @@ function getAssocArray($table,$keyField,$labelField,$dbADO,$whereClause='',$orde
 	$res=$dbADO->Execute("SELECT $keyField,$labelField FROM $table $whereClause $orderClause");
 	while($row=$res->FetchRow()){
 		$cleanLabel=cleanField($labelField);
+		$keyField=cleanField($keyField);
 		$retArray[$row[$keyField]]=$row[$cleanLabel];
 	}
 	return $retArray;
@@ -6054,5 +6055,9 @@ function set_child_device_data($orbiterID,$deviceDataID,$value,$dbADO){
 		SET IK_DeviceData=?
 		WHERE FK_Device_ControlledVia=? AND FK_DeviceData=?
 	',array($value,$orbiterID,$deviceDataID));
+}
+
+function set_device_data($deviceID,$deviceData,$value,$dbADO){
+	$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array($value,$deviceID,$deviceData));
 }
 ?>

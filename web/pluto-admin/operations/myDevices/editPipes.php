@@ -154,6 +154,33 @@ function editPipes($output,$dbADO) {
 		$resInput->Close();
 		$videoInputPulldown.='</select>';
 
+		// for A/V devices, display third row with MDs and capture cards ports
+		if($from=='avWizard'){
+			$selectedPort=(int)getDeviceData($deviceID,$GLOBALS['CaptureCardPort'],$dbADO);
+			$selMD=(isset($_REQUEST['md']))?(int)$_REQUEST['md']:(($selectedPort!=0)?getMDParent($selectedPort,$dbADO):0);
+
+			$mdArray=getDevicesArrayFromCategory($GLOBALS['rootMediaDirectors'],$dbADO);
+			$mdPulldown=pulldownFromArray($mdArray,'md',$selMD,'onChange="document.editPipes.action.value=\'form\';document.editPipes.submit();"');
+			
+			$portsArray=array();
+			if($selMD!=0){
+				$portsArray=getAssocArray('Device Parent','Childs.PK_Device AS PK_Device','Childs.Description AS Description',$dbADO,'
+					INNER JOIN Device Childs ON Childs.FK_Device_ControlledVia=Parent.PK_Device
+					INNER JOIN DeviceTemplate PT ON Parent.FK_DeviceTemplate=PT.PK_DeviceTemplate
+					INNER JOIN DeviceTemplate CT ON Childs.FK_DeviceTemplate=CT.PK_DeviceTemplate
+					WHERE Parent.FK_Device_ControlledVia='.$selMD.' AND PT.FK_DeviceCategory='.$GLOBALS['PVRCaptureCards'].' AND CT.FK_DeviceCategory='.$GLOBALS['CaptureCardsPorts']);
+			}
+						
+			$portsPulldown=pulldownFromArray($portsArray,'port',$selectedPort);
+			
+			$extraRow='
+			<tr>
+				<td colspan="2"><B>'.$TEXT_CONNECTED_TO_MEDIA_DIRECTOR_CONST.'</B></td>
+				<td>'.$mdPulldown.'</td>
+				<td>'.$TEXT_ON_PORT_CONST.' '.$portsPulldown.'</td>
+			</tr>			
+			';
+		}
 		
 		$out.='
 		<div class="err">'.@$_GET['error'].'</div>
@@ -167,6 +194,12 @@ function editPipes($output,$dbADO) {
 		<input type="hidden" name="cmd" value="0">
 		
 		<h3>'.$TEXT_PIPES_USED_CONST.' '.$deviceID.'</h3>
+		<table width="100%">
+			<tr>
+				<td bgcolor="black"><img src="include/images/spacer.gif" border="0" height="1" width="1"></td>
+			</tr>
+		</table>
+				
 		<table>
 			<tr>
 				<td align="center"><B>'.$TEXT_PIPE_CONST.'</B></td>
@@ -186,6 +219,7 @@ function editPipes($output,$dbADO) {
 				<td>'.$videoConnectToPulldown.'</td>
 				<td>'.$videoInputPulldown.'</td>
 			</tr>
+			'.@$extraRow.'
 			<tr>			
 				<td colspan="4" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="button" class="button" name="close" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 			</tr>		
@@ -204,6 +238,9 @@ function editPipes($output,$dbADO) {
 		$audioOutput=(isset($_POST['audioOutput_'.$deviceID]) && $_POST['audioOutput_'.$deviceID]!='0')?cleanInteger($_POST['audioOutput_'.$deviceID]):NULL;
 		$audioInput=(isset($_POST['audioInput_'.$deviceID]) && $_POST['audioInput_'.$deviceID]!='0')?cleanInteger($_POST['audioInput_'.$deviceID]):NULL;
 		$audioConnectTo=(isset($_POST['audioConnectTo_'.$deviceID]) && $_POST['audioConnectTo_'.$deviceID]!='0')?cleanInteger($_POST['audioConnectTo_'.$deviceID]):NULL;
+		$port=(int)@$_POST['port'];
+		
+		
 		if($oldTo!=$audioConnectTo || $oldInput!=$audioInput || $oldOutput!=$audioOutput){
 			if($oldTo=='' || is_null($oldTo)){
 				$insertDDP='
@@ -226,6 +263,7 @@ function editPipes($output,$dbADO) {
 				}
 			}
 		}
+		set_device_data($deviceID,$GLOBALS['CaptureCardPort'],$port,$dbADO);
 
 		$oldVideoPipeArray=array();
 		$oldVideoPipeArray=explode(',',$_POST['oldVideoPipe_'.$deviceID]);
@@ -271,5 +309,15 @@ function editPipes($output,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_PIPES_CONST);			
 	$output->output();
+}
+
+function getMDParent($deviceID,$dbADO){
+	$ancestors=getAncestorsForDevice($deviceID,$dbADO);
+	if(count($ancestors)==0){
+		return 0;
+	}
+	$parentArr=array_keys(getAssocArray('Device','PK_Device','Description',$dbADO,'WHERE PK_Device IN ('.join(',',$ancestors).') AND FK_DeviceTemplate='.$GLOBALS['rootMediaDirectorsID']));
+
+	return $parentArr[0];
 }
 ?>

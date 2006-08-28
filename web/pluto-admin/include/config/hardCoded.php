@@ -33,7 +33,8 @@
 	$GLOBALS['InfraredReceivers']=132;			// Infrared receivers
 	$GLOBALS['DigitalTVCards']=143;				// Digital TV Cards
 	$GLOBALS['IrrigationDevices']=153;			// Irrigation Devices
-	
+	$GLOBALS['CaptureCardsPorts']=162;			// Capture cards ports
+		
 	$GLOBALS['TVdevicesArray']=array($GLOBALS['TVdevices'],$GLOBALS['TVVCRCombo'],$GLOBALS['AmpsReceivers']);
 	
 	// PK_DeviceTemplate from table DeviceTemplate
@@ -188,6 +189,7 @@
 	$GLOBALS['hardware_acceleration_dd']=168;	// Harware acceleration
 	$GLOBALS['UsealphablendedUI']=169;			// Use alpha blended UI
 	$GLOBALS['DeinterlacingMode']=170;			// Deinterlacing Mode
+	$GLOBALS['CaptureCardPort']=173;			// FK_Device_Capture_Card_Port
 	
 	
 	// PK_FloorplanType from table FloorplanType 
