@@ -257,6 +257,10 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 				NULL,
 				0,"0");
 
+		DesignObj_Orbiter *pParentObject = dynamic_cast<DesignObj_Orbiter *>(pObj_Play->m_pParentObject);
+		if(NULL != pParentObject)
+			m_pOrbiter->Renderer()->RenderObjectAsync(pParentObject);
+
 		m_pOrbiter->m_pObj_Highlighted = pObj_Play;
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		m_pOrbiter->m_pMouseBehavior->ConstrainMouse(pObj_Play->m_pParentObject->m_rPosition + pObj_Play->m_pPopupPoint );

@@ -302,9 +302,6 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 		}
 	}
 
-
-
-
 	MeshContainer* Container = MeshBuilder::BuildRectangle(Position, Graphic);
 	Container->SetAlpha(nAlphaChannel / 255.0f);
 	MeshFrame* Frame = new MeshFrame(ObjectID);
@@ -320,7 +317,6 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 		0.0f);
 	Frame->ApplyTransform(AspectRatioTransform);
 
-	MeshTransform Transform;
 	TextureManager::Instance()->PrepareConvert(Graphic);
 
 	g_pPlutoLogger->Write(LV_STATUS, "AddMeshFrameToDesktop (%d,%d,%d,%d)",
@@ -679,6 +675,10 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 	OpenGLGraphic *pOpenGLGraphic = dynamic_cast<OpenGLGraphic *>(pPlutoGraphic);
 	if(NULL != pOpenGLGraphic)
 	{
+		TextureManager::Instance()->InvalidateItem(pObj->GenerateObjectHash(pObj->m_pPopupPoint));
+
+		Engine->BeginModifyGeometry();
+
 		if(iData_Size != 0)
 		{
 			pPlutoGraphic->LoadGraphic(pData, iData_Size, OrbiterLogic()->m_iRotation);  // These weren't pre-rotated
@@ -691,11 +691,13 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 		}
 		else
 		{
-			pOpenGLGraphic->Texture = 0;
+			pOpenGLGraphic->Texture = 0; 
 		}
 
 		RenderObjectAsync(pObj);
 		RedrawObjects();
+
+		Engine->EndModifyGeometry();
 	}
 }
 

@@ -172,7 +172,16 @@ void TextureManager::AddCacheItem(std::string ObjectHash, MeshFrame* Frame)
 {
 	if(ExistInCache(ObjectHash))
 		return;
+
 	Graphics[ObjectHash] = Frame;
+}
+
+void TextureManager::InvalidateItem(std::string ObjectHash)
+{
+	std::map<std::string, MeshFrame*>::iterator Item = Graphics.find(ObjectHash);
+
+	if(Item != Graphics.end())
+		Graphics.erase(Item);
 }
 
 bool TextureManager::ExistInCache(std::string ObjectHash)

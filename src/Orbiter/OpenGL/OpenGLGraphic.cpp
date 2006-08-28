@@ -202,7 +202,7 @@ GraphicType OpenGLGraphic::GraphicType_get()
 
 bool OpenGLGraphic::IsEmpty()
 {
-	return LocalSurface == NULL;
+	return LocalSurface == NULL && Texture == 0;
 }
 
 bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
