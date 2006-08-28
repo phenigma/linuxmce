@@ -53,7 +53,7 @@ public:
 	virtual void SetAlpha(float Alpha);
 	virtual void SetBlended(bool Blended);
 
-	static MeshContainer* BuildRectangle(PlutoRectangle* Rectangle, 
+	static MeshContainer* BuildRectangle(PlutoRectangle& Rectangle, 
 		OpenGLGraphic* Graphic);
 };
 

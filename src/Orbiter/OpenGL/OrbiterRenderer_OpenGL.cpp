@@ -167,50 +167,13 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::SolidRectangle(int x, int y, int width, int height, PlutoColor color, 
 	string ParentObjectID/* = ""*/, string ObjectID /* = ""*/)
 {
-	MeshBuilder* Builder = new MeshBuilder();
-	Builder->Begin(MBMODE_TRIANGLES);
+	PlutoRectangle Position(x, y, width, height);
+	MeshContainer* Container = MeshBuilder::BuildRectangle(Position, NULL);
 
-	Builder->SetColor(color.R() / 255.0f, color.G() / 255.0f, color.B() / 255.0f);
+	Point3D Color(color.R() / 255.0f, color.G() / 255.0f, color.B() / 255.0f);
+	
 
-	Builder->SetTexture2D(0.0f, 0.0f);
-	Builder->AddVertexFloat(
-		float(x), 
-		float(y), 
-		0
-		);
-	Builder->SetTexture2D(0.0f, 1.0f);
-	Builder->AddVertexFloat(
-		float(x), 
-		float(y+height), 
-		0
-		);
-	Builder->SetTexture2D(1.0f, 0);
-	Builder->AddVertexFloat(
-		float(x+width), 
-		float(y), 
-		0
-		);
-
-	Builder->SetTexture2D(1.0f, 0);
-	Builder->AddVertexFloat(
-		float(x+width), 
-		float(y), 
-		0
-		);
-	Builder->SetTexture2D(0.0f, 1.0f);
-	Builder->AddVertexFloat(
-		float(x), 
-		float(y+height), 
-		0
-		);
-	Builder->SetTexture2D(1.0f, 1.0f);
-	Builder->AddVertexFloat(
-		float(x+width), 
-		float(y+height), 
-		0
-		);
-
-	MeshContainer* Container = Builder->End();
+	Container->SetColor(Color);
 	Container->SetAlpha(color.A() / 255.0f);
 
 
@@ -224,9 +187,6 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		RectangleUniqueID = ObjectID;
 
 	MeshFrame* Frame = new MeshFrame(RectangleUniqueID, Container);
-
-	delete Builder;
-	Builder = NULL;
 
 	Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);
 }
@@ -317,60 +277,45 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "RenderGraphic with no object id!");
 	}
-
 	OpenGLGraphic* Graphic = dynamic_cast<OpenGLGraphic*> (pPlutoGraphic);
 
-	MeshBuilder* Builder = new MeshBuilder();
-	Builder->Begin(MBMODE_TRIANGLES);
+	PlutoRectangle Position(rectTotal);
+	Position.X+= point.X;
+	Position.Y+= point.Y;
+	float ZoomX = 1.0f;
+	float ZoomY = 1.0f;
 
-	Builder->SetColor(1.0f, 1.0f, 1.0f);
-	Builder->SetTexture(Graphic);
+	//we'll have to keep the aspect
+	if(!bDisableAspectRatio) 
+	{
+		ZoomX = float(Graphic->Width) / rectTotal.Width;
+		ZoomY = float(Graphic->Height) / rectTotal.Height;
+		if (ZoomX > ZoomY)
+		{
+			ZoomY = ZoomY / ZoomX;
+			ZoomX = 1.0f;
+		}
+		else
+		{
+			ZoomX = ZoomX / ZoomY;
+			ZoomY = 1.0f;
+		}
+	}
 
-	Builder->SetTexture2D(0.0f, 0.0f);
-	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Left()), 
-		float(point.Y + rectTotal.Top()), 
-		0
-		);
-	Builder->SetTexture2D(0.0f, 1.0f);
-	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Left()), 
-		float(point.Y + rectTotal.Bottom()), 
-		0
-		);
-	Builder->SetTexture2D(1.0f, 1.0f);
-	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Right()), 
-		float(point.Y + rectTotal.Bottom()), 
-		0
-		);
 
-	Builder->SetTexture2D(0.0f, 0.0f);
-	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Left()), 
-		float(point.Y + rectTotal.Top()), 
-		0
-		);
-	Builder->SetTexture2D(1.0f, 1.0f);
-	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Right()), 
-		float(point.Y + rectTotal.Bottom()), 
-		0
-		);
-	Builder->SetTexture2D(1.0f, 0.0f);
-	Builder->AddVertexFloat(
-		float(point.X + rectTotal.Right()), 
-		float(point.Y + rectTotal.Top()), 
-		0
-		);
 
-	MeshContainer* Container = Builder->End();
+
+	MeshContainer* Container = MeshBuilder::BuildRectangle(Position, Graphic);
 	Container->SetAlpha(nAlphaChannel / 255.0f);
 	MeshFrame* Frame = new MeshFrame(ObjectID);
+	
 	Frame->SetMeshContainer(Container);
 
-	delete Builder;
-	Builder = NULL;
+	MeshTransform AspectRatioTransform;
+	AspectRatioTransform.ApplyTranslate(-Position.X, -Position.Y, 0);
+	AspectRatioTransform.ApplyScale(ZoomX, ZoomY, 1.0f);
+	AspectRatioTransform.ApplyTranslate(Position.X, Position.Y, 0);
+	Frame->ApplyTransform(AspectRatioTransform);
 
 	MeshTransform Transform;
 	TextureManager::Instance()->PrepareConvert(Graphic);

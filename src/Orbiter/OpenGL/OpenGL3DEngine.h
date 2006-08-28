@@ -47,7 +47,9 @@ public:
 	virtual void Finalize(void);
 
 	bool NeedUpdateScreen();
-	
+	/**
+	 *	returns the MeshFrame that keeps the name of the target frame in the scene 	
+	 */
 	MeshFrame* AddMeshFrameToDesktop(string ParentObjectID, MeshFrame* Frame);
 	void RemoveMeshFrameFromDesktopForID(std::string ObjectID);
 	void RemoveMeshFrameFromDesktop(MeshFrame* Frame);

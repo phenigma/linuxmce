@@ -575,19 +575,19 @@ void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 
 	Rect.Width = 2;
 	LeftBar->SetMeshContainer(
-		MeshBuilder::BuildRectangle(&Rect, NULL)
+		MeshBuilder::BuildRectangle(Rect, NULL)
 		);
 	Rect = Original;
 	Rect.Height = 2;
 	TopBar->SetMeshContainer(
-		MeshBuilder::BuildRectangle(&Rect, NULL)
+		MeshBuilder::BuildRectangle(Rect, NULL)
 		);
 
 	Rect = Original;
 	Rect.Y += Rect.Width;
 	Rect.Width = 2;
 	RightBar->SetMeshContainer(
-		MeshBuilder::BuildRectangle(&Rect, NULL)
+		MeshBuilder::BuildRectangle(Rect, NULL)
 		);
 
 	Rect = Original;
@@ -595,7 +595,7 @@ void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 	Rect.Y += Rect.Height;
 	Rect.Height = 2;
 	BottomBar->SetMeshContainer(
-		MeshBuilder::BuildRectangle(&Rect, NULL)
+		MeshBuilder::BuildRectangle(Rect, NULL)
 		);
 
 	HideHighlightRectangle();

@@ -1,5 +1,12 @@
 #include "Point3D.h"
 
+Point3D::Point3D(float X, float Y, float Z)
+{
+	this->X = X;
+	this->Y = Y;
+	this->Z = Z;
+}
+
 void Point3D::ApplyTransform(MeshTransform& Transform)
 {
 	float X = this->X * Transform.TransformMatrix[0 * 4 + 0] + 

@@ -145,7 +145,7 @@ void MeshBuilder::Begin(unsigned char BuildMode)
 }
 
 
-/*static*/ MeshContainer* MeshBuilder::BuildRectangle(PlutoRectangle* Rectangle, 
+/*static*/ MeshContainer* MeshBuilder::BuildRectangle(PlutoRectangle& Rectangle, 
 OpenGLGraphic* Graphic)
 {
 	MeshBuilder MB;
@@ -154,18 +154,17 @@ OpenGLGraphic* Graphic)
 
 	MB.SetTexture(Graphic);
 
-	MB.SetTexture2D(0, 1);
-	MB.AddVertexFloat(Rectangle->Left(), Rectangle->Top(), 0);
-
-	MB.SetTexture2D(0, 1);
-	MB.AddVertexFloat(Rectangle->Right(), Rectangle->Top(), 0);
-
 	MB.SetTexture2D(0, 0);
-	MB.AddVertexFloat(Rectangle->Left(), Rectangle->Bottom(), 0);
+	MB.AddVertexFloat((float)Rectangle.Left(), (float)Rectangle.Top(), 0);
 
 	MB.SetTexture2D(1, 0);
-	MB.AddVertexFloat(Rectangle->Right(), Rectangle->Bottom(), 0);
+	MB.AddVertexFloat((float)Rectangle.Right(), (float)Rectangle.Top(), 0);
 
+	MB.SetTexture2D(0, 1);
+	MB.AddVertexFloat((float)Rectangle.Left(), (float)Rectangle.Bottom(), 0);
+
+	MB.SetTexture2D(1, 1);
+	MB.AddVertexFloat((float)Rectangle.Right(), (float)Rectangle.Bottom(), 0);
 
 	return MB.End();
 
