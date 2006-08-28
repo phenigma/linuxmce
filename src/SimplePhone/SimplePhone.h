@@ -17,6 +17,7 @@ private:
         // Private methods
         // Private member variables
         pthread_t m_SIP_Thread;
+		string Get_MD_AudioSettings();
 public:
         // Public member variables
         // Public methods

@@ -54,6 +54,28 @@ bool SimplePhone::GetConfig()
     // Put your code here to initialize the data in this class
     // The configuration parameters DATA_ are now populated
 
+	/* Get MD Audio Settings */
+	string sAudioSettings = Get_MD_AudioSettings();
+	g_pPlutoLogger->Write(LV_STATUS, "MD Audio Settings: %s", sAudioSettings.c_str());
+	string sAlsaDevice = "plughw:0";
+
+	for (size_t i = 0; i < sAudioSettings.length(); i++)
+	{
+		switch (sAudioSettings[i])
+		{
+			case 'C':
+			case 'O':
+				sAlsaDevice = "asym_spdif";
+				break;
+			case 'S':
+			case 'L':
+				sAlsaDevice = "plughw:0";
+				break;
+			default:
+				g_pPlutoLogger->Write(LV_STATUS, "Flag unprocessed: '%c'", sAudioSettings[i]);
+		}
+	}
+
 	/* Read config file template, replace certain settings and write Linphone config file for SIP Thread */
 	vector<string> vectLinphoneConfig;
 	FileUtils::ReadFileIntoVector("/usr/pluto/templates/simplephone.conf", vectLinphoneConfig);
@@ -62,8 +84,7 @@ bool SimplePhone::GetConfig()
 		const char * pcConfigLine = vectLinphoneConfig[i].c_str();
 		if (strstr(pcConfigLine, "alsadev=") == pcConfigLine)
 		{
-			// currently a NOOP, but should change the ALSA device according to system settings
-			// vectLinphoneConfig[i] = "alsadev=asym_spdif";
+			vectLinphoneConfig[i] = "alsadev=" + sAlsaDevice;
 		}
 	}
 	FileUtils::WriteVectorToFile("/etc/pluto/simplephone.conf", vectLinphoneConfig);
@@ -352,4 +373,12 @@ void SimplePhone::CMD_Simulate_Keypress(string sPK_Button,string sName,string &s
     {
         g_pPlutoLogger->Write(LV_STATUS, "Looks like there is no call");
     }
+}
+
+string SimplePhone::Get_MD_AudioSettings()
+{
+	// M/D where we are attached to
+	int PK_MD = m_pData->m_dwPK_Device_MD;
+
+	return m_pData->m_pEvent_Impl->GetDeviceDataFromDatabase(PK_MD,DEVICEDATA_Audio_settings_CONST);
 }
