@@ -22,6 +22,8 @@ Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Starting X server (client: $XClient; pa
 VT=${XDisplay#:}
 VT=vt"$((7+VT))"
 
+/usr/pluto/bin/SetupSound.sh
+
 # Start X11
 if [[ "$Background" == y ]]; then
 	screen -d -m -S XWindowSystem xinit "$XClient" "${XClientParm[@]}" -- "$XDisplay" -ac -allowMouseOpenFail "$VT" "${XServerParm[@]}"
