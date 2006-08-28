@@ -1716,7 +1716,7 @@
 #define DEVICETEMPLATE_DBOX_Motion_Controller_CONST 1818
 #define DEVICETEMPLATE_Generic_Firewire_Camera_CONST 1819
 #define DEVICETEMPLATE_ZWave_Embedded_Climate_Interfa_CONST 1820
-#define DEVICETEMPLATE_Photo_Screen_Saver_CONST 1821
+#define DEVICETEMPLATE_Photo_Screen_Saver_CONST 1825
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"
