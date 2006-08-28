@@ -69,6 +69,9 @@ bool MediaMouseHandler::ButtonDown(int PK_Button)
 {
 	if( m_pDatagridMouseHandlerHelper->CapturingMouse() )
 		return true;
+	if( m_bTapAndRelease )
+		return false; // Normal processing, let the user click on a cell
+
 	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_6_CONST || PK_Button==BUTTON_Mouse_2_CONST )
 	{
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);

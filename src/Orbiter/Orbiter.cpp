@@ -1907,10 +1907,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				m_pOrbiterRenderer->PromptUser("Something went very wrong. No screens found!");
 				exit( 1 );
 			}
-
-			WaitForRelativesIfOSD();
-
-			if( m_sInitialScreen.size() )
+			else if( m_sInitialScreen.size() )
 				CMD_Goto_Screen("", atoi(m_sInitialScreen.c_str()));
 			else
 				GotoMainMenu();
@@ -8054,7 +8051,7 @@ bool Orbiter::WaitForRelativesIfOSD()
 
 	time_t tTimeout=time(NULL) + 20; // Wait 20 seconds for child devices to register
 	map<int,bool> mapUnregisteredRelatives;
-	map<string, bool> mapChildDevices;
+  map<string, bool> mapChildDevices;
 	while( true )
 	{
 		int iUnregisteredRelatives = FindUnregisteredRelatives(&mapUnregisteredRelatives);
