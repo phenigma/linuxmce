@@ -175,8 +175,7 @@ DWORD WINAPI OrbiterThread( LPVOID lpParameter)
 			CmdLineParams.bLocalMode,
 			CmdLineParams.Width,
 			CmdLineParams.Height,
-			CmdLineParams.bFullScreen,
-			Simulator::GetInstance()->m_bUseOpenGL
+			CmdLineParams.bFullScreen
 		);
 	}
 	catch(string s)

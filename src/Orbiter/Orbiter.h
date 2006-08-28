@@ -32,6 +32,7 @@ class ScreenHandler;
 class OSDScreenHandler;
 class OrbiterRenderer;
 class DesignObj_DataGrid;
+class AskXine_Socket;
 /** For brevity,  DesignObj_Orbiter will be abbreviated Obj */
 
 namespace DCE
@@ -147,7 +148,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		int m_iImageWidth; /** < image width */
 		int m_iImageHeight; /** < image height */
-		bool m_bFullScreen;
+		bool m_bFullScreen,m_bUseOpenGL,m_bUseComposite;
 		bool m_bLoadDatagridImagesInBackground;
 		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
 
@@ -261,6 +262,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		map<int,class DeviceGroup *> m_mapDeviceGroups;
 		ScreenHandler *m_pScreenHandler;//Used to change screens
 		class LocationInfo *m_pLocationInfo_Initial; // The initial location
+
+		AskXine_Socket *m_pAskXine_Socket;
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		class MouseBehavior *m_pMouseBehavior;  // Class to handle special logic such as locking mouse movements, speed bumps, etc.
@@ -447,6 +450,11 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		* @param iData points to the DesignObj_Orbiter object we want the video frame from
 		*/
 		virtual void GetVideoFrame( void *iData );
+
+		/**
+		* @brief Polls the media player for the current timecode and self-updates.  Used only for Xine
+		*/
+		virtual void UpdateTimeCode( void *data );
 
 		/**
 		* @brief

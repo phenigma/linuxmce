@@ -45,9 +45,9 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 	int Height = pOrbiterRenderer->OrbiterLogic()->m_iImageHeight;
 
 	pOrbiterRenderer->Engine = new OpenGL3DEngine();
-	bool UseComposite = Simulator::GetInstance()->m_bUseOpenGLComposite;
+	
 	bool bFullScreen = false;//Simulator::GetInstance()->m_bFullScreen;
-	if(!pOrbiterRenderer->Engine->GL.InitVideoMode(Width, Height, 32, bFullScreen, UseComposite))
+	if(!pOrbiterRenderer->Engine->GL.InitVideoMode(Width, Height, 32, bFullScreen, pOrbiterRenderer->m_pOrbiter->m_bUseComposite))
 	{
 		pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
 		g_pPlutoLogger->Write(LV_CRITICAL, "Thread -- GL.InitVideoMode FAILED");
@@ -207,6 +207,13 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	//g_pPlutoLogger->Write(LV_CRITICAL, "Rendering text %s at %d, %d", sTextToDisplay.c_str(), 
 	//	Text->m_rPosition.X, Text->m_rPosition.Y);
 
+//point.X=point.Y=0;
+if( Text->m_PK_Text==1437 )
+{
+	point.Y=250;
+	sTextToDisplay="test section";
+int k=2;
+}
 	if(sTextToDisplay.length() == 0)
 		return;
 

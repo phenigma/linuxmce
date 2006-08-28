@@ -49,8 +49,7 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
                            string ServerAddress, string sLocalDirectory,
                            bool bLocalMode,
                            int nImageWidth, int nImageHeight,
-						   bool bFullScreen,
-						   bool bUseOpenGL)
+						   bool bFullScreen)
 
         : Orbiter(DeviceID, PK_DeviceTemplate, ServerAddress, sLocalDirectory, bLocalMode,
                      nImageWidth, nImageHeight, NULL),

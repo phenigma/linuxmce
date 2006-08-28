@@ -301,7 +301,7 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 	OrbiterLinux *pCLinux =
         new OrbiterLinux(
             PK_Device, PK_DeviceTemplate, sRouter_IP,
-            sLocalDirectory, bLocalMode, Width, Height, bFullScreen, Simulator::GetInstance()->m_bUseOpenGL);
+            sLocalDirectory, bLocalMode, Width, Height, bFullScreen);
             
 	// Add a handler to take care of crashes
 	g_pCommand_Impl = pCLinux;

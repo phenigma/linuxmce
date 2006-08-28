@@ -12,8 +12,7 @@ void StartOrbiter(
 	bool bLocalMode,
 	int Width,
 	int Height,
-	bool bFullScreen,
-	bool bUseOpenGL
+	bool bFullScreen
 );
 
 #endif //__START_ORBITER_CE_H__

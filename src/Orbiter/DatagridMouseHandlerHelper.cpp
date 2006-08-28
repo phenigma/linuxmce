@@ -348,6 +348,7 @@ g_pPlutoLogger->Write(LV_ACTION, "**go**");
 
 bool DatagridMouseHandlerHelper::DoIteration()
 {
+	m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
 g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "iterator grid" );  // Redraw anything that was changed by this command
 	bool bResult;

@@ -723,6 +723,8 @@ m_bNoEffects = true;
 		+ StringUtils::itos(m_rSpacing.Y) + "," 
 		+ StringUtils::itos(m_rSpacing.Width) + "," 
 		+ StringUtils::itos(m_rSpacing.Height) + "," 
+		+ (m_bUseAlphaBlending ? "A" : "N") + "," 
+		+ (m_bUseMask ? "M" : "N") + "," 
 		+ (m_bUseOCG ? ",OCG" : ",NO_OCG");
 
 	if( m_pRow_Orbiter->Size_get()!=sSize && m_map_PK_DesignObj_SoleScreenToGen.size()==0 )

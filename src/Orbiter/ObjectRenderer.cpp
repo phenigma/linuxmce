@@ -511,7 +511,7 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 		PROFILE_START( ctText );
 		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
 		string TextToDisplay = m_pObj_Owner->m_pOrbiter->SubstituteVariables(m_pObj_Owner->m_pOrbiter->SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0), pText->m_pObject, 0, 0);
-		m_pObj_Owner->m_pOrbiter->Renderer()->RenderText(TextToDisplay, pText, pTextStyle, PlutoPoint(0, 0));
+		m_pObj_Owner->m_pOrbiter->Renderer()->RenderText(TextToDisplay, pText, pTextStyle, point);
 		PROFILE_STOP( ctText,  "Text ( obj below )" );
 	}
 	if(m_pObj_Owner->m_pFloorplanObject && m_pObj_Owner->m_pOrbiter->m_mapDevice_Selected.find(m_pObj_Owner->m_pFloorplanObject->PK_Device) != m_pObj_Owner->m_pOrbiter->m_mapDevice_Selected.end() )

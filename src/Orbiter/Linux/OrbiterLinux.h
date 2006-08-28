@@ -78,8 +78,7 @@ public:
 	OrbiterLinux(int DeviceID,int PK_DeviceTemplate,
                  string ServerAddress, string sLocalDirectory,
                  bool bLocalMode, int nImageWidth, int nImageHeight,
-                 bool bFullScreen,
-                 bool bUseOpenGL);
+                 bool bFullScreen);
 
     virtual ~OrbiterLinux();
 

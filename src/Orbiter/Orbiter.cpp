@@ -71,6 +71,8 @@ using namespace DCE;
 #include "GraphicBuilder.h"
 #include "Simulator.h"
 
+#include "Xine_Player/AskXine_Socket.h"
+
 #ifdef ENABLE_MOUSE_BEHAVIOR
 #include "MouseBehavior.h"
 #include "MouseGovernor.h"
@@ -239,6 +241,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_pObj_NowPlaying_TimeShort_OnScreen = NULL;
 	m_pObj_NowPlaying_TimeLong_OnScreen = NULL; 
 	m_pObj_NowPlaying_Speed_OnScreen = NULL;
+	m_pAskXine_Socket = NULL;
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	m_pMouseBehavior = NULL;
@@ -297,7 +300,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_VariableMutex.Init( &m_MutexAttr );
 	m_DatagridMutex.Init( &m_MutexAttr );
 	pthread_cond_init(&m_MaintThreadCond, NULL);
-	m_MaintThreadMutex.Init(NULL,&m_MaintThreadCond);
+	m_MaintThreadMutex.Init(&m_MutexAttr,&m_MaintThreadCond);
 
 	m_bUsingExternalScreenMutex = NULL != pExternalScreenMutex;
 	if(m_bUsingExternalScreenMutex)
@@ -547,6 +550,8 @@ bool Orbiter::GetConfig()
 	m_iTimeoutBlank = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
 	m_sCacheFolder = DATA_Get_CacheFolder();
 	m_iCacheSize = DATA_Get_CacheSize();
+	m_bUseOpenGL = m_pData->m_mapParameters_Find(DEVICEDATA_Use_OpenGL_effects_CONST)=="1";
+	m_bUseComposite = m_pData->m_mapParameters_Find(DEVICEDATA_Use_alpha_blended_UI_CONST)=="1";
 
 	if(DATA_Get_ScreenWidth())
 		m_iImageWidth = DATA_Get_ScreenWidth();
@@ -1919,7 +1924,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			// were executed before the onstartup.  So, we'll temporarily fake the current screen
 			// so the startup commands can go through.
 			m_pScreenHistory_Current=render.m_pScreenHistory_get();
-			
+
 			// AB 12/29/2005 -- Needed to move this up since orbiter registered may cause
 			// bind icon commands to come back, which aren't available until after the startup commands
 			// And we can't call the startup commands until the above scope is terminated so a goto a screen with NeedToRender
@@ -2386,7 +2391,7 @@ bool Orbiter::RenderDesktop( class DesignObj_Orbiter *pObj,  PlutoRectangle rect
 	if( pObj->m_mapObjParms_Find(DESIGNOBJPARAMETER_In_Background_CONST)=="1" )
     {
         //int k=2;  // Do in background
-        if (! Simulator::GetInstance()->m_bUseOpenGL)
+        if (! m_bUseComposite)
         {
             color.SetAlpha(128); // optimized semi-transparency
             //color.SetAlpha(0); // full-transparency
@@ -5905,6 +5910,44 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 		if( m_pObj_NowPlaying_Section_OnScreen )
 			m_pOrbiterRenderer->RenderObjectAsync(m_pObj_NowPlaying_Section_OnScreen);
 	}
+
+	// Protect m_pAskXine_Socket from being called while in a maint thread
+	PLUTO_SAFETY_LOCK( pm, m_MaintThreadMutex );
+	// If this is a xine, determine the ip address and connect to it to pull time code info
+	DeviceData_Base *pDevice = m_dwPK_Device_NowPlaying ? m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device_NowPlaying) : NULL;
+	if( pDevice && pDevice->m_dwPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST )
+	{
+		if( !m_pAskXine_Socket )
+		{
+			string sIPAddress = pDevice->m_sIPAddress;
+			if( sIPAddress.empty() )
+			{
+				if( pDevice->m_pDevice_MD && !pDevice->m_pDevice_MD->m_sIPAddress.empty() )
+					sIPAddress = pDevice->m_pDevice_MD->m_sIPAddress;
+				else if( pDevice->m_pDevice_Core && !pDevice->m_pDevice_Core->m_sIPAddress.empty() )
+					sIPAddress = pDevice->m_pDevice_Core->m_sIPAddress;
+				else
+				{
+					g_pPlutoLogger->Write(LV_WARNING,"Orbiter::CMD_Set_Now_Playing  Xine has no IP address");
+					return;
+				}
+			}
+			string sConnectInfo = sIPAddress + ":12000";
+			string sName = "ask-xine-socket";
+			m_pAskXine_Socket = new AskXine_Socket(sConnectInfo, sName);
+			
+			if (!m_pAskXine_Socket->Connect())
+				g_pPlutoLogger->Write(LV_WARNING,"Cannot connect to xine for time code information");
+			else
+				CallMaintenanceInMiliseconds(1000,&Orbiter::UpdateTimeCode,NULL,pe_ALL,false);
+		}
+	}
+	else if( m_pAskXine_Socket )
+	{
+		m_pAskXine_Socket->Disconnect();
+		delete m_pAskXine_Socket;
+		m_pAskXine_Socket=NULL;
+	}
 }
 
 bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
@@ -7571,7 +7614,16 @@ void Orbiter::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,Message *pMessage)
 //<-dceag-c689-e->
 {
-	m_sNowPlaying_Speed = sSpeed;
+	if( sSpeed.find('x')!=string::npos )
+		m_sNowPlaying_Speed = sSpeed;  // It's already human formatted
+	else
+	{
+		int Speed = atoi(sSpeed.c_str());
+		if( Speed==1000 )
+			m_sNowPlaying_Speed = ""; // Normaly playback
+		else
+			m_sNowPlaying_Speed = StringUtils::ftos( ((double) Speed) / 1000 ) + "x";
+	}
 
 	string::size_type tabTime = sTime.find('\t');
 	string::size_type tabTotal = sTotal.find('\t');
@@ -8587,3 +8639,25 @@ void Orbiter::ForceCurrentScreenIntoHistory()
 	m_listScreenHistory.push_back( pScreenHistory );
 }
 
+void Orbiter::UpdateTimeCode( void *data )
+{
+	// Protect this
+	PLUTO_SAFETY_LOCK( pm, m_MaintThreadMutex );
+	if( !m_pAskXine_Socket )
+		return; // nothing to do
+
+	string sLine;
+	m_pAskXine_Socket->ReceiveString(sLine, 1);  // Wait at most 1 second for the line
+
+	string::size_type pos=0;
+	int iSpeed = atoi(StringUtils::Tokenize( sLine,",",pos ).c_str());
+	string sTime = StringUtils::Tokenize( sLine,",",pos );
+	string sTotalTime = StringUtils::Tokenize( sLine,",",pos );
+	int iStreamID = atoi(StringUtils::Tokenize( sLine,",",pos ).c_str());
+	string sTitle = StringUtils::Tokenize( sLine,",",pos );
+	string sChapter = StringUtils::Tokenize( sLine,",",pos );
+
+	CMD_Update_Time_Code(iStreamID,sTime,sTotalTime,StringUtils::itos(iSpeed),sTitle,sChapter);
+
+	CallMaintenanceInMiliseconds(1000,&Orbiter::UpdateTimeCode,NULL,pe_ALL,false);
+}

@@ -56,7 +56,7 @@ bool EventLoop(Orbiter* pOrbiter);
 //-----------------------------------------------------------------------------------------------------
 
 Orbiter *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string sLocalDirectory,bool bLocalMode, 
-	int Width,int Height, bool bFullScreen, bool bUseOpenGL, bool &bMustQuit)
+	int Width,int Height, bool bFullScreen, bool &bMustQuit)
 {
     bMustQuit = false;
 
@@ -146,7 +146,7 @@ bool EventLoop(Orbiter* pOrbiter)
 }
 //-----------------------------------------------------------------------------------------------------
 void StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
-					int Width,int Height, bool bFullScreen, bool bUseOpenGL)
+					int Width,int Height, bool bFullScreen)
 {
 	Orbiter *pOrbiter = NULL;
 	OrbiterStages stage = osConnect;
@@ -164,7 +164,7 @@ void StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string s
 				    g_pPlutoLogger->Write(LV_STATUS, "Stage connect");
                     bool bMustQuit = false;
 				    pOrbiter = Connect(PK_Device, PK_DeviceTemplate, sRouter_IP, sLocalDirectory, bLocalMode, 
-						Width, Height, bFullScreen, bUseOpenGL, bMustQuit);
+						Width, Height, bFullScreen, bMustQuit);
 
 				    if(pOrbiter != NULL && !bMustQuit)
 				    {
