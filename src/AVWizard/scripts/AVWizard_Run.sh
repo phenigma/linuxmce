@@ -75,15 +75,31 @@ UpdateAudioSettings()
 	fi
 
 	WizAudioConnector=$(WizGet 'AudioConnector')
+	WizAC3_Result=$(WizGet 'DolbyTest')
+	WizDTS_Result=$(WizGet 'DTSTest')
+
 	case "$WizAudioConnector" in
 		'Analog Stereo')
-			NewAudioSetting=
+			AudioOutput="S"
 		;;
-		'SPDIF Coaxial'|'SPDIF Optical')
-			NewAudioSetting='K3'
+		'Analog Multi-channel')
+			AudioOutput="L"
+		;;
+		'SPDIF Coaxial')
+			AudioOutput="C"
+		;;
+		'SPDIF Optical')
+			AudioOutput="O"
 		;;
 	esac
 	
+	# if at least one of the digital streams passed the test, enable passthrough
+	if [[ "$WizAC3_Result" != 0 || "$WizDTS_Result" != 0 ]]; then
+		PassThrough="3"
+	fi
+
+	NewAudioSetting="$AudioOutput$PassThrough"
+
 	Q="
 		REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
 		VALUES('$MD', '$DEVICEDATA_Audio_Settings', '$NewAudioSetting')
