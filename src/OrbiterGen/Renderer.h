@@ -68,14 +68,19 @@ public:
 	void SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile, bool bUseOCG=false);
 	void SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, string sFilename, bool Signature = true);
 
-    // returns true on success
-    static bool SaveImageToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName);
+    // TODO: remove this
+    //// returns true on success
+    //static bool SaveImageToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName);
+
+    // TODO: remove this
+    //// returns true on success
+    //// delete only pBufferReturn
+    //// pImageDataReturn is the start of image data
+    //// image data ends at the end of the buffer
+    //static bool ReadImageFromXbmMaskFile(const string &sFileName, char *&pBufferReturn, int &widthReturn, int &heightReturn, char *&pImageDataReturn);
 
     // returns true on success
-    // delete only pBufferReturn
-    // pImageDataReturn is the start of image data
-    // image data ends at the end of the buffer
-    static bool ReadImageFromXbmMaskFile(const string &sFileName, char *&pBufferReturn, int &widthReturn, int &heightReturn, char *&pImageDataReturn);
+    static bool SaveSurfaceToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName);
 
 	static RendererImage *Subset(RendererImage *pRenderImage,PlutoRectangle rect);
 	// If Crop is true and PreserveAspectRatio is true, then instead of shrinking to fit within the given space, it will

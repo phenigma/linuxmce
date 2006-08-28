@@ -11,6 +11,7 @@ APPNAME = OrbiterGen
 VERSION = 2.0.0
 
 sources = \
+	../utilities/linux/wrapper/image_file.cpp \
 	OrbiterGen.cpp \
 	OGCommand.cpp \
 	OGArray.cpp \
