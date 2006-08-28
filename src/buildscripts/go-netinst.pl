@@ -181,7 +181,7 @@ print `sed 's/\%VERSION%/$version/g' templates/isolinux.txt.template > image-net
 #$files = "Common.sh ConfirmDependencies_Debian.sh Download_CVS.sh Download_Direct.sh Download_SVN.sh Initial_Config.sh Initial_Config_Real.sh pkgsel post-debootstrap.sh preseed.cfg Install_Assistance.sh";
 #map { `cp InstallScripts/$_ image-netinst/Pluto-Install`; } split /[ \n]/, $files;
 
-$files = "BonusCdMenu.sh BonusCdAutoInst.sh Common.sh ConfirmDependencies_Debian.sh Initial_Config.sh Initial_Config_Core.sh Initial_Config_MD.sh Initial_Config_Finish.sh pkgsel post-debootstrap.sh preseed.cfg";
+$files = "BonusCdMenu.sh BonusCdAutoInst.sh Common.sh ConfirmDependencies_Debian.sh Initial_Config.sh Initial_Config_Core.sh Initial_Config_MD.sh Initial_Config_Finish.sh pkgsel post-debootstrap.sh preseed.cfg PreseedStage2.sh";
 #map { `cp InstallScripts_Offline/$_ image-netinst/Pluto-Install`; } split /[ \n]/, $files;
 map { `cp /home/MakeRelease/trunk/src/ConfirmDependencies_Script_Offline/$_ image-netinst/Pluto-Install`; } split /[ \n]/, $files;
 
