@@ -315,10 +315,7 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 		g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter logic initialized!");
 
 		if (!bLocalMode)
-		{
 			pCLinux->CreateChildren();
-			pCLinux->WaitForRelativesIfOSD();
-		}
 
 		if(!pCLinux->m_bQuit)
 		{
