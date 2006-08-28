@@ -1082,11 +1082,15 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
 	int iMediaPosition = pStream->getStreamPlaybackPosition( currentTime, totalTime);
 
 	// IP speed an position notification
-	char buffer[32];
-	snprintf(buffer, 32, "%02i:%02i:%02i.%03i", 
+	char buffer_current[32];
+	snprintf(buffer_current, 32, "%02i:%02i:%02i.%03i", 
 		iMediaPosition / 1000 / 3600, iMediaPosition / 1000 % 3600 / 60, iMediaPosition / 1000 % 3600 % 60, iMediaPosition % 1000);
-	
-	string sIPTimeCodeInfo = StringUtils::itos(Speed) + "," + buffer + "," + StringUtils::itos(iStreamID)
+
+	char buffer_total[32];
+	snprintf(buffer_total, 32, "%02i:%02i:%02i.%03i", 
+		totalTime / 1000 / 3600, totalTime / 1000 % 3600 / 60, totalTime / 1000 % 3600 % 60, totalTime % 1000);
+
+	string sIPTimeCodeInfo = StringUtils::itos(Speed) + "," + buffer + "," + buffer_total + "," + StringUtils::itos(iStreamID)
 		+ "," + StringUtils::itos(pStream->m_iTitle) + "," + StringUtils::itos(pStream->m_iChapter);
 	
 	m_pNotificationSocket->SendStringToAll( sIPTimeCodeInfo );
