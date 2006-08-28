@@ -22,6 +22,7 @@
 #include "../pluto_main/Define_Direction.h"
 #include "../Simulator.h"
 #include "../Main.h"
+#include "ScreenHistory.h"
 
 bool Init_System()
 {
