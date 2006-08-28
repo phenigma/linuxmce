@@ -16,6 +16,8 @@ namespace DCE
 		~Orbiter_Win32();	
 
 		bool SelfUpdate();
+
+		bool WaitForRelativesIfOSD();
 	};
 }
 //-----------------------------------------------------------------------------------------------------

@@ -23,3 +23,9 @@ bool Orbiter_Win32::SelfUpdate()
 	return orbiterSelfUpdate.Run();
 }
 //-----------------------------------------------------------------------------------------------------
+bool Orbiter_Win32::WaitForRelativesIfOSD()
+{
+	//nothing like this under win32 yet
+	return true;
+}
+//-----------------------------------------------------------------------------------------------------
