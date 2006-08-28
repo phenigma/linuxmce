@@ -593,6 +593,20 @@ int PlutoMediaFile::GetPicAttribute(int PK_File)
 //-----------------------------------------------------------------------------------------------------
 string PlutoMediaFile::FileWithAttributes(bool bCreateId3File)
 {
+	//no id3 files for directories
+	if(m_bIsDir)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "# No id3 file for folders");
+		return "";
+	}
+
+	//no id3 file if the media file doesn't exist anymore.
+	if(!FileUtils::FileExists(m_sDirectory + "/" + m_sFile))
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "# No id3 file. The media file doesn't exist anymore.");
+		return "";
+	}
+
 	string sFileWithAttributes = m_sFile;
 	if(!IsSupported(m_sFile))
 	{
