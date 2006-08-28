@@ -30,6 +30,7 @@ class PlutoHalD
 		static DBusError halError;
 		static long pnpDeviceID;
 		static GMainLoop * loop;
+		static bool threadShutdown;
 	
 	public:
 	
@@ -58,6 +59,12 @@ class PlutoHalD
 		
 		/***/
 		static void initialize(LibHalContext * ctx);
+		
+		/***/
+		static void getProductVendorId(LibHalContext * ctx, const char * udi, int * prodId, int * vendorId);
+		
+		/***/
+		static gboolean timeoutHandler (DBusConnection *bus);
 };
 
 #endif /*PLUTOHALD_H_*/
