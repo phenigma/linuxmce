@@ -233,8 +233,8 @@ public:
 
     /// graphics
 
-    // Pixmap_Delete() should be called to free the memory
     // depth==1 for a bitmap
+    // Pixmap_Delete() should be called to free the memory
     Pixmap Pixmap_Create(Window window, unsigned int width, unsigned int height, unsigned int depth);
 
     // actually XFreePixmap() with error-checking
@@ -298,11 +298,8 @@ protected:
     Info_Mouse_Constrain previous_mouse_constrain;
 
     /// shape extension
-public:
-    bool Extension_Shape_IsAvailable();
-    bool Extension_Shape_GetVersion_Major();
-    bool Extension_Shape_GetVersion_Minor();
 
+    // shape usage (A)
     // creating a callback for drawing :  not flexible enough
     // usage:
     //   call Shape_Context_Enter()
@@ -310,6 +307,16 @@ public:
     //   DRAW ONLY masked pixels in the Pixmap, using GC and Display
     //   call Shape_Window_Apply()
     //   call Shape_Context_Leave()
+
+    // shape usage (B)
+    // using an already created bitmap mask
+    //   call Shape_Window_Apply(window, bitmap)
+    //   delete the bitmap
+
+public:
+    bool Extension_Shape_IsAvailable();
+    bool Extension_Shape_GetVersion_Major();
+    bool Extension_Shape_GetVersion_Minor();
 
     // if returns false, then the return values are not valid
     // return values : Pixmap, GC, Display
@@ -322,6 +329,9 @@ public:
 
     // Pixmap should have depth==1
     bool Shape_Window_Apply(Window window, Pixmap &pixmap);
+
+    // use the bitmap from a xbm file
+    bool Shape_Window_Apply(Window window, const string &sPath);
 
     bool Shape_Window_Reset(Window window);
     bool Shape_Window_Hide(Window window);
@@ -337,7 +347,7 @@ protected:
     /// debug
 public:
     Window Debug_Window(bool bCreate_NotClose=true);
-    bool Debug_Shape_Context_Example(Window window, unsigned int width, unsigned int height);
+    bool Debug_Shape_Context_Example(Window window, unsigned int width, unsigned int height, int nApplyMethod=0);
 
     static int AfterFunction_Grabber(Display *);
     bool AfterFunction_Set();

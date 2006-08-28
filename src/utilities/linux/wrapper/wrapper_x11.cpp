@@ -9,6 +9,7 @@
 #endif
 
 #include "wrapper_x11.h"
+#include "image_file.h"
 #include <X11/extensions/shape.h>
 
 #ifdef USE_DEBUG_CODE
@@ -1346,14 +1347,9 @@ bool X11wrapper::Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pix
             x_hot_return = 0;
         if (y_hot_return < 0)
             y_hot_return = 0;
+        _LOG_NFO("window==%d, sPath=='%s' => width==%d, height==%d, pixmap==%d, x_hot==%d, y_hot==%d",
+                 window, sPath.c_str(), width_return, height_return, pixmap_return, x_hot_return, y_hot_return);
     } while ((xcode = 0));
-    //if (1)
-    //{
-    //    string sNewPath = sPath + "._new";
-    //    _LOG_NFO("sNewPath==%s", sNewPath.c_str());
-    //    bool bResult = Pixmap_WriteFile(sNewPath, pixmap_return, width_return, height_return, x_hot_return, y_hot_return);
-    //    _LOG_NFO("bResult==%d", bResult);
-    //}
     return (xcode == 0);
 }
 
@@ -1507,7 +1503,6 @@ bool X11wrapper::Extension_Shape_GetVersion_Minor()
 bool X11wrapper::Shape_Context_Enter(Window window, unsigned int width, unsigned int height, Pixmap &bitmap_mask, GC &gc, Display * &pDisplay)
 {
     _LOG_NFO("window==%d, width==%d, height==%d", window, width, height);
-    bool bResult = false;
     bool b_gc_created = false;
     int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
@@ -1526,21 +1521,16 @@ bool X11wrapper::Shape_Context_Enter(Window window, unsigned int width, unsigned
         _COND_XBOOL_LOG_ERR_BREAK(xcode);
         xcode = XSetForeground(pDisplay, gc, 1);
         _COND_XBOOL_LOG_ERR_BREAK(xcode);
-        // done
-        bResult = true;
+        _LOG_NFO("window==%d, width==%d, height==%d => bitmap_mask==%d, gc==%d, pDisplay==%p", window, width, height, bitmap_mask, gc, pDisplay);
     } while ((xcode = 0));
     // cleanup
-    if (! bResult)
+    if (xcode != 0)
     {
         Pixmap_Delete(bitmap_mask);
         if (b_gc_created)
             XFreeGC(GetDisplay(), gc);
     }
-    if (bResult)
-    {
-        _LOG_NFO("window==%d, width==%d, height==%d => bitmap_mask==%d, gc==%d, pDisplay==%p", window, width, height, bitmap_mask, gc, pDisplay);
-    }
-    return ((xcode == 0) && bResult);
+    return (xcode == 0);
 }
 
 bool X11wrapper::Shape_Context_Leave(Window window, Pixmap &bitmap_mask, GC &gc, Display * &pDisplay)
@@ -1573,6 +1563,28 @@ bool X11wrapper::Shape_Window_Apply(Window window, Pixmap &pixmap)
             _LOG_XERROR_BREAK("X11 SHAPE extension: not available");
         XShapeCombineMask(GetDisplay(), window, ShapeBounding, 0, 0, pixmap, ShapeSet);
     } while ((xcode = 0));
+    return (xcode == 0);
+}
+
+bool X11wrapper::Shape_Window_Apply(Window window, const string &sPath)
+{
+    _LOG_NFO("window==%d, sPath=='%s'", window, sPath.c_str());
+    Pixmap bitmap_mask = None;
+    int xcode = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        unsigned int width = 0;
+        unsigned int height = 0;
+        int x_hot = 0;
+        int y_hot = 0;
+        if (! Pixmap_ReadFile(window, sPath, bitmap_mask, width, height, x_hot, y_hot))
+            _LOG_XERROR_BREAK();
+        if (! Shape_Window_Apply(window, bitmap_mask))
+            _LOG_XERROR_BREAK();
+    } while ((xcode = 0));
+    // cleanup
+    Pixmap_Delete(bitmap_mask);
     return (xcode == 0);
 }
 
@@ -1659,35 +1671,62 @@ Window X11wrapper::Debug_Window(bool bCreate_NotClose/*=true*/)
     return windowDebug;
 }
 
-bool X11wrapper::Debug_Shape_Context_Example(Window window, unsigned int width, unsigned int height)
+bool X11wrapper::Debug_Shape_Context_Example(Window window, unsigned int width, unsigned int height, int nApplyMethod/*=0*/)
 {
-    // remembered values
-    Pixmap bitmap_mask = 0;
-    GC gc;
-    Display *pDisplay = NULL;
-    // initialize
-    bool bResult = Shape_Context_Enter(window, width, height, bitmap_mask, gc, pDisplay);
-    if (! bResult)
+    // compute the image at runtime
+    if (nApplyMethod == 0)
     {
-        _LOG_ERR("Shape_Context_Enter(window==%d, width==%d, height==%d, bitmap_mask==%d, gc==%d, pDisplay==%p) => retCode==%d",
-                 window, width, height, bitmap_mask, gc, pDisplay, bResult);
-        return false;
-    }
-    // creating the desired shape
-    for (unsigned int x=0; x<width; ++x)
-        for (unsigned int y=0; y<height; ++y)
+        // remembered values
+        Pixmap bitmap_mask = 0;
+        GC gc;
+        Display *pDisplay = NULL;
+        // initialize
+        bool bResult = Shape_Context_Enter(window, width, height, bitmap_mask, gc, pDisplay);
+        if (! bResult)
         {
-            if (x % 100 < y % 100)
-                XDrawPoint(pDisplay, bitmap_mask, gc, x, y);
+            _LOG_ERR("Shape_Context_Enter(window==%d, width==%d, height==%d, bitmap_mask==%d, gc==%d, pDisplay==%p) => retCode==%d",
+                     window, width, height, bitmap_mask, gc, pDisplay, bResult);
+            return false;
         }
-    // done
-    bResult = Shape_Context_Leave(window, bitmap_mask, gc, pDisplay);
-    if (! bResult)
-    {
-        _LOG_WRN("Shape_Context_Leave(window==%d, width==%d, height==%d, bitmap_mask==%d, gc==%d, pDisplay==%p) => retCode==%d",
-                 window, width, height, bitmap_mask, gc, pDisplay, bResult);
+        // creating the desired shape
+        for (unsigned int y=0; y<height; ++y)
+            for (unsigned int x=0; x<width; ++x)
+                if (x % 100 < y % 100)
+                    XDrawPoint(pDisplay, bitmap_mask, gc, x, y);
+        // done
+        bResult = Shape_Context_Leave(window, bitmap_mask, gc, pDisplay);
+        if (! bResult)
+        {
+            _LOG_WRN("Shape_Context_Leave(window==%d, width==%d, height==%d, bitmap_mask==%d, gc==%d, pDisplay==%p) => retCode==%d",
+                     window, width, height, bitmap_mask, gc, pDisplay, bResult);
+        }
+        return true;
     }
-    return true;
+    // write to file, and read again, just for testing
+    if (nApplyMethod == 1)
+    {
+        string sPath = "/tmp/bitmap_mask.xbm";
+        char * pRawData = new char[width * height];
+        int xcode = -1;
+        do
+        {
+            for (unsigned int y=0; y<height; ++y)
+                for (unsigned int x=0; x<width; ++x)
+                    *(pRawData + y*width + x) = (x % 100 < y % 100);
+            _LOG_NFO("width==%d, height==%d, pRawData->%p", width, height, pRawData);
+            if (! Xbm_WriteFile(sPath, pRawData, width, height))
+                _LOG_XERROR_BREAK();
+            if (! Shape_Window_Apply(window, sPath))
+                _LOG_XERROR_BREAK();
+        } while ((xcode = 0));
+        if (pRawData)
+        {
+            delete pRawData;
+            pRawData = NULL;
+        }
+        return (xcode == 0);
+    }
+    return false;
 }
 
 int X11wrapper::AfterFunction_Grabber(Display *pDisplay)
