@@ -421,6 +421,10 @@ if [[ -x /usr/pluto/bin/shift_state ]]; then
 		ShiftMsg=" (shift pressed)"
 	fi
 fi
+
+Message "Starting Pluto HAL daemon"
+/usr/pluto/bin/StartHAL.sh
+
 if [[ "$AVWizardDone" != "1" || "$ShiftState" == 1 ]] ;then
 	if [[ -x /usr/pluto/bin/AVWizard_Run.sh ]]; then	
 		Message "Starting Audio/Video Wizard${ShiftMsg}"

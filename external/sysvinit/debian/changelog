@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto59) unstable; urgency=low
+
+  * Start HAL before AVWizard
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Mon, 28 Aug 2006 18:06:35 +0300
+
 sysvinit (2.86.ds1-1.1pluto58) unstable; urgency=low
 
   * Save dmesg at boot
