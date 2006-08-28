@@ -3130,8 +3130,7 @@ function processAudioSettings($deviceID,$dbADO)
 {
 	$audioSettings=($_POST['audioSettings_'.$deviceID]=='0')?'':$_POST['audioSettings_'.$deviceID];
 	$AC3setting=@$_POST['ac3_'.$deviceID];
-	$Force48K=@$_POST['force48k_'.$deviceID];
-	$newAS=$audioSettings.@$AC3setting.@$Force48K;
+	$newAS=$audioSettings.@$AC3setting;
 	$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newAS,$deviceID,$GLOBALS['AudioSettings']));
 	
 	$xinePlayerData=getFieldsAsArray('Device Xine','Xine.PK_Device AS PK_Device',$dbADO,'
@@ -3685,7 +3684,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'\',\'_blank\',\'\');">'.$testCodeBtn:'N/A').'</td>';
 		}
 		$out.='
-			<td><input type="button" class="button" name="btn" onClick="self.location=\'index.php?section=irCodes&action=update&dtID='.$dtID.'&newIRG='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'\';" value="'.$TEXT_THIS_WORKS_CONST.'"></td>
+			<td><input type="button" class="button" name="btn" onClick="self.location=\'index.php?section=irCodes&action=update&dtID='.$dtID.'&irGroup='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'\';" value="'.$TEXT_THIS_WORKS_CONST.'"></td>
 		</tr>';
 	}
 	
