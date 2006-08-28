@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Utils.sh
 
 DEVICECATEGORY_Sound_Cards=124
