@@ -22,7 +22,7 @@
 #include "../pluto_main/Define_Direction.h"
 #include "../Simulator.h"
 #include "../Main.h"
-#include "ScreenHistory.h"
+#include "../ScreenHistory.h"
 
 bool Init_System()
 {
@@ -319,7 +319,7 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 		{
 			pCLinux->CreateChildren();
 			pCLinux->WaitForRelativesIfOSD();
-			CMD_Goto_Screen("", pCLinux->m_pScreenHistory_Current->PK_Screen());  // Just go back to the screen
+			pCLinux->CMD_Goto_Screen("", pCLinux->m_pScreenHistory_Current->PK_Screen());  // Just go back to the screen
 		}
 
 		if(!pCLinux->m_bQuit)
