@@ -121,14 +121,6 @@ public:
 	* @brief Device data access methods:
 	*/
 
-	string Get_Output_Speaker_arrangement()
-	{
-		if( m_bRunningWithoutDeviceData )
-			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Output_Speaker_arrangement_CONST);
-		else
-			return m_mapParameters[DEVICEDATA_Output_Speaker_arrangement_CONST];
-	}
-
 	string Get_Alsa_Output_Device()
 	{
 		if( m_bRunningWithoutDeviceData )
@@ -312,7 +304,6 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
-	string DATA_Get_Output_Speaker_arrangement() { return GetData()->Get_Output_Speaker_arrangement(); }
 	string DATA_Get_Alsa_Output_Device() { return GetData()->Get_Alsa_Output_Device(); }
 	string DATA_Get_Subtitles() { return GetData()->Get_Subtitles(); }
 	void DATA_Set_Subtitles(string Value,bool bUpdateDatabase=false) { GetData()->Set_Subtitles(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,92,Value); }
@@ -377,7 +368,21 @@ public:
 	{
 		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal)==rmr_Processed )
+		{
+			if( pMessageOriginal->m_eExpectedResponse==ER_ReplyMessage && !pMessageOriginal->m_bRespondedToMessage )
+			{
+				pMessageOriginal->m_bRespondedToMessage=true;
+				Message *pMessageOut=new Message(m_dwPK_Device,pMessageOriginal->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+				pMessageOut->m_mapParameters[0]="OK";
+				SendMessage(pMessageOut);
+			}
+			else if( (pMessageOriginal->m_eExpectedResponse==ER_DeliveryConfirmation || pMessageOriginal->m_eExpectedResponse==ER_ReplyString) && !pMessageOriginal->m_bRespondedToMessage )
+			{
+				pMessageOriginal->m_bRespondedToMessage=true;
+				SendString("OK");
+			}
 			return rmr_Processed;
+		}
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{

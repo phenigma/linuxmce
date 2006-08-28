@@ -50,7 +50,6 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
-	string DATA_Get_Output_Speaker_arrangement();
 	string DATA_Get_Alsa_Output_Device();
 	string DATA_Get_Subtitles();
 	void DATA_Set_Subtitles(string Value);
@@ -61,7 +60,7 @@ public:
 	int DATA_Get_Time_Code_Report_Frequency();
 	string DATA_Get_Name();
 	string DATA_Get_Hardware_acceleration();
-	string DATA_Get_Use_Deinterlacing();
+	string DATA_Get_Deinterlacing_Mode();
 	int DATA_Get_Port();
 
 			*****EVENT***** accessors inherited from base class
