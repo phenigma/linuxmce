@@ -1,5 +1,6 @@
 #!/bin/bash
 
+exit 0 # script disabled
 echo "Creating /etc/asound.conf file"
 
 
