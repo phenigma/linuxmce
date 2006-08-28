@@ -90,7 +90,7 @@ if [[ "$1" == "--restore" ]]; then
 		md5test=$(md5sum -c $md5file | awk '{print $2}')
 		if [[ "$md5test" != "OK" ]]; then
 			echo "File integrity check failed ! Process stopped !"
-			exit
+			exit 1
 		else 
 			echo ""
                 	if [[ "$backupfile" != "" ]]; then
