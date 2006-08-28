@@ -297,7 +297,7 @@ g_pPlutoLogger->Write(LV_ACTION, "Frequency: %d Y: %d notch %d",Frequency,Y,Notc
 	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaGrid,0,"",Frequency,this->m_pMouseHandler);
 	#ifdef ORBITER_OPENGL
 		if( m_pObj_ScrollingGrid )
-			(dynamic_cast<DataGridRenderer_OpenGL *>(m_pObj_ScrollingGrid->Renderer()))->m_AnimationSpeed_set(Frequency*.5);
+			(dynamic_cast<DataGridRenderer_OpenGL *>(m_pObj_ScrollingGrid->Renderer()))->m_AnimationSpeed_set(int(Frequency*.5));
 	#endif
 }
 

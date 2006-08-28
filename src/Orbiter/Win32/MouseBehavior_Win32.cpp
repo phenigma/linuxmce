@@ -19,7 +19,7 @@ void MouseBehavior_Win32::SetMousePosition(int X,int Y)
 
 	MouseBehavior::SetMousePosition(nWindowX + X, nWindowY + Y);
 	
-	SetCursorPos(nWindowY + X, nWindowY + Y);
+	::SetCursorPos(nWindowX + X, nWindowY + Y);
 }
 
 void MouseBehavior_Win32::ShowMouse(bool bShow)
