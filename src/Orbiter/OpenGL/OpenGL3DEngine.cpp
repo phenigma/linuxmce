@@ -30,7 +30,7 @@ OpenGL3DEngine::OpenGL3DEngine() :
 	CurrentLayer(NULL),
 	HighLightFrame(NULL),
 	SelectedFrame(NULL),
-	FrameBuilder(NULL),
+	FrameBuilder(NULL),			 
 	FrameDatagrid(NULL),
 	HighLightPopup(NULL),
 	ModifyGeometry(0)
@@ -102,8 +102,6 @@ bool OpenGL3DEngine::Paint()
 		
 	GL.EnableZBuffer(false);
 
-	Compose->Paint();
-
 	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint before highlight");
 	if(AnimationDatagrid.size())
 	{
@@ -135,8 +133,6 @@ bool OpenGL3DEngine::Paint()
 			Color.X = Color.Z;
 			Color.Y = Color.Z;
 
-			CurrentLayer->RemoveChild(HighLightPopup);
-			CurrentLayer->AddChild(HighLightPopup);
 			HighLightPopup->SetColor(Color);
 		}
 
@@ -155,6 +151,9 @@ bool OpenGL3DEngine::Paint()
 			HighLightFrame->SetColor(Color);
 		}
 	}
+	UpdateTopMostObjects();
+	Compose->Paint();
+	
 	GL.Flip();
 
 
@@ -423,6 +422,7 @@ inline void OpenGL3DEngine::DumpScene()
 	HighLightFrame->SetMeshContainer(Container);
 
 	HighlightCurrentLayer->AddChild(HighLightFrame);
+	AddTopMostObject("highlight");
 }
 
 /*virtual*/ void OpenGL3DEngine::UnHighlight()
@@ -670,4 +670,47 @@ void OpenGL3DEngine::BeginModifyGeometry()
 void OpenGL3DEngine::EndModifyGeometry()
 {
 	--ModifyGeometry;
+}
+
+void OpenGL3DEngine::AddTopMostObject(string ObjectID)
+{
+	if(ObjectID== "")
+		return;
+	if(TopMostObjects.find(ObjectID) != TopMostObjects.end())
+		return;
+
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+	TopMostObjects[ObjectID] = ObjectID;
+}
+
+void OpenGL3DEngine::RemoveTopMostObject(string ObjectID)
+{
+	map<string,string>::iterator Item = TopMostObjects.find(ObjectID);
+	if(Item != TopMostObjects.end())
+		TopMostObjects.erase(Item);
+}
+
+void OpenGL3DEngine::UpdateTopMostObjects()
+{
+	if(TopMostObjects.size() == 0)
+		return;
+	
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+	map<string,string>::iterator Item;
+	for(Item = TopMostObjects.begin(); Item != TopMostObjects.end(); )
+	{
+		MeshFrame*Frame = this->GetMeshFrameFromDesktop(Item->second);
+		if(Frame == NULL)
+		{
+			map<string,string>::iterator SearchItem = TopMostObjects.find(Item->second);
+			if(SearchItem != TopMostObjects.end())
+				Item = TopMostObjects.erase(Item);
+		}
+		else
+		{
+			CurrentLayer->RemoveChild(Frame);
+			CurrentLayer->AddChild(Frame);
+			++Item;
+		}
+	}
 }

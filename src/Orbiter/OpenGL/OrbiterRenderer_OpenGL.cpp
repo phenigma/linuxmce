@@ -312,9 +312,9 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 	Frame->SetMeshContainer(Container);
 
 	MeshTransform AspectRatioTransform;
-	AspectRatioTransform.ApplyTranslate(-Position.X, -Position.Y, 0);
-	AspectRatioTransform.ApplyScale(ZoomX, ZoomY, 1.0f);
-	AspectRatioTransform.ApplyTranslate(Position.X, Position.Y, 0);
+	AspectRatioTransform.ApplyTranslate((float)-Position.X, (float)-Position.Y, 0.0f);
+	AspectRatioTransform.ApplyScale((float)ZoomX, (float)ZoomY, 1.0f);
+	AspectRatioTransform.ApplyTranslate((float)Position.X, (float)Position.Y, 0.0f);
 	Frame->ApplyTransform(AspectRatioTransform);
 
 	MeshTransform Transform;

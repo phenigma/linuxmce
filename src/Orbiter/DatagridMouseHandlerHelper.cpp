@@ -15,6 +15,7 @@
 #ifdef ORBITER_OPENGL
 #include "OpenGL/OrbiterRenderer_OpenGL.h"
 #include "OpenGL/DataGridRenderer_OpenGL.h"
+#include "OpenGL/OpenGL3DEngine.h"
 #endif
 
 using namespace DCE;
@@ -501,6 +502,7 @@ void DatagridMouseHandlerHelper::RelativePointer_ImageDraw(PlutoGraphic *pImage,
         // reusing the same image id
         pOrbiterRenderer_OpenGL->RenderGraphic(pImage, rectFakePointer, false, PlutoPoint(), 255,
 			"", "image_fake_pointer");
+		pOrbiterRenderer_OpenGL->Engine->AddTopMostObject("image_fake_pointer");
         return;
     }
 #endif

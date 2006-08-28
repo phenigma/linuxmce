@@ -29,7 +29,11 @@ class OpenGL3DEngine
 
 	virtual void UnSelect();
 
-	std::vector<AnimationScrollDatagrid*> AnimationDatagrid;
+	vector<AnimationScrollDatagrid*> AnimationDatagrid;
+	
+	map<string, string> TopMostObjects;
+	void UpdateTopMostObjects();
+
 	void ShowAnimationTextures();
 	void DumpScene();
 
@@ -87,6 +91,9 @@ public:
 
 	void BeginModifyGeometry();
 	void EndModifyGeometry();
+
+	void AddTopMostObject(string ObjectID);
+	void RemoveTopMostObject(string ObjectID);
 };
 
 #endif
