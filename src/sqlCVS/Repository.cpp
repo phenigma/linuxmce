@@ -1192,6 +1192,7 @@ int k=2;
 
 bool Repository::UpdateSchema(int PriorSchema)
 {
+	cout << "Updating repository '" << m_sName << "' schema version from: " << PriorSchema << endl;
 	std::ostringstream sSQL;
 	sSQL << "SELECT PK_psc_" << m_sName << "_schema,Value FROM psc_" << m_sName << "_schema WHERE PK_psc_" << m_sName << "_schema>" << PriorSchema << " ORDER BY PK_psc_" << m_sName << "_schema";
 	PlutoSqlResult result_set;
@@ -1219,6 +1220,7 @@ bool Repository::UpdateSchema(int PriorSchema)
 				}
 			}
 			SetSetting("schema",row[0]);
+			cout << "Updated repository '" << m_sName << "' schema version to: " << row[0] << endl;
 		}
 	 	return true; // We updated the schema
 	}
