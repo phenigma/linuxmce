@@ -30,6 +30,7 @@ sources += \
 	../utilities/linux/window_manager/WMController/WMController.cpp \
 	../utilities/linux/window_manager/wmctrl/wmctrl.cpp \
 	../utilities/linux/wrapper/wrapper_x11.cpp \
+	../utilities/linux/wrapper/image_file.cpp \
 	Linux/win_list_manager.cpp \
 	Linux/OSDCompass.cpp \
 	Linux/OrbiterRenderer_Linux.cpp \

@@ -64,7 +64,8 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 
 			X11_Locker lock(pOrbiterLinux->GetDisplay());
 			BASE_CLASS::RenderScreen(bRenderGraphicsOnly);
-			XFlush(pOrbiterLinux->GetDisplay()); // TODO: test and remove this
+            // XFlush already called by ~X11_Locker()->XSync()
+			// XFlush(pOrbiterLinux->GetDisplay());
             RenderScreen_ApplyMask();
 		}
 
@@ -85,40 +86,51 @@ bool OrbiterRenderer_Linux::RenderScreen_ApplyMask()
     }
     if (!pOrbiterLinux->m_bUseMask)
         return false;
+    // prepare the mask path
+    // code from Cristi
+    //if (OrbiterLogic()->m_pScreenHistory_Current == NULL)
+    //    return false;
+    //if (OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_vectGraphic.size() == 0)
+    //    return false;
+    //string sMaskPath = OrbiterLogic()->m_sLocalDirectory + OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_vectGraphic[0]->m_Filename + ".mask.xbm";
+    string sMaskPath;
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_Linux::RenderScreen_ApplyMask : start");
-    // remembered values
-    Pixmap bitmap_mask = 0;
-    GC gc;
-    Display *pDisplay = NULL;
-    // initialize
     Window window = pOrbiterLinux->m_pX11->GetMainWindow();
-    unsigned int width = 0;
-    unsigned int height = 0;
-    pOrbiterLinux->m_pX11->Object_GetGeometry(window, NULL, NULL, &width, &height);
-    bool bResult = pOrbiterLinux->m_pX11->Shape_Context_Enter(window, width, height, bitmap_mask, gc, pDisplay);
-    if (! bResult)
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "MouseBehavior_Linux::ptrOrbiterLinux() : cannot use the shape extension");
-        return false;
-    }
-    // creating the desired shape
-    // TODO : replace with the real algorithm, expecting a pre-calculated shape here
-    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ptrOrbiterLinux() : computing the shape");
-    for (unsigned int x=0; x<width; ++x)
-        for (unsigned int y=0; y<height; ++y)
-        {
-            if (x % 100 < y % 100)
-                XDrawPoint(pDisplay, bitmap_mask, gc, x, y);
-        }
-    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ptrOrbiterLinux() : computing the shape : done");
-    // done
-    bResult = pOrbiterLinux->m_pX11->Shape_Context_Leave(window, bitmap_mask, gc, pDisplay);
-    if (! bResult)
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "MouseBehavior_Linux::ptrOrbiterLinux() : cannot set the window shape");
-    }
+    bool bResult = pOrbiterLinux->m_pX11->Shape_Window_Apply(window, sMaskPath);
     g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ptrOrbiterLinux() : done");
-    return true;
+    return bResult;
+    // TODO: remove this : using method 2, faster
+    //// remembered values
+    //Pixmap bitmap_mask = 0;
+    //GC gc;
+    //Display *pDisplay = NULL;
+    //// initialize
+    //Window window = pOrbiterLinux->m_pX11->GetMainWindow();
+    //unsigned int width = 0;
+    //unsigned int height = 0;
+    //pOrbiterLinux->m_pX11->Object_GetGeometry(window, NULL, NULL, &width, &height);
+    //bool bResult = pOrbiterLinux->m_pX11->Shape_Context_Enter(window, width, height, bitmap_mask, gc, pDisplay);
+    //if (! bResult)
+    //{
+    //    g_pPlutoLogger->Write(LV_CRITICAL, "MouseBehavior_Linux::ptrOrbiterLinux() : cannot use the shape extension");
+    //    return false;
+    //}
+    //// creating the desired shape
+    //// TODO : replace with the real algorithm, expecting a pre-calculated shape here
+    //g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ptrOrbiterLinux() : computing the shape");
+    //for (unsigned int x=0; x<width; ++x)
+    //    for (unsigned int y=0; y<height; ++y)
+    //        if (x % 100 < y % 100)
+    //            XDrawPoint(pDisplay, bitmap_mask, gc, x, y);
+    //g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ptrOrbiterLinux() : computing the shape : done");
+    //// done
+    //bResult = pOrbiterLinux->m_pX11->Shape_Context_Leave(window, bitmap_mask, gc, pDisplay);
+    //if (! bResult)
+    //{
+    //    g_pPlutoLogger->Write(LV_WARNING, "MouseBehavior_Linux::ptrOrbiterLinux() : cannot set the window shape");
+    //}
+    //g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ptrOrbiterLinux() : done");
+    //return true;
 }
 
 void OrbiterRenderer_Linux::InitializeAfterSetVideoMode()
