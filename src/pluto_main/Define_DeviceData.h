@@ -58,7 +58,6 @@
 #define DEVICEDATA_Connector_CONST 68
 #define DEVICEDATA_TCP_Port_CONST 69
 #define DEVICEDATA_Idle_Delay_CONST 70
-#define DEVICEDATA_Output_Speaker_arrangement_CONST 71
 #define DEVICEDATA_VideoFrameInterval_CONST 72
 #define DEVICEDATA_Alsa_Output_Device_CONST 74
 #define DEVICEDATA_ImageQuality_CONST 75
@@ -149,6 +148,7 @@
 #define DEVICEDATA_Deinterlacing_Mode_CONST 170
 #define DEVICEDATA_Port_CONST 171
 #define DEVICEDATA_Use_OpenGL_effects_CONST 172
+#define DEVICEDATA_ALSA_Master_Mixer_Name_CONST 173
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
