@@ -704,7 +704,7 @@ void OpenGL3DEngine::UpdateTopMostObjects()
 		{
 			map<string,string>::iterator SearchItem = TopMostObjects.find(Item->second);
 			if(SearchItem != TopMostObjects.end())
-				Item = TopMostObjects.erase(Item);
+				TopMostObjects.erase(Item++);
 		}
 		else
 		{
