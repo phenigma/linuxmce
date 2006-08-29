@@ -820,8 +820,13 @@ g_PlutoProfiler->DumpResults();
 
 	m_pScreenHistory_Current=pScreenHistory;
 	m_pScreenHistory_Current->GetObj()->m_bActive=true;
+g_pPlutoLogger->Write( LV_CRITICAL, "need to change timeout %d",m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds);
+
 	if( m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds )
+	{
+g_pPlutoLogger->Write( LV_CRITICAL, "calling timeout");
 		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->GetObj(), pe_ALL );
+	}
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "Changing screen to %s ir %d type %c",
