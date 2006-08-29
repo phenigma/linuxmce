@@ -49,6 +49,7 @@ g_pPlutoLogger->Write(LV_EVENTHANDLER,"DataGridRenderer_OpenGL::RenderObject dat
 
 //////////////////////////////////////////////////////////////////////////
 //temp
+/*
 static bubu = 1;
 if(bubu)
 {
@@ -57,6 +58,7 @@ if(bubu)
 
 	bubu = 0;
 }
+*/
 //////////////////////////////////////////////////////////////////////////
 
 	string DatagridFrameID = "datagrid " + m_pObj_Owner->GenerateObjectHash(point, false);
