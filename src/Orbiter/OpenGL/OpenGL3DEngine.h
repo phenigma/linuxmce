@@ -8,10 +8,10 @@
 #include "Mesh/MeshFrame.h"
 
 #include "PlutoUtils/MultiThreadIncludes.h"
-
 #include "Layers/GL2DEffectLayersCompose.h"
 
 class AnimationScrollDatagrid;
+class DatagridAnimationManager;
 
 class OpenGL3DEngine
 {
@@ -29,13 +29,13 @@ class OpenGL3DEngine
 
 	virtual void UnSelect();
 
-	vector<AnimationScrollDatagrid*> AnimationDatagrids;
-	
 	map<string, string> TopMostObjects;
 	void UpdateTopMostObjects();
 
 	void ShowAnimationTextures();
 	void DumpScene();
+
+	auto_ptr<DatagridAnimationManager> m_spDatagridAnimationManager;
 
 	/**
 	 *	Block painting because there is a need of bigger geometry painting
@@ -81,22 +81,18 @@ public:
 	void StartFrameDrawing(std::string ObjectHash);
 	MeshFrame* EndFrameDrawing(std::string sObjectHash);
 
-	void CubeAnimateDatagridFrames(string ObjectID, MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
-		int MilisecondTime, int Direction, float fMaxAlphaLevel, vector<string> Dependencies);
-
-	void StopDatagridAnimations();
-
-
 	void ShowHighlightRectangle(PlutoRectangle Rect);
 	void HideHighlightRectangle();
-
-	bool IsCubeAnimatedDatagrid(string ObjectID);
 
 	void BeginModifyGeometry();
 	void EndModifyGeometry();
 
 	void AddTopMostObject(string ObjectID);
 	void RemoveTopMostObject(string ObjectID);
+
+	DatagridAnimationManager *GetDatagridAnimationManager() { return m_spDatagridAnimationManager.get(); }
+
+	pluto_pthread_mutex_t& GetSceneMutex() { return SceneMutex; }
 };
 
 #endif

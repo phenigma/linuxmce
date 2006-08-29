@@ -31,7 +31,7 @@ public:
 
 	int GetStartTime();
 
-	bool DatagridDependenciesSatisfied(vector<AnimationScrollDatagrid*> &AnimationDatagrids);
+	//bool DatagridDependenciesSatisfied(vector<AnimationScrollDatagrid*> &AnimationDatagrids);
 
 	void StartAnimation();
 	void StopAnimation();

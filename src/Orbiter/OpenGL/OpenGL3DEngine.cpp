@@ -9,7 +9,7 @@
 #include "Layers/GL2DEffectLayersCompose.h"
 #include "Texture/TextureManager.h"
 #include "Texture/GLFontManager.h"
-#include "AnimationScrollDatagrid.h"
+#include "DatagridAnimationManager.h"
 
 #include "Simulator.h"
 
@@ -25,7 +25,6 @@ OpenGL3DEngine::OpenGL3DEngine() :
 	AnimationRemain (false),
 	SceneMutex("scene mutex"),
 	Compose(NULL),
-	AnimationDatagrids(NULL),
 	OldLayer(NULL),
 	CurrentLayer(NULL),
 	HighLightFrame(NULL),
@@ -39,6 +38,8 @@ OpenGL3DEngine::OpenGL3DEngine() :
 		printf("Error on TTF_Init: %s\n", TTF_GetError());
 		return;
 	}
+
+	m_spDatagridAnimationManager.reset(new DatagridAnimationManager(this));
 
 	pthread_mutexattr_t m_SceneAttr;
 	pthread_mutexattr_init(&m_SceneAttr);
@@ -103,37 +104,9 @@ bool OpenGL3DEngine::Paint()
 	GL.EnableZBuffer(false);
 
 	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint before highlight");
-	if(AnimationDatagrids.size())
+	if(m_spDatagridAnimationManager->Update())
 	{
-		vector<AnimationScrollDatagrid*>::iterator Item ;
-		for(Item = AnimationDatagrids.begin(); Item != AnimationDatagrids.end(); )
-		{
-			AnimationScrollDatagrid *pThing = *Item;
-			if(pThing->DatagridDependenciesSatisfied(AnimationDatagrids))
-			{
-				if (pThing->Update(true))
-				{
-					RemoveMeshFrameFromDesktop(pThing->BeforeGrid);
-					pThing->BeforeGrid->CleanUp();
-					delete pThing;
-					Item = AnimationDatagrids.erase(Item);
-				}
-				else
-					++Item;
-			}
-			else
-			{
-				if (pThing->Update(true))
-				{
-					RemoveMeshFrameFromDesktop(pThing->BeforeGrid);
-					pThing->BeforeGrid->CleanUp();
-					delete pThing;
-					Item = AnimationDatagrids.erase(Item);
-				}
-				else
-					++Item;
-			}
-		}
+		//baga cod acilea
 	}
 	else
 	{
@@ -561,19 +534,6 @@ MeshFrame* OpenGL3DEngine::EndFrameDrawing(string sObjectHash)
 	return Result;
 }
 
-void OpenGL3DEngine::CubeAnimateDatagridFrames(string ObjectID, MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
-		int MilisecondTime, int Direction, float fMaxAlphaLevel, vector<string> Dependencies)
-{
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
-
-	UnHighlight();
-
-	AnimationScrollDatagrid* Animation = new AnimationScrollDatagrid(ObjectID, this, BeforeGrid, AfterGrid, MilisecondTime, Direction, fMaxAlphaLevel, Dependencies); 
-	 
-	AnimationDatagrids.push_back(Animation);
-	Animation->StartAnimation();
-}
-
 void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 {
 	return;
@@ -662,19 +622,6 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktopForID(string ObjectID)
 	DumpScene();
 }
 
-bool OpenGL3DEngine::IsCubeAnimatedDatagrid(string ObjectID)
-{
-	std::vector<AnimationScrollDatagrid*>::iterator AnimatedDatagridIterator = AnimationDatagrids.begin(),
-		EndIterator = AnimationDatagrids.end();
-	for(; AnimatedDatagridIterator != EndIterator; ++AnimatedDatagridIterator)
-	{
-		AnimationScrollDatagrid* Animation = *AnimatedDatagridIterator;	
-		if (ObjectID == Animation->ObjectID)
-			return true;
-	}
-	return false;
-}
-
 void OpenGL3DEngine::BeginModifyGeometry()
 {
 	++ModifyGeometry;
@@ -728,17 +675,5 @@ void OpenGL3DEngine::UpdateTopMostObjects()
 	}
 }
 
-void OpenGL3DEngine::StopDatagridAnimations()
-{
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
-	std::vector<AnimationScrollDatagrid*>::iterator AnimatedDatagridIterator = AnimationDatagrids.begin(),
-		EndIterator = AnimationDatagrids.end();
-	for(; AnimatedDatagridIterator != EndIterator; ++AnimatedDatagridIterator)
-	{
-		(*AnimatedDatagridIterator)->StopAnimation();
-		delete *AnimatedDatagridIterator;
-	}
-	AnimationDatagrids.clear();
-}
 

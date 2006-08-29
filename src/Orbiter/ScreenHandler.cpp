@@ -241,6 +241,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 			}
 		}
 */
+
 		m_pOrbiter->CMD_Remove_Popup("","coverart");
 		m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
 

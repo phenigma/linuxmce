@@ -27,6 +27,8 @@ AnimationScrollDatagrid::~AnimationScrollDatagrid(void)
 	BeforeGrid->CleanUp();
 	delete BeforeGrid;
 	BeforeGrid = NULL;
+
+	TextureManager::Instance()->ResumeTextureRelease();
 }
 
 void AnimationScrollDatagrid::StartAnimation()
@@ -89,7 +91,6 @@ bool AnimationScrollDatagrid::Update(bool ModifyGeometry)
 
 	if(Result)
 	{
-		TextureManager::Instance()->ResumeTextureRelease();
 		return true; 
 	}
 	Engine->UnHighlight();
@@ -119,36 +120,12 @@ int AnimationScrollDatagrid::GetStartTime()
 	return StartTime;
 }
 
-bool AnimationScrollDatagrid::DatagridDependenciesSatisfied(vector<AnimationScrollDatagrid*> &AnimationDatagrids)
-{
-	for(vector<string>::iterator Item = Dependencies.begin(), End = Dependencies.end();
-		Item != End; ++Item)
-	{
-		bool Exists = Engine->IsCubeAnimatedDatagrid(*Item);
-		if(!Exists)
-			return false;
-		else
-		{
-			for(vector<AnimationScrollDatagrid*>::iterator DGItem = AnimationDatagrids.begin(),
-				DGEnd = AnimationDatagrids.end(); DGItem != DGEnd; ++DGItem)
-				if(!((*DGItem)->UpdateStartTime(StartTime)))
-					UpdateStartTime((*DGItem)->GetStartTime());
-		}
-	}
-
-
-
-	return true;
-}
-
 void AnimationScrollDatagrid::StopAnimation()
 {
 	Finished = true;
 	MeshTransform Transform2;
 	AfterGrid->SetTransform(Transform2);
 	Engine->RemoveMeshFrameFromDesktop(BeforeGrid);
-
-	TextureManager::Instance()->ResumeTextureRelease();
 
 	//BeforeGrid->CleanUp();
 	//delete BeforeGrid;

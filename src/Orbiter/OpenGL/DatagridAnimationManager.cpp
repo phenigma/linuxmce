@@ -1,0 +1,128 @@
+#include "DatagridAnimationManager.h"
+#include "AnimationScrollDatagrid.h"
+#include "OpenGL3DEngine.h"
+
+#include "DCE/Logger.h"
+
+bool DatagridAnimationManager::Update()
+{
+	if(!m_vectCurrentAnimations.size())
+		return false;
+
+	bool bAnimationFinished = false;
+
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, m_pEngine->GetSceneMutex());
+
+	for(vector<AnimationScrollDatagrid*>::iterator it = m_vectCurrentAnimations.begin();
+		it != m_vectCurrentAnimations.end(); ++it)
+	{
+		AnimationScrollDatagrid *pAnimation = *it;
+		if(pAnimation->Update(true))
+		{
+			bAnimationFinished = true;
+		}
+	}
+
+	if(bAnimationFinished)
+		OnStopAnimation();
+
+	return !bAnimationFinished;
+}
+
+void DatagridAnimationManager::Cleanup()
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, m_pEngine->GetSceneMutex());
+
+	for(vector<AnimationScrollDatagrid*>::iterator it = m_vectCurrentAnimations.begin();
+		it != m_vectCurrentAnimations.end(); ++it)
+	{
+		AnimationScrollDatagrid *pAnimation = *it;
+
+		m_pEngine->RemoveMeshFrameFromDesktop(pAnimation->BeforeGrid);
+		pAnimation->BeforeGrid->CleanUp();
+		delete pAnimation;
+	}
+
+	m_vectCurrentAnimations.clear();
+}
+
+void DatagridAnimationManager::PrepareForAnimation(string ObjectID, MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
+		int MilisecondTime, int Direction, float fMaxAlphaLevel, vector<string> Dependencies)
+{
+	//UnHighlight();
+
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, m_pEngine->GetSceneMutex());
+
+	if(m_vectPendingAnimations.size() == 0)
+		OnPrepareForAnimation();
+
+	AnimationScrollDatagrid* pAnimation = new AnimationScrollDatagrid(ObjectID, m_pEngine, BeforeGrid, AfterGrid, MilisecondTime, Direction, fMaxAlphaLevel, Dependencies); 
+
+	m_vectPendingAnimations.push_back(pAnimation);
+	pAnimation->StartAnimation();
+
+	if(AnimationsPrepared())
+	{
+		OnStopAnimation();
+		OnStartAnimation();
+	}
+}
+
+bool DatagridAnimationManager::AnimationsPrepared()
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, m_pEngine->GetSceneMutex());
+
+	vector<string> vectPreparedObjects;
+	map<string, bool> mapDependencies;
+
+	for(vector<AnimationScrollDatagrid*>::iterator it = m_vectPendingAnimations.begin();
+		it != m_vectPendingAnimations.end(); ++it)
+	{
+		AnimationScrollDatagrid *pAnimation = *it;
+		vectPreparedObjects.push_back(pAnimation->ObjectID);
+
+		for(vector<string>::iterator Item = pAnimation->Dependencies.begin(), End = pAnimation->Dependencies.end();
+			Item != End; ++Item)
+		{
+			mapDependencies[*Item] = false;
+		}
+	}
+
+	for(map<string, bool>::iterator itd = mapDependencies.begin(); itd != mapDependencies.end(); ++itd)
+	{
+		if(find(vectPreparedObjects.begin(), vectPreparedObjects.end(), itd->first) == vectPreparedObjects.end())
+			return false;
+	}
+
+	return true;
+}
+
+void DatagridAnimationManager::OnStartAnimation()
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, m_pEngine->GetSceneMutex());
+
+	Cleanup();
+
+	int StartTime = SDL_GetTicks();
+	for(vector<AnimationScrollDatagrid*>::iterator it = m_vectPendingAnimations.begin();
+		it != m_vectPendingAnimations.end(); ++it
+	)
+	{
+		AnimationScrollDatagrid *pAnimation = *it;
+		pAnimation->UpdateStartTime(StartTime);
+		m_vectCurrentAnimations.push_back(pAnimation);
+	}
+
+	m_vectPendingAnimations.clear();
+
+}
+
+void DatagridAnimationManager::OnPrepareForAnimation()
+{
+
+}
+
+void DatagridAnimationManager::OnStopAnimation()
+{
+	Cleanup();
+}

@@ -684,8 +684,6 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 	{
 		TextureManager::Instance()->InvalidateItem(pObj->GenerateObjectHash(pObj->m_pPopupPoint));
 
-		Engine->BeginModifyGeometry();
-
 		if(iData_Size != 0)
 		{
 			pPlutoGraphic->LoadGraphic(pData, iData_Size, OrbiterLogic()->m_iRotation);  // These weren't pre-rotated
@@ -703,8 +701,6 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 
 		RenderObjectAsync(pObj);
 		RedrawObjects();
-
-		Engine->EndModifyGeometry();
 	}
 }
 
