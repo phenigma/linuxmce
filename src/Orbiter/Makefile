@@ -59,7 +59,6 @@ sources += \
 	HorizMenuMouseHandler.cpp \
 	MediaBrowserMouseHandler.cpp \
 	DatagridMouseHandlerHelper.cpp \
-	DatagridAnimationManager.cpp \
 	MouseGovernor.cpp \
 	MouseIterator.cpp \
 	PlutoGraphic.cpp \
