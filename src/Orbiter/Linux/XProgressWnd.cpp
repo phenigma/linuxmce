@@ -42,6 +42,15 @@ bool XProgressWnd::ShowWindow(bool bShow/* = true*/)
         m_pButton->ShowWindow(bShow);
 
     X3DWindow::ShowWindow(bShow);
+    if (bShow)
+    {
+        XClassHint classHint;
+        classHint.res_name = "progress_window";
+        classHint.res_class = "progress_window";
+        XSetClassHint(m_pDisplay, m_wndThis, &classHint);
+        XStoreName(m_pDisplay, m_wndThis, "progress_window");
+        XSync(m_pDisplay, false);
+    }
     return true;
 }
 

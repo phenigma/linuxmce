@@ -176,6 +176,15 @@ bool XPromptUser::ShowWindow(bool bShow/*= true*/)
 	}
 	
 	X3DWindow::ShowWindow(bShow);
+    if (bShow)
+    {
+        XClassHint classHint;
+        classHint.res_name = "prompt_user_window";
+        classHint.res_class = "prompt_user_window";
+        XSetClassHint(m_pDisplay, m_wndThis, &classHint);
+        XStoreName(m_pDisplay, m_wndThis, "prompt_user_window");
+        XSync(m_pDisplay, false);
+    }
 	return true;
 }
 
