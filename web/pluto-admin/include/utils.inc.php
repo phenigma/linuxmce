@@ -6060,4 +6060,53 @@ function set_child_device_data($orbiterID,$deviceDataID,$value,$dbADO){
 function set_device_data($deviceID,$deviceData,$value,$dbADO){
 	$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array($value,$deviceID,$deviceData));
 }
+
+function displayScreenSavers($mdID,$dbADO)
+{
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/utils.lang.php');
+
+	$out='';
+
+	$categArray=getDescendantsForCategory($GLOBALS['ScreenSavers'],$dbADO);
+	
+	$templateArray=getArrayFromTable('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,'WHERE FK_DeviceCategory IN ('.join(',',$categArray).')','ORDER BY Description ASC');
+	
+	if(count($templateArray)==0)
+		$templateArray[]=0;
+	$ssArray=getFieldsAsArray('Device','PK_Device,FK_DeviceTemplate',$dbADO,'WHERE FK_Device_ControlledVia='.$mdID.' AND FK_DeviceTemplate IN ('.join(',',array_keys($templateArray)).')');
+	if(count($ssArray)==0)
+		$selectedss=0;
+	else
+		$selectedss=$ssArray['PK_Device'][0];
+	$out.='
+		<input type="hidden" name="oldssDT_'.$mdID.'" value="'.@$ssArray['FK_DeviceTemplate'][0].'">
+		<input type="hidden" name="oldss_'.$mdID.'" value="'.$selectedss.'">';
+		
+	$out.=pulldownFromArray($templateArray,'ss_'.$mdID,@$ssArray['FK_DeviceTemplate'][0]);
+	
+	return $out;
+}
+
+function processScreenSavers($mdID,$dbADO)
+{
+	$oldss=(int)@$_POST['oldss_'.$mdID];
+	$oldssDT=(int)@$_POST['oldssDT_'.$mdID];
+	$newss=(int)@$_POST['ss_'.$mdID];
+	if($oldss==0){
+		if($newss!=0){
+			createDevice($newss,$_SESSION['installationID'],$mdID,NULL,$dbADO,0);
+		}
+	}else{
+		if($newss==0){
+			deleteDevice($oldss,$dbADO);
+		}elseif($oldssDT!==$newss){
+			deleteDevice($oldss,$dbADO);
+			createDevice($newss,$_SESSION['installationID'],$mdID,NULL,$dbADO,0);
+		}
+	}
+}
+
+
 ?>

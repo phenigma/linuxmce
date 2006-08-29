@@ -34,6 +34,7 @@
 	$GLOBALS['DigitalTVCards']=143;				// Digital TV Cards
 	$GLOBALS['IrrigationDevices']=153;			// Irrigation Devices
 	$GLOBALS['CaptureCardsPorts']=162;			// Capture cards ports
+	$GLOBALS['ScreenSavers']=163;				// Screen Savers
 		
 	$GLOBALS['TVdevicesArray']=array($GLOBALS['TVdevices'],$GLOBALS['TVVCRCombo'],$GLOBALS['AmpsReceivers']);
 	

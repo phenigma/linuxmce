@@ -318,6 +318,10 @@ function mediaDirectors($output,$dbADO) {
 											<td><B>'.$TEXT_USE_ALPHA_BLENDED_UI_CONST.'</B></td>
 											<td><input type="checkbox" name="alpha_blended_'.$rowD['PK_Device'].'" value="1" '.(($alphaBlended==1)?'checked':'').'></td>
 										</tr>
+										<tr>
+											<td><B>'.$TEXT_SCREEN_SAVER_CONST.'</B></td>
+											<td>'.displayScreenSavers($rowD['PK_Device'],$dbADO).'</td>
+										</tr>
 						
 									</table>
 									
@@ -524,6 +528,7 @@ function mediaDirectors($output,$dbADO) {
 					}
 
 					processReceiver($value,$dbADO);
+					processScreenSavers($value,$dbADO);
 					$err=processAudioSettings($value,$dbADO);
 				}
 			}
