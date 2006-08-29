@@ -12,10 +12,33 @@ $allowedFiles=array(
 	'binaries/OrbiterCE.exe'
 );
 
+$allowedDirectories=array(
+	'/home/backup/download/'
+);
 
-if(in_array($_GET['filepath'],$allowedFiles)){
-	$filepath=$Path.@$_GET['filepath'];
-	$filename = substr($_GET['filepath'],strrpos ($_GET['filepath'],'/')+1);
+$allowed=0;
+foreach ($allowedFiles AS $file){
+	if(strpos($_GET['filepath'],$file)!==false){
+		$allowed=1;
+	}
+}
+
+
+
+foreach ($allowedDirectories AS $directory){
+	if(strpos($_GET['filepath'],$directory)!==false){
+		$allowed=1;
+	}
+}
+
+if($allowed==1){
+	if(isset($_REQUEST['full'])){
+		$filepath=@$_GET['filepath'];
+		$filename = substr($_GET['filepath'],strrpos ($_GET['filepath'],'/')+1);
+	}else{
+		$filepath=$Path.@$_GET['filepath'];
+		$filename = substr($_GET['filepath'],strrpos ($_GET['filepath'],'/')+1);
+	}
 	
 	if(file_exists($filepath)){
 		header('Content-type: application/force-download');
