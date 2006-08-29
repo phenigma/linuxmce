@@ -11,6 +11,7 @@ using namespace DCE;
 
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
+#include "Gallery.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -115,6 +116,8 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 	cout << "Need to implement command #192 - On" << endl;
 	cout << "Parm #97 - PK_Pipe=" << iPK_Pipe << endl;
 	cout << "Parm #98 - PK_Device_Pipes=" << sPK_Device_Pipes << endl;
+	Gallery::Instance()->Setup(1024, 768, "");
+	Gallery::Instance()->MainLoop(); 
 }
 
 //<-dceag-c193-b->
@@ -129,6 +132,10 @@ void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMess
 {
 	cout << "Need to implement command #193 - Off" << endl;
 	cout << "Parm #97 - PK_Pipe=" << iPK_Pipe << endl;
+
+	WM_Event Event;
+	Event.Quit();
+	Gallery::Instance()->EvaluateEvent(Event);
 }
 
 

@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;.;Win32;&quot;../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../Splitter;../../libs/CrossPlatform/zlib;../../libs/CrossPlatform/lpng127;../PlutoUtils;SDL;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;../OrbiterGen"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib OpenGL32.lib GLU32.lib"
 				OutputFile="../Debug/Photo_Screen_Saver.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;&quot;../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Debug&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Photo_Screen_Saver.pdb"
 				SubSystem="1"
@@ -70,9 +70,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
+				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -87,8 +87,8 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib"
 				OutputFile="../bin/Photo_Screen_Saver.exe"
-				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -131,6 +131,94 @@
 			<File
 				RelativePath="..\Gen_Devices\Photo_Screen_SaverBase.cpp">
 			</File>
+			<Filter
+				Name="GalleryViewer"
+				Filter="">
+				<File
+					RelativePath=".\AnimatedPicture.cpp">
+				</File>
+				<File
+					RelativePath=".\ColorDesc.cpp">
+				</File>
+				<File
+					RelativePath=".\ExtensionManager.cpp">
+				</File>
+				<File
+					RelativePath=".\FadeBase.cpp">
+				</File>
+				<File
+					RelativePath=".\FadeBlending.cpp">
+				</File>
+				<File
+					RelativePath=".\FadeFactory.cpp">
+				</File>
+				<File
+					RelativePath=".\FileBrowser.cpp">
+				</File>
+				<File
+					RelativePath=".\GaleryStateMachine.cpp">
+				</File>
+				<File
+					RelativePath=".\Gallery.cpp">
+				</File>
+				<File
+					RelativePath=".\GalleryScenario.cpp">
+				</File>
+				<File
+					RelativePath=".\GraphicImage.cpp">
+				</File>
+				<File
+					RelativePath=".\GUIWizardUtils.cpp">
+				</File>
+				<File
+					RelativePath=".\MathUtils.cpp">
+				</File>
+				<File
+					RelativePath=".\MeshBuilder.cpp">
+				</File>
+				<File
+					RelativePath=".\MeshContainer.cpp">
+				</File>
+				<File
+					RelativePath=".\MeshFrame.cpp">
+				</File>
+				<File
+					RelativePath=".\MeshPainter.cpp">
+				</File>
+				<File
+					RelativePath=".\MeshTransform.cpp">
+				</File>
+				<File
+					RelativePath=".\MeshTriangle.cpp">
+				</File>
+				<File
+					RelativePath=".\MeshVertex.cpp">
+				</File>
+				<File
+					RelativePath=".\Point3D.cpp">
+				</File>
+				<File
+					RelativePath=".\RefreshRates.cpp">
+				</File>
+				<File
+					RelativePath=".\SDLFrontEnd.cpp">
+				</File>
+				<File
+					RelativePath=".\TextureManager.cpp">
+				</File>
+				<File
+					RelativePath=".\WM_Event.cpp">
+				</File>
+				<File
+					RelativePath=".\ZoomBase.cpp">
+				</File>
+				<File
+					RelativePath=".\ZoomFactory.cpp">
+				</File>
+				<File
+					RelativePath=".\ZoomSimple.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"

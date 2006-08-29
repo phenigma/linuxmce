@@ -1,0 +1,38 @@
+#ifndef GalleryScenario_H_
+#define GalleryScenario_H_
+
+#include "GaleryStateMachine.h"
+#include "FileBrowser.h"
+#include "FadeFactory.h"
+#include "ZoomFactory.h"
+#include "ZoomBase.h"
+#include "AnimatedPicture.h"
+
+
+class GalleryScenario
+{
+	AnimatedPicture* AfterPicture;
+	AnimatedPicture* BeforePicture;
+
+	GaleryStateMachine* StateMachine;
+	int StartTime;
+	int StartFrame;
+	int FaddingTime;
+	int ZoomTime;
+
+	int NewImageStartTime;
+
+
+	FileBrowser* Browser;
+	FadeBase* Fades;
+	int Width;
+	int Height;
+
+	ZoomBase* ZoomEffect;
+public:
+	GalleryScenario(int Width, int Height, int FaddingTime, int ZoomTime);
+	~GalleryScenario();
+	void Update(void);
+};
+
+#endif
