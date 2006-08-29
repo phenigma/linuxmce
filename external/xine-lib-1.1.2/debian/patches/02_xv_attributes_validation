@@ -28,22 +28,22 @@ exit 0
  }
  
 -static void xv_store_port_attribute(xv_driver_t *this, char *name) {
-+static void xv_store_port_attribute(xv_driver_t *this, XvAttribute &xvattr) {
++static void xv_store_port_attribute(xv_driver_t *this, XvAttribute *xvattr) {
    Atom                 atom;
    xv_portattribute_t  *attr;
 +  int                  result;
 +  
-+  if ( !( (xvattr.flags & XvGettable)&&(xvattr.flags & XvSettable) ) )
++  if ( !( (xvattr->flags & XvGettable)&&(xvattr->flags & XvSettable) ) )
 +  {
 +      xprintf(this->xine, XINE_VERBOSITY_DEBUG,
 +	      "video_out_xv: not storing initial value for port attribute %s, because of inappropriate flags: %s%s\n", 
-+	      xvattr->name, (xvattr.flags & XvGettable)?"XvGettable":"", (xvattr.flags & XvSettable)?"XvSettable":"");
++	      xvattr->name, (xvattr->flags & XvGettable)?"XvGettable":"", (xvattr->flags & XvSettable)?"XvSettable":"");
 +      return;
 +  }
    
    attr = (xv_portattribute_t *)malloc( sizeof(xv_portattribute_t) );
 -  attr->name = strdup(name);
-+  attr->name = strdup(xvattr.name);
++  attr->name = strdup(xvattr->name);
    
    XLockDisplay(this->display);
    atom = XInternAtom (this->display, attr->name, False);
@@ -56,7 +56,7 @@ exit 0
 +  if (result==Success)
 +  {
 +    /* current attribute value is in allowed range */
-+    if ((attr->value>=xvattr.min_value)&&(attr->value<=xvattr.max_value))
++    if ((attr->value>=xvattr->min_value)&&(attr->value<=xvattr->max_value))
 +    {
 +      xprintf(this->xine, XINE_VERBOSITY_DEBUG,
 +	      "video_out_xv: storing initial value %d for port attribute %s\n", attr->value, attr->name);
@@ -66,7 +66,7 @@ exit 0
 +    else
 +      xprintf(this->xine, XINE_VERBOSITY_DEBUG,
 +	      "video_out_xv: do not storing initial value %d for port attribute %s because it is out of allowed range [%d, %d] (buggy driver?)\n", attr->value, 
-+	      attr->name, xvattr.min_value, xvattr.max_value);
++	      attr->name, xvattr->min_value, xvattr->max_value);
 +  }
 +  else
 +      xprintf(this->xine, XINE_VERBOSITY_DEBUG,
@@ -82,7 +82,7 @@ exit 0
        if((attr[k].flags & XvSettable) && (attr[k].flags & XvGettable)) {
  	/* store initial port attribute value */
 -	xv_store_port_attribute(this, attr[k].name);
-+	xv_store_port_attribute(this, attr[k]);
++	xv_store_port_attribute(this, attr+k);
  	
  	if(!strcmp(attr[k].name, "XV_HUE")) {
  	  if (!strncmp(adaptor_info[adaptor_num].name, "NV", 2)) {
