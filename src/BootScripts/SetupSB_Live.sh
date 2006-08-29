@@ -1,3 +1,4 @@
 #!/bin/bash
 
-echo "Setting Sound Blaster To $1"
+AudioSettings="$1"
+echo "Setting Sound Blaster to '$AudioSettings'"

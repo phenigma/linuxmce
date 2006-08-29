@@ -19,7 +19,6 @@ Q="
 	FROM DeviceTemplate
 	JOIN Device ON FK_DeviceTemplate=PK_DeviceTemplate AND PK_Device='$SoundCard'
 "
-
 CommandLine="$(RunSQL "$Q")"
 
 Q="
@@ -27,7 +26,6 @@ Q="
 	JOIN Device ON FK_Device=PK_Device
 	WHERE FK_DeviceData=$DEVICEDATA_Audio_settings AND (PK_Device=$PK_Device OR FK_Device_ControlledVia=$PK_Device)
 "
-
 SoundSettings="$(RunSQL "$Q")"
 
 /usr/pluto/bin/"$CommandLine" "$SoundSettings"
