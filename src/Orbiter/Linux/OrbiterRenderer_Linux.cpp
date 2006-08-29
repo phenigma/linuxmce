@@ -1,6 +1,7 @@
 #include "OrbiterRenderer_Linux.h"
 
 #include "../Orbiter.h"
+#include "../ScreenHistory.h"
 #include "OrbiterLinux.h"
 using namespace DCE;
 
@@ -42,10 +43,13 @@ OrbiterRenderer_Linux::~OrbiterRenderer_Linux()
 
 void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 {
-	if( bRenderGraphicsOnly )
+    // TODO: optimize the calls to apply mask
+    RenderScreen_ApplyMask(false);
+
+    if( bRenderGraphicsOnly )
 	{
 		BASE_CLASS::RenderScreen( bRenderGraphicsOnly );
-        RenderScreen_ApplyMask();
+        RenderScreen_ApplyMask(true);
 		return;
 	}
 
@@ -66,7 +70,7 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 			BASE_CLASS::RenderScreen(bRenderGraphicsOnly);
             // XFlush already called by ~X11_Locker()->XSync()
 			// XFlush(pOrbiterLinux->GetDisplay());
-            RenderScreen_ApplyMask();
+            RenderScreen_ApplyMask(true);
 		}
 
 		if(pOrbiterLinux->m_bOrbiterReady)
@@ -75,7 +79,7 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 	}
 }
 
-bool OrbiterRenderer_Linux::RenderScreen_ApplyMask()
+bool OrbiterRenderer_Linux::RenderScreen_ApplyMask(bool bUseMask)
 {
     //SDL_Surface *pImage = Screen;
     OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
@@ -86,51 +90,25 @@ bool OrbiterRenderer_Linux::RenderScreen_ApplyMask()
     }
     if (!pOrbiterLinux->m_bUseMask)
         return false;
-    // prepare the mask path
-    // code from Cristi
-    //if (OrbiterLogic()->m_pScreenHistory_Current == NULL)
-    //    return false;
-    //if (OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_vectGraphic.size() == 0)
-    //    return false;
-    //string sMaskPath = OrbiterLogic()->m_sLocalDirectory + OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_vectGraphic[0]->m_Filename + ".mask.xbm";
-    string sMaskPath;
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_Linux::RenderScreen_ApplyMask : start");
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_Linux::RenderScreen_ApplyMask(%s) : start", bUseMask ? "true" : "false");
     Window window = pOrbiterLinux->m_pX11->GetMainWindow();
-    bool bResult = pOrbiterLinux->m_pX11->Shape_Window_Apply(window, sMaskPath);
-    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ptrOrbiterLinux() : done");
+    bool bResult = false;
+    if (bUseMask)
+    {
+        // prepare the mask path
+        if (OrbiterLogic()->m_pScreenHistory_Current == NULL)
+            return false;
+        if (OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_vectGraphic.size() == 0)
+            return false;
+        string sMaskPath = OrbiterLogic()->GetLocalDirectory() + OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_vectGraphic[0]->m_Filename + ".mask.xbm";
+        bResult = pOrbiterLinux->m_pX11->Shape_Window_Apply(window, sMaskPath);
+    }
+    else
+    {
+        bResult = pOrbiterLinux->m_pX11->Shape_Window_Reset(window);
+    }
+    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::RenderScreen_ApplyMask(%s) => %s", bUseMask ? "true" : "false", bResult ? "true" : "false");
     return bResult;
-    // TODO: remove this : using method 2, faster
-    //// remembered values
-    //Pixmap bitmap_mask = 0;
-    //GC gc;
-    //Display *pDisplay = NULL;
-    //// initialize
-    //Window window = pOrbiterLinux->m_pX11->GetMainWindow();
-    //unsigned int width = 0;
-    //unsigned int height = 0;
-    //pOrbiterLinux->m_pX11->Object_GetGeometry(window, NULL, NULL, &width, &height);
-    //bool bResult = pOrbiterLinux->m_pX11->Shape_Context_Enter(window, width, height, bitmap_mask, gc, pDisplay);
-    //if (! bResult)
-    //{
-    //    g_pPlutoLogger->Write(LV_CRITICAL, "MouseBehavior_Linux::ptrOrbiterLinux() : cannot use the shape extension");
-    //    return false;
-    //}
-    //// creating the desired shape
-    //// TODO : replace with the real algorithm, expecting a pre-calculated shape here
-    //g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ptrOrbiterLinux() : computing the shape");
-    //for (unsigned int x=0; x<width; ++x)
-    //    for (unsigned int y=0; y<height; ++y)
-    //        if (x % 100 < y % 100)
-    //            XDrawPoint(pDisplay, bitmap_mask, gc, x, y);
-    //g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ptrOrbiterLinux() : computing the shape : done");
-    //// done
-    //bResult = pOrbiterLinux->m_pX11->Shape_Context_Leave(window, bitmap_mask, gc, pDisplay);
-    //if (! bResult)
-    //{
-    //    g_pPlutoLogger->Write(LV_WARNING, "MouseBehavior_Linux::ptrOrbiterLinux() : cannot set the window shape");
-    //}
-    //g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ptrOrbiterLinux() : done");
-    //return true;
 }
 
 void OrbiterRenderer_Linux::InitializeAfterSetVideoMode()

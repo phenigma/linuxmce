@@ -28,7 +28,9 @@ namespace DCE
 		~OrbiterRenderer_Linux();
 
 		void RenderScreen(bool bRenderGraphicsOnly);
-		bool RenderScreen_ApplyMask();
+        // bUseMask : true  => use the mask
+        // bUseMask : false => reset the mask
+		bool RenderScreen_ApplyMask(bool bUseMask);
 		void EventLoop();
 
 		void InitializeAfterSetVideoMode();
