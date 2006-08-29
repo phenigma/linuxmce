@@ -18,8 +18,7 @@ function BuildModules() {
 	fi
 
 	## Build specific
-	make clean
-	make -C driver
+	make -f Makefile.pluto clean modules
 	## Build specific
 
 	mkdir -p "$COMP_MODULES_DIR/$KVER/extra"
