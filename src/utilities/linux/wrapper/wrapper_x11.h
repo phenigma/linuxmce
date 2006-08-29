@@ -343,14 +343,22 @@ public:
     // cleans up : Pixmap, GC, Display
     bool Shape_Context_Leave(Window window, Pixmap &bitmap_mask, GC &gc, Display * &pDisplay);
 
+    // shape_op : ShapeSet, ShapeUnion, ShapeIntersect, ShapeSubtract, ShapeInvert
+    // ShapeSet       0
+    // ShapeUnion     1
+    // ShapeIntersect 2
+    // ShapeSubtract  3
+    // ShapeInvert    4
+    // defined in <X11/extensions/shape.h>
+
     // Pixmap should have depth==1
-    bool Shape_Window_Apply(Window window, Pixmap &pixmap);
+    bool Shape_Window_Apply(Window window, Pixmap &pixmap, int shape_op=0);
 
     // use a file bitmap
-    bool Shape_Window_Apply(Window window, const string &sPath);
+    bool Shape_Window_Apply(Window window, const string &sPath, int shape_op=0);
 
     // use the bitmap data
-    bool Shape_Window_Apply(Window window, const char *data_bitmap, unsigned int width, unsigned int height);
+    bool Shape_Window_Apply(Window window, const char *data_bitmap, unsigned int width, unsigned int height, int shape_op=0);
 
     bool Shape_Window_Reset(Window window);
     bool Shape_Window_Hide(Window window);
@@ -378,6 +386,10 @@ public:
     /// not yet finished
 public:
     bool Shape_Window_Alpha(Window window, unsigned char nAlphaThreshold=128);
+
+    bool Window_DrawImage(Window window, XImage *pImage);
+    // expecting a 32-bit image
+    bool Window_DrawImage(Window window, char *data, unsigned int width, unsigned int height);
 
     // XDestroyImage should be called
     XImage * Window_GetImage(Window window, bool bOnlyMask=false);

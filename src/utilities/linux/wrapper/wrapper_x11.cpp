@@ -1580,7 +1580,7 @@ bool X11wrapper::Shape_Context_Leave(Window window, Pixmap &bitmap_mask, GC &gc,
     return ((xcode == 0) && bResult);
 }
 
-bool X11wrapper::Shape_Window_Apply(Window window, Pixmap &pixmap)
+bool X11wrapper::Shape_Window_Apply(Window window, Pixmap &pixmap, int shape_op/*=0*/)
 {
     _LOG_NFO("window==%d, pixmap==%d", window, pixmap);
     int xcode = -1;
@@ -1589,12 +1589,12 @@ bool X11wrapper::Shape_Window_Apply(Window window, Pixmap &pixmap)
     {
         if (! Extension_Shape_IsAvailable())
             _LOG_XERROR_BREAK("X11 SHAPE extension: not available");
-        XShapeCombineMask(GetDisplay(), window, ShapeBounding, 0, 0, pixmap, ShapeSet);
+        XShapeCombineMask(GetDisplay(), window, ShapeBounding, 0, 0, pixmap, shape_op);
     } while ((xcode = 0));
     return (xcode == 0);
 }
 
-bool X11wrapper::Shape_Window_Apply(Window window, const string &sPath)
+bool X11wrapper::Shape_Window_Apply(Window window, const string &sPath, int shape_op/*=0*/)
 {
     _LOG_NFO("window==%d, sPath=='%s'", window, sPath.c_str());
     Pixmap bitmap_mask = None;
@@ -1608,7 +1608,7 @@ bool X11wrapper::Shape_Window_Apply(Window window, const string &sPath)
         int y_hot = 0;
         if (! Pixmap_ReadFile(window, sPath, bitmap_mask, width, height, x_hot, y_hot))
             _LOG_XERROR_BREAK("cannot read the file '%s'", sPath.c_str());
-        if (! Shape_Window_Apply(window, bitmap_mask))
+        if (! Shape_Window_Apply(window, bitmap_mask, shape_op))
             _LOG_XERROR_BREAK("cannot apply shape");
     } while ((xcode = 0));
     // cleanup
@@ -1616,7 +1616,7 @@ bool X11wrapper::Shape_Window_Apply(Window window, const string &sPath)
     return (xcode == 0);
 }
 
-bool X11wrapper::Shape_Window_Apply(Window window, const char *data_bitmap, unsigned int width, unsigned int height)
+bool X11wrapper::Shape_Window_Apply(Window window, const char *data_bitmap, unsigned int width, unsigned int height, int shape_op/*=0*/)
 {
     _LOG_NFO("window==%d, data_bitmap==%p, width==%d, height==%d", window, data_bitmap, width, height);
     Pixmap bitmap_mask = None;
@@ -1627,7 +1627,7 @@ bool X11wrapper::Shape_Window_Apply(Window window, const char *data_bitmap, unsi
         bitmap_mask = XCreateBitmapFromData(GetDisplay(), window, data_bitmap, width, height);
         if (bitmap_mask == None)
             _LOG_XERROR_BREAK("cannot create the pixmap");
-        if (! Shape_Window_Apply(window, bitmap_mask))
+        if (! Shape_Window_Apply(window, bitmap_mask, shape_op))
             _LOG_XERROR_BREAK("cannot apply shape");
     } while ((xcode = 0));
     // cleanup
@@ -1863,6 +1863,71 @@ bool X11wrapper::Shape_Window_Alpha(Window window, unsigned char nAlphaThreshold
     {
         XDestroyImage(pXImage);
         pXImage = None;
+    }
+    return (xcode == 0);
+}
+
+bool X11wrapper::Window_DrawImage(Window window, XImage *pXImage)
+{
+    _LOG_NFO("window==%d, pXImage==%p", window, pXImage);
+    GC gc;
+    int xcode = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        Display *pDisplay = GetDisplay();
+        if (1)
+        {
+            _LOG_NFO("waiting an Expose event");
+            XEvent e;
+            do
+            {
+                XNextEvent(pDisplay, &e);
+            } while (e.type != Expose || e.xexpose.count);
+            XFlush(pDisplay);
+            _LOG_NFO("waiting an Expose event : done");
+        }
+        XGCValues gcvalues;
+        GC gc = XCreateGC(pDisplay, window, 0, &gcvalues);
+        unsigned long bg_pixel = 0;
+        xcode = XSetForeground(pDisplay, gc, bg_pixel);
+        _COND_XSTAT_LOG_ERR_BREAK(xcode);
+        xcode = XFillRectangle(pDisplay, window, gc, 0, 0, pXImage->width, pXImage->height);
+        _COND_XSTAT_LOG_ERR_BREAK(xcode);
+        xcode = XPutImage(pDisplay, window, gc, pXImage, 0, 0, 0, 0, pXImage->width, pXImage->height);
+        _COND_XSTAT_LOG_ERR_BREAK(xcode);
+    } while ((xcode = 0));
+    // cleanup
+    XFreeGC(GetDisplay(), gc);
+    return (xcode == 0);
+}
+
+bool X11wrapper::Window_DrawImage(Window window, char *pData, unsigned int width, unsigned int height)
+{
+    _LOG_NFO("window==%d, pData==%p, width==%d, height==%d", window, pData, width, height);
+    XImage *pXImage = NULL;
+    int xcode = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        Display *pDisplay = GetDisplay();
+        int screen = GetScreen();
+        int depth = XDisplayPlanes(pDisplay, screen);
+        XVisualInfo visual_info;
+        xcode = XMatchVisualInfo(pDisplay, screen, depth, TrueColor, &visual_info);
+        _COND_XSTAT_LOG_ERR_BREAK(xcode);
+        Visual *visual = visual_info.visual;
+        pXImage = XCreateImage(pDisplay, visual, depth, ZPixmap, 0, pData, width, height, 32, 0);
+        if (pXImage == NULL)
+            _LOG_XERROR_BREAK("cannot create image");
+        pXImage->byte_order = MSBFirst;
+        Window_DrawImage(window, pXImage);
+    } while ((xcode = 0));
+    // cleanup
+    if (pXImage)
+    {
+        XDestroyImage(pXImage);
+        pXImage = NULL;
     }
     return (xcode == 0);
 }
