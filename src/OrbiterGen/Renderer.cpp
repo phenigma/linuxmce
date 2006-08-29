@@ -245,6 +245,7 @@ Renderer::~Renderer()
 
 /*static*/ bool Renderer::SaveSurfaceToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName)
 {
+#ifndef WIN32
     typedef long int COORD_TYPE;
     int width = pSurface->w;
     int height = pSurface->h;
@@ -265,9 +266,7 @@ Renderer::~Renderer()
             *(pRawImage + y*width + x) = (char)(pD[3] <= nMaxOpacity);
         }
     }
-#ifndef WINCE
-		cout << "Saving " << sFileName << endl;
-#endif
+	cout << "Saving " << sFileName << endl;
     bool bResult = Xbm_WriteFile(sFileName, pRawImage, width, height);
 	delete pRawImage;
     if (! bResult)
@@ -275,6 +274,7 @@ Renderer::~Renderer()
         g_pPlutoLogger->Write(LV_CRITICAL, "cannot write to xbm mask file '%s'", sFileName.c_str());
         return false;
     }
+#endif
     return true;
 }
 

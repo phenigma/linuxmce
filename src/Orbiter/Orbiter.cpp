@@ -242,6 +242,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_pObj_NowPlaying_TimeLong_OnScreen = NULL; 
 	m_pObj_NowPlaying_Speed_OnScreen = NULL;
 	m_pAskXine_Socket = NULL;
+	m_bScreenSaverActive = false;
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	m_pMouseBehavior = NULL;
@@ -571,6 +572,8 @@ bool Orbiter::GetConfig()
 	m_pScreenHandler = CreateScreenHandler();
 	m_pOrbiterRenderer->Configure();
 
+	m_pDevice_ScreenSaver = m_pData->FindSelfOrChildWithinCategory(DEVICECATEGORY_Screen_Savers_CONST);
+
 	return true;
 }
 
@@ -635,26 +638,18 @@ void Orbiter::ScreenSaver( void *data )
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"::Screen saver Bypass screen saver now: %d",(int)m_bBypassScreenSaver);
 #endif
-	if( m_bBypassScreenSaver || !m_pDesignObj_Orbiter_ScreenSaveMenu )
+	if( m_bBypassScreenSaver )
 		return;
 
 	NeedToRender render( this, "Screen saver" );
 
-	if( m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu )
+	if( m_bScreenSaverActive )
 	{
+		StopScreenSaver();
 		CMD_Display_OnOff("0",false);
 	}
 	else
-	{
-		CMD_Set_Main_Menu("V");
-		GotoDesignObj(m_sMainMenu);
-
-		//make sure the display is on
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"::Screen saver m_bDisplayOn = true;");
-#endif
-		m_bDisplayOn = true;
-	}
+		StartScreenSaver();
 }
 
 void Orbiter::Timeout( void *data )
@@ -755,12 +750,12 @@ g_PlutoProfiler->DumpResults();
 	if ( m_pScreenHistory_Current )
 	{
 
-		if( m_pScreenHistory_Current->GetObj()==m_pDesignObj_Orbiter_ScreenSaveMenu && m_pDesignObj_Orbiter_MainMenu!=m_pDesignObj_Orbiter_ScreenSaveMenu )
+		if( m_bScreenSaverActive && !UsesUIVersion2() )
 		{
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_WARNING,"Goto Screen -- wakign up from screen saver");
 #endif
-			CMD_Set_Main_Menu("N");
+			StopScreenSaver();
 		}
 
 		m_pScreenHistory_Current->GetObj()->m_bActive=false;
@@ -805,7 +800,7 @@ g_PlutoProfiler->DumpResults();
 	ScreenHistory::m_bAddToHistory = true;
 
 	// todo 2.0 SelectFirstObject(  );
-	if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && pScreenHistory->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutBlank )
+	if( m_bScreenSaverActive && !m_bBypassScreenSaver && m_iTimeoutBlank )
 	{
 		m_tTimeoutTime = time(NULL) + m_iTimeoutBlank;
 
@@ -815,7 +810,7 @@ g_PlutoProfiler->DumpResults();
 
 		CallMaintenanceInMiliseconds( m_iTimeoutBlank * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
 	}
-	else if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && pScreenHistory->GetObj() != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
+	else if( !m_bScreenSaverActive && !m_bBypassScreenSaver && m_iTimeoutScreenSaver && !UsesUIVersion2() )
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write( LV_STATUS, "About to call maint for screen saver with timeout: %d ms", m_iTimeoutScreenSaver * 1000);
@@ -1980,6 +1975,9 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		m_pOrbiterRenderer->AdjustWindowSize(m_pScreenHistory_Current->GetObj()->m_rPosition.Width,
 			m_pScreenHistory_Current->GetObj()->m_rPosition.Height);
 
+		if( UsesUIVersion2() )
+			StartScreenSaver();
+
 		m_bStartingUp=false;
 
 		m_pOrbiterRenderer->PostInitializeActions();
@@ -2103,7 +2101,7 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 
 	m_pDesignObj_Orbiter_MainMenu=m_ScreenMap_Find( m_sMainMenu );
 	m_pDesignObj_Orbiter_SleepingMenu=m_ScreenMap_Find( m_sSleepingMenu );
-	m_pDesignObj_Orbiter_ScreenSaveMenu=UsesUIVersion2() ? NULL : m_ScreenMap_Find( m_sScreenSaveMenu );
+	m_pDesignObj_Orbiter_ScreenSaveMenu=m_ScreenMap_Find( m_sScreenSaveMenu );
 
 	if(  !m_pDesignObj_Orbiter_MainMenu  )
 	{
@@ -3146,20 +3144,23 @@ bool Orbiter::GotActivity(  )
 	g_pPlutoLogger->Write(LV_STATUS,"m_bDisplayOn is %d",(int) m_bDisplayOn);
 #endif
 
-	if( !m_bDisplayOn ||
-		(NULL != m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()==m_pDesignObj_Orbiter_ScreenSaveMenu &&
-		m_pDesignObj_Orbiter_MainMenu!=m_pDesignObj_Orbiter_ScreenSaveMenu) )
+	// If the display is off, or we're in screen saver mode
+	if( !m_bDisplayOn || m_bScreenSaverActive )
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"GotActiity monitor m_bDisplayOn is %d",(int) m_bDisplayOn);
 #endif
 		if( !m_bDisplayOn )
 			CMD_Display_OnOff( "1",false );
-		if( m_pDesignObj_Orbiter_ScreenSaveMenu && NULL != m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu )
+		if( NULL != m_pScreenHistory_Current && m_bScreenSaverActive )
+			StopScreenSaver();
+
+		if( !UsesUIVersion2() )
 		{
 			CMD_Set_Main_Menu("N");
 			GotoMainMenu();
 		}
+
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Ignoring click because screen saver was active");
 #endif
@@ -3169,7 +3170,8 @@ bool Orbiter::GotActivity(  )
 	if(  NULL != m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds  )
 		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->GetObj(), pe_ALL );
 
-	if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && NULL != m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
+	// If the screen saver is not active, then start a countdown to activate it
+	if( !m_bBypassScreenSaver && NULL != m_pScreenHistory_Current && !m_bScreenSaverActive && m_iTimeoutScreenSaver && !UsesUIVersion2() )
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Got activity - calling ScreenSaver in %d ",m_iTimeoutScreenSaver);
@@ -5911,6 +5913,16 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 			m_pOrbiterRenderer->RenderObjectAsync(m_pObj_NowPlaying_Section_OnScreen);
 	}
 
+	if( UsesUIVersion2() )
+	{
+		if( m_dwPK_Device_NowPlaying )
+			StopScreenSaver();
+		else
+			StartScreenSaver();
+	}
+
+	// **** Do this last -- it has a return if it fails ****
+
 	// Protect m_pAskXine_Socket from being called while in a maint thread
 	PLUTO_SAFETY_LOCK( pm, m_MaintThreadMutex );
 	// If this is a xine, determine the ip address and connect to it to pull time code info
@@ -6594,7 +6606,8 @@ void Orbiter::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Me
 //<-dceag-c192-e->
 {
 	m_bDisplayOn = true;
-	CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
+	if( !m_bScreenSaverActive && !m_bBypassScreenSaver && m_iTimeoutScreenSaver && !UsesUIVersion2() )
+		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
 }
 
 //<-dceag-c193-b->
@@ -8660,4 +8673,40 @@ void Orbiter::UpdateTimeCode( void *data )
 	CMD_Update_Time_Code(iStreamID,sTime,sTotalTime,StringUtils::itos(iSpeed),sTitle,sChapter);
 
 	CallMaintenanceInMiliseconds(1000,&Orbiter::UpdateTimeCode,NULL,pe_ALL,false);
+}
+
+void Orbiter::StartScreenSaver()
+{
+	if( m_pDevice_ScreenSaver )
+	{
+		DCE::CMD_On CMD_On(m_dwPK_Device,m_pDevice_ScreenSaver->m_dwPK_Device,0,"");
+		SendCommand(CMD_On);
+		string sName = m_pDevice_ScreenSaver->m_mapParameters_Find(DEVICEDATA_Name_CONST);
+		CMD_Activate_Window(sName);
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"::Screen saver activate app m_bDisplayOn = true;");
+#endif
+	}
+	else if( m_pDesignObj_Orbiter_ScreenSaveMenu )
+	{
+		CMD_Set_Main_Menu("V");
+		GotoDesignObj(m_sMainMenu);
+		//make sure the display is on
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"::Screen saver goto screen m_bDisplayOn = true;");
+#endif
+	}
+	m_bScreenSaverActive=true;
+	m_bDisplayOn = true;
+}
+
+void Orbiter::StopScreenSaver()
+{
+	m_bScreenSaverActive = false;
+	if( m_pDevice_ScreenSaver )
+	{
+		DCE::CMD_Off CMD_Off(m_dwPK_Device,m_pDevice_ScreenSaver->m_dwPK_Device,0);
+		SendCommand(CMD_Off);
+	}
 }

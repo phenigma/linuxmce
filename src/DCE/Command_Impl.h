@@ -125,7 +125,13 @@ namespace DCE
 		 * @brief creates a new command embedded into this one
 		 */
 		virtual void CreateChildren();
-		
+
+		/**
+		 * @brief Called during the getconfig in the auto-generated classes to do misc cleanup such as assigning m_pCategory for all the devices
+		 */
+		virtual void PostConfigCleanup();
+		virtual void PostConfigCleanup(DeviceData_Impl *pDevice);
+
 		/**
 		 * @brief this will try to spawn the children as separate sessions (for example different displays under Linux or different comman prompts for Windows)
 		 * derived classes should implement this to handle special cases, such as if the child requires the GUI interface

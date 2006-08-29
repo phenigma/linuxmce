@@ -272,6 +272,20 @@ void Command_Impl::CreateChildren()
 	}
 }
 
+void Command_Impl::PostConfigCleanup()
+{
+	m_pData->m_pDeviceCategory = m_pData->m_AllDevices.m_mapDeviceCategory_Find( m_pData->m_dwPK_DeviceCategory );
+	for(VectDeviceData_Impl::iterator it=m_pData->m_vectDeviceData_Impl_Children.begin();it!=m_pData->m_vectDeviceData_Impl_Children.end();++it)
+		PostConfigCleanup(*it);
+}
+
+void Command_Impl::PostConfigCleanup(DeviceData_Impl *pDevice)
+{
+	pDevice->m_pDeviceCategory = m_pData->m_AllDevices.m_mapDeviceCategory_Find( pDevice->m_dwPK_DeviceCategory );
+	for(VectDeviceData_Impl::iterator it=pDevice->m_vectDeviceData_Impl_Children.begin();it!=pDevice->m_vectDeviceData_Impl_Children.end();++it)
+		PostConfigCleanup(*it);
+}
+
 bool Command_Impl::SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Child, string sDisplay )
 {
 #ifndef WIN32

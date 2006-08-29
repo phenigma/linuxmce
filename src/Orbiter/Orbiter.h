@@ -262,6 +262,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		map<int,class DeviceGroup *> m_mapDeviceGroups;
 		ScreenHandler *m_pScreenHandler;//Used to change screens
 		class LocationInfo *m_pLocationInfo_Initial; // The initial location
+		DeviceData_Impl *m_pDevice_ScreenSaver;
+		bool m_bScreenSaverActive;
 
 		AskXine_Socket *m_pAskXine_Socket;
 
@@ -429,6 +431,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		* @brief Handle the screen saver
 		*/
 		void ScreenSaver( void *data );
+		void StartScreenSaver();
+		void StopScreenSaver();
 
 		/**
 		* @brief renders a floorplan

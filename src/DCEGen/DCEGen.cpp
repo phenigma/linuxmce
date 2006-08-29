@@ -606,6 +606,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\t\tm_pcRequestSocket->m_pClientSocket->SendString(\"INSTANCE \" + StringUtils::itos(m_iInstanceID));" << endl;
 	fstr_DeviceCommand << "\t\t}" << endl;
 
+	fstr_DeviceCommand << "\t\tPostConfigCleanup();" << endl;
 	fstr_DeviceCommand << "\t\treturn true;" << endl;
 	fstr_DeviceCommand << "\t};" << endl;
 	fstr_DeviceCommand << "\t"  << Name  << "_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};" << endl;
