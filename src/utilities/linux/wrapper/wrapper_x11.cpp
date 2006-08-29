@@ -997,8 +997,8 @@ bool X11wrapper::Mouse_SetCursor_Image(Window window, const string &sPath, const
         _COND_XBOOL_LOG_ERR_BREAK(xcode);
     } while ((xcode = 0));
     // cleanup
-    Pixmap_Delete(pixmap);
-    Pixmap_Delete(pixmap_mask);
+    Delete_Pixmap(pixmap);
+    Delete_Pixmap(pixmap_mask);
     return (xcode == 0);
 }
 
@@ -1317,7 +1317,39 @@ Pixmap X11wrapper::Pixmap_Create(Window window, unsigned int width, unsigned int
     return pixmap;
 }
 
-bool X11wrapper::Pixmap_Delete(Pixmap &pixmap)
+bool X11wrapper::Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pixmap_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return)
+{
+    _LOG_NFO("window==%d, sPath=='%s'", window, sPath.c_str());
+    int xcode = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        // read x-bitmap from file
+        xcode = XReadBitmapFile(GetDisplay(), window, sPath.c_str(), &width_return, &height_return, &pixmap_return, &x_hot_return, &y_hot_return);
+        _COND_XSTAT_LOG_ERR_BREAK(xcode);
+        _LOG_NFO("window==%d, sPath=='%s' => width==%d, height==%d, pixmap==%d, x_hot==%d, y_hot==%d",
+                 window, sPath.c_str(), width_return, height_return, pixmap_return, x_hot_return, y_hot_return);
+    } while ((xcode = 0));
+    return (xcode == 0);
+}
+
+bool X11wrapper::Pixmap_ReadFileData(const string &sPath, unsigned char *&data_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return)
+{
+    _LOG_NFO("sPath=='%s'", sPath.c_str());
+    int xcode = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        // read x-bitmap from file
+        xcode = XReadBitmapFileData(sPath.c_str(), &width_return, &height_return, &data_return, &x_hot_return, &y_hot_return);
+        _COND_XSTAT_LOG_ERR_BREAK(xcode);
+        _LOG_NFO("sPath=='%s' => width==%d, height==%d, pixmap==%d, x_hot==%d, y_hot==%d",
+                 sPath.c_str(), width_return, height_return, data_return, x_hot_return, y_hot_return);
+    } while ((xcode = 0));
+    return (xcode == 0);
+}
+
+bool X11wrapper::Delete_Pixmap(Pixmap &pixmap)
 {
     _LOG_NFO("pixmap==%d", pixmap);
     if (pixmap==None)
@@ -1333,22 +1365,18 @@ bool X11wrapper::Pixmap_Delete(Pixmap &pixmap)
     return (xcode == 0);
 }
 
-bool X11wrapper::Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pixmap_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return)
+bool X11wrapper::Delete_Object(void *&id_object)
 {
-    _LOG_NFO("window==%d, sPath=='%s'", window, sPath.c_str());
-    int xcode = -1;
+    _LOG_NFO("id_object==%p", id_object);
+    if (id_object==None)
+        return true;
     X11_Locker x11_locker(GetDisplay());
+    int xcode = -1;
     do
     {
-        // read x-bitmap from file
-        xcode = XReadBitmapFile(GetDisplay(), window, sPath.c_str(), &width_return, &height_return, &pixmap_return, &x_hot_return, &y_hot_return);
-        _COND_XSTAT_LOG_ERR_BREAK(xcode);
-        if (x_hot_return < 0)
-            x_hot_return = 0;
-        if (y_hot_return < 0)
-            y_hot_return = 0;
-        _LOG_NFO("window==%d, sPath=='%s' => width==%d, height==%d, pixmap==%d, x_hot==%d, y_hot==%d",
-                 window, sPath.c_str(), width_return, height_return, pixmap_return, x_hot_return, y_hot_return);
+        xcode = XFree(id_object);
+        _COND_XBOOL_LOG_ERR_BREAK(xcode);
+        id_object = None;
     } while ((xcode = 0));
     return (xcode == 0);
 }
@@ -1526,7 +1554,7 @@ bool X11wrapper::Shape_Context_Enter(Window window, unsigned int width, unsigned
     // cleanup
     if (xcode != 0)
     {
-        Pixmap_Delete(bitmap_mask);
+        Delete_Pixmap(bitmap_mask);
         if (b_gc_created)
             XFreeGC(GetDisplay(), gc);
     }
@@ -1548,7 +1576,7 @@ bool X11wrapper::Shape_Context_Leave(Window window, Pixmap &bitmap_mask, GC &gc,
             _LOG_WRN("XFreeGC() => retCode==%d", xcode);
     } while ((xcode = 0));
     // cleanup
-    Pixmap_Delete(bitmap_mask);
+    Delete_Pixmap(bitmap_mask);
     return ((xcode == 0) && bResult);
 }
 
@@ -1579,12 +1607,31 @@ bool X11wrapper::Shape_Window_Apply(Window window, const string &sPath)
         int x_hot = 0;
         int y_hot = 0;
         if (! Pixmap_ReadFile(window, sPath, bitmap_mask, width, height, x_hot, y_hot))
-            _LOG_XERROR_BREAK();
+            _LOG_XERROR_BREAK("cannot read the file '%s'", sPath.c_str());
         if (! Shape_Window_Apply(window, bitmap_mask))
-            _LOG_XERROR_BREAK();
+            _LOG_XERROR_BREAK("cannot apply shape");
     } while ((xcode = 0));
     // cleanup
-    Pixmap_Delete(bitmap_mask);
+    Delete_Pixmap(bitmap_mask);
+    return (xcode == 0);
+}
+
+bool X11wrapper::Shape_Window_Apply(Window window, const char *data_bitmap, unsigned int width, unsigned int height)
+{
+    _LOG_NFO("window==%d, data_bitmap==%p, width==%d, height==%d", window, data_bitmap, width, height);
+    Pixmap bitmap_mask = None;
+    int xcode = -1;
+    X11_Locker x11_locker(GetDisplay());
+    do
+    {
+        bitmap_mask = XCreateBitmapFromData(GetDisplay(), window, data_bitmap, width, height);
+        if (bitmap_mask == None)
+            _LOG_XERROR_BREAK("cannot create the pixmap");
+        if (! Shape_Window_Apply(window, bitmap_mask))
+            _LOG_XERROR_BREAK("cannot apply shape");
+    } while ((xcode = 0));
+    // cleanup
+    Delete_Pixmap(bitmap_mask);
     return (xcode == 0);
 }
 
@@ -1715,15 +1762,47 @@ bool X11wrapper::Debug_Shape_Context_Example(Window window, unsigned int width, 
                     *(pRawData + y*width + x) = (x % 100 < y % 100);
             _LOG_NFO("width==%d, height==%d, pRawData->%p", width, height, pRawData);
             if (! Xbm_WriteFile(sPath, pRawData, width, height))
-                _LOG_XERROR_BREAK();
+                _LOG_XERROR_BREAK("cannot write to file '%s'", sPath.c_str());
             if (! Shape_Window_Apply(window, sPath))
-                _LOG_XERROR_BREAK();
+                _LOG_XERROR_BREAK("cannot apply shape");
         } while ((xcode = 0));
         if (pRawData)
         {
             delete pRawData;
             pRawData = NULL;
         }
+        return (xcode == 0);
+    }
+    // write to file, and read again, using the bitmap-data
+    if (nApplyMethod == 2)
+    {
+        unsigned char *pDataBitmap = NULL;
+        string sPath = "/tmp/bitmap_mask.xbm";
+        char * pRawData = new char[width * height];
+        int xcode = -1;
+        do
+        {
+            for (unsigned int y=0; y<height; ++y)
+                for (unsigned int x=0; x<width; ++x)
+                    *(pRawData + y*width + x) = (x % 100 < y % 100);
+            _LOG_NFO("width==%d, height==%d, pRawData->%p", width, height, pRawData);
+            if (! Xbm_WriteFile(sPath, pRawData, width, height))
+                _LOG_XERROR_BREAK("cannot write to file '%s'", sPath.c_str());
+            unsigned int width_data = 0;
+            unsigned int height_data = 0;
+            int x_hot_data = 0;
+            int y_hot_data = 0;
+            if (! Pixmap_ReadFileData(sPath, pDataBitmap, width_data, height_data, x_hot_data, y_hot_data))
+                _LOG_XERROR_BREAK("cannot read bitmap data");
+            if (! Shape_Window_Apply(window, sPath))
+                _LOG_XERROR_BREAK("cannot apply shape");
+        } while ((xcode = 0));
+        if (pRawData)
+        {
+            delete pRawData;
+            pRawData = NULL;
+        }
+        Delete_Object((void*&)pDataBitmap);
         return (xcode == 0);
     }
     return false;

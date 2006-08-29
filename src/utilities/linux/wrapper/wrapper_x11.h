@@ -234,17 +234,24 @@ public:
     /// graphics
 
     // depth==1 for a bitmap
-    // Pixmap_Delete() should be called to free the memory
+    // Delete_Pixmap() should be called to free the memory
     Pixmap Pixmap_Create(Window window, unsigned int width, unsigned int height, unsigned int depth);
+
+    // Delete_Pixmap() should be called to free the memory
+    bool Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pixmap_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return);
+
+    // Delete_Object() should be called to free the data_return
+    bool Pixmap_ReadFileData(const string &sPath, unsigned char *&data_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return);
+
+    /// other
 
     // actually XFreePixmap() with error-checking
     // and zeroing the id in case of success
-    bool Pixmap_Delete(Pixmap &pixmap);
+    bool Delete_Pixmap(Pixmap &pixmap);
 
-    // Pixmap_Delete() should be called to free the memory
-    bool Pixmap_ReadFile(Window window, const string &sPath, Pixmap &pixmap_return, unsigned int &width_return, unsigned int &height_return, int &x_hot_return, int &y_hot_return);
-
-    /// other
+    // actually XFree() with error-checking
+    // and zeroing the id in case of success
+    bool Delete_Object(void *&id_object);
 
     // drawable can be: Window, Pixmap
     // NULL arguments can be passed, for un-needed values
@@ -307,11 +314,20 @@ protected:
     //   DRAW ONLY masked pixels in the Pixmap, using GC and Display
     //   call Shape_Window_Apply()
     //   call Shape_Context_Leave()
+    // warning: drawing every pixel may be slow for big images
 
     // shape usage (B)
-    // using an already created bitmap mask
-    //   call Shape_Window_Apply(window, bitmap)
+    // using the bitmap mask from a file
+    //   call Shape_Window_Apply(window, sPath)
     //   delete the bitmap
+
+    // shape usage (C)
+    // support for caching shapes
+    //   create the bitmap data
+    //     by loading the pixmap from disk with Pixmap_ReadFileData()
+    //     or by creating the data in memory
+    //   call Shape_Window_Apply(window, *data, width, height)
+    //   delete the bitmap data
 
 public:
     bool Extension_Shape_IsAvailable();
@@ -330,8 +346,11 @@ public:
     // Pixmap should have depth==1
     bool Shape_Window_Apply(Window window, Pixmap &pixmap);
 
-    // use the bitmap from a xbm file
+    // use a file bitmap
     bool Shape_Window_Apply(Window window, const string &sPath);
+
+    // use the bitmap data
+    bool Shape_Window_Apply(Window window, const char *data_bitmap, unsigned int width, unsigned int height);
 
     bool Shape_Window_Reset(Window window);
     bool Shape_Window_Hide(Window window);
