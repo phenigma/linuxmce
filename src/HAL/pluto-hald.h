@@ -61,7 +61,11 @@ class PlutoHalD
 		static void initialize(LibHalContext * ctx);
 		
 		/***/
-		static void getProductVendorId(LibHalContext * ctx, const char * udi, int * prodId, int * vendorId);
+		static void getProductVendorId(
+			LibHalContext * ctx, const char * udi,
+			int * prodId, int * vendorId,
+			int * subsysProdId, int * subsysVendorId,
+			int * busType );
 		
 		/***/
 		static gboolean timeoutHandler (DBusConnection *bus);

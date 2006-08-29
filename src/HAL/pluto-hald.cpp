@@ -15,6 +15,9 @@
 #include "pluto_main/Define_CommandParameter.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 
+#define UNKNOWN_COMM_METHOD  11
+#define USB_COMM_METHOD      4
+
 using namespace DCE;
 
 using namespace std;
@@ -79,7 +82,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 		char buffer[64];
 		snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 		
-		halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, "", "");
+		halDevice->EVENT_Device_Detected("", "", "", 0, buffer, USB_COMM_METHOD, 0, udi, "", "");
 		g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 	}
 	else if( category != NULL )
@@ -103,7 +106,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 				char buffer[64];
 				snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 			
-				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "37|" + portID, category);
+				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, USB_COMM_METHOD, 0, info_udi, "37|" + portID, category);
 				g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 			}
 		
@@ -127,7 +130,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 			char buffer[64];
 			snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 		
-			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "", category);
+			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, USB_COMM_METHOD, 0, info_udi, "", category);
 			g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 			
 			g_free (parent);
@@ -147,9 +150,19 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 					// search for prod_id and vendor_id
 					int usb_device_product_id = 0;
 					int usb_device_vendor_id = 0;
-					getProductVendorId(ctx, udi, &usb_device_product_id, &usb_device_vendor_id);
+					int subsys_usb_device_product_id = 0;
+					int subsys_usb_device_vendor_id = 0;
+					int iBusType = USB_COMM_METHOD;
+					getProductVendorId(
+						ctx, udi,
+						&usb_device_product_id, &usb_device_vendor_id,
+						&subsys_usb_device_product_id, &subsys_usb_device_vendor_id,
+						&iBusType );
+					
 					char buffer[64];
-					snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
+					snprintf(buffer, sizeof(buffer), "%08x%08x",
+						(unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff),
+						(unsigned int) ((subsys_usb_device_vendor_id & 0xffff) << 16) | (subsys_usb_device_product_id & 0xffff));
 					
 					if( usb_device_product_id && usb_device_vendor_id )
 					{
@@ -182,7 +195,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 							deviceData += blockdevice;
 						}
 						
-						halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, deviceData.c_str(), category);
+						halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category);
 						
 						g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 			
@@ -198,11 +211,20 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 		else
 		{
 			// search for prod_id and vendor_id
-			int usb_device_product_id = 0;
-			int usb_device_vendor_id = 0;
-			getProductVendorId(ctx, udi, &usb_device_product_id, &usb_device_vendor_id);
+			int device_product_id = 0;
+			int device_vendor_id = 0;
+			int subsys_device_product_id = 0;
+			int subsys_device_vendor_id = 0;
+			int iBusType = UNKNOWN_COMM_METHOD;
+			getProductVendorId(
+				ctx, udi,
+				&device_product_id, &device_vendor_id,
+				&subsys_device_product_id, &subsys_device_vendor_id,
+				&iBusType );
 			char buffer[64];
-			snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
+			snprintf(buffer, sizeof(buffer), "%08x%08x",
+				(unsigned int) ((device_vendor_id & 0xffff) << 16) | (device_product_id & 0xffff),
+				(unsigned int) ((subsys_device_vendor_id & 0xffff) << 16) | (subsys_device_product_id & 0xffff));
 			
 			g_pPlutoLogger->Write(LV_DEBUG, "+++++++ General category = %s || UID = %s", category, udi);
 			
@@ -228,7 +250,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 				deviceData += categoryDevice;
 			}
 			
-			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, deviceData.c_str(), category);
+			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category);
 
 			g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 			
@@ -402,9 +424,19 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 						// search for prod_id and vendor_id
 						int usb_device_product_id = 0;
 						int usb_device_vendor_id = 0;
-						getProductVendorId(ctx, udi, &usb_device_product_id, &usb_device_vendor_id);
+						int subsys_usb_device_product_id = 0;
+						int subsys_usb_device_vendor_id = 0;
+						int iBusType = USB_COMM_METHOD;
+						getProductVendorId(
+							ctx, udi,
+							&usb_device_product_id, &usb_device_vendor_id,
+							&subsys_usb_device_product_id, &subsys_usb_device_vendor_id,
+							&iBusType );
+						
 						char buffer[64];
-						snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
+						snprintf(buffer, sizeof(buffer), "%08x%08x",
+							(unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff),
+							(unsigned int) ((subsys_usb_device_vendor_id & 0xffff) << 16) | (subsys_usb_device_product_id & 0xffff));
 						
 						if( usb_device_product_id && usb_device_vendor_id )
 						{
@@ -437,7 +469,8 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 								deviceData += blockdevice;
 							}
 							
-							halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, deviceData.c_str(), category);
+							halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category);
+							
 							g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 				
 							g_free(blockdevice);
@@ -452,11 +485,20 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 			else
 			{
 				// search for prod_id and vendor_id
-				int usb_device_product_id = 0;
-				int usb_device_vendor_id = 0;
-				getProductVendorId(ctx, udi, &usb_device_product_id, &usb_device_vendor_id);
+				int device_product_id = 0;
+				int device_vendor_id = 0;
+				int subsys_device_product_id = 0;
+				int subsys_device_vendor_id = 0;
+				int iBusType = UNKNOWN_COMM_METHOD;
+				getProductVendorId(
+					ctx, udi,
+					&device_product_id, &device_vendor_id,
+					&subsys_device_product_id, &subsys_device_vendor_id,
+					&iBusType );
 				char buffer[64];
-				snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
+				snprintf(buffer, sizeof(buffer), "%08x%08x",
+					(unsigned int) ((device_vendor_id & 0xffff) << 16) | (device_product_id & 0xffff),
+					(unsigned int) ((subsys_device_vendor_id & 0xffff) << 16) | (subsys_device_product_id & 0xffff));
 				
 				g_pPlutoLogger->Write(LV_DEBUG, "+++++++ General category = %s || UID = %s", category, udi);
 				
@@ -482,7 +524,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 					deviceData += categoryDevice;
 				}
 				
-				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, deviceData.c_str(), category);
+				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category);
 
 				g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 				
@@ -500,28 +542,62 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 	}
 }
 
-void PlutoHalD::getProductVendorId(LibHalContext * ctx, const char * udi, int * prodId, int * vendorId)
+void PlutoHalD::getProductVendorId(	LibHalContext * ctx, const char * udi,
+									int * prodId, int * vendorId,
+									int * subsysProdId, int * subsysVendorId,
+									int * busType )
 {
 	gchar *bus = libhal_device_get_property_string (ctx, udi, "info.bus", NULL);
 	if( bus != NULL )
 	{
 		string prodIdKey = bus;
 		string vendorIdKey = bus;
+		string subsysProdIdKey = bus;
+		string subsysVendorIdKey = bus;
 		prodIdKey += ".product_id";
 		vendorIdKey += ".vendor_id";
+		subsysProdIdKey += ".subsys_product_id";
+		subsysVendorIdKey += ".subsys_vendor_id";
 		
 		*prodId = libhal_device_get_property_int(ctx, udi, prodIdKey.c_str(), NULL);
 		*vendorId = libhal_device_get_property_int(ctx, udi, vendorIdKey.c_str(), NULL);
+		*subsysProdId = libhal_device_get_property_int(ctx, udi, subsysProdIdKey.c_str(), NULL);
+		*subsysVendorId = libhal_device_get_property_int(ctx, udi, subsysVendorIdKey.c_str(), NULL);
 		
 		if( *prodId == -1 || *vendorId == -1 )
 		{
 			gchar *parent = libhal_device_get_property_string(ctx, udi, "info.parent", NULL);
 			if( parent != NULL )
 			{
-				getProductVendorId(ctx, parent, prodId, vendorId);
+				getProductVendorId(ctx, parent, prodId, vendorId, subsysProdId, subsysVendorId, busType);
 			}
 			g_free(parent);
 			parent = NULL;
+		}
+		
+		if( 0 == strcmp(bus, "pci") && strlen(bus) == strlen("pci") )
+		{
+			*busType = 8;
+		}
+		else if( 0 == strcmp(bus, "usb") && strlen(bus) == strlen("usb") )
+		{
+			*busType = 4;
+		}
+		else if( 0 == strcmp(bus, "usb_device") && strlen(bus) == strlen("usb_device") )
+		{
+			*busType = 4;
+		}
+		else if( 0 == strcmp(bus, "ide") && strlen(bus) == strlen("ide") )
+		{
+			*busType = 9;
+		}
+		else if( 0 == strcmp(bus, "scsi") && strlen(bus) == strlen("scsi") )
+		{
+			*busType = 10;
+		}
+		else // unknown
+		{
+			*busType = 11;
 		}
 	}
 	else
@@ -529,7 +605,7 @@ void PlutoHalD::getProductVendorId(LibHalContext * ctx, const char * udi, int * 
 		gchar *parent = libhal_device_get_property_string(ctx, udi, "info.parent", NULL);
 		if( parent != NULL )
 		{
-			getProductVendorId(ctx, parent, prodId, vendorId);
+			getProductVendorId(ctx, parent, prodId, vendorId, subsysProdId, subsysVendorId, busType);
 		}
 		g_free(parent);
 		parent = NULL;
