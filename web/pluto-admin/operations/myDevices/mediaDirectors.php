@@ -659,6 +659,13 @@ function isDiskless($deviceID,$deviceData){
 }
 
 function setAlphaBlend($orbiterID,$alphaBlend,$dbADO){
+		/* @var $dbADO ADOConnection */
+	/* @var $rs ADORecordSet */
+
 	$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array($alphaBlend,$orbiterID,$GLOBALS['UsealphablendedUI']));
+	if($dbADO->Affected_Rows()>0){
+		// call the script who will restart X
+		restartX($orbiterID);
+	}
 }
 ?>

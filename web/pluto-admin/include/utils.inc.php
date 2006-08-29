@@ -6108,5 +6108,9 @@ function processScreenSavers($mdID,$dbADO)
 	}
 }
 
+function restartX($orbiterID){
+	// todo for Razvan: put correct script here
+	exec_batch_command('/usr/pluto/bin/RestartX.sh');
+}
 
 ?>

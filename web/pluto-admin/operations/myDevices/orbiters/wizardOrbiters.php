@@ -397,6 +397,9 @@ function wizardOrbiters($output,$dbADO) {
 								WHERE FK_Device=? AND FK_DeviceData=?';
 							$dbADO->Execute($updateDDD,array($deviceData,$value,$ddValue));
 							
+							if($ddValue==$GLOBALS['UsealphablendedUI'] && $dbADO->Affected_Rows()>0){
+								restartX($value);
+							}
 
 							if($ddValue==$GLOBALS['Size'] && (int)$deviceData!=0){
 								$sizeArray=getFieldsAsArray('Size','Width,Height',$dbADO,'WHERE PK_Size='.$deviceData);

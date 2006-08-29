@@ -124,6 +124,7 @@ $installationID = (int)@$_SESSION['installationID'];
 	if(in_array($deviceID,$validOrbiters)){
 		$orbiterSuffix='&orbiter=1';
 	}
+
 	$out.='
 	<script>
 			function windowOpen(locationA,attributes) {
@@ -622,6 +623,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		$Status= cleanString($_POST['Status']);
 		$room=(@$_POST['Room']!='0')?@$_POST['Room']:NULL;	
 		$deviceDisabled= (isset($_POST['deviceDisabled']))?cleanInteger($_POST['deviceDisabled']):0;
+		$isOrbiter=isOrbiter($deviceID,$dbADO);
 		
 		if(isMediaDirector($deviceID,$dbADO,1) && $usedBy=roomIsUsed($room,$deviceID,$dbADO)){
 			Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&error='.$TEXT_ROOM_USED_BY_ANOTHER_MD_CONST.urlencode(': '.$usedBy));
@@ -675,10 +677,13 @@ $installationID = (int)@$_SESSION['installationID'];
 				$isDisabled=(int)@$_POST['isDisabled_'.$deviceID.'_'.$elem];
 				
 				if($oldDeviceData!=$value && $isDisabled!=1){
-					
 					$query = "update Device_DeviceData set IK_DeviceData = ? where  FK_Device = ? and FK_DeviceData = ?";
 					$rs=$dbADO->Execute($query,array($value,$deviceID,$elem));	
-					
+
+					if(@$isOrbiter==1 && $elem==$GLOBALS['UsealphablendedUI'] && $dbADO->Affected_Rows()>0){
+						restartX($value);
+					}
+
 					if($elem==$GLOBALS['MobileOrbiterPhone']){
 						$rowOldDD=$res->FetchRow();
 						$securityPlugin=getDeviceFromDT($installationID,$GLOBALS['SecurityPlugin'],$dbADO);
