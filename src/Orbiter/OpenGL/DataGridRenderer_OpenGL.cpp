@@ -29,7 +29,6 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 #include "DCE/DataGrid.h"
 /*virtual*/ void DataGridRenderer_OpenGL::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
-
 string sValue;
 DataGridTable *pDataGridTable = m_pObj_Owner_DataGrid->DataGridTable_Get();
 if( pDataGridTable )
@@ -48,11 +47,21 @@ DataGridTable *pDataGridTable = m_pObj_Owner_DataGrid->DataGridTable_Get();
 g_pPlutoLogger->Write(LV_EVENTHANDLER,"DataGridRenderer_OpenGL::RenderObject datagrid %s to row %d col %d value %s",
 					  m_pObj_Owner_DataGrid->m_sGridID.c_str(),m_pObj_Owner_DataGrid->m_GridCurRow,m_pObj_Owner_DataGrid->m_GridCurCol,sValue.c_str());
 
-	string DatagridFrameID = "datagrid " + m_pObj_Owner->GenerateObjectHash(point, false);
-	if(Engine->IsCubeAnimatedDatagrid(DatagridFrameID))
-		return;
+//////////////////////////////////////////////////////////////////////////
+//temp
+static bubu = 1;
+if(bubu)
+{
+	if(m_pObj_Owner->m_ObjectID.find("5086") != string::npos)
+		m_pObj_Owner->m_vectObj_TiedToUs.push_back(m_pObj_Owner->m_pOrbiter->FindObject(4949));
 
-	Engine->BeginModifyGeometry();
+	bubu = 0;
+}
+//////////////////////////////////////////////////////////////////////////
+
+	string DatagridFrameID = "datagrid " + m_pObj_Owner->GenerateObjectHash(point, false);
+
+
 	g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject");
 	MeshFrame * BeforeDataGrid = RenderFrame;
 
@@ -61,7 +70,12 @@ g_pPlutoLogger->Write(LV_EVENTHANDLER,"DataGridRenderer_OpenGL::RenderObject dat
 	{
 		TextureManager::Instance()->SuspendTextureRelease();
 		BeforeDataGridClone = BeforeDataGrid->Clone();
+
 		Engine->RemoveMeshFrameFromDesktop(BeforeDataGrid);
+		//TextureManager::Instance()->InvalidateItem(m_pObj_Owner->GenerateObjectHash(point));
+		//BeforeDataGrid->CleanUp();
+		//delete BeforeDataGrid;
+		//BeforeDataGrid = NULL;
 	}
 
 	Engine->StartDatagridDrawing(DatagridFrameID);
@@ -72,14 +86,23 @@ g_pPlutoLogger->Write(LV_EVENTHANDLER,"DataGridRenderer_OpenGL::RenderObject dat
 
 	if(0 != StartAnimation)
 	{
+		//Engine->BeginModifyGeometry();
+
+		if(Engine->IsCubeAnimatedDatagrid(DatagridFrameID))
+		{
+			Engine->StopDatagridAnimations();
+		}
+
+		//Engine->EndModifyGeometry();
+
+		vector<string> Dependencies;
+		BuildDependencies(Dependencies);
 		g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::StartAnimation");
 		Engine->CubeAnimateDatagridFrames(DatagridFrameID, BeforeDataGridClone, RenderFrame, m_AnimationSpeed, iPK_Direction, 
-			GetAlphaLevel() / 255.0f);
+			GetAlphaLevel() / 255.0f, Dependencies);
 		Engine->AddMeshFrameToDesktop("", BeforeDataGridClone);
 		StartAnimation = 0;
 	}
-	Engine->EndModifyGeometry();
-
 }
 
 void DataGridRenderer_OpenGL::m_AnimationSpeed_set(int AnimationSpeed)
@@ -95,3 +118,14 @@ void DataGridRenderer_OpenGL::m_AnimationSpeed_set(int AnimationSpeed)
 		}
 	}
 }
+
+void DataGridRenderer_OpenGL::BuildDependencies(vector<string> & Dependencies)
+{
+	Dependencies.clear();
+	for( vector<DesignObj_Orbiter *>::iterator it=m_pObj_Owner_DataGrid->m_vectObj_TiedToUs.begin();it!=m_pObj_Owner_DataGrid->m_vectObj_TiedToUs.end();++it )
+	{
+		DesignObj_Orbiter *pObj = *it;
+		Dependencies.push_back("datagrid " + pObj->GenerateObjectHash(pObj->m_pPopupPoint, false));
+	}
+}
+

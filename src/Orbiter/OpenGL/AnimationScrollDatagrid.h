@@ -13,21 +13,32 @@ class AnimationScrollDatagrid
 	int StartTime;
 	OpenGL3DEngine* Engine;
 	float MaxAlpha;
+	bool Finished;
 
+
+	void CopyDependencies(vector <string> Dependencies);
 public:
+	vector <string> Dependencies;
 	string ObjectID;
 	MeshFrame *BeforeGrid, *AfterGrid;
 
 	AnimationScrollDatagrid(string ObjectID, OpenGL3DEngine* Engine, 
 		MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
-		int MilisecondTime, int Direction, float fMaxAlphaLevel);
+		int MilisecondTime, int Direction, float fMaxAlphaLevel, vector <string> Dependencies);
 	virtual ~AnimationScrollDatagrid(void);
 
+	void UpdateStartTime(int StartTime);
+
+	int GetStartTime();
+
+	bool DatagridDependenciesSatisfied(vector<AnimationScrollDatagrid*> &AnimationDatagrids);
+
 	void StartAnimation();
+	void StopAnimation();
 	/**
 	 *	returns true if the animation is ended	
 	 */
-	bool Update();
+	bool Update(bool ModifyGeometry);
 
 };
 

@@ -29,7 +29,7 @@ class OpenGL3DEngine
 
 	virtual void UnSelect();
 
-	vector<AnimationScrollDatagrid*> AnimationDatagrid;
+	vector<AnimationScrollDatagrid*> AnimationDatagrids;
 	
 	map<string, string> TopMostObjects;
 	void UpdateTopMostObjects();
@@ -82,7 +82,10 @@ public:
 	MeshFrame* EndFrameDrawing(std::string sObjectHash);
 
 	void CubeAnimateDatagridFrames(string ObjectID, MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
-		int MilisecondTime, int Direction, float fMaxAlphaLevel);
+		int MilisecondTime, int Direction, float fMaxAlphaLevel, vector<string> Dependencies);
+
+	void StopDatagridAnimations();
+
 
 	void ShowHighlightRectangle(PlutoRectangle Rect);
 	void HideHighlightRectangle();

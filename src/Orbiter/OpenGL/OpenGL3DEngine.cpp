@@ -25,7 +25,7 @@ OpenGL3DEngine::OpenGL3DEngine() :
 	AnimationRemain (false),
 	SceneMutex("scene mutex"),
 	Compose(NULL),
-	AnimationDatagrid(NULL),
+	AnimationDatagrids(NULL),
 	OldLayer(NULL),
 	CurrentLayer(NULL),
 	HighLightFrame(NULL),
@@ -77,6 +77,9 @@ void OpenGL3DEngine::Finalize(void)
 
 bool OpenGL3DEngine::Paint()
 {
+	TextureManager::Instance()->ReleaseTextures();	
+	TextureManager::Instance()->ConvertImagesToTextures();
+
 	// some geometry changes are expected, means we will not paint the "broken painting tree"
 	if(ModifyGeometry)
 		return false;
@@ -88,9 +91,6 @@ bool OpenGL3DEngine::Paint()
 	if(Compose->HasEffects())
 		AnimationRemain = true;
 	
-	TextureManager::Instance()->ReleaseTextures();
-	TextureManager::Instance()->ConvertImagesToTextures();
-
 	if(CurrentLayer->Children.size() == 0)
 	{
 	    //g_pPlutoLogger->Write(LV_CRITICAL, "NOTHING to paint (current layer: %p)", CurrentLayer);		
@@ -103,21 +103,36 @@ bool OpenGL3DEngine::Paint()
 	GL.EnableZBuffer(false);
 
 	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint before highlight");
-	if(AnimationDatagrid.size())
+	if(AnimationDatagrids.size())
 	{
 		vector<AnimationScrollDatagrid*>::iterator Item ;
-		for(Item = AnimationDatagrid.begin(); Item != AnimationDatagrid.end(); )
+		for(Item = AnimationDatagrids.begin(); Item != AnimationDatagrids.end(); )
 		{
 			AnimationScrollDatagrid *pThing = *Item;
-			if (pThing->Update())
+			if(pThing->DatagridDependenciesSatisfied(AnimationDatagrids))
 			{
-				RemoveMeshFrameFromDesktop(pThing->BeforeGrid);
-				pThing->BeforeGrid->CleanUp();
-				delete pThing;
-				Item = AnimationDatagrid.erase(Item);
+				if (pThing->Update(true))
+				{
+					RemoveMeshFrameFromDesktop(pThing->BeforeGrid);
+					pThing->BeforeGrid->CleanUp();
+					delete pThing;
+					Item = AnimationDatagrids.erase(Item);
+				}
+				else
+					++Item;
 			}
 			else
-				++Item;
+			{
+				if (pThing->Update(true))
+				{
+					RemoveMeshFrameFromDesktop(pThing->BeforeGrid);
+					pThing->BeforeGrid->CleanUp();
+					delete pThing;
+					Item = AnimationDatagrids.erase(Item);
+				}
+				else
+					++Item;
+			}
 		}
 	}
 	else
@@ -547,19 +562,17 @@ MeshFrame* OpenGL3DEngine::EndFrameDrawing(string sObjectHash)
 }
 
 void OpenGL3DEngine::CubeAnimateDatagridFrames(string ObjectID, MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
-		int MilisecondTime, int Direction, float fMaxAlphaLevel)
+		int MilisecondTime, int Direction, float fMaxAlphaLevel, vector<string> Dependencies)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
 	UnHighlight();
 
-	AnimationScrollDatagrid* Animation = new AnimationScrollDatagrid(ObjectID, this, BeforeGrid, AfterGrid, MilisecondTime, Direction, fMaxAlphaLevel); 
-	AnimationDatagrid.push_back(Animation);
-
+	AnimationScrollDatagrid* Animation = new AnimationScrollDatagrid(ObjectID, this, BeforeGrid, AfterGrid, MilisecondTime, Direction, fMaxAlphaLevel, Dependencies); 
+	 
+	AnimationDatagrids.push_back(Animation);
 	Animation->StartAnimation();
 }
-
-
 
 void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 {
@@ -651,8 +664,8 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktopForID(string ObjectID)
 
 bool OpenGL3DEngine::IsCubeAnimatedDatagrid(string ObjectID)
 {
-	std::vector<AnimationScrollDatagrid*>::iterator AnimatedDatagridIterator = AnimationDatagrid.begin(),
-		EndIterator = AnimationDatagrid.end();
+	std::vector<AnimationScrollDatagrid*>::iterator AnimatedDatagridIterator = AnimationDatagrids.begin(),
+		EndIterator = AnimationDatagrids.end();
 	for(; AnimatedDatagridIterator != EndIterator; ++AnimatedDatagridIterator)
 	{
 		AnimationScrollDatagrid* Animation = *AnimatedDatagridIterator;	
@@ -714,3 +727,18 @@ void OpenGL3DEngine::UpdateTopMostObjects()
 		}
 	}
 }
+
+void OpenGL3DEngine::StopDatagridAnimations()
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+
+	std::vector<AnimationScrollDatagrid*>::iterator AnimatedDatagridIterator = AnimationDatagrids.begin(),
+		EndIterator = AnimationDatagrids.end();
+	for(; AnimatedDatagridIterator != EndIterator; ++AnimatedDatagridIterator)
+	{
+		(*AnimatedDatagridIterator)->StopAnimation();
+		delete *AnimatedDatagridIterator;
+	}
+	AnimationDatagrids.clear();
+}
+

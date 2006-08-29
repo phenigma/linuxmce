@@ -6,8 +6,9 @@
 #include "DCE/Logger.h"
 
 AnimationScrollDatagrid::AnimationScrollDatagrid(string ObjectID, OpenGL3DEngine* Engine, MeshFrame *BeforeGrid, 
-	MeshFrame *AfterGrid, int MilisecondTime, int Direction, float fMaxAlphaLevel)
+	MeshFrame *AfterGrid, int MilisecondTime, int Direction, float fMaxAlphaLevel, vector <string> pDependencies)
 {
+	Finished = false;
 	this->Engine = Engine;
 	this->BeforeGrid = BeforeGrid;
 	this->AfterGrid = AfterGrid;
@@ -15,12 +16,17 @@ AnimationScrollDatagrid::AnimationScrollDatagrid(string ObjectID, OpenGL3DEngine
 	this->Direction = Direction;
 	this->MaxAlpha = fMaxAlphaLevel;
 	this->ObjectID = ObjectID;
+
+	CopyDependencies(pDependencies);
 }
 
 AnimationScrollDatagrid::~AnimationScrollDatagrid(void)
 {
 	this->AfterGrid = NULL;
-	this->BeforeGrid = NULL;
+
+	BeforeGrid->CleanUp();
+	delete BeforeGrid;
+	BeforeGrid = NULL;
 }
 
 void AnimationScrollDatagrid::StartAnimation()
@@ -28,12 +34,23 @@ void AnimationScrollDatagrid::StartAnimation()
 	StartTime = SDL_GetTicks();
 }
 
-bool AnimationScrollDatagrid::Update()
+bool AnimationScrollDatagrid::Update(bool ModifyGeometry)
 {
+	if(Finished)
+		return true;
+
+	bool Result = false;
 	int CurrentTime = Engine->GetTick();
 	float Progress = float(CurrentTime - StartTime) / MilisecondTime;
 	if(CurrentTime - StartTime > MilisecondTime)
+	{
+		Result = true;
 		Progress = 1.0f;
+	}
+
+	if(!ModifyGeometry)
+		return false;
+
 	int Height = Engine->Compose->Height;
 
 	if(Direction != 2)
@@ -70,12 +87,66 @@ bool AnimationScrollDatagrid::Update()
 	BeforeGrid->SetAlpha((1-Progress) * MaxAlpha, "text");
 	AfterGrid->SetAlpha(Progress * MaxAlpha, "text");
 
-	if(CurrentTime - StartTime > MilisecondTime)
+	if(Result)
 	{
 		TextureManager::Instance()->ResumeTextureRelease();
-		return true;
+		return true; 
 	}
 	Engine->UnHighlight();
 
-	return false;
+	return Result;
+}
+
+void AnimationScrollDatagrid::CopyDependencies(vector <string> pDependencies)
+{
+	this->Dependencies.clear();
+	for(vector<string>::iterator it = pDependencies.begin(), End = pDependencies.end();
+		it != End; ++it)
+		Dependencies.push_back(*it);
+
+}
+
+void AnimationScrollDatagrid::UpdateStartTime(int StartTime)
+{
+	this->StartTime = StartTime;
+}
+
+int AnimationScrollDatagrid::GetStartTime()
+{
+	return StartTime;
+}
+
+bool AnimationScrollDatagrid::DatagridDependenciesSatisfied(vector<AnimationScrollDatagrid*> &AnimationDatagrids)
+{
+	for(vector<string>::iterator Item = Dependencies.begin(), End = Dependencies.end();
+		Item != End; ++Item)
+	{
+		bool Exists = Engine->IsCubeAnimatedDatagrid(*Item);
+		if(!Exists)
+			return false;
+		else
+		{
+			for(vector<AnimationScrollDatagrid*>::iterator DGItem = AnimationDatagrids.begin(),
+				DGEnd = AnimationDatagrids.end(); DGItem != DGEnd; ++DGItem)
+				(*DGItem)->UpdateStartTime(StartTime);
+		}
+	}
+
+
+
+	return true;
+}
+
+void AnimationScrollDatagrid::StopAnimation()
+{
+	Finished = true;
+	MeshTransform Transform2;
+	AfterGrid->SetTransform(Transform2);
+	Engine->RemoveMeshFrameFromDesktop(BeforeGrid);
+
+	TextureManager::Instance()->ResumeTextureRelease();
+
+	//BeforeGrid->CleanUp();
+	//delete BeforeGrid;
+	//BeforeGrid = NULL;
 }

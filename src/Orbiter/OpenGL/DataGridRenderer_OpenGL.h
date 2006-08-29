@@ -15,6 +15,8 @@ class DataGridRenderer_OpenGL :
 	MeshFrame* RenderFrame;
 	int m_AnimationSpeed;
 
+	void BuildDependencies(vector<string> & Dependencies);
+
 public:
 	DataGridRenderer_OpenGL(DesignObj_Orbiter *pOwner);
 	virtual ~DataGridRenderer_OpenGL(void);
