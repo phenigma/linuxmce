@@ -1,7 +1,7 @@
 KSRC ?= /usr/src/linux
 KVER ?= unknown
 
-KERNEL=$(shell uname -r)
+KERNEL?=$(shell uname -r)
 
 MAINT_NAME=Pluto Inc. (www.plutohome.com)
 MAINT_ADDR=office@plutohome.com
