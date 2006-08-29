@@ -1582,7 +1582,7 @@ bool X11wrapper::Shape_Context_Leave(Window window, Pixmap &bitmap_mask, GC &gc,
 
 bool X11wrapper::Shape_Window_Apply(Window window, Pixmap &pixmap, int shape_op/*=0*/)
 {
-    _LOG_NFO("window==%d, pixmap==%d", window, pixmap);
+    _LOG_NFO("window==%d, pixmap==%d, op==%d", window, pixmap, shape_op);
     int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
     do
@@ -1596,7 +1596,7 @@ bool X11wrapper::Shape_Window_Apply(Window window, Pixmap &pixmap, int shape_op/
 
 bool X11wrapper::Shape_Window_Apply(Window window, const string &sPath, int shape_op/*=0*/)
 {
-    _LOG_NFO("window==%d, sPath=='%s'", window, sPath.c_str());
+    _LOG_NFO("window==%d, sPath=='%s', op==%d", window, sPath.c_str(), shape_op);
     Pixmap bitmap_mask = None;
     int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
@@ -1618,7 +1618,7 @@ bool X11wrapper::Shape_Window_Apply(Window window, const string &sPath, int shap
 
 bool X11wrapper::Shape_Window_Apply(Window window, const char *data_bitmap, unsigned int width, unsigned int height, int shape_op/*=0*/)
 {
-    _LOG_NFO("window==%d, data_bitmap==%p, width==%d, height==%d", window, data_bitmap, width, height);
+    _LOG_NFO("window==%d, data_bitmap==%p, width==%d, height==%d, op==%d", window, data_bitmap, width, height, shape_op);
     Pixmap bitmap_mask = None;
     int xcode = -1;
     X11_Locker x11_locker(GetDisplay());
