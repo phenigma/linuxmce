@@ -38,7 +38,6 @@ sources += \
 	DesignObj_Data.cpp \
 	DesignObj_Orbiter.cpp \
 	DesignObj_DataGrid.cpp \
-	DatagridAnimationManager.cpp \
 	Simulator.cpp \
 	OrbiterFileBrowser.cpp \
 	Linux/OrbiterLinux.cpp \
@@ -85,6 +84,7 @@ sources += \
 	OpenGL/OrbiterRenderer_OpenGL.cpp \
 	OpenGL/GraphicSettings.cpp \
 	OpenGL/OpenGLGraphic.cpp \
+	OpenGL/DatagridAnimationManager.cpp \
 	OpenGL/Mesh/MeshBuilder.cpp \
 	OpenGL/Mesh/MeshPainter.cpp \
 	OpenGL/Mesh/MeshVertex.cpp \
