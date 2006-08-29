@@ -2,11 +2,11 @@ ifneq ($(KERNELRELEASE),)
 	obj-m	:= vloopback.o
 
 else
-	KVER  := $(shell uname -r)
-	KLINK := $(shell test -e /lib/modules/${KVER}/source/ && echo source || echo build)
-	KSRC  := /lib/modules/$(KVER)/$(KLINK)
-	PWD		:= $(shell pwd)
-	DEST	:= /lib/modules/$(KVER)/kernel/drivers/misc
+	KVER  ?= $(shell uname -r)
+	KLINK ?= $(shell test -e /lib/modules/${KVER}/source/ && echo source || echo build)
+	KSRC  ?= /lib/modules/$(KVER)/$(KLINK)
+	PWD		?= $(shell pwd)
+	DEST	?= /lib/modules/$(KVER)/kernel/drivers/misc
 default: replaces
 	$(MAKE) -C $(KSRC) SUBDIRS=$(PWD) modules
 

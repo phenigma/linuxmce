@@ -115,11 +115,15 @@
  *			Added to example option to choose between rgb24 or yuv420p palettes.
  *
  * 31.12.05	(Angel Carpintero)
- * 			Fixed examples, remove perror calls and add support to dummy.c for sysfs.	 			
+ * 			Fixed examples, remove perror calls and add support to dummy.c for sysfs.
+ * 			
+ * 04.06.06	(Angel Carpintero)
+ * 			Add module_param() for kernel > 2.5 because MODULE_PARAM() macro is obsolete.
+ * 							 			
  */
 
 
-#define VLOOPBACK_VERSION "0.97-snap2"
+#define VLOOPBACK_VERSION "0.97-snap3"
 
 /* Include files common to 2.4 and 2.6 versions */
 #include <linux/version.h>	/* >= 2.6.14 LINUX_VERSION_CODE */ 
@@ -178,7 +182,7 @@ struct vloopback_pipe {
 	unsigned long framesdumped;
 	unsigned int wopen;
 	unsigned int ropen;
-	struct proc_dir_entry *proc_entry;
+//	struct proc_dir_entry *proc_entry;  /* Deprecated the use of /proc in 2.6.x kernel series */
 	struct semaphore lock;
 	wait_queue_head_t wait;
 	unsigned int frame;
@@ -1038,11 +1042,29 @@ static int create_pipe(int nr)
 
 MODULE_AUTHOR("J.B. Vreeken (pe1rxq@amsat.org)");
 MODULE_DESCRIPTION("Video4linux loopback device.");
+
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
+module_param(pipes, int, 000);
+#else
 MODULE_PARM(pipes, "i");
+#endif
+
 MODULE_PARM_DESC(pipes, "Nr of pipes to create (each pipe uses two video devices)");
+
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
+module_param(spares, int, 000);
+#else
 MODULE_PARM(spares, "i");
+#endif
+
 MODULE_PARM_DESC(spares, "Nr of spare pipes that should be created");
-MODULE_PARM(dev_offset, "i");
+
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
+module_param(dev_offset, int, 000);
+#else
+MODULE_PARM(dev_offset_param, "i");
+#endif
+
 MODULE_PARM_DESC(dev_offset, "Prefered offset for video device numbers");
 MODULE_LICENSE("GPL");
 MODULE_VERSION( VLOOPBACK_VERSION );
