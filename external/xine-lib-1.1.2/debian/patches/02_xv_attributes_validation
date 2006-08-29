@@ -49,18 +49,18 @@ exit 0
 +    /* current attribute value is in allowed range */
 +    if ((attr->value>=min_value)&&(attr->value<=max_value))
 +    {
-+      xprintf(this->xine, XINE_VERBOSITY_DEBUG,
++      xprintf(this->xine, XINE_VERBOSITY_NONE,
 +	      "video_out_xv: storing initial value %d for port attribute %s\n", attr->value, attr->name);
 +      xine_list_push_back (this->port_attributes, attr);
 +      return;
 +    }
 +    else
-+      xprintf(this->xine, XINE_VERBOSITY_DEBUG,
++      xprintf(this->xine, XINE_VERBOSITY_NONE,
 +	      "video_out_xv: do not storing initial value %d for port attribute %s because it is out of allowed range [%d, %d] (buggy driver?)\n", attr->value, 
 +	      attr->name, min_value, max_value);
 +  }
 +  else
-+      xprintf(this->xine, XINE_VERBOSITY_DEBUG,
++      xprintf(this->xine, XINE_VERBOSITY_NONE,
 +	      "video_out_xv: failed to obtain initial value for port attribute %s\n", attr->name);
 +
 +	free(attr->name);
