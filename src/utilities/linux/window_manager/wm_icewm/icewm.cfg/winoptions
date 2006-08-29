@@ -23,6 +23,11 @@ pluto-xine-playback-window.pluto-xine-playback-window.dTitleBar: 0
 pluto-xine-playback-window.pluto-xine-playback-window.geometry: 1x1+12345+12345
 pluto-xine-playback-window.pluto-xine-playback-window.noFocusOnAppRaise: 1
 
+progress_window.progress_window.dBorder: 0
+progress_window.progress_window.dTitleBar: 0
+prompt_user_window.prompt_user_window.dBorder: 0
+prompt_user_window.prompt_user_window.dTitleBar: 0
+
 SDL_App.SDL_App.dBorder: 0
 SDL_App.SDL_App.dTitleBar: 0
 SDL_App.SDL_App.ignoreNoFocusHint: 1
