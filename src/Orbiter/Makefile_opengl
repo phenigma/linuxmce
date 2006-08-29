@@ -38,6 +38,7 @@ sources += \
 	DesignObj_Data.cpp \
 	DesignObj_Orbiter.cpp \
 	DesignObj_DataGrid.cpp \
+	DatagridAnimationManager.cpp \
 	Simulator.cpp \
 	OrbiterFileBrowser.cpp \
 	Linux/OrbiterLinux.cpp \
