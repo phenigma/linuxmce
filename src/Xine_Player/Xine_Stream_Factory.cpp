@@ -64,12 +64,14 @@ bool Xine_Stream_Factory::StartupFactory()
 		g_pPlutoLogger->Write( LV_WARNING, "Cannot connect to Xine Library");
 		return false;
 	 }
-
+	
 	// loading config
 	g_pPlutoLogger->Write( LV_STATUS, "Loading config from %s", m_sConfigFile.c_str() );		
 	xine_config_load( m_pXineLibrary, m_sConfigFile.c_str() );
-	xine_init( m_pXineLibrary );
-	
+	// be verbose
+	xine_engine_set_param(m_pXineLibrary, XINE_ENGINE_PARAM_VERBOSITY, XINE_VERBOSITY_DEBUG);
+	xine_init( m_pXineLibrary );	
+
 	// detecting output drivers
 	DetectOutputDrivers();
 	
