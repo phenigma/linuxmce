@@ -292,7 +292,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		// The remotes for the current media
 		int m_iPK_Screen_Remote,m_iPK_DesignObj_Remote_Popup,m_iPK_Screen_FileList,m_iPK_Screen_RemoteOSD,m_iPK_Screen_OSD_Speed,m_iPK_Screen_OSD_Track;
-		string m_sNowPlaying,m_sNowPlaying_Section,m_sNowPlaying_TimeShort,m_sNowPlaying_TimeLong,m_sNowPlaying_Speed,m_sDefaultRippingName; /** < set by the media engine, this is whatever media is currently playing */
+		string m_sNowPlaying_MediaType,m_sNowPlaying,m_sNowPlaying_Section,m_sNowPlaying_TimeShort,m_sNowPlaying_TimeLong,m_sNowPlaying_Speed,m_sDefaultRippingName; /** < set by the media engine, this is whatever media is currently playing */
 		int m_nDefaultStorageDeviceForRipping;
 		string m_sDefaultStorageDeviceForRippingName;
 		int m_iPK_MediaType;
@@ -349,7 +349,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		vector < class DesignObj_DataGrid * > m_vectObjs_GridsOnScreen; /** < All the grids currently on the screen */
 		vector < class DesignObj_Orbiter * > m_vectObjs_VideoOnScreen; /** < All the video on screen */
 		bool m_bAlreadyQueuedVideo; // We only put 1 GetVideFrame in the queue
-		class DesignObj_Orbiter *m_pObj_NowPlayingOnScreen,*m_pObj_NowPlaying_Section_OnScreen,*m_pObj_NowPlaying_TimeShort_OnScreen,*m_pObj_NowPlaying_TimeLong_OnScreen,*m_pObj_NowPlaying_Speed_OnScreen; /** < The objects showing 'now playing' on screen */
+		class DesignObj_Orbiter *m_pObj_NowPlayingOnScreen,*m_pObj_NowPlaying_MT_OnScreen,*m_pObj_NowPlaying_Section_OnScreen,*m_pObj_NowPlaying_TimeShort_OnScreen,*m_pObj_NowPlaying_TimeLong_OnScreen,*m_pObj_NowPlaying_Speed_OnScreen; /** < The objects showing 'now playing' on screen */
 
 		list<class PlutoPopup*> m_listPopups;
 		map<PlutoPopup *, unsigned long> m_mapPopupDialogs;

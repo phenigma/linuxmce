@@ -237,6 +237,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 
 	//initialize
 	m_pObj_NowPlayingOnScreen = NULL;
+	m_pObj_NowPlaying_MT_OnScreen = NULL;
 	m_pObj_NowPlaying_Section_OnScreen = NULL;
 	m_pObj_NowPlaying_TimeShort_OnScreen = NULL;
 	m_pObj_NowPlaying_TimeLong_OnScreen = NULL; 
@@ -725,6 +726,7 @@ g_PlutoProfiler->DumpResults();
 	m_vectObjs_GridsOnScreen.clear(  );
 	m_vectObjs_VideoOnScreen.clear(  );
 	m_pObj_NowPlayingOnScreen=NULL;
+	m_pObj_NowPlaying_MT_OnScreen=NULL;
 	m_pObj_NowPlaying_Section_OnScreen=NULL;
 	m_pObj_NowPlaying_TimeShort_OnScreen=NULL;
 	m_pObj_NowPlaying_TimeLong_OnScreen=NULL;
@@ -3730,6 +3732,13 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
 				m_pOrbiterRenderer->SaveBackgroundForDeselect(pObj, pObj->m_pPopupPoint);  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
+		else if(  Variable=="NP_MT" )
+		{
+			Output += m_sNowPlaying_MediaType;
+			m_pObj_NowPlaying_MT_OnScreen=pObj;
+			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
+				m_pOrbiterRenderer->SaveBackgroundForDeselect(pObj, pObj->m_pPopupPoint);  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+		}
 		else if(  Variable=="NP_SEC" )
 		{
 			Output += m_sNowPlaying_Section;
@@ -5871,6 +5880,12 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	m_sNowPlaying_TimeShort="";
 	m_sNowPlaying_TimeLong="";
 
+	map<int,string>::iterator it;
+	if( (it = m_mapPK_MediaType_PK_Attribute_Description.find(m_iPK_MediaType)) != m_mapPK_MediaType_PK_Attribute_Description.end() )
+		m_sNowPlaying_MediaType = it->second;
+	else
+		m_sNowPlaying_MediaType = "";
+
 	if( bRetransmit )
 	{
 		vector<DesignObj_DataGrid*>::iterator it;
@@ -5914,6 +5929,8 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	{
 		if( m_pObj_NowPlayingOnScreen )
 			m_pOrbiterRenderer->RenderObjectAsync(m_pObj_NowPlayingOnScreen);
+		if( m_pObj_NowPlaying_MT_OnScreen )
+			m_pOrbiterRenderer->RenderObjectAsync(m_pObj_NowPlaying_MT_OnScreen);
 		if( m_pObj_NowPlaying_Section_OnScreen )
 			m_pOrbiterRenderer->RenderObjectAsync(m_pObj_NowPlaying_Section_OnScreen);
 	}
