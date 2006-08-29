@@ -87,7 +87,7 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 	else if( pText )
 		pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_video_clip_here_CONST];
 
-	if( m_pOrbiter->m_bNewOrbiter==true && m_bAlreadyPlaySeeAndHearMe==false )
+	if( true || (m_pOrbiter->m_bNewOrbiter==true && m_bAlreadyPlaySeeAndHearMe==false))
 	{
 		ScreenHandlerBase::SCREEN_VideoWizard(PK_Screen);
 		m_bAlreadyPlaySeeAndHearMe=true;

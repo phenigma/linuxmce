@@ -291,7 +291,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
     bool bPreserveTransparencies = pDesignObj_Generator->m_bPreserveTransparencies;
 
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-	if( pDesignObj_Generator->m_ObjectID.find("1255.0.0.3302")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
+	if( pDesignObj_Generator->m_ObjectID.find("4889.0.0.4978")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
 //  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
         //if( pDesignObj_Generator->m_ObjectID== )
     {

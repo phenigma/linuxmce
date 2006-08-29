@@ -2223,7 +2223,7 @@
 #define DESIGNOBJ_mnuPDAArrows_CONST 5165
 #define DESIGNOBJ_butGenericDVDMenuRemote_CONST 5166
 #define DESIGNOBJ_butSetStartPosition_CONST 5167
-#define DESIGNOBJ_butFileBrowserDetails_CONST 5168
+#define DESIGNOBJ_butFileBrowserDetails_CONST 5171
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

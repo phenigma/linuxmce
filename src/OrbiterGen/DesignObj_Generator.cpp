@@ -1541,7 +1541,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                     if( pRow_CommandGroup && pRow_CommandGroup->FK_Array_get()==PK_Array && !pRow_CommandGroup->Disabled_get() )
                     {
                         alArray->push_back(new ArrayValue(drAG_R->FK_CommandGroup_getrow()->AltID_isNull() ? StringUtils::itos(drAG_R->FK_CommandGroup_get()) : StringUtils::itos(drAG_R->FK_CommandGroup_getrow()->AltID_get()),
-                            (!drAG_R->FK_CommandGroup_getrow()->FK_Icon_isNull() ? "~cb~" : "") +  drAG_R->FK_CommandGroup_getrow()->Description_get(),
+                            (!drAG_R->FK_CommandGroup_getrow()->FK_Icon_isNull() && m_pOrbiterGenerator->m_iUiVersion==1 ? "~cb~" : "") +  drAG_R->FK_CommandGroup_getrow()->Description_get(),
                             drAG_R->FK_CommandGroup_getrow()->FK_Icon_isNull() ? NULL : drAG_R->FK_CommandGroup_getrow()->FK_Icon_getrow(),
                             drAG_R->FK_CommandGroup_getrow()->FK_Criteria_Orbiter_isNull() ? 0 : drAG_R->FK_CommandGroup_getrow()->FK_Criteria_Orbiter_get(),
                             bNoSubstitutions || drAG_R->FK_CommandGroup_getrow()->FK_DesignObj_isNull() ? 0 : drAG_R->FK_CommandGroup_getrow()->FK_DesignObj_get(),
@@ -1580,7 +1580,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                     if( pRow_CommandGroup && pRow_CommandGroup->FK_Array_get()==PK_Array && !pRow_CommandGroup->Disabled_get() )
                     {
                         alArray->push_back(new ArrayValue(drAG_E->FK_CommandGroup_getrow()->AltID_isNull() ? StringUtils::itos(drAG_E->FK_CommandGroup_get()) : StringUtils::itos(drAG_E->FK_CommandGroup_getrow()->AltID_get()),
-                            (!drAG_E->FK_CommandGroup_getrow()->FK_Icon_isNull() ? "~cb~" : "") +  drAG_E->FK_CommandGroup_getrow()->Description_get(),
+                            (!drAG_E->FK_CommandGroup_getrow()->FK_Icon_isNull() && m_pOrbiterGenerator->m_iUiVersion==1 ? "~cb~" : "") +  drAG_E->FK_CommandGroup_getrow()->Description_get(),
                             drAG_E->FK_CommandGroup_getrow()->FK_Icon_isNull() ? NULL : drAG_E->FK_CommandGroup_getrow()->FK_Icon_getrow(),
                             drAG_E->FK_CommandGroup_getrow()->FK_Criteria_Orbiter_isNull() ? 0 : drAG_E->FK_CommandGroup_getrow()->FK_Criteria_Orbiter_get(),
                             !bNoSubstitutions && drAG_E->FK_CommandGroup_getrow()->FK_DesignObj_isNull() ? 0 : drAG_E->FK_CommandGroup_getrow()->FK_DesignObj_get(),

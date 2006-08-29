@@ -584,6 +584,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Prompting_User
 				g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT Auto assign queue %d to parents room %d %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),PK_Room,sRoom.c_str());
 			}
 
+g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT 1 possibility queue %d pRow_DeviceTemplate %d && pRow_DHCPDevice %d",
+					  pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_DeviceTemplate->PK_DeviceTemplate_get(),pRow_DHCPDevice->PK_DHCPDevice_get());
 			DCE::SCREEN_New_Pnp_Device_One_Possibility_DL SCREEN_New_Pnp_Device_One_Possibility_DL(m_pPlug_And_Play_Plugin->m_dwPK_Device, pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, 
 				PK_Room,
 				pRow_DHCPDevice->PK_DHCPDevice_get(),
@@ -595,6 +597,17 @@ g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Prompting_User
 		}
 	}
 
+	// For now we'll skip over rs232 devices if we don't detect it via pnp.  Sometimes the serial port just appears to be active
+	// even when it's not connected because the h/w flow control is high
+	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_RS232_CONST )
+	{
+g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT queue %d todo -- create a new screen when it's serial and we have no possibilities -- there are too many options for the main one",
+pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
+		return true;
+	}
+g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT queue %d multiple choices",
+					  pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 	DCE::SCREEN_NewPnpDevice_DL SCREEN_NewPnpDevice_DL(m_pPlug_And_Play_Plugin->m_dwPK_Device, pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, GetDescription(pPnpQueueEntry), pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 	m_pPlug_And_Play_Plugin->SendCommand(SCREEN_NewPnpDevice_DL);
 	return false;  // Now we wait
@@ -928,7 +941,16 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 		pDevice_Detector = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceData_Router_Find(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
 
 		if( pDevice_Detector )
+		{
 			pDevice_AppServer = (DeviceData_Router *) pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST, m_pPlug_And_Play_Plugin );
+			if( !pDevice_AppServer )
+			{
+				DeviceData_Base *pDevice = pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
+				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d checking detection %s but cannot find app server - w/out reg found %p",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_DHCPDevice_To_Detect->PnpDetectionScript_get().c_str(),pDevice);
+			}
+		}
+		else
+			g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d checking detection %s but cannot find detector",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_DHCPDevice_To_Detect->PnpDetectionScript_get().c_str());
 
 		if( pDevice_AppServer )
 		{
@@ -977,7 +999,7 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 			return false;
 		}
 		else
-			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d cannot find app server!",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+			g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d cannot find app server!",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 	}
 
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);

@@ -77,6 +77,14 @@ string RegenMonitor::GetModInfo_Array(int PK_Array)
 
 		case ARRAY_Floorplans_CONST:
 				return sResult + GetModInfo_FloorplanArray();
+
+		case ARRAY_PK_MediaType_CONST:
+		case ARRAY_Media_Sort_Options_CONST:
+		case ARRAY_Media_Filter_Genres_CONST:
+		case ARRAY_Media_Filter_Subtype_CONST:
+		case ARRAY_Media_Filter_Source_CONST:
+		case ARRAY_Media_Filter_File_Format_CONST:
+			return "Never"; // This doesn't change
 		}
 	}
 	return "*";

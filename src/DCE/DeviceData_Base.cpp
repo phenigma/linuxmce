@@ -245,26 +245,26 @@ DeviceData_Base *DeviceData_Base::FindFirstRelatedDeviceOfCategory(int PK_Device
 						if( tTimeout < time(NULL) )
 						{
 							if( g_pPlutoLogger )
-								g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d never registered",m_dwPK_Device);
+								g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d never registered",m_dwPK_Device);
 							return NULL;
 						}
 #ifdef DEBUG
 						if( g_pPlutoLogger )
-							g_pPlutoLogger->Write(LV_STATUS, "FindFirstRelatedDeviceOfTemplate %d waiting for device",m_dwPK_Device);
+							g_pPlutoLogger->Write(LV_STATUS, "FindFirstRelatedDeviceOfCategory %d waiting for device",m_dwPK_Device);
 #endif
 						Sleep(1000);
 						break;
 					case 'D':
 						if( g_pPlutoLogger )
-							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d is disabled",m_dwPK_Device);
+							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d is disabled",m_dwPK_Device);
 						return NULL;
 					case 'E':
 						if( g_pPlutoLogger )
-							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d comm error",m_dwPK_Device);
+							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d comm error",m_dwPK_Device);
 						return NULL;
 					default:
 						if( g_pPlutoLogger )
-							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d has unknown status %c",m_dwPK_Device,Status);
+							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d has unknown status %c",m_dwPK_Device,Status);
 				}
 			}
 		}
