@@ -106,9 +106,12 @@ void AnimationScrollDatagrid::CopyDependencies(vector <string> pDependencies)
 
 }
 
-void AnimationScrollDatagrid::UpdateStartTime(int StartTime)
+bool AnimationScrollDatagrid::UpdateStartTime(int StartTime)
 {
+	if(this->StartTime >= StartTime)
+		return false;
 	this->StartTime = StartTime;
+	return true;
 }
 
 int AnimationScrollDatagrid::GetStartTime()
@@ -128,7 +131,8 @@ bool AnimationScrollDatagrid::DatagridDependenciesSatisfied(vector<AnimationScro
 		{
 			for(vector<AnimationScrollDatagrid*>::iterator DGItem = AnimationDatagrids.begin(),
 				DGEnd = AnimationDatagrids.end(); DGItem != DGEnd; ++DGItem)
-				(*DGItem)->UpdateStartTime(StartTime);
+				if(!((*DGItem)->UpdateStartTime(StartTime)))
+					UpdateStartTime((*DGItem)->GetStartTime());
 		}
 	}
 

@@ -27,7 +27,7 @@ public:
 		int MilisecondTime, int Direction, float fMaxAlphaLevel, vector <string> Dependencies);
 	virtual ~AnimationScrollDatagrid(void);
 
-	void UpdateStartTime(int StartTime);
+	bool UpdateStartTime(int StartTime);
 
 	int GetStartTime();
 
