@@ -19,7 +19,7 @@ function BuildModules() {
 
 	## Build specific
 	make clean
-	make make
+	make
 	## Build specific
 
 	mkdir -p "$COMP_MODULES_DIR/$KVER/extra"
