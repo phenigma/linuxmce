@@ -28,4 +28,4 @@ modules all clean install: replaces
 	make -C driver $@
 	make -C i2c-drivers $@
 	make -C utils $@
-	make -C test $@			
+	make -C test $@
