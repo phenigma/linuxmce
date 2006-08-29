@@ -5,6 +5,7 @@
 . /usr/pluto/bin/Utils.sh
 
 DEVICECATEGORY_Sound_Cards=124
+DEVICEDATA_Audio_settings=88
 
 SoundCard=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Sound_Cards")
 
@@ -18,5 +19,16 @@ Q="
 	FROM DeviceTemplate
 	JOIN Device ON FK_DeviceTemplate=PK_DeviceTemplate AND PK_Device='$SoundCard'
 "
+
 CommandLine="$(RunSQL "$Q")"
-/usr/pluto/bin/"$CommandLine"
+
+Q="
+	SELECT IK_DeviceData FROM Device_DeviceData
+	JOIN Device ON FK_Device=PK_Device
+	WHERE FK_DeviceData=$DEVICEDATA_Audio_settings AND (PK_Device=$PK_Device OR FK_Device_ControlledVia=$PK_Device)
+"
+
+SoundSettings="$(RunSQL "$Q")"
+
+/usr/pluto/bin/"$CommandLine" "$SoundSettings"
+

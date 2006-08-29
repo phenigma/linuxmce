@@ -44,7 +44,7 @@ Q="SELECT Device.PK_Device, DeviceTemplate.Description, DeviceTemplate.CommandLi
 	JOIN DeviceTemplate ON Device.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate
 	LEFT JOIN Device AS Device_Parent on Device.FK_Device_ControlledVia=Device_Parent.PK_Device
 	LEFT JOIN DeviceTemplate AS DeviceTemplate_Parent ON Device_Parent.FK_DeviceTemplate=DeviceTemplate_Parent.PK_DeviceTemplate
-	WHERE (Device.FK_Device_ControlledVia=$CurrentDevice 
+	WHERE DeviceTemplate.ImplementsDCE=1 AND (Device.FK_Device_ControlledVia=$CurrentDevice 
 	OR (Device_Parent.FK_Device_ControlledVia=$CurrentDevice AND DeviceTemplate_Parent.FK_DeviceCategory IN (6,7,8) ) )
 	AND DeviceTemplate.FK_DeviceCategory <> 1"
 CommandList=$(RunSQL "$Q")
