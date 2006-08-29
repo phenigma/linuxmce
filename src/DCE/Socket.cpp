@@ -779,8 +779,16 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 				FD_ZERO(&rfds);
 				FD_SET(m_Socket, &rfds);
 
-				tv.tv_sec = 1;
-				tv.tv_usec = 0;
+				if( nInternalReceiveTimeout==-2 )
+				{
+					tv.tv_sec = 0;
+					tv.tv_usec = 0;  
+				}
+				else
+				{
+					tv.tv_sec = 1;
+					tv.tv_usec = 0;
+				}
                 
                 //before select
                 gettimeofday(&tv_select_1, NULL);
@@ -801,7 +809,7 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 #endif
 				tv_total -= tv_select;
 #ifndef DISABLE_SOCKET_TIMEOUTS
-			} while (iRet != -1 && iRet != 1 && (nInternalReceiveTimeout > 0 ? tv_total.tv_sec > 0 : true));
+			} while (iRet != -1 && iRet != 1 && (nInternalReceiveTimeout > 0 || nInternalReceiveTimeout==-2 ? tv_total.tv_sec > 0 : true));
 #else
 			} while (iRet != -1 && iRet != 1);
 #endif
@@ -814,7 +822,9 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 #else
                 g_pPlutoLogger->Write(LV_STATUS, "Socket::ReceiveData timeout %d socket %d ret %d", tv_total.tv_sec, m_Socket, iRet);
 #endif
-#endif                
+#endif               
+				if( nInternalReceiveTimeout==-2 )
+					return false; // Special value means don't timeout
                 Close();
 				if( m_bQuit || m_bCancelSocketOp )
 					return false;
@@ -1002,8 +1012,11 @@ bool Socket::ReceiveString( string &sRefString, int nTimeout/*= -1*/)
 	{
 		if ( !ReceiveData( 1, pcBuf, nTimeout ) ) // uses ReceiveData to get the string char by char
 		{
-			sRefString = "ReceiveData failed";
-			g_pPlutoLogger->Write( LV_STATUS, "Socket::ReceiveString2 ReceiveData failed m_Socket: %d %s", m_Socket, m_sName.c_str() );
+			if( nTimeout!=-2 )
+			{
+				sRefString = "ReceiveData failed";
+				g_pPlutoLogger->Write( LV_STATUS, "Socket::ReceiveString2 ReceiveData failed m_Socket: %d %s", m_Socket, m_sName.c_str() );
+			}
 			return false;
 		}
 		++pcBuf;

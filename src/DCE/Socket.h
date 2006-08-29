@@ -112,6 +112,7 @@ namespace DCE
 		/**
 		 * @brief just reads raw data from the socket
          * if 'nTimeout' is -1, the default timeout will be used.  Timeout is in seconds
+		 * -2 is a special timeout meaning don't wait at all, just return false if the buffer is empty
 		 */
 		virtual bool ReceiveData( int iSize, char *pcData, int nTimeout = -1 ); 
 
@@ -124,6 +125,7 @@ namespace DCE
 		/**
 		 * @brief reads a string from the socket. 
 		 * if 'nTimeout' is -1, the default timeout will be used.  Timeout is in seconds
+		 * -2 is a special timeout meaning don't wait at all, just return false if the buffer is empty
 		 * @return false on errors
 		 */
 		virtual bool ReceiveString( string &sResult, int nTimeout = -1 );

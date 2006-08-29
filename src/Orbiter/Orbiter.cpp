@@ -5956,7 +5956,10 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 			if (!m_pAskXine_Socket->Connect())
 				g_pPlutoLogger->Write(LV_WARNING,"Cannot connect to xine for time code information");
 			else
-				CallMaintenanceInMiliseconds(1000,&Orbiter::UpdateTimeCode,NULL,pe_ALL,false);
+			{
+				pm.Release();
+				CallMaintenanceInMiliseconds(500,&Orbiter::UpdateTimeCode,NULL,pe_ALL,false);
+			}
 		}
 	}
 	else if( m_pAskXine_Socket )
@@ -5965,6 +5968,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 		delete m_pAskXine_Socket;
 		m_pAskXine_Socket=NULL;
 	}
+	pm.Release();
 }
 
 bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
@@ -7632,17 +7636,6 @@ void Orbiter::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,Message *pMessage)
 //<-dceag-c689-e->
 {
-	if( sSpeed.find('x')!=string::npos )
-		m_sNowPlaying_Speed = sSpeed;  // It's already human formatted
-	else
-	{
-		int Speed = atoi(sSpeed.c_str());
-		if( Speed==1000 )
-			m_sNowPlaying_Speed = ""; // Normaly playback
-		else
-			m_sNowPlaying_Speed = StringUtils::ftos( ((double) Speed) / 1000 ) + "x";
-	}
-
 	string::size_type tabTime = sTime.find('\t');
 	string::size_type tabTotal = sTotal.find('\t');
 
@@ -7673,6 +7666,9 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 			m_sNowPlaying_TimeLong = sTotal.substr(0,tabTotal) + " (" + sTime.substr(tabTotal) + ")";
 	}
 
+	m_sNowPlaying_Speed = sSpeed;
+
+	NeedToRender render( this, "Time Code" );
 	if( m_pObj_NowPlaying_TimeShort_OnScreen && m_pObj_NowPlaying_TimeShort_OnScreen->m_bOnScreen )
 		m_pOrbiterRenderer->RenderObjectAsync(m_pObj_NowPlaying_TimeShort_OnScreen);
 	if( m_pObj_NowPlaying_TimeLong_OnScreen && m_pObj_NowPlaying_TimeLong_OnScreen->m_bOnScreen && m_pObj_NowPlaying_TimeShort_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen )
@@ -8664,8 +8660,16 @@ void Orbiter::UpdateTimeCode( void *data )
 	if( !m_pAskXine_Socket )
 		return; // nothing to do
 
+g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode BEFORE");
 	string sLine;
-	m_pAskXine_Socket->ReceiveString(sLine, 1);  // Wait at most 1 second for the line
+	if( !m_pAskXine_Socket->ReceiveString(sLine, -2) )  // Wait at most 1 second for the line
+	{
+g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode EMPTY %d %s",(int) sLine.size(),sLine.c_str());
+		CallMaintenanceInMiliseconds(500,&Orbiter::UpdateTimeCode,NULL,pe_ALL,false);  // There's nothing in the queue, wait 500 ms
+		return;
+	}
+	pm.Release();
+g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode AFTER %d %s",(int) sLine.size(),sLine.c_str());
 
 	string::size_type pos=0;
 	int iSpeed = atoi(StringUtils::Tokenize( sLine,",",pos ).c_str());
@@ -8675,9 +8679,21 @@ void Orbiter::UpdateTimeCode( void *data )
 	string sTitle = StringUtils::Tokenize( sLine,",",pos );
 	string sChapter = StringUtils::Tokenize( sLine,",",pos );
 
-	CMD_Update_Time_Code(iStreamID,sTime,sTotalTime,StringUtils::itos(iSpeed),sTitle,sChapter);
+	// Strip fractions of a second
+	if( (pos=sTime.find('.'))!=string::npos )
+		sTime = sTime.substr(0,pos);
 
-	CallMaintenanceInMiliseconds(1000,&Orbiter::UpdateTimeCode,NULL,pe_ALL,false);
+	if( (pos=sTotalTime.find('.'))!=string::npos )
+		sTotalTime = sTotalTime.substr(0,pos);
+
+	string sSpeed;
+	if( iSpeed!=1000 ) // normal playback
+		sSpeed = StringUtils::ftos( ((double) iSpeed) / 1000 ) + "x";
+
+
+	CMD_Update_Time_Code(iStreamID,sTime,sTotalTime,sSpeed,sTitle,sChapter);
+
+	CallMaintenanceInMiliseconds(50,&Orbiter::UpdateTimeCode,NULL,pe_ALL,false); // The queue has something, call back soon to flush any backed up ones
 }
 
 void Orbiter::StartScreenSaver()
