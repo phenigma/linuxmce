@@ -5,11 +5,11 @@ ifneq ($(KERNELRELEASE),)
         obj-m   := smbfs.o
 
 else
-        KVER  := $(shell uname -r)
-        KLINK := $(shell test -e /lib/modules/${KVER}/source/ && echo source || echo build)
-        KSRC  := /lib/modules/$(KVER)/$(KLINK)
-        PWD   := $(shell pwd)
-        DEST  := /lib/modules/$(KVER)/kernel/drivers/misc
+        KVER  ?= $(shell uname -r)
+        KLINK ?= $(shell test -e /lib/modules/${KVER}/source/ && echo source || echo build)
+        KSRC  ?= /lib/modules/$(KVER)/$(KLINK)
+        PWD   ?= $(shell pwd)
+        DEST  ?= /lib/modules/$(KVER)/kernel/drivers/misc
 default: replaces
 	echo "1"
 	$(MAKE) -C $(KSRC) SUBDIRS=$(PWD) modules
