@@ -64,6 +64,7 @@ void Gallery::PaintScreen(void)
 
 bool Gallery::Setup(int Width, int Height, string FolderName)
 {
+	Quit = false;
 	FrontEnd = new SDLFrontEnd();
 	bool Result = FrontEnd->StartVideoMode(Width, Height, false) != 0;
 	MeshPainter::Instance()->Setup(&Extensions);
@@ -74,6 +75,9 @@ bool Gallery::Setup(int Width, int Height, string FolderName)
 
 void Gallery::CleanUp(void)
 {
+	delete FrontEnd;
+	FrontEnd = NULL;
+	Event.Type = 0;
 }
 
 void Gallery::EvaluateEvent(WM_Event Event)

@@ -7,6 +7,8 @@
 #include "Gen_Devices/Photo_Screen_SaverBase.h"
 //<-dceag-d-e->
 
+#include <pthread.h>
+
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -14,7 +16,7 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
-
+		pthread_t ThreadID;
 		// Private methods
 public:
 		// Public member variables
@@ -78,3 +80,6 @@ public:
 }
 #endif
 //<-dceag-end-e->
+
+void* ThreadAnimation(void* ThreadInfo);
+

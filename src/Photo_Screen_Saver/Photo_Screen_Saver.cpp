@@ -18,6 +18,7 @@ using namespace DCE;
 Photo_Screen_Saver::Photo_Screen_Saver(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Photo_Screen_Saver_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, ThreadID(0)
 {
 }
 
@@ -116,8 +117,10 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 	cout << "Need to implement command #192 - On" << endl;
 	cout << "Parm #97 - PK_Pipe=" << iPK_Pipe << endl;
 	cout << "Parm #98 - PK_Device_Pipes=" << sPK_Device_Pipes << endl;
-	Gallery::Instance()->Setup(1024, 768, "");
-	Gallery::Instance()->MainLoop(); 
+	if(0 == ThreadID)
+	{
+		pthread_create(&ThreadID, NULL, ThreadAnimation, NULL);
+	}
 }
 
 //<-dceag-c193-b->
@@ -136,7 +139,16 @@ void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMess
 	WM_Event Event;
 	Event.Quit();
 	Gallery::Instance()->EvaluateEvent(Event);
+	pthread_join(ThreadID, NULL);
+	ThreadID = 0;
 }
 
+void* ThreadAnimation(void* ThreadInfo)
+{
+	Gallery::Instance()->Setup(1024, 768, "");
+	Gallery::Instance()->MainLoop(); 
+	Gallery::Instance()->CleanUp();
 
+	return NULL;
+}
 

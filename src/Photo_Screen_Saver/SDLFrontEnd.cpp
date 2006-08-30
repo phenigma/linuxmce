@@ -22,6 +22,7 @@ SDLFrontEnd::~SDLFrontEnd()
 	if(CurrentFont!= NULL)
 		TTF_CloseFont(CurrentFont);
 	TTF_Quit();
+	SDL_Quit();
 }
 
 bool SDLFrontEnd::HasEventPending()
