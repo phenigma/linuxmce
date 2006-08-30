@@ -23,6 +23,7 @@ VT=${XDisplay#:}
 VT=vt"$((7+VT))"
 
 /usr/pluto/bin/SetupSound.sh
+/usr/pluto/bin/SetupCaptureCards.sh
 
 # Start X11
 if [[ "$Background" == y ]]; then
