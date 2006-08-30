@@ -59,15 +59,16 @@ g_pPlutoLogger->Write(LV_EVENTHANDLER,"DataGridRenderer_OpenGL::RenderObject dat
 		TextureManager::Instance()->SuspendTextureRelease();
 		BeforeDataGridClone = BeforeDataGrid->Clone();
 
-		Engine->RemoveMeshFrameFromDesktop(BeforeDataGrid);
-		BeforeDataGrid->CleanUp();
-		delete BeforeDataGrid;
-		BeforeDataGrid = NULL;
+		Engine->ReplaceMeshInAnimations(BeforeDataGrid, BeforeDataGridClone);
 	}
 
+	Engine->EndModifyGeometry();
 	Engine->StartDatagridDrawing(DatagridFrameID);
+
 	DataGridRenderer::RenderObject(pObj_Screen, point);
+
 	RenderFrame = Engine->EndDatagridDrawing(DatagridFrameID);
+	Engine->BeginModifyGeometry();
 
 	if(0 != StartAnimation)
 	{
@@ -77,9 +78,10 @@ g_pPlutoLogger->Write(LV_EVENTHANDLER,"DataGridRenderer_OpenGL::RenderObject dat
 		Engine->GetDatagridAnimationManager()->PrepareForAnimation(
 			DatagridFrameID, BeforeDataGridClone, RenderFrame, m_AnimationSpeed, iPK_Direction, 
 			GetAlphaLevel() / 255.0f, Dependencies);
-		Engine->AddMeshFrameToDesktop("", BeforeDataGridClone);
 		StartAnimation = 0;
 	}
+	else
+		Engine->AddMeshFrameToDesktop("", RenderFrame);
 }
 
 void DataGridRenderer_OpenGL::m_AnimationSpeed_set(int AnimationSpeed)

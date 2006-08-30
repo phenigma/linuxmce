@@ -94,7 +94,7 @@ bool OpenGL3DEngine::Paint()
 	
 	if(CurrentLayer->Children.size() == 0)
 	{
-	    //g_pPlutoLogger->Write(LV_CRITICAL, "NOTHING to paint (current layer: %p)", CurrentLayer);		
+	    //g_pPlutoLogger->Write(LV_CRITICAL, "vvv NOTHING to paint (current layer: %p)", CurrentLayer);		
 		return false;
 	}
 
@@ -148,6 +148,8 @@ bool OpenGL3DEngine::Paint()
 	bool Status = NULL != Compose && Compose->HasEffects() && AnimationRemain;
 	if (Compose->HasEffects() == false)
 		AnimationRemain = false;
+
+	//g_pPlutoLogger->Write(LV_STATUS, "vvv Paint END");	
 
 	return Status;
 }
@@ -498,12 +500,6 @@ MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
 
 	MeshFrame* Result = CurrentLayer;
 	CurrentLayer = FrameDatagrid;
-	if(!CurrentLayer)
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Current layer = NULL, that should not happend!");
-	}
-	else
-		AddMeshFrameToDesktop("", Result);
 
 	FrameDatagrid = NULL;
 	return Result;
@@ -675,5 +671,14 @@ void OpenGL3DEngine::UpdateTopMostObjects()
 	}
 }
 
+void OpenGL3DEngine::ReplaceMeshInAnimations(MeshFrame *OldFrame, MeshFrame *NewFrame)
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+
+	AddMeshFrameToDesktop("", NewFrame);
+	RemoveMeshFrameFromDesktop(OldFrame);
+
+	m_spDatagridAnimationManager->ReplaceMeshInAnimations(OldFrame, NewFrame);
+}
 
 

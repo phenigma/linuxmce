@@ -35,14 +35,9 @@ public:
 
 	void StopAnimations();
 
+	void ReplaceMeshInAnimations(MeshFrame *OldFrame, MeshFrame *NewFrame);
+
 	bool Update();
-
-
-	/*
-	vector<AnimationScrollDatagrid*> AnimationDatagrids;
-
-	bool IsCubeAnimatedDatagrid(string ObjectID);
-	*/
 };
 
 #endif //__DATAGRID_ANIMATION_MANAGER_H__

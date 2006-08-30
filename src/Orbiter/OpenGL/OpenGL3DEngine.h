@@ -90,6 +90,8 @@ public:
 	void AddTopMostObject(string ObjectID);
 	void RemoveTopMostObject(string ObjectID);
 
+	void ReplaceMeshInAnimations(MeshFrame *OldFrame, MeshFrame *NewFrame);
+
 	DatagridAnimationManager *GetDatagridAnimationManager() { return m_spDatagridAnimationManager.get(); }
 
 	pluto_pthread_mutex_t& GetSceneMutex() { return SceneMutex; }

@@ -2,8 +2,6 @@
 #include "AnimationScrollDatagrid.h"
 #include "OpenGL3DEngine.h"
 
-#include "DCE/Logger.h"
-
 bool DatagridAnimationManager::Update()
 {
 	if(!m_vectCurrentAnimations.size())
@@ -49,8 +47,6 @@ void DatagridAnimationManager::Cleanup()
 void DatagridAnimationManager::PrepareForAnimation(string ObjectID, MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
 		int MilisecondTime, int Direction, float fMaxAlphaLevel, vector<string> Dependencies)
 {
-	//UnHighlight();
-
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, m_pEngine->GetSceneMutex());
 
 	if(m_vectPendingAnimations.size() == 0)
@@ -109,12 +105,13 @@ void DatagridAnimationManager::OnStartAnimation()
 	)
 	{
 		AnimationScrollDatagrid *pAnimation = *it;
+
+		m_pEngine->AddMeshFrameToDesktop("", pAnimation->AfterGrid);
 		pAnimation->UpdateStartTime(StartTime);
 		m_vectCurrentAnimations.push_back(pAnimation);
 	}
 
 	m_vectPendingAnimations.clear();
-
 }
 
 void DatagridAnimationManager::OnPrepareForAnimation()
@@ -125,4 +122,20 @@ void DatagridAnimationManager::OnPrepareForAnimation()
 void DatagridAnimationManager::OnStopAnimation()
 {
 	Cleanup();
+}
+
+void DatagridAnimationManager::ReplaceMeshInAnimations(MeshFrame *OldFrame, MeshFrame *NewFrame)
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, m_pEngine->GetSceneMutex());
+
+	for(vector<AnimationScrollDatagrid*>::iterator it = m_vectCurrentAnimations.begin();
+		it != m_vectCurrentAnimations.end(); ++it)
+	{
+		AnimationScrollDatagrid *pAnimationScrollDatagrid = *it;
+		if(pAnimationScrollDatagrid->AfterGrid == OldFrame)
+		{
+			pAnimationScrollDatagrid->AfterGrid = NewFrame;
+		}
+
+	}
 }

@@ -48,6 +48,7 @@ public:
 	virtual void SetColor(Point3D& Color);
 
 	MeshFrame *Clone();
+	void Stealth();
 	MeshFrame *GetParent() { return Parent; }
 	void ResetParent() { Parent = NULL; }
 	MeshFrame *FindChild(string Name);

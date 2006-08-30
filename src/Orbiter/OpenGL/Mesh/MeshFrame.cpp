@@ -21,7 +21,7 @@ MeshFrame::~MeshFrame(void)
 
 /*virtual*/ void MeshFrame::CleanUp()
 {
-	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "xxxxx MeshFrame::CleanUp: %p", this);	
+	//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "xxxxx MeshFrame::CleanUp: %p", this);	
 
 	vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); Child++)
@@ -276,4 +276,12 @@ MeshFrame *MeshFrame::FindChild(string Name)
 	}
 
 	return ChildMesh;
+}
+
+void MeshFrame::Stealth()
+{	
+	Name_ = Name_ + " stealth";
+
+	for(vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
+		(*it)->Stealth();
 }
