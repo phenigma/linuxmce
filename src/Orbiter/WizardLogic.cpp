@@ -848,7 +848,7 @@ int WizardLogic::AddDevice(int PK_DeviceTemplate, string sDeviceDataList /* = ""
 
 void WizardLogic::AddExternalTuner(int PK_Device_Tuner)
 {
-	DeviceData_Base *pDevice_PVR = m_pOrbiter->m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_PVR_Capture_Cards_CONST);
+	DeviceData_Base *pDevice_PVR = m_pOrbiter->m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Capture_Cards_CONST);
 	if( pDevice_PVR )
 	{
 		SetAvPath(PK_Device_Tuner,pDevice_PVR->m_dwPK_Device,1,COMMAND_AV_1_CONST);
