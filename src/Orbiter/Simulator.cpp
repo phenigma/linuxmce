@@ -144,7 +144,7 @@ void *GeneratorThread( void *p)
 
 				if(!pOrbiter->m_bQuit)
 				{
-					if(pOrbiter->UsesUIVersion2() && !(rand() % 10))
+					if(pOrbiter->UsesUIVersion2() && !(rand() % 30))
 						pOrbiter->SimulateKeyPress(BUTTON_F6_CONST + (rand() % 3));
 					else
 						pOrbiter->SimulateKeyPress(list[index]);

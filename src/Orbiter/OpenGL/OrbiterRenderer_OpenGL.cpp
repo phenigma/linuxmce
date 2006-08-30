@@ -207,13 +207,6 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	//g_pPlutoLogger->Write(LV_CRITICAL, "Rendering text %s at %d, %d", sTextToDisplay.c_str(), 
 	//	Text->m_rPosition.X, Text->m_rPosition.Y);
 
-//point.X=point.Y=0;
-if( Text->m_PK_Text==1437 )
-{
-	point.Y=0;
-	sTextToDisplay="test section";
-int k=2;
-}
 	if(sTextToDisplay.length() == 0)
 		return;
 

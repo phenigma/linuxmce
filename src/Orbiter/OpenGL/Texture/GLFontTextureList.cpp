@@ -68,8 +68,11 @@ GLFontTextureList::~GLFontTextureList()
 	Letters[Letter] = LetterGraphic;
 }
 
-/*virtual*/ int GLFontTextureList::TextOut(int X, int Y, int Width, std::string Text, MeshContainer* &Geometry)
+/*virtual*/ int GLFontTextureList::TextOut(int Width, std::string Text, MeshContainer* &Geometry)
 {
+	int X = 0;
+	int Y = 0;
+
 	Geometry = NULL;
 
 	int StartX = X;

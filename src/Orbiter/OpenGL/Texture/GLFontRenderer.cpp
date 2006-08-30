@@ -38,7 +38,7 @@ Orbiter* GLFontRenderer::OrbiterLogic()
 MeshFrame* GLFontRenderer::RenderText(string TextUniqueID, string& TextToDisplay, PlutoRectangle &rPosition, int iPK_HorizAlignment,
 									  int iPK_VertAlignment, string &sFont, PlutoColor &ForeColor, 
 									  int iPixelHeight, bool bBold, bool bItalic, bool bUnderline,  
-									  PlutoPoint point, PlutoRectangle &rectCalcLocation)
+									  PlutoRectangle &rectCalcLocation)
 {
 	GLFontTextureList * LetterWriter = Font->GetFontStyle(Style_, R_, G_, B_);
 	std::string StrMessage;
@@ -55,7 +55,7 @@ MeshFrame* GLFontRenderer::RenderText(string TextUniqueID, string& TextToDisplay
 		TextToDisplay = "";
 	}
 
-	int Length = LetterWriter->TextOut(point.X, point.Y, rectCalcLocation.Width, StrMessage.c_str(), Container);
+	int Length = LetterWriter->TextOut(rectCalcLocation.Width, StrMessage.c_str(), Container);
 
 	MeshTransform Transform;
 	switch (iPK_HorizAlignment)
@@ -85,14 +85,15 @@ MeshFrame* GLFontRenderer::RenderText(string TextUniqueID, string& TextToDisplay
 MeshFrame* GLFontRenderer::TextOut(string TextUniqueID, string TextToDisplay,class DesignObjText *Text,
 	TextStyle *pTextStyle, PlutoPoint point)
 {
-	
 	MeshFrame * Result = new MeshFrame(TextUniqueID);
 	Font->GetFontStyle(R_, G_, B_, Style_);
+
 	PlutoRectangle rectLocation;
-	rectLocation.X = point.X + Text->m_rPosition.X;
-	rectLocation.Y = point.Y + Text->m_rPosition.Y;
+	rectLocation.X = 0;
+	rectLocation.Y = 0;
 	rectLocation.Width = Text->m_rPosition.Width;
 	rectLocation.Height = Text->m_rPosition.Height;
+
 	bool bMultiLine = TextToDisplay.find("\n") != string::npos;
 
 	//handle escape sequences
@@ -198,7 +199,7 @@ MeshFrame* GLFontRenderer::TextOut(string TextUniqueID, string TextToDisplay,cla
 			TextUniqueID, TextToDisplay,Text->m_rPosition,Text->m_iPK_HorizAlignment,
 			Text->m_iPK_VertAlignment,pTextStyle->m_sFont,pTextStyle->m_ForeColor,
 			pTextStyle->m_iPixelHeight,pTextStyle->m_bBold, pTextStyle->m_bItalic, 
-			pTextStyle->m_bUnderline, point, rectLocation);
+			pTextStyle->m_bUnderline, rectLocation);
 			if (NoLines) 
 				Transform.ApplyTranslate(0, float(Height_), 0);
 			Frame->ApplyTransform(Transform);
@@ -221,6 +222,10 @@ MeshFrame* GLFontRenderer::TextOut(string TextUniqueID, string TextToDisplay,cla
 			default:;
 		};
 	}
-	
+
+	MeshTransform transform;
+	transform.Translate(float(point.X + Text->m_rPosition.X), float(point.Y + Text->m_rPosition.Y), 0.0f);
+	Result->ApplyTransform(transform);
+
 	return Result;
 }
