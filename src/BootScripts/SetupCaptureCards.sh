@@ -97,6 +97,38 @@ EnableDevice()
 	fi
 }
 
+UpdatePorts()
+{
+	local Device="$1" Slot="$2"
+	local Ports dev DevSlot
+	Ports=()
+
+	if [[ ! -d /sys/class/video4linux ]]; then
+		return 0
+	fi
+
+	pushd /sys/class/video4linux >/dev/null
+	for dev in *; do
+		if [[ "$dev" != video* ]]; then
+			continue
+		fi
+		DevSlot=$(readlink -f "$dev"/device)
+		DevSlot="${DevSlot##*/}"
+		DevSlot="${DevSlot#*:}"
+
+		if [[ "$DevSlot" != "$Slot" ]]; then
+			continue
+		fi
+
+		Ports=("${Ports[@]}" "$dev")
+	done
+
+	echo "Dev '$Device' Ports: ${Ports[*]}"
+	# TODO: Add to database
+
+	popd >/dev/null
+}
+
 CaptureCards=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Capture_Cards" "" "" "all")
 
 for CardDevice in $CaptureCards; do
@@ -105,11 +137,14 @@ for CardDevice in $CaptureCards; do
 		continue
 	fi
 
+	echo "--> Setting up card '$CardDevice'"
+
 	ID="$(lshwd -id | grep "^$Slot" | cut -d' ' -sf2)"
 	ID="${ID//:/}"
 	if ! OurDevice "$CardDevice" "$Slot" "$ID"; then
 		DisableDevice "$CardDevice"
 	else
 		EnableDevice "$CardDevice"
+		UpdatePorts "$CardDevice" "$Slot"
 	fi
 done
