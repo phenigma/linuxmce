@@ -10,11 +10,16 @@ HEADER_Utils=included
 
 FindDevice_Template()
 {
-	local PK_Device_Parent="${1//\'}" FK_DeviceTemplate="${2//\'}" NoRecursion="$3" IncludeParent="$4"
+	local PK_Device_Parent="${1//\'}" FK_DeviceTemplate="${2//\'}" NoRecursion="$3" IncludeParent="$4" All="$5"
+	local Limit Found=0
 
 	if [[ -z "$PK_Device_Parent" || -z "$FK_DeviceTemplate" ]]; then
 		echo ""
 		return 1
+	fi
+
+	if [[ -z "$All" ]]; then
+		Limit="LIMIT 1"
 	fi
 
 	local i R Q
@@ -23,42 +28,61 @@ FindDevice_Template()
 			SELECT PK_Device
 			FROM Device
 			WHERE FK_Device_ControlledVia IS NULL AND FK_DeviceTemplate IN ($FK_DeviceTemplate)
+			$Limit
 		"
 	elif [[ -z "$IncludeParent" ]]; then
 		Q="
 			SELECT PK_Device
 			FROM Device
 			WHERE FK_Device_ControlledVia='$PK_Device_Parent' AND FK_DeviceTemplate IN ($FK_DeviceTemplate)
+			$Limit
 		"
 	else
 		Q="
 			SELECT PK_Device
 			FROM Device
 			WHERE (FK_Device_ControlledVia='$PK_Device_Parent' OR PK_Device='$PK_Device_Parent') AND FK_DeviceTemplate IN ($FK_DeviceTemplate))
+			$Limit
 		"
 	fi
 	R="$(RunSQL "$Q")"
 
-	if [[ -z "$R" && -z "$NoRecusion" ]]; then
+	if [[ -n "$R" ]]; then
+		echo "$R"
+	fi
+
+	if [[ ( -z "$R" || -n "$All" ) && -z "$NoRecursion" ]]; then
 		Q="SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia='$PK_Device_Parent'"
 		R="$(RunSQL "$Q")"
 		for i in $R; do
-			FindDevice_Template "$i" "$FK_DeviceTemplate" && return 0
+			if FindDevice_Template "$i" "$FK_DeviceTemplate" "" "" "$All"; then
+				if [[ -z "$All" ]]; then
+					return 0
+				else
+					Found=1
+				fi
+			fi
 		done
 	else
-		echo "$R"
 		return 0
 	fi
-	return 1
+
+	[[ -n "$Found" ]]
+	return $?
 }
 
 FindDevice_Category()
 {
-	local PK_Device_Parent="${1//\'}" FK_DeviceCategory="${2//\'}" NoRecursion="$3" IncludeParent="$4"
+	local PK_Device_Parent="${1//\'}" FK_DeviceCategory="${2//\'}" NoRecursion="$3" IncludeParent="$4" All="$5"
+	local Limit Found=0
 
 	if [[ -z "$PK_Device_Parent" || -z "$FK_DeviceCategory" ]]; then
 		echo ""
 		return 1
+	fi
+
+	if [[ -z "$All" ]]; then
+		Limit="LIMIT 1"
 	fi
 
 	local i R Q
@@ -68,6 +92,7 @@ FindDevice_Category()
 			FROM Device
 			JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 			WHERE FK_Device_ControlledVia IS NULL AND FK_DeviceCategory IN ($FK_DeviceCategory)
+			$Limit
 		"
 	elif [[ -z "$IncludeParent" ]]; then
 		Q="
@@ -75,6 +100,7 @@ FindDevice_Category()
 			FROM Device
 			JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 			WHERE FK_Device_ControlledVia='$PK_Device_Parent' AND FK_DeviceCategory IN ($FK_DeviceCategory)
+			$Limit
 		"
 	else
 		Q="
@@ -82,21 +108,33 @@ FindDevice_Category()
 			FROM Device
 			JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 			WHERE (FK_Device_ControlledVia='$PK_Device_Parent' OR PK_Device='$PK_Device_Parent') AND FK_DeviceCategory IN ($FK_DeviceCategory)
+			$Limit
 		"
 	fi
 	R="$(RunSQL "$Q")"
 
-	if [[ -z "$R" && -z "$NoRecursion" ]]; then
+	if [[ -n "$R" ]]; then
+		echo "$R"
+	fi
+
+	if [[ ( -z "$R" || -n "$All" ) && -z "$NoRecursion" ]]; then
 		Q="SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia='$PK_Device_Parent'"
 		R="$(RunSQL "$Q")"
 		for i in $R; do
-			FindDevice_Category "$i" "$FK_DeviceCategory" && return 0
+			if FindDevice_Category "$i" "$FK_DeviceCategory" "" "" "$All"; then
+				if [[ -z "$All" ]]; then
+					return 0
+				else
+					Found=1
+				fi
+			fi
 		done
 	else
-		echo "$R"
 		return 0
 	fi
-	return 1
+
+	[[ -n "$Found" ]]
+	return $?
 }
 
 XineConfSet()
