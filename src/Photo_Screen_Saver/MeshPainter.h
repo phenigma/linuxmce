@@ -14,8 +14,7 @@ class MeshPainter
 	MeshPainter();
 	
 public:
-	void PaintContainer(MeshContainer& Container, MeshTransform& Transform,
-		MeshTransform& TextureTransform);
+	void PaintContainer(MeshContainer& Container, MeshTransform& Transform);
 	
 	static MeshPainter* Instance();
 

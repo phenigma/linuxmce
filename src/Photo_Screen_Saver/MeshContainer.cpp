@@ -4,9 +4,12 @@
 
 #include <map>
 
-MeshContainer::MeshContainer(void) : Blended_(false), NoVertexes(0), NoTriangles(0),
-	Vertexes(NULL), Triangles(NULL)
+MeshContainer::MeshContainer(void) : Blended_(false)
 {
+    NoVertexes = 0;
+    Vertexes = NULL;
+    NoTriangles = 0;
+    Triangles = NULL;
 }
 
 MeshContainer::~MeshContainer(void)

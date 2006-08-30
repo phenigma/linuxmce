@@ -17,12 +17,39 @@ sources = Main.cpp Photo_Screen_Saver.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS +=
-LDFLAGS +=
+CPPFLAGS += -I/usr/include/SDL
+LDFLAGS += -lGL -lGLU -lSDL -lSDL_image -lSDL_ttf -lXrender
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources +=
+sources += AnimatedPicture.cpp \
+	ColorDesc.cpp \
+	ExtensionManager.cpp \
+	FadeBase.cpp \
+	FadeBlending.cpp \
+	FadeFactory.cpp \
+	FileBrowser.cpp \
+	GaleryStateMachine.cpp \
+	Gallery.cpp \
+	GalleryScenario.cpp \
+	GraphicImage.cpp \
+	GUIWizardUtils.cpp \
+	MathUtils.cpp \
+	MeshBuilder.cpp \
+	MeshContainer.cpp \
+	MeshFrame.cpp \
+	MeshPainter.cpp \
+	MeshTransform.cpp \
+	MeshTriangle.cpp \
+	MeshVertex.cpp \
+	Point3D.cpp \
+	RefreshRates.cpp \
+	SDLFrontEnd.cpp \
+	TextureManager.cpp \
+	WM_Event.cpp \
+	ZoomBase.cpp \
+	ZoomFactory.cpp \
+	ZoomSimple.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

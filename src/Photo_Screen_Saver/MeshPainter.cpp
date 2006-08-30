@@ -28,8 +28,7 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 	ExtensionManager_ = ExtensionManager;
 }
 
-/*virtual*/ void MeshPainter::PaintContainer(MeshContainer& Container, MeshTransform& Transform,
-	MeshTransform& TextureTransform)
+/*virtual*/ void MeshPainter::PaintContainer(MeshContainer& Container, MeshTransform& Transform)
 {
 	if(NULL == ExtensionManager_)
 		throw "ExtensionManager_ not set!";

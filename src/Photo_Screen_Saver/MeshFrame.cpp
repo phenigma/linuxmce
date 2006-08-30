@@ -4,9 +4,8 @@
 
 MeshFrame::MeshFrame(string Name, MeshContainer* Mesh) 
 	: Visible_(true),
-	TextureTransform(),
-	Transform(),
-	Parent(NULL)
+	Parent(NULL),
+	Transform()
 {
 	this->Mesh = Mesh;
 	this->Name_ = Name;
@@ -151,7 +150,7 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 	Transform.ApplyTransform(ChildTransform);
 	MeshPainter* Painter = MeshPainter::Instance();
 	if(Mesh!= NULL)
-		Painter->PaintContainer(*Mesh, Transform, TextureTransform);
+		Painter->PaintContainer(*Mesh, Transform);
 
 	//DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Painting %p with %d children: ", this, Children.size());
 
@@ -184,11 +183,6 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 {
     MeshTransform Transform;
 	Paint(Transform);
-}
-
-/*virtual*/ void MeshFrame::SetTextureTransform(MeshTransform& TextureTransform)
-{
-	this->TextureTransform = TextureTransform;
 }
 
 MeshContainer* MeshFrame::GetMeshContainer()

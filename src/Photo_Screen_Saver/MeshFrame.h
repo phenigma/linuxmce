@@ -19,7 +19,6 @@ class MeshFrame
 public:
 //MOVE ME
 	MeshTransform Transform;
-	MeshTransform TextureTransform;
 	vector<MeshFrame*> Children;
 
 	MeshFrame(string Name = "unknown", MeshContainer* Mesh = NULL);
@@ -39,7 +38,6 @@ public:
 	virtual void SetTransform(MeshTransform& Transform);
 	virtual void ApplyTransform(MeshTransform& Transform);
 
-	virtual void SetTextureTransform(MeshTransform& TextureTransform);
 	virtual void SetVisible(bool Visible);
 
 	virtual void Paint();
