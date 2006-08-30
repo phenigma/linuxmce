@@ -212,7 +212,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 
 	vector<DeviceData_Router *> vectDeviceData_Router_PVR;
 	DeviceData_Router *pDevice_Myth = m_pRouter->m_mapDeviceData_Router_Find(pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
-	pDevice_Myth->FindSibblingsWithinCategory(m_pRouter->m_mapDeviceCategory_Find(DEVICECATEGORY_PVR_Capture_Cards_CONST),vectDeviceData_Router_PVR);
+	pDevice_Myth->FindSibblingsWithinCategory(m_pRouter->m_mapDeviceCategory_Find(DEVICECATEGORY_Capture_Cards_CONST),vectDeviceData_Router_PVR);
 	for(size_t s=0;s<vectDeviceData_Router_PVR.size();++s)
 	{
 		DeviceData_Router *pDevice_CaptureCard = vectDeviceData_Router_PVR[s];
@@ -274,7 +274,7 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 
 	vector<DeviceData_Router *> vectDeviceData_Router_PVR;
 	DeviceData_Router *pDevice_Myth = m_pRouter->m_mapDeviceData_Router_Find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
-	pDevice_Myth->FindSibblingsWithinCategory(m_pRouter->m_mapDeviceCategory_Find(DEVICECATEGORY_PVR_Capture_Cards_CONST),vectDeviceData_Router_PVR);
+	pDevice_Myth->FindSibblingsWithinCategory(m_pRouter->m_mapDeviceCategory_Find(DEVICECATEGORY_Capture_Cards_CONST),vectDeviceData_Router_PVR);
 	for(size_t s=0;s<vectDeviceData_Router_PVR.size();++s)
 	{
 		DeviceData_Router *pDevice_CaptureCard = vectDeviceData_Router_PVR[s];
