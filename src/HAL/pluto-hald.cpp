@@ -153,11 +153,12 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 					int subsys_usb_device_product_id = 0;
 					int subsys_usb_device_vendor_id = 0;
 					int iBusType = USB_COMM_METHOD;
+					string sysfsPath;
 					getProductVendorId(
 						ctx, udi,
 						&usb_device_product_id, &usb_device_vendor_id,
 						&subsys_usb_device_product_id, &subsys_usb_device_vendor_id,
-						&iBusType );
+						&iBusType , sysfsPath);
 					
 					char buffer[64];
 					snprintf(buffer, sizeof(buffer), "%08x%08x",
@@ -173,16 +174,14 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 						
 						// TODO is_disc ??
 						
-						// COMMANDPARAMETER_File_System_Type_CONST
 						gchar *fstype = libhal_device_get_property_string(ctx, udi, "volume.fstype", NULL);
 						if( fstype != NULL )
 						{
-							deviceData += StringUtils::itos( COMMANDPARAMETER_File_System_Type_CONST );
+							deviceData += StringUtils::itos( DEVICEDATA_Filesystem_CONST );
 							deviceData += "|";
 							deviceData += fstype;
 						}
 						
-						// COMMANDPARAMETER_Block_Device_CONST
 						gchar *blockdevice = libhal_device_get_property_string(ctx, udi, "block.device", NULL);
 						if( blockdevice != NULL )
 						{
@@ -190,7 +189,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 							{
 								deviceData += "|";
 							}
-							deviceData += StringUtils::itos( COMMANDPARAMETER_Block_Device_CONST );
+							deviceData += StringUtils::itos( DEVICEDATA_Block_Device_CONST );
 							deviceData += "|";
 							deviceData += blockdevice;
 						}
@@ -216,11 +215,12 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 			int subsys_device_product_id = 0;
 			int subsys_device_vendor_id = 0;
 			int iBusType = UNKNOWN_COMM_METHOD;
+			string sysfsPath;
 			getProductVendorId(
 				ctx, udi,
 				&device_product_id, &device_vendor_id,
 				&subsys_device_product_id, &subsys_device_vendor_id,
-				&iBusType );
+				&iBusType , sysfsPath );
 			char buffer[64];
 			snprintf(buffer, sizeof(buffer), "%08x%08x",
 				(unsigned int) ((device_vendor_id & 0xffff) << 16) | (device_product_id & 0xffff),
@@ -245,9 +245,21 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 			{
 				g_pPlutoLogger->Write(LV_DEBUG, "+++++++ Device category = %s", categoryDevice);
 				
-				deviceData += StringUtils::itos( COMMANDPARAMETER_Block_Device_CONST );
+				deviceData += StringUtils::itos( DEVICEDATA_Block_Device_CONST );
 				deviceData += "|";
 				deviceData += categoryDevice;
+			}
+			
+			if( !sysfsPath.empty() )
+			{
+				if( deviceData.empty() )
+				{
+					deviceData += "|";
+				}
+				
+				deviceData += StringUtils::itos( DEVICEDATA_Location_on_PCI_bus_CONST );
+				deviceData += "|";
+				deviceData += sysfsPath.c_str();
 			}
 			
 			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category);
@@ -427,11 +439,12 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 						int subsys_usb_device_product_id = 0;
 						int subsys_usb_device_vendor_id = 0;
 						int iBusType = USB_COMM_METHOD;
+						string sysfsPath;
 						getProductVendorId(
 							ctx, udi,
 							&usb_device_product_id, &usb_device_vendor_id,
 							&subsys_usb_device_product_id, &subsys_usb_device_vendor_id,
-							&iBusType );
+							&iBusType, sysfsPath );
 						
 						char buffer[64];
 						snprintf(buffer, sizeof(buffer), "%08x%08x",
@@ -447,16 +460,14 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 							
 							// TODO is_disc ??
 							
-							// COMMANDPARAMETER_File_System_Type_CONST
 							gchar *fstype = libhal_device_get_property_string(ctx, udi, "volume.fstype", NULL);
 							if( fstype != NULL )
 							{
-								deviceData += StringUtils::itos( COMMANDPARAMETER_File_System_Type_CONST );
+								deviceData += StringUtils::itos( DEVICEDATA_Filesystem_CONST );
 								deviceData += "|";
 								deviceData += fstype;
 							}
 							
-							// COMMANDPARAMETER_Block_Device_CONST
 							gchar *blockdevice = libhal_device_get_property_string(ctx, udi, "block.device", NULL);
 							if( blockdevice != NULL )
 							{
@@ -464,7 +475,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 								{
 									deviceData += "|";
 								}
-								deviceData += StringUtils::itos( COMMANDPARAMETER_Block_Device_CONST );
+								deviceData += StringUtils::itos( DEVICEDATA_Block_Device_CONST );
 								deviceData += "|";
 								deviceData += blockdevice;
 							}
@@ -490,11 +501,12 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 				int subsys_device_product_id = 0;
 				int subsys_device_vendor_id = 0;
 				int iBusType = UNKNOWN_COMM_METHOD;
+				string sysfsPath;
 				getProductVendorId(
 					ctx, udi,
 					&device_product_id, &device_vendor_id,
 					&subsys_device_product_id, &subsys_device_vendor_id,
-					&iBusType );
+					&iBusType, sysfsPath );
 				char buffer[64];
 				snprintf(buffer, sizeof(buffer), "%08x%08x",
 					(unsigned int) ((device_vendor_id & 0xffff) << 16) | (device_product_id & 0xffff),
@@ -519,11 +531,23 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 				{
 					g_pPlutoLogger->Write(LV_DEBUG, "+++++++ Device category = %s", categoryDevice);
 					
-					deviceData += StringUtils::itos( COMMANDPARAMETER_Block_Device_CONST );
+					deviceData += StringUtils::itos( DEVICEDATA_Block_Device_CONST );
 					deviceData += "|";
 					deviceData += categoryDevice;
 				}
 				
+				if( !sysfsPath.empty() )
+				{
+					if( !deviceData.empty() )
+					{
+						deviceData += "|";
+					}
+					
+					deviceData += StringUtils::itos( DEVICEDATA_Location_on_PCI_bus_CONST );
+					deviceData += "|";
+					deviceData += sysfsPath.c_str();
+				}
+			
 				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category);
 
 				g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
@@ -545,7 +569,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 void PlutoHalD::getProductVendorId(	LibHalContext * ctx, const char * udi,
 									int * prodId, int * vendorId,
 									int * subsysProdId, int * subsysVendorId,
-									int * busType )
+									int * busType , string & sysfsPath )
 {
 	gchar *bus = libhal_device_get_property_string (ctx, udi, "info.bus", NULL);
 	if( bus != NULL )
@@ -564,12 +588,25 @@ void PlutoHalD::getProductVendorId(	LibHalContext * ctx, const char * udi,
 		*subsysProdId = libhal_device_get_property_int(ctx, udi, subsysProdIdKey.c_str(), NULL);
 		*subsysVendorId = libhal_device_get_property_int(ctx, udi, subsysVendorIdKey.c_str(), NULL);
 		
+		gchar *sysfs_path = libhal_device_get_property_string(ctx, udi, "linux.sysfs_path", NULL);
+		if( sysfs_path != NULL )
+		{
+			sysfsPath = sysfs_path;
+			size_t startPos = sysfsPath.find("pci");
+			if( startPos != string::npos )
+			{
+				sysfsPath = sysfsPath.substr(startPos);
+			}
+		}
+		g_free(sysfs_path);
+		sysfs_path = NULL;
+		
 		if( *prodId == -1 || *vendorId == -1 )
 		{
 			gchar *parent = libhal_device_get_property_string(ctx, udi, "info.parent", NULL);
 			if( parent != NULL )
 			{
-				getProductVendorId(ctx, parent, prodId, vendorId, subsysProdId, subsysVendorId, busType);
+				getProductVendorId(ctx, parent, prodId, vendorId, subsysProdId, subsysVendorId, busType, sysfsPath);
 			}
 			g_free(parent);
 			parent = NULL;
@@ -605,7 +642,7 @@ void PlutoHalD::getProductVendorId(	LibHalContext * ctx, const char * udi,
 		gchar *parent = libhal_device_get_property_string(ctx, udi, "info.parent", NULL);
 		if( parent != NULL )
 		{
-			getProductVendorId(ctx, parent, prodId, vendorId, subsysProdId, subsysVendorId, busType);
+			getProductVendorId(ctx, parent, prodId, vendorId, subsysProdId, subsysVendorId, busType, sysfsPath);
 		}
 		g_free(parent);
 		parent = NULL;

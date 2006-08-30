@@ -65,7 +65,7 @@ class PlutoHalD
 			LibHalContext * ctx, const char * udi,
 			int * prodId, int * vendorId,
 			int * subsysProdId, int * subsysVendorId,
-			int * busType );
+			int * busType , std::string & sysfsPath);
 		
 		/***/
 		static gboolean timeoutHandler (DBusConnection *bus);
