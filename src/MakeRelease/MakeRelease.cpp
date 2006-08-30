@@ -1187,8 +1187,8 @@ cout << "Doing snr on " << sSourceDirectory << "/" << *it << endl;
 				StringUtils::Replace( "Main.cpp", "Main.cpp", "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" );
 
 			fstr_compile << pRow_Package_Directory_File->MakeCommand_get() << endl;
-			cout << "Package: " << pRow_Package->PK_Package_get() << " Executing: " << pRow_Package_Directory_File->MakeCommand_get() << endl;
-			if( g_sSkipCompilePackages.find("," + StringUtils::itos(pRow_Package->PK_Package_get()) + ",")!=string::npos )
+			cout << "Package: " << pRow_Package->FK_Package_Sourcecode_get() << " Executing: " << pRow_Package_Directory_File->MakeCommand_get() << endl;
+			if( g_sSkipCompilePackages.find("," + StringUtils::itos(pRow_Package->FK_Package_Sourcecode_get()) + ",")!=string::npos )
 				cout << "Skipping compilation of package: " << pRow_Package->PK_Package_get() << endl;
 			else if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
 			{
