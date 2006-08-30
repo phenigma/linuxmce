@@ -148,6 +148,7 @@
 #define DEVICEDATA_Deinterlacing_Mode_CONST 170
 #define DEVICEDATA_Port_CONST 171
 #define DEVICEDATA_Use_OpenGL_effects_CONST 172
+#define DEVICEDATA_FK_Device_Capture_Card_Port_CONST 173
 #define DEVICEDATA_ALSA_Master_Mixer_Name_CONST 174
 
 #define DEVICEDATA_TABLE "DeviceData"

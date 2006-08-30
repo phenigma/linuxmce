@@ -1086,7 +1086,8 @@
 #define TEXT_set_as_start_point_CONST 1799
 #define TEXT_password_description_CONST 1800
 #define TEXT_Must_Create_1_room_CONST 1801
-#define TEXT_Filter_CONST 1802
+#define TEXT_FilterSort_CONST 1802
+#define TEXT_Now_Playing_Media_Type_CONST 1806
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

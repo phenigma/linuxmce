@@ -32,7 +32,7 @@
 #define DEVICECATEGORY_Interfaces_CONST 71
 #define DEVICECATEGORY_Environment_CONST 72
 #define DEVICECATEGORY_Lighting_Device_CONST 73
-#define DEVICECATEGORY_PVR_Capture_Cards_CONST 75
+#define DEVICECATEGORY_Capture_Cards_CONST 75
 #define DEVICECATEGORY_AV_CONST 76
 #define DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST 77
 #define DEVICECATEGORY_Infrared_Plugins_CONST 78
@@ -104,6 +104,7 @@
 #define DEVICECATEGORY_Plug_and_Play_Plugins_CONST 159
 #define DEVICECATEGORY_Serial_Ports_CONST 160
 #define DEVICECATEGORY_Gestural_Remote_CONST 161
+#define DEVICECATEGORY_Capture_Card_Ports_CONST 162
 #define DEVICECATEGORY_Screen_Savers_CONST 163
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
