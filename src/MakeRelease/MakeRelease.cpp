@@ -75,7 +75,7 @@ public:
 	Row_Package_Directory *m_pRow_Package_Directory;
 };
 
-string g_sPackages, g_sPackages_Exclude, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date, g_sBaseVersion, g_sReplacePluto;
+string g_sPackages, g_sSkipCompilePackages, g_sPackages_Exclude, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date, g_sBaseVersion, g_sReplacePluto;
 string g_sPK_RepositorySource;
 int g_iPK_Distro=0,g_iSVNRevision=0;
 bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false, g_bDontTouchDB = false, g_bSetVersion = true;
@@ -210,6 +210,9 @@ int main(int argc, char *argv[])
 		case 'k':
 			g_sPackages = argv[++optnum];
 			break;
+		case 'X':
+			g_sSkipCompilePackages = argv[++optnum];
+			break;
 		case 'K':
 			g_sPackages_Exclude = argv[++optnum];
 			break;
@@ -295,6 +298,8 @@ int main(int argc, char *argv[])
 	newtime = localtime( &aclock );  /* Convert time to struct */
 	g_sCompile_Date = asctime( newtime );
 	g_sCompile_Date = g_sCompile_Date.substr( 0, g_sCompile_Date.length()-1 );   // Strip off the trailing \n
+
+	g_sSkipCompilePackages = "," + g_sSkipCompilePackages + ","; // Make it easy to search for , package ,
 
 	if( g_sPackages.length() )
 		sWhere = "PK_Package IN (" + g_sPackages + ")";
@@ -796,8 +801,10 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 				system(("mkdir -p " + sInputPath).c_str());
 #endif
 				chdir(sInputPath.c_str());
-				cout << "Executing: " << pRow_Package_Directory_File->MakeCommand_get() << " from dir: " << sInputPath << endl;
-				if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
+				cout << "Package: " << pRow_Package->PK_Package_get() << " Executing: " << pRow_Package_Directory_File->MakeCommand_get() << " from dir: " << sInputPath << endl;
+				if( g_sSkipCompilePackages.find("," + StringUtils::itos(pRow_Package->PK_Package_get()) + ",")!=string::npos )
+					cout << "Skipping compilation of package: " << pRow_Package->PK_Package_get() << endl;
+				else if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
 				{
 					cout << "Description: " << pRow_Package_Directory_File->FK_Package_Directory_getrow()->FK_Package_getrow()->Description_get() << endl;
 					cout << "Path: " << pRow_Package_Directory_File->FK_Package_Directory_getrow()->Path_get() << endl;
@@ -1180,8 +1187,10 @@ cout << "Doing snr on " << sSourceDirectory << "/" << *it << endl;
 				StringUtils::Replace( "Main.cpp", "Main.cpp", "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" );
 
 			fstr_compile << pRow_Package_Directory_File->MakeCommand_get() << endl;
-			cout << "Executing: " << pRow_Package_Directory_File->MakeCommand_get() << endl;
-			if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
+			cout << "Package: " << pRow_Package->PK_Package_get() << " Executing: " << pRow_Package_Directory_File->MakeCommand_get() << endl;
+			if( g_sSkipCompilePackages.find("," + StringUtils::itos(pRow_Package->PK_Package_get()) + ",")!=string::npos )
+				cout << "Skipping compilation of package: " << pRow_Package->PK_Package_get() << endl;
+			else if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
 			{
 				cout << pRow_Package_Directory_File->MakeCommand_get() << " ***FAILED***" << endl;
 				cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
