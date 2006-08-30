@@ -25,9 +25,8 @@ public:
 	~Gallery(void);
 	void MainLoop(void);
 	static Gallery* Instance(void);
-private:
 public:
-	bool Setup(int Width, int Height, string FolderName);
+	bool Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName);
 	void CleanUp(void);
 	void EvaluateEvent(WM_Event Event);
 	void _Sleep(int Miliseconds);

@@ -56,5 +56,10 @@ float InterpolateValues(float Source, float Dest, float Theta)
 
 int RandomInInterval(int BeginValue, int EndValue)
 {
-	return BeginValue + rand() % (EndValue - BeginValue);
+	if(EndValue==BeginValue)
+		return 0;
+	if(EndValue>BeginValue)
+		return BeginValue + rand() % (EndValue - BeginValue);
+	else
+		return EndValue + rand() % (BeginValue - EndValue);
 }

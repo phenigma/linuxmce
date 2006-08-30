@@ -62,14 +62,14 @@ void Gallery::PaintScreen(void)
 	FrontEnd->Flip();
 }
 
-bool Gallery::Setup(int Width, int Height, string FolderName)
+bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName)
 {
 	Quit = false;
 	FrontEnd = new SDLFrontEnd();
 	bool Result = FrontEnd->StartVideoMode(Width, Height, true) != 0;
 	MeshPainter::Instance()->Setup(&Extensions);
 	Extensions.Resize(Width, Height);
-	Scenario = new GalleryScenario(Width, Height, 800, 3600, FolderName);
+	Scenario = new GalleryScenario(Width, Height, FaddingTime, ZoomTime, FolderName);
 	return Result;
 }
 

@@ -92,6 +92,9 @@ void WM_Event::ConvertFromSDLEvent(SDL_Event& Event)
 					Type = 0;
 			}
 			break;
+		case SDL_MOUSEMOTION:
+			Quit();
+			break;
 		default:
 			Type = 0;
 	}

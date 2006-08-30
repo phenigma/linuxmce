@@ -107,18 +107,26 @@ class GallerySetup
 {
 	int Width_, Height_;
 	string SearchImagesPath_;
+	int ZoomTime, FaddingTime;
 public:
-	GallerySetup(string Width, string Height, string SearchImagesPath);
+	pthread_t* ThreadID;
+	
+	GallerySetup(string Width, string Height, int ZoomTime, int FaddingTime, string SearchImagesPath);
 	int GetWidth();
 	int GetHeight();
+	int GetZoomTime();
+	int GetFaddingTime();
 	string GetSearchImagesPath();
 };
 
-GallerySetup::GallerySetup(string Width, string Height, string SearchImagesPath)
+GallerySetup::GallerySetup(string Width, string Height, int ZoomTime, int FaddingTime, string SearchImagesPath)
 {
 	this->Width_ = atoi(Width.c_str());
 	this->Height_ = atoi(Height.c_str());
 	this->SearchImagesPath_ = SearchImagesPath;
+
+	this->ZoomTime = ZoomTime;
+	this->FaddingTime = FaddingTime;
 }
 
 int GallerySetup::GetWidth()
@@ -133,6 +141,16 @@ int GallerySetup::GetHeight()
 string GallerySetup::GetSearchImagesPath()
 {
 	return SearchImagesPath_;
+}
+
+int GallerySetup::GetZoomTime()
+{
+	return ZoomTime;
+}
+
+int GallerySetup::GetFaddingTime()
+{
+	return FaddingTime;
 }
 
 
@@ -157,9 +175,12 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 
 	string w = this->GetCurrentDeviceData(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenWidth_CONST);
 	string h = this->GetCurrentDeviceData(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenHeight_CONST);
-	GallerySetup* SetupInfo = new GallerySetup(w, h, SearchImagesPath);
+	w="640";
+	h="480";
+	GallerySetup* SetupInfo = new GallerySetup(w, h, 800, 3600, SearchImagesPath);
 	if(0 == ThreadID)
 	{
+		SetupInfo->ThreadID = &ThreadID;
 		pthread_create(&ThreadID, NULL, ThreadAnimation, SetupInfo);
 	}
 }
@@ -187,10 +208,15 @@ void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMess
 void* ThreadAnimation(void* ThreadInfo)
 {
 	GallerySetup* Info = (GallerySetup*) ThreadInfo;
-	Gallery::Instance()->Setup(Info->GetWidth(),Info->GetHeight(), Info->GetSearchImagesPath());
+	Gallery::Instance()->Setup(Info->GetWidth(), Info->GetHeight(), 
+		Info->GetFaddingTime(),
+		Info->GetZoomTime(),
+		Info->GetSearchImagesPath());
 	Gallery::Instance()->MainLoop(); 
 	Gallery::Instance()->CleanUp();
 
+	*(Info->ThreadID) = 0;
+	delete Info;
 	return NULL;
 }
 
