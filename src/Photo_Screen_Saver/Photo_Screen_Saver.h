@@ -2,7 +2,7 @@
 #ifndef Photo_Screen_Saver_h
 #define Photo_Screen_Saver_h
 
-//	DCE Implemenation for #1821 Photo Screen Saver
+//	DCE Implemenation for #1825 Photo Screen Saver
 
 #include "Gen_Devices/Photo_Screen_SaverBase.h"
 //<-dceag-d-e->
@@ -46,6 +46,8 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_Directories();
+	string DATA_Get_Name();
 
 			*****EVENT***** accessors inherited from base class
 

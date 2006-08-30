@@ -14,7 +14,7 @@ DeviceData_Impl *Photo_Screen_Saver_Data::CreateData(DeviceData_Impl *Parent,cha
 	int iPK_Installation = b.Read_unsigned_long();
 	int iPK_DeviceTemplate = b.Read_unsigned_long();
 	switch(iPK_DeviceTemplate) {
-		case 1821:
+		case 1825:
 			return new Photo_Screen_Saver_Data();
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
@@ -24,7 +24,7 @@ DeviceData_Impl *Photo_Screen_Saver_Data::CreateData(DeviceData_Impl *Parent,cha
 Event_Impl *Photo_Screen_Saver_Event::CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice )
 {
 	switch(dwPK_DeviceTemplate) {
-		case 1821:
+		case 1825:
 			return (Event_Impl *) new Photo_Screen_Saver_Event(pOCClientSocket, dwDevice);
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);

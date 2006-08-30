@@ -10,7 +10,7 @@ BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = Photo_Screen_Saver
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1821mplateID
+MYDEVTEMPLATEID = 1825mplateID
 
 Gen_Dev_Files = $(GENDEV)/Photo_Screen_SaverBase.cpp
 sources = Main.cpp Photo_Screen_Saver.cpp $(Gen_Dev_Files)
