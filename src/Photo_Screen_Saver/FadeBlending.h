@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FadeBlending_H_
+#define FadeBlending_H_
 
 #include "FadeBase.h"
 
@@ -10,3 +11,5 @@ public:
 
 	bool Update(int Time);
 };
+
+#endif

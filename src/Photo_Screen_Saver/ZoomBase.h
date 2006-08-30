@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ZoomBase_H_
+#define ZoomBase_H_
 
 #include "MeshFrame.h"
 
@@ -19,3 +20,5 @@ public:
 
 
 };
+
+#endif

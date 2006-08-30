@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ZoomFactory_H_
+#define ZoomFactory_H_
 
 #include "ZoomBase.h"
 
@@ -15,3 +16,5 @@ public:
 
 	ZoomBase* CreateZoomType(int ZoomType, MeshFrame* PictureObject, int Width, int Height, int StartTime, int ZoomTime);
 };
+
+#endif

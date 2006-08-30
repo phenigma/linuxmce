@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FadeFactory_H_
+#define FadeFactory_H_
 
 #include "FadeBase.h"
 
@@ -15,3 +16,5 @@ public:
 	FadeBase* CreateFadeMode(int Mode, MeshFrame* AfterFrame, MeshFrame*BeforeFrame, 
 		int StartTime, int TimeToFade);
 };
+
+#endif

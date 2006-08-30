@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AnimatedPicture_H_
+#define AnimatedPicture_H_
 
 #include "MeshFrame.h"
 #include "GraphicImage.h"
@@ -28,3 +29,5 @@ public:
 
 	~AnimatedPicture();
 };
+
+#endif

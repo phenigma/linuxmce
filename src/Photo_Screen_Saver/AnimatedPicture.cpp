@@ -2,6 +2,7 @@
 
 #include "ZoomFactory.h"
 #include "MeshBuilder.h"
+
 AnimatedPicture::AnimatedPicture(int ScreenWidth, int ScreenHeight)
 {
 	this->Picture = new GraphicImage();

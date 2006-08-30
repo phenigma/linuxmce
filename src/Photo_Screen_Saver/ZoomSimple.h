@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ZoomSimple_H_
+#define ZoomSimple_H_
 
 #include "ZoomBase.h"
 
@@ -12,3 +13,5 @@ public:
 
 	virtual bool Update(int Time);
 };
+
+#endif 

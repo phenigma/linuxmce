@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FadeBase_H_
+#define FadeBase_H_
 
 #include "MeshFrame.h"
 
@@ -14,3 +15,6 @@ public:
 	virtual bool Update(int Time) = 0;
 	~FadeBase(void);
 };
+
+#endif
+
