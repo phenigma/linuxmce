@@ -1298,8 +1298,8 @@ pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
         class Command_Impl *pPlugIn = pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl;
         g_pPlutoLogger->Write( LV_STATUS, "Checking to see if the plugin %s will handle it!", pPlugIn->m_sName.c_str());
         pMessage->m_dwPK_Device_To=pPlugIn->m_dwPK_Device;
-		// Don't forward to the generic handler--it's just ourself
-        if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo || pPlugIn->ReceivedMessage( pMessage )!=rmr_Processed )
+		// Don't forward to the generic handler/capture card--it's just ourself
+        if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo || pEntertainArea->m_pMediaStream->m_pMediaDevice_CaptureCard || pPlugIn->ReceivedMessage( pMessage )!=rmr_Processed )
         {
             g_pPlutoLogger->Write( LV_STATUS, "Media plug in did not handled message id: %d forwarding to %d",
 				pMessage->m_dwID, pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device );

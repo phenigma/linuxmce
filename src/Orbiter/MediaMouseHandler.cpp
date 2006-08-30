@@ -17,11 +17,13 @@ using namespace DCE;
 MediaMouseHandler::MediaMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior)
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
+	g_pPlutoLogger->Write(LV_STATUS,"MouseHandler const %p",this);
 	m_pDatagridMouseHandlerHelper = new DatagridMouseHandlerHelper(this);
 }
 
 MediaMouseHandler::~MediaMouseHandler()
 {
+	g_pPlutoLogger->Write(LV_STATUS,"MouseHandler dest %p",this);
 	delete m_pDatagridMouseHandlerHelper;
 }
 
@@ -29,6 +31,11 @@ void MediaMouseHandler::Start()
 {
 	if( !m_pObj || m_pObj->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST )
 		return; // Shouldn't happen, this should be the volume control
+
+	PlutoRectangle rect(m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X + m_pObj->m_rPosition.Width/2,
+		m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y,
+		1,m_pObj->m_rPosition.Height);
+	m_pMouseBehavior->ConstrainMouse(rect);
 
 	DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) m_pObj;
 
@@ -127,10 +134,10 @@ void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 			pObj_Grid->m_iHighlightedRow = 1;
 			pObj_Grid->m_GridCurRow = Row;
 	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::MediaTracks  *discrete* highlighted row %d",Row);
-			m_pMouseBehavior->m_pOrbiter->SelectedObject(pObj_Grid,smMouseGovernor);
 			pObj_Grid->Flush();
 			NeedToRender render( m_pMouseBehavior->m_pOrbiter, "MOUSE BEHAVIOR SCROLL" );
 			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Grid);
+			m_pMouseBehavior->m_pOrbiter->SelectedObject(pObj_Grid,smMouseGovernor);  // Do this last since it could result in a screen change and deletion of ourself
 		}
 	}
 }

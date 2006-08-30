@@ -82,6 +82,7 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 	ResetSamples();
 	ConstrainMouse(PlutoRectangle(0,0,0,0));
 	m_pLastPosition.X=m_pLastPosition.Y=-1;
+g_pPlutoLogger->Write(LV_STATUS,"MouseBehavior::Clear MouseHandler dest %p",m_pMouseHandler);
 	delete m_pMouseHandler;
 	m_pMouseHandler=NULL;
 	m_pMouseGovernor->SetBuffer(0);
@@ -98,9 +99,8 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 			m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_iPK_Screen_Remote);
 		else
 			m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
-	}
-	else
 		ShowMouse(false);
+	}
 }
 
 // If options contains a 's', this will be selected by default
@@ -216,6 +216,8 @@ void MouseBehavior::SetMediaInfo(string sTime,string sTotal,string sSpeed,string
 		SpeedMouseHandler *pSpeedMouseHandler = (SpeedMouseHandler *) m_pMouseHandler;
 		int Stop = pSpeedMouseHandler->ParseTime(sTotal);
 		int Current = pSpeedMouseHandler->ParseTime(sTime);
+		g_pPlutoLogger->Write(LV_STATUS," MouseBehavior::SetMediaInfo %s %s %d %d",
+			sTotal.c_str(),sTime.c_str(),Stop,Current);
 		if( Stop==pSpeedMouseHandler->m_CurrentMedia_Stop && Current==pSpeedMouseHandler->m_CurrentMedia_Pos )
 			return;
 		pSpeedMouseHandler->m_CurrentMedia_Stop = Stop;
@@ -243,6 +245,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing main menu");
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_mnuMainMenu2_CONST);
+		ShowMouse(true);
 		SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 		return true;
 	}
@@ -268,6 +271,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 			m_pOrbiter->CMD_Goto_Screen("", m_pOrbiter->m_iPK_Screen_OSD_Speed);
 		else if( m_pOrbiter->m_iPK_Screen_OSD_Track )
 			m_pOrbiter->CMD_Goto_Screen("", m_pOrbiter->m_iPK_Screen_OSD_Track);
+		ShowMouse(true);
 		SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 		return true;
 	}
@@ -277,6 +281,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing ambiance menu");
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuAmbiance_CONST);
+		ShowMouse(true);
 		SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 		return true;
 	}

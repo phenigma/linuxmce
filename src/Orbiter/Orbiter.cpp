@@ -8705,7 +8705,20 @@ g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode AFTER %d %s",(int) sLine.size(),
 
 	string sSpeed;
 	if( iSpeed!=1000 ) // normal playback
-		sSpeed = StringUtils::ftos( ((double) iSpeed) / 1000 ) + "x";
+	{
+		if( iSpeed>=1000 || iSpeed<=-1000 )
+			sSpeed = StringUtils::itos( iSpeed / 1000 ) + "x";  // A normal speed
+		else if( iSpeed==250 )
+			sSpeed = "1/4x";
+		else if( iSpeed==-250 )
+			sSpeed = "-1/4x";
+		else if( iSpeed==500 )
+			sSpeed = "1/2x";
+		else if( iSpeed==-500 )
+			sSpeed = "-1/2x";
+		else
+			sSpeed = "." + StringUtils::itos(iSpeed) + "x";
+	}
 
 
 	CMD_Update_Time_Code(iStreamID,sTime,sTotalTime,sSpeed,sTitle,sChapter);

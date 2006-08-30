@@ -293,6 +293,9 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		if( !pCell_List || !pCell_List->m_Value )
 			return false; // Shouldn't happen
 
+g_pPlutoLogger->Write(LV_STATUS,"Play Media higlighted %d current row %d cell %p %s",
+mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow, mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow,pCell_List,pCell_List->m_Value);
+
 		m_pOrbiter->CMD_Remove_Popup("","filedetails");
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		m_pOrbiter->m_pMouseBehavior->ConstrainMouse();

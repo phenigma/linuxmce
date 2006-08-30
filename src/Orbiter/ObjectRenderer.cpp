@@ -230,6 +230,8 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 
 /*virtual*/ void ObjectRenderer::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
+if( m_pObj_Owner->m_ObjectID.find("5094.0.0.4975")!=string::npos )
+int k=2;
 	if(!PreRenderActions(pObj_Screen, point))
 		return;
 
@@ -473,8 +475,8 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 	for( iHao=m_pObj_Owner->m_ChildObjects.rbegin(  ); iHao != m_pObj_Owner->m_ChildObjects.rend(  ); ++iHao )
 	{
 		DesignObj_Orbiter *pDesignObj_Orbiter=( DesignObj_Orbiter * )*iHao;
-		if(  !m_pObj_Owner->m_pGraphicToUndoSelect || m_pObj_Owner->m_GraphicToDisplay!=GRAPHIC_NORMAL  )
-			continue;
+//		if(  !m_pObj_Owner->m_pGraphicToUndoSelect || m_pObj_Owner->m_GraphicToDisplay!=GRAPHIC_NORMAL  )
+//			continue;
 		pDesignObj_Orbiter->RenderObject(pObj_Screen, point);
 	}
 

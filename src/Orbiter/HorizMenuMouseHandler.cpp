@@ -141,7 +141,7 @@ void HorizMenuMouseHandler::ShowPopup(DesignObj_Orbiter *pObj_MenuPad)
 	m_pObj_ActiveSubMenu = m_pMouseBehavior->m_pOrbiter->FindObject(sSubMenu);
 	if( !m_pObj_ActiveSubMenu )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"LockedMouseHandler::ActivatedMainMenuPad cannot find %s",sSubMenu.c_str());
+		m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","submenu");
 		return;
 	}
 

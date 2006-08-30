@@ -89,6 +89,7 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_Med
 	m_bStopped = false;
 	m_bUseAltScreens = false;
     m_pMediaDevice_Source=pMediaDevice;
+	m_pMediaDevice_CaptureCard=m_pMediaDevice_Overlay=NULL;
 
     if ( m_pMediaHandlerInfo ) // If this stream is a "valid stream only"
         m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaStream[m_iStreamID] = this;
