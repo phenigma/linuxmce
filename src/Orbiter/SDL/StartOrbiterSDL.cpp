@@ -315,15 +315,17 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 		pCLinux->Initialize(gtSDLGraphic);
 		g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter logic initialized!");
 
-		if (!bLocalMode)
-		{
-			pCLinux->CreateChildren();
-			pCLinux->WaitForRelativesIfOSD();
-			pCLinux->CMD_Goto_Screen("", pCLinux->m_pScreenHistory_Current->PK_Screen());  // Just go back to the screen
-		}
-
 		if(!pCLinux->m_bQuit)
 		{
+			if (!bLocalMode)
+			{
+				pCLinux->CreateChildren();
+				pCLinux->WaitForRelativesIfOSD();
+
+				if(NULL != pCLinux->m_pScreenHistory_Current)
+					pCLinux->CMD_Goto_Screen("", pCLinux->m_pScreenHistory_Current->PK_Screen());  // Just go back to the screen
+			}
+
 			g_pPlutoLogger->Write(LV_CRITICAL, "About to initialize after relatives...");
         
 			OrbiterRenderer_Linux *pOrbiterRenderer_Linux = dynamic_cast<OrbiterRenderer_Linux *>(pCLinux->Renderer());
