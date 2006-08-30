@@ -5,6 +5,7 @@
 
 DEVICECATEGORY_Capture_Cards=75
 DEVICEDATA_Location_on_PCI_bus=175
+DEVICEDATA_Block_Device=152
 
 CaptureCard_PCISlot()
 {
@@ -100,7 +101,7 @@ EnableDevice()
 UpdatePorts()
 {
 	local Device="$1" Slot="$2"
-	local Ports dev DevSlot
+	local Ports dev DevSlot Port
 	Ports=()
 
 	if [[ ! -d /sys/class/video4linux ]]; then
@@ -123,8 +124,16 @@ UpdatePorts()
 		Ports=("${Ports[@]}" "$dev")
 	done
 
-	echo "Dev '$Device' Ports: ${Ports[*]}"
-	# TODO: Add to database
+	Port=$(echo "${Ports[@]}" | sed 's/ /\n/g' | sort | head -1)
+	echo "Dev '$Device' Ports: ${Ports[*]}; Chosen: $Port"
+	Q="
+		UPDATE Device_DeviceData
+		SET IK_DeviceData='${Port}'
+		WHERE
+			FK_DeviceData='$DEVICEDATA_Block_Device'
+			AND FK_Device='$Device'
+	"
+	RunSQL "$Q"
 
 	popd >/dev/null
 }
