@@ -172,9 +172,11 @@ for Client in $R; do
 				WHERE 
 					FK_Device='$PK_Device' 
 					AND
-					FK_DeviceData IN ($DEVICEDATA_Extra_Parameters, $DEVICEDATA_Extra_Parameters_Override)
+					FK_DeviceData IN ($DEVICEDATA_Extra_Parameters, $DEVICEDATA_Extra_Parameters_Override, $DEVICEDATA_Architecture)
 			"
 			ExtraParms=$(RunSQL "$Q")
+			
+			Architecture="686"
 			
 			for ExtraParm in $ExtraParms; do
 				FK_DeviceData=$(Field 1 "$ExtraParm")
@@ -186,6 +188,9 @@ for Client in $R; do
 					"$DEVICEDATA_Extra_Parameters_Override")
 						OverrideDefaults="$IK_DeviceData"
 						;;
+					"$DEVICEDATA_Architecture")
+						Architecture="$IK_DeviceData"
+						;;
 				esac
 			done
 
@@ -194,6 +199,9 @@ for Client in $R; do
 			else
 				MOON_BOOTPARAMS="$DefaultBootParams $ExtraBootParams"
 			fi
+
+			KERNEL_VERSION=$(uname -r)			
+			KERNEL_VERSION="${KERNEL_VERSION%*-*86-*}-$Architecture"
 
 			cp /usr/pluto/templates/pxelinux.tmpl /tftpboot/pxelinux.cfg/01-$lcdMAC.$$
 			ReplaceVars /tftpboot/pxelinux.cfg/01-$lcdMAC.$$
