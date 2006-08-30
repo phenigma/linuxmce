@@ -850,8 +850,6 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 				pStream->ReportTimecode();
 				iCounter_TimeCode = 1;
 			}
-			
-			pStream->ReportTimecode();
 		}
 		
 		// We need to wait 500ms after the stream starts before doing the seek!
