@@ -210,7 +210,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 //point.X=point.Y=0;
 if( Text->m_PK_Text==1437 )
 {
-	point.Y=250;
+	point.Y=0;
 	sTextToDisplay="test section";
 int k=2;
 }

@@ -5881,7 +5881,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	m_sNowPlaying_TimeLong="";
 
 	map<int,string>::iterator it;
-	if( (it = m_mapPK_MediaType_PK_Attribute_Description.find(m_iPK_MediaType)) != m_mapPK_MediaType_PK_Attribute_Description.end() )
+	if( (it = m_mapPK_MediaType_Description.find(m_iPK_MediaType)) != m_mapPK_MediaType_Description.end() )
 		m_sNowPlaying_MediaType = it->second;
 	else
 		m_sNowPlaying_MediaType = "";

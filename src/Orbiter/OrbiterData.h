@@ -72,7 +72,7 @@ public:
 	map<int,int> m_mapDesignObj; //Used to map a screen to a DesignObj
 	map<int,int> m_mapPK_Screen_GoBackToScreen;  // For screens in this map, if there's a go back
 	map<int,int> m_mapPK_MediaType_PK_Attribute_Sort;  // The default sort for each type of media
-	map<int,string> m_mapPK_MediaType_PK_Attribute_Description; // The description for all the media
+	map<int,string> m_mapPK_MediaType_Description; // The description for all the media
 	bool m_bIsOSD,m_bNewOrbiter,m_bUseAlphaBlending,m_bUseMask;
 	PlutoRectangle m_rSpacing;  // Offsets for the screen image
 
@@ -133,7 +133,7 @@ public:
 			+ m_dwPK_Device_LightingPlugIn + m_dwPK_Device_ClimatePlugIn + m_dwPK_Device_MediaPlugIn + m_dwPK_Device_TelecomPlugIn + m_dwPK_Device_SecurityPlugIn + m_dwPK_Device_PlugAndPlayPlugIn
 			+ m_dwPK_Device_LocalAppServer + m_dwPK_Device_LocalMediaPlayer + m_tGenerationTime + m_mapTextString + m_vectPK_Users_RequiringPIN + m_iRotation 
 			+ m_dwPK_Device_LocalOsdIRReceiver + m_dwPK_Device_LocalOsdVfdLcd + m_bIsOSD + m_bNewOrbiter + m_bUseAlphaBlending + m_bUseMask + m_mapDesignObj 
-			+ m_mapPK_MediaType_PK_Attribute_Sort + m_mapPK_MediaType_PK_Attribute_Description + m_mapPK_Screen_GoBackToScreen;
+			+ m_mapPK_MediaType_PK_Attribute_Sort + m_mapPK_MediaType_Description + m_mapPK_Screen_GoBackToScreen;
 
 		(*this) + m_ScreenMap + m_mapTextStyle + m_dequeLocation; // this is serialized custom
 	}
