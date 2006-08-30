@@ -425,12 +425,6 @@ void OrbiterRenderer_OpenGL::OnIdle()
 		Position.Right( r.Right());
 		Position.Bottom(r.Bottom());
 	}
-	else
-	{
-		//pObj->m_GraphicToDisplay = GRAPHIC_HIGHLIGHTED;
-		//pObj->m_pvectCurrentGraphic = &(pObj->m_vectHighlightedGraphic);		
-		//pObj->RenderGraphic(pObj->m_rPosition, false);
-	}
 
 	if(OrbiterLogic()->m_pObj_Highlighted)
 	{

@@ -60,7 +60,7 @@ void MediaBrowserMouseHandler::Start()
 {
     g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Start()");
 	m_LastRow=-1;
-	m_pDatagridMouseHandlerHelper->Start(m_pObj_ListGrid,5,10,m_pMouseBehavior->m_pOrbiter->m_iImageHeight-10);
+	m_pDatagridMouseHandlerHelper->Start(m_pObj_ListGrid,5,1,m_pMouseBehavior->m_pOrbiter->m_iImageHeight);
 }
 
 void MediaBrowserMouseHandler::Stop()

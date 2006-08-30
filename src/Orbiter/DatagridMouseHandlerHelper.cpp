@@ -40,6 +40,7 @@ void DatagridMouseHandlerHelper::Start(DesignObj_DataGrid *pObj_ScrollingGrid,in
 	m_dwPK_Direction_ScrollGrid = 0;
 	m_pObj_ScrollingGrid=pObj_ScrollingGrid;
 	m_NumNotches=NumNotches; m_Top=Top; m_Bottom=Bottom;
+
 	m_iLastNotch=-1;
 	m_pObj_MediaBrowser_Alpha = m_pMouseBehavior->m_pOrbiter->FindObject(m_pMouseHandler->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoAlpha_CONST));
 	if( m_pObj_MediaBrowser_Alpha && !m_pObj_MediaBrowser_Alpha->m_bOnScreen )
@@ -241,7 +242,11 @@ void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
 	int Notch;
 	if( m_eCapturingOffscreenMovement == cosm_UP )
 	{
-		if( Y >= m_Bottom )  // Should be 2
+#ifdef WIN32
+		if( Y >= m_Bottom-6 )
+#else
+		if( Y >= m_Bottom )
+#endif
 		{
 			ReleaseRelative();
 			return;
@@ -249,14 +254,7 @@ void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
 		Notch = (m_pMouseBehavior->m_pOrbiter->m_Height - Y) / (m_pMouseBehavior->m_pOrbiter->m_Height/5) +1;
 		if( Notch==m_iLastNotch )
 			return;
-		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
-		//	X-40,0,
-		//	80,5,
-		//	PlutoColor::White());
-		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
-		//	X-Notch*2,0,
-		//	Notch*2,5,
-		//	PlutoColor::Green());
+
         RelativePointer_ImageLoad(-Notch);
         if (m_pRelativePointer_Image)
 		{
@@ -266,7 +264,11 @@ void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
 	}
 	else
 	{
-		if (Y <=m_Top )  // Should be 1
+#ifdef WIN32
+		if (Y <=m_Top+6 )  
+#else
+		if (Y <=m_Top )  
+#endif
 		{
 			ReleaseRelative();
 			return;
@@ -274,14 +276,7 @@ void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
 		Notch = Y / (m_pMouseBehavior->m_pOrbiter->m_Height/5) +1;
 		if( Notch==m_iLastNotch )
 			return;
-		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
-		//	X-40,m_pMouseBehavior->m_pOrbiter->m_Height-5,
-		//	80,5,
-		//	PlutoColor::White());
-		//m_pMouseBehavior->m_pOrbiter->Renderer()->SolidRectangle(
-		//	X-Notch*2,m_pMouseBehavior->m_pOrbiter->m_Height-5,
-		//	Notch*2,5,
-		//	PlutoColor::Green());
+
         RelativePointer_ImageLoad(Notch);
 		if (m_pRelativePointer_Image)
 		{
@@ -310,7 +305,11 @@ g_pPlutoLogger->Write(LV_ACTION, "**stop**");
     g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::ReleaseRelative()");
 	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
     RelativePointer_Clear();
-	m_pMouseBehavior->SetMousePosition(m_LastX, m_eCapturingOffscreenMovement == cosm_DOWN ? m_Bottom-10 : m_Top+10); // Should be 2 (-2) and 1
+#ifdef WIN32
+	m_pMouseBehavior->SetMousePosition(m_LastX, m_eCapturingOffscreenMovement == cosm_DOWN ? m_Bottom-15 : m_Top+15);
+#else
+	m_pMouseBehavior->SetMousePosition(m_LastX, m_eCapturingOffscreenMovement == cosm_DOWN ? m_Bottom-1 : m_Top+1);
+#endif
 	m_pMouseBehavior->ShowMouse(true);
 	m_eCapturingOffscreenMovement=cosm_NO;
 }
@@ -323,24 +322,43 @@ bool DatagridMouseHandlerHelper::Move(int X,int Y,int PK_Direction)
 		return true;
 	}
 	
-	if (Y <= m_Top || Y >= m_Bottom)  // Should be 1 and 2
+	// For testing under windows add extra padding of 6 pixels on the top and bottom since it's usually not a full screen app
+#ifdef WIN32
+	if (Y <= m_Top+6 || Y >= m_Bottom-6)
+#else
+	if (Y <= m_Top || Y >= m_Bottom)
+#endif
 	{
 g_pPlutoLogger->Write(LV_ACTION, "**go**");
-		if( Y <= m_Top ) // should be 1
+#ifdef WIN32
+		if( Y <= m_Top+6 ) 
+#else
+		if( Y <= m_Top ) 
+#endif
 		{
 			m_eCapturingOffscreenMovement = cosm_UP;
-			m_pMouseBehavior->SetMousePosition(X,m_Bottom-10);  // Temp should be no -10 -- ask cristi
+#ifdef WIN32
+			m_pMouseBehavior->SetMousePosition(X,m_Bottom-15); 
+#else
+			m_pMouseBehavior->SetMousePosition(X,m_Bottom-1); 
+#endif
 			m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
 
 		}
 		else
 		{
 			m_eCapturingOffscreenMovement = cosm_DOWN;
-			m_pMouseBehavior->SetMousePosition(X,m_Top+10);   // Temp, should be 2
+#ifdef WIN32
+			m_pMouseBehavior->SetMousePosition(X,m_Top+15);
+#else
+			m_pMouseBehavior->SetMousePosition(X,m_Top+1);
+#endif
 			m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
 		}
 
+#ifndef WIN32
 		m_pMouseBehavior->ShowMouse(false);
+#endif
 		return true;
 	}
 	return false;
@@ -387,13 +405,6 @@ bool DatagridMouseHandlerHelper::RelativePointer_SetStatus(int nSpeedShape)
     // load image from disk
     RelativePointer_ImageLoad(nSpeedShape);
     
-    // restore the normal behavior in this case
-    if (nSpeedShape == 0)
-    {
-        m_pMouseBehavior->ShowMouse(true);
-    }
-    // hide the pointer : will draw a fake one
-    m_pMouseBehavior->ShowMouse(false);
     // get current screen size
     PlutoSize oSizeScreen = m_pMouseBehavior->m_pOrbiter->m_sScreenSize;
     // get current mouse position
@@ -432,7 +443,6 @@ void DatagridMouseHandlerHelper::RelativePointer_Clear()
         m_pRelativePointer_Image = NULL;
     }
     RelativePointer_ImageRemove();
-    //m_pMouseBehavior->ShowMouse(true);
 }
 
 int DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(int nSpeedShape)
@@ -487,8 +497,6 @@ bool DatagridMouseHandlerHelper::RelativePointer_ImageLoad(int nSpeedShape)
     m_pRelativePointer_Image->LoadGraphic(pData, iSize);
     delete [] pData;
     pData = NULL;
-    // hide the real pointer
-    m_pMouseBehavior->ShowMouse(false);
     return true;
 }
 

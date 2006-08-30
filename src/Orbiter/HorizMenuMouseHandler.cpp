@@ -99,14 +99,24 @@ void HorizMenuMouseHandler::Move(int X,int Y,int PK_Direction)
 			m_pObj_ActiveMenuPad=pObj_ToHighlight;
 		}
 	}
-	if( !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted || m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition.Contains(X,Y)==false )
+	if( !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted || (m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint).Contains(X,Y)==false )
 	{
 		if( m_pObj_ActiveSubMenu )
 		{
+if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+{
+PlutoRectangle r = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
+int k=2;
+}
 			DesignObj_Orbiter *pObj_ToHighlight_TopMost=NULL;
 			DesignObj_Orbiter *pObj_ToHighlight=m_pMouseBehavior->FindChildObjectAtPosition(m_pObj_ActiveSubMenu,X,Y,&pObj_ToHighlight_TopMost,DIRECTION_Up_CONST);
 			if( pObj_ToHighlight || pObj_ToHighlight_TopMost)
 				m_pMouseBehavior->HighlightObject(pObj_ToHighlight ? pObj_ToHighlight : pObj_ToHighlight_TopMost);
+if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+{
+PlutoRectangle r = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
+int k=2;
+}
 		}
 	}
 }

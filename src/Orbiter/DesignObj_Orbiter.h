@@ -53,6 +53,14 @@ public:
 	DesignObj_DataList m_OverlayObjects;
 
 	int m_GraphicToDisplay;
+	void m_GraphicToDisplay_set(int GraphicToDisplay,bool bRecurseChildren=false)
+	{
+		m_GraphicToDisplay=GraphicToDisplay;
+		if( bRecurseChildren )
+			for(DesignObj_DataList::iterator it=m_ChildObjects.begin();it!=m_ChildObjects.end();++it)
+				((DesignObj_Orbiter *)(*it))->m_GraphicToDisplay_set(GraphicToDisplay,true);
+	}
+
 	int m_GraphicToPlay;
 
 	// m_pGraphicToUndoSelect is a temporary snapshot of the background that may be created during a select or restore

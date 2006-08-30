@@ -332,13 +332,20 @@ bool MouseBehavior::ButtonUp(int PK_Button)
 void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 {
 	DesignObj_Orbiter *pObj_Previously_Highlighted=m_pOrbiter->m_pObj_Highlighted;
+	if(pObj_Previously_Highlighted)
+		pObj_Previously_Highlighted->m_GraphicToDisplay_set(GRAPHIC_NORMAL,true);
 
 	m_pOrbiter->Renderer()->UnHighlightObject();
 	if( pObj_Previously_Highlighted && pObj!=pObj_Previously_Highlighted )
 		m_pOrbiter->ExecuteCommandsInList( &pObj_Previously_Highlighted->m_Action_UnhighlightList, pObj_Previously_Highlighted, smHighlight, 0, 0 );
 	m_pOrbiter->m_pObj_Highlighted = pObj;
+
+	pObj->m_GraphicToDisplay_set(GRAPHIC_HIGHLIGHTED,true);
 	m_pOrbiter->Renderer()->DoHighlightObject();
-//			m_pMouseBehavior->m_pOrbiter->RenderObjectAsync(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
+	NeedToRender render( m_pOrbiter, "start speed" );
+	m_pOrbiter->Renderer()->RenderObjectAsync(m_pOrbiter->m_pObj_Highlighted);
+	if( pObj_Previously_Highlighted )
+		m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Previously_Highlighted);
 }
 
 PlutoRectangle MouseBehavior::GetHighlighedObjectCoordinates()

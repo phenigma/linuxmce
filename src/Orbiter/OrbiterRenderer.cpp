@@ -994,10 +994,10 @@ g_pPlutoLogger->Write(LV_ACTION,"RedrawObjects");
 		class DesignObj_Orbiter *pObj = *it;
 		if(pObj && pObj->m_bOnScreen)
 		{
-			bool bIntersectedWith = pObj->m_rPosition.IntersectsWith(OrbiterLogic()->m_rectLastHighlight);
-			bool bIncludedIn = pObj->m_rPosition.Contains(OrbiterLogic()->m_rectLastHighlight);
+			bool bIntersectedWith = (pObj->m_rPosition+pObj->m_pPopupPoint).IntersectsWith(OrbiterLogic()->m_rectLastHighlight);
+			bool bIncludedIn = (pObj->m_rPosition+pObj->m_pPopupPoint).Contains(OrbiterLogic()->m_rectLastHighlight);
 
-			if(!bRehighlight && (bIntersectedWith || bIncludedIn))
+			if(!bRehighlight && (bIntersectedWith || bIncludedIn) && OrbiterLogic()->m_rectLastHighlight.Width && OrbiterLogic()->m_rectLastHighlight.Height )
 			{
 				bRehighlight=true;
 				UnHighlightObject();
