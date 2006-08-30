@@ -30,7 +30,8 @@ class GalleryScenario
 
 	ZoomBase* ZoomEffect;
 public:
-	GalleryScenario(int Width, int Height, int FaddingTime, int ZoomTime);
+	GalleryScenario(int Width, int Height, int FaddingTime, int ZoomTime, 
+		string SearchImageFolder);
 	~GalleryScenario();
 	void Update(void);
 };

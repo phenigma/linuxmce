@@ -5,14 +5,14 @@
 #include "MeshBuilder.h"
 #include "MeshPainter.h"
 
-GalleryScenario::GalleryScenario(int Width, int Height, int FaddingTime, int ZoomTime)
+GalleryScenario::GalleryScenario(int Width, int Height, int FaddingTime, int ZoomTime, string SearchImageFolder)
 : StateMachine(NULL)
 {
 	StateMachine = new GaleryStateMachine();
 	this->FaddingTime = FaddingTime;
 	this->ZoomTime = ZoomTime;
 
-	Browser = new FileBrowser("");
+	Browser = new FileBrowser(SearchImageFolder);
 	this->Width = Width;
 	this->Height = Height;
 

@@ -12,6 +12,7 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 #include "Gallery.h"
+#include "../pluto_main/Define_DeviceData.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -102,6 +103,40 @@ void Photo_Screen_Saver::ReceivedUnknownCommand(string &sCMD_Result,Message *pMe
 
 */
 
+class GallerySetup
+{
+	int Width_, Height_;
+	string SearchImagesPath_;
+public:
+	GallerySetup(string Width, string Height, string SearchImagesPath);
+	int GetWidth();
+	int GetHeight();
+	string GetSearchImagesPath();
+};
+
+GallerySetup::GallerySetup(string Width, string Height, string SearchImagesPath)
+{
+	this->Width_ = atoi(Width.c_str());
+	this->Height_ = atoi(Height.c_str());
+	this->SearchImagesPath_ = SearchImagesPath;
+}
+
+int GallerySetup::GetWidth()
+{
+	return this->Width_;
+}
+int GallerySetup::GetHeight()
+{
+	return Height_;
+}
+
+string GallerySetup::GetSearchImagesPath()
+{
+	return SearchImagesPath_;
+}
+
+
+
 //<-dceag-c192-b->
 
 	/** @brief COMMAND: #192 - On */
@@ -117,9 +152,15 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 	cout << "Need to implement command #192 - On" << endl;
 	cout << "Parm #97 - PK_Pipe=" << iPK_Pipe << endl;
 	cout << "Parm #98 - PK_Device_Pipes=" << sPK_Device_Pipes << endl;
+
+	string SearchImagesPath = this->DATA_Get_Directories();
+
+	string w = this->GetCurrentDeviceData(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenWidth_CONST);
+	string h = this->GetCurrentDeviceData(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenHeight_CONST);
+	GallerySetup* SetupInfo = new GallerySetup(w, h, SearchImagesPath);
 	if(0 == ThreadID)
 	{
-		pthread_create(&ThreadID, NULL, ThreadAnimation, NULL);
+		pthread_create(&ThreadID, NULL, ThreadAnimation, SetupInfo);
 	}
 }
 
@@ -145,7 +186,8 @@ void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMess
 
 void* ThreadAnimation(void* ThreadInfo)
 {
-	Gallery::Instance()->Setup(1024, 768, "");
+	GallerySetup* Info = (GallerySetup*) ThreadInfo;
+	Gallery::Instance()->Setup(Info->GetWidth(),Info->GetHeight(), Info->GetSearchImagesPath());
 	Gallery::Instance()->MainLoop(); 
 	Gallery::Instance()->CleanUp();
 
