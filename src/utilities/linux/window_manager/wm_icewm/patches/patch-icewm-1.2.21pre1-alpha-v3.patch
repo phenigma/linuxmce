@@ -1,3 +1,10 @@
+diff -ur -x '*.svn*' icewm-1.2.21pre1.orig/VERSION icewm-1.2.21pre1.patched/VERSION
+--- icewm-1.2.21pre1.orig/VERSION	2006-07-24 18:51:35.000000000 +0300
++++ icewm-1.2.21pre1.patched/VERSION	2006-08-31 20:15:31.000000000 +0300
+@@ -1,2 +1,2 @@
+ PACKAGE=icewm
+-VERSION=1.2.21pre1
++VERSION=1.2.21pre1-alphapatch
 diff -Naur icewm-1.2.21pre1.orig/src/wmcontainer.cc icewm-1.2.21pre1/src/wmcontainer.cc
 --- icewm-1.2.21pre1.orig/src/wmcontainer.cc	2005-03-20 13:31:42.000000000 +0000
 +++ icewm-1.2.21pre1/src/wmcontainer.cc	2006-07-21 16:35:47.000000000 +0000
