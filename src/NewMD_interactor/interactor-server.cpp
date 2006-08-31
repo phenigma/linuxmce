@@ -76,7 +76,7 @@ int main()
 
 				sscanf(buffer, "%*s %s %s", remoteIP, remoteMAC, remoteArchitecture);
 				char arg_DeviceDatas[1024];
-				snprintf(arg_DeviceDatas, 1024, "9|1,112|%s", remoteArchitecture);
+				snprintf(arg_DeviceDatas, 1024, "9|1|112|%s", remoteArchitecture);
 
 				char * args[] = { "/usr/pluto/bin/MessageSend", "localhost", "0", "-1001", "2", "65",
 					"28", remoteIP, "5", remoteMAC, "52", "3", "53", "5", "49", sDT_Generic_PC_as_MD,
