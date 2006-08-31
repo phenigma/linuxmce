@@ -2,8 +2,8 @@
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/Utils.sh
 
-XClient=/usr/bin/icewm
-XClientParm=(--debug --debug-z)
+XClient=/usr/pluto/bin/Start_IceWM.sh
+XClientParm=()
 XServerParm=(-logverbose 5)
 Background=y
 XDisplay=:0
