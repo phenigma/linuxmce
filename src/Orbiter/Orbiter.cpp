@@ -8728,6 +8728,7 @@ g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode AFTER %d %s",(int) sLine.size(),
 
 void Orbiter::StartScreenSaver()
 {
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::StartScreenSaver");
 	if( m_pDevice_ScreenSaver )
 	{
 		DCE::CMD_On CMD_On(m_dwPK_Device,m_pDevice_ScreenSaver->m_dwPK_Device,0,"");
@@ -8754,6 +8755,7 @@ void Orbiter::StartScreenSaver()
 
 void Orbiter::StopScreenSaver()
 {
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::StopScreenSaver");
 	m_bScreenSaverActive = false;
 	if( m_pDevice_ScreenSaver )
 	{
