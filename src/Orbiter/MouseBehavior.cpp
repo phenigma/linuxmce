@@ -47,6 +47,7 @@ MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 	//TODO: set custom position for the compass
 	m_spCompass.reset(new OSDCompass(pOrbiter, PlutoRectangle(10, 10, 100, 100)));
 
+	m_pObj_Previously_Highlighted=NULL;
 	m_pMouseHandler=NULL;
 	ProcessUtils::ResetMsTime();
 	m_pOrbiter=pOrbiter;
@@ -336,19 +337,25 @@ bool MouseBehavior::ButtonUp(int PK_Button)
 
 void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 {
-	DesignObj_Orbiter *pObj_Previously_Highlighted=m_pOrbiter->m_pObj_Highlighted;
-	if(pObj_Previously_Highlighted)
+	if(m_pObj_Previously_Highlighted)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "mmm MouseBehavior::HighlightObject : UNHIGHLIGHT %s",
-			pObj_Previously_Highlighted->m_ObjectID.c_str());
+		if( pObj==m_pObj_Previously_Highlighted )
+			return;  // Nothing to do
+		g_pPlutoLogger->Write(LV_CRITICAL, "mmm MouseBehavior::HighlightObject : UNHIGHLIGHT %s %d",
+			m_pObj_Previously_Highlighted->m_ObjectID.c_str(),m_GraphicToDisplay_Obj_Previously_Highlighted);
 		
-		pObj_Previously_Highlighted->m_GraphicToDisplay_set(GRAPHIC_NORMAL,true);
+		m_pObj_Previously_Highlighted->m_GraphicToDisplay_set(m_GraphicToDisplay_Obj_Previously_Highlighted,true);
+		m_pOrbiter->ExecuteCommandsInList( &m_pObj_Previously_Highlighted->m_Action_UnhighlightList, m_pObj_Previously_Highlighted, smHighlight, 0, 0 );
+		m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_Previously_Highlighted);
 	}
 
 	m_pOrbiter->Renderer()->UnHighlightObject();
-	if( pObj_Previously_Highlighted && pObj!=pObj_Previously_Highlighted )
-		m_pOrbiter->ExecuteCommandsInList( &pObj_Previously_Highlighted->m_Action_UnhighlightList, pObj_Previously_Highlighted, smHighlight, 0, 0 );
-	m_pOrbiter->m_pObj_Highlighted = pObj;
+
+	m_pObj_Previously_Highlighted = m_pOrbiter->m_pObj_Highlighted = pObj;
+	if( !pObj )
+		return;
+
+	m_GraphicToDisplay_Obj_Previously_Highlighted = m_pObj_Previously_Highlighted->m_GraphicToDisplay;
 
 	pObj->m_GraphicToDisplay_set(GRAPHIC_HIGHLIGHTED,true);
 	g_pPlutoLogger->Write(LV_CRITICAL, "mmm MouseBehavior::HighlightObject : HIGHLIGHT %s",
@@ -357,8 +364,6 @@ void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 	m_pOrbiter->Renderer()->DoHighlightObject();
 	NeedToRender render( m_pOrbiter, "start speed" );
 	m_pOrbiter->Renderer()->RenderObjectAsync(m_pOrbiter->m_pObj_Highlighted);
-	if( pObj_Previously_Highlighted )
-		m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Previously_Highlighted);
 }
 
 PlutoRectangle MouseBehavior::GetHighlighedObjectCoordinates()

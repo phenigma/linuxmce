@@ -121,6 +121,8 @@ namespace DCE
 		unsigned long m_dwTime_Last_Notch;
 		std::auto_ptr<OSDCompass> m_spCompass;
 		bool m_bMouseConstrained;
+		DesignObj_Orbiter *m_pObj_Previously_Highlighted;
+		int m_GraphicToDisplay_Obj_Previously_Highlighted;
 
 	public:
 		typedef enum { mcs_Normal, mcs_LeftRight, mcs_UpDown, mcs_AnyDirection, mcs_LeftRightUpDown } MouseCursorStyle;
