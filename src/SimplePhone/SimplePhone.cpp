@@ -18,6 +18,7 @@ using namespace DCE;
 
 #include "Gen_Devices/AllScreens.h"
 #include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/ProcessUtils.h"
 
 #include "SIP_Thread.h"
 
@@ -88,6 +89,26 @@ bool SimplePhone::GetConfig()
 		}
 	}
 	FileUtils::WriteVectorToFile("/etc/pluto/simplephone.conf", vectLinphoneConfig);
+
+	m_sExtension = m_pEvent->GetDeviceDataFromDatabase(m_dwPK_Device, DEVICEDATA_PhoneNumber_CONST);
+	if (m_sExtension.length() == 0)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "SimplePhone::GetConfig: Extension is empty. Attempting to sync with AMP");
+
+		char * cmd[] = { "/usr/pluto/bin/LaunchRemoteCmd.sh", "dcerouter", "/usr/pluto/bin/sync_pluto2amp.pl", NULL };
+		string sOutput;
+		ProcessUtils::GetCommandOutput(cmd[0], cmd, sOutput);
+
+		g_pPlutoLogger->Write(LV_STATUS, "SimplePhone::GetConfig: Output of sync command:\n%s\nSimplePhone::GetConfig: End of output", sOutput.c_str());
+
+		m_sExtension = m_pEvent->GetDeviceDataFromDatabase(m_dwPK_Device, DEVICEDATA_PhoneNumber_CONST);
+		if (m_sExtension.length() == 0)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "SimplePhone::GetConfig: Extension is empty after sync. This is wrong.");
+			return false;
+		}
+	}
+	g_pPlutoLogger->Write(LV_STATUS, "SimplePhone::GetConfig: Starting with extension '%s'", m_sExtension.c_str());
 
     return true;
 }
@@ -381,4 +402,9 @@ string SimplePhone::Get_MD_AudioSettings()
 	int PK_MD = m_pData->m_dwPK_Device_MD;
 
 	return m_pData->m_pEvent_Impl->GetDeviceDataFromDatabase(PK_MD,DEVICEDATA_Audio_settings_CONST);
+}
+
+string SimplePhone::GetExtension()
+{
+	return m_sExtension;
 }

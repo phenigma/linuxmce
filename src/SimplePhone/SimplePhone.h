@@ -18,6 +18,7 @@ private:
         // Private member variables
         pthread_t m_SIP_Thread;
 		string Get_MD_AudioSettings();
+		string m_sExtension;
 public:
         // Public member variables
         // Public methods
@@ -26,6 +27,7 @@ public:
         void CallInProgressScreen();
 		void CallDroppedScreen();
 		void StopMedia();
+		string GetExtension();
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor

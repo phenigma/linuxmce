@@ -64,8 +64,17 @@ static void LS_RegisterWithAsterisk()
 	//linphone_core_enable_logs(stdout);
 	linphone_core_disable_logs();
 	linphone_core_init(&LS_LinphoneCore, &LS_LinphoneCoreVTable, "/etc/pluto/simplephone.conf", NULL);
-	linphone_core_add_proxy_config(&LS_LinphoneCore, LS_pLinphoneProxyConfig);
-	linphone_core_set_default_proxy(&LS_LinphoneCore, LS_pLinphoneProxyConfig);
+
+	if (LS_pLinphoneProxyConfig != NULL)
+	{
+		linphone_core_add_proxy_config(&LS_LinphoneCore, LS_pLinphoneProxyConfig);
+		linphone_core_set_default_proxy(&LS_LinphoneCore, LS_pLinphoneProxyConfig);
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "LS_RegisterWithAsterisk: Proxy wasn't registered");
+	}
+
 	func_exit("LS_RegisterWithAsterisk");
 }
 
@@ -116,20 +125,13 @@ static void LS_InitProxy()
 	DCEConfig dceconf;
 	
 	string sProxy = /* dceconf.m_sDBHost.c_str() */ "dcerouter";
-	string sExtension = LS_pSimplePhone->DATA_Get_PhoneNumber() /*"210"*/;
+	string sExtension = LS_pSimplePhone->GetExtension();
 	string sIdentity = "sip:" + sExtension + "@" + sProxy;
 	sProxy = "sip:" + sProxy;
 	
 	g_pPlutoLogger->Write(LV_STATUS,
 			"LS_InitProxy -- Proxy: %s; Extension: %s; Identity: %s",
 			sProxy.c_str(), sExtension.c_str(), sIdentity.c_str());
-	if (sExtension.length() == 0)
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "Extension is empty. Attempting to sync with AMP");
-        system("/usr/pluto/bin/LaunchRemoteCmd.sh dcerouter \"/usr/pluto/bin/sync_pluto2amp.pl\"");
-		LS_bQuit = true;
-		return;
-	}
 	
 	LS_pLinphoneProxyConfig = linphone_proxy_config_new(sProxy.c_str());
 	if (! LS_pLinphoneProxyConfig)
@@ -150,7 +152,7 @@ static void LS_SetupAuth()
 {
 	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
 
-	string sPassword = LS_pSimplePhone->DATA_Get_PhoneNumber() /*"210"*/;
+	string sPassword = LS_pSimplePhone->GetExtension();
 	linphone_auth_info_set_passwd(LS_pLinphoneAuthInfo, sPassword.c_str());
 	linphone_core_add_auth_info(&LS_LinphoneCore, LS_pLinphoneAuthInfo);
 	LS_Auth_Received = 0;
