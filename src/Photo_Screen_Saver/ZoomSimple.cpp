@@ -9,17 +9,17 @@ ZoomSimple::ZoomSimple(MeshFrame* PictureObject, int ScreenWidth, int ScreenHeig
 
 	float ZoomAmount = RandomInInterval(500, 1000)/1000.0f;
 
-	int DeltaX = - RandomInInterval(0, (int) this->Width/ZoomAmount - ScreenWidth);
-	int DeltaY = - RandomInInterval(0, (int) this->Height/ZoomAmount - ScreenHeight);
+	int DeltaX = RandomInInterval(0, (int) this->Width/ZoomAmount - ScreenWidth);
+	int DeltaY = RandomInInterval(0, (int) this->Height/ZoomAmount - ScreenHeight);
 
-	ZoomStart = new FloatRect((float)DeltaX, (float)DeltaY, 
+	ZoomStart = new FloatRect(-DeltaX, -DeltaY,
 		(float) this->Width/ZoomAmount, (float)this->Height/ZoomAmount);
 
 	ZoomAmount = RandomInInterval(500, 1000)/1000.0f;
 
-	DeltaX = - RandomInInterval(0, (int) this->Width/ZoomAmount - ScreenWidth);
-	DeltaY = - RandomInInterval(0, (int) this->Height/ZoomAmount - ScreenHeight);
-	ZoomEnd = new FloatRect((float)DeltaX, (float)DeltaY, 
+	DeltaX = RandomInInterval(0, (int) this->Width/ZoomAmount - ScreenWidth);
+	DeltaY = RandomInInterval(0, (int) this->Height/ZoomAmount - ScreenHeight);
+	ZoomEnd = new FloatRect(-DeltaX, -DeltaY, 
 		(float) this->Width/ZoomAmount, (float)this->Height/ZoomAmount);
 
 }
