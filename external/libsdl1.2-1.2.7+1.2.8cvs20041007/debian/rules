@@ -32,7 +32,7 @@ MAKEFILE_INS:=$(shell find $(BUILD_DIR) -name Makefile.in)
 
 SOUNDS=arts esd oss nas
 
-ifeq ($(DEB_BUILD_GNU_SYSTEM),linux)
+ifeq ($(DEB_BUILD_GNU_SYSTEM),linux-gnu)
 SOUNDS += alsa
 libasound = , libasound2-dev
 no_libasound =

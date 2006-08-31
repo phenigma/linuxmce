@@ -1,3 +1,9 @@
+libsdl1.2 (1.2.7+1.2.8cvs20041007+pluto-1) unstable; urgency=high
+
+  * SDL with Pluto patches for OpenGL
+ 
+ -- Radu Cristescu <radu.c@plutohome.com>  Tue, 06 Jun 2006 18:28:57 +0300
+
 libsdl1.2 (1.2.7+1.2.8cvs20041007-4.1) unstable; urgency=high
 
   * NMU for RC bug fix.
