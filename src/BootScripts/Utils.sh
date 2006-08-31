@@ -10,6 +10,7 @@ HEADER_Utils=included
 
 DEVICETEMPLATE_OnScreen_Orbiter=62
 DEVICEDATA_Use_OpenGL_effects=172
+DEVICEDATA_Use_alpha_blended_UI=169
 
 FindDevice_Template()
 {
@@ -256,6 +257,26 @@ OpenGLeffects()
 				OR Parent.FK_Device_ControlledVia='$PK_Device'
 			)
 		AND FK_DeviceData='$DEVICEDATA_Use_OpenGL_effects'
+	"
+	RunSQL "$Q"
+}
+
+AlphaBlendingEnabled()
+{
+	local Q
+
+	Q="
+		SELECT IK_DeviceData
+		FROM Device
+		LEFT JOIN Device AS Parent ON Parent.PK_Device=Device.FK_Device_ControlledVia
+		JOIN Device_DeviceData ON Device.PK_Device=FK_Device
+		WHERE
+			Device.FK_DeviceTemplate='$DEVICETEMPLATE_OnScreen_Orbiter'
+			AND (
+				Device.FK_Device_ControlledVia='$PK_Device'
+				OR Parent.FK_Device_ControlledVia='$PK_Device'
+			)
+		AND FK_DeviceData='$DEVICEDATA_Use_alpha_blended_UI'
 	"
 	RunSQL "$Q"
 }

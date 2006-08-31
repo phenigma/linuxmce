@@ -1,6 +1,6 @@
 #!/bin/bash
 . /usr/pluto/bin/pluto.func
-. /usr/pluto/Utils.sh
+. /usr/pluto/bin/Utils.sh
 
 XClient=/usr/bin/icewm-session
 XClientParm=()
@@ -35,11 +35,13 @@ if [[ "$Background" == y ]]; then
 	#fi
 	sleep 1
 
-	OpenGL=$(OpenGLeffects)
-	if [[ "$OpenGL" == 1 ]]; then
+	AlphaBlending=$(AlphaBlendingEnabled)
+	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "X server: backround; AlphaBlending: $AlphaBlending"
+	if [[ "$AlphaBlending" == 1 ]]; then
 		DISPLAY=:0 /usr/bin/xcompmgr &
 		disown -a
 	fi
 else
+	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "X server: foreground"
 	xinit "$XClient" "${XClientParm[@]}" -- "$XDisplay" -ac -allowMouseOpenFail "$VT" "${XServerParm[@]}"
 fi
