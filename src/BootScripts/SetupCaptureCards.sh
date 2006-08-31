@@ -94,7 +94,7 @@ EnableDevice()
 	CmdLine=$(RunSQL "$Q")
 
 	if [[ -n "$CmdLine" ]]; then
-		/usr/pluto/bin/"$CmdLine"
+		/usr/pluto/bin/"$CmdLine" "$Device"
 	fi
 }
 
