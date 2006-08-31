@@ -18,18 +18,25 @@ namespace ProcessUtils
 	using std::string;
 	using std::vector;
 
-	// sCmdParams are tab delimited
+	/** Spawn an application and store a reference to it in the g_mapIdentifierToPidData global map using the name given in strAppIdentifier
+	 * NOTE: sCmdParams are tab delimited
+	 */
 	int SpawnApplication(string sCmdExecutable, string sCmdParams, string strAppIdentifier, void *attachedData = NULL, bool bLogOutput = true);
 
+	/** Kill an application that was started with SpawnApplication, using the App Identifier specified*/
 	bool KillApplication(string sAppIdentifier, vector<void *> &associatedData);
 
+	/** Function to be called from the signal handler when a child launched with SpawnApplication exited */
 	bool ApplicationExited(int pid, string &associatedName, void *&associatedData, bool removeIt = true);
 
+	/** Return if the specified application was started by SpawnApplication and is still in the map */
 	bool ApplicationIsLaunchedByMe(string applicationName);
 
+	/** Send a string to the standard input of an application launched by SpawnApplication */
 	bool SendKeysToProcess(string sAppIdentifier,string sKeys);
 
-	void KillAllApplications();  // Kill any applications we have spawned
+	/** Kill all the applications we have spawned with SpawnApplication */
+	void KillAllApplications();
 
 	/** Execute a command with execv and return its stdout */
 	bool GetCommandOutput(const char * path, char * args[], string & sOutput);
