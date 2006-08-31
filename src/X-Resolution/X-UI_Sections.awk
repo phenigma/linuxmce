@@ -1,11 +1,11 @@
 BEGIN {
 	SectionExtension = 0;
 	SectionScreenOrDevice = 0;
-	if (UI == "")
-		UI = "1";
-	if (UI != "1" && UI != "2")
+	if (OpenGL == "")
+		OpenGL = "0";
+	if (OpenGL != "0" && OpenGL != "1")
 	{
-		print "UI version " UI " not supported";
+		print "Invalid OpenGL variable value: " OpenGL;
 		exit 1;
 	}
 }
@@ -13,7 +13,7 @@ BEGIN {
 # output the part that interests us in the Screen/Device section
 function outputScreenOrDevice()
 {
-	if (UI == 1)
+	if (OpenGL == 0)
 		return;
 	print "\tOption \"XvmcUsesTextures\" \"true\"";
 	print "\tOption \"AllowGLXWithComposite\" \"true\"";
@@ -23,7 +23,7 @@ function outputScreenOrDevice()
 
 function outputExtensions()
 {
-	if (UI == 1)
+	if (OpenGL == 0)
 		return;
 	print "Section \"Extensions\"";
 	print "\tOption \"Composite\" \"true\"";

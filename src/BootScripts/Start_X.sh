@@ -1,5 +1,6 @@
 #!/bin/bash
 . /usr/pluto/bin/pluto.func
+. /usr/pluto/Utils.sh
 
 XClient=/usr/bin/icewm-session
 XClientParm=()
@@ -33,8 +34,9 @@ if [[ "$Background" == y ]]; then
 	#	screen -d -m -S GyrationMouse /usr/pluto/bin/StartGyrationEvrouter.sh
 	#fi
 	sleep 1
-	UI_Version=$(/usr/pluto/bin/X-WhichUI.sh)
-	if [[ "$UI_Version" == 2 ]]; then
+
+	OpenGL=$(OpenGLeffects)
+	if [[ "$OpenGL" == 1 ]]; then
 		DISPLAY=:0 /usr/bin/xcompmgr &
 		disown -a
 	fi

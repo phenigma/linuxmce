@@ -151,8 +151,8 @@ elif [[ -n "$UpdateVideoDriver" && "$DisplayDriver" != "$CurrentDisplayDriver" ]
 fi
 
 /usr/pluto/bin/X-UpdateModules.sh --conffile "$ConfigFile" --driver "$DisplayDriver"
-UI_Version=$(/usr/pluto/bin/X-WhichUI.sh)
-awk -v"UI=$UI_Version" -f/usr/pluto/bin/X-UI_Sections.awk "$ConfigFile" >"$ConfigFile.$$"
+OpenGL=$(OpenGLeffects)
+awk -v"OpenGL=$OpenGL" -f/usr/pluto/bin/X-UI_Sections.awk "$ConfigFile" >"$ConfigFile.$$"
 mv "$ConfigFile"{.$$,}
 
 # Test detected display driver

@@ -8,6 +8,9 @@ HEADER_Utils=included
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
 
+DEVICETEMPLATE_OnScreen_Orbiter=62
+DEVICEDATA_Use_OpenGL_effects=172
+
 FindDevice_Template()
 {
 	local PK_Device_Parent="${1//\'}" FK_DeviceTemplate="${2//\'}" NoRecursion="$3" IncludeParent="$4" All="$5"
@@ -235,4 +238,24 @@ AudioMixerVolume_Percent()
 	VolPercent=$((100 * $VolCur / $VolMax))
 
 	echo "$VolPercent"
+}
+
+OpenGLeffects()
+{
+	local Q
+
+	Q="
+		SELECT IK_DeviceData
+		FROM Device
+		LEFT JOIN Device AS Parent ON Parent.PK_Device=Device.FK_Device_ControlledVia
+		JOIN Device_DeviceData ON Device.PK_Device=FK_Device
+		WHERE
+			Device.FK_DeviceTemplate='$DEVICETEMPLATE_OnScreen_Orbiter'
+			AND (
+				Device.FK_Device_ControlledVia='$PK_Device'
+				OR Parent.FK_Device_ControlledVia='$PK_Device'
+			)
+		AND FK_DeviceData='$DEVICEDATA_Use_OpenGL_effects'
+	"
+	RunSQL "$Q"
 }
