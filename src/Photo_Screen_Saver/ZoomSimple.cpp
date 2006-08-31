@@ -9,17 +9,17 @@ ZoomSimple::ZoomSimple(MeshFrame* PictureObject, int ScreenWidth, int ScreenHeig
 
 	ZoomAmount1 = RandomInInterval(500, 1000)/1000.0f;
 
-	DeltaX1 = RandomInInterval(0, (int) this->Width/ZoomAmount1 - ScreenWidth)-2;
-	DeltaY1 = RandomInInterval(0, (int) this->Height/ZoomAmount1 - ScreenHeight)-2;
+	DeltaX1 = RandomInInterval(0, int(this->Width/ZoomAmount1 - ScreenWidth))-2;
+	DeltaY1 = RandomInInterval(0, int(this->Height/ZoomAmount1 - ScreenHeight))-2;
 
-	ZoomStart = new FloatRect(-DeltaX1, -DeltaY1,
+	ZoomStart = new FloatRect(float(-DeltaX1), float(-DeltaY1),
 		(float) this->Width/ZoomAmount1, (float)this->Height/ZoomAmount1);
 
 	ZoomAmount2 = RandomInInterval(500, 1000)/1000.0f;
 
-	DeltaX2 = RandomInInterval(0, (int) this->Width/ZoomAmount2 - ScreenWidth)-2;
-	DeltaY2 = RandomInInterval(0, (int) this->Height/ZoomAmount2 - ScreenHeight)-2;
-	ZoomEnd = new FloatRect(-DeltaX2, -DeltaY2, 
+	DeltaX2 = RandomInInterval(0, int(this->Width/ZoomAmount2 - ScreenWidth))-2;
+	DeltaY2 = RandomInInterval(0, int(this->Height/ZoomAmount2 - ScreenHeight))-2;
+	ZoomEnd = new FloatRect(float(-DeltaX2), float(-DeltaY2), 
 		(float) this->Width/ZoomAmount2, (float)this->Height/ZoomAmount2);
 
 }
@@ -44,13 +44,13 @@ bool ZoomSimple::Update(int Time)
 	FloatRect ZoomValue = ZoomStart->Interpolate(*ZoomEnd, Progress);
 
 	if(ZoomValue.Left>0)
-		return Result;
+		ZoomValue.Left = 0;
 	if(ZoomValue.Top>0)
-		return Result;
+		ZoomValue.Top = 0;
 	if(ZoomValue.Left + ZoomValue.Width < ScreenWidth)
-		return Result;
+		ZoomValue.Left = ScreenWidth - ZoomValue.Width;
 	if(ZoomValue.Top + ZoomValue.Height < ScreenHeight)
-		return Result;
+		ZoomValue.Top = ScreenHeight - ZoomValue.Height;
 	MeshTransform Transform;
 	Transform.ApplyScale(ZoomValue.Width, ZoomValue.Height, 1);
 	Transform.ApplyTranslate(ZoomValue.Left, ZoomValue.Top, 0);
