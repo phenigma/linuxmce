@@ -5,27 +5,22 @@
 ZoomSimple::ZoomSimple(MeshFrame* PictureObject, int ScreenWidth, int ScreenHeight, int Width, int Height, int StartTime, int ZoomTime)
 : ZoomBase(PictureObject, ScreenWidth, ScreenHeight, Width, Height, StartTime, ZoomTime)
 {
+	float PictureRatio = (float) this->Width/this->Height;
 
-	int FirstPanX = RandomInInterval(0, Width*2/5);
-	int FirstPanY = RandomInInterval(0, Height*2/5);
-	float VideoRatio = (float) ScreenWidth/ScreenHeight;
-	float PictureRatio = (float) Width/Height;
-	float AspectRatio = VideoRatio / PictureRatio;
+	float ZoomAmount = RandomInInterval(500, 1000)/1000.0f;
 
-	int AuxScreenWidth = RandomInInterval(ScreenWidth*3/5, ScreenWidth)+ScreenWidth/5;
-
-	int DeltaX = RandomInInterval(0,  (ScreenWidth - Width) / 2);
-	int DeltaY = RandomInInterval(0,  (ScreenWidth - Width) / 2);
+	int DeltaX = - RandomInInterval(0, (int) this->Width/ZoomAmount - ScreenWidth);
+	int DeltaY = - RandomInInterval(0, (int) this->Height/ZoomAmount - ScreenHeight);
 
 	ZoomStart = new FloatRect((float)DeltaX, (float)DeltaY, 
-		(float) AuxScreenWidth, (float)AuxScreenWidth/PictureRatio);
+		(float) this->Width/ZoomAmount, (float)this->Height/ZoomAmount);
 
-	AuxScreenWidth = RandomInInterval(ScreenWidth*3/5, ScreenWidth)+ScreenWidth/5;
+	ZoomAmount = RandomInInterval(500, 1000)/1000.0f;
 
-	DeltaX = RandomInInterval(0,  (ScreenWidth - Width) / 2);
-	DeltaY = RandomInInterval(0,  (ScreenWidth - Width) / 2);
+	DeltaX = - RandomInInterval(0, (int) this->Width/ZoomAmount - ScreenWidth);
+	DeltaY = - RandomInInterval(0, (int) this->Height/ZoomAmount - ScreenHeight);
 	ZoomEnd = new FloatRect((float)DeltaX, (float)DeltaY, 
-		(float) AuxScreenWidth, (float)AuxScreenWidth/PictureRatio);
+		(float) this->Width/ZoomAmount, (float)this->Height/ZoomAmount);
 
 }
 
@@ -49,7 +44,7 @@ bool ZoomSimple::Update(int Time)
 	FloatRect ZoomValue = ZoomStart->Interpolate(*ZoomEnd, Progress);
 
 	MeshTransform Transform;
-	Transform.ApplyScale(Width, Height, 1);
+	Transform.ApplyScale(ZoomValue.Width, ZoomValue.Height, 0);
 	Transform.ApplyTranslate(ZoomValue.Left, ZoomValue.Top, 1);
 	//Transform.ApplyScale(ScreenWidth* (ScreenWidth/ZoomValue.Width), ScreenHeight* (ScreenHeight/ZoomValue.Height), 1);
 	PictureObject->SetTransform(Transform);

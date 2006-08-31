@@ -65,6 +65,7 @@ void Gallery::PaintScreen(void)
 bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName)
 {
 	Quit = false;
+	Event.Type = 0;
 	FrontEnd = new SDLFrontEnd();
 	bool Result = FrontEnd->StartVideoMode(Width, Height, true) != 0;
 	MeshPainter::Instance()->Setup(&Extensions);

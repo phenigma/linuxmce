@@ -10,8 +10,20 @@ ZoomBase::ZoomBase(MeshFrame* PictureObject,
 
 	this->ScreenWidth = ScreenWidth;
 	this->ScreenHeight = ScreenHeight;
+
 	this->Width = Width;
 	this->Height = Height;
+
+	if(ScreenWidth > Width)
+	{
+		this->Height = Height*(float)ScreenWidth/Width + 1;
+		this->Width = ScreenWidth;
+	}
+	if(ScreenHeight > Height)
+	{
+		this->Width = Width*(float)ScreenWidth/Width + 1;
+		this->Height = ScreenHeight;
+	}
 }
 
 ZoomBase::~ZoomBase(void)
