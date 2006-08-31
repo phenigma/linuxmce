@@ -15,7 +15,7 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 	fi
 	/bin/mount /dev/cdrom /cdrom 2>/dev/null
 
-	while [ ! -d "/cdrom/bonuscd1" ]; do
+	while [[ ! -d "/cdrom/bonuscd1" && $counter < "5" ]]; do
 		echo "This in not a valid \"Pluto Extras CD version 1\". Please insert the correct CD and try again."
 		/usr/bin/eject 1>/dev/null 2>/dev/null
 		echo "Press any key when you inserted the correct CD in drive."
@@ -23,6 +23,11 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 
 		if [[ ! -n "$key" ]]; then
 			/bin/mount /dev/cdrom /cdrom 2>/dev/null
+			counter=$[$counter+1]
+                        if [[ "$counter" == "5" ]]; then
+                                echo "Skiping BonusCD due to invalid data."
+                                exit 0
+                        fi
 		fi
 	done
 	echo "Processing \"Pluto Extras CD version 1\""
