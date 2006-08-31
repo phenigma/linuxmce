@@ -1,11 +1,11 @@
 srcdir =        .
 top_srcdir =    ..
 
-prefix  =       /opt/icewm-1.2.21pre1
+prefix  =       /usr
 datadir =       ${prefix}/share
 
 PACKAGE =	icewm
-LOCDIR =        /opt/icewm-1.2.21pre1/share/locale
+LOCDIR =        /usr/share/locale
 
 DESTDIR = 
 

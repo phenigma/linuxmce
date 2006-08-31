@@ -8,15 +8,15 @@ srcdir     = .
 top_srcdir = .
 
 PACKAGE = icewm
-VERSION = 1.2.21pre1
+VERSION = 1.2.21pre1-alphapatch
 
-PREFIX = /opt/icewm-1.2.21pre1
-BINDIR = /opt/icewm-1.2.21pre1/bin
-LIBDIR = /opt/icewm-1.2.21pre1/share/icewm
-CFGDIR = /opt/icewm-1.2.21pre1/etc/icewm
-LOCDIR = /opt/icewm-1.2.21pre1/share/locale
-KDEDIR = /opt/icewm-1.2.21pre1/share
-DOCDIR = /opt/icewm-1.2.21pre1/share/doc
+PREFIX = /usr
+BINDIR = /usr/bin
+LIBDIR = /usr/share/icewm
+CFGDIR = /etc/icewm
+LOCDIR = /usr/share/locale
+KDEDIR = /usr/share
+DOCDIR = /usr/share/doc
 GWMDIR = 
 
 INSTALL    = /usr/bin/install -c

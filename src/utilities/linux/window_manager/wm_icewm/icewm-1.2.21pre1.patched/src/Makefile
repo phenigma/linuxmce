@@ -1,12 +1,12 @@
 PACKAGE = icewm
-VERSION = 1.2.21pre1
+VERSION = 1.2.21pre1-alphapatch
 HOSTOS  = Linux 2.6.15-1-k7
 HOSTCPU = i686
 
-LIBDIR = /opt/icewm-1.2.21pre1/share/icewm
-CFGDIR = /opt/icewm-1.2.21pre1/etc/icewm
-LOCDIR = /opt/icewm-1.2.21pre1/share/locale
-DOCDIR = /opt/icewm-1.2.21pre1/share/doc
+LIBDIR = /usr/share/icewm
+CFGDIR = /etc/icewm
+LOCDIR = /usr/share/locale
+DOCDIR = /usr/share/doc
 
 ################################################################################
 
@@ -14,7 +14,7 @@ CXX =           g++
 LD =            g++
 EXEEXT =        
 
-DEBUG =         
+DEBUG =         -g -DDEBUG -O0
 GCCDEP =        
 DEFS =          -DHAVE_CONFIG_H \
                 -DLIBDIR='"$(LIBDIR)"' \

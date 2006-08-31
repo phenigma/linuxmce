@@ -15,6 +15,20 @@
 #include <libgen.h>
 #endif
 
+#include <sys/time.h>
+#include <time.h>
+void log_time_stamp()
+{
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    struct tm t;
+    localtime_r(&tv.tv_sec, &t);
+    char s[128];
+    memset(&s, 0, sizeof(s));
+    strftime(s, sizeof(s), "%H:%M:%S", &t);
+    fprintf(stderr, "%s.%06d ", s, tv.tv_usec);
+}
+
 extern char const *ApplicationName;
 
 #ifdef DEBUG
@@ -291,6 +305,7 @@ void die(int exitcode, char const *msg, ...) {
 }
 
 void precondition(char const *msg, ...) {
+    log_time_stamp();
     fprintf(stderr, "%s: ", ApplicationName);
 
     va_list ap;
@@ -303,6 +318,7 @@ void precondition(char const *msg, ...) {
 }
 
 void warn(char const *msg, ...) {
+    log_time_stamp();
     fprintf(stderr, "%s: ", ApplicationName);
     fputs(_("Warning: "), stderr);
 
@@ -315,6 +331,7 @@ void warn(char const *msg, ...) {
 }
 
 void msg(char const *msg, ...) {
+    log_time_stamp();
     fprintf(stderr, "%s: ", ApplicationName);
 
     va_list ap;
