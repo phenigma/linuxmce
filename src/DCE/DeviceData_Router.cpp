@@ -70,17 +70,17 @@ DeviceData_Base *DeviceData_Router::FindFirstRelatedDeviceOfCategory(int PK_Devi
 		}
 		return this;
 	}
-	for(size_t s=0;s<m_vectDeviceData_Impl_Children.size();++s)
+	for(VectDeviceData_Impl::iterator it=m_vectDeviceData_Impl_Children.begin();it!=m_vectDeviceData_Impl_Children.end();++it)
 	{
-		DeviceData_Base *pDeviceData_Base = m_vectDeviceData_Impl_Children[s];
-		if( pDeviceData_Base->m_dwPK_Device==PK_Device_ExcludeChild )
+		DeviceData_Router *pDeviceData_Router = (DeviceData_Router *) *it;
+		if( pDeviceData_Router->m_dwPK_Device==PK_Device_ExcludeChild )
 			continue;
-		DeviceData_Base *pDeviceData_Base_Result = pDeviceData_Base->FindFirstRelatedDeviceOfCategory(PK_DeviceCategory,pCommand_Impl_Confirm_Registration,TimeoutToWait,false);
-		if( pDeviceData_Base_Result )
-			return pDeviceData_Base_Result;
+		DeviceData_Router *pDeviceData_Router_Result = (DeviceData_Router *) pDeviceData_Router->FindFirstRelatedDeviceOfCategory(PK_DeviceCategory,pCommand_Impl_Confirm_Registration,TimeoutToWait,false);
+		if( pDeviceData_Router_Result )
+			return pDeviceData_Router_Result;
 	}
 	if( bScanParent && m_pDevice_ControlledVia )
-		return m_pDevice_ControlledVia->FindFirstRelatedDeviceOfCategory(PK_DeviceCategory,pCommand_Impl_Confirm_Registration,TimeoutToWait,true,m_dwPK_Device);
+		return ((DeviceData_Router *)m_pDevice_ControlledVia)->FindFirstRelatedDeviceOfCategory(PK_DeviceCategory,pCommand_Impl_Confirm_Registration,TimeoutToWait,true,m_dwPK_Device);
 	return NULL;
 }
 

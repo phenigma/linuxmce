@@ -68,6 +68,7 @@ using namespace DCE;
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Table_Size.h"
 #include "pluto_main/Define_Screen.h"
+#include "pluto_media/Define_AttributeType.h"
 #include "DCERouter.h"
 #include "CreateDevice/CreateDevice.h"
 #include "BD/PhoneDevice.h"
@@ -195,6 +196,8 @@ bool Orbiter_Plugin::GetConfig()
 		}
 		SetStatus("");
 	}
+
+	StartRetrievingScreenSaverFiles();
 
 	return true;
 }
@@ -2583,7 +2586,7 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assi
 
 	PlutoSqlResult result_set;
     MYSQL_ROW row;
-	if( (result_set.r=m_pRouter->mysql_query_result(sSQL)) )
+	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
 	{
 		while ((row = mysql_fetch_row(result_set.r)))
 		{
@@ -2669,4 +2672,102 @@ bool Orbiter_Plugin::DeviceConfigured(class Socket *pSocket,class Message *pMess
 	g_pPlutoLogger->Write(LV_STATUS,"Device %s configured! Processing next unknown device...", sName.c_str());
     ProcessUnknownDevice();
 	return false;
+}
+//<-dceag-c818-b->
+
+	/** @brief COMMAND: #818 - Get Screen Saver Files */
+	/** Given an Orbiter, returns the files that Orbiter should use for it's screen saver */
+		/** @param #2 PK_Device */
+			/** The Orbiter */
+		/** @param #13 Filename */
+			/** A \n delimited list of the files to use */
+
+void Orbiter_Plugin::CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename,string &sCMD_Result,Message *pMessage)
+//<-dceag-c818-e->
+{
+	string sSQL = "SELECT DISTINCT PK_File,Path,Filename "
+		"FROM File "
+		"JOIN File_Attribute ON FK_File=PK_File "
+		"JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Screen_Saver_For_MD_CONST) " "
+		"WHERE Name='' or Name='" + StringUtils::itos(iPK_Device) + "' AND Missing=0";
+
+	PlutoSqlResult result_set1,result_set2;
+
+	// The above are the files to use for the screen saver for this orbiter
+	result_set1.r=m_pMedia_Plugin->m_pDatabase_pluto_media->mysql_query_result(sSQL);
+	PlutoSqlResult *p_result_set = &result_set1;
+
+	// See if this orbiter is supposed to filter based on tags
+	DeviceData_Router *pDevice_Orbiter = m_pRouter->m_mapDeviceData_Router_Find( iPK_Device );
+	string sKeywords;
+	if( pDevice_Orbiter && (sKeywords=pDevice_Orbiter->m_mapParameters_Find(DEVICEDATA_Keywords_CONST)).empty()==false )
+	{
+		// Keywords needs to be ' separated, like 'Dogs','Cats'.  Incoming formate is Dogs,Cats
+		sKeywords = "'" + StringUtils::Replace(sKeywords,",","','") + "'";
+		StringUtils::Replace(&sKeywords," ",""); // Strip spaces
+	    MYSQL_ROW row;
+		string sPK_File;
+
+		while ((row = mysql_fetch_row(result_set1.r)))
+			sPK_File += (sPK_File.empty() ? "" : ",") + string(row[0]);
+
+		sSQL = "SELECT DISTINCT PK_File,Path,Filenamen "
+			"FROM File "
+			"JOIN File_Attribute ON FK_File=PK_File "
+			"JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Keyword_CONST) " "
+			"WHERE Name IN (" + sKeywords + ") AND "
+			"PK_File IN (" + sPK_File + ");";
+
+		// Create a new result set based on the tags
+		result_set2.r=m_pMedia_Plugin->m_pDatabase_pluto_media->mysql_query_result(sSQL);
+		p_result_set = &result_set2;  // Assign it to the  pointer we will use below
+	}
+
+    MYSQL_ROW row;
+	while ((row = mysql_fetch_row(p_result_set->r)))
+		*sFilename += row[1] + string("/") + row[2] + "\n";
+}
+
+void Orbiter_Plugin::StartRetrievingScreenSaverFiles()
+{
+	// If all orbiters have filters on tags we will only retrieve files that use those tags
+	// Otherwise we should just get all files and CMD_Get_Screen_Saver_Files will do the 
+	// filtering.
+	string sOnlyRetrieveTags;
+
+	for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
+	{
+		OH_Orbiter *pOH_Orbiter = it->second;
+		string sTags = pOH_Orbiter->m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_Keywords_CONST);
+		if( sTags.empty() )
+		{
+			sOnlyRetrieveTags="";  // Retrieve all tags
+			break;
+		}
+		if( sOnlyRetrieveTags.empty()==false )
+			sOnlyRetrieveTags += ",";
+		sOnlyRetrieveTags += sTags;  // Add these to the tags
+	}
+
+	string s = DATA_Get_File_Name_and_Path();
+	vector<string> vectApps;
+	StringUtils::Tokenize(s,"\r\n",vectApps);
+
+	DeviceData_Router *pDevice_App_Server,*pDevice_Us = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
+	if( pDevice_Us )
+		pDevice_App_Server = (DeviceData_Router *) pDevice_Us->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+
+	if( pDevice_App_Server )
+	{
+		for(vector<string>::iterator it=vectApps.begin();it!=vectApps.end();++it)
+		{
+			string sArguments = StringUtils::itos(DATA_Get_Quantity()) + "\t" +
+				StringUtils::itos(DATA_Get_Width()) + "\t" +
+				StringUtils::itos(DATA_Get_Height()) + "\t" +
+				sOnlyRetrieveTags;
+			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+				*it,"screen_saver_" + *it,sArguments,"","",false,false,false);
+			SendCommand(CMD_Spawn_Application);
+		}
+	}
 }

@@ -540,7 +540,7 @@ Row_Attribute *MediaAttributes_LowLevel::GetAttributeFromDescription(int PK_Medi
 		pMediaType_AttributeType = m_pDatabase_pluto_media->MediaType_AttributeType_get()->GetRow(MEDIATYPE_pluto_StoredAudio_CONST,PK_AttributeType);
 	else
 		pMediaType_AttributeType = m_pDatabase_pluto_media->MediaType_AttributeType_get()->GetRow(PK_MediaType,PK_AttributeType);
-	if( pMediaType_AttributeType && pMediaType_AttributeType->CombineAsOne_get()==1 )
+	if( !pMediaType_AttributeType || pMediaType_AttributeType->CombineAsOne_get()==1 )
 	{
 		string sWhere = "FK_AttributeType=" + StringUtils::itos(PK_AttributeType) + " AND Name='" + StringUtils::SQLEscape(sName) + "'";
 		m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);

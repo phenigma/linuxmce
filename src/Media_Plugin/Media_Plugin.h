@@ -941,7 +941,7 @@ Powerfile: 0, 1, ... */
 
 
 	/** @brief COMMAND: #807 - Get Attributes For Media */
-	/**  */
+	/** Get the attributes for a file */
 		/** @param #5 Value To Assign */
 			/** A tab delimited list of attributes: Attribute type \t Name \t type ... */
 		/** @param #13 Filename */
@@ -966,6 +966,17 @@ Powerfile: 0, 1, ... */
 
 	virtual void CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name) { string sCMD_Result; CMD_Get_Default_Ripping_Info(sFilename,sPath,iDriveID,sStorage_Device_Name,sCMD_Result,NULL);};
 	virtual void CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #819 - Get ID from Filename */
+	/** Given a filename, get the ID for the file.  The ID will be 0 if the indicated file does not exist */
+		/** @param #13 Filename */
+			/** The file to get the ID for */
+		/** @param #145 EK_File */
+			/** The file id */
+
+	virtual void CMD_Get_ID_from_Filename(string sFilename,int *iEK_File) { string sCMD_Result; CMD_Get_ID_from_Filename(sFilename.c_str(),iEK_File,sCMD_Result,NULL);};
+	virtual void CMD_Get_ID_from_Filename(string sFilename,int *iEK_File,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

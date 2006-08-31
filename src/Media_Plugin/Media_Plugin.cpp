@@ -4716,7 +4716,7 @@ void Media_Plugin::CMD_Remove_playlist(int iEK_Playlist,string &sCMD_Result,Mess
 //<-dceag-c807-b->
 
 	/** @brief COMMAND: #807 - Get Attributes For Media */
-	/**  */
+	/** Get the attributes for a file */
 		/** @param #5 Value To Assign */
 			/** A tab delimited list of attributes: Attribute type \t Name \t type ... */
 		/** @param #13 Filename */
@@ -4801,3 +4801,50 @@ void Media_Plugin::CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,
 
 	*iDriveID = GetStorageDeviceWithMostFreeSpace(*sStorage_Device_Name, *sPath);
 }
+
+//<-dceag-c819-b->
+
+	/** @brief COMMAND: #819 - Get ID from Filename */
+	/** Given a filename, get the ID for the file.  The ID will be 0 if the indicated file does not exist */
+		/** @param #13 Filename */
+			/** The file to get the ID for */
+		/** @param #145 EK_File */
+			/** The file id */
+
+void Media_Plugin::CMD_Get_ID_from_Filename(string sFilename,int *iEK_File,string &sCMD_Result,Message *pMessage)
+//<-dceag-c819-e->
+{
+	bool bIsDirectory = FileUtils::DirExists(sFilename);
+	if( !bIsDirectory && !FileUtils::FileExists(sFilename) )
+	{
+		*iEK_File=0;
+		return;
+	}
+
+	string sPath = FileUtils::BasePath(sFilename);
+	string sFile = FileUtils::FilenameWithoutPath(sFilename);
+	vector<Row_File *> vectRow_File;
+	m_pDatabase_pluto_media->File_get()->GetRows(
+		"Path='" + StringUtils::SQLEscape(sPath) + "' AND Filename='" + StringUtils::SQLEscape(sFile) + "'",
+		&vectRow_File);
+	if( vectRow_File.size() )
+	{
+		*iEK_File = vectRow_File[0]->PK_File_get();
+		return;
+	}
+
+	string sExtension = FileUtils::FindExtension(sFile);
+	vector<Row_MediaType *> vectRow_MediaType;
+	if( sExtension.empty()==false )
+		m_pDatabase_pluto_main->MediaType_get()->GetRows("Extensions like '%" + sExtension + "%'",&vectRow_MediaType);
+
+	int PK_MediaType = vectRow_MediaType.size() ? vectRow_MediaType[0]->PK_MediaType_get() : 0;
+	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+	pRow_File->EK_MediaType_set(PK_MediaType);
+	pRow_File->Path_set(sPath);
+	pRow_File->Filename_set(sFile);
+	pRow_File->IsDirectory_set(bIsDirectory);
+	m_pDatabase_pluto_media->File_get()->Commit();
+	*iEK_File = pRow_File->PK_File_get();
+}
+

@@ -135,6 +135,14 @@ public:
 	* @brief Device data access methods:
 	*/
 
+	string Get_File_Name_and_Path()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_File_Name_and_Path_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_File_Name_and_Path_CONST];
+	}
+
 	int Get_ThreshHold()
 	{
 		if( m_bRunningWithoutDeviceData )
@@ -149,6 +157,30 @@ public:
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Ignore_State_CONST);
 		else
 			return m_mapParameters[DEVICEDATA_Ignore_State_CONST];
+	}
+
+	int Get_Width()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Width_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_Width_CONST].c_str());
+	}
+
+	int Get_Height()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Height_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_Height_CONST].c_str());
+	}
+
+	int Get_Quantity()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Quantity_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_Quantity_CONST].c_str());
 	}
 
 };
@@ -237,6 +269,7 @@ public:
 			m_pEvent->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
 			m_pcRequestSocket->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
 		}
+		PostConfigCleanup();
 		return true;
 	};
 	Orbiter_Plugin_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
@@ -250,8 +283,12 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_File_Name_and_Path() { return GetData()->Get_File_Name_and_Path(); }
 	int DATA_Get_ThreshHold() { return GetData()->Get_ThreshHold(); }
 	string DATA_Get_Ignore_State() { return GetData()->Get_Ignore_State(); }
+	int DATA_Get_Width() { return GetData()->Get_Width(); }
+	int DATA_Get_Height() { return GetData()->Get_Height(); }
+	int DATA_Get_Quantity() { return GetData()->Get_Quantity(); }
 	//Event accessors
 	void EVENT_Follow_Me_Lighting(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Lighting(iPK_Orbiter,iPK_Room,iPK_Users,iPK_Room_Left); }
 	void EVENT_Follow_Me_Climate(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Climate(iPK_Orbiter,iPK_Room,iPK_Users,iPK_Room_Left); }
@@ -277,19 +314,37 @@ public:
 	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string *sText,int *iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Send_Orbiter_Popups(bool bTrueFalse,int iPK_Orbiter,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
 	{
 		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal)==rmr_Processed )
+		{
+			if( pMessageOriginal->m_eExpectedResponse==ER_ReplyMessage && !pMessageOriginal->m_bRespondedToMessage )
+			{
+				pMessageOriginal->m_bRespondedToMessage=true;
+				Message *pMessageOut=new Message(m_dwPK_Device,pMessageOriginal->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+				pMessageOut->m_mapParameters[0]="OK";
+				SendMessage(pMessageOut);
+			}
+			else if( (pMessageOriginal->m_eExpectedResponse==ER_DeliveryConfirmation || pMessageOriginal->m_eExpectedResponse==ER_ReplyString) && !pMessageOriginal->m_bRespondedToMessage )
+			{
+				pMessageOriginal->m_bRespondedToMessage=true;
+				SendString("OK");
+			}
 			return rmr_Processed;
+		}
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
 			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
+				// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+				if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+					return rmr_Buffered;
 				switch(pMessage->m_dwID)
 				{
 				case COMMAND_Set_Current_User_CONST:
@@ -805,8 +860,36 @@ public:
 					};
 					iHandled++;
 					continue;
+				case COMMAND_Get_Screen_Saver_Files_CONST:
+					{
+						string sCMD_Result="OK";
+						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+						string sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
+						CMD_Get_Screen_Saver_Files(iPK_Device,&sFilename,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Filename_CONST]=sFilename;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_Screen_Saver_Files(iPK_Device,&sFilename,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
 				}
-				iHandled += Command_Impl::ReceivedMessage(pMessage);
+				iHandled += (Command_Impl::ReceivedMessage(pMessage)==rmr_NotProcessed ? 0 : 1);
 			}
 			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
@@ -821,7 +904,12 @@ public:
 				DeviceData_Impl *pDeviceData_Impl = m_pData->FindChild(pMessage->m_dwPK_Device_To);
 				string sCMD_Result="UNHANDLED";
 				if( pDeviceData_Impl )
+				{
+					// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+					if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+						return rmr_Buffered;
 					ReceivedCommandForChild(pDeviceData_Impl,sCMD_Result,pMessage);
+				}
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);
 					if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
@@ -841,7 +929,7 @@ public:
 				}
 			}
 			if( iHandled==0 && !pMessage->m_bRespondedToMessage &&
-			(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString) )
+			(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString || pMessage->m_eExpectedResponse==ER_DeliveryConfirmation) )
 			{
 				pMessage->m_bRespondedToMessage=true;
 				if( pMessage->m_eExpectedResponse==ER_ReplyMessage )

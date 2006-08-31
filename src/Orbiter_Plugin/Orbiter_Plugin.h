@@ -95,6 +95,7 @@ public:
 
 	void SendAppToPhone(OH_Orbiter *pOH_Orbiter,int nDeviceID, string sMacAddress);
 	long GetAppServerAssociatedWithDevice(int nDeviceID);
+	void StartRetrievingScreenSaverFiles();
 
 	//from command_impl class
 	virtual bool PendingTasks(vector<string> *vectPendingTasks=NULL);
@@ -264,8 +265,12 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_File_Name_and_Path();
 	int DATA_Get_ThreshHold();
 	string DATA_Get_Ignore_State();
+	int DATA_Get_Width();
+	int DATA_Get_Height();
+	int DATA_Get_Quantity();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Follow_Me_Lighting(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left);
@@ -512,6 +517,17 @@ format */
 
 	virtual void CMD_Send_Orbiter_Popups(bool bTrueFalse,int iPK_Orbiter) { string sCMD_Result; CMD_Send_Orbiter_Popups(bTrueFalse,iPK_Orbiter,sCMD_Result,NULL);};
 	virtual void CMD_Send_Orbiter_Popups(bool bTrueFalse,int iPK_Orbiter,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #818 - Get Screen Saver Files */
+	/** Given an Orbiter, returns the files that Orbiter should use for it's screen saver */
+		/** @param #2 PK_Device */
+			/** The Orbiter */
+		/** @param #13 Filename */
+			/** A \n delimited list of the files to use */
+
+	virtual void CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename) { string sCMD_Result; CMD_Get_Screen_Saver_Files(iPK_Device,sFilename,sCMD_Result,NULL);};
+	virtual void CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
