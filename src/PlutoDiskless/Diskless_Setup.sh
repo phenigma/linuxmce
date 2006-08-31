@@ -201,7 +201,7 @@ for Client in $R; do
 			fi
 
 			KERNEL_VERSION=$(uname -r)			
-			KERNEL_VERSION="${KERNEL_VERSION%*-*86-*}-$Architecture"
+			KERNEL_VERSION="${KERNEL_VERSION%*-*86*}-$Architecture"
 
 			cp /usr/pluto/templates/pxelinux.tmpl /tftpboot/pxelinux.cfg/01-$lcdMAC.$$
 			ReplaceVars /tftpboot/pxelinux.cfg/01-$lcdMAC.$$
