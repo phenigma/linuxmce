@@ -94,7 +94,7 @@ bool OpenGL3DEngine::Paint()
 	
 	if(CurrentLayer->Children.size() == 0)
 	{
-	    //g_pPlutoLogger->Write(LV_CRITICAL, "vvv NOTHING to paint (current layer: %p)", CurrentLayer);		
+	    g_pPlutoLogger->Write(LV_STATUS, "NOTHING to paint (current layer: %p)", CurrentLayer);		
 		return false;
 	}
 
@@ -148,8 +148,6 @@ bool OpenGL3DEngine::Paint()
 	bool Status = NULL != Compose && Compose->HasEffects() && AnimationRemain;
 	if (Compose->HasEffects() == false)
 		AnimationRemain = false;
-
-	//g_pPlutoLogger->Write(LV_STATUS, "vvv Paint END");	
 
 	return Status;
 }
@@ -209,7 +207,7 @@ MeshFrame* OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFram
 	Frame->ApplyTransform(transform);
 #endif
 
-	if(Frame->Name().find("4890") != string::npos)
+	if(Frame->Name().find("4979.112") != string::npos)
 	{
 		int a = 4;
 	}
@@ -251,27 +249,7 @@ MeshFrame* OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFram
 			return Frame;
 
 		if(NULL != DuplicatedFrame)
-		{
-			/*
-			if(DuplicatedFrame->GetParent() != CurrentLayer)
-			{	
-				g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::AddMeshFrameToDesktop: Ignoring object %s"
-					", already in the scene with a valid parent", Frame->Name().c_str());
-
-				if(!TextureManager::Instance()->ExistInCache(Frame))
-				{
-					Frame->CleanUp();
-					delete Frame;
-				}
-
-				return DuplicatedFrame;
-			}
-			else
-			{
-				*/
-				return CurrentLayer->ReplaceChild(DuplicatedFrame, Frame);
-			//}
-		}
+			return CurrentLayer->ReplaceChild(DuplicatedFrame, Frame);
 	}
 
 	Parent->AddChild(Frame);

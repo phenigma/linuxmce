@@ -59,13 +59,18 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 		//throw "Frame already has a parent";
 	}
 
-	//DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::AddChild: Added %p to %p", Frame, this);	
+//	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::AddChild: Added %p/%s to %p/%s", Frame, Frame->Name_.c_str(),
+//		this, Name_.c_str());	
 	Children.push_back(Frame);
 	Frame->Parent = this;
+
+	CheckIntegrity(Frame);
 }
 
 void MeshFrame::RemoveChild(MeshFrame* Frame)
 {
+	CheckIntegrity(Frame);
+
 	if(Frame == NULL)
 	{
 		//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Frame is NULL!!!");
@@ -85,8 +90,8 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 		{
 			Frame->Parent->Children.erase(Child);
 
-			DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::RemoveChild %p/%s from parent %p/%s", 
-				Frame, Frame->Name_.c_str(), Frame->Parent, Frame->Parent->Name_.c_str());
+//			DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::RemoveChild %p/%s from parent %p/%s", 
+//				Frame, Frame->Name_.c_str(), Frame->Parent, Frame->Parent->Name_.c_str());
 
 			Frame->Parent = NULL;
 		}
@@ -100,6 +105,8 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 
 MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 {
+	CheckIntegrity(OldFrame);
+
 	if(OldFrame == NULL)
 	{
 		//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: Frame is NULL!!!");
@@ -118,12 +125,14 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 		}
 		else
 		{
+			NewFrame->Parent = OldFrame->Parent;
 			*Child = NewFrame;
-			NewFrame->Parent = this;
+			
+//			DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
+//				OldFrame, OldFrame->Name_.c_str(), OldFrame->Parent, OldFrame->Parent->Name_.c_str(),
+//				NewFrame, NewFrame->Name_.c_str());
 
-			DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
-				OldFrame, OldFrame->Name_.c_str(), OldFrame->Parent, OldFrame->Parent->Name_.c_str(),
-				NewFrame, NewFrame->Name_.c_str());
+			CheckIntegrity(NewFrame);
 
 			return NewFrame;
 		}
@@ -284,4 +293,25 @@ void MeshFrame::Stealth()
 
 	for(vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
 		(*it)->Stealth();
+}
+
+bool MeshFrame::CheckIntegrity(MeshFrame *Frame)
+{
+	bool Result = false;
+
+	if(NULL != Frame->Parent)
+	{
+		vector<MeshFrame*>::iterator Child = find(Frame->Parent->Children.begin(), 
+			Frame->Parent->Children.end(), Frame);
+
+        Result = Child != Frame->Parent->Children.end();	
+	}
+
+	if(!Result)
+	{
+		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::CheckIntegrity failed for %p/%s",
+			Frame, Frame->Name().c_str());
+	}
+
+	return Result;
 }

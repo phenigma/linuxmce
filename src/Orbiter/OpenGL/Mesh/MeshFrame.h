@@ -55,6 +55,8 @@ public:
 
 	void Print(string sIndent);
 	string Name() { return Name_; }
+
+	bool CheckIntegrity(MeshFrame *Frame);
 };
 
 #endif
