@@ -17,11 +17,14 @@ ZoomPanUp::ZoomPanUp(MeshFrame* PictureObject, int ScreenWidth, int ScreenHeight
 	int DeltaX = RandomInInterval(0,  (ScreenWidth - Width) / 2);
 	int DeltaY = RandomInInterval(0,  (ScreenWidth - Width) / 2);
 
+	if(ScreenWidth < Width)
+		ScreenWidth = Width;
+
 	ZoomStart = new FloatRect(0, 0, 
-		(float) ScreenHeight*PictureRatio, (float)ScreenHeight);
+		(float) ScreenWidth, (float)ScreenWidth/PictureRatio);
 
 	ZoomEnd = new FloatRect((float)DeltaY+ FirstPanX, (float)DeltaY/PictureRatio + FirstPanY, 
-		(float) ScreenHeight*PictureRatio, (float)ScreenHeight);
+		(float) ScreenWidth, (float)ScreenWidth/PictureRatio);
 }
 
 ZoomPanUp::~ZoomPanUp(void)

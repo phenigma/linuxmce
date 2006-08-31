@@ -48,6 +48,8 @@ public:
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_Directories();
 	string DATA_Get_Name();
+	int DATA_Get_ZoomTime();
+	int DATA_Get_FadeTime();
 
 			*****EVENT***** accessors inherited from base class
 

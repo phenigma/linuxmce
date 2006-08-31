@@ -58,8 +58,8 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 		return -1;
 	}
 		
-	//if (FullScreen)
-	//	Flags = SDL_FULLSCREEN;
+	if (FullScreen)
+		Flags = SDL_FULLSCREEN;
 
 	Flags |=  SDL_OPENGL;
 		
