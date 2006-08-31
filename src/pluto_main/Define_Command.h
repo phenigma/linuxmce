@@ -739,6 +739,7 @@
 #define COMMAND_Input_0_CONST 815
 #define COMMAND_Get_Storage_Device_With_Most_Free_Space_CONST 816
 #define COMMAND_Get_Default_Ripping_Info_CONST 817
+#define COMMAND_Get_Screen_Saver_Files_CONST 818
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
