@@ -3,7 +3,7 @@
 . /usr/pluto/bin/Utils.sh
 
 XClient=/usr/bin/icewm-session
-XClientParm=()
+XClientParm=(--debug --debug-z)
 XServerParm=(-logverbose 5)
 Background=y
 XDisplay=:0
