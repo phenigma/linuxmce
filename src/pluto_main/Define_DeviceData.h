@@ -152,6 +152,7 @@
 #define DEVICEDATA_ALSA_Master_Mixer_Name_CONST 174
 #define DEVICEDATA_Location_on_PCI_bus_CONST 175
 #define DEVICEDATA_Keywords_CONST 176
+#define DEVICEDATA_Quantity_CONST 177
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
