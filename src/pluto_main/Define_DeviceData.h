@@ -153,6 +153,8 @@
 #define DEVICEDATA_Location_on_PCI_bus_CONST 175
 #define DEVICEDATA_Keywords_CONST 176
 #define DEVICEDATA_Quantity_CONST 177
+#define DEVICEDATA_ZoomTime_CONST 178
+#define DEVICEDATA_FadeTime_CONST 179
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
