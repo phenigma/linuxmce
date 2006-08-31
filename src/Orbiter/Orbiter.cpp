@@ -244,7 +244,6 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_pObj_NowPlaying_Speed_OnScreen = NULL;
 	m_pAskXine_Socket = NULL;
 	m_bScreenSaverActive = false;
-	m_bReportTimeCode = DATA_Get_Get_Time_Code_for_Media();
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	m_pMouseBehavior = NULL;
@@ -555,6 +554,7 @@ bool Orbiter::GetConfig()
 	m_iCacheSize = DATA_Get_CacheSize();
 	m_bUseOpenGL = m_pData->m_mapParameters_Find(DEVICEDATA_Use_OpenGL_effects_CONST)=="1";
 	m_bUseComposite = m_pData->m_mapParameters_Find(DEVICEDATA_Use_alpha_blended_UI_CONST)=="1";
+	m_bReportTimeCode = DATA_Get_Get_Time_Code_for_Media();
 
 	if(DATA_Get_ScreenWidth())
 		m_iImageWidth = DATA_Get_ScreenWidth();
