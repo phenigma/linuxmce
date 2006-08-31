@@ -3,7 +3,7 @@ Section: contrib/x11
 Priority: extra
 Maintainer: Debian MythTV Team <pkg-mythtv-maintainers@lists.alioth.debian.org>
 Uploaders: Ian Campbell <ijc@hellion.org.uk>, Mark Purcell <msp@debian.org>
-Build-Depends: debhelper (>= 5.0.37), bzip2, dpatch
+Build-Depends: debhelper (>= 5.0.35), bzip2, dpatch
 Standards-Version: 3.7.2
 
 Package: ivtv-utils
@@ -20,7 +20,7 @@ Description: utilities for use with the ivtv kernel driver
 
 Package: ivtv-source
 Architecture: all
-Depends: module-assistant, bzip2, debhelper (>= 5.0.37), dpatch
+Depends: module-assistant, bzip2, debhelper (>= 5.0.35), dpatch
 Description: source for ivtv drivers (0.7 branch)
  The primary goal of the IvyTV Project is to create a kernel driver
  for the iTVC15 familiy of MPEG codecs. The iTVC15 family includes the

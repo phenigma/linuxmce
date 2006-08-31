@@ -1,3 +1,9 @@
+ivtv (0.7.0-1pluto1) unstable; urgency=low
+
+  * Built for Pluto, without the .mpg firmware - which is in another package
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Thu, 31 Aug 2006 15:44:15 +0300
+
 ivtv (0.7.0-1) unstable; urgency=low
 
   * New upstream release.
