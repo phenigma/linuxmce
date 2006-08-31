@@ -2,7 +2,7 @@
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/Utils.sh
 
-XClient=/usr/bin/icewm-session
+XClient=/usr/bin/icewm
 XClientParm=(--debug --debug-z)
 XServerParm=(-logverbose 5)
 Background=y
