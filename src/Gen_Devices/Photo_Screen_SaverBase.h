@@ -96,6 +96,22 @@ public:
 			return m_mapParameters[DEVICEDATA_Name_CONST];
 	}
 
+	int Get_ZoomTime()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_ZoomTime_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_ZoomTime_CONST].c_str());
+	}
+
+	int Get_FadeTime()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_FadeTime_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_FadeTime_CONST].c_str());
+	}
+
 };
 
 
@@ -182,6 +198,7 @@ public:
 			m_pEvent->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
 			m_pcRequestSocket->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
 		}
+		PostConfigCleanup();
 		return true;
 	};
 	Photo_Screen_Saver_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
@@ -197,6 +214,8 @@ public:
 	//Data accessors
 	string DATA_Get_Directories() { return GetData()->Get_Directories(); }
 	string DATA_Get_Name() { return GetData()->Get_Name(); }
+	int DATA_Get_ZoomTime() { return GetData()->Get_ZoomTime(); }
+	int DATA_Get_FadeTime() { return GetData()->Get_FadeTime(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,class Message *pMessage) {};
