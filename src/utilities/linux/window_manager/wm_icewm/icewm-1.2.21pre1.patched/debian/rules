@@ -65,6 +65,7 @@ stamp-conf:
 		--enable-menus-gnome1 --enable-menus-gnome2 \
 		--with-cfgdir=/etc/X11/icewm --datadir=/usr/share --disable-debug \
 		--enable-i18n --enable-nls \
+		--debug \
 		--with-mkfontdir=/usr/X11R6/bin/mkfontdir --enable-shaped-decorations
 	$(MAKE)
 	touch stamp-conf

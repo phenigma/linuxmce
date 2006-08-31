@@ -1,3 +1,9 @@
+icewm (1.2.20+21pre1-3pluto1) unstable; urgency=low
+
+  * added Pluto debug logging patch
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Thu, 31 Aug 2006 20:54:49 +0300
+
 icewm (1.2.20+21pre1-3) unstable; urgency=low
 
   * debian_defaults.dpatch: added code to verify that the default xlock
