@@ -69,7 +69,7 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 
 void MeshFrame::RemoveChild(MeshFrame* Frame)
 {
-	CheckIntegrity(Frame);
+	//CheckIntegrity(Frame);
 
 	if(Frame == NULL)
 	{
