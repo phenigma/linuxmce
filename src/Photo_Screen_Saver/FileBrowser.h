@@ -7,14 +7,11 @@ using namespace std;
 
 class FileBrowser
 {
-	string SearchFolder;
-	bool FirstFile;
-	vector <string> FileList;
+	vector <string> m_vectFileList;
 	string LastFile;
 
-	void AddExtension(string Extension);
 public:
-	FileBrowser(string SearchFolder);
+	FileBrowser(string FileList);
 	~FileBrowser(void);
 
 	string NextFile();

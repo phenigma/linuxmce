@@ -1,4 +1,6 @@
 #include "SDLFrontEnd.h"
+#include "DCE/Logger.h"
+using namespace DCE;
 
 #include <iostream>
 
@@ -54,7 +56,7 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 	//Test if SDL inits nicely
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE)== -1)
 	{
-		std::cout<<"SDL library cannot init properly!"<<std::endl;
+		g_pPlutoLogger->Write(LV_CRITICAL,"SDL library cannot init properly!");
 		return -1;
 	}
 		
@@ -62,11 +64,12 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 		Flags = SDL_FULLSCREEN;
 
 	Flags |=  SDL_OPENGL;
-		
+
 	Display = SDL_SetVideoMode(Width, Height, 0, Flags);
+	g_pPlutoLogger->Write(LV_STATUS,"Setting video to w: %d h: %d",Width,Height);
 	if(!Display)
 	{
-		std::cout<<"Cannot init the video mode!"<<std::endl;
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot init the video mode!");
 		return -1;
 	}
 	
@@ -99,7 +102,7 @@ int SDLFrontEnd::TextOutWidth(std::string Text)
 	}
 	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
 	{
-		std::cout<<"SDLFrontEnd::TextOutWidth : TTF_RenderText_Blended crashed!"<<std::endl;
+		g_pPlutoLogger->Write(LV_CRITICAL,"SDLFrontEnd::TextOutWidth : TTF_RenderText_Blended crashed!");
 		return -1;
 	}
 	int Result = 0;
@@ -116,7 +119,7 @@ int SDLFrontEnd::PaintFont(char* Text,
 {
 	if(CurrentFont == NULL)
 	{
-		std::cout<<"Warning: there is no font setup for rendering!"<<std::endl;
+		g_pPlutoLogger->Write(LV_WARNING,"Warning: there is no font setup for rendering!");
 		return -1;
 	}
 	SDL_Color SDL_color;
@@ -134,14 +137,14 @@ int SDLFrontEnd::PaintFont(char* Text,
 	}
 	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
 	{
-		std::cout<<"Renderer::RealRenderText : TTF_RenderText_Blended crashed!"<<std::endl;
+		g_pPlutoLogger->Write(LV_CRITICAL,"Renderer::RealRenderText : TTF_RenderText_Blended crashed!");
 	}
 
 
 	if (RenderedText == NULL)
 	{	
 		TTF_Quit();
-		std::cout<<"Renderer::RealRenderText: Can't render text: "<<Text<<std::endl;
+		g_pPlutoLogger->Write(LV_CRITICAL,"Renderer::RealRenderText: Can't render text: %s", Text);
 		return -1;
 	}
 
@@ -169,7 +172,7 @@ int SDLFrontEnd::PaintFont(char* Text,
 	}
 	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
 	{
-		std::cout<<"Renderer::RealRenderText : SDL_FreeSurface crashed!"<<std::endl;
+		g_pPlutoLogger->Write(LV_CRITICAL,"Renderer::RealRenderText : SDL_FreeSurface crashed!");
 	}
 	return Result;
 }

@@ -1,49 +1,29 @@
 #include "FileBrowser.h"
 
-#include "../PlutoUtils/FileUtils.h"
+#include "../PlutoUtils/StringUtils.h"
 
-FileBrowser::FileBrowser(string SearchFolder)
+FileBrowser::FileBrowser(string FileList)
 {
-	FirstFile = true;
-#ifdef WIN32
-	this->SearchFolder = "/usr/pluto/orbiter/skins/Basic/menu2";
-#endif
-	AddExtension("png");
-	AddExtension("jpg");
-	LastFile = "";
+	StringUtils::Tokenize(FileList,"\r\n",m_vectFileList);
 }
 
 FileBrowser::~FileBrowser(void)
 {
 }
 
-void FileBrowser::AddExtension(string Extension)
-{
-	list<string> MatchFiles;
-	FileUtils::FindFiles(MatchFiles, SearchFolder, "*."+Extension, false, true);
-	for(list<string>::iterator FileDesc = MatchFiles.begin(), 
-		End = MatchFiles.end(); FileDesc != End; FileDesc++)
-	{
-		string FileName = *FileDesc;
-		FileList.push_back(FileName);
-	}
-
-
-}
-
 string FileBrowser::NextFile()
 {
 	string Result;
-	if(!FileList.size())
+	if(!m_vectFileList.size())
 		return Result;
 
-	if(FileList.size() == 1)
-		return FileList[0];
+	if(m_vectFileList.size() == 1)
+		return m_vectFileList[0];
 		
 	int Position = -1;
 	do {
-		Position = int(rand() % FileList.size());
-		Result = FileList[Position];
+		Position = int(rand() % m_vectFileList.size());
+		Result = m_vectFileList[Position];
 	} while(Result == LastFile);
 	LastFile = Result;
 

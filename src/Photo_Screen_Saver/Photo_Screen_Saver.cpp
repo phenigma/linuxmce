@@ -45,6 +45,9 @@ bool Photo_Screen_Saver::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
+	DCE::CMD_Get_Screen_Saver_Files_DT CMD_Get_Screen_Saver_Files_DT(m_dwPK_Device,DEVICETEMPLATE_Orbiter_Plugin_CONST,BL_SameHouse,m_pData->m_dwPK_Device_ControlledVia,&m_sFileList);
+	SendCommand(CMD_Get_Screen_Saver_Files_DT);
+
 	// Put your code here to initialize the data in this class
 	// The configuration parameters DATA_ are now populated
 	return true;
@@ -106,12 +109,12 @@ void Photo_Screen_Saver::ReceivedUnknownCommand(string &sCMD_Result,Message *pMe
 class GallerySetup
 {
 	int Width_, Height_;
-	string SearchImagesPath_;
+	string m_sImages;
 	int ZoomTime, FaddingTime;
 public:
 	pthread_t* ThreadID;
 	
-	GallerySetup(string Width, string Height, int ZoomTime, int FaddingTime, string SearchImagesPath);
+	GallerySetup(string Width, string Height, int ZoomTime, int FaddingTime, string ImageList);
 	int GetWidth();
 	int GetHeight();
 	int GetZoomTime();
@@ -119,12 +122,11 @@ public:
 	string GetSearchImagesPath();
 };
 
-GallerySetup::GallerySetup(string Width, string Height, int ZoomTime, int FaddingTime, string SearchImagesPath)
+GallerySetup::GallerySetup(string Width, string Height, int ZoomTime, int FaddingTime, string ImageList)
 {
 	this->Width_ = atoi(Width.c_str());
 	this->Height_ = atoi(Height.c_str());
-	this->SearchImagesPath_ = SearchImagesPath;
-
+	m_sImages = ImageList;
 	this->ZoomTime = ZoomTime;
 	this->FaddingTime = FaddingTime;
 }
@@ -140,7 +142,7 @@ int GallerySetup::GetHeight()
 
 string GallerySetup::GetSearchImagesPath()
 {
-	return SearchImagesPath_;
+	return m_sImages;
 }
 
 int GallerySetup::GetZoomTime()
@@ -167,16 +169,10 @@ int GallerySetup::GetFaddingTime()
 void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
 //<-dceag-c192-e->
 {
-	cout << "Need to implement command #192 - On" << endl;
-	cout << "Parm #97 - PK_Pipe=" << iPK_Pipe << endl;
-	cout << "Parm #98 - PK_Device_Pipes=" << sPK_Device_Pipes << endl;
-
-	string SearchImagesPath = this->DATA_Get_Directories();
-
-	string w = this->GetCurrentDeviceData(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenWidth_CONST);
-	string h = this->GetCurrentDeviceData(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenHeight_CONST);
+	string w = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenWidth_CONST);
+	string h = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenHeight_CONST);
 	
-	GallerySetup* SetupInfo = new GallerySetup(w, h, DATA_Get_ZoomTime(), DATA_Get_FadeTime(), SearchImagesPath);
+	GallerySetup* SetupInfo = new GallerySetup(w, h, DATA_Get_ZoomTime(), DATA_Get_FadeTime(), m_sFileList);
 	if(0 == ThreadID)
 	{
 		SetupInfo->ThreadID = &ThreadID;
@@ -194,13 +190,11 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 //<-dceag-c193-e->
 {
-	cout << "Need to implement command #193 - Off" << endl;
-	cout << "Parm #97 - PK_Pipe=" << iPK_Pipe << endl;
-
 	WM_Event Event;
 	Event.Quit();
 	Gallery::Instance()->EvaluateEvent(Event);
-	pthread_join(ThreadID, NULL);
+	if( ThreadID )
+		pthread_join(ThreadID, NULL);
 	ThreadID = 0;
 }
 

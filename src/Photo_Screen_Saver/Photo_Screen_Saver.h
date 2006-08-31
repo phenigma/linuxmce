@@ -17,6 +17,7 @@ namespace DCE
 //<-dceag-decl-e->
 		// Private member variables
 		pthread_t ThreadID;
+		string m_sFileList;
 		// Private methods
 public:
 		// Public member variables

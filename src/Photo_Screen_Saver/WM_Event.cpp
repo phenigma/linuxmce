@@ -53,6 +53,7 @@ void WM_Event::Save()
 
 void WM_Event::ConvertFromSDLEvent(SDL_Event& Event)
 {
+	return; // Ignore all events
 	switch(Event.type)
 	{
 		case SDL_QUIT:
