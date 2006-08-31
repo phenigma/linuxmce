@@ -47,9 +47,9 @@ bool ZoomSimple::Update(int Time)
 		return Result;
 	if(ZoomValue.Top>0)
 		return Result;
-	if(ZoomValue.Left + ZoomValue.Width < ScreenWidth-2)
+	if(ZoomValue.Left + ZoomValue.Width < ScreenWidth)
 		return Result;
-	if(ZoomValue.Top + ZoomValue.Height < ScreenHeight-2)
+	if(ZoomValue.Top + ZoomValue.Height < ScreenHeight)
 		return Result;
 	MeshTransform Transform;
 	Transform.ApplyScale(ZoomValue.Width, ZoomValue.Height, 1);
