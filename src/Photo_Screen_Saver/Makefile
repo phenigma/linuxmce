@@ -49,6 +49,7 @@ sources += AnimatedPicture.cpp \
 	WM_Event.cpp \
 	ZoomBase.cpp \
 	ZoomFactory.cpp \
+	ZoomPanUp.cpp \
 	ZoomSimple.cpp
 
 #<-dceag-mf-b->

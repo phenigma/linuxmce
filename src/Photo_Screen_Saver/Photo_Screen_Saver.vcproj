@@ -216,6 +216,9 @@
 					RelativePath=".\ZoomFactory.cpp">
 				</File>
 				<File
+					RelativePath=".\ZoomPanUp.cpp">
+				</File>
+				<File
 					RelativePath=".\ZoomSimple.cpp">
 				</File>
 			</Filter>
@@ -228,6 +231,9 @@
 			</File>
 			<File
 				RelativePath="Photo_Screen_Saver.h">
+			</File>
+			<File
+				RelativePath=".\ZoomPanUp.h">
 			</File>
 		</Filter>
 		<Filter

@@ -175,9 +175,8 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 
 	string w = this->GetCurrentDeviceData(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenWidth_CONST);
 	string h = this->GetCurrentDeviceData(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenHeight_CONST);
-	w="640";
-	h="480";
-	GallerySetup* SetupInfo = new GallerySetup(w, h, 800, 3600, SearchImagesPath);
+	
+	GallerySetup* SetupInfo = new GallerySetup(w, h, DATA_Get_ZoomTime(), DATA_Get_FadeTime(), SearchImagesPath);
 	if(0 == ThreadID)
 	{
 		SetupInfo->ThreadID = &ThreadID;

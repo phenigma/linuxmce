@@ -42,7 +42,7 @@ string FileBrowser::NextFile()
 		
 	int Position = -1;
 	do {
-		Position = rand() % FileList.size();
+		Position = int(rand() % FileList.size());
 		Result = FileList[Position];
 	} while(Result == LastFile);
 	LastFile = Result;

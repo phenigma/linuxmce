@@ -26,7 +26,7 @@ MeshFrame* AnimatedPicture::GetMeshFrame()
 
 void AnimatedPicture::SetZoomKind(int StartTime, int ZoomTime)
 {
-	Zoom = ZoomFactory::Instance()->CreateZoomType(0, PictureFrame, 
+	Zoom = ZoomFactory::Instance()->CreateZoomType(rand()%2, PictureFrame, 
 		(int)Picture->Width*Picture->MaxU, (int)Picture->Height*Picture->MaxV, 
 		StartTime, ZoomTime);
 }

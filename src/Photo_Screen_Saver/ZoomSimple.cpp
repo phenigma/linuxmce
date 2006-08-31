@@ -12,22 +12,27 @@ ZoomSimple::ZoomSimple(MeshFrame* PictureObject, int ScreenWidth, int ScreenHeig
 	float PictureRatio = (float) Width/Height;
 	float AspectRatio = VideoRatio / PictureRatio;
 
-	int AuxScreenWidth = RandomInInterval(Width*1/5, Width);
-	int AuxScreenHeight = RandomInInterval(Width*1/5, Width);
+	int AuxScreenWidth = RandomInInterval(ScreenWidth*3/5, ScreenWidth)+ScreenWidth/5;
 
 	int DeltaX = RandomInInterval(0,  (ScreenWidth - Width) / 2);
 	int DeltaY = RandomInInterval(0,  (ScreenWidth - Width) / 2);
 
-	ZoomStart = new FloatRect((float)DeltaX, (float)DeltaX/PictureRatio, 
+	ZoomStart = new FloatRect((float)DeltaX, (float)DeltaY, 
 		(float) AuxScreenWidth, (float)AuxScreenWidth/PictureRatio);
 
-	ZoomEnd = new FloatRect((float)DeltaY, (float)DeltaY/PictureRatio, 
-		(float) AuxScreenHeight, (float)AuxScreenHeight/PictureRatio);
+	AuxScreenWidth = RandomInInterval(ScreenWidth*3/5, ScreenWidth)+ScreenWidth/5;
+
+	DeltaX = RandomInInterval(0,  (ScreenWidth - Width) / 2);
+	DeltaY = RandomInInterval(0,  (ScreenWidth - Width) / 2);
+	ZoomEnd = new FloatRect((float)DeltaX, (float)DeltaY, 
+		(float) AuxScreenWidth, (float)AuxScreenWidth/PictureRatio);
 
 }
 
 ZoomSimple::~ZoomSimple(void)
 {
+	delete ZoomStart;
+	delete ZoomEnd;
 }
 
 bool ZoomSimple::Update(int Time)

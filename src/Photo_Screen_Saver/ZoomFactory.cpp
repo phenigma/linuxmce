@@ -1,6 +1,7 @@
 #include "ZoomFactory.h"
 
 #include "ZoomSimple.h"
+#include "ZoomPanUp.h"
 
 ZoomFactory* ZoomFactory::Instance_ = NULL;
 
@@ -30,5 +31,15 @@ void ZoomFactory::Setup(int ScreenWidth, int ScreenHeight)
 ZoomBase* ZoomFactory::CreateZoomType(int ZoomType, MeshFrame* PictureObject, int Width, int Height, 
 									  int StartTime, int ZoomTime)
 {
-	return new ZoomSimple(PictureObject, ScreenWidth, ScreenHeight, Width, Height, StartTime, ZoomTime);
+	switch(ZoomType) {
+	case 0:
+		return new ZoomSimple(PictureObject, ScreenWidth, ScreenHeight, Width, Height, StartTime, ZoomTime);
+		break;
+	case 1:
+		return new ZoomPanUp(PictureObject, ScreenWidth, ScreenHeight, Width, Height, StartTime, ZoomTime);
+		break;
+	default:
+		return new ZoomSimple(PictureObject, ScreenWidth, ScreenHeight, Width, Height, StartTime, ZoomTime);
+	}
+	
 }
