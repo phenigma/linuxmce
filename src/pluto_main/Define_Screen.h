@@ -230,6 +230,7 @@
 #define SCREEN_Add_Software_CONST 239
 #define SCREEN_Choose_Folder_CONST 240
 #define SCREEN_Choose_Drive_CONST 241
+#define SCREEN_TV_Channels_CONST 242
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
