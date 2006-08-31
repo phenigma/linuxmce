@@ -244,6 +244,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_pObj_NowPlaying_Speed_OnScreen = NULL;
 	m_pAskXine_Socket = NULL;
 	m_bScreenSaverActive = false;
+	m_bReportTimeCode = DATA_Get_Get_Time_Code_for_Media();
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	m_pMouseBehavior = NULL;
@@ -5943,49 +5944,8 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 			StartScreenSaver();
 	}
 
-	// **** Do this last -- it has a return if it fails ****
-
-	// Protect m_pAskXine_Socket from being called while in a maint thread
-	PLUTO_SAFETY_LOCK( pm, m_MaintThreadMutex );
-	// If this is a xine, determine the ip address and connect to it to pull time code info
-	DeviceData_Base *pDevice = m_dwPK_Device_NowPlaying ? m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device_NowPlaying) : NULL;
-	if( pDevice && pDevice->m_dwPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST )
-	{
-		if( !m_pAskXine_Socket )
-		{
-			string sIPAddress = pDevice->m_sIPAddress;
-			if( sIPAddress.empty() )
-			{
-				if( pDevice->m_pDevice_MD && !pDevice->m_pDevice_MD->m_sIPAddress.empty() )
-					sIPAddress = pDevice->m_pDevice_MD->m_sIPAddress;
-				else if( pDevice->m_pDevice_Core && !pDevice->m_pDevice_Core->m_sIPAddress.empty() )
-					sIPAddress = pDevice->m_pDevice_Core->m_sIPAddress;
-				else
-				{
-					g_pPlutoLogger->Write(LV_WARNING,"Orbiter::CMD_Set_Now_Playing  Xine has no IP address");
-					return;
-				}
-			}
-			string sConnectInfo = sIPAddress + ":12000";
-			string sName = "ask-xine-socket";
-			m_pAskXine_Socket = new AskXine_Socket(sConnectInfo, sName);
-			
-			if (!m_pAskXine_Socket->Connect())
-				g_pPlutoLogger->Write(LV_WARNING,"Cannot connect to xine for time code information");
-			else
-			{
-				pm.Release();
-				CallMaintenanceInMiliseconds(500,&Orbiter::UpdateTimeCode,NULL,pe_ALL,false);
-			}
-		}
-	}
-	else if( m_pAskXine_Socket )
-	{
-		m_pAskXine_Socket->Disconnect();
-		delete m_pAskXine_Socket;
-		m_pAskXine_Socket=NULL;
-	}
-	pm.Release();
+	if( m_bReportTimeCode )
+		CallMaintenanceInMiliseconds(500,&Orbiter::UpdateTimeCode,NULL,pe_ALL,false);
 }
 
 bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
@@ -8672,10 +8632,62 @@ void Orbiter::ForceCurrentScreenIntoHistory()
 
 void Orbiter::UpdateTimeCode( void *data )
 {
-	// Protect this
-	PLUTO_SAFETY_LOCK( pm, m_MaintThreadMutex );
-	if( !m_pAskXine_Socket )
-		return; // nothing to do
+	if( !m_bReportTimeCode )
+		return;
+
+	// Don't worry about Mutex's.  this is the only method that manipulates m_pAskXine_Socket, and it's only called
+	// by the one MaintThread
+
+	// If this is a xine, determine the ip address and connect to it to pull time code info
+	if( !m_pAskXine_Socket || m_pAskXine_Socket->m_dwPK_Device!=m_dwPK_Device_NowPlaying )
+	{
+		DeviceData_Base *pDevice = m_dwPK_Device_NowPlaying ? m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device_NowPlaying) : NULL;
+		if( pDevice && pDevice->m_dwPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST )
+		{
+			if( !m_pAskXine_Socket )
+			{
+				string sIPAddress = pDevice->m_sIPAddress;
+				if( sIPAddress.empty() )
+				{
+					if( pDevice->m_pDevice_MD && !pDevice->m_pDevice_MD->m_sIPAddress.empty() )
+						sIPAddress = pDevice->m_pDevice_MD->m_sIPAddress;
+					else if( pDevice->m_pDevice_Core && !pDevice->m_pDevice_Core->m_sIPAddress.empty() )
+						sIPAddress = pDevice->m_pDevice_Core->m_sIPAddress;
+					else
+					{
+						g_pPlutoLogger->Write(LV_WARNING,"Orbiter::CMD_Set_Now_Playing  Xine has no IP address");
+						return;
+					}
+				}
+sIPAddress="192.168.80.1";
+				string sConnectInfo = sIPAddress + ":12000";
+				string sName = "ask-xine-socket";
+				m_pAskXine_Socket = new AskXine_Socket(sConnectInfo, sName);
+				m_pAskXine_Socket->m_dwPK_Device = pDevice->m_dwPK_Device;
+				m_pAskXine_Socket->m_dwMaxRetries=1;  // Only try once
+				
+				if (!m_pAskXine_Socket->Connect())
+				{
+					// Don't try again if this failed once.  Otherwise we may block for long periods of time if we're not 
+					// on the same network that can access this
+					m_bReportTimeCode=false; 
+					delete m_pAskXine_Socket;
+					m_pAskXine_Socket=NULL;
+					g_pPlutoLogger->Write(LV_WARNING,"Cannot connect to xine for time code information");
+					return;
+				}
+			}
+		}
+		else if( m_pAskXine_Socket )
+		{
+			m_pAskXine_Socket->Disconnect();
+			delete m_pAskXine_Socket;
+			m_pAskXine_Socket=NULL;
+			return;
+		}
+		else
+			return;
+	}
 
 g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode BEFORE");
 	string sLine;
@@ -8685,8 +8697,8 @@ g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode EMPTY %d %s",(int) sLine.size(),
 		CallMaintenanceInMiliseconds(500,&Orbiter::UpdateTimeCode,NULL,pe_ALL,false);  // There's nothing in the queue, wait 500 ms
 		return;
 	}
-	pm.Release();
-g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode AFTER %d %s",(int) sLine.size(),sLine.c_str());
+
+	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode AFTER %d %s",(int) sLine.size(),sLine.c_str());
 
 	string::size_type pos=0;
 	int iSpeed = atoi(StringUtils::Tokenize( sLine,",",pos ).c_str());

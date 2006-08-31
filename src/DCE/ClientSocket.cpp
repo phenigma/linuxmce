@@ -51,6 +51,7 @@ ClientSocket::ClientSocket( int iDeviceID, string sIPAddress, string sName ) : S
 	m_dwPK_Device = iDeviceID;
 	m_eLastError = cs_err_None;
 	m_bNeedReload = false;
+	m_dwMaxRetries = MAX_RETRIES;
 	/** @todo check comment */
 	//	if( g_pDCELogger ) // This won't be created yet if this is the server logger socket
 	//		g_pDCELogger->Write(LV_SOCKET,"Created client socket %p device: %d ip: %s",this,m_DeviceID,m_IPAddress.c_str());
@@ -101,7 +102,7 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 		struct sockaddr_in  addrT;
 		struct hostent*   phe;
 
-		for ( bSuccess = false;  iRetries < MAX_RETRIES && !bSuccess;  iRetries++ ) // keep tring until success or MAX_RETRIES is reached
+		for ( bSuccess = false;  iRetries < m_dwMaxRetries && !bSuccess;  iRetries++ ) // keep tring until success or MAX_RETRIES is reached
 		{
  			memset( &addrT, 0, sizeof( addrT ) );
 			addrT.sin_family = AF_INET;

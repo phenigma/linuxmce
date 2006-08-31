@@ -337,6 +337,14 @@ public:
 			return atoi(m_mapParameters[DEVICEDATA_PK_Screen_CONST].c_str());
 	}
 
+	bool Get_Get_Time_Code_for_Media()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Get_Time_Code_for_Media_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Get_Time_Code_for_Media_CONST]=="1" ? true : false);
+	}
+
 };
 
 
@@ -469,6 +477,7 @@ public:
 	string DATA_Get_Remote_Phone_IP() { return GetData()->Get_Remote_Phone_IP(); }
 	int DATA_Get_Listen_Port() { return GetData()->Get_Listen_Port(); }
 	int DATA_Get_PK_Screen() { return GetData()->Get_PK_Screen(); }
+	bool DATA_Get_Get_Time_Code_for_Media() { return GetData()->Get_Get_Time_Code_for_Media(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server
@@ -556,7 +565,21 @@ public:
 	{
 		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal)==rmr_Processed )
+		{
+			if( pMessageOriginal->m_eExpectedResponse==ER_ReplyMessage && !pMessageOriginal->m_bRespondedToMessage )
+			{
+				pMessageOriginal->m_bRespondedToMessage=true;
+				Message *pMessageOut=new Message(m_dwPK_Device,pMessageOriginal->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+				pMessageOut->m_mapParameters[0]="OK";
+				SendMessage(pMessageOut);
+			}
+			else if( (pMessageOriginal->m_eExpectedResponse==ER_DeliveryConfirmation || pMessageOriginal->m_eExpectedResponse==ER_ReplyString) && !pMessageOriginal->m_bRespondedToMessage )
+			{
+				pMessageOriginal->m_bRespondedToMessage=true;
+				SendString("OK");
+			}
 			return rmr_Processed;
+		}
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{

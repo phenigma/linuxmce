@@ -148,7 +148,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		int m_iImageWidth; /** < image width */
 		int m_iImageHeight; /** < image height */
-		bool m_bFullScreen,m_bUseOpenGL,m_bUseComposite;
+		bool m_bFullScreen,m_bUseOpenGL,m_bUseComposite,m_bReportTimeCode;;
 		bool m_bLoadDatagridImagesInBackground;
 		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
 
@@ -908,6 +908,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 	string DATA_Get_Remote_Phone_IP();
 	int DATA_Get_Listen_Port();
 	int DATA_Get_PK_Screen();
+	bool DATA_Get_Get_Time_Code_for_Media();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);

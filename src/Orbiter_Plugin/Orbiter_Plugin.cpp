@@ -2685,6 +2685,13 @@ bool Orbiter_Plugin::DeviceConfigured(class Socket *pSocket,class Message *pMess
 void Orbiter_Plugin::CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename,string &sCMD_Result,Message *pMessage)
 //<-dceag-c818-e->
 {
+list<string> listFiles;
+FileUtils::FindFiles(listFiles,"/personal/Pictures/Hawaii Dec 98/Helicopter","*.jpg",false,true);
+for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
+{
+	*sFilename += *it + "\n";
+}
+return;
 	string sSQL = "SELECT DISTINCT PK_File,Path,Filename "
 		"FROM File "
 		"JOIN File_Attribute ON FK_File=PK_File "
