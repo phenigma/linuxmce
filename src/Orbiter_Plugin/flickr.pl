@@ -14,14 +14,10 @@ use strict;
 # Config section. ###########################################
 
 my $fKey  = '74e14e217ff6bfb670ccec36c0aa122b'; # the flickr key
-# my $tDays = 5; # Get picture newer than X days.
-# my $minW  = 1280; # min width (pixels)
-# my $minH  = 1024;  # min height (pixels)
 my $tmp   = '/tmp'; # tmp folder
 my $dest  = '/home/flickr'; # Destination folder
 my $daycount = 0;
-# my $tag = 'flower';
-# my @tags  = ("art", "flower"); # picture tags array
+
 # Code body ##############################################
 my ($tDays,$minW,$minH,$api,$flag,$response,$xs,$r,$id,$buff,$IMGS,$ua,@buff,$tag,@tags,$finaldst,$fms,@out,$ffield);
 my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst);
@@ -51,7 +47,8 @@ if ($ARGV[2] == "" ) {
 }
 
 ## 
-mkdir("/home/flickr/");
+if (!-d $dest) {
+	mkdir("$dest"); }
 
 $api = new Flickr::API({'key' => $fKey});
 
@@ -64,7 +61,7 @@ $mon=$mon+1;
 $mon="0".$mon if($mon <= 9);
 $mday="0".$mday if ($mday <=9);
 
-print "Step 1 : Searching for files maching your criteria in galerry dated : $year-$mon-$mday\n";
+print "Searching for files maching your criteria in gallery dated => $year-$mon-$mday\n";
 $response = $api->execute_method('flickr.interestingness.getList', {  
 	'date' => "$year-$mon-$mday",
 	'page' => '1',
@@ -132,18 +129,18 @@ if ($response->{success} == 1) {
     }
   }
 } else {
-  print STDERR "Date : $year-$mon-$mday\n";
-  print STDERR "Cannot connect to flickr!";
-  print STDERR "Success : $response->{success}\n";
-  print STDERR "Error : $response->{error_code}\n";
-  print STDERR "Error Message : $response->{error_message}\n";
-  print STDERR "Tree : $response->{_content}\n";
+  print STDERR "Date: $year-$mon-$mday => ";
+  print STDERR "Cannot connect to flickr! => ";
+#  print STDERR "Success : $response->{success}\n";
+#  print STDERR "Error : $response->{error_code}\n";
+  print STDERR "Error Message : $response->{error_message} !\n";
+#  print STDERR "Tree : $response->{_content}\n";
 }
 
 $daycount++;
 }
 
-print "STEP 2 : Fetching files and registering them to Pluto System.\n";
+print "Fetching files and registering them with Pluto System.\n";
 # Step 2 - get files.
 $ua = LWP::UserAgent->new;
 $ua->timeout(5);
@@ -187,10 +184,8 @@ if (!-d $dest."/".$year."/".$mon."/".$mday) {
 	    close(TMP);
 # touch lock file
         if (!open(TMP2,">$tmp/$buff.$IMGS->{$buff}->{'format'}.lock")) {
-#       	print STDERR "Cannot write $tmp/$buff.$IMGS->{$buff}->{'format'}.lock !\n";
 		print "Cannot write $tmp/$buff.$IMGS->{$buff}->{'format'}.lock !\n";
         } else {
-#           print "Writing $tmp/$buff.$IMGS->{$buff}->{'format'}.lock file !\n";
             print TMP2 " ";
             close(TMP2); }
 # end lock file
@@ -205,10 +200,8 @@ if (!-d $dest."/".$year."/".$mon."/".$mday) {
 	    warn "$r" if "$r";
 	    $r=$xs->Write($dest."/".$year."/".$mon."/".$mday."/".$buff.".".$IMGS->{$buff}->{'format'});
 	$finaldst = $dest."/".$year."/".$mon."/".$mday."/".$buff.".".$IMGS->{$buff}->{'format'};
-#	print "$finaldst \n";
 # first messagesend	    
 	print "Fire-ing first messagesend event\n";
-#	system ("/usr/pluto/bin/MessageSend localhost -targetType template -o 0 2 1 819 13 \"$finaldst\"");
 	my $fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -o 0 2 1 819 13 "$finaldst" |; 
 	$fms =~ s/\n//g;
 	@out = split (/:/, $fms);
@@ -218,7 +211,6 @@ if (!-d $dest."/".$year."/".$mon."/".$mday) {
 	    unlink("$tmp/$buff.$IMGS->{$buff}->{'format'}.lock");
 # second message send
 	print "Fire-ing second messagesend event\n";
-#	system ("/usr/pluto/bin/MessageSend localhost -targetType template -o 0 2 1 391 145 $ffield 122 30");
 	qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -o 0 2 1 391 145 $ffield 122 30 |;
 	}
     } else {
