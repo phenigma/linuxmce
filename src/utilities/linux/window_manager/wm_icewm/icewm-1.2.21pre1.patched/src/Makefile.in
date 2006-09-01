@@ -38,7 +38,7 @@ CXXFLAGS =      @CXXFLAGS@ $(DEBUG) $(DEFS) \
 LFLAGS =	@LDFLAGS@
 LIBS =          @LIBS@
 
-CORE_LIBS =     @CORE_LIBS@ # `fc-config --libs`
+CORE_LIBS =     @CORE_LIBS@ -lXRender # `fc-config --libs`
 IMAGE_LIBS =    @IMAGE_LIBS@
 AUDIO_LIBS =    @AUDIO_LIBS@
 GNOME1_LIBS =    @GNOME1_LIBS@
