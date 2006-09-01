@@ -1,4 +1,4 @@
-icewm (1.2.26-3pluto1) unstable; urgency=low
+icewm (1.2.26-2pluto2) unstable; urgency=low
 
   * Don't build gnome support
   * Added Pluto log patch and alpha blending patch
