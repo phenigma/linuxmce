@@ -380,8 +380,6 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::UnHighlightObject(bool bDeleteOnly/*=false*/)
 {
-	return;
-
 	DesignObj_Orbiter *pObj = OrbiterLogic()->m_pObj_Highlighted;
 
 	if(NULL != pObj)
