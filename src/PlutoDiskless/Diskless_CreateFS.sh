@@ -11,7 +11,6 @@ IP="$1"
 MAC="$2"
 Device="$3"
 Architecture="${4:-686}"
-
 FSarchive=PlutoMD.tar.bz2
 DlPath="/usr/pluto/diskless/$Device"
 HexIP=$(gethostip -x "$IP")
@@ -19,8 +18,6 @@ HexIP=$(gethostip -x "$IP")
 # Modules to be included in the initramfs
 Modules="ne 3c509 3c59x 8139cp 8139too dmfe e100 eepro100 eexpress epic100 hp100 ne2k-pci sis900 tlan de4x5 tulip via-rhine yellowfin forcedeth pcnet32 tg3 e1000 sk98lin fealnx natsemi r8169 b44 via_velocity skge sky2"
 
-KERNEL_VERSION="$(uname -r)"
-KERNEL_VERSION="${KERNEL_VERSION%*-*86*}-$Architecture" # Our kernels always report the architecture they're compiled for last
 
 InstallKernel()
 {
@@ -39,7 +36,7 @@ InstallKernel()
 		return 0
 	fi
 	
-	kernel="$(find /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ -name "linux-image-$KERNEL_VERSION*.deb")"
+	kernel="$(find /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ -name "linux-image-${KERNEL_VERSION}_*.deb")"
 	words="$(echo "$kernel" | wc -w)"
 	if [[ "$words" -eq 0 ]]; then
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "No kernel matching 'linux-image-$KERNEL_VERSION' was found"
@@ -69,6 +66,7 @@ InstallKernel()
 	umount ./proc
 	umount ./sys
 }
+
 
 Upgrade_Monster()
 {
@@ -132,6 +130,7 @@ Upgrade_Monster()
 		#umount ./proc
 	fi
 }
+
 
 Upgrade_Essential()
 {
@@ -200,6 +199,7 @@ Upgrade_Essential()
 	fi
 }
 
+
 mkdir -p "$DlPath"
 if ! cd "$DlPath"; then
 	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Couldn't switch to diskless image directory. Not extracting."
@@ -267,7 +267,11 @@ Upgrade_Monster
 set +x
 
 # Make sure the right kernel version is installed
+KERNEL_VERSION="$(uname -r)"
+KERNEL_VERSION="${KERNEL_VERSION%*-*86*}-$Architecture" # Our kernels always report the architecture they're compiled for last
+
 InstallKernel $KERNEL_VERSION || exit 1
+
 mkdir -p "/tftpboot/$Device"
 ln -sf "$DlPath/boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$Device/"
 ln -sf "$DlPath/boot/vmlinuz-$KERNEL_VERSION" "/tftpboot/$Device/"

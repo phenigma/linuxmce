@@ -148,6 +148,9 @@ for Client in $R; do
 				FK_DeviceData='$DEVICEDATA_Architecture'
 		"
 		Architecture=$(RunSQL "$Q")
+		if [[ "$Architecture" == "" ]] ;then
+			Architecture="686"
+		fi
 		
 		## Create the a filesystem for this MD
 		#FIXME: Should we create this filesystem everytime ?
@@ -172,11 +175,9 @@ for Client in $R; do
 				WHERE 
 					FK_Device='$PK_Device' 
 					AND
-					FK_DeviceData IN ($DEVICEDATA_Extra_Parameters, $DEVICEDATA_Extra_Parameters_Override, $DEVICEDATA_Architecture)
+					FK_DeviceData IN ($DEVICEDATA_Extra_Parameters, $DEVICEDATA_Extra_Parameters_Override)
 			"
 			ExtraParms=$(RunSQL "$Q")
-			
-			Architecture="686"
 			
 			for ExtraParm in $ExtraParms; do
 				FK_DeviceData=$(Field 1 "$ExtraParm")
@@ -187,9 +188,6 @@ for Client in $R; do
 						;;
 					"$DEVICEDATA_Extra_Parameters_Override")
 						OverrideDefaults="$IK_DeviceData"
-						;;
-					"$DEVICEDATA_Architecture")
-						Architecture="$IK_DeviceData"
 						;;
 				esac
 			done
