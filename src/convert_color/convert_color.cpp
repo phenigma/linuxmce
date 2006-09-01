@@ -21,11 +21,21 @@ using namespace DCE;
 int main(int argc, char *argv[])
 {
 cout << argc << endl;
-	if (argc!=3 || argc!=6)
+	if (argc!=2 && argc!=5)
 	{
 		cout << "convert_color [color as 32-bit Argb]|[r g b a]" << endl;
 		exit(0);
 	}
-	
+
+	if( argc==2 )
+	{
+		PlutoColor plutoColor(atoi(argv[1]));
+		cout << "Color " << plutoColor.AsARGB() << " = R: " << plutoColor.R() << " G: " << plutoColor.G() << " B: " << plutoColor.B() << " A: " << plutoColor.A() << endl;
+	}
+	else
+	{
+		PlutoColor plutoColor(atoi(argv[1]),atoi(argv[2]),atoi(argv[3]),atoi(argv[4]));
+		cout << "Color " << plutoColor.AsARGB() << " = R: " << plutoColor.R() << " G: " << plutoColor.G() << " B: " << plutoColor.B() << " A: " << plutoColor.A() << endl;
+	}
 }
 
