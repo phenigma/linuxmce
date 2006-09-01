@@ -123,7 +123,7 @@ done
 
 
 if [[ "$runlevel" == "0" || "$runlevel" == "6" ]] ;then
-    make -k -i -j -l 3 -f /etc/init.d/fastboot/rc.mk RUNLEVEL=$runlevel JOB=start 2>/dev/null 1>/dev/null
+    make -k -i -j -f /etc/init.d/fastboot/rc.mk RUNLEVEL=$runlevel JOB=start 2>/dev/null 1>/dev/null
 else
-	make -k -i -j -l 3 -f /etc/init.d/fastboot/rc.mk RUNLEVEL=$runlevel JOB=start &>/dev/null &
+	make -k -i -j -f /etc/init.d/fastboot/rc.mk RUNLEVEL=$runlevel JOB=start &>/dev/null &
 fi
