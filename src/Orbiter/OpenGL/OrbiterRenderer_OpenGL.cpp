@@ -239,7 +239,16 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		(NULL != Text->m_pObject ? Text->m_pObject->m_ObjectID : string()) + 
 		"-" + StringUtils::itos(Text->m_rPosition.X) + 
 		"-" + StringUtils::itos(Text->m_rPosition.Y);
-
+if(NULL != Text->m_pObject && Text->m_pObject->m_ObjectID=="1389.0.0")
+{
+	PlutoColor c(255,0,0,100);
+	int ba = pTextStyle->m_BackColor.m_Value=c.AsARGB();
+pTextStyle->m_BackColor.A(255);
+int fa = pTextStyle->m_ForeColor.A();
+int k=2;
+//pTextStyle->m_BackColor.A(128);
+pTextStyle->m_ForeColor.A(200);
+}
 	string sParentObjectID = "";
 	if(NULL != Text->m_pObject)
 		sParentObjectID = Text->m_pObject->GenerateObjectHash(point, false);
