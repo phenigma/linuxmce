@@ -753,6 +753,13 @@ void OrbiterRenderer_PocketFrog::RenderText(string &TextToDisplay,class DesignOb
 	CHECK_STATUS();
     PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
 
+	if(NULL != Text->m_pObject)
+	{
+		SolidRectangle(Text->m_pObject->m_pPopupPoint.X + Text->m_rPosition.Left(), 
+			Text->m_pObject->m_pPopupPoint.Y + Text->m_rPosition.Top(), 
+			Text->m_rPosition.Width,  Text->m_rPosition.Height,  pTextStyle->m_BackColor);
+	}
+
 	if(!m_bPoolRendering || TextToDisplay.find("~S") != string::npos)
 	{
         RECT rectLocation;

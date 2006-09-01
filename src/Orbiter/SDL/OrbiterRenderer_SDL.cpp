@@ -239,6 +239,13 @@ void OrbiterRenderer_SDL::RenderText(string &TextToDisplay,DesignObjText *Text,T
 {
     PLUTO_SAFETY_LOCK(cm,OrbiterLogic()->m_ScreenMutex);
 
+	if(NULL != Text->m_pObject)
+	{
+		SolidRectangle(Text->m_pObject->m_pPopupPoint.X + Text->m_rPosition.Left(), 
+			Text->m_pObject->m_pPopupPoint.Y + Text->m_rPosition.Top(), 
+			Text->m_rPosition.Width,  Text->m_rPosition.Height,  pTextStyle->m_BackColor);
+	}
+
 	SDL_Rect TextLocation;
 	TextLocation.x = point.X + Text->m_rPosition.X;
 	TextLocation.y = point.Y + Text->m_rPosition.Y;

@@ -207,6 +207,31 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	//g_pPlutoLogger->Write(LV_CRITICAL, "Rendering text %s at %d, %d", sTextToDisplay.c_str(), 
 	//	Text->m_rPosition.X, Text->m_rPosition.Y);
 
+	//////////////////////////////////////////////////////////////////////////
+	/////// debug code
+	if(NULL != Text->m_pObject && Text->m_pObject->m_ObjectID=="1389.0.0")
+	{
+		PlutoColor c(255,0,0,100);
+		int ba = pTextStyle->m_BackColor.m_Value=c.AsARGB();
+		pTextStyle->m_BackColor.A(255);
+		int fa = pTextStyle->m_ForeColor.A();
+		int k=2;
+		//pTextStyle->m_BackColor.A(128);
+		pTextStyle->m_ForeColor.A(200);
+	}
+	//////////////////////////////////////////////////////////////////////////
+
+	string sParentObjectID = "";
+	if(NULL != Text->m_pObject)
+	{
+		sParentObjectID = Text->m_pObject->GenerateObjectHash(Text->m_pObject->m_pPopupPoint, false);
+
+		SolidRectangle(Text->m_pObject->m_pPopupPoint.X + Text->m_rPosition.Left(), 
+			Text->m_pObject->m_pPopupPoint.Y + Text->m_rPosition.Top(), 
+			Text->m_rPosition.Width,  Text->m_rPosition.Height,  pTextStyle->m_BackColor, 
+			sParentObjectID);
+	}
+
 	if(sTextToDisplay.length() == 0)
 		return;
 
@@ -239,24 +264,9 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		(NULL != Text->m_pObject ? Text->m_pObject->m_ObjectID : string()) + 
 		"-" + StringUtils::itos(Text->m_rPosition.X) + 
 		"-" + StringUtils::itos(Text->m_rPosition.Y);
-if(NULL != Text->m_pObject && Text->m_pObject->m_ObjectID=="1389.0.0")
-{
-	PlutoColor c(255,0,0,100);
-	int ba = pTextStyle->m_BackColor.m_Value=c.AsARGB();
-pTextStyle->m_BackColor.A(255);
-int fa = pTextStyle->m_ForeColor.A();
-int k=2;
-//pTextStyle->m_BackColor.A(128);
-pTextStyle->m_ForeColor.A(200);
-}
-	string sParentObjectID = "";
-	if(NULL != Text->m_pObject)
-		sParentObjectID = Text->m_pObject->GenerateObjectHash(point, false);
 
  	MeshFrame *Frame  = aGLTextRenderer->TextOut(TextUniqueID, sTextToDisplay, Text, pTextStyle, point);
-	
 	Engine->AddMeshFrameToDesktop(sParentObjectID, Frame);
-
 	delete aGLTextRenderer;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -370,6 +380,8 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::UnHighlightObject(bool bDeleteOnly/*=false*/)
 {
+	return;
+
 	DesignObj_Orbiter *pObj = OrbiterLogic()->m_pObj_Highlighted;
 
 	if(NULL != pObj)

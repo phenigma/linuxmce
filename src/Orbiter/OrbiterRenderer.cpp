@@ -1015,15 +1015,6 @@ g_pPlutoLogger->Write(LV_ACTION,"RedrawObjects");
 		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
 		if( pTextStyle )
 		{
-			string sParentObjectID = "";
-			if(NULL != pText->m_pObject)
-				sParentObjectID = pText->m_pObject->GenerateObjectHash(pText->m_pObject->m_pPopupPoint, false);
-
-			SolidRectangle(pText->m_pObject->m_pPopupPoint.X + pText->m_rPosition.Left(), 
-				pText->m_pObject->m_pPopupPoint.Y + pText->m_rPosition.Top(), 
-				pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor, 
-				sParentObjectID);
-
 			string TextToDisplay = OrbiterLogic()->SubstituteVariables(OrbiterLogic()->SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0), pText->m_pObject, 0, 0).c_str();
 			RenderText(TextToDisplay,pText, pTextStyle, pText->m_pObject->m_pPopupPoint);
 			UpdateRect(pText->m_rPosition, pText->m_pObject->m_pPopupPoint);
