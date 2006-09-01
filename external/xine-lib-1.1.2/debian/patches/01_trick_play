@@ -21,9 +21,9 @@ esac
 exit 0
 
 @DPATCH@
-diff -ruN xine-lib-1.1.2-orig/include/xine.h xine-lib-1.1.2/include/xine.h
---- xine-lib-1.1.2-orig/include/xine.h	2006-08-11 05:47:03.000000000 +0300
-+++ xine-lib-1.1.2/include/xine.h	2006-08-11 05:47:34.000000000 +0300
+diff -ruN xine-lib-1.1.2/include/xine.h xine-lib-1.1.2-new/include/xine.h
+--- xine-lib-1.1.2/include/xine.h	2006-09-01 00:15:32.000000000 +0300
++++ xine-lib-1.1.2-new/include/xine.h	2006-09-01 01:05:33.000000000 +0300
 @@ -251,6 +251,31 @@
  int  xine_play (xine_stream_t *stream, int start_pos, int start_time);
  
@@ -72,9 +72,9 @@ diff -ruN xine-lib-1.1.2-orig/include/xine.h xine-lib-1.1.2/include/xine.h
  /* possible values for XINE_STREAM_INFO_VIDEO_AFD */
  #define XINE_VIDEO_AFD_NOT_PRESENT         -1
  #define XINE_VIDEO_AFD_RESERVED_0          0
-diff -ruN xine-lib-1.1.2-orig/include/xine.h.in xine-lib-1.1.2/include/xine.h.in
---- xine-lib-1.1.2-orig/include/xine.h.in	2006-08-11 05:47:03.000000000 +0300
-+++ xine-lib-1.1.2/include/xine.h.in	2006-08-11 05:47:34.000000000 +0300
+diff -ruN xine-lib-1.1.2/include/xine.h.in xine-lib-1.1.2-new/include/xine.h.in
+--- xine-lib-1.1.2/include/xine.h.in	2006-09-01 00:15:32.000000000 +0300
++++ xine-lib-1.1.2-new/include/xine.h.in	2006-09-01 01:05:33.000000000 +0300
 @@ -251,6 +251,31 @@
  int  xine_play (xine_stream_t *stream, int start_pos, int start_time);
  
@@ -123,9 +123,9 @@ diff -ruN xine-lib-1.1.2-orig/include/xine.h.in xine-lib-1.1.2/include/xine.h.in
  /* possible values for XINE_STREAM_INFO_VIDEO_AFD */
  #define XINE_VIDEO_AFD_NOT_PRESENT         -1
  #define XINE_VIDEO_AFD_RESERVED_0          0
-diff -ruN xine-lib-1.1.2-orig/src/libmpeg2/decode.c xine-lib-1.1.2/src/libmpeg2/decode.c
---- xine-lib-1.1.2-orig/src/libmpeg2/decode.c	2006-08-11 05:46:54.000000000 +0300
-+++ xine-lib-1.1.2/src/libmpeg2/decode.c	2006-08-11 05:47:34.000000000 +0300
+diff -ruN xine-lib-1.1.2/src/libmpeg2/decode.c xine-lib-1.1.2-new/src/libmpeg2/decode.c
+--- xine-lib-1.1.2/src/libmpeg2/decode.c	2006-09-01 00:12:22.000000000 +0300
++++ xine-lib-1.1.2-new/src/libmpeg2/decode.c	2006-09-01 01:05:33.000000000 +0300
 @@ -151,6 +151,8 @@
    frame->duration = (int) ceil (duration);
    _x_stream_info_set(mpeg2dec->stream, XINE_STREAM_INFO_FRAME_DURATION, frame->duration);
@@ -135,9 +135,9 @@ diff -ruN xine-lib-1.1.2-orig/src/libmpeg2/decode.c xine-lib-1.1.2/src/libmpeg2/
  } 
  
  static double get_aspect_ratio(mpeg2dec_t *mpeg2dec)
-diff -ruN xine-lib-1.1.2-orig/src/xine-engine/video_out.c xine-lib-1.1.2/src/xine-engine/video_out.c
---- xine-lib-1.1.2-orig/src/xine-engine/video_out.c	2006-08-11 05:46:57.000000000 +0300
-+++ xine-lib-1.1.2/src/xine-engine/video_out.c	2006-08-11 05:47:34.000000000 +0300
+diff -ruN xine-lib-1.1.2/src/xine-engine/video_out.c xine-lib-1.1.2-new/src/xine-engine/video_out.c
+--- xine-lib-1.1.2/src/xine-engine/video_out.c	2006-09-01 00:13:00.000000000 +0300
++++ xine-lib-1.1.2-new/src/xine-engine/video_out.c	2006-09-01 01:08:35.000000000 +0300
 @@ -497,6 +497,45 @@
        return 0;
      }
@@ -184,7 +184,22 @@ diff -ruN xine-lib-1.1.2-orig/src/xine-engine/video_out.c xine-lib-1.1.2/src/xin
  
  
    if (!img->bad_frame) {
-@@ -645,6 +684,7 @@
+@@ -549,6 +588,14 @@
+       stream = xine_list_get_value(this->streams, ite);
+       if (stream == XINE_ANON_STREAM) continue;
+       pthread_mutex_lock (&stream->first_frame_lock);
++      if (stream->first_frame_flag == 3) {
++      	stream->first_frame_flag = 1;
++	img->is_first = FIRST_FRAME_MAX_POLL;
++	pthread_mutex_unlock (&stream->first_frame_lock);
++	pthread_cond_broadcast(&stream->first_frame_reached);
++	pthread_mutex_lock (&stream->first_frame_lock);
++      }
++      else
+       if (stream->first_frame_flag == 2) {
+         if (this->grab_only) {
+           stream->first_frame_flag = 0;
+@@ -645,6 +692,7 @@
      this->num_frames_skipped   = 0;
    }
    
@@ -192,9 +207,9 @@ diff -ruN xine-lib-1.1.2-orig/src/xine-engine/video_out.c xine-lib-1.1.2/src/xin
    return frames_to_skip;
  }
  
-diff -ruN xine-lib-1.1.2-orig/src/xine-engine/xine.c xine-lib-1.1.2/src/xine-engine/xine.c
---- xine-lib-1.1.2-orig/src/xine-engine/xine.c	2006-08-11 05:46:57.000000000 +0300
-+++ xine-lib-1.1.2/src/xine-engine/xine.c	2006-08-11 05:51:46.000000000 +0300
+diff -ruN xine-lib-1.1.2/src/xine-engine/xine.c xine-lib-1.1.2-new/src/xine-engine/xine.c
+--- xine-lib-1.1.2/src/xine-engine/xine.c	2006-09-01 00:13:00.000000000 +0300
++++ xine-lib-1.1.2-new/src/xine-engine/xine.c	2006-09-01 01:16:45.000000000 +0300
 @@ -56,6 +56,7 @@
  #define XINE_ENABLE_EXPERIMENTAL_FEATURES
  #define XINE_ENGINE_INTERNAL
@@ -203,10 +218,29 @@ diff -ruN xine-lib-1.1.2-orig/src/xine-engine/xine.c xine-lib-1.1.2/src/xine-eng
  
  #include "xine_internal.h"
  #include "plugin_catalog.h"
-@@ -1236,6 +1237,295 @@
+@@ -1236,6 +1237,310 @@
    return ret;
  }
  
++static void wait_first_frame_and_set_speed (xine_stream_t *stream, int speed) {
++  printf ("wait_first_frame_and_set_speed<=\n");
++  if (stream->video_decoder_plugin) {
++    pthread_mutex_lock (&stream->first_frame_lock);
++    if (stream->first_frame_flag > 0) {
++      struct timeval  tv;
++      struct timespec ts;
++      gettimeofday(&tv, NULL);
++      ts.tv_sec  = tv.tv_sec + 10;
++      ts.tv_nsec = tv.tv_usec * 1000;
++      pthread_cond_timedwait(&stream->first_frame_reached, &stream->first_frame_lock, &ts);
++    }
++    pthread_mutex_unlock (&stream->first_frame_lock);
++  }
++  // setting speed
++  set_speed_internal(stream, speed);
++  printf ("wait_first_frame_and_set_speed=>\n");
++}
++
 +static int seek_internal (xine_stream_t *stream, int start_pos, int start_time) {
 +
 +	int        demux_status;
@@ -272,9 +306,9 @@ diff -ruN xine-lib-1.1.2-orig/src/xine-engine/xine.c xine-lib-1.1.2/src/xine-eng
 +  
 +	stream->xine->port_ticket->release(stream->xine->port_ticket, 1);
 +  
-+	/* before resuming the demuxer, set first_frame_flag */
++	/* before resuming the demuxer, set first_frame_flag and ask stop after first frame decode */
 +	pthread_mutex_lock (&stream->first_frame_lock);
-+	stream->first_frame_flag = 2;
++	stream->first_frame_flag = 3;
 +	pthread_mutex_unlock (&stream->first_frame_lock);
 +
 +	/* before resuming the demuxer, reset current position information */
@@ -301,13 +335,9 @@ diff -ruN xine-lib-1.1.2-orig/src/xine-engine/xine.c xine-lib-1.1.2/src/xine-eng
 +		}
 +	}
 +
-+
-+  /* Wait until the first frame produced is displayed
-+	* see video_out.c
-+  */
-+	wait_first_frame (stream);
-+
-+	set_speed_internal(stream, xine_original_speed);
++	/* wait until the first frame is produced and restore speed to original */
++ 
++        wait_first_frame_and_set_speed (stream, xine_original_speed);
 +  
 +	xprintf (stream->xine, XINE_VERBOSITY_DEBUG, "seek_internal ...done\n");
 +
@@ -499,9 +529,9 @@ diff -ruN xine-lib-1.1.2-orig/src/xine-engine/xine.c xine-lib-1.1.2/src/xine-eng
  int xine_eject (xine_stream_t *stream) {
    
    int status;
-diff -ruN xine-lib-1.1.2-orig/src/xine-engine/xine_internal.h xine-lib-1.1.2/src/xine-engine/xine_internal.h
---- xine-lib-1.1.2-orig/src/xine-engine/xine_internal.h	2006-08-11 05:46:57.000000000 +0300
-+++ xine-lib-1.1.2/src/xine-engine/xine_internal.h	2006-08-11 05:47:34.000000000 +0300
+diff -ruN xine-lib-1.1.2/src/xine-engine/xine_internal.h xine-lib-1.1.2-new/src/xine-engine/xine_internal.h
+--- xine-lib-1.1.2/src/xine-engine/xine_internal.h	2006-09-01 00:13:00.000000000 +0300
++++ xine-lib-1.1.2-new/src/xine-engine/xine_internal.h	2006-09-01 01:05:33.000000000 +0300
 @@ -342,6 +342,12 @@
                                                 * layers as they cannot call xine_stop. */
    int                        early_finish_event; /* do not wait fifos get empty before sending event */
