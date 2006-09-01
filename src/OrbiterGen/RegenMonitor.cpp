@@ -84,7 +84,7 @@ string RegenMonitor::GetModInfo_Array(int PK_Array)
 		case ARRAY_Media_Filter_Subtype_CONST:
 		case ARRAY_Media_Filter_Source_CONST:
 		case ARRAY_Media_Filter_File_Format_CONST:
-			return "Never"; // This doesn't change
+			return ""; // This doesn't change
 		}
 	}
 	return "*";

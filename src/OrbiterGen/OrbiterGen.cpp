@@ -1528,6 +1528,19 @@ loop_to_keep_looking_for_objs_to_include:
 	{
 		Row_DesignObj *m_pRow_DesignObjDependancy = itnol->first;
 		m_iLocation=itnol->second;
+		m_pRow_Room = NULL;
+		m_pRow_EntertainArea = NULL;
+		for(itd=m_dequeLocation.begin();itd!=m_dequeLocation.end();++itd)
+		{
+			LocationInfo *li = (*itd);
+			if( li->iLocation == m_iLocation )
+			{
+				m_pRow_Room = mds.Room_get()->GetRow(li->PK_Room);
+				m_pRow_EntertainArea = li->PK_EntertainArea>0 ? mds.EntertainArea_get()->GetRow(li->PK_EntertainArea) : NULL;
+				break;
+			}
+		}
+
 		if( m_htGeneratedScreens.find(StringUtils::itos(m_pRow_DesignObjDependancy->PK_DesignObj_get()) + "." + StringUtils::itos(m_iLocation))==m_htGeneratedScreens.end() )
 		{
 			m_iPK_DesignObj_Screen = m_pRow_DesignObjDependancy->PK_DesignObj_get();
