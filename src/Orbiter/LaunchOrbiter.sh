@@ -2,6 +2,7 @@
 
 ## Includes
 . /usr/pluto/bin/SQL_Ops.sh 2>/dev/null || exit 1
+. /usr/pluto/bin/pluto.func 2>/dev/null || exit 1
 
 ## Read command line params
 Params=("$@")
@@ -32,6 +33,29 @@ if [[ "$isX11Running" != "1" ]]; then
 	export DISPLAY=:0
 fi
 
+Counter=0
+isIceWmRunning=0
+while [[ "$isIceWmRunning" -eq 0 ]]; do
+	isIceWmRunning=$(ps -A | grep icewm | wc -l)
+	if [[ "$isIceWmRunning" -eq 0 ]]; then
+		((Counter++))
+		if [[ "$Counter" -gt 20 ]]; then
+			Logging "$TYPE" "$SEVERITY_CRITICAL" "LaunchOrbiter" "IceWM failed to start"
+			break
+		fi
+		sleep 1
+	fi
+done
+
+
 ## Run Orbiter
 xset m 1 1
+
+## Nasty hack ...  It seems icewm somehow ignores the first window that starts, and when we didn't start xterm first
+## then Orbiter would start, launch Xine, and when you went to play a movie, xine would be full screen and topmost
+## and Orbiter couldn't go on top of xine
+xterm &
 exec "$Executable" "$@"
+sleep 2
+killall xterm
+
