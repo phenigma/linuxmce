@@ -74,7 +74,7 @@ int main()
 				memset(remoteMAC, 0, 1024);
 				memset(remoteArchitecture, 0, 1024);
 
-				sscanf(buffer, "%*s %s %s", remoteIP, remoteMAC, remoteArchitecture);
+				sscanf(buffer, "%*s %s %s %s", remoteIP, remoteMAC, remoteArchitecture);
 				char arg_DeviceDatas[1024];
 				snprintf(arg_DeviceDatas, 1024, "9|1|112|%s", remoteArchitecture);
 
