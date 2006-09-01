@@ -2685,13 +2685,6 @@ bool Orbiter_Plugin::DeviceConfigured(class Socket *pSocket,class Message *pMess
 void Orbiter_Plugin::CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename,string &sCMD_Result,Message *pMessage)
 //<-dceag-c818-e->
 {
-list<string> listFiles;
-FileUtils::FindFiles(listFiles,"/personal/Pictures/Hawaii Dec 98/Helicopter","*.jpg",false,true);
-for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
-{
-	*sFilename += *it + "\n";
-}
-return;
 	string sSQL = "SELECT DISTINCT PK_File,Path,Filename "
 		"FROM File "
 		"JOIN File_Attribute ON FK_File=PK_File "
@@ -2718,7 +2711,7 @@ return;
 		while ((row = mysql_fetch_row(result_set1.r)))
 			sPK_File += (sPK_File.empty() ? "" : ",") + string(row[0]);
 
-		sSQL = "SELECT DISTINCT PK_File,Path,Filenamen "
+		sSQL = "SELECT DISTINCT PK_File,Path,Filename "
 			"FROM File "
 			"JOIN File_Attribute ON FK_File=PK_File "
 			"JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Keyword_CONST) " "
