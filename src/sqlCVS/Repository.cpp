@@ -512,7 +512,7 @@ void Repository::Remove( )
 bool Repository::DetermineDeletions( )
 {
 	int ClientID=1, SoftwareVersion=1; /** @warning HACK!!!  */
-	RA_Processor ra_Processor( ClientID, SoftwareVersion );
+	RA_Processor ra_Processor( ClientID, SoftwareVersion, NULL, g_GlobalConfig.m_iMaxConnectAttemptCount );
 
 	// Don't need to create a transaction since we're not changing anything.
 
@@ -548,7 +548,7 @@ bool Repository::CheckIn( )
 		throw "No users"; // Shouldn't happen
 
 	int ClientID=1, SoftwareVersion=1; /** @warning HACK!!! */
-	RA_Processor ra_Processor( ClientID, SoftwareVersion );
+	RA_Processor ra_Processor( ClientID, SoftwareVersion, NULL, g_GlobalConfig.m_iMaxConnectAttemptCount );
 
 	/** An exception will be thrown and a roll back called if this falls out of scope and hasn't been committed or rolled back */
 	SafetyTransaction st( m_pDatabase );
@@ -684,7 +684,7 @@ bool Repository::Update( )
 		return false; /**< This will throw an exception with the transaction */
 
 	int ClientID=1, SoftwareVersion=1; /** @warning HACK!!! */
-	RA_Processor ra_Processor( ClientID, SoftwareVersion );
+	RA_Processor ra_Processor( ClientID, SoftwareVersion, NULL, g_GlobalConfig.m_iMaxConnectAttemptCount );
 
 	/** An exception will be thrown and a roll back called if this falls out of scope and hasn't been committed or rolled back */
 	SafetyTransaction st( m_pDatabase ); 

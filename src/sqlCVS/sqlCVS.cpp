@@ -302,6 +302,9 @@ int main( int argc, char *argv[] )
 			case 'N':
 				g_GlobalConfig.m_sPK_New = argv[++optnum];
 				break;
+			case 'C':
+				g_GlobalConfig.m_iMaxConnectAttemptCount = atoi( argv[++optnum] );
+				break;
 			case '?':
 				bError=true;
 				break;
@@ -364,7 +367,8 @@ int main( int argc, char *argv[] )
 			<< "                  normally used with -n" << endl
 			<< "-O PK -N PK    -- For use with change_key command" << endl
 			<< "-A anonymous   -- Support authorization witn anonymous~anonymous" << endl
-			<< "                  username and password - all records are commited w/o quarantine" << endl;
+			<< "                  username and password - all records are commited w/o quarantine" << endl
+			<< "-C attempts count  -- Maximal attempts to connect server if it's busy, default is unlimited" << endl;
 
 		exit( 1 );
 	}

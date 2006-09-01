@@ -2146,7 +2146,7 @@ bool Table::RevertChange(int psc_id,enum TypeOfChange toc)
 	R_GetRow r_GetRow( m_sName, psc_id );
 
 	int ClientID=1, SoftwareVersion=1; /** @warning HACK!!! */
-	RA_Processor ra_Processor( ClientID, SoftwareVersion );
+	RA_Processor ra_Processor( ClientID, SoftwareVersion, NULL, g_GlobalConfig.m_iMaxConnectAttemptCount );
 	ra_Processor.AddRequest( &r_GetRow );
 
 	DCE::Socket *pSocket=NULL;

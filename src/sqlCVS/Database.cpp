@@ -463,7 +463,7 @@ void Database::ShowChanges()
 {
 	{  // So ra_Processor will fall out of scope before we browse changes
 		int ClientID=1, SoftwareVersion=1; /** @warning HACK!!!  */
-		RA_Processor ra_Processor( ClientID, SoftwareVersion );
+		RA_Processor ra_Processor( ClientID, SoftwareVersion, NULL, g_GlobalConfig.m_iMaxConnectAttemptCount );
 
 		// Don't need to create a transaction since we're not changing anything.
 
@@ -1571,7 +1571,7 @@ void Database::Approve( bool bReject )
 		return;
 
 	int ClientID=1, SoftwareVersion=1; /** @warning HACK!!! */
-	RA_Processor ra_Processor( ClientID, SoftwareVersion );
+	RA_Processor ra_Processor( ClientID, SoftwareVersion, NULL, g_GlobalConfig.m_iMaxConnectAttemptCount );
 
 	for(MapRepository::iterator it=g_GlobalConfig.m_mapRepository.begin();it!=g_GlobalConfig.m_mapRepository.end();++it)
 	{
