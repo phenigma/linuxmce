@@ -1,6 +1,8 @@
 icewm (1.2.20+21pre1-3pluto1) unstable; urgency=low
 
   * Don't build gnome support
+  * Added Pluto log patch (active) and alpha blending patch (inactive) to
+    source
 
  -- Radu Cristescu <radu.c@plutohome.com>  Fri, 01 Sep 2006 11:45:02 +0300
 
