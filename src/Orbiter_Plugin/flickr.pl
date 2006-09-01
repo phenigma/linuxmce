@@ -1,4 +1,8 @@
 #!/usr/bin/perl
+# usage : flickr.pl X Y Z
+# X - day search range
+# Y - picture width
+# Z - picture height
 
 use Flickr::API;
 use XML::Simple;
@@ -10,19 +14,43 @@ use strict;
 # Config section. ###########################################
 
 my $fKey  = '74e14e217ff6bfb670ccec36c0aa122b'; # the flickr key
-my $tDays = 5; # Get picture newer than X days.
-my $minW  = 1280; # min width (pixels)
-my $minH  = 1024;  # min height (pixels)
+# my $tDays = 5; # Get picture newer than X days.
+# my $minW  = 1280; # min width (pixels)
+# my $minH  = 1024;  # min height (pixels)
 my $tmp   = '/tmp'; # tmp folder
 my $dest  = '/home/flickr'; # Destination folder
 my $daycount = 0;
 # my $tag = 'flower';
 # my @tags  = ("art", "flower"); # picture tags array
 # Code body ##############################################
-my ($api,$flag,$response,$xs,$r,$id,$buff,$IMGS,$ua,@buff,$tag,@tags,$finaldst,$fms,@out,$ffield);
+my ($tDays,$minW,$minH,$api,$flag,$response,$xs,$r,$id,$buff,$IMGS,$ua,@buff,$tag,@tags,$finaldst,$fms,@out,$ffield);
 my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst);
 
+# check script arguments 
 
+if ($ARGV[0] == "" ) {
+	print "Using default value for search days range !\n";
+	$tDays = 14; 
+} else {
+	$tDays = $ARGV[0];
+}
+
+if ($ARGV[1] == "" ) {
+        print "Using default value for picture width !\n";
+        $minW = 1200;
+} else {
+        $minW = $ARGV[1];
+}
+
+
+if ($ARGV[2] == "" ) {
+        print "Using default value for picture height !\n";
+        $minH = 700;
+} else {
+        $minH = $ARGV[2];
+}
+
+## 
 mkdir("/home/flickr/");
 
 $api = new Flickr::API({'key' => $fKey});
