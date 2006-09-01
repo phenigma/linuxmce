@@ -7,7 +7,7 @@ EndSection
 
 Section "Files"
 	RgbPath		"/usr/X11R6/lib/X11/rgb"
-	ModulePath	"/usr/X11R6/lib/modules"
+	ModulePath	"/usr/lib/xorg/modules"
 	FontPath	"/usr/X11R6/lib/X11/fonts/misc/"
 	FontPath	"/usr/X11R6/lib/X11/fonts/Speedo/"
 	FontPath	"/usr/X11R6/lib/X11/fonts/Type1/"
