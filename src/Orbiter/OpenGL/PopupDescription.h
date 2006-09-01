@@ -10,13 +10,15 @@ class PlutoRectangle;
 
 class PopupDescription
 {
-    MeshFrame *PopupFrame;
+
 	string ObjectID;
 	string ObjectHash;
 	OpenGL3DEngine* Engine;
 	PlutoRectangle* HighLight;
+    MeshFrame *PopupFrame;
 
 public:
+
 	PopupDescription(OpenGL3DEngine* Engine, string ID, string ObjHash, PlutoRectangle* HighLight);
 	virtual ~PopupDescription(void);
 
@@ -28,6 +30,8 @@ public:
 	 *	Adds to scene the current popup
 	 */
 	void Show();
+
+	MeshFrame *Frame() { return PopupFrame; }
 };
 
 #endif

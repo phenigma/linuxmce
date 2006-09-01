@@ -110,6 +110,9 @@ Orbiter *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 //-----------------------------------------------------------------------------------------------------
 bool Run(Orbiter* pOrbiter, bool bLocalMode)
 {
+	if(pOrbiter->m_bQuit)
+		return false;
+
 	WriteStatusOutput("Parsing configuration data...");
 
 #ifndef POCKETFROG

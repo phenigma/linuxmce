@@ -28,6 +28,8 @@ public:
 	void Reset();
 
 	bool Exists(std::string ID);
+
+	void ResetObjectInPopup(std::string PopupID, class DesignObj_Orbiter *pObj);
 };
 
 #endif

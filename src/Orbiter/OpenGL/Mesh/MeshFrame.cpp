@@ -299,7 +299,7 @@ bool MeshFrame::CheckIntegrity(MeshFrame *Frame)
 {
 	bool Result = false;
 
-	if(NULL != Frame->Parent)
+	if(NULL != Frame && NULL != Frame->Parent)
 	{
 		vector<MeshFrame*>::iterator Child = find(Frame->Parent->Children.begin(), 
 			Frame->Parent->Children.end(), Frame);

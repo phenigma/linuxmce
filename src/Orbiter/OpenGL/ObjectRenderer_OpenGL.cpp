@@ -8,7 +8,7 @@
 
 using namespace DCE;
 
-#define DISABLE_MESHFRAME_CACHE
+//#define DISABLE_MESHFRAME_CACHE
 
 ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : ObjectRenderer(pOwner)
 {
@@ -61,7 +61,7 @@ g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 		return;
 	}
-		
+
 	//g_pPlutoLogger->Write(LV_STATUS, "(2) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
 	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
 

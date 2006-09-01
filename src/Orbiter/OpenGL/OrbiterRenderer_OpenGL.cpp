@@ -49,10 +49,10 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 	bool bFullScreen = false;//Simulator::GetInstance()->m_bFullScreen;
 	if(!pOrbiterRenderer->Engine->GL.InitVideoMode(Width, Height, 32, bFullScreen, pOrbiterRenderer->m_pOrbiter->m_bUseComposite))
 	{
-		pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
 		g_pPlutoLogger->Write(LV_CRITICAL, "Thread -- GL.InitVideoMode FAILED");
 		pOrbiterRenderer->OrbiterLogic()->OnReload();
 		pOrbiterRenderer->PromptUser("Orbiter failed to setup the transparency. Please check if the transparency manager is running!", 300);
+		pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
 		return NULL;
 	}
 	else 
@@ -361,6 +361,28 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::UnHighlightObject(bool bDeleteOnly/*=false*/)
 {
+	DesignObj_Orbiter *pObj = OrbiterLogic()->m_pObj_Highlighted;
+
+	if(NULL != pObj)
+	{
+		DesignObj_Orbiter *pTopParent = (DesignObj_Orbiter *)pObj->TopMostObject();
+		if(NULL != pTopParent && pTopParent->m_pPopupPoint.X != 0 || pTopParent->m_pPopupPoint.Y != 0)
+		{
+			//reset the object
+			Popups->ResetObjectInPopup(
+				pTopParent->GenerateObjectHash(pTopParent->m_pPopupPoint),
+				pObj
+			);
+
+			//reset its children
+			for(DesignObj_DataList::iterator it=pObj->m_ChildObjects.begin();it!=pObj->m_ChildObjects.end();++it)
+				Popups->ResetObjectInPopup(
+					pTopParent->GenerateObjectHash(pTopParent->m_pPopupPoint),
+					(DesignObj_Orbiter *)(*it)
+				);
+		}
+	}
+
 	OrbiterLogic()->m_pObj_Highlighted = NULL;
 	Engine->UnHighlight();
 }

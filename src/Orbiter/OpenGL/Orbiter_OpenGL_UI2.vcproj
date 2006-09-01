@@ -275,9 +275,6 @@
 						RelativePath=".\Mesh\MeshVertex.cpp">
 					</File>
 					<File
-						RelativePath="..\MouseBehavior.cpp">
-					</File>
-					<File
 						RelativePath=".\Mesh\Point3D.cpp">
 					</File>
 				</Filter>
@@ -435,6 +432,9 @@
 				</File>
 				<File
 					RelativePath="..\MediaMouseHandler.cpp">
+				</File>
+				<File
+					RelativePath="..\MouseBehavior.cpp">
 				</File>
 				<File
 					RelativePath="..\Win32\MouseBehavior_Win32.cpp">

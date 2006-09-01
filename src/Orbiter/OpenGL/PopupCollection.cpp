@@ -96,4 +96,21 @@ bool PopupCollection::Exists(string ID)
 	return Result; 
 }
 
+void PopupCollection::ResetObjectInPopup(std::string PopupID, DesignObj_Orbiter *pObj)
+{
+	std::map <std::string, PopupDescription* >::iterator it = Popups.find(PopupID);
 
+	if(it != Popups.end())
+	{
+		MeshFrame *pPopupFrame = it->second->Frame();
+		pObj->m_GraphicToDisplay = GRAPHIC_HIGHLIGHTED;
+		MeshFrame* pOldFrame = TextureManager::Instance()->GetCacheItem(pObj->GenerateObjectHash(pObj->m_pPopupPoint));
+		pObj->m_GraphicToDisplay = GRAPHIC_NORMAL;
+		MeshFrame* pNewFrame = TextureManager::Instance()->GetCacheItem(pObj->GenerateObjectHash(pObj->m_pPopupPoint));
+		
+		if(NULL != pPopupFrame && NULL != pOldFrame && NULL != pNewFrame)
+		{
+			pPopupFrame->ReplaceChild(pOldFrame, pNewFrame);
+		}
+	}
+}

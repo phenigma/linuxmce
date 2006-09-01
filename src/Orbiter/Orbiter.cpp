@@ -1709,19 +1709,19 @@ INITIALIZATION
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea )
 {
-#ifdef WIN32
-	size_t iSize;
-	char * pData = FileUtils::ReadFileIntoBuffer("/usr/pluto/orbiter/skins/Basic/menu2/OrbiterBkg.png", iSize);
-	if (pData)
-	{
-		m_pBackgroundImage = m_pOrbiterRenderer->CreateGraphic();
-		m_pBackgroundImage->LoadGraphic(pData, iSize);
-		delete [] pData;
-	}
-#endif
-
 	if ( !m_bQuit )
 	{
+#ifdef WIN32
+		size_t iSize;
+		char * pData = FileUtils::ReadFileIntoBuffer("/usr/pluto/orbiter/skins/Basic/menu2/OrbiterBkg.png", iSize);
+		if (pData)
+		{
+			m_pBackgroundImage = m_pOrbiterRenderer->CreateGraphic();
+			m_pBackgroundImage->LoadGraphic(pData, iSize);
+			delete [] pData;
+		}
+#endif
+
 		m_bStartingUp=true;
 		{
 			while(true)
