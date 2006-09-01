@@ -30,6 +30,7 @@ private:
 
     unsigned long m_dwEstablishmentID; /** < ID of the establishment */
     unsigned long m_dwSoftwareVersion; /** < software version */
+    int m_iMaxConnectionAttempts; /** < maximal connection attempts */
 
 public:
 
@@ -39,12 +40,13 @@ public:
      * @param EstablishmentID ID of the establishment
      * @param SoftwareVersion version
      */
-    RA_Processor( unsigned long dwEstablishmentID, unsigned long dwSoftwareVersion, class RA_Config *pRA_Config = NULL )
+    RA_Processor( unsigned long dwEstablishmentID, unsigned long dwSoftwareVersion, class RA_Config *pRA_Config = NULL, int iMaxConnectionAttempts=-1 )
     {
         m_dwEstablishmentID = dwEstablishmentID; 
 		m_dwSoftwareVersion = dwSoftwareVersion;
 		m_pRA_Config        = pRA_Config;
 		m_pSocket			= NULL;
+		m_iMaxConnectionAttempts = iMaxConnectionAttempts;
     };
 
 	virtual ~RA_Processor() 

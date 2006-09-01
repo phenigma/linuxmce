@@ -50,8 +50,11 @@ bool RA_Processor::SendRequests( string sServerAddress, DCE::Socket **ppSocket )
 		return SendRequests(*ppSocket);  // We were already passed in a socket
 
 	RAClientSocket *pSocket;
+	int iAttemptsCount=0;
 	while(true)
 	{
+		iAttemptsCount++;
+		
 		// Connecting to the server
 		pSocket = new RAClientSocket( 1, sServerAddress, "foo" ); // Freed before the endif or any of the returns
 		if( !pSocket->Connect() )
@@ -67,7 +70,17 @@ bool RA_Processor::SendRequests( string sServerAddress, DCE::Socket **ppSocket )
 			break; // The server is ready
 		if( sResult=="BUSY_RETRY" )
 		{
-			cout << "The server is busy processing another request.  Waiting 5 seconds." << endl;
+			cout << "The server is busy processing another request.";
+			
+			if (m_iMaxConnectionAttempts!=-1 && iAttemptsCount>=m_iMaxConnectionAttempts)
+			{
+				cerr << "Maximal count of connection attempts (" << m_iMaxConnectionAttempts << ") reached, giving up" << endl;
+				cout << endl << "Maximal count of connection attempts (" << m_iMaxConnectionAttempts << ") reached, giving up" << endl;
+				delete pSocket;
+				return false;
+			}
+			
+			cout << "  Waiting 5 seconds." << endl;
 			delete pSocket;
 			Sleep(5000);
 			continue;
