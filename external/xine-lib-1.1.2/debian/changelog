@@ -1,3 +1,12 @@
+xine-lib (1.1.2-1pluto3) unstable; urgency=low
+
+  * More stable seek (kirril)
+  * References => pointers (kirril)
+  * Storing attribute only if we can restore it later (kirril)
+  * Doing validation of initial port attributes before saving them (kirril)
+
+ -- Razvam Gavril <razvan.g@plutohome.com>  Fri, 01 Sep 2006 16:47:39 +0300
+
 xine-lib (1.1.2-1pluto2) unstable; urgency=low
 
   * Added flush buffer on Nx => 1x speed transition (kirill)
