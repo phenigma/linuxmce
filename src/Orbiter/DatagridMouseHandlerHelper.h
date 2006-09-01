@@ -38,6 +38,7 @@ namespace DCE
 			cosm_DOWN
 		};
 		CapturingOffscreenMovement m_eCapturingOffscreenMovement;
+		bool m_bHitBottom;
 
         /// relative mouse pointer
         ///   hide when relative motion is wanted

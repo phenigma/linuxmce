@@ -324,6 +324,10 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 
 				if(NULL != pCLinux->m_pScreenHistory_Current)
 					pCLinux->CMD_Goto_Screen("", pCLinux->m_pScreenHistory_Current->PK_Screen());  // Just go back to the screen
+
+				if( pCLinux->UsesUIVersion2() )
+					pCLinux->StartScreenSaver();
+
 			}
 
 			g_pPlutoLogger->Write(LV_CRITICAL, "About to initialize after relatives...");

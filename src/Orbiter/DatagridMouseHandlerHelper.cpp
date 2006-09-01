@@ -28,6 +28,7 @@ DatagridMouseHandlerHelper::DatagridMouseHandlerHelper(MouseHandler *pMouseHandl
     m_nRelativePointer_SpeedShape=0;
     m_pRelativePointer_Image=NULL;
 	m_eCapturingOffscreenMovement=cosm_NO;
+	m_bHitBottom=false;
 }
 
 DatagridMouseHandlerHelper::~DatagridMouseHandlerHelper()
@@ -40,6 +41,7 @@ void DatagridMouseHandlerHelper::Start(DesignObj_DataGrid *pObj_ScrollingGrid,in
 	m_dwPK_Direction_ScrollGrid = 0;
 	m_pObj_ScrollingGrid=pObj_ScrollingGrid;
 	m_NumNotches=NumNotches; m_Top=Top; m_Bottom=Bottom;
+	m_bHitBottom=false;
 
 	m_iLastNotch=-1;
 	m_pObj_MediaBrowser_Alpha = m_pMouseBehavior->m_pOrbiter->FindObject(m_pMouseHandler->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoAlpha_CONST));
@@ -324,9 +326,9 @@ bool DatagridMouseHandlerHelper::Move(int X,int Y,int PK_Direction)
 	
 	// For testing under windows add extra padding of 6 pixels on the top and bottom since it's usually not a full screen app
 #ifdef WIN32
-	if (Y <= m_Top+6 || Y >= m_Bottom-6)
+	if ( (Y <= m_Top+6 && m_pObj_ScrollingGrid->m_GridCurRow>0) || (Y >= m_Bottom-6 && !m_bHitBottom) )
 #else
-	if (Y <= m_Top || Y >= m_Bottom)
+	if ( (Y <= m_Top && m_pObj_ScrollingGrid->m_GridCurRow>0) || (Y >= m_Bottom && !m_bHitBottom) )
 #endif
 	{
 g_pPlutoLogger->Write(LV_ACTION, "**go**");
@@ -374,10 +376,13 @@ g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
 	if( m_eCapturingOffscreenMovement==cosm_UP )
 	{
 		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ScrollingGrid->m_ObjectID,DIRECTION_Up_CONST,false);
+		m_bHitBottom=false;
 	}
 	else
 	{
 		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ScrollingGrid->m_ObjectID,DIRECTION_Down_CONST,false);
+		if( !bResult )
+			m_bHitBottom=true;
 	}
 
 	if( !bResult )

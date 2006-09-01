@@ -2705,6 +2705,9 @@ void Orbiter_Plugin::CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename
 	result_set1.r=m_pMedia_Plugin->m_pDatabase_pluto_media->mysql_query_result(sSQL);
 	PlutoSqlResult *p_result_set = &result_set1;
 
+	if( !result_set1.r || result_set1.r->row_count==0 )
+		return;
+
 	// See if this orbiter is supposed to filter based on tags
 	DeviceData_Router *pDevice_Orbiter = m_pRouter->m_mapDeviceData_Router_Find( iPK_Device );
 	string sKeywords;
@@ -2728,6 +2731,9 @@ void Orbiter_Plugin::CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename
 
 		// Create a new result set based on the tags
 		result_set2.r=m_pMedia_Plugin->m_pDatabase_pluto_media->mysql_query_result(sSQL);
+		if( !result_set2.r || result_set2.r->row_count==0 )
+			return;
+
 		p_result_set = &result_set2;  // Assign it to the  pointer we will use below
 	}
 
@@ -2769,12 +2775,13 @@ void Orbiter_Plugin::StartRetrievingScreenSaverFiles()
 	{
 		for(vector<string>::iterator it=vectApps.begin();it!=vectApps.end();++it)
 		{
-			string sArguments = StringUtils::itos(DATA_Get_Quantity()) + "\t" +
+			string sFilename = FileUtils::FilenameWithoutPath(*it);
+			string sArguments = /*StringUtils::itos(DATA_Get_Quantity()) +*/ "7\t" +
 				StringUtils::itos(DATA_Get_Width()) + "\t" +
 				StringUtils::itos(DATA_Get_Height()) + "\t" +
 				sOnlyRetrieveTags;
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-				*it,"screen_saver_" + *it,sArguments,"","",false,false,false);
+				*it,"screen_saver_" + sFilename,sArguments,"","",false,false,false);
 			SendCommand(CMD_Spawn_Application);
 		}
 	}

@@ -50,7 +50,6 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 	m_pObj_FileDetailsText = m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_butFileBrowserDetails_CONST);
 	if( m_pObj_FileDetailsText && m_pObj_FileDetailsText->m_vectDesignObjText.size() )
 		m_pObj_FileDetailsText->m_vectDesignObjText[0]->m_sText = "";
-	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 }
 
 MediaBrowserMouseHandler::~MediaBrowserMouseHandler()
@@ -61,8 +60,9 @@ MediaBrowserMouseHandler::~MediaBrowserMouseHandler()
 void MediaBrowserMouseHandler::Start()
 {
     g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Start()");
+	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 	m_LastRow=-1;
-	m_pDatagridMouseHandlerHelper->Start(m_pObj_ListGrid,5,1,m_pMouseBehavior->m_pOrbiter->m_iImageHeight);
+	m_pDatagridMouseHandlerHelper->Start(m_pObj_ListGrid,5,1,m_pMouseBehavior->m_pOrbiter->m_iImageHeight-1);
 }
 
 void MediaBrowserMouseHandler::Stop()
