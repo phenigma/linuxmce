@@ -1231,19 +1231,44 @@ void *ImageLoadThread(void *p)
 		pRenderer->m_listBackgroundImage.pop_front();
 		if( !pBackgroundImage->m_pObj_Grid->m_bOnScreen )  // This may have gone off screen, if so ignore it
 			continue;
-		
 		vm.Release();
+
+		size_t GraphicLength;
+		char *pGraphicData = FileUtils::ReadFileIntoBuffer(pBackgroundImage->m_sPic, GraphicLength);
 		PLUTO_SAFETY_LOCK(M, pRenderer->m_pOrbiter->m_DatagridMutex);
 		vm.Relock();
-		size_t l;
-		pBackgroundImage->m_pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer(pBackgroundImage->m_sPic, l);
-		pBackgroundImage->m_pCell->m_GraphicLength=(unsigned long)l;
+
+		if( !pBackgroundImage->m_pObj_Grid->m_bOnScreen )  // This may have gone off screen while loading the graphic with the mutex unlocked
+		{
+			delete pGraphicData;
+			continue;
+		}
+		pBackgroundImage->m_pCell->m_pGraphicData = pGraphicData;
+		pBackgroundImage->m_pCell->m_GraphicLength=(unsigned long) GraphicLength;
 		if( pBackgroundImage->m_pObj_Grid->CellIsVisible( pBackgroundImage->m_ColRow.first, pBackgroundImage->m_ColRow.second ) )
 		{
+			vm.Release();
+			M.Release();
+
+			// Again load the graphic without holding the mutex
+			PlutoGraphic *pPlutoGraphic = pBackgroundImage->m_pObj_Grid->m_pOrbiter->Renderer()->CreateGraphic();;
+			pPlutoGraphic->m_GraphicFormat = pBackgroundImage->m_pCell->m_GraphicFormat;
+			pPlutoGraphic->LoadGraphic(pGraphicData, GraphicLength, pBackgroundImage->m_pObj_Grid->m_pOrbiter->m_iRotation);
+
+			M.Relock();
+			vm.Relock();
+
+			// Again check since this may have gone off-screen while we were releasing the mutex to load the image
+			if( !pBackgroundImage->m_pObj_Grid->CellIsVisible( pBackgroundImage->m_ColRow.first, pBackgroundImage->m_ColRow.second ) )
+			{
+				delete pPlutoGraphic;
+				continue;
+			}
+
 			delete pBackgroundImage->m_pCell->m_pGraphic;
-			pBackgroundImage->m_pCell->m_pGraphic = pBackgroundImage->m_pObj_Grid->m_pOrbiter->Renderer()->CreateGraphic();
-			pBackgroundImage->m_pCell->m_pGraphic->m_GraphicFormat = pBackgroundImage->m_pCell->m_GraphicFormat;
-			pBackgroundImage->m_pCell->m_pGraphic->LoadGraphic(pBackgroundImage->m_pCell->m_pGraphicData,  pBackgroundImage->m_pCell->m_GraphicLength, pBackgroundImage->m_pObj_Grid->m_pOrbiter->m_iRotation);
+			pBackgroundImage->m_pCell->m_pGraphic=pPlutoGraphic;
+
+			pBackgroundImage->m_pCell->m_pGraphic = pPlutoGraphic;
 			int j=pBackgroundImage->m_ColRow.first;
 			int i=pBackgroundImage->m_ColRow.second;
 			int x, y, w, h;

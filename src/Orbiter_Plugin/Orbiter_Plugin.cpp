@@ -92,6 +92,10 @@ string g_sLatestMobilePhoneVersion="2006.02.09";
 
 #define EXPIRATION_INTERVAL 30
 
+// Alarm Types
+#define PROCESS_SCREEN_SAVER_PHOTOS		1
+
+
 //<-dceag-const-b->!
 Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
     : Orbiter_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter), m_UnknownDevicesMutex("Unknown devices varibles"),
@@ -107,6 +111,7 @@ Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 	m_pDatabase_pluto_security=NULL;
 	m_pRegenMonitor=NULL;
 	m_bFloorPlansArePrepared = false;
+	m_pAlarmManager=NULL;
 }
 
 //<-dceag-getconfig-b->
@@ -197,7 +202,9 @@ bool Orbiter_Plugin::GetConfig()
 		SetStatus("");
 	}
 
-	StartRetrievingScreenSaverFiles();
+	m_pAlarmManager = new AlarmManager();
+    m_pAlarmManager->Start(2);      //4 = number of worker threads
+	m_pAlarmManager->AddRelativeAlarm(60,this,PROCESS_SCREEN_SAVER_PHOTOS,NULL);
 
 	return true;
 }
@@ -212,6 +219,7 @@ Orbiter_Plugin::~Orbiter_Plugin()
 	delete m_pDatabase_pluto_main;
     delete m_pDatabase_pluto_security;
 	delete m_pRegenMonitor;
+	delete m_pAlarmManager;
 
 	for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
 		delete (*it).second;
@@ -2770,4 +2778,11 @@ void Orbiter_Plugin::StartRetrievingScreenSaverFiles()
 			SendCommand(CMD_Spawn_Application);
 		}
 	}
+	m_pAlarmManager->AddRelativeAlarm(60 * 60 * 24 /* do again in 24 hours */,this,PROCESS_SCREEN_SAVER_PHOTOS,NULL);
+}
+
+void Orbiter_Plugin::AlarmCallback(int id, void* param)
+{
+	if( id==PROCESS_SCREEN_SAVER_PHOTOS )
+		StartRetrievingScreenSaverFiles();
 }

@@ -18,6 +18,7 @@
 class Database_pluto_main;
 class Database_pluto_security;
 #include "OH_Orbiter.h"
+#include "AlarmManager.h"
 
 namespace DCE
 {
@@ -55,7 +56,7 @@ public:
 };
 
 //<-dceag-decl-b->!
-    class Orbiter_Plugin : public Orbiter_Plugin_Command
+    class Orbiter_Plugin : public Orbiter_Plugin_Command, public AlarmEvent
     {
 //<-dceag-decl-e->
         bool m_bFloorPlansArePrepared;
@@ -63,6 +64,7 @@ public:
 		bool m_bIgnoreAllBluetoothDevices;
 		RegenMonitor *m_pRegenMonitor;
 		string m_sRegenAllDevicesRooms;
+		class AlarmManager *m_pAlarmManager;
 
 //<-dceag-const-b->
 public:
@@ -96,6 +98,7 @@ public:
 	void SendAppToPhone(OH_Orbiter *pOH_Orbiter,int nDeviceID, string sMacAddress);
 	long GetAppServerAssociatedWithDevice(int nDeviceID);
 	void StartRetrievingScreenSaverFiles();
+	void AlarmCallback(int id, void* param);
 
 	//from command_impl class
 	virtual bool PendingTasks(vector<string> *vectPendingTasks=NULL);

@@ -484,6 +484,9 @@ void DesignObj_DataGrid::m_pDataGridTable_Current_set(DataGridTable *pDataGridTa
 
 bool DesignObj_DataGrid::CellIsVisible(int Column,int Row)
 {
+	if( m_bOnScreen==false )
+		return false;
+
 	if( Row<m_GridCurRow && (Row!=0 || !m_bKeepRowHeader) )
 		return false;
 

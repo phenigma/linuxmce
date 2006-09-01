@@ -23,6 +23,7 @@
 #include "LockedMouseHandler.h"
 #include "KeyboardMouseHandler.h"
 #include "OrbiterRenderer.h"
+#include "ObjectRenderer.h"
 
 #include "Linux/OSDCompass.h"
 
@@ -345,6 +346,7 @@ void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 			m_pObj_Previously_Highlighted->m_ObjectID.c_str(),m_GraphicToDisplay_Obj_Previously_Highlighted);
 		
 		m_pObj_Previously_Highlighted->m_GraphicToDisplay_set(m_GraphicToDisplay_Obj_Previously_Highlighted,true);
+//		m_pObj_Previously_Highlighted->Renderer()->RenderObject((DesignObj_Orbiter *) m_pObj_Previously_Highlighted->TopMostObject(),m_pObj_Previously_Highlighted->m_pPopupPoint);
 		m_pOrbiter->ExecuteCommandsInList( &m_pObj_Previously_Highlighted->m_Action_UnhighlightList, m_pObj_Previously_Highlighted, smHighlight, 0, 0 );
 		m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_Previously_Highlighted);
 	}
