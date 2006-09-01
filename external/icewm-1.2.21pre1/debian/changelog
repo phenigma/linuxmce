@@ -1,3 +1,9 @@
+icewm (1.2.20+21pre1-3pluto1) unstable; urgency=low
+
+  * Don't build gnome support
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Fri, 01 Sep 2006 11:45:02 +0300
+
 icewm (1.2.20+21pre1-3) unstable; urgency=low
 
   * debian_defaults.dpatch: added code to verify that the default xlock

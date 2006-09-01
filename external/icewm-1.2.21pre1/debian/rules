@@ -10,8 +10,6 @@ include /usr/share/dpatch/dpatch.make
 
 ICEWM_COMMON=$(CURDIR)/debian/icewm-common
 ICEWM=$(CURDIR)/debian/icewm
-ICEWM_GNOME=$(CURDIR)/debian/icewm-gnome
-ICEWM_GNOME_SUPP=$(CURDIR)/debian/icewm-gnome-support
 ICEWM_LITE=$(CURDIR)/debian/icewm-lite
 ICEWM_EXP=$(CURDIR)/debian/icewm-experimental
 
@@ -62,7 +60,7 @@ stamp-conf-lite:
 conf: stamp-conf
 stamp-conf:
 	./configure $(confflags) --with-imlib --prefix=/usr \
-		--enable-menus-gnome1 --enable-menus-gnome2 \
+		--disable-menus-gnome1 --disable-menus-gnome2 \
 		--with-cfgdir=/etc/X11/icewm --datadir=/usr/share --disable-debug \
 		--enable-i18n --enable-nls \
 		--with-mkfontdir=/usr/X11R6/bin/mkfontdir --enable-shaped-decorations
@@ -116,7 +114,7 @@ install: build
 	dh_installdirs
 
 	# Install everything but documentation
-	$(MAKE) install-base install-nls install-gnome DESTDIR=$(ICEWM_COMMON)
+	$(MAKE) install-base install-nls DESTDIR=$(ICEWM_COMMON)
 
 	## icewm-common
 
@@ -156,31 +154,6 @@ install: build
 	# to icewm-common instead.
 	rm -rf $(ICEWM)/usr/share/doc/icewm
 
-	## icewm-gnome-support #######################################
-
-	mv $(ICEWM)/usr/bin/icewm-menu-gnome1 $(ICEWM_GNOME_SUPP)/usr/bin
-	mv $(ICEWM)/usr/bin/icewm-menu-gnome2 $(ICEWM_GNOME_SUPP)/usr/bin
-	install -m 755 -d $(ICEWM_GNOME_SUPP)/usr/share/icewm/contrib
-	install -m 755 debian/icewm-config-fix.pl $(ICEWM_GNOME_SUPP)/usr/share/icewm/contrib/config-fix.pl
-	mv $(ICEWM_COMMON)/usr/share/gnome \
-		$(ICEWM_GNOME_SUPP)/usr/share
-
-	# Remove doc directories since we will add links
-	# to icewm-common instead.
-	rm -rf $(ICEWM_GNOME_SUPP)/usr/share/doc/icewm-gnome-support
-
-	## icewm-gnome ###############################################
-
-	for f in icehelp icewmbg icewmhint icesh; do \
-		ln -s $$f $(ICEWM_GNOME)/usr/bin/$$f-gnome ; \
-	done
-
-	# icewm-gnome is now a link to icewm
-	dh_link -picewm-gnome usr/bin/icewm usr/bin/icewm-gnome
-
-	# Remove doc directories since we will add links
-	# to icewm-common instead.
-	rm -rf $(ICEWM_GNOME)/usr/share/doc/icewm-gnome
 
 	## icewm-lite ################################################
 
@@ -200,7 +173,7 @@ install: build
 	# to icewm-common instead.
 	rm -rf $(ICEWM_EXP)/usr/share/doc/icewm-experimental
 
-	cd debian ; for x in icewm icewm-gnome icewm-lite icewm-experimental ; do mkdir -p $$x/usr/share/lintian/overrides ; cp $$x.lintian $$x/usr/share/lintian/overrides/$$x ; done
+	cd debian ; for x in icewm icewm-lite icewm-experimental ; do mkdir -p $$x/usr/share/lintian/overrides ; cp $$x.lintian $$x/usr/share/lintian/overrides/$$x ; done
 
 binary-indep: build install
 # There are no architecture-independent files to be uploaded
@@ -214,8 +187,6 @@ binary-arch: build install
 	dh_installdebconf
 
 	dh_link -picewm usr/share/doc/icewm-common usr/share/doc/icewm
-	dh_link -picewm-gnome usr/share/doc/icewm-common usr/share/doc/icewm-gnome
-	dh_link -picewm-gnome-support usr/share/doc/icewm-common usr/share/doc/icewm-gnome-support
 	dh_link -picewm-lite usr/share/doc/icewm-common usr/share/doc/icewm-lite
 	dh_link -picewm-experimental usr/share/doc/icewm-common usr/share/doc/icewm-experimental
 
@@ -225,7 +196,6 @@ binary-arch: build install
 
 	# Stop using dh_installwm until bug #85963 is fixed.
 	#dh_installwm -picewm --priority=50 icewm
-	#dh_installwm -picewm-gnome --priority=60 icewm-gnome
 	#dh_installwm -picewm-lite --priority=40 icewm-lite
 	#dh_installwm -picewm-experimental --priority=40 icewm-experimental
 
@@ -235,16 +205,13 @@ binary-arch: build install
 	dh_compress
 
 	# Install undocumented manpages
-	for v in "" -experimental -gnome -lite ; do \
+	for v in "" -experimental -lite ; do \
 		mkdir -p debian/icewm$$v/usr/share/man/man1 ; \
 			for f in icewm icehelp icewmbg icewmhint icesh icewmtray icewm-session; do \
 				ln -sf ../man7/$(MP).gz debian/icewm$$v/usr/share/man/man1/$$f$$v.1x.gz ; \
 		done ; \
 	done
 	
-	mkdir -p debian/icewm-gnome-support/usr/share/man/man1
-	ln -sf ../man7/$(MP).gz debian/icewm-gnome-support/usr/share/man/man1/icewm-menu-gnome1.1x.gz
-	ln -sf ../man7/$(MP).gz debian/icewm-gnome-support/usr/share/man/man1/icewm-menu-gnome2.1x.gz
 	ln -sf ../man7/$(MP).gz debian/icewm-experimental/usr/share/man/man1/icesound-experimental.1x.gz
 
 	dh_fixperms -Xfix-config.pl
