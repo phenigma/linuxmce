@@ -1,5 +1,0 @@
-package_build_fixes
-debian_defaults
-compiler_defaults
-#less_verbosity
-#menu_parser_fix
