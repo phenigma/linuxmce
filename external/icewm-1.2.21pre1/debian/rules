@@ -34,7 +34,7 @@ stamp-conf-exp:
 	./configure $(confflags) --with-imlib \
 		--disable-menus-gnome1 --disable-menus-gnome2 \
 		--prefix=/usr --with-cfgdir=/etc/X11/icewm \
-		--datadir=/usr/share --disable-debug \
+		--datadir=/usr/share --enable-debug \
 		--enable-i18n --enable-nls \
 		--enable-antialiasing  --enable-shaped-decorations \
 		--enable-gradients \
@@ -49,7 +49,7 @@ conf-lite: stamp-conf-lite
 stamp-conf-lite:
 	./configure $(confflags) --with-xpm --prefix=/usr \
 		--disable-menus-gnome1 --disable-menus-gnome2 \
-		--with-cfgdir=/etc/X11/icewm --datadir=/usr/share --disable-debug \
+		--with-cfgdir=/etc/X11/icewm --datadir=/usr/share --enable-debug \
 		--enable-i18n --enable-nls --enable-lite --disable-xfreetype \
 		--enable-corefonts --with-mkfontdir=/usr/X11R6/bin/mkfontdir \
 		--disable-taskbar  --disable-xrandr
@@ -61,7 +61,7 @@ conf: stamp-conf
 stamp-conf:
 	./configure $(confflags) --with-imlib --prefix=/usr \
 		--disable-menus-gnome1 --disable-menus-gnome2 \
-		--with-cfgdir=/etc/X11/icewm --datadir=/usr/share --disable-debug \
+		--with-cfgdir=/etc/X11/icewm --datadir=/usr/share --enable-debug \
 		--enable-i18n --enable-nls \
 		--with-mkfontdir=/usr/X11R6/bin/mkfontdir --enable-shaped-decorations
 	$(MAKE)
