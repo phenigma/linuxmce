@@ -1629,7 +1629,12 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                 alArray->push_back(new ArrayValue("0", GetText(TEXT_All_CONST),
 	                NULL, 0, 0, 0, 0,false,false,false));
 
-				string sSQL = "WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Genre_CONST);
+				string sSQL = "SELECT DISTINCT Attribute.* from Attribute "
+					"JOIN File_Attribute ON FK_Attribute=PK_Attribute "
+					"JOIN File ON FK_File=PK_File "
+					"WHERE EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType) +
+					" AND FK_AttributeType="  TOSTRING(ATTRIBUTETYPE_Genre_CONST) " AND Missing=0";
+
 				vector<Row_Attribute *> vectRow_Attribute;
 				m_pOrbiterGenerator->m_Database_pluto_media.Attribute_get()->GetRows(sSQL,&vectRow_Attribute);
 				for( vector<Row_Attribute *>::iterator it=vectRow_Attribute.begin();it!=vectRow_Attribute.end();++it )
