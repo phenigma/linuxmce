@@ -28,7 +28,7 @@ Modeline_1920x1080i_60='"1920x1080" 74.250 1920 2008 2052 2200 1080 1084 1094 11
 
 TestConfig()
 {
-	X :2 -probeonly -config "$ConfigFile" &>/dev/null
+	X :2 -ignoreABI -probeonly -config "$ConfigFile" &>/dev/null
 	return $?
 }
 

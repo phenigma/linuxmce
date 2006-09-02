@@ -5,7 +5,7 @@ Answer="$1"
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Utils.sh
 
-pidOfX="$(ps ax|grep 'X :1 -ac -config /etc/X11/xorg.conf.test'|grep -v grep|awk '{print $1}')"
+pidOfX="$(ps ax|grep 'X :1 -ignoreABI -ac -config /etc/X11/xorg.conf.test'|grep -v grep|awk '{print $1}')"
 if [[ -z "$pidOfX" ]]; then
 	echo "test X not running. nothing to kill"
 fi
