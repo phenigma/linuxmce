@@ -19,8 +19,8 @@ function mediaDirectors($output,$dbADO) {
 	$audioSettingsArray=array('M'=>'Manual settings', 'C'=>'SPDIF Coax', 'O'=>'SPDIF TosLink', 'S'=>'Stereo', 'L'=>'Multi-channel analog');
 	$deinterlaceQualityArray=array_flip(array(
 		"None" => "",
-		"Lowest" => "tvtime:method=LineDoubler,enabled=1,pulldown=none,framerate_mode=half_top,judder_correction=0,use_progressive_frame_flag=1,chroma_filter=0,cheap_mode=>1",
-		"Low" => "tvtime:method=LinearBlend,enabled=1,pulldown=none,framerate_mode=half_top,judder_correction=0,use_progressive_frame_flag=1,chroma_filter=0,cheap_mode=>1",
+		"Lowest" => "tvtime:method=LineDoubler,enabled=1,pulldown=none,framerate_mode=half_top,judder_correction=0,use_progressive_frame_flag=1,chroma_filter=0,cheap_mode=1",
+		"Low" => "tvtime:method=LinearBlend,enabled=1,pulldown=none,framerate_mode=half_top,judder_correction=0,use_progressive_frame_flag=1,chroma_filter=0,cheap_mode=1",
 		"Medium" => "tvtime:method=Greedy,enabled=1,pulldown=none,framerate_mode=half_top,judder_correction=0,use_progressive_frame_flag=1,chroma_filter=0,cheap_mode=1",
 		"High" => "tvtime:method=Greedy,enabled=1,pulldown=none,framerate_mode=half_top,judder_correction=0,use_progressive_frame_flag=1,chroma_filter=0,cheap_mode=0",
 		"Higher" => "tvtime:method=Greedy2Frame,enabled=1,pulldown=vektor,framerate_mode=full,judder_correction=0,use_progressive_frame_flag=1,chroma_filter=0,cheap_mode=0",
