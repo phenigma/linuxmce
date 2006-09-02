@@ -2780,9 +2780,16 @@ void Orbiter_Plugin::StartRetrievingScreenSaverFiles()
 				StringUtils::itos(DATA_Get_Width()) + "\t" +
 				StringUtils::itos(DATA_Get_Height()) + "\t" +
 				sOnlyRetrieveTags;
+		
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 				*it,"screen_saver_" + sFilename,sArguments,"","",false,false,false);
-			SendCommand(CMD_Spawn_Application);
+			string sResponse;
+			if( !SendCommand(CMD_Spawn_Application,&sResponse) )
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"Failed to start flicrk script.  Trying again in 1 minute");
+				m_pAlarmManager->AddRelativeAlarm(60,this,PROCESS_SCREEN_SAVER_PHOTOS,NULL);
+				return;
+			}
 		}
 	}
 	m_pAlarmManager->AddRelativeAlarm(60 * 60 * 24 /* do again in 24 hours */,this,PROCESS_SCREEN_SAVER_PHOTOS,NULL);
