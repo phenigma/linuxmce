@@ -16,7 +16,7 @@ typedef class ScreenHandler * (* RAOP_FType) (class Orbiter *,  map<int,int> *p_
 class MediaFileBrowserOptions
 {
 public:
-	int m_PK_MediaType,m_PK_AttributeType_Sort,m_PK_Users,m_iPK_Screen;
+	int m_PK_MediaType,m_PK_AttributeType_Sort,m_PK_Users,m_iPK_Screen,m_PK_Attribute;
 	string m_sPK_MediaSubType,m_sPK_FileFormat,m_sPK_Attribute_Genres,m_sSources,m_sPK_Users_Private;
 	map< pair<int,string>, DesignObj_Orbiter * > m_mapObjectsValues;
 	Orbiter *m_pOrbiter;
@@ -32,8 +32,11 @@ public:
 	string ToString()
 	{
 		return StringUtils::itos(m_PK_MediaType) + "|" + m_sPK_MediaSubType + "|" + m_sPK_FileFormat + "|" + m_sPK_Attribute_Genres + "|" + m_sSources +
-			"|" + m_sPK_Users_Private + "|" + StringUtils::itos(m_PK_AttributeType_Sort) + "|" + StringUtils::itos(m_PK_Users);
+			"|" + m_sPK_Users_Private + "|" + StringUtils::itos(m_PK_AttributeType_Sort) + "|" + StringUtils::itos(m_PK_Users) + " | " +
+			StringUtils::itos(m_PK_Attribute);
 	}
+
+	string HumanReadable();
 
 	void ClearAll(int PK_MediaType,int PK_Screen,int PK_AttributeType_Sort)
 	{
@@ -41,6 +44,7 @@ public:
 		m_PK_MediaType=PK_MediaType;
 		m_PK_Users=0;
 		m_PK_AttributeType_Sort = PK_AttributeType_Sort;
+		m_PK_Attribute=0;
 		m_sPK_MediaSubType=""; m_sPK_FileFormat=""; m_sPK_Attribute_Genres=""; m_sSources=""; m_sPK_Users_Private="";
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(m_PK_MediaType)); 
 		m_mapObjectsValues.clear();

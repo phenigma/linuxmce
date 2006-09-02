@@ -18,25 +18,41 @@ public:
 		fbi_File,
 		fbi_InternalDisc,
 		fbi_Jukebox,
+		fbi_Attribute
 	} enumTypeOfMedia;
 
 	bool m_bIsDirectory,m_bIsBack;  // Keep track of whether this is a 'go back' or not
 	string m_sDisplayGroup,m_sDisplayName;
 	string m_sMRL;
-	int m_PK_File,m_PK_Disc,m_PK_Picture;
+	int m_PK_File,m_PK_Disc,m_PK_Picture,m_PK_Attribute;
 	enumTypeOfMedia m_enumTypeOfMedia;
 
 	// Constructor for file info
 	FileBrowserInfo(string sDisplayName, string sPath,int PK_File,bool bIsDirectory,bool bIsBack) 
 	{
-		m_sDisplayName=sDisplayName;
+		if( sDisplayName.empty() )
+			m_sDisplayName=FileUtils::FilenameWithoutPath(sPath);
+		else
+			m_sDisplayName=sDisplayName;
 		m_enumTypeOfMedia=fbi_File;
 		m_PK_Disc=0;
 		m_PK_Picture=0;
+		m_PK_Attribute=0;
 		m_PK_File=PK_File;
 		m_bIsDirectory=bIsDirectory;
 		m_bIsBack=bIsBack;
 		m_sMRL=sPath;
+	}
+	// Constructor for attribute info
+	FileBrowserInfo(string sDisplayName, string sMRL,int PK_Attribute) 
+	{
+		m_sDisplayName=sDisplayName;
+		m_enumTypeOfMedia=fbi_Attribute;
+		m_PK_Attribute=PK_Attribute;
+		m_PK_Disc=0;
+		m_PK_Picture=0;
+		m_PK_File=0;
+		m_sMRL=sMRL;
 	}
 };
 

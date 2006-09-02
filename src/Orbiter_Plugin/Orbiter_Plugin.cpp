@@ -129,12 +129,6 @@ bool Orbiter_Plugin::GetConfig()
         return false;
     }
 
-	m_pRegenMonitor=new RegenMonitor(m_pDatabase_pluto_main);
-	m_sRegenAllDevicesRooms = m_pRegenMonitor->AllDevicesRooms();
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::GetConfig Starting up with m_sRegenAllDevicesRooms=%s",m_sRegenAllDevicesRooms.c_str());
-#endif
-
     m_pDatabase_pluto_security = new Database_pluto_security( );
     if( !m_pDatabase_pluto_security->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_security", m_pRouter->iDBPort_get( ) ) )
     {
@@ -142,6 +136,20 @@ bool Orbiter_Plugin::GetConfig()
         m_bQuit=true;
         return false;
     }
+
+    m_pDatabase_pluto_media = new Database_pluto_media( );
+    if( !m_pDatabase_pluto_media->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_media", m_pRouter->iDBPort_get( ) ) )
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+        m_bQuit=true;
+        return false;
+    }
+
+	m_pRegenMonitor=new RegenMonitor(m_pDatabase_pluto_main,m_pDatabase_pluto_media);
+	m_sRegenAllDevicesRooms = m_pRegenMonitor->AllDevicesRooms();
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::GetConfig Starting up with m_sRegenAllDevicesRooms=%s",m_sRegenAllDevicesRooms.c_str());
+#endif
 
 	vector<Row_Users *> vectRow_Users;
 	m_pDatabase_pluto_main->Users_get()->GetRows("1=1",&vectRow_Users);
@@ -2702,7 +2710,7 @@ void Orbiter_Plugin::CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename
 	PlutoSqlResult result_set1,result_set2;
 
 	// The above are the files to use for the screen saver for this orbiter
-	result_set1.r=m_pMedia_Plugin->m_pDatabase_pluto_media->mysql_query_result(sSQL);
+	result_set1.r=m_pDatabase_pluto_media->mysql_query_result(sSQL);
 	PlutoSqlResult *p_result_set = &result_set1;
 
 	if( !result_set1.r || result_set1.r->row_count==0 )
@@ -2730,7 +2738,7 @@ void Orbiter_Plugin::CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename
 			"PK_File IN (" + sPK_File + ");";
 
 		// Create a new result set based on the tags
-		result_set2.r=m_pMedia_Plugin->m_pDatabase_pluto_media->mysql_query_result(sSQL);
+		result_set2.r=m_pDatabase_pluto_media->mysql_query_result(sSQL);
 		if( !result_set2.r || result_set2.r->row_count==0 )
 			return;
 

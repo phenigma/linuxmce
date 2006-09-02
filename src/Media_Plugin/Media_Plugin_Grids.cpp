@@ -94,14 +94,22 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	string sPK_Users_Private = StringUtils::Tokenize( Parms,"|",pos );
 	int PK_AttributeType_Sort = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
 	int PK_Users = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
+	int PK_Attribute = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
 	if( sPK_Sources.size()==0 )
 		sPK_Sources = TOSTRING(MEDIASOURCE_File_CONST) "," TOSTRING(MEDIASOURCE_Jukebox_CONST) "," TOSTRING(MEDIASOURCE_Local_Disc_CONST);
+
+//	switch( 	if( PK_Attribute )
 
 	MediaListGrid *pMediaListGrid = new MediaListGrid(m_pDatagrid_Plugin,this);
 	if( sPK_Sources.size()==0 || !PK_MediaType )
 		return pMediaListGrid;
-	
-	AttributesBrowser( pMediaListGrid, PK_MediaType, PK_AttributeType_Sort, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sPK_Sources, sPK_Users_Private, PK_Users, iPK_Variable, sValue_To_Assign );
+
+	bool bIdentifiesFile = true;
+	if( PK_AttributeType_Sort )
+		if( m_mapMediaType_AttributeType_Identifier.find( make_pair<int,int> ( PK_MediaType,PK_AttributeType_Sort ) )==m_mapMediaType_AttributeType_Identifier.end() )
+			bIdentifiesFile = false;  // This combination doesn't identify an individual file to play (like a song), it identifies a group of attributes (like an album or performer)
+
+	AttributesBrowser( pMediaListGrid, PK_MediaType, PK_Attribute, PK_AttributeType_Sort, bIdentifiesFile, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sPK_Sources, sPK_Users_Private, PK_Users, iPK_Variable, sValue_To_Assign );
 
 	pMediaListGrid->m_listFileBrowserInfo.sort(FileBrowserInfoComparer);
 	pMediaListGrid->m_pFileBrowserInfoPtr = new FileBrowserInfoPtr[ pMediaListGrid->m_listFileBrowserInfo.size() ];
@@ -131,7 +139,7 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	return pMediaListGrid;
 }
 
-void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_MediaType, int PK_AttributeType_Sort, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sPK_Sources, string &sPK_Users_Private, int PK_Users, int *iPK_Variable, string *sValue_To_Assign )
+void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_MediaType, int PK_Attribute, int PK_AttributeType_Sort, bool bShowFiles, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sPK_Sources, string &sPK_Users_Private, int PK_Users, int *iPK_Variable, string *sValue_To_Assign )
 {
 	bool bFile=false,bJukebox=false,bLocalDisc=false,bSubDirectory=false;
 	string sPath,sPath_Back;
@@ -176,11 +184,11 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	if( sPK_Attribute_Genres.size() )
 	{
 		if( bFile )
-			sSQL_File += "LEFT JOIN File_Attribute ON FK_File=PK_File "
-				"LEFT JOIN Attribute AS Attribute_Genre ON FK_Attribute=Attribute_Genre.PK_Attribute AND Attribute_Genre.FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Genre_CONST) " ";
+			sSQL_File += "LEFT JOIN File_Attribute AS FA_Genre ON FA_Genre.FK_File=PK_File "
+				"LEFT JOIN Attribute AS Attribute_Genre ON FA_Genre.FK_Attribute=Attribute_Genre.PK_Attribute AND Attribute_Genre.FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Genre_CONST) " ";
 		if( bJukebox || bLocalDisc )
-			sSQL_Disc += "LEFT JOIN Disc_Attribute ON FK_Disc=PK_Disc "
-				"LEFT JOIN Attribute AS Attribute_Genre ON FK_Attribute=Attribute_Genre.PK_Attribute AND Attribute_Genre.FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Genre_CONST) " ";
+			sSQL_Disc += "LEFT JOIN Disc_Attribute AS DA_Genre ON DA_Genre.FK_Disc=PK_Disc "
+				"LEFT JOIN Attribute AS Attribute_Genre ON DA_Genre.FK_Attribute=Attribute_Genre.PK_Attribute AND Attribute_Genre.FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Genre_CONST) " ";
 	}
 
 	if( PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST )
@@ -204,6 +212,12 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	else
 		sSQL_Where += " AND EK_Users_Private IS NULL";
 
+	if( PK_Attribute )
+	{
+		sSQL_File += "LEFT JOIN File_Attribute AS FA_Attr ON FA_Attr.FK_File=PK_File ";
+		sSQL_Where += " AND FK_Attribute=" + StringUtils::itos(PK_Attribute);
+	}
+
 	string sPK_File,sPK_Disc;
     PlutoSqlResult resultf,resultd;
     MYSQL_ROW row;
@@ -224,7 +238,10 @@ FileUtils::WriteBufferIntoFile("/temp.sql",xxx.c_str(),xxx.size());
 	{
 		sPK_File[ sPK_File.size()-1 ]=' '; // Get rid of the trailing comma
 		FetchPictures("File",sPK_File,mapFile_To_Pic);
-		PopulateFileBrowserInfoForFile(pMediaListGrid,PK_AttributeType_Sort,bSubDirectory,sPath_Back,sPK_File,mapFile_To_Pic);
+		if( bShowFiles )
+			PopulateFileBrowserInfoForFile(pMediaListGrid,PK_AttributeType_Sort,bSubDirectory,sPath_Back,sPK_File,mapFile_To_Pic);
+		else
+			PopulateFileBrowserInfoForAttribute(pMediaListGrid,PK_AttributeType_Sort,sPK_File,mapFile_To_Pic);
 	}
 
 	if( sPK_Disc.size() )
@@ -299,6 +316,25 @@ FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
 			}
 			else
 				pFileBrowserInfo = new FileBrowserInfo(row[2],string("!F") + row[0],atoi(row[0]),false,false);
+			if( (it=mapFile_To_Pic.find( atoi(row[0]) ))!=mapFile_To_Pic.end() )
+				pFileBrowserInfo->m_PK_Picture = it->second;
+			pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);
+		}
+}
+
+void Media_Plugin::PopulateFileBrowserInfoForAttribute(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, string &sPK_File,map<int,int> &mapFile_To_Pic)
+{
+	string sSQL_Sort = "SELECT DISTINCT PK_Attribute,'',Name FROM File JOIN File_Attribute ON FK_File=PK_File JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ")";
+
+FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
+
+    PlutoSqlResult result;
+    MYSQL_ROW row;
+	map<int,int>::iterator it;
+    if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Sort ) )
+        while( ( row=mysql_fetch_row( result.r ) ) )
+		{
+			FileBrowserInfo *pFileBrowserInfo = new FileBrowserInfo(row[2],string("!A") + row[0],atoi(row[0]));
 			if( (it=mapFile_To_Pic.find( atoi(row[0]) ))!=mapFile_To_Pic.end() )
 				pFileBrowserInfo->m_PK_Picture = it->second;
 			pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);
@@ -1035,6 +1071,12 @@ void Media_Plugin::DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,D
 
 	if( bCreatedVect )
 		delete p_vectDevice;
+}
+
+class DataGridTable *Media_Plugin::MediaAttrFile( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    DataGridTable *pDataGrid = new DataGridTable();
+	return pDataGrid;
 }
 
 class DataGridTable *Media_Plugin::MediaAttrCurStream( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )

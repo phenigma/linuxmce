@@ -5,14 +5,13 @@
 
 class RegenMonitor
 {
-	MySqlHelper *m_pMySqlHelper;
+	MySqlHelper *m_pMySqlHelper,*m_pMySqlHelper_Media;
 	class Row_Room *m_pRow_Room;
 	class Row_EntertainArea *m_pRow_EntertainArea;
 public:
 
-	RegenMonitor(MySqlHelper *pMySqlHelper) { m_pMySqlHelper=pMySqlHelper; m_pRow_EntertainArea=NULL; m_pRow_Room=NULL; }
-	void SetRoom(Row_Room *pRow_Room) { m_pRow_Room=pRow_Room; }
-	void SetEntArea(Row_EntertainArea *pRow_EntertainArea) { m_pRow_EntertainArea=pRow_EntertainArea; }
+	RegenMonitor(MySqlHelper *pMySqlHelper,MySqlHelper *pMySqlHelper_Media) { m_pMySqlHelper=pMySqlHelper; m_pMySqlHelper_Media=pMySqlHelper_Media; m_pRow_EntertainArea=NULL; m_pRow_Room=NULL; }
+	void SetRoomEA(Row_Room *pRow_Room,Row_EntertainArea *pRow_EntertainArea) { m_pRow_Room=pRow_Room;  m_pRow_EntertainArea=pRow_EntertainArea;}
 
 	bool CachedVersionOK(string sString);
 
@@ -34,6 +33,7 @@ public:
 	string GetModInfo_Locations();
 	string GetModInfo_FloorplanArray();
 	string GetModInfo_Floorplan(int PK_FloorplanType);
+	string GetModInfo_Genres();
 
 	// These return strings reflecting the state of all devices and rooms (to indicate if a reload is necessary)
 	// and all scenarios/floorplans (to indicate if an orbitergen is necessary)

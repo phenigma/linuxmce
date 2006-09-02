@@ -4729,9 +4729,18 @@ void Orbiter::CMD_Remove_Screen_From_History(string sID,int iPK_Screen,string &s
 
 	if( m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen() == iPK_Screen && (sID.length()==0 || sID==m_pScreenHistory_Current->ScreenID()) )
 	{
-		m_pScreenHistory_Current->PurgeHistory(); // User wants to delete this entire screen instance.  If we leave this populated, we may just go to a prior design obj in this screen
-		vm.Release();
-		CMD_Go_back("","");
+		// If we're on a screen and not in the middle of changing to another screen, remove the one we're on
+		if( NeedToRender::m_pScreenHistory_get()!=NULL )
+		{
+			// We're changing screens anyway.  No need to do a go back.  Just don't add it to the history
+			ScreenHistory::m_bAddToHistory = false;
+		}
+		else 
+		{
+			m_pScreenHistory_Current->PurgeHistory(); // User wants to delete this entire screen instance.  If we leave this populated, we may just go to a prior design obj in this screen
+			vm.Release();
+			CMD_Go_back("","");
+		}
 	}
 }
 
@@ -6714,7 +6723,9 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 void Orbiter::DumpScreenHistory()
 {
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
-	string s = "Screen history: size: " + StringUtils::itos(int(m_listScreenHistory.size())) + "; screens: ";
+	string s = "Screen history: size: " + StringUtils::itos(int(m_listScreenHistory.size())) + "; "
+		+ "Current: " + (m_pScreenHistory_Current ? m_pScreenHistory_Current->ToString() : "*NONE*")
+		+ "screens: ";
 
 	for(list < ScreenHistory * >::iterator it=m_listScreenHistory.begin();it!=m_listScreenHistory.end();++it)
 	{

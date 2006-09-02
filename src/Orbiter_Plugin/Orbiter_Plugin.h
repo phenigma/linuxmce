@@ -17,6 +17,7 @@
 
 class Database_pluto_main;
 class Database_pluto_security;
+class Database_pluto_media;
 #include "OH_Orbiter.h"
 #include "AlarmManager.h"
 
@@ -80,6 +81,7 @@ public:
 	// Private member variables
     Database_pluto_main *m_pDatabase_pluto_main;
     Database_pluto_security *m_pDatabase_pluto_security;
+    Database_pluto_media *m_pDatabase_pluto_media;
 	class FloorplanInfoProvider *m_pLighting_Floorplan,*m_pClimate_Floorplan,*m_pMedia_Floorplan,*m_pSecurity_Floorplan,*m_pTelecom_Floorplan;
 	class Media_Plugin *m_pMedia_Plugin;
 	class General_Info_Plugin *m_pGeneral_Info_Plugin;

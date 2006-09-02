@@ -81,6 +81,7 @@
 #define DATAGRID_Cities_CONST 79
 #define DATAGRID_Installable_Apps_CONST 80
 #define DATAGRID_Storage_Devices_CONST 82
+#define DATAGRID_Media_Attributes_For_File_CONST 83
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"

@@ -78,6 +78,7 @@ using namespace DCE;
 #include "pluto_media/Table_Picture_File.h"
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_AttributeType.h"
+#include "pluto_media/Table_MediaType_AttributeType.h"
 #include "Gen_Devices/AllScreens.h"
 
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
@@ -224,6 +225,11 @@ bool Media_Plugin::GetConfig()
         m_bQuit=true;
         return false;
     }
+
+	vector<Row_MediaType_AttributeType *> vectMediaType_AttributeType;
+	m_pDatabase_pluto_media->MediaType_AttributeType_get()->GetRows("Identifier=1",&vectMediaType_AttributeType);
+	for(vector<Row_MediaType_AttributeType *>::iterator it=vectMediaType_AttributeType.begin();it!=vectMediaType_AttributeType.end();++it)
+        m_mapMediaType_AttributeType_Identifier[ make_pair<int,int> ((*it)->EK_MediaType_get(),(*it)->FK_AttributeType_get()) ] = true;
 
     m_pMediaAttributes = new MediaAttributes( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_media", m_pRouter->iDBPort_get( ), m_pRouter->iPK_Installation_get() );
 
@@ -446,6 +452,10 @@ bool Media_Plugin::Register()
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::MediaAttrCurStream ) )
         , DATAGRID_Media_Attr_Cur_Stream_CONST,PK_DeviceTemplate_get() );
+
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::MediaAttrFile ) )
+        , DATAGRID_Media_Attributes_For_File_CONST,PK_DeviceTemplate_get() );
 
 	// datagrids to support the floorplans
     m_pDatagrid_Plugin->RegisterDatagridGenerator(

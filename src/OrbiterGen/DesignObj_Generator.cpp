@@ -1592,33 +1592,34 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
             break;
 
 		case ARRAY_PK_MediaType_CONST:
-                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_pluto_StoredVideo_CONST),	GetText(1761),
+                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_pluto_StoredVideo_CONST),	GetText(TEXT_MediaType_Video_CONST),
                     NULL, 0, 0, 0, 0,false,false,false));
-                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_pluto_StoredAudio_CONST),	GetText(1765),
+                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_pluto_StoredAudio_CONST),	GetText(TEXT_MediaType_Audio_CONST),
                     NULL, 0, 0, 0, 0,false,false,false));
-                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_pluto_Pictures_CONST),	GetText(1762),
+                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_pluto_Pictures_CONST),	GetText(TEXT_MediaType_Pictures_CONST),
                     NULL, 0, 0, 0, 0,false,false,false));
-				alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_np_Game_CONST), GetText(1763),
+				alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_np_Game_CONST), GetText(TEXT_MediaType_Games_CONST),
                     NULL, 0, 0, 0, 0,false,false,false));
-                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_misc_DocViewer_CONST),	GetText(1764),
+                alArray->push_back(new ArrayValue(TOSTRING(MEDIATYPE_misc_DocViewer_CONST),	GetText(TEXT_MediaType_Data_CONST),
                     NULL, 0, 0, 0, 0,false,false,false));
             break;
 
 		case ARRAY_Media_Sort_Options_CONST:
 			{
-				string sSQL = "JOIN MediaType_AttributeType ON FK_AttributeType=PK_AttributeType where EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType) + 
+				string sSQL = "EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType) + 
 					" and MediaSortOption is not null order by MediaSortOption";
 
                 alArray->push_back(new ArrayValue("0",	GetText(TEXT_Filename_CONST),
                     NULL, 0, 0, 0, 0,false,false,false));
 
-				vector<Row_AttributeType *> vectRow_AttributeType;
-				m_pOrbiterGenerator->m_Database_pluto_media.AttributeType_get()->GetRows(sSQL,&vectRow_AttributeType);
-				for( vector<Row_AttributeType *>::iterator it=vectRow_AttributeType.begin();it!=vectRow_AttributeType.end();++it )
+				vector<Row_MediaType_AttributeType *> vectRow_MediaType_AttributeType;
+				m_pOrbiterGenerator->m_Database_pluto_media.MediaType_AttributeType_get()->GetRows(sSQL,&vectRow_MediaType_AttributeType);
+				for( vector<Row_MediaType_AttributeType *>::iterator it=vectRow_MediaType_AttributeType.begin();it!=vectRow_MediaType_AttributeType.end();++it )
 				{
-					Row_AttributeType *pRow_AttributeType = *it;
-					alArray->push_back(new ArrayValue(StringUtils::itos(pRow_AttributeType->PK_AttributeType_get()),
-						pRow_AttributeType->Description_get(),
+					Row_MediaType_AttributeType *pRow_MediaType_AttributeType = *it;
+					string sValue = StringUtils::itos(pRow_MediaType_AttributeType->FK_AttributeType_get());
+					alArray->push_back(new ArrayValue(sValue,
+						pRow_MediaType_AttributeType->FK_AttributeType_getrow()->Description_get(),
 	                    NULL, 0, 0, 0, 0,false,false,false));
 				}
 			}
@@ -2159,8 +2160,7 @@ int k=2;
 
 bool DesignObj_Generator::CachedVersionOK()
 {
-	m_pOrbiterGenerator->m_pRegenMonitor->SetRoom(m_pOrbiterGenerator->m_pRow_Room);
-	m_pOrbiterGenerator->m_pRegenMonitor->SetEntArea(m_pOrbiterGenerator->m_pRow_EntertainArea);
+	m_pOrbiterGenerator->m_pRegenMonitor->SetRoomEA(m_pOrbiterGenerator->m_pRow_Room,m_pOrbiterGenerator->m_pRow_EntertainArea);
 
 	for(size_t s=0;s<m_vectRegenMonitor.size();++s)
 	{

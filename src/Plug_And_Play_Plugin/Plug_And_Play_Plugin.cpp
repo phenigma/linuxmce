@@ -248,6 +248,7 @@ void Plug_And_Play_Plugin::CMD_Set_Pnp_Options(string sValue_To_Assign,int iPK_D
 		g_pPlutoLogger->Write(LV_CRITICAL, "PnpQueue::CMD_Set_Pnp_Options queue %d is invalid", iPK_PnpQueue);
 		return;
 	}
+	g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::CMD_Set_Pnp_Options queue %d option %d set to %s", iPK_PnpQueue,iPK_DeviceData,sValue_To_Assign.c_str());
 	pPnpQueueEntry->m_pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 	pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
 	pPnpQueueEntry->m_mapPK_DeviceData[iPK_DeviceData] = sValue_To_Assign;

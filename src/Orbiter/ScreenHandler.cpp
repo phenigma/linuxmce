@@ -181,6 +181,11 @@ void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sNa
 	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, iPK_Users, sName, iDriveID);
 }
 //-----------------------------------------------------------------------------------------------------
+string MediaFileBrowserOptions::HumanReadable()
+{
+	return "test";
+}
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 {
 	if( m_pOrbiter->UsesUIVersion2()==false )
@@ -190,6 +195,14 @@ void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 	}
 
 	ScreenHandlerBase::SCREEN_FileList_Music_Movies_Video(PK_Screen);
+
+	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(DESIGNOBJ_objFileBrowserHeader_CONST) );
+	if( pObj && pObj->m_vectDesignObjText.size() )
+	{
+		DesignObjText *pText = pObj->m_vectDesignObjText[0];
+		pText->m_sText = mediaFileBrowserOptions.HumanReadable();
+	}
+	
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_ObjectSelected,	new ObjectInfoBackData());
 	return;
 }
@@ -197,15 +210,11 @@ void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
-	DesignObj_Orbiter *pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
 
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_ScreenMutex);
 
 	if(	pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgFileList2_CONST	|| pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgFileList2_Pics_CONST || pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objCDCover_CONST ) // todo
 	{
-		if( !pObj_Play || !pObj_Play->m_pParentObject )
-			return false; // Shouldn't happen
-
 		DataGridCell *pCell_Pic=NULL,*pCell_List=NULL;
 		if( mediaFileBrowserOptions.m_pObj_PicGrid->DataGridTable_Get() )
 			pCell_Pic = mediaFileBrowserOptions.m_pObj_PicGrid->DataGridTable_Get()->GetData(mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn + mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurCol,mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurRow);
@@ -223,27 +232,25 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 			return false;
 		}
 
-
 		GetAttributesForMediaFile(pCell_List->m_Value);
-/*
-		size_t Size=0;
-		char *pData = NULL;
-		if( pCell_Pic && pCell_Pic->m_ImagePath )
-		{
-			pData = FileUtils::ReadFileIntoBuffer(pCell_Pic->m_Value,Size);
-			if( !pData )
-			{
-				int i=0;
-				DCE::CMD_Request_File CMD_Request_File( m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn, 
-					pCell_Pic->m_Value, &pData, &i );
-				m_pOrbiter->SendCommand( CMD_Request_File );
-				Size=i;
-			}
-		}
-*/
 
 		m_pOrbiter->CMD_Remove_Popup("","coverart");
-		m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
+
+		if( pCell_List->m_Value[0]=='!' && pCell_List->m_Value[1]=='A' )
+		{
+			mediaFileBrowserOptions.m_PK_Attribute = atoi(&pCell_List->m_Value[2]);
+			m_pOrbiter->CMD_Refresh("*");
+			return false;
+		}
+
+		DesignObj_Orbiter *pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
+		if( !pObj_Play || !pObj_Play->m_pParentObject )
+			return false; // Shouldn't happen
+
+		if( pCell_List->m_Value[0]=='!' && pCell_List->m_Value[1]=='A' )
+			m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
+		else
+			m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
 
 		if( pCell_Pic && pCell_Pic->m_pGraphic && pCell_Pic->m_pGraphic->m_pGraphicData )
 			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",

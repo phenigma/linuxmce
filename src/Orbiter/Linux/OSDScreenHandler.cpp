@@ -224,13 +224,11 @@ void OSDScreenHandler::SCREEN_UsersWizard(long PK_Screen)
 bool OSDScreenHandler::HandleAddUser(bool bErrorIfEmpty)
 {
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-	map<int, string>::iterator it = m_pOrbiter->m_mapVariable.find(VARIABLE_Seek_Value_CONST);
-	string sUsername = it != m_pOrbiter->m_mapVariable.end() ? it->second : "";
+	string sUsername = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 
 	if(sUsername != "")
 	{
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 		m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()), "", TEXT_USR_ENTRY_CONST);
 		m_pWizardLogic->AddUser(sUsername);
 	}
@@ -254,11 +252,13 @@ bool OSDScreenHandler::UsersWizard_ObjectSelected(CallBackData *pData)
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFamilyMembers_CONST)
 			{
+				string sUsername = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 				if(HandleAddUser())
 					return true;
 				else
 				{
 					string sText=m_pOrbiter->m_mapTextString[TEXT_user_name_for_admin_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
+					StringUtils::Replace(&sText,"<%=USER%>",sUsername);
 					string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_FamilyMembers_CONST);
 					DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 						sText,sMessage);

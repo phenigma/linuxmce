@@ -297,6 +297,8 @@ int OrbiterGenerator::DoIt()
 		exit(1);
 	}
 
+	m_pRegenMonitor = new RegenMonitor(this,&m_Database_pluto_media);
+
 	m_pRow_Device = mds.Device_get()->GetRow(m_iPK_Orbiter);
 	if( !m_pRow_Device )
 	{

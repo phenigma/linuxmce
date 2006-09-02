@@ -72,7 +72,7 @@ public:
 		m_sFontPath=sFontFiles;
 		m_sOutputPath=sOutputFiles;
 		m_iPK_Orbiter=PK_Orbiter;
-		m_pRegenMonitor = new RegenMonitor(this);
+		m_pRegenMonitor = NULL;
 /*		m_sMySQLHost=DBHost;
 		m_sMySQLUser=DBUser;
 		m_sMySQLPass=DBPassword;

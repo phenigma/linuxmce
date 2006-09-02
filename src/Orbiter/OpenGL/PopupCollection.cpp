@@ -102,6 +102,11 @@ void PopupCollection::ResetObjectInPopup(std::string PopupID, DesignObj_Orbiter 
 
 	if(it != Popups.end())
 	{
+		if( it->second==NULL )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"PopupCollection::ResetObjectInPopup frame is null");
+			return;
+		}
 		MeshFrame *pPopupFrame = it->second->Frame();
 		pObj->m_GraphicToDisplay = GRAPHIC_HIGHLIGHTED;
 		MeshFrame* pOldFrame = TextureManager::Instance()->GetCacheItem(pObj->GenerateObjectHash(pObj->m_pPopupPoint));

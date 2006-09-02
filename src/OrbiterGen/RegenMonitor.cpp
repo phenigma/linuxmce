@@ -7,6 +7,7 @@
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Table_EntertainArea.h"
 #include "pluto_main/Table_Room.h"
+#include "pluto_media/Define_AttributeType.h"
 
 string RegenMonitor::GetModInfo_Array(int PK_Array)
 {
@@ -78,11 +79,11 @@ string RegenMonitor::GetModInfo_Array(int PK_Array)
 		case ARRAY_Floorplans_CONST:
 				return sResult + GetModInfo_FloorplanArray();
 
-		case ARRAY_Media_Sort_Options_CONST:
-			return "*";  // These change whenever new media is added
+		case ARRAY_Media_Filter_Genres_CONST:
+			return sResult + GetModInfo_Genres();
 
 		case ARRAY_PK_MediaType_CONST:
-		case ARRAY_Media_Filter_Genres_CONST:
+		case ARRAY_Media_Sort_Options_CONST:
 		case ARRAY_Media_Filter_Subtype_CONST:
 		case ARRAY_Media_Filter_Source_CONST:
 		case ARRAY_Media_Filter_File_Format_CONST:
@@ -293,8 +294,30 @@ string RegenMonitor::AllScenariosFloorplans()
 
 	sResult += QueryAsModString(sSQL);
 
+	sResult += "," + GetModInfo_Genres();
+
 	g_pPlutoLogger->Write(LV_STATUS,"RegenMonitor::AllScenariosFloorplans pass 2 %s=%s",
 		sSQL.c_str(),sResult.c_str());
 
+	return sResult;
+}
+
+string RegenMonitor::GetModInfo_Genres()
+{
+	string sSQL = "SELECT max(PK_Attribute) FROM Attribute WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Genre_CONST);
+
+	string sResult;
+	PlutoSqlResult result_set_array;
+	MYSQL_ROW row;
+	if( (result_set_array.r=m_pMySqlHelper_Media->mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set_array.r))) )
+	{
+		for(int i=0;i<(int) result_set_array.r->field_count;++i)
+		{
+			if( row[i] )
+				sResult += string(row[i]) + "\t";
+			else
+				sResult += "NULL\t";
+		}
+	}
 	return sResult;
 }
