@@ -611,14 +611,14 @@ void General_Info_Plugin::CMD_Is_Daytime(bool *bTrueFalse,string &sCMD_Result,Me
 bool General_Info_Plugin::PendingTasks(vector<string> *vectPendingTasks)
 {
 	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
-	g_pPlutoLogger->Write( LV_STATUS, "General_Info_Plugin::PendingTasks %d %d",m_dwPK_Device, (int) m_mapMediaDirectors_PendingConfig.size());
+	g_pPlutoLogger->Write( LV_STATUS, "General_Info_Plugin::PendingTasks m_mapMediaDirectors_PendingConfig %d %d",m_dwPK_Device, (int) m_mapMediaDirectors_PendingConfig.size());
 	bool bOkayToReload=true;
 	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
 	{
 		if( it->second )
 		{
 			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(it->first);
-			vectPendingTasks->push_back("Still downloading packages on: " + (pRow_Device ? pRow_Device->Description_get() : StringUtils::itos(it->first)));
+			vectPendingTasks->push_back("Still downloading packages m_mapMediaDirectors_PendingConfig on: " + (pRow_Device ? pRow_Device->Description_get() : StringUtils::itos(it->first)));
 			g_pPlutoLogger->Write( LV_STATUS, "General_Info_Plugin::PendingTasks md %d is busy",it->first);
 			bOkayToReload=false;
 		}
@@ -1937,9 +1937,12 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 					sSuccessCommand,false,false,false);
 				string sResponse;
 				if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
-					g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates Failed to send spawn application to %d",pDevice->m_dwPK_Device);
+					g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig Failed to send spawn application to %d",pDevice->m_dwPK_Device);
 				else
+				{
+					g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig %d=true",pDevice->m_pDevice_ControlledVia->m_dwPK_Device);
 					m_mapMediaDirectors_PendingConfig[pDevice->m_pDevice_ControlledVia->m_dwPK_Device]=true;
+				}
 			}
 		}
 		else if( pDevice->m_pDevice_ControlledVia && pDevice->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Core_CONST) )
@@ -1959,14 +1962,17 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 			sSuccessCommand,false,false,false);
 		string sResponse;
 		if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
-			g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates Failed to send spawn application to %d",pDevice_AppServerOnCore->m_dwPK_Device);
+			g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig Failed to send spawn application to %d",pDevice_AppServerOnCore->m_dwPK_Device);
 		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates2 m_mapMediaDirectors_PendingConfig %d=true",pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device);
 			m_mapMediaDirectors_PendingConfig[pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device]=true;
+		}
 	}
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates %d pending configs",(int) m_mapMediaDirectors_PendingConfig.size());
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig %d pending configs",(int) m_mapMediaDirectors_PendingConfig.size());
 	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
-		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates md %d=%d",it->first,(int) it->second);
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig md %d=%d",it->first,(int) it->second);
 #endif
 }
 
@@ -1980,7 +1986,7 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 void General_Info_Plugin::CMD_Check_for_updates_done(bool bFailed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c396-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done");
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done m_mapMediaDirectors_PendingConfig from %d",pMessage->m_dwPK_Device_From);
 	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
 
 	if(bFailed)
@@ -1996,9 +2002,9 @@ void General_Info_Plugin::CMD_Check_for_updates_done(bool bFailed,string &sCMD_R
 	m_mapMediaDirectors_PendingConfig[pDevice_AppServer->m_pDevice_ControlledVia->m_dwPK_Device]=false;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done from %d, %d pending configs",pMessage->m_dwPK_Device_From,(int) m_mapMediaDirectors_PendingConfig.size());
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done m_mapMediaDirectors_PendingConfig from %d, %d pending configs",pMessage->m_dwPK_Device_From,(int) m_mapMediaDirectors_PendingConfig.size());
 	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
-		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done md %d=%d",it->first,(int) it->second);
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done m_mapMediaDirectors_PendingConfig md %d=%d",it->first,(int) it->second);
 #endif
 
 	if( PendingConfigs() )
@@ -2007,12 +2013,12 @@ void General_Info_Plugin::CMD_Check_for_updates_done(bool bFailed,string &sCMD_R
 	if( m_bRerunConfigWhenDone )
 	{
 		m_bRerunConfigWhenDone=false;
-		g_pPlutoLogger->Write(LV_STATUS,"New requests came in the meantime.  Rerun again");
+		g_pPlutoLogger->Write(LV_STATUS,"New requests came in the meantime.  Rerun again. m_mapMediaDirectors_PendingConfig");
 		CMD_Check_for_updates();  // Do it again
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Done updating config");
+		g_pPlutoLogger->Write(LV_STATUS,"Done updating config. m_mapMediaDirectors_PendingConfig");
 		DoneCheckingForUpdates();
 	}
 }

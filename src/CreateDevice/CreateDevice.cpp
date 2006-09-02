@@ -126,7 +126,8 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		
 	int iPK_Package = row[4] ? atoi(row[4]) : 0;
 
-	FixControlledViaIfEmbeddedIsMoreValid(iPK_DeviceTemplate,PK_Device_ControlledVia);
+	if( PK_Device_ControlledVia )
+		FixControlledViaIfEmbeddedIsMoreValid(iPK_DeviceTemplate,PK_Device_ControlledVia);
 
 	SQL = "INSERT INTO Device(Description,FK_DeviceTemplate,FK_Installation,FK_Room,IPAddress,MACaddress,Status";
 	if( PK_Device_ControlledVia )
