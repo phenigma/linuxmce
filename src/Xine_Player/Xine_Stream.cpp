@@ -261,6 +261,8 @@ bool Xine_Stream::CreateWindows()
 		g_pPlutoLogger->Write( LV_WARNING, "Could not open X DISPLAY from: %s", getenv( "DISPLAY" ) );
 		return false;
 	}
+	
+	XSynchronize( m_pXDisplay, true);
 
 	XLockDisplay( m_pXDisplay );
 
@@ -1798,6 +1800,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 
 
 	bool trickModeSupported = (strncasecmp("dvd:", m_sCurrentFile.c_str(), 4)==0);
+	//bool trickModeSupported = true;
 	bool trickModeActive = m_bTrickModeActive;
 	
 	
