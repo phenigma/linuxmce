@@ -1827,10 +1827,10 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");
 			
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 			xine_stop_trick_play(m_pXineStream);
 			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
 			EnableDeinterlacing();
-			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 			m_iTrickPlaySpeed = 0;
 			m_bTrickModeActive = false;
 		}
@@ -1838,6 +1838,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 			g_pPlutoLogger->Write(LV_WARNING,"Xine_Stream::changePlaybackSpeed no running seekers found");
 
 		
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		xine_set_param( m_pXineStream, XINE_PARAM_SPEED, (desiredSpeed == PLAYBACK_FF_1)?XINE_SPEED_NORMAL:XINE_SPEED_PAUSE );
 		
 		DisplayOSDText( "" );
@@ -1853,11 +1854,11 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 	{	
 		if ( trickModeActive )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");	
+			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 			xine_stop_trick_play(m_pXineStream);
 			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
 			EnableDeinterlacing();
-			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 			m_iTrickPlaySpeed = 0;
 			m_bTrickModeActive = false;
 		}
@@ -1897,11 +1898,12 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		}
 		else
 		{
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 			xine_stop_trick_play(m_pXineStream);	
 		}
 		
-		xine_start_trick_play(m_pXineStream, desiredSpeed*1000);
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
+		xine_start_trick_play(m_pXineStream, desiredSpeed*1000);
 		m_iTrickPlaySpeed = desiredSpeed;
 		m_bTrickModeActive = true;
 		
