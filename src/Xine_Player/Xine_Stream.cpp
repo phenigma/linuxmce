@@ -262,7 +262,7 @@ bool Xine_Stream::CreateWindows()
 		return false;
 	}
 	
-	XSynchronize( m_pXDisplay, true);
+	//XSynchronize( m_pXDisplay, true);
 
 	XLockDisplay( m_pXDisplay );
 
