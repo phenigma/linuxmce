@@ -7049,6 +7049,8 @@ void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	m_pScreenHandler->mediaFileBrowserOptions.ClearAll(iPK_MediaType,pOrbiterFileBrowser_Entry->m_PK_Screen,m_mapPK_MediaType_PK_Attribute_Sort[iPK_MediaType]);
+#else
+	CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType));  // Done inside ClearAll
 #endif
 	CMD_Set_Variable(VARIABLE_Filename_CONST, pOrbiterFileBrowser_Entry->m_sFilename);
 	CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType));

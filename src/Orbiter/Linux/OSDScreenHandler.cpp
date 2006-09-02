@@ -256,6 +256,15 @@ bool OSDScreenHandler::UsersWizard_ObjectSelected(CallBackData *pData)
 			{
 				if(HandleAddUser())
 					return true;
+				else
+				{
+					string sText=m_pOrbiter->m_mapTextString[TEXT_user_name_for_admin_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
+					string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_FamilyMembers_CONST);
+					DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
+						sText,sMessage);
+					m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
+					return true;
+				}
 			}
 		}
 		break;
