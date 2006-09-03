@@ -22,6 +22,7 @@ using namespace std;
 #include "Table_Picture_Attribute.h"
 #include "Table_Picture_Disc.h"
 #include "Table_Picture_File.h"
+#include "Table_Playlist.h"
 
 
 void Database_pluto_media::CreateTable_Picture()
@@ -917,6 +918,13 @@ void Row_Picture::Picture_File_FK_Picture_getrows(vector <class Row_Picture_File
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Picture_File *pTable = table->database->Picture_File_get();
+pTable->GetRows("`FK_Picture`=" + StringUtils::itos(m_PK_Picture),rows);
+}
+void Row_Picture::Playlist_FK_Picture_getrows(vector <class Row_Playlist*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Playlist *pTable = table->database->Playlist_get();
 pTable->GetRows("`FK_Picture`=" + StringUtils::itos(m_PK_Picture),rows);
 }
 

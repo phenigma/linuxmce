@@ -145,6 +145,7 @@ void psc_restrict_setNull(bool val);
 void Picture_Attribute_FK_Picture_getrows(vector <class Row_Picture_Attribute*> *rows);
 void Picture_Disc_FK_Picture_getrows(vector <class Row_Picture_Disc*> *rows);
 void Picture_File_FK_Picture_getrows(vector <class Row_Picture_File*> *rows);
+void Playlist_FK_Picture_getrows(vector <class Row_Playlist*> *rows);
 
 
 		// Setup binary serialization

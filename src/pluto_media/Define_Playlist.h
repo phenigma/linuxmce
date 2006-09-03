@@ -9,6 +9,8 @@
 #define PLAYLIST_EK_USER_TABLE_FIELD "Playlist.EK_User"
 #define PLAYLIST_NAME_FIELD "Name"
 #define PLAYLIST_NAME_TABLE_FIELD "Playlist.Name"
+#define PLAYLIST_FK_PICTURE_FIELD "FK_Picture"
+#define PLAYLIST_FK_PICTURE_TABLE_FIELD "Playlist.FK_Picture"
 #define PLAYLIST_PSC_ID_FIELD "psc_id"
 #define PLAYLIST_PSC_ID_TABLE_FIELD "Playlist.psc_id"
 #define PLAYLIST_PSC_BATCH_FIELD "psc_batch"
