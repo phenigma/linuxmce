@@ -50,7 +50,7 @@ public:
 		m_PK_AttributeType_Sort = PK_AttributeType_Sort;
 		m_listPK_AttributeType_Sort_Prior.clear();
 		m_listPK_Attribute_Description.clear();
-		m_sPK_MediaSubType=""; m_sPK_FileFormat=""; m_sPK_Attribute_Genres=""; m_sSources=""; m_sPK_Users_Private="";
+		m_sPK_MediaSubType=""; m_sPK_FileFormat=""; m_sPK_Attribute_Genres=""; m_sSources=""; m_sPK_Users_Private="0";
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(m_PK_MediaType)); 
 		m_mapObjectsValues.clear();
 		if( !m_pObj_ListGrid )

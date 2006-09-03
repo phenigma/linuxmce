@@ -107,7 +107,10 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 		if( m_mapMediaType_AttributeType_Identifier.find( make_pair<int,int> ( PK_MediaType,PK_AttributeType_Sort ) )==m_mapMediaType_AttributeType_Identifier.end() )
 			bIdentifiesFile = false;  // This combination doesn't identify an individual file to play (like a song), it identifies a group of attributes (like an album or performer)
 
-	AttributesBrowser( pMediaListGrid, PK_MediaType, PK_Attribute, PK_AttributeType_Sort, bIdentifiesFile, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sPK_Sources, sPK_Users_Private, PK_Users, iPK_Variable, sValue_To_Assign );
+	if( PK_MediaType==MEDIATYPE_misc_Playlist_CONST )
+		PopulateFileBrowserInfoForPlayList(pMediaListGrid,sPK_Users_Private);
+	else
+		AttributesBrowser( pMediaListGrid, PK_MediaType, PK_Attribute, PK_AttributeType_Sort, bIdentifiesFile, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sPK_Sources, sPK_Users_Private, PK_Users, iPK_Variable, sValue_To_Assign );
 
 	pMediaListGrid->m_listFileBrowserInfo.sort(FileBrowserInfoComparer);
 	pMediaListGrid->m_pFileBrowserInfoPtr = new FileBrowserInfoPtr[ pMediaListGrid->m_listFileBrowserInfo.size() ];
@@ -167,7 +170,21 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		}
 		if( bFile && PK_AttributeType_Sort==0 )
 		{
-			sPath = "'/home/public/data/videos','home/users_1/data/videos'"; // Todo, look at media type, and add in
+			Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType);
+			if( pRow_MediaType )
+			{
+				string::size_type pos=0;
+				while( pos<sPK_Users_Private.size() )
+				{
+					string sUser = StringUtils::Tokenize(sPK_Users_Private,",",pos);
+					if( sPath.empty()==false )
+						sPath += ",";
+					if( sUser=="0" )
+						sPath += "'/home/public/data/" + pRow_MediaType->Subdirectory_get() + "'";
+					else
+						sPath += "'/home/user_" + sUser + "/data/" + pRow_MediaType->Subdirectory_get() + "'";
+				}
+			}
 		}
 	}
 	// First get all matching PK_File's
@@ -205,10 +222,17 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	if( sPK_MediaSubType.size() )
 		sSQL_Where += " AND FK_MediaSubType IN (" + sPK_MediaSubType + ")";
 
-	if( sPK_Users_Private.size() )
-		sSQL_Where += " AND EK_Users_Private IN (" + sPK_Users_Private + ")";
-	else
+	if( sPK_Users_Private.empty() || sPK_Users_Private=="0" )
 		sSQL_Where += " AND EK_Users_Private IS NULL";
+	else
+	{
+		bool bIncludePublicUser=false;
+		if( sPK_Users_Private.size()>2 &&
+			(sPK_Users_Private.substr(0,2)=="0," || sPK_Users_Private.substr( sPK_Users_Private.size()-2,2 )==",0" || sPK_Users_Private.find(",0,")!=string::npos ) )
+				bIncludePublicUser=true;
+
+		sSQL_Where += " AND (EK_Users_Private IN (" + sPK_Users_Private + ") " + (bIncludePublicUser ? "OR EK_Users_Private IS NULL)" : ")");
+	}
 
 	if( PK_Attribute )
 	{
@@ -283,6 +307,31 @@ FileUtils::WriteBufferIntoFile("/temp.sql",sSQL.c_str(),sSQL.size());
 		{
 			sPK_AlreadyGot += row[0] + string(",");
 			mapFile_To_Pic[ atoi(row[0]) ] = atoi(row[1]);
+		}
+}
+
+void Media_Plugin::PopulateFileBrowserInfoForPlayList(MediaListGrid *pMediaListGrid,string sPK_Users_Private)
+{
+    g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::PopulateFileBrowserInfoForPlayList Called to populate: %s", sPK_Users_Private.c_str());
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	if( sPK_Users_Private.size() )
+		sPK_Users_Private = "," + sPK_Users_Private;  // So the syntax is right below
+
+    string SQL = "SELECT PK_Playlist, Name, FK_Picture from Playlist where EK_User IS Null OR EK_User IN ( 0 " + sPK_Users_Private + " ) ORDER BY Name";
+
+    PlutoSqlResult result;
+    MYSQL_ROW row;
+    int RowCount=0;
+
+	FileBrowserInfo *pFileBrowserInfo;
+    if( (result.r=m_pDatabase_pluto_media->mysql_query_result(SQL)) )
+        while( (row=mysql_fetch_row(result.r)) )
+		{
+			pFileBrowserInfo = new FileBrowserInfo(row[1],string("!P") + row[0],0);
+			if( row[2] )
+				pFileBrowserInfo->m_PK_Picture = atoi(row[2]);
+			pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);
 		}
 }
 
@@ -1345,7 +1394,7 @@ class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Par
 
     int userID = atoi(Parms.c_str());
 
-    string SQL = "SELECT PK_Playlist, Name from Playlist where EK_USER IN ( 0, " + StringUtils::itos(userID) + " ) ORDER BY NAME LIMIT 30";
+    string SQL = "SELECT PK_Playlist, Name from Playlist where EK_User IS NULL OR EK_User IN ( 0, " + StringUtils::itos(userID) + " ) ORDER BY NAME LIMIT 30";
 
     PlutoSqlResult result;
     MYSQL_ROW row;

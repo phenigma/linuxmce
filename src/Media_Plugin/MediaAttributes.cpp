@@ -39,6 +39,7 @@
 #include "pluto_media/Table_Disc_Attribute.h"
 #include "pluto_media/Table_Picture.h"
 #include "pluto_media/Table_Picture_Attribute.h"
+#include "pluto_media/Table_Picture_File.h"
 
 #include "MediaFile.h"
 #include "MediaStream.h"
@@ -108,19 +109,33 @@ g_pPlutoLogger->Write(LV_STATUS,"Deleting %d rows from old playlist",(int) vectR
 g_pPlutoLogger->Write(LV_STATUS,"Save playlist id %d with %d rows",iPK_Playlist,(int) dequeMediaFile.size());
 #endif
 
+	string sFiles;
 	for(size_t s=0;s<dequeMediaFile.size();++s)
 	{
 		MediaFile *pMediaFile = dequeMediaFile[s];
 		Row_PlaylistEntry *pRow_PlaylistEntry = m_pDatabase_pluto_media->PlaylistEntry_get()->AddRow();
 		pRow_PlaylistEntry->FK_Playlist_set( iPK_Playlist );
 		if( pMediaFile->m_dwPK_File )
+		{
 			pRow_PlaylistEntry->FK_File_set(pMediaFile->m_dwPK_File);
+			if( sFiles.size() )
+				sFiles += ",";
+			sFiles += StringUtils::itos(pMediaFile->m_dwPK_File);
+		}
 		pRow_PlaylistEntry->Path_set(pMediaFile->m_sPath);
 		pRow_PlaylistEntry->Filename_set(pMediaFile->m_sFilename);
 		pRow_PlaylistEntry->Order_set(s);
 	}
 
-    if( !m_pDatabase_pluto_media->PlaylistEntry_get()->Commit(true,true) )
+	if( pRow_Playlist->FK_Picture_isNull() && sFiles.empty()==false )
+	{
+		vector<Row_Picture_File *> vectRow_Picture_File;
+		m_pDatabase_pluto_media->Picture_File_get()->GetRows("FK_File IN (" + sFiles + ") LIMIT 1",&vectRow_Picture_File);
+		if( vectRow_Picture_File.size() )
+			pRow_Playlist->FK_Picture_set( vectRow_Picture_File[0]->FK_Picture_get() );
+
+	}
+    if( !m_pDatabase_pluto_media->PlaylistEntry_get()->Commit(true,true) || !m_pDatabase_pluto_media->Playlist_get()->Commit(true,true) )
     {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Could not save the playlist error: %s",m_pDatabase_pluto_media->m_sLastMySqlError.c_str());
         return false;
