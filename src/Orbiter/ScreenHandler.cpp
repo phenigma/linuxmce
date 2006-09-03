@@ -10,6 +10,7 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_Screen.h"
+#include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Text.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_DeviceTemplate.h"
@@ -18,6 +19,7 @@
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Define_MediaType.h"
 #include "pluto_main/Define_Command.h"
+#include "pluto_media/Define_AttributeType.h"
 
 using namespace DCE;
 
@@ -183,7 +185,15 @@ void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sNa
 //-----------------------------------------------------------------------------------------------------
 string MediaFileBrowserOptions::HumanReadable()
 {
-	return "test";
+	string sResult = m_pOrbiter->m_mapPK_MediaType_Description[ m_PK_MediaType ] + " : " 
+		+ m_pOrbiter->m_mapPK_AttributeType_Description[ m_PK_AttributeType_Sort ];
+
+	string sFilter;
+	if( m_listPK_Attribute_Description.size() )
+		sFilter = m_listPK_Attribute_Description.front().second;
+
+//	m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(5175),0,"","", sFilter.size() ? "1" : "0");
+	return sResult + sFilter;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
@@ -195,16 +205,23 @@ void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 	}
 
 	ScreenHandlerBase::SCREEN_FileList_Music_Movies_Video(PK_Screen);
+	
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_ObjectSelected,	new ObjectInfoBackData());
+	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_Render, new RenderScreenCallBackData());
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_DatagridSelected, new DatagridCellBackData());
 
+	return;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::MediaBrowser_Render(CallBackData *pData)
+{
 	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(DESIGNOBJ_objFileBrowserHeader_CONST) );
 	if( pObj && pObj->m_vectDesignObjText.size() )
 	{
 		DesignObjText *pText = pObj->m_vectDesignObjText[0];
 		pText->m_sText = mediaFileBrowserOptions.HumanReadable();
 	}
-	
-	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_ObjectSelected,	new ObjectInfoBackData());
-	return;
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
@@ -228,6 +245,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		{
 			// It's a sub directory.  Update the source and refresh the page
 			mediaFileBrowserOptions.m_sSources = pCell_List->m_Value ? pCell_List->m_Value : "";
+			MediaBrowser_Render(NULL);
 			m_pOrbiter->CMD_Refresh("*");
 			return false;
 		}
@@ -238,8 +256,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 
 		if( pCell_List->m_Value[0]=='!' && pCell_List->m_Value[1]=='A' )
 		{
-			mediaFileBrowserOptions.m_PK_Attribute = atoi(&pCell_List->m_Value[2]);
-			m_pOrbiter->CMD_Refresh("*");
+			SelectedAttributeCell(pCell_List);
 			return false;
 		}
 
@@ -247,10 +264,8 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		if( !pObj_Play || !pObj_Play->m_pParentObject )
 			return false; // Shouldn't happen
 
-		if( pCell_List->m_Value[0]=='!' && pCell_List->m_Value[1]=='A' )
-			m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
-		else
-			m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,pCell_List->m_Value);
+		m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
 
 		if( pCell_Pic && pCell_Pic->m_pGraphic && pCell_Pic->m_pGraphic->m_pGraphicData )
 			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
@@ -311,8 +326,76 @@ mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow, mediaFileBrowserOpti
 			0,pCell_List->m_Value,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0);
 		m_pOrbiter->SendCommand(CMD_MH_Play_Media);
 	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == 5175 )
+	{
+		if( mediaFileBrowserOptions.m_listPK_Attribute_Description.size() )
+		{
+			mediaFileBrowserOptions.m_listPK_Attribute_Description.pop_front();
+			if( mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.size() )
+			{
+				mediaFileBrowserOptions.m_PK_AttributeType_Sort = mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.front();
+				mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.pop_front();
+			}
+		}
+		else
+			mediaFileBrowserOptions.ClearAll(mediaFileBrowserOptions.m_PK_MediaType,m_pOrbiter->m_pScreenHistory_Current->PK_Screen(),
+				m_pOrbiter->m_mapPK_MediaType_PK_Attribute_Sort[mediaFileBrowserOptions.m_PK_MediaType]);
+
+		MediaBrowser_Render(NULL);
+		m_pOrbiter->CMD_Refresh("*");
+		return false;
+	}
 
 	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
+	if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Media_Attributes_For_File_CONST )
+	{
+		SelectedAttributeCell(pCellInfoData->m_pDataGridCell);
+		m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
+		m_pOrbiter->CMD_Remove_Popup("","filedetails");
+		m_pOrbiter->CMD_Remove_Popup("","coverart");
+		return true;
+	}
+	return false;
+}
+
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SelectedAttributeCell(DataGridCell *pCell)
+{
+	mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.push_front(mediaFileBrowserOptions.m_PK_AttributeType_Sort);
+	mediaFileBrowserOptions.m_listPK_Attribute_Description.push_front( make_pair<int,string> (atoi(&pCell->m_Value[2]),pCell->m_Text ? pCell->m_Text : "*unknown attribute*") );
+
+	// If we're browing a collection of attributes, say actors, when we choose
+	// one we no longer want to browsing (or sorting by) that same attribute (actors)
+	// we now want to browse by the titles with that attribute.  So we will switch
+	// the sort.  Normally it goes to 'Title'.  However for Artists it goes to Albums
+	// and for media without titles, like pictures, it goes to filename (which is 0)
+	if( (mediaFileBrowserOptions.m_PK_MediaType==MEDIATYPE_pluto_CD_CONST || mediaFileBrowserOptions.m_PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST)
+		&& mediaFileBrowserOptions.m_PK_AttributeType_Sort==ATTRIBUTETYPE_Performer_CONST )
+			mediaFileBrowserOptions.m_PK_AttributeType_Sort = ATTRIBUTETYPE_Album_CONST;
+	else
+	{
+		switch( mediaFileBrowserOptions.m_PK_AttributeType_Sort )
+		{
+		case ATTRIBUTETYPE_Director_CONST:
+		case ATTRIBUTETYPE_Performer_CONST:
+		case ATTRIBUTETYPE_Album_CONST:
+		case ATTRIBUTETYPE_Title_CONST:
+			mediaFileBrowserOptions.m_PK_AttributeType_Sort = ATTRIBUTETYPE_Title_CONST;
+			break;
+
+		default:
+			mediaFileBrowserOptions.m_PK_AttributeType_Sort = 0;  // Show files
+			break;
+		}
+
+	}
+	MediaBrowser_Render(NULL);
+	m_pOrbiter->CMD_Refresh("*");
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::GetAttributesForMediaFile(const char *pFilename)

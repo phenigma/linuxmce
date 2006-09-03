@@ -16,8 +16,10 @@ typedef class ScreenHandler * (* RAOP_FType) (class Orbiter *,  map<int,int> *p_
 class MediaFileBrowserOptions
 {
 public:
-	int m_PK_MediaType,m_PK_AttributeType_Sort,m_PK_Users,m_iPK_Screen,m_PK_Attribute;
+	int m_PK_MediaType,m_PK_AttributeType_Sort,m_PK_Users,m_iPK_Screen;
 	string m_sPK_MediaSubType,m_sPK_FileFormat,m_sPK_Attribute_Genres,m_sSources,m_sPK_Users_Private;
+	list<int> m_listPK_AttributeType_Sort_Prior;
+	list< pair<int,string> >m_listPK_Attribute_Description;  // For drilling down on attributes
 	map< pair<int,string>, DesignObj_Orbiter * > m_mapObjectsValues;
 	Orbiter *m_pOrbiter;
 	DesignObj_DataGrid *m_pObj_ListGrid,*m_pObj_PicGrid;
@@ -31,9 +33,11 @@ public:
 
 	string ToString()
 	{
-		return StringUtils::itos(m_PK_MediaType) + "|" + m_sPK_MediaSubType + "|" + m_sPK_FileFormat + "|" + m_sPK_Attribute_Genres + "|" + m_sSources +
-			"|" + m_sPK_Users_Private + "|" + StringUtils::itos(m_PK_AttributeType_Sort) + "|" + StringUtils::itos(m_PK_Users) + " | " +
-			StringUtils::itos(m_PK_Attribute);
+		string sResult = StringUtils::itos(m_PK_MediaType) + "|" + m_sPK_MediaSubType + "|" + m_sPK_FileFormat + "|" + m_sPK_Attribute_Genres + "|" + m_sSources +
+			"|" + m_sPK_Users_Private + "|" + StringUtils::itos(m_PK_AttributeType_Sort) + "|" + StringUtils::itos(m_PK_Users) + " | ";
+		if( m_listPK_Attribute_Description.size() )
+			sResult += StringUtils::itos(m_listPK_Attribute_Description.front().first);
+		return sResult;
 	}
 
 	string HumanReadable();
@@ -44,7 +48,8 @@ public:
 		m_PK_MediaType=PK_MediaType;
 		m_PK_Users=0;
 		m_PK_AttributeType_Sort = PK_AttributeType_Sort;
-		m_PK_Attribute=0;
+		m_listPK_AttributeType_Sort_Prior.clear();
+		m_listPK_Attribute_Description.clear();
 		m_sPK_MediaSubType=""; m_sPK_FileFormat=""; m_sPK_Attribute_Genres=""; m_sSources=""; m_sPK_Users_Private="";
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(m_PK_MediaType)); 
 		m_mapObjectsValues.clear();
@@ -113,6 +118,9 @@ public:
 
 	virtual void SCREEN_FileList_Music_Movies_Video(long PK_Screen);
 	bool MediaBrowser_ObjectSelected(CallBackData *pData);
+	bool MediaBrowser_DatagridSelected(CallBackData *pData);
+	void SelectedAttributeCell(DataGridCell *pCell);
+	bool MediaBrowser_Render(CallBackData *pData);
 	virtual void SCREEN_MediaSortFilter(long PK_Screen);
 	bool MediaSortFilter_ObjectSelected(CallBackData *pData);
 	void GetAttributesForMediaFile(const char *pFilename);

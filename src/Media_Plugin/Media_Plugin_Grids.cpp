@@ -98,8 +98,6 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	if( sPK_Sources.size()==0 )
 		sPK_Sources = TOSTRING(MEDIASOURCE_File_CONST) "," TOSTRING(MEDIASOURCE_Jukebox_CONST) "," TOSTRING(MEDIASOURCE_Local_Disc_CONST);
 
-//	switch( 	if( PK_Attribute )
-
 	MediaListGrid *pMediaListGrid = new MediaListGrid(m_pDatagrid_Plugin,this);
 	if( sPK_Sources.size()==0 || !PK_MediaType )
 		return pMediaListGrid;
@@ -215,6 +213,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	if( PK_Attribute )
 	{
 		sSQL_File += "LEFT JOIN File_Attribute AS FA_Attr ON FA_Attr.FK_File=PK_File ";
+		sSQL_Disc += "LEFT JOIN Disc_Attribute AS DA_Attr ON DA_Attr.FK_Disc=PK_Disc ";
 		sSQL_Where += " AND FK_Attribute=" + StringUtils::itos(PK_Attribute);
 	}
 
@@ -292,6 +291,8 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 	string sSQL_Sort;
 	if( PK_AttributeType_Sort==0 )
 		sSQL_Sort = "SELECT PK_File,Path,Filename,IsDirectory FROM File WHERE PK_File in (" + sPK_File + ")";
+	else if( PK_AttributeType_Sort==ATTRIBUTETYPE_Title_CONST || PK_AttributeType_Sort==ATTRIBUTETYPE_Song_CONST )  // Merge song and title.  both uniquely identify a music file
+		sSQL_Sort = "SELECT PK_File,'',Name,0 FROM File JOIN File_Attribute ON FK_File=PK_File JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Title_CONST) "," TOSTRING(ATTRIBUTETYPE_Song_CONST) ") WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ")";
 	else
 		sSQL_Sort = "SELECT PK_File,'',Name,0 FROM File JOIN File_Attribute ON FK_File=PK_File JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ")";
 
@@ -1075,7 +1076,41 @@ void Media_Plugin::DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,D
 
 class DataGridTable *Media_Plugin::MediaAttrFile( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
+	// Given a file, return the media attributes for it
     DataGridTable *pDataGrid = new DataGridTable();
+
+	if( Parms.size()<3 || Parms[0]!='!' || Parms[1]!='F' )
+		return pDataGrid; // This shouldn't happen
+
+	string sSQL = "SELECT PK_Attribute,Name,Description,MediaSortOption FROM File "
+		"JOIN File_Attribute ON FK_File=PK_File "
+		"JOIN Attribute ON FK_Attribute=PK_Attribute "
+		"JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "
+		"LEFT JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType = PK_AttributeType AND MediaType_AttributeType.EK_MediaType=File.EK_MediaType "
+		"WHERE FK_File=" + Parms.substr(2);
+		"ORDER BY MediaSortOption";
+
+	int iRow=0;
+	list<DataGridCell *> listCellsAtBottom; // All the ones with mediasort=NULL; mysql puts them at the top, not the bottom
+	DataGridCell *pCell;
+	PlutoSqlResult result;
+    MYSQL_ROW row;
+	if( (result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL )) )
+	{
+        while( ( row=mysql_fetch_row( result.r ) ) )
+		{
+			string sText = string(row[2]) + "\n" + row[1];
+			pCell = new DataGridCell(sText,"!A" + string(row[0]));
+			if( row[3] )
+				pDataGrid->SetData(0,iRow++,pCell);
+			else
+				listCellsAtBottom.push_back(pCell);
+		}
+	}
+
+	for(list<DataGridCell *>::iterator it=listCellsAtBottom.begin();it!=listCellsAtBottom.end();++it)
+		pDataGrid->SetData(0,iRow++,*it);
+
 	return pDataGrid;
 }
 

@@ -69,6 +69,7 @@ static HEAP_ALLOC(wrkmem,LZO1X_1_MEM_COMPRESS);
 #include "pluto_main/Table_CommandGroup_Command_CommandParameter.h"
 #include "pluto_main/Table_CommandGroup_Command.h"
 #include "pluto_main/Table_MediaType.h"
+#include "pluto_media/Table_AttributeType.h"
 #include "DCE/DCEConfig.h"
 
 DCEConfig g_DCEConfig;
@@ -430,6 +431,11 @@ int OrbiterGenerator::DoIt()
 		m_mapPK_MediaType_PK_Attribute_Sort[ pRow_MediaType->PK_MediaType_get() ] = pRow_MediaType->EK_AttributeType_DefaultSort_get();
 		m_mapPK_MediaType_Description[ pRow_MediaType->PK_MediaType_get() ] = pRow_MediaType->Description_get();
 	}
+
+	vector<Row_AttributeType *> vectRow_AttributeType;
+	m_Database_pluto_media.AttributeType_get()->GetRows("1=1",&vectRow_AttributeType);
+	for(vector<Row_AttributeType *>::iterator it=vectRow_AttributeType.begin();it!=vectRow_AttributeType.end();++it)
+		m_mapPK_AttributeType_Description[ (*it)->PK_AttributeType_get() ] = (*it)->Description_get();
 
 	PopulateScreenMap(&mds, m_mapDesignObj, m_pRow_UI, pRow_Skin_For_Translation, m_pRow_Device);
 	vector<Row_Screen *> vectRow_Screen_GoBack;

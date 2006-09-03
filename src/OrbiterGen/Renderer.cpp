@@ -291,7 +291,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
     bool bPreserveTransparencies = pDesignObj_Generator->m_bPreserveTransparencies;
 
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-	if( pDesignObj_Generator->m_ObjectID.find("4889.0.0.4978")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
+	if( pDesignObj_Generator->m_ObjectID.find("4961.0.0.2038")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
 //  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
         //if( pDesignObj_Generator->m_ObjectID== )
     {
@@ -506,8 +506,20 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 				}
 				else
 				{
+
+if( pDesignObj_Generator->m_ObjectID.find("4961.0.0.2038")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
+//  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
+    //if( pDesignObj_Generator->m_ObjectID== )
+{
+    int k=2;
+}
+					
+					
+//SaveImageToFile(pRenderImageClone, "ic before RenderObjectsText");
 					RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
+//SaveImageToFile(pRenderImageClone, "ic aft RenderObjectsText");
 					RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,iOnlyVersion_Children);
+//SaveImageToFile(pRenderImageClone, "ic aft RenderObjectsChildren");
 				}
 //SaveImageToFile(pRenderImageClone, "ic aft ch");
 			}

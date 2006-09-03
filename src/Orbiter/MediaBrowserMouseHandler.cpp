@@ -142,6 +142,7 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 	{
 		m_LastRow=m_pObj_ListGrid->m_iHighlightedRow;
 		// This takes care of the list grid
+		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "Move on grid" );
 		ShowCoverArtPopup();
 		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = m_pObj_ListGrid;
 		m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
@@ -157,12 +158,14 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 	if( m_pObj_PicGrid->m_iHighlightedColumn )
 		X = (m_pObj_PicGrid->m_iHighlightedColumn*m_pObj_PicGrid->m_FixedColumnWidth) - ((m_pObj_CoverArtPopup->m_rPosition.Width - m_pObj_PicGrid->m_FixedColumnWidth)/2);
 	if( m_pObj_PicGrid->m_iHighlightedRow )
-		Y = (m_pObj_PicGrid->m_iHighlightedRow*m_pObj_PicGrid->m_FixedRowHeight) - ((m_pObj_CoverArtPopup->m_rPosition.Height - m_pObj_PicGrid->m_FirstRowHeight)/2);
+		Y = m_pObj_PicGrid->m_rPosition.Y + (m_pObj_PicGrid->m_iHighlightedRow*m_pObj_PicGrid->m_FixedRowHeight) - ((m_pObj_CoverArtPopup->m_rPosition.Height - m_pObj_PicGrid->m_FirstRowHeight)/2);
 
 	if( X + m_pObj_CoverArtPopup->m_rPosition.Width > m_pObj_PicGrid->m_rPosition.Right() )
 		X = m_pObj_PicGrid->m_rPosition.Right() - m_pObj_CoverArtPopup->m_rPosition.Width;
 	if( Y + m_pObj_CoverArtPopup->m_rPosition.Height > m_pObj_PicGrid->m_rPosition.Bottom() )
 		Y = m_pObj_PicGrid->m_rPosition.Bottom() - m_pObj_CoverArtPopup->m_rPosition.Height;
+	else if( Y < m_pObj_PicGrid->m_rPosition.Y )
+		Y = m_pObj_PicGrid->m_rPosition.Y;
 
 	DataGridCell *pCell = NULL;
 	DataGridTable *pDataGridTable = m_pObj_PicGrid->DataGridTable_Get();
@@ -189,8 +192,6 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 	else
 	{
 		M.Release();
-		if( m_pObj_FileDetailsText && m_pObj_FileDetailsText->m_vectDesignObjText.size() )
-			m_pObj_FileDetailsText->m_vectDesignObjText[0]->m_sText = "";
 		m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
 	}
 
