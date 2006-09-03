@@ -54,7 +54,8 @@ sources += \
 	../Splitter/TextWrapper.cpp \
 	../Splitter/TextSplitter.cpp \
 	../OrbiterGen/Renderer.cpp \
-	../VIPShared/PlutoPhoneCommands.cpp
+	../VIPShared/PlutoPhoneCommands.cpp \
+	../LIRC_DCE/IRReceiverBase.cpp 
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
