@@ -2228,6 +2228,8 @@
 #define DESIGNOBJ_mnuTvChannels_CONST 5172
 #define DESIGNOBJ_dgTvChannels_UI2_CONST 5173
 #define DESIGNOBJ_objFileBrowserHeader_CONST 5174
+#define DESIGNOBJ_butFileBrowserBack_CONST 5175
+#define DESIGNOBJ_dgMediaAttributesForFile_CONST 5176
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

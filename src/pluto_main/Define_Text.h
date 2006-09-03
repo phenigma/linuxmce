@@ -1089,6 +1089,7 @@
 #define TEXT_FilterSort_CONST 1802
 #define TEXT_Now_Playing_Media_Type_CONST 1806
 #define TEXT_user_name_for_admin_CONST 1807
+#define TEXT_MediaSynopsis_CONST 1808
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
