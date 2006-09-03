@@ -126,6 +126,7 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode)
 		g_pPlutoLogger->Write(LV_WARNING,"Cannot find code %s device %d",pCode,PK_Device_Remote);
 }
 
+#ifndef WIN32
 std::string IRReceiverBase::GetSocketText(int Socket) const
 {
 	int Len = 0;
@@ -216,4 +217,4 @@ void IRReceiverBase::ForceKeystroke(string sCommand, string sAVWHost, int iAVWPo
 	
 	close(sockfd);
 }
-
+#endif

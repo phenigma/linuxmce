@@ -127,6 +127,7 @@ sources += \
 	OpenGL/PopupCollection.cpp \
 	OpenGL/AnimationScrollDatagrid.cpp \
 	OpenGL/DataGridRenderer_OpenGL.cpp \
+	../LIRC_DCE/IRReceiverBase.cpp \
 	$(ROOT)/utilities/linux/transparency/transparency.cpp
 
 #<-dceag-mf-b->

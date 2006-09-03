@@ -9501,6 +9501,126 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_TV_Channels : public PreformedCommand
+	{
+	public:
+		SCREEN_TV_Channels(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "242" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TV_Channels_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_TV_Channels_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "242" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TV_Channels_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_TV_Channels_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "242" /* screen ID */);
+		}
+	};
+
+	class SCREEN_TV_Channels_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_TV_Channels_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "242" /* screen ID */);
+		}
+	};
+
+	class SCREEN_CD_Full_Screen_OSD : public PreformedCommand
+	{
+	public:
+		SCREEN_CD_Full_Screen_OSD(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "243" /* screen ID */);
+		}
+	};
+
+	class SCREEN_CD_Full_Screen_OSD_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_CD_Full_Screen_OSD_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "243" /* screen ID */);
+		}
+	};
+
+	class SCREEN_CD_Full_Screen_OSD_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_CD_Full_Screen_OSD_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "243" /* screen ID */);
+		}
+	};
+
+	class SCREEN_CD_Full_Screen_OSD_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_CD_Full_Screen_OSD_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "243" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Music_Full_Screen_OSD : public PreformedCommand
+	{
+	public:
+		SCREEN_Music_Full_Screen_OSD(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "244" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Music_Full_Screen_OSD_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Music_Full_Screen_OSD_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "244" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Music_Full_Screen_OSD_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Music_Full_Screen_OSD_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "244" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Music_Full_Screen_OSD_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Music_Full_Screen_OSD_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "244" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9756,6 +9876,9 @@ namespace DCE
 		virtual void SCREEN_Add_Software(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Choose_Folder(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Choose_Drive(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_TV_Channels(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_CD_Full_Screen_OSD(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Music_Full_Screen_OSD(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -11201,6 +11324,24 @@ namespace DCE
 				{
 					ResetCallBacks();
 					SCREEN_Choose_Drive(nPK_Screen);
+					break;
+				}
+				case 242:
+				{
+					ResetCallBacks();
+					SCREEN_TV_Channels(nPK_Screen);
+					break;
+				}
+				case 243:
+				{
+					ResetCallBacks();
+					SCREEN_CD_Full_Screen_OSD(nPK_Screen);
+					break;
+				}
+				case 244:
+				{
+					ResetCallBacks();
+					SCREEN_Music_Full_Screen_OSD(nPK_Screen);
 					break;
 				}
 

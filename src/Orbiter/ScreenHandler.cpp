@@ -192,7 +192,7 @@ string MediaFileBrowserOptions::HumanReadable()
 	if( m_listPK_Attribute_Description.size() )
 		sFilter = m_listPK_Attribute_Description.front().second;
 
-//	m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(5175),0,"","", sFilter.size() ? "1" : "0");
+	m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(5175),0,"","", sFilter.size() ? "1" : "0");
 	return sResult + sFilter;
 }
 //-----------------------------------------------------------------------------------------------------

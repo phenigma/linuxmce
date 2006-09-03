@@ -26,9 +26,11 @@ namespace DCE
         
 		void ReceivedCode(int PK_Device_Remote,const char *pCode);
 		void GetConfig(DeviceData_Impl *pData);
+#ifndef WIN32
 		void ForceKeystroke(string sCommand, string sAVWHost, int iAVWPort);
 		bool SendSocketText(int Socket, std::string Text) const;
 		std::string GetSocketText(int Socket) const;
+#endif
 	};
 }
 

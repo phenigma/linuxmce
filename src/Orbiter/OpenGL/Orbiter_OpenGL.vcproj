@@ -405,6 +405,9 @@
 				<File
 					RelativePath="..\TextStyle.cpp">
 				</File>
+				<File
+					RelativePath="..\..\Lirc_DCE\IRReceiverBase.cpp">
+				</File>
 			</Filter>
 		</Filter>
 		<Filter

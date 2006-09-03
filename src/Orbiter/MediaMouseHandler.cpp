@@ -85,7 +85,6 @@ bool MediaMouseHandler::ButtonDown(int PK_Button)
 		if( !m_bTapAndRelease && PK_Button==BUTTON_Mouse_1_CONST )
 		{
 			m_pMouseBehavior->m_pOrbiter->SelectedObject(m_pObj,smNavigation);
-			m_pMouseBehavior->Clear(true);
 		}
 		return false; // this is now invalid
 	}
@@ -99,7 +98,6 @@ bool MediaMouseHandler::ButtonUp(int PK_Button)
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 		m_pMouseBehavior->m_pOrbiter->SelectedObject(m_pObj,smNavigation);
-		m_pMouseBehavior->Clear(true);
 		return false; // this is now invalid
 	}
 	return false; // Keep processing

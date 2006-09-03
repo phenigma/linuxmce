@@ -220,7 +220,8 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 				 bool bFullScreen/*=false*/)
 				 : Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ),
 				 m_MaintThreadMutex("MaintThread"), m_ScreenMutex( "rendering" ),
-				 m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" )
+				 m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ),
+				 IRReceiverBase(this)
 				 //<-dceag-const-e->
 {
 	WriteStatusOutput((char *)(string("Orbiter version: ") + VERSION).c_str());
@@ -571,6 +572,30 @@ bool Orbiter::GetConfig()
 	if(!m_iVideoFrameInterval) //this device data doesn't exist or it's 0
 		m_iVideoFrameInterval = 6000; //6 sec
 
+	// See if any of our child devices are remote controls
+	m_cRemoteLayout=0;
+	for(VectDeviceData_Impl::iterator it=m_pData->m_vectDeviceData_Impl_Children.begin();it!=m_pData->m_vectDeviceData_Impl_Children.end();++it)
+	{
+		DeviceData_Impl *pDeviceData_Impl = *it;
+		if( pDeviceData_Impl->WithinCategory(DEVICECATEGORY_Remote_Controls_CONST) )
+		{
+			string s = pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_Remote_Layout_CONST);
+			if( s.size() )
+				m_cRemoteLayout = s[0];
+
+			s = pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_Configuration_CONST);
+			vector<string> vectTokens;
+			StringUtils::Tokenize(s,"\r\n",vectTokens);
+			for(vector<string>::iterator it2=vectTokens.begin();it2!=vectTokens.end();++it2)
+			{
+				string::size_type pos = it2->find(',');
+				if( pos!=string::npos && pos<it2->size() )
+					m_mapScanCodeToRemoteButton[ atoi( it2->substr(pos).c_str() ) ] = it2->substr(0,pos);
+			}
+		}
+	}
+
+	IRReceiverBase::GetConfig(m_pData);
 	m_pScreenHandler = CreateScreenHandler();
 	m_pOrbiterRenderer->Configure();
 
@@ -8672,6 +8697,7 @@ void Orbiter::UpdateTimeCode( void *data )
 						return;
 					}
 				}
+sIPAddress="10.0.0.30";
 				string sConnectInfo = sIPAddress + ":12000";
 				string sName = "ask-xine-socket";
 				m_pAskXine_Socket = new AskXine_Socket(sConnectInfo, sName);

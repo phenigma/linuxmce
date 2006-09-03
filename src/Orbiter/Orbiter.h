@@ -26,6 +26,7 @@
 #include "CallBackTypes.h"
 #include "pluto_main/Define_UI.h"
 #include "PlutoUtils/Profiler.h"
+#include "LIRC_DCE/IRReceiverBase.h"
 
 class OrbiterFileBrowser_Collection;
 class ScreenHandler;
@@ -99,7 +100,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 	/**
 	* @brief
 	*/
-	class Orbiter : public Orbiter_Command,  public OrbiterData
+	class Orbiter : public Orbiter_Command,  public OrbiterData, public IRReceiverBase
 	{
 	private:
 		class PlutoGraphic * m_pBackgroundImage;
@@ -151,6 +152,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		bool m_bFullScreen,m_bUseOpenGL,m_bUseComposite,m_bReportTimeCode;;
 		bool m_bLoadDatagridImagesInBackground;
 		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
+		map<int,string> m_mapScanCodeToRemoteButton; /** < Map of scan codes to remote button names used by Infrared Plugin */
+		char m_cRemoteLayout;
 
 		//<-dceag-const-b->!
 

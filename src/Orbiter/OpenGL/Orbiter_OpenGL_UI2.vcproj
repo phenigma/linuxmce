@@ -376,6 +376,9 @@
 					RelativePath="..\GraphicBuilder.cpp">
 				</File>
 				<File
+					RelativePath="..\..\Lirc_DCE\IRReceiverBase.cpp">
+				</File>
+				<File
 					RelativePath="..\Win32\main.cpp">
 				</File>
 				<File

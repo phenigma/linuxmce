@@ -312,6 +312,9 @@
 				<File
 					RelativePath="..\Simulator.cpp">
 				</File>
+				<File
+					RelativePath="..\..\Lirc_DCE\IRReceiverBase.cpp">
+				</File>
 			</Filter>
 		</Filter>
 		<Filter

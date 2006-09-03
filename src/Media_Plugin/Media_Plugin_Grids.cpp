@@ -600,6 +600,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 			g_pPlutoLogger->Write(LV_STATUS, "Returning data: (%d) -> %s section %d", itFiles - pMediaStream->m_dequeMediaFile.begin(), ((*itFiles)->m_sFilename).c_str(),iSection);
 			mapSections[ make_pair<int,int> (iSection,0) ] = true;
 		}
+		*sValue_To_Assign=StringUtils::itos(pMediaStream->m_iDequeMediaFile_Pos);
 	}
 
 	list<MediaSectionGrid *> listMediaSectionGrid;  // Store them here first so we can sort them
