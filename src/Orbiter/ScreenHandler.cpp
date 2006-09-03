@@ -355,7 +355,9 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 	if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Media_Attributes_For_File_CONST )
 	{
 		SelectedAttributeCell(pCellInfoData->m_pDataGridCell);
+#ifdef ENABLE_MOUSE_BEHAVIOR
 		m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
+#endif
 		m_pOrbiter->CMD_Remove_Popup("","filedetails");
 		m_pOrbiter->CMD_Remove_Popup("","coverart");
 		return true;

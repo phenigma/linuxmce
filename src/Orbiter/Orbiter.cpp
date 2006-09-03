@@ -8672,7 +8672,6 @@ void Orbiter::UpdateTimeCode( void *data )
 						return;
 					}
 				}
-sIPAddress="192.168.80.1";
 				string sConnectInfo = sIPAddress + ":12000";
 				string sName = "ask-xine-socket";
 				m_pAskXine_Socket = new AskXine_Socket(sConnectInfo, sName);
