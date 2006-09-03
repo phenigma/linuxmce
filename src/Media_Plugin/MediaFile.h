@@ -16,6 +16,7 @@ public:
 		m_dwDuration=0;
 		m_tTimeout=0;
 		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
+		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sFullyQualifiedFile));
 	}
 
 	MediaFile(string sMRL)	{
@@ -25,6 +26,7 @@ public:
 		m_dwDuration=0;
 		m_tTimeout=0;
 		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
+		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sMRL));
 	}
 
 	MediaFile(MediaAttributes_LowLevel *pMediaAttributes_LowLevel, string sFullyQualifiedFile) {
@@ -45,6 +47,7 @@ public:
 		m_dwDuration=0;
 		m_tTimeout=0;
 		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
+		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sFullyQualifiedFile));
 	}
 
 	MediaFile(MediaFile *pMediaFile_Copy) {
@@ -53,6 +56,7 @@ public:
 		m_sFilename=pMediaFile_Copy->m_sFilename;
 		m_sDescription=pMediaFile_Copy->m_sDescription;
 		m_sStartPosition=pMediaFile_Copy->m_sStartPosition;
+		m_sExtension=pMediaFile_Copy->m_sExtension;
 		m_dwPK_CommandGroup_Start=pMediaFile_Copy->m_dwPK_CommandGroup_Start;
 		m_dwPK_CommandGroup_Stop=pMediaFile_Copy->m_dwPK_CommandGroup_Stop;
 		m_dwPK_Bookmark=pMediaFile_Copy->m_dwPK_Bookmark;
@@ -101,7 +105,7 @@ public:
 	int m_dwPK_File;
 	unsigned long m_dwPK_Bookmark,m_dwDuration,m_dwPK_CommandGroup_Start,m_dwPK_CommandGroup_Stop;
 	time_t m_tTimeout;
-	string m_sPath,m_sFilename,m_sDescription;
+	string m_sPath,m_sFilename,m_sDescription,m_sExtension;
 	string m_sStartPosition; /** Where to start the media the first time.  As soon as the media has begun MediaPlugin will reset this */
 
 	string FullyQualifiedFile() {

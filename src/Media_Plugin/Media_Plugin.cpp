@@ -805,7 +805,6 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 			if( FileUtils::DirExists(sDirectory1) || FileUtils::DirExists(sDirectory2) )
 			{
 				(*p_dequeMediaFile)[0]->m_sPath = "dvd:/" + (*p_dequeMediaFile)[0]->m_sPath;
-				iPK_MediaType=MEDIATYPE_pluto_DVD_CONST;
 			}
 			else
 				g_pPlutoLogger->Write(LV_CRITICAL,"Found nothing in %d ent areas to play files of %s",
@@ -893,6 +892,13 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
     // If this pointer is still valid, then we'll just add this file to the queue
     MediaStream *pMediaStream = NULL;
 
+	bool bContainsTitlesOrSections=false;
+	if( pMediaHandlerInfo->m_PK_MediaType==MEDIATYPE_pluto_DVD_CONST ||
+		(dequeMediaFile->size() &&
+			((*dequeMediaFile)[0]->m_sExtension=="DVD" || StringUtils::StartsWith((*dequeMediaFile)[0]->m_sPath,"DVD:",true))	) )
+				bContainsTitlesOrSections=true;
+
+
     // If all EA's are playing the same stream, it might be possible to queue it
     MediaStream *pMediaStream_AllEAsPlaying = NULL;
 	for(size_t s=0;s<vectEntertainArea.size();++s)
@@ -910,7 +916,8 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
     if( !bResume && pMediaStream_AllEAsPlaying && !pMediaStream_AllEAsPlaying->m_bResume &&
 		pMediaStream_AllEAsPlaying->m_pMediaHandlerInfo->m_pMediaHandlerBase == pMediaHandlerInfo->m_pMediaHandlerBase &&
 		pMediaStream_AllEAsPlaying->m_iPK_MediaType == pMediaHandlerInfo->m_PK_MediaType &&
-		pMediaHandlerInfo->m_PK_MediaType!=MEDIATYPE_pluto_DVD_CONST &&
+		!pMediaStream_AllEAsPlaying->m_bContainsTitlesOrSections &&
+		!bContainsTitlesOrSections &&
 		pMediaStream_AllEAsPlaying->m_dequeMediaFile.size() )
     {
         pMediaStream = pMediaStream_AllEAsPlaying;
@@ -966,6 +973,8 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
     // HACK: get the user if the message originated from an orbiter!
 
 	pMediaStream->m_bResume=bResume;
+	pMediaStream->m_bContainsTitlesOrSections=bContainsTitlesOrSections;
+
 	g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from StartMedia");
 	if( StartMedia(pMediaStream) )
 		return pMediaStream;

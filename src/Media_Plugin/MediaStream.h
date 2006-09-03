@@ -131,6 +131,8 @@ namespace DCE
 
 		string m_sAppName;				/** The name of the application (window name actually) the will render this on the media director */
 
+		bool m_bContainsTitlesOrSections;  /** The stream has titles or sections, like a dvd, and skipping should skip withing the file, not between files */
+
         /** @brief constructor*/
         MediaStream(class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, MediaDevice *pMediaDevice, int PK_Users,enum SourceType sourceType,int iStreamID);
 

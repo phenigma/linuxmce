@@ -565,9 +565,11 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 
     deque<MediaFile *>::iterator itFiles;
     string sCurrentFile;
+ 
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CurrentMediaSections titles %d",(int) pMediaStream->m_dequeMediaTitle.size());
 
     int currentPos = 0;
-	if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST && pMediaStream->m_dequeMediaFile.size()==1 )
+	if( pMediaStream->m_bContainsTitlesOrSections )
 	{
 		for(size_t sTitle=0;sTitle<pMediaStream->m_dequeMediaTitle.size();++sTitle)
 		{
@@ -607,7 +609,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 		itSections = mapSections.find( make_pair<int,int> ( it->first.first, it->first.second ) );
 		if( itSections==mapSections.end() )
 		{
-			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ) // There's a title
+			if( pMediaStream->m_bContainsTitlesOrSections ) // There's a title
 			{
 				string sCell;
 				if( it->first.second>=0 )

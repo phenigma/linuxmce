@@ -69,6 +69,7 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_Med
 	m_iPK_MediaProvider=iPK_MediaProvider;
 	m_bPlugInWillSetDescription=false;
 	m_bIdentifiedDisc=false;
+	m_bContainsTitlesOrSections=false;
 
     m_iPK_Users=PK_Users;
     m_eSourceType=sourceType;
@@ -311,7 +312,7 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 	m_sMediaDescription=""; m_sSectionDescription="";
 	Media_Plugin *pMedia_Plugin = m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin;
 
-	if( m_iPK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST || m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST || m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST )
+	if( m_iPK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST || m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST || (m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST && !m_bContainsTitlesOrSections) )
 	{
 		MediaFile *pMediaFile=pMediaFile_In;
 		if( bAllFiles )
