@@ -200,6 +200,7 @@ void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMess
 
 void* ThreadAnimation(void* ThreadInfo)
 {
+	g_pPlutoLogger->Write(LV_WARNING, "Start Gallery thread");
 	GallerySetup* Info = (GallerySetup*) ThreadInfo;
 	Gallery::Instance()->Setup(Info->GetWidth(), Info->GetHeight(), 
 		Info->GetFaddingTime(),
@@ -210,6 +211,7 @@ void* ThreadAnimation(void* ThreadInfo)
 
 	*(Info->ThreadID) = 0;
 	delete Info;
+	g_pPlutoLogger->Write(LV_WARNING, "Finish Gallery thread");
 	return NULL;
 }
 

@@ -4,6 +4,9 @@
 
 #include "MeshBuilder.h"
 #include "MeshPainter.h"
+#include "../DCE/Logger.h"
+
+using namespace DCE;
 
 GalleryScenario::GalleryScenario(int Width, int Height, int FaddingTime, int ZoomTime, string SearchImageFolder)
 : StateMachine(NULL)
@@ -63,7 +66,10 @@ void GalleryScenario::Update(void)
 		BeforePicture->Paint();
 
 		if (Result)
+		{
+			g_pPlutoLogger->Write(LV_ALARM, "Start zoom one image");
 			StateMachine->AnimateCurrentImage();
+		}
 
 		break;
 	case STATUS_ANIMATE_CURRENT_IMAGE:
@@ -71,6 +77,7 @@ void GalleryScenario::Update(void)
 		AfterPicture->Paint();
 		if (Result)
 		{
+			g_pPlutoLogger->Write(LV_ALARM, "Start fade images");
 			AnimatedPicture* Temp = AfterPicture;
 			AfterPicture = BeforePicture;
 			BeforePicture = Temp;

@@ -1,6 +1,9 @@
 #include "FileBrowser.h"
 
 #include "../PlutoUtils/StringUtils.h"
+#include "../DCE/Logger.h"
+
+using namespace DCE;
 
 FileBrowser::FileBrowser(string FileList)
 {
@@ -26,6 +29,8 @@ string FileBrowser::NextFile()
 		Result = m_vectFileList[Position];
 	} while(Result == LastFile);
 	LastFile = Result;
+
+	g_pPlutoLogger->Write(LV_ALARM, "Purpose file %s", Result.c_str());
 
 	return Result;
 }
