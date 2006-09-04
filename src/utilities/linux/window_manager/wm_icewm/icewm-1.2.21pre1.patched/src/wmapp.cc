@@ -847,6 +847,10 @@ int handler(Display *display, XErrorEvent *xev) {
 
 #ifdef DEBUG
 void dumpZorder(const char *oper, YFrameWindow *w, YFrameWindow *a) {
+    if (w==NULL)
+        return;
+    if (manager==NULL)
+        return;
     YFrameWindow *p = manager->top(w->getActiveLayer());
     msg("---- %s ", oper);
     while (p) {
