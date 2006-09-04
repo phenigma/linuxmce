@@ -343,10 +343,9 @@ void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 		if( pObj==m_pObj_Previously_Highlighted )
 			return;  // Nothing to do
 		g_pPlutoLogger->Write(LV_CRITICAL, "mmm MouseBehavior::HighlightObject : UNHIGHLIGHT %s %d",
-			m_pObj_Previously_Highlighted->m_ObjectID.c_str(),m_GraphicToDisplay_Obj_Previously_Highlighted);
+			m_pObj_Previously_Highlighted->m_ObjectID.c_str(), m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight);
 		
-		m_pObj_Previously_Highlighted->m_GraphicToDisplay_set(m_GraphicToDisplay_Obj_Previously_Highlighted,true);
-//		m_pObj_Previously_Highlighted->Renderer()->RenderObject((DesignObj_Orbiter *) m_pObj_Previously_Highlighted->TopMostObject(),m_pObj_Previously_Highlighted->m_pPopupPoint);
+		m_pObj_Previously_Highlighted->m_GraphicToDisplay_set(m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight,true);
 		m_pOrbiter->ExecuteCommandsInList( &m_pObj_Previously_Highlighted->m_Action_UnhighlightList, m_pObj_Previously_Highlighted, smHighlight, 0, 0 );
 		m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_Previously_Highlighted);
 	}
@@ -357,7 +356,7 @@ void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 	if( !pObj )
 		return;
 
-	m_GraphicToDisplay_Obj_Previously_Highlighted = m_pObj_Previously_Highlighted->m_GraphicToDisplay;
+	m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight = m_pObj_Previously_Highlighted->m_GraphicToDisplay;
 
 	pObj->m_GraphicToDisplay_set(GRAPHIC_HIGHLIGHTED,true);
 	g_pPlutoLogger->Write(LV_CRITICAL, "mmm MouseBehavior::HighlightObject : HIGHLIGHT %s",

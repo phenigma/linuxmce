@@ -52,6 +52,7 @@ DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pOrbiter)
 
 	m_pCriteria=NULL;
 	m_GraphicToDisplay=GRAPHIC_NORMAL;
+	m_GraphicBeforeHighlight=GRAPHIC_NORMAL;
 	m_GraphicToPlay=GRAPHIC_NORMAL;
 	m_bOneTimeDontReset=false;
 	m_pParentObject=NULL;

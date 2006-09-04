@@ -53,6 +53,7 @@ public:
 	DesignObj_DataList m_OverlayObjects;
 
 	int m_GraphicToDisplay;
+	int m_GraphicBeforeHighlight;
 	void m_GraphicToDisplay_set(int GraphicToDisplay,bool bRecurseChildren=false)
 	{
 		m_GraphicToDisplay=GraphicToDisplay;

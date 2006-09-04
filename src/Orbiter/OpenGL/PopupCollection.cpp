@@ -110,7 +110,7 @@ void PopupCollection::ResetObjectInPopup(std::string PopupID, DesignObj_Orbiter 
 		MeshFrame *pPopupFrame = it->second->Frame();
 		pObj->m_GraphicToDisplay = GRAPHIC_HIGHLIGHTED;
 		MeshFrame* pOldFrame = TextureManager::Instance()->GetCacheItem(pObj->GenerateObjectHash(pObj->m_pPopupPoint));
-		pObj->m_GraphicToDisplay = GRAPHIC_NORMAL;
+		pObj->m_GraphicToDisplay = pObj->m_GraphicBeforeHighlight;
 		MeshFrame* pNewFrame = TextureManager::Instance()->GetCacheItem(pObj->GenerateObjectHash(pObj->m_pPopupPoint));
 		
 		if(NULL != pPopupFrame && NULL != pOldFrame && NULL != pNewFrame)
