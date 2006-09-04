@@ -32,12 +32,15 @@ OpenGL3DEngine::OpenGL3DEngine() :
 	FrameBuilder(NULL),			 
 	FrameDatagrid(NULL),
 	HighLightPopup(NULL),
-	ModifyGeometry(0)
+	ModifyGeometry(0),
+	MilisecondsHighLight(0)
 {
 	if(TTF_Init()==-1) {
 		printf("Error on TTF_Init: %s\n", TTF_GetError());
 		return;
 	}
+
+	MilisecondsHighLight = Simulator::GetInstance()->m_iMilisecondsHighLight;
 
 	m_spDatagridAnimationManager.reset(new DatagridAnimationManager(this));
 
@@ -54,15 +57,9 @@ OpenGL3DEngine::OpenGL3DEngine() :
 
 OpenGL3DEngine::~OpenGL3DEngine()
 {
-	//TODO: shared objects between old and current layer? let's debug this
-	//if(OldLayer)
-	//	OldLayer->CleanUp();
-	
-	if(CurrentLayer)
-		CurrentLayer->CleanUp();
-
 	delete OldLayer;
 	delete CurrentLayer;
+
 	pthread_mutex_destroy(&SceneMutex.mutex);
 }
 
@@ -123,7 +120,7 @@ bool OpenGL3DEngine::Paint()
 			Point3D Color;
 			Color.X = 1.0f;
 			Color.Y = 1.0f;
-			Color.Z = (GetTick() / 2 % 512) / 255.0f*Simulator::GetInstance()->m_iMilisecondsHighLight/300;
+			Color.Z = (GetTick() / 2 % 512) / 255.0f*MilisecondsHighLight/300;
 			Color.Z = abs(Color.Z - 1.0f)/2.0f+ 0.5f;
 			Color.X = Color.Z;
 			Color.Y = Color.Z;
@@ -137,7 +134,7 @@ bool OpenGL3DEngine::Paint()
 			Point3D Color;
 			Color.X = 1.0f;
 			Color.Y = 1.0f;
-			Color.Z = (GetTick() / 2 % 512) / 255.0f*Simulator::GetInstance()->m_iMilisecondsHighLight/300;
+			Color.Z = (GetTick() / 2 % 512) / 255.0f*MilisecondsHighLight/300;
 			Color.Z = abs(Color.Z - 1.0f)/2.0f+ 0.5f;
 			Color.X = Color.Z;
 			Color.Y = Color.Z;

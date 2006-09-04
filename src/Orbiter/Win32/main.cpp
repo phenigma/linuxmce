@@ -287,11 +287,11 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 		g_pPlutoLogger->Write(LV_STATUS, "Exited process messages loop. We are shutting down....");
 
-		Simulator::GetInstance()->SaveConfigurationFile(g_sBinaryPath + g_sOrbiterConfName);
-		Simulator::Cleanup();
-
 		if(NULL != Orbiter::Instance())
 			Orbiter::DestroyInstance();
+
+		Simulator::GetInstance()->SaveConfigurationFile(g_sBinaryPath + g_sOrbiterConfName);
+		Simulator::Cleanup();
 
 #ifdef WINCE
 		HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);

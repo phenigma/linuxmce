@@ -63,6 +63,12 @@ MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 
 MouseBehavior::~MouseBehavior()
 {
+	if(NULL != m_pMouseHandler)
+	{
+		delete m_pMouseHandler;
+		m_pMouseHandler = NULL;
+	}
+
 	delete m_pMouseGovernor;
 	delete m_pMouseIterator;
 }

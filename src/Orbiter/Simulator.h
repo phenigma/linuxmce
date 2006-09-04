@@ -12,6 +12,7 @@ namespace DCE
 class Simulator
 {
 	static Simulator* m_pInstance;
+	static bool m_bInstanceCreated;
 
 	pthread_t m_GeneratorThreadID;
 

@@ -65,6 +65,7 @@ public:
 	MeshFrame* GetCacheItem(std::string ObjectHash);
 	void AddCacheItem(std::string ObjectHash, MeshFrame* Frame);
 	void InvalidateItem(std::string ObjectHash);
+	void InvalidateItem(MeshFrame *pFrame);
 
 	void AttachToScene(std::string ParentObjectID, MeshFrame* Frame);
 };

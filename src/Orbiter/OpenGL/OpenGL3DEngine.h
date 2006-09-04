@@ -42,6 +42,9 @@ class OpenGL3DEngine
 	 */
 	int ModifyGeometry;
 
+	//setup
+	int MilisecondsHighLight;
+
 public:
 	bool ForceReleaseTextures;
 

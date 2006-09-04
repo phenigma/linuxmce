@@ -34,6 +34,22 @@ TextureManager::TextureManager(void)
 
 TextureManager::~TextureManager(void)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "TextureManager destructor");
+
+	//for(std::map<std::string, MeshFrame*>::iterator it = Graphics.begin(); end = Graphics.end(); it != end; ++it)
+	while(Graphics.size())
+	{
+		std::map<std::string, MeshFrame*>::iterator it = Graphics.begin();
+		string name = it->first;
+		MeshFrame *pFrame = it->second;
+		Graphics.erase(it);
+
+		g_pPlutoLogger->Write(LV_STATUS, "Deleting %p/%s and children", pFrame, name.c_str());
+		pFrame->CleanUp();
+		delete pFrame;
+	}
+	Graphics.clear();
+
 	pthread_mutex_destroy(&TextureLock.mutex);
 }
 
@@ -44,9 +60,6 @@ void TextureManager::Setup(OpenGL3DEngine *Engine)
 
 /*static*/ void TextureManager::SetupTexture(OpenGLTexture Texture)
 {
-	//if(Texture == LastTexture)
-	//	return;
-
 	glEnd();
 	
 	if(0 != Texture)
@@ -200,6 +213,19 @@ bool TextureManager::ExistInCache(MeshFrame *pFrame)
 	}
 
 	return false;
+}
+
+void TextureManager::InvalidateItem(MeshFrame *pFrame)
+{
+	for(std::map<std::string, MeshFrame*>::iterator it = Graphics.begin(),
+		end = Graphics.end(); it != end; ++it)
+	{
+		if(it->second == pFrame)
+		{
+			Graphics.erase(it);
+			return;
+		}
+	}
 }
 
 void TextureManager::AttachToScene(string ParentObjectID, MeshFrame* Frame)

@@ -27,6 +27,7 @@ using namespace DCE;
 #endif //WIN32
 //------------------------------------------------------------------------------------------------------
 Simulator *Simulator::m_pInstance = NULL;
+bool Simulator::m_bInstanceCreated = false;
 //-----------------------------------------------------------------------------------------------------
 void *GeneratorThread( void *p)
 {
@@ -247,7 +248,15 @@ Simulator::~Simulator()
 /*static*/ Simulator* Simulator::GetInstance()
 {
 	if(NULL == m_pInstance)
+	{
+		if(m_bInstanceCreated)
+		{
+			int a = 0;
+		}
+
+		m_bInstanceCreated = true;
 		m_pInstance = new Simulator();
+	}
 
 	return m_pInstance;
 }

@@ -3635,6 +3635,8 @@ int k=2;
 					ReceivedMessage( pResponse );
 					delete pResponse;
 				}
+
+				pMessage = NULL;
 			}
 			else
 			{

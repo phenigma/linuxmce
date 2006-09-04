@@ -17,6 +17,9 @@ MeshFrame::MeshFrame(string Name, MeshContainer* Mesh)
 
 MeshFrame::~MeshFrame(void)
 {
+	TextureManager::Instance()->InvalidateItem(this);
+
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "\tMeshFrame destructor %p/%s", this, this->Name_.c_str());
 }
 
 /*virtual*/ void MeshFrame::CleanUp()
