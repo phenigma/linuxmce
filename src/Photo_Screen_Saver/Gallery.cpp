@@ -68,7 +68,7 @@ bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string
 	Quit = false;
 	Event.Type = 0;
 	FrontEnd = new SDLFrontEnd();
-	bool Result = FrontEnd->StartVideoMode(Width, Height, true) != 0;
+	bool Result = FrontEnd->StartVideoMode(Width, Height, false) != 0;
 	MeshPainter::Instance()->Setup(&Extensions);
 	Extensions.Resize(Width, Height);
 	Scenario = new GalleryScenario(Width, Height, FaddingTime, ZoomTime, FolderName);
