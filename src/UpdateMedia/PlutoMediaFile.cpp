@@ -337,6 +337,8 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		"Path = '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(m_sDirectory)) + 
 		"' AND Filename = '" + StringUtils::SQLEscape(m_sFile) + "' AND Missing = 1", &vectRow_File);
 
+	int nEK_Users_Private = GetOwnerForPath(m_sDirectory);
+
 	//Any luck to reuse a missing file record?
 	if(vectRow_File.size())
 	{
@@ -347,6 +349,12 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		pRow_File = vectRow_File[0];
 		pRow_File->Missing_set(0);
 		pRow_File->EK_MediaType_set(PK_MediaType);
+
+		if(nEK_Users_Private != 0)
+			pRow_File->EK_Users_Private_set(nEK_Users_Private);
+		else
+			pRow_File->EK_Users_Private_setNull(true);
+
 		pRow_File->Table_File_get()->Commit();
 
 		//This will get a vector with desired File_Attribute's rows
@@ -379,6 +387,12 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		pRow_File->Filename_set(FileUtils::ExcludeTrailingSlash(m_sFile));
 		pRow_File->IsDirectory_set(m_bIsDir);
 		pRow_File->EK_MediaType_set(PK_MediaType);
+
+		if(nEK_Users_Private != 0)
+			pRow_File->EK_Users_Private_set(nEK_Users_Private);
+		else
+			pRow_File->EK_Users_Private_setNull(true);
+
 		pRow_File->Table_File_get()->Commit();
 
 		g_pPlutoLogger->Write(LV_STATUS, "PlutoMediaFile::AddFileToDatabase -> created new record PK_File %d",
@@ -876,6 +890,23 @@ void PlutoMediaFile::RenameAttribute(int Attribute_Type, string sOldValue, strin
 			break;
 		}
 	}
+}
+//-----------------------------------------------------------------------------------------------------
+int PlutoMediaFile::GetOwnerForPath(string sPath)
+{
+	// like this: /home/user_xxx/data
+
+	int nEK_Users_Private = 0;
+	const string csHomeUserPath = "/home/user_";
+
+	if(sPath.find(csHomeUserPath) == 0)
+	{
+		string sRemainingPath = sPath.substr(csHomeUserPath.length());
+		string sUserId = sRemainingPath.substr(0, sRemainingPath.find("/"));
+		nEK_Users_Private = atoi(sUserId.c_str());
+	}
+
+	return nEK_Users_Private;
 }
 //-----------------------------------------------------------------------------------------------------
 

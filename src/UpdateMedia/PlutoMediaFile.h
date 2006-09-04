@@ -49,6 +49,7 @@ private:
 	void LoadAttributesFromDB(string sFullFileName, int PK_File);
 
 	void SyncDbAttributes();
+	int GetOwnerForPath(string sPath);
 
 public:
     PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation,
