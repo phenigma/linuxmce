@@ -64,7 +64,7 @@ void Gallery::PaintScreen(void)
 
 bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName)
 {
-	Width = 800; Height = 500;
+//	Width = 800; Height = 500;
 	Quit = false;
 	Event.Type = 0;
 	FrontEnd = new SDLFrontEnd();
