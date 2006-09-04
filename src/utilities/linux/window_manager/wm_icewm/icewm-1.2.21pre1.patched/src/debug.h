@@ -18,4 +18,7 @@ extern bool debug_z;
 #define PRECONDITION(x) // nothing
 #endif
 
+#undef MSG
+#define MSG(x) msg x
+
 #endif
