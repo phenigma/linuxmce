@@ -136,6 +136,9 @@
 					RelativePath=".\AnimationScrollDatagrid.cpp">
 				</File>
 				<File
+					RelativePath=".\DatagridAnimationManager.cpp">
+				</File>
+				<File
 					RelativePath=".\DataGridRenderer_OpenGL.cpp">
 				</File>
 				<File
@@ -373,6 +376,9 @@
 					RelativePath="..\GraphicBuilder.cpp">
 				</File>
 				<File
+					RelativePath="..\..\Lirc_DCE\IRReceiverBase.cpp">
+				</File>
+				<File
 					RelativePath="..\Win32\main.cpp">
 				</File>
 				<File
@@ -404,9 +410,6 @@
 				</File>
 				<File
 					RelativePath="..\TextStyle.cpp">
-				</File>
-				<File
-					RelativePath="..\..\Lirc_DCE\IRReceiverBase.cpp">
 				</File>
 			</Filter>
 		</Filter>

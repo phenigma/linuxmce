@@ -146,6 +146,9 @@
 				RelativePath="..\Orbiter\DesignObj_Orbiter.cpp">
 			</File>
 			<File
+				RelativePath="..\Lirc_dce\IRReceiverBase.cpp">
+			</File>
+			<File
 				RelativePath="Main.cpp">
 			</File>
 			<File
