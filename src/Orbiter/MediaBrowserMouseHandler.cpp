@@ -180,6 +180,8 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 		M.Release();
 		m_pMouseBehavior->m_pOrbiter->CMD_Update_Object_Image(m_pObj_CoverArtPopup->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",pDup,int(pCell->m_pGraphic->m_GraphicLength),"0");
 		m_pMouseBehavior->m_pOrbiter->CMD_Show_Popup(m_pObj_CoverArtPopup->m_ObjectID,X,Y,"","coverart",false,false);
+
+		delete [] pDup;
 	}
 	else if( pCell && pCell->m_pGraphicData )
 	{
@@ -188,6 +190,8 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 		M.Release();
 		m_pMouseBehavior->m_pOrbiter->CMD_Update_Object_Image(m_pObj_CoverArtPopup->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",pDup,int(pCell->m_GraphicLength),"0");
 		m_pMouseBehavior->m_pOrbiter->CMD_Show_Popup(m_pObj_CoverArtPopup->m_ObjectID,X,Y,"","coverart",false,false);
+
+		delete [] pDup;
 	}
 	else
 	{
