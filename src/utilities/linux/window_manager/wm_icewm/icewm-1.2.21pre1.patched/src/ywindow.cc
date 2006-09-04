@@ -399,12 +399,14 @@ void YWindow::destroy() {
     if (flags & wfCreated) {
         if (!(flags & wfDestroyed)) {
             if (!(flags & wfAdopted)) {
+                msg("**YWindow::destroy() : fHandle==0x%X", fHandle);
                 XDestroyWindow(xapp->display(), fHandle);
             } else {
                 XSelectInput(xapp->display(), fHandle, NoEventMask);
             }
             flags |= wfDestroyed;
         }
+        msg("**YWindow::destroy() : fHandle==0x%X, windowContext==0x%X", fHandle, windowContext);
         XDeleteContext(xapp->display(), fHandle, windowContext);
         fHandle = None;
         flags &= ~wfCreated;
