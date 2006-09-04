@@ -19,6 +19,7 @@
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Define_MediaType.h"
 #include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
 #include "pluto_media/Define_AttributeType.h"
 
 using namespace DCE;
@@ -1421,7 +1422,13 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePublic_CONST)
 					m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder + "public/data/" + sSubDir + "/";
 				else
+				{
 					m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder + "user_" + StringUtils::itos(m_pOrbiter->m_dwPK_Users) + "/data/" + sSubDir + "/";
+
+					//also append the user
+					m_sSaveFile_Command += " " + StringUtils::ltos(COMMANDPARAMETER_Name_CONST) + 
+						" " + "<%=" + StringUtils::ltos(VARIABLE_Seek_Value_CONST) + "%>";
+				} 
 
 				if(m_bSaveFile_Advanced_options)
 					SaveFile_GotoChooseFolderDesignObj();
