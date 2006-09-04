@@ -260,11 +260,13 @@ FileUtils::WriteBufferIntoFile("/temp.sql",xxx.c_str(),xxx.size());
 	if( sPK_File.size() )
 	{
 		sPK_File[ sPK_File.size()-1 ]=' '; // Get rid of the trailing comma
-		FetchPictures("File",sPK_File,mapFile_To_Pic);
 		if( bShowFiles )
+		{
+			FetchPictures("File",sPK_File,mapFile_To_Pic);
 			PopulateFileBrowserInfoForFile(pMediaListGrid,PK_AttributeType_Sort,bSubDirectory,sPath_Back,sPK_File,mapFile_To_Pic);
+		}
 		else
-			PopulateFileBrowserInfoForAttribute(pMediaListGrid,PK_AttributeType_Sort,sPK_File,mapFile_To_Pic);
+			PopulateFileBrowserInfoForAttribute(pMediaListGrid,PK_AttributeType_Sort,sPK_File);
 	}
 
 	if( sPK_Disc.size() )
@@ -372,9 +374,9 @@ FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
 		}
 }
 
-void Media_Plugin::PopulateFileBrowserInfoForAttribute(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, string &sPK_File,map<int,int> &mapFile_To_Pic)
+void Media_Plugin::PopulateFileBrowserInfoForAttribute(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, string &sPK_File)
 {
-	string sSQL_Sort = "SELECT DISTINCT PK_Attribute,'',Name FROM File JOIN File_Attribute ON FK_File=PK_File JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ")";
+	string sSQL_Sort = "SELECT PK_Attribute,Name,min(FK_Picture) AS FK_Picture FROM File JOIN File_Attribute ON FK_File=PK_File JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " LEFT JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=PK_Attribute WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ") GROUP BY PK_Attribute,Name";
 
 FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
 
@@ -384,9 +386,9 @@ FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
     if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Sort ) )
         while( ( row=mysql_fetch_row( result.r ) ) )
 		{
-			FileBrowserInfo *pFileBrowserInfo = new FileBrowserInfo(row[2],string("!A") + row[0],atoi(row[0]));
-			if( (it=mapFile_To_Pic.find( atoi(row[0]) ))!=mapFile_To_Pic.end() )
-				pFileBrowserInfo->m_PK_Picture = it->second;
+			FileBrowserInfo *pFileBrowserInfo = new FileBrowserInfo(row[1],string("!A") + row[0],atoi(row[0]));
+			if( row[2] )
+				pFileBrowserInfo->m_PK_Picture = atoi(row[2]);
 			pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);
 		}
 }
