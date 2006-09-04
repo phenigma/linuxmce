@@ -119,6 +119,7 @@ void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 		return; // Again shouldn't happen
 
 	int Rows = pObj_Grid->DataGridTable_Get()->GetRows();
+	/*
 	if( m_bTapAndRelease==false )  // Discrete positioning
 	{
 		double RowHeight = (double) pObj_Grid->m_rPosition.Height / Rows;
@@ -138,4 +139,5 @@ void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 			m_pMouseBehavior->m_pOrbiter->SelectedObject(pObj_Grid,smMouseGovernor);  // Do this last since it could result in a screen change and deletion of ourself
 		}
 	}
+	*/
 }
