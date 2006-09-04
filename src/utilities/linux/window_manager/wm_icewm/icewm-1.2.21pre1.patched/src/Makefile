@@ -38,7 +38,7 @@ CXXFLAGS =      -fpermissive -Wall -Wpointer-arith -Wconversion -Wwrite-strings 
 LFLAGS =	
 LIBS =          
 
-CORE_LIBS =     -lXinerama  -lSM -lICE  -lX11  -L/usr/X11R6/lib  -lXrandr -lXrender -lXext -lXft -lX11 -lfreetype -lz -lfontconfig -L/usr/X11R6/lib -lXrender -lX11 # `fc-config --libs`
+CORE_LIBS =     -lXinerama  -lSM -lICE  -lX11  -L/usr/X11R6/lib  -lXrandr -lXrender -lXext -lXft -lX11 -lfreetype -lz -lfontconfig -L/usr/X11R6/lib -lXrender -lX11 -lXrender # `fc-config --libs`
 IMAGE_LIBS =    -L/usr/lib -lImlib -ljpeg -ltiff -lungif -lpng -lz -lm -lXext -L/usr/X11R6/lib -lSM -lICE -lXext -lX11
 AUDIO_LIBS =    
 GNOME1_LIBS =    
