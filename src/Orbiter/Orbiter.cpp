@@ -2443,7 +2443,8 @@ ACCEPT OUTSIDE INPUT
 void Orbiter::QueueEventForProcessing( void *eventData )
 {
 	Orbiter::Event *pEvent = (Orbiter::Event*)eventData;
-
+g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing type %d key %d",
+					  pEvent->type, (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP ? pEvent->data.button.m_iPK_Button : -999));
     if (m_bYieldInput && (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP))
     {
         g_pPlutoLogger->Write(LV_STATUS, "Ignoring keyboard events, m_bYieldInput==%d", m_bYieldInput);
@@ -2463,6 +2464,8 @@ bool Orbiter::PreprocessEvent(Orbiter::Event &event)
 #include "MediaBrowserMouseHandler.h"
 bool Orbiter::ProcessEvent( Orbiter::Event &event )
 {
+g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent1 type %d key %d",
+					  event.type, (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP ? event.data.button.m_iPK_Button : -999));
 	static int LastX=-1,LastY=-1; // For some reason we keep getting move events with the same coordinates over and over
 	if ( event.type == Orbiter::Event::MOUSE_MOVE )
 	{
@@ -2512,6 +2515,8 @@ if(UsesUIVersion2())
 {
 	bool bSkipProcessing=false;
 
+g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent2 %p type %d key %d",
+					  m_pMouseBehavior, event.type, (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP ? event.data.button.m_iPK_Button : -999));
 	if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior)
 	{
 		if(event.data.button.m_iPK_Button == BUTTON_F6_CONST || event.data.button.m_iPK_Button == BUTTON_Mouse_6_CONST)
@@ -2556,6 +2561,8 @@ if(UsesUIVersion2())
 		if ( event.type == Orbiter::Event::REGION_UP && event.data.button.m_iPK_Button==2 )
 			bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_3_CONST);
 	}
+g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d key %d",
+					  (int) bSkipProcessing, event.type, (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP ? event.data.button.m_iPK_Button : -999));
 
 	if( bSkipProcessing )
 		return true;
