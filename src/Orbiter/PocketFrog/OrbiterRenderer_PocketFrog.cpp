@@ -723,7 +723,7 @@ void OrbiterRenderer_PocketFrog::EventLoop()
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_PocketFrog::ReplaceColorInRectangle(int x, int y, int width, int height, 
-	PlutoColor ColorToReplace, PlutoColor ReplacementColor)
+	PlutoColor ColorToReplace, PlutoColor ReplacementColor, DesignObj_Orbiter *pObj/* = NULL*/)
 {
 	ClipRectangle(x, y, width, height);
 

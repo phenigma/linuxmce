@@ -5762,7 +5762,7 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 						fpObj->pObj->m_rBackgroundPosition.Height, (int) Color);
 #endif
 					m_pOrbiterRenderer->ReplaceColorInRectangle(point.X + fpObj->pObj->m_rBackgroundPosition.X, point.Y + fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
-						fpObj->pObj->m_rBackgroundPosition.Height, Magenta, Color);
+						fpObj->pObj->m_rBackgroundPosition.Height, Magenta, Color, fpObj->pObj);
 
 				}
 

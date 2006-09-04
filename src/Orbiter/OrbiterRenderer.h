@@ -95,7 +95,7 @@ public:
 	/**
 	* @brief replaces the specified color from within the specified rectangle with another one
 	*/
-	virtual void ReplaceColorInRectangle( int iX, int iY, int iWidth, int iHeight, PlutoColor ColorToReplace, PlutoColor ReplacementColor) = 0;
+	virtual void ReplaceColorInRectangle( int iX, int iY, int iWidth, int iHeight, PlutoColor ColorToReplace, PlutoColor ReplacementColor, DesignObj_Orbiter *pObj = NULL) = 0;
 
 	/**
 	* @brief floods the region that containes the specified point, replacing one color

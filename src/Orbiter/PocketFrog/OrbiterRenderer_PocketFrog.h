@@ -78,7 +78,8 @@ public:
 		string ObjectID = "");
 	void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color);
 	void DrawLine(int x, int y, int width, int height, PlutoColor color) {};
-	void ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor);
+	void ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, 
+		PlutoColor ReplacementColor, DesignObj_Orbiter *pObj = NULL);
 	void FloodFill(int x, int y, PlutoColor ColorToReplace, PlutoColor ReplacementColor) {};
 	void RenderText(string &sTextToDisplay,class DesignObjText *Text,class TextStyle *pTextStyle, PlutoPoint point = PlutoPoint(0, 0));
 	void RenderText(HDC hdc,string &sTextToDisplay,PlutoRectangle &rPosition,int iPK_HorizAlignment,int iPK_VertAlignment,

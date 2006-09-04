@@ -62,8 +62,38 @@ g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 		return;
 	}
 
-	//g_pPlutoLogger->Write(LV_STATUS, "(2) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
+//todo: new method
+	LoadPicture(pPlutoGraphic);
+
+	//g_pPlutoLogger->Write(LV_STATUS, "(4) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
 	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
+	
+	if(!pPlutoGraphic->IsEmpty())
+	{
+		OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = 
+			dynamic_cast<OrbiterRenderer_OpenGL *>(m_pObj_Owner->m_pOrbiter->Renderer());
+
+		int nAlphaChannel = GetAlphaLevel();
+
+		pOrbiterRenderer_OpenGL->RenderGraphic(pPlutoGraphic, rectTotal, 
+			bDisableAspectRatio, point, nAlphaChannel, sParentObjectID, 
+			m_pObj_Owner->GenerateObjectHash(point, false),
+			m_pObj_Owner->GenerateObjectHash(point));
+	}
+#ifdef DEBUG
+	else
+		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", m_pObj_Owner->m_ObjectID.c_str());
+#endif
+g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
+}
+
+
+void ObjectRenderer_OpenGL::LoadPicture(PlutoGraphic* pPlutoGraphic)
+{
+
+//g_pPlutoLogger->Write(LV_STATUS, "(2) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
+//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
+
 
 	string sFileName = "";
 	if(
@@ -96,7 +126,7 @@ g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 		if (!iSizeGraphicFile)
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to get file from server %s", pPlutoGraphic->m_Filename.c_str());
-g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
+	g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 			return;
 		}
 
@@ -112,7 +142,7 @@ g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 		{
 			delete pGraphicFile;
 			pGraphicFile = NULL;
-g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
+	g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 			return;
 		}
 
@@ -120,15 +150,18 @@ g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 		pGraphicFile = NULL;
 	}
 
-	//g_pPlutoLogger->Write(LV_STATUS, "(3) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
-	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
-	
+
+
+
+//g_pPlutoLogger->Write(LV_STATUS, "(3) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
+//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
+
 	if(pPlutoGraphic->IsEmpty() && !sFileName.empty())
 	{
 		if(!FileUtils::FileExists(sFileName))
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read file %s", (sFileName).c_str());
-g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
+	g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 			return;
 		}
 
@@ -146,13 +179,13 @@ g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 
 				if(!size)
 				{
-g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
+	g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 					return;
 				}
 
 				if(!pPlutoGraphic->LoadGraphic(pData, size))
 				{
-g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
+	g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 					return;
 				}
 
@@ -164,26 +197,4 @@ g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 			;
 		}
 	}
-
-	//g_pPlutoLogger->Write(LV_STATUS, "(4) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
-	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
-	
-	if(!pPlutoGraphic->IsEmpty())
-	{
-		OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = 
-			dynamic_cast<OrbiterRenderer_OpenGL *>(m_pObj_Owner->m_pOrbiter->Renderer());
-
-		int nAlphaChannel = GetAlphaLevel();
-
-		pOrbiterRenderer_OpenGL->RenderGraphic(pPlutoGraphic, rectTotal, 
-			bDisableAspectRatio, point, nAlphaChannel, sParentObjectID, 
-			m_pObj_Owner->GenerateObjectHash(point, false),
-			m_pObj_Owner->GenerateObjectHash(point));
-	}
-#ifdef DEBUG
-	else
-		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", m_pObj_Owner->m_ObjectID.c_str());
-#endif
-g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 }
-

@@ -401,7 +401,7 @@ PlutoGraphic *OrbiterRenderer_SDL::GetBackground( PlutoRectangle &rect )
 	return new SDLGraphic(pSDL_Surface);
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_SDL::ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor)
+void OrbiterRenderer_SDL::ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor, DesignObj_Orbiter *pObj/* = NULL*/)
 {
     SDL_PixelFormat * PF = m_pScreenImage->format;
     Uint32 PlutoPixelDest, PlutoPixelSrc, Pixel;

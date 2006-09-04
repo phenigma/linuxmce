@@ -43,6 +43,8 @@ class OpenGL3DEngine
 	int ModifyGeometry;
 
 public:
+	bool ForceReleaseTextures;
+
 	GLEffect2D::LayersCompose* Compose;
 	bool Quit;
 	ExtensionManager GL;

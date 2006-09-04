@@ -47,6 +47,8 @@ OpenGL3DEngine::OpenGL3DEngine() :
 	SceneMutex.Init(&m_SceneAttr);
 	pthread_mutexattr_destroy(&m_SceneAttr);
 
+	ForceReleaseTextures = false;
+
 	TextureManager::Instance()->Setup(this);
 }
 
@@ -80,6 +82,11 @@ bool OpenGL3DEngine::Paint()
 {
 	TextureManager::Instance()->ReleaseTextures();	
 	TextureManager::Instance()->ConvertImagesToTextures();
+	if(ForceReleaseTextures)
+	{
+		ForceReleaseTextures = false;
+		return false;
+	}
 
 	// some geometry changes are expected, means we will not paint the "broken painting tree"
 	if(ModifyGeometry)
