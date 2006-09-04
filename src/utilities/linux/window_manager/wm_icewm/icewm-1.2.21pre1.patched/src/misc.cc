@@ -314,7 +314,7 @@ void precondition(char const *msg, ...) {
     va_end(ap);
     fputs("\n", stderr);
 
-    *(char *)0 = 0x42;
+    //*(char *)0 = 0x42;
 }
 
 void warn(char const *msg, ...) {
