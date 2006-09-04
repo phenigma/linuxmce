@@ -847,7 +847,11 @@ int handler(Display *display, XErrorEvent *xev) {
 
 #ifdef DEBUG
 void dumpZorder(const char *oper, YFrameWindow *w, YFrameWindow *a) {
+    if (oper==null)
+        return;
     if (w==NULL)
+        return;
+    if (a==null)
         return;
     if (manager==NULL)
         return;
