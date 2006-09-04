@@ -171,6 +171,7 @@ void YWindow::setTitle(char const * title) {
 }
 
 void YWindow::setClassHint(char const * rName, char const * rClass) {
+    msg("**YWindow::setClassHint(%s.%s) : handle==0x%X", rName, rClass, handle());
     XClassHint wmclass;
     wmclass.res_name = (char *) rName;
     wmclass.res_class = (char *) rClass;
@@ -236,53 +237,70 @@ void YWindow::repaintFocus() {
 }
 
 void YWindow::create() {
+    msg("**YWindow::create() : BEGIN");
     if (flags & wfCreated) return;
 
     if (fHandle == None) {
+        msg("**YWindow::create() : (fHandle == None)");
         XSetWindowAttributes attributes;
         unsigned int attrmask = CWEventMask;
+        msg("**YWindow::create() : attrmask==0x%X", attrmask);
 
+        msg("**YWindow::create() : fEventMask==0x%X", fEventMask);
         fEventMask |=
             ExposureMask |
             ButtonPressMask | ButtonReleaseMask | ButtonMotionMask;
 
+        msg("**YWindow::create() : fStyle==0x%X", fStyle);
+        msg("**YWindow::create() : wsPointerMotion==0x%X", wsPointerMotion);
         if (fStyle & wsPointerMotion)
             fEventMask |= PointerMotionMask;
 
+        msg("**YWindow::create() : fParentWindow==0x%X", fParentWindow);
+        msg("**YWindow::create() : desktop==0x%X", desktop);
         if (fParentWindow == desktop && !(fStyle & wsOverrideRedirect))
             fEventMask |= StructureNotifyMask | SubstructureRedirectMask;
+        msg("**YWindow::create() : wsManager==0x%X", wsManager);
         if (fStyle & wsManager)
             fEventMask |= SubstructureRedirectMask | SubstructureNotifyMask;
 
+        msg("**YWindow::create() : wsSaveUnder==0x%X", wsSaveUnder);
         if (fStyle & wsSaveUnder) {
             attributes.save_under = True;
             attrmask |= CWSaveUnder;
         }
+        msg("**YWindow::create() : wsOverrideRedirect==0x%X", wsOverrideRedirect);
         if (fStyle & wsOverrideRedirect) {
             attributes.override_redirect = True;
             attrmask |= CWOverrideRedirect;
         }
+        msg("**YWindow::create() : fPointer.handle()==0x%X", fPointer.handle());
         if (fPointer.handle() != None) {
             attrmask |= CWCursor;
             attributes.cursor = fPointer.handle();
         }
+        msg("**YWindow::create() : fBitGravity==0x%X", fBitGravity);
         if (fBitGravity != ForgetGravity) {
             attributes.bit_gravity = fBitGravity;
             attrmask |= CWBitGravity;
         }
+        msg("**YWindow::create() : fWinGravity==0x%X", fWinGravity);
         if (fWinGravity != NorthWestGravity) {
             attributes.win_gravity = fWinGravity;
             attrmask |= CWWinGravity;
         }
         
+        msg("**YWindow::create() : fEventMask==0x%X", fEventMask);
         attributes.event_mask = fEventMask;
         int zw = width();
         int zh = height();
+        msg("**YWindow::create() : zw==%d, zh==%d", zw, zh);
         if (zw == 0 || zh == 0) {
             zw = 1;
             zh = 1;
             flags |= wfNullSize;
         }
+        msg("**YWindow::create() : fVisual==0x%X", fVisual);
         fHandle = XCreateWindow(xapp->display(),
                                 parent()->handle(),
                                 x(), y(), zw, zh,
@@ -292,17 +310,23 @@ void YWindow::create() {
                                 (fVisual) ? fVisual : CopyFromParent,
                                 attrmask,
                                 &attributes);
+        msg("**YWindow::create() : fHandle==0x%X", fHandle);
 
+        msg("**YWindow::create() : parent()==0x%X", parent());
         if (parent() == desktop &&
             !(flags & (wsManager || wsOverrideRedirect)))
             XSetWMProtocols(xapp->display(), fHandle, &_XA_WM_DELETE_WINDOW, 1);
 
+        msg("**YWindow::create() : flags==0x%X", flags);
+        msg("**YWindow::create() : (flags & wfVisible)==%d", (flags & wfVisible));
+        msg("**YWindow::create() : (flags & wfNullSize)==%d", (flags & wfNullSize));
         if ((flags & wfVisible) && !(flags & wfNullSize))
             XMapWindow(xapp->display(), fHandle);
 
         // Zero visual so it is not used for system menu
         fVisual = 0;
     } else {
+        msg("**YWindow::create() : fHandle==0x%X != None", fHandle);
         XWindowAttributes attributes;
 
         XGetWindowAttributes(xapp->display(),
@@ -313,16 +337,18 @@ void YWindow::create() {
         fWidth = attributes.width;
         fHeight = attributes.height;
 
-        //MSG(("window initial geometry (%d:%d %dx%d)",
-        //     fX, fY, fWidth, fHeight));
+        MSG(("window initial geometry (%d:%d %dx%d)",
+             fX, fY, fWidth, fHeight));
 
         if (attributes.map_state != IsUnmapped)
             flags |= wfVisible;
         else
             flags &= ~wfVisible;
+        msg("**YWindow::create() : flags==0x%X", flags);
 
         fEventMask = 0;
 
+        msg("**YWindow::create() : fStyle==0x%X", fStyle);
         if ((fStyle & wsDesktopAware) || (fStyle & wsManager) ||
             (fHandle != RootWindow(xapp->display(), DefaultScreen(xapp->display()))))
             fEventMask |=
@@ -341,6 +367,7 @@ void YWindow::create() {
                 fHandle == RootWindow(xapp->display(), DefaultScreen(xapp->display())))
                 fEventMask &= ~(ButtonPressMask | ButtonReleaseMask | ButtonMotionMask);
         }
+        msg("**YWindow::create() : fEventMask==0x%X", fEventMask);
 
         XSelectInput(xapp->display(), fHandle, fEventMask);
 
@@ -348,6 +375,8 @@ void YWindow::create() {
         XWindowAttributes attr;
         Status err = XGetWindowAttributes(xapp->display(), fHandle, &attr);
         bool ok = (BadDrawable != err) && (BadWindow != err) && attr.visual;
+        msg("**YWindow::create() : Get the visual if we have a window with alpha transparency");
+        msg("**YWindow::create() : fHandle==%d, err==%d", fHandle, err);
 
         XRenderPictFormat *format = NULL;
         if (ok)
@@ -356,12 +385,14 @@ void YWindow::create() {
         if (format && format->type == PictTypeDirect &&
             format->direct.alphaMask)
         {
-            //printf("YWindow(0x%X) adopted alpha window\n", this);
+            msg("YWindow(0x%X) adopted alpha window\n", this);
             fVisual = attr.visual;
         }
     }
     XSaveContext(xapp->display(), fHandle, windowContext, (XPointer)this);
     flags |= wfCreated;
+    msg("**YWindow::create() : flags==0x%X", flags);
+    msg("**YWindow::create() : DONE");
 }
 
 void YWindow::destroy() {
