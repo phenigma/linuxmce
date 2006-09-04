@@ -14,7 +14,7 @@ CXX =           g++
 LD =            g++
 EXEEXT =        
 
-DEBUG =         -g -DDEBUG -O0
+DEBUG =         
 GCCDEP =        
 DEFS =          -DHAVE_CONFIG_H \
                 -DLIBDIR='"$(LIBDIR)"' \

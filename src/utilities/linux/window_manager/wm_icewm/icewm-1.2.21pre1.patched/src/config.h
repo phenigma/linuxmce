@@ -89,7 +89,7 @@
 #define CONFIG_XRANDR 1
 
 /* Define if you want to debug IceWM */
-#define DEBUG 1
+/* #undef DEBUG */
 
 /* Define to enable ESD support. */
 /* #undef ENABLE_ESD */
