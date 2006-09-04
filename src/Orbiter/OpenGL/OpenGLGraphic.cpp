@@ -277,6 +277,8 @@ void OpenGLGraphic::ReleaseTexture()
 
 void OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, PlutoColor ColorToReplace, PlutoColor ReplacementColor)
 {
+	if(!LocalSurface)
+		return;
 	SDL_PixelFormat * PF = LocalSurface->format;
 	Uint32 PlutoPixelDest, PlutoPixelSrc, Pixel;
 
@@ -311,6 +313,7 @@ void OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, PlutoColor Colo
 
 		}
 	}
+
 	TextureManager::Instance()->PrepareConvert(this);
 }
 //-----------------------------------------------------------------------------------------------------
