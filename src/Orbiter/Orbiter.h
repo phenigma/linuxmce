@@ -236,6 +236,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		bool m_bControlDown;
 		bool m_bAltDown;
 		bool m_bCapsLock;
+		bool m_bUpdateTimeCodeLoopRunning; /** < True when the updatetimecodeloop is running */
 
 		class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
 		class DesignObj_Orbiter *m_pObj_SelectedLastScreen;   // The last object we selected.  Used by floorplans to toggle states
@@ -461,7 +462,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		/**
 		* @brief Polls the media player for the current timecode and self-updates.  Used only for Xine
 		*/
-		virtual void UpdateTimeCode( void *data );
+		void UpdateTimeCodeLoop();
 
 		/**
 		* @brief

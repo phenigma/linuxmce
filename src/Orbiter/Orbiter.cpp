@@ -164,6 +164,7 @@ public:
 template<class T> inline static T Dist( T x,  T y ) { return x * x + y * y; }
 //------------------------------------------------------------------------
 void *MaintThread(void *p);
+void *UpdateTimeCodeThread(void *p);
 static bool bMaintThreadIsRunning = false;
 bool ScreenHistory::m_bAddToHistory=true;
 
@@ -245,6 +246,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_pObj_NowPlaying_Speed_OnScreen = NULL;
 	m_pAskXine_Socket = NULL;
 	m_bScreenSaverActive = false;
+	m_bUpdateTimeCodeLoopRunning = false;
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	m_pMouseBehavior = NULL;
@@ -5980,8 +5982,13 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 			StartScreenSaver();
 	}
 
-	if( m_bReportTimeCode )
-		CallMaintenanceInMiliseconds(500,&Orbiter::UpdateTimeCode,NULL,pe_ALL,false);
+	if( m_bReportTimeCode && !m_bUpdateTimeCodeLoopRunning )
+	{
+		m_bUpdateTimeCodeLoopRunning=true;
+		pthread_t TimeCodeID;
+		g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode starting thread");
+		pthread_create(&TimeCodeID, NULL, UpdateTimeCodeThread, (void*)this);
+	}
 }
 
 bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
@@ -7653,6 +7660,7 @@ void Orbiter::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,Message *pMessage)
 //<-dceag-c689-e->
 {
+	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 	string::size_type tabTime = sTime.find('\t');
 	string::size_type tabTotal = sTotal.find('\t');
 
@@ -7693,6 +7701,7 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 	if( m_pObj_NowPlaying_Speed_OnScreen && m_pObj_NowPlaying_Speed_OnScreen->m_bOnScreen && m_pObj_NowPlaying_Speed_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen )
 		m_pOrbiterRenderer->RenderObjectAsync(m_pObj_NowPlaying_Speed_OnScreen);
 
+	vm.Release();
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if(UsesUIVersion2())
 	{
@@ -8670,7 +8679,16 @@ void Orbiter::ForceCurrentScreenIntoHistory()
 	m_listScreenHistory.push_back( pScreenHistory );
 }
 
-void Orbiter::UpdateTimeCode( void *data )
+void *UpdateTimeCodeThread(void *p)
+{
+	Orbiter* pOrbiter = (Orbiter *)p;
+	pOrbiter->UpdateTimeCodeLoop();
+	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode thread stopped");
+	pOrbiter->m_bUpdateTimeCodeLoopRunning=false;
+	return NULL;
+}
+
+void Orbiter::UpdateTimeCodeLoop()
 {
 	if( !m_bReportTimeCode )
 		return;
@@ -8681,101 +8699,104 @@ void Orbiter::UpdateTimeCode( void *data )
 	// If this is a xine, determine the ip address and connect to it to pull time code info
 	if( !m_pAskXine_Socket || m_pAskXine_Socket->m_dwPK_Device!=m_dwPK_Device_NowPlaying )
 	{
+		if( m_pAskXine_Socket )
+		{
+			delete m_pAskXine_Socket;
+			m_pAskXine_Socket=NULL;
+		}
 		DeviceData_Base *pDevice = m_dwPK_Device_NowPlaying ? m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device_NowPlaying) : NULL;
 		if( pDevice && pDevice->m_dwPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST )
 		{
-			if( !m_pAskXine_Socket )
+			string sIPAddress = pDevice->m_sIPAddress;
+			if( sIPAddress.empty() )
 			{
-				string sIPAddress = pDevice->m_sIPAddress;
-				if( sIPAddress.empty() )
+				if( pDevice->m_pDevice_MD && !pDevice->m_pDevice_MD->m_sIPAddress.empty() )
+					sIPAddress = pDevice->m_pDevice_MD->m_sIPAddress;
+				else if( pDevice->m_pDevice_Core && !pDevice->m_pDevice_Core->m_sIPAddress.empty() )
+					sIPAddress = pDevice->m_pDevice_Core->m_sIPAddress;
+				else
 				{
-					if( pDevice->m_pDevice_MD && !pDevice->m_pDevice_MD->m_sIPAddress.empty() )
-						sIPAddress = pDevice->m_pDevice_MD->m_sIPAddress;
-					else if( pDevice->m_pDevice_Core && !pDevice->m_pDevice_Core->m_sIPAddress.empty() )
-						sIPAddress = pDevice->m_pDevice_Core->m_sIPAddress;
-					else
-					{
-						g_pPlutoLogger->Write(LV_WARNING,"Orbiter::CMD_Set_Now_Playing  Xine has no IP address");
-						return;
-					}
-				}
-sIPAddress="10.0.0.30";
-				string sConnectInfo = sIPAddress + ":12000";
-				string sName = "ask-xine-socket";
-				m_pAskXine_Socket = new AskXine_Socket(sConnectInfo, sName);
-				m_pAskXine_Socket->m_dwPK_Device = pDevice->m_dwPK_Device;
-				m_pAskXine_Socket->m_dwMaxRetries=1;  // Only try once
-				
-				if (!m_pAskXine_Socket->Connect())
-				{
-					// Don't try again if this failed once.  Otherwise we may block for long periods of time if we're not 
-					// on the same network that can access this
-					m_bReportTimeCode=false; 
-					delete m_pAskXine_Socket;
-					m_pAskXine_Socket=NULL;
-					g_pPlutoLogger->Write(LV_WARNING,"Cannot connect to xine for time code information");
+					g_pPlutoLogger->Write(LV_WARNING,"Orbiter::CMD_Set_Now_Playing  Xine has no IP address");
 					return;
 				}
 			}
+
+			string sConnectInfo = sIPAddress + ":12000";
+			string sName = "ask-xine-socket";
+			m_pAskXine_Socket = new AskXine_Socket(sConnectInfo, sName);
+			m_pAskXine_Socket->m_dwPK_Device = pDevice->m_dwPK_Device;
+			m_pAskXine_Socket->m_dwMaxRetries=1;  // Only try once
+			
+			if (!m_pAskXine_Socket->Connect())
+			{
+				// Don't try again if this failed once.  Otherwise we may block for long periods of time if we're not 
+				// on the same network that can access this
+				m_bReportTimeCode=false; 
+				delete m_pAskXine_Socket;
+				m_pAskXine_Socket=NULL;
+				g_pPlutoLogger->Write(LV_WARNING,"Cannot connect to xine for time code information");
+				return;
+			}
 		}
-		else if( m_pAskXine_Socket )
+		else
+			return;
+	}
+
+	while(true)
+	{
+		if( m_pAskXine_Socket->m_dwPK_Device!=m_dwPK_Device_NowPlaying )
 		{
-			m_pAskXine_Socket->Disconnect();
-			delete m_pAskXine_Socket;
-			m_pAskXine_Socket=NULL;
+	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode exiting -- not active anymore");
 			return;
 		}
-		else
-			return;
+	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode BEFORE");
+		string sLine;
+		if( !m_pAskXine_Socket->ReceiveString(sLine, -2) )  // Wait at most 1 second for the line
+		{
+	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode EMPTY %d %s",(int) sLine.size(),sLine.c_str());
+			Sleep(500);
+			continue;
+		}
+
+		g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode AFTER %d %s",(int) sLine.size(),sLine.c_str());
+
+		string::size_type pos=0;
+		int iSpeed = atoi(StringUtils::Tokenize( sLine,",",pos ).c_str());
+		string sTime = StringUtils::Tokenize( sLine,",",pos );
+		string sTotalTime = StringUtils::Tokenize( sLine,",",pos );
+		int iStreamID = atoi(StringUtils::Tokenize( sLine,",",pos ).c_str());
+		string sTitle = StringUtils::Tokenize( sLine,",",pos );
+		string sChapter = StringUtils::Tokenize( sLine,",",pos );
+
+		// Strip fractions of a second
+		if( (pos=sTime.find('.'))!=string::npos )
+			sTime = sTime.substr(0,pos);
+
+		if( (pos=sTotalTime.find('.'))!=string::npos )
+			sTotalTime = sTotalTime.substr(0,pos);
+
+		string sSpeed;
+		if( iSpeed!=1000 ) // normal playback
+		{
+			if( iSpeed>=1000 || iSpeed<=-1000 )
+				sSpeed = StringUtils::itos( iSpeed / 1000 ) + "x";  // A normal speed
+			else if( iSpeed==250 )
+				sSpeed = "1/4x";
+			else if( iSpeed==-250 )
+				sSpeed = "-1/4x";
+			else if( iSpeed==500 )
+				sSpeed = "1/2x";
+			else if( iSpeed==-500 )
+				sSpeed = "-1/2x";
+			else
+				sSpeed = "." + StringUtils::itos(iSpeed) + "x";
+		}
+
+	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode calling CMD_Update_Time_Code");
+
+		CMD_Update_Time_Code(iStreamID,sTime,sTotalTime,sSpeed,sTitle,sChapter);
+		Sleep(50);
 	}
-
-g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode BEFORE");
-	string sLine;
-	if( !m_pAskXine_Socket->ReceiveString(sLine, -2) )  // Wait at most 1 second for the line
-	{
-g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode EMPTY %d %s",(int) sLine.size(),sLine.c_str());
-		CallMaintenanceInMiliseconds(500,&Orbiter::UpdateTimeCode,NULL,pe_ALL,false);  // There's nothing in the queue, wait 500 ms
-		return;
-	}
-
-	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode AFTER %d %s",(int) sLine.size(),sLine.c_str());
-
-	string::size_type pos=0;
-	int iSpeed = atoi(StringUtils::Tokenize( sLine,",",pos ).c_str());
-	string sTime = StringUtils::Tokenize( sLine,",",pos );
-	string sTotalTime = StringUtils::Tokenize( sLine,",",pos );
-	int iStreamID = atoi(StringUtils::Tokenize( sLine,",",pos ).c_str());
-	string sTitle = StringUtils::Tokenize( sLine,",",pos );
-	string sChapter = StringUtils::Tokenize( sLine,",",pos );
-
-	// Strip fractions of a second
-	if( (pos=sTime.find('.'))!=string::npos )
-		sTime = sTime.substr(0,pos);
-
-	if( (pos=sTotalTime.find('.'))!=string::npos )
-		sTotalTime = sTotalTime.substr(0,pos);
-
-	string sSpeed;
-	if( iSpeed!=1000 ) // normal playback
-	{
-		if( iSpeed>=1000 || iSpeed<=-1000 )
-			sSpeed = StringUtils::itos( iSpeed / 1000 ) + "x";  // A normal speed
-		else if( iSpeed==250 )
-			sSpeed = "1/4x";
-		else if( iSpeed==-250 )
-			sSpeed = "-1/4x";
-		else if( iSpeed==500 )
-			sSpeed = "1/2x";
-		else if( iSpeed==-500 )
-			sSpeed = "-1/2x";
-		else
-			sSpeed = "." + StringUtils::itos(iSpeed) + "x";
-	}
-
-
-	CMD_Update_Time_Code(iStreamID,sTime,sTotalTime,sSpeed,sTitle,sChapter);
-
-	CallMaintenanceInMiliseconds(50,&Orbiter::UpdateTimeCode,NULL,pe_ALL,false); // The queue has something, call back soon to flush any backed up ones
 }
 
 void Orbiter::StartScreenSaver()

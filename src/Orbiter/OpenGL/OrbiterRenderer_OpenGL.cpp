@@ -610,7 +610,7 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	int OnScreenTransition = m_spPendingGLEffects->m_nOnScreenTransitionEffectID;
 	int OnSelectWithChange = m_spPendingGLEffects->m_nOnSelectWithChangeEffectID;
 
-	g_pPlutoLogger->Write(LV_WARNING,"OrbiterRenderer_OpenGL::RenderScreen");
+	g_pPlutoLogger->Write(LV_WARNING,"OrbiterRenderer_OpenGL::RenderScreen %d",OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->PK_Screen() : 0);
 
 	PlutoRectangle rectLastSelected(0, 0, 0, 0);
 
