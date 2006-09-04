@@ -1,7 +1,7 @@
 icewm (1.2.26-2pluto2) unstable; urgency=low
 
   * Don't build gnome support
-  * Added Pluto log patch and alpha blending patch
+  * Added Pluto log patch (inactive) and alpha blending patch
   * Built against 1.2.21pre1, but bumped version above 1.2.26 which was in
     2.0.0.40
 
