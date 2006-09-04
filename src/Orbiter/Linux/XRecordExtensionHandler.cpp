@@ -189,7 +189,7 @@ bool XRecordExtensionHandler::enableRecording(bool bEnable)
 void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInterceptData *pRecordedData)
 {
 	XRecordExtensionHandler *pRecordingHandler = (XRecordExtensionHandler*)pData;
-
+g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback cat %d rrr",(int)pRecordedData->category);
 	switch ( pRecordedData->category )
 	{
 		case XRecordStartOfData:
@@ -209,6 +209,7 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 
 		default:
 			pRecordingHandler->processXRecordToOrbiterEvent(pRecordedData, &pRecordingHandler->m_OrbiterEvent, pRecordingHandler->m_pDisplay);
+g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback pRecordingHandler->processXRecordToOrbiterEvent %p rrr",pRecordingHandler->m_pOrbiter);
 			if ( pRecordingHandler->m_pOrbiter )
 			{
 				Orbiter::Event *pEvent = new Orbiter::Event;
@@ -226,6 +227,7 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 								pCallBackInfo->m_bStop=true;
 					}
 				}
+g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback queueing to orbiter   rrr");
 				pRecordingHandler->m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO );
 			}
 	}
@@ -235,6 +237,7 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 
 void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData *pRecordedData, Orbiter::Event *orbiterEvent, Display *pDisplay)
 {
+g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::processXRecordToOrbiterEvent cat %d",(int) pRecordedData->category);
 	switch (pRecordedData->category )
 	{
 		case XRecordFromServer:
