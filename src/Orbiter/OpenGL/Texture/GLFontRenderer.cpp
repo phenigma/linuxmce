@@ -46,7 +46,7 @@ MeshFrame* GLFontRenderer::RenderText(string TextUniqueID, string& TextToDisplay
 
 	if (TextToDisplay.find('\n') != TextToDisplay.npos)
 	{
-		StrMessage = TextToDisplay.substr(0, TextToDisplay.find('\n')-1);
+		StrMessage = TextToDisplay.substr(0, TextToDisplay.find('\n'));
 		TextToDisplay = TextToDisplay.substr(TextToDisplay.find('\n')+1, TextToDisplay.length());
 	}
 	else 
