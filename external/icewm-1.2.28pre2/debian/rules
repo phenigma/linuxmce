@@ -10,8 +10,8 @@ include /usr/share/dpatch/dpatch.make
 
 ICEWM_COMMON=$(CURDIR)/debian/icewm-common
 ICEWM=$(CURDIR)/debian/icewm
-ICEWM_LITE=$(CURDIR)/debian/icewm-lite
-ICEWM_EXP=$(CURDIR)/debian/icewm-experimental
+#ICEWM_LITE=$(CURDIR)/debian/icewm-lite
+#ICEWM_EXP=$(CURDIR)/debian/icewm-experimental
 
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
@@ -30,33 +30,33 @@ MP=icewm-common.7
 
 conf-exp: stamp-conf-exp
 
-stamp-conf-exp:
-	./configure $(confflags) --with-imlib \
-		--disable-menus-gnome1 --disable-menus-gnome2 \
-		--prefix=/usr --with-cfgdir=/etc/X11/icewm \
-		--datadir=/usr/share --disable-debug \
-		--enable-i18n --enable-nls \
-		--enable-antialiasing  --enable-shaped-decorations \
-		--enable-gradients \
-		--with-mkfontdir=/usr/X11R6/bin/mkfontdir \
-		--enable-guievents --with--esd-config=/usr/bin/esd-config
-
-	$(MAKE) EXEEXT=-experimental
-	$(MAKE) srcclean
-	touch stamp-conf-exp
-
-conf-lite: stamp-conf-lite
-stamp-conf-lite:
-	./configure $(confflags) --with-xpm --prefix=/usr \
-		--disable-menus-gnome1 --disable-menus-gnome2 \
-		--with-cfgdir=/etc/X11/icewm --datadir=/usr/share --disable-debug \
-		--enable-i18n --enable-nls --enable-lite --disable-xfreetype \
-		--enable-corefonts --with-mkfontdir=/usr/X11R6/bin/mkfontdir \
-		--disable-taskbar  --disable-xrandr
-	$(MAKE) EXEEXT=-lite
-	$(MAKE) srcclean
-	touch stamp-conf-lite
-
+#stamp-conf-exp:
+#	./configure $(confflags) --with-imlib \
+#		--disable-menus-gnome1 --disable-menus-gnome2 \
+#		--prefix=/usr --with-cfgdir=/etc/X11/icewm \
+#		--datadir=/usr/share --disable-debug \
+#		--enable-i18n --enable-nls \
+#		--enable-antialiasing  --enable-shaped-decorations \
+#		--enable-gradients \
+#		--with-mkfontdir=/usr/X11R6/bin/mkfontdir \
+#		--enable-guievents --with--esd-config=/usr/bin/esd-config
+#
+#	$(MAKE) EXEEXT=-experimental
+#	$(MAKE) srcclean
+#	touch stamp-conf-exp
+#
+#conf-lite: stamp-conf-lite
+#stamp-conf-lite:
+#	./configure $(confflags) --with-xpm --prefix=/usr \
+#		--disable-menus-gnome1 --disable-menus-gnome2 \
+#		--with-cfgdir=/etc/X11/icewm --datadir=/usr/share --disable-debug \
+#		--enable-i18n --enable-nls --enable-lite --disable-xfreetype \
+#		--enable-corefonts --with-mkfontdir=/usr/X11R6/bin/mkfontdir \
+#		--disable-taskbar  --disable-xrandr
+#	$(MAKE) EXEEXT=-lite
+#	$(MAKE) srcclean
+#	touch stamp-conf-lite
+#
 conf: stamp-conf
 stamp-conf:
 	./configure $(confflags) --with-imlib --prefix=/usr \
@@ -72,22 +72,20 @@ build-stamp: patch-stamp
 	dh_testdir
 
 	# Make icewm-experimental
-	-sh debian/patches/pmu_support.dpatch -patch
-	$(MAKE) $(MFLAGS) -f debian/rules conf-exp
-	#hm... best place to run that?!
-	cd po && make merge && for x in *.po ; do cp $${x}x $$x ; done
-	-sh debian/patches/pmu_support.dpatch -unpatch
-
-	# Make icewm-lite
-	$(MAKE) $(MFLAGS) -f debian/rules conf-lite
+	#-sh debian/patches/pmu_support.dpatch -patch
+	#$(MAKE) $(MFLAGS) -f debian/rules conf-exp
+	##hm... best place to run that?!
+	#cd po && make merge && for x in *.po ; do cp $${x}x $$x ; done
+	#-sh debian/patches/pmu_support.dpatch -unpatch
+	#
+	## Make icewm-lite
+	#$(MAKE) $(MFLAGS) -f debian/rules conf-lite
 
 	# Make icewm
 	# default flavor does not clean the source!
 	$(MAKE) $(MFLAGS) -f debian/rules conf
 
-	# Generate the most exhaustive preference file, i.e. the one
-	# from the experimental version.
-	src/genpref-experimental > lib/preferences 
+	src/genpref > lib/preferences 
 
 	touch build-stamp
 
@@ -97,8 +95,8 @@ clean: unpatch
 
 	rm -f *-stamp
 
-	-$(MAKE) srcclean EXEEXT=-experimental
-	-$(MAKE) srcclean EXEEXT=-lite
+	#-$(MAKE) srcclean EXEEXT=-experimental
+	#-$(MAKE) srcclean EXEEXT=-lite
 	-$(MAKE) distclean
 
 	# Extra clean ups
@@ -157,23 +155,24 @@ install: build
 
 	## icewm-lite ################################################
 
-	install -m 755 src/ice*-lite $(ICEWM_LITE)/usr/bin
-	install -m 644 $(GDM)/IceWM-Lite.desktop $(ICEWM_LITE)/usr/share/xsessions
+	#install -m 755 src/ice*-lite $(ICEWM_LITE)/usr/bin
+	#install -m 644 $(GDM)/IceWM-Lite.desktop $(ICEWM_LITE)/usr/share/xsessions
 
 	# Remove doc directories since we will add links
 	# to icewm-common instead.
-	rm -rf $(ICEWM_LITE)/usr/share/doc/icewm-lite
+	#rm -rf $(ICEWM_LITE)/usr/share/doc/icewm-lite
 
 	## icewm-experimental ########################################
 
-	install -m 755 src/ice*-experimental $(ICEWM_EXP)/usr/bin
-	install -m 644 $(GDM)/IceWM-Experimental.desktop $(ICEWM_EXP)/usr/share/xsessions
+	#install -m 755 src/ice*-experimental $(ICEWM_EXP)/usr/bin
+	#install -m 644 $(GDM)/IceWM-Experimental.desktop $(ICEWM_EXP)/usr/share/xsessions
 
 	# Remove doc directories since we will add links
 	# to icewm-common instead.
-	rm -rf $(ICEWM_EXP)/usr/share/doc/icewm-experimental
+	#rm -rf $(ICEWM_EXP)/usr/share/doc/icewm-experimental
 
-	cd debian ; for x in icewm icewm-lite icewm-experimental ; do mkdir -p $$x/usr/share/lintian/overrides ; cp $$x.lintian $$x/usr/share/lintian/overrides/$$x ; done
+	#cd debian ; for x in icewm icewm-lite icewm-experimental ; do mkdir -p $$x/usr/share/lintian/overrides ; cp $$x.lintian $$x/usr/share/lintian/overrides/$$x ; done
+	cd debian ; for x in icewm ; do mkdir -p $$x/usr/share/lintian/overrides ; cp $$x.lintian $$x/usr/share/lintian/overrides/$$x ; done
 
 binary-indep: build install
 # There are no architecture-independent files to be uploaded
@@ -187,8 +186,8 @@ binary-arch: build install
 	dh_installdebconf
 
 	dh_link -picewm usr/share/doc/icewm-common usr/share/doc/icewm
-	dh_link -picewm-lite usr/share/doc/icewm-common usr/share/doc/icewm-lite
-	dh_link -picewm-experimental usr/share/doc/icewm-common usr/share/doc/icewm-experimental
+	#dh_link -picewm-lite usr/share/doc/icewm-common usr/share/doc/icewm-lite
+	#dh_link -picewm-experimental usr/share/doc/icewm-common usr/share/doc/icewm-experimental
 
 	dh_installmenu
 
@@ -205,14 +204,15 @@ binary-arch: build install
 	dh_compress
 
 	# Install undocumented manpages
-	for v in "" -experimental -lite ; do \
+	#for v in "" -experimental -lite ; do 
+	for v in "" ; do \
 		mkdir -p debian/icewm$$v/usr/share/man/man1 ; \
 			for f in icewm icehelp icewmbg icewmhint icesh icewmtray icewm-session; do \
 				ln -sf ../man7/$(MP).gz debian/icewm$$v/usr/share/man/man1/$$f$$v.1x.gz ; \
 		done ; \
 	done
 	
-	ln -sf ../man7/$(MP).gz debian/icewm-experimental/usr/share/man/man1/icesound-experimental.1x.gz
+	#ln -sf ../man7/$(MP).gz debian/icewm-experimental/usr/share/man/man1/icesound-experimental.1x.gz
 
 	dh_fixperms -Xfix-config.pl
 	dh_installdeb
