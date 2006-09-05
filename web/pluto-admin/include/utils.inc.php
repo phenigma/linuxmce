@@ -6061,7 +6061,7 @@ function set_device_data($deviceID,$deviceData,$value,$dbADO){
 	$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array($value,$deviceID,$deviceData));
 }
 
-function displayScreenSavers($mdID,$dbADO)
+function displayScreenSavers($orbiterID,$dbADO)
 {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
@@ -6075,35 +6075,35 @@ function displayScreenSavers($mdID,$dbADO)
 	
 	if(count($templateArray)==0)
 		$templateArray[]=0;
-	$ssArray=getFieldsAsArray('Device','PK_Device,FK_DeviceTemplate',$dbADO,'WHERE FK_Device_ControlledVia='.$mdID.' AND FK_DeviceTemplate IN ('.join(',',array_keys($templateArray)).')');
+	$ssArray=getFieldsAsArray('Device','PK_Device,FK_DeviceTemplate',$dbADO,'WHERE FK_Device_ControlledVia='.$orbiterID.' AND FK_DeviceTemplate IN ('.join(',',array_keys($templateArray)).')');
 	if(count($ssArray)==0)
 		$selectedss=0;
 	else
 		$selectedss=$ssArray['PK_Device'][0];
 	$out.='
-		<input type="hidden" name="oldssDT_'.$mdID.'" value="'.@$ssArray['FK_DeviceTemplate'][0].'">
-		<input type="hidden" name="oldss_'.$mdID.'" value="'.$selectedss.'">';
+		<input type="hidden" name="oldssDT_'.$orbiterID.'" value="'.@$ssArray['FK_DeviceTemplate'][0].'">
+		<input type="hidden" name="oldss_'.$orbiterID.'" value="'.$selectedss.'">';
 		
-	$out.=pulldownFromArray($templateArray,'ss_'.$mdID,@$ssArray['FK_DeviceTemplate'][0]);
+	$out.=pulldownFromArray($templateArray,'ss_'.$orbiterID,@$ssArray['FK_DeviceTemplate'][0]);
 	
 	return $out;
 }
 
-function processScreenSavers($mdID,$dbADO)
+function processScreenSavers($orbiterID,$dbADO)
 {
-	$oldss=(int)@$_POST['oldss_'.$mdID];
-	$oldssDT=(int)@$_POST['oldssDT_'.$mdID];
-	$newss=(int)@$_POST['ss_'.$mdID];
+	$oldss=(int)@$_POST['oldss_'.$orbiterID];
+	$oldssDT=(int)@$_POST['oldssDT_'.$orbiterID];
+	$newss=(int)@$_POST['ss_'.$orbiterID];
 	if($oldss==0){
 		if($newss!=0){
-			createDevice($newss,$_SESSION['installationID'],$mdID,NULL,$dbADO,0);
+			createDevice($newss,$_SESSION['installationID'],$orbiterID,NULL,$dbADO,0);
 		}
 	}else{
 		if($newss==0){
 			deleteDevice($oldss,$dbADO);
 		}elseif($oldssDT!==$newss){
 			deleteDevice($oldss,$dbADO);
-			createDevice($newss,$_SESSION['installationID'],$mdID,NULL,$dbADO,0);
+			createDevice($newss,$_SESSION['installationID'],$orbiterID,NULL,$dbADO,0);
 		}
 	}
 }
