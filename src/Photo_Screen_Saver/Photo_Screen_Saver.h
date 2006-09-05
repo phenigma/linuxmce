@@ -39,6 +39,8 @@ public:
 		Photo_Screen_Saver(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
 //<-dceag-const2-e->
 
+		virtual void OnReload();
+		void Terminate();
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

@@ -190,12 +190,23 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 //<-dceag-c193-e->
 {
+	Terminate();
+}
+
+void Photo_Screen_Saver::Terminate()
+{
 	WM_Event Event;
 	Event.Quit();
 	Gallery::Instance()->EvaluateEvent(Event);
 	if( ThreadID )
 		pthread_join(ThreadID, NULL);
 	ThreadID = 0;
+}
+
+/*virtual*/ void Photo_Screen_Saver::OnReload()
+{
+	Terminate();
+	Command_Impl::OnReload();
 }
 
 void* ThreadAnimation(void* ThreadInfo)
