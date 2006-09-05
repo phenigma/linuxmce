@@ -46,6 +46,7 @@ void WinListManager::ShowSdlWindow(bool bExclusive)
         ActivateSdlWindow();
     else
         m_pWMController->ActivateWindow(sLastWindow);
+    // TODO: possible bugfix: no FullScreen attribute
     m_pWMController->SetFullScreen(m_sSdlWindowName, bExclusive);
     return;
 }
@@ -64,9 +65,12 @@ void WinListManager::MaximizeWindow(const string &sWindowName)
     g_pPlutoLogger->Write(LV_WARNING, "WinListManager::MaximizeWindow(%s)", sWindowName.c_str());
 	//m_pWMController->SetVisible(sWindowName, false);
 #ifdef ORBITER_OPENGL
+    // TODO: possible bugfix: extra, bad call to LayerBelow
 	m_pWMController->SetLayer(sWindowName, LayerBelow);
 	m_pWMController->SetLayer(sWindowName, LayerNormal);
 #endif	
+    // TODO: possible bugfix: no FullScreen attribute
+    // TODO: possible bugfix: replace SetFullScreen with SetMaximized
 	m_pWMController->SetFullScreen(sWindowName, true);
     ShowWindow(sWindowName);
 }
