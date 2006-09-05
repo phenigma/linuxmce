@@ -36,11 +36,11 @@ void Gallery::MainLoop(void)
 			if(StatusChange)
 			{
 				PaintScreen();
-				_Sleep(5);
+				_Sleep(25);
 			}
 			else
 			{
-				_Sleep(10);
+				_Sleep(40);
 			}
 		}
 	}
