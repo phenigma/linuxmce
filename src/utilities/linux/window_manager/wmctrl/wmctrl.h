@@ -94,6 +94,7 @@ public:
                 , wa_desktop_titles_invalid_utf8(0)
                 , param_window(NULL)
                 , param(NULL)
+                , list_show_all(false)
             {
             }
         int verbose;
@@ -107,6 +108,7 @@ public:
         int wa_desktop_titles_invalid_utf8;
         char *param_window;
         char *param;
+        bool list_show_all;
     };
 
     // int main(int argc, char **argv) // part 1/2

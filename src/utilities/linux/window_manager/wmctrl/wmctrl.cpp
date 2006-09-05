@@ -135,6 +135,22 @@
 "                           shaded, skip_taskbar, skip_pager, hidden,\n" \
 "                           fullscreen, above, below\n" \
 "\n" \
+"Shortcuts:\n" \
+"  -L                   List with header.\n" \
+"\n" \
+"Shortcuts (not yet implemented):\n" \
+"\n" \
+"  -r <WIN> -E <MVARG>  like -e, but removes :\n" \
+"                       maximized_vert, maximized_horz, fullscreen\n" \
+"\n" \
+"  <STARG>              (set):\n" \
+"                           above => remove fullscreen, below\n" \
+"                           below => remove fullscreen, above\n" \
+"                           fullscreen => remove fullscreen, above\n" \
+"\n" \
+"  <STARG>              maximized == maximized_vert & maximized_horz\n" \
+"\n" \
+"\n" \
 "Workarounds:\n" \
 "\n" \
 "  DESKTOP_TITLES_INVALID_UTF8      Print non-ASCII desktop titles correctly\n" \
@@ -156,6 +172,8 @@
 #define _NET_WM_STATE_REMOVE        0    /* remove/unset property */
 #define _NET_WM_STATE_ADD           1    /* add/set property */
 #define _NET_WM_STATE_TOGGLE        2    /* toggle property  */
+
+#define _NET_WM_STATE_SET          10    /* shortcut: remove & add property */
 
 #define MAX_PROPERTY_VALUE_LEN 4096
 #define SELECT_WINDOW_MAGIC ":SELECT:"
@@ -209,7 +227,7 @@ int WmCtrl::InteractiveCommand(int argc, char **argv)
         }
     }
 
-    while ((opt = getopt(argc, argv, "FGVvhlupidmxa:r:s:c:t:w:k:o:n:g:e:b:N:I:T:R:")) != -1)
+    while ((opt = getopt(argc, argv, "FGVvhlLupidmxa:r:s:c:t:w:k:o:n:g:e:b:N:I:T:R:")) != -1)
     {
         missing_option = 0;
         switch (opt)
@@ -322,6 +340,8 @@ int WmCtrl::LowLevelCommand(char action, Options cmd_options, std::list<WinInfo>
         case 'h':
             fputs(HELP, stdout);
             break;
+        case 'L':
+            options.list_show_all = true;
         case 'l':
             ret = list_windows(disp, pListWinInfo);
             break;
@@ -824,7 +844,7 @@ int WmCtrl::close_window(Display *disp, Window win)
 
 int WmCtrl::window_state(Display *disp, Window win, char *arg)
 {
-    unsigned long action;
+    unsigned long action=0;
     Atom prop1 = 0;
     Atom prop2 = 0;
     char *p1, *p2;
@@ -851,6 +871,10 @@ int WmCtrl::window_state(Display *disp, Window win, char *arg)
         {
             action = _NET_WM_STATE_ADD;
         }
+        else if (strcmp(arg, "set") == 0)
+        {
+            action = _NET_WM_STATE_SET;
+        }
         else if (strcmp(arg, "toggle") == 0)
         {
             action = _NET_WM_STATE_TOGGLE;
@@ -861,6 +885,11 @@ int WmCtrl::window_state(Display *disp, Window win, char *arg)
             return EXIT_FAILURE;
         }
         p1++;
+        //if (strcasecmp(p1, "maximized") == 0)
+        //{
+        //    p1 = "maximized_horz,maximized_vert";
+        //    p2 = "maximized_vert";
+        //}
 
         /* the second property */
         if ((p2 = strchr(p1, ',')))
@@ -1494,6 +1523,14 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
         g_free(client_machine);
     }
 
+    /* list header and tail */
+    const char s1[]="=======================================================================================\n";
+    const char s2[]="| WindowID |Dsk|Layer|  PID  |      Geometry      |        Class         |ClMach|Title|\n";
+    const char s3[]="|----------|---|-----|-------|--------------------|----------------------|------|-----|\n";
+
+    if (options.list_show_all)
+        printf("%s%s%s", s1, s2, s3);
+
     /* print the list */
     for (i = 0; i < client_list_size / sizeof(Window); i++)
     {
@@ -1507,6 +1544,7 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
         int x, y, junkx, junky;
         unsigned int wwidth, wheight, bw, depth;
         Window junkroot;
+        unsigned long *layer;
 
         /* desktop ID */
         if ((desktop = (unsigned long *)get_property(disp, client_list[i],
@@ -1532,17 +1570,37 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
 
         /* special desktop ID -1 means "all desktops", so we
            have to convert the desktop value to signed long */
-        printf("0x%.8lx %2ld", client_list[i],
-               desktop ? (signed long)*desktop : 0);
+        printf("%s", (options.list_show_all)?"|":"");
+        printf("0x%.8lx", client_list[i]);
+        printf("%s", (options.list_show_all)?"|":"");
+        printf(" %2ld", desktop ? (signed long)*desktop : 0);
         itemWinInfo.lDesktop = desktop ? (signed long)*desktop : 0;
 
-        if (options.show_pid)
+        if (options.list_show_all)
+        {
+            /* layer */
+            layer = (unsigned long *)get_property(disp, client_list[i],
+                                                  XA_CARDINAL, "_WIN_LAYER", NULL);
+            printf("%s", (options.list_show_all)?"|":"");
+            printf(" %s%3ld",
+                   (*layer == 4)
+                   ? "N"
+                   : ( (*layer < 4)
+                       ?"B"
+                       :"A" )
+                   , *layer
+                   );
+        }
+
+        printf("%s", (options.list_show_all)?"|":"");
+        if (options.show_pid || options.list_show_all)
         {
             printf(" %-6lu", pid ? *pid : 0);
         }
         itemWinInfo.ulPid = pid ? *pid : 0;
 
-        if (options.show_geometry)
+        printf("%s", (options.list_show_all)?"|":"");
+        if (options.show_geometry || options.list_show_all)
         {
             printf(" %-4d %-4d %-4d %-4d", x, y, wwidth, wheight);
         }
@@ -1551,20 +1609,26 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
         itemWinInfo.w = wwidth;
         itemWinInfo.h = wheight;
 
-        if (options.show_class)
+        printf("%s", (options.list_show_all)?"|":"");
+        if (options.show_class || options.list_show_all)
         {
             printf(" %-20s ", class_out ? class_out : "N/A");
         }
         itemWinInfo.sClassName = class_out ? class_out : "";
 
-        printf(" %*s %s\n",
-               max_client_machine_len,
-               client_machine ? client_machine : "N/A",
-               title_out ? title_out : "N/A"
-               );
+        printf("%s", (options.list_show_all)?"|":"");
+        //printf(" %*s %s\n",
+        //       max_client_machine_len,
+        //       client_machine ? client_machine : "N/A",
+        //       title_out ? title_out : "N/A"
+        //       );
+        printf(" %*s", max_client_machine_len, client_machine ? client_machine : "N/A");
+        printf("%s", (options.list_show_all)?"|":"");
+        printf(" %s", title_out ? title_out : "N/A");
         itemWinInfo.sClientMachine = client_machine ? client_machine : "";
         itemWinInfo.sTitle = title_out ? title_out : "";
 
+        printf("%s\n", (options.list_show_all)?" |":"");
         g_free(title_utf8);
         g_free(title_out);
         g_free(desktop);
@@ -1586,6 +1650,9 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
         }
     }
     g_free(client_list);
+
+    if (options.list_show_all)
+        printf("%s%s%s", s3, s2, s1);
 
     return EXIT_SUCCESS;
 }
