@@ -1,5 +1,6 @@
 #!/bin/sh -e
-## DP: Pluto debug logging patch
+##
+## DP: Logging patch
 
 if [ $# -ne 1 ]; then
     echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
@@ -20,9 +21,20 @@ esac
 exit 0
 
 @DPATCH@
-diff -ur -x '*.svn*' icewm-1.2.21pre1.orig/src/misc.cc icewm-1.2.21pre1.patched/src/misc.cc
---- icewm-1.2.21pre1.orig/src/misc.cc	2006-07-24 18:51:14.000000000 +0300
-+++ icewm-1.2.21pre1.patched/src/misc.cc	2006-08-31 20:15:30.000000000 +0300
+diff -Naur icewm-1.2.28pre2.orig/src/debug.h icewm-1.2.28pre2.patched/src/debug.h
+--- icewm-1.2.28pre2.orig/src/debug.h	2006-08-31 21:34:43.000000000 +0000
++++ icewm-1.2.28pre2.patched/src/debug.h	2006-09-05 19:17:59.000000000 +0000
+@@ -18,4 +18,7 @@
+ #define PRECONDITION(x) // nothing
+ #endif
+ 
++#undef MSG
++#define MSG(x) msg x
++
+ #endif
+diff -Naur icewm-1.2.28pre2.orig/src/misc.cc icewm-1.2.28pre2.patched/src/misc.cc
+--- icewm-1.2.28pre2.orig/src/misc.cc	2006-08-31 21:34:43.000000000 +0000
++++ icewm-1.2.28pre2.patched/src/misc.cc	2006-09-05 15:36:44.000000000 +0000
 @@ -15,6 +15,20 @@
  #include <libgen.h>
  #endif
@@ -44,7 +56,7 @@ diff -ur -x '*.svn*' icewm-1.2.21pre1.orig/src/misc.cc icewm-1.2.21pre1.patched/
  extern char const *ApplicationName;
  
  #ifdef DEBUG
-@@ -291,6 +305,7 @@
+@@ -299,6 +313,7 @@
  }
  
  void precondition(char const *msg, ...) {
@@ -52,7 +64,7 @@ diff -ur -x '*.svn*' icewm-1.2.21pre1.orig/src/misc.cc icewm-1.2.21pre1.patched/
      fprintf(stderr, "%s: ", ApplicationName);
  
      va_list ap;
-@@ -303,6 +318,7 @@
+@@ -311,6 +326,7 @@
  }
  
  void warn(char const *msg, ...) {
@@ -60,7 +72,7 @@ diff -ur -x '*.svn*' icewm-1.2.21pre1.orig/src/misc.cc icewm-1.2.21pre1.patched/
      fprintf(stderr, "%s: ", ApplicationName);
      fputs(_("Warning: "), stderr);
  
-@@ -315,6 +331,7 @@
+@@ -323,6 +339,7 @@
  }
  
  void msg(char const *msg, ...) {
