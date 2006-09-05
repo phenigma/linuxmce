@@ -393,6 +393,7 @@ void OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, PlutoColor Colo
 
 		}
 	}
+	oglMutex.Release();
 	TextureManager::Instance()->PrepareConvert(this);
 }
 
