@@ -748,7 +748,8 @@ void OrbiterRenderer_PocketFrog::EventLoop()
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_PocketFrog::RenderText(string &TextToDisplay,class DesignObjText *Text,class TextStyle *pTextStyle, PlutoPoint point)
+void OrbiterRenderer_PocketFrog::RenderText(string &TextToDisplay,class DesignObjText *Text,
+	class TextStyle *pTextStyle, PlutoPoint point, string ObjectID)
 {
 	CHECK_STATUS();
     PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);

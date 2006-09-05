@@ -241,7 +241,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderText(string &sTextToDisplay, DesignObjText *Text,
-	TextStyle *pTextStyle, PlutoPoint point/* = PlutoPoint(0, 0)*/)
+	TextStyle *pTextStyle, PlutoPoint point/* = PlutoPoint(0, 0)*/, string ObjectID/* = ""*/)
 {
 	//g_pPlutoLogger->Write(LV_CRITICAL, "Rendering text %s at %d, %d", sTextToDisplay.c_str(), 
 	//	Text->m_rPosition.X, Text->m_rPosition.Y);
@@ -281,11 +281,14 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		);
 
 
-	string TextUniqueID = 
-		"text " +
-		(NULL != Text->m_pObject ? Text->m_pObject->m_ObjectID : string()) + 
-		"-" + StringUtils::itos(Text->m_rPosition.X) + 
-		"-" + StringUtils::itos(Text->m_rPosition.Y);
+	string TextUniqueID = ObjectID;
+
+	if(TextUniqueID == "")
+		TextUniqueID = 
+			"text " +
+			(NULL != Text->m_pObject ? Text->m_pObject->m_ObjectID : string()) + 
+			"-" + StringUtils::itos(Text->m_rPosition.X) + 
+			"-" + StringUtils::itos(Text->m_rPosition.Y);
 
  	MeshFrame *Frame  = aGLTextRenderer->TextOut(TextUniqueID, sTextToDisplay, Text, pTextStyle, point);
 	Engine->AddMeshFrameToDesktop(sParentObjectID, Frame);

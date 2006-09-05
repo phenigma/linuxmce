@@ -74,7 +74,7 @@ public:
 	/**
 	* @brief renders text with the specified style
 	*/
-	virtual void RenderText(string &sTextToDisplay,class DesignObjText *Text, class TextStyle *pTextStyle, PlutoPoint point = PlutoPoint(0, 0)) = 0;
+	virtual void RenderText(string &sTextToDisplay,class DesignObjText *Text, class TextStyle *pTextStyle, PlutoPoint point = PlutoPoint(0, 0), string ObjectID = "") = 0;
 	virtual void BatchedTextRendering(bool bValue) {}
 
 	/**

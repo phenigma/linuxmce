@@ -235,7 +235,8 @@ void OrbiterRenderer_SDL::DisplayImageOnScreen(SDL_Surface *m_pScreenImage)
     UnlockDisplay();
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_SDL::RenderText(string &TextToDisplay,DesignObjText *Text,TextStyle *pTextStyle, PlutoPoint point)
+void OrbiterRenderer_SDL::RenderText(string &TextToDisplay,DesignObjText *Text,TextStyle *pTextStyle, 
+									 PlutoPoint point, string ObjectID)
 {
     PLUTO_SAFETY_LOCK(cm,OrbiterLogic()->m_ScreenMutex);
 
