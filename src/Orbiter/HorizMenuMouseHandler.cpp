@@ -54,7 +54,6 @@ bool HorizMenuMouseHandler::ButtonDown(int PK_Button)
 {
 	if( PK_Button==BUTTON_Mouse_1_CONST )
 	{
-		m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
 		return true; // Don't process any more
 	}
 	else if(PK_Button == BUTTON_Enter_CONST)
