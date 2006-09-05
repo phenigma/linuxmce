@@ -42,7 +42,9 @@ public:
 	void Convert();
 	void ReleaseTexture();
 
-	void ReplaceColorInRectangle(PlutoRectangle Area, PlutoColor ColorToReplace, PlutoColor ReplacementColor);
+	void ReplaceColorInRectangle(PlutoRectangle Area, 
+		PlutoColor ColorToReplace, 
+		PlutoColor ReplacementColor);
 
 	//from PlutoGraphic
 	PlutoGraphic* Clone(); 

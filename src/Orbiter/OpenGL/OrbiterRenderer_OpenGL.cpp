@@ -29,6 +29,7 @@
 #include "OpenGL3DEngine.h"
 #include "Mesh/MeshFrame.h"
 #include "Mesh/MeshBuilder.h"
+#include "ObjectRenderer_OpenGL.h"
 //-----------------------------------------------------------------------------------------------------
 #include <SDL_ttf.h>
 #include "Texture/GLFontRenderer.h"
@@ -210,19 +211,30 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		g_pPlutoLogger->Write(LV_WARNING,"ReplaceColorInRectangle object %s has no graphics",pObj->m_ObjectID.c_str());
 		return;
 	}
+	pObj = pObj_WithGraphic;
 
 	PlutoGraphic *pPlutoGraphic = pObj_WithGraphic->m_vectGraphic[0];
 	
 	OpenGLGraphic *pOpenGLGraphic = dynamic_cast<OpenGLGraphic *>(pPlutoGraphic);
+
 	if(NULL != pOpenGLGraphic)
 	{
 		TextureManager::Instance()->InvalidateItem(pObj->GenerateObjectHash(pObj->m_pPopupPoint));
-		PlutoRectangle Area(x, y, width, height);
-
+		PlutoRectangle Area(
+			x - pObj->m_rPosition.X - pObj->m_pPopupPoint.X, 
+			y - pObj->m_rPosition.Y - pObj->m_pPopupPoint.Y, 
+			width, height);
+		pOpenGLGraphic->Clear();
+		/*
+		static int a = 0;
+		a++;
+		ReplacementColor = a % 2 ? PlutoColor::Red() : PlutoColor::Blue();
+		*/
+		ObjectRenderer_OpenGL* Renderer = dynamic_cast <ObjectRenderer_OpenGL*>(pObj->Renderer());
+		Renderer->LoadPicture(pPlutoGraphic);		
 		pOpenGLGraphic->ReplaceColorInRectangle(Area, ColorToReplace, ReplacementColor);
 
-		RenderObjectAsync(pObj);
-		RedrawObjects();
+		//RedrawObjects();
 	}
 
 
