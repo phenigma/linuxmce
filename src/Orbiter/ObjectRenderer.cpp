@@ -387,6 +387,9 @@ int k=2;
 	{
 		m_pObj_Owner->m_pvectCurrentGraphic = &(m_pObj_Owner->m_vectHighlightedGraphic);
 
+		//make sure they are in sync
+		m_pObj_Owner->m_GraphicToDisplay = GRAPHIC_HIGHLIGHTED;
+
 		//we'll need to do the highlighting here, since we need the normal surface for un-highlighting
 		//we won't do it on RealRedraw for this kind of objects
 		if(NULL != m_pObj_Owner->m_pOrbiter->m_pObj_Highlighted && m_pObj_Owner->m_pOrbiter->m_pObj_Highlighted != m_pObj_Owner->m_pOrbiter->m_pObj_Highlighted_Last)
