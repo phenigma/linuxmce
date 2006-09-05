@@ -271,9 +271,6 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 			sParentObjectID);
 	}
 
-	if(sTextToDisplay.length() == 0)
-		return;
-
 	int style = TTF_STYLE_NORMAL;
 	if (pTextStyle->m_bUnderline)
 	{
