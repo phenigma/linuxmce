@@ -1376,3 +1376,29 @@ char *pData, int iData_Size, string sDisable_Aspect_Lock)
 	RenderObjectAsync(pObj);
 	
 }
+
+void OrbiterRenderer::HandleRefreshCommand(string sDataGrid_ID)
+{
+	if( sDataGrid_ID.length()==0 )
+		OrbiterLogic()->m_bRerenderScreen = true;
+
+	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );
+	vector<DesignObj_DataGrid*>::iterator it;
+	for(it = OrbiterLogic()->m_vectObjs_GridsOnScreen.begin(); it != OrbiterLogic()->m_vectObjs_GridsOnScreen.end(); ++it)
+	{
+		DesignObj_DataGrid* pDesignObj = *it;
+
+		if(sDataGrid_ID=="*" || pDesignObj->m_sGridID == sDataGrid_ID)
+		{
+			PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_DatagridMutex );
+			OrbiterLogic()->InitializeGrid(pDesignObj);
+			pDesignObj->Flush();
+			RenderObjectAsync(pDesignObj);
+		}
+	}
+
+	if( OrbiterLogic()->m_pScreenHistory_Current )
+		RenderObjectAsync(OrbiterLogic()->m_pScreenHistory_Current->GetObj());
+
+	NeedToRender render( OrbiterLogic(), "CMD_Refresh" );  // Redraw anything that was changed by this command
+}

@@ -246,20 +246,6 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	//g_pPlutoLogger->Write(LV_CRITICAL, "Rendering text %s at %d, %d", sTextToDisplay.c_str(), 
 	//	Text->m_rPosition.X, Text->m_rPosition.Y);
 
-	//////////////////////////////////////////////////////////////////////////
-	/////// debug code
-	if(NULL != Text->m_pObject && Text->m_pObject->m_ObjectID=="1389.0.0")
-	{
-		PlutoColor c(255,0,0,100);
-		int ba = pTextStyle->m_BackColor.m_Value=c.AsARGB();
-		pTextStyle->m_BackColor.A(255);
-		int fa = pTextStyle->m_ForeColor.A();
-		int k=2;
-		//pTextStyle->m_BackColor.A(128);
-		pTextStyle->m_ForeColor.A(200);
-	}
-	//////////////////////////////////////////////////////////////////////////
-
 	string sParentObjectID = "";
 	if(NULL != Text->m_pObject)
 	{
@@ -771,4 +757,27 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 void OrbiterRenderer_OpenGL::RemoveGraphic(string ObjectID)
 {
 	Engine->RemoveMeshFrameFromDesktopForID(ObjectID);
+}
+
+void OrbiterRenderer_OpenGL::HandleRefreshCommand(string sDataGrid_ID)
+{
+	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );
+	vector<DesignObj_DataGrid*>::iterator it;
+	for(it = OrbiterLogic()->m_vectObjs_GridsOnScreen.begin(); it != OrbiterLogic()->m_vectObjs_GridsOnScreen.end(); ++it)
+	{
+		DesignObj_DataGrid* pDesignObj = *it;
+
+		if(sDataGrid_ID=="*" || pDesignObj->m_sGridID == sDataGrid_ID)
+		{
+			PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_DatagridMutex );
+			OrbiterLogic()->InitializeGrid(pDesignObj);
+			pDesignObj->Flush();
+			RenderObjectAsync(pDesignObj);
+		}
+	}
+
+	if( OrbiterLogic()->m_pScreenHistory_Current )
+		RenderObjectAsync(OrbiterLogic()->m_pScreenHistory_Current->GetObj());
+
+	NeedToRender render( OrbiterLogic(), "CMD_Refresh" );  // Redraw anything that was changed by this command
 }

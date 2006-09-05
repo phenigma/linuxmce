@@ -238,6 +238,8 @@ public:
 	virtual bool HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position, int EffectID);
 	virtual bool HandleHidePopup(PlutoPopup* Popup);
 
+	virtual void HandleRefreshCommand(string sDataGrid_ID);
+
 	virtual void UpdateObjectImage(string sPK_DesignObj, string sType, char *pData, int iData_Size, 
 		string sDisable_Aspect_Lock);
 

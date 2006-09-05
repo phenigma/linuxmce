@@ -4889,28 +4889,8 @@ void Orbiter::CMD_Play_Sound(char *pData,int iData_Size,string sFormat,string &s
 void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c14-e->
 {
-	if( sDataGrid_ID.length()==0 )
-		m_bRerenderScreen = true;
-
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
-	vector<DesignObj_DataGrid*>::iterator it;
-	for(it = m_vectObjs_GridsOnScreen.begin(); it != m_vectObjs_GridsOnScreen.end(); ++it)
-	{
-		DesignObj_DataGrid* pDesignObj = *it;
-
-		if(sDataGrid_ID=="*" || pDesignObj->m_sGridID == sDataGrid_ID)
-		{
-			PLUTO_SAFETY_LOCK( cm, m_DatagridMutex );
-			InitializeGrid(pDesignObj);
-			pDesignObj->Flush();
-			m_pOrbiterRenderer->RenderObjectAsync(pDesignObj);
-		}
-	}
-
-	if( m_pScreenHistory_Current )
-		m_pOrbiterRenderer->RenderObjectAsync(m_pScreenHistory_Current->GetObj());
-
-	NeedToRender render( this, "CMD_Refresh" );  // Redraw anything that was changed by this command
+	//forward it to renderer
+	m_pOrbiterRenderer->HandleRefreshCommand(sDataGrid_ID);
 }
 
 //<-dceag-c15-b->

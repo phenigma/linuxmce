@@ -248,6 +248,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		bool m_bWeCanRepeat; /** < true if the rendering device we're using gives us Region Up Messages */
 
 		class DesignObj_Orbiter *m_pObj_Highlighted,*m_pObj_Highlighted_Last; /** < The current object highlighted, changed with the scrolling functions */
+		vector < class DesignObj_DataGrid * > m_vectObjs_GridsOnScreen; /** < All the grids currently on the screen */
 
 		string GetLocalDirectory()
 		{
@@ -350,7 +351,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		vector < class DesignObj_Orbiter * > m_vectObjs_TabStops; /** < All the tab stops presently on the screen */
 		vector < class DesignObj_Orbiter * > m_vectObjs_Selected; /** < All the objects currently selected */
-		vector < class DesignObj_DataGrid * > m_vectObjs_GridsOnScreen; /** < All the grids currently on the screen */
 		vector < class DesignObj_Orbiter * > m_vectObjs_VideoOnScreen; /** < All the video on screen */
 		bool m_bAlreadyQueuedVideo; // We only put 1 GetVideFrame in the queue
 		class DesignObj_Orbiter *m_pObj_NowPlayingOnScreen,*m_pObj_NowPlaying_MT_OnScreen,*m_pObj_NowPlaying_Section_OnScreen,*m_pObj_NowPlaying_TimeShort_OnScreen,*m_pObj_NowPlaying_TimeLong_OnScreen,*m_pObj_NowPlaying_Speed_OnScreen; /** < The objects showing 'now playing' on screen */
