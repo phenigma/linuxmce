@@ -1,6 +1,25 @@
-diff -Naur icewm-1.2.20.orig/src/wmcontainer.cc icewm-1.2.20/src/wmcontainer.cc
---- icewm-1.2.20.orig/src/wmcontainer.cc	2005-01-09 21:48:23.000000000 +0000
-+++ icewm-1.2.20/src/wmcontainer.cc	2006-07-21 16:29:02.000000000 +0000
+diff -Naur icewm-1.2.21pre1.orig/VERSION icewm-1.2.21pre1.patched/VERSION
+--- icewm-1.2.21pre1.orig/VERSION	2006-08-16 14:18:33.000000000 +0000
++++ icewm-1.2.21pre1.patched/VERSION	2006-08-31 20:01:48.000000000 +0000
+@@ -1,2 +1,2 @@
+ PACKAGE=icewm
+-VERSION=1.2.21pre1
++VERSION=1.2.21pre1-alphapatch
+diff -Naur icewm-1.2.21pre1.orig/src/Makefile.in icewm-1.2.21pre1.patched/src/Makefile.in
+--- icewm-1.2.21pre1.orig/src/Makefile.in	2006-08-30 12:36:19.000000000 +0000
++++ icewm-1.2.21pre1.patched/src/Makefile.in	2006-09-01 20:27:28.000000000 +0000
+@@ -38,7 +38,7 @@
+ LFLAGS =	@LDFLAGS@
+ LIBS =          @LIBS@
+ 
+-CORE_LIBS =     @CORE_LIBS@ # `fc-config --libs`
++CORE_LIBS =     @CORE_LIBS@ -lXrender # `fc-config --libs`
+ IMAGE_LIBS =    @IMAGE_LIBS@
+ AUDIO_LIBS =    @AUDIO_LIBS@
+ GNOME1_LIBS =    @GNOME1_LIBS@
+diff -Naur icewm-1.2.21pre1.orig/src/wmcontainer.cc icewm-1.2.21pre1.patched/src/wmcontainer.cc
+--- icewm-1.2.21pre1.orig/src/wmcontainer.cc	2006-08-16 14:18:30.000000000 +0000
++++ icewm-1.2.21pre1.patched/src/wmcontainer.cc	2006-08-31 17:55:51.000000000 +0000
 @@ -14,8 +14,8 @@
  
  #include <stdio.h>
@@ -12,9 +31,9 @@ diff -Naur icewm-1.2.20.orig/src/wmcontainer.cc icewm-1.2.20/src/wmcontainer.cc
  {
      fFrame = frame;
      fHaveGrab = false;
-diff -Naur icewm-1.2.20.orig/src/wmcontainer.h icewm-1.2.20/src/wmcontainer.h
---- icewm-1.2.20.orig/src/wmcontainer.h	2005-01-09 21:48:23.000000000 +0000
-+++ icewm-1.2.20/src/wmcontainer.h	2006-07-21 16:29:02.000000000 +0000
+diff -Naur icewm-1.2.21pre1.orig/src/wmcontainer.h icewm-1.2.21pre1.patched/src/wmcontainer.h
+--- icewm-1.2.21pre1.orig/src/wmcontainer.h	2006-08-16 14:18:30.000000000 +0000
++++ icewm-1.2.21pre1.patched/src/wmcontainer.h	2006-08-31 17:55:51.000000000 +0000
 @@ -7,7 +7,7 @@
  
  class YClientContainer: public YWindow {
@@ -24,9 +43,9 @@ diff -Naur icewm-1.2.20.orig/src/wmcontainer.h icewm-1.2.20/src/wmcontainer.h
      virtual ~YClientContainer();
  
      virtual void handleButton(const XButtonEvent &button);
-diff -Naur icewm-1.2.20.orig/src/wmframe.cc icewm-1.2.20/src/wmframe.cc
---- icewm-1.2.20.orig/src/wmframe.cc	2005-01-09 21:48:24.000000000 +0000
-+++ icewm-1.2.20/src/wmframe.cc	2006-07-21 16:29:02.000000000 +0000
+diff -Naur icewm-1.2.21pre1.orig/src/wmframe.cc icewm-1.2.21pre1.patched/src/wmframe.cc
+--- icewm-1.2.21pre1.orig/src/wmframe.cc	2006-08-16 14:18:30.000000000 +0000
++++ icewm-1.2.21pre1.patched/src/wmframe.cc	2006-08-31 17:55:51.000000000 +0000
 @@ -48,7 +48,7 @@
      return false;
  }
@@ -45,9 +64,9 @@ diff -Naur icewm-1.2.20.orig/src/wmframe.cc icewm-1.2.20/src/wmframe.cc
      fClientContainer->show();
  
      fTitleBar = new YFrameTitleBar(this, this);
-diff -Naur icewm-1.2.20.orig/src/wmframe.h icewm-1.2.20/src/wmframe.h
---- icewm-1.2.20.orig/src/wmframe.h	2005-01-09 21:48:24.000000000 +0000
-+++ icewm-1.2.20/src/wmframe.h	2006-07-21 16:29:02.000000000 +0000
+diff -Naur icewm-1.2.21pre1.orig/src/wmframe.h icewm-1.2.21pre1.patched/src/wmframe.h
+--- icewm-1.2.21pre1.orig/src/wmframe.h	2006-08-16 14:18:30.000000000 +0000
++++ icewm-1.2.21pre1.patched/src/wmframe.h	2006-08-31 17:55:51.000000000 +0000
 @@ -20,7 +20,7 @@
  
  class YFrameWindow: public YWindow, public YActionListener, public YTimerListener, public YPopDownListener, public YMsgBoxListener, public ClientData {
@@ -57,10 +76,10 @@ diff -Naur icewm-1.2.20.orig/src/wmframe.h icewm-1.2.20/src/wmframe.h
      virtual ~YFrameWindow();
  
      void doManage(YFrameClient *client);
-diff -Naur icewm-1.2.20.orig/src/wmmgr.cc icewm-1.2.20/src/wmmgr.cc
---- icewm-1.2.20.orig/src/wmmgr.cc	2005-01-09 21:48:23.000000000 +0000
-+++ icewm-1.2.20/src/wmmgr.cc	2006-07-21 16:29:02.000000000 +0000
-@@ -1355,7 +1355,7 @@
+diff -Naur icewm-1.2.21pre1.orig/src/wmmgr.cc icewm-1.2.21pre1.patched/src/wmmgr.cc
+--- icewm-1.2.21pre1.orig/src/wmmgr.cc	2006-08-16 14:18:30.000000000 +0000
++++ icewm-1.2.21pre1.patched/src/wmmgr.cc	2006-08-31 17:55:51.000000000 +0000
+@@ -1358,7 +1358,7 @@
  
      manager->updateFullscreenLayerEnable(false);
  
@@ -69,9 +88,9 @@ diff -Naur icewm-1.2.20.orig/src/wmmgr.cc icewm-1.2.20/src/wmmgr.cc
      if (frame == 0) {
          delete client;
          goto end;
-diff -Naur icewm-1.2.20.orig/src/ywindow.cc icewm-1.2.20/src/ywindow.cc
---- icewm-1.2.20.orig/src/ywindow.cc	2005-01-09 21:48:24.000000000 +0000
-+++ icewm-1.2.20/src/ywindow.cc	2006-07-21 16:29:02.000000000 +0000
+diff -Naur icewm-1.2.21pre1.orig/src/ywindow.cc icewm-1.2.21pre1.patched/src/ywindow.cc
+--- icewm-1.2.21pre1.orig/src/ywindow.cc	2006-08-16 14:18:30.000000000 +0000
++++ icewm-1.2.21pre1.patched/src/ywindow.cc	2006-08-31 17:55:51.000000000 +0000
 @@ -18,6 +18,8 @@
  #include "ytimer.h"
  #include "ypopup.h"
@@ -139,9 +158,9 @@ diff -Naur icewm-1.2.20.orig/src/ywindow.cc icewm-1.2.20/src/ywindow.cc
      }
      XSaveContext(xapp->display(), fHandle, windowContext, (XPointer)this);
      flags |= wfCreated;
-diff -Naur icewm-1.2.20.orig/src/ywindow.h icewm-1.2.20/src/ywindow.h
---- icewm-1.2.20.orig/src/ywindow.h	2005-01-09 21:48:24.000000000 +0000
-+++ icewm-1.2.20/src/ywindow.h	2006-07-21 16:29:02.000000000 +0000
+diff -Naur icewm-1.2.21pre1.orig/src/ywindow.h icewm-1.2.21pre1.patched/src/ywindow.h
+--- icewm-1.2.21pre1.orig/src/ywindow.h	2006-08-16 14:18:30.000000000 +0000
++++ icewm-1.2.21pre1.patched/src/ywindow.h	2006-08-31 17:55:51.000000000 +0000
 @@ -24,7 +24,7 @@
  
  class YWindow {
