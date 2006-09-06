@@ -20,7 +20,7 @@ class OpenGL3DEngine
 	pluto_pthread_mutex_t SceneMutex;
 
 	MeshFrame* CurrentLayer;
-	MeshFrame* HighlightCurrentLayer; //alias for CurrentLayer
+	MeshFrame* OriginalCurrentLayer; //alias for CurrentLayer
 	MeshFrame* OldLayer;
 	MeshFrame* SelectedFrame;
 	MeshFrame* HighLightFrame;

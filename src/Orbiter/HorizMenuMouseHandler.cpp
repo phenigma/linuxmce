@@ -61,7 +61,7 @@ bool HorizMenuMouseHandler::ButtonDown(int PK_Button)
 	{
 		DesignObj_Orbiter *pObj_ToHighlight = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
 		if(NULL != pObj_ToHighlight && pObj_ToHighlight != m_pObj_ActiveMenuPad && 
-			GetMainMenuPopup(pObj_ToHighlight) != "")
+			(GetMainMenuPopup(pObj_ToHighlight) != "" || GetFileBrowserPopup(pObj_ToHighlight) != ""))
 		{
 			m_pObj_ActiveMenuPad->m_GraphicToDisplay=GRAPHIC_NORMAL;
 			ShowPopup(pObj_ToHighlight);

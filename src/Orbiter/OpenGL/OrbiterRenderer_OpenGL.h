@@ -22,6 +22,8 @@ namespace DCE
 		bool m_bWindowCreated;
 		PopupCollection* Popups;
 
+		DesignObj_Orbiter *m_pLastHighlightedObject;
+
 	public:
 
 		OrbiterRenderer_OpenGL(Orbiter *pOrbiter);

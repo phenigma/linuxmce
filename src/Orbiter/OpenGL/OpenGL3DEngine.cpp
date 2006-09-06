@@ -17,8 +17,8 @@
 using namespace DCE;
 
 //#define SCENE_DEBUG 1
-//#define DUMP_SCENE_DEBUG 1
-//#define DISABLE_HIGHLIGHT 
+#define DUMP_SCENE_DEBUG 1
+#define DISABLE_HIGHLIGHT 
 
 OpenGL3DEngine::OpenGL3DEngine() : 
 	Quit(false),
@@ -27,6 +27,7 @@ OpenGL3DEngine::OpenGL3DEngine() :
 	Compose(NULL),
 	OldLayer(NULL),
 	CurrentLayer(NULL),
+	OriginalCurrentLayer(NULL),
 	HighLightFrame(NULL),
 	SelectedFrame(NULL),
 	FrameBuilder(NULL),			 
@@ -138,12 +139,12 @@ bool OpenGL3DEngine::Paint()
 			Color.Z = abs(Color.Z - 1.0f)/2.0f+ 0.5f;
 			Color.X = Color.Z;
 			Color.Y = Color.Z;
-			HighlightCurrentLayer->RemoveChild(HighLightFrame);
-			HighlightCurrentLayer->AddChild(HighLightFrame);
 			HighLightFrame->SetColor(Color);
 		}
 	}
 	UpdateTopMostObjects();
+
+	DumpScene();
 	Compose->Paint();
 	
 	GL.Flip();
@@ -177,7 +178,7 @@ void OpenGL3DEngine::NewScreen(string ScreenName)
 	StartTick = GetTick();
 
 	CurrentLayer = new MeshFrame(ScreenName);
-	HighlightCurrentLayer = CurrentLayer;
+	OriginalCurrentLayer = CurrentLayer;
 
 #ifdef SCENE_DEBUG
 	MeshTransform transform;
@@ -201,7 +202,7 @@ MeshFrame* OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFram
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
-	DumpScene();
+//	DumpScene();
 
 #ifdef SCENE_DEBUG
 	static float ZThing = 0.0f;
@@ -258,7 +259,7 @@ MeshFrame* OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFram
 
 	Parent->AddChild(Frame);
 
-	DumpScene();
+//	DumpScene();
 	return Frame;
 }
 
@@ -393,7 +394,7 @@ inline void OpenGL3DEngine::DumpScene()
 	HighLightFrame->SetTransform(Transform);
 	HighLightFrame->SetMeshContainer(Container);
 
-	HighlightCurrentLayer->AddChild(HighLightFrame);
+	OriginalCurrentLayer->AddChild(HighLightFrame);
 	AddTopMostObject("highlight");
 }
 
@@ -434,22 +435,22 @@ bool OpenGL3DEngine::NeedUpdateScreen()
 MeshFrame* OpenGL3DEngine::GetMeshFrameFromDesktop(string ObjectID)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
-	return CurrentLayer->FindChild(ObjectID);
+	return OriginalCurrentLayer->FindChild(ObjectID);
 }
 
 void OpenGL3DEngine::RemoveMeshFrameFromDesktop(MeshFrame* Frame)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
-	if(NULL == CurrentLayer)
+	if(NULL == OriginalCurrentLayer)
 	{
 		//g_pPlutoLogger->Write(LV_CRITICAL, "RemoveMeshFrameFromDesktop: NULL CurrentLayer");
 		return;
 	}
 
-	CurrentLayer->RemoveChild(Frame);
+	OriginalCurrentLayer->RemoveChild(Frame);
 
 	g_pPlutoLogger->Write(LV_STATUS, "RemoveMeshFrameFromDesktop: removed object %p, size is not %d", 
-		Frame, CurrentLayer->Children.size());
+		Frame, OriginalCurrentLayer->Children.size());
 }
 
 void OpenGL3DEngine::StartFrameDrawing(string ObjectHash)
@@ -588,7 +589,7 @@ void OpenGL3DEngine::HideHighlightRectangle()
 
 void OpenGL3DEngine::RemoveMeshFrameFromDesktopForID(string ObjectID)
 {
-	DumpScene();
+//	DumpScene();
 
 	if(ObjectID == "")
 		return;
@@ -597,7 +598,7 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktopForID(string ObjectID)
 	if(NULL != Frame)
 		RemoveMeshFrameFromDesktop(Frame);
 
-	DumpScene();
+//	DumpScene();
 }
 
 void OpenGL3DEngine::BeginModifyGeometry()
@@ -646,8 +647,8 @@ void OpenGL3DEngine::UpdateTopMostObjects()
 		}
 		else
 		{
-			CurrentLayer->RemoveChild(Frame);
-			CurrentLayer->AddChild(Frame);
+			OriginalCurrentLayer->RemoveChild(Frame);
+			OriginalCurrentLayer->AddChild(Frame);
 			++Item;
 		}
 	}

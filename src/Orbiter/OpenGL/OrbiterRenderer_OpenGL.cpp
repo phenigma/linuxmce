@@ -100,7 +100,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : 
 	OrbiterRenderer(pOrbiter), Mutex("open gl"), Engine(NULL), NeedToUpdateScreen_(false),
-	m_bWindowCreated(false), Popups(NULL)
+	m_bWindowCreated(false), Popups(NULL), m_pLastHighlightedObject(NULL)
 {
 	std::cout << "*** OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL()" << std::endl;
 	GLThread = 0;
@@ -477,6 +477,16 @@ void OrbiterRenderer_OpenGL::OnIdle()
 					(DesignObj_Orbiter *)(*it)
 				);
 		}
+		else
+		{
+			pObj->m_GraphicToDisplay = pObj->m_GraphicBeforeHighlight;
+			pObj->m_pvectCurrentGraphic = 
+				pObj->m_GraphicToDisplay == GRAPHIC_NORMAL ?
+					&(pObj->m_vectGraphic) :
+					&(pObj->m_vectSelectedGraphic);
+
+			pObj->Renderer()->RenderGraphic(pObj->m_rPosition, pObj->m_bDisableAspectLock, pObj->m_pPopupPoint);
+		}
 	}
 
 	OrbiterLogic()->m_pObj_Highlighted = NULL;
@@ -488,8 +498,18 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	if(sbNoSelection == OrbiterLogic()->m_nSelectionBehaviour || !OrbiterLogic()->m_pObj_Highlighted || !OrbiterLogic()->m_pObj_Highlighted->m_bOnScreen )
 		return;
 
+	if(NULL != m_pLastHighlightedObject &&	m_pLastHighlightedObject != OrbiterLogic()->m_pObj_Highlighted)
+	{
+		DesignObj_Orbiter *pCurrentHighlightedObject = OrbiterLogic()->m_pObj_Highlighted;
+		OrbiterLogic()->m_pObj_Highlighted = m_pLastHighlightedObject;
+		UnHighlightObject();
+		OrbiterLogic()->m_pObj_Highlighted = pCurrentHighlightedObject;
+	}
+
 	if(!OrbiterLogic()->m_pObj_Highlighted)
 		return;
+
+	m_pLastHighlightedObject = OrbiterLogic()->m_pObj_Highlighted;
 
 	DesignObj_Orbiter *pObj = OrbiterLogic()->m_pObj_Highlighted;
 	PlutoRectangle Position(pObj->m_rPosition);
