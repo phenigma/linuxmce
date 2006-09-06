@@ -650,8 +650,6 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	if(OrbiterLogic()->m_bQuit)
 		return; //we are about to quit
 
-	Popups->Reset();
-
 	if(OrbiterLogic()->m_pObj_SelectedLastScreen)
 		m_spPendingGLEffects->m_nOnSelectWithChangeEffectID = 
 		OrbiterLogic()->m_pObj_SelectedLastScreen->m_FK_Effect_Selected_WithChange;
@@ -684,6 +682,13 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	Engine->NewScreen(sScreenName);
 	OrbiterRenderer::RenderScreen(bRenderGraphicsOnly);
 	
+	
+	string sNewScreenName = "desktop";
+	if(NULL != OrbiterLogic()->m_pScreenHistory_Current)
+		sNewScreenName = "desktop - " + OrbiterLogic()->m_pScreenHistory_Current->GetObj()->GenerateObjectHash(PlutoPoint(0, 0), false);
+	if(sScreenName != sScreenName && sScreenName != "desktop" && sNewScreenName != "desktop")
+		Popups->Reset();
+
 	NeedToUpdateScreen_ = true;
 
 	GLEffect2D::Effect* Item;
