@@ -6113,4 +6113,19 @@ function restartX($orbiterID){
 	exec_batch_command('/usr/pluto/bin/RestartX.sh');
 }
 
+function savePic($url,$path){
+	// remove \n from url
+	$url=str_replace("\n",'',$url);
+	
+	// copy the pic localy if the param is specified
+	// path need to be a working path with write permission
+	if($path!=''){
+		if(file_exists($path)){
+			$cmd='sudo -u root rm -f "'.$path.'"';
+			exec_batch_command($cmd);
+		}
+		$getPicCmd='wget --header=\'User-Agent: Lynx/2.8.5rel.1 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/1.0.16\' -O - \''.$url.'\' > '.$path;
+		$coverArtPage=exec_batch_command($getPicCmd,1);
+	}
+}
 ?>
