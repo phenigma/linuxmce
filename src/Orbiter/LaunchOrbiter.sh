@@ -54,11 +54,11 @@ xset m 1 1
 ## Nasty hack ...  It seems icewm somehow ignores the first window that starts, and when we didn't start xterm first
 ## then Orbiter would start, launch Xine, and when you went to play a movie, xine would be full screen and topmost
 ## and Orbiter couldn't go on top of xine
-Logging "$TYPE" "$SEVERITY_CRITICAL" "LaunchOrbiter" "Hack to start xterm"
-xterm &
-sleep 1
+#Logging "$TYPE" "$SEVERITY_CRITICAL" "LaunchOrbiter" "Hack to start xterm"
+#xterm &
+#sleep 1
 exec "$Executable" "$@"
-sleep 5
-Logging "$TYPE" "$SEVERITY_CRITICAL" "LaunchOrbiter" "Hack to kill xterm"
-killall xterm
+#sleep 5
+#Logging "$TYPE" "$SEVERITY_CRITICAL" "LaunchOrbiter" "Hack to kill xterm"
+#killall xterm
 
