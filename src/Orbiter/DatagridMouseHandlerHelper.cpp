@@ -370,7 +370,7 @@ bool DatagridMouseHandlerHelper::DoIteration()
 {
 	if(NULL == m_pMouseBehavior)
 	{
-		g_pPlutoLogger("m_pMouseBehavior is NULL! Race condition!?");
+		g_pPlutoLogger->Write(LV_WARNING,"m_pMouseBehavior is NULL! Race condition!?");
 		return true;
 	}
 	m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
