@@ -264,7 +264,7 @@ void OrbiterRenderer_SDL::RenderText(string &TextToDisplay,DesignObjText *Text,T
 
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_SDL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
+void OrbiterRenderer_SDL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color, string ParentObjectID/* = ""*/, string ObjectID/* = ""*/)
 {
 	ClipRectangle(X, Y, Width, Height);
 	sge_Rect(m_pScreenImage,X,Y,Width + X,Height + Y,color.m_Value);

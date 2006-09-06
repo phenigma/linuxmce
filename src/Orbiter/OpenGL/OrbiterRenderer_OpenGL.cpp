@@ -192,12 +192,64 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterRenderer_OpenGL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
+/*virtual*/ void OrbiterRenderer_OpenGL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color, 
+	string ParentObjectID /* = ""*/, string ObjectID/* = ""*/)
 {
+	string RectangleUniqueID; 
+	if ("" == ObjectID)
+		RectangleUniqueID = "rectangle " + 
+			StringUtils::ltos(X) + "," + StringUtils::ltos(Y) + "," +
+			StringUtils::ltos(Width) + "," + StringUtils::ltos(Height);
+	else
+		RectangleUniqueID = ObjectID;
 
+	color = PlutoColor::Red();
+	MeshFrame * LeftBar = new MeshFrame("highlight-frame-left");
+	MeshFrame * TopBar = new MeshFrame("highlight-frame-top");
+	MeshFrame * RightBar = new MeshFrame("highlight-frame-right");
+	MeshFrame * BottomBar = new MeshFrame("highlight-frame-bottom");
+	
+	PlutoRectangle Rect(X, Y, Width, Height);
+	PlutoRectangle Original (Rect);
+
+	Rect.Width = 2;
+	LeftBar->SetMeshContainer(
+		MeshBuilder::BuildRectangle(Rect, NULL)
+		);
+	Rect = Original;
+	Rect.Height = 2;
+	TopBar->SetMeshContainer(
+		MeshBuilder::BuildRectangle(Rect, NULL)
+		);
+	
+	Rect = Original;
+	Rect.X += Rect.Width-1;
+	Rect.Width = 2;
+	RightBar->SetMeshContainer(
+		MeshBuilder::BuildRectangle(Rect, NULL)
+		);
+
+	Rect = Original;
+	
+	Rect.Y += Rect.Height-1;
+	Rect.Height = 2;
+	BottomBar->SetMeshContainer(
+		MeshBuilder::BuildRectangle(Rect, NULL)
+		);
+
+	MeshFrame* HighLightPopup = new MeshFrame("highlight-frame");
+	HighLightPopup->AddChild(LeftBar);
+	HighLightPopup->AddChild(TopBar);
+	HighLightPopup->AddChild(RightBar);
+	HighLightPopup->AddChild(BottomBar);
+	Point3D Red(1.0f, 0.0f, 0.0f);
+	HighLightPopup->SetColor(Red);
+	Engine->AddMeshFrameToDesktop(ParentObjectID, HighLightPopup);
+	
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterRenderer_OpenGL::ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor, DesignObj_Orbiter *pObj/*=NULL*/)
+/*virtual*/ void OrbiterRenderer_OpenGL::ReplaceColorInRectangle(int x, int y, int width, int height, 
+	PlutoColor ColorToReplace, PlutoColor ReplacementColor, DesignObj_Orbiter *pObj/*=NULL*/)
 {
 	if(NULL == pObj)
 		return;

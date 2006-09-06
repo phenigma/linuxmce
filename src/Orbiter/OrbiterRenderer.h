@@ -85,7 +85,7 @@ public:
 	/**
 	* @brief draws an x-or'd rectangle outline.  Used to highlight something on screen
 	*/
-	virtual void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color) = 0;
+	virtual void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color, string ParentObjectID = "", string ObjectID = "") = 0;
 
 	/**
 	* @brief draws an line

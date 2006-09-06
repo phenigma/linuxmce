@@ -76,7 +76,8 @@ public:
 	// Drawing routines
 	void SolidRectangle(int x, int y, int width, int height, PlutoColor color, string ParentObjectID = "", 
 		string ObjectID = "");
-	void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color);
+	void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color, string ParentObjectID = "", 
+		string ObjectID = "");
 	void DrawLine(int x, int y, int width, int height, PlutoColor color) {};
 	void ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, 
 		PlutoColor ReplacementColor, DesignObj_Orbiter *pObj = NULL);
