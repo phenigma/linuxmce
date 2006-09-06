@@ -586,13 +586,21 @@ bool Orbiter::GetConfig()
 				m_cRemoteLayout = s[0];
 
 			s = pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_Configuration_CONST);
+
+			g_pPlutoLogger->Write(LV_CRITICAL, "Scan codes for remote %d: %s", pDeviceData_Impl->m_dwPK_Device, s.c_str());
+			
 			vector<string> vectTokens;
 			StringUtils::Tokenize(s,"\r\n",vectTokens);
 			for(vector<string>::iterator it2=vectTokens.begin();it2!=vectTokens.end();++it2)
 			{
 				string::size_type pos = it2->find(',');
 				if( pos!=string::npos && pos<it2->size() )
-					m_mapScanCodeToRemoteButton[ atoi( it2->substr(pos).c_str() ) ] = it2->substr(0,pos);
+				{
+					string sCode;
+					m_mapScanCodeToRemoteButton[ atoi(it2->substr(pos + 1).c_str())] = StringUtils::ToUpper(it2->substr(0,pos));
+
+					g_pPlutoLogger->Write(LV_CRITICAL, "Added scan code %d -> %s", atoi( it2->substr(pos + 1).c_str()), StringUtils::ToUpper(it2->substr(0,pos)).c_str());
+				}
 			}
 		}
 	}
