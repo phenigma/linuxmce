@@ -52,6 +52,14 @@ public:
 			EVENTPARAMETER_ID_CONST, sID.c_str()));
 	}
 
+	virtual void Presence_Lost(string sID)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+			EVENT_Presence_Lost_CONST,
+			1 /* number of parameter's pairs (id, value) */,
+			EVENTPARAMETER_ID_CONST, sID.c_str()));
+	}
+
 };
 
 
@@ -214,6 +222,7 @@ public:
 	string DATA_Get_COM_Port_BaudRate() { return GetData()->Get_COM_Port_BaudRate(); }
 	//Event accessors
 	void EVENT_Presence_Detected(string sID) { GetEvents()->Presence_Detected(sID.c_str()); }
+	void EVENT_Presence_Lost(string sID) { GetEvents()->Presence_Lost(sID.c_str()); }
 	//Commands - Override these to handle commands from the server
 
 	//This distributes a received message to your handler.
