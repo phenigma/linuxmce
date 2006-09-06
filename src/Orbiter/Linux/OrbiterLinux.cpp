@@ -400,7 +400,7 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 				case 104:  event.data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST; return true;
 				case 100:  event.data.button.m_iPK_Button = BUTTON_Left_Arrow_CONST; return true;
 				case 102:  event.data.button.m_iPK_Button = BUTTON_Right_Arrow_CONST; return true;
-				case 36:   event.data.button.m_iPK_Button = BUTTON_Enter_CONST; return true;
+				case 36:   event.data.button.m_iPK_Button = BUTTON_Mouse_1_CONST; return true;
 
 				case 23:   event.data.button.m_iPK_Button = BUTTON_Mouse_6_CONST; return true;
 				case 65:   event.data.button.m_iPK_Button = BUTTON_Mouse_7_CONST; return true;
