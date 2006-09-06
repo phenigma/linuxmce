@@ -4,6 +4,8 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Utils.sh
 
+. /usr/pluto/bin/TeeMyOutput.sh --outfile /var/log/pluto/AVWizard.log --infile /dev/null --stdboth -- "$@"
+
 CleanUp()
 {
 	rm -f /tmp/*.xml
@@ -191,9 +193,10 @@ RemoteCmd=$(/usr/pluto/bin/AVWizard_Remote_Detect.sh | tail -1)
 
 Done=0
 while [[ "$Done" -eq 0 ]]; do
+	echo "$(date -R) $(basename "$0"): Main loop"
 	CleanUp
 	SetDefaults
-	"$BaseDir"/AVWizardWrapper.sh &>/var/log/pluto/AVWizard.log
+	"$BaseDir"/AVWizardWrapper.sh
 	Ret="$?"
 	case "$Ret" in
 		0) Done=1 ;;
@@ -204,6 +207,7 @@ while [[ "$Done" -eq 0 ]]; do
 	esac
 done
 
+set -x
 # Finalize wizard: save settings
 ConfSet "AVWizardDone" "1"
 mv "$XF86Config" /etc/X11/xorg.conf
@@ -211,3 +215,4 @@ mv "$XineConf" /etc/pluto/xine.conf
 alsactl store
 UpdateAudioSettings
 UpdateOrbiterDimensions
+set +x
