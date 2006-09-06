@@ -68,10 +68,10 @@ FindDevice_Template()
 			fi
 		done
 	else
-		return 0
+		return 1
 	fi
 
-	[[ -n "$Found" ]]
+	[[ "$Found" -eq 1 ]]
 	return $?
 }
 
@@ -134,10 +134,10 @@ FindDevice_Category()
 			fi
 		done
 	else
-		return 0
+		return 1
 	fi
 
-	[[ -n "$Found" ]]
+	[[ "$Found" -eq 1 ]]
 	return $?
 }
 
