@@ -29,6 +29,8 @@ namespace DCE
 		virtual bool SetMouseCursorImage(const string &sPath, const string &sPathMask);
     protected:
         OrbiterLinux * ptrOrbiterLinux();
+
+		MouseCursorStyle m_LastCursorStyle;
 	};
 }
 

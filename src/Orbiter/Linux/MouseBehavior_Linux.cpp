@@ -18,7 +18,7 @@ using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
 
 MouseBehavior_Linux::MouseBehavior_Linux(Orbiter *pOrbiter)
-        : MouseBehavior(pOrbiter)
+        : MouseBehavior(pOrbiter), m_LastCursorStyle(mcs_Normal)
 {
 }
 
@@ -63,7 +63,10 @@ void MouseBehavior_Linux::ShowMouse(bool bShow)
     // at show, we want to show the standard mouse cursor
     g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ShowMouse %d",(int) bShow);
     if (bShow)
+	{
         ptrOrbiterLinux()->m_pX11->Mouse_ShowStandardCursor(ptrOrbiterLinux()->GetMainWindow());
+		SetMouseCursorStyle(m_LastCursorStyle);
+	}
     else
         ptrOrbiterLinux()->m_pX11->Mouse_HideCursor(ptrOrbiterLinux()->GetMainWindow());
 }
@@ -98,6 +101,9 @@ bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
 void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
 {
     g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::SetMousePointerStyle(%d)",(int) mouseCursorStyle);
+
+	m_LastCursorStyle = mouseCursorStyle;
+
     // convert enum values
     std::string sErr;
     std::string sDir = "/usr/pluto/orbiter/skins/Basic/cursors/pointers_bw/";
