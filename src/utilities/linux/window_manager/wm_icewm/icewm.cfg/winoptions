@@ -20,7 +20,7 @@ mythfrontend.Mythfrontend.dTitleBar: 0
 
 pluto-xine-playback-window.pluto-xine-playback-window.dBorder: 0
 pluto-xine-playback-window.pluto-xine-playback-window.dTitleBar: 0
-pluto-xine-playback-window.pluto-xine-playback-window.geometry: 1x1+12345+12345
+pluto-xine-playback-window.pluto-xine-playback-window.geometry: 100x100+12345+12345
 pluto-xine-playback-window.pluto-xine-playback-window.noFocusOnAppRaise: 1
 
 progress_window.progress_window.dBorder: 0
