@@ -349,7 +349,7 @@ bool Xine_Stream::CreateWindows()
 	if ( fabs( m_dPixelAspect - 1.0 ) < 0.01 )
 		m_dPixelAspect = 1.0;
 
-	XSync( m_pXDisplay, True );
+	//XSync( m_pXDisplay, True );
 	XUnlockDisplay( m_pXDisplay );
 
 	return true;
