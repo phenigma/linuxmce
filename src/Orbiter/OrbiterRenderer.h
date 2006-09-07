@@ -138,6 +138,8 @@ public:
 	virtual void ClipRectangle(PlutoRectangle &rect);
 	virtual void RenderFrame(void *) {}
 
+	virtual void UnSelectObject(string ParentObjectID = "", string ObjectID = "") = 0;
+
 	/**
 	* @brief Do the Highlighting of the currently highlighted object, or remove the highlighting
 	*/

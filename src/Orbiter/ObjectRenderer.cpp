@@ -519,21 +519,30 @@ int k=2;
 		m_pObj_Owner->m_pOrbiter->Renderer()->RenderText(TextToDisplay, pText, pTextStyle, point);
 		PROFILE_STOP( ctText,  "Text ( obj below )" );
 	}
-	if(m_pObj_Owner->m_pFloorplanObject && m_pObj_Owner->m_pOrbiter->m_mapDevice_Selected.find(m_pObj_Owner->m_pFloorplanObject->PK_Device) != m_pObj_Owner->m_pOrbiter->m_mapDevice_Selected.end() )
+	if(m_pObj_Owner->m_pFloorplanObject)
 	{
-		int i = 0;
-		for(i = 0; i < 4; ++i)
-			m_pObj_Owner->m_pOrbiter->Renderer()->HollowRectangle(
-				point.X + m_pObj_Owner->m_rBackgroundPosition.X-i, 
-				point.Y + m_pObj_Owner->m_rBackgroundPosition.Y-i, 
-				m_pObj_Owner->m_rBackgroundPosition.Width+i+i, 
-				m_pObj_Owner->m_rBackgroundPosition.Height+i+i,
-				(i==1 || i==2 ? PlutoColor::Black() : PlutoColor::White())
-			);
+		if(m_pObj_Owner->m_pOrbiter->m_mapDevice_Selected.find(m_pObj_Owner->m_pFloorplanObject->PK_Device) != m_pObj_Owner->m_pOrbiter->m_mapDevice_Selected.end() )
+		{
+			int i = 0;
+			for(i = 0; i < 4; ++i)
+				m_pObj_Owner->m_pOrbiter->Renderer()->HollowRectangle(
+					point.X + m_pObj_Owner->m_rBackgroundPosition.X-i, 
+					point.Y + m_pObj_Owner->m_rBackgroundPosition.Y-i, 
+					m_pObj_Owner->m_rBackgroundPosition.Width+i+i, 
+					m_pObj_Owner->m_rBackgroundPosition.Height+i+i,
+					(i==1 || i==2 ? PlutoColor::Black() : PlutoColor::White()), 
+					"", "Hollow "+m_pObj_Owner->m_ObjectID
+				);
 
-		//force an update because the object boundaries are not respected
-		PlutoRectangle rect(point.X + m_pObj_Owner->m_rBackgroundPosition.X-i, point.Y + m_pObj_Owner->m_rBackgroundPosition.Y-i, m_pObj_Owner->m_rBackgroundPosition.Width+i+i, m_pObj_Owner->m_rBackgroundPosition.Height+i+i);
-		m_pObj_Owner->m_pOrbiter->Renderer()->UpdateRect(rect, m_pObj_Owner->m_pPopupPoint);
+			//force an update because the object boundaries are not respected
+			PlutoRectangle rect(point.X + m_pObj_Owner->m_rBackgroundPosition.X-i, point.Y + m_pObj_Owner->m_rBackgroundPosition.Y-i, m_pObj_Owner->m_rBackgroundPosition.Width+i+i, m_pObj_Owner->m_rBackgroundPosition.Height+i+i);
+			m_pObj_Owner->m_pOrbiter->Renderer()->UpdateRect(rect, m_pObj_Owner->m_pPopupPoint);
+		}
+		else
+		{
+			m_pObj_Owner->m_pOrbiter->Renderer()->UnSelectObject("", "Hollow "+m_pObj_Owner->m_ObjectID);
+		}
+
 	}
 
 	if(m_pObj_Owner->m_pOrbiter->m_bShowShortcuts && m_pObj_Owner->m_iPK_Button)

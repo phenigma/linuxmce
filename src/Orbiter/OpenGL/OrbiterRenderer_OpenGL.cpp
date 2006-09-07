@@ -237,7 +237,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		MeshBuilder::BuildRectangle(Rect, NULL)
 		);
 
-	MeshFrame* HighLightPopup = new MeshFrame("highlight-frame");
+	MeshFrame* HighLightPopup = new MeshFrame(RectangleUniqueID);
 	HighLightPopup->AddChild(LeftBar);
 	HighLightPopup->AddChild(TopBar);
 	HighLightPopup->AddChild(RightBar);
@@ -246,6 +246,11 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	HighLightPopup->SetColor(Red);
 	Engine->AddMeshFrameToDesktop(ParentObjectID, HighLightPopup);
 	
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_OpenGL::UnSelectObject(string ParentObjectID /* = ""*/, string ObjectID/* = ""*/)
+{
+	Engine->RemoveMeshFrameFromDesktopForID(ObjectID);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::ReplaceColorInRectangle(int x, int y, int width, int height, 
