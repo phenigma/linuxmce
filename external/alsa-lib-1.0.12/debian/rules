@@ -12,7 +12,7 @@ export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 DEB_BUILD_ARCH_CPU ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH_CPU)
 DEB_HOST_ARCH  ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH)
 
-biarch_map := i386=amd64 powerpc=ppc64 sparc=sparc64 s390=s390x \
+biarch_map := powerpc=ppc64 sparc=sparc64 s390=s390x \
 		amd64=i386 ppc64=powerpc
 biarch_cpu := $(strip $(patsubst $(DEB_BUILD_ARCH_CPU)=%, %, \
 			   $(filter $(DEB_BUILD_ARCH_CPU)=%, $(biarch_map))))
