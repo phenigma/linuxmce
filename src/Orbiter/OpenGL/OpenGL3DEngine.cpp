@@ -17,8 +17,8 @@
 using namespace DCE;
 
 //#define SCENE_DEBUG 1
-#define DUMP_SCENE_DEBUG 1
-#define DISABLE_HIGHLIGHT 
+//#define DUMP_SCENE_DEBUG 1
+//#define DISABLE_HIGHLIGHT 
 
 OpenGL3DEngine::OpenGL3DEngine() : 
 	Quit(false),
@@ -202,7 +202,7 @@ MeshFrame* OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFram
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
-//	DumpScene();
+	DumpScene();
 
 #ifdef SCENE_DEBUG
 	static float ZThing = 0.0f;
@@ -259,7 +259,7 @@ MeshFrame* OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFram
 
 	Parent->AddChild(Frame);
 
-//	DumpScene();
+	DumpScene();
 	return Frame;
 }
 
@@ -589,7 +589,7 @@ void OpenGL3DEngine::HideHighlightRectangle()
 
 void OpenGL3DEngine::RemoveMeshFrameFromDesktopForID(string ObjectID)
 {
-//	DumpScene();
+	DumpScene();
 
 	if(ObjectID == "")
 		return;
@@ -598,7 +598,7 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktopForID(string ObjectID)
 	if(NULL != Frame)
 		RemoveMeshFrameFromDesktop(Frame);
 
-//	DumpScene();
+	DumpScene();
 }
 
 void OpenGL3DEngine::BeginModifyGeometry()
