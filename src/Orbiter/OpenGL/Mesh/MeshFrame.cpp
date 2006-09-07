@@ -300,6 +300,7 @@ void MeshFrame::Stealth()
 
 bool MeshFrame::CheckIntegrity(MeshFrame *Frame)
 {
+/*
 	bool Result = false;
 
 	if(NULL != Frame && NULL != Frame->Parent)
@@ -317,4 +318,6 @@ bool MeshFrame::CheckIntegrity(MeshFrame *Frame)
 	}
 
 	return Result;
+*/
+	return true;
 }

@@ -241,13 +241,13 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 	}
 
 	for(list<class PlutoPopup*>::iterator it=OrbiterLogic()->m_listPopups.begin();it!=OrbiterLogic()->m_listPopups.end();++it)
-		RenderPopup(*it, (*it)->m_Position);
+		RenderPopup(*it, (*it)->m_Position, 1);
 
 	if( OrbiterLogic()->m_pScreenHistory_Current  )
 	{
 		for(list<class PlutoPopup*>::iterator it=OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_listPopups.begin();
 			it!=OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_listPopups.end();++it)
-			RenderPopup(*it, (*it)->m_Position);
+			RenderPopup(*it, (*it)->m_Position, 1);
 	}
 
 	cm.Release(  );
@@ -901,7 +901,7 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterRenderer::RenderPopup(PlutoPopup *pPopup, PlutoPoint point)
+/*virtual*/ void OrbiterRenderer::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, int EffectID)
 {
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
