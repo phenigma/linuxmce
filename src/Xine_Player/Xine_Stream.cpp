@@ -482,6 +482,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 	if (sURLsuffix!="")
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Opening media with chapters/title position: %s ", (fileName+sURLsuffix).c_str() );
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		mediaOpened = xine_open( m_pXineStream, (fileName+sURLsuffix).c_str() );
 		if (!mediaOpened)
 			g_pPlutoLogger->Write(LV_WARNING, "Opening media FAILED");
@@ -490,6 +491,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 	if (!mediaOpened)
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Opening media without chapters/title position: %s ", fileName.c_str() );
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		mediaOpened = xine_open( m_pXineStream, fileName.c_str() );
 		if (!mediaOpened)
 			g_pPlutoLogger->Write(LV_WARNING, "Opening media FAILED");
@@ -540,8 +542,11 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		// reporting about image
 		g_pPlutoLogger->Write( LV_STATUS, "Got image dimensions: %dx%d", m_iImgWidth, m_iImgWidth );
 
-		xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_DRAWABLE_CHANGED, ( void * ) windows[ m_iCurrentWindow ] );
-		xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 1 );
+		{
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+			xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_DRAWABLE_CHANGED, ( void * ) windows[ m_iCurrentWindow ] );
+			xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 1 );
+		}
 		
 		{
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
@@ -563,6 +568,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		if ( ! m_bHasVideo )
 		{
 			g_pPlutoLogger->Write( LV_STATUS, "Stream is seekable: %d", xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_SEEKABLE ) );
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 			xine_set_param( m_pXineStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE );
 		}
 	}
