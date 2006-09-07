@@ -67,10 +67,6 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 		Flags = SDL_FULLSCREEN;
 
 	Flags |=  SDL_OPENGL;
-#ifndef WIN32
-	SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_COLOR_INDEX_BIT);
-	SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_PBUFFER_BIT);
-#endif
 
 	Display = SDL_SetVideoMode(Width, Height, 0, Flags);
 	g_pPlutoLogger->Write(LV_STATUS,"Setting video to w: %d h: %d",Width,Height);
