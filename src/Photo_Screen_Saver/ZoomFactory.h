@@ -14,7 +14,7 @@ public:
 
 	void Setup(int ScreenWidth, int ScreenHeight);
 
-	ZoomBase* CreateZoomType(int ZoomType, MeshFrame* PictureObject, int Width, int Height, int StartTime, int ZoomTime);
+	ZoomBase* CreateZoomType(int ZoomType, Frame* PictureObject, int Width, int Height, int StartTime, int ZoomTime);
 };
 
 #endif

@@ -7,6 +7,7 @@ using namespace DCE;
 
 FileBrowser::FileBrowser(string FileList)
 {
+	FileList = "/IMG_0214.jpg\n/IMG_0001.jpg";
 	StringUtils::Tokenize(FileList,"\r\n",m_vectFileList);
 }
 

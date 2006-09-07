@@ -1,6 +1,6 @@
 #include "FadeBase.h"
 
-FadeBase::FadeBase(MeshFrame* AfterFrame, MeshFrame*BeforeFrame, int StartTime, int TimeToFade)
+FadeBase::FadeBase(Frame* AfterFrame, Frame*BeforeFrame, int StartTime, int TimeToFade)
 {
 	this->StartTime = StartTime;
 	this->TimeToFade = TimeToFade;

@@ -1,7 +1,7 @@
 #include "AnimatedPicture.h"
 
 #include "ZoomFactory.h"
-#include "MeshBuilder.h"
+#include "Builder.h"
 
 AnimatedPicture::AnimatedPicture(int ScreenWidth, int ScreenHeight)
 {
@@ -19,7 +19,7 @@ bool AnimatedPicture::LoadFromFile(string FileName)
 	return Result;
 }
 
-MeshFrame* AnimatedPicture::GetMeshFrame()
+Frame* AnimatedPicture::GetFrame()
 {
 	return PictureFrame;
 }

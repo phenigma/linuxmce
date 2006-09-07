@@ -13,7 +13,7 @@ public:
 
 	virtual ~FadeFactory(void);
 
-	FadeBase* CreateFadeMode(int Mode, MeshFrame* AfterFrame, MeshFrame*BeforeFrame, 
+	FadeBase* CreateFadeMode(int Mode, Frame* AfterFrame, Frame*BeforeFrame, 
 		int StartTime, int TimeToFade);
 };
 

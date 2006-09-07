@@ -10,7 +10,7 @@ class ZoomSimple : public ZoomBase
 	int DeltaX1, DeltaY1, DeltaX2, DeltaY2;
 	float ZoomAmount1, ZoomAmount2;
 public:
-	ZoomSimple(MeshFrame* PictureObject, int ScreenWidth, int ScreenHeight, int Width, int Height, int StartTime, int ZoomTime);
+	ZoomSimple(Frame* PictureObject, int ScreenWidth, int ScreenHeight, int Width, int Height, int StartTime, int ZoomTime);
 	~ZoomSimple(void);
 
 	virtual bool Update(int Time);

@@ -1,6 +1,6 @@
 #include "TextureManager.h"
 #include "ExtensionManager.h"
-#include "MeshFrame.h"
+#include "Frame.h"
 
 #include <GL/gl.h>
 

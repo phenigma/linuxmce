@@ -28,7 +28,7 @@ void ZoomFactory::Setup(int ScreenWidth, int ScreenHeight)
 	this->ScreenHeight = ScreenHeight;
 }
 
-ZoomBase* ZoomFactory::CreateZoomType(int ZoomType, MeshFrame* PictureObject, int Width, int Height, 
+ZoomBase* ZoomFactory::CreateZoomType(int ZoomType, Frame* PictureObject, int Width, int Height, 
 									  int StartTime, int ZoomTime)
 {
 	ZoomType = 0;

@@ -2,8 +2,8 @@
 
 #include "GL/gl.h"
 
-#include "MeshBuilder.h"
-#include "MeshPainter.h"
+#include "Builder.h"
+#include "Painter.h"
 #include "../DCE/Logger.h"
 
 using namespace DCE;
@@ -51,7 +51,7 @@ void GalleryScenario::Update(void)
 
 		StateMachine->FadeImages();
 		Fades = FadeFactory::Instance()->CreateFadeMode(0, 
-			AfterPicture->GetMeshFrame(), BeforePicture->GetMeshFrame(), 
+			AfterPicture->GetFrame(), BeforePicture->GetFrame(), 
 			SDL_GetTicks(),
 			FaddingTime*5);
 
@@ -89,7 +89,7 @@ void GalleryScenario::Update(void)
 
 			delete Fades;
 			Fades = FadeFactory::Instance()->CreateFadeMode(0, 
-				AfterPicture->GetMeshFrame(), BeforePicture->GetMeshFrame(), 
+				AfterPicture->GetFrame(), BeforePicture->GetFrame(), 
 				SDL_GetTicks(),
 				FaddingTime*5);
 		}

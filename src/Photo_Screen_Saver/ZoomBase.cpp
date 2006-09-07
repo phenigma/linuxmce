@@ -1,6 +1,6 @@
 #include "ZoomBase.h"
 
-ZoomBase::ZoomBase(MeshFrame* PictureObject, 
+ZoomBase::ZoomBase(Frame* PictureObject, 
 				   int ScreenWidth, int ScreenHeight, int Width, int Height, 
 				   int StartTime, int ZoomTime)
 {

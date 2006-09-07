@@ -6,7 +6,7 @@
 class FadeBlending : public FadeBase
 {
 public:
-	FadeBlending(MeshFrame* AfterFrame, MeshFrame*BeforeFrame, int StartTime, int TimeToFade);
+	FadeBlending(Frame* AfterFrame, Frame*BeforeFrame, int StartTime, int TimeToFade);
 	~FadeBlending();
 
 	bool Update(int Time);

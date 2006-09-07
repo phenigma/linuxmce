@@ -1,17 +1,17 @@
 #ifndef FadeBase_H_
 #define FadeBase_H_
 
-#include "MeshFrame.h"
+#include "Frame.h"
 
 class FadeBase
 {
 protected:
 	int StartTime;
 	int TimeToFade;
-	MeshFrame* AfterFrame;
-	MeshFrame*BeforeFrame;
+	Frame* AfterFrame;
+	Frame*BeforeFrame;
 public:
-	FadeBase(MeshFrame* AfterFrame, MeshFrame*BeforeFrame, int StartTime, int TimeToFade);
+	FadeBase(Frame* AfterFrame, Frame*BeforeFrame, int StartTime, int TimeToFade);
 	virtual bool Update(int Time) = 0;
 	virtual ~FadeBase(void);
 };

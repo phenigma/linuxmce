@@ -1,7 +1,7 @@
 #ifndef AnimatedPicture_H_
 #define AnimatedPicture_H_
 
-#include "MeshFrame.h"
+#include "Frame.h"
 #include "GraphicImage.h"
 #include "ZoomBase.h"
 
@@ -12,7 +12,7 @@ using namespace std;
 class AnimatedPicture
 {
 	GraphicImage* Picture;
-	MeshFrame* PictureFrame;
+	Frame* PictureFrame;
 	ZoomBase* Zoom;
 	int ScreenWidth;
 	int ScreenHeight;
@@ -20,7 +20,7 @@ public:
 	AnimatedPicture(int ScreenWidth, int ScreenHeight);
 
 	bool LoadFromFile(string FileName);
-	MeshFrame* GetMeshFrame();
+	Frame* GetFrame();
 	void SetZoomKind(int StartTime, int ZoomTime);
 
 	void Paint();

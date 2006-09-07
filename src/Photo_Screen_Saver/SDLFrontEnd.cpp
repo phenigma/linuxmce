@@ -1,5 +1,8 @@
 #include "SDLFrontEnd.h"
 #include "DCE/Logger.h"
+#ifndef WIN32
+#include <GL/glx.h> /* for GLX_RGBA_BIT & GLX_WINDOW_BIT */
+#endif
 using namespace DCE;
 
 #include <iostream>
@@ -64,12 +67,16 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 		Flags = SDL_FULLSCREEN;
 
 	Flags |=  SDL_OPENGL;
+#ifndef WIN32
+	SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_COLOR_INDEX_BIT);
+	SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_PBUFFER_BIT);
+#endif
 
 	Display = SDL_SetVideoMode(Width, Height, 0, Flags);
 	g_pPlutoLogger->Write(LV_STATUS,"Setting video to w: %d h: %d",Width,Height);
 	if(!Display)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot init the video mode!");
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot init the video mode! (%s)", SDL_GetError());
 		return -1;
 	}
 	

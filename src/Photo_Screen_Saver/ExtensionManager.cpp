@@ -12,7 +12,7 @@
 #include <GL/glu.h>
 #include <GL/glext.h>
 
-#include "MeshPainter.h"
+#include "Painter.h"
 
 ExtensionManager::ExtensionManager(void)
 : Width(0), Height(0)
@@ -142,7 +142,7 @@ void ExtensionManager::Resize(int Width, int Height)
 
 /*virtual*/ void ExtensionManager::Setup()
 {
-	MeshPainter::Instance()->Setup(this);
+	Painter::Instance()->Setup(this);
 }
 
 /*static*/ bool ExtensionManager::CheckExtension(const char* checkFor)

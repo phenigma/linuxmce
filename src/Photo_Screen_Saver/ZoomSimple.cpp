@@ -2,7 +2,7 @@
 
 #include "MathUtils.h"
 
-ZoomSimple::ZoomSimple(MeshFrame* PictureObject, int ScreenWidth, int ScreenHeight, int Width, int Height, int StartTime, int ZoomTime)
+ZoomSimple::ZoomSimple(Frame* PictureObject, int ScreenWidth, int ScreenHeight, int Width, int Height, int StartTime, int ZoomTime)
 : ZoomBase(PictureObject, ScreenWidth, ScreenHeight, Width, Height, StartTime, ZoomTime)
 {
 	float PictureRatio = (float) this->Width/this->Height;
@@ -53,11 +53,11 @@ bool ZoomSimple::Update(int Time)
 		ZoomValue.Top = ScreenHeight - ZoomValue.Height;
 */
 
-	MeshTransform Transform;
-	Transform.ApplyScale(ZoomValue.Width, ZoomValue.Height, 1);
-	Transform.ApplyTranslate(ZoomValue.Left, ZoomValue.Top, 0);
+	Transform pTransform;
+	pTransform.ApplyScale(ZoomValue.Width, ZoomValue.Height, 1);
+	pTransform.ApplyTranslate(ZoomValue.Left, ZoomValue.Top, 0);
 	//Transform.ApplyScale(ScreenWidth* (ScreenWidth/ZoomValue.Width), ScreenHeight* (ScreenHeight/ZoomValue.Height), 1);
-	PictureObject->SetTransform(Transform);
+	PictureObject->SetTransform(pTransform);
 
 	return Result;
 }

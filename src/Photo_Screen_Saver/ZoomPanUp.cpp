@@ -2,7 +2,7 @@
 
 #include "MathUtils.h"
 
-ZoomPanUp::ZoomPanUp(MeshFrame* PictureObject, int ScreenWidth, int ScreenHeight, int Width, int Height, int StartTime, int ZoomTime)
+ZoomPanUp::ZoomPanUp(Frame* PictureObject, int ScreenWidth, int ScreenHeight, int Width, int Height, int StartTime, int ZoomTime)
 : ZoomBase(PictureObject, ScreenWidth, ScreenHeight, Width, Height, StartTime, ZoomTime)
 {
 	int FirstPanX = RandomInInterval(0, Width*2/5)-Width/5;
@@ -46,11 +46,11 @@ bool ZoomPanUp::Update(int Time)
 
 	FloatRect ZoomValue = ZoomStart->Interpolate(*ZoomEnd, Progress);
 
-	MeshTransform Transform;
-	Transform.ApplyScale(ZoomValue.Width, ZoomValue.Height, 1);
-	Transform.ApplyTranslate(0, ZoomValue.Top, 0);
+	Transform pTransform;
+	pTransform.ApplyScale(ZoomValue.Width, ZoomValue.Height, 1);
+	pTransform.ApplyTranslate(0, ZoomValue.Top, 0);
 	//Transform.ApplyScale(ScreenWidth* (ScreenWidth/ZoomValue.Width), ScreenHeight* (ScreenHeight/ZoomValue.Height), 1);
-	PictureObject->SetTransform(Transform);
+	PictureObject->SetTransform(pTransform);
 
 	return Result;
 }

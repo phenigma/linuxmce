@@ -123,13 +123,34 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath=".\Builder.cpp">
+			</File>
+			<File
+				RelativePath=".\Container.cpp">
+			</File>
+			<File
+				RelativePath=".\Frame.cpp">
+			</File>
+			<File
 				RelativePath="Main.cpp">
+			</File>
+			<File
+				RelativePath=".\Painter.cpp">
 			</File>
 			<File
 				RelativePath="Photo_Screen_Saver.cpp">
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\Photo_Screen_SaverBase.cpp">
+			</File>
+			<File
+				RelativePath=".\Transform.cpp">
+			</File>
+			<File
+				RelativePath=".\Triangle.cpp">
+			</File>
+			<File
+				RelativePath=".\Vertex.cpp">
 			</File>
 			<Filter
 				Name="GalleryViewer"
@@ -172,27 +193,6 @@
 				</File>
 				<File
 					RelativePath=".\MathUtils.cpp">
-				</File>
-				<File
-					RelativePath=".\MeshBuilder.cpp">
-				</File>
-				<File
-					RelativePath=".\MeshContainer.cpp">
-				</File>
-				<File
-					RelativePath=".\MeshFrame.cpp">
-				</File>
-				<File
-					RelativePath=".\MeshPainter.cpp">
-				</File>
-				<File
-					RelativePath=".\MeshTransform.cpp">
-				</File>
-				<File
-					RelativePath=".\MeshTriangle.cpp">
-				</File>
-				<File
-					RelativePath=".\MeshVertex.cpp">
 				</File>
 				<File
 					RelativePath=".\Point3D.cpp">

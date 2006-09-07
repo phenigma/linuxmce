@@ -1,14 +1,14 @@
 #ifndef Point3D_H_
 #define Point3D_H_
 
-#include "MeshTransform.h"
+#include "Transform.h"
 
 class Point3D
 {
 public:
 	float X, Y, Z;
 
-	void ApplyTransform(MeshTransform& Transform);
+	void ApplyTransform(Transform& pTransform);
 
 };
 

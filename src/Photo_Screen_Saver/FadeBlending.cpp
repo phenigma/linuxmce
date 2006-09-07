@@ -2,7 +2,7 @@
 
 #include "SDL.h"
 
-FadeBlending::FadeBlending(MeshFrame* AfterFrame, MeshFrame*BeforeFrame, int StartTime, int TimeToFade)
+FadeBlending::FadeBlending(Frame* AfterFrame, Frame*BeforeFrame, int StartTime, int TimeToFade)
 : FadeBase(AfterFrame, BeforeFrame, StartTime, TimeToFade)
 {
 }

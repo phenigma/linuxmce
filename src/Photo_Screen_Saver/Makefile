@@ -35,13 +35,13 @@ sources += AnimatedPicture.cpp \
 	GraphicImage.cpp \
 	GUIWizardUtils.cpp \
 	MathUtils.cpp \
-	MeshBuilder.cpp \
-	MeshContainer.cpp \
-	MeshFrame.cpp \
-	MeshPainter.cpp \
-	MeshTransform.cpp \
-	MeshTriangle.cpp \
-	MeshVertex.cpp \
+	Builder.cpp \
+	Container.cpp \
+	Frame.cpp \
+	Painter.cpp \
+	Transform.cpp \
+	Triangle.cpp \
+	Vertex.cpp \
 	Point3D.cpp \
 	RefreshRates.cpp \
 	SDLFrontEnd.cpp \

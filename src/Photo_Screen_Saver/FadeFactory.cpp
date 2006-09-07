@@ -19,8 +19,7 @@ FadeFactory::~FadeFactory(void)
 {
 }
 
-
-FadeBase* FadeFactory::CreateFadeMode(int Mode, MeshFrame* AfterFrame, MeshFrame*BeforeFrame, 
+FadeBase* FadeFactory::CreateFadeMode(int Mode, Frame* AfterFrame, Frame*BeforeFrame, 
 										int StartTime, int TimeToFade)
 {
 	return new FadeBlending(AfterFrame, BeforeFrame, StartTime, TimeToFade);

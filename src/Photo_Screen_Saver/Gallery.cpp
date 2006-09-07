@@ -5,7 +5,7 @@
 #endif
 #include <GL/gl.h>
 #include "ExtensionManager.h"
-#include "MeshPainter.h"
+#include "Painter.h"
 
 Gallery* Gallery::Instance_ = NULL;
 
@@ -69,7 +69,7 @@ bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string
 	Event.Type = 0;
 	FrontEnd = new SDLFrontEnd();
 	bool Result = FrontEnd->StartVideoMode(Width, Height, false) != 0;
-	MeshPainter::Instance()->Setup(&Extensions);
+	Painter::Instance()->Setup(&Extensions);
 	Extensions.Resize(Width, Height);
 	Scenario = new GalleryScenario(Width, Height, FaddingTime, ZoomTime, FolderName);
 	return Result;
