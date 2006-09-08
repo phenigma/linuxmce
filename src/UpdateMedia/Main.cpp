@@ -55,12 +55,41 @@ namespace DCE
 	Logger *g_pPlutoLogger;
 }
 
+void SyncAttributes()
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Synchronizing attributes... "); 
+
+    int nAffectedRecords = g_pDatabase_pluto_media->threaded_mysql_query(
+		"INSERT INTO Picture_Attribute(FK_Attribute,FK_Picture) "
+		"SELECT PK_Attribute,min(Picture_File.FK_Picture) as FK_Picture FROM Attribute "
+		"JOIN File_Attribute ON File_Attribute.FK_Attribute=PK_Attribute "
+		"JOIN Picture_File ON Picture_File.FK_File=File_Attribute.FK_File "
+		"LEFT JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=PK_Attribute "
+		"WHERE Picture_Attribute.FK_Picture is NULL AND FK_AttributeType IN (1,2,3,4,5,11,12,13,15,16) "
+		"GROUP BY PK_Attribute"
+	);
+
+	if(nAffectedRecords == -1)
+		g_pPlutoLogger->Write(LV_CRITICAL, "Attributes sync failed!"); 
+	else
+		g_pPlutoLogger->Write(LV_WARNING, "Attributes sync succeeded! Records affected %d", nAffectedRecords); 
+}
+
 void *UpdateMediaThread(void *)
 {
+	SyncAttributes();
+	time_t tStart = time(NULL);
+
 	while(true)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Worker thread: \"I'm wake!\"");        
 		PLUTO_SAFETY_LOCK(flm, g_FoldersListMutex);
+
+		if(time(NULL) - tStart > 3600)
+		{
+			SyncAttributes();
+			tStart = time(NULL);
+		}
 
 		while(vectModifiedFolders.size())
 		{
