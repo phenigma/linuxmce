@@ -2,7 +2,11 @@
 
 KVER=$(uname -r)
 KVER=${KVER%-smp}
+Version=$(dpkg-parsechangelog -l./debian/changelog |grep ^Version|cut -d' ' -f2)
+
 dpkg-buildpackage -rfakeroot -b -us -uc
+
+dpkg -i ../lirc-modules-source_${Version}_all.deb || exit 1
 
 rm -rf modules
 tar -xzf debian/lirc-modules-source/usr/src/lirc-modules.tar.gz
@@ -11,5 +15,4 @@ KSRC=/lib/modules/${KVER}/build KVERS=${KVER} fakeroot debian/rules binary-modul
 KSRC=/lib/modules/${KVER}-smp/build KVERS=${KVER}-smp fakeroot debian/rules binary-modules
 popd &>/dev/null
 
-Version=$(dpkg-parsechangelog -l./debian/changelog |grep ^Version|cut -d' ' -f2)
 cp modules/lirc-modules-${KVER}{,-smp}_${Version}_i386.deb ..
