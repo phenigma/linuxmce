@@ -113,6 +113,7 @@ class GallerySetup
 	int ZoomTime, FaddingTime;
 public:
 	pthread_t* ThreadID;
+	bool* m_bQuit;
 	
 	GallerySetup(string Width, string Height, int ZoomTime, int FaddingTime, string ImageList);
 	int GetWidth();
@@ -176,6 +177,7 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 	if(0 == ThreadID)
 	{
 		SetupInfo->ThreadID = &ThreadID;
+		SetupInfo->m_bQuit = &m_bQuit;
 		pthread_create(&ThreadID, NULL, ThreadAnimation, SetupInfo);
 	}
 }
@@ -217,7 +219,7 @@ void* ThreadAnimation(void* ThreadInfo)
 		Info->GetFaddingTime(),
 		Info->GetZoomTime(),
 		Info->GetSearchImagesPath());
-	Gallery::Instance()->MainLoop(); 
+	Gallery::Instance()->MainLoop(Info->m_bQuit); 
 	Gallery::Instance()->CleanUp();
 
 	*(Info->ThreadID) = 0;

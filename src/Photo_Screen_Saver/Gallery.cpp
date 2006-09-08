@@ -19,7 +19,7 @@ Gallery::~Gallery(void)
 	delete Scenario;
 }
 
-void Gallery::MainLoop(void)
+void Gallery::MainLoop(bool * m_bQuit)
 {
 	while(!Quit)
 	{
@@ -36,13 +36,14 @@ void Gallery::MainLoop(void)
 			if(StatusChange)
 			{
 				PaintScreen();
-				_Sleep(25);
+				_Sleep(625);
 			}
 			else
 			{
-				_Sleep(40);
+				_Sleep(640);
 			}
 		}
+		Quit = Quit || (* m_bQuit);
 	}
 }
 

@@ -23,7 +23,7 @@ class Gallery
 public:
 	Gallery(void);
 	~Gallery(void);
-	void MainLoop(void);
+	void MainLoop(bool * m_bQuit);
 	static Gallery* Instance(void);
 public:
 	bool Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName);
