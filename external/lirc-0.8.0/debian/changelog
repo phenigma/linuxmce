@@ -1,3 +1,9 @@
+lirc (0.8.0-6pluto1) unstable; urgency=low
+
+  * Pluto build
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Fri, 08 Sep 2006 20:04:52 +0300
+
 lirc (0.8.0-6) unstable; urgency=low
 
   [ Amaya Rodrigo Sastre ]
