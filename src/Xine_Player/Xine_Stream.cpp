@@ -145,6 +145,8 @@ bool Xine_Stream::StartupStream()
 
 	m_iTitle=m_iChapter=-1;
 	
+	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+	
 	m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER );
 	
 	m_iSeekMuteStatus = xine_get_param(m_pXineStream, XINE_PARAM_AUDIO_MUTE);
@@ -190,15 +192,14 @@ bool Xine_Stream::ShutdownStream()
 	if ( m_pXineStreamEventQueue )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Disposing the event queue" );
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		xine_event_dispose_queue( m_pXineStreamEventQueue );
-		{
-			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-			m_pXineStreamEventQueue = NULL;
-		}
+		m_pXineStreamEventQueue = NULL;
 	}
 	
 	if ( m_pXineStream )
 	{	
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_stop for stream with id: %d", m_iStreamID );
 		xine_stop( m_pXineStream );
 
@@ -209,7 +210,6 @@ bool Xine_Stream::ShutdownStream()
 		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_dispose for stream with id: %d", m_iStreamID );
 		xine_dispose( m_pXineStream );
 		
-		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_pXineStream = NULL;
 	}
 
@@ -218,16 +218,16 @@ bool Xine_Stream::ShutdownStream()
 	if ( m_pXineAudioOutput )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close_audio_driver for stream with id: %d", m_iStreamID );
-		xine_close_audio_driver( m_pXineLibrary, m_pXineAudioOutput );
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		xine_close_audio_driver( m_pXineLibrary, m_pXineAudioOutput );
 		m_pXineAudioOutput = NULL;
 	}
 
 	if ( m_pXineVideoOutput )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close_video_driver for stream with id: %d", m_iStreamID );
-		xine_close_video_driver( m_pXineLibrary, m_pXineVideoOutput );
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		xine_close_video_driver( m_pXineLibrary, m_pXineVideoOutput );
 		m_pXineVideoOutput = NULL;
 	}
 
@@ -790,6 +790,7 @@ bool Xine_Stream::EnableVisualizing()
 
 	if (m_pXineVisualizationPlugin)
 	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 		rewiringResult = xine_post_wire(xine_get_audio_source(m_pXineStream), xine_post_input(m_pXineVisualizationPlugin, "audio in"));
 		//rewiringResult = xine_post_wire_audio_port(xine_get_audio_source(m_pXineStream), m_pXineVisualizationPlugin->audio_input[0]);
 		
@@ -807,11 +808,11 @@ void Xine_Stream::DisableVisualizing()
 	if ( m_pXineVisualizationPlugin )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Disabling visualization" );
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		
 		xine_post_wire_audio_port( xine_get_audio_source( m_pXineStream ), m_pXineAudioOutput );
 		xine_post_dispose( m_pXineLibrary, m_pXineVisualizationPlugin );
 		
-		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_pXineVisualizationPlugin = NULL;
 	}
 }
@@ -1091,6 +1092,8 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		timespec ts1,ts2,tsElapsed;
 		gettimeofday( &ts1, NULL );
 
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+
 		// we should use ordinary play instead of seek if we have audio-only
 		if (m_bHasVideo)
 			xine_seek( m_pXineStream, 0, pos );
@@ -1122,6 +1125,8 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		}
 		else
 		{
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		
 			g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::Seek get closer currently at: %d target pos: %d ctr %d", positionTime, pos, i );
 			if (m_bHasVideo)
 				xine_seek( m_pXineStream, 0, pos );
@@ -1172,7 +1177,6 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 		return;
 	}
 
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	m_tsLastSpecialSeek=ts;
 	m_posLastSpecialSeek=seekTime;
 	Seek(seekTime,0);
@@ -1207,7 +1211,7 @@ int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime )
 	while ( --count && ! xine_get_pos_length( m_pXineStream, &iPosStream, &iPosTime, &iLengthTime ) )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Error reading stream position: %d", xine_get_error( m_pXineStream ) );
-		Sleep( 30 );
+		Sleep( 25 );
 	}
 
 	positionTime = iPosTime;
@@ -1336,6 +1340,7 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 
 	if (m_bHasVideo)
 	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 		m_iSeekMuteStatus = xine_get_param(m_pXineStream, XINE_PARAM_AUDIO_MUTE);
 		if (m_iSeekMuteStatus==0)
 		{
@@ -1361,9 +1366,9 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER );
+		xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, 9000 );
 	}
 	
-	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, 9000 );
 	
 	{
 		m_iSpecialSeekSpeed = Speed;
@@ -1392,6 +1397,7 @@ void Xine_Stream::StopSpecialSeek()
 	
 	if (m_bHasVideo)
 	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		if (xine_get_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO)==1)
 		{
 			g_pPlutoLogger->Write( LV_WARNING, "Enabling audio decoding for stopping seek");
@@ -1411,6 +1417,7 @@ void Xine_Stream::StopSpecialSeek()
 	}
 	//m_iPlaybackSpeed = PLAYBACK_NORMAL;
 	DisplayOSDText("");
+	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
 	g_pPlutoLogger->Write( LV_STATUS, "done Stopping special seek" );
 }
