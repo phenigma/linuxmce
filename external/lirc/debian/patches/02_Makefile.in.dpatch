@@ -1,0 +1,50 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 02_Makefile.in.dpatch by  <Hector Garcia <hector@debian.org>>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad trunk~/Makefile.in trunk/Makefile.in
+--- trunk~/Makefile.in	2006-02-12 00:21:56.000000000 +0100
++++ trunk/Makefile.in	2006-02-12 00:22:30.000000000 +0100
+@@ -38,11 +38,6 @@
+ pkgincludedir = $(includedir)/@PACKAGE@
+ top_builddir = .
+ 
+-ACLOCAL = @ACLOCAL@
+-AUTOCONF = @AUTOCONF@
+-AUTOMAKE = @AUTOMAKE@
+-AUTOHEADER = @AUTOHEADER@
+-
+ INSTALL = @INSTALL@
+ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+ INSTALL_DATA = @INSTALL_DATA@
+@@ -149,8 +144,6 @@
+ distclean-libtool:
+ 	-rm -f libtool
+ $(srcdir)/Makefile.in:  Makefile.am  $(top_srcdir)/configure.in $(ACLOCAL_M4)
+-	cd $(top_srcdir) && \
+-	  $(AUTOMAKE) --gnu  Makefile
+ Makefile:  $(srcdir)/Makefile.in  $(top_builddir)/config.status
+ 	cd $(top_builddir) && \
+ 	  CONFIG_HEADERS= CONFIG_LINKS= \
+@@ -159,10 +152,8 @@
+ $(top_builddir)/config.status: $(srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
+ 	$(SHELL) ./config.status --recheck
+ $(srcdir)/configure:  $(srcdir)/configure.in $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
+-	cd $(srcdir) && $(AUTOCONF)
+ 
+ $(ACLOCAL_M4):  configure.in acinclude.m4
+-	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
+ config.h: stamp-h
+ 	@if test ! -f $@; then \
+ 		rm -f stamp-h; \
+@@ -183,7 +174,6 @@
+ $(srcdir)/./stamp-h.in: $(top_srcdir)/configure.in $(ACLOCAL_M4) $(top_srcdir)/acconfig.h
+ 	@rm -f $(srcdir)/./stamp-h.in $(srcdir)/./stamp-h.inT
+ 	@echo timestamp > $(srcdir)/./stamp-h.inT 2> /dev/null
+-	cd $(top_srcdir) && $(AUTOHEADER)
+ 	@mv $(srcdir)/./stamp-h.inT $(srcdir)/./stamp-h.in
+ 
+ distclean-hdr:

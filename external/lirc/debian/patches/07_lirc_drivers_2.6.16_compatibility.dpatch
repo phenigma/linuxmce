@@ -1,0 +1,270 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 07_lirc_drivers_2.6.16_compatibility.dpatch by Julien Danjou <acid@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Changes from CVS version for compatilibty with linux 2.6.16
+
+@DPATCH@
+diff -Naur --exclude=CVS --exclude='Makefile.*' --exclude=.cvsignore lirc-0.8.0/drivers/kcompat.h lirc/drivers/kcompat.h
+--- lirc-0.8.0/drivers/kcompat.h	2006-01-07 21:51:31.000000000 +0100
++++ lirc/drivers/kcompat.h	2006-03-05 00:16:02.000000000 +0100
+@@ -1,10 +1,16 @@
+-/*      $Id: kcompat.h,v 5.24 2006/01/07 20:51:31 lirc Exp $      */
++/*      $Id: kcompat.h,v 5.26 2006/03/04 23:16:02 lirc Exp $      */
+ 
+ #ifndef _KCOMPAT_H
+ #define _KCOMPAT_H
+ 
+ #include <linux/version.h>
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,16)
++#define LIRC_THIS_MODULE(x) x,
++#else /* >= 2.6.16 */
++#define LIRC_THIS_MODULE(x)
++#endif
++
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+ 
+ #include <linux/device.h>
+@@ -245,6 +251,11 @@
+ #   define I2C_ALGO_BIT 0
+ #endif
+ 
++/* removed in 2.6.16 */
++#ifndef I2C_DRIVERID_EXP3
++#  define I2C_DRIVERID_EXP3 0xf003
++#endif
++
+ /*************************** USB specific *****************************/
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 4, 0)
+ #include <linux/usb.h>
+diff -Naur --exclude=CVS --exclude='Makefile.*' --exclude=.cvsignore lirc-0.8.0/drivers/lirc_atiusb/lirc_atiusb.c lirc/drivers/lirc_atiusb/lirc_atiusb.c
+--- lirc-0.8.0/drivers/lirc_atiusb/lirc_atiusb.c	2005-10-29 16:18:53.000000000 +0200
++++ lirc/drivers/lirc_atiusb/lirc_atiusb.c	2006-03-04 23:36:38.000000000 +0100
+@@ -12,7 +12,7 @@
+  *   Artur Lipowski <alipowski@kki.net.pl>'s 2002
+  *      "lirc_dev" and "lirc_gpio" LIRC modules
+  *
+- * $Id: lirc_atiusb.c,v 1.51 2005/10/29 14:18:53 lirc Exp $
++ * $Id: lirc_atiusb.c,v 1.53 2006/03/04 22:36:38 lirc Exp $
+  */
+ 
+ /*
+@@ -408,13 +408,13 @@
+ 	dprintk(DRIVER_NAME "[%d]: accept channel %d\n", ir->devnum, chan+1);
+ 
+ 	if (ir->remote_type == ATI1_COMPATIBLE) {
++		for (i = len; i < CODE_LENGTH; i++) iep->buf[i] = 0;
+ 		/* check for repeats */
+ 		if (memcmp(iep->old, iep->buf, len) == 0) {
+ 			if (iep->old_jiffies + repeat_jiffies > jiffies) {
+ 				return -1;
+ 			}
+ 		} else {
+-			for (i = len; i < CODE_LENGTH; i++) iep->buf[i] = 0;
+ 			memcpy(iep->old, iep->buf, CODE_LENGTH);
+ 		}
+ 		iep->old_jiffies = jiffies;
+@@ -1180,7 +1180,7 @@
+ }
+ 
+ static struct usb_driver usb_remote_driver = {
+-	.owner =	THIS_MODULE,
++	LIRC_THIS_MODULE(.owner = THIS_MODULE)
+ 	.name =		DRIVER_NAME,
+ 	.probe =	usb_remote_probe,
+ 	.disconnect =	usb_remote_disconnect,
+@@ -1195,7 +1195,7 @@
+ 
+ 	printk("\n" DRIVER_NAME ": " DRIVER_DESC " v" DRIVER_VERSION "\n");
+ 	printk(DRIVER_NAME ": " DRIVER_AUTHOR "\n");
+-	dprintk(DRIVER_NAME ": debug mode enabled: $Id: lirc_atiusb.c,v 1.51 2005/10/29 14:18:53 lirc Exp $\n");
++	dprintk(DRIVER_NAME ": debug mode enabled: $Id: lirc_atiusb.c,v 1.53 2006/03/04 22:36:38 lirc Exp $\n");
+ 
+ 	request_module("lirc_dev");
+ 
+diff -Naur --exclude=CVS --exclude='Makefile.*' --exclude=.cvsignore lirc-0.8.0/drivers/lirc_i2c/lirc_i2c.c lirc/drivers/lirc_i2c/lirc_i2c.c
+--- lirc-0.8.0/drivers/lirc_i2c/lirc_i2c.c	2005-10-20 20:25:58.000000000 +0200
++++ lirc/drivers/lirc_i2c/lirc_i2c.c	2006-03-05 00:16:03.000000000 +0100
+@@ -1,4 +1,4 @@
+-/*      $Id: lirc_i2c.c,v 1.35 2005/10/20 18:25:58 lirc Exp $      */
++/*      $Id: lirc_i2c.c,v 1.36 2006/03/04 23:16:03 lirc Exp $      */
+ 
+ /*
+  * i2c IR lirc plugin for Hauppauge and Pixelview cards - new 2.3.x i2c stack
+@@ -360,9 +360,16 @@
+ static int ir_command(struct i2c_client *client, unsigned int cmd, void *arg);
+ 
+ static struct i2c_driver driver = {
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 16)
+         name:           "i2c ir driver",
+-        id:             I2C_DRIVERID_EXP3, /* FIXME */
+         flags:          I2C_DF_NOTIFY,
++#else
++	.driver = {
++		owner:  THIS_MODULE,
++		name:   "i2c ir driver",
++	},
++#endif
++        id:             I2C_DRIVERID_EXP3, /* FIXME */
+         attach_adapter: ir_probe,
+         detach_client:  ir_detach,
+         command:        ir_command,
+diff -Naur --exclude=CVS --exclude='Makefile.*' --exclude=.cvsignore lirc-0.8.0/drivers/lirc_igorplugusb/lirc_igorplugusb.c lirc/drivers/lirc_igorplugusb/lirc_igorplugusb.c
+--- lirc-0.8.0/drivers/lirc_igorplugusb/lirc_igorplugusb.c	2005-03-21 15:39:38.000000000 +0100
++++ lirc/drivers/lirc_igorplugusb/lirc_igorplugusb.c	2006-03-04 23:36:38.000000000 +0100
+@@ -615,7 +615,7 @@
+ };
+ 
+ static struct usb_driver usb_remote_driver = {
+-	.owner =	THIS_MODULE,
++	LIRC_THIS_MODULE(.owner = THIS_MODULE)
+ 	.name =		DRIVER_NAME,
+ 	.probe =	usb_remote_probe,
+ 	.disconnect =	usb_remote_disconnect,
+diff -Naur --exclude=CVS --exclude='Makefile.*' --exclude=.cvsignore lirc-0.8.0/drivers/lirc_imon/lirc_imon.c lirc/drivers/lirc_imon/lirc_imon.c
+--- lirc-0.8.0/drivers/lirc_imon/lirc_imon.c	2005-12-03 16:18:07.000000000 +0100
++++ lirc/drivers/lirc_imon/lirc_imon.c	2006-03-04 23:36:38.000000000 +0100
+@@ -1,7 +1,7 @@
+ /*
+  *   lirc_imon.c:  LIRC plugin/VFD driver for Ahanix/Soundgraph IMON IR/VFD
+  *
+- *   $Id: lirc_imon.c,v 1.9 2005/12/03 15:18:07 lirc Exp $
++ *   $Id: lirc_imon.c,v 1.10 2006/03/04 22:36:38 lirc Exp $
+  *
+  *   Version 0.3 
+  *   		Supports newer iMON models that send decoded IR signals.
+@@ -201,7 +201,7 @@
+ 
+ /* USB Device data */
+ static struct usb_driver imon_driver = {
+-	.owner 		= THIS_MODULE,
++	LIRC_THIS_MODULE(.owner = THIS_MODULE)
+ 	.name 		= MOD_NAME,
+ 	.probe 		= imon_probe,
+ 	.disconnect 	= imon_disconnect,
+diff -Naur --exclude=CVS --exclude='Makefile.*' --exclude=.cvsignore lirc-0.8.0/drivers/lirc_it87/lirc_it87.c lirc/drivers/lirc_it87/lirc_it87.c
+--- lirc-0.8.0/drivers/lirc_it87/lirc_it87.c	2005-10-04 22:10:04.000000000 +0200
++++ lirc/drivers/lirc_it87/lirc_it87.c	2006-01-21 18:43:36.000000000 +0100
+@@ -58,7 +58,7 @@
+ #include <linux/delay.h>
+ #include <linux/poll.h>
+ #include <asm/system.h>
+-#include <asm/segment.h>
++#include <asm/uaccess.h>
+ #include <asm/io.h>
+ #include <asm/irq.h>
+ #include <asm/fcntl.h>
+diff -Naur --exclude=CVS --exclude='Makefile.*' --exclude=.cvsignore lirc-0.8.0/drivers/lirc_mceusb/lirc_mceusb.c lirc/drivers/lirc_mceusb/lirc_mceusb.c
+--- lirc-0.8.0/drivers/lirc_mceusb/lirc_mceusb.c	2005-10-29 16:18:53.000000000 +0200
++++ lirc/drivers/lirc_mceusb/lirc_mceusb.c	2006-03-04 23:36:39.000000000 +0100
+@@ -222,7 +222,7 @@
+ 
+ /* usb specific object needed to register this driver with the usb subsystem */
+ static struct usb_driver mceusb_driver = {
+-	.owner =	THIS_MODULE,
++	LIRC_THIS_MODULE(.owner = THIS_MODULE)
+ 	.name =		DRIVER_NAME,
+ 	.probe =	mceusb_probe,
+ 	.disconnect =	mceusb_disconnect,
+diff -Naur --exclude=CVS --exclude='Makefile.*' --exclude=.cvsignore lirc-0.8.0/drivers/lirc_mceusb2/lirc_mceusb2.c lirc/drivers/lirc_mceusb2/lirc_mceusb2.c
+--- lirc-0.8.0/drivers/lirc_mceusb2/lirc_mceusb2.c	2005-10-29 16:18:53.000000000 +0200
++++ lirc/drivers/lirc_mceusb2/lirc_mceusb2.c	2006-03-24 22:01:22.000000000 +0100
+@@ -98,11 +98,13 @@
+ #define VENDOR_PHILIPS		0x0471
+ #define VENDOR_SMK              0x0609
+ #define VENDOR_TATUNG		0x1460
++#define VENDOR_GATEWAY		0x107b
+ 
+ static struct usb_device_id usb_remote_table [] = {
+ 	{ USB_DEVICE(VENDOR_PHILIPS, 0x0815) },	/* Philips eHome Infrared Transciever */
+ 	{ USB_DEVICE(VENDOR_SMK, 0x031d) },	/* SMK/Toshiba G83C0004D410 */
+ 	{ USB_DEVICE(VENDOR_TATUNG, 0x9150) },  /* Tatung eHome Infrared Transceiver */
++        { USB_DEVICE(VENDOR_GATEWAY, 0x3009) },  /* Gateway eHome Infrared Transceiver */
+ 	{ }					/* Terminating entry */
+ };
+ 
+@@ -585,7 +587,7 @@
+ }
+ 
+ static struct usb_driver usb_remote_driver = {
+-	.owner =	THIS_MODULE,
++	LIRC_THIS_MODULE(.owner = THIS_MODULE)
+ 	.name =		DRIVER_NAME,
+ 	.probe =	usb_remote_probe,
+ 	.disconnect =	usb_remote_disconnect,
+diff -Naur --exclude=CVS --exclude='Makefile.*' --exclude=.cvsignore lirc-0.8.0/drivers/lirc_sasem/lirc_sasem.c lirc/drivers/lirc_sasem/lirc_sasem.c
+--- lirc-0.8.0/drivers/lirc_sasem/lirc_sasem.c	2005-12-03 16:18:07.000000000 +0100
++++ lirc/drivers/lirc_sasem/lirc_sasem.c	2006-03-04 23:36:39.000000000 +0100
+@@ -1,4 +1,4 @@
+-/*      $Id: lirc_sasem.c,v 1.12 2005/12/03 15:18:07 lirc Exp $      */
++/*      $Id: lirc_sasem.c,v 1.13 2006/03/04 22:36:39 lirc Exp $      */
+ 
+ /* lirc_sasem.c - USB remote support for LIRC
+  * Version 0.5 
+@@ -189,7 +189,7 @@
+ 
+ /* USB Device data */
+ static struct usb_driver sasem_driver = {
+-	.owner 		= THIS_MODULE,
++	LIRC_THIS_MODULE(.owner = THIS_MODULE)
+ 	.name 		= MOD_NAME,
+ 	.probe 		= sasem_probe,
+ 	.disconnect 	= sasem_disconnect,
+diff -Naur --exclude=CVS --exclude='Makefile.*' --exclude=.cvsignore lirc-0.8.0/drivers/lirc_serial/lirc_serial.c lirc/drivers/lirc_serial/lirc_serial.c
+--- lirc-0.8.0/drivers/lirc_serial/lirc_serial.c	2005-12-17 14:56:57.000000000 +0100
++++ lirc/drivers/lirc_serial/lirc_serial.c	2006-01-21 18:43:36.000000000 +0100
+@@ -1,4 +1,4 @@
+-/*      $Id: lirc_serial.c,v 5.69 2005/12/17 13:56:57 lirc Exp $      */
++/*      $Id: lirc_serial.c,v 5.70 2006/01/21 17:43:36 lirc Exp $      */
+ 
+ /****************************************************************************
+  ** lirc_serial.c ***********************************************************
+@@ -91,7 +91,7 @@
+ #include <linux/poll.h>
+ 
+ #include <asm/system.h>
+-#include <asm/segment.h>
++#include <asm/uaccess.h>
+ #include <asm/io.h>
+ #include <asm/irq.h>
+ #include <asm/fcntl.h>
+diff -Naur --exclude=CVS --exclude='Makefile.*' --exclude=.cvsignore lirc-0.8.0/drivers/lirc_sir/lirc_sir.c lirc/drivers/lirc_sir/lirc_sir.c
+--- lirc-0.8.0/drivers/lirc_sir/lirc_sir.c	2006-01-14 14:57:24.000000000 +0100
++++ lirc/drivers/lirc_sir/lirc_sir.c	2006-01-21 18:43:36.000000000 +0100
+@@ -75,7 +75,7 @@
+ #include <linux/delay.h>
+ #include <linux/poll.h>
+ #include <asm/system.h>
+-#include <asm/segment.h>
++#include <asm/uaccess.h>
+ #include <asm/io.h>
+ #include <asm/irq.h>
+ #include <asm/fcntl.h>
+diff -Naur --exclude=CVS --exclude='Makefile.*' --exclude=.cvsignore lirc-0.8.0/drivers/lirc_streamzap/lirc_streamzap.c lirc/drivers/lirc_streamzap/lirc_streamzap.c
+--- lirc-0.8.0/drivers/lirc_streamzap/lirc_streamzap.c	2006-01-06 08:18:03.000000000 +0100
++++ lirc/drivers/lirc_streamzap/lirc_streamzap.c	2006-03-04 23:36:39.000000000 +0100
+@@ -1,4 +1,4 @@
+-/*      $Id: lirc_streamzap.c,v 1.15 2006/01/06 07:18:03 lirc Exp $      */
++/*      $Id: lirc_streamzap.c,v 1.16 2006/03/04 22:36:39 lirc Exp $      */
+ 
+ /*
+  * Streamzap Remote Control driver
+@@ -53,7 +53,7 @@
+ #include "drivers/kcompat.h"
+ #include "drivers/lirc_dev/lirc_dev.h"
+ 
+-#define DRIVER_VERSION	"$Revision: 1.15 $"
++#define DRIVER_VERSION	"$Revision: 1.16 $"
+ #define DRIVER_NAME	"lirc_streamzap"
+ #define DRIVER_DESC     "Streamzap Remote Control driver"
+ 
+@@ -177,7 +177,7 @@
+ /* usb specific object needed to register this driver with the usb subsystem */
+ 
+ static struct usb_driver streamzap_driver = {
+-	.owner =	THIS_MODULE,
++	LIRC_THIS_MODULE(.owner = THIS_MODULE)
+ 	.name =		DRIVER_NAME,
+ 	.probe =	streamzap_probe,
+ 	.disconnect =	streamzap_disconnect,
