@@ -61,8 +61,8 @@ static void LS_RegisterWithAsterisk()
 	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
 	func_enter("LS_RegisterWithAsterisk");
 	
-	//linphone_core_enable_logs(stdout);
-	linphone_core_disable_logs();
+	linphone_core_enable_logs(stdout);
+	//linphone_core_disable_logs();
 	linphone_core_init(&LS_LinphoneCore, &LS_LinphoneCoreVTable, "/etc/pluto/simplephone.conf", NULL);
 
 	if (LS_pLinphoneProxyConfig != NULL)
