@@ -1484,6 +1484,18 @@ switch ($section) {
 	    include_once('operations/myDevices/resyncCodes.php');
 	    resyncCodes($output,$dbADO);	    
 	break;	
+	case 'coverArt':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/coverArt.php');
+	    coverArt($output,$mediadbADO);	    
+	break;	
+	case 'matchCoverArt':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/matchCoverArt.php');
+	    matchCoverArt($output,$mediadbADO);	    
+	break;	
 
 
 	
