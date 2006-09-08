@@ -1,0 +1,177 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 05_non_linux.dpatch by  <Aurelien Jarno <aurel32@debian.org>>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad lirc-0.8.0~/acconfig.h lirc-0.8.0/acconfig.h
+--- lirc-0.8.0~/acconfig.h	2005-12-26 10:51:57.000000000 +0100
++++ lirc-0.8.0/acconfig.h	2006-05-05 15:58:23.925692252 +0200
+@@ -90,6 +90,9 @@
+ /* defined if Linux input interface is available */
+ #undef HAVE_LINUX_DEVINPUT
+ 
++/* defined if Linux hid interface is available */
++#undef HAVE_LINUX_HIDDEV
++
+ /* defined if SCSI API is available */
+ #undef HAVE_SCSI
+ 
+diff -urNad lirc-0.8.0~/config.h.in lirc-0.8.0/config.h.in
+--- lirc-0.8.0~/config.h.in	2006-01-21 10:03:37.000000000 +0100
++++ lirc-0.8.0/config.h.in	2006-05-05 15:58:23.925692252 +0200
+@@ -126,6 +126,9 @@
+ /* defined if Linux input interface is available */
+ #undef HAVE_LINUX_DEVINPUT
+ 
++/* defined if Linux hid interface is available */
++#undef HAVE_LINUX_HIDDEV
++
+ /* defined if SCSI API is available */
+ #undef HAVE_SCSI
+ 
+diff -urNad lirc-0.8.0~/configure lirc-0.8.0/configure
+--- lirc-0.8.0~/configure	2006-01-21 10:03:45.000000000 +0100
++++ lirc-0.8.0/configure	2006-05-05 15:58:23.929691576 +0200
+@@ -7998,9 +7998,7 @@
+ possible_drivers="(none) \
+ 	(userspace)
+ 	(bte) \
+-	(bw6130) \
+ 	(creative) \
+-	(dvico) \
+ 	(ea65) \
+ 	(exaudio) \
+ 	(irreal) \
+@@ -8539,6 +8537,54 @@
+ done
+ 
+ 
++for ac_hdr in linux/hiddev.h
++do
++ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
++echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
++echo "configure:8452: checking for $ac_hdr" >&5
++if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
++  echo $ac_n "(cached) $ac_c" 1>&6
++else
++  cat > conftest.$ac_ext <<EOF
++#line 8457 "configure"
++#include "confdefs.h"
++#include <$ac_hdr>
++EOF
++ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
++{ (eval echo configure:8462: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
++ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
++if test -z "$ac_err"; then
++  rm -rf conftest*
++  eval "ac_cv_header_$ac_safe=yes"
++else
++  echo "$ac_err" >&5
++  echo "configure: failed program was:" >&5
++  cat conftest.$ac_ext >&5
++  rm -rf conftest*
++  eval "ac_cv_header_$ac_safe=no"
++fi
++rm -f conftest*
++fi
++if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
++  echo "$ac_t""yes" 1>&6
++    ac_tr_hdr=HAVE_`echo $ac_hdr | sed 'y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%'`
++  cat >> confdefs.h <<EOF
++#define $ac_tr_hdr 1
++EOF
++ 
++  cat >> confdefs.h <<\EOF
++#define HAVE_LINUX_HIDDEV 1
++EOF
++
++  possible_drivers="${possible_drivers} (bw6130) (dvico)"
++  
++
++else
++  echo "$ac_t""no" 1>&6
++fi
++done
++
++
+ 
+ # Check whether --with-driver or --without-driver was given.
+ if test "${with_driver+set}" = set; then
+diff -urNad lirc-0.8.0~/configure.in lirc-0.8.0/configure.in
+--- lirc-0.8.0~/configure.in	2006-01-21 10:01:44.000000000 +0100
++++ lirc-0.8.0/configure.in	2006-05-05 15:58:23.930691407 +0200
+@@ -139,9 +139,7 @@
+ possible_drivers="(none) \
+ 	(userspace)
+ 	(bte) \
+-	(bw6130) \
+ 	(creative) \
+-	(dvico) \
+ 	(ea65) \
+ 	(exaudio) \
+ 	(irreal) \
+@@ -251,6 +249,12 @@
+   possible_drivers="${possible_drivers} (dsp)"
+   ]
+ )
++dnl hiddev driver requires linux hid device 
++AC_CHECK_HEADERS(linux/hiddev.h,[
++  AC_DEFINE(HAVE_LINUX_HIDDEV)
++  possible_drivers="${possible_drivers} (bw6130) (dvico)"
++  ]
++)
+ 
+ dnl here we see what driver the user wants.
+ 
+diff -urNad lirc-0.8.0~/daemons/hw-types.c lirc-0.8.0/daemons/hw-types.c
+--- lirc-0.8.0~/daemons/hw-types.c	2005-08-01 20:34:37.000000000 +0200
++++ lirc-0.8.0/daemons/hw-types.c	2006-05-05 15:58:23.930691407 +0200
+@@ -77,7 +77,10 @@
+ 	&hw_audio_alsa,
+ #endif
+ 	&hw_bte,
++#ifdef HAVE_LINUX_HIDDEV
+ 	&hw_bw6130,
++	&hw_dvico,
++#endif
+ 	&hw_creative,
+ #ifdef HAVE_SCSI
+ 	&hw_creative_infracd,
+@@ -89,7 +92,6 @@
+ #ifdef HAVE_SOUNDCARD
+ 	&hw_dsp,
+ #endif
+-	&hw_dvico,
+ 	&hw_ea65,
+ #ifdef HAVE_LIBIRMAN
+ 	&hw_irman,
+diff -urNad lirc-0.8.0~/drivers/lirc.h lirc-0.8.0/drivers/lirc.h
+--- lirc-0.8.0~/drivers/lirc.h	2005-07-10 10:34:12.000000000 +0200
++++ lirc-0.8.0/drivers/lirc.h	2006-05-05 16:00:03.323893238 +0200
+@@ -7,6 +7,10 @@
+ #include <asm/types.h>
+ #include <linux/ioctl.h>
+ #else
++#include <features.h>
++#if defined (__GLIBC__)
++#include <sys/ioctl.h>
++#endif
+ #include <sys/types.h>
+ typedef u_int32_t __u32;
+ #endif
+diff -urNad lirc-0.8.0~/tools/irpty.c lirc-0.8.0/tools/irpty.c
+--- lirc-0.8.0~/tools/irpty.c	2005-03-11 12:03:00.000000000 +0100
++++ lirc-0.8.0/tools/irpty.c	2006-05-05 15:58:23.930691407 +0200
+@@ -146,6 +146,10 @@
+ 	return;
+ }
+ 
++#undef RESET
++#undef RAW
++#undef CBREAK
++
+ static struct termios save_termios;
+ static int ttysavefd = -1;
+ static enum {

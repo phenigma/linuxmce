@@ -1,0 +1,85 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 06_libtool_kfreebsd.dpatch by  <Aurelien Jarno <aurel32@debian.org>>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -Nurd lirc.old/aclocal.m4 lirc/aclocal.m4
+--- lirc.old/aclocal.m4	2005-12-19 17:50:38.000000000 +0100
++++ lirc/aclocal.m4	2006-05-04 16:18:29.585920011 +0200
+@@ -2212,7 +2212,7 @@
+     ;;
+ 
+   # FreeBSD 3 and greater uses gcc -shared to do shared libraries.
+-  freebsd*)
++  freebsd*|kfreebsd-*gnu)
+     archive_cmds='$CC -shared -o $lib $libobjs $deplibs $compiler_flags'
+     hardcode_libdir_flag_spec='-R$libdir'
+     hardcode_direct=yes
+@@ -2667,7 +2667,7 @@
+   dynamic_linker=no
+   ;;
+ 
+-freebsd*-gnu*)
++kfreebsd*-gnu*)
+   version_type=linux
+   need_lib_prefix=no
+   need_version=no
+@@ -2676,7 +2676,7 @@
+   shlibpath_var=LD_LIBRARY_PATH
+   shlibpath_overrides_runpath=no
+   hardcode_into_libs=yes
+-  dynamic_linker='GNU/FreeBSD ld.so'
++  dynamic_linker='GNU/kFreeBSD ld.so'
+   ;;
+ 
+ freebsd*)
+@@ -3929,7 +3929,7 @@
+   esac
+   ;;
+ 
+-freebsd*)
++freebsd* | kfreebsd*-gnu)
+   if echo __ELF__ | $CC -E - | grep __ELF__ > /dev/null; then
+     case $host_cpu in
+     i*86 )
+diff -Nurd lirc.old/configure lirc/configure
+--- lirc.old/configure	2006-05-04 16:19:16.292957689 +0200
++++ lirc/configure	2006-05-04 16:18:58.113446020 +0200
+@@ -2213,7 +2213,7 @@
+   esac
+   ;;
+ 
+-freebsd*)
++freebsd* | kfreebsd*-gnu)
+   if echo __ELF__ | $CC -E - | grep __ELF__ > /dev/null; then
+     case $host_cpu in
+     i*86 )
+@@ -3960,7 +3960,7 @@
+     ;;
+ 
+   # FreeBSD 3 and greater uses gcc -shared to do shared libraries.
+-  freebsd*)
++  freebsd* | kfreebsd*-gnu)
+     archive_cmds='$CC -shared -o $lib $libobjs $deplibs $compiler_flags'
+     hardcode_libdir_flag_spec='-R$libdir'
+     hardcode_direct=yes
+@@ -4418,7 +4418,7 @@
+   dynamic_linker=no
+   ;;
+ 
+-freebsd*-gnu*)
++kfreebsd*-gnu*)
+   version_type=linux
+   need_lib_prefix=no
+   need_version=no
+@@ -4427,7 +4427,7 @@
+   shlibpath_var=LD_LIBRARY_PATH
+   shlibpath_overrides_runpath=no
+   hardcode_into_libs=yes
+-  dynamic_linker='GNU/FreeBSD ld.so'
++  dynamic_linker='GNU/kFreeBSD ld.so'
+   ;;
+ 
+ freebsd*)
