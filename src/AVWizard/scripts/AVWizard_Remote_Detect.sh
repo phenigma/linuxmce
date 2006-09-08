@@ -76,6 +76,8 @@ Description=$(Field 2 "$R")
 if [[ -z "$CommandLine" ]]; then
 	CommandLine=$(echo "$Description" | perl -n -e "$PerlCommand")
 fi
+if [[ "$CommandLine" == *UIRT* ]]; then
+	CommandLine="/usr/pluto/bin/TestSerialPort -p /dev/ttyS0 -P N81 -b 9600 -t '' -i 1; $CommandLine"
 Log "CommandLine: $CommandLine; Description: $Description"
 
 # Last line of output is our result

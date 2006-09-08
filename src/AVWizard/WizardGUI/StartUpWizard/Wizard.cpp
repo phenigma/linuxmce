@@ -127,8 +127,6 @@ void Wizard::MainLoop()
 	{
 		int Port = Utils::StringToInt32( AVWizardOptions->GetDictionary()->GetValue("RemoteAVWizardServerPort"));
 		Server.StartServer(Port);
-		UseRemote = true;
-		FirstEvent = true;
 
 		if (AVWizardOptions->GetDictionary()->Exists("RemoteCmd"))
 		{
