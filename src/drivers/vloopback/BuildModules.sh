@@ -22,8 +22,8 @@ function BuildModules() {
 	make
 	## Build specific
 
-	mkdir -p "$COMP_MODULES_DIR/$KVER/extra"
-	find '(' -type d -name 'compiledModules' -prune -false ')' -or -name '*.ko' -exec cp  '{}' "$COMP_MODULES_DIR/$KVER/extra" ';'
+	mkdir -p "$COMP_MODULES_DIR/$KVER/misc"
+	find '(' -type d -name 'compiledModules' -prune -false ')' -or -name '*.ko' -exec cp  '{}' "$COMP_MODULES_DIR/$KVER/misc" ';'
 }
 
 K_RUNNING=$(uname -r)
