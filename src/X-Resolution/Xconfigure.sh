@@ -3,6 +3,7 @@
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Utils.sh
+. /usr/pluto/bin/LockUtils.sh
 
 resHD480=848x480
 resHD720=1280x720
@@ -123,6 +124,9 @@ if [[ ! -f /usr/pluto/bin/X-UI_Sections.awk ]]; then
 	Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/bin/X-UI_Sections.awk."
 	exit 1
 fi
+
+trap 'Unlock "Xconfigure" "Xconfigure"' EXIT
+WaitLock "Xconfigure" "Xconfigure" # don't run two copies of Xconfigure simultaneously
 
 if [[ ! -f "$ConfigFile" || ! -s "$ConfigFile" ]]; then
 	# TODO: Detect incomplete/corrupt config files too
