@@ -12,7 +12,7 @@ VERS = $(shell sed -ne '1s/.*(\(.*\)).*/\1/p' debian/changelog)
 
 # KSRC is the location of the kernel source. This is the default value,
 # when make-kpkg is used it will supply to real value
-KSRC            = /usr/src/linux
+KSRC            ?= /usr/src/linux
 
 # KDREV is the package-revision, as given to make-kpkg by the user.
 # Just put a simply default value in here which we use when we test
@@ -25,7 +25,7 @@ KDREV_EPOCH = $(shell echo $(KDREV) | sed -ne '1s/\([^:]*:\)\?\(.*\)/\1/p')
 KDREV_REV   = $(shell echo $(KDREV) | sed -ne '1s/\([^:]*:\)\?\(.*\)/\2/p')
 
 # Now we need to get the kernel-version somehow
-KVERS=`sed -n -e '/UTS_RELEASE/s/^[^"]*"\([^"]*\)".*$$/\1/p' $(KSRC)/include/linux/version.h`
+KVERS?=`sed -n -e '/UTS_RELEASE/s/^[^"]*"\([^"]*\)".*$$/\1/p' $(KSRC)/include/linux/version.h`
 
 KARCH=$(shell dpkg-architecture -qDEB_BUILD_ARCH_CPU)
 ifeq ($(KARCH),)
