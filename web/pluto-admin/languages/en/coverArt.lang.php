@@ -1,0 +1,23 @@
+<?
+$TEXT_COVERART_CONST='Cover Art';
+$TEXT_SHOW_ALL_FILES_CONST='Show all files';
+$TEXT_SHOW_FILES_NO_COVERART_CONST='Show Files With no cover art';
+$TEXT_SHOW_ALL_DISCS_CONST='Show all discs';
+$TEXT_SHOW_DISCS_WITH_NO_COVER_ART_CONST='Show Discs With no cover art';
+$TEXT_SHOW_FILES_NO_COVERART_CONST='Show Files With no cover art';
+$TEXT_SHOW_ALL_ATTRIBUTES_CONST='Show all attributes';
+$TEXT_SHOW_ALL_ATTRIBUTES_WITH_NO_COVER_ART_CONST='Show attributes with no cover art';
+$TEXT_MATCH_FILES_TO_COVER_ART_CONST='Match files/discs/attributes to cover art';
+$TEXT_KEYWORDS_CONST='Keywords';
+$TEXT_ITEM_CONST='Item';
+$TEXT_FILTERS_CONST='Filters';
+$TEXT_SELECT_ALL_CONST='Select all';
+$TEXT_UNSELECT_ALL_CONST='Unselect all';
+$TEXT_SCAN_FOR_COVER_ARTS_CONST='Scan for cover arts';
+$TEXT_ITEMS_SCANNED_CONST='Items scanned';
+$TEXT_ITEMS_PER_PAGE_CONST='Items per page';
+$TEXT_MEDIA_TYPE_CONST='Media types';
+$TEXT_NO_RECORDS_CONST='No records';
+$TEXT_MATCHCOVERART_CONST='Match Cover Art';
+$TEXT_COVER_ARTS_UPDATED_CONST='Cover arts updated';
+?>
