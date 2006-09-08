@@ -1,4 +1,4 @@
-include /etc/lirc/lirc-modules-source.conf
+include lirc-modules-source.conf
 
 # An space should be left at the end of each CFLAGS variable for the
 # sanity-check to work.
@@ -30,7 +30,7 @@ endif
 
 export KERNEL_LOCATION CC
 
-all: atiusb, bt829, cmdir, gpio, i2c, igorplugusb, imon, it87, mceusb, mceusb2, parallel, sasem, serial, sir, streamzap
+all: atiusb bt829 cmdir gpio i2c igorplugusb imon it87 mceusb mceusb2 parallel sasem serial sir streamzap
 
 test:
 	@echo '$(IT87_CFLAGS)'
