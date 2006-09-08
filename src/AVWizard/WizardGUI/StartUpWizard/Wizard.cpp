@@ -127,6 +127,8 @@ void Wizard::MainLoop()
 	{
 		int Port = Utils::StringToInt32( AVWizardOptions->GetDictionary()->GetValue("RemoteAVWizardServerPort"));
 		Server.StartServer(Port);
+		UseRemote = true;
+		FirstEvent = true;
 
 		if (AVWizardOptions->GetDictionary()->Exists("RemoteCmd"))
 		{
@@ -167,6 +169,7 @@ void Wizard::MainLoop()
 		while (!StatusChange && !Quit && (FrontEnd->HasEventPending()))
 		{
 			FrontEnd->TranslateEvent(Event);
+
 			if(Event.Type)
 				EvaluateEvent(Event);
 		}
@@ -222,6 +225,10 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 
 	delete MainPage;
 	MainPage = NULL;
+
+	if (Quit)
+		return;
+
 	if(Result != 0)
 		CurrentPage -=2;
 
