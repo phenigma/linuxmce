@@ -1,0 +1,71 @@
+<?
+require('include/config/config.inc.php');
+require('include/utils.inc.php');
+require_once("include/amazonTools.inc.php");
+
+/* @var $mediadbADO ADOConnection */
+/* @var $rs ADORecordSet */
+
+$start_time=getmicrotime();
+
+define('SUBID', '1A7XKHR5BYD0WPJVQEG2');   	// Your subscription id
+define('ASSOCIATES_ID','ws');              	// Your Associates id
+define('AES_VERSION','2005-02-23');        	// The version of AES
+define('ENGINE','Amazon');        			
+
+$coverArtPath='/home/coverartscan/';
+
+
+$searchIndex=$_REQUEST['searchIndex'];
+$fileID=isset($_REQUEST['fileID'])?(int)$_REQUEST['fileID']:NULL;
+$discID=isset($_REQUEST['discID'])?(int)$_REQUEST['discID']:NULL;
+$attributeID=isset($_REQUEST['attributeID'])?(int)$_REQUEST['attributeID']:NULL;
+
+$Keyword1Type=@$_REQUEST['Keyword1Type'];
+$Keyword2Type=@$_REQUEST['Keyword2Type'];
+$Keyword3Type=@$_REQUEST['Keyword3Type'];
+
+$Keyword1Search=urlencode(cleanString(@$_REQUEST['Keyword1Search']));
+$Keyword2Search=urlencode(cleanString(@$_REQUEST['Keyword2Search']));
+$Keyword3Search=urlencode(cleanString(@$_REQUEST['Keyword3Search']));
+
+$searchString=(isset($_REQUEST['Keyword1Type']))?$_REQUEST['Keyword1Type'].'='.$Keyword1Search:'';
+$searchString.=(isset($_REQUEST['Keyword2Type']))?'&'.$_REQUEST['Keyword2Type'].'='.$Keyword2Search:'';
+$searchString.=(isset($_REQUEST['Keyword3Type']))?'&'.$_REQUEST['Keyword3Type'].'='.$Keyword3Search:'';
+
+// Make the request for cover arts
+$request='http://webservices.amazon.com/onca/xml?Service=AWSECommerceService&AssociateTag='.ASSOCIATES_ID.'&Version='.AES_VERSION.'&SubscriptionId='. SUBID.'&Operation=ItemSearch&SearchIndex='.$searchIndex.'&ResponseGroup=Medium&'.$searchString;
+//echo $request;
+
+// Get the response from Amazon
+$xml = file_get_contents($request);
+
+// Parse the results
+$Result = xmlparser($xml);
+//print_array($Result);
+
+// add the record in CoverArtScan table
+// depending on parameters, FK_File, FK_Disc or FK_Attribute
+
+$mediadbADO->Execute('
+	INSERT INTO CoverArtScan 
+	(FK_File,FK_Disc,FK_Attribute,Engine,Keyword1Type,Keyword1Search,Keyword2Type,Keyword2Search,Keyword3Type,Keyword3Search) 
+	VALUES 
+	(?,?,?,?,?,?,?,?,?,?)',array($fileID,$discID,$attributeID,ENGINE.' | '.$searchIndex,$Keyword1Type,$Keyword1Search,$Keyword2Type,$Keyword2Search,$Keyword3Type,$Keyword3Search));
+$casID=$mediadbADO->Insert_ID();
+
+$found=0;
+foreach ($Result['ItemSearchResponse']['Items'][0]['Item'] as $item) {
+	$found++;
+	if (isset($item['LargeImage']['URL'])) {
+		// grab the cover art if exist, download it and save the record in database
+		$mediadbADO->Execute('INSERT INTO CoverArtScanEntry (FK_CoverArtScan,ID,URL) VALUES (?,?,?)',array($casID,$item["ASIN"][0],$item["LargeImage"]["URL"]));
+		$entryID=$mediadbADO->Insert_ID();
+		savePic($item['LargeImage']['URL'],$coverArtPath.$entryID.'.jpg');
+		$resizeFlag=resizeImage($coverArtPath.$entryID.'.jpg', $coverArtPath.$entryID.'_tn.jpg', 100, 100);
+	}
+}
+
+$end_time=getmicrotime();
+//print 'Finished in '.round(($end_time-$start_time),3).'s, found: '.$found.' cover arts.';
+?>
