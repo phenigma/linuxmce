@@ -1,4 +1,4 @@
-include /etc/lirc/lirc-modules-source.conf
+include lirc-modules-source.conf
 
 # An space should be left at the end of each CFLAGS variable for the
 # sanity-check to work.
@@ -13,13 +13,13 @@ SIR_CFLAGS		:= $(subst ",,$(LIRC_SIR_CFLAGS) \
 				-DLIRC_PORT=$(LIRC_SIR_PORT) \
 				-DLIRC_IRQ=$(LIRC_SIR_IRQ) )
 
-KSRC=/usr/src/linux/$(shell uname -r)/build
+KSRC?=/usr/src/linux/$(shell uname -r)/build
 KERNEL_LOCATION = $(KSRC)
 CC = gcc -D__KERNEL__ -I $(KSRC)/include
 CFLAGS= -O2 -g -Wall
 DEFS=-DHAVE_CONFIG_H -I. -I../..
 
-KVERS=$(shell sed -n -e '/UTS_RELEASE/s/^[^"]*"\([^"]*\)".*$\/\1/p' $(KSRC)/include/linux/version.h)
+KVERS?=$(shell sed -n -e '/UTS_RELEASE/s/^[^"]*"\([^"]*\)".*$\/\1/p' $(KSRC)/include/linux/version.h)
 KPATCHLEVEL=$(shell echo $(KVERS) | sed -n -e 's/^[0-9]*\.\([0-9]*\)\..*/\1/p')
 
 KEXT=o
@@ -30,7 +30,7 @@ endif
 
 export KERNEL_LOCATION CC
 
-all: atiusb, bt829, cmdir, gpio, i2c, igorplugusb, imon, it87, mceusb, mceusb2, parallel, sasem, serial, sir, streamzap
+all: atiusb bt829 cmdir gpio i2c igorplugusb imon it87 mceusb mceusb2 parallel sasem serial sir streamzap
 
 test:
 	@echo '$(IT87_CFLAGS)'
