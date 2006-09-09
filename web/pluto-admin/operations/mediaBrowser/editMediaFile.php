@@ -406,8 +406,7 @@ function addAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO){
 	}
 
 	$cmd='/usr/pluto/bin/MessageSend localhost -targetType device -r 0 '.$mediaPlugin.' 1 391 122 '.$newAttributeType.' 145 '.$fileID.' 5 "'.$newAttributeName.'"';
-	exec($cmd,$ret);
-	$response=join('<br>',$ret);
+	$response=exec_batch_command($cmd,1);
 	$suffix=(ereg('RESP: OK',$response))?'RESP: OK':'';
 	
 	return $cmd.'<br>'.$TEXT_RESPONSE_CONST.': '.$suffix;
