@@ -15,9 +15,6 @@ function avWizard($output,$dbADO) {
 	$installationID = (int)@$_SESSION['installationID'];
 
 $start_time=getmicrotime();	
-	$pvrArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['PVRCaptureCards'],'ORDER BY Description ASC');
-	$soundArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['SoundCards'],'ORDER BY Description ASC');
-	$videoArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['VideoCards'],'ORDER BY Description ASC');
 
 	$deviceCategory=$GLOBALS['rootAVEquipment'];
 	$specificFloorplanType=$GLOBALS['AVEquipmentFlorplanType'];
@@ -25,7 +22,7 @@ $start_time=getmicrotime();
 
 	// get selected category Device Templates
 	$categoriesArray=getDescendantsForCategory($deviceCategory,$dbADO);
-	
+
 	$queryDeviceTemplate='
 		SELECT * FROM DeviceTemplate 
 			WHERE FK_DeviceCategory IN ('.join(',',$categoriesArray).')
@@ -386,6 +383,7 @@ $start_time=getmicrotime();
 			if(@$_POST['displayedDevices']!=''){
 				foreach($displayedDevicesArray as $key => $value){
 					$description=stripslashes(@$_POST['description_'.$value]);
+					$updateMacIp='';
 					if(isset($_POST['ip_'.$value])){
 						$oldIpAddress=$_POST['oldIP_'.$value];
 						$oldMacAddress=$_POST['oldMAC_'.$value];
