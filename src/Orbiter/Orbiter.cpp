@@ -2499,7 +2499,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to 
 			map<int,string>::iterator it = m_mapScanCodeToRemoteButton.find(pEvent->data.button.m_iPK_Button);
 			if( it!=m_mapScanCodeToRemoteButton.end() )
 			{
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s",it->second);
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s",it->second.c_str());
 				ReceivedCode(0,it->second.c_str());
 			}
 		}
