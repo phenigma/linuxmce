@@ -66,7 +66,11 @@ function matchCoverArt($output,$mediadbADO) {
 				exec_batch_command($cmd);
 				
 				$mediadbADO->Execute('INSERT INTO Picture_'.$itemType.' (FK_'.$itemType.',FK_Picture) VALUES (?,?)',array($itemValue,$pictureID));
+				if($itemType=='File' || $itemType=='Disc'){
+					syncAttributes($itemType,$itemValue,$selPic,$mediadbADO);
+				}
 				deleteScans($id,$mediadbADO);
+				
 			}
 		}
 		
@@ -157,5 +161,29 @@ function deleteScans($id,$mediadbADO){
 	}
 	$mediadbADO->Execute('DELETE FROM CoverArtScanEntry WHERE FK_CoverArtScan=?',array($id));
 	$mediadbADO->Execute('DELETE FROM CoverArtScan WHERE PK_CoverArtScan=?',array($id));
+}
+
+function syncAttributes($table,$itemValue,$id,$mediadbADO){
+	$attributeTypes=getAssocArray('AttributeType','Description','PK_AttributeType',$mediadbADO);
+	
+	$existingAttributes=getAssocArray('Attribute','AttributeType.Description AS Description','Attribute.Name',$mediadbADO,'INNER JOIN '.$table.'_Attribute ON FK_Attribute=PK_Attribute INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType WHERE FK_'.$table.'='.$itemValue);
+	$amazonAttributes=getAssocArray('CoverArtScanEntry','PK_CoverArtScanEntry','Attributes',$mediadbADO,'WHERE PK_CoverArtScanEntry='.$id);
+	$amazonAttributesArray=explode("\n",$amazonAttributes[$id]);
+	
+	foreach ($amazonAttributesArray AS $line){
+		$parts=explode("\t",trim($line));
+		// todo: attribute mapping
+		if(count($parts)==2){
+			$atype=str_replace(array('Average Customer Review', 'Actor','Directors'),array('Rating', 'Performer','Director'),$parts[0]);
+			$aname=$parts[1];
+
+			if(!in_array($atype,array_keys($existingAttributes)) && isset($attributeTypes[$atype])){
+
+				$mediadbADO->Execute('INSERT INTO Attribute (FK_AttributeType,Name) VALUES (?,?)',array($attributeTypes[$atype],$aname));
+				$aid=$mediadbADO->Insert_Id();
+				$mediadbADO->Execute('INSERT INTO '.$table.'_Attribute (FK_'.$table.',FK_Attribute) VALUES (?,?)',array($itemValue,$aid));
+			}
+		}
+	}
 }
 ?>

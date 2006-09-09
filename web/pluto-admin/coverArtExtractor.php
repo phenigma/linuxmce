@@ -35,7 +35,7 @@ $searchString.=(isset($_REQUEST['Keyword3Type']))?'&'.$_REQUEST['Keyword3Type'].
 
 // Make the request for cover arts
 $request='http://webservices.amazon.com/onca/xml?Service=AWSECommerceService&AssociateTag='.ASSOCIATES_ID.'&Version='.AES_VERSION.'&SubscriptionId='. SUBID.'&Operation=ItemSearch&SearchIndex='.$searchIndex.'&ResponseGroup=Medium&'.$searchString;
-//echo $request;
+echo $request;
 
 // Get the response from Amazon
 $xml = file_get_contents($request);
@@ -46,6 +46,7 @@ $Result = xmlparser($xml);
 
 // add the record in CoverArtScan table
 // depending on parameters, FK_File, FK_Disc or FK_Attribute
+
 
 $mediadbADO->Execute('
 	INSERT INTO CoverArtScan 
@@ -58,11 +59,30 @@ $found=0;
 foreach ($Result['ItemSearchResponse']['Items'][0]['Item'] as $item) {
 	$found++;
 	if (isset($item['LargeImage']['URL'])) {
+		// grab attributes
+		$attributes="ASIN\t".$item["ASIN"][0]."\n";
+		print_array($item['ItemAttributes']);
+		foreach ($item['ItemAttributes'] AS $attributeName=>$values){
+			if(is_array($values)){
+				foreach ($values AS $subAttributeName=>$value){
+					if(!is_array($value)){
+						$attributes.=(is_int($subAttributeName)?$attributeName:$subAttributeName)."\t".$value."\n";
+					}else{
+						// TODO: particular cases, like Creator
+						// I left them for now
+					}
+				}
+			}else{
+				$attributes.=$attributeName."\t".$values."\n";
+			}
+		}		
+		
 		// grab the cover art if exist, download it and save the record in database
-		$mediadbADO->Execute('INSERT INTO CoverArtScanEntry (FK_CoverArtScan,ID,URL) VALUES (?,?,?)',array($casID,$item["ASIN"][0],$item["LargeImage"]["URL"]));
+		$mediadbADO->Execute('INSERT INTO CoverArtScanEntry (FK_CoverArtScan,ID,URL,Attributes) VALUES (?,?,?,?)',array($casID,$item["ASIN"][0],$item["LargeImage"]["URL"],$attributes));
 		$entryID=$mediadbADO->Insert_ID();
 		savePic($item['LargeImage']['URL'],$coverArtPath.$entryID.'.jpg');
 		$resizeFlag=resizeImage($coverArtPath.$entryID.'.jpg', $coverArtPath.$entryID.'_tn.jpg', 100, 100);
+		
 	}
 }
 

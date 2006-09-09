@@ -123,11 +123,11 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 	// if parameter is not specified, show files without cover arts
 	$type=($type=='')?'filesNoCover':$type;
 	$ipp=((int)@$_REQUEST['ipp']<=0 || (int)@$_REQUEST['ipp']>100)?10:(int)@$_REQUEST['ipp'];
-	
+
 	switch ($type){
 		case 'allFiles':
 			$extra=($mediaType==3)?' OR EK_MediaType=5':'';
-			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,Filename) AS Label',$mediadbADO,'LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType ='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) LIMIT 0,200');
+			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,\'/\',Filename) AS Label',$mediadbADO,'LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType ='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) LIMIT 0,200');
 			$itemName='fileID';
 			$title=$TEXT_SHOW_ALL_FILES_CONST;
 		break;
@@ -145,7 +145,7 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 			*/
 			// todo: remove limit
 			$extra=($mediaType==3)?' OR EK_MediaType=5':'';
-			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,Filename) AS Label',$mediadbADO,'LEFT JOIN Picture_File ON  Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) GROUP BY PK_File HAVING count(FK_Picture)=0 LIMIT 0,200');
+			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,\'/\',Filename) AS Label',$mediadbADO,'LEFT JOIN Picture_File ON  Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) GROUP BY PK_File HAVING count(FK_Picture)=0 ORDER BY PK_File DESC LIMIT 0,200');
 			$itemName='fileID';
 			$title=$TEXT_SHOW_FILES_NO_COVERART_CONST;
 		break;
@@ -175,11 +175,11 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 	}
 	
 	$out='<b>'.$title.'</b>';
-	$out.= multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName);
+	$out.= multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaType);
 	return $out;
 }
 
-function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName){
+function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaType){
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/coverArt.lang.php');
 
 	$page=(isset($_REQUEST['page']))?(int)$_REQUEST['page']:1;
@@ -202,7 +202,7 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName){
 	
 	$links='';
 	for($i=1;$i<=$noPages;$i++){
-		$links.=($i==$page)?$i.'&nbsp; ':'<a href="index.php?section=coverArt&type='.$type.'&ipp='.$ipp.'&page='.$i.'">'.$i.'</a>&nbsp; ';
+		$links.=($i==$page)?$i.'&nbsp; ':'<a href="index.php?section=coverArt&type='.$type.'&ipp='.$ipp.'&page='.$i.'&mediaType='.$mediaType.'">'.$i.'</a>&nbsp; ';
 	}
 	$out='
 	<script>
