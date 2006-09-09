@@ -47,6 +47,8 @@ function editMasterDevice($output,$dbADO) {
 		$ConfigureScript=$row['ConfigureScript'];
 		$comments=$row['Comments'];
 		$isAVDevice = is_null($row['FK_DeviceTemplate'])?0:1;
+		$rubyCodesButton=($commandLine==$GLOBALS['GenericSerialDeviceCommandLine'])?'<input type="button" class="button" name="rubyCodes"  value="'.$TEXT_RUBY_CODES_CONST.'" onClick="windowOpen(\'index.php?section=rubyCodes&from=editMasterDevice&dtID='.$deviceID.'\',\'status=0,resizable=1,width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');")>':'';
+		
 		$rs->Close();
 
 		$out='
@@ -81,7 +83,7 @@ function editMasterDevice($output,$dbADO) {
 						<input type="checkbox" name="ImplementsDCE" value="1" '.($implementsDCE==1?" checked ":"").'  onClick="javascript:this.form.submit();">'.$TEXT_IMPLEMENTS_DCE_CONST.'
 					</td>
 					<td>
-						'.$TEXT_COMMAND_LINE_CONST.' <input type="text" name="CommandLine" value="'.$commandLine.'" size="23">
+						'.$TEXT_COMMAND_LINE_CONST.' <input type="text" name="CommandLine" value="'.$commandLine.'" size="23"> '.$rubyCodesButton.'
 					</td>
 				</tr>
 				<tr>
@@ -740,10 +742,10 @@ function editMasterDevice($output,$dbADO) {
 			$macTo=@$_POST['mac_to_'.$dhcpID];
 			$VendorModelID=cleanString(@$_POST['VendorModelID_'.$dhcpID]);
 			$newComment=cleanString(@$_POST['commentPnp_'.$dhcpID]);
-			$SerialNumber=cleanString($_POST['SerialNumber_'.$dhcpID]);
-			$Parms=cleanString($_POST['Parms_'.$dhcpID]);
-			$PnpDetectionScript=cleanString($_POST['PnpDetectionScript_'.$dhcpID]);
-			$PnpProtocol=((int)$_POST['pnpProtocol_'.$dhcpID]==0)?NULL:$_POST['pnpProtocol_'.$dhcpID];
+			$SerialNumber=cleanString(@$_POST['SerialNumber_'.$dhcpID]);
+			$Parms=cleanString(@$_POST['Parms_'.$dhcpID]);
+			$PnpDetectionScript=cleanString(@$_POST['PnpDetectionScript_'.$dhcpID]);
+			$PnpProtocol=((int)@$_POST['pnpProtocol_'.$dhcpID]==0)?NULL:$_POST['pnpProtocol_'.$dhcpID];
 			
 			
 			$dbADO->Execute('UPDATE DHCPDevice SET Mac_Range_Low=?, Mac_Range_High=?,Description=?,VendorModelID=?,SerialNumber=?,Parms=?,PnpDetectionScript=?,FK_PnpProtocol=? WHERE PK_DHCPDevice=?',array($macFrom, $macTo,$newComment,$VendorModelID,$SerialNumber,$Parms,$PnpDetectionScript,$PnpProtocol,$dhcpID));
