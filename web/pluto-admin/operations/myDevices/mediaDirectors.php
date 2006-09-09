@@ -320,7 +320,7 @@ function mediaDirectors($output,$dbADO) {
 										</tr>
 										<tr>
 											<td><B>'.$TEXT_SCREEN_SAVER_CONST.'</B></td>
-											<td>'.displayScreenSavers($rowD['PK_Device'],$dbADO).'</td>
+											<td>'.displayScreenSavers($orbiterMDChild,$dbADO).'</td>
 										</tr>
 						
 									</table>
@@ -528,7 +528,7 @@ function mediaDirectors($output,$dbADO) {
 					}
 
 					processReceiver($value,$dbADO);
-					processScreenSavers($value,$dbADO);
+					processScreenSavers($orbiterMDChild,$dbADO);
 					$err=processAudioSettings($value,$dbADO);
 				}
 			}
