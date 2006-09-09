@@ -575,7 +575,6 @@ bool Orbiter::GetConfig()
 		m_iVideoFrameInterval = 6000; //6 sec
 
 	// See if any of our child devices are remote controls
-	m_cRemoteLayout=0;
 	for(VectDeviceData_Impl::iterator it=m_pData->m_vectDeviceData_Impl_Children.begin();it!=m_pData->m_vectDeviceData_Impl_Children.end();++it)
 	{
 		DeviceData_Impl *pDeviceData_Impl = *it;
@@ -583,7 +582,7 @@ bool Orbiter::GetConfig()
 		{
 			string s = pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_Remote_Layout_CONST);
 			if( s.size() )
-				m_cRemoteLayout = s[0];
+				m_mapRemoteLayout[0]=s[0];
 
 			s = pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_Configuration_CONST);
 
@@ -600,6 +599,31 @@ bool Orbiter::GetConfig()
 					m_mapScanCodeToRemoteButton[ atoi(it2->substr(pos + 1).c_str())] = StringUtils::ToUpper(it2->substr(0,pos));
 
 					g_pPlutoLogger->Write(LV_CRITICAL, "Added scan code %d -> %s", atoi( it2->substr(pos + 1).c_str()), StringUtils::ToUpper(it2->substr(0,pos)).c_str());
+				}
+			}
+
+			vectTokens.clear();
+			s = pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_Mapping_CONST);
+
+			g_pPlutoLogger->Write(LV_STATUS, "Mapping for remote %d: %s", pDeviceData_Impl->m_dwPK_Device, s.c_str());
+
+			StringUtils::Tokenize(s,"\r\n",vectTokens);
+			for(vector<string>::iterator it2=vectTokens.begin();it2!=vectTokens.end();++it2)
+			{
+				string::size_type posEq = it2->find('=');
+				string::size_type posComma1 = it2->find(',');
+				string::size_type posComma2 = posEq!=string::npos ? it2->find(',',posEq) : string::npos;
+
+				if( posEq!=string::npos && posComma1!=string::npos && posComma2!=string::npos )
+				{
+					int EventType1 = atoi( it2->c_str() );
+					int EventID1 = atoi( it2->substr(posComma1+1).c_str() );
+					int EventType2 = atoi( it2->substr(posEq+1).c_str() );
+					int EventID2 = atoi( it2->substr(posComma2+1).c_str() );
+
+					m_mapEventToSubstitute[ make_pair<int,int> (EventType1,EventID1) ] = make_pair<int,int> (EventType2,EventID2);
+
+					g_pPlutoLogger->Write(LV_STATUS, "Added replacement %d,%d = %d,%d",EventType1,EventID1,EventType2,EventID2);
 				}
 			}
 		}
@@ -870,9 +894,11 @@ g_pPlutoLogger->Write( LV_CRITICAL, "calling timeout");
 	g_pPlutoLogger->Write( LV_STATUS, "Changing screen to %s ir %d type %c",
 		m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ), m_dwPK_Device_LocalOsdIRReceiver, m_pScreenHistory_Current->GetObj()->m_cScreenType);
 #endif
+
+	m_cCurrentScreen=m_pScreenHistory_Current->GetObj()->m_cScreenType;
 	if( m_dwPK_Device_LocalOsdIRReceiver )
 	{
-		DCE::CMD_Set_Screen_Type CMD_Set_Screen_Type(m_dwPK_Device,m_dwPK_Device_LocalOsdIRReceiver,m_pScreenHistory_Current->GetObj()->m_cScreenType);
+		DCE::CMD_Set_Screen_Type CMD_Set_Screen_Type(m_dwPK_Device,m_dwPK_Device_LocalOsdIRReceiver,m_cCurrentScreen);
 		SendCommand(CMD_Set_Screen_Type);
 	}
 	m_pOrbiterRenderer->ObjectOnScreenWrapper(  );
@@ -2453,6 +2479,32 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 	Orbiter::Event *pEvent = (Orbiter::Event*)eventData;
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing type %d key %d",
 					  pEvent->type, (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP ? pEvent->data.button.m_iPK_Button : -999));
+
+	map< pair<int,int>,pair<int,int> >::iterator it = m_mapEventToSubstitute.find( make_pair<int,int> (pEvent->type,pEvent->data.button.m_iPK_Button) );
+	if( it!=m_mapEventToSubstitute.end() )
+	{
+		pEvent->type = (DCE::Orbiter::Event::EventType) it->second.first;
+		pEvent->data.button.m_iPK_Button = it->second.second;
+g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to type %d key %d",
+					  pEvent->type, (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP ? pEvent->data.button.m_iPK_Button : -999));
+	}
+
+	if( pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::REGION_DOWN )
+	{
+		if( !GotActivity(  ) )
+			return;
+
+		if( pEvent->type == Orbiter::Event::BUTTON_DOWN )
+		{
+			map<int,string>::iterator it = m_mapScanCodeToRemoteButton.find(pEvent->data.button.m_iPK_Button);
+			if( it!=m_mapScanCodeToRemoteButton.end() )
+			{
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s",it->second);
+				ReceivedCode(0,it->second.c_str());
+			}
+		}
+	}
+
     if (m_bYieldInput && (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP))
     {
         g_pPlutoLogger->Write(LV_STATUS, "Ignoring keyboard events, m_bYieldInput==%d", m_bYieldInput);
@@ -8722,6 +8774,7 @@ void Orbiter::UpdateTimeCodeLoop()
 			m_pAskXine_Socket->m_dwPK_Device = pDevice->m_dwPK_Device;
 			m_pAskXine_Socket->m_dwMaxRetries=1;  // Only try once
 			
+	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode Connecting to %s",sConnectInfo.c_str());
 			if (!m_pAskXine_Socket->Connect())
 			{
 				// Don't try again if this failed once.  Otherwise we may block for long periods of time if we're not 

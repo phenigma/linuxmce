@@ -153,7 +153,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		bool m_bLoadDatagridImagesInBackground;
 		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
 		map<int,string> m_mapScanCodeToRemoteButton; /** < Map of scan codes to remote button names used by Infrared Plugin */
-		char m_cRemoteLayout;
+		map< pair<int,int>,pair<int,int> > m_mapEventToSubstitute; /** < Replace a combination of event,button with event,button */
 
 		//<-dceag-const-b->!
 
