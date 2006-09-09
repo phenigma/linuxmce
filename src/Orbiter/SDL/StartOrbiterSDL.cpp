@@ -206,14 +206,6 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
                         case SDLK_SEMICOLON:	orbiterEvent->data.button.m_iPK_Button = BUTTON_semicolumn_CONST; break;
                         case SDLK_QUOTE:     orbiterEvent->data.button.m_iPK_Button = BUTTON_single_quote_CONST; break;
                         case SDLK_QUOTEDBL:    orbiterEvent->data.button.m_iPK_Button = BUTTON_double_quote_CONST; break;
-
-			// Speed control
-			case SDLK_FIRST:    orbiterEvent->data.button.m_iPK_Button = BUTTON_F6_CONST; break;
-			// Menu
-			case SDLK_RIGHT:    orbiterEvent->data.button.m_iPK_Button = bUsingUIVersion2 ? BUTTON_F7_CONST : BUTTON_Right_Arrow_CONST; break;
-			// Ambiance
-			case SDLK_END:		orbiterEvent->data.button.m_iPK_Button = BUTTON_F8_CONST; break;
-
 			default:
                             orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
                             g_pPlutoLogger->Write(LV_STATUS, "Unknown key: %d", (int) sdlEvent.key.keysym.sym);
