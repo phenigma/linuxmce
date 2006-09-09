@@ -30,3 +30,9 @@ K_RUNNING=$(uname -r)
 
 BuildModules "$K_RUNNING"
 BuildModules "$K_RUNNING-smp"
+
+echo "#!/bin/bash
+depmod "$K_RUNNING"
+depmod "$K_RUNNING-smp"
+" >mkr_postinst.sh
+chmod +x mkr_postinst.sh
