@@ -1086,7 +1086,6 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		return;
 	}
 
-	
 	if( tolerance_ms==0 )
 	{
 		timespec ts1,ts2,tsElapsed;
@@ -1103,10 +1102,15 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		gettimeofday( &ts2, NULL );
 		tsElapsed = ts2-ts1;
 		int positionTime, totalTime;
-		getStreamPlaybackPosition( positionTime, totalTime );
-		g_pPlutoLogger->Write(LV_STATUS,"Seek took %d ms.  Tried for pos %d landed at %d, off by %d",
+		bool getPositionResult;
+		getStreamPlaybackPosition( positionTime, totalTime, 1, &getPositionResult );
+		if (!getPositionResult)
+			positionTime = pos;
+
+		g_pPlutoLogger->Write(LV_STATUS,"Seek took %d ms.  Tried for pos %d landed at %d <%s>, off by %d",
 													tsElapsed.tv_sec * 1000 + tsElapsed.tv_nsec / 1000000,
-													pos,positionTime,positionTime-pos);
+													pos,positionTime, getPositionResult?"exact":"estimate",
+													positionTime-pos);
 		return ;
 	}
 
@@ -1156,11 +1160,13 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 	int msElapsed = tsElapsed.tv_sec * 1000 + tsElapsed.tv_nsec / 1000000;
 	int seekTime = m_posLastSpecialSeek + (msElapsed * m_iSpecialSeekSpeed / 1000);  // Take the time that did elapse, factor the speed difference, and add it to the last seek
 	int positionTime, totalTime;
-	getStreamPlaybackPosition( positionTime, totalTime );
+	bool getPositionResult;
+	getStreamPlaybackPosition( positionTime, totalTime, 1, &getPositionResult );
 
-	if (abs(positionTime-seekTime)<2000)
+	if ( (getPositionResult && (abs(positionTime-seekTime)<2000) )|| (!getPositionResult && (abs(m_posLastSpecialSeek-seekTime)<2000) ) )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed: too small interval for seek (%i), skipping this time", abs(positionTime-seekTime));
+		g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed: too small interval for seek (%i), skipping this time",
+			getPositionResult?abs(positionTime-seekTime):abs(m_posLastSpecialSeek-seekTime) );
 		return;
 	}
 
@@ -1169,20 +1175,20 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 												m_iSpecialSeekSpeed, msElapsed,
 												m_posLastSpecialSeek,seekTime,positionTime);
 
-	if ( seekTime < 0 || seekTime > totalTime )
+	if ( seekTime < 0 )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "aborting seek" );
-		StopSpecialSeek();
+		g_pPlutoLogger->Write( LV_CRITICAL, "aborting seek, we are at the beginning" );
+		changePlaybackSpeed( PLAYBACK_FF_1 );
 		ReportTimecode();
 		return;
 	}
-
+	
 	m_tsLastSpecialSeek=ts;
 	m_posLastSpecialSeek=seekTime;
 	Seek(seekTime,0);
 }
 
-int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime )
+int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime, int attemptsCount, bool *getResult )
 {
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 
@@ -1200,6 +1206,8 @@ int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Stream is not seekable" );
 		positionTime = totalTime = 0;
+		if (getResult)
+			*getResult=false;
 		return 0;
 	}
 
@@ -1207,15 +1215,33 @@ int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime )
 	int iPosTime = 0;
 	int iLengthTime = 0;
 
-	int count = 10;
-	while ( --count && ! xine_get_pos_length( m_pXineStream, &iPosStream, &iPosTime, &iLengthTime ) )
+	int count = attemptsCount;
+	
+	while ( --count>=0 )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Error reading stream position: %d", xine_get_error( m_pXineStream ) );
+		if ( xine_get_pos_length( m_pXineStream, &iPosStream, &iPosTime, &iLengthTime ) )
+		{
+			if (getResult)
+				*getResult=true;
+
+			positionTime = iPosTime;
+			totalTime = iLengthTime;
+			return positionTime;
+		}
+		else
+		{
+			g_pPlutoLogger->Write( LV_STATUS, "Error reading stream position: %d", xine_get_error( m_pXineStream ) );
+		}
+		
 		Sleep( 25 );
 	}
-
+	
 	positionTime = iPosTime;
 	totalTime = iLengthTime;
+	
+	if (getResult)
+		*getResult=false;
+	
 	return positionTime;
 }
 
@@ -1517,7 +1543,8 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 	{
 		case XINE_EVENT_UI_PLAYBACK_FINISHED:
 			g_pPlutoLogger->Write( LV_STATUS, "Got XINE_EVENT_UI_PLAYBACK_FINISHED" );
-			pXineStream->StopSpecialSeek();
+			//pXineStream->StopSpecialSeek();
+			pXineStream->changePlaybackSpeed( PLAYBACK_STOP );
 			pXineStream->ReportTimecode();
 			pXineStream->playbackCompleted( false );
 			{			
@@ -1539,7 +1566,8 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 
 		case XINE_EVENT_UI_NUM_BUTTONS:
 		{
-			pXineStream->StopSpecialSeek();
+			//pXineStream->StopSpecialSeek();
+			pXineStream->changePlaybackSpeed( PLAYBACK_NORMAL );
 			pXineStream->ReportTimecode();
 			int iButtons = ( ( xine_ui_data_t * ) event->data ) ->num_buttons;
 
