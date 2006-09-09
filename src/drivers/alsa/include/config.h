@@ -29,7 +29,7 @@
 /* #undef CONFIG_SND_GENERIC_PM */
 
 /* build section */
-#define CONFIG_SND_KERNELDIR "/home/src/linux-2.6.16.20-pluto-1-686-smp"
+#define CONFIG_SND_KERNELDIR "/home/src/linux-2.6.16.20-pluto-2-686-smp"
 #define CONFIG_ISAPNP_KERNEL 1
 #define CONFIG_PNP_KERNEL 1
 #define CONFIG_SND_ISAPNP 1
