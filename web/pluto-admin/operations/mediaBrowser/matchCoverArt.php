@@ -174,7 +174,7 @@ function syncAttributes($table,$itemValue,$id,$mediadbADO){
 		$parts=explode("\t",trim($line));
 		// todo: attribute mapping
 		if(count($parts)==2){
-			$atype=str_replace(array('Average Customer Review', 'Actor','Directors'),array('Rating', 'Performer','Director'),$parts[0]);
+			$atype=str_replace(array('Average Customer Review', 'Actor','Directors','Artist'),array('Rating', 'Performer','Director','Performer'),$parts[0]);
 			$aname=$parts[1];
 
 			if(!in_array($atype,array_keys($existingAttributes)) && isset($attributeTypes[$atype])){

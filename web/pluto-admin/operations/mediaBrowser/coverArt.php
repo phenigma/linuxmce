@@ -174,12 +174,18 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 		break;
 	}
 	
+
+	
 	$out='<b>'.$title.'</b>';
-	$out.= multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaType);
+	$out.= multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaType,$mediadbADO);
 	return $out;
 }
 
-function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaType){
+function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaType,$mediadbADO){
+	
+	/* @var $mediadbADO ADOConnection */
+	/* @var $rs ADORecordSet */
+
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/coverArt.lang.php');
 
 	$page=(isset($_REQUEST['page']))?(int)$_REQUEST['page']:1;
@@ -188,7 +194,7 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaTyp
 		// music options allowed as parameters for Amazon search index music
 		$filterOptions=array(
 			'Artist'=>'Artist',
-			'Title'=>'Title'
+			'Title'=>'Album'
 		);
 	}else{
 		// music options allowed as parameters for Amazon search index DVD
@@ -231,6 +237,17 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaTyp
 	
 					
 	';
+	
+	//get title and performer for media
+	
+	if(($type=='filesNoCover' || $type=='allFiles') && $mediaType==4){
+		$filters=array();
+		$rs=$mediadbADO->Execute('SELECT * FROM File_Attribute INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType INNER JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType IN (2,3) AND FK_File IN ('.join(',',array_keys($dataArray)).')');
+		while($row=$rs->FetchRow()){
+			$filters[$row['FK_File']][$row['FK_AttributeType']]=$row['Name'];
+		}
+	}
+	
 	$pos=0;
 	$ids=array();
 	foreach ($dataArray AS $id=>$label){
@@ -238,18 +255,37 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaTyp
 		if($pos>($ipp*($page-1)) && $pos<$ipp*$page){
 			$ids[]=$id;
 			$class=($pos%2!=0)?'':'alternate_back';
-			$toSearch=($type=='allFiles' || $type=='filesNoCover')?substr($label,strrpos($label,'/')+1):$label;
-			$toSearch=substr($toSearch,0,strrpos($toSearch,'.'));
-			$toSearch=str_replace('audio','',$toSearch);
+			$recordLabel=($type=='allFiles' || $type=='filesNoCover')?substr($label,strrpos($label,'/')+1):$label;
+			$toSearch=substr($recordLabel,0,strrpos($recordLabel,'.'));
+			$toSearch=str_replace(array('-','(',')'),' ',$toSearch);
+			
+			$filter2='';
+			$filterSelected2='';
+			$filter3='';
+			$filterSelected3='';
+			
+			if(isset($filters[$id][2]) && isset($filters[$id][3]) && $mediaType==4){
+				
+				if(@trim($filters[$id][2])!=''){
+					$filter2=@$filters[$id][2];	
+					$filterSelected2='Artist';
+				}
+				if(@trim($filters[$id][3])!=''){
+					$filter3=@$filters[$id][3];				
+					$filterSelected3='Title';
+				}
+				$toSearch='';
+			}
+
 			$out.='
 			<tr class="'.$class.'">
 				<td align="center"><input type="checkbox" name="item_'.$id.'" value="'.$id.'" checked></td>
-				<td title="'.$label.'" align="left">'.$toSearch.'</td>
+				<td title="'.$label.'" align="left">'.$recordLabel.'</td>
 				<td align="left"><input type="text" name="Keyword1Search_'.$id.'" value="'.$toSearch.'"></td>
-				<td align="left">'.pulldownFromArray($filterOptions,'Keyword2Type_'.$id,'').'</td>
-				<td align="left"><input type="text" name="Keyword2Search_'.$id.'" value=""></td>
-				<td align="left">'.pulldownFromArray($filterOptions,'Keyword3Type_'.$id,'').'</td>
-				<td align="left"><input type="text" name="Keyword3Search_'.$id.'" value=""></td>
+				<td align="left">'.pulldownFromArray($filterOptions,'Keyword2Type_'.$id,$filterSelected2).'</td>
+				<td align="left"><input type="text" name="Keyword2Search_'.$id.'" value="'.@$filter2.'"></td>
+				<td align="left">'.pulldownFromArray($filterOptions,'Keyword3Type_'.$id,$filterSelected3).'</td>
+				<td align="left"><input type="text" name="Keyword3Search_'.$id.'" value="'.@$filter3.'"></td>
 			</tr>';
 		}
 	}
