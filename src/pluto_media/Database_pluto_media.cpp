@@ -27,6 +27,8 @@ Database_pluto_media::Database_pluto_media()
 tblAttribute=NULL;
 tblAttributeType=NULL;
 tblBookmark=NULL;
+tblCoverArtScan=NULL;
+tblCoverArtScanEntry=NULL;
 tblDisc=NULL;
 tblDisc_Attribute=NULL;
 tblDisc_Users=NULL;
@@ -73,6 +75,12 @@ if( tblAttributeType!=NULL )
 		bResult=false;
 if( tblBookmark!=NULL )
 	if( !Commit_Bookmark(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblCoverArtScan!=NULL )
+	if( !Commit_CoverArtScan(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblCoverArtScanEntry!=NULL )
+	if( !Commit_CoverArtScanEntry(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
 if( tblDisc!=NULL )
 	if( !Commit_Disc(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
@@ -167,6 +175,8 @@ void Database_pluto_media::DeleteAllTables()
 DeleteTable_Attribute();
 DeleteTable_AttributeType();
 DeleteTable_Bookmark();
+DeleteTable_CoverArtScan();
+DeleteTable_CoverArtScanEntry();
 DeleteTable_Disc();
 DeleteTable_Disc_Attribute();
 DeleteTable_Disc_Users();

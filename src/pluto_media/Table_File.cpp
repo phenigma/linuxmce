@@ -21,6 +21,7 @@ using namespace std;
 #include "Table_FileFormat.h"
 
 #include "Table_Bookmark.h"
+#include "Table_CoverArtScan.h"
 #include "Table_File_Attribute.h"
 #include "Table_File_Users.h"
 #include "Table_Picture_File.h"
@@ -1243,6 +1244,13 @@ void Row_File::Bookmark_FK_File_getrows(vector <class Row_Bookmark*> *rows)
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Bookmark *pTable = table->database->Bookmark_get();
+pTable->GetRows("`FK_File`=" + StringUtils::itos(m_PK_File),rows);
+}
+void Row_File::CoverArtScan_FK_File_getrows(vector <class Row_CoverArtScan*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_CoverArtScan *pTable = table->database->CoverArtScan_get();
 pTable->GetRows("`FK_File`=" + StringUtils::itos(m_PK_File),rows);
 }
 void Row_File::File_Attribute_FK_File_getrows(vector <class Row_File_Attribute*> *rows)

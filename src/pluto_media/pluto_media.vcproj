@@ -127,6 +127,12 @@
 				RelativePath=".\Table_Bookmark.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_CoverArtScan.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_CoverArtScanEntry.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Disc.cpp">
 			</File>
 			<File

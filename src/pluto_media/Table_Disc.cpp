@@ -21,6 +21,7 @@ using namespace std;
 #include "Table_FileFormat.h"
 
 #include "Table_Bookmark.h"
+#include "Table_CoverArtScan.h"
 #include "Table_Disc_Attribute.h"
 #include "Table_Disc_Users.h"
 #include "Table_Picture_Disc.h"
@@ -1161,6 +1162,13 @@ void Row_Disc::Bookmark_FK_Disc_getrows(vector <class Row_Bookmark*> *rows)
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Bookmark *pTable = table->database->Bookmark_get();
+pTable->GetRows("`FK_Disc`=" + StringUtils::itos(m_PK_Disc),rows);
+}
+void Row_Disc::CoverArtScan_FK_Disc_getrows(vector <class Row_CoverArtScan*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_CoverArtScan *pTable = table->database->CoverArtScan_get();
 pTable->GetRows("`FK_Disc`=" + StringUtils::itos(m_PK_Disc),rows);
 }
 void Row_Disc::Disc_Attribute_FK_Disc_getrows(vector <class Row_Disc_Attribute*> *rows)
