@@ -101,7 +101,7 @@ function formatScannedItems($scannedArray){
 			foreach ($data['Entries'] AS $pic){
 				$pos++;
 				if(file_exists('/home/coverartscan/'.$pic.'_tn.jpg')){
-					$picsTable.='<td align="center"><input type="radio" name="pic_'.$id.'" value="'.$pic.'"><br><img src="coverartscan/'.$pic.'_tn.jpg"></td>';
+					$picsTable.='<td align="center"><input type="radio" name="pic_'.$id.'" value="'.$pic.'"><br><a href="coverartscan/'.$pic.'.jpg" target="_blank"><img src="coverartscan/'.$pic.'_tn.jpg" border="0"></a></td>';
 				}
 				if($pos==6){
 					$picsTable.='</tr><tr>';

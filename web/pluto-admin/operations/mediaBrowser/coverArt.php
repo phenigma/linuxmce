@@ -92,9 +92,9 @@ function coverArt($output,$mediadbADO) {
 					$toScan.=$scanUrl."\n";
 					
 					// todo: remove after Mircea make his scripts
-					$cmd='wget \'http://10.0.0.175/pluto-admin/'.$scanUrl.'\' --header=\'User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4\' -O -';
+					$cmd='wget \'http://'.$_SERVER['HTTP_HOST'].'/pluto-admin/'.$scanUrl.'\' --header=\'User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4\' -O -';
 					//echo $cmd.'<br>';
-					//exec_batch_command($cmd);	
+					exec_batch_command($cmd);	
 				}
 			}
 		}
@@ -126,7 +126,8 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 	
 	switch ($type){
 		case 'allFiles':
-			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,Filename) AS Label',$mediadbADO,'LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE EK_MediaType ='.$mediaType.' AND (Scanned IS NULL OR Scanned=0) LIMIT 0,200');
+			$extra=($mediaType==3)?' OR EK_MediaType=5':'';
+			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,Filename) AS Label',$mediadbADO,'LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType ='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) LIMIT 0,200');
 			$itemName='fileID';
 			$title=$TEXT_SHOW_ALL_FILES_CONST;
 		break;
@@ -137,18 +138,19 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 			FROM File
 			LEFT JOIN Picture_File ON Picture_File.FK_File=PK_File
 			LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File
-			WHERE EK_MediaType IN (3,4) AND (Scanned IS NULL OR Scanned=0)
+			WHERE EK_MediaType IN (3,4,5) AND (Scanned IS NULL OR Scanned=0)
 			GROUP BY PK_File
 			HAVING count(FK_Picture)=0 
 			
 			*/
 			// todo: remove limit
-			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,Filename) AS Label',$mediadbADO,'LEFT JOIN Picture_File ON  Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE EK_MediaType='.$mediaType.' AND (Scanned IS NULL OR Scanned=0) GROUP BY PK_File HAVING count(FK_Picture)=0 LIMIT 0,200');
+			$extra=($mediaType==3)?' OR EK_MediaType=5':'';
+			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,Filename) AS Label',$mediadbADO,'LEFT JOIN Picture_File ON  Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) GROUP BY PK_File HAVING count(FK_Picture)=0 LIMIT 0,200');
 			$itemName='fileID';
 			$title=$TEXT_SHOW_FILES_NO_COVERART_CONST;
 		break;
 		case 'allDiscs':
-			$dataArray=getAssocArray('Disc','PK_Disc','Slot AS Label',$mediadbADO,'LEFT JOIN CoverArtScan ON CoverArtScan.FK_Disc=PK_Disc WHERE EK_MediaType ='.$mediaType.' AND (Scanned IS NULL OR Scanned=0)');
+			$dataArray=getAssocArray('Disc','PK_Disc','Slot AS Label',$mediadbADO,'LEFT JOIN CoverArtScan ON CoverArtScan.FK_Disc=PK_Disc WHERE (EK_MediaType ='.$mediaType.' OR EK_MediaType=5) AND (Scanned IS NULL OR Scanned=0)');
 			$itemName='discID';
 			$title=$TEXT_SHOW_ALL_DISCS_CONST;
 		break;
@@ -238,7 +240,7 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName){
 			$class=($pos%2!=0)?'':'alternate_back';
 			$toSearch=($type=='allFiles' || $type=='filesNoCover')?substr($label,strrpos($label,'/')+1):$label;
 			$toSearch=substr($toSearch,0,strrpos($toSearch,'.'));
-			
+			$toSearch=str_replace('audio','',$toSearch);
 			$out.='
 			<tr class="'.$class.'">
 				<td align="center"><input type="checkbox" name="item_'.$id.'" value="'.$id.'" checked></td>
