@@ -1376,7 +1376,7 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 	
 		// this feature definitely works for MPEG2 only (may be some other audio codecs, but not generic)
 		// e.g. MOV files cannot restore after it
-		if (strncasecmp("dvd:", m_sCurrentFile.c_str(), 4)==0)
+		if (StringUtils::StartsWith(m_sCurrentFile,"dvd:", true) ||StringUtils::EndsWith(m_sCurrentFile,".mpg", true) || StringUtils::EndsWith(m_sCurrentFile,".mpeg", true))
 		{
 			g_pPlutoLogger->Write( LV_WARNING, "Disabling audio decoding for faster seek: %s", m_sCurrentFile.c_str());
 			xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 1);
@@ -1840,7 +1840,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 	}
 
 
-	bool trickModeSupported = (strncasecmp("dvd:", m_sCurrentFile.c_str(), 4)==0);
+	bool trickModeSupported = StringUtils::StartsWith(m_sCurrentFile,"dvd:", true) ||StringUtils::EndsWith(m_sCurrentFile,".mpg", true) || StringUtils::EndsWith(m_sCurrentFile,".mpeg", true);
 	//bool trickModeSupported = true;
 	bool trickModeActive = m_bTrickModeActive;
 	
