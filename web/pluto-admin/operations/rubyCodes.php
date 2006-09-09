@@ -31,7 +31,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 	}
 	
 	// get InfraredGroup_Commmand from remote location only when deviceID is not defined
-	if((int)$deviceID>0){
+	if((int)$deviceID==0){
 		$isImported=GetIRCodesForDevice(NULL,$dbADO,$dtID);
 	}
 	
