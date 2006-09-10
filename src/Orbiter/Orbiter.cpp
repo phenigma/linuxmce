@@ -2488,7 +2488,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing type %d key %d
 		pEvent->type = (DCE::Orbiter::Event::EventType) it->second.first;
 		pEvent->data.button.m_iPK_Button = it->second.second;
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to type %d key %d",
-					  pEvent->type, (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP ? pEvent->data.button.m_iPK_Button : -999));
+					  pEvent->type, pEvent->data.button.m_iPK_Button);
 	}
 
 	if( pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::REGION_DOWN )
@@ -3241,9 +3241,6 @@ bool Orbiter::RegionDown( int x,  int y )
 //------------------------------------------------------------------------
 bool Orbiter::GotActivity(  )
 {
-	if(UsesUIVersion2())
-		return true; // No concept of screen saver in the new UI
-
 	m_LastActivityTime=time( NULL );
 
 #ifdef DEBUG
