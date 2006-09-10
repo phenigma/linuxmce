@@ -537,10 +537,6 @@ bool Orbiter::GetConfig()
 
 	WriteStatusOutput("Got the config");
 
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"monitor m_bDisplayOn initially set to %d",(int) m_bDisplayOn);
-#endif
-
 	m_nSelectionBehaviour = DATA_Get_Using_Infrared();
 
 	if(  !m_bLocalMode  )
@@ -2011,6 +2007,10 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				m_bDisplayOn=true;  // The display should already be on.  If this is the first time it's run, the user must have left the tv on already
 			if( m_bNewOrbiter )
 				m_iTimeoutScreenSaver=m_iTimeoutBlank=0;
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"monitor m_bDisplayOn initially set to %d",(int) m_bDisplayOn);
+#endif
 
 			char *pData=NULL; int iSize=0;
 			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1",
@@ -6683,6 +6683,9 @@ void Orbiter::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Me
 //<-dceag-c192-e->
 {
 	m_bDisplayOn = true;
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"cmd_on m_bDisplayOn set to %d",(int) m_bDisplayOn);
+#endif
 	if( !m_bScreenSaverActive && !m_bBypassScreenSaver && m_iTimeoutScreenSaver && !UsesUIVersion2() )
 		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
 }
@@ -6698,6 +6701,9 @@ void Orbiter::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 //<-dceag-c193-e->
 {
 	m_bDisplayOn = false;
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"cmd_off m_bDisplayOn set to %d",(int) m_bDisplayOn);
+#endif
 	m_pOrbiterRenderer->BeginPaint();
 	PlutoColor color(200, 200, 200, 100);
 	m_pOrbiterRenderer->SolidRectangle(5, m_iImageHeight - 30, 200, 25, color);
@@ -7501,6 +7507,9 @@ void Orbiter::CMD_Guide(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c194-e->
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"toggle power m_bDisplayOn was %d",(int) m_bDisplayOn);
+#endif
 	if( m_dwPK_Device_NowPlaying )
 	{
 		DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_dwPK_Device,m_dwPK_Device_MediaPlugIn,0,0,0,StringUtils::itos( m_pLocationInfo->PK_EntertainArea ));
@@ -7741,15 +7750,20 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 
 	m_sNowPlaying_Speed = sSpeed;
 
-	NeedToRender render( this, "Time Code" );
-	if( m_pObj_NowPlaying_TimeShort_OnScreen && m_pObj_NowPlaying_TimeShort_OnScreen->m_bOnScreen )
-		m_pOrbiterRenderer->RenderObjectAsync(m_pObj_NowPlaying_TimeShort_OnScreen);
-	if( m_pObj_NowPlaying_TimeLong_OnScreen && m_pObj_NowPlaying_TimeLong_OnScreen->m_bOnScreen && m_pObj_NowPlaying_TimeShort_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen )
-		m_pOrbiterRenderer->RenderObjectAsync(m_pObj_NowPlaying_TimeLong_OnScreen); // warning: will never be executed ?
-	if( m_pObj_NowPlaying_Speed_OnScreen && m_pObj_NowPlaying_Speed_OnScreen->m_bOnScreen && m_pObj_NowPlaying_Speed_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen )
-		m_pOrbiterRenderer->RenderObjectAsync(m_pObj_NowPlaying_Speed_OnScreen);
+	DesignObj_Orbiter *pObj_NowPlaying_TimeShort_OnScreen = m_pObj_NowPlaying_TimeShort_OnScreen && m_pObj_NowPlaying_TimeShort_OnScreen->m_bOnScreen ? m_pObj_NowPlaying_TimeShort_OnScreen : NULL;
+	DesignObj_Orbiter *pObj_NowPlaying_TimeLong_OnScreen = m_pObj_NowPlaying_TimeLong_OnScreen && m_pObj_NowPlaying_TimeLong_OnScreen->m_bOnScreen && m_pObj_NowPlaying_TimeShort_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen ? m_pObj_NowPlaying_TimeLong_OnScreen : NULL;
+	DesignObj_Orbiter *pObj_NowPlaying_Speed_OnScreen = m_pObj_NowPlaying_Speed_OnScreen && m_pObj_NowPlaying_Speed_OnScreen->m_bOnScreen && m_pObj_NowPlaying_Speed_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen ? m_pObj_NowPlaying_Speed_OnScreen : NULL;
 
 	vm.Release();
+
+	NeedToRender render( this, "Time Code" );
+	if( pObj_NowPlaying_TimeShort_OnScreen )
+		m_pOrbiterRenderer->RenderObjectAsync(pObj_NowPlaying_TimeShort_OnScreen);
+	if( pObj_NowPlaying_TimeLong_OnScreen )
+		m_pOrbiterRenderer->RenderObjectAsync(pObj_NowPlaying_TimeLong_OnScreen); // warning: will never be executed ?
+	if( pObj_NowPlaying_Speed_OnScreen )
+		m_pOrbiterRenderer->RenderObjectAsync(pObj_NowPlaying_Speed_OnScreen);
+
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if(UsesUIVersion2())
 	{
@@ -8872,7 +8886,6 @@ void Orbiter::StartScreenSaver()
 #endif
 	}
 	m_bScreenSaverActive=true;
-	m_bDisplayOn = true;
 }
 
 void Orbiter::StopScreenSaver()
