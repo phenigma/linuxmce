@@ -184,22 +184,19 @@ diff -ruN xine-lib-1.1.2/src/xine-engine/video_out.c xine-lib-1.1.2-new/src/xine
  
  
    if (!img->bad_frame) {
-@@ -549,6 +588,14 @@
+@@ -549,6 +588,11 @@
        stream = xine_list_get_value(this->streams, ite);
        if (stream == XINE_ANON_STREAM) continue;
        pthread_mutex_lock (&stream->first_frame_lock);
 +      if (stream->first_frame_flag == 3) {
 +      	stream->first_frame_flag = 1;
 +	img->is_first = FIRST_FRAME_MAX_POLL;
-+	pthread_mutex_unlock (&stream->first_frame_lock);
-+	pthread_cond_broadcast(&stream->first_frame_reached);
-+	pthread_mutex_lock (&stream->first_frame_lock);
 +      }
 +      else
        if (stream->first_frame_flag == 2) {
          if (this->grab_only) {
            stream->first_frame_flag = 0;
-@@ -645,6 +692,7 @@
+@@ -645,6 +689,7 @@
      this->num_frames_skipped   = 0;
    }
    
