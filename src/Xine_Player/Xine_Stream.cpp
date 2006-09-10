@@ -1163,10 +1163,10 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 	bool getPositionResult;
 	getStreamPlaybackPosition( positionTime, totalTime, 1, &getPositionResult );
 
-	// logic: limiting speed is 2x
-	// so for ranges ( abs ) 0x-2x we are using jump 2000ms and wait sometime,
+	// logic: limiting speed is 4x
+	// so for ranges ( abs ) 0x-4x we are using jump 2000ms and wait sometime,
 	
-	if ( abs(m_iSpecialSeekSpeed) <= 2*PLAYBACK_NORMAL )
+	if ( abs(m_iSpecialSeekSpeed) < 4*PLAYBACK_NORMAL )
 	{
 		// where do we seek?
 		seekTime = m_posLastSpecialSeek + 2000 * ( (abs(m_iSpecialSeekSpeed)==m_iSpecialSeekSpeed)?1:-1 );
@@ -1191,7 +1191,7 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 			if (abs(m_iSpecialSeekSpeed)<=PLAYBACK_NORMAL)
 				deltaTime = 250;
 			else
-				deltaTime = 250*m_iSpecialSeekSpeed/(2*PLAYBACK_NORMAL);
+				deltaTime = 250*m_iSpecialSeekSpeed/(4*PLAYBACK_NORMAL);
 		
 		if (msElapsed<deltaTime)
 		{
