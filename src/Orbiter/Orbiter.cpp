@@ -629,6 +629,8 @@ bool Orbiter::GetConfig()
 		}
 	}
 
+	if( !m_Virtual_Device_Translator.GetConfig(m_pData) )
+		return false;
 	IRReceiverBase::GetConfig(m_pData);
 	m_pScreenHandler = CreateScreenHandler();
 	m_pOrbiterRenderer->Configure();
@@ -2855,6 +2857,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d key %d",
 
 bool Orbiter::ButtonDown( int iPK_Button )
 {
+ReceivedCode(0,"voldn");
+
 	if(NULL != m_pScreenHandler)
 	{
 		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnKeyDown);
