@@ -1,3 +1,10 @@
+module-init-tools (3.2.2-2pluto1) unstable; urgency=medium
+
+  * Pluto hack: treat the misc directory as modprobe does with the updates
+    directory
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Mon, 11 Sep 2006 01:15:10 +0300
+
 module-init-tools (3.2.2-2) unstable; urgency=medium
 
   * Added patch fix_wildcards from upstream 3.3-pre1, to fix matching
