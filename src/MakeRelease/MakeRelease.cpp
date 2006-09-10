@@ -116,7 +116,7 @@ bool ZipFiles(string sArchiveFileName);
 // hardcoded list of packages
 bool isDriverPackage(int iPK_Package)
 {
-	static const int DriverPkgs[] = { 339, 338, 337, 336, 516, 515, 543, 542, 545, 544, 568, 569, -1 };
+	static const int DriverPkgs[] = { 339, 338, 337, 336, 516, 515, 543, 542, 545, 544, 568, 569, 589, 590, -1 };
 	for (int i = 0; DriverPkgs[i] != -1; i++)
 	{
 		if (iPK_Package == DriverPkgs[i])
