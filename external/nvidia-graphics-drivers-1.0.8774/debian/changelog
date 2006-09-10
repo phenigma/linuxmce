@@ -1,3 +1,9 @@
+nvidia-graphics-drivers (1.0.8774-1pluto2) unstable; urgency=low
+
+  * built for kernel 2.6.16.20-pluto-2-686 (UP and SMP)
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Sun, 10 Sep 2006 20:58:04 +0300
+
 nvidia-graphics-drivers (1.0.8774-1pluto1) unstable; urgency=low
 
   * built for kernel 2.6.16.20-pluto-1-686
