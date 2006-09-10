@@ -92,7 +92,7 @@ if ( defined $ARGV[1] && $ARGV[1] eq "cache" )
 	`cp -v /home/samba/repositories/pluto/20dev/contrib/binary-i386/*.deb image-netinst/Debian-Cache`;
 
 	`find image-netinst/Debian-Cache '(' -name 'kernel-image*' -or -name 'kernel-source*' -or -name 'kernel-headers*' -or -name 'kernel-doc*' ')' -exec rm '{}' ';'`;
-	`find image-netinst/Debian-Cache -name 'linux-image*' -not -name '*2.6.16.20-pluto-1*' -exec rm -f '{}' ';'`;
+	`find image-netinst/Debian-Cache -name 'linux-image*' -not -name '*2.6.16.20-pluto-2*' -exec rm -f '{}' ';'`;
 	`find image-netinst/Debian-Cache '(' -name 'linux-source*' -or -name 'linux-headers*' -or -name 'linux-doc*' ')' -exec rm '{}' ';'`;
 	`find image-netinst/Debian-Cache -name 'pluto-src-*' -exec rm '{}' ';'`;
 	`rm image-netints/Debian-Cache/kernel-*`;
