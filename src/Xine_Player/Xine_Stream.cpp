@@ -1163,11 +1163,50 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 	bool getPositionResult;
 	getStreamPlaybackPosition( positionTime, totalTime, 1, &getPositionResult );
 
-	if ( (getPositionResult && (abs(positionTime-seekTime)<2000) )|| (!getPositionResult && (abs(m_posLastSpecialSeek-seekTime)<2000) ) )
+	// logic: limiting speed is 2x
+	// so for ranges ( abs ) 0x-2x we are using jump 2000ms and wait sometime,
+	
+	if ( abs(m_iSpecialSeekSpeed) <= 2*PLAYBACK_NORMAL )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed: too small interval for seek (%i), skipping this time",
-			getPositionResult?abs(positionTime-seekTime):abs(m_posLastSpecialSeek-seekTime) );
-		return;
+		// where do we seek?
+		seekTime = m_posLastSpecialSeek + 2000 * ( (abs(m_iSpecialSeekSpeed)==m_iSpecialSeekSpeed)?1:-1 );
+		
+		if (m_iSpecialSeekSpeed==0)
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed: speed is zero, skipping");
+			return;
+		}
+		
+		// desired values:
+		// 0.25x => 750 ms
+		// 0.50x => 500 ms
+		// 1.00x => 250 ms
+		int deltaTime;
+		if (abs(m_iSpecialSeekSpeed)<=PLAYBACK_NORMAL/4)
+			deltaTime = 750;
+		else
+			if (abs(m_iSpecialSeekSpeed)<=PLAYBACK_NORMAL/2)
+				deltaTime = 500;
+			else
+			if (abs(m_iSpecialSeekSpeed)<=PLAYBACK_NORMAL)
+				deltaTime = 250;
+			else
+				deltaTime = 250*m_iSpecialSeekSpeed/(2*PLAYBACK_NORMAL);
+		
+		if (msElapsed<deltaTime)
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed: rewind mode, skipping seek now");
+			return;
+		}
+	}
+	else	// usual 'check interval to jump' logic
+	{
+		if ( (getPositionResult && (abs(positionTime-seekTime)<2000) )|| (!getPositionResult && (abs(m_posLastSpecialSeek-seekTime)<2000) ) )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed: too small interval for seek (%i), skipping this time",
+				getPositionResult?abs(positionTime-seekTime):abs(m_posLastSpecialSeek-seekTime) );
+			return;
+		}	
 	}
 
 
