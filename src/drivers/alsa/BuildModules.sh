@@ -32,7 +32,7 @@ BuildModules "$K_RUNNING"
 BuildModules "$K_RUNNING-smp"
 
 echo "#!/bin/bash
-depmod "$K_RUNNING || /bin/true"
-depmod "$K_RUNNING-smp || /bin/true"
+depmod \"$K_RUNNING || /bin/true\"
+depmod \"$K_RUNNING-smp || /bin/true\"
 " >mkr_postinst.sh
 chmod +x mkr_postinst.sh
