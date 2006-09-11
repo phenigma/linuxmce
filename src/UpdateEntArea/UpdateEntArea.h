@@ -29,6 +29,7 @@ public:
     Database_pluto_main *m_pDatabase_pluto_main ;
 
 	UpdateEntArea();
+	~UpdateEntArea();
 
 	// Setup functions which must be called to prep things (in UpdateEntArea_Setup.cpp) 
 	bool Connect(int PK_Installation,string host, string user, string pass, string db_name, int port);

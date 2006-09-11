@@ -56,6 +56,15 @@ UpdateEntArea::UpdateEntArea()
 {
 }
 
+UpdateEntArea::~UpdateEntArea()
+{
+	if(NULL != m_pDatabase_pluto_main)
+	{
+		delete m_pDatabase_pluto_main;
+		m_pDatabase_pluto_main = NULL;
+	}
+}
+
 void UpdateEntArea::AddDefaultScenarios()
 {
 	AddDefaultMediaScenarios();
