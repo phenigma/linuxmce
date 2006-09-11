@@ -36,11 +36,11 @@ void Gallery::MainLoop(bool * m_bQuit)
 			if(StatusChange)
 			{
 				PaintScreen();
-				_Sleep(625);
+				_Sleep(35);
 			}
 			else
 			{
-				_Sleep(640);
+				_Sleep(80);
 			}
 		}
 		Quit = Quit || (* m_bQuit);
