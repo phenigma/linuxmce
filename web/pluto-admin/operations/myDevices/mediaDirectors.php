@@ -317,12 +317,17 @@ function mediaDirectors($output,$dbADO) {
 										<tr>
 											<td><B>'.$TEXT_USE_ALPHA_BLENDED_UI_CONST.'</B></td>
 											<td><input type="checkbox" name="alpha_blended_'.$rowD['PK_Device'].'" value="1" '.(($alphaBlended==1)?'checked':'').'></td>
-										</tr>
+										</tr>';
+							/*
+							// removed since the screensaver is set as optional device for md
+							// will put it back when there will be more than one device							
+									$out.='
 										<tr>
 											<td><B>'.$TEXT_SCREEN_SAVER_CONST.'</B></td>
 											<td>'.displayScreenSavers($orbiterMDChild,$dbADO).'</td>
-										</tr>
-						
+										</tr>';
+							*/
+							$out.='
 									</table>
 									
 								</td>
@@ -528,7 +533,9 @@ function mediaDirectors($output,$dbADO) {
 					}
 
 					processReceiver($value,$dbADO);
-					processScreenSavers($orbiterMDChild,$dbADO);
+					
+					// removed screensaver since it's optional device for MD
+					// processScreenSavers($orbiterMDChild,$dbADO);
 					$err=processAudioSettings($value,$dbADO);
 				}
 			}
