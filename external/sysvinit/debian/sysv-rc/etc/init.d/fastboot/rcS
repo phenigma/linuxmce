@@ -422,6 +422,11 @@ if [[ -x /usr/pluto/bin/shift_state ]]; then
 	fi
 fi
 
+if [[ -x /usr/pluto/bin/corefile.sh ]]; then
+	Message "Setting core file"
+	/usr/pluto/bin/corefile.sh
+fi
+
 Message "Starting Pluto HAL daemon"
 /usr/pluto/bin/StartHAL.sh
 
