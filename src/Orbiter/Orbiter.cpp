@@ -704,10 +704,7 @@ void Orbiter::ScreenSaver( void *data )
 	NeedToRender render( this, "Screen saver" );
 
 	if( m_bScreenSaverActive )
-	{
-		StopScreenSaver();
 		CMD_Display_OnOff("0",false);
-	}
 	else
 		StartScreenSaver();
 }
@@ -3254,11 +3251,11 @@ bool Orbiter::GotActivity(  )
 #endif
 		if( !m_bDisplayOn )
 			CMD_Display_OnOff( "1",false );
-		if( NULL != m_pScreenHistory_Current && m_bScreenSaverActive )
-			StopScreenSaver();
 
 		if( !UsesUIVersion2() )
 		{
+			if( NULL != m_pScreenHistory_Current && m_bScreenSaverActive )
+				StopScreenSaver();
 			CMD_Set_Main_Menu("N");
 			GotoMainMenu();
 		}
