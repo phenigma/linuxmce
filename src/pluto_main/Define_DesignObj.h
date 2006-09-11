@@ -2080,7 +2080,6 @@
 #define DESIGNOBJ_butRoomLong_CONST 5015
 #define DESIGNOBJ_icoRedSquare_CONST 5016
 #define DESIGNOBJ_icoYellowSquare_CONST 5017
-#define DESIGNOBJ_dgVoiceMailManager_CONST 5018
 #define DESIGNOBJ_butSensitivity1_CONST 5019
 #define DESIGNOBJ_butSensitivity2_CONST 5020
 #define DESIGNOBJ_butSensitivity3_CONST 5021
@@ -2231,6 +2230,7 @@
 #define DESIGNOBJ_butFileBrowserBack_CONST 5175
 #define DESIGNOBJ_dgMediaAttributesForFile_CONST 5176
 #define DESIGNOBJ_CDMusic_Full_Screen_UI2_CONST 5177
+#define DESIGNOBJ_dgVoiceMailManager_CONST 5178
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
