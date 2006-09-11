@@ -214,7 +214,7 @@ GetVideoDriver()
 	case "$VideoDriver" in
 		nv) PackageIsInstalled nvidia-glx && VideoDriver="nvidia" ;;
 		radeon|ati) PackageIsInstalled fglrx-driver && VideoDriver="fglrx" ;;
-		"") VideoDrivers="vesa" ;; # just-in-case default
+		"") VideoDriver="vesa" ;; # just-in-case default
 	esac
 	echo "$VideoDriver"
 }
