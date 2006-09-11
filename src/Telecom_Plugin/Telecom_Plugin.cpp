@@ -1673,7 +1673,7 @@ bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMess
 }
 
 /* this makes the plugin asterisk dependend */
-#define VOICEMAIL_LOCATION "/var/lib/asterisk/sounds/voicemail/default/"
+#define VOICEMAIL_LOCATION "/var/spool/asterisk/voicemail/default/"
 class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "UserVoiceMailGrid request received for GridID: %s with Params: %s",GridID.c_str(),Parms.c_str());
