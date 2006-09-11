@@ -37,8 +37,8 @@ HorizMenuMouseHandler::HorizMenuMouseHandler(DesignObj_Orbiter *pObj,string sOpt
 		m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y);
 		PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 		m_pObj_ActiveMenuPad=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=pObj_First;
-		//if( m_pObj_ActiveMenuPad )
-		//	ShowPopup(m_pObj_ActiveMenuPad);
+		if( m_pObj_ActiveMenuPad )
+			ShowPopup(m_pObj_ActiveMenuPad);
 	}
 }
 
