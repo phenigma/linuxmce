@@ -1,5 +1,16 @@
 #!/bin/bash
 
+function XorgConfLogging() {
+	local message="$1"
+	local xorgLog="/var/log/pluto/xorg.conf.log"
+	local xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
+	local myPid=$$
+
+	echo "$myPid $(date -R) $message [$xorgLines]"	>> $xorgLog
+}
+
+XorgConfLogging "Starting $0 $*"
+
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Utils.sh
@@ -127,7 +138,7 @@ if [[ ! -f /usr/pluto/bin/X-UI_Sections.awk ]]; then
 fi
 
 if [[ -z "$SkipLock" ]]; then
-	trap 'Unlock "Xconfigure" "Xconfigure"' EXIT
+	trap 'Unlock "Xconfigure" "Xconfigure" ; XorgConfLogging "Ending"' EXIT
 	WaitLock "Xconfigure" "Xconfigure" # don't run two copies of Xconfigure simultaneously
 fi
 

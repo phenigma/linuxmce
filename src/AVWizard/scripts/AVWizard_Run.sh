@@ -1,5 +1,18 @@
 #!/bin/bash
 
+function XorgConfLogging() {
+        local message="$1"
+        local xorgLog="/var/log/pluto/xorg.conf.log"
+        local xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
+        local myPid=$$
+
+        echo "$myPid $(date -R) $message [$xorgLines]"  >> $xorgLog
+}
+
+XorgConfLogging "Starting $0 $*"
+trap 'XorgConfLogging "Ending"' EXIT
+
+
 . /usr/pluto/bin/AVWizard-Common.sh
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Utils.sh
