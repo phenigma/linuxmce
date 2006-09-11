@@ -15,7 +15,7 @@ EVENTPARAMETER_PK_Users=31
 EVENTPARAMETER_Value=30
 
 ExtensionAllUsers=100
-VoiceMailDir=/var/spool/asterisk/voicemail/default/"$Extension"/INBOX
+VoiceMailDir="/var/spool/asterisk/voicemail/default/"$Extension"/INBOX/"
 
 if [[ "$Extension" == "$ExtensionAllUsers" ]]; then
 	PK_Users=0
@@ -24,5 +24,6 @@ else
 	PK_Users=$(RunSQL "$Q")
 fi
 
-FileCount=$(ls -1 /var/spool/asterisk/voicemail/default/"$Extension"/INBOX/*.gsm | wc -l)
-/usr/pluto/bin/MessageSend $DCERouter $PK_Device -1001 2 $EVENT_Voice_Mail_Changed $EVENTPARAMETER_PK_Users $PK_Users $EVENTPARAMETER_Value "$FileCount 0"
+FileCountNew=$(find $VoiceMailDir -name '*.gsm' -maxdepth 1 | wc -l)
+FileCountOld=$(find $VoiceMailDir -name '*.gsm' -maxdepth 1 | wc -l)
+/usr/pluto/bin/MessageSend $DCERouter $PK_Device -1001 2 $EVENT_Voice_Mail_Changed $EVENTPARAMETER_PK_Users $PK_Users $EVENTPARAMETER_Value "$FileCountNew $FileCountOld"
