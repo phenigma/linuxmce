@@ -28,6 +28,7 @@
 #include <iostream>
 
 #include "Wizard.h"
+#include <SDL.h>
 
 SocketRemoteClient::SocketRemoteClient(SocketRemoteServer* Server, int Socket)
 {
@@ -99,33 +100,65 @@ void* SocketClientCallBack(void* SocketClientCallBackPtr)
 	std::string Message = "OPEN";
 	Client->SendString(Message);
 	
-	WM_Event Event;
+	SDL_Event Event;
 	std::cout<<"Start getting information from client"<<std::endl;
 	Message = Client->RecieveString();
 	Client->Disconnect();
 	std::cout<<"Client disconnected!"<<std::endl;
 
 	if(Message == "left")
-		Event.LeftKey();
+	{
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_LEFT;
+	}
 	if(Message == "right")
-		Event.RightKey();
+	{
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_RIGHT;
+	}
 	if(Message == "up")
-		Event.UpKey();
+	{
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_UP;
+	}
 	if(Message == "down")
-		Event.DownKey();
+	{
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_DOWN;
+	}
 	if(Message == "return")
-		Event.EnterKey();
+	{
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_RETURN;
+	}
 	if(Message == "escape")
-		Event.EscapeKey();
+	{
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_ESCAPE;
+	}
 	if(Message == "plus")
-		Event.PlusKey();
+	{
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_PLUS;
+	}
 	if(Message == "minus")
-		Event.MinusKey();
+	{
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_MINUS;
+	}
 
 	SafetyLock Lock(&Client->Server->SafeMutex);
 	
 	std::cout<<"Command get:"<<Message<<std::endl;
-	Wizard::GetInstance()->GenerateCustomEvent(Event);	
+	SDL_PushEvent(&Event);
 	std::cout<<"Command executed:"<<Message<<std::endl;
 
 	return NULL;

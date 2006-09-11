@@ -36,8 +36,7 @@ public:
 	/**
 	 *	Set 
 	 */
-	void WizardConfigParser::SetOption(std::string OptionName, 
-												  std::string OptionValue);
+	void SetOption(std::string OptionName, std::string OptionValue);
 	std::string GetOption(std::string OptionName);
 
 	/**
