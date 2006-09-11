@@ -297,6 +297,12 @@ void Wizard::DoCancelScreen()
 
 void Wizard::EvaluateEvent(WM_Event& Event)
 {
+	if(Event.Type == WMET_QUIT)
+	{
+	    Quit = true;
+	    return;
+	}
+
 	SafetyLock Lock(&SafeMutex);
 
 #ifdef DEBUG

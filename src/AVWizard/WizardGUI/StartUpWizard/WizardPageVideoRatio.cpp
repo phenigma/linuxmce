@@ -40,6 +40,8 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 	system((SkinGenerator::Instance()->CommandChangeResolution + " " + ResolutionValue
 		+ " " + RefreshValue).c_str());
 
+	Sleep(1000);
+	
 	return 0;
 }
 
