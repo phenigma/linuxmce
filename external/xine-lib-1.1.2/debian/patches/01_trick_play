@@ -475,11 +475,11 @@ diff -ruN xine-lib-1.1.2/src/xine-engine/xine.c xine-lib-1.1.2-new/src/xine-engi
 +		int64_t vpts = stream->xine->clock->get_current_time(stream->xine->clock); 
 +		xprintf (stream->xine, XINE_VERBOSITY_DEBUG, "stop_trick_play_internal: vpts: %" PRId64 "\n", vpts);
 +
-+		if ( ((video_vpts - vpts)>0) && ((last_video_pts - (video_vpts - vpts))>0) && ((last_video_pts-( video_vpts - vpts))<90*(stream->demux_plugin->get_stream_length(stream->demux_plugin))) )
++		if ( ((video_vpts - vpts)>0) && ((last_video_pts - (video_vpts - vpts))>0) && ((last_video_pts-( video_vpts - vpts))/90<(stream->demux_plugin->get_stream_length(stream->demux_plugin))) )
 +		{
 +			xprintf (stream->xine, XINE_VERBOSITY_DEBUG, "stop_trick_play_internal: jumping back: %" PRId64 "\n", video_vpts - vpts);
 +			stream->demux_plugin->seek (stream->demux_plugin,
-+			0, last_video_pts-(video_vpts - vpts), 
++			0, (last_video_pts-(video_vpts - vpts))/90, 
 +			stream->demux_thread_running);
 +		}
 +		
