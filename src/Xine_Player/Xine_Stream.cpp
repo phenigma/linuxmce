@@ -740,6 +740,7 @@ bool Xine_Stream::EnableDeinterlacing()
 		api->set_parameters(m_pXineDeinterlacePlugin, (void *)data);
 		free(data);
 		
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		rewiringResult = xine_post_wire_video_port(xine_get_video_source(m_pXineStream), m_pXineDeinterlacePlugin->video_input[0]);
 		if (!rewiringResult)
 		{
@@ -762,12 +763,12 @@ void Xine_Stream::DisableDeinterlacing()
 	
 	if (m_pXineDeinterlacePlugin)
 	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		g_pPlutoLogger->Write( LV_STATUS, "Disabling deinterlacing" );
 		
 		xine_post_wire_video_port( xine_get_video_source( m_pXineStream ), m_pXineVideoOutput );
 		xine_post_dispose( m_pXineLibrary, m_pXineDeinterlacePlugin );
 		
-		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_pXineDeinterlacePlugin = NULL;
 	}
 }
