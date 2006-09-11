@@ -215,7 +215,7 @@ diff -ruN xine-lib-1.1.2/src/xine-engine/xine.c xine-lib-1.1.2-new/src/xine-engi
  
  #include "xine_internal.h"
  #include "plugin_catalog.h"
-@@ -1236,6 +1237,321 @@
+@@ -1236,6 +1237,322 @@
    return ret;
  }
  
@@ -481,6 +481,7 @@ diff -ruN xine-lib-1.1.2/src/xine-engine/xine.c xine-lib-1.1.2-new/src/xine-engi
 +		int64_t spos = stream->current_extra_info->input_time;
 +		pthread_mutex_unlock( &stream->current_extra_info_lock );
 +		xprintf (stream->xine, XINE_VERBOSITY_DEBUG, "stop_trick_play_internal: spos: %" PRId64 "\n", spos);
++		stream->demux_plugin->seek (stream->demux_plugin, 0, spos, stream->demux_thread_running);
 +		/*
 +		if ( (spos>=0) && ((vpts - video_vpts)>0) && ((spos - (vpts - video_vpts)/90)>0) && ((spos-(vpts - video_vpts)/90)<(stream->demux_plugin->get_stream_length(stream->demux_plugin))) )
 +		{
