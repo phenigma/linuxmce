@@ -586,7 +586,8 @@ bool Orbiter::GetConfig()
 			
 			vector<string> vectTokens;
 			StringUtils::Tokenize(s,"\r\n",vectTokens);
-			for(vector<string>::iterator it2=vectTokens.begin();it2!=vectTokens.end();++it2)
+			vector<string>::iterator it2;
+			for(it2=vectTokens.begin();it2!=vectTokens.end();++it2)
 			{
 				string::size_type pos = it2->find(',');
 				if( pos!=string::npos && pos<it2->size() )
@@ -604,7 +605,7 @@ bool Orbiter::GetConfig()
 			g_pPlutoLogger->Write(LV_STATUS, "Mapping for remote %d: %s", pDeviceData_Impl->m_dwPK_Device, s.c_str());
 
 			StringUtils::Tokenize(s,"\r\n",vectTokens);
-			for(vector<string>::iterator it2=vectTokens.begin();it2!=vectTokens.end();++it2)
+			for(it2=vectTokens.begin();it2!=vectTokens.end();++it2)
 			{
 				string::size_type posEq = it2->find('=');
 				string::size_type posComma1 = it2->find(',');
@@ -2857,8 +2858,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d key %d",
 
 bool Orbiter::ButtonDown( int iPK_Button )
 {
-ReceivedCode(0,"voldn");
-
 	if(NULL != m_pScreenHandler)
 	{
 		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnKeyDown);
