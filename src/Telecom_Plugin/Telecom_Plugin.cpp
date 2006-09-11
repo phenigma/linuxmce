@@ -57,6 +57,7 @@ using namespace DCE;
 #include "pluto_telecom/Table_PhoneType.h"
 #include "callmanager.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
+#include "PlutoUtils/ProcessUtils.h"
 
 #include "DCE/DCEConfig.h"
 #include "PlutoUtils/MySQLHelper.h"
@@ -131,6 +132,21 @@ bool Telecom_Plugin::GetConfig()
 	UniqueColors[2] = PlutoColor(0,0,128).m_Value;
 	UniqueColors[3] = PlutoColor(0,128,128).m_Value;
 	UniqueColors[4] = PlutoColor(128,128,0).m_Value;
+
+	//get status for voice mail
+	vector<Row_Users *> vectRow_Users;
+	m_pDatabase_pluto_main->Users_get()->GetRows(USERS_FK_INSTALLATION_MAIN_FIELD + string("=") + 
+		StringUtils::itos(m_pRouter->iPK_Installation_get())+string(" OR ")+
+		string(USERS_FK_INSTALLATION_MAIN_FIELD)+string(" IS NULL"),&vectRow_Users);
+
+	for(vector<Row_Users *>::iterator it = vectRow_Users.begin(), end = vectRow_Users.end(); it != end; ++it)
+	{
+		Row_Users *pRow_Users = *it;
+		string sExtension = StringUtils::ltos(pRow_Users->Extension_get());
+
+		ProcessUtils::SpawnApplication("/usr/pluto/bin/SendVoiceMailEvent.sh", sExtension, "telecom-voicemail");
+	}
+
 	return true;
 }
 
@@ -1697,15 +1713,29 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 		g_pPlutoLogger->Write(LV_WARNING, "UserVoiceMailGrid request has no user");
 		return pDataGrid;
 	}
+
+	Row_Users *pRow_Users = m_pDatabase_pluto_main->Users_get()->GetRow(atoi(userid.c_str()));
+	if(NULL == pRow_Users)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Got now record for user %s", userid.c_str());
+		return pDataGrid;
+	}
+
+	string sExtension = StringUtils::ltos(pRow_Users->Extension_get());
 	
-	string user_path=string(VOICEMAIL_LOCATION)+userid+string("/INBOX/");
+	string user_path=string(VOICEMAIL_LOCATION)+sExtension+string("/INBOX/");
 	DIR * dir=opendir(user_path.c_str());
 	struct dirent *dir_ent = NULL;
-	while((dir_ent = readdir(dir)))
+	
+	g_pPlutoLogger->Write(LV_WARNING, "Getting new voicemails from %s", user_path.c_str());
+	while(NULL != dir && (dir_ent = readdir(dir)))
 	{
 	    struct stat statbuf;
 		string buffer = user_path+dir_ent->d_name;
         stat(buffer.c_str(),&statbuf);
+
+		g_pPlutoLogger->Write(LV_STATUS, "Voicemail ? %s", buffer.c_str());
+
         if((S_ISREG(statbuf.st_mode)) && (dir_ent->d_name[0] != '.') && (strstr(dir_ent->d_name,".txt") != NULL))
         {
 			string text = "New message " + StringUtils::itos(Row+1);
@@ -1722,10 +1752,10 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 			Row++;
 		}
 	}
-	user_path=string(VOICEMAIL_LOCATION)+userid+string("/INBOX/Old");
+	user_path=string(VOICEMAIL_LOCATION)+sExtension+string("/INBOX/Old");
 	dir=opendir(user_path.c_str());
 	dir_ent = NULL;
-	while((dir_ent = readdir(dir)))
+	while(NULL != dir && (dir_ent = readdir(dir)))
 	{
 	    struct stat statbuf;
 		string buffer = user_path+dir_ent->d_name;
