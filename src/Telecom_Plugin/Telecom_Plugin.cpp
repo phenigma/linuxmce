@@ -1134,6 +1134,14 @@ bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMes
 				StringUtils::itos(pRow_Users->FK_UserMode_get()),"","user" + StringUtils::itos(pRow_Users->PK_Users_get()));
 			SendCommand(CMD_Set_Bound_Icon);
 			g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::OrbiterRegistered Set_Bound_Icon(usermode = %d, user = %d)",pRow_Users->FK_UserMode_get(),pRow_Users->PK_Users_get());
+
+			std::map<int, std::pair<string, string> >::iterator it = m_mapVoiceMailStatus.find(pRow_Users->PK_Users_get());
+			if(it != m_mapVoiceMailStatus.end())
+			{
+				DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon_Voicemail(m_dwPK_Device,pMessage->m_dwPK_Device_From,
+					it->second.first, it->second.second, "vm" + StringUtils::ltos(pRow_Users->PK_Users_get()));
+				SendCommand(CMD_Set_Bound_Icon_Voicemail);
+			}
 		}
 	}
 	return false;
@@ -1661,7 +1669,8 @@ bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMess
 		value_param = "2";
 		text_param = StringUtils::itos(vm_new);		
 	}
-	
+
+	m_mapVoiceMailStatus[userid] = std::make_pair(value_param, text_param);
 	for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
 	{
 		OH_Orbiter *pOH_Orbiter = (*it).second;

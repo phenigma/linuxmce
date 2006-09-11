@@ -26,6 +26,7 @@ namespace DCE
 	// Private member variables
 	pthread_t displayThread;
 	pthread_mutex_t mtx_err_messages;
+	std::map<int, std::pair<string, string> > m_mapVoiceMailStatus;
 
 	// Private methods
 public:
