@@ -100,6 +100,7 @@ while [[ $# -gt 0 ]]; do
 		--update-video-driver) UpdateVideoDriver=y ;;
 		--force-vesa) ForceVESA=y ;;
 		--conffile) ConfigFile="$2"; shift ;;
+		--skiplock) SkipLock=1 ;;
 		*) echo "Unknown option '$1'"; exit 1 ;;
 	esac
 	shift
@@ -125,8 +126,10 @@ if [[ ! -f /usr/pluto/bin/X-UI_Sections.awk ]]; then
 	exit 1
 fi
 
-trap 'Unlock "Xconfigure" "Xconfigure"' EXIT
-WaitLock "Xconfigure" "Xconfigure" # don't run two copies of Xconfigure simultaneously
+if [[ -z "$SkipLock" ]]; then
+	trap 'Unlock "Xconfigure" "Xconfigure"' EXIT
+	WaitLock "Xconfigure" "Xconfigure" # don't run two copies of Xconfigure simultaneously
+fi
 
 if [[ ! -f "$ConfigFile" || ! -s "$ConfigFile" ]]; then
 	# TODO: Detect incomplete/corrupt config files too
@@ -163,7 +166,7 @@ mv "$ConfigFile"{.$$,}
 # Don't test if driver is vesa (assumption: always works) or current driver (assumption: already tested and works)
 if [[ "$DisplayDriver" != "$CurrentDisplayDriver" && "$DisplayDriver" != vesa ]] && [[ -n "$Defaults" || -n "$UpdateVideoDriver" ]]; then
 	if ! TestConfig && [[ " ${OrigParams[*]} " != *" --force-vesa "* ]]; then
-		exec "$0" "${OrigParams[@]}" --force-vesa
+		exec "$0" "${OrigParams[@]}" --force-vesa --skiplock
 	fi
 fi
 
