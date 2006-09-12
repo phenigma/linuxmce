@@ -188,6 +188,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		RectangleUniqueID = ObjectID;
 
 	MeshFrame* Frame = new MeshFrame(RectangleUniqueID, Container);
+	Frame->MarkAsVolatile();
 
 	Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);
 }
@@ -348,6 +349,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 			"-" + StringUtils::itos(Text->m_rPosition.Y);
 
  	MeshFrame *Frame  = aGLTextRenderer->TextOut(TextUniqueID, sTextToDisplay, Text, pTextStyle, point);
+	Frame->MarkAsVolatile();
 	Engine->AddMeshFrameToDesktop(sParentObjectID, Frame);
 	delete aGLTextRenderer;
 }
