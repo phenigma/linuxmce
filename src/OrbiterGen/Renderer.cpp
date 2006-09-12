@@ -1359,7 +1359,7 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 				pTextStyle->m_pTTF_Font = TTF_OpenFont(sUpperCasedFontFile.c_str(), nPixelHeight);
 				if(NULL == pTextStyle->m_pTTF_Font)
 				{
-					string sLowerCasedFontFile = StringUtils::ToUpper(m_sFontPath + pTextStyle->m_sFont + ".ttf");
+					string sLowerCasedFontFile = StringUtils::ToLower(m_sFontPath + pTextStyle->m_sFont + ".ttf");
 					pTextStyle->m_pTTF_Font = TTF_OpenFont(sLowerCasedFontFile.c_str(), nPixelHeight);
 					if(NULL == pTextStyle->m_pTTF_Font)
 					{
