@@ -20,12 +20,12 @@ MeshFrame::~MeshFrame(void)
 {
 	TextureManager::Instance()->InvalidateItem(this);
 
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx \tMeshFrame destructor %p/%s", this, this->Name_.c_str());
+	//DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx \tMeshFrame destructor %p/%s", this, this->Name_.c_str());
 }
 
 /*virtual*/ void MeshFrame::CleanUp(bool VolatilesOnly/* = false*/)
 {
-	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "xxxxx MeshFrame::CleanUp: %p/%s", this, Name_.c_str());	
+	//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "xxxxx MeshFrame::CleanUp: %p/%s", this, Name_.c_str());	
 
 	vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); )
@@ -34,9 +34,9 @@ MeshFrame::~MeshFrame(void)
 
 		if(!VolatilesOnly || pMeshFrame->IsVolatile())
 		{
-			if(VolatilesOnly)
-				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::CleanUp: deleted a volatile %p/%s",
-				pMeshFrame, pMeshFrame->Name().c_str());
+			//if(VolatilesOnly)
+			//	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::CleanUp: deleted a volatile %p/%s",
+			//	pMeshFrame, pMeshFrame->Name().c_str());
 
 			pMeshFrame->CleanUp(VolatilesOnly);
 			delete pMeshFrame;
@@ -118,6 +118,13 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 //				Frame, Frame->Name_.c_str(), Frame->Parent, Frame->Parent->Name_.c_str());
 
 			Frame->Parent = NULL;
+
+			if(Frame->IsVolatile())
+			{
+				Frame->CleanUp(true);
+				delete Frame;
+				Frame = NULL;
+			}
 		}
 	}
 	else
@@ -154,10 +161,10 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 
 			if(NewFrame != OldFrame && NULL != OldFrame && OldFrame->IsVolatile())
 			{
-				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: replaced a volatile %p/%s",
-					OldFrame, OldFrame->Name().c_str());
+				//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: replaced a volatile %p/%s",
+				//	OldFrame, OldFrame->Name().c_str());
 
-				//OldFrame->CleanUp(true);
+				OldFrame->CleanUp(true);
 				delete OldFrame;
 				OldFrame = NULL;
 			}
