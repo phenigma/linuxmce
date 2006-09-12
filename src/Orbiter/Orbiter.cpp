@@ -5251,8 +5251,14 @@ void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &
 void Orbiter::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 {
-	ButtonDown( atoi(sPK_Button.c_str()) ); // TODO: Handle shift and send second digit if shit is down
-	ButtonUp( atoi(sPK_Button.c_str()) ); // TODO: Handle shift and send second digit if shit is down
+	Orbiter::Event orbiterEvent;
+	orbiterEvent.data.button.m_iPK_Button = atoi(sPK_Button.c_str());
+
+	orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
+	ProcessEvent(orbiterEvent);
+
+	orbiterEvent.type = Orbiter::Event::BUTTON_UP;
+	ProcessEvent(orbiterEvent);
 }
 
 //<-dceag-c29-b->
