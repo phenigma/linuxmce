@@ -20,4 +20,7 @@ $TEXT_MEDIA_TYPE_CONST='Media types';
 $TEXT_NO_RECORDS_CONST='No records';
 $TEXT_MATCHCOVERART_CONST='Match Cover Art';
 $TEXT_COVER_ARTS_UPDATED_CONST='Cover arts updated';
+$TEXT_GET_AMAZON_ATTRIBUTES_CONST='Get Amazon attributes & cover art';
+$TEXT_AMAZON_KEYWORD_CONST='Amazon keyword';
+$TEXT_FILENAME_CONST='Filename';
 ?>

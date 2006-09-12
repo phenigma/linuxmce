@@ -61,7 +61,7 @@ foreach ($Result['ItemSearchResponse']['Items'][0]['Item'] as $item) {
 	if (isset($item['LargeImage']['URL'])) {
 		// grab attributes
 		$attributes="ASIN\t".$item["ASIN"][0]."\n";
-		print_array($item['ItemAttributes']);
+		//print_array($item['ItemAttributes']);
 		foreach ($item['ItemAttributes'] AS $attributeName=>$values){
 			if(is_array($values)){
 				foreach ($values AS $subAttributeName=>$value){
