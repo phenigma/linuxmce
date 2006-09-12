@@ -18,10 +18,21 @@ Volatile_(false)
 
 MeshFrame::~MeshFrame(void)
 {
-	TextureManager::Instance()->InvalidateItem(this);
-
-	//DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx \tMeshFrame destructor %p/%s", this, this->Name_.c_str());
+	if(Volatile_)
+	{
+	//	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ttt volatile MeshFrame destructor %p/%s", this, this->Name_.c_str());
+	}
+	else
+		TextureManager::Instance()->InvalidateItem(this);
 }
+
+void MeshFrame::MarkAsVolatile() 
+{ 
+	Volatile_ = true; 
+
+	//DCE::g_pPlutoLogger->Write(LV_STATUS, "ttt volatile MeshFrame setter %p/%s", this, this->Name_.c_str());
+}
+
 
 /*virtual*/ void MeshFrame::CleanUp(bool VolatilesOnly/* = false*/)
 {
@@ -159,6 +170,10 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 			NewFrame->Parent = OldFrame->Parent;
 			*Child = NewFrame;
 
+//			DCE::g_pPlutoLogger->Write(LV_STATUS, "ttt MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
+//				OldFrame, OldFrame->Name_.c_str(), OldFrame->Parent, OldFrame->Parent->Name_.c_str(),
+//				NewFrame, NewFrame->Name_.c_str());
+
 			if(NewFrame != OldFrame && NULL != OldFrame && OldFrame->IsVolatile())
 			{
 				//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: replaced a volatile %p/%s",
@@ -168,10 +183,6 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 				delete OldFrame;
 				OldFrame = NULL;
 			}
-
-			//			DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
-			//				OldFrame, OldFrame->Name_.c_str(), OldFrame->Parent, OldFrame->Parent->Name_.c_str(),
-			//				NewFrame, NewFrame->Name_.c_str());
 
 			CheckIntegrity(NewFrame);
 
@@ -293,14 +304,14 @@ MeshFrame *MeshFrame::Clone()
 
 void MeshFrame::Print(string sIndent)
 {
-	if(Name_.find("rectangle") != string::npos)
-		return;
+	//if(Name_.find("rectangle") != string::npos)
+	//	return;
 
-	if(Name_.find("text") != string::npos)
-		return;
+	//if(Name_.find("text") != string::npos)
+	//	return;
 
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "%s%s '%s' (frame) %p", sIndent.c_str(), 
-		Children.size() ? "+ " : "- ", Name_.c_str(), this);
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "%s%s '%s' %s %p", sIndent.c_str(), 
+		Children.size() ? "+ " : "- ", Name_.c_str(), this->Volatile_ ? "(v)" : "", this);
 
 	for(vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
 	{

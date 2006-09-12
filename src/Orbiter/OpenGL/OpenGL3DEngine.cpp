@@ -17,7 +17,7 @@
 using namespace DCE;
 
 //#define SCENE_DEBUG 1
-//#define DUMP_SCENE_DEBUG 1
+//#define DUMP_SCENE_DEBUG 
 //#define DISABLE_HIGHLIGHT 
 
 OpenGL3DEngine::OpenGL3DEngine() : 
@@ -66,6 +66,9 @@ OpenGL3DEngine::~OpenGL3DEngine()
 
 void OpenGL3DEngine::Finalize(void)
 {
+	UnHighlight();
+	UnSelect();
+
 	OldLayer->CleanUp(true);
 	CurrentLayer->CleanUp(true);
 
@@ -147,7 +150,6 @@ bool OpenGL3DEngine::Paint()
 	}
 	UpdateTopMostObjects();
 
-	DumpScene();
 	Compose->Paint();
 	
 	GL.Flip();

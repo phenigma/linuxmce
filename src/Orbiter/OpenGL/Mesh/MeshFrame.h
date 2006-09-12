@@ -59,7 +59,7 @@ public:
 
 	bool CheckIntegrity(MeshFrame *Frame);
 
-	void MarkAsVolatile() { Volatile_ = true; }
+	void MarkAsVolatile();
 	bool IsVolatile() { return Volatile_; }
 };
 

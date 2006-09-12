@@ -76,6 +76,7 @@ MeshFrame* GLFontRenderer::RenderText(string TextUniqueID, string& TextToDisplay
 	}
 
 	MeshFrame* Frame = new MeshFrame(TextUniqueID);
+	Frame->MarkAsVolatile();
 	Frame->ApplyTransform(Transform);
 	Frame->SetMeshContainer(Container);
 
@@ -86,6 +87,7 @@ MeshFrame* GLFontRenderer::TextOut(string TextUniqueID, string TextToDisplay,cla
 	TextStyle *pTextStyle, PlutoPoint point)
 {
 	MeshFrame * Result = new MeshFrame(TextUniqueID);
+	Result->MarkAsVolatile();
 	Font->GetFontStyle(R_, G_, B_, Style_);
 
 	PlutoRectangle rectLocation;
