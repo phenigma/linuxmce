@@ -18,6 +18,9 @@ Volatile_(false)
 
 MeshFrame::~MeshFrame(void)
 {
+	delete Mesh;
+	Mesh = NULL;
+
 	if(Volatile_)
 	{
 	//	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ttt volatile MeshFrame destructor %p/%s", this, this->Name_.c_str());
