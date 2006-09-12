@@ -86,6 +86,7 @@ public:
 	class Media_Plugin *m_pMedia_Plugin;
 	class General_Info_Plugin *m_pGeneral_Info_Plugin;
 	class Plug_And_Play_Plugin *m_pPlug_And_Play_Plugin;
+	map<string,int> m_mapUsersID;  // ID's fired in presence deteced/lost events mapped to user id's
 
     // Private methods
     map<string,UnknownDeviceInfos *> m_mapUnknownDevices; // A temporary map to match Bluetooth Dongle's with devices they detect
@@ -161,6 +162,8 @@ public:
 	bool MobileOrbiterLost(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 	bool OSD_OnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	bool DeviceConfigured(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
+	bool PresenceDetected( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+	bool PresenceLost( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
     void ProcessUnknownDevice();
     bool IdentifyDevice(const string& sMacAddress, string &sDeviceCategoryDesc, int &iPK_DeviceTemplate, string &sManufacturerDesc);
@@ -271,6 +274,7 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_File_Name_and_Path();
+	string DATA_Get_Mapping();
 	int DATA_Get_ThreshHold();
 	string DATA_Get_Ignore_State();
 	int DATA_Get_Width();

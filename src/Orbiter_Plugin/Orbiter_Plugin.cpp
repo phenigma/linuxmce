@@ -210,6 +210,22 @@ bool Orbiter_Plugin::GetConfig()
 		SetStatus("");
 	}
 
+	string sMapping = DATA_Get_Mapping();
+	if( sMapping.size() )
+	{
+		vector<string> vectMapping;
+		StringUtils::Tokenize(sMapping,"\n",vectMapping);
+		for(vector<string>::iterator it=vectMapping.begin();it!=vectMapping.end();++it)
+		{
+			string::size_type pos = it->find('=');
+			if( pos!=string::npos )
+				m_mapUsersID[ it->substr( pos ) ] = atoi(it->c_str());
+		}
+	}
+
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Orbiter_Plugin::PresenceDetected ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Presence_Detected_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &Orbiter_Plugin::PresenceLost ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Presence_Lost_CONST );
+
 	m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(2);      //4 = number of worker threads
 	m_pAlarmManager->AddRelativeAlarm(60,this,PROCESS_SCREEN_SAVER_PHOTOS,NULL);
@@ -2807,4 +2823,14 @@ void Orbiter_Plugin::AlarmCallback(int id, void* param)
 {
 	if( id==PROCESS_SCREEN_SAVER_PHOTOS )
 		StartRetrievingScreenSaverFiles();
+}
+
+bool Orbiter_Plugin::PresenceDetected( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	return false;
+}
+
+bool Orbiter_Plugin::PresenceLost( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	return false;
 }

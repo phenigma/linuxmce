@@ -143,6 +143,14 @@ public:
 			return m_mapParameters[DEVICEDATA_File_Name_and_Path_CONST];
 	}
 
+	string Get_Mapping()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Mapping_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Mapping_CONST];
+	}
+
 	int Get_ThreshHold()
 	{
 		if( m_bRunningWithoutDeviceData )
@@ -284,6 +292,7 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	string DATA_Get_File_Name_and_Path() { return GetData()->Get_File_Name_and_Path(); }
+	string DATA_Get_Mapping() { return GetData()->Get_Mapping(); }
 	int DATA_Get_ThreshHold() { return GetData()->Get_ThreshHold(); }
 	string DATA_Get_Ignore_State() { return GetData()->Get_Ignore_State(); }
 	int DATA_Get_Width() { return GetData()->Get_Width(); }
