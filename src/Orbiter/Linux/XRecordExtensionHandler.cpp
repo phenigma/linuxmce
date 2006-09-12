@@ -217,8 +217,7 @@ g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback
 
 				if( pEvent->type==Orbiter::Event::MOUSE_MOVE )
 				{
-					pRecordingHandler->m_pOrbiter->m_pMouseBehavior->m_pLastPosition.X = pEvent->data.region.m_iX;
-					pRecordingHandler->m_pOrbiter->m_pMouseBehavior->m_pLastPosition.Y = pEvent->data.region.m_iY;
+					pRecordingHandler->m_pOrbiter->m_pMouseBehavior->m_pLastPosition_set( pEvent->data.region.m_iX, pEvent->data.region.m_iY );
 					PLUTO_SAFETY_LOCK( cm, pRecordingHandler->m_pOrbiter->m_MaintThreadMutex );
 					for(map<int,PendingCallBackInfo *>::iterator it=pRecordingHandler->m_pOrbiter->m_mapPendingCallbacks.begin();it!=pRecordingHandler->m_pOrbiter->m_mapPendingCallbacks.end();++it)
 					{

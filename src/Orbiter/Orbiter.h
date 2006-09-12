@@ -155,6 +155,9 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		map<int,string> m_mapScanCodeToRemoteButton; /** < Map of scan codes to remote button names used by Infrared Plugin */
 		map< pair<int,int>,pair<int,int> > m_mapEventToSubstitute; /** < Replace a combination of event,button with event,button */
 
+#ifdef ENABLE_MOUSE_BEHAVIOR
+		class MouseBehavior *m_pMouseBehavior;  // Class to handle special logic such as locking mouse movements, speed bumps, etc.
+#endif
 		//<-dceag-const-b->!
 
 	public:
@@ -272,9 +275,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		AskXine_Socket *m_pAskXine_Socket;
 
-#ifdef ENABLE_MOUSE_BEHAVIOR
-		class MouseBehavior *m_pMouseBehavior;  // Class to handle special logic such as locking mouse movements, speed bumps, etc.
-#endif
 
 		/** flags */
 		bool m_bCaptureKeyboard_OnOff; /** < flag for capture keyboard */

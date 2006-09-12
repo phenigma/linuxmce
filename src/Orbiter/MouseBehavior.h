@@ -151,6 +151,7 @@ namespace DCE
 		virtual void SetMousePosition(DesignObj_Orbiter *pObj) { SetMousePosition( pObj->m_rPosition.X + pObj->m_pPopupPoint.X + pObj->m_rPosition.Width/2 , pObj->m_rPosition.Bottom() + pObj->m_pPopupPoint.Y ); }
 		virtual void GetMousePosition(PlutoPoint *p) { *p = m_pLastPosition; }
 		virtual void ShowMouse(bool bShow) { }
+		void m_pLastPosition_set(int X,int Y) { m_pLastPosition.X=X; m_pLastPosition.Y=Y; }
 
 		void SetMediaInfo(string sTime,string sTotal,string sSpeed,string sTitle,string sSection);
 
