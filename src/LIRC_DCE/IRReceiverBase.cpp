@@ -81,18 +81,21 @@ void IRReceiverBase::GetConfig(DeviceData_Impl *pData)
 
 IRReceiverBase::~IRReceiverBase()
 {
-	return; // Todo - this crashes???  not too important since it's just memory cleanup on exit
 	for(map<string,MapKeysToMessages *>::iterator it=m_mapKeyMapping.begin();it!=m_mapKeyMapping.end();++it)
 	{
 		MapKeysToMessages *pMapKeysToMessages = it->second;
-		if( pMapKeysToMessages )
+		if(NULL != pMapKeysToMessages)
 		{
-			for(MapKeysToMessages::iterator it2=pMapKeysToMessages->begin();it2!=pMapKeysToMessages->end();++it)
-				delete it2->second;
-		}
+			for(MapKeysToMessages::iterator it_message = pMapKeysToMessages->begin(); it_message != pMapKeysToMessages->end(); ++it_message)
+			{
+				delete it_message->second;
+			}
 
-		delete (*it).second;
+			pMapKeysToMessages->clear();
+			delete pMapKeysToMessages;
+		}
 	}
+	m_mapKeyMapping.clear();
 }
 
 void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode)
