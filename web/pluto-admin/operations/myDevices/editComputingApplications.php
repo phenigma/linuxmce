@@ -144,7 +144,7 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 	
 			if(isset($_POST['qst_'.$app])){
 				if(!in_array($app,$existing)){
-					$dbADO->Execute("INSERT INTO Device_QuickStart (FK_Device,FK_QuickStartTemplate,`Binary`,Arguments,Description) SELECT ?,?,`Binary`,Arguments,Description FROM QuickStartTemplate WHERE PK_QuickStartTemplate=?", array($mdID,$app,$app));
+					$dbADO->Execute("INSERT INTO Device_QuickStart (FK_Device,FK_QuickStartTemplate,Description) SELECT ?,?,Description FROM QuickStartTemplate WHERE PK_QuickStartTemplate=?", array($mdID,$app,$app));
 					$id=$dbADO->Insert_ID();
 					$dbADO->Execute("UPDATE Device_QuickStart SET SortOrder=? WHERE PK_Device_QuickStart=?",array($id,$id));
 				}
@@ -180,7 +180,7 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 			$description=cleanString(@$_POST['description_'.$app]);
 			$binary=cleanString(@$_POST['binary_'.$app]);
 			$arguments=cleanString(@$_POST['arguments_'.$app]);
-			$dbADO->Execute('UPDATE Device_QuickStart SET Description=?,`Binary`=?,Arguments=? WHERE PK_Device_QuickStart=?',array($description,$binary,$arguments,$app));
+			$dbADO->Execute('UPDATE Device_QuickStart SET Description=? WHERE PK_Device_QuickStart=?',array($description,$app));
 		}
 		
 		$sufix=(@$err!='')?'&error='.$err:'&msg='.$TEXT_COMPUTING_APPLICATIONS_UPDATED_CONST;
