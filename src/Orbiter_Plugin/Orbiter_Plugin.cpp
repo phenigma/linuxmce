@@ -2705,7 +2705,7 @@ void Orbiter_Plugin::CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename
 		"FROM File "
 		"JOIN File_Attribute ON FK_File=PK_File "
 		"JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Screen_Saver_For_MD_CONST) " "
-		"WHERE Name='' or Name='" + StringUtils::itos(iPK_Device) + "' AND Missing=0 AND Filename like '%jpg'";
+		"WHERE (Name='' or Name='" + StringUtils::itos(iPK_Device) + "') AND Missing=0 AND Filename like '%jpg'";
 
 	PlutoSqlResult result_set1,result_set2;
 
