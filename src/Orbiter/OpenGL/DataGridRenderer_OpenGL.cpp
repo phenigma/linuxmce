@@ -46,9 +46,7 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 		//replace old datagrid with the clone in the animation
 		Engine->ReplaceMeshInAnimations(BeforeDataGrid, BeforeDataGridClone);
 
-		//delete old datagrid
-		BeforeDataGrid->CleanUp();
-		delete BeforeDataGrid;
+		//old datagrid already deleted when it was replaced with its clone
 		BeforeDataGrid = NULL;
 	}
 

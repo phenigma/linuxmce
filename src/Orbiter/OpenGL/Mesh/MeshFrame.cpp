@@ -23,7 +23,7 @@ MeshFrame::~MeshFrame(void)
 
 	if(Volatile_)
 	{
-	//	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ttt volatile MeshFrame destructor %p/%s", this, this->Name_.c_str());
+		//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ttt volatile MeshFrame destructor %p/%s", this, this->Name_.c_str());
 	}
 	else
 		TextureManager::Instance()->InvalidateItem(this);
@@ -48,11 +48,11 @@ void MeshFrame::MarkAsVolatile()
 
 		if(!VolatilesOnly || pMeshFrame->IsVolatile())
 		{
-			//if(VolatilesOnly)
-			//	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::CleanUp: deleted a volatile %p/%s",
-			//	pMeshFrame, pMeshFrame->Name().c_str());
+			//if(pMeshFrame->IsVolatile())
+			//	DCE::g_pPlutoLogger->Write(LV_WARNING, "ttt MeshFrame::CleanUp: deleted a volatile %p/%s",
+			//		pMeshFrame, pMeshFrame->Name().c_str());
 
-			pMeshFrame->CleanUp(VolatilesOnly);
+			pMeshFrame->CleanUp();
 			delete pMeshFrame;
 			pMeshFrame = NULL;
 

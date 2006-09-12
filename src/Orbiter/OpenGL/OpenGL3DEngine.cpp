@@ -488,6 +488,8 @@ MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
 
 	MeshFrame* Result = CurrentLayer;
+	Result->MarkAsVolatile();
+
 	CurrentLayer = FrameDatagrid;
 
 	FrameDatagrid = NULL;
