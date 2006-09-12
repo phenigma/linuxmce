@@ -164,4 +164,6 @@ $TEXT_INVALID_IP_ADDRESS_CONST='Invalid IP address';
 $TEXT_NO_ACCESS_TO_GENERAL_MAILBOX_CONST='You don\'t have permission to access general mailbox.';
 $TEXT_PACKAGE_CONST='Package';
 $TEXT_RESYNC_CONST='Resync Codes';
+$TEXT_START_CONST='Start';
+$TEXT_STOP_CONST='Stop';
 ?>

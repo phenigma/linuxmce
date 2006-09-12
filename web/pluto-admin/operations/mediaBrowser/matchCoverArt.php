@@ -88,67 +88,88 @@ function matchCoverArt($output,$mediadbADO) {
 
 function formatScannedItems($scannedArray){
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/coverArt.lang.php');
-		
+	$page=(isset($_REQUEST['page']))?(int)$_REQUEST['page']:1;
+	$records_per_page=10;
+	
 	$out='<table>';
 	if(count($scannedArray)==0){
 		return 'No scanned items.';
 	}
 	
+	$totalRecords=count($scannedArray);
+	$maxRecords=$page*$records_per_page;
+	$noPages=ceil($totalRecords/$records_per_page);
+
+	$pageLinks='';
+	for($i=1;$i<=$noPages;$i++){
+		$pageLinks.=($i==$page)?' '.$i.' ':' <a href="index.php?section=matchCoverArt?page='.$i.'">'.$i.'</a>';
+	} 
+	$out.='
+		<tr>
+			<td align="right" class="alternate_back">'.$pageLinks.'</td>
+		</tr>	
+	';
+	$item=0;
+	$displayedArray=array();
 	foreach ($scannedArray AS $id=>$data){
-		if(count($data['Entries'])==0){
-			$picsTable='No covert arts found';
-		}else{
-			$picsTable='<table>
-				<tr>
-					<td valign="top" align="center"><input type="radio" name="pic_'.$id.'" value="0" checked><br>None of this</td>';
-			$pos=0;
-			foreach ($data['Entries'] AS $pic){
-				$pos++;
-				if(file_exists('/home/coverartscan/'.$pic.'_tn.jpg')){
-					$picsTable.='<td align="center"><input type="radio" name="pic_'.$id.'" value="'.$pic.'"><br><a href="coverartscan/'.$pic.'.jpg" target="_blank"><img src="coverartscan/'.$pic.'_tn.jpg" border="0"></a></td>';
+
+		if($item>=$records_per_page*($page-1) && $item< $records_per_page*$page){
+			$displayedArray[]=$id;
+			if(count($data['Entries'])==0){
+				$picsTable='No covert arts found';
+			}else{
+				$picsTable='<table>
+					<tr>
+						<td valign="top" align="center"><input type="radio" name="pic_'.$id.'" value="0" checked><br>None of this</td>';
+				$pos=0;
+				foreach ($data['Entries'] AS $pic){
+					$pos++;
+					if(file_exists('/home/coverartscan/'.$pic.'_tn.jpg')){
+						$picsTable.='<td align="center"><input type="radio" name="pic_'.$id.'" value="'.$pic.'"><br><a href="coverartscan/'.$pic.'.jpg" target="_blank"><img src="coverartscan/'.$pic.'_tn.jpg" border="0"></a></td>';
+					}
+					if($pos==6){
+						$picsTable.='</tr><tr>';
+						$pos=0;
+					}
 				}
-				if($pos==6){
-					$picsTable.='</tr><tr>';
-					$pos=0;
-				}
+				$picsTable.='</tr></table>';
 			}
-			$picsTable.='</tr></table>';
+			
+			if($data['FK_File']!=''){
+				$itemType='File';
+				$itemValue=$data['FK_File'];
+			}
+			if($data['FK_Disc']!=''){
+				$itemType='Disc';
+				$itemValue=$data['FK_Disc'];
+			}
+			if($data['FK_Attribute']!=''){
+				$itemType='Attribute';
+				$itemValue=$data['FK_Attribute'];
+			}
+			
+			$itemLabel=str_replace(array('Amazon | '),'',$data['Engine']);
+			
+			
+			$out.='
+			<input type="hidden" name="itemType_'.$id.'" value="'.$itemType.'">
+			<input type="hidden" name="itemValue_'.$id.'" value="'.$itemValue.'">
+			<tr>
+				<td class="alternate_back">'.$itemLabel.': '.$data['Path'].$data['Filename'].$data['Slot'].$data['Name'].'</td>
+			</tr>
+			<tr>
+				<td>'.$picsTable.'</td>
+			</tr>
+			';
 		}
-		
-		if($data['FK_File']!=''){
-			$itemType='File';
-			$itemValue=$data['FK_File'];
-		}
-		if($data['FK_Disc']!=''){
-			$itemType='Disc';
-			$itemValue=$data['FK_Disc'];
-		}
-		if($data['FK_Attribute']!=''){
-			$itemType='Attribute';
-			$itemValue=$data['FK_Attribute'];
-		}
-		
-		$itemLabel=str_replace(array('Amazon | '),'',$data['Engine']);
-		
-		
-		$out.='
-		<input type="hidden" name="itemType_'.$id.'" value="'.$itemType.'">
-		<input type="hidden" name="itemValue_'.$id.'" value="'.$itemValue.'">
-		<tr>
-			<td class="alternate_back">'.$itemLabel.': '.$data['Path'].$data['Filename'].$data['Slot'].$data['Name'].'</td>
-		</tr>
-		<tr>
-			<td>'.$picsTable.'</td>
-		</tr>
-		
-		';
+		$item++;
 	}
 	$out.='
 		<tr>
 			<td align="center" class="alternate_back"><input type="submit" class="button" name="match" value="'.$TEXT_MATCHCOVERART_CONST.'"></td>
 		</tr>	
 	</table>
-	<input type="hidden" name="ids" value="'.join(',',array_keys($scannedArray)).'">';
+	<input type="hidden" name="ids" value="'.join(',',$displayedArray).'">';
 	
 	return $out;
 }

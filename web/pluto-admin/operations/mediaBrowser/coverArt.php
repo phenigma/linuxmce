@@ -16,6 +16,12 @@ function coverArt($output,$mediadbADO) {
 	$searchIndex=$mediaTypes[$mediaType];
 	$ipp=((int)@$_REQUEST['ipp']<=0 || (int)@$_REQUEST['ipp']>100)?10:(int)@$_REQUEST['ipp'];
 	
+	if(automaticGrabStatus()){
+		$automatic_label=$TEXT_STOP_CONST;
+		$warning=$TEXT_WARNING_AUTOMATIC_GRAB_ACTIVE_CONST;
+	}else{
+		$automatic_label=$TEXT_START_CONST;
+	}
 	
 	if($action=='form'){
 		
@@ -58,7 +64,14 @@ function coverArt($output,$mediadbADO) {
 						<tr>
 							<td>'.$TEXT_MEDIA_TYPE_CONST.'</td>
 							<td>'.pulldownFromArray($mediaTypes,'mediaType',$mediaType,'onChange=\'reloadPage();\'','key','').'</td>
+						</tr>
+						<tr>
+							<td>Automatic script</td>
+							<td><input type="submit" class="button" name="automatic" value="'.$automatic_label.'"></td>
 						</tr>		
+						<tr>
+							<td colspan="2" class="err">'.@$warning.'</td>
+						</tr>						
 					</table>
 				</td>
 			</tr>		
@@ -66,6 +79,16 @@ function coverArt($output,$mediadbADO) {
 		'.outputItemsToScan($type,$mediaType,$mediadbADO).'
 		</form>';
 	}else{
+		if(isset($_POST['automatic'])){
+			if(automaticGrabStatus()){
+				$msg=automaticGrab('stop');
+			}else{
+				$msg=automaticGrab('start');
+			}
+			header('Location: index.php?section=coverArt&msg='.urlencode($msg));
+			exit();
+		}
+		
 		$ids=explode(',',$_POST['ids']);
 		$itemName=$_POST['itemName'];
 		$toScan='';
@@ -119,7 +142,7 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 
 	$searchIndex=$mediaTypes[$mediaType];
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/coverArt.lang.php');
-	
+		
 	// if parameter is not specified, show files without cover arts
 	$type=($type=='')?'filesNoCover':$type;
 	$ipp=((int)@$_REQUEST['ipp']<=0 || (int)@$_REQUEST['ipp']>100)?10:(int)@$_REQUEST['ipp'];
@@ -314,5 +337,22 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaTyp
 	';
 	
 	return $out;
+}
+
+function automaticGrabStatus(){
+	$cmd='sudo -u root /usr/pluto/bin/grabcoverart.sh status';
+	$ret=exec_batch_command($cmd,1);
+	
+	if(ereg('Daemon allready running',$ret)){
+		return true;		
+	}
+	return false;
+}
+
+function automaticGrab($action){
+	$cmd='sudo -u root /usr/pluto/bin/grabcoverart.sh '.$action;
+	$ret=exec_batch_command($cmd,1);
+	
+	return $ret;
 }
 ?>
