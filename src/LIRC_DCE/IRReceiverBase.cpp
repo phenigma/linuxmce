@@ -3,6 +3,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "PlutoUtils/PlutoDefs.h"
 
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_DeviceTemplate.h"
@@ -58,6 +59,7 @@ void IRReceiverBase::GetConfig(DeviceData_Impl *pData)
 					{
 						g_pPlutoLogger->Write(LV_STATUS,"Screen %c, Layout %c, LIRCBtn %s fires: %s",cScreenType ? cScreenType : '*', cRemoteLayout ? cRemoteLayout : '*', sToken.c_str(),vectButtons[s].substr(posSlash+1).c_str());
 						Message *pMessage = new Message(iNumberOfArguments,pArgs,pData->m_dwPK_Device);
+						PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(pArgs, iNumberOfArguments);
 						pMessage->m_dwPK_Device_To = m_Virtual_Device_Translator.TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
 						for(size_t s=0;s<pMessage->m_vectExtraMessages.size();++s)
 							pMessage->m_vectExtraMessages[s]->m_dwPK_Device_To = m_Virtual_Device_Translator.TranslateVirtualDevice(pMessage->m_vectExtraMessages[s]->m_dwPK_Device_To);
