@@ -531,6 +531,10 @@ public:
 
 			if( pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio && pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_mapParameters_Find(DEVICEDATA_Discrete_Volume_CONST)=="1" )
 				sMediaDevices += ",1";
+			else
+				sMediaDevices += ",0";
+
+			sMediaDevices += pMediaStream->ContainsVideo() ? ",1" : ",0";
 
 			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 
 				sRemotes, pMediaStream->m_sMediaDescription, pMediaStream->m_sSectionDescription, 
