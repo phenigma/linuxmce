@@ -415,17 +415,24 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 			Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(PK_MediaType,
 				pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName);
 
-			Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
-			pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
-			pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
-			pRow_File_Attribute->Section_set(pPlutoMediaAttribute->m_nSection);
-			pRow_File_Attribute->Track_set(pPlutoMediaAttribute->m_nTrack);
-			pRow_File_Attribute->Table_File_Attribute_get()->Commit();
+			//already in the database?
+			if(NULL == m_pDatabase_pluto_media->File_Attribute_get()->GetRow(
+				pRow_File->PK_File_get(), pRow_Attribute->PK_Attribute_get(),
+				pPlutoMediaAttribute->m_nTrack, pPlutoMediaAttribute->m_nSection)
+				)
+			{
+				Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+				pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
+				pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+				pRow_File_Attribute->Section_set(pPlutoMediaAttribute->m_nSection);
+				pRow_File_Attribute->Track_set(pPlutoMediaAttribute->m_nTrack);
+				pRow_File_Attribute->Table_File_Attribute_get()->Commit();
 
-			g_pPlutoLogger->Write(LV_STATUS, "Adding attribute to database: "
-				"for PK_File %d, AttrID %d, AttrType = %d with value %s, section %d, track %d", 
-				pRow_File->PK_File_get(), pRow_Attribute->PK_Attribute_get(), pPlutoMediaAttribute->m_nType,
-				pPlutoMediaAttribute->m_sName.c_str(), pPlutoMediaAttribute->m_nSection, pPlutoMediaAttribute->m_nTrack);
+				g_pPlutoLogger->Write(LV_STATUS, "Adding attribute to database: "
+					"for PK_File %d, AttrID %d, AttrType = %d with value %s, section %d, track %d", 
+					pRow_File->PK_File_get(), pRow_Attribute->PK_Attribute_get(), pPlutoMediaAttribute->m_nType,
+					pPlutoMediaAttribute->m_sName.c_str(), pPlutoMediaAttribute->m_nSection, pPlutoMediaAttribute->m_nTrack);
+			}
 		}
 	}
 
