@@ -171,6 +171,7 @@ void OpenGL3DEngine::NewScreen(string ScreenName)
 {
 	UnHighlight();
 	UnSelect();
+	m_spDatagridAnimationManager->StopAnimations();
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 	

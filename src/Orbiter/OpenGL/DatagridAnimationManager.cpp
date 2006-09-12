@@ -139,3 +139,8 @@ void DatagridAnimationManager::ReplaceMeshInAnimations(MeshFrame *OldFrame, Mesh
 
 	}
 }
+
+void DatagridAnimationManager::StopAnimations()
+{
+	Cleanup();
+}
