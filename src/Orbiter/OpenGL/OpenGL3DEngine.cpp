@@ -66,6 +66,9 @@ OpenGL3DEngine::~OpenGL3DEngine()
 
 void OpenGL3DEngine::Finalize(void)
 {
+	OldLayer->CleanUp(true);
+	CurrentLayer->CleanUp(true);
+
 	MeshPainter::Instance()->CleanUp();
 	GLEffect2D::LayersCompose::Instance()->CleanUp();
 	GLFontManager::GetInstance()->CleanUp();
@@ -171,6 +174,7 @@ void OpenGL3DEngine::NewScreen(string ScreenName)
 	
 	if(NULL != OldLayer)
 	{
+		OldLayer->CleanUp(true);
 		delete OldLayer;
 	}
 	OldLayer = CurrentLayer;

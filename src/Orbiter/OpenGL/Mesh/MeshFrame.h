@@ -15,9 +15,10 @@ class MeshFrame
 	MeshContainer* Mesh;
 	MeshFrame* Parent;
 	string Name_;
+	bool Volatile_;
 
 public:
-//MOVE ME
+	//MOVE ME
 	MeshTransform Transform;
 	MeshTransform TextureTransform;
 	vector<MeshFrame*> Children;
@@ -25,7 +26,7 @@ public:
 	MeshFrame(string Name = "unknown", MeshContainer* Mesh = NULL);
 	virtual ~MeshFrame(void);
 
-	virtual void CleanUp();
+	virtual void CleanUp(bool VolatilesOnly = false);
 
 	void SetMeshContainer(MeshContainer* Mesh);
 	MeshContainer* GetMeshContainer();
@@ -35,7 +36,7 @@ public:
 	MeshFrame* ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame);
 
 	virtual void Paint(MeshTransform ChildTransform);
-	
+
 	virtual void SetTransform(MeshTransform& Transform);
 	virtual void ApplyTransform(MeshTransform& Transform);
 
@@ -57,6 +58,9 @@ public:
 	string Name() { return Name_; }
 
 	bool CheckIntegrity(MeshFrame *Frame);
+
+	void MarkAsVolatile() { Volatile_ = true; }
+	bool IsVolatile() { return Volatile_; }
 };
 
 #endif

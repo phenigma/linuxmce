@@ -5,37 +5,58 @@
 #include "DCE/Logger.h"
 
 MeshFrame::MeshFrame(string Name, MeshContainer* Mesh) 
-	: Visible_(true),
-	TextureTransform(),
-	Transform(),
-	Parent(NULL)
+: Visible_(true),
+TextureTransform(),
+Transform(),
+Parent(NULL),
+Volatile_(false)
 {
 	this->Mesh = Mesh;
 	this->Name_ = Name;
-	
+
 }
 
 MeshFrame::~MeshFrame(void)
 {
 	TextureManager::Instance()->InvalidateItem(this);
 
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "\tMeshFrame destructor %p/%s", this, this->Name_.c_str());
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx \tMeshFrame destructor %p/%s", this, this->Name_.c_str());
 }
 
-/*virtual*/ void MeshFrame::CleanUp()
+/*virtual*/ void MeshFrame::CleanUp(bool VolatilesOnly/* = false*/)
 {
-	//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "xxxxx MeshFrame::CleanUp: %p", this);	
+	DCE::g_pPlutoLogger->Write(LV_CRITICAL, "xxxxx MeshFrame::CleanUp: %p/%s", this, Name_.c_str());	
 
 	vector<MeshFrame*>::iterator Child;
-	for(Child = Children.begin(); Child!=Children.end(); Child++)
+	for(Child = Children.begin(); Child!=Children.end(); )
 	{
 		MeshFrame *pMeshFrame = *Child;
-	
-		pMeshFrame->CleanUp();
-		delete pMeshFrame;
-		pMeshFrame = NULL;
+
+		if(!VolatilesOnly || pMeshFrame->IsVolatile())
+		{
+			if(VolatilesOnly)
+				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::CleanUp: deleted a volatile %p/%s",
+				pMeshFrame, pMeshFrame->Name().c_str());
+
+			pMeshFrame->CleanUp(VolatilesOnly);
+			delete pMeshFrame;
+			pMeshFrame = NULL;
+
+			if(VolatilesOnly)
+			{
+				Child = Children.erase(Child);
+			}
+			else
+				++Child;
+		}
+		else
+		{
+			++Child;
+		}
 	}	
-	Children.clear();
+
+	if(!VolatilesOnly)
+		Children.clear();
 
 	delete Mesh;
 	Mesh = NULL;
@@ -130,10 +151,20 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 		{
 			NewFrame->Parent = OldFrame->Parent;
 			*Child = NewFrame;
-			
-//			DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
-//				OldFrame, OldFrame->Name_.c_str(), OldFrame->Parent, OldFrame->Parent->Name_.c_str(),
-//				NewFrame, NewFrame->Name_.c_str());
+
+			if(NewFrame != OldFrame && NULL != OldFrame && OldFrame->IsVolatile())
+			{
+				DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: replaced a volatile %p/%s",
+					OldFrame, OldFrame->Name().c_str());
+
+				//OldFrame->CleanUp(true);
+				delete OldFrame;
+				OldFrame = NULL;
+			}
+
+			//			DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
+			//				OldFrame, OldFrame->Name_.c_str(), OldFrame->Parent, OldFrame->Parent->Name_.c_str(),
+			//				NewFrame, NewFrame->Name_.c_str());
 
 			CheckIntegrity(NewFrame);
 
