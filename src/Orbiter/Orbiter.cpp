@@ -5954,6 +5954,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	m_dwPK_Device_NowPlaying_Video = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str());
 	m_dwPK_Device_NowPlaying_Audio = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str());
 	m_bPK_Device_NowPlaying_Audio_DiscreteVolume = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str())==1;
+	bool bContainsVideo = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str())==1;
 	CMD_Set_Variable(VARIABLE_Track_or_Playlist_Positio_CONST, StringUtils::itos(iValue));
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Now_Playing %s %s",sValue_To_Assign.c_str(),sPK_DesignObj.c_str());
@@ -6026,7 +6027,8 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 
 	if( UsesUIVersion2() )
 	{
-		if( m_dwPK_Device_NowPlaying )
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Set_Now_Playing device %d video %d",m_dwPK_Device_NowPlaying,(int) bContainsVideo);
+		if( m_dwPK_Device_NowPlaying && bContainsVideo )
 			StopScreenSaver();
 		else
 			StartScreenSaver();
