@@ -1,7 +1,7 @@
 diff -r -u AMP.orig/amp_conf/var/www/html/recordings/index.php AMP/amp_conf/var/www/html/recordings/index.php
 --- AMP.orig/amp_conf/var/www/html/recordings/index.php	2005-08-20 01:02:20.000000000 +0300
 +++ AMP/amp_conf/var/www/html/recordings/index.php	2006-02-10 14:45:44.000000000 +0200
-@@ -1,4 +1,30 @@
+@@ -1,4 +1,31 @@
  <?php
 +// *********** autologin for pluto admin ******************
 +session_name('Pluto-admin');
