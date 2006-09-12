@@ -9,6 +9,7 @@ diff -r -u AMP.orig/amp_conf/var/www/html/recordings/index.php AMP/amp_conf/var/
 +
 +if(isset($_SESSION['Extension'])){
 +
++	unset($_SESSION['ari_user']);
 +	$_POST['username']=$_SESSION['Extension'];
 +	$_POST['password']=read_pass_from_file($_SESSION['Extension'],'/etc/asterisk/voicemail.conf');
 +}
