@@ -47,6 +47,15 @@ OrbiterRenderer::OrbiterRenderer(Orbiter *pOrbiter) :
 	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 	m_vectTexts_NeedRedraw.clear();
 	m_vectObjs_NeedRedraw.clear();
+
+	for(list<BackgroundImage *>::iterator it = m_listBackgroundImage.begin(), 
+		end = m_listBackgroundImage.end(); it != end; ++it)
+	{
+		BackgroundImage *pBackgroundImage = *it;
+		delete pBackgroundImage;
+	}
+	m_listBackgroundImage.clear();
+
 	nd.Release();
 
 	pthread_mutex_destroy(&m_NeedRedrawVarMutex.mutex);
