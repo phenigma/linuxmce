@@ -303,6 +303,8 @@ Message::Message( string sMessageInStringFormat )
 		Message *pMessage = new Message();
 		pMessage->BuildFromArgs( iNumArgs, pArgs );
 		m_vectExtraMessages.push_back(pMessage);
+
+		PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(pArgs, iNumArgs);
 	}
 }
 
