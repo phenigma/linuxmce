@@ -219,7 +219,7 @@ bool Orbiter_Plugin::GetConfig()
 		{
 			string::size_type pos = it->find('=');
 			if( pos!=string::npos )
-				m_mapUsersID[ it->substr( pos ) ] = atoi(it->c_str());
+				m_mapUsersID[ it->substr( pos+1 ) ] = atoi(it->c_str());
 		}
 	}
 
@@ -2827,6 +2827,21 @@ void Orbiter_Plugin::AlarmCallback(int id, void* param)
 
 bool Orbiter_Plugin::PresenceDetected( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
+	string sID = pMessage->m_mapParameters[EVENTPARAMETER_ID_CONST];
+	map<string,int>::iterator it=m_mapUsersID.find( sID );
+	if( it!=m_mapUsersID.end() )
+	{
+		MediaDevice *pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(pMessage->m_dwPK_Device_From);
+		if( !pMediaDevice || pMediaDevice->m_mapEntertainArea.size()==0 )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::PresenceDetected -- sender is not a media device or has no ent area %p",pMediaDevice);
+			return false;
+		}
+
+		EVENT_Follow_Me_Media(0, it->second, pMediaDevice->m_mapEntertainArea.begin()->first, 0);
+	}
+	else
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::PresenceDetected no user associated");
 	return false;
 }
 
