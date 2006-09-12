@@ -11,6 +11,7 @@
 
 #include "DCE/Logger.h"
 #include "DCE/ServerLogger.h"
+#include "PlutoUtils/Profiler.h"
 
 #include "Simulator.h"
 #include "Orbiter.h"
@@ -304,6 +305,10 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		return int(msg.wParam);
 	}
 
+	//Aaron's profiler
+	extern PlutoProfiler *g_PlutoProfiler;
+	delete g_PlutoProfiler;
+	g_PlutoProfiler = NULL;
 
     WSACleanup();
 	return 0;
