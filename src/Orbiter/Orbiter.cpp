@@ -3244,7 +3244,7 @@ bool Orbiter::GotActivity(  )
 #endif
 
 	// If the display is off, or we're in screen saver mode
-	if( !m_bDisplayOn || m_bScreenSaverActive )
+	if( !m_bDisplayOn || (m_bScreenSaverActive && !UsesUIVersion2()) )
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"GotActiity monitor m_bDisplayOn is %d",(int) m_bDisplayOn);
