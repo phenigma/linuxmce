@@ -24,28 +24,31 @@ my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst);
 
 # check script arguments 
 
-if ($ARGV[0] == "" ) {
-	print "Using default value for search days range !\n";
-	$tDays = 14; 
-} else {
-	$tDays = $ARGV[0];
-}
+if ( $#ARGV >= 0 ) {
 
-if ($ARGV[1] == "" ) {
-        print "Using default value for picture width !\n";
-        $minW = 1200;
-} else {
+if ($ARGV[0] != "" ) {
+        $tDays = $ARGV[0];
+        print "Search days: $tDays";
+        }
+                
+if ($ARGV[1] != "" ) {
         $minW = $ARGV[1];
-}
-
-
-if ($ARGV[2] == "" ) {
-        print "Using default value for picture height !\n";
-        $minH = 700;
-} else {
+        print "\tMin width: $minW";
+        }
+                                
+if ($ARGV[2] != "" ) {
         $minH = $ARGV[2];
+        print "\tMin height: $minH\n";
+        }
 }
 
+if ($#ARGV < 0) {
+        $tDays = 5;
+        $minW = 1200;
+        $minH = 700;
+        print "[flickr.pl] Using default values - days: $tDays, width: $minW, height: $minH \n";
+        }
+                                               
 ## 
 if (!-d $dest) {
 	mkdir("$dest"); }
@@ -61,7 +64,7 @@ $mon=$mon+1;
 $mon="0".$mon if($mon <= 9);
 $mday="0".$mday if ($mday <=9);
 
-print "Searching for files maching your criteria in gallery dated => $year-$mon-$mday\n";
+print "[flickr.pl] Date: $year-$mon-$mday => Searching for files maching your criteria in gallery.\n";
 $response = $api->execute_method('flickr.interestingness.getList', {  
 	'date' => "$year-$mon-$mday",
 	'page' => '1',
@@ -114,8 +117,10 @@ if ($response->{success} == 1) {
 		    $IMGS->{$id}->{'height'}= $buff->{'height'};
 		    $IMGS->{$id}->{'source'}= $buff->{'source'};
 		    $IMGS->{$id}->{'download'} = 1;
-		}
-	    }
+	  
+              }
+          }
+
 	  } else {
 	    print STDERR "Skipped $id during an error.\n";
 	    print STDERR "Error Message : $response->{error_message}\n";
@@ -128,22 +133,11 @@ if ($response->{success} == 1) {
 	print STDERR "Error Message : $response->{error_message}\n";
     }
   }
-} else {
-  print STDERR "Date: $year-$mon-$mday => ";
-  print STDERR "Cannot connect to flickr! => ";
-#  print STDERR "Success : $response->{success}\n";
-#  print STDERR "Error : $response->{error_code}\n";
-  print STDERR "Error Message : $response->{error_message} !\n";
-#  print STDERR "Tree : $response->{_content}\n";
-}
 
-$daycount++;
-}
-
-print "Fetching files and registering them with Pluto System.\n";
 # Step 2 - get files.
 $ua = LWP::UserAgent->new;
 $ua->timeout(5);
+
 foreach $buff (keys %{$IMGS}) {
   if ($IMGS->{$buff}->{'download'} == 1) {
 
@@ -177,14 +171,14 @@ if (!-d $dest."/".$year."/".$mon."/".$mday) {
     $response = $ua->get($IMGS->{$buff}->{'source'});
     if ($response->is_success) {
 	if (!open(TMP,">$tmp/$buff.$IMGS->{$buff}->{'format'}")) {
-	   print STDERR "Cannot write $tmp/$buff.$IMGS->{$buff}->{'format'}.\n";
+	   print "[flickr.pl] Cannot write $tmp/$buff.$IMGS->{$buff}->{'format'}.\n";
 	} else {
 #	    print "Writing $tmp/$buff.$IMGS->{$buff}->{'format'} !\n";
             print TMP $response->content;
 	    close(TMP);
 # touch lock file
         if (!open(TMP2,">$tmp/$buff.$IMGS->{$buff}->{'format'}.lock")) {
-		print "Cannot write $tmp/$buff.$IMGS->{$buff}->{'format'}.lock !\n";
+		print "[flickr.pl] Cannot write $tmp/$buff.$IMGS->{$buff}->{'format'}.lock !\n";
         } else {
             print TMP2 " ";
             close(TMP2); }
@@ -198,10 +192,16 @@ if (!-d $dest."/".$year."/".$mon."/".$mday) {
 			   	geometry=>'0,0,+4,+14',
 			   	text=>$IMGS->{$buff}->{'username'});
 	    warn "$r" if "$r";
-	    $r=$xs->Write($dest."/".$year."/".$mon."/".$mday."/".$buff.".".$IMGS->{$buff}->{'format'});
 	$finaldst = $dest."/".$year."/".$mon."/".$mday."/".$buff.".".$IMGS->{$buff}->{'format'};
+	if ( -e "$finaldst" )
+	{ 
+	  print "[flickr.pl] Filename $finaldst exists on the disk.\n";
+	} else {
+	  $r=$xs->Write($dest."/".$year."/".$mon."/".$mday."/".$buff.".".$IMGS->{$buff}->{'format'});
+	  print "[flickr.pl] Writing file $finaldst.\n";
+	}
 # first messagesend	    
-	print "Fire-ing first messagesend event\n";
+#	print "Fire-ing first messagesend event for $finaldst\n";
 	my $fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -o 0 2 1 819 13 "$finaldst" |; 
 	$fms =~ s/\n//g;
 	@out = split (/:/, $fms);
@@ -210,7 +210,7 @@ if (!-d $dest."/".$year."/".$mon."/".$mday) {
 	    unlink("$tmp/$buff.$IMGS->{$buff}->{'format'}");
 	    unlink("$tmp/$buff.$IMGS->{$buff}->{'format'}.lock");
 # second message send
-	print "Fire-ing second messagesend event\n";
+#	print "Fire-ing second messagesend event\n";
 	qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -o 0 2 1 391 145 $ffield 122 30 |;
 	}
     } else {
@@ -218,3 +218,16 @@ if (!-d $dest."/".$year."/".$mon."/".$mday) {
     }
   }
 }
+
+
+} else {
+  print "[flickr.pl] Date: $year-$mon-$mday => Error Message : $response->{error_message} !\n";
+#  print STDERR "Cannot connect to flickr! => ";
+#  print STDERR "Success : $response->{success}\n";
+#  print STDERR "Error : $response->{error_code}\n";
+#  print STDERR "Error Message : $response->{error_message} !\n";
+#  print STDERR "Tree : $response->{_content}\n";	
+
+  } $daycount++;
+}
+
