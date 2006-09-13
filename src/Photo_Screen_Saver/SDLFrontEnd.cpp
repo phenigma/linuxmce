@@ -75,6 +75,7 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot init the video mode! (%s)", SDL_GetError());
 		return -1;
 	}
+	atexit(SDL_Quit);
 	
 	SDL_WM_SetCaption("PlutoGalleryViewer", "GalleryViewer");
 	
