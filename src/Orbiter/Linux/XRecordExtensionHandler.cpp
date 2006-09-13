@@ -3,7 +3,6 @@
 #include "XRecordExtensionHandler.h"
 
 #include "pluto_main/Define_Button.h"
-#include "../MouseBehavior.h"
 
 #include <X11/Xutil.h>
 #include <X11/Xproto.h>
@@ -218,7 +217,6 @@ g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback
 
 				if( pEvent->type==Orbiter::Event::MOUSE_MOVE )
 				{
-					pRecordingHandler->m_pOrbiter->m_pMouseBehavior->m_pLastPosition_set( pEvent->data.region.m_iX, pEvent->data.region.m_iY );
 					PLUTO_SAFETY_LOCK( cm, pRecordingHandler->m_pOrbiter->m_MaintThreadMutex );
 					for(map<int,PendingCallBackInfo *>::iterator it=pRecordingHandler->m_pOrbiter->m_mapPendingCallbacks.begin();it!=pRecordingHandler->m_pOrbiter->m_mapPendingCallbacks.end();++it)
 					{
