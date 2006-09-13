@@ -3,6 +3,7 @@
 #include "XRecordExtensionHandler.h"
 
 #include "pluto_main/Define_Button.h"
+#include "../MouseBehavior.h"
 
 #include <X11/Xutil.h>
 #include <X11/Xproto.h>
