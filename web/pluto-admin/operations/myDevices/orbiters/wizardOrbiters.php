@@ -493,7 +493,9 @@ function formatDDRows($rowD,$dbADO)
 				default:
 					$ddHTML.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$rowD['FK_DeviceData'].'" value="'.@$ddValue.'" '.((isset($rowD['AllowedToModify']) && $rowD['AllowedToModify']==0)?'disabled':'').'>';
 			}
-
+			if($rowD['FK_DeviceData']==172){
+				$ddHTML.=' If checked you need to reload the router';
+			}
 			$ddHTML.='</td>
 				</tr>';
 		}

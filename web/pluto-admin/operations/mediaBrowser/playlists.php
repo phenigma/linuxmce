@@ -16,13 +16,14 @@ function playlists($output,$mediadbADO) {
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 			
-			<form action="index.php" method="POST" name="playlists">
+			<form action="index.php" method="POST" name="playlists" enctype="multipart/form-data">
 			<input type="hidden" name="section" value="playlists">
 			<input type="hidden" name="action" value="update">
 		
 			<table cellpadding="3" cellspacing="0" border="0">
 				<tr class="tablehead">
 					<td align="center"><B>#</B></td>
+					<td align="center"><B>'.$TEXT_PICTURE_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_PLAYLIST_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 				</tr>
@@ -31,16 +32,18 @@ function playlists($output,$mediadbADO) {
 		if($resPlaylist->RecordCount()==0){
 			$out.='				
 				<tr>
-					<td align="center" colspan="3">'.$TEXT_NO_RECORDS_CONST.'</td>
+					<td align="center" colspan="4">'.$TEXT_NO_RECORDS_CONST.'</td>
 				</tr>
 			';
 		}
 		$pos=0;
 		while($rowPlaylist=$resPlaylist->FetchRow()){
 			$pos++;
+			$pic=(!is_null($rowPlaylist['FK_Picture']))?'<a href="mediapics/'.$rowPlaylist['FK_Picture'].'.jpg" target="_blank"><img src="mediapics/'.$rowPlaylist['FK_Picture'].'_tn.jpg" border="0"></a>':'';
 			$out.='
 				<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#EBEFF9').'">
 					<td align="center">'.$pos.'</td>
+					<td align="center">'.$pic.'</td>
 					<td align="center">'.$rowPlaylist['Name'].'</td>
 					<td align="center"><a href="index.php?section=editPlaylist&plID='.$rowPlaylist['PK_Playlist'].'">'.$TEXT_EDIT_CONST.'</a> <a href="#" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_PLAYLIST_CONST.'\'))self.location=\'index.php?section=playlists&action=delete&plID='.$rowPlaylist['PK_Playlist'].'\'">'.$TEXT_DELETE_CONST.'</a></td>
 				</tr>
@@ -48,20 +51,46 @@ function playlists($output,$mediadbADO) {
 		}
 		$out.='
 				<tr>
-					<td align="center" colspan="3">&nbsp;</td>
+					<td align="center" colspan="4">&nbsp;</td>
 				</tr>
 				<tr>
-					<td align="center" colspan="3"><B>'.$TEXT_ADD_PLAYLIST_CONST.'</B> <input type="text" name="newPlaylist" value=""> <input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
+					<td align="center" colspan="4"><B>'.$TEXT_ADD_PLAYLIST_CONST.'</B> <input type="text" name="newPlaylist" value=""> '.$TEXT_PICTURE_CONST.' <input type="file" name="newPlaylistPicture" value=""> <input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
 				</tr>
 			</table>
 		</form>';
 	}else{
 	// process area
 		if(isset($_POST['add'])){
-			$newPlaylist=cleanString($_POST['newPlaylist']);
-			$mediadbADO->Execute('INSERT INTO Playlist (EK_User, Name) VALUES (?,?)',array($userID,$newPlaylist));
+			$picExtension='jpg';
 			
-			header('Location: index.php?section=playlists&msg='.$TEXT_NEW_PLAYLIST_ADDED_CONST);
+			$error='';
+			$pictureID=NULL;
+			if($_FILES['newPlaylistPicture']['name']!=''){
+				if(($_FILES['newPlaylistPicture']['type']!="image/jpg") && ($_FILES['newPlaylistPicture']['type']!="image/pjpeg") && ($_FILES['newPlaylistPicture']['type']!="image/jpeg")){
+					$error=$TEXT_ERROR_NOT_JPEG_CONST;
+				}
+				else{
+					$insertPicture='INSERT INTO Picture (Extension) VALUES (?)';
+					$mediadbADO->Execute($insertPicture,array($picExtension));
+					$pictureID=$mediadbADO->Insert_ID();
+					$newPlaylistPictureName=$pictureID.'.'.$picExtension;
+					
+					if(move_uploaded_file($_FILES['newPlaylistPicture']['tmp_name'],$GLOBALS['mediaPicsPath'].$newPlaylistPictureName)){
+						// create thumbnail
+						$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPlaylistPictureName, $GLOBALS['mediaPicsPath'].$pictureID.'_tn.'.$picExtension, 100, 100);
+						if(!$resizeFlag){
+							$error='Thumbnail not created';					
+						}
+					}
+				}
+			}			
+			
+			$newPlaylist=cleanString($_POST['newPlaylist']);
+			$mediadbADO->Execute('INSERT INTO Playlist (EK_User, Name,FK_Picture) VALUES (?,?,?)',array($userID,$newPlaylist,$pictureID));
+			
+			
+			
+			header('Location: index.php?section=playlists&msg='.$TEXT_NEW_PLAYLIST_ADDED_CONST.'&error='.$error);
 		}
 	
 		if(isset($_REQUEST['plID'])){

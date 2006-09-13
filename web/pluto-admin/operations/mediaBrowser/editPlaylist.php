@@ -10,7 +10,11 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$playlistID=(int)$_REQUEST['plID'];
 	
-	$playlistInfo=getAssocArray('Playlist','PK_Playlist','Name',$mediadbADO,'WHERE PK_Playlist=',$playlistID);
+	$playlistInfo=getAssocArray('Playlist','FK_Picture','Name',$mediadbADO,'WHERE PK_Playlist=',$playlistID);
+	$nameArr=array_values($playlistInfo);
+	$picArr=array_keys($playlistInfo);
+	$pname=$nameArr[0];
+	$picID=$picArr[0];
 	
 	if(isset($_REQUEST['searchForFiles']) && strlen($_REQUEST['searchForFiles'])<3){
 		$_REQUEST['error']=$TEXT_ERROR_SEARCHSTRING_TOO_SHORT_CONST;
@@ -37,7 +41,7 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 	';
 	if($action=='form'){
 		$commandGroups=getAssocArray('CommandGroup','PK_CommandGroup','Description',$dbADO);
-		
+		$pic=(!is_null($picID))?'<a href="mediapics/'.$picID.'.jpg" target="_blank"><img src="mediapics/'.$picID.'_tn.jpg" border="0"></a>':'';
 		
 		$out.='
 		<script>
@@ -49,13 +53,31 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		
-			<h3 align="center">'.$TEXT_EDIT_PLAYLIST_CONST.'# '.$playlistID.': '.$playlistInfo[$playlistID].'</h3>
-			<form action="index.php" method="POST" name="editPlaylist">
+			<h3 align="center">'.$TEXT_EDIT_PLAYLIST_CONST.'# '.$playlistID.'</h3>
+			<form action="index.php" method="POST" name="editPlaylist" enctype="multipart/form-data">
 			<input type="hidden" name="section" value="editPlaylist">
 			<input type="hidden" name="plID" value="'.$playlistID.'">
 			<input type="hidden" name="action" value="update">
 			<input type="hidden" name="jumpFromTo" value="">
-		
+			<input type="hidden" name="oldPic" value="'.$picID.'">
+
+			<table align="center">
+				<tr>
+					<td align="center" colspan="2">'.$pic.'</td>
+				</tr>
+				<tr>
+					<td><B>'.$TEXT_NAME_CONST.'</B></td>
+					<td><input type="text" name="pname" value="'.$pname.'"></td>
+				</tr>
+				<tr>
+					<td><B>'.$TEXT_NEW_FILE_CONST.'</B></td>
+					<td><input type="file" name="ppic" value=""></td>
+				</tr>
+				
+				<tr>
+					<td align="center" colspan="2"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
+				</tr>				
+			</table>
 			<table cellpadding="3" cellspacing="2" align="center">
 				<tr class="tablehead">
 					<td align="center"><B>#</B></td>
@@ -305,6 +327,37 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 		}
 		
 		if(isset($_POST['update']) || isset($_POST['add_bookmark'])){
+			// update playlist
+			if($_FILES['ppic']['name']!=''){
+				$picExtension='jpg';
+				$pictureID=NULL;
+				$oldPic=(int)@$_POST['oldPic'];
+				
+				if(($_FILES['ppic']['type']!="image/jpg") && ($_FILES['ppic']['type']!="image/pjpeg") && ($_FILES['ppic']['type']!="image/jpeg")){
+					$error=$TEXT_ERROR_NOT_JPEG_CONST;
+				}
+				else{
+					if($oldPic>0){
+						@unlink($GLOBALS['mediaPicsPath'].$oldPic.'.jpg');
+						@unlink($GLOBALS['mediaPicsPath'].$oldPic.'_tn.jpg');
+					}
+					$insertPicture='INSERT INTO Picture (Extension) VALUES (?)';
+					$mediadbADO->Execute($insertPicture,array($picExtension));
+					$pictureID=$mediadbADO->Insert_ID();
+					$ppicName=$pictureID.'.'.$picExtension;
+					
+					if(move_uploaded_file($_FILES['ppic']['tmp_name'],$GLOBALS['mediaPicsPath'].$ppicName)){
+						// create thumbnail
+						resizeImage($GLOBALS['mediaPicsPath'].$ppicName, $GLOBALS['mediaPicsPath'].$pictureID.'_tn.'.$picExtension, 100, 100);
+						$updatePic=',FK_Picture='.$pictureID;	
+					}
+				}
+			}
+			$pname=cleanString($_POST['pname']);			
+			$mediadbADO->Execute('UPDATE Playlist SET Name=? '.@$updatePic.' WHERE PK_Playlist=?',array($pname,$playlistID));
+			
+			
+			
 			$playlistEntries=explode(',',@$_POST['playlistEntries']);
 			foreach ($playlistEntries AS $playlistEntry){
 				if(isset($_POST['duration_'.$playlistEntry])){
