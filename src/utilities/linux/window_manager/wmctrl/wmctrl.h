@@ -129,6 +129,8 @@ protected:
                    unsigned long data0, unsigned long data1,
                    unsigned long data2, unsigned long data3,
                    unsigned long data4);
+    int set_override_redirect(Display *disp, Window win, bool bValue);
+    int set_override_redirect_recursive(Display *disp, Window win, bool bValue);
     int list_windows(Display *disp, std::list<WinInfo> *pListWinInfo=NULL);
     int list_desktops(Display *disp);
     int showing_desktop(Display *disp);

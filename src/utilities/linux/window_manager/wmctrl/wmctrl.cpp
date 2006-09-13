@@ -135,8 +135,9 @@
 "                           shaded, skip_taskbar, skip_pager, hidden,\n" \
 "                           fullscreen, above, below\n" \
 "\n" \
-"Shortcuts:\n" \
+"Shortcuts/new options:\n" \
 "  -L                   List with header.\n" \
+"  -O value             Change the override_redirect flag, recursive for parent windows.\n" \
 "\n" \
 "Shortcuts (not yet implemented):\n" \
 "\n" \
@@ -227,7 +228,7 @@ int WmCtrl::InteractiveCommand(int argc, char **argv)
         }
     }
 
-    while ((opt = getopt(argc, argv, "FGVvhlLupidmxa:r:s:c:t:w:k:o:n:g:e:b:N:I:T:R:")) != -1)
+    while ((opt = getopt(argc, argv, "FGVvhlLupidmxaO:r:s:c:t:w:k:o:n:g:e:b:N:I:T:R:")) != -1)
     {
         missing_option = 0;
         switch (opt)
@@ -269,6 +270,7 @@ int WmCtrl::InteractiveCommand(int argc, char **argv)
             case 'N':
             case 'I':
             case 'T':
+            case 'O':
                 options.param = optarg;
                 action = opt;
                 break;
@@ -363,6 +365,7 @@ int WmCtrl::LowLevelCommand(char action, Options cmd_options, std::list<WinInfo>
         case 'N':
         case 'I':
         case 'T':
+        case 'O':
             if (! options.param_window)
             {
                 fputs("No window was specified.\n", stderr);
@@ -1055,6 +1058,12 @@ int WmCtrl::action_window(Display *disp, Window win, char mode)
                 return EXIT_FAILURE;
             }
 
+        case 'O':
+            if ( set_override_redirect_recursive(disp, win, atoi(options.param)) == True )
+                return EXIT_SUCCESS;
+            else
+                return EXIT_FAILURE;
+
         case 'N':
         case 'I':
         case 'T':
@@ -1499,6 +1508,57 @@ Window * WmCtrl::get_client_list(Display *disp, unsigned long *size)
     return client_list;
 }
 
+int WmCtrl::set_override_redirect(Display *dpy, Window window, bool bValue)
+{
+    int status = 0;
+    XWindowAttributes war;
+    status = XGetWindowAttributes(dpy, window, &war);
+    XSetWindowAttributes swa;
+    swa.override_redirect = bValue ? True : False;
+    status = XChangeWindowAttributes(dpy, window, CWOverrideRedirect, &swa);
+    fprintf(stderr, "set_override_redirect() : window==0x%lX, override_redirect==%s=>%s\n",
+            window,
+            war.override_redirect ? "true" : "false",
+            swa.override_redirect ? "true" : "false"
+            );
+    return status;
+}
+
+int WmCtrl::set_override_redirect_recursive(Display *dpy, Window window, bool bValue)
+{
+    Window root_window = XDefaultRootWindow(dpy);
+    fprintf(stderr, "set_override_redirect_recursive() : param_window=='%s' root_window==0x%lX\n", options.param_window, root_window);
+    int status = 0;
+    while ( (window) && (window != root_window) )
+    {
+        fprintf(stderr, "set_override_redirect_recursive() : window==0x%lX\n", window);
+        status = set_override_redirect(dpy, window, bValue);
+        if (status != True)
+        {
+            fprintf(stderr, "set_override_redirect_recursive() : status==%d => stopping tree-walk\n", status);
+            break;
+        }
+        Window root_return = 0;
+        Window parent_return = 0;
+        Window *children_return = NULL;
+        unsigned int nchildren_return = 0;
+        status = XQueryTree(
+            dpy, window,
+            &root_return, &parent_return, &children_return, &nchildren_return
+            );
+        if (children_return != None)
+            XFree(children_return);
+        if (status != True)
+        {
+            fprintf(stderr, "set_override_redirect_recursive() : cannot read window tree\n");
+            break;
+        }
+        window = parent_return;
+    }
+    fprintf(stderr, "set_override_redirect_recursive() : param_window=='%s' root_window==0x%lX => RetCode==%d\n", options.param_window, root_window, status);
+    return status;
+}
+
 int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*/)
 {
     Window *client_list;
@@ -1529,7 +1589,7 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
     const char s3[]="|----------|---|-----|-------|--------------------|----------------------|------|-----|\n";
 
     if (options.list_show_all)
-        printf("%s%s%s", s1, s2, s3);
+        fprintf(stderr, "%s%s%s", s1, s2, s3);
 
     /* print the list */
     for (i = 0; i < client_list_size / sizeof(Window); i++)
@@ -1652,7 +1712,7 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
     g_free(client_list);
 
     if (options.list_show_all)
-        printf("%s%s%s", s3, s2, s1);
+        fprintf(stderr, "%s%s%s", s3, s2, s1);
 
     return EXIT_SUCCESS;
 }
