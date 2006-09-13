@@ -29,19 +29,27 @@ bool WMControllerImpl::SetVisible(const string& sWindowName, bool bVisible)
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::SetLayer(const string& sWindowName, WindowLayer aLayer)
 {
-	fprintf(stderr, "WMControllerImpl::SetLayer() : window name: %s, aLayer: %d\n", sWindowName.c_str(), aLayer);
+    // TODO: activate the lines with ActionCommand and 'O', after the demo
+    // these should remove the need for the bogus_xterm
+    // ActionCommand 'O' :  clear/set recursive the override_redirect property for a window
+    // SetLayer() was broken by the alpha-patch, when xcompmgr is used
+    // not activated by default, to not change anything before the demo
+    fprintf(stderr, "WMControllerImpl::SetLayer() : window name: %s, aLayer: %d\n", sWindowName.c_str(), aLayer);
     bool bResult = true;
 	switch(aLayer)
 	{
 		case LayerNormal:
+            //bResult = bResult && wmctrl.ActionCommand('O', sWindowName.c_str(), "0");
             bResult = bResult && wmctrl.ActionCommand('b', sWindowName.c_str(), "remove,above");
             bResult = bResult && wmctrl.ActionCommand('b', sWindowName.c_str(), "remove,below");
 			break;
 		case LayerAbove:
+            //bResult = bResult && wmctrl.ActionCommand('O', sWindowName.c_str(), "0");
             bResult = bResult && wmctrl.ActionCommand('b', sWindowName.c_str(), "remove,below");
             bResult = bResult && wmctrl.ActionCommand('b', sWindowName.c_str(), "add,above");
 			break;
 		case LayerBelow:
+            //bResult = bResult && wmctrl.ActionCommand('O', sWindowName.c_str(), "0");
             bResult = bResult && wmctrl.ActionCommand('b', sWindowName.c_str(), "remove,above");
             bResult = bResult && wmctrl.ActionCommand('b', sWindowName.c_str(), "add,below");
 			break;
