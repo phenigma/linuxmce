@@ -29,7 +29,7 @@ bool WMControllerImpl::SetVisible(const string& sWindowName, bool bVisible)
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::SetLayer(const string& sWindowName, WindowLayer aLayer)
 {
-    // TODO: activate the lines with ActionCommand and 'O', after the demo
+    // TODO: activate the lines with ActionCommand and 'O', after the demo!
     // these should remove the need for the bogus_xterm
     // ActionCommand 'O' :  clear/set recursive the override_redirect property for a window
     // SetLayer() was broken by the alpha-patch, when xcompmgr is used
