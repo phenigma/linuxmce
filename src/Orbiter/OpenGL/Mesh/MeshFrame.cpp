@@ -352,7 +352,6 @@ void MeshFrame::Stealth()
 
 bool MeshFrame::CheckIntegrity(MeshFrame *Frame)
 {
-/*
 	bool Result = false;
 
 	if(NULL != Frame && NULL != Frame->Parent)
@@ -366,10 +365,8 @@ bool MeshFrame::CheckIntegrity(MeshFrame *Frame)
 	if(!Result)
 	{
 		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::CheckIntegrity failed for %p/%s",
-			Frame, Frame->Name().c_str());
+			Frame, NULL != Frame ? Frame->Name().c_str() : "null frame");
 	}
 
 	return Result;
-*/
-	return true;
 }
