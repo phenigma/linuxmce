@@ -42,6 +42,12 @@ chmod 777 /etc/pluto-callerid.conf
 touch /var/log/pluto/webExecLog.log
 chown www-data.www-data /var/log/pluto/webExecLog.log
 
+mkdir /home/coverartscan
+chown www-data.www-data /home/coverartscan
+ln -s /home/coverartscan /var/www/pluto-admin/coverartscan
+
+mv /var/www/pluto-admin/grabcoverart.sh /usr/pluto/bin || /bin/true
+
 # enable rewrite module
 a2enmod rewrite || /bin/true
 
