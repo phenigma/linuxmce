@@ -86,6 +86,10 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 	}
 	
 	SDL_WM_SetCaption("AVWizard", "AVWizard");
+ 	// Hide the mouse cursor
+	SDL_ShowCursor(0);
+
+	atexit(SDL_Quit);
 
 	BackSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 24, 0, 0, 0, 0);
 	Screen = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 24, 0, 0, 0, 0);
