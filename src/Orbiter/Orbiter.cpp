@@ -2530,7 +2530,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent1 type %d key %d",
 	if ( event.type == Orbiter::Event::MOUSE_MOVE )
 	{
 #ifdef ENABLE_MOUSE_BEHAVIOR
-		m_pMouseBehavior->m_pLastPosition_set( event.data.region.m_iX, event.data.region.m_iY );
+		if(NULL != m_pMouseBehavior)
+			m_pMouseBehavior->m_pLastPosition_set( event.data.region.m_iX, event.data.region.m_iY );
 #endif
 
 		if( event.data.region.m_iX==LastX && event.data.region.m_iY==LastY )
