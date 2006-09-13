@@ -43,6 +43,8 @@ SimplePhone::~SimplePhone()
 //<-dceag-dest-e->
 {
 	LS_bQuit = true;
+	if (m_SIP_Thread != 0)
+		pthread_join(m_SIP_Thread, NULL);
 }
 
 //<-dceag-getconfig-b->
@@ -356,7 +358,6 @@ void SimplePhone::CreateChildren()
         m_bQuit = 1;
         exit(1);
     }
-    pthread_detach(m_SIP_Thread);
 }
 //<-dceag-c28-b->
 
