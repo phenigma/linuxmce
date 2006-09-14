@@ -43,6 +43,18 @@ bool DirIsWatched(listOfMonitoredDirs & listMonitoredDirs, string sDirectory)
 	return false;
 }
 
+listOfMonitoredDirs::iterator FindWatchedDir(listOfMonitoredDirs & listMonitoredDirs, int wd)
+{
+	for (listOfMonitoredDirs::iterator it_lOMD = listMonitoredDirs.begin(); it_lOMD != listMonitoredDirs.end(); it_lOMD++)
+	{
+		if (it_lOMD->m_iWD == wd)
+		{
+			return it_lOMD;
+		}
+	}
+	return listMonitoredDirs.end();
+}
+
 void UnwatchDir(listOfMonitoredDirs & listMonitoredDirs, const string & sDirectory)
 {
 	for (listOfMonitoredDirs::iterator it_lOMD = listMonitoredDirs.begin(); it_lOMD != listMonitoredDirs.end(); it_lOMD++)
@@ -85,7 +97,15 @@ void OperateFile(listOfMonitoredDirs & listMonitoredDirs, inotify & obj_Inotify,
 	static group * grent = getgrnam("www-data");
 	struct stat st;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Operating on '%s'", event.name.c_str());
+	listOfMonitoredDirs::iterator it_lOMD = FindWatchedDir(listMonitoredDirs, event.wd);
+	string sPath;
+	if (it_lOMD == listMonitoredDirs.end())
+	{
+		return;
+	}
+	sPath = it_lOMD->m_sPath + "/" + event.name;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Operating on '%s'", sPath.c_str());
 	if (event.mask & IN_IGNORED)
 	{
 		UnwatchDir(listMonitoredDirs, event.wd);
@@ -94,26 +114,27 @@ void OperateFile(listOfMonitoredDirs & listMonitoredDirs, inotify & obj_Inotify,
 
 	if (grent != NULL)
 	{
-		chown(event.name.c_str(), -1, grent->gr_gid);
+		chown(sPath.c_str(), -1, grent->gr_gid);
 	}
 
-	stat(event.name.c_str(), &st);
+	stat(sPath.c_str(), &st);
 	if (S_ISDIR(st.st_mode))
 	{
 		// a directory was created
-		chmod(event.name.c_str(), 0770);
-		WatchDir(listMonitoredDirs, event.name, obj_Inotify);
+		chmod(sPath.c_str(), 0770);
+		WatchDir(listMonitoredDirs, sPath, obj_Inotify);
 	}
 	else
 	{
 		// a file was created
-		chmod(event.name.c_str(), 0660);
+		chmod(sPath.c_str(), 0660);
 	}
 }
 
 int main(int argc, char *argv[])
 {
-	g_pPlutoLogger = new FileLogger("/var/log/pluto/VoiceMailMonitor.log");
+	//g_pPlutoLogger = new FileLogger("/var/log/pluto/VoiceMailMonitor.log");
+	g_pPlutoLogger = new FileLogger(stdout);
 	string sDirectory = "/var/spool/asterisk/voicemail";
 	inotify obj_Inotify;
 
