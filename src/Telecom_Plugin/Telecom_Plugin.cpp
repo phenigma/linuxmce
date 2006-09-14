@@ -81,7 +81,7 @@ void * startDisplayThread(void * Arg);
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: Telecom_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+	: Telecom_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter), m_VoiceMailStatusMutex( "voice mail mutex" )
 //<-dceag-const-e->
 {
 	m_pDatabase_pluto_main = NULL;
@@ -89,6 +89,7 @@ Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 	pthread_mutex_init(&mtx_err_messages,0);
 	iCmdCounter = 0;
 	next_conf_room = 1;
+	m_VoiceMailStatusMutex.Init(NULL);
 }
 
 //<-dceag-getconfig-b->
@@ -158,6 +159,7 @@ Telecom_Plugin::~Telecom_Plugin()
 {
 	delete m_pDatabase_pluto_main;
 
+	pthread_mutex_destroy(&m_VoiceMailStatusMutex.mutex);
 }
 
 //<-dceag-reg-b->
@@ -1143,6 +1145,8 @@ bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMes
 	{
 		vector<Row_Users *> vectRow_Users;
 		m_pDatabase_pluto_main->Users_get()->GetRows(USERS_FK_INSTALLATION_MAIN_FIELD + string("=") + StringUtils::itos(m_pRouter->iPK_Installation_get())+string(" OR ")+string(USERS_FK_INSTALLATION_MAIN_FIELD)+string(" IS NULL"),&vectRow_Users);
+
+		PLUTO_SAFETY_LOCK_ERRORSONLY(vm, m_VoiceMailStatusMutex);
 		for(size_t s=0;s<vectRow_Users.size();++s)
 		{
 			Row_Users *pRow_Users = vectRow_Users[s];
@@ -1159,6 +1163,7 @@ bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMes
 				SendCommand(CMD_Set_Bound_Icon_Voicemail);
 			}
 		}
+		vm.Release();
 	}
 	return false;
 }
@@ -1686,7 +1691,10 @@ bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMess
 		text_param = StringUtils::itos(vm_new);		
 	}
 
+	PLUTO_SAFETY_LOCK_ERRORSONLY(vm, m_VoiceMailStatusMutex);
 	m_mapVoiceMailStatus[userid] = std::make_pair(value_param, text_param);
+	vm.Release();
+
 	for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
 	{
 		OH_Orbiter *pOH_Orbiter = (*it).second;
