@@ -13,12 +13,12 @@ using namespace DCE;
 
 bool SDLFrontEnd::Quitting = false;
 
-void *SDLQuitWatchDogThread(void *p)
+void *SDLQuitWatchDogThread(void *)
 {
-	SDLFrontEnd *pSDLFrontEnd = (SDLFrontEnd *) p;
 	g_pPlutoLogger->Write(LV_STATUS,"Inside WatchDogThread");
 	Sleep(5000);
-	if( pSDLFrontEnd->Quitting )
+
+	if( SDLFrontEnd::Quitting )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "SDL_Quit hangs (nvidia drivers bug?). Restarting...");
 #ifndef WIN32
@@ -48,10 +48,11 @@ SDLFrontEnd::~SDLFrontEnd()
 
 	//start watchdog thread
 	pthread_t ThreadID = 0;
-	pthread_create(&ThreadID, NULL, SDLQuitWatchDogThread, this);
+	pthread_create(&ThreadID, NULL, SDLQuitWatchDogThread, NULL);
 
 	if(CurrentFont!= NULL)
 		TTF_CloseFont(CurrentFont);
+
 	TTF_Quit();
 	SDL_Quit();
 
