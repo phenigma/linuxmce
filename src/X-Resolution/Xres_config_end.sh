@@ -33,7 +33,7 @@ if [[ "${Answer:0:1}" == "y" || "${Answer:0:1}" == "Y" ]]; then
 	echo "X reload flag and message"
 	ReloadDevicesOnThisMachine
 	
-	pidOfX=$(ps ax|grep 'X :0 -ac -allowMouseOpenFail vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
+	pidOfX=$(ps ax|grep 'X :0 -ignoreABI -ac -allowMouseOpenFail vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
 	mv /etc/X11/xorg.conf{.test,}
 	echo "Killing real X (to restart it with new config)"
 	kill $pidOfX
