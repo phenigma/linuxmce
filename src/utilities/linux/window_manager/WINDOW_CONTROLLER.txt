@@ -1,0 +1,98 @@
+//
+// Author : Remus C.
+//
+// Changed by : ...
+//
+
+============
+Generalities
+============
+
+Only 2 desktops are used:
+- desktop 0 is the main desktop, and should be the only one active, at every moment in time
+- desktop 1 is used only as a "hidden" desktop, it should never be active
+
+A wrapper for wmctrl was created, and wmctrl commands are used directly in our code.
+The wmctrl command-line application is not used, but it can be used for debugging purposes.
+
+Below, the corresponding command-line options are shown for each action.
+'*>' is the symbol for corresponding command-line action.
+
+'-x' options for wmctrl means to use the class-name to identify the windows
+
+=========================
+Window-Controller actions
+=========================
+
+Action: hide/show a window
+	windows are not really hidden, they are moved to the desktop 1
+	*> wmctrl -x -r xcalc -t 1
+	windows are shown by moving them to the desktop 0
+	*> wmctrl -x -r xcalc -t 0
+  reason:
+	when a hide-window command is sent to the wm, the wm unmaps that window,
+	and this cause problems with GUI applications that expects their windows to be in a mapped state
+
+Action: changing a window layer (similar, but not always as the same Z-order)
+	we use 3 layers: above, below, normal
+	wmctrl accepts the following layers: above, below
+	These layers are actually properties added for a window.
+
+	layer normal: neither of the "above" and "below" properties is active
+	*> wmctrl -x -r xcalc -b remove,below
+	*> wmctrl -x -r xcalc -b remove,above
+	layer above: only the "above" property should be set
+	*> wmctrl -x -r xcalc -b remove,below
+	*> wmctrl -x -r xcalc -b add,above
+	layer below: only the "below" property should be set
+	*> wmctrl -x -r xcalc -b remove,above
+	*> wmctrl -x -r xcalc -b add,below
+
+Action: changing a window position and size
+	*> wmctrl -x- r xcalc -e 0,100,200,300,400
+	(x,y,width,height) = (100,200,300,400)
+  note:
+	the window must not be maximized, neither in the fullscreen state
+	otherwise the command may not succeed
+
+Action: changing the fullscreen state
+	In the fullscreen state, the window client area occupy the whole screen.
+	*> wmctrl -x -r xcalc -b add,fullscreen
+	*> wmctrl -x -r xcalc -b remove,fullscreen
+
+Action: changing the maximized state
+	In the fullscreen state, the window area, including the borders and the title, will occupy the whole screen.
+	*> wmctrl -x -r xcalc -b add,maximized_horz,maximized_vert
+	*> wmctrl -x -r xcalc -b remove,maximized_horz,maximized_vert
+
+Action: activating a window
+	That window will be above the other windows which belong to the same layer.
+	That window will have the focus.
+	If necessary, the window will be moved to the current desktop.
+	*> wmctrl -x -R xcalc
+
+Action: list windows
+	*> wmctrl -x -p -l -G
+
+=============================
+Window-Controller Enhancements
+=============================
+
+When enhancements were added to wmctrl, the compiled executable was renamed to 'xctrl'
+This will allow both application to coexist, without the need put them in separate directories.
+These enhancements does not affect the standard wmctrl commands.
+
+New -L option:
+	list all the properties for every window,
+	and will also list extra properties,
+	including the layer for every window, as seen by the window-manager
+	*> xctrl -L
+
+A new -O option:
+        recursively change the override_redirect property for a window,
+	up to the latest parent before the root window
+	-O requires a numeric argument, 0 or 1
+	*> xctrl -x -O 0 -r xcalc
+	*> xctrl -x -O 1 -r xcalc
+
+// --EOF--

@@ -8,4 +8,4 @@ developer notes:
 
 usage:
 - you need only wmctrl.h and wmctrl.cpp to use in a project
-- main.cpp is just for a test app
+- main.cpp is just for a command-line app
