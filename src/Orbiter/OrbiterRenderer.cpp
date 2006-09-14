@@ -1231,7 +1231,7 @@ void OrbiterRenderer::ObjectOffScreen( DesignObj_Orbiter *pObj )
 void *ImageLoadThread(void *p)
 {
 	OrbiterRenderer *pRenderer = (OrbiterRenderer *)p;
-	bool bContinue = true, bRedraw;
+	bool bContinue = true, bRedraw = false;
 	do
 	{
 		PLUTO_SAFETY_LOCK(vm, pRenderer->m_pOrbiter->m_VariableMutex);
