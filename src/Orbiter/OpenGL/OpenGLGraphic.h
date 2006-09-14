@@ -42,7 +42,7 @@ public:
 	void Convert();
 	void ReleaseTexture();
 
-	void ReplaceColorInRectangle(PlutoRectangle Area, 
+	OpenGLGraphic* ReplaceColorInRectangle(PlutoRectangle Area, 
 		PlutoColor ColorToReplace, 
 		PlutoColor ReplacementColor);
 

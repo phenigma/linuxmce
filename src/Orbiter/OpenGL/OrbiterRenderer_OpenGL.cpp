@@ -210,33 +210,31 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	MeshFrame * RightBar = new MeshFrame("highlight-frame-right");
 	MeshFrame * BottomBar = new MeshFrame("highlight-frame-bottom");
 	
-	PlutoRectangle Rect(X, Y, Width, Height);
+	const int HollowThickness = 4;
+	PlutoRectangle Rect(X - HollowThickness, Y - HollowThickness, 
+		Width + 2 * HollowThickness, Height + 2 * HollowThickness);
 	PlutoRectangle Original (Rect);
 
-	Rect.Width = 2;
-	LeftBar->SetMeshContainer(
-		MeshBuilder::BuildRectangle(Rect, NULL)
-		);
-	Rect = Original;
-	Rect.Height = 2;
-	TopBar->SetMeshContainer(
-		MeshBuilder::BuildRectangle(Rect, NULL)
-		);
-	
-	Rect = Original;
-	Rect.X += Rect.Width-1;
-	Rect.Width = 2;
-	RightBar->SetMeshContainer(
-		MeshBuilder::BuildRectangle(Rect, NULL)
-		);
+	//left
+	Rect.Width = HollowThickness;
+	LeftBar->SetMeshContainer(MeshBuilder::BuildRectangle(Rect, NULL));
 
+	//top
 	Rect = Original;
+	Rect.Height = HollowThickness;
+	TopBar->SetMeshContainer(MeshBuilder::BuildRectangle(Rect, NULL));
 	
-	Rect.Y += Rect.Height-1;
-	Rect.Height = 2;
-	BottomBar->SetMeshContainer(
-		MeshBuilder::BuildRectangle(Rect, NULL)
-		);
+	//right
+	Rect = Original;
+	Rect.X += Rect.Width-HollowThickness;
+	Rect.Width = HollowThickness;
+	RightBar->SetMeshContainer(MeshBuilder::BuildRectangle(Rect, NULL));
+
+	//bottom
+	Rect = Original;
+	Rect.Y += Rect.Height-HollowThickness;
+	Rect.Height = HollowThickness;
+	BottomBar->SetMeshContainer(MeshBuilder::BuildRectangle(Rect, NULL));
 
 	MeshFrame* HighLightPopup = new MeshFrame(RectangleUniqueID);
 	HighLightPopup->AddChild(LeftBar);
@@ -264,38 +262,37 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	while( pObj_WithGraphic && pObj_WithGraphic->m_vectGraphic.size()==0 )
 		pObj_WithGraphic = (DesignObj_Orbiter *) pObj_WithGraphic->m_pParentObject;
 
+	g_pPlutoLogger->Write(LV_WARNING,"ReplaceColorInRectangle size: %d %d %d %d", x, y, width, height);
+
 	if( pObj_WithGraphic==NULL )
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"ReplaceColorInRectangle object %s has no graphics",pObj->m_ObjectID.c_str());
 		return;
 	}
-	pObj = pObj_WithGraphic;
 
 	PlutoGraphic *pPlutoGraphic = pObj_WithGraphic->m_vectGraphic[0];
-	
 	OpenGLGraphic *pOpenGLGraphic = dynamic_cast<OpenGLGraphic *>(pPlutoGraphic);
 
 	if(NULL != pOpenGLGraphic)
 	{
-		TextureManager::Instance()->InvalidateItem(pObj->GenerateObjectHash(pObj->m_pPopupPoint));
+		TextureManager::Instance()->InvalidateItem(pObj_WithGraphic->GenerateObjectHash(pObj_WithGraphic->m_pPopupPoint));
 		PlutoRectangle Area(
-			x - pObj->m_rPosition.X - pObj->m_pPopupPoint.X, 
-			y - pObj->m_rPosition.Y - pObj->m_pPopupPoint.Y, 
+			x - pObj_WithGraphic->m_rPosition.X - pObj_WithGraphic->m_pPopupPoint.X, 
+			y - pObj_WithGraphic->m_rPosition.Y - pObj_WithGraphic->m_pPopupPoint.Y, 
 			width, height);
 		pOpenGLGraphic->Clear();
-		/*
-		static int a = 0;
-		a++;
-		ReplacementColor = a % 2 ? PlutoColor::Red() : PlutoColor::Blue();
-		*/
+
 		ObjectRenderer_OpenGL* Renderer = dynamic_cast <ObjectRenderer_OpenGL*>(pObj->Renderer());
-		Renderer->LoadPicture(pPlutoGraphic);		
-		pOpenGLGraphic->ReplaceColorInRectangle(Area, ColorToReplace, ReplacementColor);
+		Renderer->LoadPicture(pPlutoGraphic);	
+		TextureManager::Instance()->PrepareConvert((OpenGLGraphic*) pPlutoGraphic);
+		OpenGLGraphic*ReplacementGraphic =  pOpenGLGraphic->ReplaceColorInRectangle(Area, ColorToReplace, ReplacementColor);
 
-		//RedrawObjects();
+		Area.X = x;
+		Area.Y = y;
+
+		RenderGraphic(ReplacementGraphic, Area, false, pObj_WithGraphic->m_pPopupPoint, 255,  
+			"", string("floorplan object - ") + pObj->m_ObjectID);
 	}
-
-
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderText(string &sTextToDisplay, DesignObjText *Text,
@@ -381,6 +378,11 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 		g_pPlutoLogger->Write(LV_WARNING, "RenderGraphic with no object id!");
 	}
 	OpenGLGraphic* Graphic = dynamic_cast<OpenGLGraphic*> (pPlutoGraphic);
+	if(Graphic == NULL)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Graphic to render is NULL!");
+		return;
+	}
 
 	PlutoRectangle Position(rectTotal);
 	Position.X+= point.X;

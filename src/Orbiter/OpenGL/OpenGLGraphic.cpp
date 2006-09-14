@@ -49,14 +49,14 @@ OpenGLGraphic::OpenGLGraphic(int Width, int Height) :
 {
 	Initialize();
 
-	int NewWidth = GLMathUtils::MinPowerOf2(Width);
-	MaxU = float(Width) / NewWidth;
-	this->Width = NewWidth;
-	int NewHeight = GLMathUtils::MinPowerOf2(Width);
-	MaxU = float(Width) / NewHeight ;
-	this->Height = NewHeight;
+	int MPWidth = MathUtils::MinPowerOf2(Width);
+	int MPHeight = MathUtils::MinPowerOf2(Height);
+	MaxU = float(Width) / MPWidth;
+	MaxV = float(Height) / MPHeight;
+	this->Width = Width;
+	this->Height = Height;
 
-	LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, 
+	LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, MPWidth, MPHeight, 
 		32, 
 		rmask, gmask, bmask, amask);
 	Prepare();
@@ -350,12 +350,12 @@ void OpenGLGraphic::ReleaseTexture()
 	}
 }
 
-void OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, PlutoColor ColorToReplace, PlutoColor ReplacementColor)
+OpenGLGraphic* OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, PlutoColor ColorToReplace, PlutoColor ReplacementColor)
 {
 	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 
 	if(!LocalSurface)
-		return;
+		return NULL;
 
 	//PLUTO_SAFETY_LOCK(SceneMutex, LockMutex);
 	
@@ -374,26 +374,41 @@ void OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, PlutoColor Colo
 	int height = Area.Height;
 
 
+	OpenGLGraphic* Result = new OpenGLGraphic(Area.Width, Area.Height);
+	SDL_SetAlpha(Result->LocalSurface, 0, 0);
+
+	SDL_Rect SDLArea;
+	SDLArea.x = Area.X;
+	SDLArea.y = Area.Y;
+	SDLArea.w = Area.Width;
+	SDLArea.h = Area.Height;
+
+	SDL_BlitSurface(LocalSurface, &SDLArea, Result->LocalSurface, NULL);
+
 	PlutoPixelSrc = (ColorToReplace.R() << PF->Rshift) | (ColorToReplace.G() << PF->Gshift) | (ColorToReplace.B() << PF->Bshift) | (ColorToReplace.A() << PF->Ashift);
 	unsigned char *Source = (unsigned char *) &PlutoPixelSrc;
 	PlutoPixelDest = ReplacementColor.R() << PF->Rshift | ReplacementColor.G() << PF->Gshift | ReplacementColor.B() << PF->Bshift;//  TODO -- this should work | ReplacementColor.A() << PF->Ashift;
-	
+
+	Source[3] = 0;
 	for (int j = 0; j < height; j++)
 	{
 		for (int i = 0; i < width; i++)
 		{
 			// we may need locking on the surface
-			Pixel = getpixel(LocalSurface, i + x, j + y);
+			Pixel = getpixel(Result->LocalSurface,i, j);
 			unsigned char *pPixel = (unsigned char *) &Pixel;
 			const int max_diff = 3;
 			if ( abs(Source[0]-pPixel[0])<max_diff && abs(Source[1]-pPixel[1])<max_diff && abs(Source[2]-pPixel[2])<max_diff && abs(Source[3]-pPixel[3])<max_diff )
 			{
-				putpixel(LocalSurface,i + x, j + y, PlutoPixelDest);
+				pPixel[3]= 255;
+				putpixel(Result->LocalSurface,i, j, PlutoPixelDest);
 			}
 
 		}
 	}
+
 	oglMutex.Release();
-	TextureManager::Instance()->PrepareConvert(this);
+	TextureManager::Instance()->PrepareConvert(Result);
+	return Result;
 }
 
