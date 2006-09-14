@@ -9,6 +9,26 @@ using namespace DCE;
 
 #include <SDL_rotozoom.h>
 
+#include <pthread.h>
+
+bool SDLFrontEnd::Quitting = false;
+
+void *SDLQuitWatchDogThread(void *p)
+{
+	SDLFrontEnd *pSDLFrontEnd = (SDLFrontEnd *) p;
+	g_pPlutoLogger->Write(LV_STATUS,"Inside WatchDogThread");
+	Sleep(5000);
+	if( pSDLFrontEnd->Quitting )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "SDL_Quit hangs (nvidia drivers bug?). Restarting...");
+#ifndef WIN32
+		kill(getpid(), SIGKILL);
+#endif
+	}
+	return NULL;
+}
+
+
 SDLFrontEnd::SDLFrontEnd()
 	: IsEventWaiting (false)
 {
@@ -24,10 +44,18 @@ SDLFrontEnd::SDLFrontEnd()
 
 SDLFrontEnd::~SDLFrontEnd()
 {
+	Quitting = true;
+
+	//start watchdog thread
+	pthread_t ThreadID = 0;
+	pthread_create(&ThreadID, NULL, SDLQuitWatchDogThread, this);
+
 	if(CurrentFont!= NULL)
 		TTF_CloseFont(CurrentFont);
 	TTF_Quit();
 	SDL_Quit();
+
+	Quitting = false;
 }
 
 bool SDLFrontEnd::HasEventPending()

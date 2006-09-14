@@ -36,7 +36,10 @@ class SDLFrontEnd
 	int PaintFont(char* Text, int Top, int Left, 
 		TColorDesc Color, int Mode);
 	bool NeedUpdateScreen, NeedUpdateBack;
+
 public:
+
+	static bool Quitting;
 
 	int GetScreenWidth();
 
