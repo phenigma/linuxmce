@@ -124,7 +124,9 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 		{
 			if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation && !pMessage->m_bRespondedToMessage )
 			{
+				mm.Release();
 				pmanager->SendString(sCMD_Result);
+				mm.Relock();
 			}
 			pMessage->m_bRespondedToMessage=true;
 			mm.Release();
