@@ -68,13 +68,9 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 	{
 		string sAttributeFile_PrevVersion = FileWithAttributes_PreviousVersion();
 		string sAttributeFullFilePath_PrevVersion = m_sDirectory + "/" + sAttributeFile_PrevVersion;
-
+		g_pPlutoLogger->Write(LV_STATUS, "No id3 file found. Trying to get attributes from old id3 file: %s",
+			sAttributeFullFilePath_PrevVersion.c_str());
 		LoadPlutoAttributes(sAttributeFullFilePath_PrevVersion);
-		
-		if(sAttributeFile_PrevVersion != "")
-		{
-			FileUtils::DelFile(sAttributeFullFilePath_PrevVersion);
-		}
 	}
 	else
 //END code for upgrade ////////////////////////////////////
