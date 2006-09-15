@@ -91,7 +91,6 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 		Sleep(25);
 	}
 
-	pOrbiterRenderer->Engine->Finalize();	
 	delete pOrbiterRenderer->Engine;
 	pOrbiterRenderer->Engine = NULL;
 
