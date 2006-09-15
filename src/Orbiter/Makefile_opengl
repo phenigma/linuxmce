@@ -82,7 +82,6 @@ sources += \
 	OpenGL/GLMathUtils.cpp \
 	OpenGL/OpenGL3DEngine.cpp \
 	OpenGL/OrbiterRenderer_OpenGL.cpp \
-	OpenGL/GraphicSettings.cpp \
 	OpenGL/OpenGLGraphic.cpp \
 	OpenGL/DatagridAnimationManager.cpp \
 	OpenGL/Mesh/MeshBuilder.cpp \
