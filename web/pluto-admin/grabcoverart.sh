@@ -5,7 +5,11 @@ range="1000"
 webhost="dcerouter"
 wgetlist="/tmp/wget-list"
 pidfile="/tmp/coverart_is_running"
-#pidid=$(cat $pidfile)
+wegotlynx=$(dpkg -l lynx | tail -1 | awk '{print $1}')
+
+if [[ "$wegotlynx" != "ii" ]];then
+        apt-get -f -y install lynx 1>/dev/null 2>/dev/null
+fi
 
 case "$1" in
 "background")
