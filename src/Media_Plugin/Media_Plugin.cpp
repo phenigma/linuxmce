@@ -2705,6 +2705,12 @@ void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_
 		// Only move the media if it's not already there.  Maybe the user just turned follow me on
 		if( pMediaStream->m_mapEntertainArea.find(iPK_RoomOrEntArea)==pMediaStream->m_mapEntertainArea.end() )
 			CMD_MH_Move_Media(pMediaStream->m_iStreamID_get(),StringUtils::itos(iPK_RoomOrEntArea));
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Move Media ea %d already media",iPK_RoomOrEntArea);
+			for(map<int, class EntertainArea *>::iterator it=pMediaStream->m_mapEntertainArea.begin();it!=pMediaStream->m_mapEntertainArea.end();++it)
+				g_pPlutoLogger->Write(LV_STATUS,"Move Media ea %d already media, it's in %d",iPK_RoomOrEntArea,it->first);
+		}
 	}
 }
 
