@@ -219,6 +219,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		pluto_pthread_mutex_t m_ScreenMutex; /** < Anything that should not be done during a screen render, change, etc. Blocking this will prevent screen changes */
 		pluto_pthread_mutex_t m_VariableMutex; /** < Short mutex to protect members like strings and maps */
 		pluto_pthread_mutex_t m_DatagridMutex; /** < Don't allow 2 threads to operate on datagrids at the same time */
+		pluto_pthread_mutex_t m_TimeCodeMutex; /** < Protects the communication with xine for time code */
 		pthread_cond_t m_MaintThreadCond;
 
 		/**

@@ -222,6 +222,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 				 : Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ),
 				 m_MaintThreadMutex("MaintThread"), m_ScreenMutex( "rendering" ),
 				 m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ),
+				 m_TimeCodeMutex( "timecode" ),
 				 IRReceiverBase(this)
 				 //<-dceag-const-e->
 {
@@ -306,6 +307,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_DatagridMutex.Init( &m_MutexAttr );
 	pthread_cond_init(&m_MaintThreadCond, NULL);
 	m_MaintThreadMutex.Init(&m_MutexAttr,&m_MaintThreadCond);
+	m_TimeCodeMutex.Init(NULL);
 
 	m_bUsingExternalScreenMutex = NULL != pExternalScreenMutex;
 	if(m_bUsingExternalScreenMutex)
@@ -491,6 +493,7 @@ Orbiter::~Orbiter()
 	pthread_mutexattr_destroy(&m_MutexAttr);
 	pthread_mutex_destroy(&m_VariableMutex.mutex);
 	pthread_mutex_destroy(&m_DatagridMutex.mutex);
+	pthread_mutex_destroy(&m_TimeCodeMutex.mutex);
 	pthread_mutex_destroy(&m_MaintThreadMutex.mutex);
 
 	if(!m_bUsingExternalScreenMutex)
@@ -8764,8 +8767,10 @@ void Orbiter::UpdateTimeCodeLoop()
 	if( !m_bReportTimeCode )
 		return;
 
-	// Don't worry about Mutex's.  this is the only method that manipulates m_pAskXine_Socket, and it's only called
-	// by the one MaintThread
+	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCodeLoop starting...");
+	PLUTO_SAFETY_LOCK(tcm, m_TimeCodeMutex);
+
+	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCodeLoop: got the mutex, we are ready to go!");
 
 	// If this is a xine, determine the ip address and connect to it to pull time code info
 	if( !m_pAskXine_Socket || m_pAskXine_Socket->m_dwPK_Device!=m_dwPK_Device_NowPlaying )
@@ -8869,6 +8874,8 @@ void Orbiter::UpdateTimeCodeLoop()
 		CMD_Update_Time_Code(iStreamID,sTime,sTotalTime,sSpeed,sTitle,sChapter);
 		Sleep(50);
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCodeLoop ended.");
 }
 
 void Orbiter::StartScreenSaver()
