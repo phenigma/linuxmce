@@ -300,6 +300,9 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	//g_pPlutoLogger->Write(LV_CRITICAL, "Rendering text %s at %d, %d", sTextToDisplay.c_str(), 
 	//	Text->m_rPosition.X, Text->m_rPosition.Y);
 
+	//ignore \r characters
+	sTextToDisplay = StringUtils::Replace(sTextToDisplay, "\r", "");
+
 	string sParentObjectID = "";
 	if(NULL != Text->m_pObject)
 	{
