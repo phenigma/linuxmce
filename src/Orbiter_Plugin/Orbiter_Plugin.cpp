@@ -214,7 +214,7 @@ bool Orbiter_Plugin::GetConfig()
 	if( sMapping.size() )
 	{
 		vector<string> vectMapping;
-		StringUtils::Tokenize(sMapping,"\n",vectMapping);
+		StringUtils::Tokenize(sMapping,"\r\n",vectMapping);
 		for(vector<string>::iterator it=vectMapping.begin();it!=vectMapping.end();++it)
 		{
 			string::size_type pos = it->find('=');
