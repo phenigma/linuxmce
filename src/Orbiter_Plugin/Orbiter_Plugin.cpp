@@ -2846,7 +2846,7 @@ bool Orbiter_Plugin::PresenceDetected( class Socket *pSocket, class Message *pMe
 		EVENT_Follow_Me_Media(0, it->second, pMediaDevice->m_mapEntertainArea.begin()->first, 0);
 	}
 	else
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::PresenceDetected no user associated");
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::PresenceDetected no user associated with %s",sID.c_str());
 	return false;
 }
 
