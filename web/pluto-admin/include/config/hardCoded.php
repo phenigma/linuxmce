@@ -190,6 +190,7 @@
 	$GLOBALS['hardware_acceleration_dd']=168;	// Harware acceleration
 	$GLOBALS['UsealphablendedUI']=169;			// Use alpha blended UI
 	$GLOBALS['DeinterlacingMode']=170;			// Deinterlacing Mode
+	$GLOBALS['UseOpenGLeffects']=172;			// Use OpenGL effects
 	$GLOBALS['CaptureCardPort']=173;			// FK_Device_Capture_Card_Port
 	
 	

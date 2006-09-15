@@ -680,7 +680,7 @@ $installationID = (int)@$_SESSION['installationID'];
 					$query = "update Device_DeviceData set IK_DeviceData = ? where  FK_Device = ? and FK_DeviceData = ?";
 					$rs=$dbADO->Execute($query,array($value,$deviceID,$elem));	
 
-					if(@$isOrbiter==1 && $elem==$GLOBALS['UsealphablendedUI'] && $dbADO->Affected_Rows()>0){
+					if(@$isOrbiter==1 && ($elem==$GLOBALS['UsealphablendedUI'] || $elem==$GLOBALS['UseOpenGLeffects']) && $dbADO->Affected_Rows()>0){
 						restartX($value);
 					}
 

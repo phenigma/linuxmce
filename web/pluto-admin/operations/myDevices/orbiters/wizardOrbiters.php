@@ -397,7 +397,7 @@ function wizardOrbiters($output,$dbADO) {
 								WHERE FK_Device=? AND FK_DeviceData=?';
 							$dbADO->Execute($updateDDD,array($deviceData,$value,$ddValue));
 							
-							if($ddValue==$GLOBALS['UsealphablendedUI'] && $dbADO->Affected_Rows()>0){
+							if(($ddValue==$GLOBALS['UsealphablendedUI'] || $ddValue==$GLOBALS['UseOpenGLeffects']) && $dbADO->Affected_Rows()>0){
 								restartX($value);
 							}
 
