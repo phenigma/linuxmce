@@ -219,7 +219,12 @@ bool Orbiter_Plugin::GetConfig()
 		{
 			string::size_type pos = it->find('=');
 			if( pos!=string::npos )
-				m_mapUsersID[ it->substr( pos+1 ) ] = atoi(it->c_str());
+			{
+				int PK_User = atoi(it->c_str());
+				string sID = it->substr( pos+1 );
+				g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin user %d has id %s",PK_User,sID.c_str());
+				m_mapUsersID[ sID ] = PK_User;
+			}
 		}
 	}
 
