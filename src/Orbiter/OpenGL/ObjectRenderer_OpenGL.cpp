@@ -8,7 +8,7 @@
 
 using namespace DCE;
 
-//#define DISABLE_MESHFRAME_CACHE
+#define DISABLE_MESHFRAME_CACHE
 
 ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : ObjectRenderer(pOwner)
 {

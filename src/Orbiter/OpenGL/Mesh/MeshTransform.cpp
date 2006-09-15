@@ -1,3 +1,21 @@
+/*
+Orbiter
+
+Copyright (C) 2006 Pluto, Inc., a Florida Corporation
+
+www.plutohome.com
+
+Phone: +1 (877) 758-8648
+
+This program is distributed according to the terms of the Pluto Public License, available at:
+http://plutohome.com/index.php?section=public_license
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
+
+@author: "Ciprian Mustiata" ciprian.m at plutohome dot com, "Cristian Miron" chris.m at plutohome dot com 
+
+*/
 #include "MeshTransform.h"
 
 #include "../GLMathUtils.h"
@@ -114,7 +132,7 @@ void MeshTransform::ApplyRotateZ(float Angle)
 	ApplyTransform(Transform);
 }
 
-void MeshTransform::ApplyTransform(MeshTransform& Transform)
+void MeshTransform::ApplyTransform(const MeshTransform& Transform)
 {
 	int M, N, P;
 	MeshTransform Final;
@@ -142,4 +160,9 @@ void MeshTransform::CopyFrom(const MeshTransform& Transform)
 void MeshTransform::operator= (const MeshTransform& Transform)
 {
 	CopyFrom(Transform);
+}
+
+void MeshTransform::operator*= (const MeshTransform& Transform)
+{
+	ApplyTransform(Transform);
 }

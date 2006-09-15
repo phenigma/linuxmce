@@ -1,8 +1,29 @@
+/*
+Orbiter
+
+Copyright (C) 2006 Pluto, Inc., a Florida Corporation
+
+www.plutohome.com
+
+Phone: +1 (877) 758-8648
+
+This program is distributed according to the terms of the Pluto Public License, available at:
+http://plutohome.com/index.php?section=public_license
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
+
+@author: "Ciprian Mustiata" ciprian.m at plutohome dot com, "Cristian Miron" chris.m at plutohome dot com 
+
+*/
 #ifndef GLMathUtils_H_
 #define GLMathUtils_H_
 
 #include "../../SerializeClass/ShapesColors.h"
 
+/**
+ *	OpenGL based color description, the values are 0.0f to 1.0f
+ */
 struct FloatColor 
 {
 	float Red, Green, Blue, Alpha;
@@ -21,11 +42,11 @@ struct FloatColor
 typedef struct FloatColor ColorRGB;  
 
 /**
-* That class defines one rectangle structure which is defined as top,left coordinate
-* and it's width and height
-* That structure is used where Rect is not suitable for actual needs (because works with 
-* integer based types
-*/
+ * That class defines one rectangle structure which is defined as top,left coordinate
+ * and it's width and height
+ * That structure is used where Rect is not suitable for actual needs (because works with 
+ * integer based types
+ */
 class FloatRect
 {
 public:

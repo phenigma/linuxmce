@@ -1,3 +1,21 @@
+/*
+Orbiter
+
+Copyright (C) 2006 Pluto, Inc., a Florida Corporation
+
+www.plutohome.com
+
+Phone: +1 (877) 758-8648
+
+This program is distributed according to the terms of the Pluto Public License, available at:
+http://plutohome.com/index.php?section=public_license
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
+
+@author: "Ciprian Mustiata" ciprian.m at plutohome dot com, "Cristian Miron" chris.m at plutohome dot com 
+
+*/
 #include "OpenGLGraphic.h"
 
 #include <SDL_image.h>
@@ -6,21 +24,9 @@
 #include "DCE/Logger.h"
 #include "../OrbiterRenderer.h"
 #include "../Orbiter.h"
+#include "../SDL/PlutoSDLDefs.h"
 
 #include <iostream>
-
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-static Uint32 rmask = 0xff000000;
-static Uint32 gmask = 0x00ff0000;
-static Uint32 bmask = 0x0000ff00;
-static Uint32 amask = 0x000000ff;
-#else
-static Uint32 rmask = 0x000000ff;
-static Uint32 gmask = 0x0000ff00;
-static Uint32 bmask = 0x00ff0000;
-static Uint32 amask = 0xff000000;
-#endif 
-
 
 OpenGLGraphic::OpenGLGraphic() : 
 	PlutoGraphic(), 

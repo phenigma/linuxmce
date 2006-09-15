@@ -473,9 +473,6 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
-				RelativePath=".\AnimationScrollDatagrid.h">
-			</File>
-			<File
 				RelativePath="..\CacheImageManager.h">
 			</File>
 			<File
