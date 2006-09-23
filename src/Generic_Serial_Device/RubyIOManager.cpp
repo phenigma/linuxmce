@@ -363,7 +363,12 @@ void
 RubyIOManager::SendCommand(RubyCommandWrapper* pcmd) {
 	g_pPlutoLogger->Write(LV_STATUS, "Ruby code requested to send command %d, from %d to %d... Sending...", 
 								pcmd->getId(), pcmd->getDevIdFrom(), pcmd->getDevIdTo());
-	Message* pmsg = new Message(pcmd->getDevIdFrom(), pcmd->getDevIdTo(), pcmd->getPriority(), pcmd->getType(), pcmd->getId(), 0);
+
+	Message* pmsg;
+	if( pcmd->getDevIdTo() = DEVICEID_CATEGORY )
+		pmsg = new Message(pcmd->getDevIdFrom(), pcmd->getCategory(), true, BL_SameHouse, pcmd->getPriority(), pcmd->getType(), pcmd->getId(), 0);
+	else
+		pmsg = new Message(pcmd->getDevIdFrom(), pcmd->getDevIdTo(), pcmd->getPriority(), pcmd->getType(), pcmd->getId(), 0);
 	pmsg->m_mapParameters = pcmd->getParams();
 	pevdisp_->SendMessage(pmsg);
 	g_pPlutoLogger->Write(LV_STATUS, "Command sent.");

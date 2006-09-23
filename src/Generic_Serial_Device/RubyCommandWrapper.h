@@ -59,12 +59,15 @@ public:
 	long getId() { return id_; }
 	void setId(long id) { id_ = id; }
 	
+	long getCategory() { return category_; }
+	void setCategory(long category) { category_ = category; devidto_ = DEVICEID_CATEGORY; }
 public:
 	long devidfrom_;
 	long devidto_;
 	long priority_;
 	long type_;
 	long id_;
+	long category_;
 
 	std::map<long, std::string> params_;
 };
