@@ -14,7 +14,7 @@ touch "$DIR/.notdone"
 
 if [ -d /cdrom/Debian-Cache ]; then
 	mkdir -p /target/usr/pluto/deb-cache/dists/sarge/main/binary-i386/
-	cp -a /cdrom/Debian-Cache/* /target/usr/pluto/deb-cache/dists/sarge/main/binary-i386/
+	cp -a /cdrom/Debian-Cache/* /target/usr/pluto/deb-cache/dists/sarge/main/binary-i386/ || exit 1
 	ln -s sarge /target/usr/pluto/deb-cache/dists/testing
 	ln -s sarge /target/usr/pluto/deb-cache/dists/stable
 fi
