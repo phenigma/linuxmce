@@ -18,6 +18,8 @@
 #include <map>
 #include <string>
 
+#include "DCE/Message.h"
+
 namespace DCE {
 
 /**

@@ -365,7 +365,7 @@ RubyIOManager::SendCommand(RubyCommandWrapper* pcmd) {
 								pcmd->getId(), pcmd->getDevIdFrom(), pcmd->getDevIdTo());
 
 	Message* pmsg;
-	if( pcmd->getDevIdTo() = DEVICEID_CATEGORY )
+	if( pcmd->getDevIdTo() == DEVICEID_CATEGORY )
 		pmsg = new Message(pcmd->getDevIdFrom(), pcmd->getCategory(), true, BL_SameHouse, pcmd->getPriority(), pcmd->getType(), pcmd->getId(), 0);
 	else
 		pmsg = new Message(pcmd->getDevIdFrom(), pcmd->getDevIdTo(), pcmd->getPriority(), pcmd->getType(), pcmd->getId(), 0);
