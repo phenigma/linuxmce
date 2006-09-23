@@ -35,10 +35,16 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 
 	BonusWorkDir="/usr/pluto/deb-cache/dists/sarge/main/binary-i386"
 	
-	cp -r /cdrom/bonuscd1/*.deb "$BonusWorkDir"
+	if ! cp -r /cdrom/bonuscd1/*.deb "$BonusWorkDir"; then
+		echo "ERROR: Failed copying first batch"
+		read
+	fi
 
 	cd /cdrom/bonuscd1-cache
-	cp -r *.deb "$BonusWorkDir"
+	if ! cp -r *.deb "$BonusWorkDir"; then
+		echo "ERROR: Failed copying second batch"
+		read
+	fi
 	sleep 1
 	cd 
 	/usr/bin/eject 1>/dev/null 2>/dev/null
