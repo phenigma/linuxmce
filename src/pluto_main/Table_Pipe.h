@@ -79,7 +79,7 @@ class DECLSPECIFIER Row_Pipe : public TableRow, public SerializeClass
 		
 		long int m_PK_Pipe;
 string m_Description;
-long int m_FK_Pipe_UsePath;
+string m_Define;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -92,7 +92,7 @@ long int m_psc_restrict;
 	public:
 		long int PK_Pipe_get();
 string Description_get();
-long int FK_Pipe_UsePath_get();
+string Define_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -103,7 +103,7 @@ long int psc_restrict_get();
 		
 		void PK_Pipe_set(long int val);
 void Description_set(string val);
-void FK_Pipe_UsePath_set(long int val);
+void Define_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -112,7 +112,7 @@ void psc_mod_set(string val);
 void psc_restrict_set(long int val);
 
 		
-		bool FK_Pipe_UsePath_isNull();
+		bool Define_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -120,7 +120,7 @@ bool psc_frozen_isNull();
 bool psc_restrict_isNull();
 
 			
-		void FK_Pipe_UsePath_setNull(bool val);
+		void Define_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -138,8 +138,7 @@ void psc_restrict_setNull(bool val);
 		class Table_Pipe *Table_Pipe_get() { return table; };
 
 		// Return the rows for foreign keys 
-		class Row_Pipe* FK_Pipe_UsePath_getrow();
-
+		
 
 		// Return the rows in other tables with foreign keys pointing here
 		void Command_Pipe_FK_Pipe_getrows(vector <class Row_Command_Pipe*> *rows);
@@ -147,19 +146,18 @@ void DeviceTemplate_DeviceCategory_ControlledVia_Pipe_FK_Pipe_getrows(vector <cl
 void DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_FK_Pipe_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe*> *rows);
 void Device_Device_Pipe_FK_Pipe_getrows(vector <class Row_Device_Device_Pipe*> *rows);
 void MediaType_FK_Pipe_getrows(vector <class Row_MediaType*> *rows);
-void Pipe_FK_Pipe_UsePath_getrows(vector <class Row_Pipe*> *rows);
 
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Pipe+ m_Description+ m_FK_Pipe_UsePath+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Pipe+ m_Description+ m_Define+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_Pipe_asSQL();
 string Description_asSQL();
-string FK_Pipe_UsePath_asSQL();
+string Define_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
