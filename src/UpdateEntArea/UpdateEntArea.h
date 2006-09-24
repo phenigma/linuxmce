@@ -41,6 +41,7 @@ public:
 	void PutMDsChildrenInRoom(Row_Device *pRow_Device);
 	void DeleteEntertainArea(Row_EntertainArea *pRow_EntertainArea);
 	void AddMDsDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea);
+	void AddMDsDevicesToEntArea(Row_Device *pRow_Device,Row_EntertainArea *pRow_EntertainArea); // Recursive version of above
 	void AddAVDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea);
 
 	// Misc utility functions

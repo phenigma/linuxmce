@@ -60,7 +60,7 @@ namespace FileUtils
     time_t FileDate(string sFileName); /** < returns the date of the last file modification or 0 if error */
 
 	/** < scan sDirectory, for files matching any of the sFileSpec_TabSep (ie *.jpg\ta*\tbcd*.mpg), and store the names in listFiles.  
-	Optionally recurse into sub-directories up to a level (500 by default). If the max depth was hit return true. 
+	Optionally recurse into sub-directories up to a level (0 = no limit). If the max depth was hit return true. 
 	The prepended path will be prepended to any files that are found.  Normally this is for internal use only while recursing. 
 	if pMapInodes is supplied, it will be filled in with the inodes all all files, and any files that are already in the map
 	will be skipped.  This way the calling program can create such a map and pass it in, ensuring that the same files

@@ -497,3 +497,28 @@ bool DatabaseUtils::IsValidControlledVia(MySqlHelper *pMySqlHelper,int PK_Device
 
 	return false;
 }
+
+bool DatabaseUtils::DeviceIsWithinCategory(MySqlHelper *pMySqlHelper,int PK_Device,int PK_DeviceCategory)
+{
+	string sSQL = "SELECT FK_DeviceCategory FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device=" + StringUtils::itos(PK_Device);
+	PlutoSqlResult result;
+
+	MYSQL_ROW row;
+	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) )==NULL || ( row=mysql_fetch_row( result.r ) )==NULL || row[0]==NULL )
+		return false;
+
+	// Loop through all generations of parents
+	int PK_DeviceCategory_Test = atoi(row[0]);  // The Device's category
+	while(true)
+	{
+		if( PK_DeviceCategory_Test==PK_DeviceCategory )
+			return true;
+
+		string sSQL = "SELECT FK_DeviceCategory_Parent FROM DeviceCategory WHERE PK_DeviceCategory=" + StringUtils::itos(PK_DeviceCategory_Test);
+		PlutoSqlResult result;
+		MYSQL_ROW row;
+		if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) )==NULL || ( row=mysql_fetch_row( result.r ) )==NULL || row[0]==NULL || (PK_DeviceCategory_Test = atoi(row[0]))==0 )
+			return false;
+	}
+}
+

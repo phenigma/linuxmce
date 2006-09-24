@@ -48,6 +48,7 @@ namespace DatabaseUtils
 	bool AlreadyHasRooms(MySqlHelper *pMySqlHelper,int PK_Installation);
 	long GetRoomForDevice(MySqlHelper *pMySqlHelper, int nPK_Device);
 	long GetRoomByName(MySqlHelper *pMySqlHelper, string sDescription, int PK_RoomType);
+	bool DeviceIsWithinCategory(MySqlHelper *pMySqlHelper,int PK_Device,int PK_DeviceCategory);
 };
 
 #endif //#ifndef _DatabaseUtils

@@ -103,6 +103,7 @@ int main(int argc, char *argv[])
 }
 
 // tags can be <-mkr_b_blockname_b->  something <-mkr_b_blockname_e->  means the block in between should only be included if blockname is in the list
+// tags can be <-mkr_B_blockname_b->  something <-mkr_B_blockname_e->  means the block in between should only be included if blockname is *not* in the list
 // <-mkr_t_tagname-> will be substitude with tagname
 bool ReplaceTags(string &str)
 {
@@ -127,15 +128,16 @@ bool ReplaceTags(string &str)
 		switch( cType )
 		{
 		case 'b':
+		case 'B':
 			{
 				string sTag = str.substr( tag_pos+8, end_pos-tag_pos-10 );
 				char cBegin = str[ end_pos - 1 ];
 				if( cBegin!='b' )
 					continue;
 				map<string,bool>::iterator it=g_mapBlocks.find(sTag);
-				if( it==g_mapBlocks.end() )
+				if( (cType=='b' && it==g_mapBlocks.end()) || (cType=='B' && it!=g_mapBlocks.end()) )
 				{
-					string sEndTag = "<-mkr_b_" + sTag + "_e->";
+					string sEndTag = "<-mkr_" + cType + "_" + sTag + "_e->";
 					string::size_type end_tag = str.find(sEndTag,tag_pos);
 					if( end_tag==string::npos )
 					{

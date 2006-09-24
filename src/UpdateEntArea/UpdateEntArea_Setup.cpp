@@ -1,5 +1,6 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/DatabaseUtils.h"
 #include "PlutoUtils/Other.h"
 #include "Logger.h"
 #include "UpdateEntArea.h"
@@ -345,15 +346,17 @@ void UpdateEntArea::PutMDsChildrenInRoom(Row_Device *pRow_Device)
 	for(size_t s=0;s<vectRow_Device.size();++s)
 	{
 		Row_Device *pRow_Device_Child = vectRow_Device[s];
+
+		// If this is not an embedded device (ie route to is null) and it's parent is an interface device, then don't 
+		// put it in the same room since the children are things like lights or security sensors which may
+		// be in different rooms from the interface
+		if( pRow_Device_Child->FK_Device_RouteTo_isNull()==true && DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Interfaces_CONST)  )
+			continue;
+
 		pRow_Device_Child->FK_Room_set(pRow_Device->FK_Room_get());
 		pRow_Device_Child->Table_Device_get()->Commit();
-		if( pRow_Device_Child->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Orbiter_CONST ||
-			pRow_Device_Child->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_Orbiter_CONST ||
-			(pRow_Device_Child->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_get() &&
-			pRow_Device_Child->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_Orbiter_CONST) )
-		{
-			PutMDsChildrenInRoom(pRow_Device_Child);
-		}
+
+		PutMDsChildrenInRoom(pRow_Device_Child);
 	}
 }
 
@@ -410,10 +413,7 @@ void UpdateEntArea::AddAVDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea)
 	{
 		Row_Device *pRow_Device = vectRow_Device[s];
 		// Check up 3 generations of DeviceCategories to see if this is av equipment
-		if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_AV_CONST ||
-			pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_AV_CONST ||
-			(pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_get() &&
-			pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_AV_CONST) )
+		if( DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_AV_CONST) )
 		{
 			Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pRow_Device->PK_Device_get(),pRow_EntertainArea->PK_EntertainArea_get());
 			if( !pRow_Device_EntertainArea )
@@ -436,54 +436,32 @@ void UpdateEntArea::AddMDsDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea
 	for(size_t s=0;s<vectRow_Device.size();++s)
 	{
 		Row_Device *pRow_Device = vectRow_Device[s];
-		// Check up 3 generations of DeviceCategories to see if this is a media director
-		if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST ||
-			pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_Media_Director_CONST ||
-			(pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_get() &&
-			pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_Media_Director_CONST) )
-		{
-			Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pRow_Device->PK_Device_get(),pRow_EntertainArea->PK_EntertainArea_get());
-			if( !pRow_Device_EntertainArea )
-			{
-				g_pPlutoLogger->Write( LV_CRITICAL, "adding device %d %s to ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
-				pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
-				pRow_Device_EntertainArea->FK_Device_set(pRow_Device->PK_Device_get());
-				pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
-				m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
-			}
-
-			vector<Row_Device *> vectRow_Device_Child;
-			pRow_Device->Device_FK_Device_ControlledVia_getrows(&vectRow_Device_Child);
-			for(size_t s=0;s<vectRow_Device_Child.size();++s)
-			{
-				Row_Device *pRow_Device_Child = vectRow_Device_Child[s];
-				Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pRow_Device_Child->PK_Device_get(),pRow_EntertainArea->PK_EntertainArea_get());
-				if( !pRow_Device_EntertainArea )
-				{
-					g_pPlutoLogger->Write( LV_CRITICAL, "adding device %d %s to ent area %d %s",
-						pRow_Device_Child->PK_Device_get(),pRow_Device_Child->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
-					pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
-					pRow_Device_EntertainArea->FK_Device_set(pRow_Device_Child->PK_Device_get());
-					pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
-					m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
-				}
-				vector<Row_Device *> vectRow_Device_GrandChild;
-				pRow_Device_Child->Device_FK_Device_ControlledVia_getrows(&vectRow_Device_GrandChild);
-				for(size_t s=0;s<vectRow_Device_GrandChild.size();++s)
-				{
-					Row_Device *Row_Device_GrandChild = vectRow_Device_GrandChild[s];
-					Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(Row_Device_GrandChild->PK_Device_get(),pRow_EntertainArea->PK_EntertainArea_get());
-					if( !pRow_Device_EntertainArea )
-					{
-						pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
-						pRow_Device_EntertainArea->FK_Device_set(Row_Device_GrandChild->PK_Device_get());
-						pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
-						m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
-					}
-				}
-			}
-		}
+		// Is this a media director?
+		if( DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Media_Director_CONST) )
+			AddMDsDevicesToEntArea(pRow_Device,pRow_EntertainArea); // This will recurse
 	}
+}
+
+void UpdateEntArea::AddMDsDevicesToEntArea(Row_Device *pRow_Device,Row_EntertainArea *pRow_EntertainArea)
+{
+	// If it's not an embedded device (ie route to is null), and the parent is an interface, then this is something like a light switch or sensor which doesn't inherit the parent's room
+	if( pRow_Device->FK_Device_ControlledVia_get() && pRow_Device->FK_Device_RouteTo_isNull()==true && DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->FK_Device_ControlledVia_get(),DEVICECATEGORY_Interfaces_CONST) )
+		return;
+
+	Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pRow_Device->PK_Device_get(),pRow_EntertainArea->PK_EntertainArea_get());
+	if( !pRow_Device_EntertainArea )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "adding device %d %s to ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
+		pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
+		pRow_Device_EntertainArea->FK_Device_set(pRow_Device->PK_Device_get());
+		pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
+		m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
+	}
+
+	vector<Row_Device *> vectRow_Device_Child;
+	pRow_Device->Device_FK_Device_ControlledVia_getrows(&vectRow_Device_Child);
+	for(vector<Row_Device *>::iterator it=vectRow_Device_Child.begin();it!=vectRow_Device_Child.end();++it)
+		AddMDsDevicesToEntArea( *it, pRow_EntertainArea );
 }
 
 void UpdateEntArea::GetDevicesTypes(int PK_DeviceCategory,int PK_Room,map<int,int> *p_map_Device_Type,map<int,list<int> > *p_mapType)

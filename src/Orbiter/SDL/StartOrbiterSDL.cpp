@@ -315,7 +315,7 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 				pCLinux->WaitForRelativesIfOSD();
 
 				if(NULL != pCLinux->m_pScreenHistory_Current)
-					pCLinux->CMD_Goto_Screen("", pCLinux->m_pScreenHistory_Current->PK_Screen());  // Just go back to the screen
+					pCLinux->CMD_Regen_Screen();
 
 				if( pCLinux->UsesUIVersion2() && !pCLinux->m_bNewOrbiter )
 					pCLinux->StartScreenSaver();
