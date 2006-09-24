@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	updateEntArea.FixMissingAutoCreateDevices();
 	updateEntArea.GetMediaAndRooms();
 	updateEntArea.SetEAInRooms();
 

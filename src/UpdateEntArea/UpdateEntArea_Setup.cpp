@@ -49,6 +49,8 @@ bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string
 	}
 	m_iPK_Installation=PK_Installation;
 
+	m_pCreateDevice = new CreateDevice(m_iPK_Installation,host,user,pass,db_name,port);
+
 	// ******** Media Plugin ******************
 	vector<Row_Device *> vectRow_Device;
 	string sql = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Media_Plugins_CONST);
@@ -158,6 +160,38 @@ bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string
 	else
 		m_dwPK_Device_DCERouter=vectRow_Device[0]->PK_Device_get();
 	return true;
+}
+
+void UpdateEntArea::FixMissingAutoCreateDevices()
+{
+	// Find any auto create children specified in DeviceTemplate_DeviceTemplate_ControlledVia that aren't present
+	string sSQL="SELECT DeviceTemplate_DeviceTemplate_ControlledVia.FK_DeviceTemplate,RerouteMessagesToParent,PK_DeviceTemplate_DeviceTemplate_ControlledVia,Parent.PK_Device FROM "
+		"DeviceTemplate_DeviceTemplate_ControlledVia "
+		"JOIN Device As Parent ON DeviceTemplate_DeviceTemplate_ControlledVia.FK_DeviceTemplate_ControlledVia=Parent.FK_DeviceTemplate "
+		"LEFT JOIN Device As Child ON DeviceTemplate_DeviceTemplate_ControlledVia.FK_DeviceTemplate = Child.FK_DeviceTemplate AND Child.FK_Device_ControlledVia=Parent.PK_Device "
+		"WHERE Child.PK_Device IS NULL AND AutoCreateChildren=1";
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
+		while ((row = mysql_fetch_row(result_set.r)))
+			m_pCreateDevice->CreateAutoCreateChildDevice(atoi(row[3]),atoi(row[0]),row[1] && atoi(row[1]),atoi(row[2]),0);
+
+	// Find any auto create children specified in DeviceTemplate_DeviceCategory_ControlledVia that aren't present
+	sSQL="SELECT DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceTemplate,RerouteMessagesToParent,PK_DeviceTemplate_DeviceCategory_ControlledVia,Parent.PK_Device FROM "
+		"DeviceTemplate_DeviceCategory_ControlledVia "
+		"JOIN DeviceCategory AS C1 ON C1.PK_DeviceCategory=DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceCategory "
+		"LEFT JOIN DeviceCategory AS C2 ON C2.FK_DeviceCategory_Parent=C1.PK_DeviceCategory "
+		"LEFT JOIN DeviceCategory AS C3 ON C3.FK_DeviceCategory_Parent=C2.PK_DeviceCategory "
+		"JOIN DeviceTemplate ON DeviceTemplate.FK_DeviceCategory=C1.PK_DeviceCategory OR DeviceTemplate.FK_DeviceCategory=C2.PK_DeviceCategory OR DeviceTemplate.FK_DeviceCategory=C3.PK_DeviceCategory OR DeviceTemplate.FK_DeviceCategory=C3.FK_DeviceCategory_Parent "
+		"JOIN Device As Parent ON DeviceTemplate.PK_DeviceTemplate=Parent.FK_DeviceTemplate "
+		"LEFT JOIN Device As Child ON DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceTemplate = Child.FK_DeviceTemplate AND Child.FK_Device_ControlledVia=Parent.PK_Device "
+		"WHERE Child.PK_Device IS NULL AND AutoCreateChildren=1";
+
+	PlutoSqlResult result_set2;
+	if( (result_set2.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
+		while ((row = mysql_fetch_row(result_set2.r)))
+			m_pCreateDevice->CreateAutoCreateChildDevice(atoi(row[3]),atoi(row[0]),row[1] && atoi(row[1]),0,atoi(row[2]));
 }
 
 void UpdateEntArea::GetMediaAndRooms()

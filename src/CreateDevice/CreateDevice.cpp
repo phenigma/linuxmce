@@ -363,37 +363,7 @@ void CreateDevice::CreateChildrenByCategory(int iPK_Device,int iPK_DeviceCategor
 	{
 		while( row=mysql_fetch_row( result.r ) )
 		{
-			int PK_Device = DoIt(0,atoi(row[0]),"","",iPK_Device);
-			if( row[1] && atoi(row[1]) )
-			{
-				// Need to reroute messages to parent
-				SQL = "UPDATE Device SET FK_Device_RouteTo=" + StringUtils::itos(iPK_Device) + " WHERE PK_Device=" + StringUtils::itos(PK_Device);
-				threaded_mysql_query(SQL.c_str());
-
-				PlutoSqlResult result;
-				SQL = "SELECT FK_Pipe,FK_Command_Input,FK_Command_Output,ToChild,Command.Description FROM DeviceTemplate_DeviceCategory_ControlledVia_Pipe LEFT JOIN Command ON FK_Command_Input=PK_Command WHERE FK_DeviceTemplate_DeviceCategory_ControlledVia="+string(row[2]);
-				if( ( result.r=mysql_query_result( SQL ) ) )
-				{
-					string sLastDescription;
-					while( row=mysql_fetch_row( result.r ) )
-					{
-						SQL = "INSERT INTO Device_Device_Pipe(FK_Device_To,FK_Device_From,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES(";
-						if( row[3] && atoi(row[3]) )
-							SQL += StringUtils::itos(PK_Device) + "," + StringUtils::itos(iPK_Device);
-						else
-							SQL += StringUtils::itos(iPK_Device) + "," + StringUtils::itos(PK_Device);
-						SQL += string(",") + (row[0] ? row[0] : "NULL") + "," + (row[1] ? row[1] : "NULL")  + "," + (row[2] ? row[2] : "NULL") + ")";
-						threaded_mysql_query(SQL.c_str());
-
-						if( row[4] && sLastDescription!=row[4] ) // We've got a description for the input
-						{
-							sLastDescription=row[4];
-							SQL = "UPDATE Device SET Description = concat(Description,'/" + StringUtils::SQLEscape(sLastDescription) + "') WHERE PK_Device=" + StringUtils::itos(PK_Device);
-							threaded_mysql_query(SQL.c_str());
-						}
-					}
-				}
-			}
+			CreateAutoCreateChildDevice(iPK_Device,atoi(row[0]),row[1] && atoi(row[1]),0,atoi(row[2]));
 		}
 	}
 
@@ -412,36 +382,47 @@ void CreateDevice::CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplat
 	{
 		while( row=mysql_fetch_row( result.r ) )
 		{
-			int PK_Device = DoIt(0,atoi(row[0]),"","",iPK_Device);
-			if( row[1] && atoi(row[1]) )
+			CreateAutoCreateChildDevice(iPK_Device,atoi(row[0]),row[1] && atoi(row[1]),atoi(row[2]),0);
+		}
+	}
+}
+
+void CreateDevice::CreateAutoCreateChildDevice(int iPK_Device_Parent,int PK_DeviceTemplate,bool bRerouteMessagesToParent,int PK_DeviceTemplate_DeviceTemplate_ControlledVia,int PK_DeviceTemplate_DeviceCategory_ControlledVia)
+{
+	MYSQL_ROW row;
+	string SQL;
+	int PK_Device = DoIt(0,PK_DeviceTemplate,"","",iPK_Device_Parent);
+	if( bRerouteMessagesToParent )
+	{
+		// Need to reroute messages to parent
+		SQL = "UPDATE Device SET FK_Device_RouteTo=" + StringUtils::itos(iPK_Device_Parent) + " WHERE PK_Device=" + StringUtils::itos(PK_Device);
+		threaded_mysql_query(SQL.c_str());
+	}
+
+	PlutoSqlResult result;
+	if( PK_DeviceTemplate_DeviceTemplate_ControlledVia )
+		SQL = "SELECT FK_Pipe,FK_Command_Input,FK_Command_Output,ToChild,Command.Description FROM DeviceTemplate_DeviceTemplate_ControlledVia_Pipe LEFT JOIN Command ON FK_Command_Input=PK_Command WHERE FK_DeviceTemplate_DeviceTemplate_ControlledVia=" + StringUtils::itos(PK_DeviceTemplate_DeviceTemplate_ControlledVia);
+	else
+		SQL = "SELECT FK_Pipe,FK_Command_Input,FK_Command_Output,ToChild,Command.Description FROM DeviceTemplate_DeviceCategory_ControlledVia_Pipe LEFT JOIN Command ON FK_Command_Input=PK_Command WHERE FK_DeviceTemplate_DeviceCategory_ControlledVia=" + StringUtils::itos(PK_DeviceTemplate_DeviceCategory_ControlledVia);
+
+	if( ( result.r=mysql_query_result( SQL ) ) )
+	{
+		string sLastDescription;
+		while( row=mysql_fetch_row( result.r ) )
+		{
+			SQL = "INSERT INTO Device_Device_Pipe(FK_Device_To,FK_Device_From,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES(";
+			if( row[3] && atoi(row[3]) )
+				SQL += StringUtils::itos(PK_Device) + "," + StringUtils::itos(iPK_Device_Parent);
+			else
+				SQL += StringUtils::itos(iPK_Device_Parent) + "," + StringUtils::itos(PK_Device);
+			SQL += string(",") + (row[0] ? row[0] : "NULL") + "," + (row[1] ? row[1] : "NULL")  + "," + (row[2] ? row[2] : "NULL") + ")";
+			threaded_mysql_query(SQL.c_str(),true); // If it's a device previously created the record may already exist
+
+			if( row[4] && sLastDescription!=row[4] ) // We've got a description for the input
 			{
-				// Need to reroute messages to parent
-				SQL = "UPDATE Device SET FK_Device_RouteTo=" + StringUtils::itos(iPK_Device) + " WHERE PK_Device=" + StringUtils::itos(PK_Device);
+				sLastDescription=row[4];
+				SQL = "UPDATE Device SET Description = concat(Description,'/" + StringUtils::SQLEscape(sLastDescription) + "') WHERE PK_Device=" + StringUtils::itos(PK_Device);
 				threaded_mysql_query(SQL.c_str());
-
-				PlutoSqlResult result;
-				SQL = "SELECT FK_Pipe,FK_Command_Input,FK_Command_Output,ToChild,Command.Description FROM DeviceTemplate_DeviceTemplate_ControlledVia_Pipe LEFT JOIN Command ON FK_Command_Input=PK_Command WHERE FK_DeviceTemplate_DeviceTemplate_ControlledVia="+string(row[2]);
-				if( ( result.r=mysql_query_result( SQL ) ) )
-				{
-					string sLastDescription;
-					while( row=mysql_fetch_row( result.r ) )
-					{
-						SQL = "INSERT INTO Device_Device_Pipe(FK_Device_To,FK_Device_From,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES(";
-						if( row[3] && atoi(row[3]) )
-							SQL += StringUtils::itos(PK_Device) + "," + StringUtils::itos(iPK_Device);
-						else
-							SQL += StringUtils::itos(iPK_Device) + "," + StringUtils::itos(PK_Device);
-						SQL += string(",") + (row[0] ? row[0] : "NULL") + "," + (row[1] ? row[1] : "NULL")  + "," + (row[2] ? row[2] : "NULL") + ")";
-						threaded_mysql_query(SQL.c_str());
-
-						if( row[4] && sLastDescription!=row[4] ) // We've got a description for the input
-						{
-							sLastDescription=row[4];
-							SQL = "UPDATE Device SET Description = concat(Description,'/" + StringUtils::SQLEscape(sLastDescription) + "') WHERE PK_Device=" + StringUtils::itos(PK_Device);
-							threaded_mysql_query(SQL.c_str());
-						}
-					}
-				}
 			}
 		}
 	}

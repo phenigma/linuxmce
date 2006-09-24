@@ -15,6 +15,9 @@ public:
 	int DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia=0,string sDeviceData="",int iPK_Device_RelatedTo=0,int iPK_Room=0);
 	void CreateChildrenByCategory(int iPK_Device,int iPK_DeviceCategory);
 	void CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplate);
+	// For CreateAutoCreateChildDevice specify either PK_DeviceTemplate_DeviceTemplate_ControlledVia or PK_DeviceTemplate_DeviceCategory_ControlledVia
+	// but not both.  Which one is specified determines which table the relationship was taken from
+	void CreateAutoCreateChildDevice(int iPK_Device_Parent,int PK_DeviceTemplate,bool bRerouteMessagesToParent,int PK_DeviceTemplate_DeviceTemplate_ControlledVia,int PK_DeviceTemplate_DeviceCategory_ControlledVia);
 	void ConfirmAllRelations();
 	void ConfirmRelations(int PK_Device,bool bRecurseChildren=true,bool bOnlyAddDevicesOnCore=false);
 

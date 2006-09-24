@@ -6,6 +6,7 @@
 #include "pluto_main/Table_EntertainArea.h"
 #include "pluto_main/Table_Room.h"
 #include "CommandGroupArray.h"
+#include "CreateDevice/CreateDevice.h"
 
 class Row_EventHandler;
 class Row_Criteria;
@@ -25,6 +26,8 @@ class UpdateEntArea
 	map<int, pair<LevelOfMedia, bool> > m_mapRoom_Media;  // For a room, what type of media is in it, and bool=true when it's manually configure
 	map<int, LevelOfMedia > m_mapEnt_Area_Auto_Media;  // For an ent area that is automatic, what type of media is in it
 
+	CreateDevice *m_pCreateDevice;
+
 public:
     Database_pluto_main *m_pDatabase_pluto_main ;
 
@@ -33,6 +36,7 @@ public:
 
 	// Setup functions which must be called to prep things (in UpdateEntArea_Setup.cpp) 
 	bool Connect(int PK_Installation,string host, string user, string pass, string db_name, int port);
+	void FixMissingAutoCreateDevices();
 	void GetMediaAndRooms();
 	// Call this to setup the EA's.  It's mandatory before calling AddDefaultMediaCommands();
 	void SetEAInRooms();

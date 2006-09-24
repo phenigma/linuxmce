@@ -129,6 +129,9 @@
 				RelativePath="..\PlutoUtils\CommonIncludes.cpp">
 			</File>
 			<File
+				RelativePath="..\CreateDevice\CreateDevice.cpp">
+			</File>
+			<File
 				RelativePath=".\Criteria.cpp">
 			</File>
 			<File
