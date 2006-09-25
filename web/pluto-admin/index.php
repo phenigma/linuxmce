@@ -1496,6 +1496,12 @@ switch ($section) {
 	    include_once('operations/mediaBrowser/matchCoverArt.php');
 	    matchCoverArt($output,$mediadbADO);	    
 	break;	
+	case 'unknownDevices':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/unknownDevices.php');
+	    unknownDevices($output,$dbADO);	    
+	break;	
 
 
 	
