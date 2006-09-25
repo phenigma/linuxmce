@@ -119,6 +119,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		';
 			$irGroups=getAssocArray('InfraredGroup','PK_InfraredGroup','Description',$dbADO,'WHERE FK_Manufacturer='.$manufacturerID.' AND FK_DeviceCategory='.$deviceCategoryID,'ORDER BY Description ASC');
 			$error_not_saved=(count($irGroups)>0 && ($infraredGroupID==0 || is_null($infraredGroupID)))?'<span class="err">'.$TEXT_ERROR_IRGROUP_NOT_SAVED_CONST.'</span>':'';
+			$error_no_group=(count($irGroups)==0)?'<span class="err">'.$TEXT_ERROR_NO_GROUP_CONST.'</span>':'';
 			
 			$out.='
 			<tr>
@@ -126,7 +127,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			</td>
 			</tr>
 			<tr>
-				<td colspan="2"><input type="text" name="new_group_description" value=""> <input type="submit" name="add_group" value="'.$TEXT_CREATE_GROUP_CONST.'" class="button"></td>
+				<td colspan="2"><input type="text" name="new_group_description" value=""> <input type="submit" name="add_group" value="'.$TEXT_CREATE_GROUP_CONST.'" class="button"> '.$error_no_group.'</td>
 		</tr>			
 			';
 			

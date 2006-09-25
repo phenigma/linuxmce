@@ -8,4 +8,10 @@ $TEXT_REPOSITORY_NAME_CONST='Repository Name';
 $TEXT_ADD_SOFTWARE_CONST='Add software';
 $TEXT_PACKAGE_NAME_CONST='Package name';
 $TEXT_INSTALLATION_STATUS_CONST='Installation status';
+$TEXT_ERROR_NO_COMPUTER_SELECTED_CONST='No computer selected.';
+$TEXT_ICON_CONST='Icon';
+$TEXT_RATING_CONST='Rating';
+$TEXT_VIRUS_FREE_CONST='Virus free';
+$TEXT_IS_INSTALLED_CONST='Is installed';
+$TEXT_INSTALL_CONST='Install';
 ?>

@@ -36,4 +36,5 @@ $TEXT_ERROR_CANNOT_RETRIEVE_IR_CODES_CONST='Cannot retrieve IR codes.';
 $TEXT_ERROR_IRGROUP_NOT_SAVED_CONST='WARNING: Command Group not saved. Click UPDATE to save.';
 $TEXT_CREATE_GROUP_CONST='Create new group';
 $TEXT_CODES_GROUP_ADDED_CONST='Codes group added.';
+$TEXT_ERROR_NO_GROUP_CONST='There are no groups/codesets for this manufacturer and device category. Please add a group before adding codes.';
 ?>
