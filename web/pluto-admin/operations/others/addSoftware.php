@@ -9,97 +9,29 @@ function addSoftware($output,$dbADO) {
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];
+	$compSelected=(isset($_REQUEST['computer']))?(int)$_REQUEST['computer']:0;
+	
 	
 	if($action=='form'){
+	$computers=getDevicesArrayFromCategory($GLOBALS['rootComputerID'],$dbADO);
+	
+	$out.='
 		
-		$out.='
-		<script>
-			function windowOpen(locationA,attributes) {
-				window.open(locationA,\'\',attributes);
-			}
-			function enableRepName()
-			{
-				if(document.addSoftware.debianRepository.checked){
-					document.addSoftware.repositoryName.disabled=false;
-				}else{
-					document.addSoftware.repositoryName.disabled=true;
-					document.addSoftware.repositoryName.value=\'\';
-				}
-			}
-		</script>		
-			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
-			<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
+		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
+		<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
 			
-			<form action="index.php" method="POST" name="addSoftware">
-			<input type="hidden" name="section" value="addSoftware">
-			<input type="hidden" name="action" value="form">
+		<form action="index.php" method="POST" name="addSoftware">
+		<input type="hidden" name="section" value="addSoftware">
+		<input type="hidden" name="action" value="form">
 		
 		<table>
 			<tr>
-				<td><B>'.$TEXT_ADD_SOFTWARE_ON_WHICH_COMPUTER_CONST.'</B></td>
-				<td><select name="deviceIP">';
-		$deviceCategory=$GLOBALS['rootComputerID'];
-
-		$computersDTArray=getDeviceTemplatesFromCategory($deviceCategory,$dbADO);
-		if(count($computersDTArray)==0)
-			$computersDTArray[]=0;
-		
-		$queryComputers='
-			SELECT Description,IPaddress,PK_Device FROM Device 
-			WHERE FK_DeviceTemplate IN ('.join(',',$computersDTArray).') AND FK_Installation=? AND FK_Device_ControlledVia IS NULL
-			ORDER BY Description ASC';
-		$resComputers=$dbADO->Execute($queryComputers,array($installationID));
-		while($row=$resComputers->FetchRow()){
-			$out.='<option value="'.$row['PK_Device'].':'.$row['IPaddress'].'" '.(($row['PK_Device'].':'.$row['IPaddress']==@$_SESSION['deviceIP'])?'selected':'').'>'.$row['Description'].'</option>';
-		}
-		$out.='</select>
-				</td>
+				<td>'.$TEXT_ADD_SOFTWARE_ON_WHICH_COMPUTER_CONST.'</td>
+				<td>'.pulldownFromArray($computers,'computer',$compSelected,'onChange="document.addSoftware.action.value=\'form\';document.addSoftware.submit();"').'</td>
 			</tr>
 			<tr>
-				<td><B>'.$TEXT_SOFTWARE_PACKAGE_NAME_CONST.'</B></td>
-				<td><input type="text" name="packageName" value="'.@$_SESSION['packageName'].'"></td>
-			</tr>
-			<tr>
-				<td colspan="2"><br><br>'.$TEXT_NONPLUTO_MANTAINED_CONST.'</td>
-			</tr>
-			<tr>
-				<td><B>'.$TEXT_REPOSITORY_URL_CONST.'</B></td>
-				<td><input type="text" name="url" value="'.@$_SESSION['url'].'" size="50"></td>
-			</tr>
-			<tr>
-				<td><B>'.$TEXT_DEBIAN_REPOSITORY_CONST.'</B></td>
-				<td><input type="checkbox" name="debianRepository" value="1" '.((@$_SESSION['debianRepository']==1)?'checked':'').' onClick="enableRepName();"> </td>
-			</tr>		
-			<tr>
-				<td><B>'.$TEXT_REPOSITORY_NAME_CONST.'</B></td>
-				<td><input type="text" name="repositoryName" value="'.@$_SESSION['repositoryName'].'" '.((@$_SESSION['debianRepository']!=1)?'disabled':'').'></td>
-			</tr>
-			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_SOFTWARE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
-			</tr>		';
-		if(isset($_POST['add'])){
-			$deviceParts=explode(':',$_POST['deviceIP']);
-			$deviceIP=$deviceParts[1];
-			$packageName=$_POST['packageName'];
-			$url=((isset($_POST['debianRepository']) && (int)$_POST['debianRepository']==1)?'deb ':'').$_POST['url'];
-			$repositoryName=@$_POST['repositoryName'];
-
-			$cmd="/usr/pluto/bin/InstallSoftware.sh '$deviceIP' '$packageName' '$url' '$repositoryName'";
-			$msg="$TEXT_DEVICE_CONST ".$_POST['deviceIP']." $TEXT_PACKAGE_NAME_CONST $packageName";
-			$msg.=' '.$TEXT_INSTALLATION_STATUS_CONST.' '.exec($cmd);
-			
-			$_SESSION['deviceIP']=$deviceParts[0].':'.$deviceIP;
-			$_SESSION['packageName']=$packageName;
-			$_SESSION['url']=$_POST['url'];
-			$_SESSION['debianRepository']=(isset($_POST['debianRepository']) && (int)$_POST['debianRepository']==1)?1:0;
-			$_SESSION['repositoryName']=$repositoryName;
-			
-			$out.='
-			<tr>
-				<td colspan="2" align="center">'.$msg.'<br><iframe src="operations/logs/executeLog.php?script=4&cmd='.$cmd.'" width="950" height="600"></iframe></td>
-			</tr>';
-		}
-		$out.='
+				<td colspan="2">'.softwareList($compSelected,$dbADO).'</td>
+			</tr>			
 		</table>
 		</form>';
 	}else{
@@ -111,7 +43,18 @@ function addSoftware($output,$dbADO) {
 			exit();
 		}	
 
-		header('Location: index.php?section=addSoftware');
+		if(isset($_REQUEST['sID'])){
+			$sID=(int)@$_REQUEST['sID'];
+			//	To install/remove the packege you have to send command to General_Info_Plugin
+			//	CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iPK_Software,string &sCMD_Result,Message *pMessage)
+			$true_false=($action=='install')?1:0;
+			
+			$cmd='/usr/pluto/bin/MessageSend localhost -targetType template -o 0 27 1 813 2 '.$compSelected.' 229 '.$sID.' 119 '.$true_false;
+			exec_batch_command($cmd);				
+		}
+		
+		header('Location: index.php?section=addSoftware&computer='.$compSelected);
+		exit();
 	}
 
 	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
@@ -121,5 +64,66 @@ function addSoftware($output,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADD_SOFTWARE_CONST);
 	$output->output();
+}
+
+function softwareList($compSelected,$dbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addSoftware.lang.php');
+
+	if($compSelected==0){
+		return $TEXT_ERROR_NO_COMPUTER_SELECTED_CONST;		
+	}
+	
+	$res=$dbADO->Execute('SELECT PK_Software,Iconstr,Title,Category,Rating,Virus_Free,Installation_status FROM Software WHERE FK_Device=?',array($compSelected));
+	
+	$out='<table>
+		<tr class="tablehead">
+			<td align="center">'.$TEXT_ICON_CONST.'</td>
+			<td align="center">'.$TEXT_TITLE_CONST.'</td>
+			<td align="center">'.$TEXT_CATEGORY_CONST.'</td>
+			<td align="center">'.$TEXT_RATING_CONST.'</td>
+			<td align="center">'.$TEXT_VIRUS_FREE_CONST.'</td>
+			<td align="center">'.$TEXT_IS_INSTALLED_CONST.'</td>
+			<td align="center">'.$TEXT_ACTION_CONST.'</td>
+		</tr>
+	';
+	if($res->RecordCount()==0){
+		$out.='
+		<tr class="alternate_back">
+			<td colspan="7">'.$TEXT_NO_RECORDS_CONST.'</td>
+		</tr>';
+	}
+	
+	$pos=0;
+	while($row=$res->FetchRow()){
+		switch ($row['Installation_status']){
+			case 'No':
+				$button='<input type="button" class="button" name="btn_'.$row['PK_Software'].'" value="'.$TEXT_INSTALL_CONST.'" onClick="self.location=\'index.php?section=addSoftware&action=install&computer='.$compSelected.'&sID='.$row['PK_Software'].'\'">';
+			break;
+			case 'Yes':
+				$button='<input type="button" class="button" name="btn_'.$row['PK_Software'].'" value="'.$TEXT_REMOVE_CONST.'" onClick="self.location=\'index.php?section=addSoftware&action=remove&computer='.$compSelected.'&sID='.$row['PK_Software'].'\'">';
+			break;
+			default:
+				$button=' - ';
+			break;
+		}
+		
+		$class=($pos%2==0)?'alternate_back':'';
+		$out.='
+		<tr class="'.$class.'">
+			<td align="center"><img src="softwareIcon.php?sID='.$row['PK_Software'].'"></td>
+			<td align="center">'.$row['Title'].'</td>
+			<td align="center">'.$row['Category'].'</td>
+			<td align="center">'.$row['Rating'].'</td>
+			<td align="center">'.$row['Virus_Free'].'</td>
+			<td align="center">'.$row['Installation_status'].'</td>
+			<td align="center">'.$button.'</td>
+		</tr>';
+		$pos++;
+	}
+	$out.='<table>';
+	
+	return $out;
 }
 ?>
