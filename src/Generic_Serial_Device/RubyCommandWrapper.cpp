@@ -25,11 +25,11 @@ RubyCommandWrapper::RubyCommandWrapper(long devidfrom, long devidto, long priori
 {}
 
 RubyCommandWrapper::RubyCommandWrapper(long devidfrom, long devidto, long priority, long type, long id, long category)
-	: this(devidfrom, devidto, priority, type, id), category_(category)
+	: devidfrom_(devidfrom), devidto_(devidto), priority_(priority), type_(type), id_(id), category_(category)
 {}
 
-RubyCommandWrapper::RubyCommandWrapper(long devidfrom, long devidto, long priority, long type, long id, long targetType)
-	: this(devidfrom, devidto, priority, type, id), targetType_(targetType)
+RubyCommandWrapper::RubyCommandWrapper(long devidfrom, long devidto, long priority, long type, long id, long template)
+	: devidfrom_(devidfrom), devidto_(devidto), priority_(priority), type_(type), id_(id), template_(template) 
 {}
 
 RubyCommandWrapper::~RubyCommandWrapper() 

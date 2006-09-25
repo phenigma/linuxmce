@@ -367,6 +367,8 @@ RubyIOManager::SendCommand(RubyCommandWrapper* pcmd) {
 	Message* pmsg;
 	if( pcmd->getDevIdTo() == DEVICEID_CATEGORY )
 		pmsg = new Message(pcmd->getDevIdFrom(), pcmd->getCategory(), true, BL_SameHouse, pcmd->getPriority(), pcmd->getType(), pcmd->getId(), 0);
+	else if( pcmd->getDevIdTo() == DEVICEID_TEMPLATE )
+		pmsg = new Message(pcmd->getDevIdFrom(), pcmd->getTemplate(), BL_SameHouse, pcmd->getPriority(), pcmd->getType(), pcmd->getId(), 0);
 	else
 		pmsg = new Message(pcmd->getDevIdFrom(), pcmd->getDevIdTo(), pcmd->getPriority(), pcmd->getType(), pcmd->getId(), 0);
 	pmsg->m_mapParameters = pcmd->getParams();
