@@ -63,6 +63,19 @@ public:
 	
 	long getCategory() { return category_; }
 	void setCategory(long category) { category_ = category; devidto_ = DEVICEID_CATEGORY; }
+
+	long getTargetType() { return targetType_; }
+	void setTargetType( long targetType ) 
+	{
+		if ( targetType == 1 )
+			devidto_ = DEVICEID_CATEGORY;
+		else if ( targetType == 2 ) 
+			devidto_ = DEVICEID_MASTERDEVICE;
+		else return;
+
+		targetType_ = targetType;
+	}
+
 public:
 	long devidfrom_;
 	long devidto_;
@@ -70,6 +83,7 @@ public:
 	long type_;
 	long id_;
 	long category_;
+	long targetType_;
 
 	std::map<long, std::string> params_;
 };

@@ -17,16 +17,22 @@
 namespace DCE {
 
 RubyCommandWrapper::RubyCommandWrapper() 
-	: devidfrom_(0), devidto_(0), priority_(0), type_(0), id_(0), category_(0)
+	: devidfrom_(0), devidto_(0), priority_(0), type_(0), id_(0), category_(0), targetType_(0)
 {}
 
 RubyCommandWrapper::RubyCommandWrapper(long devidfrom, long devidto, long priority, long type, long id)
 	: devidfrom_(devidfrom), devidto_(devidto), priority_(priority), type_(type), id_(id)
 {}
 
+RubyCommandWrapper::RubyCommandWrapper(long devidfrom, long devidto, long priority, long type, long id, long category)
+	: RubyCommandWrapper(devidfrom, devidto, priority, type, id), category_(category)
+{}
+
+RubyCommandWrapper::RubyCommandWrapper(long devidfrom, long devidto, long priority, long type, long id, long targetType)
+	: RubyCommandWrapper(devidfrom, devidto, priority, type, id), targetType_(targetType)
+{}
 
 RubyCommandWrapper::~RubyCommandWrapper() 
 {}
-
 
 };
