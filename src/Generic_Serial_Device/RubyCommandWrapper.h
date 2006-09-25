@@ -65,7 +65,7 @@ public:
 	void setCategory(long category) { category_ = category; devidto_ = DEVICEID_CATEGORY; }
 
 	long getTemplate() { return template_; }
-	void setTemplate(long template) { template_ = template; devidto_ = DEVICEID_MASTERDEVICE; }
+	void setTemplate(long the_template) { template_ = the_template; devidto_ = DEVICEID_MASTERDEVICE; }
 	
 public:
 	long devidfrom_;
