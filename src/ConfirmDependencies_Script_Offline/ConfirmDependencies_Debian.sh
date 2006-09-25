@@ -93,61 +93,19 @@ case "$URL_TYPE" in
 		if [ "$results" -eq 0 ]; then
 			echo "deb $FilteredRepos $REPOS $SECTIONS" >>/etc/apt/sources.list
 		
-			count="0"
 			apt-get update
-			apt_err=$?
-
-			## NFS Error fallback
-			while [[ "$apt_err" != "0" && "$count" != "10" ]] ;do
-				sleep  2
-				apt-get update
-				apt_err=$?
-
-				count=$(( $count + 1 ))
-			done
 		fi
 
 		if ! PackageIsInstalled "$PKG_NAME"; then
 
-			count="0"
 			apt-get -y install "$PKG_NAME"
 			apt_err=$?			
 
-			## NFS Error fallback
-			while [[ "$apt_err" != "0" && "$count" != "10" ]] ;do
-				sleep 4
-			
-				dpkg -l test
-				dpkg_err=$?
-					
-				if [[ "$dpkg_err" == "2" ]] ;then
-					## It was a dpkg/status error , fixing
-					rm -f /var/lib/dpkg/status
-					cp /var/lib/dpkg/status-old /var/lib/dpkg/status
-
-					rm -f /var/lib/dpkg/available
-					cp /var/lib/dpkg/available-old /var/lib/dpkg/available
-
-					rm -f /var/lib/dpkg/diversions
-					cp /var/lib/dpkg/diversions-old /var/lib/dpkg/diversions
-
-					rm -f /var/lib/dpkg/statoverride
-					cp /var/lib/dpkg/statoverride-old /var/lib/dpkg/statoverride
-
-				fi
-
-				rm -f /var/cache/apt/*.bin
-				rm -f /var/cache/apt/archives/*.deb
-					
-				apt-get update 2>/dev/null 1>/dev/null
-				apt-get update 2>/dev/null 1>/dev/null
-
+			## If fails the first time try once more
+			while [[ "$apt_err" != "0" ]] ;do
 				apt-get -f -y install
-				sleep 3
 				apt-get -y --reinstall install "$PKG_NAME"
                                 apt_err=$?
-
-				count=$(( $count + 1 ))
 			done
 
 	
