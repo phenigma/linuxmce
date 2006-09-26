@@ -21,6 +21,21 @@ private:
 	dstColor.g = srcColor.G();
 	dstColor.b = srcColor.B();
   }	
+   UInt16 RGBColorTypeToUInt16( RGBColorType color ){
+		UInt16 ret = 0;
+		ret = color.b & 0x001F;
+		ret |= ((UInt16)(color.g & 0x003F))<<5;
+		ret |= ((UInt16)(color.r & 0x001F))<<11;
+		return ret;
+	}
+	
+	UInt16 CTestz::PlutoColorToUInt16( PlutoColor color ){
+	  	UInt16 ret = 0;
+		ret = color.B() & 0x001F;
+		ret |= ((UInt16)(color.G() & 0x003F))<<5;
+		ret |= ((UInt16)(color.R() & 0x001F))<<11;
+		return ret;
+	}
   
   WinHandle m_hScreenBuffer, m_hScreen;
   
@@ -31,6 +46,11 @@ private:
   void SetScreenBuffer( bool bActive=true );
   void DrawBufferToScreen( void );
   
+  Boolean AppHandleEvent(EventType* pEvent);
+  Boolean MainFormDoCommand(UInt16 command);
+  static Boolean MainFormHandleEvent(EventType* pEvent);
+  static CTestz* m_pInstance;
+  
   
 public:
 
@@ -38,7 +58,10 @@ public:
 	virtual ~CTestz();
 	
 	void erase( void );
+	void repaint( void );
 	
+	
+	virtual void EventLoop();
 	virtual void Configure();
 	
 	virtual void SolidRectangle(int iX, int iY, int iWidth, int iHeight, PlutoColor color );//, string ParentObjectID = "", string ObjectID = "");
@@ -47,6 +70,8 @@ public:
 	
 	//virtual void RenderText( string &sTextToDisplay, class DesignObjText *Text, class TextStyle *pTextStyle, PlutoPoint point = PlutoPoint(0, 0), string ObjectID = "") = 0;
 	virtual void RenderText( string &sTextToDisplay, class TextStyle *pTextStyle, PlutoPoint point );
+	
+	void test_bmp( void );
 	
 	/*
 	void test(void){

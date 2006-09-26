@@ -1,8 +1,12 @@
 #include "CTestz.h"
+#include "AppResources.h"
+
+CTestz* CTestz::m_pInstance = NULL;
 
 CTestz::CTestz()
 {
 	m_hScreenBuffer = NULL;
+	m_pInstance = this;
 }
 
 CTestz::~CTestz()
@@ -12,6 +16,28 @@ CTestz::~CTestz()
 		m_hScreenBuffer = NULL;
 	}
 	WinSetCoordinateSystem( m_ui16CoordSys );
+}
+
+
+void CTestz::EventLoop()
+{
+	Err			error;
+	EventType	event;
+	do {
+		EvtGetEvent(&event, evtWaitForever);
+
+		if (SysHandleEvent(&event))
+			continue;
+			
+		if (MenuHandleEvent(0, &event, &error))
+			continue;
+			
+		if (AppHandleEvent(&event))
+			continue;
+
+		FrmDispatchEvent(&event);
+
+	} while (event.eType != appStopEvent);
 }
 
 
@@ -48,6 +74,13 @@ void CTestz::erase( void )
   	WinSetDrawWindow( m_hScreenBuffer );
   	WinEraseRectangle(&m_rBufferBounds, 0);
   	WinSetDrawWindow( m_hScreen );
+  	DrawBufferToScreen();
+  }  
+}
+
+void CTestz::repaint( void )
+{
+  if ( m_hScreenBuffer ) {
   	DrawBufferToScreen();
   }  
 }
@@ -185,6 +218,146 @@ void CTestz::RenderText( string &sTextToDisplay, class TextStyle *pTextStyle, Pl
 	
 	WinPopDrawState();	
 
+	SetScreenBuffer( false );
+	DrawBufferToScreen();
+}
+
+
+Boolean CTestz::MainFormDoCommand(UInt16 command)
+{
+	Boolean handled = false;
+	FormType * pForm;
+
+	switch (command) {
+		case MainOptionsAboutStarterApp:
+			pForm = FrmInitForm(AboutForm);
+			FrmDoDialog(pForm);					// Display the About Box.
+			FrmDeleteForm(pForm);
+			handled = true;
+			break;
+
+	}
+	
+	return handled;
+}
+
+
+
+
+Boolean CTestz::MainFormHandleEvent(EventType* pEvent)
+{
+	if ( !m_pInstance ) return false;
+	Boolean 	handled = false;
+	FormType* 	pForm;
+	
+	string s = "xxx", s1="abcdef";
+	TextStyle ts;
+	ts.m_bBold = true;
+	ts.m_bUnderline = true;
+	ts.m_ForeColor = PlutoColor::Blue();
+	ts.m_BackColor = PlutoColor::Gray();
+	
+
+	switch (pEvent->eType) {
+		case menuEvent:
+			return m_pInstance->MainFormDoCommand(pEvent->data.menu.itemID);
+
+		case frmOpenEvent:
+			pForm = FrmGetActiveForm();
+			FrmDrawForm(pForm);			
+			m_pInstance->Configure();
+			//test.erase( );
+						
+
+			m_pInstance->SolidRectangle( 0, 0, 40, 40, PlutoColor::Red() );
+			
+			m_pInstance->SolidRectangle( 0, 40, 40, 40, PlutoColor::Green() );
+			m_pInstance->SolidRectangle( 0, 80, 40, 40, PlutoColor::Blue() );
+			m_pInstance->DrawLine( 40, 0, 80, 40, PlutoColor(255,255,0) );
+			m_pInstance->DrawLine( 40, 40, 80, 0, PlutoColor::Gray() );
+			m_pInstance->HollowRectangle( 80, 80, 40, 40, PlutoColor::Black() );
+			m_pInstance->RenderText( s, &ts, PlutoPoint( 120, 120 ) );
+			ts.m_ForeColor = PlutoColor::Red();
+			ts.m_bBold = false;
+			ts.m_bUnderline = false;
+			m_pInstance->RenderText( s1, &ts, PlutoPoint( 200, 240 ) );
+			m_pInstance->test_bmp();
+			
+			handled = true;
+			break;
+			
+		case frmUpdateEvent:
+			pForm = FrmGetActiveForm();
+			FrmDrawForm(pForm);			
+		    m_pInstance->repaint();
+		    handled = true;
+		    break;
+			
+		default:
+			break;
+	}
+	
+	return handled;
+}
+
+Boolean CTestz::AppHandleEvent(EventType* pEvent)
+{
+	UInt16 		formId;
+	FormType* 	pForm;
+	Boolean		handled = false;
+
+	if (pEvent->eType == frmLoadEvent) {
+		// Load the form resource.
+		formId = pEvent->data.frmLoad.formID;
+		
+		pForm = FrmInitForm(formId);
+		FrmSetActiveForm(pForm);
+
+		// Set the event handler for the form.  The handler of the currently
+		// active form is called by FrmHandleEvent each time is receives an
+		// event.
+		switch (formId) {
+			case MainForm:
+				FrmSetEventHandler(pForm, MainFormHandleEvent);
+				break;
+
+			default:
+				break;
+		}
+		handled = true;
+	}
+	
+	return handled;
+}
+
+
+
+void CTestz::test_bmp( void )
+{
+	SetScreenBuffer();
+	UInt16 error;
+	BitmapType *bmp = BmpCreate( 20, 20, 16, NULL, &error );
+	if ( bmp ) {
+		BitmapTypeV3 *bmp3 = BmpCreateBitmapV3( bmp, kDensityDouble, BmpGetBits(bmp), NULL );
+		if ( bmp3 ) {
+			UInt16 *pBmpData = (UInt16*)BmpGetBits( bmp );
+			UInt32 datasize;
+			BmpGetSizes ( bmp, &datasize, NULL );
+			UInt8 ver = BmpGetVersion( bmp );
+			for ( UInt32 i=0; i<datasize/4; i++ ) {				
+				if ( ver==BitmapVersionThree ) pBmpData[i] = PlutoColorToUInt16( PlutoColor(255,255,0) );				
+				else if ( ver==BitmapVersionTwo ) pBmpData[i] = PlutoColorToUInt16( PlutoColor(255,0,0) );
+				else if ( ver==BitmapVersionOne ) pBmpData[i] = PlutoColorToUInt16( PlutoColor(0,255,0) );
+				else if ( ver==BitmapVersionZero ) pBmpData[i] = PlutoColorToUInt16( PlutoColor(0,0,255) );
+				else pBmpData[i] = PlutoColorToUInt16( PlutoColor(255,255,255) );
+			}
+			for ( UInt32 i=datasize/4; i<datasize/2; i++ ) {				
+				pBmpData[i] = PlutoColorToUInt16( PlutoColor(255,255,0) );				
+			}
+			WinDrawBitmap ( bmp, 220, 220 );
+		}
+		BmpDelete( bmp );
+	}
 	SetScreenBuffer( false );
 	DrawBufferToScreen();
 }
