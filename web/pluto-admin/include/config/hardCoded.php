@@ -192,7 +192,7 @@
 	$GLOBALS['DeinterlacingMode']=170;			// Deinterlacing Mode
 	$GLOBALS['UseOpenGLeffects']=172;			// Use OpenGL effects
 	$GLOBALS['CaptureCardPort']=173;			// FK_Device_Capture_Card_Port
-	
+	$GLOBALS['Skin']=24;						// PK_Skin
 	
 	// PK_FloorplanType from table FloorplanType 
 

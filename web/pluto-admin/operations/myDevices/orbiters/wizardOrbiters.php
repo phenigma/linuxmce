@@ -396,11 +396,18 @@ function wizardOrbiters($output,$dbADO) {
 									SET IK_DeviceData=? 
 								WHERE FK_Device=? AND FK_DeviceData=?';
 							$dbADO->Execute($updateDDD,array($deviceData,$value,$ddValue));
+
+							// if it's device data for skin and the value is changed, set orbiter needConfigure
+							if($ddValue==$GLOBALS['Skin'] && $dbADO->Affected_Rows()>0){
+								$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device=?',$value);
+							}
+
 							
 							if(($ddValue==$GLOBALS['UsealphablendedUI'] || $ddValue==$GLOBALS['UseOpenGLeffects']) && $dbADO->Affected_Rows()>0){
 								restartX($value);
 							}
 
+							
 							if($ddValue==$GLOBALS['Size'] && (int)$deviceData!=0){
 								$sizeArray=getFieldsAsArray('Size','Width,Height',$dbADO,'WHERE PK_Size='.$deviceData);
 								if(count($sizeArray)>0){
