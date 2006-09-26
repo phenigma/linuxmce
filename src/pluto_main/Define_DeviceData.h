@@ -156,6 +156,7 @@
 #define DEVICEDATA_ZoomTime_CONST 178
 #define DEVICEDATA_FadeTime_CONST 179
 #define DEVICEDATA_Get_Time_Code_for_Media_CONST 180
+#define DEVICEDATA_Lineup_CONST 181
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
