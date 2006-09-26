@@ -170,6 +170,7 @@ $start_time=getmicrotime();
 		$joinArray[]=0; 	// used only for query when there are no DT in selected category
 		$queryDevice='
 			SELECT 
+				FK_MediaType,
 				PK_Device,
 				Device.Description,
 				IPaddress,
@@ -196,6 +197,7 @@ $start_time=getmicrotime();
 			INNER JOIN Device ON Device_DeviceData.FK_Device=PK_Device
 			LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData AND DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate
 			INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate 
+			LEFT JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate=PK_DeviceTemplate AND FK_MediaType in (1,11)
 			LEFT JOIN DeviceTemplate_AV ON Device.FK_DeviceTemplate=DeviceTemplate_AV.FK_DeviceTemplate 
 			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory 
 			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer 		
@@ -204,9 +206,11 @@ $start_time=getmicrotime();
 			ORDER BY FK_Device_RouteTo DESC, Device.Description ASC';
 
 		$resDevice=$dbADO->Execute($queryDevice,$installationID);
+
 		$childOf=array();
 		$firstDevice=0;
 		$deviceDataArray=array();
+		$liveTVArray=array();
 		while($rowD=$resDevice->FetchRow()){
 			if($rowD['FK_Device_ControlledVia']==$rowD['FK_Device_RouteTo'])
 				$childOf[$rowD['PK_Device']]=$rowD['FK_Device_ControlledVia'];
@@ -219,7 +223,13 @@ $start_time=getmicrotime();
 			}else{
 				$deviceDataArray[$firstDevice][]=$rowD;
 			}
+			
+			// if the records have a FK_MediaType 1 or 11, add to array
+			if(!is_null($rowD['FK_MediaType']) && !in_array($rowD['PK_Device'],$liveTVArray)){
+				$liveTVArray[]=$rowD['PK_Device'];
+			}
 		}
+		
 
 		if(count($displayedDevices)==0){
 			$out.='
@@ -251,11 +261,16 @@ $start_time=getmicrotime();
 				}
 				$roomPulldown.='</select>';
 	
+				if(in_array($rowD['PK_Device'],$liveTVArray)){
+					$tvLineUpButton='<input type="button" class="button_fixed" name="tvLineUp_'.$rowD['PK_Device'].'" value="'.$TEXT_TV_LINEUP_CONST.'" onclick="windowOpen(\'index.php?section=tvLineUp&deviceID='.$rowD['PK_Device'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=640,height=480,toolbars=true,scrollbars=1,resizable=1\');"><br>';
+				}
+			
 				$buttons='
 						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'/wiki/index.php/Documentation_by_Device_Templates#'.wikiLink($rowD['TemplateName']).'\'"><br>
 						<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
 						<input type="button" class="button_fixed" name="btn" value="'.$TEXT_AV_PROPERTIES_CONST.'" onClick="windowOpen(\'index.php?section=irCodes&dtID='.$rowD['FK_DeviceTemplate'].'&deviceID='.$rowD['PK_Device'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>
 						<input type="button" class="button_fixed" name="resync_'.$rowD['PK_Device'].'" value="'.$TEXT_RESYNC_CONST.'"  onclick="self.location=\'index.php?section=resyncCodes&from=avWizard&dtID='.$rowD['FK_DeviceTemplate'].'\';"><br>
+						'.$tvLineUpButton.'
 						<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\''.$TEXT_DELETE_DEVICE_CONFIRMATION_CONST.'\'))return true;else return false;">
 				</td>';
 	

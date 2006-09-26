@@ -1502,6 +1502,12 @@ switch ($section) {
 	    include_once('operations/myDevices/unknownDevices.php');
 	    unknownDevices($output,$dbADO);	    
 	break;	
+	case 'tvLineUp':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myDevices/tvLineUp.php');
+	    tvLineUp($output,$dbADO,$mediadbADO);	    
+	break;	
 
 
 	

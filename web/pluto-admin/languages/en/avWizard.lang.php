@@ -15,4 +15,5 @@ $TEXT_EMBEDED_DEVICE_CONST='Embeded device';
 $TEXT_FLOORPLAN_NOTE_CONST='PK_FloorplanObjectType in red has no picture available';
 $TEXT_ADD_DEVICE_CONST='Add device';
 $TEXT_DEVICES_WAS_UPDATED_CONST='The devices was updated';
+$TEXT_TV_LINEUP_CONST='TV lineup';
 ?>
