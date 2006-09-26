@@ -402,6 +402,7 @@ void App_Server::ProcessExited(int pid, int status)
 		string *p_str = status ? &pMessagesLists->first : &pMessagesLists->second;
 		if( p_str->find("<=spawn_log=>")!=string::npos )
 		{
+g_pPlutoLogger->Write(LV_CRITICAL,"first %s",p_str->c_str());
 			string sFilename = "/var/log/pluto/Spawn_" + applicationName + "_" + StringUtils::itos(pid) + ".log";
 			size_t size;
 			char *pBuffer = FileUtils::ReadFileIntoBuffer(sFilename,size);
