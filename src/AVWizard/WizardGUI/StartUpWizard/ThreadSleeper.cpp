@@ -63,8 +63,8 @@ void ThreadSleeper::Quit()
 {
 	bQuit = true;
 
-//	if(tid)
-//		pthread_join(tid, NULL);
+	if(tid)
+		pthread_join(tid, NULL);
 	tid = 0;
 }
 
@@ -80,9 +80,11 @@ void ThreadSleeper::SecondTick()
 	}
 	int Seconds = GetSecondRemaining();
 
-	SafetyLock Lock(&LockMutex);
 	std::string LabelCaption = Utils::Int32ToString(Seconds);
-	Label->SetCaption(LabelCaption);
+	{
+		SafetyLock Lock(&LockMutex);
+		Label->SetCaption(LabelCaption);
+	}
 	WM_Event Event;
 	std::cout<<"Seconds: "<<Seconds<<std::endl;
 	if(Seconds)

@@ -262,13 +262,7 @@
 					RelativePath=".\SaveSettingsScreen.cpp">
 				</File>
 				<File
-					RelativePath=".\ScreenManager.cpp">
-				</File>
-				<File
 					RelativePath=".\ScreenModes.cpp">
-				</File>
-				<File
-					RelativePath=".\SDLFrontEnd.cpp">
 				</File>
 				<File
 					RelativePath=".\SettingsDictionary.cpp">
@@ -278,12 +272,6 @@
 				</File>
 				<File
 					RelativePath=".\SkinGenerator.cpp">
-				</File>
-				<File
-					RelativePath=".\SoundScreen.cpp">
-				</File>
-				<File
-					RelativePath=".\StartScreen.cpp">
 				</File>
 				<File
 					RelativePath=".\ThreadSleeper.cpp">
@@ -313,59 +301,18 @@
 					RelativePath=".\XRandrParser.cpp">
 				</File>
 			</Filter>
+			<Filter
+				Name="Backends"
+				Filter="">
+				<File
+					RelativePath=".\SDLFrontEnd.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
-			<File
-				RelativePath="..\SoundFileParser\AMixerOptions.h">
-			</File>
-			<File
-				RelativePath="..\SoundFileParser\AMixerParser.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Backup\28march5pm\BugsBunny\ColorDesc.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Backup\28march5pm\BugsBunny\RefreshRates.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Backup\28march5pm\BugsBunny\Resolution.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Backup\28march5pm\BugsBunny\ScreenManager.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Backup\28march5pm\BugsBunny\ScreenModes.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Backup\28march5pm\BugsBunny\SDLFrontEnd.h">
-			</File>
-			<File
-				RelativePath=".\SettingsDictionary.h">
-			</File>
-			<File
-				RelativePath="..\SoundFileParser\SoundUtils.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Backup\28march5pm\BugsBunny\Wizard.h">
-			</File>
-			<File
-				RelativePath=".\WizardSettings.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Backup\28march5pm\BugsBunny\WM_Event.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Backup\28march5pm\BugsBunny\XRandrParser.h">
-			</File>
-			<File
-				RelativePath=".\XUtilities.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\Backup\28march5pm\BugsBunny\XUtilities.h">
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

@@ -407,7 +407,7 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 
 
 	Page->AddChild(CreateControlScrollList("UIScroll",
-		200, 320,
+		200, 280,
 		200, 140,
 		ScrollBackColor,
 		ScrollBackFocusedColor,

@@ -1,6 +1,4 @@
 sources += \
-AMixerOptions.cpp \
-AMixerParser.cpp \
 AVWizardConfParser.cpp \
 ColorDesc.cpp \
 GenerateWizardConfigDefaults.cpp \
@@ -16,9 +14,6 @@ ScreenModes.cpp \
 SDLFrontEnd.cpp \
 SettingsDictionary.cpp \
 SettingsDictionaryTree.cpp \
-SoundScreen.cpp \
-SoundUtils.cpp \
-StartScreen.cpp \
 WizardCommandLineParser.cpp \
 WizardConfigParser.cpp \
 WizardRemote.cpp \

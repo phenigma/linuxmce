@@ -13,6 +13,8 @@
 
 #include <iostream>
 
+#include "GUIWizardUtils.h"
+
 void signal_handler(int signal);
 
 SocketRemoteServer::SocketRemoteServer()
@@ -138,10 +140,10 @@ void SocketRemoteServer::MainLoop()
 			if ( !Finish )
 			{
 				std::cout<<"Invalid connection socket (accept failed).\r"<<std::endl;
-				Sleep( 100 );
+				wizSleep( 100 );
 			}
 		}
-		Sleep( 0 );
+		wizSleep( 0 );
 	}
 	std::cout<<"Server closed!"<<std::endl;
 }
