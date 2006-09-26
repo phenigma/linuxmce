@@ -10,15 +10,9 @@ else
         KSRC  ?= /lib/modules/$(KVER)/$(KLINK)
         PWD   ?= $(shell pwd)
         DEST  ?= /lib/modules/$(KVER)/kernel/drivers/misc
-default: replaces
+default: 
 	echo "1"
 	$(MAKE) -C $(KSRC) SUBDIRS=$(PWD) modules
-
-replaces:
-	for i in postinst; do \
-            cat mkr_$$i.sh.in | sed  -e 's/_KVER_/$(KVER)/g'  > mkr_$$i.sh ;\
-            chmod +x mkr_$$i.sh ;\
-        done
 
 install:
 	cp vloopback.ko $(DEST)/.

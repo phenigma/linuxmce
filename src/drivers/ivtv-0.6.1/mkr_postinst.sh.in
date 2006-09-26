@@ -1,7 +1,0 @@
-	KVER="_KVER_"
-	
-	echo -n "Running depmod .... "
-	depmod -a "$KVER"
-	echo "done"
-
-	modprobe ivtv || /bin/true

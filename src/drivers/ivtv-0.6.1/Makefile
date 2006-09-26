@@ -15,16 +15,9 @@ ifeq ($(KVER),unknown)
     endif
     
 clean:
-	$(MAKE) -C driver/ clean
-	    
-replaces:
-	for i in postinst; do \
-	    cat mkr_$$i.sh.in | sed  -e 's/_KVER_/$(KVER)/g'  > mkr_$$i.sh ;\
-	    chmod +x mkr_$$i.sh ;\
-	done
-					    
+	$(MAKE) -C driver/ clean    
 
-modules all clean install: replaces
+modules all clean install:
 	make -C driver $@
 	make -C i2c-drivers $@
 	make -C utils $@
