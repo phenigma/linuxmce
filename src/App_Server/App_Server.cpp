@@ -440,6 +440,11 @@ Sleep(250);
     g_pPlutoLogger->Write(LV_STATUS, "Sending this command chain: -->%s<--", messageList.c_str() );
 Sleep(250);
 g_pPlutoLogger->Write(LV_CRITICAL,"----------a----------");
+Sleep(5000);
+g_pPlutoLogger->Write(LV_CRITICAL,"----------a----------");
+Sleep(5000);
+g_pPlutoLogger->Write(LV_CRITICAL,"----------a----------");
+Sleep(5000);
 
     Message *pMessage = new Message(messageList);    // empty message (to only caryy the rest with him).
 	g_pPlutoLogger->Write(LV_STATUS, "Message to: %d type: %d id: %d extra %d",
