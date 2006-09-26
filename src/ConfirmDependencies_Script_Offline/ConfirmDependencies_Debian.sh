@@ -102,11 +102,11 @@ case "$URL_TYPE" in
 			apt_err=$?			
 
 			## If fails the first time try once more
-			while [[ "$apt_err" != "0" ]] ;do
+			if [[ "$apt_err" != "0" ]] ;then
 				apt-get -f -y install
 				apt-get -y --reinstall install "$PKG_NAME"
                                 apt_err=$?
-			done
+			fi
 
 	
 			if [[ "$apt_err" != "0" ]] ;then
