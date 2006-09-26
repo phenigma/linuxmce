@@ -31,6 +31,7 @@ Table_Picture_Disc.cpp \
 Table_Picture_File.cpp \
 Table_Playlist.cpp \
 Table_PlaylistEntry.cpp \
+Table_ProviderSource.cpp \
 Table_SearchToken.cpp \
 Table_SearchToken_Attribute.cpp \
 Table_psc_media_batdet.cpp \

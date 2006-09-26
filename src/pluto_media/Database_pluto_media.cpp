@@ -49,6 +49,7 @@ tblPicture_Disc=NULL;
 tblPicture_File=NULL;
 tblPlaylist=NULL;
 tblPlaylistEntry=NULL;
+tblProviderSource=NULL;
 tblSearchToken=NULL;
 tblSearchToken_Attribute=NULL;
 tblpsc_media_batdet=NULL;
@@ -142,6 +143,9 @@ if( tblPlaylist!=NULL )
 if( tblPlaylistEntry!=NULL )
 	if( !Commit_PlaylistEntry(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
+if( tblProviderSource!=NULL )
+	if( !Commit_ProviderSource(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblSearchToken!=NULL )
 	if( !Commit_SearchToken(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
@@ -197,6 +201,7 @@ DeleteTable_Picture_Disc();
 DeleteTable_Picture_File();
 DeleteTable_Playlist();
 DeleteTable_PlaylistEntry();
+DeleteTable_ProviderSource();
 DeleteTable_SearchToken();
 DeleteTable_SearchToken_Attribute();
 DeleteTable_psc_media_batdet();
