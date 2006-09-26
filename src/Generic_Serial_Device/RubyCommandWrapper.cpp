@@ -28,8 +28,8 @@ RubyCommandWrapper::RubyCommandWrapper(long devidfrom, long devidto, long priori
 	: devidfrom_(devidfrom), devidto_(devidto), priority_(priority), type_(type), id_(id), category_(category)
 {}
 
-RubyCommandWrapper::RubyCommandWrapper(long devidfrom, long devidto, long priority, long type, long id, long the_template)
-	: devidfrom_(devidfrom), devidto_(devidto), priority_(priority), type_(type), id_(id), template_(the_template) 
+RubyCommandWrapper::RubyCommandWrapper(long devidfrom, long devidto, long priority, long type, long id, long category, long the_template)
+	: devidfrom_(devidfrom), devidto_(devidto), priority_(priority), type_(type), id_(id), category_(category), template_(the_template) 
 {}
 
 RubyCommandWrapper::~RubyCommandWrapper() 
