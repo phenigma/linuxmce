@@ -59,9 +59,6 @@ VT=vt"$((7+VT))"
 /usr/pluto/bin/SoundCards_Setup.sh
 /usr/pluto/bin/CaptureCards_Setup.sh
 
-assureXorgSane
-assureXorgSane
-
 # Start X11
 if [[ "$Background" == y ]]; then
 	screen -d -m -S XWindowSystem xinit "$XClient" "${XClientParm[@]}" -- "$XDisplay" -ignoreABI -ac -allowMouseOpenFail "$VT" "${XServerParm[@]}"
