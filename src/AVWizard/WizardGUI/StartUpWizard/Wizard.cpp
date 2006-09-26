@@ -107,7 +107,9 @@ Wizard::Wizard()
 Wizard::~Wizard()
 {
 	pthread_mutex_destroy(&SafeMutex);
+#ifndef WIN32
 	Server.Finish = true;
+#endif
 	delete FrontEnd;
 	FrontEnd = NULL;
 }
@@ -126,13 +128,17 @@ void Wizard::MainLoop()
 	if(AVWizardOptions->GetDictionary()->Exists("RemoteAVWizardServerPort"))
 	{
 		int Port = Utils::StringToInt32( AVWizardOptions->GetDictionary()->GetValue("RemoteAVWizardServerPort"));
+#ifndef WIN32
 		Server.StartServer(Port);
+#endif
 
 		if (AVWizardOptions->GetDictionary()->Exists("RemoteCmd"))
 		{
 			RemoteCmd = AVWizardOptions->GetDictionary()->
 				GetValue("RemoteCmd");
+#ifndef WIN32
 			m_WizardRemote.Start(RemoteCmd);
+#endif
 		}
 	}
 
@@ -181,7 +187,7 @@ void Wizard::MainLoop()
 			}
 			else
 			{
-				Sleep(10);
+				wizSleep(10);
 			}
 		}
 	}

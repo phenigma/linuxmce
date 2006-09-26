@@ -28,6 +28,6 @@ class Utils
 		static TColorDesc* StringToColorDesc(std::string String);
 };
 
-void Sleep(int Miliseconds);
+void wizSleep(int Miliseconds);
 //---------------------------------------------------------------------------
 #endif

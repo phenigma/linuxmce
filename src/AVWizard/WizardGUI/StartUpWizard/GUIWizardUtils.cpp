@@ -8,6 +8,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 //---------------------------------------------------------------------------
+#ifdef WIN32
+#define LEAN_AND_MEAN
+#include <windows.h>
+#endif
 
 /*static*/ int Utils::StringToInt32(const char* String)
 {
@@ -99,7 +103,11 @@
     return Result;
 }
 
-void Sleep(int Miliseconds)
+void wizSleep(int Miliseconds)
 {
+#ifndef WIN32
 	usleep(Miliseconds*1000);
+#else
+	Sleep(Miliseconds);
+#endif
 }

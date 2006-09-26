@@ -15,7 +15,9 @@ WizardPageAudioVolume::WizardPageAudioVolume(SDLFrontEnd* FrontEnd, std::string 
 	AudioVolumeMax = 31;
 	AudioVolumeCurrent = 15;
 	AudioVolumeIncrement = 1;
+#ifndef WIN32
 	Player = NULL;
+#endif
 }
 
 WizardPageAudioVolume::~WizardPageAudioVolume()
@@ -23,7 +25,9 @@ WizardPageAudioVolume::~WizardPageAudioVolume()
 #ifdef DEBUG
 	std::cout<<"dtor WizardPageAudioVolume"<<std::endl;
 #endif
+#ifndef WIN32
 	Player->StopPlayerEngine();
+#endif
 }
 
 
@@ -47,7 +51,9 @@ int WizardPageAudioVolume::DoApplySetting(SettingsDictionary* Dictionary)
 	std::cout<<"WizardPageAudioVolume::DefaultSetup"<<std::endl;
 #endif
 	std::string FileName, ConfigName;
+#ifndef WIN32
 	Player = XinePlayer::GetInstance();
+#endif
 	if(AVWizardSettings->Exists("XineConfigFile"))
 	{
 		ConfigName = AVWizardSettings->GetValue("XineConfigFile");
@@ -56,8 +62,10 @@ int WizardPageAudioVolume::DoApplySetting(SettingsDictionary* Dictionary)
 	
 	if(AVWizardSettings->Exists("SoundTestFile"))
 		FileName = AVWizardSettings->GetValue("SoundTestFile");
+#ifndef WIN32
 	if(FileName != "")
 		Player->InitPlayerEngine(ConfigName, FileName);
+#endif
 
 	if(FileName != "")
 	{

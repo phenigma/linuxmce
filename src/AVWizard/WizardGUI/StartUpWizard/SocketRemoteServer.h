@@ -3,8 +3,11 @@
  */
 #ifndef SOCKETREMOTESERVER_H
 #define SOCKETREMOTESERVER_H
-
+#ifdef WIN32
+#include "windows.h"
+#else
 #include <unistd.h>
+#endif
 
 /**
 	That class is used to get commands remote (using a socket interface)

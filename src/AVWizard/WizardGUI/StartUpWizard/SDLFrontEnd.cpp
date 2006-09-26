@@ -17,6 +17,7 @@ SDLFrontEnd::SDLFrontEnd()
 
 	CurrentFont = NULL;
 	Display = NULL;
+	BackColor = NULL;
 
 	Screen = NULL;
 	BackSurface = NULL;
@@ -277,9 +278,11 @@ int SDLFrontEnd::TextOutput(char* Text, int Left, int Top, TColorDesc Color, int
 
 bool SDLFrontEnd::SetCurrentFont(std::string FontName, int FontHeight, int Style)
 {
-	TTF_Font *Font;
-	//set up the font
-	Font = TTF_OpenFont(FontName.c_str(), FontHeight);
+#ifdef WIN32
+	FontName = "C:\\WINDOWS\\Fonts\\verdana.ttf";
+#endif
+
+	TTF_Font *Font = TTF_OpenFont(FontName.c_str(), FontHeight);
 
 	if(Font!= NULL)
 	{

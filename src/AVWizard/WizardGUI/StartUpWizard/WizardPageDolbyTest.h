@@ -8,7 +8,9 @@
 
 #include "WizardWidgetButton.h"
 
+#ifndef WIN32
 #include "XinePlayer.h"
+#endif
 
 class WizardPageDolbyTest :
 	public WizardPage
@@ -20,7 +22,10 @@ class WizardPageDolbyTest :
 	WizardWidgetButton* Selected;
 
 	void SearchSelectedItem();
+#ifndef WIN32
 	XinePlayer* Player;
+#endif
+
 public:
 	virtual int DoApplySetting(SettingsDictionary* Dictionary);
 	virtual void DefaultSetup(SettingsDictionary* AVWizardSettings);

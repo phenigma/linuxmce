@@ -1106,7 +1106,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 																		   std::string ImageFolder,
 																		   std::string FontFolder)
 {
-	int i;
+	int i = NoSelectedTab;
 	char Buffer[1024];
 	SettingsDictionaryTree* Result;
 	SettingsDictionaryTree* Container;

@@ -23,6 +23,7 @@
 void* SleeperThreadFunc(void* Instance);
 
 ThreadSleeper::ThreadSleeper()
+: Label(NULL)
 {
 	tid = 0;
 	pthread_mutex_init(&LockMutex, NULL);
@@ -114,7 +115,7 @@ void* SleeperThreadFunc(void* Instance)
 
 	while(!ThreadPtr->bQuit && ThreadPtr->GetSecondRemaining())
 	{
-		Sleep(50);
+		wizSleep(50);
 		int Seconds2 = ThreadPtr->GetSecondRemaining();
 
 		if (Seconds2 != Seconds1)

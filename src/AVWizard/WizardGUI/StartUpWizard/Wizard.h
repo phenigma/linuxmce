@@ -35,7 +35,9 @@
 
 #include "SettingsDictionaryTree.h"
 
+#ifndef WIN32
 #include "SocketRemoteServer.h"
+#endif
 
 #include <pthread.h>
 
@@ -129,8 +131,9 @@ class Wizard
 	Wizard();
 
 	static Wizard* Instance;
-
+#ifndef WIN32
 	SocketRemoteServer Server;
+#endif
 
 	/**
 	 *	If is analog sound the pages with Dolby and DTS should be skipped
@@ -149,8 +152,11 @@ public:
 	 * Process that handles remote control events
 	 */
 	std::string RemoteCmd;
-	RemoteProcess m_WizardRemote;
 
+#ifndef WIN32
+	RemoteProcess m_WizardRemote;
+#endif
+	
 	/**
 	 *	SettingsDictionary that keep global AVWizard Settings
 	 */

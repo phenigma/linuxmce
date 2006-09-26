@@ -7,8 +7,9 @@
 #include "WizardPage.h"
 
 #include "WizardWidgetLabel.h"
-
+#ifndef WIN32
 #include "XinePlayer.h"
+#endif
 
 class WizardPageAudioVolume :
 	public WizardPage
@@ -16,7 +17,9 @@ class WizardPageAudioVolume :
 	int AudioVolumeMin, AudioVolumeMax, AudioVolumeCurrent, AudioVolumeIncrement;
 	WizardWidgetLabel* VolumeLabel;
 
+#ifndef WIN32
 	XinePlayer* Player;
+#endif
 public:
 	virtual void DefaultSetup(SettingsDictionary* AVWizardSettings);
 

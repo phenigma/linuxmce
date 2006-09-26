@@ -12,8 +12,10 @@ RemoteProcess::RemoteProcess()
 
 RemoteProcess::~RemoteProcess()
 {
+#ifndef WIN32
 	if (pid > 0)
 		kill(pid, SIGTERM);
+#endif
 }
 
 void RemoteProcess::Start(string sCmd)
@@ -25,7 +27,8 @@ void RemoteProcess::Start(string sCmd)
 		return; // don't start anything; remote support will be disabled
 
 	m_sCmd = sCmd;
-	
+
+#ifndef WIN32
 	pid = fork();
 	switch (pid)
 	{
@@ -42,4 +45,5 @@ void RemoteProcess::Start(string sCmd)
 		default: /* parent */
 			break;
 	}
+#endif
 }
