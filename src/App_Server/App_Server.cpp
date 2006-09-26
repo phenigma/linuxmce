@@ -399,7 +399,21 @@ void App_Server::ProcessExited(int pid, int status)
 	if ( data )
 	{
 		pair<string, string> *pMessagesLists = (pair<string, string>*)data;
-		SendMessageList( status ? pMessagesLists->first : pMessagesLists->second);
+		string *p_str = status ? &pMessagesLists->first : &pMessagesLists->second;
+		if( p_str->find("<=spawn_log=>")!=string::npos )
+		{
+			string sFilename = "/var/log/pluto/Spawn_" + applicationName + "_" + StringUtils::itos(pid) + ".log";
+			size_t size;
+			char *pBuffer = FileUtils::ReadFileIntoBuffer(sFilename,size);
+			if( !pBuffer )
+                g_pPlutoLogger->Write(LV_CRITICAL,"App_Server::ProcessExited pid %d exited -- can't open log %s",pid,sFilename.c_str());
+			else
+				StringUtils::Replace(p_str,"<=spawn_log=>",pBuffer);
+			delete pBuffer;
+		}
+		else
+			g_pPlutoLogger->Write(LV_STATUS,"App_Server::ProcessExited pid %d exited -- no spawn_log",pid);
+		SendMessageList( *p_str );
 		delete pMessagesLists;
 	}
 }
