@@ -402,16 +402,28 @@ void App_Server::ProcessExited(int pid, int status)
 		string *p_str = status ? &pMessagesLists->first : &pMessagesLists->second;
 		if( p_str->find("<=spawn_log=>")!=string::npos )
 		{
+g_pPlutoLogger->Write(LV_CRITICAL,"----------b----------");
+Sleep(250);
 g_pPlutoLogger->Write(LV_CRITICAL,"first %s",p_str->c_str());
+Sleep(250);
+g_pPlutoLogger->Write(LV_CRITICAL,"----------a----------");
 			string sFilename = "/var/log/pluto/Spawn_" + applicationName + "_" + StringUtils::itos(pid) + ".log";
 			size_t size;
 			char *pBuffer = FileUtils::ReadFileIntoBuffer(sFilename,size);
+g_pPlutoLogger->Write(LV_CRITICAL,"----------b----------");
+Sleep(250);
 g_pPlutoLogger->Write(LV_CRITICAL," contents %s",pBuffer);
+Sleep(250);
+g_pPlutoLogger->Write(LV_CRITICAL,"----------a----------");
 			if( !pBuffer )
                 g_pPlutoLogger->Write(LV_CRITICAL,"App_Server::ProcessExited pid %d exited -- can't open log %s",pid,sFilename.c_str());
 			else
 				StringUtils::Replace(p_str,"<=spawn_log=>",pBuffer);
+g_pPlutoLogger->Write(LV_CRITICAL,"----------b----------");
+Sleep(250);
 g_pPlutoLogger->Write(LV_CRITICAL," contents %s",p_str->c_str());
+Sleep(250);
+g_pPlutoLogger->Write(LV_CRITICAL,"----------a----------");
 			delete pBuffer;
 		}
 		else
@@ -423,7 +435,11 @@ g_pPlutoLogger->Write(LV_CRITICAL," contents %s",p_str->c_str());
 
 void App_Server::SendMessageList(string messageList)
 {
+g_pPlutoLogger->Write(LV_CRITICAL,"----------b----------");
+Sleep(250);
     g_pPlutoLogger->Write(LV_STATUS, "Sending this command chain: -->%s<--", messageList.c_str() );
+Sleep(250);
+g_pPlutoLogger->Write(LV_CRITICAL,"----------a----------");
 
     Message *pMessage = new Message(messageList);    // empty message (to only caryy the rest with him).
 	g_pPlutoLogger->Write(LV_STATUS, "Message to: %d type: %d id: %d extra %d",
