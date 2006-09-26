@@ -405,10 +405,12 @@ void App_Server::ProcessExited(int pid, int status)
 			string sFilename = "/var/log/pluto/Spawn_" + applicationName + "_" + StringUtils::itos(pid) + ".log";
 			size_t size;
 			char *pBuffer = FileUtils::ReadFileIntoBuffer(sFilename,size);
+g_pPlutoLogger->Write(LV_CRITICAL," contents %s",pBuffer);
 			if( !pBuffer )
                 g_pPlutoLogger->Write(LV_CRITICAL,"App_Server::ProcessExited pid %d exited -- can't open log %s",pid,sFilename.c_str());
 			else
 				StringUtils::Replace(p_str,"<=spawn_log=>",pBuffer);
+g_pPlutoLogger->Write(LV_CRITICAL," contents %s",p_str->c_str());
 			delete pBuffer;
 		}
 		else
