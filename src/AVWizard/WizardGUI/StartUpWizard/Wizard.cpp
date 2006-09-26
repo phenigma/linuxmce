@@ -232,7 +232,7 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 
 	CurrentPage ++ ;
 
-	if(CurrentPage == 7)
+	if(CurrentPage == 8)
 	{
 		if(AVWizardOptions->GetDictionary()->Exists("NoAudioDevice"))
 		{
@@ -243,7 +243,7 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 		}
 	}
 
-	if (CurrentPage == 8)
+	if (CurrentPage == 9)
 		if(IsAnalogSound)
 			CurrentPage += 2;
 	if(CurrentPage == WIZARD_NO_PAGES+1)
@@ -260,8 +260,8 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	}
 	else
 	{
-		//MainPage->GetPageLayout()->Paint();
-		//FrontEnd->Flip(LeftBorder, TopBorder, WizardBorder);
+		MainPage->GetPageLayout()->Paint();
+		FrontEnd->Flip(LeftBorder, TopBorder, WizardBorder);
 		
 	}	
 }

@@ -5,7 +5,7 @@
 //---------------------------------------------------------------------------
 
 WizardWidgetBase::WizardWidgetBase(SDLFrontEnd* FrontEnd, std::string Name)
-	: Parent(NULL), Visible(true)
+	: Visible(true), Parent(NULL)
 {
 	EventManager.reset(new WizardWidgetEventManager(this));
     this->Name = Name;

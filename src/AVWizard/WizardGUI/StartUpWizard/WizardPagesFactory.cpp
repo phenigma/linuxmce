@@ -9,6 +9,9 @@
 #include "WizardPageWelcome.h"
 #include "WizardPageVideoRatio.h"
 #include "WizardPageVideoOutput.h"
+
+#include "WizardPageUISwitcher.h"
+
 #include "WizardPageVideoResolution.h"
 #include "WizardPageVideoAdjustSize.h"
 #include "WizardPageAudioConnector.h"
@@ -29,13 +32,16 @@ WizardPagesFactory::WizardPagesFactory()
 	PageNames[0] = "Welcome.xml";
 	PageNames[1] = "VideoRatio.xml";
 	PageNames[2] = "VideoResolution.xml";
-	PageNames[3] = "VideoOutput.xml";
-	PageNames[4] = "VideoAdjustSize.xml";
-	PageNames[5] = "AudioConnector.xml";
-	PageNames[6] = "AudioVolume.xml";
-	PageNames[7] = "DolbyTest.xml";
-	PageNames[8] = "DTSTest.xml";
-	PageNames[9] = "FinalSelections.xml";
+
+	PageNames[3] = "UISwitch.xml";
+
+	PageNames[4] = "VideoOutput.xml";
+	PageNames[5] = "VideoAdjustSize.xml";
+	PageNames[6] = "AudioConnector.xml";
+	PageNames[7] = "AudioVolume.xml";
+	PageNames[8] = "DolbyTest.xml";
+	PageNames[9] = "DTSTest.xml";
+	PageNames[10] = "FinalSelections.xml";
 
 	std::string TmpPrefix = "/tmp/";
 	for(int i = 0; i < WIZARD_NO_PAGES; i++)
@@ -151,6 +157,11 @@ WizardPage* WizardPagesFactory::CreatePredefinedWizardPage(int IndexPage)
 		case PAGE_VIDEORESOLUTION:
 			Result = new WizardPageVideoResolution(FrontEnd, PageName);
 			break;
+
+		case PAGE_UISWITCHER:
+			Result = new WizardPageUISwitcher(FrontEnd, PageName);
+			break;
+	
 		case PAGE_VIDEOADJUSTSIZE:
 			Result = new WizardPageVideoAdjustSize(FrontEnd, PageName);
 			break;

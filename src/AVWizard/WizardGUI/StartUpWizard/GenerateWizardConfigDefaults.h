@@ -8,7 +8,7 @@
 
 #include "SettingsDictionaryTree.h"
 
-#define WIZARD_NO_PAGES (10)
+#define WIZARD_NO_PAGES (11)
 
 class GenerateWizardConfigDefaults
 {
@@ -23,7 +23,7 @@ class GenerateWizardConfigDefaults
 	/**
 	 *	File of XML files that stores the default dialogs
 	 */
-	std::string PageNames[WIZARD_NO_PAGES];
+	std::string PageNames[11];
 	/**
 	 *	Generate welcome page of the wizard: Welcome.xml
 	 */
@@ -34,6 +34,12 @@ class GenerateWizardConfigDefaults
 	void GeneratePage1(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
 	 *	Generate page 2 of the wizard: VideoOutput.xml
+	 */
+	void GeneratePage12(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
+
+
+	/**
+	 *	Generate page 2 of the wizard: UIChooser.xml
 	 */
 	void GeneratePage2(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**

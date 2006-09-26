@@ -27,6 +27,8 @@
 #define WMET_PLUS_KEY			2021
 #define WMET_MINUS_KEY			2022
 
+#define WMET_REFRESH			2500
+
 #define WMET_SAVE				3010
 
 /**
@@ -82,6 +84,11 @@ public:
 	 *	Set the current event as Minus key event
 	 */
 	void MinusKey();
+
+	/**
+	 *	
+	 */
+	void Refresh();	
 
 	/**
 	 *	

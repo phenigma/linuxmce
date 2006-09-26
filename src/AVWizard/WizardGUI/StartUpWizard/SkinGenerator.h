@@ -9,6 +9,9 @@
 
 #include "SettingsDictionaryTree.h"
 
+#define USE_UI2
+
+
 class SkinGenerator
 {
 	SettingsDictionaryTree Config;

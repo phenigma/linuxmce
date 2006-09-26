@@ -45,6 +45,11 @@ void WM_Event::PlusKey()
 	this->Type = WMET_PLUS_KEY;
 }
 
+void WM_Event::Refresh()
+{
+	this->Type = WMET_REFRESH;
+}
+
 void WM_Event::Save()
 {
 	this->Type = WMET_SAVE;

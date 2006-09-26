@@ -72,5 +72,6 @@ WizardPageVideoOutput::~WizardPageVideoOutput(void)
 		return;
 	std::string ButtonName = "Btn"+Utils::Int32ToString(ButtonIndex);
 	Selected = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive(ButtonName));
-	Selected->SetFocus(true);	
+	if(Selected != NULL)
+		Selected->SetFocus(true);	
 }

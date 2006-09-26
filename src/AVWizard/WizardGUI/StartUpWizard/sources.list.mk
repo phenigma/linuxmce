@@ -49,6 +49,7 @@ WizardPageAudioVolume.cpp \
 WizardPageDolbyTest.cpp \
 WizardPageDTSTest.cpp \
 WizardPageFinalSelections.cpp \
+WizardPageUISwitcher.cpp \
 XinePlayer.cpp \
 SocketRemoteServer.cpp \
 SocketRemoteClient.cpp \

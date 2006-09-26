@@ -47,7 +47,6 @@ WizardWidgetImage::~WizardWidgetImage()
 	else
 		Dest.h = Height;
 
-	//SDL_SaveBMP(Surface, "test.bmp");
 	FrontEnd->Blit(Surface, Src, Dest);
 	WizardWidgetBase::Paint();
 }
