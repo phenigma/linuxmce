@@ -248,6 +248,7 @@ binary-common:
 	-e 's{#VERSION#}{$(version)}g;' \
 	-e 's{#NEXTVER#}{$(nextver)}g;' \
 	-e 's{#KVERS#}{$(kvers)}g;' \
+	-e 's{#KERNEL_DEPS#}{$(KDEPS)}g;' \
 	-e 's{#UPSTREAMVERSION#}{$(upstreamversion)}g;' \
 	-e 's{#DIRNAME#}{$(dirname)}g;' \
 	-e 's{#FILENAME#}{$(filename)}g;' \

@@ -5,33 +5,9 @@ Maintainer: Randall Donald <rdonald@debian.org>
 Build-Depends: debhelper (>> 4.0.0), sed (>> 3.0)
 Standards-Version: 3.6.2
 
-
-Package: nvidia-glx-ia32
-Architecture: amd64
-Depends: nvidia-kernel-#KVERS#, ia32-libs, ${shlibs:Depends}
-Suggests: nvidia-settings, nvidia-kernel-source (>= #VERSION#)
-Conflicts: nvidia-glx-src
-Replaces: nvidia-glx-src
-Description: NVIDIA binary XFree86 4.x driver
- These XFree86 4.0 binary drivers provide optimized hardware acceleration of
- OpenGL applications via a direct-rendering X Server. AGP, TV-out and
- flat panel displays are also supported.
- .
- Cards NOT supported by this driver are
- .
- TNT, TNT2, Vanta, GeForce 256, GeForce DDR,
- Quadro, GeForce2 Pro, GeForce2 GTS, 
- GeForce2 Ultra, GeForce2 Ti, Quadro2 Pro
- .
- See /usr/share/doc/nvidia-glx/README.txt.gz for a complete list 
- of supported GPUs.
- .
- Please see the nvidia-kernel-source package for building the kernel module
- required by this package.
-
 Package: nvidia-glx
 Architecture: i386 amd64
-Depends: nvidia-kernel-#KVERS# | nvidia-kernel-#KVERS#-smp, x11-common (>= 1:7.0.0), ${shlibs:Depends}
+Depends: #KERNEL_DEPS#, x11-common (>= 1:7.0.0), ${shlibs:Depends}
 Suggests: nvidia-settings, nvidia-kernel-source (>= #VERSION#)
 Conflicts: nvidia-glx-src
 Provides: xserver-xorg-video
