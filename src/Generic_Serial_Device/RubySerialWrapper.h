@@ -16,6 +16,7 @@
 #include "RubyCommandWrapper.h"
 #include "RubyDCEConnector.h"
 #include "RubySerialIOConnectionWrapper.h"
+#include "PlutoUtils/StringUtils.h"
 
 #include <list>
 #include <ruby.h>
