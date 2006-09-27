@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -xe
+
 PLUTO_FLAVOR="$1"
 shift
 PLUTO_KERNELS=("$@")
