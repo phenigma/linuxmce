@@ -28,6 +28,24 @@ for ((i = 1; i <= "$#"; i++)); do
 	esac
 done
 
+ConfEval()
+{
+	local Ret=0
+	local ConfigFile="${1:-pluto.conf}"
+
+	# Note to self: this "read from file into while" is absolutely necessary
+	#               "cmd | while ..." spawns a subshell and our veriables will be set there instead of our current shell
+	#               "while ...; do ...; done <file" works the way we need
+	while read line; do
+		line="${line// }"
+		if [[ "$line" == "#"* || "$line" == "//"* ]]; then
+			continue # comment line; skip
+		fi
+		eval "export $line" &>/dev/null
+	done <"/etc/MakeRelease/$ConfigFile"
+	return $Ret
+}
+
 fastrun=""
 #fastrun="-f -DERROR_LOGGING_ONLY"
 
