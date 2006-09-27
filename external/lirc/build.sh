@@ -21,7 +21,7 @@ fakeroot debian/rules clean || :
 for KVER in "${Kernels[@]}"; do
 	KSRC=/lib/modules/${KVER}/build KVERS=${KVER} fakeroot debian/rules build-modules
 done
-KDEPS="$KDEPS" dpkg-buildpackage -rfakeroot -b -us -uc
+KDEPS="$KDEPS" fakeroot debian/rules binary
 
 Version=$(dpkg-parsechangelog -l./debian/changelog |grep ^Version|cut -d' ' -f2)
 #cp ../{lirc{,-{x,svga}},liblircclient{0,-dev}}_${Version}_i386.deb "$DestDir"

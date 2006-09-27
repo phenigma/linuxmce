@@ -24,22 +24,27 @@ else
 	CFLAGS += -O2
 endif
 
+KMODDIR=/lib/modules/$(KVERS)/misc
+
 config.status: configure
 	dh_testdir
 	# Add here commands to configure the package.
+	$(MAKE) clean || :
 	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-sandboxed --with-driver=userspace
 
 config-modules: configure
-	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-sandboxed --with-driver=all --with-kerneldir="$(KSRC)"
+	dh_testdir
+	$(MAKE) clean || :
+	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-sandboxed --with-driver=all --with-kerneldir="$(KSRC)" --with-moduledir="$(KMODDIR)"
 
 build-modules: config-modules
-	$(MAKE) -C drivers clean
+	dh_testdir
 	$(MAKE) -C drivers
-	$(MAKE) -C drivers install DESTDIR=$(CURDIR)/debian/lirc-pluto
+	$(MAKE) -C drivers install DESTDIR=$(CURDIR)/debian/lirc-pluto-modules
 
 build: build-stamp
 
-build-stamp:  config.status build-modules
+build-stamp:  config.status
 	dh_testdir
 
 	# Add here commands to compile the package.
@@ -73,7 +78,9 @@ install: build
 
 	# Add here commands to install the package into debian/lirc-pluto.
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/lirc-pluto
-
+	rm -rf $(CURDIR)/debian/lirc-pluto/lib/modules
+	cp -a $(CURDIR)/debian/lirc-pluto-modules/* $(CURDIR)/debian/lirc-pluto/
+	rm -rf $(CURDIR)/debian/lirc-pluto-modules
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -111,4 +118,4 @@ binary-arch: build install
 	dh_builddeb
 
 binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install 
+.PHONY: build clean binary-indep binary-arch binary install config-modules build-modules
