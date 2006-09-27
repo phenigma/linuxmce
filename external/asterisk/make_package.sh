@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 PLUTO_FLAVOR="$1"
 shift 
@@ -7,7 +7,6 @@ if [[ "${#PLUTO_KERNELS[*]}" -eq 0 ]]; then
     exit 1 
 fi
 PLUTO_PKG_DESTDIR="/home/samba/repositories/"$PLUTO_FLAVOR"/replacements/main/binary-i386/"
-KSRC_STORAGE_DIR="/home/src"
 
     
 MAINFOLDER=`pwd`
@@ -69,19 +68,20 @@ ln -sf asterisk-[0-9]* asterisk
 
 
 ## Build Zaptel modules 
-	cd ${SRCFOLDER}/zaptel-*/
-	sed -r -i "s/^ROOT_PREFIX=//" Makefile
-	sed -r -i "s/^INSTALL_PREFIX=//" Makefile
 	
 	touch ${PKGFOLDER}/etc/conf.modules
 
-	for Kernel in ${PLUTO_KERNELS[@]} ;do
+	for Kernel in ${PLUTO_KERNELS[@]} ;do	
+		cd ${SRCFOLDER}/zaptel-*/
 		export KVER="$Kernel"
 		export KVERS="$KVER"
-	        export KDIR="$KSRC_STORAGE_DIR/linux-$KVER"
+	        export KDIR="/lib/modules/$KVER/build"
 	        export KSRC="$KDIR"
         	export KERNEL="$KVER"	
 		
+		#sed -r -i "s/^ROOT_PREFIX=//" Makefile
+#		sed -r -i "s/^INSTALL_PREFIX=//" Makefile
+		mkdir -p $PKGFOLDER/usr/share/man/ || exit 666
 		make clean
 		make linux26 || exit
 		make INSTALL_PREFIX=${PKGFOLDER} ROOT_PREFIX=${PKGFOLDER} DYNFS=yes install
