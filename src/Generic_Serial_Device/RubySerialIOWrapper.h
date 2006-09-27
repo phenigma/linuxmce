@@ -42,10 +42,6 @@ public:
 	/*accessed from ruby code*/
 public:
 	RubySerialIOConnectionWrapper conn_; /*connection*/
-
-	void
-   DCE::RubySerialWrapper::SetDeviceDataInDB(int, int, std::basic_string<char,
-   std::char_traits<char>, std::allocator<char> >)'
 };
 
 };
