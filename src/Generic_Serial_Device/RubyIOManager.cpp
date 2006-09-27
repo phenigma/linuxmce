@@ -387,7 +387,7 @@ SendCommandReceiveString(RubyCommandWrapper* pcmd) {
 	pmsg = new Message( pcmd->getDevIdFrom(), pcmd->getDevIdTo(), pcmd->getPriority(), MESSAGETYPE_DATAPARM_REQUEST, pcmd->getId(), 0 );
 	pmsg->m_mapParameters = pcmd->getParams();
 
-	Message *pResponse = pcmd->m_pEvent->SendReceiveMessage( pmsg );
+	Message *pResponse = pcmdimpl_->m_pEvent->SendReceiveMessage( pmsg );
 
 	if( pResponse )
 	{
