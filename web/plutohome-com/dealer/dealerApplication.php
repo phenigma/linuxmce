@@ -222,6 +222,14 @@ Pluto Home will use reasonable efforts to review your application and contact yo
 		$returnPolicy=addslashes($_POST['returnPolicy']);
 		$signedAs=cleanString($_POST['sign']);
 
+		$insertDealer="
+			INSERT INTO Dealer
+				(SubmitDate,CompanyName, CurrentAddress, City, State, Zip, Phone, Fax, Country, EmployeesNo, StoreFront, IndividualName, Title, IndividualPhone, IndividualEmail, IndividualFax,CoreBusiness, OtherBusiness, MarketFocus, OtherMarketFocus,OtherProducts, EstimatedRevenue, Reference1, Reference2, Reference3, ReturnPolicy,SignInAs)
+			VALUES
+				(NOW(), '$companyName', '$currentAddress', '$city', '$state', '$zip', '$phone', '$fax', '$country', '$employees', '$storeFront', '$individualName', '$title', '$individualPhone', '$individualEmail', '$individualFax', '$coreBusiness', '$otherBusiness', '$marketFocus', '$otherMarketFocus','$otherProducts', '$estimatedRevenue', '$reference1', '$reference2', '$reference3', '$returnPolicy','$signedAs')";
+		dbQuery($insertDealer,$conn);
+		$applicationID=mysql_insert_id($conn);
+		
 		$emailBody='
 				<style>
 				.normaltext {
@@ -232,7 +240,7 @@ Pluto Home will use reasonable efforts to review your application and contact yo
 				</style>
 				<table>
 				<tr>
-					<td colspan="6" align="center" class="maintable"><B>New dealer application</B></td>
+					<td colspan="6" align="center" class="maintable"><B>New dealer application #'.(1000+$applicationID).'</B></td>
 				</tr>
 				<tr bgcolor="#DADDE4">
 					<td colspan="6" align="center" class="normaltext"><B>Company Information</B></td>
@@ -334,12 +342,6 @@ Pluto Home will use reasonable efforts to review your application and contact yo
 				</tr>							
 			</table>';
 
-		$insertDealer="
-			INSERT INTO Dealer
-				(SubmitDate,CompanyName, CurrentAddress, City, State, Zip, Phone, Fax, Country, EmployeesNo, StoreFront, IndividualName, Title, IndividualPhone, IndividualEmail, IndividualFax,CoreBusiness, OtherBusiness, MarketFocus, OtherMarketFocus,OtherProducts, EstimatedRevenue, Reference1, Reference2, Reference3, ReturnPolicy,SignInAs)
-			VALUES
-				(NOW(), '$companyName', '$currentAddress', '$city', '$state', '$zip', '$phone', '$fax', '$country', '$employees', '$storeFront', '$individualName', '$title', '$individualPhone', '$individualEmail', '$individualFax', '$coreBusiness', '$otherBusiness', '$marketFocus', '$otherMarketFocus','$otherProducts', '$estimatedRevenue', '$reference1', '$reference2', '$reference3', '$returnPolicy','$signedAs')";
-		dbQuery($insertDealer,$conn);
 		
 		$headers = "From: Pluto Home<website@plutohome.com>\n";
 		$headers .= "X-Sender: <website@plutohome.com>\n";
@@ -359,6 +361,7 @@ Pluto Home will use reasonable efforts to review your application and contact yo
 		<tr>
 			<td class="insidetable2" height="250">
 				<p class="normaltext"><B>Thank you for your application.</B>
+				<p class="normaltext">Your application number is: <b>'.(1000+$applicationID).'</b>
 				<p class="normaltext">Pluto Home will use reasonable efforts to review your application and contact you within 10 days regarding the status of your membership into the Pluto Authorized Dealer Program. Pluto Home reserves the right to make changes to, make exceptions to, or terminate the Pluto Authorized Dealer Program and/or any benefits, policies and procedures there under at any time at its sole discretion. Dealer’s membership in the Pluto Authorized Dealer Program may be terminated as set forth in the Pluto Authorized Dealer Program Terms.
 	
 			</td>
