@@ -69,11 +69,13 @@ public:
 	int RouteMessage(DeviceData_Base* pdevdata, Message *pMessage);
 	virtual void SendMessage(Message* pmsg);
 	virtual void SendString(string str);
+	virtual void SetDeviceData( int PK_Device,int PK_DeviceData,string Value );
 	pluto_pthread_mutex_t m_MsgMutex;
 	
 protected:
 	/*methods for comunicating with DCE, accessed by wrappers */
 	virtual void SendCommand(RubyCommandWrapper* pcmd);
+	virtual string SendCommandReceiveString(RubyCommandWrapper* pcmd);
 
 protected:
 	virtual bool handleStartup();

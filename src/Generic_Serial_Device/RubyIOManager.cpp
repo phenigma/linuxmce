@@ -376,6 +376,32 @@ RubyIOManager::SendCommand(RubyCommandWrapper* pcmd) {
 	g_pPlutoLogger->Write(LV_STATUS, "Command sent.");
 }
 
+string 
+SendCommandReceiveString(RubyCommandWrapper* pcmd) {
+
+	g_pPlutoLogger->Write(LV_STATUS, "Ruby code requested to send command %d, from %d to %d, and is processing the RESPONSE... Sending...", 
+								pcmd->getId(), pcmd->getDevIdFrom(), pcmd->getDevIdTo());
+
+	Message* pmsg;
+
+	pmsg = new Message( pcmd->getDevIdFrom(), pcmd->getDevIdTo(), pcmd->getPriority(), MESSAGETYPE_DATAPARM_REQUEST, pcmd->getId(), 0 );
+	pmsg->m_mapParameters = pcmd->getParams();
+
+	Message *pResponse = pcmd->m_pEvent->SendReceiveMessage( pmsg );
+
+	if( pResponse )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Received a valid response, returning it.");
+		return pResponse->m_mapParameters[pcmd->getId()];
+	}
+	
+	g_pPlutoLogger->Write(LV_WARNING, "No valid response received, returning an empty string");
+	return "";
+
+	// usage, something in the idea:
+	// Message *pMessage = new Message(m_dwPK_Device,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_DATAPARM_REQUEST, PK_DeviceData,0);
+}
+
 void 
 RubyIOManager::SendMessage(Message* pmsg) {
 	g_pPlutoLogger->Write(LV_STATUS, "Ruby code sending message...");
@@ -392,6 +418,12 @@ RubyIOManager::SendString(string str) {
 		g_pPlutoLogger->Write(LV_WARNING, "Failed to send string.");
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "String was sent.");
+}
+
+void
+RubyIOManager::SetDeviceData( int PK_Device,int PK_DeviceData,string Value ) {
+	g_pPlutoLogger->Write(LV_STATUS, "Ruby code setting device data.");
+	pcmdimpl->SetDeviceDataInDB( PK_Device, PK_DeviceData,string Value )
 }
 
 
