@@ -7,7 +7,7 @@
 //---------------------------------------------------------------------------
 
 WizardWidgetScrollList::WizardWidgetScrollList(SDLFrontEnd* FrontEnd, std::string Name)
-	: WizardWidgetBase(FrontEnd, Name)
+	: WizardWidgetBase(FrontEnd, Name), ItemIndex(-1)
 {
 	this->BackColor = Utils::StringToColorDesc("70A070");
 	this->BackFocusedColor = Utils::StringToColorDesc("A0A0A0");
@@ -65,6 +65,8 @@ WizardWidgetPage* WizardWidgetScrollList::GetContainerPage()
 
 /*virtual*/ void WizardWidgetScrollList::AddItem(std::string ItemName, std::string ItemValue)
 {
+	if(ItemNames.size() == 0)
+		ItemIndex = 0;
 	ItemNames.push_back(ItemName);
 	ItemValues.push_back(ItemValue);
 }
@@ -162,9 +164,10 @@ bool WizardWidgetScrollList::GetFocus()
 std::string WizardWidgetScrollList::GetSelectedValue()
 {
 	std::string Result;
-	if (GetItemIndex() == -1)
+	int Index = GetItemIndex();
+	if (-1 == Index)
 		return Result;
-	Result = ItemValues[GetItemIndex()];
+	Result = ItemValues[Index];
 	return Result;
 }
 

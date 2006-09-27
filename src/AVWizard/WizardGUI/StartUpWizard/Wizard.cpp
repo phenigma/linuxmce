@@ -172,11 +172,14 @@ void Wizard::MainLoop()
 	{
 		while (!StatusChange && !Quit && (FrontEnd->HasEventPending()))
 		{
+			WM_Event Event;
 			FrontEnd->TranslateEvent(Event);
 
 			if(Event.Type)
-				EvaluateEvent(Event);
+				PushEvent(Event);
 		}
+
+		EvaluateEvents();
 
 		if(!Quit)
 		{
@@ -301,21 +304,37 @@ void Wizard::DoCancelScreen()
 	StatusChange = true;
 }
 
-void Wizard::EvaluateEvent(WM_Event& Event)
+
+void Wizard::PushEvent(WM_Event& Event)
 {
-	if(Event.Type == WMET_QUIT)
-	{
-	    Quit = true;
-	    return;
-	}
-
 	SafetyLock Lock(&SafeMutex);
+	Events.push_back(Event);
+}
 
+void Wizard::EvaluateEvents()
+{	
 #ifdef DEBUG
 	std::cout<<"Key pressed: ";
 #endif
-	StatusChange = true;
-	switch(Event.Type) {
+	WM_Event Event;
+
+	while(Events.size())
+	{
+		{
+			SafetyLock Lock(&SafeMutex);
+
+			Event = Events.front();
+			Events.pop_front();
+		}
+
+		if(Event.Type == WMET_QUIT)
+		{
+			Quit = true;
+			return;
+		}
+
+		StatusChange = true;
+		switch(Event.Type) {
 	case WMET_QUIT:
 #ifdef DEBUG
 		std::cout<<"Quit"<<std::endl;
@@ -379,6 +398,8 @@ void Wizard::EvaluateEvent(WM_Event& Event)
 		break;
 	default:
 		StatusChange = false;
+		}
+
 	}
 }
 
@@ -478,7 +499,7 @@ void Wizard::StartSDLVideoMode()
 
 void Wizard::GenerateCustomEvent(WM_Event Event)
 {
-	EvaluateEvent(Event);
+	PushEvent(Event);
 }
 
 int Wizard::GetExitCode()

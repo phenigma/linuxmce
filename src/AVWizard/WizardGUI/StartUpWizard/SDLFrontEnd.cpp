@@ -110,9 +110,7 @@ void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 	double ZoomY = 1;
 	double ZoomX2 = 1;
 	double ZoomY2 = 1;
-
-
-	int Width = Display->w;
+ 	int Width = Display->w;
 	int Height = Display->h;
 
 	SDL_Rect Rect, RectZoom;
@@ -132,7 +130,7 @@ void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 	if(ScaledBack)
 		SDL_BlitSurface(ScaledBack, NULL, Display, &RectZoom);
 
-	if(Wizard::GetInstance()->CurrentPage == 5)
+	if(Wizard::GetInstance()->CurrentPage == 6)
 	{
 		int Border2 = Border + ARROWS_BORDER;
 		ZoomX2 = (Width-2*Border2) / 640.0f;
@@ -153,26 +151,15 @@ void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 		Rect.h = Height - 2 * Border2;
 	}
 
-
-
-	/*if(Border == 0)
+	if(NeedUpdateScreen)
 	{
-		SDL_BlitSurface(Screen, NULL, Display, NULL);
+		ScaledScreen = zoomSurface(Screen, ZoomX2, ZoomY2, SMOOTHING_ON);
+		//ScaledScreen = zoomSurface(Screen, ZoomX2, ZoomY2, SMOOTHING_OFF);
+		NeedUpdateScreen = true;
 	}
-	else
-	{*/
-		if(NeedUpdateScreen)
-		{
-			ScaledScreen = zoomSurface(Screen, ZoomX2, ZoomY2, SMOOTHING_ON);
-			//ScaledScreen = zoomSurface(Screen, ZoomX2, ZoomY2, SMOOTHING_OFF);
-			NeedUpdateScreen = true;
-		}
-		if(ScaledScreen)
-			SDL_BlitSurface(ScaledScreen, NULL, Display, &Rect);
-	/*}*/
-	//SDL_SaveBMP(Display, "/home/ciplogic/Desktop/screen2.bmp");
+	if(ScaledScreen)
+		SDL_BlitSurface(ScaledScreen, NULL, Display, &Rect);
 
-	//SDL_SaveBMP(BackSurface, "/home/ciplogic/Desktop/screen.bmp");
 	SDL_Flip(Display);	
 }
 

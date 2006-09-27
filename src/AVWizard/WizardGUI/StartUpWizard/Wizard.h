@@ -40,6 +40,7 @@
 #endif
 
 #include <pthread.h>
+#include <list>
 
 #include "WizardRemote.h"
 
@@ -81,7 +82,7 @@ class Wizard
 	/**
 	 * Last pending event definition
 	 */
-	WM_Event Event;
+	list<WM_Event> Events;
 	/**
 	 * Treat the current keys and window events
 	 */
@@ -124,6 +125,10 @@ class Wizard
 	void ZoomOut();
 
 	void PaintStatus();
+
+	void PushEvent(WM_Event& Event);
+	void EvaluateEvents();
+
 
 	/**
 	 *	Private constructor, because is a signleton class	
