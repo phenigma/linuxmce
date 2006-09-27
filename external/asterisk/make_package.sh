@@ -1,5 +1,15 @@
 #!/bin/bash
 
+PLUTO_FLAVOR="$1"
+shift 
+PLUTO_KERNELS=("$@")
+if [[ "${#PLUTO_KERNELS[*]}" -eq 0 ]]; then
+    exit 1 
+fi
+PLUTO_PKG_DESTDIR="/home/samba/repositories/"$PLUTO_FLAVOR"/replacements/main/binary-i386/"
+KSRC_STORAGE_DIR="/home/src"
+
+    
 MAINFOLDER=`pwd`
 ADDFOLDER=${MAINFOLDER}/add
 TGZFOLDER=${MAINFOLDER}/tgz
@@ -57,19 +67,27 @@ cd ${SRCFOLDER}
 ln -sf ${SRCFOLDER}/libpri-*/libpri.h ${SRCFOLDER}/asterisk-[0-9]*/include/
 ln -sf asterisk-[0-9]* asterisk
 
-cd ${SRCFOLDER}/zaptel-*/
-sed -r -i "s/^ROOT_PREFIX=//" Makefile
-sed -r -i "s/^INSTALL_PREFIX=//" Makefile
 
-#patch < ${ADDFOLDER}/zaptel_2.6.15.patch
-#patch < ${ADDFOLDER}/zaptel_2.6.16.patch
+## Build Zaptel modules 
+	cd ${SRCFOLDER}/zaptel-*/
+	sed -r -i "s/^ROOT_PREFIX=//" Makefile
+	sed -r -i "s/^INSTALL_PREFIX=//" Makefile
+	
+	touch ${PKGFOLDER}/etc/conf.modules
 
-touch ${PKGFOLDER}/etc/conf.modules
-
-make clean
-make linux26 || exit
-make INSTALL_PREFIX=${PKGFOLDER} ROOT_PREFIX=${PKGFOLDER} DYNFS=yes install
-cp zaptel.conf.sample ${PKGFOLDER}/etc/
+	for Kernel in ${PLUTO_KERNELS[@]} ;do
+		export KVER="$Kernel"
+		export KVERS="$KVER"
+	        export KDIR="$KSRC_STORAGE_DIR/linux-$KVER"
+	        export KSRC="$KDIR"
+        	export KERNEL="$KVER"	
+		
+		make clean
+		make linux26 || exit
+		make INSTALL_PREFIX=${PKGFOLDER} ROOT_PREFIX=${PKGFOLDER} DYNFS=yes install
+	done
+exit 0	
+	cp zaptel.conf.sample ${PKGFOLDER}/etc/
 
 
 ### temporary disable
