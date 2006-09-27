@@ -423,7 +423,7 @@ void
 the base RubyDCEConnector) whould turn the framework for ruby into a mess */
 RubyIOManager::SetDeviceData( int PK_Device,int PK_DeviceData,string Value ) {
 	g_pPlutoLogger->Write(LV_STATUS, "Ruby code setting device data.");
-	pcmdimpl_->SetDeviceDataInDB( PK_Device, PK_DeviceData,string Value )
+	pcmdimpl_->SetDeviceDataInDB( PK_Device, PK_DeviceData,string Value );
 }
 
 
