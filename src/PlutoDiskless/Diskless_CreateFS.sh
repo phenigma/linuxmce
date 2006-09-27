@@ -283,10 +283,10 @@ cd -
 
 # Use Core's apt sources.list
 #cp /etc/apt/sources.list "$DlPath"/etc/apt/sources.list
-if ! egrep -q 'http://deb\.plutohome\.com/debian.+replacements.+main' "$DlPath"/etc/apt/sources.list; then
-	echo "deb http://deb.plutohome.com/debian/ replacements main" >>"$DlPath"/etc/apt/sources.list
+if ! egrep -q 'http://deb\.plutohome\.com/debian.+<-mkr_t_replacementsdeb->.+main' "$DlPath"/etc/apt/sources.list; then
+	echo "deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main" >>"$DlPath"/etc/apt/sources.list
 fi
 
-if ! egrep -q 'http://deb\.plutohome\.com/debian.+20dev+main' "$DlPath"/etc/apt/sources.list; then
-	echo "deb http://deb.plutohome.com/debian/ 20dev main" >>"$DlPath"/etc/apt/sources.list
+if ! egrep -q 'http://deb\.plutohome\.com/debian.+<-mkr_t_maindeb->+main' "$DlPath"/etc/apt/sources.list; then
+	echo "deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main" >>"$DlPath"/etc/apt/sources.list
 fi

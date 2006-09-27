@@ -1,6 +1,6 @@
 ROOT = ..
 CXXFLAGS = -Wall -g 
-CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -D_REENTRANT -D_GNU_SOURCE -D_DEVEL_DEFINES
+CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -D_REENTRANT -D_GNU_SOURCE <-mkr_t_compile_defines->
 LDFLAGS = -L$(ROOT)/lib 
 LDLIBS = 
 CXX = g++

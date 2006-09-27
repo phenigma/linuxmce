@@ -1,6 +1,6 @@
 ROOT = ..
 CXXFLAGS = -Wall -g 
-CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I$(ROOT)/VIPShared -D_REENTRANT -D_GNU_SOURCE -D_DEVEL_DEFINES -DNOBLUETOOTH
+CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I$(ROOT)/VIPShared -D_REENTRANT -D_GNU_SOURCE <-mkr_t_compile_defines-> -DNOBLUETOOTH
 LDFLAGS = -L$(ROOT)/lib 
 LDLIBS = -lDCECommon -lattr -lPlutoUtils -lSerializeClass
 CXX = g++

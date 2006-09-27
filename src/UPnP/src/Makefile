@@ -1,7 +1,7 @@
 ROOT = ../..
 CXX = g++
 CXXFLAGS = -Wall -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I$(ROOT)/Serial -I/libupnp/upnp/inc -D_DEVEL_DEFINES
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I$(ROOT)/Serial -I/libupnp/upnp/inc <-mkr_t_compile_defines->
 LDFLAGS = -L$(ROOT)/lib
 EXTERNAL_LIBS_NAMES = pthread mysqlclient_r
 INTERNAL_LIBS_NAMES = SerializeClass DCECommon Serial 

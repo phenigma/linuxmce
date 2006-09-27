@@ -1,7 +1,7 @@
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql <-mkr_t_compile_defines->
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lSerial -lmysqlclient_r -lpthread
 
@@ -11,7 +11,7 @@ VERSION = 2.0.0
 CXXFLAGS += -I/usr/include/dbus-1.0/ -I/usr/include/hal \
 	-I/usr/lib/dbus-1.0/include -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include \
 	-DDBUS_API_SUBJECT_TO_CHANGE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
-	-D_DEVEL_DEFINES -D_GNU_SOURCE  -Wno-deprecated
+	<-mkr_t_compile_defines-> -D_GNU_SOURCE  -Wno-deprecated
 CPPFLAGS +=
 LDFLAGS +=
 XTRALDLIBS = -ldbus-glib-1 -lgthread-2.0 -ldbus-1 -lglib-2.0 -lhal

@@ -24,8 +24,8 @@ Activation_Code=1111
 ## Setup apt sources.list
 Sources="# Pluto sources - start
 deb file:/usr/pluto/deb-cache/ sarge main
-deb http://deb.plutohome.com/debian/ 20dev main
-deb http://deb.plutohome.com/debian/ replacements main
+deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main
+deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main
 deb http://deb.plutohome.com/debian/ sarge main non-free contrib
 deb http://deb.plutohome.com/debian/ unstable mythtv
 deb http://www.yttron.as.ro/ sarge main
@@ -154,7 +154,7 @@ DCERouter = localhost
 MySqlPort = 3306
 DCERouterPort = 3450
 UseVideoWizard = 1
-TestInstallation = 0
+TestInstallation = <-mkr_t_test_installation->
 PK_Device = 1
 Activation_Code = $Activation_Code
 PK_Installation = 1

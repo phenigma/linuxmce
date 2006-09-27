@@ -1,7 +1,7 @@
 ROOT = ../../..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -D_DEVEL_DEFINES -DDEBUG
+CPPFLAGS = <-mkr_t_compile_defines-> -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
 
 MYNAME = AVWizard
