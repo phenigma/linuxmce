@@ -51,7 +51,7 @@ namespace DCE {
 
 	}
 
-	void RubySerialWrapper::SetDeviceDataInDB( int device, int PK_DeviceData, string value )
+	void RubySerialWrapper::SetDeviceDataInDB( int device, int PK_DeviceData, const char* value )
 	{
 		if(pdce_) {
 
@@ -67,19 +67,19 @@ namespace DCE {
 		}
 	}
 
-	string RubySerialWrapper::GetCurrentDeviceData( int PK_Device, int PK_DeviceData )
+	const char* RubySerialWrapper::GetCurrentDeviceData( int PK_Device, int PK_DeviceData )
 	{
 		if(pdce_) {
 
 			// TODO: make sure the "to" and "from" fields are filled corectlly
-			// message type is irrelevant, from SendCommandReceiveString it's set this way anyway
+			// message type is irrelevant, from SendCommandReceiveString it's set this right anyway
 			RubyCommandWrapper *pcmd = new RubyCommandWrapper( DEVICEID_DCEROUTER, 
 				device_.getDevId(), PRIORITY_NORMAL, MESSAGETYPE_DATAPARM_REQUEST, PK_DeviceData );
 
 			string s_response = pdce_->SendCommandReceiveString(pcmd);
 
 			delete pcmd;
-			return s_response;
+			return s_response.c_str();
 
 		}
 		// Message *pMessage = new Message(m_dwPK_Device,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_DATAPARM_REQUEST, PK_DeviceData,0);
