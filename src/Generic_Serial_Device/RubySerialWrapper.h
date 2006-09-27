@@ -17,6 +17,10 @@
 #include "RubyDCEConnector.h"
 #include "RubySerialIOConnectionWrapper.h"
 #include "PlutoUtils/StringUtils.h"
+#include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
+
 
 #include <list>
 #include <ruby.h>

@@ -29,7 +29,7 @@ namespace DCE {
 		}
 	}
 
-	void RubySerialWrapper::DisableDevice( int device,bool bDisable) 
+	void RubySerialWrapper::DisableDevice( int device, bool bDisable ) 
 	{
 		if( pdce_ != NULL /*&& device_ != NULL*/ ) {
 
@@ -38,7 +38,7 @@ namespace DCE {
 
 			pcmd->setTemplate( DEVICETEMPLATE_General_Info_Plugin_CONST );
 
-			pcmd->params_[COMMANDPARAMETER_PK_Device_CONST] = itos( device );
+			pcmd->params_[COMMANDPARAMETER_PK_Device_CONST] = StringUtils::itos( device );
 			pcmd->params_[COMMANDPARAMETER_Enable_CONST] = "0";
 			
 			pdce_->SendCommand(pcmd);
