@@ -31,8 +31,7 @@ namespace DCE {
 
 	void RubySerialWrapper::DisableDevice(int device,bool bDisable) 
 	{
-
-		if( pdce_ && device_ ) {
+		if( pdce_ != NULL && device_ != NULL ) {
 
 			// 791 = PK_Command for disable device
 			RubyCommandWrapper *pcmd = new RubyCommandWrapper( 0, 0, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, 791 );
