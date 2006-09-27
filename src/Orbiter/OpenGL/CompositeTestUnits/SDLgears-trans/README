@@ -1,0 +1,10 @@
+
+This is a version of gears ported from glut to SDL.
+
+The only changes made involved removing glut calls and replacing them
+with equivalent functionality.  The original source code is in gears.c
+for reference.
+
+Enjoy!
+	-Sam Lantinga - July 23, 2000
+

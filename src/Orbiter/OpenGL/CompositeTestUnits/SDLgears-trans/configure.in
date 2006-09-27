@@ -1,0 +1,70 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(README)
+
+dnl Setup for automake
+AM_INIT_AUTOMAKE(SDLgears, 1.0.2)
+
+dnl Detect the canonical host and target build environment
+AC_CANONICAL_HOST
+AC_CANONICAL_TARGET
+
+dnl Check for tools
+
+AC_PROG_CC
+
+dnl Check for compiler environment
+
+AC_C_CONST
+
+dnl Figure out which math library to use
+case "$target" in
+    *-*-mingw32*)
+        MATHLIB=""
+        SYS_GL_LIBS="-lopengl32 -lglu32"
+        ;;
+    *-*-beos*)
+        MATHLIB=""
+        SYS_GL_LIBS="-lGL"
+        ;;
+    *-*-linux*)
+        MATHLIB="-lm"
+        SYS_GL_LIBS="-L/usr/X11R6/lib -lGL"
+        ;;
+    *)
+        MATHLIB="-lm"
+        SYS_GL_LIBS="-lGL"
+        ;;
+esac
+AC_SUBST(MATHLIB)
+
+dnl Check for SDL
+SDL_VERSION=1.1.0
+AM_PATH_SDL($SDL_VERSION,
+            :,
+	    AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
+)
+CFLAGS="$CFLAGS $SDL_CFLAGS"
+
+dnl Check for OpenGL
+AC_MSG_CHECKING(for OpenGL support)
+have_opengl=no
+AC_TRY_COMPILE([
+ #include <GL/gl.h>
+],[
+],[
+have_opengl=yes
+])
+AC_MSG_RESULT($have_opengl)
+if test x$have_opengl = xyes; then
+    GL_LIBS="$SDL_LIBS $SYS_GL_LIBS"
+else
+    AC_MSG_ERROR(Unable to find OpenGL headers and libraries)
+fi
+AC_SUBST(GL_LIBS)
+GLUT_LIBS="$GL_LIBS -lGLU -lglut"
+AC_SUBST(GLUT_LIBS)
+
+# Finally create all the generated files
+AC_OUTPUT([
+Makefile
+])
