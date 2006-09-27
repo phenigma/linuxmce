@@ -67,7 +67,7 @@ namespace DCE {
 		}
 	}
 
-	void RubySerialWrapper::GetCurrentDeviceData( int PK_Device, int PK_DeviceData )
+	string RubySerialWrapper::GetCurrentDeviceData( int PK_Device, int PK_DeviceData )
 	{
 		if(pdce_) {
 

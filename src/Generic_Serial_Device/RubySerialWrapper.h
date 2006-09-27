@@ -16,7 +16,9 @@
 #include "RubyCommandWrapper.h"
 #include "RubyDCEConnector.h"
 #include "RubySerialIOConnectionWrapper.h"
+
 #include "PlutoUtils/StringUtils.h"
+
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
@@ -71,7 +73,7 @@ public:
 	void DisableDevice(int device,bool bDisable);
 
 	void SetDeviceDataInDB( int device, int PK_DeviceData, string value );
-	void GetCurrentDeviceData( int PK_Device, int PK_DeviceData );
+	string GetCurrentDeviceData( int PK_Device, int PK_DeviceData );
 	
 private:
 	RubyDCEConnector* pdce_;
