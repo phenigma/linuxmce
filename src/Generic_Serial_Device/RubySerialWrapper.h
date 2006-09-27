@@ -71,6 +71,7 @@ public:
 	void DisableDevice(int device,bool bDisable);
 
 	void SetDeviceDataInDB( int device, int PK_DeviceData, string value );
+	void GetCurrentDeviceData( int PK_Device, int PK_DeviceData );
 	
 private:
 	RubyDCEConnector* pdce_;
