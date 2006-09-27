@@ -43,9 +43,9 @@ public:
 public:
 	RubySerialIOConnectionWrapper conn_; /*connection*/
 
-	void RubySerialWrapper::DisableDevice(int device,bool bDisable);
-
-	void RubySerialWrapper::SetDeviceDataInDB( int device, int PK_DeviceData, string value );
+	void
+   DCE::RubySerialWrapper::SetDeviceDataInDB(int, int, std::basic_string<char,
+   std::char_traits<char>, std::allocator<char> >)'
 };
 
 };

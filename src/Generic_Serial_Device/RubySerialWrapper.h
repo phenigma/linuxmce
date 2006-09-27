@@ -61,6 +61,10 @@ public:
 	VALUE parent_;
 	std::list<VALUE> children_;
 	RubyDeviceWrapper device_; /*our device*/
+
+	void DisableDevice(int device,bool bDisable);
+
+	void SetDeviceDataInDB( int device, int PK_DeviceData, string value );
 	
 private:
 	RubyDCEConnector* pdce_;
