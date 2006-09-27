@@ -82,7 +82,6 @@ bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_b
 Database_pluto_main *g_pDatabase_pluto_main;
 Row_Version *g_pRow_Version;
 Row_Distro *g_pRow_Distro;
-string g_sDefines;
 DCEConfig dceConfig;
 
 // Int is the package ID, bool is true/false if it's been built.  This will be prepopulated with all the packages and 'false'
@@ -162,19 +161,7 @@ bool CopySourceFile(string sInput,string sOutput)
 
 		return StringUtils::Replace( sOutput, sOutput, "<=version=>", g_pRow_Version->VersionName_get() );
 	}
-	// Little hack so we know what's a test installation
-	else if( !g_bSimulate && g_sDefines.find("-DDEBUG")!=string::npos && (sInput.find("Diskless_CreateFS.sh")!=string::npos || sInput.find("Initial_Config_Real.sh")!=string::npos || sInput.find("Initial_Config_Core.sh")!=string::npos || sInput.find("Initial_Config_MD.sh")!=string::npos) )
-	{
-		StringUtils::Replace( sInput, "/temp.makerelease.test.installation1", "TestInstallation = 0", "TestInstallation = 1" );
-		StringUtils::Replace( "/temp.makerelease.test.installation1", "/temp.makerelease.test.installation2", "20dev", "20temp" );
-		StringUtils::Replace( "/temp.makerelease.test.installation2", "/temp.makerelease.test.installation3", "replacements ", "replacementstemp " );
-		StringUtils::Replace( "/temp.makerelease.test.installation3", "/temp.makerelease.test.installation", "replacements.", "replacementstemp." );
-		FileUtils::PUCopyFile( "/temp.makerelease.test.installation", sInput);
-		FileUtils::PUCopyFile( "/temp.makerelease.test.installation", sOutput);
-		return true;
-	}
-	else
-		return FileUtils::PUCopyFile(sInput,sOutput);
+	return FileUtils::PUCopyFile(sInput,sOutput);
 }
 
 fstream fstr_compile,fstr_make_release;
@@ -387,12 +374,7 @@ int main(int argc, char *argv[])
 
 #pragma warning("had to use tiny text because medium text fails due to char[] in commit with field asSQL");
 	
-	if( sDefines.length() )
-		g_sDefines=sDefines;
-	else if( g_pRow_Version->PK_Version_get()==1 )
-		g_sDefines="-DDEBUG -DTHREAD_LOG -DLOG_ALL_QUERIES";
-
-	cout << "Building version: " << g_pRow_Version->Description_get() << " with: " << g_sDefines << endl;  
+	cout << "Building version: " << g_pRow_Version->Description_get() << endl;  
 
 	for(size_t s=0;s<vectPackages_Main.size();++s)
 	{
@@ -1167,18 +1149,6 @@ cout << "Doing snr on " << sSourceDirectory << "/" << *it << endl;
 					<< "In directory: " << sSourceDirectory << endl;
 				if( !AskYNQuestion("Execute command?",false) )
 					return false;
-			}
-
-			// Be sure we compile with debug info
-			if( !g_bSimulate )
-			{
-				list<string> listMakefiles;
-				FileUtils::FindFiles(listMakefiles,".","Makefile*");
-				for(list<string>::iterator it=listMakefiles.begin();it!=listMakefiles.end();++it)
-				{
-					cout << "StringUtils::Replace( " << *it << "," << *it << ", -D_DEVEL_DEFINES, g_sDefines );" << endl;
-					StringUtils::Replace( *it, *it, "-D_DEVEL_DEFINES", g_sDefines );
-				}
 			}
 
 			if( FileUtils::FileExists("Main.cpp") )
