@@ -22,15 +22,41 @@ using namespace std;
 #include "Table_DeviceTemplate_MediaType_DesignObj.h"
 #include "Table_DeviceTemplate_MediaType_DesignObj.h"
 #include "Table_DeviceTemplate_MediaType_DesignObj.h"
+#include "Table_DeviceTemplate_MediaType_DesignObj_pschist.h"
+#include "Table_DeviceTemplate_MediaType_DesignObj_pschist.h"
+#include "Table_DeviceTemplate_MediaType_DesignObj_pschist.h"
+#include "Table_DeviceTemplate_MediaType_DesignObj_pschist.h"
+#include "Table_DeviceTemplate_MediaType_DesignObj_pschmask.h"
+#include "Table_DeviceTemplate_MediaType_DesignObj_pschmask.h"
+#include "Table_DeviceTemplate_MediaType_DesignObj_pschmask.h"
+#include "Table_DeviceTemplate_MediaType_DesignObj_pschmask.h"
 #include "Table_MediaType_DesignObj.h"
 #include "Table_MediaType_DesignObj.h"
 #include "Table_MediaType_DesignObj.h"
 #include "Table_MediaType_DesignObj.h"
+#include "Table_MediaType_DesignObj_pschist.h"
+#include "Table_MediaType_DesignObj_pschist.h"
+#include "Table_MediaType_DesignObj_pschist.h"
+#include "Table_MediaType_DesignObj_pschist.h"
+#include "Table_MediaType_DesignObj_pschmask.h"
+#include "Table_MediaType_DesignObj_pschmask.h"
+#include "Table_MediaType_DesignObj_pschmask.h"
+#include "Table_MediaType_DesignObj_pschmask.h"
 #include "Table_Screen_CommandParameter.h"
+#include "Table_Screen_CommandParameter_pschist.h"
+#include "Table_Screen_CommandParameter_pschmask.h"
 #include "Table_Screen_DesignObj.h"
+#include "Table_Screen_DesignObj_pschist.h"
+#include "Table_Screen_DesignObj_pschmask.h"
 #include "Table_Skin.h"
 #include "Table_Skin.h"
 #include "Table_Skin.h"
+#include "Table_Skin_pschist.h"
+#include "Table_Skin_pschist.h"
+#include "Table_Skin_pschist.h"
+#include "Table_Skin_pschmask.h"
+#include "Table_Skin_pschmask.h"
+#include "Table_Skin_pschmask.h"
 
 
 void Database_pluto_main::CreateTable_Screen()
@@ -1177,6 +1203,62 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_DeviceTemplate_MediaType_DesignObj *pTable = table->database->DeviceTemplate_MediaType_DesignObj_get();
 pTable->GetRows("`FK_Screen_Alt`=" + StringUtils::itos(m_PK_Screen),rows);
 }
+void Row_Screen::DeviceTemplate_MediaType_DesignObj_pschist_FK_Screen_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj_pschist*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DeviceTemplate_MediaType_DesignObj_pschist *pTable = table->database->DeviceTemplate_MediaType_DesignObj_pschist_get();
+pTable->GetRows("`FK_Screen`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::DeviceTemplate_MediaType_DesignObj_pschist_FK_Screen_FileList_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj_pschist*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DeviceTemplate_MediaType_DesignObj_pschist *pTable = table->database->DeviceTemplate_MediaType_DesignObj_pschist_get();
+pTable->GetRows("`FK_Screen_FileList`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::DeviceTemplate_MediaType_DesignObj_pschist_FK_Screen_OSD_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj_pschist*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DeviceTemplate_MediaType_DesignObj_pschist *pTable = table->database->DeviceTemplate_MediaType_DesignObj_pschist_get();
+pTable->GetRows("`FK_Screen_OSD`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::DeviceTemplate_MediaType_DesignObj_pschist_FK_Screen_Alt_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj_pschist*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DeviceTemplate_MediaType_DesignObj_pschist *pTable = table->database->DeviceTemplate_MediaType_DesignObj_pschist_get();
+pTable->GetRows("`FK_Screen_Alt`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::DeviceTemplate_MediaType_DesignObj_pschmask_FK_Screen_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj_pschmask*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DeviceTemplate_MediaType_DesignObj_pschmask *pTable = table->database->DeviceTemplate_MediaType_DesignObj_pschmask_get();
+pTable->GetRows("`FK_Screen`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::DeviceTemplate_MediaType_DesignObj_pschmask_FK_Screen_FileList_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj_pschmask*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DeviceTemplate_MediaType_DesignObj_pschmask *pTable = table->database->DeviceTemplate_MediaType_DesignObj_pschmask_get();
+pTable->GetRows("`FK_Screen_FileList`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::DeviceTemplate_MediaType_DesignObj_pschmask_FK_Screen_OSD_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj_pschmask*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DeviceTemplate_MediaType_DesignObj_pschmask *pTable = table->database->DeviceTemplate_MediaType_DesignObj_pschmask_get();
+pTable->GetRows("`FK_Screen_OSD`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::DeviceTemplate_MediaType_DesignObj_pschmask_FK_Screen_Alt_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj_pschmask*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DeviceTemplate_MediaType_DesignObj_pschmask *pTable = table->database->DeviceTemplate_MediaType_DesignObj_pschmask_get();
+pTable->GetRows("`FK_Screen_Alt`=" + StringUtils::itos(m_PK_Screen),rows);
+}
 void Row_Screen::MediaType_DesignObj_FK_Screen_getrows(vector <class Row_MediaType_DesignObj*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -1205,6 +1287,62 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_MediaType_DesignObj *pTable = table->database->MediaType_DesignObj_get();
 pTable->GetRows("`FK_Screen_Alt`=" + StringUtils::itos(m_PK_Screen),rows);
 }
+void Row_Screen::MediaType_DesignObj_pschist_FK_Screen_getrows(vector <class Row_MediaType_DesignObj_pschist*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_MediaType_DesignObj_pschist *pTable = table->database->MediaType_DesignObj_pschist_get();
+pTable->GetRows("`FK_Screen`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::MediaType_DesignObj_pschist_FK_Screen_FileList_getrows(vector <class Row_MediaType_DesignObj_pschist*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_MediaType_DesignObj_pschist *pTable = table->database->MediaType_DesignObj_pschist_get();
+pTable->GetRows("`FK_Screen_FileList`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::MediaType_DesignObj_pschist_FK_Screen_OSD_getrows(vector <class Row_MediaType_DesignObj_pschist*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_MediaType_DesignObj_pschist *pTable = table->database->MediaType_DesignObj_pschist_get();
+pTable->GetRows("`FK_Screen_OSD`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::MediaType_DesignObj_pschist_FK_Screen_Alt_getrows(vector <class Row_MediaType_DesignObj_pschist*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_MediaType_DesignObj_pschist *pTable = table->database->MediaType_DesignObj_pschist_get();
+pTable->GetRows("`FK_Screen_Alt`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::MediaType_DesignObj_pschmask_FK_Screen_getrows(vector <class Row_MediaType_DesignObj_pschmask*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_MediaType_DesignObj_pschmask *pTable = table->database->MediaType_DesignObj_pschmask_get();
+pTable->GetRows("`FK_Screen`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::MediaType_DesignObj_pschmask_FK_Screen_FileList_getrows(vector <class Row_MediaType_DesignObj_pschmask*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_MediaType_DesignObj_pschmask *pTable = table->database->MediaType_DesignObj_pschmask_get();
+pTable->GetRows("`FK_Screen_FileList`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::MediaType_DesignObj_pschmask_FK_Screen_OSD_getrows(vector <class Row_MediaType_DesignObj_pschmask*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_MediaType_DesignObj_pschmask *pTable = table->database->MediaType_DesignObj_pschmask_get();
+pTable->GetRows("`FK_Screen_OSD`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::MediaType_DesignObj_pschmask_FK_Screen_Alt_getrows(vector <class Row_MediaType_DesignObj_pschmask*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_MediaType_DesignObj_pschmask *pTable = table->database->MediaType_DesignObj_pschmask_get();
+pTable->GetRows("`FK_Screen_Alt`=" + StringUtils::itos(m_PK_Screen),rows);
+}
 void Row_Screen::Screen_CommandParameter_FK_Screen_getrows(vector <class Row_Screen_CommandParameter*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -1212,11 +1350,39 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_Screen_CommandParameter *pTable = table->database->Screen_CommandParameter_get();
 pTable->GetRows("`FK_Screen`=" + StringUtils::itos(m_PK_Screen),rows);
 }
+void Row_Screen::Screen_CommandParameter_pschist_FK_Screen_getrows(vector <class Row_Screen_CommandParameter_pschist*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Screen_CommandParameter_pschist *pTable = table->database->Screen_CommandParameter_pschist_get();
+pTable->GetRows("`FK_Screen`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::Screen_CommandParameter_pschmask_FK_Screen_getrows(vector <class Row_Screen_CommandParameter_pschmask*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Screen_CommandParameter_pschmask *pTable = table->database->Screen_CommandParameter_pschmask_get();
+pTable->GetRows("`FK_Screen`=" + StringUtils::itos(m_PK_Screen),rows);
+}
 void Row_Screen::Screen_DesignObj_FK_Screen_getrows(vector <class Row_Screen_DesignObj*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Screen_DesignObj *pTable = table->database->Screen_DesignObj_get();
+pTable->GetRows("`FK_Screen`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::Screen_DesignObj_pschist_FK_Screen_getrows(vector <class Row_Screen_DesignObj_pschist*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Screen_DesignObj_pschist *pTable = table->database->Screen_DesignObj_pschist_get();
+pTable->GetRows("`FK_Screen`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::Screen_DesignObj_pschmask_FK_Screen_getrows(vector <class Row_Screen_DesignObj_pschmask*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Screen_DesignObj_pschmask *pTable = table->database->Screen_DesignObj_pschmask_get();
 pTable->GetRows("`FK_Screen`=" + StringUtils::itos(m_PK_Screen),rows);
 }
 void Row_Screen::Skin_FK_Screen_MainMenu_getrows(vector <class Row_Skin*> *rows)
@@ -1238,6 +1404,48 @@ void Row_Screen::Skin_FK_Screen_ScreenSaver_getrows(vector <class Row_Skin*> *ro
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Skin *pTable = table->database->Skin_get();
+pTable->GetRows("`FK_Screen_ScreenSaver`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::Skin_pschist_FK_Screen_MainMenu_getrows(vector <class Row_Skin_pschist*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Skin_pschist *pTable = table->database->Skin_pschist_get();
+pTable->GetRows("`FK_Screen_MainMenu`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::Skin_pschist_FK_Screen_Sleeping_getrows(vector <class Row_Skin_pschist*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Skin_pschist *pTable = table->database->Skin_pschist_get();
+pTable->GetRows("`FK_Screen_Sleeping`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::Skin_pschist_FK_Screen_ScreenSaver_getrows(vector <class Row_Skin_pschist*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Skin_pschist *pTable = table->database->Skin_pschist_get();
+pTable->GetRows("`FK_Screen_ScreenSaver`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::Skin_pschmask_FK_Screen_MainMenu_getrows(vector <class Row_Skin_pschmask*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Skin_pschmask *pTable = table->database->Skin_pschmask_get();
+pTable->GetRows("`FK_Screen_MainMenu`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::Skin_pschmask_FK_Screen_Sleeping_getrows(vector <class Row_Skin_pschmask*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Skin_pschmask *pTable = table->database->Skin_pschmask_get();
+pTable->GetRows("`FK_Screen_Sleeping`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::Skin_pschmask_FK_Screen_ScreenSaver_getrows(vector <class Row_Skin_pschmask*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Skin_pschmask *pTable = table->database->Skin_pschmask_get();
 pTable->GetRows("`FK_Screen_ScreenSaver`=" + StringUtils::itos(m_PK_Screen),rows);
 }
 

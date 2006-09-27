@@ -21,6 +21,8 @@ using namespace std;
 #include "Table_MediaType.h"
 
 #include "Table_DeviceTemplate_MediaType_DesignObj.h"
+#include "Table_DeviceTemplate_MediaType_DesignObj_pschist.h"
+#include "Table_DeviceTemplate_MediaType_DesignObj_pschmask.h"
 
 
 void Database_pluto_main::CreateTable_DeviceTemplate_MediaType()
@@ -1166,6 +1168,20 @@ void Row_DeviceTemplate_MediaType::DeviceTemplate_MediaType_DesignObj_FK_DeviceT
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_MediaType_DesignObj *pTable = table->database->DeviceTemplate_MediaType_DesignObj_get();
+pTable->GetRows("`FK_DeviceTemplate_MediaType`=" + StringUtils::itos(m_PK_DeviceTemplate_MediaType),rows);
+}
+void Row_DeviceTemplate_MediaType::DeviceTemplate_MediaType_DesignObj_pschist_FK_DeviceTemplate_MediaType_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj_pschist*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DeviceTemplate_MediaType_DesignObj_pschist *pTable = table->database->DeviceTemplate_MediaType_DesignObj_pschist_get();
+pTable->GetRows("`FK_DeviceTemplate_MediaType`=" + StringUtils::itos(m_PK_DeviceTemplate_MediaType),rows);
+}
+void Row_DeviceTemplate_MediaType::DeviceTemplate_MediaType_DesignObj_pschmask_FK_DeviceTemplate_MediaType_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj_pschmask*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DeviceTemplate_MediaType_DesignObj_pschmask *pTable = table->database->DeviceTemplate_MediaType_DesignObj_pschmask_get();
 pTable->GetRows("`FK_DeviceTemplate_MediaType`=" + StringUtils::itos(m_PK_DeviceTemplate_MediaType),rows);
 }
 

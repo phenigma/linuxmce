@@ -2231,6 +2231,10 @@
 #define DESIGNOBJ_dgMediaAttributesForFile_CONST 5176
 #define DESIGNOBJ_CDMusic_Full_Screen_UI2_CONST 5177
 #define DESIGNOBJ_dgVoiceMailManager_CONST 5178
+#define DESIGNOBJ_mnuProviderSource_CONST 5179
+#define DESIGNOBJ_dgProviders_CONST 5180
+#define DESIGNOBJ_mnuGenericDataGrid_CONST 5181
+#define DESIGNOBJ_dgGenericDataGrid_CONST 5182
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
