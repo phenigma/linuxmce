@@ -1,14 +1,13 @@
 #!/bin/bash
 
 COMP_MODULES_DIR="$(pwd)/compiledModules"
-KSRC_STORAGE_DIR="/home/src"
 
 mkdir -p "$compiledModulesDir"
 
 function BuildModules() {
 	echo "# Building for kernel $KVER"
 	export KVER="$1"
-	export KDIR="$KSRC_STORAGE_DIR/linux-$KVER"
+	export KDIR="/lib/modules/$KVER/build"
 	export KSRC="$KDIR"
 	export KERNEL="$KVER"
 
@@ -26,14 +25,14 @@ function BuildModules() {
 	find '(' -type d -name 'compiledModules' -prune -false ')' -or -name '*.ko' -exec cp  '{}' "$COMP_MODULES_DIR/$KVER/misc" ';'
 }
 
-K_RUNNING=$(uname -r)
+if [[ "$MakeRelease_Kernels" == "" ]] ;then
+	echo "ERROR: No kernel to build for!"
+	exit 1
+fi
 
-BuildModules "$K_RUNNING"
-BuildModules "$K_RUNNING-smp"
-
-echo "#!/bin/bash
-depmod \"$K_RUNNING\"  2>/dev/null || /bin/true
-depmod \"$K_RUNNING-smp\"  2>/dev/null || /bin/true
-" >mkr_postinst.sh
+echo "#!/bin/bash" > mkr_postinst.sh
+for KERNE in "${MakeRelease_Kernels[@]}" ;do
+	BuildModules "$KERN"
+	echo "depmod \"$KERN\" 2>/dev/null || /bin/true" >> mkr_postints.sh
+done
 chmod +x mkr_postinst.sh
-
