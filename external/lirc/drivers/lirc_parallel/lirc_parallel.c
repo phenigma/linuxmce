@@ -42,9 +42,10 @@
 
 #include <linux/config.h>
 
-#ifdef CONFIG_SMP
-#error "--- Sorry, this driver is not SMP safe. ---"
-#endif
+// Pluto: disabled error SMP, so we don't write a lengthy list
+//#ifdef CONFIG_SMP
+//#error "--- Sorry, this driver is not SMP safe. ---"
+//#endif
 
 #include <linux/module.h>
 #include <linux/sched.h>
