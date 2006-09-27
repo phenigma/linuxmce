@@ -34,7 +34,7 @@ namespace DCE
 DCEConfig *g_dceConfig;
 map<string,bool> g_mapBlocks;  // List of all the blocks to include
 
-bool ReplaceTags(string &str);
+bool ReplaceTags(string &str,string sFilename);
 
 int main(int argc, char *argv[])
 {
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 		if( pBuffer )
 		{
 			string str = pBuffer;
-			if( ReplaceTags(str) )
+			if( ReplaceTags(str,*it) )
 				FileUtils::WriteBufferIntoFile(*it,str.c_str(),str.size());
 			delete pBuffer;
 		}
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 // tags can be <-mkr_b_blockname_b->  something <-mkr_b_blockname_e->  means the block in between should only be included if blockname is in the list
 // tags can be <-mkr_B_blockname_b->  something <-mkr_B_blockname_e->  means the block in between should only be included if blockname is *not* in the list
 // <-mkr_t_tagname-> will be substitude with tagname
-bool ReplaceTags(string &str)
+bool ReplaceTags(string &str,string sFilename)
 {
 	bool bFound=false;
 	string::size_type pos=0;
@@ -119,7 +119,7 @@ bool ReplaceTags(string &str)
 		string::size_type end_pos=str.find("->",tag_pos+1);
 		if( end_pos==string::npos || end_pos - tag_pos < 12 )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find matching tag");
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find matching tag in %s",sFilename.c_str());
 			return false;
 		}
 		char cType = str[ tag_pos+6 ];
@@ -142,7 +142,7 @@ bool ReplaceTags(string &str)
 					string::size_type end_tag = str.find(sEndTag,tag_pos);
 					if( end_tag==string::npos )
 					{
-						g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find end block for %s",sTag.c_str());
+						g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find end block for %s in %s",sTag.c_str(),sFilename.c_str());
 						continue;
 					}
 					str.replace(tag_pos,end_tag-tag_pos+sEndTag.size(),"");
@@ -157,7 +157,7 @@ bool ReplaceTags(string &str)
 			}
 			break;
 		default:
-			g_pPlutoLogger->Write(LV_CRITICAL,"Unknown tag type %c",cType);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Unknown tag type %c in %s",cType,sFilename.c_str());
 			break;
 		};
 	}
