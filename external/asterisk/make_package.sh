@@ -68,26 +68,26 @@ ln -sf asterisk-[0-9]* asterisk
 
 
 ## Build Zaptel modules 
-	
-	touch ${PKGFOLDER}/etc/conf.modules
-
-	for Kernel in ${PLUTO_KERNELS[@]} ;do	
-		cd ${SRCFOLDER}/zaptel-*/
-		export KVER="$Kernel"
-		export KVERS="$KVER"
-	        export KDIR="/lib/modules/$KVER/build"
-	        export KSRC="$KDIR"
-        	export KERNEL="$KVER"	
-		
-		#sed -r -i "s/^ROOT_PREFIX=//" Makefile
+#	
+#	touch ${PKGFOLDER}/etc/conf.modules
+#
+#	for Kernel in ${PLUTO_KERNELS[@]} ;do	
+#		cd ${SRCFOLDER}/zaptel-*/
+#		export KVER="$Kernel"
+#		export KVERS="$KVER"
+#	        export KDIR="/lib/modules/$KVER/build"
+#	        export KSRC="$KDIR"
+#        	export KERNEL="$KVER"	
+#		
+#		#sed -r -i "s/^ROOT_PREFIX=//" Makefile
 #		sed -r -i "s/^INSTALL_PREFIX=//" Makefile
-		mkdir -p $PKGFOLDER/usr/share/man/ || exit 666
-		make clean
-		make linux26 || exit
-		make INSTALL_PREFIX=${PKGFOLDER} ROOT_PREFIX=${PKGFOLDER} DYNFS=yes install
-	done
-exit 0	
-	cp zaptel.conf.sample ${PKGFOLDER}/etc/
+#		mkdir -p $PKGFOLDER/usr/share/man/ || exit 666
+#		make clean
+#		make linux26 || exit
+#		make INSTALL_PREFIX=${PKGFOLDER} ROOT_PREFIX=${PKGFOLDER} DYNFS=yes install
+#	done
+#exit 0
+#	cp zaptel.conf.sample ${PKGFOLDER}/etc/
 
 
 ### temporary disable
