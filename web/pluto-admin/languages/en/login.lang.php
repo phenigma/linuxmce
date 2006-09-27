@@ -1,6 +1,6 @@
 <?
-$TEXT_WELCOME_MSG_CONST='Welcome to Pluto Admin.  Please log in:';
-$TEXT_HELP_WITH_ADMIN_SITE_CONST='Help with the Pluto Admin site';
+$TEXT_WELCOME_MSG_CONST='Welcome to <-mkr_t_name_mixed-> Admin.  Please log in:';
+$TEXT_HELP_WITH_ADMIN_SITE_CONST='Help with the <-mkr_t_name_mixed-> Admin site';
 $TEXT_ORBITER_WIN_INSTALLER_CONST='Orbiter Win Installer';
 $TEXT_LOGIN_USERNAME_REQUIRED_CONST='Please enter your username';
 $TEXT_LOGIN_PASSWORD_REQUIRED_CONST='Please enter your password';

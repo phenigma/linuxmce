@@ -3,12 +3,12 @@
 . /usr/pluto/install/Common.sh
 
 # XXX: Setup Extras CD
-echo "The Pluto Extras CD version 1 has some extras, such as a video setup"
-echo "wizard to help get you up and running. If you have the Pluto Extras CD"
+echo "The <-mkr_t_name_mixed-> Extras CD version 1 has some extras, such as a video setup"
+echo "wizard to help get you up and running. If you have the <-mkr_t_name_mixed-> Extras CD"
 echo "version 1, please insert it into your drive now and choose Y after it is in."
 echo "Otherwise, choose N."
 echo ""
-BonusCD=$(Ask "Did you insert the \"Pluto Extras CD version 1\" in drive ? [Y/n]")
+BonusCD=$(Ask "Did you insert the \"<-mkr_t_name_mixed-> Extras CD version 1\" in drive ? [Y/n]")
 if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 	if [ ! -d /cdrom ]; then
 		mkdir /cdrom
@@ -16,7 +16,7 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 	/bin/mount /dev/cdrom /cdrom 2>/dev/null
 
 	while [[ ! -d "/cdrom/bonuscd1" && $counter < "5" ]]; do
-		echo "This in not a valid \"Pluto Extras CD version 1\". Please insert the correct CD and try again."
+		echo "This in not a valid \"<-mkr_t_name_mixed-> Extras CD version 1\". Please insert the correct CD and try again."
 		/usr/bin/eject 1>/dev/null 2>/dev/null
 		echo "Press any key when you inserted the correct CD in drive."
 		read key
@@ -30,7 +30,7 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
                         fi
 		fi
 	done
-	echo "Processing \"Pluto Extras CD version 1\""
+	echo "Processing \"<-mkr_t_name_mixed-> Extras CD version 1\""
 	echo "... PLEASE WAIT ..."
 
 	BonusWorkDir="/usr/pluto/deb-cache/dists/sarge/main/binary-i386"
@@ -49,7 +49,7 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 	cd 
 	/usr/bin/eject 1>/dev/null 2>/dev/null
 	echo ""
-	echo "Finished processing \"Pluto Extras CD version 1\""
+	echo "Finished processing \"<-mkr_t_name_mixed-> Extras CD version 1\""
 	echo ""
 	cd "$BonusWorkDir"
 	# install dependencies for dpkg-scanpackages on offline installation
@@ -83,5 +83,5 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 	echo "Command not found : dpkg-scanpackages. Packages.gz regeneration skipped."
 	fi
 else
-	echo "Skipping \"Pluto Extras CD version 1\"..."
+	echo "Skipping \"<-mkr_t_name_mixed-> Extras CD version 1\"..."
 fi

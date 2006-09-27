@@ -498,7 +498,7 @@ function output_html($content,$dbADO,$refresh=0){
 	}	
 	</script>
 	
-	<title>Pluto Web device</title>		
+	<title><-mkr_t_name_mixed-> Web device</title>		
 	<head>		
 	<body onLoad="touch_disabled=0;" ONKEYDOWN="sendKey(event);">
 	'.$content.'

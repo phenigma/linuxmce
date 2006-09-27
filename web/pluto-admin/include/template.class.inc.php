@@ -26,7 +26,7 @@
   var $templateType="home";
   
   var $defaultMetaTags = '';
-  var $defaultTitle='Pluto';
+  var $defaultTitle='<-mkr_t_name_mixed->';
   var $defaultCssFile   = "include/styles/customer_setup_style.css";
   
   var $defaultScriptValidateSrc = 'scripts/formValidation.js';
@@ -55,7 +55,7 @@
   var $topMenu = '';
   
   var $bottomMenu = '';
-  var $HelpSrc= "/wiki/index.php/Pluto_Admin_Website";
+  var $HelpSrc= "/wiki/index.php/<-mkr_t_name_mixed->_Admin_Website";
   var $body = "";
   
   var $leftFrameSrc = 'index.php?section=wizard';
