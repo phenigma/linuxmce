@@ -233,6 +233,7 @@
 #define SCREEN_TV_Channels_CONST 242
 #define SCREEN_CD_Full_Screen_OSD_CONST 243
 #define SCREEN_Music_Full_Screen_OSD_CONST 244
+#define SCREEN_Choose_Provider_for_Device_CONST 245
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
