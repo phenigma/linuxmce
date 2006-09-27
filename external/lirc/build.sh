@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -ex
+
+Flavor="$1"
+shift
+Kernels=("$@")
+
+if [[ "${#Kernels[*]}" -eq 0 ]]; then
+	exit 1
+fi
+
+DestDir="/home/samba/repositories/"$Flavor"/replacements/main/binary-i386/"
+
+KDEPS=
+for KVER in "${Kernels[@]}"; do
+	KDEPS="$KDEPS, linux-image-$KVER"
+done
+
+KDEPS="$KDEPS" dpkg-buildpackage -rfakeroot -b -us -uc
+
+Version=$(dpkg-parsechangelog -l./debian/changelog |grep ^Version|cut -d' ' -f2)
+#cp ../{lirc{,-{x,svga}},liblircclient{0,-dev}}_${Version}_i386.deb "$DestDir"
+cp ../lirc-pluto_${Version}_i386.deb "$DestDir"
