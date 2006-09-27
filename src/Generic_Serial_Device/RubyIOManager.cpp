@@ -377,7 +377,7 @@ RubyIOManager::SendCommand(RubyCommandWrapper* pcmd) {
 }
 
 string 
-SendCommandReceiveString(RubyCommandWrapper* pcmd) {
+RubyIOManager::SendCommandReceiveString(RubyCommandWrapper* pcmd) {
 
 	g_pPlutoLogger->Write(LV_STATUS, "Ruby code requested to send command %d, from %d to %d, and is processing the RESPONSE... Sending...", 
 								pcmd->getId(), pcmd->getDevIdFrom(), pcmd->getDevIdTo());
@@ -397,9 +397,6 @@ SendCommandReceiveString(RubyCommandWrapper* pcmd) {
 	
 	g_pPlutoLogger->Write(LV_WARNING, "No valid response received, returning an empty string");
 	return "";
-
-	// usage, something in the idea:
-	// Message *pMessage = new Message(m_dwPK_Device,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_DATAPARM_REQUEST, PK_DeviceData,0);
 }
 
 void 
@@ -421,9 +418,12 @@ RubyIOManager::SendString(string str) {
 }
 
 void
+
+/** this is sort of obsolete, since using it (and moving it's definition back to 
+the base RubyDCEConnector) whould turn the framework for ruby into a mess */
 RubyIOManager::SetDeviceData( int PK_Device,int PK_DeviceData,string Value ) {
 	g_pPlutoLogger->Write(LV_STATUS, "Ruby code setting device data.");
-	pcmdimpl->SetDeviceDataInDB( PK_Device, PK_DeviceData,string Value )
+	pcmdimpl_->SetDeviceDataInDB( PK_Device, PK_DeviceData,string Value )
 }
 
 
