@@ -29,17 +29,17 @@ namespace DCE {
 		}
 	}
 
-	void RubySerialWrapper::DisableDevice(int device,bool bDisable) 
+	void RubySerialWrapper::DisableDevice( int device,bool bDisable) 
 	{
-		if( pdce_ != NULL && device_ != NULL ) {
+		if( pdce_ != NULL /*&& device_ != NULL*/ ) {
 
 			// 791 = PK_Command for disable device
-			RubyCommandWrapper *pcmd = new RubyCommandWrapper( 0, 0, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, 791 );
+			RubyCommandWrapper *pcmd = new RubyCommandWrapper( device_.getDevId(), 0, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Set_Enable_Status_CONST );
 
-			pcmd->setTemplate( 27 )
+			pcmd->setTemplate( DEVICETEMPLATE_General_Info_Plugin_CONST );
 
-			pcmd->params_[2] = itos( device_.getDevId() );
-			pcmd->params_[208] = "0";
+			pcmd->params_[COMMANDPARAMETER_PK_Device_CONST] = itos( device );
+			pcmd->params_[COMMANDPARAMETER_Enable_CONST] = "0";
 			
 			pdce_->SendCommand(pcmd);
 

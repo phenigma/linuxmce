@@ -49,6 +49,7 @@ public:
 	void setParent(VALUE parent) {
 	    parent_ = parent;
 	}
+
 	VALUE getParent() {
 	    return parent_;
 	}
