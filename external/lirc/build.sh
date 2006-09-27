@@ -17,6 +17,10 @@ for KVER in "${Kernels[@]}"; do
 	KDEPS="$KDEPS, linux-image-$KVER"
 done
 
+fakeroot debian/rules clean || :
+for KVER in "${Kernels[@]}"; do
+	KSRC=/lib/modules/${KVER}/build KVERS=${KVER} fakeroot debian/rules build-modules
+done
 KDEPS="$KDEPS" dpkg-buildpackage -rfakeroot -b -us -uc
 
 Version=$(dpkg-parsechangelog -l./debian/changelog |grep ^Version|cut -d' ' -f2)
