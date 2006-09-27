@@ -27,12 +27,19 @@ endif
 config.status: configure
 	dh_testdir
 	# Add here commands to configure the package.
-	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-sandboxed --with-driver=all
+	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-sandboxed --with-driver=userspace
 
+config-modules: configure
+	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-sandboxed --with-driver=all --with-kerneldir="$(KSRC)"
+
+build-modules: config-modules
+	$(MAKE) -C drivers clean
+	$(MAKE) -C drivers
+	$(MAKE) -C drivers install DESTDIR=$(CURDIR)/debian/lirc-pluto
 
 build: build-stamp
 
-build-stamp:  config.status
+build-stamp:  config.status build-modules
 	dh_testdir
 
 	# Add here commands to compile the package.
