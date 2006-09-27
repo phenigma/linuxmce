@@ -9621,6 +9621,54 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_Choose_Provider_for_Device : public PreformedCommand
+	{
+	public:
+		SCREEN_Choose_Provider_for_Device(long DeviceIDFrom, long DeviceIDTo,
+			int iPK_Device, string sText, string sDescription)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "245" /* screen ID */,
+				2 /* The device to get the provider for */, StringUtils::ltos(iPK_Device).c_str(), 9 /* PK_ProviderSouce \t Description \t Comments \t Username/pass \t Provider Command line \t Device Command Line \t Package Command Line \t Lineup Command Line */, sText.c_str(), 163 /* The description of the device */, sDescription.c_str());
+		}
+	};
+
+	class SCREEN_Choose_Provider_for_Device_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Choose_Provider_for_Device_DL(long DeviceIDFrom, string sDeviceIDTo,
+			int iPK_Device, string sText, string sDescription)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "245" /* screen ID */,
+				2 /* The device to get the provider for */, StringUtils::ltos(iPK_Device).c_str(), 9 /* PK_ProviderSouce \t Description \t Comments \t Username/pass \t Provider Command line \t Device Command Line \t Package Command Line \t Lineup Command Line */, sText.c_str(), 163 /* The description of the device */, sDescription.c_str());
+		}
+	};
+
+	class SCREEN_Choose_Provider_for_Device_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Choose_Provider_for_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			int iPK_Device, string sText, string sDescription)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "245" /* screen ID */,
+				2 /* The device to get the provider for */, StringUtils::ltos(iPK_Device).c_str(), 9 /* PK_ProviderSouce \t Description \t Comments \t Username/pass \t Provider Command line \t Device Command Line \t Package Command Line \t Lineup Command Line */, sText.c_str(), 163 /* The description of the device */, sDescription.c_str());
+		}
+	};
+
+	class SCREEN_Choose_Provider_for_Device_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Choose_Provider_for_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			int iPK_Device, string sText, string sDescription)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "245" /* screen ID */,
+				2 /* The device to get the provider for */, StringUtils::ltos(iPK_Device).c_str(), 9 /* PK_ProviderSouce \t Description \t Comments \t Username/pass \t Provider Command line \t Device Command Line \t Package Command Line \t Lineup Command Line */, sText.c_str(), 163 /* The description of the device */, sDescription.c_str());
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9879,6 +9927,7 @@ namespace DCE
 		virtual void SCREEN_TV_Channels(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_CD_Full_Screen_OSD(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Music_Full_Screen_OSD(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_Device, string sText, string sDescription){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -11342,6 +11391,15 @@ namespace DCE
 				{
 					ResetCallBacks();
 					SCREEN_Music_Full_Screen_OSD(nPK_Screen);
+					break;
+				}
+				case 245:
+				{
+					ResetCallBacks();
+					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
+					string sText = pMessage->m_mapParameters[9];
+					string sDescription = pMessage->m_mapParameters[163];
+					SCREEN_Choose_Provider_for_Device(nPK_Screen, iPK_Device, sText, sDescription);
 					break;
 				}
 

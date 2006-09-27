@@ -3,6 +3,7 @@
 
 class Row_Device;
 class Row_MediaType;
+class Row_MediaProvider;
 
 #define DONT_RESEND_POWER_WITHIN_X_SECONDS		3
 
@@ -21,6 +22,7 @@ namespace DCE
 			*m_pDevice_Audio, /**< If this is inside a media director, and there is no destination device in the audio path, this will point app server to adjust the volume in the PC */
 			*m_pDevice_Video, /**< The destination video device */
 			*m_pDevice_Media_ID;   
+		Row_MediaProvider *m_pRow_MediaProvider;
 
 		map<int,int> m_mapMediaType_DesignObj;              /** A map of all the remotes for the various screens */
 		map<int,class EntertainArea *> m_mapEntertainArea;

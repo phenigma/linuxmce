@@ -25,6 +25,7 @@ using namespace DCE;
 #include "../pluto_main/Define_Event.h"
 #include "../pluto_main/Define_DeviceData.h"
 #include "../pluto_main/Table_EventParameter.h"
+#include "../pluto_media/Table_MediaProvider.h"
 
 #include "DataGrid.h"
 #include "EPGGrid.h"
@@ -55,12 +56,7 @@ bool MythTV_PlugIn::GetConfig()
 	if( !MythTV_PlugIn_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-#ifndef WIN32
-//	m_pMythWrapper = new MythTvWrapper(this);
-	m_pMySqlHelper_Myth = new MySqlHelper("localhost","root","","mythconverg");
-#else
-	m_pMySqlHelper_Myth = new MySqlHelper("192.168.80.1","root","","mythconverg");
-#endif
+	m_pMySqlHelper_Myth = new MySqlHelper(m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ),"mythconverg");
 	m_pEPGGrid = new EPGGrid(m_pMySqlHelper_Myth);
 	return true;
 }
@@ -117,9 +113,6 @@ bool MythTV_PlugIn::Register()
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::AllShows))
                                                 ,DATAGRID_EPG_All_Shows_CONST,PK_DeviceTemplate_get());
-
-    m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::AllShowsForMobiles))
-                                                ,DATAGRID_EPG_All_Shows_Mobile_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::TvProviders))
 												,DATAGRID_TV_Providers_CONST,PK_DeviceTemplate_get());
@@ -415,20 +408,63 @@ MythTvMediaStream* MythTV_PlugIn::ConvertToMythMediaStream(MediaStream *pMediaSt
 class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
                         , Message *pMessage)
 {
-    PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
-    g_pPlutoLogger->Write(LV_STATUS, "A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
+    int nWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
+	DataGridTable *pDataGridTable = new DataGridTable();
+	DataGridCell *pCell;
+
+	PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
+    g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::AllShows A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
     
-    return new DataGridTable();
-}
+	EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find( atoi(Parms.c_str()) );
+	if( !pEntertainArea || !pEntertainArea->m_pMediaStream || !pEntertainArea->m_pMediaStream->m_pMediaDevice_Source )
+	{
+	    g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::AllShows cannot find a stream %p",pEntertainArea);
+		return pDataGridTable;
+	}
 
-class DataGridTable *MythTV_PlugIn::AllShowsForMobiles(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
-{
-#ifndef WIN32
-    PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
+	string sProvider;
+	if( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pRow_MediaProvider && 
+		pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pRow_MediaProvider->ID_get().empty()==false )
+			sProvider = " AND sourceid=" + pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pRow_MediaProvider->ID_get();
 
-    g_pPlutoLogger->Write(LV_STATUS, "Getting all shows");
-#endif
-	return new DataGridTable();
+	string sSQL = "SELECT c.chanid, c.channum, c.name, c.icon, p.title, p.starttime, p.endtime "
+		"FROM program p "
+		"INNER JOIN channel c ON c.chanid = p.chanid "
+		"WHERE '" + StringUtils::SQLDateTime() + "' BETWEEN p.starttime and p.endtime " + sProvider +
+		"ORDER BY p.channum";
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	int iRow=0;
+	if( (result.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))!=NULL )
+	{
+		while((row = mysql_fetch_row(result.r)))
+		{
+			if( nWidth<2 )  // Just a single column
+			{
+				string sDesc = string( row[1] ) + " " + row[2] + " " + row[4];
+				pCell = new DataGridCell(sDesc,row[0]);
+				pDataGridTable->SetData(0,iRow++,pCell);
+			}
+			else
+			{
+				string sChannelName_BottomJust = "~cb" + string(row[1]) + " " + row[2];
+				pCell = new DataGridCell(sChannelName_BottomJust,row[0]);
+				if( row[3] && row[3][0] )  // There's an icon
+					pCell->SetImagePath( row[3] );
+				pDataGridTable->SetData(0,iRow,pCell);
+
+				time_t tStart = StringUtils::SQLDateTime( row[5] );
+				time_t tStop = StringUtils::SQLDateTime( row[6] );
+
+				string sDesc = StringUtils::HourMinute(tStart) + " - " + StringUtils::HourMinute(tStop) + "\n" + row[4];
+				pCell = new DataGridCell(sDesc,row[0]);
+				pCell->m_Colspan = nWidth-1; // Fill the rest of the columns
+				pDataGridTable->SetData(1,iRow++,pCell);
+			}
+		}
+	}
+ 
+	return pDataGridTable;
 }
 
 class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,Message *pMessage)

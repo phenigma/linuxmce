@@ -740,6 +740,28 @@ time_t StringUtils::MakeTime( int Year, int Month, int Day, int Hour, int Minute
     return mktime( &t );
 }
 
+string StringUtils::HourMinute(time_t t,bool b24Hour)
+{
+    char acDateTime[100];
+
+    if( t == 0 )
+        t = time(NULL);
+    struct tm *tm = localtime(&t);
+	if( !tm )
+		return "";
+
+	if( !b24Hour )
+	{
+		if( tm->tm_hour>12 )
+		    sprintf( acDateTime, "%2d:%02dpm", tm->tm_hour-12, tm->tm_min );
+		else
+		    sprintf( acDateTime, "%2d:%02dam", tm->tm_hour, tm->tm_min );
+	}
+	else
+	    sprintf( acDateTime, "%2d:%02d", tm->tm_hour, tm->tm_min );
+
+    return acDateTime;
+}
 
 string StringUtils::SQLDateTime(time_t t)
 {
@@ -751,7 +773,7 @@ string StringUtils::SQLDateTime(time_t t)
 	if( !tm )
 		return "";
 
-    sprintf( acDateTime, "%d/%d/%d %d:%d:%d",
+    sprintf( acDateTime, "%04d-%02d-%02d %02d:%02d:%02d",
             tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec );
 
     return acDateTime;
@@ -928,6 +950,8 @@ char **StringUtils::ConvertStringToArgs(string sInput,int &iNumArgs,int *p_iPosN
 				(pos_nextmessage<pos_end || pos_end==string::npos) )
 			pos_end=pos_nextmessage;
 
+char ctmp = sInput[pos_start];
+char cfoo = sInput[sInput.size()-1];
 		// Starting some new "
 		if( sInput[pos_start]=='"' && (pos_end!=string::npos || sInput[sInput.size()-1]=='"') )
 		{

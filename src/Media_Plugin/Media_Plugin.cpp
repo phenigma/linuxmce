@@ -79,6 +79,7 @@ using namespace DCE;
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_AttributeType.h"
 #include "pluto_media/Table_MediaType_AttributeType.h"
+#include "pluto_media/Table_MediaProvider.h"
 #include "Gen_Devices/AllScreens.h"
 
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
@@ -117,6 +118,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	m_tReset=0;
 	m_pDevice_Audio=m_pDevice_Video=m_pDevice_Media_ID=NULL;
 	m_iPK_MediaProvider=atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_EK_MediaProvider_CONST).c_str());
+	m_pRow_MediaProvider = NULL;
 	m_tLastPowerCommand=0;
 	m_dwPK_Command_LastPower=0;
 
@@ -532,6 +534,9 @@ void Media_Plugin::AddDeviceToEntertainArea( EntertainArea *pEntertainArea, Row_
     if( !pMediaDevice )
     {
         pMediaDevice = new MediaDevice( m_pRouter, pRow_Device ); // Nope, create it
+		if( pMediaDevice->m_iPK_MediaProvider )
+			pMediaDevice->m_pRow_MediaProvider = m_pDatabase_pluto_media->MediaProvider_get()->GetRow( pMediaDevice->m_iPK_MediaProvider );
+
         m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]=pMediaDevice;
 
 		vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;

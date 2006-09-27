@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;&quot;../../libs/CrossPlatform/id3lib-3.8.3/include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ID3LIB_LINKOPTION=3"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;DEBUG;LOG_ALL_QUERIES;ID3LIB_LINKOPTION=3"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -32,10 +32,12 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib  libmysql.lib pluto_main.lib pluto_media.lib pluto-id3lib-d.lib"
+				AdditionalOptions="/FORCE:MULTIPLE"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_main.lib pluto_media.lib pluto-id3lib-d.lib"
 				OutputFile="../Debug/MythTV_PlugIn.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="/mysql/lib/debug;../../libs/Libraries/pthreads-win32/lib;../lib;&quot;../../libs/CrossPlatform/id3lib-3.8.3/prj/Debug&quot;"
+				AdditionalLibraryDirectories="\mysql\lib\Debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;&quot;../../libs/CrossPlatform/id3lib-3.8.3/prj/Debug&quot;"
+				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="MythTV_PlugIn.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/MythTV_PlugIn.pdb"
@@ -73,9 +75,10 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;&quot;../../libs/CrossPlatform/id3lib-3.8.3/include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;ID3LIB_LINKOPTION=3"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -85,9 +88,12 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/MythTV_PlugIn.dll"
+				AdditionalOptions="/FORCE:MULTIPLE"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE-r.lib pluto_main-r.lib pluto_media-r.lib pluto-id3lib-r.lib"
+				OutputFile="../bin/MythTV_Plugin.dll"
 				LinkIncremental="1"
-				ModuleDefinitionFile="MythTV_PlugIn.def"
+				AdditionalLibraryDirectories="\mysql\lib\Debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;&quot;../../libs/CrossPlatform/id3lib-3.8.3/prj/Release&quot;"
+				ModuleDefinitionFile="MythTV_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -131,6 +137,9 @@
 				RelativePath="..\Gen_Devices\Datagrid_PluginBase.cpp">
 			</File>
 			<File
+				RelativePath=".\EPGGrid.cpp">
+			</File>
+			<File
 				RelativePath="..\File_Grids_Plugin\FileListGrid.cpp">
 			</File>
 			<File
@@ -155,9 +164,6 @@
 				RelativePath="..\Media_Plugin\Media_Plugin_Grids.cpp">
 			</File>
 			<File
-				RelativePath="..\Media_Plugin\MediaListGrid.cpp">
-			</File>
-			<File
 				RelativePath="..\Gen_Devices\Media_PluginBase.cpp">
 			</File>
 			<File
@@ -176,6 +182,9 @@
 				RelativePath="..\UpdateMedia\MediaIdentifier.cpp">
 			</File>
 			<File
+				RelativePath="..\Media_Plugin\MediaListGrid.cpp">
+			</File>
+			<File
 				RelativePath="..\Media_Plugin\MediaStream.cpp">
 			</File>
 			<File
@@ -192,6 +201,9 @@
 			</File>
 			<File
 				RelativePath=".\MythTvWrapper.cpp">
+			</File>
+			<File
+				RelativePath="..\UpdateMedia\PlutoMediaAttributes.cpp">
 			</File>
 			<File
 				RelativePath="..\UpdateMedia\PlutoMediaFile.cpp">

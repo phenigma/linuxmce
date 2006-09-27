@@ -195,6 +195,7 @@ namespace StringUtils
     time_t SQLDateTime( string sSQLDate ); /** < converts the sql formatted date time into a time_t structure */
     string SQLDateTime( time_t t=0 ); /** < converts a time_t structure into a sql formatted date time */
     string SQLEscape( string sInput ); /** < convert a escape sequence so that it can be understood by sql */
+	string HourMinute(time_t t=0,bool b24Hour=true); /** < converts a time_t structure into a HH:MM formatted date time */
 
 	string GetStringFromConsole(); /** < Let's the user enter a string terminated by a carriage return */
 

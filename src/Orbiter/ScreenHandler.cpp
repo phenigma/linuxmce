@@ -1044,6 +1044,11 @@ void ScreenHandler::SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sM
 	);
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_Device, string sText, string sDescription)
+{
+	ScreenHandlerBase::SCREEN_Choose_Provider_for_Device(PK_Screen, iPK_Device,sText,sDescription);
+}
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Main(long PK_Screen, string sLocation)
 {
 	m_pOrbiter->CMD_Goto_DesignObj(0, m_pOrbiter->m_sMainMenu,

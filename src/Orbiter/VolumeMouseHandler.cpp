@@ -32,7 +32,7 @@ void VolumeMouseHandler::Start()
 
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
 	m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);
-m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume=true;
+
 	if( m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume==false || m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{
 		m_bTapAndRelease=true;
