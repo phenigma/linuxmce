@@ -260,7 +260,8 @@ $start_time=getmicrotime();
 					$roomPulldown.='<option value="'.$value.'" '.(($rowD['FK_Room']==$value)?'selected':'').'>'.$roomArray[$key].'</option>';
 				}
 				$roomPulldown.='</select>';
-	
+				
+				$tvLineUpButton='';
 				if(in_array($rowD['PK_Device'],$liveTVArray)){
 					$tvLineUpButton='<input type="button" class="button_fixed" name="tvLineUp_'.$rowD['PK_Device'].'" value="'.$TEXT_TV_LINEUP_CONST.'" onclick="windowOpen(\'index.php?section=tvLineUp&deviceID='.$rowD['PK_Device'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=640,height=480,toolbars=true,scrollbars=1,resizable=1\');"><br>';
 				}
@@ -270,7 +271,7 @@ $start_time=getmicrotime();
 						<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
 						<input type="button" class="button_fixed" name="btn" value="'.$TEXT_AV_PROPERTIES_CONST.'" onClick="windowOpen(\'index.php?section=irCodes&dtID='.$rowD['FK_DeviceTemplate'].'&deviceID='.$rowD['PK_Device'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>
 						<input type="button" class="button_fixed" name="resync_'.$rowD['PK_Device'].'" value="'.$TEXT_RESYNC_CONST.'"  onclick="self.location=\'index.php?section=resyncCodes&from=avWizard&dtID='.$rowD['FK_DeviceTemplate'].'\';"><br>
-						'.$tvLineUpButton.'
+						'.@$tvLineUpButton.'
 						<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\''.$TEXT_DELETE_DEVICE_CONFIRMATION_CONST.'\'))return true;else return false;">
 				</td>';
 	

@@ -4,11 +4,6 @@ function tvLineUp($output,$dbADO,$mediaADO) {
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/tvLineUp.lang.php');
 
-	global 	$dbMythType, $dbMythUser,$dbMythPass,$dbMythServer,	$dbMythDatabase; 
-	
-	$mythDSN = $dbMythType.'://'.urlencode($dbMythUser).':'.urlencode($dbMythPass).'@'.$dbMythServer.'/'.urlencode($dbMythDatabase); 
-  	$mythADO = &ADONewConnection($mythDSN);
-  
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	
@@ -20,18 +15,19 @@ function tvLineUp($output,$dbADO,$mediaADO) {
 	
 	$fields=getFieldsAsArray('Installation','Zip',$dbADO,'WHERE PK_Installation='.$installationID);
 
-	$lineupDD=explode(',',getDeviceData($deviceID,$GLOBALS['Lineup'],$dbADO));
-	if(count($lineupDD)<2){	
+	$mediaProviderDD=explode(',',getDeviceData($deviceID,$GLOBALS['PK_MediaAttribute'],$dbADO));
+	if(count($mediaProviderDD)==1){	
 		$InstallationZipCode=$fields['Zip'][0];
 		$checkedChannels='all';
 	}else{
-		$InstallationZipCode=$lineupDD[0];
-		$provider=$lineupDD[1];
-		$checkedChannels=$lineupDD;
+		$providerFields=getFieldsAsArray('MediaProvider','ID',$mediaADO,'WHERE PK_MediaProvider='.$mediaProviderDD[0]);
+		$data=explode(',',$providerFields['ID'][0]);
+		
+		$InstallationZipCode=$data[0];
+		$provider=$data[1];
+		$checkedChannels=$mediaProviderDD;
 		// remove first 2 records who are zip code and provider id
 		unset($checkedChannels[0]);
-		unset($checkedChannels[1]);
-		unset($checkedChannels[2]);
 	}	
 	
 	// if zip codeand provider are sent throu GET, they are used instead of df values
@@ -90,17 +86,18 @@ function tvLineUp($output,$dbADO,$mediaADO) {
 				$checkedChannels[]=$ch;
 			}
 		}
-		
-		set_device_data($deviceID,$GLOBALS['Lineup'],$zip.','.$provider.','.$providerID.','.join(',',$checkedChannels),$dbADO);
 
-		$sourceIDArray=array_keys(getAssocArray('videosource','sourceid','name',$mythADO));
-		$sourceID=(isset($sourceIDArray[0]))?$sourceIDArray[0]:NULL;
-		
-		$exitingMediaProviders=getAssocArray('MediaProvider','PK_MediaProvider','Description',$mediaADO,'WHERE `Type`=\'myth\' AND ID='.$sourceID);
+		$sourceID=$zip.','.$provider.','.$providerID;
+		$exitingMediaProviders=getAssocArray('MediaProvider','PK_MediaProvider','Description',$mediaADO,'WHERE `Type`=\'myth\' AND ID=\''.$sourceID.'\'');
 		if(!in_array($provider,array_values($exitingMediaProviders))){
 			$mediaADO->Execute('INSERT INTO MediaProvider (Description,`Type`,ID) VALUES (?,?,?)',array($provider,'myth',$sourceID));
-			set_device_data($deviceID,$GLOBALS['MediaProvider'],$mediaADO->Insert_Id(),$dbADO);
+			$mediaProviderID=$mediaADO->Insert_Id();
+		}else{
+			list($mediaProviderID)=array_keys($exitingMediaProviders);
 		}
+				
+		set_device_data($deviceID,$GLOBALS['PK_MediaAttribute'],$mediaProviderID.','.join(',',$checkedChannels),$dbADO);
+
 		
 		header("Location: index.php?section=tvLineUp&from=$from&deviceID=$deviceID&from=$from&msg=$TEXT_SAVED_CONST");
 	}

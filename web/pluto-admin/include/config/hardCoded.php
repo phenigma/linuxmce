@@ -193,6 +193,8 @@
 	$GLOBALS['UseOpenGLeffects']=172;			// Use OpenGL effects
 	$GLOBALS['CaptureCardPort']=173;			// FK_Device_Capture_Card_Port
 	$GLOBALS['Skin']=24;						// PK_Skin
+	$GLOBALS['Lineup']=181;						// Lineup
+	$GLOBALS['PK_MediaAttribute']=182;			// PK_MediaAttribute
 	
 	// PK_FloorplanType from table FloorplanType 
 
