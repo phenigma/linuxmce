@@ -34,6 +34,7 @@ public:
 	void setConn(const RubySerialIOConnectionWrapper& conn) {
 		conn_ = conn;
 	}
+
 	RubySerialIOConnectionWrapper& getConn() {
 		return conn_;
 	}
@@ -41,6 +42,10 @@ public:
 	/*accessed from ruby code*/
 public:
 	RubySerialIOConnectionWrapper conn_; /*connection*/
+
+	void RubySerialWrapper::DisableDevice(int device,bool bDisable);
+
+	void RubySerialWrapper::SetDeviceDataInDB( int device, int PK_DeviceData, string value );
 };
 
 };
