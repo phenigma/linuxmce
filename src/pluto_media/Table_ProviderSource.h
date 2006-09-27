@@ -79,6 +79,8 @@ class DECLSPECIFIER Row_ProviderSource : public TableRow, public SerializeClass
 		
 		long int m_PK_ProviderSource;
 string m_Description;
+string m_Comments;
+short int m_UserNamePassword;
 long int m_EK_Country;
 long int m_EK_MediaType;
 string m_ProviderOrganization;
@@ -96,11 +98,13 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[18];
+		bool is_null[20];
 	
 	public:
 		long int PK_ProviderSource_get();
 string Description_get();
+string Comments_get();
+short int UserNamePassword_get();
 long int EK_Country_get();
 long int EK_MediaType_get();
 string ProviderOrganization_get();
@@ -121,6 +125,8 @@ long int psc_restrict_get();
 		
 		void PK_ProviderSource_set(long int val);
 void Description_set(string val);
+void Comments_set(string val);
+void UserNamePassword_set(short int val);
 void EK_Country_set(long int val);
 void EK_MediaType_set(long int val);
 void ProviderOrganization_set(string val);
@@ -140,6 +146,7 @@ void psc_restrict_set(long int val);
 
 		
 		bool Description_isNull();
+bool Comments_isNull();
 bool EK_Country_isNull();
 bool EK_MediaType_isNull();
 bool ProviderOrganization_isNull();
@@ -158,6 +165,7 @@ bool psc_restrict_isNull();
 
 			
 		void Description_setNull(bool val);
+void Comments_setNull(bool val);
 void EK_Country_setNull(bool val);
 void EK_MediaType_setNull(bool val);
 void ProviderOrganization_setNull(bool val);
@@ -192,13 +200,15 @@ void psc_restrict_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_ProviderSource+ m_Description+ m_EK_Country+ m_EK_MediaType+ m_ProviderOrganization+ m_EK_Package+ m_FillCommandLine+ m_FillHours+ m_ProviderCommandLine+ m_DeviceCommandLine+ m_PackageCommandLine+ m_LineupCommandLine+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_ProviderSource+ m_Description+ m_Comments+ m_UserNamePassword+ m_EK_Country+ m_EK_MediaType+ m_ProviderOrganization+ m_EK_Package+ m_FillCommandLine+ m_FillHours+ m_ProviderCommandLine+ m_DeviceCommandLine+ m_PackageCommandLine+ m_LineupCommandLine+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_ProviderSource_asSQL();
 string Description_asSQL();
+string Comments_asSQL();
+string UserNamePassword_asSQL();
 string EK_Country_asSQL();
 string EK_MediaType_asSQL();
 string ProviderOrganization_asSQL();

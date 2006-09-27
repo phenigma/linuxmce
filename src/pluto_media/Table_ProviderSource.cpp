@@ -121,30 +121,33 @@ void Row_ProviderSource::SetDefaultValues()
 is_null[0] = false;
 is_null[1] = true;
 is_null[2] = true;
-m_EK_Country = 0;
-is_null[3] = true;
-m_EK_MediaType = 0;
+m_UserNamePassword = 0;
+is_null[3] = false;
 is_null[4] = true;
+m_EK_Country = 0;
 is_null[5] = true;
-m_EK_Package = 0;
+m_EK_MediaType = 0;
 is_null[6] = true;
 is_null[7] = true;
-m_FillHours = 0;
+m_EK_Package = 0;
 is_null[8] = true;
 is_null[9] = true;
+m_FillHours = 0;
 is_null[10] = true;
 is_null[11] = true;
 is_null[12] = true;
-m_psc_id = 0;
 is_null[13] = true;
-m_psc_batch = 0;
 is_null[14] = true;
+m_psc_id = 0;
+is_null[15] = true;
+m_psc_batch = 0;
+is_null[16] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
-is_null[15] = false;
+is_null[17] = false;
 m_psc_mod = "00000000000000";
-is_null[16] = false;
-is_null[17] = true;
+is_null[18] = false;
+is_null[19] = true;
 m_psc_restrict = 0;
 
 
@@ -159,6 +162,12 @@ return m_PK_ProviderSource;}
 string Row_ProviderSource::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Description;}
+string Row_ProviderSource::Comments_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_Comments;}
+short int Row_ProviderSource::UserNamePassword_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_UserNamePassword;}
 long int Row_ProviderSource::EK_Country_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_EK_Country;}
@@ -215,168 +224,181 @@ m_PK_ProviderSource = val; is_modified=true; is_null[0]=false;}
 void Row_ProviderSource::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Description = val; is_modified=true; is_null[1]=false;}
+void Row_ProviderSource::Comments_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_Comments = val; is_modified=true; is_null[2]=false;}
+void Row_ProviderSource::UserNamePassword_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_UserNamePassword = val; is_modified=true; is_null[3]=false;}
 void Row_ProviderSource::EK_Country_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_EK_Country = val; is_modified=true; is_null[2]=false;}
+m_EK_Country = val; is_modified=true; is_null[4]=false;}
 void Row_ProviderSource::EK_MediaType_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_EK_MediaType = val; is_modified=true; is_null[3]=false;}
+m_EK_MediaType = val; is_modified=true; is_null[5]=false;}
 void Row_ProviderSource::ProviderOrganization_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_ProviderOrganization = val; is_modified=true; is_null[4]=false;}
+m_ProviderOrganization = val; is_modified=true; is_null[6]=false;}
 void Row_ProviderSource::EK_Package_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_EK_Package = val; is_modified=true; is_null[5]=false;}
+m_EK_Package = val; is_modified=true; is_null[7]=false;}
 void Row_ProviderSource::FillCommandLine_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FillCommandLine = val; is_modified=true; is_null[6]=false;}
+m_FillCommandLine = val; is_modified=true; is_null[8]=false;}
 void Row_ProviderSource::FillHours_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FillHours = val; is_modified=true; is_null[7]=false;}
+m_FillHours = val; is_modified=true; is_null[9]=false;}
 void Row_ProviderSource::ProviderCommandLine_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_ProviderCommandLine = val; is_modified=true; is_null[8]=false;}
+m_ProviderCommandLine = val; is_modified=true; is_null[10]=false;}
 void Row_ProviderSource::DeviceCommandLine_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_DeviceCommandLine = val; is_modified=true; is_null[9]=false;}
+m_DeviceCommandLine = val; is_modified=true; is_null[11]=false;}
 void Row_ProviderSource::PackageCommandLine_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_PackageCommandLine = val; is_modified=true; is_null[10]=false;}
+m_PackageCommandLine = val; is_modified=true; is_null[12]=false;}
 void Row_ProviderSource::LineupCommandLine_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_LineupCommandLine = val; is_modified=true; is_null[11]=false;}
+m_LineupCommandLine = val; is_modified=true; is_null[13]=false;}
 void Row_ProviderSource::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[12]=false;}
+m_psc_id = val; is_modified=true; is_null[14]=false;}
 void Row_ProviderSource::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[13]=false;}
+m_psc_batch = val; is_modified=true; is_null[15]=false;}
 void Row_ProviderSource::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[14]=false;}
+m_psc_user = val; is_modified=true; is_null[16]=false;}
 void Row_ProviderSource::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[15]=false;}
+m_psc_frozen = val; is_modified=true; is_null[17]=false;}
 void Row_ProviderSource::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[16]=false;}
+m_psc_mod = val; is_modified=true; is_null[18]=false;}
 void Row_ProviderSource::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_restrict = val; is_modified=true; is_null[17]=false;}
+m_psc_restrict = val; is_modified=true; is_null[19]=false;}
 
 		
 bool Row_ProviderSource::Description_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[1];}
-bool Row_ProviderSource::EK_Country_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_ProviderSource::Comments_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_ProviderSource::EK_MediaType_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[3];}
-bool Row_ProviderSource::ProviderOrganization_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_ProviderSource::EK_Country_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_ProviderSource::EK_Package_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_ProviderSource::EK_MediaType_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_ProviderSource::FillCommandLine_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_ProviderSource::ProviderOrganization_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_ProviderSource::FillHours_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_ProviderSource::EK_Package_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[7];}
-bool Row_ProviderSource::ProviderCommandLine_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_ProviderSource::FillCommandLine_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_ProviderSource::DeviceCommandLine_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_ProviderSource::FillHours_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
-bool Row_ProviderSource::PackageCommandLine_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_ProviderSource::ProviderCommandLine_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[10];}
-bool Row_ProviderSource::LineupCommandLine_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_ProviderSource::DeviceCommandLine_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[11];}
-bool Row_ProviderSource::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_ProviderSource::PackageCommandLine_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[12];}
-bool Row_ProviderSource::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_ProviderSource::LineupCommandLine_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[13];}
-bool Row_ProviderSource::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_ProviderSource::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[14];}
-bool Row_ProviderSource::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_ProviderSource::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[15];}
-bool Row_ProviderSource::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_ProviderSource::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[16];}
+bool Row_ProviderSource::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[17];}
+bool Row_ProviderSource::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[19];}
 
 			
 void Row_ProviderSource::Description_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[1]=val;
 is_modified=true;
 }
-void Row_ProviderSource::EK_Country_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_ProviderSource::Comments_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_ProviderSource::EK_MediaType_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[3]=val;
-is_modified=true;
-}
-void Row_ProviderSource::ProviderOrganization_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_ProviderSource::EK_Country_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_ProviderSource::EK_Package_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_ProviderSource::EK_MediaType_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_ProviderSource::FillCommandLine_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_ProviderSource::ProviderOrganization_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_ProviderSource::FillHours_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_ProviderSource::EK_Package_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_ProviderSource::ProviderCommandLine_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_ProviderSource::FillCommandLine_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_ProviderSource::DeviceCommandLine_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_ProviderSource::FillHours_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_ProviderSource::PackageCommandLine_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_ProviderSource::ProviderCommandLine_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_ProviderSource::LineupCommandLine_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_ProviderSource::DeviceCommandLine_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[11]=val;
 is_modified=true;
 }
-void Row_ProviderSource::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_ProviderSource::PackageCommandLine_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[12]=val;
 is_modified=true;
 }
-void Row_ProviderSource::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_ProviderSource::LineupCommandLine_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[13]=val;
 is_modified=true;
 }
-void Row_ProviderSource::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_ProviderSource::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[14]=val;
 is_modified=true;
 }
-void Row_ProviderSource::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_ProviderSource::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[15]=val;
 is_modified=true;
 }
-void Row_ProviderSource::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_ProviderSource::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[16]=val;
+is_modified=true;
+}
+void Row_ProviderSource::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[17]=val;
+is_modified=true;
+}
+void Row_ProviderSource::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[19]=val;
 is_modified=true;
 }
 	
@@ -408,11 +430,38 @@ delete[] buf;
 return s;
 }
 
-string Row_ProviderSource::EK_Country_asSQL()
+string Row_ProviderSource::Comments_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
+return "NULL";
+
+char *buf = new char[131071];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Comments.c_str(), (unsigned long) min((size_t)65535,m_Comments.size()));
+string s=string()+"\""+buf+"\"";
+delete[] buf;
+return s;
+}
+
+string Row_ProviderSource::UserNamePassword_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_UserNamePassword);
+
+return buf;
+}
+
+string Row_ProviderSource::EK_Country_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[4])
 return "NULL";
 
 char buf[32];
@@ -425,7 +474,7 @@ string Row_ProviderSource::EK_MediaType_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[3])
+if (is_null[5])
 return "NULL";
 
 char buf[32];
@@ -438,7 +487,7 @@ string Row_ProviderSource::ProviderOrganization_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[4])
+if (is_null[6])
 return "NULL";
 
 char *buf = new char[3];
@@ -452,7 +501,7 @@ string Row_ProviderSource::EK_Package_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[5])
+if (is_null[7])
 return "NULL";
 
 char buf[32];
@@ -465,7 +514,7 @@ string Row_ProviderSource::FillCommandLine_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[6])
+if (is_null[8])
 return "NULL";
 
 char *buf = new char[511];
@@ -479,7 +528,7 @@ string Row_ProviderSource::FillHours_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[7])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -492,7 +541,7 @@ string Row_ProviderSource::ProviderCommandLine_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[8])
+if (is_null[10])
 return "NULL";
 
 char *buf = new char[511];
@@ -506,7 +555,7 @@ string Row_ProviderSource::DeviceCommandLine_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[9])
+if (is_null[11])
 return "NULL";
 
 char *buf = new char[511];
@@ -520,7 +569,7 @@ string Row_ProviderSource::PackageCommandLine_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[10])
+if (is_null[12])
 return "NULL";
 
 char *buf = new char[511];
@@ -534,7 +583,7 @@ string Row_ProviderSource::LineupCommandLine_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[11])
+if (is_null[13])
 return "NULL";
 
 char *buf = new char[511];
@@ -548,7 +597,7 @@ string Row_ProviderSource::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[12])
+if (is_null[14])
 return "NULL";
 
 char buf[32];
@@ -561,7 +610,7 @@ string Row_ProviderSource::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[13])
+if (is_null[15])
 return "NULL";
 
 char buf[32];
@@ -574,7 +623,7 @@ string Row_ProviderSource::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[14])
+if (is_null[16])
 return "NULL";
 
 char buf[32];
@@ -587,7 +636,7 @@ string Row_ProviderSource::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[15])
+if (is_null[17])
 return "NULL";
 
 char buf[32];
@@ -600,7 +649,7 @@ string Row_ProviderSource::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[16])
+if (is_null[18])
 return "NULL";
 
 char *buf = new char[29];
@@ -614,7 +663,7 @@ string Row_ProviderSource::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[17])
+if (is_null[19])
 return "NULL";
 
 char buf[32];
@@ -661,10 +710,10 @@ bool Table_ProviderSource::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFail
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_ProviderSource_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->EK_Country_asSQL()+", "+pRow->EK_MediaType_asSQL()+", "+pRow->ProviderOrganization_asSQL()+", "+pRow->EK_Package_asSQL()+", "+pRow->FillCommandLine_asSQL()+", "+pRow->FillHours_asSQL()+", "+pRow->ProviderCommandLine_asSQL()+", "+pRow->DeviceCommandLine_asSQL()+", "+pRow->PackageCommandLine_asSQL()+", "+pRow->LineupCommandLine_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_ProviderSource_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->UserNamePassword_asSQL()+", "+pRow->EK_Country_asSQL()+", "+pRow->EK_MediaType_asSQL()+", "+pRow->ProviderOrganization_asSQL()+", "+pRow->EK_Package_asSQL()+", "+pRow->FillCommandLine_asSQL()+", "+pRow->FillHours_asSQL()+", "+pRow->ProviderCommandLine_asSQL()+", "+pRow->DeviceCommandLine_asSQL()+", "+pRow->PackageCommandLine_asSQL()+", "+pRow->LineupCommandLine_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into ProviderSource (`PK_ProviderSource`, `Description`, `EK_Country`, `EK_MediaType`, `ProviderOrganization`, `EK_Package`, `FillCommandLine`, `FillHours`, `ProviderCommandLine`, `DeviceCommandLine`, `PackageCommandLine`, `LineupCommandLine`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into ProviderSource (`PK_ProviderSource`, `Description`, `Comments`, `UserNamePassword`, `EK_Country`, `EK_MediaType`, `ProviderOrganization`, `EK_Package`, `FillCommandLine`, `FillHours`, `ProviderCommandLine`, `DeviceCommandLine`, `PackageCommandLine`, `LineupCommandLine`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -720,7 +769,7 @@ condition = condition + "`PK_ProviderSource`=" + tmp_PK_ProviderSource;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_ProviderSource`="+pRow->PK_ProviderSource_asSQL()+", `Description`="+pRow->Description_asSQL()+", `EK_Country`="+pRow->EK_Country_asSQL()+", `EK_MediaType`="+pRow->EK_MediaType_asSQL()+", `ProviderOrganization`="+pRow->ProviderOrganization_asSQL()+", `EK_Package`="+pRow->EK_Package_asSQL()+", `FillCommandLine`="+pRow->FillCommandLine_asSQL()+", `FillHours`="+pRow->FillHours_asSQL()+", `ProviderCommandLine`="+pRow->ProviderCommandLine_asSQL()+", `DeviceCommandLine`="+pRow->DeviceCommandLine_asSQL()+", `PackageCommandLine`="+pRow->PackageCommandLine_asSQL()+", `LineupCommandLine`="+pRow->LineupCommandLine_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_ProviderSource`="+pRow->PK_ProviderSource_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `UserNamePassword`="+pRow->UserNamePassword_asSQL()+", `EK_Country`="+pRow->EK_Country_asSQL()+", `EK_MediaType`="+pRow->EK_MediaType_asSQL()+", `ProviderOrganization`="+pRow->ProviderOrganization_asSQL()+", `EK_Package`="+pRow->EK_Package_asSQL()+", `FillCommandLine`="+pRow->FillCommandLine_asSQL()+", `FillHours`="+pRow->FillHours_asSQL()+", `ProviderCommandLine`="+pRow->ProviderCommandLine_asSQL()+", `DeviceCommandLine`="+pRow->DeviceCommandLine_asSQL()+", `PackageCommandLine`="+pRow->PackageCommandLine_asSQL()+", `LineupCommandLine`="+pRow->LineupCommandLine_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update ProviderSource set " + update_values_list + " where " + condition;
@@ -854,177 +903,199 @@ pRow->m_Description = string(row[1],lengths[1]);
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_EK_Country = 0;
+pRow->m_Comments = "";
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_EK_Country));
+pRow->m_Comments = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_EK_MediaType = 0;
+pRow->m_UserNamePassword = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_EK_MediaType));
+sscanf(row[3], "%hi", &(pRow->m_UserNamePassword));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_ProviderOrganization = "";
+pRow->m_EK_Country = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_ProviderOrganization = string(row[4],lengths[4]);
+sscanf(row[4], "%li", &(pRow->m_EK_Country));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_EK_Package = 0;
+pRow->m_EK_MediaType = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_EK_Package));
+sscanf(row[5], "%li", &(pRow->m_EK_MediaType));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_FillCommandLine = "";
+pRow->m_ProviderOrganization = "";
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_FillCommandLine = string(row[6],lengths[6]);
+pRow->m_ProviderOrganization = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_FillHours = 0;
+pRow->m_EK_Package = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_FillHours));
+sscanf(row[7], "%li", &(pRow->m_EK_Package));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_ProviderCommandLine = "";
+pRow->m_FillCommandLine = "";
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_ProviderCommandLine = string(row[8],lengths[8]);
+pRow->m_FillCommandLine = string(row[8],lengths[8]);
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_DeviceCommandLine = "";
+pRow->m_FillHours = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-pRow->m_DeviceCommandLine = string(row[9],lengths[9]);
+sscanf(row[9], "%hi", &(pRow->m_FillHours));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_PackageCommandLine = "";
+pRow->m_ProviderCommandLine = "";
 }
 else
 {
 pRow->is_null[10]=false;
-pRow->m_PackageCommandLine = string(row[10],lengths[10]);
+pRow->m_ProviderCommandLine = string(row[10],lengths[10]);
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_LineupCommandLine = "";
+pRow->m_DeviceCommandLine = "";
 }
 else
 {
 pRow->is_null[11]=false;
-pRow->m_LineupCommandLine = string(row[11],lengths[11]);
+pRow->m_DeviceCommandLine = string(row[11],lengths[11]);
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_id = 0;
+pRow->m_PackageCommandLine = "";
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_psc_id));
+pRow->m_PackageCommandLine = string(row[12],lengths[12]);
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_batch = 0;
+pRow->m_LineupCommandLine = "";
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_psc_batch));
+pRow->m_LineupCommandLine = string(row[13],lengths[13]);
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%li", &(pRow->m_psc_user));
+sscanf(row[14], "%li", &(pRow->m_psc_id));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[15], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-pRow->m_psc_mod = string(row[16],lengths[16]);
+sscanf(row[16], "%li", &(pRow->m_psc_user));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%li", &(pRow->m_psc_restrict));
+sscanf(row[17], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[18] == NULL)
+{
+pRow->is_null[18]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[18]=false;
+pRow->m_psc_mod = string(row[18],lengths[18]);
+}
+
+if (row[19] == NULL)
+{
+pRow->is_null[19]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[19]=false;
+sscanf(row[19], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1160,177 +1231,199 @@ pRow->m_Description = string(row[1],lengths[1]);
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_EK_Country = 0;
+pRow->m_Comments = "";
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_EK_Country));
+pRow->m_Comments = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_EK_MediaType = 0;
+pRow->m_UserNamePassword = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_EK_MediaType));
+sscanf(row[3], "%hi", &(pRow->m_UserNamePassword));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_ProviderOrganization = "";
+pRow->m_EK_Country = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_ProviderOrganization = string(row[4],lengths[4]);
+sscanf(row[4], "%li", &(pRow->m_EK_Country));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_EK_Package = 0;
+pRow->m_EK_MediaType = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_EK_Package));
+sscanf(row[5], "%li", &(pRow->m_EK_MediaType));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_FillCommandLine = "";
+pRow->m_ProviderOrganization = "";
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_FillCommandLine = string(row[6],lengths[6]);
+pRow->m_ProviderOrganization = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_FillHours = 0;
+pRow->m_EK_Package = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_FillHours));
+sscanf(row[7], "%li", &(pRow->m_EK_Package));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_ProviderCommandLine = "";
+pRow->m_FillCommandLine = "";
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_ProviderCommandLine = string(row[8],lengths[8]);
+pRow->m_FillCommandLine = string(row[8],lengths[8]);
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_DeviceCommandLine = "";
+pRow->m_FillHours = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-pRow->m_DeviceCommandLine = string(row[9],lengths[9]);
+sscanf(row[9], "%hi", &(pRow->m_FillHours));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_PackageCommandLine = "";
+pRow->m_ProviderCommandLine = "";
 }
 else
 {
 pRow->is_null[10]=false;
-pRow->m_PackageCommandLine = string(row[10],lengths[10]);
+pRow->m_ProviderCommandLine = string(row[10],lengths[10]);
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_LineupCommandLine = "";
+pRow->m_DeviceCommandLine = "";
 }
 else
 {
 pRow->is_null[11]=false;
-pRow->m_LineupCommandLine = string(row[11],lengths[11]);
+pRow->m_DeviceCommandLine = string(row[11],lengths[11]);
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_id = 0;
+pRow->m_PackageCommandLine = "";
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_psc_id));
+pRow->m_PackageCommandLine = string(row[12],lengths[12]);
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_batch = 0;
+pRow->m_LineupCommandLine = "";
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_psc_batch));
+pRow->m_LineupCommandLine = string(row[13],lengths[13]);
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%li", &(pRow->m_psc_user));
+sscanf(row[14], "%li", &(pRow->m_psc_id));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[15], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-pRow->m_psc_mod = string(row[16],lengths[16]);
+sscanf(row[16], "%li", &(pRow->m_psc_user));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%li", &(pRow->m_psc_restrict));
+sscanf(row[17], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[18] == NULL)
+{
+pRow->is_null[18]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[18]=false;
+pRow->m_psc_mod = string(row[18],lengths[18]);
+}
+
+if (row[19] == NULL)
+{
+pRow->is_null[19]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[19]=false;
+sscanf(row[19], "%li", &(pRow->m_psc_restrict));
 }
 
 
