@@ -137,7 +137,8 @@ bool ReplaceTags(string &str)
 				map<string,bool>::iterator it=g_mapBlocks.find(sTag);
 				if( (cType=='b' && it==g_mapBlocks.end()) || (cType=='B' && it!=g_mapBlocks.end()) )
 				{
-					string sEndTag = "<-mkr_" + cType + "_" + sTag + "_e->";
+					string s = " "; s[0]=cType;  // Stupid, but gcc doesn't like + cType??
+					string sEndTag = "<-mkr_" + s + "_" + sTag + "_e->";
 					string::size_type end_tag = str.find(sEndTag,tag_pos);
 					if( end_tag==string::npos )
 					{
