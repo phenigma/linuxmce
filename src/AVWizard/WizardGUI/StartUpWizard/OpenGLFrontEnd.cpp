@@ -6,7 +6,7 @@
 #define LEAN_AND_MEAN
 #include "windows.h"
 #endif
-#include <gl/GL.h>
+#include <GL/gl.h>
 
 OpenGLFrontEnd::OpenGLFrontEnd()
 : GenericBackEnd(), Display(NULL)
