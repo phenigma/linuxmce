@@ -1,7 +1,13 @@
 #ifndef __Define_MediaType_H__
 #define __Define_MediaType_H__
 
-#define MEDIATYPE_mkr_t_name_lower_CONST 1
+#define MEDIATYPE_pluto_LiveTV_CONST 1
+#define MEDIATYPE_pluto_CD_CONST 2
+#define MEDIATYPE_pluto_DVD_CONST 3
+#define MEDIATYPE_pluto_StoredAudio_CONST 4
+#define MEDIATYPE_pluto_StoredVideo_CONST 5
+#define MEDIATYPE_pluto_LiveRadio_CONST 6
+#define MEDIATYPE_pluto_Pictures_CONST 7
 #define MEDIATYPE_np_LiveTV_CONST 11
 #define MEDIATYPE_np_DVD_CONST 12
 #define MEDIATYPE_np_OTARadio_CONST 13
