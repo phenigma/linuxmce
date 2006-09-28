@@ -1,6 +1,6 @@
 #!/bin/bash
 
-kversion=2.6.16.20-pluto-1-686-smp
+kversion=2.6.16.20-pluto-2-686
 source=.
 version=`cat $source/../version`
 package=$source/../../alsa-driver-$version.tar.bz2

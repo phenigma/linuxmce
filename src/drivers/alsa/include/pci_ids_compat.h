@@ -1,5 +1,5 @@
 #ifndef LINUX_2_2
-#include "/home/src/linux-2.6.16.20-pluto-1-686-smp/include/linux/pci_ids.h"
+#include "/lib/modules/2.6.16.20-pluto-2-686/build/include/linux/pci_ids.h"
 #endif
 
 /* bt87x */
