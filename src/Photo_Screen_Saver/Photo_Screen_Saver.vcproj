@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;.;Win32;&quot;../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../Splitter;../../libs/CrossPlatform/zlib;../../libs/CrossPlatform/lpng127;../PlutoUtils;SDL;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;../OrbiterGen"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;.;Win32;&quot;../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../Splitter;../../libs/CrossPlatform/zlib;../../libs/CrossPlatform/lpng127;../PlutoUtils;SDL;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;../OrbiterGen;../STEngine"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -123,19 +123,7 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath=".\Builder.cpp">
-			</File>
-			<File
-				RelativePath=".\Container.cpp">
-			</File>
-			<File
-				RelativePath=".\Frame.cpp">
-			</File>
-			<File
 				RelativePath="Main.cpp">
-			</File>
-			<File
-				RelativePath=".\Painter.cpp">
 			</File>
 			<File
 				RelativePath="Photo_Screen_Saver.cpp">
@@ -143,23 +131,11 @@
 			<File
 				RelativePath="..\Gen_Devices\Photo_Screen_SaverBase.cpp">
 			</File>
-			<File
-				RelativePath=".\Transform.cpp">
-			</File>
-			<File
-				RelativePath=".\Triangle.cpp">
-			</File>
-			<File
-				RelativePath=".\Vertex.cpp">
-			</File>
 			<Filter
 				Name="GalleryViewer"
 				Filter="">
 				<File
 					RelativePath=".\AnimatedPicture.cpp">
-				</File>
-				<File
-					RelativePath=".\ColorDesc.cpp">
 				</File>
 				<File
 					RelativePath=".\ExtensionManager.cpp">
@@ -186,25 +162,13 @@
 					RelativePath=".\GalleryScenario.cpp">
 				</File>
 				<File
-					RelativePath=".\GraphicImage.cpp">
-				</File>
-				<File
 					RelativePath=".\GUIWizardUtils.cpp">
-				</File>
-				<File
-					RelativePath=".\MathUtils.cpp">
-				</File>
-				<File
-					RelativePath=".\Point3D.cpp">
 				</File>
 				<File
 					RelativePath=".\RefreshRates.cpp">
 				</File>
 				<File
 					RelativePath=".\SDLFrontEnd.cpp">
-				</File>
-				<File
-					RelativePath=".\TextureManager.cpp">
 				</File>
 				<File
 					RelativePath=".\WM_Event.cpp">
@@ -221,6 +185,142 @@
 				<File
 					RelativePath=".\ZoomSimple.cpp">
 				</File>
+				<Filter
+					Name="STEngine"
+					Filter="">
+					<File
+						RelativePath="..\STEngine\Builder.cpp">
+						<FileConfiguration
+							Name="Debug|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\STEngine\ColorDesc.cpp">
+						<FileConfiguration
+							Name="Debug|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\STEngine\Container.cpp">
+						<FileConfiguration
+							Name="Debug|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\STEngine\Frame.cpp">
+						<FileConfiguration
+							Name="Debug|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\STEngine\GraphicImage.cpp">
+					</File>
+					<File
+						RelativePath="..\STEngine\MathUtils.cpp">
+					</File>
+					<File
+						RelativePath="..\STEngine\Painter.cpp">
+						<FileConfiguration
+							Name="Debug|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\STEngine\Point3D.cpp">
+					</File>
+					<File
+						RelativePath="..\STEngine\TextureManager.cpp">
+						<FileConfiguration
+							Name="Debug|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\STEngine\Transform.cpp">
+						<FileConfiguration
+							Name="Debug|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\STEngine\Triangle.cpp">
+						<FileConfiguration
+							Name="Debug|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\STEngine\Vertex.cpp">
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter

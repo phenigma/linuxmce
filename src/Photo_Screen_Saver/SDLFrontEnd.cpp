@@ -106,6 +106,7 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 	}
 	atexit(SDL_Quit);
 	
+	
 	SDL_WM_SetCaption("PlutoGalleryViewer", "GalleryViewer");
 	
 	return 0;

@@ -8,6 +8,14 @@
 #include <string>
 using namespace std;
 
+class ProcessUtils
+{
+public:
+	static unsigned long ProcessUtils::g_SecondsReset;
+	void ResetMsTime();
+	unsigned long GetMicroTime();
+};
+
 class Gallery
 {
 	ExtensionManager Extensions;
@@ -20,6 +28,7 @@ class Gallery
 	*/
 	WM_Event Event; 
 	GalleryScenario* Scenario;
+	ProcessUtils Utils;
 public:
 	Gallery(void);
 	~Gallery(void);

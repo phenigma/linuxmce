@@ -3,6 +3,8 @@
 #include "../PlutoUtils/StringUtils.h"
 #include "../DCE/Logger.h"
 
+#include<pthread.h>
+
 using namespace DCE;
 
 FileBrowser::FileBrowser(string FileList)

@@ -32,20 +32,20 @@ sources += AnimatedPicture.cpp \
 	GaleryStateMachine.cpp \
 	Gallery.cpp \
 	GalleryScenario.cpp \
-	GraphicImage.cpp \
 	GUIWizardUtils.cpp \
-	MathUtils.cpp \
-	Builder.cpp \
-	Container.cpp \
-	Frame.cpp \
-	Painter.cpp \
-	Transform.cpp \
-	Triangle.cpp \
-	Vertex.cpp \
-	Point3D.cpp \
+	../STEngine/GraphicImage.cpp \
+	../STEngine/MathUtils.cpp \
+	../STEngine/Builder.cpp \
+	../STEngine/Container.cpp \
+	../STEngine/Frame.cpp \
+	../STEngine/Painter.cpp \
+	../STEngine/Transform.cpp \
+	../STEngine/Triangle.cpp \
+	../STEngine/Vertex.cpp \
+	../STEngine/Point3D.cpp \
+	../STEngine/TextureManager.cpp \
 	RefreshRates.cpp \
 	SDLFrontEnd.cpp \
-	TextureManager.cpp \
 	WM_Event.cpp \
 	ZoomBase.cpp \
 	ZoomFactory.cpp \

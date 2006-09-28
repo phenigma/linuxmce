@@ -7,6 +7,37 @@
 #include "ExtensionManager.h"
 #include "Painter.h"
 
+#include "DCE/Logger.h"
+
+#ifdef WIN32
+	#include <windows.h>
+#else
+	#include <fcntl.h>
+	#include <sys/ipc.h>
+	#include <sys/sem.h>
+	#include <unistd.h>
+	#include <sys/wait.h>
+#endif
+
+
+unsigned long ProcessUtils::g_SecondsReset=0;
+
+void ProcessUtils::ResetMsTime()
+{
+	timespec ts;
+	gettimeofday( &ts, NULL );
+	g_SecondsReset = ts.tv_sec;
+}
+
+unsigned long ProcessUtils::GetMicroTime()
+{
+	timespec ts;
+	gettimeofday( &ts, NULL );
+	return (ts.tv_sec-g_SecondsReset)*1000000 + (ts.tv_nsec/1000);
+}
+
+
+
 Gallery* Gallery::Instance_ = NULL;
 
 Gallery::Gallery():
@@ -56,11 +87,15 @@ Gallery* Gallery::Instance(void)
 
 void Gallery::PaintScreen(void)
 {
+	Utils.ResetMsTime();
+	DCE::g_pPlutoLogger->Write(LV_WARNING, "StartFlip %d", Utils.GetMicroTime());
+
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	Scenario->Update();
 
 	FrontEnd->Flip();
+	DCE::g_pPlutoLogger->Write(LV_WARNING, "EndFlip %d", Utils.GetMicroTime());
 }
 
 bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName)
@@ -76,7 +111,7 @@ bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string
 	return Result;
 }
 
-void Gallery::CleanUp(void)
+void Gallery::CleanUp()
 {
 	delete FrontEnd;
 	FrontEnd = NULL;
