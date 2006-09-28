@@ -133,8 +133,6 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 
 		if(PK_MediaType == 0)
 		{
-			PK_MediaType = MEDIATYPE_misc_DocViewer_CONST;
-
 			if(m_bIsDir)
 			{
 				string sFullPath = FileUtils::IncludeTrailingSlash(m_sDirectory) + m_sFile;
