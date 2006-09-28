@@ -4,7 +4,7 @@ GENDEV=../Gen_Devices
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql <-mkr_t_compile_defines->
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -I../STEngine
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
@@ -23,8 +23,6 @@ XTRALDLIBS =
 
 Gen_Dev_Files +=
 sources += AnimatedPicture.cpp \
-	ColorDesc.cpp \
-	ExtensionManager.cpp \
 	FadeBase.cpp \
 	FadeBlending.cpp \
 	FadeFactory.cpp \
@@ -33,6 +31,8 @@ sources += AnimatedPicture.cpp \
 	Gallery.cpp \
 	GalleryScenario.cpp \
 	GUIWizardUtils.cpp \
+	../STEngine/ExtensionManager.cpp \
+	../STEngine/ColorDesc.cpp \
 	../STEngine/GraphicImage.cpp \
 	../STEngine/MathUtils.cpp \
 	../STEngine/Builder.cpp \
