@@ -79,7 +79,7 @@ class Wizard
 	/**
 	 * The actual application should display everything using a SDL application
 	 */
-	SDLFrontEnd* FrontEnd;
+	GenericBackEnd* FrontEnd;
 	
 	/**
 	 * Last pending event definition

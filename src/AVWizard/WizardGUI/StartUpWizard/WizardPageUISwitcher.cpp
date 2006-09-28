@@ -21,7 +21,7 @@
 #include "WizardWidgetScrollList.h"
 #include "Wizard.h"
 
-WizardPageUISwitcher::WizardPageUISwitcher(SDLFrontEnd* FrontEnd, std::string Name)
+WizardPageUISwitcher::WizardPageUISwitcher(GenericBackEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)
 {
 #ifdef DEBUG

@@ -7,15 +7,8 @@
 #include <SDL_rotozoom.h>
 
 SDLFrontEnd::SDLFrontEnd()
-
+: GenericBackEnd()
 {
-	if(TTF_Init()==-1) {
-		printf("TTF_Init: %s\n", TTF_GetError());
-		Wizard::GetInstance()->SetExitWithCode(-1);
-		return;
-	} 
-
-	CurrentFont = NULL;
 	Display = NULL;
 	BackColor = NULL;
 
@@ -36,9 +29,6 @@ SDLFrontEnd::~SDLFrontEnd()
 	if (ScaledBack)
 		SDL_FreeSurface(ScaledBack);
 
-	if(CurrentFont!= NULL)
-		TTF_CloseFont(CurrentFont);
-	TTF_Quit();
 }
 
 

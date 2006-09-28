@@ -34,7 +34,7 @@ GenericBackEnd* BackEndFactory::CreateBackEnd(int Type)
 {
 	switch(Type) {
 	case Default:
-		return NULL;
+		return new OpenGLFrontEnd();
 	case Simple:
 		return new SDLFrontEnd();
 		break;

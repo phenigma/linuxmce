@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <iostream>
 
-WizardPageAudioVolume::WizardPageAudioVolume(SDLFrontEnd* FrontEnd, std::string Name)
+WizardPageAudioVolume::WizardPageAudioVolume(GenericBackEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)
 {
 #ifdef DEBUG

@@ -4,7 +4,7 @@
 #include "GUIWizardUtils.h"
 //---------------------------------------------------------------------------
 
-WizardWidgetBase::WizardWidgetBase(SDLFrontEnd* FrontEnd, std::string Name)
+WizardWidgetBase::WizardWidgetBase(GenericBackEnd* FrontEnd, std::string Name)
 	: Visible(true), Parent(NULL)
 {
 	EventManager.reset(new WizardWidgetEventManager(this));

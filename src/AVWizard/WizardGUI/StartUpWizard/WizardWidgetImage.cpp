@@ -4,7 +4,7 @@
 #include "SDL_image.h"
 //---------------------------------------------------------------------------
 
-WizardWidgetImage::WizardWidgetImage(SDLFrontEnd* FrontEnd, std::string Name)
+WizardWidgetImage::WizardWidgetImage(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardWidgetBase(FrontEnd, Name)
 {
 	Surface = NULL;

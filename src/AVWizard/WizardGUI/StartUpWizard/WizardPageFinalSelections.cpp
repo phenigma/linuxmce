@@ -6,7 +6,7 @@
 #include "Wizard.h"
 #include <iostream>
 
-WizardPageFinalSelections::WizardPageFinalSelections(SDLFrontEnd* FrontEnd, std::string Name)
+WizardPageFinalSelections::WizardPageFinalSelections(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
 #ifdef DEBUG

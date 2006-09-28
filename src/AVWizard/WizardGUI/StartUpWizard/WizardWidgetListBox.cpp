@@ -2,7 +2,7 @@
 #include "WizardWidgetListBox.h"
 //---------------------------------------------------------------------------
 
-WizardWidgetListBox::WizardWidgetListBox(SDLFrontEnd* FrontEnd, std::string Name)
+WizardWidgetListBox::WizardWidgetListBox(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardWidgetButton(FrontEnd, Name)
 {
 	

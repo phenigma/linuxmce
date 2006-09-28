@@ -27,7 +27,7 @@ public:
 	virtual void DoIncreaseSetting();
 	virtual void DoDecreaseSetting();
 
-	WizardPageAudioConnector(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardPageAudioConnector(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageAudioConnector();
 };
 

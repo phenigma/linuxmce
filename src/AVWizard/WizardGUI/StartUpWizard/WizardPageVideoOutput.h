@@ -27,7 +27,7 @@ public:
 	virtual void DoIncreaseSetting();
 	virtual void DoDecreaseSetting();
 
-	WizardPageVideoOutput(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardPageVideoOutput(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageVideoOutput();
 };
 

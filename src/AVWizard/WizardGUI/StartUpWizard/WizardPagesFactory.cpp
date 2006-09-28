@@ -65,7 +65,7 @@ void WizardPagesFactory::SetRunMode(int RunMode)
 	this->RuningMode = RunMode;
 }
 
-void WizardPagesFactory::SetSDLFrontEnd(SDLFrontEnd* FrontEnd)
+void WizardPagesFactory::SetSDLFrontEnd(GenericBackEnd* FrontEnd)
 {
 	this->FrontEnd = FrontEnd;
 }

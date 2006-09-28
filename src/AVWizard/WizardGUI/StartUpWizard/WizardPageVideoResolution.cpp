@@ -9,7 +9,7 @@
 #include <iostream>
 #include "ThreadSleeper.h"
 
-WizardPageVideoResolution::WizardPageVideoResolution(SDLFrontEnd* FrontEnd, std::string Name)
+WizardPageVideoResolution::WizardPageVideoResolution(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
 	Selected = NULL;

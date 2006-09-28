@@ -25,7 +25,7 @@ public:
 	virtual void DoNextFocusItem();
 	virtual void DoPreviousFocusItem();
 
-	WizardPageVideoAdjustSize(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardPageVideoAdjustSize(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageVideoAdjustSize();
 
 	virtual void UpdateSelected();

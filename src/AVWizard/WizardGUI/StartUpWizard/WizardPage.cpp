@@ -11,7 +11,7 @@
 
 #include "WizardWidgetLabel.h"
 
-WizardPage::WizardPage(SDLFrontEnd* FrontEnd, std::string Name)
+WizardPage::WizardPage(GenericBackEnd* FrontEnd, std::string Name)
 {
 	this->FrontEnd = FrontEnd;
 	this->Name = Name;
@@ -35,34 +35,14 @@ void WizardPage::SetPageLayout(WizardWidgetPage* PageDescription)
 
 void WizardPage::FindFocusableControlsRecursive(WizardWidgetBase* RootWidget)
 {
-	if (RootWidget == Page)
-		this->FocusableControls.clear();
-
-	if (dynamic_cast<WizardWidgetButton*>(RootWidget) != NULL)
-	{
-		FocusableControls.push_back(RootWidget);
-	}
-
-	std::vector<WizardWidgetBase*>::iterator Item;
-
-    for(Item = RootWidget->Children.begin(); Item != RootWidget->Children.end(); Item++)
-		FindFocusableControlsRecursive(*Item);
 }
 
 /*virtual*/ void WizardPage::DoNextFocusItem()
 {
-	if(FocusControl != FocusableControls.end())
-		FocusControl ++;
-	else
-		FocusControl = FocusableControls.begin();
 }
 
 /*virtual*/ void WizardPage::DoPreviousFocusItem()
 {
-	if(FocusControl != FocusableControls.begin())
-		FocusControl ++;
-	else
-		FocusControl = FocusableControls.end();
 }
 
 /*virtual*/ void WizardPage::DoIncreaseSetting()
@@ -87,12 +67,6 @@ void WizardPage::FindFocusableControlsRecursive(WizardWidgetBase* RootWidget)
 
 }
 
-void WizardPage::FindFocusableControls()
-{
-	FindFocusableControlsRecursive(Page);
-	FocusControl = FocusableControls.begin();
-}
-
 void WizardPage::SetWizard(Wizard* MainWizard)
 {
 	this->MainWizard = MainWizard;
@@ -109,17 +83,4 @@ void WizardPage::SetWizard(Wizard* MainWizard)
 
 /*static*/ void WizardPage::TabStatus(WizardPage* Page, int EnableStatus)
 {
-	for(int i = 1; i < WIZARD_NO_PAGES; i++)
-	{
-		if((1 << (i-1)) &
- EnableStatus)
-		{
-			std::string ControlName = "PageTab" + Utils::Int32ToString(i);
-				WizardWidgetLabel* Label = dynamic_cast <WizardWidgetLabel*>
-					(Page->Page->GetChildRecursive(ControlName));
-			if(Label)
-				Label->SetUpAttribute("FontColor",
-					SkinGenerator::Instance()->StepFontColorDisable); 
-		}
-	}
 }

@@ -23,7 +23,7 @@ protected:
 	std::string Name;
 	std::map<std::string, std::string> Attributes;
 	bool Visible;
-	SDLFrontEnd* FrontEnd;
+	GenericBackEnd* FrontEnd;
 public:
 	std::auto_ptr<WizardWidgetEventManager> EventManager;
 
@@ -41,7 +41,7 @@ public:
 	/**
 	 *	Constructor
 	 */
-	WizardWidgetBase(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardWidgetBase(GenericBackEnd* FrontEnd, std::string Name);
 	/**
 	 *	Virtual destructor
 	 */

@@ -46,7 +46,7 @@ public:
 	virtual ~WizardPagesFactory(void);
 
 	void SetRunMode(int RunMode);
-	void SetSDLFrontEnd(SDLFrontEnd* FrontEnd);
+	void SetSDLFrontEnd(GenericBackEnd* FrontEnd);
 
 	WizardPage* CreateWizardPage(std::string XMLFile);
 	WizardPage* CreatePredefinedWizardPage(int IndexPage);

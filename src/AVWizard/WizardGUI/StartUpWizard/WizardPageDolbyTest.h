@@ -32,7 +32,7 @@ public:
 	virtual void DoIncreaseSetting();
 	virtual void DoDecreaseSetting();
 
-	WizardPageDolbyTest(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardPageDolbyTest(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageDolbyTest(void);
 };
 

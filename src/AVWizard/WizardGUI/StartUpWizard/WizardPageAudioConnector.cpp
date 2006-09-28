@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-WizardPageAudioConnector::WizardPageAudioConnector(SDLFrontEnd* FrontEnd, std::string Name)
+WizardPageAudioConnector::WizardPageAudioConnector(GenericBackEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)
 {
 #ifdef DEBUG

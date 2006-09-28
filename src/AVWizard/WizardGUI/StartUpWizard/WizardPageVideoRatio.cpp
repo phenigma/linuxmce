@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-WizardPageVideoRatio::WizardPageVideoRatio(SDLFrontEnd* FrontEnd, std::string Name)
+WizardPageVideoRatio::WizardPageVideoRatio(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
 	Selected = NULL;

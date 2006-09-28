@@ -6,7 +6,7 @@
 
 #include "WizardWidgetLabel.h"
 
-WizardPageDTSTest::WizardPageDTSTest(SDLFrontEnd* FrontEnd, std::string Name)
+WizardPageDTSTest::WizardPageDTSTest(GenericBackEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)
 {
 #ifdef DEBUG

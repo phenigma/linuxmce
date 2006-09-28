@@ -14,7 +14,7 @@
 
 #include <iostream>
 
-WizardPageWelcome::WizardPageWelcome(SDLFrontEnd* FrontEnd, std::string Name)
+WizardPageWelcome::WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
 #ifdef DEBUG

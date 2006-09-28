@@ -13,10 +13,8 @@ class Wizard;
 class WizardPage 
 {
 protected:
-	std::vector<WizardWidgetBase*> FocusableControls;
-	std::vector<WizardWidgetBase*>::iterator FocusControl;
+	GenericBackEnd* FrontEnd;
 
-	SDLFrontEnd* FrontEnd;
 	std::string Name;
 	/**
 	 *	Builds the list with focusable items
@@ -38,7 +36,7 @@ public:
 	/**
 	 * Default constructor
 	 */
-	WizardPage(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardPage(GenericBackEnd* FrontEnd, std::string Name);
 
 	/**
 	 * Default destructor

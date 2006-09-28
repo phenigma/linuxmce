@@ -490,13 +490,14 @@ void Wizard::StartSDLVideoMode()
 
 	//FrontEnd = new SDLFrontEnd();
 
-	FrontEnd = dynamic_cast<SDLFrontEnd*> (BackEndFactory::GetInstance()->CreateBackEnd(Simple));
+	FrontEnd = BackEndFactory::GetInstance()->CreateBackEnd(Simple);
 
 	Resize(FullScreen);
-
+#ifndef WIN32
 	// Disable DPMS, screen blanking
 	system("/usr/bin/X11/xset -dpms s off");
 	system("/usr/bin/X11/xset r off");
+#endif
 }
 
 void Wizard::GenerateCustomEvent(WM_Event Event)

@@ -33,7 +33,7 @@ protected:
 protected:
 	WizardWidgetPage* GetContainerPage();
 public:
-	WizardWidgetScrollList(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardWidgetScrollList(GenericBackEnd* FrontEnd, std::string Name);
 	~WizardWidgetScrollList();
 
 	int GetItemIndex();

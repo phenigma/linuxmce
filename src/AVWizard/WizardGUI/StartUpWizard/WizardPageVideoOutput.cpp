@@ -2,7 +2,7 @@
 
 #include "GUIWizardUtils.h"
 
-WizardPageVideoOutput::WizardPageVideoOutput(SDLFrontEnd* FrontEnd, std::string Name)
+WizardPageVideoOutput::WizardPageVideoOutput(GenericBackEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)
 {
 	Buttons["Composite"] = 1;

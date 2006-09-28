@@ -31,7 +31,7 @@ public:
 	virtual void DoIncreaseSetting();
 	virtual void DoDecreaseSetting();
 
-	WizardPageDTSTest(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardPageDTSTest(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageDTSTest();
 };
 

@@ -5,7 +5,7 @@
 #include <SDL_ttf.h>
 //---------------------------------------------------------------------------
 
-WizardWidgetLabel::WizardWidgetLabel(SDLFrontEnd* FrontEnd, std::string Name)
+WizardWidgetLabel::WizardWidgetLabel(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardWidgetBase(FrontEnd, Name)
 {
 	Font_Color = Utils::StringToColorDesc("000000");

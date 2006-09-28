@@ -23,7 +23,7 @@ public:
 	virtual void DoIncreaseSetting();
 	virtual void DoDecreaseSetting();
 
-	WizardPageVideoResolution(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardPageVideoResolution(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageVideoResolution();
 };
 

@@ -11,7 +11,7 @@ class WizardWidgetContainer: public WizardWidgetBase
 {
 	bool Visible;
 public:
-	WizardWidgetContainer(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardWidgetContainer(GenericBackEnd* FrontEnd, std::string Name);
 	~WizardWidgetContainer();
 
 	virtual void Paint();

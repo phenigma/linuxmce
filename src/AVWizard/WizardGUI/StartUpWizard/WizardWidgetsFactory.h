@@ -27,7 +27,7 @@ protected:
 	static WizardWidgetsFactory* Instance;
 	std::map<std::string, int> WidgetTypes;
 
-	SDLFrontEnd* FrontEnd;
+	GenericBackEnd* FrontEnd;
 
 
     // Private constructor to make a singleton class
@@ -62,7 +62,7 @@ public:
 	/**
 	 *	Set the SDL FrontEnd that will have drawing routines to screen
 	 */
-	void SetSDLFrontEnd(SDLFrontEnd* FrontEnd);
+	void SetSDLFrontEnd(GenericBackEnd* FrontEnd);
 };
 //---------------------------------------------------------------------------
 #endif

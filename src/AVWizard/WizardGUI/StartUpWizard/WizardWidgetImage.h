@@ -19,7 +19,7 @@ public:
 	/**
 	 *	Default constructor
 	 */
-	WizardWidgetImage(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardWidgetImage(GenericBackEnd* FrontEnd, std::string Name);
 	/**
 	 *	Default destructor
 	 */

@@ -33,7 +33,7 @@ public:
 	virtual void DoNextFocusItem();
 	virtual void DoPreviousFocusItem();
 
-	WizardPageUISwitcher(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardPageUISwitcher(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageUISwitcher();
 };
 

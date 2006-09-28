@@ -33,7 +33,7 @@ public:
 	virtual void DoPreviousFocusItem();
 
 
-	WizardPageVideoRatio(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardPageVideoRatio(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageVideoRatio(void);
 
 };

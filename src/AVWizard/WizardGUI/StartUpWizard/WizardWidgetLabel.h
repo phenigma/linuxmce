@@ -25,7 +25,7 @@ class WizardWidgetLabel : public WizardWidgetBase
 	std::string Font_Name;
 	TColorDesc* Font_Color;
 public:
-	WizardWidgetLabel(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardWidgetLabel(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardWidgetLabel();
 
 	virtual void SetUpAttribute(std::string Attribute, std::string DataValue);

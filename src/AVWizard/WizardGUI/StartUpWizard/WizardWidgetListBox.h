@@ -22,7 +22,7 @@ class WizardWidgetListBox : public WizardWidgetButton
 
 
 public:
-	WizardWidgetListBox(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardWidgetListBox(GenericBackEnd* FrontEnd, std::string Name);
 	~WizardWidgetListBox();
 
 	/**

@@ -12,7 +12,7 @@
 
 #include "SkinGenerator.h"
 
-WizardPageVideoAdjustSize::WizardPageVideoAdjustSize(SDLFrontEnd* FrontEnd, std::string Name)
+WizardPageVideoAdjustSize::WizardPageVideoAdjustSize(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
 	Wizard::GetInstance()->WizardBorder = 0;

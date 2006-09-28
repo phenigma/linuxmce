@@ -5,7 +5,7 @@
 
 #include "WizardWidgetLabel.h"
 
-WizardPageDolbyTest::WizardPageDolbyTest(SDLFrontEnd* FrontEnd, std::string Name)
+WizardPageDolbyTest::WizardPageDolbyTest(GenericBackEnd* FrontEnd, std::string Name)
 : WizardPage(FrontEnd, Name)
 {
 #ifdef DEBUG

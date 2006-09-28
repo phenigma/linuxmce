@@ -6,7 +6,7 @@
 #include <iostream>
 //---------------------------------------------------------------------------
 
-WizardWidgetButton::WizardWidgetButton(SDLFrontEnd* FrontEnd, std::string Name)
+WizardWidgetButton::WizardWidgetButton(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardWidgetBase(FrontEnd, Name)
 {
 	Expands = true;

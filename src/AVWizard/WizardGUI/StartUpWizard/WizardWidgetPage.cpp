@@ -5,7 +5,7 @@
 #include <SDL_image.h>
 //---------------------------------------------------------------------------
 
-WizardWidgetPage::WizardWidgetPage(SDLFrontEnd* FrontEnd, std::string Name)
+WizardWidgetPage::WizardWidgetPage(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardWidgetBase(FrontEnd, Name)
 {
 	for(int i = 0; i<10; i++)

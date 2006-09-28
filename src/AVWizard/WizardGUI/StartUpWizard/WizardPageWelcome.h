@@ -17,7 +17,7 @@ public:
 	virtual int DoApplySetting(SettingsDictionary* Dictionary);
 	virtual void DoCancelSetting();
 
-	WizardPageWelcome(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageWelcome();
 };
 

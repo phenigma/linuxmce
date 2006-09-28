@@ -6,7 +6,7 @@
 #include <iostream>
 //---------------------------------------------------------------------------
 
-WizardWidgetScrollList::WizardWidgetScrollList(SDLFrontEnd* FrontEnd, std::string Name)
+WizardWidgetScrollList::WizardWidgetScrollList(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardWidgetBase(FrontEnd, Name), ItemIndex(-1)
 {
 	this->BackColor = Utils::StringToColorDesc("70A070");

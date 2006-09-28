@@ -1,7 +1,7 @@
 #include "WizardWidgetContainer.h"
 #include "GUIWizardUtils.h"
 
-WizardWidgetContainer::WizardWidgetContainer(SDLFrontEnd* FrontEnd, std::string Name)
+WizardWidgetContainer::WizardWidgetContainer(GenericBackEnd* FrontEnd, std::string Name)
 : WizardWidgetBase(FrontEnd, Name)
 {
 	this->Visible = true;

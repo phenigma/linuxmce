@@ -31,7 +31,7 @@ public:
 
 	virtual void SearchSelectedItem();
 
-	WizardPageFinalSelections(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardPageFinalSelections(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageFinalSelections(void);
 
 	void DefaultSetup(SettingsDictionary* AVWizardSettings);

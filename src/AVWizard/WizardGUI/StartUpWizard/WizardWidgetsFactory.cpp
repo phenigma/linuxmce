@@ -68,7 +68,7 @@ int WizardWidgetsFactory::GetWidgetType(std::string TypeName)
 	return WidgetTypes[TypeName];
 }
 //---------------------------------------------------------------------------
-void WizardWidgetsFactory::SetSDLFrontEnd(SDLFrontEnd* FrontEnd)
+void WizardWidgetsFactory::SetSDLFrontEnd(GenericBackEnd* FrontEnd)
 {
 	this->FrontEnd = FrontEnd;
 }

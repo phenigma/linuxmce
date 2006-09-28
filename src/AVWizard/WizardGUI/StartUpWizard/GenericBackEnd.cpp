@@ -2,13 +2,25 @@
 
 #include <iostream>
 
+#include "Wizard.h"
+
 GenericBackEnd::GenericBackEnd(void)
 	: IsEventWaiting (false)
 {
+	if(TTF_Init()==-1) {
+		printf("TTF_Init: %s\n", TTF_GetError());
+		Wizard::GetInstance()->SetExitWithCode(-1);
+		return;
+	} 
+	CurrentFont = NULL;
+
 }
 
 GenericBackEnd::~GenericBackEnd(void)
 {
+	if(CurrentFont!= NULL)
+		TTF_CloseFont(CurrentFont);
+	TTF_Quit();
 }
 
 int GenericBackEnd::GetScreenWidth()

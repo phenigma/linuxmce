@@ -69,7 +69,7 @@ public:
 	/**
 	 *	Default constructor
 	 */
-	WizardWidgetPage(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardWidgetPage(GenericBackEnd* FrontEnd, std::string Name);
     /**
      *	Destructor for page
      */

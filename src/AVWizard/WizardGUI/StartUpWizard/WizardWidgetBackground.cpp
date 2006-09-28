@@ -5,7 +5,7 @@
 //---------------------------------------------------------------------------
 #include "GUIWizardUtils.h"
 
-WizardWidgetBackground::WizardWidgetBackground(SDLFrontEnd* FrontEnd, std::string Name)
+WizardWidgetBackground::WizardWidgetBackground(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardWidgetBase(FrontEnd, Name)
 {
 	Surface = NULL;

@@ -46,7 +46,7 @@ protected:
 protected:
 	WizardWidgetPage* GetContainerPage();
 public:
-	WizardWidgetButton(SDLFrontEnd* FrontEnd, std::string Name);
+	WizardWidgetButton(GenericBackEnd* FrontEnd, std::string Name);
 	~WizardWidgetButton();
 
 	/**
