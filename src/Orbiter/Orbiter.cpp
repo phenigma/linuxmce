@@ -6292,6 +6292,33 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	ProcessEvent(orbiterEvent);
 }
 
+/*virtual*/ void Orbiter::SimulateMouseMovements(int x, int y)
+{
+	//don't simulate any event; we're reloading
+	if(m_bQuit)
+		return;
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_WARNING, "Simulate mouse move to position: %d, %d", x, y);
+#endif
+
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
+
+	m_pOrbiterRenderer->BeginPaint();
+	PlutoColor color = PlutoColor::Green();
+	const int nCursorSize = 3;
+	m_pOrbiterRenderer->SolidRectangle(x - nCursorSize, y - nCursorSize, nCursorSize * 2, nCursorSize * 2, color);
+	m_pOrbiterRenderer->UpdateRect(PlutoRectangle(x - nCursorSize, y - nCursorSize, nCursorSize * 2, nCursorSize * 2), PlutoPoint(0, 0));
+	m_pOrbiterRenderer->EndPaint();
+
+	Orbiter::Event orbiterEvent;
+	orbiterEvent.data.region.m_iButton = 0;
+	orbiterEvent.data.region.m_iX = x;
+	orbiterEvent.data.region.m_iY = y;
+	orbiterEvent.type = Orbiter::Event::MOUSE_MOVE;
+	ProcessEvent(orbiterEvent);
+}
+
 /*virtual*/ void Orbiter::SimulateKeyPress(long key)
 {
 	//don't simulate any event; we're reloading

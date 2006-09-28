@@ -705,6 +705,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 
 		virtual void SimulateMouseClick(int x, int y);
 
+		virtual void SimulateMouseMovements(int x, int y);
+
 		virtual void SimulateKeyPress(long key);
 
 		/**

@@ -98,6 +98,13 @@ void *GeneratorThread( void *p)
 		delay = iDelayMin + rand() % (iDelayMax - iDelayMin);
 		Simulator::SimulateActionDelay(delay);
 
+		if(pOrbiter->UsesUIVersion2() && rand() % 5)
+		{
+			//simulate mouse movements
+			pOrbiter->SimulateMouseMovements(rand() % pOrbiter->m_iImageWidth, rand() % pOrbiter->m_iImageHeight);
+			continue;
+		}
+
 		if(Count >= iButtonsPerClick || !bGenerateKeyboardEvents)
 		{
 			Count = 0;
