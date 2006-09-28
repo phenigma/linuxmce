@@ -7,7 +7,7 @@
 #include <SDL_rotozoom.h>
 
 SDLFrontEnd::SDLFrontEnd()
-	: IsEventWaiting (false)
+
 {
 	if(TTF_Init()==-1) {
 		printf("TTF_Init: %s\n", TTF_GetError());
@@ -41,26 +41,6 @@ SDLFrontEnd::~SDLFrontEnd()
 	TTF_Quit();
 }
 
-bool SDLFrontEnd::HasEventPending()
-{
-	if (IsEventWaiting)
-		return true;
-
-	IsEventWaiting = SDL_PollEvent(&Event) != 0;
-	
-	return IsEventWaiting;
-}
-
-void SDLFrontEnd::TranslateEvent(WM_Event& WMEvent)
-{
-	if(IsEventWaiting)
-	{
-		WMEvent.ConvertFromSDLEvent(Event);
-		IsEventWaiting = false;
-	}
-	else
-		WMEvent.Type = 0;
-}
 
 int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 {
@@ -166,31 +146,6 @@ void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 void SDLFrontEnd::PaintBackground()
 {
 	SDL_FillRect(Display, NULL, 0xffffff);
-}
-
-int SDLFrontEnd::TextOutWidth(std::string Text)
-{
-	SDL_Color SDL_color;
-	SDL_color.r = 0;
-	SDL_color.g = 0;
-	SDL_color.b = 0;
-	SDL_color.unused = 0;
-
-	SDL_Surface * RenderedText = NULL;
-	try
-	{
-		RenderedText = TTF_RenderText_Blended(CurrentFont, Text.c_str(), SDL_color);
-	}
-	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
-	{
-		std::cout<<"SDLFrontEnd::TextOutWidth : TTF_RenderText_Blended crashed!"<<std::endl;
-		return -1;
-	}
-	int Result = 0;
-	if (RenderedText != NULL)
-		Result = RenderedText->w;
-
-	return Result;
 }
 
 int SDLFrontEnd::PaintFont(char* Text, 
@@ -356,23 +311,5 @@ void SDLFrontEnd::FillRectangle(int Left, int Top, int Width, int Height, TColor
 
 }
 
-void SDLFrontEnd::HLine(int Left, int Width, int Top, TColorDesc Color)
-{
-	FillRectangle(Left, Top, Width, 1, Color);
-}
 
-void SDLFrontEnd::VLine(int Left, int Top, int Height, TColorDesc Color)
-{
-	FillRectangle(Left, Top, 1, Height, Color);
-}
-
-void SDLFrontEnd::Rectangle(int Left, int Top, int Width, int Height, TColorDesc Color)
-{
-	HLine(Left, Width, Top, Color);
-	HLine(Left, Width, Top+Height-1, Color);
-
-	VLine(Left, Top, Height, Color);
-	VLine(Left + Width - 1, Top, Height, Color);
-
-}
 

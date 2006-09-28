@@ -318,6 +318,10 @@
 					RelativePath=".\SDLFrontEnd.cpp">
 				</File>
 			</Filter>
+			<Filter
+				Name="OpenGL"
+				Filter="">
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"

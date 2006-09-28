@@ -5,19 +5,13 @@
 #ifndef SDLFrontEnd_H_
 #define SDLFrontEnd_H_
 
-#include <SDL.h>
 #include <SDL_ttf.h>
-#include "ColorDesc.h"
 
 #include "GenericBackEnd.h"
-
-#include "WM_Event.h"
-#include <string>
+using namespace std;
 
 class SDLFrontEnd  : public GenericBackEnd
 {
-	SDL_Event Event;
-	bool IsEventWaiting;
 	/**
 	 *	Offscreen surface that does the drawing. At the end you should 
 	 *	show the results using Flip() method
@@ -26,13 +20,6 @@ class SDLFrontEnd  : public GenericBackEnd
 	SDL_Surface* Display;
 	SDL_Surface* BackSurface;
 	SDL_Surface *ScaledScreen, *ScaledBack;
-
-	TColorDesc* BackColor;
-
-	/**
-	 *	Current used font for rendering text	
-	 */
-	TTF_Font *CurrentFont;
 	/**
 	 *	Mode = 0 -> defalt align to left
 	 *	Mode = 1 -> center align 
@@ -53,10 +40,6 @@ public:
 	SDLFrontEnd();
 	virtual ~SDLFrontEnd();
 	
-	bool HasEventPending();
-	
-	void TranslateEvent(WM_Event& WMEvent);
-	
 	int StartVideoMode(int Width, int Height, bool FullScreen);
 
 	int TextOutput(char* Text, int Left, int Top, TColorDesc Color, int Mode);
@@ -66,25 +49,6 @@ public:
 	 *	Fills a rectangle with a specified color
 	 */
 	void FillRectangle(int Left, int Top, int Width, int Height, TColorDesc Color);
-	/**
-	 *	Horizontal line
-	 */
-	void HLine(int Left, int Width, int Top, TColorDesc Color);
-	/**
-	 *	Vertical line
-	 */
-	void VLine(int Left, int Top, int Height, TColorDesc Color);
-	
-	/**
-	 *	Draws a rectangle
-	 */
-	void Rectangle(int Left, int Top, int Width, int Height, TColorDesc Desc);
-
-	/**
-	 *	Says the width in pixels of rendering text
-	 */
-	int TextOutWidth(std::string Text);
-
 	/**
 	 *	Display the final result 
 	 */
