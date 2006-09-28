@@ -1,0 +1,326 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<UpgradeLog>
+    <Settings>
+        <Setting
+            Name = "LogFile"
+            Value = "mysql2outlook.log"
+        />
+        <Setting
+            Name = "GenerateInterfacesForClasses"
+            Value = "FALSE"
+        />
+        <Setting
+            Name = "ProjectName"
+            Value = "mysql2outlook"
+        />
+        <Setting
+            Name = "OutputName"
+            Value = "mysql2outlook.vbproj"
+        />
+        <Setting
+            Name = "OutputDir"
+            Value = "C:\Temp\msql2outlook\Bin\mysql2outlook.NET1"
+        />
+        <Setting
+            Name = "ProjectPath"
+            Value = "C:\Temp\msql2outlook\Bin\mysql2outlook.vbp"
+        />
+        <Setting
+            Name = "MigrateProjectTo"
+            Value = "0"
+        />
+    </Settings>
+    <File
+        OldPath = "C:\Temp\msql2outlook\Forms\frmOutLookUpdate.frm"
+        NewPath = "C:\Temp\msql2outlook\Bin\mysql2outlook.NET1\frmOutLookUpdate.vb"
+        FileType = "Form"
+        Upgraded = "True"
+    >
+        <Section Name = "ReadIni" >
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ReadIni.</Issue>
+        </Section>
+        <Section Name = "Command1_Click" >
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object mUrl.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ReadIni().</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object arrrows.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object Arr.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+                PME = "Split"
+            >Couldn't resolve default property of object arrrows().</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object Arr().</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object I.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object J.</Issue>
+        </Section>
+        <Section Name = "Form_Load" >
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object myOlApp.GetNamespace.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object olFolderContacts.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object myNamespace.GetDefaultFolder.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object Arr.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+                PME = "Split"
+            >Couldn't resolve default property of object St.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+                PME = "Trim"
+            >Couldn't resolve default property of object Arr().</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1041"
+                PME = "Dir"
+            >Dir has a new behavior.</Issue>
+        </Section>
+        <Section Name = "UpdateOutLook" >
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object olContactItem.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object myFolder.Items.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.CustomerID.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1041"
+                PME = "TypeName"
+            >TypeName has a new behavior.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.FirstName.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.CompanyName.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.Department.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.JobTitle.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.Email1Address.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.HomeTelephoneNumber.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.BusinessTelephoneNumber.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.MobileTelephoneNumber.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.PagerNumber.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.BusinessFaxNumber.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.body.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.Save.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object myOlApp.CreateItem.</Issue>
+        </Section>
+        <Section Name = "PutData2MySql" >
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object olContactItem.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object myFolder.Items.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.CustomerID.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.EntryID.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.FileAs.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.CompanyName.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.Department.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.JobTitle.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.Email1Address.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.HomeTelephoneNumber.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.BusinessTelephoneNumber.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.MobileTelephoneNumber.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.PagerNumber.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.BusinessFaxNumber.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.body.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+                PME = "Split"
+            >Couldn't resolve default property of object Arr1().</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object Arr2().</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object Arr2(1).</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ID.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1041"
+                PME = "TypeName"
+            >TypeName has a new behavior.</Issue>
+        </Section>
+        <Section Name = "PrintPhone" >
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object Arr.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+                PME = "Trim"
+            >Couldn't resolve default property of object Arr().</Issue>
+        </Section>
+        <Section Name = "BuildFileUploadRequest" >
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object RandomAlphaNumString().</Issue>
+        </Section>
+        <Section Name = "GetFileContents" >
+            <Issue
+                Type = "Runtime"
+                Number = "1041"
+            >Get was upgraded to FileGet and has a new behavior.</Issue>
+        </Section>
+        <Section Name = "RandomAlphaNumString" >
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object RandomAlphaNumString.</Issue>
+        </Section>
+        <Section Name = "Callweb" >
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ReadIni().</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object DestUrl.</Issue>
+        </Section>
+    </File>
+    <File
+        OldPath = "C:\Temp\msql2outlook\Module\url.bas"
+        NewPath = "C:\Temp\msql2outlook\Bin\mysql2outlook.NET1\url.vb"
+        FileType = "Module"
+        Upgraded = "True"
+    >
+        <Section Name = "ExtractUrl" >
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object ExtractUrl.</Issue>
+        </Section>
+    </File>
+</UpgradeLog>
+
