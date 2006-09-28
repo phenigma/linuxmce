@@ -313,9 +313,6 @@ void Wizard::PushEvent(WM_Event& Event)
 
 void Wizard::EvaluateEvents()
 {	
-#ifdef DEBUG
-	std::cout<<"Key pressed: ";
-#endif
 	WM_Event Event;
 
 	while(Events.size())
@@ -333,6 +330,9 @@ void Wizard::EvaluateEvents()
 			return;
 		}
 
+#ifdef DEBUG
+		std::cout<<"Key pressed: ";
+#endif
 		StatusChange = true;
 		switch(Event.Type) {
 	case WMET_QUIT:

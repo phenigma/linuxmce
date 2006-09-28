@@ -1011,7 +1011,7 @@ void GenerateWizardConfigDefaults::GeneratePage8(
 		true
 		));
 
-	Page->SaveToXMLFile(PageNames[8]);
+	Page->SaveToXMLFile(PageNames[9]);
 }
 
 void GenerateWizardConfigDefaults::GeneratePage9(

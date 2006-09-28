@@ -119,6 +119,9 @@
 				Name="Pages"
 				Filter="">
 				<File
+					RelativePath=".\WizardPage.cpp">
+				</File>
+				<File
 					RelativePath=".\WizardPageAudioConnector.cpp">
 				</File>
 				<File
@@ -287,9 +290,6 @@
 				</File>
 				<File
 					RelativePath=".\WizardGUI.cpp">
-				</File>
-				<File
-					RelativePath=".\WizardPage.cpp">
 				</File>
 				<File
 					RelativePath=".\WizardSettings.cpp">
