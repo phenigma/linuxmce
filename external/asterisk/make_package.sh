@@ -290,3 +290,5 @@ cp ${ADDFOLDER}/short.mp3 ${PKGFOLDER}/var/lib/asterisk/mohmp3/
 dpkg-buildpackage -b -rfakeroot -us -uc
 
 rm -f /tmp/gsmstatus
+
+cp ../asterisk-pluto_*.deb $PLUTO_PKG_DESTDIR
