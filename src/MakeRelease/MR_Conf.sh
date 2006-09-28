@@ -15,7 +15,6 @@ ConfEval()
 		var="${line%%=*}"
 		value="${line#*=}"
 		eval "export $var=\"$value\"" &>/dev/null
-	#done <"/etc/MakeRelease/$Flavor.conf"
-	done <"$Flavor.conf"
+	done <"/etc/MakeRelease/$Flavor.conf"
 	return $Ret
 }
