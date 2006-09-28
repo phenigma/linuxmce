@@ -391,7 +391,7 @@ RubyIOManager::SendCommandReceiveString(RubyCommandWrapper* pcmd) {
 
 	if( pResponse )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Received a valid response (%s), returning it.", pResponse->m_mapParameters[pcmd->getId()] );
+		g_pPlutoLogger->Write( LV_STATUS, "Received a valid response (%s), returning it.", pResponse->m_mapParameters[pcmd->getId()].c_str() );
 		return pResponse->m_mapParameters[pcmd->getId()];
 	}
 	
