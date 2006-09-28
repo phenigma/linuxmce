@@ -2,6 +2,8 @@
 
 set -xe
 
+chmod -R 0755 deb-pkg
+
 PLUTO_FLAVOR="$1"
 shift
 PLUTO_KERNELS=("$@")
