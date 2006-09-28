@@ -68,26 +68,42 @@ ln -sf asterisk-[0-9]* asterisk
 
 
 ## Build Zaptel modules 
-#	
-#	touch ${PKGFOLDER}/etc/conf.modules
-#
-#	for Kernel in ${PLUTO_KERNELS[@]} ;do	
-#		cd ${SRCFOLDER}/zaptel-*/
-#		export KVER="$Kernel"
-#		export KVERS="$KVER"
-#	        export KDIR="/lib/modules/$KVER/build"
-#	        export KSRC="$KDIR"
-#        	export KERNEL="$KVER"	
-#		
-#		#sed -r -i "s/^ROOT_PREFIX=//" Makefile
-#		sed -r -i "s/^INSTALL_PREFIX=//" Makefile
-#		mkdir -p $PKGFOLDER/usr/share/man/ || exit 666
-#		make clean
-#		make linux26 || exit
-#		make INSTALL_PREFIX=${PKGFOLDER} ROOT_PREFIX=${PKGFOLDER} DYNFS=yes install
-#	done
-#exit 0
-#	cp zaptel.conf.sample ${PKGFOLDER}/etc/
+	
+	touch ${PKGFOLDER}/etc/conf.modules
+
+	
+	for Kernel in ${PLUTO_KERNELS[@]} ;do	
+		#cd ${SRCFOLDER}/zaptel-*/
+		
+		cp -a ${SRCFOLDER}/zaptel-*/ ${SRCFOLDER}/build-zaptel
+		pushd ${SRCFOLDER}/build-zaptel
+		
+		export KVER="$Kernel"
+		export KVERS="$KVER"
+	        export KDIR="/lib/modules/$KVER/build"
+	        export KSRC="$KDIR"
+        	export KERNEL="$KVER"	
+		
+		sed -r -i "s/^ROOT_PREFIX=//" Makefile
+		sed -r -i "s/^INSTALL_PREFIX=//" Makefile
+		mkdir -p $PKGFOLDER/usr/share/man/ || exit 666
+		make clean
+		make linux26 || exit
+		make INSTALL_PREFIX=${PKGFOLDER} ROOT_PREFIX=${PKGFOLDER} DYNFS=yes install
+		
+		cp zaptel.conf.sample ${PKGFOLDER}/etc/
+
+		cd zaphfc
+		sed -r -i "s/^(BRISTUFFBASE.*)$/\1\/..\//" Makefile
+		make clean all || exit
+		make INSTALL_PREFIX=${PKGFOLDER} install
+
+		popd	
+		rm -rf ${SRCFOLDER}/build-zaptel
+	done
+	# Unil zaptel fixes the makefile we are forced to do this here
+	rm -rf ${PKGFOLDER}/usr/share/man/man8
+	
 
 
 ### temporary disable
@@ -103,12 +119,6 @@ ln -sf asterisk-[0-9]* asterisk
 #make clean all || exit
 #make INSTALL_PREFIX=${PKGFOLDER} install
 #cd ..
-
-cd zaphfc
-sed -r -i "s/^(BRISTUFFBASE.*)$/\1\/..\//" Makefile
-make clean all || exit
-make INSTALL_PREFIX=${PKGFOLDER} install
-
 
 cd ${SRCFOLDER}/spandsp-*/asterisk-*/
 mv * ../../asterisk-*/apps/
