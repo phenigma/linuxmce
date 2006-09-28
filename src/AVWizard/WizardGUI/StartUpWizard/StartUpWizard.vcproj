@@ -33,7 +33,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="SDLmain-pluto-d.lib SDL-pluto-d.lib SDL_ttf-pluto-d.lib SDL_image-pluto-d.lib SDL_rotozoom-pluto-r.lib pthreadVC.lib libxml2.lib"
+				AdditionalDependencies="SDLmain-pluto-d.lib SDL-pluto-d.lib SDL_ttf-pluto-d.lib SDL_image-pluto-d.lib SDL_rotozoom-pluto-r.lib pthreadVC.lib libxml2.lib OpenGL32.lib"
 				OutputFile="$(OutDir)/StartUpWizard.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;C:\pluto\libs\CrossPlatform\SDL-1.2.7\VisualC7\SDLmain\Debug&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL-1.2.7\VisualC7\SDL\Debug&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_ttf-2.0.6\VisualC\Debug\&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_image-1.2.3\VisualC\Debug\&quot;;&quot;C:\Pluto\libs\Libraries\pthreads-win32\lib&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_rotozoom-1.6\VisualC\SDL_rotozoom\Release&quot;;C:\pluto\libs\CrossPlatform\LibXML2\lib\"

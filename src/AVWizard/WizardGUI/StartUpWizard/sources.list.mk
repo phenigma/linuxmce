@@ -51,4 +51,6 @@ SocketRemoteClient.cpp \
 SafetyLock.cpp \
 ThreadSleeper.cpp \
 SkinGenerator.cpp \
+GenericBackEnd.cpp \
+BackEndFactory.cpp \
 XUtilities.cpp 

@@ -141,7 +141,26 @@ void GenericBackEnd::PaintBackground()
 
 bool GenericBackEnd::SetCurrentFont(string FontName, int FontHeight, int Style)
 {
-	return false;
+#ifdef WIN32
+	FontName = "C:\\WINDOWS\\Fonts\\verdana.ttf";
+#endif
+
+	TTF_Font *Font = TTF_OpenFont(FontName.c_str(), FontHeight);
+
+	if(Font!= NULL)
+	{
+		if(CurrentFont!= NULL)
+			TTF_CloseFont(CurrentFont);
+		CurrentFont = Font;
+	}
+	else
+		return false;
+
+	int style = Style;
+
+	TTF_SetFontStyle(CurrentFont, style);
+	return true;
+
 }
 
 void GenericBackEnd::BackFillColor(TColorDesc* Color)

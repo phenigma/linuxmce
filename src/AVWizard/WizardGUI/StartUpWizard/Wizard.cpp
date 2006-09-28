@@ -488,8 +488,6 @@ void Wizard::StartSDLVideoMode()
 	if(FrontEnd != NULL)
 		return;
 
-	//FrontEnd = new SDLFrontEnd();
-
 	FrontEnd = BackEndFactory::GetInstance()->CreateBackEnd(Simple);
 
 	Resize(FullScreen);
