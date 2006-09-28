@@ -84,6 +84,8 @@ string m_Description;
 long int m_FK_Icon;
 short int m_ManuallyConfigureEA;
 short int m_HideFromOrbiter;
+long int m_FK_FloorplanObjectType;
+string m_FloorplanInfo;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -91,7 +93,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[13];
+		bool is_null[15];
 	
 	public:
 		long int PK_Room_get();
@@ -101,6 +103,8 @@ string Description_get();
 long int FK_Icon_get();
 short int ManuallyConfigureEA_get();
 short int HideFromOrbiter_get();
+long int FK_FloorplanObjectType_get();
+string FloorplanInfo_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -116,6 +120,8 @@ void Description_set(string val);
 void FK_Icon_set(long int val);
 void ManuallyConfigureEA_set(short int val);
 void HideFromOrbiter_set(short int val);
+void FK_FloorplanObjectType_set(long int val);
+void FloorplanInfo_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -127,6 +133,8 @@ void psc_restrict_set(long int val);
 		bool FK_RoomType_isNull();
 bool FK_Icon_isNull();
 bool ManuallyConfigureEA_isNull();
+bool FK_FloorplanObjectType_isNull();
+bool FloorplanInfo_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -137,6 +145,8 @@ bool psc_restrict_isNull();
 		void FK_RoomType_setNull(bool val);
 void FK_Icon_setNull(bool val);
 void ManuallyConfigureEA_setNull(bool val);
+void FK_FloorplanObjectType_setNull(bool val);
+void FloorplanInfo_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -157,6 +167,7 @@ void psc_restrict_setNull(bool val);
 		class Row_Installation* FK_Installation_getrow();
 class Row_RoomType* FK_RoomType_getrow();
 class Row_Icon* FK_Icon_getrow();
+class Row_FloorplanObjectType* FK_FloorplanObjectType_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -168,7 +179,7 @@ void Room_Users_FK_Room_getrows(vector <class Row_Room_Users*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Room+ m_FK_Installation+ m_FK_RoomType+ m_Description+ m_FK_Icon+ m_ManuallyConfigureEA+ m_HideFromOrbiter+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Room+ m_FK_Installation+ m_FK_RoomType+ m_Description+ m_FK_Icon+ m_ManuallyConfigureEA+ m_HideFromOrbiter+ m_FK_FloorplanObjectType+ m_FloorplanInfo+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -180,6 +191,8 @@ string Description_asSQL();
 string FK_Icon_asSQL();
 string ManuallyConfigureEA_asSQL();
 string HideFromOrbiter_asSQL();
+string FK_FloorplanObjectType_asSQL();
+string FloorplanInfo_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

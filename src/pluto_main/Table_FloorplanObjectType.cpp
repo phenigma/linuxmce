@@ -22,6 +22,7 @@ using namespace std;
 
 #include "Table_EntertainArea.h"
 #include "Table_FloorplanObjectType_Color.h"
+#include "Table_Room.h"
 
 
 void Database_pluto_main::CreateTable_FloorplanObjectType()
@@ -1184,6 +1185,13 @@ void Row_FloorplanObjectType::FloorplanObjectType_Color_FK_FloorplanObjectType_g
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_FloorplanObjectType_Color *pTable = table->database->FloorplanObjectType_Color_get();
+pTable->GetRows("`FK_FloorplanObjectType`=" + StringUtils::itos(m_PK_FloorplanObjectType),rows);
+}
+void Row_FloorplanObjectType::Room_FK_FloorplanObjectType_getrows(vector <class Row_Room*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Room *pTable = table->database->Room_get();
 pTable->GetRows("`FK_FloorplanObjectType`=" + StringUtils::itos(m_PK_FloorplanObjectType),rows);
 }
 
