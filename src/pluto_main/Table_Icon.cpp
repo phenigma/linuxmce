@@ -19,14 +19,8 @@ using namespace std;
 #include "Table_Icon.h"
 
 #include "Table_CommandGroup.h"
-#include "Table_CommandGroup_pschist.h"
-#include "Table_CommandGroup_pschmask.h"
 #include "Table_Floorplan.h"
-#include "Table_Floorplan_pschist.h"
-#include "Table_Floorplan_pschmask.h"
 #include "Table_Room.h"
-#include "Table_Room_pschist.h"
-#include "Table_Room_pschmask.h"
 
 
 void Database_pluto_main::CreateTable_Icon()
@@ -1141,20 +1135,6 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_CommandGroup *pTable = table->database->CommandGroup_get();
 pTable->GetRows("`FK_Icon`=" + StringUtils::itos(m_PK_Icon),rows);
 }
-void Row_Icon::CommandGroup_pschist_FK_Icon_getrows(vector <class Row_CommandGroup_pschist*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_CommandGroup_pschist *pTable = table->database->CommandGroup_pschist_get();
-pTable->GetRows("`FK_Icon`=" + StringUtils::itos(m_PK_Icon),rows);
-}
-void Row_Icon::CommandGroup_pschmask_FK_Icon_getrows(vector <class Row_CommandGroup_pschmask*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_CommandGroup_pschmask *pTable = table->database->CommandGroup_pschmask_get();
-pTable->GetRows("`FK_Icon`=" + StringUtils::itos(m_PK_Icon),rows);
-}
 void Row_Icon::Floorplan_FK_Icon_getrows(vector <class Row_Floorplan*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -1162,39 +1142,11 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_Floorplan *pTable = table->database->Floorplan_get();
 pTable->GetRows("`FK_Icon`=" + StringUtils::itos(m_PK_Icon),rows);
 }
-void Row_Icon::Floorplan_pschist_FK_Icon_getrows(vector <class Row_Floorplan_pschist*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Floorplan_pschist *pTable = table->database->Floorplan_pschist_get();
-pTable->GetRows("`FK_Icon`=" + StringUtils::itos(m_PK_Icon),rows);
-}
-void Row_Icon::Floorplan_pschmask_FK_Icon_getrows(vector <class Row_Floorplan_pschmask*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Floorplan_pschmask *pTable = table->database->Floorplan_pschmask_get();
-pTable->GetRows("`FK_Icon`=" + StringUtils::itos(m_PK_Icon),rows);
-}
 void Row_Icon::Room_FK_Icon_getrows(vector <class Row_Room*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Room *pTable = table->database->Room_get();
-pTable->GetRows("`FK_Icon`=" + StringUtils::itos(m_PK_Icon),rows);
-}
-void Row_Icon::Room_pschist_FK_Icon_getrows(vector <class Row_Room_pschist*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Room_pschist *pTable = table->database->Room_pschist_get();
-pTable->GetRows("`FK_Icon`=" + StringUtils::itos(m_PK_Icon),rows);
-}
-void Row_Icon::Room_pschmask_FK_Icon_getrows(vector <class Row_Room_pschmask*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Room_pschmask *pTable = table->database->Room_pschmask_get();
 pTable->GetRows("`FK_Icon`=" + StringUtils::itos(m_PK_Icon),rows);
 }
 

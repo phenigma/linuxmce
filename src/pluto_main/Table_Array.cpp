@@ -20,11 +20,7 @@ using namespace std;
 #include "Table_Array.h"
 
 #include "Table_Array.h"
-#include "Table_Array_pschist.h"
-#include "Table_Array_pschmask.h"
 #include "Table_CommandGroup.h"
-#include "Table_CommandGroup_pschist.h"
-#include "Table_CommandGroup_pschmask.h"
 
 
 void Database_pluto_main::CreateTable_Array()
@@ -995,39 +991,11 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_Array *pTable = table->database->Array_get();
 pTable->GetRows("`FK_Array_Parent`=" + StringUtils::itos(m_PK_Array),rows);
 }
-void Row_Array::Array_pschist_FK_Array_Parent_getrows(vector <class Row_Array_pschist*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Array_pschist *pTable = table->database->Array_pschist_get();
-pTable->GetRows("`FK_Array_Parent`=" + StringUtils::itos(m_PK_Array),rows);
-}
-void Row_Array::Array_pschmask_FK_Array_Parent_getrows(vector <class Row_Array_pschmask*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Array_pschmask *pTable = table->database->Array_pschmask_get();
-pTable->GetRows("`FK_Array_Parent`=" + StringUtils::itos(m_PK_Array),rows);
-}
 void Row_Array::CommandGroup_FK_Array_getrows(vector <class Row_CommandGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_CommandGroup *pTable = table->database->CommandGroup_get();
-pTable->GetRows("`FK_Array`=" + StringUtils::itos(m_PK_Array),rows);
-}
-void Row_Array::CommandGroup_pschist_FK_Array_getrows(vector <class Row_CommandGroup_pschist*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_CommandGroup_pschist *pTable = table->database->CommandGroup_pschist_get();
-pTable->GetRows("`FK_Array`=" + StringUtils::itos(m_PK_Array),rows);
-}
-void Row_Array::CommandGroup_pschmask_FK_Array_getrows(vector <class Row_CommandGroup_pschmask*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_CommandGroup_pschmask *pTable = table->database->CommandGroup_pschmask_get();
 pTable->GetRows("`FK_Array`=" + StringUtils::itos(m_PK_Array),rows);
 }
 

@@ -19,20 +19,10 @@ using namespace std;
 #include "Table_Pipe.h"
 
 #include "Table_Command_Pipe.h"
-#include "Table_Command_Pipe_pschist.h"
-#include "Table_Command_Pipe_pschmask.h"
 #include "Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe.h"
-#include "Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe_pschist.h"
-#include "Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe_pschmask.h"
 #include "Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe.h"
-#include "Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_pschist.h"
-#include "Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_pschmask.h"
 #include "Table_Device_Device_Pipe.h"
-#include "Table_Device_Device_Pipe_pschist.h"
-#include "Table_Device_Device_Pipe_pschmask.h"
 #include "Table_MediaType.h"
-#include "Table_MediaType_pschist.h"
-#include "Table_MediaType_pschmask.h"
 
 
 void Database_pluto_main::CreateTable_Pipe()
@@ -909,39 +899,11 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_Command_Pipe *pTable = table->database->Command_Pipe_get();
 pTable->GetRows("`FK_Pipe`=" + StringUtils::itos(m_PK_Pipe),rows);
 }
-void Row_Pipe::Command_Pipe_pschist_FK_Pipe_getrows(vector <class Row_Command_Pipe_pschist*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Command_Pipe_pschist *pTable = table->database->Command_Pipe_pschist_get();
-pTable->GetRows("`FK_Pipe`=" + StringUtils::itos(m_PK_Pipe),rows);
-}
-void Row_Pipe::Command_Pipe_pschmask_FK_Pipe_getrows(vector <class Row_Command_Pipe_pschmask*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Command_Pipe_pschmask *pTable = table->database->Command_Pipe_pschmask_get();
-pTable->GetRows("`FK_Pipe`=" + StringUtils::itos(m_PK_Pipe),rows);
-}
 void Row_Pipe::DeviceTemplate_DeviceCategory_ControlledVia_Pipe_FK_Pipe_getrows(vector <class Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe *pTable = table->database->DeviceTemplate_DeviceCategory_ControlledVia_Pipe_get();
-pTable->GetRows("`FK_Pipe`=" + StringUtils::itos(m_PK_Pipe),rows);
-}
-void Row_Pipe::DeviceTemplate_DeviceCategory_ControlledVia_Pipe_pschist_FK_Pipe_getrows(vector <class Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe_pschist*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe_pschist *pTable = table->database->DeviceTemplate_DeviceCategory_ControlledVia_Pipe_pschist_get();
-pTable->GetRows("`FK_Pipe`=" + StringUtils::itos(m_PK_Pipe),rows);
-}
-void Row_Pipe::DeviceTemplate_DeviceCategory_ControlledVia_Pipe_pschmask_FK_Pipe_getrows(vector <class Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe_pschmask*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe_pschmask *pTable = table->database->DeviceTemplate_DeviceCategory_ControlledVia_Pipe_pschmask_get();
 pTable->GetRows("`FK_Pipe`=" + StringUtils::itos(m_PK_Pipe),rows);
 }
 void Row_Pipe::DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_FK_Pipe_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe*> *rows)
@@ -951,20 +913,6 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe *pTable = table->database->DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_get();
 pTable->GetRows("`FK_Pipe`=" + StringUtils::itos(m_PK_Pipe),rows);
 }
-void Row_Pipe::DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_pschist_FK_Pipe_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_pschist*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_pschist *pTable = table->database->DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_pschist_get();
-pTable->GetRows("`FK_Pipe`=" + StringUtils::itos(m_PK_Pipe),rows);
-}
-void Row_Pipe::DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_pschmask_FK_Pipe_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_pschmask*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_pschmask *pTable = table->database->DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_pschmask_get();
-pTable->GetRows("`FK_Pipe`=" + StringUtils::itos(m_PK_Pipe),rows);
-}
 void Row_Pipe::Device_Device_Pipe_FK_Pipe_getrows(vector <class Row_Device_Device_Pipe*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -972,39 +920,11 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_Device_Device_Pipe *pTable = table->database->Device_Device_Pipe_get();
 pTable->GetRows("`FK_Pipe`=" + StringUtils::itos(m_PK_Pipe),rows);
 }
-void Row_Pipe::Device_Device_Pipe_pschist_FK_Pipe_getrows(vector <class Row_Device_Device_Pipe_pschist*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Device_Device_Pipe_pschist *pTable = table->database->Device_Device_Pipe_pschist_get();
-pTable->GetRows("`FK_Pipe`=" + StringUtils::itos(m_PK_Pipe),rows);
-}
-void Row_Pipe::Device_Device_Pipe_pschmask_FK_Pipe_getrows(vector <class Row_Device_Device_Pipe_pschmask*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Device_Device_Pipe_pschmask *pTable = table->database->Device_Device_Pipe_pschmask_get();
-pTable->GetRows("`FK_Pipe`=" + StringUtils::itos(m_PK_Pipe),rows);
-}
 void Row_Pipe::MediaType_FK_Pipe_getrows(vector <class Row_MediaType*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_MediaType *pTable = table->database->MediaType_get();
-pTable->GetRows("`FK_Pipe`=" + StringUtils::itos(m_PK_Pipe),rows);
-}
-void Row_Pipe::MediaType_pschist_FK_Pipe_getrows(vector <class Row_MediaType_pschist*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_MediaType_pschist *pTable = table->database->MediaType_pschist_get();
-pTable->GetRows("`FK_Pipe`=" + StringUtils::itos(m_PK_Pipe),rows);
-}
-void Row_Pipe::MediaType_pschmask_FK_Pipe_getrows(vector <class Row_MediaType_pschmask*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_MediaType_pschmask *pTable = table->database->MediaType_pschmask_get();
 pTable->GetRows("`FK_Pipe`=" + StringUtils::itos(m_PK_Pipe),rows);
 }
 

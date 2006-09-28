@@ -20,8 +20,6 @@ using namespace std;
 #include "Table_DeviceTemplate.h"
 
 #include "Table_Device_StartupScript.h"
-#include "Table_Device_StartupScript_pschist.h"
-#include "Table_Device_StartupScript_pschmask.h"
 
 
 void Database_pluto_main::CreateTable_StartupScript()
@@ -1604,20 +1602,6 @@ void Row_StartupScript::Device_StartupScript_FK_StartupScript_getrows(vector <cl
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Device_StartupScript *pTable = table->database->Device_StartupScript_get();
-pTable->GetRows("`FK_StartupScript`=" + StringUtils::itos(m_PK_StartupScript),rows);
-}
-void Row_StartupScript::Device_StartupScript_pschist_FK_StartupScript_getrows(vector <class Row_Device_StartupScript_pschist*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Device_StartupScript_pschist *pTable = table->database->Device_StartupScript_pschist_get();
-pTable->GetRows("`FK_StartupScript`=" + StringUtils::itos(m_PK_StartupScript),rows);
-}
-void Row_StartupScript::Device_StartupScript_pschmask_FK_StartupScript_getrows(vector <class Row_Device_StartupScript_pschmask*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Device_StartupScript_pschmask *pTable = table->database->Device_StartupScript_pschmask_get();
 pTable->GetRows("`FK_StartupScript`=" + StringUtils::itos(m_PK_StartupScript),rows);
 }
 
