@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 COMP_MODULES_DIR="$(pwd)/compiledModules"
 
 mkdir -p "$COMP_MODULES_DIR"
