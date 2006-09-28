@@ -352,7 +352,7 @@ cp -r /home/samba/builds/Windows_Output/winnetdlls $BASE_OUT_FOLDER/$version_nam
 #dcd /home/tmp/pluto-build/
 #./propagate.sh
 
-/home/WorkNew/MakeRelease/SelfPackagingModules.sh
+/home/WorkNew/src/MakeRelease/SelfPackagingModules.sh
 pushd /home/samba/repositories/pluto/replacements/main/binary-i386/
 ./update-repository
 popd
