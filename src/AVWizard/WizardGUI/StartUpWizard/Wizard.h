@@ -7,6 +7,8 @@
 #include <signal.h>
 
 #include "SDLFrontEnd.h"
+#include "BackEndFactory.h"
+
 #include "ScreenManager.h"
 
 #define Wizard_Default_Width 640

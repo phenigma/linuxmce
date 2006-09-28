@@ -246,7 +246,7 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 		if(AVWizardOptions->GetDictionary()->Exists("NoAudioDevice"))
 		{
 			std::string AudioDevice = AVWizardOptions->GetDictionary()->GetValue("NoAudioDevice");
-			bool IsAudioDevice = Utils::StringToInt32( AudioDevice);
+			bool IsAudioDevice = Utils::StringToInt32( AudioDevice) != 0;
 			if (IsAudioDevice)
 				CurrentPage+=3;
 		}
@@ -289,7 +289,7 @@ void Wizard::DoCancelScreen()
 		if(AVWizardOptions->GetDictionary()->Exists("NoAudioDevice"))
 		{
 			std::string AudioDevice = AVWizardOptions->GetDictionary()->GetValue("NoAudioDevice");
-			IsNoAudioDevice = Utils::StringToInt32( AudioDevice);
+			IsNoAudioDevice = Utils::StringToInt32( AudioDevice) != 0;
 			if (IsNoAudioDevice)
 				CurrentPage-=3;
 		}
@@ -488,7 +488,9 @@ void Wizard::StartSDLVideoMode()
 	if(FrontEnd != NULL)
 		return;
 
-	FrontEnd = new SDLFrontEnd();
+	//FrontEnd = new SDLFrontEnd();
+
+	FrontEnd = dynamic_cast<SDLFrontEnd*> (BackEndFactory::GetInstance()->CreateBackEnd(Simple));
 
 	Resize(FullScreen);
 

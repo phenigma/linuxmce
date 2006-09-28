@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Pluto\libs\CrossPlatform\SDL-1.2.7\include\&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_ttf-2.0.6\&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_image-1.2.3&quot;;C:\Pluto\src\AVWizard\XML\LibXML2\include;&quot;C:\Pluto\libs\Libraries\pthreads-win32\include&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_rotozoom-1.6\&quot;"
+				AdditionalIncludeDirectories="&quot;C:\Pluto\libs\CrossPlatform\SDL-1.2.7\include\&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_ttf-2.0.6\&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_image-1.2.3&quot;;C:\pluto\libs\CrossPlatform\LibXML2\include;&quot;C:\Pluto\libs\Libraries\pthreads-win32\include&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_rotozoom-1.6\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,9 +33,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="C:\Pluto\libs\CrossPlatform\SDL-1.2.7\VisualC7\SDLmain\Debug\SDLmain-pluto-d.lib C:\Pluto\libs\CrossPlatform\SDL-1.2.7\VisualC7\SDL\Debug\SDL-pluto-d.lib C:\Pluto\libs\CrossPlatform\SDL_ttf-2.0.6\VisualC\Debug\SDL_ttf-pluto-d.lib C:\Pluto\libs\CrossPlatform\SDL_image-1.2.3\VisualC\Debug\SDL_image-pluto-d.lib C:\Pluto\src\AVWizard\XML\LibXML2\lib\libxml2.lib C:\Pluto\libs\CrossPlatform\SDL_rotozoom-1.6\VisualC\SDL_rotozoom\Release\SDL_rotozoom-pluto-r.lib C:\Pluto\libs\Libraries\pthreads-win32\lib\pthreadVC.lib"
+				AdditionalDependencies="SDLmain-pluto-d.lib SDL-pluto-d.lib SDL_ttf-pluto-d.lib SDL_image-pluto-d.lib SDL_rotozoom-pluto-r.lib pthreadVC.lib libxml2.lib"
 				OutputFile="$(OutDir)/StartUpWizard.exe"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="&quot;C:\pluto\libs\CrossPlatform\SDL-1.2.7\VisualC7\SDLmain\Debug&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL-1.2.7\VisualC7\SDL\Debug&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_ttf-2.0.6\VisualC\Debug\&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_image-1.2.3\VisualC\Debug\&quot;;&quot;C:\Pluto\libs\Libraries\pthreads-win32\lib&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_rotozoom-1.6\VisualC\SDL_rotozoom\Release&quot;;C:\pluto\libs\CrossPlatform\LibXML2\lib\"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/StartUpWizard.pdb"
 				SubSystem="1"
@@ -305,6 +306,15 @@
 				Name="Backends"
 				Filter="">
 				<File
+					RelativePath=".\BackEndFactory.cpp">
+				</File>
+				<File
+					RelativePath=".\GenericBackEnd.cpp">
+				</File>
+				<File
+					RelativePath=".\OpenGLFrontEnd.cpp">
+				</File>
+				<File
 					RelativePath=".\SDLFrontEnd.cpp">
 				</File>
 			</Filter>
@@ -313,18 +323,28 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<Filter
+				Name="Backends"
+				Filter="">
+				<File
+					RelativePath=".\BackEndFactory.h">
+				</File>
+				<File
+					RelativePath=".\GenericBackEnd.h">
+				</File>
+				<File
+					RelativePath=".\OpenGLFrontEnd.h">
+				</File>
+				<File
+					RelativePath=".\SDLFrontEnd.h">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 		</Filter>
-		<File
-			RelativePath=".\options.xml">
-		</File>
-		<File
-			RelativePath=".\settings.xml">
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

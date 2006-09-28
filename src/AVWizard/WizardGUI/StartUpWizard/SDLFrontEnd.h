@@ -9,10 +9,12 @@
 #include <SDL_ttf.h>
 #include "ColorDesc.h"
 
+#include "GenericBackEnd.h"
+
 #include "WM_Event.h"
 #include <string>
 
-class SDLFrontEnd
+class SDLFrontEnd  : public GenericBackEnd
 {
 	SDL_Event Event;
 	bool IsEventWaiting;
