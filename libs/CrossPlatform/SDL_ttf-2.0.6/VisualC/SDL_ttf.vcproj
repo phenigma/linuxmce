@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\pluto\trunk\CrossPlatform-Libs\freetype-2.1.9\include&quot;;&quot;C:\pluto\trunk\CrossPlatform-Libs\SDL-1.2.7\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\freetype-2.1.9\include&quot;;&quot;..\SDL-1.2.7\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
