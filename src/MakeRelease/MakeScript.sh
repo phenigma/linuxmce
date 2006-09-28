@@ -1,11 +1,11 @@
 #!/bin/bash
 
 nobuild="-b"
-#upload=""
-upload="y"
 
 branch="trunk"
 #branch="2.0.0.40"
+
+flavor=pluto_release
 
 echo "Marker: starting `date`"
 # if we receive a "force-build" parameter, ignore this setting
@@ -19,19 +19,32 @@ for ((i = 1; i <= "$#"; i++)); do
 		monster-build)
 			monster=y
 			#nobuild=
+			flavor=monster
 		;;
 		linuxmce-build)
 			linuxmce=y
+			flavor=linuxmce
+		;;
+		via-build)
+			monster=
+			nobuild=
+			flavor=via
+		;;
+		debug-build)
+			monster=
+			nobuild=
+			flavor=pluto_debug
 		;;
 		nocheckout) nocheckout=y ;;
 		nosqlcvs) nosqlcvs=y ;;
+		dont-compile-existing) dont_compile_existing="-X" ;;
 	esac
 done
 
 ConfEval()
 {
 	local Ret=0
-	local ConfigFile="${1:-pluto.conf}"
+	local Flavor="${1:-pluto}"
 
 	# Note to self: this "read from file into while" is absolutely necessary
 	#               "cmd | while ..." spawns a subshell and our veriables will be set there instead of our current shell
@@ -42,9 +55,12 @@ ConfEval()
 			continue # comment line; skip
 		fi
 		eval "export $line" &>/dev/null
-	done <"/etc/MakeRelease/$ConfigFile"
+	done <"/etc/MakeRelease/$Flavor.conf"
 	return $Ret
 }
+
+MakeRelease_Flavor="$flavor"
+ConfEval "$flavor"
 
 fastrun=""
 #fastrun="-f -DERROR_LOGGING_ONLY"
@@ -129,6 +145,7 @@ if [ "$nobuild" = "" ]; then
 			exit
 		fi
 
+		MakeRelease_PrepFiles -p /tmp -e /tmp/main_sqlcvs.dump,/tmp/myth_sqlcvs.dump -c /etc/MakeRelease/$Flavor.conf
 		mysql main_sqlcvs < /tmp/main_sqlcvs.dump
 		mysql myth_sqlcvs < /tmp/myth_sqlcvs.dump
 		
@@ -142,62 +159,65 @@ if [ "$nobuild" = "" ]; then
 	if [[ -z "$nocheckout" ]]; then
 		echo "Marker: svm co `date`"
 		# Prepare build directory
-		rm -rf /home/MakeRelease
-		mkdir -p /home/MakeRelease/private
+		rm -rf $build_dir
+		mkdir -p $build_dir/private
 		
 		# Check out private repository
-		cd /home/MakeRelease/private
+		cd $build_dir/private
 		if [[ "$branch" == trunk ]]; then
-			svn co http://10.0.0.170/pluto-private/trunk/. | tee /home/MakeRelease/svn.log
+			svn co http://10.0.0.170/pluto-private/trunk/. | tee $build_dir/svn.log
 		else
-			svn co http://10.0.0.170/pluto-private/branches/"$branch" | tee /home/MakeRelease/svn.log
+			svn co http://10.0.0.170/pluto-private/branches/"$branch" | tee $build_dir/svn.log
 			rm -f trunk
 			ln -s "$branch" trunk # workaround as to not change all of the script
 		fi
 
 		# Check out public repository
-		cd /home/MakeRelease
+		cd $build_dir
 		if [[ "$branch" == trunk ]]; then
-			svn co http://10.0.0.170/pluto/trunk/. | tee -a /home/MakeRelease/svn.log
+			svn co http://10.0.0.170/pluto/trunk/. | tee -a $build_dir/svn.log
 		else
-			svn co http://10.0.0.170/pluto/branches/"$branch" | tee -a /home/MakeRelease/svn.log
+			svn co http://10.0.0.170/pluto/branches/"$branch" | tee -a $build_dir/svn.log
 			rm -f trunk
 			ln -s "$branch" trunk # workaround as to not change all of the script
 		fi
 		
+		echo "Marker: Prepping files"
+		MakeRelease_PrepFiles -p $build_dir/trunk -e "*.cpp,*.h,Makefile*,*.php,*.sh,*.pl" -c /etc/MakeRelease/$Flavor.conf
+
 		# Clone Video4Linux Mercurial repository
-		cd /home/MakeRelease/trunk/src/drivers
-		hg clone /home/sources/mercurial-repositories/v4l-dvb/ | tee /home/MakeRelease/mercurial-v4l.log
+		cd $build_dir/trunk/src/drivers
+		hg clone /home/sources/mercurial-repositories/v4l-dvb/ | tee $build_dir/mercurial-v4l.log
 		
 		# Make symlinks from private copy to public copy
-		for Dir1 in /home/MakeRelease/private/trunk/*; do
+		for Dir1 in $build_dir/private/trunk/*; do
 			BaseDir1=$(basename "$Dir1")
-			[[ -L "$Dir1" || ! -d /home/MakeRelease/trunk/"$BaseDir1" ]] && continue
+			[[ -L "$Dir1" || ! -d $build_dir/trunk/"$BaseDir1" ]] && continue
 			for Dir2 in "$Dir1"/*; do
 				[[ -L "$Dir2" ]] && continue
 				BaseDir2=$(basename "$Dir2")
-				rm -f /home/MakeRelease/trunk/"$BaseDir1"/"$BaseDir2"
-				ln -s /home/MakeRelease{/private,}/trunk/"$BaseDir1"/"$BaseDir2"
-				echo ln -s /home/MakeRelease{/private,}/trunk/"$BaseDir1"/"$BaseDir2"
+				rm -f $build_dir/trunk/"$BaseDir1"/"$BaseDir2"
+				ln -s $build_dir{/private,}/trunk/"$BaseDir1"/"$BaseDir2"
+				echo ln -s $build_dir{/private,}/trunk/"$BaseDir1"/"$BaseDir2"
 			done
 		done
 		
 		# Make symlinks from public copy to private copy
-		for Dir1 in /home/MakeRelease/trunk/*; do
+		for Dir1 in $build_dir/trunk/*; do
 			BaseDir1=$(basename "$Dir1")
-			[[ -L "$Dir1" || ! -d /home/MakeRelease/private/trunk/"$BaseDir1" ]] && continue
+			[[ -L "$Dir1" || ! -d $build_dir/private/trunk/"$BaseDir1" ]] && continue
 			for Dir2 in "$Dir1"/*; do
 				[[ -L "$Dir2" ]] && continue
 				BaseDir2=$(basename "$Dir2")
-				rm -f /home/MakeRelease/private/trunk/"$BaseDir1"/"$BaseDir2"
-				ln -s /home/MakeRelease{,/private}/trunk/"$BaseDir1"/"$BaseDir2"
-				echo ln -s /home/MakeRelease{,/private}/trunk/"$BaseDir1"/"$BaseDir2"
+				rm -f $build_dir/private/trunk/"$BaseDir1"/"$BaseDir2"
+				ln -s $build_dir{,/private}/trunk/"$BaseDir1"/"$BaseDir2"
+				echo ln -s $build_dir{,/private}/trunk/"$BaseDir1"/"$BaseDir2"
 			done
 		done
 	fi
 		
-	mkdir -p /home/MakeRelease/trunk/src/bin
-	cd /home/MakeRelease/trunk/src/bin
+	mkdir -p $build_dir/trunk/src/bin
+	cd $build_dir/trunk/src/bin
 	rm ../pluto_main/*
 	# We have to use pluto_main so the class is named correctly, but that means we need to be sure  the local pluto_main is up to date
 	sql2cpp -D pluto_main -h localhost
@@ -206,52 +226,10 @@ if [ "$nobuild" = "" ]; then
 	## temporary
 	svn revert Table_Device.cpp  Table_Device_DeviceData.cpp Table_Orbiter.cpp Table_CommandGroup_Command_CommandParameter.cpp Table_CommandGroup.cpp Table_CommandGroup_Command.cpp
 	svn -m "Automatic Regen" --username aaron --password aaron --non-interactive commit
-    cd /home/MakeRelease/trunk
+    cd $build_dir/trunk
     svn info > svn.info
 else
-    cd /home/MakeRelease/trunk
-fi
-
-# monster build
-if [ "$monster" = "y" ]; then
-	echo "Doing a Monster build"
-	echo "update Text_LS set Description = replace(Description,'Pluto','Monster');" | mysql main_sqlcvs
-	echo "update Text_LS set Description = replace(Description,'pluto','monster');" | mysql main_sqlcvs
-	echo "update Text_LS set Description = replace(Description,'PLUTO','MONSTER');" | mysql main_sqlcvs
-	echo "update Package_Source set Repository=replace(Repository,'20dev','10monsterdev');" | mysql main_sqlcvs
-	ReplacePluto "web/pluto-admin/languages/en/login.lang.php" "Monster" "monstercable.com"
-	ReplacePluto "web/pluto-admin/languages/en/userHome.lang.php" "Monster" "monstercable.com"
-	ReplacePluto "web/pluto-admin/operations/login.php" "Monster" "monstercable.com"
-	ReplacePluto "web/pluto-admin/operations/userHome.php" "Monster" "monstercable.com"
-	ReplacePluto "web/pluto-admin/orbiter.php" "Monster" "monstercable.com"
-	ReplacePluto "web/pluto-admin/include/template.class.inc.php" "Monster" "monstercable.com"
-	ReplacePluto "web/pluto-admin/include/weborbiter.inc.php" "Monster" "monstercable.com"
-	ReplacePluto "web/pluto-admin/languages/en/lightingScenarios.lang.php" "Monster" "monstercable.com"
-	ReplacePluto "src/ConfirmDependencies_Script_Offline/BonusCdAutoInst.sh" "Monster" "monstercable.com"
-	ReplacePluto "src/ConfirmDependencies_Script_Offline/BonusCdMenu.sh" "Monster" "monstercable.com"
-		
-	sed -i 's/20dev/10monsterdev/g' /home/MakeRelease/trunk/src/ConfirmDependencies_Script_Offline/Initial_Config_Core.sh
-fi
-
-# linuxmce build
-if [ "$linuxmce" = "y" ]; then
-	echo "Doing a LinuxMCE build"
-	echo "update Text_LS set Description = replace(Description,'Pluto','LinuxMCE');" | mysql main_sqlcvs
-	echo "update Text_LS set Description = replace(Description,'pluto','linuxmce');" | mysql main_sqlcvs
-	echo "update Text_LS set Description = replace(Description,'PLUTO','LINUXMCE');" | mysql main_sqlcvs
-#	echo "update Package_Source set Repository=replace(Repository,'20dev','10monsterdev');" | mysql main_sqlcvs
-	ReplacePluto "web/pluto-admin/languages/en/login.lang.php" "LinuxMCE" "linuxmce.com"
-	ReplacePluto "web/pluto-admin/languages/en/userHome.lang.php" "LinuxMCE" "linuxmce.com"
-	ReplacePluto "web/pluto-admin/operations/login.php" "LinuxMCE" "linuxmce.com"
-	ReplacePluto "web/pluto-admin/operations/userHome.php" "LinuxMCE" "linuxmce.com"
-	ReplacePluto "web/pluto-admin/orbiter.php" "LinuxMCE" "linuxmce.com"
-	ReplacePluto "web/pluto-admin/include/template.class.inc.php" "LinuxMCE" "linuxmce.com"
-	ReplacePluto "web/pluto-admin/include/weborbiter.inc.php" "LinuxMCE" "linuxmce.com"
-	ReplacePluto "web/pluto-admin/languages/en/lightingScenarios.lang.php" "LinuxMCE" "linuxmce.com"
-	ReplacePluto "src/ConfirmDependencies_Script_Offline/BonusCdAutoInst.sh" "LinuxMCE" "linuxmce.com"
-	ReplacePluto "src/ConfirmDependencies_Script_Offline/BonusCdMenu.sh" "LinuxMCE" "linuxmce.com"
-		
-#	sed -i 's/20dev/10monsterdev/g' /home/MakeRelease/trunk/src/ConfirmDependencies_Script_Offline/Initial_Config_Core.sh
+    cd $build_dir/trunk
 fi
 
 #Do some database maintenance to correct any errors
@@ -265,7 +243,7 @@ echo $MQ1 | mysql main_sqlcvs
 svninfo=$(svn info . |grep ^Revision | cut -d" " -f2)
 O2="UPDATE Version SET SvnRevision=$svninfo WHERE PK_Version=$version;"
 echo $O2 | mysql pluto_main
-echo $O2 > /home/MakeRelease/query2
+echo $O2 > $build_dir/query2
 
 Q3="select VersionName from Version WHERE PK_Version=$version"
 version_name=$(echo "$Q3;" | mysql -N pluto_main)
@@ -276,10 +254,10 @@ function reportError
 {
     echo "MakeRelease failed.";
 
-    [ -e "/home/MakeRelease/MakeRelease.log" ] && (echo -e "Make Release failed. Attached are the last 50 lines of the relevant log file\n\n"; tail -n 50 /home/MakeRelease/MakeRelease.log) | mail -s "MakeRelease failed" $DEST
+    [ -e "$build_dir/MakeRelease.log" ] && (echo -e "Make Release failed. Attached are the last 50 lines of the relevant log file\n\n"; tail -n 50 $build_dir/MakeRelease.log) | mail -s "MakeRelease failed" $DEST
 #   [ -e "$3/svn-checkout.log" ] && (echo -e "Build failed $1. Attached are the last 50 lines of the relevant log file\n\n"; tail -n 50 $3/svn-checkout.log) | mail -s "Build failure for revision $2" $DEST
 
-	cp /home/MakeRelease/MakeRelease*.log "$BASE_OUT_FOLDER"/"$version_name"
+	cp $build_dir/MakeRelease*.log "$BASE_OUT_FOLDER"/"$version_name"
 }
 
 echo Building version $version_name 
@@ -298,7 +276,7 @@ fi;
 # Creating target folder.
 mkdir -p "$BASE_OUT_FOLDER/$version_name";
 echo "Marker: starting compilation `date`"
-if ! MakeRelease $fastrun $nobuild -c -a -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/trunk -n / -R $svninfo -v $version > >(tee /home/MakeRelease/MakeRelease1.log); then
+if ! MakeRelease $fastrun $nobuild $dont_compile_existing -D main_sqlcvs -c -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
@@ -306,18 +284,18 @@ if ! MakeRelease $fastrun $nobuild -c -a -o 1 -r 2,9,11 -m 1 -s /home/MakeReleas
 fi
 
 # We did a 'don't make package' above with -c so the windows builder may continue building/outputting the latest bins
-cp /home/builds/Windows_Output/src/bin/* /home/MakeRelease/trunk/src/bin
+cp /home/builds/Windows_Output/src/bin/* $build_dir/trunk/src/bin
 
 echo "Marker: starting package building `date`"
-if ! MakeRelease $fastrun -b -a -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/trunk -n / -R $svninfo -v $version > >(tee /home/MakeRelease/MakeRelease1.log); then
+if ! MakeRelease $fastrun -D main_sqlcvs -b -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
 	exit
 fi
 	
-BuildScript="/home/MakeRelease/trunk/src/BUILD.sh"
-(echo '#!/bin/bash'; sed 's#cd /home/MakeRelease/trunk//src/#popd 2>/dev/null\npushd #g' Compile.script) >"$BuildScript"
+BuildScript="$build_dir/trunk/src/BUILD.sh"
+(echo '#!/bin/bash'; sed 's#cd $build_dir/trunk//src/#popd 2>/dev/null\npushd #g' Compile.script) >"$BuildScript"
 
 if [[ "$monster" == y ]]; then
 	`dirname $0`/scripts/propagate-monster.sh "$BASE_OUT_FOLDER/$version_name/"
@@ -356,28 +334,28 @@ else
 fi 
 #mv /home/builds/$version_name/debian-packages.tmp /home/builds/$version_name/debian-packages.list
 
-if ! MakeRelease -a -o 7 -n / -s /home/samba/builds/Windows_Output/ -r 10 -v $version -b -k 116,119,124,126,154,159,193,203,213,226,237,242,255,277,204,118,303,128,162,191,195,280,272,363,364,341 > /home/MakeRelease/MakeRelease2.log ; then
+if ! MakeRelease -D main_sqlcvs -a -o 7 -n / -s /home/samba/builds/Windows_Output/ -r 10 -v $version -b -k 116,119,124,126,154,159,193,203,213,226,237,242,255,277,204,118,303,128,162,191,195,280,272,363,364,341 > $build_dir/MakeRelease2.log ; then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
 	exit
 fi
 
-if ! MakeRelease -a -o 7 -n / -s /home/MakeRelease/trunk -r 10 -v $version -b -k 211,214,233,256,219,220 > /home/MakeRelease/MakeRelease3.log ; then
+if ! MakeRelease -D main_sqlcvs -a -o 7 -n / -s $build_dir/trunk -r 10 -v $version -b -k 211,214,233,256,219,220 > $build_dir/MakeRelease3.log ; then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
 	exit
 fi
 
-if ! MakeRelease -a -o 12 -n / -s /home/samba/builds/Windows_Output/ -r 15 -v $version -b -k 119 > /home/MakeRelease/MakeRelease4.log ; then
+if ! MakeRelease -D main_sqlcvs -a -o 12 -n / -s /home/samba/builds/Windows_Output/ -r 15 -v $version -b -k 119 > $build_dir/MakeRelease4.log ; then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
 	exit
 fi
 
-if ! MakeRelease -a -o 8 -n / -s /home/samba/builds/Windows_Output/ -r 16 -v $version -b -k 119 > /home/MakeRelease/MakeRelease5.log ; then
+if ! MakeRelease -D main_sqlcvs -a -o 8 -n / -s /home/samba/builds/Windows_Output/ -r 16 -v $version -b -k 119 > $build_dir/MakeRelease5.log ; then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
@@ -390,6 +368,7 @@ cp -r /home/samba/builds/Windows_Output/winnetdlls $BASE_OUT_FOLDER/$version_nam
 #dcd /home/tmp/pluto-build/
 #./propagate.sh
 
+/home/WorkNew/MakeRelease/SelfPackagingModules.sh
 pushd /home/samba/repositories/pluto/replacements/main/binary-i386/
 ./update-repository
 popd
@@ -443,28 +422,28 @@ if [[ $version -ne 1 || $upload == y ]]; then
 	echo "Marker: SourceForge `date`"
 	
 	# SourceForge CVS
-	if ! MakeRelease -a -o 1 -r 12 -m 1 -s /home/MakeRelease/trunk -n / -b -v $version  > /home/MakeRelease/MakeRelease6.log ; then
+	if ! MakeRelease -D main_sqlcvs -a -o 1 -r 12 -m 1 -s $build_dir/trunk -n / -b -v $version  > $build_dir/MakeRelease6.log ; then
 		reportError
 		echo "MakeRelease to source forge CVS Failed.  Press any key"
 	    read
 	fi
 	
 	# SourceForge Debian Sarge
-	if ! MakeRelease -a -o 1 -r 13 -m 1 -s /home/MakeRelease/trunk -n / -b -v $version  > /home/MakeRelease/MakeRelease7.log ; then
+	if ! MakeRelease -D main_sqlcvs -a -o 1 -r 13 -m 1 -s $build_dir/trunk -n / -b -v $version  > $build_dir/MakeRelease7.log ; then
 		reportError
 		echo "MakeRelease to source forge CVS Failed.  Press any key"
 		read
 	fi
 
 	# SourceForge Windows Archives
-	if ! MakeRelease -a -o 1 -r 17 -m 1 -s /home/MakeRelease/trunk -n / -b -v $version  > /home/MakeRelease/MakeRelease8.log ; then
+	if ! MakeRelease -D main_sqlcvs -a -o 1 -r 17 -m 1 -s $build_dir/trunk -n / -b -v $version  > $build_dir/MakeRelease8.log ; then
 		reportError
 		echo "MakeRelease to source forge CVS Failed.  Press any key"
 		read
 	fi
 		
 	# SourceForge Source Archives
-	if ! MakeRelease -a -o 1 -r 18 -m 1 -s /home/MakeRelease/trunk -n / -b -v $version  > /home/MakeRelease/MakeRelease9.log ; then
+	if ! MakeRelease -D main_sqlcvs -a -o 1 -r 18 -m 1 -s $build_dir/trunk -n / -b -v $version  > $build_dir/MakeRelease9.log ; then
 		reportError
 		echo "MakeRelease to source forge CVS Failed.  Press any key"
 		read
@@ -475,7 +454,7 @@ if [[ $version -ne 1 || $upload == y ]]; then
 	echo "Sent to server."
 fi
 
-cp /home/MakeRelease/MakeRelease*.log "$BASE_OUT_FOLDER"/"$version_name"
+cp $build_dir/MakeRelease*.log "$BASE_OUT_FOLDER"/"$version_name"
 
 echo "Marker: done `date`"
 echo "Everything okay.  Press any key"
