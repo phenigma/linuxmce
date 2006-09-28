@@ -41,25 +41,9 @@ for ((i = 1; i <= "$#"; i++)); do
 	esac
 done
 
-ConfEval()
-{
-	local Ret=0
-	local Flavor="${1:-pluto}"
+. /home/WorkNew/src/MakeRelease/MR_Conf.sh
 
-	# Note to self: this "read from file into while" is absolutely necessary
-	#               "cmd | while ..." spawns a subshell and our veriables will be set there instead of our current shell
-	#               "while ...; do ...; done <file" works the way we need
-	while read line; do
-		line="${line// }"
-		if [[ "$line" == "#"* || "$line" == "//"* ]]; then
-			continue # comment line; skip
-		fi
-		eval "export $line" &>/dev/null
-	done <"/etc/MakeRelease/$Flavor.conf"
-	return $Ret
-}
-
-MakeRelease_Flavor="$flavor"
+export MakeRelease_Flavor="$flavor"
 ConfEval "$flavor"
 
 fastrun=""
@@ -145,7 +129,7 @@ if [ "$nobuild" = "" ]; then
 			exit
 		fi
 
-		MakeRelease_PrepFiles -p /tmp -e /tmp/main_sqlcvs.dump,/tmp/myth_sqlcvs.dump -c /etc/MakeRelease/$Flavor.conf
+		MakeRelease_PrepFiles -p /tmp -e main_sqlcvs.dump,myth_sqlcvs.dump -c /etc/MakeRelease/$flavor.conf
 		mysql main_sqlcvs < /tmp/main_sqlcvs.dump
 		mysql myth_sqlcvs < /tmp/myth_sqlcvs.dump
 		
@@ -157,7 +141,7 @@ if [ "$nobuild" = "" ]; then
 	fi
 
 	if [[ -z "$nocheckout" ]]; then
-		echo "Marker: svm co `date`"
+		echo "Marker: svn co $flavor `date`"
 		# Prepare build directory
 		rm -rf $build_dir
 		mkdir -p $build_dir/private
@@ -183,7 +167,7 @@ if [ "$nobuild" = "" ]; then
 		fi
 		
 		echo "Marker: Prepping files"
-		MakeRelease_PrepFiles -p $build_dir/trunk -e "*.cpp,*.h,Makefile*,*.php,*.sh,*.pl" -c /etc/MakeRelease/$Flavor.conf
+		MakeRelease_PrepFiles -p $build_dir/trunk -e "*.cpp,*.h,Makefile*,*.php,*.sh,*.pl" -c /etc/MakeRelease/$flavor.conf
 
 		# Clone Video4Linux Mercurial repository
 		cd $build_dir/trunk/src/drivers
