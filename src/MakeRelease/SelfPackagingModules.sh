@@ -1,6 +1,16 @@
 #!/bin/bash
 
+. /home/WorkNew/src/MakeRelease/MR_Conf.sh
+
 set -ex
+
+if [[ -z "$MakeRelease_Flavor" ]]; then
+	if [[ -z "$1" ]]; then
+		exit 1
+	fi
+	ConfEval "$1"
+	export MakeRelease_Flavor="$1"
+fi
 
 # variables taken from environment:
 # MakeRelease_Flavor
@@ -22,7 +32,7 @@ for Pkg in "${Packages[@]}"; do
 	Var="PackageDir_$Pkg"
 	Dir="${!Var}"
 	
-	pushd /home/MakeRelease/trunk/external/"$Dir" >/dev/null
+	pushd "$build_dir"/trunk/external/"$Dir" >/dev/null
 
 	Var="PackageCmd_$Pkg"
 	Cmd="${!Var}"

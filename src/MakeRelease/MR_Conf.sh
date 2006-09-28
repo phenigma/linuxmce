@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ -n "$HEADER_MR_Conf" ]]; then
+	return 0
+fi
+HEADER_MR_Conf=included
+
 ConfEval()
 {
 	local Ret=0
