@@ -1694,6 +1694,7 @@ function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$oper
 
 	$out.='	<input type="hidden" name="displayedTemplatesRequired_'.$device.'" value="'.(join(',',$displayedTemplatesRequired)).'">
 	</table>';
+
 	return $out;
 }
 
@@ -2997,7 +2998,7 @@ function displayRemotes($mdID,$dbADO,$section)
 		$delLinks.='<a href="javascript:if(confirm(\''.$TEXT_DELETE_REMOTE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section='.$section.'&type=media_directors&action=del&delRemote='.$rid.'\';">'.$description.'</a>, ';
 	}
 	$note=($delLinks!='')?' Click to remove':'';
-	$out.=substr($delLinks,0,-2).$note.' <input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOTE_CONST.'" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$GLOBALS['RemoteControlls'].'&parmToKeep='.urlencode('mdID='.$mdID).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">';
+	$out.='<input type="button" class="button_fixed" name="button" value="'.$TEXT_ADD_REMOTE_CONST.'" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$GLOBALS['RemoteControlls'].'&parmToKeep='.urlencode('mdID='.$mdID).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> '.substr($delLinks,0,-2).$note;
 	
 	return $out;
 }
@@ -3053,7 +3054,7 @@ function getFieldsAsArray($tableName,$fields,$dbADO,$filter='',$orderBy='')
 	return $result;	
 }
 
-function displayReceivers($mdID,$dbADO)
+function displayReceivers($mdID,$categArray,$dbADO)
 {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
@@ -3061,12 +3062,6 @@ function displayReceivers($mdID,$dbADO)
 
 	$out='';
 
-	unset($GLOBALS['childsDeviceCategoryArray']);
-	$GLOBALS['childsDeviceCategoryArray']=array();
-	getDeviceCategoryChildsArray($GLOBALS['InfraredReceivers'],$dbADO);
-	$categArray=cleanArray($GLOBALS['childsDeviceCategoryArray']);
-	$categArray[]=$GLOBALS['InfraredReceivers'];
-	
 	$templateArray=getArrayFromTable('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,'WHERE FK_DeviceCategory IN ('.join(',',$categArray).')','ORDER BY Description ASC');
 	
 	if(count($templateArray)==0)
@@ -4475,6 +4470,7 @@ function deviceDataElement($name,$rowDDforDevice,$dbADO)
 
 function getParentsForControlledVia($deviceID,$dbADO)
 {
+	global $avArray,$controlledByIfIR,$controlledByIfNotIR;
 	$installationID=(int)$_SESSION['installationID'];
 
 	
@@ -4540,13 +4536,19 @@ function getParentsForControlledVia($deviceID,$dbADO)
 		}
 	}
 	
-	// get selected category Device Templates
-	$avArray=getDeviceTemplatesFromCategory($GLOBALS['rootAVEquipment'],$dbADO);
+	// get AV Device Templates if global variable is not set already
+	if(!isset($avArray)){
+		$avArray=getDeviceTemplatesFromCategory($GLOBALS['rootAVEquipment'],$dbADO);
+	}
 	if(in_array(@$dtID,$avArray)){
 		
 		// if device is AV with UsesIR=1, override default controlled_via based on category and device template
-		$controlledByIfIR=getDevicesFromCategories(array($GLOBALS['specialized'],$GLOBALS['InfraredInterface']),$dbADO);
-		$controlledByIfNotIR=getDevicesFromCategories(array($GLOBALS['rootComputerID']),$dbADO);
+		if(!isset($controlledByIfIR)){
+			$controlledByIfIR=getDevicesFromCategories(array($GLOBALS['specialized'],$GLOBALS['InfraredInterface']),$dbADO);
+		}
+		if(!isset($controlledByIfNotIR)){
+			$controlledByIfNotIR=getDevicesFromCategories(array($GLOBALS['rootComputerID']),$dbADO);
+		}
 		
 		
 		$queryDevice='

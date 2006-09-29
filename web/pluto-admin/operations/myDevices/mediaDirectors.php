@@ -3,11 +3,11 @@ function mediaDirectors($output,$dbADO) {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mediaDirectors.lang.php');
-	
+
 	global $dbPlutoMainDatabase;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
-//	$dbADO->debug=true;
+
 	$userID = (int)@$_SESSION['userID'];
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -26,7 +26,8 @@ function mediaDirectors($output,$dbADO) {
 		"Higher" => "tvtime:method=Greedy2Frame,enabled=1,pulldown=vektor,framerate_mode=full,judder_correction=0,use_progressive_frame_flag=1,chroma_filter=0,cheap_mode=0",
 		"Highest" => "tvtime:method=Greedy2Frame,enabled=1,pulldown=vektor,framerate_mode=full,judder_correction=1,use_progressive_frame_flag=1,chroma_filter=1,cheap_mode=0",
 		"Custom"=>"*"));
-	
+	$infraredReceiversArray=getDescendantsForCategory($GLOBALS['InfraredReceivers'],$dbADO);
+		
 	
 	$deviceCategory=$GLOBALS['rootMediaDirectors'];
 	$specificFloorplanType=$GLOBALS['EntertainmentZone'];
@@ -292,32 +293,35 @@ function mediaDirectors($output,$dbADO) {
 						$out.='
 							<tr>
 								<td colspan="8">
-									'.getInstallWizardDeviceTemplates(6,$dbADO,$rowD['PK_Device'],$GLOBALS['mdDistro'],1).'<br>
 									<table>
+										<tr>
+											<td><B>'.$TEXT_SOFTWARE_MODULES_CONST.'</B></td>
+											<td><input type="button" class="button_fixed" name="edit_modules" value="'.$TEXT_EDIT_CONST.'" onClick="windowOpen(\'index.php?section=editModules&deviceID='.$rowD['PK_Device'].'&from=mediaDirectors\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+											<td width="20">&nbsp;</td>
+											<td><B>'.$TEXT_HARDWARE_ACCELERATION_CONST.'</B></td>
+											<td>'.pulldownFromArray($GLOBALS['hardware_acceleration'],'acceleration_'.$rowD['PK_Device'],getAcceleration($orbiterMDChild,$dbADO),'','key','').'</td>
+											<td width="20">&nbsp;</td>
+											<td><B>'.$TEXT_USE_ALPHA_BLENDED_UI_CONST.'</B></td>
+											<td><input type="checkbox" name="alpha_blended_'.$rowD['PK_Device'].'" value="1" '.(($alphaBlended==1)?'checked':'').'></td>
+										</tr>
 										<tr>
 											<td><B>'.$TEXT_INFRARED_REMOTES_YOU_WILL_USE_CONST.'</B></td>
 											<td>'.displayRemotes($rowD['PK_Device'],$dbADO,'mediaDirectors').'</td>
-										</tr>
-										<tr>
-											<td><B>'.$TEXT_INFRARED_RECEIVERS_CONST.'</B></td>
-											<td>'.displayReceivers($rowD['PK_Device'],$dbADO).'</td>
+											<td>&nbsp;</td>
+											<td><B>'.$TEXT_DEINTERLACE_QUALITY_CONST.'</B></td>
+											<td>'.pulldownFromArray($deinterlaceQualityArray,'diq_'.$rowD['PK_Device'],$diq,'','key','').'</td>
+											<td>&nbsp;</td>
+											<td>&nbsp;</td>
+											<td>&nbsp;</td>
 										</tr>
 										<tr>
 											<td><B>'.$TEXT_COMPUTING_APPLICATIONS_CONST.'</B></td>
-											<td><input type="button" class="button" name="editCA_" value="Edit Computing Applications" onclick="windowOpen(\'index.php?section=editComputingApplications&mdID='.$rowD['PK_Device'].'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')"></td>
+											<td><input type="button" class="button_fixed" name="editCA_" value="'.$TEXT_EDIT_CONST.'" onclick="windowOpen(\'index.php?section=editComputingApplications&mdID='.$rowD['PK_Device'].'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')"></td>
+											<td>&nbsp;</td>
+											<td><B>'.$TEXT_INFRARED_RECEIVERS_CONST.'</B></td>
+											<td colspan="4">'.displayReceivers($rowD['PK_Device'],$infraredReceiversArray,$dbADO).'</td>
 										</tr>
-										<tr>
-											<td><B>'.$TEXT_HARDWARE_ACCELERATION_CONST.'</B></td>
-											<td>'.pulldownFromArray($GLOBALS['hardware_acceleration'],'acceleration_'.$rowD['PK_Device'],getAcceleration($orbiterMDChild,$dbADO),'','key','').'</td>
-										</tr>
-										<tr>
-											<td><B>'.$TEXT_DEINTERLACE_QUALITY_CONST.'</B></td>
-											<td>'.pulldownFromArray($deinterlaceQualityArray,'diq_'.$rowD['PK_Device'],$diq,'','key','').'</td>
-										</tr>
-										<tr>
-											<td><B>'.$TEXT_USE_ALPHA_BLENDED_UI_CONST.'</B></td>
-											<td><input type="checkbox" name="alpha_blended_'.$rowD['PK_Device'].'" value="1" '.(($alphaBlended==1)?'checked':'').'></td>
-										</tr>';
+										';
 							/*
 							// removed since the screensaver is set as optional device for md
 							// will put it back when there will be more than one device							
@@ -492,28 +496,6 @@ function mediaDirectors($output,$dbADO) {
 					}
 					setAlphaBlend($orbiterMDChild,(int)@$_REQUEST['alpha_blended_'.$value],$dbADO);
 					
-					$installOptionsArray=explode(',',@$_POST['displayedTemplatesRequired_'.$value]);
-					foreach($installOptionsArray AS $elem){
-						$oldDevice=@$_POST['oldDevice_'.$value.'_requiredTemplate_'.$elem];
-						$optionalDevice=(isset($_POST['device_'.$value.'_requiredTemplate_'.$elem]))?$_POST['device_'.$value.'_requiredTemplate_'.$elem]:0;
-						if($optionalDevice!=0){
-							$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
-							if($oldDevice==''){
-								// hard-coded: for BlueTooth dongle I create the device as child of media director instead of osd
-								$parent=($elem==$GLOBALS['BluetoothDongle'])?$value:$orbiterMDChild;
-								
-								//$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$elem.' -i '.$installationID.' -C '.$parent;
-								//$insertID=exec_batch_command($cmd);
-								$insertID=createDevice($elem,$installationID,$parent,NULL,$dbADO);				
-								
-								$dbADO->Execute('UPDATE Device SET Description=?,FK_Room=? WHERE PK_Device=?',array($OptionalDeviceName,$room,$insertID));
-							}
-						}else{
-							if($oldDevice!=''){
-								deleteDevice($oldDevice,$dbADO);
-							}
-						}
-					}
 					// add/delete PVR Capture Card, sound card and video card
 					
 					$pvrDT=$_POST['PVRCaptureCard_'.$value];

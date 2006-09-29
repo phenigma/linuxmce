@@ -1508,7 +1508,18 @@ switch ($section) {
 	    include_once('operations/myDevices/tvLineUp.php');
 	    tvLineUp($output,$dbADO,$mediadbADO);	    
 	break;	
-
+	case 'editDeviceControlledVia':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myDevices/editDeviceControlledVia.php');
+	    editDeviceControlledVia($output,$dbADO);	    
+	break;	
+	case 'editModules':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myDevices/editModules.php');
+	    editModules($output,$dbADO);	    
+	break;	
 
 	
 	case 'index';
