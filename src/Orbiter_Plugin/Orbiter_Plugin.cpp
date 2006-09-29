@@ -246,6 +246,7 @@ Orbiter_Plugin::~Orbiter_Plugin()
 {
     m_mapUnknownDevices.clear();
 	delete m_pDatabase_pluto_main;
+	delete m_pDatabase_pluto_media;
     delete m_pDatabase_pluto_security;
 	delete m_pRegenMonitor;
 	delete m_pAlarmManager;

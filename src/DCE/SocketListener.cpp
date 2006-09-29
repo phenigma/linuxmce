@@ -83,8 +83,14 @@ SocketListener::~SocketListener()
 		closesocket( m_Socket ); // closing the socket
 		m_Socket = INVALID_SOCKET; // now it is invalid
 	}
+
 	if ( m_ListenerThreadID ) pthread_join( m_ListenerThreadID, 0 ); // wait for it to finish
   	pthread_mutex_destroy( &m_ListenerMutex.mutex ); // killing the mutex
+
+	for (ServerSocketVector::iterator j = m_vectorServerSocket.begin(); j != m_vectorServerSocket.end(); ++j)
+		delete *j;
+
+	m_vectorServerSocket.clear();
 }
 
 void SocketListener::StartListening( int iPortNumber )

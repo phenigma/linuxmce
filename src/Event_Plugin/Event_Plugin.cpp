@@ -185,7 +185,13 @@ Event_Plugin::~Event_Plugin()
 //<-dceag-dest-e->
 {
 	delete m_pDatabase_pluto_main;
-	
+
+	for(map<int,ListEventHandler *>::iterator it = m_mapListEventHandler.begin(), end =
+		m_mapListEventHandler.end(); it != end; ++it)
+	{
+		delete it->second;
+	}
+	m_mapListEventHandler.clear();	
 }
 
 //<-dceag-reg-b->

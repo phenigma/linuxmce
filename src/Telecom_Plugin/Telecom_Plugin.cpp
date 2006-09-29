@@ -158,6 +158,7 @@ Telecom_Plugin::~Telecom_Plugin()
 //<-dceag-dest-e->
 {
 	delete m_pDatabase_pluto_main;
+	delete m_pDatabase_pluto_telecom;
 
 	pthread_mutex_destroy(&m_VoiceMailStatusMutex.mutex);
 }

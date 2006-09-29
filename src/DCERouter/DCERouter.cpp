@@ -335,8 +335,11 @@ Router::~Router()
     delete m_pAlarmManager;
     m_pAlarmManager = NULL;
 
-
     delete m_pDatabase_pluto_main;
+
+	pthread_mutex_destroy(&m_CoreMutex.mutex);
+	pthread_mutex_destroy(&m_InterceptorMutex.mutex);
+	pthread_mutex_destroy(&m_MessageQueueMutex.mutex);
 }
 
 

@@ -192,28 +192,20 @@ int main(int argc, char *argv[])
 	if( BasePath.length()>0 && BasePath[ BasePath.length()-1 ]!='/' )
 		BasePath += "/";
 
-	bool bStartRouter=true;
-	while( bStartRouter )
-	{
-		g_pRouter = new Router(PK_Device,Installation,BasePath,DBHost,DBUser,DBPassword,DBName,DBPort,ListenPort);
-		bStartRouter = g_pRouter->Run();
-		g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: Exited with %d",(int) bStartRouter);
-		if( bStartRouter )
-		{
-			break; // This reloading thing isn't working.  We're just going to return an exit code of 2 and let the scripts restart us
-			delete g_pRouter;
-			g_pRouter = NULL;
-			Sleep(2000); // Sleep a few just to be sure everything had a chance to disconnect
-		}
-	}
+	g_pRouter = new Router(PK_Device,Installation,BasePath,DBHost,DBUser,DBPassword,DBName,DBPort,ListenPort);
+	bool bResult = g_pRouter->Run();
+	g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: Exited with %d",(int) bResult);
 
 #ifdef _WIN32
 	WSACleanup();
 #endif
+
 	g_pPlutoLogger->Write(LV_STATUS, "Ready to delete router");
-/*
-Leaving this code in cases a memory leak.  But this way any threads that were spawned
-by child processes and may still be holding locks won't crash when they exit. 
+	delete g_pRouter;
+	g_pRouter = NULL;
+
+//Leaving this code in cases a memory leak.  But this way any threads that were spawned
+//by child processes and may still be holding locks won't crash when they exit. 
 
 	if( g_mapLockMutex )
 	{
@@ -227,9 +219,13 @@ by child processes and may still be holding locks won't crash when they exit.
 		delete m_LL_DEBUG_Mutex;
 	}
 #endif
-*/
-	g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: terminating now with %d",(int) bStartRouter);
-	if( bStartRouter )
+
+	g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: terminating now with %d",(int) bResult);
+
+	delete g_pPlutoLogger;
+	g_pPlutoLogger = NULL;
+
+	if( bResult )
 		return 2;
 	else
 		return 0;
