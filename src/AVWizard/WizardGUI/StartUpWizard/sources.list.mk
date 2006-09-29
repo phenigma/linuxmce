@@ -52,5 +52,6 @@ SafetyLock.cpp \
 ThreadSleeper.cpp \
 SkinGenerator.cpp \
 GenericBackEnd.cpp \
+OpenGLFrontEnd.cpp \
 BackEndFactory.cpp \
 XUtilities.cpp 
