@@ -88,9 +88,11 @@ void OpenGL3DEngine::Finalize(void)
 {
 	UnHighlight();
 	UnSelect();
+	if(OldLayer)
+		OldLayer->CleanUp(true);
 
-	OldLayer->CleanUp(true);
-	CurrentLayer->CleanUp(true);
+	if(OldLayer)
+		CurrentLayer->CleanUp(true);
 
 	MeshPainter::Instance()->CleanUp();
 	GLEffect2D::LayersCompose::Instance()->CleanUp();
