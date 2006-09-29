@@ -1,0 +1,9 @@
+<-dceag-p-b->
+Package = DCE_Destination_Package
+Dir = 
+desc = DCE Implemenation for #1815 Windows Share Scanner
+Maintainer = robName
+Email = 
+Depend = DCE_Dependencies
+<-dceag-p-e->
+
