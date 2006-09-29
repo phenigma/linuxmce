@@ -1443,20 +1443,26 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 	clock_t clkBliting = clock(  );
 #endif
 
+	RendererImage * pRI_RenderedText = new RendererImage();
     if (pRenderImage != NULL)
     {
+        pRenderImage->NewSurface = false;
+		/*
         SDL_Rect SDL_rect;
         SDL_rect.x = pos.X;
         SDL_rect.y = pos.Y;
         SDL_SetAlpha(RenderedText, 0, 0);
-        pRenderImage->NewSurface = false;
         SDL_BlitSurface(RenderedText, NULL, pRenderImage->m_pSDL_Surface, &SDL_rect);
+		*/
+		pRI_RenderedText->m_pSDL_Surface = RenderedText;
+		CompositeAlpha(pRenderImage, pRI_RenderedText, pos);
     }
 
 // todo - find a solution for this  TTF_CloseFont(Font);
 	try
 	{
-	    SDL_FreeSurface(RenderedText);
+	    //SDL_FreeSurface(RenderedText);
+		delete pRI_RenderedText; // also frees RenderedText
 	}
 	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
 	{
