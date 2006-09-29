@@ -20,12 +20,8 @@ function rooms($output,$dbADO) {
 
 	$installationID = cleanInteger($_SESSION['installationID']);
 
-	$fotArray=array();
-	$resFOT=$dbADO->Execute('SELECT * FROM FloorplanObjectType WHERE FK_FloorplanType=? ORDER BY Description ASC',$GLOBALS['EntertainmentZone']);
-	while($rowFOT=$resFOT->FetchRow()){
-		$fotArray[$rowFOT['PK_FloorplanObjectType']]=$rowFOT['Description'];
-	}
-
+	$fotArray=getAssocArray('FloorplanObjectType','PK_FloorplanObjectType','Description',$dbADO,'WHERE FK_FloorplanType='.$GLOBALS['EntertainmentZone']);
+	$fotRoomArray=getAssocArray('FloorplanObjectType','PK_FloorplanObjectType','Description',$dbADO,'WHERE FK_FloorplanType='.$GLOBALS['RoomsZone']);
 
 	if ($action=='form') {
 		$queryRooms = '
@@ -86,6 +82,7 @@ function rooms($output,$dbADO) {
 		<tr class="tablehead">
 			<td align="center"><B>'.$TEXT_ROOM_DESCRIPTION_CONST.' *</B></td>
 			<td align="center"><B>'.$TEXT_ROOM_TYPE_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_FLOORPLAN_OBJECT_TYPE_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_PICTURE_CONST.' **</B></td>
 			<td align="center"><B>'.$TEXT_DONT_SHOW_ROOM_ON_ORBITERS_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_ENTERTAIN_AREAS_CONST.'</B></td>
@@ -112,6 +109,7 @@ function rooms($output,$dbADO) {
 					<a href="javascript:if(confirm(\''.$TEXT_DELETE_ROOM_CONFIRMATION_CONST.' '.$rowRoom['NoDevices'].'\')){self.location=\'index.php?section=rooms&action=delete&delRoom='.$rowRoom['PK_Room'].'\';}">'.$TEXT_DELETE_ROOM_CONST.' #'.$rowRoom['PK_Room'].'</a>
 				</td>
 				<td align="center" valign="top">'.pulldownFromArray($roomTypes,'roomType_'.$rowRoom['PK_Room'],$rowRoom['FK_RoomType']).'</td>
+				<td align="center" valign="top">'.pulldownFromArray($fotRoomArray,'fotRoom_'.$rowRoom['PK_Room'],$rowRoom['FK_FloorplanObjectType']).'</td>
 				<td valign="top">'.@$roomImage.'<input type="file" name="pic_'.$rowRoom['PK_Room'].'"></td>
 				<td valign="top" align="center"><input type="checkbox" name="hidden_'.$rowRoom['PK_Room'].'" value="1" '.(($rowRoom['HideFromOrbiter']==1)?'checked':'').'></td>
 				';
@@ -203,8 +201,6 @@ function rooms($output,$dbADO) {
 			$queryInsertRoom = 'INSERT INTO Room (Description,FK_Installation,FK_RoomType) values(?,?,?)';
 			$res = $dbADO->Execute($queryInsertRoom,array('New room',$installationID,$roomType));
 			$lastInsert = $dbADO->Insert_ID();
-			// removed the scenarios since they are created outside website
-			//addScenariosToRoom($lastInsert, $installationID, $dbADO);
 			$locationGoTo = "roomDesc_{$lastInsert}";
 		}
 
@@ -229,10 +225,11 @@ function rooms($output,$dbADO) {
 
 			$newDesc = cleanString(@$_POST['roomDesc_'.$room]);
 			$newRoomType = (@$_POST['roomType_'.$room]!=0)?cleanInteger(@$_POST['roomType_'.$room]):NULL;
+			$newRoomFOT = (@$_POST['fotRoom_'.$room]!=0)?cleanInteger(@$_POST['fotRoom_'.$room]):NULL;
 			$HideFromOrbiter=(int)@$_POST['hidden_'.$room];
 
-			$query = 'UPDATE Room set Description=?,HideFromOrbiter=?,FK_RoomType=? WHERE PK_Room = ?';
-			$resUpdRoom = $dbADO->Execute($query,array($newDesc,$HideFromOrbiter,$newRoomType,$room));
+			$query = 'UPDATE Room set Description=?,HideFromOrbiter=?,FK_RoomType=?,FK_FloorplanObjectType=? WHERE PK_Room = ?';
+			$resUpdRoom = $dbADO->Execute($query,array($newDesc,$HideFromOrbiter,$newRoomType,$newRoomFOT,$room));
 			$locationGoTo = "roomDesc_".$room;
 
 			// upload room picture

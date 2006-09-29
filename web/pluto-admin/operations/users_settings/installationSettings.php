@@ -200,7 +200,7 @@ function installationSettings($output,$dbADO) {
 		$state = cleanString(@$_POST['State'],50);
 		$zip = cleanString(@$_POST['Zip'],50);
 		$country=((int)$_POST['countryID']!=0)?(int)$_POST['countryID']:NULL;
-		$newLanguage=(int)$_POST['newLanguage'];
+		$newLanguage=(int)@$_POST['newLanguage'];
 		
 		$city_coords=(int)@$_POST['city_coords'];
 		$Longitude=$_POST['Longitude'];
@@ -243,8 +243,8 @@ function installationSettings($output,$dbADO) {
 							WHERE PK_Installation = ?';
 			$dbADO->Execute($queryUpdate,array($description,$name,$address,$city,$state,$zip,$country,$installationID));
 			
-			$newTimeZone=$_POST['newTimeZone'];
-			$oldTimeZone=$_POST['oldTimeZone'];
+			$newTimeZone=@$_POST['newTimeZone'];
+			$oldTimeZone=@$_POST['oldTimeZone'];
 			if($newTimeZone!=$oldTimeZone){
 				$cmdToSend='sudo -u root /usr/pluto/bin/SetTimeZone.sh '.trim($newTimeZone);
 				exec($cmdToSend);	
