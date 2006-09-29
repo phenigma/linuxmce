@@ -35,8 +35,8 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 using namespace DCE;
 
 //#define SCENE_DEBUG 1
-#define DUMP_SCENE_DEBUG 
-#define DISABLE_HIGHLIGHT 
+//#define DUMP_SCENE_DEBUG 
+//#define DISABLE_HIGHLIGHT 
 
 OpenGL3DEngine::OpenGL3DEngine() : 
 	Quit(false),
