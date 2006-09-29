@@ -8919,10 +8919,20 @@ void Orbiter::StartScreenSaver()
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::StartScreenSaver");
 	if( m_pDevice_ScreenSaver )
 	{
-		DCE::CMD_On CMD_On(m_dwPK_Device,m_pDevice_ScreenSaver->m_dwPK_Device,0,"");
-		SendCommand(CMD_On);
-		string sName = m_pDevice_ScreenSaver->m_mapParameters_Find(DEVICEDATA_Name_CONST);
-		CMD_Activate_Window(sName);
+		if( m_pDesignObj_Orbiter_ScreenSaveMenu )
+		{
+			CMD_Set_Main_Menu("V");
+			GotoDesignObj(m_sMainMenu);
+
+#ifdef DEBUG
+    g_pPlutoLogger->Write(LV_STATUS,"::Screen saver goto screen m_bDisplayOn = true; %p", m_pDesignObj_Orbiter_ScreenSaveMenu);
+#endif
+		}
+		
+        DCE::CMD_On CMD_On(m_dwPK_Device,m_pDevice_ScreenSaver->m_dwPK_Device,0,"");
+        SendCommand(CMD_On);
+        string sName = m_pDevice_ScreenSaver->m_mapParameters_Find(DEVICEDATA_Name_CONST);
+        CMD_Activate_Window(sName);
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"::Screen saver activate app m_bDisplayOn = true;");
