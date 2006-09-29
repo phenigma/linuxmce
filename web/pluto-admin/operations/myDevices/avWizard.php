@@ -7,43 +7,48 @@ function avWizard($output,$dbADO) {
 	global $dbPlutoMainDatabase;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
-	//	$dbADO->debug=true;
+
 	$userID = (int)@$_SESSION['userID'];
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
-	$type = isset($_REQUEST['type'])?cleanString($_REQUEST['type']):'avEquipment';
 	$installationID = (int)@$_SESSION['installationID'];
+	$_SESSION['selectedEntArea']=(isset($_REQUEST['entArea']))?(int)$_REQUEST['entArea']:(int)@$_SESSION['selectedEntArea'];		
 
-$start_time=getmicrotime();	
+
 
 	$deviceCategory=$GLOBALS['rootAVEquipment'];
 	$specificFloorplanType=$GLOBALS['AVEquipmentFlorplanType'];
 	$output->setHelpSrc('/wiki/index.php/AV_Devices');
 
-	// get selected category Device Templates
+	// get AV categories Device Templates
 	$categoriesArray=getDescendantsForCategory($deviceCategory,$dbADO);
+	
+	// get associative array with rooms
+	$roomArray=getAssocArray('Room','PK_Room','Description',$dbADO,'','ORDER BY Description ASC');
 
+	// get associative array with entertain areas and add "all entertain areas" to it
+	$entAreas=getAssocArray('EntertainArea','PK_EntertainArea','EntertainArea.Description',$dbADO,'INNER JOIN Room ON FK_Room=PK_Room WHERE FK_Installation='.$installationID,'ORDER BY EntertainArea.Description ASC');
+	$entAreas[-2]=$TEXT_ALL_ENTERTAIN_AREAS_CONST;
+	
+	// get AV device templates, infrared Device templates and specialised device templates and put yhem in global variables
+	// this are used for controlled_via function, to avoid having them extracted from DB for each device
+	global $avArray,$controlledByIfIR,$controlledByIfNotIR;
+	$avArray=getDeviceTemplatesFromCategory($GLOBALS['rootAVEquipment'],$dbADO);
+	$controlledByIfIR=getDevicesFromCategories(array($GLOBALS['specialized'],$GLOBALS['InfraredInterface']),$dbADO);
+	$controlledByIfNotIR=getDevicesFromCategories(array($GLOBALS['rootComputerID']),$dbADO);
+	
 	$queryDeviceTemplate='
 		SELECT * FROM DeviceTemplate 
 			WHERE FK_DeviceCategory IN ('.join(',',$categoriesArray).')
 		ORDER BY Description ASC';
 	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate);
-	$DTArray=array();
-	$DTIDArray=array();
+	$dtArray=array();
 	while($rowDeviceCategory=$resDeviceTemplate->FetchRow()){
-		$DTArray[]=$rowDeviceCategory['Description'];
-		$DTIDArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
+		$dtArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
 	}
 
 
-	$queryRooms='SELECT * FROM Room WHERE FK_Installation=? ORDER BY Description ASC';
-	$resRooms=$dbADO->Execute($queryRooms,$installationID);
-	$roomIDArray=array();
-	$roomArray=array();
-	while($rowRoom=$resRooms->FetchRow()){
-		$roomArray[]=$rowRoom['Description'];
-		$roomIDArray[]=$rowRoom['PK_Room'];
-	}
+	
 
 	if(isset($_REQUEST['lastAdded']) && (int)$_REQUEST['lastAdded']!=0){
 		$rs=$dbADO->Execute('SELECT Comments FROM DeviceTemplate WHERE PK_DeviceTemplate=?',(int)$_REQUEST['lastAdded']);
@@ -57,6 +62,91 @@ $start_time=getmicrotime();
 
 
 	if ($action == 'form') {
+		// get share with others
+		$queryDevice='
+			SELECT Device.*,Device_StartupScript.Enabled 
+			FROM Device
+			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			LEFT JOIN Device_StartupScript ON FK_Device=PK_Device AND FK_StartupScript=?
+			WHERE FK_DeviceCategory=? AND Device.FK_Installation=?';
+		$resDevice=$dbADO->Execute($queryDevice,array($GLOBALS['ShareIRCodes'],$GLOBALS['CategoryCore'],$installationID));
+		if($resDevice->RecordCount()!=0){
+			$rowDevice=$resDevice->FetchRow();
+			$coreID=$rowDevice['PK_Device'];
+			$sharedWithOthers=($rowDevice['Enabled']==1)?1:0;
+		}
+		
+		switch ($_SESSION['selectedEntArea']){
+			case -2:
+				$filter='';
+			break;
+			case 0:
+				$filter=' AND FK_EntertainArea IS NULL';
+			break;
+			default:
+				$filter=' AND FK_EntertainArea ='.$_SESSION['selectedEntArea'];
+			break;
+		}
+		
+		$queryConnectedToDevices='
+			SELECT DISTINCT Device.*
+			FROM Device 
+			INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+			INNER JOIN DeviceTemplate_Input ON DeviceTemplate_Input.FK_DeviceTemplate=Device.FK_DeviceTemplate 
+			WHERE Device.FK_DeviceTemplate IN ('.join(',',$dtArray).') AND FK_Installation=?';	
+		$resConnectedToDevices=$dbADO->Execute($queryConnectedToDevices,$installationID);
+		$conD=array();
+		while($rowConD=$resConnectedToDevices->FetchRow()){
+			$conD[$rowConD['PK_Device']]=$rowConD['Description'];
+		}
+		$resConnectedToDevices->Close();
+
+		// get devices and their details
+		$displayedDevices=array();
+		$joinArray=$dtArray;
+		$joinArray[]=0; 	// used only for query when there are no DT in selected category
+		$queryDevice='
+			SELECT 
+				FK_MediaType,
+				Device.PK_Device,
+				Device.Description,
+				Device.IPaddress,
+				Device.MACaddress,
+				Device.FK_Device_ControlledVia,
+				Device.FK_Device_RouteTo,
+				Device.FK_Room,
+				Device.FK_DeviceTemplate,
+				DeviceTemplate.Description AS TemplateName, 
+				DeviceCategory.Description AS CategoryName, 
+				Manufacturer.Description AS ManufacturerName, 
+				IsIPBased, 
+				FK_DeviceCategory,
+				DeviceData.Description AS dd_Description, 
+				Device_DeviceData.FK_DeviceData,
+				ParameterType.Description AS typeParam, 
+				Device_DeviceData.IK_DeviceData,
+				ShowInWizard,ShortDescription,
+				AllowedToModify,
+				DeviceTemplate_DeviceData.Description AS Tooltip,
+				Parent.Description AS PDescription
+			FROM DeviceData 
+			INNER JOIN ParameterType ON FK_ParameterType = PK_ParameterType 
+			INNER JOIN Device_DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData 
+			INNER JOIN Device ON Device_DeviceData.FK_Device=Device.PK_Device
+			LEFT JOIN Device Parent ON Parent.PK_Device=Device.FK_Device_ControlledVia
+			LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData AND DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate
+			INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate 
+			LEFT JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate=PK_DeviceTemplate AND FK_MediaType in (1,11)
+			LEFT JOIN DeviceTemplate_AV ON Device.FK_DeviceTemplate=DeviceTemplate_AV.FK_DeviceTemplate 
+			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory 
+			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer 		
+			LEFT JOIN Device_EntertainArea ON Device_EntertainArea.FK_Device=Device.PK_Device	
+			WHERE Device.FK_DeviceTemplate IN ('.join(',',$joinArray).') AND Device.FK_Installation=? '.$filter.' 
+			ORDER BY FK_Device_RouteTo DESC, Device.Description ASC';
+
+		$resDevice=$dbADO->Execute($queryDevice,$installationID);
+		
+		
 		$out.=setLeftMenu($dbADO).'
 	<script>
 			function windowOpen(locationA,attributes) {
@@ -67,7 +157,6 @@ $start_time=getmicrotime();
 	<div class="confirm" align="center"><B>'.strip_tags(@$_GET['msg']).'</B></div>
 	<form action="index.php" method="POST" name="avWizard">
 	<input type="hidden" name="section" value="avWizard">
-	<input type="hidden" name="type" value="'.$type.'">
 	<input type="hidden" name="action" value="add">
 	<input type="hidden" name="cmd" value="0">			
 	
@@ -78,33 +167,13 @@ $start_time=getmicrotime();
 			</tr>
 		</table>
 	</div>
-	<div id="content" style="display:none;">';
-		$out.='<a href="index.php?section=connectionWizard">'.$TEXT_CONNECTION_WIZARD_CONST.'</a>';
-		$queryDevice='
-			SELECT Device.* 
-			FROM Device
-			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-			WHERE FK_DeviceCategory=? AND Device.FK_Installation=?';
-		$resDevice=$dbADO->Execute($queryDevice,array($GLOBALS['CategoryCore'],$installationID));
-		if($resDevice->RecordCount()!=0){
-			$rowDevice=$resDevice->FetchRow();
-			$coreID=$rowDevice['PK_Device'];
-		}
-		if(isset($coreID)){
-			$resDevice_StartupScript=$dbADO->Execute('SELECT * FROM Device_StartupScript WHERE FK_Device=? AND FK_StartupScript=?',array($coreID,$GLOBALS['ShareIRCodes']));
-			$rowShare=$resDevice_StartupScript->FetchRow();
-			$sharedWithOthers=($rowShare['Enabled']==1)?1:0;
-		}
-
-		$out.='<div align="center"><input type="checkbox" name="shareIRCodes" value="1" '.((@$sharedWithOthers>0)?'checked':'').' onClick="document.avWizard.submit();"> '.$TEXT_SHARE_CODES_CONST.'</div>';
-		$out.='	<input type="hidden" name="coreID" value="'.$coreID.'">
-				<input type="hidden" name="oldShareIRCodes" value="'.((@$sharedWithOthers>0)?'1':'0').'">';
-
-		$entAreas=getAssocArray('EntertainArea','PK_EntertainArea','EntertainArea.Description',$dbADO,'INNER JOIN Room ON FK_Room=PK_Room WHERE FK_Installation='.$installationID,'ORDER BY EntertainArea.Description ASC');
-		$entAreas[-2]=$TEXT_ALL_ENTERTAIN_AREAS_CONST;
-		$_SESSION['selectedEntArea']=(isset($_REQUEST['entArea']))?(int)$_REQUEST['entArea']:(int)@$_SESSION['selectedEntArea'];		
-		$out.='
+	<div id="content" style="display:none;">
+		<a href="index.php?section=connectionWizard">'.$TEXT_CONNECTION_WIZARD_CONST.'</a><div align="center"><input type="checkbox" name="shareIRCodes" value="1" '.((@$sharedWithOthers>0)?'checked':'').' onClick="document.avWizard.submit();"> '.$TEXT_SHARE_CODES_CONST.'</div>
+		
+		<input type="hidden" name="coreID" value="'.$coreID.'">
+		<input type="hidden" name="oldShareIRCodes" value="'.((@$sharedWithOthers>0)?'1':'0').'">
 		'.$TEXT_CHOOSE_ENTERTAIN_AREA_CONST.': '.pulldownFromArray($entAreas,'entArea',$_SESSION['selectedEntArea'],'onchange="document.avWizard.action.value=\'form\';document.avWizard.submit();"','key',$TEXT_UNASSIGNED_CONST).'
+		
 		<table align="center" border="0" cellpadding="2" cellspacing="0">
 			<tr class="tablehead">
 					<td align="center" rowspan="2"><B>'.$TEXT_DEVICE_CONST.'</B></td>
@@ -122,90 +191,8 @@ $start_time=getmicrotime();
 					';
 
 
-		switch ($_SESSION['selectedEntArea']){
-			case -2:
-				$filter='';
-			break;
-			case 0:
-				$filter=' AND FK_EntertainArea IS NULL';
-			break;
-			default:
-				$filter=' AND FK_EntertainArea ='.$_SESSION['selectedEntArea'];
-			break;
-		}
-		
-		if(count($DTIDArray)==0)
-			$DTIDArray[]=0;
-		$displayedAVDevices=array();
-		$displayedAVDevicesDescription=array();
-		$queryDevice='
-			SELECT Device.*
-			FROM Device 
-			INNER JOIN Device_EntertainArea ON FK_Device=PK_Device
-			WHERE Device.FK_DeviceTemplate IN ('.join(',',$DTIDArray).') AND FK_Installation=? '.$filter;	
-
-		$resDevice=$dbADO->Execute($queryDevice,$installationID);
-		while($rowD=$resDevice->FetchRow()){
-			$displayedAVDevices[]=$rowD['PK_Device'];
-			$displayedAVDevicesDescription[]=$rowD['Description'];
-		}
-		$resDevice->Close();
 
 		
-		$queryConnectedToDevices='
-			SELECT DISTINCT Device.*
-			FROM Device 
-			INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
-			INNER JOIN DeviceTemplate_Input ON DeviceTemplate_Input.FK_DeviceTemplate=Device.FK_DeviceTemplate 
-			WHERE Device.FK_DeviceTemplate IN ('.join(',',$DTIDArray).') AND FK_Installation=?';	
-		$resConnectedToDevices=$dbADO->Execute($queryConnectedToDevices,$installationID);
-		$conD=array();
-		while($rowConD=$resConnectedToDevices->FetchRow()){
-			$conD[$rowConD['PK_Device']]=$rowConD['Description'];
-		}
-		$resConnectedToDevices->Close();
-
-		$displayedDevices=array();
-		$joinArray=$DTIDArray;
-		$joinArray[]=0; 	// used only for query when there are no DT in selected category
-		$queryDevice='
-			SELECT 
-				FK_MediaType,
-				PK_Device,
-				Device.Description,
-				IPaddress,
-				MACaddress,
-				FK_Device_ControlledVia,
-				FK_Device_RouteTo,
-				FK_Room,
-				Device.FK_DeviceTemplate,
-				DeviceTemplate.Description AS TemplateName, 
-				DeviceCategory.Description AS CategoryName, 
-				Manufacturer.Description AS ManufacturerName, 
-				IsIPBased, 
-				FK_DeviceCategory,
-				DeviceData.Description AS dd_Description, 
-				Device_DeviceData.FK_DeviceData,
-				ParameterType.Description AS typeParam, 
-				Device_DeviceData.IK_DeviceData,
-				ShowInWizard,ShortDescription,
-				AllowedToModify,
-				DeviceTemplate_DeviceData.Description AS Tooltip 
-			FROM DeviceData 
-			INNER JOIN ParameterType ON FK_ParameterType = PK_ParameterType 
-			INNER JOIN Device_DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData 
-			INNER JOIN Device ON Device_DeviceData.FK_Device=PK_Device
-			LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData AND DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate
-			INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate 
-			LEFT JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate=PK_DeviceTemplate AND FK_MediaType in (1,11)
-			LEFT JOIN DeviceTemplate_AV ON Device.FK_DeviceTemplate=DeviceTemplate_AV.FK_DeviceTemplate 
-			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory 
-			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer 		
-			LEFT JOIN Device_EntertainArea ON Device_EntertainArea.FK_Device=PK_Device	
-			WHERE Device.FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=? '.$filter.' 
-			ORDER BY FK_Device_RouteTo DESC, Device.Description ASC';
-
-		$resDevice=$dbADO->Execute($queryDevice,$installationID);
 
 		$childOf=array();
 		$firstDevice=0;
@@ -254,30 +241,26 @@ $start_time=getmicrotime();
 	
 				$deviceName=(@$childOf[$rowD['PK_Device']]=='')?'<input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'">':'<input type="hidden" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"><B>'.$rowD['Description'].'</B>';
 				$deviceName.=' # '.$rowD['PK_Device'];
-				$roomPulldown='<select name="room_'.$rowD['PK_Device'].'">
-							<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- '.$TEXT_SELECT_ROOM_CONST.' -&nbsp;&nbsp;&nbsp;&nbsp;</option>';
-				foreach($roomIDArray as $key => $value){
-					$roomPulldown.='<option value="'.$value.'" '.(($rowD['FK_Room']==$value)?'selected':'').'>'.$roomArray[$key].'</option>';
-				}
-				$roomPulldown.='</select>';
+				$roomPulldown=pulldownFromArray($roomArray,'room_'.$rowD['PK_Device'],$rowD['FK_Room'],'','key','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- '.$TEXT_SELECT_ROOM_CONST.' -&nbsp;&nbsp;&nbsp;&nbsp;');
 				
 				$tvLineUpButton='';
 				if(in_array($rowD['PK_Device'],$liveTVArray)){
-					$tvLineUpButton='<input type="button" class="button_fixed" name="tvLineUp_'.$rowD['PK_Device'].'" value="'.$TEXT_TV_LINEUP_CONST.'" onclick="windowOpen(\'index.php?section=tvLineUp&deviceID='.$rowD['PK_Device'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=640,height=480,toolbars=true,scrollbars=1,resizable=1\');"><br>';
+					$tvLineUpButton='<input type="button" class="button_fixed" name="tvLineUp_'.$rowD['PK_Device'].'" value="'.$TEXT_TV_LINEUP_CONST.'" onclick="windowOpen(\'index.php?section=tvLineUp&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=640,height=480,toolbars=true,scrollbars=1,resizable=1\');"><br>';
 				}
 			
 				$buttons='
 						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'/wiki/index.php/Documentation_by_Device_Templates#'.wikiLink($rowD['TemplateName']).'\'"><br>
 						<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
-						<input type="button" class="button_fixed" name="btn" value="'.$TEXT_AV_PROPERTIES_CONST.'" onClick="windowOpen(\'index.php?section=irCodes&dtID='.$rowD['FK_DeviceTemplate'].'&deviceID='.$rowD['PK_Device'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>
+						<input type="button" class="button_fixed" name="btn" value="'.$TEXT_AV_PROPERTIES_CONST.'" onClick="windowOpen(\'index.php?section=irCodes&dtID='.$rowD['FK_DeviceTemplate'].'&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>
 						<input type="button" class="button_fixed" name="resync_'.$rowD['PK_Device'].'" value="'.$TEXT_RESYNC_CONST.'"  onclick="self.location=\'index.php?section=resyncCodes&from=avWizard&dtID='.$rowD['FK_DeviceTemplate'].'\';"><br>
 						'.@$tvLineUpButton.'
 						<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\''.$TEXT_DELETE_DEVICE_CONFIRMATION_CONST.'\'))return true;else return false;">
 				</td>';
+//				$controlledByPulldown=controlledViaPullDown('controlledBy_'.$rowD['PK_Device'],$rowD['PK_Device'],$rowD['FK_DeviceTemplate'],$rowD['FK_DeviceCategory'],$rowD['FK_Device_ControlledVia'],$dbADO);
 	
-				$controlledByPulldown=controlledViaPullDown('controlledBy_'.$rowD['PK_Device'],$rowD['PK_Device'],$rowD['FK_DeviceTemplate'],$rowD['FK_DeviceCategory'],$rowD['FK_Device_ControlledVia'],$dbADO);
+				$controlledViaLink='<a href="javascript:windowOpen(\'index.php?section=editDeviceControlledVia&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');" title="'.$TEXT_CLICK_TO_CHANGE_CONST.'">'.((is_null($rowD['FK_Device_ControlledVia']))?$TEXT_EDIT_CONST:$rowD['PDescription']).'</a>';
 				$devicePipes=getPipes($rowD['PK_Device'],$dbADO);
-				
+	
 				unset($GLOBALS['DeviceIDControlledVia']);
 				unset($GLOBALS['DeviceControlledVia']);
 	
@@ -296,7 +279,7 @@ $start_time=getmicrotime();
 					</tr>
 					<tr>			
 						<td align="center" class="alternate_back" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
-						<td align="right">'.$controlledByPulldown.'</td>
+						<td align="center">'.$controlledViaLink.'</td>
 						<td class="alternate_back">V: '.@$devicePipes['2']['output'].'</td>
 						<td class="alternate_back">'.@$devicePipes['2']['to'].'</td>
 						<td class="alternate_back">'.@$devicePipes['2']['input'].'</td>
@@ -345,7 +328,7 @@ $start_time=getmicrotime();
 					<td colspan="8">* '.$TEXT_FLOORPLAN_NOTE_CONST.'</td>
 				</tr>
 				<tr>
-					<td colspan="8" align="center"><input type="button" class="button_fixed" name="button" value="'.$TEXT_ADD_DEVICE_CONST.'" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> '.@$updateBtns.'</td>
+					<td colspan="8" align="center"><input type="button" class="button_fixed" name="button" value="'.$TEXT_ADD_DEVICE_CONST.'" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=avWizard&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> '.@$updateBtns.'</td>
 				</tr>
 			</table>
 			<input type="hidden" name="DeviceDataToDisplay" value="'.join(',',$GLOBALS['DeviceDataToDisplay']).'">
@@ -357,15 +340,15 @@ $start_time=getmicrotime();
 	</form>
 	</div>
 	';
-	$end_time=getmicrotime();			
-//	$out.='<br><p class="normaltext">Page generated in '.round(($end_time-$start_time),3).' s.';
+
+
 		$output->setScriptInBody('onLoad="document.getElementById(\'preloader\').style.display=\'none\';document.getElementById(\'content\').style.display=\'\';";');
 	} else {
 		$cmd=cleanInteger(@$_POST['cmd']);
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=avWizard&type=$type&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
+			header("Location: index.php?section=avWizard&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 
@@ -475,12 +458,12 @@ $start_time=getmicrotime();
 					$dbADO->Execute('INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData) VALUES (?,?)',array($insertID,$GLOBALS['InfraredPort']));
 				}
 			}
-			header("Location: index.php?section=avWizard&type=$type&lastAdded=$deviceTemplate#deviceLink_".@$insertID);
+			header("Location: index.php?section=avWizard&lastAdded=$deviceTemplate#deviceLink_".@$insertID);
 			exit();
 		}
 
 
-		header("Location: index.php?section=avWizard&msg=$TEXT_DEVICES_WAS_UPDATED_CONST&type=$type".@$anchor);
+		header("Location: index.php?section=avWizard&msg=$TEXT_DEVICES_WAS_UPDATED_CONST".@$anchor);
 	}
 
 	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');

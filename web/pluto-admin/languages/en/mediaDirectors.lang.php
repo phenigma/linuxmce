@@ -20,11 +20,12 @@ $TEXT_REBUILD_DISKLESS_IMAGE_CONST='Rebuild image';
 $TEXT_CONFIRM_DELETE_MEDIA_DIRECTOR_CONST='Are you sure you want to delete this device?';
 $TEXT_FORCE_48K_CONST='Force 48 KHz output sample rate';
 $TEXT_CHANGE_VIDEO_CARD_CONFIRMATION_CONST='Are you sure you want to change the video card?';
-$TEXT_INFRARED_REMOTES_YOU_WILL_USE_CONST='Infrared remote controls you will use:';
+$TEXT_INFRARED_REMOTES_YOU_WILL_USE_CONST='Infrared remote controls you will use';
 $TEXT_INFRARED_RECEIVERS_CONST='Infrared Receivers';
 $TEXT_COMPUTING_APPLICATIONS_CONST='Computing application';
 $TEXT_HARDWARE_ACCELERATION_CONST='Hardware acceleration';
 $TEXT_USE_ALPHA_BLENDED_UI_CONST='Use alpha blended UI';
 $TEXT_DEINTERLACE_QUALITY_CONST='Deinterlace Quality';
 $TEXT_SCREEN_SAVER_CONST='Screen saver';
+$TEXT_SOFTWARE_MODULES_CONST='Software modules';
 ?>
