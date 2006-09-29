@@ -293,6 +293,8 @@ MeshFrame* OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFram
 inline void OpenGL3DEngine::DumpScene()
 {
 #ifdef DUMP_SCENE_DEBUG
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+	
 	g_pPlutoLogger->Write(LV_WARNING, "DUMPING SCENE: current layer %p, size %d",
 		CurrentLayer, CurrentLayer->Children.size());
 
@@ -509,7 +511,6 @@ MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
 
 	MeshFrame* Result = CurrentLayer;
-	Result->MarkAsVolatile();
 
 	CurrentLayer = FrameDatagrid;
 
