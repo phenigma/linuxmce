@@ -91,7 +91,7 @@ void OpenGL3DEngine::Finalize(void)
 	if(OldLayer)
 		OldLayer->CleanUp(true);
 
-	if(OldLayer)
+	if(CurrentLayer)
 		CurrentLayer->CleanUp(true);
 
 	MeshPainter::Instance()->CleanUp();
