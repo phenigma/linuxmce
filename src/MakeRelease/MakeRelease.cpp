@@ -75,7 +75,7 @@ public:
 	Row_Package_Directory *m_pRow_Package_Directory;
 };
 
-string g_sPackages, g_sPackages_Exclude, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date, g_sBaseVersion, g_sReplacePluto;
+string g_sPackages, g_sPackages_Exclude, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date, g_sBaseVersion, g_sReplacePluto, g_sOutputPath;
 string g_sPK_RepositorySource;
 int g_iPK_Distro=0,g_iSVNRevision=0;
 bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false, g_bDontTouchDB = false, g_bSetVersion = true, g_bOnlyCompileIfNotFound = false;
@@ -245,6 +245,9 @@ int main(int argc, char *argv[])
 		case 'f':
 			sDefines = argv[++optnum];
 			break;
+		case 'O':
+			g_sOutputPath = argv[++optnum];
+			break;
 		case 'd':
 			g_bDontTouchDB = true;
 			break;
@@ -362,8 +365,11 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 	}
+
+	if( g_sOutputPath.empty() )
+		g_sOutputPath = "/home/builds/" + g_pRow_Version->VersionName_get();
 	g_sBaseVersion = g_pRow_Version->VersionName_get();
-	cout << "Version is " << g_sBaseVersion << endl;
+	cout << "Version is " << g_sBaseVersion << " path is: " << g_sOutputPath << endl;
 
 	string::size_type pos=0;
 	int iDotCount;
@@ -478,7 +484,7 @@ int main(int argc, char *argv[])
 			sDebPkg += it->first + " ";
 		}
 		
-		FILE * f = fopen(("/home/builds/" + g_pRow_Version->VersionName_get() + "/debian-packages.tmp").c_str(), "wb");
+		FILE * f = fopen((g_sOutputPath + "/debian-packages.tmp").c_str(), "wb");
 		if(f)
 		{
 			cout << "Writing debian-packages.tmp" << endl;
@@ -1445,7 +1451,7 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileI
 	pRow_Package_Source->Version_set(Version);
 */	
 	string Package_Name = StringUtils::ToLower(pRow_Package_Source->Name_get());
-	string Dir("/home/builds/" + g_pRow_Version->VersionName_get() + "/tmp/" + Package_Name + "-" + Version);
+	string Dir(g_sOutputPath + "/tmp/" + Package_Name + "-" + Version);
 	string Prefix("/usr/");
 	if (pRow_Package_Source->FK_Package_getrow()->IsSource_get())
 	{
@@ -1760,10 +1766,10 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 	{
 		Username = dceConfig.ReadString("SF_User");
 		Password = dceConfig.ReadString("SF_Pass");
-		ArchiveFileName = "/home/builds/" + g_pRow_Version->VersionName_get() + "/sfarch/" + pRow_Package_Source->Repository_get() + "/";
+		ArchiveFileName = g_sOutputPath + "/sfarch/" + pRow_Package_Source->Repository_get() + "/";
 	}
 	else
-		ArchiveFileName = "/home/builds/" + g_pRow_Version->VersionName_get() + "/" + pRow_Package_Source->Repository_get() + "/";
+		ArchiveFileName = g_sOutputPath + "/" + pRow_Package_Source->Repository_get() + "/";
 	system(("mkdir -p " + ArchiveFileName).c_str());
 	
 	ArchiveFileName += pRow_Package_Source->Name_get() + "_" + pRow_Package_Source->Version_get() + pRow_Package_Source->Parms_get();
