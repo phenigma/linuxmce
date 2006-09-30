@@ -93,6 +93,9 @@ void PnpQueue::Run()
 
 	pnp.Relock();
 	
+	DCE::CMD_Check_Media_Providers CMD_Check_Media_Providers(m_pPlug_And_Play_Plugin->m_dwPK_Device,m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_dwPK_Device);
+	m_pPlug_And_Play_Plugin->SendCommand(CMD_Check_Media_Providers);
+
 	// we don't do this during the read phase above because the orbiter plugin may not have registered, nor the orbiters
 	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
 		DetermineOrbitersForPrompting(it->second);

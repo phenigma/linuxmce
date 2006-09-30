@@ -64,11 +64,13 @@ using namespace DCE;
 #include "pluto_main/Table_FloorplanObjectType_Color.h"
 #include "pluto_main/Table_Orbiter.h"
 #include "pluto_main/Table_DHCPDevice.h"
+#include "pluto_main/Table_Installation.h"
 #include "pluto_main/Table_Manufacturer.h"
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Table_Size.h"
 #include "pluto_main/Define_Screen.h"
 #include "pluto_media/Define_AttributeType.h"
+#include "pluto_media/Table_ProviderSource.h"
 #include "DCERouter.h"
 #include "CreateDevice/CreateDevice.h"
 #include "BD/PhoneDevice.h"
@@ -2854,4 +2856,80 @@ bool Orbiter_Plugin::PresenceDetected( class Socket *pSocket, class Message *pMe
 bool Orbiter_Plugin::PresenceLost( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 	return false;
+}
+
+string Orbiter_Plugin::PK_Device_Orbiters_In_Room_get(int PK_Room, bool bOnlyAllowingPopups)
+{
+	string sPK_Device="";
+	for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
+		if( it->second->m_bRegistered && it->second->m_dwPK_Room==PK_Room && (!bOnlyAllowingPopups || it->second->m_bSendPopups) )
+			sPK_Device += StringUtils::itos(it->first) + ",";
+	return sPK_Device;
+}
+
+//<-dceag-c820-b->
+
+	/** @brief COMMAND: #820 - Check Media Providers */
+	/** Find media devices where there is no provider specified and prompt the user */
+
+void Orbiter_Plugin::CMD_Check_Media_Providers(string &sCMD_Result,Message *pMessage)
+//<-dceag-c820-e->
+{
+	// Get a list of all devices where we haven't specified the provider yet.  For now just live tv
+	string sSQL = "SELECT PK_Device,FK_MediaType FROM Device "
+		"JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate = Device.FK_DeviceTemplate and FK_MediaType IN (" TOSTRING(MEDIATYPE_np_LiveTV_CONST) ") "
+		"LEFT JOIN Device_DeviceData ON PK_Device=FK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_EK_MediaProvider_CONST) " "
+		"WHERE IK_DeviceData IS NULL ";
+
+	PlutoSqlResult result_set;
+    MYSQL_ROW row;
+	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
+	{
+		while ((row = mysql_fetch_row(result_set.r)))
+		{
+			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow( atoi(row[0]) );
+			string sDescription = pRow_Device->Description_get();
+			Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
+			while( pRow_Device_Parent )
+			{
+				sDescription = pRow_Device_Parent->Description_get() + " / " + sDescription;
+				pRow_Device_Parent = pRow_Device_Parent->FK_Device_ControlledVia_getrow();
+			}
+
+			string sPK_Orbiters;
+			Row_Room *pRow_Room = pRow_Device->FK_Room_getrow();
+			if( pRow_Room )
+			{
+				sDescription += " (" + pRow_Room->Description_get() + ")";
+				sPK_Orbiters = PK_Device_Orbiters_In_Room_get(pRow_Room->PK_Room_get(),true);
+			}
+			if( sPK_Orbiters.empty() )
+				sPK_Orbiters = m_sPK_Device_AllOrbiters_AllowingPopups;
+
+			// See what we have as the media providers for this type
+			vector<Row_ProviderSource *> vectRow_ProviderSource;
+			m_pMedia_Plugin->m_pDatabase_pluto_media->ProviderSource_get()->GetRows(
+				"EK_MediaType=" + string(row[1]) + " AND EK_Country=" + StringUtils::itos( m_pRouter->m_pRow_Installation_get()->FK_Country_get() ),
+				&vectRow_ProviderSource);
+			if( vectRow_ProviderSource.size()==0 )
+				continue;
+
+			string sText;
+			if( vectRow_ProviderSource.size()==1 )  // There's only 1 to choose from.  Pass the info
+			{
+				Row_ProviderSource *pRow_ProviderSource = vectRow_ProviderSource[0];
+				sText = StringUtils::itos( pRow_ProviderSource->PK_ProviderSource_get() ) + "\t"
+					+ pRow_ProviderSource->Description_get() + "\t"
+					+ pRow_ProviderSource->Comments_get() + "\t"
+					+ (pRow_ProviderSource->UserNamePassword_get() ? "1" : "0") + "\t"
+					+ pRow_ProviderSource->ProviderCommandLine_get() + "\t"
+					+ pRow_ProviderSource->DeviceCommandLine_get() + "\t"
+					+ pRow_ProviderSource->PackageCommandLine_get() + "\t"
+					+ pRow_ProviderSource->LineupCommandLine_get();
+			}			
+
+			DCE::SCREEN_Choose_Provider_for_Device_DL SCREEN_Choose_Provider_for_Device_DL(m_dwPK_Device,sPK_Orbiters,pRow_Device->PK_Device_get(),sText,sDescription);
+			SendCommand(SCREEN_Choose_Provider_for_Device_DL);
+		}
+	}
 }

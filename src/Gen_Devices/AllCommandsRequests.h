@@ -21688,37 +21688,29 @@ namespace DCE
 			1 /* number of parameters */,
 			COMMANDPARAMETER_Filename_CONST, sFilename.c_str()); }
 	};
-	class CMD_Assign_Return_Route : public PreformedCommand {
+	class CMD_Check_Media_Providers : public PreformedCommand {
 	public:
-		CMD_Assign_Return_Route(long DeviceIDFrom, long DeviceIDTo,int iNodeID,int iDestNodeID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
-			COMMAND_Assign_Return_Route_CONST,
-			2 /* number of parameters */,
-			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str(),
-			COMMANDPARAMETER_DestNodeID_CONST, StringUtils::itos(iDestNodeID).c_str()); }
+		CMD_Check_Media_Providers(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Check_Media_Providers_CONST,
+			0 /* number of parameters */); }
 	};
-	class CMD_Assign_Return_Route_DL : public PreformedCommand {
+	class CMD_Check_Media_Providers_DL : public PreformedCommand {
 	public:
-		CMD_Assign_Return_Route_DL(long DeviceIDFrom, string DeviceIDTo,int iNodeID,int iDestNodeID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Assign_Return_Route_CONST,
-			2 /* number of parameters */,
-			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str(),
-			COMMANDPARAMETER_DestNodeID_CONST, StringUtils::itos(iDestNodeID).c_str()); }
+		CMD_Check_Media_Providers_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Check_Media_Providers_CONST,
+			0 /* number of parameters */); }
 	};
-	class CMD_Assign_Return_Route_DT : public PreformedCommand {
+	class CMD_Check_Media_Providers_DT : public PreformedCommand {
 	public:
-		CMD_Assign_Return_Route_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iNodeID,int iDestNodeID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Assign_Return_Route_CONST,
-			2 /* number of parameters */,
-			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str(),
-			COMMANDPARAMETER_DestNodeID_CONST, StringUtils::itos(iDestNodeID).c_str()); }
+		CMD_Check_Media_Providers_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Check_Media_Providers_CONST,
+			0 /* number of parameters */); }
 	};
-	class CMD_Assign_Return_Route_Cat : public PreformedCommand {
+	class CMD_Check_Media_Providers_Cat : public PreformedCommand {
 	public:
-		CMD_Assign_Return_Route_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iNodeID,int iDestNodeID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Assign_Return_Route_CONST,
-			2 /* number of parameters */,
-			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str(),
-			COMMANDPARAMETER_DestNodeID_CONST, StringUtils::itos(iDestNodeID).c_str()); }
+		CMD_Check_Media_Providers_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Check_Media_Providers_CONST,
+			0 /* number of parameters */); }
 	};
 }
 #endif

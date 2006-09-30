@@ -264,6 +264,7 @@ public:
 
 	string m_sPK_Device_AllOrbiters_get() { return m_sPK_Device_AllOrbiters; }
 	string m_sPK_Device_AllOrbiters_AllowingPopups_get() { return m_sPK_Device_AllOrbiters_AllowingPopups; }
+	string PK_Device_Orbiters_In_Room_get(int PK_Room, bool bOnlyAllowingPopups=true);
 
 	//<-dceag-h-b->
 	/*
@@ -537,6 +538,13 @@ format */
 
 	virtual void CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename) { string sCMD_Result; CMD_Get_Screen_Saver_Files(iPK_Device,sFilename,sCMD_Result,NULL);};
 	virtual void CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #820 - Check Media Providers */
+	/** Find media devices where there is no provider specified and prompt the user */
+
+	virtual void CMD_Check_Media_Providers() { string sCMD_Result; CMD_Check_Media_Providers(sCMD_Result,NULL);};
+	virtual void CMD_Check_Media_Providers(string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
