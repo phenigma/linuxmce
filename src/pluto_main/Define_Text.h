@@ -1095,6 +1095,7 @@
 #define TEXT_Device_CONST 1811
 #define TEXT_Provider_Package_CONST 1812
 #define TEXT_Provider_Lineup_CONST 1813
+#define TEXT_please_wait_for_lookup_CONST 1814
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

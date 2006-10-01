@@ -73,6 +73,7 @@ protected:
 	map<CallBackType, CallBackData *> m_mapCallBackData;
 	string m_sActiveApplication_Description,m_sActiveApplication_Window;
 	int m_PK_DesignObj_ActiveApp_OSD,m_PK_DesignObj_ActiveApp_Remote;
+	int m_iStage; // Some screens go through stages and need a variable to track that
 	time_t m_tLastDeviceAdded;
 
 	pluto_pthread_mutex_t m_MapMutex; /** < Protected the access to our maps */
@@ -157,7 +158,6 @@ public:
 	virtual void SCREEN_DialogPhoneInstructions(long PK_Screen, string sInstructions, string sPhoneName);
 	virtual void SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sMacAddress, string sCommandLine, 
 		string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer);
-	virtual void SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_Device, string sText, string sDescription);
 
 	//Screens with locations
 	virtual void SCREEN_Main(long PK_Screen, string sLocation);
@@ -198,6 +198,14 @@ public:
 	//helper methods
 	void SaveFile_GotoChooseFolderDesignObj();
 	void SaveFile_SendCommand();
+
+	// Choose provider
+	virtual void SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_Device, string sText, string sDescription);
+	bool ChooseProvider_Intercepted(CallBackData *pData);
+	bool ChooseProvider_ObjectSelected(CallBackData *pData);
+	bool ChooseProvider_DatagridSelected(CallBackData *pData);
+	void ChooseProviderGetNextStage();
+	void SpawnProviderScript(string sCommandLine,string sArguments);
 
 	//savefile data
 	string m_sSaveFile_MountedFolder;

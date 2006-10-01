@@ -2930,6 +2930,7 @@ void Orbiter_Plugin::CMD_Check_Media_Providers(string &sCMD_Result,Message *pMes
 
 			DCE::SCREEN_Choose_Provider_for_Device_DL SCREEN_Choose_Provider_for_Device_DL(m_dwPK_Device,sPK_Orbiters,pRow_Device->PK_Device_get(),sText,sDescription);
 			SendCommand(SCREEN_Choose_Provider_for_Device_DL);
+			return;  // Only do 1 at a time
 		}
 	}
 }

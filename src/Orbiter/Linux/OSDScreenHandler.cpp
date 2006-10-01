@@ -290,7 +290,7 @@ bool OSDScreenHandler::UsersWizard_ObjectSelected(CallBackData *pData)
 
 				case DESIGNOBJ_butRemoveUser_CONST:
 				{
-					int nPK_User = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST].c_str());
+					int nPK_User = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST).c_str());
 					PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 					m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 					if(nPK_User)
@@ -342,7 +342,7 @@ void OSDScreenHandler::SCREEN_CountryWizard(long PK_Screen)
 	if( m_pWizardLogic->GetLocation() )
 	{
 		PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-		if( m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_5_CONST]!="VALID_DATA_FOUND" )  // A keyword so we know when we already asked this question
+		if( m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_5_CONST)!="VALID_DATA_FOUND" )  // A keyword so we know when we already asked this question
 		{
 			m_pOrbiter->ForceCurrentScreenIntoHistory();
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, "VALID_DATA_FOUND");
@@ -378,7 +378,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butPostalCode_CONST) 
 			{
 				PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-				int PK_Country = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST].c_str());
+				int PK_Country = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST).c_str());
 				m_pWizardLogic->SetCountry(PK_Country);
 
 				string sCityRegion = m_pWizardLogic->GetCityRegion();
@@ -405,7 +405,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butWizRooms_CONST )
 			{
-				string sUserInput = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				string sUserInput = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 				if( sUserInput.size() )
 				{
 					m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST,"");
@@ -434,7 +434,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 				}
 
 				PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-				string sLocation = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
+				string sLocation = m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST);
 				bool bLocationOk = m_pWizardLogic->SetLocation(sLocation);
 				if( !bLocationOk )
 				{
@@ -478,7 +478,7 @@ bool OSDScreenHandler::RoomsWizard_ObjectSelected(CallBackData *pData)
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butAddRoomType_CONST)
 			{
-				long PK_RoomType = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST].c_str());
+				long PK_RoomType = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST).c_str());
 				if(PK_RoomType)
 				{
 					m_pWizardLogic->AddRoomOfType(PK_RoomType);
@@ -487,7 +487,7 @@ bool OSDScreenHandler::RoomsWizard_ObjectSelected(CallBackData *pData)
 			}
 			else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butRemoveRoomType_CONST)
 			{
-				long PK_RoomType = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST].c_str());
+				long PK_RoomType = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST).c_str());
 				if(PK_RoomType)
 				{
                     m_pWizardLogic->RemoveRoomOfType(PK_RoomType);
@@ -527,8 +527,8 @@ bool OSDScreenHandler::RoomsWizard_CapturedKeyboardBufferChanged(CallBackData *p
 	{
 		case DESIGNOBJ_ConfirmNames_CONST:
 		{
-			int PK_Room = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST].c_str());
-			string sName = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+			int PK_Room = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST).c_str());
+			string sName = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 
 			if(sName != "" && PK_Room)
 			{
@@ -613,7 +613,7 @@ bool OSDScreenHandler::ThisRoom_ObjectSelected(CallBackData *pData)
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVProvider_CONST)
 			{
-				string sPK_Room = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
+				string sPK_Room = m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST);
 				if(sPK_Room == "")
 					return true;
 
@@ -656,8 +656,8 @@ bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butTVBoxManuf_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sInput1 = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
-				string sInput2 = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
+				string sInput1 = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_3_CONST);
+				string sInput2 = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST);
 
 				int PK_PostalCode = m_pWizardLogic->GetPostalCode();
 				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalAppServer,
@@ -683,7 +683,7 @@ bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butTVBoxInput_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sManufacturer = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
+				string sManufacturer = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST);
 				if(sManufacturer == "")
 					return true;
 			}
@@ -694,7 +694,7 @@ bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butTVManuf_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
+				string sModel = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_3_CONST);
 				if(sModel == "")
 					return true;
 
@@ -868,7 +868,7 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butDirectToTv_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
+				string sModel = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST);
 				if(sModel == "")
 					return true;
 
@@ -919,7 +919,7 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 		{
 			if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butReceiver_CONST )
 			{
-				m_pWizardLogic->m_nPK_Command_Input_Video_On_TV = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST].c_str());
+				m_pWizardLogic->m_nPK_Command_Input_Video_On_TV = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST).c_str());
 				if( !m_pWizardLogic->m_bUsingReceiverForVideo )
 					m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
                                               m_pWizardLogic->m_nPK_Device_TV,2,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV); // 2 = video
@@ -932,11 +932,11 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
             if(DESIGNOBJ_butSelectedPort_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
 				PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-				string sCell = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
+				string sCell = m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST);
 				string::size_type pos=0;
 				int iPK_Device_ControlledVia = atoi(StringUtils::Tokenize(sCell,",",pos).c_str());
 				string sPort = StringUtils::Tokenize(sCell,",",pos);
-				int PK_DeviceTemplate = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST].c_str());
+				int PK_DeviceTemplate = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST).c_str());
 
 				// Delete receivers first since maybe the user is returning to this wizard
 				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST);
@@ -1132,7 +1132,7 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butReceiverModel_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sManufacturer = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
+				string sManufacturer = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST);
 				if(sManufacturer == "")
 					return true;
 			}
@@ -1143,7 +1143,7 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butReceiverInputs_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
+				string sModel = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST);
 				if(sModel == "")
 					return true;
 
@@ -1168,11 +1168,11 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
             if(DESIGNOBJ_butSelectedPort_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
 				PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-				string sCell = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
+				string sCell = m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST);
 				string::size_type pos=0;
 				int iPK_Device_ControlledVia = atoi(StringUtils::Tokenize(sCell,",",pos).c_str());
 				string sPort = StringUtils::Tokenize(sCell,",",pos);
-				int PK_DeviceTemplate = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST].c_str());
+				int PK_DeviceTemplate = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST).c_str());
 
 				// Delete receivers first since maybe the user is returning to this wizard
 				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
@@ -1190,7 +1190,7 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
         {
             if(DESIGNOBJ_butAVDevices_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
             {
-                string sReceiverInputs = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
+                string sReceiverInputs = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST);
                 if(sReceiverInputs == "")
                     return true;
 
@@ -1245,7 +1245,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butAVDevicesManuf_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sDeviceType = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Filter_CONST];
+				string sDeviceType = m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Filter_CONST);
 				if(sDeviceType == "")
 					return true;
 			}
@@ -1256,7 +1256,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butAVDeviceModel_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sManufacturer = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
+				string sManufacturer = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST);
 				if(sManufacturer == "")
 					return true;
 			}
@@ -1267,7 +1267,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butAVOutputs_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
+				string sModel = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST);
 				if(sModel == "")
 					return true;
 
@@ -1282,7 +1282,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butAVDeviceVideoInputs_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sInstalledAVDevice = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
+				string sInstalledAVDevice = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_3_CONST);
 				if(sInstalledAVDevice == "")
 					return true;
 
@@ -1297,7 +1297,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butAVDeviceAudio_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sInput = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
+				string sInput = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST);
 				if(sInput != "")
 				{
 					m_pWizardLogic->SetAvPath(m_pWizardLogic->m_nPK_Device_Last_AV,
@@ -1311,7 +1311,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butAVDeviceAudioInputs_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sInstalledAVDevice = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
+				string sInstalledAVDevice = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_3_CONST);
 				if(sInstalledAVDevice == "")
 					return true;
 
@@ -1326,7 +1326,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butMoreAVDevices_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sInput = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
+				string sInput = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST);
 				if(sInput != "")
 				{
 					m_pWizardLogic->SetAvPath(m_pWizardLogic->m_nPK_Device_Last_AV,
@@ -1702,7 +1702,7 @@ bool OSDScreenHandler::LightsSetup_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butLightType2_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				int PK_Room = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST].c_str());
+				int PK_Room = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST).c_str());
 				if( !PK_Room || !DatabaseUtils::SetDeviceInRoom(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,PK_Room) )
 					return true;  // This room isn't valid
 			}
@@ -1712,7 +1712,7 @@ bool OSDScreenHandler::LightsSetup_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butLightName2_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sType = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
+				string sType = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST);
 				DatabaseUtils::SetDeviceData(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,
 											DEVICEDATA_PK_FloorplanObjectType_CONST,sType);
 				string sDefaultLightName = DatabaseUtils::GetDescriptionFromTable(m_pWizardLogic,FLOORPLANOBJECTTYPE_TABLE,atoi(sType.c_str()));
@@ -1724,7 +1724,7 @@ bool OSDScreenHandler::LightsSetup_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butLightsSetupRoom_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				DatabaseUtils::SetDescriptionForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST]);
+				DatabaseUtils::SetDescriptionForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST));
 				m_nLightInDequeToAssign++;
 			}
 		}
@@ -1968,7 +1968,7 @@ bool OSDScreenHandler::AlarmSetup_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butAlarmType2_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				int PK_Room = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST].c_str());
+				int PK_Room = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST).c_str());
 				if( !PK_Room || !DatabaseUtils::SetDeviceInRoom(m_pWizardLogic,m_pWizardLogic->m_dequeNumSensors[m_nSensorInDequeToAssign].first,PK_Room) )
 					return true;  // This room isn't valid
 				int PK_DeviceTemplate = DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumSensors[m_nSensorInDequeToAssign].first);
@@ -1984,7 +1984,7 @@ bool OSDScreenHandler::AlarmSetup_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butAlarmName2_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				int PK_DeviceTemplate = atoi(m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST].c_str());
+				int PK_DeviceTemplate = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST).c_str());
 				if( PK_DeviceTemplate )
 				{
 					DatabaseUtils::SetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumSensors[m_nSensorInDequeToAssign].first,
@@ -1999,7 +1999,7 @@ bool OSDScreenHandler::AlarmSetup_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butAlarmSetupRoom_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				DatabaseUtils::SetDescriptionForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumSensors[m_nSensorInDequeToAssign].first,m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST]);
+				DatabaseUtils::SetDescriptionForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumSensors[m_nSensorInDequeToAssign].first,m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST));
 				m_nSensorInDequeToAssign++;
 			}
 		}
@@ -2049,21 +2049,21 @@ bool OSDScreenHandler::VOIP_CapturedKeyboardBufferChanged(CallBackData *pData)
 	{
 		case DESIGNOBJ_VoipNumber_CONST:
 		{
-			string sPhoneNumber = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+			string sPhoneNumber = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 			m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_butVoipUsername_CONST),0,"","",sPhoneNumber.size()==0 ? "0" : "1");
 		}
 		break;
 
 		case DESIGNOBJ_VoipUsername_CONST:
 		{
-			string sUsername = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+			string sUsername = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 			m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_butVoipPassword_CONST),0,"","",sUsername.size()==0 ? "0" : "1");
 		}
 		break;
 
 		case DESIGNOBJ_VoipPassword_CONST:
 		{
-			string sPassword = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+			string sPassword = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 			m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_butMediaWizard_CONST),0,"","",sPassword.size()==0 ? "0" : "1");
 		}
 		break;
@@ -2092,7 +2092,7 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butConfigureAccount_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sVOIPProvider = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
+				string sVOIPProvider = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST);
 				if(sVOIPProvider == "")
 					return true;
 			}
@@ -2103,14 +2103,14 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butVoipUsername_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sPhoneNumber = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				string sPhoneNumber = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPhoneNumber);
 				if(sPhoneNumber == "")
 					return true;
 			}
 			else if( atoi(pObjectInfoData->m_pObj->m_ObjectID.c_str())==DESIGNOBJ_VoipNumber_CONST ) // Don't do this yet if it's still doing selected objects from teh prior screen
 			{
-				string sPhoneNumber = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				string sPhoneNumber = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 				m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_butVoipUsername_CONST),0,"","",sPhoneNumber.size()==0 ? "0" : "1");
 			}
 		}
@@ -2120,14 +2120,14 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butVoipPassword_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sUsername = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				string sUsername = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sUsername);
 				if(sUsername == "")
 					return true;
 			}
 			else if( atoi(pObjectInfoData->m_pObj->m_ObjectID.c_str())==DESIGNOBJ_VoipUsername_CONST ) // Don't do this yet if it's still doing selected objects from teh prior screen
 			{
-				string sUsername = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				string sUsername = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 				m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_butVoipPassword_CONST),0,"","",sUsername.size()==0 ? "0" : "1");
 			}
 		}
@@ -2137,13 +2137,13 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butMediaWizard_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sPassword = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				string sPassword = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 				if(sPassword == "")
 					return true;
 
-				string sPhoneNumber = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_1_CONST];
-				string sUsername = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
-				string sVOIPProvider = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
+				string sPhoneNumber = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST);
+				string sUsername = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST);
+				string sVOIPProvider = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST);
 
 				DCE::CMD_PL_Add_VOIP_Account CMD_PL_Add_VOIP_Account_(m_pOrbiter->m_dwPK_Device,
                                                                       m_pOrbiter->m_dwPK_Device_TelecomPlugIn, sVOIPProvider, sPhoneNumber, sPassword, sUsername);
@@ -2151,7 +2151,7 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 			}
 			else if( atoi(pObjectInfoData->m_pObj->m_ObjectID.c_str())==DESIGNOBJ_VoipPassword_CONST ) // Don't do this yet if it's still doing selected objects from teh prior screen
 			{
-				string sPassword = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				string sPassword = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 				m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_butMediaWizard_CONST),0,"","",sPassword.size()==0 ? "0" : "1");
 			}
 		}
@@ -2248,7 +2248,7 @@ bool OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pD
 	string sEditVal, sSelectedId;
 
 	//PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-	sEditVal = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+	sEditVal = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 	int nSelectedId = 0;
 	pCellInfoData = dynamic_cast<DatagridCellBackData *>(pData);
 

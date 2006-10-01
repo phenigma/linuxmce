@@ -8,6 +8,7 @@
 #include "MediaBrowserMouseHandler.h"
 #include "DataGrid.h"
 #include "Gen_Devices/AllCommandsRequests.h"
+#include "DCE/Message.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Define_DataGrid.h"
@@ -1044,9 +1045,205 @@ void ScreenHandler::SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sM
 	);
 }
 //-----------------------------------------------------------------------------------------------------
+// Create some 'choose provider stages' to keep track of where we are
+#define CPS_GETTING_USERNAME		1
+#define CPS_GETTING_PASSWORD		2
+#define CPS_GETTING_PROVIDER_LIST	3
+#define CPS_PROMPTING_PROVIDER		4
+#define CPS_GETTING_DEVICE_LIST		5
+#define CPS_PROMPTING_DEVICE		6
+#define CPS_GETTING_PACKAGE_LIST	7
+#define CPS_PROMPTING_PACKAGE		8
+#define CPS_GETTING_LINEUP_LIST		9
+#define CPS_PROMPTING_LINEUP		10
+
 void ScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_Device, string sText, string sDescription)
 {
+	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::itos(iPK_Device));
 	ScreenHandlerBase::SCREEN_Choose_Provider_for_Device(PK_Screen, iPK_Device,sText,sDescription);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::ChooseProvider_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::ChooseProvider_DatagridSelected, new DatagridCellBackData());
+	RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &ScreenHandler::ChooseProvider_Intercepted, new MsgInterceptorCellBackData());
+	m_iStage = 0;
+
+	if( sText.size() )
+	{
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,sText);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,"");
+		ChooseProviderGetNextStage();
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
+{
+	string sValue; // If this is a set variable for VARIABLE_Execution_Result_CONST, then we got back a response and can continue
+	MsgInterceptorCellBackData *pMsgInterceptorCellBackData = (MsgInterceptorCellBackData *) pData;
+	if( pMsgInterceptorCellBackData->m_pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && 
+		pMsgInterceptorCellBackData->m_pMessage->m_dwID==COMMAND_Set_Variable_CONST )
+	{
+		map<long, string>::iterator it=pMsgInterceptorCellBackData->m_pMessage->m_mapParameters.find(COMMANDPARAMETER_PK_Variable_CONST);
+		if( it==pMsgInterceptorCellBackData->m_pMessage->m_mapParameters.end() || atoi(it->second.c_str())!=VARIABLE_Execution_Result_CONST )
+			return false;
+
+		it=pMsgInterceptorCellBackData->m_pMessage->m_mapParameters.find(COMMANDPARAMETER_Value_To_Assign_CONST);
+		if( it==pMsgInterceptorCellBackData->m_pMessage->m_mapParameters.end() )
+			return false;  // Should never happen
+		sValue = it->second;
+	}
+	else
+		return false;
+
+	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuGenericDataGrid_CONST) ".0.0." TOSTRING(DESIGNOBJ_dgGenericDataGrid_CONST));
+	if( !pObj )
+		return false; // shouldn't happen
+	
+	DesignObj_DataGrid *pObj_Grid = dynamic_cast<DesignObj_DataGrid *> (pObj);
+	pObj_Grid->m_bFlushOnScreen=false;
+	pObj_Grid->m_GridCurRow = pObj_Grid->m_GridCurCol = 0;
+	DataGridTable *pDataGridTable = new DataGridTable();
+	pObj_Grid->DataGridTable_Set(pDataGridTable,0,0);
+	DataGridCell *pCell;
+
+	vector<string> vectLines;
+	StringUtils::Tokenize(sValue,"\r\n",vectLines);
+	if( vectLines.size()<2 || vectLines[0]!="OK" )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"ScreenHandler::ChooseProvider_Intercepted stage %d returned %d lines",m_iStage,(int) vectLines.size());
+		return false;
+	}
+
+	int iRow=0;
+	vector<string>::iterator it = vectLines.begin();
+	while( ++it!=vectLines.end() )
+	{
+		string::size_type pos = it->find('\t');
+		if( pos == string::npos )
+			continue; // Shouldn't happen
+		int ID = atoi( it->c_str() );
+		string sValue = it->substr(pos+1);
+
+		pCell = new DataGridCell(sValue,it->substr(0,pos));
+		pObj_Grid->DataGridTable_Get()->SetData(0,iRow++,pCell);
+	}
+
+	pDataGridTable->m_RowCount = pDataGridTable->GetRows();
+	pDataGridTable->m_ColumnCount = pDataGridTable->GetCols();
+
+	m_iStage++;
+	m_pOrbiter->GotoDesignObj( TOSTRING(DESIGNOBJ_mnuGenericDataGrid_CONST) );
+
+	return false; // Keep processing it
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::ChooseProvider_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	return false; // Keep processing it
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::ChooseProvider_DatagridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
+	if( pCellInfoData->m_sValue.empty() )
+		return false;
+
+	string sPK_Provider_Source,sProvider,sPackage,sDevice,sLineup;
+	string::size_type pos=0;
+
+	string sArguments = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST);
+	sPK_Provider_Source = StringUtils::Tokenize( sArguments, "\t", pos );
+	sProvider = StringUtils::Tokenize(sArguments,"\t",pos);
+	sDevice = StringUtils::Tokenize(sArguments,"\t",pos);
+	sPackage = StringUtils::Tokenize(sArguments,"\t",pos);
+	sLineup = StringUtils::Tokenize(sArguments,"\t",pos);
+
+	if( sArguments.empty() ) // Must be just starting
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,sPK_Provider_Source);
+
+	switch( m_iStage )
+	{
+	case CPS_GETTING_PROVIDER_LIST:
+		sProvider = pCellInfoData->m_sValue;
+		break;
+	case CPS_GETTING_DEVICE_LIST:
+		sDevice = pCellInfoData->m_sValue;
+		break;
+	case CPS_GETTING_PACKAGE_LIST:
+		sPackage = pCellInfoData->m_sValue;
+		break;
+	case CPS_GETTING_LINEUP_LIST:
+		sLineup = pCellInfoData->m_sValue;
+		break;
+	}
+
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,sPK_Provider_Source + "\t" + sProvider + "\t" + sDevice + "\t" + sPackage + "\t" + sLineup);
+	ChooseProviderGetNextStage();
+
+	return false; // Keep processing it
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::ChooseProviderGetNextStage()
+{
+	string::size_type pos=0;
+	string sTokens = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST);
+	string sArguments = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST);
+	string sPK_Provider_Source = StringUtils::Tokenize( sTokens, "\t", pos );
+	string sDescription = StringUtils::Tokenize( sTokens, "\t", pos );
+	string sComments = StringUtils::Tokenize( sTokens, "\t", pos );
+	bool bRequireUsernamePassword = StringUtils::Tokenize( sTokens, "\t", pos )=="1";
+	string sProviderCommandLine = StringUtils::Tokenize( sTokens, "\t", pos );
+	string sDeviceCommandLine = StringUtils::Tokenize( sTokens, "\t", pos );
+	string sPackageCommandLine = StringUtils::Tokenize( sTokens, "\t", pos );
+	string sLineupCommandLine = StringUtils::Tokenize( sTokens, "\t", pos );
+
+	if( sProviderCommandLine.empty()==false && m_iStage<CPS_GETTING_PROVIDER_LIST )
+	{
+		m_iStage = CPS_GETTING_PROVIDER_LIST;
+		SpawnProviderScript(sProviderCommandLine,sArguments);
+	}
+	else if( sDeviceCommandLine.empty()==false && m_iStage<CPS_GETTING_DEVICE_LIST )
+	{
+		m_iStage = CPS_GETTING_DEVICE_LIST;
+		SpawnProviderScript(sDeviceCommandLine,sArguments);
+	}
+	else if( sPackageCommandLine.empty()==false && m_iStage<CPS_GETTING_PACKAGE_LIST )
+	{
+		m_iStage = CPS_GETTING_PACKAGE_LIST;
+		SpawnProviderScript(sDeviceCommandLine,sArguments);
+	}
+	else if( sLineupCommandLine.empty()==false && m_iStage<CPS_GETTING_LINEUP_LIST )
+	{
+		m_iStage = CPS_GETTING_LINEUP_LIST;
+		SpawnProviderScript(sDeviceCommandLine,sArguments);
+	}
+	else
+	{
+		// We got everything.  Set the provider information for this device
+		int PK_Device = atoi(m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str());
+		m_pOrbiter->SetDeviceDataInDB(PK_Device,DEVICEDATA_EK_MediaProvider_CONST,sArguments);
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SpawnProviderScript(string sCommandLine,string sArguments)
+{
+	DeviceData_Base *pDevice_Core = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfTemplate(DEVICETEMPLATE_DCERouter_CONST);
+	DeviceData_Base *pDevice_AppServer = pDevice_Core->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
+	if( !pDevice_AppServer )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"ScreenHandler::SpawnProviderScript no app server"); // shouldn't ever happen
+		return; 
+	}
+
+	string sResult = "0 " + StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " 1 " TOSTRING(COMMAND_Set_Variable_CONST)
+			" " TOSTRING(COMMANDPARAMETER_PK_Variable_CONST) " " TOSTRING(VARIABLE_Execution_Result_CONST)
+			" " TOSTRING(COMMANDPARAMETER_Value_To_Assign_CONST) " ";
+
+	DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,sCommandLine,"getprovider",
+		sArguments,sResult + " \"Error running script\"",
+		sResult + "\"<=spawn_log=>\"",false,false,false);
+	m_pOrbiter->SendCommand(CMD_Spawn_Application);
+
+	DisplayMessageOnOrbiter(0,m_pOrbiter->m_mapTextString[TEXT_please_wait_for_lookup_CONST]);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Main(long PK_Screen, string sLocation)
@@ -1174,7 +1371,7 @@ bool ScreenHandler::New_Phone_Enter_Number_DeviceConfigured(CallBackData *pData)
 		pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objControllerBack_CONST
 	)
 	{
-		string sName = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_2_CONST];
+		string sName = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST);
 		m_pOrbiter->m_pEvent->SendMessage(
 			new Message(
 				m_pOrbiter->m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL,
@@ -1395,7 +1592,7 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 			}
 			else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butCreateDir_CONST)
 			{
-				string sParentFolder = m_pOrbiter->m_mapVariable[VARIABLE_Path_CONST] + "/";
+				string sParentFolder = m_pOrbiter->m_mapVariable_Find(VARIABLE_Path_CONST) + "/";
 				string sNewFolder = "<%=" + StringUtils::ltos(VARIABLE_Seek_Value_CONST) + "%>";
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 
@@ -1421,7 +1618,7 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePublic_CONST
 			)
 			{
-				m_sSaveFile_FileName = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];
+				m_sSaveFile_FileName = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 
 				string sSubDir = m_pOrbiter->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ? "videos" : "audio";
 				if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePublic_CONST)
@@ -1445,7 +1642,7 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 			else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChooseDrive_CONST ||
 				pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objCurrentUser_CONST)
 			{
-                m_sSaveFile_FileName = m_pOrbiter->m_mapVariable[VARIABLE_Seek_Value_CONST];				
+                m_sSaveFile_FileName = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);				
 			}
 		}
 	}
@@ -1517,7 +1714,7 @@ void ScreenHandler::SaveFile_GotoChooseFolderDesignObj()
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SaveFile_SendCommand()
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Path_CONST, FileUtils::IncludeTrailingSlash(m_pOrbiter->m_mapVariable[VARIABLE_Path_CONST]));
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Path_CONST, FileUtils::IncludeTrailingSlash(m_pOrbiter->m_mapVariable_Find(VARIABLE_Path_CONST)));
 
 	m_pOrbiter->CMD_Send_Message(m_sSaveFile_Command, false);
 	m_pOrbiter->GotoMainMenu();

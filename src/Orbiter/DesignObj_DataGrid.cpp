@@ -18,6 +18,7 @@ DesignObj_DataGrid::DesignObj_DataGrid(Orbiter *pOrbiter) : DesignObj_Orbiter(pO
 	bReAcquire=false;
 	m_iPopulatedWidth=m_iPopulatedHeight=0;
 	m_bParsed=false;
+	m_bFlushOnScreen=true;
 	// TODO: These should come from the database
 
 }
@@ -251,6 +252,8 @@ void DesignObj_DataGrid::DataGridTable_Set(DataGridTable *pDataGridTable,int Cur
 			return; // Nothing to do
 	}
 	m_mapDataGridTable_Cache[ make_pair<int,int> (CurRow,CurCol) ] = pDataGridTable;
+	if( CurRow==m_GridCurRow && CurCol==m_GridCurCol )
+		m_pDataGridTable_Current = pDataGridTable;
 }
 
 /*virtual*/ void DesignObj_DataGrid::Flush(bool bFlushGraphics)

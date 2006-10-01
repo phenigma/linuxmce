@@ -2084,7 +2084,9 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 		pObj->m_iHighlightedRow=-1;
 		pObj->m_iHighlightedColumn=-1;
 	}
-	pObj->Flush();
+
+	if( pObj->m_bFlushOnScreen )
+		pObj->Flush();
 
 	if(  !pObj->m_bPersistXY || pObj->m_GridCurCol==-1 || pObj->m_GridCurRow==-1  )
 	{

@@ -318,7 +318,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		map<int,  vector<PlutoGraphic*> *> m_mapUserIcons; /** < user icons */
 		map<int,FloorplanObjectVectorMap *> m_mapFloorplanObjectVector;
 		FloorplanObjectVectorMap *m_mapFloorplanObjectVector_Find(int Page)	{ map<int,FloorplanObjectVectorMap *>::iterator it = m_mapFloorplanObjectVector.find(Page); return it==m_mapFloorplanObjectVector.end() ? NULL : (*it).second; }
-		string m_mapVariable_Find(int PK_Variable) { VariableMap ::iterator it = m_mapVariable.find(PK_Variable); return it==m_mapVariable.end() ? "" : (*it).second; }
+		string m_mapVariable_Find(int PK_Variable) { PLUTO_SAFETY_LOCK( vm, m_VariableMutex ); VariableMap ::iterator it = m_mapVariable.find(PK_Variable); return it==m_mapVariable.end() ? "" : (*it).second; }
 
 		DesignObj_DataGrid *FindGridOnScreen(string sGridID);
 
