@@ -764,6 +764,8 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 		" ORDER BY Name "\
         "limit 30;";
 
+	result.ClearResults();
+
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )

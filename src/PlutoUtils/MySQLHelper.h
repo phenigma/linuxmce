@@ -13,9 +13,17 @@ class PlutoSqlResult
 public:
 	MYSQL_RES *r;
 	PlutoSqlResult() : r(NULL) {};
-	~PlutoSqlResult() {
-		if( r )
+	~PlutoSqlResult() 
+	{
+		ClearResults();
+	}
+	void ClearResults()
+	{
+		if(NULL != r)
+		{
 			mysql_free_result(r);
+			r = NULL;
+		}
 	}
 };
 
@@ -67,6 +75,8 @@ public:
 		if( m_pMySQL )
 			mysql_close(m_pMySQL);
 		m_pMySQL=NULL;
+
+		pthread_mutex_destroy(&m_MySqlMutex.mutex);
 	}
 
 	bool MySQLConnect(string host, string user, string pass, string db_name, int port=3306,bool bReset=false)
