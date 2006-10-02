@@ -612,10 +612,12 @@ function editMasterDevice($output,$dbADO) {
 			$pipePos=strpos($rowRel['Value'],'|');
 			$relValue=($pipePos!==false)?substr($rowRel['Value'],0,$pipePos):$rowRel['Value'];
 			$dtRelatedRows.='
-					<tr>
+					<tr class="alternate_back">
 						<td>&nbsp;</td>
-						<td bgcolor="#EEEEEE">'.$rowRel['Description'].'</td>
-						<td bgcolor="#EEEEEE">'.$dtRelatedValues[$relValue].'</td>
+						<td>'.$rowRel['Description'].'</td>
+						<td>'.$dtRelatedValues[$relValue].'</td>
+						<td>'.$TEXT_EXTRA_CONST.'</td>
+						<td>'.((strpos($rowRel['Value'],'|')!==false)?substr($rowRel['Value'],strpos($rowRel['Value'],'|')+1):'').'</td>
 						<td bgcolor="#EEEEEE"><a href="javascript:if(confirm(\''.$TEXT_DELETE_RELATION_CONFIRMATION_CONST.'\')){document.editMasterDevice.delRelated.value='.$rowRel['FK_DeviceTemplate_Related'].';document.editMasterDevice.submit();}">Delete</a></td>
 					</tr>';
 		}
@@ -632,6 +634,8 @@ function editMasterDevice($output,$dbADO) {
 								<td>'.$TEXT_ADD_DEVICE_TEMPLATE_RELATED_CONST.' #ID</td>
 								<td><input type="text" name="addRelated" value=""></td>
 								<td>'.pulldownFromArray($dtRelatedValues,'valueRelated','','','key','').'</td>
+								<td>'.$TEXT_EXTRA_CONST.'</td>
+								<td><input type="text" name="extra" value=""></td>
 								<td><input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
 							</tr>
 						</table>
@@ -953,6 +957,7 @@ function editMasterDevice($output,$dbADO) {
 
 			}
 			$addRelated=(int)@$_POST['addRelated'];
+			$extra=$_POST['extra'];
 			$valueRelated=(int)@$_POST['valueRelated'];
 			if($addRelated!=0){
 				$dtRelatedArray=getFieldsAsArray('DeviceTemplate','PK_DeviceTemplate',$dbADO,'WHERE PK_DeviceTemplate='.$addRelated);
@@ -965,6 +970,7 @@ function editMasterDevice($output,$dbADO) {
 						header("Location: index.php?section=editMasterDevice&model=$deviceID&errRelated=Device Template is already related with $addRelated!#dtRelated");
 						exit();
 					}else{
+						$valueRelated=($extra!='')?$valueRelated.'|'.$extra:$valueRelated;
 						$dbADO->Execute('INSERT INTO DeviceTemplate_DeviceTemplate_Related (FK_DeviceTemplate,FK_DeviceTemplate_Related,Value) VALUES (?,?,?)',array($deviceID,$addRelated,$valueRelated));
 						$locationGoTo='#dtRelated';
 					}

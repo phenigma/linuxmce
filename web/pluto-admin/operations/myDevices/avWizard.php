@@ -454,8 +454,8 @@ function avWizard($output,$dbADO) {
 				exec($commandToSend);
 
 				if(isInfrared($deviceTemplate,$dbADO)){
-					// add video port
-					$dbADO->Execute('INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData) VALUES (?,?)',array($insertID,$GLOBALS['InfraredPort']));
+					// add video port if does not exist
+					$dbADO->Execute('INSERT IGNORE INTO Device_DeviceData (FK_Device, FK_DeviceData) VALUES (?,?)',array($insertID,$GLOBALS['InfraredPort']));
 				}
 			}
 			header("Location: index.php?section=avWizard&lastAdded=$deviceTemplate#deviceLink_".@$insertID);
