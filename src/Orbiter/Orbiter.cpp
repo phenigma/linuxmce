@@ -8928,7 +8928,7 @@ void Orbiter::StartScreenSaver()
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::StartScreenSaver");
 	if( m_pDevice_ScreenSaver )
 	{
-		if( m_pDesignObj_Orbiter_ScreenSaveMenu )
+		if(!UsesUIVersion2() && m_pDesignObj_Orbiter_ScreenSaveMenu)
 		{
 			CMD_Set_Main_Menu("V");
 			GotoDesignObj(m_sMainMenu);
