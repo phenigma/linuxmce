@@ -37,6 +37,6 @@ for Pkg in "${Packages[@]}"; do
 	Var="PackageCmd_$Pkg"
 	Cmd="${!Var}"
 	env
-	./"$Cmd" "$MakeRelease_Flavor" ${MakeRelease_Kernel}
+	./"$Cmd" ${MakeRelease_Kernel}
 	popd >/dev/null
 done
