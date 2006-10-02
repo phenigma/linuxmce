@@ -78,9 +78,6 @@ OpenGL3DEngine::~OpenGL3DEngine()
 {
 	Finalize();
 
-	delete OldLayer;
-	delete CurrentLayer;
-
 	pthread_mutex_destroy(&SceneMutex.mutex);
 }
 
@@ -89,10 +86,14 @@ void OpenGL3DEngine::Finalize(void)
 	UnHighlight();
 	UnSelect();
 	if(OldLayer)
-		OldLayer->CleanUp(true);
+		OldLayer->CleanUp();
 
 	if(CurrentLayer)
-		CurrentLayer->CleanUp(true);
+		CurrentLayer->CleanUp();
+
+	delete OldLayer;
+	delete CurrentLayer;
+
 
 	MeshPainter::Instance()->CleanUp();
 	GLEffect2D::LayersCompose::Instance()->CleanUp();

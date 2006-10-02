@@ -158,6 +158,11 @@ void StartOrbiterThread()
 {
 	::CreateThread(NULL, 0, OrbiterThread, 0, 0, &OrbiterThreadId);
 }
+
+void StopOrbiterThread()
+{
+	::CloseHandle((HANDLE)OrbiterThreadId);
+}
 //-----------------------------------------------------------------------------------------------------
 DWORD WINAPI OrbiterThread( LPVOID lpParameter)
 {

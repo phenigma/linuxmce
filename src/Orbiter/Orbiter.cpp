@@ -365,13 +365,6 @@ Orbiter::~Orbiter()
 		DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "0", 0, "", 0, &pData, &iSize );
 		SendCommand( CMD_Orbiter_Registered );
 	}
-
-	delete m_pOrbiterRenderer;
-	m_pOrbiterRenderer = NULL;
-
-	if (m_pBackgroundImage)
-		delete m_pBackgroundImage;
-
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 	DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
 	for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
@@ -380,6 +373,14 @@ Orbiter::~Orbiter()
 		delete pObj;
 	}
 	m_mapObj_All.clear();
+	
+	if (m_pBackgroundImage)
+		delete m_pBackgroundImage;
+
+	delete m_pOrbiterRenderer;
+	m_pOrbiterRenderer = NULL;
+
+
 
 	m_vectObjs_TabStops.clear();
 	m_vectObjs_Selected.clear();
@@ -1892,6 +1893,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				}
 
 				// The framework needs a pointer to us when it's creating Orbiter objects,  pass in this as a void *
+
 				if(  !SerializeRead( iSizeConfigFile, pConfigFile, ( void * ) this ) || !ParseConfigurationData( Type ) )
 				{
 					delete pMessage;

@@ -311,6 +311,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	g_PlutoProfiler = NULL;
 
     WSACleanup();
+	StopOrbiterThread();
+
 	return 0;
 }
 

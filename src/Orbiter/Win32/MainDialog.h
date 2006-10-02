@@ -31,6 +31,7 @@ void				RecordMouseAction(int x, int y);
 void				RecordKeyboardAction(long key);
 //-----------------------------------------------------------------------------------------------------
 void				StartOrbiterThread();
+void				StopOrbiterThread();
 void				LoadUI_From_ConfigurationData();
 void				SyncConfigurationData();
 //-----------------------------------------------------------------------------------------------------

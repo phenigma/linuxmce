@@ -67,6 +67,10 @@ TextureManager::~TextureManager(void)
 		delete pFrame;
 	}
 	Graphics.clear();
+	ReleaseTextureSuspended = false;
+
+    ReleaseTextures();
+	WaitForRelease.clear();
 
 	pthread_mutex_destroy(&TextureLock.mutex);
 }

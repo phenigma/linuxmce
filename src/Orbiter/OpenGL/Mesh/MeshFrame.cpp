@@ -59,6 +59,9 @@ void MeshFrame::MarkAsVolatile()
 {
 	//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "xxxxx MeshFrame::CleanUp: %p/%s", this, Name_.c_str());	
 
+	delete Mesh;
+	Mesh = NULL;
+
 	vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); )
 	{
