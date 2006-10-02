@@ -1,12 +1,15 @@
 #!/bin/bash -x
 
-PLUTO_FLAVOR="$1"
-shift 
+if [[ -z "$MakeRelease_Flavor" ]]; then
+	echo "ERROR: 'MakeRelease_Flavor' variable not found"
+	exit 1
+fi
+
 PLUTO_KERNELS=("$@")
 if [[ "${#PLUTO_KERNELS[*]}" -eq 0 ]]; then
     exit 1 
 fi
-PLUTO_PKG_DESTDIR="/home/samba/repositories/"$PLUTO_FLAVOR"/replacements/main/binary-i386/"
+PLUTO_PKG_DESTDIR="/home/samba/repositories/"$MakeRelease_Flavor"/"$replacementsdeb"/main/binary-i386/"
 
     
 MAINFOLDER=`pwd`

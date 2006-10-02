@@ -2,15 +2,18 @@
 
 set -ex
 
-Flavor="$1"
-shift
+if [[ -z "$MakeRelease_Flavor" ]]; then
+	echo "ERROR: 'MakeRelease_Flavor' variable not found"
+	exit 1
+fi
+
 Kernels=("$@")
 
 if [[ "${#Kernels[*]}" -eq 0 ]]; then
 	exit 1
 fi
 
-DestDir="/home/samba/repositories/"$Flavor"/replacements/main/binary-i386/"
+DestDir="/home/samba/repositories/"$MakeRelease_Flavor"/"$replacementsdeb"/main/binary-i386/"
 
 KDEPS=
 for KVER in "${Kernels[@]}"; do
