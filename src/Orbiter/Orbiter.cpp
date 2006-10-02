@@ -8794,15 +8794,20 @@ void Orbiter::ForceCurrentScreenIntoHistory()
 void *UpdateTimeCodeThread(void *p)
 {
 	Orbiter* pOrbiter = (Orbiter *)p;
-	pOrbiter->UpdateTimeCodeLoop();
-	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode thread stopped");
-	pOrbiter->m_bUpdateTimeCodeLoopRunning=false;
+
+	if(NULL != pOrbiter && !pOrbiter->m_bQuit)
+	{
+		pOrbiter->UpdateTimeCodeLoop();
+		g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode thread stopped");
+		pOrbiter->m_bUpdateTimeCodeLoopRunning=false;
+	}
+
 	return NULL;
 }
 
 void Orbiter::UpdateTimeCodeLoop()
 {
-	if( !m_bReportTimeCode )
+	if( m_bQuit || !m_bReportTimeCode )
 		return;
 
 	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCodeLoop starting...");
@@ -8857,7 +8862,7 @@ void Orbiter::UpdateTimeCodeLoop()
 			return;
 	}
 
-	while(true)
+	while(!m_bQuit)
 	{
 		if( m_pAskXine_Socket->m_dwPK_Device!=m_dwPK_Device_NowPlaying )
 		{
