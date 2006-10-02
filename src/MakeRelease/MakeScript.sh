@@ -1,43 +1,41 @@
 #!/bin/bash
 
-nobuild="-b"
+nobuild=""
 
 branch="trunk"
 #branch="2.0.0.40"
 
-flavor=pluto_release
+flavor=pluto
+upload="y"
 
 echo "Marker: starting `date`"
 # if we receive a "force-build" parameter, ignore this setting
 for ((i = 1; i <= "$#"; i++)); do
 	case "${!i}" in
 		force-build)
-			monster=
 			nobuild=
-			linuxmce=
 		;;
 		monster-build)
-			monster=y
-			#nobuild=
 			flavor=monster
 		;;
-		linuxmce-build)
-			linuxmce=y
-			flavor=linuxmce
-		;;
 		via-build)
-			monster=
-			nobuild=
 			flavor=via
 		;;
 		debug-build)
-			monster=
-			nobuild=
 			flavor=pluto_debug
 		;;
-		nocheckout) nocheckout=y ;;
-		nosqlcvs) nosqlcvs=y ;;
-		dont-compile-existing) dont_compile_existing="-X" ;;
+		nocheckout) 
+			nocheckout=y 
+			;;
+		nosqlcvs) 
+			nosqlcvs=y 
+			;;
+		dont-compile-existing)
+			dont_compile_existing="-X" 
+			;;
+		no-build)
+			nobuild="-b" 
+			;;
 	esac
 done
 
@@ -52,7 +50,6 @@ fastrun=""
 BASE_OUT_FOLDER=/home/builds/
 
 BASE_INSTALLATION_CD_FOLDER=/home/installation-cd/
-BASE_INSTALLATION_2_6_10_CD_FOLDER=/home/installation-cd-kernel-2.6.10/
 BASE_INSTALLATION_2_6_12_CD_FOLDER=/home/installation-cd-kernel-2.6.12/
 
 #
@@ -79,18 +76,6 @@ function changeSvnPermissions
 	sudo -u www-date sed "s/@restricted = .*/@restricted = $newPerms/" /home/sources/svn-repositories/svn-users-permissions > /home/sources/svn-repositories/svn-users-permissions-updated
 	sudo -u www-data cp /home/sources/svn-repositories/svn-users-permissions /home/sources/svn-repositories/svn-users-permissions-bak
 	sudo -u www-data cp /home/sources/svn-repositories/svn-users-permissions-updated /home/sources/svn-repositories/svn-users-permissions
-}
-
-ReplacePluto()
-{
-	File="$1"
-	ProperName="$2"
-	WebSite="$3"
-
-	# What the?!  sed only replaces one instance per line so do it multipe times??
-	# Answer to that one: add the "g" modifier and it replaces all instances, like I did (Radu)
-	sed -i "s/Pluto/$ProperName/g" $File
-	sed -i "s/plutohome.com/$WebSite/g" $File
 }
 
 Q="select PK_Version from Version ORDER BY date desc, PK_Version limit 1"
@@ -166,9 +151,6 @@ if [ "$nobuild" = "" ]; then
 			ln -s "$branch" trunk # workaround as to not change all of the script
 		fi
 		
-		echo "Marker: Prepping files"
-		MakeRelease_PrepFiles -p $build_dir/trunk -e "*.cpp,*.h,Makefile*,*.php,*.sh,*.pl" -c /etc/MakeRelease/$flavor.conf
-
 		# Clone Video4Linux Mercurial repository
 		cd $build_dir/trunk/src/drivers
 		hg clone /home/sources/mercurial-repositories/v4l-dvb/ | tee $build_dir/mercurial-v4l.log
@@ -216,6 +198,9 @@ else
     cd $build_dir/trunk
 fi
 
+echo "Marker: Prepping files"
+MakeRelease_PrepFiles -p $build_dir/trunk -e "*.cpp,*.h,Makefile*,*.php,*.sh,*.pl" -c /etc/MakeRelease/$flavor.conf
+
 #Do some database maintenance to correct any errors
 # Be sure all debian packages are marked as being compatible with debian distro
 MQ1="UPDATE Package_Source_Compat   JOIN Package_Source on FK_Package_Source=PK_Package_Source  SET FK_OperatingSystem=NULL,FK_Distro=1  WHERE FK_RepositorySource=2";
@@ -230,7 +215,7 @@ echo $O2 | mysql pluto_main
 echo $O2 > $build_dir/query2
 
 Q3="select VersionName from Version WHERE PK_Version=$version"
-version_name=$(echo "$Q3;" | mysql -N pluto_main)
+version_name=`echo $(echo "$Q3;" | mysql -N pluto_main)_$flavor`
 
 DEST="aaron@plutohome.com -c radu.c@plutohome.com -c chris.m@plutohome.com"
 
@@ -260,7 +245,7 @@ fi;
 # Creating target folder.
 mkdir -p "$BASE_OUT_FOLDER/$version_name";
 echo "Marker: starting compilation `date`"
-if ! MakeRelease $fastrun $nobuild $dont_compile_existing -D main_sqlcvs -c -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
+if ! MakeRelease $fastrun $nobuild $dont_compile_existing -O "$BASE_OUT_FOLDER/$version_name" -D main_sqlcvs -c -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
@@ -271,75 +256,55 @@ fi
 cp /home/builds/Windows_Output/src/bin/* $build_dir/trunk/src/bin
 
 echo "Marker: starting package building `date`"
-if ! MakeRelease $fastrun -D main_sqlcvs -b -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
+if ! MakeRelease $fastrun -D main_sqlcvs -O "$BASE_OUT_FOLDER/$version_name" -b -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
 	exit
 fi
-	
+
+#TODO: What the bleep is BUILD.sh ? (razvan)
 BuildScript="$build_dir/trunk/src/BUILD.sh"
 (echo '#!/bin/bash'; sed 's#cd $build_dir/trunk//src/#popd 2>/dev/null\npushd #g' Compile.script) >"$BuildScript"
 
-if [[ "$monster" == y ]]; then
-	`dirname $0`/scripts/propagate-monster.sh "$BASE_OUT_FOLDER/$version_name/"
-
-elif [[ "$linuxmce" == y ]]; then
-# build linuxmce 
-#	`dirname $0`/scripts/propagate-linuxmce.sh "$BASE_OUT_FOLDER/$version_name/"
-:
-else
-	`dirname $0`/scripts/propagate.sh "$BASE_OUT_FOLDER/$version_name/"
-fi
+`dirname $0`/scripts/propagate.sh "$BASE_OUT_FOLDER/$version_name/"
 
 echo Setting this version as the current one.
 rm $BASE_OUT_FOLDER/current
 ln -s $BASE_OUT_FOLDER/$version_name $BASE_OUT_FOLDER/current
 
-#pushd "$BASE_INSTALLATION_CD_FOLDER"
-#"$BASE_INSTALLATION_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache
-#popd
-#pushd "$BASE_INSTALLATION_2_6_10_CD_FOLDER"
-#"$BASE_INSTALLATION_2_6_10_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache
-#popd
+/home/WorkNew/src/MakeRelease/SelfPackagingModules.sh
+pushd /home/samba/repositories/$flavor/$replacementsdeb/main/binary-i386/
+./update-repository
+popd
 
-if [ "$monster" = "y" ]; then
-	pushd "$BASE_INSTALLATION_2_6_12_CD_FOLDER"
-	"$BASE_INSTALLATION_2_6_12_CD_FOLDER/go-netinst-monster.pl" "$BASE_OUT_FOLDER/$version_name" cache
-	popd
-elif [ "$linuxmce" = "y" ]; then
-	pushd "$BASE_INSTALLATION_2_6_12_CD_FOLDER"
-	"$BASE_INSTALLATION_2_6_12_CD_FOLDER/go-netinst-linuxmce.pl" "$BASE_OUT_FOLDER/$version_name" cache
-	popd
-else 
-	pushd "$BASE_INSTALLATION_2_6_12_CD_FOLDER"
-	"$BASE_INSTALLATION_2_6_12_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache
-	popd
-fi 
-#mv /home/builds/$version_name/debian-packages.tmp /home/builds/$version_name/debian-packages.list
+pushd "$BASE_INSTALLATION_2_6_12_CD_FOLDER"
+"$BASE_INSTALLATION_2_6_12_CD_FOLDER/build-cd1.sh" --iso-dir "$BASE_OUT_FOLDER/$version_name" --cache
+"$BASE_INSTALLATION_2_6_12_CD_FOLDER/build-cd2.sh" --iso-dir "$BASE_OUT_FOLDER/$version_name"
+popd
 
-if ! MakeRelease -D main_sqlcvs -a -o 7 -n / -s /home/samba/builds/Windows_Output/ -r 10 -v $version -b -k 116,119,124,126,154,159,193,203,213,226,237,242,255,277,204,118,303,128,162,191,195,280,272,363,364,341 > $build_dir/MakeRelease2.log ; then
+if ! MakeRelease -D main_sqlcvs -O "$BASE_OUT_FOLDER/$version_name" -a -o 7 -n / -s /home/samba/builds/Windows_Output/ -r 10 -O "$BASE_OUT_FOLDER/$version_name" -v $version -b -k 116,119,124,126,154,159,193,203,213,226,237,242,255,277,204,118,303,128,162,191,195,280,272,363,364,341 > $build_dir/MakeRelease2.log ; then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
 	exit
 fi
 
-if ! MakeRelease -D main_sqlcvs -a -o 7 -n / -s $build_dir/trunk -r 10 -v $version -b -k 211,214,233,256,219,220 > $build_dir/MakeRelease3.log ; then
+if ! MakeRelease -D main_sqlcvs -a -O "$BASE_OUT_FOLDER/$version_name" -o 7 -n / -s $build_dir/trunk -r 10 -v $version -b -k 211,214,233,256,219,220 > $build_dir/MakeRelease3.log ; then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
 	exit
 fi
 
-if ! MakeRelease -D main_sqlcvs -a -o 12 -n / -s /home/samba/builds/Windows_Output/ -r 15 -v $version -b -k 119 > $build_dir/MakeRelease4.log ; then
+if ! MakeRelease -D main_sqlcvs -a -O "$BASE_OUT_FOLDER/$version_name" -o 12 -n / -s /home/samba/builds/Windows_Output/ -r 15 -v $version -b -k 119 > $build_dir/MakeRelease4.log ; then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
 	exit
 fi
 
-if ! MakeRelease -D main_sqlcvs -a -o 8 -n / -s /home/samba/builds/Windows_Output/ -r 16 -v $version -b -k 119 > $build_dir/MakeRelease5.log ; then
+if ! MakeRelease -D main_sqlcvs -a -O "$BASE_OUT_FOLDER/$version_name" -o 8 -n / -s /home/samba/builds/Windows_Output/ -r 16 -v $version -b -k 119 > $build_dir/MakeRelease5.log ; then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
@@ -348,40 +313,22 @@ fi
 
 cp -r /home/samba/builds/Windows_Output/winlib $BASE_OUT_FOLDER/$version_name
 cp -r /home/samba/builds/Windows_Output/winnetdlls $BASE_OUT_FOLDER/$version_name
-#Moved up ..
-#dcd /home/tmp/pluto-build/
-#./propagate.sh
-
-/home/WorkNew/src/MakeRelease/SelfPackagingModules.sh
-pushd /home/samba/repositories/pluto/replacements/main/binary-i386/
-./update-repository
-popd
 
 mkdir -p /home/builds/upload
 pushd /home/builds
 rm upload/download.tar.gz
+
 cd $version_name
-if [ "$monster" = "y" ]; then
-	md5sum installation-cd.iso > installation-cd-1-$version_name.monster.md5
-	mv installation-cd.iso installation-cd-1-$version_name.monster.iso
-	echo $version_name > current_version
+md5sum installation-cd.iso > installation-cd-1-$version_name.$flavor.md5
+mv installation-cd.iso installation-cd-1-$version_name.$flavor.iso
+echo $version_name > current_version
 
-elif [ "$linuxmce" = "y" ]; then
 
-	md5sum installation-cd.iso > installation-cd-1-$version_name.linuxmce.md5
-	mv installation-cd.iso installation-cd-1-$version_name.linuxmce.iso
-	echo $version_name > current_version
-else
-	md5sum installation-cd.iso > installation-cd-1-$version_name.pluto.md5
-	mv installation-cd.iso installation-cd-1-$version_name.pluto.iso
-	echo $version_name > current_version
-fi
-	
 if [[ $version -ne 1 || $upload == y ]]; then
 	echo "Marker: uploading download.tar.gz `date`"
-	if [ "$monster" = "y" ]; then
-		tar zcvf ../upload/download.monster.tar.gz *
-		scp ../upload/download.monster.tar.gz uploads@plutohome.com:~/
+	if [ "$flavor" != "pluto" ]; then
+		tar zcvf ../upload/download.$flavor.tar.gz *
+		scp ../upload/download.$flavor.tar.gz uploads@plutohome.com:~/
 	else
 		ssh uploads@plutohome.com "rm ~/*download* ~/*replace*"
 		tar zcvf ../upload/download.tar.gz *
@@ -401,41 +348,7 @@ if [[ $version -ne 1 || $upload == y ]]; then
 
 	if [ $version -eq 1 ]; then
 		ssh uploads@plutohome.com "/home/uploads/SetupTemp.sh"
-	fi
-	
-	echo "Marker: SourceForge `date`"
-	
-	# SourceForge CVS
-	if ! MakeRelease -D main_sqlcvs -a -o 1 -r 12 -m 1 -s $build_dir/trunk -n / -b -v $version  > $build_dir/MakeRelease6.log ; then
-		reportError
-		echo "MakeRelease to source forge CVS Failed.  Press any key"
-	    read
-	fi
-	
-	# SourceForge Debian Sarge
-	if ! MakeRelease -D main_sqlcvs -a -o 1 -r 13 -m 1 -s $build_dir/trunk -n / -b -v $version  > $build_dir/MakeRelease7.log ; then
-		reportError
-		echo "MakeRelease to source forge CVS Failed.  Press any key"
-		read
-	fi
-
-	# SourceForge Windows Archives
-	if ! MakeRelease -D main_sqlcvs -a -o 1 -r 17 -m 1 -s $build_dir/trunk -n / -b -v $version  > $build_dir/MakeRelease8.log ; then
-		reportError
-		echo "MakeRelease to source forge CVS Failed.  Press any key"
-		read
-	fi
-		
-	# SourceForge Source Archives
-	if ! MakeRelease -D main_sqlcvs -a -o 1 -r 18 -m 1 -s $build_dir/trunk -n / -b -v $version  > $build_dir/MakeRelease9.log ; then
-		reportError
-		echo "MakeRelease to source forge CVS Failed.  Press any key"
-		read
-	fi
-
-	(echo -e "Need to propagate new SourceForge\n\n") | mail -s "SourceForge" dan.h@plutohome.com -c aaron@plutohome.com
-	
-	echo "Sent to server."
+	fi	
 fi
 
 cp $build_dir/MakeRelease*.log "$BASE_OUT_FOLDER"/"$version_name"
@@ -460,15 +373,3 @@ else
 fi
 sh -x /home/SendToSwiss.sh
 read
-
-#if [[ "$monster" == y ]]; then
-#	mv /home/builds/$version_name{,.monster}
-#	rm -f /home/builds/current /home/builds/current-monster
-#	ln -s /home/builds/$version_name.monster /home/builds/current-monster
-#	echo "Last build used the monster flag. Reset it." | mail -s "** Reset Monster Flag **" radu.c@plutohome.com
-#else
-#	mv /home/builds/$version_name{,.pluto}
-#	rm -f /home/builds/current /home/builds/current-pluto
-#	ln -s /home/builds/$version_name.pluto /home/builds/current
-#	ln -s /home/builds/$version_name.pluto /home/builds/current-pluto
-#fi
