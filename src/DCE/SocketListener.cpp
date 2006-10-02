@@ -87,17 +87,6 @@ SocketListener::~SocketListener()
 	if ( m_ListenerThreadID ) 
 		pthread_join( m_ListenerThreadID, 0 ); // wait for it to finish
 
-	PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
-	for (ServerSocketVector::iterator it = m_vectorServerSocket.begin(); it != m_vectorServerSocket.end(); ++it)
-	{
-		ServerSocket *pServerSocket = *it;
-		if(pServerSocket->m_iReferencesOutstanding_get() == 0)
-			delete pServerSocket;
-	}
-	lm.Release();
-		
-	m_vectorServerSocket.clear();
-	
 	pthread_mutex_destroy( &m_ListenerMutex.mutex ); // killing the mutex
 }
 
