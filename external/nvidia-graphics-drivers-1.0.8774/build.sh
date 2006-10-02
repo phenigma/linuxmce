@@ -14,7 +14,7 @@ DestDir="/home/samba/repositories/"$Flavor"/replacements/main/binary-i386/"
 
 KDEPS=
 for KVER in "${Kernels[@]}"; do
-	KDEPS="$KDEPS, linux-image-$KVER"
+	KDEPS="$KDEPS, nvidia-kernel-$KVER"
 done
 KDEPS="$KDEPS" dpkg-buildpackage -rfakeroot -b -us -uc
 
