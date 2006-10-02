@@ -8950,11 +8950,15 @@ void Orbiter::StartScreenSaver()
 	else if( m_pDesignObj_Orbiter_ScreenSaveMenu )
 	{
 		CMD_Set_Main_Menu("V");
-		GotoDesignObj(m_sMainMenu);
-		//make sure the display is on
+
+		if(!UsesUIVersion2())
+		{
+			GotoDesignObj(m_sMainMenu);
+			//make sure the display is on
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"::Screen saver goto screen m_bDisplayOn = true;");
+			g_pPlutoLogger->Write(LV_STATUS,"::Screen saver goto screen m_bDisplayOn = true;");
 #endif
+		}
 	}
 	m_bScreenSaverActive=true;
 }
