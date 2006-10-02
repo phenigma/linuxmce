@@ -2690,7 +2690,6 @@ void Router::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelet
 			ServerSocket *pServerSocket_Event = (*it).second;
 			if( pServerSocket->m_iInstanceID && pServerSocket->m_iInstanceID==pServerSocket_Event->m_iInstanceID )
 			{
-				pServerSocket_Event->m_bAlreadyRemoved=true;
 				pServerSocket_Event->Close();
 				pDevice->m_mapSocket_Event.erase(it++);
 			}

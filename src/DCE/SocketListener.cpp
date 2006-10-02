@@ -87,6 +87,8 @@ SocketListener::~SocketListener()
 	if ( m_ListenerThreadID ) 
 		pthread_join( m_ListenerThreadID, 0 ); // wait for it to finish
 
+	DropAllSockets();
+
 	pthread_mutex_destroy( &m_ListenerMutex.mutex ); // killing the mutex
 }
 
@@ -230,6 +232,18 @@ Socket *SocketListener::CreateSocket( SOCKET newsock, string sName, string sIPAd
 	return pSocket;
 }
 
+void SocketListener::RemoveSocket(ServerSocket *pServerSocket)
+{
+	for (ServerSocketVector::iterator j=m_vectorServerSocket.begin(); j!=m_vectorServerSocket.end(); j++)
+	{
+		if ( (*j) == pServerSocket )
+		{
+			m_vectorServerSocket.erase(j);
+			break;
+		}
+	}
+}
+
 void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelete )
 {
 	pServerSocket->Close();
@@ -257,19 +271,13 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 			g_pPlutoLogger->Write( LV_REGISTRATION, "Stale Command handler %d for \x1b[34;1m%d\x1b[0m closed.", pServerSocket, pServerSocket->m_dwPK_Device );
 		}
 		
-		for (ServerSocketVector::iterator j=m_vectorServerSocket.begin(); j!=m_vectorServerSocket.end(); j++)
-		{
-			if ( (*j) == pServerSocket )
-			{
-				m_vectorServerSocket.erase(j);
-				break;
-			}
-		}
+		RemoveSocket(pServerSocket);
 	}
+
 	if( !bDontDelete )  // Will be true if teh socket's destructor is calling this
 	{	
         lm.Release();
-		pServerSocket->m_bAlreadyRemoved=true;  // Otherwise the socket's destructor will call this
+		pServerSocket->AlreadyRemoved();  // Otherwise the socket's destructor will call this
 		delete pServerSocket;
 	}
 }
@@ -299,6 +307,7 @@ void SocketListener::RegisterCommandHandler( ServerSocket *Socket, int iDeviceID
 		RemoveAndDeleteSocket( pSocket_Old );
 		ll.Relock();
 	}
+
 	m_mapServerSocket[iDeviceID] = Socket; // assigning it the new specified socket
 	Socket->SetReceiveTimeout( IsPlugin(iDeviceID) ? SOCKET_TIMEOUT_PLUGIN : SOCKET_TIMEOUT );
 	ll.Release();
@@ -379,11 +388,13 @@ void SocketListener::DropAllSockets()
 {
 	PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
     ServerSocketMap::iterator iDC;
-    for(iDC = m_mapServerSocket.begin(); iDC!=m_mapServerSocket.end(); ++iDC)
+    while(m_mapServerSocket.size())
     {
-        ServerSocket *pServerSocket = (*iDC).second;
+        ServerSocket *pServerSocket = m_mapServerSocket.begin()->second;
 		pServerSocket->Close();
+		delete pServerSocket;
 	}
+	m_mapServerSocket.clear();
 		
 	lm.Release();
 }

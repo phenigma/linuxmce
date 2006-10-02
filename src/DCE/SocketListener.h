@@ -102,6 +102,10 @@ namespace DCE
 		 */
 		virtual void RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelete=false );
 		
+		/**
+		* @brief removes the socket from the listClients
+		*/
+		virtual void RemoveSocket( ServerSocket *pServerSocket);
 
 		/**
 		 * @brief Called when an event handler is registered

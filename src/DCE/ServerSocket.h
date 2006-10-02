@@ -28,9 +28,12 @@ namespace DCE
 	{
 	private:
 		int m_iReferencesOutstanding; /** < How many references to this are outstanding, we can only delete it when this is 0 */
+		bool m_bAlreadyRemoved;
 
 	public:
 		long m_dwPK_Device; /** < the device ID */
+
+		void AlreadyRemoved() { m_bAlreadyRemoved = true; }
 
 		pluto_pthread_mutex_t m_ConnectionMutex; /** < for controlling access to the shared memory */
 		pthread_t m_ClientThreadID; /** < the thread running the main loop */
@@ -40,7 +43,7 @@ namespace DCE
 		int m_iInstanceID; // The ID from Command_Impl.  See notes for same variable in Command_Impl.h
 		bool m_bSendOnlySocket; // This socket doesn't receive anything
 
-		bool m_bThreadRunning,m_bAlreadyRemoved;
+		bool m_bThreadRunning;
 		/**
 		 * @brief constructor, assignes values to the member data and starts the looping thread
 		 */

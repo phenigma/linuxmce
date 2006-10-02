@@ -64,16 +64,18 @@ void *ServerSocket::BeginWapClientThread( void *SvSock )
 	// Se:
 	// 		- we enter the thread
 	// 		- look to see if this is the case and remove the socket in this case.
-	if( pCS->_Run() && !pCS->m_bAlreadyRemoved )
+
+	if(pCS->_Run())
 	{
-		/*
-		if( pCS->m_dwPK_Device==DEVICEID_MESSAGESEND )
-			delete pCS;  // Don't waste the time for RemoveAndDeleteSocket if it's just a message send--it was never registered anyway
-		else
+		if(!pCS->m_bAlreadyRemoved)
+		{
+			// now always doing RemoveAndDeleteSocket because we must free the vector of sockets
 			pCS->m_pListener->RemoveAndDeleteSocket(pCS);
-		*/
-		// now always doing RemoveAndDeleteSocket because we must free the vector of sockets
-		pCS->m_pListener->RemoveAndDeleteSocket(pCS);
+		}
+	}
+	else
+	{
+		pCS->m_pListener->RemoveSocket(pCS);
 	}
 
 	return NULL;
