@@ -158,12 +158,16 @@ if ( defined $ARGV[1] && $ARGV[1] eq "cache" )
     `cp $replacementsrepo/pluto-sample-media*.deb /home/installation-cd-kernel-2.6.12/image-netinst/Debian-Cache`;
     `cp $replacementsrepo/avwizard-sounds-dummy*.deb /home/installation-cd-kernel-2.6.12/image-netinst/Debian-Cache`;
     `cp $devrepo/pluto-avwizard-skin-basic*.deb /home/installation-cd-kernel-2.6.12/image-netinst/Debian-Cache`;
-    `cd /home/installation-cd-kernel-2.6.12`;
+	chdir "/home/installation-cd-kernel-2.6.12";
 
 	print "Making cached packages Indexes\n";
 	print `dpkg-scanpackages image-netinst/Debian-Cache	/dev/null 2>/dev/null | sed s,image-netinst/Debian-Cache/,dists/sarge/main/binary-i386/,g | gzip -9c >image-netinst/Debian-Cache/Packages.gz`;
 	
 	`cd image-netinst/Debian-Cache; mkdir keep; zgrep '^Filename: ' Packages.gz|cut -d' ' -f2|cut -d/ -f5|xargs -ifile mv file keep; rm *.deb; mv keep/* .; rmdir keep`;
+
+    # Update cd kernels
+	`rm image-netinst/pool/main/l/linux-2.6/*.deb`
+	`for kernel in image-netinst/Debian-Cache/linux-image-*.deb ;do ln -s ../../../../Debian-Cache/\$(basename \$kernel) image-netinst/pool/main/l/linux-2.6/\$(basename \$kernel) ; done`;
 }
 
 $version=`basename $build_dir`;

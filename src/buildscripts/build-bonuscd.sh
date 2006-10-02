@@ -18,7 +18,7 @@ MD5FILE="$BONUSCDDIR/md5.file"
 case "$TYPE" in
 	pluto)
 		DEVPKGLIST=( pluto-bluetooth-dongle pluto-usb-uirt pluto-slimserver-plugin pluto-slim-server-streamer pluto-irtrans-wrapper pluto-generic-serial-device )
-		REPLPKGLIST=( slimdevices-slim-server libxine1-dbg )
+		REPLPKGLIST=( slimdevices-slim-server libxine1-dbg)
 		AUTOINSTLIST=( video-wizard-videos-pluto )
 	;;
 	monster)
@@ -48,7 +48,7 @@ done
 # replacements
 for pkgs in ${REPLPKGLIST[@]}
 do
-cp $REPLREPO/$pkgs*.deb $BONUSCACHEDIR
+	find "$REPLREPO" -name "$pkgs"*.deb -exec cp '{}' "$BONUSCACHEDIR" ';'
 done
 # autoinstall dir
 for pkgs in ${AUTOINSTLIST[@]}
