@@ -39,8 +39,8 @@ for ((i = 1; i <= "$#"; i++)); do
 	esac
 done
 
+## Read and export the configuration options
 . /home/WorkNew/src/MakeRelease/MR_Conf.sh
-
 export MakeRelease_Flavor="$flavor"
 ConfEval "$flavor"
 
@@ -278,6 +278,9 @@ pushd /home/samba/repositories/$flavor/$replacementsdeb/main/binary-i386/
 ./update-repository
 popd
 
+ln -s "/home/samba/repositories/$flavor/$replacementsdeb" /home/mirrors/Debian.ro.Sarge/debian/dists
+ln -s "/home/samba/repositories/$flavor/$maindeb" /home/mirrors/Debian.ro.Sarge/debian/dists
+
 pushd "$BASE_INSTALLATION_2_6_12_CD_FOLDER"
 "$BASE_INSTALLATION_2_6_12_CD_FOLDER/build-cd1.sh" --iso-dir "$BASE_OUT_FOLDER/$version_name" --cache
 "$BASE_INSTALLATION_2_6_12_CD_FOLDER/build-cd2.sh" --iso-dir "$BASE_OUT_FOLDER/$version_name"
@@ -316,19 +319,29 @@ cp -r /home/samba/builds/Windows_Output/winnetdlls $BASE_OUT_FOLDER/$version_nam
 
 mkdir -p /home/builds/upload
 pushd /home/builds
-rm upload/download.tar.gz
 
 cd $version_name
-md5sum installation-cd.iso > installation-cd-1-$version_name.$flavor.md5
-mv installation-cd.iso installation-cd-1-$version_name.$flavor.iso
+#md5sum installation-cd.iso > installation-cd-1-$version_name.$flavor.md5
+#mv installation-cd.iso installation-cd-1-$version_name.$flavor.iso
 echo $version_name > current_version
 
 
 if [[ $version -ne 1 || $upload == y ]]; then
 	echo "Marker: uploading download.tar.gz `date`"
+	
 	if [ "$flavor" != "pluto" ]; then
+		## Create tarball containing /home/builds/build directory and upload it
+		rm ../upload/download.$flavor.tar.gz
 		tar zcvf ../upload/download.$flavor.tar.gz *
 		scp ../upload/download.$flavor.tar.gz uploads@plutohome.com:~/
+		
+		## Create replacements repo tarball and upload it
+		rm ../upload/replacements.$flavor.tar.gz
+		tar zcvf ../upload/replacements/replacements.$flavor.tar.gz  /home/samba/repositories/$flavor/$replacementsdeb/*
+		scp ../upload/replacements.$flavor.tar.gz uploads@plutohome.com:~/
+
+		## Extract the files on plutohome.com
+		ssh uploads@plutohome.com "/home/uploads/SetupUploads.sh \"$flavor\" \"$replacementsdeb\"  \"$maindeb\""
 	else
 		ssh uploads@plutohome.com "rm ~/*download* ~/*replace*"
 		tar zcvf ../upload/download.tar.gz *
@@ -343,12 +356,9 @@ if [[ $version -ne 1 || $upload == y ]]; then
 		bash -x DirPatch.sh
 		scp replacements.tar.gz uploads@plutohome.com:~/
 		scp replacements.patch.sh uploads@plutohome.com:~/
-	    popd
 	fi
 
-	if [ $version -eq 1 ]; then
-		ssh uploads@plutohome.com "/home/uploads/SetupTemp.sh"
-	fi	
+	popd	
 fi
 
 cp $build_dir/MakeRelease*.log "$BASE_OUT_FOLDER"/"$version_name"
@@ -357,7 +367,7 @@ echo "Marker: done `date`"
 echo "Everything okay.  Press any key"
 
 if [ "x$nobuild" = "x" ]; then
-	(echo -e "MakeRelease $version ok\n\n") | mail -s "MakeRelease $version ok" mihai.t@plutohome.com -c aaron@plutohome.com
+	(echo -e "MakeRelease $version ok\n\n") | mail -s "MakeRelease $version ok" razvan.g@plutohome.com -c aaron@plutohome.com
 else
 	(echo -e "MakeRelease $version ok\n\nNeed to reset nobuild flag") | mail -s "**reset nobuild flag** MakeRelease $version ok" mihai.t@plutohome.com -c aaron@plutohome.com
 fi
@@ -371,5 +381,5 @@ if [ "x$fastrun" = "x" ]; then
 else
 	(echo -e "Remove fastrun flag\n\n") | mail -s "**remove fastrun flag**" mihai.t@plutohome.com -c aaron@plutohome.com
 fi
-sh -x /home/SendToSwiss.sh
+#sh -x /home/SendToSwiss.sh
 read
