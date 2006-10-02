@@ -35,13 +35,38 @@ function dceCommands($output,$dbADO) {
 			</tr>
 		';
 		
+		$query='
+			SELECT FK_Command,DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate, DeviceTemplate.Description AS TemplateName,PK_Device,Device.Description AS DeviceName
+			FROM DeviceTemplate_DeviceCommandGroup
+			INNER JOIN DeviceTemplate ON DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate=PK_DeviceTemplate
+			INNER JOIN Device ON DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate=Device.FK_DeviceTemplate
+			INNER JOIN DeviceCommandGroup_Command ON DeviceCommandGroup_Command.FK_DeviceCommandGroup=DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup
+			WHERE Device.FK_Installation=?';
+		$res=$dbADO->Execute($query,array($installationID));
+		$templatesUsedByCommand=array();
+		$templateNamesUsedByCommand=array();
+		$devicesUsedByCommand=array();
+		$deviceNamesUsedByCommand=array();
+		while($row=$res->FetchRow()){
+			if(@!in_array($row['FK_DeviceTemplate'],$templatesUsedByCommand[$row['FK_Command']])){
+				$templatesUsedByCommand[$row['FK_Command']][]=$row['FK_DeviceTemplate'];
+				$templateNamesUsedByCommand[$row['FK_Command']][]=$row['TemplateName'];
+			}
+			
+			if(@!in_array($row['PK_Device'],$templatesUsedByCommand[$row['FK_Command']])){
+				$devicesUsedByCommand[$row['FK_Command']][]=$row['PK_Device'];
+				$deviceNamesUsedByCommand[$row['FK_Command']][]=$row['DeviceName'];
+			}
+		}
+		//print_array($templatesUsedByCommand);
+		
 		$queryRootCC='
 			SELECT Description,PK_CommandCategory
 			FROM CommandCategory
 			WHERE FK_CommandCategory_Parent IS NULL
 			ORDER BY CommandCategory.Description ASC';
 		$resRootCC=$dbADO->Execute($queryRootCC);
-		$out.=formatOutput($resRootCC,$dbADO,0);
+		$out.=formatOutput($resRootCC,$dbADO,0,$templatesUsedByCommand,$templateNamesUsedByCommand,$devicesUsedByCommand,$deviceNamesUsedByCommand);
 		$out.='
 			<tr>
 				<td align="left" colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandCategory&from=dceCommands\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">'.$TEXT_ADD_COMMAND_CATEGORY_CONST.'</a></td>
@@ -64,7 +89,7 @@ function dceCommands($output,$dbADO) {
 }
 
 
-function getCommandCategoryChilds($CommandCategory,$dbADO,$level)
+function getCommandCategoryChilds($CommandCategory,$dbADO,$level,$templatesUsedByCommand,$templateNamesUsedByCommand,$devicesUsedByCommand,$deviceNamesUsedByCommand)
 {
 	$out='';
 	$queryCC='
@@ -73,11 +98,11 @@ function getCommandCategoryChilds($CommandCategory,$dbADO,$level)
 			WHERE FK_CommandCategory_Parent=?
 			ORDER BY CommandCategory.Description ASC';
 	$resCC=$dbADO->Execute($queryCC,$CommandCategory);
-	$out.=formatOutput($resCC,$dbADO,$level);
+	$out.=formatOutput($resCC,$dbADO,$level,$templatesUsedByCommand,$templateNamesUsedByCommand,$devicesUsedByCommand,$deviceNamesUsedByCommand);
 	return $out;
 }
 
-function formatOutput($resRootCC,$dbADO,$level)
+function formatOutput($resRootCC,$dbADO,$level,$templatesUsedByCommand,$templateNamesUsedByCommand,$devicesUsedByCommand,$deviceNamesUsedByCommand)
 {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
@@ -104,29 +129,19 @@ function formatOutput($resRootCC,$dbADO,$level)
 		$cmdPos=0;
 		while($rowCommands=$resCommands->FetchRow()){
 			$cmdPos++;
-			$query='
-				SELECT DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate, DeviceTemplate.Description AS TemplateName,PK_Device,Device.Description AS DeviceName
-				FROM DeviceTemplate_DeviceCommandGroup
-				INNER JOIN DeviceTemplate ON DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate=PK_DeviceTemplate
-				INNER JOIN Device ON DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate=Device.FK_DeviceTemplate
-				INNER JOIN DeviceCommandGroup_Command ON DeviceCommandGroup_Command.FK_DeviceCommandGroup=DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup
-				WHERE FK_Command=? AND Device.FK_Installation=?';
-			$res=$dbADO->Execute($query,array($rowCommands['PK_Command'],$installationID));
-			$deviceTemplates=array();
-			$devices=array();
-			while($row=$res->FetchRow()){
-				if(!in_array($row['TemplateName'],$deviceTemplates))
-					$deviceTemplates[$row['FK_DeviceTemplate']]=$row['TemplateName'];
-				if(!in_array($row['DeviceName'],$devices))
-					$devices[$row['PK_Device']]=$row['DeviceName'];
-			}
 			$dtLinks=array();
-			foreach($deviceTemplates as $dtID=>$description){
+			for($i=0;$i<@count($templatesUsedByCommand[$rowCommands['PK_Command']]);$i++){
+				$dtID=$templatesUsedByCommand[$rowCommands['PK_Command']][$i];
+				$description=$templateNamesUsedByCommand[$rowCommands['PK_Command']][$i];
+				
 				$dtLinks[]='<a href="index.php?section=editMasterDevice&model='.$dtID.'&from=dceCommands">'.$description.'</a>';
 			}
 			
 			$devicesLinks=array();
-			foreach($devices as $deviceID=>$description){
+			for($i=0;$i<@count($devicesUsedByCommand[$rowCommands['PK_Command']]);$i++){
+				$deviceID=$devicesUsedByCommand[$rowCommands['PK_Command']][$i];
+				$description=$deviceNamesUsedByCommand[$rowCommands['PK_Command']][$i];
+				
 				$devicesLinks[]='<a href="index.php?section=editDeviceParams&deviceID='.$deviceID.'">'.$description.'</a>';
 			}
 
@@ -139,7 +154,7 @@ function formatOutput($resRootCC,$dbADO,$level)
 					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'">'.join(', ',$devicesLinks).'</td>
 				</tr>';
 		}
-		$out.=getCommandCategoryChilds($rowRootCC['PK_CommandCategory'],$dbADO,$level+1);
+		$out.=getCommandCategoryChilds($rowRootCC['PK_CommandCategory'],$dbADO,$level+1,$templatesUsedByCommand,$templateNamesUsedByCommand,$devicesUsedByCommand,$deviceNamesUsedByCommand);
 	}
 	return $out;
 }
