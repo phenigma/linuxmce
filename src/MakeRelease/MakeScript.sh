@@ -337,7 +337,9 @@ if [[ $version -ne 1 || $upload == y ]]; then
 		
 		## Create replacements repo tarball and upload it
 		rm ../upload/replacements.$flavor.tar.gz
-		tar zcvf ../upload/replacements/replacements.$flavor.tar.gz  /home/samba/repositories/$flavor/$replacementsdeb/*
+		pushd /home/samba/repositories/$flavor/$replacementsdeb
+		tar -hzcvf /home/builds/upload/replacements.$flavor.tar.gz  *
+		popd
 		scp ../upload/replacements.$flavor.tar.gz uploads@plutohome.com:~/
 
 		## Extract the files on plutohome.com
