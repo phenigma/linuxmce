@@ -11,6 +11,17 @@ using namespace Frog;
 #include "Orbiter/PocketFrog/PocketFrogWrapper.h"
 #include "VIPShared/RenderMenu.h"
 //---------------------------------------------------------------------------------------------------------
+
+#include <stdlib.h>
+
+#define CONFIG_FILENAME "PlutoMO.cfg"
+#define DEFAULT_LINK_NAME "Pluto"
+#define ALERTS_LINK_NAME "Pluto Alerts"
+#define ALERTS_LINK_SUBSTR "security=0"
+#define MAX_URL_LENGTH 512
+
+class CSmartphone2003Favorites;
+
 class OrbiterApp: public PlutoGame, public RenderMenu
 {
 private:
@@ -169,8 +180,26 @@ public:
 	int m_nLastTick;
 	int m_nRepeatStep;
 
+	// Bookmarks
+	bool IsConfigFileName( char* szFileName ) {
+		return _stricmp( szFileName, CONFIG_FILENAME )==0?true:false;
+	}
+	void CheckBookmarks( void );
+
+
 	class IncomingCallNotifier *m_pIncomingCallNotifier;
 
 };
 //---------------------------------------------------------------------------------------------------------
+
+class CSmartphone2003Favorites {
+private:
+	static bool MakeLinkFileName(LPCTSTR pszName, LPTSTR pszBuf);
+	static TCHAR m_szBuffer[MAX_PATH];
+public:
+	static bool CheckURLName( LPCTSTR pszURLName );
+	static bool AddLinkToFavorites(LPCTSTR pszName, LPCTSTR pszURL, BOOL bFailIfExists);	
+	static bool DelLinkFromFavorites(LPCTSTR pszName);
+};
+
 #endif

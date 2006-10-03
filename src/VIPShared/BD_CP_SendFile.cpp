@@ -98,6 +98,12 @@ bool BD_CP_SendFile::ProcessCommand(BDCommandProcessor *pProcessor)
 
 #ifdef SMARTPHONE
 	OrbiterApp::GetInstance()->SaveFile(m_iFileNameSize, m_pFileName, m_iFileDataSize, m_pFileData);
+
+	// Check if config file was just downloaded
+	if ( OrbiterApp::GetInstance()->IsConfigFileName( m_pFileName ) ) {
+		//---- Check bookmarks
+		OrbiterApp::GetInstance()->CheckBookmarks();
+	}
 #endif
 
 #endif //VIPPHONE

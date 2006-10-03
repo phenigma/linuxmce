@@ -112,6 +112,7 @@ OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hIns
 #endif
 
 	m_pIncomingCallNotifier = new IncomingCallNotifier();
+
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterApp::~OrbiterApp()
@@ -1457,4 +1458,97 @@ void OrbiterApp::SetImageQuality(unsigned long ulImageQuality)
 {
 	m_ulImageQuality = ulImageQuality;
 }
+//------------------------------------------------------------------------------------------------------------------
+void OrbiterApp::CheckBookmarks( void )
+{
+	
+	string sFileName = g_sBinaryPath + CONFIG_FILENAME;
+	FILE *hFile = fopen( sFileName.c_str(), "rt" );
+	if ( !hFile ) return;
+	TCHAR *szURL = new TCHAR[MAX_URL_LENGTH];
+	if (  szURL ) {
+		if ( _fgetts( szURL, MAX_URL_LENGTH-2, hFile ) ) {
+			if ( szURL[_tcslen(szURL)-1]==_T('\n') ) szURL[_tcslen(szURL)-1] = 0;
+			//Pluto - http://34.34.23.34/pluto-admin/check.wml?
+			CSmartphone2003Favorites::AddLinkToFavorites( _T(DEFAULT_LINK_NAME), szURL, FALSE );
+			//Pluto Alerts - http://34.34.23.34/pluto-admin/check.wml?security=0		
+			_tcscat(szURL, _T(ALERTS_LINK_SUBSTR));		
+			CSmartphone2003Favorites::AddLinkToFavorites( _T(ALERTS_LINK_NAME), szURL, FALSE );
+		}
+		delete [MAX_URL_LENGTH] szURL;
+	}
+	fclose( hFile ); 	
+	
+}
+
+//------------------------------------------------------------------------------------------------------------------
+TCHAR CSmartphone2003Favorites::m_szBuffer[MAX_PATH];
+
+bool CSmartphone2003Favorites::MakeLinkFileName(LPCTSTR pszName, LPTSTR pszBuf)
+{
+	// Get path to Favorites folder.
+	if(!SHGetSpecialFolderPath(NULL, pszBuf, CSIDL_FAVORITES, TRUE))
+		return false;
+
+	// Make file name.
+	_tcscat(pszBuf, _T("\\"));
+	_tcscat(pszBuf, pszName);
+	_tcscat(pszBuf, _T(".url"));
+
+	return true;
+}
+
+bool CSmartphone2003Favorites::CheckURLName( LPCTSTR pszURLName )
+{	
+	if ( !MakeLinkFileName( pszURLName, m_szBuffer ) ) return FALSE;
+
+	WIN32_FIND_DATA fData;	
+	HANDLE hSearch = FindFirstFile( m_szBuffer, &fData );
+	if ( hSearch!=INVALID_HANDLE_VALUE ) return true;
+	return false;
+}
+
+bool CSmartphone2003Favorites::AddLinkToFavorites(LPCTSTR pszName, LPCTSTR pszURL, BOOL bFailIfExists)
+{
+	if ( CheckURLName( pszName ) ) {
+		if ( bFailIfExists ) return false;
+		DeleteFile(m_szBuffer);
+	}
+
+	// Get link file name.	
+	if(!MakeLinkFileName(pszName, m_szBuffer)) return FALSE;
+	
+	// Create *.url file.
+	FILE *pFile = _tfopen(m_szBuffer, _T("wt"));
+	if(pFile == NULL)
+		return false;
+
+	_fputts(_T("[InternetShortcut]\n"), pFile);
+	TCHAR *pBuf = new TCHAR[_tcslen(pszURL)+10];
+	if ( pBuf ) {
+		_stprintf( pBuf, _T("URL=%s"), pszURL);		
+		_fputts( pBuf, pFile );			
+		delete [_tcslen(pszURL)+10] pBuf;
+		fclose(pFile);
+	}
+	else {
+		fclose(pFile);
+		return false;
+	}	
+
+	return true;
+}
+
+bool CSmartphone2003Favorites::DelLinkFromFavorites(LPCTSTR pszName)
+{
+	if ( CheckURLName( pszName ) ) {
+		// Get link file name.
+		if(!MakeLinkFileName(pszName, m_szBuffer))
+			return false;
+
+		DeleteFile(m_szBuffer);
+		return true;
+	}
+}
+
 //------------------------------------------------------------------------------------------------------------------
