@@ -934,8 +934,6 @@ void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage
     if (pRenderImage_Child == NULL || pRenderImage_Child->m_pSDL_Surface == NULL)
         throw "Composite image passed null child";
 
-	printf("Compositing image %p %p @%dx%d\n", pRenderImage_Parent, pRenderImage_Child, pos.X, pos.Y);
-
     //  cout << "Composing image: " << pRenderImage_Child->m_sFilename << endl;
     /*
     SDL_FillRect(Screen, NULL, 0);
@@ -996,7 +994,6 @@ void Renderer::CompositeAlpha(RendererImage * pRenderImage_Parent, RendererImage
 	int iChildHeight = pRenderImage_Child->m_pSDL_Surface->h;
 	int iChildWidth = pRenderImage_Child->m_pSDL_Surface->w;
 
-	printf("Compositing alpha %p %p @%dx%d\n", pRenderImage_Parent, pRenderImage_Child, pos.X, pos.Y);
 	SDL_Rect SDL_pos;
 	SDL_pos.x = pos.X;
 	SDL_pos.y = pos.Y;
@@ -1338,7 +1335,7 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 		*/
 
 #ifndef WINCE
-		cout << "[43mBlitting text '" << pDesignObjText->m_sText << "'[0m" << endl;
+		//cout << "[43mBlitting text '" << pDesignObjText->m_sText << "'[0m" << endl;
 #endif
 		RendererImage * pRI_RenderedText = new RendererImage();
 		pRI_RenderedText->m_pSDL_Surface = RenderedText;
