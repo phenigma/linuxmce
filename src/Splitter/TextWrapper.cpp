@@ -329,12 +329,13 @@ void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, 
     Uint8 WasAlpha = Surface->format->alpha;
 	SDL_SetAlpha(Surface, 0, 0);
     SDL_BlitSurface(Surface, &rect, pTextSurface, NULL);
-	SDL_SetAlpha(Surface, WasSrcAlpha, WasAlpha);
+	SDL_SetAlpha(Surface, WasSrcAlpha ? SDL_SRCALPHA : 0, WasAlpha);
 
     //renders the text on the new surface, relative to 0, 0
     T.RenderToSurface(pTextSurface);
 
     //blits the text surface to the original surface
+	SDL_SetAlpha(pTextSurface, 0, 0);
     SDL_BlitSurface(pTextSurface, NULL, Surface, &rect);
 	CompositeAlphaChannel(pTextSurface, Surface, &rect);
     SDL_FreeSurface(pTextSurface);
