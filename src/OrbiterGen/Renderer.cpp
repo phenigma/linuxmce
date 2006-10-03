@@ -295,7 +295,9 @@ Renderer::~Renderer()
             *(pRawImage + y*width + x) = (char)(pD[3] <= nMaxOpacity);
         }
     }
+#ifndef WINCE
 	cout << "Saving " << sFileName << endl;
+#endif
     bool bResult = Xbm_WriteFile(sFileName, pRawImage, width, height);
 	delete pRawImage;
     if (! bResult)
@@ -1335,7 +1337,9 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
         SDL_BlitSurface(RenderedText, NULL, pRenderImage->m_pSDL_Surface, &SDL_rect);
 		*/
 
+#ifndef WINCE
 		cout << "[43mBlitting text '" << pDesignObjText->m_sText << "'[0m" << endl;
+#endif
 		RendererImage * pRI_RenderedText = new RendererImage();
 		pRI_RenderedText->m_pSDL_Surface = RenderedText;
 		CompositeImage(pRenderImage, pRI_RenderedText, pos);
