@@ -9,11 +9,16 @@ OH_Orbiter::~OH_Orbiter()
 		end = m_mapFloorplanObjectVector.end(); it != end; ++it)
 	{
 		FloorplanObjectVectorMap *pFloorplanObjectVectorMap = it->second;
+		if(NULL == pFloorplanObjectVectorMap)
+			continue;
 
 		for(map<int,FloorplanObjectVector *>::iterator itm = pFloorplanObjectVectorMap->begin(), 
 			endm = pFloorplanObjectVectorMap->end(); itm != endm; ++itm)
 		{
 			FloorplanObjectVector *pFloorplanObjectVector = itm->second;
+			if(NULL == pFloorplanObjectVector)
+				continue;
+
 			for(vector<FloorplanObject *>::iterator itv = pFloorplanObjectVector->begin(),
 				endv = pFloorplanObjectVector->end(); itv != endv; ++itv)
 			{
