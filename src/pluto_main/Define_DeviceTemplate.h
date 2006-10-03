@@ -1,7 +1,6 @@
 #ifndef __Define_DeviceTemplate_H__
 #define __Define_DeviceTemplate_H__
 
-#define DEVICETEMPLATE_All_Orbiters_CONST	-305
 #define DEVICETEMPLATE_This_Orbiters_Now_Playing_CONST -304
 #define DEVICETEMPLATE_Standard_Orbiters_in_my_room_CONST -303
 #define DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST -302
@@ -1730,6 +1729,8 @@
 #define DEVICETEMPLATE_LT3280D_CONST 1833
 #define DEVICETEMPLATE_FusionHDTV5_Gold_CONST 1834
 #define DEVICETEMPLATE_Windows_Share_Scanner_CONST 1835
+#define DEVICETEMPLATE_VirtDev_All_Orbiters_CONST 1836
+#define DEVICETEMPLATE_Generic_File_Server_CONST 1837
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"

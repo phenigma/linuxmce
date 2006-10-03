@@ -106,6 +106,7 @@
 #define DEVICECATEGORY_Gestural_Remote_CONST 161
 #define DEVICECATEGORY_Capture_Card_Ports_CONST 162
 #define DEVICECATEGORY_Screen_Savers_CONST 163
+#define DEVICECATEGORY_FileMedia_Server_CONST 164
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"
