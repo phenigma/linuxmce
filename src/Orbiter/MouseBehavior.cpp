@@ -34,14 +34,6 @@ using namespace DCE;
 #else
 	#include "SDL/OrbiterRenderer_SDL.h"
 #endif
-
-/*
-#include <SDL_image.h>
-#include "SDL/OrbiterSDL.h"
-#include "SDL/SDLGraphic.h"
-#include "SDL/PlutoSDLDefs.h"
-*/
-
 //-----------------------------------------------------------------------------------------------------
 MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 {

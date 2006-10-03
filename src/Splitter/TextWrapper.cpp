@@ -1,4 +1,4 @@
-#include "Orbiter/SDL/PlutoSDLDefs.h"
+#include "SDL_Helpers/SDL_Defs.h"
 #include "SDL.h"
 
 #include "TextWrapper.h"

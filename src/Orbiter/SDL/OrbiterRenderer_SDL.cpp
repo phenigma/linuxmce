@@ -21,7 +21,7 @@
 #include "DCE/Logger.h"
 #include "SerializeClass/ShapesColors.h"
 
-#include "PlutoSDLDefs.h"
+#include "../../SDL_Helpers/SDL_Defs.h"
 #include "../RendererOCG.h"
 #include "SDLRendererOCGHelper.h"
 

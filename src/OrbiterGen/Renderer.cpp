@@ -33,7 +33,7 @@ using namespace std;
 #include "../utilities/linux/wrapper/image_file.h"
 
 #ifndef ORBITER
-#include "Orbiter/SDL/PlutoSDLDefs.h"
+#include "SDL_Helpers/SDL_Defs.h"
 #include "pluto_main/Define_HorizAlignment.h"
 #include "pluto_main/Define_VertAlignment.h"
 #endif //#ifndef ORBITER

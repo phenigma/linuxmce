@@ -2,7 +2,7 @@
 #include "../RendererOCG.h"
 #include "PlutoUtils/PlutoDefs.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoSDLDefs.h"
+#include "../SDL_Helpers/SDL_Defs.h"
 #include "../SerializeClass/ShapesColors.h"
 #include "../DCE/Logger.h"
 using namespace DCE;

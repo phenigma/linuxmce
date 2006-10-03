@@ -9,7 +9,7 @@
 #include <sge_surface.h>
 
 #include "SDLRendererOCGHelper.h"
-#include "PlutoSDLDefs.h"
+#include "../../SDL_Helpers/SDL_Defs.h"
 
 #include "../OrbiterRenderer.h"
 #include "../Orbiter.h"
