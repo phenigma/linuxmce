@@ -24,7 +24,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "DCE/Logger.h"
 #include "../OrbiterRenderer.h"
 #include "../Orbiter.h"
-#include "../SDL/PlutoSDLDefs.h"
+#include "SDL_Helpers/SDL_Defs.h"
 
 #include <iostream>
 

@@ -25,10 +25,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 
 #include "../Mesh/MeshPainter.h"
 #include "../GLMathUtils.h"
-
-//remove me
-#include "DCE/Logger.h"
-#include "../../SDL/PlutoSDLDefs.h"
+#include "SDL_Helpers/SDL_Defs.h"
 
 GLFontTextureList::GLFontTextureList(TTF_Font* Font, 
 									 int Style, int FontHeight,
