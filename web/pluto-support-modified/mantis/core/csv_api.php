@@ -195,4 +195,9 @@
 	function csv_format_duplicate_id( $p_duplicate_id ) {
 		return bug_format_id( $p_duplicate_id );
 	}
+	
+	function csv_format_hours_estimate( $hours_estimate) {
+		return $hours_estimate;
+	}
+	
 ?>

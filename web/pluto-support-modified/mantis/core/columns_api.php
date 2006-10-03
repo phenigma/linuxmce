@@ -627,4 +627,11 @@
 		}
 		echo '</td>';
 	}	
+	
+	function print_column_title_hours_estimate( $p_sort, $p_dir, $p_columns_target = COLUMNS_TARGET_VIEW_PAGE ) {
+		if ( $p_columns_target == COLUMNS_TARGET_CSV_PAGE ) {
+			echo "Hours estimate";
+		}
+	}
+	
 ?>
