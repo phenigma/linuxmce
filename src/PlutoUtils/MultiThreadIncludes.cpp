@@ -21,9 +21,14 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 
-#ifdef WINCE
+#if  defined(WINCE) && !defined(SMARTPHONE2005) //--- CHANGED4WM5 ----//
 	#include _STLP_NATIVE_C_HEADER(time.h)
 	#include "wince.h"
+#elif defined(SMARTPHONE2005)
+	#include <wce_time.h>
+	#define time		wceex_time
+	#define localtime	wceex_localtime
+	#define mktime		wceex_mktime
 #endif
 
 // Make this a pointer, rather than an instance.  When it's an instance, sometimes when the app
@@ -204,6 +209,7 @@ void PlutoLock::CheckLocks()
 			pSafetyLock_Problem=pSafetyLock;
 			break;
 		}
+
 	}
 	pthread_mutex_unlock(&g_mapLockMutex->mutex);
 	if( pSafetyLock_Problem )
@@ -285,9 +291,11 @@ void PlutoLock::DumpOutstandingLocks()
 			try
 			{
 				char Message[1024];
+				
 				sprintf(Message,"^01\t (>%d) %s l:%d time: (%d s) thread: %p Rel: %s Got: %s",
 						pSafetyLock->m_LockNum,pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,(int) (time(NULL)-pSafetyLock->m_tTime),
 						pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
+				
 				listMessages.push_back(Message);
 
 			}
@@ -307,12 +315,13 @@ void PlutoLock::DumpOutstandingLocks()
 			++itMapLock;
 			continue;
 		}
+		
 		struct tm *ptm = localtime(&pSafetyLock->m_tTime);
 		string sTime = (((int) time(NULL)-pSafetyLock->m_tTime)>=TRYLOCK_TIMEOUT_WARNING && pSafetyLock->m_bGotLock && !pSafetyLock->m_bReleased ? "*****DL******" : "") + 
 			StringUtils::itos(ptm->tm_hour==0 ? 12 : (ptm->tm_hour>13 ? ptm->tm_hour-12 : ptm->tm_hour)) + ":" + 
 			(ptm->tm_min<10 ? "0" : "") + StringUtils::itos(ptm->tm_min) + (ptm->tm_sec<10 ? ":0" : ":") + 
 			StringUtils::itos(ptm->tm_sec) + (ptm->tm_hour>11 ? "p" : "a");
-
+		
 		char Message[400];
 
 		sprintf(Message,"OL: (%p) (>%d) %s %s l:%d time: %s (%d s) thread: %p Rel: %s Got: %s",

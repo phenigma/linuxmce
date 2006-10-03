@@ -312,15 +312,16 @@ void WinOrbiterLogger::WriteEntry( Entry& entry )
     //TODO : use entry.m_iLevel to set a color for the output string
 
 #ifdef WINCE
-    const MAX_STRING_LEN = 4096;
+	////--- CHANGED4WM5 ----//
+    const int MAX_STRING_LEN = 4096;
     wchar_t wTextBuffer[MAX_STRING_LEN];
     mbstowcs(wTextBuffer, str.c_str(), MAX_STRING_LEN);
     #define MESSAGE wTextBuffer
 #else
     #define MESSAGE str.c_str()
 #endif
-
-    const cTimeOutInterval = 50; //miliseconds
+	//--- CHANGED4WM5 ----//
+    const int cTimeOutInterval = 50; //miliseconds
     DWORD Count;
     if(0 == ::SendMessageTimeout(m_hWndList, LB_ADDSTRING, 0L, (LPARAM)MESSAGE, SMTO_NORMAL, cTimeOutInterval, &Count))
         return; //send message timed out

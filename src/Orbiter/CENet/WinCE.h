@@ -1,6 +1,9 @@
 #ifndef __PLUTO_WINCE_H__
 #define __PLUTO_WINCE_H__
 
+#include <windows.h>
+//#include <windef.h>
+
 #define endl '\n'
 #define localtime(x) wince_localtime(x)
 #define time(x) wince_time(x)

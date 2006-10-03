@@ -1,6 +1,8 @@
 #include <time.h>
 #include "wince.h"
 
+
+
 // Windows CE implementations of normal C functions.   Grrr..
 static struct tm tb = { 0 };    /* time block */
 

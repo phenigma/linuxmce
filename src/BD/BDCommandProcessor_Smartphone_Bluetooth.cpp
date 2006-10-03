@@ -10,6 +10,14 @@
 
 #include "Orbiter/CENet_Smartphone/OrbiterApp.h"
 using namespace DCE;
+
+#if defined(SMARTPHONE2005)			//--- CHANGED4WM5 ----//
+	#include <wce_time.h>
+	#define time		wceex_time
+	#define localtime	wceex_localtime
+	#define mktime		wceex_mktime
+#endif
+
 //------------------------------------------------------------------------------------------------------------
 #include <Ws2bth.h>
 #include <bthapi.h>

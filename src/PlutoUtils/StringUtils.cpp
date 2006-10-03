@@ -31,18 +31,32 @@
 #ifndef SYMBIAN
 	#include "MultiThreadIncludes.h"
 	#include <stdio.h>
-    #include <time.h>
+	#if defined(SMARTPHONE2005)		//--- CHANGED4WM5 ----//
+		#include <wce_time.h>
+		#define time		wceex_time
+		#define localtime	wceex_localtime
+		#define mktime		wceex_mktime
+	#else
+		#include <time.h>
+	#endif
     #include <cctype>
     #include <algorithm>
-    #include <locale>
+	#if defined(SMARTPHONE2005)
+		#include <locale.h> //--- CHANGED4WM5 ----//
+	#else
+		#include <locale> //--- CHANGED4WM5 ----//
+	#endif
     #include <stdarg.h>
     #include <iostream>
     #include <iomanip>
     #ifdef WIN32
-        #ifndef WINCE
+        #if !defined(WINCE) //--- CHANGED4WM5 ----//
             #include <direct.h>
             #include <conio.h>
-        #else
+        #elif defined(SMARTPHONE2005)
+			#include <stdlib.h>
+			#define strdup		_strdup
+		#else
             #include _STLP_NATIVE_C_HEADER(time.h)
             #include _STLP_NATIVE_C_HEADER(stdio.h)
             #include "wince.h"
@@ -768,13 +782,12 @@ string StringUtils::SQLDateTime(time_t t)
     char acDateTime[100];
 
     if( t == 0 )
-        t = time(NULL);
-    struct tm *tm = localtime(&t);
+	    t = time(NULL);
+	struct tm *tm = localtime(&t);
 	if( !tm )
 		return "";
-
     sprintf( acDateTime, "%04d-%02d-%02d %02d:%02d:%02d",
-            tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec );
+	        tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec );
 
     return acDateTime;
 }
@@ -1048,6 +1061,7 @@ string StringUtils::PrecisionTime()
 	char acBuff[50];
 	double dwSec = (double)(ts.tv_nsec/1E9) + t->tm_sec;
 	snprintf( acBuff, sizeof(acBuff), "%02d/%02d/%02d %d:%02d:%06.3f", (int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year - 100, (int)t->tm_hour, (int)t->tm_min, dwSec );
+	
 	return acBuff;
 }
 

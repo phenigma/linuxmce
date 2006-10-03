@@ -325,7 +325,9 @@ void RenderMenu::DoRender()
 					for(int i=0;i<m_iListOffset;++i)
 						StringUtils::Tokenize(Text,"\n",pos);
 
-					for(int iLineNum=0;iLineNum<pList->m_iMaxItemsPerScreen;++iLineNum)
+					//--- CHANGED4WM5 ----//
+					int iLineNum = 0;
+					for( iLineNum=0;iLineNum<pList->m_iMaxItemsPerScreen;++iLineNum)
 					{
 						string Line = StringUtils::Tokenize(Text,"\n",pos);
                         StringUtils::Replace(Line, "\r", "");

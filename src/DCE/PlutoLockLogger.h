@@ -8,10 +8,11 @@ using namespace ::std;
 #include <sys/time.h>
 #endif
 
-#ifdef WINCE
-#include _STLP_NATIVE_C_HEADER(time.h)
-#include "wince.h"
-
+#if defined(WINCE) && !defined(SMARTPHONE2005) //--- CHANGED4WM5 ----//
+	#include _STLP_NATIVE_C_HEADER(time.h)
+	#include "wince.h"
+#elif defined(SMARTPHONE2005)
+	#include <time.h>
 #endif
 
 #include "PlutoUtils/MultiThreadIncludes.h"
