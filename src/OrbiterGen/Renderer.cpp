@@ -690,37 +690,7 @@ int k=2;
 	if( m_Rotate )
 		pSDL_Surface = rotozoomSurface (pRendererImage->m_pSDL_Surface, m_Rotate, 1,0);
 
-	png_bytepp image_rows;
-    int BitsPerColor;
-    SDL_Surface * Drawing = pSDL_Surface;
-
-    image_rows = new png_bytep[Drawing->h];
-    for (int n = 0; n < Drawing->h; n++)
-        image_rows[n] = (unsigned char *) Drawing->pixels + n * Drawing->pitch;
-
-    png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    png_infop png_info = png_create_info_struct(png_ptr);
-
-    png_init_io(png_ptr, File);
-
-	if (!Signature)
-		png_set_sig_bytes(png_ptr, 8);
-
-    png_set_filter(png_ptr, 0, PNG_FILTER_NONE);
-    png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
-
-    BitsPerColor = Drawing->format->BitsPerPixel / Drawing->format->BytesPerPixel;
-    png_set_IHDR(png_ptr, png_info, Drawing->w, Drawing->h, BitsPerColor, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
-            PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-//  png_set_bgr(png_ptr); // on x86, 24bit makes colors appear right; not for 32bit (RGBA) or it mixes the colors
-    png_write_info(png_ptr, png_info);
-
-    png_write_image(png_ptr, image_rows);
-    png_write_end(png_ptr, png_info);
-
-    delete [] image_rows;
-
-    png_destroy_write_struct(&png_ptr, &png_info);
+	IMG_SavePNG(pSDL_Surface, File, Signature);
 
 	if( m_Rotate )
 	    SDL_FreeSurface(pSDL_Surface);
