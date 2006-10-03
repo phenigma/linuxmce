@@ -89,7 +89,7 @@ void PnpQueue::Run()
 	ReadOutstandingQueueEntries();
 	while( m_pPlug_And_Play_Plugin->m_pRouter->m_bIsLoading_get() )
 		Sleep(1000); // Wait for the router to be ready before we start to process
-	Sleep(10000);  // Wait another 10 seconds for the app server's and other devices to finish starting up
+	Sleep(20000);  // Wait another 10 seconds for the app server's and other devices to finish starting up
 
 	pnp.Relock();
 	

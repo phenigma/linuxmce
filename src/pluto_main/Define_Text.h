@@ -1092,7 +1092,7 @@
 #define TEXT_MediaSynopsis_CONST 1808
 #define TEXT_Provider_Source_CONST 1809
 #define TEXT_Choose_Provider_CONST 1810
-#define TEXT_Device_CONST 1811
+#define TEXT_Provider_Device_CONST 1811
 #define TEXT_Provider_Package_CONST 1812
 #define TEXT_Provider_Lineup_CONST 1813
 #define TEXT_please_wait_for_lookup_CONST 1814

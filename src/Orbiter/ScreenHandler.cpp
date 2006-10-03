@@ -1130,6 +1130,25 @@ bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 	pDataGridTable->m_ColumnCount = pDataGridTable->GetCols();
 
 	m_iStage++;
+
+	string sText;
+	switch( m_iStage )
+	{
+	case CPS_PROMPTING_PROVIDER:
+		sText = m_pOrbiter->m_mapTextString[TEXT_Choose_Provider_CONST];
+		break;
+	case CPS_PROMPTING_DEVICE:
+		sText = m_pOrbiter->m_mapTextString[TEXT_Provider_Device_CONST];
+		break;
+	case CPS_PROMPTING_PACKAGE:
+		sText = m_pOrbiter->m_mapTextString[TEXT_Provider_Package_CONST];
+		break;
+	case CPS_PROMPTING_LINEUP:
+		sText = m_pOrbiter->m_mapTextString[TEXT_Provider_Lineup_CONST];
+		break;
+	}
+	m_pOrbiter->CMD_Set_Text( TOSTRING(DESIGNOBJ_mnuGenericDataGrid_CONST),sText, TEXT_STATUS_CONST );
+	m_pOrbiter->CMD_Set_Text( TOSTRING(DESIGNOBJ_mnuGenericDataGrid_CONST) ".0.0." TOSTRING(DESIGNOBJ_butResponse1_CONST),m_pOrbiter->m_mapTextString[TEXT_Ok_CONST], TEXT_STATUS_CONST );
 	m_pOrbiter->GotoDesignObj( TOSTRING(DESIGNOBJ_mnuGenericDataGrid_CONST) );
 
 	return false; // Keep processing it
@@ -1221,6 +1240,7 @@ void ScreenHandler::ChooseProviderGetNextStage()
 		// We got everything.  Set the provider information for this device
 		int PK_Device = atoi(m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str());
 		m_pOrbiter->SetDeviceDataInDB(PK_Device,DEVICEDATA_EK_MediaProvider_CONST,sArguments);
+		DCE::CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_All_Orbiters_CONST,m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 	}
 }
 //-----------------------------------------------------------------------------------------------------
