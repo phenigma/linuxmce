@@ -5,9 +5,9 @@ CXXFLAGS = -Wall -g -ggdb3 -D_GNU_SOURCE
 CPPFLAGS = -I./ -I$(ROOT) -I/usr/include/SDL -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE #<-mkr_t_compile_defines->
 CXX = g++
 LDFLAGS =
-LDLIBS = -lSDL
+LDLIBS = -lSDL -lpng
 
-sources = SDL_CompositeAlphaChannel.cpp SDL_pixel.cpp
+sources = SDL_CompositeAlphaChannel.cpp SDL_pixel.cpp SDL_SavePNG.cpp
 
 all: libSDL_Helpers.so
 
