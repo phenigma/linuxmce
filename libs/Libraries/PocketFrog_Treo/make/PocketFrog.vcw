@@ -1,0 +1,134 @@
+Microsoft eMbedded Visual Tools Workspace File, Format Version 3.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "Blit"=..\samples\blit\Blit.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name PocketFrog
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Hekkus"=..\samples\hekkus\Hekkus.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name PocketFrog
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Plasma"=..\samples\plasma\Plasma.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name PocketFrog
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "PocketFrog"=.\PocketFrog.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "Rotate"=..\samples\rotate\Rotate.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name PocketFrog
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "alpha"=..\samples\alpha\alpha.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name PocketFrog
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "shader"=..\samples\shader\shader.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name PocketFrog
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "supersample"=..\samples\supersample\supersample.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name PocketFrog
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

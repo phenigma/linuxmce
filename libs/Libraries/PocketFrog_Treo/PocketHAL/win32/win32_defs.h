@@ -1,0 +1,24 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// PocketHAL
+// Copyright 2004 by Thierry Tremblay
+//
+//////////////////////////////////////////////////////////////////////////////
+
+#ifndef POCKETHAL_WIN32_DEFS_H
+#define POCKETHAL_WIN32_DEFS_H
+
+#include <windows.h>
+
+
+
+namespace PHAL
+{
+
+    typedef HWND WindowHandle;
+
+} // end of namespace PHAL
+
+
+
+#endif
