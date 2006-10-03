@@ -165,7 +165,7 @@ Renderer::~Renderer()
     }
 }
 
-/*static*/ void ChangeSDLSurfaceFormatForPluto(SDL_Surface **pSurface)
+/*static*/ void Renderer::ChangeSDLSurfaceFormatForPluto(SDL_Surface **pSurface)
 {
 	SDL_Surface * pOldSurface = (*pSurface);
 
@@ -182,12 +182,12 @@ Renderer::~Renderer()
 			unsigned char *pNewPixel = (unsigned char *) pNewSurface->pixels + h * pNewSurface->pitch + w * 4;
 
 			unsigned char R, G, B, A;
-			R = (*pOldPixel >> pOldSurface->format->Rshift) & 0xff;
-			G = (*pOldPixel >> pOldSurface->format->Gshift) & 0xff;
-			B = (*pOldPixel >> pOldSurface->format->Bshift) & 0xff;
-			A = (*pOldPixel >> pOldSurface->format->Ashift) & 0xff;
+			R = (* (unsigned int *) pOldPixel >> pOldSurface->format->Rshift) & 0xff;
+			G = (* (unsigned int *) pOldPixel >> pOldSurface->format->Gshift) & 0xff;
+			B = (* (unsigned int *) pOldPixel >> pOldSurface->format->Bshift) & 0xff;
+			A = (* (unsigned int *) pOldPixel >> pOldSurface->format->Ashift) & 0xff;
 
-			* (unsigned int *) pNewPixel = (R << rmask) | (G << gmask) | (B << bmask) | (A << amask);
+			* (unsigned int *) pNewPixel = (R << rshift) | (G << gshift) | (B << bshift) | (A << ashift);
 		}
 	}
 	SDL_FreeSurface(pOldSurface);
