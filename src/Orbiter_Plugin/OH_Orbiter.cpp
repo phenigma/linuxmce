@@ -3,6 +3,30 @@
 
 using namespace DCE;
 
+OH_Orbiter::~OH_Orbiter()
+{
+	for(map<int,FloorplanObjectVectorMap *>::iterator it = m_mapFloorplanObjectVector.begin(),
+		end = m_mapFloorplanObjectVector.end(); it != end; ++it)
+	{
+		FloorplanObjectVectorMap *pFloorplanObjectVectorMap = it->second;
+
+		for(map<int,FloorplanObjectVector *>::iterator itm = pFloorplanObjectVectorMap->begin(), 
+			endm = pFloorplanObjectVectorMap->end(); itm != endm; ++itm)
+		{
+			FloorplanObjectVector *pFloorplanObjectVector = itm->second;
+			for(vector<FloorplanObject *>::iterator itv = pFloorplanObjectVector->begin(),
+				endv = pFloorplanObjectVector->end(); itv != endv; ++itv)
+			{
+				delete *itv;
+			}
+			pFloorplanObjectVector->clear();
+		}
+
+		pFloorplanObjectVectorMap->clear();
+	}
+	m_mapFloorplanObjectVector.clear();
+}
+
 bool OH_Orbiter::NeedVMC()
 {
     m_pDeviceData_Router->m_pRow_Device->Reload();

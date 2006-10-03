@@ -55,6 +55,8 @@ namespace DCE
 			m_dwPK_UI = atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PK_UI_CONST).c_str());
 		}
 
+		~OH_Orbiter();
+
         bool NeedVMC();
         void NeedVMC(bool bTrue);
         bool NeedApp();

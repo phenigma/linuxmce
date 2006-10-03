@@ -87,7 +87,10 @@ SocketListener::~SocketListener()
 	if ( m_ListenerThreadID ) 
 		pthread_join( m_ListenerThreadID, 0 ); // wait for it to finish
 
+#ifdef WIN32
+	//we'll need more cleanup here to have it stable
 	DropAllSockets();
+#endif
 
 	pthread_mutex_destroy( &m_ListenerMutex.mutex ); // killing the mutex
 }

@@ -372,6 +372,31 @@ Media_Plugin::~Media_Plugin()
     delete m_pGenericMediaHandlerInfo;
 	delete m_pGeneric_NonPluto_Media;
 
+	for(int i = 0; i < NUM_UI_VERSIONS; ++i)
+	{
+		for(map< int, class RemoteControlSet *>::iterator itm = m_mapMediaType_RemoteControl[i].begin();
+			itm != m_mapMediaType_RemoteControl[i].end(); ++itm)
+		{
+			delete itm->second;
+		}
+		m_mapMediaType_RemoteControl[i].clear();
+
+		map< pair<int,int>, class RemoteControlSet *>::iterator itp;
+		for(itp = m_mapOrbiter_MediaType_RemoteControl[i].begin();
+			itp != m_mapOrbiter_MediaType_RemoteControl[i].end(); ++itp)
+		{
+			delete itp->second;
+		}
+		m_mapOrbiter_MediaType_RemoteControl[i].clear();
+
+		for(itp = m_mapDeviceTemplate_MediaType_RemoteControl[i].begin();
+			itp != m_mapDeviceTemplate_MediaType_RemoteControl[i].end(); ++itp)
+		{
+			delete itp->second;
+		}
+		m_mapDeviceTemplate_MediaType_RemoteControl[i].clear();
+	}
+	
     pthread_mutexattr_destroy(&m_MutexAttr);
 }
 
