@@ -2163,6 +2163,7 @@ DEP_CPP_IRREC=\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\PlutoDefs.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	".\wince.h"\
@@ -4232,7 +4233,6 @@ DEP_CPP_ORBITERRE=\
 	"..\RendererOCG.h"\
 	"..\ScreenHistory.h"\
 	"..\SDL\OrbiterRenderer_SDL.h"\
-	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\SDLGraphic.h"\
 	"..\SDL\SDLRendererOCGHelper.h"\
 	"..\Simulator.h"\
@@ -4277,6 +4277,7 @@ NODEP_CPP_ORBITERRE=\
 	"..\SDL\pluto_main\Define_DeviceCategory.h"\
 	"..\SDL\pluto_main\Define_Effect.h"\
 	"..\SDL\pluto_main\Define_Text.h"\
+	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\PlutoUtils\CommonIncludes.h"\
 	"..\SDL\PlutoUtils\MultiThreadIncludes.h"\
 	"..\SDL\SDL.h"\
@@ -4310,7 +4311,6 @@ DEP_CPP_ORBITERRE=\
 	"..\RendererOCG.h"\
 	"..\ScreenHistory.h"\
 	"..\SDL\OrbiterRenderer_SDL.h"\
-	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\SDLGraphic.h"\
 	"..\SDL\SDLRendererOCGHelper.h"\
 	"..\Simulator.h"\
@@ -4355,6 +4355,7 @@ NODEP_CPP_ORBITERRE=\
 	"..\SDL\pluto_main\Define_DeviceCategory.h"\
 	"..\SDL\pluto_main\Define_Effect.h"\
 	"..\SDL\pluto_main\Define_Text.h"\
+	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\PlutoUtils\CommonIncludes.h"\
 	"..\SDL\PlutoUtils\MultiThreadIncludes.h"\
 	"..\SDL\SDL.h"\
@@ -4388,7 +4389,6 @@ DEP_CPP_ORBITERRE=\
 	"..\RendererOCG.h"\
 	"..\ScreenHistory.h"\
 	"..\SDL\OrbiterRenderer_SDL.h"\
-	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\SDLGraphic.h"\
 	"..\SDL\SDLRendererOCGHelper.h"\
 	"..\Simulator.h"\
@@ -4433,6 +4433,7 @@ NODEP_CPP_ORBITERRE=\
 	"..\SDL\pluto_main\Define_DeviceCategory.h"\
 	"..\SDL\pluto_main\Define_Effect.h"\
 	"..\SDL\pluto_main\Define_Text.h"\
+	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\PlutoUtils\CommonIncludes.h"\
 	"..\SDL\PlutoUtils\MultiThreadIncludes.h"\
 	"..\SDL\SDL.h"\
@@ -4536,6 +4537,7 @@ DEP_CPP_ORBITERRE=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\Profiler.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\SDL_Defs.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\Splitter\TextSplitter.h"\
@@ -4556,7 +4558,6 @@ DEP_CPP_ORBITERRE=\
 	"..\RendererOCG.h"\
 	"..\ScreenHistory.h"\
 	"..\SDL\OrbiterRenderer_SDL.h"\
-	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\SDLGraphic.h"\
 	"..\SDL\SDLRendererOCGHelper.h"\
 	"..\TextStyle.h"\
@@ -4591,7 +4592,6 @@ DEP_CPP_ORBITERRE=\
 	"..\RendererOCG.h"\
 	"..\ScreenHistory.h"\
 	"..\SDL\OrbiterRenderer_SDL.h"\
-	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\SDLGraphic.h"\
 	"..\SDL\SDLRendererOCGHelper.h"\
 	"..\Simulator.h"\
@@ -4635,6 +4635,7 @@ NODEP_CPP_ORBITERRE=\
 	"..\SDL\pluto_main\Define_DeviceCategory.h"\
 	"..\SDL\pluto_main\Define_Effect.h"\
 	"..\SDL\pluto_main\Define_Text.h"\
+	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\PlutoUtils\CommonIncludes.h"\
 	"..\SDL\PlutoUtils\MultiThreadIncludes.h"\
 	"..\SDL\SDL.h"\
@@ -5796,6 +5797,11 @@ DEP_CPP_RENDE=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\SDL_CompositeAlphaChannel.h"\
+	"..\..\SDL_Helpers\SDL_Defs.h"\
+	"..\..\SDL_Helpers\SDL_Helpers.h"\
+	"..\..\SDL_Helpers\SDL_pixel.h"\
+	"..\..\SDL_Helpers\SDL_SavePNG.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\Splitter\TextSplitter.h"\
@@ -5806,7 +5812,6 @@ DEP_CPP_RENDE=\
 	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\RendererOCG.h"\
-	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\SDLRendererOCGHelper.h"\
 	"..\TextStyle.h"\
 	".\wince.h"\
@@ -6311,6 +6316,134 @@ NODEP_CPP_SCREEN=\
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\SDL_Helpers\SDL_CompositeAlphaChannel.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_SDL_C=\
+	"..\..\SDL_Helpers\SDL_CompositeAlphaChannel.h"\
+	"..\..\SDL_Helpers\SDL_Defs.h"\
+	"..\..\SDL_Helpers\SDL_pixel.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_SDL_C=\
+	"..\..\SDL_Helpers\SDL_CompositeAlphaChannel.h"\
+	"..\..\SDL_Helpers\SDL_Defs.h"\
+	"..\..\SDL_Helpers\SDL_pixel.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_SDL_C=\
+	"..\..\SDL_Helpers\SDL_CompositeAlphaChannel.h"\
+	"..\..\SDL_Helpers\SDL_Defs.h"\
+	"..\..\SDL_Helpers\SDL_pixel.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_SDL_C=\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_active.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_audio.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_byteorder.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_cdrom.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_error.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_events.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_getenv.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_joystick.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keyboard.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keysym.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_main.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mouse.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mutex.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_quit.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_rwops.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_timer.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
+	"..\..\SDL_Helpers\SDL_CompositeAlphaChannel.h"\
+	"..\..\SDL_Helpers\SDL_Defs.h"\
+	"..\..\SDL_Helpers\SDL_pixel.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE x86) Debug x86"
+
+DEP_CPP_SDL_C=\
+	"..\..\SDL_Helpers\SDL_CompositeAlphaChannel.h"\
+	"..\..\SDL_Helpers\SDL_Defs.h"\
+	"..\..\SDL_Helpers\SDL_pixel.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\SDL_Helpers\SDL_pixel.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_SDL_P=\
+	"..\..\SDL_Helpers\SDL_pixel.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_SDL_P=\
+	"..\..\SDL_Helpers\SDL_pixel.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_SDL_P=\
+	"..\..\SDL_Helpers\SDL_pixel.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_SDL_P=\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_active.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_audio.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_byteorder.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_cdrom.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_error.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_events.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_getenv.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_joystick.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keyboard.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keysym.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_main.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mouse.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mutex.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_quit.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_rwops.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_timer.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
+	"..\..\SDL_Helpers\SDL_pixel.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE x86) Debug x86"
+
+DEP_CPP_SDL_P=\
+	"..\..\SDL_Helpers\SDL_pixel.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\SDL\SDLGraphic.cpp
 
 !IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
@@ -6439,6 +6572,7 @@ DEP_CPP_SDLGR=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\Profiler.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\SDL_Defs.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
@@ -6452,7 +6586,6 @@ DEP_CPP_SDLGR=\
 	"..\OrbiterData.h"\
 	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
-	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\SDLGraphic.h"\
 	"..\SDL\SDLRendererOCGHelper.h"\
 	"..\TextStyle.h"\
@@ -6467,7 +6600,6 @@ NODEP_CPP_SDLGR=\
 DEP_CPP_SDLGR=\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
-	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\SDLGraphic.h"\
 	"..\SDL\SDLRendererOCGHelper.h"\
 	"..\TextStyle.h"\
@@ -6475,6 +6607,7 @@ DEP_CPP_SDLGR=\
 NODEP_CPP_SDLGR=\
 	"..\PlutoUtils\GraphicFormat.h"\
 	"..\SDL\Logger.h"\
+	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\SDL.h"\
 	"..\SDL\SDL_rotozoom.h"\
 	"..\SerializeClass\SerializeClass.h"\
@@ -6562,10 +6695,10 @@ DEP_CPP_SDLRE=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\PlutoDefs.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\SDL_Defs.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\RendererOCG.h"\
-	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\SDLRendererOCGHelper.h"\
 	".\wince.h"\
 	
@@ -6577,11 +6710,11 @@ NODEP_CPP_SDLRE=\
 
 DEP_CPP_SDLRE=\
 	"..\RendererOCG.h"\
-	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\SDLRendererOCGHelper.h"\
 	
 NODEP_CPP_SDLRE=\
 	"..\DCE\Logger.h"\
+	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\PlutoUtils\FileUtils.h"\
 	"..\SDL\PlutoUtils\PlutoDefs.h"\
 	"..\SDL\SDL.h"\
@@ -7761,6 +7894,11 @@ DEP_CPP_TEXTW=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\SDL_CompositeAlphaChannel.h"\
+	"..\..\SDL_Helpers\SDL_Defs.h"\
+	"..\..\SDL_Helpers\SDL_Helpers.h"\
+	"..\..\SDL_Helpers\SDL_pixel.h"\
+	"..\..\SDL_Helpers\SDL_SavePNG.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\Splitter\TextSplitter.h"\
@@ -7768,7 +7906,6 @@ DEP_CPP_TEXTW=\
 	"..\DesignObj_Data.h"\
 	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
-	"..\SDL\PlutoSDLDefs.h"\
 	"..\TextStyle.h"\
 	".\wince.h"\
 	
