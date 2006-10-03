@@ -123,6 +123,3 @@ else
 fi
 
 echo $NetIfConf
-exit 1
-Q="REPLACE INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES('$PK_Device',32,'$NetIfConf')"
-
