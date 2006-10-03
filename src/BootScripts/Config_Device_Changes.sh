@@ -70,6 +70,7 @@ Unset_NeedConfigure_Children()
 	done
 }
 
+#<-mkr_b_via_b->
 Install_VIA_ALSA()
 {
 	local Pkgs_VIA
@@ -83,6 +84,7 @@ Install_VIA_ALSA()
 		apt-get -y -f install "${Pkgs_VIA[@]}"
 	fi
 }
+#<-mkr_b_via_e->
 
 # Clean up video driver packages
 # When a video card is removed/replaced, remove its packages
@@ -164,6 +166,7 @@ CleanupVideo()
 				ATI_dev=$(/usr/pluto/bin/CreateDevice -d "$NewDeviceTemplate" -R "$PK_Device")
 			fi
 		;;
+#<-mkr_b_via_b->
 		viaprop) # Proprietary VIA drivers
 			if [[ -z "$VIA_dev" ]]; then
 				NewDeviceTemplate=$DEVICETEMPLATE_Unichrome
@@ -171,6 +174,7 @@ CleanupVideo()
 				Install_VIA_ALSA
 			fi
 		;;
+#<-mkr_b_via_e->
 	esac
 	echo "$(date -R) <-- Auto-create video card device"
 
