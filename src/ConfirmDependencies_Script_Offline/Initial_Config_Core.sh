@@ -132,7 +132,7 @@ if [[ $UpgradeMode == "false" ]]; then
 
 
 		NETsetting=$(/usr/pluto/install/Internal_Network_Config.sh "$Network" "$Digits_Count")
-		DHCPsetting=$(/usr/pluto/install/Initial_DHCP_Settings.sh "$Network" "$Digits_Count")
+		DHCPsetting=$(/usr/pluto/install/Initial_DHCP_Config.sh "$Network" "$Digits_Count")
 		break
 	done
 
