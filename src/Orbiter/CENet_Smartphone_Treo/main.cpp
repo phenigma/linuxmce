@@ -38,7 +38,7 @@ namespace DCE
 using namespace DCE;
 //<-dceag-incl-e->
 
-#include "OrbiterApp.h"
+#include "CENet_Smartphone/OrbiterApp.h"
 
 bool IsOrbiterAlreadyRunning();
 void BringOrbiterToFront();
