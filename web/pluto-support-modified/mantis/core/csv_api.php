@@ -65,7 +65,7 @@
 	# --------------------
 	# format bug id
 	function csv_format_id( $p_bug_id ) {
-		return bug_format_id( $p_bug_id );
+		return bug_format_id( $p_bug_id ).',http://plutohome.com/support/mantis/view.php?id='.$p_bug_id;
 	}
 
 	# --------------------

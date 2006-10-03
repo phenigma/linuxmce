@@ -36,7 +36,7 @@
 			print_sort_icon( $p_dir, $p_sort, 'id' );
 			echo '</td>';
 		} else {
-			echo lang_get( 'id' );
+			echo lang_get( 'id' ).',URL';
 		}
 	}
 
@@ -632,6 +632,5 @@
 		if ( $p_columns_target == COLUMNS_TARGET_CSV_PAGE ) {
 			echo "Hours estimate";
 		}
-	}
-	
+	}	
 ?>

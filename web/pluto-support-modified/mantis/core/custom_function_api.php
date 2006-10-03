@@ -172,7 +172,8 @@
 			$t_columns[] = 'status'; // 'status'
 			$t_columns[] = 'resolution'; // 'resolution'
 			$t_columns[] = 'fixed_in_version'; // 'fixed_in_version';
-			$t_columns[] = 'hours_estimate'; // 'fixed_in_version';
+			$t_columns[] = 'hours_estimate'; // 'hours_estimate';
+			
 			
 			if ( OFF == config_get( 'enable_relationship' ) ) {
 				$t_columns[] = 'duplicate_id'; // 'duplicate_id'
