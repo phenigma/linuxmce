@@ -21,6 +21,18 @@ using namespace DCE;
 #include <algorithm>
 using namespace std;
 
+#if defined(SMARTPHONE2005)		//--- CHANGED4WM5 ----//
+	#define clock		GetTickCount
+	#define Surface_GetWidth pSurface->GetWidth()
+	#define Surface_GetHeight pSurface->GetHeight()
+	#define pf_uint8_t PHAL::uint8_t
+#else
+	#define Surface_GetWidth pSurface->m_width
+	#define Surface_GetHeight pSurface->m_height
+	#define pf_uint8_t uint8_t
+#endif
+
+
 #define APP_WIDTH  176
 #define APP_HEIGHT 220
 //---------------------------------------------------------------------------------------------------------
@@ -375,22 +387,22 @@ void OrbiterApp::RenderImage(int nImageType, int nSize, char *pData, int nX, int
 	}
 	
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-	Surface *pSurface = LoadImage(GetDisplay(), (uint8_t*)pData, (uint8_t*)(pData + nSize));
+	Surface *pSurface = LoadImage(GetDisplay(), (pf_uint8_t*)pData, (pf_uint8_t*)(pData + nSize));
 
 	if(pSurface)
 	{
-		if(pSurface->m_width == nWidth && pSurface->m_height == nHeight)
+		if(Surface_GetWidth == nWidth && Surface_GetHeight == nHeight)
 			GetDisplay()->Blit( nX, nY, pSurface );
 		else //zoom
 		{
 			Rect dest;	
 			dest.Set(nX, nY, nWidth, nHeight);
 
-			double ZoomX = nWidth / double(pSurface->GetWidth());
-			double ZoomY = nHeight / double(pSurface->GetHeight());
+			double ZoomX = nWidth / double(Surface_GetWidth);
+			double ZoomY = nHeight / double(Surface_GetHeight);
 
-			dest.right = dest.left + int(pSurface->GetWidth() * ZoomX);
-			dest.bottom = dest.top + int(pSurface->GetHeight() * ZoomY);     
+			dest.right = dest.left + int(Surface_GetWidth * ZoomX);
+			dest.bottom = dest.top + int(Surface_GetHeight * ZoomY);     
         
 			if( dest.right-dest.left>0 && dest.bottom-dest.top>0 ) 
 				GetDisplay()->BlitStretch(dest, pSurface); 
@@ -596,8 +608,9 @@ void OrbiterApp::RenderDataGrid(unsigned long ulX, unsigned long ulY, unsigned l
 
 	GetDisplay()->FillRect(ulX, ulY, ulX + ulWidth, ulY + nRowHeight * nVisibleItems, GetColor16(darkGray));
 
+	int i = 0;
 	//let's see how many items are visible right now
-	for(int i = m_ulGridTopItem; i < m_ulGridTopItem + nVisibleItems; i++)
+	for(i = m_ulGridTopItem; i < m_ulGridTopItem + nVisibleItems; i++)
 	{
 		if(i >= vectDataGrid.size()) 
 			break;
@@ -1549,6 +1562,7 @@ bool CSmartphone2003Favorites::DelLinkFromFavorites(LPCTSTR pszName)
 		DeleteFile(m_szBuffer);
 		return true;
 	}
+	return true;
 }
 
 //------------------------------------------------------------------------------------------------------------------
