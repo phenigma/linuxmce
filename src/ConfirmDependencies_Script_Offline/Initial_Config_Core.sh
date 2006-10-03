@@ -103,6 +103,41 @@ if [[ $UpgradeMode == "false" ]]; then
 	done
 
 	echo ""
+	echo "Enter either 1, 2, or 3 numbers separated with periods, such as 192.168.1, 10.12, or 10"
+	echo "Press enter to use the default range of 192.168.80"
+
+	while :;do
+		NetworkInput=$(Ask "What is the internal network adress ?")
+
+		error=false
+		Network=""
+		Digits_Count=0
+		for Digits in $(echo $NetworkInput | tr '.' ' ') ;do
+			[[ "$Digits" == *[^0-9]* ]] && error=true
+
+			[[ $Digits -lt 0 || $Digits -gt 255 ]] && error=true
+
+
+			if [[ "$Network" == "" ]] ;then
+				Network="$Digits"
+			else
+				Network="${Network}.${Digits}"
+			fi
+
+			Digits_Count=$(( $Digits_Count + 1 ))
+		done
+		[[ $Digits_Count -lt 1 || $Digits_Count -gt 3 ]] && error=true
+
+		[[ "$error" == "true" ]] && continue
+
+
+		NETsetting=$(/usr/pluto/install/Internal_Network_Config.sh "$Network" "$Digits_Count")
+		DHCPsetting=$(/usr/pluto/install/Initial_DHCP_Settings.sh "$Network" "$Digits_Count")
+		break
+	done
+
+
+	echo ""
 	echo "You need to answer 'Y' below if you want Plug-and-play or extra media"
 	echo "directors."
 
@@ -198,12 +233,9 @@ if [[ "$UpgradeMode" == "false" ]] ;then
 		RunSQL "$Q"
 	fi
 
-	DHCPsetting=
+	Q="REPLACE INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES('$CoreDev',32,'$NETsetting')"
+	RunSQL "$Q"
 	if [[ "$DHCP" != n && "$DHCP" != N ]]; then
-		DHCPsetting="192.168.80.2-192.168.80.128,192.168.80.129-192.168.80.254"
-	fi
-
-	if [[ -n "$DHCPsetting" ]]; then
 		Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
 			VALUES($CoreDev, 28, '$DHCPsetting')"
 		RunSQL "$Q"
