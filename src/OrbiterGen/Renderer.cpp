@@ -27,6 +27,7 @@ using namespace std;
 #include "Orbiter/TextStyle.h"
 #include <math.h>
 
+#include "SDL_Helpers/SDL_Helpers.h"
 #include "Splitter/TextWrapper.h"
 
 #include "../utilities/linux/wrapper/image_file.h"
@@ -61,7 +62,6 @@ int myCounter=0;
 #ifdef USE_GD_TRANSFORM
     #include "Orbiter/GD/GD-SDL.h"
 #endif
-
 
 /** @todo: Ask radu to fix this .. global font renderer issue */
 // Nasty hack -- Ask Radu why the fuck he decided to reinitialize the entire font engine for every word todo
@@ -163,6 +163,35 @@ Renderer::~Renderer()
             pD[3] = SDL_Opacity;
         }
     }
+}
+
+/*static*/ void ChangeSDLSurfaceFormatForPluto(SDL_Surface **pSurface)
+{
+	SDL_Surface * pOldSurface = (*pSurface);
+
+	// check if anything needs to be done
+	if (pOldSurface->format->Ashift == ashift && pOldSurface->format->Rshift == rshift && pOldSurface->format->Gshift == gshift && pOldSurface->format->Bshift == bshift)
+		return;
+
+	SDL_Surface * pNewSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, pOldSurface->w, pOldSurface->h, 32, rmask, gmask, bmask, amask);
+	for (int h = 0; h < pOldSurface->h; h++)
+	{
+		for (int w = 0; w < pOldSurface->w; w++)
+		{
+			unsigned char *pOldPixel = (unsigned char *) pOldSurface->pixels + h * pOldSurface->pitch + w * 4;
+			unsigned char *pNewPixel = (unsigned char *) pNewSurface->pixels + h * pNewSurface->pitch + w * 4;
+
+			unsigned char R, G, B, A;
+			R = (*pOldPixel >> pOldSurface->format->Rshift) & 0xff;
+			G = (*pOldPixel >> pOldSurface->format->Gshift) & 0xff;
+			B = (*pOldPixel >> pOldSurface->format->Bshift) & 0xff;
+			A = (*pOldPixel >> pOldSurface->format->Ashift) & 0xff;
+
+			* (unsigned int *) pNewPixel = (R << rmask) | (G << gmask) | (B << bmask) | (A << amask);
+		}
+	}
+	SDL_FreeSurface(pOldSurface);
+	*pSurface = pNewSurface;
 }
 
 ///*static*/ bool Renderer::SaveImageToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName)
@@ -429,7 +458,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 				{
 					for(int x=0;x<X;++x)
 					{
-						Uint32 Pixel = getpixel(pRenderImage_Child,x,y);
+						Uint32 Pixel = getpixel(pRenderImage_Child->m_pSDL_Surface, x, y);
 						unsigned char *pPixel = (unsigned char *) &Pixel;
 						if ( pPixel[3]<128 )
 						{
@@ -922,6 +951,8 @@ RendererImage * Renderer::CreateFromFile(FILE * File, PlutoSize size, bool bPres
 	return CreateFromRWops(rw, true, size, bPreserveAspectRatio, bCrop, cScale, offset, bUseAntiAliasing);
 }
 
+#endif /* ORBITER */
+
 void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage * pRenderImage_Child, PlutoPoint pos)
 {
     // with no destination, function always fails
@@ -930,6 +961,8 @@ void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage
     // with no source, function always succeeds (I assume that it's an empty image)
     if (pRenderImage_Child == NULL || pRenderImage_Child->m_pSDL_Surface == NULL)
         throw "Composite image passed null child";
+
+	printf("Compositing image %p %p @%dx%d\n", pRenderImage_Parent, pRenderImage_Child, pos.X, pos.Y);
 
     //  cout << "Composing image: " << pRenderImage_Child->m_sFilename << endl;
     /*
@@ -978,6 +1011,7 @@ void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage
     //Sleep(5000);
 }
 
+// Composite Alpha channel after alpha-blended SDL_Blit
 void Renderer::CompositeAlpha(RendererImage * pRenderImage_Parent, RendererImage * pRenderImage_Child, PlutoPoint pos)
 {
     // with no destination, function always fails
@@ -987,62 +1021,17 @@ void Renderer::CompositeAlpha(RendererImage * pRenderImage_Parent, RendererImage
     if (pRenderImage_Child == NULL || pRenderImage_Child->m_pSDL_Surface == NULL)
         throw "Composite image passed null child";
 
-// TODO: put these in a common place
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	const Uint32 rmask = 0xff000000, gmask = 0x00ff0000, bmask = 0x0000ff00, amask = 0x000000ff;
-	const int rshift = 24, gshift = 16, bshift = 8, ashift = 0;
-#else
-	const Uint32 rmask = 0x000000ff, gmask = 0x0000ff00, bmask = 0x00ff0000, amask = 0xff000000;
-	const int rshift = 0, gshift = 8, bshift = 16, ashift = 24;
-#endif
-
 	int iChildHeight = pRenderImage_Child->m_pSDL_Surface->h;
 	int iChildWidth = pRenderImage_Child->m_pSDL_Surface->w;
 
-	for (int j = 0; j < iChildHeight; j++)
-	{
-		for (int i = 0; i < iChildWidth; i++)
-		{
-			int iParentX = pos.X + i;
-			int iParentY = pos.Y + j;
-			Uint32 iPixel_Parent = getpixel(pRenderImage_Parent, iParentX, iParentY);
-			Uint32 iPixel_Child = getpixel(pRenderImage_Child, i, j);
-
-			// in SDL, the alpha value represents the opacity, not transparency (255 = opaque, 0 = transparent)
-			// the most opaque one establishes resulting opacity
-			//Uint8 iAlpha_Result = iAlpha_Parent > iAlpha_Child ? iAlpha_Parent : iAlpha_Child; // Formula 1: not correct
-			//Uint8 iAlpha_Result = 255 - (Uint8) ((1 - iAlpha_Child / 255.0) * (255 - iAlpha_Parent)); // Formula 2: not fast
-			// Formula 3: Formula 2 on steroids
-			//Uint32 Result = iAlpha_Child + iAlpha_Parent - iAlpha_Child * iAlpha_Parent / 256;
-			//Uint8 iAlpha_Result = Result >= 256 ? 255 : Result;
-			//Uint32 iPixel_Result = iPixel_Parent & ~amask | (iAlpha_Result << ashift);
-			// Formula 4: correct one
-			int iAlpha_Parent = iPixel_Parent >> ashift & 0xff;
-			int iAlpha_Child = iPixel_Child >> ashift & 0xff;
-			
-			int iRed_Parent = (iPixel_Parent >> rshift & 0xff);
-			int iGreen_Parent = (iPixel_Parent >> gshift & 0xff);
-			int iBlue_Parent = (iPixel_Parent >> bshift & 0xff);
-			
-			int iRed_Child = (iPixel_Child >> rshift & 0xff);
-			int iGreen_Child = (iPixel_Child >> gshift & 0xff);
-			int iBlue_Child = (iPixel_Child >> bshift & 0xff);
-			
-			int iRed_Result = (((255 - iAlpha_Child) * iRed_Parent) + ((iRed_Child * iAlpha_Child))) >> 8;
-			int iGreen_Result = (((255 - iAlpha_Child) * iGreen_Parent) + ((iGreen_Child * iAlpha_Child))) >> 8;
-			int iBlue_Result = (((255 - iAlpha_Child) * iBlue_Parent) + ((iBlue_Child * iAlpha_Child))) >> 8;
-			int iAlpha_Result = iAlpha_Child + iAlpha_Parent - ((iAlpha_Child * iAlpha_Parent) / 255);
-
-			Uint32 iPixel_Result = ((Uint8)iRed_Result) << rshift |
-				((Uint8)iGreen_Result) << gshift | ((Uint8)iBlue_Result) << bshift |
-				((Uint8)(iAlpha_Result)) << ashift;
-
-			//printf("Pixel: P:%x(%x); C:%x(%x), R:%x(%x)\n", iPixel_Parent, iAlpha_Parent, iPixel_Child, iAlpha_Child, iPixel_Result, iAlpha_Result);
-			putpixel(pRenderImage_Parent, iParentX, iParentY, iPixel_Result);
-		}
-	}
+	printf("Compositing alpha %p %p @%dx%d\n", pRenderImage_Parent, pRenderImage_Child, pos.X, pos.Y);
+	SDL_Rect SDL_pos;
+	SDL_pos.x = pos.X;
+	SDL_pos.y = pos.Y;
+	CompositeAlphaChannel(pRenderImage_Child->m_pSDL_Surface, pRenderImage_Parent->m_pSDL_Surface, &SDL_pos);
 }
 
+#ifndef ORBITER
 RendererImage * Renderer::DuplicateImage(RendererImage * pRendererImage)
 {
 	PlutoSize Size;
@@ -1185,81 +1174,6 @@ void Renderer::RenderText(RendererImage *pRenderImage, DesignObjText *pDesignObj
         m_sFontPath, pTextStyle,pDesignObjText->m_iPK_HorizAlignment,pDesignObjText->m_iPK_VertAlignment);
 }
 
-Uint32 Renderer::getpixel(RendererImage * RIsurface, int x, int y)
-{
-    SDL_Surface * surface = RIsurface->m_pSDL_Surface;
-
-    // all pixels outside the surface are black
-    if (x < 0 || x >= surface->w || y < 0 || y >= surface->h)
-        return SDL_MapRGB(surface->format, 0, 0, 0);
-
-    int bpp = surface->format->BytesPerPixel;
-    Uint8 * pixel = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
-
-    switch(bpp)
-    {
-    case 1:
-        return * pixel;
-
-    case 2:
-        return * (Uint16 *) pixel;
-
-    case 3:
-        if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            return pixel[0] << 16 | pixel[1] << 8 | pixel[2];
-        else
-            return pixel[0] | pixel[1] << 8 | pixel[2] << 16;
-
-    case 4:
-        return * (Uint32 *) pixel;
-
-    default:
-        return 0;       /* shouldn't happen, but avoids warnings */
-    }
-}
-
-void Renderer::putpixel(RendererImage * RIsurface, int x, int y, Uint32 pixel_color)
-{
-    SDL_Surface * surface = RIsurface->m_pSDL_Surface;
-
-    // don't try to put a pixel outside the surface
-    if (x < 0 || x >= surface->w || y < 0 || y >= surface->h)
-        return;
-
-    int bpp = surface->format->BytesPerPixel;
-    Uint8 * pixel = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
-
-    switch(bpp)
-    {
-    case 1:
-        * pixel = pixel_color;
-        break;
-
-    case 2:
-        * (Uint16 *) pixel = pixel_color;
-        break;
-
-    case 3:
-        if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-        {
-            pixel[0] = (pixel_color >> 16) & 0xff;
-            pixel[1] = (pixel_color >> 8) & 0xff;
-            pixel[2] = pixel_color & 0xff;
-        }
-        else
-        {
-            pixel[0] = pixel_color & 0xff;
-            pixel[1] = (pixel_color >> 8) & 0xff;
-            pixel[2] = (pixel_color >> 16) & 0xff;
-        }
-        break;
-
-    case 4:
-        * (Uint32 *) pixel = pixel_color;
-        break;
-    }
-}
-
 // extract a subsurface from a surface
 RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rect)
 {
@@ -1283,7 +1197,7 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
         for (int i = 0; i < rect.Width; i++)
         {
             // we may need locking on the two surfaces
-            putpixel(SubSurface, i, j, getpixel(pRenderImage, i + rect.X, j + rect.Y));
+            putpixel(SubSurface, i, j, getpixel(pRenderImage->m_pSDL_Surface, i + rect.X, j + rect.Y));
         }
     }*/
 
@@ -1437,35 +1351,66 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 		return PlutoSize(1, 1);
     }
 
+	//ChangeSDLSurfaceFormatForPluto(&RenderedText);
     PlutoSize RenderedSize(RenderedText->w, RenderedText->h);
 
 #if ( defined( PROFILING_TEMP ) )
 	clock_t clkBliting = clock(  );
 #endif
 
-	RendererImage * pRI_RenderedText = new RendererImage();
     if (pRenderImage != NULL)
     {
-        pRenderImage->NewSurface = false;
-#ifdef ORBITER
+		/*
         SDL_Rect SDL_rect;
         SDL_rect.x = pos.X;
         SDL_rect.y = pos.Y;
         SDL_SetAlpha(RenderedText, 0, 0);
+		*/
+        pRenderImage->NewSurface = false;
+
+		/*
         SDL_BlitSurface(RenderedText, NULL, pRenderImage->m_pSDL_Surface, &SDL_rect);
-#else
+		*/
+
+		cout << "[43mBlitting text '" << pDesignObjText->m_sText << "'[0m" << endl;
+		RendererImage * pRI_RenderedText = new RendererImage();
 		pRI_RenderedText->m_pSDL_Surface = RenderedText;
-		CompositeAlpha(pRenderImage, pRI_RenderedText, pos);
+		CompositeImage(pRenderImage, pRI_RenderedText, pos);
+
+#if 0
+		if (pDesignObjText->m_sText == "Playlists")
+		{
+			printf("RT: Bits per color: %d; Bytes per color: %d; A: %x, R: %x, G: %x, B: %x\n",
+					RenderedText->format->BitsPerPixel, RenderedText->format->BytesPerPixel,
+					RenderedText->format->Amask, RenderedText->format->Rmask, RenderedText->format->Gmask, RenderedText->format->Bmask
+			);
+			printf("PP: Bits per color: %d; Bytes per color: %d; A: %x, R: %x, G: %x, B: %x\n",
+					pRenderImage->m_pSDL_Surface->format->BitsPerPixel, pRenderImage->m_pSDL_Surface->format->BytesPerPixel,
+					pRenderImage->m_pSDL_Surface->format->Amask, pRenderImage->m_pSDL_Surface->format->Rmask, pRenderImage->m_pSDL_Surface->format->Gmask, pRenderImage->m_pSDL_Surface->format->Bmask
+			);
+
+			bool bAlphaBlending = r.m_bUseAlphaBlending;
+			r.m_bUseAlphaBlending = true;
+			FILE * f = fopen("000.png", "wb");
+			r.SaveImageToPNGFile(pRI_RenderedText, f, "000.png");
+			fclose(f);
+
+			f = fopen("001.png", "wb");
+			r.SaveImageToPNGFile(pRenderImage, f, "001.png");
+			fclose(f);
+			r.m_bUseAlphaBlending = bAlphaBlending;
+			int k = 2;
+		}
 #endif
+				
+		pRI_RenderedText->m_pSDL_Surface = NULL;
+		delete pRI_RenderedText;
     }
 
 // todo - find a solution for this  TTF_CloseFont(Font);
 	try
 	{
-#ifdef ORBITER
 	    SDL_FreeSurface(RenderedText);
-#endif
-		delete pRI_RenderedText; // also frees RenderedText
 	}
 	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
 	{

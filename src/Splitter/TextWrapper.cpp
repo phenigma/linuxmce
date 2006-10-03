@@ -5,6 +5,8 @@
 #include "Orbiter/TextStyle.h"
 #include "OrbiterGen/Renderer.h"
 
+#include "SDL_Helpers/SDL_Helpers.h"
+
 #if ( defined( PROFILING ) )
 	#ifdef WINCE
 		#include "DCE/Logger.h"
@@ -14,6 +16,7 @@
 
 // Radu: I hope I'll get around to optimizing all this some time.
 // Radu: From my point of view, this looks like its going to eat a lot of memory.
+// Radu: and it also looks like it's slow
 
 TextLineWrap::TextLineWrap(MapTextStyle *pmapTextStyle/* = NULL*/)
 {
@@ -322,13 +325,17 @@ void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, 
     SDL_Surface* pTextSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, W, H, 32, rmask, gmask, bmask, amask);
 
     //crops the text's rectangle from the source surface
+    bool WasSrcAlpha = (Surface->flags & SDL_SRCALPHA) != 0;
+    Uint8 WasAlpha = Surface->format->alpha;
 	SDL_SetAlpha(Surface, 0, 0);
     SDL_BlitSurface(Surface, &rect, pTextSurface, NULL);
+	SDL_SetAlpha(Surface, WasSrcAlpha, WasAlpha);
 
     //renders the text on the new surface, relative to 0, 0
     T.RenderToSurface(pTextSurface);
 
     //blits the text surface to the original surface
     SDL_BlitSurface(pTextSurface, NULL, Surface, &rect);
+	CompositeAlphaChannel(pTextSurface, Surface, &rect);
     SDL_FreeSurface(pTextSurface);
 }

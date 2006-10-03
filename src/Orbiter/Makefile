@@ -17,9 +17,9 @@ sources = Main.cpp Orbiter.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS += -g -O0
-CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DENABLE_MOUSE_BEHAVIOR -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen
+CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DENABLE_MOUSE_BEHAVIOR -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen -I$(ROOT)/SDL_Helpers
 LDFLAGS += -L/usr/X11R6/lib
-XTRALDLIBS += -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst -lXext -lGL -lXrender -lGLU
+XTRALDLIBS += -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst -lXext -lGL -lXrender -lGLU -lSDL_Helpers
 
 # wmctrl wrapper
 CPPFLAGS += -I/usr/X11R6/include -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include

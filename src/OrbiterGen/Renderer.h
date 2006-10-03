@@ -88,8 +88,6 @@ public:
 	static RendererImage *CreateFromFile(string sFilename, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false,char cScale=0,PlutoRectangle offset=PlutoRectangle(0,0), bool bUseAntiAliasing=true);
 	static RendererImage *CreateFromFile(FILE * File, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false,char cScale=0,PlutoRectangle offset=PlutoRectangle(0,0), bool bUseAntiAliasing=true);
 	static RendererImage *CreateFromRWops(SDL_RWops * rw, bool bFreeRWops = true, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false,char cScale='F',PlutoRectangle offset=PlutoRectangle(0,0), bool bUseAntiAliasing=true);  // if cUseAxis is 'X' or 'Y', then that axis will be used whether it's a crop or not
-	static void CompositeImage(RendererImage *pRenderImage_Parent,RendererImage *pRenderImage_Child,PlutoPoint pos);
-	static void CompositeAlpha(RendererImage *pRenderImage_Parent,RendererImage *pRenderImage_Child,PlutoPoint pos);
 	static RendererImage * DuplicateImage(RendererImage * pRendererImage);
 	void RenderText(RendererImage *pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, DesignObj_Generator *pDesignObj_Generator, PlutoPoint pos);
 
@@ -98,11 +96,12 @@ public:
 	void SaveMNGToFile(string FileName, RendererMNG * MNG);
     static void SetTransparentColor(SDL_Surface *pSurface, int R, int G, int B);
     static void SetGeneralSurfaceOpacity(SDL_Surface *pSurface, int SDL_Opacity);
+	static void ChangeSDLSurfaceFormatForPluto(SDL_Surface **pSurface);
 #endif
 
 protected:
-	static Uint32 getpixel(RendererImage * RIsurface, int x, int y);
-	static void putpixel(RendererImage * RIsurface, int x, int y, Uint32 pixel_color);
+	static void CompositeImage(RendererImage *pRenderImage_Parent,RendererImage *pRenderImage_Child,PlutoPoint pos);
+	static void CompositeAlpha(RendererImage *pRenderImage_Parent,RendererImage *pRenderImage_Child,PlutoPoint pos);
 };
 
 //------------------------------------------------------------------------
