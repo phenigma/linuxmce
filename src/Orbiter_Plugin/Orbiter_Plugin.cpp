@@ -2883,6 +2883,7 @@ string Orbiter_Plugin::PK_Device_Orbiters_In_Room_get(int PK_Room, bool bOnlyAll
 void Orbiter_Plugin::CMD_Check_Media_Providers(string &sCMD_Result,Message *pMessage)
 //<-dceag-c820-e->
 {
+return;
 	// Get a list of all devices where we haven't specified the provider yet.  For now just live tv
 	string sSQL = "SELECT PK_Device,FK_MediaType FROM Device "
 		"JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate = Device.FK_DeviceTemplate and FK_MediaType IN (" TOSTRING(MEDIATYPE_np_LiveTV_CONST) ") "

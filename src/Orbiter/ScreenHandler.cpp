@@ -1371,6 +1371,37 @@ void ScreenHandler::SCREEN_NAS_Options(long PK_Screen, int iPK_PnpQueue)
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), StringUtils::itos(iPK_PnpQueue), "", false, false );
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Get_Username_Password_For_Devices(long PK_Screen, bool bAlready_processed, string sDescription, int iPK_PnpQueue)
+{
+	string sText;
+	int iPK_DeviceData;
+
+	if( bAlready_processed )
+	{
+		sText = m_pOrbiter->m_mapTextString[TEXT_password_for_device_CONST];
+		iPK_DeviceData = DEVICEDATA_Password_CONST;
+	}
+	else
+	{
+		sText = m_pOrbiter->m_mapTextString[TEXT_username_for_device_CONST];
+		iPK_DeviceData = DEVICEDATA_Username_CONST;
+	}
+
+	StringUtils::Replace( &sText, "<%=device%>", sDescription );
+
+	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::itos(iPK_PnpQueue));
+	SCREEN_GenericKeyboard(SCREEN_GenericKeyboard_CONST, 
+		sText + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST], 
+		StringUtils::ltos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::ltos(m_pOrbiter->m_dwPK_Device_PlugAndPlayPlugIn) + " " +
+		"1 " + StringUtils::ltos(COMMAND_Set_Pnp_Options_CONST) + " " +
+		StringUtils::itos(COMMANDPARAMETER_PK_PnpQueue_CONST) + " " + StringUtils::itos(iPK_PnpQueue) + " " +
+		StringUtils::itos(COMMANDPARAMETER_PK_DeviceData_CONST) + " " + StringUtils::itos(iPK_DeviceData) + " " +
+		StringUtils::itos(COMMANDPARAMETER_Value_To_Assign_CONST) + " \"<%=17%>\"", 
+		"PNP Device username/password", "0");
+
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
+}
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_New_Phone_Enter_Number(long PK_Screen, int iPK_Device, string sPhoneName)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::ltos(iPK_Device));

@@ -50,6 +50,35 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice(PnpQueueEntry *pPnpQueueEntry)
 	if( !pDeviceCategory )
 		return true;
 
+	// See if a password is required
+	map<int,string>::iterator it;
+	if( (it=pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Password_Required_CONST))!=pPnpQueueEntry->m_mapPK_DeviceData.end() &&
+		atoi(it->second.c_str())==1 )
+	{
+		bool bHasUserName = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Username_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
+		// It is, and it's not specified
+		if( bHasUserName==false ||
+			pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Password_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() )
+		{
+			// We need to get it and block until we do
+			pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
+
+			if( pPnpQueueEntry->m_pOH_Orbiter )
+			{
+				DCE::SCREEN_Get_Username_Password_For_Devices SCREEN_Get_Username_Password_For_Devices(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
+					bHasUserName,pRow_DeviceTemplate->Description_get(),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+				m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_Get_Username_Password_For_Devices);
+			}
+			else
+			{
+				DCE::SCREEN_Get_Username_Password_For_Devices_DL SCREEN_Get_Username_Password_For_Devices_DL(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, 
+					bHasUserName,pRow_DeviceTemplate->Description_get(),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+				m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_Get_Username_Password_For_Devices_DL);
+			}
+			return false;
+		}
+	}
+
 	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Storage_Devices_CONST) )
 		return OkayToCreateDevice_NetworkStorage(pPnpQueueEntry,pRow_DeviceTemplate);
 	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Surveillance_Cameras_CONST) )

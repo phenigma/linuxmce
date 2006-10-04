@@ -188,6 +188,8 @@ bool PnpQueue::Process(PnpQueueEntry *pPnpQueueEntry)
 		return Process_Detect_Stage_Running_Detction_Scripts(pPnpQueueEntry);
 	case	PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT:
 		return Process_Detect_Stage_Prompting_User_For_DT(pPnpQueueEntry);
+	case	PNP_DETECT_STAGE_RUNNING_PRE_PNP_SCRIPT:
+		return Process_Detect_Stage_Running_Pre_Pnp_Script(pPnpQueueEntry);
 	case	PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT:
 		return Process_Detect_Stage_Prompting_User_For_Options(pPnpQueueEntry);
 	case	PNP_DETECT_STAGE_ADD_DEVICE:
@@ -397,8 +399,8 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 	if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==0 && CheckForDeviceTemplateOnWeb(pPnpQueueEntry) )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d identified on web",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
-		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT);
-		return Process_Detect_Stage_Prompting_User_For_Options(pPnpQueueEntry);
+		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_RUNNING_PRE_PNP_SCRIPT);
+		return Process_Detect_Stage_Running_Pre_Pnp_Script(pPnpQueueEntry);
 	}
 
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_RUNNING_DETECTION_SCRIPTS);
@@ -482,8 +484,8 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 		Row_DeviceTemplate *pRow_DeviceTemplate = pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_getrow() : NULL;  // This will be NULL if there's no device template
 		if( pRow_DeviceTemplate )  // We know what it is, ask the user for options.  Since m_iPK_DHCPDevice!=0, the user either chose a valid entry from the grid, or his sole selection (-1)
 		{
-			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT);
-			return Process_Detect_Stage_Prompting_User_For_Options(pPnpQueueEntry);
+			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_RUNNING_PRE_PNP_SCRIPT);
+			return Process_Detect_Stage_Running_Pre_Pnp_Script(pPnpQueueEntry);
 		}
 	}
 
@@ -493,8 +495,8 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(),DEVICEDATA_PNP_Create_Without_Prompting_CONST);
 		if( pRow_DeviceTemplate_DeviceData && atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str()) )
 		{
-			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT);
-			return Process_Detect_Stage_Prompting_User_For_Options(pPnpQueueEntry);
+			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_RUNNING_PRE_PNP_SCRIPT);
+			return Process_Detect_Stage_Running_Pre_Pnp_Script(pPnpQueueEntry);
 		}
 	}
 	// If there's only 1 possible device template, and it's DEVICEDATA_PNP_Create_Without_Prompting_CONST is true, then just it without prompting
@@ -506,8 +508,8 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 		{
 			pPnpQueueEntry->m_bCreateWithoutPrompting=true;
 			pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_set(pRow_DHCPDevice->FK_DeviceTemplate_get());
-			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT);
-			return Process_Detect_Stage_Prompting_User_For_Options(pPnpQueueEntry);
+			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_RUNNING_PRE_PNP_SCRIPT);
+			return Process_Detect_Stage_Running_Pre_Pnp_Script(pPnpQueueEntry);
 		}
 	}
 
@@ -616,6 +618,41 @@ g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_F
 	return false;  // Now we wait
 }
 
+bool PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script(PnpQueueEntry *pPnpQueueEntry)
+{
+	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_pre_pnp_script )
+	{
+		if( time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PRE_PNP_SCRIPT )
+			return false; // We're waiting for user input.  Give the user more time.
+		g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script queue %d pre pnp script didn't finish",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
+	}
+
+	Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get());
+	if( pRow_DeviceTemplate  ) // Should always be true
+	{
+		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow( pRow_DeviceTemplate->PK_DeviceTemplate_get(), DEVICEDATA_Pre_Pnp_Script_CONST);
+		if( pRow_DeviceTemplate_DeviceData && pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().empty()==false )
+		{
+			DeviceData_Base *pDevice_AppServer = m_pPlug_And_Play_Plugin->m_pData->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST, m_pPlug_And_Play_Plugin );
+			if( pDevice_AppServer )
+			{
+				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
+					pRow_DeviceTemplate_DeviceData->IK_DeviceData_get(), "prepnp_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),
+					StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + "\t" + StringUtils::itos(m_pPlug_And_Play_Plugin->m_dwPK_Device),
+					"","",false,false,false);
+				m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application);
+				pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_pre_pnp_script);
+				return false;
+			}
+			else
+				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script no app server");
+		}
+	}
+	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT);
+	return Process_Detect_Stage_Prompting_User_For_Options(pPnpQueueEntry);
+}
+
 bool PnpQueue::Process_Detect_Stage_Prompting_User_For_Options(PnpQueueEntry *pPnpQueueEntry)
 {
 	if( pPnpQueueEntry->m_bCreateWithoutPrompting==false && BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
@@ -623,7 +660,7 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_Options(PnpQueueEntry *pP
 
 	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_prompting_options )
 	{
-		if(  time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
+		if( time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
 			return false; // We're waiting for user input.  Give the user more time.
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_Options user didn't respond to queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 		DetermineOrbitersForPrompting(pPnpQueueEntry);
@@ -1130,6 +1167,8 @@ string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
 	{
 		if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Hard_Drives_CONST && pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Block_Device_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
 			sDescription = pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_Block_Device_CONST];
+		else
+			sDescription = pRow_DeviceTemplate->Description_get();
 	}
 
 	if( sDescription.size()==0 )

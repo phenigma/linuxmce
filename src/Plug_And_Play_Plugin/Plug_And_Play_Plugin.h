@@ -147,6 +147,21 @@ PK_DeviceData\tIK_DeviceData\n
 	virtual void CMD_PNP_Detection_Script_Finished(string sFilename,string sErrors,int iPK_DeviceTemplate,string sData_String,int iPK_PnpQueue,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #822 - Pre Pnp Script Done */
+	/** The script that runs before prompting the user if he wants to create the device has finished.  This is in the 'Pre Pnp Script' parameter. */
+		/** @param #109 Data String */
+			/** The device data to be assigned when creating the device
+PK_DeviceData\tIK_DeviceData\n
+.... */
+		/** @param #119 True/False */
+			/** If false, don't bother trying to create the device */
+		/** @param #224 PK_PnpQueue */
+			/** the queue id */
+
+	virtual void CMD_Pre_Pnp_Script_Done(string sData_String,bool bTrueFalse,int iPK_PnpQueue) { string sCMD_Result; CMD_Pre_Pnp_Script_Done(sData_String.c_str(),bTrueFalse,iPK_PnpQueue,sCMD_Result,NULL);};
+	virtual void CMD_Pre_Pnp_Script_Done(string sData_String,bool bTrueFalse,int iPK_PnpQueue,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	};
 

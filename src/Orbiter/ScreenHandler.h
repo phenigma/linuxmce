@@ -176,6 +176,7 @@ public:
 	virtual void SCREEN_popSecurity(long PK_Screen, string sLocation);
 
 	virtual void SCREEN_NAS_Options(long PK_Screen, int iPK_PnpQueue);
+	virtual void SCREEN_Get_Username_Password_For_Devices(long PK_Screen, bool bAlready_processed, string sDescription, int iPK_PnpQueue);
 
 	virtual void SCREEN_Download_are_ready_to_install(long PK_Screen, int iPK_Device, string sPK_Device_AppServer);
 

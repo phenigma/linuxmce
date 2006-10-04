@@ -9669,6 +9669,54 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_Get_Username_Password_For_Devices : public PreformedCommand
+	{
+	public:
+		SCREEN_Get_Username_Password_For_Devices(long DeviceIDFrom, long DeviceIDTo,
+			bool bAlready_processed, string sDescription, int iPK_PnpQueue)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "246" /* screen ID */,
+				125 /* If true we already have the username, just get the password */, StringUtils::ltos(bAlready_processed).c_str(), 163 /* The description of the device */, sDescription.c_str(), 224 /* The PNP Queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
+	class SCREEN_Get_Username_Password_For_Devices_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Get_Username_Password_For_Devices_DL(long DeviceIDFrom, string sDeviceIDTo,
+			bool bAlready_processed, string sDescription, int iPK_PnpQueue)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "246" /* screen ID */,
+				125 /* If true we already have the username, just get the password */, StringUtils::ltos(bAlready_processed).c_str(), 163 /* The description of the device */, sDescription.c_str(), 224 /* The PNP Queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
+	class SCREEN_Get_Username_Password_For_Devices_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Get_Username_Password_For_Devices_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			bool bAlready_processed, string sDescription, int iPK_PnpQueue)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "246" /* screen ID */,
+				125 /* If true we already have the username, just get the password */, StringUtils::ltos(bAlready_processed).c_str(), 163 /* The description of the device */, sDescription.c_str(), 224 /* The PNP Queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
+	class SCREEN_Get_Username_Password_For_Devices_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Get_Username_Password_For_Devices_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			bool bAlready_processed, string sDescription, int iPK_PnpQueue)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "246" /* screen ID */,
+				125 /* If true we already have the username, just get the password */, StringUtils::ltos(bAlready_processed).c_str(), 163 /* The description of the device */, sDescription.c_str(), 224 /* The PNP Queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9928,6 +9976,7 @@ namespace DCE
 		virtual void SCREEN_CD_Full_Screen_OSD(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Music_Full_Screen_OSD(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_Device, string sText, string sDescription){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Get_Username_Password_For_Devices(long PK_Screen, bool bAlready_processed, string sDescription, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -11400,6 +11449,15 @@ namespace DCE
 					string sText = pMessage->m_mapParameters[9];
 					string sDescription = pMessage->m_mapParameters[163];
 					SCREEN_Choose_Provider_for_Device(nPK_Screen, iPK_Device, sText, sDescription);
+					break;
+				}
+				case 246:
+				{
+					ResetCallBacks();
+					bool bAlready_processed = pMessage->m_mapParameters[125] == "1";
+					string sDescription = pMessage->m_mapParameters[163];
+					int iPK_PnpQueue = atoi(pMessage->m_mapParameters[224].c_str());
+					SCREEN_Get_Username_Password_For_Devices(nPK_Screen, bAlready_processed, sDescription, iPK_PnpQueue);
 					break;
 				}
 
