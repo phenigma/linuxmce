@@ -1098,6 +1098,7 @@
 #define TEXT_please_wait_for_lookup_CONST 1814
 #define TEXT_username_for_device_CONST 1815
 #define TEXT_password_for_device_CONST 1816
+#define TEXT_type_dir_name_CONST 1817
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
