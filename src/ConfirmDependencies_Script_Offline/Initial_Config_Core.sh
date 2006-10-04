@@ -109,27 +109,31 @@ if [[ $UpgradeMode == "false" ]]; then
 	while :;do
 		NetworkInput=$(Ask "What is the internal network adress ?")
 
-		error=false
-		Network=""
-		Digits_Count=0
-		for Digits in $(echo $NetworkInput | tr '.' ' ') ;do
-			[[ "$Digits" == *[^0-9]* ]] && error=true
+		if [[ "$NetworkInput" != "" ]] ;then
+			error=false
+			Network=""
+			Digits_Count=0
+			for Digits in $(echo $NetworkInput | tr '.' ' ') ;do
+				[[ "$Digits" == *[^0-9]* ]] && error=true
 
-			[[ $Digits -lt 0 || $Digits -gt 255 ]] && error=true
+				[[ $Digits -lt 0 || $Digits -gt 255 ]] && error=true
 
 
-			if [[ "$Network" == "" ]] ;then
-				Network="$Digits"
-			else
-				Network="${Network}.${Digits}"
-			fi
+				if [[ "$Network" == "" ]] ;then
+					Network="$Digits"
+				else
+					Network="${Network}.${Digits}"
+				fi
 
-			Digits_Count=$(( $Digits_Count + 1 ))
-		done
-		[[ $Digits_Count -lt 1 || $Digits_Count -gt 3 ]] && error=true
+				Digits_Count=$(( $Digits_Count + 1 ))
+			done
+			[[ $Digits_Count -lt 1 || $Digits_Count -gt 3 ]] && error=true
 
-		[[ "$error" == "true" ]] && continue
-
+			[[ "$error" == "true" ]] && continue
+		else
+			Network="192.168.80"
+			Digits_Count="3"
+		fi
 
 		NETsetting=$(/usr/pluto/install/Initial_Network_Config.sh "$Network" "$Digits_Count")
 		DHCPsetting=$(/usr/pluto/install/Initial_DHCP_Config.sh "$Network" "$Digits_Count")
