@@ -255,6 +255,33 @@ void OrbiterApp::LocalKeyPressed(int nKeyCode)
 */
 }
 //---------------------------------------------------------------------------------------------------------
+#if defined(SMARTPHONE2005)		//--- CHANGED4WM5 ----//
+void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongKey )
+{
+	static bool bLastKeyShift = false;
+	if ( *wParam==0x10 ) {
+		// for numeric keys it sends a WM_KEYUP(0x10)+WM_KEYDOWN(key)+WM_KEYUP(key)+WM_KEYUP(0x10)
+		// for other keys( i.e. '*','#' )it sends a WM_KEYDOWN(0x10)+WM_KEYDOWN(key)+WM_KEYUP(key)+WM_KEYUP(0x10)
+		if(uMsg == WM_KEYDOWN) bLastKeyShift = true;
+		else bLastKeyShift = false;
+		return;
+	}	
+	switch(*wParam){		
+		case VK_LWIN: *wParam = 0; break; // sends VK_LWIN most the time -> not a real key
+		case 0xC2: *wParam = VK_ESCAPE; break; // <Ok> Short
+		case 0xC1: *wParam = VK_LWIN; break; // <LWin>	Short	
+		case 228:
+		case VK_F4: *wParam = VK_F4; *bLongKey = true; break; // <EndCall> Long
+
+		case 0xC5: *wParam = VK_ESCAPE; *bLongKey = true; break; // <Ok> Long
+
+		case '8': if ( bLastKeyShift ) *wParam = VK_NUMPAD8; break;// *
+		case '3': if ( bLastKeyShift ) *wParam = VK_NUMPAD9; break;// #	
+	}
+}
+#endif
+
+//---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	static int nTimeDown = 0;
@@ -267,15 +294,23 @@ void OrbiterApp::LocalKeyPressed(int nKeyCode)
 		m_bDataKeys = false;
 		bIsLongKey = false;
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Key down %d, time %d", wParam, nTimeDown);
+		//g_pPlutoLogger->Write(LV_STATUS,"Key down %d, time %d", wParam, nTimeDown);
+		g_pPlutoLogger->Write(LV_STATUS,"Key down %d", wParam);
 #endif
 	}
 	else
 	{
 		int nTimeUp = clock();
 		bIsLongKey = (nTimeUp - nTimeDown) > 300;
+#ifdef DEBUG
+		//g_pPlutoLogger->Write(LV_STATUS,"Key up %d, time %d", wParam, nTimeDown);
+		g_pPlutoLogger->Write(LV_STATUS,"Key up %d", wParam);
+#endif
 	}
 
+	#if defined(SMARTPHONE2005)		//--- CHANGED4WM5 ----//
+		PreTranslateVirtualKey( uMsg, &wParam, &bIsLongKey );
+	#endif
 	int nPK_Button = nPK_Button = VirtualKey2PlutoKey(wParam, bIsLongKey);
 	if(IsRepeatedKey(wParam))
 	{
@@ -1287,7 +1322,9 @@ void OrbiterApp::ShowDisconnected()
 {
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
+	#ifndef TEST_DATAGRID
 	Reset();
+	#endif
 
     string sLogoPath = g_sBinaryPath + "logo.gif";
     sLogoPath = StringUtils::Replace(sLogoPath, "/", "\\");

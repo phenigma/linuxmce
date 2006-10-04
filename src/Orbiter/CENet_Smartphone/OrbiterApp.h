@@ -107,6 +107,11 @@ private:
 	bool ScrollListPartialMatch();
 	int NumberKeyIndex(int KeyCode);
 
+	// Map virtual key codes from Palm Treo to Smartphone 2003
+	#if defined(SMARTPHONE2005)		//--- CHANGED4WM5 ----//
+		void PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongKey );
+	#endif
+
 public:
 	OrbiterApp(HINSTANCE hInstance);
 	virtual ~OrbiterApp();

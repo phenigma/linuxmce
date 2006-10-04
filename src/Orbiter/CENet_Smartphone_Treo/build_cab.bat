@@ -8,6 +8,6 @@ cd ..\Orbiter\CENet_Smartphone_Treo
 copy ..\..\..\libs\Libraries\pthreads-snap-2002-11-04\PThreadsCE\ARMV4IRel\PthreadsCE.dll "c:\$Installers\$OrbiterSmartphone_Treo\"
 copy Misc\Logo.gif "c:\$Installers\$OrbiterSmartphone_Treo\"
 
-"C:\Program Files\Microsoft Visual Studio 8\smartdevices\sdk\sdktools\cabwiz.exe" Orbiter.inf
+"C:\Program Files\Microsoft Visual Studio 8\smartdevices\sdk\sdktools\cabwiz.exe" Orbiter_Treo.inf
 
-move Orbiter.cab "..\..\bin"
+move Orbiter_Treo.cab "..\..\bin"
