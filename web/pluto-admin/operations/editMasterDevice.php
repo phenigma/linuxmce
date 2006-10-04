@@ -396,7 +396,7 @@ function editMasterDevice($output,$dbADO) {
 		$deviceCG = array();
 		$query = "select DeviceCommandGroup.* FROM
 							 DeviceCommandGroup
-								INNER JOIN DeviceCategory on FK_DeviceCategory = PK_DeviceCategory
+								LEFT JOIN DeviceCategory on FK_DeviceCategory = PK_DeviceCategory
 							WHERE 
 								FK_DeviceCategory in ($deviceParent,$deviceCategID) or
 								PK_DeviceCommandGroup in (".join(",",$selCheckedCommandsGroups).")
