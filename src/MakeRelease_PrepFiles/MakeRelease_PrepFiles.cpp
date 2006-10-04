@@ -134,8 +134,21 @@ bool ReplaceTags(string &str,string sFilename)
 				char cBegin = str[ end_pos - 1 ];
 				if( cBegin!='b' )
 					continue;
-				map<string,bool>::iterator it=g_mapBlocks.find(sTag);
-				if( (cType=='b' && it==g_mapBlocks.end()) || (cType=='B' && it!=g_mapBlocks.end()) )
+
+				vector<string> vectBlocks;
+				StringUtils::Tokenize(sTag,"|",vectBlocks);
+
+				bool bFound=false;
+				for(vector<string>::iterator itB = vectBlocks.begin(); itB != vectBlocks.end(); ++itB)
+				{
+					map<string,bool>::iterator it=g_mapBlocks.find(*itB);
+					if( it!=g_mapBlocks.end() )
+					{
+						bFound=true;
+						break;
+					}
+				}
+				if( (cType=='b' && !bFound) || (cType=='B' && bFound) )
 				{
 					string s = " "; s[0]=cType;  // Stupid, but gcc doesn't like + cType??
 					string sEndTag = "<-mkr_" + s + "_" + sTag + "_e->";
