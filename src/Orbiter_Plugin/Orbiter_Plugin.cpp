@@ -383,7 +383,7 @@ bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *
         return false;
     }
 
-	if( pMessage->m_dwPK_Device_To==DEVICETEMPLATE_All_Orbiters_CONST )
+	if( pMessage->m_dwPK_Device_To==DEVICETEMPLATE_VirtDev_All_Orbiters_CONST )
 	{
         pMessage->m_dwPK_Device_To = DEVICEID_LIST;
         pMessage->m_sPK_Device_List_To = m_sPK_Device_AllOrbiters;
