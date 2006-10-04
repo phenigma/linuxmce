@@ -340,7 +340,7 @@ bool Orbiter_Plugin::Register()
 	RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Standard_Orbiters_in_my_room_CONST,0,0,0,0);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST,0,0,0,0);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Orbiters_in_my_room_CONST,0,0,0,0);
-    RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_All_Orbiters_CONST,0,0,0,0);
+    RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,0,0,0,0);
 	RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::DeviceConfigured),0,0,0,0,MESSAGETYPE_EVENT,EVENT_Device_Configured_CONST);
 
     return Connect(PK_DeviceTemplate_get());
