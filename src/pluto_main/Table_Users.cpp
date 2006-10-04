@@ -23,7 +23,6 @@ using namespace std;
 
 #include "Table_DeviceTemplate.h"
 #include "Table_Device_Users.h"
-#include "Table_Document_Comment.h"
 #include "Table_Installation_Users.h"
 #include "Table_Orbiter_Users_PasswordReq.h"
 #include "Table_Package_Users.h"
@@ -1826,13 +1825,6 @@ void Row_Users::Device_Users_FK_Users_getrows(vector <class Row_Device_Users*> *
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Device_Users *pTable = table->database->Device_Users_get();
-pTable->GetRows("`FK_Users`=" + StringUtils::itos(m_PK_Users),rows);
-}
-void Row_Users::Document_Comment_FK_Users_getrows(vector <class Row_Document_Comment*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Document_Comment *pTable = table->database->Document_Comment_get();
 pTable->GetRows("`FK_Users`=" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::Installation_Users_FK_Users_getrows(vector <class Row_Installation_Users*> *rows)
