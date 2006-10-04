@@ -1240,7 +1240,7 @@ void ScreenHandler::ChooseProviderGetNextStage()
 		// We got everything.  Set the provider information for this device
 		int PK_Device = atoi(m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str());
 		m_pOrbiter->SetDeviceDataInDB(PK_Device,DEVICEDATA_EK_MediaProvider_CONST,sArguments);
-		DCE::CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_All_Orbiters_CONST,m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+		DCE::CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 	}
 }
 //-----------------------------------------------------------------------------------------------------
