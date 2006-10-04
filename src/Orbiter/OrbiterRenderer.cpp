@@ -241,7 +241,7 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 	if (OrbiterLogic()->m_pBackgroundImage)
 	{
 		RenderGraphic(OrbiterLogic()->m_pBackgroundImage, PlutoRectangle(0, 0, OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight), false, 
-			PlutoPoint(), 255, "", "background-image-test");
+			PlutoPoint(), 255, "", "background-image-test", "background-image-test");
 	}
 
 	if ( OrbiterLogic()->m_pScreenHistory_Current  )

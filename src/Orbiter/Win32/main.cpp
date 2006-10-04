@@ -12,6 +12,7 @@
 #include "DCE/Logger.h"
 #include "DCE/ServerLogger.h"
 #include "PlutoUtils/Profiler.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
 
 #include "Simulator.h"
 #include "Orbiter.h"
@@ -32,6 +33,12 @@ namespace DCE
 {
 	Logger *g_pPlutoLogger = NULL;
 }
+
+extern map<int,PlutoLock *> *g_pmapLocks;
+extern pluto_pthread_mutex_t *g_mapLockMutex;
+#ifdef LL_DEBUG_FILE
+	extern pluto_pthread_mutex_t *m_LL_DEBUG_Mutex;
+#endif
 
 using namespace DCE; 
 
@@ -294,6 +301,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		Simulator::GetInstance()->SaveConfigurationFile(g_sBinaryPath + g_sOrbiterConfName);
 		Simulator::Cleanup();
 
+		//StopOrbiterThread();
+
 #ifdef WINCE
 		HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);
 		::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
@@ -301,8 +310,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 		g_pPlutoLogger->Write(LV_STATUS, "About to delete logger. Logger out.");
 		delete g_pPlutoLogger;
-
-		return int(msg.wParam);
 	}
 
 	//Aaron's profiler
@@ -310,8 +317,28 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	delete g_PlutoProfiler;
 	g_PlutoProfiler = NULL;
 
+	if(NULL != g_pmapLocks)
+	{
+		delete g_pmapLocks;
+		g_pmapLocks = NULL;
+	}
+
+	if(NULL != g_mapLockMutex)
+	{
+		pthread_mutex_destroy(&g_mapLockMutex->mutex);
+		delete g_mapLockMutex;
+		g_mapLockMutex = NULL;
+	}
+#ifdef LL_DEBUG_FILE
+	if(NULL != m_LL_DEBUG_Mutex)
+	{
+		pthread_mutex_destroy(&m_LL_DEBUG_Mutex->mutex);
+		delete m_LL_DEBUG_Mutex;
+		m_LL_DEBUG_Mutex = NULL;
+	}
+#endif
+
     WSACleanup();
-	StopOrbiterThread();
 
 	return 0;
 }

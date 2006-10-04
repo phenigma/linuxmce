@@ -2945,6 +2945,9 @@ bool Orbiter::ButtonUp( int iPK_Button )
 			QueueMessageToRouter(new Message(pMessage));
 	}
 
+	if(m_bQuit)
+		return false;
+
 	if( m_bForward_local_kb_to_OSD && m_pLocationInfo && m_pLocationInfo->m_dwPK_Device_Orbiter )
 	{
 		GenerateSimulateKeypress(iPK_Button);
@@ -8341,7 +8344,9 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 	m_pScreenHistory_NewEntry->ScreenID(sID);
 	m_pScreenHandler->ReceivedGotoScreenMessage(iPK_Screen, pMessage);
 	if( bCreatedMessage )
+	{
 		delete pMessage;
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ ScreenHandler *Orbiter::CreateScreenHandler()
@@ -8368,6 +8373,7 @@ void Orbiter::GotoMainMenu()
 		StringUtils::ltos(m_pLocationInfo->iLocation));
 	string sResult;
 	CMD_Goto_Screen("", SCREEN_Main_CONST, sResult, SCREEN_Main_.m_pMessage);
+	delete SCREEN_Main_.m_pMessage;
 }
 //-----------------------------------------------------------------------------------------------------
 DesignObj_DataGrid *Orbiter::FindGridOnScreen(string sGridID)
