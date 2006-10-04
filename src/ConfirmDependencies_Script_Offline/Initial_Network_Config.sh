@@ -12,7 +12,7 @@ ExtNetmask=
 Gateway=
 DNS=
 NetIfConf=0
-NCards=$(ip addr | grep -cF 'link/ether')
+NCards=$(ifconfig -a | grep -c "encap:Ethernet")
 
 
 ParseInterfaces()
