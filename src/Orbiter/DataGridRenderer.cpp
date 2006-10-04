@@ -294,10 +294,16 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		}
 		if (pCell->m_pGraphic)
 		{
+			string sCellObjectID, sCellObjectHash;
+			sCellObjectID = sCellObjectHash = "datagrid-thumb-" + StringUtils::ltos(x) + "-" + StringUtils::ltos(y);
 			m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->RenderGraphic(pCell->m_pGraphic, 
-				PlutoRectangle(x,  y,  w,  h), m_pObj_Owner_DataGrid->m_bDisableAspectLock, point,
-				255, "datagrid " + m_pObj_Owner_DataGrid->GenerateObjectHash(m_pObj_Owner_DataGrid->m_pPopupPoint, false),
-				"datagrid-thumb-" + StringUtils::ltos(x) + "-" + StringUtils::ltos(y)
+				PlutoRectangle(x,  y,  w,  h), 
+				m_pObj_Owner_DataGrid->m_bDisableAspectLock, 
+				point,
+				255, 
+				"datagrid " + m_pObj_Owner_DataGrid->GenerateObjectHash(m_pObj_Owner_DataGrid->m_pPopupPoint, false), //ParentID
+				sCellObjectID, //Object ID
+				sCellObjectHash  //Object hash
 			);
 		}
 		g_pPlutoLogger->Write(LV_WARNING,"Rendering cell with %s",pCell->GetText());        

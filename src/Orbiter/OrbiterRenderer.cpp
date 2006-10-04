@@ -240,8 +240,9 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 
 	if (OrbiterLogic()->m_pBackgroundImage)
 	{
+		string sObjectID = "background-image-test";
 		RenderGraphic(OrbiterLogic()->m_pBackgroundImage, PlutoRectangle(0, 0, OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight), false, 
-			PlutoPoint(), 255, "", "background-image-test", "background-image-test");
+			PlutoPoint(), 255, "", sObjectID, sObjectID);
 	}
 
 	if ( OrbiterLogic()->m_pScreenHistory_Current  )
@@ -1289,7 +1290,9 @@ void *ImageLoadThread(void *p)
 			pBackgroundImage->m_pObj_Grid->m_pOrbiter->Renderer()->RenderGraphic(pBackgroundImage->m_pCell->m_pGraphic, PlutoRectangle(x,  y,  w,  h), 
 				pBackgroundImage->m_pObj_Grid->m_bDisableAspectLock, point, 255, 
 				"datagrid " + pBackgroundImage->m_pObj_Grid->GenerateObjectHash(pBackgroundImage->m_pObj_Grid->m_pPopupPoint, false),
-				"datagrid-thumb-" + StringUtils::ltos(x) + "-" + StringUtils::ltos(y));
+				"datagrid-thumb-" + StringUtils::ltos(x) + "-" + StringUtils::ltos(y), //id
+				"datagrid-thumb-" + StringUtils::ltos(x) + "-" + StringUtils::ltos(y)  //hash
+			);
 		}
 
 		bContinue = (pRenderer->m_listBackgroundImage.size() > 0);
