@@ -380,8 +380,6 @@ Orbiter::~Orbiter()
 	delete m_pOrbiterRenderer;
 	m_pOrbiterRenderer = NULL;
 
-
-
 	m_vectObjs_TabStops.clear();
 	m_vectObjs_Selected.clear();
 	m_ScreenMap.clear(); //shared with mapObj_All
@@ -486,9 +484,13 @@ Orbiter::~Orbiter()
 	m_mapHardKeys.clear();
 
 	delete m_pOrbiterFileBrowser_Collection;
+	m_pOrbiterFileBrowser_Collection = NULL;
 
-	if(m_pScreenHandler)
-		delete m_pScreenHandler;
+	delete m_pScreenHistory_NewEntry;
+	m_pOrbiterFileBrowser_Collection = NULL;
+
+	delete m_pScreenHandler;
+	m_pScreenHandler = NULL; 
 
 	vm.Release();
 	pthread_mutexattr_destroy(&m_MutexAttr);
@@ -2848,14 +2850,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d key %d",
 				CMD_Scroll_Grid( "", "", DIRECTION_Right_CONST );
 				PK_Button = -1;
 			}
-		}
-		else if(  PK_Button==BUTTON_F4_CONST  )  // home
-		{
-#ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
-#endif
-			GotoDesignObj( m_sMainMenu );
-			bHandled=true;
 		}
 	}
 

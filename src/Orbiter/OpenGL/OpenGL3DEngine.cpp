@@ -85,11 +85,12 @@ void OpenGL3DEngine::Finalize(void)
 {
 	UnHighlight();
 	UnSelect();
+
 	if(OldLayer)
-		OldLayer->CleanUp();
+		OldLayer->CleanUp(true);
 
 	if(CurrentLayer)
-		CurrentLayer->CleanUp();
+		CurrentLayer->CleanUp(true);
 
 	delete OldLayer;
 	delete CurrentLayer;
