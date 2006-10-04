@@ -37,8 +37,16 @@ extern "C"
 	#include <mysql/mysql.h>
 }
 #include "../PlutoUtils/uuencode.h"
+#include "DCE/Logger.h"
+#include "PlutoUtils/StringUtils.h"
+
 #define MaxBuf 17
 #define UserAgent "--user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\""
+namespace DCE
+{
+	Logger *g_pPlutoLogger;
+}
+using namespace DCE;
 using namespace std;
 
 static int pr2six[256] = {
@@ -63,7 +71,7 @@ static int pr2six[256] = {
 string getParamValue(const char *pref,const char *paramName,dxml_element *package){
 	string tmp=pref;
 	dxml_element *param=dxml_get_element_byname(package->child, paramName);
-	tmp+=(param&&(param->child))?param->child->element_name:"";
+	tmp+=StringUtils::SQLEscape((param&&(param->child))?param->child->element_name:"");
 	return tmp;
 }
 
@@ -134,6 +142,7 @@ int decode(char *&dest,dxml_element *package){
 }
 
 int main(int argc, char *argv[]){
+	g_pPlutoLogger = new FileLogger(stdout);
 	int res;
 	MYSQL *mysql;
 	MYSQL_RES *mres;
