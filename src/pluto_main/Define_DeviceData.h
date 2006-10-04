@@ -158,6 +158,7 @@
 #define DEVICEDATA_Get_Time_Code_for_Media_CONST 180
 #define DEVICEDATA_Lineup_CONST 181
 #define DEVICEDATA_Password_Required_CONST 182
+#define DEVICEDATA_Pre_Pnp_Script_CONST 183
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
