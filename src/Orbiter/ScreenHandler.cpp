@@ -1651,7 +1651,9 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				m_bSaveFile_CreatingFolder = true;
 
 				SCREEN_GenericKeyboard(SCREEN_GenericKeyboard_CONST, 
-					"Type the name of the folder|Create folder|Cancel", 
+					m_pOrbiter->m_mapTextString[TEXT_type_dir_name_CONST] + "|" + 
+						m_pOrbiter->m_mapTextString[TEXT_Create_Directory_CONST] + "|" + 
+						m_pOrbiter->m_mapTextString[TEXT_CANCEL_CONST],
 					StringUtils::ltos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::ltos(nAppServer) + " " +
 					"1 " + StringUtils::ltos(COMMAND_Spawn_Application_CONST) + " " +
 					StringUtils::ltos(COMMANDPARAMETER_Filename_CONST) + " \"mkdir\" " + 
