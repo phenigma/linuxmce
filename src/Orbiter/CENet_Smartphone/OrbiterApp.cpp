@@ -294,18 +294,13 @@ void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongK
 		m_bDataKeys = false;
 		bIsLongKey = false;
 #ifdef DEBUG
-		//g_pPlutoLogger->Write(LV_STATUS,"Key down %d, time %d", wParam, nTimeDown);
-		g_pPlutoLogger->Write(LV_STATUS,"Key down %d", wParam);
+		g_pPlutoLogger->Write(LV_STATUS,"Key down %d, time %d", wParam, nTimeDown);
 #endif
 	}
 	else
 	{
 		int nTimeUp = clock();
 		bIsLongKey = (nTimeUp - nTimeDown) > 300;
-#ifdef DEBUG
-		//g_pPlutoLogger->Write(LV_STATUS,"Key up %d, time %d", wParam, nTimeDown);
-		g_pPlutoLogger->Write(LV_STATUS,"Key up %d", wParam);
-#endif
 	}
 
 	#if defined(SMARTPHONE2005)		//--- CHANGED4WM5 ----//
