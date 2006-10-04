@@ -3105,7 +3105,9 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 //<-dceag-c813-e->
 {
 	g_pPlutoLogger->Write(LV_STATUS,"Starting Add software");
-	string sql="SELECT IPaddress FROM Device WHERE PK_Device="+StringUtils::itos(iPK_Device);
+	string sPK_Device=StringUtils::itos(DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,iPK_Device));
+	g_pPlutoLogger->Write(LV_DEBUG,sPK_Device.c_str());
+	string sql="SELECT IPaddress FROM Device WHERE PK_Device="+sPK_Device;
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))&&(row=mysql_fetch_row(result.r))){
@@ -3113,8 +3115,13 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 		sql="SELECT PackageName, Downloadurl, RepositoryName FROM Software WHERE PK_Software="+StringUtils::itos(iPK_Software);
 		if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))&&(row=mysql_fetch_row(result.r))){
 			string sArguments=sMD_IP+"\t"+row[0]+"\t"+row[1]+"\t"+row[2];
-			g_pPlutoLogger->Write(LV_STATUS,((string)"/usr/pluto/bin/InstallSoftware.sh "+sArguments).c_str());
-			ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallSoftware.sh", sArguments, "InstallSoftware", NULL, true);
+			if(!bTrueFalse){
+				g_pPlutoLogger->Write(LV_STATUS,"Install Software");
+				g_pPlutoLogger->Write(LV_STATUS,((string)"/usr/pluto/bin/InstallSoftware.sh "+sArguments).c_str());
+				ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallSoftware.sh", sArguments, "InstallSoftware", NULL, true);
+			}else{
+				g_pPlutoLogger->Write(LV_STATUS,"Remove Software");
+			}
 		}
  	}
 	g_pPlutoLogger->Write(LV_STATUS,"Finishing Add software");
