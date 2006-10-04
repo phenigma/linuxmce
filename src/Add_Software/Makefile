@@ -1,3 +1,5 @@
+ROOT = ..
+
 bin_PROGRAMS = getxmls instcheck
 
 CXX = g++
@@ -15,20 +17,25 @@ VERSION_instcheck = 0.0.1
 getxmls_SOURCES = getxmls.cpp ../PlutoUtils/uuencode.cpp
 instcheck_SOURCES = instcheck.cpp
 
+all: bin
+
 whattodo:
 	@echo "type 'make bin', 'make getxmls', 'make instcheck', 'make all'"
 
-all: bin
-
 bin: getxmls instcheck
 
-getxmls:
-	$(CXX) -o $(MYNAME_getxmls) $(getxmls_SOURCES) $(getxmls_LDADD)
+getxmls: $(getxmls_SOURCES:.cpp=.o)
+	$(CXX) -o $(MYNAME_getxmls) $(call cpath,$+) $(getxmls_LDADD)
 	cp $@ ../bin
 
-instcheck:
+instcheck: $(instcheck_SOURCES:.cpp=.o)
 	$(CXX) -o $(MYNAME_instcheck) $(instcheck_SOURCES) $(instcheck_LDADD)
 	cp $@ ../bin
 
 clean:
 	rm -f $(bin_PROGRAMS)
+
+include $(ROOT)/PlutoUtils/make.rules
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
+-include $(sources:.cpp=.d)
+endif

@@ -1,5 +1,5 @@
 /*
-	webinst
+	getxmls
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 	
 	www.plutohome.com		
@@ -96,7 +96,6 @@ int findURL(FILE *f,string &link){
 }
 
 int IsExists(MYSQL *mysql,const string packageName,const string version){
-	return 2;
 	string query="SELECT Version FROM `Software` where PackageName=\""+packageName+"\"";
 	MYSQL_RES *res;
 	MYSQL_ROW row;
@@ -106,7 +105,7 @@ int IsExists(MYSQL *mysql,const string packageName,const string version){
 		return -1;
 	}
 	res=mysql_store_result(mysql);
-	if(row=mysql_fetch_row(res)){
+	if( (row=mysql_fetch_row(res)) ){
 		return (int)(strcmp(version.c_str(),row[0])>0);
 	}
 	return 2;
@@ -166,7 +165,7 @@ int main(int argc, char *argv[]){
 		query="select PK_Device from Device where IPaddress is not NULL and IPaddress<>\'\'";
 		vector<string> vPK_Device;
 		if(mysql_real_query(mysql,query,(unsigned int) strlen(query))==0&&(mres=mysql_store_result(mysql))) {
-			while (row=mysql_fetch_row(mres))
+			while ( (row=mysql_fetch_row(mres)) )
 				vPK_Device.push_back(row[0]);
 		}
 		string link,packageName,version;

@@ -43,7 +43,7 @@ using namespace std;
 
 int IsInstaled(string packageName){
 	int res;
-	if(res=system(((string)"dpkg --get-selections |grep -w install|grep -w "+packageName+"|wc -l> /tmp/isinst.tmp").c_str())){
+	if( (res=system(((string)"dpkg --get-selections |grep -w install|grep -w "+packageName+"|wc -l> /tmp/isinst.tmp").c_str())) ){
 		cout<<"error res"<<endl;
 		return -1;
 	}
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]){
 	}
 	string query="SELECT distinct PackageName FROM Software where FK_Device="+sMD_ID;
 	if(mysql_real_query(mysql,query.c_str(),(unsigned int) strlen(query.c_str()))==0&&(res=mysql_store_result(mysql))) {
-		while (row=mysql_fetch_row(res)){
+		while ( (row=mysql_fetch_row(res)) ){
 			result=IsInstaled(row[0]);
 			switch(result){
 				case -1:
