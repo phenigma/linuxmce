@@ -248,3 +248,89 @@ table.regular_table {
 	border-collapse: collapse;
 	background-color: #EFEFEF;
 }
+
+/**************** menu coding *****************/
+#menu {
+width: 100%;
+background: #00A008;
+float: left;
+}
+
+#menu ul {
+list-style: none;
+margin: 0;
+padding: 0;
+width: 10em;
+float: left;
+}
+
+#menu a, #menu h2 {
+font: bold 11px/16px arial, helvetica, sans-serif;
+display: block;
+border-width: 0px;
+border-style: solid;
+border-color: #36AF3B #36AF3B #78CB01 #36AF3B;
+margin: 0;
+padding: 2px 3px;
+}
+
+#menu h2 {
+
+}
+
+#menu a {
+color: #E7FF80;
+background: #36AF3B;
+text-decoration: none;
+border-width: 1px;
+border-style: dotted;
+border-color: #36AF3B #36AF3B #78CB01 #36AF3B;
+
+}
+
+#menu a:hover {
+color: #E7FF80;
+background: #78CB01;
+}
+
+#menu a.topitem {
+color: #FFFFFF;
+background: #00A008;
+text-decoration: none;
+border-width: 0px;
+border-color: #36AF3B #36AF3B #36AF3B #36AF3B;
+}
+
+#menu a.topitem:hover {
+background: #78CB01;
+color: #000000;
+}
+
+#menu li {position: relative;}
+
+#menu ul ul {
+position: absolute;
+z-index: 500;
+}
+
+#menu ul ul ul {
+position: absolute;
+top: 0;
+left: 100%;
+}
+
+#menu ul li:hover, ul li.CSStoHighlight {
+  background-color: #78CB01;      /* gives the active menu items a yellow background */
+  color: #000;                 /* makes the active menu item text black */ 
+}
+
+
+div#menu ul ul,
+div#menu ul li:hover ul ul,
+div#menu ul ul li:hover ul ul
+{display: none;}
+
+div#menu ul li:hover ul,
+div#menu ul ul li:hover ul,
+div#menu ul ul ul li:hover ul
+{display: block;}

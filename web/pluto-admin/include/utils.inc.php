@@ -6168,4 +6168,61 @@ function syncAttributes($table,$itemValue,$id,$mediadbADO){
 		}
 	}
 }
+
+function generateTopMenu($website,$installationID,$dbADO)
+{
+
+	$selectMenu = "
+		SELECT DISTINCT PageSetup.* FROM PageSetup 
+		LEFT JOIN DeviceTemplate ON PageSetup.FK_Package=DeviceTemplate.FK_Package
+		LEFT JOIN Device ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+		WHERE showInTopMenu = 1 AND Website='$website' AND (PageSetup.FK_Package IS NULL OR (PK_Device IS NOT NULL AND FK_Installation=?))
+		ORDER BY OrderNum ASC";
+	$res = $dbADO->Execute($selectMenu,$installationID);
+
+	$menuItems=array();
+	$GLOBALS['labelArray']=array();
+	$GLOBALS['urlArray']=array();
+	while ($row= $res->FetchRow()) {
+		$menuItems[(int)$row['FK_PageSetup_Parent']][]=$row['PK_PageSetup'];
+		$GLOBALS['labelArray'][$row['PK_PageSetup']]=$row['Description'];
+		$GLOBALS['urlArray'][$row['PK_PageSetup']]=$row['pageURL'];
+	}
+	
+	$menu='
+	<div id="menu">
+	';
+	foreach ($menuItems[0] AS $rootNode){
+		$menu.='
+		<ul id="nav">
+		  <li><h2><a class="topitem" href="'.((isset($GLOBALS['urlArray'][$rootNode]))?@$GLOBALS['urlArray'][$rootNode]:'').'" class="topurl">'.str_replace(' ','&nbsp;',$GLOBALS['labelArray'][$rootNode]).'</a></h2>
+		  '.menuChildItems($rootNode,$menuItems).'
+		  </li>
+		  </ul>
+		  ';
+	}
+	$menu.='
+	
+	</div>';
+	
+	return $menu;
+}
+
+function menuChildItems($parentNode,$menuItems){
+
+	$menu='';
+
+	if(count(@$menuItems[$parentNode])>0){
+		$menu='
+		<ul>';
+		foreach ($menuItems[$parentNode] AS $node){
+			$menu.='
+			<li><a href="'.((isset($GLOBALS['urlArray'][$node]))?@$GLOBALS['urlArray'][$node]:'').'">'.$GLOBALS['labelArray'][$node].'</a>'.menuChildItems($node,$menuItems).'</li>';
+		}
+		$menu.='
+		</ul>';
+	}
+		
+	return $menu;
+}
 ?>

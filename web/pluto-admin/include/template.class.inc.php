@@ -40,7 +40,7 @@
   
   
   var $scriptValidateSrc = '';
-  var $scriptAnotherJS='scripts/menu_settings.js'; //can be a list of js files,separated with commas [,]    
+  var $scriptAnotherJS=''; //can be a list of js files,separated with commas [,]    
   var $scriptCalendar = '';
   var $scriptInBody;
   var $scriptInHead;
@@ -423,7 +423,7 @@ function setTemplateFileType($type) {
 	if (@$_SESSION['userLoggedIn']==true) {
 	
 	if($this->templateType!='index')
-		$topMenu = builtTopMenu(1,$this->dbADO);
+		$topMenu = generateTopMenu(1,(int)@$_SESSION['installationID'],$this->dbADO);
 
 	} else {
 		$topMenu='';
@@ -477,7 +477,6 @@ function setTemplateFileType($type) {
   	
 	if(isset($_SESSION['cssFile'])){
 		$this->setCssFile($_SESSION['cssFile']);
-		$this->setScriptAnotherJS($this->scriptAnotherJS.','.$_SESSION['jsForMenu']);
 	}
   	
   	

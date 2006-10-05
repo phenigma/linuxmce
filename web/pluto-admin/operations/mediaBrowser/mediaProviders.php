@@ -20,7 +20,7 @@ function mediaProviders($output,$mediadbADO,$dbADO) {
 			$mpRows.='
 			<tr bgcolor="'.$color.'">
 				<td>'.$mpArray['Description'][$i].'</td>
-				<td>'.$mtArray[$mpArray['EK_MediaType'][$i]].'</td>
+				<td>'.@$mtArray[$mpArray['EK_MediaType'][$i]].'</td>
 				<td><a href="javascript:if(confirm(\'Are you sure you want to delete this media provider?\'))self.location=\'index.php?section=mediaProviders&action=del&dmp='.$mpArray['PK_MediaProvider'][$i].'\'">Delete</a></td>
 			</tr>		
 			';

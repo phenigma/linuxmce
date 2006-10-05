@@ -228,3 +228,88 @@ legend
 	border: 1px solid #781351;
 	padding: 2px 6px
 } 
+
+/**************** menu coding *****************/
+#menu {
+width: 100%;
+background: #B80000;
+float: left;
+}
+
+#menu ul {
+list-style: none;
+margin: 0;
+padding: 0;
+width: 10em;
+float: left;
+}
+
+#menu a, #menu h2 {
+font: bold 11px/16px arial, helvetica, sans-serif;
+display: block;
+border-width: 0px;
+border-style: solid;
+border-color: #B80000 #B80000 #FF6666 #B80000;
+margin: 0;
+padding: 2px 3px;
+}
+
+#menu h2 {
+}
+
+#menu a {
+color: #E7FF80;
+background: #B80000;
+text-decoration: none;
+border-width: 1px;
+border-style: dotted;
+border-color: #B80000 #B80000 #FF6666 #B80000;
+
+}
+
+#menu a:hover {
+color: #E7FF80;
+background: #FF6666;
+}
+
+#menu a.topitem {
+color: #FFFFFF;
+background: #B80000;
+text-decoration: none;
+border-width: 0px;
+border-color: #B80000 #B80000 #B80000 #B80000;
+}
+
+#menu a.topitem:hover {
+background: #FF6666;
+color: #000000;
+}
+
+#menu li {position: relative;}
+
+#menu ul ul {
+position: absolute;
+z-index: 500;
+}
+
+#menu ul ul ul {
+position: absolute;
+top: 0;
+left: 100%;
+}
+
+#menu ul li:hover, ul li.CSStoHighlight {
+  background-color: #FF6666;      /* gives the active menu items a yellow background */
+  color: #000;                 /* makes the active menu item text black */ 
+}
+
+
+div#menu ul ul,
+div#menu ul li:hover ul ul,
+div#menu ul ul li:hover ul ul
+{display: none;}
+
+div#menu ul li:hover ul,
+div#menu ul ul li:hover ul,
+div#menu ul ul ul li:hover ul
+{display: block;}

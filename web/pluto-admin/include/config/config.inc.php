@@ -4,7 +4,7 @@
   	
   	// todo: set lang when translation is finished
   	$GLOBALS['lang']='en';
-  	$_SESSION['skin']=0;
+  	$_SESSION['skin']=1;
   	
   	if($GLOBALS['inDebug']!=1){
   		// production settings
@@ -59,10 +59,8 @@
 
   	if($_SESSION['skin']==0){
 		$_SESSION['cssFile']='include/styles/customer_setup_style.css';
-		$_SESSION['jsForMenu']='scripts/menu_settings.js';
 	}else{
 		$_SESSION['cssFile']='include/styles/customer_setup_style_red.css';
-		$_SESSION['jsForMenu']='scripts/menu_settings_red.js';
   	}
   	
   	include_once($GLOBALS['globalConfigPath'].'globalconfig.inc.php');
@@ -73,7 +71,7 @@
 	$domain="http://localhost";
 	
 	// path where the media pics and orbiter backgrounds are uploaded
-	$GLOBALS['mediaPicsPath']=$_SERVER['DOCUMENT_ROOT'].'/pluto-admin/mediapics/';
+	$GLOBALS['mediaPicsPath']=$_SERVER['DOCUMENT_ROOT'].'pluto-admin/mediapics/';
 	$GLOBALS['orbiterBackgroundPath']=$_SERVER['DOCUMENT_ROOT'].'/pluto-admin/orbiter_bg/';
 	
 	
