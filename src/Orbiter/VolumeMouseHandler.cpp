@@ -127,6 +127,9 @@ void VolumeMouseHandler::Move(int X,int Y,int PK_Direction)
 			Notch=100;
 		if( Notch!=m_iLastNotch )
 		{
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"VolumeMouseHandler::Move set volume from X %d to %d",X,Notch);
+#endif
 			NeedToRender render( m_pMouseBehavior->m_pOrbiter, "start volume" );
 			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);
 			DCE::CMD_Set_Volume CMD_Set_Volume(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,StringUtils::itos(Notch));

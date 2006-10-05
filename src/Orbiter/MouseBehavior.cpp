@@ -165,6 +165,9 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 
 void MouseBehavior::Move(int X,int Y)
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Move %d,%d",X,Y);
+#endif
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	if( m_pMouseHandler )
 		m_pMouseHandler->Move(X,Y,0);
