@@ -1,27 +1,27 @@
 /*
-	SocketListener
+SocketListener
 
-	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
-	www.plutohome.com
+www.plutohome.com
 
-	Phone: +1 (877) 758-8648
+Phone: +1 (877) 758-8648
 
-	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-	See the GNU General Public License for more details.
+See the GNU General Public License for more details.
 */
 
 /**
- *
- * @file SocketListener.cpp
- * @brief source file for the SocketListener class
- * @author
- * @todo notcommented
- *
- */
+*
+* @file SocketListener.cpp
+* @brief source file for the SocketListener class
+* @author
+* @todo notcommented
+*
+*/
 
 
 
@@ -67,15 +67,15 @@ SocketListener::~SocketListener()
 
 		for(i=m_Clients.begin();i!=m_Clients.end();i++)
 		{
-			DCESocket *pSocket = *i;
-			if( !pSocket )
-				g_pDCELogger->Write(LV_CRITICAL,"DCESocketListener::~DCESocketListener socket is NULL");
-			else if( pSocket->m_Socket!=INVALID_SOCKET )
-			{
-				g_pDCELogger->Write(LV_SOCKET,"closing socket %p %d",pSocket,pSocket->m_Socket);
-				closesocket(pSocket->m_Socket);
-				pSocket->m_Socket = INVALID_SOCKET;
-			}
+		DCESocket *pSocket = *i;
+		if( !pSocket )
+		g_pDCELogger->Write(LV_CRITICAL,"DCESocketListener::~DCESocketListener socket is NULL");
+		else if( pSocket->m_Socket!=INVALID_SOCKET )
+		{
+		g_pDCELogger->Write(LV_SOCKET,"closing socket %p %d",pSocket,pSocket->m_Socket);
+		closesocket(pSocket->m_Socket);
+		pSocket->m_Socket = INVALID_SOCKET;
+		}
 		}
 		lm.Release(); */
 
@@ -84,15 +84,13 @@ SocketListener::~SocketListener()
 		m_Socket = INVALID_SOCKET; // now it is invalid
 	}
 
-	if ( m_ListenerThreadID ) 
-		pthread_join( m_ListenerThreadID, 0 ); // wait for it to finish
-
-#ifdef WIN32
-	//we'll need more cleanup here to have it stable
-	DropAllSockets();
-#endif
-
+	if ( m_ListenerThreadID ) pthread_join( m_ListenerThreadID, 0 ); // wait for it to finish
 	pthread_mutex_destroy( &m_ListenerMutex.mutex ); // killing the mutex
+
+
+
+
+
 }
 
 void SocketListener::StartListening( int iPortNumber )
@@ -101,7 +99,7 @@ void SocketListener::StartListening( int iPortNumber )
 	m_bTerminate = false;
 	m_bRunning = false; // So we know when we started
 	m_iListenPort = iPortNumber;
-    pthread_create( &m_ListenerThreadID, NULL, BeginListenerThread, (void *)this );
+	pthread_create( &m_ListenerThreadID, NULL, BeginListenerThread, (void *)this );
 }
 
 void SocketListener::Run()
@@ -145,7 +143,7 @@ void SocketListener::Run()
 		g_pPlutoLogger->Write( LV_CRITICAL, "Failed to listen to port.\r" );
 	}
 	else // no errors
- 	{
+	{
 #ifdef WIN32
 		unsigned long on = 1;
 		::ioctlsocket( m_Socket, FIONBIO, &on );
@@ -188,7 +186,7 @@ void SocketListener::Run()
 				{
 					g_pPlutoLogger->Write( LV_STATUS, "Got an incoming connection, but the server state is closed." );
 					send( newsock, "CLOSED\n", 6, 0 );
-  					closesocket( newsock );
+					closesocket( newsock );
 				}
 				else
 				{
@@ -235,28 +233,16 @@ Socket *SocketListener::CreateSocket( SOCKET newsock, string sName, string sIPAd
 	return pSocket;
 }
 
-void SocketListener::RemoveSocket(ServerSocket *pServerSocket)
-{
-	for (ServerSocketVector::iterator j=m_vectorServerSocket.begin(); j!=m_vectorServerSocket.end(); j++)
-	{
-		if ( (*j) == pServerSocket )
-		{
-			m_vectorServerSocket.erase(j);
-			break;
-		}
-	}
-}
-
 void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelete )
 {
 	pServerSocket->Close();
 
 	PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
-    if( pServerSocket->m_iReferencesOutstanding_get()>1 ){  // Something besides us is still referencing this pointer
-	// We won't actually delete it because we don't want to wait for the other thread to finish, and besides that thread
-	// should also call this function since the socket is now dead (we just closed it)
+	if( pServerSocket->m_iReferencesOutstanding_get()>1 ){  // Something besides us is still referencing this pointer
+		// We won't actually delete it because we don't want to wait for the other thread to finish, and besides that thread
+		// should also call this function since the socket is now dead (we just closed it)
 		return; 
-    }
+	}
 
 	g_pPlutoLogger->Write(LV_SOCKET, "Removing socket %p from socket listener", pServerSocket);
 
@@ -273,14 +259,20 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 		{
 			g_pPlutoLogger->Write( LV_REGISTRATION, "Stale Command handler %d for \x1b[34;1m%d\x1b[0m closed.", pServerSocket, pServerSocket->m_dwPK_Device );
 		}
-		
-		RemoveSocket(pServerSocket);
-	}
 
+		for (ServerSocketVector::iterator j=m_vectorServerSocket.begin(); j!=m_vectorServerSocket.end(); j++)
+		{
+			if ( (*j) == pServerSocket )
+			{
+				m_vectorServerSocket.erase(j);
+				break;
+			}
+		}
+	}
 	if( !bDontDelete )  // Will be true if teh socket's destructor is calling this
 	{	
-        lm.Release();
-		pServerSocket->AlreadyRemoved();  // Otherwise the socket's destructor will call this
+		lm.Release();
+		pServerSocket->m_bAlreadyRemoved=true;  // Otherwise the socket's destructor will call this
 		delete pServerSocket;
 	}
 }
@@ -310,15 +302,14 @@ void SocketListener::RegisterCommandHandler( ServerSocket *Socket, int iDeviceID
 		RemoveAndDeleteSocket( pSocket_Old );
 		ll.Relock();
 	}
-
 	m_mapServerSocket[iDeviceID] = Socket; // assigning it the new specified socket
 	Socket->SetReceiveTimeout( IsPlugin(iDeviceID) ? SOCKET_TIMEOUT_PLUGIN : SOCKET_TIMEOUT );
 	ll.Release();
 
 	g_pPlutoLogger->Write( LV_REGISTRATION, "Device ID \x1b[34;1m%d's command handler\x1b[0m registered on socket: %d with counter %d %p",
-			iDeviceID,
-			Socket->m_Socket, Socket->m_iSocketCounter,
-			Socket );
+		iDeviceID,
+		Socket->m_Socket, Socket->m_iSocketCounter,
+		Socket );
 
 	Socket->m_eSocketType=Socket::st_ServerCommand;
 	RegisteredCommandHandler( Socket, iDeviceID );
@@ -390,14 +381,12 @@ bool SocketListener::SendData( int iDeviceID, int iLength, const char *pcData )
 void SocketListener::DropAllSockets()
 {
 	PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
-    ServerSocketMap::iterator iDC;
-    while(m_mapServerSocket.size())
-    {
-        ServerSocket *pServerSocket = m_mapServerSocket.begin()->second;
+	ServerSocketMap::iterator iDC;
+	for(iDC = m_mapServerSocket.begin(); iDC!=m_mapServerSocket.end(); ++iDC)
+	{
+		ServerSocket *pServerSocket = (*iDC).second;
 		pServerSocket->Close();
-		delete pServerSocket;
 	}
-	m_mapServerSocket.clear();
-		
+
 	lm.Release();
 }

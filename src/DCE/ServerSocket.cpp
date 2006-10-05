@@ -1,28 +1,28 @@
 /*
-	ServerSocket
+ServerSocket
 
-	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
-	www.plutohome.com
+www.plutohome.com
 
-	Phone: +1 (877) 758-8648
+Phone: +1 (877) 758-8648
 
-	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-	See the GNU General Public License for more details.
+See the GNU General Public License for more details.
 */
 
 
 /**
- *
- * @file ServerSocket.cpp
- * @brief source file for the ServerSocket class
- * @author
- * @todo notcommented
- *
- */
+*
+* @file ServerSocket.cpp
+* @brief source file for the ServerSocket class
+* @author
+* @todo notcommented
+*
+*/
 
 
 
@@ -46,13 +46,13 @@ void *ServerSocket::BeginWapClientThread( void *SvSock )
 {
 	ServerSocket *pCS = (ServerSocket *)SvSock;
 
-//	g_pPlutoLogger->Write(LV_STATUS, "ServerSocket::BeginWapClientThread() enter: %p", pCS);
+	//	g_pPlutoLogger->Write(LV_STATUS, "ServerSocket::BeginWapClientThread() enter: %p", pCS);
 
 	// i don't know if this is usefull here. We are doing the same check below.
 	if( !pCS->m_bThreadRunning )
 	{
-//		delete pCS;  // TODO: HACK -- we've got a socket leak here
-//		g_pPlutoLogger->Write(LV_STATUS, "ServerSocket::BeginWapClientThread() pCS->m_bThreadRunning false, %p", pCS);
+		//		delete pCS;  // TODO: HACK -- we've got a socket leak here
+		//		g_pPlutoLogger->Write(LV_STATUS, "ServerSocket::BeginWapClientThread() pCS->m_bThreadRunning false, %p", pCS);
 		return NULL; // Should have been set in the constructor
 	}
 
@@ -64,25 +64,23 @@ void *ServerSocket::BeginWapClientThread( void *SvSock )
 	// Se:
 	// 		- we enter the thread
 	// 		- look to see if this is the case and remove the socket in this case.
-
-	if(pCS->_Run())
+	if( pCS->_Run() && !pCS->m_bAlreadyRemoved )
 	{
-		if(!pCS->m_bAlreadyRemoved)
-		{
-			// now always doing RemoveAndDeleteSocket because we must free the vector of sockets
-			pCS->m_pListener->RemoveAndDeleteSocket(pCS);
-		}
-	}
-	else
-	{
-		pCS->m_pListener->RemoveSocket(pCS);
+		/*
+		if( pCS->m_dwPK_Device==DEVICEID_MESSAGESEND )
+		delete pCS;  // Don't waste the time for RemoveAndDeleteSocket if it's just a message send--it was never registered anyway
+		else
+		pCS->m_pListener->RemoveAndDeleteSocket(pCS);
+		*/
+		// now always doing RemoveAndDeleteSocket because we must free the vector of sockets
+		pCS->m_pListener->RemoveAndDeleteSocket(pCS);
 	}
 
 	return NULL;
 }
 
 ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName, string sIPAddress, string sMacAddress ) :
-	Socket( sName, sIPAddress, sMacAddress ), m_ConnectionMutex( "connection " + sName )
+Socket( sName, sIPAddress, sMacAddress ), m_ConnectionMutex( "connection " + sName )
 {
 	m_iInstanceID = 0;
 	m_bSendOnlySocket = false;
@@ -101,6 +99,10 @@ ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName
 
 ServerSocket::~ServerSocket()
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::~ServerSocket() Deleting socket @%p. m_Socket: %d.", this, m_Socket );
+#endif
+
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::~ServerSocket(): @%p Is it running %d?", this, m_bThreadRunning);
 #endif
@@ -158,7 +160,7 @@ bool ServerSocket::_Run()
 				continue;
 			}
 		}
-	
+
 		if ( !ReceiveString( sMessage ) || m_pListener->m_bTerminate )
 		{
 			break;
@@ -204,7 +206,7 @@ bool ServerSocket::_Run()
 			if( m_sIPAddress.size() )
 				sMacAddress=arpcache_MACfromIP(m_sIPAddress);
 #else
-sMacAddress="11:22";
+			sMacAddress="11:22";
 #endif
 			string sIPAndMac = (m_sIPAddress.size() ? " IP=" + m_sIPAddress : "") + (sMacAddress.size() ? " MAC=" + sMacAddress : "");
 			if( m_dwPK_Device == DEVICEID_MESSAGESEND )
@@ -252,7 +254,7 @@ sMacAddress="11:22";
 #ifdef TEST_DISCONNECT
 			if ( m_dwPK_Device == TEST_DISCONNECT )
 				m_pListener->m_pTestDisconnectEvent = this;
- #endif
+#endif
 
 			m_pListener->RegisterEventHandler( this, m_dwPK_Device );
 			continue;
@@ -300,7 +302,7 @@ sMacAddress="11:22";
 		}
 		else if( sMessage.substr(0,8) == "INSTANCE" )
 		{
-            m_iInstanceID = atoi(sMessage.substr(8).c_str());
+			m_iInstanceID = atoi(sMessage.substr(8).c_str());
 			continue;
 		}
 
@@ -361,4 +363,3 @@ void ServerSocket::PingFailed()
 	Close();
 	m_pListener->PingFailed( this, m_dwPK_Device );
 }
-
