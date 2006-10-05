@@ -231,7 +231,7 @@ m_pOrbiter->Renderer()->RenderObjectAsync(pSpeedMouseHandler->m_pObj);
 bool MouseBehavior::ButtonDown(int PK_Button)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown %d",(int) PK_Button);
+	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown %d resetting m_iTime_Last_Mouse_Up",(int) PK_Button);
 #endif
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	m_iPK_Button_Mouse_Last=PK_Button;
@@ -327,12 +327,12 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 
 bool MouseBehavior::ButtonUp(int PK_Button)
 {
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonUp %d %p",(int) PK_Button,m_pMouseHandler);
-#endif
     PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
     m_iPK_Button_Mouse_Last=PK_Button;
     m_iTime_Last_Mouse_Up=ProcessUtils::GetMsTime();
+#ifdef DEBUG
+    g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonUp %d %p m_iTime_Last_Mouse_Up=%d",(int) PK_Button,m_pMouseHandler,(int) m_iTime_Last_Mouse_Up);
+#endif
 
 	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_3_CONST && m_bMouseKilled )
 	{

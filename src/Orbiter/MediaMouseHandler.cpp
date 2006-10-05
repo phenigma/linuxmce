@@ -42,6 +42,9 @@ void MediaMouseHandler::Start()
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(2000);
 
 	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_UpDown);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"MediaMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
+#endif
 
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{

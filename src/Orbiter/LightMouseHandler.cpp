@@ -21,6 +21,9 @@ void LightMouseHandler::Start()
 	m_pMouseBehavior->ConstrainMouse(rect);
 	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_UpDown);
 
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"LightMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
+#endif
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(500);
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{

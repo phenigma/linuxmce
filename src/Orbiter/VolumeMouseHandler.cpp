@@ -38,7 +38,7 @@ void VolumeMouseHandler::Start()
 	else
 		m_iCancelLevel = 30;
 
-g_pPlutoLogger->Write(LV_STATUS,"volume cancel level %d discrete %d  last up %d",
+g_pPlutoLogger->Write(LV_STATUS,"volume cancel level %d discrete %d  m_iTime_Last_Mouse_Up %d",
 m_iCancelLevel, (int) m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume, m_pMouseBehavior->m_iTime_Last_Mouse_Up);
 
 	if( m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume==false || m_pMouseBehavior->m_iTime_Last_Mouse_Up )
