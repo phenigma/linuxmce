@@ -267,6 +267,7 @@ void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string sStreamingTar
 
         if ( iPlayerId == 0 )
         {
+			itPlayerIds++;
             g_pPlutoLogger->Write(LV_WARNING, "Player id string %s parsed to 0. Ignoring.", (*itPlayerIds).c_str() );
             continue;
         }
@@ -274,6 +275,7 @@ void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string sStreamingTar
         DeviceData_Base *pPlayerDeviceData = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(iPlayerId);
         if ( pPlayerDeviceData == NULL )
         {
+			itPlayerIds++;
             g_pPlutoLogger->Write(LV_WARNING, "Child with id: %d was not found. Ignoring", iPlayerId);
             continue;
         }

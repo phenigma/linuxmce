@@ -1234,12 +1234,6 @@ void Database::Import( string sRepository, Repository *pRepository )
 		string sTable = (*it).first;
 		int last_psc_id = (*it).second.first;
 		int last_psc_batch = (*it).second.second;
-if( last_psc_batch>5000 ) // TODO - temp hack.  at one point these got set to artificially high numbers.  if so, use the server's value.  After all machines have this version remove this code
-{
-pair<int,int> psc_last = mapLast_psc_FromServer[sTable];
-last_psc_batch=psc_last.second;
-}
-
 		ostringstream sql;
 		std::ostringstream sSQL;
 		sSQL << "UPDATE `" << pRepository->m_pTable_Tables->Name_get( ) << "` SET last_psc_batch='" << 

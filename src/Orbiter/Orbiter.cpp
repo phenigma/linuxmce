@@ -1565,6 +1565,9 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_butUserStatus_CONST || pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoUserVoicemail_CONST )
 	{
 		DesignObj_Orbiter *pDesignObj_Orbiter_With_Commands = pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_butUserStatus_CONST ? pDesignObj_Orbiter : (DesignObj_Orbiter *) pDesignObj_Orbiter->m_pParentObject;
+		if( pDesignObj_Orbiter_With_Commands->m_ZoneList.size()==0 && pDesignObj_Orbiter_With_Commands->m_pParentObject )
+			pDesignObj_Orbiter_With_Commands = (DesignObj_Orbiter *) pDesignObj_Orbiter_With_Commands->m_pParentObject;
+
 		// This is actually at startup time.  Figure out what user this is controlling
 		int PK_Users=0;
 		for(DesignObjZoneList::iterator itZ=pDesignObj_Orbiter_With_Commands->m_ZoneList.begin();itZ!=pDesignObj_Orbiter_With_Commands->m_ZoneList.end();++itZ)
@@ -1582,6 +1585,7 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 				}
 			}
 		}
+		
 		if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoUserVoicemail_CONST )
 		{
 			CMD_Bind_Icon(pDesignObj_Orbiter->m_ObjectID, "vm" + StringUtils::itos(PK_Users),true);

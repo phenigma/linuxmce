@@ -46,7 +46,8 @@ g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 		return;
 	}
 #endif
-
+if( m_pObj_Owner->m_iBaseObjectID==4782 )
+int k=2;
 	PlutoGraphic *pPlutoGraphic = NULL;
 	pPlutoGraphic = 
 		m_pObj_Owner->m_pvectCurrentGraphic != NULL && m_pObj_Owner->m_pvectCurrentGraphic->size() > 0 ?

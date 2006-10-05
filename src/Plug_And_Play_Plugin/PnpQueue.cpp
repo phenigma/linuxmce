@@ -228,6 +228,20 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 			m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application);
 		}
 	}
+	else if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="storage" )
+	{
+		// The serial ports on this box probably changed
+		DeviceData_Router *pDevice_AppServer=NULL,*pDevice_Detector = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceData_Router_Find(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
+		if( pDevice_Detector )
+			pDevice_AppServer = (DeviceData_Router *) pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST, m_pPlug_And_Play_Plugin );
+		if( pDevice_AppServer )
+		{
+			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
+				"/usr/pluto/bin/StorageDevices_Radar.sh", "storagedevices",
+				"","","",false,false,false);
+			m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application);
+		}
+	}
 
 	LocateDevice(pPnpQueueEntry);
 	Row_Device *pRow_Device_Created = pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_getrow() : NULL;  // This will be NULL if it's a new device

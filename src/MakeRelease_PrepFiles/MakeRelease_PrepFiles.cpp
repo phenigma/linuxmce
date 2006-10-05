@@ -88,6 +88,9 @@ int main(int argc, char *argv[])
 
 	for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 	{
+		if( it->find( "MakeRelease_PrepFiles" ) !=string::npos )
+			continue;
+
 		size_t s;
 		char *pBuffer = FileUtils::ReadFileIntoBuffer(*it,s);
 		if( pBuffer )
