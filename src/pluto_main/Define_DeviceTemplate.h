@@ -1731,6 +1731,7 @@
 #define DEVICETEMPLATE_FusionHDTV5_Gold_CONST 1834
 #define DEVICETEMPLATE_Windows_Share_Scanner_CONST 1835
 #define DEVICETEMPLATE_Generic_File_Server_CONST 1837
+#define DEVICETEMPLATE_Windows_Mobile_Smartphone_2005_CONST 1838
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"
