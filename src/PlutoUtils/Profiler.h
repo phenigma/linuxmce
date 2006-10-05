@@ -4,7 +4,8 @@
 #include "DCE/Logger.h"
 
 using namespace DCE;
-#ifndef WIN32
+
+#if !defined( WIN32 ) || !defined( DEBUG )
 class PlutoProfiler
 {
 public:

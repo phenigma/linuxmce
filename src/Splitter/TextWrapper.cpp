@@ -4,15 +4,10 @@
 #include "TextWrapper.h"
 #include "Orbiter/TextStyle.h"
 #include "OrbiterGen/Renderer.h"
+#include "DCE/Logger.h"
+using namespace DCE;
 
 #include "SDL_Helpers/SDL_Helpers.h"
-
-#if ( defined( PROFILING ) )
-	#ifdef WINCE
-		#include "DCE/Logger.h"
-		using namespace DCE;
-	#endif
-#endif
 
 // Radu: I hope I'll get around to optimizing all this some time.
 // Radu: From my point of view, this looks like its going to eat a lot of memory.
@@ -323,6 +318,11 @@ void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, 
     //creates a surface with the size of the text
     SDL_Rect rect = {X, Y, W, H};
     SDL_Surface* pTextSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, W, H, 32, rmask, gmask, bmask, amask);
+	if( !pTextSurface )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"WrapAndRenderText pTextSurface is NULL for %s",text.c_str());
+		return;
+	}
 
     //crops the text's rectangle from the source surface
     bool WasSrcAlpha = (Surface->flags & SDL_SRCALPHA) != 0;
