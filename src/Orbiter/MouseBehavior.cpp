@@ -230,7 +230,9 @@ m_pOrbiter->Renderer()->RenderObjectAsync(pSpeedMouseHandler->m_pObj);
 
 bool MouseBehavior::ButtonDown(int PK_Button)
 {
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown %d",(int) PK_Button);
+#endif
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	m_iPK_Button_Mouse_Last=PK_Button;
 	m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();
@@ -242,7 +244,9 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	// Special case for the media control
 	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen!=SCREEN_mnuMainMenu2_CONST )
 	{
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing main menu");
+#endif
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_mnuMainMenu2_CONST);
 		ShowMouse(true);
@@ -263,7 +267,9 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && PK_Screen_OnScreen!=SCREEN_mnuPlaybackControl_CONST 
 		&& PK_Screen_OnScreen!=m_pOrbiter->m_iPK_Screen_OSD_Speed && PK_Screen_OnScreen!=m_pOrbiter->m_iPK_Screen_OSD_Track )
 	{
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing media menu");
+#endif
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		if( m_pOrbiter->m_iPK_Screen_OSD_Speed && m_pOrbiter->m_iPK_Screen_OSD_Track )
 			m_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuPlaybackControl_CONST);
@@ -278,7 +284,9 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && PK_Screen_OnScreen!=SCREEN_mnuAmbiance_CONST 
 		&& PK_Screen_OnScreen!=SCREEN_mnuVolume_CONST && PK_Screen_OnScreen!=SCREEN_mnuLights_CONST )
 	{
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing ambiance menu");
+#endif
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuAmbiance_CONST);
 		ShowMouse(true);
@@ -289,13 +297,17 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && (PK_Screen_OnScreen==SCREEN_mnuAmbiance_CONST || PK_Screen_OnScreen==SCREEN_mnuVolume_CONST || PK_Screen_OnScreen==SCREEN_mnuLights_CONST)) ||
 		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen==SCREEN_mnuMainMenu2_CONST) )
 	{
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown removing menu");
+#endif
 		Clear(true);
 		return true;
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_2_CONST )
 	{
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown stopping media %d %d==%d | %d",m_pOrbiter->m_iPK_MediaType,PK_Screen_OnScreen,m_pOrbiter->m_iPK_Screen_Remote,m_pOrbiter->m_iPK_Screen_RemoteOSD);
+#endif
 		if( m_pOrbiter->m_iPK_MediaType && (PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_Remote || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_RemoteOSD) )
 		{
 			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,0,0,"");
@@ -315,7 +327,9 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 
 bool MouseBehavior::ButtonUp(int PK_Button)
 {
+#ifdef DEBUG
     g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonUp %d %p",(int) PK_Button,m_pMouseHandler);
+#endif
     PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
     m_iPK_Button_Mouse_Last=PK_Button;
     m_iTime_Last_Mouse_Up=ProcessUtils::GetMsTime();

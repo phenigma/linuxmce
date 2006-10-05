@@ -764,9 +764,7 @@ void Orbiter::RealRedraw( void *data )
 {
 g_PlutoProfiler->ClearResults();
 g_PlutoProfiler->Start("RealRedraw");
-	g_pPlutoLogger->Write(LV_ACTION, "Orbiter::RealRedraw start");
 	m_pOrbiterRenderer->RefreshScreen(data);
-	g_pPlutoLogger->Write(LV_ACTION, "Orbiter::RealRedraw stop");
 g_PlutoProfiler->Stop("RealRedraw");
 g_PlutoProfiler->DumpResults();
 }
@@ -2490,16 +2488,20 @@ ACCEPT OUTSIDE INPUT
 void Orbiter::QueueEventForProcessing( void *eventData )
 {
 	Orbiter::Event *pEvent = (Orbiter::Event*)eventData;
-g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing type %d key %d",
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing type %d key %d",
 					  pEvent->type, (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP ? pEvent->data.button.m_iPK_Button : -999));
+#endif
 
 	map< pair<int,int>,pair<int,int> >::iterator it = m_mapEventToSubstitute.find( make_pair<int,int> (pEvent->type,pEvent->data.button.m_iPK_Button) );
 	if( it!=m_mapEventToSubstitute.end() )
 	{
 		pEvent->type = (DCE::Orbiter::Event::EventType) it->second.first;
 		pEvent->data.button.m_iPK_Button = it->second.second;
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to type %d key %d",
 					  pEvent->type, pEvent->data.button.m_iPK_Button);
+#endif
 	}
 
 	if( pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::REGION_DOWN )
@@ -2512,8 +2514,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to 
 			map<int,string>::iterator it = m_mapScanCodeToRemoteButton.find(pEvent->data.button.m_iPK_Button);
 			if( it!=m_mapScanCodeToRemoteButton.end() )
 			{
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s",it->second.c_str());
 				ReceivedCode(0,it->second.c_str());
+#endif
 			}
 		}
 	}
@@ -2537,8 +2541,10 @@ bool Orbiter::PreprocessEvent(Orbiter::Event &event)
 #include "MediaBrowserMouseHandler.h"
 bool Orbiter::ProcessEvent( Orbiter::Event &event )
 {
-g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent1 type %d key %d",
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent1 type %d key %d",
 					  event.type, (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP ? event.data.button.m_iPK_Button : -999));
+#endif
 	static int LastX=-1,LastY=-1; // For some reason we keep getting move events with the same coordinates over and over
 	if ( event.type == Orbiter::Event::MOUSE_MOVE )
 	{
@@ -2557,7 +2563,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent1 type %d key %d",
 //temptest
 if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler && m_pMouseBehavior->m_pMouseHandler->TypeOfMouseHandler()==MouseHandler::mh_MediaBrowser && event.data.button.m_iPK_Button == BUTTON_u_CONST )
 {
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_ACTION, "Orbiter::ProcessEvent -- got a up");
+#endif
 MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pMouseBehavior->m_pMouseHandler;
 pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->m_eCapturingOffscreenMovement=DatagridMouseHandlerHelper::cosm_UP;
 pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->DoIteration();
@@ -2566,7 +2574,9 @@ return false;
 }
 else if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler && m_pMouseBehavior->m_pMouseHandler->TypeOfMouseHandler()==MouseHandler::mh_MediaBrowser && event.data.button.m_iPK_Button == BUTTON_d_CONST )
 {
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_ACTION, "Orbiter::ProcessEvent -- got a down");
+#endif
 MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pMouseBehavior->m_pMouseHandler;
 pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->m_eCapturingOffscreenMovement=DatagridMouseHandlerHelper::cosm_DOWN;
 pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->DoIteration();
@@ -2593,8 +2603,10 @@ if(UsesUIVersion2())
 {
 	bool bSkipProcessing=false;
 
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent2 %p type %d key %d",
 					  m_pMouseBehavior, event.type, (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP ? event.data.button.m_iPK_Button : -999));
+#endif
 	if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior)
 	{
 		if(event.data.button.m_iPK_Button == BUTTON_F6_CONST || event.data.button.m_iPK_Button == BUTTON_Mouse_6_CONST)
@@ -2639,8 +2651,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent2 %p type %d key %d",
 		if ( event.type == Orbiter::Event::REGION_UP && event.data.button.m_iPK_Button==2 )
 			bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_3_CONST);
 	}
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d key %d",
 					  (int) bSkipProcessing, event.type, (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP ? event.data.button.m_iPK_Button : -999));
+#endif
 
 	if( bSkipProcessing )
 		return true;
@@ -2687,7 +2701,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d key %d",
 
 /*virtual*/ bool Orbiter::HandleButtonEvent(int PK_Button)
 {
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_CRITICAL, "HandleButtonEvent button %d, shift %d, caps %d", PK_Button, m_bShiftDown, m_bCapsLock);
+#endif
 	
 	if( !PK_Button || !m_pScreenHistory_Current )
 		return false;

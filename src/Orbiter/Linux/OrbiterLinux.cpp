@@ -573,12 +573,15 @@ void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Me
 
 void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 {
+#ifdef DEBUG
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::CMD_Simulate_Keypress() : m_bYieldInput==%d", m_bYieldInput);
+#endif
     if( m_bYieldInput )
     {
         pair<bool,int> XKeySym = PlutoButtonsToX(atoi(sPK_Button.c_str()));
+#ifdef DEBUG
         g_pPlutoLogger->Write(LV_WARNING, "Need to forward pluto key %s to X key %d (shift %d)", sPK_Button.c_str(),XKeySym.second,XKeySym.first);
-
+#endif
         // TODO: clean this code
         Display *dpy = GetDisplay();
         X11_Locker lock(dpy);

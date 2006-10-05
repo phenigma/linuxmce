@@ -24,12 +24,13 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 {
 g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic1");
 
-	g_pPlutoLogger->Write(LV_STATUS, "mmmm RenderGraphic  %s state %s",
+#ifdef DEBUG
+g_pPlutoLogger->Write(LV_STATUS, "mmmm RenderGraphic  %s state %s",
 					   m_pObj_Owner->m_ObjectID.c_str(), 
 					   m_pObj_Owner->m_GraphicToDisplay == GRAPHIC_NORMAL ? "normal" : 
 						 m_pObj_Owner->m_GraphicToDisplay == GRAPHIC_SELECTED ? "selected" : "highlighted"
 	);
-
+#endif
 	string sParentObjectID = "";
 	DesignObj_Orbiter *pParentObj = dynamic_cast<DesignObj_Orbiter *>(m_pObj_Owner->m_pParentObject);
 	if(NULL != pParentObj)

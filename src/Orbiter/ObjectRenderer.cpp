@@ -377,8 +377,10 @@ int k=2;
 	PROFILE_START( ctObj )
 		PlutoRectangle rectBackground = m_pObj_Owner->m_rBackgroundPosition;
 	PlutoRectangle rectTotal = m_pObj_Owner->m_rPosition;
-g_pPlutoLogger->Write(LV_STATUS,"xzx Rendering %s with %d %p=%p size %d",m_pObj_Owner->m_ObjectID.c_str(),m_pObj_Owner->m_GraphicToDisplay,
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"xzx Rendering %s with %d %p=%p size %d",m_pObj_Owner->m_ObjectID.c_str(),m_pObj_Owner->m_GraphicToDisplay,
 					  m_pObj_Owner->m_pvectCurrentGraphic,&m_pObj_Owner->m_vectGraphic,(int) m_pObj_Owner->m_vectAltGraphics.size());
+#endif
 if( m_pObj_Owner->m_iBaseObjectID==4782 )
 int k=2;
 	if(
