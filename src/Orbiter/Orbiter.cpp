@@ -8832,10 +8832,14 @@ void Orbiter::UpdateTimeCodeLoop()
 	if( m_bQuit || !m_bReportTimeCode )
 		return;
 
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCodeLoop starting...");
+#endif
 	PLUTO_SAFETY_LOCK(tcm, m_TimeCodeMutex);
 
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCodeLoop: got the mutex, we are ready to go!");
+#endif
 
 	// If this is a xine, determine the ip address and connect to it to pull time code info
 	if( !m_pAskXine_Socket || m_pAskXine_Socket->m_dwPK_Device!=m_dwPK_Device_NowPlaying )
@@ -8891,17 +8895,22 @@ void Orbiter::UpdateTimeCodeLoop()
 	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode exiting -- not active anymore");
 			return;
 		}
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode BEFORE");
+#endif
 		string sLine;
 		if( !m_pAskXine_Socket->ReceiveString(sLine, -2) )  // Wait at most 1 second for the line
 		{
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode EMPTY %d %s",(int) sLine.size(),sLine.c_str());
+#endif
 			Sleep(500);
 			continue;
 		}
 
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode AFTER %d %s",(int) sLine.size(),sLine.c_str());
-
+#endif        
 		string::size_type pos=0;
 		int iSpeed = atoi(StringUtils::Tokenize( sLine,",",pos ).c_str());
 		string sTime = StringUtils::Tokenize( sLine,",",pos );
@@ -8934,8 +8943,9 @@ void Orbiter::UpdateTimeCodeLoop()
 				sSpeed = "." + StringUtils::itos(iSpeed) + "x";
 		}
 
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode calling CMD_Update_Time_Code");
-
+#endif
 		CMD_Update_Time_Code(iStreamID,sTime,sTotalTime,sSpeed,sTitle,sChapter);
 		Sleep(50);
 	}
