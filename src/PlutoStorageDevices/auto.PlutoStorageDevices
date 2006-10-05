@@ -83,28 +83,20 @@ case "$Template" in
 		fi
 		;;
 	
-	## Buffalo HDHG300LAN Network Storage
-	$TPL_BUFFALO_HDHG300LAN)
-		## Get the ip address of the buffalo storage device
-		Q="SELECT IPaddress FROM Device WHERE PK_Device = '$StorageDevice' LIMIT 1"
-		IPaddress=$(RunSQL "$Q")
-		
-		## Test to see if the buffalo device is up
-		ping -qnc 1 -W 1 "$IPaddress" &> /dev/null
-		HostIsUp=$?
-		if [[ "$HostIsUp" != 0 ]] ;then
-			Log $LOG_WARN "Buffalo device with ip '$IPaddress' is not responding to our ping"
-			exit 0
-		fi
-
-		echo "-fstype=smbfs,guest,dmask=777,fmask=777 ://${IPaddress}/share"
-		;;
-
 	## Generic Windows Share
 	$TPL_GENERIC_SAMBA_SHARE)
-		## Get the ip address of the windows computer/device that has the share
-		Q="SELECT IPaddress FROM Device WHERE PK_Device = '$StorageDevice' LIMIT 1"
+		## Get the ip address of the parent (computer or nas that has the share)
+		Q="	SELECT 
+				Parent.IPaddress 
+			FROM 
+				Device Child
+				LEFT JOIN Device Parent ON Parent.FK_Device = Child.FK_Device_ControledVia
+			WHERE 
+				Child.PK_Device = '$StorageDevice'
+			LIMIT 1
+		"
 		IPaddress=$(RunSQL "$Q")
+		IPaddress=$(Field "1" "$IPaddress")
 
 		## Test to see if that computer is up and running
 		ping -qnc 1 -W 1 "$IPaddress" &> /dev/null
