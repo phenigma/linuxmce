@@ -26,6 +26,10 @@ echo Building pluto(windows ce) sources...
 cd "c:\pluto.makerelease\trunk\src"
 call "MakeRelease_WindowsCE.bat"
 
+echo Building pluto(windows ce) sources...
+cd "c:\pluto.makerelease\trunk\src"
+call "MakeRelease_Windows2005.bat"
+
 cd "c:\pluto.makerelease\trunk\src\bin"
 copy Orbiter.exe Orbiter_Win32.dat
 copy Orbiter_CeNet4_XScale.exe Orbiter_CeNet4_XScale.dat
@@ -69,6 +73,10 @@ call "build_cab.bat"
 
 echo SMARTPHONE
 cd "c:\pluto.makerelease\trunk\src\Orbiter\CENet_Smartphone"
+call "build_cab.bat"
+
+echo SMARTPHONE_TREO
+cd "c:\pluto.makerelease\trunk\src\Orbiter\CENet_Smartphone_Treo"
 call "build_cab.bat"
 
 echo XP
