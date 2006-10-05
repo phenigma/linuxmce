@@ -481,8 +481,9 @@ int k=2;
 	for( iHao=m_pObj_Owner->m_ChildObjects.rbegin(  ); iHao != m_pObj_Owner->m_ChildObjects.rend(  ); ++iHao )
 	{
 		DesignObj_Orbiter *pDesignObj_Orbiter=( DesignObj_Orbiter * )*iHao;
-//		if(  !m_pObj_Owner->m_pGraphicToUndoSelect || m_pObj_Owner->m_GraphicToDisplay!=GRAPHIC_NORMAL  )
-//			continue;
+		if(pDesignObj_Orbiter->m_bContainsDataGrid)
+			continue;
+
 		pDesignObj_Orbiter->RenderObject(pObj_Screen, point);
 	}
 
