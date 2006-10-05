@@ -799,8 +799,11 @@ m_bNoEffects = true;
 	// UI2 is always 16:9 and needs to be edge-to-edge, so we will ignore the normal scaling rules and 
 	// always scale the full image
 	if( m_pRow_UI->PK_UI_get()==UI_V2_Normal_Horizontal_16_9_CONST )
+	{
 		// This is always 16:9, so whatever the width is needs to be scaled accordingly
 		m_sScale.Width = m_pRow_Size->Width_get() * 1000 / (m_sizeScreen->Height * 16 / 9);
+		m_sizeScreen->Width = m_pRow_Size->Width_get() * 1000 / m_sScale.Width;
+	}
 
 	// See if we need to reduce the scaling because of borders around the screen
 	if( m_rSpacing.X || m_rSpacing.Width )
