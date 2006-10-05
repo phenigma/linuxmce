@@ -681,7 +681,7 @@ $installationID = (int)@$_SESSION['installationID'];
 					$rs=$dbADO->Execute($query,array($value,$deviceID,$elem));	
 
 					if(@$isOrbiter==1 && ($elem==$GLOBALS['UsealphablendedUI'] || $elem==$GLOBALS['UseOpenGLeffects']) && $dbADO->Affected_Rows()>0){
-						restartX($value);
+						restartX($value,getTopLevelParentIP($value,$dbADO));
 					}
 
 					if($elem==$GLOBALS['MobileOrbiterPhone']){

@@ -6110,9 +6110,9 @@ function processScreenSavers($orbiterID,$dbADO)
 	}
 }
 
-function restartX($orbiterID){
+function restartX($orbiterID,$IPAddress){
 	// todo for Razvan: put correct script here
-	exec_batch_command('/usr/pluto/bin/X-Restart.sh');
+	exec_batch_command('/usr/pluto/bin/X-Restart.sh '.$orbiterID.' '.$IPAddress);
 }
 
 function savePic($url,$path){

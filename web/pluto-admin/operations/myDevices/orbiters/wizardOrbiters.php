@@ -404,7 +404,7 @@ function wizardOrbiters($output,$dbADO) {
 
 							
 							if(($ddValue==$GLOBALS['UsealphablendedUI'] || $ddValue==$GLOBALS['UseOpenGLeffects']) && $dbADO->Affected_Rows()>0){
-								restartX($value);
+								restartX($value,getTopLevelParentIP($value,$dbADO));
 							}
 
 							
