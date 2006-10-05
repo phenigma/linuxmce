@@ -4,7 +4,7 @@
   	
   	// todo: set lang when translation is finished
   	$GLOBALS['lang']='en';
-  	$_SESSION['skin']=1;
+  	$_SESSION['skin']=0;
   	
   	if($GLOBALS['inDebug']!=1){
   		// production settings
