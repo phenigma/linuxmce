@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="PocketFrog"
 	ProjectGUID="{E17E75E6-23DD-4B25-AB07-D935E0CE7E46}"
 	RootNamespace="PocketFrog"
@@ -228,6 +228,7 @@
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
+				EnableFloatingPointEmulation="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -242,7 +243,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalDependencies="Aygshell.lib"
-				OutputFile="$(PlatformName)\$(ConfigurationName)\PocketFrog.lib"
+				OutputFile="..\lib\PocketFrog_ARM_Debug.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -497,7 +498,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(PlatformName)\$(ConfigurationName)\PocketFrog.lib"
+				OutputFile="..\lib\PocketFrog_ARM.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
