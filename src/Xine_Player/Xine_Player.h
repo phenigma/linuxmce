@@ -462,7 +462,7 @@ private:
 			{
 				if ((*i)->SendString(sString))
 				{
-					std::cout << "Sent timecode to " << (*i)->m_sHostName<<  std::endl;
+					g_pPlutoLogger->Write(LV_STATUS,"Sending time code %s to %s",sString.c_str(),(*i)->m_sHostName.c_str());
 				}
 				else
 				{

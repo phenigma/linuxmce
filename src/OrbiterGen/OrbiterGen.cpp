@@ -1691,7 +1691,8 @@ loop_to_keep_looking_for_objs_to_include:
 				try
 				{
 //if( oco->m_ObjectID.find("2211")!=string::npos )
-					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,oco,m_iRotation,cScaleMenuBg,cScaleOtherGraphics,((float) m_pRow_Size->ScaleX_get())/1000,((float) m_pRow_Size->ScaleY_get())/1000,m_bUseAlphaBlending,m_bUseMask);
+					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,oco,m_iRotation,cScaleMenuBg,cScaleOtherGraphics,
+						(float) m_sScale.Width/1000,(float) m_sScale.Height/1000,m_bUseAlphaBlending,m_bUseMask);
 					oco->HandleRotation(m_iRotation);
 				}
 				catch(string s)
