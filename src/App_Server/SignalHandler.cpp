@@ -1,6 +1,9 @@
 /*
  * This file compiles only under Linux. Under Windows it gives an error if included, and it's not useful there anyway
  */
+#ifndef __linux__
+#error "This file is meant to be compiled under Linux"
+#endif /*ifndef __linux__*/
 
 #include "SignalHandler.h"
 
