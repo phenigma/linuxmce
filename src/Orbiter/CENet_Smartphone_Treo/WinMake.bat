@@ -1,1 +1,1 @@
-devenv.exe /build %CONFIGURATION% Orbiter.vcproj /out %LOG_PATH%\Build.log 
+devenv.exe Orbiter.sln /rebuild %CONFIGURATION% /out %LOG_PATH%\Build_WM2005.log 
