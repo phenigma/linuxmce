@@ -273,6 +273,7 @@ background: #FF6666;
 }
 
 #menu a.topitem {
+font: bold 11px arial, helvetica, sans-serif;	
 color: #FFFFFF;
 background: #B80000;
 text-decoration: none;

@@ -265,13 +265,13 @@ float: left;
 }
 
 #menu a, #menu h2 {
-font: bold 11px/16px arial, helvetica, sans-serif;
+font: bold 11px arial, helvetica, sans-serif;
 display: block;
 border-width: 0px;
 border-style: solid;
 border-color: #36AF3B #36AF3B #78CB01 #36AF3B;
 margin: 0;
-padding: 2px 3px;
+padding: 3px 3px;
 }
 
 #menu h2 {
@@ -285,7 +285,6 @@ text-decoration: none;
 border-width: 1px;
 border-style: dotted;
 border-color: #36AF3B #36AF3B #78CB01 #36AF3B;
-
 }
 
 #menu a:hover {
@@ -294,6 +293,7 @@ background: #78CB01;
 }
 
 #menu a.topitem {
+font: bold 11px arial, helvetica, sans-serif;	
 color: #FFFFFF;
 background: #00A008;
 text-decoration: none;

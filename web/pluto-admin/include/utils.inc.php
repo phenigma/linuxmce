@@ -6195,7 +6195,7 @@ function generateTopMenu($website,$installationID,$dbADO)
 	foreach ($menuItems[0] AS $rootNode){
 		$menu.='
 		<ul id="nav">
-		  <li><h2><a class="topitem" href="'.((isset($GLOBALS['urlArray'][$rootNode]))?@$GLOBALS['urlArray'][$rootNode]:'').'" class="topurl">'.str_replace(' ','&nbsp;',$GLOBALS['labelArray'][$rootNode]).'</a></h2>
+		  <li><h2><a class="topitem" href="'.((isset($GLOBALS['urlArray'][$rootNode]) && $GLOBALS['urlArray'][$rootNode]!='')?@$GLOBALS['urlArray'][$rootNode]:'javascript:void(0);').'" class="topurl">'.str_replace(' ','&nbsp;',$GLOBALS['labelArray'][$rootNode]).'</a></h2>
 		  '.menuChildItems($rootNode,$menuItems).'
 		  </li>
 		  </ul>
@@ -6217,7 +6217,7 @@ function menuChildItems($parentNode,$menuItems){
 		<ul>';
 		foreach ($menuItems[$parentNode] AS $node){
 			$menu.='
-			<li><a href="'.((isset($GLOBALS['urlArray'][$node]))?@$GLOBALS['urlArray'][$node]:'').'">'.$GLOBALS['labelArray'][$node].'</a>'.menuChildItems($node,$menuItems).'</li>';
+			<li><a href="'.((isset($GLOBALS['urlArray'][$node]) && $GLOBALS['urlArray'][$node]!='')?@$GLOBALS['urlArray'][$node]:'javascript:void(0);').'">'.$GLOBALS['labelArray'][$node].'</a>'.menuChildItems($node,$menuItems).'</li>';
 		}
 		$menu.='
 		</ul>';
