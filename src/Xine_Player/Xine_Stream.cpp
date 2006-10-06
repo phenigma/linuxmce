@@ -174,6 +174,17 @@ bool Xine_Stream::ShutdownStream()
 		m_bInitialized = false; 
 	}
 	
+	// disabling OSD
+	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		
+		if (m_xine_osd_t)
+		{
+			xine_osd_free(m_xine_osd_t);
+			m_xine_osd_t = NULL;
+		}
+	}
+	
 	// stop the event thread first
 	if ( threadEventLoop )
 	{
@@ -416,6 +427,8 @@ bool Xine_Stream::InitXineAVOutput()
 		}
 	}
 	
+	
+	
 	// creating new queue
 	g_pPlutoLogger->Write( LV_STATUS, "Calling xine_event_new_queue" );
 	{
@@ -427,6 +440,15 @@ bool Xine_Stream::InitXineAVOutput()
 	xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 0 );
 	xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_DRAWABLE_CHANGED, ( void * ) windows[ m_iCurrentWindow ] );
 	xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 1 );
+	
+	// creating new osd panel
+	g_pPlutoLogger->Write( LV_STATUS, "Calling xine_osd_new" );
+	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		m_xine_osd_t = xine_osd_new( m_pXineStream, 0, 0, 1000, 100 );
+		xine_osd_set_font( m_xine_osd_t, "sans", 20 );
+		xine_osd_set_text_palette( m_xine_osd_t, XINE_TEXTPALETTE_WHITE_BLACK_TRANSPARENT, XINE_OSD_TEXT1 );		
+	}	
 	
 	return true;
 }
@@ -1359,6 +1381,8 @@ void Xine_Stream::DisplaySpeedAndTimeCode()
 
 void Xine_Stream::DisplayOSDText( string sText )
 {
+	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "DisplayOSDText called on non-initialized stream - aborting command");
@@ -1369,31 +1393,17 @@ void Xine_Stream::DisplayOSDText( string sText )
 	if ( sText.size() == 0 )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Clearing OSD %p", m_xine_osd_t );
-		
-		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-		if ( m_xine_osd_t )
-		{
-			xine_osd_free( m_xine_osd_t );
-			m_xine_osd_t = NULL;
-		}
-		return ;
-	}
-
-	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-	
-	if ( m_xine_osd_t )
-	{
-		xine_osd_free( m_xine_osd_t );
+		xine_osd_clear( m_xine_osd_t );
+		xine_osd_hide(m_xine_osd_t, 0);
+		return;
 	}
 	
-	m_xine_osd_t = xine_osd_new( m_pXineStream, 0, 0, 1000, 100 );
-	xine_osd_set_font( m_xine_osd_t, "sans", 20 );
-	xine_osd_set_text_palette( m_xine_osd_t, XINE_TEXTPALETTE_WHITE_BLACK_TRANSPARENT, XINE_OSD_TEXT1 );
+	g_pPlutoLogger->Write( LV_WARNING, "DisplayOSDText() : Attempting to display %s", sText.c_str() );
+	
+	xine_osd_clear( m_xine_osd_t );
 	xine_osd_draw_rect( m_xine_osd_t, 0, 0, 999, 99, XINE_OSD_TEXT1, 1 );
 	xine_osd_draw_text( m_xine_osd_t, 20, 20, sText.c_str(), XINE_OSD_TEXT1 );
 	xine_osd_show( m_xine_osd_t, 0 );
-
-	g_pPlutoLogger->Write( LV_WARNING, "DisplayOSDText() : Attempting to display %s", sText.c_str() );
 }
 
 void Xine_Stream::StartSpecialSeek( int Speed )
@@ -1822,6 +1832,10 @@ bool Xine_Stream::playStream( string mediaPosition)
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		changePlaybackSpeed( PLAYBACK_NORMAL );
 	}
+	
+	// hiding OSD panel
+	xine_osd_hide(m_xine_osd_t, 0);
+	
 	time_t startTime = time( NULL );
 
 	int Subtitle = -2, Angle = -2, AudioTrack = -2;
