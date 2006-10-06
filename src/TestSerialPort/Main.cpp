@@ -48,7 +48,8 @@ int main(int argc, char *argv[])
 
 	string sPort,sTransmitString,sSearchString,sMessage;
 	bool bHardwareFlowControl=false,bMonitorHardwareFlowControlOnly=false;
-	unsigned int iTimeout=30,iBaud=9600;
+	unsigned int iBaud=9600;
+	double fTimeout=30;
 	eParityBitStop _eParityBitStop = epbsN81;
 
 	bool bError=false;
@@ -81,7 +82,7 @@ int main(int argc, char *argv[])
 			sMessage = argv[++optnum];
 			break;
 		case 'i':
-			iTimeout = atoi(argv[++optnum]);
+			fTimeout = atof(argv[++optnum]);
 			break;
 		case 'b':
 			iBaud = atoi(argv[++optnum]);
@@ -115,7 +116,7 @@ int main(int argc, char *argv[])
 	char pBuffer[5000]="";
 	size_t sReceived=0;
 
-	g_pPlutoLogger->Write(LV_STATUS,"Starting: %s, port %s timeout %d",sMessage.c_str(),sPort.c_str(),iTimeout);
+	g_pPlutoLogger->Write(LV_STATUS,"Starting: %s, port %s timeout %f",sMessage.c_str(),sPort.c_str(),fTimeout);
 	try
 	{
 		CSerialPort serialPort(sPort,iBaud,_eParityBitStop,bHardwareFlowControl);
@@ -155,7 +156,7 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		sReceived = serialPort.Read(pBuffer,5000,iTimeout*1000);
+		sReceived = serialPort.Read(pBuffer,5000,(int)(fTimeout*1000));
 
 		if( sReceived==0 )
 			g_pPlutoLogger->Write(LV_STATUS,"recv: timeout, nothing received");
