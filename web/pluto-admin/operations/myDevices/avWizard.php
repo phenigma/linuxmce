@@ -24,7 +24,7 @@ function avWizard($output,$dbADO) {
 	$categoriesArray=getDescendantsForCategory($deviceCategory,$dbADO);
 	
 	// get associative array with rooms
-	$roomArray=getAssocArray('Room','PK_Room','Description',$dbADO,'','ORDER BY Description ASC');
+	$roomArray=getAssocArray('Room','PK_Room','Description',$dbADO,'WHERE FK_Installation='.$installationID,'ORDER BY Description ASC');
 
 	// get associative array with entertain areas and add "all entertain areas" to it
 	$entAreas=getAssocArray('EntertainArea','PK_EntertainArea','EntertainArea.Description',$dbADO,'INNER JOIN Room ON FK_Room=PK_Room WHERE FK_Installation='.$installationID,'ORDER BY EntertainArea.Description ASC');
@@ -257,8 +257,11 @@ function avWizard($output,$dbADO) {
 						<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\''.$TEXT_DELETE_DEVICE_CONFIRMATION_CONST.'\'))return true;else return false;">
 				</td>';
 //				$controlledByPulldown=controlledViaPullDown('controlledBy_'.$rowD['PK_Device'],$rowD['PK_Device'],$rowD['FK_DeviceTemplate'],$rowD['FK_DeviceCategory'],$rowD['FK_Device_ControlledVia'],$dbADO);
-	
-				$controlledViaLink='<a href="javascript:windowOpen(\'index.php?section=editDeviceControlledVia&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');" title="'.$TEXT_CLICK_TO_CHANGE_CONST.'">'.((is_null($rowD['FK_Device_ControlledVia']))?$TEXT_EDIT_CONST:$rowD['PDescription']).'</a>';
+
+
+				$controlledViaLink='
+				<input type="hidden" name="controlledBy_'.$rowD['PK_Device'].'" value="'.$rowD['FK_Device_ControlledVia'].'">		
+				<a href="javascript:windowOpen(\'index.php?section=editDeviceControlledVia&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');" title="'.$TEXT_CLICK_TO_CHANGE_CONST.'">'.((is_null($rowD['FK_Device_ControlledVia']))?$TEXT_EDIT_CONST:$rowD['PDescription']).'</a>';
 				$devicePipes=getPipes($rowD['PK_Device'],$dbADO);
 	
 				unset($GLOBALS['DeviceIDControlledVia']);
