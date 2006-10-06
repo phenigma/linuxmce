@@ -29,6 +29,31 @@ struct MonitoredDir
 typedef list<MonitoredDir> listOfMonitoredDirs;
 typedef list<string> listOfStrings;
 
+void SetAccessRights(const string & sPath)
+{
+	static group * grent = getgrnam("www-data");
+	struct stat st;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Setting access rights on '%s'", sPath.c_str());
+	
+	if (grent != NULL)
+	{
+		chown(sPath.c_str(), -1, grent->gr_gid);
+	}
+
+	stat(sPath.c_str(), &st);
+	if (S_ISDIR(st.st_mode))
+	{
+		// it's a directory
+		chmod(sPath.c_str(), 0770);
+	}
+	else
+	{
+		// it's a file
+		chmod(sPath.c_str(), 0660);
+	}
+}
+
 bool DirIsWatched(listOfMonitoredDirs & listMonitoredDirs, string sDirectory)
 {
 	for (listOfMonitoredDirs::iterator it_lOMD = listMonitoredDirs.begin(); it_lOMD != listMonitoredDirs.end(); it_lOMD++)
@@ -85,6 +110,13 @@ void WatchDir(listOfMonitoredDirs & listMonitoredDirs, const string & sDirectory
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Watching directory '%s'", sDirectory.c_str());
 
+	listOfStrings listFiles;
+	FileUtils::FindFiles(listFiles, sDirectory, "*.*");
+	for (listOfStrings::iterator it_lOS = listFiles.begin(); it_lOS != listFiles.end(); it_lOS++)
+	{
+		SetAccessRights(sDirectory + "/" + *it_lOS);
+	}
+
 	MonitoredDir struct_MonitoredDir;
 	struct_MonitoredDir.m_sPath = sDirectory;
 	struct_MonitoredDir.m_iWD = obj_Inotify.watch(sDirectory, IN_CREATE | IN_IGNORED);
@@ -94,7 +126,6 @@ void WatchDir(listOfMonitoredDirs & listMonitoredDirs, const string & sDirectory
 
 void OperateFile(listOfMonitoredDirs & listMonitoredDirs, inotify & obj_Inotify, cpp_inotify_event & event)
 {
-	static group * grent = getgrnam("www-data");
 	struct stat st;
 
 	listOfMonitoredDirs::iterator it_lOMD = FindWatchedDir(listMonitoredDirs, event.wd);
@@ -112,22 +143,12 @@ void OperateFile(listOfMonitoredDirs & listMonitoredDirs, inotify & obj_Inotify,
 		return;
 	}
 
-	if (grent != NULL)
-	{
-		chown(sPath.c_str(), -1, grent->gr_gid);
-	}
+	SetAccessRights(sPath);
 
 	stat(sPath.c_str(), &st);
 	if (S_ISDIR(st.st_mode))
 	{
-		// a directory was created
-		chmod(sPath.c_str(), 0770);
 		WatchDir(listMonitoredDirs, sPath, obj_Inotify);
-	}
-	else
-	{
-		// a file was created
-		chmod(sPath.c_str(), 0660);
 	}
 }
 
