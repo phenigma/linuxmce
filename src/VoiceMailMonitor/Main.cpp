@@ -54,7 +54,7 @@ void SetAccessRights(const string & sPath)
 	}
 }
 
-bool DirIsWatched(listOfMonitoredDirs & listMonitoredDirs, string sDirectory)
+bool DirIsWatched(listOfMonitoredDirs & listMonitoredDirs, const string & sDirectory)
 {
 	for (listOfMonitoredDirs::iterator it_lOMD = listMonitoredDirs.begin(); it_lOMD != listMonitoredDirs.end(); it_lOMD++)
 	{
