@@ -27,8 +27,8 @@ cd "c:\pluto.makerelease\trunk\src"
 call "MakeRelease_WindowsCE.bat"
 
 echo Building pluto(windows ce) sources...
-cd "c:\pluto.makerelease\trunk\src"
-call "MakeRelease_Windows2005.bat"
+echo cd "c:\pluto.makerelease\trunk\src"
+echo call "MakeRelease_Windows2005.bat"
 
 cd "c:\pluto.makerelease\trunk\src\bin"
 copy Orbiter.exe Orbiter_Win32.dat
@@ -76,8 +76,8 @@ cd "c:\pluto.makerelease\trunk\src\Orbiter\CENet_Smartphone"
 call "build_cab.bat"
 
 echo SMARTPHONE_TREO
-cd "c:\pluto.makerelease\trunk\src\Orbiter\CENet_Smartphone_Treo"
-call "build_cab.bat"
+echo cd "c:\pluto.makerelease\trunk\src\Orbiter\CENet_Smartphone_Treo"
+echo call "build_cab.bat"
 
 echo XP
 cd C:\pluto.makerelease\trunk\installers\Installers\Orbiter
