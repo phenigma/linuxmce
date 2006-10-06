@@ -36,7 +36,7 @@ fi
 
 ## Create a temporary mount diretory where we can test the share mounts
 tempMntDir=/tmp/mnt/$pid
-mkdir $tempMntDir
+mkdir -p $tempMntDir
 
 ## Get a list of samba shares exported by this device
 for share in $(smbclient --no-pass --list=//$Device_IP  --grepable | grep "^Disk" | cut -d'|' -f2) ;do
@@ -49,9 +49,9 @@ for share in $(smbclient --no-pass --list=//$Device_IP  --grepable | grep "^Disk
 	if [[ "$success" == "0" ]] ;then
 
 		## We umount the share from the temp dir
-		umount $tempMntDir
+		umount -f -l $tempMntDir
 		## And notify the router about our succes so he wouldn't ask the user for password
-		/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0" $DD_SHARE "$share"
+		/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share"
 
 	## If the mound didn't succed without a user password
 	else
@@ -67,7 +67,7 @@ for share in $(smbclient --no-pass --list=//$Device_IP  --grepable | grep "^Disk
 
 		
 		if [[ $success ]] ;then
-			umount $tempMntDir
+			umount -f -l $tempMntDir
 			/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Device_Username|$DD_PASSWORD|$Device_Password"
 		else
 			/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|1|$DD_SHARE|$share"

@@ -90,7 +90,7 @@ case "$Template" in
 				Parent.IPaddress 
 			FROM 
 				Device Child
-				LEFT JOIN Device Parent ON Parent.FK_Device = Child.FK_Device_ControledVia
+				LEFT JOIN Device Parent ON Parent.PK_Device = Child.FK_Device_ControlledVia
 			WHERE 
 				Child.PK_Device = '$StorageDevice'
 			LIMIT 1
@@ -124,7 +124,7 @@ case "$Template" in
 		
 		## Do the mount
 		if [[ "$Username" == "" || "$Username" == "guest" ]] ;then
-			echo "-fstype=smbfs,guest,dmask=777,fmask=777 ://${IPaddress}/{$Share}"
+			echo "-fstype=smbfs,guest,dmask=777,fmask=777 ://${IPaddress}/${Share}"
 		else
 			echo "-fstype=smbfs,username=$Username,password=$Password,dmask=777,fmask=777 ://${IPaddress}/${Share}"
 		fi

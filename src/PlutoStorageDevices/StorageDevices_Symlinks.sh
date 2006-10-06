@@ -21,7 +21,7 @@ DD_USERS=3
 find /home/ -lname "*/mnt/device/*" -print0 | xargs -0 rm -f
 
 ## Lookup our internal storage devices in the db
-Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_BUFFALO_HDHG300LAN, $TPL_GENERIC_SAMBA_SHARE, $TPL_GENERIC_NFS_SHARE)"
+Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_GENERIC_SAMBA_SHARE, $TPL_GENERIC_NFS_SHARE)"
 InternalOwnStorageDevices=$(RunSQL "$Q")
 
 for Device in $InternalOwnStorageDevices; do
