@@ -42,18 +42,13 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "VFD_LCD/VFD_LCD_Base.h"
 
+#include "SignalHandler.h"
 
 #ifndef WIN32
 //#include "utilities/linux/RatpoisonHandler.h"
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#endif
-
-#include <signal.h>
-#include <sys/types.h>
-#ifndef WIN32
-#include <sys/wait.h>
 #endif
 
 #ifdef WIN32
@@ -71,40 +66,6 @@ void EnablePrivileges()
 }
 #endif
 
-#ifndef WIN32 // we only have signals on Linux and hte global var is only used there. so we ifndef it..
-App_Server *g_pAppServer = NULL;
-extern Command_Impl *g_pCommand_Impl;
-
-void sh(int i) /* signal handler */
-{
-	if ( g_pAppServer && g_pAppServer->m_bQuit )
-		return;
-
-	int status = 0;
-	pid_t pid = 0;
-
-	// wait for all children that exited, not just one of them
-	// why: SIGCHLD is a POSIX standard signal, thus if a few children die very fast, we don't get one SIGCHLD per child
-	//      we only get the first one, and if a child dies while we're in the handler, only one instance is queued
-	//      not doing this, we risk leaving zombies behind in certain high-load situations
-	// thanks go to the RLUG mailing list for the pointer
-	while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
-	{
-		if (g_pAppServer)
-		{
-			int ExitStatus = WEXITSTATUS(status);
-			int Signal = WIFSIGNALED(status) ? WTERMSIG(status) : 0;
-			
-			g_pPlutoLogger->Write(LV_STATUS, "SIGCHLD -- PID %d; Return code: %d; Signal: %d", pid, ExitStatus, Signal);
-			// Send ourselves a message that calls the ApplicationExited function
-			// We don't call it directly to avoid a deadlock if the SIGCHLD signal was received while in ProcessUtils::SpawnApplication
-			DCE::CMD_Application_Exited CMD_Application_Exited(g_pAppServer->m_dwPK_Device, g_pAppServer->m_dwPK_Device, pid, ExitStatus);
-			g_pAppServer->SendCommand(CMD_Application_Exited);
-		}
-	}
-}
-#endif
-
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -116,10 +77,6 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
     pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
 	m_AppMutex.Init(&m_MutexAttr);
 	m_bLastMute=false;
-
-#ifndef WIN32
-	g_pAppServer = this;
-#endif
 }
 
 //<-dceag-getconfig-b->
@@ -142,7 +99,7 @@ bool App_Server::GetConfig()
 		g_pPlutoLogger->Write(LV_STATUS, "ALSA Master volume: %d", m_iLastVolume);
 	}
 
-    signal(SIGCHLD, sh); /* install signal handler */
+	SignalHandler_Start(this);
 #endif
 
 	return true;
@@ -540,7 +497,7 @@ void App_Server::DisplayMessageOnOrbVFD(string sMessage)
 void App_Server::KillSpawnedDevices()
 {
 #ifndef WIN32
-	signal(SIGCHLD, SIG_IGN);
+	SignalHandler_Stop();
 #endif
 	App_Server_Command::KillSpawnedDevices();
 
