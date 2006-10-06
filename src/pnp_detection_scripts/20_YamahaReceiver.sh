@@ -14,7 +14,7 @@ ManufactReadyCommand="\s1000m\11000\03\s1000m\11000\03"
 ManufactConfigRecon="\12"
 
 
-GsdResponse=`/usr/pluto/bin/TestSerialPort -p /dev/ttyUSB2 -P N81 -b 9600 -t ${ManufactReadyCommand} -i 3 -s ${ManufactConfigRecon}`
+GsdResponse=`/usr/pluto/bin/TestSerialPort -p $3 -P N81 -b 9600 -t ${ManufactReadyCommand} -i 3 -s ${ManufactConfigRecon}`
 
 if [[ "$?" -ne 0 ]]; then
 	echo "It's not a Yamaha Receiver"

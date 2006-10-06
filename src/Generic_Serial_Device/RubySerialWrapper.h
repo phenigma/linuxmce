@@ -33,7 +33,7 @@ namespace DCE {
 /**
 @author Igor Spac,,,
 */
-class RubySerialWrapper{
+class RubySerialWrapper {
 public:
     RubySerialWrapper();
     ~RubySerialWrapper();
