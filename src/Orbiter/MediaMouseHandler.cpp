@@ -46,7 +46,7 @@ void MediaMouseHandler::Start()
 	g_pPlutoLogger->Write(LV_STATUS,"MediaMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
 #endif
 
-	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
+	if( true ) // for now just do it the one way, the absolute seeking was too tough.  m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{
 		m_bTapAndRelease=true;
 		m_pMouseBehavior->SetMousePosition(pObj_Grid->m_rPosition.X + pObj_Grid->m_pPopupPoint.X + (pObj_Grid->m_rPosition.Width/2),

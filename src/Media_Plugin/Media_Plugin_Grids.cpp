@@ -155,6 +155,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		sPath_Back = posLastPath<3 ? "" : sPK_Sources.substr(2,posLastPath-3);
 		bFile=true;
 		bSubDirectory=true;
+		pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("back (..)",sPath_Back,0,true,true) );
 	}
 	else
 	{
@@ -251,8 +252,6 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
     if( (bJukebox || bLocalDisc) && ( resultd.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Disc + sSQL_Where ) ) )
         while( ( row=mysql_fetch_row( resultd.r ) ) )
 			sPK_Disc += row[0] + string(",");
-string xxx=sSQL_File + sSQL_Where + " AND Missing=0 " + (sPath.size() ? " AND Path in (" + sPath + ")" : "");
-FileUtils::WriteBufferIntoFile("/temp.sql",xxx.c_str(),xxx.size());
 
 	// Find all the pictures for the files and discs
 	map<int,int> mapFile_To_Pic,mapDisc_To_Pic;
@@ -346,10 +345,6 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 		sSQL_Sort = "SELECT PK_File,'',Name,0 FROM File JOIN File_Attribute ON FK_File=PK_File JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Title_CONST) "," TOSTRING(ATTRIBUTETYPE_Song_CONST) ") WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ")";
 	else
 		sSQL_Sort = "SELECT PK_File,'',Name,0 FROM File JOIN File_Attribute ON FK_File=PK_File JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ")";
-
-	if( bSubDirectory )
-		pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("back (..)",sPath,0,true,true) );
-FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
 
     PlutoSqlResult result;
     MYSQL_ROW row;

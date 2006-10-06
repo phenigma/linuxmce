@@ -39,6 +39,7 @@ public:
 
 	CommandGroup(CommandGroupArray *pCommandGroupArray,Row_CommandGroup *pRow_CommandGroup);
 	~CommandGroup();
+	void Flush();  // Called just before it's deleted so we can flush changes, then call reset_psc_mod, then delete
 	void AddCommand(int PK_Device,int PK_Command,int iOrder,int NumParms,...);
 	void Commit();
 };

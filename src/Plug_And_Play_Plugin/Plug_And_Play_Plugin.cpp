@@ -281,7 +281,7 @@ class DataGridTable *Plug_And_Play_Plugin::PNPDevices( string GridID, string Par
 	{
 		pCell = new DataGridCell( pRow_DeviceTemplate->Description_get(), "-1" );
         pDataGrid->SetData( 0, 0, pCell );
-		g_pPlutoLogger->Write(LV_CRITICAL, "Plug_And_Play_Plugin::PNPDevices Parms=%s returning sole device template %d %s", Parms.c_str(),pRow_DeviceTemplate->PK_DeviceTemplate_get(),pRow_DeviceTemplate->Description_get().c_str());
+		g_pPlutoLogger->Write(LV_WARNING, "Plug_And_Play_Plugin::PNPDevices Parms=%s returning sole device template %d %s", Parms.c_str(),pRow_DeviceTemplate->PK_DeviceTemplate_get(),pRow_DeviceTemplate->Description_get().c_str());
 		return pDataGrid;
 	}
 
