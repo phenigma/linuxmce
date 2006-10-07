@@ -109,23 +109,6 @@ void PostCreateOptions::PostCreateDevice_Cameras(Row_Device *pRow_Device, OH_Orb
 	g_pPlutoLogger->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_Cameras device  %d template %d",
 		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get());
 #endif
-	Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),0);
-	if( pRow_Device_DeviceData && pRow_Device_DeviceData->IK_DeviceData_get().size() )
-	{
-		string sDevices = pRow_Device_DeviceData->IK_DeviceData_get();
-		string::size_type pos=0;
-		while(pos<sDevices.size())
-		{
-			int PK_Device = atoi(StringUtils::Tokenize(sDevices,",",pos).c_str());
-			if( PK_Device )
-			{
-				Row_Device_Device_Related *pDevice_Device_Related = m_pDatabase_pluto_main->Device_Device_Related_get()->AddRow();
-				pDevice_Device_Related->FK_Device_set(pRow_Device->PK_Device_get());
-				pDevice_Device_Related->FK_Device_Related_set(PK_Device);
-			}
-		}
-		m_pDatabase_pluto_main->Device_Device_Related_get()->Commit();
-	}
 }
 
 void PostCreateOptions::PostCreateDevice_DisklessMD(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)

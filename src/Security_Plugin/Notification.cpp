@@ -158,7 +158,7 @@ bool Notification::NotifyLoop(int iType,bool bProcessInBackground)
 		// Temporary hack until we get a good dialing rule set up
 		StringUtils::Replace(&sPhoneNumber,",","");
 		StringUtils::Replace(&sPhoneNumber," ","");
-		if( sPhoneNumber[0]!='9' )
+		if( sPhoneNumber.size()>2 && sPhoneNumber[0]!='9' )
 			if( sPhoneNumber[1]!='1' )
 				sPhoneNumber = "91" + sPhoneNumber;
 			else
@@ -227,6 +227,12 @@ bool Notification::NotifyOther(string sPhoneNumber,int iDelay)
 
 bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNotifyOrbiter)
 {
+	if( sPhoneNumber.empty() )
+	{
+        g_pPlutoLogger->Write(LV_WARNING, "Notification::ExecuteNotification Unable to notify user with no phone number");
+        return false;
+	}
+
     long nAlertType = m_pRow_Alert->FK_AlertType_get();
     string sCallerID = bNotifyOrbiter ? GenerateCallerID(nAlertType) : ""; //no caller id for the others
     string sWavFileName = GenerateWavFile(nAlertType, m_pRow_Alert->EK_Device_get());

@@ -608,7 +608,7 @@ g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_F
 			DCE::SCREEN_New_Pnp_Device_One_Possibility_DL SCREEN_New_Pnp_Device_One_Possibility_DL(m_pPlug_And_Play_Plugin->m_dwPK_Device, pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, 
 				PK_Room,
 				pRow_DHCPDevice->PK_DHCPDevice_get(),
-				pRow_DeviceTemplate->Description_get(),
+				GetDescription(pPnpQueueEntry),
 				sRoom,
 				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 			m_pPlug_And_Play_Plugin->SendCommand(SCREEN_New_Pnp_Device_One_Possibility_DL);
@@ -655,12 +655,16 @@ bool PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script(PnpQueueEntry *pPnpQu
 					pRow_DeviceTemplate_DeviceData->IK_DeviceData_get(), "prepnp_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),
 					StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + "\t" + StringUtils::itos(m_pPlug_And_Play_Plugin->m_dwPK_Device),
 					"","",false,false,false);
-				m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application);
-				pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_pre_pnp_script);
-				return false;
+				if( m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application)==false )
+					g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script queue %d failed -- aborting",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+				else
+				{
+					pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_pre_pnp_script);
+					return false;
+				}
 			}
 			else
-				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script no app server");
+				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script queue %d no app server",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 		}
 	}
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT);
@@ -1195,10 +1199,16 @@ void PnpQueue::SetDisableFlagForDeviceAndChildren(Row_Device *pRow_Device,bool b
 	pRow_Device->Disabled_set(bDisabled ? 1 : 0);
 
 	// If this is a usb->serial device, something else may get plugged in to the old port, so be sure
-	// to clear out the serial number
+	// to clear out the serial number.  By default we'll do this for everything, if a device should
+	// keep the serial number, set the DEVICEDATA_Keep_Serial_Number_On_Disable_CONST for the template to 1, 
+	// but be sure nothing else will use the same serial number as happens a lot
 	Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
-	if( bDisabled && pRow_DeviceTemplate && pRow_DeviceTemplate->FK_CommMethod_get()==COMMMETHOD_RS232_CONST )
-		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,"");
+	if( bDisabled && pRow_DeviceTemplate )
+	{
+		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(),DEVICEDATA_Keep_Serial_Number_On_Disable_CONST);
+		if( pRow_DeviceTemplate_DeviceData==NULL || atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str())==0 )
+			DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,"");
+	}
 
 	vector<Row_Device *> vectRow_Device;
 	pRow_Device->Device_FK_Device_ControlledVia_getrows(&vectRow_Device);

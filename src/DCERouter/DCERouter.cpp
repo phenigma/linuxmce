@@ -2346,9 +2346,10 @@ void Router::Configure()
 			Row_Device_Device_Related *pRow_Device_Device_Related = vectRow_Device_Device_Related[s];
 			DeviceData_Router *pDevice_Related = m_mapDeviceData_Router_Find(pRow_Device_Device_Related->FK_Device_Related_get());
 			if( pDevice_Related )
+			{
 				pDevice->m_mapDeviceRelation[pDevice_Related->m_dwPK_Device] = new DeviceRelation(pDevice_Related,pRow_Device_Device_Related->Value_get());
-
-
+				pDevice_Related->m_mapDeviceRelation[pDevice->m_dwPK_Device] = new DeviceRelation(pDevice,pRow_Device_Device_Related->Value_get());
+			}
 		}
         DeviceData_Router *pDevice_RouteTo = m_mapDeviceData_Router_Find(pDevice->m_pRow_Device->FK_Device_RouteTo_get());
         if( pDevice_RouteTo )

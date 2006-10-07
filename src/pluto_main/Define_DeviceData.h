@@ -159,6 +159,8 @@
 #define DEVICEDATA_Lineup_CONST 181
 #define DEVICEDATA_Password_Required_CONST 182
 #define DEVICEDATA_Pre_Pnp_Script_CONST 183
+#define DEVICEDATA_Keep_Serial_Number_On_Disable_CONST 184
+#define DEVICEDATA_sPK_Device_Relations_For_Create_CONST 185
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

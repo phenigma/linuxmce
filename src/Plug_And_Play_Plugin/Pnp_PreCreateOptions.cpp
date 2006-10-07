@@ -157,8 +157,8 @@ bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Ro
 		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
 
-	// We just store the relations as lights\tsensors in device data 0 as a temporary holding place.  Post Create options will fix this up
-	if( pPnpQueueEntry->m_mapPK_DeviceData.find(0)==pPnpQueueEntry->m_mapPK_DeviceData.end() )
+	// Be sure the user specified the related cameras and lights
+	if( pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_sPK_Device_Relations_For_Create_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() )
 	{
 		string sOptions = (bHasSensors && bHasLights ? "3" : (bHasLights ? "1" : "2"));
 		if( pPnpQueueEntry->m_pOH_Orbiter )

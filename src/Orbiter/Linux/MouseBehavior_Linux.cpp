@@ -48,6 +48,7 @@ OrbiterLinux * MouseBehavior_Linux::ptrOrbiterLinux()
 
 void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 {
+iterate through list of pending mouse clicks and see if that works???
 	MouseBehavior::SetMousePosition(X,Y);
     g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::SetMousePosition() : Moving mouse (relative %d,%d)",X,Y);
     ptrOrbiterLinux()->m_pX11->Mouse_SetPosition(X, Y);

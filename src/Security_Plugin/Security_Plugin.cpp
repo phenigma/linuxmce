@@ -113,6 +113,7 @@ Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnec
 	m_pDatabase_pluto_security=NULL;
 	m_pDeviceData_Router_this=NULL;
 	m_pAlarmManager=NULL;
+	m_bBabySitterMode = false;
 }
 
 //<-dceag-getconfig-b->
@@ -1007,7 +1008,7 @@ void Security_Plugin::SnapPhoto(Row_Alert_Device *pRow_Alert_Device,DeviceData_R
 	{
 		DeviceRelation *pDeviceRelation = (*it).second;
 		DeviceData_Router *pDevice_Camera = pDeviceRelation->m_pDevice;
-		if( pDevice_Camera->m_dwPK_DeviceCategory!=DEVICECATEGORY_Surveillance_Cameras_CONST )
+		if( pDevice_Camera->WithinCategory(DEVICECATEGORY_Surveillance_Cameras_CONST)==false )
 			continue;
 
 		char *pData=NULL;
@@ -1016,7 +1017,7 @@ void Security_Plugin::SnapPhoto(Row_Alert_Device *pRow_Alert_Device,DeviceData_R
 		DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame(m_dwPK_Device,pDevice_Camera->m_dwPK_Device,"",0,0,0,&pData,&iData_Size,&sFormat);
 		if( SendCommand(CMD_Get_Video_Frame) && iData_Size )
 		{
-			string sFile = DATA_Get_Path() + "/alert_" + StringUtils::itos(pRow_Alert_Device->PK_Alert_Device_get()) + "." + sFormat;
+			string sFile = DATA_Get_Path() + "/alert_" + StringUtils::itos(pRow_Alert_Device->PK_Alert_Device_get()) + "_cam" + StringUtils::itos(pDevice_Camera->m_dwPK_Device) + "." + sFormat;
 			FILE *pFile = fopen( sFile.c_str(),"wb");
 			if( pFile )
 			{

@@ -278,6 +278,8 @@ string PnpQueueEntry::StageAsText()
 		return "Confirming";
 	case PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT:
 		return "Options";
+	case PNP_DETECT_STAGE_RUNNING_PRE_PNP_SCRIPT:
+		return "Pre PNP Script";
 	case PNP_DETECT_STAGE_ADD_DEVICE:
 		return "Adding";
 	case PNP_DETECT_STAGE_ADD_SOFTWARE:

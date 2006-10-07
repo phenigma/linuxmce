@@ -237,9 +237,18 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 			int PK_DeviceData = atoi(StringUtils::Tokenize(sDeviceData,"|",pos).c_str());
 			string sValue = StringUtils::Tokenize(sDeviceData,"|",pos);
 			AssignDeviceData(PK_Device,PK_DeviceData,sValue);
+
+			if( PK_DeviceData==DEVICEDATA_sPK_Device_Relations_For_Create_CONST )
+			{
+				vector<string> vectDevices;
+				StringUtils::Tokenize(sValue,"\t",vectDevices);
+				for(vector<string>::iterator it=vectDevices.begin();it!=vectDevices.end();++it)
+					CreateRelation(PK_Device,atoi(it->c_str()));
+			}
 		}
 	}
-	// Now we've got to see if we have any children we need to create automatically, first by the category
+
+    // Now we've got to see if we have any children we need to create automatically, first by the category
 	CreateChildrenByCategory(PK_Device,iPK_DeviceCategory);
 	CreateChildrenByTemplate(PK_Device,iPK_DeviceTemplate);
 	ConfirmRelations(PK_Device);
@@ -570,6 +579,18 @@ void CreateDevice::AssignDeviceData(int PK_Device,int PK_DeviceData,string sValu
 		+ StringUtils::SQLEscape(sValue) + "' WHERE "
 		"FK_Device=" + StringUtils::itos(PK_Device) + 
 		" AND FK_DeviceData=" + StringUtils::itos(PK_DeviceData) );
+}
+
+void CreateDevice::CreateRelation(int PK_Device,int PK_Device_Related)
+{
+	string SQL = "SELECT FK_Device FROM Device_Device_Related WHERE FK_Device="
+		+ StringUtils::itos(PK_Device) + " AND FK_Device_Related=" + StringUtils::itos(PK_Device_Related);
+
+	PlutoSqlResult result1;
+	result1.r=mysql_query_result( SQL );
+	if( !result1.r || result1.r->row_count==0 )
+		threaded_mysql_query("INSERT INTO Device_Device_Related(FK_Device,FK_Device_Related) "
+			"VALUES(" + StringUtils::itos(PK_Device) + "," + StringUtils::itos(PK_Device_Related) + ");",true);
 }
 
 void CreateDevice::FixControlledViaIfEmbeddedIsMoreValid(int PK_DeviceTemplate,int &PK_Device_ControlledVia)

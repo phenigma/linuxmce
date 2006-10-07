@@ -1457,13 +1457,14 @@ void ScreenHandler::SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, string sOpti
 bool ScreenHandler::Sensors_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
-string x1=m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST);
-string x2=m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST);
 	if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butSetVisibleSensors_CONST )
 	{	
-string x3a=m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST);
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST) + m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST)); 
-string x3=m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST);
+		string sExisting=m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST);
+		if( sExisting.empty()==false && sExisting[ sExisting.size()-1 ]!='|' )
+			sExisting += "|";
+		sExisting += m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST);
+
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, sExisting); 
 		if( atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST).c_str())==DEVICECATEGORY_Lighting_Device_CONST && atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_3_CONST).c_str()) & 2 )
 		{
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(DEVICECATEGORY_Security_Device_CONST));
@@ -1472,8 +1473,9 @@ string x3=m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST);
 		}
 		else
 		{
+			StringUtils::Replace(&sExisting,"|","\t");  // Per CreateDevice::DoIt relations are tab separated
 			DCE::CMD_Set_Pnp_Options CMD_Set_Pnp_Options(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_PlugAndPlayPlugIn,
-				m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST),0,atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST).c_str()));
+				sExisting,DEVICEDATA_sPK_Device_Relations_For_Create_CONST,atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST).c_str()));
 			m_pOrbiter->SendCommand(CMD_Set_Pnp_Options);
 			m_pOrbiter->CMD_Remove_Screen_From_History(m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 		}
