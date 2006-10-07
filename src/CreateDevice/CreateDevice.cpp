@@ -238,7 +238,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 			string sValue = StringUtils::Tokenize(sDeviceData,"|",pos);
 			AssignDeviceData(PK_Device,PK_DeviceData,sValue);
 
-			if( PK_DeviceData==DEVICEDATA_sPK_Device_Relations_For_Create_CONST )
+			if( PK_DeviceData==DEVICEDATA_sPK_Device_Relations_For_Creat_CONST )
 			{
 				vector<string> vectDevices;
 				StringUtils::Tokenize(sValue,"\t",vectDevices);

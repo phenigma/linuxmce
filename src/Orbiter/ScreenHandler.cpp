@@ -1475,7 +1475,7 @@ bool ScreenHandler::Sensors_ObjectSelected(CallBackData *pData)
 		{
 			StringUtils::Replace(&sExisting,"|","\t");  // Per CreateDevice::DoIt relations are tab separated
 			DCE::CMD_Set_Pnp_Options CMD_Set_Pnp_Options(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_PlugAndPlayPlugIn,
-				sExisting,DEVICEDATA_sPK_Device_Relations_For_Create_CONST,atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST).c_str()));
+				sExisting,DEVICEDATA_sPK_Device_Relations_For_Creat_CONST,atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST).c_str()));
 			m_pOrbiter->SendCommand(CMD_Set_Pnp_Options);
 			m_pOrbiter->CMD_Remove_Screen_From_History(m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 		}

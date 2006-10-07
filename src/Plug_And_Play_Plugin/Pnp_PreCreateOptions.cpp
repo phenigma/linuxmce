@@ -158,7 +158,7 @@ bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Ro
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
 
 	// Be sure the user specified the related cameras and lights
-	if( pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_sPK_Device_Relations_For_Create_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() )
+	if( pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_sPK_Device_Relations_For_Creat_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() )
 	{
 		string sOptions = (bHasSensors && bHasLights ? "3" : (bHasLights ? "1" : "2"));
 		if( pPnpQueueEntry->m_pOH_Orbiter )
