@@ -17,13 +17,17 @@ using namespace DCE;
 MediaMouseHandler::MediaMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior)
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"MouseHandler const %p",this);
+#endif
 	m_pDatagridMouseHandlerHelper = new DatagridMouseHandlerHelper(this);
 }
 
 MediaMouseHandler::~MediaMouseHandler()
 {
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"MouseHandler dest %p",this);
+#endif
 	delete m_pDatagridMouseHandlerHelper;
 }
 

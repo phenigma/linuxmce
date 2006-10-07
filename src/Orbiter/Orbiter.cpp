@@ -839,7 +839,9 @@ g_PlutoProfiler->DumpResults();
 			if(ScreenHistory::m_bAddToHistory)
 			{
 				m_listScreenHistory.push_back( m_pScreenHistory_Current );
+#ifdef DEBUG
 				g_pPlutoLogger->Write(LV_WARNING, "m_listScreenHistory Adding to screens history list screen %d size %d", m_pScreenHistory_Current->PK_Screen(),(int) m_listScreenHistory.size());
+#endif
 			}
 
 			if ( m_listScreenHistory.size(  ) > 64 )
@@ -7042,7 +7044,9 @@ PlutoPopup *Orbiter::FindPopupByName(DesignObj_Orbiter *pObj,string sName)
 void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string sName,bool bExclusive,bool bDont_Auto_Hide,string &sCMD_Result,Message *pMessage)
 //<-dceag-c397-e->
 {
-	g_pPlutoLogger->Write(LV_CRITICAL,"show popup %s/%s",sName.c_str(),sPK_DesignObj.c_str());
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"show popup %s/%s",sName.c_str(),sPK_DesignObj.c_str());
+#endif
 
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 

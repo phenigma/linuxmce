@@ -59,7 +59,9 @@ MediaBrowserMouseHandler::~MediaBrowserMouseHandler()
 
 void MediaBrowserMouseHandler::Start()
 {
+#ifdef DEBUG
     g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Start()");
+#endif
 	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 	m_LastRow=-1;
 	m_pDatagridMouseHandlerHelper->Start(m_pObj_ListGrid,5,1,m_pMouseBehavior->m_pOrbiter->m_iImageHeight-1);
@@ -67,7 +69,9 @@ void MediaBrowserMouseHandler::Start()
 
 void MediaBrowserMouseHandler::Stop()
 {
+#ifdef DEBUG
     g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Stop()");
+#endif
 	m_pDatagridMouseHandlerHelper->Stop();
 }
 
@@ -96,8 +100,9 @@ bool MediaBrowserMouseHandler::ButtonUp(int PK_Button)
 
 void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 {
-    g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d)", X, Y, PK_Direction);
-
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d)", X, Y, PK_Direction);
+#endif
 	if( m_pMouseBehavior->m_bMouseConstrained )  // There's a popup grabbing the mouse
 		return;
 	if( !m_pObj_ListGrid || !m_pObj_PicGrid )

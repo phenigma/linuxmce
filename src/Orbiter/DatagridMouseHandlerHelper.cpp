@@ -240,7 +240,9 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid Notch 
 void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
 {
 	m_LastX=X;
+#ifdef DEBUG
     g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativeMove(%d, %d, %d)", X, Y, m_iLastNotch);
+#endif
 	int Notch;
 	if( m_eCapturingOffscreenMovement == cosm_UP )
 	{
@@ -304,7 +306,9 @@ void DatagridMouseHandlerHelper::ReleaseRelative()
 {
 g_pPlutoLogger->Write(LV_ACTION, "**stop**");
 	m_iLastNotch=-1;
+#ifdef DEBUG
     g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::ReleaseRelative()");
+#endif
 	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
     RelativePointer_Clear();
 #ifdef WIN32
@@ -461,12 +465,16 @@ int DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(int nSpeedShape
     const int nPeakSpeed = 5;
     if ( (nSpeedShape > 0) && (nSpeedShape > nPeakSpeed) )
     {
+#ifdef DEBUG
         g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : decreasing shape to %d", nSpeedShape, nPeakSpeed);
+#endif
         nSpeedShape = nPeakSpeed;
     }
     if ( (nSpeedShape < 0) && (nSpeedShape < nPeakSpeed*-1) )
     {
+#ifdef DEBUG
         g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : increasing shape to %d", nSpeedShape, -nPeakSpeed);
+#endif
         nSpeedShape = -nPeakSpeed;
     }
     return nSpeedShape;

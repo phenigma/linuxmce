@@ -78,10 +78,8 @@ namespace DCE
 			m_sName = sName;
 			m_Position = Position;    
 			m_bDontAutohide = false;
-g_pPlutoLogger->Write(LV_CRITICAL,"create popup 6 now %p",this);
 		}
 		~PlutoPopup() {
-g_pPlutoLogger->Write(LV_CRITICAL,"delete popup 6 now %p",this);
 		}
 	};
 

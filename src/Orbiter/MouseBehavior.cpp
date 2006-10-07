@@ -357,9 +357,10 @@ void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 	{
 		if( pObj==m_pObj_Previously_Highlighted )
 			return;  // Nothing to do
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_CRITICAL, "mmm MouseBehavior::HighlightObject : UNHIGHLIGHT %s %d",
 			m_pObj_Previously_Highlighted->m_ObjectID.c_str(), m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight);
-		
+#endif		
 		m_pObj_Previously_Highlighted->m_GraphicToDisplay_set(m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight,true);
 		m_pOrbiter->ExecuteCommandsInList( &m_pObj_Previously_Highlighted->m_Action_UnhighlightList, m_pObj_Previously_Highlighted, smHighlight, 0, 0 );
 		m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_Previously_Highlighted);
@@ -374,9 +375,10 @@ void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 	m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight = m_pObj_Previously_Highlighted->m_GraphicToDisplay;
 
 	pObj->m_GraphicToDisplay_set(GRAPHIC_HIGHLIGHTED,true);
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_CRITICAL, "mmm MouseBehavior::HighlightObject : HIGHLIGHT %s",
 		pObj->m_ObjectID.c_str());
-
+#endif
 	m_pOrbiter->Renderer()->DoHighlightObject();
 	NeedToRender render( m_pOrbiter, "start speed" );
 	m_pOrbiter->Renderer()->RenderObjectAsync(m_pOrbiter->m_pObj_Highlighted);

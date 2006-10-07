@@ -59,7 +59,9 @@ void SpeedMouseHandler::Start()
 		m_pObj->m_rPosition.Width,1);
 	m_pMouseBehavior->ConstrainMouse(rect);
 
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::Start timeline %d m_iTime_Last_Mouse_Up); %d",(int) m_bHasTimeline, (int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
+#endif
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(500);
 	if( !m_bHasTimeline || m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 		m_bTapAndRelease=true;

@@ -148,7 +148,7 @@ namespace DCE
 
 		// Override these for OS specific handling
 		virtual void SetMousePosition(int X,int Y) { m_pLastPosition.X=X; m_pLastPosition.Y=Y; /*g_pPlutoLogger->Write(LV_FESTIVAL,"SetMousePosition %d,%d",X,Y);*/ }
-		virtual void SetMousePosition(DesignObj_Orbiter *pObj) { SetMousePosition( pObj->m_rPosition.X + pObj->m_pPopupPoint.X + pObj->m_rPosition.Width/2 , pObj->m_rPosition.Bottom() + pObj->m_pPopupPoint.Y ); }
+		virtual void SetMousePosition(DesignObj_Orbiter *pObj) { SetMousePosition( pObj->m_rPosition.X + pObj->m_pPopupPoint.X + pObj->m_rPosition.Width/2 , pObj->m_rPosition.Y + pObj->m_pPopupPoint.Y + pObj->m_rPosition.Height/2); }
 		virtual void GetMousePosition(PlutoPoint *p) { *p = m_pLastPosition; }
 		virtual void ShowMouse(bool bShow) { }
 		void m_pLastPosition_set(int X,int Y) { m_pLastPosition.X=X; m_pLastPosition.Y=Y; }

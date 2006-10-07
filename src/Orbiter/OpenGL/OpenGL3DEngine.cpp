@@ -481,9 +481,10 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktop(MeshFrame* Frame)
 	}
 
 	OriginalCurrentLayer->RemoveChild(Frame);
-
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "RemoveMeshFrameFromDesktop: removed object %p, size is not %d", 
 		Frame, OriginalCurrentLayer->Children.size());
+#endif
 }
 
 void OpenGL3DEngine::StartFrameDrawing(string ObjectHash)

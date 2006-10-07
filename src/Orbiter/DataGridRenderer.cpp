@@ -306,8 +306,9 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 				sCellObjectHash  //Object hash
 			);
 		}
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_WARNING,"Rendering cell with %s",pCell->GetText());        
-
+#endif
 		DesignObjText Text(m_pObj_Owner_DataGrid);
 		// todo         Text.m_Rect = PlutoRectangle( x+pObj->BorderWidth,  y+pObj->BorderWidth,  w-( 2*pObj->BorderWidth ),  h-( 2*pObj->BorderWidth ) );
 		Text.m_rPosition = PlutoRectangle( x,  y,  w,  h );

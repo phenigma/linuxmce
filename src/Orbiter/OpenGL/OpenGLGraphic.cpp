@@ -186,8 +186,9 @@ void OpenGLGraphic::Convert()
 			GL_UNSIGNED_BYTE, 
 			LocalSurface->pixels );
 
+#ifdef DEBUG
 	DCE::g_pPlutoLogger->Write(LV_STATUS, "Freeing surface %p" , LocalSurface);
-
+#endif
 	SDL_FreeSurface(LocalSurface);
 	LocalSurface = NULL;
 

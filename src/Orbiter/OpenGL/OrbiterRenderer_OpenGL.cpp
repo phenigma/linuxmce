@@ -426,8 +426,10 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 
 	TextureManager::Instance()->PrepareConvert(Graphic);
 
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "AddMeshFrameToDesktop (%d,%d,%d,%d)",
 		point.X, point.Y, rectTotal.Width, rectTotal.Height);
+#endif
 
 	TextureManager::Instance()->AddCacheItem(ObjectHash, Frame);
 

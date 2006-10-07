@@ -938,7 +938,6 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 	)
 		return; // Nothing to do anyway
 
-g_pPlutoLogger->Write(LV_ACTION,"RedrawObjects");
 	OrbiterLogic()->CallMaintenanceInMiliseconds( 0, (OrbiterCallBack) &Orbiter::RealRedraw, NULL, pe_ALL );
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1279,7 +1278,6 @@ void *ImageLoadThread(void *p)
 			}
 
 			delete pBackgroundImage->m_pCell->m_pGraphic;
-			pBackgroundImage->m_pCell->m_pGraphic=pPlutoGraphic;
 
 			pBackgroundImage->m_pCell->m_pGraphic = pPlutoGraphic;
 			int j=pBackgroundImage->m_ColRow.first;

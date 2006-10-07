@@ -155,9 +155,10 @@ void TextureManager::ReleaseTextures()
 {
 	if(ReleaseTextureSuspended > 0)
 		return;
-
+#ifdef DEBUG
 	if(WaitForRelease.size())
 		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "TextureManager::ReleaseTextures size %d", WaitForRelease.size());
+#endif
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, TextureLock);
 	std::list <OpenGLTexture>::iterator Item, End = WaitForRelease.end();

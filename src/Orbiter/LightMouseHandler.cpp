@@ -48,7 +48,9 @@ void LightMouseHandler::Stop()
 {
 NeedToRender render( m_pMouseBehavior->m_pOrbiter, "change light" );
 m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_CORPCLIENT,"m_pObj.disabled = true");
+#endif
 }
 
 bool LightMouseHandler::ButtonDown(int PK_Button)
