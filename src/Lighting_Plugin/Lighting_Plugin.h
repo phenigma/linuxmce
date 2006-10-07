@@ -19,7 +19,7 @@ typedef pair<long, long> longPair;
 //<-dceag-decl-b->!
 namespace DCE
 {
-	class Lighting_Plugin : public Lighting_Plugin_Command, public DataGridGeneratorPlugIn, public FloorplanInfoProvider, public FollowMe_Device
+	class Lighting_Plugin : public Lighting_Plugin_Command, public DataGridGeneratorPlugIn, public FloorplanInfoProvider, public FollowMe_Device, public AlarmEvent
 	{
 //<-dceag-decl-e->
 	// Private member variables
@@ -44,13 +44,25 @@ public:
 	class Datagrid_Plugin *m_pDatagrid_Plugin;
 	class Orbiter_Plugin *m_pOrbiter_Plugin;
 	Database_pluto_main *m_pDatabase_pluto_main;
+    pluto_pthread_mutex_t m_LightingMutex; 
+	class AlarmManager *m_pAlarmManager;
+	int m_iCameraTimeout;
+
+	// When the system temporarily turns on a light, such as to capture an image from a camera, it stores the light
+	// in this map with a pair that is the time to restore the light to it's prior value, and a string that represents
+	// the prior value in the same format as the 'state' (ie ON/50)
+	map<int, pair<time_t,string> > m_mapLightsToRestore;
 
 	bool DeviceOnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	bool LightingFollowMe( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	bool LightingCommand( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+	bool GetVideoFrame( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar);
 	void PreprocessLightingMessage(DeviceData_Router *pDevice,Message *pMessage);
 	int GetLightingLevel(DeviceData_Router *pDevice,int iLevel_Default=0);
+	void SetLightState(int PK_Device,bool bIsOn,int Level=-1);  // Set the state of a light.  -1 = don't change the level, just the on/off
+	void SetLightingAlarm(); // Find the next event in m_mapLightsToRestore and set the alarm callback
+	void AlarmCallback(int id, void* param);  // Implementation for AlarmEvent
 
 	// Datagrids
 	class DataGridTable *LightingScenariosGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
@@ -67,6 +79,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_Timeout();
 
 			*****EVENT***** accessors inherited from base class
 

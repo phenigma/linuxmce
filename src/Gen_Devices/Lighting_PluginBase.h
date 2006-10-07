@@ -80,6 +80,14 @@ public:
 	* @brief Device data access methods:
 	*/
 
+	string Get_Timeout()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Timeout_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Timeout_CONST];
+	}
+
 };
 
 
@@ -166,6 +174,7 @@ public:
 			m_pEvent->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
 			m_pcRequestSocket->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
 		}
+		PostConfigCleanup();
 		return true;
 	};
 	Lighting_Plugin_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
@@ -179,6 +188,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_Timeout() { return GetData()->Get_Timeout(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Set_Level(string sLevel,string &sCMD_Result,class Message *pMessage) {};
@@ -188,13 +198,30 @@ public:
 	{
 		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal)==rmr_Processed )
+		{
+			if( pMessageOriginal->m_eExpectedResponse==ER_ReplyMessage && !pMessageOriginal->m_bRespondedToMessage )
+			{
+				pMessageOriginal->m_bRespondedToMessage=true;
+				Message *pMessageOut=new Message(m_dwPK_Device,pMessageOriginal->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+				pMessageOut->m_mapParameters[0]="OK";
+				SendMessage(pMessageOut);
+			}
+			else if( (pMessageOriginal->m_eExpectedResponse==ER_DeliveryConfirmation || pMessageOriginal->m_eExpectedResponse==ER_ReplyString) && !pMessageOriginal->m_bRespondedToMessage )
+			{
+				pMessageOriginal->m_bRespondedToMessage=true;
+				SendString("OK");
+			}
 			return rmr_Processed;
+		}
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
 			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
+				// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+				if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+					return rmr_Buffered;
 				switch(pMessage->m_dwID)
 				{
 				case COMMAND_Set_Level_CONST:
@@ -224,7 +251,7 @@ public:
 					iHandled++;
 					continue;
 				}
-				iHandled += Command_Impl::ReceivedMessage(pMessage);
+				iHandled += (Command_Impl::ReceivedMessage(pMessage)==rmr_NotProcessed ? 0 : 1);
 			}
 			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
@@ -239,7 +266,12 @@ public:
 				DeviceData_Impl *pDeviceData_Impl = m_pData->FindChild(pMessage->m_dwPK_Device_To);
 				string sCMD_Result="UNHANDLED";
 				if( pDeviceData_Impl )
+				{
+					// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+					if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+						return rmr_Buffered;
 					ReceivedCommandForChild(pDeviceData_Impl,sCMD_Result,pMessage);
+				}
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);
 					if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
@@ -259,7 +291,7 @@ public:
 				}
 			}
 			if( iHandled==0 && !pMessage->m_bRespondedToMessage &&
-			(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString) )
+			(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString || pMessage->m_eExpectedResponse==ER_DeliveryConfirmation) )
 			{
 				pMessage->m_bRespondedToMessage=true;
 				if( pMessage->m_eExpectedResponse==ER_ReplyMessage )

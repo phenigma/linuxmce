@@ -46,13 +46,19 @@ using namespace DCE;
 #include "pluto_main/Define_FloorplanObjectType.h"
 #include "pluto_main/Define_FloorplanObjectType_Color.h"
 
+// Alarm types
+#define	RESTORE_LIGHTING_STATE		1
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Lighting_Plugin::Lighting_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Lighting_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, m_LightingMutex("Lighting Mutex")
 {
 	m_pDatabase_pluto_main = NULL;
+	m_LightingMutex.Init(NULL);
+	m_pAlarmManager=NULL;
 }
 
 //<-dceag-getconfig-b->
@@ -62,6 +68,9 @@ bool Lighting_Plugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
+	m_iCameraTimeout = atoi(DATA_Get_Timeout().c_str());
+	if( !m_iCameraTimeout )
+		m_iCameraTimeout = 30;
 	m_pDatabase_pluto_main = new Database_pluto_main( );
 	if( !m_pDatabase_pluto_main->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
 	{
@@ -92,6 +101,8 @@ bool Lighting_Plugin::GetConfig()
 			m_mapRoom_CommandGroup[PK_Room] = longPair(PK_CommandGroup_On,PK_CommandGroup_Off);
 		}
 	}
+	m_pAlarmManager = new AlarmManager();
+    m_pAlarmManager->Start(1);      // number of worker threads
 	return true;
 }
 
@@ -101,8 +112,8 @@ bool Lighting_Plugin::GetConfig()
 Lighting_Plugin::~Lighting_Plugin()
 //<-dceag-dest-e->
 {
+	delete m_pAlarmManager;
 	delete m_pDatabase_pluto_main;
-	
 }
 
 //<-dceag-reg-b->
@@ -125,6 +136,7 @@ bool Lighting_Plugin::Register()
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingCommand ), 0, 0, 0, DEVICECATEGORY_Lighting_Device_CONST, MESSAGETYPE_COMMAND, 0 );
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Lighting_CONST );
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::DeviceOnOff ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Device_OnOff_CONST );
+    RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::GetVideoFrame ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Get_Video_Frame_CONST );
 
 	m_pListDeviceData_Router_Lights = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Lighting_Device_CONST);
 
@@ -185,13 +197,9 @@ bool Lighting_Plugin::DeviceOnOff( class Socket *pSocket, class Message *pMessag
 	{
 		string sLevel = pMessage->m_mapParameters[EVENTPARAMETER_OnOff_CONST];
 		if(sLevel == "0")
-		{
-			pDevice_RouterFrom->m_sState_set("OFF/" + StringUtils::itos(GetLightingLevel(pDevice_RouterFrom,0)));
-		}
+			SetLightState( pMessage->m_dwPK_Device_From, false, 0 );
 		else if(sLevel == "1")
-		{
-			pDevice_RouterFrom->m_sState_set("ON/" + StringUtils::itos(GetLightingLevel(pDevice_RouterFrom,100)));
-		}
+			SetLightState( pMessage->m_dwPK_Device_From, false, 100 );
 		else
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Received OnOff event with wrong parameter value %s",
@@ -226,6 +234,48 @@ bool Lighting_Plugin::LightingCommand( class Socket *pSocket, class Message *pMe
 		}
 	}
 
+	return false;
+}
+
+bool Lighting_Plugin::GetVideoFrame( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	if( !pDeviceTo )
+		return false;
+
+	bool bGotOne=false;
+	DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceTo;  // We're a plugin, so this is a router instance
+	for(map<int,DeviceRelation *>::iterator it=pDevice->m_mapDeviceRelation.begin();it!=pDevice->m_mapDeviceRelation.end();++it)
+	{
+		DeviceRelation *pDeviceRelation = (*it).second;
+		DeviceData_Router *pDevice_Light = pDeviceRelation->m_pDevice;
+		PLUTO_SAFETY_LOCK(lm,m_LightingMutex);
+		if( pDevice_Light->WithinCategory(DEVICECATEGORY_Lighting_Device_CONST)==false )
+			continue;
+
+		bGotOne=true;
+
+		map<int, pair<time_t,string> >::iterator it2 = m_mapLightsToRestore.find(pDevice_Light->m_dwPK_Device);
+		if( it2!=m_mapLightsToRestore.end() )
+		{
+			it2->second.first=time(NULL)+m_iCameraTimeout;
+			continue;
+		}
+
+		// We've got a light.  Restore it's current state in 30 seconds
+		string sState = pDevice_Light->m_sState_get();
+		if( sState.empty()==false )
+			m_mapLightsToRestore[ pDevice_Light->m_dwPK_Device ] = make_pair<time_t,string> ( time(NULL)+m_iCameraTimeout, sState );
+
+		DCE::CMD_On CMD_On(m_dwPK_Device,pDevice_Light->m_dwPK_Device,0,"");
+		DCE::CMD_Set_Level CMD_Set_Level(m_dwPK_Device,pDevice_Light->m_dwPK_Device,"100");
+		CMD_On.m_pMessage->m_mapParameters[COMMANDPARAMETER_Advanced_options_CONST]="1";  // Means don't process it in the interceptor
+		CMD_Set_Level.m_pMessage->m_mapParameters[COMMANDPARAMETER_Advanced_options_CONST]="1";  // Means don't process it in the interceptor
+		CMD_On.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Level.m_pMessage);
+		SendCommand(CMD_On);
+	}
+
+	if( bGotOne )
+		SetLightingAlarm();
 	return false;
 }
 
@@ -302,7 +352,9 @@ void Lighting_Plugin::CMD_Set_Level(string sLevel,string &sCMD_Result,Message *p
 
 void Lighting_Plugin::PreprocessLightingMessage(DeviceData_Router *pDevice,Message *pMessage)
 {
-	if( !pDevice || !pMessage )
+	// If there's a parameter COMMANDPARAMETER_Advanced_options_CONST, that's an internal indicator which will mean nothing to the lighting device
+	// But tells us that we sent the message ourselves and not to do anything with it here
+	if( !pDevice || !pMessage || pMessage->m_mapParameters.find(COMMANDPARAMETER_Advanced_options_CONST)!=pMessage->m_mapParameters.end() )
 		return;
 
 	if( pMessage->m_dwID==COMMAND_Set_Level_CONST )
@@ -322,16 +374,16 @@ void Lighting_Plugin::PreprocessLightingMessage(DeviceData_Router *pDevice,Messa
 				pMessage->m_dwID=COMMAND_Generic_Off_CONST;
 			else
 			{
-				pDevice->m_sState_set("ON/" + StringUtils::itos(iLevel));
+				SetLightState( pDevice->m_dwPK_Device, true, iLevel );
 				pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST] = StringUtils::itos(iLevel);
 			}
 		}
 	}
 
 	if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
-		pDevice->m_sState_set("ON/" + StringUtils::itos(GetLightingLevel(pDevice,100)));
+		SetLightState( pDevice->m_dwPK_Device, true );
 	else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
-		pDevice->m_sState_set("OFF/" + StringUtils::itos(GetLightingLevel(pDevice,0)));
+		SetLightState( pDevice->m_dwPK_Device, false );
 }
 
 int Lighting_Plugin::GetLightingLevel(DeviceData_Router *pDevice,int iLevel_Default)
@@ -342,4 +394,86 @@ int Lighting_Plugin::GetLightingLevel(DeviceData_Router *pDevice,int iLevel_Defa
 		return atoi(sState.substr(pos+1).c_str());
 	else
 		return iLevel_Default;
+}
+
+void Lighting_Plugin::SetLightState(int PK_Device,bool bIsOn,int Level)
+{
+	DeviceData_Router *pDevice =  m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+	if( !pDevice )
+		return; // Shouldn't happen
+	if( Level==-1 )
+		Level = GetLightingLevel( pDevice );
+
+	pDevice->m_sState_set( (bIsOn ? "ON" : "OFF") + string("/") + StringUtils::itos(Level));
+
+	PLUTO_SAFETY_LOCK(lm,m_LightingMutex);
+	map<int, pair<time_t,string> >::iterator it=m_mapLightsToRestore.find(PK_Device);
+	if( it!=m_mapLightsToRestore.end() )
+	{
+		m_mapLightsToRestore.erase(it);
+		lm.Release();
+		SetLightingAlarm();
+	}
+}
+
+void Lighting_Plugin::SetLightingAlarm()
+{
+	time_t tNextTime=0;
+	PLUTO_SAFETY_LOCK(lm,m_LightingMutex);
+
+	// Find the next alarm
+	for(map<int, pair<time_t,string> >::iterator it=m_mapLightsToRestore.begin();it!=m_mapLightsToRestore.end();++it)
+	{
+		if( !tNextTime || it->second.first<tNextTime )
+			tNextTime = it->second.first;
+	}
+	m_pAlarmManager->CancelAlarmByType(RESTORE_LIGHTING_STATE);
+	if( tNextTime )
+		m_pAlarmManager->AddAbsoluteAlarm(tNextTime,this,RESTORE_LIGHTING_STATE,NULL);
+}
+
+void Lighting_Plugin::AlarmCallback(int id, void* param)
+{
+	PLUTO_SAFETY_LOCK(lm,m_LightingMutex);
+
+	time_t tNow = time(NULL);
+	// Find the next alarm
+	for(map<int, pair<time_t,string> >::iterator it=m_mapLightsToRestore.begin();it!=m_mapLightsToRestore.end();)
+	{
+		if( it->second.first<=tNow )
+		{
+			string sState = it->second.second;
+			string::size_type pos = sState.find("/");
+			if( pos==string::npos )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Lighting_Plugin::AlarmCallback %s is badly formed",sState.c_str());
+			else
+			{
+				int iLevel = atoi( sState.substr( pos + 1 ).c_str() );
+				if( sState[1]=='F' ) // It's an off
+				{
+					DCE::CMD_Set_Level CMD_Set_Level(m_dwPK_Device,it->first,StringUtils::itos(iLevel));
+					DCE::CMD_Off CMD_Off(m_dwPK_Device,it->first,0);
+					CMD_Off.m_pMessage->m_mapParameters[COMMANDPARAMETER_Advanced_options_CONST]="1";  // Means don't process it in the interceptor
+					CMD_Set_Level.m_pMessage->m_mapParameters[COMMANDPARAMETER_Advanced_options_CONST]="1";  // Means don't process it in the interceptor
+					CMD_Set_Level.m_pMessage->m_vectExtraMessages.push_back(CMD_Off.m_pMessage);
+					SendCommand(CMD_Set_Level);
+				}
+				else
+				{
+					DCE::CMD_On CMD_On(m_dwPK_Device,it->first,0,"");
+					DCE::CMD_Set_Level CMD_Set_Level(m_dwPK_Device,it->first,StringUtils::itos(iLevel));
+					CMD_On.m_pMessage->m_mapParameters[COMMANDPARAMETER_Advanced_options_CONST]="1";  // Means don't process it in the interceptor
+					CMD_Set_Level.m_pMessage->m_mapParameters[COMMANDPARAMETER_Advanced_options_CONST]="1";  // Means don't process it in the interceptor
+					CMD_On.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Level.m_pMessage);
+					SendCommand(CMD_On);
+				}
+			}
+			m_mapLightsToRestore.erase(it++);
+		}
+		else
+			++it;
+	}
+
+	lm.Release();
+	SetLightingAlarm();
 }

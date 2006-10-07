@@ -2543,6 +2543,10 @@ bool Orbiter::PreprocessEvent(Orbiter::Event &event)
 #include "MediaBrowserMouseHandler.h"
 bool Orbiter::ProcessEvent( Orbiter::Event &event )
 {
+	if ( (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::REGION_DOWN)
+		&& !GotActivity(  ) )
+			return true;
+
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent1 type %d key %d",
 					  event.type, (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP ? event.data.button.m_iPK_Button : -999));
@@ -2560,32 +2564,6 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 		LastX=event.data.region.m_iX;
 		LastY=event.data.region.m_iY;
 	}
-
-#ifdef ENABLE_MOUSE_BEHAVIOR
-//temptest
-if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler && m_pMouseBehavior->m_pMouseHandler->TypeOfMouseHandler()==MouseHandler::mh_MediaBrowser && event.data.button.m_iPK_Button == BUTTON_u_CONST )
-{
-#ifdef DEBUG
-g_pPlutoLogger->Write(LV_ACTION, "Orbiter::ProcessEvent -- got a up");
-#endif
-MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pMouseBehavior->m_pMouseHandler;
-pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->m_eCapturingOffscreenMovement=DatagridMouseHandlerHelper::cosm_UP;
-pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->DoIteration();
-pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->m_eCapturingOffscreenMovement=DatagridMouseHandlerHelper::cosm_NO;
-return false;
-}
-else if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior && m_pMouseBehavior->m_pMouseHandler && m_pMouseBehavior->m_pMouseHandler->TypeOfMouseHandler()==MouseHandler::mh_MediaBrowser && event.data.button.m_iPK_Button == BUTTON_d_CONST )
-{
-#ifdef DEBUG
-g_pPlutoLogger->Write(LV_ACTION, "Orbiter::ProcessEvent -- got a down");
-#endif
-MediaBrowserMouseHandler *pMediaBrowserMouseHandler = (MediaBrowserMouseHandler *) m_pMouseBehavior->m_pMouseHandler;
-pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->m_eCapturingOffscreenMovement=DatagridMouseHandlerHelper::cosm_DOWN;
-pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->DoIteration();
-pMediaBrowserMouseHandler->m_pDatagridMouseHandlerHelper->m_eCapturingOffscreenMovement=DatagridMouseHandlerHelper::cosm_NO;
-return false;
-}
-#endif
 
 #ifdef DEBUG
 	// a switch would be good but kdevelop somehow doesn't like the syntax and mekes it red :-(

@@ -343,7 +343,7 @@ continue;
 	}
 
 	m_pAlarmManager = new AlarmManager();
-    m_pAlarmManager->Start(1);      //4 = number of worker threads
+    m_pAlarmManager->Start(1);      // number of worker threads
 
 	return true;
 }

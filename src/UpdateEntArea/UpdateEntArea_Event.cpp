@@ -386,8 +386,8 @@ Row_EventHandler *UpdateEntArea::CreateWatchingMediaEventHandler(CommandGroupArr
 	pRow_EventHandler->FK_Installation_set(m_iPK_Installation);
 	pRow_EventHandler->FK_Template_set(TEMPLATE_Media_Events_CONST);
 	pRow_EventHandler->TemplateParm1_set(pRow_Room->PK_Room_get());
-	pRow_EventHandler->TemplateParm2_set(1);
-	pRow_EventHandler->UserCreated_set(iIsWatching);
+	pRow_EventHandler->TemplateParm2_set(iIsWatching);
+	pRow_EventHandler->UserCreated_set(0);
 
 	return pRow_EventHandler;
 }
