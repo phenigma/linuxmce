@@ -66,12 +66,10 @@ void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 				g_pPlutoLogger->Write(LV_STATUS,"MouseBehavior_Linux::SetMousePosition purging %d,%d",pEvent->data.region.m_iX,pEvent->data.region.m_iY);
 #endif
 				m_pOrbiter->m_mapPendingCallbacks.erase(it++);
+				continue;
 			}
-			else
-				++it;
 		}
-		else
-			++it;
+		++it;
 	}
 	mt.Release();
 }
