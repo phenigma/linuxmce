@@ -1,4 +1,9 @@
 #PrivateMethod  09-Jun-06 15:20  ApexDestiny 6100
+
+def log(word)
+	$logFile.print word
+end
+
 def logString(word)
 log( "Line size:" + word.size.to_s + "  String:" )
 word.each_byte{ |i| 
@@ -357,7 +362,7 @@ sendCmd(buff)
 end
 
 def ApexDisarmPartition(user,password)
-f ( user.size()  !=2 )  then 
+if ( user.size()  !=2 )  then 
 	badParam(cmdCode[buff], "User number") 
 	return
 end
