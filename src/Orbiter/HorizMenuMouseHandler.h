@@ -23,10 +23,13 @@ namespace DCE
 	//-----------------------------------------------------------------------------------------------------
 	class HorizMenuMouseHandler : public MouseHandler
 	{
+		friend class MediaBrowserMouseHandler;
+
 		DesignObj_Orbiter *m_pObj_ActiveMenuPad,*m_pObj_ActiveSubMenu;
+		bool m_bDeactivateWhenOffPad;
 
 	public:
-		HorizMenuMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);
+		HorizMenuMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior,bool bDeactivateWhenOffPad=false);
 		virtual EMouseHandler TypeOfMouseHandler() { return mh_HorizMenu; }
 
 		void Start();

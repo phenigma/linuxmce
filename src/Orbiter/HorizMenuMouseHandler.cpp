@@ -17,18 +17,16 @@
 
 using namespace DCE;
 
-HorizMenuMouseHandler::HorizMenuMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior)
+HorizMenuMouseHandler::HorizMenuMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior,bool bDeactivateWhenOffPad)
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
+	m_bDeactivateWhenOffPad=bDeactivateWhenOffPad;
 	m_pObj_ActiveMenuPad = NULL;
 	m_pObj_ActiveSubMenu = NULL;
 	DesignObj_Orbiter *pObj_First = NULL;
 	if( m_pObj->m_iBaseObjectID==DESIGNOBJ_popMainMenu_CONST )
 		pObj_First = m_pMouseBehavior->m_pOrbiter->FindObject(
 			StringUtils::itos(atoi(m_pObj->m_ObjectID.c_str())) + ".0.0." + StringUtils::itos(DESIGNOBJ_butCurrentMedia_CONST));
-	else if( m_pObj->m_iBaseObjectID==5093 )
-		pObj_First = m_pMouseBehavior->m_pOrbiter->FindObject(
-			StringUtils::itos(atoi(m_pObj->m_ObjectID.c_str())) + ".0.0." + StringUtils::itos(5130));
 	
 	if( pObj_First )
 	{
@@ -84,20 +82,32 @@ bool HorizMenuMouseHandler::ButtonUp(int PK_Button)
 
 void HorizMenuMouseHandler::Move(int X,int Y,int PK_Direction)
 {
-	if( !m_pObj_ActiveMenuPad )
-		return;  // Shouldn't happen
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
-	if(	X<m_pObj_ActiveMenuPad->m_rPosition.X ||
-		X>m_pObj_ActiveMenuPad->m_rPosition.Right() )
+	if(	!m_pObj_ActiveMenuPad || X<m_pObj_ActiveMenuPad->m_rPosition.X ||
+		X>m_pObj_ActiveMenuPad->m_rPosition.Right() ||
+		(m_bDeactivateWhenOffPad && m_pObj_ActiveSubMenu && Y<m_pObj_ActiveSubMenu->m_rPosition.Y + m_pObj_ActiveSubMenu->m_pPopupPoint.Y) )
 	{
-		DesignObj_Orbiter *pObj_ToHighlight=m_pMouseBehavior->FindChildObjectAtPosition(m_pMouseBehavior->m_pObj_Locked,X,-1);
-		// The user has moved off the highlighted object.  Find the object under here to highlight
+		DesignObj_Orbiter *pObj_ToHighlight=m_pMouseBehavior->FindChildObjectAtPosition(m_pMouseBehavior->m_pObj_Locked,X,
+			m_bDeactivateWhenOffPad ? Y : -1);  // If m_bDeactivateWhenOffPad is true, we only activate a menu when we're on top of the pad
 
+		// The user has moved off the highlighted object.  Find the object under here to highlight
 		if( pObj_ToHighlight && pObj_ToHighlight!=m_pObj_ActiveMenuPad )
 		{
-			m_pObj_ActiveMenuPad->m_GraphicToDisplay=GRAPHIC_NORMAL;
+			if( m_pObj_ActiveMenuPad )
+				m_pObj_ActiveMenuPad->m_GraphicToDisplay=GRAPHIC_NORMAL;
 			ShowPopup(pObj_ToHighlight);
 			m_pObj_ActiveMenuPad=pObj_ToHighlight;
+		}
+		else if( !pObj_ToHighlight && m_bDeactivateWhenOffPad )
+		{
+			if( m_pObj_ActiveMenuPad )
+			{
+				m_pObj_ActiveMenuPad->m_GraphicToDisplay=GRAPHIC_NORMAL;
+				m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_ActiveMenuPad);
+			}
+			m_pObj_ActiveMenuPad = NULL;
+			m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","submenu");
+			return;
 		}
 	}
 	if( !m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted || (m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint).Contains(X,Y)==false )
@@ -137,7 +147,7 @@ void HorizMenuMouseHandler::ShowPopup(DesignObj_Orbiter *pObj_MenuPad)
 
 	if( m_pObj->m_iBaseObjectID==DESIGNOBJ_popMainMenu_CONST )
 		sSubMenu = GetMainMenuPopup(pObj_MenuPad);
-	else if( m_pObj->m_iBaseObjectID==5093 )
+	else if( m_pObj->m_iBaseObjectID==DESIGNOBJ_popFileList_CONST )
 		sSubMenu = GetFileBrowserPopup(pObj_MenuPad);
 
 	m_pObj_ActiveSubMenu = m_pMouseBehavior->m_pOrbiter->FindObject(sSubMenu);

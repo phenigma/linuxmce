@@ -20,9 +20,8 @@ using namespace DCE;
 MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior)
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
-	m_pDatagridMouseHandlerHelper = new DatagridMouseHandlerHelper(this);
 	m_pObj_ListGrid=m_pObj_PicGrid=NULL;
-	m_pObj_FileDetailsText=m_pObj_CoverArtPopup=NULL;
+	m_pObj_Sort=m_pObj_Private=m_pObj_CoverArtPopup=NULL;
 
 	if( !m_pObj )
 		return; // Shouldn't happen
@@ -36,8 +35,12 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 			m_pObj_ListGrid = (DesignObj_DataGrid *) pDesignObj_Orbiter;
 		else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_dgFileList2_Pics_CONST )
 			m_pObj_PicGrid = (DesignObj_DataGrid *) pDesignObj_Orbiter;
+		else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_butFBSF_Show_Sort_CONST )
+			m_pObj_Sort = pDesignObj_Orbiter;
+		else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_butFBSF_Show_MediaPrivate_CONST )
+			m_pObj_Private = pDesignObj_Orbiter;
 	}
-	if( !m_pObj_ListGrid || !m_pObj_PicGrid )
+	if( !m_pObj_ListGrid || !m_pObj_PicGrid || !m_pObj_Sort || !m_pObj_Private )
 		g_pPlutoLogger->Write(LV_CRITICAL,"MediaBrowserMouseHandler::MediaBrowserMouseHandler");
 	else
 	{
@@ -45,16 +48,18 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 		m_pObj_PicGrid->m_iHighlightedRow=m_pObj_PicGrid->m_iHighlightedColumn=0;
 		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = m_pObj_ListGrid;
 		m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
+		m_rSortFilterMenu = PlutoRectangle::Union(m_pObj_Sort->m_rPosition, m_pObj_Private->m_rPosition );
 	}
 	m_pObj_CoverArtPopup=m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_popCoverArt_CONST);
-	m_pObj_FileDetailsText = m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_butFileBrowserDetails_CONST);
-	if( m_pObj_FileDetailsText && m_pObj_FileDetailsText->m_vectDesignObjText.size() )
-		m_pObj_FileDetailsText->m_vectDesignObjText[0]->m_sText = "";
+
+	m_pDatagridMouseHandlerHelper = new DatagridMouseHandlerHelper(this,m_pObj_ListGrid->m_rPosition.Left(),m_pObj_ListGrid->m_rPosition.Right());
+	m_pHorizMenuMouseHandler = new HorizMenuMouseHandler(pObj,sOptions,pMouseBehavior,true);
 }
 
 MediaBrowserMouseHandler::~MediaBrowserMouseHandler()
 {
 	delete m_pDatagridMouseHandlerHelper;
+	delete m_pHorizMenuMouseHandler;
 }
 
 void MediaBrowserMouseHandler::Start()
@@ -113,7 +118,12 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
 	DesignObj_DataGrid *pObj_ListGrid_Active=NULL;
-	if( m_pObj_ListGrid->m_rPosition.Contains(X,Y) )
+	if( m_rSortFilterMenu.Contains(X,Y) || m_pHorizMenuMouseHandler->m_pObj_ActiveMenuPad )
+	{
+		m_pHorizMenuMouseHandler->Move(X,Y,PK_Direction);
+		return;
+	}
+	else if( m_pObj_ListGrid->m_rPosition.Contains(X,Y) )
 		pObj_ListGrid_Active = m_pObj_ListGrid;
 	else if( m_pObj_PicGrid->m_rPosition.Contains(X,Y) )
 		pObj_ListGrid_Active = m_pObj_PicGrid;
@@ -202,17 +212,6 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 	{
 		M.Release();
 		m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
-	}
-
-	if( m_pObj_FileDetailsText && m_pObj_FileDetailsText->m_vectDesignObjText.size() )
-	{
-		DataGridTable *pDataGridTable = m_pObj_ListGrid->DataGridTable_Get();
-		if( pDataGridTable )
-		{
-			pCell = pDataGridTable->GetData(0,m_pObj_ListGrid->m_iHighlightedRow + m_pObj_ListGrid->m_GridCurRow );
-			m_pObj_FileDetailsText->m_vectDesignObjText[0]->m_sText = pCell ? pCell->GetText() : "";
-			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderTextAsync(m_pObj_FileDetailsText->m_vectDesignObjText[0]);
-		}
 	}
 }
 

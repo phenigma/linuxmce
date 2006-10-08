@@ -122,8 +122,7 @@ public:
 	bool MediaBrowser_DatagridSelected(CallBackData *pData);
 	void SelectedAttributeCell(DataGridCell *pCell);
 	bool MediaBrowser_Render(CallBackData *pData);
-	virtual void SCREEN_MediaSortFilter(long PK_Screen);
-	bool MediaSortFilter_ObjectSelected(CallBackData *pData);
+	void SetMediaSortFilterSelectedObjects();
 	void GetAttributesForMediaFile(const char *pFilename);
 	virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, string sDescription);
 	virtual void SCREEN_WhatModelMobileOrbiter(long PK_Screen, int iPK_Users, string sMac_address);

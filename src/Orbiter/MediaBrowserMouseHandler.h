@@ -11,6 +11,7 @@ using namespace std;
 #include "PlutoUtils/ProcessUtils.h"
 #include "MouseBehavior.h"
 #include "DatagridMouseHandlerHelper.h"
+#include "HorizMenuMouseHandler.h"
 using namespace DCE;
 
 #define MAX_SPEEDS		17
@@ -19,18 +20,20 @@ namespace DCE
 {
 	//-----------------------------------------------------------------------------------------------------
 	/**
-	* @brief Handles special mouse behavior for lighting control
+	* @brief Handles special mouse behavior for the media browser
 	*/
 	//-----------------------------------------------------------------------------------------------------
 	class MediaBrowserMouseHandler : public MouseHandler
 	{
 	public://temptest
 		DatagridMouseHandlerHelper *m_pDatagridMouseHandlerHelper;
+		HorizMenuMouseHandler *m_pHorizMenuMouseHandler;  // This also has a horiz menu, so we'll pass commands on here when needed
 		friend class ScreenHandler;
 		int m_RelativeVirtualY;
 		DesignObj_DataGrid *m_pObj_ListGrid,*m_pObj_PicGrid;
-		DesignObj_Orbiter *m_pObj_CoverArtPopup,*m_pObj_FileDetailsText;
+		DesignObj_Orbiter *m_pObj_CoverArtPopup,*m_pObj_Sort,*m_pObj_Private;
 		int m_LastRow;
+		PlutoRectangle m_rSortFilterMenu;
 
 	public:
 		MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior);

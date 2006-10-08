@@ -207,12 +207,26 @@ void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 	}
 
 	ScreenHandlerBase::SCREEN_FileList_Music_Movies_Video(PK_Screen);
-	
+
+	SetMediaSortFilterSelectedObjects();
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_ObjectSelected,	new ObjectInfoBackData());
 	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_Render, new RenderScreenCallBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_DatagridSelected, new DatagridCellBackData());
 
 	return;
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SetMediaSortFilterSelectedObjects()
+{
+	string sMediaType = StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType);
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_MediaType_CONST)), mediaFileBrowserOptions.m_PK_MediaType );
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_PK_MediaSubType_CONST) "." + sMediaType + ".0"), mediaFileBrowserOptions.m_sPK_MediaSubType );
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_PK_FileFormat_CONST) "." + sMediaType + ".0"), mediaFileBrowserOptions.m_sPK_FileFormat );
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_Genres_CONST) "." + sMediaType + ".0"), mediaFileBrowserOptions.m_sPK_Attribute_Genres );
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_Sort_CONST) "." + sMediaType + ".0"), mediaFileBrowserOptions.m_PK_AttributeType_Sort );
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_MediaSource_CONST) "." + sMediaType + ".0"), mediaFileBrowserOptions.m_sSources );
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_PrivateMedia_CONST)), mediaFileBrowserOptions.m_sPK_Users_Private );
+	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_RatingsByUser_CONST)), mediaFileBrowserOptions.m_PK_Users );
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::MediaBrowser_Render(CallBackData *pData)
@@ -328,7 +342,7 @@ mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow, mediaFileBrowserOpti
 			0,pCell_List->m_Value,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0);
 		m_pOrbiter->SendCommand(CMD_MH_Play_Media);
 	}
-	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == 5175 )
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFileBrowserBack_CONST )
 	{
 		if( mediaFileBrowserOptions.m_listPK_Attribute_Description.size() )
 		{
@@ -346,6 +360,55 @@ mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow, mediaFileBrowserOpti
 		MediaBrowser_Render(NULL);
 		m_pOrbiter->CMD_Refresh("*");
 		return false;
+	}
+	else if( pObjectInfoData->m_pObj && pObjectInfoData->m_pObj->m_pParentObject )
+	{
+		bool bChangedSortFilter=false;
+		switch( pObjectInfoData->m_pObj->m_pParentObject->m_iBaseObjectID )
+		{
+		case DESIGNOBJ_popFBSF_Genres_CONST:
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_Attribute_Genres,true);
+			bChangedSortFilter=true;
+			break;
+		case DESIGNOBJ_popFBSF_PK_FileFormat_CONST:
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_FileFormat,true);
+			bChangedSortFilter=true;
+			break;
+		case DESIGNOBJ_popFBSF_MediaType_CONST:
+			{
+				mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_PK_MediaType);
+				m_pOrbiter->CMD_Show_File_List(mediaFileBrowserOptions.m_PK_MediaType);
+				m_pOrbiter->CMD_Goto_Screen("",SCREEN_MediaSortFilter_CONST);
+			}
+			bChangedSortFilter=true;
+			break;
+		case DESIGNOBJ_popFBSF_PrivateMedia_CONST:
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_Users_Private,false);
+			bChangedSortFilter=true;
+			break;
+		case DESIGNOBJ_popFBSF_RatingsByUser_CONST:
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_PK_Users);
+			bChangedSortFilter=true;
+			break;
+		case DESIGNOBJ_popFBSF_Sort_CONST:
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_PK_AttributeType_Sort);
+			bChangedSortFilter=true;
+			break;
+		case DESIGNOBJ_popFBSF_MediaSource_CONST:
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sSources,true);
+			bChangedSortFilter=true;
+			break;
+		case DESIGNOBJ_popFBSF_PK_MediaSubType_CONST:
+			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_MediaSubType,true);
+			bChangedSortFilter=true;
+			break;
+		};
+		if( bChangedSortFilter )
+		{
+			SetMediaSortFilterSelectedObjects();
+			m_pOrbiter->Renderer()->RenderObjectAsync(pObjectInfoData->m_pObj);  // We will be changing the selected state
+			m_pOrbiter->CMD_Refresh("*");
+		}
 	}
 
 	return false;
@@ -417,70 +480,6 @@ void ScreenHandler::GetAttributesForMediaFile(const char *pFilename)
 			m_mapKeywords[s] = StringUtils::Tokenize(sResult,"\t",pos);
 		}
 	}
-}
-//-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_MediaSortFilter(long PK_Screen)
-{
-	// Preseed the selected values
-	string sMediaType = StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType);
-	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_MediaType_CONST)), mediaFileBrowserOptions.m_PK_MediaType );
-	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_PK_MediaSubType_CONST) "." + sMediaType + ".0"), mediaFileBrowserOptions.m_sPK_MediaSubType );
-	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_PK_FileFormat_CONST) "." + sMediaType + ".0"), mediaFileBrowserOptions.m_sPK_FileFormat );
-	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_Genres_CONST) "." + sMediaType + ".0"), mediaFileBrowserOptions.m_sPK_Attribute_Genres );
-	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_Sort_CONST) "." + sMediaType + ".0"), mediaFileBrowserOptions.m_PK_AttributeType_Sort );
-	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_MediaSource_CONST) "." + sMediaType + ".0"), mediaFileBrowserOptions.m_sSources );
-	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_PrivateMedia_CONST)), mediaFileBrowserOptions.m_sPK_Users_Private );
-	mediaFileBrowserOptions.SelectArrays( m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFBSF_RatingsByUser_CONST)), mediaFileBrowserOptions.m_PK_Users );
-
-	ScreenHandlerBase::SCREEN_MediaSortFilter(PK_Screen);
-	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaSortFilter_ObjectSelected,	new ObjectInfoBackData());
-}
-//-----------------------------------------------------------------------------------------------------
-bool ScreenHandler::MediaSortFilter_ObjectSelected(CallBackData *pData)
-{
-	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
-
-	if( pObjectInfoData->m_pObj && pObjectInfoData->m_pObj->m_pParentObject )
-	{
-		m_pOrbiter->Renderer()->RenderObjectAsync(pObjectInfoData->m_pObj);  // We will be changing the selected state
-		switch( pObjectInfoData->m_pObj->m_pParentObject->m_iBaseObjectID )
-		{
-		case DESIGNOBJ_popFBSF_Genres_CONST:
-			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_Attribute_Genres,true);
-			return true;
-		case DESIGNOBJ_popFBSF_PK_FileFormat_CONST:
-			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_FileFormat,true);
-			return true;
-		case DESIGNOBJ_popFBSF_MediaType_CONST:
-			{
-				mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_PK_MediaType);
-				m_pOrbiter->CMD_Show_File_List(mediaFileBrowserOptions.m_PK_MediaType);
-				m_pOrbiter->CMD_Goto_Screen("",SCREEN_MediaSortFilter_CONST);
-			}
-			return true;
-		case DESIGNOBJ_popFBSF_PrivateMedia_CONST:
-			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_Users_Private,false);
-			return true;
-		case DESIGNOBJ_popFBSF_RatingsByUser_CONST:
-			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_PK_Users);
-			return true;
-		case DESIGNOBJ_popFBSF_Sort_CONST:
-			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_PK_AttributeType_Sort);
-			return true;
-		case DESIGNOBJ_popFBSF_MediaSource_CONST:
-			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sSources,true);
-			return true;
-		case DESIGNOBJ_popFBSF_PK_MediaSubType_CONST:
-			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_sPK_MediaSubType,true);
-			return true;
-		};
-	}
-	if(	pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_OK_CONST )
-	{
-		m_pOrbiter->CMD_Goto_Screen("",mediaFileBrowserOptions.m_iPK_Screen);
-		return true;
-	}
-	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 void MediaFileBrowserOptions::SelectArrays(DesignObj_Orbiter *pObj,string &sValues)

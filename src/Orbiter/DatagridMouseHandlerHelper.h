@@ -29,6 +29,7 @@ namespace DCE
 		class MouseBehavior *m_pMouseBehavior;
 		int m_dwPK_Direction_ScrollGrid;
 		int m_NumNotches, m_Top, m_Bottom, m_iLastNotch, m_LastX;
+		int m_iLeft,m_iRight;
 		DesignObj_DataGrid *m_pObj_ScrollingGrid;
 		DesignObj_Orbiter *m_pObj_MediaBrowser_Alpha;
 		enum CapturingOffscreenMovement
@@ -48,7 +49,7 @@ namespace DCE
         // speed > 0 : down
     public:
 	
-		DatagridMouseHandlerHelper(MouseHandler *pMouseHandler);
+		DatagridMouseHandlerHelper(MouseHandler *pMouseHandler,int iLeft=0,int iRight=0);
 		virtual ~DatagridMouseHandlerHelper();
 		void Start(DesignObj_DataGrid *pObj_ScrollingGrid,int NumNotches,int Top,int Bottom);
 		void Stop();

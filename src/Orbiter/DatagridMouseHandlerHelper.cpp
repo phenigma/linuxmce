@@ -20,7 +20,7 @@
 
 using namespace DCE;
 
-DatagridMouseHandlerHelper::DatagridMouseHandlerHelper(MouseHandler *pMouseHandler)
+DatagridMouseHandlerHelper::DatagridMouseHandlerHelper(MouseHandler *pMouseHandler,int iLeft,int iRight)
 { 
 	m_pMouseHandler=pMouseHandler;
 	m_pMouseBehavior=m_pMouseHandler->m_pMouseBehavior;
@@ -29,6 +29,8 @@ DatagridMouseHandlerHelper::DatagridMouseHandlerHelper(MouseHandler *pMouseHandl
     m_pRelativePointer_Image=NULL;
 	m_eCapturingOffscreenMovement=cosm_NO;
 	m_bHitBottom=false;
+	m_iLeft=iLeft;
+	m_iRight=iRight;
 }
 
 DatagridMouseHandlerHelper::~DatagridMouseHandlerHelper()
@@ -322,6 +324,9 @@ g_pPlutoLogger->Write(LV_ACTION, "**stop**");
 
 bool DatagridMouseHandlerHelper::Move(int X,int Y,int PK_Direction)
 {
+	if( X<m_iLeft || (m_iRight && X>m_iRight) )
+		return false;
+
 	if (m_eCapturingOffscreenMovement != cosm_NO)
 	{
 		RelativeMove(X,Y);
