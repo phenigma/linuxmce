@@ -45,7 +45,6 @@ when 4      # sleeping
 when 5      # entertaining
 	log( "Case 5:\n" )
 when 6      # armed extended away
-	ApexArmPartition("AWAY","1",password) 
-end
+	ApexArmPartition("AWAY","1",password)
 
 end
