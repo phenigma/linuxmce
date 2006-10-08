@@ -54,22 +54,13 @@ void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 
 	// Now purge any pending mouse move events
 	PLUTO_SAFETY_LOCK( mt, m_pOrbiter->m_MaintThreadMutex );
-	for(map<int,PendingCallBackInfo *>::iterator it=m_pOrbiter->m_mapPendingCallbacks.begin();it!=m_pOrbiter->m_mapPendingCallbacks.end();)
+	for(map<int,PendingCallBackInfo *>::iterator it=m_pOrbiter->m_mapPendingCallbacks.begin();it!=m_pOrbiter->m_mapPendingCallbacks.end();++it)
 	{
 		PendingCallBackInfo *pCallBackInfo = (*it).second;
-		if( pCallBackInfo->m_fnCallBack == &Orbiter::QueueEventForProcessing)
-		{
-			Orbiter::Event *pEvent = (Orbiter::Event*)pCallBackInfo->m_pData;
-			if ( pEvent->type == Orbiter::Event::MOUSE_MOVE )
-			{
-#ifdef DEBUG
-				g_pPlutoLogger->Write(LV_STATUS,"MouseBehavior_Linux::SetMousePosition purging %d,%d",pEvent->data.region.m_iX,pEvent->data.region.m_iY);
-#endif
-				m_pOrbiter->m_mapPendingCallbacks.erase(it++);
-				continue;
-			}
-		}
-		++it;
+		Orbiter::Event *pEvent_cb = (Orbiter::Event *) pCallBackInfo->m_pData;
+		if( pCallBackInfo->m_fnCallBack==&Orbiter::QueueEventForProcessing &&
+			pEvent_cb && pEvent_cb->type==Orbiter::Event::MOUSE_MOVE )
+				pCallBackInfo->m_bStop=true;
 	}
 	mt.Release();
 }
