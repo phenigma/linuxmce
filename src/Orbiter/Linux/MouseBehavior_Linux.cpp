@@ -48,10 +48,30 @@ OrbiterLinux * MouseBehavior_Linux::ptrOrbiterLinux()
 
 void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 {
-//iterate through list of pending mouse clicks and see if that works???
 	MouseBehavior::SetMousePosition(X,Y);
     g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::SetMousePosition() : Moving mouse (relative %d,%d)",X,Y);
     ptrOrbiterLinux()->m_pX11->Mouse_SetPosition(X, Y);
+
+	// Now purge any pending mouse move events
+	PLUTO_SAFETY_LOCK( mt, m_MaintThreadMutex );
+	for(map<int,PendingCallBackInfo *>::iterator it=m_pOrbiter->m_mapPendingCallbacks.begin();it!=m_pOrbiter->m_mapPendingCallbacks.end();)
+	{
+		PendingCallBackInfo *pCallBackInfo = (*it).second;
+		if( pCallBackInfo->m_fnCallBack == &Orbiter::QueueEventForProcessing)
+		{
+			Orbiter::Event *pEvent = (Orbiter::Event*)pCallBackInfo->m_pData;
+			if ( event.type == Orbiter::Event::MOUSE_MOVE )
+			{
+#ifdef DEBUG
+				g_pPlutoLogger->Write(LV_STATUS,"MouseBehavior_Linux::SetMousePosition purging %d,%d",pEvent->data.region.m_iX,pEvent->data.region.m_iY);
+#endif
+				m_mapPendingCallbacks.erase(it++);
+			}
+		}
+		else
+			++it;
+	}
+	mt.Release();
 }
 
 void MouseBehavior_Linux::ShowMouse(bool bShow)
