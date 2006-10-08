@@ -67,6 +67,8 @@ void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 #endif
 				m_pOrbiter->m_mapPendingCallbacks.erase(it++);
 			}
+			else
+				++it;
 		}
 		else
 			++it;
