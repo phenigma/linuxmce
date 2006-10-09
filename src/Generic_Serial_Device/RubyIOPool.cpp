@@ -102,9 +102,13 @@ RubyIOPool::RubyIOState::handleRead(IOConnection* pconn) {
 	if( !psm->handleMessage(&datamsg) )
 	{
 		char readBuffer[4096];
-		while( pconn->isDataAvailable(10) )
+		time_t readTime = time(NULL);
+		time_t currentTime = readTime;
+		// 10 sec timeout
+		while( pconn->isDataAvailable(10) && currentTime - readTime < 10 )
 		{
 			pconn->Recv(readBuffer, sizeof(readBuffer), 100);
+			currentTime = time(NULL);
 		}
 	}
 }
