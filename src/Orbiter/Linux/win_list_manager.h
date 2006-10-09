@@ -38,6 +38,8 @@ public:
 
 	void GetWindows(list<WinInfo>& listWinInfo);
 
+	void SetSdlWindowVisibility(bool bValue);
+
 protected:
     pthread_mutexattr_t m_WindowsMutexAttr;
 	pluto_pthread_mutex_t m_WindowsMutex;
@@ -50,6 +52,7 @@ protected:
 
     WMControllerImpl *m_pWMController;
     string m_sSdlWindowName;
+	bool m_bHideSdlWindow;
 };
 
 #endif

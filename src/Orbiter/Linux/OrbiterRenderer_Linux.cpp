@@ -165,6 +165,7 @@ bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, const map<string, b
         pOrbiterLinux->m_pProgressWnd->UpdateProgress(sMessage, nProgress);
         pOrbiterLinux->m_pProgressWnd->Run();
         pOrbiterLinux->m_pWinListManager->MaximizeWindow(pOrbiterLinux->m_pProgressWnd->m_wndName);
+		pOrbiterLinux->m_pWinListManager->SetSdlWindowVisibility(false);
         return false;
     }
     /*else*/ if (nProgress != -1)
@@ -177,6 +178,7 @@ bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, const map<string, b
     /*else*/ if(pOrbiterLinux->m_pProgressWnd)
     {
         // We are done here ...
+		pOrbiterLinux->m_pWinListManager->SetSdlWindowVisibility(true);
         pOrbiterLinux->m_pProgressWnd->Terminate();
         pOrbiterLinux->m_pProgressWnd = NULL;
         pOrbiterLinux->reinitGraphics();
@@ -207,6 +209,7 @@ bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, int nProgress)
         pOrbiterLinux->m_pProgressWnd->UpdateProgress(sMessage, nProgress);
         pOrbiterLinux->m_pProgressWnd->Run();
         pOrbiterLinux->m_pWinListManager->MaximizeWindow(pOrbiterLinux->m_pProgressWnd->m_wndName);
+		pOrbiterLinux->m_pWinListManager->SetSdlWindowVisibility(false);
         return false;
     }
     /*else*/ if (nProgress != -1)
@@ -219,6 +222,7 @@ bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, int nProgress)
     /*else*/ if(pOrbiterLinux->m_pProgressWnd)
     {
         // We are done here ...
+		pOrbiterLinux->m_pWinListManager->SetSdlWindowVisibility(true);
         pOrbiterLinux->m_pProgressWnd->Terminate();
         pOrbiterLinux->m_pProgressWnd = NULL;
         pOrbiterLinux->reinitGraphics();
@@ -241,12 +245,14 @@ int OrbiterRenderer_Linux::PromptUser(string sPrompt, int iTimeoutSeconds, map<i
 	if(NULL ==	pOrbiterLinux)
 		return false;
 
+	pOrbiterLinux->m_pWinListManager->SetSdlWindowVisibility(false);
     XPromptUser promptDlg(sPrompt, iTimeoutSeconds, p_mapPrompts);
     promptDlg.SetButtonPlacement(XPromptUser::BTN_VERT);
     promptDlg.Init();
     pOrbiterLinux->m_pWinListManager->MaximizeWindow(promptDlg.m_wndName);
     int nUserAnswer = promptDlg.RunModal();
     promptDlg.DeInit();
+	pOrbiterLinux->m_pWinListManager->SetSdlWindowVisibility(true);
     return nUserAnswer;
 }
 

@@ -8,6 +8,7 @@ WinListManager::WinListManager(WMControllerImpl *pWMController, const string &sS
         : m_WindowsMutex("Windows List Mutex")
         , m_pWMController(pWMController)
         , m_sSdlWindowName(sSdlWindowName)
+		, m_bHideSdlWindow(false)
 {
     pthread_mutexattr_init( &m_WindowsMutexAttr );
     pthread_mutexattr_settype( &m_WindowsMutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
@@ -39,7 +40,7 @@ void WinListManager::ShowSdlWindow(bool bExclusive)
     }
     // when Orbiter is fullscreen no other dialog can be on top of
     // it, so it will be maximized instead
-    m_pWMController->SetVisible(m_sSdlWindowName, true);
+    m_pWMController->SetVisible(m_sSdlWindowName, !m_bHideSdlWindow);
     m_pWMController->SetMaximized(m_sSdlWindowName, true);
     m_pWMController->SetLayer(m_sSdlWindowName, bExclusive ? LayerAbove : LayerBelow);
     if (bExclusive)
@@ -63,7 +64,6 @@ void WinListManager::MaximizeWindow(const string &sWindowName)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     g_pPlutoLogger->Write(LV_WARNING, "WinListManager::MaximizeWindow(%s)", sWindowName.c_str());
-	//m_pWMController->SetVisible(sWindowName, false);
 #ifdef ORBITER_OPENGL
     // TODO: possible bugfix: extra, bad call to LayerBelow
 	m_pWMController->SetLayer(sWindowName, LayerBelow);
@@ -79,7 +79,6 @@ void WinListManager::PositionWindow(const string &sWindowName, int x, int y, int
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     g_pPlutoLogger->Write(LV_WARNING, "WinListManager::PositionWindow(%s)", sWindowName.c_str());
-    //m_pWMController->SetVisible(sWindowName, false);
     m_pWMController->SetFullScreen(sWindowName, false);
 	m_pWMController->SetMaximized(sWindowName, false);
 	m_pWMController->SetPosition(sWindowName, x, y, w, h);
@@ -163,3 +162,11 @@ void WinListManager::GetWindows(list<WinInfo>& listWinInfo)
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	m_pWMController->ListWindows(listWinInfo);
 }
+
+void WinListManager::SetSdlWindowVisibility(bool bValue)
+{
+	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+	m_bHideSdlWindow = !bValue;
+	m_pWMController->SetVisible(m_sSdlWindowName, bValue);
+}
+
