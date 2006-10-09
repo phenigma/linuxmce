@@ -89,6 +89,7 @@ g_pPlutoLogger->Write(LV_STATUS,"MouseBehavior::Clear MouseHandler dest %p",m_pM
 	m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL);
 	m_dwTime_Last_Notch=0;
 	m_dwLastSampleShift=0;
+	HighlightObject(NULL);
 
 	if( bGotoMainMenu )
 	{
@@ -361,7 +362,7 @@ void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 		g_pPlutoLogger->Write(LV_CRITICAL, "mmm MouseBehavior::HighlightObject : UNHIGHLIGHT %s %d",
 			m_pObj_Previously_Highlighted->m_ObjectID.c_str(), m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight);
 #endif		
-		m_pObj_Previously_Highlighted->m_GraphicToDisplay_set(m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight,true);
+		m_pObj_Previously_Highlighted->m_GraphicToDisplay_set(m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight);
 		m_pOrbiter->ExecuteCommandsInList( &m_pObj_Previously_Highlighted->m_Action_UnhighlightList, m_pObj_Previously_Highlighted, smHighlight, 0, 0 );
 		m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_Previously_Highlighted);
 	}

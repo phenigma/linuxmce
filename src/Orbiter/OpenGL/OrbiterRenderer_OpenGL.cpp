@@ -503,7 +503,9 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	}
 
 	OrbiterLogic()->m_pObj_Highlighted = NULL;
-	Engine->UnHighlight();
+
+	if(NULL != Engine)
+		Engine->UnHighlight();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::DoHighlightObject()
@@ -714,6 +716,7 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 
 	Popups->Reset();
 	Engine->NewScreen(sScreenName);
+
 	OrbiterRenderer::RenderScreen(bRenderGraphicsOnly);
 	
 	NeedToUpdateScreen_ = true;

@@ -5232,7 +5232,7 @@ void Orbiter::CMD_Set_Bound_Icon(string sValue_To_Assign,string sText,string sTy
 	{
 		DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) *it;
 		pObj->m_bDontResetState=true;
-		pObj->m_GraphicToDisplay_set(iValue);
+		pObj->m_GraphicToDisplay_set(iValue, true, true);
 		if(pObj->m_bOnScreen)
 			m_pOrbiterRenderer->RenderObjectAsync(pObj);
 	}

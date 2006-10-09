@@ -480,6 +480,11 @@ int k=2;
 	PROFILE_STOP( ctObj,  m_ObjectID.c_str(  ) )
 		DesignObj_DataList::reverse_iterator iHao;
 
+
+	//use this to prevent same object to be rendered twice
+	DesignObj_DataList ChildObjectToRender;
+	ChildObjectToRender.assign(m_pObj_Owner->m_ChildObjects.begin(), m_pObj_Owner->m_ChildObjects.end());
+
 	for( iHao=m_pObj_Owner->m_ChildObjects.rbegin(  ); iHao != m_pObj_Owner->m_ChildObjects.rend(  ); ++iHao )
 	{
 		DesignObj_Orbiter *pDesignObj_Orbiter=( DesignObj_Orbiter * )*iHao;
@@ -487,6 +492,7 @@ int k=2;
 			continue;
 
 		pDesignObj_Orbiter->RenderObject(pObj_Screen, point);
+		ChildObjectToRender.remove(pDesignObj_Orbiter);
 	}
 
 	for( iHao=m_pObj_Owner->m_ChildObjects.rbegin(  ); iHao != m_pObj_Owner->m_ChildObjects.rend(  ); ++iHao )
@@ -495,7 +501,12 @@ int k=2;
 		DesignObj_Orbiter *pDesignObj_Orbiter=( DesignObj_Orbiter * )*iHao;
 		if(  pDesignObj_Orbiter->m_pDesignObj_Orbiter_TiedTo || pDesignObj_Orbiter->m_bContainsDataGrid  )
 			continue;
-		pDesignObj_Orbiter->RenderObject(pObj_Screen, point);
+
+		if(std::find(ChildObjectToRender.begin(), ChildObjectToRender.end(), pDesignObj_Orbiter) != ChildObjectToRender.end())
+		{
+			pDesignObj_Orbiter->RenderObject(pObj_Screen, point);
+			ChildObjectToRender.remove(pDesignObj_Orbiter);
+		}
 	}
 	for( iHao=m_pObj_Owner->m_ChildObjects.rbegin(  ); iHao != m_pObj_Owner->m_ChildObjects.rend(  ); ++iHao )
 	{
@@ -503,14 +514,24 @@ int k=2;
 		DesignObj_Orbiter *pDesignObj_Orbiter=( DesignObj_Orbiter * )*iHao;
 		if(  !pDesignObj_Orbiter->m_pDesignObj_Orbiter_TiedTo || pDesignObj_Orbiter->m_bContainsDataGrid  )
 			continue;
-		pDesignObj_Orbiter->RenderObject(pObj_Screen, point);
+
+		if(std::find(ChildObjectToRender.begin(), ChildObjectToRender.end(), pDesignObj_Orbiter) != ChildObjectToRender.end())
+		{
+			pDesignObj_Orbiter->RenderObject(pObj_Screen, point);
+			ChildObjectToRender.remove(pDesignObj_Orbiter);
+		}
 	}
 	for( iHao=m_pObj_Owner->m_ChildObjects.rbegin(  ); iHao != m_pObj_Owner->m_ChildObjects.rend(  ); ++iHao )
 	{
 		DesignObj_Orbiter *pDesignObj_Orbiter=( DesignObj_Orbiter * )*iHao;
 		if(  !pDesignObj_Orbiter->m_bContainsDataGrid  )
 			continue;
-		pDesignObj_Orbiter->RenderObject(pObj_Screen, point);
+		
+		if(std::find(ChildObjectToRender.begin(), ChildObjectToRender.end(), pDesignObj_Orbiter) != ChildObjectToRender.end())
+		{
+			pDesignObj_Orbiter->RenderObject(pObj_Screen, point);
+			ChildObjectToRender.remove(pDesignObj_Orbiter);
+		}
 	}
 
 	VectorDesignObjText::iterator iText;
