@@ -492,7 +492,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 		}
 		else
 		{
-			pObj->m_GraphicToDisplay = pObj->m_GraphicBeforeHighlight;
+			pObj->m_GraphicToDisplay_set(pObj->m_GraphicBeforeHighlight);
 			pObj->m_pvectCurrentGraphic = 
 				pObj->m_GraphicToDisplay == GRAPHIC_NORMAL ?
 					&(pObj->m_vectGraphic) :

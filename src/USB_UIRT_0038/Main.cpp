@@ -220,6 +220,8 @@ int main(int argc, char* argv[])
 			else
 			{
 				pUSB_UIRT_0038->CreateChildren();
+				if( PK_Device==DEVICEID_MESSAGESEND )  // If this is running for the a/v wizard block here so it doesn't exit when the server exits
+					while(true) Sleep(10000);
 				pthread_join(pUSB_UIRT_0038->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
 			}
 			g_pDeadlockHandler=NULL;

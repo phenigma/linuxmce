@@ -54,12 +54,14 @@ public:
 
 	int m_GraphicToDisplay;
 	int m_GraphicBeforeHighlight;
-	void m_GraphicToDisplay_set(int GraphicToDisplay,bool bRecurseChildren=false)
+	void m_GraphicToDisplay_set(int GraphicToDisplay,bool bRecurseChildren=false,bool bSetUnhighlightedState=false)
 	{
 		m_GraphicToDisplay=GraphicToDisplay;
+		if( bSetUnhighlightedState )
+			m_GraphicBeforeHighlight=GraphicToDisplay;
 		if( bRecurseChildren )
 			for(DesignObj_DataList::iterator it=m_ChildObjects.begin();it!=m_ChildObjects.end();++it)
-				((DesignObj_Orbiter *)(*it))->m_GraphicToDisplay_set(GraphicToDisplay,true);
+				((DesignObj_Orbiter *)(*it))->m_GraphicToDisplay_set(GraphicToDisplay,true,bSetUnhighlightedState);
 	}
 
 	int m_GraphicToPlay;

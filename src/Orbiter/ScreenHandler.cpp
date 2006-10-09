@@ -494,11 +494,11 @@ void MediaFileBrowserOptions::SelectArrays(DesignObj_Orbiter *pObj,string &sValu
 		string sArrayValue = pDesignObj_Orbiter->GetArrayValue();
 		m_mapObjectsValues[ make_pair<int,string> (pDesignObj_Orbiter->m_iBaseObjectID,sArrayValue) ] = pDesignObj_Orbiter;
 		if( sArrayValue.size()==0 || atoi(sArrayValue.c_str())==0 )
-			pDesignObj_Orbiter->m_GraphicToDisplay = sValues.size()==0 ? GRAPHIC_SELECTED : GRAPHIC_NORMAL;
+			pDesignObj_Orbiter->m_GraphicToDisplay_set(sValues.size()==0 ? GRAPHIC_SELECTED : GRAPHIC_NORMAL,false,true);
 		else if( ("," + sValues + ",").find( "," + sArrayValue + "," )!=string::npos )
-			pDesignObj_Orbiter->m_GraphicToDisplay = GRAPHIC_SELECTED;
+			pDesignObj_Orbiter->m_GraphicToDisplay_set(GRAPHIC_SELECTED,false,true);
 		else
-			pDesignObj_Orbiter->m_GraphicToDisplay = GRAPHIC_NORMAL;
+			pDesignObj_Orbiter->m_GraphicToDisplay_set(GRAPHIC_NORMAL,false,true);
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -514,9 +514,9 @@ void MediaFileBrowserOptions::SelectArrays(DesignObj_Orbiter *pObj,int &iValue)
 		string sArrayValue = pDesignObj_Orbiter->GetArrayValue();
 		m_mapObjectsValues[ make_pair<int,string> (pDesignObj_Orbiter->m_iBaseObjectID,sArrayValue) ] = pDesignObj_Orbiter;
 		if( atoi(sArrayValue.c_str())==iValue )
-			pDesignObj_Orbiter->m_GraphicToDisplay = GRAPHIC_SELECTED;
+			pDesignObj_Orbiter->m_GraphicToDisplay_set(GRAPHIC_SELECTED,false,true);
 		else
-			pDesignObj_Orbiter->m_GraphicToDisplay = GRAPHIC_NORMAL;
+			pDesignObj_Orbiter->m_GraphicToDisplay_set(GRAPHIC_NORMAL,false,true);
 	}
 }
 
@@ -543,7 +543,6 @@ void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,string &sVal
 				else
 					sNewValue = sValues.substr(0,prior) + sValues.substr(pos);
 				sValues = sNewValue;
-				pObj->m_GraphicToDisplay = GRAPHIC_NORMAL;
 				return;
 			}
 			prior=pos;
@@ -559,13 +558,13 @@ void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,string &sVal
 			DesignObj_Orbiter *pObj_All = it->second;
 			if( pObj_All==pObj )  // user selected all, clear everything else
 			{
-				pObj->m_GraphicToDisplay = GRAPHIC_SELECTED;
+				pObj->m_GraphicToDisplay_set(GRAPHIC_SELECTED,false,true);
 				for( DesignObj_DataList::iterator iHao=pObj->m_pParentObject->m_ChildObjects.begin(  ); iHao != pObj->m_pParentObject->m_ChildObjects.end(  ); ++iHao )
 				{
 					DesignObj_Orbiter *pObj_Child=( DesignObj_Orbiter * )*iHao;
 					if( pObj_Child!=pObj )
 					{
-						pObj_Child->m_GraphicToDisplay = GRAPHIC_NORMAL;
+						pObj_Child->m_GraphicToDisplay_set(GRAPHIC_NORMAL,false,true);
 						m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Child);
 					}
 				}
@@ -574,13 +573,14 @@ void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,string &sVal
 			}
 			else  // User selected something besides 'all'
 			{
-				pObj_All->m_GraphicToDisplay = GRAPHIC_NORMAL;
+				pObj_All->m_GraphicToDisplay_set(GRAPHIC_NORMAL,false,true);
 				m_pOrbiter->Renderer()->RenderObjectAsync(pObj_All);
 			}
 		}
 	}
 
-	pObj->m_GraphicToDisplay = GRAPHIC_SELECTED;
+	pObj->m_GraphicToDisplay_set(GRAPHIC_SELECTED,false,true);
+
 	if( sValues.size() )
 		sValues += ",";
 	sValues += sArrayValue;
@@ -602,11 +602,11 @@ void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,int &iValue)
 	if( it!=m_mapObjectsValues.end() )
 	{
 		DesignObj_Orbiter *pObj_PriorSelected = it->second;
-		pObj_PriorSelected->m_GraphicToDisplay = GRAPHIC_NORMAL;
+		pObj_PriorSelected->m_GraphicToDisplay_set(GRAPHIC_NORMAL,false,true);
 		m_pOrbiter->Renderer()->RenderObjectAsync(pObj_PriorSelected);  // We will be changing the selected state
 	}
 
-	pObj->m_GraphicToDisplay = GRAPHIC_SELECTED;
+	pObj->m_GraphicToDisplay_set(GRAPHIC_SELECTED,false,true);
 	iValue = iValue_New;
 }
 

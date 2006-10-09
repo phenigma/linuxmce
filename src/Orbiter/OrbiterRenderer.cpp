@@ -1277,6 +1277,7 @@ void *ImageLoadThread(void *p)
 				continue;
 			}
 
+g_pPlutoLogger->Write(LV_STATUS,"delete1 pBackgroundImage->m_pCell->m_pGraphic %p:%p",pBackgroundImage->m_pCell,pBackgroundImage->m_pCell->m_pGraphic);
 			delete pBackgroundImage->m_pCell->m_pGraphic;
 
 			pBackgroundImage->m_pCell->m_pGraphic = pPlutoGraphic;

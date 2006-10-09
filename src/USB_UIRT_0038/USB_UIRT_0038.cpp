@@ -244,8 +244,8 @@ bool USB_UIRT_0038::GetConfig()
 		IRReceiverBase::GetConfig(m_pData);
 	}	
 
-#ifdef __linux
 	char devicePath[256];
+#ifdef __linux
 
 	if( m_sPort.size() )
 		strcpy(devicePath, m_sPort.c_str());
@@ -256,6 +256,8 @@ bool USB_UIRT_0038::GetConfig()
 		g_pPlutoLogger->Write(LV_CRITICAL, "No port specified.");
 		return false;
 	}
+#else
+	devicePath[0]=0;
 #endif
 
 	g_pPlutoLogger->Write(LV_STATUS,"Opening on port %s",devicePath);
@@ -638,7 +640,9 @@ void USB_UIRT_0038::OurCallback(const char *szButton)
 		
 		if( m_dwPK_Device==DEVICEID_MESSAGESEND )
 		{
+#ifndef WIN32
 			ForceKeystroke(it->second.first, m_sAVWHost, m_iAVWPort);
+#endif
 			return;
 		}
 	}

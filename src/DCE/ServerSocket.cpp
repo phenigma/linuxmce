@@ -289,8 +289,8 @@ bool ServerSocket::_Run()
 				m_pListener->m_pTestDisconnectCmdHandler = this;
 			}
 #endif
-
-			m_pListener->RegisterCommandHandler( this, m_dwPK_Device );
+			if( m_dwPK_Device!=DEVICEID_MESSAGESEND )  // Special for temporary, 1 way devices
+				m_pListener->RegisterCommandHandler( this, m_dwPK_Device );
 
 			// This is a request handler. It will only be used for messages
 			// originating FROM other sources, so no thread is necessary.

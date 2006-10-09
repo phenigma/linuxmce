@@ -72,7 +72,7 @@ static bool FileBrowserInfoComparer(FileBrowserInfo *x, FileBrowserInfo *y)
 	if( !x->m_bIsDirectory && y->m_bIsDirectory )
 		return false;
 
-	return x->m_sDisplayGroup+x->m_sDisplayName < y->m_sDisplayGroup+y->m_sDisplayName;
+	return stricmp( (x->m_sDisplayGroup+x->m_sDisplayName).c_str(), (y->m_sDisplayGroup+y->m_sDisplayName).c_str() )<0;
 }
 
 class DatabaseInfoOnPath
