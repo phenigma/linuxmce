@@ -17,6 +17,8 @@ cd "..\CENet_PocketFrog"
 call build_cab.bat
 cd "..\Orbiter_CeNet4_x86"
 call build_cab.bat
+cd "..\CENet_Smartphone_Treo"
+call build_cab.bat
 
 
 
