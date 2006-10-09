@@ -200,6 +200,7 @@ int main(int argc, char *argv[])
 	WSACleanup();
 #endif
 
+/*
 	g_pPlutoLogger->Write(LV_STATUS, "Ready to delete router");
 	delete g_pRouter;
 	g_pRouter = NULL;
@@ -224,6 +225,7 @@ int main(int argc, char *argv[])
 
 	delete g_pPlutoLogger;
 	g_pPlutoLogger = NULL;
+*/
 
 	if( bResult )
 		return 2;
