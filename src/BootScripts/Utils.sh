@@ -11,6 +11,7 @@ HEADER_Utils=included
 DEVICETEMPLATE_OnScreen_Orbiter=62
 DEVICEDATA_Use_OpenGL_effects=172
 DEVICEDATA_Use_alpha_blended_UI=169
+DEVICEDATA_PK_UI=104
 
 FindDevice_Template()
 {
