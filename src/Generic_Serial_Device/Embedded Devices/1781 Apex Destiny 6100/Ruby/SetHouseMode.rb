@@ -9,13 +9,13 @@ log( "Handling:"     +  handling_instructions     + "\n" )
 
 #check parameters
 if ($partMapping.has_key?(pk_devicegroup) == false) and (pk_devicegroup != "0") then 
-	badParam("SetHouseMode" ,"Bad device group")  
+	# badParam("SetHouseMode" ,"Bad device group")  
 	return
 end
 
 valueNo=value_to_assign.to_i
 if (valueNo < 1) or (valueNo > 6)  then 
-	badParam("SetHouseMode" ,"Value to assign") 
+	# badParam("SetHouseMode" ,"Value to assign") 
 	return
 end
 
@@ -46,5 +46,4 @@ when 5      # entertaining
 	log( "Case 5:\n" )
 when 6      # armed extended away
 	ApexArmPartition("AWAY","1",password)
-
 end

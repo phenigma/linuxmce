@@ -61,19 +61,18 @@ else
 end
 
 log( "Starting Apex Destiny 6100\n" )
-logState( true )
 
 if (device_.devdata_ != nil) then 
 	if (device_.devdata_[135] != nil) and ( device_.devdata_[135].empty? == false) then
 		$logFile.print "Mapping:" + device_.devdata_[135] + "\n"
-		mapp( device_.devdata_[135] )
+		# mapp( device_.devdata_[135] )
 	else
 		$logFile.print "Mapping with empty string" + "\n"
-		mapp("")
+		# mapp("")
 	end
 else
 	$logFile.print "Run without devicedata " + "\n"
-	mapp( "" )	
+	# mapp( "" )	
 end
 #mapp("")
 
