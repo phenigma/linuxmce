@@ -168,7 +168,7 @@ function avWizard($output,$dbADO) {
 		</table>
 	</div>
 	<div id="content" style="display:none;">
-		<a href="index.php?section=connectionWizard">'.$TEXT_CONNECTION_WIZARD_CONST.'</a><div align="center"><input type="checkbox" name="shareIRCodes" value="1" '.((@$sharedWithOthers>0)?'checked':'').' onClick="document.avWizard.submit();"> '.$TEXT_SHARE_CODES_CONST.'</div>
+		<a href="javascript:windowOpen(\'index.php?section=connectionWizard\',\'width=1024,height=760,toolbars=true,scrollbars=1,resizable=1\');">'.$TEXT_CONNECTION_WIZARD_CONST.'</a><div align="center"><input type="checkbox" name="shareIRCodes" value="1" '.((@$sharedWithOthers>0)?'checked':'').' onClick="document.avWizard.submit();"> '.$TEXT_SHARE_CODES_CONST.'</div>
 		
 		<input type="hidden" name="coreID" value="'.$coreID.'">
 		<input type="hidden" name="oldShareIRCodes" value="'.((@$sharedWithOthers>0)?'1':'0').'">

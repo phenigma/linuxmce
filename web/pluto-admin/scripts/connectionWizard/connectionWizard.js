@@ -15,7 +15,7 @@ if (document.layers) { // Netscape
 
 xMousePos = 0; // Horizontal position of the mouse on the screen
 yMousePos = 0; // Vertical position of the mouse on the screen
-pipesArray=new Array('audio','video','audioLive','videoLive');
+pipesArray=new Array('audio','video');
 
 var startX=0;
 var startY=0;
@@ -32,8 +32,6 @@ globalYTo=-1
 
 audioPipe=new Array();
 videoPipe=new Array();
-audioLivePipe=new Array();
-videoLivePipe=new Array();
 
 function captureMousePosition(e) {
 	if (document.layers) {
@@ -77,7 +75,7 @@ function start_drag(val)
 	flag_drag=1;
 	object_to_drag=val;
 	devID=val.substring(7);
-	
+
 	for(i=0;i<pipesArray.length;i++){
 		pipe=pipesArray[i];
 		eval(pipe+"_"+devID+".clear()");
@@ -116,12 +114,6 @@ function drawPipe(device,connectionType,fromX,fromY,toX,toY)
 		break;
 		case 'video':
 			pipeColor='blue';
-		break;
-		case 'audioLive':
-			pipeColor='green';
-		break;
-		case 'videoLive':
-			pipeColor='magenta';
 		break;
 	}
 	eval(pipeName+".setColor(\""+pipeColor+"\")"); 
@@ -209,12 +201,6 @@ function setPipeVariables()
 		case 'video':
 			setMessage('Video Pipe set',0);
 		break;
-		case 'audioLive':
-			setMessage('Audio Live Pipe set',0);
-		break;
-		case 'videoLive':
-			setMessage('Video Live Pipe set',0);
-		break;
 	}
 	clearNotifications();
 }
@@ -290,8 +276,6 @@ function redrawPipes(val)
 	deviceID=val.substring(7);
 	redrawConnectors('audio',audioPipe,deviceID);
 	redrawConnectors('video',videoPipe,deviceID);
-	redrawConnectors('audioLive',audioLivePipe,deviceID);
-	redrawConnectors('videoLive',videoLivePipe,deviceID);
 }
 
 // redraw all graphical pipes based on the arrays with data for a specific pipe type and device
@@ -347,9 +331,7 @@ function savePositions()
 		eval("yCoord=document.getElementById('device_"+layersArray[key]+"').style.top");
 		audioCoords=(audioPipe[layersArray[key]])?audioPipe[layersArray[key]]['to']+':'+audioPipe[layersArray[key]]['coords']+':'+audioPipe[layersArray[key]]['input']+':'+audioPipe[layersArray[key]]['output']+':'+audioPipe[layersArray[key]]['description']:'none';
 		videoCoords=(videoPipe[layersArray[key]])?videoPipe[layersArray[key]]['to']+':'+videoPipe[layersArray[key]]['coords']+':'+videoPipe[layersArray[key]]['input']+':'+videoPipe[layersArray[key]]['output']+':'+videoPipe[layersArray[key]]['description']:'none';
-		audioLiveCoords=(audioLivePipe[layersArray[key]])?audioLivePipe[layersArray[key]]['to']+':'+audioLivePipe[layersArray[key]]['coords']+':'+audioLivePipe[layersArray[key]]['input']+':'+audioLivePipe[layersArray[key]]['output']+':'+audioLivePipe[layersArray[key]]['description']:'none';
-		videoLiveCoords=(videoLivePipe[layersArray[key]])?videoLivePipe[layersArray[key]]['to']+':'+videoLivePipe[layersArray[key]]['coords']+':'+videoLivePipe[layersArray[key]]['input']+':'+videoLivePipe[layersArray[key]]['output']+':'+videoLivePipe[layersArray[key]]['description']:'none';
-		toSave+=';'+layersArray[key]+';'+xCoord+';'+yCoord+';'+audioCoords+';'+videoCoords+';'+audioLiveCoords+';'+videoLiveCoords;
+		toSave+=';'+layersArray[key]+';'+xCoord+';'+yCoord+';'+audioCoords+';'+videoCoords;
 	}
 	document.forms[0].devicesCoords.value=toSave;
 	document.connectionWizard.action.value='setCookie';
@@ -418,12 +400,6 @@ function getYHook(pipeType)
 		break;
 		case 'video':
 			yHook=12;
-		break;
-		case 'audioLive':
-			yHook=16;
-		break;
-		case 'videoLive':
-			yHook=20;
 		break;
 	}
 	return yHook;

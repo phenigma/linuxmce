@@ -1129,7 +1129,7 @@ switch ($section) {
 	break;
 	case 'connectionWizard';
 		$output = new Template($dbADO);
-		$output->setTemplateFileType('large');
+		$output->setTemplateFileType('small');
 	    include_once('operations/myDevices/connectionWizard.php');
 	    connectionWizard($output,$dbADO);
 	break;

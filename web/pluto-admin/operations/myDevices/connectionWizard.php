@@ -22,7 +22,7 @@ function connectionWizard($output,$dbADO) {
 
 	//$connectorsArray=array(0=>'other.gif',1=>'composite.gif',2=>'svideo.gif',3=>'component.gif',4=>'dvi.gif',5=>'vga.gif',6=>'scart.gif',8=>'hdmi.gif');
 	$connectorsArray=getConnectorsArray($dbADO);
-	$pipeTypesArray=array(1=>'audio',2=>'video',3=>'audioLive',4=>'videoLive');
+	$pipeTypesArray=array(1=>'audio',2=>'video');
 	
 if ($action == 'form') {
 	$output->setScriptAnotherJS('scripts/connectionWizard/connectionWizard.js');
@@ -41,20 +41,26 @@ if ($action == 'form') {
 	<input type="hidden" name="action" value="add">
 	<input type="hidden" name="devicesCoords" value="">
 	<input type="hidden" name="oldEntertainArea" value="'.$entertainArea.'">
-	
-
-	<a href="index.php?section=avWizard">'.$TEXT_ADVANCED_MODE_CONST.'</a><br><br>
-	Edit devices in:'.generatePullDown('entertainArea','EntertainArea','PK_EntertainArea','Description',$_SESSION['AVentertainArea'],$dbADO,' INNER JOIN Room ON FK_Room=PK_Room WHERE FK_Installation='.(int)$_SESSION['installationID'],'onChange="savePositions();"').'<br>';
-	$devicesList=array();
-	if($entertainArea!=0){		
+		
+	<h3>'.$TEXT_AV_CONNECTION_WIZARD_CONST.'</h3>
+	<table width="100%">
+		<tr>
+			<td bgcolor="black"><img src="include/images/spacer.gif" border="0" height="1" width="1"></td>
+		</tr>
+	</table>
+			
+	<table>
+		<tr>
+			<td valign="top">Edit devices in:'.generatePullDown('entertainArea','EntertainArea','PK_EntertainArea','Description',$_SESSION['AVentertainArea'],$dbADO,' INNER JOIN Room ON FK_Room=PK_Room WHERE FK_Installation='.(int)$_SESSION['installationID'],'onChange="savePositions();"').' '.(($entertainArea!=0)?'<input type="button" class="button" name="button" value="'.$TEXT_ADD_DEVICE_CONST.'" onClick="document.connectionWizard.action.value=\'externalSubmit\';document.connectionWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=connectionWizard&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="button" class="button" value="'.$TEXT_UPDATE_CONST.'" onClick="savePositions();">':'').'<br>
+			<div align="center"><input type="button" class="button" name="close" onClick="self.close();" value="'.$TEXT_CLOSE_CONST.'"></div></td>
+			<td>';
+		if($entertainArea!=0){		
 		$out.='
-			<input type="button" class="button" name="button" value="'.$TEXT_ADD_DEVICE_CONST.'" onClick="document.connectionWizard.action.value=\'externalSubmit\';document.connectionWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=connectionWizard&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="button" class="button" value="'.$TEXT_UPDATE_CONST.'" onClick="savePositions();">
-			<div style="position:absolute;top:25px;">
-			<div style="position:relative; top:0px; width:360px;background:#DDDDDD;float:right;Z-INDEX:1;">
-			<table align="right">
+			<div style="position:relative; top:0px; background:#DDDDDD;float:right;Z-INDEX:1;"> 
+			<table align="left" border="0" width="300">
 				<tr>
-					<td><B>'.$TEXT_FROM_CONST.'</B>: </td>
-					<td bgcolor="#EEEEEE" width="120"> <span id="fromMessage"></span></td>
+					<td width="50"><B>'.$TEXT_FROM_CONST.'</B>: </td>
+					<td bgcolor="#EEEEEE"> <span id="fromMessage"></span></td>
 				</tr>
 				<tr>
 					<td><B>'.$TEXT_TO_CONST.'</B>: </td>
@@ -71,12 +77,21 @@ if ($action == 'form') {
 				</tr>
 				<tr>
 					<td><B>'.$TEXT_PIPE_TYPE_CONST.'</B>:</td>
-					<td bgcolor="#EEEEEE"><input type="radio" name="pipeType" value="audio" checked onclick="setPipeType();"> <font color="red">'.$TEXT_AUDIO_CONST.'</font> <input type="radio" name="pipeType" value="video" onclick="setPipeType();"> <font color="blue">'.$TEXT_VIDEO_CONST.'</font> <input type="radio" name="pipeType" value="audioLive" onclick="setPipeType();"> <font color="green">'.$TEXT_AUDIO_LIVE_CONST.'</font> <input type="radio" name="pipeType" value="videoLive" onclick="setPipeType();"> <font color="magenta">'.$TEXT_VIDEO_LIVE_CONST.'</font></td>
+					<td bgcolor="#EEEEEE"><input type="radio" name="pipeType" value="audio" checked onclick="setPipeType();"> <font color="red">'.$TEXT_AUDIO_CONST.'</font> <input type="radio" name="pipeType" value="video" onclick="setPipeType();"> <font color="blue">'.$TEXT_VIDEO_CONST.'</font> </td>
 				</tr>
 			</table>
-		</div>
-		</div>
+			</div>
 		';
+		}
+			$out.='&nbsp;
+			</td>
+		</tr>
+	</table>';
+	
+	
+	$devicesList=array();
+	if($entertainArea!=0){		
+
 		$avDTsArray=getDeviceTemplatesFromCategory($deviceCategory,$dbADO);
 		$GLOBALS['childsDeviceCategoryArray']=array();
 		$mdArray=getDeviceTemplatesFromCategory($GLOBALS['rootMediaDirectors'],$dbADO);
@@ -149,7 +164,7 @@ if ($action == 'form') {
 				$jsDrawPipes='';
 
 				if($positionsArray[0]!=''){
-					for($i=0;$i<count($positionsArray);$i=$i+7){
+					for($i=0;$i<count($positionsArray);$i=$i+5){
 						if(in_array($positionsArray[$i],$devicesInEA)){
 							$oldDevice[$positionsArray[$i]]['deviceX']=$positionsArray[$i+1];
 							$oldDevice[$positionsArray[$i]]['deviceY']=$positionsArray[$i+2];
@@ -184,34 +199,6 @@ if ($action == 'form') {
 								}
 							}
 							
-							if($positionsArray[$i+5]!='none'){
-								$parts=explode(':',$positionsArray[$i+5]);
-								if(in_array($parts[0],$devicesInEA)){
-									if(isset($existingPipes[$positionsArray[$i]]) && $existingPipes[$positionsArray[$i]][3]['to']==$parts[0]){
-										$jsDrawPipes.='
-											audioLivePipe['.$positionsArray[$i].']=new Array();
-											audioLivePipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
-											audioLivePipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
-											audioLivePipe['.$positionsArray[$i].'][\'description\']=\''.$parts[4].'\';
-											drawPipe(\''.$positionsArray[$i].'\',\'audioLive\','.$parts[1].');
-										';
-									}
-								}
-							}
-							if($positionsArray[$i+6]!='none'){
-								$parts=explode(':',$positionsArray[$i+6]);
-								if(in_array($parts[0],$devicesInEA)){
-									if(isset($existingPipes[$positionsArray[$i]]) && $existingPipes[$positionsArray[$i]][4]['to']==$parts[0]){
-										$jsDrawPipes.='
-											videoLivePipe['.$positionsArray[$i].']=new Array();
-											videoLivePipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
-											videoLivePipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
-											videoLivePipe['.$positionsArray[$i].'][\'description\']=\''.$parts[4].'\';
-											drawPipe(\''.$positionsArray[$i].'\',\'videoLive\','.$parts[1].');
-										';
-									}
-								}
-							}
 						}						
 					
 					}
@@ -282,8 +269,6 @@ if ($action == 'form') {
 <script>
 	var audio_'.$rowD['PK_Device'].' = new jsGraphics("device_'.$rowD['PK_Device'].'_pipe_1");
 	var video_'.$rowD['PK_Device'].' = new jsGraphics("device_'.$rowD['PK_Device'].'_pipe_2");			
-	var audioLive_'.$rowD['PK_Device'].' = new jsGraphics("device_'.$rowD['PK_Device'].'_pipe_3");
-	var videoLive_'.$rowD['PK_Device'].' = new jsGraphics("device_'.$rowD['PK_Device'].'_pipe_4");
 </script>
 <DIV id="device_'.$rowD['PK_Device'].'" style="BORDER-RIGHT: 2px outset; BORDER-TOP: 2px outset; DISPLAY: ; Z-INDEX: 1; BORDER-LEFT: 2px outset; WIDTH: 350px; BORDER-BOTTOM: 2px outset; POSITION: absolute; LEFT: '.$left.'; TOP: '.$top.'; HEIGHT: '.$height.'px" onclick="bring_to_front(\'device_'.$rowD['PK_Device'].'\')" onmousedown="bring_to_front(\'device_'.$rowD['PK_Device'].'\')">
   <TABLE height="100%" cellSpacing=0 cellPadding=0 width="100%" bgColor=#EEEEEE border=0 onContextMenu="showInfoToolbar('.$rowD['PK_Device'].');return false;">
@@ -308,8 +293,6 @@ if ($action == 'form') {
 <div id="deleteToolbar" style="display:none; position:absolute; top:0px;left:0px;BORDER: 1px outset;background-color:#FFFFFF;z-index:1000;" onMouseOut="if (mouseLeaves(this, event))document.getElementById(\'deleteToolbar\').style.display=\'none\';">
 <input type="checkbox" id="del_audio" value="1" onClick="removePipe(this);"> Audio: <span style="color:red" id="del_audio_text">not set</span> <br>
 <input type="checkbox" id="del_video" value="1" onClick="removePipe(this);">  Video: <span style="color:blue" id="del_video_text">not set</span> <br>
-<input type="checkbox" id="del_audioLive" value="1" onClick="removePipe(this);"> AudioLive: <span style="color:green" id="del_audioLive_text">not set</span> <br>
-<input type="checkbox" id="del_videoLive" value="1" onClick="removePipe(this);">VideoLive: <span style="color:magenta" id="del_videoLive_text">not set</span> <br>
 </div>
 ';
 		}
@@ -388,11 +371,9 @@ if ($action == 'form') {
 			foreach ($cookieArray AS $entArea=>$params){
 				if($entArea!=0){
 					$positionsArray=explode(';',substr($cookieArray[$entArea],1));
-					for($i=0;$i<count($positionsArray);$i=$i+7){
+					for($i=0;$i<count($positionsArray);$i=$i+5){
 						addDeletePipe($positionsArray[$i+3],$positionsArray[$i],1,$dbADO);
 						addDeletePipe($positionsArray[$i+4],$positionsArray[$i],2,$dbADO);
-						addDeletePipe($positionsArray[$i+5],$positionsArray[$i],3,$dbADO);
-						addDeletePipe($positionsArray[$i+6],$positionsArray[$i],4,$dbADO);
 					}
 				}
 			}
@@ -404,10 +385,7 @@ if ($action == 'form') {
 		header("Location: index.php?section=connectionWizard&msg=$TEXT_DEVICES_UPDATED_CONST&entertainArea=$entertainArea");		
 	}
 
-	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
-	$output->setPageTitle($TEXT_AV_CONNECTION_WIZARD_CONST);
 	
-	$output->setNavigationMenu(array($TEXT_AV_CONNECTION_WIZARD_CONST=>'index.php?section=connectionWizard'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_AV_CONNECTION_WIZARD_CONST);
 	$output->output();
