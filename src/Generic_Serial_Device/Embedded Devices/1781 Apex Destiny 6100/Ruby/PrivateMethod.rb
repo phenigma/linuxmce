@@ -277,21 +277,23 @@ def ApexArmPartition(type,user,password)
 		buff += "h" 
 	end	
 
-	buff += user.to_s + password.to_s
+	buff += user + password
 	send( buildMess( buff ) )
 end
 
 def ApexDisarmPartition(user,password)
 	if ( user.size()  !=2 )  then 
+		print "User should have a size of 2"
 		return
 	end
 
 	if (password.size != 4)  then 
+		print "pasword should have a size of 4"
 		return
 	end
 
-	buff="aa"
-	buff += value + password
+	buff="ad"
+	buff += user + password
 	send( buildMess( buff ) )
 end
 
