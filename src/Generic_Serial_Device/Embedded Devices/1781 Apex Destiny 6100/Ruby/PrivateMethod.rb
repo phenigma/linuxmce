@@ -62,6 +62,7 @@ def readLine
 	#removed "00" reserved and length
 	$line=$line[2..$line.size()-3]
 	log( $line )
+	print "Received a line from the alarm panel: " + $line + "\n"
 end
 
 def readByte(val)
@@ -280,6 +281,34 @@ def ApexArmPartition(type,user,password)
 	buff += user + password
 	send( buildMess( buff ) )
 end
+
+def TurnAllTriggersOn( user, password )
+	    if ( user.size()  !=2 )  then
+	        print "User should have a size of 2"
+	        return
+	    end
+
+	    if (password.size != 4)  then
+		    print "pasword should have a size of 4"
+		return
+
+		#set all triggers to send events on the rs232 port
+		for loc in 387..435
+			# first retrieve the memory location data
+			# sprintf( "%04x", loc )
+			# send( buildMess( ) )
+			# if > 129 set it's value to the previous value +16
+			# 	otherwise leave unchanged
+
+			# sprintf
+
+			# page 49 installation manual
+	
+
+			
+		end
+end
+
 
 def ApexDisarmPartition(user,password)
 	if ( user.size()  !=2 )  then 
