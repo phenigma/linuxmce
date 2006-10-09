@@ -378,7 +378,6 @@ mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow, mediaFileBrowserOpti
 			{
 				mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,mediaFileBrowserOptions.m_PK_MediaType);
 				m_pOrbiter->CMD_Show_File_List(mediaFileBrowserOptions.m_PK_MediaType);
-				m_pOrbiter->CMD_Goto_Screen("",SCREEN_MediaSortFilter_CONST);
 			}
 			bChangedSortFilter=true;
 			break;
