@@ -252,4 +252,5 @@ alsactl store
 UpdateAudioSettings
 UpdateOrbiterDimensions
 UpdateOrbiterUI
+/usr/pluto/bin/Xconfigure # needed when changing between UI versions
 set +x
