@@ -73,7 +73,7 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 		return;
 	}
 	List->AddItem("Alpha blended", "UI2");
-	List->AddItem("Normal UI", "UI");
+	List->AddItem("Normal UI", "UI1");
 	List->SetFocus(true);
 }
 
