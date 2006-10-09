@@ -285,3 +285,30 @@ AlphaBlendingEnabled()
 	"
 	RunSQL "$Q"
 }
+
+UI_SetOptions()
+{
+	local OrbiterDev="$1"
+	local OpenGLeffects="$2"
+	local AlphaBlending="$3"
+	local UI_Version="$4"
+
+	# disable OpenGL effects
+	Q="
+		REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
+		VALUES('$OrbiterDev', '$DEVICEDATA_Use_OpenGL_effects', '$OpenGLeffects')
+	"
+	RunSQL "$Q"
+	# disable alpha blending
+	Q="
+		REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
+		VALUES('$OrbiterDev', '$DEVICEDATA_Use_alpha_blended_UI', '$AlphaBlending')
+	"
+	RunSQL "$Q"
+	# select UI1
+	Q="
+		REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
+		VALUES('$OrbiterDev', '$DEVICEDATA_PK_UI', '$UI_Version')
+	"
+	RunSQL "$Q"
+}
