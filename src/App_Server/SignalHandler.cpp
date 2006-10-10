@@ -21,6 +21,12 @@ using namespace DCE;
 static App_Server *g_pAppServer = NULL;
 static bool g_bQuit = false;
 static pthread_t g_SignalHandler_Thread = 0;
+/*
+ * TODO: replace iSignalCounter with a IPC semaphore (which also increments),
+ * to remove the busy loop below, because, with a semaphore, I can run a -1 operation
+ * in the loop, which blocks if there's nothing to do, instead of constantly checking
+ * a variable
+ */
 static int iSignalCounter = 0;
 
 void sh(int i) /* signal handler */
