@@ -14,34 +14,42 @@ function viewCameras($output,$dbADO) {
 	$deviceCategory=$GLOBALS['rootCameras'];
 
 	$displayedDevices=array();
-	if($action=='form'){
-		getDeviceCategoryChildsArray($deviceCategory,$dbADO);
-		$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
-		$GLOBALS['childsDeviceCategoryArray'][]=$deviceCategory;
-		
-		$queryDeviceTemplate='
-			SELECT * FROM DeviceTemplate 
-				WHERE FK_DeviceCategory IN ('.join(',',$GLOBALS['childsDeviceCategoryArray']).')
-			ORDER BY Description ASC';
-		$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate);
-		$DTArray=array();
-		while($rowDeviceCategory=$resDeviceTemplate->FetchRow()){
-			$DTArray[$rowDeviceCategory['Description']]=$rowDeviceCategory['PK_DeviceTemplate'];
-		}
-		if(count($DTArray)==0)
-			$DTArray[]=0;
-		
 	
+	$cameras=getDescendantsForCategory($deviceCategory,$dbADO);
+	$queryDevice='
+		SELECT Device.Description AS DeviceName, DeviceTemplate.Description AS Template, PK_Device, Room.Description AS RoomName, PK_Room
+		FROM Device
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+		LEFT JOIN Room ON FK_Room=PK_Room 
+		WHERE Device.FK_Installation=? AND FK_DeviceCategory IN ('.join(',',$cameras).')
+		ORDER BY RoomName ASC, DeviceName ASC';	
+	$resDevice=$dbADO->Execute($queryDevice,array($installationID));	
+	
+	if($action=='form'){
+	
+		$camerasByRoom=array();
+		$roomNames=array(0=>$TEXT_NO_ROOM_CONST);
+		$devicesArray=array();
+		while($row=$resDevice->FetchRow()){
+			if(!is_null($row['PK_Room'])){
+				$roomNames[$row['PK_Room']]=$row['RoomName'];
+			}
+			
+			$devicesArray[]=$row['PK_Device'];
+			$camerasByRoom[(int)$row['PK_Room']][$row['PK_Device']]['Description']=$row['DeviceName'];
+			$camerasByRoom[(int)$row['PK_Room']][$row['PK_Device']]['Template']=$row['Template'];
+		}
+
 		$out.='
 		<script>
 		function selAllCheckboxes()
 		{
 		   val=(document.viewCameras.setAll.checked)?true:false;
-		   for (i = 0; i < viewCameras.elements.length; i++)
+		   for (i = 0; i < document.viewCameras.elements.length; i++)
 		   {
-		     if (viewCameras.elements[i].type == "checkbox")
+		     if (document.viewCameras.elements[i].type == "checkbox")
 		     {
-		         viewCameras.elements[i].checked = val;
+		         document.viewCameras.elements[i].checked = val;
 		     }
 		   }
 		}
@@ -52,45 +60,25 @@ function viewCameras($output,$dbADO) {
 		
 	<form action="index.php" method="POST" name="viewCameras">
 	<input type="hidden" name="section" value="viewCameras">
-	<input type="hidden" name="action" value="update">		
+	<input type="hidden" name="action" value="update">';
+	if($resDevice->RecordCount()>0){
+		
+	$out.='		
 <table align="center" cellpading="3" cellspacing="3" border="0" width="100%">
 <tr>
 	<td width="200">
 	<table align="center" cellpading="3" cellspacing="3" border="0">';
-	$queryDevice='
-		SELECT 
-			Device.Description AS DeviceName, DeviceTemplate.Description AS Template, PK_Device, Room.Description AS RoomName, PK_Room
-		FROM 
-			Room
-			LEFT JOIN Device ON FK_Room=PK_Room AND FK_DeviceTemplate IN ('.join(',',$DTArray).')
-			LEFT JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-		WHERE
-			Room.FK_Installation=? 
-		ORDER BY RoomName ASC, DeviceName ASC';	
-	$resDevice=$dbADO->Execute($queryDevice,array($installationID));
-	if($resDevice->RecordCount()==0){
+	foreach ($camerasByRoom AS $roomID=>$data){
 		$out.='
 			<tr>
-				<td align="center">'.$TEXT_NO_CAMERA_DEVICES_CONST.'</td>
-			</tr>
-			';
-	}
-	$initRoom=0;
-	$devicesArray=array();
-	while($rowD=$resDevice->FetchRow()){
-		if($initRoom!=$rowD['PK_Room']){
+				<td align="center" bgcolor="#D1D9EA"><B>'.$roomNames[$roomID].'</B></td>
+			</tr>';
+		foreach ($data AS $deviceID=>$info){
 			$out.='
 			<tr>
-				<td align="center" bgcolor="#D1D9EA"><B>'.$rowD['RoomName'].'</B></td>
+				<td align="left"><input type="checkbox" name="camera_'.$deviceID.'" '.((isset($_POST['camera_'.$deviceID]))?'checked':'').'> <B>'.$info['Description'].'</B></td>
 			</tr>';
-			$initRoom=$rowD['PK_Room'];
 		}
-		if($rowD['PK_Device']!='')
-			$devicesArray[]=$rowD['PK_Device'];
-		$out.='
-			<tr>
-				<td align="left">'.(($rowD['PK_Device']!='')?'<input type="checkbox" name="camera_'.$rowD['PK_Device'].'" '.((isset($_POST['camera_'.$rowD['PK_Device']]))?'checked':'').'> ':'').'<B>'.$rowD['DeviceName'].'</B></td>
-			</tr>';
 	}
 	if(count($devicesArray)>0){
 		$out.='
@@ -105,7 +93,7 @@ function viewCameras($output,$dbADO) {
 	</table>
 	<input type="hidden" name="devicesArray" value="'.join(',',$devicesArray).'">
 	</td>
-	<td align="center">';
+	<td align="center" class="alternate_back">';
 	if(!isset($_POST['devicesArray']) || @$_POST['devicesArray']==''){
 		$out.=$TEXT_NO_CAMERA_SELECTED_CONST;
 	}else{
@@ -113,19 +101,25 @@ function viewCameras($output,$dbADO) {
 		<table>';
 		$cameras=explode(',',$_POST['devicesArray']);
 		foreach ($cameras AS $cameraid){
-			$out.='
-			<tr>
-				<td><fieldset><legend><B># '.$cameraid.'</B></legend>'.get_video_frame($cameraid,$installationID,$dbADO).'</fieldset></td>
-			</tr>
-			<tr>
-				<td>&nbsp;</td>
-			</tr>';
+			if(isset($_POST['camera_'.$cameraid])){
+				$out.='
+				<tr>
+					<td><fieldset><legend><B># '.$cameraid.'</B></legend>'.get_video_frame($cameraid,$installationID,$dbADO).'</fieldset></td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+				</tr>';
+			}
 		}
 	}
 	
 	$out.='</td>
 </tr>
-</table>
+</table>';
+	}else{
+		$out.=$TEXT_NO_CAMERA_DEVICES_IN_INSTALLATION_TEXT;
+	}
+	$out.='
 	</form>';
 	}else{
 		// process area
