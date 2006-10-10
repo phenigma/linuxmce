@@ -13,25 +13,35 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/select.h>
 #include <pthread.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+#include <errno.h>
 
 using namespace DCE;
+
+extern int errno;
+
+static const key_t IPCKEY_APPSERVER = 0xA99516; // h4x0r to english: AppSig
+static const struct sembuf c_sops_inc = { sem_num: 0, sem_op: 1, sem_flg: 0, };
+static const struct sembuf c_sops_dec = { sem_num: 0, sem_op: -1, sem_flg: 0, };
 
 static App_Server *g_pAppServer = NULL;
 static bool g_bQuit = false;
 static pthread_t g_SignalHandler_Thread = 0;
-/*
- * TODO: replace iSignalCounter with a IPC semaphore (which also increments),
- * to remove the busy loop below, because, with a semaphore, I can run a -1 operation
- * in the loop, which blocks if there's nothing to do, instead of constantly checking
- * a variable
- */
-static int iSignalCounter = 0;
+static int g_iSemID = -1;
 
 void sh(int i) /* signal handler */
 {
-	iSignalCounter++;
+	struct sembuf sops;
+	int ret;
+
+	do
+	{
+		sops = c_sops_inc;
+		errno = 0;
+		ret = semop(g_iSemID, &sops, 1);
+	} while (ret == -1 && errno == EINTR);
 }
 
 void SignalHandler_Action()
@@ -40,7 +50,6 @@ void SignalHandler_Action()
 		return;
 	PLUTO_SAFETY_LOCK(ap,g_pAppServer->m_AppMutex);
 
-	iSignalCounter--;
 	int status = 0;
 	pid_t pid = 0;
 
@@ -70,32 +79,47 @@ void * SignalHandler_Thread(void * Args)
 	g_pAppServer = (App_Server *) Args;
 	signal(SIGCHLD, sh); /* install signal handler */
 
-	const struct timeval cTimeout = { tv_sec:0, tv_usec:500, };
-	struct timeval timeout = cTimeout;
+	struct sembuf sops;
+	int ret;
 
 	while (! g_bQuit)
 	{
-		if (iSignalCounter > 0)
+		do
+		{
+			sops = c_sops_dec;
+			errno = 0;
+			ret = semop(g_iSemID, &sops, 1);
+		} while (ret == -1 && errno == EINTR);
+		if (ret == 0)
 			SignalHandler_Action();
-		select(0, NULL, NULL, NULL, &timeout);
-		timeout = cTimeout;
 	}
 
-	signal(SIGCHLD, SIG_DFL);
 	return NULL;
 }
 
 void SignalHandler_Start(App_Server *pApp_Server)
 {
+	g_iSemID = semget(IPCKEY_APPSERVER, 1, IPC_CREAT | 0600);
+
+	if (g_iSemID == -1)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to initialize semaphore. Signal handler not enabled. AppServer will leave lots of zombies behind.");
+		return;
+	}
+	semctl(g_iSemID, 0, SETVAL, (int) 0);
+	
 	pthread_create(&g_SignalHandler_Thread, NULL, SignalHandler_Thread, (void *) pApp_Server);
 }
 
 void SignalHandler_Stop()
 {
+	signal(SIGCHLD, SIG_DFL);
 	g_bQuit = true;
 
 	if (g_SignalHandler_Thread != 0)
 	{
+		semctl(g_iSemID, 0, IPC_RMID);
+
 		pthread_join(g_SignalHandler_Thread, NULL);
 		g_SignalHandler_Thread = 0;
 	}

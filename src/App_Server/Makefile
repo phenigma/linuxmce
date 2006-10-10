@@ -4,7 +4,7 @@ GENDEV=../Gen_Devices
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql <-mkr_t_compile_defines->
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql #<-mkr_t_compile_defines->
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
