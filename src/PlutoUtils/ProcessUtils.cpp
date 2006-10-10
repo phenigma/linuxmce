@@ -19,6 +19,9 @@
 	#include <sys/sem.h>
 	#include <unistd.h>
 	#include <sys/wait.h>
+	#include <errno.h>
+
+	extern int errno;
 #endif
 using namespace std;
 
@@ -121,10 +124,15 @@ printf("dupped arg %d %s\n",i,ps);
 			close(in[1]);
 			dup2(in[0], 0);
 			
-			sops.sem_num = 0;
-			sops.sem_op = 0;
-			sops.sem_flg = 0;
-			semop(semSpawnApplication, &sops, 1);
+			int ret;
+			do
+			{
+				sops.sem_num = 0;
+				sops.sem_op = 0;
+				sops.sem_flg = 0;
+				errno = 0;
+				ret = semop(semSpawnApplication, &sops, 1);
+			} while (ret == -1 && errno == EINTR);
 			
             if (execvp(args[0], args) == -1)
 			{
@@ -153,10 +161,15 @@ printf("dupped arg %d %s\n",i,ps);
 			pPidData->in = in[1];
 			g_mapIdentifierToPidData[sAppIdentifier][pid] = pPidData;
 
-			sops.sem_num = 0;
-			sops.sem_op = -1;
-			sops.sem_flg = 0;
-			semop(semSpawnApplication, &sops, 1);
+			int ret;
+			do
+			{
+				sops.sem_num = 0;
+				sops.sem_op = -1;
+				sops.sem_flg = 0;
+				errno = 0;
+				ret = semop(semSpawnApplication, &sops, 1);
+			} while (ret == -1 && errno == EINTR);
 			semctl(semSpawnApplication, 0, IPC_RMID);
 			
             return pid;
