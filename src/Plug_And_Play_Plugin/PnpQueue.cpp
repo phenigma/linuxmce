@@ -1187,6 +1187,10 @@ string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
 			sDescription = pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_Block_Device_CONST];
 		else
 			sDescription = pRow_DeviceTemplate->Description_get();
+
+		map<int,string>::iterator it;
+		if( (it=pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Description_CONST))!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
+			sDescription += "(" + it->second + ")";
 	}
 
 	if( sDescription.size()==0 )

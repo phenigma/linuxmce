@@ -180,7 +180,7 @@ PlutoRectangle DesignObj_Orbiter::GetHighlightRegion()
 	return r;
 }
 //-------------------------------------------------------------------------------------------------------
-string DesignObj_Orbiter::GetArrayValue()
+string DesignObj_Orbiter::GetArrayValue(bool bDescription)
 {
 	for(DesignObjZoneList::iterator itZ=m_ZoneList.begin();itZ!=m_ZoneList.end();++itZ)
 	{
@@ -192,7 +192,7 @@ string DesignObj_Orbiter::GetArrayValue()
 			if( pDesignObjCommand->m_PK_Command==COMMAND_Set_Variable_CONST )
 			{
 				int PK_Variable = atoi(pDesignObjCommand->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST].c_str());
-				if( PK_Variable == VARIABLE_Array_ID_CONST )
+				if( (!bDescription && PK_Variable == VARIABLE_Array_ID_CONST) || (bDescription && PK_Variable == VARIABLE_Array_Desc_CONST) )
 					return pDesignObjCommand->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST];
 			}
 		}
