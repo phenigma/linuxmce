@@ -38,6 +38,7 @@ void SignalHandler_Action()
 {
 	if ( g_pAppServer && g_pAppServer->m_bQuit )
 		return;
+	PLUTO_SAFETY_LOCK(ap,g_pAppServer->m_AppMutex);
 
 	iSignalCounter--;
 	int status = 0;
