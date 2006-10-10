@@ -5,7 +5,7 @@
 
 ## Loging function
 function Log() {
-	echo "$(date) $*"
+	echo "$(date) $*" >> /var/log/pluto/SambaScanner.log
 }
 
 ## Transform decimal-dot netmask in decimal netmask
