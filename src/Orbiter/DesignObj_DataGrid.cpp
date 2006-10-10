@@ -258,6 +258,16 @@ void DesignObj_DataGrid::DataGridTable_Set(DataGridTable *pDataGridTable,int Cur
 
 /*virtual*/ void DesignObj_DataGrid::Flush(bool bFlushGraphics)
 {
+	// Be sure there's no background images waiting to be loaded pointing to this
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+	for(list<BackgroundImage *>::iterator it=m_pOrbiter->Renderer()->m_listBackgroundImage.begin();it!=m_pOrbiter->Renderer()->m_listBackgroundImage.end();++it)
+	{
+		BackgroundImage *pBackgroundImage = *it;
+		if( pBackgroundImage->m_pObj_Grid == this )
+			m_pOrbiter->Renderer()->m_listBackgroundImage.erase(it);
+	}
+	vm.Release();
+
 	DesignObj_Orbiter::Flush(bFlushGraphics);
 	m_pDataGridTable_Current=NULL;
 	for(map< pair<int,int>, DataGridTable *>::iterator it=m_mapDataGridTable_Cache.begin();it!=m_mapDataGridTable_Cache.end();++it)

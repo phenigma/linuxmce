@@ -82,7 +82,7 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 	ResetSamples();
 	ConstrainMouse(PlutoRectangle(0,0,0,0));
 	m_pLastPosition.X=m_pLastPosition.Y=-1;
-g_pPlutoLogger->Write(LV_STATUS,"MouseBehavior::Clear MouseHandler dest %p",m_pMouseHandler);
+g_pPlutoLogger->Write(LV_STATUS,"MouseBehavior::Clear MouseHandler dest %p goto menu %d",m_pMouseHandler,(int) bGotoMainMenu);
 	delete m_pMouseHandler;
 	m_pMouseHandler=NULL;
 	m_pMouseGovernor->SetBuffer(0);
@@ -100,7 +100,6 @@ g_pPlutoLogger->Write(LV_STATUS,"MouseBehavior::Clear MouseHandler dest %p",m_pM
 			m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_iPK_Screen_Remote);
 		else
 			m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
-		ShowMouse(false);
 	}
 }
 

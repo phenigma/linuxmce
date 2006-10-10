@@ -260,7 +260,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_bStartingUp=true;
 	m_pLocationInfo = NULL;
 	m_dwPK_Users = 0;
-	m_dwPK_Device_NowPlaying_Video = m_dwPK_Device_NowPlaying_Audio = m_dwPK_Device_NowPlaying = 0;
+	m_dwPK_Device_CaptureCard = m_dwPK_Device_NowPlaying_Video = m_dwPK_Device_NowPlaying_Audio = m_dwPK_Device_NowPlaying = 0;
 	m_bPK_Device_NowPlaying_Audio_DiscreteVolume = false;
 	m_pOrbiterFileBrowser_Collection=NULL;
 	m_bForward_local_kb_to_OSD=false;
@@ -5971,6 +5971,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	m_dwPK_Device_NowPlaying = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str());
 	m_dwPK_Device_NowPlaying_Video = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str());
 	m_dwPK_Device_NowPlaying_Audio = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str());
+	m_dwPK_Device_CaptureCard = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str());
 	m_bPK_Device_NowPlaying_Audio_DiscreteVolume = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str())==1;
 	bool bContainsVideo = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str())==1;
 	CMD_Set_Variable(VARIABLE_Track_or_Playlist_Positio_CONST, StringUtils::itos(iValue));
@@ -5979,7 +5980,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 #endif
 	pos=0;
 	m_iPK_Screen_Remote=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
-	m_iPK_DesignObj_Remote_Popup=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
+	m_iPK_DesignObj_Remote_Popup=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());  // ON UI2 the leftmost popup menu on the main menu
 	m_iPK_Screen_FileList=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_Screen_RemoteOSD=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_Screen_OSD_Speed=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
@@ -6796,6 +6797,9 @@ void Orbiter::CMD_Set_Mouse_Pointer_Over_Object(string sPK_DesignObj,string &sCM
 void Orbiter::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c354-e->
 {
+#ifdef ENABLE_MOUSE_BEHAVIOR
+		m_pMouseBehavior->ShowMouse(sOnOff=="1");
+#endif
 }
 
 //<-dceag-c366-b->
