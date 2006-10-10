@@ -329,36 +329,37 @@ echo $version_name > current_version
 if [[ $version -ne 1 || $upload == y ]]; then
 	echo "Marker: uploading download.tar.gz `date`"
 	
-	if [ "$flavor" != "pluto" ]; then
-		## Create tarball containing /home/builds/build directory and upload it
-		rm ../upload/download.$flavor.tar.gz
-		tar zcvf ../upload/download.$flavor.tar.gz *
-		scp ../upload/download.$flavor.tar.gz uploads@plutohome.com:~/
-		
-		## Create replacements repo tarball and upload it
-		rm ../upload/replacements.$flavor.tar.gz
-		pushd /home/samba/repositories/$flavor/$replacementsdeb
-		tar -hzcvf /home/builds/upload/replacements.$flavor.tar.gz  *
-		popd
-		scp ../upload/replacements.$flavor.tar.gz uploads@plutohome.com:~/
+	## Create tarball containing /home/builds/build directory and upload it
+	rm ../upload/download.$flavor.tar.gz
+	tar zcvf ../upload/download.$flavor.tar.gz *
+	scp ../upload/download.$flavor.tar.gz uploads@plutohome.com:~/
+	
+	## Create replacements repo tarball and upload it
+	rm ../upload/replacements.$flavor.tar.gz
+	pushd /home/samba/repositories/$flavor/$replacementsdeb
+	tar -hzcvf /home/builds/upload/replacements.$flavor.tar.gz  *
+	popd
+	scp ../upload/replacements.$flavor.tar.gz uploads@plutohome.com:~/
 
+	if [ "$flavor" != "pluto" ]; then
 		## Extract the files on plutohome.com
+		echo "Marker: setting up `date`"
 		ssh uploads@plutohome.com "/home/uploads/SetupUploads.sh \"$flavor\" \"$replacementsdeb\"  \"$maindeb\""
 	else
-		ssh uploads@plutohome.com "rm ~/*download* ~/*replace*"
-		tar zcvf ../upload/download.tar.gz *
-		scp ../upload/download.tar.gz uploads@plutohome.com:~/
-		cd ../upload
-	    sh -x `dirname $0`/scripts/DumpVersionPackage.sh
-		scp dumpvp.tar.gz uploads@plutohome.com:~/
-
-		echo "Marker: uploading replacements `date`"
-
-		cd /home/WorkNew/src/MakeRelease
-		bash -x DirPatch.sh
-		scp replacements.tar.gz uploads@plutohome.com:~/
-		scp replacements.patch.sh uploads@plutohome.com:~/
-	fi
+#		ssh uploads@plutohome.com "rm ~/*download* ~/*replace*"
+#		tar zcvf ../upload/download.tar.gz *
+#		scp ../upload/download.tar.gz uploads@plutohome.com:~/
+#		cd ../upload
+#	    sh -x `dirname $0`/scripts/DumpVersionPackage.sh
+#		scp dumpvp.tar.gz uploads@plutohome.com:~/
+#
+#		echo "Marker: uploading replacements `date`"
+#
+#		cd /home/WorkNew/src/MakeRelease
+#		bash -x DirPatch.sh
+#		scp replacements.tar.gz uploads@plutohome.com:~/
+#		scp replacements.patch.sh uploads@plutohome.com:~/
+#	fi
 
 	popd	
 fi
