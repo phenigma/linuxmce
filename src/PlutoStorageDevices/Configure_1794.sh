@@ -1,7 +1,11 @@
 #!/bin/bash
 #
 # Configuration script for : Device Template 1794 - Buffalo NAS HD-HG300LAN
+# Configuration script for : Device Template 1837 - Windows PC or Network Storage
 #
+# NOTE:
+#  This script will detect all the available samba shares of a nas / computer and triger
+#  a device detected event for all of them
 
 . /usr/pluto/bin/SQL_Ops.sh
 
@@ -62,11 +66,11 @@ for share in $(smbclient --no-pass --list=//$Device_IP  --grepable | grep "^Disk
 		R=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_PASSWORD")
 		Device_Password=$(Field "1" "$R")
 
-		mount -o username=${Device_User},password=${Device_Password} //$Device_IP/$share $tempMntDir
+		mount -o username=${Device_Username},password=${Device_Password} //$Device_IP/$share $tempMntDir
 		success=$?
 
 		
-		if [[ $success ]] ;then
+		if [[ "$success" == "0" ]] ;then
 			umount -f -l $tempMntDir
 			/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Device_Username|$DD_PASSWORD|$Device_Password"
 		else
