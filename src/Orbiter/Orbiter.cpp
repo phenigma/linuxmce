@@ -6797,6 +6797,9 @@ void Orbiter::CMD_Set_Mouse_Pointer_Over_Object(string sPK_DesignObj,string &sCM
 void Orbiter::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c354-e->
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter::CMD_Show_Mouse_Pointer %s", sOnOff.c_str());
+#endif
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		m_pMouseBehavior->ShowMouse(sOnOff=="1");
 #endif

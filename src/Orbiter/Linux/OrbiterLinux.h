@@ -110,7 +110,6 @@ public:
     virtual Display * GetDisplay_MainWindow(); // do not use
 
 	// overridden to handle turning on and off the mouse pointer
-	virtual void CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage);
 	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
 	virtual void CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage);
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage);
