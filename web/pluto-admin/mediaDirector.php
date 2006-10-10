@@ -29,7 +29,7 @@ if(isset($_POST['save'])){
 	exit();
 }
 
-$cssFile='<link rel="stylesheet" type="text/css" media="all" href="include/styles/customer_setup_style.css" />';
+$cssFile='<link rel="stylesheet" type="text/css" media="all" href="include/styles/main.css" />';
 $out='
 <html>
 <head>

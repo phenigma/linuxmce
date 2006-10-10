@@ -27,7 +27,7 @@
   
   var $defaultMetaTags = '';
   var $defaultTitle='<-mkr_t_name_mixed->';
-  var $defaultCssFile   = "include/styles/customer_setup_style.css";
+  var $defaultCssFile   = "include/styles/main.css";
   
   var $defaultScriptValidateSrc = 'scripts/formValidation.js';
   var $defaultScriptCalendar = '';

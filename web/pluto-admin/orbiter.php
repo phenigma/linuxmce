@@ -8,7 +8,7 @@
 <meta name="keywords" content="">
 <meta name="description" content="">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel='stylesheet' type='text/css' href='include/styles/customer_setup_style.css'>
+<link rel='stylesheet' type='text/css' href='include/styles/main.css'>
 		
 <title><-mkr_t_name_mixed-> :: Orbiters</title>	
 </HEAD>
@@ -37,6 +37,11 @@
 			<td> Windows CE.NET</td>
 			<td><a href="fdownload.php?filepath=installers/Orbiter_CeNet4_x86.CAB" target="_blank">(download)</a></td>
 		</tr>
+		<tr>
+			<td>Outlook sync utility</td>
+			<td>Windows XP</td>
+			<td><a href="fdownload.php?filepath=installers/mysql2outlooksetup.msi" target="_blank">(download)</a></td>
+		</tr>		
 	</table>
 	
 </BODY >
