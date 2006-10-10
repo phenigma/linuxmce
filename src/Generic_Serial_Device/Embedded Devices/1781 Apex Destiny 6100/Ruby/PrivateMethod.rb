@@ -1,7 +1,8 @@
-#PrivateMethod  09-Jun-06 15:20  ApexDestiny 6100
+#PrivateMethod 2006-10-10 22:48 ApexDestiny 6100
 
 def log(word)
-	$logFile.print word
+	$logFile.print( word + "\n" )
+	$logFile.flush()
 end
 
 def buildMess(buff)
@@ -32,31 +33,31 @@ def readLine
 			cod=conn_.Recv(1, $waitTime)
 			$line += cod
 		else
-			log( "Can not read from serial " + "\n" )
+			log( "Can not read from serial " )
 		end
 	end
 	log( "Read line " )
-	log($line)
+	log($line + "||")
 
-	#check if line is well formated		      
+	#check if line is well formated 
 	if($line.size() > 106 ) or ($line.size() < 8) then
 		log( "Error reading line. Line size to short or long:" + $line.size.to_s + "\n" )
 	#send error ...
-	end	
+	end
 
 	len=String.new
 	len=$line[0..1]
-	chkSum=$line[$line.size()-2,2]
-	$line=$line[0,$line.size()-2]
-	log( "Line size:" + len.to_s + "\n" )
-	log( "CheckSum:" + chkSum + "\n" )
+	chkSum=$line[$line.size()-4,2]
+	$line=$line[0,$line.size()-4]
+	log( "Line size:" + len.hex.to_s )
+	log( "CheckSum:" + chkSum )
 
 	if( chkSum != checkSumProc($line) ) then
-		log( "Error reading line. Bad checksum" +  "\n" )
+		log( "Error reading line. Bad checksum " + checkSumProc($line) )
 	end
 	
 	if( len.hex != ($line.size()+2) ) then
-		log( "Error reading line. Bad size" +  "\n" )
+		log( "Error reading line. Bad size " + ($line.size()+2).to_s )
 	end
 
 	#removed "00" reserved and length
@@ -89,33 +90,31 @@ def send(buff)
 end
 
 def sendCmd(buff)
-buff2=checkSumProc(buff)
-
-if ($panelState == 3) then    #wait to finish another command
-	$cmdBuffer.push(buff2)
-	log( "Adding cmd to buffer" + "   " )
-else                                #ready to process another command
-	send( buff2 )
-	$panelState=3
-	log( "Send comand" + "   " )
-	$lastCmdTime=Time.now()
-end
-
-log(buff2)
+	buff2 = buildMess( buff )
+	
+	if ($panelState == 3) then    #wait to finish another command
+		$cmdBuffer.push(buff2)
+		log( "Adding cmd to buffer" )
+	else                                #ready to process another command
+		send( buff2 )
+		$panelState=3
+		log( "Send comand" + "   " )
+		$lastCmdTime=Time.now()
+	end
 end
 
 def sendCmd2()
-log( "Try to send next command from buffer." )
-
-if $cmdBuffer.empty? then      #execute first command from buffer
-	log( "Buffer is empty\n" )
-	if ($panelState == 3) then $panelState=2 end 
-else                                    #buffer empty
-	log( "Sending comand from buffer.\n" )
-	send( $cmdBuffer.first )
-	log($cmdBuffer[0])
-
-	$cmdBuffer.delete_at(0)
+	log( "Try to send next command from buffer." )
+	
+	if $cmdBuffer.empty? then      #execute first command from buffer
+		log( "Buffer is empty\n" )
+		if ($panelState == 3) then $panelState=2 end 
+	else                                    #buffer empty
+		log( "Sending comand from buffer.\n" )
+		send( $cmdBuffer.first )
+		log($cmdBuffer[0])
+	
+		$cmdBuffer.delete_at(0)
 end
 
 #return buff2
@@ -230,7 +229,7 @@ else
 end
 #if error on arm/disarm send a message
 if( err==23 || err==24) then
-changeStateEv= Command.new(devid_, -1001, 1, 2, 67);      #67 PanelChangeState		
+changeStateEv= Command.new(device_.devid_, -1001, 1, 2, 67);      #67 PanelChangeState		
 
 if(err==23) then 
 	changeStateEv.params_[30] = "0," +$errCode[err] 
@@ -279,36 +278,69 @@ def ApexArmPartition(type,user,password)
 	end	
 
 	buff += user + password
-	send( buildMess( buff ) )
+	sendCmd( buff )
 end
 
-def TurnAllTriggersOn( user, password )
-	    if ( user.size()  !=2 )  then
-	        print "User should have a size of 2"
-	        return
-	    end
+# send the read location commands
+def TurnAllTriggersOnStep1()
+	# set all triggers to send events on the rs232 port
+	# read all the location from 387 to 435 in 2 steps (32 bytes + 17 bytes),
+	# because we can read max 32 bytes 
+	# See D6100install.pdf, page 49, Report Codes
+	# 1. read 32 (0x20) bytes starting with location 387 (0x0183)
+	buff = "lr200183"
+	sendCmd( buff )
+	# 2. read 17 (0x11) bytes starting with location 419 (0x01A3)
+	buff = "lr1101A3"
+	sendCmd( buff )
+end
 
-	    if (password.size != 4)  then
-		    print "pasword should have a size of 4"
-		return
+# read the report locations
+def TurnAllTriggersOnStep2(nrLocations, locations)
+	for i in 0..nrLocations-1
+		$reportLocations.push( locations[2*i..2*i+1].hex )
+	end
+end
 
-		#set all triggers to send events on the rs232 port
-		for loc in 387..435
-			# first retrieve the memory location data
-			# sprintf( "%04x", loc )
-			# send( buildMess( ) )
-			# if > 129 set it's value to the previous value +16
-			# 	otherwise leave unchanged
-
-			# sprintf
-
-			# page 49 installation manual
+# process and set the report locations
+# so that the reports will be sent when a sensor is triggered
+def TurnAllTriggersOnStep3()
+	#debug info
+# 	log("Before Report values:")
+# 	$reportLocations.each { |locationValue| log( " " + locationValue.to_s() ) }
 	
-
-			
+	# ask Mihai D. or Eugen C. about incrementing with 16
+	$reportLocations.each_index do |locationIndex|
+		if ( $reportLocations[locationIndex] <= 129 && $reportLocations[locationIndex] > 0 ) then
+			$reportLocations[locationIndex] += 16
 		end
+	end
+	
+	#debug info
+# 	log("After Report values:")
+# 	$reportLocations.each { |locationValue| log( " " + locationValue.to_s() ) }
+	
+	# there are 49 locations from 387 to 435
+	if( 49 == $reportLocations.size() ) then
+		# write all the location from 387 to 435 in 2 steps (32 bytes + 17 bytes),
+		# because we can write max 32 bytes 
+		buff = "ls200183"
+		for i in 0..31
+			buff += "%02X" % $reportLocations[i]
+		end
+#		log( "SL: " + buildMess( buff ) )
+		sendCmd( buff )
+		
+		buff = "ls1101A3"
+		for i in 32..48
+			buff += "%02X" % $reportLocations[i]
+		end
+#		log( "SL: " + buildMess( buff ) )
+		sendCmd( buff )
+	else
+		log("Error: location number = " + $reportLocations.size().to_s)
+	end
 end
-
 
 def ApexDisarmPartition(user,password)
 	if ( user.size()  !=2 )  then 
@@ -323,17 +355,65 @@ def ApexDisarmPartition(user,password)
 
 	buff="ad"
 	buff += user + password
-	send( buildMess( buff ) )
+	sendCmd( buff )
 end
 
 def ApexArmingRequest()
-	send( buildMess( "as" ) )
+	sendCmd( "as" )
 end
 
 def ApexStatusRequest()
-	send( buildMess( "zs" ) )
+	sendCmd( "zs" )
 end
 
 def ApexZoneRequest()
-	send( buildMess( "zp" ) )
+	sendCmd( "zp" )
+end
+
+def EventHandler(eventLine)
+	eventType = eventLine[0..1]
+	eventZone = eventLine[2..3]
+	eventDate = eventLine[8..9] + "-" + eventLine[10..11] + " " + eventLine[6..7] + ":" + eventLine[4..5]
+	
+	log("Event type:" + eventType + " zone:" + eventZone + " date:" + eventDate)
+	
+	case eventType
+		when "2B"
+		# Zone Open
+		SendTriggerEvent(eventZone.to_i, "true")
+		
+		when "2C"
+		#Zone Restore
+		SendTriggerEvent(eventZone.to_i, "false")
+		
+	else
+	end
+end
+
+def SendTriggerEvent(zoneId, status)
+	idNo = -1
+	
+	log( "Log children list:" + "\n" )
+	children=device_.childdevices_
+	children.each{ |key, value|
+		strAux = value.devdata_[12]
+		log( "Child id:" + key.to_s + "  " )
+		log( "Child name:" +  strAux + "  " )
+		log( "Search name:" + zoneId.to_s + "\n" )
+
+		if (zoneId == strAux.to_i) then
+			log( "Found child with name:" + strAux.to_s + "  Id:" + key.to_s + "\n" )
+			idNo = key.to_i
+		end
+	}
+	
+	if (idNo != -1) then
+		tripEv = Command.new(idNo, -1001, 1, 2, 9);      #9 sensor tripp
+		if (status.to_s == "true") then
+			tripEv.params_[25] = "1"
+		else
+			tripEv.params_[25] = "0"
+		end
+		SendCommand(tripEv)
+	end
 end

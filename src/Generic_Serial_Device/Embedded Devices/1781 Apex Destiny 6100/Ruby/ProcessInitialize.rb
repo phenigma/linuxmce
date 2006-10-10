@@ -1,7 +1,6 @@
-#ProcessInitialize  09-Jun-06 11:40  ApexDestiny 6100
+#ProcessInitialize 2006-10-10 22:48 ApexDestiny 6100
 
 #create log file
-#$logFile = File.new("/var/log/pluto/DSC_Power.log", "w")
 $logFile = File.new("/var/log/pluto/ApexDestiny6100.log", "w")
 #global variables
 $waitTime = 400      #wait time in comunication
@@ -31,6 +30,13 @@ $partMapping=Hash.new
 #description of partition and zone
 $partStr=String.new
 $zoneStr=String.new
+
+#reports
+$reportLocations=Array.new
+# $ReportStep1=0
+# $ReportStep2=1
+# $ReportStep3=2
+# $reportState=$ReportStep1
 
 #state of panel  0-start,1-init,2-ready to receive command,3 analize to receivce 
 $panelState=0
@@ -80,6 +86,7 @@ log("Start interogation" + "\n")
 ApexArmingRequest()
 ApexStatusRequest()
 ApexZoneRequest()
+TurnAllTriggersOnStep1()
 
 log( "\n\n" )
 
