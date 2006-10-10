@@ -523,6 +523,20 @@ MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
 	return Result;
 }
 
+void OpenGL3DEngine::InvalidateFrame(string ObjectHash)
+{
+	MeshFrame *pDatagridFrame = CurrentLayer->FindChild(ObjectHash);
+
+	if(NULL != pDatagridFrame)
+	{
+		MeshFrame *pNewDummyDatagridFrame = new MeshFrame(ObjectHash);
+		CurrentLayer->ReplaceChild(pDatagridFrame, pNewDummyDatagridFrame);
+
+		pDatagridFrame->CleanUp();
+		delete pDatagridFrame;
+	}
+}
+
 /**
 *	Return as result the popup
 */

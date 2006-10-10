@@ -852,6 +852,7 @@ void OrbiterRenderer_OpenGL::RemoveGraphic(string ObjectID)
 void OrbiterRenderer_OpenGL::HandleRefreshCommand(string sDataGrid_ID)
 {
 	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );
+	
 	vector<DesignObj_DataGrid*>::iterator it;
 	for(it = OrbiterLogic()->m_vectObjs_GridsOnScreen.begin(); it != OrbiterLogic()->m_vectObjs_GridsOnScreen.end(); ++it)
 	{
@@ -860,6 +861,10 @@ void OrbiterRenderer_OpenGL::HandleRefreshCommand(string sDataGrid_ID)
 		if(sDataGrid_ID=="*" || pDesignObj->m_sGridID == sDataGrid_ID)
 		{
 			PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_DatagridMutex );
+
+			string DatagridFrameID = "datagrid " + pDesignObj->GenerateObjectHash(pDesignObj->m_pPopupPoint, false);
+			Engine->InvalidateFrame(DatagridFrameID);
+
 			OrbiterLogic()->InitializeGrid(pDesignObj);
 			pDesignObj->Flush();
 			RenderObjectAsync(pDesignObj);

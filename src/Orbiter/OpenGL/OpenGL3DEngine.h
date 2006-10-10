@@ -125,6 +125,11 @@ public:
 	void StartDatagridDrawing(std::string ObjectHash);
 	MeshFrame* EndDatagridDrawing(std::string ObjectHash);
 
+	/*
+	 *	This will replace the frame in the tree with mesh frame with a dummy frame
+	 */
+	void InvalidateFrame(std::string ObjectHash);
+
 	/**
 	 *	Store the current frame, for instance a popup
 	 */
