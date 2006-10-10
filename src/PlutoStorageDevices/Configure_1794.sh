@@ -70,11 +70,49 @@ for share in $(smbclient --no-pass --list=//$Device_IP  --grepable | grep "^Disk
 		success=$?
 
 		
+		## If the mount succeded with the user/pass for the parent device
 		if [[ "$success" == "0" ]] ;then
 			umount -f -l $tempMntDir
 			/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Device_Username|$DD_PASSWORD|$Device_Password"
+
+		## If the mount didn't succeded wit the user/pass of the parent device
 		else
-			/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|1|$DD_SHARE|$share"
+			## Create a list of user/pass combinations from the allready added childrens (our little brothers and sisters :)
+			Q="
+				SELECT
+					Username.IK_DeviceData,
+					Password.IK_DeviceData
+				FROM
+					Device,
+					INNER JOIN Device_DeviceData Username ON ( Device.PK_Device = Username.FK_Device AND Username.FK_DeviceData = $DD_USERNAME ) 
+					INNER JOIN Device_DeviceData Password ON ( Device.PK_Device = Password.FK_Device AND Password.FK_DeviceData = $DD_PASSWORD )
+				WHERE
+					FK_Device_ControlledVia = $PK_Device
+			"
+			R=$(RunSQL "$Q")
+
+			## Check with every combinationp
+			siblingUserPassWorking="0"
+			for UserPass in "$R" ;do
+				Device_Username=$(Field "1" "$UserPass")
+				Device_Password=$(Field "2" "$UserPass")
+		
+				mount -o username=${Device_Username},password=${Device_Password} //$Device_IP/$share $tempMntDir
+		                success=$?
+
+				if [[ "$success" == "0" ]] ;then
+					umount -f -l $tempDir
+					/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Device_Username|$DD_PASSWORD|$Device_Password"
+
+					siblingUserPassWorking="1"
+					break
+				fi
+			done
+
+			## If it didn't worked with siblings user/pass then prompt the user to input the user/pass			
+			if [[ "$siblingUserPassWorking" == "0" ]] ;then
+				/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|1|$DD_SHARE|$share"
+			fi
 		fi
 	fi
 done
