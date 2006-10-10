@@ -5,26 +5,26 @@
 
 ## Failsafe check
 if [[ $OfflineMode == "false" ]]; then
-	UpgFix=/usr/pluto/install/UpgradeFix40.sh
+	UpgFix=/usr/pluto/install/UpgradeFix41.sh
 	rm -f "$UpgFix"
-	wget -P "$(dirname "$UpgFix")" http://plutohome.com/UpgradeFix40.sh 2>/dev/null
-	if [[ -f /usr/pluto/install/UpgradeFix40.sh ]]; then
-		chmod +x /usr/pluto/install/UpgradeFix40.sh
-		if [[ "$(tail -1 /usr/pluto/install/UpgradeFix40.sh)" != "### END ###" ]]; then
-			echo "UpgradeFix40 download incomplete"
+	wget -P "$(dirname "$UpgFix")" http://plutohome.com/UpgradeFix41.sh 2>/dev/null
+	if [[ -f /usr/pluto/install/UpgradeFix41.sh ]]; then
+		chmod +x /usr/pluto/install/UpgradeFix41.sh
+		if [[ "$(tail -1 /usr/pluto/install/UpgradeFix41.sh)" != "### END ###" ]]; then
+			echo "UpgradeFix41 download incomplete"
 			exit 1
 		fi
-		/usr/pluto/install/UpgradeFix40.sh
+		/usr/pluto/install/UpgradeFix41.sh
 		exit $?
 	fi
 
-	wget -P /tmp http://www.plutohome.com/fallbackUpdate40.txt 2> /dev/null
-	if [[ -f /tmp/fallbackUpdate40.txt ]]; then
+	wget -P /tmp http://www.plutohome.com/fallbackUpdate41.txt 2> /dev/null
+	if [[ -f /tmp/fallbackUpdate41.txt ]]; then
 		apt-get update
 		dpkg --forget-old-unavail
 		apt-get -V -f -y dist-upgrade
 
-		rm -f /tmp/fallbackUpdate40.txt
+		rm -f /tmp/fallbackUpdate41.txt
 		#reboot
 		exit 0
 	fi
