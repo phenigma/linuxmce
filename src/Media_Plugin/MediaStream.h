@@ -24,7 +24,7 @@ namespace DCE
 	{
 	public:
 		int 	m_iPK_Screen_Remote; 		/** What screen to use as the remote control */
-        int 	m_iPK_DesignObj_Remote_Popup; 		/** What screen to use as the popup remote control */
+        int 	m_iPK_DesignObj_Remote_Popup; 		/** In UI2, this is the context sensitive media options bar on the main menu */
         int 	m_iPK_Screen_FileList; 			/** What screen to use as the file list */
         int 	m_iPK_Screen_OSD; 				/** What screen to use as the remote if this is an on screen display */
 		int		m_iPK_Screen_Alt_Remote;				/** The Alt versions are used for example for DVD Menu's, or non-live TV */

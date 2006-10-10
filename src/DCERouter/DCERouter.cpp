@@ -1714,7 +1714,8 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 
             ReceivedMessage(NULL,pMessage);
 
-			if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_isNull() )
+			// The pipe's auto selection of inputs could be disabled if we're using some other output device, like a capture card
+			if( pPipe->m_bDontSendInputs==false && !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_isNull() )
             {
                 Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
                     PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Input_Select_CONST,1,

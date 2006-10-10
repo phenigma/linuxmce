@@ -19,8 +19,13 @@ namespace DCE
 		// A plugin or something can set this flag, and then off's won't get propagated.  That way the pipe
 		// that goes to the display devices for an on-screen orbiter, for example, can be set to true
 		// so that only the 'off' from the on screen orbiter will turn the rendering device off.
-		bool m_bDontSendOff;  
-		Pipe(Row_Device_Device_Pipe *pRow_Device_Device_Pipe) { m_pRow_Device_Device_Pipe=pRow_Device_Device_Pipe; m_bDontSendOff=false; }
+		bool m_bDontSendOff; 
+
+		// A plugin can set this flag, and then the input selects won't get propagated.  That way an external
+		// media device, like a dvd, can be outputting using an overlay capture card, so the m/d's inputs are used
+		// instead, and DCERouter won't switch the inputs to the direct a/v pipes until this flag is cleared
+		bool m_bDontSendInputs;
+		Pipe(Row_Device_Device_Pipe *pRow_Device_Device_Pipe) { m_pRow_Device_Device_Pipe=pRow_Device_Device_Pipe; m_bDontSendInputs=m_bDontSendOff=false; }
 	};
 
 	class Command

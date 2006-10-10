@@ -118,6 +118,14 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	m_tReset=0;
 	m_pDevice_Audio=m_pDevice_Video=m_pDevice_Media_ID=NULL;
 	m_iPK_MediaProvider=atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_EK_MediaProvider_CONST).c_str());
+	m_bCaptureCardActive=false;
+	m_iDelayForCaptureCard=0;
+	int PK_Device_CaptureCard = atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_FK_Device_Capture_Card_Port_CONST).c_str());
+	if( PK_Device_CaptureCard )
+        m_pDevice_CaptureCard = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_CaptureCard);
+	else
+		m_pDevice_CaptureCard = NULL;
+
 	m_pRow_MediaProvider = NULL;
 	m_tLastPowerCommand=0;
 	m_dwPK_Command_LastPower=0;
@@ -1124,6 +1132,12 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				map<int,MediaDevice *> mapMediaDevice_Current;
 				// only do stuff with valid objects
 				pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea,&mapMediaDevice_Current);
+
+				if( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard )
+					StartCaptureCard(pMediaStream);
+				else
+					pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive = false;
+
 				HandleOnOffs(pOldStreamInfo ? pOldStreamInfo->m_PK_MediaType_Prior : 0,
 					pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,
 					pOldStreamInfo ? &pOldStreamInfo->m_mapMediaDevice_Prior : NULL,
@@ -1200,6 +1214,18 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	return true;
 }
 
+void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
+{
+	if( !pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard )
+		return; // Shouldn't happen
+
+	// We're using a capture card.  Make it active
+	pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive = true;
+
+
+	// TODO -- check the timer
+//	SendStartMediaToXine();
+}
 
 ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 {
@@ -2479,17 +2505,45 @@ int k=2;
 			continue;
 		}
 
+		// If this is using a capture card and it's active, then we are only going to turn on the m/d
+		if( pMediaDevice->m_pDevice_CaptureCard && pMediaDevice->m_bCaptureCardActive && pMediaDevice->m_pDevice_CaptureCard->m_pDevice_MD )
+		{
+			// We don't want to be setting the inputs to the 'live' a/v path because we're using the capture card
+			for(map<int,Pipe *>::iterator it=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.begin();it!=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.end();++it)
+				it->second->m_bDontSendInputs=true;
+				
+			MediaDevice *pMediaDevice_MD = m_mapMediaDevice_Find(pMediaDevice->m_pDevice_CaptureCard->m_pDevice_MD->m_dwPK_Device);
+
+			if( pMediaDevice_MD  )
+			{
+				if( pMediaDevice_MD->m_dwPK_Command_LastPower==COMMAND_Generic_On_CONST && time(NULL)-pMediaDevice_MD->m_tLastPowerCommand < DONT_RESEND_POWER_WITHIN_X_SECONDS )
+					g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleOnOffs Not resending power command (2)");
+				else
+				{
+					if( pMediaDevice_MD )
+					{
+						pMediaDevice_MD->m_tLastPowerCommand=time(NULL);
+						pMediaDevice_MD->m_dwPK_Command_LastPower=COMMAND_Generic_On_CONST;
+					}
+
+					// Send it to the MD
+					DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device,PK_Pipe_Current,"");
+					SendCommand(CMD_On);
+				}
+			}
+		}
 		// If this is on a media director and it's a child of the OSD, then turn the media director on
-		if( pMediaDevice->m_pDeviceData_Router->m_pDevice_MD && 
-			pMediaDevice->m_pDeviceData_Router!=pMediaDevice->m_pDeviceData_Router->m_pDevice_MD &&
-			pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia && 
-			pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceTemplate==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
+		else if( pMediaDevice->m_pDeviceData_Router->m_pDevice_MD && 
+				pMediaDevice->m_pDeviceData_Router!=pMediaDevice->m_pDeviceData_Router->m_pDevice_MD &&
+				pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia && 
+				pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceTemplate==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
 		{
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_WARNING,"Also turning on MD and OSD");
 #endif
 
 			MediaDevice *pMediaDevice_MD = m_mapMediaDevice_Find(pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device);
+
 			if( pMediaDevice_MD && pMediaDevice_MD->m_dwPK_Command_LastPower==COMMAND_Generic_On_CONST && time(NULL)-pMediaDevice_MD->m_tLastPowerCommand < DONT_RESEND_POWER_WITHIN_X_SECONDS )
 				g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleOnOffs Not resending power command");
 			else
@@ -2499,14 +2553,17 @@ int k=2;
 					pMediaDevice_MD->m_tLastPowerCommand=time(NULL);
 					pMediaDevice_MD->m_dwPK_Command_LastPower=COMMAND_Generic_On_CONST;
 				}
+
+				// Send it to the MD
 				DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device,PK_Pipe_Current,"");
 				SendCommand(CMD_On);
 			}
 
+			// Send it to the on screen orbiter
 			DCE::CMD_On CMD_On2(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device,PK_Pipe_Current,"");
 			SendCommand(CMD_On2);
 		}
-
+		
 		DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,PK_Pipe_Current,"");
 		SendCommand(CMD_On);
 	}

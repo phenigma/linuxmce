@@ -18,10 +18,13 @@ namespace DCE
 		/** @brief constructor */
 		MediaDevice(class Router *pRouter,Row_Device *pRow_Device);   /** This will store extra information about itself */
 		bool m_bDontSendOffIfOSD_ON;  // This allows that only the OSD can turn it off
+		bool m_bCaptureCardActive; // True if this is an external source and m_pDevice_CaptureCard is not null, and the video/audio path are now using the capture card
+		int m_iDelayForCaptureCard; // If m_pDevice_CaptureCard is not null and the stream should start by showing the content from the capture card (ie m_bCaptureCardActive=true), and switch after this many seconds to a direct connect
 		class DeviceData_Router *m_pDeviceData_Router,          /**< The device in the router */
 			*m_pDevice_Audio, /**< If this is inside a media director, and there is no destination device in the audio path, this will point app server to adjust the volume in the PC */
-			*m_pDevice_Video, /**< The destination video device */
-			*m_pDevice_Media_ID;   
+			*m_pDevice_Video, /**< The destination video device, ie the TV */
+			*m_pDevice_Media_ID, /**< The device responsible for identifying media inserted if this is a disk drive */
+			*m_pDevice_CaptureCard; /**< If this is an external device, like a VCR, connected to a capture card port, this is the port */
 		Row_MediaProvider *m_pRow_MediaProvider;
 
 		map<int,int> m_mapMediaType_DesignObj;              /** A map of all the remotes for the various screens */

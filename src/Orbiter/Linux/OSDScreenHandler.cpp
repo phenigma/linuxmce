@@ -75,7 +75,7 @@ void OSDScreenHandler::DisableAllVideo()
 void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 {
 	m_bWizardIsRunning = true;
-g_pPlutoLogger->Write(LV_CRITICAL,"SCREEN_VideoWizard");
+
 	// The video wizard is playing video overlays using a non-standard method; it's just sending play media's directly to Xine
 	// which means that set now playing isn't called, and thus the xine window isn't activated.  Just force it to be active for now.
 	// This will create an issue that when the user leaves the video wizard it won't re-activate the screen saver because we have no

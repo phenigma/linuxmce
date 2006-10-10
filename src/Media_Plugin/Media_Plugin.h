@@ -345,7 +345,10 @@ public:
 	// This is the final stage of 'StartMedia' that starts playing the given stream.  This is also called when the stream changes, or is moved, and needs to be restarted
 	bool StartMedia(MediaStream *pMediaStream);
 
-    /**
+	// If there's a capture card active, StartMedia will call this
+	void StartCaptureCard(MediaStream *pMediaStream);
+
+	/**
      * @brief More capable StartMedia. Does not need an actual device since it will search for it at the play time.
      *
      * It will also take care of moving the playlists when we use another device to play the media. It will also receive and actual device play list and not only
@@ -491,24 +494,24 @@ public:
 		RemoteControlSet *pRemoteControlSet = NULL;
 		if( pMediaStream )
 		{
-			pRemoteControlSet = pMediaStream->m_mapRemoteControlSet[dwPK_Device];
+			pRemoteControlSet = GetRemoteControlSet(dwPK_Device,pMediaStream);
 			if( !pRemoteControlSet )
+				return;
+
+			int PK_DesignObj_Remote_Popup = pRemoteControlSet->m_iPK_DesignObj_Remote_Popup;
+
+			// As a temporary measure we don't have a method for making certain stored video clips use a different
+			// set of menu options than others, and yet stored dvd's need menu, subtitle, etc., options that normal
+			// media doesn't.  We should comed up with a 'stream capabilities' function that allows us to add playback 
+			// options on the fly, but until then, if it's a stored video file, and it has titles/sections, use the dvd's menu options
+			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST && pMediaStream->m_bContainsTitlesOrSections )
 			{
-				pRemoteControlSet = PickRemoteControlMap(
-					dwPK_Device,
-					pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
-					pMediaStream->m_iPK_MediaType);
-				if( !pRemoteControlSet )
-				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::SetNowPlaying Cannot find a remote for %d %d %d",
-						dwPK_Device,pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
-						pMediaStream->m_iPK_MediaType);
-					return;
-				}
-				pMediaStream->m_mapRemoteControlSet[dwPK_Device]=pRemoteControlSet;
+				RemoteControlSet *pRemoteControlSet_dvd = GetRemoteControlSet(dwPK_Device,pMediaStream,MEDIATYPE_pluto_DVD_CONST);
+				if( pRemoteControlSet_dvd )
+					PK_DesignObj_Remote_Popup = pRemoteControlSet_dvd->m_iPK_DesignObj_Remote_Popup;
 			}
 			sRemotes = StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_Screen_Alt_Remote ? pRemoteControlSet->m_iPK_Screen_Alt_Remote : pRemoteControlSet->m_iPK_Screen_Remote) + ","
-				+ StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_Remote_Popup) + ","
+				+ StringUtils::itos(PK_DesignObj_Remote_Popup) + ","   // ON UI2 the leftmost popup menu on the main menu
 				+ StringUtils::itos(pRemoteControlSet->m_iPK_Screen_FileList) + ","
 				+ StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_Screen_Alt_OSD ? pRemoteControlSet->m_iPK_Screen_Alt_OSD : pRemoteControlSet->m_iPK_Screen_OSD) + ","
 				+ StringUtils::itos(pRemoteControlSet->m_iPK_Screen_OSD_Speed) + ","
@@ -527,7 +530,8 @@ public:
 
 			string sMediaDevices = StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device)
 				+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_Video ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_Video->m_dwPK_Device) : "")
-				+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_dwPK_Device) : "");
+				+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_dwPK_Device) : "")
+				+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard && pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device) : "");
 
 			if( pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio && pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_mapParameters_Find(DEVICEDATA_Discrete_Volume_CONST)=="1" )
 				sMediaDevices += ",1";
@@ -584,6 +588,32 @@ public:
 			}
 		}
 
+	}
+
+	// Get the remote control set for this stream.  If PK_MediaType is specified, use that media type instead, which
+	// is used so that a stored video can have titles and be treated as a dvd
+	RemoteControlSet *GetRemoteControlSet(int dwPK_Device, MediaStream *pMediaStream,int PK_MediaType=0)
+	{
+		RemoteControlSet *pRemoteControlSet = NULL;
+		if( !PK_MediaType )  // If a media type was specified we'll use that instead.  Otherwise we'll store the remote control sets with the stream
+			pRemoteControlSet = pMediaStream->m_mapRemoteControlSet[dwPK_Device];
+		if( !pRemoteControlSet )
+		{
+			pRemoteControlSet = PickRemoteControlMap(
+				dwPK_Device,
+				pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
+				PK_MediaType ? PK_MediaType : pMediaStream->m_iPK_MediaType);
+			if( !pRemoteControlSet )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::SetNowPlaying Cannot find a remote for %d %d %d",
+					dwPK_Device,pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
+					pMediaStream->m_iPK_MediaType);
+				return NULL;
+			}
+			if( !PK_MediaType )  // If a media type was specified, this is just temporary.  Don't store it
+				pMediaStream->m_mapRemoteControlSet[dwPK_Device]=pRemoteControlSet;
+		}
+		return pRemoteControlSet;
 	}
 
 //<-dceag-h-b->
