@@ -75,6 +75,14 @@ void OSDScreenHandler::DisableAllVideo()
 void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 {
 	m_bWizardIsRunning = true;
+
+	// The video wizard is playing video overlays using a non-standard method; it's just sending play media's directly to Xine
+	// which means that set now playing isn't called, and thus the xine window isn't activated.  Just force it to be active for now.
+	// This will create an issue that when the user leaves the video wizard it won't re-activate the screen saver because we have no
+	// practical way to know when the user leaves this section.  If we are going to have video overlays in other places we
+	// should come up with a standard way of doing this.
+	m_pOrbiter->CMD_Activate_Window("pluto-xine-playback-window.pluto-xine-playback-window");
+
 	m_pOrbiter->m_bBypassScreenSaver = true;
 
 	DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_Greetings_CONST),TEXT_STATUS_CONST );
