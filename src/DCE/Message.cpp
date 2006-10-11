@@ -230,11 +230,19 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		}
 		int ParamNum = atoi(pParamID);
 
+		if(!ParamNum)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Message constructor malformed with wrong param id '%s'", pParamID);
+			Clear();
+			return;			
+		}
+
 		size_t tSizeParmValue = 0;
 		if( i+1>=iNumArgs )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Message constructor malformed with missing argument from %d to %s type %d id %d",
 				m_dwPK_Device_From,sDeviceTo.c_str(),m_dwMessage_Type,m_dwID);
+			Clear();
 			return;
 		}
 		char *pParmValue = cArguments[i+1];
