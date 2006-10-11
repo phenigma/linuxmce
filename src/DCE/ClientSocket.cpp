@@ -205,6 +205,7 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 #else
 		long dwFlags = fcntl( m_Socket, F_GETFL );
 		dwFlags |= O_NONBLOCK;
+		dwFlags |= FD_CLOEXEC;
 		fcntl( m_Socket, F_SETFL, dwFlags );
 #endif
 		OnConnect( PK_DeviceTemplate, sExtraInfo );
