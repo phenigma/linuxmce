@@ -1231,17 +1231,39 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 	}
 
 	// Find the media player to play this capture card
-	DeviceData_Base *pDevice_MediaPlayer = ((DeviceData_Router *) pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_pDevice_ControlledVia)->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Players_CONST);
+	DeviceData_Base *pDevice_MediaPlayer = ((DeviceData_Router *) pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard)->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Players_CONST);
 
 	// Find the device
-	string sDevice = pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_mapParameters_Find(DEVICEDATA_Device_CONST);
+	string sDevice = pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_mapParameters_Find(DEVICEDATA_Block_Device_CONST);
+	if( sDevice.empty() && pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_pDevice_ControlledVia )
+		sDevice = ((DeviceData_Router *) pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_pDevice_ControlledVia)->m_mapParameters_Find(DEVICEDATA_Block_Device_CONST);
+
 	if( sDevice.empty() || !pDevice_MediaPlayer )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard - Device is empty or no media player for %d",pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device);
 		return;
 	}
 
-	DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,pDevice_MediaPlayer->m_dwPK_Device,sDevice,0,pMediaStream->m_iStreamID_get(),"");
+	// See if there's a tuility needed to switch to this port
+	string sPortSelectUtility = pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_mapParameters_Find(DEVICEDATA_File_Name_and_Path_CONST);
+	if( sPortSelectUtility.empty()==false )
+	{
+		// Find the App Server
+		DeviceData_Base *pDevice_App_Server = ((DeviceData_Router *) pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard)->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+		if( pDevice_App_Server )
+		{
+			string sArguments = pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_mapParameters_Find(DEVICEDATA_Extra_Parameters_CONST);
+
+			StringUtils::Replace(&sArguments,"<%=BLOCK%>",sDevice);
+			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+				sPortSelectUtility,"setinput",sArguments,"","",false,false,false);
+			SendCommand(CMD_Spawn_Application);
+		}
+		else
+			g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard -- no app server to set port for %d",pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device);
+	}
+
+	DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,pDevice_MediaPlayer->m_dwPK_Device,"fifo://" + sDevice,0,pMediaStream->m_iStreamID_get(),"");
 	SendCommand(CMD_Play_Media);
 
 	// We're using a capture card.  Make it active

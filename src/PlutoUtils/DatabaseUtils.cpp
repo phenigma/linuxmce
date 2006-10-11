@@ -118,10 +118,10 @@ void DatabaseUtils::GetUnusedPortsOnAllPCs(MySqlHelper *pMySqlHelper,vector< pai
 void DatabaseUtils::GetUnusedPortsOnPC(MySqlHelper *pMySqlHelper,int PK_Device,vector<string> &vectPorts)
 {
 	map<string,bool> mapPorts;
-	map<int,int> mapDeviceTree;
+	map<int, pair<int,int> > mapDeviceTree;
 	GetAllDevicesInTree(pMySqlHelper,PK_Device,mapDeviceTree);
 	string sDeviceList;
-	for(map<int,int>::iterator it=mapDeviceTree.begin();it!=mapDeviceTree.end();++it)
+	for(map<int, pair<int,int> >::iterator it=mapDeviceTree.begin();it!=mapDeviceTree.end();++it)
 		sDeviceList += (it!=mapDeviceTree.begin() ? "," : "") + StringUtils::itos(it->first);
 
 	// First get all the available ports
@@ -197,14 +197,15 @@ string DatabaseUtils::GetDeviceData(MySqlHelper *pMySqlHelper,int PK_Device,int 
 		return "";
 }
 
-void DatabaseUtils::GetAllDevicesInTree(MySqlHelper *pMySqlHelper,int PK_Device,map<int,int> &mapDeviceTree,bool bCheckParent,int PK_Device_ChildExclude)
+void DatabaseUtils::GetAllDevicesInTree(MySqlHelper *pMySqlHelper,int PK_Device,map<int,pair<int,int> > &mapDeviceTree,bool bCheckParent,int PK_Device_ChildExclude,int Generation)
 {
+	// pair<int,int> is a pair of PK_Device to generation, where 0 is the starting generation
 	{
 		string sSQL = "SELECT FK_DeviceTemplate FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
 		PlutoSqlResult result;
 		MYSQL_ROW row;
 		if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) && row[0] )
-			mapDeviceTree[PK_Device]=atoi(row[0]);
+			mapDeviceTree[PK_Device]=make_pair<int,int> (atoi(row[0]),Generation);
 	}
 	if( bCheckParent )
 	{
@@ -212,7 +213,7 @@ void DatabaseUtils::GetAllDevicesInTree(MySqlHelper *pMySqlHelper,int PK_Device,
 		PlutoSqlResult result;
 		MYSQL_ROW row;
 		if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) && row[0] )
-			GetAllDevicesInTree(pMySqlHelper,atoi(row[0]),mapDeviceTree,true,PK_Device);
+			GetAllDevicesInTree(pMySqlHelper,atoi(row[0]),mapDeviceTree,true,PK_Device,Generation+1);
 	}
 
 	string sSQL = "SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia=" + StringUtils::itos(PK_Device);
@@ -226,7 +227,7 @@ void DatabaseUtils::GetAllDevicesInTree(MySqlHelper *pMySqlHelper,int PK_Device,
 			{
 				int PK_Device_Child = atoi(row[0]);
 				if( PK_Device_Child && PK_Device_Child!=PK_Device_ChildExclude )
-					GetAllDevicesInTree(pMySqlHelper,PK_Device_Child,mapDeviceTree,false,0);
+					GetAllDevicesInTree(pMySqlHelper,PK_Device_Child,mapDeviceTree,false,0,Generation+1);
 			}
 		}
 	}
@@ -328,7 +329,7 @@ int DatabaseUtils::FindControlledViaCandidate(MySqlHelper *pMySqlHelper,int iPK_
 			"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
 			"WHERE FK_DeviceCategory IN (" + sPK_DeviceCategory + ") AND PK_Device<>" + StringUtils::itos(iPK_Device) + " AND FK_Installation=" + StringUtils::itos(iPK_Installation) + " ORDER BY PK_Device";
 
-		if( (result_cv3.r=pMySqlHelper->mysql_query_result(SQL)) )
+		if( (result_cv3.r=pMySqlHelper->mysql_query_result(SQL)) && result_cv3.r->row_count>0 )
 			return FindControlledViaCandidate(pMySqlHelper,iPK_Device,iPK_DeviceTemplate,iPK_Device_RelatedTo,result_cv3);
 	}
 	return 0;
@@ -337,20 +338,35 @@ int DatabaseUtils::FindControlledViaCandidate(MySqlHelper *pMySqlHelper,int iPK_
 int DatabaseUtils::FindControlledViaCandidate(MySqlHelper *pMySqlHelper,int iPK_Device,int iPK_DeviceTemplate,int iPK_Device_RelatedTo,PlutoSqlResult &result)
 {
 	MYSQL_ROW row;
-	map<int,int> mapDeviceTree;
+	map<int,pair<int,int> > mapDeviceTree;
 	if( iPK_Device_RelatedTo )
 		DatabaseUtils::GetAllDevicesInTree(pMySqlHelper,iPK_Device_RelatedTo,mapDeviceTree);
 
 	// If the user wants a device that is related to iPK_Device_RelatedTo, but we can't find one, here is a 
 	// un-related fallback device
-	int iPK_Device_Fallback = 0; 
+	int iPK_Device_Fallback = 0;
+	int iPK_Device_ControlledVia = 0; // The controlled via device that works
+	int iGeneration = 0;  // What generation it is; get the smallest
 	while (row=mysql_fetch_row(result.r))
 	{
 		int iPK_Device_Candidate = atoi(row[0]);
-		if( !iPK_Device_RelatedTo || mapDeviceTree.find(iPK_Device_Candidate)!=mapDeviceTree.end() )
+		if( !iPK_Device_RelatedTo )
 			return iPK_Device_Candidate;
+
+		map<int,pair<int,int> >::iterator it=mapDeviceTree.find(iPK_Device_Candidate);
+		if( it!=mapDeviceTree.end() )
+		{
+			// If we haven't picked one yet, or this is a better match, use it
+			if( !iPK_Device_ControlledVia || it->second.second<iGeneration )
+			{
+				iPK_Device_ControlledVia = iPK_Device_Candidate;
+				iGeneration = it->second.second;
+			}
+		}
 		iPK_Device_Fallback=iPK_Device_Candidate;
 	}
+	if( iPK_Device_ControlledVia )
+		return iPK_Device_ControlledVia;
 	return iPK_Device_Fallback;
 }
 

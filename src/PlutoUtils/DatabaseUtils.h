@@ -31,7 +31,7 @@ namespace DatabaseUtils
 	string HumanReadablePort(MySqlHelper *pMySqlHelper,int PK_Device,string sPort);
 	void GetUnusedPortsOnPC(MySqlHelper *pMySqlHelper,int PK_Device,vector<string> &vectPorts);
 	void GetUnusedPortsOnAllPCs(MySqlHelper *pMySqlHelper,vector< pair<int,string> > &vectAllPorts, long nFK_Installation = 0);
-	void GetAllDevicesInTree(MySqlHelper *pMySqlHelper,int PK_Device,map<int,int> &mapDeviceTree,bool bCheckParent=true,int PK_Device_ChildExclude=0);
+	void GetAllDevicesInTree(MySqlHelper *pMySqlHelper,int PK_Device,map<int,pair<int,int> > &mapDeviceTree,bool bCheckParent=true,int PK_Device_ChildExclude=0,int Generation=0);
 	void SetDeviceData(MySqlHelper *pMySqlHelper,int PK_Device,int PK_DeviceData,string IK_DeviceData);
 	string GetDeviceData(MySqlHelper *pMySqlHelper,int PK_Device,int PK_DeviceData);
 	string GetDescriptionForDevice(MySqlHelper *pMySqlHelper,int PK_Device);

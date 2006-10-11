@@ -529,15 +529,15 @@ g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) res
 				else if( iRelation==5 )  // It's my child
 					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device,sDeviceData);
 			}
-			else if( iRelation==4 )
+			else if( iRelation==4 )  // Put it anywhere on this PC
 			{
-				map<int,int> mapDeviceTree;
+				map<int,pair<int,int> > mapDeviceTree;
 				DatabaseUtils::GetAllDevicesInTree(this,PK_Device,mapDeviceTree);
 
 				bool bFound=false;
-				for(map<int,int>::iterator it=mapDeviceTree.begin();it!=mapDeviceTree.end();++it)
+				for(map<int,pair<int,int> >::iterator it=mapDeviceTree.begin();it!=mapDeviceTree.end();++it)
 				{
-					if( it->second==iPK_DeviceTemplate_Related )
+					if( it->second.first==iPK_DeviceTemplate_Related )
 					{
 						bFound=true;
 						break;
