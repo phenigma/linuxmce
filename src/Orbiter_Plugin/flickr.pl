@@ -203,6 +203,14 @@ if (!-d $dest."/".$year."/".$mon."/".$mday) {
 # first messagesend	    
 #	print "Fire-ing first messagesend event for $finaldst\n";
 	my $fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -o 0 2 1 819 13 "$finaldst" |; 
+
+	## If the router is not available for the moment
+	while ( $fms =~ m/Cannot communicate with router/ ) {
+		printf "Waiting for router to come up";
+		sleep 10;
+		$fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -o 0 2 1 819 13 "$finaldst" |;
+	}
+
 	$fms =~ s/\n//g;
 	@out = split (/:/, $fms);
 	$ffield = $out[2];
@@ -211,7 +219,7 @@ if (!-d $dest."/".$year."/".$mon."/".$mday) {
 	    unlink("$tmp/$buff.$IMGS->{$buff}->{'format'}.lock");
 # second message send
 #	print "Fire-ing second messagesend event\n";
-	qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -o 0 2 1 391 145 $ffield 122 30 |;
+	qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -o 0 2 1 391 145 "$ffield" 122 30 |;
 	}
     } else {
             print STDERR $response->status_line."\n";
