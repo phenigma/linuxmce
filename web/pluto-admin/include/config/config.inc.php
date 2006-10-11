@@ -58,9 +58,9 @@
   	}
 
   	if($_SESSION['skin']==0){
-		$_SESSION['cssFile']='include/styles/customer_setup_style.css';
+		$_SESSION['cssFile']='include/styles/main.css';
 	}else{
-		$_SESSION['cssFile']='include/styles/customer_setup_style_red.css';
+		$_SESSION['cssFile']='include/styles/main_red.css';
   	}
   	
   	include_once($GLOBALS['globalConfigPath'].'globalconfig.inc.php');
