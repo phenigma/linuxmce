@@ -104,7 +104,7 @@ function headerAlertLog()
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/alertsLog.lang.php');
 	
-	$output='<table border="0" align="center" cellspacing="0" cellpadding="0">
+	$output='<table border="0" align="center" cellspacing="0" cellpadding="2">
 				<tr class="tablehead">
 					<td align="center"><B>'.$TEXT_ALERT_TYPE_CONST.'</B></td>
 					<td align="center"><B>'.$TEXT_DETECTION_TIME_CONST.'</B></td>
@@ -151,10 +151,11 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 	$queryAD='SELECT PK_Alert_Device,EK_Device,UNIX_TIMESTAMP(DetectionTime) AS DetectionTime  FROM Alert_Device WHERE FK_Alert=?';
 	$resAD=$securitydbADO->Execute($queryAD,$row['PK_Alert']);
 	while($rowAD=$resAD->FetchRow()){
-		$resD=$dbADO->Execute('SELECT * FROM Device WHERE PK_Device =?',$rowAD['EK_Device']);
+		$resD=$dbADO->Execute('SELECT * FROM Device LEFT JOIN Device_Device_Related ON FK_Device=PK_Device WHERE PK_Device =?',$rowAD['EK_Device']);
 		while($rowD=$resD->FetchRow()){
-			// snapshot format: alert_[PK_Alert]_cam[EK_Device].png
-			$alertPic=(file_exists($GLOBALS['SecurityPicsPath'].'alert_'.$rowAD['PK_Alert_Device'].'_cam'.$rowAD['EK_Device'].'.png'))?$GLOBALS['SecurityPicsPath'].'alert_'.$rowAD['PK_Alert_Device'].'.png':APPROOT.'include/images/alert_no_pic.png';
+			// snapshot format: alert_[PK_Alert]_cam[camera].png
+			$picPath=$GLOBALS['SecurityPicsPath'].'alert_'.$rowAD['PK_Alert_Device'].'_cam'.$rowD['FK_Device_Related'].'.png';
+			$alertPic=(file_exists($picPath))?$picPath:APPROOT.'include/images/alert_no_pic.png';
 		$out.='
 			<tr bgcolor="'.(($art_index%2==0)?'#F0F3F8':'').'">
 				<td align="center"><img src="include/image.php?imagepath='.$alertPic.'"></td>
