@@ -72,10 +72,10 @@ list<Row> & TextLineExtract::Extract(string text)
 			}
 			word += c;
 		}
-		else if (c >= ' ' && c != '~')
+		else if (c != '~' && c != '\n')
 		{
 			/* Avoid adding space characters at the beginning of a line */
-			if( !isspace(c) || line.size() > 0 || word.size() > 0 )
+			if((c != ' ' && c != '\t')  || line.size() > 0 || word.size() > 0 )
 			{
 				word += c;
 			}
