@@ -429,8 +429,15 @@ bool Media_Plugin::Register()
     {
         class MediaDevice *pMediaDevice = ( *itDevice ).second;
 
-		if ( pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia &&
-			pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
+		if( pMediaDevice->m_pDevice_CaptureCard )
+		{
+			DeviceData_Base *pDevice_Orbiter = pMediaDevice->m_pDevice_CaptureCard->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Orbiter_CONST);
+			if( pDevice_Orbiter )
+				pMediaDevice->m_pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDevice_Orbiter->m_dwPK_Device);
+		}
+		else if ( pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia &&
+			pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST)
+			)
 		{
 			// store the orbiter which is directly controlling the target device as the target on-screen display.
 			pMediaDevice->m_pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
@@ -1216,15 +1223,41 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 
 void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 {
-	if( !pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard )
+	pMediaStream->m_pMediaDevice_CaptureCard = m_mapMediaDevice_Find( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device );
+	if( !pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard || !pMediaStream->m_pMediaDevice_CaptureCard || !pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_pDevice_ControlledVia )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard -- error");
 		return; // Shouldn't happen
+	}
+
+	// Find the media player to play this capture card
+	DeviceData_Base *pDevice_MediaPlayer = ((DeviceData_Router *) pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_pDevice_ControlledVia)->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Players_CONST);
+
+	// Find the device
+	string sDevice = pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_mapParameters_Find(DEVICEDATA_Device_CONST);
+	if( sDevice.empty() || !pDevice_MediaPlayer )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard - Device is empty or no media player for %d",pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device);
+		return;
+	}
+
+	DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,pDevice_MediaPlayer->m_dwPK_Device,sDevice,0,pMediaStream->m_iStreamID_get(),"");
+	SendCommand(CMD_Play_Media);
 
 	// We're using a capture card.  Make it active
 	pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive = true;
+}
 
-
-	// TODO -- check the timer
-//	SendStartMediaToXine();
+void Media_Plugin::StopCaptureCard(MediaStream *pMediaStream)
+{
+	// Find the media player to play this capture card
+	DeviceData_Base *pDevice_MediaPlayer = ((DeviceData_Router *) pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_pDevice_ControlledVia)->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Players_CONST);
+	if( pDevice_MediaPlayer )
+	{
+		string sMediaPosition;
+		DCE::CMD_Stop_Media CMD_Stop_Media(m_dwPK_Device,pDevice_MediaPlayer->m_dwPK_Device,pMediaStream->m_iStreamID_get(),&sMediaPosition);
+		SendCommand(CMD_Stop_Media);
+	}
 }
 
 ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
@@ -1710,6 +1743,9 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 			}
 		}
 	}
+
+	if( pMediaStream->m_pMediaDevice_CaptureCard )
+		StopCaptureCard(pMediaStream);
 
 	if( bDeleteStream )
 	{

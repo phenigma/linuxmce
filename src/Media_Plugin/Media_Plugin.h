@@ -347,6 +347,7 @@ public:
 
 	// If there's a capture card active, StartMedia will call this
 	void StartCaptureCard(MediaStream *pMediaStream);
+	void StopCaptureCard(MediaStream *pMediaStream);
 
 	/**
      * @brief More capable StartMedia. Does not need an actual device since it will search for it at the play time.
