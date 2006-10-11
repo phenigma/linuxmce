@@ -48,7 +48,12 @@ function orbitersWin($output,$dbADO) {
 			<td>Import Outlook Contacts</td>
 			<td>Windows 98/ME/XP</td>
 			<td><a href="fdownload.php?filepath=installers/ImportContacts.zip" target="_blank">('.$TEXT_DOWNLOAD_CONST.')</a></td>
-		</tr>		
+		</tr>
+		<tr bgcolor="#F0F3F8">
+			<td>Outlook sync utility</td>
+			<td>Windows XP</td>
+			<td><a href="fdownload.php?filepath=installers/mysql2outlooksetup.msi" target="_blank">(download)</a></td>
+		</tr>				
 	</table>
 		
 	</form>
