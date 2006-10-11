@@ -27,7 +27,7 @@ CD1_AddPkgsDir="/old-server/home/radu/pkg/bonuscd-cache/cd1add/";
 
 Version=$(basename "$ISO_Dir")
 
-Installer_Files=(BonusCdMenu.sh BonusCdAutoInst.sh Common.sh ConfirmDependencies_Debian.sh Initial_Config.sh Initial_Config_Core.sh Initial_Config_MD.sh Initial_Config_Finish.sh pkgsel post-debootstrap.sh preseed.cfg PreseedStage2.sh)
+Installer_Files=(BonusCdMenu.sh BonusCdAutoInst.sh Common.sh ConfirmDependencies_Debian.sh Initial_Config.sh Initial_Config_Core.sh Initial_Config_MD.sh Initial_Config_Finish.sh Initial_DHCP_Config.sh Initial_Network_Config.sh pkgsel post-debootstrap.sh preseed.cfg PreseedStage2.sh)
 Mail_Dest=(testing@plutohome.com -c linux-team@plutohome.com)
 
 if [[ "$Cache" == y ]]; then
@@ -157,6 +157,10 @@ popd >/dev/null
 
 echo "Building iso image $ISO_Dir/installation-cd.iso"
 mkisofs -V "$Version" -J -o "$ISO_Dir/installation-cd-1-$Version.$MakeRelease_Flavor.iso" -r -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table image-netinst/
+
+pushd "$ISO_Dir" >/dev/null
+md5sum installation-cd-1-$Version.$MakeRelease_Flavor.iso >installation-cd-1-$Version.$MakeRelease_Flavor.md5
+popd >/dev/null
 
 if [[ -f message.txt ]]; then
 	(echo "New ISO version: $Version"; echo; cat message.txt) | mail -s "New ISO ready (+info)" "${Mail_Dest[@]}"
