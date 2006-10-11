@@ -6801,6 +6801,7 @@ void Orbiter::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *
 	g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter::CMD_Show_Mouse_Pointer %s", sOnOff.c_str());
 #endif
 #ifdef ENABLE_MOUSE_BEHAVIOR
+	if(	m_pMouseBehavior )
 		m_pMouseBehavior->ShowMouse(sOnOff=="1");
 #endif
 }

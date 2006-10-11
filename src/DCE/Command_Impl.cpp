@@ -594,7 +594,8 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 	// If it can't it will pass it to this function.
 	map<long, string>::iterator p;
 
-	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND )
+	// Ignore if it's not directly for us.  It could be for a virtual device
+	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND && pMessage->m_dwPK_Device_To==m_dwPK_Device )
 	{
 		if( pMessage->m_dwID == SYSCOMMAND_QUIT )
 		{
@@ -622,7 +623,7 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 		}
 	}
 
-	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND && pMessage->m_dwID == SYSCOMMAND_RELOAD )
+	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND && pMessage->m_dwID == SYSCOMMAND_RELOAD && pMessage->m_dwPK_Device_To==m_dwPK_Device )
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"Got a reload command");
 		SendString("BYE");

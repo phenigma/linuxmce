@@ -471,6 +471,7 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 {
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
+	return NULL;
 	return m_pEPGGrid;
 
 //	g_pPlutoLogger->Write(LV_STATUS, "Current Shows datagrid called");

@@ -775,7 +775,9 @@ bool PnpQueue::Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
 		DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
 			sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
 		m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
-
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Remove_Stage_Removed killing queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+#endif
 		Message *pMessage_Kill = new Message(m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get(),PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_QUIT,0);
 		m_pPlug_And_Play_Plugin->QueueMessageToRouter(pMessage_Kill); // Kill the device at the old location
 	}
