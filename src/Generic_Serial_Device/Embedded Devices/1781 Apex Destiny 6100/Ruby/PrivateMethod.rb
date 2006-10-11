@@ -84,7 +84,8 @@ def send(buff)
 	if conn_.nil? then
 		log( "Problem with sending data to serial!!! \n" )
 	else
-		print "Sending: " + buff
+		print( "Sending: " + buff )
+		log( "Sending: " + buff )
 		conn_.Send(buff)
 	end
 end
@@ -98,7 +99,6 @@ def sendCmd(buff)
 	else                                #ready to process another command
 		send( buff2 )
 		$panelState=3
-		log( "Send comand" + "   " )
 		$lastCmdTime=Time.now()
 	end
 end
@@ -283,6 +283,8 @@ end
 
 # send the read location commands
 def TurnAllTriggersOnStep1()
+# 	buff = "lr100155"
+# 	sendCmd( buff )
 	# set all triggers to send events on the rs232 port
 	# read all the location from 387 to 435 in 2 steps (32 bytes + 17 bytes),
 	# because we can read max 32 bytes 
@@ -329,14 +331,14 @@ def TurnAllTriggersOnStep3()
 			buff += "%02X" % $reportLocations[i]
 		end
 #		log( "SL: " + buildMess( buff ) )
-		sendCmd( buff )
+#		sendCmd( buff )
 		
 		buff = "ls1101A3"
 		for i in 32..48
 			buff += "%02X" % $reportLocations[i]
 		end
 #		log( "SL: " + buildMess( buff ) )
-		sendCmd( buff )
+#		sendCmd( buff )
 	else
 		log("Error: location number = " + $reportLocations.size().to_s)
 	end
