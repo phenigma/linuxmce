@@ -2055,7 +2055,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		m_pOrbiterRenderer->AdjustWindowSize(m_pScreenHistory_Current->GetObj()->m_rPosition.Width,
 			m_pScreenHistory_Current->GetObj()->m_rPosition.Height);
 
-		if( UsesUIVersion2() )
+		if( UsesUIVersion2() && !m_bNewOrbiter )
 			StartScreenSaver();
 
 		m_bStartingUp=false;
