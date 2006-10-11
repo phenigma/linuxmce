@@ -12,12 +12,11 @@ function amp($output,$dbADO) {
 
 
 	if($action=='form'){
-		$out.=setLeftMenu($dbADO).'<iframe src="amp/admin/" style="width:98%;height:600"></iframe>';
+		$out.=setLeftMenu($dbADO).'<iframe src="amp/admin/" style="width:98%;height:600px;"></iframe>';
 	}
 
 	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
 	$output->setPageTitle($TEXT_PHONES_SETUP_CONST);
-	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();
