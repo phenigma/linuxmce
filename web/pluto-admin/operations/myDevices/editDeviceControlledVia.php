@@ -67,7 +67,8 @@ function editDeviceControlledVia($output,$dbADO) {
 		
 		if(isset($_POST['save'])){
 			$controlledBy=((int)$_POST['controlledBy']>0)?(int)$_POST['controlledBy']:NULL;
-			$dbADO->Execute('UPDATE Device SET FK_Device_ControlledVia=? WHERE PK_Device=?',array($controlledBy,$deviceID));
+
+			updateDeviceControlledBy($deviceID,$controlledBy,$dbADO);
 		}
 		
 		header("Location: index.php?section=editDeviceControlledVia&from=$from&deviceID=$deviceID&from=$from&msg=$TEXT_PARENT_SAVED_CONST");

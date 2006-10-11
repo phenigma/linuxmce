@@ -6225,4 +6225,24 @@ function menuChildItems($parentNode,$menuItems){
 		
 	return $menu;
 }
+
+function updateDeviceControlledBy($deviceID,$controlledBy,$dbADO){
+	if(!is_null($controlledBy)){
+		$topParent=getTopLevelParent($controlledBy,$dbADO);
+		
+		// if the top level parent is changed, set need configure and call config_device_changes
+		if($topParent==$controlledBy){
+			$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device=?',array($controlledBy));
+			
+			$installationID = (int)$_SESSION['installationID'];
+			$appServerID=getDeviceFromDT($installationID,$GLOBALS['AppServer'],$dbADO);
+			
+			// /usr/pluto/bin/MessageSend dcerouter -targetType device 0 $APPSERVERID 1 67 13 "$COMMAND"
+			$cmd='/usr/pluto/bin/MessageSend dcerouter -targetType device 0 '.$appServerID.' 1 67 13 "config_device_changes"';
+			exec_batch_command($cmd);
+		}
+	}
+	
+	$dbADO->Execute('UPDATE Device SET FK_Device_ControlledVia=? WHERE PK_Device=?',array($controlledBy,$deviceID));
+}
 ?>

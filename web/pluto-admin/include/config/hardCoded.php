@@ -67,7 +67,8 @@
 	$GLOBALS['GenericWebDevice']=1748;			// Generic Web Device
 	$GLOBALS['PowerfileC200']=1737;				// Powerfile C200
 	$GLOBALS['VirtDevTelecomPlugIn']=-107;		// VirtDev - Telecom Plug-in
-	$GLOBALS['CanBus']=1746;						// Can Bus
+	$GLOBALS['CanBus']=1746;					// Can Bus
+	$GLOBALS['AppServer']=26;					// App server
 	
 	// PK_Template from table Template
 	

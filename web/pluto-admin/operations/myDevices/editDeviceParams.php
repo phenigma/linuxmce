@@ -711,10 +711,12 @@ $installationID = (int)@$_SESSION['installationID'];
 			
 			$query = "
 				UPDATE Device 
-				SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,FK_Device_ControlledVia=?,NeedConfigure=?,FK_Room=?,PingTest=?,State=?,`Status`=?,Disabled=? 
+				SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,NeedConfigure=?,FK_Room=?,PingTest=?,State=?,`Status`=?,Disabled=? 
 				WHERE PK_Device = ?";
-			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$controlledVia,$needConfigure,$room,$PingTest,$State,$Status,$deviceDisabled,$deviceID));
+			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$needConfigure,$room,$PingTest,$State,$Status,$deviceDisabled,$deviceID));
 			setDCERouterNeedConfigure($installationID,$dbADO);
+			updateDeviceControlledBy($deviceID,$controlledVia,$dbADO);
+			
 			$EntAreasArray=explode(',',$_POST['displayedEntAreas']);
 			$OldEntAreasArray=explode(',',$_POST['oldEntAreas']);
 			

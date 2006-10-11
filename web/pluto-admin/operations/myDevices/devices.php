@@ -123,13 +123,13 @@ function devices($output,$dbADO) {
 				$GLOBALS['DeviceDataToDisplay']=array();
 				$queryDevice='
 					SELECT 
-						PK_Device,
+						Device.PK_Device,
 						Device.Description,
-						IPaddress,
-						MACaddress,
-						FK_Device_ControlledVia,
-						FK_Device_RouteTo,
-						FK_Room,
+						Device.IPaddress,
+						Device.MACaddress,
+						Device.FK_Device_ControlledVia,
+						Device.FK_Device_RouteTo,
+						Device.FK_Room,
 						Device.FK_DeviceTemplate,
 						DeviceTemplate.Description AS TemplateName, 
 						DeviceCategory.Description AS CategoryName, 
@@ -142,17 +142,19 @@ function devices($output,$dbADO) {
 						Device_DeviceData.IK_DeviceData,
 						ShowInWizard,ShortDescription,
 						AllowedToModify,
-						DeviceTemplate_DeviceData.Description AS Tooltip 
+						DeviceTemplate_DeviceData.Description AS Tooltip,
+						Parent.Description AS PDescription 
 					FROM DeviceData 
 					INNER JOIN ParameterType ON FK_ParameterType = PK_ParameterType 
 					INNER JOIN Device_DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData 
-					INNER JOIN Device ON FK_Device=PK_Device
+					INNER JOIN Device ON FK_Device=Device.PK_Device
+					LEFT JOIN Device Parent ON Parent.PK_Device=Device.FK_Device_ControlledVia
 					LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData AND DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate
 					INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate 
 					LEFT JOIN DeviceTemplate_AV ON Device.FK_DeviceTemplate=DeviceTemplate_AV.FK_DeviceTemplate 
 					INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory 
 					INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer 			
-					WHERE DeviceTemplate.FK_DeviceCategory IN ('.join(',',$restrictedCategories).') AND FK_Installation=? ';
+					WHERE DeviceTemplate.FK_DeviceCategory IN ('.join(',',$restrictedCategories).') AND Device.FK_Installation=? ';
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
 				$firstDevice=0;
 				$deviceDataArray=array();
@@ -188,7 +190,7 @@ function devices($output,$dbADO) {
 						<td align="center" class="alternate_back">'.$rowD['PK_Device'].'</td>
 						<td class="alternate_back" align="center" title="'.$TEXT_DEVICE_TEMPLATE_CONST.': '.$rowD['TemplateName'].', '.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"></td>
 						<td>'.pulldownFromArray($roomsArray,'room_'.$rowD['PK_Device'],$rowD['FK_Room']).'</td>
-						<td class="alternate_back">'.controlledViaPullDown('controlledBy_'.$rowD['PK_Device'],$rowD['PK_Device'],$rowD['FK_DeviceTemplate'],$rowD['FK_DeviceCategory'],$rowD['FK_Device_ControlledVia'],$dbADO).'</td>
+						<td class="alternate_back"><a href="javascript:windowOpen(\'index.php?section=editDeviceControlledVia&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');" title="'.$TEXT_CLICK_TO_CHANGE_CONST.'">'.((is_null($rowD['FK_Device_ControlledVia']))?$TEXT_EDIT_CONST:$rowD['PDescription']).'</a></td>
 						<td align="right" valign="top">'.formatDeviceData($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']],$dbADO,$rowD['IsIPBased'],@$specificFloorplanType,1).'</td>
 						<td align="center" valign="center" class="alternate_back">
 							<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'/wiki/index.php/Documentation_by_Device_Templates#'.wikiLink($rowD['TemplateName']).'\'"><br>
