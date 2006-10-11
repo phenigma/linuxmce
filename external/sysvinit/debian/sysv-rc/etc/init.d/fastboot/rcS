@@ -404,7 +404,10 @@ if [ -x /usr/pluto/bin/ApplyUpdates.sh ]; then
 		fi
 	done
 fi
-	
+
+Message "Running depmod"
+/sbin/depmod
+
 if [ -x /etc/init.d/Pluto_Start_DCERouter.sh ] ;then
     Message "Starting DCE Router"
     /etc/init.d/Pluto_Start_DCERouter.sh
