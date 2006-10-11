@@ -4,4 +4,31 @@
 	compress
 	missingok
 	copytruncate
+	
+	sharedscripts
+	prerotate
+		cumulativeLogFile="/var/log/pluto/CumulativeSpawn.log"
+		for logfile in /var/log/pluto/Spawn_*.log ;do
+			[[ -r $logfile ]] || continue	
+
+			echo "Processing  $logfile ..."
+			echo 			>> $cumulativeLogFile
+			echo " FILE: $logfile " >> $cumulativeLogFile
+			cat "$logfile"		>> $cumulativeLogFile
+
+			rm -f "$logfile"
+		done
+		
+		cumulativeLogFile="/var/log/pluto/CumulativeSpawnDaemon.log"
+		for logfile in /var/log/pluto/SpawnDaemon_*.log ;do
+			[[ -r $logfile ]] || continue
+			
+			echo "Processing $logfile ..."
+			echo 			>> $cumulativeLogFile
+			echo " FILE: $logfile "	>> $cumulativeLogFile
+			cat $logfile 		>> $cumulativeLogFile
+
+			rm -f "$logfile"
+		done
+	endscript
 }
