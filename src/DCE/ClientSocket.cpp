@@ -205,8 +205,12 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 #else
 		long dwFlags = fcntl( m_Socket, F_GETFL );
 		dwFlags |= O_NONBLOCK;
-		dwFlags |= FD_CLOEXEC;
 		fcntl( m_Socket, F_SETFL, dwFlags );
+
+		// set close-on-exec flag
+		dwFlags = fcntl(m_Socket, F_GETFD);
+		dwFlags |= FD_CLOEXEC;
+		fcntl(m_Socket, F_SETFD, dwFlags);
 #endif
 		OnConnect( PK_DeviceTemplate, sExtraInfo );
 	}

@@ -198,6 +198,11 @@ void SocketListener::Run()
 					long dwFlags = fcntl( newsock, F_GETFL );
 					dwFlags |= O_NONBLOCK;
 					fcntl( newsock, F_SETFL, dwFlags );
+
+					// set close-on-exec flag
+					dwFlags = fcntl(newsock, F_GETFD);
+					dwFlags |= FD_CLOEXEC;
+					fcntl(newsock, F_SETFD, dwFlags);
 #endif
 					/** @todo check comment */
 					// setsockopt(newsock, IPPROTO_TCP, TCP_NODELAY, (SOCKOPTTYPE) &b, sizeof(b));
