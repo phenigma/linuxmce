@@ -153,7 +153,8 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 	while($rowAD=$resAD->FetchRow()){
 		$resD=$dbADO->Execute('SELECT * FROM Device WHERE PK_Device =?',$rowAD['EK_Device']);
 		while($rowD=$resD->FetchRow()){
-			$alertPic=(file_exists($GLOBALS['SecurityPicsPath'].'alert_'.$rowAD['PK_Alert_Device'].'.png'))?$GLOBALS['SecurityPicsPath'].'alert_'.$rowAD['PK_Alert_Device'].'.png':APPROOT.'include/images/alert_no_pic.png';
+			// snapshot format: alert_[PK_Alert]_cam[EK_Device].png
+			$alertPic=(file_exists($GLOBALS['SecurityPicsPath'].'alert_'.$rowAD['PK_Alert_Device'].'_cam'.$rowAD['EK_Device'].'.png'))?$GLOBALS['SecurityPicsPath'].'alert_'.$rowAD['PK_Alert_Device'].'.png':APPROOT.'include/images/alert_no_pic.png';
 		$out.='
 			<tr bgcolor="'.(($art_index%2==0)?'#F0F3F8':'').'">
 				<td align="center"><img src="include/image.php?imagepath='.$alertPic.'"></td>
