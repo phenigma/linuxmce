@@ -83,7 +83,7 @@ for share in $(smbclient --no-pass --list=//$Device_IP  --grepable | grep "^Disk
 					Username.IK_DeviceData,
 					Password.IK_DeviceData
 				FROM
-					Device,
+					Device
 					INNER JOIN Device_DeviceData Username ON ( Device.PK_Device = Username.FK_Device AND Username.FK_DeviceData = $DD_USERNAME ) 
 					INNER JOIN Device_DeviceData Password ON ( Device.PK_Device = Password.FK_Device AND Password.FK_DeviceData = $DD_PASSWORD )
 				WHERE
