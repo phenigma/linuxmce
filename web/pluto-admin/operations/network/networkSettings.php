@@ -11,7 +11,7 @@ function networkSettings($output,$dbADO) {
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];
-	
+		
 	$OfflineMode=exec('sudo -u root /usr/pluto/bin/OfflineMode.sh get');
 
 	$queryDevice='
@@ -26,6 +26,9 @@ function networkSettings($output,$dbADO) {
 		$rowDevice=$resDevice->FetchRow();
 		$coreID=$rowDevice['PK_Device'];
 	}
+	$domain=getDeviceData($coreID,$GLOBALS['ComputerDomain'],$dbADO);
+	$cname=getDeviceData($coreID,$GLOBALS['ComputerName'],$dbADO);
+	
 	$queryDHCP='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
 	$resDHCP=$dbADO->Execute($queryDHCP,array($coreID,$GLOBALS['DHCPDeviceData']));
 	$rowDHCP=$resDHCP->FetchRow();
@@ -154,8 +157,9 @@ function networkSettings($output,$dbADO) {
 	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
 	<table border="0">
 		<tr>
-			<td colspan="3" align="center" bgcolor="#EEEEEE"><b>Network Settings</b></td>
+			<td colspan="4"><B>Domain</B> &nbsp; <input type="text" name="domain" value="'.$domain.'"> &nbsp; <B>Computer name</B> &nbsp; <input type="text" name="cname" value="'.$cname.'"></td>
 		</tr>
+	
 		<tr>
 			<td colspan="3">DHCP server on Core:</td>
 		</tr>
@@ -169,7 +173,7 @@ function networkSettings($output,$dbADO) {
 		</tr>
 		<tr>
 			<td>&nbsp;</td>
-			<td colspan="2"><input type="checkbox" name="ipForAnonymousDevices" value="1" '.((@$nonPlutoIP==1)?'checked':'').' onClick="ipFromDHCP()" '.(($enableDHCP==1)?'':'disabled').'><span id="provide" style="color:'.(($enableDHCP!=1)?'#CCCCCC':'').'"> Provide IP addresses for anonymous devices not in Pluto’s database.</span></td>
+			<td colspan="2"><input type="checkbox" name="ipForAnonymousDevices" value="1" '.((@$nonPlutoIP==1)?'checked':'').' onClick="ipFromDHCP()" '.(($enableDHCP==1)?'':'disabled').'><span id="provide" style="color:'.(($enableDHCP!=1)?'#CCCCCC':'').'"> Provide IP addresses for anonymous devices not in Pluto\'s database.</span></td>
 		</tr>
 		<tr>
 			<td>&nbsp;</td>
@@ -189,7 +193,7 @@ function networkSettings($output,$dbADO) {
 		</tr>
 		<tr>
 			<td>&nbsp;</td>
-			<td width="150"><span id="coreIPtext" style="color:'.(($ipFromDHCP==1)?'#CCCCCC':'').'">Core’s IP address:</span></td>
+			<td width="150"><span id="coreIPtext" style="color:'.(($ipFromDHCP==1)?'#CCCCCC':'').'">Core\'s IP address:</span></td>
 			<td><input type="text" maxlength="3" name="coreIP_1" size="3" value="'.@$coreIPArray[0].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreIP_2" size="3" value="'.@$coreIPArray[1].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreIP_3" size="3" value="'.@$coreIPArray[2].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreIP_4" size="3" value="'.@$coreIPArray[3].'" '.(($ipFromDHCP==1)?'disabled':'').'></td>
 		</tr>						
 		<tr>
@@ -319,6 +323,18 @@ function networkSettings($output,$dbADO) {
 		$OfflineMode=($OfflineMode==1)?'true':'false';
 		exec('sudo -u root /usr/pluto/bin/OfflineMode.sh set '.$OfflineMode);
 		
+		// set domain & computer name
+		$domain=cleanString($_POST['domain']);
+		if($domain!=''){
+			set_device_data($coreID,$GLOBALS['ComputerDomain'],$domain,$dbADO);
+		}
+		$cname=cleanString($_POST['cname']);
+		if($cname!=''){
+			set_device_data($coreID,$GLOBALS['ComputerName'],$cname,$dbADO);
+		}
+		// TODO: call a script who will set the domain and computer name
+		
+		
 		header("Location: index.php?section=networkSettings&msg=Network settings updated.");
 	}
 
@@ -336,7 +352,7 @@ function getIpFromParts($partName,$startIndex=1)
 	$ipArray=array();
 	for($i=$startIndex;$i<($startIndex+4);$i++)
 	{
-		$part = $_POST[$partName.$i];
+		$part = @$_POST[$partName.$i];
 		if ($part === "")
 			return "";
 		$ipArray[] = $part;

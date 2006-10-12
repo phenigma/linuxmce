@@ -196,6 +196,8 @@
 	$GLOBALS['Skin']=24;						// PK_Skin
 	$GLOBALS['Lineup']=181;						// Lineup
 	$GLOBALS['PK_MediaAttribute']=182;			// PK_MediaAttribute
+	$GLOBALS['ComputerDomain']=187;				// Computer domain
+	$GLOBALS['ComputerName']=188;				// Computer name
 	
 	// PK_FloorplanType from table FloorplanType 
 
