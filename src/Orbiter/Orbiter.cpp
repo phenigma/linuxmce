@@ -3260,6 +3260,7 @@ bool Orbiter::GotActivity(  )
 
 		if( !UsesUIVersion2() )
 		{
+			NeedToRender render( this, "GotActivity" );
 			if( NULL != m_pScreenHistory_Current && m_bScreenSaverActive )
 				StopScreenSaver();
 			CMD_Set_Main_Menu("N");
