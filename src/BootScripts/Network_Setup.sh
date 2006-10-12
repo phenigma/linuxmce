@@ -193,5 +193,25 @@ echo "$hosts" >/etc/hosts
 Q="FLUSH PRIVILEGES"
 RunSQL "$Q"
 
+
+## Setup smb.conf.pluto
+DD_Domain=187
+DD_ComputerName=188
+
+Q="SELECT IK_DeviceDate FROM Device_DeviceData WHERE FK_DeviceData=$DD_Domain AND FK_Device=$PK_Device"
+DomainName=$(RunSQL "$Q")
+DomainName=$(Field "1" "$DomainName")
+
+Q="SELECT IK_DeviceDate FROM Device_DeviceData WHERE FK_DeviceData=$DD_ComputerName AND FK_Device=$PK_Device"
+ComputerName=$(RunSQL "$Q")
+ComputerName=$(Field "1" "$ComputerName")
+
+echo "
+[global]
+	workgroup = $DomainName
+	server string =	$ComputerName
+	netbios name = $ComputerName
+" > /etc/samba/smb.conf.pluto
+
 # This code here - for safe keeping - has something to do with PPPoE and PMTU
 #iptables -A FORWARD -o ppp0 -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss --mss 1400:1536 -j TCPMSS --clamp-mss-to-pmtu
