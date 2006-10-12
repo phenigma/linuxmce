@@ -4979,6 +4979,10 @@ void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMess
 void Orbiter::CMD_Regen_Screen(string &sCMD_Result,Message *pMessage)
 //<-dceag-c15-e->
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Regen_Screen");
+#endif
+	NeedToRender render( this, "Regen Screen" );
 	if( m_pScreenHistory_Current )
 		NeedToRender::NeedToChangeScreens( this, m_pScreenHistory_Current );
 }
