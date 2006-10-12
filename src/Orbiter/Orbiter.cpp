@@ -1536,11 +1536,6 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 			}
 		}
 	}
-	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuScreenSaver_CONST )
-	{
-		CMD_Set_Text(pDesignObj_Orbiter->m_ObjectID, StringUtils::itos(	int(m_tTimeoutTime - time(NULL)) ) + " seconds",TEXT_USR_ENTRY_CONST);
-		CMD_Continuous_Refresh("10");
-	}
 	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_objHouseStatusIndicator_CONST )
 	{
 		// This is actually at startup time.  Figure out what device group this is controlling
@@ -6106,22 +6101,6 @@ void Orbiter::ContinuousRefresh( void *data )
 		delete pContinuousRefreshInfo;
 	else
 	{
-		if( m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==DESIGNOBJ_mnuScreenSaver_CONST )
-		{
-			if( !m_bDisplayOn )
-				return; // Nothing more to do
-
-			DesignObjText *pText = FindText( m_pScreenHistory_Current->GetObj(), TEXT_USR_ENTRY_CONST );
-			if( pText  )
-			{
-				pText->m_sText = StringUtils::itos(	int(m_tTimeoutTime - time(NULL)) ) + " seconds";
-				pText->m_rPosition.X = int(rand() * (float) (m_iImageWidth * .5 / RAND_MAX));
-				pText->m_rPosition.Y = int(rand() * (float) (m_iImageHeight *.9 / RAND_MAX));
-			}
-
-			CMD_Set_Text(m_pScreenHistory_Current->GetObj()->m_ObjectID, StringUtils::itos( int(m_tTimeoutTime - time(NULL)) ) + " seconds",TEXT_USR_ENTRY_CONST);
-		}
-
 		CMD_Refresh("*");
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ContinuousRefresh restarting");
