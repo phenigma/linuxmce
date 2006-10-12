@@ -3,7 +3,7 @@ require('include/config/config.inc.php');
 require('include/utils.inc.php');
 
 $path=$GLOBALS['save_loading_time'].'loadingTimes';
-$GLOBALS['maximum_allowed_loading_time']=0.500;
+$GLOBALS['maximum_allowed_loading_time']=1.000;
 
 if(!file_exists($path)){
 	die('Loading time reports are not available');

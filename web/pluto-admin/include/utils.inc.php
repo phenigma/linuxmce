@@ -6237,12 +6237,16 @@ function updateDeviceControlledBy($deviceID,$controlledBy,$dbADO){
 			$installationID = (int)$_SESSION['installationID'];
 			$appServerID=getDeviceFromDT($installationID,$GLOBALS['AppServer'],$dbADO);
 			
-			// /usr/pluto/bin/MessageSend dcerouter -targetType device 0 $APPSERVERID 1 67 13 "$COMMAND"
-			$cmd='/usr/pluto/bin/MessageSend dcerouter -targetType device 0 '.$appServerID.' 1 67 13 "config_device_changes"';
-			exec_batch_command($cmd);
+			appServerExec($appServerID,'config_device_changes');
 		}
 	}
 	
 	$dbADO->Execute('UPDATE Device SET FK_Device_ControlledVia=? WHERE PK_Device=?',array($controlledBy,$deviceID));
+}
+
+function appServerExec($appServerID,$command,$params=''){
+	// /usr/pluto/bin/MessageSend dcerouter -targetType device 0 $APPSERVERID 1 67 13 "$COMMAND"
+	$cmd='/usr/pluto/bin/MessageSend dcerouter -targetType device 0 '.$appServerID.' 1 67 13 "'.$command.'"'.(($params!='')?' 51 '.$params:'');
+	exec_batch_command($cmd);
 }
 ?>
