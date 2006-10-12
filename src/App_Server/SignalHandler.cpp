@@ -18,7 +18,10 @@
 #include <sys/sem.h>
 #include <errno.h>
 
+#include <iostream>
+
 using namespace DCE;
+using namespace std;
 
 extern int errno;
 
@@ -36,14 +39,16 @@ void sh(int i) /* signal handler */
 	struct sembuf sops;
 	int ret;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Linux signal handler: Started");
+	// NOTE: cout used instead of PlutoLogger because a Logger->Write can be interrupted by a signal and we'd deadlock
+	
+	cout << "Linux signal handler: Started" << endl;
 	do
 	{
 		sops = c_sops_inc;
 		errno = 0;
 		ret = semop(g_iSemID, &sops, 1);
 	} while (ret == -1 && errno == EINTR);
-	g_pPlutoLogger->Write(LV_STATUS, "Linux signal handler: Exited");
+	cout << "Linux signal handler: Exited" << endl;
 }
 
 void SignalHandler_Action()
