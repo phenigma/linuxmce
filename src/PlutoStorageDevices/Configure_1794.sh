@@ -44,7 +44,10 @@ mkdir -p $tempMntDir
 
 ## Get a list of samba shares exported by this device
 for share in $(smbclient --no-pass --list=//$Device_IP  --grepable | grep "^Disk" | cut -d'|' -f2) ;do
-	
+
+	## Create a Plug & Play UniqueID
+	pnpUID="\\\\${Device_IP}\\${share}"
+
 	## Try to mount them without a password
 	mount -o guest //$Device_IP/$share $tempMntDir
 	success=$?
@@ -55,7 +58,7 @@ for share in $(smbclient --no-pass --list=//$Device_IP  --grepable | grep "^Disk
 		## We umount the share from the temp dir
 		umount -f -l $tempMntDir
 		## And notify the router about our succes so he wouldn't ask the user for password
-		/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share"
+		/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share" 54 "$pnpUID"
 
 	## If the mound didn't succed without a user password
 	else
@@ -73,7 +76,7 @@ for share in $(smbclient --no-pass --list=//$Device_IP  --grepable | grep "^Disk
 		## If the mount succeded with the user/pass for the parent device
 		if [[ "$success" == "0" ]] ;then
 			umount -f -l $tempMntDir
-			/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Device_Username|$DD_PASSWORD|$Device_Password"
+			/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Device_Username|$DD_PASSWORD|$Device_Password" 54 "$pnpUID"
 
 		## If the mount didn't succeded wit the user/pass of the parent device
 		else
@@ -102,7 +105,7 @@ for share in $(smbclient --no-pass --list=//$Device_IP  --grepable | grep "^Disk
 
 				if [[ "$success" == "0" ]] ;then
 					umount -f -l $tempDir
-					/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Device_Username|$DD_PASSWORD|$Device_Password"
+					/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Device_Username|$DD_PASSWORD|$Device_Password" 54 "$pnpUID"
 
 					siblingUserPassWorking="1"
 					break
@@ -111,7 +114,7 @@ for share in $(smbclient --no-pass --list=//$Device_IP  --grepable | grep "^Disk
 
 			## If it didn't worked with siblings user/pass then prompt the user to input the user/pass			
 			if [[ "$siblingUserPassWorking" == "0" ]] ;then
-				/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|1|$DD_SHARE|$share"
+				/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|1|$DD_SHARE|$share" 54 "$pnpUID"
 			fi
 		fi
 	fi
