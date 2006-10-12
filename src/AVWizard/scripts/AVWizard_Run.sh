@@ -195,7 +195,10 @@ UpdateOrbiterDimensions()
 	Q="UPDATE Device SET NeedConfigure=1 WHERE PK_Device='$OrbiterDev'"
 	RunSQL "$Q"
 
-	/usr/pluto/bin/MessageSend "$DCERouter" -targetType template "$OrbiterDev" "$DEVICETEMPLATE_OrbiterPlugin" 1 266 2 "$OrbiterDev" 21 "-r" 24 Y
+	while ! /usr/pluto/bin/MessageSend "$DCERouter" -targetType template "$OrbiterDev" "$DEVICETEMPLATE_OrbiterPlugin" 1 266 2 "$OrbiterDev" 21 "-r" 24 Y; do
+		:
+	done
+
 	# Restart X
 	pidOfX=$(ps ax|grep 'X :0 -ac -allowMouseOpenFail vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
 	if [[ -n "$pidOfX" ]]; then
