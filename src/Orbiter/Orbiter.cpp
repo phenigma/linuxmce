@@ -2107,8 +2107,10 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 	g_pPlutoLogger->Write( LV_CONTROLLER, "Initializing grid: %d ( %s ) dev %d options: %s ( # %d )", pObj->m_iPK_Datagrid, pObj->m_sGridID.c_str(  ), m_dwPK_Device, pObj->m_sOptions.c_str(  ), m_dwIDataGridRequestCounter );
 #endif
 
-	// Don't populate if we're not passing in anything at this point
+	if(m_bQuit)	
+		return;
 
+	// Don't populate if we're not passing in anything at this point
 	if(  pObj->m_iPK_Datagrid  )
 	{
 		bool bResponse;
