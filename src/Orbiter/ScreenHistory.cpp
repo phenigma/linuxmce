@@ -15,7 +15,9 @@ ScreenHistory::ScreenHistory(int nPK_Screen, class ScreenHistory *pScreenHistory
 	if( pMessage )
 		for(map<long, string>::iterator it = pMessage->m_mapParameters.begin(); it != pMessage->m_mapParameters.end(); it++)
 		{
-g_pPlutoLogger->Write(LV_CRITICAL,"ScreenHistory::ScreenHistory %d with %d=%s",m_nPK_Screen,it->first,it->second.c_str());
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"ScreenHistory::ScreenHistory %d with %d=%s",m_nPK_Screen,it->first,it->second.c_str());
+#endif
 			m_mapParameters[it->first]=it->second;
 		}
 

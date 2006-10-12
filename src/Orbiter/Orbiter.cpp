@@ -3264,7 +3264,8 @@ bool Orbiter::GotActivity(  )
 			if( NULL != m_pScreenHistory_Current && m_bScreenSaverActive )
 				StopScreenSaver();
 			CMD_Set_Main_Menu("N");
-			GotoMainMenu();
+			if( m_bScreenSaverActive )
+				GotoMainMenu();
 		}
 
 #ifdef DEBUG
