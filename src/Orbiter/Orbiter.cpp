@@ -3251,7 +3251,7 @@ bool Orbiter::GotActivity(  )
 	m_LastActivityTime=time( NULL );
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"m_bDisplayOn is %d",(int) m_bDisplayOn);
+	g_pPlutoLogger->Write(LV_STATUS,"m_bDisplayOn is %d m_bScreenSaverActive %d ui2 %d",(int) m_bDisplayOn,(int) m_bScreenSaverActive,(int) UsesUIVersion2());
 #endif
 
 	// If the display is off, or we're in screen saver mode
@@ -3278,7 +3278,12 @@ bool Orbiter::GotActivity(  )
 	}
 
 	if(  NULL != m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds  )
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Got activity - calling Timeout in %d ",m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds);
+#endif
 		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->GetObj(), pe_ALL );
+	}
 
 	// If the screen saver is not active, then start a countdown to activate it
 	if( !m_bBypassScreenSaver && NULL != m_pScreenHistory_Current && !m_bScreenSaverActive && m_iTimeoutScreenSaver && !UsesUIVersion2() )
