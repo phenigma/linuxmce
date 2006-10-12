@@ -1110,15 +1110,25 @@ bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 
 	vector<string> vectLines;
 	StringUtils::Tokenize(sValue,"\r\n",vectLines);
-	if( vectLines.size()<2 || vectLines[0]!="OK" )
+	vector<string>::iterator it = vectLines.begin();
+	while(it!=vectLines.end() && *it!="OK")
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"ScreenHandler::ChooseProvider_Intercepted stage %d returned %d lines",m_iStage,(int) vectLines.size());
-		return false;
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted skipping %s",it->c_str());
+#endif
+		++it;
+	}
+
+	if(it==vectLines.end())
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted no OK");
+#endif
+		return false; // Keep processing it
 	}
 
 	int iRow=0;
-	vector<string>::iterator it = vectLines.begin();
-	while( ++it!=vectLines.end() )
+	while( it!=vectLines.end() )
 	{
 		string::size_type pos = it->find('\t');
 		if( pos == string::npos )
@@ -1128,8 +1138,9 @@ bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 
 		pCell = new DataGridCell(sValue,it->substr(0,pos));
 		pObj_Grid->DataGridTable_Get()->SetData(0,iRow++,pCell);
+		++it;
 	}
-
+	
 	pDataGridTable->m_RowCount = pDataGridTable->GetRows();
 	pDataGridTable->m_ColumnCount = pDataGridTable->GetCols();
 
