@@ -270,7 +270,7 @@ set +x
 KERNEL_VERSION="$(uname -r)"
 KERNEL_VERSION="${KERNEL_VERSION%*-*86*}-$Architecture" # Our kernels always report the architecture they're compiled for last
 
-InstallKernel $KERNEL_VERSION || exit 1
+InstallKernel $KERNEL_VERSION
 
 mkdir -p "/tftpboot/$Device"
 ln -sf "$DlPath/boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$Device/"
