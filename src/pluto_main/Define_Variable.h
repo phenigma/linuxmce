@@ -56,6 +56,8 @@
 #define VARIABLE_Display_Message_Button_3_CONST 53
 #define VARIABLE_Display_Message_Button_4_CONST 54
 #define VARIABLE_Execution_Result_CONST 55
+#define VARIABLE_Username_CONST 56
+#define VARIABLE_Password_CONST 57
 
 #define VARIABLE_TABLE "Variable"
 #define VARIABLE_PK_VARIABLE_FIELD "PK_Variable"

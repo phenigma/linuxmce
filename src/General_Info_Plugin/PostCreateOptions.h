@@ -26,6 +26,7 @@ namespace DCE
 		void PostCreateDevice_NetworkStorage(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter);
 		void PostCreateDevice_Cameras(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter);
 		void PostCreateDevice_DisklessMD(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter);
+		void PostCreateDevice_CaptureCard(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter);
 	};
 }
 

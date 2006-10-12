@@ -376,9 +376,9 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 	Page->AddChild(Container);
 
 	std::string StringList[4];
-	StringList[0] = "Select the appropiate desktop aspect you preffer";
-	StringList[1] = "Upper desktop is higher resource consuming but looks smoother";
-	StringList[2] = "Lower positioned desktop is faster and simpler";
+	StringList[0] = "Select your user experience.  The Alpha blended UI is better and";
+	StringList[1] = "has 3D effects, but it will only work with an nVidia 6xxx or 7xxx";
+	StringList[2] = "graphics card and a fast CPU, particularly for HD video.";
 
 	SettingsDictionaryTree* BackgroundControl = CreateControlBackground("Gray", "(none)", 0, 0);
 	std::string Color = SkinGenerator::Instance()->BackgroundColor;

@@ -2883,12 +2883,11 @@ string Orbiter_Plugin::PK_Device_Orbiters_In_Room_get(int PK_Room, bool bOnlyAll
 void Orbiter_Plugin::CMD_Check_Media_Providers(string &sCMD_Result,Message *pMessage)
 //<-dceag-c820-e->
 {
-return;
 	// Get a list of all devices where we haven't specified the provider yet.  For now just live tv
 	string sSQL = "SELECT PK_Device,FK_MediaType FROM Device "
-		"JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate = Device.FK_DeviceTemplate and FK_MediaType IN (" TOSTRING(MEDIATYPE_np_LiveTV_CONST) ") "
+		"JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate = Device.FK_DeviceTemplate and FK_MediaType IN (" TOSTRING(MEDIATYPE_np_LiveTV_CONST) "," TOSTRING(MEDIATYPE_pluto_LiveTV_CONST) ") "
 		"LEFT JOIN Device_DeviceData ON PK_Device=FK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_EK_MediaProvider_CONST) " "
-		"WHERE IK_DeviceData IS NULL ";
+		"WHERE IK_DeviceData IS NULL OR IK_DeviceData=''";
 
 	PlutoSqlResult result_set;
     MYSQL_ROW row;
@@ -2898,6 +2897,8 @@ return;
 		{
 			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow( atoi(row[0]) );
 			string sDescription = pRow_Device->Description_get();
+			if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Players_CONST )
+				continue; // Skip the internal sources
 			Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
 			while( pRow_Device_Parent )
 			{

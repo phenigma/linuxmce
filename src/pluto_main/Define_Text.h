@@ -1099,6 +1099,9 @@
 #define TEXT_username_for_device_CONST 1815
 #define TEXT_password_for_device_CONST 1816
 #define TEXT_type_dir_name_CONST 1817
+#define TEXT_use_media_provider_CONST 1818
+#define TEXT_What_is_your_username_CONST 1819
+#define TEXT_What_is_your_password_CONST 1820
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

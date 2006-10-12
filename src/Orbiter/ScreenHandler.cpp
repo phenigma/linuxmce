@@ -957,17 +957,6 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Display_Message_Button_3_CONST, sOption3);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Display_Message_Button_4_CONST, sOption4);
 
-	if( sOption1.size()==0 && sOption2.size()==0 && sOption3.size()==0 && sOption4.size()==0 )
-		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 0, "", "", "1" );
-	if(sOption1.size() && sMessage1.size() )  // Let the user pass in dummy option with no message if he wants no button
-		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 0, "", "", "1" );
-	if(sOption2.size())
-		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), 0, "", "", "1" );
-	if(sOption3.size())
-		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), 0, "", "", "1" );
-	if(sOption4.size())
-		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), 0, "", "", "1" );
-
 	m_pOrbiter->CMD_Goto_DesignObj(0, sPK_DesignObj, sID, "", false, bCantGoBack );
 
 	m_pOrbiter->CMD_Set_Text(sPK_DesignObj, "<%=" + StringUtils::ltos(VARIABLE_Display_Message_Text_CONST) + "%>", TEXT_STATUS_CONST);
@@ -983,7 +972,7 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 		return;
 	}
 
-	if(sOption1.size() && sMessage1.size() )  // Let the user pass in dummy option with no message if he wants no button
+	if(sOption1.size() )
 	{
 		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 0, "", "", "1" );
 		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 
@@ -1044,16 +1033,18 @@ void ScreenHandler::SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sM
 }
 //-----------------------------------------------------------------------------------------------------
 // Create some 'choose provider stages' to keep track of where we are
-#define CPS_GETTING_USERNAME		1
-#define CPS_GETTING_PASSWORD		2
-#define CPS_GETTING_PROVIDER_LIST	3
-#define CPS_PROMPTING_PROVIDER		4
-#define CPS_GETTING_DEVICE_LIST		5
-#define CPS_PROMPTING_DEVICE		6
-#define CPS_GETTING_PACKAGE_LIST	7
-#define CPS_PROMPTING_PACKAGE		8
-#define CPS_GETTING_LINEUP_LIST		9
-#define CPS_PROMPTING_LINEUP		10
+#define CPS_CONFIRM					1
+#define CPS_CHOOSE_SOURCE			2
+#define CPS_GETTING_USERNAME		3
+#define CPS_GETTING_PASSWORD		4
+#define CPS_GETTING_PROVIDER_LIST	5
+#define CPS_PROMPTING_PROVIDER		6
+#define CPS_GETTING_DEVICE_LIST		7
+#define CPS_PROMPTING_DEVICE		8
+#define CPS_GETTING_PACKAGE_LIST	9
+#define CPS_PROMPTING_PACKAGE		10
+#define CPS_GETTING_LINEUP_LIST		11
+#define CPS_PROMPTING_LINEUP		12
 
 void ScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_Device, string sText, string sDescription)
 {
@@ -1062,14 +1053,14 @@ void ScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_De
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::ChooseProvider_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::ChooseProvider_DatagridSelected, new DatagridCellBackData());
 	RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &ScreenHandler::ChooseProvider_Intercepted, new MsgInterceptorCellBackData());
-	m_iStage = 0;
+	m_iStage = CPS_CONFIRM;
 
-	if( sText.size() )
-	{
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,sText);
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,"");
-		ChooseProviderGetNextStage();
-	}
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,sText);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,"");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST,sDescription);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Username_CONST,"");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Password_CONST,"");
+	ChooseProviderGetNextStage();
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
@@ -1155,6 +1146,33 @@ bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 bool ScreenHandler::ChooseProvider_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( pObjectInfoData->m_pObj->m_pParentObject && pObjectInfoData->m_pObj->m_pParentObject->m_iBaseObjectID==DESIGNOBJ_mnuPopupMessage_CONST )
+	{
+		if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse1_CONST && (m_iStage==CPS_CONFIRM || m_iStage==CPS_CHOOSE_SOURCE) )
+		{
+			m_iStage++;
+			ChooseProviderGetNextStage();
+			return true;
+		}
+		else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse2_CONST )
+			m_pOrbiter->CMD_Go_back("","");
+	}
+	else if( pObjectInfoData->m_pObj->m_pParentObject && pObjectInfoData->m_pObj->m_pParentObject->m_iBaseObjectID==DESIGNOBJ_mnuGenericKeyboard_CONST )
+	{
+		if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse1_CONST && (m_iStage==CPS_GETTING_USERNAME || m_iStage==CPS_GETTING_PASSWORD) )
+		{
+			if( m_iStage==CPS_GETTING_USERNAME )
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Username_CONST,m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST));
+			else
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Password_CONST,m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST));
+
+			m_iStage++;
+			ChooseProviderGetNextStage();
+			return true;
+		}
+		else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse2_CONST )
+			m_pOrbiter->CMD_Go_back("","");
+	}
 	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1201,6 +1219,7 @@ bool ScreenHandler::ChooseProvider_DatagridSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::ChooseProviderGetNextStage()
 {
+	NeedToRender render( m_pOrbiter, "ScreenHandler::ChooseProviderGetNextStage()" );  // Redraw anything that was changed by this command
 	string::size_type pos=0;
 	string sTokens = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST);
 	string sArguments = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST);
@@ -1213,22 +1232,57 @@ void ScreenHandler::ChooseProviderGetNextStage()
 	string sPackageCommandLine = StringUtils::Tokenize( sTokens, "\t", pos );
 	string sLineupCommandLine = StringUtils::Tokenize( sTokens, "\t", pos );
 
-	if( sProviderCommandLine.empty()==false && m_iStage<CPS_GETTING_PROVIDER_LIST )
+
+	if( m_iStage==CPS_CONFIRM )
+	{
+		string sText = m_pOrbiter->m_mapTextString[TEXT_use_media_provider_CONST];
+       	StringUtils::Replace( &sText, "<%=device%>", m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_3_CONST) );
+		DisplayMessageOnOrbiter(0,
+			sText, false,"0", false,
+			m_pOrbiter->m_mapTextString[TEXT_YES_CONST]," ",
+			m_pOrbiter->m_mapTextString[TEXT_NO_CONST]," ");
+	}
+	// If we don't already have a provider, or we do and there are some comments to show the user, we'll have this stage
+	else if( m_iStage<=CPS_CHOOSE_SOURCE && (sPK_Provider_Source.empty() || sComments.empty()==false) )
+	{
+		m_iStage = CPS_CHOOSE_SOURCE;
+// TODO -- need to prompt for the source if it's not provided		if( sPK_Provider_Source.empty()==false )
+		{
+			DisplayMessageOnOrbiter(0,
+				sComments, false,"0", false,
+				m_pOrbiter->m_mapTextString[TEXT_Ok_CONST]);
+		}
+// TODO -- need to prompt for the source if it's not provided		else
+	}
+	else if( bRequireUsernamePassword && m_iStage<=CPS_GETTING_USERNAME || m_iStage==CPS_GETTING_PASSWORD )
+	{
+		if( m_iStage<CPS_GETTING_USERNAME )
+			m_iStage=CPS_GETTING_USERNAME;
+
+		string sText = m_pOrbiter->m_mapTextString[ m_iStage==CPS_GETTING_USERNAME ? TEXT_What_is_your_username_CONST : TEXT_What_is_your_password_CONST ];
+
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST,"");
+		SCREEN_GenericKeyboard(SCREEN_GenericKeyboard_CONST, 
+			sText + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST], "",
+			"provider username/password", "0");
+
+	}
+	else if( sProviderCommandLine.empty()==false && m_iStage<=CPS_GETTING_PROVIDER_LIST )
 	{
 		m_iStage = CPS_GETTING_PROVIDER_LIST;
 		SpawnProviderScript(sProviderCommandLine,sArguments);
 	}
-	else if( sDeviceCommandLine.empty()==false && m_iStage<CPS_GETTING_DEVICE_LIST )
+	else if( sDeviceCommandLine.empty()==false && m_iStage<=CPS_GETTING_DEVICE_LIST )
 	{
 		m_iStage = CPS_GETTING_DEVICE_LIST;
 		SpawnProviderScript(sDeviceCommandLine,sArguments);
 	}
-	else if( sPackageCommandLine.empty()==false && m_iStage<CPS_GETTING_PACKAGE_LIST )
+	else if( sPackageCommandLine.empty()==false && m_iStage<=CPS_GETTING_PACKAGE_LIST )
 	{
 		m_iStage = CPS_GETTING_PACKAGE_LIST;
 		SpawnProviderScript(sDeviceCommandLine,sArguments);
 	}
-	else if( sLineupCommandLine.empty()==false && m_iStage<CPS_GETTING_LINEUP_LIST )
+	else if( sLineupCommandLine.empty()==false && m_iStage<=CPS_GETTING_LINEUP_LIST )
 	{
 		m_iStage = CPS_GETTING_LINEUP_LIST;
 		SpawnProviderScript(sDeviceCommandLine,sArguments);
@@ -1238,7 +1292,8 @@ void ScreenHandler::ChooseProviderGetNextStage()
 		// We got everything.  Set the provider information for this device
 		int PK_Device = atoi(m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str());
 		m_pOrbiter->SetDeviceDataInDB(PK_Device,DEVICEDATA_EK_MediaProvider_CONST,sArguments);
-		DCE::CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+		DCE::CMD_Remove_Screen_From_History CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+		m_pOrbiter->SendCommand(CMD_Remove_Screen_From_History);
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1256,8 +1311,13 @@ void ScreenHandler::SpawnProviderScript(string sCommandLine,string sArguments)
 			" " TOSTRING(COMMANDPARAMETER_PK_Variable_CONST) " " TOSTRING(VARIABLE_Execution_Result_CONST)
 			" " TOSTRING(COMMANDPARAMETER_Value_To_Assign_CONST) " ";
 
+	string sAllArguments = 
+		m_pOrbiter->m_mapVariable_Find(VARIABLE_Username_CONST) + "\t" +
+		m_pOrbiter->m_mapVariable_Find(VARIABLE_Password_CONST) + "\t" +
+		sArguments;
+
 	DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,sCommandLine,"getprovider",
-		sArguments,sResult + " \"Error running script\"",
+		sAllArguments,sResult + " \"Error running script\"",
 		sResult + "\"<=spawn_log=>\"",false,false,false);
 	m_pOrbiter->SendCommand(CMD_Spawn_Application);
 

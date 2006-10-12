@@ -1231,7 +1231,7 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 	}
 
 	// Find the media player to play this capture card
-	DeviceData_Base *pDevice_MediaPlayer = ((DeviceData_Router *) pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard)->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Players_CONST);
+	DeviceData_Base *pDevice_MediaPlayer = ((DeviceData_Router *) pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard)->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
 
 	// Find the device
 	string sDevice = pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_mapParameters_Find(DEVICEDATA_Block_Device_CONST);
@@ -1273,7 +1273,7 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 void Media_Plugin::StopCaptureCard(MediaStream *pMediaStream)
 {
 	// Find the media player to play this capture card
-	DeviceData_Base *pDevice_MediaPlayer = ((DeviceData_Router *) pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_pDevice_ControlledVia)->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Players_CONST);
+	DeviceData_Base *pDevice_MediaPlayer = ((DeviceData_Router *) pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_pDevice_ControlledVia)->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
 	if( pDevice_MediaPlayer )
 	{
 		string sMediaPosition;
