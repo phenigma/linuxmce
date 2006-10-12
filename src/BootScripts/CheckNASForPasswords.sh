@@ -8,6 +8,8 @@
 # Note : For now is used only to see if a samba server needs a password so we can browse his shares
 
 
+echo "$(date) $0 $*" >> /nas.log
+
 Device_PnpQueueID=$1
 Device_ID=$2
 
@@ -22,7 +24,7 @@ function SambaServerNeedsPassword() {
 	local NeedsPassword="no"
 
 	## This command should return errcode = 0 if a password is required to scan the share list
-	smbclient -L 192.168.80.223 --no-pass | grep -q "Error returning browse list: NT_STATUS_ACCESS_DENIED"
+	smbclient -L $IP --no-pass | grep -q "Error returning browse list: NT_STATUS_ACCESS_DENIED"
 	local errCode=$?
 
 	if [[ "$errCode" == "0" ]] ;then
@@ -34,14 +36,16 @@ function SambaServerNeedsPassword() {
 
 ## Get the info about the device fron PnpQueue table (the device is not created yet ?)
 Q="SELECT IPaddress FROM PnpQueue WHERE PK_PnpQueue=$Device_PnpQueueID"
+echo "$Q"
 Device_IPaddress=$(RunSQL "$Q")
+echo "$Device_IPaddress"
 
 
 ## Send the message CMD_Pre_Pnp_Script_Done with 109 Data String = parm 182 DEVICEDATA_Password_Required_CONST = 1
 if [[ "$(SambaServerNeedsPassword $Device_IPaddress)" == "yes" ]] ;then
-	/usr/pluto/bin/MessageSend $DCERouter 0 $DeviceID 1 822 119 1 224 $PnpQueueID 109 "182|1"
+	/usr/pluto/bin/MessageSend $DCERouter 0 $Device_ID 1 822 119 1 224 "$Device_PnpQueueID" 109 "182|1"
 else
-	/usr/pluto/bin/MessageSend $DCERouter 0 $DeviceID 1 822 119 1 224 $PnpQueueID 109 "182|0"	
+	/usr/pluto/bin/MessageSend $DCERouter 0 $Device_ID 1 822 119 1 224 "$Device_PnpQueueID" 109 "182|0"	
 fi
 
 
