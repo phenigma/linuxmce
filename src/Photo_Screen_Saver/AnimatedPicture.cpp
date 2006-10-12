@@ -3,7 +3,8 @@
 #include "ZoomFactory.h"
 #include "Builder.h"
 
-AnimatedPicture::AnimatedPicture(int ScreenWidth, int ScreenHeight)
+AnimatedPicture::AnimatedPicture(int ScreenWidth, int ScreenHeight) :
+	Picture(NULL), PictureFrame(NULL), Zoom(NULL)
 {
 	this->Picture = new GraphicImage();
 }

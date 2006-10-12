@@ -8,8 +8,9 @@
 
 using namespace DCE;
 
-GalleryScenario::GalleryScenario(int Width, int Height, int FaddingTime, int ZoomTime, string SearchImageFolder)
-: StateMachine(NULL)
+GalleryScenario::GalleryScenario(int Width, int Height, int FaddingTime, 
+	int ZoomTime, string SearchImageFolder, bool bUseAnimation)
+: StateMachine(NULL), nLastTimeUpdated(0)
 {
 	StateMachine = new GaleryStateMachine();
 	this->FaddingTime = FaddingTime;
@@ -18,6 +19,7 @@ GalleryScenario::GalleryScenario(int Width, int Height, int FaddingTime, int Zoo
 	Browser = new FileBrowser(SearchImageFolder);
 	this->Width = Width;
 	this->Height = Height;
+	m_bUseAnimation = bUseAnimation;
 
 	ZoomFactory::Instance()->Setup(Width, Height);
 
@@ -31,11 +33,38 @@ GalleryScenario::~GalleryScenario(void)
 	delete Browser;
 }
 
-void GalleryScenario::Update(void)
+bool GalleryScenario::Update(void)
 {
 	glEnable(GL_BLEND);
 	int Status = StateMachine->GetStatus();
 	int CurrentTime = SDL_GetTicks();
+
+	if(!m_bUseAnimation)
+	{
+		if(Status == STATUS_STARTUP)
+		{
+			g_pPlutoLogger->Write(LV_ALARM, "Painting the image...");
+			BeforePicture->LoadFromFile(Browser->NextFile());
+			BeforePicture->SetZoomKind(CurrentTime, 5400);
+			BeforePicture->Update(CurrentTime);
+			BeforePicture->Paint();
+			StateMachine->AboutToPaintStaticImage();
+			return true;
+		}
+
+		if(SDL_GetTicks() - nLastTimeUpdated > ZoomTime)
+		{
+			g_pPlutoLogger->Write(LV_ALARM, "Painting the image...");
+			BeforePicture->LoadFromFile(Browser->NextFile());
+			BeforePicture->SetZoomKind(CurrentTime, 5400);
+			BeforePicture->Update(CurrentTime);
+			BeforePicture->Paint();
+			nLastTimeUpdated = SDL_GetTicks();
+			return true;
+		}
+
+		return false;
+	}
 
 	bool Result;
 	switch(Status) {
@@ -96,4 +125,6 @@ void GalleryScenario::Update(void)
 		break;
 	default:;
 	}
+
+	return true;
 }

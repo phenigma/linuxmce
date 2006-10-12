@@ -19,9 +19,10 @@ class GalleryScenario
 	int StartFrame;
 	int FaddingTime;
 	int ZoomTime;
+	int nLastTimeUpdated;
 
 	int NewImageStartTime;
-
+	bool m_bUseAnimation;
 
 	FileBrowser* Browser;
 	FadeBase* Fades;
@@ -31,9 +32,9 @@ class GalleryScenario
 	ZoomBase* ZoomEffect;
 public:
 	GalleryScenario(int Width, int Height, int FaddingTime, int ZoomTime, 
-		string SearchImageFolder);
+		string SearchImageFolder, bool bUseAnimation);
 	~GalleryScenario();
-	void Update(void);
+	bool Update(void);
 };
 
 #endif

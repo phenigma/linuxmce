@@ -28,3 +28,9 @@ void GaleryStateMachine::FadeImages(void)
 {
 	Status = STATUS_FADE_IMAGES;
 }
+
+void GaleryStateMachine::AboutToPaintStaticImage(void)
+{
+	Status = STATUS_PAINTING_STATIC_IMAGE;
+}
+

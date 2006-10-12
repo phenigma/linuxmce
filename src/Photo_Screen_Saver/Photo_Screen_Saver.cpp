@@ -111,25 +111,28 @@ class GallerySetup
 	int Width_, Height_;
 	string m_sImages;
 	int ZoomTime, FaddingTime;
+	bool m_bUseAnimation;
 public:
 	pthread_t* ThreadID;
 	bool* m_bQuit;
 	
-	GallerySetup(string Width, string Height, int ZoomTime, int FaddingTime, string ImageList);
+	GallerySetup(string Width, string Height, bool bUseAnimation, int ZoomTime, int FaddingTime, string ImageList);
 	int GetWidth();
 	int GetHeight();
 	int GetZoomTime();
 	int GetFaddingTime();
 	string GetSearchImagesPath();
+	bool GetUseAnimation();
 };
 
-GallerySetup::GallerySetup(string Width, string Height, int ZoomTime, int FaddingTime, string ImageList)
+GallerySetup::GallerySetup(string Width, string Height, bool bUseAnimation, int ZoomTime, int FaddingTime, string ImageList)
 {
 	this->Width_ = atoi(Width.c_str());
 	this->Height_ = atoi(Height.c_str());
 	m_sImages = ImageList;
 	this->ZoomTime = ZoomTime;
 	this->FaddingTime = FaddingTime;
+	m_bUseAnimation = bUseAnimation;
 }
 
 int GallerySetup::GetWidth()
@@ -156,7 +159,10 @@ int GallerySetup::GetFaddingTime()
 	return FaddingTime;
 }
 
-
+bool GallerySetup::GetUseAnimation()
+{
+	return m_bUseAnimation;
+}
 
 //<-dceag-c192-b->
 
@@ -172,8 +178,10 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 {
 	string w = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenWidth_CONST);
 	string h = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenHeight_CONST);
+	string sUseAnimation = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_Use_alpha_blended_UI_CONST);
+	bool bUseAnimation = sUseAnimation == "1";
 	
-	GallerySetup* SetupInfo = new GallerySetup(w, h, DATA_Get_ZoomTime(), DATA_Get_FadeTime(), m_sFileList);
+	GallerySetup* SetupInfo = new GallerySetup(w, h, bUseAnimation, DATA_Get_ZoomTime(), DATA_Get_FadeTime(), m_sFileList);
 	if(0 == ThreadID)
 	{
 		SetupInfo->ThreadID = &ThreadID;
@@ -197,6 +205,8 @@ void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMess
 
 void Photo_Screen_Saver::Terminate()
 {
+	g_pPlutoLogger->Write(LV_WARNING, "Received CMD_Off. Terminating...");
+
 	WM_Event Event;
 	Event.Quit();
 	Gallery::Instance()->EvaluateEvent(Event);
@@ -218,7 +228,8 @@ void* ThreadAnimation(void* ThreadInfo)
 	Gallery::Instance()->Setup(Info->GetWidth(), Info->GetHeight(), 
 		Info->GetFaddingTime(),
 		Info->GetZoomTime(),
-		Info->GetSearchImagesPath());
+		Info->GetSearchImagesPath(),
+		Info->GetUseAnimation());
 	Gallery::Instance()->MainLoop(Info->m_bQuit); 
 	Gallery::Instance()->CleanUp();
 

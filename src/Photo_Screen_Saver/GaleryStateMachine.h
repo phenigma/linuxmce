@@ -5,6 +5,7 @@
 #define STATUS_LOADED_IMAGES 1
 #define STATUS_ANIMATE_CURRENT_IMAGE 2
 #define STATUS_FADE_IMAGES 3
+#define STATUS_PAINTING_STATIC_IMAGE 4
 
 class GaleryStateMachine
 {
@@ -16,6 +17,7 @@ public:
 	void LoadedImages(void);
 	void AnimateCurrentImage(void);
 	void FadeImages(void);
+	void AboutToPaintStaticImage(void);
 };
 
 #endif 

@@ -18,9 +18,11 @@ public:
 
 class Gallery
 {
+	Gallery(void);
+	void PaintScreen(void);
+
 	ExtensionManager Extensions;
 	static Gallery* Instance_;
-	void PaintScreen(void);
 	SDLFrontEnd* FrontEnd;
 	bool Quit;
 	/**
@@ -29,13 +31,13 @@ class Gallery
 	WM_Event Event; 
 	GalleryScenario* Scenario;
 	ProcessUtils Utils;
+
 public:
-	Gallery(void);
 	~Gallery(void);
 	void MainLoop(bool * m_bQuit);
 	static Gallery* Instance(void);
-public:
-	bool Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName);
+
+    bool Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName, bool bUseAnimation);
 	void CleanUp(void);
 	void EvaluateEvent(WM_Event Event);
 	void _Sleep(int Miliseconds);

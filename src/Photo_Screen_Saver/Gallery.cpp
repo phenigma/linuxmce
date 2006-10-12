@@ -40,8 +40,7 @@ unsigned long ProcessUtils::GetMicroTime()
 
 Gallery* Gallery::Instance_ = NULL;
 
-Gallery::Gallery():
-	Quit(false)
+Gallery::Gallery(): Quit(false), FrontEnd(NULL), Scenario(NULL)
 {
 }
 
@@ -93,15 +92,15 @@ void Gallery::PaintScreen(void)
 #endif
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	Scenario->Update();
+	if(Scenario->Update())
+		FrontEnd->Flip();
 
-	FrontEnd->Flip();
 #ifdef DEBUG
 	DCE::g_pPlutoLogger->Write(LV_WARNING, "EndFlip %d", Utils.GetMicroTime());
 #endif
 }
 
-bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName)
+bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName, bool bUseAnimation)
 {
 //	Width = 800; Height = 500;
 	Quit = false;
@@ -110,7 +109,7 @@ bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string
 	bool Result = FrontEnd->StartVideoMode(Width, Height, false) != 0;
 	Painter::Instance()->Setup(&Extensions);
 	Extensions.Resize(Width, Height);
-	Scenario = new GalleryScenario(Width, Height, FaddingTime, ZoomTime, FolderName);
+	Scenario = new GalleryScenario(Width, Height, FaddingTime, ZoomTime, FolderName, bUseAnimation);
 	return Result;
 }
 
