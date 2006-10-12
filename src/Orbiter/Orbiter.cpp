@@ -811,8 +811,8 @@ g_PlutoProfiler->DumpResults();
 
 	if ( m_pScreenHistory_Current )
 	{
-
-		if( m_bScreenSaverActive && !UsesUIVersion2() )
+		// If the screen saver is on, and we're not changing to the screen saver, in UI1 this means shut it off
+		if( m_bScreenSaverActive && !UsesUIVersion2() && m_pScreenHistory_Current->GetObj()!=m_pDesignObj_Orbiter_ScreenSaveMenu )
 		{
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_WARNING,"Goto Screen -- wakign up from screen saver");
