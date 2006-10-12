@@ -162,6 +162,8 @@
 #define DEVICEDATA_sPK_Device_Relations_For_Creat_CONST 184
 #define DEVICEDATA_Keep_Serial_Number_On_Disable_CONST 185
 #define DEVICEDATA_Description_CONST 186
+#define DEVICEDATA_Domain_CONST 187
+#define DEVICEDATA_Computer_name_CONST 188
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
