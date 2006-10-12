@@ -145,7 +145,8 @@ bool Telecom_Plugin::GetConfig()
 		Row_Users *pRow_Users = *it;
 		string sExtension = StringUtils::ltos(pRow_Users->Extension_get());
 
-		ProcessUtils::SpawnApplication("/usr/pluto/bin/SendVoiceMailEvent.sh", sExtension, "telecom-voicemail");
+		char * args[] = { "/usr/pluto/bin/SendVoiceMailEvent.sh", (char *) sExtension.c_str(), NULL };
+		ProcessUtils::SpawnDaemon(args[0], args);
 	}
 
 	return true;
