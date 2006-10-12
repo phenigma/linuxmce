@@ -1070,6 +1070,9 @@ void ScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_De
 bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 {
 	string sValue; // If this is a set variable for VARIABLE_Execution_Result_CONST, then we got back a response and can continue
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted");
+#endif
 	MsgInterceptorCellBackData *pMsgInterceptorCellBackData = (MsgInterceptorCellBackData *) pData;
 	if( pMsgInterceptorCellBackData->m_pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && 
 		pMsgInterceptorCellBackData->m_pMessage->m_dwID==COMMAND_Set_Variable_CONST )
@@ -1082,9 +1085,17 @@ bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 		if( it==pMsgInterceptorCellBackData->m_pMessage->m_mapParameters.end() )
 			return false;  // Should never happen
 		sValue = it->second;
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted value is %s",sValue.c_str());
+#endif
 	}
 	else
+	{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted not set variable %d",pMsgInterceptorCellBackData->m_pMessage->m_dwID);
+#endif
 		return false;
+	}
 
 	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuGenericDataGrid_CONST) ".0.0." TOSTRING(DESIGNOBJ_dgGenericDataGrid_CONST));
 	if( !pObj )
@@ -1123,6 +1134,11 @@ bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 	pDataGridTable->m_ColumnCount = pDataGridTable->GetCols();
 
 	m_iStage++;
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted row %d col %d stage %d",
+		pDataGridTable->m_RowCount,pDataGridTable->m_ColumnCount,m_iStage);
+#endif
 
 	string sText;
 	switch( m_iStage )
