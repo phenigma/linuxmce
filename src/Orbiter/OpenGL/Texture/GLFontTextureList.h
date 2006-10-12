@@ -55,6 +55,8 @@ public:
 
 	//returns the length in pixels
 	virtual int TextOut(int Width, std::string Text, MeshContainer* &Geometry);
+
+	int GetLetterWidth(unsigned char Letter);
 };
 
 #endif /*GLFONTTEXTURELIST_H_*/

@@ -109,7 +109,7 @@ MeshFrame* GLFontRenderer::TextOut(string TextUniqueID, string TextToDisplay,cla
 	rectLocation.Width = Text->m_rPosition.Width;
 	rectLocation.Height = Text->m_rPosition.Height;
 
-	bool bMultiLine = TextToDisplay.find("\n") != string::npos;
+	//bool bMultiLine = TextToDisplay.find("\n") != string::npos;
 
 	//handle escape sequences
 	if(TextToDisplay.find("~S") != string::npos)
@@ -204,9 +204,71 @@ MeshFrame* GLFontRenderer::TextOut(string TextUniqueID, string TextToDisplay,cla
 	}
 //	else //normal rendering
 	{
-		int NoLines = 0;
-		//Text->m_iPK_VertAlignment = VERTALIGNMENT_Middle_CONST;
 
+
+		//insert '\n' characters to do word wrapping
+		GLFontTextureList * LetterWriter = Font->GetFontStyle(Style_, R_, G_, B_);
+		string sTextToDisplayOriginal = TextToDisplay;
+		string sCurrentWord;
+		string sCurrentLine;
+
+		TextToDisplay = "";
+		int nCurrentLineWidth = 0;
+		int nCurrentWordWidth = 0;
+
+		for(string::iterator it = sTextToDisplayOriginal.begin(), end = sTextToDisplayOriginal.end(); it != end; ++it)
+		{
+			int c = *it;
+
+			if(c == '\n')
+			{
+				//forced EOL
+				sCurrentLine += sCurrentWord;
+				TextToDisplay += sCurrentLine;
+				TextToDisplay += c;
+
+				nCurrentLineWidth = 0;
+				nCurrentWordWidth = 0;
+				sCurrentLine = "";
+				sCurrentWord = "";
+			}
+			else
+			{
+				sCurrentWord += c;
+
+				if(c == '-' || c == ' ' || c == '\t')
+				{
+					//we have a word
+					sCurrentLine += sCurrentWord;
+					sCurrentWord = "";
+					nCurrentWordWidth = 0;
+				}
+
+				int nCurrentLetterWidth = LetterWriter->GetLetterWidth(c);
+				nCurrentWordWidth += nCurrentLetterWidth;
+
+				if(nCurrentLineWidth + nCurrentLetterWidth > Text->m_rPosition.Width)
+				{
+					//we have a line
+					TextToDisplay += sCurrentLine;
+					TextToDisplay += "\n";
+
+					sCurrentLine = "";
+					nCurrentLineWidth = nCurrentWordWidth;
+				}
+				else
+					nCurrentLineWidth += nCurrentLetterWidth;
+			}
+		}
+
+		//add the rest of the text
+		if(!sCurrentWord.empty())
+			sCurrentLine += sCurrentWord;
+
+		if(!sCurrentLine.empty())
+			TextToDisplay += sCurrentLine;
+
+		int NoLines = 0;
 		MeshTransform Transform;
 		while(TextToDisplay.length() != 0)
 		{
@@ -215,12 +277,17 @@ MeshFrame* GLFontRenderer::TextOut(string TextUniqueID, string TextToDisplay,cla
 			Text->m_iPK_VertAlignment,pTextStyle->m_sFont,pTextStyle->m_ForeColor,
 			pTextStyle->m_iPixelHeight,pTextStyle->m_bBold, pTextStyle->m_bItalic, 
 			pTextStyle->m_bUnderline, rectLocation);
+
 			if (NoLines) 
 				Transform.ApplyTranslate(0, float(Height_), 0);
+
 			Frame->ApplyTransform(Transform);
-			
 			Result->AddChild(Frame);
 			NoLines++;
+
+			//don't go outside the rectangle
+			if((NoLines + 1) * pTextStyle->m_iPixelHeight > Text->m_rPosition.Height)
+				break;
 		}
 
 		switch(Text->m_iPK_VertAlignment) {

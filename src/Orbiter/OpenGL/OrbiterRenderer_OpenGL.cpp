@@ -330,7 +330,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	
 	GLFontRenderer * aGLTextRenderer = new GLFontRenderer(OrbiterLogic()->m_iImageHeight, 
 			pTextStyle->m_sFont,
-			pTextStyle->m_iPixelHeight,
+			pTextStyle->m_iPixelHeight * 1.2,
 			style, 
 			pTextStyle->m_ForeColor.R(), 
 			pTextStyle->m_ForeColor.G(), 

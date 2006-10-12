@@ -169,3 +169,16 @@ bool GLFontTextureList::Exists(unsigned char Letter)
 {
 	return (Letters.find(Letter) != Letters.end());
 }
+
+int GLFontTextureList::GetLetterWidth(unsigned char Letter)
+{
+	map<char, OpenGLGraphic *>::iterator it = Letters.find(Letter);
+	if(it == Letters.end())
+	{
+		MapLetter(Letter);
+		it = Letters.find(Letter);
+	}
+
+	OpenGLGraphic *pGraphic = it->second;
+	return pGraphic->Width;
+}
