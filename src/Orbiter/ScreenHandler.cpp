@@ -1124,7 +1124,7 @@ bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted no OK");
 #endif
-		return false; // Keep processing it
+		return false; // Keep processing it.
 	}
 
 	int iRow=0;
