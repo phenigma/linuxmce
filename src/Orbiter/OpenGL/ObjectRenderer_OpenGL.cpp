@@ -200,3 +200,11 @@ void ObjectRenderer_OpenGL::LoadPicture(PlutoGraphic* pPlutoGraphic)
 		}
 	}
 }
+
+void ObjectRenderer_OpenGL::HideObject()
+{
+	OrbiterRenderer_OpenGL *pOrbiterRenderer = dynamic_cast<OrbiterRenderer_OpenGL *>(m_pObj_Owner->m_pOrbiter->Renderer());
+	
+	if(NULL != pOrbiterRenderer)
+		pOrbiterRenderer->RemoveGraphic(m_pObj_Owner->GenerateObjectHash(m_pObj_Owner->m_pPopupPoint, false));
+}

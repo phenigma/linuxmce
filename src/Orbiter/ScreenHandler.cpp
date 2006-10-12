@@ -974,25 +974,28 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 
 	if(sOption1.size() )
 	{
-		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 0, "", "", "1" );
 		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 
 			"<%=" + StringUtils::ltos(VARIABLE_Display_Message_Button_1_CONST) + "%>", TEXT_STATUS_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Message_1_CONST, sMessage1);
 	}
+	m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 0, "", "", sOption1.size() ? "1" : "0" );
+
 	if(sOption2.size())
 	{
-		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), 0, "", "", "1" );
 		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), 
 			"<%=" + StringUtils::ltos(VARIABLE_Display_Message_Button_2_CONST) + "%>", TEXT_STATUS_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Message_2_CONST, sMessage2);
 	}
+	m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), 0, "", "", sOption2.size() ? "1" : "0" );
+
 	if(sOption3.size())
 	{
-		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), 0, "", "", "1" );
 		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), 
 			"<%=" + StringUtils::ltos(VARIABLE_Display_Message_Button_3_CONST) + "%>", TEXT_STATUS_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Message_3_CONST, sMessage3);
 	}
+	m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), 0, "", "", sOption3.size() ? "1" : "0" );
+
 	if(sOption4.size())
 	{
 		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), 0, "", "", "1" );
@@ -1000,6 +1003,7 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 			"<%=" + StringUtils::ltos(VARIABLE_Display_Message_Button_4_CONST) + "%>", TEXT_STATUS_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Message_4_CONST, sMessage4);
 	}
+	m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), 0, "", "", sOption4.size() ? "1" : "0" );
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogPhoneInstructions(long PK_Screen, string sInstructions, string sPhoneName)

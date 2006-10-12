@@ -368,6 +368,9 @@ int k=2;
 #ifdef DEBUG
 		g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", m_pObj_Owner->m_ObjectID.c_str(), (int) m_pObj_Owner->m_bHidden );
 #endif
+
+		HideObject();
+
 		if(m_pObj_Owner->m_pOrbiter->m_bShowShortcuts && m_pObj_Owner->m_iPK_Button)
 			m_pObj_Owner->m_pOrbiter->Renderer()->RenderShortcut(m_pObj_Owner);
 
