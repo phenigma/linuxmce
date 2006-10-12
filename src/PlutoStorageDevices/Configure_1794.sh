@@ -38,12 +38,18 @@ if [[ "$Device_IP" == "" ]]; then
 	echo "ERROR: No IP associated with the device $Device_ID"
 fi
 
+## Get the username/pass of the device as we will use it to scan the share list and to testmount the shares
+R=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_USERNAME")
+Device_Username=$(Field "1" "$R")
+R=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_PASSWORD")
+Device_Password=$(Field "1" "$R")
+
 ## Create a temporary mount diretory where we can test the share mounts
 tempMntDir=/tmp/mnt/$pid
 mkdir -p $tempMntDir
 
 ## Get a list of samba shares exported by this device
-for share in $(smbclient --no-pass --list=//$Device_IP  --grepable | grep "^Disk" | cut -d'|' -f2) ;do
+for share in $(smbclient -U ${Device_Username}%${Device_Password} --list=//$Device_IP  --grepable | grep "^Disk" | cut -d'|' -f2) ;do
 
 	## Create a Plug & Play UniqueID
 	pnpUID="\\\\${Device_IP}\\${share}"
@@ -64,14 +70,8 @@ for share in $(smbclient --no-pass --list=//$Device_IP  --grepable | grep "^Disk
 	else
 		## We should try use our user and password on this share to see if it works
 		## Suggestion : try brute-force the password so we won't need to ask the user, this would be super user frendly :))
-		R=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_USERNAME")
-		Device_Username=$(Field "1" "$R")
-		R=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_PASSWORD")
-		Device_Password=$(Field "1" "$R")
-
 		mount -o username=${Device_Username},password=${Device_Password} //$Device_IP/$share $tempMntDir
 		success=$?
-
 		
 		## If the mount succeded with the user/pass for the parent device
 		if [[ "$success" == "0" ]] ;then
@@ -97,15 +97,15 @@ for share in $(smbclient --no-pass --list=//$Device_IP  --grepable | grep "^Disk
 			## Check with every combinationp
 			siblingUserPassWorking="0"
 			for UserPass in "$R" ;do
-				Device_Username=$(Field "1" "$UserPass")
-				Device_Password=$(Field "2" "$UserPass")
+				Brother_Username=$(Field "1" "$UserPass")
+				Brother_Password=$(Field "2" "$UserPass")
 		
-				mount -o username=${Device_Username},password=${Device_Password} //$Device_IP/$share $tempMntDir
+				mount -o username=${Brother_Username},password=${Brother_Password} //$Device_IP/$share $tempMntDir
 		                success=$?
 
 				if [[ "$success" == "0" ]] ;then
 					umount -f -l $tempDir
-					/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Device_Username|$DD_PASSWORD|$Device_Password" 54 "$pnpUID"
+					/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Brother_Username|$DD_PASSWORD|$Brother_Password" 54 "$pnpUID"
 
 					siblingUserPassWorking="1"
 					break
