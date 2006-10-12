@@ -28,7 +28,7 @@ function alertsLog($output,$securitydbADO,$dbADO) {
 				Description, 
 				UNIX_TIMESTAMP(DetectionTime) AS DetectionTime, 
 				UNIX_TIMESTAMP(ExpirationTime) AS ExpirationTime, 
-				UNIX_TIMESTAMP(ResetTime) AS ResetTime,
+				IF(ResetTime IS NOT NULL,UNIX_TIMESTAMP(ResetTime),NULL) AS ResetTime,
 				EK_Device,
 				ResetBeforeExpiration,
 				Benign,
@@ -144,7 +144,7 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 			<td align="center">'.date($GLOBALS['defaultDateFormat'],$row['ExpirationTime']).'</td>
 			<td align="center"><input type="checkbox" name="checkb" '.(($row['ResetBeforeExpiration']==1)?'checked':'').' disabled></td>
 			<td align="center"><input type="checkbox" name="checkb" '.(($row['Benign']==1)?'checked':'').' disabled></td>
-			<td align="center">'.date($GLOBALS['defaultDateFormat'],$row['ResetTime']).'</td>
+			<td align="center">'.((is_null($row['ResetTime']))?'Not reseted':date($GLOBALS['defaultDateFormat'],$row['ResetTime'])).'</td>
 			<td align="center">'.$user.'</td>
 		</tr>
 	';
