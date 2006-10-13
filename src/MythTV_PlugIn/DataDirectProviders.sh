@@ -1,8 +1,8 @@
 #!/bin/bash
 USER=$1
 PASS=$2
+echo "$(date) Logging" >> /var/log/pluto/tribune.log
 if [ $# -ne 0 ]; then
-	echo "$(date) Logging" >> /var/log/pluto/tribune.log
 	POSTFILE="/tmp/DDpost"
 	RESPONSE="/tmp/DDresponce"
 	echo -ne "<?xml version='1.0' encoding='utf-8'?>
