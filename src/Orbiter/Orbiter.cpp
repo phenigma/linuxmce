@@ -906,7 +906,7 @@ g_pPlutoLogger->Write( LV_CRITICAL, "calling timeout");
 	m_pOrbiterRenderer->ObjectOnScreenWrapper(  );
 
 	//if we are now in main menu, we'll purge the history; this is the initial nod from the navigation "tree"
-	if(m_pScreenHistory_Current->GetObj()->m_iBaseObjectID == atoi(m_sMainMenu.c_str()))
+	if(m_pScreenHistory_Current->GetObj()->m_iBaseObjectID == atoi(m_sMainMenu.c_str()) && m_pScreenHistory_Current->GetObj()!=m_pDesignObj_Orbiter_ScreenSaveMenu)
 	{
 		list<ScreenHistory *>::iterator it_end = m_listScreenHistory.end(); //cache the end of the list
 		for(list<ScreenHistory *>::iterator it = m_listScreenHistory.begin(); it != it_end; ++it)
@@ -2302,6 +2302,8 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 //--------------------------------------------------------------------------------------------------------------
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
+if( pObj->m_iBaseObjectID==3319 )
+int k=2;
 	for(size_t s=0;s<pObj->m_vectDesignObjText.size();++s)
 		pObj->m_vectDesignObjText[s]->m_pObject = pObj;
 
@@ -3261,11 +3263,14 @@ bool Orbiter::GotActivity(  )
 		if( !UsesUIVersion2() )
 		{
 			NeedToRender render( this, "GotActivity" );
-			if( NULL != m_pScreenHistory_Current && m_bScreenSaverActive )
-				StopScreenSaver();
 			CMD_Set_Main_Menu("N");
+			if( m_pScreenHistory_Current && m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu )
+				CMD_Go_back("","1");
+
 			if( m_bScreenSaverActive )
-				GotoMainMenu();
+			{
+				StopScreenSaver();
+			}
 		}
 
 #ifdef DEBUG
@@ -4525,8 +4530,8 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 
 				// We now took the prior screen off teh list
 				m_listScreenHistory.pop_back(  );
-				//if( pScreenHistory->m_bCantGoBack && sForce!="1"  )
-				continue;
+				if( pScreenHistory->m_bCantGoBack && sForce!="1"  )
+					continue;
 			}
 
 			if(pScreenHistory->HistoryEmpty())
@@ -4712,8 +4717,12 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 		sPK_DesignObj.c_str(),(int) pScreenHistory_New->m_bCantGoBack,(int) bCant_Go_Back,(int) pObj_New->m_bCantGoBack);
 #endif
 	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->m_bCantGoBack;
-
-	if(ScreenHistory::m_bAddToHistory && m_pScreenHistory_Current != pScreenHistory_New)
+	if( pObj_New==m_pDesignObj_Orbiter_ScreenSaveMenu )
+	{
+		pObj_New->m_bCantGoBack=true;
+		ScreenHistory::m_bAddToHistory = false;
+	}
+	else if( ScreenHistory::m_bAddToHistory && m_pScreenHistory_Current != pScreenHistory_New)
 	{
 		if(pScreenHistory_New->GetObj() && !bLastCantGoBack && sLastObject != pObj_New->m_ObjectID && sLastObject != "")
 			pScreenHistory_New->AddToHistory();
