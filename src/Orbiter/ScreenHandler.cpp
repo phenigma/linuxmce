@@ -1131,8 +1131,14 @@ bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 	while( it!=vectLines.end() )
 	{
 		string::size_type pos = it->find('\t');
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted processing %s",it->c_str());
+#endif
 		if( pos == string::npos )
+		{
+			it++;
 			continue; // Shouldn't happen
+		}
 		int ID = atoi( it->c_str() );
 		string sValue = it->substr(pos+1);
 
