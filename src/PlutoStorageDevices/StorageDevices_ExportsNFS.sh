@@ -36,7 +36,7 @@ for Device in $InternalOwnStorageDevices; do
 	Device_MountPoint="/mnt/device/$Device_ID"
 	Device_BlockDevice=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID and FK_DeviceData=$DD_BLOCK_DEVICE")
 
-	Exports_InternalStorageDevices="$Exports_InternalStorageDevices\n$Device_MountPoint ${INTERNAL_SUBNET}/${INTERNAL_SUBNET_MASK}(rw,no_root_squash,no_all_squash,sync,nohide)"
+	Exports_InternalStorageDevices="$Exports_InternalStorageDevices\n$Device_MountPoint ${INTERNAL_SUBNET}/${INTERNAL_SUBNET_MASK}(rw,no_root_squash,no_all_squash,sync,nohide,no_subtree_check)"
 done
 
 PopulateSection "/etc/exports" "InternalStorageDevices" "$Exports_InternalStorageDevices"

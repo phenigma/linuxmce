@@ -68,7 +68,7 @@ for Client in $DisklessMDs; do
 	IsDiskless=$(RunSQL "$Q")
 
 	if [ -n "$IsDiskless" ]; then
-		Exports_DisklessMDRoots="$Exports_DisklessMDRoots\n$DisklessMD_Root	$INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(rw,no_root_squash,no_all_squash,sync)"
+		Exports_DisklessMDRoots="$Exports_DisklessMDRoots\n$DisklessMD_Root	$INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(rw,no_root_squash,no_all_squash,sync,no_subtree_check)"
 	fi
 done
 
