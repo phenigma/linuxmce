@@ -198,11 +198,11 @@ RunSQL "$Q"
 DD_Domain=187
 DD_ComputerName=188
 
-Q="SELECT IK_DeviceDate FROM Device_DeviceData WHERE FK_DeviceData=$DD_Domain AND FK_Device=$PK_Device"
+Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData=$DD_Domain AND FK_Device=$PK_Device"
 DomainName=$(RunSQL "$Q")
 DomainName=$(Field "1" "$DomainName")
 
-Q="SELECT IK_DeviceDate FROM Device_DeviceData WHERE FK_DeviceData=$DD_ComputerName AND FK_Device=$PK_Device"
+Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData=$DD_ComputerName AND FK_Device=$PK_Device"
 ComputerName=$(RunSQL "$Q")
 ComputerName=$(Field "1" "$ComputerName")
 
