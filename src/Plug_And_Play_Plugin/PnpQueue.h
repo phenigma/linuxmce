@@ -30,7 +30,11 @@ class Row_Device;
 
 namespace DCE
 {
-    /** @brief
+	// A function for locating devices of specific categories since some require special handling
+	typedef bool( PnpQueue::*fnLocateDevice )( PnpQueueEntry *pPnpQueueEntry );
+
+	
+	/** @brief
     */
     class PnpQueue
     {
@@ -42,6 +46,7 @@ namespace DCE
 		Database_pluto_main *m_pDatabase_pluto_main;
 		bool m_bThreadRunning;
 		Pnp_PreCreateOptions m_Pnp_PreCreateOptions;
+		map<string,fnLocateDevice> m_mapCategoryLocateDevice;
 
 	public:
 		PnpQueue(class Plug_And_Play_Plugin *pPlug_And_Play_Plugin);
@@ -78,6 +83,10 @@ namespace DCE
 		bool Process_Detect_Stage_Add_Software(PnpQueueEntry *pPnpQueueEntry);
 		bool Process_Detect_Stage_Start_Device(PnpQueueEntry *pPnpQueueEntry);
 		bool Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry);
+
+		// Specialized LocateDevice methods
+		bool LocateFileShare(PnpQueueEntry *pPnpQueueEntry);
+		bool LocateFileServer(PnpQueueEntry *pPnpQueueEntry);
 	};
 }
 

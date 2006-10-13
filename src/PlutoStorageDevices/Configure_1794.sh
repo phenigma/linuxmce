@@ -62,7 +62,7 @@ for share in $(smbclient -U ${Device_Username}%${Device_Password} --list=//$Devi
 		
 		if [[ "$success" == "0" ]] ;then
 			umount -f -l $tempMntDir
-			/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share" 54 "$pnpUID"
+			/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 56 "fileshare" 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share" 54 "$pnpUID"
 			mountedOK="true"
 		fi
 	fi
@@ -74,7 +74,7 @@ for share in $(smbclient -U ${Device_Username}%${Device_Password} --list=//$Devi
 		
 		if [[ "$success" == "0" ]] ;then
 			umount -f -l $tempMntDir
-			/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Device_Username|$DD_PASSWORD|$Device_Password" 54 "$pnpUID"
+			/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 56 "fileshare" 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Device_Username|$DD_PASSWORD|$Device_Password" 54 "$pnpUID"
 			mountedOK="true"
 		fi
 	fi
@@ -106,7 +106,7 @@ for share in $(smbclient -U ${Device_Username}%${Device_Password} --list=//$Devi
 			if [[ "$success" == "0" ]] ;then
 				umount -f -l $tempDir
 				echo "# Mount of '\\$Device_IP\\$share' succeded with  user/password of a brother device"
-				/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Brother_Username|$DD_PASSWORD|$Brother_Password" 54 "$pnpUID"
+				/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 56 "fileshare" 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Brother_Username|$DD_PASSWORD|$Brother_Password" 54 "$pnpUID"
 
 				siblingUserPassWorking="1"
 				mountedOK="true"
@@ -119,7 +119,7 @@ for share in $(smbclient -U ${Device_Username}%${Device_Password} --list=//$Devi
 	
 	## Notify the router that we didn't found any user/pass combination
 	if [[ "$mountedOK" == "false" ]] ;then
-		/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 52 3 53 2 49 1768 55 "182|1|$DD_SHARE|$share" 54 "$pnpUID"
+		/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 56 "fileshare" 52 3 53 2 49 1768 55 "182|1|$DD_SHARE|$share" 54 "$pnpUID"
 	fi
 done
 

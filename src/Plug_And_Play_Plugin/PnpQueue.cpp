@@ -69,6 +69,9 @@ PnpQueue::PnpQueue(class Plug_And_Play_Plugin *pPlug_And_Play_Plugin)
 	}
 	else
 		pthread_detach(pthread_id);
+
+	m_mapCategoryLocateDevice["fileserver"] = &PnpQueue::LocateFileServer;
+	m_mapCategoryLocateDevice["fileshare"] = &PnpQueue::LocateFileShare;
 }
 
 PnpQueue::~PnpQueue()
@@ -817,6 +820,11 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 	if( pRow_Device )
 		return true;  // This device already exists
 
+	//  See if there's a special locator for this category of device
+	map<string,fnLocateDevice>::iterator itLD; 
+	if( (itLD = m_mapCategoryLocateDevice.find( pPnpQueueEntry->m_pRow_PnpQueue->Category_get() ))!=m_mapCategoryLocateDevice.end() )
+		return CALL_MEMBER_FN(*this,itLD->second) (pPnpQueueEntry);
+
 	string sPK_Device_TopLevel = StringUtils::itos(pPnpQueueEntry->m_dwPK_Device_TopLevel);
 	vector<Row_Device *> vectRow_Device;
 	string sSerialOrMac;
@@ -1189,7 +1197,13 @@ string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
 	{
 		if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Hard_Drives_CONST && pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Block_Device_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
 			sDescription = pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_Block_Device_CONST];
-		else
+		else if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Network_Storage_CONST && pPnpQueueEntry->m_pRow_Device_Reported )
+			sDescription = pPnpQueueEntry->m_pRow_Device_Reported->Description_get() + " / " + pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_Share_Name_CONST];
+		else if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_FileMedia_Server_CONST )
+			sDescription = pRow_DeviceTemplate->Description_get() + " (" + pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get() + ") " +
+			pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_Description_CONST];
+
+		if( sDescription.empty() )
 			sDescription = pRow_DeviceTemplate->Description_get();
 
 		map<int,string>::iterator it;
@@ -1263,4 +1277,41 @@ Row_Device *PnpQueue::FindDisabledDeviceTemplateOnPC(int PK_Device_PC,int PK_Dev
 		return NULL;
 
 	return m_pDatabase_pluto_main->Device_get()->GetRow(atoi(row[0]));
+}
+
+bool PnpQueue::LocateFileShare(PnpQueueEntry *pPnpQueueEntry)
+{
+	// File shares come from the parent device (the file server) and must have a unique serial number.  Also confirm it's the same type
+	vector<Row_Device *> vectRow_Device;
+	m_pDatabase_pluto_main->Device_get()->GetRows("JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_Serial_Number_CONST)
+		" WHERE FK_DeviceTemplate=" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get())
+		+ " AND FK_Device_ControlledVia=" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Reported_get())
+		+ " AND IK_DeviceData='" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get()) + "'",
+		&vectRow_Device);
+
+	if( vectRow_Device.size() )
+	{
+		pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(vectRow_Device[0]->PK_Device_get());
+		return true;
+	}
+
+	return false;
+}
+
+bool PnpQueue::LocateFileServer(PnpQueueEntry *pPnpQueueEntry)
+{
+	// The file server must be of the same type, with the same mac and ip.  The ip should never change because once it's added dhcp will allocate that ip
+	vector<Row_Device *> vectRow_Device;
+	m_pDatabase_pluto_main->Device_get()->GetRows("FK_DeviceTemplate=" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get())
+		+ " AND IPaddress='" + pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get() + "'"
+		+ " AND MACaddress='" + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + "'",
+		&vectRow_Device);
+
+	if( vectRow_Device.size() )
+	{
+		pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(vectRow_Device[0]->PK_Device_get());
+		return true;
+	}
+
+	return false;
 }

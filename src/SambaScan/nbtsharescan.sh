@@ -50,7 +50,7 @@ for outputLine in $( nbtscan $IntNetwork -s '#' -q | tr -d ' ') ;do
 	## If the IP is not there allready
 	if [[ "$Result" == "" ]] ;then
 		## Report it to the router
-		/usr/pluto/bin/MessageSend $DCERouter 0 -1001 2 65 52 3 53 2 49 1837 5 "$serverMAC" 28 "$serverIP" 55 "186|$serverName"
+		/usr/pluto/bin/MessageSend $DCERouter 0 -1001 2 65 56 "fileserver" 52 3 53 2 49 1837 5 "$serverMAC" 28 "$serverIP" 55 "186|$serverName"
 		Log "Reporting $serverIP [$serverName] to the router"
 		
 	## If the ip allready exists in the database
