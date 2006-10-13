@@ -18,6 +18,7 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_ProviderSource.h"
 
+#include "Table_MediaProvider.h"
 
 
 void Database_pluto_media::CreateTable_ProviderSource()
@@ -1436,6 +1437,13 @@ sscanf(row[19], "%li", &(pRow->m_psc_restrict));
 
 
 
+void Row_ProviderSource::MediaProvider_FK_ProviderSource_getrows(vector <class Row_MediaProvider*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_MediaProvider *pTable = table->database->MediaProvider_get();
+pTable->GetRows("`FK_ProviderSource`=" + StringUtils::itos(m_PK_ProviderSource),rows);
+}
 
 
 

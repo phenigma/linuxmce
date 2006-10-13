@@ -80,7 +80,7 @@ class DECLSPECIFIER Row_MediaProvider : public TableRow, public SerializeClass
 		long int m_PK_MediaProvider;
 string m_Description;
 long int m_EK_MediaType;
-long int m_EK_ProviderSource;
+long int m_FK_ProviderSource;
 string m_Type;
 string m_ID;
 string m_Lineup;
@@ -97,7 +97,7 @@ long int m_psc_restrict;
 		long int PK_MediaProvider_get();
 string Description_get();
 long int EK_MediaType_get();
-long int EK_ProviderSource_get();
+long int FK_ProviderSource_get();
 string Type_get();
 string ID_get();
 string Lineup_get();
@@ -112,7 +112,7 @@ long int psc_restrict_get();
 		void PK_MediaProvider_set(long int val);
 void Description_set(string val);
 void EK_MediaType_set(long int val);
-void EK_ProviderSource_set(long int val);
+void FK_ProviderSource_set(long int val);
 void Type_set(string val);
 void ID_set(string val);
 void Lineup_set(string val);
@@ -126,7 +126,7 @@ void psc_restrict_set(long int val);
 		
 		bool Description_isNull();
 bool EK_MediaType_isNull();
-bool EK_ProviderSource_isNull();
+bool FK_ProviderSource_isNull();
 bool Type_isNull();
 bool ID_isNull();
 bool Lineup_isNull();
@@ -139,7 +139,7 @@ bool psc_restrict_isNull();
 			
 		void Description_setNull(bool val);
 void EK_MediaType_setNull(bool val);
-void EK_ProviderSource_setNull(bool val);
+void FK_ProviderSource_setNull(bool val);
 void Type_setNull(bool val);
 void ID_setNull(bool val);
 void Lineup_setNull(bool val);
@@ -160,7 +160,8 @@ void psc_restrict_setNull(bool val);
 		class Table_MediaProvider *Table_MediaProvider_get() { return table; };
 
 		// Return the rows for foreign keys 
-		
+		class Row_ProviderSource* FK_ProviderSource_getrow();
+
 
 		// Return the rows in other tables with foreign keys pointing here
 		void Bookmark_FK_MediaProvider_getrows(vector <class Row_Bookmark*> *rows);
@@ -168,7 +169,7 @@ void psc_restrict_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_MediaProvider+ m_Description+ m_EK_MediaType+ m_EK_ProviderSource+ m_Type+ m_ID+ m_Lineup+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_MediaProvider+ m_Description+ m_EK_MediaType+ m_FK_ProviderSource+ m_Type+ m_ID+ m_Lineup+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -176,7 +177,7 @@ void psc_restrict_setNull(bool val);
 		string PK_MediaProvider_asSQL();
 string Description_asSQL();
 string EK_MediaType_asSQL();
-string EK_ProviderSource_asSQL();
+string FK_ProviderSource_asSQL();
 string Type_asSQL();
 string ID_asSQL();
 string Lineup_asSQL();

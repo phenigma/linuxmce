@@ -196,7 +196,8 @@ void psc_restrict_setNull(bool val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		
+		void MediaProvider_FK_ProviderSource_getrows(vector <class Row_MediaProvider*> *rows);
+
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
