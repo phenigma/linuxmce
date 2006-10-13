@@ -1104,8 +1104,9 @@
 #define TEXT_What_is_your_password_CONST 1820
 #define TEXT_error_with_provider_CONST 1821
 #define TEXT_Media_provider_specified_CONST 1822
-
-
+#define TEXT_Pick_capture_card_port_CONST 1823
+#define TEXT_Capture_card_device_hint_CONST 1824
+#define TEXT_yes_capture_card_port_CONST 1825
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

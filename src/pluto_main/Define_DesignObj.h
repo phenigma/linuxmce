@@ -2237,6 +2237,9 @@
 #define DESIGNOBJ_dgGenericDataGrid_CONST 5182
 #define DESIGNOBJ_butUserStatusButton_CONST 5183
 #define DESIGNOBJ_butContainerFileBrowserBack_CONST 5184
+#define DESIGNOBJ_mnuPickCaptureCardPort_CONST 5185
+#define DESIGNOBJ_butNoCaptureCardPort_CONST 5186
+#define DESIGNOBJ_dgCaptureCardPorts_CONST 5187
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
