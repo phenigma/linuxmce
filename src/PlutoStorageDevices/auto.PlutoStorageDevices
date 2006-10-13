@@ -46,6 +46,8 @@ DD_SHARE_NAME=126
 DD_USERNAME=127
 DD_PASSWORD=128
 
+NFS_MOUNT_OPTS="-fstype=nfs,udp,proto=udp,soft,timeo=7,retrans=3,retry=2,rsize=8192,wsize=8192"
+
 case "$Template" in
 	
 	## Internal Drive
@@ -79,7 +81,7 @@ case "$Template" in
 			fi
 		
 			## Do the mount
-			echo "-fstype=nfs,udp,proto=udp,soft,timeo=40,retrans=1,retry=2,rsize=8192,wsize=8192 $IPaddress:/mnt/device/$StorageDevice"
+			echo "$NFS_MOUNT_OPTS $IPaddress:/mnt/device/$StorageDevice"
 		fi
 		;;
 	
@@ -152,7 +154,7 @@ case "$Template" in
                 fi
 
 		## Do the mount
-		echo "-fstype=nfs,udp,proto=udp,soft,timeo=40,retrans=1,retry=2,rsize=8192,wsize=8192 ${IPaddress}:${Share}"
+		echo "$NFS_MOUNT_OPTS ${IPaddress}:${Share}"
 		;;
 
 	## Some unknown device
