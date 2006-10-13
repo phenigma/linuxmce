@@ -786,11 +786,12 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 			}
 
 			string::size_type pos=0;
-			string sUsername = StringUtils::Tokenize(pRow_MediaProvider->ID_get(),"\t",pos);
-			string sPassword = StringUtils::Tokenize(pRow_MediaProvider->ID_get(),"\t",pos);
-			int PK_DeviceTemplate_MediaType = atoi(StringUtils::Tokenize(pRow_MediaProvider->ID_get(),"\t",pos).c_str());
-			int PK_ProviderSource = atoi(StringUtils::Tokenize(pRow_MediaProvider->ID_get(),"\t",pos).c_str());
-			string sLineup = StringUtils::Tokenize(pRow_MediaProvider->ID_get(),"\t",pos);
+			string sMediaProviderID = pRow_MediaProvider->ID_get();
+			string sUsername = StringUtils::Tokenize(sMediaProviderID,"\t",pos);
+			string sPassword = StringUtils::Tokenize(sMediaProviderID,"\t",pos);
+			int PK_DeviceTemplate_MediaType = atoi(StringUtils::Tokenize(sMediaProviderID,"\t",pos).c_str());
+			int PK_ProviderSource = atoi(StringUtils::Tokenize(sMediaProviderID,"\t",pos).c_str());
+			string sLineup = StringUtils::Tokenize(sMediaProviderID,"\t",pos);
 
 			// We only care about capture cards
 			Row_Device *pRow_Device_CaptureCard = pRow_Device;
