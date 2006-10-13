@@ -1124,6 +1124,10 @@ bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted no OK");
 #endif
+		DCE::CMD_Remove_Screen_From_History CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+		m_pOrbiter->SendCommand(CMD_Remove_Screen_From_History);
+		string sText = m_pOrbiter->m_mapTextString[TEXT_error_with_provider_CONST];
+		DisplayMessageOnOrbiter(0,sText);
 		return false; // Keep processing it.
 	}
 
@@ -1317,12 +1321,12 @@ void ScreenHandler::ChooseProviderGetNextStage()
 	else if( sPackageCommandLine.empty()==false && m_iStage<=CPS_GETTING_PACKAGE_LIST )
 	{
 		m_iStage = CPS_GETTING_PACKAGE_LIST;
-		SpawnProviderScript(sDeviceCommandLine,sArguments);
+		SpawnProviderScript(sPackageCommandLine,sArguments);
 	}
 	else if( sLineupCommandLine.empty()==false && m_iStage<=CPS_GETTING_LINEUP_LIST )
 	{
 		m_iStage = CPS_GETTING_LINEUP_LIST;
-		SpawnProviderScript(sDeviceCommandLine,sArguments);
+		SpawnProviderScript(sLineupCommandLine,sArguments);
 	}
 	else
 	{
@@ -1336,6 +1340,9 @@ void ScreenHandler::ChooseProviderGetNextStage()
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SpawnProviderScript(string sCommandLine,string sArguments)
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::SpawnProviderScript CMD %s args %s stage %d",sCommandLine.c_str(),sArguments.c_str(),m_iStage);
+#endif
 	DeviceData_Base *pDevice_Core = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfTemplate(DEVICETEMPLATE_DCERouter_CONST);
 	DeviceData_Base *pDevice_AppServer = pDevice_Core->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
 	if( !pDevice_AppServer )
