@@ -21780,5 +21780,93 @@ namespace DCE
 			COMMANDPARAMETER_TrueFalse_CONST, (bTrueFalse ? "1" : "0"),
 			COMMANDPARAMETER_PK_PnpQueue_CONST, StringUtils::itos(iPK_PnpQueue).c_str()); }
 	};
+	class CMD_Specify_Media_Provider : public PreformedCommand {
+	public:
+		CMD_Specify_Media_Provider(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,string sText) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Specify_Media_Provider_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_Text_CONST, sText.c_str()); }
+	};
+	class CMD_Specify_Media_Provider_DL : public PreformedCommand {
+	public:
+		CMD_Specify_Media_Provider_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,string sText) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Specify_Media_Provider_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_Text_CONST, sText.c_str()); }
+	};
+	class CMD_Specify_Media_Provider_DT : public PreformedCommand {
+	public:
+		CMD_Specify_Media_Provider_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,string sText) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Specify_Media_Provider_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_Text_CONST, sText.c_str()); }
+	};
+	class CMD_Specify_Media_Provider_Cat : public PreformedCommand {
+	public:
+		CMD_Specify_Media_Provider_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sText) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Specify_Media_Provider_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_Text_CONST, sText.c_str()); }
+	};
+	class CMD_Sync_Providers_and_Cards : public PreformedCommand {
+	public:
+		CMD_Sync_Providers_and_Cards(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Sync_Providers_and_Cards_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_Sync_Providers_and_Cards_DL : public PreformedCommand {
+	public:
+		CMD_Sync_Providers_and_Cards_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Sync_Providers_and_Cards_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_Sync_Providers_and_Cards_DT : public PreformedCommand {
+	public:
+		CMD_Sync_Providers_and_Cards_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Sync_Providers_and_Cards_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_Sync_Providers_and_Cards_Cat : public PreformedCommand {
+	public:
+		CMD_Sync_Providers_and_Cards_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Sync_Providers_and_Cards_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_Specify_Capture_Card_Port : public PreformedCommand {
+	public:
+		CMD_Specify_Capture_Card_Port(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Specify_Capture_Card_Port_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str()); }
+	};
+	class CMD_Specify_Capture_Card_Port_DL : public PreformedCommand {
+	public:
+		CMD_Specify_Capture_Card_Port_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Specify_Capture_Card_Port_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str()); }
+	};
+	class CMD_Specify_Capture_Card_Port_DT : public PreformedCommand {
+	public:
+		CMD_Specify_Capture_Card_Port_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Specify_Capture_Card_Port_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str()); }
+	};
+	class CMD_Specify_Capture_Card_Port_Cat : public PreformedCommand {
+	public:
+		CMD_Specify_Capture_Card_Port_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Specify_Capture_Card_Port_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str()); }
+	};
 }
 #endif

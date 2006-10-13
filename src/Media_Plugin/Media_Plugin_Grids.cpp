@@ -1658,3 +1658,33 @@ class DataGridTable *Media_Plugin::BookmarksByMediaType( string GridID, string P
 
 	return pDataGrid;
 }
+
+class DataGridTable *Media_Plugin::CaptureCardPorts( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CaptureCardPorts", Parms.c_str());
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	vector<Row_Device *> vectRow_Device;
+	m_pDatabase_pluto_main->Device_get()->GetRows("JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" TOSTRING(DEVICECATEGORY_Capture_Card_Ports_CONST),&vectRow_Device);
+	int iRow=0;
+	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
+	{
+		Row_Device *pRow_Device = *it;
+
+		string sDescription = pRow_Device->Description_get();
+		Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
+		while( pRow_Device_Parent )
+		{
+			sDescription = pRow_Device_Parent->Description_get() + " / " + sDescription;
+			pRow_Device_Parent = pRow_Device_Parent->FK_Device_ControlledVia_getrow();
+		}
+
+		pCell = new DataGridCell(sDescription,StringUtils::itos(pRow_Device->PK_Device_get()));
+		pDataGrid->SetData(0,iRow++,pCell);
+	}
+
+	return pDataGrid;
+}

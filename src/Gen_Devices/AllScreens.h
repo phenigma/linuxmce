@@ -9677,6 +9677,54 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_Get_Capture_Card_Port : public PreformedCommand
+	{
+	public:
+		SCREEN_Get_Capture_Card_Port(long DeviceIDFrom, long DeviceIDTo,
+			int iPK_Device, string sName, string sDescription, string ssComments)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */,
+				2 /* The device we're asking about */, StringUtils::ltos(iPK_Device).c_str(), 50 /* The name of the device */, sName.c_str(), 163 /* The description of the room it's in */, sDescription.c_str(), 164 /* A fully qualified name of the device */, ssComments.c_str());
+		}
+	};
+
+	class SCREEN_Get_Capture_Card_Port_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Get_Capture_Card_Port_DL(long DeviceIDFrom, string sDeviceIDTo,
+			int iPK_Device, string sName, string sDescription, string ssComments)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */,
+				2 /* The device we're asking about */, StringUtils::ltos(iPK_Device).c_str(), 50 /* The name of the device */, sName.c_str(), 163 /* The description of the room it's in */, sDescription.c_str(), 164 /* A fully qualified name of the device */, ssComments.c_str());
+		}
+	};
+
+	class SCREEN_Get_Capture_Card_Port_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Get_Capture_Card_Port_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			int iPK_Device, string sName, string sDescription, string ssComments)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */,
+				2 /* The device we're asking about */, StringUtils::ltos(iPK_Device).c_str(), 50 /* The name of the device */, sName.c_str(), 163 /* The description of the room it's in */, sDescription.c_str(), 164 /* A fully qualified name of the device */, ssComments.c_str());
+		}
+	};
+
+	class SCREEN_Get_Capture_Card_Port_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Get_Capture_Card_Port_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			int iPK_Device, string sName, string sDescription, string ssComments)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */,
+				2 /* The device we're asking about */, StringUtils::ltos(iPK_Device).c_str(), 50 /* The name of the device */, sName.c_str(), 163 /* The description of the room it's in */, sDescription.c_str(), 164 /* A fully qualified name of the device */, ssComments.c_str());
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9936,6 +9984,7 @@ namespace DCE
 		virtual void SCREEN_Music_Full_Screen_OSD(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_Device, string sText, string sDescription){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Get_Username_Password_For_Devices(long PK_Screen, bool bAlready_processed, string sDescription, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Get_Capture_Card_Port(long PK_Screen, int iPK_Device, string sName, string sDescription, string ssComments){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -11411,6 +11460,16 @@ namespace DCE
 					string sDescription = pMessage->m_mapParameters[163];
 					int iPK_PnpQueue = atoi(pMessage->m_mapParameters[224].c_str());
 					SCREEN_Get_Username_Password_For_Devices(nPK_Screen, bAlready_processed, sDescription, iPK_PnpQueue);
+					break;
+				}
+				case 247:
+				{
+					ResetCallBacks();
+					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
+					string sName = pMessage->m_mapParameters[50];
+					string sDescription = pMessage->m_mapParameters[163];
+					string ssComments = pMessage->m_mapParameters[164];
+					SCREEN_Get_Capture_Card_Port(nPK_Screen, iPK_Device, sName, sDescription, ssComments);
 					break;
 				}
 

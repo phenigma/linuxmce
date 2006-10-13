@@ -95,6 +95,8 @@ void PnpQueue::Run()
 	
 	DCE::CMD_Check_Media_Providers CMD_Check_Media_Providers(m_pPlug_And_Play_Plugin->m_dwPK_Device,m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_dwPK_Device);
 	m_pPlug_And_Play_Plugin->SendCommand(CMD_Check_Media_Providers);
+	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_pPlug_And_Play_Plugin->m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse);
+	m_pPlug_And_Play_Plugin->SendCommand(CMD_Sync_Providers_and_Cards_Cat);
 
 	// we don't do this during the read phase above because the orbiter plugin may not have registered, nor the orbiters
 	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)

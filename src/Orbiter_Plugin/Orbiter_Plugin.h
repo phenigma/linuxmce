@@ -103,6 +103,9 @@ public:
 	void StartRetrievingScreenSaverFiles();
 	void AlarmCallback(int id, void* param);
 
+	bool PromptForMissingMediaProviders();
+	bool PromptForMissingCapture_Card_Port();
+
 	//from command_impl class
 	virtual bool PendingTasks(vector<string> *vectPendingTasks=NULL);
 	list<int> m_listRegenCommands;

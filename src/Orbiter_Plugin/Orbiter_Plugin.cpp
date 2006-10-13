@@ -2883,8 +2883,19 @@ string Orbiter_Plugin::PK_Device_Orbiters_In_Room_get(int PK_Room, bool bOnlyAll
 void Orbiter_Plugin::CMD_Check_Media_Providers(string &sCMD_Result,Message *pMessage)
 //<-dceag-c820-e->
 {
+	if( !DatabaseUtils::AlreadyHasUsers(m_pDatabase_pluto_main,m_pRouter->m_pRow_Installation_get()->PK_Installation_get()) ||
+		!DatabaseUtils::AlreadyHasRooms(m_pDatabase_pluto_main,m_pRouter->m_pRow_Installation_get()->PK_Installation_get()) )
+			return; // Don't do this until the user has setup his basic system
+
+	if( PromptForMissingMediaProviders() )
+		return; // Only do 1 at a time
+	PromptForMissingCapture_Card_Port();
+}
+
+bool Orbiter_Plugin::PromptForMissingMediaProviders()
+{
 	// Get a list of all devices where we haven't specified the provider yet.  For now just live tv
-	string sSQL = "SELECT PK_Device,FK_MediaType FROM Device "
+	string sSQL = "SELECT PK_Device,FK_MediaType,PK_DeviceTemplate_MediaType FROM Device "
 		"JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate = Device.FK_DeviceTemplate and FK_MediaType IN (" TOSTRING(MEDIATYPE_np_LiveTV_CONST) "," TOSTRING(MEDIATYPE_pluto_LiveTV_CONST) ") "
 		"LEFT JOIN Device_DeviceData ON PK_Device=FK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_EK_MediaProvider_CONST) " "
 		"WHERE IK_DeviceData IS NULL OR IK_DeviceData=''";
@@ -2924,11 +2935,11 @@ void Orbiter_Plugin::CMD_Check_Media_Providers(string &sCMD_Result,Message *pMes
 			if( vectRow_ProviderSource.size()==0 )
 				continue;
 
-			string sText;
+			string sText = string(row[2]) + "\t";
 			if( vectRow_ProviderSource.size()==1 )  // There's only 1 to choose from.  Pass the info
 			{
 				Row_ProviderSource *pRow_ProviderSource = vectRow_ProviderSource[0];
-				sText = StringUtils::itos( pRow_ProviderSource->PK_ProviderSource_get() ) + "\t"
+				sText += StringUtils::itos( pRow_ProviderSource->PK_ProviderSource_get() ) + "\t"
 					+ pRow_ProviderSource->Description_get() + "\t"
 					+ pRow_ProviderSource->Comments_get() + "\t"
 					+ (pRow_ProviderSource->UserNamePassword_get() ? "1" : "0") + "\t"
@@ -2940,7 +2951,50 @@ void Orbiter_Plugin::CMD_Check_Media_Providers(string &sCMD_Result,Message *pMes
 
 			DCE::SCREEN_Choose_Provider_for_Device_DL SCREEN_Choose_Provider_for_Device_DL(m_dwPK_Device,sPK_Orbiters,pRow_Device->PK_Device_get(),sText,sDescription);
 			SendCommand(SCREEN_Choose_Provider_for_Device_DL);
-			return;  // Only do 1 at a time
+			return true;  // Only do 1 at a time
 		}
 	}
+	return false;
 }
+
+bool Orbiter_Plugin::PromptForMissingCapture_Card_Port()
+{
+	vector<Row_Device *> vectRow_Device_Ports;
+	m_pDatabase_pluto_main->Device_get()->GetRows("JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" TOSTRING(DEVICECATEGORY_Capture_Card_Ports_CONST),&vectRow_Device_Ports);
+	if( vectRow_Device_Ports.size()==0 )
+		return false;
+
+	// Get a list of all devices where we haven't specified the capture card port, skipping embedded devices like tuners
+	string sSQL = "JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_FK_Device_Capture_Card_Port_CONST) " WHERE IK_DeviceData='' AND FK_Device_RouteTo IS NULL LIMIT 1";
+	vector<Row_Device *> vectRow_Device;
+	m_pDatabase_pluto_main->Device_get()->GetRows(sSQL,&vectRow_Device);
+	if( vectRow_Device.size()==0 )
+		return false;
+
+	Row_Device *pRow_Device = vectRow_Device[0];
+
+	string sDescription = pRow_Device->Description_get();
+	Row_Room *pRow_Room = pRow_Device->FK_Room_getrow();  // Find some room
+	Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
+	while( pRow_Device_Parent )
+	{
+		if( !pRow_Room )  // Try the parent's room so the user knows which device we're talking about
+			pRow_Room = pRow_Device_Parent->FK_Room_getrow();
+		sDescription = pRow_Device_Parent->Description_get() + " / " + sDescription;
+		pRow_Device_Parent = pRow_Device_Parent->FK_Device_ControlledVia_getrow();
+	}
+
+	string sPK_Orbiters;
+	if( pRow_Room )
+		sPK_Orbiters = PK_Device_Orbiters_In_Room_get(pRow_Room->PK_Room_get(),true);
+	
+	if( sPK_Orbiters.empty() )
+		sPK_Orbiters = m_sPK_Device_AllOrbiters_AllowingPopups;
+
+	DCE::SCREEN_Get_Capture_Card_Port_DL SCREEN_Get_Capture_Card_Port_DL(m_dwPK_Device,sPK_Orbiters,
+		pRow_Device->PK_Device_get(),pRow_Device->Description_get(),pRow_Room ? pRow_Room->Description_get() : "",
+		sDescription);
+	SendCommand(SCREEN_Get_Capture_Card_Port_DL);
+	return true;  // Only do 1 at a time
+}
+

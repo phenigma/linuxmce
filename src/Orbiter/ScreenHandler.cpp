@@ -1059,8 +1059,12 @@ void ScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_De
 	RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &ScreenHandler::ChooseProvider_Intercepted, new MsgInterceptorCellBackData());
 	m_iStage = CPS_CONFIRM;
 
+	string::size_type pos = 0;
+	string sPK_DeviceTemplate_MediaType = StringUtils::Tokenize(sText,"\t",pos);
+	string sPK_ProviderSource = StringUtils::Tokenize(sText,"\t",pos);
+	
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,sText);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,"");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,sPK_DeviceTemplate_MediaType + "\t" + sPK_ProviderSource + "\t");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST,sDescription);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Username_CONST,"");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Password_CONST,"");
@@ -1119,18 +1123,6 @@ bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 		++it;
 	}
 
-	if(it==vectLines.end())
-	{
-#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted no OK");
-#endif
-		DCE::CMD_Remove_Screen_From_History CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
-		m_pOrbiter->SendCommand(CMD_Remove_Screen_From_History);
-		string sText = m_pOrbiter->m_mapTextString[TEXT_error_with_provider_CONST];
-		DisplayMessageOnOrbiter(0,sText);
-		return false; // Keep processing it.
-	}
-
 	int iRow=0;
 	while( it!=vectLines.end() )
 	{
@@ -1151,6 +1143,19 @@ bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 		++it;
 	}
 	
+	if(iRow==0)
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted no OK");
+#endif
+		DCE::CMD_Remove_Screen_From_History CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+		m_pOrbiter->SendCommand(CMD_Remove_Screen_From_History);
+		string sText = m_pOrbiter->m_mapTextString[TEXT_error_with_provider_CONST];
+		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,sText,"","errorprovider","1","","1");
+		m_pOrbiter->ReceivedMessage(SCREEN_PopupMessage.m_pMessage);
+		return false; // Keep processing it.
+	}
+
 	pDataGridTable->m_RowCount = pDataGridTable->GetRows();
 	pDataGridTable->m_ColumnCount = pDataGridTable->GetCols();
 
@@ -1195,8 +1200,13 @@ bool ScreenHandler::ChooseProvider_ObjectSelected(CallBackData *pData)
 			ChooseProviderGetNextStage();
 			return true;
 		}
-		else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse2_CONST )
+		else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse2_CONST && m_iStage==CPS_CONFIRM )
+		{
+			int PK_Device = atoi(m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str());
+			DCE::CMD_Specify_Media_Provider CMD_Specify_Media_Provider(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,PK_Device,"NONE");
+			m_pOrbiter->SendCommand(CMD_Specify_Media_Provider);
 			m_pOrbiter->CMD_Go_back("","");
+		}
 	}
 	else if( pObjectInfoData->m_pObj->m_pParentObject && pObjectInfoData->m_pObj->m_pParentObject->m_iBaseObjectID==DESIGNOBJ_mnuGenericKeyboard_CONST )
 	{
@@ -1223,36 +1233,35 @@ bool ScreenHandler::ChooseProvider_DatagridSelected(CallBackData *pData)
 	if( pCellInfoData->m_sValue.empty() )
 		return false;
 
-	string sPK_Provider_Source,sProvider,sPackage,sDevice,sLineup;
+	string sPK_DeviceTemplate_MediaType,sPK_Provider_Source,sProvider,sPackage,sDevice,sLineup;
 	string::size_type pos=0;
 
 	string sArguments = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST);
+
+	sPK_DeviceTemplate_MediaType = StringUtils::Tokenize( sArguments, "\t", pos );
 	sPK_Provider_Source = StringUtils::Tokenize( sArguments, "\t", pos );
 	sProvider = StringUtils::Tokenize(sArguments,"\t",pos);
 	sDevice = StringUtils::Tokenize(sArguments,"\t",pos);
 	sPackage = StringUtils::Tokenize(sArguments,"\t",pos);
 	sLineup = StringUtils::Tokenize(sArguments,"\t",pos);
 
-	if( sArguments.empty() ) // Must be just starting
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,sPK_Provider_Source);
-
 	switch( m_iStage )
 	{
-	case CPS_GETTING_PROVIDER_LIST:
+	case CPS_PROMPTING_PROVIDER:
 		sProvider = pCellInfoData->m_sValue;
 		break;
-	case CPS_GETTING_DEVICE_LIST:
+	case CPS_PROMPTING_DEVICE:
 		sDevice = pCellInfoData->m_sValue;
 		break;
-	case CPS_GETTING_PACKAGE_LIST:
+	case CPS_PROMPTING_PACKAGE:
 		sPackage = pCellInfoData->m_sValue;
 		break;
-	case CPS_GETTING_LINEUP_LIST:
+	case CPS_PROMPTING_LINEUP:
 		sLineup = pCellInfoData->m_sValue;
 		break;
 	}
 
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,sPK_Provider_Source + "\t" + sProvider + "\t" + sDevice + "\t" + sPackage + "\t" + sLineup);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,sPK_DeviceTemplate_MediaType + "\t" + sPK_Provider_Source + "\t" + sProvider + "\t" + sDevice + "\t" + sPackage + "\t" + sLineup);
 	ChooseProviderGetNextStage();
 
 	return false; // Keep processing it
@@ -1263,7 +1272,7 @@ void ScreenHandler::ChooseProviderGetNextStage()
 	NeedToRender render( m_pOrbiter, "ScreenHandler::ChooseProviderGetNextStage()" );  // Redraw anything that was changed by this command
 	string::size_type pos=0;
 	string sTokens = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST);
-	string sArguments = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST);
+	string sPK_DeviceTemplate_MediaType = StringUtils::Tokenize(sTokens,"\t",pos);
 	string sPK_Provider_Source = StringUtils::Tokenize( sTokens, "\t", pos );
 	string sDescription = StringUtils::Tokenize( sTokens, "\t", pos );
 	string sComments = StringUtils::Tokenize( sTokens, "\t", pos );
@@ -1272,7 +1281,7 @@ void ScreenHandler::ChooseProviderGetNextStage()
 	string sDeviceCommandLine = StringUtils::Tokenize( sTokens, "\t", pos );
 	string sPackageCommandLine = StringUtils::Tokenize( sTokens, "\t", pos );
 	string sLineupCommandLine = StringUtils::Tokenize( sTokens, "\t", pos );
-
+	string sArguments = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST);
 
 	if( m_iStage==CPS_CONFIRM )
 	{
@@ -1331,10 +1340,20 @@ void ScreenHandler::ChooseProviderGetNextStage()
 	else
 	{
 		// We got everything.  Set the provider information for this device
+		string sAllArguments = 
+			m_pOrbiter->m_mapVariable_Find(VARIABLE_Username_CONST) + "\t" +
+			m_pOrbiter->m_mapVariable_Find(VARIABLE_Password_CONST) + "\t" +
+			sArguments;
+
 		int PK_Device = atoi(m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str());
-		m_pOrbiter->SetDeviceDataInDB(PK_Device,DEVICEDATA_EK_MediaProvider_CONST,sArguments);
+		DCE::CMD_Specify_Media_Provider CMD_Specify_Media_Provider(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,PK_Device,sAllArguments);
+		m_pOrbiter->SendCommand(CMD_Specify_Media_Provider);
 		DCE::CMD_Remove_Screen_From_History CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 		m_pOrbiter->SendCommand(CMD_Remove_Screen_From_History);
+
+		string sText = m_pOrbiter->m_mapTextString[TEXT_Media_provider_specified_CONST];
+		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,sText,"","errorprovider","1","","1");
+		m_pOrbiter->ReceivedMessage(SCREEN_PopupMessage.m_pMessage);
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1365,7 +1384,7 @@ void ScreenHandler::SpawnProviderScript(string sCommandLine,string sArguments)
 		sResult + "\"<=spawn_log=>\"",false,false,false);
 	m_pOrbiter->SendCommand(CMD_Spawn_Application);
 
-	DisplayMessageOnOrbiter(0,m_pOrbiter->m_mapTextString[TEXT_please_wait_for_lookup_CONST]);
+	DisplayMessageOnOrbiter(0,m_pOrbiter->m_mapTextString[TEXT_please_wait_for_lookup_CONST],false,"0",false,m_pOrbiter->m_mapTextString[TEXT_CANCEL_CONST]);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Main(long PK_Screen, string sLocation)
@@ -1888,3 +1907,12 @@ void ScreenHandler::SaveFile_SendCommand()
 	m_bSaveFile_Advanced_options = true;
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Get_Capture_Card_Port(long PK_Screen, int iPK_Device, string sName, string sDescription, string ssComments)
+{
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sName);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sDescription);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, ssComments);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, StringUtils::ltos(iPK_Device));
+	ScreenHandlerBase::SCREEN_Get_Capture_Card_Port(PK_Screen, iPK_Device, sName, sDescription, ssComments);
+}
+

@@ -83,6 +83,7 @@
 #define DATAGRID_Storage_Devices_CONST 82
 #define DATAGRID_Media_Attributes_For_File_CONST 83
 #define DATAGRID_Provider_Source_CONST 84
+#define DATAGRID_Capture_Card_Ports_CONST 85
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"

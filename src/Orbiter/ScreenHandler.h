@@ -195,6 +195,8 @@ public:
 	bool FileSave_ObjectSelected(CallBackData *pData);
 	bool FileSave_GridSelected(CallBackData *pData);
 
+	void SCREEN_Get_Capture_Card_Port(long PK_Screen, int iPK_Device, string sName, string sDescription, string ssComments);
+
 	//helper methods
 	void SaveFile_GotoChooseFolderDesignObj();
 	void SaveFile_SendCommand();

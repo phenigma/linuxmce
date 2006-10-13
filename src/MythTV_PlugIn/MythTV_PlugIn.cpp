@@ -19,6 +19,8 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "PlutoUtils/ProcessUtils.h"
+#include "PlutoUtils/DatabaseUtils.h"
 #include "../Datagrid_Plugin/Datagrid_Plugin.h"
 #include "../pluto_main/Define_DataGrid.h"
 #include "../pluto_main/Define_DesignObj.h"
@@ -58,6 +60,7 @@ bool MythTV_PlugIn::GetConfig()
 //<-dceag-getconfig-e->
 	m_pMySqlHelper_Myth = new MySqlHelper(m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ),"mythconverg");
 	m_pEPGGrid = new EPGGrid(m_pMySqlHelper_Myth);
+
 	return true;
 }
 
@@ -96,8 +99,8 @@ bool MythTV_PlugIn::Register()
 
     PlutoSqlResult result;
     MYSQL_ROW row;
-	m_pMedia_Plugin->m_pDatabase_pluto_main->threaded_mysql_query(SQL);
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
+	m_pMedia_Plugin->m_pMedia_Plugin->m_pDatabase_pluto_main->threaded_mysql_query(SQL);
+    if( ( result.r=m_pMedia_Plugin->m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
@@ -753,5 +756,117 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 				}
 			}
 		}
+	}
+}
+
+//<-dceag-c824-b->
+
+	/** @brief COMMAND: #824 - Sync Providers and Cards */
+	/** Synchronize settings for pvr cards and provders */
+
+void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pMessage)
+//<-dceag-c824-e->
+{
+	string sSQL = "select PK_Device,IK_DeviceData FROM Device JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_EK_MediaProvider_CONST) " AND IK_DeviceData IS NOT NULL AND IK_DeviceData<>'' AND IK_DeviceData<>'NONE'";
+
+	bool bModifiedRows=false; // Keep track of whether or not we changed anything
+	PlutoSqlResult result_set;
+    MYSQL_ROW row,row2;
+	if( (result_set.r=m_pMedia_Plugin->m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
+	{
+		while ((row = mysql_fetch_row(result_set.r)))
+		{
+			Row_Device *pRow_Device = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRow( atoi(row[0]) );
+			Row_MediaProvider *pRow_MediaProvider = m_pMedia_Plugin->m_pDatabase_pluto_media->MediaProvider_get()->GetRow( atoi(row[1]) );
+
+			if( !pRow_Device || !pRow_MediaProvider )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::SyncCardsAndProviders cannot find device %s provider %s",row[0],row[1]);
+				continue;
+			}
+
+			string::size_type pos=0;
+			string sUsername = StringUtils::Tokenize(pRow_MediaProvider->ID_get(),"\t",pos);
+			string sPassword = StringUtils::Tokenize(pRow_MediaProvider->ID_get(),"\t",pos);
+			int PK_DeviceTemplate_MediaType = atoi(StringUtils::Tokenize(pRow_MediaProvider->ID_get(),"\t",pos).c_str());
+			int PK_ProviderSource = atoi(StringUtils::Tokenize(pRow_MediaProvider->ID_get(),"\t",pos).c_str());
+			string sLineup = StringUtils::Tokenize(pRow_MediaProvider->ID_get(),"\t",pos);
+
+			// We only care about capture cards
+			Row_Device *pRow_Device_CaptureCard = pRow_Device;
+			if( !DatabaseUtils::DeviceIsWithinCategory(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_CaptureCard->PK_Device_get(),DEVICECATEGORY_Capture_Cards_CONST) )
+			{
+				pRow_Device_CaptureCard = pRow_Device_CaptureCard->FK_Device_ControlledVia_getrow();
+				if( !pRow_Device_CaptureCard || !DatabaseUtils::DeviceIsWithinCategory(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_CaptureCard->PK_Device_get(),DEVICECATEGORY_Capture_Cards_CONST) )
+				{
+#ifdef DEBUG
+					g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders not a capture card device %s provider %s",row[0],row[1]);
+#endif
+					continue;
+				}
+			}
+
+			// We have a capture card.  See if it's in the database already.  We use DEVICEDATA_Port_CONST for the port
+			int cardid = atoi(DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Port_CONST).c_str());
+			string sPortName = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Name_CONST);
+			string sBlockDevice = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Block_Device_CONST);
+			if( sPortName.empty() )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::SyncCardsAndProviders no port name for device %s provider %s",row[0],row[1]);
+				continue;
+			}
+			if( !cardid )
+			{
+				bModifiedRows=true;
+				sSQL = "INSERT INTO `capturecard` VALUES (0,'',NULL,NULL,'MPEG','',NULL,'dcerouter',0,1,0,1,8192,8192,0,0,NULL,0,2,0,NULL,0,0,31338,80,NULL,1000,3000);";
+				cardid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
+				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Port_CONST,StringUtils::itos(cardid));
+			}
+
+			sSQL = "UPDATE `capturecard` set videodevice='" + sBlockDevice + "', defaultinput='" + sPortName + "'";
+			if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
+				bModifiedRows=true;
+
+			int sourceid=0;
+			// See if the provider is in the database already
+			string sProviderName = "Provider " + StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get());
+			sSQL = "SELECT sourceid FROM `videosource` WHERE name='" + sProviderName + "'";
+			PlutoSqlResult result_set2;
+			if( (result_set2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set2.r)) && atoi(row2[0]) )
+				sourceid = atoi(row2[0]);
+			else
+			{
+				bModifiedRows=true;
+				sSQL = "INSERT INTO `videosource` VALUES (0,'" + sProviderName + "','datadirect','','default','','',0)";
+				sourceid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
+			}
+
+			sSQL = "UPDATE `videosource` SET userid='" + sUsername + "', password='" + sPassword + "', lineupid='" + sLineup + "'";
+			if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
+				bModifiedRows=true;
+
+			int cardinputid=0;
+			sSQL = "SELECT cardinputid FROM `cardinput` WHERE cardid='" + StringUtils::itos(cardid) + "' AND sourceid='" + StringUtils::itos(sourceid) + "'";
+			PlutoSqlResult result_set3;
+			if( (result_set3.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set3.r)) && atoi(row2[0]) )
+				cardinputid = atoi(row2[0]);
+			else
+			{
+				bModifiedRows=true;
+				sSQL = "INSERT INTO `cardinput` VALUES (0," + StringUtils::itos(cardid) + "," + StringUtils::itos(sourceid) + ",'','',0,'N','','1',1,NULL,NULL,11700000,10600000,9750000,'')";
+				cardinputid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
+			}
+
+			sSQL = "UPDATE `cardinput` set inputname='" + sPortName + "'";
+			if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
+				bModifiedRows=true;
+		}
+	}
+
+	if( bModifiedRows )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders records changed");
+		char * args[] = { "/etc/init.d/mythtv-backend", "restart", NULL };
+		ProcessUtils::SpawnDaemon(args[0], args);
 	}
 }

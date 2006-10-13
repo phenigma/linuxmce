@@ -1103,6 +1103,9 @@
 #define TEXT_What_is_your_username_CONST 1819
 #define TEXT_What_is_your_password_CONST 1820
 #define TEXT_error_with_provider_CONST 1821
+#define TEXT_Media_provider_specified_CONST 1822
+
+
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

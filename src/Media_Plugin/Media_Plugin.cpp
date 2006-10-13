@@ -31,6 +31,7 @@ using namespace DCE;
 
 #include <algorithm>
 
+#include "PlutoUtils/DatabaseUtils.h"
 #include "MediaHandlerInfo.h"
 #include "MediaHandlerBase.h"
 #include "Generic_NonPluto_Media.h"
@@ -54,6 +55,7 @@ using namespace DCE;
 #include "pluto_main/Table_CommandGroup_Command.h"
 #include "pluto_main/Table_CommandGroup_EntertainArea.h"
 #include "pluto_main/Table_CommandGroup_Command_CommandParameter.h"
+#include "pluto_main/Table_DeviceTemplate_MediaType.h"
 #include "pluto_main/Table_RemoteControl.h"
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_Device_EntertainArea.h"
@@ -80,6 +82,7 @@ using namespace DCE;
 #include "pluto_media/Table_AttributeType.h"
 #include "pluto_media/Table_MediaType_AttributeType.h"
 #include "pluto_media/Table_MediaProvider.h"
+#include "pluto_media/Table_ProviderSource.h"
 #include "Gen_Devices/AllScreens.h"
 
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
@@ -527,6 +530,10 @@ bool Media_Plugin::Register()
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::BookmarksByMediaType ))
         , DATAGRID_Bookmarks_by_MediaType_CONST,PK_DeviceTemplate_get() );
+
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::CaptureCardPorts ))
+        , DATAGRID_Capture_Card_Ports_CONST,PK_DeviceTemplate_get() );
 
 	//  m_pMediaAttributes->ScanDirectory( "/home/public/data/music/" );
 //  m_pMediaAttributes->ScanDirectory( "Z:\\" );
@@ -5012,3 +5019,75 @@ void Media_Plugin::CMD_Get_ID_from_Filename(string sFilename,int *iEK_File,strin
 	*iEK_File = pRow_File->PK_File_get();
 }
 
+//<-dceag-c823-b->
+
+	/** @brief COMMAND: #823 - Specify Media Provider */
+	/** Specify the media provider for a device */
+		/** @param #2 PK_Device */
+			/** The device to set the provider for */
+		/** @param #9 Text */
+			/** The media providers information */
+
+void Media_Plugin::CMD_Specify_Media_Provider(int iPK_Device,string sText,string &sCMD_Result,Message *pMessage)
+//<-dceag-c823-e->
+{
+	// No provider for this.
+	if( sText=="NONE" )
+	{
+		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_EK_MediaProvider_CONST,sText);
+		DCE::CMD_Check_Media_Providers CMD_Check_Media_Providers(m_dwPK_Device,m_pOrbiter_Plugin->m_dwPK_Device);
+		SendCommand(CMD_Check_Media_Providers);
+		return;
+	}
+
+	string::size_type pos = 0;
+	string sUsername = StringUtils::Tokenize(sText,"\t",pos);
+	string sPassword = StringUtils::Tokenize(sText,"\t",pos);
+	int PK_DeviceTemplate_MediaType = atoi(StringUtils::Tokenize(sText,"\t",pos).c_str());
+	int PK_ProviderSource = atoi(StringUtils::Tokenize(sText,"\t",pos).c_str());
+
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+	Row_DeviceTemplate_MediaType *pRow_DeviceTemplate_MediaType = m_pDatabase_pluto_main->DeviceTemplate_MediaType_get()->GetRow(PK_DeviceTemplate_MediaType);
+	Row_ProviderSource *pRow_ProviderSource = m_pDatabase_pluto_media->ProviderSource_get()->GetRow(PK_ProviderSource);
+	if( !pRow_Device || !pRow_DeviceTemplate_MediaType || !pRow_ProviderSource )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Specify_Media_Provider can't find records for device %d text: %s",iPK_Device,sText.c_str());
+		return; // shouldn't happen
+	}
+
+	vector<Row_MediaProvider *> vectRow_MediaProvider;
+	m_pDatabase_pluto_media->MediaProvider_get()->GetRows("ID='" + StringUtils::SQLEscape(sText) + "'",&vectRow_MediaProvider);
+
+	Row_MediaProvider *pRow_MediaProvider = NULL;
+	if( vectRow_MediaProvider.size() )
+		pRow_MediaProvider = vectRow_MediaProvider[0];
+	else
+	{
+		pRow_MediaProvider = m_pDatabase_pluto_media->MediaProvider_get()->AddRow();
+		pRow_MediaProvider->EK_MediaType_set( pRow_DeviceTemplate_MediaType->FK_MediaType_get() );
+		pRow_MediaProvider->FK_ProviderSource_set( PK_ProviderSource );
+		pRow_MediaProvider->ID_set( sText );
+		m_pDatabase_pluto_media->MediaProvider_get()->Commit();
+	}
+	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_EK_MediaProvider_CONST,StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get()));
+
+	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse);
+	SendCommand(CMD_Sync_Providers_and_Cards_Cat);
+
+	DCE::CMD_Check_Media_Providers CMD_Check_Media_Providers(m_dwPK_Device,m_pOrbiter_Plugin->m_dwPK_Device);
+	SendCommand(CMD_Check_Media_Providers);
+}
+//<-dceag-c825-b->
+
+	/** @brief COMMAND: #825 - Specify Capture Card Port */
+	/** Specify the capture card port for a device */
+		/** @param #2 PK_Device */
+			/** The device to set the port for */
+		/** @param #201 PK_Device_Related */
+			/** The capture card port */
+
+void Media_Plugin::CMD_Specify_Capture_Card_Port(int iPK_Device,int iPK_Device_Related,string &sCMD_Result,Message *pMessage)
+//<-dceag-c825-e->
+{
+	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_FK_Device_Capture_Card_Port_CONST,StringUtils::itos(iPK_Device_Related));
+}

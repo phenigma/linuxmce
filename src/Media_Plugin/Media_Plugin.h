@@ -484,6 +484,7 @@ public:
     class DataGridTable *DVDAngles( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
     class DataGridTable *Bookmarks( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *BookmarksByMediaType( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+	class DataGridTable *CaptureCardPorts( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	/*
 	*	Above functions in Media_Plugin_Grids.cpp
 	*/
@@ -1016,6 +1017,28 @@ Powerfile: 0, 1, ... */
 
 	virtual void CMD_Get_ID_from_Filename(string sFilename,int *iEK_File) { string sCMD_Result; CMD_Get_ID_from_Filename(sFilename.c_str(),iEK_File,sCMD_Result,NULL);};
 	virtual void CMD_Get_ID_from_Filename(string sFilename,int *iEK_File,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #823 - Specify Media Provider */
+	/** Specify the media provider for a device */
+		/** @param #2 PK_Device */
+			/** The device to set the provider for */
+		/** @param #9 Text */
+			/** The media providers information */
+
+	virtual void CMD_Specify_Media_Provider(int iPK_Device,string sText) { string sCMD_Result; CMD_Specify_Media_Provider(iPK_Device,sText.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Specify_Media_Provider(int iPK_Device,string sText,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #825 - Specify Capture Card Port */
+	/** Specify the capture card port for a device */
+		/** @param #2 PK_Device */
+			/** The device to set the port for */
+		/** @param #201 PK_Device_Related */
+			/** The capture card port */
+
+	virtual void CMD_Specify_Capture_Card_Port(int iPK_Device,int iPK_Device_Related) { string sCMD_Result; CMD_Specify_Capture_Card_Port(iPK_Device,iPK_Device_Related,sCMD_Result,NULL);};
+	virtual void CMD_Specify_Capture_Card_Port(int iPK_Device,int iPK_Device_Related,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
