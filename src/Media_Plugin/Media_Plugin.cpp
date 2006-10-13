@@ -5090,4 +5090,6 @@ void Media_Plugin::CMD_Specify_Capture_Card_Port(int iPK_Device,int iPK_Device_R
 //<-dceag-c825-e->
 {
 	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_FK_Device_Capture_Card_Port_CONST,StringUtils::itos(iPK_Device_Related));
+	DCE::CMD_Check_Media_Providers CMD_Check_Media_Providers(m_dwPK_Device,m_pOrbiter_Plugin->m_dwPK_Device);
+	SendCommand(CMD_Check_Media_Providers);
 }
