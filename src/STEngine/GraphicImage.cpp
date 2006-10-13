@@ -99,7 +99,5 @@ void GraphicImage::ScaleImage()
 	//SDL_SetAlpha(Surface, SDL_SRCALPHA | SDL_RLEACCEL , SDL_ALPHA_TRANSPARENT);
 
 	SDL_BlitSurface(Surface, NULL, LocalSurface, NULL);
-	SDL_SaveBMP(Surface, "/Test.bmp");
-
 	SDL_FreeSurface(Surface);  
 }
