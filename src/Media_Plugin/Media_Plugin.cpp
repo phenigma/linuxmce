@@ -1230,8 +1230,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 
 void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 {
-	pMediaStream->m_pMediaDevice_CaptureCard = m_mapMediaDevice_Find( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device );
-	if( !pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard || !pMediaStream->m_pMediaDevice_CaptureCard || !pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_pDevice_ControlledVia )
+	pMediaStream->m_pDevice_CaptureCard = m_pRouter->m_mapDeviceData_Router_Find( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device );
+	if( !pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard || !pMediaStream->m_pDevice_CaptureCard || !pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_pDevice_ControlledVia )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard -- error");
 		return; // Shouldn't happen
@@ -1251,8 +1251,11 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 		return;
 	}
 
-	// See if there's a tuility needed to switch to this port
+	// See if there's a utility needed to switch to this port
 	string sPortSelectUtility = pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_mapParameters_Find(DEVICEDATA_File_Name_and_Path_CONST);
+	if( sPortSelectUtility.empty() && pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_pDevice_ControlledVia )
+		sPortSelectUtility = ( (DeviceData_Router *) pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_pDevice_ControlledVia)->m_mapParameters_Find(DEVICEDATA_File_Name_and_Path_CONST);
+
 	if( sPortSelectUtility.empty()==false )
 	{
 		// Find the App Server
@@ -1436,7 +1439,7 @@ pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
         g_pPlutoLogger->Write( LV_STATUS, "Checking to see if the plugin %s will handle it!", pPlugIn->m_sName.c_str());
         pMessage->m_dwPK_Device_To=pPlugIn->m_dwPK_Device;
 		// Don't forward to the generic handler/capture card--it's just ourself
-        if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo || pEntertainArea->m_pMediaStream->m_pMediaDevice_CaptureCard || pPlugIn->ReceivedMessage( pMessage )!=rmr_Processed )
+        if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo || pEntertainArea->m_pMediaStream->m_pDevice_CaptureCard || pPlugIn->ReceivedMessage( pMessage )!=rmr_Processed )
         {
             g_pPlutoLogger->Write( LV_STATUS, "Media plug in did not handled message id: %d forwarding to %d",
 				pMessage->m_dwID, pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device );
@@ -1773,7 +1776,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 		}
 	}
 
-	if( pMediaStream->m_pMediaDevice_CaptureCard )
+	if( pMediaStream->m_pDevice_CaptureCard )
 		StopCaptureCard(pMediaStream);
 
 	if( bDeleteStream )

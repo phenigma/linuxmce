@@ -52,18 +52,18 @@ DeviceData_Base *DeviceData_Router::FindFirstRelatedDeviceOfCategory(int PK_Devi
 						if( tTimeout < time(NULL) )
 						{
 							if( g_pPlutoLogger )
-								g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d never registered",m_dwPK_Device);
+								g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d never registered",m_dwPK_Device);
 							return NULL;
 						}
 						Sleep(1000);
 						break;
 					case 'D':
 						if( g_pPlutoLogger )
-							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d is disabled",m_dwPK_Device);
+							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d is disabled",m_dwPK_Device);
 						return NULL;
 					case 'E':
 						if( g_pPlutoLogger )
-							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d comm error",m_dwPK_Device);
+							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d comm error",m_dwPK_Device);
 						return NULL;
 				}
 			}
@@ -126,14 +126,14 @@ DeviceData_Base *DeviceData_Router::FindFirstRelatedDeviceOfTemplate(int PK_Devi
 	}
 	for(size_t s=0;s<m_vectDeviceData_Impl_Children.size();++s)
 	{
-		DeviceData_Base *pDeviceData_Base = m_vectDeviceData_Impl_Children[s];
-		if( pDeviceData_Base->m_dwPK_Device==PK_Device_ExcludeChild )
+		DeviceData_Router *pDeviceData_Router = (DeviceData_Router *) m_vectDeviceData_Impl_Children[s];
+		if( pDeviceData_Router->m_dwPK_Device==PK_Device_ExcludeChild )
 			continue;
-		DeviceData_Base *pDeviceData_Base_Result = pDeviceData_Base->FindFirstRelatedDeviceOfTemplate(PK_DeviceTemplate,pCommand_Impl_Confirm_Registration,TimeoutToWait,false);
+		DeviceData_Base *pDeviceData_Base_Result = pDeviceData_Router->FindFirstRelatedDeviceOfTemplate(PK_DeviceTemplate,pCommand_Impl_Confirm_Registration,TimeoutToWait,false);
 		if( pDeviceData_Base_Result )
 			return pDeviceData_Base_Result;
 	}
 	if( bScanParent && m_pDevice_ControlledVia )
-		return m_pDevice_ControlledVia->FindFirstRelatedDeviceOfTemplate(PK_DeviceTemplate,pCommand_Impl_Confirm_Registration,TimeoutToWait,true,m_dwPK_Device);
+		return ((DeviceData_Router *) m_pDevice_ControlledVia)->FindFirstRelatedDeviceOfTemplate(PK_DeviceTemplate,pCommand_Impl_Confirm_Registration,TimeoutToWait,true,m_dwPK_Device);
 	return NULL;
 }
