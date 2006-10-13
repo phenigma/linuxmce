@@ -26,8 +26,9 @@ xmlns:SOAP-ENC='http://schemas.xmlsoap.org/soap/encoding/'>
 
 	/usr/bin/wget -q --http-user=$USER --http-passwd=$PASS --post-file=$POSTFILE --header=Accept-Encoding:gzip "http://datadirect.webservices.zap2it.com/tvlistings/xtvdService" --output-document=-|gzip -d>$RESPONSE
 	echo "OK"
-	for i in `cat $RESPONSE|grep -e "^<lineup "|sed "s/ /#/g"|cut -d"'" -f2,4`; do
-		echo "`echo $i|sed "s/#/ /g"|sed "s/'/\t/g"`"
+	IFS=$'\n'
+	for i in `cat $RESPONSE|grep -e "^<lineup "|cut -d"'" -f2,4`; do
+		echo "`echo $i|sed "s/'/\t/g"`"
 	done
 #echo "1	Brisbane Direct TV"
 #echo "2	Brisbane Comcast"

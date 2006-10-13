@@ -1,4 +1,5 @@
 #!/bin/bash
+
 USER=$1
 PASS=$2
 LINEUP=$3
@@ -28,16 +29,17 @@ xmlns:SOAP-ENC='http://schemas.xmlsoap.org/soap/encoding/'>
 </SOAP-ENV:Envelope>
 ">>$POSTFILE
 
-	/usr/bin/wget --http-user=$USER --http-passwd=$PASS --post-file=$POSTFILE --header=Accept-Encoding:gzip "http://datadirect.webservices.zap2it.com/tvlistings/xtvdService" --output-document=-|gzip -d>$RESPONSE
+	/usr/bin/wget -q --http-user=$USER --http-passwd=$PASS --post-file=$POSTFILE --header=Accept-Encoding:gzip "http://datadirect.webservices.zap2it.com/tvlistings/xtvdService" --output-document=-|gzip -d>$RESPONSE
 	echo "OK"
-	BEGINL="\\<lineup#id\\=\\'$LINEUP\\'"
+	BEGINL="\\<lineup id\\=\\'$LINEUP\\'"
 	ENDL="\\<\\/lineup>"
 	ENDS="\\<\\/station>"
-	for map in `cat $RESPONSE|sed "s/ /#/g"|perl -n -e '$f=/^'$BEGINL'/../^'$ENDL'$/;if($f&&/^'$ENDL'$/){exit()};if($f&&!/^'$BEGINL'/){print;}'`; do
+	IFS=$'\n'
+	for map in `cat $RESPONSE|perl -n -e '$f=/^'$BEGINL'/../^'$ENDL'$/;if($f&&/^'$ENDL'$/){exit()};if($f&&!/^'$BEGINL'/){print;}'`; do
 		for station in `echo $map|grep -e "map"|cut -d"'" -f2`; do
-			BEGINS="\\<station#id\\=\\'$station\\'>"
-			echo -ne "$station      "
-			echo `cat $RESPONSE|sed "s/ /#/g"|perl -n -e '$f=/^'$BEGINS'/../^'$ENDS'$/;if($f&&/^'$ENDS'$/){exit()};if($f&&!/^'$BEGINS'/){print ;}'|grep -e "callSign"|sed "s/</>/g"|cut -d'>' -f3`
+			BEGINS="\\<station id\\=\\'$station\\'>"
+			echo -ne "$station\t"
+			echo `cat $RESPONSE|perl -n -e '$f=/^'$BEGINS'/../^'$ENDS'$/;if($f&&/^'$ENDS'$/){exit()};if($f&&!/^'$BEGINS'/){print ;}'|grep -e "callSign"|sed "s/</>/g"|cut -d'>' -f3`
 		done
 	done
 	rm $POSTFILE $RESPONSE
