@@ -251,9 +251,10 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 	GetGridCellDimensions(pCell->m_Colspan,  pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
 	if ( w>4 && h >4 )
 	{
+		PlutoColor CellColor = PlutoColor::Gray();
 		if ( !bTransparentCell )
 		{
-			PlutoColor CellColor = pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor;
+			CellColor = pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor;
 			CellColor.SetAlpha(nAlphaChannel);
 			m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->SolidRectangle( point.X + x,  point.Y + y,  w,  h,  CellColor);
 		}
@@ -320,7 +321,18 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		Text.m_iPK_VertAlignment = pTextStyle->m_iPK_VertAlignment;
 
 		string sText = m_pObj_Owner_DataGrid->m_pOrbiter->SubstituteVariables(pCell->GetText(), m_pObj_Owner_DataGrid, 0, 0);
+
+		PlutoColor TextColor = pTextStyle->m_ForeColor;
+		if(CellColor.R() == pTextStyle->m_ForeColor.R() && CellColor.G() == pTextStyle->m_ForeColor.G() &&
+			CellColor.B() == pTextStyle->m_ForeColor.B()
+		)
+		{
+			sText += "\n WARNING : You didn't specify any style for datagrid!";
+			pTextStyle->m_ForeColor = PlutoColor::Red();
+		}
+
 		m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->RenderText(sText, &Text, pTextStyle, point);
+		pTextStyle->m_ForeColor = TextColor;
 	}
 	else
 		g_pPlutoLogger->Write( LV_WARNING,  "Datagrid width or height is too small" );
