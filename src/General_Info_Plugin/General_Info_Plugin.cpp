@@ -3117,8 +3117,13 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 			string sArguments=sMD_IP+"\t"+row[0]+"\t"+row[1]+"\t"+row[2];
 			if(!bTrueFalse){
 				g_pPlutoLogger->Write(LV_STATUS,"Install Software");
-				g_pPlutoLogger->Write(LV_STATUS,((string)"/usr/pluto/bin/InstallSoftware.sh "+sArguments).c_str());
-				ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallSoftware.sh", sArguments, "InstallSoftware", NULL, true);
+				if("1"==sPK_Device){
+					g_pPlutoLogger->Write(LV_STATUS,((string)"/usr/pluto/bin/InstallSoftware_Remote.sh "+sArguments).c_str());
+					ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallSoftware_Remote.sh", sArguments, "InstallSoftware", NULL, true);
+				}else{
+					g_pPlutoLogger->Write(LV_STATUS,((string)"/usr/pluto/bin/InstallSoftware.sh "+sArguments).c_str());
+					ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallSoftware.sh", sArguments, "InstallSoftware", NULL, true);
+				}
 			}else{
 				g_pPlutoLogger->Write(LV_STATUS,"Remove Software");
 			}
