@@ -81,8 +81,9 @@ void * startDisplayThread(void * Arg);
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: Telecom_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter), m_VoiceMailStatusMutex( "voice mail mutex" )
+	: Telecom_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, m_VoiceMailStatusMutex("vm mutex")
 {
 	m_pDatabase_pluto_main = NULL;
 	m_pDatabase_pluto_telecom = NULL;
@@ -1787,4 +1788,21 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 	}	
 #endif
 	return pDataGrid;
+}
+//<-dceag-c826-b->
+
+	/** @brief COMMAND: #826 - Speak in house */
+	/** Lets the user speak in the house or to someone at the intercom, whether the user is in the house or outside */
+		/** @param #2 PK_Device */
+			/** If not 0, this is presumed to be a device associated with a phone number, such a mobile orbiter or a phone extension, and which will be patched in. */
+		/** @param #75 PhoneNumber */
+			/** If specified this is the number that will be patched in and PK_Device will be ignored. */
+		/** @param #103 List PK Device */
+			/** The list of speakerphone type devices to broadcast the voice through.  If this and  PK_Device_Related are not specified all devices are assumed.  If specified this overrides PK_Device_Related */
+		/** @param #201 PK_Device_Related */
+			/** Broadcast through a speakerphone related to this device.  If List PK Device  is blank then this device can be a camera, doorbell, etc., and the List PK Device will be filled in automatically with the most related device, either explicitly related, or in t */
+
+void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,string sList_PK_Device,int iPK_Device_Related,string &sCMD_Result,Message *pMessage)
+//<-dceag-c826-e->
+{
 }

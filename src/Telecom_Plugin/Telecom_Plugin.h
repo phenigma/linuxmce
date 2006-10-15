@@ -209,6 +209,22 @@ public:
 	virtual void CMD_PL_Join_Call(string sCallID,string sList_PK_Device) { string sCMD_Result; CMD_PL_Join_Call(sCallID.c_str(),sList_PK_Device.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_PL_Join_Call(string sCallID,string sList_PK_Device,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #826 - Speak in house */
+	/** Lets the user speak in the house or to someone at the intercom, whether the user is in the house or outside */
+		/** @param #2 PK_Device */
+			/** If not 0, this is presumed to be a device associated with a phone number, such a mobile orbiter or a phone extension, and which will be patched in. */
+		/** @param #75 PhoneNumber */
+			/** If specified this is the number that will be patched in and PK_Device will be ignored. */
+		/** @param #103 List PK Device */
+			/** The list of speakerphone type devices to broadcast the voice through.  If this and  PK_Device_Related are not specified all devices are assumed.  If specified this overrides PK_Device_Related */
+		/** @param #201 PK_Device_Related */
+			/** Broadcast through a speakerphone related to this device.  If List PK Device  is blank then this device can be a camera, doorbell, etc., and the List PK Device will be filled in automatically with the most related device, either explicitly related, or in t */
+
+	virtual void CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,string sList_PK_Device,int iPK_Device_Related) { string sCMD_Result; CMD_Speak_in_house(iPK_Device,sPhoneNumber.c_str(),sList_PK_Device.c_str(),iPK_Device_Related,sCMD_Result,NULL);};
+	virtual void CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,string sList_PK_Device,int iPK_Device_Related,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 private:

@@ -21868,5 +21868,45 @@ namespace DCE
 			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
 			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str()); }
 	};
+	class CMD_Speak_in_house : public PreformedCommand {
+	public:
+		CMD_Speak_in_house(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,string sPhoneNumber,string sList_PK_Device,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Speak_in_house_CONST,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_PhoneNumber_CONST, sPhoneNumber.c_str(),
+			COMMANDPARAMETER_List_PK_Device_CONST, sList_PK_Device.c_str(),
+			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str()); }
+	};
+	class CMD_Speak_in_house_DL : public PreformedCommand {
+	public:
+		CMD_Speak_in_house_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,string sPhoneNumber,string sList_PK_Device,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Speak_in_house_CONST,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_PhoneNumber_CONST, sPhoneNumber.c_str(),
+			COMMANDPARAMETER_List_PK_Device_CONST, sList_PK_Device.c_str(),
+			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str()); }
+	};
+	class CMD_Speak_in_house_DT : public PreformedCommand {
+	public:
+		CMD_Speak_in_house_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,string sPhoneNumber,string sList_PK_Device,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Speak_in_house_CONST,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_PhoneNumber_CONST, sPhoneNumber.c_str(),
+			COMMANDPARAMETER_List_PK_Device_CONST, sList_PK_Device.c_str(),
+			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str()); }
+	};
+	class CMD_Speak_in_house_Cat : public PreformedCommand {
+	public:
+		CMD_Speak_in_house_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sPhoneNumber,string sList_PK_Device,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Speak_in_house_CONST,
+			4 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_PhoneNumber_CONST, sPhoneNumber.c_str(),
+			COMMANDPARAMETER_List_PK_Device_CONST, sList_PK_Device.c_str(),
+			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str()); }
+	};
 }
 #endif
