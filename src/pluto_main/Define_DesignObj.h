@@ -1979,7 +1979,7 @@
 #define DESIGNOBJ_arrLocations2_CONST 4895
 #define DESIGNOBJ_butLocations2_CONST 4896
 #define DESIGNOBJ_butShowMediaBrowser_CONST 4897
-#define DESIGNOBJ_popMythChannels_CONST 4898
+#define DESIGNOBJ_popTVOptions_CONST 4898
 #define DESIGNOBJ_dgTVRecorded_CONST 4900
 #define DESIGNOBJ_popMythOptions_CONST 4902
 #define DESIGNOBJ_grpMediaOptions_CONST 4910
@@ -2240,6 +2240,7 @@
 #define DESIGNOBJ_mnuPickCaptureCardPort_CONST 5185
 #define DESIGNOBJ_butNoCaptureCardPort_CONST 5186
 #define DESIGNOBJ_dgCaptureCardPorts_CONST 5187
+#define DESIGNOBJ_speak_CONST 5188
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
