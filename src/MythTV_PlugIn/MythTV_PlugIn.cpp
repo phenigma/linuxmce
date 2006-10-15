@@ -821,8 +821,21 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 			if( !cardid )
 			{
 				bModifiedRows=true;
-get real hostname
-				sSQL = "INSERT INTO `capturecard` VALUES (0,'',NULL,NULL,'MPEG','',NULL,'dcerouter',0,1,0,1,8192,8192,0,0,NULL,0,2,0,NULL,0,0,31338,80,NULL,1000,3000);";
+				string sHostname = "dcerouter";
+				int PK_Device_PC = DatabaseUtils::GetTopMostDevice(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
+				Row_Device *pRow_Device_PC = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device_PC);
+				if( pRow_Device_PC )
+				{
+					Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device_PC->FK_DeviceTemplate_getrow();
+					if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()!=DEVICECATEGORY_Core_CONST )
+						sHostname = "moon" + StringUtils::itos(pRow_Device_PC->PK_Device_get());
+					g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards topmost for %d is %d host %s",
+						pRow_Device->PK_Device_get(),pRow_Device_PC->PK_Device_get(),sHostname.c_str());
+				}
+				else
+					g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards cannot find topmost device for %d", pRow_Device->PK_Device_get());
+
+				sSQL = "INSERT INTO `capturecard` VALUES (0,'',NULL,NULL,'MPEG','',NULL,'" + sHostname + "',0,1,0,1,8192,8192,0,0,NULL,0,2,0,NULL,0,0,31338,80,NULL,1000,3000);";
 				cardid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
 				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Port_CONST,StringUtils::itos(cardid));
 			}
