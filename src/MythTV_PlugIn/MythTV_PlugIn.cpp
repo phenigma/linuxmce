@@ -434,7 +434,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 		"FROM program p "
 		"INNER JOIN channel c ON c.chanid = p.chanid "
 		"WHERE '" + StringUtils::SQLDateTime() + "' BETWEEN p.starttime and p.endtime " + sProvider +
-		"ORDER BY p.channum";
+		"ORDER BY c.channum";
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	int iRow=0;
@@ -867,7 +867,11 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 	if( bModifiedRows )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders records changed");
+		char * args_fill[] = { "/usr/bin/mythfilldatabase", "", NULL };
+		ProcessUtils::SpawnDaemon(args_fill[0], args_fill);
+
 		char * args[] = { "/etc/init.d/mythtv-backend", "restart", NULL };
 		ProcessUtils::SpawnDaemon(args[0], args);
+		
 	}
 }

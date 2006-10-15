@@ -112,6 +112,7 @@ bool SpeedMouseHandler::ButtonUp(int PK_Button)
 {
 	if( PK_Button==BUTTON_Mouse_6_CONST )  // The user was in press and hold mode, or tapped again after the menu appeared on screen
 	{
+		// There is a logic flaw that when there's only a speed control and no vertical, it goes straight here and immediately stops
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);

@@ -2051,7 +2051,8 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		m_pOrbiterRenderer->AdjustWindowSize(m_pScreenHistory_Current->GetObj()->m_rPosition.Width,
 			m_pScreenHistory_Current->GetObj()->m_rPosition.Height);
 
-		if( UsesUIVersion2() && !m_bNewOrbiter )
+		// If media is playing set now playing will set m_sApplicationName before this finishes
+		if( UsesUIVersion2() && !m_bNewOrbiter && m_sApplicationName.empty() )
 			StartScreenSaver();
 
 		m_bStartingUp=false;
@@ -2526,8 +2527,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to 
 
     if (m_bYieldInput && (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP))
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Ignoring keyboard events, m_bYieldInput==%d", m_bYieldInput);
-        return;
+		// If we're using UI2 and this is one of the system keys (F6, F7, F8) then we want to process it anyway
+		if( UsesUIVersion2()==false || 
+			(pEvent->data.button.m_iPK_Button != BUTTON_F6_CONST && pEvent->data.button.m_iPK_Button != BUTTON_F7_CONST && pEvent->data.button.m_iPK_Button != BUTTON_F8_CONST) )
+		{
+	        g_pPlutoLogger->Write(LV_STATUS, "Ignoring keyboard events, m_bYieldInput==%d", m_bYieldInput);
+		    return;
+		}
     }
 
     PreprocessEvent(*pEvent);
@@ -6822,6 +6828,7 @@ void Orbiter::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *
 void Orbiter::CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c366-e->
 {
+	m_sApplicationName = sName;
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_CRITICAL, "Received 'Activate Window' for %s", sName.c_str());
 #endif
