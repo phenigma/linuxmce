@@ -194,7 +194,13 @@ string MediaFileBrowserOptions::HumanReadable()
 	if( m_listPK_Attribute_Description.size() )
 		sFilter = m_listPK_Attribute_Description.front().second;
 
-	m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(5175),0,"","", sFilter.size() ? "1" : "0");
+	bool bHide = sFilter.size() ? false : true;
+	DesignObj_Orbiter *pObj_Back = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFileBrowserBack_CONST));
+	if( pObj_Back && pObj_Back->m_bHidden != bHide )
+	{
+		NeedToRender render2( m_pOrbiter, "ScreenHandler::HumanReadable" );
+		m_pOrbiter->CMD_Show_Object( pObj_Back->m_ObjectID,0,"","", bHide ? "0" : "1" );
+	}
 	return sResult + sFilter;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1890,7 +1896,13 @@ void ScreenHandler::SaveFile_GotoChooseFolderDesignObj()
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SaveFile_SendCommand()
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Path_CONST, FileUtils::IncludeTrailingSlash(m_pOrbiter->m_mapVariable_Find(VARIABLE_Path_CONST)));
+	string sFilename = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
+	sFilename = FileUtils::ValidFileName(sFilename,true);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST,sFilename);
+
+	string sPath = FileUtils::IncludeTrailingSlash(m_pOrbiter->m_mapVariable_Find(VARIABLE_Path_CONST));
+	sPath = FileUtils::ValidFileName(sPath,true);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Path_CONST, sPath);
 
 	m_pOrbiter->CMD_Send_Message(m_sSaveFile_Command, false);
 	m_pOrbiter->GotoMainMenu();

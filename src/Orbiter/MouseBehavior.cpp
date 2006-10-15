@@ -321,9 +321,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	}
 
 	if( m_pMouseHandler )
-	{
 		return m_pMouseHandler->ButtonDown(PK_Button);
-	}
 
 	return false;
 }
@@ -344,10 +342,7 @@ bool MouseBehavior::ButtonUp(int PK_Button)
 	}
 
     if( m_pMouseHandler )
-    {
-		m_pMouseHandler->ButtonUp(PK_Button);
-		return true;
-    }
+		return m_pMouseHandler->ButtonUp(PK_Button);
     return false;
 }
 

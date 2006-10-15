@@ -301,7 +301,7 @@ namespace DCE
 		string m_sDefaultStorageDeviceForRippingName;
 		int m_iPK_MediaType;
 		int m_dwPK_Device_NowPlaying,m_dwPK_Device_NowPlaying_Video,m_dwPK_Device_NowPlaying_Audio,m_dwPK_Device_CaptureCard;  /** < set by the media engine, this is whatever media device is currently playing.  Capture Card is non null if we're displaying media via this card */
-		bool m_bPK_Device_NowPlaying_Audio_DiscreteVolume;
+		bool m_bPK_Device_NowPlaying_Audio_DiscreteVolume,m_bContainsVideo;
 
 		int m_iTimeoutScreenSaver,m_iTimeoutBlank;  /** < When we're not on the screen saver screen how long to timeout before going to it, and when we are, how long before blacking the screen */
 		time_t m_tTimeoutTime;  /** < On the screen saver screen, this is the time when the display will go blank */
@@ -1685,6 +1685,15 @@ light, climate, media, security, telecom */
 
 	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType) { string sCMD_Result; CMD_Simulate_Mouse_Click_At_Present_Pos(sType.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #548 - Menu */
+	/** Shows the main menu */
+		/** @param #9 Text */
+			/** A string indicating which menu should appear.  The parameter is only used for smart media devices */
+
+	virtual void CMD_Menu(string sText) { string sCMD_Result; CMD_Menu(sText.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Menu(string sText,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #689 - Update Time Code */

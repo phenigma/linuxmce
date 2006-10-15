@@ -50,24 +50,26 @@ void HorizMenuMouseHandler::Stop()
 
 bool HorizMenuMouseHandler::ButtonDown(int PK_Button)
 {
-	if( PK_Button==BUTTON_Mouse_1_CONST )
+	switch( PK_Button )
 	{
+	case BUTTON_Mouse_1_CONST:
 		m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
 		return true; // Don't process any more
-	}
-	else if(PK_Button == BUTTON_Enter_CONST)
-	{
-		DesignObj_Orbiter *pObj_ToHighlight = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
-		if(NULL != pObj_ToHighlight && pObj_ToHighlight != m_pObj_ActiveMenuPad && 
-			(GetMainMenuPopup(pObj_ToHighlight) != "" || GetFileBrowserPopup(pObj_ToHighlight) != ""))
+	case BUTTON_Enter_CONST:
 		{
-			m_pObj_ActiveMenuPad->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
-			ShowPopup(pObj_ToHighlight);
-			m_pObj_ActiveMenuPad = pObj_ToHighlight;
+			DesignObj_Orbiter *pObj_ToHighlight = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
+			if(NULL != pObj_ToHighlight && pObj_ToHighlight != m_pObj_ActiveMenuPad && 
+				(GetMainMenuPopup(pObj_ToHighlight) != "" || GetFileBrowserPopup(pObj_ToHighlight) != ""))
+			{
+				m_pObj_ActiveMenuPad->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
+				ShowPopup(pObj_ToHighlight);
+				m_pObj_ActiveMenuPad = pObj_ToHighlight;
+			}
 		}
+		return false; // Keep processing
 	}
 
-	return false; // Keep processing
+	return false;
 }
 
 bool HorizMenuMouseHandler::ButtonUp(int PK_Button)
@@ -77,7 +79,28 @@ bool HorizMenuMouseHandler::ButtonUp(int PK_Button)
 //		return false;
 	}
 
-	return false; // Keep processing
+	switch( PK_Button )
+	{
+	case BUTTON_Left_Arrow_CONST:
+	case BUTTON_Right_Arrow_CONST:
+		if( m_pObj_ActiveMenuPad ) 
+		{
+			m_pObj_ActiveMenuPad->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
+			// If there's a menu pad, temporarily make it highlighted so the following function can easliy calculate left/right accurately
+			m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = m_pObj_ActiveMenuPad;
+		}
+		
+		// Now move
+		m_pMouseBehavior->m_pOrbiter->Renderer()->HighlightNextObject( PK_Button==BUTTON_Left_Arrow_CONST ? DIRECTION_Left_CONST : DIRECTION_Right_CONST );
+		if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+		{
+			ShowPopup(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
+			m_pObj_ActiveMenuPad = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
+		}
+
+		return true;
+	}
+	return false; // Keep going
 }
 
 void HorizMenuMouseHandler::Move(int X,int Y,int PK_Direction)

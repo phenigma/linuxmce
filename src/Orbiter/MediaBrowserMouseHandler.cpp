@@ -99,6 +99,10 @@ bool MediaBrowserMouseHandler::ButtonUp(int PK_Button)
 //		return false;
 	}
 
+	// If we're moving left and right to the filter options
+	if( PK_Button==BUTTON_Left_Arrow_CONST || PK_Button==BUTTON_Right_Arrow_CONST || m_pHorizMenuMouseHandler->m_pObj_ActiveMenuPad )
+		return m_pHorizMenuMouseHandler->ButtonUp(PK_Button);
+
 	return false; // Keep processing
 }
 

@@ -230,6 +230,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	WriteStatusOutput("Orbiter constructor");
 
 	m_bFullScreen = bFullScreen;
+	m_bContainsVideo = false;
 	m_pInstance = this;
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_pOrbiterRenderer = OrbiterRendererFactory::CreateRenderer(this);
@@ -2650,6 +2651,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d key %d",
 		bSkipProcessing=m_pMouseBehavior->ButtonDown(event.data.button.m_iPK_Button);
 	if(event.type == Orbiter::Event::BUTTON_UP && !bSkipProcessing && NULL != m_pMouseBehavior)
 		bSkipProcessing=m_pMouseBehavior->ButtonUp(event.data.button.m_iPK_Button);
+	if( bSkipProcessing )
+		return true;
 }
 #endif
 
@@ -3252,7 +3255,9 @@ bool Orbiter::GotActivity(  )
 #endif
 
 	// If the display is off, or we're in screen saver mode
-	if( !m_bDisplayOn || (m_bScreenSaverActive && !UsesUIVersion2()) )
+	if( !m_bDisplayOn || 
+		((m_bScreenSaverActive || (m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu)) 
+		&& !UsesUIVersion2()) )
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"GotActiity monitor m_bDisplayOn is %d",(int) m_bDisplayOn);
@@ -5990,7 +5995,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	m_dwPK_Device_NowPlaying_Audio = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str());
 	m_dwPK_Device_CaptureCard = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str());
 	m_bPK_Device_NowPlaying_Audio_DiscreteVolume = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str())==1;
-	bool bContainsVideo = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str())==1;
+	m_bContainsVideo = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str())==1;
 	CMD_Set_Variable(VARIABLE_Track_or_Playlist_Positio_CONST, StringUtils::itos(iValue));
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Now_Playing %s %s",sValue_To_Assign.c_str(),sPK_DesignObj.c_str());
@@ -6063,8 +6068,8 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 
 	if( UsesUIVersion2() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Set_Now_Playing device %d video %d",m_dwPK_Device_NowPlaying,(int) bContainsVideo);
-		if( m_dwPK_Device_NowPlaying && bContainsVideo )
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Set_Now_Playing device %d video %d",m_dwPK_Device_NowPlaying,(int) m_bContainsVideo);
+		if( m_dwPK_Device_NowPlaying && m_bContainsVideo )
 			StopScreenSaver();
 		else
 			StartScreenSaver();
@@ -7104,8 +7109,6 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 	}
 	*/
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
-	if( m_pObj_Highlighted )
-		m_pOrbiterRenderer->UnHighlightObject();
 
 	DesignObj_Orbiter *pObj = FindObject(sPK_DesignObj_CurrentScreen);
 
@@ -7829,6 +7832,8 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 	{
 		if( m_pMouseBehavior )
 			m_pMouseBehavior->SetMediaInfo(sTime,sTotal,sSpeed,sTitle,sSection);
+		if( m_sNowPlaying_Speed.empty()==false && m_bContainsVideo && m_iPK_Screen_OSD_Speed && m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen()!=m_iPK_Screen_OSD_Speed )
+			CMD_Goto_Screen("",m_iPK_Screen_OSD_Speed);
 	}
 #endif
 }
@@ -8993,4 +8998,21 @@ void Orbiter::StopScreenSaver()
 		DCE::CMD_Off CMD_Off(m_dwPK_Device,m_pDevice_ScreenSaver->m_dwPK_Device,0);
 		SendCommand(CMD_Off);
 	}
+}
+//<-dceag-c548-b->
+
+	/** @brief COMMAND: #548 - Menu */
+	/** Shows the main menu */
+		/** @param #9 Text */
+			/** A string indicating which menu should appear.  The parameter is only used for smart media devices */
+
+void Orbiter::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
+//<-dceag-c548-e->
+{
+#ifdef ENABLE_MOUSE_BEHAVIOR
+	m_pMouseBehavior->ButtonDown(BUTTON_Mouse_7_CONST);
+	m_pMouseBehavior->ButtonUp(BUTTON_Mouse_7_CONST);
+#else
+	GotoMainMenu();
+#endif
 }
