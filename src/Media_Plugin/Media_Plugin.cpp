@@ -4612,6 +4612,10 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,Message *pMessage)
 //<-dceag-c689-e->
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Update_Time_Code stream %d time %s total %s speed %s title %s section %s",
+		iStreamID,sTime.c_str(),sTotal.c_str(),sSpeed.c_str(),sTitle.c_str(),sSection.c_str());
+#endif
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     MediaStream * pMediaStream = m_mapMediaStream_Find( iStreamID, pMessage ? pMessage->m_dwPK_Device_From : 0 );
 
