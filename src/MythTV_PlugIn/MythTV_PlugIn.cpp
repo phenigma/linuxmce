@@ -426,9 +426,11 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 	}
 
 	string sProvider;
-	if( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pRow_MediaProvider && 
-		pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pRow_MediaProvider->ID_get().empty()==false )
-			sProvider = " AND sourceid=" + pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pRow_MediaProvider->ID_get();
+
+	// TODO -- must fix this.  ID_get is a big string and not an id
+//	if( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pRow_MediaProvider && 
+//		pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pRow_MediaProvider->ID_get().empty()==false )
+//			sProvider = " AND sourceid='" + pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pRow_MediaProvider->ID_get() + "'";
 
 	string sSQL = "SELECT c.chanid, c.channum, c.name, c.icon, p.title, p.starttime, p.endtime "
 		"FROM program p "
@@ -819,6 +821,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 			if( !cardid )
 			{
 				bModifiedRows=true;
+get real hostname
 				sSQL = "INSERT INTO `capturecard` VALUES (0,'',NULL,NULL,'MPEG','',NULL,'dcerouter',0,1,0,1,8192,8192,0,0,NULL,0,2,0,NULL,0,0,31338,80,NULL,1000,3000);";
 				cardid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
 				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Port_CONST,StringUtils::itos(cardid));
