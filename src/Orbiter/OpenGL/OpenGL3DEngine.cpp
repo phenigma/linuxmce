@@ -243,11 +243,6 @@ MeshFrame* OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFram
 	Frame->ApplyTransform(transform);
 #endif
 
-	if(Frame->Name().find("4979.112") != string::npos)
-	{
-		int a = 4;
-	}
-
 	if(NULL == CurrentLayer)
 	{
 		Frame->CleanUp();

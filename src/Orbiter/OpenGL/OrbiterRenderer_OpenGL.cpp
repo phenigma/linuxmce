@@ -716,6 +716,7 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 
 	Popups->Reset();
 	Engine->NewScreen(sScreenName);
+	m_pLastHighlightedObject = NULL;
 
 	OrbiterRenderer::RenderScreen(bRenderGraphicsOnly);
 	
