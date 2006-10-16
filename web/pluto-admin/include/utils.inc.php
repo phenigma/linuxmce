@@ -2510,14 +2510,13 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 	
 	
 	// old create device by calling directly the command
-	// temporary use it for development
-	
+/*	
 	if($GLOBALS['inDebug']==1){
 		$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$FK_DeviceTemplate.' -i '.$FK_Installation;
 		$insertID=exec_batch_command($cmd);
 		$dbADO->Execute('UPDATE Device SET FK_Room=? WHERE PK_Device=?',array($roomID,$insertID));
 	}else{
-	
+*/	
 	
 		$msgSendCommand='/usr/pluto/bin/MessageSend localhost -targetType template -o 0 27 1 718 44 '.$FK_DeviceTemplate;
 		$msgSendCommand.=((int)$roomID!='')?' 57 '.$roomID:'';
@@ -2537,7 +2536,7 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 		if($insertID===false){
 			error_redirect('ERROR: device not created, check if DCE router is running.','');
 		}
-	}
+//	}
 	
 	
 	return $insertID;
