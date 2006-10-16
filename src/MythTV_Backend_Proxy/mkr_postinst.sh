@@ -59,6 +59,6 @@ addEntries RecordFilePrefix /var/lib/mythtv/ $hostname;
 # addEntries LiveBufferDir /var/cache/mythtv/ $hostname;
 
 addEntries MasterServerIP	$routerip;
-addEntries MasterServerPort	6543;
+addEntries MasterServerPort	6143;
 
 

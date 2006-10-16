@@ -66,7 +66,7 @@ addEntries BackendServerStatus 6544 $hostname;
 addEntries RecordFilePrefix /var/lib/mythtv/ $hostname;
 
 addEntries MasterServerIP	$routerip;
-addEntries MasterServerPort	6543;
+addEntries MasterServerPort	6143;
 
 PID=`pidof /usr/bin/mythbackend` || /bin/true;
 if [ "$PID" != "" ]; then
@@ -85,6 +85,7 @@ Q="SELECT PK_Device_QuickStart FROM Device_QuickStart where FK_Device=$PK_Device
 PK_Device_QuickStart="$(RunSQL "$Q")"
 
 if [ "$PK_Device_QuickStart" = "" ]; then
-	Q="INSERT INTO Device_QuickStart(FK_Device,Description,SortOrder,\`Binary\`,Arguments,FK_QuickStartTemplate) SELECT $PK_Device_MD,Description,1,\`Binary\`,Arguments,PK_QuickStartTemplate FROM QuickStartTemplate WHERE Description='MythTV Setup'"
+
+	Q="INSERT INTO Device_QuickStart(FK_Device,Description,SortOrder,FK_QuickStartTemplate) SELECT $PK_Device_MD,Description,1,PK_QuickStartTemplate FROM QuickStartTemplate WHERE PK_QuickStartTemplate=2"
 	RunSQL "$Q"
 fi

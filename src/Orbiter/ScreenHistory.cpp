@@ -100,7 +100,7 @@ bool ScreenHistory::GoBack()
 string ScreenHistory::ToString()
 {
 	string sOutput;
-	sOutput += StringUtils::ltos(m_nPK_Screen) + "(\"" + m_sID + "\" - ";
+	sOutput += "ID:" + StringUtils::ltos(m_nPK_Screen) + "(\"" + m_sID + "\" - ";
 
 	list<DesignObj_Orbiter *>::iterator it;
 	for(it = m_listObjs.begin(); it != m_listObjs.end(); it++)
