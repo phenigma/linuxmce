@@ -117,8 +117,10 @@ DefaultMessageDispatcher::DispatchMessage(MessageReplicator& inrepl) {
 	    int sleep_delay = inrepl.getPreDelay();
 		if( sleep_delay < 0 )
 			sleep_delay = 0;
-		else if( 10 > sleep_delay )
+		else if( 19 > sleep_delay )
 			sleep_delay *= 1000;
+		else if( 20000 < sleep_delay )
+			sleep_delay /= 1000;
 		if( sleep_delay != 0 )
 			Sleep(sleep_delay);
 		
@@ -129,8 +131,10 @@ DefaultMessageDispatcher::DispatchMessage(MessageReplicator& inrepl) {
 	    sleep_delay = inrepl.getPostDelay();
 		if( sleep_delay < 0 )
 			sleep_delay = 0;
-		else if( 10 > sleep_delay )
+		else if( 19 > sleep_delay )
 			sleep_delay *= 1000;
+		else if( 20000 < sleep_delay )
+			sleep_delay /= 1000;
 		if( sleep_delay != 0 )
 			Sleep(sleep_delay);
 		
