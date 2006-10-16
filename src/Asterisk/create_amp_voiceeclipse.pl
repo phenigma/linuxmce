@@ -47,38 +47,41 @@ $TRUNK_VARS{'display'}="6";
 $TRUNK_VARS{'extdisplay'}="";
 $TRUNK_VARS{'action'}="addtrunk";
 $TRUNK_VARS{'tech'}="sip";
-$TRUNK_VARS{'outcid'}=$DECLARED_NUMBER;
+$TRUNK_VARS{'outcid'}="";
 $TRUNK_VARS{'maxchans'}="";
 $TRUNK_VARS{'dialrules'}=$LOCAL_PREFIX1;
 $TRUNK_VARS{'autopop'}="";
 $TRUNK_VARS{'dialoutprefix'}="";
-
-$TRUNK_VARS{'channelid'} ="voiceeclipse";
-$TRUNK_VARS{'peerdetails'} ="allow=ulaw\n";
-$TRUNK_VARS{'peerdetails'}.="authuser=$DECLARED_USERNAME\n";
+$TRUNK_VARS{'channelid'}="voiceeclipse";
+$TRUNK_VARS{'peerdetails'} ="authname=$DECLARED_USERNAME\n";
+$TRUNK_VARS{'peerdetails'}.="canreinvite=no\n";
 $TRUNK_VARS{'peerdetails'}.="context=from-pstn\n";
-$TRUNK_VARS{'peerdetails'}.="disallow=all\n";
+$TRUNK_VARS{'peerdetails'}.="dtmf=inband\n";
+$TRUNK_VARS{'peerdetails'}.="dtmfmode=inband\n";
+$TRUNK_VARS{'peerdetails'}.="fromdomain=$DECLARED_HOST\n";
 $TRUNK_VARS{'peerdetails'}.="fromuser=$DECLARED_USERNAME\n";
 $TRUNK_VARS{'peerdetails'}.="host=$DECLARED_HOST\n";
 $TRUNK_VARS{'peerdetails'}.="insecure=very\n";
 $TRUNK_VARS{'peerdetails'}.="nat=yes\n";
-$TRUNK_VARS{'peerdetails'}.="qualify=yes\n";
 $TRUNK_VARS{'peerdetails'}.="secret=$DECLARED_USERPASSWD\n";
 $TRUNK_VARS{'peerdetails'}.="type=peer\n";
-$TRUNK_VARS{'peerdetails'}.="user=$DECLARED_USERNAME\n";
+$TRUNK_VARS{'peerdetails'}.="user=phone\n";
 $TRUNK_VARS{'peerdetails'}.="username=$DECLARED_USERNAME\n";
 
-$TRUNK_VARS{'usercontext'}="$DECLARED_USERNAME";
-$TRUNK_VARS{'userconfig'} ="allow=ulaw\n";
-$TRUNK_VARS{'userconfig'}.="canreinvite=no\n";
-$TRUNK_VARS{'userconfig'}.="context=from-pstn\n";
-$TRUNK_VARS{'userconfig'}.="disallow=all\n";
-$TRUNK_VARS{'userconfig'}.="dtmfmode=rfc2833\n";
-$TRUNK_VARS{'userconfig'}.="insecure=very\n";
-$TRUNK_VARS{'userconfig'}.="secret=$DECLARED_USERPASSWD\n";
-$TRUNK_VARS{'userconfig'}.="type=user\n";
+$TRUNK_VARS{'usercontext'}="$DECLARED_HOST";
+$TRUNK_VARS{'userconfig'} ="context=from-pstn\n";
+$TRUNK_VARS{'userconfig'} .="dtmf=inband\n";
+$TRUNK_VARS{'userconfig'} .="dtmfmode=inband\n";
+$TRUNK_VARS{'userconfig'} .="fromdomain=$DECLARED_HOST\n";
+$TRUNK_VARS{'userconfig'} .="host=$DECLARED_HOST\n";
+$TRUNK_VARS{'userconfig'} .="insecure=very\n";
+$TRUNK_VARS{'userconfig'} .="nat=yes\n";
+$TRUNK_VARS{'userconfig'} .="secret=$DECLARED_USERPASSWD\n";
+$TRUNK_VARS{'userconfig'} .="type=user\n";
+$TRUNK_VARS{'userconfig'} .="user=$DECLARED_USERNAME\n";
+$TRUNK_VARS{'userconfig'} .="username=$DECLARED_USERNAME\n";
 
-$TRUNK_VARS{'register'}="$DECLARED_USERNAME:$DECLARED_USERPASSWD\@$DECLARED_HOST";
+$TRUNK_VARS{'register'}="$DECLARED_USERNAME\@$DECLARED_HOST:$DECLARED_USERPASSWD:$DECLARED_USERNAME\@$DECLARED_HOST";
 foreach my $var (keys %TRUNK_VARS)
 {
     my $str = $TRUNK_VARS{$var};
@@ -121,7 +124,7 @@ foreach my $var (keys %OUT_VARS)
 $IN_VARS{'display'}="7";
 $IN_VARS{'extdisplay'}="";
 $IN_VARS{'action'}="addIncoming";
-$IN_VARS{'extension'}="";
+$IN_VARS{'extension'}=$DECLARED_NUMBER;
 $IN_VARS{'goto0'}="custom";
 $IN_VARS{'custom_args0'}="from-pluto-custom,10".$1.",1" if($OUT_ROUTE=~/(\d)$/);
 foreach my $var (keys %IN_VARS)
