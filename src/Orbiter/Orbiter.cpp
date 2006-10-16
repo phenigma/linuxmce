@@ -222,7 +222,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 				 : Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ),
 				 m_MaintThreadMutex("MaintThread"), m_ScreenMutex( "rendering" ),
 				 m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ),
-				 m_TimeCodeMutex( "timecode" ),
+				 m_TimeCodeMutex( "timecode" ), m_TimeCodeID(0),
 				 IRReceiverBase(this)
 				 //<-dceag-const-e->
 {
@@ -494,6 +494,11 @@ Orbiter::~Orbiter()
 	m_pScreenHandler = NULL; 
 
 	vm.Release();
+
+	//wait TimeCodeThread to finish
+	if(m_TimeCodeID && m_bUpdateTimeCodeLoopRunning)
+		pthread_join(m_TimeCodeID, NULL);
+
 	pthread_mutexattr_destroy(&m_MutexAttr);
 	pthread_mutex_destroy(&m_VariableMutex.mutex);
 	pthread_mutex_destroy(&m_DatagridMutex.mutex);
@@ -6084,9 +6089,8 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	if( m_bReportTimeCode && !m_bUpdateTimeCodeLoopRunning )
 	{
 		m_bUpdateTimeCodeLoopRunning=true;
-		pthread_t TimeCodeID;
 		g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode starting thread");
-		pthread_create(&TimeCodeID, NULL, UpdateTimeCodeThread, (void*)this);
+		pthread_create(&m_TimeCodeID, NULL, UpdateTimeCodeThread, (void*)this);
 	}
 }
 

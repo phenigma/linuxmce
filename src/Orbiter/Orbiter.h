@@ -219,6 +219,7 @@ namespace DCE
 		pluto_pthread_mutex_t m_DatagridMutex; /** < Don't allow 2 threads to operate on datagrids at the same time */
 		pluto_pthread_mutex_t m_TimeCodeMutex; /** < Protects the communication with xine for time code */
 		pthread_cond_t m_MaintThreadCond;
+		pthread_t m_TimeCodeID;
 
 		/**
 		* This is an internal counter. When we start doing stuff that may include lots of embedded commands which want to update the screen, we can create
