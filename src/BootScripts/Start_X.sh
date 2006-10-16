@@ -2,8 +2,8 @@
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/Utils.sh
 
-function assureXorgSane() {
-
+function assureXorgSane()
+{
 	xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
 	if [ $xorgLines -le 15 ] ;then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "File xorg.conf has only $xorgLines lines, rebuilding"

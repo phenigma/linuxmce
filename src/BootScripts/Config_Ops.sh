@@ -132,7 +132,7 @@ PackageIsInstalled()
 
 	[[ -z "$Pkg" ]] && return 1
 	#dpkg -s "$Pkg" 2>/dev/null | grep -q 'Status: install ok installed'
-	PackageStatus "$Pkg" | grep -q 'Status: install ok installed'
+	PackageStatus "$Pkg" | grep -q '^Status: install ok installed'
 }
 
 PackageStatus()

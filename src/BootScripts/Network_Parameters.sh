@@ -134,7 +134,7 @@ if [[ -n "$DHCPsetting" && -z "$IntIf" ]]; then
 fi
 
 # Distinct data correction for MDs and Core
-if PackageIsInstalled pluto-dcerouter; then
+if PackageStatus pluto-dcerouter | grep -q '^Status: install '; then
 	# Core always has an internal interface, even if it's an alias
 	if [[ -z "$IntIf" ]]; then
 		IntIf="$ExtIf:0"
