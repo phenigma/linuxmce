@@ -71,7 +71,14 @@ function editDeviceControlledVia($output,$dbADO) {
 			updateDeviceControlledBy($deviceID,$controlledBy,$dbADO);
 		}
 		
-		header("Location: index.php?section=editDeviceControlledVia&from=$from&deviceID=$deviceID&from=$from&msg=$TEXT_PARENT_SAVED_CONST");
+		$script='
+		<script>
+			opener.document.forms[0].action.value="form";
+			opener.document.forms[0].submit();
+			self.location="index.php?section=editDeviceControlledVia&from='.$from.'&deviceID='.$deviceID.'&msg='.$TEXT_PARENT_SAVED_CONST.'";
+		</script>
+		';
+		die($script);		
 	}
 	
 	
