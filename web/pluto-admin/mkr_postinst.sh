@@ -42,9 +42,9 @@ chmod 777 /etc/pluto-callerid.conf
 touch /var/log/pluto/webExecLog.log
 chown www-data.www-data /var/log/pluto/webExecLog.log
 
-mkdir /home/coverartscan
+mkdir -p /home/coverartscan
 chown www-data.www-data /home/coverartscan
-ln -s /home/coverartscan /var/www/pluto-admin/coverartscan
+ln -snf /home/coverartscan /var/www/pluto-admin/coverartscan || :
 
 mv /var/www/pluto-admin/grabcoverart.sh /usr/pluto/bin || /bin/true
 
