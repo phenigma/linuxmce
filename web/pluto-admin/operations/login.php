@@ -144,7 +144,7 @@ function login($output,$dbADO) {
 										$_SESSION['installationID'] = $installations[0];
 									}
 
-									header("Location: index.php?section=userHome");
+									header("Location: index.php");
 									exit();
 								}else{
 									$_SESSION['password'] = null;
