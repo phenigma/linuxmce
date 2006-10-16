@@ -452,7 +452,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 			}
 			else
 			{
-				string sChannelName_BottomJust = "~cb" + string(row[1]) + " " + row[2];
+				string sChannelName_BottomJust = /*"~cb" +*/ string(row[1]) + " " + row[2];
 				pCell = new DataGridCell(sChannelName_BottomJust,row[0]);
 				if( row[3] && row[3][0] )  // There's an icon
 					pCell->SetImagePath( row[3] );
@@ -835,7 +835,8 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 				else
 					g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards cannot find topmost device for %d", pRow_Device->PK_Device_get());
 
-				sSQL = "INSERT INTO `capturecard` VALUES (0,'',NULL,NULL,'MPEG','',NULL,'" + sHostname + "',0,1,0,1,8192,8192,0,0,NULL,0,2,0,NULL,0,0,31338,80,NULL,1000,3000);";
+				// The MPEG probably shouldn't be hardcoded
+				sSQL = "INSERT INTO `capturecard`(cardtype,hostname) VALUES ('MPEG','" + sHostname + "');";
 				cardid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
 				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Port_CONST,StringUtils::itos(cardid));
 			}
@@ -854,7 +855,8 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 			else
 			{
 				bModifiedRows=true;
-				sSQL = "INSERT INTO `videosource` VALUES (0,'" + sProviderName + "','datadirect','','default','','',0)";
+				// The data direct shouldn't be hardcoded
+				sSQL = "INSERT INTO `videosource`(name,xmltvgrabber) VALUES ('" + sProviderName + "','datadirect')";
 				sourceid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
 			}
 
@@ -870,7 +872,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 			else
 			{
 				bModifiedRows=true;
-				sSQL = "INSERT INTO `cardinput` VALUES (0," + StringUtils::itos(cardid) + "," + StringUtils::itos(sourceid) + ",'','',0,'N','','1',1,NULL,NULL,11700000,10600000,9750000,'')";
+				sSQL = "INSERT INTO `cardinput`(cardid,sourceid,inputname) VALUES (" + StringUtils::itos(cardid) + "," + StringUtils::itos(sourceid) + ",'')";
 				cardinputid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
 			}
 

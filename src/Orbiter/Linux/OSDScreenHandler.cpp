@@ -1393,12 +1393,19 @@ void OSDScreenHandler::SCREEN_Wizard_Done(long PK_Screen)
 	ScreenHandler::SCREEN_Wizard_Done(PK_Screen);
 
 g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::SCREEN_Wizard_Done selected DESIGNOBJ_Final_CONST already played %d",(int) m_bAlreadyPlayFinalGreeting);
+	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizardDone_OnScreen, new RenderScreenCallBackData());
+}
+
+bool OSDScreenHandler::VideoWizardDone_OnScreen(CallBackData *pData)
+{
+	RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pData;
 	if( !m_bAlreadyPlayFinalGreeting )
 	{
 		m_bAlreadyPlayFinalGreeting=true;
 		DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalMediaPlayer,"/home/videowiz/final.mpg",0,0,"");
 		m_pOrbiter->SendCommand(CMD_Play_Media);
 	}
+	return false;
 }
 
 void OSDScreenHandler::SCREEN_House_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line)

@@ -2534,9 +2534,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to 
     {
 		// If we're using UI2 and this is one of the system keys (F6, F7, F8) then we want to process it anyway
 		if( UsesUIVersion2()==false || 
-			(pEvent->data.button.m_iPK_Button != BUTTON_F6_CONST && pEvent->data.button.m_iPK_Button != BUTTON_F7_CONST && pEvent->data.button.m_iPK_Button != BUTTON_F8_CONST) )
+			(pEvent->data.button.m_iPK_Button != BUTTON_F5_CONST && pEvent->data.button.m_iPK_Button != BUTTON_F6_CONST && pEvent->data.button.m_iPK_Button != BUTTON_F7_CONST && pEvent->data.button.m_iPK_Button != BUTTON_F8_CONST) )
 		{
-	        g_pPlutoLogger->Write(LV_STATUS, "Ignoring keyboard events, m_bYieldInput==%d", m_bYieldInput);
+	        g_pPlutoLogger->Write(LV_STATUS, "Ignoring keyboard events, m_bYieldInput==%d button %d", m_bYieldInput,pEvent->data.button);
 		    return;
 		}
     }
