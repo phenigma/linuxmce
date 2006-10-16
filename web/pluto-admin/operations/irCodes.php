@@ -223,21 +223,13 @@ function irCodes($output,$dbADO,$mediaADO) {
 		$time_start = getmicrotime();
 		//$dbADO->debug=true;
 
-		if(isset($_REQUEST['newIRG']) && (int)$_REQUEST['newIRG']!=0){
-			$newIRGroup=(int)$_REQUEST['newIRG'];
-			
-			$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($newIRGroup,$dtID));
-
-			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=$TEXT_IR_GROUP_CHANGED_FOR_SELECTED_DEVICE_TEMPLATE_CONST&label=".$GLOBALS['label']);
-			exit();
-		}
-
 		$newIRGroup=((int)@$_REQUEST['irGroup']>0)?(int)$_REQUEST['irGroup']:NULL;
 		$oldIRGroup=(int)@$_REQUEST['oldIRGroup'];
 		if($newIRGroup!=$oldIRGroup){
 
 			$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($newIRGroup,$dtID));
-
+			// sync all codes
+			$isSync=GetIRCodesForDevice(NULL,$dbADO,$dtID);
 			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=$TEXT_IR_GROUP_CHANGED_FOR_SELECTED_DEVICE_TEMPLATE_CONST&label=".$GLOBALS['label']);
 			exit();
 		}

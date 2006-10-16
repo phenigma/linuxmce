@@ -1520,7 +1520,12 @@ switch ($section) {
 	    include_once('operations/myDevices/editModules.php');
 	    editModules($output,$dbADO);	    
 	break;	
-
+	case 'editCameraRelated':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myDevices/editCameraRelated.php');
+	    editCameraRelated($output,$dbADO);	    
+	break;	
 	
 	case 'index';
 		@$_SESSION['lastLeftFrameSrc']='';

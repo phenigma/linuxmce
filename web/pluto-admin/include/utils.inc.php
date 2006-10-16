@@ -2508,31 +2508,37 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 	$orbiterID=getMediaDirectorOrbiterChild($controlledBy,$dbADO);
 	$parentID=($childOfMD==0)?$orbiterID:$controlledBy;
 	
-	/*
+	
 	// old create device by calling directly the command
-	$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$FK_DeviceTemplate.' -i '.$FK_Installation.' -C '.$parentID;
-	$insertID=exec_batch_command($cmd);
-	*/
+	// temporary use it for development
 	
-	$msgSendCommand='/usr/pluto/bin/MessageSend localhost -targetType template -o 0 27 1 718 44 '.$FK_DeviceTemplate;
-	$msgSendCommand.=((int)$roomID!='')?' 57 '.$roomID:'';
-	$msgSendCommand.=((int)$controlledBy!=0)?' 156 '.$controlledBy:'';
-	$msgSendCommand.=($ipAddress!='')?' 58 \''.$ipAddress.'\'':'';
-	$msgSendCommand.=($macAddress!='')?' 47 \''.$macAddress.'\'':'';
+	if($GLOBALS['inDebug']==1){
+		$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$FK_DeviceTemplate.' -i '.$FK_Installation;
+		$insertID=exec_batch_command($cmd);
+		$dbADO->Execute('UPDATE Device SET FK_Room=? WHERE PK_Device=?',array($roomID,$insertID));
+	}else{
 	
-	$out=exec_batch_command($msgSendCommand,1);
 	
-	if(strpos($out,'0:OK')===false){
-		error_redirect('ERROR: Error creating device.','');
+		$msgSendCommand='/usr/pluto/bin/MessageSend localhost -targetType template -o 0 27 1 718 44 '.$FK_DeviceTemplate;
+		$msgSendCommand.=((int)$roomID!='')?' 57 '.$roomID:'';
+		$msgSendCommand.=((int)$controlledBy!=0)?' 156 '.$controlledBy:'';
+		$msgSendCommand.=($ipAddress!='')?' 58 \''.$ipAddress.'\'':'';
+		$msgSendCommand.=($macAddress!='')?' 47 \''.$macAddress.'\'':'';
+		
+		$out=exec_batch_command($msgSendCommand,1);
+		
+		if(strpos($out,'0:OK')===false){
+			error_redirect('ERROR: Error creating device.','');
+		}
+		
+		$insertID=substr($out,7);
+	
+	
+		if($insertID===false){
+			error_redirect('ERROR: device not created, check if DCE router is running.','');
+		}
 	}
 	
-	$insertID=substr($out,7);
-
-	if($insertID===false){
-		error_redirect('ERROR: device not created, check if DCE router is running.','');
-	}
-	
-//	$dbADO->Execute('UPDATE Device SET FK_Room=? WHERE PK_Device=?',array($roomID,$insertID));
 	
 	return $insertID;
 }
@@ -3672,7 +3678,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 		$color=($i%2==0)?'#F0F3F8':'#FFFFFF';
 		$out.='
 		<tr class="normaltext" bgcolor="'.$color.'">
-			<td><B><a href="index.php?section=irCodes&dtID='.$dtID.'&irGroup='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'&action=pick_code">'.$irgNames[$keysArray[$i]].'</a></B></td>';
+			<td><B><a href="index.php?section=irCodes&dtID='.$dtID.'&irGroup='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'&action=pick_code&resync=true">'.$irgNames[$keysArray[$i]].'</a></B></td>';
 		foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
 			$pk_irgc=@$commandGrouped[$keysArray[$i]][$cmdID];
 			$testCodeBtn=(session_name()=='Pluto-admin' && isset($pk_irgc))?' <input type="button" class="button" name="testCode" value="T" 
@@ -3680,7 +3686,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'\',\'_blank\',\'\');">'.$testCodeBtn:'N/A').'</td>';
 		}
 		$out.='
-			<td><input type="button" class="button" name="btn" onClick="self.location=\'index.php?section=irCodes&action=update&dtID='.$dtID.'&irGroup='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'\';" value="'.$TEXT_THIS_WORKS_CONST.'"></td>
+			<td><input type="button" class="button" name="btn" onClick="self.location=\'index.php?section=irCodes&action=update&dtID='.$dtID.'&irGroup='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'&resync=true\';" value="'.$TEXT_THIS_WORKS_CONST.'"></td>
 		</tr>';
 	}
 	
