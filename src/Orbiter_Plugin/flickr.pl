@@ -9,6 +9,7 @@ use XML::Simple;
 use LWP::UserAgent;
 use Image::Magick;
 use Data::Dumper;
+use DBI;
 use strict;
 
 # Config section. ###########################################
@@ -133,6 +134,34 @@ if ($response->{success} == 1) {
 	print STDERR "Error Message : $response->{error_message}\n";
     }
   }
+
+# Step 1.5 - delete old files
+# Get device data 177 from db (number of files to keep files)
+my $dbh = DBI->connect('dbi:mysql:pluto_main');
+my $sth = $dbh->prepare("
+	SELECT 
+		IK_DeviceData 
+	FROM 
+		Device_DeviceData 
+		INNER JOIN Device ON Device_DeviceData.FK_Device = Device.PK_Device
+	WHERE 
+		Device_DeviceData.FK_DeviceData=177 
+		AND 
+		Device.FK_DeviceTemplate = 12
+");
+$sth->execute || die "Sql Error";
+my $row = $sth->fetchrow_hashref;
+my $noOfFilesToKeep = $row->{IK_DeviceData};
+
+# Remove old files
+my $totalFiles = `find /home/flickr/ -name '*.jpg'  | wc -l`;
+my $extraFiles = $noOfFilesToKeep - $totalFiles;
+my $listToRemove = `find /home/flickr/ -name '*.jpg' | tail $extraFiles`;
+my @arrayToRemove = split (/\n/, $listToRemove);
+
+foreach ( @arrayToRemove ) {
+	`rm -f $_`;
+}
 
 # Step 2 - get files.
 $ua = LWP::UserAgent->new;
