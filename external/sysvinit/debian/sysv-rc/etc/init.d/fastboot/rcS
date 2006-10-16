@@ -338,6 +338,11 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 	. /usr/pluto/bin/SQL_Ops.sh
 fi
 
+## Load the modules listed media director's device data
+if [[ -x /usr/pluto/bin/LoadMDModules.sh ]] ;then
+	/usr/pluto/bin/LoadMDModules.sh
+fi
+
 # assure some settings
 if [[ -x /usr/pluto/bin/Report_Machine_Status.sh ]]; then
 	/usr/pluto/bin/Report_Machine_Status.sh  &
