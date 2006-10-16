@@ -321,7 +321,7 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("MacAddress like '%") + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + "%'";
 
 	if( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get().size() )
-		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("VendorModelId like '") + pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() + "%'";
+		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("'") + pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() + string("' like concat(VendorModelID,'%') and VendorModelID != ''");
 	else if( pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() )
 		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("VendorModelId='DT:") + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get()) + "'";
 
@@ -359,7 +359,7 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 		sSqlWhere = StringUtils::i64tos(pd.m_iMacAddress) + ">=Mac_Range_Low AND " + StringUtils::i64tos(pd.m_iMacAddress) + "<=Mac_Range_High";
 	}
 	else if( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get().size() )  // It's usb or similar that has a vendor/model ID
-		sSqlWhere = "VendorModelID like '" + pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() + "%'";
+		sSqlWhere = string("'") + pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() + string("' like concat(VendorModelID,'%') and VendorModelID != ''");
 	else // Brute force, like RS232 or similar, where we have to check every device that matches the com method
 		sSqlWhere = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PnpDetectionScript IS NOT NULL AND FK_CommMethod=" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get());
 
