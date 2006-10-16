@@ -45,6 +45,11 @@ function devices($output,$dbADO) {
 			$deviceCategory=$GLOBALS['rootCameras'];
 			$specificFloorplanType=$GLOBALS['SecurityFoorplanType'];
 			$output->setHelpSrc('/wiki/index.php/Surveillance_Cameras');
+			$lightsArray=getDevicesArrayFromCategory($GLOBALS['rootLights'],$dbADO);
+			$sensorsArray=getDevicesArrayFromCategory($GLOBALS['rootSecurity'],$dbADO);
+			
+			$lightsRelated=getDevicesRelated($lightsArray,$dbADO);
+			$sensorsRelated=getDevicesRelated($sensorsArray,$dbADO);
 		break;
 		case 'phones':
 			$deviceCategory=$GLOBALS['rootPhones'];
@@ -68,8 +73,6 @@ function devices($output,$dbADO) {
 	}
 	
 	$roomsArray=getAssocArray('Room','PK_Room','Description',$dbADO,'WHERE FK_Installation='.$installationID,'ORDER BY Description ASC');
-
-	$deviceNames=getDeviceNames($dbADO);
 	
 	if(isset($_REQUEST['lastAdded']) && (int)$_REQUEST['lastAdded']!=0){
 		$rs=$dbADO->Execute('SELECT Comments FROM DeviceTemplate WHERE PK_DeviceTemplate=?',(int)$_REQUEST['lastAdded']);
@@ -190,14 +193,29 @@ function devices($output,$dbADO) {
 						<td align="center" class="alternate_back">'.$rowD['PK_Device'].'</td>
 						<td class="alternate_back" align="center" title="'.$TEXT_DEVICE_TEMPLATE_CONST.': '.$rowD['TemplateName'].', '.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"></td>
 						<td>'.pulldownFromArray($roomsArray,'room_'.$rowD['PK_Device'],$rowD['FK_Room']).'</td>
-						<td class="alternate_back"><a href="javascript:windowOpen(\'index.php?section=editDeviceControlledVia&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');" title="'.$TEXT_CLICK_TO_CHANGE_CONST.'">'.((is_null($rowD['FK_Device_ControlledVia']))?$TEXT_EDIT_CONST:$rowD['PDescription']).'</a></td>
+						<td class="alternate_back"><a href="javascript:windowOpen(\'index.php?section=editDeviceControlledVia&deviceID='.$rowD['PK_Device'].'&from='.urlencode('devices&type='.$type).'\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');" title="'.$TEXT_CLICK_TO_CHANGE_CONST.'">'.((is_null($rowD['FK_Device_ControlledVia']))?$TEXT_EDIT_CONST:$rowD['PDescription']).'</a></td>
 						<td align="right" valign="top">'.formatDeviceData($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']],$dbADO,$rowD['IsIPBased'],@$specificFloorplanType,1).'</td>
 						<td align="center" valign="center" class="alternate_back">
 							<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'/wiki/index.php/Documentation_by_Device_Templates#'.wikiLink($rowD['TemplateName']).'\'"><br>
 							<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
 							<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onClick="if(!confirm(\'Are you sure you want to delete this device?\'))return false;">
 						</td>
-					</tr>
+					</tr>';
+					if($type=='surveillance_cameras'){
+						$associatedLightText=(count(@$lightsRelated[$rowD['PK_Device']])>0)?join(', ',array_values($lightsRelated[$rowD['PK_Device']])):'- '.$TEXT_NO_DEVICES_ASSOCIATED_CONST.' -';
+						$associatedSensorsText=(count(@$sensorsRelated[$rowD['PK_Device']])>0)?join(', ',array_values($sensorsRelated[$rowD['PK_Device']])):'- '.$TEXT_NO_DEVICES_ASSOCIATED_CONST.' -';
+						
+						$out.='
+						<tr class="alternate_back">
+							<td colspan="5" style="padding-left:10px;"><B>'.$TEXT_LIGHTS_CONST.':</B> '.$associatedLightText.'</td>
+							<td><input type="button" class="button_fixed" name="edit1" value='.$TEXT_EDIT_CONST.' onClick="windowOpen(\'index.php?section=editCameraRelated&deviceID='.$rowD['PK_Device'].'&from='.urlencode('devices&type='.$type).'&type=lights\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');"></td>
+						</tr>
+						<tr class="alternate_back">
+							<td colspan="5" style="padding-left:10px;"><B>'.$TEXT_SENSORS_CONST.':</B> '.$associatedSensorsText.'</td>
+							<td><input type="button" class="button_fixed" name="edit2" value='.$TEXT_EDIT_CONST.' onClick="windowOpen(\'index.php?section=editCameraRelated&deviceID='.$rowD['PK_Device'].'&from='.urlencode('devices&type='.$type).'&type=sensors\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');"></td>
+						</tr>';
+					}
+					$out.='
 					<tr>
 						<td colspan="8" height="3" bgcolor="black"><img src="include/images/spacer.gif" border="0" height="1" width="1"></td>
 					</tr>';
@@ -272,8 +290,8 @@ function devices($output,$dbADO) {
 				$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
 				$controlledBy=(@$_POST['controlledBy_'.$value]!=0)?(int)@$_POST['controlledBy_'.$value]:NULL;
 				
-				$updateDevice='UPDATE Device SET Description=?, FK_Room=?,FK_Device_ControlledVia =? '.@$updateMacIp.' WHERE PK_Device=?';
-				$dbADO->Execute($updateDevice,array($description,$room,$controlledBy,$value));
+				$updateDevice='UPDATE Device SET Description=?, FK_Room=? '.@$updateMacIp.' WHERE PK_Device=?';
+				$dbADO->Execute($updateDevice,array($description,$room,$value));
 
 				foreach($DeviceDataToDisplayArray as $ddValue){
 					if(isset($_POST['oldDeviceData_'.$value.'_'.$ddValue])){
@@ -335,5 +353,19 @@ function devices($output,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();
+}
+
+function getDevicesRelated($devicesRelated,$dbADO){
+	$devices=array();
+	if(count($devicesRelated)==0){
+		return $devices;
+	}
+	
+	$res=$dbADO->Execute('SELECT * FROM Device_Device_Related WHERE FK_Device IN ('.join(',',array_keys($devicesRelated)).')');
+	while($row=$res->FetchRow()){
+		$devices[$row['FK_Device_Related']][$row['FK_Device']]=$devicesRelated[$row['FK_Device']];
+	}
+	
+	return $devices;
 }
 ?>
