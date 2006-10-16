@@ -585,13 +585,6 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 			Distance_Secondary=Distance;
 			pObj_Secondary=p;
 		}
-
-		//ok, not a primary as best direction, but maybe a good candidate for its second direction?
-		if(Direction_Primary!=PK_Direction && Distance < Distance_Primary)
-		{
-			Distance_Primary = Distance;
-			pObj_Primary=p;
-		}
 	}
 
 	if( pObj_Primary )
