@@ -14,6 +14,7 @@
 #include "PlutoUtils/StringUtils.h"
 #include "DCE/Logger.h"
 #include "IncomingCallNotifier.h"
+#include "Win32/DrawTextExUTF8.h"
 
 using namespace DCE;
 
@@ -1416,12 +1417,9 @@ void OrbiterApp::SetCaptureKeyboard(bool bOnOff, bool bDataGrid, bool bReset, in
 
 	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
 
-	string sText(Text);
-    wchar_t wText[1024];
-    mbstowcs(wText, sText.c_str(), 1024);
-	
 	RECT rectLocation = { r.left, r.top, r.right, r.bottom };
-    ::DrawText(hdc, wText, sText.length(), &rectLocation, DT_WORDBREAK | DT_NOPREFIX); 
+	DrawTextExUTF8(hdc, Text, -1, &rectLocation, 
+		DT_WORDBREAK | DT_NOPREFIX, NULL); 
 
 	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
 	return true;

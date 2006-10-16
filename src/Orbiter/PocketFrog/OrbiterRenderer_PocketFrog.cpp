@@ -8,6 +8,7 @@
 #include "ProgressDialog.h"
 #include "ScreenHistory.h"
 #include "Orbiter.h"
+#include "Win32/DrawTextExUTF8.h"
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 #include "Win32/MouseBehavior_Win32.h"
@@ -934,21 +935,9 @@ void OrbiterRenderer_PocketFrog::RenderText(HDC hdc,string &TextToDisplay,PlutoR
 	hFontNew = ::CreateFontIndirect(&lf);
 	hFontOld = (HFONT) ::SelectObject(hdc_drawing, hFontNew);
 	
-
-#ifdef WINCE
-    wchar_t wText[1024];
-    mbstowcs(wText, TextToDisplay.c_str(), 1024);
-#endif
-
-#ifndef WINCE
-	#define TEXT_TO_RENDER TextToDisplay.c_str()
-#else
-	#define TEXT_TO_RENDER wText
-#endif
-
 	//calculate rect first
-	::DrawText(hdc_drawing, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
-		DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT | DT_MODIFYSTRING | DT_END_ELLIPSIS ); 
+	DrawTextExUTF8(hdc_drawing, (LPSTR)TextToDisplay.data(), (int)TextToDisplay.length(), &rectLocation, 
+		DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT | DT_MODIFYSTRING | DT_END_ELLIPSIS, NULL); 
 
 	int iRealHeight = rectLocation.bottom;
 	if( iRealHeight>rPosition.Height )
@@ -970,23 +959,11 @@ void OrbiterRenderer_PocketFrog::RenderText(HDC hdc,string &TextToDisplay,PlutoR
  	::SetTextColor(hdc_drawing, RGB(ForeColor.R(), ForeColor.G(), ForeColor.B()));
 	::SetBkMode(hdc_drawing, TRANSPARENT);
 
-	switch (iPK_HorizAlignment)
-	{
-		case HORIZALIGNMENT_Left_CONST: 
-			::DrawText(hdc_drawing, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
-				DT_WORDBREAK | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
-		break;
+	UINT uiFlag = DT_WORDBREAK | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS;
+	if(iPK_HorizAlignment != HORIZALIGNMENT_Left_CONST)
+		uiFlag |= DT_CENTER;
 
-        case HORIZALIGNMENT_Center_CONST: 
-            ::DrawText(hdc_drawing, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
-                DT_WORDBREAK | DT_CENTER | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
-        break;
-
-        default: 
-            ::DrawText(hdc_drawing, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
-				DT_WORDBREAK | DT_CENTER | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
-            break;
-	}
+	DrawTextExUTF8(hdc_drawing, (LPSTR)TextToDisplay.data(), (int)TextToDisplay.length(), &rectLocation, uiFlag, NULL);
 
 	::SelectObject(hdc_drawing, hFontOld);
 	::DeleteObject(hFontNew);
