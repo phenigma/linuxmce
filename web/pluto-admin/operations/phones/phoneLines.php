@@ -231,7 +231,7 @@ function phoneLinesTable($astADO){
 		INNER JOIN sip sips ON (sips.id=sip.id) AND (sips.keyword='secret')
 		INNER JOIN sip sipp ON (sipp.id=sip.id) AND (sipp.keyword='username')
 		INNER JOIN sip siph ON (siph.id=sip.id) AND (siph.keyword='host')
-		WHERE (sip.keyword='account') AND ((sip.data='broadvoice') OR (sip.data='sipgate') OR (sip.data='inphonex'))");
+		WHERE (sip.keyword='account') AND ((sip.data='broadvoice') OR (sip.data='sipgate') OR (sip.data='inphonex') OR (sip.data='voiceeclipse'))");
 	$out='
 	<table align="center" cellpadding="3" cellspacing="0">
 		<tr class="tablehead">
@@ -271,7 +271,7 @@ function phoneLinesTable($astADO){
 		INNER JOIN iax iaxs ON (iaxs.id=iax.id) AND (iaxs.keyword='secret')
 		INNER JOIN iax iaxp ON (iaxp.id=iax.id) AND (iaxp.keyword='username')
 		INNER JOIN iax iaxh ON (iaxh.id=iax.id) AND (iaxh.keyword='host')
-		WHERE (iax.keyword='account') AND ((iax.data='fwd') OR (iax.data='teliax-out') OR (iax.data='efon') OR (iax.data='nufone-out'))");
+		WHERE (iax.keyword='account') AND ((iax.data='fwd') OR (iax.data='teliax-out') OR (iax.data='efon') OR (iax.data='nufone-out') OR (iax.data='freeworddialup'))");
 	while($row=$res->FetchRow()){
 		$incomingData=array_values(getAssocArray('incoming','destination','extension',$astADO,'WHERE destination=\'from-pluto-custom,10'.substr($row['id'],-1).',1\''));
 		$phoneNumber=@$incomingData[0];
@@ -280,7 +280,8 @@ function phoneLinesTable($astADO){
 		$color=($count%2==0)?'#F0F3F8':'#FFFFFF';
 		$out.='
 		<tr bgcolor="'.$color.'">
-			<td>IAX</td>
+			<td>
+			IAX</td>
 			<td>'.$row['data'].'</td>
 			<td>'.$row['sdata'].'</td>
 			<td>'.$row['pdata'].'</td>
@@ -347,7 +348,7 @@ function getPLDetails($id,$type,$astADO){
 			INNER JOIN sip sips ON (sips.id=sip.id) AND (sips.keyword='secret')
 			INNER JOIN sip sipp ON (sipp.id=sip.id) AND (sipp.keyword='username')
 			INNER JOIN sip siph ON (siph.id=sip.id) AND (siph.keyword='host')
-			WHERE (sip.keyword='account') AND ((sip.data='broadvoice') OR (sip.data='sipgate') OR (sip.data='inphonex')) AND sip.id='$id'");
+			WHERE (sip.keyword='account') AND ((sip.data='broadvoice') OR (sip.data='sipgate') OR (sip.data='inphonex') OR (sip.data='voiceeclipse')) AND sip.id='$id'");
 	}else{
 		$res=$astADO->Execute("
 			SELECT iax.id,iax.data,iaxs.data AS sdata, iaxp.data AS pdata,iaxh.data AS hdata 
@@ -355,7 +356,7 @@ function getPLDetails($id,$type,$astADO){
 			INNER JOIN iax iaxs ON (iaxs.id=iax.id) AND (iaxs.keyword='secret')
 			INNER JOIN iax iaxp ON (iaxp.id=iax.id) AND (iaxp.keyword='username')
 			INNER JOIN iax iaxh ON (iaxh.id=iax.id) AND (iaxh.keyword='host')
-			WHERE (iax.keyword='account') AND ((iax.data='fwd') OR (iax.data='teliax-out') OR (iax.data='efon')) AND iax.id='$id'");
+			WHERE (iax.keyword='account') AND ((iax.data='fwd') OR (iax.data='teliax-out') OR (iax.data='efon') OR (iax.data='nufone-out') OR (iax.data='freeworddialup')) AND iax.id='$id'");
 	}
 	$data=array();
 	$row=$res->FetchRow();
