@@ -37,6 +37,7 @@ namespace DCE
         /** Private member variables */
 	DeviceData_Base *m_pDevice_MythTV_Plugin;
 	PlainClientSocket *m_pMythSocket; 
+	string m_sChannel;
 
 	pthread_t		     m_threadMonitorMyth;
         int                          m_iControllingDevice;

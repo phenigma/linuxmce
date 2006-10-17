@@ -279,6 +279,7 @@ void MythTV_Player::pollMythStatus()
 				{
 					m_CurTime = StringUtils::TimeAsSeconds(vectResults[2]);
 					m_EndTime = StringUtils::TimeAsSeconds(vectResults[4]);
+					m_sChannel = vectResults[6];
 					
 					// Have a 2 second "buffer" for switching between live and nonlive modes so we don't get 
 					// flapping.    Unfortunately it takes live TV so long to start up at times that we need
@@ -826,6 +827,9 @@ void MythTV_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStrea
 			sendMythCommand("key P");
 	}
 	selectWindow();
+
+	if( sMediaPosition.empty()==false )
+		CMD_Tune_to_channel("",sMediaPosition);
 #endif
 }
 
@@ -843,6 +847,9 @@ void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &
 {
 #ifndef WIN32
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+
+	*sMediaPosition = m_sChannel;
+
 	m_mythStatus = MYTHSTATUS_DISCONNECTED;
 
 	vector<void *> data;
