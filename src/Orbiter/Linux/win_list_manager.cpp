@@ -43,10 +43,12 @@ void WinListManager::ShowSdlWindow(bool bExclusive)
     m_pWMController->SetVisible(m_sSdlWindowName, !m_bHideSdlWindow);
     m_pWMController->SetMaximized(m_sSdlWindowName, true);
     m_pWMController->SetLayer(m_sSdlWindowName, bExclusive ? LayerAbove : LayerBelow);
-    if (bExclusive)
-        ActivateSdlWindow();
-    else
-        m_pWMController->ActivateWindow(sLastWindow);
+
+    if (!m_bHideSdlWindow)
+		ActivateSdlWindow();
+
+	//else
+    //    m_pWMController->ActivateWindow(sLastWindow);
     // TODO: possible bugfix: no FullScreen attribute
     m_pWMController->SetFullScreen(m_sSdlWindowName, bExclusive);
     return;
