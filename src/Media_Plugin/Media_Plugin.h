@@ -528,7 +528,10 @@ public:
 			bool bIsOSD=pMediaStream->OrbiterIsOSD(dwPK_Device,&pEntertainArea_OSD);
 			int PK_Screen = pMediaStream->GetRemoteControlScreen(dwPK_Device);
 			PK_Device_Source = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
-			iDequeMediaFile = pMediaStream->m_iDequeMediaFile_Pos;
+			if( pMediaStream->m_iTrackOrSection==-1 )
+				iDequeMediaFile = pMediaStream->m_iDequeMediaFile_Pos;
+			else
+				iDequeMediaFile = pMediaStream->m_iTrackOrSection;
 
 			string sMediaDevices = StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device)
 				+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_Video ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_Video->m_dwPK_Device) : "")

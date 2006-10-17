@@ -219,41 +219,9 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 		}
 	}
 
-/*
-	if ( pMythTvMediaStream->ShouldTuneToNewChannel() )
-	{
-		if ( WatchTVResult_Tuned == m_pMythWrapper->ProcessWatchTvRequest( pMythTvMediaStream->m_iNextProgramChannelID,
-					pMythTvMediaStream->m_iNextProgramTimeYear, pMythTvMediaStream->m_iNextProgramTimeMonth, pMythTvMediaStream->m_iNextProgramTimeDay,
-					pMythTvMediaStream->m_iNextProgramTimeHour, pMythTvMediaStream->m_iNextProgramTimeMinute))
-		{
+	DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,"",pMythTvMediaStream->m_iPK_MediaType( ),pMythTvMediaStream->m_iStreamID_get( ),pMediaStream->m_sLastPosition);
+	SendCommand(cmd);
 
-			// The player knows how to actually tune to the proper channel. There is no need to hit the database for the proper xmltv id here.
-			DCE::CMD_Tune_to_channel tuneCommand(
-					m_dwPK_Device,
-					pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-					"",
-					StringUtils::itos(pMythTvMediaStream->m_iNextProgramChannelID));
-
-			SendCommand(tuneCommand);
-		}
-		else
-		{
- AB - 2005-07-04 I don't think this was ever working??
-			DCE::CMD_Goto_DesignObj cmdGotoDesignObj(
-                    m_dwPK_Device, pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
-                    0, StringUtils::itos(DESIGNOBJ_mnuPVROptions_CONST).c_str(),
-                    "", "", false, false);
-			SendCommand(cmdGotoDesignObj);
-
-			return true;
-		}
-	}
-	else
-	{*/
-		// if there is no next channel to tune then just start it.
-		DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,"",pMythTvMediaStream->m_iPK_MediaType( ),pMythTvMediaStream->m_iStreamID_get( ),pMediaStream->m_sLastPosition);
-		SendCommand(cmd);
-//	}
 #endif
     return true;
 }
@@ -289,21 +257,6 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 	// since this mutex is recursive the release here is useless and the same apply for all the media plugin processing functions.
 	mm.Release();
 
-	/** Changing send with confirmation to a simple SendCommand because of the locking issues. We can never be sure that the
-		Target device will answer us.
-
-
-	string Response;
-    if( !SendCommand(cmd, &Response) )
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL,"MythTV player didn't respond to stop media command!");
-		// TODO: See how to handle failure here
-        return false;
-    }
-
-    g_pPlutoLogger->Write(LV_STATUS,"MythTV player responded to stop media command!");
-    return true;
-*/
 	g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::StopMedia(): Sending command to stop media to the player: %d", pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	SendCommand(cmd);
 	g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::StopMedia(): Returning from stop media command to the player: %d last pos %s", 
@@ -438,7 +391,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 		"FROM program p "
 		"INNER JOIN channel c ON c.chanid = p.chanid "
 		"WHERE '" + StringUtils::SQLDateTime() + "' BETWEEN p.starttime and p.endtime " + sProvider +
-		"ORDER BY c.channum";
+		" ORDER BY cast(c.channum as unsigned)";
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	int iRow=0;

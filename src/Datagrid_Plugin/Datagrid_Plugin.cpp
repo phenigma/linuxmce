@@ -212,6 +212,8 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 			sSeek = StringUtils::ToUpper(sSeek);
 			// We need to do a seek for this value
 			int dgrow;
+
+			bool bFound=false;
 			// Scroll through here until we find the row right after
 			for(dgrow=0;dgrow<pDataGridTable->GetRows();++dgrow)
 			{
@@ -257,16 +259,23 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 				// a value and will assume anything past the value is okay.
 				if( bValue==false && CellText>sSeek )
 				{
+					bFound=true;
 					break;
 				}
 				if( bValue==true && CellText==sSeek )
 				{
+					bFound=true;
 					break;
 				}
 			}
-			if( dgrow>0 )
-				--dgrow; // We're always the cell 1 after
-			*iRow=dgrow;
+
+			// If we didn't find anything, and we're seeking for a particular value, don't set iRow, just stay at the top
+			if( bFound || bValue==false )
+			{
+				if( dgrow>0 )
+					--dgrow; // We're always the cell 1 after
+				*iRow=dgrow;
+			}
 #ifdef DEBUG
 g_pPlutoLogger->Write( LV_DATAGRID, "Seek row %d",*iRow);
 #endif

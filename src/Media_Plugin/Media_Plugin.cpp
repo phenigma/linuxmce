@@ -1241,7 +1241,7 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 	}
 
 	// Find the media player to play this capture card
-	DeviceData_Base *pDevice_MediaPlayer = ((DeviceData_Router *) pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard)->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
+	DeviceData_Router *pDevice_MediaPlayer = (DeviceData_Router *) ((DeviceData_Router *) pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard)->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
 
 	// Find the device
 	string sDevice = pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_mapParameters_Find(DEVICEDATA_Block_Device_CONST);
@@ -1253,6 +1253,8 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard - Device is empty or no media player for %d",pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device);
 		return;
 	}
+
+	pMediaStream->m_sAppName = pDevice_MediaPlayer->m_mapParameters_Find(DEVICEDATA_Name_CONST);
 
 	// See if there's a utility needed to switch to this port
 	string sPortSelectUtility = pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_mapParameters_Find(DEVICEDATA_File_Name_and_Path_CONST);
@@ -4475,7 +4477,7 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 	{
 		m_pDatabase_pluto_media->Bookmark_get()->GetRows(
 			"EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + 
-			" AND FK_Disk=" + StringUtils::itos(pMediaStream->m_dwPK_Disc) + " AND IsAutoResume=1 AND Description<>'START'",
+			" AND FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc) + " AND IsAutoResume=1 AND Description<>'START'",
 			&vectRow_Bookmark);
 
 		if( vectRow_Bookmark.size() )
@@ -4808,6 +4810,10 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 	{
 		pMediaStream->m_dwPK_Disc = PK_Disc;
 		m_pMediaAttributes->LoadStreamAttributesForDisc(pMediaStream);
+		int iPK_Orbiter_PromptingToResume = CheckForAutoResume(pMediaStream);
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Media_Identified disc %d resume on orbiter %d",PK_Disc,iPK_Orbiter_PromptingToResume);
+#endif
 	}
 
 	m_pMediaAttributes->m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);

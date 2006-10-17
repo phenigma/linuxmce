@@ -591,6 +591,14 @@ static bool MediaSectionGridComparer(MediaSectionGrid *x, MediaSectionGrid *y)
 class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	string::size_type pos;
+	string s1 = StringUtils::Tokenize( Parms, ",", pos );	// What were these for?
+	string s2 = StringUtils::Tokenize( Parms, ",", pos );	// What were these for?
+	string s3 = StringUtils::Tokenize( Parms, ",", pos );	// What were these for?
+	string s4 = StringUtils::Tokenize( Parms, ",", pos );	// What were these for?
+	int PK_User = atoi(StringUtils::Tokenize( Parms, ",", pos ).c_str());
+
 	*iPK_Variable=VARIABLE_Track_or_Playlist_Positio_CONST;
 	*sValue_To_Assign="";
 
@@ -673,6 +681,24 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 				listMediaSectionGrid.push_back(new MediaSectionGrid(it->first.second,it->first.first,new DataGridCell(it->second, StringUtils::itos(it->first.first))));
 
 		}
+	}
+
+	string sBookmarks;
+	if( pMediaStream->m_dwPK_Disc )
+		sBookmarks = "FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc) + " AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(pMediaStream->m_iPK_Users)+")";
+	else if( pMediaStream->m_dequeMediaFile.size() &&
+		pMediaStream->m_iDequeMediaFile_Pos>=0 &&
+		pMediaStream->m_iDequeMediaFile_Pos<pMediaStream->m_dequeMediaFile.size() )
+	{
+		MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
+		sBookmarks = "FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File) + " AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(pMediaStream->m_iPK_Users)+")";
+	}
+	if( sBookmarks.empty()==false )
+	{
+		vector<Row_Bookmark *> vectRow_Bookmark;
+		m_pDatabase_pluto_media->Bookmark_get()->GetRows(sBookmarks,&vectRow_Bookmark);
+		for(vector<Row_Bookmark *>::iterator it=vectRow_Bookmark.begin();it!=vectRow_Bookmark.end();++it)
+			listMediaSectionGrid.push_back(new MediaSectionGrid(0,(*it)->PK_Bookmark_get(),new DataGridCell((*it)->Description_get(),(*it)->Position_get())));
 	}
 
 	listMediaSectionGrid.sort(MediaSectionGridComparer);

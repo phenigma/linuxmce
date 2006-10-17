@@ -63,6 +63,7 @@ RemoteControlSet::RemoteControlSet(Row_DeviceTemplate_MediaType_DesignObj *pRow_
 MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, MediaDevice *pMediaDevice, int PK_Users, enum SourceType sourceType, int iStreamID )
 {
 	m_dwPK_Disc=m_discid=0;
+	m_iTrackOrSection=-1;
     m_iStreamID = iStreamID;
     m_pMediaHandlerInfo=pMediaHandlerInfo;
 	m_IdentifiedPriority=0;
