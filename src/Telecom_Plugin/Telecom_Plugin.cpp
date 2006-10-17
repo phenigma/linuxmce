@@ -1142,7 +1142,7 @@ void Telecom_Plugin::CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,st
 bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
 	bool bRegistered = pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST]=="1";
-	g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::OrbiterRegistered orbiter %d registered %d",pDeviceFrom->m_dwPK_Device,(int) bRegistered);
+	g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::OrbiterRegistered orbiter %d registered %d",pMessage->m_dwPK_Device_From,(int) bRegistered);
 	
 	if( bRegistered )
 	{

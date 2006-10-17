@@ -408,8 +408,8 @@ MythTvMediaStream* MythTV_PlugIn::ConvertToMythMediaStream(MediaStream *pMediaSt
 	return static_cast<MythTvMediaStream*>(pMediaStream);
 }
 
-class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
-                        , Message *pMessage)
+class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign,
+	Message *pMessage)
 {
     int nWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
 	DataGridTable *pDataGridTable = new DataGridTable();
@@ -891,5 +891,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 		char * args[] = { "/etc/init.d/mythtv-backend", "restart", NULL };
 		ProcessUtils::SpawnDaemon(args[0], args);
 		
+		char * args[] = { "mythfilldatabase", "--import-icon-map", "/home/mythtv/master_iconmap.xml", "--update-icon-map", NULL };
+		ProcessUtils::SpawnDaemon(args[0], args);
 	}
 }
