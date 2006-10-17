@@ -164,6 +164,13 @@ public:
 template<class T> inline static T Dist( T x,  T y ) { return x * x + y * y; }
 //------------------------------------------------------------------------
 void *MaintThread(void *p);
+
+#ifndef WIN32
+#ifdef ORBITER_OPENGL
+	void *ProcessHIDEvents(void *p);
+#endif
+#endif
+
 void *UpdateTimeCodeThread(void *p);
 static bool bMaintThreadIsRunning = false;
 bool ScreenHistory::m_bAddToHistory=true;
@@ -322,6 +329,14 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 
 	pthread_create(&m_MaintThreadID, NULL, MaintThread, (void*)this);
 	pthread_detach(m_MaintThreadID);
+
+#ifndef WIN32
+#ifdef ORBITER_OPENGL
+	pthread_t HidThreadID;
+	pthread_create(&HidThreadID, NULL, ProcessHIDEvents, (void*)this);
+	pthread_detach(HidThreadID);
+#endif
+#endif
 
 	srand( (unsigned)time( NULL ) );  // For the screen saver
 

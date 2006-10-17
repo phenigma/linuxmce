@@ -1,4 +1,3 @@
-
 #include "DCE/Logger.h"
 #include "XRecordExtensionHandler.h"
 

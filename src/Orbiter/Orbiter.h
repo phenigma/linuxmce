@@ -647,7 +647,8 @@ namespace DCE
 				REGION_DOWN, // mouse
 				REGION_UP,
 				MOUSE_MOVE,
-				MOUSE_RELATIVE_MOVE
+				MOUSE_RELATIVE_MOVE,
+				HID
 			} EventType;
 
 			EventType type;
@@ -662,6 +663,10 @@ namespace DCE
 					int m_iX;
 					int m_iY;
 				} region;
+
+				struct {
+					int m_iHid;
+				} hid;
 			} data;
 		};
 
