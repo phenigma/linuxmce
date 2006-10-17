@@ -251,7 +251,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 	else
 	{*/
 		// if there is no next channel to tune then just start it.
-		DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,"",MEDIATYPE_pluto_LiveTV_CONST,0,"");
+		DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,"",pMythTvMediaStream->m_iPK_MediaType( ),pMythTvMediaStream->m_iStreamID_get( ),pMediaStream->m_sLastPosition);
 		SendCommand(cmd);
 //	}
 #endif
@@ -306,7 +306,9 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 */
 	g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::StopMedia(): Sending command to stop media to the player: %d", pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	SendCommand(cmd);
-	g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::StopMedia(): Returning from stop media command to the player: %d", pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+	g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::StopMedia(): Returning from stop media command to the player: %d last pos %s", 
+		pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, sLastPosition.c_str());
+	pMediaStream->m_sLastPosition=sLastPosition;
 
 	return true;
 }

@@ -829,8 +829,11 @@ bool Media_Plugin::PlaybackStarted( class Socket *pSocket,class Message *pMessag
 	return false;
 }
 
-void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, int iPK_DeviceTemplate, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, vector<MediaStream *> *p_vectMediaStream)
+void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *>  &vectEntertainArea, int iPK_Device, int iPK_DeviceTemplate, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, vector<MediaStream *> *p_vectMediaStream)
 {
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::StartMedia iPK_MediaType %d iPK_MediaProvider %d iPK_Device_Orbiter %d vectEntertainArea %d iPK_Device %d iPK_DeviceTemplate %d p_dequeMediaFile bResume %d iRepeat %d sStartingPosition %s p_vectMediaStream %p",
+		iPK_MediaType, iPK_MediaProvider, iPK_Device_Orbiter, (int) vectEntertainArea.size(), iPK_Device, iPK_DeviceTemplate, p_dequeMediaFile, (int) bResume, iRepeat, sStartingPosition.c_str(), p_vectMediaStream);
+
 	if( !iPK_MediaType && p_dequeMediaFile->size() )
 	{
         string Extension = StringUtils::ToUpper(FileUtils::FindExtension((*p_dequeMediaFile)[0]->m_sFilename));
@@ -2469,7 +2472,7 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 	}
 
 	g_pPlutoLogger->Write(LV_WARNING,"Move Media, stream %d  ea: %s",iStreamID,sPK_EntertainArea.c_str());
-
+	// Note: The entertainment area is probably a negative number, because orbiter does thata to differentiate between devices and EA
 
 	vector<EntertainArea *> vectEntertainArea;
 	if( sPK_EntertainArea.size() )  // If it's empty, we're just parking the media
