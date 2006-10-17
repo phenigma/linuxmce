@@ -608,7 +608,7 @@ void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,stri
 		g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
 		return;
 	}
-	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_CONST)
+	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_OnScreen_Orbiter_CONST)
 	{
     	pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device]);
  		if(!pDeviceData) {
@@ -617,14 +617,19 @@ void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,stri
 		}
 		iPK_Device = map_orbiter2embedphone[iPK_Device];
 	}
-	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST)
+
+g_pPlutoLogger->Write(LV_CRITICAL, "our device is : id %d template %d", 
+					  pDeviceData->m_dwPK_Device,
+					  pDeviceData->m_dwPK_DeviceTemplate);
+
+/*	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Will originate using CMD_Phone_Initiate device#%d dial %s",iPK_Device,sPhoneExtension.c_str());
 		DCE::CMD_Phone_Initiate cmd(m_dwPK_Device,iPK_Device,sPhoneExtension);
 		SendCommand(cmd);
 		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(iPK_Device);
 		if(!pCallData) {
-			/*create new call data*/
+			//create new call data
 			pCallData = new CallData();
 			pCallData->setOwnerDevID(iPK_Device);
 			CallManager::getInstance()->addCall(pCallData);
@@ -632,10 +637,12 @@ void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,stri
 		pCallData->setState(CallData::STATE_ORIGINATING);
 		return;
 	}
+*/
 	if(sPhoneCallerID == "")
 	{
 		sPhoneCallerID="pluto";
 	}
+
 	/*find phonetype and phonenumber*/
 	string sSrcPhoneType = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneType_CONST);
 	string sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
@@ -647,11 +654,13 @@ void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,stri
 	DeviceData_Router* pPBXDevice = find_AsteriskDevice();
 	if(pPBXDevice) {
 
-		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
+		int dwPK_FromDevice = NULL != pMessage ? pMessage->m_dwPK_Device_From : iPK_Device;
+
+		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(dwPK_FromDevice);
 		if(!pCallData) {
 			/*create new call data*/
 			pCallData = new CallData();
-			pCallData->setOwnerDevID(pMessage->m_dwPK_Device_From);
+			pCallData->setOwnerDevID(dwPK_FromDevice);
 			CallManager::getInstance()->addCall(pCallData);
 		}
 
@@ -1825,6 +1834,29 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 					sPhoneNumber = pDevice->m_mapParameters_Find(DEVICEDATA_Mobile_Orbiter_Phone_CONST);
 			}
 		}
+        
+		if( sPhoneNumber.empty() ) //maybe we are a OnScreen Orbiter; let's find the simple phone child
+		{
+			if(NULL != pDevice)
+			{
+g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : last try... the simple phone");
+
+				vector<DeviceData_Router *> vectDeviceData_Router;
+                pDevice->FindChildrenWithinCategory(DEVICECATEGORY_Soft_Phones_CONST, vectDeviceData_Router);
+
+g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found %d simple phones", vectDeviceData_Router.size());
+
+				if(vectDeviceData_Router.size() >= 1)
+				{
+					DeviceData_Router *pDeviceData_Router = *vectDeviceData_Router.begin();
+
+g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found device %d", pDeviceData_Router->m_dwPK_Device);
+					sPhoneNumber = pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+					g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found phone number of embedded phone %s", sPhoneNumber.c_str());
+				}
+			}
+		}
+
 		if( sPhoneNumber.empty() )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Telecom_Plugin::CMD_Speak_in_house -- can't find a phone number");
@@ -1862,7 +1894,7 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 				{
 					// Don't know how to do the speak in house only with the device's extensions provided??	CMD_PL_Originate(0,"998",sPhoneNumber);
 					g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in house with %s",sList_PK_Device.c_str());
-					CMD_PL_Originate(0,sList_PK_Device,sPhoneNumber);
+					CMD_PL_Originate(iPK_Device,sExtension,sPhoneNumber);
 					return;
 				}
 			}
@@ -1872,12 +1904,12 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 		else
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Doing a speak throughout the house");
-			CMD_PL_Originate(0,"998",sPhoneNumber);
+			CMD_PL_Originate(iPK_Device,"998",sPhoneNumber);
 			return;
 		}
 	}
 
 	// Don't know how to do the speak in house only with the device's extensions provided??	CMD_PL_Originate(0,"998",sPhoneNumber);
 	g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in house with %s",sList_PK_Device.c_str());
-	CMD_PL_Originate(0,sList_PK_Device,sPhoneNumber);	
+	CMD_PL_Originate(iPK_Device,sList_PK_Device,sPhoneNumber);	
 }
