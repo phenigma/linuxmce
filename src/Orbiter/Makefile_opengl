@@ -35,7 +35,7 @@ sources += \
 	Linux/win_list_manager.cpp \
 	Linux/OSDCompass.cpp \
 	Linux/OrbiterRenderer_Linux.cpp \
-	Linux/HIDInterface.cpp \
+#	Linux/HIDInterface.cpp \
 	DesignObj_Data.cpp \
 	DesignObj_Orbiter.cpp \
 	DesignObj_DataGrid.cpp \
