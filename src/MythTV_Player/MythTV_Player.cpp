@@ -253,7 +253,7 @@ void MythTV_Player::pollMythStatus()
 			g_pPlutoLogger->Write(LV_CRITICAL,"Failed initial communications with Mythfrontend.");
 			vector<void *> data;
 			ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data);			
-		}		
+		}
 	} 
 	else if (m_mythStatus != MYTHSTATUS_DISCONNECTED)
 	{
@@ -263,6 +263,15 @@ void MythTV_Player::pollMythStatus()
 
 		if(sResult.length())
 		{
+			// We're up and running, if there's an initial channel to tune to do it now
+			if( m_sInitialChannel.empty()==false )
+			{
+				mm2.Release();
+				CMD_Tune_to_channel("",m_sInitialChannel);
+				m_sInitialChannel="";
+				mm2.Relock();
+			}
+
 			vector<string> vectResults;
 			StringUtils::Tokenize(sResult, " ", vectResults);
 
@@ -828,9 +837,8 @@ void MythTV_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStrea
 	}
 	selectWindow();
 
-	mm.Release();
-	if( sMediaPosition.empty()==false )
-		CMD_Tune_to_channel("",sMediaPosition);
+	// Set the initial channel to tune to after startup
+	m_sInitialChannel = sMediaPosition;
 #endif
 }
 
