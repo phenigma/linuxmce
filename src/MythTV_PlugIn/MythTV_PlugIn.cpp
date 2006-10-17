@@ -891,7 +891,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 		char * args[] = { "/etc/init.d/mythtv-backend", "restart", NULL };
 		ProcessUtils::SpawnDaemon(args[0], args);
 		
-		char * args[] = { "mythfilldatabase", "--import-icon-map", "/home/mythtv/master_iconmap.xml", "--update-icon-map", NULL };
-		ProcessUtils::SpawnDaemon(args[0], args);
+		char * args_icon[] = { "mythfilldatabase", "--import-icon-map", "/home/mythtv/master_iconmap.xml", "--update-icon-map", NULL };
+		ProcessUtils::SpawnDaemon(args_icon[0], args_icon);
 	}
 }
