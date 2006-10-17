@@ -828,6 +828,7 @@ void MythTV_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStrea
 	}
 	selectWindow();
 
+	mm.Release();
 	if( sMediaPosition.empty()==false )
 		CMD_Tune_to_channel("",sMediaPosition);
 #endif
