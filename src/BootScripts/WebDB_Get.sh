@@ -33,7 +33,18 @@ PSC=$(head -2 "$OutputFile" | tail -1)
 PSC="${PSC#-- psc_id: }"
 
 if [[ -n "$Table" && -n "$PSC" ]]; then
+	## Get a list of local modified records
+	Q="SELECT pcd_id FROM $Table WHERE psc_id IN ($PSC) AND psc_mod != 0"
+	LocalModifiedPscIDs=$(RunSQL "$Q" | tr ' ' ',')
+
+	## Remove all non local modified records
 	Q="DELETE FROM $Table WHERE psc_id IN ($PSC) AND psc_mod=0"
+
+	## Add the updated recoreds that we get from the server
+	RunSQL "$Q"
+
+	## Reset the psc_mod of the records that where syncronized
+	Q="UPDATE $Table SET psc_mod=0 WHERE psc_id IN ($PSC) AND NOT psc_id IN ($LocalModifiedPscIDs)"
 	RunSQL "$Q"
 fi
 
