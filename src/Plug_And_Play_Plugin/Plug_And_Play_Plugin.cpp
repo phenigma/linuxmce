@@ -215,17 +215,20 @@ void Plug_And_Play_Plugin::CMD_Choose_Pnp_Device_Template(int iPK_Room,int iPK_D
 		return;
 	}
 
-	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
-		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_NewPnpDevice_CONST);
-	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL2(
-		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_New_Pnp_Device_One_Possibility_CONST);
-	CMD_Remove_Screen_From_History_DL.m_pMessage->m_vectExtraMessages.push_back(CMD_Remove_Screen_From_History_DL2.m_pMessage);
-    SendCommand(CMD_Remove_Screen_From_History_DL);
-
 	pPnpQueueEntry->m_pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 	pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
-	pPnpQueueEntry->m_iPK_DHCPDevice = iPK_DHCPDevice;
-	pPnpQueueEntry->m_iPK_Room = iPK_Room;
+	if( iPK_DHCPDevice )
+	{
+		pPnpQueueEntry->m_iPK_DHCPDevice = iPK_DHCPDevice;
+		DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
+			m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_NewPnpDevice_CONST);
+		DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL2(
+			m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_New_Pnp_Device_One_Possibility_CONST);
+		CMD_Remove_Screen_From_History_DL.m_pMessage->m_vectExtraMessages.push_back(CMD_Remove_Screen_From_History_DL2.m_pMessage);
+		SendCommand(CMD_Remove_Screen_From_History_DL);
+	}
+	if( iPK_Room )
+		pPnpQueueEntry->m_iPK_Room = iPK_Room;
 	pthread_cond_broadcast( &m_PnpCond );
 }
 

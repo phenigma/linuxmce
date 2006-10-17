@@ -250,8 +250,11 @@ MeshFrame* GLFontRenderer::TextOut(string TextUniqueID, string TextToDisplay,cla
 				if(nCurrentLineWidth + nCurrentLetterWidth > Text->m_rPosition.Width)
 				{
 					//we have a line
-					TextToDisplay += sCurrentLine;
-					TextToDisplay += "\n";
+					if( sCurrentLine.empty()==false )
+					{
+						TextToDisplay += sCurrentLine;
+						TextToDisplay += "\n";
+					}
 
 					sCurrentLine = "";
 					nCurrentLineWidth = nCurrentWordWidth;

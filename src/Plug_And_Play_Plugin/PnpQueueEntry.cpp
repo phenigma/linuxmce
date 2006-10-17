@@ -68,7 +68,8 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
 	m_sText=sText;
 	m_EBlockedState=pnpqe_blocked_none;
 	m_tTimeBlocked=0;
-	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=m_iPK_Room=0;
+	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice;
+	m_iPK_Room=-1;  // This means auto for create device
 	m_pOH_Orbiter=NULL;
 	m_bCreateWithoutPrompting=false;
 	ParseDeviceData(sDeviceData);
@@ -112,7 +113,8 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
 	m_sText=sText;
 	m_EBlockedState=pnpqe_blocked_none;
 	m_tTimeBlocked=0;
-	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=m_iPK_Room=0;
+	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=0;
+	m_iPK_Room=-1;  // This means auto for create device
 	m_pOH_Orbiter=NULL;
 	m_bCreateWithoutPrompting=false;
 	ParseDeviceData(sDeviceData);
@@ -127,7 +129,8 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,Row_Pnp
 
 	m_EBlockedState=pnpqe_blocked_none;
 	m_tTimeBlocked=0;
-	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=m_iPK_Room=0;
+	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=0;
+	m_iPK_Room=-1;  // This means auto for create device
 	m_pOH_Orbiter=NULL;
 	m_bCreateWithoutPrompting=false;
 	ParseDeviceData(m_pRow_PnpQueue->Parms_get());

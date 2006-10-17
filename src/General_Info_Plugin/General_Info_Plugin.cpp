@@ -2648,6 +2648,19 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 		}
 	}
 
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
+		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), 
+		StringUtils::itos(iPK_Device), SCREEN_Pick_Room_For_Device_CONST);
+	SendCommand(CMD_Remove_Screen_From_History_DL);
+
+	if( iPK_Device<0 && pRow_Room )
+	{
+		// This is for plug and play plugin
+		DCE::CMD_Choose_Pnp_Device_Template_DT CMD_Choose_Pnp_Device_Template_DT(m_dwPK_Device,DEVICETEMPLATE_Plug_And_Play_Plugin_CONST,BL_SameHouse,
+			pRow_Room->PK_Room_get(),0,iPK_Device*-1);
+		SendCommand(CMD_Choose_Pnp_Device_Template_DT);
+		return;
+	}
 	if( !pRow_Device || !pRow_Room )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot set device %d to room %d",iPK_Device,iPK_Room);
@@ -2663,11 +2676,6 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 		"SET Device.FK_Room=Parent.FK_Room "
 		"WHERE IK_DeviceData=1";
 	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
-
-	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
-		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), 
-		StringUtils::itos(iPK_Device), SCREEN_Pick_Room_For_Device_CONST);
-	SendCommand(CMD_Remove_Screen_From_History_DL);
 
 	map<int,int>::iterator it=m_mapNewPnpDevicesWaitingForARoom.find(pRow_Device->PK_Device_get());
 	if( it!=m_mapNewPnpDevicesWaitingForARoom.end() )

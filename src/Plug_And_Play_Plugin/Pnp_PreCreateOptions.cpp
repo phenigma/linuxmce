@@ -27,6 +27,7 @@
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_PnpQueue.h"
 #include "pluto_main/Table_DeviceTemplate.h"
+#include "pluto_main/Table_DeviceTemplate_DeviceData.h"
 #include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Screen.h"
@@ -50,6 +51,20 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice(PnpQueueEntry *pPnpQueueEntry)
 	if( !pDeviceCategory )
 		return true;
 
+	if( !OkayToCreateDevice_Username(pPnpQueueEntry,pRow_DeviceTemplate) )  // It needs a username
+		return false;
+	if( !OkayToCreateDevice_Room(pPnpQueueEntry,pRow_DeviceTemplate) )  // It needs a room
+		return false;
+	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Storage_Devices_CONST) )
+		return OkayToCreateDevice_NetworkStorage(pPnpQueueEntry,pRow_DeviceTemplate);
+	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Surveillance_Cameras_CONST) )
+		return OkayToCreate_Cameras(pPnpQueueEntry,pRow_DeviceTemplate);
+
+	return true;
+}
+
+bool Pnp_PreCreateOptions::OkayToCreateDevice_Username(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)
+{
 	// See if a password is required
 	map<int,string>::iterator it;
 	if( (it=pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Password_Required_CONST))!=pPnpQueueEntry->m_mapPK_DeviceData.end() &&
@@ -78,13 +93,34 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice(PnpQueueEntry *pPnpQueueEntry)
 			return false;
 		}
 	}
-
-	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Storage_Devices_CONST) )
-		return OkayToCreateDevice_NetworkStorage(pPnpQueueEntry,pRow_DeviceTemplate);
-	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Surveillance_Cameras_CONST) )
-		return OkayToCreate_Cameras(pPnpQueueEntry,pRow_DeviceTemplate);
-
 	return true;
+}
+
+bool Pnp_PreCreateOptions::OkayToCreateDevice_Room(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)
+{
+	if( pPnpQueueEntry->m_iPK_Room!=-1 )
+		return true; // The user already specified this
+
+	Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(),DEVICEDATA_Autoassign_to_parents_room_CONST);
+	if( pRow_DeviceTemplate_DeviceData && atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str()) )
+		return true; // We will automatically pick the room in create device
+	
+	// We need to ask the user for the room
+	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
+	if( pPnpQueueEntry->m_pOH_Orbiter )
+	{
+		DCE::SCREEN_Pick_Room_For_Device SCREEN_Pick_Room_For_Device(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get() * -1, pRow_DeviceTemplate->Description_get(),pRow_DeviceTemplate->Comments_get());
+		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_Pick_Room_For_Device);
+	}
+	else
+	{
+		DCE::SCREEN_Pick_Room_For_Device_DL SCREEN_Pick_Room_For_Device_DL(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, 
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get() * -1, pRow_DeviceTemplate->Description_get(),pRow_DeviceTemplate->Comments_get());
+		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_Pick_Room_For_Device_DL);
+	}
+
+	return false;  
 }
 
 bool Pnp_PreCreateOptions::OkayToCreateDevice_AlarmPanel(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)

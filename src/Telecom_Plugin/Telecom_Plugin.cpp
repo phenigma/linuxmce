@@ -91,6 +91,7 @@ Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 	iCmdCounter = 0;
 	next_conf_room = 1;
 	m_VoiceMailStatusMutex.Init(NULL);
+	m_pDevice_pbx=NULL;
 }
 
 //<-dceag-getconfig-b->
@@ -148,6 +149,13 @@ bool Telecom_Plugin::GetConfig()
 
 		char * args[] = { "/usr/pluto/bin/SendVoiceMailEvent.sh", (char *) sExtension.c_str(), NULL };
 		ProcessUtils::SpawnDaemon(args[0], args);
+	}
+
+	m_pDevice_pbx = find_AsteriskDevice();
+	if( !m_pDevice_pbx )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Telecom_Plugin::GetConfig - no pbx device");
+		return false;
 	}
 
 	return true;
@@ -650,9 +658,7 @@ g_pPlutoLogger->Write(LV_CRITICAL, "our device is : id %d template %d",
 	g_pPlutoLogger->Write(LV_STATUS, "Using source phone with parameters: PhoneType=%s, PhoneNumber=%s!",
 													sSrcPhoneType.c_str(), sSrcPhoneNumber.c_str());
 
-	/*find PBX*/
-	DeviceData_Router* pPBXDevice = find_AsteriskDevice();
-	if(pPBXDevice) {
+	if(m_pDevice_pbx) {
 
 		int dwPK_FromDevice = NULL != pMessage ? pMessage->m_dwPK_Device_From : iPK_Device;
 
@@ -668,7 +674,7 @@ g_pPlutoLogger->Write(LV_CRITICAL, "our device is : id %d template %d",
 
 		/*send originate command to PBX*/
 		pCallData->setPendingCmdID(generate_NewCommandID());
-		CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, pPBXDevice->m_dwPK_Device,
+		CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
 					                        sSrcPhoneNumber, sSrcPhoneType, sPhoneExtension, sPhoneCallerID, pCallData->getPendingCmdID());
 	    SendCommand(cmd_PBX_Originate);
 	}
@@ -749,9 +755,8 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 			return;
 		}
 	}
-	/*find PBX*/
-	DeviceData_Router* pPBXDevice = find_AsteriskDevice();
-	if(pPBXDevice) {
+
+	if(m_pDevice_pbx) {
 		pCallData->setState(CallData::STATE_TRANSFERING);
 		pCallData->setPendingCmdID(generate_NewCommandID());
 		if(pCallData->getID().find(CONFERENCE_PREFIX)==0)
@@ -770,7 +775,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 				next_conf_room++;
 
 				/*send transfer command to PBX*/
-				CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, room, pCallData->getPendingCmdID(), pCallData->getID(),bIsConference);
+				CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device, room, pCallData->getPendingCmdID(), pCallData->getID(),bIsConference);
 				SendCommand(cmd_PBX_Transfer);
 				//allow things to settle a bit
 				Sleep(1000);
@@ -790,7 +795,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 		else
 		{
 			/*send transfer command to PBX*/
-			CMD_PBX_Transfer cmd_PBX_Transfer(pCallData->getOwnerDevID(), pPBXDevice->m_dwPK_Device, sPhoneNumber, pCallData->getPendingCmdID(), pCallData->getID(),bIsConference);
+			CMD_PBX_Transfer cmd_PBX_Transfer(pCallData->getOwnerDevID(), m_pDevice_pbx->m_dwPK_Device, sPhoneNumber, pCallData->getPendingCmdID(), pCallData->getID(),bIsConference);
 			SendCommand(cmd_PBX_Transfer);
 		}
 	}
@@ -817,11 +822,10 @@ void Telecom_Plugin::CMD_PL_Hangup(string &sCMD_Result,Message *pMessage)
 		}
 	}
 	g_pPlutoLogger->Write(LV_STATUS, "Will hangup on channelid %s", pCallData->getID().c_str());
-	/*find PBX*/
-	DeviceData_Router* pPBXDevice = find_AsteriskDevice();
-	if(pPBXDevice) {
+
+	if(m_pDevice_pbx) {
 		/*send transfer command to PBX*/
-		CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, pPBXDevice->m_dwPK_Device,
+		CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
 								0, pCallData->getID());
 		SendCommand(cmd_PBX_Hangup);
 		CallManager::getInstance()->removeCall(pCallData);
@@ -908,9 +912,7 @@ void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCalle
 
 	sPhoneNumber+="@trusted";
 
-    /*find PBX*/
-    DeviceData_Router* pPBXDevice = find_AsteriskDevice();
-    if(pPBXDevice) {
+	if(m_pDevice_pbx) {
 
         CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
         if(!pCallData) {
@@ -924,9 +926,10 @@ void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCalle
 
         /*send originate command to PBX*/
         pCallData->setPendingCmdID(generate_NewCommandID());
-        CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, pPBXDevice->m_dwPK_Device,
+        CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
             sPhoneNumber, sSrcPhoneType, sPhoneExtension, sCallerID, pCallData->getPendingCmdID());
-        SendCommand(cmd_PBX_Originate);
+
+		SendCommand(cmd_PBX_Originate);
     }
 }
 
@@ -1648,9 +1651,9 @@ void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,stri
 			room="000"+StringUtils::itos(next_conf_room);
 			next_conf_room++;
 			g_pPlutoLogger->Write(LV_STATUS, "Will create conference room %d",room.c_str());
-	    	DeviceData_Router* pPBXDevice = find_AsteriskDevice();
-	    	if(pPBXDevice) {
-				CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, room, generate_NewCommandID(), sCallID, true);
+
+			if(m_pDevice_pbx) {
+				CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device, room, generate_NewCommandID(), sCallID, true);
 				SendCommand(cmd_PBX_Transfer);
 			}
 			else
@@ -1865,9 +1868,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found devi
 	}
 	
 	// Now we have a phone number.  Find the playback devices if sList_PK_Device isn't specified
-	if( sList_PK_Device.empty() )
+	if( true || /*  don't know how to do one or more specific simple phones w/ auto answer.  just do conference for now */ sList_PK_Device.empty() )
 	{
-		if( iPK_Device_Related )  // Use related devices.  This device may be a camera
+		if( false &&  /*  don't know how to do one or more specific simple phones w/ auto answer.  just do conference for now */ iPK_Device_Related )  // Use related devices.  This device may be a camera
 		{
 			string sExtension;
 			DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device_Related);
@@ -1904,7 +1907,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found devi
 		else
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Doing a speak throughout the house");
-			CMD_PL_Originate(iPK_Device,"998",sPhoneNumber);
+			DCE::CMD_PL_External_Originate CMD_PL_External_Originate(m_dwPK_Device,m_dwPK_Device,
+				sPhoneNumber,"555","998");  // 555 = bogus call id, 998 = all speaker phones in house conf room
+			SendCommand(CMD_PL_External_Originate);
 			return;
 		}
 	}

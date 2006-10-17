@@ -1921,6 +1921,7 @@ void ScreenHandler::SaveFile_SendCommand()
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Get_Capture_Card_Port(long PK_Screen, int iPK_Device, string sName, string sDescription, string ssComments)
 {
+	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::itos(iPK_Device));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sName);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sDescription);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, ssComments);
