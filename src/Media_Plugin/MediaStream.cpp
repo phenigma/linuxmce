@@ -267,9 +267,7 @@ bool MediaStream::OrbiterIsOSD(int PK_Orbiter,EntertainArea **ppEntertainArea)
 	for(map<int, class EntertainArea *>::iterator it=m_mapEntertainArea.begin();it!=m_mapEntertainArea.end();++it)
 	{
 		EntertainArea *pEntertainArea = it->second;
-		if( pEntertainArea->m_pMediaDevice_ActiveDest &&
-				pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD &&
-				pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device==PK_Orbiter )
+		if( pEntertainArea->m_pOH_Orbiter_OSD && pEntertainArea->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device==PK_Orbiter )
 		{
 			if( ppEntertainArea )
 				(*ppEntertainArea) = pEntertainArea;
