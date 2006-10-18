@@ -7,6 +7,7 @@ DEVICEDATA_ALSA_Master_Mixer_Name=174
 DEVICECATEGORY_Sound_Cards=124
 
 Option="$1"
+OptionParm="$2"
 
 # get Master mixer name
 Sound_Device=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Sound_Cards" "no-recursion")
@@ -38,6 +39,12 @@ case "$Option" in
 	down)
 		VolNew=$((VolCur-1))
 		amixer sset "$Sound_Master_Mixer" -- "$VolNew" unmute >/dev/null
+	;;
+
+	set)
+		if [[ -n "$OptionParm" ]]; then
+			amixer sset "$Sound_Master_Mixer" -- "$OptionParm" >/dev/null
+		fi
 	;;
 
 	get-absolute)
