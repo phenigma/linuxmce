@@ -987,16 +987,20 @@ void Telecom_Plugin::CMD_Simulate_Keypress(string sPK_Button,string sName,string
 
 	/** @brief COMMAND: #334 - Phone_Initiate */
 	/** Initiates a call */
+		/** @param #2 PK_Device */
+			/** The device to iniate the call from.  Used by Telecom plugin to forward to a sip phone.  Not needed when sending to a phone directly.  If this is not specified, telecom plugin assumes the correct option is the from device */
 		/** @param #83 PhoneExtension */
 			/** Extention to dial */
 
-void Telecom_Plugin::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,Message *pMessage)
+void Telecom_Plugin::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,string &sCMD_Result,Message *pMessage)
 //<-dceag-c334-e->
 {
+	if( !iPK_Device )
+		iPK_Device = pMessage->m_dwPK_Device_From;
 	int phoneID=map_orbiter2embedphone[pMessage->m_dwPK_Device_From];
-	if(phoneID>0)
+	if(phoneID>0 || iPK_Device>0 )
 	{
-		DCE::CMD_Phone_Initiate cmd(m_dwPK_Device,phoneID,sPhoneExtension);
+		DCE::CMD_Phone_Initiate cmd(m_dwPK_Device,phoneID>0 ? phoneID : iPK_Device,0 /* phones don't use this */,sPhoneExtension);
 		SendCommand(cmd);
 		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
 		if(!pCallData) {

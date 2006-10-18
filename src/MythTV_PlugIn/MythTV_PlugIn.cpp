@@ -37,6 +37,8 @@ using namespace DCE;
 //#include <libmythtv/frame.h>
 #endif
 
+#define MINIMUM_MYTH_SCHEMA		1123
+
 #include "../Orbiter_Plugin/OH_Orbiter.h"
 
 //<-dceag-const-b->
@@ -724,11 +726,20 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pMessage)
 //<-dceag-c824-e->
 {
-	string sSQL = "select PK_Device,IK_DeviceData FROM Device JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_EK_MediaProvider_CONST) " AND IK_DeviceData IS NOT NULL AND IK_DeviceData<>'' AND IK_DeviceData<>'NONE'";
+    MYSQL_ROW row,row2;
+
+	string sSQL = "select data from settings where value='DBSchemaVer'";
+	PlutoSqlResult result_set_check;
+	if( (result_set_check.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))==NULL || (row=mysql_fetch_row(result_set_check.r))==NULL || atoi(row[0])<MINIMUM_MYTH_SCHEMA )
+	{
+		g_pPlutoLogger->Write(LV_WARNING,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards skipping now because I need at least schema %d",MINIMUM_MYTH_SCHEMA);
+		return;
+	}
+
+	sSQL = "select PK_Device,IK_DeviceData FROM Device JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_EK_MediaProvider_CONST) " AND IK_DeviceData IS NOT NULL AND IK_DeviceData<>'' AND IK_DeviceData<>'NONE'";
 
 	bool bModifiedRows=false; // Keep track of whether or not we changed anything
 	PlutoSqlResult result_set;
-    MYSQL_ROW row,row2;
 	if( (result_set.r=m_pMedia_Plugin->m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
 	{
 		while ((row = mysql_fetch_row(result_set.r)))

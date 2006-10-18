@@ -259,6 +259,11 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 			pCell_Pic = mediaFileBrowserOptions.m_pObj_PicGrid->DataGridTable_Get()->GetData(mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn + mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurCol,mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurRow);
 		if( mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get() )
 			pCell_List = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get()->GetData(0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow);
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected sel grid pic %p list %p pich %d,%d  listh %d,%d",
+			pCell_Pic,pCell_List,mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn,mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow,
+			0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
+#endif
 
 		if( !pCell_List )
 			return false; // Shouldn't happen

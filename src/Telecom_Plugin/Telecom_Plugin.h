@@ -170,11 +170,13 @@ public:
 
 	/** @brief COMMAND: #334 - Phone_Initiate */
 	/** Initiates a call */
+		/** @param #2 PK_Device */
+			/** The device to iniate the call from.  Used by Telecom plugin to forward to a sip phone.  Not needed when sending to a phone directly.  If this is not specified, telecom plugin assumes the correct option is the from device */
 		/** @param #83 PhoneExtension */
 			/** Extention to dial */
 
-	virtual void CMD_Phone_Initiate(string sPhoneExtension) { string sCMD_Result; CMD_Phone_Initiate(sPhoneExtension.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension) { string sCMD_Result; CMD_Phone_Initiate(iPK_Device,sPhoneExtension.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #335 - Phone_Answer */

@@ -132,15 +132,28 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 	else if( m_pObj_PicGrid->m_rPosition.Contains(X,Y) )
 		pObj_ListGrid_Active = m_pObj_PicGrid;
 	else
+	{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d) in sort filter or menu pad %p", X, Y, PK_Direction,m_pHorizMenuMouseHandler->m_pObj_ActiveMenuPad);
+#endif
 		return;
+	}
 
 	PlutoRectangle rect;
 	m_pMouseBehavior->m_pOrbiter->GetDataGridHighlightCellCoordinates(pObj_ListGrid_Active,rect);
-	if( rect.Contains(X,Y) )
+	if( pObj_ListGrid_Active->m_iHighlightedColumn!=-1 && pObj_ListGrid_Active->m_iHighlightedRow!=-1 && rect.Contains(X,Y) )
+	{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d) use hasn't left cell", X, Y, PK_Direction);
+#endif
 		return; // Nothing to do.  User is still on same cell
+	}
 
 	// A very lean location of the highlighted row/cell
 	int Row = (Y-pObj_ListGrid_Active->m_rPosition.Y)/pObj_ListGrid_Active->m_FixedRowHeight;
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d) row %d active %p=%p", X, Y, PK_Direction,Row,pObj_ListGrid_Active,m_pObj_PicGrid);
+#endif
 	if( pObj_ListGrid_Active==m_pObj_PicGrid )
 	{
 		int Col = (X-m_pObj_PicGrid->m_rPosition.X)/m_pObj_PicGrid->m_FixedColumnWidth;
@@ -157,6 +170,9 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 		m_pObj_PicGrid->m_iHighlightedRow=Row;
 	}
 
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d) list grid row now %d", X, Y, PK_Direction,m_pObj_ListGrid->m_iHighlightedRow);
+#endif
 	if( m_pObj_ListGrid->m_iHighlightedRow!=m_LastRow )
 	{
 		m_LastRow=m_pObj_ListGrid->m_iHighlightedRow;
