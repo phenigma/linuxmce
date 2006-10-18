@@ -7,6 +7,8 @@
 module=$(basename $0)
 TPL_BUFFALO_HDHG300LAN=1794
 TPL_GENERIC_INTERNAL_DRIVE=1790
+TPL_GENERIC_NFS_SHARE=1769
+TPL_GENERIC_SAMBA_SHARE=1768
 DD_FREE_SPACE=160
 DD_FILESYSTEM=159
 
@@ -116,7 +118,7 @@ fi
 
 ## Check Pluto Storage device for free space
 
-Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_BUFFALO_HDHG300LAN) AND FK_Device_ControlledVia=$PK_Device"
+Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_GENERIC_NFS_SHARE, $TPL_GENERIC_SAMBA_SHARE) AND FK_Device_ControlledVia=$PK_Device"
 StorageDevices=$(RunSQL "$Q")
 for Device in $StorageDevices; do
         Device_ID=$(Field 1 "$Device")
