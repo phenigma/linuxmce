@@ -167,7 +167,7 @@ void *MaintThread(void *p);
 
 #ifndef WIN32
 #ifdef ORBITER_OPENGL
-	void *ProcessHIDEvents(void *p);
+//	void *ProcessHIDEvents(void *p);
 #endif
 #endif
 
@@ -333,8 +333,8 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 #ifndef WIN32
 #ifdef ORBITER_OPENGL
 	pthread_t HidThreadID;
-	pthread_create(&HidThreadID, NULL, ProcessHIDEvents, (void*)this);
-	pthread_detach(HidThreadID);
+//	pthread_create(&HidThreadID, NULL, ProcessHIDEvents, (void*)this);
+//	pthread_detach(HidThreadID);
 #endif
 #endif
 
