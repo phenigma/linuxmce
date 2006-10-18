@@ -236,7 +236,8 @@ cp -R ${ADDFOLDER}/pluto-gethousemode.agi ${PKGFOLDER}/var/lib/asterisk/agi-bin/
 cp -R ${ADDFOLDER}/pluto-getusermode.agi ${PKGFOLDER}/var/lib/asterisk/agi-bin/
 
 #copy Create AMP script (Tuesday, October 17 2006)
-cp -R ${ADDFOLDER}/create_amp/*.pl ${PKGFOLDER}/usr/pluto/bin/
+#AMP scripts are in src/Asterisk (Wednesday, October 18 2006)
+#cp -R ${ADDFOLDER}/create_amp/*.pl ${PKGFOLDER}/usr/pluto/bin/
 
 cat >> ${PKGFOLDER}/etc/asterisk/extensions.conf << EOF
 
