@@ -1,19 +1,20 @@
 <?php
 function editCode($output,$dbADO) {
-	// obsolete file 
-	
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
 	
-	$ircode = (int)@$_REQUEST['ircode'];
-	if($ircode==0){
+	$irgcID = (int)@$_REQUEST['irgcID'];
+	if($irgcID==0){
 		die('Invalid ID.');
 	}
 	
 	if ($action=='form') {		
-		$res=$dbADO->Execute('SELECT IRData FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$ircode);
+		$res=$dbADO->Execute('SELECT IRData FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irgcID);
 		if($res->RecordCount()!=0){
 			$row=$res->FetchRow();
 			$oldData=$row['IRData'];
@@ -22,40 +23,91 @@ function editCode($output,$dbADO) {
 		}
 		
 		$out.='
-		<script language="JavaScript" type="text/javascript" src="scripts/wysiwyg/richtext.js"></script>
+		
+	<!-- CodePress -->	
+	<style>
+	body {color:#000;background-color:white;font:15px georgia, "Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, sans-serif; letter-spacing:0.01em;margin:15px;}
+	p {margin:0 0 15px 0;}
+	a,a:visited {color:#7f0055;}
+	select {background:#ffffe1;}
+	button {margin-top:5px;}
+	#logo {text-align:center;background-color:#d6d6d6;padding:10px;-moz-border-radius:5px;border:1px solid silver;}
+	#container {width:700px;margin:20px auto;padding:25px;border:3px solid #d9d9d9;-moz-border-radius:10px;background:#f8f8f8;}
+	#languages {margin:5px 0;}
+	#codepress {width:100%;height:400px;border:1px solid gray;frameborder:0;}
+	#default {font-weight:bold;color:red;}
+	</style>
 	
-		<div align="center" style="height:90%; width:99%;">
-		<div class="err">'.stripslashes(@$_GET['error']).'</div>
-		<div class="confirm" align="center"><B>'.stripslashes(@$_GET['msg']).'</B></div>
+	<script>
+	function getAsPlainText() {
+		var IFrameObj = document.getElementById("codepress").contentWindow;
+		var textWithoutHighlighting = IFrameObj.CodePress.plainText()
 		
-		
-		<form action="index.php" method="post" name="editCode" onSubmit="updateRTEs();">
+		return textWithoutHighlighting;
+	}
+	
+	last = null;
+	</script>	
+	
+	<!-- end CodePress -->	
+	<script>
+	function setCode(){
+		document.editCode.irdata.value=getAsPlainText();
+		document.editCode.submit();
+	}
+	
+	</script>
+	
+	
+
+	
+		<form action="index.php" method="post" name="editCode">
 		<input type="hidden" name="section" value="editCode">
 		<input type="hidden" name="action" value="add">
-		<input type="hidden" name="ircode" value="'.$ircode.'">		
-		<B>IR/GSD code</B><br>
-		<textarea name="irdata" style="width:100%;height:540;">'.@$oldData.'</textarea>
-		<input type="submit" class="button" name="save" value="Update"> <input type="button" class="button" name="close" value="Close" onclick="self.close();">
+		<input type="hidden" name="irgcID" value="'.$irgcID.'">		
+		<input type="hidden" name="from" value="'.$from.'">		
+		<input type="hidden" name="irdata" value="">		
+		
+		<h3>Edit code #'.$irgcID.'</h3>
+		<table width="100%">
+			<tr>
+				<td bgcolor="black"><img src="include/images/spacer.gif" border="0" height="1" width="1"></td>
+			</tr>
+		</table>
+		<div class="err">'.stripslashes(@$_GET['error']).'</div>
+		<div class="confirm" align="center"><B>'.stripslashes(@$_GET['msg']).'</B></div>
+
+		
+	<div id="container">
+
+	<iframe id="codepress" src="codeLoader.php?irgcID='.$irgcID.'"></iframe><br /><br/>
+	
+	
+	<div align="center"><input type="button" class="button" name="save" value="'.$TEXT_UPDATE_CONST.'" onClick="setCode();"> <input type="button" class="button" name="close" value="'.$TEXT_CLOSE_CONST.'" onclick="self.close();"></div>
+	<br/><br/>
+	
+	</div><!--/container-->
+		
 		</form>
-		</div>
 		';
 		
 	} else {
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=editCode&ircode=$ircode&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=editCode&irgcID=$irgcID&error=You are not authorised to change the installation.");
 			exit(0);
 		}
 		
-		$irData=stripslashes($_POST['irdata']);
-		$irData=unhtmlentities($irData);
+
+		$irData=cleanString($_POST['irdata']);
+
 		
-		
-		$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array(trim($irData),$ircode));
+		$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array(trim($irData),$irgcID));
 		$out.="
 			<script>
-			    opener.location.reload();
-				self.location='index.php?section=editCode&ircode=$ircode&msg=The code was updated.';
+			    opener.document.forms.{$from}.action.value='form';
+			    opener.document.forms.{$from}.submit();
+				self.location='index.php?section=editCode&irgcID=$irgcID&from=$from&msg=The code was updated.';
 			</script>
 				";			
 		
