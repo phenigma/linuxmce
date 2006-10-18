@@ -93,7 +93,7 @@ close(PAGE);
 $OUT_VARS{'display'}="8";
 $OUT_VARS{'extdisplay'}="";
 $OUT_VARS{'action'}="addroute";
-$OUT_VARS{'routename'}="teliax";
+$OUT_VARS{'routename'}="teliax-out";
 $OUT_VARS{'routepass'}="";
 $OUT_VARS{'dialpattern'}=$LOCAL_PREFIX2;
 $OUT_VARS{'trunkpriority[0]'}=$OUT_ROUTE;

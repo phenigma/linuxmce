@@ -1,4 +1,4 @@
-##!/usr/bin/perl
+#!/usr/bin/perl
 
 use strict;
 use diagnostics;
@@ -50,7 +50,7 @@ $TRUNK_VARS{'maxchans'}="";
 $TRUNK_VARS{'dialrules'}=$DECLARED_PREFIX."|.";
 $TRUNK_VARS{'autopop'}="";
 $TRUNK_VARS{'dialoutprefix'}="";
-$TRUNK_VARS{'channelid'}="fwd";
+$TRUNK_VARS{'channelid'}="freeworddialup";
 $TRUNK_VARS{'peerdetails'} ="callerid=\"$DECLARED_USERNAME\" <$DECLARED_NUMBER>\n";
 $TRUNK_VARS{'peerdetails'}.="username=$DECLARED_USERNAME\n";
 $TRUNK_VARS{'peerdetails'}.="secret=$DECLARED_USERPASSWD\n";
@@ -81,7 +81,7 @@ my $OUT_ROUTE = "";
 while(<PAGE>)
 {
     chomp;
-    if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]IAX2\/fwd[<]\/option[>]/)
+    if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]IAX2\/freeworddialup[<]\/option[>]/)
     {
         $OUT_ROUTE=$1;
     }
@@ -90,7 +90,7 @@ close(PAGE);
 $OUT_VARS{'display'}="8";
 $OUT_VARS{'extdisplay'}="";
 $OUT_VARS{'action'}="addroute";
-$OUT_VARS{'routename'}="fwd";
+$OUT_VARS{'routename'}="freeworddialup";
 $OUT_VARS{'routepass'}="";
 $OUT_VARS{'dialpattern'}=$DECLARED_PREFIX."|.";
 $OUT_VARS{'trunkpriority[0]'}=$OUT_ROUTE;
@@ -134,6 +134,9 @@ sub get_local_prefixes()
     my $DB_STATEMENT;
     my $DB_SQL;
     my $DB_ROW;
+    my $LOCAL_PREFIX1;
+    my $LOCAL_PREFIX2;
+    
     $LOCAL_PREFIX1 = "112\n411\n911\n9|.\n";
     $LOCAL_PREFIX2 = $LOCAL_PREFIX1;
     $DB_SQL = "SELECT IK_DeviceData,FK_DeviceData FROM Device_DeviceData JOIN Device ON FK_Device=PK_Device WHERE FK_DeviceTemplate=34 AND (FK_DeviceData=141 OR FK_DeviceData=142 OR FK_DeviceData=143) ORDER BY FK_DeviceData;";
