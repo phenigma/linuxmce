@@ -1955,7 +1955,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found devi
 				if( listDevices.size() != 0 )  // We have a valid one
 				{
 					listDevices.push_front(dwDevice_Caller); 
-
 					for(list<int>::iterator it = listDevices.begin(); it != listDevices.end(); ++it)
 					{
 						// all of us will call 997
@@ -1975,13 +1974,58 @@ g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found devi
 		}
 	}
 
-/*
-	//TODO: use Conference data and store the extensions of all slaves devices
 
-	// We'll call everyone from the house
-	g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in house with %s",sList_PK_Device.c_str());
-	DCE::CMD_PL_External_Originate CMD_PL_External_Originate(m_dwPK_Device,m_dwPK_Device,
-		sList_PK_Device,sList_PK_Device,"998");  
-	SendCommand(CMD_PL_External_Originate);
-*/
+	if(sPhoneNumber.empty() == false)
+	{
+		//get all simple phone devices from the house
+		ListDeviceData_Router *pListDeviceData = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST);
+		if(NULL != pListDeviceData)
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in ALL house with master %s", sPhoneNumber.c_str());
+
+			list<int> listDevices;
+			list<string> listSlavesExtensions;
+			for(ListDeviceData_Router::iterator it = pListDeviceData->begin(); it != pListDeviceData->end(); ++it)
+			{
+				DeviceData_Router *pDeviceData_Router = *it;
+				if(NULL != pDeviceData_Router)
+				{
+					string sExtension = pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+					if(sExtension.empty() == false && sExtension != sPhoneNumber) //all except the master
+					{
+						g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in ALL house with slave %s", sExtension.c_str());
+						listSlavesExtensions.push_back(sExtension);
+						listDevices.push_back(pDeviceData_Router->m_dwPK_Device);
+					}
+				}
+			}
+
+			ConferenceData conference(sPhoneNumber, listSlavesExtensions);
+			m_listConferences.push_back(conference);
+
+			listDevices.push_front(dwDevice_Caller); 
+			for(list<int>::iterator it = listDevices.begin(); it != listDevices.end(); ++it)
+			{
+				// all of us will call 997
+				g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in house with %d", *it);
+				DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, "997");
+				SendCommand(cmd);
+			}
+
+			//THIS DOESN'T WORK:
+			//DCE::CMD_PL_External_Originate CMD_PL_External_Originate(m_dwPK_Device,m_dwPK_Device,
+			//	sPhoneNumber, sPhoneNumber, "998");  
+			//SendCommand(CMD_PL_External_Originate);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Telecom_Plugin::CMD_Speak_in_house: failed to "
+				"get the list with embedded phones from the house");
+		}
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Telecom_Plugin::CMD_Speak_in_house: ain't got "
+			"the extension/phone number of the caller");
+	}
 }
