@@ -84,6 +84,7 @@ Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 	: Telecom_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 	, m_VoiceMailStatusMutex("vm mutex")
+	, m_ConferenceMutex("conference")
 {
 	m_pDatabase_pluto_main = NULL;
 	m_pDatabase_pluto_telecom = NULL;
@@ -91,6 +92,7 @@ Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 	iCmdCounter = 0;
 	next_conf_room = 1;
 	m_VoiceMailStatusMutex.Init(NULL);
+	m_ConferenceMutex.Init(NULL);
 	m_pDevice_pbx=NULL;
 }
 
@@ -171,6 +173,7 @@ Telecom_Plugin::~Telecom_Plugin()
 	delete m_pDatabase_pluto_telecom;
 
 	pthread_mutex_destroy(&m_VoiceMailStatusMutex.mutex);
+	pthread_mutex_destroy(&m_ConferenceMutex.mutex);
 }
 
 //<-dceag-reg-b->
@@ -1413,14 +1416,56 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 }
 
 bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage,
-					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
+					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) 
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(vm, m_ConferenceMutex);
+
 	int iPhoneExtension = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PhoneExtension_CONST].c_str());
 	g_pPlutoLogger->Write(LV_STATUS, "Hangup %d(#%d) event received from PBX.",iPhoneExtension,map_ext2device[iPhoneExtension]);
 	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_ext2device[iPhoneExtension]);
 	if(pCallData) {
 		g_pPlutoLogger->Write(LV_STATUS, "Will hangup on device %d callid %s",map_ext2device[iPhoneExtension],pCallData->getID().c_str());
+
+		g_pPlutoLogger->Write(LV_STATUS, "Removed calldata %p/%s", pCallData, pCallData->getID().c_str());
 		CallManager::getInstance()->removeCall(pCallData);
 	}
+
+	for(list<ConferenceData>::iterator it = m_listConferences.begin(); it != m_listConferences.end(); ++it)
+	{
+		string sExtension = StringUtils::ltos(iPhoneExtension);
+		if(it->IsMaster(sExtension))
+		{
+			for(list<string>::const_iterator it_slave = it->GetSlaves().begin(); 
+				it_slave != it->GetSlaves().end(); ++it_slave)
+			{
+				int iSlavePhoneExtension = atoi((*it_slave).c_str());
+				CallData *pCallDataSlave = CallManager::getInstance()->findCallByOwnerDevID(map_ext2device[iSlavePhoneExtension]);
+				if(NULL != pCallDataSlave) 
+				{
+					g_pPlutoLogger->Write(LV_STATUS, "Will hangup on device %d callid %s",map_ext2device[iSlavePhoneExtension],pCallDataSlave->getID().c_str());
+
+					if(NULL != m_pDevice_pbx) 
+					{
+						string sSlaveId = pCallDataSlave->getID();
+
+						//send transfer command to PBX
+						CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+							0, sSlaveId);
+						SendCommand(cmd_PBX_Hangup);
+					}
+
+					g_pPlutoLogger->Write(LV_STATUS, "slave: Removed calldata %p/%s", pCallDataSlave, pCallDataSlave->getID().c_str());
+					CallManager::getInstance()->removeCall(pCallDataSlave);
+				}
+			}
+
+			m_listConferences.erase(it);
+			break;
+		}
+		else if(it->IsSlave(sExtension))
+			it->RemoveSlave(sExtension);
+	}
+
 	return false;
 }
 
@@ -1881,6 +1926,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found devi
 			if( pDevice )
 			{
 				list<int> listDevices;
+				list<string> listSlavesExtensions;
 				for(map<int,DeviceRelation *>::iterator it=pDevice->m_mapDeviceRelation.begin();it!=pDevice->m_mapDeviceRelation.end();++it)
 				{
 					string sExtension;
@@ -1888,6 +1934,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found devi
 					sExtension = pDeviceRelation->m_pDevice->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 					if( sExtension.empty()==false ) // got one
 					{
+						listSlavesExtensions.push_back(sExtension);
 						listDevices.push_back(pDeviceRelation->m_pDevice->m_dwPK_Device);
 					}
 				}
@@ -1899,6 +1946,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found devi
 						string sExtension = pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 						if( sExtension.empty()==false ) // got one
 						{
+							listSlavesExtensions.push_back(sExtension);
 							listDevices.push_back(pDeviceData_Router->m_dwPK_Device);
 						}
 					}
@@ -1916,6 +1964,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found devi
 						SendCommand(cmd);
 					}
 
+					ConferenceData conference(sPhoneNumber, listSlavesExtensions);
+					m_listConferences.push_back(conference);
 					return;
 				}
 			}
@@ -1925,9 +1975,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found devi
 		}
 	}
 
+/*
+	//TODO: use Conference data and store the extensions of all slaves devices
+
 	// We'll call everyone from the house
 	g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in house with %s",sList_PK_Device.c_str());
 	DCE::CMD_PL_External_Originate CMD_PL_External_Originate(m_dwPK_Device,m_dwPK_Device,
 		sList_PK_Device,sList_PK_Device,"998");  
 	SendCommand(CMD_PL_External_Originate);
+*/
 }

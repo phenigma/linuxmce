@@ -27,8 +27,38 @@ namespace DCE
 	pthread_t displayThread;
 	pthread_mutex_t mtx_err_messages;
 	pluto_pthread_mutex_t m_VoiceMailStatusMutex;
+	pluto_pthread_mutex_t m_ConferenceMutex;
 	std::map<int, std::pair<string, string> > m_mapVoiceMailStatus;
 	DeviceData_Router* m_pDevice_pbx;
+
+	class ConferenceData
+	{
+		string m_sMasterExt;
+		list<string> m_listSlavesExt;
+
+	public:
+
+		ConferenceData(string sMasterExt, const list<string>& slistSlavesExt) :
+		  m_sMasterExt(sMasterExt),
+		  m_listSlavesExt(slistSlavesExt)
+		{
+		}
+
+		bool IsMaster(string sExt) const { return m_sMasterExt == sExt; }
+		bool IsSlave(string sExt) const 
+		{ 
+			return std::find(m_listSlavesExt.begin(), m_listSlavesExt.end(), sExt) != 
+				m_listSlavesExt.end();
+		}
+		const list<string>& GetSlaves() const { return m_listSlavesExt; }
+		void RemoveSlave(string sExt) 
+		{ 
+			if(IsSlave(sExt))
+				m_listSlavesExt.remove(sExt); 
+		}
+	};
+
+	list<ConferenceData> m_listConferences;
 
 	// Private methods
 public:
