@@ -82,7 +82,9 @@ function setTemplateFileType($type) {
 		break;
 		case 'large':
 			if(@$_REQUEST['section']!='checkAmazon'){
-				@$_SESSION['lastRightFrameSrc']='index.php?'.$_SERVER['QUERY_STRING'];
+				if(@$_REQUEST['section']!=''){
+					@$_SESSION['lastRightFrameSrc']='index.php?'.$_SERVER['QUERY_STRING'];
+				}
 			}
 		break;
 		case 'small':

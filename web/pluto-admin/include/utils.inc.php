@@ -2510,13 +2510,13 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 	
 	
 	// old create device by calling directly the command
-/*	
+	
 	if($GLOBALS['inDebug']==1){
 		$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$FK_DeviceTemplate.' -i '.$FK_Installation;
 		$insertID=exec_batch_command($cmd);
 		$dbADO->Execute('UPDATE Device SET FK_Room=? WHERE PK_Device=?',array($roomID,$insertID));
 	}else{
-*/	
+	
 	
 		$msgSendCommand='/usr/pluto/bin/MessageSend localhost -targetType template -o 0 27 1 718 44 '.$FK_DeviceTemplate;
 		$msgSendCommand.=((int)$roomID!='')?' 57 '.$roomID:'';
@@ -2536,7 +2536,7 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 		if($insertID===false){
 			error_redirect('ERROR: device not created, check if DCE router is running.','');
 		}
-//	}
+	}
 	
 	
 	return $insertID;
@@ -4353,6 +4353,7 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 
 	
 	$viewParamsButton=($section=='rubyCodes')?'<input type="button" class="button_fixed" name="viewParams" value="View params" onClick="windowOpen(\'index.php?section=editCommand&from=rubyCodes&commandID='.$dataArray['FK_Command'][$pos].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');"><br>':'';
+	$extendedEditorBtn=($section=='rubyCodes')?'<input type="button" class="button_fixed" name="extendedEditor" value="Extended Editor" onClick="windowOpen(\'index.php?section=editCode&from=rubyCodes&irgcID='.$pos.'\',\'width=800,height=600,toolbars=true,resizable=1,scrollbars=1\');"><br>':'';
 	$testButton=((int)$deviceID!=0 && $section !='rubyCodes')?'<br> <input type="button" class="button_fixed" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irData=\'+escape(document.'.$section.'.irData_'.$pos.'.value)+\'&deviceID='.$deviceID.'&sender='.$section.'\';"> <a name="test_'.$pos.'">':'';
 	
 	$out='
@@ -4360,7 +4361,7 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 			<tr class="alternate_back">
 				<td align="center" width="100"><a name="code'.$pos.'"></a><B>#'.$dataArray['FK_Command'][$pos].' '.$dataArray['Description'][$pos].(($dataArray['OriginalKey'][$pos]!='')?' ('.$dataArray['OriginalKey'][$pos].')':'').'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
-				<td align="center" width="120">'.$viewParamsButton.@$deleteButton.$testButton.'</td>
+				<td align="center" width="120">'.$viewParamsButton.$extendedEditorBtn.@$deleteButton.$testButton.'</td>
 			</tr>
 		</table>';
 
