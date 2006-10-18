@@ -27,7 +27,9 @@ function editCameraRelated($output,$dbADO) {
 				die('Type not specified');
 			break;
 		}
-		$checkedDevices=array_keys(getAssocArray('Device_Device_Related','FK_Device','FK_Device',$dbADO,'WHERE FK_Device_Related='.$deviceID));
+		$devicesRelatedFrom=getAssocArray('Device_Device_Related','FK_Device','FK_Device',$dbADO,'WHERE FK_Device_Related='.$deviceID);
+		$devicesRelatedTo=getAssocArray('Device_Device_Related','FK_Device_Related','FK_Device_Related',$dbADO,'WHERE FK_Device='.$deviceID);
+		$checkedDevices=array_keys($devicesRelatedFrom+$devicesRelatedTo);
 			
 
 			
@@ -83,6 +85,7 @@ function editCameraRelated($output,$dbADO) {
 				$dbADO->Execute('INSERT IGNORE INTO Device_Device_Related (FK_Device,FK_Device_Related) VALUES (?,?)',array($device,$deviceID));
 			}else{
 				$dbADO->Execute('DELETE FROM Device_Device_Related WHERE FK_Device=? AND FK_Device_Related=?',array($device,$deviceID));
+				$dbADO->Execute('DELETE FROM Device_Device_Related WHERE FK_Device=? AND FK_Device_Related=?',array($deviceID,$device));
 			}
 		}
 		

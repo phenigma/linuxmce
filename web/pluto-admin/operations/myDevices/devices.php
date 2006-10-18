@@ -361,11 +361,14 @@ function getDevicesRelated($devicesRelated,$dbADO){
 		return $devices;
 	}
 	
-	$res=$dbADO->Execute('SELECT * FROM Device_Device_Related WHERE FK_Device IN ('.join(',',array_keys($devicesRelated)).')');
+	$res=$dbADO->Execute('SELECT * FROM Device_Device_Related WHERE (FK_Device IN ('.join(',',array_keys($devicesRelated)).') OR FK_Device_Related IN ('.join(',',array_keys($devicesRelated)).'))');
 	while($row=$res->FetchRow()){
-		$devices[$row['FK_Device_Related']][$row['FK_Device']]=$devicesRelated[$row['FK_Device']];
+		if(isset($devicesRelated[$row['FK_Device']])){
+			$devices[$row['FK_Device_Related']][$row['FK_Device']]=$devicesRelated[$row['FK_Device']];
+		}else{
+			$devices[$row['FK_Device']][$row['FK_Device_Related']]=$devicesRelated[$row['FK_Device_Related']];
+		}
 	}
-	
 	return $devices;
 }
 ?>
