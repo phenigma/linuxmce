@@ -1,4 +1,4 @@
 DEFAULT Pluto
 LABEL Pluto
-	KERNEL default/vmlinuz-default-2.6.16.20-pluto-1-686-smp
-	APPEND root=/dev/nfs acpi=off vga=normal initrd=default/initrd.img-default-2.6.16.20-pluto-1-686-smp ramdisk_size=10240 rw ip=all ydebug apicpmtimer
+	KERNEL default/vmlinuz-default-2.6.16.20-pluto-2-686-smp
+	APPEND root=/dev/nfs acpi=off vga=normal initrd=default/initrd.img-default-2.6.16.20-pluto-2-686-smp ramdisk_size=10240 rw ip=all ydebug apicpmtimer
