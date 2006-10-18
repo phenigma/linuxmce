@@ -2545,17 +2545,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to 
 		}
 	}
 
-    if (m_bYieldInput && (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP))
-    {
-		// If we're using UI2 and this is one of the system keys (F6, F7, F8) then we want to process it anyway
-		if( UsesUIVersion2()==false || 
-			(pEvent->data.button.m_iPK_Button != BUTTON_F5_CONST && pEvent->data.button.m_iPK_Button != BUTTON_F6_CONST && pEvent->data.button.m_iPK_Button != BUTTON_F7_CONST && pEvent->data.button.m_iPK_Button != BUTTON_F8_CONST) )
-		{
-	        g_pPlutoLogger->Write(LV_STATUS, "Ignoring keyboard events, m_bYieldInput==%d button %d", m_bYieldInput,pEvent->data.button);
-		    return;
-		}
-    }
-
     PreprocessEvent(*pEvent);
 	ProcessEvent(*pEvent);
 }
@@ -2683,10 +2672,25 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d key %d",
 #endif
 
 	if ( event.type == Orbiter::Event::BUTTON_DOWN )
+	{
+	    if (m_bYieldInput)
+		{
+	        g_pPlutoLogger->Write(LV_STATUS, "Ignoring keyboard events, m_bYieldInput==%d button %d", m_bYieldInput,event.data.button.m_iPK_Button);
+		    return true;
+		}
+
 		return ButtonDown(event.data.button.m_iPK_Button);
+	}
 
 	if ( event.type == Orbiter::Event::BUTTON_UP )
+	{
+	    if (m_bYieldInput)
+		{
+	        g_pPlutoLogger->Write(LV_STATUS, "Ignoring keyboard events, m_bYieldInput==%d button %d", m_bYieldInput,event.data.button.m_iPK_Button);
+		    return true;
+		}
 		return ButtonUp(event.data.button.m_iPK_Button);
+	}
 
 	if ( event.type == Orbiter::Event::REGION_DOWN && event.data.region.m_iButton == 1)
 		return RegionDown(event.data.region.m_iX, event.data.region.m_iY);
