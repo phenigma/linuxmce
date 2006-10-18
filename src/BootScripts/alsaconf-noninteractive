@@ -281,8 +281,13 @@ mixer() {
   amixer set "$1" unmute >/dev/null 2>&1
 }
 
+mixerMaster()
+{
+	/usr/pluto/bin/SoundCards_AudioVolume.sh set "$1" unmute
+}
+
 set_mixers() {
-    mixer Master 75%
+    mixerMaster 75%
     mixer PCM 90%
     mixer Synth 90%
     mixer CD 90%
@@ -709,7 +714,7 @@ ac_try_load () {
     fi
 
     # mute mixers
-    amixer set Master 0% mute >/dev/null 2>&1
+	/usr/pluto/bin/SoundCards_AudioVolume.sh set 0% mute
     amixer set PCM 0% mute >/dev/null 2>&1
     
     # output 0.5 sec
@@ -748,7 +753,7 @@ ac_try_capture () {
     fi
 
     # mute mixers
-    amixer set Master 0% mute >/dev/null 2>&1
+	/usr/pluto/bin/SoundCards_AudioVolume.sh set 0% mute
     amixer set PCM 0% mute >/dev/null 2>&1
 
     play_pid=0

@@ -65,7 +65,7 @@ GetAudioMixerSettings()
 {
 	local Settings
 	
-	Settings="$(amixer sget Master | awk -f "$AudioMixerSettingsAwk")"
+	Settings="$(/usr/pluto/bin/SoundCards_AudioVolume.sh get-unprocessed | awk -f "$AudioMixerSettingsAwk")"
 	eval "$Settings"
 }
 

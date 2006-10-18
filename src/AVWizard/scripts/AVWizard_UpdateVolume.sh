@@ -8,19 +8,16 @@ case "$Param" in
 		GetAudioMixerSettings
 		case "${Param#volume}" in
 			+)
-				if [[ "$AudioVolumeCurrent" -lt "$AudioVolumeMax" ]]; then
-					((AudioVolumeCurrent++))
-				fi
+				/usr/pluto/bin/SoundCards_AudioVolume.sh up
 			;;
 			-)
-				if [[ "$AudioVolumeCurrent" -gt "$AudioVolumeMin" ]]; then
-					((AudioVolumeCurrent--))
-				fi
+				/usr/pluto/bin/SoundCards_AudioVolume.sh down
 			;;
 		esac
 	;;
-	-set) AudioVolumeCurrent="$2" ;;
+	-set)
+		/usr/pluto/bin/SoundCards_AudioVolume.sh set "$2"
+	;;
 esac
-amixer sset Master "$AudioVolumeCurrent" unmute &>/dev/null
 GetAudioMixerSettings
 echo "$AudioVolumeCurrent"

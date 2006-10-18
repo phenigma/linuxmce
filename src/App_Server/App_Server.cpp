@@ -51,6 +51,8 @@ using namespace DCE;
 #include <X11/Xutil.h>
 #endif
 
+const char AudioVolumeScript[] = "/usr/pluto/bin/SoundCards_AudioVolume.sh";
+
 #ifdef WIN32
 void EnablePrivileges()
 {
@@ -88,15 +90,15 @@ bool App_Server::GetConfig()
 
 #ifndef WIN32
 	{
-		char * args[] = { "/usr/bin/amixer", "sset", "Master", "unmute", NULL };
+		char * args[] = { (char *) AudioVolumeScript, "set", "unmute", NULL };
 		ProcessUtils::SpawnDaemon(args[0], args);
 	}
 	{
 		string sVolume;
-		char * args[] = { "/usr/pluto/bin/AudioMixerVolumePercent.sh", NULL };
+		char * args[] = { (char *) AudioVolumeScript, "get-percent", NULL };
 		ProcessUtils::GetCommandOutput(args[0], args, sVolume);
 		m_iLastVolume = atoi(sVolume.c_str());
-		g_pPlutoLogger->Write(LV_STATUS, "ALSA Master volume: %d", m_iLastVolume);
+		g_pPlutoLogger->Write(LV_STATUS, "ALSA Master volume: %d%%", m_iLastVolume);
 	}
 
 	SignalHandler_Start(this);
@@ -527,13 +529,9 @@ void App_Server::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMe
 	int pid = fork();
 	if (pid == 0)
 	{
-		if( bLastMute )
-		{
-			g_pPlutoLogger->Write(LV_STATUS,"Unmuting");
-			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
-		}
-		execl("/usr/bin/amixer", "amixer", "sset", "Master", (StringUtils::itos(m_iLastVolume) + "%").c_str(), NULL);
-		exit(99);
+		char * args[] = { (char *) AudioVolumeScript, "up", NULL };
+		execv(args[0], args);
+		_exit(99);
 	}
 #endif	
 	// TODO: check that the mixer actually worked
@@ -563,13 +561,9 @@ void App_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *p
 	int pid = fork();
 	if (pid == 0)
 	{
-		if( bLastMute )
-		{
-			g_pPlutoLogger->Write(LV_STATUS,"Unmuting");
-			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
-		}
-		execl("/usr/bin/amixer", "amixer", "sset", "Master", (StringUtils::itos(m_iLastVolume) + "%").c_str(), NULL);
-		exit(99);
+		char * args[] = { (char *) AudioVolumeScript, "down", NULL };
+		execv(args[0], args);
+		_exit(99);
 	}
 #endif
 
@@ -587,27 +581,33 @@ void App_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *p
 void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c313-e->
 {
-	if ( sLevel.size()>1 && sLevel[0] == '+' || sLevel[0] == '-')
-		m_iLastVolume += atoi(sLevel.c_str());
+	int iVolume;
+	{
+		string sVolume;
+		char * args[] = { (char *) AudioVolumeScript, "get-percent", NULL };
+		ProcessUtils::GetCommandOutput(args[0], args, sVolume);
+		iVolume = atoi(sVolume.c_str());
+	}
+
+	if (sLevel.size() > 1 && sLevel[0] == '+' || sLevel[0] == '-')
+		iVolume += atoi(sLevel.c_str());
 	else
-		m_iLastVolume = atoi(sLevel.c_str());
+		iVolume = atoi(sLevel.c_str());
 
 	bool bLastMute = m_bLastMute;
 	m_bLastMute=false;
-	g_pPlutoLogger->Write(LV_STATUS,"Volume is now %d",m_iLastVolume);
-	DATA_Set_Volume_Level(m_iLastVolume,true);
+
+	g_pPlutoLogger->Write(LV_STATUS,"Volume is now %d%%", iVolume);
+	DATA_Set_Volume_Level(iVolume, true);
 
 #ifndef WIN32
 	int pid = fork();
 	if (pid == 0)
 	{
-		if( bLastMute )
-		{
-			g_pPlutoLogger->Write(LV_STATUS,"Unmuting");
-			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
-		}
-		execl("/usr/bin/amixer", "amixer", "sset", "Master", (StringUtils::itos(m_iLastVolume) + "%").c_str(), NULL);
-		exit(99);
+		string sVolume = StringUtils::itos(iVolume) + "%";
+		char * args[] = { (char *) AudioVolumeScript, "set", (char *) sVolume.c_str(), "unmute", NULL };
+		execv(args[0], args);
+		_exit(99);
 	}
 #endif
 
@@ -630,11 +630,17 @@ void App_Server::CMD_Mute(string &sCMD_Result,Message *pMessage)
 	if (pid == 0)
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Mute is now %d",(int) m_bLastMute);
-		if( bLastMute )
-			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
+		if (bLastMute)
+		{
+			char * args[] = { (char *) AudioVolumeScript, "set", "unmute", NULL };
+			execv(args[0], args);
+		}
 		else
-			execl("/usr/bin/amixer", "amixer", "sset", "Master", "mute", NULL);
-		exit(99);
+		{
+			char * args[] = { (char *) AudioVolumeScript, "set", "mute", NULL };
+			execv(args[0], args);
+		}
+		_exit(99);
 	}
 #endif
 

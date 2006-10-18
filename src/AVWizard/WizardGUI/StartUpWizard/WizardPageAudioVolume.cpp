@@ -120,8 +120,7 @@ void WizardPageAudioVolume::DoIncreaseSetting()
 	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeText"));
 	VolumeLabel->SetCaption(VolumeLabelCaption);
 
-	std::string Command = "amixer sset Master "+Utils::Int32ToString(AudioVolumeCurrent) +
-		" unmute >/dev/null";
+	std::string Command = "/usr/pluto/bin/SoundCards_AudioVolume.sh set " + Utils::Int32ToString(AudioVolumeCurrent) + " unmute";
 	system(Command.c_str());
 
 }
@@ -143,7 +142,6 @@ void WizardPageAudioVolume::DoDecreaseSetting()
 	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeText"));
 	VolumeLabel->SetCaption(VolumeLabelCaption);
 	
-	std::string Command = "amixer sset Master "+Utils::Int32ToString(AudioVolumeCurrent) +
-		" unmute >/dev/null";
+	std::string Command = "/usr/pluto/bin/SoundCards_AudioVolume.sh set " + Utils::Int32ToString(AudioVolumeCurrent) + " unmute";
 	system(Command.c_str());
 }

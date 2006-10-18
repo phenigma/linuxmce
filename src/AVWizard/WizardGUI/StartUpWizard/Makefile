@@ -6,7 +6,7 @@ LDFLAGS = -L$(ROOT)/lib
 
 MYNAME = AVWizard
 
-CXXFLAGS += -g -O0 -J2
+CXXFLAGS += -g -O0
 CPPFLAGS += -I/usr/include/SDL -I/usr/include/libxml2 
 LDLIBS = -lSDL -lSDL_ttf -lSDL_image -lxml2 -lxine -lSDL_gfx -lGL -lGLU -lXrender 
 FLAGS = $(CXXFLAGS) $(CPPFLAGS)

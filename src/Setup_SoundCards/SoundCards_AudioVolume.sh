@@ -6,8 +6,8 @@
 DEVICEDATA_ALSA_Master_Mixer_Name=174
 DEVICECATEGORY_Sound_Cards=124
 
-Option="$1"
-OptionParm="$2"
+Option="$1"; shift
+OptionParm=("$@")
 
 # get Master mixer name
 Sound_Device=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Sound_Cards" "no-recursion")
@@ -43,7 +43,7 @@ case "$Option" in
 
 	set)
 		if [[ -n "$OptionParm" ]]; then
-			amixer sset "$Sound_Master_Mixer" -- "$OptionParm" >/dev/null
+			amixer sset "$Sound_Master_Mixer" -- "${OptionParm[@]}" >/dev/null
 		fi
 	;;
 
@@ -54,6 +54,10 @@ case "$Option" in
 	get-percent)
 		VolPercent=$((100 * $VolCur / $VolMax))
 		echo "$VolPercent"
+	;;
+
+	get-unprocessed)
+		echo "$Settings"
 	;;
 
 	*)
