@@ -1818,9 +1818,12 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 //<-dceag-c826-e->
 {
 	// If there's no phone number, fine one associated with the device
+
+	int dwDevice_Caller = 0;
 	if( sPhoneNumber.empty() )
 	{
 		DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
+		dwDevice_Caller = pDevice->m_dwPK_Device;
 		if( pDevice )
 		{
 			sPhoneNumber = pDevice->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
@@ -1832,6 +1835,7 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 			pDevice = m_pRouter->m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_From);
 			if( pDevice )
 			{
+				dwDevice_Caller = pDevice->m_dwPK_Device;
 				sPhoneNumber = pDevice->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 				if( sPhoneNumber.empty() )
 					sPhoneNumber = pDevice->m_mapParameters_Find(DEVICEDATA_Mobile_Orbiter_Phone_CONST);
@@ -1852,6 +1856,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found %d s
 				if(vectDeviceData_Router.size() >= 1)
 				{
 					DeviceData_Router *pDeviceData_Router = *vectDeviceData_Router.begin();
+					dwDevice_Caller = pDeviceData_Router->m_dwPK_Device;
 
 g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found device %d", pDeviceData_Router->m_dwPK_Device);
 					sPhoneNumber = pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
@@ -1868,53 +1873,61 @@ g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found devi
 	}
 	
 	// Now we have a phone number.  Find the playback devices if sList_PK_Device isn't specified
-	if( true || /*  don't know how to do one or more specific simple phones w/ auto answer.  just do conference for now */ sList_PK_Device.empty() )
+	if(sList_PK_Device.empty() )
 	{
-		if( false &&  /*  don't know how to do one or more specific simple phones w/ auto answer.  just do conference for now */ iPK_Device_Related )  // Use related devices.  This device may be a camera
+		if(iPK_Device_Related)  // Use related devices.  This device may be a camera
 		{
-			string sExtension;
 			DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device_Related);
 			if( pDevice )
 			{
+				list<int> listDevices;
 				for(map<int,DeviceRelation *>::iterator it=pDevice->m_mapDeviceRelation.begin();it!=pDevice->m_mapDeviceRelation.end();++it)
 				{
+					string sExtension;
 					DeviceRelation *pDeviceRelation = (*it).second;
 					sExtension = pDeviceRelation->m_pDevice->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 					if( sExtension.empty()==false ) // got one
-						break;
+					{
+						listDevices.push_back(pDeviceRelation->m_pDevice->m_dwPK_Device);
+					}
 				}
-				if( sExtension.empty() ) // still no extension -- just send to all phones in the same room
+				if( listDevices.size() == 0) // still no extension -- just send to all phones in the same room
 				{
 					for(list<class DeviceData_Router *>::iterator it=pDevice->m_pRoom->m_listDevices.begin();it!=pDevice->m_pRoom->m_listDevices.end();++it)
 					{
-						sExtension = (*it)->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+						DeviceData_Router *pDeviceData_Router = *it;
+						string sExtension = pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 						if( sExtension.empty()==false ) // got one
-							break;
+						{
+							listDevices.push_back(pDeviceData_Router->m_dwPK_Device);
+						}
 					}
 				}
 
-				if( sExtension.empty()==false )  // We have a valid one
+				if( listDevices.size() != 0 )  // We have a valid one
 				{
-					// Don't know how to do the speak in house only with the device's extensions provided??	CMD_PL_Originate(0,"998",sPhoneNumber);
-					g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in house with %s",sList_PK_Device.c_str());
-					CMD_PL_Originate(iPK_Device,sExtension,sPhoneNumber);
+					listDevices.push_front(dwDevice_Caller); 
+
+					for(list<int>::iterator it = listDevices.begin(); it != listDevices.end(); ++it)
+					{
+						// all of us will call 997
+						g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in house with %d", *it);
+						DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, "997");
+						SendCommand(cmd);
+					}
+
 					return;
 				}
 			}
+
 			// If we got here there was a problem
 			g_pPlutoLogger->Write(LV_CRITICAL,"Doing a speak in house no phone relates to %d",iPK_Device_Related);
 		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_STATUS,"Doing a speak throughout the house");
-			DCE::CMD_PL_External_Originate CMD_PL_External_Originate(m_dwPK_Device,m_dwPK_Device,
-				sPhoneNumber,"555","998");  // 555 = bogus call id, 998 = all speaker phones in house conf room
-			SendCommand(CMD_PL_External_Originate);
-			return;
-		}
 	}
 
-	// Don't know how to do the speak in house only with the device's extensions provided??	CMD_PL_Originate(0,"998",sPhoneNumber);
+	// We'll call everyone from the house
 	g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in house with %s",sList_PK_Device.c_str());
-	CMD_PL_Originate(iPK_Device,sList_PK_Device,sPhoneNumber);	
+	DCE::CMD_PL_External_Originate CMD_PL_External_Originate(m_dwPK_Device,m_dwPK_Device,
+		sList_PK_Device,sList_PK_Device,"998");  
+	SendCommand(CMD_PL_External_Originate);
 }
