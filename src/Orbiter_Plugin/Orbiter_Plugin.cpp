@@ -2807,7 +2807,7 @@ void Orbiter_Plugin::StartRetrievingScreenSaverFiles()
 	vector<string> vectApps;
 	StringUtils::Tokenize(s,"\r\n",vectApps);
 
-	DeviceData_Router *pDevice_App_Server,*pDevice_Us = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
+	DeviceData_Router *pDevice_App_Server=NULL,*pDevice_Us = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
 	if( pDevice_Us )
 		pDevice_App_Server = (DeviceData_Router *) pDevice_Us->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
 

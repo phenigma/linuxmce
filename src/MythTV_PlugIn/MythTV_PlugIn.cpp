@@ -840,13 +840,19 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 	if( bModifiedRows )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders records changed");
-		char * args_fill[] = { "/usr/bin/mythfilldatabase", "", NULL };
-		ProcessUtils::SpawnDaemon(args_fill[0], args_fill);
+		DeviceData_Router *pDevice_App_Server=NULL,*pDevice_Us = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
+		if( pDevice_Us )
+			pDevice_App_Server = (DeviceData_Router *) pDevice_Us->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
 
-		char * args[] = { "/etc/init.d/mythtv-backend", "restart", NULL };
-		ProcessUtils::SpawnDaemon(args[0], args);
-		
-		char * args_icon[] = { "mythfilldatabase", "--import-icon-map", "/home/mythtv/master_iconmap.xml", "--update-icon-map", NULL };
-		ProcessUtils::SpawnDaemon(args_icon[0], args_icon);
+		if( pDevice_App_Server )
+		{
+			DCE::CMD_Spawn_Application CMD_Spawn_Application_fill(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+				"/usr/pluto/bin/FillDbAndFetchIcons.sh","filldb","","","",false,false,false);
+			SendCommand(CMD_Spawn_Application_fill);
+
+			DCE::CMD_Spawn_Application CMD_Spawn_Application_restart(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+				"/etc/init.d/mythtv-backend","restart myth","restart","","",false,false,false);
+			SendCommand(CMD_Spawn_Application_restart);
+		}
 	}
 }
