@@ -1963,7 +1963,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found devi
 					{
 						// all of us will call 997
 						g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in house with %d", *it);
-						DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, "997");
+						DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, 0, "997");
 						SendCommand(cmd);
 					}
 
@@ -2012,7 +2012,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found devi
 			{
 				// all of us will call 997
 				g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in house with %d", *it);
-				DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, "997");
+				DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, 0, "997");
 				SendCommand(cmd);
 			}
 
