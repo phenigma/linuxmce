@@ -14,27 +14,29 @@ fi
 case "$1" in
 "background")
 
-	trap "rm -rf $pidfile" EXIT
+		trap "rm -rf $pidfile" EXIT
 
-	if [ -f $pidfile ]; then
-	pidid=$(cat $pidfile)
-	echo "Daemon allready running, PID $pidid !"
-	exit 0
-	fi
+		if [ -f $pidfile ]; then
+			pidid=$(cat $pidfile)
+			echo "Daemon allready running, PID $pidid !"
+			exit 0
+		fi
 	
-	echo $$ > $pidfile
-	maxfiles=$(mysql -u root -D pluto_media -N -e "SELECT PK_File AS Filename FROM File LEFT JOIN Picture_File ON Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE EK_MediaType IN (3,4,5) AND (Scanned IS NULL OR Scanned=0) GROUP BY PK_File HAVING count(FK_Picture)=0 ;" | wc -l)
+		echo $$ > $pidfile
+		maxfiles=$(mysql -u root -D pluto_media -N -e "SELECT PK_File AS Filename FROM File LEFT JOIN Picture_File ON Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE EK_MediaType IN (3,4,5) AND (Scanned IS NULL OR Scanned=0) AND Missing = 1 GROUP BY PK_File HAVING count(FK_Picture)=0 ;" | wc -l)
 	
-	while [ $startid -lt $maxfiles ]; do
-	lynx -dump -width=300 "http://$webhost/pluto-admin/genwget.php?from=$startid&range=$range" > $wgetlist
-	cat $wgetlist | while read line
-	do
-	wget "http://$webhost/pluto-admin/$line" --header="User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4" -O -
-	sleep 2
-	done
-	startid=$[$startid+$range]
-	done
-	read
+		while [ $startid -lt $maxfiles ]; do
+			lynx -dump -width=300 "http://$webhost/pluto-admin/genwget.php?from=$startid&range=$range" > $wgetlist
+			
+			cat $wgetlist | 
+			while read line ;do
+				wget "http://$webhost/pluto-admin/$line" --header="User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4" -O -
+				sleep 2
+			done
+			
+			startid=$(( $startid + $range ))
+		done
+
 	;;
 
 "start")
