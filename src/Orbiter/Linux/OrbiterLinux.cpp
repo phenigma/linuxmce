@@ -336,10 +336,160 @@ void OrbiterLinux::Destroy()
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() : done");
 }
 
+/*
+ * Translate Gyration HID event to key event
+ * TODO: maybe this translation should take place in HIDInterface.cpp ?
+ */
+bool OrbiterLinux::TranslateEvent_HID(Orbiter::Event &event)
+{
+	if (event.type != Orbiter::Event::HID)
+		return false; // just to be sure
+	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::TranslateEvent_HID: Started");
+
+	typedef pair<int, int> pair_int_int;
+	typedef map<pair_int_int, int> map_pair_int_int2int;
+	typedef map<int, int> map_int2int;
+
+#define StdKey(shift,key,button) (map_StdKeyToEvent[pair_int_int((shift), (key))] = (button))
+#define MediaKey(key,button) (map_MediaKeyToEvent[(key)] = (button))
+#define MonsterKey(key,button) (map_MonsterKeyToEvent[(key)] = (button))
+
+	// map from Standard Keyboard to Button
+	map_pair_int_int2int map_StdKeyToEvent;
+	StdKey(0x00, 0x1e, BUTTON_1_CONST);
+	StdKey(0x00, 0x1f, BUTTON_2_CONST);
+	StdKey(0x00, 0x20, BUTTON_3_CONST);
+	StdKey(0x02, 0x20, BUTTON_Pound_CONST);
+	StdKey(0x00, 0x21, BUTTON_4_CONST);
+	StdKey(0x00, 0x22, BUTTON_5_CONST);
+	StdKey(0x00, 0x23, BUTTON_6_CONST);
+	StdKey(0x00, 0x24, BUTTON_7_CONST);
+	StdKey(0x00, 0x25, BUTTON_8_CONST);
+	StdKey(0x02, 0x25, BUTTON_Asterisk_CONST);
+	StdKey(0x00, 0x26, BUTTON_9_CONST);
+	StdKey(0x00, 0x27, BUTTON_0_CONST);
+	StdKey(0x00, 0x28, BUTTON_Enter_CONST); // OK key in the middle of the arrow keys
+	StdKey(0x00, 0x2A, BUTTON_Back_CONST); // Backspace
+	StdKey(0x00, 0x4F, BUTTON_Right_Arrow_CONST);
+	StdKey(0x00, 0x50, BUTTON_Left_Arrow_CONST);
+	StdKey(0x00, 0x51, BUTTON_Down_Arrow_CONST);
+	StdKey(0x00, 0x52, BUTTON_Up_Arrow_CONST);
+	StdKey(0x00, 0x58, BUTTON_Enter_CONST); // Enter key under the keypad
+
+	// map from Media Key to Button
+	map_int2int map_MediaKeyToEvent;
+	//MediaKey(0xB0, BUTTON_Play_CONST);
+	//MediaKey(0xB1, BUTTON_Pause_CONST);
+	MediaKey(0xB2, BUTTON_Record_CONST);
+	//MediaKey(0xB3, BUTTON_Forward_CONST);
+	//MediaKey(0xB4, BUTTON_Reverse_CONST);
+	//MediaKey(0xB5, BUTTON_Skip_CONST);
+	//MediaKey(0xB6, BUTTON_Replay_CONST);
+	//MediaKey(0xB7, BUTTON_Stop_CONST);
+	
+	// map from Monster Key to Button
+	map_int2int map_MonsterKeyToEvent;
+	//MonsterKey(0x46, BUTTON_My_Pictures_CONST);
+	//MonsterKey(0x47, BUTTON_My_Music_CONST);
+	//MonsterKey(0x49, BUTTON_My_TV_CONST);
+	//MonsterKey(0x4A, BUTTON_My_Videos_CONST);
+	//MonsterKey(0x82, BUTTON_Power_CONST);
+	//MonsterKey(0x8D, BUTTON_Guide_CONST);
+	//MonsterKey(0x9C, BUTTON_Channel_Up_CONST);
+	//MonsterKey(0x9D, BUTTON_Channel_Down_CONST);
+	//MonsterKey(0xC1, BUTTON_Live_TV_CONST);
+	//MonsterKey(0xE2, BUTTON_Mut);
+	//MonsterKey(0xE9, BUTTON_Volume_Up_CONST);
+	//MonsterKey(0xEA, BUTTON_Volume_Down_CONST);
+	//MonsterKey(0xC9, BUTTON_Help_CONST);
+	//MonsterKey(0xC2, BUTTON_DVD_Menu_CONST);
+	//MonsterKey(0xCA, BUTTON_Input_CONST);
+	//MonsterKey(0xCB, BUTTON_Media_CONST);
+	//MonsterKey(0xCC, BUTTON_Menu_CONST);
+	//MonsterKey(0xCD, BUTTON_Ambiance_CONST);
+
+	/* 
+	 * last key's code
+	 * used when a "key unpressed" (0) code comes in
+	 * they always come in pairs, unless it's a bug
+	 * TODO: check for thread safety
+	 */
+	static unsigned int iLastKey = 0;
+
+	unsigned int iShiftState = 0;
+	unsigned int iKey = 0;
+	unsigned int iHidCmd = 0;
+	unsigned int iRemoteID = 0;
+
+	unsigned char iReportID = event.data.hid.m_pbHid[0];
+	switch (iReportID)
+	{
+		case 1: // Standard keyboard
+			g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::TranslateEvent_HID: Standard Keyboard event");
+
+			iShiftState = event.data.hid.m_pbHid[1];
+			iKey = event.data.hid.m_pbHid[3];
+			if (iKey == 0x00)
+			{
+				event.type = Orbiter::Event::BUTTON_UP;
+				event.data.button.m_iPK_Button = iLastKey;
+				iLastKey = 0;
+			}
+			else
+			{
+				map_pair_int_int2int::iterator itStd = map_StdKeyToEvent.find(pair_int_int(iShiftState, iKey));
+				if (itStd == map_StdKeyToEvent.end())
+					return false;
+				event.type = Orbiter::Event::BUTTON_DOWN;
+				event.data.button.m_iPK_Button = iLastKey = itStd->second;
+			}
+			break;
+
+		case 2: // Media keys
+			g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::TranslateEvent_HID: Media key event");
+
+			iKey = event.data.hid.m_pbHid[1];
+			{
+				map_int2int::iterator itMedia = map_MediaKeyToEvent.find(iKey);
+				if (itMedia == map_MediaKeyToEvent.end())
+					return false;
+				event.type = Orbiter::Event::BUTTON_DOWN;
+				event.data.button.m_iPK_Button = iLastKey = itMedia->second;
+			}
+			break;
+
+		case 8: // Monster keys
+			g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::TranslateEvent_HID: ReportID=8 event");
+
+			iHidCmd = event.data.hid.m_pbHid[1];
+			if (iHidCmd != 0x25)
+				return false; // not a KeyIn
+			iRemoteID = event.data.hid.m_pbHid[2];
+			iKey = event.data.hid.m_pbHid[3];
+			{
+				map_int2int::iterator itMonster = map_MonsterKeyToEvent.find(iKey);
+				if (itMonster == map_MonsterKeyToEvent.end())
+					return false;
+				event.type = Orbiter::Event::BUTTON_DOWN;
+				event.data.button.m_iPK_Button = iLastKey = itMonster->second;
+			}
+			break;
+	}
+
+	return true;
+}
+
 bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 {
-    if ( event.type != Orbiter::Event::BUTTON_DOWN && event.type != Orbiter::Event::BUTTON_UP )
-        return false;
+	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::PreprocessEvent: Started");
+	if (event.type == Orbiter::Event::HID)
+	{
+		return TranslateEvent_HID(event);
+	}
+	else if (event.type != Orbiter::Event::BUTTON_DOWN && event.type != Orbiter::Event::BUTTON_UP)
+		return false;
+
+	/* event.type == BUTTON_DOWN or BUTTON_UP */
 
     XKeyEvent  kevent;
     KeySym   keysym;

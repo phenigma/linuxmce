@@ -2538,14 +2538,6 @@ static void TemporaryHidFunction(Orbiter::Event *pEvent)
 		{
 			case 0x00: sKey = "Previous key up"; break;
 			case 0x82: sKey = "Power"; break;
-			case 0xB7: sKey = "Stop"; break;
-			case 0xB2: sKey = "Record"; break;
-			case 0xB1: sKey = "Pause"; break;
-			case 0xB4: sKey = "Break"; break;
-			case 0xB0: sKey = "Play"; break;
-			case 0xB3: sKey = "Forward"; break;
-			case 0xB6: sKey = "Replay"; break;
-			case 0xB5: sKey = "Skip"; break;
 			case 0xC1: sKey = "Live TV"; break;
 			case 0x8D: sKey = "Guide"; break;
 			case 0xE9: sKey = "Volume+"; break;

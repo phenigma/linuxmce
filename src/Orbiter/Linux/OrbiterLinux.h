@@ -103,6 +103,7 @@ public:
     // can be called from outside
     virtual void Destroy();
 
+	virtual bool OrbiterLinux::TranslateEvent_HID(Orbiter::Event &event);
     virtual bool PreprocessEvent( Orbiter::Event &event );
 
     virtual Display * GetDisplay(); // use this
