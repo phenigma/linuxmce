@@ -23,7 +23,7 @@ fi
 
 if [[ -z "$Sound_Master_Mixer" ]]; then
 	Sound_Master_Mixer=Master
-	if ! amixer scontrols | grep -q "'Master'" && amixer scontrols | grep -q "'Front'" then
+	if ! amixer scontrols | grep -q "'Master'" && amixer scontrols | grep -q "'Front'"; then
 		Sound_Master_Mixer=Front
 	fi
 fi
