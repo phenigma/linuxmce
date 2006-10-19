@@ -145,19 +145,30 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	bool bFile=false,bJukebox=false,bLocalDisc=false,bSubDirectory=false;
 	string sPath,sPath_Back;
 	string::size_type pos=0;
-	if( sPK_Sources[0]=='!' && sPK_Sources[1]=='D' )
-	{
-		string::size_type posLastPath=2,pos=2;
-		while( (pos=sPath.find(',',pos))!=string::npos )
-			posLastPath=++pos;
 
-		sPath = sPK_Sources.substr(posLastPath);
-		sPath_Back = posLastPath<3 ? "" : sPK_Sources.substr(2,posLastPath-3);
-		bFile=true;
-		bSubDirectory=true;
-		pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("back (..)",sPath_Back,0,true,true) );
+	bool bUsingDirectory=false;
+	if( sPK_Sources.find("\t!D")!=string::npos )  // The user is drilling down into a directory
+	{
+		string::size_type postab;
+		postab = sPK_Sources.find('\t'); // This should always be here.  It signifies the topmost source (ie file, jukebox, etc.) when the user started drilling down into directories
+		string::size_type posLastPath=postab+3,pos=postab+3;  // Skip past the \t!D
+
+		while( (pos=sPK_Sources.find("','",pos))!=string::npos ) 
+			posLastPath=pos++;
+
+		sPath = sPK_Sources.substr(posLastPath==postab+3 ? posLastPath : posLastPath+2); // skip the last ', if we found any matching entries
+		sPath_Back = sPK_Sources.substr(0,posLastPath==postab+3 ? posLastPath : posLastPath+1);  // Include the closing ' if we found matching entries
+		if( sPath.empty() )
+			sPK_Sources = sPK_Sources.substr(0,postab); // Get rid of the last \t!D.  This is the top level source
+		else
+		{
+			bFile=true;
+			bSubDirectory=true;
+			pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("back (..)",sPath_Back,0,true,true) );
+			bUsingDirectory=true;
+		}
 	}
-	else
+	if( !bUsingDirectory )
 	{
 		while(pos<sPK_Sources.size())
 		{
@@ -169,6 +180,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 			else if( PK_MediaSource==MEDIASOURCE_Local_Disc_CONST )
 				bLocalDisc=true;
 		}
+		sPK_Sources = sPK_Sources + "\t";  // Put a tab before this which is the indicator up above that this is the topmost source when the user tabs back
 		if( bFile && PK_AttributeType_Sort==0 )
 		{
 			Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType);
@@ -262,7 +274,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		if( bShowFiles )
 		{
 			FetchPictures("File",sPK_File,mapFile_To_Pic);
-			PopulateFileBrowserInfoForFile(pMediaListGrid,PK_AttributeType_Sort,bSubDirectory,sPath_Back,sPK_File,mapFile_To_Pic);
+			PopulateFileBrowserInfoForFile(pMediaListGrid,PK_AttributeType_Sort,bSubDirectory,sPK_Sources /* this how we get back to where we are now */,sPK_File,mapFile_To_Pic);
 		}
 		else
 			PopulateFileBrowserInfoForAttribute(pMediaListGrid,PK_AttributeType_Sort,sPK_File);
@@ -356,10 +368,13 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 		{
 			if( row[3][0]=='1' )
 			{
-				if( sPath.length() )
-					pFileBrowserInfo = new FileBrowserInfo(row[2],"!D'" + sPath + "," + row[1] + "/" + row[2] +"'",atoi(row[0]),true,false);
+				string sThisPath = string(row[1]) + "/" + row[2];
+				StringUtils::Replace(&sThisPath,"'","\\'");  // Make it , separated, ' quoted and escaped so it works as a sql in (path) clause
+				// sPath will be the sources (juke box, etc.) + \t + any prior directories
+				if( sPath.find("\t!D")==string::npos )
+					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + "!D'" + sThisPath +"'",atoi(row[0]),true,false);
 				else
-					pFileBrowserInfo = new FileBrowserInfo(row[2],string("!D'") + row[1] + "/" + row[2] + "'",atoi(row[0]),true,false);
+					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + ",'" + sThisPath +"'",atoi(row[0]),true,false);
 			}
 			else
 				pFileBrowserInfo = new FileBrowserInfo(row[2],string("!F") + row[0],atoi(row[0]),false,false);

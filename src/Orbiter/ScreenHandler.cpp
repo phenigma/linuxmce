@@ -268,7 +268,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		if( !pCell_List )
 			return false; // Shouldn't happen
 
-		if( !pCell_List->m_Value || (pCell_List->m_Value[0]=='!' && pCell_List->m_Value[1]=='D') )
+		if( !pCell_List->m_Value || strstr(pCell_List->m_Value,"\t!D")!=NULL )  // If it contains this, the user is going into a subdirectory
 		{
 			// It's a sub directory.  Update the source and refresh the page
 			mediaFileBrowserOptions.m_sSources = pCell_List->m_Value ? pCell_List->m_Value : "";
