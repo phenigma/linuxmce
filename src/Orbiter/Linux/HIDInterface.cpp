@@ -61,18 +61,21 @@ void *ProcessHIDEvents(void *p)
 		else if (ret != HID_RET_FAIL_INT_READ)
 		{
 g_pPlutoLogger->Write(LV_WARNING,"ProcessHIDEvents hid_get_input_report ret %d\n", ret);
+
+			Orbiter::Event *pEvent = new Orbiter::Event;
+			pEvent->type=Orbiter::Event::HID;
+
+			printf("HID packet: ");
 			for (i = 0; i < RECV_PACKET_LEN; i++)
 			{
-g_pPlutoLogger->Write(LV_WARNING,"ProcessHIDEvents %02x ", (unsigned char) packet[i]);
-				Orbiter::Event *pEvent = new Orbiter::Event;
-
-				pEvent->type=Orbiter::Event::HID;
-				pEvent->data.hid.m_iHid = packet[i];
+				pEvent->data.hid.m_pbHid[i] = packet[i];
+				printf("%02x ", packet[i]);
+			}
+			printf(".\n");
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents queueing to orbiter   rrr");
 #endif
-				pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
-			}
+			pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
 		}
 	} while (!pOrbiter->m_bQuit);
 

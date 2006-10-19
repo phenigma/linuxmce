@@ -665,7 +665,7 @@ namespace DCE
 				} region;
 
 				struct {
-					int m_iHid;
+					unsigned char m_pbHid[6];
 				} hid;
 			} data;
 		};

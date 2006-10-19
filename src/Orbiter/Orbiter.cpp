@@ -167,7 +167,7 @@ void *MaintThread(void *p);
 
 #ifndef WIN32
 #ifdef ORBITER_OPENGL
-//	void *ProcessHIDEvents(void *p);
+	void *ProcessHIDEvents(void *p);
 #endif
 #endif
 
@@ -333,8 +333,8 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 #ifndef WIN32
 #ifdef ORBITER_OPENGL
 	pthread_t HidThreadID;
-//	pthread_create(&HidThreadID, NULL, ProcessHIDEvents, (void*)this);
-//	pthread_detach(HidThreadID);
+	pthread_create(&HidThreadID, NULL, ProcessHIDEvents, (void*)this);
+	pthread_detach(HidThreadID);
 #endif
 #endif
 
@@ -2505,6 +2505,124 @@ bool Orbiter::RenderDesktop( class DesignObj_Orbiter *pObj,  PlutoRectangle rect
 }
 
 /*
+ * Temporary HID function; to be replaced or removed when actual code is in place
+ */
+static void TemporaryHidFunction(Orbiter::Event *pEvent)
+{
+	if (pEvent->type != Orbiter::Event::HID)
+		return; // just to be sure
+
+	g_pPlutoLogger->Write(LV_WARNING, "TemporaryHidFunction: Received HID event: %02x %02x %02x %02x %02x %02x",
+		pEvent->data.hid.m_pbHid[0], pEvent->data.hid.m_pbHid[1], pEvent->data.hid.m_pbHid[2], pEvent->data.hid.m_pbHid[3], pEvent->data.hid.m_pbHid[4], pEvent->data.hid.m_pbHid[5]);
+	g_pPlutoLogger->Write(LV_STATUS, "HID Page: %02x", pEvent->data.hid.m_pbHid[0]);
+
+	string sHidCmd = "";
+	switch (pEvent->data.hid.m_pbHid[1])
+	{
+		case 0x20: sHidCmd = "GetID"; break;
+		case 0x26: sHidCmd = "SyncID"; break;
+		case 0x27: sHidCmd = "FollowMe"; break;
+		case 0x21: sHidCmd = "BindOK"; break;
+		case 0x22: sHidCmd = "BindFail"; break;
+		case 0x23: sHidCmd = "LegacyBindOK"; break;
+		case 0x24: sHidCmd = "LegacyBindTimeout"; break;
+		case 0x25: sHidCmd = "KeyIn"; break;
+		default: sHidCmd = "**UNKNOWN**"; break;
+	}
+	g_pPlutoLogger->Write(LV_STATUS, "HID Cmd: %s", sHidCmd.c_str());
+
+	string sKey = "";
+	if (pEvent->data.hid.m_pbHid[0] == 8 && pEvent->data.hid.m_pbHid[1] == 0x25)
+	{
+		switch (pEvent->data.hid.m_pbHid[3])
+		{
+			case 0x00: sKey = "Previous key up"; break;
+			case 0x82: sKey = "Power"; break;
+			case 0xB7: sKey = "Stop"; break;
+			case 0xB2: sKey = "Record"; break;
+			case 0xB1: sKey = "Pause"; break;
+			case 0xB4: sKey = "Break"; break;
+			case 0xB0: sKey = "Play"; break;
+			case 0xB3: sKey = "Forward"; break;
+			case 0xB6: sKey = "Replay"; break;
+			case 0xB5: sKey = "Skip"; break;
+			case 0xC1: sKey = "Live TV"; break;
+			case 0x8D: sKey = "Guide"; break;
+			case 0xE9: sKey = "Volume+"; break;
+			case 0xEA: sKey = "Volume-"; break;
+			case 0x9C: sKey = "Channel+"; break;
+			case 0x9D: sKey = "Channel-"; break;
+			case 0xE2: sKey = "Mute"; break;
+			case 0x49: sKey = "My TV"; break;
+			case 0x46: sKey = "My Pictures"; break;
+			case 0x47: sKey = "My Music"; break;
+			case 0x4A: sKey = "My Videos"; break;
+			case 0xC9: sKey = "Help"; break;
+			case 0xC2: sKey = "DVD Menu"; break;
+			case 0xCA: sKey = "Input"; break;
+			case 0xCB: sKey = "Media"; break;
+			case 0xCC: sKey = "Menu"; break;
+			case 0xCD: sKey = "Ambiance"; break;
+		}
+	}
+	else if (pEvent->data.hid.m_pbHid[0] == 1)
+	{
+		switch (pEvent->data.hid.m_pbHid[3])
+		{
+			case 0x00: sKey = "Previous key up"; break;
+			case 0x52: sKey = "KBD Up Arrow"; break;
+			case 0x50: sKey = "KBD Left Arrow"; break;
+			case 0x28: sKey = "KBD OK"; break;
+			case 0x4F: sKey = "KBD Right Arrow"; break;
+			case 0x51: sKey = "KBD Down Arrow"; break;
+			case 0x1E: sKey = "KBD 1"; break;
+			case 0x1F: sKey = "KBD 2"; break;
+			case 0x20:
+				if (pEvent->data.hid.m_pbHid[1] == 0x00)
+					sKey = "KBD 3";
+				else if (pEvent->data.hid.m_pbHid[1] == 0x02)
+					sKey = "KBD #";
+				else
+					sKey = "KBD 3, Unknown Shift State";
+				break;
+			case 0x21: sKey = "KBD 4"; break;
+			case 0x22: sKey = "KBD 5"; break;
+			case 0x23: sKey = "KBD 6"; break;
+			case 0x24: sKey = "KBD 7"; break;
+			case 0x25:
+				if (pEvent->data.hid.m_pbHid[1] == 0x00)
+					sKey = "KBD 8";
+				else if (pEvent->data.hid.m_pbHid[1] == 0x02)
+					sKey = "KBD *";
+				else
+					sKey = "KBD 8, Unknown Shift State";
+				break;
+			case 0x26: sKey = "KBD 9"; break;
+			case 0x27: sKey = "KBD 0"; break;
+			case 0x2A: sKey = "KBD Clear"; break;
+			case 0x58: sKey = "KBD Enter (Keypad)"; break;
+			default: sKey = "KBD Unknown"; break;
+		}
+	}
+	else if (pEvent->data.hid.m_pbHid[0] == 2)
+	{
+		switch (pEvent->data.hid.m_pbHid[1])
+		{
+			case 0xB0: sKey = "Media Play"; break;
+			case 0xB1: sKey = "Media Pause"; break;
+			case 0xB2: sKey = "Media Record"; break;
+			case 0xB3: sKey = "Media Fast Forward"; break;
+			case 0xB4: sKey = "Media Rewind"; break;
+			case 0xB5: sKey = "Media Next"; break;
+			case 0xB6: sKey = "Media Previous"; break;
+			case 0xB7: sKey = "Media Stop"; break;
+			default: sKey = "Media Unknown"; break;
+		}
+	}
+	g_pPlutoLogger->Write(LV_STATUS, "HID Key: %s", sKey.c_str());
+}
+
+/*
 ACCEPT OUTSIDE INPUT
 */
 
@@ -2545,6 +2663,11 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to 
 		}
 	}
 
+	if (pEvent->type == Orbiter::Event::HID)
+	{
+		TemporaryHidFunction(pEvent);
+	}
+	
     PreprocessEvent(*pEvent);
 	ProcessEvent(*pEvent);
 }
