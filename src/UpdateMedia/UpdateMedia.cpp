@@ -322,7 +322,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 	);
 
     PlutoMediaFile PlutoMediaParentFolder(m_pDatabase_pluto_media, m_nPK_Installation,
-        FileUtils::BasePath(sDirectory),FileUtils::FilenameWithoutPath(sDirectory));
+        FileUtils::BasePath(sDirectory),FileUtils::FilenameWithoutPath(sDirectory), true);
 
     cout << (int) listSubDirectories.size() << " sub directories" << endl;
 	for(list<string>::iterator it=listSubDirectories.begin();it!=listSubDirectories.end();++it)
