@@ -40,13 +40,15 @@ unsigned long ProcessUtils::GetMicroTime()
 
 Gallery* Gallery::Instance_ = NULL;
 
-Gallery::Gallery(): Quit(false), FrontEnd(NULL), Scenario(NULL)
+Gallery::Gallery(): Quit(false), FrontEnd(NULL), Scenario(NULL), m_FrontEndMutex("front end mutex")
 {
+	m_FrontEndMutex.Init(NULL);
 }
 
 Gallery::~Gallery(void)
 {
 	delete Scenario;
+	pthread_mutex_destroy(&m_FrontEndMutex.mutex);
 }
 
 void Gallery::MainLoop(bool * m_bQuit)
@@ -115,6 +117,8 @@ bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string
 
 void Gallery::CleanUp()
 {
+	PLUTO_SAFETY_LOCK(vm, m_FrontEndMutex);
+
 	delete FrontEnd;
 	FrontEnd = NULL;
 	Event.Type = 0;

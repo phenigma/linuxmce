@@ -52,7 +52,7 @@ bool GalleryScenario::Update(void)
 			return true;
 		}
 
-		if(SDL_GetTicks() - nLastTimeUpdated > ZoomTime)
+		if(int(SDL_GetTicks()) - nLastTimeUpdated > ZoomTime)
 		{
 			g_pPlutoLogger->Write(LV_ALARM, "Painting the image...");
 			BeforePicture->LoadFromFile(Browser->NextFile());

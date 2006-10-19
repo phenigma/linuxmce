@@ -27,8 +27,8 @@ Frame* AnimatedPicture::GetFrame()
 
 void AnimatedPicture::SetZoomKind(int StartTime, int ZoomTime)
 {
-	Zoom = ZoomFactory::Instance()->CreateZoomType(rand()%2, PictureFrame, 
-		(int)Picture->Width*Picture->MaxU, (int)Picture->Height*Picture->MaxV, 
+	Zoom = ZoomFactory::Instance()->CreateZoomType(rand() % 2, PictureFrame, 
+		int(Picture->Width * Picture->MaxU), int(Picture->Height * Picture->MaxV), 
 		StartTime, ZoomTime);
 }
 

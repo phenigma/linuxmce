@@ -1,6 +1,8 @@
 #ifndef Gallery_H_
 #define Gallery_H_
 
+#include "DCE/Logger.h"
+
 #include "SDLFrontEnd.h"
 #include "GalleryScenario.h"
 #include "ExtensionManager.h"
@@ -25,6 +27,8 @@ class Gallery
 	static Gallery* Instance_;
 	SDLFrontEnd* FrontEnd;
 	bool Quit;
+	pluto_pthread_mutex_t m_FrontEndMutex;
+
 	/**
 	* Last pending event definition
 	*/

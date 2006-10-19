@@ -35,7 +35,7 @@ Photo_Screen_Saver::Photo_Screen_Saver(Command_Impl *pPrimaryDeviceCommand, Devi
 Photo_Screen_Saver::~Photo_Screen_Saver()
 //<-dceag-dest-e->
 {
-	
+	Terminate();
 }
 
 //<-dceag-getconfig-b->
