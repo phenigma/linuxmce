@@ -44,9 +44,9 @@ function coverArt($output,$mediadbADO) {
 			<input type="hidden" name="section" value="coverArt">
 			<input type="hidden" name="action" value="update">
 
-		<table width="600">
+		<table width="700">
 			<tr>
-				<td width="300">
+				<td width="250">
 					<a href="javascript:showType(\'allFiles\');">['.$TEXT_SHOW_ALL_FILES_CONST.']</a><br>
 					<a href="javascript:showType(\'filesNoCover\');">['.$TEXT_SHOW_FILES_NO_COVERART_CONST.']</a><br>
 					<a href="javascript:showType(\'allDiscs\');">['.$TEXT_SHOW_ALL_DISCS_CONST.']</a><br>
@@ -55,7 +55,7 @@ function coverArt($output,$mediadbADO) {
 					<a href="javascript:showType(\'attributesNoCover\');">['.$TEXT_SHOW_ALL_ATTRIBUTES_WITH_NO_COVER_ART_CONST.']</a><br>
 					<a href="index.php?section=matchCoverArt">['.$TEXT_MATCH_FILES_TO_COVER_ART_CONST.']</a><br>
 				</td>
-				<td align="right" valign="top">
+				<td align="right" valign="top" width="250">
 					<table>
 						<tr>
 							<td>'.$TEXT_ITEMS_PER_PAGE_CONST.'</td>
@@ -66,14 +66,12 @@ function coverArt($output,$mediadbADO) {
 							<td>'.pulldownFromArray($mediaTypes,'mediaType',$mediaType,'onChange=\'reloadPage();\'','key','').'</td>
 						</tr>
 						<tr>
-							<td>Automatic script</td>
-							<td><input type="submit" class="button" name="automatic" value="'.$automatic_label.'"></td>
-						</tr>		
-						<tr>
 							<td colspan="2" class="err">'.@$warning.'</td>
 						</tr>						
 					</table>
 				</td>
+				<td valign="top">Auto scan all media *&nbsp; <input type="submit" class="button" name="automatic" value="'.$automatic_label.'"><br><br>
+				<em>* Automatic process will scan all media files, both audio and video.</em></td>
 			</tr>		
 		</table>	
 		'.outputItemsToScan($type,$mediaType,$mediadbADO).'
@@ -150,7 +148,7 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 	switch ($type){
 		case 'allFiles':
 			$extra=($mediaType==3)?' OR EK_MediaType=5':'';
-			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,\'/\',Filename) AS Label',$mediadbADO,'LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType ='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) LIMIT 0,200');
+			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,\'/\',Filename) AS Label',$mediadbADO,'LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType ='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) AND Missing=0 LIMIT 0,200');
 			$itemName='fileID';
 			$title=$TEXT_SHOW_ALL_FILES_CONST;
 		break;
@@ -168,7 +166,7 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 			*/
 			// todo: remove limit
 			$extra=($mediaType==3)?' OR EK_MediaType=5':'';
-			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,\'/\',Filename) AS Label',$mediadbADO,'LEFT JOIN Picture_File ON  Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) GROUP BY PK_File HAVING count(FK_Picture)=0 ORDER BY PK_File DESC LIMIT 0,200');
+			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,\'/\',Filename) AS Label',$mediadbADO,'LEFT JOIN Picture_File ON  Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) AND Missing=0 GROUP BY PK_File HAVING count(FK_Picture)=0 ORDER BY PK_File DESC LIMIT 0,200');
 			$itemName='fileID';
 			$title=$TEXT_SHOW_FILES_NO_COVERART_CONST;
 		break;

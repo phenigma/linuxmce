@@ -1551,6 +1551,10 @@ function deviceForScenariosSelector_old($name,$selectedValue,$dbADO,$allowNoValu
 
 function getDeviceNameForScenarios($deviceID,$dbADO)
 {
+	if((int)$deviceID==0){
+		return '';		
+	}
+	
 	$query = '
 		SELECT Device.*, Room.Description AS RoomName, DeviceTemplate.Description AS Template
 		FROM Device 
