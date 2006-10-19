@@ -1,6 +1,7 @@
 #include "DCE/Logger.h"
 #include "../Orbiter.h"
 
+#define HAVE_STDBOOL_H
 #include <hid.h>
 #include <stdio.h>
 #include <string.h>
@@ -15,7 +16,7 @@ void *ProcessHIDEvents(void *p)
 
 	/* see include/debug.h for possible values */
 	//hid_set_debug(HID_DEBUG_ALL);
-	hid_set_debug(0);
+	hid_set_debug(HID_DEBUG_NONE);
 	hid_set_debug_stream(stderr);
 	/* passed directly to libusb */
 	hid_set_usb_debug(0);
@@ -51,7 +52,7 @@ void *ProcessHIDEvents(void *p)
 	unsigned char packet[RECV_PACKET_LEN];
 	do
 	{
-		ret = hid_interrupt_read(hid, 0x81, packet, RECV_PACKET_LEN, 250);
+		ret = hid_interrupt_read(hid, 0x81, (char *) packet, RECV_PACKET_LEN, 250);
 		int i;
 		if (ret != HID_RET_SUCCESS && ret != HID_RET_FAIL_INT_READ)
 		{
@@ -62,11 +63,11 @@ void *ProcessHIDEvents(void *p)
 g_pPlutoLogger->Write(LV_WARNING,"ProcessHIDEvents hid_get_input_report ret %d\n", ret);
 			for (i = 0; i < RECV_PACKET_LEN; i++)
 			{
-g_pPlutoLogger->Write(LV_WARNING,"ProcessHIDEvents %02x ", (unsigned char) packet[i);
+g_pPlutoLogger->Write(LV_WARNING,"ProcessHIDEvents %02x ", (unsigned char) packet[i]);
 				Orbiter::Event *pEvent = new Orbiter::Event;
 
 				pEvent->type=Orbiter::Event::HID;
-				pEvent->data.hid.m_iHid = packet[i);
+				pEvent->data.hid.m_iHid = packet[i];
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents queueing to orbiter   rrr");
 #endif
@@ -92,4 +93,6 @@ g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents queueing to orbiter   rrr");
 	}
 	
 	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents exiting");
+
+	return NULL;
 }
