@@ -61,7 +61,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 
 		PlutoSqlResult result;
 		MYSQL_ROW row;
-		if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+		if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) && NULL != row[0])
 			iPK_DeviceTemplate = atoi(row[0]);
 	}
 
