@@ -324,6 +324,8 @@ cout << sFile << " exists in db as: " << PK_File << endl;
     PlutoMediaFile PlutoMediaParentFolder(m_pDatabase_pluto_media, m_nPK_Installation,
         FileUtils::BasePath(sDirectory),FileUtils::FilenameWithoutPath(sDirectory), true);
 
+	bool bDirIsDvd = false;
+
     cout << (int) listSubDirectories.size() << " sub directories" << endl;
 	for(list<string>::iterator it=listSubDirectories.begin();it!=listSubDirectories.end();++it)
 	{
@@ -368,9 +370,9 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 			m_pDatabase_pluto_media->File_get()->Commit();
 
 			PlutoMediaParentFolder.SetFileAttribute(PK_File);
+			bDirIsDvd = true;
 			break; // Don't recurse anymore
 		}
-
 
 		map<string,pair<Row_File *,bool> >::iterator itMapFiles = mapFiles.find(FileUtils::FilenameWithoutPath(sSubDir));
 		if( itMapFiles!=mapFiles.end() && !itMapFiles->second.first->IsDirectory_get())
@@ -394,6 +396,12 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 		int i = ReadDirectory(sSubDir, bRecursive);
 		if( !PK_Picture )
 			PK_Picture = i;
+	}
+
+	if(!bDirIsDvd)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Adding parent folder to db: %s", sDirectory.c_str());
+		PlutoMediaParentFolder.HandleFileNotInDatabase(0);
 	}
 
 	// Whatever was the first picture we found will be the one for this directory
