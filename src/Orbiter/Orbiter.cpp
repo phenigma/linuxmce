@@ -4660,6 +4660,10 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 	if( !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )
 		return;
 
+#ifdef DEBUG
+	DumpScreenHistory();
+#endif
+
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 	ScreenHistory *pScreenHistory=NULL;
 
@@ -4722,6 +4726,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Go_back to %d with %d=%s",pScreenHistory-
 				}
 
 			}
+
 			CMD_Goto_Screen(m_pScreenHistory_Current->ScreenID(),m_pScreenHistory_Current->PK_Screen(),sCMD_Result,pMessageTemp);
 			delete pMessageTemp;
 		}
@@ -4740,6 +4745,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Go_back to %d with %d=%s",pScreenHistory-
 #ifdef DEBUG
 	DumpScreenHistory();
 #endif
+
+	ScreenHistory::m_bAddToHistory = true;
 }
 
 //<-dceag-c5-b->
@@ -5022,8 +5029,6 @@ void Orbiter::CMD_Remove_Screen_From_History(string sID,int iPK_Screen,string &s
 			CMD_Go_back("","");
 		}
 	}
-
-	ScreenHistory::m_bAddToHistory = true;
 }
 
 //<-dceag-c9-b->

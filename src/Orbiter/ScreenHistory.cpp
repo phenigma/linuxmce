@@ -114,15 +114,15 @@ string ScreenHistory::ToString()
 
 	sOutput += ")";
 
-	sOutput += " vars[";
+	//sOutput += " vars[";
 
-	for(map<int, string>::const_iterator itm = m_mapVariable.begin(); itm != m_mapVariable.end(); ++itm)
-	{
-		if(itm->second != "")
-			sOutput += StringUtils::ltos(itm->first) + "-" + itm->second + " ";
-	}
+	//for(map<int, string>::const_iterator itm = m_mapVariable.begin(); itm != m_mapVariable.end(); ++itm)
+	//{
+	//	if(itm->second != "")
+	//		sOutput += StringUtils::ltos(itm->first) + "-" + itm->second + " ";
+	//}
 
-	sOutput += "]";
+	//sOutput += "]";
 
 	return sOutput;
 }
