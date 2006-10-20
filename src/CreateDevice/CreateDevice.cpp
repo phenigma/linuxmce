@@ -21,7 +21,6 @@
 #define chdir _chdir  // Why, Microsoft, why?
 #define mkdir _mkdir  // Why, Microsoft, why?
 #else
-
 #endif
 
 #include "pluto_main/Database_pluto_main.h"
