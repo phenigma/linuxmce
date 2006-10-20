@@ -408,7 +408,16 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 			"' AND Missing = 0";
 
 		PlutoSqlResult allresult;
-		if(!(allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+		MYSQL_ROW row;
+		bool bAlreadyinDb = false;
+        if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+        {
+        	row = mysql_fetch_row(allresult.r);
+            if(row && atoi(row[0]) > 0)
+				bAlreadyinDb = true;
+		}
+
+		if(!bAlreadyinDb)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Adding parent folder to db: %s", sDirectory.c_str());
 			PlutoMediaParentFolder.HandleFileNotInDatabase(0);
