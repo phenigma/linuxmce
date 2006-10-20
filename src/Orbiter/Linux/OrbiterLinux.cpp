@@ -354,6 +354,13 @@ bool OrbiterLinux::TranslateEvent_HID(Orbiter::Event &event)
 #define MediaKey(key,button) (map_MediaKeyToEvent[(key)] = (button))
 #define MonsterKey(key,button) (map_MonsterKeyToEvent[(key)] = (button))
 
+	typedef map<pair_int_int, string> map_pair_int_int2str;
+	typedef map<int, string> map_int2str;
+
+#define StdKeyIR(shift,key,button) (map_StdKeyToIR[pair_int_int((shift), (key))] = (button))
+#define MediaKeyIR(key,button) (map_MediaKeyToIR[(key)] = (button))
+#define MonsterKeyIR(key,button) (map_MonsterKeyToIR[(key)] = (button))
+
 	// map from Standard Keyboard to Button
 	map_pair_int_int2int map_StdKeyToEvent;
 	StdKey(0x00, 0x1e, BUTTON_1_CONST);
@@ -376,16 +383,30 @@ bool OrbiterLinux::TranslateEvent_HID(Orbiter::Event &event)
 	StdKey(0x00, 0x52, BUTTON_Up_Arrow_CONST);
 	StdKey(0x00, 0x58, BUTTON_Enter_CONST); // Enter key under the keypad
 
+	// map from Standard Keyboard to IR
+	map_pair_int_int2str map_StdKeyToIR;
+
 	// map from Media Key to Button
 	map_int2int map_MediaKeyToEvent;
 	//MediaKey(0xB0, BUTTON_Play_CONST);
 	//MediaKey(0xB1, BUTTON_Pause_CONST);
-	MediaKey(0xB2, BUTTON_Record_CONST);
+	//MediaKey(0xB2, BUTTON_Record_CONST);
 	//MediaKey(0xB3, BUTTON_Forward_CONST);
 	//MediaKey(0xB4, BUTTON_Reverse_CONST);
 	//MediaKey(0xB5, BUTTON_Skip_CONST);
 	//MediaKey(0xB6, BUTTON_Replay_CONST);
 	//MediaKey(0xB7, BUTTON_Stop_CONST);
+	
+	// map from Media Key to IR
+	map_int2str map_MediaKeyToIR;
+	MediaKeyIR(0xB0, "Play");
+	MediaKeyIR(0xB1, "Pause");
+	MediaKeyIR(0xB2, "Record");
+	MediaKeyIR(0xB3, "FastForward");
+	MediaKeyIR(0xB4, "Rewind");
+	MediaKeyIR(0xB5, "SkipNext");
+	MediaKeyIR(0xB6, "SkipPrior");
+	MediaKeyIR(0xB7, "Stop");
 	
 	// map from Monster Key to Button
 	map_int2int map_MonsterKeyToEvent;
@@ -398,7 +419,7 @@ bool OrbiterLinux::TranslateEvent_HID(Orbiter::Event &event)
 	//MonsterKey(0x9C, BUTTON_Channel_Up_CONST);
 	//MonsterKey(0x9D, BUTTON_Channel_Down_CONST);
 	//MonsterKey(0xC1, BUTTON_Live_TV_CONST);
-	//MonsterKey(0xE2, BUTTON_Mut);
+	//MonsterKey(0xE2, BUTTON_Mute_CONST);
 	//MonsterKey(0xE9, BUTTON_Volume_Up_CONST);
 	//MonsterKey(0xEA, BUTTON_Volume_Down_CONST);
 	//MonsterKey(0xC9, BUTTON_Help_CONST);
@@ -407,6 +428,27 @@ bool OrbiterLinux::TranslateEvent_HID(Orbiter::Event &event)
 	//MonsterKey(0xCB, BUTTON_Media_CONST);
 	//MonsterKey(0xCC, BUTTON_Menu_CONST);
 	//MonsterKey(0xCD, BUTTON_Ambiance_CONST);
+
+	// map from Monster Key to IR
+	map_int2str map_MonsterKeyToIR;
+	//MonsterKeyIR(0x46, "My_Pictures");
+	//MonsterKeyIR(0x47, "My_Music");
+	//MonsterKeyIR(0x49, "My_TV");
+	//MonsterKeyIR(0x4A, "My_Videos");
+	MonsterKeyIR(0x82, "Power");
+	//MonsterKeyIR(0x8D, "Guide");
+	MonsterKeyIR(0x9C, "ChUp");
+	MonsterKeyIR(0x9D, "ChDown");
+	//MonsterKeyIR(0xC1, "Live_TV");
+	MonsterKeyIR(0xE2, "Mute");
+	MonsterKeyIR(0xE9, "VolUp");
+	MonsterKeyIR(0xEA, "VolDn");
+	//MonsterKeyIR(0xC9, "Help");
+	//MonsterKeyIR(0xC2, "DVD_Menu");
+	//MonsterKeyIR(0xCA, "Input");
+	//MonsterKeyIR(0xCB, "Media");
+	MonsterKeyIR(0xCC, "Menu");
+	//MonsterKeyIR(0xCD, "Ambiance");
 
 	/* 
 	 * last key's code
@@ -438,10 +480,20 @@ bool OrbiterLinux::TranslateEvent_HID(Orbiter::Event &event)
 			else
 			{
 				map_pair_int_int2int::iterator itStd = map_StdKeyToEvent.find(pair_int_int(iShiftState, iKey));
-				if (itStd == map_StdKeyToEvent.end())
+				map_pair_int_int2str::iterator itStdIR = map_StdKeyToIR.find(pair_int_int(iShiftState, iKey));
+				if (itStd != map_StdKeyToEvent.end())
+				{
+					event.type = Orbiter::Event::BUTTON_DOWN;
+					event.data.button.m_iPK_Button = iLastKey = itStd->second;
+				}
+				else if (itStdIR != map_StdKeyToIR.end())
+				{
+					IRReceiverBase::ReceivedCode(0, itStdIR->second.c_str());
+				}
+				else
+				{
 					return false;
-				event.type = Orbiter::Event::BUTTON_DOWN;
-				event.data.button.m_iPK_Button = iLastKey = itStd->second;
+				}
 			}
 			break;
 
@@ -451,10 +503,20 @@ bool OrbiterLinux::TranslateEvent_HID(Orbiter::Event &event)
 			iKey = event.data.hid.m_pbHid[1];
 			{
 				map_int2int::iterator itMedia = map_MediaKeyToEvent.find(iKey);
-				if (itMedia == map_MediaKeyToEvent.end())
+				map_int2str::iterator itMediaIR = map_MediaKeyToIR.find(iKey);
+				if (itMedia != map_MediaKeyToEvent.end())
+				{
+					event.type = Orbiter::Event::BUTTON_DOWN;
+					event.data.button.m_iPK_Button = iLastKey = itMedia->second;
+				}
+				else if (itMediaIR != map_MediaKeyToIR.end())
+				{
+					IRReceiverBase::ReceivedCode(0, itMediaIR->second.c_str());
+				}
+				else
+				{
 					return false;
-				event.type = Orbiter::Event::BUTTON_DOWN;
-				event.data.button.m_iPK_Button = iLastKey = itMedia->second;
+				}
 			}
 			break;
 
@@ -468,10 +530,20 @@ bool OrbiterLinux::TranslateEvent_HID(Orbiter::Event &event)
 			iKey = event.data.hid.m_pbHid[3];
 			{
 				map_int2int::iterator itMonster = map_MonsterKeyToEvent.find(iKey);
-				if (itMonster == map_MonsterKeyToEvent.end())
+				map_int2str::iterator itMonsterIR = map_MonsterKeyToIR.find(iKey);
+				if (itMonster != map_MonsterKeyToEvent.end())
+				{
+					event.type = Orbiter::Event::BUTTON_DOWN;
+					event.data.button.m_iPK_Button = iLastKey = itMonster->second;
+				}
+				else if (itMonsterIR != map_MonsterKeyToIR.end())
+				{
+					IRReceiverBase::ReceivedCode(0, itMonsterIR->second.c_str());
+				}
+				else
+				{
 					return false;
-				event.type = Orbiter::Event::BUTTON_DOWN;
-				event.data.button.m_iPK_Button = iLastKey = itMonster->second;
+				}
 			}
 			break;
 	}
