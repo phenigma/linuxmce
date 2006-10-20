@@ -4672,6 +4672,12 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 			// The last screen we went to
 			pScreenHistory = m_listScreenHistory.back(  );
 
+			if(m_pScreenHistory_Current->PK_Screen() == pScreenHistory->PK_Screen())
+			{
+				m_listScreenHistory.pop_back();
+				continue;
+			}
+
 			if(!pScreenHistory->GoBack())
 			{
 #ifdef DEBUG
@@ -4683,8 +4689,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 				if( pScreenHistory->m_bCantGoBack && sForce!="1"  )
 					continue;
 			}
-
-			if(pScreenHistory->HistoryEmpty())
+			else if(pScreenHistory->HistoryEmpty())
 				m_listScreenHistory.pop_back();
 
 			break;   // We got one to go back to
@@ -5017,6 +5022,8 @@ void Orbiter::CMD_Remove_Screen_From_History(string sID,int iPK_Screen,string &s
 			CMD_Go_back("","");
 		}
 	}
+
+	ScreenHistory::m_bAddToHistory = true;
 }
 
 //<-dceag-c9-b->
