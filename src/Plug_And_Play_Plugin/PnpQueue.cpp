@@ -219,6 +219,8 @@ bool PnpQueue::Process(PnpQueueEntry *pPnpQueueEntry)
 
 bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Detected: %s", pPnpQueueEntry->ToString().c_str());
+
 	if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="serial" )
 	{
 		// The serial ports on this box probably changed
@@ -315,6 +317,8 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 
 bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueueEntry)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Confirm_Possible_DT: %s", pPnpQueueEntry->ToString().c_str());
+
 	vector<Row_UnknownDevices *> vectRow_UnknownDevices;
 	string sSqlWhere;
 	if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().size() )
@@ -490,6 +494,8 @@ bool PnpQueue::CheckForDeviceTemplateOnWeb(PnpQueueEntry *pPnpQueueEntry)
 
 bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQueueEntry)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Prompting_User_For_DT: %s", pPnpQueueEntry->ToString().c_str());
+
 	if( pPnpQueueEntry->m_iPK_DHCPDevice ) // See if the user already picked this from the menu
 	{
 		if( pPnpQueueEntry->m_iPK_DHCPDevice!=-1 )
@@ -639,6 +645,8 @@ g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_F
 
 bool PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script(PnpQueueEntry *pPnpQueueEntry)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script: %s", pPnpQueueEntry->ToString().c_str());
+
 	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_pre_pnp_script )
 	{
 		if( time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PRE_PNP_SCRIPT )
@@ -678,6 +686,8 @@ bool PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script(PnpQueueEntry *pPnpQu
 
 bool PnpQueue::Process_Detect_Stage_Prompting_User_For_Options(PnpQueueEntry *pPnpQueueEntry)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Prompting_User_For_Options: %s", pPnpQueueEntry->ToString().c_str());
+
 	if( pPnpQueueEntry->m_bCreateWithoutPrompting==false && BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
 		return false; // Let this one get backed up, if it's not one to just auto create regardless
 
@@ -701,6 +711,8 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_Options(PnpQueueEntry *pP
 
 bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Add_Device: %s", pPnpQueueEntry->ToString().c_str());
+
 	Command_Impl *pCommand_Impl_GIP = m_pPlug_And_Play_Plugin->m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST);
 	Row_DeviceTemplate *pRow_DeviceTemplate = pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_getrow();
 	if( !pRow_DeviceTemplate || !pCommand_Impl_GIP ) // They must all be here
@@ -732,6 +744,8 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 
 bool PnpQueue::Process_Detect_Stage_Add_Software(PnpQueueEntry *pPnpQueueEntry)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Add_Software: %s", pPnpQueueEntry->ToString().c_str());
+
 	Command_Impl *pCommand_Impl_GIP = m_pPlug_And_Play_Plugin->m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST);
 	if( pCommand_Impl_GIP )
 	{
@@ -750,6 +764,8 @@ bool PnpQueue::Process_Detect_Stage_Add_Software(PnpQueueEntry *pPnpQueueEntry)
 
 bool PnpQueue::Process_Detect_Stage_Start_Device(PnpQueueEntry *pPnpQueueEntry)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Start_Device: %s", pPnpQueueEntry->ToString().c_str());
+
 	Command_Impl *pCommand_Impl_GIP = m_pPlug_And_Play_Plugin->m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST);
 	if( pCommand_Impl_GIP )
 	{
@@ -769,6 +785,8 @@ bool PnpQueue::Process_Detect_Stage_Start_Device(PnpQueueEntry *pPnpQueueEntry)
 
 bool PnpQueue::Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Remove_Stage_Removed: %s", pPnpQueueEntry->ToString().c_str());
+
 	LocateDevice(pPnpQueueEntry);
 	Row_Device *pRow_Device_Created = pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_getrow() : NULL;  // This will be NULL if it's a new device
 	if( pRow_Device_Created )
@@ -962,6 +980,8 @@ bool PnpQueue::DeviceMatchesCriteria(Row_Device *pRow_Device,PnpQueueEntry *pPnp
 
 bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnpQueueEntry)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Running_Detction_Scripts: %s", pPnpQueueEntry->ToString().c_str());
+
 	if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==0 )
 	{
 		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);

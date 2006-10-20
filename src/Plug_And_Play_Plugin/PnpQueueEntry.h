@@ -77,6 +77,7 @@ namespace DCE
 		void AssignDeviceData(Row_Device *pRow_Device);
 		bool IsDuplicate(PnpQueueEntry *pPnpQueueEntry);  // Returns true if the entry passed in is the same as this one
 		string StageAsText();
+		string ToString();
 	};
 }
 

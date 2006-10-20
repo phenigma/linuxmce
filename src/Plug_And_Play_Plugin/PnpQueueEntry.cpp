@@ -300,3 +300,13 @@ string PnpQueueEntry::StageAsText()
 	return "ERROR--Stage";
 }
 
+string PnpQueueEntry::ToString()
+{
+    return 
+		string("PnpQueueEntry( ") + 
+		"m_bCreateWithoutPrompting = " + StringUtils::ltos((long)m_bCreateWithoutPrompting) + ", "
+		"m_EBlockedState = " + StringUtils::ltos((long)m_EBlockedState) + ", "
+		"Stage = " + StageAsText() + ", "
+		" )";
+}
+
