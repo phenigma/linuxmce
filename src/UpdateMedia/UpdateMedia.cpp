@@ -400,8 +400,23 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 
 	if(!bDirIsDvd)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Adding parent folder to db: %s", sDirectory.c_str());
-		PlutoMediaParentFolder.HandleFileNotInDatabase(0);
+		string sBaseDirectory = FileUtils::BasePath(sDirectory);
+		string sDirectoryName = FileUtils::FilenameWithoutPath(sDirectory);
+		string SQL = "SELECT count(*) FROM File WHERE Path = '" + 
+			StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sBaseDirectory)) + "' AND "
+			" Filename = '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sDirectoryName)) + 
+			"' AND Missing = 0";
+
+		PlutoSqlResult allresult;
+		if(!(allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Adding parent folder to db: %s", sDirectory.c_str());
+			PlutoMediaParentFolder.HandleFileNotInDatabase(0);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Parent folder already in the database: %s", sDirectory.c_str());
+		}
 	}
 
 	// Whatever was the first picture we found will be the one for this directory
