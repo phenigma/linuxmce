@@ -24,4 +24,6 @@ $TEXT_GET_AMAZON_ATTRIBUTES_CONST='Get Amazon attributes & cover art';
 $TEXT_AMAZON_KEYWORD_CONST='Amazon keyword';
 $TEXT_FILENAME_CONST='Filename';
 $TEXT_WARNING_AUTOMATIC_GRAB_ACTIVE_CONST='Automatic script who retrieve coverarts from Amazon is working. You can stop it at any time or let it finish then match the results.';
+$TEXT_SEARCH_FOR_PATH_CONST='Search for path';
+$TEXT_AND_OR_FILENAME_CONST='and/or filename';
 ?>
