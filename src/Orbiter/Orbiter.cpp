@@ -4700,12 +4700,12 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 	if(  pScreenHistory  )
 	{
 		ScreenHistory::m_bAddToHistory = false;
-		m_pScreenHistory_NewEntry = pScreenHistory;
+		m_pScreenHistory_Current = pScreenHistory;
  
 		string sCMD_Result;
-		if( m_mapPK_Screen_GoBackToScreen.find(m_pScreenHistory_NewEntry->PK_Screen())!=m_mapPK_Screen_GoBackToScreen.end() )
+		if( m_mapPK_Screen_GoBackToScreen.find(m_pScreenHistory_Current->PK_Screen())!=m_mapPK_Screen_GoBackToScreen.end() )
 		{
-g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Go_back to %d is a gobacktoscreen",m_pScreenHistory_NewEntry->PK_Screen());
+g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Go_back to %d is a gobacktoscreen",m_pScreenHistory_Current->PK_Screen());
 			Message *pMessageTemp=NULL;
 			if( pScreenHistory->m_mapParameters.size() )
 			{
@@ -4717,12 +4717,13 @@ g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Go_back to %d with %d=%s",pScreenHistory-
 				}
 
 			}
-			CMD_Goto_Screen(m_pScreenHistory_NewEntry->ScreenID(),m_pScreenHistory_NewEntry->PK_Screen(),sCMD_Result,pMessageTemp);
+			CMD_Goto_Screen(m_pScreenHistory_Current->ScreenID(),m_pScreenHistory_Current->PK_Screen(),sCMD_Result,pMessageTemp);
 			delete pMessageTemp;
 		}
 		else
 		{
 			m_pContextToBeRestored = pScreenHistory;  // Don't do this if we're going to the screen
+			m_pScreenHistory_NewEntry = m_pScreenHistory_Current;
 			g_pPlutoLogger->Write(LV_STATUS,"CMD_Go_back to %d is not a gobacktoscreen",m_pScreenHistory_NewEntry->PK_Screen());
 			CMD_Goto_DesignObj(0, pScreenHistory->GetObj()->m_ObjectID, pScreenHistory->ScreenID(),
 				"", false, pScreenHistory->GetObj()->m_bCantGoBack);
