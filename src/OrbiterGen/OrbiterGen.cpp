@@ -702,8 +702,8 @@ m_bNoEffects = true;
 		iSpacingParameter = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str());
 		if( iSpacingParameter>0 && iSpacingParameter<50 )
 		{
-			m_rSpacing.Width = m_rSpacing.X = m_pRow_Size->Width_get() * ( iSpacingParameter/2 ) / 100;
-			m_rSpacing.Height = m_rSpacing.Y = m_pRow_Size->Height_get() * ( iSpacingParameter/2 ) / 100;
+			m_rSpacing.Width = m_rSpacing.X = m_pRow_Size->Width_get() * ( ((double) iSpacingParameter)/2 ) / 100;
+			m_rSpacing.Height = m_rSpacing.Y = m_pRow_Size->Height_get() * ( ((double) iSpacingParameter)/2 ) / 100;
 			// We're not going to ever commit m_pRow_Size, so just change the scale accordingly
 			m_pRow_Size->ScaleX_set( m_pRow_Size->ScaleX_get() - (m_pRow_Size->ScaleX_get() * iSpacingParameter / 100) );
 			m_pRow_Size->ScaleY_set( m_pRow_Size->ScaleY_get() - (m_pRow_Size->ScaleY_get() * iSpacingParameter / 100) );
@@ -805,12 +805,22 @@ m_bNoEffects = true;
 		m_sizeScreen->Width = m_pRow_Size->Width_get() * 1000 / m_sScale.Width;
 	}
 
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"OrbiterGen before adj spacing X %d Y %d W %d H %d scale W %d H %d",
+		m_rSpacing.X,m_rSpacing.Y,m_rSpacing.Width,m_rSpacing.Height,m_sScale.Width,m_sScale.Height);
+#endif
+
 	// See if we need to reduce the scaling because of borders around the screen
 	if( m_rSpacing.X || m_rSpacing.Width )
 		m_sScale.Width = (double) m_sScale.Width * (100-iSpacingParameter) / 100;
 
 	if( m_rSpacing.Y || m_rSpacing.Height )
 		m_sScale.Height = (double) m_sScale.Height * (100-iSpacingParameter) / 100;
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"OrbiterGen after adj spacing X %d Y %d W %d H %d scale W %d H %d",
+		m_rSpacing.X,m_rSpacing.Y,m_rSpacing.Width,m_rSpacing.Height,m_sScale.Width,m_sScale.Height);
+#endif
 
 	int i=0;
 
@@ -1367,7 +1377,6 @@ loop_to_keep_looking_for_objs_to_include:
 					else
 					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-						m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 					}
 				}
 				if( row[4] ) // FK_Screen_Alt
@@ -1378,7 +1387,6 @@ loop_to_keep_looking_for_objs_to_include:
 					else
 					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-						m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 					}
 				}
 				if( row[5] && m_bIsOSD ) // FK_Screen_Alt_OSD
@@ -1389,7 +1397,6 @@ loop_to_keep_looking_for_objs_to_include:
 					else
 					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-						m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 					}
 				}
 				if( row[6] && m_bIsOSD ) // FK_Screen_OSD_Speed
@@ -1400,7 +1407,6 @@ loop_to_keep_looking_for_objs_to_include:
 					else
 					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-						m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 					}
 				}
 				if( row[7] && m_bIsOSD ) // FK_Screen_OSD_Track
@@ -1411,7 +1417,6 @@ loop_to_keep_looking_for_objs_to_include:
 					else
 					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-						m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 					}
 				}
 			}
@@ -1495,11 +1500,6 @@ loop_to_keep_looking_for_objs_to_include:
 		{
 			m_iPK_DesignObj_Screen = m_pRow_DesignObjDependancy->PK_DesignObj_get();
 			DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,m_pRow_DesignObjDependancy,PlutoRectangle(0,0,0,0),NULL,true,false);
-			if( m_iUiVersion==2 )
-			{
-				ocDesignObj->m_bIsPopup=true;
-				m_mapPopups[ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()]=true;
-			}
 			if( ocDesignObj->m_bUsingCache )
 			{
 				SearchForGotos(ocDesignObj);

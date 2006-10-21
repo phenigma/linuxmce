@@ -93,14 +93,14 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
                 break;
 
             default:
-                status = MEDIATYPE_pluto_CD_CONST;
+                status = 0;
                 break;
         }
         close (fd);
 
         g_pPlutoLogger->Write(LV_WARNING, "Disc of type %d was detected", status, mrl.c_str());
 
-        if ( bFireEvent )
+        if ( bFireEvent && status )
         {
 			m_discid=time(NULL);
 			g_pPlutoLogger->Write(LV_WARNING, "One Media Inserted event fired (%s) m_discid: %d", mrl.c_str(),m_discid);

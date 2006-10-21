@@ -1063,6 +1063,15 @@ void ScreenHandler::SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sM
 
 void ScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_Device, string sText, string sDescription)
 {
+	if( iPK_Device==0 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"ScreenHandler::SCREEN_Choose_Provider_for_Device Device no device");
+		return;
+	}
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::SCREEN_Choose_Provider_for_Device Device %d",iPK_Device);
+#endif
+
 	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::itos(iPK_Device));
 	ScreenHandlerBase::SCREEN_Choose_Provider_for_Device(PK_Screen, iPK_Device,sText,sDescription);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::ChooseProvider_ObjectSelected, new ObjectInfoBackData());
@@ -1157,7 +1166,7 @@ bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 	if(iRow==0)
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted no OK");
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted no OK CALLING CMD_Remove_Screen_From_History with id: %s PK_Screen %d",m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 #endif
 		DCE::CMD_Remove_Screen_From_History CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 		m_pOrbiter->SendCommand(CMD_Remove_Screen_From_History);
@@ -1359,6 +1368,9 @@ void ScreenHandler::ChooseProviderGetNextStage()
 		int PK_Device = atoi(m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str());
 		DCE::CMD_Specify_Media_Provider CMD_Specify_Media_Provider(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,PK_Device,sAllArguments);
 		m_pOrbiter->SendCommand(CMD_Specify_Media_Provider);
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProviderGetNextStage CALLING CMD_Remove_Screen_From_History with id: %s PK_Screen %d",m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+#endif
 		DCE::CMD_Remove_Screen_From_History CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 		m_pOrbiter->SendCommand(CMD_Remove_Screen_From_History);
 

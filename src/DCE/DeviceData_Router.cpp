@@ -52,18 +52,18 @@ DeviceData_Base *DeviceData_Router::FindFirstRelatedDeviceOfCategory(int PK_Devi
 						if( tTimeout < time(NULL) )
 						{
 							if( g_pPlutoLogger )
-								g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d never registered",m_dwPK_Device);
+								g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d dev %d never registered",PK_DeviceCategory,m_dwPK_Device);
 							return NULL;
 						}
 						Sleep(1000);
 						break;
 					case 'D':
 						if( g_pPlutoLogger )
-							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d is disabled",m_dwPK_Device);
+							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d dev %d is disabled",PK_DeviceCategory,m_dwPK_Device);
 						return NULL;
 					case 'E':
 						if( g_pPlutoLogger )
-							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d comm error",m_dwPK_Device);
+							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d dev %d comm error",PK_DeviceCategory,m_dwPK_Device);
 						return NULL;
 				}
 			}

@@ -245,26 +245,26 @@ DeviceData_Base *DeviceData_Base::FindFirstRelatedDeviceOfCategory(int PK_Device
 						if( tTimeout < time(NULL) )
 						{
 							if( g_pPlutoLogger )
-								g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d never registered",m_dwPK_Device);
+								g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d dev %d never registered",PK_DeviceCategory,m_dwPK_Device);
 							return NULL;
 						}
 #ifdef DEBUG
 						if( g_pPlutoLogger )
-							g_pPlutoLogger->Write(LV_STATUS, "FindFirstRelatedDeviceOfCategory %d waiting for device",m_dwPK_Device);
+							g_pPlutoLogger->Write(LV_STATUS, "FindFirstRelatedDeviceOfCategory %d dev %d waiting for device",PK_DeviceCategory,m_dwPK_Device);
 #endif
 						Sleep(1000);
 						break;
 					case 'D':
 						if( g_pPlutoLogger )
-							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d is disabled",m_dwPK_Device);
+							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d dev %d is disabled",PK_DeviceCategory,m_dwPK_Device);
 						return NULL;
 					case 'E':
 						if( g_pPlutoLogger )
-							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d comm error",m_dwPK_Device);
+							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d dev %d comm error",PK_DeviceCategory,m_dwPK_Device);
 						return NULL;
 					default:
 						if( g_pPlutoLogger )
-							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d has unknown status %c",m_dwPK_Device,Status);
+							g_pPlutoLogger->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d dev %d has unknown status %c",PK_DeviceCategory,m_dwPK_Device,Status);
 				}
 			}
 		}

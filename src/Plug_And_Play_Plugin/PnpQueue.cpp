@@ -226,7 +226,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 		// The serial ports on this box probably changed
 		DeviceData_Router *pDevice_AppServer=NULL,*pDevice_Detector = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceData_Router_Find(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
 		if( pDevice_Detector )
-			pDevice_AppServer = (DeviceData_Router *) pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST, m_pPlug_And_Play_Plugin );
+			pDevice_AppServer = (DeviceData_Router *) pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );  // Don't wait for it
 		if( pDevice_AppServer )
 		{
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
@@ -240,7 +240,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 		// The serial ports on this box probably changed
 		DeviceData_Router *pDevice_AppServer=NULL,*pDevice_Detector = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceData_Router_Find(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
 		if( pDevice_Detector )
-			pDevice_AppServer = (DeviceData_Router *) pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST, m_pPlug_And_Play_Plugin );
+			pDevice_AppServer = (DeviceData_Router *) pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );   // Don't wait for it
 		if( pDevice_AppServer )
 		{
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
@@ -661,7 +661,7 @@ bool PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script(PnpQueueEntry *pPnpQu
 		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow( pRow_DeviceTemplate->PK_DeviceTemplate_get(), DEVICEDATA_Pre_Pnp_Script_CONST);
 		if( pRow_DeviceTemplate_DeviceData && pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().empty()==false )
 		{
-			DeviceData_Base *pDevice_AppServer = m_pPlug_And_Play_Plugin->m_pData->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST, m_pPlug_And_Play_Plugin );
+			DeviceData_Base *pDevice_AppServer = m_pPlug_And_Play_Plugin->m_pData->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST, m_pPlug_And_Play_Plugin, 0 ); // Don't wait for it
 			if( pDevice_AppServer )
 			{
 				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
@@ -669,7 +669,10 @@ bool PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script(PnpQueueEntry *pPnpQu
 					StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + "\t" + StringUtils::itos(m_pPlug_And_Play_Plugin->m_dwPK_Device),
 					"","",false,false,false);
 				if( m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application)==false )
+				{
 					g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script queue %d failed -- aborting",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+					return true;
+				}
 				else
 				{
 					pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_pre_pnp_script);
@@ -677,7 +680,10 @@ bool PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script(PnpQueueEntry *pPnpQu
 				}
 			}
 			else
+			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script queue %d no app server",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+				return true;
+			}
 		}
 	}
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT);
@@ -1032,15 +1038,19 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 
 		if( pDevice_Detector )
 		{
-			pDevice_AppServer = (DeviceData_Router *) pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST, m_pPlug_And_Play_Plugin );
+			pDevice_AppServer = (DeviceData_Router *) pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST, m_pPlug_And_Play_Plugin, 0 );  // Don't wait for it
 			if( !pDevice_AppServer )
 			{
 				DeviceData_Base *pDevice = pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
 				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d checking detection %s but cannot find app server - w/out reg found %p",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_DHCPDevice_To_Detect->PnpDetectionScript_get().c_str(),pDevice);
+				return true;
 			}
 		}
 		else
+		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d checking detection %s but cannot find detector",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_DHCPDevice_To_Detect->PnpDetectionScript_get().c_str());
+			return true;
+		}
 
 		if( pDevice_AppServer )
 		{
@@ -1089,7 +1099,10 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 			return false;
 		}
 		else
+		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d cannot find app server!",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+			return true;
+		}
 	}
 
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
