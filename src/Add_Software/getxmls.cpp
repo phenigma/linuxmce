@@ -80,8 +80,8 @@ int findURL(FILE *f,string &link){
 	const string templ2="\">";
 	char buf[MaxBuf+1];
 	int pos,pos2;
-	static string buf2="";
-	link=(string)"wget "+UserAgent+" -O /tmp/out.xml ";
+	string buf2="";
+	link=(string)"wget "+UserAgent+" -O /tmp/out.html ";
 	while (fread(buf,MaxBuf,1,f)){
 		buf[MaxBuf]='\0';
 		buf2+=buf;
@@ -95,7 +95,7 @@ int findURL(FILE *f,string &link){
 				pos2=buf2.find(templ2,pos+1);
 			}
 			link.append(buf2,pos+MaxBuf,pos2-pos-MaxBuf);
-			buf2.assign(buf2,pos2+1,buf2.length()-pos2);
+//			buf2.assign(buf2,pos2+1,buf2.length()-pos2);
 			return 0;
 		}
 		buf2=buf;
@@ -103,6 +103,44 @@ int findURL(FILE *f,string &link){
 	return 1;
 }
 
+int findXML(FILE *fpage){
+	const string templ=">10faostb</a>";
+	const string templ2="<a href=\"";
+	const string templ3=".xml\"";
+	char buf[MaxBuf+1];
+	int pos,pos2,pos3;
+	string buf2="";
+	string link=(string)"wget "+UserAgent+" -O /tmp/out.xml ";
+	while (fread(buf,MaxBuf,1,fpage)){
+		buf[MaxBuf]='\0';
+		buf2+=buf;
+		pos=buf2.find(templ,0);
+		if(pos!=-1){
+			fseek(fpage,-100,1);
+			buf2="";
+			while(fread(buf,MaxBuf,1,fpage)){
+				buf[MaxBuf]='\0';
+				buf2+=buf;
+				pos2=buf2.find(templ2,0);
+				if(pos2!=-1){
+					pos3=buf2.find(templ3,pos2+1);
+					while(pos3==-1){
+						fread(buf,MaxBuf,1,fpage);
+						buf[MaxBuf]='\0';
+						buf2+=buf;
+						pos3=buf2.find(templ3,pos2+1);
+					}
+					link.append(buf2,pos2+9,pos3+4-pos2-9);
+//					buf2.assign(buf2,pos2+1,buf2.length()-pos2);
+					return system(link.c_str());
+				}
+			}
+		}
+		buf2=buf;
+	}
+	return 1;
+}
+		
 int IsExists(MYSQL *mysql,const string packageName,const string version){
 	string query="SELECT Version FROM `Software` where PackageName=\""+packageName+"\"";
 	MYSQL_RES *res;
@@ -147,8 +185,34 @@ int main(int argc, char *argv[]){
 	MYSQL *mysql;
 	MYSQL_RES *mres;
 	MYSQL_ROW row;
+	bool bError=false;
 	string host="dcerouter",user="root",passwd="",db="pluto_main";
-	string sQuery,query1,sHeadQuery, url;
+	string url="http://www.google.com/search?q=10faostb";
+	for(int i=1;i<argc;i++){
+		if(argv[i][0]!='-'){
+			cerr<<"Unknown option"<<endl;
+			bError=true;
+			break;
+		}
+		char c=argv[i][1];
+		switch(c){
+			case 'h':host=argv[++i];break;
+			case 'u':user=argv[++i];break;
+			case 'p':passwd=argv[++i];break;
+			case 'd':db=argv[++i];break;
+			case 'U':url=argv[++i];break;
+			default:cerr<<"Unknown option"<<endl;
+			bError=true;
+		}
+	}
+	if(bError){
+		cout << "Usage: "<< argv[0]
+				<< " [-h MySql hostname] [-u MySql username] " << endl
+				<< " [-p MySql password] [-d MySql database] " << endl
+				<< " [-U URL of google search]" << endl;
+		return false;
+	}
+	string sQuery,query1,sHeadQuery;
 	char *query, *pDataDecoded, *pGoodData;
 	int length=0,i,Bytes;
 	const string head="INSERT INTO `Software`(Iconstr, Title, Description, HomeURL, Category, Downloadurl, RepositoryName, PackageName, Misc, Version, Target, Importance, PC_Type, Required_Version_Min, Required_Version_Max, FK_Device) VALUES";
@@ -157,18 +221,13 @@ int main(int argc, char *argv[]){
 		cout<<"Error connecting to db:"<<mysql_error(mysql)<<endl;
 		return false;
 	}
-	if(argc>1){
-		url=argv[1];
-	}else{
-		url="http://www.google.com/search?q=10faostb";
-	}
 	res=system(((string)"wget "+UserAgent+" -O /tmp/search.html \""+url+"\"").c_str());
 	if (!res){
-		FILE *fd,*fxml;
+		FILE *fgoogle,*fxml,*fpage;
 		dxml_element *packages,*package;
-		fd=fopen("/tmp/search.html","r");
-		if (!fd){
-			cout<<"Error opening file search.html\n";
+		fgoogle=fopen("/tmp/search.html","r");
+		if (!fgoogle){
+			cout<<"Error opening file search.html"<<endl;
 			return false;
 		}
 		query="select PK_Device from Device where IPaddress is not NULL and IPaddress<>\'\'";
@@ -178,12 +237,20 @@ int main(int argc, char *argv[]){
 				vPK_Device.push_back(row[0]);
 		}
 		string link,packageName,version;
-		while (!findURL(fd,link)){
+		while (!findURL(fgoogle,link)){
 			res=system(link.c_str());
 			if(!res){
+				fpage=fopen("/tmp/out.html","r");
+				if(!fpage){
+					cout<<"Error opening file out.html"<<endl;
+					return false;
+				}
+				if(findXML(fpage)){
+					continue;
+				}
 				fxml=fopen("/tmp/out.xml","r");
 				if (!fxml){
-					cout<<"Error opening file out.xml:"<<mysql_error(mysql)<<endl;
+					cout<<"Error opening file out.xml."<<endl;
 					return false;
 				}
 				packages=dxml_read_xml(fxml);
@@ -290,8 +357,8 @@ int main(int argc, char *argv[]){
 				dxml_free_xml(packages);
 			}
 		}
-		fclose(fd);
+		fclose(fgoogle);
 	}
-	system("rm -f /tmp/search.html /tmp/out.xml");
+	system("rm -f /tmp/search.html /tmp/out.html /tmp/out.xml");
 	return true;
 }
