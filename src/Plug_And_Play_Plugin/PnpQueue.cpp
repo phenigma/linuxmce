@@ -124,7 +124,7 @@ void PnpQueue::Run()
 			// If we've been sitting too long at either a user prompt or a detection script we need to continue anyway
 			if( pPnpQueueEntry->m_EBlockedState != PnpQueueEntry::pnpqe_blocked_none &&
 				( (pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_prompting_options && pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_prompting_device_template) || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER) &&
-				( pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_running_detection_scripts || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_DETECTION_SCRIPT ) 
+				( pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_running_detection_scripts || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_DETECTION_SCRIPT ) &&
 				( pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_waiting_for_other_device || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_WAITING_FOR_DEVICE ) 
 				)
 			{
