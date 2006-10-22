@@ -68,9 +68,9 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 	char buff[20];
 	sprintf(buff, "cmd_%d", (int)pMessage->m_dwID);
 	try {
+		pmanager = RubyIOManager::getInstance();
 		result=callmethod(buff, params);
 		string sCMD_Result="OK";		
-		pmanager = RubyIOManager::getInstance();
 		PLUTO_SAFETY_LOCK(mm,pmanager->m_MsgMutex);
 		if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 		{

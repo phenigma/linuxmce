@@ -444,7 +444,7 @@ RubyIOManager::handleStartup() {
 		if( !rootnode_->handleStartup() )
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "RubyIOManager::handleStartup Disabling because initialization failed");
-			DCE::CMD_Set_Enable_Status_DT CMD_Set_Enable_Status_DT(getDeviceData()->m_dwPK_Device,DEVICETEMPLATE_General_Info_Plugin_CONST,BL_SameHouse,getDeviceData()->m_dwPK_Device,false);
+			DCE::CMD_Set_Enable_Status_DT CMD_Set_Enable_Status_DT(pcmdimpl_->m_dwPK_Device,DEVICETEMPLATE_General_Info_Plugin_CONST,BL_SameHouse,pcmdimpl_->m_dwPK_Device,false);
 			pcmdimpl_->SendMessage(CMD_Set_Enable_Status_DT.m_pMessage);
 		}
 		rootnode_->handleNoMessage(); // added one iteration processing in order for idle to be called first	
