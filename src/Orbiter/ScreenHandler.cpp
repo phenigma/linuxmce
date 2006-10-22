@@ -1083,6 +1083,7 @@ void ScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_De
 	string sPK_DeviceTemplate_MediaType = StringUtils::Tokenize(sText,"\t",pos);
 	string sPK_ProviderSource = StringUtils::Tokenize(sText,"\t",pos);
 	
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, StringUtils::ltos(iPK_Device));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,sText);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,sPK_DeviceTemplate_MediaType + "\t" + sPK_ProviderSource + "\t");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST,sDescription);
@@ -1093,6 +1094,8 @@ void ScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_De
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 {
+	int PK_Device = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST).c_str());
+
 	string sValue; // If this is a set variable for VARIABLE_Execution_Result_CONST, then we got back a response and can continue
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted");
@@ -1168,7 +1171,8 @@ bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted no OK CALLING CMD_Remove_Screen_From_History with id: %s PK_Screen %d",m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 #endif
-		DCE::CMD_Remove_Screen_From_History CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+		DCE::CMD_Remove_Screen_From_History CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
+			StringUtils::itos(PK_Device),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 		m_pOrbiter->SendCommand(CMD_Remove_Screen_From_History);
 		string sText = m_pOrbiter->m_mapTextString[TEXT_error_with_provider_CONST];
 		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,sText,"","errorprovider","1","","1");
@@ -1222,7 +1226,7 @@ bool ScreenHandler::ChooseProvider_ObjectSelected(CallBackData *pData)
 		}
 		else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse2_CONST && m_iStage==CPS_CONFIRM )
 		{
-			int PK_Device = atoi(m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str());
+			int PK_Device = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST).c_str());
 			DCE::CMD_Specify_Media_Provider CMD_Specify_Media_Provider(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,PK_Device,"NONE");
 			m_pOrbiter->SendCommand(CMD_Specify_Media_Provider);
 			m_pOrbiter->CMD_Go_back("","");
@@ -1289,6 +1293,14 @@ bool ScreenHandler::ChooseProvider_DatagridSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::ChooseProviderGetNextStage()
 {
+	if( m_pOrbiter->m_pScreenHistory_Current->PK_Screen()!=SCREEN_Choose_Provider_for_Device_CONST || 
+		atoi(m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str())==0 )
+	{
+		m_pOrbiter->m_pScreenHistory_Current->ScreenID( m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST) );  // Don't know why we keep losing the id
+		g_pPlutoLogger->Write(LV_CRITICAL,"ScreenHandler::ChooseProviderGetNextStage recurring bug to fix -- screen id is: %s PK_Screen %d",
+			m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+	}
+
 	NeedToRender render( m_pOrbiter, "ScreenHandler::ChooseProviderGetNextStage()" );  // Redraw anything that was changed by this command
 	string::size_type pos=0;
 	string sTokens = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST);
@@ -1365,13 +1377,14 @@ void ScreenHandler::ChooseProviderGetNextStage()
 			m_pOrbiter->m_mapVariable_Find(VARIABLE_Password_CONST) + "\t" +
 			sArguments;
 
-		int PK_Device = atoi(m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str());
+		int PK_Device = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST).c_str());
 		DCE::CMD_Specify_Media_Provider CMD_Specify_Media_Provider(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,PK_Device,sAllArguments);
 		m_pOrbiter->SendCommand(CMD_Specify_Media_Provider);
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProviderGetNextStage CALLING CMD_Remove_Screen_From_History with id: %s PK_Screen %d",m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 #endif
-		DCE::CMD_Remove_Screen_From_History CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+		DCE::CMD_Remove_Screen_From_History CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
+			StringUtils::itos(PK_Device),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 		m_pOrbiter->SendCommand(CMD_Remove_Screen_From_History);
 
 		string sText = m_pOrbiter->m_mapTextString[TEXT_Media_provider_specified_CONST];

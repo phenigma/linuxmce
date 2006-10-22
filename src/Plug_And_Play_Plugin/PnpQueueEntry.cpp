@@ -228,7 +228,8 @@ void PnpQueueEntry::AssignDeviceData(Row_Device *pRow_Device)
 
 bool PnpQueueEntry::IsDuplicate(PnpQueueEntry *pPnpQueueEntry)
 {
-	if( m_pRow_PnpQueue->FK_CommMethod_get()==pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get() &&
+	if( (m_pRow_PnpQueue->FK_CommMethod_get()==pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get() // Don't worry about com method for serial devices since it can change from usb to rs232 for generic serial
+		|| (m_pRow_PnpQueue->Category_get()=="serial" && pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="serial") ) &&
 		m_pRow_PnpQueue->Removed_get()==pPnpQueueEntry->m_pRow_PnpQueue->Removed_get() && 
 		m_pRow_PnpQueue->Path_get()==pPnpQueueEntry->m_pRow_PnpQueue->Path_get() &&
 		m_pRow_PnpQueue->VendorModelId_get()==pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() &&
