@@ -985,13 +985,16 @@ bool Security_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMe
 	bool bRegistered = pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST]=="1";
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Security_Plugin::OrbiterRegistered orbiter %d registered %d",
-		pDeviceFrom->m_dwPK_Device,(int) bRegistered);
+		pMessage->m_dwPK_Device_From,(int) bRegistered);
 #endif
 	if( bRegistered )
 	{
-		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDeviceFrom->m_dwPK_Device);
-		SetHouseModeBoundIcon(-1,pOH_Orbiter);
-		SetMonitorModeBoundIcon(pOH_Orbiter);
+		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
+		if( pOH_Orbiter )
+		{
+			SetHouseModeBoundIcon(-1,pOH_Orbiter);
+			SetMonitorModeBoundIcon(pOH_Orbiter);
+		}
 	}
 	return false;
 }

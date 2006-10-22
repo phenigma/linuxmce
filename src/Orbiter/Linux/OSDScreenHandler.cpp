@@ -668,9 +668,6 @@ bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
 				string sInput2 = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST);
 
 				int PK_PostalCode = m_pWizardLogic->GetPostalCode();
-				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalAppServer,
-                                                                 "/usr/pluto/bin/SetupMythHack.sh","mythhack",StringUtils::itos(PK_PostalCode),"","",false,false,false);
-				m_pOrbiter->SendCommand(CMD_Spawn_Application);
 
 				if(atoi(sInput1.c_str())==0)
 				{

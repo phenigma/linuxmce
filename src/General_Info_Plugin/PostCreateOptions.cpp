@@ -51,6 +51,8 @@ void PostCreateOptions::PostCreateDevice(Row_Device *pRow_Device, OH_Orbiter *pO
 
 	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Storage_Devices_CONST) )
 		PostCreateDevice_NetworkStorage(pRow_Device,pOH_Orbiter);
+	else if( pDeviceCategory->WithinCategory(DEVICECATEGORY_FileMedia_Server_CONST) )
+		PostCreateDevice_FileServer(pRow_Device,pOH_Orbiter);
 	else if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Surveillance_Cameras_CONST) )
 		PostCreateDevice_Cameras(pRow_Device,pOH_Orbiter);
 	else if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Security_Device_CONST) )
@@ -93,6 +95,20 @@ void PostCreateOptions::PostCreateSecurityDevice(Row_Device *pRow_Device, OH_Orb
 	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Alert_CONST,sDefaultSecuritySetting);
 }
 
+void PostCreateOptions::PostCreateDevice_FileServer(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
+{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_NetworkStorage device  %d template %d",
+		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get());
+#endif
+	string sName = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Description_CONST);
+	if( sName.empty()==false )
+	{
+		pRow_Device->Description_set(pRow_Device->Description_get() + ": " + sName);
+		m_pDatabase_pluto_main->Device_get()->Commit();
+	}
+}
+
 void PostCreateOptions::PostCreateDevice_NetworkStorage(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
 {
 #ifdef DEBUG
@@ -105,6 +121,13 @@ void PostCreateOptions::PostCreateDevice_NetworkStorage(Row_Device *pRow_Device,
 	{
 		DCE::CMD_Check_Mounts CMD_Check_Mounts(g_pCommand_Impl->m_dwPK_Device,pCommand_Impl_GIP->m_dwPK_Device);
 		g_pCommand_Impl->SendCommand(CMD_Check_Mounts);
+	}
+
+	string sName = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Share_Name_CONST);
+	if( sName.empty()==false )
+	{
+		pRow_Device->Description_set(pRow_Device->Description_get() + ": " + sName);
+		m_pDatabase_pluto_main->Device_get()->Commit();
 	}
 }
 

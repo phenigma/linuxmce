@@ -84,4 +84,4 @@ chmod 766 	 	/home/mythtv/cache/$hostip
 
 echo done.
 
-/etc/init.d/mythtv-backend force-reload
+#/etc/init.d/mythtv-backend force-reload  // Have a problem because myth doesn't stop a reload in the middle of a schema update

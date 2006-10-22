@@ -22,7 +22,7 @@ if [ $QueryResult -eq 0 ]; then
         echo "MythTV Channel list update is complete.";
 fi;
 
-/etc/init.d/mythtv-backend force-reload;
+#/etc/init.d/mythtv-backend force-reload; // Have a problem because myth doesn't stop a reload in the middle of a schema update
 
 # looking for XServer pid
 
