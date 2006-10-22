@@ -389,6 +389,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 //		pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pRow_MediaProvider->ID_get().empty()==false )
 //			sProvider = " AND sourceid='" + pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pRow_MediaProvider->ID_get() + "'";
 
+	// When tune to channel gets an 'i' in front, it's assumed that it's a channel id
 	string sSQL = "SELECT c.chanid, c.channum, c.name, c.icon, p.title, p.starttime, p.endtime "
 		"FROM program p "
 		"INNER JOIN channel c ON c.chanid = p.chanid "
@@ -404,13 +405,13 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 			if( nWidth<2 )  // Just a single column
 			{
 				string sDesc = string( row[1] ) + " " + row[2] + " " + row[4];
-				pCell = new DataGridCell(sDesc,string("i") + row[0]);
+				pCell = new DataGridCell(sDesc,row[1]);
 				pDataGridTable->SetData(0,iRow++,pCell);
 			}
 			else
 			{
 				string sChannelName_BottomJust = /*"~cb" +*/ string(row[1]) + " " + row[2];
-				pCell = new DataGridCell(sChannelName_BottomJust,string("i") + row[0]);
+				pCell = new DataGridCell(sChannelName_BottomJust,row[1]);
 				if( row[3] && row[3][0] )  // There's an icon
 					pCell->SetImagePath( row[3] );
 				pDataGridTable->SetData(0,iRow,pCell);
@@ -419,7 +420,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 				time_t tStop = StringUtils::SQLDateTime( row[6] );
 
 				string sDesc = StringUtils::HourMinute(tStart) + " - " + StringUtils::HourMinute(tStop) + "\n" + row[4];
-				pCell = new DataGridCell(sDesc,string("i") + row[0]);
+				pCell = new DataGridCell(sDesc,row[1]);
 				pCell->m_Colspan = nWidth-1; // Fill the rest of the columns
 				pDataGridTable->SetData(1,iRow++,pCell);
 			}
