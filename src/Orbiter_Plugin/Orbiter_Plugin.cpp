@@ -2908,8 +2908,9 @@ bool Orbiter_Plugin::PromptForMissingMediaProviders()
 		{
 			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow( atoi(row[0]) );
 			string sDescription = pRow_Device->Description_get();
-			if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Players_CONST )
-				continue; // Skip the internal sources
+			if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Players_CONST 
+				|| DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Orbiter_CONST) )
+					continue; // Skip the internal sources, and orbiters which use this table for another purpose
 			Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
 			while( pRow_Device_Parent )
 			{
