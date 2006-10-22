@@ -133,6 +133,12 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 		}
 	} catch(RubyException e) {
 		g_pPlutoLogger->Write(LV_CRITICAL, (string("Error while calling method: ") + e.getMessage()).c_str());
+		if( pMessage->m_dwID==COMMAND_Process_Initialize_CONST )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Disabling because initialization failed");
+			DCE::CMD_Set_Enable_Status_DT CMD_Set_Enable_Status_DT(m_dwPK_Device,DEVICETEMPLATE_General_Info_Plugin_CONST,BL_SameHouse,m_dwPK_Device,false);
+			SendCommand(CMD_Set_Enable_Status_DT);
+		}
 		return false;
 	}
 
