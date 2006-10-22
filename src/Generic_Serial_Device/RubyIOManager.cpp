@@ -26,6 +26,7 @@
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Table_DeviceData.h"
+#include "Gen_Devices/AllCommandsRequests.h"
 #include <signal.h>
 
 using namespace std;
@@ -440,7 +441,12 @@ RubyIOManager::handleStartup() {
 	/*start serial pools*/
 	if(rootnode_) {
 		rootnode_->Init(&cs_);
-		rootnode_->handleStartup();
+		if( !rootnode_->handleStartup() )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "RubyIOManager::handleStartup Disabling because initialization failed");
+			DCE::CMD_Set_Enable_Status_DT CMD_Set_Enable_Status_DT(getDeviceData()->m_dwPK_Device,DEVICETEMPLATE_General_Info_Plugin_CONST,BL_SameHouse,getDeviceData()->m_dwPK_Device,false);
+			pcmdimpl_->SendMessage(CMD_Set_Enable_Status_DT.m_pMessage);
+		}
 		rootnode_->handleNoMessage(); // added one iteration processing in order for idle to be called first	
 	}
 	return true;
