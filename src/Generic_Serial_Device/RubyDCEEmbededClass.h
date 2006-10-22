@@ -40,6 +40,7 @@ public:
 
 private:
 	RubyDCECodeSupplier* pcs_;
+	int m_dwPK_Device;
 };
 
 };

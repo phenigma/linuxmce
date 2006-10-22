@@ -27,13 +27,15 @@ using namespace EMBRUBY;
 namespace DCE {
 
 RubyDCEEmbededClass::RubyDCEEmbededClass() {
+	m_dwPK_Device=0;
 }
 
 RubyDCEEmbededClass::RubyDCEEmbededClass(RubyDCECodeSupplier* pcs, int dwPK_Device) 
 	: RubyEmbededClassImpl<RubyDCEEmbededClass>(NULL), pcs_(pcs)
 {
+	m_dwPK_Device=dwPK_Device;
 	char buff[20];
-	sprintf(buff, "Device_%d", dwPK_Device);
+	sprintf(buff, "Device_%d", m_dwPK_Device);
 	Init(buff);
 	g_pPlutoLogger->Write(LV_STATUS, "Class: %s instantiated.", buff);
 }
