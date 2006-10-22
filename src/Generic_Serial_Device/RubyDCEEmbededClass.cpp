@@ -18,6 +18,7 @@
 #include "DCE/Event_Impl.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_ParameterType.h"
+#include "Gen_Devices/AllCommandsRequests.h"
 
 #include <ruby.h>
 
@@ -63,13 +64,14 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 		params.push_back(StrToValue((pMessage->m_mapParameters[*pmit]).c_str()));
 	}
 	VALUE result;
-	
+
+	RubyIOManager* pmanager=NULL;
 	char buff[20];
 	sprintf(buff, "cmd_%d", (int)pMessage->m_dwID);
 	try {
 		result=callmethod(buff, params);
 		string sCMD_Result="OK";		
-		RubyIOManager* pmanager = RubyIOManager::getInstance();
+		pmanager = RubyIOManager::getInstance();
 		PLUTO_SAFETY_LOCK(mm,pmanager->m_MsgMutex);
 		if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 		{
@@ -137,9 +139,12 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 		g_pPlutoLogger->Write(LV_CRITICAL, (string("Error while calling method: ") + e.getMessage()).c_str());
 		if( pMessage->m_dwID==COMMAND_Process_Initialize_CONST )
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Disabling because initialization failed");
-			DCE::CMD_Set_Enable_Status_DT CMD_Set_Enable_Status_DT(m_dwPK_Device,DEVICETEMPLATE_General_Info_Plugin_CONST,BL_SameHouse,m_dwPK_Device,false);
-			SendCommand(CMD_Set_Enable_Status_DT);
+			g_pPlutoLogger->Write(LV_STATUS, "Disabling because initialization failed %p",pmanager);
+			if( pmanager )
+			{
+				DCE::CMD_Set_Enable_Status_DT CMD_Set_Enable_Status_DT(m_dwPK_Device,DEVICETEMPLATE_General_Info_Plugin_CONST,BL_SameHouse,m_dwPK_Device,false);
+				pmanager->SendMessage(CMD_Set_Enable_Status_DT.m_pMessage);
+			}
 		}
 		return false;
 	}
