@@ -118,7 +118,9 @@ void PnpQueue::Run()
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Run size %d woke up", m_mapPnpQueueEntry.size());
 #endif
 		bOnlyBlockedEntries = m_mapPnpQueueEntry.size()>0;
-		for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();)  // The pnp mutex is held so we can safely do what we like
+
+		map<int,class PnpQueueEntry *> mapPnpQueueEntry_temp; // A temporary copy of those queues we're going to process so can release the mutex protecting the real map
+		for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)  // The pnp mutex is held so we can safely do what we like
 		{
 			PnpQueueEntry *pPnpQueueEntry = it->second;
 			// If we've been sitting too long at either a user prompt or a detection script we need to continue anyway
@@ -130,7 +132,6 @@ void PnpQueue::Run()
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Run queue %d blocked %d time %d now %d by %d", pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),
 					(int) pPnpQueueEntry->m_EBlockedState,(int) pPnpQueueEntry->m_tTimeBlocked, (int) time(NULL),pPnpQueueEntry->m_dwPK_PnpQueue_BlockingFor);
-				it++;
 				continue;
 			}
 			else
@@ -138,14 +139,24 @@ void PnpQueue::Run()
 
 			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Run prossing %d at stage %d", pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), pPnpQueueEntry->m_pRow_PnpQueue->Stage_get());
 
+			mapPnpQueueEntry_temp[it->first] = it->second;
+		}
+
+		for(map<int,class PnpQueueEntry *>::iterator it=mapPnpQueueEntry_temp.begin();it!=mapPnpQueueEntry_temp.end();++it)  
+		{
+			PnpQueueEntry *pPnpQueueEntry = it->second;
 			if( Process(pPnpQueueEntry)==true )  // Meaning it needs to be removed from the list
 			{
 				ReleaseQueuesBlockedFromPromptingState(pPnpQueueEntry);
 				delete pPnpQueueEntry;
-				m_mapPnpQueueEntry.erase( it++ );  // Remove it
+				map<int,class PnpQueueEntry *>::iterator it_del = m_mapPnpQueueEntry.find( it->first );
+				if( it_del != m_mapPnpQueueEntry.end() )
+					m_mapPnpQueueEntry.erase( it_del );  // Remove it
 			}
-			else
-				it++;
+
+			pnp.Release();
+			Sleep(1);   // It won't hurt if another thread modifies m_mapPnpQueueEntry since we're iterating a copy anyway
+			pnp.Relock();
 		}
 
 		if( !bOnlyBlockedEntries )  // If we have only blocked entries, we don't need to sleep here since we'll immediately hit the timedcondwait, and if we did, entries may become unblocked while we're sleeping
@@ -863,7 +874,7 @@ bool PnpQueue::Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
 		m_pPlug_And_Play_Plugin->QueueMessageToRouter(pMessage_Kill); // Kill the device at the old location
 	}
 	
-	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();)
+	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
 	{
 		PnpQueueEntry *pPnpQueueEntry2 = it->second;
 		if( pPnpQueueEntry2->m_pRow_PnpQueue->Removed_get()==0 && 
@@ -879,11 +890,7 @@ bool PnpQueue::Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
 			CMD_Remove_Screen_From_History_DL.m_pMessage->m_vectExtraMessages.push_back(CMD_Remove_Screen_From_History_DL2.m_pMessage);
 			m_pPlug_And_Play_Plugin->SendCommand(CMD_Remove_Screen_From_History_DL);
 			ReleaseQueuesBlockedFromPromptingState(pPnpQueueEntry2);
-			delete pPnpQueueEntry2;
-			m_mapPnpQueueEntry.erase( it++ );  // Remove it
 		}
-		else
-			it++;
 	}
 
 	pPnpQueueEntry->Stage_set(PNP_REMOVE_STAGE_DONE);
