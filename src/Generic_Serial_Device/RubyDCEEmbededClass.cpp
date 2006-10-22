@@ -52,6 +52,8 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 			g_pPlutoLogger->Write(LV_STATUS, "Command %d not supported.", pMessage->m_dwID);
 			pMessage->m_bRespondedToMessage=true;
 		}
+		if(pMessage->m_dwID == COMMAND_Process_Initialize_CONST) 
+			return true; // It's ok if there's no initialize specified
 		return false;
 	}
 	
