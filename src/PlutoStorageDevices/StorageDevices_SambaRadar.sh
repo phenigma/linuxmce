@@ -50,23 +50,23 @@ while : ;do
 
 		Log "Processing $serverIP"
 
-		## Check to see if the ip is allready in the database
+		## Check to see if the ip is already in the database
 		Q="
-			SELECT IPaddress FROM Device WHERE IPaddress='${serverIP}' LIMIT 1;
+			SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=164 AND IPaddress='${serverIP}' LIMIT 1;
 			SELECT IPaddress FROM UnknownDevices WHERE IPaddress='${serverIP}' LIMIT 1;
-			SELECT IPaddress FROM PnpQueue WHERE IPaddress='${serverIP}' LIMIT 1
+			SELECT IPaddress FROM PnpQueue WHERE IPaddress='${serverIP}' AND Category='fileserver' LIMIT 1
 		"
 		Result=$(RunSQL "$Q")
 
-		## If the IP is not there allready
+		## If the IP is not there already
 		if [[ "$Result" == "" ]] ;then
 			## Report it to the router
 			/usr/pluto/bin/MessageSend $DCERouter 0 -1001 2 65 56 "fileserver" 52 3 53 2 49 1837 5 "$serverMAC" 28 "$serverIP" 55 "186|$serverName" 54 "\\\\$serverIP"
 			Log "Reporting $serverIP [$serverName] to the router"
 			
-		## If the ip allready exists in the database
+		## If the ip already exists in the database
 		else
-			Log "$serverIP is allready in the database"
+			Log "$serverIP is already in the database"
 		fi 
 
 	done
