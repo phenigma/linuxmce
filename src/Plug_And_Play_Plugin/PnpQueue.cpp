@@ -125,6 +125,7 @@ void PnpQueue::Run()
 			if( pPnpQueueEntry->m_EBlockedState != PnpQueueEntry::pnpqe_blocked_none &&
 				( (pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_prompting_options && pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_prompting_device_template) || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER) &&
 				( pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_running_detection_scripts || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_DETECTION_SCRIPT ) 
+				( pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_waiting_for_other_device || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_WAITING_FOR_DEVICE ) 
 				)
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Run queue %d blocked %d time %d now %d by %d", pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),
@@ -714,8 +715,9 @@ bool PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script(PnpQueueEntry *pPnpQu
 					"","",false,false,false);
 				if( m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application)==false )
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script queue %d failed -- aborting",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
-					return true;
+					g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script queue %d failed -- aborting",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());  // App Server may not be running yet
+					pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_waiting_for_other_device);
+					return false;
 				}
 				else
 				{
@@ -726,7 +728,8 @@ bool PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script(PnpQueueEntry *pPnpQu
 			else
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script queue %d no app server",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
-				return true;
+				pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_waiting_for_other_device);
+				return false;
 			}
 		}
 	}
@@ -1111,8 +1114,9 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 			if( !pDevice_AppServer )
 			{
 				DeviceData_Base *pDevice = pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
-				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d checking detection %s but cannot find app server - w/out reg found %p",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_DHCPDevice_To_Detect->PnpDetectionScript_get().c_str(),pDevice);
-				return true;
+				g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d checking detection %s but cannot find app server - w/out reg found %p",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_DHCPDevice_To_Detect->PnpDetectionScript_get().c_str(),pDevice);
+				pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_waiting_for_other_device);
+				return false;
 			}
 		}
 		else
@@ -1173,8 +1177,9 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d cannot find app server!",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
-			return true;
+			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d cannot find app server!",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+			pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_waiting_for_other_device);
+			return false;
 		}
 	}
 

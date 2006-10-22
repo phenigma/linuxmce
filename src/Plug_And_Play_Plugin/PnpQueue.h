@@ -7,6 +7,7 @@ class Row_PnpQueue;
 
 #define TIMEOUT_PROMPTING_USER					120  // If the user doesn't respond in this many seconds, try asking again
 #define TIMEOUT_DETECTION_SCRIPT				20	// Maximum number of seconds to wait for a detction script to return
+#define TIMEOUT_WAITING_FOR_DEVICE				20	// Maximum number of seconds to wait for a device to come online
 #define TIMEOUT_PRE_PNP_SCRIPT					120  // How long to wait for the pre pnp script
 
 #define	PNP_DETECT_STAGE_DETECTED				10
