@@ -22,7 +22,8 @@ if [ $QueryResult -eq 0 ]; then
         echo "MythTV Channel list update is complete.";
 fi;
 
-#/etc/init.d/mythtv-backend force-reload; // Have a problem because myth doesn't stop a reload in the middle of a schema update
+echo "LOCK TABLE schemalock WRITE;" | mysql mythconverg  # Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
+/etc/init.d/mythtv-backend force-reload;
 
 # looking for XServer pid
 

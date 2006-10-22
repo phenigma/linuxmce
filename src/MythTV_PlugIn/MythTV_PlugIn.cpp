@@ -863,7 +863,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 			SendCommand(CMD_Spawn_Application_fill);
 
 			DCE::CMD_Spawn_Application CMD_Spawn_Application_restart(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-				"/etc/init.d/mythtv-backend","restart myth","restart","","",false,false,false);
+				"/usr/pluto/bin/Restart_Backend_With_SchemaLock.sh","restart myth","","","",false,false,false);
 			SendCommand(CMD_Spawn_Application_restart);
 		}
 	}

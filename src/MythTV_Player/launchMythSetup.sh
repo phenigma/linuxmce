@@ -11,6 +11,7 @@ if [[ -n "$MYTH_SETUP_PIDS" ]]; then
 	killall mythtv-setup
 fi;
 
+echo "LOCK TABLE schemalock WRITE;" | mysql mythconverg  # Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
 /etc/init.d/mythtv-backend stop
 PID=`pidof mythbackend`;
 
