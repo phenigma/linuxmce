@@ -159,7 +159,7 @@ bool
 RubyDCEDeviceNode::handleStartup() {
     Message startmsg(0, getDeviceData()->m_dwPK_Device, 0, MESSAGETYPE_COMMAND, COMMAND_Process_Initialize_CONST, 0);
     if( !getEmbClass()->CallCmdHandler(&startmsg) )
-		return false
+		return false;
     
     std::list<RubyDCEDeviceNode*>& children = getChildren();
     for(std::list<RubyDCEDeviceNode*>::iterator it = children.begin(); it != children.end(); it++) {
