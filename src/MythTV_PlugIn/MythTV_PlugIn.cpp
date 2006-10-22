@@ -404,13 +404,13 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 			if( nWidth<2 )  // Just a single column
 			{
 				string sDesc = string( row[1] ) + " " + row[2] + " " + row[4];
-				pCell = new DataGridCell(sDesc,row[0]);
+				pCell = new DataGridCell(sDesc,string("i") + row[0]);
 				pDataGridTable->SetData(0,iRow++,pCell);
 			}
 			else
 			{
 				string sChannelName_BottomJust = /*"~cb" +*/ string(row[1]) + " " + row[2];
-				pCell = new DataGridCell(sChannelName_BottomJust,row[0]);
+				pCell = new DataGridCell(sChannelName_BottomJust,string("i") + row[0]);
 				if( row[3] && row[3][0] )  // There's an icon
 					pCell->SetImagePath( row[3] );
 				pDataGridTable->SetData(0,iRow,pCell);
@@ -419,7 +419,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 				time_t tStop = StringUtils::SQLDateTime( row[6] );
 
 				string sDesc = StringUtils::HourMinute(tStart) + " - " + StringUtils::HourMinute(tStop) + "\n" + row[4];
-				pCell = new DataGridCell(sDesc,row[0]);
+				pCell = new DataGridCell(sDesc,string("i") + row[0]);
 				pCell->m_Colspan = nWidth-1; // Fill the rest of the columns
 				pDataGridTable->SetData(1,iRow++,pCell);
 			}
@@ -732,7 +732,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 	PlutoSqlResult result_set_check;
 	if( (result_set_check.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))==NULL || (row=mysql_fetch_row(result_set_check.r))==NULL || atoi(row[0])<MINIMUM_MYTH_SCHEMA )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards skipping now because I need at least schema %d",MINIMUM_MYTH_SCHEMA);
+		g_pPlutoLogger->Write(LV_WARNING,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards skipping now because I need at least schema %d insted of %s",MINIMUM_MYTH_SCHEMA,row && row[0] ? row[0] : "*none*");
 		return;
 	}
 
