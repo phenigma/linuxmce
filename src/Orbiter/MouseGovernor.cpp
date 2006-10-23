@@ -47,6 +47,9 @@ MouseGovernor::~MouseGovernor()
 		pthread_cond_broadcast( &m_GovernorCond );
 		Sleep(5);
 	}
+
+	//make sure no one else is using the mutex
+	PLUTO_SAFETY_LOCK(m,m_GovernorMutex);
 }
 
 void MouseGovernor::Run()
@@ -74,6 +77,7 @@ void MouseGovernor::Run()
 			m.CondWait();
 		}
 	}
+
 	m_bThreadRunning=false;
 }
 
