@@ -1920,7 +1920,12 @@ g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found devi
 			return;;
 		}
 	}
-	
+
+// Hack this in -- it was broken
+DCE::CMD_PL_External_Originate CMD_PL_External_Originate(m_dwPK_Device,m_dwPK_Device,
+	sPhoneNumber,"555","998");  // 555 = bogus call id, 998 = all speaker phones in house conf room
+SendCommand(CMD_PL_External_Originate);
+return;
 	// Now we have a phone number.  Find the playback devices if sList_PK_Device isn't specified
 	if(sList_PK_Device.empty() )
 	{
