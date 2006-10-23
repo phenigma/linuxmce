@@ -6,6 +6,7 @@
 
 DEVICECATEGORY_Sound_Cards=124
 DEVICEDATA_Audio_settings=88
+DEVICEDATA_Setup_Script=189
 
 SoundCard=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Sound_Cards")
 
@@ -15,9 +16,11 @@ if [[ -z "$SoundCard" ]]; then
 fi
 
 Q="
-	SELECT CommandLine
-	FROM DeviceTemplate
-	JOIN Device ON FK_DeviceTemplate=PK_DeviceTemplate AND PK_Device='$SoundCard'
+	SELECT DDDD.IK_DeviceData
+	FROM DeviceTemplate_DeviceData DDDD
+	JOIN Device D ON D.FK_DeviceTemplate=DDDD.FK_DeviceTemplate
+		AND D.PK_Device='$SoundCard'
+		AND DDDD.FK_DeviceData='$DEVICEDATA_Setup_Script'
 "
 CommandLine="$(RunSQL "$Q")"
 
@@ -28,5 +31,6 @@ Q="
 "
 SoundSettings="$(RunSQL "$Q")"
 
-/usr/pluto/bin/"$CommandLine" "$SoundSettings"
-
+if [[ -n "$CommandLine" ]]; then
+	/usr/pluto/bin/"$CommandLine" "$SoundSettings"
+fi

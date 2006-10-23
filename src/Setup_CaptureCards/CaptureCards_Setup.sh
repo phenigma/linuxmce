@@ -6,6 +6,7 @@
 
 DEVICECATEGORY_Capture_Cards=75
 DEVICEDATA_Location_on_PCI_bus=175
+DEVICEDATA_Setup_Script=189
 
 CaptureCard_PCISlot()
 {
@@ -86,10 +87,11 @@ EnableDevice()
 	RunSQL "$Q"
 
 	Q="
-		SELECT CommandLine
-		FROM DeviceTemplate
-		JOIN Device ON FK_DeviceTemplate=PK_DeviceTemplate
-		WHERE PK_Device='$Device'
+		SELECT DDDD.IK_DeviceData
+		FROM DeviceTemplate_DeviceData DDDD
+		JOIN Device D ON D.FK_DeviceTemplate=DDDD.FK_DeviceTemplate
+			AND D.PK_Device='$Device'
+			AND DDDD.FK_DeviceData='$DEVICEDATA_Setup_Script'
 	"
 	CmdLine=$(RunSQL "$Q")
 
