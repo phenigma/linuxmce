@@ -3030,6 +3030,7 @@ bool Orbiter::ButtonDown( int iPK_Button )
 		{
 			DesignObj_Orbiter *pObj = (DesignObj_Orbiter *)pCallBackInfo->m_pData;
 			pObj->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
+			m_pOrbiterRenderer->RenderObjectAsync(pObj);
 
 			m_mapPendingCallbacks.erase(it++);
 		}
