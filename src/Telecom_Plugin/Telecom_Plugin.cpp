@@ -1869,6 +1869,7 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 	// If there's no phone number, fine one associated with the device
 
 	int dwDevice_Caller = 0;
+	bool bEmbeddedPhone = false;
 	if( sPhoneNumber.empty() )
 	{
 		DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
@@ -1876,6 +1877,8 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 		if( pDevice )
 		{
 			sPhoneNumber = pDevice->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+			bEmbeddedPhone = pDevice->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST;
+
 			if( sPhoneNumber.empty() )
 				sPhoneNumber = pDevice->m_mapParameters_Find(DEVICEDATA_Mobile_Orbiter_Phone_CONST);
 		}
@@ -1885,6 +1888,7 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 			if( pDevice )
 			{
 				dwDevice_Caller = pDevice->m_dwPK_Device;
+				bEmbeddedPhone = pDevice->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST;
 				sPhoneNumber = pDevice->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 				if( sPhoneNumber.empty() )
 					sPhoneNumber = pDevice->m_mapParameters_Find(DEVICEDATA_Mobile_Orbiter_Phone_CONST);
@@ -1895,19 +1899,17 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 		{
 			if(NULL != pDevice)
 			{
-g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : last try... the simple phone");
-
 				vector<DeviceData_Router *> vectDeviceData_Router;
                 pDevice->FindChildrenWithinCategory(DEVICECATEGORY_Soft_Phones_CONST, vectDeviceData_Router);
 
-g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found %d simple phones", vectDeviceData_Router.size());
-
+				g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found %d simple phones", vectDeviceData_Router.size());
 				if(vectDeviceData_Router.size() >= 1)
 				{
 					DeviceData_Router *pDeviceData_Router = *vectDeviceData_Router.begin();
 					dwDevice_Caller = pDeviceData_Router->m_dwPK_Device;
+					bEmbeddedPhone = pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST;
 
-g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found device %d", pDeviceData_Router->m_dwPK_Device);
+					g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found device %d", pDeviceData_Router->m_dwPK_Device);
 					sPhoneNumber = pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 					g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found phone number of embedded phone %s", sPhoneNumber.c_str());
 				}
@@ -1917,16 +1919,21 @@ g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found devi
 		if( sPhoneNumber.empty() )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Telecom_Plugin::CMD_Speak_in_house -- can't find a phone number");
-			return;;
+			return;
 		}
 	}
 
-// Hack this in -- it was broken
-DCE::CMD_PL_External_Originate CMD_PL_External_Originate(m_dwPK_Device,m_dwPK_Device,
-	sPhoneNumber,"555","998");  // 555 = bogus call id, 998 = all speaker phones in house conf room
-SendCommand(CMD_PL_External_Originate);
-return;
-	// Now we have a phone number.  Find the playback devices if sList_PK_Device isn't specified
+	//is this an embedded phone?
+	if(!bEmbeddedPhone)
+	{
+		//not an orbiter embedded phone - we'll use external originate
+		DCE::CMD_PL_External_Originate CMD_PL_External_Originate(m_dwPK_Device,m_dwPK_Device,
+			sPhoneNumber,"555","998");  // 555 = bogus call id, 998 = all speaker phones in house conf room
+		SendCommand(CMD_PL_External_Originate);
+		return;
+	}
+
+	// Find the playback devices if sList_PK_Device isn't specified
 	if(sList_PK_Device.empty() )
 	{
 		if(iPK_Device_Related)  // Use related devices.  This device may be a camera
@@ -1983,10 +1990,9 @@ return;
 		}
 	}
 
-
 	if(sPhoneNumber.empty() == false)
 	{
-		//get all simple phone devices from the house
+		//get all embedded orbiter devices from the house
 		ListDeviceData_Router *pListDeviceData = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST);
 		if(NULL != pListDeviceData)
 		{
@@ -2020,11 +2026,6 @@ return;
 				DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, 0, "997");
 				SendCommand(cmd);
 			}
-
-			//THIS DOESN'T WORK:
-			//DCE::CMD_PL_External_Originate CMD_PL_External_Originate(m_dwPK_Device,m_dwPK_Device,
-			//	sPhoneNumber, sPhoneNumber, "998");  
-			//SendCommand(CMD_PL_External_Originate);
 		}
 		else
 		{
