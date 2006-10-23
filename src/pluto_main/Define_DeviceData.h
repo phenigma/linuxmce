@@ -164,6 +164,7 @@
 #define DEVICEDATA_Description_CONST 186
 #define DEVICEDATA_Domain_CONST 187
 #define DEVICEDATA_Computer_name_CONST 188
+#define DEVICEDATA_Setup_Script_CONST 189
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
