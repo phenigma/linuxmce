@@ -2883,10 +2883,17 @@ string Orbiter_Plugin::PK_Device_Orbiters_In_Room_get(int PK_Room, bool bOnlyAll
 void Orbiter_Plugin::CMD_Check_Media_Providers(string &sCMD_Result,Message *pMessage)
 //<-dceag-c820-e->
 {
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Check_Media_Providers");
+#endif
 	if( !DatabaseUtils::AlreadyHasUsers(m_pDatabase_pluto_main,m_pRouter->m_pRow_Installation_get()->PK_Installation_get()) ||
 		!DatabaseUtils::AlreadyHasRooms(m_pDatabase_pluto_main,m_pRouter->m_pRow_Installation_get()->PK_Installation_get()) )
 			return; // Don't do this until the user has setup his basic system
 
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Check_Media_Providers checking");
+#endif
 	if( PromptForMissingMediaProviders() )
 		return; // Only do 1 at a time
 	PromptForMissingCapture_Card_Port();
@@ -2904,6 +2911,9 @@ bool Orbiter_Plugin::PromptForMissingMediaProviders()
     MYSQL_ROW row;
 	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
 	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::PromptForMissingMediaProviders got %d records",result_set.r->row_count);
+#endif
 		while ((row = mysql_fetch_row(result_set.r)))
 		{
 			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow( atoi(row[0]) );
@@ -2962,6 +2972,9 @@ bool Orbiter_Plugin::PromptForMissingCapture_Card_Port()
 {
 	vector<Row_Device *> vectRow_Device_Ports;
 	m_pDatabase_pluto_main->Device_get()->GetRows("JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" TOSTRING(DEVICECATEGORY_Capture_Card_Ports_CONST),&vectRow_Device_Ports);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::PromptForMissingCapture_Card_Port got %d records",(int) vectRow_Device_Ports.size());
+#endif
 	if( vectRow_Device_Ports.size()==0 )
 		return false;
 

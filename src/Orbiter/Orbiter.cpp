@@ -849,14 +849,13 @@ g_PlutoProfiler->DumpResults();
 			m_pOrbiterRenderer->ObjectOffScreen( pPlutoPopup->m_pObj );
 		}
 
+		PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 		if(
 			!m_listScreenHistory.size() ||
 			(m_pScreenHistory_Current != pScreenHistory && m_listScreenHistory.back()->PK_Screen() != m_pScreenHistory_Current->PK_Screen())
 			)
 		{
 			//update the list only if the screen is changed
-			PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
-
 			if(ScreenHistory::m_bAddToHistory)
 			{
 				m_listScreenHistory.push_back( m_pScreenHistory_Current );
@@ -926,6 +925,7 @@ g_pPlutoLogger->Write( LV_CRITICAL, "calling timeout");
 	}
 	m_pOrbiterRenderer->ObjectOnScreenWrapper(  );
 
+	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 	//if we are now in main menu, we'll purge the history; this is the initial nod from the navigation "tree"
 	if(m_pScreenHistory_Current->GetObj()->m_iBaseObjectID == atoi(m_sMainMenu.c_str()) && m_pScreenHistory_Current->GetObj()!=m_pDesignObj_Orbiter_ScreenSaveMenu)
 	{
@@ -8959,6 +8959,7 @@ void Orbiter::CMD_Get_Active_Application(string *sPK_DesignObj,string *sPK_Desig
 
 void Orbiter::ForceCurrentScreenIntoHistory()
 {
+	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 	g_pPlutoLogger->Write(LV_WARNING, "Orbiter::ForceCurrentScreenIntoHistory m_listScreenHistory Adding to screens history list screen %d", m_pScreenHistory_Current->PK_Screen());
 	ScreenHistory *pScreenHistory = NeedToRender::m_pScreenHistory_get();
 	if( !pScreenHistory )
