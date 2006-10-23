@@ -110,7 +110,7 @@ case "$Template" in
 
 		## Samba share name
 		Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$StorageDevice' AND FK_DeviceData=$DD_SHARE_NAME"
-		Share=$(RunSQL "$Q")
+		Share=$(RunSQL "$Q" |  sed 's|\$|\\\$|g' )
 		if [[ "$Share" == "" ]] ;then
 			Log $LOG_ERR "Device '$StorageDevice' doesn't have a samba share name associated with it"
 			exit 0
