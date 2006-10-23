@@ -329,7 +329,7 @@ int OrbiterGenerator::DoIt()
 		{
 			cout << "skipping" << endl;
 #ifndef WIN32
- 			exit(0);
+ 			exit(1);
 #endif
 		}
 	}
