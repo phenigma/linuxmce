@@ -5,6 +5,10 @@
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/LockUtils.sh
 . /usr/pluto/bin/Network_Parameters.sh
+. /usr/pluto/bin/Config_Ops.sh
+
+MythPass=$(cat /etc/mythtv/mysql.txt |grep ^DBPassword|cut -d= -f2)
+MysqlCommand="mysql -D mythconverg -h $MySqlHost -u mythtv -p$MythPass";
 
 while :; do
 	# Lock the MythBackend lock to prevent backend restarting when MythTV Setup is running
@@ -14,7 +18,7 @@ while :; do
 	#MythSetup=$(pgrep mythtv-setup)
 	if [[ -z "$Backend" && -x /etc/init.d/mythtv-backend ]]; then
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "MythBackend_Restart" "MythBackend not found running; restarting it"
-		echo "LOCK TABLE schemalock WRITE;" | mysql mythconverg  # Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
+		echo "LOCK TABLE schemalock WRITE;" | $MysqlCommand  # Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
 		/etc/init.d/mythtv-backend restart
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "MythBackend_Restart" "MythBackend restarted"
 	fi
