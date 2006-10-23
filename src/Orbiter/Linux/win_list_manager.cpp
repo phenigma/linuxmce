@@ -24,21 +24,19 @@ WinListManager::~WinListManager()
 void WinListManager::ActivateSdlWindow()
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-    g_pPlutoLogger->Write(LV_WARNING, "WinListManager::ActivateSdlWindow()");
+    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ActivateSdlWindow()");
     m_pWMController->ActivateWindow(m_sSdlWindowName);
 }
 
 void WinListManager::ShowSdlWindow(bool bExclusive)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-    g_pPlutoLogger->Write(LV_WARNING, "WinListManager::ShowSdlWindow(%s)", bExclusive ? "true" : "false");
+    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowSdlWindow(%s)", bExclusive ? "true" : "false");
     string sLastWindow;
     for (list<string>::iterator it = m_listVisibleWindows.begin(); it != m_listVisibleWindows.end(); ++it)
-    {
         sLastWindow = *it;
-        g_pPlutoLogger->Write(LV_WARNING, "Visible Window : %s", (*it).c_str());
-    }
-    // when Orbiter is fullscreen no other dialog can be on top of
+
+	// when Orbiter is fullscreen no other dialog can be on top of
     // it, so it will be maximized instead
     m_pWMController->SetVisible(m_sSdlWindowName, !m_bHideSdlWindow);
     m_pWMController->SetMaximized(m_sSdlWindowName, true);
@@ -57,7 +55,7 @@ void WinListManager::ShowSdlWindow(bool bExclusive)
 void WinListManager::ShowWindow(const string &sWindowName)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-    g_pPlutoLogger->Write(LV_WARNING, "WinListManager::ShowWindow(%s)", sWindowName.c_str());
+    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowWindow(%s)", sWindowName.c_str());
     m_pWMController->SetVisible(sWindowName, true);
     m_listVisibleWindows.push_back(sWindowName);
 }
@@ -65,7 +63,7 @@ void WinListManager::ShowWindow(const string &sWindowName)
 void WinListManager::MaximizeWindow(const string &sWindowName)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-    g_pPlutoLogger->Write(LV_WARNING, "WinListManager::MaximizeWindow(%s)", sWindowName.c_str());
+    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::MaximizeWindow(%s)", sWindowName.c_str());
 #ifdef ORBITER_OPENGL
     // TODO: possible bugfix: extra, bad call to LayerBelow
 	m_pWMController->SetLayer(sWindowName, LayerBelow);
@@ -80,7 +78,7 @@ void WinListManager::MaximizeWindow(const string &sWindowName)
 void WinListManager::PositionWindow(const string &sWindowName, int x, int y, int w, int h)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-    g_pPlutoLogger->Write(LV_WARNING, "WinListManager::PositionWindow(%s)", sWindowName.c_str());
+    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::PositionWindow(%s)", sWindowName.c_str());
     m_pWMController->SetFullScreen(sWindowName, false);
 	m_pWMController->SetMaximized(sWindowName, false);
 	m_pWMController->SetPosition(sWindowName, x, y, w, h);
@@ -89,13 +87,12 @@ void WinListManager::PositionWindow(const string &sWindowName, int x, int y, int
     m_pWMController->SetLayer(sWindowName, LayerNormal);
 #endif	
     ShowWindow(sWindowName);
-    g_pPlutoLogger->Write(LV_WARNING, "WinListManager::PositionWindow(%s) : done", sWindowName.c_str());
 }
 
 void WinListManager::HideAllWindows()
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-    g_pPlutoLogger->Write(LV_WARNING, "WinListManager::HideAllWindows()");
+    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::HideAllWindows()");
     for (list<string>::iterator it = m_listVisibleWindows.begin(); it != m_listVisibleWindows.end(); ++it)
     {
         m_pWMController->SetVisible(*it, false);
@@ -111,7 +108,7 @@ string WinListManager::GetExternApplicationName()
 
 void WinListManager::SetExternApplicationName(const string &sWindowName)
 {
-    g_pPlutoLogger->Write(LV_WARNING, "WinListManager::SetExternApplicationName(%s)", sWindowName.c_str());
+    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::SetExternApplicationName(%s)", sWindowName.c_str());
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     m_sExternApplicationName = sWindowName;
 }
@@ -124,7 +121,7 @@ void WinListManager::GetExternApplicationPosition(PlutoRectangle &coord)
 
 void WinListManager::SetExternApplicationPosition(const PlutoRectangle &coord)
 {
-    g_pPlutoLogger->Write(LV_WARNING, "WinListManager::SetExternApplicationPosition(), name=%s", m_sExternApplicationName.c_str());
+    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::SetExternApplicationPosition(), name=%s", m_sExternApplicationName.c_str());
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     m_coordExternalApplication = coord;
 }
@@ -143,9 +140,6 @@ bool WinListManager::IsWindowAvailable(const string &sClassName)
         return false;
     for (list<WinInfo>::iterator it = listWinInfo.begin(); it !=  listWinInfo.end(); ++it)
     {
-#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS, "Comparing '%s' with '%s'...", it->sClassName.c_str(), sClassName.c_str());
-#endif
         if (string::npos != it->sClassName.find(sClassName))
             return true;
     }

@@ -553,11 +553,8 @@ bool OrbiterLinux::TranslateEvent_HID(Orbiter::Event &event)
 
 bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 {
-	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::PreprocessEvent: Started");
 	if (event.type == Orbiter::Event::HID)
-	{
 		return TranslateEvent_HID(event);
-	}
 	else if (event.type != Orbiter::Event::BUTTON_DOWN && event.type != Orbiter::Event::BUTTON_UP)
 		return false;
 

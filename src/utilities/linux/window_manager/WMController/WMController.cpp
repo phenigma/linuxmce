@@ -22,7 +22,9 @@ WMControllerImpl::~WMControllerImpl()
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::SetVisible(const string& sWindowName, bool bVisible)
 {
+#ifdef DEBUG
 	fprintf(stderr, "WMControllerImpl::SetVisible() : window name: %s, visible: %d\n", sWindowName.c_str(), bVisible);
+#endif
     return wmctrl.ActionCommand('t', sWindowName.c_str(), bVisible ? "0" : "1");
 }
 
@@ -34,7 +36,11 @@ bool WMControllerImpl::SetLayer(const string& sWindowName, WindowLayer aLayer)
     // ActionCommand 'O' :  clear/set recursive the override_redirect property for a window
     // SetLayer() was broken by the alpha-patch, when xcompmgr is used
     // not activated by default, to not change anything before the demo
+
+#ifdef DEBUG
     fprintf(stderr, "WMControllerImpl::SetLayer() : window name: %s, aLayer: %d\n", sWindowName.c_str(), aLayer);
+#endif
+
     bool bResult = true;
 	switch(aLayer)
 	{
@@ -63,7 +69,10 @@ bool WMControllerImpl::SetLayer(const string& sWindowName, WindowLayer aLayer)
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::SetPosition(const string& sWindowName, int x, int y, int w, int h)
 {
+#ifdef DEBUG
 	fprintf(stderr, "WMControllerImpl::SetPosition() : window name: %s, position: %d %d %d %d\n", sWindowName.c_str(), x, y, w, h);
+#endif
+
 	char sParam[128];
 	sprintf(sParam, "0,%d,%d,%d,%d", x, y, w, h);
     return wmctrl.ActionCommand('e', sWindowName.c_str(), sParam);
@@ -72,21 +81,30 @@ bool WMControllerImpl::SetPosition(const string& sWindowName, int x, int y, int 
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::SetFullScreen(const string& sWindowName, bool bFullScreen)
 {
+#ifdef DEBUG
 	fprintf(stderr, "WMControllerImpl::SetFullScreen() : window name: %s, fullscreen: %d\n", sWindowName.c_str(), bFullScreen);
+#endif
+
     return wmctrl.ActionCommand('b', sWindowName.c_str(), bFullScreen ? "add,fullscreen" : "remove,fullscreen");
 }
 
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::SetMaximized(const string& sWindowName, bool bMaximized)
 {
+#ifdef DEBUG
 	fprintf(stderr, "WMControllerImpl::SetMaximized() : window name: %s, maximized: %d\n", sWindowName.c_str(), bMaximized);
+#endif
+
     return wmctrl.ActionCommand('b', sWindowName.c_str(), bMaximized ? "add,maximized_horz,maximized_vert" : "remove,maximized_horz,maximized_vert");
 }
 
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::ActivateWindow(const string& sWindowName)
 {
+#ifdef DEBUG
 	fprintf(stderr, "WMControllerImpl::ActivateWindow() : window name: %s\n", sWindowName.c_str());
+#endif
+
     if (sWindowName == "")
         return false;
     return wmctrl.ActionCommand('R', sWindowName.c_str());
@@ -95,7 +113,10 @@ bool WMControllerImpl::ActivateWindow(const string& sWindowName)
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::ListWindows(list<WinInfo> &listWinInfo)
 {
+#ifdef DEBUG
 	fprintf(stderr, "WMControllerImpl::ListWindows()\n");
+#endif
+
     return wmctrl.ActionCommand('l', NULL, NULL, &listWinInfo);
 }
 

@@ -61,14 +61,11 @@ int EffectFactory::MilisecondTimmer()
 
 Effect* EffectFactory::CreateEffect(int IDEffect, int StartAfter, int TimeForComplete)
 {
-	cout << "EffectFactory::CreateEffect : " << IDEffect << endl;
-	
 	if(!Effects.empty())
 	{
 		vector<Effect*>::iterator Effect = Effects.begin();
 		if(NULL != dynamic_cast<GL2DEffectTransit*>(*Effect))
 		{
-			cout << "EffectFactory::CreateEffect : Transit effects running!" << endl;
 			return NULL;
 		}
 	}

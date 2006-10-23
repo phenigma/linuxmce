@@ -331,7 +331,9 @@ int WmCtrl::LowLevelCommand(char action, Options cmd_options, std::list<WinInfo>
         fputs("Cannot open display.\n", stderr);
         return EXIT_FAILURE;
     }
+#ifdef DEBUG
     p_verbose("WmCtrl::LowLevelCommand() : opened pDisplay=%p\n", disp)
+#endif
     XLockDisplay(disp);
 
     switch (action)
@@ -398,7 +400,9 @@ int WmCtrl::LowLevelCommand(char action, Options cmd_options, std::list<WinInfo>
     XUnlockDisplay(disp);
     if (disp)
         XCloseDisplay(disp);
+#ifdef DEBUG
     p_verbose("WmCtrl::LowLevelCommand() : closed pDisplay=%p\n", disp)
+#endif
     return ret;
 }
 
@@ -430,7 +434,9 @@ bool WmCtrl::ActionCommand(char action, const char *param_window/*=NULL*/, const
     bool bRetCode = ( 0 == nRetCode );
     delete options.param_window;
     delete options.param;
+#ifdef DEBUG
     fprintf(stderr, "WmCtrl::ActionCommand('%c', '%s', '%s', %d, %p) => RetCode==%d\n", action, param_window, param, use_id_in_param_window, pListWinInfo, nRetCode);
+#endif
     return bRetCode;
 }
 
@@ -460,7 +466,9 @@ void WmCtrl::init_charset(void)
     {
         envir_utf8 = TRUE;
     }
+#ifdef DEBUG
     p_verbose("envir_utf8: %d\n", envir_utf8);
+#endif
 }
 
 int WmCtrl::client_msg(Display *disp, Window win, char *msg,
@@ -601,6 +609,7 @@ int WmCtrl::wm_info(Display *disp)
         p_verbose("Cannot get the _NET_SHOWING_DESKTOP property.\n");
     }
 
+#ifdef DEBUG
     /* print out the info */
     printf("Name: %s\n", name_out ? name_out : "N/A");
     printf("Class: %s\n", class_out ? class_out : "N/A");
@@ -623,6 +632,7 @@ int WmCtrl::wm_info(Display *disp)
     {
         printf("Window manager's \"showing the desktop\" mode: N/A\n");
     }
+#endif
 
     g_free(name_out);
     g_free(sup_window);
@@ -906,7 +916,9 @@ int WmCtrl::window_state(Display *disp, Window win, char *arg)
                 return EXIT_FAILURE;
             }
             tmp_prop2 = g_strdup_printf("_NET_WM_STATE_%s", tmp2 = g_ascii_strup(p2, -1));
+#ifdef DEBUG
             p_verbose("State 2: %s\n", tmp_prop2);
+#endif
             prop2 = XInternAtom(disp, tmp_prop2, False);
             g_free(tmp2);
             g_free(tmp_prop2);
@@ -919,7 +931,9 @@ int WmCtrl::window_state(Display *disp, Window win, char *arg)
             return EXIT_FAILURE;
         }
         tmp_prop1 = g_strdup_printf("_NET_WM_STATE_%s", tmp1 = g_ascii_strup(p1, -1));
+#ifdef DEBUG
         p_verbose("State 1: %s\n", tmp_prop1);
+#endif
         prop1 = XInternAtom(disp, tmp_prop1, False);
         g_free(tmp1);
         g_free(tmp_prop1);
@@ -996,7 +1010,9 @@ int WmCtrl::window_move_resize(Display *disp, Window win, char *arg)
     if (h != -1)
         grflags |= (1 << 11);
 
+#ifdef DEBUG
     p_verbose("grflags: %lu\n", grflags);
+#endif
 
     if (wm_supports(disp, "_NET_MOVERESIZE_WINDOW"))
     {
@@ -1005,7 +1021,9 @@ int WmCtrl::window_move_resize(Display *disp, Window win, char *arg)
     }
     else
     {
+#ifdef DEBUG
         p_verbose("WM doesn't support _NET_MOVERESIZE_WINDOW. Gravity will be ignored.\n");
+#endif
         if ((w < 1 || h < 1) && (x >= 0 && y >= 0))
         {
             XMoveWindow(disp, win, x, y);
@@ -1024,7 +1042,10 @@ int WmCtrl::window_move_resize(Display *disp, Window win, char *arg)
 
 int WmCtrl::action_window(Display *disp, Window win, char mode)
 {
+#ifdef DEBUG
     p_verbose("Using window: 0x%.8lx\n", win);
+#endif
+
     switch (mode)
     {
         case 'a':
@@ -1588,8 +1609,10 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
     const char s2[]="| WindowID |Dsk|Layer|  PID  |      Geometry      |        Class         |ClMach|Title|\n";
     const char s3[]="|----------|---|-----|-------|--------------------|----------------------|------|-----|\n";
 
+#ifdef DEBUG
     if (options.list_show_all)
         fprintf(stderr, "%s%s%s", s1, s2, s3);
+#endif
 
     /* print the list */
     for (i = 0; i < client_list_size / sizeof(Window); i++)
@@ -1628,12 +1651,14 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
         XTranslateCoordinates (disp, client_list[i], junkroot, junkx, junky,
                                &x, &y, &junkroot);
 
+#ifdef DEBUG
         /* special desktop ID -1 means "all desktops", so we
            have to convert the desktop value to signed long */
         printf("%s", (options.list_show_all)?"|":"");
         printf("0x%.8lx", client_list[i]);
         printf("%s", (options.list_show_all)?"|":"");
         printf(" %2ld", desktop ? (signed long)*desktop : 0);
+#endif
         itemWinInfo.lDesktop = desktop ? (signed long)*desktop : 0;
 
         if (options.list_show_all)
@@ -1641,6 +1666,8 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
             /* layer */
             layer = (unsigned long *)get_property(disp, client_list[i],
                                                   XA_CARDINAL, "_WIN_LAYER", NULL);
+
+#ifdef DEBUG
             printf("%s", (options.list_show_all)?"|":"");
             printf(" %s%3ld",
                    (*layer == 4)
@@ -1650,32 +1677,41 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
                        :"A" )
                    , *layer
                    );
+#endif
         }
 
+#ifdef DEBUG
         printf("%s", (options.list_show_all)?"|":"");
         if (options.show_pid || options.list_show_all)
         {
             printf(" %-6lu", pid ? *pid : 0);
         }
+#endif
         itemWinInfo.ulPid = pid ? *pid : 0;
 
+#ifdef DEBUG
         printf("%s", (options.list_show_all)?"|":"");
         if (options.show_geometry || options.list_show_all)
         {
             printf(" %-4d %-4d %-4d %-4d", x, y, wwidth, wheight);
         }
+#endif
         itemWinInfo.x = x;
         itemWinInfo.y = y;
         itemWinInfo.w = wwidth;
         itemWinInfo.h = wheight;
 
+#ifdef DEBUG
         printf("%s", (options.list_show_all)?"|":"");
         if (options.show_class || options.list_show_all)
         {
             printf(" %-20s ", class_out ? class_out : "N/A");
         }
+#endif
+
         itemWinInfo.sClassName = class_out ? class_out : "";
 
+#ifdef DEBUG
         printf("%s", (options.list_show_all)?"|":"");
         //printf(" %*s %s\n",
         //       max_client_machine_len,
@@ -1685,10 +1721,15 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
         printf(" %*s", max_client_machine_len, client_machine ? client_machine : "N/A");
         printf("%s", (options.list_show_all)?"|":"");
         printf(" %s", title_out ? title_out : "N/A");
+#endif
+
         itemWinInfo.sClientMachine = client_machine ? client_machine : "";
         itemWinInfo.sTitle = title_out ? title_out : "";
 
+#ifdef DEBUG
         printf("%s\n", (options.list_show_all)?" |":"");
+#endif
+
         g_free(title_utf8);
         g_free(title_out);
         g_free(desktop);
@@ -1699,6 +1740,7 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
         if (pListWinInfo)
         {
             pListWinInfo->push_back(itemWinInfo);
+#ifdef DEBUG
             fprintf(stderr, "WmCtrl::list_windows() : desktop(%d), pid(%u), class(%s), title(%s), machine(%s), pos(%d,%d,%d,%d)\n",
                     itemWinInfo.lDesktop,
                     itemWinInfo.ulPid,
@@ -1707,12 +1749,15 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
                     itemWinInfo.sClientMachine.c_str(),
                     itemWinInfo.x, itemWinInfo.y, itemWinInfo.w, itemWinInfo.h
                     );
+#endif
         }
     }
     g_free(client_list);
 
+#ifdef DEBUG
     if (options.list_show_all)
         fprintf(stderr, "%s%s%s", s3, s2, s1);
+#endif
 
     return EXIT_SUCCESS;
 }
@@ -1804,7 +1849,9 @@ gchar * WmCtrl::get_property(Display *disp, Window win,
 
     if (xa_ret_type != xa_prop_type)
     {
+#ifdef DEBUG
         p_verbose("Invalid type of %s property.\n", prop_name);
+#endif
         XFree(ret_prop);
         return NULL;
     }
