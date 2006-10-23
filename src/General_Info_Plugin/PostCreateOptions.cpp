@@ -61,9 +61,6 @@ void PostCreateOptions::PostCreateDevice(Row_Device *pRow_Device, OH_Orbiter *pO
 		PostCreateDevice_DisklessMD(pRow_Device,pOH_Orbiter);
 	else if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Capture_Cards_CONST) )
 		PostCreateDevice_CaptureCard(pRow_Device,pOH_Orbiter);
-
-	DCE::CMD_Check_Media_Providers CMD_Check_Media_Providers(g_pCommand_Impl->m_dwPK_Device,m_pOrbiter_Plugin->m_dwPK_Device);
-	g_pCommand_Impl->SendCommand(CMD_Check_Media_Providers);
 }
 
 void PostCreateOptions::PostCreateDevice_AlarmPanel(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)

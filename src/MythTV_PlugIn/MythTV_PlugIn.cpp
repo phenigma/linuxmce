@@ -861,10 +861,6 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 			DCE::CMD_Spawn_Application CMD_Spawn_Application_fill(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 				"/usr/pluto/bin/FillDbAndFetchIcons.sh","filldb","","","",false,false,false);
 			SendCommand(CMD_Spawn_Application_fill);
-
-			DCE::CMD_Spawn_Application CMD_Spawn_Application_restart(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-				"/usr/pluto/bin/Restart_Backend_With_SchemaLock.sh","restart myth","","","",false,false,false);
-			SendCommand(CMD_Spawn_Application_restart);
 		}
 	}
 }
