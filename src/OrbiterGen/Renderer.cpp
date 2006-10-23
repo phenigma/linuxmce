@@ -1298,7 +1298,7 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 	try
 	{
 		//BOM (Byte Order Mask) header for UTF-8 strings
-		const char BOM_header[3] = { 0xef, 0xbb, 0xbf };
+		const char BOM_header[3] = { (char)0xef, (char)0xbb, (char)0xbf };
 
 		//already a UTF-8 string?
 		bool bAlreadyHasBOMHeader = !memcmp(BOM_header, pDesignObjText->m_sText.data(), sizeof(BOM_header));
