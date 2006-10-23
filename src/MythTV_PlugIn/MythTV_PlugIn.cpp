@@ -733,7 +733,8 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 	PlutoSqlResult result_set_check;
 	if( (result_set_check.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))==NULL || (row=mysql_fetch_row(result_set_check.r))==NULL || atoi(row[0])<MINIMUM_MYTH_SCHEMA )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards skipping now because I need at least schema %d insted of %s",MINIMUM_MYTH_SCHEMA,row && row[0] ? row[0] : "*none*");
+		g_pPlutoLogger->Write(LV_WARNING,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards skipping now because I need at least schema %d insted of %s",
+			MINIMUM_MYTH_SCHEMA, (NULL != result_set_check.r && row && row[0]) ? row[0] : "*none*");
 		return;
 	}
 
