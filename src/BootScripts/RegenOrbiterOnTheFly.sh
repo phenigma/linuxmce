@@ -35,10 +35,8 @@ for OrbiterDev in $Orbiters; do
 	/usr/pluto/bin/MessageSend localhost 0 $OrbiterDev 7 1
 
 	echo "on the fly regen of $OrbiterDev $2 $3" >> /var/log/pluto/orbitergen.log
-	if /usr/pluto/bin/OrbiterGen -d "$OrbiterDev" $3 -g "$SkinDir" -f "$FontDir" -o "$OutDir" -h "$MySqlHost"  >> /var/log/pluto/orbitergen.log; then
-		# Notify the Orbiter Plugin that we finished
-		/usr/pluto/bin/MessageSend localhost 0 $2 1 267 2 $OrbiterDev
-	else
-		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to generate Orbiter nr. $OrbiterDev"
-	fi
+	/usr/pluto/bin/OrbiterGen -d "$OrbiterDev" $3 -g "$SkinDir" -f "$FontDir" -o "$OutDir" -h "$MySqlHost"  >> /var/log/pluto/orbitergen.log || Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to generate Orbiter nr. $OrbiterDev"
+
+	# Notify the Orbiter Plugin that we finished
+	/usr/pluto/bin/MessageSend localhost 0 $2 1 267 2 $OrbiterDev
 done
