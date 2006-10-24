@@ -24,10 +24,8 @@ valgrind_LogFile="/var/log/pluto/valgrind_${device_id}_$(basename $cmd_line).log
 
 ReloadWatcher_Background()
 {
-	local RunLevel
-
-	RunLevel=$(who -r | awk '{print $2}')
-	if [[ "$RunLevel" != 2 ]]; then
+	# $runlevel is defined in scripts executed by rc
+	if [[ "$runlevel" != 2 ]]; then
 		return
 	fi
 	
