@@ -24,6 +24,13 @@ valgrind_LogFile="/var/log/pluto/valgrind_${device_id}_$(basename $cmd_line).log
 
 ReloadWatcher_Background()
 {
+	local RunLevel
+
+	RunLevel=$(who -r | awk '{print $2}')
+	if [[ "$RunLevel" != 2 ]]; then
+		return
+	fi
+	
 	/usr/pluto/bin/Config_Device_Changes.sh
 	/usr/pluto/bin/Start_LocalDevices.sh
 }
