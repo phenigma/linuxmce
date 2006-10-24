@@ -24,8 +24,9 @@ valgrind_LogFile="/var/log/pluto/valgrind_${device_id}_$(basename $cmd_line).log
 
 ReloadWatcher_Background()
 {
-	# $runlevel is defined in scripts executed by rc
-	if [[ "$runlevel" != 2 ]]; then
+	local InitCmd
+	InitCmd=$(cat /proc/1/cmdline | tr '\0' ' ')
+	if [[ "$InitCmd" != *2* ]]; then
 		return
 	fi
 	
