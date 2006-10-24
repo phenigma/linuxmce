@@ -21,7 +21,8 @@ function addEntries
 chown mythtv /etc/mythtv/mysql.txt
 
 #Force the backend to make the database structure
-echo "LOCK TABLE schemalock WRITE;" | $mysql_command  || :# Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
+echo "LOCK TABLE schemalock WRITE;" | $mysql_command  || :
+# Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
 /etc/init.d/mythtv-backend force-reload || /bin/true
 
 echo "Waiting 3 seconds so that myth backed is able to actually create the schema"
