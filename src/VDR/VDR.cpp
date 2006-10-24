@@ -62,7 +62,7 @@ bool VDR::GetConfig()
 		return false;
 	}
 			
-	// system("/etc/init.d/dvb start; sleep 3; /etc/init.d/vdrdevel start");  // First just be sure vdr is running
+	// system("/etc/init.d/dvb start; sleep 3; /etc/init.d/vdr start");  // First just be sure vdr is running
 
 	if( m_pDevice_DVBCard )
 	{
@@ -130,7 +130,7 @@ VDR::~VDR()
 bool VDR::LaunchVDR()
 {
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,m_pDevice_Xine->m_dwPK_Device,
-			"vdr-socket:/" + m_sXineIP + "#demux:mpeg_pes",
+			"xvdr://" + m_sXineIP + "#nocache;demux:mpeg_block",
 			MEDIATYPE_pluto_LiveTV_CONST,
 			1,""); // Stream ID and start position not important
 	return SendCommand(cmd);
