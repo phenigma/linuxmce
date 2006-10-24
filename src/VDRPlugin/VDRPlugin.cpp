@@ -23,7 +23,7 @@ using namespace DCE;
 void* EPG_Thread( void* param ) // renamed to cancel link-time name collision in MS C++ 7.0 / VS .NET 2002
 {
 	VDRPlugin *p = (VDRPlugin*)param;
-	system("/etc/init.d/dvb start; /etc/init.d/vdrdevel start");  // First just be sure vdr is running
+	system("/etc/init.d/vdr start");  // First just be sure vdr is running
 	p->FetchEPG();
 	return NULL;
 }
@@ -116,30 +116,30 @@ void VDRPlugin::FetchEPG()
 			string sPath = pDevice_VDR->m_mapParameters_Find(DEVICEDATA_File_Name_and_Path_CONST);
 			// for the moment hardcode this			if( sPath.size()==0 )
 
-			sPath = "/var/cache/vdrdevel";
+			sPath = "/var/cache/vdr";
 			if( bIsHybrid )
 				sPath = "/usr/pluto/diskless/" + StringUtils::ltos(pDevice_MD->m_dwPK_Device) + "/" + sPath;
 #ifdef WIN32
-			sPath = "Y:/home/root/var/cache/vdrdevel";
+			sPath = "Y:/home/root/var/cache/vdr";
 #endif
 			g_pPlutoLogger->Write(LV_STATUS,"Reading EPG from %s",sPath.c_str());
 			VDREPG::EPG *pEPG = new VDREPG::EPG();
 			pEPG->ReadFromFile(sPath + "/epg.data",StringUtils::Replace(sPath,"/cache/","/lib/") + "/channels.conf");
 
 			// Read the logos
-			sPath = "/usr/share/vdrdevel-channellogos";
+			sPath = "/usr/share/vdr-channellogos";
 			if( bIsHybrid )
 				sPath = "/usr/pluto/diskless/" + StringUtils::ltos(pDevice_MD->m_dwPK_Device) + "/" + sPath;
 #ifdef WIN32
-			sPath = "Y:/home/root/usr/share/vdrdevel-channellogos";
+			sPath = "Y:/home/root/usr/share/vdr-channellogos";
 #endif
 			pEPG->ReadLogos(sPath);
 
-			sPath = "/var/lib/vdrdevel";
+			sPath = "/var/lib/vdr";
 			if( bIsHybrid )
 				sPath = "/usr/pluto/diskless/" + StringUtils::ltos(pDevice_MD->m_dwPK_Device) + "/" + sPath;
 #ifdef WIN32
-			sPath = "Y:/home/root/var/lib/vdrdevel";
+			sPath = "Y:/home/root/var/lib/vdr";
 #endif
 			pEPG->ReadTimers(sPath);
 
