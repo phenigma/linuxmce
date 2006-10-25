@@ -2,8 +2,8 @@
 Package = DCE_Destination_Package
 Dir = 
 desc = DCE Implemenation for #1705 VDR
-Maintainer = burgiman
-Email = burkart@system5.net
+Maintainer = DCE_MaintainerName
+Email = DCE_MaintainerEmail
 Depend = DCE_Dependencies
 <-dceag-p-e->
 
