@@ -100,7 +100,7 @@ if [ "$nobuild" = "" ]; then
 	rm ../pluto_main/*
 	sql2cpp -D pluto_main -h localhost
 	cd ../pluto_main
-	svn -m "Automatic Regen" --username aaron --password aaron --non-interactive commit
+	svn -m "Automatic Regen" --username automagic --password "$(</etc/pluto/automagic.pwd)" --non-interactive commit
     cd /home/MakeRelease/trunk
     svn info > svn.info
 else
