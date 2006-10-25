@@ -26,16 +26,22 @@ for ((i = 1; i <= "$#"; i++)); do
 		;;
 		nocheckout) 
 			nocheckout=y 
-			;;
+		;;
 		nosqlcvs) 
 			nosqlcvs=y 
-			;;
+		;;
+		nosqlcvs-sync)
+			nosqlcvs_sync=y
+		;;
 		dont-compile-existing)
 			dont_compile_existing="-X" 
-			;;
+		;;
 		no-build)
 			nobuild="-b" 
-			;;
+		;;
+		*)
+			echo "WARNING: Unknown parameter '${!i}'"
+		;;
 	esac
 done
 
@@ -85,12 +91,13 @@ echo "$Q;" | mysql -N pluto_main
 
 echo Using version with id: "$version"
 
-if [ "$nobuild" = "" ]; then
 	if [[ -z "$nosqlcvs" ]]; then
 		rm /tmp/main_sqlcvs.dump
 		rm /tmp/myth_sqlcvs.dump
 		#This is a release build, so we want to get a real sqlCVS
-		bash -x /home/database-dumps/sync-sqlcvs.sh
+		if [[ -z "$nosqlcvs_sync" ]]; then
+			bash -x /home/database-dumps/sync-sqlcvs.sh
+		fi
 		rm /tmp/sqlcvs_dumps.tar.gz
 		ssh uploads@plutohome.com "
 			rm -f /tmp/main_sqlcvs.dump /tmp/myth_sqlcvs /home/uploads/sqlcvs_dumps.tar.gz;
@@ -125,6 +132,7 @@ if [ "$nobuild" = "" ]; then
 		sqlCVS -h localhost -D pluto_media update-psc
 	fi
 
+if [[ "$nobuild" == "" ]]; then
 	if [[ -z "$nocheckout" ]]; then
 		echo "Marker: svn co $flavor `date`"
 		# Prepare build directory
@@ -191,7 +199,7 @@ if [ "$nobuild" = "" ]; then
 
 	## temporary
 	svn revert Table_Device.cpp  Table_Device_DeviceData.cpp Table_Orbiter.cpp Table_CommandGroup_Command_CommandParameter.cpp Table_CommandGroup.cpp Table_CommandGroup_Command.cpp
-	svn -m "Automatic Regen" --username aaron --password aaron --non-interactive commit
+	svn -m "Automatic Regen" --username automagic --password "$(</etc/pluto/automagic.pwd)" --non-interactive commit
     cd $build_dir/trunk
     svn info > svn.info
 else
@@ -273,10 +281,12 @@ echo Setting this version as the current one.
 rm $BASE_OUT_FOLDER/current
 ln -s $BASE_OUT_FOLDER/$version_name $BASE_OUT_FOLDER/current
 
-/home/WorkNew/src/MakeRelease/SelfPackagingModules.sh
-pushd /home/samba/repositories/$flavor/$replacementsdeb/main/binary-i386/
-./update-repository
-popd
+if [[ -z "$nobuild" ]]; then
+	/home/WorkNew/src/MakeRelease/SelfPackagingModules.sh
+	pushd /home/samba/repositories/$flavor/$replacementsdeb/main/binary-i386/
+	./update-repository
+	popd
+fi
 
 ln -s "/home/samba/repositories/$flavor/$replacementsdeb" /home/mirrors/Debian.ro.Sarge/debian/dists
 ln -s "/home/samba/repositories/$flavor/$maindeb" /home/mirrors/Debian.ro.Sarge/debian/dists
@@ -326,14 +336,14 @@ cd $version_name
 echo $version_name > current_version
 
 
-if [[ $version -ne 1 || $upload == y ]]; then
+if [[ "$version" !=  "1" || "$upload" == "y" ]]; then
 	echo "Marker: uploading download.tar.gz `date`"
 	
 	## Create tarball containing /home/builds/build directory and upload it
 	rm ../upload/download.$flavor.tar.gz
 	tar zcvf ../upload/download.$flavor.tar.gz *
 	scp ../upload/download.$flavor.tar.gz uploads@plutohome.com:~/
-	
+
 	## Create replacements repo tarball and upload it
 	rm ../upload/replacements.$flavor.tar.gz
 	pushd /home/samba/repositories/$flavor/$replacementsdeb
@@ -359,7 +369,8 @@ if [[ $version -ne 1 || $upload == y ]]; then
 #		bash -x DirPatch.sh
 #		scp replacements.tar.gz uploads@plutohome.com:~/
 #		scp replacements.patch.sh uploads@plutohome.com:~/
-#	fi
+		:
+	fi
 
 	popd	
 fi
