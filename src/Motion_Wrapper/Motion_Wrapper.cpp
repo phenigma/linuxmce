@@ -524,17 +524,8 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 	
 
 	//description: device description and roomname
-	string sDescription =  pDeviceData->m_sDescription ;
-	
+	string sDescription =  pDeviceData->m_sDescription ;	
 	string sRoom = "Unknown Room";
-	string sSQL = "SELECT Description FROM Room WHERE PK_Room = " + StringUtils::itos(pDeviceData->m_dwPK_Room);
-	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if ( (result_set.r = mysql_query_result(sSQL)) ) {
-		row = mysql_fetch_row(result_set.r);
-		sRoom = row[0];
-	}
-	
 	
 	if(!sDescription.empty() || !sRoom.empty()) {
 		conffile	<< "text_left " << StringUtils::Replace(&sDescription, " ", "_") << "\\n" << StringUtils::Replace(&sRoom, " ", "_") << endl << endl << endl;

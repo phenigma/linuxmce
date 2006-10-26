@@ -20,7 +20,7 @@ class Database_pluto_main;
 //<-dceag-decl-b->
 namespace DCE
 {
-	class Motion_Wrapper : public Motion_Wrapper_Command, public MySqlHelper
+	class Motion_Wrapper : public Motion_Wrapper_Command
 	{
 //<-dceag-decl-e->
 		// Private member variables
