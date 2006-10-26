@@ -142,9 +142,9 @@ if [[ "$nobuild" == "" ]]; then
 		# Check out private repository
 		cd $build_dir/private
 		if [[ "$branch" == trunk ]]; then
-			svn co http://10.0.0.170/pluto-private/trunk/. | tee $build_dir/svn.log
+			svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" http://10.0.0.170/pluto-private/trunk/. | tee $build_dir/svn.log
 		else
-			svn co http://10.0.0.170/pluto-private/branches/"$branch" | tee $build_dir/svn.log
+			svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" http://10.0.0.170/pluto-private/branches/"$branch" | tee $build_dir/svn.log
 			rm -f trunk
 			ln -s "$branch" trunk # workaround as to not change all of the script
 		fi
