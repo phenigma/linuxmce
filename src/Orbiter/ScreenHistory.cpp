@@ -65,6 +65,16 @@ void ScreenHistory::PurgeHistory()
 	m_listObjs.clear(); 
 }
 //-----------------------------------------------------------------------------------------------------
+bool ScreenHistory::CantGoBack()
+{
+	return m_bCantGoBack;
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHistory::CantGoBack(bool bCantGoBack)
+{
+	m_bCantGoBack = bCantGoBack;
+}
+//-----------------------------------------------------------------------------------------------------
 bool ScreenHistory::GoBack()
 {
 	if( m_bCantGoBack )

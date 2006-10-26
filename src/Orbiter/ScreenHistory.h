@@ -29,14 +29,14 @@ namespace DCE
 		string m_sID; /** < The id for current design object */
 		int m_nPK_Screen; /** < The PK_Screen of the screen */
 
+		/** < If we get a go back, skip over this screen unless "Force" is set to true */
+		bool m_bCantGoBack; 
+
 	public:
 		map<long, string> m_mapParameters; /** < Any parameters passed in when the screen was created */
 
 		/** < We'll know if we need to add an object to history or not (maybe we are doing a go back) */
 		static bool m_bAddToHistory; 
-
-		/** < If we get a go back, skip over this screen unless "Force" is set to true */
-		bool m_bCantGoBack; 
 
 		/** < Constructor and destructor */
 		ScreenHistory(int nPK_Screen, class ScreenHistory *pScreenHistory_Prior,Message *pMessage);
@@ -60,6 +60,10 @@ namespace DCE
 
 		/** < Returns a dump with current state - used for debugging */
 		string ToString();
+
+		/** < can go back or not? */
+		bool CantGoBack();
+		void CantGoBack(bool bCantGoBack);
 
 		/** < Setter and getter for current design obj's ID */
 		string ScreenID();

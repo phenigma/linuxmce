@@ -2678,8 +2678,8 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 			return true;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent1 type %d key %d",
-					  event.type, (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP ? event.data.button.m_iPK_Button : -999));
+//	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent1 type %d key %d",
+//					  event.type, (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP ? event.data.button.m_iPK_Button : -999));
 #endif
 	static int LastX=-1,LastY=-1; // For some reason we keep getting move events with the same coordinates over and over
 	if ( event.type == Orbiter::Event::MOUSE_MOVE )
@@ -4691,7 +4691,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 
 				// We now took the prior screen off teh list
 				m_listScreenHistory.pop_back(  );
-				if( pScreenHistory->m_bCantGoBack && sForce!="1"  )
+				if( pScreenHistory->CantGoBack() && sForce!="1"  )
 					continue;
 			}
 			else if(pScreenHistory->HistoryEmpty())
@@ -4844,6 +4844,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	if( bIsRemote || pObj_New->m_iBaseObjectID==m_iPK_Screen_Remote || pObj_New->m_iBaseObjectID==m_iPK_Screen_RemoteOSD )
 		pObj_New->m_bIsARemoteControl=true;
 
+	bool bNewScreenHistoryItem = true;
 	ScreenHistory *pScreenHistory_New = NULL;
 	if(NULL != m_pScreenHistory_NewEntry)
 	{
@@ -4854,12 +4855,14 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	{
 		//about the hide last current screen.
 		m_pOrbiterRenderer->ObjectOffScreen(m_pScreenHistory_Current->GetObj());
+
+		bNewScreenHistoryItem = false;
 		pScreenHistory_New = m_pScreenHistory_Current; //another designobj for the same screen
 		pScreenHistory_New->AddToHistory();
 	}
 
 	string sLastObject = pScreenHistory_New->GetObj() ? pScreenHistory_New->GetObj()->m_ObjectID : "";
-	bool bLastCantGoBack = pScreenHistory_New->m_bCantGoBack;
+	bool bLastCantGoBack = pScreenHistory_New->CantGoBack();
 
 	pScreenHistory_New->SetObj(pObj_New);
 
@@ -4878,9 +4881,12 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_DesignObj: %s pScreenHistory_New->m_bCantGoBack %d bCant_Go_Back %d pObj_New->m_bCantGoBack %d",
-		sPK_DesignObj.c_str(),(int) pScreenHistory_New->m_bCantGoBack,(int) bCant_Go_Back,(int) pObj_New->m_bCantGoBack);
+		sPK_DesignObj.c_str(),(int) pScreenHistory_New->CantGoBack(),(int) bCant_Go_Back,(int) pObj_New->m_bCantGoBack);
 #endif
-	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->m_bCantGoBack;
+
+	if(bNewScreenHistoryItem)
+		pScreenHistory_New->CantGoBack(bCant_Go_Back ? true : pObj_New->m_bCantGoBack);
+
 	if( pObj_New==m_pDesignObj_Orbiter_ScreenSaveMenu )
 	{
 		pObj_New->m_bCantGoBack=true;
