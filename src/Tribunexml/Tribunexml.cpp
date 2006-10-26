@@ -662,7 +662,7 @@ int main(int argc, char *argv[]){
 				<< " [-p MySql password of myth database] [-d MySql database of myth database] " << endl
 				<< " [-H MySql hostname of tribune database] [-U MySql username of tribune database] " << endl
 				<< " [-P MySql password of tribune database] [-D MySql database of tribune database] " << endl
-				<< " [-s sourceid] [-R URL to download parced files]" << endl;
+				<< " [-s sourceid] [-R URL to download parsed files]" << endl;
 		return false;
 	}
 	string wheresql="";

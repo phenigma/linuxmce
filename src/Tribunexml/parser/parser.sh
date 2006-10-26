@@ -4,16 +4,18 @@ IFS=$'\n'
 out="out"
 progs="progs"
 dirdiff="diffs"
+# place with old files
 old="old"
+# place of site with parsed files
 www="/var/www/tribune"
 # URL with real database
 #url="ftp://mon664jv:NPM602kp@ftp.tmstv.com/bigb"
 # URL with test database
 url="ftp://big549bg:NOK248ti@ftp.tmstv.com/pub"
 
-wget -O - "$url/progrec.txt.Z"|uncompress>progrec.txt
-wget -O - "$url/statrec.txt.Z"|uncompress>statrec.txt
-wget -O - "$url/skedrec.txt.Z"|uncompress>skedrec.txt
+#wget -O - "$url/progrec.txt.Z"|uncompress>progrec.txt
+#wget -O - "$url/statrec.txt.Z"|uncompress>statrec.txt
+#wget -O - "$url/skedrec.txt.Z"|uncompress>skedrec.txt
 
 echo -ne "">$progs/crew.txt
 echo -ne "">$progs/genres.txt
@@ -47,6 +49,7 @@ diff -u $old/crew.txt $progs/crew.txt|grep -e"^+"|sed "s/^+//g"|grep -e"^[^\+]">
 
 tar cjf $www/$progs.tar.bz2 $progs
 tar cjf $www/$dirdiff.tar.bz2 $dirdiff
+tar cjf $www/uniqueroles.txt.tar.bz2 uniqueroles.txt
 mv $progs/progrec.txt $old/progrec.txt
 mv $progs/crew.txt $old/crew.txt
 mv $progs/genres.txt $old/genres.txt
@@ -75,3 +78,5 @@ for i in `cat statrec.txt`; do
 	cd ..
 done
 
+# removing temporary files
+rm $dirdiff/progplus.diff $dirdiff/progminus.diff $dirdiff/genres.diff $dirdiff/crew.diff progrec.txt statrec.txt skedrec.txt
