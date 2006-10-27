@@ -1611,11 +1611,14 @@ void Router::ProcessQueue()
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue going to sleep");
 #endif
-			mm.CondWait();
+			mm.TimedCondWait(1, 0);
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue woke up with size: %d",(int) m_MessageQueue.size());
 #endif
         }
+
+		if(m_bReload)
+			break;
 
         // We are holding the mutex
         Message *pMessage = m_MessageQueue.front();
