@@ -117,7 +117,7 @@ function viewCameras($output,$dbADO) {
 </tr>
 </table>';
 	}else{
-		$out.=$TEXT_NO_CAMERA_DEVICES_IN_INSTALLATION_TEXT;
+		$out.=$TEXT_NO_CAMERA_DEVICES_IN_INSTALLATION_CONST;
 	}
 	$out.='
 	</form>';

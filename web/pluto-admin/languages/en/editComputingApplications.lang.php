@@ -17,5 +17,5 @@ $TEXT_QUICK_START_TEMPLATES_CONST='Quick start templates';
 $TEXT_TEMPLATE_CATEGORY_CONST='Template category';
 $TEXT_BINARY_CONST='Binary';
 $TEXT_HOMEPAGE_CONST='Homepage';
-$TEXT_WINDOW_CLASS_CONST ='Window class';
+$TEXT_WINDOW_CLASS_CONST='Window class';
 ?>

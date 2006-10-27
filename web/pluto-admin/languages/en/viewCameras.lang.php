@@ -5,6 +5,6 @@ $TEXT_NO_CAMERA_DEVICES_CONST='No camera devices';
 $TEXT_PREVIEW_CHECKED_CAMERAS_CONST='Preview checked cameras';
 $TEXT_NO_CAMERA_SELECTED_CONST='No camera selected.';
 $TEXT_SELECTED_CAMERAS_CONST='Selected cameras';
-$TEXT_NO_CAMERA_DEVICES_IN_INSTALLATION_TEXT='No camera devices.';
+$TEXT_NO_CAMERA_DEVICES_IN_INSTALLATION_CONST='No camera devices.';
 $TEXT_NO_ROOM_CONST='Not assigned to a room';
 ?>

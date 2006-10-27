@@ -57,7 +57,7 @@ function alertTypes($output,$securitydbADO,$dbADO) {
 			$tmpArray=array();
 			foreach ($devicesList AS $dev){
 				if((int)$dev!=0){
-					$tmpArray[]='<tr class="alternate_back"><td><a href="index.php?section=editDeviceParams&deviceID='.$dev.'">'.$deviceNames[$dev].'</a></td><td> <a href="javascript:if(confirm(\''.$TEXT_CONFIRM_DELETE_ANNOUCEMENT_DEVICE.'\')){document.alertTypes.deviceToRemove.value='.$dev.';document.alertTypes.submit();}">'.$TEXT_DELETE_CONST.'</a></td></tr>';
+					$tmpArray[]='<tr class="alternate_back"><td><a href="index.php?section=editDeviceParams&deviceID='.$dev.'">'.$deviceNames[$dev].'</a></td><td> <a href="javascript:if(confirm(\''.$TEXT_CONFIRM_DELETE_ANNOUCEMENT_DEVICE_CONST.'\')){document.alertTypes.deviceToRemove.value='.$dev.';document.alertTypes.submit();}">'.$TEXT_DELETE_CONST.'</a></td></tr>';
 				}
 			}
 			$deviceNamesList='<table cellpadding="2" cellspacing="1">'.join('',$tmpArray).'</table>';

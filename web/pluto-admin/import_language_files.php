@@ -6,6 +6,7 @@ $start_time=getmicrotime();
 $path='/home/users/vali/work/web/pluto-admin/languages/en/';
 $cmd="grep -H '^\\$' $path*.php";
 
+
 // hard-coded
 $PlutoAdminCategory=209;
 $subCategories=array(''=>0,)+getAssocArray('TextCategory','Description','PK_TextCategory',$dbADO,'WHERE FK_TextCategory_Parent='.$PlutoAdminCategory);

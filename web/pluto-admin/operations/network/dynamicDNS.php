@@ -42,7 +42,7 @@ function dynamicDNS($output, $dbADO) {
 			<table border="0">
 				<tr>
 					<td colspan="2" class="tablehead">
-						<b> '.$TEXT_DYNAMIC_DNS.' </b>
+						<b> '.$TEXT_DYNAMIC_DNS_CONST.' </b>
 					</td>
 				</tr>
 				<tr>
@@ -54,19 +54,19 @@ function dynamicDNS($output, $dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td><b>'.$TEXT_DYNAMIC_DNS_DOMAINS.'</b></td>
+					<td><b>'.$TEXT_DYNAMIC_DNS_DOMAINS_CONST.'</b></td>
 					<td>
 					<input type="text" name="ddDomains" value="'.$ddDomains.'">
 					</td>
 				</tr>
 				<tr>
-					<td><b>'.$TEXT_DYNAMIC_DNS_LOGIN.'</b></td>
+					<td><b>'.$TEXT_DYNAMIC_DNS_LOGIN_CONST.'</b></td>
 					<td>
 					<input type="text" name="ddLogin" value="'.$ddLogin.'">
 					</td>
 				</tr>
 				<tr>
-					<td><b>'.$TEXT_DYNAMIC_DNS_PASSWORD.'</b></td>
+					<td><b>'.$TEXT_DYNAMIC_DNS_PASSWORD_CONST.'</b></td>
 					<td>
 					<input type="password" name="ddPassword">
 					</td>
@@ -95,15 +95,15 @@ function dynamicDNS($output, $dbADO) {
 
 		exec("sudo -u root /usr/pluto/bin/DynamicDNS.sh set '{$ddLogin}' '{$ddPassword}' '{$ddProvider}' '{$ddDomains}' ");
 
-		header("Location: index.php?section=dynamicDNS&msg={$TEXT_DYNAMIC_DNS_UPDATED}");
+		header("Location: index.php?section=dynamicDNS&msg={$TEXT_DYNAMIC_DNS_UPDATED_CONST}");
 	}
 
 	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
-	$output->setPageTitle($TEXT_DYNAMIC_DNS);
+	$output->setPageTitle($TEXT_DYNAMIC_DNS_CONST);
 	$output->setScriptCalendar('null');
-	$output->setNavigationMenu(array($TEXT_DYNAMIC_DNS=>'index.php?section=dynamicDNS'));
+	$output->setNavigationMenu(array($TEXT_DYNAMIC_DNS_CONST=>'index.php?section=dynamicDNS'));
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_DYNAMIC_DNS);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_DYNAMIC_DNS_CONST);
 	$output->output();
 								
 }	
