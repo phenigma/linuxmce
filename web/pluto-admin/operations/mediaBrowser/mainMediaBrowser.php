@@ -308,7 +308,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 		if(!isset($dontRedirect))
 			$out.='
 				<script>
-					self.location=\'index.php?section=mainMediaBrowser&attributeID='.$attributeID.'&action=properties'.((isset($error))?'&error='.$error:'').((isset($updateCmd))?'&msg='.$updateCmd:'').'\';
+					self.location=\'index.php?section=mainMediaBrowser&attributeID='.$attributeID.'&action=properties'.((isset($error))?'&error='.$error:'').((isset($updateCmd))?'&msg='.urlencode($updateCmd):'').'\';
 				</script>
 				';
 		
