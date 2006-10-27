@@ -1428,10 +1428,17 @@ bool Router::Run()
 		if (m_bReload)
 		{
 		    g_pPlutoLogger->Write(LV_STATUS, "Detected m_bReload=true %d %d",(int) m_bQuit,(int) m_bRunning);
+
 			RefuseIncomingConnections();
 			DoReload();
 			Sleep(3000); // Wait 3 seconds for all devices to get the message before dropping the sockets
 			bReload=true;
+			
+			//wake up message queue thread
+			pthread_cond_broadcast(&m_MessageQueueCond);
+			//wait for it to finish
+			pthread_join(m_pthread_queue_id, NULL);
+
 			break;
 		}
         Sleep(1000);
@@ -1597,9 +1604,9 @@ void Router::AddMessageToQueue(Message *pMessage)
 void Router::ProcessQueue()
 {
     PLUTO_SAFETY_LOCK(mm,m_MessageQueueMutex);
-    while(true)
+    while(!m_bReload)
     {
-        while( m_MessageQueue.size()==0 )
+        while(!m_bReload && m_MessageQueue.size()==0)
         {
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue going to sleep");

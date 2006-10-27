@@ -60,12 +60,22 @@ bool Datagrid_Plugin::GetConfig()
 Datagrid_Plugin::~Datagrid_Plugin()
 //<-dceag-dest-e->
 {
-	for(map<int, DatagridGeneratorCallBackMap *>::iterator it = m_mapDataGridGeneratorCallBack.begin();it != m_mapDataGridGeneratorCallBack.end();++it)
 	{
-		for(DatagridGeneratorCallBackMap::iterator it2 = it->second->begin(); it2 != it->second->end();++it2)
-			delete it2->second;
-		delete it->second;
+		PLUTO_SAFETY_LOCK( s, m_DataGridMutex );
+		for(map<int, DatagridGeneratorCallBackMap *>::iterator it = m_mapDataGridGeneratorCallBack.begin();it != m_mapDataGridGeneratorCallBack.end();++it)
+		{
+			for(DatagridGeneratorCallBackMap::iterator it2 = it->second->begin(); it2 != it->second->end();++it2)
+				delete it2->second;
+			delete it->second;
+		}
+		m_mapDataGridGeneratorCallBack.clear();
+
+		for(map<string, class DataGridTable *>::iterator itd = m_DataGrids.begin(); itd != m_DataGrids.end(); ++itd)
+			delete itd->second;
+		m_DataGrids.clear();
 	}
+
+	pthread_mutex_destroy(&m_DataGridMutex.mutex);
 }
 
 //<-dceag-reg-b->

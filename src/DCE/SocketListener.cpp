@@ -66,10 +66,14 @@ SocketListener::~SocketListener()
 		m_Socket = INVALID_SOCKET; // now it is invalid
 	}
 
-	if ( m_ListenerThreadID ) pthread_join( m_ListenerThreadID, 0 ); // wait for it to finish
-	pthread_mutex_destroy( &m_ListenerMutex.mutex ); // killing the mutex
+	if (m_ListenerThreadID) 
+		pthread_join( m_ListenerThreadID, 0 ); // wait for it to finish
 
+	//drop all sockets
 	DropAllSockets();
+
+	// killing the mutex
+	pthread_mutex_destroy( &m_ListenerMutex.mutex ); 
 }
 
 void SocketListener::StartListening( int iPortNumber )
@@ -261,21 +265,21 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 
 	ServerSocketVector::iterator it_serversocket = std::find(m_vectorServerSocket.begin(), m_vectorServerSocket.end(), pServerSocket); 
 	if(it_serversocket != m_vectorServerSocket.end())
+	{
 		m_vectorServerSocket.erase(it_serversocket);
 
-	g_pPlutoLogger->Write( LV_REGISTRATION, "Map server socket size %d, vector server socket size %d",
-		m_mapServerSocket.size(), m_vectorServerSocket.size());
+		g_pPlutoLogger->Write( LV_REGISTRATION, "Map server socket size %d, vector server socket size %d",
+			m_mapServerSocket.size(), m_vectorServerSocket.size());
 
-	// Will be true if the socket's destructor is calling this
-	if(!bDontDelete)  
-	{	
-		// Otherwise the socket's destructor will call this
-		pServerSocket->m_bAlreadyRemoved = true;  
+		// Will be true if the socket's destructor is calling this
+		if(!bDontDelete)  
+		{	
+			// Otherwise the socket's destructor will call this
+			pServerSocket->m_bAlreadyRemoved = true;  
 
-		lm.Release();
-
-		//deallocate the memory for it
-		delete pServerSocket;
+			//deallocate the memory for it
+			delete pServerSocket;
+		}
 	}
 }
 
@@ -386,16 +390,12 @@ void SocketListener::DropAllSockets()
 	while(0 != m_mapServerSocket.size())
 	{
 		ServerSocket *pServerSocket = m_mapServerSocket.begin()->second;
-		lm.Release();
 		RemoveAndDeleteSocket(pServerSocket);
-		lm.Relock();
 	}
 
 	while(0 != m_vectorServerSocket.size())
 	{
 		ServerSocket *pServerSocket = *m_vectorServerSocket.begin();
-		lm.Release();
 		RemoveAndDeleteSocket(pServerSocket);
-		lm.Relock();
 	}
 }

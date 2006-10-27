@@ -46,13 +46,6 @@ void *ServerSocket::BeginWapClientThread(void *SvSock)
 {
 	ServerSocket *pServerSocket = (ServerSocket *)SvSock;
 
-	if(!pServerSocket->m_bThreadRunning)
-	{
-		//TODO:
-
-		return NULL; // Should have been set in the constructor
-	}
-
 	if(pServerSocket->ServeClient() && !pServerSocket->m_bAlreadyRemoved )
 	{
 		//I'll do it by myself
