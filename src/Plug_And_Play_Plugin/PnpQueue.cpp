@@ -906,7 +906,12 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 	//  See if there's a special locator for this category of device
 	map<string,fnLocateDevice>::iterator itLD; 
 	if( (itLD = m_mapCategoryLocateDevice.find( pPnpQueueEntry->m_pRow_PnpQueue->Category_get() ))!=m_mapCategoryLocateDevice.end() )
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d running special locator",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+#endif
 		return CALL_MEMBER_FN(*this,itLD->second) (pPnpQueueEntry);
+	}
 
 	string sPK_Device_TopLevel = StringUtils::itos(pPnpQueueEntry->m_dwPK_Device_TopLevel);
 	vector<Row_Device *> vectRow_Device;
@@ -926,6 +931,9 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 
 	if( sSerialOrMac.size() )
 	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d if( sSerialOrMac.size() ) %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sSerialOrMac.c_str());
+#endif
 		m_pDatabase_pluto_main->Device_get()->GetRows(sSerialOrMac,&vectRow_Device);
 		if( vectRow_Device.size() )
 		{
@@ -966,6 +974,9 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 
 	if( pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
 	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d has com port %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST].c_str());
+#endif
 		if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_RS232_CONST )
 			// This is just RS232.  There's no way to tell if the user moved a device or not.  If there's still an active device on this port
 			// We can assume it's a match, since it would have been disabled if the user didn't remove it.  We don't want to always re-identify the same devices
@@ -986,16 +997,30 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 	
 	// See if this exact item with the same serial number exists already
 	m_pDatabase_pluto_main->Device_get()->GetRows(sSql_Primary + sSql_Model + sSql_Port,&vectRow_Device);
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d checking same serial number %s got %d",
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(sSql_Primary + sSql_Model + sSql_Port).c_str(),(int) vectRow_Device.size());
+#endif
 	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
 	{
 		pRow_Device = *it;
 		if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Hard_Drives_CONST )
 		{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d device %d is a hdd",
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get());
+#endif
 			// For Hard drives the block device parameter must be the same
 			Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Block_Device_CONST);
 			if( !pRow_Device_DeviceData || pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Block_Device_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() ||
 				pRow_Device_DeviceData->IK_DeviceData_get()!=pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_Block_Device_CONST] )
+			{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d device %d is not the same hdd",
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get());
+#endif
 					continue;  // It's not the same hard drive
+			}
 		}
 
 		// Don't bother checking criteria if this isn't a DHCP device
@@ -1012,7 +1037,12 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 	vectRow_Device.clear();
 	// Nope.  See if there is another similar item, perhaps a different unit (serial #), but the 'one per pc' is set.  If so, it's a match since we can only have 1 per pc anyway
 	string sOnePerPc = " AND OnePerPC.IK_DeviceData IS NOT NULL AND OnePerPC.IK_DeviceData=1";
+
 	m_pDatabase_pluto_main->Device_get()->GetRows(sSql_Primary + sSql_Model + sOnePerPc,&vectRow_Device);
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d one per pc %s got %d",
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(sSql_Primary + sSql_Model + sOnePerPc).c_str(),vectRow_Device.size());
+#endif
 	if( vectRow_Device.size() )
 	{
 		pRow_Device = vectRow_Device[0];
@@ -1026,6 +1056,9 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 		}
 	}
 
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d no match",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+#endif
 	return false;
 }
 
@@ -1038,6 +1071,10 @@ bool PnpQueue::DeviceMatchesCriteria(Row_Device *pRow_Device,PnpQueueEntry *pPnp
 		"AND (DHCPDevice.SerialNumber IS NOT NULL "
 		"OR DHCPDevice.Parms IS NOT NULL)";
 	m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sSQL,&vectRow_DHCPDevice);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::DeviceMatchesCriteria queue %d device %d criteria %s got %d",
+		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get(),sSQL.c_str(),(int) vectRow_DHCPDevice.size());
+#endif
 	for(vector<Row_DHCPDevice *>::iterator it=vectRow_DHCPDevice.begin();it!=vectRow_DHCPDevice.end();++it)
 	{
 		Row_DHCPDevice *pRow_DHCPDevice = *it;
@@ -1046,8 +1083,16 @@ bool PnpQueue::DeviceMatchesCriteria(Row_Device *pRow_Device,PnpQueueEntry *pPnp
 		if( pRow_DHCPDevice->Parms_get().size() && pPnpQueueEntry->m_pRow_PnpQueue->Parms_get().find(pRow_DHCPDevice->Parms_get())==string::npos )
 			continue; // Don't do this if the serial number doesn't match
 
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::DeviceMatchesCriteria queue %d device %d matches %d",
+		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get(),pRow_DHCPDevice->PK_DHCPDevice_get());
+#endif
 		return true;
 	}
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::DeviceMatchesCriteria queue %d device %d no match",
+		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get());
+#endif
 	return false;
 }
 
@@ -1349,6 +1394,11 @@ string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
 void PnpQueue::SetDisableFlagForDeviceAndChildren(Row_Device *pRow_Device,bool bDisabled)
 {
 	pRow_Device->Disabled_set(bDisabled ? 1 : 0);
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::SetDisableFlagForDeviceAndChildren Device %d is %d",
+		pRow_Device->PK_Device_get(),(int) bDisabled);
+#endif
 
 	// If this is a usb->serial device, something else may get plugged in to the old port, so be sure
 	// to clear out the serial number.  By default we'll do this for everything, if a device should
