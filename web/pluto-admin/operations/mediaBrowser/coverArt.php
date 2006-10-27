@@ -144,11 +144,11 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 	// if parameter is not specified, show files without cover arts
 	$type=($type=='')?'filesNoCover':$type;
 	$ipp=((int)@$_REQUEST['ipp']<=0 || (int)@$_REQUEST['ipp']>100)?10:(int)@$_REQUEST['ipp'];
-$mediadbADO->debug=true;
+
 	switch ($type){
 		case 'allFiles':
 			$extra=($mediaType==3)?' OR EK_MediaType=5':'';
-			$pathSqlFilter=(@$_REQUEST['filterPath']!='')?' AND Path LIKE \''.$_REQUEST['filterPath'].'%\'':'';
+			$pathSqlFilter=(@$_REQUEST['filterPath']!='')?' AND Path LIKE \'%'.$_REQUEST['filterPath'].'%\'':'';
 			$fileSqlFilter=(@$_REQUEST['filterFile']!='')?' AND Filename LIKE \'%'.$_REQUEST['filterFile'].'%\'':'';
 			
 			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,\'/\',Filename) AS Label',$mediadbADO,'LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType ='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) AND Missing=0 '.$pathSqlFilter.$fileSqlFilter.' LIMIT 0,200');
@@ -169,7 +169,7 @@ $mediadbADO->debug=true;
 			*/
 			// todo: remove limit
 			$extra=($mediaType==3)?' OR EK_MediaType=5':'';
-			$pathSqlFilter=(@$_REQUEST['filterPath']!='')?' AND Path LIKE \''.$_REQUEST['filterPath'].'%\'':'';
+			$pathSqlFilter=(@$_REQUEST['filterPath']!='')?' AND Path LIKE \'%'.$_REQUEST['filterPath'].'%\'':'';
 			$fileSqlFilter=(@$_REQUEST['filterFile']!='')?' AND Filename LIKE \'%'.$_REQUEST['filterFile'].'%\'':'';
 			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,\'/\',Filename) AS Label',$mediadbADO,'LEFT JOIN Picture_File ON  Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) AND Missing=0 '.$pathSqlFilter.$fileSqlFilter.' GROUP BY PK_File HAVING count(FK_Picture)=0 ORDER BY PK_File DESC LIMIT 0,200');
 
@@ -201,7 +201,7 @@ $mediadbADO->debug=true;
 		break;
 	}
 	
-$mediadbADO->debug=false;
+
 	
 	$out='<div align="center"><b>'.$title.'</b></div><br><br>';
 	$out.= multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaType,$mediadbADO);
