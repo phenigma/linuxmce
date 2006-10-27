@@ -1437,7 +1437,7 @@ bool Router::Run()
 			//wake up message queue thread
 			pthread_cond_broadcast(&m_MessageQueueCond);
 			//wait for it to finish
-			pthread_join(m_pthread_queue_id, NULL);
+			//pthread_join(m_pthread_queue_id, NULL);
 
 			break;
 		}
