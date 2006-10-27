@@ -38,6 +38,7 @@ namespace DCE
 		pthread_t m_ListenerThreadID; /** < the thread on witch the socket runs */
 		int m_iListenPort; /** < the port on witch to listen */
 		SOCKET m_Socket; /** < the socket that listens for incomming connections */
+		bool m_bAllowIncommingConnections;
 
 	public:
 
@@ -101,11 +102,6 @@ namespace DCE
 		* @brief removes the socket from the listClients mb data and clears any dependencies
 		*/
 		virtual void RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelete=false );
-
-
-
-
-
 
 		/**
 		* @brief Called when an event handler is registered
@@ -192,6 +188,8 @@ namespace DCE
 
 		// Called when a ping test fails
 		virtual void PingFailed( ServerSocket *pServerSocket, int dwPK_Device ) {};
+
+		virtual void RefuseIncomingConnections() { m_bAllowIncommingConnections = false; }
 	};
 
 	class get_server_socket

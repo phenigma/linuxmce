@@ -45,7 +45,7 @@ void *BeginListenerThread( void *pSockListener )
 	return NULL;
 }
 
-SocketListener::SocketListener( string sName ) : m_ListenerMutex( "listener " + sName )
+SocketListener::SocketListener( string sName ) : m_ListenerMutex( "listener " + sName ), m_bAllowIncommingConnections(true)
 {
 	m_sName = sName;
 	m_ListenerThreadID = 0;
@@ -61,24 +61,6 @@ SocketListener::~SocketListener()
 	g_pPlutoLogger->Write( LV_SOCKET, "~SocketListener %d", m_Socket );
 	if ( m_Socket != INVALID_SOCKET )
 	{
-		/** @todo check comment */
-		/* DCESAFETYLOCK(lm,m_ListenerMutex);
-		list<DCESocket *>::iterator i;
-
-		for(i=m_Clients.begin();i!=m_Clients.end();i++)
-		{
-		DCESocket *pSocket = *i;
-		if( !pSocket )
-		g_pDCELogger->Write(LV_CRITICAL,"DCESocketListener::~DCESocketListener socket is NULL");
-		else if( pSocket->m_Socket!=INVALID_SOCKET )
-		{
-		g_pDCELogger->Write(LV_SOCKET,"closing socket %p %d",pSocket,pSocket->m_Socket);
-		closesocket(pSocket->m_Socket);
-		pSocket->m_Socket = INVALID_SOCKET;
-		}
-		}
-		lm.Release(); */
-
 		g_pPlutoLogger->Write( LV_SOCKET, "closing listener m_Socket: %d", m_Socket );
 		closesocket( m_Socket ); // closing the socket
 		m_Socket = INVALID_SOCKET; // now it is invalid
@@ -87,10 +69,7 @@ SocketListener::~SocketListener()
 	if ( m_ListenerThreadID ) pthread_join( m_ListenerThreadID, 0 ); // wait for it to finish
 	pthread_mutex_destroy( &m_ListenerMutex.mutex ); // killing the mutex
 
-
-
-
-
+	DropAllSockets();
 }
 
 void SocketListener::StartListening( int iPortNumber )
@@ -158,7 +137,7 @@ void SocketListener::Run()
 		fcntl(m_Socket, F_SETFD, dwFlags);
 #endif
 		m_bRunning = true; // So we know when we started
-		while( !m_bTerminate ) // while the listener dosen't terminate
+		while( !m_bTerminate && m_bAllowIncommingConnections) // while the listener dosen't terminate
 		{
 			fd_set rfds;
 			struct timeval tv;
@@ -180,6 +159,15 @@ void SocketListener::Run()
 			struct sockaddr_in addr;
 			socklen_t len = sizeof( struct sockaddr );
 			SOCKET newsock = accept( m_Socket, (sockaddr *)&addr, &len ); // creating a new socket
+
+			if(!m_bAllowIncommingConnections)
+			{
+				g_pPlutoLogger->Write( LV_STATUS, "Got an incoming connection, but the server is closing." );
+				send( newsock, "CLOSED\n", 6, 0 );
+				closesocket( newsock );
+				break;
+			}
+
 			if ( newsock != INVALID_SOCKET )
 			{
 				if ( m_bClosed )
@@ -206,7 +194,7 @@ void SocketListener::Run()
 #endif
 					/** @todo check comment */
 					// setsockopt(newsock, IPPROTO_TCP, TCP_NODELAY, (SOCKOPTTYPE) &b, sizeof(b));
-					/*Socket *has =*/ CreateSocket( newsock, "Incoming_Conn Socket " + StringUtils::itos(int(newsock)) + " " + inet_ntoa( addr.sin_addr ), inet_ntoa( addr.sin_addr ) );
+					CreateSocket( newsock, "Incoming_Conn Socket " + StringUtils::itos(int(newsock)) + " " + inet_ntoa( addr.sin_addr ), inet_ntoa( addr.sin_addr ) );
 				}
 			}
 			else
@@ -243,41 +231,50 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 	pServerSocket->Close();
 
 	PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
-	if( pServerSocket->m_iReferencesOutstanding_get()>1 ){  // Something besides us is still referencing this pointer
+	if(pServerSocket->m_iReferencesOutstanding_get() > 1)
+	{  
+		// Something besides us is still referencing this pointer
 		// We won't actually delete it because we don't want to wait for the other thread to finish, and besides that thread
 		// should also call this function since the socket is now dead (we just closed it)
+
+		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot remove socket %d, ourstanding refercences: %d",
+			pServerSocket->m_dwPK_Device, pServerSocket->m_iReferencesOutstanding_get());
 		return; 
 	}
 
 	g_pPlutoLogger->Write(LV_SOCKET, "Removing socket %p from socket listener", pServerSocket);
 
-	if( pServerSocket->m_dwPK_Device )
+	if(pServerSocket->m_dwPK_Device)
 	{
 		ServerSocketMap::iterator i = m_mapServerSocket.find( pServerSocket->m_dwPK_Device );
-		if ( i != m_mapServerSocket.end() && (*i).second == pServerSocket )
+		if (i != m_mapServerSocket.end() && (*i).second == pServerSocket)
 		{
 			g_pPlutoLogger->Write( LV_REGISTRATION, "Command handler (%p) for \x1b[34;1m%d\x1b[0m closed.", pServerSocket, pServerSocket->m_dwPK_Device );
 			OnDisconnected( pServerSocket->m_dwPK_Device );
-			m_mapServerSocket.erase( i );
+			m_mapServerSocket.erase(i);
 		}
 		else
 		{
-			g_pPlutoLogger->Write( LV_REGISTRATION, "Stale Command handler %d for \x1b[34;1m%d\x1b[0m closed.", pServerSocket, pServerSocket->m_dwPK_Device );
-		}
-
-		for (ServerSocketVector::iterator j=m_vectorServerSocket.begin(); j!=m_vectorServerSocket.end(); j++)
-		{
-			if ( (*j) == pServerSocket )
-			{
-				m_vectorServerSocket.erase(j);
-				break;
-			}
+			g_pPlutoLogger->Write( LV_REGISTRATION, "Stale Command handler (%p) for \x1b[34;1m%d\x1b[0m closed.", pServerSocket, pServerSocket->m_dwPK_Device );
 		}
 	}
-	if( !bDontDelete )  // Will be true if teh socket's destructor is calling this
+
+	ServerSocketVector::iterator it_serversocket = std::find(m_vectorServerSocket.begin(), m_vectorServerSocket.end(), pServerSocket); 
+	if(it_serversocket != m_vectorServerSocket.end())
+		m_vectorServerSocket.erase(it_serversocket);
+
+	g_pPlutoLogger->Write( LV_REGISTRATION, "Map server socket size %d, vector server socket size %d",
+		m_mapServerSocket.size(), m_vectorServerSocket.size());
+
+	// Will be true if the socket's destructor is calling this
+	if(!bDontDelete)  
 	{	
+		// Otherwise the socket's destructor will call this
+		pServerSocket->m_bAlreadyRemoved = true;  
+
 		lm.Release();
-		pServerSocket->m_bAlreadyRemoved=true;  // Otherwise the socket's destructor will call this
+
+		//deallocate the memory for it
 		delete pServerSocket;
 	}
 }
@@ -386,12 +383,19 @@ bool SocketListener::SendData( int iDeviceID, int iLength, const char *pcData )
 void SocketListener::DropAllSockets()
 {
 	PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
-	ServerSocketMap::iterator iDC;
-	for(iDC = m_mapServerSocket.begin(); iDC!=m_mapServerSocket.end(); ++iDC)
+	while(0 != m_mapServerSocket.size())
 	{
-		ServerSocket *pServerSocket = (*iDC).second;
-		pServerSocket->Close();
+		ServerSocket *pServerSocket = m_mapServerSocket.begin()->second;
+		lm.Release();
+		RemoveAndDeleteSocket(pServerSocket);
+		lm.Relock();
 	}
 
-	lm.Release();
+	while(0 != m_vectorServerSocket.size())
+	{
+		ServerSocket *pServerSocket = *m_vectorServerSocket.begin();
+		lm.Release();
+		RemoveAndDeleteSocket(pServerSocket);
+		lm.Relock();
+	}
 }

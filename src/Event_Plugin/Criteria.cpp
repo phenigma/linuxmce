@@ -10,3 +10,7 @@ bool Criteria::Evaluate(class EventInfo *pEventInfo,void *pExtraInfo)
 	return m_pCriteriaParmNesting->Evaluate(this,pEventInfo,pExtraInfo);
 }
 
+Criteria::~Criteria()
+{
+	delete m_pCriteriaParmNesting;
+}

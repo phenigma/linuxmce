@@ -30,7 +30,6 @@ namespace DCE
 	{
 	public:
 		string m_sFileName;
-	string m_sTempCatchAWeirdBug;
 		int m_Line;
 		bool m_bReleased,m_bLog,m_bLogErrorsOnly,m_bGotLock;
 		pluto_pthread_mutex_t *m_pLock;
@@ -41,12 +40,8 @@ namespace DCE
 			m_bReleased=false;
 			m_bGotLock=false;
 			m_pLock=pLock;
-	#ifdef UNDER_CE
-//			LACA_B4_3("safetylocklogger::***NO FILENAME** lock clock: %d thread: %p lock: %p",clock(),pthread_self(),m_pLock);
-	#endif
 			pthread_mutex_lock(&m_pLock->mutex);
 			m_sFileName = "*NONE*";
-	m_sTempCatchAWeirdBug=m_sFileName;
 			m_Line = 9999999;
 		}
 
@@ -58,14 +53,11 @@ namespace DCE
 			m_sFileName=File;
 			m_Line=Line;
 			m_bGotLock = false;
-	m_sTempCatchAWeirdBug=m_sFileName;
 
 			// AB 3/5/2004 - For some reason trylock doesn't work under Windows CE.  Do normal thread 
 			// logging instead
 	#ifdef UNDER_CE
-	//		LACA_B4_3("safetylocklogger::this: %s:%d thread: %p",m_sFileName.c_str(),m_Line,pthread_self());
 			pthread_mutex_lock(&m_pLock->mutex);
-	//		LACA_B4_3("safetylocklogger::acquired clock: %d thread: %p lock: %p",clock(),pthread_self(),m_pLock);
 			m_pLock->m_Line=m_Line;
 			m_pLock->m_sFileName=m_sFileName;
 			m_pLock->m_thread=pthread_self();
@@ -144,24 +136,10 @@ namespace DCE
 		}
 		~PlutoLockLogger()
 		{
-	if( m_sTempCatchAWeirdBug!=m_sFileName )
-	{
-	char *ptr=NULL;
-	*ptr=1;
-	}
 			Release();
-	if( m_sTempCatchAWeirdBug!=m_sFileName )
-	{
-	char *ptr=NULL;
-	*ptr=1;
-	}
 		}	
 		void Release()
 		{
-	#ifdef UNDER_CE
-	//		LACA_B4_4("safetylocklogger::Release clock: %d thread: %p lock: %p released: %d",
-	//			clock(),pthread_self(),m_pLock,(m_bReleased ? 1 : 0));
-	#endif
 			if( !m_bReleased )
 				pthread_mutex_unlock(&m_pLock->mutex);
 			m_bReleased=true;

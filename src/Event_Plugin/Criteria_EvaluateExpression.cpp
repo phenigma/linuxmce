@@ -160,6 +160,7 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 	}
 
 	g_pPlutoLogger->Write(LV_CRITICAL,"Criteria::EvaluateExpression unhandled criteria operator %d",pCriteriaParm->m_Operator);
+	return false;
 }
 
 #include "../General_Info_Plugin/General_Info_Plugin.h"

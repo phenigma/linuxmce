@@ -13,8 +13,7 @@ public:
 		m_pCriteriaParmNesting=pCriteriaParmNesting;
 	}
 
-	virtual ~Criteria()
-	{}
+	virtual ~Criteria();
 
 	bool Evaluate(class EventInfo *pEventInfo,void *pExtraInfo);
 

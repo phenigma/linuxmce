@@ -8,6 +8,19 @@
 #include "EventInfo.h"
 #include "EventHandler.h"
 
+CriteriaParmNesting::~CriteriaParmNesting()
+{
+	for(vector<CriteriaParm *>::iterator itc = m_vectCriteriaParm.begin(), endc = m_vectCriteriaParm.end(); itc != endc; ++itc)
+		delete *itc;
+	
+	m_vectCriteriaParm.clear();
+
+	for(vector<CriteriaParmNesting *>::iterator itcn = m_vectCriteriaParmNesting.begin(), endcn = m_vectCriteriaParmNesting.end(); itcn != endcn; ++itcn)
+		delete *itcn;
+
+	m_vectCriteriaParmNesting.clear();
+}
+
 bool CriteriaParmNesting::Evaluate(class Criteria *pCriteria,class EventInfo *pEventInfo,void *pExtraInfo)
 {
 	if( m_vectCriteriaParm.size()==0 && m_vectCriteriaParmNesting.size()==0 )
@@ -37,3 +50,4 @@ bool CriteriaParmNesting::Evaluate(class Criteria *pCriteria,class EventInfo *pE
 	// If this is an 'or' we're false because we never got a true value
 	return !(!m_bNot ^ m_bAnd);  
 }
+

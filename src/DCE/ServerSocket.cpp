@@ -42,45 +42,33 @@ See the GNU General Public License for more details.
 
 using namespace DCE;
 
-void *ServerSocket::BeginWapClientThread( void *SvSock )
+void *ServerSocket::BeginWapClientThread(void *SvSock)
 {
-	ServerSocket *pCS = (ServerSocket *)SvSock;
+	ServerSocket *pServerSocket = (ServerSocket *)SvSock;
 
-	//	g_pPlutoLogger->Write(LV_STATUS, "ServerSocket::BeginWapClientThread() enter: %p", pCS);
-
-	// i don't know if this is usefull here. We are doing the same check below.
-	if( !pCS->m_bThreadRunning )
+	if(!pServerSocket->m_bThreadRunning)
 	{
-		//		delete pCS;  // TODO: HACK -- we've got a socket leak here
-		//		g_pPlutoLogger->Write(LV_STATUS, "ServerSocket::BeginWapClientThread() pCS->m_bThreadRunning false, %p", pCS);
+		//TODO:
+
 		return NULL; // Should have been set in the constructor
 	}
 
-	// TODO: HACK -- we've got a socket leak here.
-	// We can't close the socket unless it was marked as running in a separate thread.
-	// If we close it even when it isn't marked not a single device will be able to connect to it.
-	//
-	// The caller can't tell if this is the until a converation is taking place on the connection.
-	// Se:
-	// 		- we enter the thread
-	// 		- look to see if this is the case and remove the socket in this case.
-	if( pCS->_Run() && !pCS->m_bAlreadyRemoved )
+	if(pServerSocket->ServeClient() && !pServerSocket->m_bAlreadyRemoved )
 	{
-		/*
-		if( pCS->m_dwPK_Device==DEVICEID_MESSAGESEND )
-		delete pCS;  // Don't waste the time for RemoveAndDeleteSocket if it's just a message send--it was never registered anyway
-		else
-		pCS->m_pListener->RemoveAndDeleteSocket(pCS);
-		*/
-		// now always doing RemoveAndDeleteSocket because we must free the vector of sockets
-		pCS->m_pListener->RemoveAndDeleteSocket(pCS);
+		//I'll do it by myself
+		g_pPlutoLogger->Write(LV_STATUS, "Detected disconnect: detaching thread for %d", pServerSocket->m_dwPK_Device);
+		pthread_detach(pServerSocket->m_ClientThreadID);
+		pServerSocket->m_ClientThreadID = NULL;
+
+		//Remove me from listener's lists
+		pServerSocket->m_pListener->RemoveAndDeleteSocket(pServerSocket);
 	}
 
 	return NULL;
 }
 
 ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName, string sIPAddress, string sMacAddress ) :
-Socket( sName, sIPAddress, sMacAddress ), m_ConnectionMutex( "connection " + sName )
+	Socket( sName, sIPAddress, sMacAddress ), m_ConnectionMutex( "connection " + sName )
 {
 	m_iInstanceID = 0;
 	m_bSendOnlySocket = false;
@@ -100,48 +88,51 @@ Socket( sName, sIPAddress, sMacAddress ), m_ConnectionMutex( "connection " + sNa
 ServerSocket::~ServerSocket()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::~ServerSocket() Deleting socket @%p. m_Socket: %d.", this, m_Socket );
+	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::~ServerSocket(): @%p/%d Is it running %d?", this, m_Socket, m_bThreadRunning);
 #endif
 
-#ifdef DEBUG
-	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::~ServerSocket(): @%p Is it running %d?", this, m_bThreadRunning);
-#endif
+	//Announce socket we're done
+	Close();
 
-	while( m_bThreadRunning )
-		Sleep(10);
+	//Wait for our thread to finish
+	if(NULL != m_ClientThreadID)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Forcing a disconnect: joining thread for %d", m_dwPK_Device);
+		pthread_join(m_ClientThreadID, NULL);
+		m_ClientThreadID = NULL;
+	}
 
-	if( !m_bAlreadyRemoved && m_dwPK_Device!=DEVICEID_MESSAGESEND )
-		m_pListener->RemoveAndDeleteSocket(this,true);  // Don't delete it, we're already doing that here
+	//Make sure we are no longer in listener's lists
+	if(!m_bAlreadyRemoved && m_dwPK_Device != DEVICEID_MESSAGESEND)
+		m_pListener->RemoveAndDeleteSocket(this, true /*don't delete me*/); 
 
-	// Shutdown of client sockets is either performed by their loops,
-	// or is triggered by the shutdown of the socket listener.
-
-	// Wait for any outstanding locks to finish
-	PLUTO_SAFETY_LOCK( cm, m_ConnectionMutex );
+	//Wait for any outstanding locks to finish
+	PLUTO_SAFETY_LOCK(cm, m_ConnectionMutex);
 	cm.Release();
 
-	/** @todo check comment */
-	//Don't need this since we're deleted from the thread we start
-	//pthread_join(m_ClientThreadID, NULL);
-	//	printf("Join done m_ClientThreadID=%d\n", (int)m_ClientThreadID);
-
-	pthread_mutex_destroy( &m_ConnectionMutex.mutex );
+	//Destroy our mutex
+	pthread_mutex_destroy(&m_ConnectionMutex.mutex);
 }
 
 
-void ServerSocket::Run() {
-	int iResult = pthread_create( &m_ClientThreadID, NULL, BeginWapClientThread, (void *)this );
-	if ( iResult != 0 )
+void ServerSocket::Run() 
+{
+	int iResult = pthread_create(&m_ClientThreadID, NULL, BeginWapClientThread, (void *)this);
+
+	if(iResult != 0)
 	{
-		m_bThreadRunning=false;
+		m_bThreadRunning = false;
 		g_pPlutoLogger->Write( LV_CRITICAL, "Pthread create returned %d %s dev %d ptr %p", (int)iResult, m_sName.c_str(), m_dwPK_Device,this );
+
+		//TODO: leaks ?
 	}
 	else
-		pthread_detach( m_ClientThreadID );
-
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Thread created for %s dev %d ptr %p", m_sName.c_str(), m_dwPK_Device, this);
+	}
 }
 
-bool ServerSocket::_Run()
+bool ServerSocket::ServeClient()
 {
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "Running socket %p... m_bTerminate: %d", this, m_pListener->m_bTerminate );
@@ -165,6 +156,7 @@ bool ServerSocket::_Run()
 		{
 			break;
 		}
+
 		if( sMessage.size()<2 )  // Got to be at least 2 characters
 			continue;
 
@@ -189,12 +181,10 @@ bool ServerSocket::_Run()
 			SendString( s );
 			continue;
 		}
-		/** @todo check comment */
-		// g_pPlutoLogger->Write(LV_SOCKET, "TCPIP: Received %s", sMessage.c_str());
 
 		if ( sMessage.length() >= 5 && (sMessage.substr(0,5) == "EVENT" || /* TODO - REMVOE HELLO ONCE ALL DEVICES USE EVENT */ sMessage.substr(0,5)=="HELLO") )
 		{
-#ifdef LL_DEBUG_FILE
+#ifdef LL_DEBUG
 			SocketInfo *pSocketInfo = g_mapSocketInfo_Find(m_iSocketCounter,m_sName,this);
 			pSocketInfo->m_sDevice=sMessage;
 #endif
@@ -232,6 +222,7 @@ bool ServerSocket::_Run()
 			else
 			{
 				int iResponse = m_pListener->ConfirmDeviceTemplate( m_dwPK_Device, PK_DeviceTemplate );
+				
 				if( iResponse==0 )
 				{
 					SendString( "NOT IN THIS INSTALLATION" + sIPAndMac);
@@ -239,8 +230,10 @@ bool ServerSocket::_Run()
 					m_bThreadRunning=false;
 					return true;
 				}
+
 				if( PK_DeviceTemplate && iResponse!=2 )
 					g_pPlutoLogger->Write(LV_STATUS,"Device %d connected as foreign template %d",m_dwPK_Device, PK_DeviceTemplate);
+
 				if( iResponse==3 )
 				{
 					SendString( "NEED RELOAD" + sIPAndMac);
@@ -248,18 +241,15 @@ bool ServerSocket::_Run()
 				}
 				else
 					SendString( "OK " + StringUtils::itos(m_dwPK_Device) + sIPAndMac );
+
 				m_sName += sMessage;
 			}
-
-#ifdef TEST_DISCONNECT
-			if ( m_dwPK_Device == TEST_DISCONNECT )
-				m_pListener->m_pTestDisconnectEvent = this;
-#endif
 
 			m_pListener->RegisterEventHandler( this, m_dwPK_Device );
 			continue;
 		}
-#ifdef LL_DEBUG_FILE
+
+#ifdef LL_DEBUG
 		if (  sMessage.length() >= 7 && sMessage.substr(0,7) == "COMMENT" )
 		{
 			SocketInfo *pSocketInfo = g_mapSocketInfo_Find(m_iSocketCounter,m_sName,this);
@@ -269,11 +259,12 @@ bool ServerSocket::_Run()
 
 		if ( (sMessage.length() > 7 && sMessage.substr(0,7) == "COMMAND") || /* TODO -- DELETE THIS ONCE ALL USE COMMAND */ (sMessage.length() > 14 && sMessage.substr(0,14) == "REQUESTHANDLER") )
 		{
-#ifdef LL_DEBUG_FILE
+#ifdef LL_DEBUG
 			SocketInfo *pSocketInfo = g_mapSocketInfo_Find(m_iSocketCounter,m_sName,this);
 			pSocketInfo->m_sDevice=sMessage;
 #endif
 			SendString( "OK" );
+
 			if( sMessage[0]=='C' )
 				m_dwPK_Device = atoi( sMessage.substr(7).c_str() );
 			else  // TODO -- DELETE THIS ONCE ALL USE COMMAND 
@@ -283,12 +274,6 @@ bool ServerSocket::_Run()
 			if( pos_instance!=string::npos )
 				m_iInstanceID = atoi(sMessage.substr(pos_instance+8).c_str());
 
-#ifdef TEST_DISCONNECT
-			if (m_dwPK_Device == TEST_DISCONNECT)
-			{
-				m_pListener->m_pTestDisconnectCmdHandler = this;
-			}
-#endif
 			if( m_dwPK_Device!=DEVICEID_MESSAGESEND )  // Special for temporary, 1 way devices
 				m_pListener->RegisterCommandHandler( this, m_dwPK_Device );
 
@@ -353,8 +338,8 @@ bool ServerSocket::_Run()
 	g_pPlutoLogger->Write( LV_WARNING, "TCPIP: Closing connection to %d (%s) %p m_Socket: %d", m_dwPK_Device,m_pListener->m_sName.c_str(), this, m_Socket );
 
 	m_pListener->OnDisconnected( m_dwPK_Device );
-
 	m_bThreadRunning=false;
+
 	return true;
 }
 

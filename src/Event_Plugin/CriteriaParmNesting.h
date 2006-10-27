@@ -9,6 +9,7 @@ public:
 	vector<class CriteriaParmNesting *> m_vectCriteriaParmNesting;
 
 	CriteriaParmNesting(bool bNot,bool bAnd) : m_bNot(bNot), m_bAnd(bAnd) {}
+	~CriteriaParmNesting();
 
 	bool Evaluate(class Criteria *ptrCriteria,class EventInfo *pEventInfo,void *pExtraInfo);
 /*

@@ -112,9 +112,6 @@ bool HandleRequestSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 
 	if ( sResponse != "OK" )
 	{
-#ifdef LOG_ALL_CONTROLLER_ACTIVITY
-		LACA_B4_4( "Connection for requesthandler %p (device: %d) reported %s. %s", this, m_dwPK_Device, sResponse.c_str(), m_sName.c_str() );
-#endif
 		g_pPlutoLogger->Write( LV_CRITICAL, "Connection for requesthandler %p (device: %d) reported %s. %s", this, m_dwPK_Device, sResponse.c_str(), m_sName.c_str() );
 		return false;
 	}
@@ -190,11 +187,6 @@ void HandleRequestSocket::RunThread()
 					ReceivedMessageResult receivedMessageResult = ReceivedMessage( pMessage );
 					if ( receivedMessageResult == rmr_NotProcessed )
 					{
-						#ifdef LOG_ALL_CONTROLLER_ACTIVITY
-							LACA_B4_6( "Could not find a handler for message - from %d to %d Type: %d ID: %d (device: %d) %s",
-								pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To,
-								pMessage->m_dwMessage_Type, pMessage->m_dwID, m_dwPK_Device,m_sName.c_str() );
-						#endif
 						g_pPlutoLogger->Write( LV_STATUS, "Could not find a handler for message - from %d to %d Type: %d ID: %d (device: %d) %s",
 							pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To,
 							pMessage->m_dwMessage_Type, pMessage->m_dwID, m_dwPK_Device, m_sName.c_str() );
@@ -209,9 +201,6 @@ void HandleRequestSocket::RunThread()
 				}
 				else
 				{
-					#ifdef LOG_ALL_CONTROLLER_ACTIVITY
-						LACA_B4_3( "Incomplete message received %p (device: %d) %s", this, m_dwPK_Device, m_sName.c_str() );
-					#endif
 					g_pPlutoLogger->Write( LV_CRITICAL, "Incomplete message received %p (device: %d) %s", this, m_dwPK_Device, m_sName.c_str() );
 				}
 			}

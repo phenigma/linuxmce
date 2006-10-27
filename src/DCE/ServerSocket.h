@@ -69,7 +69,7 @@ namespace DCE
 		* @brief runs a loop that handles the client
 		* Returns true if the socket is to be delete after this and false in the other case.
 		*/
-		bool _Run();
+		bool ServeClient();
 
 		static void *BeginWapClientThread(void*);
 

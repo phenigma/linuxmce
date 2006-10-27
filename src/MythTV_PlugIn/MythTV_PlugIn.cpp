@@ -76,6 +76,11 @@ MythTV_PlugIn::~MythTV_PlugIn()
 //	delete m_pMythWrapper;
 #endif
 
+	delete m_pEPGGrid;
+	m_pEPGGrid = NULL;
+
+	delete m_pMySqlHelper_Myth;
+	m_pMySqlHelper_Myth = NULL;
 }
 
 //<-dceag-reg-b->

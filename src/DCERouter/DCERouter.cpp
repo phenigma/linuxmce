@@ -253,7 +253,6 @@ Router::~Router()
 	cout << "Killing everything in DCERouter" << endl;
     delete[] m_pDeviceStructure;
 	delete[] m_pBufferForDeviceCategories;
-	DropAllSockets();
 
 #ifndef WIN32
 	for(list<void *>::iterator it=m_listPluginHandles.begin();it!=m_listPluginHandles.end();++it)
@@ -971,7 +970,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
             case SYSCOMMAND_QUIT:
                 m_bQuit=true;
                 break;
-#ifdef LL_DEBUG_FILE
+#ifdef LL_DEBUG
             case SYSCOMMAND_SHOW_SOCKETS:
                 ShowSockets();
                 break;
@@ -1429,6 +1428,7 @@ bool Router::Run()
 		if (m_bReload)
 		{
 		    g_pPlutoLogger->Write(LV_STATUS, "Detected m_bReload=true %d %d",(int) m_bQuit,(int) m_bRunning);
+			RefuseIncomingConnections();
 			DoReload();
 			Sleep(3000); // Wait 3 seconds for all devices to get the message before dropping the sockets
 			bReload=true;
@@ -2691,13 +2691,9 @@ void Router::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelet
 		{
 			ServerSocket *pServerSocket_Event = (*it).second;
 			if( pServerSocket->m_iInstanceID && pServerSocket->m_iInstanceID==pServerSocket_Event->m_iInstanceID )
-			{
-				pServerSocket_Event->m_bAlreadyRemoved=true;
-				pServerSocket_Event->Close();
 				pDevice->m_mapSocket_Event.erase(it++);
-			}
 			else
-				it++;
+				++it;
 		}
 	}
 	sl.Release();
@@ -2793,7 +2789,7 @@ void Router::CheckForRecursivePipes(DeviceData_Router *pDevice,vector<int> *pvec
 		CheckForRecursivePipes(vectDevice[s],pvect_Device_Pipe);
 }
 
-#ifdef LL_DEBUG_FILE
+#ifdef LL_DEBUG
 #include "Socket.h"
 void Router::ShowSockets()
 {

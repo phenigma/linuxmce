@@ -95,6 +95,8 @@ void MeshFrame::MarkAsVolatile()
 
 	delete Mesh;
 	Mesh = NULL;
+
+	Volatile_ = false;
 }
 
 void MeshFrame::SetMeshContainer(MeshContainer* Mesh)

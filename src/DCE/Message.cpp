@@ -39,7 +39,7 @@
 
 using namespace DCE;
 
-#if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
+#ifdef LL_DEBUG
 	// A counter used to mark messages so they can be traced in the low level logs
 	int g_MessageID=0;
 #endif
@@ -455,7 +455,7 @@ Message::~Message()
 
 void Message::Clear()
 {
-#if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
+#ifdef LL_DEBUG
 	m_MessageID = g_MessageID++;
 #endif
 
@@ -501,7 +501,7 @@ void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
     {
         dwHeaderPosition = m_pcCurrentPosition - m_pcDataBlock + 8;
 #ifndef WIN32
-#if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
+#ifdef LL_DEBUG
         string s("MESSAGE                      ");     //possibly this is a compiler bug  - gcc 3.3.3
 #else
         string s("MESSAGE               ");     //possibly this is a compiler bug  - gcc 3.3.3
@@ -510,7 +510,7 @@ void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
         Write_string(s);
 #else
 
-#if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
+#ifdef LL_DEBUG
 		Write_string( string( "MESSAGE                      " ) );
 #else
 		Write_string( string( "MESSAGE               " ) );
@@ -593,7 +593,7 @@ void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
         char *pcFreezePosition = m_pcCurrentPosition;
         m_pcCurrentPosition = m_pcDataBlock + dwHeaderPosition;
         string Size = StringUtils::itos( MessageSize );
-#if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
+#ifdef LL_DEBUG
 		Size += "," + StringUtils::itos(m_MessageID);
 #endif
         // Don't do a Write_String(StringUtils::itos(MessageSize)) because that will add a null term

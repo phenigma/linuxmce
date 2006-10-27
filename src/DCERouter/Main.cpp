@@ -33,10 +33,6 @@ const char *g_szCompile_Date="<=compile_date=>";
 /*SVN_REVISION*/
 
 extern pluto_pthread_mutex_t *g_mapLockMutex;
-#ifdef LL_DEBUG_FILE
-	extern pluto_pthread_mutex_t *m_LL_DEBUG_Mutex;
-#endif
-
 using namespace DCE;
 
 namespace DCE 
@@ -61,7 +57,7 @@ void sig_int(int sig)
 	}
 }
 
-#ifdef LL_DEBUG_FILE
+#ifdef LL_DEBUG
 void sig_usr1(int sig)
 {
 	if (g_pRouter != NULL)
@@ -184,7 +180,7 @@ int main(int argc, char *argv[])
 #ifndef _WIN32
 	/* install interrupt handler*/
 	signal(SIGINT, sig_int);
-#ifdef LL_DEBUG_FILE
+#ifdef LL_DEBUG
 	signal(SIGUSR1, sig_usr1);
 #endif
 #endif
@@ -200,32 +196,20 @@ int main(int argc, char *argv[])
 	WSACleanup();
 #endif
 
-/*
 	g_pPlutoLogger->Write(LV_STATUS, "Ready to delete router");
 	delete g_pRouter;
 	g_pRouter = NULL;
-
-//Leaving this code in cases a memory leak.  But this way any threads that were spawned
-//by child processes and may still be holding locks won't crash when they exit. 
 
 	if( g_mapLockMutex )
 	{
 		pthread_mutex_destroy(&g_mapLockMutex->mutex);
 		delete g_mapLockMutex;
 	}
-#ifdef LL_DEBUG_FILE
-	if( m_LL_DEBUG_Mutex )
-	{
-		pthread_mutex_destroy(&m_LL_DEBUG_Mutex->mutex);
-		delete m_LL_DEBUG_Mutex;
-	}
-#endif
 
 	g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: terminating now with %d",(int) bResult);
 
 	delete g_pPlutoLogger;
 	g_pPlutoLogger = NULL;
-*/
 
 	if( bResult )
 		return 2;

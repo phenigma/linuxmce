@@ -185,13 +185,27 @@ Event_Plugin::~Event_Plugin()
 //<-dceag-dest-e->
 {
 	delete m_pDatabase_pluto_main;
+	m_pDatabase_pluto_main = NULL;
+
+	delete m_pAlarmManager;
+	m_pAlarmManager = NULL;
 
 	for(map<int,ListEventHandler *>::iterator it = m_mapListEventHandler.begin(), end =
 		m_mapListEventHandler.end(); it != end; ++it)
 	{
+		for(list<EventHandler *>::iterator it_event = it->second->begin(), end_event =
+			it->second->end(); it_event != end_event; ++it_event)
+		{
+			delete *it_event;
+		}
+
 		delete it->second;
 	}
 	m_mapListEventHandler.clear();	
+
+	for(map<int,Criteria *>::iterator itc = m_mapCriteria.begin(), endc = m_mapCriteria.end(); itc != endc; ++itc)
+		delete itc->second;
+	m_mapCriteria.clear();
 }
 
 //<-dceag-reg-b->
