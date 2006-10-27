@@ -2,6 +2,10 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
+# START: Hack to get mythtv working
+ln -s /usr/lib/libXmu.so.6.2.0 /usr/lib/libXmu.so | :
+# END  : Hack to get mythtv working
+
 eval `cat /etc/mythtv/mysql.txt | grep -v "^#" | grep -v "^$"`;
 
 mysql_command="mysql -s -B -u $DBUserName -h $DBHostName -p$DBPassword $DBName";
