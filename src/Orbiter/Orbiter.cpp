@@ -904,11 +904,15 @@ g_PlutoProfiler->DumpResults();
 
 	m_pScreenHistory_Current=pScreenHistory;
 	m_pScreenHistory_Current->GetObj()->m_bActive=true;
-g_pPlutoLogger->Write( LV_CRITICAL, "need to change timeout %d",m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds);
+#ifdef DEBUG
+g_pPlutoLogger->Write( LV_STATUS, "need to change timeout %d",m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds);
+#endif
 
 	if( m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds )
 	{
-g_pPlutoLogger->Write( LV_CRITICAL, "calling timeout");
+#ifdef DEBUG
+g_pPlutoLogger->Write( LV_STATUS, "calling timeout");
+#endif
 		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->GetObj(), pe_ALL );
 	}
 
@@ -7281,7 +7285,9 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 
 	DesignObj_Orbiter *pObj = FindObject(sPK_DesignObj_CurrentScreen);
 
-	g_pPlutoLogger->Write(LV_CRITICAL,"remove popup %s",sName.c_str());
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"remove popup %s",sName.c_str());
+#endif
 
 	bool bExistsPopupToHide = false;
 	bool bNeedRefresh = false;

@@ -153,6 +153,7 @@ namespace DCE
         // The Plug-in's and interceptors
         map<int,class Command_Impl *> m_mapPlugIn;
         map<int,ListCommand_Impl *> m_mapPlugIn_DeviceTemplate;
+		map<int,pair<time_t,time_t> > m_mapDeviceUpStatus; // For each device (ie each md), 2 times: first when the machine first came up (or 0 if it's down), the second, the last time there was communication from it
 
         map<int,class MessageTypeInterceptor *> m_mapMessageTypeInterceptor;
         list<class MessageInterceptorCallBack *> m_listMessageInterceptor_Global;   // Interceptors that want all messages
@@ -198,7 +199,8 @@ namespace DCE
     public:
         // Accessors
         Command_Impl *m_mapPlugIn_Find(int PK_Device) { map<int,class Command_Impl *>::iterator it = m_mapPlugIn.find(PK_Device); return it==m_mapPlugIn.end() ? NULL : (*it).second; }
-        ListCommand_Impl *m_mapPlugIn_DeviceTemplate_Find(int PK_DeviceTemplate) { map<int,ListCommand_Impl *>::iterator it = m_mapPlugIn_DeviceTemplate.find(PK_DeviceTemplate); return it==m_mapPlugIn_DeviceTemplate.end() ? NULL : (*it).second; }
+		pair<time_t,time_t> m_mapDeviceUpStatus_Find(int PK_Device) { PLUTO_SAFETY_LOCK(cm,m_CoreMutex); map<int,pair<time_t,time_t> >::iterator it = m_mapDeviceUpStatus.find(PK_Device); return it==m_mapDeviceUpStatus.end() ? make_pair<time_t,time_t> (0,0) : (*it).second; }
+		ListCommand_Impl *m_mapPlugIn_DeviceTemplate_Find(int PK_DeviceTemplate) { map<int,ListCommand_Impl *>::iterator it = m_mapPlugIn_DeviceTemplate.find(PK_DeviceTemplate); return it==m_mapPlugIn_DeviceTemplate.end() ? NULL : (*it).second; }
         DeviceCategory *m_mapDeviceCategory_Find(int PK_DeviceCategory) { Map_DeviceCategory::iterator it = m_mapDeviceCategory.find(PK_DeviceCategory); return it==m_mapDeviceCategory.end() ? NULL : (*it).second; }
         DeviceGroup *m_mapDeviceGroup_Find(int PK_DeviceGroup) {map<int,class DeviceGroup *>::iterator it = m_mapDeviceGroup.find(PK_DeviceGroup); return it==m_mapDeviceGroup.end() ? NULL : (*it).second; }
         ListDeviceData_Router *m_mapDeviceByTemplate_Find(int PK_DeviceTemplate) { map<int,ListDeviceData_Router *>::iterator it = m_mapDeviceByTemplate.find(PK_DeviceTemplate); return it==m_mapDeviceByTemplate.end() ? NULL : (*it).second; }

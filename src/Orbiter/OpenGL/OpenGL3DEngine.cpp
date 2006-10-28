@@ -129,7 +129,9 @@ bool OpenGL3DEngine::Paint()
 	
 	if(CurrentLayer->Children.size() == 0)
 	{
+#ifdef DEBUG
 	    g_pPlutoLogger->Write(LV_STATUS, "NOTHING to paint (current layer: %p)", CurrentLayer);		
+#endif
 		return false;
 	}
 
@@ -485,7 +487,9 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktop(MeshFrame* Frame)
 void OpenGL3DEngine::StartFrameDrawing(string ObjectHash)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
-	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::StartFrameDrawing!");
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::StartFrameDrawing!");
+#endif
 	if(NULL != FrameBuilder)
 		EndFrameDrawing("");
 
@@ -496,7 +500,9 @@ void OpenGL3DEngine::StartFrameDrawing(string ObjectHash)
 void OpenGL3DEngine::StartDatagridDrawing(string ObjectHash)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
-	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::StartFrameDrawing!");
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::StartFrameDrawing!");
+#endif
 	if(NULL != FrameDatagrid)
 		EndDatagridDrawing("");
 

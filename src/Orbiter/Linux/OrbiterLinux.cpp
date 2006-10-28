@@ -241,11 +241,13 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
 
 	bool bApplicationInBackground = pObj->m_mapObjParms_Find(DESIGNOBJPARAMETER_In_Background_CONST) == "1";
 	
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::RenderDesktop() : ptr=%p coord=[%d,%d,%d,%d], in background %d",
                           pObj,
                           rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height,
 						  bApplicationInBackground
                           );
+#endif
 
 	//if an application like xine has to be in background, we'll move orbiter to be on layer above.
 	m_bIsExclusiveMode = bApplicationInBackground;
@@ -264,8 +266,10 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
         ActivateExternalWindowAsync(NULL);
     }
 
-    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::RenderDesktop() : done");
-    return true;
+#ifdef DEBUG
+    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::RenderDesktop() : done");
+#endif
+	return true;
 }
 
 /*virtual*/ void OrbiterLinux::ActivateExternalWindowAsync(void *)
@@ -273,19 +277,25 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
     string sWindowName = m_pWinListManager->GetExternApplicationName();
     PlutoRectangle rectTotal;
     m_pWinListManager->GetExternApplicationPosition(rectTotal);
-	//g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::ActivateExternalWindowAsync() : IsWindowAvailable(%s)", sWindowName.c_str());
-    bool bIsWindowAvailable = m_pWinListManager->IsWindowAvailable(sWindowName);
-	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::ActivateExternalWindowAsync() : IsWindowAvailable(%s) ==> %s", sWindowName.c_str(), bIsWindowAvailable ? "Yes, it is!" : "No, it's NOT!");
-    if (bIsWindowAvailable)
+
+	bool bIsWindowAvailable = m_pWinListManager->IsWindowAvailable(sWindowName);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::ActivateExternalWindowAsync() : IsWindowAvailable(%s) ==> %s", sWindowName.c_str(), bIsWindowAvailable ? "Yes, it is!" : "No, it's NOT!");
+#endif
+	if (bIsWindowAvailable)
     {
         if ( (rectTotal.Width == -1) && (rectTotal.Height == -1) )
         {
-            g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::ActivateExternalWindowAsync() : maximize sWindowName='%s'", sWindowName.c_str());
-            m_pWinListManager->MaximizeWindow(sWindowName);
+#ifdef DEBUG
+            g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::ActivateExternalWindowAsync() : maximize sWindowName='%s'", sWindowName.c_str());
+#endif
+			m_pWinListManager->MaximizeWindow(sWindowName);
         }
         else
         {
-            g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::ActivateExternalWindowAsync() : position sWindowName='%s'", sWindowName.c_str());
+#ifdef DEBUG
+            g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::ActivateExternalWindowAsync() : position sWindowName='%s'", sWindowName.c_str());
+#endif
             // HACK: stop activating xine or wxdialog several times per second
             // TODO: do the proper activating code for windows
             m_pWinListManager->PositionWindow(sWindowName, rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
@@ -596,9 +606,9 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
         case XK_F3:     event.data.button.m_iPK_Button = BUTTON_F3_CONST; break;
         case XK_F4:     event.data.button.m_iPK_Button = BUTTON_F4_CONST; break;
         case XK_F5:     event.data.button.m_iPK_Button = BUTTON_F5_CONST; break;
-		case XK_F6:     event.data.button.m_iPK_Button = BUTTON_F6_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F6 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
-		case XK_F7:     event.data.button.m_iPK_Button = BUTTON_F7_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F7 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
-		case XK_F8:     event.data.button.m_iPK_Button = BUTTON_F8_CONST; g_pPlutoLogger->Write(LV_CRITICAL, "Key F8 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
+		case XK_F6:     event.data.button.m_iPK_Button = BUTTON_F6_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F6 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
+		case XK_F7:     event.data.button.m_iPK_Button = BUTTON_F7_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F7 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
+		case XK_F8:     event.data.button.m_iPK_Button = BUTTON_F8_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F8 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
 
         case XK_0: case XK_KP_0:
             if(m_bShiftDown)

@@ -988,6 +988,22 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
 					strcpy(pNULLPointer,"this always crashes any os");
 				}
 				break;
+            case SYSCOMMAND_DEVICE_UP:
+            case SYSCOMMAND_DEVICE_DOWN:
+				{
+#ifdef DEBUG
+					g_pPlutoLogger->Write(LV_STATUS,"Device %d is %s",(*SafetyMessage)->m_dwPK_Device_From,(*SafetyMessage)->m_dwID==SYSCOMMAND_DEVICE_UP ? "UP" : "DOWN");
+#endif
+					pair<time_t,time_t> pOldValue = m_mapDeviceUpStatus_Find((*SafetyMessage)->m_dwPK_Device_From);
+					pOldValue.second = time(NULL);  // The second is the last communication
+					if( (*SafetyMessage)->m_dwID==SYSCOMMAND_DEVICE_DOWN )
+						pOldValue.first = 0;  // The first is 0 if the device is down
+					else if( pOldValue.first == 0 )
+						pOldValue.first = pOldValue.second;  // The first is the time the machine first came up
+					PLUTO_SAFETY_LOCK(cm,m_CoreMutex);
+					m_mapDeviceUpStatus[(*SafetyMessage)->m_dwPK_Device_From] = pOldValue;
+				}
+				break;
             case SYSCOMMAND_DEADLOCK:
 				{
 					for(ServerSocketMap::iterator iDeviceConnection=m_mapServerSocket.begin();iDeviceConnection!=m_mapServerSocket.end();++iDeviceConnection)

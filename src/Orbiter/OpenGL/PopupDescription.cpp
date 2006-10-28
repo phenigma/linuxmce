@@ -38,8 +38,10 @@ PopupDescription::~PopupDescription(void)
 
 void PopupDescription::Hide()
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Remove popup: %s", ObjectHash.c_str());
-	
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, "Remove popup: %s", ObjectHash.c_str());
+#endif
+
 	Engine->RemoveMeshFrameFromDesktopForID(ObjectHash);
 }
 

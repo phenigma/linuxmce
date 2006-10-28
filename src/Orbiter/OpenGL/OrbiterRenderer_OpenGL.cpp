@@ -261,7 +261,9 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	while( pObj_WithGraphic && pObj_WithGraphic->m_vectGraphic.size()==0 )
 		pObj_WithGraphic = (DesignObj_Orbiter *) pObj_WithGraphic->m_pParentObject;
 
-	g_pPlutoLogger->Write(LV_WARNING,"ReplaceColorInRectangle size: %d %d %d %d", x, y, width, height);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"ReplaceColorInRectangle size: %d %d %d %d", x, y, width, height);
+#endif
 
 	if( pObj_WithGraphic==NULL )
 	{
@@ -693,7 +695,9 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	int OnScreenTransition = m_spPendingGLEffects->m_nOnScreenTransitionEffectID;
 	int OnSelectWithChange = m_spPendingGLEffects->m_nOnSelectWithChangeEffectID;
 
-	g_pPlutoLogger->Write(LV_WARNING,"OrbiterRenderer_OpenGL::RenderScreen %d",OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->PK_Screen() : 0);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_OpenGL::RenderScreen %d",OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->PK_Screen() : 0);
+#endif
 
 	PlutoRectangle rectLastSelected(0, 0, 0, 0);
 
