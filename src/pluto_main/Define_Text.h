@@ -1107,6 +1107,8 @@
 #define TEXT_Pick_capture_card_port_CONST 1823
 #define TEXT_Capture_card_device_hint_CONST 1824
 #define TEXT_yes_capture_card_port_CONST 1825
+#define TEXT_Installed_Apps_Title_CONST 1826
+#define TEXT_Installed_Apps_Category_CONST 1827
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
