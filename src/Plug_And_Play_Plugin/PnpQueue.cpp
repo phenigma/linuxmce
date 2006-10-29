@@ -93,21 +93,6 @@ void PnpQueue::Run()
 	while( m_pPlug_And_Play_Plugin->m_pRouter->m_bIsLoading_get() )
 		Sleep(1000); // Wait for the router to be ready before we start to process
 
-	const int cnQuantum = 100;
-	const int cnWaitTime = 20000;
-	int nSleptTime = 0;
-	while(nSleptTime < cnWaitTime)
-	{
-		if(m_pPlug_And_Play_Plugin->m_bTerminate)
-		{
-			m_bThreadRunning = false;
-			return;
-		}
-
-		Sleep(cnQuantum);
-		nSleptTime += cnQuantum;
-	}
-
 	pnp.Relock();
 	
 	DCE::CMD_Check_Media_Providers CMD_Check_Media_Providers(m_pPlug_And_Play_Plugin->m_dwPK_Device,m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_dwPK_Device);
@@ -254,6 +239,30 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Detected: %s", pPnpQueueEntry->ToString().c_str());
 #endif
+
+	// If this is using RS232 we need to wait until the machine it's running on has finished starting all devices
+	// at least 20 seconds ago.  This way if the user has moved serial devices around on the ports this will give 
+	// the GSD script enough time to finish initializing the serial device, see that it's not connected and disable 
+	// it, so we can re-enable it on any other port
+	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_RS232_CONST )
+	{
+		DeviceData_Router *pDevice = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceData_Router_Find( pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Reported_get() );
+		if( pDevice )
+		{
+			pDevice = pDevice->GetTopMostDevice();  // Get the computer it's on
+			pair<time_t,time_t> pTimeUp = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceUpStatus_Find( pDevice->m_dwPK_Device );
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Detected: %s uptime for rs232 on %d is %d", 
+				pPnpQueueEntry->ToString().c_str(), pDevice->m_dwPK_Device, pTimeUp.first);
+#endif
+			if( pTimeUp.first==0 || time(NULL)-pTimeUp.first<20 )
+			{
+				pPnpQueueEntry->Block( PnpQueueEntry::pnpqe_blocked_waiting_for_other_device );
+				return false;
+			}
+		}
+	}
+
 
 	if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="serial" )
 	{

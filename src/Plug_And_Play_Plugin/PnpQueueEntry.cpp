@@ -310,7 +310,7 @@ string PnpQueueEntry::StageAsText()
 string PnpQueueEntry::ToString()
 {
     return 
-		string("PnpQueueEntry( ") + 
+		string("PnpQueueEntry( queue ") + StringUtils::itos(m_pRow_PnpQueue->PK_PnpQueue_get()) + " " +
 		"m_bCreateWithoutPrompting = " + StringUtils::ltos((long)m_bCreateWithoutPrompting) + ", "
 		"m_EBlockedState = " + StringUtils::ltos((long)m_EBlockedState) + ", "
 		"Stage = " + StageAsText() + ", "

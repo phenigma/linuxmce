@@ -30,6 +30,7 @@ public:
 	bool bReAcquire,m_bParsed,m_bFlushOnScreen;
 	TextStyle *m_pTextStyle,*m_pTextStyle_FirstCol,*m_pTextStyle_FirstRow,*m_pTextStyle_Selected,*m_pTextStyle_Highlighted;
 	vector<TextStyle *> m_vectTextStyle_Alt;
+	map< pair<int,int>, DesignObj_Orbiter *> m_mapChildDgObjects;  // If we have child objects corresponding to cols/rows, map them here.  col,row are 0 based
 
 	string sSelVariable;
 	bool m_bDontShowSelection,m_bIsMultiSelect,m_bKeepColHeader,m_bKeepRowHeader,m_bPersistXY,m_bHighlightSelectedCell;

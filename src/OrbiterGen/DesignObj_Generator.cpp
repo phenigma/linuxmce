@@ -131,7 +131,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
 if( m_pOrbiterGenerator->m_iLocation )
 int k=2;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==4549 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==4834 ||  m_pRow_DesignObj->PK_DesignObj_get()==4836 ) 
+if( m_pRow_DesignObj->PK_DesignObj_get()==5138 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==4834 ||  m_pRow_DesignObj->PK_DesignObj_get()==4836 ) 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -1035,9 +1035,16 @@ int k=2;
         }
     }
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==3390 )
+if( m_pRow_DesignObj->PK_DesignObj_get()==5138 )
 int k=2;
-    // Don't stretch out the floorplan objects
+
+    // If this is a datagrid, add datagrid children
+    if( m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Datagrid_CONST )
+	{
+		AddDataGridObjects();
+	}
+
+	// Don't stretch out the floorplan objects
     if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
     {
         // First go through all of the arrays and set the appropriate bounds so we can calculate the size of this object
@@ -2242,4 +2249,134 @@ string DesignObj_Generator::GetText(int PK_Text)
 	if( !pRow_Text_LS && m_pOrbiterGenerator->m_pRow_Language->PK_Language_get()!=1 )
 		pRow_Text_LS = m_mds->Text_LS_get()->GetRow(PK_Text,1);
 	return pRow_Text_LS ? pRow_Text_LS->Description_get() : "";
+}
+
+void DesignObj_Generator::AddDataGridObjects()
+{
+	// If there are objects specified for to be placed in the cells (ie DESIGNOBJPARAMETER_PK_DesignObj_Row1_CONST, DESIGNOBJPARAMETER_PK_DesignObj_Coll1_CONST or DESIGNOBJPARAMETER_PK_DesignObj_Cell_CONST)
+	// then we'll place these as child objects within the datagrid and update the m_mapChildDgObjects within the datagrid object to point to 
+	// the grid of objects.  The user may have specified a different object/height+width for the first row/column.  Iterate from the top row
+	// down, starting with the custom first row, then repeat for all additional rows
+	int RowHeight = atoi(GetParm(DESIGNOBJPARAMETER_Fixed_Row_Height_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int NumRows = atoi(GetParm(DESIGNOBJPARAMETER_Num_of_Rows_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int ColWidth = atoi(GetParm(DESIGNOBJPARAMETER_Fixed_Column_Width_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int NumCols = atoi(GetParm(DESIGNOBJPARAMETER_Num_of_Columns_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int FirstRowHeight = atoi(GetParm(DESIGNOBJPARAMETER_First_Row_Height_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int FirstColWidth = atoi(GetParm(DESIGNOBJPARAMETER_First_Column_Width_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+
+	if( (!RowHeight && !NumRows) || (!ColWidth && !NumCols) )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"DesignObj_Generator::AddDataGridObjects %d hasn't a width/height",m_pRow_DesignObj->PK_DesignObj_get());
+		return;
+	}
+
+	if( !NumRows )
+	{
+		if( FirstRowHeight )
+			NumRows = ( (m_rPosition.Height-FirstRowHeight) / RowHeight ) + 1;
+		else
+			NumRows = m_rPosition.Height / RowHeight;
+	}
+	if( !RowHeight )
+	{
+		if( FirstRowHeight )
+			RowHeight = (m_rPosition.Height-FirstRowHeight) / (NumRows-1);
+		else
+			RowHeight = m_rPosition.Height / NumRows;
+	}
+	if( !NumCols )
+	{
+		if( FirstColWidth )
+			NumCols = ( (m_rPosition.Width-FirstColWidth) / ColWidth ) + 1;
+		else
+			NumCols = m_rPosition.Width / ColWidth;
+	}
+	if( !ColWidth )
+	{
+		if( FirstColWidth )
+			ColWidth = (m_rPosition.Width-FirstColWidth) / (NumCols-1);
+		else
+			ColWidth = m_rPosition.Width / NumCols;
+	}
+
+	Row_DesignObj *pRow_DesignObj_FirstRow=NULL,*pRow_DesignObj_FirstCol=NULL,*pRow_DesignObj_Cell=NULL;
+	int PK_DesignObj_FirstRow = atoi(GetParm(DESIGNOBJPARAMETER_PK_DesignObj_Row1_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int PK_DesignObj_FirstCol = atoi(GetParm(DESIGNOBJPARAMETER_PK_DesignObj_Coll1_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int PK_DesignObj_Cell = atoi(GetParm(DESIGNOBJPARAMETER_PK_DesignObj_Cell_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	if( PK_DesignObj_FirstRow )
+		pRow_DesignObj_FirstRow = m_mds->DesignObj_get()->GetRow(PK_DesignObj_FirstRow);
+	if( PK_DesignObj_FirstCol )
+		pRow_DesignObj_FirstCol = m_mds->DesignObj_get()->GetRow(PK_DesignObj_FirstCol);
+	if( PK_DesignObj_Cell )
+		pRow_DesignObj_Cell = m_mds->DesignObj_get()->GetRow(PK_DesignObj_Cell);
+
+	int RowPos=0;
+
+	if( pRow_DesignObj_FirstRow )  // We've got a custom first row for special handling
+	{
+		int ColPos = 0, StartCol = 0;  // If there's a special first column and a special first row, cell 0,0 must be blank, and StartCol will be 1
+		if( pRow_DesignObj_FirstCol )
+		{
+			StartCol = 1;
+			ColPos = FirstColWidth ? FirstColWidth : ColWidth;  // Start at the first position
+		}
+		for( int iCol = StartCol; iCol<NumCols; ++iCol )
+		{
+			PlutoRectangle rectangle(m_rPosition.X+ColPos,m_rPosition.Y,ColWidth,FirstRowHeight ? FirstRowHeight : RowHeight);  
+			DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_DesignObj_FirstRow,rectangle,this,false,false);
+			pDesignObj_Generator->m_bCanBeHidden=true;
+			if( pDesignObj_Generator->m_pRow_DesignObjVariation ) // Be sure it's a valid object
+			{
+				m_mapChildDgObjects[ make_pair<int,int> (iCol,0) ] = pDesignObj_Generator;  // m_mapChildDgObjects is col/row to object
+				// Reduce this grid by the size of the up/down
+				m_alChildDesignObjs.push_back(pDesignObj_Generator);
+			}
+			else
+				delete pDesignObj_Generator;
+			ColPos += ColWidth;
+		}
+		RowPos = FirstRowHeight ? FirstRowHeight : RowHeight;
+	}
+
+	// Add all the rest of the rows
+	for(int iRow = pRow_DesignObj_FirstRow ? 1 : 0; iRow<NumRows; ++iRow)
+	{
+		int ColPos = 0, StartCol = 0;  // If there's a special first column and a special first row, cell 0,0 must be blank, and StartCol will be 1
+		if( pRow_DesignObj_FirstCol )
+		{
+			PlutoRectangle rectangle(m_rPosition.X,m_rPosition.Y+RowPos,FirstColWidth ? FirstColWidth : ColWidth,RowHeight);  
+			DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_DesignObj_FirstCol,rectangle,this,false,false);
+			pDesignObj_Generator->m_bCanBeHidden=true;
+			if( pDesignObj_Generator->m_pRow_DesignObjVariation ) // Be sure it's a valid object
+			{
+				m_mapChildDgObjects[ make_pair<int,int> (0,iRow) ] = pDesignObj_Generator;  // m_mapChildDgObjects is col/row to object
+				// Reduce this grid by the size of the up/down
+				m_alChildDesignObjs.push_back(pDesignObj_Generator);
+			}
+			else
+				delete pDesignObj_Generator;
+
+			StartCol = 1;
+			ColPos = FirstColWidth ? FirstColWidth : ColWidth;  // Start at the first position
+		}
+		if( pRow_DesignObj_Cell )
+		{
+			for( int iCol = StartCol; iCol<NumCols; ++iCol )
+			{
+				PlutoRectangle rectangle(m_rPosition.X+ColPos,m_rPosition.Y+RowPos,ColWidth,RowHeight);  
+				DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_DesignObj_Cell,rectangle,this,false,false);
+				pDesignObj_Generator->m_bCanBeHidden=true;
+				if( pDesignObj_Generator->m_pRow_DesignObjVariation ) // Be sure it's a valid object
+				{
+					m_mapChildDgObjects[ make_pair<int,int> (iCol,iRow) ] = pDesignObj_Generator;  // m_mapChildDgObjects is col/row to object
+					// Reduce this grid by the size of the up/down
+					m_alChildDesignObjs.push_back(pDesignObj_Generator);
+				}
+				else
+					delete pDesignObj_Generator;
+				ColPos += ColWidth;
+			}
+			RowPos += RowHeight;
+		}
+	}
 }

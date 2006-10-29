@@ -110,7 +110,9 @@ DataGridTable *DesignObj_DataGrid::RequestDatagridContents( int &GridCurCol, int
 	DataGridTable *pDataGridTable = DataGridTable_Get(GridCurRow,GridCurCol);
 	if (  bReAcquire || !pDataGridTable || m_sSeek.length() )
 	{
-g_pPlutoLogger->Write(LV_ACTION,"acquiring %s",m_ObjectID.c_str());
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_ACTION,"acquiring %s",m_ObjectID.c_str());
+#endif
 		bReAcquire=false;
 
 		++m_pOrbiter->m_dwIDataGridRequestCounter;
@@ -487,6 +489,7 @@ void DesignObj_DataGrid::m_pDataGridTable_Current_set(DataGridTable *pDataGridTa
 			DataGridCell *pCell = it->second;
 			if( pCell->m_pGraphic )
 			{
+g_pPlutoLogger->Write(LV_STATUS,"delete2 m_pCell->m_pGraphic %p:%p",pCell,pCell->m_pGraphic);
 				delete pCell->m_pGraphic;
 				pCell->m_pGraphic=NULL;
 			}

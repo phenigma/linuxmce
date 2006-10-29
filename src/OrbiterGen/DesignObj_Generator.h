@@ -36,6 +36,7 @@ public:
 	vector<class DesignObj_Generator *> m_alChildDesignObjs;
 	vector<class CGArray *> m_alNonMPArrays,m_alMPArray;
 	vector<class CGVarAss *> m_alVariableAssignments;
+	map< pair<int,int>, DesignObj_Generator *> m_mapChildDgObjects; // If this is a datagrid and it has child objects for cells, this maps the cell object to col,row
 	DesignObj_Generator *m_DesignObj_GeneratorGoto;
 	string m_sDesignObjGoto;
 	bool m_bContainsArrays;
@@ -78,6 +79,7 @@ public:
 	bool ReadFloorplanInfo(string sFilename);
 	void WriteFloorplanInfo(string sFilename);
 	string GetText(int PK_Text); // Returns the text string in the current language
+	void AddDataGridObjects();
 };
 
 #endif

@@ -318,6 +318,20 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 			for(DesignObjZoneList::iterator it=m_ZoneList.begin();it!=m_ZoneList.end();++it)
 				(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
 		}
+
+#ifdef OrbitergGen
+		if( m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+		{
+			Write_long(long(m_mapChildDgObjects.size()));
+			for(map< pair<int,int>, DesignObj_Generator *>::iterator it=m_mapChildDgObjects.begin();it!=m_mapChildDgObjects.end();++it)
+			{
+				Write_long(long(it->first.first));
+				Write_long(long(it->first.second));
+				Write_string(it->second->m_ObjectID);
+			}
+		}
+#endif
+
 		{
 			Write_long(long(m_ChildObjects.size()));
 			for(DesignObj_DataList::iterator it=m_ChildObjects.begin();it!=m_ChildObjects.end();++it)
@@ -489,6 +503,19 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 			}
 		}
 
+		map<string, pair<int,int> > mapDgObjects;  // This is only serialized for datagrids
+		if( m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+		{
+			size_t count = size_t(Read_long());
+			for(size_t s=0;s<count;++s)
+			{
+				long Col = Read_long();
+				long Row = Read_long();
+				string sObjectID;
+				Read_string(sObjectID);
+			}
+		}
+
 		{
 			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)
@@ -505,6 +532,17 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 	#endif
 
 				pDesignObj_Data->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+#ifdef ORBITER
+				// If this is a datagrid and it has child objects, match them to the rows/columns
+				if( m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+				{
+					map<string, pair<int,int> >::iterator it=mapDgObjects.find( pDesignObj_Data->m_ObjectID );
+					if( it!=mapDgObjects.end() )
+						( (DesignObj_DataGrid *)pDesignObj_Data )->m_mapChildDgObjects[ make_pair<int,int> (it->second.first,it->second.second) ] = pDesignObj_Data;
+
+				}
+#endif
+
 				pDesignObj_Data->m_pParentObject=this;
 				m_ChildObjects.push_back(pDesignObj_Data);
 			}
