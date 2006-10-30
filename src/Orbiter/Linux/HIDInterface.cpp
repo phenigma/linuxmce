@@ -3,6 +3,7 @@
 
 #define HAVE_STDBOOL_H
 #include <hid.h>
+#include <usb.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -89,6 +90,15 @@ g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents got a bind request.  Donig it.
 				write_packet[1]=0x20;
 				write_packet[2]=0x01;
 				write_packet[3]=0;
+
+int len = usb_interrupt_write(hid->dev_handle,0x80, (char *) write_packet, 4, 250);
+g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents  usb_interrupt_write %d",(int) len);
+
+int ctrl = usb_control_msg(hid->dev_handle, 0x21, 9, 0 /*int value*/, 0 /* int index */, write_packet, 4, 250);
+g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents  usb_control_msg %d",(int) ctrl);
+
+
+
 				hid_return ret_write = hid_interrupt_write(hid, 0x80, (char *) write_packet, 4, 250);
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents hid_return was %d",(int) ret_write);
