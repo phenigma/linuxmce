@@ -968,7 +968,7 @@ void Slim_Server_Streamer::StartSlimServer()
 					StringUtils::itos(m_iSlimServerCliPort),    // pass it the desired port number for reconnection.
 					"",                                         // execute this serialized message on exit with failure
 					"",											// execute this serialized message on exit with success
-					false,false,false);                         
+					false,false,false,true);
 			SendCommand(spawnApplication);
 			break; //
 		}
