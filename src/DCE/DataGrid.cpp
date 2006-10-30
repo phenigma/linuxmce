@@ -496,8 +496,6 @@ g_pPlutoLogger->Write( LV_DATAGRID, "cell count %d",m_CellCount );
 	{
 		unsigned long CellSize=pCellSize[i];
 		char *CellData=pCellData[i];
-		ntCells[i]->ToData(CellSize, CellData);
-
 		if (CellSize != ntIndex[i].m_Size)
 		{
 			printf("ERROR: Cell is of unexpected size!");

@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;..\..\libs\Libraries\pthreads-win32\include&quot;;..;/mysql/include;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;DEBUG;LOG_ALL_QUERIES;THREAD_LOG"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -214,7 +214,13 @@
 				RelativePath=".\AlarmManager.h">
 			</File>
 			<File
+				RelativePath=".\arp-cache.h">
+			</File>
+			<File
 				RelativePath=".\BinarySerialize.h">
+			</File>
+			<File
+				RelativePath=".\BufferedLogger.h">
 			</File>
 			<File
 				RelativePath=".\ClientSocket.h">
@@ -232,10 +238,43 @@
 				RelativePath=".\DataGrid.h">
 			</File>
 			<File
+				RelativePath=".\DCEConfig.h">
+			</File>
+			<File
+				RelativePath=".\DCEMySqlConfig.h">
+			</File>
+			<File
+				RelativePath=".\DCERouter.h">
+			</File>
+			<File
+				RelativePath=".\DeviceData_Base.h">
+			</File>
+			<File
+				RelativePath=".\DeviceData_Impl.h">
+			</File>
+			<File
+				RelativePath=".\DeviceData_Router.h">
+			</File>
+			<File
+				RelativePath=".\EmailLogger.h">
+			</File>
+			<File
+				RelativePath=".\Event_Impl.h">
+			</File>
+			<File
 				RelativePath=".\FileTransfer.h">
 			</File>
 			<File
+				RelativePath=".\FilterLogger.h">
+			</File>
+			<File
 				RelativePath=".\GraphicFormat.h">
+			</File>
+			<File
+				RelativePath=".\HandleRequestSocket.h">
+			</File>
+			<File
+				RelativePath=".\Logger.h">
 			</File>
 			<File
 				RelativePath=".\lzoconf.h">
@@ -244,19 +283,55 @@
 				RelativePath=".\md5.h">
 			</File>
 			<File
+				RelativePath=".\Message.h">
+			</File>
+			<File
+				RelativePath=".\MessageBuffer.h">
+			</File>
+			<File
 				RelativePath=".\minilzo.h">
+			</File>
+			<File
+				RelativePath=".\MultiLogger.h">
 			</File>
 			<File
 				RelativePath=".\MySQLHelper.h">
 			</File>
 			<File
+				RelativePath=".\ParseLogger.h">
+			</File>
+			<File
 				RelativePath=".\Picture.h">
+			</File>
+			<File
+				RelativePath=".\PlainClientSocket.h">
+			</File>
+			<File
+				RelativePath=".\PlugIn.h">
 			</File>
 			<File
 				RelativePath="..\PlutoUtils\PlutoDefs.h">
 			</File>
 			<File
+				RelativePath=".\PlutoLockLogger.h">
+			</File>
+			<File
 				RelativePath=".\PreformedCommand.h">
+			</File>
+			<File
+				RelativePath=".\ServerLogger.h">
+			</File>
+			<File
+				RelativePath=".\ServerSocket.h">
+			</File>
+			<File
+				RelativePath=".\Socket.h">
+			</File>
+			<File
+				RelativePath=".\SocketListener.h">
+			</File>
+			<File
+				RelativePath=".\Virtual_Device_Translator.h">
 			</File>
 		</Filter>
 		<Filter
