@@ -33,6 +33,10 @@ if(isset($_GET['psc_ids'])){
 	$out=getCodesByIDs($_GET['psc_ids'],$mainSqlCVSADO);
 }
 
+if(isset($_GET['psc_mods'])){
+	$out=getCodesByMOD($_GET['psc_mods'],$mainSqlCVSADO);
+}
+
 print "-- Database import\n".$out."\n-- EOF\n";
 
 
@@ -170,5 +174,28 @@ function getCodesByIDs($IDs,$mainSqlCVSADO){
 	
 	return $out;
 	
+}
+
+// parameters are psc_id1,psc_mod2,psc_id2,psc_mod2 ... psc_idX,psc_modX
+// function return a comma separated list of psc_ids
+function getCodesByMOD($psc_mods,$mainSqlCVSADO){
+	$mods=explode(',',$psc_mods);
+	$filter=array();
+	for($i=0;$i<count($mods);$i=$i+2){
+		$filter[]='(psc_id='.$mods[$i].' AND psc_mod=\''.$mods[$i+1].'\')';
+	}
+	if(count($filter)==0){
+		return 'ERROR: parameters not specified';		
+	}
+	
+	$sqlFilter=join(' OR ',$filter);
+
+	$res=$mainSqlCVSADO->Execute('SELECT InfraredGroup_Command.psc_id FROM InfraredGroup_Command WHERE '.$sqlFilter);
+	$idsArray=array();
+	while($row=$res->FetchRow()){
+		$idsArray[]=$row['psc_id'];
+	}
+	
+	return join(',',$idsArray);
 }
 ?>
