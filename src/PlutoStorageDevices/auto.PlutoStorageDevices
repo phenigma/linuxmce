@@ -82,6 +82,7 @@ case "$Template" in
 		
 			## Do the mount
 			echo "$NFS_MOUNT_OPTS $IPaddress:/mnt/device/$StorageDevice"
+			#echo "-fstype=fuse sshfs\#$IPaddress:/mnt/device/$StorageDevice"
 		fi
 		;;
 	
@@ -126,9 +127,9 @@ case "$Template" in
 		
 		## Do the mount
 		if [[ "$Username" == "" || "$Username" == "guest" ]] ;then
-			echo "-fstype=smbfs,guest,dmask=777,fmask=777 ://${IPaddress}/${Share}"
+			echo "-fstype=cifs,guest,dmask=777,fmask=777 ://${IPaddress}/${Share}"
 		else
-			echo "-fstype=smbfs,username=$Username,password=$Password,dmask=777,fmask=777 ://${IPaddress}/${Share}"
+			echo "-fstype=cifs,username=$Username,password=$Password,dmask=777,fmask=777 ://${IPaddress}/${Share}"
 		fi
 		;;
 
