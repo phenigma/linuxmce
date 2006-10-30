@@ -93,6 +93,16 @@ g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents got a bind request.  Donig it.
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents hid_return was %d",(int) ret_write);
 #endif
+
+				hid_return ret_write2 = hid_interrupt_write(hid, 0x81, (char *) write_packet, 4, 250);
+#ifdef DEBUG
+g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents hid_return2 was %d",(int) ret_write2);
+#endif
+
+				hid_return ret_write3 = hid_interrupt_write(hid, 0x82, (char *) write_packet, 4, 250);
+#ifdef DEBUG
+g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents hid_return3 was %d",(int) ret_write3);
+#endif
 			}
 
 #ifdef DEBUG
