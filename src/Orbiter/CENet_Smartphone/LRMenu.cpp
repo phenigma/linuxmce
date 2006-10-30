@@ -1,6 +1,6 @@
 #include "LRMenu.h"
 #include "../../pluto_main/Define_Button.h"
-
+//---------------------------------------------------------------------------------------------------------
 #if defined(SMARTPHONE2005) || defined(_VC80_UPGRADE)		//--- CHANGED4WM5 ----//
 	#define clock		GetTickCount
 	#define Surface_GetWidth pSurface->GetWidth()
@@ -14,8 +14,16 @@
 	#define Surface_GetHeight pSurface->m_height
 	#define pf_uint8_t uint8_t
 #endif
+//---------------------------------------------------------------------------------------------------------
 
 
+//---------------------------------------------------------------------------------------------------------
+/*
+ *
+ *	class LRMenuItemData
+ *
+ */
+//---------------------------------------------------------------------------------------------------------
 void LRMenuItemData::SetCaptionToString( string sCaption )
 {
 	#if defined UNICODE || defined _UNICODE
@@ -26,12 +34,16 @@ void LRMenuItemData::SetCaptionToString( string sCaption )
 	#endif
 }
 
-//-----------------------------------------------------------------------------------------------------------
-//--------------------------- class LocalRenderer ---------------------------
-//-----------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------
+/*
+ *
+ *	class LocalRenderer
+ *
+ */
+//---------------------------------------------------------------------------------------------------------
 
 Rect LocalRenderer::m_rViewport;
-
+//---------------------------------------------------------------------------------------------------------
 void LocalRenderer::DrawText( LPCTSTR Text, Rect &r, COLORREF color, BOOL bBold )
 {
 	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
@@ -41,7 +53,7 @@ void LocalRenderer::DrawText( LPCTSTR Text, Rect &r, COLORREF color, BOOL bBold 
 
 	RECT rectLocation = { r.left, r.top, r.right, r.bottom };
 
-	if ( bBold ) {
+	if ( bBold ) { // if bold -> create new font from the current one
 		LOGFONT lf;
 		memset(&lf, 0, sizeof(LOGFONT));
 		lf.lfWeight = FW_BOLD;
@@ -59,7 +71,7 @@ void LocalRenderer::DrawText( LPCTSTR Text, Rect &r, COLORREF color, BOOL bBold 
 
 	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LocalRenderer::DrawImage( char *pData,int nSize, Rect &r )
 {
 	Surface *pSurface = LoadImage( GetDisplay(), (pf_uint8_t*)pData, (pf_uint8_t*)(pData + nSize));
@@ -85,22 +97,21 @@ void LocalRenderer::DrawImage( char *pData,int nSize, Rect &r )
 		delete pSurface;
 	}
 }
-
-
+//---------------------------------------------------------------------------------------------------------
 void LocalRenderer::FillRect( Rect &r, COLORREF color )
 {
 	GetDisplay()->FillRect(r.left, r.top, r.right, r.bottom, Color( color ) );
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LocalRenderer::Update( RECT r )
 {
 	Rect rr(r);
 	GetDisplay()->Update( &rr );
 }
-
+//---------------------------------------------------------------------------------------------------------
 Surface* LocalRenderer::SaveRect( Rect r )
 {
-#if defined(_VC80_UPGRADE) 
+#if defined(_VC80_UPGRADE) // different implementation for PocketFrog versions
 	Surface* copy = new Surface( r.GetWidth(), r.GetHeight() );
 	if (copy){
         Rasterizer rasterizer( copy );
@@ -116,10 +127,10 @@ Surface* LocalRenderer::SaveRect( Rect r )
 	return pSurface;
 #endif
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LocalRenderer::RestoreRect( int iX, int iY, Surface* pSurface )
 {
-#if defined(_VC80_UPGRADE) 
+#if defined(_VC80_UPGRADE) // different implementation for PocketFrog versions
 	Rasterizer rasterizer( GetDisplay()->GetBackBuffer() );
 	rasterizer.Blit( iX, iY, pSurface );	
 #else	
@@ -131,14 +142,14 @@ void LocalRenderer::RestoreRect( int iX, int iY, Surface* pSurface )
 #endif
 
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LocalRenderer::DrawRect( RECT r, COLORREF color )
 {
 	Pixel cc(color);
 	Rect rr(r);
 	GetDisplay()->DrawRect( rr.left, rr.top, rr.right, rr.bottom, cc );
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LocalRenderer::DrawHRect( RECT r, COLORREF color )
 {
 	Pixel cc(color);
@@ -148,7 +159,7 @@ void LocalRenderer::DrawHRect( RECT r, COLORREF color )
 	GetDisplay()->DrawVLine( rr.left, rr.top, rr.GetHeight(), cc );
 	GetDisplay()->DrawVLine( rr.right-1, rr.top, rr.GetHeight(), cc );
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LocalRenderer::FillTriangle( int iX1, int iY1, int iX2, int iY2, int iX3, int iY3, COLORREF color )
 {
 	Point points[3];
@@ -157,7 +168,7 @@ void LocalRenderer::FillTriangle( int iX1, int iY1, int iX2, int iY2, int iX3, i
 	points[2] = Point( iX3, iY3 );
 	GetDisplay()->FillPoly( points, 3, Color(color) );
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LocalRenderer::DrawHLine( int iX, int iY, int iW, COLORREF color )
 {
 	Pixel cc(color);
@@ -165,21 +176,24 @@ void LocalRenderer::DrawHLine( int iX, int iY, int iW, COLORREF color )
 }
 
 
-//-----------------------------------------------------------------------------------------------------------
-//--------------------------- class LRMenu ---------------------------
-//-----------------------------------------------------------------------------------------------------------
-
+//---------------------------------------------------------------------------------------------------------
+/*
+ *
+ *	class LRMenu
+ *
+ */
+//---------------------------------------------------------------------------------------------------------
 LRMenu::LRMenu()
 {
 	CreateMenuRoot();
 }
-
+//---------------------------------------------------------------------------------------------------------
 LRMenu::~LRMenu()
 {
 	SAFE_DELETE( m_pMenuRoot );
 	m_pMenuRoot = NULL;
 }
-
+//---------------------------------------------------------------------------------------------------------
 LRMenuItem* LRMenu::AddItem( LRMenuItemData& ItemData )
 {	
 	if ( !m_bChanging ) return NULL;
@@ -187,7 +201,7 @@ LRMenuItem* LRMenu::AddItem( LRMenuItemData& ItemData )
 	LRMenuItem* pItem = m_pMenuRoot->AddItem( ItemData );
 	return pItem;
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LRMenu::AddItem( LRMenuItem* pMenuItem )
 {
 	if ( !m_bChanging ) return;
@@ -195,7 +209,7 @@ void LRMenu::AddItem( LRMenuItem* pMenuItem )
 	if ( !pMenuItem ) return;
 	m_pMenuRoot->AddItem( pMenuItem );
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LRMenu::Show( int iX, int iY )
 {
 	CHECK_UPDATING();
@@ -207,7 +221,7 @@ void LRMenu::Show( int iX, int iY )
 	m_pDisplayMenu->SetSubmenuY( r.top + iY );
 	m_pDisplayMenu->Show( );	
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LRMenu::Hide()
 {
 	CHECK_UPDATING();
@@ -220,7 +234,7 @@ void LRMenu::Hide()
 	m_pDisplayMenu->Hide();
 
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LRMenu::Paint( bool bFull )
 {	
 	CHECK_UPDATING();
@@ -241,7 +255,7 @@ void LRMenu::Paint( bool bFull )
 		}
 	}
 }
-
+//---------------------------------------------------------------------------------------------------------
 bool LRMenu::KeyPress( uchar ucKey )
 {
 	if ( !LocalRenderer::Valid() ) return false;
@@ -308,7 +322,7 @@ bool LRMenu::KeyPress( uchar ucKey )
 	}
 	return true;
 }
-
+//---------------------------------------------------------------------------------------------------------
 bool LRMenu::HandleKeys( int nPK_Button, bool bKeyUp )
 {
 	if ( NULL == m_pDisplayMenu ) return false;
@@ -358,10 +372,13 @@ bool LRMenu::HandleKeys( int nPK_Button, bool bKeyUp )
 }
 
 
-//-----------------------------------------------------------------------------------------------------------
-//--------------------------- class LRMenuItem ---------------------------
-//-----------------------------------------------------------------------------------------------------------
-
+//---------------------------------------------------------------------------------------------------------
+/*
+ *
+ *	class LRMenuItem
+ *
+ */
+//---------------------------------------------------------------------------------------------------------
 bool LRMenuItem::SelectItem( TCHAR ucShortcut )
 {
 	map<TCHAR, int>::iterator iterPos = m_mShotcuts.find( ucShortcut );
@@ -374,7 +391,7 @@ bool LRMenuItem::SelectItem( TCHAR ucShortcut )
 
 	return true;
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LRMenuItem::ClearSubmenu()
 {
 	for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin() ; iter!=m_vMenuItems.end(); ++iter ){
@@ -383,14 +400,14 @@ void LRMenuItem::ClearSubmenu()
 	m_vMenuItems.empty();
 	m_uiItemsHeight = m_uiItemsWidth = 0;
 }
-
+//---------------------------------------------------------------------------------------------------------
 LRMenuItem::~LRMenuItem()
 {
 	SAFE_DELETE( m_pClone );
 
 	ClearSubmenu();
 }
-
+//---------------------------------------------------------------------------------------------------------
 LRMenuItem* LRMenuItem::AddItem( LRMenuItemData& ItemData )
 {
 	LRMenuItem *pItem = new LRMenuItem( ItemData, this );	
@@ -398,7 +415,7 @@ LRMenuItem* LRMenuItem::AddItem( LRMenuItemData& ItemData )
 	m_uiItemsHeight = m_uiItemsWidth = 0;
 	return pItem;
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LRMenuItem::AddItem( LRMenuItem* pMenuItem )
 { 
 	if ( !pMenuItem ) return;	
@@ -406,7 +423,7 @@ void LRMenuItem::AddItem( LRMenuItem* pMenuItem )
 	m_vMenuItems.push_back( pMenuItem );
 	m_uiItemsHeight = m_uiItemsWidth = 0;
 }
-
+//---------------------------------------------------------------------------------------------------------
 bool LRMenuItem::Exec( )
 {
 	if ( HasSubMenu() ) {
@@ -417,7 +434,7 @@ bool LRMenuItem::Exec( )
 
 	return DoAction( );
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LRMenuItem::MoveCursor( int iDir )
 {
 	if ( m_iHighlight<0 ) return;
@@ -438,7 +455,7 @@ void LRMenuItem::MoveCursor( int iDir )
 			break;
 	}
 }
-
+//---------------------------------------------------------------------------------------------------------
 bool LRMenuItem::BeginPaint( RECT r, bool bForceRepaint )
 {
 	if ( m_bPainting ) return true;
@@ -450,30 +467,34 @@ bool LRMenuItem::BeginPaint( RECT r, bool bForceRepaint )
 	m_bPainting = true;
 	return true;
 }
-
-
+//---------------------------------------------------------------------------------------------------------
 void LRMenuItem::Paint( RECT r, bool bHighlight, bool bForceRepaint )
 {
 	if ( !BeginPaint( r, bForceRepaint ) ) return;
 
 	Rect rr( r );
+
+	// Paint background
 	if ( !bHighlight )
 		LocalRenderer::FillRect( rr, RGB( 0,0, 255 ) );
 	else
 		LocalRenderer::FillRect( rr, RGB( 255,255, 0 ) );
 
+	// Draw shortcut
 	if ( m_ucShortcut ) {
 		tstring sShortcut;
 		sShortcut += m_ucShortcut;
 		LocalRenderer::DrawText( sShortcut.c_str(), rr, RGB(255, 0, 0 ) );
 		rr.left += 10;
 	}
+
+	// Draw caption
 	LocalRenderer::DrawText( m_sCaption.c_str(), rr, RGB(0,0,0) );
 
 	EndPaint();
 
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LRMenuItem::CalcSubmenuLayout( RECT rViewport )
 {
 	Rect r(rViewport);
@@ -507,55 +528,67 @@ void LRMenuItem::CalcSubmenuLayout( RECT rViewport )
 	m_rSubmenu.right++;
 	m_rSubmenu.bottom++;	
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LRMenuItem::MakeSubmenuDirty( bool bDirty )
 {
 	for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin() ; iter!=m_vMenuItems.end(); ++iter ){
 		( *iter )->SetDirty( bDirty );
 	}
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LRMenuItem::ShowSubmenu( bool bShow )
 {
 	CHECK_RENDERER();
 
-	if ( bShow ){		
+	if ( bShow ){	// Show Submenu
 		CalcSubmenuLayout( LocalRenderer::GetViewport() );
+		// Save background
 		m_pClone = LocalRenderer::SaveRect( m_rSubmenu );
 		m_bIsShowing = true;
 		m_iHighlight = 0;
 	}
-	else if (m_pClone) {				
+	else if (m_pClone) {	// Hide submenu		
+		// Restore background
 		LocalRenderer::RestoreRect( m_rSubmenu.left, m_rSubmenu.top, m_pClone );
 		SAFE_DELETE( m_pClone );
 		LocalRenderer::Update( m_rSubmenu );
+		// Mark submenu as dirty
 		MakeSubmenuDirty();
 		m_iEnd = m_iStart = 0;
 		m_iHighlight = -1;
 		m_bIsShowing = false;
 	}
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LRMenuItem::PaintSubmenu( bool bForceRepaint )
 {
 	if ( !m_bIsShowing ) return;
 	CHECK_RENDERER();
 
 	Rect r(m_rSubmenu );	
+	// Draw contour
 	LocalRenderer::DrawHRect( r, DEFAULT_BORDER_COLOR );
+
+	// Draw scroll if there's one
 	if ( m_bHasScroll ) {
-		// Paint scroll
+		// To DO:
+		//		Paint scroll
 		//
 		//-------------
 		r.bottom -= DEFAULT_SCROLLBAR_HEIGHT;
 	}
+
+	// Adjust margins
 	r.left +=1; r.top +=1;r.right -=1; r.bottom -=1;
 	UINT uiCrtPos = r.top;
 
 	
 
+	// remove shortcuts - reassign shortcuts to items on painting
 	m_mShotcuts.clear();
 	TCHAR ucShortcut=_T('1');
+
+	// Paint dirty/visible submenu items
 	for ( int i=m_iStart ; i<m_vMenuItems.size() && uiCrtPos<r.bottom; ++i )
 		if ( m_vMenuItems[i]->GetVisible() ) {
 			Rect rItem( r.left, uiCrtPos, r.right, 
@@ -566,21 +599,25 @@ void LRMenuItem::PaintSubmenu( bool bForceRepaint )
 			}
 			AddShortcut( i, ucShortcut );
 			m_vMenuItems[i]->Paint( rItem, m_iHighlight==i, bForceRepaint );
+
 			LocalRenderer::DrawHLine( rItem.left, rItem.bottom, rItem.GetWidth(), RGB(0,0,0) );
 			uiCrtPos += m_vMenuItems[i]->GetHeight()+1;						
 			++ucShortcut;
 		}
+
+	//Update Dispaly Device
 	LocalRenderer::Update( m_rSubmenu );
 }
-
+//---------------------------------------------------------------------------------------------------------
 void LRMenuItem::AddShortcut( int iPos, TCHAR ucShortcut )
 {
 	m_mShotcuts[ucShortcut] = iPos;
 	m_vMenuItems[iPos]->SetShortcut( ucShortcut );
 }
-
+//---------------------------------------------------------------------------------------------------------
 UINT LRMenuItem::GetSubmenuHeight( int iLimit )
 {
+	// Calculate submenu height by adding all items heights	
 	if ( iLimit<0 ){
 		if ( !m_uiItemsHeight && m_vMenuItems.size() ) {
 			m_uiItemsHeight = 1;
@@ -591,6 +628,7 @@ UINT LRMenuItem::GetSubmenuHeight( int iLimit )
 		return m_uiItemsHeight;
 	}
 
+	// if iLimit>=0 limit submenu height to first height smaller than iLimit
 	UINT uiItemsHeight = 1;
 	vector<LRMenuItem*>::iterator iter;
 	for ( iter=m_vMenuItems.begin() ; iter!=m_vMenuItems.end() && uiItemsHeight<iLimit ; ++iter ) {
@@ -602,20 +640,22 @@ UINT LRMenuItem::GetSubmenuHeight( int iLimit )
 	}
 	return uiItemsHeight;
 }
-
+//---------------------------------------------------------------------------------------------------------
 UINT LRMenuItem::GetSubmenuWidth( void )
 {
+	// Calculate max width of submenu items
 	if ( !m_uiItemsWidth && m_vMenuItems.size() ) {		
 		for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin() ; iter!=m_vMenuItems.end(); ++iter )
 			if ( (*iter)->GetVisible() ) {
 				if ( m_uiItemsWidth < (*iter)->GetWidth() ) 
 					m_uiItemsWidth = (*iter)->GetWidth();
 			}
+		// Add margin width
 		m_uiItemsWidth += 2;
 	}
 	return m_uiItemsWidth;
 }
-
+//---------------------------------------------------------------------------------------------------------
 bool LRMenuItem::HasSubMenu( void )
 {
 	for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin() ; iter!=m_vMenuItems.end(); ++iter ){
@@ -624,7 +664,14 @@ bool LRMenuItem::HasSubMenu( void )
 	return false;
 }
 
-//-----------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------
+/*
+ *
+ *	class LRPhoneMenu
+ *
+ */
+//---------------------------------------------------------------------------------------------------------
+COLORREF LRPhoneMenu::m_clTextColor[tbcNone] = { RGB(0,0,0), RGB(0,0,0), RGB(0,0,0), RGB(0,0,0) };
 
 LRPhoneMenu* LRPhoneMenu::Create()
 {
@@ -633,79 +680,19 @@ LRPhoneMenu* LRPhoneMenu::Create()
 	return pMenu;
 }
 
-void LRPhoneMenuItemRoot::RemoveLinks( void )
-{
-	if ( m_vMenuItems.size()<=1 ) return;
 
-	for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin()+1 ; iter!=m_vMenuItems.end(); ++iter ){
-		SAFE_DELETE( *iter );
-	}
-	m_vMenuItems.erase( m_vMenuItems.begin()+1, m_vMenuItems.end() );
-}
-
-bool LRRoomItem::DoAction( void )
-{
-	m_pParent->SetCaption( m_sCaption );
-	CreateLinks();
-	return true;
-}
-
-void LRRoomItem::CreateLinks( void )
-{
-	LRCrtRoomItem* pCrtRoom = dynamic_cast<LRCrtRoomItem*>(m_pParent);;
-	LRPhoneMenuItemRoot* pRootItem = dynamic_cast<LRPhoneMenuItemRoot*>(pCrtRoom->GetParent());
-	if ( !pCrtRoom || !pRootItem ) return;
-	pRootItem->RemoveLinks();
-	for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin(); iter!=m_vMenuItems.end(); ++iter ) {
-		LRMenuItemLink* pLink = new LRMenuItemLink( *iter, NULL );
-		pRootItem->AddItem( pLink );
-	}	
-}
-
-void LRCrtRoomItem::SelectRoom( int iRoomId )
-{
-	if ( iRoomId<0 ) return;
-
-	for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin() ; iter!=m_vMenuItems.end(); ++iter ) {
-		LRRoomItem* pRoomItem = dynamic_cast<LRRoomItem*>( *iter );
-		if ( !pRoomItem ) return;
-		if ( pRoomItem->GetRoomId()==iRoomId ) {
-			SetCaption( pRoomItem->GetCaption() );
-			pRoomItem->CreateLinks();
-			break;
-		}
-	}
-}
-
-bool LRSubScenarioItem::DoAction( void )
-{
-	if ( OrbiterApp::GetInstance() ) {
-		OrbiterApp::GetInstance()->SendSelectedItem( m_sId );
-	}
-	return true;
-}
-
-
-COLORREF LRPhoneMenu::m_clTextColor[tbcNone] = { RGB(0,0,0), RGB(0,0,0), RGB(0,0,0), RGB(0,0,0) };
-
-
-void LRCrtRoomItem::Paint( RECT r, bool bHighlight, bool bForceRepaint )
-{
-	if ( !BeginPaint( r, bForceRepaint) ) return;
-		
-	Rect rr( r );
-	LocalRenderer::DrawHRect( rr, DEFAULT_BORDER_COLOR );
-	rr.left++;rr.top++;rr.right--;rr.bottom--;
-
-	LRPhoneMenuItem::Paint( rr, bHighlight, bForceRepaint );
-
-	EndPaint();
-}
-
+//---------------------------------------------------------------------------------------------------------
+/*
+ *
+ *	class LRPhoneMenuItem
+ *
+ */
+//---------------------------------------------------------------------------------------------------------
 void LRPhoneMenuItem::Paint( RECT r, bool bHighlight, bool bForceRepaint )
 {
 	if ( !BeginPaint( r, bForceRepaint ) ) return;
-		
+	
+	// Set background color
 	COLORREF clFillColor, clTextColor;
 	if ( !bHighlight ) {
 		clFillColor = LRPhoneMenu::GetColor( LRPhoneMenu::tbcBack );
@@ -718,6 +705,7 @@ void LRPhoneMenuItem::Paint( RECT r, bool bHighlight, bool bForceRepaint )
 
 	Rect rr(r);
 
+	// Paint background
 	LocalRenderer::FillRect( rr, clFillColor );
 
 	rr.left += DRAW_ITEMTEXT_MARGIN;
@@ -725,6 +713,7 @@ void LRPhoneMenuItem::Paint( RECT r, bool bHighlight, bool bForceRepaint )
 	rr.top += DRAW_ITEMTEXT_MARGIN;
 	rr.bottom -= DRAW_ITEMTEXT_MARGIN;
 
+	// Paint shorcut if he's got one
 	if ( m_ucShortcut ) {
 		tstring sShortcut;
 		sShortcut += m_ucShortcut;		
@@ -732,6 +721,7 @@ void LRPhoneMenuItem::Paint( RECT r, bool bHighlight, bool bForceRepaint )
 		rr.left += DRAW_SHORTCUT_WIDTH;
 	}
 
+	// Draw a triangle if it has submenu
 	if ( HasSubMenu() ) {
 		LocalRenderer::FillTriangle( rr.right-DRAW_SUBMENUMARK_WIDTH, (rr.top+rr.bottom)/2 - DRAW_SUBMENUMARK_HEIGHT/2, 
 									 rr.right-DRAW_SUBMENUMARK_WIDTH, (rr.top+rr.bottom)/2 + DRAW_SUBMENUMARK_HEIGHT/2, 
@@ -739,8 +729,108 @@ void LRPhoneMenuItem::Paint( RECT r, bool bHighlight, bool bForceRepaint )
 		rr.right -= DRAW_SUBMENUMARK_WIDTH+2;
 	}
 
+	// Draw caption
 	LocalRenderer::DrawText( m_sCaption.c_str(), rr, clTextColor, m_bStyleBold );
 
 	EndPaint();
 }
+
+//---------------------------------------------------------------------------------------------------------
+/*
+ *
+ *	class LRPhoneMenuItemRoot
+ *
+ */
+//---------------------------------------------------------------------------------------------------------
+void LRPhoneMenuItemRoot::RemoveLinks( void )
+{
+	if ( m_vMenuItems.size()<=1 ) return;
+
+	for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin()+1 ; iter!=m_vMenuItems.end(); ++iter ){
+		SAFE_DELETE( *iter );
+	}
+	m_vMenuItems.erase( m_vMenuItems.begin()+1, m_vMenuItems.end() );
+}
+
+//---------------------------------------------------------------------------------------------------------
+/*
+ *
+ *	class LRRoomItem
+ *
+ */
+//---------------------------------------------------------------------------------------------------------
+bool LRRoomItem::DoAction( void )
+{
+	m_pParent->SetCaption( m_sCaption );
+	CreateLinks();
+	return true;
+}
+//---------------------------------------------------------------------------------------------------------
+void LRRoomItem::CreateLinks( void )
+{
+	LRCrtRoomItem* pCrtRoom = dynamic_cast<LRCrtRoomItem*>(m_pParent);;
+	LRPhoneMenuItemRoot* pRootItem = dynamic_cast<LRPhoneMenuItemRoot*>(pCrtRoom->GetParent());
+	if ( !pCrtRoom || !pRootItem ) return;
+
+	pRootItem->RemoveLinks();
+	for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin(); iter!=m_vMenuItems.end(); ++iter ) {
+		LRMenuItemLink* pLink = new LRMenuItemLink( *iter, NULL );
+		pRootItem->AddItem( pLink );
+	}	
+}
+
+//---------------------------------------------------------------------------------------------------------
+/*
+ *
+ *	class LRCrtRoomItem
+ *
+ */
+//---------------------------------------------------------------------------------------------------------
+void LRCrtRoomItem::SelectRoom( int iRoomId )
+{
+	if ( iRoomId<0 ) return;
+
+	for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin() ; iter!=m_vMenuItems.end(); ++iter ) {
+		LRRoomItem* pRoomItem = dynamic_cast<LRRoomItem*>( *iter );
+		if ( !pRoomItem ) return;
+		if ( pRoomItem->GetRoomId()==iRoomId ) { // RoomId found
+			// Set CrtRoomItem caption  = Room caption
+			SetCaption( pRoomItem->GetCaption() );
+			// Create links in root menu
+			pRoomItem->CreateLinks();
+			break;
+		}
+	}
+}
+//---------------------------------------------------------------------------------------------------------
+void LRCrtRoomItem::Paint( RECT r, bool bHighlight, bool bForceRepaint )
+{
+	if ( !BeginPaint( r, bForceRepaint) ) return;
+		
+	Rect rr( r );
+	// Draw a double contour
+	LocalRenderer::DrawHRect( rr, DEFAULT_BORDER_COLOR );
+	rr.left++;rr.top++;rr.right--;rr.bottom--;
+
+	// Draw text in bold
+	LRPhoneMenuItem::Paint( rr, bHighlight, bForceRepaint );
+
+	EndPaint();
+}
+
+//---------------------------------------------------------------------------------------------------------
+/*
+ *
+ *	class LRSubScenarioItem
+ *
+ */
+//---------------------------------------------------------------------------------------------------------
+bool LRSubScenarioItem::DoAction( void )
+{
+	if ( OrbiterApp::GetInstance() ) {
+		OrbiterApp::GetInstance()->SendSelectedItem( m_sId );
+	}
+	return true;
+}
+//---------------------------------------------------------------------------------------------------------
 

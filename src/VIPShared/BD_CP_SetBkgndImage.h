@@ -4,6 +4,11 @@
 #include "BD/BDCommand.h"
 #include "VIPShared/PlutoPhoneCommands.h"
 
+/*
+ *
+ *	BD_CP_SetBkgndImage command - sets new background on smartphone
+ *
+ */
 class BD_CP_SetBkgndImage : public BDCommand
 {
 	unsigned char m_iImageType;

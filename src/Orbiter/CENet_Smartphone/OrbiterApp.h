@@ -11,8 +11,8 @@ using namespace Frog;
 #include "Orbiter/PocketFrog/PocketFrogWrapper.h"
 #include "VIPShared/RenderMenu.h"
 #include "VIPShared/MenuData.h"
-//---------------------------------------------------------------------------------------------------------
 class LRMenu;
+//---------------------------------------------------------------------------------------------------------
 
 #include <stdlib.h>
 
@@ -33,12 +33,12 @@ class CSmartphone2003Favorites;
 class OrbiterApp: public PlutoGame, public RenderMenu
 {
 private:
-//#ifdef _LOCAL_RENDERED_OBJECTS_
     
-  LRMenu* m_pMainMenu;
-  bool m_bMainMenuRepaint;
+	// local rendered main menu instance
+	LRMenu* m_pMainMenu;
+	// flag for full repainting main menu - when background image changes
+	bool m_bMainMenuRepaint;
   
-//#endif
 
 	//orbiter static instance
 	static OrbiterApp *m_pInstance;
@@ -200,9 +200,13 @@ public:
 	void SaveFile(unsigned long ulFileNameSize, char *pFileName, unsigned long ulFileDataSize, char *pFileData);
 	void SetCaptureKeyboard(bool bOnOff, bool bDataGrid, bool bReset, int nEditType, int nVariable, string sText);
 	void SetImageQuality(unsigned long ulImageQuality);
+	// - received: Set Background Image command 
 	void SetBkgndImage( unsigned char nImageType, int nSize, char *pData );
+	// - received: Set Menu Data - init local rendered menu
 	void SetMenuData( MenuData& data );
+	// - sent: Set configuration
 	void SendConfiguration( void );
+	// - sent: Selected item from LRMenu
 	void SendSelectedItem( string sItemId );
 
 	// - outgoing

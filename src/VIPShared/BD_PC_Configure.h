@@ -6,6 +6,11 @@
 #include "../SerializeClass/SerializeClass.h"
 #include "PhoneConfig.h"
 
+/*
+ *
+ *	BD_PC_Configure command - sends current phone configuration
+ *
+ */
 class BD_PC_Configure : public BDCommand 
 {
 protected:	

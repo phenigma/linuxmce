@@ -4,6 +4,12 @@
 #include "BD/BDCommand.h"
 #include "VIPShared/PlutoPhoneCommands.h"
 
+
+/*
+ *
+ *	BD_PC_SelectedItem command - sends selected item in local rendered menus
+ *
+ */
 class BD_PC_SelectedItem : public BDCommand 
 {
 	string m_sItem;

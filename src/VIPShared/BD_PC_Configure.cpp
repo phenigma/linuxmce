@@ -7,10 +7,10 @@
 #include "VIPShared/VIPIncludes.h"
 #include "Logger.h"
 #endif
-
+//---------------------------------------------------------------------------------------------------------
 #include "PlutoUtils/MyStl.h"
 #include "BD_PC_Configure.h"
-
+//---------------------------------------------------------------------------------------------------------
 #ifdef BLUETOOTH_DONGLE
 #include "../Bluetooth_Dongle/Bluetooth_Dongle.h"
 #include "../Orbiter/Orbiter.h"
@@ -18,6 +18,7 @@
 #include "../DCE/Logger.h"	
 #include "../Bluetooth_Dongle/OrbiterBluetooth.h"
 #endif
+//---------------------------------------------------------------------------------------------------------
 
 BD_PC_Configure::BD_PC_Configure( PhoneConfig& cfg ) 
 	
@@ -58,6 +59,7 @@ bool BD_PC_Configure::ProcessCommand(BDCommandProcessor *pProcessor)
 	}
 
 
+	// Execute Configure in Blootooth_Dongle
 	OrbiterBluetooth *pOrbiterBluetooth = dynamic_cast<OrbiterBluetooth *>(pOrbiter->m_pOrbiter);
 	if ( pOrbiterBluetooth ) pOrbiterBluetooth->Configure( m_Cfg );
 

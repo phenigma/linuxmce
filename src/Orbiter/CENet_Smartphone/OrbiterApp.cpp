@@ -142,10 +142,9 @@ OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hIns
 	m_CaptureKeyboardParam.Reset();	
 #endif
 
-#ifdef _LOCAL_RENDERED_OBJECTS_	
+	// initialization for LRMenu
 	m_pMainMenu = NULL;	
 	m_bMainMenuRepaint = false;
-#endif
 
 	m_pIncomingCallNotifier = new IncomingCallNotifier();
 
@@ -227,50 +226,6 @@ OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hIns
 
 /*virtual*/ bool OrbiterApp::GameInit()
 {
-	#ifdef _LOCAL_RENDERED_OBJECTS_	
-	/*
-	
-	MenuData menu;
-	menu.AddRoom( 0, "Room 0" );
-	menu.AddRoom( 1, "Room 1" );
-	menu.AddRoom( 2, "Room 2" );
-	menu.AddScenario( 0, "Lights" );
-	menu.AddScenario( 0, "Media" );
-	menu.AddScenario( 0, "Climate" );
-	menu.AddScenario( 0, "Security" );
-	menu.AddScenario( 0, "Telephony" );
-	menu.AddScenario( 1, "Lights" );
-	menu.AddScenario( 1, "Media" );
-	menu.AddScenario( 1, "Climate" );
-	menu.AddScenario( 1, "Security" );
-	menu.AddScenario( 1, "Telephony" );
-	menu.AddScenario( 2, "Lights" );
-	menu.AddScenario( 2, "Media" );
-	menu.AddScenario( 2, "Climate" );
-	menu.AddScenario( 2, "Security" );
-	menu.AddScenario( 2, "Telephony" );
-	menu.AddSubScenario( 0, "Lights", 5, "Sleep" );
-	menu.AddSubScenario( 0, "Lights", 6, "Wakeup" );
-	menu.AddSubScenario( 0, "Lights", 7, "House to sleep mode" );
-	menu.AddSubScenario( 0, "Media", 34, "TV" );
-	menu.AddSubScenario( 0, "Media", 35, "Video" );
-	menu.AddSubScenario( 0, "Media", 36, "Audio" );
-	menu.AddSubScenario( 0, "Media", 37, "Playlists" );
-	menu.AddSubScenario( 0, "Media", 38, "Play Disc" );
-	menu.AddSubScenario( 0, "Media", 39, "Pictures" );
-	menu.AddSubScenario( 0, "Media", 40, "Docs" );
-	menu.AddSubScenario( 0, "Media", 52, "LiveTV" );
-	menu.AddSubScenario( 0, "Security", 17, "Security" );
-	menu.AddSubScenario( 0, "Telephony", 8, "Phone" );
-	menu.AddSubScenario( 0, "Telephony", 9, "dan" );
-	menu.AddSubScenario( 0, "Telephony", 10, "john" );
-	m_pMainMenu = menu.CreateMainMenu();
-	RECT r = {10,10,APP_WIDTH-10,APP_HEIGHT-10};
-	m_pMainMenu->SetViewport( r );
-	*/
-	
-
-	#endif	
 
 	ShowDisconnected();
 	RefreshScreen();
@@ -280,9 +235,12 @@ OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hIns
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::GameEnd()
 {
-	#ifdef _LOCAL_RENDERED_OBJECTS_	
-		if ( m_pMainMenu ) delete m_pMainMenu;
-	#endif
+	// Clearing LRMenu
+	if ( m_pMainMenu ) {
+		delete m_pMainMenu;
+		m_pMainMenu = NULL;
+	}
+
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::GameLoop()
@@ -317,6 +275,7 @@ void OrbiterApp::SendKey(int nKeyCode, int nEventType)
 { 
 	if(!m_pBDCommandProcessor->m_bClientConnected || !m_bSendKeyStrokes )
 		return;
+	// If local rendered menu is active don't send keys
 	if ( m_pMainMenu && m_pMainMenu->IsShowing() ) return;
 
 	BDCommand *pCommand = new BD_PC_KeyWasPressed(nKeyCode, nEventType);
@@ -387,6 +346,7 @@ void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongK
 	}
 
 	#if defined(SMARTPHONE2005)		//--- CHANGED4WM5 ----//
+		//Translate virtual keys for Treo
 		PreTranslateVirtualKey( uMsg, &wParam, &bIsLongKey );
 	#endif
 	int nPK_Button = nPK_Button = VirtualKey2PlutoKey(wParam, bIsLongKey);
@@ -396,12 +356,13 @@ void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongK
 		return;
 	}
 	HMENU hTest;
-#ifdef _LOCAL_RENDERED_OBJECTS_	
+
+	// Handle keys on local rendered menus
 	if ( m_pMainMenu ) {
 		if ( m_pMainMenu->HandleKeys( nPK_Button, uMsg == WM_KEYUP ) ) return;
 	}
 	
-#endif
+
 	m_bNeedRefresh = false;
 
 	//handles data grid keys
@@ -553,6 +514,7 @@ void OrbiterApp::ShowImage(int nImageType, int nSize, char *pData)
 	m_pImageStatic_Data = new char[nSize];
 	memcpy(m_pImageStatic_Data, pData, nSize);
 
+	// on receiving ShowImage hide local rendered menu
 	if ( m_pMainMenu ) m_pMainMenu->Hide();
 	RefreshScreen();
 }
@@ -886,15 +848,16 @@ void OrbiterApp::RefreshScreen()
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
 
-//#ifdef _LOCAL_RENDERED_OBJECTS_
 	if ( m_pMainMenu && m_pMainMenu->IsShowing())	{
+		// If local rendered menu created and showing 
+		// try updating background and repainting manu
 			if ( NULL != m_pBkgndImage_Data ) {
 				DrawImage( m_nBkgndImageType, m_pBkgndImage_Data, m_pBkgndImage_Size, 0, 0, 0, 0 );		
 			}
 		m_pMainMenu->Paint( m_bMainMenuRepaint );
 		m_bMainMenuRepaint = false;
 	}
-	else {
+	else { // there's no local rendered menu active
 		if(NULL != m_pMenu || (m_pImageStatic_Size && m_pImageStatic_Data))
 		{
 			if(!m_bRender_SignalStrengthOnly)

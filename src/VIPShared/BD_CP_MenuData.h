@@ -11,6 +11,11 @@
 #endif
 
 
+/*
+ *
+ *	BD_CP_MenuData command - sends menu items and drawing info for local rendered menus
+ *
+ */
 class BD_CP_MenuData : public BDCommand
 {
 protected:

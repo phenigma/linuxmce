@@ -1,10 +1,15 @@
 #ifndef PlutoConfig_H
 #define PlutoConfig_H
 
+/*
+ *
+ *	PhoneConfig - current phone configuration
+ *
+ */
 class PhoneConfig {
 public:
 	typedef enum { mmImage=0, mmMenu } MenuMode;
-protected:
+protected:	
 	MenuMode m_MenuMode;
 public:	
 	PhoneConfig() { m_MenuMode = mmImage; }
@@ -14,8 +19,10 @@ public:
 		return *this;
 	}
 
+	//---- MenuMode : mmMenu = local rendered menus ; mmImage = menu images received from Bluetooth_Dongle
 	MenuMode GetMenuMode( ) { return m_MenuMode; }
 	void SetMenuMode( MenuMode val ) { m_MenuMode = val; }
+	//----
 
 	void Write( SerializeClass& sc ){
 		sc.Write_long( m_MenuMode );
