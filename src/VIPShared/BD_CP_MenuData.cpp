@@ -49,15 +49,18 @@ void BD_CP_MenuData::ConvertCommandToBinary()
 {
 	BDCommand::ConvertCommandToBinary();
 
+#ifndef SYMBIAN
 	m_Data.Write( *this );
-
+#endif
 }
 
 void BD_CP_MenuData::ParseCommand(unsigned long size,const char *data)
 {
 	BDCommand::ParseCommand(size, data);
 	
+#ifndef SYMBIAN
 	m_Data.Read( *this );
+#endif
 }
 
 bool BD_CP_MenuData::ProcessCommand(BDCommandProcessor *pProcessor)

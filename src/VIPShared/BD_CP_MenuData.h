@@ -4,7 +4,11 @@
 #include "BD/BDCommand.h"
 #include "VIPShared/PlutoPhoneCommands.h"
 
-#include "MenuData.h"
+#ifdef SYMBIAN
+	class MenuData { /*not implemented!*/ };
+#else
+	#include "MenuData.h"
+#endif
 
 
 class BD_CP_MenuData : public BDCommand

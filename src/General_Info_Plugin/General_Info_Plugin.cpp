@@ -259,7 +259,7 @@ bool General_Info_Plugin::Register()
 		DATAGRID_IR_Codes_Sets_CONST,PK_DeviceTemplate_get());
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::IRCommands)), 
-		DATAGRID_IR_Codes_Sets_CONST,PK_DeviceTemplate_get());
+		DATAGRID_IR_Commands_CONST,PK_DeviceTemplate_get());
 
 	
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::ReportingChildDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Reporting_Child_Devices_CONST );

@@ -17,6 +17,8 @@ SOURCE  BD_CP_CaptureKeyboard.cpp
 SOURCE  BD_CP_SendFile.cpp
 SOURCE  BD_CP_SimulateEvent.cpp
 SOURCE  BD_CP_CurrentSignalStrength.cpp
+SOURCE  BD_CP_MenuData.cpp
+SOURCE  BD_CP_SetBkgndImage.cpp
 SOURCE  BD_PC_SelectedFromList.cpp
 SOURCE  BD_PC_Disconnect.cpp
 SOURCE  BD_PC_KeyWasPressed.cpp
@@ -28,6 +30,8 @@ SOURCE  BD_PC_SetVariable.cpp
 SOURCE  BD_PC_ReportMyVersion.cpp
 SOURCE  BD_PC_GetSignalStrength.cpp
 SOURCE  BD_PC_SetImageQuality.cpp
+SOURCE  BD_PC_Configure.cpp
+SOURCE  BD_PC_SelectedItem.cpp
 SOURCE  PlutoPhoneCommands.cpp
 SOURCE  RenderMenu.cpp
 SOURCE  VIPMenu.cpp
