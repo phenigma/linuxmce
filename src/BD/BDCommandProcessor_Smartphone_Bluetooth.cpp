@@ -11,7 +11,7 @@
 #include "Orbiter/CENet_Smartphone/OrbiterApp.h"
 using namespace DCE;
 
-#if defined(SMARTPHONE2005)			//--- CHANGED4WM5 ----//
+#if defined(SMARTPHONE2005) || defined(_VC80_UPGRADE)			//--- CHANGED4WM5 ----//
 	#include <wce_time.h>
 	#define time		wceex_time
 	#define localtime	wceex_localtime
@@ -87,6 +87,10 @@ void *ServerThread(void *p)
 		pBDCommandProcessor->AddCommand(new BD_PC_ReportMyVersion(string(VERSION)));
 		pthread_create(&pBDCommandProcessor->m_ProcessCommandsThreadID, NULL, ProcessCommandsThread, 
 			(void*)pBDCommandProcessor); 
+
+		//------------ Send Configuration ------------
+		OrbiterApp::GetInstance()->SendConfiguration();
+		//-------
 
 		PLUTO_SAFETY_LOCK(ssm, pBDCommandProcessor->m_ServerSocketMutex);
 		g_pPlutoLogger->Write(LV_STATUS, "Client connected. Sleeping until no client is connected.");

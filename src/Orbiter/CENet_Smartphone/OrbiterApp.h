@@ -10,7 +10,9 @@ using namespace Frog;
 #include "PlutoUtils/MultiThreadIncludes.h"
 #include "Orbiter/PocketFrog/PocketFrogWrapper.h"
 #include "VIPShared/RenderMenu.h"
+#include "VIPShared/MenuData.h"
 //---------------------------------------------------------------------------------------------------------
+class LRMenu;
 
 #include <stdlib.h>
 
@@ -20,11 +22,24 @@ using namespace Frog;
 #define ALERTS_LINK_SUBSTR "security=0"
 #define MAX_URL_LENGTH 512
 
+#if defined(_VC80_UPGRADE)		//--- CHANGED4WM5 ----//	
+	#define DisplayDevice Display
+#endif
+
+
+
 class CSmartphone2003Favorites;
 
 class OrbiterApp: public PlutoGame, public RenderMenu
 {
 private:
+//#ifdef _LOCAL_RENDERED_OBJECTS_
+    
+  LRMenu* m_pMainMenu;
+  bool m_bMainMenuRepaint;
+  
+//#endif
+
 	//orbiter static instance
 	static OrbiterApp *m_pInstance;
 
@@ -56,6 +71,11 @@ private:
 	//image
 	int m_nImageType;
 	unsigned long m_ulImageQuality;
+
+	//background
+	unsigned char m_nBkgndImageType;
+	unsigned long m_pBkgndImage_Size;
+	char *m_pBkgndImage_Data;
 
 	//datagrid
 	bool m_bGridExists;
@@ -107,9 +127,13 @@ private:
 	bool ScrollListPartialMatch();
 	int NumberKeyIndex(int KeyCode);
 
-	// Map virtual key codes from Palm Treo to Smartphone 2003
 	#if defined(SMARTPHONE2005)		//--- CHANGED4WM5 ----//
+		// Map virtual key codes from Palm Treo to Smartphone 2003
 		void PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongKey );
+		// Hook keyboard to intercept Red button
+		int m_hHook;
+		void SetKeybdHook( bool bClear = false );
+		friend LRESULT CALLBACK HookProcedure(int nCode, WPARAM wParam, LPARAM lParam);
 	#endif
 
 public:
@@ -176,6 +200,10 @@ public:
 	void SaveFile(unsigned long ulFileNameSize, char *pFileName, unsigned long ulFileDataSize, char *pFileData);
 	void SetCaptureKeyboard(bool bOnOff, bool bDataGrid, bool bReset, int nEditType, int nVariable, string sText);
 	void SetImageQuality(unsigned long ulImageQuality);
+	void SetBkgndImage( unsigned char nImageType, int nSize, char *pData );
+	void SetMenuData( MenuData& data );
+	void SendConfiguration( void );
+	void SendSelectedItem( string sItemId );
 
 	// - outgoing
 	void SendKey(int nKeyCode, int nEventType);
@@ -190,6 +218,8 @@ public:
 		return _stricmp( szFileName, CONFIG_FILENAME )==0?true:false;
 	}
 	void CheckBookmarks( void );
+
+	DisplayDevice* GetDisplay() { return PlutoGame::GetDisplay(); }
 
 
 	class IncomingCallNotifier *m_pIncomingCallNotifier;

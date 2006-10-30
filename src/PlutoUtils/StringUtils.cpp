@@ -31,7 +31,7 @@
 #ifndef SYMBIAN
 	#include "MultiThreadIncludes.h"
 	#include <stdio.h>
-	#if defined(SMARTPHONE2005)		//--- CHANGED4WM5 ----//
+	#if defined(SMARTPHONE2005) || defined(_VC80_UPGRADE)		//--- CHANGED4WM5 ----//
 		#include <wce_time.h>
 		#define time		wceex_time
 		#define localtime	wceex_localtime
@@ -41,7 +41,7 @@
 	#endif
     #include <cctype>
     #include <algorithm>
-	#if defined(SMARTPHONE2005)
+	#if defined(SMARTPHONE2005) || defined(_VC80_UPGRADE)
 		#include <locale.h> //--- CHANGED4WM5 ----//
 	#else
 		#include <locale> //--- CHANGED4WM5 ----//
@@ -53,13 +53,13 @@
         #if !defined(WINCE) //--- CHANGED4WM5 ----//
             #include <direct.h>
             #include <conio.h>
-        #elif defined(SMARTPHONE2005)
+        #elif defined(SMARTPHONE2005) || defined(_VC80_UPGRADE)
 			#include <stdlib.h>
 			#define strdup		_strdup
 		#else
             #include _STLP_NATIVE_C_HEADER(time.h)
             #include _STLP_NATIVE_C_HEADER(stdio.h)
-            #include "wince.h"
+			#include "wince.h"
         #endif
     #else
         #include <sys/types.h>

@@ -139,13 +139,16 @@ DEP_CPP_BD_CP=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\VIPShared\BD_CP_CaptureKeyboard.h"\
+	"..\..\VIPShared\MenuData.h"\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\RenderMenu.h"\
 	"..\..\VIPShared\VIPIncludes.h"\
 	"..\..\VIPShared\VipMenu.h"\
 	"..\CENet\wince.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
 	".\OrbiterApp.h"\
 	
 NODEP_CPP_BD_CP=\
@@ -190,13 +193,16 @@ DEP_CPP_BD_CP_=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\VIPShared\BD_CP_CurrentSignalStrength.h"\
+	"..\..\VIPShared\MenuData.h"\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\RenderMenu.h"\
 	"..\..\VIPShared\VIPIncludes.h"\
 	"..\..\VIPShared\VipMenu.h"\
 	"..\CENet\wince.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
 	".\OrbiterApp.h"\
 	
 NODEP_CPP_BD_CP_=\
@@ -223,6 +229,61 @@ DEP_CPP_BD_CP_D=\
 	
 NODEP_CPP_BD_CP_D=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\VIPShared\BD_CP_MenuData.cpp
+DEP_CPP_BD_CP_M=\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\BD\BDCommand.h"\
+	"..\..\BD\BDCommandProcessor.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\pluto_main\Define_Button.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\..\VIPDesign\VIPDesignDoc.h"\
+	"..\..\VIPShared\BD_CP_MenuData.h"\
+	"..\..\VIPShared\MenuData.h"\
+	"..\..\VIPShared\PlutoPhoneCommands.h"\
+	"..\..\VIPShared\RenderMenu.h"\
+	"..\..\VIPShared\VipMenu.h"\
+	"..\CENet\wince.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
+	".\OrbiterApp.h"\
+	".\stdafx.h"\
+	
+NODEP_CPP_BD_CP_M=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\..\VIPShared\PlutoMOAppUi.h"\
 	
 # End Source File
 # Begin Source File
@@ -263,8 +324,10 @@ DEP_CPP_BD_CP_S=\
 	"..\..\PlutoUtils\PlutoDefs.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\VIPDesign\VIPDesignDoc.h"\
 	"..\..\VIPShared\BD_CP_SendFile.h"\
+	"..\..\VIPShared\MenuData.h"\
 	"..\..\VIPShared\PlutoConfig.h"\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\RenderMenu.h"\
@@ -272,6 +335,7 @@ DEP_CPP_BD_CP_S=\
 	"..\..\VIPShared\VipMenu.h"\
 	"..\CENet\wince.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
 	".\OrbiterApp.h"\
 	".\stdafx.h"\
 	
@@ -317,7 +381,9 @@ DEP_CPP_BD_CP_SE=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\VIPShared\BD_CP_SendMeKeystrokes.h"\
+	"..\..\VIPShared\MenuData.h"\
 	"..\..\VIPShared\PlutoConfig.h"\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\RenderMenu.h"\
@@ -325,9 +391,69 @@ DEP_CPP_BD_CP_SE=\
 	"..\..\VIPShared\VipMenu.h"\
 	"..\CENet\wince.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
 	".\OrbiterApp.h"\
 	
 NODEP_CPP_BD_CP_SE=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\..\VIPShared\PlutoMOAppUi.h"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\VIPShared\BD_CP_SetBkgndImage.cpp
+DEP_CPP_BD_CP_SET=\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\BD\BDCommand.h"\
+	"..\..\BD\BDCommandProcessor.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\pluto_main\Define_Button.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\PlutoDefs.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\..\VIPDesign\VIPDesignDoc.h"\
+	"..\..\VIPShared\BD_CP_SetBkgndImage.h"\
+	"..\..\VIPShared\BD_PC_GetSignalStrength.h"\
+	"..\..\VIPShared\MenuData.h"\
+	"..\..\VIPShared\PlutoConfig.h"\
+	"..\..\VIPShared\PlutoPhoneCommands.h"\
+	"..\..\VIPShared\RenderMenu.h"\
+	"..\..\VIPShared\VIPIncludes.h"\
+	"..\..\VIPShared\VipMenu.h"\
+	"..\CENet\wince.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
+	".\OrbiterApp.h"\
+	".\stdafx.h"\
+	
+NODEP_CPP_BD_CP_SET=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	"..\..\VIPShared\PlutoMOAppUi.h"\
 	
@@ -370,9 +496,11 @@ DEP_CPP_BD_CP_SH=\
 	"..\..\PlutoUtils\PlutoDefs.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\VIPDesign\VIPDesignDoc.h"\
 	"..\..\VIPShared\BD_CP_ShowImage.h"\
 	"..\..\VIPShared\BD_PC_GetSignalStrength.h"\
+	"..\..\VIPShared\MenuData.h"\
 	"..\..\VIPShared\PlutoConfig.h"\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\RenderMenu.h"\
@@ -380,6 +508,7 @@ DEP_CPP_BD_CP_SH=\
 	"..\..\VIPShared\VipMenu.h"\
 	"..\CENet\wince.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
 	".\OrbiterApp.h"\
 	".\stdafx.h"\
 	
@@ -425,13 +554,16 @@ DEP_CPP_BD_CP_SHO=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\VIPDesign\VIPDesignDoc.h"\
 	"..\..\VIPShared\BD_CP_ShowList.h"\
+	"..\..\VIPShared\MenuData.h"\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\RenderMenu.h"\
 	"..\..\VIPShared\VipMenu.h"\
 	"..\CENet\wince.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
 	".\OrbiterApp.h"\
 	".\stdafx.h"\
 	
@@ -544,8 +676,94 @@ NODEP_CPP_BD_CP_U=\
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\VIPShared\BD_PC_Disconnect.cpp
+SOURCE=..\..\VIPShared\BD_PC_Configure.cpp
 DEP_CPP_BD_PC=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\BD\BDCommand.h"\
+	"..\..\BD\BDCommandProcessor.h"\
+	"..\..\BD\BDCommandProcessor_Linux_Bluetooth.h"\
+	"..\..\BD\BDCommandProcessor_Windows_Bluetooth.h"\
+	"..\..\Bluetooth_Dongle\Bluetooth_Dongle.h"\
+	"..\..\Bluetooth_Dongle\OrbiterBluetooth.h"\
+	"..\..\DCE\ClientSocket.h"\
+	"..\..\DCE\Command_Impl.h"\
+	"..\..\DCE\DeviceData_Base.h"\
+	"..\..\DCE\DeviceData_Impl.h"\
+	"..\..\DCE\Event_Impl.h"\
+	"..\..\DCE\HandleRequestSocket.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
+	"..\..\DCE\Socket.h"\
+	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
+	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\LIRC_DCE\IRReceiverBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\Profiler.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\..\VIPShared\BD_PC_Configure.h"\
+	"..\..\VIPShared\BDCommandProcessor_BluetoothDongle.h"\
+	"..\..\VIPShared\MenuData.h"\
+	"..\..\VIPShared\PhoneConfig.h"\
+	"..\..\VIPShared\PhoneDetection_Bluetooth_Linux.h"\
+	"..\..\VIPShared\PhoneDetection_Bluetooth_Windows.h"\
+	"..\..\VIPShared\PhoneDetection_Simulate.h"\
+	"..\..\VIPShared\PhoneDetectionEngine.h"\
+	"..\..\VIPShared\PlutoPhoneCommands.h"\
+	"..\..\VIPShared\VIPIncludes.h"\
+	"..\..\WinBluetooth\inc\BtIfClasses.h"\
+	"..\..\WinBluetooth\inc\BtIfDefinitions.h"\
+	"..\..\WinBluetooth\inc\com_error.h"\
+	"..\..\WinBluetooth\StdDll\BtServiceSelection.h"\
+	"..\..\WinBluetooth\StdDll\RfCommExp.h"\
+	"..\..\WinBluetooth\StdDll\StdDLLif.h"\
+	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
+	"..\CENet\wince.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_DataGrid.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\ObjectRendererFactory.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_BD_PC=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\VIPShared\BD_PC_Disconnect.cpp
+DEP_CPP_BD_PC_=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
@@ -568,7 +786,7 @@ DEP_CPP_BD_PC=\
 	"..\..\VIPShared\VIPIncludes.h"\
 	"..\CENet\wince.h"\
 	
-NODEP_CPP_BD_PC=\
+NODEP_CPP_BD_PC_=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	"..\..\VIPShared\PlutoMOAppUi.h"\
 	
@@ -576,7 +794,7 @@ NODEP_CPP_BD_PC=\
 # Begin Source File
 
 SOURCE=..\..\VIPShared\BD_PC_GetSignalStrength.cpp
-DEP_CPP_BD_PC_=\
+DEP_CPP_BD_PC_G=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
@@ -625,7 +843,7 @@ DEP_CPP_BD_PC_=\
 	"..\..\WinBluetooth\StdDll\StdDLLif.h"\
 	"..\CENet\wince.h"\
 	
-NODEP_CPP_BD_PC_=\
+NODEP_CPP_BD_PC_G=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 # End Source File
@@ -652,9 +870,13 @@ DEP_CPP_BD_PC_K=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
+	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
@@ -673,6 +895,7 @@ DEP_CPP_BD_PC_K=\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\Profiler.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
@@ -694,10 +917,13 @@ DEP_CPP_BD_PC_K=\
 	"..\CallBackTypes.h"\
 	"..\CENet\wince.h"\
 	"..\DesignObj_Data.h"\
+	"..\DesignObj_DataGrid.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
+	"..\ObjectRendererFactory.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
 	"..\TextStyle.h"\
 	
 NODEP_CPP_BD_PC_K=\
@@ -847,9 +1073,13 @@ DEP_CPP_BD_PC_S=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
+	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
@@ -868,6 +1098,7 @@ DEP_CPP_BD_PC_S=\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\Profiler.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
@@ -888,10 +1119,13 @@ DEP_CPP_BD_PC_S=\
 	"..\CallBackTypes.h"\
 	"..\CENet\wince.h"\
 	"..\DesignObj_Data.h"\
+	"..\DesignObj_DataGrid.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
+	"..\ObjectRendererFactory.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
 	"..\TextStyle.h"\
 	
 NODEP_CPP_BD_PC_S=\
@@ -900,7 +1134,7 @@ NODEP_CPP_BD_PC_S=\
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\VIPShared\BD_PC_SetImageQuality.cpp
+SOURCE=..\..\VIPShared\BD_PC_SelectedItem.cpp
 DEP_CPP_BD_PC_SE=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
@@ -911,6 +1145,7 @@ DEP_CPP_BD_PC_SE=\
 	"..\..\BD\BDCommandProcessor_Linux_Bluetooth.h"\
 	"..\..\BD\BDCommandProcessor_Windows_Bluetooth.h"\
 	"..\..\Bluetooth_Dongle\Bluetooth_Dongle.h"\
+	"..\..\Bluetooth_Dongle\OrbiterBluetooth.h"\
 	"..\..\DCE\ClientSocket.h"\
 	"..\..\DCE\Command_Impl.h"\
 	"..\..\DCE\DeviceData_Base.h"\
@@ -921,9 +1156,13 @@ DEP_CPP_BD_PC_SE=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
+	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
@@ -942,16 +1181,20 @@ DEP_CPP_BD_PC_SE=\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\Profiler.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
-	"..\..\VIPShared\BD_PC_SetImageQuality.h"\
+	"..\..\VIPShared\BD_PC_SelectedItem.h"\
 	"..\..\VIPShared\BDCommandProcessor_BluetoothDongle.h"\
+	"..\..\VIPShared\MenuData.h"\
+	"..\..\VIPShared\PhoneConfig.h"\
 	"..\..\VIPShared\PhoneDetection_Bluetooth_Linux.h"\
 	"..\..\VIPShared\PhoneDetection_Bluetooth_Windows.h"\
 	"..\..\VIPShared\PhoneDetection_Simulate.h"\
 	"..\..\VIPShared\PhoneDetectionEngine.h"\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
+	"..\..\VIPShared\VIPIncludes.h"\
 	"..\..\WinBluetooth\inc\BtIfClasses.h"\
 	"..\..\WinBluetooth\inc\BtIfDefinitions.h"\
 	"..\..\WinBluetooth\inc\com_error.h"\
@@ -962,10 +1205,13 @@ DEP_CPP_BD_PC_SE=\
 	"..\CallBackTypes.h"\
 	"..\CENet\wince.h"\
 	"..\DesignObj_Data.h"\
+	"..\DesignObj_DataGrid.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
+	"..\ObjectRendererFactory.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
 	"..\TextStyle.h"\
 	
 NODEP_CPP_BD_PC_SE=\
@@ -974,7 +1220,7 @@ NODEP_CPP_BD_PC_SE=\
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\VIPShared\BD_PC_SetVariable.cpp
+SOURCE=..\..\VIPShared\BD_PC_SetImageQuality.cpp
 DEP_CPP_BD_PC_SET=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
@@ -995,9 +1241,13 @@ DEP_CPP_BD_PC_SET=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
+	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
@@ -1016,6 +1266,89 @@ DEP_CPP_BD_PC_SET=\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\Profiler.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\..\VIPShared\BD_PC_SetImageQuality.h"\
+	"..\..\VIPShared\BDCommandProcessor_BluetoothDongle.h"\
+	"..\..\VIPShared\PhoneDetection_Bluetooth_Linux.h"\
+	"..\..\VIPShared\PhoneDetection_Bluetooth_Windows.h"\
+	"..\..\VIPShared\PhoneDetection_Simulate.h"\
+	"..\..\VIPShared\PhoneDetectionEngine.h"\
+	"..\..\VIPShared\PlutoPhoneCommands.h"\
+	"..\..\WinBluetooth\inc\BtIfClasses.h"\
+	"..\..\WinBluetooth\inc\BtIfDefinitions.h"\
+	"..\..\WinBluetooth\inc\com_error.h"\
+	"..\..\WinBluetooth\StdDll\BtServiceSelection.h"\
+	"..\..\WinBluetooth\StdDll\RfCommExp.h"\
+	"..\..\WinBluetooth\StdDll\StdDLLif.h"\
+	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
+	"..\CENet\wince.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_DataGrid.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\ObjectRendererFactory.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_BD_PC_SET=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\VIPShared\BD_PC_SetVariable.cpp
+DEP_CPP_BD_PC_SETV=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\BD\BDCommand.h"\
+	"..\..\BD\BDCommandProcessor.h"\
+	"..\..\BD\BDCommandProcessor_Linux_Bluetooth.h"\
+	"..\..\BD\BDCommandProcessor_Windows_Bluetooth.h"\
+	"..\..\Bluetooth_Dongle\Bluetooth_Dongle.h"\
+	"..\..\DCE\ClientSocket.h"\
+	"..\..\DCE\Command_Impl.h"\
+	"..\..\DCE\DeviceData_Base.h"\
+	"..\..\DCE\DeviceData_Impl.h"\
+	"..\..\DCE\Event_Impl.h"\
+	"..\..\DCE\HandleRequestSocket.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
+	"..\..\DCE\Socket.h"\
+	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
+	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\LIRC_DCE\IRReceiverBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\Profiler.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
@@ -1036,13 +1369,16 @@ DEP_CPP_BD_PC_SET=\
 	"..\CallBackTypes.h"\
 	"..\CENet\wince.h"\
 	"..\DesignObj_Data.h"\
+	"..\DesignObj_DataGrid.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
+	"..\ObjectRendererFactory.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
 	"..\TextStyle.h"\
 	
-NODEP_CPP_BD_PC_SET=\
+NODEP_CPP_BD_PC_SETV=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 # End Source File
@@ -1199,12 +1535,15 @@ DEP_CPP_BDCOMMA=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\VIPShared\BD_PC_ReportMyVersion.h"\
+	"..\..\VIPShared\MenuData.h"\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\RenderMenu.h"\
 	"..\..\VIPShared\VipMenu.h"\
 	"..\CENet\wince.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
 	".\OrbiterApp.h"\
 	{$(INCLUDE)}"bthapi.h"\
 	{$(INCLUDE)}"Ws2bth.h"\
@@ -1251,6 +1590,8 @@ DEP_CPP_INCOM=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\pluto_main\Define_Button.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
@@ -1262,9 +1603,13 @@ DEP_CPP_INCOM=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\..\VIPShared\MenuData.h"\
 	"..\..\VIPShared\RenderMenu.h"\
 	"..\..\VIPShared\VipMenu.h"\
+	"..\CENet\wince.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
 	".\IncomingCallNotifier.h"\
 	".\OrbiterApp.h"\
 	
@@ -1297,6 +1642,54 @@ DEP_CPP_LOGGE=\
 	"..\CENet\wince.h"\
 	
 NODEP_CPP_LOGGE=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=.\LRMenu.cpp
+DEP_CPP_LRMEN=\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\internal\graphicbuffer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\internal\raster2d.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\pluto_main\Define_Button.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\..\VIPShared\MenuData.h"\
+	"..\..\VIPShared\RenderMenu.h"\
+	"..\..\VIPShared\VipMenu.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
+	".\LRMenu.h"\
+	".\OrbiterApp.h"\
+	
+NODEP_CPP_LRMEN=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 # End Source File
@@ -1339,13 +1732,62 @@ DEP_CPP_MAIN_=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\..\VIPShared\MenuData.h"\
 	"..\..\VIPShared\RenderMenu.h"\
 	"..\..\VIPShared\VipMenu.h"\
 	"..\CENet\wince.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
 	".\OrbiterApp.h"\
 	
 NODEP_CPP_MAIN_=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\VIPShared\MenuData.cpp
+DEP_CPP_MENUD=\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\pluto_main\Define_Button.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\..\VIPShared\MenuData.h"\
+	"..\..\VIPShared\RenderMenu.h"\
+	"..\..\VIPShared\VipMenu.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
+	".\LRMenu.h"\
+	".\OrbiterApp.h"\
+	
+NODEP_CPP_MENUD=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 # End Source File
@@ -1416,18 +1858,30 @@ DEP_CPP_ORBIT=\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
+	"..\..\VIPShared\BD_PC_Configure.h"\
 	"..\..\VIPShared\BD_PC_GetSignalStrength.h"\
 	"..\..\VIPShared\BD_PC_KeyWasPressed.h"\
 	"..\..\VIPShared\BD_PC_SelectedFromList.h"\
+	"..\..\VIPShared\BD_PC_SelectedItem.h"\
 	"..\..\VIPShared\BD_PC_SetImageQuality.h"\
 	"..\..\VIPShared\BD_PC_SetVariable.h"\
+	"..\..\VIPShared\MenuData.h"\
+	"..\..\VIPShared\PhoneConfig.h"\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\RenderMenu.h"\
 	"..\..\VIPShared\VIPIncludes.h"\
 	"..\..\VIPShared\VipMenu.h"\
 	"..\CENet\wince.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
+	"..\Win32\DrawTextExUTF8.h"\
+	".\IncomingCallNotifier.h"\
+	".\LRMenu.h"\
 	".\OrbiterApp.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"vibrate.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_ORBIT=\
 	"..\..\BD\VipMenu.h"\
@@ -1465,16 +1919,20 @@ DEP_CPP_PLUTO=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\VIPShared\BD_CP_CaptureKeyboard.h"\
 	"..\..\VIPShared\BD_CP_CurrentSignalStrength.h"\
 	"..\..\VIPShared\BD_CP_Disconnect.h"\
+	"..\..\VIPShared\BD_CP_MenuData.h"\
 	"..\..\VIPShared\BD_CP_SendFile.h"\
 	"..\..\VIPShared\BD_CP_SendMeKeystrokes.h"\
+	"..\..\VIPShared\BD_CP_SetBkgndImage.h"\
 	"..\..\VIPShared\BD_CP_ShowImage.h"\
 	"..\..\VIPShared\BD_CP_ShowList.h"\
 	"..\..\VIPShared\BD_CP_ShowVMC.h"\
 	"..\..\VIPShared\BD_CP_SimulateEvent.h"\
 	"..\..\VIPShared\BD_CP_UpdateVariables.h"\
+	"..\..\VIPShared\BD_PC_Configure.h"\
 	"..\..\VIPShared\BD_PC_Disconnect.h"\
 	"..\..\VIPShared\BD_PC_GetSignalStrength.h"\
 	"..\..\VIPShared\BD_PC_KeyWasPressed.h"\
@@ -1482,13 +1940,17 @@ DEP_CPP_PLUTO=\
 	"..\..\VIPShared\BD_PC_ReportingVariables.h"\
 	"..\..\VIPShared\BD_PC_ReportMyVersion.h"\
 	"..\..\VIPShared\BD_PC_SelectedFromList.h"\
+	"..\..\VIPShared\BD_PC_SelectedItem.h"\
 	"..\..\VIPShared\BD_PC_SetImageQuality.h"\
 	"..\..\VIPShared\BD_PC_SetVariable.h"\
 	"..\..\VIPShared\BD_PC_VMCHidden.h"\
 	"..\..\VIPShared\BD_PC_VMCTerminated.h"\
+	"..\..\VIPShared\MenuData.h"\
+	"..\..\VIPShared\PhoneConfig.h"\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\VIPIncludes.h"\
 	"..\..\VIPShared\VipMenu.h"\
+	"..\TextStyle.h"\
 	
 NODEP_CPP_PLUTO=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
@@ -1550,13 +2012,16 @@ DEP_CPP_RENDE=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\VIPShared\BD_PC_KeyWasPressed.h"\
+	"..\..\VIPShared\MenuData.h"\
 	"..\..\VIPShared\PlutoConfig.h"\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\RenderMenu.h"\
 	"..\..\VIPShared\VIPIncludes.h"\
 	"..\..\VIPShared\VipMenu.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
 	".\OrbiterApp.h"\
 	
 NODEP_CPP_RENDE=\
@@ -1605,6 +2070,64 @@ DEP_CPP_STRIN=\
 	"..\CENet\wince.h"\
 	
 NODEP_CPP_STRIN=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\TextStyle.cpp
+DEP_CPP_TEXTS=\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_active.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_audio.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_byteorder.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_cdrom.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_error.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_events.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_getenv.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_joystick.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keyboard.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keysym.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_main.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mouse.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mutex.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_quit.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_rwops.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_timer.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
+	"..\..\..\libs\CrossPlatform\SDL_ttf-2.0.6\SDL_ttf.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\pluto_main\Database_pluto_main.h"\
+	"..\..\pluto_main\Define_Style.h"\
+	"..\..\pluto_main\Define_StyleVariation.h"\
+	"..\..\pluto_main\Table_Style.h"\
+	"..\..\pluto_main\Table_StyleVariation.h"\
+	"..\..\pluto_main\TableRow.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MySQLHelper.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\CENet\wince.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_TEXTS=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 # End Source File

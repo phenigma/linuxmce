@@ -21,10 +21,10 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 
-#if  defined(WINCE) && !defined(SMARTPHONE2005) //--- CHANGED4WM5 ----//
+#if  defined(WINCE) && !defined(SMARTPHONE2005) && !defined(_VC80_UPGRADE)//--- CHANGED4WM5 ----//
 	#include _STLP_NATIVE_C_HEADER(time.h)
 	#include "wince.h"
-#elif defined(SMARTPHONE2005)
+#elif defined(SMARTPHONE2005) || defined(_VC80_UPGRADE)
 	#include <wce_time.h>
 	#define time		wceex_time
 	#define localtime	wceex_localtime

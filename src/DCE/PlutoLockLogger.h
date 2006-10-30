@@ -8,7 +8,7 @@ using namespace ::std;
 #include <sys/time.h>
 #endif
 
-#if defined(WINCE) && !defined(SMARTPHONE2005) //--- CHANGED4WM5 ----//
+#if defined(WINCE) && !defined(SMARTPHONE2005) && !defined(_VC80_UPGRADE)//--- CHANGED4WM5 ----//
 	#include _STLP_NATIVE_C_HEADER(time.h)
 	#include "wince.h"
 #elif defined(SMARTPHONE2005)

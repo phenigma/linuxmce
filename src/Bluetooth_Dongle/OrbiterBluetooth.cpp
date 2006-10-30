@@ -28,11 +28,18 @@
 #include "VIPShared/BD_CP_ShowList.h"
 #include "VIPShared/BD_CP_CaptureKeyboard.h"
 #include "VIPShared/BD_CP_SimulateEvent.h"
+//---------------------------------
+#include "VIPShared/BD_CP_MenuData.h"
+#include "pluto_main/Define_DesignObj.h"
+//---------------------------------
 #include "VIPShared/PlutoPhoneCommands.h"
 
 #include "Orbiter/ScreenHistory.h"
 #include "Orbiter/SDL/JpegWrapper.h"
 #include "Orbiter/OrbiterRenderer.h"
+
+#include "../VIPShared/BD_CP_SetBkgndImage.h"
+#include "Orbiter/TextStyle.h"
 
 #define ADVANCED_OPTIONS_SCREEN "2022"
 #define IMAGE_QUALITY_SCREEN    "1274"
@@ -198,4 +205,108 @@ void OrbiterBluetooth::ImageGenerated(const string& csImageFileName)
 #endif
 
 }
+//-----------------------------------------------------------------------------------------------------
+void OrbiterBluetooth::Initialize( GraphicType Type, int iPK_Room/*=0*/, int iPK_EntertainArea/*=0*/)
+{
+	Orbiter::Initialize(Type, iPK_Room, iPK_EntertainArea);
+}
+//-----------------------------------------------------------------------------------------------------
+
+
+void OrbiterBluetooth::Configure( PhoneConfig& cfg )
+{	
+	m_Cfg = cfg;
+	if ( m_Cfg.GetMenuMode()==PhoneConfig::mmMenu ) {	
+		// send background
+		string sImageFileName = "/usr/pluto/orbiter/C" + StringUtils::ltos(m_dwPK_Device) + "/" + 
+			StringUtils::ltos(DESIGNOBJ_objBackground_CONST) + ".0.0.png";
+
+		if(FileUtils::FileExists(sImageFileName) && ( m_pBDCommandProcessor ) ) {
+			size_t iImageSize;	
+			char *pImage = FileUtils::ReadFileIntoBuffer(sImageFileName, iImageSize);
+			BD_CP_SetBkgndImage *pBD_CP_SetBkgndImage = new BD_CP_SetBkgndImage(
+				0, (unsigned long)iImageSize, pImage );			
+			m_pBDCommandProcessor->AddCommand( pBD_CP_SetBkgndImage );            
+			PLUTO_SAFE_DELETE_ARRAY(pImage);
+		}
+
+		//get data
+		MenuData data;
+		GetMenuData( data );
+		//set TextStyle
+		TextStyle* pTextStyle=m_mapTextStyle_Find( MenuData::GetItemStyleIndex() );
+		if ( pTextStyle ) data.SetItemTextStyle( *pTextStyle );
+		pTextStyle=m_mapTextStyle_Find( MenuData::GetHlItemStyleIndex() );
+		if ( pTextStyle ) data.SetHlItemTextStyle( *pTextStyle );
+
+		// send BD_CP_MenuData		
+		if( m_pBDCommandProcessor ) {
+			BD_CP_MenuData *pBD_CP_MenuData = new BD_CP_MenuData( data );
+			m_pBDCommandProcessor->AddCommand( pBD_CP_MenuData );
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+void OrbiterBluetooth::SelectedItem( string& sItemId )
+{	
+	#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_WARNING, "#	Received SelectedItem: %s", sItemId.c_str() );
+	#endif
+
+	DesignObj_Orbiter *pObj = FindObject(sItemId);
+	if(NULL != pObj) {
+		#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_WARNING, "#	Object found!" );
+		#endif
+		SelectedObject(pObj, smKeyboard, 0, 0);
+	}
+}
+
+//-----------------------------------------------------------------------------------------------------
+void OrbiterBluetooth::GetMenuData( MenuData& data  )
+{
+	int iObjects[] = { DESIGNOBJ_mnuLights_CONST, DESIGNOBJ_mnuMedia_CONST, 
+		DESIGNOBJ_mnuClimate_CONST, DESIGNOBJ_mnuSecurity_CONST, DESIGNOBJ_mnuTelephony_CONST };
+	string sScenarioDescs[] = { "Lights", "Media", "Climate", "Security", "Telephony" };	
+	for(deque<LocationInfo *>::iterator itl = m_dequeLocation.begin(), end = m_dequeLocation.end(); itl != end; ++itl)
+	{
+		LocationInfo *pLocationInfo = *itl;
+		string sRoomDesc = pLocationInfo->Description;
+		int nRoomID = pLocationInfo->iLocation;
+
+		// Add room
+		data.AddRoom( nRoomID, sRoomDesc );				
+		for(int i = 0; i < sizeof(iObjects) / sizeof(int); ++i) {
+
+			// Add scenario for room nRoomID
+			data.AddScenario( nRoomID, sScenarioDescs[i] );	
+
+			DesignObj_Orbiter *pObj = FindObject(StringUtils::ltos(iObjects[i]) + "." + 
+				StringUtils::itos(pLocationInfo->iLocation) + ".0");
+			if(NULL == pObj)
+				continue;
+			DesignObj_DataList::iterator it;
+			
+			for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it) {
+				// Here are all the buttons
+				DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)(*it);
+				string sScenarioID = pDesignObj_Orbiter->GetArrayValue();
+				if( sScenarioID.empty() )
+					continue;
+				string sObjectID = pDesignObj_Orbiter->m_ObjectID;
+				string sScenarioDesc = pDesignObj_Orbiter->GetArrayValue( true );				
+				// Add subscenario for nRoomID, sScenarioDescs[i]
+				data.AddSubScenario( nRoomID, sScenarioDescs[i], sObjectID, sScenarioDesc );
+			}
+
+		}
+	}
+	data.SetCrtRoom( -1 );
+	if ( m_pLocationInfo ) {
+		data.SetCrtRoom( m_pLocationInfo->iLocation );
+	}
+}
+
 //-----------------------------------------------------------------------------------------------------

@@ -29,6 +29,8 @@
 #include "BD_PC_ReportMyVersion.h"
 #include "BD_PC_GetSignalStrength.h"
 #include "BD_PC_SetImageQuality.h"
+#include "BD_PC_Configure.h"
+#include "BD_PC_SelectedItem.h"
 
 #include "BD/BD_HaveNothing.h"
 #include "BD_CP_SendMeKeystrokes.h"
@@ -41,6 +43,8 @@
 #include "BD_CP_SendFile.h"
 #include "BD_CP_SimulateEvent.h"
 #include "BD_CP_CurrentSignalStrength.h"
+#include "BD_CP_MenuData.h"
+#include "BD_CP_SetBkgndImage.h"
 
 class BDCommand *BuildCommandFromData( unsigned long dwType )
 {
@@ -68,6 +72,10 @@ class BDCommand *BuildCommandFromData( unsigned long dwType )
         return new BD_PC_GetSignalStrength();
     case BD_PC_SET_IMAGE_QUALITY:
         return new BD_PC_SetImageQuality();
+	case BD_PC_ITEM_SELECTED:
+		return new BD_PC_SelectedItem();
+	case BD_PC_CONFIGURE:
+		return new BD_PC_Configure();
 
 
 	case BD_CP_HAVE_NOTHING:
@@ -92,6 +100,10 @@ class BDCommand *BuildCommandFromData( unsigned long dwType )
 		return new BD_CP_SimulateEvent();
     case BD_CP_CURRENT_SIGNAL_STRENGTH:
         return new BD_CP_CurrentSignalStrength();
+	case BD_CP_SET_BKGND_IMAGE:
+		return new BD_CP_SetBkgndImage();
+	case BD_CP_MENU_DATA:
+		return new BD_CP_MenuData();
 
 	default:
 		// Log Error

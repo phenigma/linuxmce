@@ -14,6 +14,8 @@
 #include "PlutoUtils/StringUtils.h"
 #include "DCE/Logger.h"
 #include "IncomingCallNotifier.h"
+#include "VIPShared/BD_PC_Configure.h"
+#include "VIPShared/BD_PC_SelectedItem.h"
 #include "Win32/DrawTextExUTF8.h"
 
 using namespace DCE;
@@ -22,8 +24,15 @@ using namespace DCE;
 #include <algorithm>
 using namespace std;
 
-#if defined(SMARTPHONE2005)		//--- CHANGED4WM5 ----//
+#include "LRMenu.h"
+
+#include <aygshell.h>
+
+#if defined(SMARTPHONE2005) || defined(_VC80_UPGRADE)
 	#define clock		GetTickCount
+#endif
+
+#if defined(SMARTPHONE2005) || defined(_VC80_UPGRADE)		//--- CHANGED4WM5 ----//	
 	#define Surface_GetWidth pSurface->GetWidth()
 	#define Surface_GetHeight pSurface->GetHeight()
 	#define pf_uint8_t PHAL::uint8_t
@@ -71,6 +80,11 @@ CComModule _Module; //ATL - pocket frog
 //-----------------------------------------------------------------------------------------------------
 OrbiterApp *OrbiterApp::m_pInstance = NULL; //the one and only
 //---------------------------------------------------------------------------------------------------------
+string sMsg;
+HWND hWndMB = NULL;
+HMENU hMenu;
+RECT globalrc;
+
 OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hInstance(hInstance)
 {
 	Reset();
@@ -85,6 +99,10 @@ OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hIns
 
 	m_pInstance = this;
 	m_pBDCommandProcessor = new BDCommandProcessor_Smartphone_Bluetooth();
+
+	m_nBkgndImageType = 0;
+	m_pBkgndImage_Size = 0;
+	m_pBkgndImage_Data = NULL;
 
 //#define TEST_DATAGRID
 #ifdef TEST_DATAGRID
@@ -124,12 +142,26 @@ OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hIns
 	m_CaptureKeyboardParam.Reset();	
 #endif
 
+#ifdef _LOCAL_RENDERED_OBJECTS_	
+	m_pMainMenu = NULL;	
+	m_bMainMenuRepaint = false;
+#endif
+
 	m_pIncomingCallNotifier = new IncomingCallNotifier();
+
 
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterApp::~OrbiterApp()
 {
+	if(NULL != m_pBkgndImage_Data)
+	{
+		delete[] m_pBkgndImage_Data;
+		m_pBkgndImage_Data = NULL;
+		m_pBkgndImage_Size = 0;
+		m_nBkgndImageType = 0;
+	}
+
 	pthread_mutexattr_destroy(&m_MutexAttr);
 	pthread_mutex_destroy(&m_ScreenMutex.mutex);
 
@@ -192,8 +224,54 @@ OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hIns
 	return m_nImageHeight;
 }
 //---------------------------------------------------------------------------------------------------------
+
 /*virtual*/ bool OrbiterApp::GameInit()
 {
+	#ifdef _LOCAL_RENDERED_OBJECTS_	
+	/*
+	
+	MenuData menu;
+	menu.AddRoom( 0, "Room 0" );
+	menu.AddRoom( 1, "Room 1" );
+	menu.AddRoom( 2, "Room 2" );
+	menu.AddScenario( 0, "Lights" );
+	menu.AddScenario( 0, "Media" );
+	menu.AddScenario( 0, "Climate" );
+	menu.AddScenario( 0, "Security" );
+	menu.AddScenario( 0, "Telephony" );
+	menu.AddScenario( 1, "Lights" );
+	menu.AddScenario( 1, "Media" );
+	menu.AddScenario( 1, "Climate" );
+	menu.AddScenario( 1, "Security" );
+	menu.AddScenario( 1, "Telephony" );
+	menu.AddScenario( 2, "Lights" );
+	menu.AddScenario( 2, "Media" );
+	menu.AddScenario( 2, "Climate" );
+	menu.AddScenario( 2, "Security" );
+	menu.AddScenario( 2, "Telephony" );
+	menu.AddSubScenario( 0, "Lights", 5, "Sleep" );
+	menu.AddSubScenario( 0, "Lights", 6, "Wakeup" );
+	menu.AddSubScenario( 0, "Lights", 7, "House to sleep mode" );
+	menu.AddSubScenario( 0, "Media", 34, "TV" );
+	menu.AddSubScenario( 0, "Media", 35, "Video" );
+	menu.AddSubScenario( 0, "Media", 36, "Audio" );
+	menu.AddSubScenario( 0, "Media", 37, "Playlists" );
+	menu.AddSubScenario( 0, "Media", 38, "Play Disc" );
+	menu.AddSubScenario( 0, "Media", 39, "Pictures" );
+	menu.AddSubScenario( 0, "Media", 40, "Docs" );
+	menu.AddSubScenario( 0, "Media", 52, "LiveTV" );
+	menu.AddSubScenario( 0, "Security", 17, "Security" );
+	menu.AddSubScenario( 0, "Telephony", 8, "Phone" );
+	menu.AddSubScenario( 0, "Telephony", 9, "dan" );
+	menu.AddSubScenario( 0, "Telephony", 10, "john" );
+	m_pMainMenu = menu.CreateMainMenu();
+	RECT r = {10,10,APP_WIDTH-10,APP_HEIGHT-10};
+	m_pMainMenu->SetViewport( r );
+	*/
+	
+
+	#endif	
+
 	ShowDisconnected();
 	RefreshScreen();
 
@@ -202,6 +280,9 @@ OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hIns
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::GameEnd()
 {
+	#ifdef _LOCAL_RENDERED_OBJECTS_	
+		if ( m_pMainMenu ) delete m_pMainMenu;
+	#endif
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::GameLoop()
@@ -234,8 +315,9 @@ OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hIns
 //---------------------------------------------------------------------------------------------------------
 void OrbiterApp::SendKey(int nKeyCode, int nEventType)
 { 
-	if(!m_pBDCommandProcessor->m_bClientConnected || !m_bSendKeyStrokes)
+	if(!m_pBDCommandProcessor->m_bClientConnected || !m_bSendKeyStrokes )
 		return;
+	if ( m_pMainMenu && m_pMainMenu->IsShowing() ) return;
 
 	BDCommand *pCommand = new BD_PC_KeyWasPressed(nKeyCode, nEventType);
 	m_pBDCommandProcessor->AddCommand(pCommand);
@@ -313,7 +395,13 @@ void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongK
 		SendKey(nPK_Button ? nPK_Button : - wParam, uMsg == WM_KEYUP);
 		return;
 	}
-
+	HMENU hTest;
+#ifdef _LOCAL_RENDERED_OBJECTS_	
+	if ( m_pMainMenu ) {
+		if ( m_pMainMenu->HandleKeys( nPK_Button, uMsg == WM_KEYUP ) ) return;
+	}
+	
+#endif
 	m_bNeedRefresh = false;
 
 	//handles data grid keys
@@ -465,6 +553,7 @@ void OrbiterApp::ShowImage(int nImageType, int nSize, char *pData)
 	m_pImageStatic_Data = new char[nSize];
 	memcpy(m_pImageStatic_Data, pData, nSize);
 
+	if ( m_pMainMenu ) m_pMainMenu->Hide();
 	RefreshScreen();
 }
 //---------------------------------------------------------------------------------------------------------
@@ -796,48 +885,59 @@ void OrbiterApp::RefreshScreen()
 {
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
-	if(NULL != m_pMenu || (m_pImageStatic_Size && m_pImageStatic_Data))
-	{
-		if(!m_bRender_SignalStrengthOnly)
+
+//#ifdef _LOCAL_RENDERED_OBJECTS_
+	if ( m_pMainMenu && m_pMainMenu->IsShowing())	{
+			if ( NULL != m_pBkgndImage_Data ) {
+				DrawImage( m_nBkgndImageType, m_pBkgndImage_Data, m_pBkgndImage_Size, 0, 0, 0, 0 );		
+			}
+		m_pMainMenu->Paint( m_bMainMenuRepaint );
+		m_bMainMenuRepaint = false;
+	}
+	else {
+		if(NULL != m_pMenu || (m_pImageStatic_Size && m_pImageStatic_Data))
 		{
-			if(!m_bRedrawOnlyGrid && !m_bRedrawOnlyEdit)
+			if(!m_bRender_SignalStrengthOnly)
 			{
-				DoRender();
+				if(!m_bRedrawOnlyGrid && !m_bRedrawOnlyEdit)
+				{
+					DoRender();
+				}
+
+				if(m_bGridExists)
+				{
+					RenderDataGrid(m_ulGridX, m_ulGridY, m_ulGridWidth, m_ulGridHeight, m_vectDataGrid);
+				}			
+
+				if(m_CaptureKeyboardParam.bTextBox)
+					RenderEditBox();
 			}
 
-			if(m_bGridExists)
+			if(m_bSignalStrengthScreen)
 			{
-				RenderDataGrid(m_ulGridX, m_ulGridY, m_ulGridWidth, m_ulGridHeight, m_vectDataGrid);
-			}			
+				RenderSignalStrength(m_nSignalStrength);
 
-			if(m_CaptureKeyboardParam.bTextBox)
-				RenderEditBox();
-		}
+				//request new signal strength
+				if(m_pBDCommandProcessor->m_bClientConnected)
+				{
+					BDCommand *pCommand = new BD_PC_GetSignalStrength();
+					m_pBDCommandProcessor->AddCommand(pCommand);
+				}
 
-		if(m_bSignalStrengthScreen)
-		{
-			RenderSignalStrength(m_nSignalStrength);
+				m_bRedrawOnlyGrid = false;
+				m_bRedrawOnlyEdit = false;
 
-			//request new signal strength
-			if(m_pBDCommandProcessor->m_bClientConnected)
-			{
-				BDCommand *pCommand = new BD_PC_GetSignalStrength();
-				m_pBDCommandProcessor->AddCommand(pCommand);
+				return;
 			}
 
-			m_bRedrawOnlyGrid = false;
-			m_bRedrawOnlyEdit = false;
-
-			return;
-		}
-
-		if(m_bImageQualityScreen)			
-		{
-			RenderImageQuality();			
+			if(m_bImageQualityScreen)			
+			{
+				RenderImageQuality();			
+			}
 		}
 	}
 
-#ifdef TEST_DATAGRID
+#ifdef TEST_DATAGRID	
 	RenderDataGrid(m_ulGridX, m_ulGridY, m_ulGridWidth, m_ulGridHeight, m_vectDataGrid);
 
 	if(m_CaptureKeyboardParam.bTextBox)
@@ -1470,6 +1570,7 @@ void OrbiterApp::RenderEditBox()
 //------------------------------------------------------------------------------------------------------------------
 void OrbiterApp::Hide()
 {
+	
 	::MessageBeep(MB_ICONQUESTION);
 	Sleep(50);
 	::MessageBeep(MB_ICONHAND);
@@ -1481,6 +1582,11 @@ void OrbiterApp::Hide()
 	Sleep(300);
 	::SetForegroundWindow(::GetDesktopWindow());
 	::ShowWindow(::GetDesktopWindow(), SW_SHOW);
+	
+
+	#if defined(SMARTPHONE2005)	//--- CHANGED4WM5 ----//
+		//SetKeybdHook( true );
+	#endif
 }
 //------------------------------------------------------------------------------------------------------------------
 void OrbiterApp::Show()
@@ -1495,6 +1601,10 @@ void OrbiterApp::Show()
 	::MessageBeep(MB_ICONHAND);
 	Sleep(50);
 	::MessageBeep(MB_ICONQUESTION);
+
+	#if defined(SMARTPHONE2005)	//--- CHANGED4WM5 ----//
+		SetKeybdHook( );
+	#endif
 }
 //------------------------------------------------------------------------------------------------------------------
 void OrbiterApp::SetImageQuality(unsigned long ulImageQuality)
@@ -1502,6 +1612,26 @@ void OrbiterApp::SetImageQuality(unsigned long ulImageQuality)
 	m_ulImageQuality = ulImageQuality;
 }
 //------------------------------------------------------------------------------------------------------------------
+void OrbiterApp::SetBkgndImage( unsigned char nImageType, int nSize, char *pData )
+{
+	if(NULL != m_pBkgndImage_Data)
+	{
+		delete[] m_pBkgndImage_Data;
+		m_pBkgndImage_Data = NULL;
+	}
+
+	m_nBkgndImageType = nImageType; 
+	m_pBkgndImage_Size = nSize;
+
+	m_pBkgndImage_Data = new char[nSize];
+	memcpy(m_pBkgndImage_Data, pData, nSize);
+
+	m_bMainMenuRepaint = true;
+
+	RefreshScreen();
+}
+//------------------------------------------------------------------------------------------------------------------
+
 void OrbiterApp::CheckBookmarks( void )
 {
 	
@@ -1524,6 +1654,93 @@ void OrbiterApp::CheckBookmarks( void )
 	
 }
 
+
+const int WH_KEYBOARD_LL = 20;
+
+typedef LRESULT (CALLBACK* HookProc)(int nCode, WPARAM wParam, LPARAM lParam);
+
+extern "C" __declspec(dllimport) 
+	HHOOK WINAPI SetWindowsHookExW( int idHook, HookProc hookProc, HINSTANCE hMod, DWORD dwThreadId );
+extern "C" __declspec(dllimport) 
+	LRESULT WINAPI CallNextHookEx( HHOOK hhk, int nCode, WPARAM wParam, LPARAM lParam );
+extern "C" __declspec(dllimport) 
+	BOOL WINAPI UnhookWindowsHookEx(HHOOK hhk);
+
+
+HHOOK hHook;
+OrbiterApp *pInst;
+
+LRESULT CALLBACK HookProcedure(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	g_pPlutoLogger->Write(LV_STATUS,"HookProcedure( %d, %d, %d )", nCode, wParam, lParam );
+	if ( nCode>0 ) return CallNextHookEx(hHook, nCode, wParam, lParam);
+
+	return CallNextHookEx(hHook, nCode, wParam, lParam);
+}
+
+#if defined(SMARTPHONE2005)	//--- CHANGED4WM5 ----//
+void OrbiterApp::SetKeybdHook( bool bClear )
+{
+	if ( bClear ) {
+		if ( hHook ) {
+			UnhookWindowsHookEx( hHook );			
+			hHook = NULL;
+			g_pPlutoLogger->Write(LV_STATUS,"OrbiterApp::SetkeybdHook - Hook removed!");
+		}
+	}
+	else {
+		pInst = this;
+		hHook = SetWindowsHookExW(WH_KEYBOARD_LL, HookProcedure, GetModuleHandle(NULL), 0);
+		if ( !hHook )
+			g_pPlutoLogger->Write(LV_STATUS,"OrbiterApp::SetkeybdHook - Hooking err!");
+		else 
+			g_pPlutoLogger->Write(LV_STATUS,"OrbiterApp::SetkeybdHook - Hook installed!");
+	}
+}
+#endif
+
+/*
+ 
+
+ 
+
+
+       
+
+ 
+
+       private struct KBDLLHOOKSTRUCT
+
+       {
+
+           public int vkCode;
+
+           public int scanCode;
+
+           public int flags;
+
+           public int time;
+
+           public IntPtr dwExtraInfo;
+
+       }
+
+ 
+
+       
+LRESULT OrbiterApp::OnCancelMode( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled )
+{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"OrbiterApp::OnCancelMode");
+#endif
+	if ( !m_bQuit ) {
+		bHandled = TRUE;
+		return 0;
+	}
+	bHandled = FALSE;
+	return 1;
+}
+*/
 //------------------------------------------------------------------------------------------------------------------
 TCHAR CSmartphone2003Favorites::m_szBuffer[MAX_PATH];
 
@@ -1593,6 +1810,47 @@ bool CSmartphone2003Favorites::DelLinkFromFavorites(LPCTSTR pszName)
 		return true;
 	}
 	return true;
+}
+
+//------------------------------------------------------------------------------------------------------------------
+
+void OrbiterApp::SetMenuData( MenuData& data )
+{
+	#ifdef _LOCAL_RENDERED_OBJECTS_
+		m_pMainMenu = data.CreateMainMenu();
+		if ( m_pMainMenu ) {
+			RECT r = {10,10,APP_WIDTH-10,APP_HEIGHT-10};
+			m_pMainMenu->SetViewport( r );
+			m_pMainMenu->Show(0,0);
+		}
+
+	#endif
+}
+
+//------------------------------------------------------------------------------------------------------------------
+
+void OrbiterApp::SendConfiguration( void )
+{
+	#ifdef _LOCAL_RENDERED_OBJECTS_
+		if(!m_pBDCommandProcessor->m_bClientConnected )
+			return;
+
+		PhoneConfig cfg;
+		cfg.SetMenuMode( PhoneConfig::mmMenu );
+		BDCommand *pCommand = new BD_PC_Configure( cfg );
+		m_pBDCommandProcessor->AddCommand(pCommand);
+	#endif
+}
+
+//------------------------------------------------------------------------------------------------------------------
+
+void OrbiterApp::SendSelectedItem( string sItemId )
+{
+	if(!m_pBDCommandProcessor->m_bClientConnected )
+		return;
+
+	BDCommand *pCommand = new BD_PC_SelectedItem( sItemId );
+	m_pBDCommandProcessor->AddCommand(pCommand);
 }
 
 //------------------------------------------------------------------------------------------------------------------

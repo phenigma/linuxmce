@@ -6,6 +6,8 @@
 #include "../Orbiter/ScreenHistory.h"
 using namespace DCE;
 
+#include "../pluto_main/Define_Screen.h"
+
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 #include <SDL_video.h>
@@ -16,11 +18,19 @@ using namespace DCE;
 #include "SDL_ttf.h"
 #include "png.h"
 //-----------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------
 void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName);
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_SDL_Bluetooth::OrbiterRenderer_SDL_Bluetooth(Orbiter *pOrbiter) : OrbiterRenderer_SDL(pOrbiter)
 {
-
+	m_listLocalRenderedScreens.push_back( SCREEN_Main_CONST );
+	m_listLocalRenderedScreens.push_back( SCREEN_Lights_CONST );
+	m_listLocalRenderedScreens.push_back( SCREEN_Media_CONST );
+	m_listLocalRenderedScreens.push_back( SCREEN_Climate_CONST );
+	m_listLocalRenderedScreens.push_back( SCREEN_Security_CONST );
+	m_listLocalRenderedScreens.push_back( SCREEN_Telephony_CONST );	
+	m_listLocalRenderedScreens.push_back( SCREEN_CurrentLocation_CONST );		
 }
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_SDL_Bluetooth::~OrbiterRenderer_SDL_Bluetooth()
@@ -33,14 +43,33 @@ void OrbiterRenderer_SDL_Bluetooth::DisplayImageOnScreen(SDL_Surface *pScreenIma
 
 	if(NULL != pOrbiterBluetooth)
 	{
-		const string csTempFileName = "TmpScreen.png";
-		//generate the jpeg or png image with current screen
-		if(pOrbiterBluetooth->ImageQuality() == 100) //we'll use pngs for best quality
-			SaveImageToFile(pScreenImage, csTempFileName);
-		else
-			SDL_SaveJPG(pScreenImage, csTempFileName.c_str(), pOrbiterBluetooth->ImageQuality());
+		int nPK_Screen = 0;
+		if(NULL != pOrbiterBluetooth->m_pScreenHistory_Current)
+			nPK_Screen = pOrbiterBluetooth->m_pScreenHistory_Current->PK_Screen();
 
-		pOrbiterBluetooth->ImageGenerated(csTempFileName);
+		if(
+			(
+				pOrbiterBluetooth->GetPhoneConfig().GetMenuMode()==PhoneConfig::mmMenu &&  
+				std::find(m_listLocalRenderedScreens.begin(), m_listLocalRenderedScreens.end(), nPK_Screen) ==
+					m_listLocalRenderedScreens.end()
+			)
+			||
+			pOrbiterBluetooth->GetPhoneConfig().GetMenuMode()==PhoneConfig::mmImage 
+		) 
+		{
+			const string csTempFileName = "TmpScreen.png";
+			//generate the jpeg or png image with current screen
+			if(pOrbiterBluetooth->ImageQuality() == 100) //we'll use pngs for best quality
+				SaveImageToFile(pScreenImage, csTempFileName);
+			else
+				SDL_SaveJPG(pScreenImage, csTempFileName.c_str(), pOrbiterBluetooth->ImageQuality());
+
+			pOrbiterBluetooth->ImageGenerated(csTempFileName);
+		}
+		else 
+		{
+			//not sending image... 
+		}
 
 	}
 }

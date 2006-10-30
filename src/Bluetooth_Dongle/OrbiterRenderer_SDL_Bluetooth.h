@@ -13,6 +13,9 @@ namespace DCE
 		friend class OrbiterRendererFactory;
 		OrbiterRenderer_SDL_Bluetooth(Orbiter *pOrbiter);
 
+		//private data
+		std::list<int> m_listLocalRenderedScreens;
+
 	public:
 
 		~OrbiterRenderer_SDL_Bluetooth();
