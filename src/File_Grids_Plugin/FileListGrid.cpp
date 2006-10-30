@@ -40,6 +40,13 @@
 
 using namespace std;
 
+FileListGrid::~FileListGrid()
+{
+	for(vector<FileListInfo *>::iterator it = m_vectFileInfo.begin(); it != m_vectFileInfo.end(); ++it)
+		delete *it;
+	m_vectFileInfo.clear();
+}
+
 void FileListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount)
 {
 	// Don't render icons in the first column if we're not displaying the first column

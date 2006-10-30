@@ -25,6 +25,7 @@ class FileListGrid : public DataGridTable
 {
 public:
 	FileListGrid(class Datagrid_Plugin *pDatagrid_Plugin,class Media_Plugin *pMedia_Plugin) : m_pDatagrid_Plugin(pDatagrid_Plugin), m_pMedia_Plugin(pMedia_Plugin) {}
+	~FileListGrid();
 	class Datagrid_Plugin *m_pDatagrid_Plugin;
 	class Media_Plugin *m_pMedia_Plugin;
 	string m_sIconFile;
