@@ -273,7 +273,7 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 //#endif
 //	}
 
-	int pid = ProcessUtils::SpawnApplication(sFilename, sArguments, sName, new pair<string, string>(sSendOnFailure, sSendOnSuccess));
+	int pid = ProcessUtils::SpawnApplication(sFilename, sArguments, sName, new pair<string, string>(sSendOnFailure, sSendOnSuccess), bDetach);
 	if (pid == 0)
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Can't spawn '%s': %s %s.", sName.c_str(), sFilename.c_str(), sArguments.c_str());
