@@ -32,20 +32,17 @@ fi
 PSC=$(head -2 "$OutputFile" | tail -1)
 PSC="${PSC#-- psc_id: }"
 
-if [[ -n "$Table" && -n "$PSC" ]]; then
-	## Get a list of local modified records
-	Q="SELECT pcd_id FROM $Table WHERE psc_id IN ($PSC) AND psc_mod != 0"
-	LocalModifiedPscIDs=$(RunSQL "$Q" | tr ' ' ',')
-
-	## Remove all non local modified records
+if [[ "$Table" != ""  && "$PSC" != "" ]]; then
 	Q="DELETE FROM $Table WHERE psc_id IN ($PSC) AND psc_mod=0"
-
-	## Add the updated recoreds that we get from the server
 	RunSQL "$Q"
 
-	## Reset the psc_mod of the records that where syncronized
-	Q="UPDATE $Table SET psc_mod=0 WHERE psc_id IN ($PSC) AND NOT psc_id IN ($LocalModifiedPscIDs)"
-	RunSQL "$Q"
+	## Get a list of local modified records
+	Q="SELECT psc_id FROM $Table WHERE psc_id IN ($PSC) AND psc_mod != 0"
+	
+	LocalModifiedPscIDs=$(RunSQL "$Q" | tr ' ' ',')
+	if [[ "$LocalModifiedPscIDs" == ""  ]] ;then
+		LocalModifiedPscIDs="0"
+	fi
 fi
 
 QPass=
@@ -53,3 +50,10 @@ if [[ -n "$MySqlPassword" ]]; then
 	QPass="-p$MySqlPassword"
 fi
 mysql -f -u $MySqlUser -h $MySqlHost $QPass "$MySqlDBName" <"$OutputFile"
+
+if [[ "$Table" != ""  && "$PSC" != "" ]]; then
+	## Reset the psc_mod of the records that where syncronized
+	Q="UPDATE $Table SET psc_mod=0 WHERE psc_id IN ($PSC) AND psc_id NOT IN ($LocalModifiedPscIDs)"
+	RunSQL "$Q"
+fi
+
