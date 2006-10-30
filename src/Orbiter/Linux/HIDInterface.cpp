@@ -112,7 +112,8 @@ g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents queueing to orbiter   rrr");
 #endif
 			pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
 		}
-		g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents hid_get_input_report ret %d *IDLE*\n", ret);
+		bool bisopen = hid_is_opened(hid);
+		g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents hid_get_input_report ret %d *IDLE* %d\n", ret,(int) bisopen);
 	} while (!pOrbiter->m_bQuit);
 
 	ret = hid_close(hid);
