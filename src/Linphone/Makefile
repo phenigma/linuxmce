@@ -1,10 +1,12 @@
 #<-dceag-mh-b->!
 GENDEV=../Gen_Devices
 
+SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql <-mkr_t_compile_defines->
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
 

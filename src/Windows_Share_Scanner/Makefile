@@ -1,6 +1,8 @@
 #<-dceag-mh-b->
 GENDEV=../Gen_Devices
 
+SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
