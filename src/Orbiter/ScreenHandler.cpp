@@ -1691,24 +1691,32 @@ bool ScreenHandler::AddSoftware_ObjectHighlighted(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::AddSoftware_GridRendering(CallBackData *pData)
 {
-	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *)pData;
+	// This is called every time a new section of the grid is to be rendered.  We want to find the child object for the 'virus free' check and hide it if it's virus free,
+	// and also find the child object for the icon and assign it the picture associated with the cell.
+	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
+
+	// Iterate through all the cells
 	for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
 	{
 		DataGridCell *pCell = it->second;
-		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);
+		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+
+		// See if there is an object assigned for this column/row
 		map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
 		if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
 		{
 			DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
 			DesignObj_DataList::iterator iHao;
+
+			// Iterate through all the object's children
 			for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
 			{
 				DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
 				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_Installed_Apps_Not_Virus_Free_CONST )
-					pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes_Find("Virus_Free")=="Yes";
+					pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes_Find("Virus_Free")=="Yes";  // Hide this if it's virus fee
 				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_Installed_Apps_Icon_CONST )
 					m_pOrbiter->m_pOrbiterRenderer->UpdateObjectImage(pDesignObj_Orbiter->m_ObjectID, "PNG",
-						pCell->m_pGraphicData, pCell->m_GraphicLength, "0");
+						pCell->m_pGraphicData, pCell->m_GraphicLength, "0");  // Store the icon, which is cell's picture
 			}
 		}
 	}
