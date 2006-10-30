@@ -1907,7 +1907,7 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice->m_dwPK_Device,"/usr/pluto/bin/Config_Device_Changes.sh","cdc",
 					"F\tStartLocalDevice\tNoVideo\tAlert",
 					sFailureCommand,
-					sSuccessCommand,false,false,false);
+					sSuccessCommand,false,false,false,true);
 				string sResponse;
 				if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
 					g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig Failed to send spawn application to %d",pDevice->m_dwPK_Device);
@@ -1932,7 +1932,7 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServerOnCore->m_dwPK_Device,"/usr/pluto/bin/Config_Device_Changes.sh","cdc",
 			"F\tStartLocalDevice\tNoVideo\tAlert",
 			sFailureCommand,
-			sSuccessCommand,false,false,false);
+			sSuccessCommand,false,false,false,true);
 		string sResponse;
 		if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
 			g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig Failed to send spawn application to %d",pDevice_AppServerOnCore->m_dwPK_Device);
@@ -2577,7 +2577,7 @@ void General_Info_Plugin::CMD_Delete_Device(int iPK_Device,string &sCMD_Result,M
 	/** @brief COMMAND: #274 - Set Room For Device */
 	/** Updates the record in the database for a given device putting in a certain room. */
 		/** @param #2 PK_Device */
-			/** The device */
+			/** The device, or if negative, this is a PK_PnpQueue and needs to be forwarded to plug and play plugin */
 		/** @param #50 Name */
 			/** If PK_Room is empty, a new room with this name will be created */
 		/** @param #57 PK_Room */
@@ -2730,7 +2730,7 @@ void General_Info_Plugin::CMD_Check_Mounts(string &sCMD_Result,Message *pMessage
 			if( !m_mapMediaDirectors_PendingConfig[pDevice->m_pDevice_ControlledVia->m_dwPK_Device] )
 			{
 				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice->m_dwPK_Device,"/usr/pluto/bin/DoAllMounts.sh","dm",
-					"","","",false,false,false);
+					"","","",false,false,false,true);
 				SendCommand(CMD_Spawn_Application);
 			}
 		}
@@ -2741,7 +2741,7 @@ void General_Info_Plugin::CMD_Check_Mounts(string &sCMD_Result,Message *pMessage
 	if( pDevice_AppServerOnCore && !bAlreadyRanOnCore && !m_mapMediaDirectors_PendingConfig[pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device] )
 	{
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServerOnCore->m_dwPK_Device,"/usr/pluto/bin/DoAllMounts.sh","dm",
-			"","","",false,false,false);
+			"","","",false,false,false,true);
 		SendCommand(CMD_Spawn_Application);
 	}
 }
@@ -2995,7 +2995,7 @@ void General_Info_Plugin::CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_Contr
 		
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device, pDevice_AppServer->m_dwPK_Device , "/usr/pluto/bin/StorageDevices_Radar.sh", "blacklist", 
 				
-				"--blacklist\t" + sBlock_Device, "", "", false, false, false);
+				"--blacklist\t" + sBlock_Device, "", "", false, false, false, true);
 	
 		SendCommand (CMD_Spawn_Application);
 	}

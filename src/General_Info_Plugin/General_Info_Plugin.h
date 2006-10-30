@@ -226,7 +226,7 @@ public:
 	/** @brief COMMAND: #274 - Set Room For Device */
 	/** Updates the record in the database for a given device putting in a certain room. */
 		/** @param #2 PK_Device */
-			/** The device */
+			/** The device, or if negative, this is a PK_PnpQueue and needs to be forwarded to plug and play plugin */
 		/** @param #50 Name */
 			/** If PK_Room is empty, a new room with this name will be created */
 		/** @param #57 PK_Room */
@@ -426,7 +426,6 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 
 	virtual void CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iPK_Software) { string sCMD_Result; CMD_Add_Software(iPK_Device,bTrueFalse,iPK_Software,sCMD_Result,NULL);};
 	virtual void CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iPK_Software,string &sCMD_Result,Message *pMessage);
-
 
 //<-dceag-h-e->
 	private:

@@ -165,6 +165,6 @@ void PostCreateOptions::PostCreateDevice_CaptureCard(Row_Device *pRow_Device, OH
 #endif
 
 	DCE::CMD_Spawn_Application CMD_Spawn_Application(g_pCommand_Impl->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,"/usr/pluto/bin/CaptureCards_Setup.sh","captcard",
-		"","","",false,false,false);
+		"","","",false,false,false,true);
 	g_pCommand_Impl->SendCommand(CMD_Spawn_Application);
 }
