@@ -20,6 +20,10 @@
 #include "DesignObj_DataGrid.h"
 #include "pluto_main/Define_DesignObjType.h"
 
+#ifdef OrbiterGen
+#include "OrbiterGen/DesignObj_Generator.h"
+#endif
+
 DesignObj_Data::~DesignObj_Data()
 {
 	m_vectAltGraphicFilename.clear();
@@ -319,11 +323,12 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 				(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
 		}
 
-#ifdef OrbitergGen
+#ifdef OrbiterGen
 		if( m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 		{
-			Write_long(long(m_mapChildDgObjects.size()));
-			for(map< pair<int,int>, DesignObj_Generator *>::iterator it=m_mapChildDgObjects.begin();it!=m_mapChildDgObjects.end();++it)
+			DesignObj_Generator *pObj = (DesignObj_Generator *) this;
+			Write_long(long(pObj->m_mapChildDgObjects.size()));
+			for(map< pair<int,int>, DesignObj_Generator *>::iterator it=pObj->m_mapChildDgObjects.begin();it!=pObj->m_mapChildDgObjects.end();++it)
 			{
 				Write_long(long(it->first.first));
 				Write_long(long(it->first.second));
