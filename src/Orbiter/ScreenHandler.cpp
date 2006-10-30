@@ -1672,6 +1672,7 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 	ScreenHandlerBase::SCREEN_Add_Software(PK_Screen);
 	RegisterCallBack(cbObjectHighlighted, (ScreenHandlerCallBack) &ScreenHandler::AddSoftware_ObjectHighlighted,	new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::AddSoftware_GridSelected, new DatagridCellBackData());
+	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::AddSoftware_GridRendering,	new DatagridAcquiredBackData());
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::AddSoftware_ObjectHighlighted(CallBackData *pData)
@@ -1688,6 +1689,32 @@ bool ScreenHandler::AddSoftware_ObjectHighlighted(CallBackData *pData)
 	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::AddSoftware_GridRendering(CallBackData *pData)
+{
+	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *)pData;
+	for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
+	{
+		DataGridCell *pCell = it->second;
+		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);
+		map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
+		if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
+		{
+			DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
+			DesignObj_DataList::iterator iHao;
+			for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+			{
+				DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
+				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_Installed_Apps_Not_Virus_Free_CONST )
+					pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes_Find("Virus_Free")=="Yes";
+				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_Installed_Apps_Icon_CONST )
+					m_pOrbiter->m_pOrbiterRenderer->UpdateObjectImage(pDesignObj_Orbiter->m_ObjectID, "PNG",
+						pCell->m_pGraphicData, pCell->m_GraphicLength, "0");
+			}
+		}
+	}
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
@@ -1701,7 +1728,7 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 			sCommand = StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn)
 				+ " 1 " + TOSTRING(COMMAND_Add_Software_CONST) + " " + TOSTRING(COMMANDPARAMETER_PK_Software_CONST)
 				+ " " + pCellInfoData->m_pDataGridCell->GetValue() + " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " "
-				+ StringUtils::itos(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector) + " " TOSTRING(COMMANDPARAMETER_TrueFalse_CONST) "=";
+				+ StringUtils::itos(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector) + " " TOSTRING(COMMANDPARAMETER_TrueFalse_CONST) " 1";
 		}
 		else if( PK_Software<0 )
 		{
@@ -1709,7 +1736,7 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 			sCommand = StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn)
 				+ " 1 " + TOSTRING(COMMAND_Add_Software_CONST) + " " + TOSTRING(COMMANDPARAMETER_PK_Software_CONST)
 				+ " " + StringUtils::itos(PK_Software*-1) + " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " "
-				+ StringUtils::itos(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector) + " " TOSTRING(COMMANDPARAMETER_TrueFalse_CONST) "=";
+				+ StringUtils::itos(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector) + " " TOSTRING(COMMANDPARAMETER_TrueFalse_CONST) " 0";
 		}
 		else
 			return false; // No software was selected

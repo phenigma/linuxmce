@@ -6,6 +6,7 @@ enum CallBackType
 {
     cbUnused,
     cbDataGridSelected,
+	cbDataGridRendering,
     cbObjectSelected,
 	cbObjectHighlighted,
     cbOnDialogCreate,   // create a unique dialog

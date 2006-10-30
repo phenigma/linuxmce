@@ -518,6 +518,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 				long Row = Read_long();
 				string sObjectID;
 				Read_string(sObjectID);
+				mapDgObjects[sObjectID] = make_pair<int,int> (Col,Row);
 			}
 		}
 
@@ -532,6 +533,8 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 					pDesignObj_Data = new DesignObj_DataGrid((class Orbiter *) m_pExtraSerializationData);
 				else
 					pDesignObj_Data = new DesignObj_Orbiter((class Orbiter *) m_pExtraSerializationData);
+	#elif defined(OrbiterGen)
+				DesignObj_Generator *pDesignObj_Data = new DesignObj_Generator();
 	#else
 				DesignObj_Data *pDesignObj_Data = new DesignObj_Data();
 	#endif
@@ -543,8 +546,22 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 				{
 					map<string, pair<int,int> >::iterator it=mapDgObjects.find( pDesignObj_Data->m_ObjectID );
 					if( it!=mapDgObjects.end() )
-						( (DesignObj_DataGrid *)pDesignObj_Data )->m_mapChildDgObjects[ make_pair<int,int> (it->second.first,it->second.second) ] = pDesignObj_Data;
-
+					{
+						pDesignObj_Data->m_pDesignObj_DataGrid = ( (DesignObj_DataGrid *)this );
+						pDesignObj_Data->m_iGridCol=it->second.first;
+						pDesignObj_Data->m_iGridRow=it->second.second;
+						pDesignObj_Data->m_pDesignObj_DataGrid->m_mapChildDgObjects[ make_pair<int,int> (it->second.first,it->second.second) ] = pDesignObj_Data;
+					}
+				}
+#elif defined(OrbiterGen)
+				// If this is a datagrid and it has child objects, match them to the rows/columns
+				if( m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+				{
+					map<string, pair<int,int> >::iterator it=mapDgObjects.find( pDesignObj_Data->m_ObjectID );
+					if( it!=mapDgObjects.end() )
+					{
+						((DesignObj_Generator *) this)->m_mapChildDgObjects[ make_pair<int,int> (it->second.first,it->second.second) ] = pDesignObj_Data;
+					}
 				}
 #endif
 

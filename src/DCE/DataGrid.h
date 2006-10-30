@@ -39,6 +39,7 @@ namespace DCE
 		PlutoGraphic *m_pGraphic;
 		char *m_pGraphicData, *m_Text, *m_Value, *m_ImagePath;
 		map<string,string> m_mapAttributes;
+		string m_mapAttributes_Find(string Attribute) { map<string,string>::iterator it = m_mapAttributes.find(Attribute); return it==m_mapAttributes.end() ? "" : (*it).second; }
 
 		// Unique value REQUIRED for multi-select lists.
 		DataGridCell(string Text, string Value="");

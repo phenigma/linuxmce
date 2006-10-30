@@ -1371,55 +1371,28 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 	string sql="SELECT PK_Software, Iconstr, Title, Category, Rating, Virus_Free, Installation_status, Description, Homeurl FROM Software WHERE FK_Device="+sPK_Device_PC+" ORDER BY Title";
 
 	int iRow=0;
-	pCell=new DataGridCell("Icon", "-1");
-	pDataGrid->SetData(0, iRow, pCell );
-	pCell=new DataGridCell("Title","-1");
-	pDataGrid->SetData(1,iRow,pCell);
-	pCell=new DataGridCell("Category","-1");
-	pDataGrid->SetData(2,iRow,pCell);
-	pCell=new DataGridCell("Rating","-1");
-	pDataGrid->SetData(3,iRow,pCell);
-	pCell=new DataGridCell("Virus-free","-1");
-	pDataGrid->SetData(4,iRow,pCell);
-	pCell=new DataGridCell("Is instaled","-1");
-	pDataGrid->SetData(5,iRow++,pCell);
-	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))){
+	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sql)) )
+	{
 		unsigned long *lengths;
 		while((row=mysql_fetch_row(result.r))){
 			lengths=mysql_fetch_lengths(result.r);
 			int size = 0;
 			char *data = NULL;
-			int GridCurRow=1, GridCurCol=1;
 
-			string sValue;
-			if( row[6] && strcmp(row[6],"Installing")==0 )
-				sValue = "";
-			else if( row[6] && strcmp(row[6],"Installed")==0 )
-				sValue = StringUtils::itos( atoi(row[0])*-1 );
-			else
-				sValue = row[0];
-
-			pCell = new DataGridCell("", sValue);
+			pCell = new DataGridCell("", row[0]);
 			if(lengths[1]){
 				char *Data=new char[lengths[1]];
 				memcpy(Data,row[1],lengths[1]);
 				pCell->SetImage(Data, lengths[1], GR_PNG);
 			}
-			pCell->m_mapAttributes["Description"] = string(row[7]);
-			pCell->m_mapAttributes["Title"] = string(row[2]);
-			pCell->m_mapAttributes["Location"] = string(row[8]);
-			pDataGrid->SetData(0, iRow, pCell );
-			pCell=new DataGridCell(row[2],sValue);
-			pDataGrid->SetData(1,iRow,pCell);
-			pCell=new DataGridCell(row[3],sValue);
-			pDataGrid->SetData(2,iRow,pCell);
-			pCell=new DataGridCell(row[4],sValue);
-			pDataGrid->SetData(3,iRow,pCell);
-			pCell=new DataGridCell(row[5],sValue);
-			pDataGrid->SetData(4,iRow,pCell);
-
-			pCell=new DataGridCell(row[6],sValue);
-			pDataGrid->SetData(5,iRow++,pCell);
+			pCell->m_mapAttributes["Title"] = row[2] ? row[2] : "";
+			pCell->m_mapAttributes["Category"] = row[3] ? row[3] : "";
+			pCell->m_mapAttributes["Rating"] = row[4] ? row[4] : "";
+			pCell->m_mapAttributes["Rating"] = row[4] ? row[4] : "";
+			pCell->m_mapAttributes["Virus_Free"] = row[5] ? row[5] : "";
+			pCell->m_mapAttributes["Installation_status"] = row[6] ? row[6] : "";
+			pCell->m_mapAttributes["Description"] = row[7] ? row[7] : "";
+			pDataGrid->SetData(0,iRow++,pCell);
 		}
 	}
 

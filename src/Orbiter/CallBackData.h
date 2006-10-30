@@ -6,6 +6,7 @@
 namespace DCE
 {
 	class DataGridCell;
+	class DataGridTable;
 };
 
 class DesignObj_DataGrid;
@@ -86,6 +87,15 @@ public:
 	DesignObj_DataGrid *m_pDesignObj_DataGrid;
 
 	DatagridCellBackData() : m_pDataGridCell(NULL), m_pDesignObj_DataGrid(NULL), m_Row(0), m_Column(0) {}
+};
+//-----------------------------------------------------------------------------------------------------
+class DatagridAcquiredBackData : public CallBackData
+{
+public:
+	DesignObj_DataGrid *m_pObj;
+	DataGridTable *m_pDataGridTable;
+
+	DatagridAcquiredBackData() : m_pObj(NULL), m_pDataGridTable(NULL) {}
 };
 //-----------------------------------------------------------------------------------------------------
 namespace DCE

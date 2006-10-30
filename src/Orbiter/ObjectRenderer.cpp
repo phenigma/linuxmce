@@ -524,6 +524,8 @@ int k=2;
 			ChildObjectToRender.remove(pDesignObj_Orbiter);
 		}
 	}
+if( m_pObj_Owner->m_ObjectID.find("1784")!=string::npos || m_pObj_Owner->m_ObjectID.find("5137")!=string::npos || m_pObj_Owner->m_ObjectID.find("5138")!=string::npos || m_pObj_Owner->m_ObjectID.find("5193")!=string::npos || m_pObj_Owner->m_ObjectID.find("5189")!=string::npos)
+int k=2;
 	for( iHao=m_pObj_Owner->m_ChildObjects.rbegin(  ); iHao != m_pObj_Owner->m_ChildObjects.rend(  ); ++iHao )
 	{
 		DesignObj_Orbiter *pDesignObj_Orbiter=( DesignObj_Orbiter * )*iHao;

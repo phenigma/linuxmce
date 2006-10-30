@@ -54,6 +54,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 	if( !pDataGridTable )
 		return;
 
+	bool bContainsCells = m_pObj_Owner_DataGrid->m_mapChildDgObjects.size()>1; // Store this as a bool so for efficiency we're not doing a find in a map when the map is empty
 	int nAlphaChannel = GetAlphaLevel();
 
 	m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->SolidRectangle( point.X + m_pObj_Owner_DataGrid->m_rPosition.X, 
@@ -73,6 +74,16 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 
 			if ( pCell )
 			{
+				if( bContainsCells )
+				{
+					map< pair<int,int>, DesignObj_Orbiter *>::iterator it=m_pObj_Owner_DataGrid->m_mapChildDgObjects.find( make_pair<int,int> (DGColumn,DGRow) );
+					if(	it!=m_pObj_Owner_DataGrid->m_mapChildDgObjects.end() )
+					{
+						it->second->m_bHidden=false;
+						continue; // No need to render it here; the object will self-render
+					}
+				}
+
 				if ( !m_pObj_Owner_DataGrid->m_bDontShowSelection )
 				{
 					int GraphicType = GRAPHIC_NORMAL;

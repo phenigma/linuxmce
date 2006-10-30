@@ -46,6 +46,8 @@ DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pOrbiter)
 	m_pGraphicToUndoSelect = NULL;
 	m_pvectCurrentPlayingGraphic = NULL;
 	m_pObj_Screen = NULL;
+	m_pDesignObj_DataGrid = NULL;
+	m_iGridRow=m_iGridCol=0;
 	m_bIsARemoteControl = false;
 
 	m_iCurrentFrame = 0;

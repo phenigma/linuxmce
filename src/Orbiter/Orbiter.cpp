@@ -4079,19 +4079,34 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		}
 		else if(  Variable.length()>6 && Variable[0]=='C' && Variable[1]=='A' )
 		{
-			string::size_type pos = Variable.find(':',4);
-			if( pos!=string::npos )
+			if( Variable[1]=='H' )
 			{
-				DesignObj_Orbiter *pObj = FindObject(Variable.substr(4,pos-4));
-				if( pObj && pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+				// Syntax is CAH:ObjectID:Attribute
+				string::size_type pos = Variable.find(':',4);
+				if( pos!=string::npos )
 				{
-					DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObj;
-					DataGridCell *pCell = GetDataGridHighlightCell(pObj_Grid);
-					if( !pCell )
-						pCell = GetDataGridSelectedCell(pObj_Grid);
+					DesignObj_Orbiter *pObj = FindObject(Variable.substr(4,pos-4));
+					if( pObj && pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+					{
+						DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObj;
+						DataGridCell *pCell = GetDataGridHighlightCell(pObj_Grid);
+						if( !pCell )
+							pCell = GetDataGridSelectedCell(pObj_Grid);
 
-					if( pCell && pCell->m_mapAttributes.find( Variable.substr(pos+1) )!=pCell->m_mapAttributes.end() )
-						Output += pCell->m_mapAttributes[ Variable.substr(pos+1)];
+						if( pCell && pCell->m_mapAttributes.find( Variable.substr(pos+1) )!=pCell->m_mapAttributes.end() )
+							Output += pCell->m_mapAttributes[ Variable.substr(pos+1)];
+					}
+				}
+			}
+			else if( pObj->m_pDesignObj_DataGrid )
+			{
+				// Syntax is CA:Attribute.  This is only valid if the object being rendered points to a cell
+				DataGridTable *pDataGridTable = pObj->m_pDesignObj_DataGrid->DataGridTable_Get();
+				if( pDataGridTable )
+				{
+					DataGridCell *pCell = pDataGridTable->GetData(pObj->m_iGridCol, pObj->m_iGridRow);
+					if( pCell )
+						Output += pCell->m_mapAttributes[ Variable.substr(3) ];
 				}
 			}
 		}

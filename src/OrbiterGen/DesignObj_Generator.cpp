@@ -2272,28 +2272,28 @@ void DesignObj_Generator::AddDataGridObjects()
 
 	if( !NumRows )
 	{
-		if( FirstRowHeight )
+		if( FirstRowHeight && NumRows>1 )
 			NumRows = ( (m_rPosition.Height-FirstRowHeight) / RowHeight ) + 1;
 		else
 			NumRows = m_rPosition.Height / RowHeight;
 	}
 	if( !RowHeight )
 	{
-		if( FirstRowHeight )
+		if( FirstRowHeight && NumRows>1 )
 			RowHeight = (m_rPosition.Height-FirstRowHeight) / (NumRows-1);
 		else
 			RowHeight = m_rPosition.Height / NumRows;
 	}
 	if( !NumCols )
 	{
-		if( FirstColWidth )
+		if( FirstColWidth && NumCols>1 )
 			NumCols = ( (m_rPosition.Width-FirstColWidth) / ColWidth ) + 1;
 		else
 			NumCols = m_rPosition.Width / ColWidth;
 	}
 	if( !ColWidth )
 	{
-		if( FirstColWidth )
+		if( FirstColWidth && NumCols>1 )
 			ColWidth = (m_rPosition.Width-FirstColWidth) / (NumCols-1);
 		else
 			ColWidth = m_rPosition.Width / NumCols;
@@ -2324,7 +2324,7 @@ void DesignObj_Generator::AddDataGridObjects()
 		{
 			PlutoRectangle rectangle(m_rPosition.X+ColPos,m_rPosition.Y,ColWidth,FirstRowHeight ? FirstRowHeight : RowHeight);  
 			DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_DesignObj_FirstRow,rectangle,this,false,false);
-			pDesignObj_Generator->m_bCanBeHidden=true;
+				pDesignObj_Generator->m_bCanBeHidden=pDesignObj_Generator->m_bHideByDefault=true;
 			if( pDesignObj_Generator->m_pRow_DesignObjVariation ) // Be sure it's a valid object
 			{
 				m_mapChildDgObjects[ make_pair<int,int> (iCol,0) ] = pDesignObj_Generator;  // m_mapChildDgObjects is col/row to object
@@ -2346,7 +2346,7 @@ void DesignObj_Generator::AddDataGridObjects()
 		{
 			PlutoRectangle rectangle(m_rPosition.X,m_rPosition.Y+RowPos,FirstColWidth ? FirstColWidth : ColWidth,RowHeight);  
 			DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_DesignObj_FirstCol,rectangle,this,false,false);
-			pDesignObj_Generator->m_bCanBeHidden=true;
+				pDesignObj_Generator->m_bCanBeHidden=pDesignObj_Generator->m_bHideByDefault=true;
 			if( pDesignObj_Generator->m_pRow_DesignObjVariation ) // Be sure it's a valid object
 			{
 				m_mapChildDgObjects[ make_pair<int,int> (0,iRow) ] = pDesignObj_Generator;  // m_mapChildDgObjects is col/row to object
@@ -2365,7 +2365,7 @@ void DesignObj_Generator::AddDataGridObjects()
 			{
 				PlutoRectangle rectangle(m_rPosition.X+ColPos,m_rPosition.Y+RowPos,ColWidth,RowHeight);  
 				DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_DesignObj_Cell,rectangle,this,false,false);
-				pDesignObj_Generator->m_bCanBeHidden=true;
+				pDesignObj_Generator->m_bCanBeHidden=pDesignObj_Generator->m_bHideByDefault=true;
 				if( pDesignObj_Generator->m_pRow_DesignObjVariation ) // Be sure it's a valid object
 				{
 					m_mapChildDgObjects[ make_pair<int,int> (iCol,iRow) ] = pDesignObj_Generator;  // m_mapChildDgObjects is col/row to object

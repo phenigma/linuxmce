@@ -3,6 +3,8 @@
 #include "OrbiterRenderer.h"
 #include "DataGridRenderer.h"
 #include "../DCE/DataGrid.h"
+#include "CallBackData.h"
+#include "ScreenHandler.h"
 
 using namespace DCE;
 //-------------------------------------------------------------------------------------------------------
@@ -89,6 +91,18 @@ g_pPlutoLogger->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %
 
 	if (pDataGridTable )
 	{
+
+		CallBackData *pCallBackData = m_pOrbiter->m_pScreenHandler_get()->m_mapCallBackData_Find(cbDataGridRendering);
+		if(pCallBackData)
+		{
+			DatagridAcquiredBackData *pGridData = (DatagridAcquiredBackData *)pCallBackData;
+			pGridData->m_pObj = this;
+			pGridData->m_pDataGridTable = pDataGridTable;
+		}
+
+		if(m_pOrbiter->ExecuteScreenHandlerCallback(cbDataGridRendering))
+			return;
+
 		// Hide arrow if not on the first row.
 		if(m_pObjUp)
 			m_pOrbiter->CMD_Show_Object( m_pObjUp->m_ObjectID, 0, "", "",  CanGoUp() ? "1" : "0" );

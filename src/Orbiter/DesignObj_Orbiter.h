@@ -20,6 +20,7 @@ using namespace DCE;
 //-------------------------------------------------------------------------------------------------------
 class PlutoGraphic;
 class DesignObj_Orbiter;
+class DesignObj_DataGrid;
 class ObjectRenderer;
 //-------------------------------------------------------------------------------------------------------
 typedef map<string, DesignObj_Orbiter*> DesignObj_OrbiterMap;
@@ -80,6 +81,10 @@ public:
 	DesignObj_Orbiter *m_pObj_Screen;
 	PlutoPoint m_pMidPoint,m_pPopupPoint;
 	PlutoRectangle GetHighlightRegion();
+
+	// If this is an object that is tied to a cell in a datagrid, these will point to the datagrid and reference the row/col
+	DesignObj_DataGrid *m_pDesignObj_DataGrid;
+	int m_iGridRow,m_iGridCol;
 
 	class Orbiter_CriteriaList *m_pCriteria;
 	ProntoCCF *m_pCCF;

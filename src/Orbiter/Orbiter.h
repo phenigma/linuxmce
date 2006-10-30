@@ -143,6 +143,7 @@ namespace DCE
 		static Orbiter *Instance(); 
 
 		OrbiterRenderer *Renderer();
+		ScreenHandler *m_pScreenHandler_get() { return m_pScreenHandler; }
 		int CurrentScreen();
 
 		int m_iImageWidth; /** < image width */

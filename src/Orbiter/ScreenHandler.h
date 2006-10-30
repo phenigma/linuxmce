@@ -189,6 +189,7 @@ public:
 	virtual bool New_Phone_Enter_Number_DeviceConfigured(CallBackData *pData);
 	virtual void SCREEN_Add_Software(long PK_Screen);
 	bool AddSoftware_ObjectHighlighted(CallBackData *pData);
+	bool AddSoftware_GridRendering(CallBackData *pData);
 	bool AddSoftware_GridSelected(CallBackData *pData);
 
 	virtual void SCREEN_FileSave(long PK_Screen, string sCaption, string sCommand, bool bAdvanced_options);
