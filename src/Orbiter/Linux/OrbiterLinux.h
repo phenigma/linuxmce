@@ -57,6 +57,8 @@ private:
     wxDialog_WaitList *m_pWaitList;
     bool m_bButtonPressed_WaitList;
     wxDialog_WaitUser *m_pWaitUser;
+	
+	bool m_bMaskApplied;
 
 protected:
     // virtual bool forkAndWait(char * const args[], int millis);
@@ -67,6 +69,10 @@ protected:
 
     bool m_bOrbiterReady; // ready to process events
     bool m_bIsExclusiveMode; // it's alone on the desktop
+	
+	bool MaskApplied();
+	void ResetAppliedMask();
+	void ApplyMask(PlutoRectangle rectTotal, PlutoPoint point);
 
 	//keyboardState m_keyboardState;
 

@@ -43,19 +43,19 @@ OrbiterRenderer_Linux::~OrbiterRenderer_Linux()
 
 void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 {
-    // TODO: optimize the calls to apply mask
-    RenderScreen_ApplyMask(false);
-
-    if( bRenderGraphicsOnly )
-	{
-		BASE_CLASS::RenderScreen( bRenderGraphicsOnly );
-        RenderScreen_ApplyMask(true);
-		return;
-	}
-
 	OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
 	if(NULL != pOrbiterLinux)
 	{
+		if(pOrbiterLinux->MaskApplied())
+			pOrbiterLinux->ResetAppliedMask();
+	
+		if( bRenderGraphicsOnly )
+		{
+			BASE_CLASS::RenderScreen( bRenderGraphicsOnly );
+			return;
+		}		
+		
+		
 		pOrbiterLinux->m_pWinListManager->HideAllWindows();
 		pOrbiterLinux->m_bIsExclusiveMode = true;
 
@@ -68,19 +68,17 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 
 			X11_Locker lock(pOrbiterLinux->GetDisplay());
 			BASE_CLASS::RenderScreen(bRenderGraphicsOnly);
-            // XFlush already called by ~X11_Locker()->XSync()
-			// XFlush(pOrbiterLinux->GetDisplay());
-            RenderScreen_ApplyMask(true);
 		}
 
 		if(pOrbiterLinux->m_bOrbiterReady)
 			pOrbiterLinux->m_pWinListManager->ShowSdlWindow(pOrbiterLinux->m_bIsExclusiveMode);
-
 	}
 }
 
 bool OrbiterRenderer_Linux::RenderScreen_ApplyMask(bool bUseMask)
 {
+	//TODO: remove me!
+	
     //SDL_Surface *pImage = Screen;
     OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
     if (pOrbiterLinux == NULL)

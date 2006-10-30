@@ -30,6 +30,7 @@
 #include <X11/keysymdef.h>
 #include <X11/keysym.h>
 #include <X11/extensions/XTest.h>
+#include <X11/extensions/shape.h>
 
 #include <SDL/SDL_syswm.h>
 
@@ -78,6 +79,7 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
         , m_pWinListManager(NULL)
         , m_pWMController(NULL)
         , m_pX11(NULL)
+		, m_bMaskApplied(false)
 {
     m_nProgressWidth = 400;
     m_nProgressHeight = 200;
@@ -186,7 +188,7 @@ bool OrbiterLinux::X11_Init()
     // initialize the X11wrapper
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : X11wrapper");
     m_pX11 = new X11wrapper();
-    m_pX11->Assign_MainWindow(info.info.x11.window);
+    m_pX11->Assign_MainWindow(info.info.x11.wmwindow);
     m_pX11->Display_Open();
     m_pX11->GetDisplaySize(m_nDesktopWidth, m_nDesktopHeight);
     // initialize other classes
@@ -264,6 +266,12 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
         }
         m_pWinListManager->SetExternApplicationPosition(rectTotal);
         ActivateExternalWindowAsync(NULL);
+
+		//mozilla tests for ui2
+		if ("Firefox-bin" == m_pWinListManager->GetExternApplicationName())
+		{
+			ApplyMask(rectTotal, point);
+		}
     }
 
 #ifdef DEBUG
@@ -859,4 +867,96 @@ void OrbiterLinux::GrabKeyboard(bool bEnable)
         m_pX11->Keyboard_Ungrab();
     }
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::GrabKeyboard(%d) : done", bEnable);
+}
+
+bool OrbiterLinux::MaskApplied()
+{
+	return m_bMaskApplied;
+}
+
+void OrbiterLinux::ResetAppliedMask()
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Reseting mask");
+
+	XRectangle rect = {0, 0, m_iImageWidth, m_iImageHeight};
+	
+	XShapeCombineRectangles (
+		m_pX11->GetDisplay(),
+		m_pX11->GetMainWindow(),
+		ShapeBounding,
+		0, 0,
+		&rect,
+		1, ShapeSet, Unsorted);
+	
+	m_bMaskApplied = false;
+
+	m_pWinListManager->SetExternApplicationName("");
+}
+
+void OrbiterLinux::ApplyMask(PlutoRectangle rectTotal, PlutoPoint point)
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Applying mask: rectangle %d,%d,%d,%d",
+		point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height);
+
+	enum rectIndex
+	{
+		riTop,
+		riBottom,
+		riLeft,
+		riRight
+	};
+
+	XRectangle rects[4] = 
+	{
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0}
+	};
+
+	if(point.Y + rectTotal.Y > 0)
+	{
+		//top
+		//rects[riTop].x = 0;
+		//rects[riTop].y = 0;
+		rects[riTop].width = m_iImageWidth;
+		rects[riTop].height = point.Y + rectTotal.Y;
+	}
+
+	if(m_iImageHeight - point.Y - rectTotal.Y - rectTotal.Height > 0)
+	{
+		//bottom
+		//rects[riBottom].x = 0;
+		rects[riBottom].y = point.Y + rectTotal.Y + rectTotal.Height;
+		rects[riBottom].width = m_iImageWidth;
+		rects[riBottom].height = m_iImageHeight - point.Y - rectTotal.Y - rectTotal.Height;
+	}
+	
+	if(point.X + rectTotal.X > 0)
+	{
+		//left
+		//rects[riLeft].x = 0;
+		rects[riLeft].y = point.Y + rectTotal.Y;
+		rects[riLeft].width = point.X + rectTotal.X;
+		rects[riLeft].height = rectTotal.Height;
+	}
+
+	if(m_iImageWidth - point.X - rectTotal.X - rectTotal.Width > 0)
+	{
+		//right
+		rects[riRight].x = point.X + rectTotal.X + rectTotal.Width;
+		rects[riRight].y = point.Y + rectTotal.Y;
+		rects[riRight].width = m_iImageWidth - point.X - rectTotal.X - rectTotal.Width;
+		rects[riRight].height = rectTotal.Height;
+	}
+			
+	XShapeCombineRectangles (
+		m_pX11->GetDisplay(),
+		m_pX11->GetMainWindow(),
+		ShapeBounding,
+		0, 0,
+		rects,
+		4, ShapeSet, Unsorted);
+	
+	m_bMaskApplied = true;
 }
