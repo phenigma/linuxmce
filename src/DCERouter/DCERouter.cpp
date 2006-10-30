@@ -1627,7 +1627,7 @@ void Router::ProcessQueue()
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue going to sleep");
 #endif
-			mm.TimedCondWait(1, 0);
+			mm.CondWait();
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue woke up with size: %d",(int) m_MessageQueue.size());
 #endif
