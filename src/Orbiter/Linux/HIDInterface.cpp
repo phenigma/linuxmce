@@ -12,7 +12,7 @@ void *ProcessHIDEvents(void *p)
 	HIDInterface* hid;
 	hid_return ret;
 
-	HIDInterfaceMatcher matcher = { 0x0c16, 0x0002, NULL, NULL, 0 };
+	HIDInterfaceMatcher matcher = { 0x0c16, 0x0006, NULL, NULL, 0 };
 
 	/* see include/debug.h for possible values */
 	//hid_set_debug(HID_DEBUG_ALL);
@@ -52,7 +52,7 @@ void *ProcessHIDEvents(void *p)
 	unsigned char packet[RECV_PACKET_LEN];
 	do
 	{
-		ret = hid_interrupt_read(hid, 0x81, (char *) packet, RECV_PACKET_LEN, 250);
+		ret = hid_interrupt_read(hid, 0x82, (char *) packet, RECV_PACKET_LEN, 250);
 		int i;
 		if (ret != HID_RET_SUCCESS && ret != HID_RET_FAIL_INT_READ)
 		{
@@ -72,6 +72,20 @@ g_pPlutoLogger->Write(LV_WARNING,"ProcessHIDEvents hid_get_input_report ret %d\n
 				printf("%02x ", packet[i]);
 			}
 			printf(".\n");
+
+			if( packet[0]==8 && packet[1]==0x20 )
+			{
+#ifdef DEBUG
+g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents got a bind request.  Donig it.");
+#endif
+				char *write_packet = "    ";
+				write_packet[0]=8;
+				write_packet[1]=0x20;
+				write_packet[2]=0x01;
+				write_packet[3]=0;
+				hid_return ret_write = hid_interrupt_write(hid, 0x80, (char *) write_packet, 4, 250);
+			}
+
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents queueing to orbiter   rrr");
 #endif
