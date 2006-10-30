@@ -228,8 +228,10 @@ void App_Server::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sC
 			/** If false, and if Exclusive is true and another instance is killed, the 'send messages on termination' will not be sent. */
 		/** @param #126 Exclusive */
 			/** If true, then kill other apps with this same name */
+		/** @param #241 Detach */
+			/** Detach application after spawning / Don't kill this app on reload. */
 
-void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,string &sCMD_Result,Message *pMessage)
+void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,bool bDetach,string &sCMD_Result,Message *pMessage)
 //<-dceag-c67-e->
 {
 	PLUTO_SAFETY_LOCK(ap,m_AppMutex);
