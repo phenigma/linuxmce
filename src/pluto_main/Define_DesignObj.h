@@ -2244,8 +2244,6 @@
 #define DESIGNOBJ_doInstalledApps_Body_CONST 5189
 #define DESIGNOBJ_Installed_Apps_Icon_CONST 5190
 #define DESIGNOBJ_Installed_Apps_Not_Virus_Free_CONST 5191
-#define DESIGNOBJ_delme_dummy_first_row_CONST 5192
-#define DESIGNOBJ_delme_dummy_first_col_CONST 5193
 #define DESIGNOBJ_Default_Scroll_Up_CONST 5194
 #define DESIGNOBJ_Default_Scroll_Down_CONST 5195
 
