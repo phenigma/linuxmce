@@ -28,11 +28,16 @@ sources = \
 	BD_CP_CurrentSignalStrength.cpp \
 	BD_PC_GetSignalStrength.cpp \
 	BD_PC_SetImageQuality.cpp \
+	BD_CP_MenuData.cpp \
+	BD_CP_SetBkgndImage.cpp \
+	BD_PC_Configure.cpp \
+	BD_PC_SelectedItem.cpp \
     PhoneDetection_Bluetooth_Linux.cpp \
     PhoneDetectionEngine.cpp \
     PhoneDetection_Simulate.cpp \
     PlutoPhoneCommands.cpp \
-    VIPIncludes.cpp
+    VIPIncludes.cpp \
+    MenuData.cpp 
 
 all: libVIPCommon.so all-recursive
 
