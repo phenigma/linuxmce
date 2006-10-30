@@ -21,7 +21,7 @@ namespace ProcessUtils
 	/** Spawn an application and store a reference to it in the g_mapIdentifierToPidData global map using the name given in strAppIdentifier
 	 * NOTE: sCmdParams are tab delimited
 	 */
-	int SpawnApplication(string sCmdExecutable, string sCmdParams, string strAppIdentifier, void *attachedData = NULL, bool bLogOutput = true);
+	int SpawnApplication(string sCmdExecutable, string sCmdParams, string strAppIdentifier, void *attachedData = NULL, bool bLogOutput = true, bool bDetach = true);
 
 	/** Kill an application that was started with SpawnApplication, using the App Identifier specified*/
 	bool KillApplication(string sAppIdentifier, vector<void *> &associatedData);

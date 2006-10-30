@@ -38,6 +38,7 @@ namespace ProcessUtils
 	public:
 		void *m_pData;
 		int in; // pipe to child's stdin
+		bool bDetached; // should the process it to be treated as detached or not
 	};
 
 	typedef map<int, PidData *> MapPidToData;
@@ -48,7 +49,7 @@ namespace ProcessUtils
 
 pluto_pthread_mutex_t g_ProcessUtilsMutex("process utils",true);
 
-int ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, string sAppIdentifier, void *attachedData, bool bLogOutput)
+int ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, string sAppIdentifier, void *attachedData, bool bLogOutput, bool bDetach)
 {
     if ( sAppIdentifier == "" )
         sAppIdentifier = "not named";
@@ -202,12 +203,14 @@ bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associ
     }
 
 	MapPidToData &mapPidsToData = element->second;
-	printf("ProcessUtils::KillApplication(): Found %d '%s' applications. Killing them all (really)\n", mapPidsToData.size(), sAppIdentifier.c_str());
+	printf("ProcessUtils::KillApplication(): Found %d '%s' applications.\n", mapPidsToData.size(), sAppIdentifier.c_str());
 
 	associatedData.clear();
 	MapPidToData::const_iterator itPidsToData = mapPidsToData.begin();
-	while ( itPidsToData != mapPidsToData.end() )
+	while (itPidsToData != mapPidsToData.end())
 	{
+		if (itPidsToData->second->bDetached)
+			continue;
 		pidsArray.push_back(itPidsToData->first);
 		associatedData.push_back(itPidsToData->second->m_pData);
 		itPidsToData++;
