@@ -428,7 +428,7 @@ bool WizardLogic::SetLocation(string sLocation)
 		if( pDevice_AppServer )
 		{
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
-				"/usr/pluto/bin/SetTimeZone.sh","set time zone",TimeZone,"","",false,false,false);
+				"/usr/pluto/bin/SetTimeZone.sh","set time zone",TimeZone,"","",false,false,false,true);
 			m_pOrbiter->SendCommand(CMD_Spawn_Application);
 		}
 	}

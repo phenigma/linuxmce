@@ -514,7 +514,7 @@ void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sN
 						strParameters,
 						sResultMessage + StringUtils::itos(RIP_RESULT_FAILURE),
 						sResultMessage + StringUtils::itos(RIP_RESULT_SUCCESS),
-						false, false, false);
+						false, false, false, false);
 
 	string sResponse;
     if (! m_pCommand_Impl->SendCommand(spawnApplication,&sResponse) || sResponse != "OK")

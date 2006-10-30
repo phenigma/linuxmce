@@ -274,7 +274,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 		{
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
 				"/usr/pluto/bin/UpdateAvailableSerialPorts.sh", "serialports",
-				"","","",false,false,false);
+				"","","",false,false,false,true);
 			m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application);
 		}
 	}
@@ -288,7 +288,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 		{
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
 				"/usr/pluto/bin/StorageDevices_Radar.sh", "storagedevices",
-				"","","",false,false,false);
+				"","","",false,false,false,true);
 			m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application);
 		}
 	}
@@ -746,7 +746,7 @@ bool PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script(PnpQueueEntry *pPnpQu
 				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
 					pRow_DeviceTemplate_DeviceData->IK_DeviceData_get(), "prepnp_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),
 					StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + "\t" + StringUtils::itos(m_pPlug_And_Play_Plugin->m_dwPK_Device),
-					"","",false,false,false);
+					"","",false,false,false,true);
 				if( m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application)==false )
 				{
 					g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script queue %d failed -- aborting",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());  // App Server may not be running yet
@@ -1238,7 +1238,7 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 			string sResponse;
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
 				"/usr/pluto/pnp/" + pRow_DHCPDevice_To_Detect->PnpDetectionScript_get(), sName,
-				sArguments,sMessage + "FAIL",sMessage + "OK",false,false,false);
+				sArguments,sMessage + "FAIL",sMessage + "OK",false,false,false,false);
 			if( !m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application,&sResponse) )
 				g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts app server %d not responding",pDevice_AppServer->m_dwPK_Device);
 			

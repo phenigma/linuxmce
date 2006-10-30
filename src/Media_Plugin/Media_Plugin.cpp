@@ -1274,7 +1274,7 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 
 			StringUtils::Replace(&sArguments,"<%=BLOCK%>",sDevice);
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-				sPortSelectUtility,"setinput",sArguments,"","",false,false,false);
+				sPortSelectUtility,"setinput",sArguments,"","",false,false,false,true);
 			SendCommand(CMD_Spawn_Application);
 		}
 		else

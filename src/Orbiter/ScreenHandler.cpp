@@ -798,7 +798,7 @@ bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 			" 1 4 16 " + StringUtils::itos(PK_DesignObj_Remote);
 
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_AppServer,
-			sBinary,"generic-app",sArguments,sMessageOnComplete,sMessageOnComplete,false,false,true);
+			sBinary,"generic-app",sArguments,sMessageOnComplete,sMessageOnComplete,false,false,true,false);
 		
 		if( m_pOrbiter->m_dwPK_Device != m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter )  // Not us
 		{
@@ -1417,7 +1417,7 @@ void ScreenHandler::SpawnProviderScript(string sCommandLine,string sArguments)
 
 	DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,sCommandLine,"getprovider",
 		sAllArguments,sResult + " \"Error running script\"",
-		sResult + "\"<=spawn_log=>\"",false,false,false);
+		sResult + "\"<=spawn_log=>\"",false,false,false,false);
 	m_pOrbiter->SendCommand(CMD_Spawn_Application);
 
 	DisplayMessageOnOrbiter(0,m_pOrbiter->m_mapTextString[TEXT_please_wait_for_lookup_CONST],false,"0",false,m_pOrbiter->m_mapTextString[TEXT_CANCEL_CONST]);
