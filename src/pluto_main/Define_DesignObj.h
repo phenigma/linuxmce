@@ -2246,6 +2246,7 @@
 #define DESIGNOBJ_Installed_Apps_Not_Virus_Free_CONST 5191
 #define DESIGNOBJ_Default_Scroll_Up_CONST 5194
 #define DESIGNOBJ_Default_Scroll_Down_CONST 5195
+#define DESIGNOBJ_objBackground_CONST 5196
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
