@@ -10,7 +10,7 @@ use XML::Simple;
 use Image::Magick;
 use Data::Dumper;
 use DBI;
-use strict;
+#use strict;
 use vars qw($dest $xs $r @buff $child_count);
 
 $child_count = 5;
@@ -255,7 +255,7 @@ sub get_files{
 		$finaldst = $dest."/".'tags'."/".$buff.".".$image->{'format'};
 	}
 
-	`wget $image->{'source'} -O $finaldst`;
+	`wget $image->{'source'} -O $finaldst 1>/dev/null 2>/dev/null`;
 
 	$xs=Image::Magick->new;
 	$r=$xs->Read("$finaldst");
@@ -316,11 +316,19 @@ sub delete_old{
 	}
 }
 
-sub sig_child{
+sub sig_child {
+
+	my $waitedpid;
+	while (($waitedpid = waitpid(-1,WNOHANG)) > 0) {
+		print "reaped $waitedpid\n";
+	}
+										       
 	$child_count++;
+	
+	$SIG{CHLD} = \&sig_child; # loathe sysV
 }
 
-sub wait_child{
+sub wait_child {
 	while ($child_count <=0){
 		sleep(1);
 	}
