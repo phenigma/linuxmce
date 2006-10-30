@@ -32,7 +32,7 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 		WHERE 
 			psc_mod != 0 
 		AND 
-			psc_id NOT NULL
+			psc_id IS NOT NULL
 	"
 	R=$(RunSQL "$Q")
 
@@ -42,9 +42,9 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 		psc_mod=$(Field "2" "$Record")
 
 		if [[ "$url_psc_mods" == "" ]] ;then
-			url_psc_mods="{$psc_id},{$psc_mod}"
+			url_psc_mods="${psc_id},${psc_mod}"
 		else
-			url_psc_mods="{$url_psc_mods},{$psc_id},{$psc_mod}"
+			url_psc_mods="${url_psc_mods},${psc_id},${psc_mod}"
 		fi
 	done
 
@@ -56,15 +56,17 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 	else
 		OutputFile=$(mktemp)
 		trap "rm -f '$OutputFile'" EXIT
-		wget --timeout=10 -O "$OutputFile" "http://plutohome.com/GetInfraredCodes.php?psc_mods={$url_psc_mods}"
+		wget --timeout=10 -O "$OutputFile" "http://plutohome.com/GetInfraredCodes.php?psc_mods=${url_psc_mods}"
+		echo "http://plutohome.com/GetInfraredCodes.php?psc_mods=${url_psc_mods}"
 
 		Header=$(head -1 "$OutputFile")
 		Footer=$(tail -1 "$OutputFile")
-		[[ "$Header" != "-- Database import" || "$Footer" != "-- EOF" ]] || break;
+		#[ "$Header" != "-- Database import" || "$Footer" != "-- EOF" ]] || break;
 
 		PSC=$(head -2 "$OutputFile" | tail -1)
+
 		if [[ "$PSC" != "" ]] ;then
-			Q="UPDATE InfarredGroup_Command SET psc_mod = 0 WHERE psc_id IN ($PSC)"
+			Q="UPDATE InfraredGroup_Command SET psc_mod = 0 WHERE psc_id IN ($PSC)"
 			RunSQL "$Q"
 		fi
 
