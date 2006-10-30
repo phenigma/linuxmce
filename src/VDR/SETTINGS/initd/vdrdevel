@@ -8,6 +8,9 @@
 #
 # modified for plutohome client-server system, Andre Burkart <burkart@system5.net>
 
+exit 0;
+
+
 . /usr/lib/vdrdevel/config-loader.sh
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
