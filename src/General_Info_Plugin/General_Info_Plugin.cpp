@@ -3093,20 +3093,29 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 	MYSQL_ROW row;
 	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))&&(row=mysql_fetch_row(result.r))){
 		string sMD_IP=row[0];
-		sql="SELECT PackageName, Downloadurl, RepositoryName FROM Software WHERE PK_Software="+StringUtils::itos(iPK_Software);
+		sql="SELECT PackageName, Downloadurl, RepositoryName, Installation_status FROM Software WHERE PK_Software="+StringUtils::itos(iPK_Software);
 		if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))&&(row=mysql_fetch_row(result.r))){
 			string sArguments=sMD_IP+"\t"+row[0]+"\t"+row[1]+"\t"+row[2];
-			if(!bTrueFalse){
+			string sInstalled=row[3];
+//			if(bTrueFalse){
+			if(sInstalled=="No"){
 				g_pPlutoLogger->Write(LV_STATUS,"Install Software");
 				if("1"==sPK_Device){
-					g_pPlutoLogger->Write(LV_STATUS,((string)"/usr/pluto/bin/InstallSoftware_Remote.sh "+sArguments).c_str());
+					g_pPlutoLogger->Write(LV_DEBUG,((string)"/usr/pluto/bin/InstallSoftware_Remote.sh "+sArguments).c_str());
 					ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallSoftware_Remote.sh", sArguments, "InstallSoftware", NULL, true);
 				}else{
-					g_pPlutoLogger->Write(LV_STATUS,((string)"/usr/pluto/bin/InstallSoftware.sh "+sArguments).c_str());
-					ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallSoftware.sh", sArguments, "InstallSoftware", NULL, true);
+					g_pPlutoLogger->Write(LV_DEBUG,((string)"sudo -u www-data /usr/pluto/bin/InstallSoftware.sh "+sArguments).c_str());
+					ProcessUtils::SpawnApplication("sudo -u www-data /usr/pluto/bin/InstallSoftware.sh", sArguments, "InstallSoftware", NULL, true);
 				}
 			}else{
 				g_pPlutoLogger->Write(LV_STATUS,"Remove Software");
+				if("1"==sPK_Device){
+					g_pPlutoLogger->Write(LV_DEBUG,((string)"/usr/pluto/bin/RemoveSoftware_Remote.sh "+sArguments).c_str());
+					ProcessUtils::SpawnApplication("/usr/pluto/bin/RemoveSoftware_Remote.sh", sArguments, "InstallSoftware", NULL, true);
+				}else{
+					g_pPlutoLogger->Write(LV_DEBUG,((string)"sudo -u www-data /usr/pluto/bin/RemoveSoftware.sh "+sArguments).c_str());
+					ProcessUtils::SpawnApplication("sudo -u www-data /usr/pluto/bin/RemoveSoftware.sh", sArguments, "InstallSoftware", NULL, true);
+				}
 			}
 		}
  	}

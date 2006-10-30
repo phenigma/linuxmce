@@ -13,15 +13,15 @@ Q="SELECT PK_Device FROM Device WHERE IPAddress='$IP'"
 Row="$(RunSQL "$Q")"
 PK_Device="$(Field 1 "$Row")"
 
-Q="SELECT COUNT(*) FROM Software WHERE FK_Device='$PK_Device' and Installation_status='Installing'"
+Q="SELECT COUNT(*) FROM Software WHERE FK_Device='$PK_Device' and Installation_status in ('Ins','Rem')"
 Row="$(RunSQL "$Q")"
 if [[ "$R" -ne 0 ]]; then
-	Result="Some package yet is installing"
+	Result="Some package yet is installing or removing"
 	echo "$Result"
 	exit 10
 fi
 
-Q="UPDATE Software SET Installation_status='Installing' WHERE FK_Device='$PK_Device' and PackageName='$PackageName'"
+Q="UPDATE Software SET Installation_status='Ins' WHERE FK_Device='$PK_Device' and PackageName='$PackageName'"
 $(RunSQL "$Q")
 
 IsDeb=
