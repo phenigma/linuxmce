@@ -46,7 +46,8 @@ void *ServerSocket::BeginWapClientThread(void *SvSock)
 {
 	ServerSocket *pServerSocket = (ServerSocket *)SvSock;
 
-	if(pServerSocket->ServeClient() && !pServerSocket->m_bAlreadyRemoved )
+	//if the router is already reloading, we'll let the listener to take care of our deallocation
+	if(pServerSocket->ServeClient() && !pServerSocket->m_bAlreadyRemoved && NULL != pServerSocket->m_pListener && !pServerSocket->m_pListener->m_bTerminate)
 	{
 		//I'll do it by myself
 		g_pPlutoLogger->Write(LV_STATUS, "Detected disconnect: detaching thread for %d", pServerSocket->m_dwPK_Device);
