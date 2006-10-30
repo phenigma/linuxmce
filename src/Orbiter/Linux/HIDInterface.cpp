@@ -8,6 +8,8 @@
 
 void *ProcessHIDEvents(void *p)
 {
+	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents starting");
+
 	Orbiter *pOrbiter = (Orbiter *) p;
 	HIDInterface* hid;
 	hid_return ret;
@@ -28,6 +30,8 @@ void *ProcessHIDEvents(void *p)
 		return NULL;
 	}
 
+	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents initialized");
+
 	hid = hid_new_HIDInterface();
 	if (hid == 0)
 	{
@@ -47,6 +51,8 @@ void *ProcessHIDEvents(void *p)
 		g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents hid_write_identification failed with return code %d\n", ret);
 		return NULL;
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents wrote identification");
 
 	const unsigned char RECV_PACKET_LEN = 6;
 	unsigned char packet[RECV_PACKET_LEN];
@@ -78,7 +84,7 @@ g_pPlutoLogger->Write(LV_WARNING,"ProcessHIDEvents hid_get_input_report ret %d\n
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents got a bind request.  Donig it.");
 #endif
-				char *write_packet = "    ";
+				char write_packet[5];
 				write_packet[0]=8;
 				write_packet[1]=0x20;
 				write_packet[2]=0x01;
