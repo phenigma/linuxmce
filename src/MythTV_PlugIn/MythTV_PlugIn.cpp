@@ -865,7 +865,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 		if( pDevice_App_Server )
 		{
 			DCE::CMD_Spawn_Application CMD_Spawn_Application_fill(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-				"/usr/pluto/bin/FillDbAndFetchIcons.sh","filldb","","","",false,false,false);
+				"/usr/pluto/bin/FillDbAndFetchIcons.sh","filldb","","","",false,false,false,true);
 			SendCommand(CMD_Spawn_Application_fill);
 		}
 	}
