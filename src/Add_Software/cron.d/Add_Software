@@ -1,0 +1,1 @@
+0 0 * * */7		root		/usr/pluto/bin/getxmls
