@@ -1,4 +1,4 @@
-CC = gcc -Wall -ansi
+CC = gcc -Wall
 
 all:
 	$(CC) lesson03.c -o lesson03 -lGL -lGLU `sdl-config --cflags --libs`
