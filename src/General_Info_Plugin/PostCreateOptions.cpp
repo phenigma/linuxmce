@@ -138,26 +138,14 @@ void PostCreateOptions::PostCreateDevice_Cameras(Row_Device *pRow_Device, OH_Orb
 
 void PostCreateOptions::PostCreateDevice_DisklessMD(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
 {
-	int PK_Device_TopMost = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
-	DeviceData_Router *pDevice_PC = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_TopMost);
-	DeviceData_Router *pDevice_AppServer = pDevice_PC ? (DeviceData_Router *) pDevice_PC->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST) : NULL;
-
-	if( !pDevice_AppServer )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"PostCreateOptions::PostCreateDevice_CaptureCard - no app server for %d",pRow_Device->PK_Device_get());
-		return;
-	}
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_DisklessMD device  %d template %d",
 		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get());
 #endif
 	string sPK_Device = StringUtils::itos(pRow_Device->PK_Device_get());
-	DCE::CMD_Spawn_Application CMD_Spawn_Application(g_pCommand_Impl->m_dwPK_Device, pDevice_AppServer->m_dwPK_Device,
-			"/usr/pluto/bin/New_PnP_MD.sh", "New_PnP_MD", // executable, App ID
-			pRow_Device->IPaddress_get() + "\t" + pRow_Device->MACaddress_get() + "\t" + sPK_Device, // parameters
-			"", "", // failure and success messages
-			false, false, false, true);
-	g_pCommand_Impl->SendCommand(CMD_Spawn_Application);
+	char * args[] = { "/usr/pluto/bin/New_PnP_MD.sh", (char *)(pRow_Device->IPaddress_get().c_str()), (char *)(pRow_Device->MACaddress_get().c_str()),
+		(char *)(sPK_Device.c_str()), NULL };
+	ProcessUtils::SpawnDaemon(args[0], args);
 }
 
 void PostCreateOptions::PostCreateDevice_CaptureCard(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
