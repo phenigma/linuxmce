@@ -67,7 +67,11 @@ namespace DCE
 		void m_mapBoundRemote_Remove(int iPK_Orbiter)
 		{
 			MapBoundRemote::iterator it = m_mapBoundRemote.find(iPK_Orbiter);
-			if( it!=m_mapBoundRemote.end() ) m_mapBoundRemote.erase(it);
+			if( it!=m_mapBoundRemote.end() ) 
+			{
+				delete it->second;
+				m_mapBoundRemote.erase(it);
+			}
 		}
 
 		bool m_bOnly1Stream;
