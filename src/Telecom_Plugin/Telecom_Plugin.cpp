@@ -1555,7 +1555,6 @@ void Telecom_Plugin::doDisplayMessages()
 {
 	while(!m_bQuit)
     {
-		Sleep(1000);
 		if(1)//the orbiter is at main menu ?? how to find out??
 		{
 			pthread_mutex_lock(&mtx_err_messages);
@@ -1565,6 +1564,9 @@ void Telecom_Plugin::doDisplayMessages()
 			{
 				message += (*it).first + string("\n");
 				it++;
+
+				if(m_bQuit)
+					return;
 			}
 			if(message.length()>0)
 			{
@@ -1576,6 +1578,7 @@ void Telecom_Plugin::doDisplayMessages()
 			}
 			pthread_mutex_unlock(&mtx_err_messages);
 		}
+		Sleep(1000);
 	}
 }
 

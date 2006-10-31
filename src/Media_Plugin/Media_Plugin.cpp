@@ -920,8 +920,10 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 
 		}
 
-		StartMedia(pMediaHandlerInfo,iPK_MediaProvider,iPK_Device_Orbiter,vectEA_to_MediaHandler[s].second,
+		MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,iPK_MediaProvider,iPK_Device_Orbiter,vectEA_to_MediaHandler[s].second,
 			iPK_Device,p_dequeMediaFile,bResume,iRepeat,sStartingPosition);  // We'll let the plug-in figure out the source, and we'll use the default remote
+
+		//who will take care of pMediaStream ?
 
 		if( p_dequeMediaFile_Copy )
 			delete p_dequeMediaFile;
@@ -1171,7 +1173,15 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartMedia() done - not sending to remote since stream is marked resumte");
 
 			for(map<int,class OldStreamInfo *>::iterator it = mapOldStreamInfo.begin(); it != mapOldStreamInfo.end(); ++it)
-				delete it->second;
+			{
+				OldStreamInfo *pOldStreamInfo = it->second;
+				if(NULL != pOldStreamInfo)
+				{
+					delete pOldStreamInfo->m_pEntertainArea->m_pMediaStream;
+					pOldStreamInfo->m_pEntertainArea->m_pMediaStream = NULL;
+					delete pOldStreamInfo;
+				}
+			}
 			mapOldStreamInfo.clear();
 
 			return true;
@@ -1237,7 +1247,15 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartMedia() function call completed with honors!");
 
 	for(map<int,class OldStreamInfo *>::iterator it = mapOldStreamInfo.begin(); it != mapOldStreamInfo.end(); ++it)
-		delete it->second;
+	{
+		OldStreamInfo *pOldStreamInfo = it->second;
+		if(NULL != pOldStreamInfo)
+		{
+			delete pOldStreamInfo->m_pEntertainArea->m_pMediaStream;
+			pOldStreamInfo->m_pEntertainArea->m_pMediaStream = NULL;
+			delete pOldStreamInfo;
+		}
+	}
 	mapOldStreamInfo.clear();
 
 	return true;

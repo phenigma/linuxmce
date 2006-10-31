@@ -197,6 +197,10 @@ MediaStream::~MediaStream( )
 		if( m_dequeMediaTitle[s] )
 			delete m_dequeMediaTitle[s];
 
+	for(deque<MediaFile *>::iterator it = m_dequeMediaFile.begin(); it != m_dequeMediaFile.end(); ++it)
+		delete *it;
+	m_dequeMediaFile.clear();
+
 	if ( m_pMediaHandlerInfo )
 	{
 		size_t sizebefore = m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaStream.size();
