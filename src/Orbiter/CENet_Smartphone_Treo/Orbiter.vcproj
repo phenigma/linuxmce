@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="Orbiter"
 	ProjectGUID="{17770A0F-2882-4E1B-88E9-9A2B68D8A373}"
 	>
@@ -825,6 +825,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\VIPShared\BD_CP_MenuData.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\VIPShared\BD_CP_SendFile.cpp"
 				>
 				<FileConfiguration
@@ -945,6 +949,10 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\VIPShared\BD_CP_SetBkgndImage.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\..\VIPShared\BD_CP_ShowImage.cpp"
@@ -1250,6 +1258,10 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\VIPShared\BD_PC_Configure.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\..\VIPShared\BD_PC_Disconnect.cpp"
@@ -1677,6 +1689,10 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\VIPShared\BD_PC_SelectedItem.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\..\VIPShared\BD_PC_SetImageQuality.cpp"
@@ -2236,6 +2252,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\CENet_Smartphone\LRMenu.cpp"
+				>
+			</File>
+			<File
 				RelativePath="main.cpp"
 				>
 				<FileConfiguration
@@ -2295,6 +2315,10 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\VIPShared\MenuData.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\..\PlutoUtils\MultiThreadIncludes.cpp"
@@ -2725,6 +2749,10 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\TextStyle.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\..\VIPShared\VIPIncludes.cpp"
