@@ -25,7 +25,7 @@ extern "C"
 #include <mysql/mysql.h>
 }
 
-string URL="ftp://big549bg:NOK248ti@ftp.tmstv.com/pub/";
+string URL="http://192.168.125.1/tribune/";
 
 namespace DCE
 {
@@ -33,10 +33,10 @@ namespace DCE
 }
 using namespace DCE;
 using namespace std;
+MYSQL *mysql=NULL;
 
 int getURL(const string filename){
-	return 0;
-	string command=(string) "wget -O - \""+URL+filename+".Z\"|uncompress>/tmp/"+filename;
+	string command=(string) "wget -O - \""+URL+filename+".tar.bz2\"|tar xjf - -C /tmp";
 	cout<<command<<endl;
 	return system(command.c_str());
 }
@@ -71,15 +71,41 @@ int fillInsert(ifstream &f, string &result,short table=0) {
 	return true;
 }
 
+bool sendQuery(const string &query){
+	if( mysql_real_query( mysql,query.c_str(),(unsigned int) query.size() ) ){
+		cerr<<"query: "<<query<<endl
+				<<"Error executing query: "<<mysql_error(mysql)<<endl;
+		return true;
+	}
+	return false;
+}
+
+void createATempTable(const string &ptablename, const string &ptablestruct){
+	string query = (string)"CREATE TEMPORARY TABLE IF NOT EXISTS "+ptablename+" "+ptablestruct;
+	if( sendQuery(query)){
+		return ;
+	}
+	query = (string)"TRUNCATE TABLE " + ptablename + ";";
+	sendQuery(query);
+}
+
+void createTempTables(){
+	string table;
+	table = "( headend_id char(7),community_name varchar(28),county_name varchar(25),county_size char(1),st_county_code char(5),state_served char(2),zip_code char(5),dma_code int(3),dma_name varchar(70),mso_code char(5),dma_rank char(4),headend_name varchar(42),headend_location varchar(28),mso_name varchar(42),time_zone_code int(1),stationid char(12), callsign char(10), stationname varchar(40) )";
+	createATempTable("tmp_Headends", table);
+
+	table = "( PK_Stations int(12),station_time_zone varchar(30),station_name varchar(40),station_call_sign varchar(10),station_affil varchar(25),station_city varchar(20),station_state varchar(15),station_zip_code varchar(12),station_country varchar(15),dma_name varchar(70),dma_num int(10),fcc_channel_num int(8) )";
+	createATempTable("tmp_Stations", table);
+}
+
 int main(int argc, char *argv[]) {
 	g_pPlutoLogger = new FileLogger(stdout);
-	MYSQL *mysql;
-	string host="dcerouter",user="root",passwd="",db="tribune";
+	string host="dcerouter",user="root",passwd="",db="pluto_myth";
 	bool bError=false;
 	char c;
 	for(int i=1;i<argc;i++){
 		if(argv[i][0]!='-'){
-			cerr<<"Unknown option\n";
+			cerr<<"Unknown option"<<endl;
 			bError=true;
 			break;
 		}
@@ -90,7 +116,7 @@ int main(int argc, char *argv[]) {
 			case 'p':passwd=argv[++i];break;
 			case 'd':db=argv[++i];break;
 			case 'U':URL=argv[++i];break;
-			default:cerr<<"Unknown option\n";
+			default:cerr<<"Unknown option"<<endl;
 			bError=true;
 		}
 	}
@@ -99,30 +125,27 @@ int main(int argc, char *argv[]) {
 				<< " [-h MySql hostname] [-u MySql username] " << endl
 				<< "[-p MySql password] [-d MySql database] " << endl
 				<< "[-U URL to download headend and lineup]" << endl;
-		return false;
+		return true;
 	}
 	string query="";
-	string head="INSERT INTO Headends( headend_id, community_name, county_name, county_size, st_county_code, state_served, zip_code, dma_code, dma_name, mso_code, dma_rank, headend_name, headend_location, mso_name, time_zone_code ) VALUES ";
-//	string update=" ON DUPLICATE KEY UPDATE he_headend_id=VALUES(he_headend_id), he_community_name=VALUES(he_community_name), he_county_name=VALUES(he_county_name), he_county_size=VALUES(he_county_size), he_st_county_code=VALUES(he_st_county_code), he_state_served=VALUES(he_state_served), he_zip_code=VALUES(he_zip_code), he_dma_code=VALUES(he_dma_code), he_dma_name=VALUES(he_dma_name), he_mso_code=VALUES(he_mso_code), he_dma_rank=VALUES(he_dma_rank), he_headend_name=VALUES(he_headend_name), he_headend_location=VALUES(he_headend_location), he_mso_name=VALUES(he_mso_name), he_time_zone_code=VALUES(he_time_zone_code)";
+	string head="INSERT INTO tmp_Headends( headend_id, community_name, county_name, county_size, st_county_code, state_served, zip_code, dma_code, dma_name, mso_code, dma_rank, headend_name, headend_location, mso_name, time_zone_code ) VALUES ";
 	mysql=mysql_init(NULL);
 	if(!mysql_real_connect(mysql,host.c_str(),user.c_str(),passwd.c_str(),db.c_str(),0,NULL,0)){
 		cout<<"Error connecting to db:"<<mysql_error(mysql)<<endl;
-		return false;
+		return true;
 	}
+	createTempTables();
 	if(!getURL("headend.fsf")){
 		ifstream f("/tmp/headend.fsf");
 		if (!f){
-			cerr<<"Error opening file /tmp/headend.fsf\n";
-			return false;
+			cerr<<"Error opening file /tmp/headend.fsf"<<endl;
+			return true;
 		}
 		while(fillInsert(f, query)){
 			if(query.size()>=12800){
-				query=head+query;//+update;
-//				cout<<query<<endl;
-				if( mysql_real_query( mysql,query.c_str(),(unsigned int) query.size() ) ){
-					cout<<"query: "<<query<<endl
-							<<"Error making query: "<<mysql_error(mysql)<<endl;
-					return false;
+				query=head+query;
+				if( sendQuery(query) ){
+					return true;
 				}
 				query="";
 			}else
@@ -130,32 +153,43 @@ int main(int argc, char *argv[]) {
 		}
 		if(query.size()>0){
 			query.erase(query.size()-1,1);
-			query=head+query;//+update;
-//			cout<<query<<endl;
-			if( mysql_real_query( mysql,query.c_str(),(unsigned int) query.size() ) ){
-				cout<<"query: "<<query<<endl
-						<<"Error making query: "<<mysql_error(mysql)<<endl;
-				return false;
+			query=head+query;
+			if( sendQuery(query) ){
+				return true;
 			}
-			query="";
 		}
+		query="UPDATE Headends H,tmp_Headends t SET H.county_name=t.county_name, H.county_size=t.county_size, H.st_county_code=t.st_county_code, H.state_served=t.state_served, H.dma_code=t.dma_code, H.dma_name=t.dma_name, H.mso_code=t.mso_code, H.dma_rank=t.dma_rank, H.headend_name=t.headend_name, H.headend_location=t.headend_location, H.mso_name=t.mso_name, H.time_zone_code=t.time_zone_code WHERE H.headend_id=t.headend_id AND H.community_name=t.community_name AND H.zip_code=t.zip_code";
+		if( sendQuery(query) ){
+			return true;
+		}
+		query="DELETE FROM tmp_Headends USING tmp_Headends t,Headends H WHERE H.headend_id=t.headend_id AND H.community_name=t.community_name AND H.zip_code=t.zip_code";
+		if( sendQuery(query) ){
+			return true;
+		}
+		query="INSERT INTO Headends( headend_id, community_name, county_name, county_size, st_county_code, state_served, zip_code, dma_code, dma_name, mso_code, dma_rank, headend_name, headend_location, mso_name, time_zone_code) SELECT headend_id, community_name, county_name, county_size, st_county_code, state_served, zip_code, dma_code, dma_name, mso_code, dma_rank, headend_name, headend_location, mso_name, time_zone_code from tmp_Headends";
+		if( sendQuery(query) ){
+			return true;
+		}
+		query="";
+		system("rm /tmp/headend.fsf");
 	}
 	head="INSERT INTO Lineups( FK_Headends, device, FK_Stations, tms_chan, service_tier, effective_date, expiration_date ) VALUES ";
-//	update=" ON DUPLICATE KEY UPDATE cl_device=VALUES(cl_device), cl_station_num=VALUES(cl_station_num), cl_tms_chan=VALUES(cl_tms_chan), cl_service_tier=VALUES(cl_service_tier), cl_effective_date=VALUES(cl_effective_date), cl_expiration_date=VALUES(cl_expiration_date)";
 	if(!getURL("lineup.fsf")){
 		ifstream f("/tmp/lineup.fsf");
 		if (!f){
-			cerr<<"Error opening file /tmp/lineup.fsf\n";
-			return false;
+			cerr<<"Error opening file /tmp/lineup.fsf"<<endl;
+			return true;
 		}
+		query="DELETE FROM Lineups";
+		if( sendQuery(query) ){
+			return true;
+		}
+		query="";
 		while(fillInsert(f, query,1)){
 			if(query.size()>=12800){
-				query=head+query;//+update;
-//				cout<<query<<endl;
-				if( mysql_real_query( mysql,query.c_str(),(unsigned int) query.size() ) ){
-					cout<<"query: "<<query<<endl
-							<<"Error making query: "<<mysql_error(mysql)<<endl;
-					return false;
+				query=head+query;
+				if( sendQuery(query) ){
+					return true;
 				}
 				query="";
 			}else
@@ -163,31 +197,26 @@ int main(int argc, char *argv[]) {
 		}
 		if(query.size()>0){
 			query.erase(query.size()-1,1);
-			query=head+query;//+update;
-//			cout<<query<<endl;
-			if( mysql_real_query( mysql,query.c_str(),(unsigned int) query.size() ) ){
-				cout<<"query: "<<query<<endl
-						<<"Error making query: "<<mysql_error(mysql)<<endl;
-				return false;
+			query=head+query;
+			if( sendQuery(query) ){
+				return true;
 			}
-			query="";
 		}
+		query="";
+		system("rm /tmp/lineup.fsf");
 	}
-	head="INSERT INTO Stations( PK_Stations, station_time_zone, station_name, station_call_sign, station_affil, station_city, station_state, station_zip_code, station_country, dma_name, dma_num, fcc_channel_num ) VALUES ";
+	head="INSERT INTO tmp_Stations( PK_Stations, station_time_zone, station_name, station_call_sign, station_affil, station_city, station_state, station_zip_code, station_country, dma_name, dma_num, fcc_channel_num ) VALUES ";
 	if(!getURL("statrec.txt")){
 		ifstream f("/tmp/statrec.txt");
 		if (!f){
-			cerr<<"Error opening file /tmp/statrec.txt\n";
-			return false;
+			cerr<<"Error opening file /tmp/statrec.txt"<<endl;
+			return true;
 		}
 		while(fillInsert(f, query,2)){
 			if(query.size()>=12800){
-				query=head+query;//+update;
-//				cout<<query<<endl;
-				if( mysql_real_query( mysql,query.c_str(),(unsigned int) query.size() ) ){
-					cout<<"query: "<<query<<endl
-							<<"Error making query: "<<mysql_error(mysql)<<endl;
-					return false;
+				query=head+query;
+				if( sendQuery(query) ){
+					return true;
 				}
 				query="";
 			}else
@@ -195,15 +224,24 @@ int main(int argc, char *argv[]) {
 		}
 		if(query.size()>0){
 			query.erase(query.size()-1,1);
-			query=head+query;//+update;
-//			cout<<query<<endl;
-			if( mysql_real_query( mysql,query.c_str(),(unsigned int) query.size() ) ){
-				cout<<"query: "<<query<<endl
-						<<"Error making query: "<<mysql_error(mysql)<<endl;
-				return false;
+			query=head+query;
+			if( sendQuery(query) ){
+				return true;
 			}
-			query="";
 		}
+		query="UPDATE Stations S,tmp_Stations t SET S.station_time_zone=t.station_time_zone, S.station_name=t.station_name, S.station_call_sign=t.station_call_sign, S.station_affil=t.station_affil, S.station_city=t.station_city, S.station_state=t.station_state, S.station_zip_code=t.station_zip_code, S.station_country=t.station_country, S.dma_name=t.dma_name, S.dma_num=t.dma_num, S.fcc_channel_num=t.fcc_channel_num WHERE S.PK_Stations=t.PK_Stations";
+		if( sendQuery(query) ){
+			return true;
+		}
+		query="DELETE FROM tmp_Stations USING tmp_Stations t,Stations S WHERE S.PK_Stations=t.PK_Stations";
+		if( sendQuery(query) ){
+			return true;
+		}
+		query="INSERT INTO Stations( PK_Stations, station_time_zone, station_name, station_call_sign, station_affil, station_city, station_state, station_zip_code, station_country, dma_name, dma_num, fcc_channel_num ) SELECT PK_Stations, station_time_zone, station_name, station_call_sign, station_affil, station_city, station_state, station_zip_code, station_country, dma_name, dma_num, fcc_channel_num from tmp_Stations";
+		if( sendQuery(query) ){
+			return true;
+		}
+		system("rm /tmp/statrec.txt");
 	}
-	return true;
+	return false;
 }
