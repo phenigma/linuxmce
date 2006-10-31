@@ -72,6 +72,7 @@ SocketListener::~SocketListener()
 	//drop all sockets
 	DropAllSockets();
 
+	pthread_mutexattr_destroy(&m_MutexAttr);
 	// killing the mutex
 	pthread_mutex_destroy( &m_ListenerMutex.mutex ); 
 }

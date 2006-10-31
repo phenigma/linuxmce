@@ -221,6 +221,8 @@ Command_Impl::~Command_Impl()
 	m_listMessageQueue.clear();
 
 	g_pPlutoLogger->Write( LV_STATUS, "~Command_Impl finished" );
+
+	pthread_mutex_destroy(&m_listMessageQueueMutex.mutex);
 }
 
 Command_Impl *Command_Impl::CreateCommand( int iPK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent )

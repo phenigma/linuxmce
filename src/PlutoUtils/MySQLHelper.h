@@ -76,6 +76,7 @@ public:
 			mysql_close(m_pMySQL);
 		m_pMySQL=NULL;
 
+		pthread_mutexattr_destroy(&m_MutexAttr);
 		pthread_mutex_destroy(&m_MySqlMutex.mutex);
 	}
 
