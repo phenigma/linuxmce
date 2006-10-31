@@ -157,6 +157,7 @@ void PostCreateOptions::PostCreateDevice_DisklessMD(Row_Device *pRow_Device, OH_
 			pRow_Device->IPaddress_get() + "\t" + pRow_Device->MACaddress_get() + "\t" + sPK_Device, // parameters
 			"", "", // failure and success messages
 			false, false, false, true);
+	g_pCommand_Impl->SendCommand(CMD_Spawn_Application);
 }
 
 void PostCreateOptions::PostCreateDevice_CaptureCard(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
