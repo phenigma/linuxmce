@@ -173,10 +173,16 @@
 				RelativePath="..\VIPShared\BD_CP_Disconnect.cpp">
 			</File>
 			<File
+				RelativePath="..\VIPShared\BD_CP_MenuData.cpp">
+			</File>
+			<File
 				RelativePath="..\VIPShared\BD_CP_SendFile.cpp">
 			</File>
 			<File
 				RelativePath="..\VIPShared\BD_CP_SendMeKeystrokes.cpp">
+			</File>
+			<File
+				RelativePath="..\VIPShared\BD_CP_SetBkgndImage.cpp">
 			</File>
 			<File
 				RelativePath="..\VIPShared\BD_CP_ShowImage.cpp">
@@ -192,6 +198,9 @@
 			</File>
 			<File
 				RelativePath="..\VIPShared\BD_CP_UpdateVariables.cpp">
+			</File>
+			<File
+				RelativePath="..\VIPShared\BD_PC_Configure.cpp">
 			</File>
 			<File
 				RelativePath="..\VIPShared\BD_PC_Disconnect.cpp">
@@ -213,6 +222,9 @@
 			</File>
 			<File
 				RelativePath="..\VIPShared\BD_PC_SelectedFromList.cpp">
+			</File>
+			<File
+				RelativePath="..\VIPShared\BD_PC_SelectedItem.cpp">
 			</File>
 			<File
 				RelativePath="..\VIPShared\BD_PC_SetImageQuality.cpp">
@@ -549,10 +561,10 @@
 				RelativePath=".\StaticPicture.h">
 			</File>
 			<File
-				RelativePath="..\VIPShared\stdafx.h">
+				RelativePath=".\StdAfx.h">
 			</File>
 			<File
-				RelativePath=".\StdAfx.h">
+				RelativePath="..\VIPShared\stdafx.h">
 			</File>
 		</Filter>
 		<Filter

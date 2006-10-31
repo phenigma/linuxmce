@@ -4,7 +4,7 @@
 #include "BD/BDCommand.h"
 #include "VIPShared/PlutoPhoneCommands.h"
 
-#ifdef SYMBIAN
+#if defined(SYMBIAN) || defined(VIPESTABLISHMENT)
 	class MenuData { /*not implemented!*/ };
 #else
 	#include "MenuData.h"

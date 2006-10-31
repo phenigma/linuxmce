@@ -49,7 +49,7 @@ void BD_CP_MenuData::ConvertCommandToBinary()
 {
 	BDCommand::ConvertCommandToBinary();
 
-#ifndef SYMBIAN
+#if !defined(SYMBIAN) && !defined(VIPESTABLISHMENT)
 	m_Data.Write( *this );
 #endif
 }
@@ -58,21 +58,16 @@ void BD_CP_MenuData::ParseCommand(unsigned long size,const char *data)
 {
 	BDCommand::ParseCommand(size, data);
 	
-#ifndef SYMBIAN
+#if !defined(SYMBIAN) && !defined(VIPESTABLISHMENT)
 	m_Data.Read( *this );
 #endif
 }
 
 bool BD_CP_MenuData::ProcessCommand(BDCommandProcessor *pProcessor)
 {
-#ifdef VIPPHONE
-
-#ifdef SMARTPHONE
+#if !defined(SYMBIAN) && !defined(VIPESTABLISHMENT)
 	OrbiterApp::GetInstance()->SetMenuData( m_Data );
 #endif //SMARTPHONE
-
-#endif //VIPPHONE
-
 
 	return true;
 }
