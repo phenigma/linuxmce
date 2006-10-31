@@ -267,11 +267,10 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
         m_pWinListManager->SetExternApplicationPosition(rectTotal);
         ActivateExternalWindowAsync(NULL);
 
-		//mozilla tests for ui2
-		if ("Firefox-bin" == m_pWinListManager->GetExternApplicationName())
-		{
+		//the keyboard is released to OS, so this is firefox, dvd menu or maybe mythtv-setup 
+		//we'll apply a mask with xshape
+		if (IsYieldInput())
 			ApplyMask(rectTotal, point);
-		}
     }
 
 #ifdef DEBUG
@@ -823,6 +822,13 @@ void OrbiterLinux::CMD_Surrender_to_OS(string sOnOff, bool bFully_release_keyboa
         g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::CMD_Surrender_to_OS() : ActivateWindow('%s')", m_pWinListManager->GetExternApplicationName().c_str());
         m_pWMController->ActivateWindow(m_pWinListManager->GetExternApplicationName());
     }
+
+	if(sOnOff == "0")
+	{
+		if(MaskApplied())
+			ResetAppliedMask();
+	}
+
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::CMD_Surrender_to_OS(%s, %d) : done", sOnOff.c_str(), bFully_release_keyboard);
 }
 
@@ -889,8 +895,6 @@ void OrbiterLinux::ResetAppliedMask()
 		1, ShapeSet, Unsorted);
 	
 	m_bMaskApplied = false;
-
-	m_pWinListManager->SetExternApplicationName("");
 }
 
 void OrbiterLinux::ApplyMask(PlutoRectangle rectTotal, PlutoPoint point)

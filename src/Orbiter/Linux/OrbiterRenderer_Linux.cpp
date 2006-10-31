@@ -46,15 +46,11 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 	OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
 	if(NULL != pOrbiterLinux)
 	{
-		if(pOrbiterLinux->MaskApplied())
-			pOrbiterLinux->ResetAppliedMask();
-	
 		if( bRenderGraphicsOnly )
 		{
 			BASE_CLASS::RenderScreen( bRenderGraphicsOnly );
 			return;
 		}		
-		
 		
 		pOrbiterLinux->m_pWinListManager->HideAllWindows();
 		pOrbiterLinux->m_bIsExclusiveMode = true;
