@@ -1,0 +1,2 @@
+10 0 * * */7		root		/usr/pluto/bin/headendtobase
+20 0 * * *		root		/usr/pluto/bin/Tribunexml
