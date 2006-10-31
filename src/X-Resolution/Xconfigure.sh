@@ -37,6 +37,7 @@ Modeline_720x480_60='"720x480" 27.000 720 736 798 858 480 489 495 525 -hsync -vs
 Modeline_720x576_60='"720x576" 27.000 720 732 796 864 576 581 586 625 -hsync -vsync'
 Modeline_1920x1080i_50='"1920x1080" 74.250 1920 2448 2492 2640 1080 1148 1158 1124 interlace +hsync +vsync'
 Modeline_1920x1080i_60='"1920x1080" 74.250 1920 2008 2052 2200 1080 1084 1094 1124 interlace +hsync +vsync'
+Modeline_1024X768_60='"1024x768" 60.80 1024 1056 1128 1272 768 768 770 796'
 
 TestConfig()
 {
@@ -218,7 +219,7 @@ if [[ -n "$Resolution" ]]; then
 		fi
 	done
 	Modeline="$(GenModeline "$ResX" "$ResY" "$Refresh" "$ScanType")"
-	if [[ -z "$nvHD" && " 60 75 " == *" $Refresh "* ]]; then
+	if [[ -z "$nvHD" && " 60 75 " == *" $Refresh "* && "$ResX $ResY" != "1024 768" ]]; then
 		# don't use a modeline for standard refresh rates
 		# (X seems to know only 60 and 75 as "standard", all the others either not working, or giving different resolutions)
 		Modeline=
