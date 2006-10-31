@@ -4,10 +4,10 @@
 #include "BD/BDCommand.h"
 #include "VIPShared/PlutoPhoneCommands.h"
 
-#if defined(SYMBIAN) || defined(VIPESTABLISHMENT)
-	class MenuData { /*not implemented!*/ };
-#else
+#if defined(SMARTPHONE) || defined(BLUETOOTH_DONGLE)
 	#include "MenuData.h"
+#else
+	class MenuData { /*not implemented!*/ };
 #endif
 
 

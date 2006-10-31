@@ -49,7 +49,7 @@ void BD_CP_MenuData::ConvertCommandToBinary()
 {
 	BDCommand::ConvertCommandToBinary();
 
-#if !defined(SYMBIAN) && !defined(VIPESTABLISHMENT)
+#if defined(SMARTPHONE) || defined(BLUETOOTH_DONGLE)
 	m_Data.Write( *this );
 #endif
 }
@@ -58,14 +58,14 @@ void BD_CP_MenuData::ParseCommand(unsigned long size,const char *data)
 {
 	BDCommand::ParseCommand(size, data);
 	
-#if !defined(SYMBIAN) && !defined(VIPESTABLISHMENT)
+#if defined(SMARTPHONE) || defined(BLUETOOTH_DONGLE)
 	m_Data.Read( *this );
 #endif
 }
 
 bool BD_CP_MenuData::ProcessCommand(BDCommandProcessor *pProcessor)
 {
-#if !defined(SYMBIAN) && !defined(VIPESTABLISHMENT)
+#ifdef SMARTPHONE
 	OrbiterApp::GetInstance()->SetMenuData( m_Data );
 #endif //SMARTPHONE
 
