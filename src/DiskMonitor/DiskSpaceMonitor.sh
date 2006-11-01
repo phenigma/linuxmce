@@ -22,8 +22,8 @@ if [ -f $lock ]; then
         exit
 fi
 
-Logging $TYPE $SEVERITY_NORMAL $module "Locking $module"
 touch $lock
+trap "rm -f $lock" EXIT
 
 
 ## Clean / filesystem
@@ -118,33 +118,40 @@ fi
 
 ## Check Pluto Storage device for free space
 
-Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_GENERIC_NFS_SHARE, $TPL_GENERIC_SAMBA_SHARE) AND FK_Device_ControlledVia=$PK_Device"
+Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_GENERIC_NFS_SHARE, $TPL_GENERIC_SAMBA_SHARE)"
 StorageDevices=$(RunSQL "$Q")
+
 for Device in $StorageDevices; do
         Device_ID=$(Field 1 "$Device")
         Device_Description=$(Field 2 "$Device")
         Device_MountPoint="/mnt/device/$Device_ID"
 
 	## Check filesystem and force autmount to mount the device
-	touch $Device_MountPoint/.check_mounted
+	touch $Device_MountPoint/.check_mounted 2>/dev/null
 	if [[ "$?" == 0 ]] ;then
 		Device_isAccesible=1
-		rm $Device_MountPoint/.check_mounted
+		rm -f $Device_MountPoint/.check_mounted
 	else
 		Device_isAccesible=0
 	fi
 
 	## Check filesystem is mounted (paranoia check)
-	mount $Device_MountPoint 2&>1 > /dev/null
+	mount $Device_MountPoint 2>/dev/null 1>/dev/null
 	if [[ "$?" != 32 ]]; then
 		Device_isMounted=0
 	else
 		Device_isMounted=1
 	fi
+
 	
-	if [[ $Device_isAccesible != "1" || $Device_isMounted != "1" ]] ;then
-		Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( $Device_MountPoint ) is not accesible [m$Device_isMounted|w$Device_isAccesible]"
-		continue
+	if [[ $Device_isMounted == "0" ]] ;then
+		Logging $TYPE $SEVERITY_NORMAL $module "Filesystem ( $Device_MountPoint ) is Offline"
+	elif [[ $Device_isAccesible == "0" ]] ;then
+		Logging $TYPE $SEVERITY_NORMAL $module "Filesystem ( $Device_MountPoint ) is ReadOnly"
+	fi
+
+	if [[ $Device_isMounted == "0" ]] ;then
+		continue;
 	fi
 
 	## Check the space on the drive
@@ -160,9 +167,6 @@ for Device in $StorageDevices; do
 	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$Device_FileSystem' WHERE FK_DeviceData = '$DD_FILESYSTEM' AND FK_Device = '$Device_ID'"
 	RunSQL "$Q"	
 
-	Logging $TYPE $SEVERITY_NORMAL  $module "Filesystem ( $Device_MountPoint ) is $Device_DiskUsed%% full having $(($Device_DiskFree / 1024))MB free"
+	Logging $TYPE $SEVERITY_NORMAL  $module "Filesystem ( $Device_MountPoint ) has $(($Device_DiskFree / 1024))MB free"
 	
 done
-
-## Unlock
-rm $lock
