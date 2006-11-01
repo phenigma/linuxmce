@@ -2,7 +2,7 @@ ROOT=..
 
 CXX=g++
 CC=$(CXX)
-CPPFLAGS=-W -Wall -pipe -ggdb3
+CPPFLAGS=-W -Wall -pipe -ggdb3 -DUPDATE_MEDIA
 CXXFLAGS=-I. -I.. -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql
 LDFLAGS=-L$(ROOT)/lib -L/usr/local/lib
 LDLIBS= -lpluto_media -lpluto_main -lDCECommon -lSerializeClass -lmysqlclient_r -lPlutoUtils -lpthread -lid3

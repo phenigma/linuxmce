@@ -460,6 +460,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::AssignPlutoDevice(Row_File *pRow_File)
 {
+#ifdef UPDATE_MEDIA
 	map<int, int> mapMountedDevices;
 	list<string> listFiles;
 	FileUtils::FindDirectories(listFiles, "/mnt/device", false, true);
@@ -474,6 +475,7 @@ void PlutoMediaFile::AssignPlutoDevice(Row_File *pRow_File)
 		pRow_File->EK_Device_set(nEK_Device);
 		pRow_File->Table_File_get()->Commit();
 	}
+#endif /*UPDATE_MEDIA*/
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SetFileAttribute(int PK_File)
