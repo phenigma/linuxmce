@@ -1,6 +1,8 @@
 #!/bin/bash
 
+lastline=
 while read line; do
+	lastline="$line"
 	if [[ "$line" != "Position: "*"; Progress: "*"%" ]]; then
 		continue
 	fi
@@ -8,3 +10,4 @@ while read line; do
 	Percent=${Percent%%%*}
 	echo "$Percent"
 done
+echo "$lastline" >/tmp/rip_message
