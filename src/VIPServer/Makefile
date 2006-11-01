@@ -1,6 +1,8 @@
+SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+
 ROOT = ..
 CXXFLAGS = -Wall -g 
-CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I$(ROOT)/VIPShared -I$(ROOT)/PlutoVIP -I/usr/include/mysql -D_REENTRANT -D_GNU_SOURCE <-mkr_t_compile_defines-> -DGENERATOR
+CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I$(ROOT)/VIPShared -I$(ROOT)/PlutoVIP -I/usr/include/mysql -D_REENTRANT -D_GNU_SOURCE $(SNR_CPPFLAGS) -DGENERATOR
 LDFLAGS = -L$(ROOT)/lib 
 LDLIBS = -lRACommon -lDCECommon -lSerializeClass -lPlutoUtils -lpthread -lmysqlclient_r -lattr
 CXX = g++

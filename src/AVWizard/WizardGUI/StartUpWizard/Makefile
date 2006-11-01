@@ -1,7 +1,9 @@
+SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+
 ROOT = ../../..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = <-mkr_t_compile_defines-> -DDEBUG
+CPPFLAGS = -DDEBUG $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
 
 MYNAME = AVWizard

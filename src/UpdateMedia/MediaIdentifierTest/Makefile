@@ -1,7 +1,9 @@
+SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+
 ROOT = ../..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE <-mkr_t_compile_defines->
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lPlutoUtils -lDCECommon
 

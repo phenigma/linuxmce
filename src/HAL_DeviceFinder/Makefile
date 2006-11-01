@@ -1,3 +1,5 @@
+SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
@@ -8,11 +10,11 @@ BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lSerial -lmysqlclient_r 
 MYNAME = hal_device_finder
 VERSION = 2.0.0
 
-CXXFLAGS += -I/usr/include/dbus-1.0/ -I/usr/include/hal \
+CPPFLAGS += -I/usr/include/dbus-1.0/ -I/usr/include/hal \
 	-I/usr/lib/dbus-1.0/include -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include \
 	-DDBUS_API_SUBJECT_TO_CHANGE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
-	<-mkr_t_compile_defines-> -D_GNU_SOURCE  -Wno-deprecated
-CPPFLAGS +=
+	$(SNR_CPPFLAGS) -D_GNU_SOURCE
+CXXFLAGS += -Wno-deprecated
 LDFLAGS +=
 XTRALDLIBS = -ldbus-glib-1 -lgthread-2.0 -ldbus-1 -lglib-2.0 -lhal
 

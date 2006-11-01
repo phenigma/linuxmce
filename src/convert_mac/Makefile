@@ -1,6 +1,8 @@
+SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+
 ROOT = ..
 CXXFLAGS = -Wall -g 
-CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I$(ROOT)/VIPShared -D_REENTRANT -D_GNU_SOURCE <-mkr_t_compile_defines-> -DNOBLUETOOTH
+CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I$(ROOT)/VIPShared -D_REENTRANT -D_GNU_SOURCE $(SNR_CPPFLAGS) -DNOBLUETOOTH
 LDFLAGS = -L$(ROOT)/lib 
 LDLIBS = -lDCECommon -lattr -lPlutoUtils -lSerializeClass
 CXX = g++
