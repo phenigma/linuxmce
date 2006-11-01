@@ -9,8 +9,11 @@ TPL_BUFFALO_HDHG300LAN=1794
 TPL_GENERIC_INTERNAL_DRIVE=1790
 TPL_GENERIC_NFS_SHARE=1769
 TPL_GENERIC_SAMBA_SHARE=1768
+
 DD_FREE_SPACE=160
 DD_FILESYSTEM=159
+DD_READONLY=190
+DD_ONLINE=191
 
 
 ## Lock
@@ -127,15 +130,16 @@ for Device in $StorageDevices; do
         Device_MountPoint="/mnt/device/$Device_ID"
 
 	## Check filesystem and force autmount to mount the device
+	## and also to check if is readonly or not
 	touch $Device_MountPoint/.check_mounted 2>/dev/null
 	if [[ "$?" == 0 ]] ;then
-		Device_isAccesible=1
+		Device_isReadonly=0
 		rm -f $Device_MountPoint/.check_mounted
 	else
-		Device_isAccesible=0
+		Device_isReadonly=1
 	fi
 
-	## Check filesystem is mounted (paranoia check)
+	## Check filesystem is mounted
 	mount $Device_MountPoint 2>/dev/null 1>/dev/null
 	if [[ "$?" != 32 ]]; then
 		Device_isMounted=0
@@ -143,12 +147,20 @@ for Device in $StorageDevices; do
 		Device_isMounted=1
 	fi
 
-	
+
+	## Update the "Online" device data	
 	if [[ $Device_isMounted == "0" ]] ;then
 		Logging $TYPE $SEVERITY_NORMAL $module "Filesystem ( $Device_MountPoint ) is Offline"
-	elif [[ $Device_isAccesible == "0" ]] ;then
+	fi
+	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$Device_isMounted' WHERE FK_DeviceData = '$DD_ONLINE' AND FK_Device = '$Device_ID'"
+	RunSQL "$Q"
+
+	
+	if [[ $Device_isReadonly == "1" ]] ;then
 		Logging $TYPE $SEVERITY_NORMAL $module "Filesystem ( $Device_MountPoint ) is ReadOnly"
 	fi
+	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$Device_isReadonly' WHERE FK_DeviceData = '$DD_READONLY' AND FK_Device = '$Device_ID'"
+	RunSQL "$Q"
 
 	if [[ $Device_isMounted == "0" ]] ;then
 		continue;
