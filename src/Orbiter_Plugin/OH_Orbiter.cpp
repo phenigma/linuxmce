@@ -25,9 +25,11 @@ OH_Orbiter::~OH_Orbiter()
 				delete *itv;
 			}
 			pFloorplanObjectVector->clear();
+			delete pFloorplanObjectVector;
 		}
 
 		pFloorplanObjectVectorMap->clear();
+		delete pFloorplanObjectVectorMap;
 	}
 	m_mapFloorplanObjectVector.clear();
 }
