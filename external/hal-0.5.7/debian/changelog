@@ -1,3 +1,9 @@
+hal (0.5.7-2pluto1) unstable; urgency=low
+
+  * Added test for chroot install
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Wed, 01 Nov 2006 21:16:06 +0200
+
 hal (0.5.7-2) unstable; urgency=low
 
   * debian/hal.udev.rules

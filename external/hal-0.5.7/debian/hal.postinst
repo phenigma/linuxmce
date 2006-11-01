@@ -42,7 +42,7 @@ case "$1" in
       update-rc.d hal remove
     fi
  
-    if [ -x /etc/init.d/dbus ]; then
+    if [ -x /etc/init.d/dbus -a ! -f /etc/chroot-install ]; then
       invoke-rc.d dbus force-reload || true
       /etc/dbus-1/event.d/20hal start || true
     fi
