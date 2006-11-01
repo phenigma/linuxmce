@@ -127,40 +127,40 @@ UpdateMedia::UpdateMedia(Database_pluto_media *pDatabase_pluto_media,
 
 void UpdateMedia::ReadConfigFile()
 {
-        ifstream fUpdateMediaConfig;
-        string sConfFileValue;
-        string::size_type sPosBeginIdx, sPosEndIdx;
-        string sConfVar, sConfVal;
+	ifstream fUpdateMediaConfig;
+	string sConfFileValue;
+	string::size_type sPosBeginIdx, sPosEndIdx;
+	string sConfVar, sConfVal;
 
-        sPosBeginIdx=0;
-        sPosEndIdx=0;
+	sPosBeginIdx=0;
+	sPosEndIdx=0;
 
-        fUpdateMediaConfig.open("/etc/UpdateMedia.conf");
-        if(fUpdateMediaConfig.is_open())
-        {
-                while(!fUpdateMediaConfig.eof())
-                {
-                        getline(fUpdateMediaConfig, sConfFileValue);
-                        if(sConfFileValue.empty());
-                        else
-                        {
-                                sPosEndIdx=sConfFileValue.find_first_of("=");
-								sConfVar=sConfFileValue.substr(sPosBeginIdx, sPosEndIdx);
-                                sPosBeginIdx = sPosEndIdx + 1;
-                                sPosEndIdx=sConfFileValue.length();
-                                sConfVal=sConfFileValue.substr(sPosBeginIdx, sPosEndIdx);
+	fUpdateMediaConfig.open("/etc/UpdateMedia.conf");
+	if(fUpdateMediaConfig.is_open())
+	{
+		while(!fUpdateMediaConfig.eof())
+		{
+			getline(fUpdateMediaConfig, sConfFileValue);
+			if(sConfFileValue.empty());
+			else
+			{
+				sPosEndIdx=sConfFileValue.find_first_of("=");
+				sConfVar=sConfFileValue.substr(sPosBeginIdx, sPosEndIdx);
+				sPosBeginIdx = sPosEndIdx + 1;
+				sPosEndIdx=sConfFileValue.length();
+				sConfVal=sConfFileValue.substr(sPosBeginIdx, sPosEndIdx);
 
-                                if(sConfVar=="SyncId3Files")
-                                {
-                                        if(sConfVal=="false" || sConfVal=="0")
-                                        {
-											PlutoMediaFile::SetupSyncId3Files(false);
-                                        }	
-                                }
-                        }
-                }
-                fUpdateMediaConfig.close();
-        }
+				if(sConfVar=="SyncId3Files")
+				{
+					if(sConfVal=="false" || sConfVal=="0")
+					{
+						PlutoMediaFile::SetupSyncId3Files(false);
+					}	
+				}
+			}
+		}
+		fUpdateMediaConfig.close();
+	}
 }
 
 void UpdateMedia::SetupInstallation()
@@ -546,14 +546,18 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 	m_pDatabase_pluto_media->File_get()->GetRows("Path LIKE '" + StringUtils::SQLEscape(sDirectory) + "/%' OR Path = '" + StringUtils::SQLEscape(sDirectory) + "'",
 		&vectRow_File);
 
-	for(size_t s=0;s<vectRow_File.size();++s)
+	for(vector<Row_File *>::iterator it = vectRow_File.begin(), end = vectRow_File.end(); it != end; ++it)
 	{
 		if(m_bAsDaemon)
 			Sleep(40);
 
-		Row_File *pRow_File = vectRow_File[s];
+		Row_File *pRow_File = *it;
         string sFilePath = pRow_File->Path_get() + "/" + pRow_File->Filename_get();
         bool bFileIsMissing = !FileUtils::FileExists(sFilePath);
+
+		//TODO: it's on a mounted device?
+		//TODO: the device is online/offline?
+
         if(bFileIsMissing && !pRow_File->Missing_get()) 
         {
             pRow_File->Missing_set(1);

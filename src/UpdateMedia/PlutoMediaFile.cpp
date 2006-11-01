@@ -31,7 +31,9 @@
 
 #include "id3info/id3info.h"
 #include "MediaIdentifier.h"
+#include "FileUtils/file_utils.h"
 
+using namespace UpdateMediaFileUtils;
 using namespace std;
 using namespace DCE;
 
@@ -62,22 +64,7 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 	//get the path to id3 file
 	string sAttributeFile = FileWithAttributes(false);
 	string sAttributeFullFilePath = m_sDirectory + "/" + sAttributeFile;
-
-//START code for upgrade ////////////////////////////////////
-	if(sAttributeFile == "")		
-	{
-		string sAttributeFile_PrevVersion = FileWithAttributes_PreviousVersion();
-		string sAttributeFullFilePath_PrevVersion = m_sDirectory + "/" + sAttributeFile_PrevVersion;
-		g_pPlutoLogger->Write(LV_STATUS, "No id3 file found. Trying to get attributes from old id3 file: %s",
-			sAttributeFullFilePath_PrevVersion.c_str());
-		LoadPlutoAttributes(sAttributeFullFilePath_PrevVersion);
-	}
-	else
-//END code for upgrade ////////////////////////////////////
-	{
-		//get all attributes
-		LoadPlutoAttributes(sAttributeFullFilePath);
-	}
+	LoadPlutoAttributes(sAttributeFullFilePath);
 
 	g_pPlutoLogger->Write(LV_STATUS, "Processing path %s, file %s. Found %d attributes in id3 file", 
 		m_sDirectory.c_str(), m_sFile.c_str(), m_pPlutoMediaAttributes->m_mapAttributes.size());
@@ -466,7 +453,27 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 	g_pPlutoLogger->Write(LV_STATUS, "Added %s/%s to db with PK_File = %d", m_sDirectory.c_str(), m_sFile.c_str(),
 		pRow_File->PK_File_get());
 
+	AssignPlutoDevice(pRow_File);
+
     return pRow_File->PK_File_get();
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::AssignPlutoDevice(Row_File *pRow_File)
+{
+	map<int, int> mapMountedDevices;
+	list<string> listFiles;
+	FileUtils::FindDirectories(listFiles, "/mnt/device", false, true);
+	MapMountedDevicesToPlutoDevices(listFiles, mapMountedDevices);
+
+	int nEK_Device = PlutoDeviceForFile(m_sDirectory + "/" + m_sFile, mapMountedDevices);
+
+	if(nEK_Device != 0)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "File %s/%s on pluto device %d", nEK_Device);
+
+		pRow_File->EK_Device_set(nEK_Device);
+		pRow_File->Table_File_get()->Commit();
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SetFileAttribute(int PK_File)
@@ -634,22 +641,6 @@ string PlutoMediaFile::FileWithAttributes(bool bCreateId3File)
 
 		if(!FileUtils::DirExists(m_sDirectory + "/" + sFileWithAttributes))
 			FileUtils::WriteTextFile(m_sDirectory + "/" + sFileWithAttributes, ""); //touch it
-	}
-
-	return sFileWithAttributes;
-}
-//-----------------------------------------------------------------------------------------------------
-//For upgrading. To be removed next release.
-string PlutoMediaFile::FileWithAttributes_PreviousVersion()
-{
-	string sFileWithAttributes = m_sFile;
-	if(!IsSupported(m_sFile))
-	{
-		sFileWithAttributes = FileUtils::FileWithoutExtension(m_sFile) + ".id3";
-		if(FileUtils::FileExists(m_sDirectory + "/" + sFileWithAttributes))
-			return sFileWithAttributes;
-		else
-			return "";
 	}
 
 	return sFileWithAttributes;

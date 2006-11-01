@@ -9,6 +9,7 @@ using namespace std;
 class Database_pluto_media;
 class Database_pluto_main;
 class PlutoMediaAttributes;
+class Row_File;
 
 enum PlutoCustomTag
 {
@@ -41,8 +42,8 @@ private:
     //internal helper functions
 	//This will add a record in the File table and additional attributes too in related tables
     int AddFileToDatabase(int PK_MediaType);
+	void AssignPlutoDevice(Row_File *pRow_File);
 	string FileWithAttributes(bool bCreateId3File = true);
-	string FileWithAttributes_PreviousVersion(); //for upgrading. to be removed next release
 
 	void SavePlutoAttributes(string sFullFileName);
 	void LoadPlutoAttributes(string sFullFileName);
