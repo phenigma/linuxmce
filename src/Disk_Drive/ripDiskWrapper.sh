@@ -11,6 +11,32 @@ ERR_SUCCESS=5
 # internal sript errors
 ERR_NONE=0
 
+function isFullDisk
+{
+	file=$1
+	blocks=$(stat --format=%a -f $file)
+	let "size=($blocks*4096)/1024/1024"
+	if [ "$size" -gt 1 ]; then
+		echo '0'
+	else
+		echo  '1'
+	fi
+}
+
+function isReadOnly
+{
+	file=$1
+	path=${file%/*}
+	touch $path/testing 2>/dev/null
+	if [ -e $path/testing ]; then
+		rm $path/testing
+		echo '0'
+	else
+		echo '1'
+	fi
+}
+
+
 function printUsage
 {
 	echo "$0 <Disk_Drive device id> <Media_Plugin device id> <target file name> <source device> <disk type> <ownerID> <rip format> ['<tracklist>']";
@@ -79,7 +105,7 @@ case $diskType in
 				exit 1
 			;;
 		esac
-		ProgressOutput=">(/usr/pluto/bin/Paranoia_Progress.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID \"$Dir/\$FileName\" \"$sourceDevice\" \"$mediaPluginDeviceID\")"
+		ProgressOutput=">(/usr/pluto/bin/Paranoia_LastMessage.sh|/usr/pluto/bin/Paranoia_Progress.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID \"$Dir/\$FileName\" \"$sourceDevice\" \"$mediaPluginDeviceID\")"
 		command="nice -n 15 cdparanoia -e -d $sourceDevice \$Track - 2> $ProgressOutput > $OutputFile"
 	;;
 	*)	result=$ERR_NOT_SUPPORTED_YET;;
@@ -100,7 +126,16 @@ if [[ "$diskType" == 2 ]]; then
 		mv -f "$targetFileName.dvd"{.in-progress,}
 		exit 0;
 	else
-		echo "Ripping failed"
+		if [[ "$(isFullDisk "$targetFileName")" == 1 ]]; then
+			Message="Disk Full!"
+		else
+			if [[ "$(isReadOnly "$targetFileName")" == 1 ]]; then
+				Message="Disk Read Only!"
+			else		
+				Message=$(</tmp/rip_message)
+			fi
+		fi
+		echo "Ripping failed: $Message"
 		rm "$targetFileName.dvd.in-progress";
 		exit 1;
 	fi
@@ -118,7 +153,17 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 		displaycmd="${displaycmd//\\\"/\\\"}"
 		echo "Executing: $(eval echo "\"$displaycmd\"")"
 		if ! eval "$command"; then
-			echo "Ripping failed"
+			if [[ "$(isFullDisk "$targetFileName")" == 1 ]]; then
+				Message="Disk Full!"
+			else
+				if [[ "$(isReadOnly "$targetFileName")" == 1 ]]; then
+					Message="Disk Read Only!"
+				else		
+					Message=$(</tmp/rip_message)
+				fi
+			fi
+			
+			echo "Ripping failed: $Message"
 			rm "$Dir/$Filename.$FinalExt.in-progress" &>/dev/null
 			exit 1;
 		fi
@@ -131,3 +176,4 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 fi
 
 echo "Exiting ripping script"
+
