@@ -94,17 +94,7 @@ void Logger::Write( int iLevel, const char *pcFormat, ... )
 #endif
 
     timeval tv;
-#ifdef WIN32
-    SYSTEMTIME lt;
-    ::GetLocalTime( &lt );
-
-    /** @todo Need to fill tv */
-    tv.tv_sec = (long)time( NULL );
-    tv.tv_usec = lt.wMilliseconds * 1000;
-#else
     gettimeofday( &tv, NULL );
-#endif
-
     PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
 
     static char s[1500];  // Max size of a log message

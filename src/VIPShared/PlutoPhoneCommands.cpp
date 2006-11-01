@@ -45,6 +45,7 @@
 #include "BD_CP_CurrentSignalStrength.h"
 #include "BD_CP_MenuData.h"
 #include "BD_CP_SetBkgndImage.h"
+#include "BD_PC_MouseEvent.h"
 
 class BDCommand *BuildCommandFromData( unsigned long dwType )
 {
@@ -76,6 +77,8 @@ class BDCommand *BuildCommandFromData( unsigned long dwType )
 		return new BD_PC_SelectedItem();
 	case BD_PC_CONFIGURE:
 		return new BD_PC_Configure();
+	case BD_PC_MOUSE_EVENT:
+		return new BD_PC_MouseEvent();
 
 
 	case BD_CP_HAVE_NOTHING:

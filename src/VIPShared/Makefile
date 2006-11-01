@@ -32,6 +32,7 @@ sources = \
 	BD_CP_SetBkgndImage.cpp \
 	BD_PC_Configure.cpp \
 	BD_PC_SelectedItem.cpp \
+	BD_PC_MouseEvent.cpp \
     PhoneDetection_Bluetooth_Linux.cpp \
     PhoneDetectionEngine.cpp \
     PhoneDetection_Simulate.cpp \

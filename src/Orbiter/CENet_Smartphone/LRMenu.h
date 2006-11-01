@@ -76,6 +76,7 @@ typedef unsigned char uchar;
 class LocalRenderer {
 protected:
 	static Rect m_rViewport;
+	static Rect m_rAppViewport;
 public:
 	// Draw text - for bold creates new font from the current one
 	static void DrawText( LPCTSTR Text, Rect &r, COLORREF color, BOOL bBold=false );
@@ -87,7 +88,7 @@ public:
 	static void FillRect( Rect &r, COLORREF color );
 	
 	// Update Display Device
-	static void Update( RECT r );
+	static void Update( Rect* r );
 
 	// Save/restore a rectangle from/to the Display Device
 	//		- used for saving/restoring area behinf submenus
@@ -111,9 +112,13 @@ public:
 		return OrbiterApp::GetInstance()->GetDisplay();
 	}
 
-	// Set drawing viewport 
+	// Drawing viewport 
 	static void SetViewport( Rect rViewport ) { m_rViewport = rViewport; }
 	static Rect& GetViewport( ) { return m_rViewport; }
+
+	// Application viewport - used to reset viewport 
+	static void SetAppViewport( Rect rViewport ) { m_rAppViewport = rViewport; }
+	static Rect& GetAppViewport( ) { return m_rAppViewport; }
 
 	// Check Display Device
 	static bool Valid() {  return GetDisplay()!=NULL; }
@@ -294,15 +299,16 @@ public:
 	
 	// Submenu position/rect
 	virtual void GetSubmenuRect( RECT& r ){	r = m_rSubmenu; }
-	virtual int GetSubmenuX() { return ( m_rClientRect.left + m_rClientRect.right ) / 2; }
-	virtual int GetSubmenuY() { return ( m_rClientRect.top + m_rClientRect.bottom ) / 2; }
 	virtual void SetSubmenuX( int iX ) { m_rClientRect.left = m_rClientRect.right = iX; }
 	virtual void SetSubmenuY( int iY ) { m_rClientRect.top = m_rClientRect.bottom = iY; }
+	virtual int GetSubmenuX() { return ( m_rClientRect.left + m_rClientRect.right ) / 2; }
+	virtual int GetSubmenuY() { return ( m_rClientRect.top + m_rClientRect.bottom ) / 2; }
 
 	// Menu item shortcut
 	virtual void SetShortcut( TCHAR ucShortcut ){ m_ucShortcut = ucShortcut; }
 	//Search submenu for shortcut
 	virtual bool SelectItem( TCHAR ucShortcut );
+	virtual bool SelectItem( int iX, int iY );
 
 	// Check for submenu
 	virtual bool HasSubMenu( void );
@@ -329,6 +335,9 @@ public:
 	// returns false, as this is a real menu item
 	virtual bool IsLink() { return false; }
 
+	virtual bool PointInSubmenu( int iX, int iY );
+	virtual bool PointIn( int iX, int iY );
+
 };
 
 /*
@@ -343,6 +352,7 @@ protected:
 	LRMenuItem* m_pOrigItem;
 	LRMenuItemLink( LRMenuItem* pParent=NULL ){}
 	LRMenuItemLink( LRMenuItemData& ItemData, LRMenuItem* pParent=NULL ){}	
+
 public:
 	LRMenuItemLink( LRMenuItem* pItem, LRMenuItem* pParent=NULL ){ m_pOrigItem = pItem; m_pParent=pParent; }
 	virtual ~LRMenuItemLink(){ m_pOrigItem = NULL; }
@@ -374,16 +384,20 @@ public:
 	virtual void SetDirty( bool bDirty = true ) { m_pOrigItem->SetDirty( bDirty ); }
 	virtual bool IsDirty() { return m_pOrigItem->IsDirty(); }	
 	virtual void GetSubmenuRect( RECT& r ){ m_pOrigItem->GetSubmenuRect( r ); }
-	virtual int GetSubmenuX() { return m_pOrigItem->GetSubmenuX(); }
-	virtual int GetSubmenuY() { return m_pOrigItem->GetSubmenuY(); }
 	virtual void SetSubmenuX( int iX ) { m_pOrigItem->SetSubmenuX( iX ); }
 	virtual void SetSubmenuY( int iY ) { m_pOrigItem->SetSubmenuY( iY ); }
+	virtual int GetSubmenuX() { return m_pOrigItem->GetSubmenuX(); }
+	virtual int GetSubmenuY() { return m_pOrigItem->GetSubmenuY(); }
 	virtual void SetShortcut( TCHAR ucShortcut ) { m_pOrigItem->SetShortcut( ucShortcut); }
 	virtual bool HasSubMenu( void ) { return m_pOrigItem->HasSubMenu(); }
 	virtual bool SelectItem( TCHAR ucShortcut ) { return m_pOrigItem->SelectItem( ucShortcut ); } 
+	virtual bool SelectItem( int iX, int iY ) { return m_pOrigItem->SelectItem( iX, iY ); } 
 
 	virtual bool Changed() { return m_pOrigItem->Changed(); }
 	virtual bool IsLink() { return true; }
+
+	virtual bool PointInSubmenu( int iX, int iY ){ return m_pOrigItem->PointInSubmenu( iX, iY ); }
+	virtual bool PointIn( int iX, int iY ) { return m_pOrigItem->PointIn( iX, iY ); }
 
 	// GetParent/SetParent won't be rewritten
 	//virtual void SetParent( LRMenuItem* pParent ) { m_pParent = pParent; }
@@ -432,6 +446,8 @@ public:
 	bool HandleKeys( int nPK_Button, bool bKeyUp );	
 	// implementing menu commands
 	bool KeyPress( uchar ucKey );
+	//Handle stylus events
+	bool HandleStylus( int iX, int iY );
 
 	// Main menu is active
 	bool IsShowing() { return m_bIsShowing; }

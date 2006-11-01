@@ -934,6 +934,10 @@ NODEP_CPP_BD_PC_K=\
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\VIPShared\BD_PC_MouseEvent.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\VIPShared\BD_PC_OrderPlaced.cpp
 DEP_CPP_BD_PC_O=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\

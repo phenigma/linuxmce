@@ -242,6 +242,9 @@
 					RelativePath="..\VIPShared\BD_PC_KeyWasPressed.cpp">
 				</File>
 				<File
+					RelativePath="..\VIPShared\BD_PC_MouseEvent.cpp">
+				</File>
+				<File
 					RelativePath="..\VIPShared\BD_PC_OrderPlaced.cpp">
 				</File>
 				<File

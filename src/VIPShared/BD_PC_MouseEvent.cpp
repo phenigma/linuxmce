@@ -1,0 +1,86 @@
+#ifndef SYMBIAN
+#include "PlutoUtils/CommonIncludes.h"
+#include <iostream>
+#include <fstream>
+#include "BD/BDCommandProcessor.h"
+#else
+#include "VIPShared/VIPIncludes.h"
+#include "Logger.h"
+#endif
+
+#include "PlutoUtils/MyStl.h"
+#include "BD_PC_MouseEvent.h"
+
+#ifdef BLUETOOTH_DONGLE
+#include "../Bluetooth_Dongle/Bluetooth_Dongle.h"
+#include "../Orbiter/Orbiter.h"
+#include "BDCommandProcessor_BluetoothDongle.h"
+#include "../DCE/Logger.h"	
+#include "../Bluetooth_Dongle/OrbiterBluetooth.h"
+#endif
+
+#ifdef APPSERVER
+#include "../level2/AppServer/MODCommandImpl.h"
+#include "../level1/Controller/AppServer/ControllerAppServer.h"
+#include "../pluto_dce/Table_Command.h"
+#endif
+
+BD_PC_MouseEvent::BD_PC_MouseEvent( int iX, int iY, MouseEventType EventType ) 	
+{
+	m_iX = iX;
+	m_iY = iY;
+    m_EventType = EventType;
+
+#ifdef SYMBIAN
+	LOG("#	Sending 'MouseEvent' command  #\n");
+#endif 
+}
+
+void BD_PC_MouseEvent::ConvertCommandToBinary()
+{
+	BDCommand::ConvertCommandToBinary();
+	Write_long(m_iX);
+	Write_long(m_iY);
+    Write_long(m_EventType);
+}
+
+void BD_PC_MouseEvent::ParseCommand(unsigned long size,const char *data)
+{
+	BDCommand::ParseCommand(size,data);
+	m_iX = Read_long();
+	m_iY = Read_long();
+    m_EventType = (BD_PC_MouseEvent::MouseEventType)Read_long();
+}
+
+
+#ifdef BLUETOOTH_DONGLE
+bool BD_PC_MouseEvent::ProcessCommand(BDCommandProcessor *pProcessor)
+{
+	BDCommandProcessor_BluetoothDongle *m_pProcessor = 
+		(BDCommandProcessor_BluetoothDongle *)pProcessor;
+
+	BD_Orbiter *pOrbiter = 
+		m_pProcessor->m_pBluetooth_Dongle->m_mapOrbiterSockets_Find(pProcessor->m_sMacAddressPhone);
+
+	if(NULL == pOrbiter || NULL == pOrbiter->m_pOrbiter || pOrbiter->m_pOrbiter->m_bQuit)
+	{
+        g_pPlutoLogger->Write(LV_WARNING, "No MouseEvent command will be dispatch: Orbiter was killed or is exiting.");
+		return false;
+	}
+
+	g_pPlutoLogger->Write(LV_WARNING, "Received BD_PC_MouseEvent from PlutoMO.");
+	OrbiterBluetooth *pOrbiterBluetooth = dynamic_cast<OrbiterBluetooth *>(pOrbiter->m_pOrbiter);
+	if ( NULL!=pOrbiterBluetooth )
+		pOrbiterBluetooth->HandleMouseEvent( m_iX, m_iY, m_EventType );
+
+	return true;
+}
+
+#else
+
+bool BD_PC_MouseEvent::ProcessCommand(BDCommandProcessor *pProcessor)
+{
+	return true;
+}
+#endif
+

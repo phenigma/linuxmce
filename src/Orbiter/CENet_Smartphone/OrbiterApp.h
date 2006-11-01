@@ -208,6 +208,8 @@ public:
 	void SendConfiguration( void );
 	// - sent: Selected item from LRMenu
 	void SendSelectedItem( string sItemId );
+	// - sent: Mouse event (Stylus event)
+	void SendMouseEvent( int iX, int iY, int EventType );
 
 	// - outgoing
 	void SendKey(int nKeyCode, int nEventType);

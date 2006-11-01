@@ -39,6 +39,7 @@
 #include "Orbiter/OrbiterRenderer.h"
 
 #include "../VIPShared/BD_CP_SetBkgndImage.h"
+#include "../VIPShared/BD_PC_MouseEvent.h"
 #include "Orbiter/TextStyle.h"
 
 #define ADVANCED_OPTIONS_SCREEN "2022"
@@ -309,4 +310,39 @@ void OrbiterBluetooth::GetMenuData( MenuData& data  )
 	}
 }
 
+//-----------------------------------------------------------------------------------------------------
+void OrbiterBluetooth::HandleMouseEvent( int iX, int iY, int EventType )
+{
+	switch ( (BD_PC_MouseEvent::MouseEventType)EventType ){
+		case BD_PC_MouseEvent::meMove:
+
+			g_pPlutoLogger->Write(LV_WARNING, "#	Move at: %d %d!", iX, iY );
+			break;
+		case BD_PC_MouseEvent::meStylusDown:
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "#	StylusDown at: %d %d!", iX, iY );
+				/*
+				* Simulate Mouse click at iX, iY
+				*/
+				Orbiter::Event orbiterEvent;
+				orbiterEvent.data.region.m_iButton = 1;
+				orbiterEvent.data.region.m_iX = iX;
+				orbiterEvent.data.region.m_iY = iY;
+
+				orbiterEvent.type = Orbiter::Event::REGION_DOWN;
+				ProcessEvent(orbiterEvent);
+
+				orbiterEvent.type = Orbiter::Event::REGION_UP;
+				ProcessEvent(orbiterEvent);
+				/*
+				*---------
+				*/
+			}
+			break;
+		case BD_PC_MouseEvent::meStylusUp:
+			g_pPlutoLogger->Write(LV_WARNING, "#	StylusUp at: %d %d!", iX, iY );
+			break;
+
+	}	
+}
 //-----------------------------------------------------------------------------------------------------

@@ -43,6 +43,8 @@ void LRMenuItemData::SetCaptionToString( string sCaption )
 //---------------------------------------------------------------------------------------------------------
 
 Rect LocalRenderer::m_rViewport;
+Rect LocalRenderer::m_rAppViewport;
+
 //---------------------------------------------------------------------------------------------------------
 void LocalRenderer::DrawText( LPCTSTR Text, Rect &r, COLORREF color, BOOL bBold )
 {
@@ -103,11 +105,16 @@ void LocalRenderer::FillRect( Rect &r, COLORREF color )
 	GetDisplay()->FillRect(r.left, r.top, r.right, r.bottom, Color( color ) );
 }
 //---------------------------------------------------------------------------------------------------------
-void LocalRenderer::Update( RECT r )
+void LocalRenderer::Update( Rect* r )
 {
-	Rect rr(r);
-	GetDisplay()->Update( &rr );
+	if ( r ) {
+		GetDisplay()->Update( r );
+	}
+	else {
+		GetDisplay()->Update( &m_rAppViewport );
+	}
 }
+
 //---------------------------------------------------------------------------------------------------------
 Surface* LocalRenderer::SaveRect( Rect r )
 {
@@ -370,7 +377,20 @@ bool LRMenu::HandleKeys( int nPK_Button, bool bKeyUp )
 	}
 	return bHandled;
 }
+//---------------------------------------------------------------------------------------------------------
+bool LRMenu::HandleStylus( int iX, int iY )
+{
+	if ( NULL == m_pDisplayMenu ) return false;
+	if ( !m_pDisplayMenu->SelectItem( iX, iY ) ) {
+		KeyPress( MENU_BACK_KEY ) ;		
+	}
+	else {
+		m_pDisplayMenu->PaintSubmenu( );
+		KeyPress( MENU_EXEC_KEY ) ;
+	}
 
+	return true;
+}
 
 //---------------------------------------------------------------------------------------------------------
 /*
@@ -379,7 +399,7 @@ bool LRMenu::HandleKeys( int nPK_Button, bool bKeyUp )
  *
  */
 //---------------------------------------------------------------------------------------------------------
-bool LRMenuItem::SelectItem( TCHAR ucShortcut )
+/*virtual*/ bool LRMenuItem::SelectItem( TCHAR ucShortcut )
 {
 	map<TCHAR, int>::iterator iterPos = m_mShotcuts.find( ucShortcut );
 	if ( iterPos == m_mShotcuts.end() ) return false;
@@ -390,6 +410,25 @@ bool LRMenuItem::SelectItem( TCHAR ucShortcut )
 		m_vMenuItems[m_iHighlight]->SetDirty();	
 
 	return true;
+}
+//---------------------------------------------------------------------------------------------------------
+/*virtual*/ bool LRMenuItem::SelectItem( int iX, int iY )
+{
+	if ( PointInSubmenu(iX, iY ) ){	
+		int i=0;
+		for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin() ; iter!=m_vMenuItems.end(); ++iter, ++i ){
+			if ( (*iter)->GetVisible() && (*iter)->PointIn( iX, iY ) ) {
+				if ( m_iHighlight>=0 && m_iHighlight<m_vMenuItems.size() ) 
+					m_vMenuItems[m_iHighlight]->SetDirty();
+				m_iHighlight = i;
+				if ( m_iHighlight>=0 && m_iHighlight<m_vMenuItems.size() ) 
+					m_vMenuItems[m_iHighlight]->SetDirty();	
+
+				return true;
+			}
+		}
+	}
+	return false;
 }
 //---------------------------------------------------------------------------------------------------------
 void LRMenuItem::ClearSubmenu()
@@ -550,8 +589,14 @@ void LRMenuItem::ShowSubmenu( bool bShow )
 	else if (m_pClone) {	// Hide submenu		
 		// Restore background
 		LocalRenderer::RestoreRect( m_rSubmenu.left, m_rSubmenu.top, m_pClone );
-		SAFE_DELETE( m_pClone );
-		LocalRenderer::Update( m_rSubmenu );
+		SAFE_DELETE( m_pClone );		
+		#if defined(SMARTPHONE2005)
+			// Reset the viewport, because PocketFrog sets it on Update
+			if ( NULL == m_pParent ) LocalRenderer::Update( NULL );
+			else LocalRenderer::Update( &m_rSubmenu );
+		#else
+			LocalRenderer::Update( &m_rSubmenu );
+		#endif		
 		// Mark submenu as dirty
 		MakeSubmenuDirty();
 		m_iEnd = m_iStart = 0;
@@ -606,7 +651,7 @@ void LRMenuItem::PaintSubmenu( bool bForceRepaint )
 		}
 
 	//Update Dispaly Device
-	LocalRenderer::Update( m_rSubmenu );
+	LocalRenderer::Update( &m_rSubmenu );
 }
 //---------------------------------------------------------------------------------------------------------
 void LRMenuItem::AddShortcut( int iPos, TCHAR ucShortcut )
@@ -662,6 +707,20 @@ bool LRMenuItem::HasSubMenu( void )
 		if ( (*iter)->GetVisible() ) return true;
 	}
 	return false;
+}
+//---------------------------------------------------------------------------------------------------------
+bool LRMenuItem::PointInSubmenu( int iX, int iY )
+{
+	if ( iX<=m_rSubmenu.left || iX>=m_rSubmenu.right ) return false;
+	if ( iY<=m_rSubmenu.top || iY>=m_rSubmenu.bottom ) return false;
+	return true;
+}
+//---------------------------------------------------------------------------------------------------------
+bool LRMenuItem::PointIn( int iX, int iY )
+{
+	if ( iX<m_rClientRect.left || iX>m_rClientRect.right ) return false;
+	if ( iY<m_rClientRect.top || iY>m_rClientRect.bottom ) return false;
+	return true;
 }
 
 //---------------------------------------------------------------------------------------------------------

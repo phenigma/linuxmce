@@ -32,23 +32,35 @@ void *ProcessCommandsThread(void *p)
 
 	OrbiterApp::GetInstance()->Show();
 
+	#if defined(SMARTPHONE2005)
+		HANDLE hWait = CreateEvent( NULL, FALSE, FALSE, _T("ProcessCommand_Wait") );
+	#endif
 	bool bImmediateCallback = false;
 	while(!pBDCommandProcessor->m_bDead && pBDCommandProcessor->SendCommand(bImmediateCallback))
 	{
 		if(!bImmediateCallback) //nothing to process right now
 		{
 			timespec abstime;
-			abstime.tv_sec = (long) (time(NULL) + 1);
-			abstime.tv_nsec = 0;
-			
-			PLUTO_SAFETY_LOCK(csm, pBDCommandProcessor->m_ClientSocketMutex);
+			#if defined(SMARTPHONE2005)
+				if (hWait)	WaitForSingleObject( hWait, 1000 );
+			#else				
+				abstime.tv_sec = (long) (time(NULL) + 1);
+				abstime.tv_nsec = 0;
 
-#ifdef DEBUG_BLUETOOTH
-			g_pPlutoLogger->Write(LV_STATUS, "Nothing to process right now, sleeping 1 sec");
-#endif
-			csm.TimedCondWait(abstime);
+				PLUTO_SAFETY_LOCK(csm, pBDCommandProcessor->m_ClientSocketMutex);
+
+				#ifdef DEBUG_BLUETOOTH
+							g_pPlutoLogger->Write(LV_STATUS, "Nothing to process right now, sleeping 1 sec");
+				#endif
+
+				csm.TimedCondWait(abstime);
+			#endif
+			
 		}
 	}
+	#if defined(SMARTPHONE2005)
+		if ( hWait ) CloseHandle( hWait );
+	#endif
 
 	pBDCommandProcessor->m_bClientConnected = false;
 

@@ -16,6 +16,7 @@
 #include "IncomingCallNotifier.h"
 #include "VIPShared/BD_PC_Configure.h"
 #include "VIPShared/BD_PC_SelectedItem.h"
+#include "VIPShared/BD_PC_MouseEvent.h"
 #include "Win32/DrawTextExUTF8.h"
 
 using namespace DCE;
@@ -42,9 +43,13 @@ using namespace std;
 	#define pf_uint8_t uint8_t
 #endif
 
-
-#define APP_WIDTH  176
-#define APP_HEIGHT 220
+#if defined(SMARTPHONE2005) // Palm Treo 700w: 240x240
+	#define APP_WIDTH  240
+	#define APP_HEIGHT 240
+#else	// Motorola MPx 220
+	#define APP_WIDTH  176
+	#define APP_HEIGHT 220
+#endif
 //---------------------------------------------------------------------------------------------------------
 #define RED_MASK_16		(0x1F << 11)
 #define GREEN_MASK_16	(0x3F << 5)
@@ -249,14 +254,33 @@ OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hIns
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::StylusDown( Point stylus )
 {
+	////// Send only Sylus Down	
+	#if defined(SMARTPHONE2005) //rescale coords to Smartphone 2003
+	if ( m_pMainMenu && m_pMainMenu->IsShowing() ) {
+		m_pMainMenu->HandleStylus( stylus.x, stylus.y );
+	}
+		double dVal = ((double)stylus.x)*(176./(double)APP_WIDTH);
+		if ( dVal-(int)dVal>=0.5) ceil(dVal);
+		else floor(dVal);
+		stylus.x = (int)dVal;
+		dVal = ((double)stylus.y)*(220./(double)APP_HEIGHT);
+		if ( dVal-(int)dVal>=0.5) ceil(dVal);
+		else floor(dVal);		
+		stylus.y = (int)dVal;
+	#endif
+	SendMouseEvent( stylus.x, stylus.y, BD_PC_MouseEvent::meStylusDown );
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::StylusUp( Point stylus )
 {
+	////// Send only Sylus Down
+	// SendMouseEvent( stylus.x, stylus.y, BD_PC_MouseEvent::meStylusUp );
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::StylusMove( Point stylus )
 {
+	////// Send only Sylus Down
+	// SendMouseEvent( stylus.x, stylus.y, BD_PC_MouseEvent::meMove );
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ bool OrbiterApp::PocketFrogButtonDown(int nButton)
@@ -452,7 +476,8 @@ void OrbiterApp::OnQuit()
 		return;
 
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-	GetDisplay()->Update();
+	Rect r( 0, 0, APP_WIDTH, APP_HEIGHT );
+	GetDisplay()->Update( &r );
 }
 //---------------------------------------------------------------------------------------------------------
 void OrbiterApp::RenderImage(int nImageType, int nSize, char *pData, int nX, int nY, int nWidth, int nHeight)
@@ -1566,7 +1591,7 @@ void OrbiterApp::Show()
 	::MessageBeep(MB_ICONQUESTION);
 
 	#if defined(SMARTPHONE2005)	//--- CHANGED4WM5 ----//
-		SetKeybdHook( );
+		//SetKeybdHook( );
 	#endif
 }
 //------------------------------------------------------------------------------------------------------------------
@@ -1643,7 +1668,7 @@ LRESULT CALLBACK HookProcedure(int nCode, WPARAM wParam, LPARAM lParam)
 
 #if defined(SMARTPHONE2005)	//--- CHANGED4WM5 ----//
 void OrbiterApp::SetKeybdHook( bool bClear )
-{
+{/*
 	if ( bClear ) {
 		if ( hHook ) {
 			UnhookWindowsHookEx( hHook );			
@@ -1659,6 +1684,7 @@ void OrbiterApp::SetKeybdHook( bool bClear )
 		else 
 			g_pPlutoLogger->Write(LV_STATUS,"OrbiterApp::SetkeybdHook - Hook installed!");
 	}
+	*/
 }
 #endif
 
@@ -1782,7 +1808,9 @@ void OrbiterApp::SetMenuData( MenuData& data )
 	#ifdef _LOCAL_RENDERED_OBJECTS_
 		m_pMainMenu = data.CreateMainMenu();
 		if ( m_pMainMenu ) {
+			RECT rr = {0, 0, APP_WIDTH, APP_HEIGHT};
 			RECT r = {10,10,APP_WIDTH-10,APP_HEIGHT-10};
+			LocalRenderer::SetAppViewport( rr );
 			m_pMainMenu->SetViewport( r );
 			m_pMainMenu->Show(0,0);
 		}
@@ -1816,4 +1844,13 @@ void OrbiterApp::SendSelectedItem( string sItemId )
 	m_pBDCommandProcessor->AddCommand(pCommand);
 }
 
+//------------------------------------------------------------------------------------------------------------------
+void OrbiterApp::SendMouseEvent( int iX, int iY, int EventType )
+{
+	if(!m_pBDCommandProcessor->m_bClientConnected )
+		return;
+
+	BDCommand *pCommand = new BD_PC_MouseEvent( iX, iY, (BD_PC_MouseEvent::MouseEventType)EventType );
+	m_pBDCommandProcessor->AddCommand(pCommand);
+}
 //------------------------------------------------------------------------------------------------------------------

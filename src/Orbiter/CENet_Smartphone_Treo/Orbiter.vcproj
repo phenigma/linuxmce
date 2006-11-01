@@ -265,6 +265,7 @@
 				ObjectFile="$(PlatformName)\$(ConfigurationName)/"
 				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)/"
 				BrowseInformation="1"
+				WarningLevel="2"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 			/>
@@ -310,6 +311,9 @@
 			/>
 			<Tool
 				Name="VCCodeSignTool"
+				AuthenticodeSignature="true"
+				Certificate="SHA-1 Hash=FFA553411DC564DEA7666C54E1278EC08DECCF24|FFA553411DC564DEA7666C54E1278EC08DECCF24"
+				ProvisionDevice="2"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -620,6 +624,9 @@
 			/>
 			<Tool
 				Name="VCCodeSignTool"
+				AuthenticodeSignature="true"
+				Certificate="SHA-1 Hash=FFA553411DC564DEA7666C54E1278EC08DECCF24|FFA553411DC564DEA7666C54E1278EC08DECCF24"
+				ProvisionDevice="2"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -1445,6 +1452,10 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\VIPShared\BD_PC_MouseEvent.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\..\VIPShared\BD_PC_OrderPlaced.cpp"

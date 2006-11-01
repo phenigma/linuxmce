@@ -48,6 +48,7 @@ public:
 	void Configure( PhoneConfig& cfg );
 	void SelectedItem( string& sItemId );
 	PhoneConfig& GetPhoneConfig( void ){ return m_Cfg; }
+	void HandleMouseEvent( int iX, int iY, int EventType );
 
 protected:
 	void GetMenuData( MenuData& data );

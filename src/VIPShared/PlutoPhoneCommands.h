@@ -14,6 +14,7 @@
 #define BD_PC_SET_IMAGE_QUALITY         12
 #define BD_PC_ITEM_SELECTED				13
 #define BD_PC_CONFIGURE					14
+#define	BD_PC_MOUSE_EVENT				15
 
 #define BD_CP_SEND_ME_KEYSTROKES		101
 #define BD_CP_SHOW_IMAGE				102
