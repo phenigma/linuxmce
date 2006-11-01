@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include <sys/types.h>
+#include <iostream>
 
 using namespace std;
 
@@ -67,14 +68,18 @@ namespace UpdateMediaFileUtils
 		for(list<string>::const_iterator it = listFiles.begin(), end = listFiles.end(); it != end; ++it)
 		{
 			string sFilePath = *it;
-			int nMountedDevice = MountedDeviceForFile(sFilePath);
 
+			int nMountedDevice = MountedDeviceForFile(sFilePath);
 			if(nMountedDevice != 0 && sFilePath.find(csMntDevicePath) == 0)
 			{
                 string sDeviceId = sFilePath.substr(csMntDevicePath.length() + 1);
 				int nPlutoDevice = atoi(sDeviceId.c_str());
 				if(nPlutoDevice != 0)
+				{		
 					mapMountedDevices[nMountedDevice] = nPlutoDevice;
+
+					cout << "Mapped file " << sFilePath << " : " << nMountedDevice << " -> " << nPlutoDevice << endl; 
+				}
 			}
 		}
 	}

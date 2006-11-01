@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	
 	map<int, int> mapMountedDevices;
 	list<string> listFiles;
-	FileUtils::FindFiles(listFiles, "/mnt/device", "", false, true);
+	FileUtils::FindDirectories(listFiles, "/mnt/device", false, true);
 
 	MapMountedDevicesToPlutoDevices(listFiles, mapMountedDevices);
 
