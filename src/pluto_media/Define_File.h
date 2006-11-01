@@ -25,8 +25,6 @@
 #define FILE_EK_USERS_PRIVATE_TABLE_FIELD "File.EK_Users_Private"
 #define FILE_EK_DEVICE_FIELD "EK_Device"
 #define FILE_EK_DEVICE_TABLE_FIELD "File.EK_Device"
-#define FILE_OFFLINE_FIELD "Offline"
-#define FILE_OFFLINE_TABLE_FIELD "File.Offline"
 #define FILE_PSC_ID_FIELD "psc_id"
 #define FILE_PSC_ID_TABLE_FIELD "File.psc_id"
 #define FILE_PSC_BATCH_FIELD "psc_batch"

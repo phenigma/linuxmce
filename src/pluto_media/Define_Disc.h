@@ -17,8 +17,6 @@
 #define DISC_EK_DEVICE_TABLE_FIELD "Disc.EK_Device"
 #define DISC_SLOT_FIELD "Slot"
 #define DISC_SLOT_TABLE_FIELD "Disc.Slot"
-#define DISC_OFFLINE_FIELD "Offline"
-#define DISC_OFFLINE_TABLE_FIELD "Disc.Offline"
 #define DISC_EK_USERS_PRIVATE_FIELD "EK_Users_Private"
 #define DISC_EK_USERS_PRIVATE_TABLE_FIELD "Disc.EK_Users_Private"
 #define DISC_PSC_ID_FIELD "psc_id"

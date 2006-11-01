@@ -88,7 +88,6 @@ long int m_Missing;
 long int m_IsDirectory;
 long int m_EK_Users_Private;
 long int m_EK_Device;
-short int m_Offline;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -96,7 +95,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[18];
+		bool is_null[17];
 	
 	public:
 		long int PK_File_get();
@@ -110,7 +109,6 @@ long int Missing_get();
 long int IsDirectory_get();
 long int EK_Users_Private_get();
 long int EK_Device_get();
-short int Offline_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -130,7 +128,6 @@ void Missing_set(long int val);
 void IsDirectory_set(long int val);
 void EK_Users_Private_set(long int val);
 void EK_Device_set(long int val);
-void Offline_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -190,7 +187,7 @@ void PlaylistEntry_FK_File_getrows(vector <class Row_PlaylistEntry*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_File+ m_EK_MediaType+ m_FK_MediaSubType+ m_FK_FileFormat+ m_DateAdded+ m_Path+ m_Filename+ m_Missing+ m_IsDirectory+ m_EK_Users_Private+ m_EK_Device+ m_Offline+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_File+ m_EK_MediaType+ m_FK_MediaSubType+ m_FK_FileFormat+ m_DateAdded+ m_Path+ m_Filename+ m_Missing+ m_IsDirectory+ m_EK_Users_Private+ m_EK_Device+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -206,7 +203,6 @@ string Missing_asSQL();
 string IsDirectory_asSQL();
 string EK_Users_Private_asSQL();
 string EK_Device_asSQL();
-string Offline_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
