@@ -36,7 +36,7 @@ namespace UpdateMediaFileUtils
 
 		ssize_t link_length = readlink (sFilePath.c_str(), pBuffer, cnBufferSize); 	
 
-		string sResult(pBuffer);
+		string sResult(link_length > 0 ? pBuffer : "");
 		delete [] pBuffer;
 
 		return sResult;
