@@ -44,7 +44,7 @@ for setting in "${preseed[@]}"; do
 	chmod +x $TEMP_DIR/tmp/script.sh
 	chroot $TEMP_DIR /tmp/script.sh
 done
-										
+
 ## Create the temporary sources.list file for the media director 
 ## FIXME: maybe we need to make it from scratch ?
 cp /etc/apt/sources.list $TEMP_DIR/etc/apt
@@ -59,6 +59,11 @@ mkdir -p $TEMP_DIR/usr/pluto/deb-cache
 mount --bind /usr/pluto/deb-cache $TEMP_DIR/usr/pluto/deb-cache
 mount none -t sysfs $TEMP_DIR/sys
 mount none -t proc  $TEMP_DIR/proc
+
+touch "$TEMP_DIR"/etc/chroot-install
+mv "$TEMP_DIR"/usr/sbin/invoke-rc.d{,.pluto-install}
+echo -en '#!/bin/bash\necho "WARNING: fake invoke-rc.d called"\n' >"$TEMP_DIR"/usr/sbin/invoke-rc.d
+chmod +x "$TEMP_DIR"/usr/sbin/invoke-rc.d
 
 chroot $TEMP_DIR apt-get -y update
 chroot $TEMP_DIR apt-get -y dist-upgrade
@@ -88,7 +93,7 @@ for device in $DEVICE_LIST; do
 	if [[ "$?" == "0" ]] ;then
 		echo "#### Package $pkg_name installed ok!"
 	else
-		echo "#### Package $pkg_name failed ($TEMPDIR)"
+		echo "#### Package $pkg_name failed ($TEMP_DIR)"
 		/bin/bash
 	fi
 done
@@ -97,9 +102,11 @@ umount $TEMP_DIR/usr/pluto/deb-cache
 umount $TEMP_DIR/sys
 umount $TEMP_DIR/proc
 
+mv "$TEMP_DIR"/usr/sbin/invoke-rc.d{.pluto-install,}
+rm "$TEMP_DIR"/etc/chroot-install
+
 mkdir -p "$ARH_DIR"
-tar -cf "$ARH_DIR/base.tar" $TEMP_DIR
-gzip "$ARH_DIR/base.tar"
+tar -czf "$ARH_DIR/base.tar.gz" $TEMP_DIR
 
 rm -rf $TEMP_DIR
 

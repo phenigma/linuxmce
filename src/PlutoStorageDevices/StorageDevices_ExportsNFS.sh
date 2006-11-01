@@ -43,6 +43,6 @@ PopulateSection "/etc/exports" "InternalStorageDevices" "$Exports_InternalStorag
 
 ## Check and start/reload the nfs-kernel-server
 if [[ "$(pidof rpc.mountd)" == "" ]] ;then
-	/etc/init.d/nfs-kernel-server restart
+	invoke-rc.d nfs-kernel-server restart
 fi
-/etc/init.d/nfs-kernel-server reload
+invoke-rc.d nfs-kernel-server reload

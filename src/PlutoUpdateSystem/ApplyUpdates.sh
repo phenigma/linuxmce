@@ -41,7 +41,7 @@ if [[ $RunningOnMD == "No" ]] ;then
 	cronEntry="0 3 * * * root /usr/pluto/bin/DownloadUpdates.sh"
 	if ! grep -qF "$cronEntry" /etc/crontab; then
 		echo "$cronEntry" >>/etc/crontab
-		/etc/init.d/cron reload
+		invoke-rc.d cron reload
 	fi
 fi
 

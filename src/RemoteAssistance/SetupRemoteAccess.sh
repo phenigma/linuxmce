@@ -29,7 +29,7 @@ AddCronEntry()
 	if ! grep -qF "$cronCmd" /etc/crontab; then
 		# add it to crontab
 		echo "$cronEntry" >>/etc/crontab
-		/etc/init.d/cron reload
+		invoke-rc.d cron reload
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Added crontab entry"
 	else
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry already present. Not adding."
@@ -38,7 +38,7 @@ AddCronEntry()
 	if ! grep -qF "$cronCmd_Special" /etc/crontab; then
 		# add it to crontab
 		echo "$cronEntry_Special" >>/etc/crontab
-		/etc/init.d/cron reload
+		invoke-rc.d cron reload
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Added crontab entry (special)"
 	else
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry (special) already present. Not adding."
@@ -69,7 +69,7 @@ DelCronEntry()
 	fi
 
 	if [[ -n "$CronReload" ]]; then
-		/etc/init.d/cron reload
+		invoke-rc.d cron reload
 	fi
 }
 

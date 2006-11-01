@@ -8,4 +8,4 @@ sed -i 's/^bind-address.*$/bind-address=0.0.0.0/; s/\(^log.*=.*$\)/#\1/g' "$MyCn
 grep -q '^default-table-type=' "$MyCnf" || echo "default-table-type=$DefTableType" >>"$MyCnf"
 echo "GRANT ALL PRIVILEGES ON pluto_main.* to 'root'@'127.0.0.1';" | mysql
 echo "FLUSH PRIVILEGES;" | mysql
-/etc/init.d/mysql restart
+invoke-rc.d mysql restart

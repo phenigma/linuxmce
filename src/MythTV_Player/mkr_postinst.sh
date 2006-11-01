@@ -27,7 +27,7 @@ chown mythtv /etc/mythtv/mysql.txt
 #Force the backend to make the database structure
 echo "LOCK TABLE schemalock WRITE;" | $mysql_command  || :
 # Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
-/etc/init.d/mythtv-backend force-reload || /bin/true
+invoke-rc.d mythtv-backend force-reload || /bin/true
 
 echo "Waiting 3 seconds so that myth backed is able to actually create the schema"
 
@@ -79,7 +79,7 @@ if [ "$PID" != "" ]; then
 	# It seems that in certain circumstances the backed refuses to notice the -9 signal
 	kill -9 $PID;
 	echo "LOCK TABLE schemalock WRITE;" | $mysql_command || :  # Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
-	/etc/init.d/mythtv-backend start || /bin/true
+	invoke-rc.d mythtv-backend start || /bin/true
 fi
 
 #Create a shortcut to MythTV Setup

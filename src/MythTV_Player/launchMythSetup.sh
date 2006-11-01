@@ -16,7 +16,7 @@ if [[ -n "$MYTH_SETUP_PIDS" ]]; then
 fi;
 
 echo "LOCK TABLE schemalock WRITE;" | $MysqlCommand  # Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
-/etc/init.d/mythtv-backend stop
+invoke-rc.d mythtv-backend stop
 PID=`pidof mythbackend`;
 
 if [ "$PID" != "" ] ; then 
@@ -25,7 +25,7 @@ fi;
 
 echo -e "\n\n" | mythtv-setup 
 
-/etc/init.d/mythtv-backend force-reload
+invoke-rc.d mythtv-backend force-reload
 
 PID=`pidof mythfilldatabase`;
 

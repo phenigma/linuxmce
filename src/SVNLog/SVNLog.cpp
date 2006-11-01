@@ -181,7 +181,7 @@ retry:
 					RetryCount++;
 					cout << "SVN died again.  Retrying...." << endl;
 					Sleep(1000);
-					system("/etc/init.d/inetd restart");
+					system("invoke-rc.d inetd restart");
 					Sleep(1000);
 					goto retry;
 				}

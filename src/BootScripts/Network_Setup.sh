@@ -54,7 +54,7 @@ Q="GRANT ALL PRIVILEGES ON *.* TO 'root'@$IntIP"
 RunSQL "$Q"
 echo "Writing network configuration with one in database"
 
-/etc/init.d/networking stop
+invoke-rc.d networking stop
 
 File=/etc/network/interfaces
 #cp "$File" "$File.%(date +%F-%T)"
@@ -98,7 +98,7 @@ else
 	echo "INTERFACES=\"$ExtIf\"" >/etc/default/dhcp3-server
 fi
 
-/etc/init.d/networking start
+invoke-rc.d networking start
 if [[ "$Setting" == static ]]; then
 	/usr/pluto/bin/Network_DNS.sh
 else

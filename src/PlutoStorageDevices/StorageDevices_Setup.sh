@@ -20,9 +20,9 @@ done
 ## Start autmounter
 if [[ -x /etc/init.d/autofs ]]; then
 	if [[ "$(pidof automount)" == "" ]] ;then
-		/etc/init.d/autofs start
+		invoke-rc.d autofs start
 	else
-		/etc/init.d/autofs reload
+		invoke-rc.d autofs reload
 	fi
 else
 	echo "WARNING: Autmount daemon doesn't exist ?!"

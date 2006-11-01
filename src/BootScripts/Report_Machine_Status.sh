@@ -8,7 +8,7 @@ PH="plutohome.com"
 cronEntry="0 2 * * * root /usr/pluto/bin/Report_Machine_Status.sh"
 if ! grep -qF "$cronEntry" /etc/crontab; then
 	echo "$cronEntry" >>/etc/crontab
-	/etc/init.d/cron reload
+	invoke-rc.d cron reload
 fi
 
 Q="SELECT FK_DeviceTemplate

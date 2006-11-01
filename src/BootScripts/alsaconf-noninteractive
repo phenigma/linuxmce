@@ -17,6 +17,10 @@
 #  (at your option) any later version.
 #
 
+if [[ -f /etc/chroot-install ]]; then
+	exit 0 # don't do anything if run in chroot
+fi
+
 if [[ ! -x /etc/init.d/alsa ]]; then
 	echo "Alsa not installed yet. Can't run alsaconf"
 	exit 0

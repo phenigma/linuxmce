@@ -6,9 +6,9 @@
 WaitLock "PlutoDHCP" "PlutoDHCP_config"
 if [[ -z "$DHCPsetting" ]]; then
 	rm -f /etc/dhcp3/dhcpd.conf
-	/etc/init.d/dhcp3-server stop
+	invoke-rc.d dhcp3-server stop
 	exit
 fi
 /usr/pluto/bin/PlutoDHCP >/etc/dhcp3/dhcpd.conf
-/etc/init.d/dhcp3-server restart
+invoke-rc.d dhcp3-server restart
 Unlock "PlutoDHCP" "PlutoDHCP_config"

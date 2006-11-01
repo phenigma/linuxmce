@@ -7,7 +7,7 @@ mkdir -p /mnt/device
 cronEntry="*/10 * * * * root /usr/pluto/bin/StorageDevices_Radar.sh"
 if ! grep -qF '/usr/pluto/bin/StorageDevices_Radar.sh' /etc/crontab; then
         echo "$cronEntry" >>/etc/crontab
-        /etc/init.d/cron reload
+        invoke-rc.d cron reload
 fi
 
 ## Add a init script on the core which will look for samba shares over the network

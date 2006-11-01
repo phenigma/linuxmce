@@ -35,4 +35,4 @@ File='/root/.ssh/authorized_keys'
 
 [ -z "$KeyPresent" ] && cat $Dir/$Key.pub >>"$File"
 
-/etc/init.d/ssh restart
+invoke-rc.d ssh restart
