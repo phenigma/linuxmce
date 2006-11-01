@@ -141,6 +141,10 @@ if [[ "$diskType" == 2 ]]; then
 	fi
 elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" == 7 || "$diskType" == 8 ]]; then
 	mkdir -p "$Dir"
+	if [ ! -d "$Dir" ] then;
+		echo "Ripping failed: Couldn't create directory"
+		exit 1
+	fi
 	trackList=${trackList// /@~#}
 	for File in ${trackList//|/ }; do
 		File=${File//@~#/ }
