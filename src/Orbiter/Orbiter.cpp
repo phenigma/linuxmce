@@ -796,6 +796,7 @@ g_PlutoProfiler->DumpResults();
 		return;
 
 	m_bShiftDown = false;
+	m_sCaptureKeyboard_InternalBuffer = "";
 
 #ifdef DEBUG
 	if(pScreenHistory)
@@ -5823,12 +5824,15 @@ bool Orbiter::CaptureKeyboard_EditText_AppendChar( char ch )
 	}
 
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-		string OldValue = m_mapVariable[m_iCaptureKeyboard_PK_Variable];
+	string OldValue = m_sCaptureKeyboard_InternalBuffer;
 	string NewValue = OldValue + ch;
-
-	m_sCaptureKeyboard_InternalBuffer = NewValue;
 	CMD_Set_Variable(m_iCaptureKeyboard_PK_Variable, NewValue);
 	vm.Release();
+
+	m_sCaptureKeyboard_InternalBuffer = NewValue;
+
+	if(m_iCaptureKeyboard_EditType == 2)
+		std::fill_n(NewValue.begin(), NewValue.length(), '*');
 
 	ExecuteScreenHandlerCallback(cbCapturedKeyboardBufferChanged);
 
