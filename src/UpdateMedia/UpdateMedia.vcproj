@@ -19,8 +19,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="/mysql/Include;../DCE;..;&quot;../../libs/Libraries/pthreads-win32/include&quot;;&quot;../../libs/CrossPlatform/id3lib-3.8.3/include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;GENERATOR;ID3LIB_LINKOPTION=3"
+				AdditionalIncludeDirectories="..;/mysql/Include;../DCE;..;&quot;../../libs/Libraries/pthreads-win32/include&quot;;&quot;../../libs/CrossPlatform/id3lib-3.8.3/include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;GENERATOR;ID3LIB_LINKOPTION=3;UPDATE_MEDIA"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
