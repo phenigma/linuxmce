@@ -403,7 +403,7 @@ bool SerializeClass::SerializeRead( string sFilename, void *pExtraSerializationD
 {
 #ifndef SYMBIAN
 	long lSize = FileUtils::FileSize(sFilename.c_str());
-	void *pBuf = new char[lSize];
+	char *pBuf = new char[lSize];
 
 	FILE *pFile = fopen(sFilename.c_str(), "rb");
 	if( !pFile )
@@ -412,7 +412,7 @@ bool SerializeClass::SerializeRead( string sFilename, void *pExtraSerializationD
 		return false;
 	}
 
-	fread(pBuf, 1, lSize, pFile);
+	fread((void*)pBuf, 1, lSize, pFile);
 	fclose(pFile);
 #else
 	RFs aFs;
@@ -442,7 +442,7 @@ bool SerializeClass::SerializeRead( string sFilename, void *pExtraSerializationD
 	Buffer = NULL;
 #endif
 
-	return SerializeRead(lSize,(char *) pBuf,pExtraSerializationData);
+	return SerializeRead(lSize, pBuf, pExtraSerializationData);
 }	
 
 	
