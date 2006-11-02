@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 nobuild=""
 
 branch="trunk"
@@ -44,6 +46,8 @@ for ((i = 1; i <= "$#"; i++)); do
 		;;
 	esac
 done
+
+exec 1> >(tee /tmp/MakeScript-$flavor.log) 2>&1
 
 ## Read and export the configuration options
 . /home/WorkNew/src/MakeRelease/MR_Conf.sh
@@ -278,8 +282,8 @@ BuildScript="$build_dir/trunk/src/BUILD.sh"
 `dirname $0`/scripts/propagate.sh "$BASE_OUT_FOLDER/$version_name/"
 
 echo Setting this version as the current one.
-rm $BASE_OUT_FOLDER/current
-ln -s $BASE_OUT_FOLDER/$version_name $BASE_OUT_FOLDER/current
+rm -f $BASE_OUT_FOLDER/current-"$flavor"
+ln -s $BASE_OUT_FOLDER/$version_name $BASE_OUT_FOLDER/current-"$flavor"
 
 if [[ -z "$nobuild" ]]; then
 	/home/WorkNew/src/MakeRelease/SelfPackagingModules.sh
@@ -342,19 +346,19 @@ if [[ "$version" !=  "1" || "$upload" == "y" ]]; then
 	## Create tarball containing /home/builds/build directory and upload it
 	rm ../upload/download.$flavor.tar.gz
 	tar zcvf ../upload/download.$flavor.tar.gz *
-	scp ../upload/download.$flavor.tar.gz uploads@plutohome.com:~/
+	scp ../upload/download.$flavor.tar.gz uploads@deb.plutohome.com:~/
 
 	## Create replacements repo tarball and upload it
 	rm ../upload/replacements.$flavor.tar.gz
 	pushd /home/samba/repositories/$flavor/$replacementsdeb
 	tar -hzcvf /home/builds/upload/replacements.$flavor.tar.gz  *
 	popd
-	scp ../upload/replacements.$flavor.tar.gz uploads@plutohome.com:~/
+	scp ../upload/replacements.$flavor.tar.gz uploads@deb.plutohome.com:~/
 
 	if [ "$flavor" != "pluto" ]; then
 		## Extract the files on plutohome.com
 		echo "Marker: setting up `date`"
-		ssh uploads@plutohome.com "/home/uploads/SetupUploads.sh \"$flavor\" \"$replacementsdeb\"  \"$maindeb\""
+		ssh uploads@deb.plutohome.com "/home/uploads/SetupUploads.sh \"$flavor\" \"$replacementsdeb\"  \"$maindeb\""
 	else
 #		ssh uploads@plutohome.com "rm ~/*download* ~/*replace*"
 #		tar zcvf ../upload/download.tar.gz *
