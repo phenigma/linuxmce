@@ -295,25 +295,6 @@ else
 
 	/usr/pluto/bin/DHCP_config.sh
 
-	# generate X configuration file according to stored database settings
-	. /usr/pluto/bin/SQL_Ops.sh
-	. /usr/pluto/bin/Utils.sh
-
-	DEVICECATEGORY_Media_Director=8
-	DEVICEDATA_Video_settings=89
-
-	ComputerDev=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Media_Director" '' 'include-parent')
-
-	Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$ComputerDev' AND FK_DeviceData='$DEVICEDATA_Video_settings' LIMIT 1"
-	VideoSetting=$(RunSQL "$Q")
-	VideoSetting=$(Field "1" "$VideoSetting")
-	
-	refresh=$(echo $VideoSetting | cut -d '/' -f2)
-	resolution=$(echo $VideoSetting | cut -d '/' -f1)
-	width=$(echo $resolution | cut -d' ' -f1)
-	height=$(echo $resolution | cut -d' ' -f2)
-
-	/usr/pluto/bin/Xconfigure.sh --defaults --resolution "${width}x${height}@${refresh}"
 fi
 
 ## Update startup scripts
