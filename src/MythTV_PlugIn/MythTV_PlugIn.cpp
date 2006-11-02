@@ -256,8 +256,6 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 		}
 	}
 
-	int i; // report the current playback position here.
-
 	string sLastPosition;
     DCE::CMD_Stop_Media cmd(m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,0,&sLastPosition);
 	// this is useless here because all the message processing in the Media Plugin is done with the m_MediaMutex taken and
@@ -415,19 +413,25 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 			}
 			else
 			{
-				string sChannelName_BottomJust = /*"~cb" +*/ string(row[1]) + " " + row[2];
-				pCell = new DataGridCell(sChannelName_BottomJust,row[1]);
+				string sChannelName = string(row[1]) + " " + row[2];
+				pCell = new DataGridCell(sChannelName,row[1]);
 				if( row[3] && row[3][0] )  // There's an icon
 					pCell->SetImagePath( row[3] );
-				pDataGridTable->SetData(0,iRow,pCell);
 
 				time_t tStart = StringUtils::SQLDateTime( row[5] );
 				time_t tStop = StringUtils::SQLDateTime( row[6] );
+				string sDesc = StringUtils::HourMinute(tStart) + " - " + StringUtils::HourMinute(tStop);
+				string sNumber = NULL != row[0] ? row[0] : "";
+				string sInfo = NULL != row[4] ? row[4]: "";
 
-				string sDesc = StringUtils::HourMinute(tStart) + " - " + StringUtils::HourMinute(tStop) + "\n" + row[4];
-				pCell = new DataGridCell(sDesc,row[1]);
-				pCell->m_Colspan = nWidth-1; // Fill the rest of the columns
-				pDataGridTable->SetData(1,iRow++,pCell);
+				pCell->m_mapAttributes["Number"] = sNumber;
+				pCell->m_mapAttributes["Name"] = sChannelName;
+				pCell->m_mapAttributes["Time"] = sDesc;
+				pCell->m_mapAttributes["Info"] = sInfo;
+
+				//g_pPlutoLogger->Write(LV_WARNING, "Number %s, name %s, time %s, info %s", 
+				//	sNumber.c_str(), sChannelName.c_str(), sDesc.c_str(), sInfo.c_str());
+				pDataGridTable->SetData(0,iRow++,pCell);
 			}
 		}
 	}
