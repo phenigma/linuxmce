@@ -1,3 +1,9 @@
+xine-lib (1.1.2-1pluto5via) unstable; urgency=low
+
+  * Compiled with via patches
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Thu, 02 Nov 2006 12:52:38 +0200
+ 
 xine-lib (1.1.2-1pluto5) unstable; urgency=low
 
   * Updated trick play patch
