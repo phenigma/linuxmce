@@ -212,6 +212,9 @@
 				RelativePath="..\VIPShared\BD_PC_KeyWasPressed.cpp">
 			</File>
 			<File
+				RelativePath="..\VIPShared\BD_PC_MouseEvent.cpp">
+			</File>
+			<File
 				RelativePath="..\VIPShared\BD_PC_OrderPlaced.cpp">
 			</File>
 			<File
@@ -561,10 +564,10 @@
 				RelativePath=".\StaticPicture.h">
 			</File>
 			<File
-				RelativePath=".\StdAfx.h">
+				RelativePath="..\VIPShared\stdafx.h">
 			</File>
 			<File
-				RelativePath="..\VIPShared\stdafx.h">
+				RelativePath=".\StdAfx.h">
 			</File>
 		</Filter>
 		<Filter

@@ -32,6 +32,7 @@ SOURCE  BD_PC_GetSignalStrength.cpp
 SOURCE  BD_PC_SetImageQuality.cpp
 SOURCE  BD_PC_Configure.cpp
 SOURCE  BD_PC_SelectedItem.cpp
+SOURCE  BD_PC_MouseEvent.cpp
 SOURCE  PlutoPhoneCommands.cpp
 SOURCE  RenderMenu.cpp
 SOURCE  VIPMenu.cpp
