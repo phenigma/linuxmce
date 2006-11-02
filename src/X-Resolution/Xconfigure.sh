@@ -75,6 +75,7 @@ while [[ $# -gt 0 ]]; do
 	case "$1" in
 		--defaults) Defaults=y ;;
 		--resolution)
+			ResolutionSet=true
 			Resolution="$2"
 			if [[ "$Resolution" == *@* ]]; then
 				Refresh=${Resolution##*@}
@@ -117,6 +118,25 @@ while [[ $# -gt 0 ]]; do
 	esac
 	shift
 done
+
+if [[ ! "$ResolutionSet" ]]; then
+	 . /usr/pluto/bin/SQL_Ops.sh
+	 DEVICECATEGORY_Media_Director=8
+     DEVICEDATA_Video_settings=89
+
+	 ComputerDev=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Media_Director" '' 'include-parent')
+
+     Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$ComputerDev' AND FK_DeviceData='$DEVICEDATA_Video_settings' LIMIT 1"
+     VideoSetting=$(RunSQL "$Q")
+     VideoSetting=$(Field "1" "$VideoSetting")
+
+     Refresh=$(echo $VideoSetting | cut -d '/' -f2)
+     ResolutionInfo=$(echo $VideoSetting | cut -d '/' -f1)
+     ResX=$(echo $ResolutionInfo | cut -d' ' -f1)
+     ResY=$(echo $ResolutionInfo | cut -d' ' -f2)
+	 ScanType=
+	 Resolution="${ResX}x${ResY}@${Refresh}"
+fi
 
 if [[ ! -f /usr/pluto/bin/X-ChangeDisplayDriver.awk ]]; then
 	Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/bin/X-ChangeDisplayDriver.awk."
