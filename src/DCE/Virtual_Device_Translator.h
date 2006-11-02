@@ -21,6 +21,7 @@ class Virtual_Device_Translator
 
 public:
 	Virtual_Device_Translator() {};
+	virtual ~Virtual_Device_Translator() {};
 	virtual bool GetConfig(DeviceData_Base *pDeviceData_Base);
 
 	int TranslateVirtualDevice(int PK_DeviceTemplate);

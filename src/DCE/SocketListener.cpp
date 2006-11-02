@@ -45,11 +45,18 @@ void *BeginListenerThread( void *pSockListener )
 	return NULL;
 }
 
-SocketListener::SocketListener( string sName ) : m_ListenerMutex( "listener " + sName ), m_bAllowIncommingConnections(true)
+SocketListener::SocketListener( string sName )
+	: m_ListenerThreadID((pthread_t)NULL),
+	  m_iListenPort(0),
+	  m_Socket( INVALID_SOCKET ),
+	  m_bAllowIncommingConnections(true),
+	  m_sName(sName),
+	  m_ListenerMutex( "listener " + sName ),
+	  m_bTerminate(false),
+	  m_bRunning(false),
+	  m_bClosed(false),
+	  m_bSendOnlySocket(false)
 {
-	m_sName = sName;
-	m_ListenerThreadID = 0;
-	m_bSendOnlySocket = false;
 	pthread_mutexattr_init( &m_MutexAttr );
 	pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
 	m_ListenerMutex.Init( &m_MutexAttr );

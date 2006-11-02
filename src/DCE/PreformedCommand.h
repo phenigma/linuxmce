@@ -7,7 +7,8 @@ namespace DCE
 
 	class PreformedCommandResponse {
 	public:
-		virtual void ParseResponse(Message *pMessage)=0; 
+		virtual ~PreformedCommandResponse() {};
+		virtual void ParseResponse(Message *pMessage)=0;
 	};
 
 	class PreformedCommand	{
@@ -16,17 +17,19 @@ namespace DCE
 		PreformedCommand() : m_pcResponse(NULL), m_pMessage(NULL) {}
 		~PreformedCommand() 
 		{ 
-			if( m_pcResponse ) 
-				delete m_pcResponse; 
+			if( m_pcResponse )
+			{
+				delete m_pcResponse;
+				m_pcResponse = NULL;
+			}
 		}
 
 		void ParseResponse(Message *pMessage) 
 		{ 
 			if( m_pcResponse ) 
-				m_pcResponse->ParseResponse(pMessage); 
+				m_pcResponse->ParseResponse(pMessage);
 		}
 	};
 }
 
 #endif
-

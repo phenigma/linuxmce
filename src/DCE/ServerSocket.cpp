@@ -52,7 +52,7 @@ void *ServerSocket::BeginWapClientThread(void *SvSock)
 		//I'll do it by myself
 		g_pPlutoLogger->Write(LV_STATUS, "Detected disconnect: detaching thread for %d", pServerSocket->m_dwPK_Device);
 		pthread_detach(pServerSocket->m_ClientThreadID);
-		pServerSocket->m_ClientThreadID = NULL;
+		pServerSocket->m_ClientThreadID = (pthread_t)NULL;
 
 		//Remove me from listener's lists
 		pServerSocket->m_pListener->RemoveAndDeleteSocket(pServerSocket);
@@ -62,7 +62,9 @@ void *ServerSocket::BeginWapClientThread(void *SvSock)
 }
 
 ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName, string sIPAddress, string sMacAddress ) :
-	Socket( sName, sIPAddress, sMacAddress ), m_ConnectionMutex( "connection " + sName )
+	Socket( sName, sIPAddress, sMacAddress ),
+	m_ConnectionMutex( "connection " + sName ),
+	m_ClientThreadID( (pthread_t)NULL )
 {
 	m_iInstanceID = 0;
 	m_bSendOnlySocket = false;
@@ -89,11 +91,11 @@ ServerSocket::~ServerSocket()
 	Close();
 
 	//Wait for our thread to finish
-	if(NULL != m_ClientThreadID)
+	if( ((pthread_t)NULL) != m_ClientThreadID )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Forcing a disconnect: joining thread for %d", m_dwPK_Device);
 		pthread_join(m_ClientThreadID, NULL);
-		m_ClientThreadID = NULL;
+		m_ClientThreadID = (pthread_t)NULL;
 	}
 
 	//Make sure we are no longer in listener's lists
