@@ -545,7 +545,7 @@ string FileUtils::ValidCPPName(string sInput)
     StringUtils::Replace(&sInput,"+","");
     StringUtils::Replace(&sInput,"'","");
     StringUtils::Replace(&sInput,"’","");
-
+    
     // taking out the underscores from the begining of the file name
     while(sInput.length() && sInput[0]=='_')
         sInput=sInput.substr(1);
@@ -642,7 +642,6 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
         return false;
     }
 
-    int x;
     while (dirp != NULL && (readdir_r(dirp, direntp, & direntp) == 0) && direntp)
     {
 		if( pMapInodes )
@@ -695,7 +694,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
                     break;
             }
 
-			if ( iMaxFileCount && iMaxFileCount < listFiles.size() )
+			if ( iMaxFileCount && iMaxFileCount < (int)listFiles.size() )
 			{
 				if( bCreatedTempMap )
 					delete pMapInodes;
@@ -772,7 +771,6 @@ bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,
         return false;
     }
 
-    int x;
     while (dirp != NULL && (readdir_r(dirp, direntp, & direntp) == 0) && direntp)
     {
 		if( pMapInodes )
@@ -812,7 +810,7 @@ bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,
 			else
 				listDirectories.push_back(PrependedPath + entry.d_name);
 
-			if ( iMaxFileCount && iMaxFileCount < listDirectories.size() )
+			if ( iMaxFileCount && iMaxFileCount < (int)listDirectories.size() )
 			{
 				if( bCreatedTempMap )
 					delete pMapInodes;

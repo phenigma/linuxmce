@@ -1120,8 +1120,6 @@ string StringUtils::BashPatternEscape(string sInput, string sCharsToNotEscape)
 			sOutput += sInput[i];
 	}
 
-	int x = 1; int y = 2;
-
     return sOutput;
 }
 #endif //#ifndef SYMBIAN

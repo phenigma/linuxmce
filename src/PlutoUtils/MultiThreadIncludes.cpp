@@ -292,9 +292,9 @@ void PlutoLock::DumpOutstandingLocks()
 			{
 				char Message[1024];
 				
-				sprintf(Message,"^01\t (>%d) %s l:%d time: (%d s) thread: %p Rel: %s Got: %s",
+				sprintf(Message,"^01\t (>%d) %s l:%d time: (%d s) thread: %lu Rel: %s Got: %s",
 						pSafetyLock->m_LockNum,pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,(int) (time(NULL)-pSafetyLock->m_tTime),
-						pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
+						(unsigned long)pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
 				
 				listMessages.push_back(Message);
 
@@ -324,9 +324,9 @@ void PlutoLock::DumpOutstandingLocks()
 		
 		char Message[400];
 
-		sprintf(Message,"OL: (%p) (>%d) %s %s l:%d time: %s (%d s) thread: %p Rel: %s Got: %s",
+		sprintf(Message,"OL: (%p) (>%d) %s %s l:%d time: %s (%d s) thread: %lu Rel: %s Got: %s",
 			&pSafetyLock->m_pMyLock->mutex,pSafetyLock->m_LockNum,pSafetyLock->m_pMyLock->m_sName.c_str(),pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,sTime.c_str(),(int) (time(NULL)-pSafetyLock->m_tTime),
-			pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
+			(unsigned long)pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
 
 		if( ((int) time(NULL)-pSafetyLock->m_tTime)>=KILL_THREAD_TIMEOUT && pSafetyLock->m_bGotLock && !pSafetyLock->m_bReleased )
 		{

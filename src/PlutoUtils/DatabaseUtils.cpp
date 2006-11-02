@@ -104,7 +104,7 @@ void DatabaseUtils::GetUnusedPortsOnAllPCs(MySqlHelper *pMySqlHelper,vector< pai
 	MYSQL_ROW row;
 	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) ) )
 	{
-		while ( row=mysql_fetch_row( result.r ) )
+		while ( (row=mysql_fetch_row( result.r )) )
 		{
 			int PK_Device = atoi(row[0]);
 			vector<string> vectPorts;
@@ -133,7 +133,7 @@ void DatabaseUtils::GetUnusedPortsOnPC(MySqlHelper *pMySqlHelper,int PK_Device,v
 		MYSQL_ROW row;
 		if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) ) )
 		{
-			while ( row=mysql_fetch_row( result.r ) )
+			while ( (row=mysql_fetch_row( result.r )) )
 			{
 				string sPorts = row[0];
 				string::size_type pos=0;
@@ -152,7 +152,7 @@ void DatabaseUtils::GetUnusedPortsOnPC(MySqlHelper *pMySqlHelper,int PK_Device,v
 		MYSQL_ROW row;
 		if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) ) )
 		{
-			while ( row=mysql_fetch_row( result.r ) )
+			while ( (row=mysql_fetch_row( result.r )) )
 			{
 				string sPort = row[0];
 				if( mapPorts.find(sPort)!=mapPorts.end() )
@@ -314,7 +314,7 @@ int DatabaseUtils::FindControlledViaCandidate(MySqlHelper *pMySqlHelper,int iPK_
 	if( (result_cv2.r=pMySqlHelper->mysql_query_result(SQL)) && result_cv2.r->row_count )
 	{
 		MYSQL_ROW row;
-		while (row=mysql_fetch_row(result_cv2.r))
+		while ( (row=mysql_fetch_row(result_cv2.r)) )
 		{
 			if(row[0] && atoi(row[0]))
 				sPK_DeviceCategory += (sPK_DeviceCategory.size() ? "," : "") + string(row[0]);
@@ -347,7 +347,7 @@ int DatabaseUtils::FindControlledViaCandidate(MySqlHelper *pMySqlHelper,int iPK_
 	int iPK_Device_Fallback = 0;
 	int iPK_Device_ControlledVia = 0; // The controlled via device that works
 	int iGeneration = 0;  // What generation it is; get the smallest
-	while (row=mysql_fetch_row(result.r))
+	while ( (row=mysql_fetch_row(result.r)) )
 	{
 		int iPK_Device_Candidate = atoi(row[0]);
 		if( !iPK_Device_RelatedTo )
@@ -385,7 +385,7 @@ int DatabaseUtils::ViolatesDuplicateRules(MySqlHelper *pMySqlHelper,int PK_Devic
 	if( (result2.r=pMySqlHelper->mysql_query_result(sSQL)) )
 	{
 		MYSQL_ROW row;
-		while (row=mysql_fetch_row(result2.r))
+		while ( (row=mysql_fetch_row(result2.r)) )
 		{
 			int PK_Device_Test = atoi(row[0]);
 			int PK_Device_TopMost_Test = DatabaseUtils::GetTopMostDevice(pMySqlHelper,PK_Device_Test);
