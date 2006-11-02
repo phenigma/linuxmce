@@ -59,6 +59,9 @@ mount --bind /usr/pluto/deb-cache $TEMP_DIR/usr/pluto/deb-cache
 mount none -t sysfs $TEMP_DIR/sys
 mount none -t proc  $TEMP_DIR/proc
 
+chroot $TEMP_DIR apt-get -y update
+chroot $TEMP_DIR apt-get -y dist-upgrade
+
 touch "$TEMP_DIR"/etc/chroot-install
 mv "$TEMP_DIR"/usr/sbin/invoke-rc.d{,.pluto-install}
 mv "$TEMP_DIR"/sbin/start-stop-daemon{,.pluto-install}
@@ -67,9 +70,6 @@ echo -en '#!/bin/bash\necho "WARNING: fake invoke-rc.d called"\n' >"$TEMP_DIR"/u
 echo -en '#!/bin/bash\necho "WARNING: fake start-stop-daemon called"\n' >"$TEMP_DIR"/sbin/start-stop-daemon
 chmod +x "$TEMP_DIR"/usr/sbin/invoke-rc.d
 chmod +x "$TEMP_DIR"/sbin/start-stop-daemon
-
-chroot $TEMP_DIR apt-get -y update
-chroot $TEMP_DIR apt-get -y dist-upgrade
 
 echo "do_initrd = Yes" > $TEMP_DIR/etc/kernel-img.conf
 chroot "$TEMP_DIR" invoke-rc.d exim4 force-stop
