@@ -134,18 +134,28 @@ case "$Template" in
 		;;
 
 	$TPL_GENERIC_NFS_SHARE)
-		## Get the ip address of the nfs server that has this share
-                Q="SELECT IPaddress FROM Device WHERE PK_Device = '$StorageDevice' LIMIT 1"
-                IPaddress=$(RunSQL "$Q")
 
-                ## Test to see if that computer is up and running
-                ping -qnc 1 -W 1 "$IPaddress" &> /dev/null
-                HostIsUp=$?
-                if [[ "$HostIsUp" != 0 ]] ;then
-                        Log $LOG_WARN "Device with ip '$IPaddress' that has the nfs share associated with device '$StorageDevice' is not responding to our ping"
+		## Get the ip address of the parent (computer or nas that has the share)
+		Q="	SELECT 
+				Parent.IPaddress 
+			FROM 
+				Device Child
+				LEFT JOIN Device Parent ON Parent.PK_Device = Child.FK_Device_ControlledVia
+			WHERE 
+				Child.PK_Device = '$StorageDevice'
+			LIMIT 1
+		"
+		IPaddress=$(RunSQL "$Q")
+		IPaddress=$(Field "1" "$IPaddress")
+
+		## Test to see if that computer is up and running
+		ping -qnc 1 -W 1 "$IPaddress" &> /dev/null
+		HostIsUp=$?
+		if [[ "$HostIsUp" != 0 ]] ;then
+			Log $LOG_WARN "Device with ip '$IPaddress' that has the samba share associated with device '$StorageDevice' is not responding to our ping"
 			exit 0
 		fi
-
+		
 		## Shared nfs directory name
                 Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$StorageDevice AND FK_DeviceData=$DD_SHARE_NAME"
                 Share=$(RunSQL "$Q")
