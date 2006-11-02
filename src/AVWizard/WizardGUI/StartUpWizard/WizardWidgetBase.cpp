@@ -102,6 +102,13 @@ void WizardWidgetBase::SetUpAttribute(std::string Attribute, std::string DataVal
     return Attributes.find(Name) != Attributes.end();
 }
 
+string WizardWidgetBase::GetAttribute(std::string Name)
+{
+	if (!ExistAttribute(Name))
+			return "";
+	return Attributes[Name];
+}
+
 /*virtual*/ bool WizardWidgetBase::ApplyDictionary(SettingsDictionary* DefinitionDictionary)
 {
 	if(DefinitionDictionary == NULL)

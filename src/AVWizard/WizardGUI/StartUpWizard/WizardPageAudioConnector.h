@@ -26,6 +26,7 @@ public:
 	virtual void DefaultSetup(SettingsDictionary* AVWizardSettings);
 	virtual void DoIncreaseSetting();
 	virtual void DoDecreaseSetting();
+	virtual void DoClickWidget(WizardWidgetBase *pWidget);
 
 	WizardPageAudioConnector(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageAudioConnector();

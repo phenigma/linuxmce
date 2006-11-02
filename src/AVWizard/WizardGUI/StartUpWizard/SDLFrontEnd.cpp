@@ -28,7 +28,6 @@ SDLFrontEnd::~SDLFrontEnd()
 		SDL_FreeSurface(ScaledScreen);
 	if (ScaledBack)
 		SDL_FreeSurface(ScaledBack);
-
 }
 
 
@@ -55,10 +54,13 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 		Wizard::GetInstance()->SetExitWithCode(-1);
 		return -1;
 	}
+
+	ScreenWidth = Width;
+	ScreenHeight = Height;
 	
 	SDL_WM_SetCaption("AVWizard", "AVWizard");
  	// Hide the mouse cursor
-	SDL_ShowCursor(0);
+	// SDL_ShowCursor(0);
 
 	atexit(SDL_Quit);
 
@@ -102,6 +104,7 @@ void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 
 	if(Wizard::GetInstance()->CurrentPage == 6)
 	{
+		// XXX: AdjustVideoSize, hardcoded extra border
 		int Border2 = Border + ARROWS_BORDER;
 		ZoomX2 = (Width-2*Border2) / 640.0f;
 		ZoomY2 = (Height-2*Border2) / 480.0f;
@@ -278,6 +281,3 @@ void SDLFrontEnd::FillRectangle(int Left, int Top, int Width, int Height, TColor
 		255));
 
 }
-
-
-

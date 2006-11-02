@@ -1,4 +1,6 @@
 #include "WizardPageAudioVolume.h"
+#include "WizardWidgetImage.h"
+#include "WizardWidgetButton.h"
 
 #include "GUIWizardUtils.h"
 
@@ -144,4 +146,48 @@ void WizardPageAudioVolume::DoDecreaseSetting()
 	
 	std::string Command = "/usr/pluto/bin/SoundCards_AudioVolume.sh set " + Utils::Int32ToString(AudioVolumeCurrent) + " unmute";
 	system(Command.c_str());
+}
+
+/*virtual*/ void WizardPageAudioVolume::DoClickWidget(WizardWidgetBase *pWidget)
+{
+	std::vector<WizardWidgetBase*>::iterator Item;
+	WizardWidgetImage* ClickedImage = NULL;
+	WizardWidgetButton* ClickedButton = NULL;
+	for (Item = Page->Children.begin(); Item < Page->Children.end(); ++Item)
+	{
+		if (*Item == pWidget)
+		{
+			ClickedImage = dynamic_cast<WizardWidgetImage*>(pWidget);
+			ClickedButton = dynamic_cast<WizardWidgetButton*>(pWidget);
+
+			SDL_Event Event;
+			if (ClickedImage)
+			{	
+				if (ClickedImage->GetName() == "VolumeLeft")
+				{
+					Event.type = SDL_KEYUP;
+					Event.key.state = SDL_RELEASED;
+					Event.key.keysym.sym = SDLK_LEFT;
+					SDL_PushEvent(&Event);
+				}
+				else if (ClickedImage->GetName() == "VolumeRight")
+				{
+					Event.type = SDL_KEYUP;
+					Event.key.state = SDL_RELEASED;
+					Event.key.keysym.sym = SDLK_RIGHT;
+					SDL_PushEvent(&Event);
+				}
+			}
+			else if (ClickedButton)
+			{
+				if (ClickedButton->GetName() == "BtnOK")
+				{
+					Event.type = SDL_KEYUP;
+					Event.key.state = SDL_RELEASED;
+					Event.key.keysym.sym = SDLK_RETURN;
+					SDL_PushEvent(&Event);
+				}
+			}
+		}
+	}
 }

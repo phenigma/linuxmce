@@ -24,6 +24,12 @@ DEVICEDATA_Video_settings=89
 DEVICEDATA_Spacing=150
 DEVICEDATA_Offset=167
 
+COMMAND_Regen_Orbiter=266
+
+COMMANDPARAMETER_PK_Device=2
+COMMANDPARAMETER_Force=21
+COMMANDPARAMETER_Reset=24
+
 UI_Normal_Horizontal=1
 UI_V2_Normal_Horizontal=4
 
@@ -195,7 +201,7 @@ UpdateOrbiterDimensions()
 	Q="UPDATE Device SET NeedConfigure=1 WHERE PK_Device='$OrbiterDev'"
 	RunSQL "$Q"
 
-	while ! /usr/pluto/bin/MessageSend "$DCERouter" -targetType template "$OrbiterDev" "$DEVICETEMPLATE_OrbiterPlugin" 1 266 2 "$OrbiterDev" 21 "-r" 24 Y; do
+	while ! /usr/pluto/bin/MessageSend "$DCERouter" -targetType template "$OrbiterDev" "$DEVICETEMPLATE_OrbiterPlugin" 1 "$COMMAND_Regen_Orbiter" "$COMMANDPARAMETER_PK_Device" "$OrbiterDev" "$COMMANDPARAMETER_Force" "-r" "$COMMANDPARAMETER_Reset" Y; do
 		:
 	done
 

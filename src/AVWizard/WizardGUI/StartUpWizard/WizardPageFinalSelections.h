@@ -28,6 +28,7 @@ class WizardPageFinalSelections :
 public:
 	virtual void DoIncreaseSetting();
 	virtual void DoDecreaseSetting();
+	virtual void DoClickWidget(WizardWidgetBase *pWidget);
 
 	virtual void SearchSelectedItem();
 

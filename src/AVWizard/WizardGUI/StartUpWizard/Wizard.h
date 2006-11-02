@@ -120,6 +120,10 @@ class Wizard
 	 *	Apply the current settings from the current screen
 	 */
 	void DoCancelScreen();
+	/**
+	 *  Focus clicked button, if a button was clicked
+	 */
+	void DoMouseClick(int x, int y);
 	
 	void EvaluateEvent(WM_Event& Event);
 

@@ -119,3 +119,70 @@ WizardPageVideoAdjustSize::~WizardPageVideoAdjustSize(void)
 	cout << "WizardBorder: " << Border << endl;
 #endif
 }
+
+/*virtual*/ void WizardPageVideoAdjustSize::DoClickWidget(WizardWidgetBase *pWidget)
+{
+	std::vector<WizardWidgetBase*>::iterator Item;
+	WizardWidgetButton* ClickedButton = NULL;
+	for (Item = Page->Children.begin(); Item < Page->Children.end(); ++Item)
+	{
+		if (*Item == pWidget)
+		{
+			ClickedButton = dynamic_cast<WizardWidgetButton*>(pWidget);
+			if (!ClickedButton)
+				break;
+
+			SDL_Event Event;
+
+			if (ClickedButton->GetName() == "ButtonPlus")
+			{
+				Event.type = SDL_KEYUP;
+				Event.key.state = SDL_RELEASED;
+				Event.key.keysym.sym = SDLK_PLUS;
+				SDL_PushEvent(&Event);
+			}
+			else if (ClickedButton->GetName() == "ButtonMinus")
+			{
+				Event.type = SDL_KEYUP;
+				Event.key.state = SDL_RELEASED;
+				Event.key.keysym.sym = SDLK_MINUS;
+				SDL_PushEvent(&Event);
+			}
+			else if (ClickedButton->GetName() == "ButtonUp")
+			{
+				Event.type = SDL_KEYUP;
+				Event.key.state = SDL_RELEASED;
+				Event.key.keysym.sym = SDLK_UP;
+				SDL_PushEvent(&Event);
+			}
+			else if (ClickedButton->GetName() == "ButtonDown")
+			{
+				Event.type = SDL_KEYUP;
+				Event.key.state = SDL_RELEASED;
+				Event.key.keysym.sym = SDLK_DOWN;
+				SDL_PushEvent(&Event);
+			}
+			else if (ClickedButton->GetName() == "ButtonLeft")
+			{
+				Event.type = SDL_KEYUP;
+				Event.key.state = SDL_RELEASED;
+				Event.key.keysym.sym = SDLK_LEFT;
+				SDL_PushEvent(&Event);
+			}
+			else if (ClickedButton->GetName() == "ButtonRight")
+			{
+				Event.type = SDL_KEYUP;
+				Event.key.state = SDL_RELEASED;
+				Event.key.keysym.sym = SDLK_RIGHT;
+				SDL_PushEvent(&Event);
+			}
+			else if (ClickedButton->GetName() == "ButtonOK")
+			{
+				Event.type = SDL_KEYUP;
+				Event.key.state = SDL_RELEASED;
+				Event.key.keysym.sym = SDLK_RETURN;
+				SDL_PushEvent(&Event);
+			}
+		}
+	}
+}

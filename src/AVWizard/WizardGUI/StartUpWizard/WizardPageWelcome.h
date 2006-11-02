@@ -16,6 +16,7 @@ public:
 
 	virtual int DoApplySetting(SettingsDictionary* Dictionary);
 	virtual void DoCancelSetting();
+	virtual void DoClickWidget(WizardWidgetBase * pWidget);
 
 	WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageWelcome();

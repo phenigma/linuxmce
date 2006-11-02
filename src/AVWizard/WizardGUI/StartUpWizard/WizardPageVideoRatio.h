@@ -31,7 +31,7 @@ public:
 	virtual void DoDecreaseSetting();
 	virtual void DoNextFocusItem();
 	virtual void DoPreviousFocusItem();
-
+	virtual void DoClickWidget(WizardWidgetBase *pWidget);
 
 	WizardPageVideoRatio(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageVideoRatio(void);

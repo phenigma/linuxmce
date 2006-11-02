@@ -105,6 +105,29 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 		return;
 	}
 	Selected->SetFocus(true);
-
 }
 
+/*virtual*/ void WizardPageVideoResolution::DoClickWidget(WizardWidgetBase *pWidget)
+{
+	std::vector<WizardWidgetBase*>::iterator Item;
+	WizardWidgetButton* NewSelected = NULL;
+	for (Item = Page->Children.begin(); Item < Page->Children.end(); ++Item)
+	{
+		if (*Item == pWidget)
+		{
+			NewSelected = dynamic_cast<WizardWidgetButton*>(pWidget);
+			if (NewSelected)
+			{
+				Selected->SetFocus(false);
+				Selected = NewSelected;
+				Selected->SetFocus(true);
+
+				SDL_Event Event;
+				Event.type = SDL_KEYUP;
+				Event.key.state = SDL_RELEASED;
+				Event.key.keysym.sym = SDLK_RETURN;
+				SDL_PushEvent(&Event);
+			}
+		}
+	}
+}

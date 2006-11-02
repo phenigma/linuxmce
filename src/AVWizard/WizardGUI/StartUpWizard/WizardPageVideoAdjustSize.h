@@ -24,6 +24,7 @@ public:
 	virtual void DoDecreaseSetting();
 	virtual void DoNextFocusItem();
 	virtual void DoPreviousFocusItem();
+	virtual void DoClickWidget(WizardWidgetBase *pWidget);
 
 	WizardPageVideoAdjustSize(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageVideoAdjustSize();

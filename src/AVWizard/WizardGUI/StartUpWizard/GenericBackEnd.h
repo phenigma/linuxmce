@@ -83,5 +83,4 @@ public:
 	virtual void BackFillColor(TColorDesc* Color);
 };
 
-
 #endif

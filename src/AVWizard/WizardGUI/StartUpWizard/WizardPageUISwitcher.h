@@ -32,6 +32,7 @@ public:
 	virtual void DoDecreaseSetting();
 	virtual void DoNextFocusItem();
 	virtual void DoPreviousFocusItem();
+	virtual void DoClickWidget(WizardWidgetBase *pWidget);
 
 	WizardPageUISwitcher(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageUISwitcher();

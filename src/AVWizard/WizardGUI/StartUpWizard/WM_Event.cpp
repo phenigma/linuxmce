@@ -55,6 +55,12 @@ void WM_Event::Save()
 	this->Type = WMET_SAVE;
 }
 
+void WM_Event::MouseButton(int x, int y)
+{
+	this->Type = WMET_MOUSE_CLICK;
+	this->MouseX = x;
+	this->MouseY = y;
+}
 
 void WM_Event::ConvertFromSDLEvent(SDL_Event& Event)
 {
@@ -95,6 +101,23 @@ void WM_Event::ConvertFromSDLEvent(SDL_Event& Event)
 					break;
 				default:
 					Type = 0;
+			}
+			break;
+		case SDL_MOUSEBUTTONUP:
+			switch (Event.button.button)
+			{
+				case SDL_BUTTON_LEFT:
+					MouseButton(Event.button.x, Event.button.y);
+					break;
+				case SDL_BUTTON_WHEELUP:
+					UpKey();
+					break;
+				case SDL_BUTTON_WHEELDOWN:
+					DownKey();
+					break;
+				default:
+					// nothing to do for the other buttons
+					break;
 			}
 			break;
 		default:

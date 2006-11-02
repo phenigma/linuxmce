@@ -1,6 +1,8 @@
 #include "WizardPage.h"
 
 #include "WizardWidgetButton.h"
+#include "WizardWidgetScrollList.h"
+#include "WizardWidgetImage.h"
 
 #include "Wizard.h"
 #include "GUIWizardUtils.h"
@@ -10,6 +12,8 @@
 #include "SkinGenerator.h"
 
 #include "WizardWidgetLabel.h"
+
+#include "math.h"
 
 WizardPage::WizardPage(GenericBackEnd* FrontEnd, std::string Name)
 {
@@ -37,6 +41,10 @@ void WizardPage::FindFocusableControlsRecursive(WizardWidgetBase* RootWidget)
 {
 }
 
+/*virtual*/ void WizardPage::DoClickWidget(WizardWidgetBase * pWidget)
+{
+}
+
 /*virtual*/ void WizardPage::DoNextFocusItem()
 {
 }
@@ -47,12 +55,10 @@ void WizardPage::FindFocusableControlsRecursive(WizardWidgetBase* RootWidget)
 
 /*virtual*/ void WizardPage::DoIncreaseSetting()
 {
-
 }
 
 /*virtual*/ void WizardPage::DoDecreaseSetting()
 {
-
 }
 
 /*virtual*/ int WizardPage::DoApplySetting(SettingsDictionary* Dictionary)
@@ -83,4 +89,96 @@ void WizardPage::SetWizard(Wizard* MainWizard)
 
 /*static*/ void WizardPage::TabStatus(WizardPage* Page, int EnableStatus)
 {
+}
+
+#include <iostream>
+
+/*virtual*/ void WizardPage::DoMouseClick(int x, int y)
+{
+	std::vector<WizardWidgetBase*>::iterator Item;
+	WizardWidgetBase * pSelectedWidget = NULL;
+
+	Wizard *pWizard = Wizard::GetInstance();
+	int iExtraBorder = 0;
+	if (pWizard->CurrentPage == 6)
+	{
+		// XXX: AdjustVideoSize, hardcoded extra border
+		iExtraBorder = ARROWS_BORDER;
+	}
+
+	int TotalWizardBorder = pWizard->WizardBorder + iExtraBorder;
+
+	int EffectiveScreenWidth = FrontEnd->GetScreenWidth() - 2 * TotalWizardBorder;
+	int EffectiveScreenHeight = FrontEnd->GetScreenHeight() - 2 * TotalWizardBorder;
+	int EffectiveLeftBorder = pWizard->LeftBorder - pWizard->WizardBorder;
+	int EffectiveTopBorder = pWizard->TopBorder - pWizard->WizardBorder;
+
+	int NormalX = (int)((x - TotalWizardBorder - EffectiveLeftBorder) / (EffectiveScreenWidth / 640.0f));
+	int NormalY = (int)((y - TotalWizardBorder - EffectiveTopBorder) / (EffectiveScreenHeight / 480.0f));
+
+#ifdef DEBUG
+	std::cout << "Screen parameters: " << FrontEnd->GetScreenWidth() << "x" << FrontEnd->GetScreenHeight() << "+" << pWizard->LeftBorder << "+" << pWizard->TopBorder << "+" << TotalWizardBorder << std::endl;
+	std::cout << "Effective resolution: " << EffectiveScreenWidth << "x" << EffectiveScreenHeight << "+" << EffectiveLeftBorder << "+" << EffectiveTopBorder << "+" << TotalWizardBorder << std::endl;
+	std::cout << "Normalized click coordinates: " << NormalX << "x" << NormalY << std::endl;
+#endif
+
+	for (Item = Page->Children.begin(); Item < Page->Children.end(); ++Item)
+	{
+		WizardWidgetButton * pWizardWidgetButton = dynamic_cast<WizardWidgetButton*> (*Item);
+		WizardWidgetScrollList * pWizardWidgetScrollList = dynamic_cast<WizardWidgetScrollList*> (*Item);
+		WizardWidgetImage * pWizardWidgetImage = dynamic_cast<WizardWidgetImage*> (*Item);
+		if (pWizardWidgetButton != NULL) // it's a button
+		{
+#ifdef DEBUG
+			std::cout << "Button '" << pWizardWidgetButton->GetName() << "@" << pWizardWidgetButton->Left << "x" << pWizardWidgetButton->Top << "+" << pWizardWidgetButton->Width << "+" << Page->GetFontHeight() << "' exists" << std::endl;
+#endif
+			if (pWizardWidgetButton->Left - ceil(pWizardWidgetButton->Width / 2.0) < NormalX
+					&& pWizardWidgetButton->Left + ceil(pWizardWidgetButton->Width / 2.0) > NormalX
+					&& pWizardWidgetButton->Top - Page->GetFontHeight() < NormalY
+					&& pWizardWidgetButton->Top + Page->GetFontHeight() > NormalY
+				)
+			{
+				std::cout << "Button '" << pWizardWidgetButton->GetName() << "@" << pWizardWidgetButton->Left << "x" << pWizardWidgetButton->Top << "+" << pWizardWidgetButton->Width << "+" << Page->GetFontHeight() << "' pressed" << std::endl;
+				pSelectedWidget = pWizardWidgetButton;
+				break;
+			}
+		}
+		else if (pWizardWidgetScrollList != NULL) // it's a list
+		{
+#ifdef DEBUG
+			std::cout << "ScrollList '" << pWizardWidgetScrollList->GetName() << "@" << pWizardWidgetScrollList->Left << "x" << pWizardWidgetScrollList->Top << "+" << pWizardWidgetScrollList->Width << "+" << pWizardWidgetScrollList->Height << "' exists" << std::endl;
+#endif
+			if (pWizardWidgetScrollList->Left < NormalX
+					&& pWizardWidgetScrollList->Left + pWizardWidgetScrollList->Width > NormalX
+					&& pWizardWidgetScrollList->Top < NormalY
+					&& pWizardWidgetScrollList->Top + pWizardWidgetScrollList->Height > NormalY
+				)
+			{
+				std::cout << "ScrollList '" << pWizardWidgetScrollList->GetName() << "@" << pWizardWidgetScrollList->Left << "x" << pWizardWidgetScrollList->Top << "+" << pWizardWidgetScrollList->Width << "+" << pWizardWidgetScrollList->Height << "' pressed" << std::endl;
+				pSelectedWidget = pWizardWidgetScrollList;
+				break;
+			}
+		}
+		else if (pWizardWidgetImage != NULL) // it's an image
+		{
+#ifdef DEBUG
+			std::cout << "Image '" << pWizardWidgetImage->GetName() << "@" << pWizardWidgetImage->Left << "x" << pWizardWidgetImage->Top << "+" << pWizardWidgetImage->Width << "+" << pWizardWidgetImage->Height << "' exists" << std::endl;
+#endif
+			if (pWizardWidgetImage->Left < NormalX
+					&& pWizardWidgetImage->Left + pWizardWidgetImage->Width > NormalX
+					&& pWizardWidgetImage->Top < NormalY
+					&& pWizardWidgetImage->Top + pWizardWidgetImage->Height > NormalY
+				)
+			{
+				std::cout << "Image '" << pWizardWidgetImage->GetName() << "@" << pWizardWidgetImage->Left << "x" << pWizardWidgetImage->Top << "+" << pWizardWidgetImage->Width << "+" << pWizardWidgetImage->Height << "' pressed" << std::endl;
+				pSelectedWidget = pWizardWidgetImage;
+				break;
+			}
+		}
+	}
+
+	if (pSelectedWidget != NULL)
+	{
+		DoClickWidget(pSelectedWidget);
+	}
 }

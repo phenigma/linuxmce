@@ -52,6 +52,11 @@ public:
 	void SetPageLayout(WizardWidgetPage* PageDescription);
 
 	/**
+	 *   Execute widget and page-specific click action
+	 */
+	virtual void DoClickWidget(WizardWidgetBase * pWidget);
+
+	/**
 	 *	Similar with pressing on current item the down arrow
 	 */
 	virtual void DoNextFocusItem();
@@ -84,6 +89,11 @@ public:
 	virtual void DoCancelSetting();
 
 	/**
+	 *  Focus clicked button, if a button was clicked
+	 */
+	virtual void DoMouseClick(int x, int y);
+
+	/**
 	 *	Builds the list with focusable items
 	 */
 	void FindFocusableControls();
@@ -98,7 +108,6 @@ public:
 	 * 	They are set-up in bits
 	 */
 	static void TabStatus(WizardPage* Page, int EnableStatus);
-
 };
 
 #endif

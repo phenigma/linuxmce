@@ -142,3 +142,30 @@ void WizardPageVideoRatio::DoDecreaseSetting()
 {
 	Selected->SetItemIndex(Selected->GetItemIndex()-1);
 }
+
+/*virtual*/ void WizardPageVideoRatio::DoClickWidget(WizardWidgetBase *pWidget)
+{
+	std::vector<WizardWidgetBase*>::iterator Item;
+	WizardWidgetScrollList* NewSelectedScrollList = NULL;
+	for (Item = Page->Children.begin(); Item < Page->Children.end(); ++Item)
+	{
+		if (*Item == pWidget)
+		{
+			NewSelectedScrollList = dynamic_cast<WizardWidgetScrollList*>(pWidget);
+			if (NewSelectedScrollList)
+			{
+				Selected->SetFocus(false);
+				Selected = NewSelectedScrollList;
+				Selected->SetFocus(true);
+			}
+			else
+			{
+				SDL_Event Event;
+				Event.type = SDL_KEYUP;
+				Event.key.state = SDL_RELEASED;
+				Event.key.keysym.sym = SDLK_RETURN;
+				SDL_PushEvent(&Event);
+			}
+		}
+	}
+}

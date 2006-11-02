@@ -111,3 +111,28 @@ WizardPageAudioConnector::~WizardPageAudioConnector(void)
 	Selected = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive(ButtonName));
 	Selected->SetFocus(true);	
 }
+
+/*virtual*/ void WizardPageAudioConnector::DoClickWidget(WizardWidgetBase *pWidget)
+{
+	std::vector<WizardWidgetBase*>::iterator Item;
+	WizardWidgetButton* NewSelectedButton = NULL;
+	for (Item = Page->Children.begin(); Item < Page->Children.end(); ++Item)
+	{
+		if (*Item == pWidget)
+		{
+			NewSelectedButton = dynamic_cast<WizardWidgetButton*>(pWidget);
+			if (NewSelectedButton)
+			{
+				Selected->SetFocus(false);
+				Selected = NewSelectedButton;
+				Selected->SetFocus(true);
+
+				SDL_Event Event;
+				Event.type = SDL_KEYUP;
+				Event.key.state = SDL_RELEASED;
+				Event.key.keysym.sym = SDLK_RETURN;
+				SDL_PushEvent(&Event);
+			}
+		}
+	}
+}

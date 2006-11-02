@@ -304,6 +304,11 @@ void Wizard::DoCancelScreen()
 	StatusChange = true;
 }
 
+void Wizard::DoMouseClick(int x, int y)
+{
+	StatusChange = true;
+	MainPage->DoMouseClick(x, y);
+}
 
 void Wizard::PushEvent(WM_Event& Event)
 {
@@ -396,10 +401,13 @@ void Wizard::EvaluateEvents()
 #endif
 		DoCancelScreen();
 		break;
+	case WMET_MOUSE_CLICK:
+		std::cout << "Mouse clicked at: " << Event.MouseX << ", " << Event.MouseY << std::endl;
+		DoMouseClick(Event.MouseX, Event.MouseY);
+		break;
 	default:
 		StatusChange = false;
 		}
-
 	}
 }
 
@@ -494,7 +502,6 @@ void Wizard::StartSDLVideoMode()
 #ifndef WIN32
 	// Disable DPMS, screen blanking
 	system("/usr/bin/X11/xset -dpms s off");
-	system("/usr/bin/X11/xset r off");
 #endif
 }
 
@@ -590,5 +597,3 @@ bool Wizard::GetAnalogSoundMode()
 {
 	return IsAnalogSound;
 }
-
-

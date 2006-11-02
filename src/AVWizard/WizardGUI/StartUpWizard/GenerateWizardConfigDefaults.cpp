@@ -267,6 +267,12 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 		HighScrollBackColor,
 		HighScrollBackFocusedColor,
 		false));
+	Page->AddChild(CreateControlButton("BtnOK",
+		" OK ",
+		320, 440,
+		0,
+		true
+		));
 
 	DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;
 
@@ -407,13 +413,20 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 
 
 	Page->AddChild(CreateControlScrollList("UIScroll",
-		200, 280,
+		220, 280,
 		200, 140,
 		ScrollBackColor,
 		ScrollBackFocusedColor,
 		HighScrollBackColor,
 		HighScrollBackFocusedColor,
 		false));
+
+	Page->AddChild(CreateControlButton("BtnOK",
+		" OK ",
+		320, 450,
+		0,
+		true
+		));
 
 	Page->SaveToXMLFile(PageNames[3]);
 }
@@ -595,14 +608,14 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 			"ButtonPlus",
 			"+",
 			520, 260,
-			5,
+			10,
 			false
 		));
 	Page->AddChild(CreateControlButton(
 		"ButtonMinus",
 		"-",
 		520, 295,
-		5,
+		10,
 		false
 		));
 
@@ -636,6 +649,14 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 		420, 370,
 		0,
 		true
+		));
+
+	Page->AddChild(CreateControlButton(
+				"ButtonOK",
+				" OK ",
+				480, 440,
+				0,
+				true
 		));
 
 	Page->SaveToXMLFile(PageNames[5]);
@@ -792,18 +813,24 @@ void GenerateWizardConfigDefaults::GeneratePage6(
 		));
 
 	Page->AddChild(CreateControlImage(
-		"SpeakerImage",
+		"VolumeLeft",
 		ImageFolder + "left_off.png",
 		220, 270
 		));
 
 	Page->AddChild(CreateControlImage(
-		"SpeakerImage",
+		"VolumeRight",
 		ImageFolder + "right_off.png",
 		410,
 		270
 		));
 
+	Page->AddChild(CreateControlButton("BtnOK",
+		" OK ",
+		320, 450,
+		0,
+		true
+		));
 
 	std::string FontShadow = SkinGenerator::Instance()->StepFontColorShadow;	
 	int FontSize = Utils::StringToInt32(SkinGenerator::Instance()->TitleFontSize);

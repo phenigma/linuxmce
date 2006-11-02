@@ -54,3 +54,18 @@ WizardPageWelcome::WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name)
 #endif
 	Wizard::GetInstance()->SetExitWithCode(3);
 }
+
+/*virtual*/ void WizardPageWelcome::DoClickWidget(WizardWidgetBase * pWidget)
+{
+#ifdef DEBUG
+	std::cout << "WizardPageWelcome::DoClickWidget" << endl;
+#endif
+	if (pWidget == Page->GetChildRecursive("MainBtn"))
+	{
+		SDL_Event Event;
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_RETURN;
+		SDL_PushEvent(&Event);
+	}
+}

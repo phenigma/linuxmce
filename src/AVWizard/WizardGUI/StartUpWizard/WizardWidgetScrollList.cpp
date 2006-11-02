@@ -183,7 +183,7 @@ void WizardWidgetScrollList::SetItemIndex(int ItemIndex)
 void WizardWidgetScrollList::SetItemIndex(std::string TextToSelect)
 {
 	ItemIndex = -1;
-	for(int i = 0; i< ItemValues.size(); i++)
+	for(size_t i = 0; i < ItemValues.size(); i++)
 		if(TextToSelect == ItemValues[i])
 		{
 			ItemIndex = i;

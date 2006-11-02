@@ -27,6 +27,8 @@
 #define WMET_PLUS_KEY			2021
 #define WMET_MINUS_KEY			2022
 
+#define WMET_MOUSE_CLICK		2100
+
 #define WMET_REFRESH			2500
 
 #define WMET_SAVE				3010
@@ -39,6 +41,7 @@ class WM_Event
 {
 public:
 	int Type;
+	int MouseX, MouseY; // mouse position for mouse events
 
 	/**
 	 *	Set the current event as Quit Event
@@ -53,32 +56,32 @@ public:
 	/**
 	 *	Set the current event as right key event
 	 */
-	void RightKey();	
+	void RightKey();
 
 	/**
 	 *	Set the current event as Up key event
 	 */
-	void UpKey();	
+	void UpKey();
 
 	/**
 	 *	Set the current event as Down key event
 	 */
-	void DownKey();	
+	void DownKey();
 
 	/**
 	 *	Set the current event as Enter key event
 	 */
-	void EnterKey();	
+	void EnterKey();
 
 	/**
 	 *	Set the current event as Escape key event
 	 */
-	void EscapeKey();	
+	void EscapeKey();
 
 	/**
 	 *	Set the current event as Plus key event
 	 */
-	void PlusKey();	
+	void PlusKey();
 
 	/**
 	 *	Set the current event as Minus key event
@@ -88,18 +91,23 @@ public:
 	/**
 	 *	
 	 */
-	void Refresh();	
+	void Refresh();
 
 	/**
 	 *	
 	 */
-	void Save();	
+	void Save();
+
+	/**
+	 *  Set the current event as MouseButton event
+	 */
+	void MouseButton(int x, int y);
 
 	/**
 	 *	Get the event information based on SDL_Event
 	 *	given as parameter
 	 */
-	void ConvertFromSDLEvent(SDL_Event& Event);	
+	void ConvertFromSDLEvent(SDL_Event& Event);
 };
 
 #endif /*WM_EVENT_H_*/

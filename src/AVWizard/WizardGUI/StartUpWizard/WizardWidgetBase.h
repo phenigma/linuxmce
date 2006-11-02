@@ -74,6 +74,8 @@ public:
      *	some controls with default behaviour
      */
     virtual bool ExistAttribute(std::string Name);
+
+	string GetAttribute(std::string Name);
 	/**
 	 *	Set up the attributes from a specified dictionary	
 	 */

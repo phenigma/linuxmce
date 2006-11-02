@@ -30,6 +30,7 @@ public:
 	virtual void DefaultSetup(SettingsDictionary* AVWizardSettings);
 	virtual void DoIncreaseSetting();
 	virtual void DoDecreaseSetting();
+	virtual void DoClickWidget(WizardWidgetBase *pWidget);
 
 	WizardPageDTSTest(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageDTSTest();

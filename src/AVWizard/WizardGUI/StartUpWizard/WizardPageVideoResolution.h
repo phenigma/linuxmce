@@ -22,6 +22,7 @@ public:
 
 	virtual void DoIncreaseSetting();
 	virtual void DoDecreaseSetting();
+	virtual void DoClickWidget(WizardWidgetBase *pWidget);
 
 	WizardPageVideoResolution(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageVideoResolution();
