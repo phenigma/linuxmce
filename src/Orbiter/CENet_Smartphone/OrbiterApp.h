@@ -22,6 +22,8 @@ class LRMenu;
 #define ALERTS_LINK_SUBSTR "security=0"
 #define MAX_URL_LENGTH 512
 
+#define DEFAULT_DATAGRID_ROWHEIGHT 20
+
 #if defined(_VC80_UPGRADE)		//--- CHANGED4WM5 ----//	
 	#define DisplayDevice Display
 #endif
@@ -109,7 +111,9 @@ private:
 	bool HandleDataGridKeys(int nPlutoKey, bool bKeyUp); //handles up, down and enter for data grid
 	bool HandleAutomaticDataGridScrolling(int nPlutoKey, bool bKeyUp); //handles data grid automatic scroll
 	bool HandleCaptureKeyboardKeys(int nPlutoKey, bool bKeyUp, bool bLongKey);
-	void LocalKeyPressed(int nKeyCode);
+	void LocalKeyPressed(int nKeyCode);	
+	bool HandleDataGridStylus( int iX, int iY );
+	void CalcDataGridItemsLayout( unsigned long &ulBottomItem, int &nRowHeight );
 
 	//misc
 	int PlutoKey2VirtualKey(int nPlutoKey);

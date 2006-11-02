@@ -230,10 +230,11 @@ OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hIns
 //---------------------------------------------------------------------------------------------------------
 
 /*virtual*/ bool OrbiterApp::GameInit()
-{
-
+{		
+	
 	ShowDisconnected();
 	RefreshScreen();
+//	Hide();
 
 	return true;
 }
@@ -256,9 +257,15 @@ OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hIns
 {
 	////// Send only Sylus Down	
 	#if defined(SMARTPHONE2005) //rescale coords to Smartphone 2003
-	if ( m_pMainMenu && m_pMainMenu->IsShowing() ) {
-		m_pMainMenu->HandleStylus( stylus.x, stylus.y );
-	}
+		if ( m_pMainMenu && m_pMainMenu->IsShowing() ) {
+			if ( m_pMainMenu->HandleStylus( stylus.x, stylus.y ) ) return;
+		}
+		if( m_bGridExists ){
+			if ( HandleDataGridStylus( stylus.x, stylus.y ) ) {
+				RefreshScreen();
+				return;
+			}
+		}
 		double dVal = ((double)stylus.x)*(176./(double)APP_WIDTH);
 		if ( dVal-(int)dVal>=0.5) ceil(dVal);
 		else floor(dVal);
@@ -301,6 +308,9 @@ void OrbiterApp::SendKey(int nKeyCode, int nEventType)
 		return;
 	// If local rendered menu is active don't send keys
 	if ( m_pMainMenu && m_pMainMenu->IsShowing() ) return;
+
+	// Disable sending keys for unknown codes;
+	if ( nKeyCode<0 ) return; 
 
 	BDCommand *pCommand = new BD_PC_KeyWasPressed(nKeyCode, nEventType);
 	m_pBDCommandProcessor->AddCommand(pCommand);
@@ -356,8 +366,8 @@ void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongK
     if(uMsg == WM_KEYDOWN)
 	{
 		::MessageBeep(MB_ICONASTERISK);
-		nTimeDown = clock();
 		m_bDataKeys = false;
+		nTimeDown = clock();				
 		bIsLongKey = false;
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Key down %d, time %d", wParam, nTimeDown);
@@ -373,7 +383,7 @@ void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongK
 		//Translate virtual keys for Treo
 		PreTranslateVirtualKey( uMsg, &wParam, &bIsLongKey );
 	#endif
-	int nPK_Button = nPK_Button = VirtualKey2PlutoKey(wParam, bIsLongKey);
+	int nPK_Button = VirtualKey2PlutoKey(wParam, bIsLongKey);
 	if(IsRepeatedKey(wParam))
 	{
 		SendKey(nPK_Button ? nPK_Button : - wParam, uMsg == WM_KEYUP);
@@ -400,6 +410,7 @@ void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongK
 
 		return;
 	}
+	
 
 	//handles capture keyboard keys
 	if(HandleCaptureKeyboardKeys(nPK_Button, uMsg == WM_KEYUP, bIsLongKey))
@@ -501,7 +512,7 @@ void OrbiterApp::RenderImage(int nImageType, int nSize, char *pData, int nX, int
 		else //zoom
 		{
 			Rect dest;	
-			dest.Set(nX, nY, nWidth, nHeight);
+			dest.Set(nX, nY, nWidth - 1, nHeight - 1);
 
 			double ZoomX = nWidth / double(Surface_GetWidth);
 			double ZoomY = nHeight / double(Surface_GetHeight);
@@ -705,7 +716,7 @@ void OrbiterApp::RenderDataGrid(unsigned long ulX, unsigned long ulY, unsigned l
 {
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
-	int nRowHeight = 20;
+	int nRowHeight = DEFAULT_DATAGRID_ROWHEIGHT;
 	const int cnSmallOffsetX = 5;
 	const int cnSmallOffsetY = 14;
 	const int cnShadowLen = 3;
@@ -965,6 +976,12 @@ void OrbiterApp::RenderImageQuality()
 //---------------------------------------------------------------------------------------------------------
 bool OrbiterApp::HandleDataGridKeys(int nPlutoKey, bool bKeyUp)
 {
+	if ( m_bGridExists && bKeyUp ) {
+		if( nPlutoKey == BUTTON_Up_Arrow_CONST || nPlutoKey == BUTTON_Down_Arrow_CONST ){
+			m_bDataKeys = true;
+			return false;
+		}
+	}
 	if(m_bGridExists && !bKeyUp)
 	{
 		if(nPlutoKey == BUTTON_Up_Arrow_CONST)
@@ -1854,3 +1871,67 @@ void OrbiterApp::SendMouseEvent( int iX, int iY, int EventType )
 	m_pBDCommandProcessor->AddCommand(pCommand);
 }
 //------------------------------------------------------------------------------------------------------------------
+bool OrbiterApp::HandleDataGridStylus( int iX, int iY )
+{
+	if ( iX<=m_ulGridX || iX>=m_ulGridX+m_ulGridWidth ) return false;
+	if ( iY<=m_ulGridY || iY>=m_ulGridY+m_ulGridHeight ) return false;
+
+	unsigned long ulGridBottomItem = 0;
+	int nRowHeight = 0;
+	CalcDataGridItemsLayout( ulGridBottomItem, nRowHeight );
+	int nCrtPos = m_ulGridY;
+	for(int i = m_ulGridTopItem; i < ulGridBottomItem; i++){
+		if ( iY>nCrtPos && iY<nCrtPos+nRowHeight ) {	
+			m_ulGridSelectedItem = i;
+			SelectCurrentItem();
+			SendKey( BUTTON_Enter_CONST, 2 );
+			return true;
+		}
+		nCrtPos += nRowHeight;
+	}
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------------
+/*
+ *	Copied from RenderDataGrid
+ */ 
+void OrbiterApp::CalcDataGridItemsLayout( unsigned long &ulBottomItem, int &nRowHeight )
+{
+	nRowHeight = DEFAULT_DATAGRID_ROWHEIGHT;
+	int nVisibleItems = m_ulGridHeight / nRowHeight;
+	nRowHeight = m_ulGridHeight / nVisibleItems;
+
+	int i = 0;
+	//let's see how many items are visible right now
+	for(i = m_ulGridTopItem; i < m_ulGridTopItem + nVisibleItems; i++)
+	{
+		if(i >= m_vectDataGrid.size()) 
+			break;
+
+		string s = m_vectDataGrid[i];
+		if(s.find('\n') != string::npos)
+			nVisibleItems--;
+	}
+
+	//scroll the grid if need it
+	while(m_ulGridTopItem + nVisibleItems - 1 < m_ulGridSelectedItem)
+		m_ulGridTopItem++;
+	while(m_ulGridTopItem > m_ulGridSelectedItem)
+		m_ulGridTopItem--;
+
+	//let's see now how many items are visible
+	nVisibleItems = m_ulGridHeight / nRowHeight;
+	for(i = m_ulGridTopItem; i < m_ulGridTopItem + nVisibleItems; i++)
+	{
+		if(i >= m_vectDataGrid.size()) 
+			break;
+
+		string s = m_vectDataGrid[i];
+		if(s.find('\n') != string::npos)
+			nVisibleItems--;
+	}
+	
+	ulBottomItem = m_ulGridTopItem + nVisibleItems;
+
+	if( ulBottomItem > m_vectDataGrid.size() )	ulBottomItem = m_vectDataGrid.size();	
+}
