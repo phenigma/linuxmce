@@ -110,7 +110,7 @@ mv "$TEMP_DIR"/sbin/start-stop-daemon{.pluto-install,}
 mv "$TEMP_DIR"/usr/sbin/invoke-rc.d{.pluto-install,}
 rm -f "$TEMP_DIR"/etc/chroot-install
 
-invoke-rc.d nfs-common restart
+#invoke-rc.d nfs-common restart
 
 mkdir -p "$ARH_DIR"
 pushd "$TEMP_DIR" >/dev/null
