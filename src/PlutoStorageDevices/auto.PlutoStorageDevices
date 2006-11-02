@@ -73,8 +73,7 @@ case "$Template" in
 			IPaddress=$(RunSQL "$Q")
 
 			## Try to see if the computer is up
-			#ping -qnc 1 -W 1 "$IPaddress" &> /dev/null
-			arping -w 1 -c 10 -q "$IPaddress"
+			ping -qnc 1 -W 1 "$IPaddress" &> /dev/null
 			HostIsUp=$?
 			if [[ "$HostIsUp" != "0" ]] ;then
 				Log $LOG_WARN "Host $IPaddress is not responding to our ping"
@@ -103,8 +102,7 @@ case "$Template" in
 		IPaddress=$(Field "1" "$IPaddress")
 
 		## Test to see if that computer is up and running
-		#ping -qnc 1 -W 1 "$IPaddress" &> /dev/null
-		arping -w 1 -c 10 -q "$IPaddress"
+		ping -qnc 1 -W 1 "$IPaddress" &> /dev/null
 		HostIsUp=$?
 		if [[ "$HostIsUp" != 0 ]] ;then
 			Log $LOG_WARN "Device with ip '$IPaddress' that has the samba share associated with device '$StorageDevice' is not responding to our ping"
@@ -151,8 +149,7 @@ case "$Template" in
 		IPaddress=$(Field "1" "$IPaddress")
 
 		## Test to see if that computer is up and running
-		#ping -qnc 1 -W 1 "$IPaddress" &> /dev/null
-		arping -w 1 -c 10 -q "$IPaddress"
+		ping -qnc 1 -W 1 "$IPaddress" &> /dev/null
 		HostIsUp=$?
 		if [[ "$HostIsUp" != 0 ]] ;then
 			Log $LOG_WARN "Device with ip '$IPaddress' that has the samba share associated with device '$StorageDevice' is not responding to our ping"
