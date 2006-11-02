@@ -4,6 +4,7 @@
 #include "MediaDevice.h"
 #include "MediaHandlerInfo.h"
 #include "BoundRemote.h"
+#include "MediaStream.h"
 
 namespace DCE
 {
@@ -33,6 +34,9 @@ namespace DCE
 				delete (*it).second;
 			for(MapBoundRemote::iterator it=m_mapBoundRemote.begin();it!=m_mapBoundRemote.end();++it)
 				delete (*it).second;
+
+			delete m_pMediaStream;
+			m_pMediaStream = NULL;
 		}
 
 		int m_iPK_EntertainArea;
