@@ -130,10 +130,17 @@ if [[ ! "$ResolutionSet" ]]; then
      VideoSetting=$(RunSQL "$Q")
      VideoSetting=$(Field "1" "$VideoSetting")
 
-     Refresh=$(echo $VideoSetting | cut -d '/' -f2)
-     ResolutionInfo=$(echo $VideoSetting | cut -d '/' -f1)
-     ResX=$(echo $ResolutionInfo | cut -d' ' -f1)
-     ResY=$(echo $ResolutionInfo | cut -d' ' -f2)
+	 if [[ "$VideoSettings" ]]; then
+		Refresh=$(echo $VideoSetting | cut -d '/' -f2)
+		ResolutionInfo=$(echo $VideoSetting | cut -d '/' -f1)
+		ResX=$(echo $ResolutionInfo | cut -d' ' -f1)
+		ResY=$(echo $ResolutionInfo | cut -d' ' -f2)
+	else
+		ResX='640'
+		ResY='480'
+		Refresh='60'
+	fi
+	
 	 ScanType=
 	 Resolution="${ResX}x${ResY}@${Refresh}"
 fi
