@@ -36,5 +36,9 @@ public:
     void UpdateSearchTokens();
 	void UpdateThumbnails();
     void SyncDbWithDirectory(string sDirectory);
+
+private:
+
+	bool ConfirmDeviceIsOnline(long EK_Device);			
 };
 #endif

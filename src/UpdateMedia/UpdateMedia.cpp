@@ -30,6 +30,8 @@
 #include "id3info/id3info.h"
 #include "PlutoMediaFile.h"
 #include "pluto_main/Table_Installation.h"
+#include "pluto_main/Table_Device_DeviceData.h"
+#include "pluto_main/Define_DeviceData.h"
 
 #ifdef WIN32
 #include <direct.h>
@@ -555,25 +557,46 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
         string sFilePath = pRow_File->Path_get() + "/" + pRow_File->Filename_get();
         bool bFileIsMissing = !FileUtils::FileExists(sFilePath);
 
-		//TODO: it's on a mounted device?
-		//TODO: the device is online/offline?
+		bool bDeviceOnline = true;
+		if(pRow_File->EK_Device_get() != 0)
+		{
+			Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(
+				pRow_File->EK_Device_get(), DEVICEDATA_Online_CONST);
 
-        if(bFileIsMissing && !pRow_File->Missing_get()) 
-        {
-            pRow_File->Missing_set(1);
-            cout << "Marking record as missing in database: " << sFilePath << endl;
-            bRecordsModified = true;
-        }
-        else if(!bFileIsMissing && pRow_File->Missing_get())
-        {
-            pRow_File->Missing_set(0);
-            cout << "Marking record as NOT missing in database: " << sFilePath << endl;
-            bRecordsModified = true;
-        }
+			if(NULL != pRow_Device_DeviceData)
+				bDeviceOnline = (pRow_Device_DeviceData->IK_DeviceData_get() == "1");
+		}
+		
+		if(bDeviceOnline)
+		{
+			if(bFileIsMissing && !pRow_File->Missing_get()) 
+			{
+				if(ConfirmDeviceIsOnline(pRow_File->EK_Device_get()))
+				{
+					pRow_File->Missing_set(1);
+					g_pPlutoLogger->Write(LV_STATUS, "Marking record as missing in database: %s", sFilePath.c_str());
+					bRecordsModified = true;
+				}
+			}
+			else if(!bFileIsMissing && pRow_File->Missing_get())
+			{
+				pRow_File->Missing_set(0);
+				g_pPlutoLogger->Write(LV_STATUS, "Marking record as NOT missing in database: %s", sFilePath.c_str());
+				bRecordsModified = true;
+			}
+		}
+		else
+			g_pPlutoLogger->Write(LV_STATUS, "Device is offline, skipping the file %s", sFilePath.c_str());
 	}
 
     if(bRecordsModified)
         m_pDatabase_pluto_media->File_get()->Commit();
 
 	g_pPlutoLogger->Write(LV_STATUS, "DB sync'd with directory!");
+}
+
+bool UpdateMedia::ConfirmDeviceIsOnline(long EK_Device)
+{
+	//TODO: find an elegant way to confirm that a device is online
+	return true;
 }
