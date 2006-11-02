@@ -33,6 +33,7 @@ if($ARGV[0] eq "") {
     if(find_gc100() == 1) {
         loggc("GC100 Found\n");
 	$mac = get_gc100mac();
+	loggc("MAC Address: $mac\n");
 	loggc("Finding Installation ");
 	$install = get_install();
 	loggc("[$install]\n");
@@ -202,13 +203,19 @@ sub get_template {
 }
 
 sub get_gc100mac {
-  `curl http://192.168.1.70/Commands.cgi -o gc100mac --silent`;
-  `curl http://192.168.1.101/Commands.cgi -o gc100mac --silent`;
-  open(FILE,"gc100mac");
-  @data = <FILE>;
+  `curl http://192.168.1.70/Commands.cgi -o gc100mac1 --silent`;
+  `curl http://192.168.1.101/Commands.cgi -o gc100mac2 --silent`;
+  open(FILE,"gc100mac1");
+  @data1 = <FILE>;
   close(FILE);
-  $line = $data[0];
-  @vars = split(/ /,$line);
+  open(FILE,"gc100mac2");
+  @data2 = <FILE>;
+  close(FILE);
+  $line1 = $data1[0];
+  $line2 = $data2[0];
+  @vars1 = split(/ /,$line1);
+  @vars2 = split(/ /,$line2);
+  @vars = (@vars1, @vars2);
   $i = 0;
   foreach $line (@vars) {
     if($vars[$i] eq "Address") {
@@ -219,7 +226,7 @@ sub get_gc100mac {
 	    $mac = $frag[0];
 	    $mac =~ tr/\-/\:/;
 	    loggc("Mac Found $mac\n");
-	    system("rm -f gc100mac >> /dev/null");
+	    system("rm -f gc100mac1 gc100mac2");
 	    if($mac eq "") {
 	      exit(1);
 	    }
