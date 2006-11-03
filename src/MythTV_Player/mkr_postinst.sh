@@ -76,10 +76,9 @@ addEntries MasterServerPort	6143;
 
 PID=`pidof /usr/bin/mythbackend` || /bin/true;
 if [ "$PID" != "" ]; then
-	# It seems that in certain circumstances the backed refuses to notice the -9 signal
-	kill -9 $PID;
-	echo "LOCK TABLE schemalock WRITE;" | $mysql_command || :  # Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
 	invoke-rc.d mythtv-backend start || /bin/true
+else
+	invoke-rc.d mythtv-backend restart || /bin/true
 fi
 
 #Create a shortcut to MythTV Setup
