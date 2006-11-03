@@ -62,10 +62,12 @@ case "$1" in
 			sed -r -i "s/.*(noload [=][>] chan_alsa.so)/\1/" /etc/asterisk/modules.conf
 			killall asterisk safe_asterisk || /bin/true
 		fi
+
 		rm -f /etc/init.d/asterisk || /bin/true
 		rm -f /etc/rc?.d/*asterisk || /bin/true
+
 		ln -sf /usr/sbin/amportal /etc/init.d/asterisk || /bin/true
-		ln -sf /etc/init.d/asterisk /etc/rc2.d/S92asterisk || /bin/true
+#		ln -sf /etc/init.d/asterisk /etc/rc2.d/S92asterisk || /bin/true
 
 		mkdir -p /var/lib/asterisk/sounds/voicemail
 		chmod -R ug+rx /var/lib/asterisk/sounds/voicemail
@@ -73,6 +75,7 @@ case "$1" in
 		pushd /usr/local/amp/install &>/dev/null
 		./apply_conf.sh
 		popd &>/dev/null
+
 		### disable modem 
 		echo "Disable modem"
 		sed -r -i "s/^load[ ][=][>][ ]chan_modem\.so//" /etc/asterisk/modules.conf
@@ -80,7 +83,10 @@ case "$1" in
 		chmod -R ug+rw /etc/asterisk/
 		chmod 777 /var /var/lib/ /var/lib/asterisk/ /var/lib/asterisk/sounds/
 		chmod -R ug+rw /var/lib/asterisk/sounds/
-		/etc/init.d/asterisk start || /bin/true
+
+		if [[ "$(pidof asterisk)" != "" ]] ;then
+			invoke-rc.d asterisk restart || /bin/true
+		fi
 		
     ;;
 
