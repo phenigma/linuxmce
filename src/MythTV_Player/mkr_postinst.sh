@@ -6,11 +6,10 @@
 ln -s /usr/lib/libXmu.so.6.2.0 /usr/lib/libXmu.so | :
 # END  : Hack to get mythtv working
 
+## Get a valid mysql connection string to mythconvert
 eval `cat /etc/mythtv/mysql.txt | grep -v "^#" | grep -v "^$"`;
-
 mysql_command="mysql -s -B -u $DBUserName -h $DBHostName -p$DBPassword $DBName";
 
-query="select count(*) from settings where hostname='`hostname`' AND value LIKE 'Backend%'";
 
 function addEntries
 {
@@ -24,13 +23,11 @@ function addEntries
 # make the proper ownership's because the backend can't read it otherwise
 chown mythtv /etc/mythtv/mysql.txt
 
-#Force the backend to make the database structure
+## Force the backend to make the database structure
 echo "LOCK TABLE schemalock WRITE;" | $mysql_command  || :
-# Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
 invoke-rc.d mythtv-backend force-reload || /bin/true
 
 echo "Waiting 3 seconds so that myth backed is able to actually create the schema"
-
 FOUND=0;
 TRIES=20;
 SLEEP=0.5;
@@ -52,6 +49,7 @@ if [ "$FOUND" == "0" ]; then
 	exit 0;
 fi
 
+query="select count(*) from settings where hostname='`hostname`' AND value LIKE 'Backend%'";
 isSetup=`echo "$query" | $mysql_command`;
 
 if [ "$isSetup" != 0  ]; then
@@ -75,6 +73,7 @@ addEntries MasterServerIP	$routerip;
 addEntries MasterServerPort	6143;
 
 PID=`pidof /usr/bin/mythbackend` || /bin/true;
+echo "LOCK TABLE schemalock WRITE;" | $mysql_command  || :
 if [ "$PID" != "" ]; then
 	invoke-rc.d mythtv-backend start || /bin/true
 else
@@ -85,6 +84,7 @@ fi
 #Find the media director -- it could be a child if this is a hybrid
 Q="SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=8 AND (PK_Device=$PK_Device OR FK_Device_ControlledVia=$PK_Device) LIMIT 1"
 PK_Device_MD="$(RunSQL "$Q")"
+
 
 #Do we have a quick launch already?
 Q="SELECT PK_Device_QuickStart FROM Device_QuickStart where FK_Device=$PK_Device_MD AND Description='MythTV Setup'"
