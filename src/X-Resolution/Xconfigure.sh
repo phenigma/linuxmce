@@ -142,7 +142,7 @@ if [[ -z "$ResolutionSet" ]]; then
 	fi
 	
 	ScanType=
-	Resolution="${ResX}x${ResY}@${Refresh}"
+	Resolution="${ResX}x${ResY}"
 fi
 
 if [[ ! -f /usr/pluto/bin/X-ChangeDisplayDriver.awk ]]; then
@@ -245,11 +245,11 @@ if [[ -n "$Resolution" ]]; then
 			break
 		fi
 	done
-	Modeline="$(GenModeline "$ResX" "$ResY" "$Refresh" "$ScanType")"
-	if [[ -z "$nvHD" && " 60 75 " == *" $Refresh "* && "$ResX $ResY" != "1024 768" ]]; then
-		# don't use a modeline for standard refresh rates
-		# (X seems to know only 60 and 75 as "standard", all the others either not working, or giving different resolutions)
-		Modeline=
+
+	Modeline=
+	# Use modeline for HD modes, non-standard VESA modes (60, 75 Hz are considered standard by X), 1024x768@60
+	if [[ -n "$nvHD" || ( -z "$nvHD" && " 60 75 " != *" $Refresh "* ) || ( "$Resolution@$Refresh" == "1024x768@60" ) ]]; then
+		Modeline="$(GenModeline "$ResX" "$ResY" "$Refresh" "$ScanType")"
 	fi
 
 	if ! grep -q "Driver.*\"nvidia\"" "$ConfigFile"; then
