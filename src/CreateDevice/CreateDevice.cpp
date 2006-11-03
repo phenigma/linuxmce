@@ -165,7 +165,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		if( ( result1.r=mysql_query_result( SQL ) ) )
 		{
 g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result1.r->row_count,SQL.c_str());
-			while( row=mysql_fetch_row( result1.r ) )
+			while( (row=mysql_fetch_row( result1.r )) )
 			{
 				mapParametersAdded[ atoi(row[0]) ] = row[1] ? row[1] : "";
 g_pPlutoLogger->Write(LV_STATUS,"Added parameter from category %d %s",atoi(row[0]),mapParametersAdded[ atoi(row[0]) ].c_str());
@@ -186,7 +186,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Added parameter from category %d %s",atoi(row[0
 	if( ( result2.r=mysql_query_result( SQL ) ) )
 	{
 g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result2.r->row_count,SQL.c_str());
-		while( row=mysql_fetch_row( result2.r ) )
+		while( (row=mysql_fetch_row( result2.r )) )
 		{
 			if( mapParametersAdded.find(atoi(row[0]))!=mapParametersAdded.end() )
 			{
@@ -210,7 +210,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Executing %s",SQL.c_str());
 		if( ( result3.r=mysql_query_result( SQL ) ) )
 		{
 g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_count,SQL.c_str());
-			while( row=mysql_fetch_row( result3.r ) )
+			while( (row=mysql_fetch_row( result3.r )) )
 			{
 				if( mapParametersAdded.find(atoi(row[0]))!=mapParametersAdded.end() )
 				{
@@ -258,7 +258,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 		PlutoSqlResult result_child_dev;
 		if( ( result_child_dev.r=mysql_query_result( SQL ) ) )
 		{
-			while( row=mysql_fetch_row( result_child_dev.r ) )
+			while( (row=mysql_fetch_row( result_child_dev.r )) )
 			{
 	g_pPlutoLogger->Write(LV_STATUS,"Found install wizard %d",atoi(row[0]));
 				DoIt(0,atoi(row[0]),"","",0,"",PK_Device);
@@ -271,7 +271,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 		PlutoSqlResult result_child_dev;
 		if( ( result_child_dev.r=mysql_query_result( SQL ) ) )
 		{
-			while( row=mysql_fetch_row( result_child_dev.r ) )
+			while( (row=mysql_fetch_row( result_child_dev.r )) )
 			{
 	g_pPlutoLogger->Write(LV_STATUS,"Found install wizard %d",atoi(row[0]));
 				DoIt(0,atoi(row[0]),"","",0,"",PK_Device);
@@ -369,7 +369,7 @@ void CreateDevice::CreateChildrenByCategory(int iPK_Device,int iPK_DeviceCategor
 	string SQL = "SELECT FK_DeviceTemplate,RerouteMessagesToParent,PK_DeviceTemplate_DeviceCategory_ControlledVia FROM DeviceTemplate_DeviceCategory_ControlledVia WHERE AutoCreateChildren=1 AND FK_DeviceCategory=" + StringUtils::itos(iPK_DeviceCategory);
 	if( ( result.r=mysql_query_result( SQL ) ) )
 	{
-		while( row=mysql_fetch_row( result.r ) )
+		while( (row=mysql_fetch_row( result.r )) )
 		{
 			CreateAutoCreateChildDevice(iPK_Device,atoi(row[0]),row[1] && atoi(row[1]),0,atoi(row[2]));
 		}
@@ -388,7 +388,7 @@ void CreateDevice::CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplat
 	string SQL = "SELECT FK_DeviceTemplate,RerouteMessagesToParent,PK_DeviceTemplate_DeviceTemplate_ControlledVia FROM DeviceTemplate_DeviceTemplate_ControlledVia WHERE AutoCreateChildren=1 AND FK_DeviceTemplate_ControlledVia=" + StringUtils::itos(iPK_DeviceTemplate);
 	if( ( result.r=mysql_query_result( SQL ) ) )
 	{
-		while( row=mysql_fetch_row( result.r ) )
+		while( (row=mysql_fetch_row( result.r )) )
 		{
 			CreateAutoCreateChildDevice(iPK_Device,atoi(row[0]),row[1] && atoi(row[1]),atoi(row[2]),0);
 		}
@@ -416,7 +416,7 @@ void CreateDevice::CreateAutoCreateChildDevice(int iPK_Device_Parent,int PK_Devi
 	if( ( result.r=mysql_query_result( SQL ) ) )
 	{
 		string sLastDescription;
-		while( row=mysql_fetch_row( result.r ) )
+		while( (row=mysql_fetch_row( result.r )) )
 		{
 			SQL = "INSERT INTO Device_Device_Pipe(FK_Device_To,FK_Device_From,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES(";
 			if( row[3] && atoi(row[3]) )
@@ -444,7 +444,7 @@ void CreateDevice::ConfirmAllRelations()
 	string SQL = "SELECT PK_Device FROM Device WHERE FK_Installation=" + StringUtils::itos(m_iPK_Installation);
 	if( ( result.r=mysql_query_result( SQL ) ) )
 	{
-		while( row=mysql_fetch_row( result.r ) )
+		while( (row=mysql_fetch_row( result.r )) )
 		{
 			int PK_Device = atoi(row[0]);
 			ConfirmRelations(PK_Device);
@@ -485,7 +485,7 @@ void CreateDevice::ConfirmRelations(int PK_Device,bool bRecurseChildren,bool bOn
 	if( ( result_related.r=mysql_query_result( SQL ) ) )
 	{
 g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) result_related.r->row_count,SQL.c_str());
-		while( row=mysql_fetch_row( result_related.r ) )
+		while( (row=mysql_fetch_row( result_related.r )) )
 		{
 			int iPK_DeviceTemplate_Related = atoi(row[0]);
 			int iRelation= (row[1] ? atoi(row[1]) : 0);
@@ -557,7 +557,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) res
 		if( ( result_child_dev.r=mysql_query_result( SQL ) ) )
 		{
 	g_pPlutoLogger->Write(LV_STATUS,"Found result_child_dev %d rows with %s",(int) result_child_dev.r->row_count,SQL.c_str());
-			while( row=mysql_fetch_row( result_child_dev.r ) )
+			while( (row=mysql_fetch_row( result_child_dev.r )) )
 				ConfirmRelations(atoi(row[0]),true);
 		}
 	}
@@ -605,7 +605,7 @@ void CreateDevice::FixControlledViaIfEmbeddedIsMoreValid(int PK_DeviceTemplate,i
 	if( result3.r )
 	{
 		MYSQL_ROW row;
-		while( row=mysql_fetch_row( result3.r ) )
+		while( (row=mysql_fetch_row( result3.r )) )
 		{
 			// If this is a valid choice use it instead
 			int PK_Device = atoi(row[0]);
