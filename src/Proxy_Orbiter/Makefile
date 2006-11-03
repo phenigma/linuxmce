@@ -52,7 +52,6 @@ sources += \
 	../Orbiter/ObjectRendererFactory.cpp \
 	../Splitter/TextWrapper.cpp \
 	../Splitter/TextSplitter.cpp \
-	../OrbiterGen/Renderer.cpp \
 	../PlutoUtils/HttpUtils.cpp \
 	../LIRC_DCE/IRReceiverBase.cpp 
 

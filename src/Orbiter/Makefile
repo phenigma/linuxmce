@@ -78,7 +78,6 @@ sources += \
 	../CreateDevice/UserUtils.cpp \
 	$(ROOT)/Splitter/TextSplitter.cpp \
 	$(ROOT)/Splitter/TextWrapper.cpp \
-	$(ROOT)/OrbiterGen/Renderer.cpp \
 	Linux/X3DButton.cpp Linux/X3DWindow.cpp Linux/XProgressWnd.cpp Linux/XPromptUser.cpp\
 	../LIRC_DCE/IRReceiverBase.cpp \
 	$(ROOT)/utilities/linux/transparency/transparency.cpp \
