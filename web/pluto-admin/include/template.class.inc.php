@@ -75,7 +75,7 @@ function setTemplateFileType($type) {
 	$this->templateType = $type;
 	switch($type){
 		case 'homeWithFrames':
-			if(@$_REQUEST['section']=='mediaFilesSyncFrameset'){
+			if(@$_REQUEST['section']=='mediaFilesSyncFrameset' || @$_REQUEST['section']=='mediaBrowserFrameset'){
 				$_SESSION['lastLeftFrameSrc']='';
 				$_SESSION['lastRightFrameSrc']='';
 			}
