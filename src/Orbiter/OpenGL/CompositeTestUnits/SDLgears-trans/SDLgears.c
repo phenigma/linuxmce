@@ -307,14 +307,14 @@ int main(int argc, char *argv[])
 
   SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT);
   SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_WINDOW_BIT);
-  SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      1);
-  SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    1);
-  SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     1);
-  SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    1);
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  1);
-  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    1);
+  SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      8);
+  SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    8);
+  SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     8);
+  SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  0);
+  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    0);
 
-  screen = SDL_SetVideoMode(300, 300, 16, SDL_OPENGL|SDL_RESIZABLE);
+  screen = SDL_SetVideoMode(300, 300, 32, SDL_OPENGL|SDL_RESIZABLE);
   if ( ! screen ) {
     fprintf(stderr, "Couldn't set 300x300 GL video mode: %s\n", SDL_GetError());
     SDL_Quit();
