@@ -22,7 +22,7 @@ public:
 	TextStyle(class Row_StyleVariation *pRow_StyleVariation);
 	TextStyle() { m_pTTF_Font=NULL; } // Needed for de-serializing
 
-	TextStyle::~TextStyle();
+	virtual ~TextStyle();
 	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
 };
 
