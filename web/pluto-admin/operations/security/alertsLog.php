@@ -38,13 +38,19 @@ function alertsLog($output,$securitydbADO,$dbADO) {
 			ORDER BY DetectionTime DESC';
 		$out.=multipageAlertsLogs($query, 'index.php?section=alertsLog', (isset($_GET['page_no']))?$_GET['page_no']-1:0, 10,$securitydbADO,$dbADO);
 		
-		$out.='		
+		$out.='
+			<div align="center">'.$TEXT_DELETE_ALERTS_OLDER_THAN_CONST.' <input type="text" name="adate" value="'.date('Y-m-d').'"> <input type="submit" class="button" name="go" value="OK"></div>		
 		</form>
 		';
 	} else {
-		// no processing 
+		if(isset($_POST['go'])){
+			deleteAlerts($_POST['adate'],$securitydbADO);
+			
+			header("Location: index.php?section=alertsLog&msg=".urlencode($TEXT_ALERTS_REMOVED_CONST));
+			exit();
+		}
 				
-		header("Location: index.php?section=alertsLog&msg=Alerts types updated.");
+		header("Location: index.php?section=alertsLog&msg=");
 	}
 	
 	$output->setMenuTitle($TEXT_SECURITY_CONST.' |');
@@ -182,4 +188,14 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 	return $out;
 }
 
+function deleteAlerts($adate,$securitydbADO){
+
+	$alerts=getAssocArray('Alert','PK_Alert','DetectionTime',$securitydbADO,'WHERE UNIX_TIMESTAMP(DetectionTime) <= UNIX_TIMESTAMP(\''.$adate.'\')');
+	if(count($alerts)>0){
+		$keys=array_keys($alerts);
+		$securitydbADO->Execute('DELETE FROM Alert_Device WHERE FK_Alert IN ('.join(',',$keys).')');
+		$securitydbADO->Execute('DELETE FROM Notification WHERE FK_Alert IN ('.join(',',$keys).')');
+		$securitydbADO->Execute('DELETE FROM Alert WHERE PK_Alert IN ('.join(',',$keys).')');
+	}
+}
 ?>
