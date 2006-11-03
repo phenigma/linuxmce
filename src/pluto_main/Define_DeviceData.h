@@ -165,8 +165,10 @@
 #define DEVICEDATA_Domain_CONST 187
 #define DEVICEDATA_Computer_name_CONST 188
 #define DEVICEDATA_Setup_Script_CONST 189
-#define DEVICEDATA_Readonly_CONST 190
-#define DEVICEDATA_Online_CONST 191
+#define DEVICEDATA_Readonly_CONST 194
+#define DEVICEDATA_Online_CONST 195
+#define DEVICEDATA_Output_Channels_CONST 196
+#define DEVICEDATA_Realtime_Priority_CONST 197
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
