@@ -1109,6 +1109,9 @@
 #define TEXT_yes_capture_card_port_CONST 1825
 #define TEXT_Installed_Apps_Title_CONST 1826
 #define TEXT_Installed_Apps_Category_CONST 1827
+#define TEXT_TV_Channel_info_CONST 1828
+#define TEXT_TV_Channel_name_CONST 1829
+#define TEXT_TV_Channel_time_CONST 1830
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

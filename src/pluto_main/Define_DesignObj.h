@@ -2247,6 +2247,8 @@
 #define DESIGNOBJ_Default_Scroll_Up_CONST 5194
 #define DESIGNOBJ_Default_Scroll_Down_CONST 5195
 #define DESIGNOBJ_objBackground_CONST 5196
+#define DESIGNOBJ_cellTVChannels_CONST 5198
+#define DESIGNOBJ_iconTVChannels_CONST 5199
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
