@@ -19,9 +19,11 @@ case "$1" in
 esac
 
 exit 0
-diff -ruN xine-lib-1.1.2-via/configure.ac xine-lib-1.1.2-my-2/configure.ac
+
+@DPATCH@
+diff -ruN xine-lib-1.1.2-via/configure.ac xine-lib-1.1.2-my-3/configure.ac
 --- xine-lib-1.1.2-via/configure.ac	2006-07-26 19:44:36.000000000 +0300
-+++ xine-lib-1.1.2-my-2/configure.ac	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/configure.ac	2006-10-18 21:43:55.000000000 +0300
 @@ -26,6 +26,16 @@
    XINE_SUBPART=".$XINE_SUB"
  #fi
@@ -95,9 +97,9 @@ diff -ruN xine-lib-1.1.2-via/configure.ac xine-lib-1.1.2-my-2/configure.ac
  
  dnl ---------------------------------------------
  dnl check posix timers
-diff -ruN xine-lib-1.1.2-via/include/via_def.h xine-lib-1.1.2-my-2/include/via_def.h
+diff -ruN xine-lib-1.1.2-via/include/via_def.h xine-lib-1.1.2-my-3/include/via_def.h
 --- xine-lib-1.1.2-via/include/via_def.h	1970-01-01 03:00:00.000000000 +0300
-+++ xine-lib-1.1.2-my-2/include/via_def.h	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/include/via_def.h	2006-10-18 21:43:55.000000000 +0300
 @@ -0,0 +1,202 @@
 +/*
 + *    Copyright (c) 1998-2006 VIA Technologies, Inc.
@@ -301,9 +303,9 @@ diff -ruN xine-lib-1.1.2-via/include/via_def.h xine-lib-1.1.2-my-2/include/via_d
 +} bmpinfoheader_t,* pbmpinfoheader_t;//bmp aligned by 4 bytes
 +
 +#endif
-diff -ruN xine-lib-1.1.2-via/include/xine.h.in xine-lib-1.1.2-my-2/include/xine.h.in
+diff -ruN xine-lib-1.1.2-via/include/xine.h.in xine-lib-1.1.2-my-3/include/xine.h.in
 --- xine-lib-1.1.2-via/include/xine.h.in	2006-07-26 19:44:36.000000000 +0300
-+++ xine-lib-1.1.2-my-2/include/xine.h.in	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/include/xine.h.in	2006-10-18 21:43:55.000000000 +0300
 @@ -1,4 +1,6 @@
  /*
 + * Copyright (c) 1998-2006 VIA Technologies, Inc.
@@ -834,9 +836,9 @@ diff -ruN xine-lib-1.1.2-via/include/xine.h.in xine-lib-1.1.2-my-2/include/xine.
  
  #ifndef XINE_DISABLE_DEPRECATED_FEATURES
  
-diff -ruN xine-lib-1.1.2-via/src/libmpeg2/decode.c xine-lib-1.1.2-my-2/src/libmpeg2/decode.c
+diff -ruN xine-lib-1.1.2-via/src/libmpeg2/decode.c xine-lib-1.1.2-my-3/src/libmpeg2/decode.c
 --- xine-lib-1.1.2-via/src/libmpeg2/decode.c	2006-07-26 19:44:36.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/libmpeg2/decode.c	2006-11-02 08:09:35.000000000 +0200
++++ xine-lib-1.1.2-my-3/src/libmpeg2/decode.c	2006-11-02 08:09:35.000000000 +0200
 @@ -43,6 +43,7 @@
  #include "mpeg2_internal.h"
  #include "xineutils.h"
@@ -1408,9 +1410,9 @@ diff -ruN xine-lib-1.1.2-via/src/libmpeg2/decode.c xine-lib-1.1.2-my-2/src/libmp
 -  }
 +  };
  }
-diff -ruN xine-lib-1.1.2-via/src/libmpeg2/header.c xine-lib-1.1.2-my-2/src/libmpeg2/header.c
+diff -ruN xine-lib-1.1.2-via/src/libmpeg2/header.c xine-lib-1.1.2-my-3/src/libmpeg2/header.c
 --- xine-lib-1.1.2-via/src/libmpeg2/header.c	2006-07-26 19:44:36.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/libmpeg2/header.c	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/libmpeg2/header.c	2006-10-18 21:43:55.000000000 +0300
 @@ -65,6 +65,20 @@
      53,60,61,54,47,55,62,63
  };
@@ -1497,9 +1499,9 @@ diff -ruN xine-lib-1.1.2-via/src/libmpeg2/header.c xine-lib-1.1.2-my-2/src/libmp
  
      /* these are not used by the decoder */
      picture->top_field_first = buffer[3] >> 7;
-diff -ruN xine-lib-1.1.2-via/src/libmpeg2/libmpeg2_accel.c xine-lib-1.1.2-my-2/src/libmpeg2/libmpeg2_accel.c
+diff -ruN xine-lib-1.1.2-via/src/libmpeg2/libmpeg2_accel.c xine-lib-1.1.2-my-3/src/libmpeg2/libmpeg2_accel.c
 --- xine-lib-1.1.2-via/src/libmpeg2/libmpeg2_accel.c	2006-07-26 19:44:36.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/libmpeg2/libmpeg2_accel.c	2006-11-02 08:09:35.000000000 +0200
++++ xine-lib-1.1.2-my-3/src/libmpeg2/libmpeg2_accel.c	2006-11-02 08:09:35.000000000 +0200
 @@ -24,6 +24,7 @@
  #include "mpeg2.h"
  #include "mpeg2_internal.h"
@@ -1582,9 +1584,9 @@ diff -ruN xine-lib-1.1.2-via/src/libmpeg2/libmpeg2_accel.c xine-lib-1.1.2-my-2/s
    default:
      mpeg2_slice (picture, code, buffer);
      break;
-diff -ruN xine-lib-1.1.2-via/src/libmpeg2/libmpeg2_accel.h xine-lib-1.1.2-my-2/src/libmpeg2/libmpeg2_accel.h
+diff -ruN xine-lib-1.1.2-via/src/libmpeg2/libmpeg2_accel.h xine-lib-1.1.2-my-3/src/libmpeg2/libmpeg2_accel.h
 --- xine-lib-1.1.2-via/src/libmpeg2/libmpeg2_accel.h	2006-07-26 19:44:36.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/libmpeg2/libmpeg2_accel.h	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/libmpeg2/libmpeg2_accel.h	2006-10-18 21:43:55.000000000 +0300
 @@ -34,6 +34,30 @@
    int slices_per_row;
    int row_slice_count;
@@ -1616,9 +1618,9 @@ diff -ruN xine-lib-1.1.2-via/src/libmpeg2/libmpeg2_accel.h xine-lib-1.1.2-my-2/s
  } mpeg2dec_accel_t;
  
  extern int libmpeg2_accel_discontinuity(mpeg2dec_accel_t *accel, uint32_t frame_format, picture_t *picture);
-diff -ruN xine-lib-1.1.2-via/src/libmpeg2/Makefile.am xine-lib-1.1.2-my-2/src/libmpeg2/Makefile.am
+diff -ruN xine-lib-1.1.2-via/src/libmpeg2/Makefile.am xine-lib-1.1.2-my-3/src/libmpeg2/Makefile.am
 --- xine-lib-1.1.2-via/src/libmpeg2/Makefile.am	2006-07-26 19:44:36.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/libmpeg2/Makefile.am	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/libmpeg2/Makefile.am	2006-10-18 21:43:55.000000000 +0300
 @@ -22,6 +22,7 @@
  	slice.c \
  	slice_xvmc.c \
@@ -1627,9 +1629,9 @@ diff -ruN xine-lib-1.1.2-via/src/libmpeg2/Makefile.am xine-lib-1.1.2-my-2/src/li
  	stats.c \
  	xine_decoder.c \
  	libmpeg2_accel.c
-diff -ruN xine-lib-1.1.2-via/src/libmpeg2/mpeg2_internal.h xine-lib-1.1.2-my-2/src/libmpeg2/mpeg2_internal.h
+diff -ruN xine-lib-1.1.2-via/src/libmpeg2/mpeg2_internal.h xine-lib-1.1.2-my-3/src/libmpeg2/mpeg2_internal.h
 --- xine-lib-1.1.2-via/src/libmpeg2/mpeg2_internal.h	2006-07-26 19:44:36.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/libmpeg2/mpeg2_internal.h	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/libmpeg2/mpeg2_internal.h	2006-10-18 21:43:55.000000000 +0300
 @@ -31,6 +31,13 @@
  #include <altivec.h>
  #endif
@@ -1677,9 +1679,9 @@ diff -ruN xine-lib-1.1.2-via/src/libmpeg2/mpeg2_internal.h xine-lib-1.1.2-my-2/s
  } picture_t;
  
  typedef struct cpu_state_s {
-diff -ruN xine-lib-1.1.2-via/src/libmpeg2/slice.c xine-lib-1.1.2-my-2/src/libmpeg2/slice.c
+diff -ruN xine-lib-1.1.2-via/src/libmpeg2/slice.c xine-lib-1.1.2-my-3/src/libmpeg2/slice.c
 --- xine-lib-1.1.2-via/src/libmpeg2/slice.c	2006-07-26 19:44:36.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/libmpeg2/slice.c	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/libmpeg2/slice.c	2006-10-18 21:43:55.000000000 +0300
 @@ -39,6 +39,369 @@
      56, 64, 72, 80, 88, 96, 104, 112
  };
@@ -2462,9 +2464,9 @@ diff -ruN xine-lib-1.1.2-via/src/libmpeg2/slice.c xine-lib-1.1.2-my-2/src/libmpe
  #undef bit_buf
  #undef bits
  #undef bit_ptr
-diff -ruN xine-lib-1.1.2-via/src/libmpeg2/slice_vmi.c xine-lib-1.1.2-my-2/src/libmpeg2/slice_vmi.c
+diff -ruN xine-lib-1.1.2-via/src/libmpeg2/slice_vmi.c xine-lib-1.1.2-my-3/src/libmpeg2/slice_vmi.c
 --- xine-lib-1.1.2-via/src/libmpeg2/slice_vmi.c	1970-01-01 03:00:00.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/libmpeg2/slice_vmi.c	2006-11-02 08:04:26.000000000 +0200
++++ xine-lib-1.1.2-my-3/src/libmpeg2/slice_vmi.c	2006-11-02 08:04:26.000000000 +0200
 @@ -0,0 +1,331 @@
 +/*
 + *    Copyright (c) 1998-2006 VIA Technologies, Inc.
@@ -2797,9 +2799,9 @@ diff -ruN xine-lib-1.1.2-via/src/libmpeg2/slice_vmi.c xine-lib-1.1.2-my-2/src/li
 +  
 + slice_vmi_reset (&mpeg2dec->accel);  // I don't think there is anything more to do.
 +}
-diff -ruN xine-lib-1.1.2-via/src/libmpeg2/slice_vmi.h xine-lib-1.1.2-my-2/src/libmpeg2/slice_vmi.h
+diff -ruN xine-lib-1.1.2-via/src/libmpeg2/slice_vmi.h xine-lib-1.1.2-my-3/src/libmpeg2/slice_vmi.h
 --- xine-lib-1.1.2-via/src/libmpeg2/slice_vmi.h	1970-01-01 03:00:00.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/libmpeg2/slice_vmi.h	2006-10-19 01:30:30.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/libmpeg2/slice_vmi.h	2006-10-19 01:30:30.000000000 +0300
 @@ -0,0 +1,13 @@
 +#ifndef _SLICE_VMI_H
 +#define _SLICE_VMI_H
@@ -2814,9 +2816,9 @@ diff -ruN xine-lib-1.1.2-via/src/libmpeg2/slice_vmi.h xine-lib-1.1.2-my-2/src/li
 +void vmi_reset (mpeg2dec_t * mpeg2dec);
 +
 +#endif
-diff -ruN xine-lib-1.1.2-via/src/video_out/Makefile.am xine-lib-1.1.2-my-2/src/video_out/Makefile.am
+diff -ruN xine-lib-1.1.2-via/src/video_out/Makefile.am xine-lib-1.1.2-my-3/src/video_out/Makefile.am
 --- xine-lib-1.1.2-via/src/video_out/Makefile.am	2006-07-26 19:44:36.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/video_out/Makefile.am	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/video_out/Makefile.am	2006-10-18 21:43:55.000000000 +0300
 @@ -78,6 +78,22 @@
  macosx_module = xineplug_vo_out_macosx.la
  endif
@@ -2877,9 +2879,9 @@ diff -ruN xine-lib-1.1.2-via/src/video_out/Makefile.am xine-lib-1.1.2-my-2/src/v
 +
  noinst_HEADERS = deinterlace.h video_out_syncfb.h \
  	yuv2rgb.h x11osd.h
-diff -ruN xine-lib-1.1.2-via/src/video_out/video_out_vmi.c xine-lib-1.1.2-my-2/src/video_out/video_out_vmi.c
+diff -ruN xine-lib-1.1.2-via/src/video_out/video_out_vmi.c xine-lib-1.1.2-my-3/src/video_out/video_out_vmi.c
 --- xine-lib-1.1.2-via/src/video_out/video_out_vmi.c	1970-01-01 03:00:00.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/video_out/video_out_vmi.c	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/video_out/video_out_vmi.c	2006-10-18 21:43:55.000000000 +0300
 @@ -0,0 +1,3966 @@
 +/*
 + *    Copyright (c) 1998-2006 VIA Technologies, Inc.
@@ -6847,9 +6849,9 @@ diff -ruN xine-lib-1.1.2-via/src/video_out/video_out_vmi.c xine-lib-1.1.2-my-2/s
 +  { PLUGIN_VIDEO_OUT, 21, "cle266x11", XINE_VERSION_CODE, &vo_info_cle266x11, init_class_x11 },
 +  { PLUGIN_NONE, 0, "", 0, NULL, NULL }
 +};
-diff -ruN xine-lib-1.1.2-via/src/xine-engine/accel_xvmc.h xine-lib-1.1.2-my-2/src/xine-engine/accel_xvmc.h
+diff -ruN xine-lib-1.1.2-via/src/xine-engine/accel_xvmc.h xine-lib-1.1.2-my-3/src/xine-engine/accel_xvmc.h
 --- xine-lib-1.1.2-via/src/xine-engine/accel_xvmc.h	2006-07-26 19:44:36.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/xine-engine/accel_xvmc.h	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/xine-engine/accel_xvmc.h	2006-10-18 21:43:55.000000000 +0300
 @@ -126,6 +126,24 @@
  #define XINE_XVMC_ACCEL_IDCT   0x00000002
  #define XINE_XVMC_ACCEL_VLD    0x00000004
@@ -6875,9 +6877,9 @@ diff -ruN xine-lib-1.1.2-via/src/xine-engine/accel_xvmc.h xine-lib-1.1.2-my-2/sr
  
  /* xvmc acceleration types */
  #define XINE_VO_MOTION_ACCEL   1
-diff -ruN xine-lib-1.1.2-via/src/xine-engine/viafb.h xine-lib-1.1.2-my-2/src/xine-engine/viafb.h
+diff -ruN xine-lib-1.1.2-via/src/xine-engine/viafb.h xine-lib-1.1.2-my-3/src/xine-engine/viafb.h
 --- xine-lib-1.1.2-via/src/xine-engine/viafb.h	1970-01-01 03:00:00.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/xine-engine/viafb.h	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/xine-engine/viafb.h	2006-10-18 21:43:55.000000000 +0300
 @@ -0,0 +1,56 @@
 +/*
 + * Copyright 1998-2006 VIA Technologies, Inc. All Rights Reserved.
@@ -6935,9 +6937,9 @@ diff -ruN xine-lib-1.1.2-via/src/xine-engine/viafb.h xine-lib-1.1.2-my-2/src/xin
 +    unsigned long     mem_base;
 +    unsigned long     offset_sec; 
 +};
-diff -ruN xine-lib-1.1.2-via/src/xine-engine/viampg.h xine-lib-1.1.2-my-2/src/xine-engine/viampg.h
+diff -ruN xine-lib-1.1.2-via/src/xine-engine/viampg.h xine-lib-1.1.2-my-3/src/xine-engine/viampg.h
 --- xine-lib-1.1.2-via/src/xine-engine/viampg.h	1970-01-01 03:00:00.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/xine-engine/viampg.h	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/xine-engine/viampg.h	2006-10-18 21:43:55.000000000 +0300
 @@ -0,0 +1,339 @@
 +/*
 + * Copyright 1998-2006 VIA Technologies, Inc. All Rights Reserved.
@@ -7278,9 +7280,9 @@ diff -ruN xine-lib-1.1.2-via/src/xine-engine/viampg.h xine-lib-1.1.2-my-2/src/xi
 +
 +#endif
 +
-diff -ruN xine-lib-1.1.2-via/src/xine-engine/via_types.h xine-lib-1.1.2-my-2/src/xine-engine/via_types.h
+diff -ruN xine-lib-1.1.2-via/src/xine-engine/via_types.h xine-lib-1.1.2-my-3/src/xine-engine/via_types.h
 --- xine-lib-1.1.2-via/src/xine-engine/via_types.h	1970-01-01 03:00:00.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/xine-engine/via_types.h	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/xine-engine/via_types.h	2006-10-18 21:43:55.000000000 +0300
 @@ -0,0 +1,77 @@
 +/*
 + * Copyright 1998-2006 VIA Technologies, Inc. All Rights Reserved.
@@ -7359,9 +7361,9 @@ diff -ruN xine-lib-1.1.2-via/src/xine-engine/via_types.h xine-lib-1.1.2-my-2/src
 +
 +#endif
 +
-diff -ruN xine-lib-1.1.2-via/src/xine-engine/viavid.h xine-lib-1.1.2-my-2/src/xine-engine/viavid.h
+diff -ruN xine-lib-1.1.2-via/src/xine-engine/viavid.h xine-lib-1.1.2-my-3/src/xine-engine/viavid.h
 --- xine-lib-1.1.2-via/src/xine-engine/viavid.h	1970-01-01 03:00:00.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/xine-engine/viavid.h	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/xine-engine/viavid.h	2006-10-18 21:43:55.000000000 +0300
 @@ -0,0 +1,490 @@
 + /*
 + * Copyright 1998-2006 VIA Technologies, Inc. All Rights Reserved.
@@ -7853,9 +7855,9 @@ diff -ruN xine-lib-1.1.2-via/src/xine-engine/viavid.h xine-lib-1.1.2-my-2/src/xi
 +#define SET_HQV_FILTER          1
 +
 +#endif  /* end of _VIAVID_H */
-diff -ruN xine-lib-1.1.2-via/src/xine-engine/video_out.h xine-lib-1.1.2-my-2/src/xine-engine/video_out.h
+diff -ruN xine-lib-1.1.2-via/src/xine-engine/video_out.h xine-lib-1.1.2-my-3/src/xine-engine/video_out.h
 --- xine-lib-1.1.2-via/src/xine-engine/video_out.h	2006-07-26 19:44:36.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/xine-engine/video_out.h	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/xine-engine/video_out.h	2006-10-18 21:43:55.000000000 +0300
 @@ -1,4 +1,6 @@
  /*
 + * Copyright (c) 1998-2006 VIA Technologies, Inc.
@@ -8199,9 +8201,9 @@ diff -ruN xine-lib-1.1.2-via/src/xine-engine/video_out.h xine-lib-1.1.2-my-2/src
  };
  
  
-diff -ruN xine-lib-1.1.2-via/src/xine-engine/vo_scale.c xine-lib-1.1.2-my-2/src/xine-engine/vo_scale.c
+diff -ruN xine-lib-1.1.2-via/src/xine-engine/vo_scale.c xine-lib-1.1.2-my-3/src/xine-engine/vo_scale.c
 --- xine-lib-1.1.2-via/src/xine-engine/vo_scale.c	2006-07-26 19:44:36.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/xine-engine/vo_scale.c	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/xine-engine/vo_scale.c	2006-10-18 21:43:55.000000000 +0300
 @@ -72,9 +72,15 @@
      case XINE_VO_ASPECT_SQUARE:
        desired_ratio = image_ratio;
@@ -8291,9 +8293,9 @@ diff -ruN xine-lib-1.1.2-via/src/xine-engine/vo_scale.c xine-lib-1.1.2-my-2/src/
    default:
      return "unknown";
    }
-diff -ruN xine-lib-1.1.2-via/src/xine-engine/vo_scale.h xine-lib-1.1.2-my-2/src/xine-engine/vo_scale.h
+diff -ruN xine-lib-1.1.2-via/src/xine-engine/vo_scale.h xine-lib-1.1.2-my-3/src/xine-engine/vo_scale.h
 --- xine-lib-1.1.2-via/src/xine-engine/vo_scale.h	2006-07-26 19:44:36.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/xine-engine/vo_scale.h	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/xine-engine/vo_scale.h	2006-10-18 21:43:55.000000000 +0300
 @@ -107,6 +107,9 @@
     */
    double             gui_pixel_aspect;
@@ -8313,9 +8315,23 @@ diff -ruN xine-lib-1.1.2-via/src/xine-engine/vo_scale.h xine-lib-1.1.2-my-2/src/
    
    void (*dest_size_cb) (void *user_data,
  			int video_width, int video_height, 
-diff -ruN xine-lib-1.1.2-via/src/xine-engine/xine_internal.h xine-lib-1.1.2-my-2/src/xine-engine/xine_internal.h
+diff -ruN xine-lib-1.1.2-via/src/xine-engine/xine.c xine-lib-1.1.2-my-3/src/xine-engine/xine.c
+--- xine-lib-1.1.2-via/src/xine-engine/xine.c	2006-07-26 19:44:36.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/xine-engine/xine.c	2006-11-03 04:07:37.000000000 +0200
+@@ -1812,6 +1812,10 @@
+         frame->width, frame->height);
+       break;
+ 
++    case XINE_IMGFMT_VIA: //tzhou: the format of img  are all changed  to  XINE_IMGFMT_YV12 
++    	stream->video_out->driver->get_last_frame_from_hw(stream->video_out->driver, img, *width, *height );
++ 	break;
++    
+     default:
+       xprintf (stream->xine, XINE_VERBOSITY_DEBUG, 
+ 	       "xine: error, snapshot function not implemented for format 0x%x\n", frame->format);
+diff -ruN xine-lib-1.1.2-via/src/xine-engine/xine_internal.h xine-lib-1.1.2-my-3/src/xine-engine/xine_internal.h
 --- xine-lib-1.1.2-via/src/xine-engine/xine_internal.h	2006-07-26 19:44:36.000000000 +0300
-+++ xine-lib-1.1.2-my-2/src/xine-engine/xine_internal.h	2006-10-18 21:43:55.000000000 +0300
++++ xine-lib-1.1.2-my-3/src/xine-engine/xine_internal.h	2006-10-18 21:43:55.000000000 +0300
 @@ -227,7 +227,11 @@
  
    /* input_dvd uses this one. is it possible to add helper functions instead? */
