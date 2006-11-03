@@ -988,20 +988,26 @@ NODEP_CPP_DESIG=\
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_DESIG=\
-	"..\..\DCE\Message.h"\
-	"..\..\DCE\PreformedCommand.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
-	"..\..\pluto_main\Define_Command.h"\
-	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\OrbiterGen\DesignObj_Generator.h"\
+	"..\..\OrbiterGen\OGText.h"\
+	"..\..\pluto_main\Database_pluto_main.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
-	"..\..\pluto_main\Define_DeviceTemplate.h"\
-	"..\..\pluto_main\Define_Event.h"\
-	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_DesignObjVariation_Text_Skin_Language.h"\
+	"..\..\pluto_main\Table_DesignObjVariation_Text_Skin_Language.h"\
+	"..\..\pluto_main\TableRow.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
 	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
 	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MySQLHelper.h"\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
@@ -1014,6 +1020,7 @@ DEP_CPP_DESIG=\
 	"..\ObjectRendererFactory.h"\
 	"..\PlutoGraphic.h"\
 	"..\TextStyle.h"\
+	".\wince.h"\
 	
 NODEP_CPP_DESIG=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
@@ -1168,10 +1175,12 @@ DEP_CPP_DESIGN=\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
 	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObj.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_DeviceData.h"\
@@ -1179,6 +1188,7 @@ DEP_CPP_DESIGN=\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\pluto_main\Define_UI.h"\
+	"..\..\pluto_main\Define_Variable.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1193,6 +1203,7 @@ DEP_CPP_DESIGN=\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
+	"..\CallBackData.h"\
 	"..\CallBackTypes.h"\
 	"..\DataGridRenderer.h"\
 	"..\DesignObj_Data.h"\
@@ -1205,6 +1216,7 @@ DEP_CPP_DESIGN=\
 	"..\OrbiterData.h"\
 	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
+	"..\ScreenHandler.h"\
 	"..\TextStyle.h"\
 	".\wince.h"\
 	
@@ -1395,6 +1407,7 @@ DEP_CPP_DESIGNO=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\Profiler.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\RendererImage.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
@@ -1410,7 +1423,6 @@ DEP_CPP_DESIGNO=\
 	"..\OrbiterData.h"\
 	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
 	"..\TextStyle.h"\
@@ -1891,16 +1903,8 @@ DEP_CPP_GRAPH=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\DCE\Logger.h"\
-	"..\..\DCE\Message.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\OrbiterGen\Renderer.h"\
-	"..\..\pluto_main\Define_Command.h"\
-	"..\..\pluto_main\Define_CommandParameter.h"\
-	"..\..\pluto_main\Define_DeviceTemplate.h"\
-	"..\..\pluto_main\Define_Event.h"\
-	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1911,6 +1915,7 @@ DEP_CPP_GRAPH=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\RendererImage.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\DesignObj_Data.h"\
@@ -1921,7 +1926,6 @@ DEP_CPP_GRAPH=\
 	"..\OpenGL\Texture\TextureManager.h"\
 	"..\PlutoGraphic.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\SDL\SDLGraphic.h"\
 	"..\TextStyle.h"\
@@ -1944,7 +1948,6 @@ DEP_CPP_GRAPH=\
 	"..\OrbiterData.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\SDL\SDLGraphic.h"\
 	"..\TextStyle.h"\
@@ -1959,6 +1962,7 @@ NODEP_CPP_GRAPH=\
 	"..\pluto_main\Define_DesignObjType.h"\
 	"..\PlutoUtils\GraphicFormat.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
+	"..\RendererImage.h"\
 	"..\SDL\SDL.h"\
 	"..\SerializeClass\SerializeClass.h"\
 	"..\SerializeClass\ShapesColors.h"\
@@ -2356,11 +2360,9 @@ DEP_CPP_MAIN_=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\ServerLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -2521,10 +2523,8 @@ DEP_CPP_MAIND=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -2995,7 +2995,6 @@ DEP_CPP_OBJEC=\
 	"..\OrbiterData.h"\
 	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
 	"..\TextStyle.h"\
@@ -3012,6 +3011,7 @@ NODEP_CPP_OBJEC=\
 	"..\pluto_main\Define_UI.h"\
 	"..\pluto_main\Define_Variable.h"\
 	"..\PlutoUtils\GraphicFormat.h"\
+	"..\RendererImage.h"\
 	"..\SerializeClass\SerializeClass.h"\
 	"..\SerializeClass\ShapesColors.h"\
 	
@@ -3033,7 +3033,6 @@ DEP_CPP_OBJEC=\
 	"..\OrbiterData.h"\
 	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
 	"..\TextStyle.h"\
@@ -3050,6 +3049,7 @@ NODEP_CPP_OBJEC=\
 	"..\pluto_main\Define_UI.h"\
 	"..\pluto_main\Define_Variable.h"\
 	"..\PlutoUtils\GraphicFormat.h"\
+	"..\RendererImage.h"\
 	"..\SerializeClass\SerializeClass.h"\
 	"..\SerializeClass\ShapesColors.h"\
 	
@@ -3071,7 +3071,6 @@ DEP_CPP_OBJEC=\
 	"..\OrbiterData.h"\
 	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
 	"..\TextStyle.h"\
@@ -3088,6 +3087,7 @@ NODEP_CPP_OBJEC=\
 	"..\pluto_main\Define_UI.h"\
 	"..\pluto_main\Define_Variable.h"\
 	"..\PlutoUtils\GraphicFormat.h"\
+	"..\RendererImage.h"\
 	"..\SerializeClass\SerializeClass.h"\
 	"..\SerializeClass\ShapesColors.h"\
 	
@@ -3161,6 +3161,7 @@ DEP_CPP_OBJEC=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\Profiler.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\RendererImage.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
@@ -3176,7 +3177,6 @@ DEP_CPP_OBJEC=\
 	"..\OrbiterData.h"\
 	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
 	"..\TextStyle.h"\
@@ -3203,7 +3203,6 @@ DEP_CPP_OBJEC=\
 	"..\OrbiterData.h"\
 	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
 	"..\TextStyle.h"\
@@ -3220,6 +3219,7 @@ NODEP_CPP_OBJEC=\
 	"..\pluto_main\Define_UI.h"\
 	"..\pluto_main\Define_Variable.h"\
 	"..\PlutoUtils\GraphicFormat.h"\
+	"..\RendererImage.h"\
 	"..\SerializeClass\SerializeClass.h"\
 	"..\SerializeClass\ShapesColors.h"\
 	
@@ -3306,10 +3306,8 @@ DEP_CPP_OBJECT=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -3572,6 +3570,7 @@ DEP_CPP_ORBIT=\
 	"..\..\PlutoUtils\ProcessUtils.h"\
 	"..\..\PlutoUtils\Profiler.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\RendererImage.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\Xine_Player\AskXine_Socket.h"\
@@ -3585,6 +3584,7 @@ DEP_CPP_ORBIT=\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
 	"..\GraphicBuilder.h"\
+	"..\HorizMenuMouseHandler.h"\
 	"..\Linux\OSDScreenHandler.h"\
 	"..\MediaBrowserMouseHandler.h"\
 	"..\MouseBehavior.h"\
@@ -3597,7 +3597,6 @@ DEP_CPP_ORBIT=\
 	"..\OrbiterRenderer.h"\
 	"..\OrbiterRendererFactory.h"\
 	"..\PlutoGraphic.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
 	"..\ScreenHistory.h"\
@@ -3629,7 +3628,6 @@ DEP_CPP_ORBIT=\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\OrbiterFileBrowser.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
 	"..\Simulator.h"\
@@ -3664,6 +3662,7 @@ NODEP_CPP_ORBIT=\
 	"..\PlutoUtils\Other.h"\
 	"..\PlutoUtils\StringUtils.h"\
 	"..\pthread.h"\
+	"..\RendererImage.h"\
 	"..\SerializeClass\SerializeClass.h"\
 	"..\SerializeClass\ShapesColors.h"\
 	"..\wince.h"\
@@ -3729,10 +3728,8 @@ DEP_CPP_ORBITE=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -4818,10 +4815,8 @@ DEP_CPP_ORBITERREN=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -5085,10 +5080,8 @@ DEP_CPP_ORBITERREND=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -5611,280 +5604,38 @@ NODEP_CPP_PROGR=\
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\OrbiterGen\Renderer.cpp
-
-!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
-
-DEP_CPP_RENDE=\
-	"..\..\OrbiterGen\DesignObj_Generator.h"\
-	"..\..\OrbiterGen\OGText.h"\
-	"..\..\OrbiterGen\Renderer.h"\
-	
-NODEP_CPP_RENDE=\
-	"..\..\OrbiterGen\Orbiter\DesignObj_Data.h"\
-	"..\..\OrbiterGen\Orbiter\RendererImage.h"\
-	"..\..\OrbiterGen\Orbiter\TextStyle.h"\
-	"..\..\OrbiterGen\pluto_main\Define_HorizAlignment.h"\
-	"..\..\OrbiterGen\pluto_main\Define_VertAlignment.h"\
-	"..\..\OrbiterGen\pluto_main\Table_DesignObjVariation_Text_Skin_Language.h"\
-	"..\..\OrbiterGen\PlutoUtils\CommonIncludes.h"\
-	"..\..\OrbiterGen\PlutoUtils\FileUtils.h"\
-	"..\..\OrbiterGen\PlutoUtils\Other.h"\
-	"..\..\OrbiterGen\PlutoUtils\StringUtils.h"\
-	"..\..\OrbiterGen\png.h"\
-	"..\..\OrbiterGen\SDL.h"\
-	"..\..\OrbiterGen\SDL_image.h"\
-	"..\..\OrbiterGen\SDL_ttf.h"\
-	"..\..\OrbiterGen\sge.h"\
-	
-
-!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
-
-DEP_CPP_RENDE=\
-	"..\..\OrbiterGen\DesignObj_Generator.h"\
-	"..\..\OrbiterGen\OGText.h"\
-	"..\..\OrbiterGen\Renderer.h"\
-	
-NODEP_CPP_RENDE=\
-	"..\..\OrbiterGen\Orbiter\DesignObj_Data.h"\
-	"..\..\OrbiterGen\Orbiter\RendererImage.h"\
-	"..\..\OrbiterGen\Orbiter\TextStyle.h"\
-	"..\..\OrbiterGen\pluto_main\Define_HorizAlignment.h"\
-	"..\..\OrbiterGen\pluto_main\Define_VertAlignment.h"\
-	"..\..\OrbiterGen\pluto_main\Table_DesignObjVariation_Text_Skin_Language.h"\
-	"..\..\OrbiterGen\PlutoUtils\CommonIncludes.h"\
-	"..\..\OrbiterGen\PlutoUtils\FileUtils.h"\
-	"..\..\OrbiterGen\PlutoUtils\Other.h"\
-	"..\..\OrbiterGen\PlutoUtils\StringUtils.h"\
-	"..\..\OrbiterGen\png.h"\
-	"..\..\OrbiterGen\SDL.h"\
-	"..\..\OrbiterGen\SDL_image.h"\
-	"..\..\OrbiterGen\SDL_ttf.h"\
-	"..\..\OrbiterGen\sge.h"\
-	
-
-!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
-
-DEP_CPP_RENDE=\
-	"..\..\OrbiterGen\DesignObj_Generator.h"\
-	"..\..\OrbiterGen\OGText.h"\
-	"..\..\OrbiterGen\Renderer.h"\
-	
-NODEP_CPP_RENDE=\
-	"..\..\OrbiterGen\Orbiter\DesignObj_Data.h"\
-	"..\..\OrbiterGen\Orbiter\RendererImage.h"\
-	"..\..\OrbiterGen\Orbiter\TextStyle.h"\
-	"..\..\OrbiterGen\pluto_main\Define_HorizAlignment.h"\
-	"..\..\OrbiterGen\pluto_main\Define_VertAlignment.h"\
-	"..\..\OrbiterGen\pluto_main\Table_DesignObjVariation_Text_Skin_Language.h"\
-	"..\..\OrbiterGen\PlutoUtils\CommonIncludes.h"\
-	"..\..\OrbiterGen\PlutoUtils\FileUtils.h"\
-	"..\..\OrbiterGen\PlutoUtils\Other.h"\
-	"..\..\OrbiterGen\PlutoUtils\StringUtils.h"\
-	"..\..\OrbiterGen\png.h"\
-	"..\..\OrbiterGen\SDL.h"\
-	"..\..\OrbiterGen\SDL_image.h"\
-	"..\..\OrbiterGen\SDL_ttf.h"\
-	"..\..\OrbiterGen\sge.h"\
-	
-
-!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
-
-DEP_CPP_RENDE=\
-	"..\..\..\libs\CrossPlatform\lpng127\png.h"\
-	"..\..\..\libs\CrossPlatform\lpng127\pngconf.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_active.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_audio.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_byteorder.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_cdrom.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_error.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_events.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_getenv.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_joystick.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keyboard.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keysym.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_main.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mouse.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mutex.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_quit.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_rwops.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_timer.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
-	"..\..\..\libs\CrossPlatform\SDL_image-1.2.3\SDL_image.h"\
-	"..\..\..\libs\CrossPlatform\SDL_rotozoom-1.6\SDL_rotozoom.h"\
-	"..\..\..\libs\CrossPlatform\SDL_ttf-2.0.6\SDL_ttf.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_blib.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_bm_text.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_collision.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_config.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_internal.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_misc.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_primitives.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_rotation.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_shape.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_surface.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_textpp.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_tt_text.h"\
-	"..\..\..\libs\CrossPlatform\zlib\zconf.h"\
-	"..\..\..\libs\CrossPlatform\zlib\zlib.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\_epilog.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\_msvc_warnings_off.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\_prolog.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_apcc.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_apple.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_as400.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_bc.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_como.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_confix.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_dec.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_dec_vms.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_fujitsu.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_gcc.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_hpacc.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_ibm.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_intel.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_kai.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_msvc.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_mwerks.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_mycomp.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_sco.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_select_lib.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_sgi.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_solaris.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_sunpro.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_symantec.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_watcom.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_wince.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stlcomp.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\vc_select_lib.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\mem.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl\_abbrevs.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl\_config.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl\_config_compat.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl\_config_compat_post.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl\_epilog.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl\_prolog.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl\_site_config.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl_user_config.h"\
-	"..\..\DCE\Logger.h"\
-	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\OrbiterGen\DesignObj_Generator.h"\
-	"..\..\OrbiterGen\OGText.h"\
-	"..\..\OrbiterGen\Renderer.h"\
-	"..\..\pluto_main\Database_pluto_main.h"\
-	"..\..\pluto_main\Define_DesignObjVariation_Text_Skin_Language.h"\
-	"..\..\pluto_main\Define_HorizAlignment.h"\
-	"..\..\pluto_main\Define_VertAlignment.h"\
-	"..\..\pluto_main\Table_DesignObjVariation_Text_Skin_Language.h"\
-	"..\..\pluto_main\TableRow.h"\
-	"..\..\PlutoUtils\CommonIncludes.h"\
-	"..\..\PlutoUtils\FileUtils.h"\
-	"..\..\PlutoUtils\getch.h"\
-	"..\..\PlutoUtils\MultiThreadIncludes.h"\
-	"..\..\PlutoUtils\MyMap.h"\
-	"..\..\PlutoUtils\MySQLHelper.h"\
-	"..\..\PlutoUtils\MyStl.h"\
-	"..\..\PlutoUtils\MyString.h"\
-	"..\..\PlutoUtils\Other.h"\
-	"..\..\PlutoUtils\StringUtils.h"\
-	"..\..\SDL_Helpers\SDL_CompositeAlphaChannel.h"\
-	"..\..\SDL_Helpers\SDL_Defs.h"\
-	"..\..\SDL_Helpers\SDL_Helpers.h"\
-	"..\..\SDL_Helpers\SDL_pixel.h"\
-	"..\..\SDL_Helpers\SDL_SavePNG.h"\
-	"..\..\SerializeClass\SerializeClass.h"\
-	"..\..\SerializeClass\ShapesColors.h"\
-	"..\..\Splitter\TextSplitter.h"\
-	"..\..\Splitter\TextWrapper.h"\
-	"..\..\utilities\linux\wrapper\image_file.h"\
-	"..\DesignObj_Data.h"\
-	"..\GD\GD-SDL.h"\
-	"..\RendererImage.h"\
-	"..\RendererMNG.h"\
-	"..\RendererOCG.h"\
-	"..\SDL\SDLRendererOCGHelper.h"\
-	"..\TextStyle.h"\
-	".\wince.h"\
-	
-NODEP_CPP_RENDE=\
-	"..\..\..\libs\CrossPlatform\lpng127\pngusr.h"\
-	"..\..\PlutoUtils\PKFUNCS.H"\
-	
-
-!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE x86) Debug x86"
-
-DEP_CPP_RENDE=\
-	"..\..\OrbiterGen\DesignObj_Generator.h"\
-	"..\..\OrbiterGen\OGText.h"\
-	"..\..\OrbiterGen\Renderer.h"\
-	"..\RendererOCG.h"\
-	"..\SDL\SDLRendererOCGHelper.h"\
-	
-NODEP_CPP_RENDE=\
-	"..\..\OrbiterGen\DCE\Logger.h"\
-	"..\..\OrbiterGen\Orbiter\DesignObj_Data.h"\
-	"..\..\OrbiterGen\Orbiter\GD\GD-SDL.h"\
-	"..\..\OrbiterGen\Orbiter\RendererImage.h"\
-	"..\..\OrbiterGen\Orbiter\RendererMNG.h"\
-	"..\..\OrbiterGen\Orbiter\SDL\PlutoSDLDefs.h"\
-	"..\..\OrbiterGen\Orbiter\TextStyle.h"\
-	"..\..\OrbiterGen\pluto_main\Define_HorizAlignment.h"\
-	"..\..\OrbiterGen\pluto_main\Define_VertAlignment.h"\
-	"..\..\OrbiterGen\pluto_main\Table_DesignObjVariation_Text_Skin_Language.h"\
-	"..\..\OrbiterGen\PlutoUtils\CommonIncludes.h"\
-	"..\..\OrbiterGen\PlutoUtils\FileUtils.h"\
-	"..\..\OrbiterGen\PlutoUtils\Other.h"\
-	"..\..\OrbiterGen\PlutoUtils\StringUtils.h"\
-	"..\..\OrbiterGen\png.h"\
-	"..\..\OrbiterGen\SDL.h"\
-	"..\..\OrbiterGen\SDL_image.h"\
-	"..\..\OrbiterGen\SDL_rotozoom.h"\
-	"..\..\OrbiterGen\SDL_ttf.h"\
-	"..\..\OrbiterGen\sge.h"\
-	"..\..\OrbiterGen\Splitter\TextWrapper.h"\
-	
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=..\RendererMNG.cpp
 
 !IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
 
-DEP_CPP_RENDER=\
-	"..\RendererImage.h"\
+DEP_CPP_RENDE=\
 	"..\RendererMNG.h"\
+	
+NODEP_CPP_RENDE=\
+	"..\RendererImage.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
 
-DEP_CPP_RENDER=\
-	"..\RendererImage.h"\
+DEP_CPP_RENDE=\
 	"..\RendererMNG.h"\
+	
+NODEP_CPP_RENDE=\
+	"..\RendererImage.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
 
-DEP_CPP_RENDER=\
-	"..\RendererImage.h"\
+DEP_CPP_RENDE=\
 	"..\RendererMNG.h"\
+	
+NODEP_CPP_RENDE=\
+	"..\RendererImage.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_RENDER=\
+DEP_CPP_RENDE=\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
@@ -5917,24 +5668,24 @@ DEP_CPP_RENDER=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\RendererImage.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	
-NODEP_CPP_RENDER=\
+NODEP_CPP_RENDE=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE x86) Debug x86"
 
-DEP_CPP_RENDER=\
+DEP_CPP_RENDE=\
 	"..\..\SerializeClass\ShapesColors.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	
-NODEP_CPP_RENDER=\
+NODEP_CPP_RENDE=\
 	"..\..\SerializeClass\SerializeClass\SerializeClass.h"\
+	"..\RendererImage.h"\
 	
 
 !ENDIF 
@@ -5946,10 +5697,10 @@ SOURCE=..\RendererOCG.cpp
 
 !IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
 
-DEP_CPP_RENDERE=\
+DEP_CPP_RENDER=\
 	"..\RendererOCG.h"\
 	
-NODEP_CPP_RENDERE=\
+NODEP_CPP_RENDER=\
 	"..\PlutoUtils\FileUtils.h"\
 	"..\PlutoUtils\minilzo.h"\
 	"..\PlutoUtils\PlutoDefs.h"\
@@ -5957,10 +5708,10 @@ NODEP_CPP_RENDERE=\
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
 
-DEP_CPP_RENDERE=\
+DEP_CPP_RENDER=\
 	"..\RendererOCG.h"\
 	
-NODEP_CPP_RENDERE=\
+NODEP_CPP_RENDER=\
 	"..\PlutoUtils\FileUtils.h"\
 	"..\PlutoUtils\minilzo.h"\
 	"..\PlutoUtils\PlutoDefs.h"\
@@ -5968,10 +5719,10 @@ NODEP_CPP_RENDERE=\
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
 
-DEP_CPP_RENDERE=\
+DEP_CPP_RENDER=\
 	"..\RendererOCG.h"\
 	
-NODEP_CPP_RENDERE=\
+NODEP_CPP_RENDER=\
 	"..\PlutoUtils\FileUtils.h"\
 	"..\PlutoUtils\minilzo.h"\
 	"..\PlutoUtils\PlutoDefs.h"\
@@ -5979,7 +5730,7 @@ NODEP_CPP_RENDERE=\
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_RENDERE=\
+DEP_CPP_RENDER=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\lzoconf.h"\
@@ -5991,10 +5742,10 @@ DEP_CPP_RENDERE=\
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE x86) Debug x86"
 
-DEP_CPP_RENDERE=\
+DEP_CPP_RENDER=\
 	"..\RendererOCG.h"\
 	
-NODEP_CPP_RENDERE=\
+NODEP_CPP_RENDER=\
 	"..\PlutoUtils\FileUtils.h"\
 	"..\PlutoUtils\minilzo.h"\
 	"..\PlutoUtils\PlutoDefs.h"\
@@ -6145,6 +5896,7 @@ DEP_CPP_SCREE=\
 	"..\DesignObj_DataGrid.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
+	"..\HorizMenuMouseHandler.h"\
 	"..\MediaBrowserMouseHandler.h"\
 	"..\MouseBehavior.h"\
 	"..\ObjectRendererFactory.h"\
@@ -6262,13 +6014,6 @@ DEP_CPP_SCREEN=\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
-	"..\..\pluto_main\Define_Command.h"\
-	"..\..\pluto_main\Define_CommandParameter.h"\
-	"..\..\pluto_main\Define_DeviceTemplate.h"\
-	"..\..\pluto_main\Define_Event.h"\
-	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -6444,6 +6189,252 @@ DEP_CPP_SDL_P=\
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\SDL_Helpers\SDL_RenderText.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_SDL_R=\
+	"..\..\SDL_Helpers\RendererImage.h"\
+	"..\..\SDL_Helpers\SDL_RenderText.h"\
+	"..\..\SDL_Helpers\SDL_RenderUtils.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\ObjectRendererFactory.h"\
+	"..\PlutoGraphic.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SDL_R=\
+	"..\..\SDL_Helpers\SDL_ttf.h"\
+	"..\..\SerializeClass\SerializeClass\SerializeClass.h"\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_SDL_R=\
+	"..\..\SDL_Helpers\RendererImage.h"\
+	"..\..\SDL_Helpers\SDL_RenderText.h"\
+	"..\..\SDL_Helpers\SDL_RenderUtils.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\ObjectRendererFactory.h"\
+	"..\PlutoGraphic.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SDL_R=\
+	"..\..\SDL_Helpers\SDL_ttf.h"\
+	"..\..\SerializeClass\SerializeClass\SerializeClass.h"\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_SDL_R=\
+	"..\..\SDL_Helpers\RendererImage.h"\
+	"..\..\SDL_Helpers\SDL_RenderText.h"\
+	"..\..\SDL_Helpers\SDL_RenderUtils.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\ObjectRendererFactory.h"\
+	"..\PlutoGraphic.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SDL_R=\
+	"..\..\SDL_Helpers\SDL_ttf.h"\
+	"..\..\SerializeClass\SerializeClass\SerializeClass.h"\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_SDL_R=\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_active.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_audio.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_byteorder.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_cdrom.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_error.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_events.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_getenv.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_joystick.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keyboard.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keysym.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_main.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mouse.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mutex.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_quit.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_rwops.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_timer.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
+	"..\..\..\libs\CrossPlatform\SDL_ttf-2.0.6\SDL_ttf.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\RendererImage.h"\
+	"..\..\SDL_Helpers\SDL_RenderText.h"\
+	"..\..\SDL_Helpers\SDL_RenderUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\ObjectRendererFactory.h"\
+	"..\PlutoGraphic.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SDL_R=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE x86) Debug x86"
+
+DEP_CPP_SDL_R=\
+	"..\..\SDL_Helpers\RendererImage.h"\
+	"..\..\SDL_Helpers\SDL_RenderText.h"\
+	"..\..\SDL_Helpers\SDL_RenderUtils.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\ObjectRendererFactory.h"\
+	"..\PlutoGraphic.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SDL_R=\
+	"..\..\SDL_Helpers\SDL_ttf.h"\
+	"..\..\SerializeClass\SerializeClass\SerializeClass.h"\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\SDL_Helpers\SDL_RenderUtils.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_SDL_RE=\
+	"..\..\SDL_Helpers\RendererImage.h"\
+	"..\..\SDL_Helpers\SDL_CompositeAlphaChannel.h"\
+	"..\..\SDL_Helpers\SDL_Defs.h"\
+	"..\..\SDL_Helpers\SDL_RenderUtils.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	
+NODEP_CPP_SDL_RE=\
+	"..\..\SerializeClass\SerializeClass\SerializeClass.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_SDL_RE=\
+	"..\..\SDL_Helpers\RendererImage.h"\
+	"..\..\SDL_Helpers\SDL_CompositeAlphaChannel.h"\
+	"..\..\SDL_Helpers\SDL_Defs.h"\
+	"..\..\SDL_Helpers\SDL_RenderUtils.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	
+NODEP_CPP_SDL_RE=\
+	"..\..\SerializeClass\SerializeClass\SerializeClass.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_SDL_RE=\
+	"..\..\SDL_Helpers\RendererImage.h"\
+	"..\..\SDL_Helpers\SDL_CompositeAlphaChannel.h"\
+	"..\..\SDL_Helpers\SDL_Defs.h"\
+	"..\..\SDL_Helpers\SDL_RenderUtils.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	
+NODEP_CPP_SDL_RE=\
+	"..\..\SerializeClass\SerializeClass\SerializeClass.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_SDL_RE=\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_active.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_audio.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_byteorder.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_cdrom.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_error.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_events.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_getenv.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_joystick.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keyboard.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keysym.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_main.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mouse.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mutex.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_quit.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_rwops.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_timer.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
+	"..\..\..\libs\CrossPlatform\SDL_image-1.2.3\SDL_image.h"\
+	"..\..\..\libs\CrossPlatform\SDL_rotozoom-1.6\SDL_rotozoom.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\RendererImage.h"\
+	"..\..\SDL_Helpers\SDL_CompositeAlphaChannel.h"\
+	"..\..\SDL_Helpers\SDL_Defs.h"\
+	"..\..\SDL_Helpers\SDL_RenderUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	
+NODEP_CPP_SDL_RE=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE x86) Debug x86"
+
+DEP_CPP_SDL_RE=\
+	"..\..\SDL_Helpers\RendererImage.h"\
+	"..\..\SDL_Helpers\SDL_CompositeAlphaChannel.h"\
+	"..\..\SDL_Helpers\SDL_Defs.h"\
+	"..\..\SDL_Helpers\SDL_RenderUtils.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	
+NODEP_CPP_SDL_RE=\
+	"..\..\SerializeClass\SerializeClass\SerializeClass.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\SDL\SDLGraphic.cpp
 
 !IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
@@ -6546,10 +6537,8 @@ DEP_CPP_SDLGR=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -7194,10 +7183,8 @@ DEP_CPP_SIMUL=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Button.h"\
@@ -7488,11 +7475,9 @@ DEP_CPP_START=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\ServerLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -7882,30 +7867,31 @@ DEP_CPP_TEXTW=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\OrbiterGen\Renderer.h"\
 	"..\..\pluto_main\Define_HorizAlignment.h"\
 	"..\..\pluto_main\Define_VertAlignment.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
 	"..\..\PlutoUtils\MultiThreadIncludes.h"\
 	"..\..\PlutoUtils\MyMap.h"\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\RendererImage.h"\
 	"..\..\SDL_Helpers\SDL_CompositeAlphaChannel.h"\
 	"..\..\SDL_Helpers\SDL_Defs.h"\
-	"..\..\SDL_Helpers\SDL_Helpers.h"\
-	"..\..\SDL_Helpers\SDL_pixel.h"\
-	"..\..\SDL_Helpers\SDL_SavePNG.h"\
+	"..\..\SDL_Helpers\SDL_RenderText.h"\
+	"..\..\SDL_Helpers\SDL_RenderUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\Splitter\TextSplitter.h"\
 	"..\..\Splitter\TextWrapper.h"\
 	"..\DesignObj_Data.h"\
-	"..\RendererImage.h"\
-	"..\RendererMNG.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\ObjectRendererFactory.h"\
+	"..\PlutoGraphic.h"\
 	"..\TextStyle.h"\
 	".\wince.h"\
 	

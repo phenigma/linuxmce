@@ -25,8 +25,6 @@
 #include "OrbiterRenderer.h"
 #include "ObjectRenderer.h"
 
-#include "Linux/OSDCompass.h"
-
 using namespace DCE;
 
 #if defined(POCKETFROG)
@@ -37,9 +35,6 @@ using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
 MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 {
-	//TODO: set custom position for the compass
-	m_spCompass.reset(new OSDCompass(pOrbiter, PlutoRectangle(10, 10, 100, 100)));
-
 	m_pObj_Previously_Highlighted=NULL;
 	m_pMouseHandler=NULL;
 	ProcessUtils::ResetMsTime();

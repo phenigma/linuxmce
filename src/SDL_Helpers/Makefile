@@ -9,8 +9,13 @@ CXX = g++
 LDFLAGS =
 LDLIBS = -lSDL -lpng
 
-sources = SDL_CompositeAlphaChannel.cpp SDL_pixel.cpp SDL_SavePNG.cpp
-
+sources = \
+	SDL_CompositeAlphaChannel.cpp \
+	SDL_pixel.cpp \
+	SDL_SavePNG.cpp \
+	SDL_RenderText.cpp \
+	SDL_RenderUtils.cpp 
+	
 all: libSDL_Helpers.so
 
 libSDL_Helpers.so: $(sources:.cpp=.o)

@@ -228,10 +228,10 @@ int k=2;
 				else if( ocNextDesignObj->m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs.size()==11 )
 					ocNextDesignObj->m_iPK_Button = BUTTON_Pound_CONST;
 				else
-					ocNextDesignObj->m_iPK_Button += m_alChildDesignObjs.size();
+					ocNextDesignObj->m_iPK_Button += int(m_alChildDesignObjs.size());
 			}
 			else
-				ocNextDesignObj->m_iPK_Button += m_alChildDesignObjs.size();
+				ocNextDesignObj->m_iPK_Button += int(m_alChildDesignObjs.size());
 		}
 		ocNextDesignObj->m_bCanBeHidden = av->m_bCanHide;
 		ocNextDesignObj->m_bHideByDefault = av->m_bHideByDefault;

@@ -6,6 +6,7 @@
 #include "RendererMNG.h"
 #include "OrbiterRenderer.h"
 #include "pluto_main/Define_DesignObjParameter.h"
+#include "Gen_Devices/AllCommandsRequests.h"
 
 ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 {

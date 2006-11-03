@@ -1,7 +1,7 @@
 #ifndef RENDERERMNG_H
 #define RENDERERMNG_H
 
-#include "RendererImage.h"
+#include "../SDL_Helpers/RendererImage.h"
 #include "../SerializeClass/ShapesColors.h"
 
 #include <vector>

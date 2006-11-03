@@ -100,6 +100,8 @@ OrbiterRenderer_SDL::~OrbiterRenderer_SDL()
 
 	m_pScreenImage = NULL;
 	g_pPlutoLogger->Write(LV_STATUS, "~OrbiterRenderer_SDL finished");
+
+	TTF_Quit();
 }
 
 void OrbiterRenderer_SDL::Configure()
@@ -126,6 +128,13 @@ void OrbiterRenderer_SDL::Configure()
 	#endif //linux
 	
 		exit(1);
+	}
+
+	if (TTF_Init() == -1)
+	{
+	#ifndef WINCE
+		cout << "Failed to init SDL TTF: " << TTF_GetError() << "\nText won't be rendered" << endl;
+	#endif
 	}
 
 	SDL_WM_SetCaption("OrbiterRenderer_SDL", "OrbiterRenderer_SDL");
@@ -248,15 +257,15 @@ void OrbiterRenderer_SDL::RenderText(string &TextToDisplay,DesignObjText *Text,T
 
 #ifdef WIN32
 #ifdef WINCE
-	string BasePath = "C:\\Windows\\Fonts";
+	string BasePath = "C:\\Windows\\Fonts\\";
 #else
 	char pWindowsDirector[MAX_PATH];
 	GetWindowsDirectory(pWindowsDirector, MAX_PATH);
-	string BasePath = string(pWindowsDirector) + "\\Fonts";
+	string BasePath = string(pWindowsDirector) + "\\Fonts\\";
 #endif
 
 #else
-	string BasePath="/usr/share/fonts/truetype/msttcorefonts";
+	string BasePath="/usr/share/fonts/truetype/msttcorefonts/";
 #endif //win32
 
 	WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath,

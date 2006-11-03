@@ -1,13 +1,12 @@
-#include "SDL_Helpers/SDL_Defs.h"
-#include "SDL.h"
-
 #include "TextWrapper.h"
+
+#include "SDL_Helpers/SDL_Defs.h"
+#include "SDL_Helpers/SDL_RenderText.h"
+#include "SDL_Helpers/SDL_CompositeAlphaChannel.h"
+#include "SDL_Helpers/SDL_RenderUtils.h"
 #include "Orbiter/TextStyle.h"
-#include "OrbiterGen/Renderer.h"
 #include "DCE/Logger.h"
 using namespace DCE;
-
-#include "SDL_Helpers/SDL_Helpers.h"
 
 // Radu: I hope I'll get around to optimizing all this some time.
 // Radu: From my point of view, this looks like its going to eat a lot of memory.
@@ -32,7 +31,7 @@ void TextLineWrap::Clear()
 	for (list<ImageRow>::iterator i = ImageLines.begin(); i != ImageLines.end(); i++)
 	{
 		for (ImageRow::iterator j = i->begin(); j != i->end(); j++)
-			extDeleteRendererImage(* j);
+			delete *j;
 	}
 	ImageLines.clear();
 }
@@ -40,7 +39,8 @@ void TextLineWrap::Clear()
 pair<int, int> TextLineWrap::WordWidth(string word, RendererImage * & RI,
 							TextStyle * pTextStyle, bool NewSurface)
 {
-	return GetWordWidth(word, m_FontPath, pTextStyle, RI, NewSurface);
+	SDL_RenderText text_renderer(m_FontPath);
+	return text_renderer.GetWordWidth(word, pTextStyle, RI, NewSurface);
 }
 
 void TextLineWrap::AddRow(Row line, ImageRow ImageLine, LineAttr LA)
@@ -216,11 +216,6 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 	return lines;
 }
 
-void TextLineWrap::RenderToScreen()
-{
-	RenderToSurface(NULL);
-}
-
 void TextLineWrap::RenderToSurface(SDL_Surface * Surface)
 {
 	list<ImageRow>::iterator i1; list<LineAttr>::iterator i2;
@@ -261,8 +256,8 @@ void TextLineWrap::RenderToSurface(SDL_Surface * Surface)
 			case HORIZALIGNMENT_Center_CONST: X = int(Width / 2.0 - i2->Width / 2.0); break;
 			case HORIZALIGNMENT_Right_CONST: X = Width - i2->Width; break;
 		}
-		Surface == NULL ? DoRenderToScreen(* i1, origX + X, origY + Y)
-			: DoRenderToSurface(Surface, * i1, origX + X, origY + Y);
+		
+		DoRenderToSurface(Surface, * i1, origX + X, origY + Y);
 		Y += i2->Height;
 	}
 	TopBottomY = Y;
@@ -278,8 +273,7 @@ void TextLineWrap::RenderToSurface(SDL_Surface * Surface)
 			case HORIZALIGNMENT_Center_CONST: X = int(Width / 2.0 - (* j2).Width / 2.0); break;
 			case HORIZALIGNMENT_Right_CONST: X = Width - (* j2).Width; break;
 		}
-		Surface == NULL ? DoRenderToScreen(* j1, origX + X, origY + Y)
-			: DoRenderToSurface(Surface, * j1, origX + X, origY + Y);
+		DoRenderToSurface(Surface, * j1, origX + X, origY + Y);
 	}
 	BottomTopY = Y;
 
@@ -298,8 +292,7 @@ void TextLineWrap::RenderToSurface(SDL_Surface * Surface)
 			case HORIZALIGNMENT_Center_CONST: X = int(Width / 2.0 - i2->Width / 2.0); break;
 			case HORIZALIGNMENT_Right_CONST: X = Width - i2->Width; break;
 		}
-		Surface == NULL ? DoRenderToScreen(* i1, origX + X, origY + Y)
-			: DoRenderToSurface(Surface, * i1, origX + X, origY + Y);
+		DoRenderToSurface(Surface, * i1, origX + X, origY + Y);
 		Y += i2->Height;
 	}
 }

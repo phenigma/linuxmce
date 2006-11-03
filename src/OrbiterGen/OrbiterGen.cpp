@@ -7,6 +7,7 @@
 #include "PlutoUtils/Other.h"
 #include "OrbiterGen.h"
 #include "ScreenMap.h"
+#include "Renderer.h"
 
 #include "DCE/Logger.h"
 #include "DesignObj_Generator.h"
@@ -88,9 +89,6 @@ static bool LocationComparer(LocationInfo *x, LocationInfo *y)
 
 bool g_bBootSplash=false;
 
-// For some reason windows won't compile with this in the same file???
-void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate,
-	char cDefaultScaleForMenuBackground,char cDefaultScaleForOtherGraphics,float fScaleX,float fScaleY,bool bUseAlphaBlending, bool bCreateMask);
 #ifdef WIN32
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -244,6 +242,7 @@ int main(int argc, char *argv[])
 	}
 	catch(int i)
 	{
+		cout << "Caught exception number: " << i << endl;
 	}
 /*
 	catch(const char *error)
@@ -324,7 +323,7 @@ int OrbiterGenerator::DoIt()
 	{
 		time_t tModDate = StringUtils::SQLDateTime(m_pRow_Orbiter->psc_mod_get());
 		time_t tNow = time(NULL);
-		cout << "*****SEEMS THIS ORBITER IS BEING GENERATED " << tModDate << " " << tNow << endl;
+		cout << "*****SEEMS THIS ORBITER IS BEING GENERATED " << long(tModDate) << " " << long(tNow) << endl;
 		if( tNow-tModDate < 120 )  // There's recent activity within the last 2 minutes, so skip it
 		{
 			cout << "skipping" << endl;
@@ -650,7 +649,7 @@ m_bNoEffects = true;
 		time_t lModDate_LastGen = StringUtils::SQLDateTime(m_pRow_Orbiter->Modification_LastGen_get());
 		m_bOrbiterChanged = false; //(lModDate!=lModDate_LastGen);
 		if( m_bOrbiterChanged )
-			cout << "Orbiter changed date from: " << lModDate_LastGen << " to: " << lModDate << endl;
+			cout << "Orbiter changed date from: " << long(lModDate_LastGen) << " to: " << long(lModDate) << endl;
 	}
 
 	m_pRow_Size = NULL;
@@ -702,8 +701,8 @@ m_bNoEffects = true;
 		iSpacingParameter = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str());
 		if( iSpacingParameter>0 && iSpacingParameter<50 )
 		{
-			m_rSpacing.Width = m_rSpacing.X = m_pRow_Size->Width_get() * ( ((double) iSpacingParameter)/2 ) / 100;
-			m_rSpacing.Height = m_rSpacing.Y = m_pRow_Size->Height_get() * ( ((double) iSpacingParameter)/2 ) / 100;
+			m_rSpacing.Width = m_rSpacing.X = int(m_pRow_Size->Width_get() * ( ((double) iSpacingParameter)/2 ) / 100);
+			m_rSpacing.Height = m_rSpacing.Y = int(m_pRow_Size->Height_get() * ( ((double) iSpacingParameter)/2 ) / 100);
 			// We're not going to ever commit m_pRow_Size, so just change the scale accordingly
 			m_pRow_Size->ScaleX_set( m_pRow_Size->ScaleX_get() - (m_pRow_Size->ScaleX_get() * iSpacingParameter / 100) );
 			m_pRow_Size->ScaleY_set( m_pRow_Size->ScaleY_get() - (m_pRow_Size->ScaleY_get() * iSpacingParameter / 100) );
@@ -812,10 +811,10 @@ m_bNoEffects = true;
 
 	// See if we need to reduce the scaling because of borders around the screen
 	if( m_rSpacing.X || m_rSpacing.Width )
-		m_sScale.Width = (double) m_sScale.Width * (100-iSpacingParameter) / 100;
+		m_sScale.Width = int((double) m_sScale.Width * (100-iSpacingParameter) / 100);
 
 	if( m_rSpacing.Y || m_rSpacing.Height )
-		m_sScale.Height = (double) m_sScale.Height * (100-iSpacingParameter) / 100;
+		m_sScale.Height = int((double) m_sScale.Height * (100-iSpacingParameter) / 100);
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"OrbiterGen after adj spacing X %d Y %d W %d H %d scale W %d H %d",
@@ -1040,10 +1039,10 @@ m_bNoEffects = true;
 
 	// First add the location numbers so they're available from the beginning, and put them in 
 	// the deque.  We only used a list up till now so we could sort it.
-	list<LocationInfo *>::iterator it;
-	for(it=listLocationInfo.begin();it!=listLocationInfo.end();++it)
+	list<LocationInfo *>::iterator it_loc;
+	for(it_loc=listLocationInfo.begin();it_loc!=listLocationInfo.end();++it_loc)
 	{
-		LocationInfo *li = (*it);
+		LocationInfo *li = (*it_loc);
 		li->iLocation=i++;
 		m_dequeLocation.push_back(li);
 	}
@@ -1119,7 +1118,7 @@ loop_to_keep_looking_for_objs_to_include:
 	while(bKeepLooking)
 	{
 		bKeepLooking=false;  // We'll reset it if we found screens and want to restart the search to find more screens that may be deeper
-		int iNumGeneratedScreens=m_htGeneratedScreens.size();
+		int iNumGeneratedScreens = int(m_htGeneratedScreens.size());
 		for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
 		{
 			listDesignObj_Generator *o = (*itgs).second;
@@ -1492,7 +1491,7 @@ loop_to_keep_looking_for_objs_to_include:
 		alNewDesignObjsToGenerate.push_back(*itno); // Merge these back in
 	}
 
-	int iNumScreensPrior = m_htGeneratedScreens.size();
+	int iNumScreensPrior = int(m_htGeneratedScreens.size());
 	for(itno=alNewDesignObjsToGenerate.begin();itno!=alNewDesignObjsToGenerate.end();++itno)
 	{
 		Row_DesignObj *m_pRow_DesignObjDependancy = *itno;
@@ -1690,9 +1689,12 @@ loop_to_keep_looking_for_objs_to_include:
 				cout << "Rendering screen " << oco->m_ObjectID << " in orbiter: " << m_pRow_Device->PK_Device_get() << endl;
 				try
 				{
-//if( oco->m_ObjectID.find("2211")!=string::npos )
-					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,oco,m_iRotation,cScaleMenuBg,cScaleOtherGraphics,
-						(float) m_sScale.Width/1000,(float) m_sScale.Height/1000,m_bUseAlphaBlending,m_bUseMask);
+					Renderer::GetInstance().Setup(m_sFontPath, m_sOutputPath, m_Width, m_Height, m_bUseAlphaBlending,
+						cScaleMenuBg, cScaleOtherGraphics, (float) m_sScale.Width/1000, (float) m_sScale.Height/1000, m_iRotation);
+
+					// Render everything
+					Renderer::GetInstance().RenderObject(NULL, oco, PlutoPoint(0,0), -1);  					
+
 					oco->HandleRotation(m_iRotation);
 				}
 				catch(string s)
@@ -1798,12 +1800,12 @@ loop_to_keep_looking_for_objs_to_include:
 	m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 
 	m_iSC_Version = ORBITER_SCHEMA;
-	m_tGenerationTime = time(NULL);
+	m_tGenerationTime = (unsigned long)time(NULL);
 
 	string sFilename = m_sOutputPath + "C" + StringUtils::itos(m_iPK_Orbiter) + ".info";
 	bool b=SerializeWrite(sFilename);
 
-	int UncompressedSize = m_pcCurrentPosition - m_pcDataBlock;
+	int UncompressedSize = static_cast<int>(m_pcCurrentPosition - m_pcDataBlock);
 	char *Data = new char[UncompressedSize + UncompressedSize / 64 + 16 + 3 + 4];
     lzo_uint out_len;
 	*((int *)Data)=UncompressedSize;
@@ -1883,7 +1885,7 @@ void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjC
 					{
 						sDesignObj += "." + itParmLocation->second;
 						m_iLocation = atoi(itParmLocation->second.c_str());
-						if( m_iLocation<m_dequeLocation.size() )
+						if( m_iLocation< int(m_dequeLocation.size()) )
 						{
 							LocationInfo *li = m_dequeLocation[m_iLocation];
 							m_pRow_Room = mds.Room_get()->GetRow(li->PK_Room);
@@ -1938,7 +1940,7 @@ void OrbiterGenerator::OutputScreen(DesignObj_Generator *ocDesignObj)
 			ParentScreen = StringUtils::itos(ocDesignObj->m_pRow_DesignObj->FK_DesignObj_SubstForSkin_get()) + "." + StringUtils::itos(ocDesignObj->m_iVersion) + "." + StringUtils::itos((int) i);
 		else
 			ParentScreen = StringUtils::itos(ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(ocDesignObj->m_iVersion) + "." + StringUtils::itos((int) i);
-		ocDesignObj->m_iPage=i;
+		ocDesignObj->m_iPage= int(i);
 		OutputDesignObjs(ocDesignObj,(int) i,false,ParentScreen);
 		if( ocDesignObj->m_iNumFloorplanItems )
 		{
@@ -2471,7 +2473,9 @@ cout << "Set appserver to " << li->m_dwPK_Device_AppServer << endl;
 		case DEVICECATEGORY_Disc_Drives_CONST:
 			li->m_dwPK_Device_DiscDrive = pRow_Device_MDChild->PK_Device_get();
 			break;
-#pragma warning("there is not yet a web browser category")
+
+#pragma message("NOTE: There is not yet a web browser category! (OrbiterGenerator::MatchChildDevicesToLocation)")
+
 //todo		case DEVICECATEGORY_WebBrowser_CONST:
 //			li->m_dwPK_Device_WebBrowser = pRow_Device_MDChild->PK_Device_get();
 //			break;

@@ -1,88 +1,51 @@
-#ifdef ORBITER
-#include <SDL_ttf.h>
-#include <SDL_image.h>
-#endif
+#include "Renderer.h"
 
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 
-#include <list>
-using namespace std;
-
-#ifdef OrbiterGen
-#include "DesignObj_Generator.h"
-#endif
-
-#include "Renderer.h"
-#include "../Orbiter/SDL/SDLRendererOCGHelper.h"
-#include "../Orbiter/RendererOCG.h"
-
-#include "sge.h"
 #include "SDL_rotozoom.h"
-#include "SDL_image.h"
-#include "SDL_ttf.h"
-#include "png.h"
-#include "Orbiter/TextStyle.h"
+#include <SDL_image.h>
+#include <sge.h>
+#include <SDL_ttf.h>
+#include <png.h>
 #include <math.h>
 
+#include "SDL_Helpers/SDL_Defs.h"
+#include "SDL_Helpers/SDL_RenderUtils.h"
 #include "SDL_Helpers/SDL_Helpers.h"
+#include "SDL_Helpers/RendererImage.h"
+
+#include "Orbiter/TextStyle.h"
+#include "Orbiter/SDL/SDLRendererOCGHelper.h"
+#include "Orbiter/RendererOCG.h"
+#include "Orbiter/RendererMNG.h"
+#include "DesignObj_Generator.h"
 #include "Splitter/TextWrapper.h"
 
-#include "../utilities/linux/wrapper/image_file.h"
-
-#ifndef ORBITER
-#include "SDL_Helpers/SDL_Defs.h"
 #include "pluto_main/Define_HorizAlignment.h"
 #include "pluto_main/Define_VertAlignment.h"
-#endif //#ifndef ORBITER
-
-#ifdef WINCE
-	#define endl '\n'
-#endif
-
+//---------------------------------------------------------------------------------------------------
 #include "DCE/Logger.h"
 using namespace DCE;
-
-int myCounter=0;
-
-#ifdef OrbiterGen
-#define FLAG_DISABLE_VIDEO true
-#else
-#define FLAG_DISABLE_VIDEO false
-#endif
-
-/* Readme!
-- by default, the surfaces will be resized with rotozoom library
-- define USE_SGE_TRANSFORM to use sge library
-- define USE_GD_TRANSFORM to use gd library
-*/
-
-#ifdef USE_GD_TRANSFORM
-    #include "Orbiter/GD/GD-SDL.h"
-#endif
-
-/** @todo: Ask radu to fix this .. global font renderer issue */
-// Nasty hack -- Ask Radu why the fuck he decided to reinitialize the entire font engine for every word todo
-#ifdef WIN32
-	#ifndef WINCE
-		Renderer r("C:/windows/fonts/", "", 800, 600, FLAG_DISABLE_VIDEO,false,false);
-	#else
-		Renderer r("\\", "", 800, 600, FLAG_DISABLE_VIDEO,false,false);
-	#endif
-#else
-Renderer r("/usr/share/fonts/truetype/msttcorefonts/", "", 800, 600, FLAG_DISABLE_VIDEO,false,false);
-#endif
-
-int Renderer::m_Rotate=0;
-float Renderer::m_fScaleX,Renderer::m_fScaleY;
-
-Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo,bool bUseAlphaBlending, bool bCreateMask)
+//---------------------------------------------------------------------------------------------------
+Renderer Renderer::m_Instance; //the one and only
+//---------------------------------------------------------------------------------------------------
+Renderer::Renderer() :
+	m_Width(0), m_Height(0), m_Rotate(0), m_pScreen(NULL),
+	m_cDefaultScaleForMenuBackground(0), m_cDefaultScaleForOtherGraphics(0),
+	m_fScaleX(1.0f), m_fScaleY(1.0f),
+	m_bUseAlphaBlending(false)
+{
+}
+//---------------------------------------------------------------------------------------------------
+void Renderer::Setup(string FontPath, string OutputDirectory, int Width, int Height, 
+	bool bUseAlphaBlending, char cDefaultScaleForMenuBackground, char cDefaultScaleForOtherGraphics,
+	float fScaleX, float fScaleY, int Rotate)
 {
 #ifndef WIN32
-    if( bDisableVideo )
-        setenv("SDL_VIDEODRIVER", "dummy", 1); // force SDL to use its dummy video driver (removed a dependency on the X server)
+	setenv("SDL_VIDEODRIVER", "dummy", 1); 
 #endif
 
     m_sFontPath=FontPath;
@@ -90,17 +53,22 @@ Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,b
     m_Width=Width;
     m_Height=Height;
 	m_bUseAlphaBlending=bUseAlphaBlending;
-	m_bCreateMask=bCreateMask;
 
-	if (! (SDL_WasInit(SDL_INIT_VIDEO) == SDL_INIT_VIDEO))
+	m_cDefaultScaleForMenuBackground=cDefaultScaleForMenuBackground;
+	m_cDefaultScaleForOtherGraphics=cDefaultScaleForOtherGraphics;
+	m_fScaleX = fScaleX;
+	m_fScaleY = fScaleY;
+
+	if(Rotate)
+		m_Rotate = 360 - Rotate;  // SDL treats rotation as counter clockwise, we do clockwise
+	else
+		m_Rotate = 0;
+
+	if (!(SDL_WasInit(SDL_INIT_VIDEO) == SDL_INIT_VIDEO))
 	{
 		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
 		{
-#ifndef WINCE
 			cerr << "Failed initializing SDL: " << SDL_GetError() << endl;
-#else
-			printf("Failed to initialize SDL %s\n", SDL_GetError());
-#endif //WINCE
 
 #ifndef WIN32 //linux
     	    string sCmd = "/usr/pluto/bin/Start_X.sh; /usr/pluto/bin/Start_ratpoison.sh";
@@ -115,200 +83,17 @@ Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,b
 
 	if (TTF_Init() == -1)
 	{
-#ifndef WINCE
 		cout << "Failed to init SDL TTF: " << TTF_GetError() << "\nText won't be rendered" << endl;
-#else
-		printf("Failed to init SDL TTF: %s\nText won't be rendered\n", TTF_GetError());
-#endif
 		return;
 	}
-
-
-//      Screen = SDL_SetVideoMode(800, 600, 0, SDL_SWSURFACE);
 }
-
+//---------------------------------------------------------------------------------------------------
 Renderer::~Renderer()
 {
     TTF_Quit();
 	SDL_Quit();
 }
-
-#ifndef ORBITER
-
-/*static*/ void Renderer::SetTransparentColor(SDL_Surface *pSurface, int R, int G, int B)
-{
-    for(int w = 0; w < pSurface->w; w++)
-    {
-        for(int h = 0; h < pSurface->h; h++)
-        {
-            unsigned char *pD = (unsigned char *) pSurface->pixels + h * pSurface->pitch + w * 4;
-            if(pD[0] == R && pD[1] == G && pD[2] == B)
-            {
-                pD[0] = 0xFF;
-                pD[1] = 0xFF;
-                pD[2] = 0xFF;
-                pD[3] = 0x00;
-            }
-        }
-    }
-}
-
-/*static*/ void Renderer::SetGeneralSurfaceOpacity(SDL_Surface *pSurface, int SDL_Opacity)
-{
-    for(int w = 0; w < pSurface->w; w++)
-    {
-        for(int h = 0; h < pSurface->h; h++)
-        {
-            unsigned char *pD = (unsigned char *) pSurface->pixels + h * pSurface->pitch + w * 4;
-            pD[3] = SDL_Opacity;
-        }
-    }
-}
-
-/*static*/ void Renderer::ChangeSDLSurfaceFormatForPluto(SDL_Surface **pSurface)
-{
-	SDL_Surface * pOldSurface = (*pSurface);
-
-	// check if anything needs to be done
-	if (pOldSurface->format->Ashift == ashift && pOldSurface->format->Rshift == rshift && pOldSurface->format->Gshift == gshift && pOldSurface->format->Bshift == bshift)
-		return;
-
-	SDL_Surface * pNewSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, pOldSurface->w, pOldSurface->h, 32, rmask, gmask, bmask, amask);
-	for (int h = 0; h < pOldSurface->h; h++)
-	{
-		for (int w = 0; w < pOldSurface->w; w++)
-		{
-			unsigned char *pOldPixel = (unsigned char *) pOldSurface->pixels + h * pOldSurface->pitch + w * 4;
-			unsigned char *pNewPixel = (unsigned char *) pNewSurface->pixels + h * pNewSurface->pitch + w * 4;
-
-			unsigned char R, G, B, A;
-			R = (* (unsigned int *) pOldPixel >> pOldSurface->format->Rshift) & 0xff;
-			G = (* (unsigned int *) pOldPixel >> pOldSurface->format->Gshift) & 0xff;
-			B = (* (unsigned int *) pOldPixel >> pOldSurface->format->Bshift) & 0xff;
-			A = (* (unsigned int *) pOldPixel >> pOldSurface->format->Ashift) & 0xff;
-
-			* (unsigned int *) pNewPixel = (R << rshift) | (G << gshift) | (B << bshift) | (A << ashift);
-		}
-	}
-	SDL_FreeSurface(pOldSurface);
-	*pSurface = pNewSurface;
-}
-
-///*static*/ bool Renderer::SaveImageToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName)
-//{
-//    typedef long int COORD_TYPE;
-//    int width = pSurface->w;
-//    int height = pSurface->h;
-//    // size of coordinates in the buffer
-//    const int size_coord = sizeof(COORD_TYPE);
-//    size_t size_buffer = size_coord * 2 + width * height;
-//    // allocate the buffer
-//    char *pBuffer = new char[size_buffer];
-//    if (pBuffer == NULL)
-//    {
-//        g_pPlutoLogger->Write(LV_CRITICAL, "cannot allocate memory");
-//        return false;
-//    }
-//    // save coordinates
-//    COORD_TYPE *pCoordinate = (COORD_TYPE *)pBuffer;
-//    *pCoordinate = width;
-//    ++pCoordinate;
-//    *pCoordinate = height;
-//    ++pCoordinate;
-//    // compute the image
-//    char *pImage = (char *)pCoordinate;
-//    for(int x = 0; x < width; x++)
-//    {
-//        for(int y = 0; y < height; y++)
-//        {
-//            char *pD = (char *) pSurface->pixels + y * pSurface->pitch + x * 4;
-//            *(pImage + y*width + x) = (char)(pD[3] <= nMaxOpacity);
-//        }
-//    }
-//    // FIXME: g_pPlutoLogger->Write() does not work here, why?
-//    //g_pPlutoLogger->Write(LV_STATUS, "saving xbm mask file '%s', size=(%dx%d), buffer_size=%d", sFileName.c_str(), width, height, size_buffer);
-//#ifndef WINCE
-//		cout << "Saving " << sFileName << endl;
-//#endif
-//    bool bResult = FileUtils::WriteBufferIntoFile(sFileName, pBuffer, size_buffer);
-//	delete pBuffer;
-//    if (! bResult)
-//    {
-//        g_pPlutoLogger->Write(LV_CRITICAL, "cannot write to xbm mask file '%s'", sFileName.c_str());
-//        return false;
-//    }
-//    return true;
-//}
-
-///*static*/ bool Renderer::ReadImageFromXbmMaskFile(const string &sFileName, char *&pBufferReturn, int &widthReturn, int &heightReturn, char *&pImageDataReturn)
-//{
-//    typedef long int COORD_TYPE;
-//    size_t size_buffer = 0;
-//    pBufferReturn = FileUtils::ReadFileIntoBuffer(sFileName, size_buffer);
-//    if (pBufferReturn == NULL)
-//    {
-//        g_pPlutoLogger->Write(LV_CRITICAL, "cannot read xbm mask file '%s'", sFileName.c_str());
-//        return false;
-//    }
-//    // read coordinates
-//    COORD_TYPE *pCoordinate = (COORD_TYPE *)pBufferReturn;
-//    widthReturn = *pCoordinate;
-//    ++pCoordinate;
-//    heightReturn = *pCoordinate;
-//    ++pCoordinate;
-//    // size of coordinates in the buffer
-//    const int size_coord = sizeof(COORD_TYPE);
-//    size_t size_buffer_computed = size_coord * 2 + widthReturn * heightReturn;
-//    // little error checking
-//    if (size_buffer_computed != size_buffer)
-//    {
-//        g_pPlutoLogger->Write(LV_CRITICAL, "computed_size(%d) != buffer_size(%d)", size_buffer_computed, size_buffer);
-//        delete pBufferReturn;
-//        pBufferReturn = NULL;
-//        pImageDataReturn = NULL;
-//        return false;
-//    }
-//    pImageDataReturn = (char *)pCoordinate;
-//    return true;
-//}
-
-/*static*/ bool Renderer::SaveSurfaceToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName)
-{
-#ifndef WIN32
-    typedef long int COORD_TYPE;
-    int width = pSurface->w;
-    int height = pSurface->h;
-    // size of coordinates in the buffer
-    // allocate the buffer
-    char *pRawImage = new char[width * height];
-    if (pRawImage == NULL)
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "cannot allocate memory");
-        return false;
-    }
-    // compute the image
-    for(int x = 0; x < width; x++)
-    {
-        for(int y = 0; y < height; y++)
-        {
-            char *pD = (char *) pSurface->pixels + y * pSurface->pitch + x * 4;
-            *(pRawImage + y*width + x) = (char)(pD[3] <= nMaxOpacity);
-        }
-    }
-#ifndef WINCE
-	cout << "Saving " << sFileName << endl;
-#endif
-    bool bResult = Xbm_WriteFile(sFileName, pRawImage, width, height);
-	delete pRawImage;
-    if (! bResult)
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "cannot write to xbm mask file '%s'", sFileName.c_str());
-        return false;
-    }
-#endif
-    return true;
-}
-
+//---------------------------------------------------------------------------------------------------
 // This takes an incoming pRenderImage of what's been rendered so far, and will add this new object and it's
 // children to it, or save them separately if set to can hide, or if rendering a selected, highlighted or alt versions
 // If iRenderStandard==1, render the standard version only, if ==0, everything but the standard, if -1, do all
@@ -316,18 +101,11 @@ Renderer::~Renderer()
 // When we start rendering a non-standard version (selected, highlighted, etc.), we will render all of it's children
 // in the same state.  Therefore we also have an "OnlyVersion" version flag.  This means only render the given version.
 // A standard version that has non-standard variations, will also want all of it's children to render only the standard version
-void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,int iOnlyVersion)
+void Renderer::RenderObject(RendererImage *pRenderImage, DesignObj_Generator *pDesignObj_Generator,
+	PlutoPoint Position, int iRenderStandard, int iOnlyVersion)
 {
 	bool bPreserveAspectRatio = pDesignObj_Generator->m_bPreserveAspectRatio;
     bool bPreserveTransparencies = pDesignObj_Generator->m_bPreserveTransparencies;
-
-    //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-	if( pDesignObj_Generator->m_ObjectID.find("4961.0.0.2038")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
-//  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
-        //if( pDesignObj_Generator->m_ObjectID== )
-    {
-        int k=2;
-    }
 
 	if( pDesignObj_Generator->m_rPosition.Width==0 || pDesignObj_Generator->m_rPosition.Height==0 )
 		return; // Nothing to render anyway
@@ -432,12 +210,10 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			{
 				pRendererMNG = CreateMNGFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size());
 				string::size_type pos = sInputFile.rfind('/');
-//				SaveMNGToFile("C:/x/" + sInputFile.substr(pos + 1), pRendererMNG);
 			}
 			else
 			{
-				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,false,bIsMenu ? m_cDefaultScaleForMenuBackground : m_cDefaultScaleForOtherGraphics, pDesignObj_Generator->m_rBitmapOffset,!pDesignObj_Generator->m_bContainsFloorplans);
-//SaveImageToFile(pRenderImage_Child, "first");
+				pRenderImage_Child = CreateFromFile(sInputFile, m_fScaleX, m_fScaleY, pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,false,bIsMenu ? m_cDefaultScaleForMenuBackground : m_cDefaultScaleForOtherGraphics, pDesignObj_Generator->m_rBitmapOffset,!pDesignObj_Generator->m_bContainsFloorplans);
 			}
 
             if( !pRenderImage_Child && !pRendererMNG )
@@ -460,7 +236,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 				{
 					for(int x=0;x<X;++x)
 					{
-						Uint32 Pixel = getpixel(pRenderImage_Child->m_pSDL_Surface, x, y);
+						Uint32 Pixel = getpixel(pRenderImage_Child->m_pSurface, x, y);
 						unsigned char *pPixel = (unsigned char *) &Pixel;
 						if ( pPixel[3]<128 )
 						{
@@ -477,12 +253,12 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			if (! pDesignObj_Generator->m_bIsPopup)
 			{
 				// This is a top-level object (ie the background for a screen), but there is no image
-				SDL_FillRect(pRenderImage->m_pSDL_Surface, NULL,SDL_MapRGBA(pRenderImage->m_pSDL_Surface->format, 0, 0, 0, 255));
+				SDL_FillRect(pRenderImage->m_pSurface, NULL,SDL_MapRGBA(pRenderImage->m_pSurface->format, 0, 0, 0, 255));
 			}
 			else
 			{
 				// This is a popup. The is no background image, but it has to be transparent
-				SDL_FillRect(pRenderImage->m_pSDL_Surface, NULL,SDL_MapRGBA(pRenderImage->m_pSDL_Surface->format, 0, 0, 0, 0));
+				SDL_FillRect(pRenderImage->m_pSurface, NULL,SDL_MapRGBA(pRenderImage->m_pSurface->format, 0, 0, 0, 0));
 			}
 			pRenderImage->NewSurface = false;
 		}
@@ -516,19 +292,17 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			if( pDesignObj_Generator->m_bChildrenBehind )
 			{
 				RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,iOnlyVersion_Children);
+				
 				if(pRenderImageClone_Child )
 					CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
+
 				RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
 			}
 			else // Render our own first
 			{
 				if(pRenderImageClone_Child )
 				{
-//SaveImageToFile(pRenderImage, "ri");
-//SaveImageToFile(pRenderImageClone, "ic b4");
-//SaveImageToFile(pRenderImageClone_Child, "icc b4");
 					CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
-//SaveImageToFile(pRenderImageClone, "ic aft");
 				}
 				if( pDesignObj_Generator->m_bChildrenBeforeText )
 				{
@@ -537,24 +311,10 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 				}
 				else
 				{
-
-if( pDesignObj_Generator->m_ObjectID.find("4961.0.0.2038")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
-//  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
-    //if( pDesignObj_Generator->m_ObjectID== )
-{
-    int k=2;
-}
-					
-					
-//SaveImageToFile(pRenderImageClone, "ic before RenderObjectsText");
 					RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
-//SaveImageToFile(pRenderImageClone, "ic aft RenderObjectsText");
 					RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,iOnlyVersion_Children);
-//SaveImageToFile(pRenderImageClone, "ic aft RenderObjectsChildren");
 				}
-//SaveImageToFile(pRenderImageClone, "ic aft ch");
 			}
-//SaveImageToFile(pRenderImageClone, "compositec");
 			if( pRendererMNG )
 				pRendererMNG->ReplaceFrame(iFrame, pRenderImageClone);
 		}
@@ -566,7 +326,7 @@ if( pDesignObj_Generator->m_ObjectID.find("4961.0.0.2038")!=string::npos )//|| p
             if( sSaveToFile.length()>0 )
             {
                 if(bPreserveTransparencies)
-                    SetTransparentColor(pRenderImage->m_pSDL_Surface, 0, 0, 0);
+                    SetTransparentColor(pRenderImage->m_pSurface, 0, 0, 0);
 
 				if( pRendererMNG )
 					SaveMNGToFile(m_sOutputDirectory + sSaveToFile,pRendererMNG);
@@ -593,8 +353,8 @@ if( pDesignObj_Generator->m_ObjectID.find("4961.0.0.2038")!=string::npos )//|| p
             else
 			{
 				// Pad the vector so we can do the assignment
-					if( pDesignObj_Generator->m_vectAltGraphicFilename.size()<iIteration )
-					for(size_t s = pDesignObj_Generator->m_vectAltGraphicFilename.size(); s<iIteration; ++s)
+					if( (int)pDesignObj_Generator->m_vectAltGraphicFilename.size()<iIteration )
+					for(size_t s = pDesignObj_Generator->m_vectAltGraphicFilename.size(); (int)s<iIteration; ++s)
 						pDesignObj_Generator->m_vectAltGraphicFilename.push_back("");
 
                 pDesignObj_Generator->m_vectAltGraphicFilename[iIteration-1] = sSaveToFile;
@@ -607,8 +367,9 @@ if( pDesignObj_Generator->m_ObjectID.find("4961.0.0.2038")!=string::npos )//|| p
     }
     //  cout << "Finished Rendering " << pDesignObj_Generator->m_ObjectID << endl;
 }
-
-void Renderer::RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iOnlyVersion)
+//---------------------------------------------------------------------------------------------------
+void Renderer::RenderObjectsChildren(RendererImage *pRenderImage, DesignObj_Generator *pDesignObj_Generator,
+									 PlutoPoint pos, int iOnlyVersion)
 {
     // We don't support layering.  This isn't normally a problem for pre-rendered graphics.  However, for objects that are rendered
     // seperately, like the selected and highlighted versions, if they have transparency, it's possible that other child objects
@@ -623,12 +384,7 @@ void Renderer::RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Gener
 	        RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,0,iOnlyVersion);  // Standard only
 		    continue;
 		}
-if( pObj->m_ObjectID.find("1399")!=string::npos )
-//  //  ) //|| pObj->m_ObjectID.find("2689.0.0.2790")!=string::npos )
-    //if( pObj->m_ObjectID== )
-{
-    int k=2;
-}
+
         if( pObj->m_bCanBeHidden || (pObj->m_sVisibleState.length()>0 && pObj->m_sVisibleState.find('N')==string::npos) )
             continue;
         RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,1);  // Standard only
@@ -642,15 +398,12 @@ if( pObj->m_ObjectID.find("1399")!=string::npos )
     for(it=pDesignObj_Generator->m_ChildObjects.begin();it!=pDesignObj_Generator->m_ChildObjects.end();++it)
     {
         DesignObj_Generator *pObj = (DesignObj_Generator *) *it;
-if( pObj->m_ObjectID.find("1399")!=string::npos )
-{
-    int k=2;
-}
         RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,pObj->m_bRendered ? 0 : -1);
     }
 }
-
-void Renderer::RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iIteration)
+//---------------------------------------------------------------------------------------------------
+void Renderer::RenderObjectsText(RendererImage *pRenderImage, DesignObj_Generator *pDesignObj_Generator, 
+	PlutoPoint pos, int iIteration)
 {
     for(size_t s=0;s<pDesignObj_Generator->m_vectDesignObjText.size();++s)
     {
@@ -669,48 +422,43 @@ void Renderer::RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator
         RenderText(pRenderImage,pDesignObjText,pTextStyle,pDesignObj_Generator,pos);
     }
 }
-
+//---------------------------------------------------------------------------------------------------
 void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, string sFilename, bool Signature)
 {
     // we can't just save NULL pointers...
-    if (pRendererImage == NULL || pRendererImage->m_pSDL_Surface == NULL)
+    if (pRendererImage == NULL || pRendererImage->m_pSurface == NULL)
     {
         throw "Save to image passed in a null pointer";
     }
 
-	SDL_Surface *pSDL_Surface = pRendererImage->m_pSDL_Surface;
+	SDL_Surface *pSDL_Surface = pRendererImage->m_pSurface;
 
 	if (!m_bUseAlphaBlending)
-    {
-        if (m_bCreateMask)
-            SaveSurfaceToXbmMaskFile(pSDL_Surface, 0, sFilename + ".mask.xbm");
 		SetGeneralSurfaceOpacity(pSDL_Surface, SDL_ALPHA_OPAQUE); // remove all transparency from the surface
-    }
     
-if( pSDL_Surface->w==0 || pSDL_Surface->h==0 )
-int k=2;
 	if( m_Rotate )
-		pSDL_Surface = rotozoomSurface (pRendererImage->m_pSDL_Surface, m_Rotate, 1,0);
+		pSDL_Surface = rotozoomSurface (pRendererImage->m_pSurface, m_Rotate, 1,0);
 
 	IMG_SavePNG(pSDL_Surface, File, Signature);
 
 	if( m_Rotate )
 	    SDL_FreeSurface(pSDL_Surface);
 }
-
+//---------------------------------------------------------------------------------------------------
 void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile, bool bUseOCG)
 {
     // we can't just save NULL pointers...
-    if (pRendererImage == NULL || pRendererImage->m_pSDL_Surface == NULL)
+    if (pRendererImage == NULL || pRendererImage->m_pSurface == NULL)
     {
         throw "Save to image passed in a null pointer";
     }
 
 #ifdef OUTPUT_BMP
+
     string FileName = sSaveToFile + ".bmp";
-	SDL_Surface *pSDL_Surface = pRendererImage->m_pSDL_Surface;
+	SDL_Surface *pSDL_Surface = pRendererImage->m_pSurface;
 	if( m_Rotate )
-		pSDL_Surface = rotozoomSurface (pRendererImage->m_pSDL_Surface, m_Rotate, 1,0);
+		pSDL_Surface = rotozoomSurface (pRendererImage->m_pSurface, m_Rotate, 1,0);
     if (SDL_SaveBMP(pSDL_Surface, FileName.c_str()) == -1)
     {
         throw "Failed to write file: " + FileName + ": " + SDL_GetError();
@@ -718,15 +466,15 @@ void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFil
 	if( m_Rotate )
 	    SDL_FreeSurface(pSDL_Surface);
 #else
+
 	if( bUseOCG )
 	{
 		string FileName = sSaveToFile + ".ocg";
-#ifndef WINCE
+
 		cout << "Saving " << FileName << endl;
-#endif
-		SDL_Surface *pSDL_Surface = pRendererImage->m_pSDL_Surface;
+		SDL_Surface *pSDL_Surface = pRendererImage->m_pSurface;
 		if( m_Rotate )
-			pSDL_Surface = rotozoomSurface (pRendererImage->m_pSDL_Surface, m_Rotate, 1,0);
+			pSDL_Surface = rotozoomSurface (pRendererImage->m_pSurface, m_Rotate, 1,0);
 		SDL_SaveOCG(pSDL_Surface, FileName);
 		if( m_Rotate )
 			SDL_FreeSurface(pSDL_Surface);
@@ -734,286 +482,16 @@ void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFil
 	else
 	{
 		string FileName = sSaveToFile + ".png";
-#ifndef WINCE
+
 		cout << "Saving " << FileName << endl;
-#endif
 		FILE * File = fopen(FileName.c_str(), "wb");
 		SaveImageToPNGFile(pRendererImage, File, FileName);
 		fclose(File);
 	}
+
 #endif
 }
-
-// load image from file and possibly scale/stretch it
-RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool bPreserveAspectRatio,bool bCrop,char cScale,PlutoRectangle offset,bool bUseAntiAliasing)
-{
-	FILE * File;
-
-	File = fopen(sFilename.c_str(), "rb");
-	RendererImage * Result = CreateFromFile(File, size, bPreserveAspectRatio, bCrop, cScale, offset,bUseAntiAliasing);
-    if (Result == NULL)
-    {
-        throw "Can't create surface from file: " + sFilename  + ": " + SDL_GetError();
-    }
-
-	fclose(File);
-	return Result;
-}
-
-RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, PlutoSize size, bool bPreserveAspectRatio, bool bCrop, char cScale,PlutoRectangle offset, bool bUseAntiAliasing)
-{
-    SDL_Surface * SurfaceFromFile=NULL;
-    //  try
-    //  {
-    SurfaceFromFile = IMG_Load_RW(rw, bFreeRWops); // rw is freed here of bFreeRWops is true (=1)
-    /*}
-    //  catch(...)
-    {
-    cerr << "Unhandled exception trying to open file " << sFilename << " with size " << size.Width << "x" << size.Height << endl;
-    return NULL;
-    }
-    */
-    if (SurfaceFromFile == NULL)
-    {
-        throw string("Can't create surface from FILE pointer: ") + SDL_GetError();
-    }
-
-
-    //  cout << "Loaded: " << sFilename << endl;
-    /*
-    SDL_FillRect(Screen, NULL, SDL_MapRGB(Screen->format, 0, 0, 0));
-    SDL_BlitSurface(SurfaceFromFile, NULL, Screen, NULL);
-    SDL_Flip(Screen);
-    SDL_Event SDL_event;
-    SDL_PollEvent(&SDL_event);
-    */
-    //Sleep(5000);
-
-	if( offset.X || offset.Y || offset.Width || offset.Height )
-	{
-	    SDL_Rect src_rect,dest_rect;
-		src_rect.x=src_rect.y=dest_rect.x=dest_rect.y=0;
-		src_rect.w=SurfaceFromFile->w;
-		src_rect.h=SurfaceFromFile->h;
-
-		if( offset.X>0 )
-		{
-			src_rect.x = offset.X;
-			src_rect.w = SurfaceFromFile->w - offset.X;
-		}
-		else
-			dest_rect.x = offset.X;
-
-		if( offset.Y>0 )
-		{
-			src_rect.y = offset.Y;
-			src_rect.h = SurfaceFromFile->h - offset.Y;
-		}
-		else
-			dest_rect.y = offset.Y;
-
-		if( offset.Width>0 )
-			src_rect.w = offset.Width - offset.X;
-		if( offset.Height>0 )
-			src_rect.h = offset.Height - offset.Y;
-
-		SDL_Surface *pCropped_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE, src_rect.w, src_rect.h, 32, rmask, gmask, bmask, amask);
-
-		SDL_SetAlpha(SurfaceFromFile, 0, 0);
-		SDL_BlitSurface(SurfaceFromFile, &src_rect, pCropped_Surface, &dest_rect);
-
-	    SDL_FreeSurface(SurfaceFromFile);
-		SurfaceFromFile = pCropped_Surface;
-	}
-
-    int W = size.Width == 0 ? SurfaceFromFile->w : size.Width;
-    int H = size.Height == 0 ? SurfaceFromFile->h : size.Height;
-	PlutoSize new_size(W, H);
-
-    RendererImage * RIFromFile = CreateBlankCanvas(new_size);
-    if (RIFromFile == NULL)
-    {
-        delete SurfaceFromFile;
-        throw string("Failed to create new image surface");
-    }
-
-//	RIFromFile->m_sFilename = sFilename;
-
-    //printf(" %s ", bUseAntiAliasing ? "with AA" : "without AA");
-
-    SDL_Surface * ScaledSurface;
-    if (W == SurfaceFromFile->w && H == SurfaceFromFile->h)
-    {
-        // no scaling/stretching needed
-        //SDL_BlitSurface(SurfaceFromFile, NULL, RIFromFile->m_pSDL_Surface, NULL);
-        //sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, 1, 1, 0, 0, 0, 0, SGE_TSAFE);
-#if defined(USE_SGE_TRANSFORM)
-        ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, 1, 1, bUseAntiAliasing ? SGE_TSAFE | SGE_TAA : SGE_TSAFE);
-#elif defined(USE_GD_TRANSFORM)
-        ScaledSurface = GD_ResizeSurface(SurfaceFromFile, 1, 1, bUseAntiAliasing);
-#else
-        ScaledSurface = zoomSurface(SurfaceFromFile, 1, 1, bUseAntiAliasing ? SMOOTHING_ON : SMOOTHING_OFF);
-#endif
-    }
-    else
-    {
-        // image needs to be steched/scaled
-        // I could use SDL_SoftStretch(), but the SDL developers strongly advise against it for the moment
-        // I use the SGE extension library instead
-        float scaleX,scaleY;
-
-		if( cScale=='S' )
-		{
-			scaleX = m_fScaleX;
-			scaleY = m_fScaleY;
-		}
-		else
-		{
-			scaleX = (float) RIFromFile->m_pSDL_Surface->w / SurfaceFromFile->w;
-			scaleY = (float) RIFromFile->m_pSDL_Surface->h / SurfaceFromFile->h;
-
-			if( cScale=='Y' )
-				scaleX = scaleY;
-			else if( cScale=='X' )
-				scaleY = scaleX;
-			else if( bPreserveAspectRatio && bCrop )
-			{
-				if( scaleY>scaleX )  // Take the greater scale, ie cropping the edges
-					scaleX=scaleY;
-				else
-					scaleY=scaleX;
-			}
-			else if( bPreserveAspectRatio )
-			{
-				if( scaleY<scaleX ) // Take the lesser scale, ie shrinking to fit
-				{
-					if( scaleY/scaleX<0.94 )  // If we're this close, then it's probably just a rounding error during scaling.  A 6% distortion won't be noticeable, it's more important to fit the target size exactly
-						scaleX=scaleY;
-				}
-				else
-				{
-					if( scaleX/scaleY<0.94 )
-						scaleY=scaleX;
-				}
-			}
-		}
-/*  starting with the mobile phone, we have 'distorted' images because we want to re-use buttons, but the aspect ratios are different
-*/
-#if defined(USE_SGE_TRANSFORM)
-        ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, scaleX, scaleY, bUseAntiAliasing ? SGE_TSAFE | SGE_TAA : SGE_TSAFE );
-#elif defined(USE_GD_TRANSFORM)
-        ScaledSurface = GD_ResizeSurface(SurfaceFromFile, scaleX, scaleY, bUseAntiAliasing);
-#else
-        ScaledSurface = zoomSurface(SurfaceFromFile, scaleX, scaleY, bUseAntiAliasing ? SMOOTHING_ON : SMOOTHING_OFF);
-#endif
-    }
-
-    SDL_SetAlpha(ScaledSurface, 0, 0);
-    SDL_BlitSurface(ScaledSurface, NULL, RIFromFile->m_pSDL_Surface, NULL);
-
-    SDL_FreeSurface(ScaledSurface);
-    SDL_FreeSurface(SurfaceFromFile);
-
-    return RIFromFile;
-}
-
-RendererImage * Renderer::CreateFromFile(FILE * File, PlutoSize size, bool bPreserveAspectRatio, bool bCrop,char cScale,PlutoRectangle offset, bool bUseAntiAliasing)
-{
-	SDL_RWops * rw = SDL_RWFromFP(File, 0);
-	return CreateFromRWops(rw, true, size, bPreserveAspectRatio, bCrop, cScale, offset, bUseAntiAliasing);
-}
-
-#endif /* ORBITER */
-
-void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage * pRenderImage_Child, PlutoPoint pos)
-{
-    // with no destination, function always fails
-    if (pRenderImage_Parent == NULL || pRenderImage_Parent->m_pSDL_Surface == NULL)
-        throw "Composite image passed null parent";
-    // with no source, function always succeeds (I assume that it's an empty image)
-    if (pRenderImage_Child == NULL || pRenderImage_Child->m_pSDL_Surface == NULL)
-        throw "Composite image passed null child";
-
-    //  cout << "Composing image: " << pRenderImage_Child->m_sFilename << endl;
-    /*
-    SDL_FillRect(Screen, NULL, 0);
-    SDL_BlitSurface(pRenderImage_Child->m_pSDL_Surface, NULL, Screen, NULL);
-    SDL_Flip(Screen);
-    //Sleep(5000);
-    cout << "Composing to image: " << pRenderImage_Parent->m_sFilename << endl;
-    SDL_FillRect(Screen, NULL, 0);
-    SDL_BlitSurface(pRenderImage_Parent->m_pSDL_Surface, NULL, Screen, NULL);
-    SDL_Flip(Screen);
-    */
-    //Sleep(5000);
-
-    SDL_Rect dest_rect;
-    dest_rect.x = pos.X;
-    dest_rect.y = pos.Y;
-
-	bool bCompositeAlpha = true;
-    bool WasSrcAlpha = (pRenderImage_Child->m_pSDL_Surface->flags & SDL_SRCALPHA) != 0;
-    Uint8 WasAlpha = pRenderImage_Child->m_pSDL_Surface->format->alpha;
-    if (pRenderImage_Parent->NewSurface)
-    {
-        SDL_SetAlpha(pRenderImage_Child->m_pSDL_Surface, 0, 0);
-        pRenderImage_Parent->NewSurface = false;
-		bCompositeAlpha = false;
-    }
-
-    if (SDL_BlitSurface(pRenderImage_Child->m_pSDL_Surface, NULL, pRenderImage_Parent->m_pSDL_Surface, &dest_rect) < 0)
-        //if (my_BlitAll(pRenderImage_Child, pRenderImage_Parent, pos) == -1)
-    {
-        throw string("Failed composing image: ") + SDL_GetError();
-    }
-	if (bCompositeAlpha)
-		CompositeAlpha(pRenderImage_Parent, pRenderImage_Child, pos);
-
-    SDL_SetAlpha(pRenderImage_Child->m_pSDL_Surface, WasSrcAlpha, WasAlpha);
-
-//      cout << "Composed images: " << pRenderImage_Parent->m_sFilename << " <- " << pRenderImage_Child->m_sFilename
-//          << "pos: " << pos.X << "," << pos.Y << endl;
-    /*
-    SDL_FillRect(Screen, NULL, 0);
-    SDL_BlitSurface(pRenderImage_Parent->m_pSDL_Surface, NULL, Screen, NULL);
-    SDL_Flip(Screen);
-    */
-    //Sleep(5000);
-}
-
-// Composite Alpha channel after alpha-blended SDL_Blit
-void Renderer::CompositeAlpha(RendererImage * pRenderImage_Parent, RendererImage * pRenderImage_Child, PlutoPoint pos)
-{
-    // with no destination, function always fails
-    if (pRenderImage_Parent == NULL || pRenderImage_Parent->m_pSDL_Surface == NULL)
-        throw "Composite image passed null parent";
-    // with no source, function always succeeds (I assume that it's an empty image)
-    if (pRenderImage_Child == NULL || pRenderImage_Child->m_pSDL_Surface == NULL)
-        throw "Composite image passed null child";
-
-	int iChildHeight = pRenderImage_Child->m_pSDL_Surface->h;
-	int iChildWidth = pRenderImage_Child->m_pSDL_Surface->w;
-
-	SDL_Rect SDL_pos;
-	SDL_pos.x = pos.X;
-	SDL_pos.y = pos.Y;
-	CompositeAlphaChannel(pRenderImage_Child->m_pSDL_Surface, pRenderImage_Parent->m_pSDL_Surface, &SDL_pos);
-}
-
-#ifndef ORBITER
-RendererImage * Renderer::DuplicateImage(RendererImage * pRendererImage)
-{
-	PlutoSize Size;
-	PlutoPoint Pos(0, 0);
-
-	Size.Width = pRendererImage->m_pSDL_Surface->w;
-	Size.Height = pRendererImage->m_pSDL_Surface->h;
-	RendererImage * Result = CreateBlankCanvas(Size);
-	CompositeImage(Result, pRendererImage, Pos);
-
-	return Result;
-}
-
+//---------------------------------------------------------------------------------------------------
 RendererMNG * Renderer::CreateMNGFromFiles(const vector<string> & FileNames, PlutoSize Size)
 {
 	MNGHeader Header;
@@ -1021,11 +499,10 @@ RendererMNG * Renderer::CreateMNGFromFiles(const vector<string> & FileNames, Plu
 
 	RendererMNG * Result = new RendererMNG;
 
-	for (int i = 0; i < FileNames.size(); i++)
+	for (size_t i = 0; i < FileNames.size(); i++)
 	{
-		RendererImage * pRendererImage = CreateFromFile(FileNames[i], Size);
+		RendererImage * pRendererImage = CreateFromFile(FileNames[i], m_fScaleX, m_fScaleY, Size);
 		Result->AppendFrame(pRendererImage);
-//		SaveImageToFile(pRendererImage, "C:/x/frame" + StringUtils::ltos(kounter++) + ".png");
 	}
 
 	Header.ticks_per_second = 1000;
@@ -1034,17 +511,9 @@ RendererMNG * Renderer::CreateMNGFromFiles(const vector<string> & FileNames, Plu
 	Result->SetHeader(Header);
 	return Result;
 }
-
+//---------------------------------------------------------------------------------------------------
 RendererMNG * Renderer::CreateMNGFromFile(string FileName, PlutoSize Size)
 {
-//	vector<string> V;
-//	for (int i = 0; i <= 14; i++)
-//	{
-//		V.insert(V.end(), string("c:/x/untitled") + (i < 10 ? "0" : "") + StringUtils::itos(i) + ".png");
-//	}
-
-//	return CreateMNGFromFiles(V, Size);
-
 	FILE * File;
 	int RealW, RealH;
 	MNGHeader Header;
@@ -1086,12 +555,11 @@ RendererMNG * Renderer::CreateMNGFromFile(string FileName, PlutoSize Size)
 				char * pGraphicFile;
 				size_t iSizeGraphicFile = InMemoryPNG->CatChunks(pGraphicFile);
 
-				SDL_RWops * rw = SDL_RWFromMem(pGraphicFile, iSizeGraphicFile);
-				RendererImage * pRendererImage = CreateFromRWops(rw, true, Size);
+				SDL_RWops * rw = SDL_RWFromMem(pGraphicFile, (int)iSizeGraphicFile);
+				RendererImage * pRendererImage = CreateFromRWops(rw, m_fScaleX, m_fScaleY, true, Size);
 
 				delete [] pGraphicFile;
 
-//				SaveImageToFile(pRendererImage, "C:/x/frameb" + StringUtils::ltos(kounter++) + ".png");
 				Result->AppendFrame(pRendererImage);
 				InMemoryPNG->clear();
 			}
@@ -1101,6 +569,7 @@ RendererMNG * Renderer::CreateMNGFromFile(string FileName, PlutoSize Size)
 			delete chunk;
 		}
 	}
+
 	delete InMemoryPNG;
 
 	fclose(File);
@@ -1111,7 +580,7 @@ RendererMNG * Renderer::CreateMNGFromFile(string FileName, PlutoSize Size)
 	Result->SetHeader(Header);
 	return Result;
 }
-
+//---------------------------------------------------------------------------------------------------
 void Renderer::SaveMNGToFile(string FileName, RendererMNG * MNG)
 {
 	FILE * File;
@@ -1134,371 +603,34 @@ void Renderer::SaveMNGToFile(string FileName, RendererMNG * MNG)
 
 	fclose(File);
 }
-
+//---------------------------------------------------------------------------------------------------
 void Renderer::RenderText(RendererImage *pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, DesignObj_Generator *pDesignObj_Generator, PlutoPoint pos)
 {
     PlutoRectangle rect = pDesignObjText->m_rPosition + pos;
 
-    WrapAndRenderText(pRenderImage->m_pSDL_Surface, pDesignObjText->m_sText, rect.X, rect.Y, rect.Width, rect.Height,
+    WrapAndRenderText(pRenderImage->m_pSurface, pDesignObjText->m_sText, rect.X, rect.Y, rect.Width, rect.Height,
         m_sFontPath, pTextStyle,pDesignObjText->m_iPK_HorizAlignment,pDesignObjText->m_iPK_VertAlignment);
 }
-
-// extract a subsurface from a surface
+//---------------------------------------------------------------------------------------------------
+// Extract a subsurface from a surface
 RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rect)
 {
-    //  return pRenderImage; // this is just a hack to see if it's a bug in the downstream code
-
     PlutoSize size(rect.Width, rect.Height);
     RendererImage * SubSurface = CreateBlankCanvas(size);
-
-    //  cout << "SubSurface: " << pRenderImage->m_sFilename << ": "
-    //      << rect.X << "," << rect.Y << "," << rect.Width << "," << rect.Height <<  endl;
 
     if (SubSurface == NULL)
     {
         cerr << "Failed to create sub-surface. Can't extract subset" << endl;
     }
 
-    /*
-    // copy pixel by pixel (this can be optimized to get line by line?)
-    for (int j = 0; j < rect.Height; j++)
-    {
-        for (int i = 0; i < rect.Width; i++)
-        {
-            // we may need locking on the two surfaces
-            putpixel(SubSurface, i, j, getpixel(pRenderImage->m_pSDL_Surface, i + rect.X, j + rect.Y));
-        }
-    }*/
-
     SDL_Rect SourceRect;
     SourceRect.x = rect.Left(); SourceRect.y = rect.Top();
     SourceRect.w = rect.Width; SourceRect.h = rect.Height;
-    SDL_SetAlpha(pRenderImage->m_pSDL_Surface, 0, 0);
-    SDL_BlitSurface(pRenderImage->m_pSDL_Surface, &SourceRect, SubSurface->m_pSDL_Surface, NULL);
+    SDL_SetAlpha(pRenderImage->m_pSurface, 0, 0);
+    SDL_BlitSurface(pRenderImage->m_pSurface, &SourceRect, SubSurface->m_pSurface, NULL);
 
     SubSurface->NewSurface = false;
 
     return SubSurface;
 }
-
-void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate,
-	char cDefaultScaleForMenuBackground,char cDefaultScaleForOtherGraphics,float fScaleX,float fScaleY,bool bUseAlphaBlending, bool bCreateMask)
-{
-    static Renderer r(font,output,width,height,false,bUseAlphaBlending, bCreateMask);
-	r.m_cDefaultScaleForMenuBackground=cDefaultScaleForMenuBackground;
-	r.m_cDefaultScaleForOtherGraphics=cDefaultScaleForOtherGraphics;
-	r.m_fScaleX=fScaleX;
-	r.m_fScaleY=fScaleY;
-	if( Rotate )
-		r.m_Rotate = 360 - Rotate;  // SDL treats rotation as counter clockwise, we do clockwise
-	else
-		r.m_Rotate=0;
-
-	r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1);  // Render everything
-}
-
-#endif //ifndef ORBITER
-
-RendererImage * Renderer::CreateBlankCanvas(PlutoSize size,bool bFillIt)
-{
-    RendererImage * Canvas = new RendererImage;
-
-    int Width = size.Width;
-    int Height = size.Height;
-
-    Canvas->m_sFilename = "(new surface)";
-    Canvas->m_pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, 32, rmask, gmask, bmask, amask);
-
-    if (Canvas->m_pSDL_Surface == NULL)
-    {
-#ifndef WINCE
-		cout << "Failed to create blank canvas w: " << Width << " Height " << Height << " error: " << SDL_GetError() << endl;
-#endif
-        throw string("Failed to create blank canvas: ") + SDL_GetError();
-        delete Canvas;
-        Canvas = NULL;
-    }
-
-	if( bFillIt )
-		SDL_FillRect(Canvas->m_pSDL_Surface, NULL,SDL_MapRGBA(Canvas->m_pSDL_Surface->format, 0, 0, 0, 255));
-
-    Canvas->NewSurface = true;
-
-    return Canvas;
-}
-
-// pass NULL in pRenderImage if you're interested only in the rendered text canvas size
-PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, PlutoPoint pos)
-{
-#if ( defined( PROFILING_TEMP ) )
-	clock_t clkStart = clock(  );
-#endif
-
-	int nPixelHeight = pTextStyle->m_iPixelHeight; // * 17 / 20;
-    if( !pTextStyle->m_pTTF_Font )
-    {
-        if (pTextStyle->m_sFont == "")
-            pTextStyle->m_sFont = "arial";
-
-		// Sometimes the camel case is converted to all upper or lower in Linux.
-
-		try
-		{
-			string sFontFile = m_sFontPath + pTextStyle->m_sFont + ".ttf";
-			pTextStyle->m_pTTF_Font = TTF_OpenFont(sFontFile.c_str(), nPixelHeight);
-			if(NULL == pTextStyle->m_pTTF_Font)
-			{
-				string sUpperCasedFontFile = StringUtils::ToUpper(m_sFontPath + pTextStyle->m_sFont + ".ttf");
-				pTextStyle->m_pTTF_Font = TTF_OpenFont(sUpperCasedFontFile.c_str(), nPixelHeight);
-				if(NULL == pTextStyle->m_pTTF_Font)
-				{
-					string sLowerCasedFontFile = StringUtils::ToLower(m_sFontPath + pTextStyle->m_sFont + ".ttf");
-					pTextStyle->m_pTTF_Font = TTF_OpenFont(sLowerCasedFontFile.c_str(), nPixelHeight);
-					if(NULL == pTextStyle->m_pTTF_Font)
-					{
-						TTF_Quit();
-						g_pPlutoLogger->Write(LV_WARNING, "Can't open font: %s: %s", pTextStyle->m_sFont.c_str(), TTF_GetError());
-						return PlutoSize(1, 1);
-					}
-				}
-			}
-		}
-		catch(...)
-		{
-		}
-	}
-
-    SDL_Color SDL_color;
-    /* HACKED IN - Windows and Linux get different colors here */
-    SDL_color.r=pTextStyle->m_ForeColor.R();
-    SDL_color.g=pTextStyle->m_ForeColor.G();
-    SDL_color.b=pTextStyle->m_ForeColor.B();
-    SDL_color.unused = pTextStyle->m_ForeColor.A();
-
-    /* Underline combined with anything crashes */
-    int style = TTF_STYLE_NORMAL;
-    if (pTextStyle->m_bUnderline)
-    {
-        style = TTF_STYLE_UNDERLINE;
-    }
-    else
-    {
-        if (pTextStyle->m_bBold)
-            style |= TTF_STYLE_BOLD;
-        if (pTextStyle->m_bItalic)
-            style |= TTF_STYLE_ITALIC;
-    }
-    TTF_SetFontStyle((TTF_Font *) pTextStyle->m_pTTF_Font, style);
-
-#if ( defined( PROFILING_TEMP ) )
-	clock_t clkBlending = clock(  );
-#endif
-
-	SDL_Surface * RenderedText = NULL;
-	try
-	{
-		//BOM (Byte Order Mask) header for UTF-8 strings
-		const char BOM_header[3] = { (char)0xef, (char)0xbb, (char)0xbf };
-
-		//already a UTF-8 string?
-		bool bAlreadyHasBOMHeader = !memcmp(BOM_header, pDesignObjText->m_sText.data(), sizeof(BOM_header));
-		
-		char *pUTF8TextToRender = NULL;
-		if(!bAlreadyHasBOMHeader)
-		{
-			//create crafted utf-8 text. it was appended BOM header
-			pUTF8TextToRender = new char[sizeof(BOM_header) + pDesignObjText->m_sText.length() + 1];
-			memcpy(pUTF8TextToRender, BOM_header, sizeof(BOM_header));
-			memcpy(pUTF8TextToRender + sizeof(BOM_header), pDesignObjText->m_sText.data(), pDesignObjText->m_sText.length());
-			pUTF8TextToRender[sizeof(BOM_header) + pDesignObjText->m_sText.length()] = '\0';
-		}
-
-		//render utf-8 text
-		RenderedText = TTF_RenderUTF8_Blended((TTF_Font *)pTextStyle->m_pTTF_Font, 
-			bAlreadyHasBOMHeader ? pDesignObjText->m_sText.c_str() : pUTF8TextToRender, SDL_color);
-
-		if(!bAlreadyHasBOMHeader)
-		{
-			//deallocate memory for crafted utf-8 text
-			delete [] pUTF8TextToRender; 
-			pUTF8TextToRender = NULL;
-		}
-	}
-	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "Renderer::RealRenderText : TTF_RenderText_Blended crashed!");
-	}
-
-    if (RenderedText == NULL)
-    {
-        TTF_Quit();
- 		g_pPlutoLogger->Write(LV_WARNING, "Renderer::RealRenderText: Can't render text: %s", pDesignObjText->m_sText.c_str());
-		return PlutoSize(1, 1);
-    }
-
-	//ChangeSDLSurfaceFormatForPluto(&RenderedText);
-    PlutoSize RenderedSize(RenderedText->w, RenderedText->h);
-
-#if ( defined( PROFILING_TEMP ) )
-	clock_t clkBliting = clock(  );
-#endif
-
-    if (pRenderImage != NULL)
-    {
-		/*
-        SDL_Rect SDL_rect;
-        SDL_rect.x = pos.X;
-        SDL_rect.y = pos.Y;
-        SDL_SetAlpha(RenderedText, 0, 0);
-		*/
-        pRenderImage->NewSurface = false;
-
-		/*
-        SDL_BlitSurface(RenderedText, NULL, pRenderImage->m_pSDL_Surface, &SDL_rect);
-		*/
-
-#ifndef WINCE
-		//cout << "[43mBlitting text '" << pDesignObjText->m_sText << "'[0m" << endl;
-#endif
-		RendererImage * pRI_RenderedText = new RendererImage();
-		pRI_RenderedText->m_pSDL_Surface = RenderedText;
-		CompositeImage(pRenderImage, pRI_RenderedText, pos);
-
-#if 0
-		if (pDesignObjText->m_sText == "Playlists")
-		{
-			printf("RT: Bits per color: %d; Bytes per color: %d; A: %x, R: %x, G: %x, B: %x\n",
-					RenderedText->format->BitsPerPixel, RenderedText->format->BytesPerPixel,
-					RenderedText->format->Amask, RenderedText->format->Rmask, RenderedText->format->Gmask, RenderedText->format->Bmask
-			);
-			printf("PP: Bits per color: %d; Bytes per color: %d; A: %x, R: %x, G: %x, B: %x\n",
-					pRenderImage->m_pSDL_Surface->format->BitsPerPixel, pRenderImage->m_pSDL_Surface->format->BytesPerPixel,
-					pRenderImage->m_pSDL_Surface->format->Amask, pRenderImage->m_pSDL_Surface->format->Rmask, pRenderImage->m_pSDL_Surface->format->Gmask, pRenderImage->m_pSDL_Surface->format->Bmask
-			);
-
-			bool bAlphaBlending = r.m_bUseAlphaBlending;
-			r.m_bUseAlphaBlending = true;
-			FILE * f = fopen("000.png", "wb");
-			r.SaveImageToPNGFile(pRI_RenderedText, f, "000.png");
-			fclose(f);
-
-			f = fopen("001.png", "wb");
-			r.SaveImageToPNGFile(pRenderImage, f, "001.png");
-			fclose(f);
-			r.m_bUseAlphaBlending = bAlphaBlending;
-			int k = 2;
-		}
-#endif
-				
-		pRI_RenderedText->m_pSDL_Surface = NULL;
-		delete pRI_RenderedText;
-    }
-
-// todo - find a solution for this  TTF_CloseFont(Font);
-	try
-	{
-	    SDL_FreeSurface(RenderedText);
-	}
-	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "Renderer::RealRenderText : SDL_FreeSurface crashed!");
-	}
-
-#if ( defined( PROFILING_TEMP ) )
-	clock_t clkFinished = clock(  );
-
-	g_pPlutoLogger->Write(
-		LV_CONTROLLER,
-		"PlutoSize Renderer::RealRenderText: %s took %d ms: \n"
-			"\t- Start: %d ms\n"
-			"\t- Blended: %d ms\n"
-			"\t- Blited: %d ms",
-		pDesignObjText->m_sText.c_str(),
-		clkFinished - clkStart,
-		clkBlending - clkStart,
-		clkBliting - clkBlending,
-		clkFinished - clkBliting
-	);
-
-#endif
-
-
-    return RenderedSize;
-}
-
-pair<int, int> GetWordWidth(string Word, string FontPath, TextStyle *pTextStyle, RendererImage * & RI, bool NewSurface/* = true*/)
-{
-// Radu was creating the render for every call
-    RendererImage * Canvas;
-
-    DesignObjText DOText;
-    DOText.m_sText = Word;
-
-    PlutoSize Size = r.RealRenderText(NULL, &DOText, pTextStyle, PlutoPoint(0,0));
-    if (! NewSurface)
-    {
-        Canvas = (RendererImage *) RI;
-        delete Canvas;
-    }
-
-    Canvas = r.CreateBlankCanvas(Size);
-    r.RealRenderText(Canvas, &DOText, pTextStyle, PlutoPoint(0,0));
-
-    RI = Canvas;
-    return pair<int, int>(Size.Width, Size.Height);
-
-}
-
-int DoRenderToSurface(SDL_Surface *Surface, list<RendererImage *> &RI, int posX, int posY)
-{
-    list<RendererImage *>::iterator i;
-
-    RendererImage * myRI;
-    for (i = RI.begin(); i != RI.end(); i++)
-    {
-        SDL_Rect dest;
-        myRI = (RendererImage *) * i;
-
-        dest.x = posX; dest.y = posY;
-
-        SDL_BlitSurface(myRI->m_pSDL_Surface, NULL, (SDL_Surface *) Surface, &dest);
-        posX += myRI->m_pSDL_Surface->w;
-    }
-
-    return myRI->m_pSDL_Surface->h;
-}
-
-// returns height of rendered row
-int DoRenderToScreen(list<RendererImage *> &RI, int posX, int posY)
-{
-    static SDL_Surface * Screen = NULL;
-    if (! (SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == SDL_INIT_VIDEO))
-    {
-        SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE);
-        atexit(SDL_Quit);
-    }
-
-    if (Screen == NULL)
-        Screen = SDL_SetVideoMode(800, 600, 0, SDL_SWSURFACE);
-
-    int Result = DoRenderToSurface(Screen, RI, posX, posY);
-    SDL_Flip(Screen);
-
-    return Result;
-}
-
-void extDeleteRendererImage(RendererImage * & RI)
-{
-    delete (RendererImage *) RI;
-}
-
-void DoSDL()
-{
-    while(1)
-    {
-        SDL_Event E;
-        SDL_WaitEvent(&E);
-        if (E.type == SDL_QUIT)
-            break;
-    };
-}
+//---------------------------------------------------------------------------------------------------

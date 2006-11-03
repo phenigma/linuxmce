@@ -2,6 +2,7 @@
 #include "../PlutoUtils/FileUtils.h"
 #include "OrbiterRenderer.h"
 #include "Orbiter.h"
+#include "../Gen_Devices/AllCommandsRequests.h"
 //=======================================================================================================
 //Generic PlutoGraphic class methods
 //-------------------------------------------------------------------------------------------------------

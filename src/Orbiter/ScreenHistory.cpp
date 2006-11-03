@@ -3,6 +3,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "DCE/Message.h"
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
 ScreenHistory::ScreenHistory(int nPK_Screen, class ScreenHistory *pScreenHistory_Prior,Message *pMessage)

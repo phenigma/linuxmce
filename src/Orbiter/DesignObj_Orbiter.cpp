@@ -26,6 +26,8 @@
 #include "ObjectRenderer.h"
 #include "../pluto_main/Define_Variable.h"
 
+#include "Gen_Devices/AllCommandsRequests.h"
+
 #ifdef PRONTO
 #include "CCF.h"
 #endif

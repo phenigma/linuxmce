@@ -7,7 +7,6 @@
 #elif defined(ORBITER_OPENGL)	
 	#include "OpenGL/OpenGLGraphic.h"
 #else
-	#include "OrbiterGen/Renderer.h"
 	#include "SDL/SDLGraphic.h"
 #endif
 //-------------------------------------------------------------------------------------------------------

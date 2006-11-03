@@ -14,6 +14,7 @@
 #include "SerializeClass/ShapesColors.h"
 #include "Renderer.h"
 #include "SerializeClass/SerializeClass.h"
+#include "Orbiter/RendererMNG.h"
 
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Text_LS.h"
@@ -245,7 +246,7 @@ int k=2;
 						cout << "Regenerating: cache file " << Filename << " doesn't exist" << endl;
 				}
 				else
-					cout << "Regenerating: screen has changed from " << lModDate1 << " to " << lModDate2 << " ( " << pdrCachedScreen->Modification_LastGen_get() << " to " <<  m_pRow_DesignObj->psc_mod_get() << ")" << endl;
+					cout << "Regenerating: screen has changed from " << long(lModDate1) << " to " << long(lModDate2) << " ( " << pdrCachedScreen->Modification_LastGen_get() << " to " <<  m_pRow_DesignObj->psc_mod_get() << ")" << endl;
             }
 			else
 			{
@@ -312,7 +313,7 @@ int k=2;
         {
             if( GraphicType==1 )
 			{
-				if( m_pOrbiterGenerator->m_iLocation<m_pOrbiterGenerator->m_dequeLocation.size() &&
+				if( m_pOrbiterGenerator->m_iLocation < int(m_pOrbiterGenerator->m_dequeLocation.size()) &&
 						m_pRow_DesignObj==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu &&
 						FileUtils::FileExists(m_pOrbiterGenerator->m_GraphicsBasePath + "/" + m_pOrbiterGenerator->m_pRow_Skin->DataSubdirectory_get() + 
 						"/../../orbiter_bg/" + StringUtils::itos(m_pOrbiterGenerator->m_iPK_Orbiter) + "_" + 
@@ -322,14 +323,14 @@ int k=2;
 						FileUtils::FileExists(m_pOrbiterGenerator->m_GraphicsBasePath + "/" + m_pOrbiterGenerator->m_pRow_Skin->DataSubdirectory_get() + "/../../orbiter_bg/" + StringUtils::itos(m_pOrbiterGenerator->m_iPK_Orbiter) + ".png") )
 					o = "../../orbiter_bg/" + StringUtils::itos(m_pOrbiterGenerator->m_iPK_Orbiter) + ".png";
 				else
-					o=GetParm(DESIGNOBJPARAMETER_Graphic_Filename_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get());
+					o=GetParm(DESIGNOBJPARAMETER_Graphic_Filename_CONST, 0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get());
 			}
             else if( GraphicType==2 && !m_pOrbiterGenerator->m_bIgnoreSelected )
-                o=GetParm(DESIGNOBJPARAMETER_Selected_Graphic_Fil_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get());
+                o=GetParm(DESIGNOBJPARAMETER_Selected_Graphic_Fil_CONST, 0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get());
             else if( GraphicType==3 && !m_pOrbiterGenerator->m_bIgnoreHighlighted)
-                o=GetParm(DESIGNOBJPARAMETER_Highlighted_Graphic_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get());
+                o=GetParm(DESIGNOBJPARAMETER_Highlighted_Graphic_CONST, 0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get());
             else if( !m_pOrbiterGenerator->m_bIgnoreAlt )
-                o=GetParm(DESIGNOBJPARAMETER_Alt_Graphic_File_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get());
+                o=GetParm(DESIGNOBJPARAMETER_Alt_Graphic_File_CONST, 0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get());
         }
 
         string sGraphicFile = o;
@@ -418,7 +419,7 @@ Table_Image *p = m_mds->Image_get();
                         unsigned long Height=0;
 						if( StringUtils::ToUpper(FileUtils::FindExtension(sGraphicFile))=="MNG" )
                         {
-							RendererMNG *pRendererMNG = Renderer::CreateMNGFromFile(sGraphicFile, PlutoSize(0,0));
+							RendererMNG *pRendererMNG = Renderer::GetInstance().CreateMNGFromFile(sGraphicFile, PlutoSize(0,0));
 //							RendererImage *pRendererImage = pRendererMNG->GetFrame(0);
 //							Width=pRendererImage->m_pSDL_Surface->w;
 //							Height=pRendererImage->m_pSDL_Surface->h;
@@ -490,7 +491,6 @@ Table_Image *p = m_mds->Image_get();
                         if( drOVCP_C_CY==NULL && m_pRow_DesignObjVariation->PK_DesignObjVariation_get()!=m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get() )
                             drOVCP_C_CY = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Crop_Y_CONST);
 
-						string::size_type p;
                         if( drOVCP_C_X && !drOVCP_C_X->Value_isNull() && drOVCP_C_X->Value_get()!="" )
                             m_rBitmapOffset.X = atoi(drOVCP_C_X->Value_get().c_str());
                         if( drOVCP_C_Y && !drOVCP_C_Y->Value_isNull() && drOVCP_C_Y->Value_get()!="" )
@@ -833,7 +833,7 @@ int k=2;
 		string sRegenMonitor = m_pOrbiterGenerator->m_pRegenMonitor->GetModInfo_Floorplan(FloorplanType);
 		if( sRegenMonitor.size()>0 )
 		{
-			cout << "obj: " << m_pRow_DesignObj->PK_DesignObj_get() << " regen cache " << m_pDesignObj_TopMost->m_vectRegenMonitor.size() << " is: " << sRegenMonitor << "-" << endl;
+			cout << "obj: " << m_pRow_DesignObj->PK_DesignObj_get() << " regen cache " << (unsigned int)m_pDesignObj_TopMost->m_vectRegenMonitor.size() << " is: " << sRegenMonitor << "-" << endl;
 			m_pDesignObj_TopMost->m_vectRegenMonitor.push_back( sRegenMonitor );
 		}
 
@@ -1201,7 +1201,7 @@ int k=2;
     }
     */
 
-    m_bPreserveTransparencies = m_pRow_DesignObjVariation->PreserveTransparencies_get();
+    m_bPreserveTransparencies = 0 != m_pRow_DesignObjVariation->PreserveTransparencies_get();
 }
 
 DesignObj_Generator::~DesignObj_Generator()
@@ -1447,8 +1447,8 @@ void DesignObj_Generator::PickStyleVariation(class Row_Style * drStyle,OrbiterGe
     TextStyle *pTextStyle = PickStyleVariation(vectrsv,pGenerator,0);
     if( pTextStyle )
     {
-#pragma warning("if style specifies alternates for selected, highlighted, alt pick them and add them to the map && get rid of version below")
-        pTextStyle->m_iVersion=0;
+		#pragma message("NOTE: if style specifies alternates for selected, highlighted, alt pick them and add them to the map && get rid of version below! (DesignObj_Generator::PickStyleVariation)")
+		pTextStyle->m_iVersion=0;
         mapTextStyle[0]=pTextStyle;
     }
 }
@@ -1860,7 +1860,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 	string sRegenMonitor = m_pOrbiterGenerator->m_pRegenMonitor->GetModInfo_Array(PK_Array);
 	if( sRegenMonitor.size()>0 )
 	{
-		cout << "obj: " << m_pRow_DesignObj->PK_DesignObj_get() << " regen cache " << m_pDesignObj_TopMost->m_vectRegenMonitor.size() << " is: " << sRegenMonitor << "-" << endl;
+		cout << "obj: " << m_pRow_DesignObj->PK_DesignObj_get() << " regen cache " << (unsigned int)m_pDesignObj_TopMost->m_vectRegenMonitor.size() << " is: " << sRegenMonitor << "-" << endl;
 		m_pDesignObj_TopMost->m_vectRegenMonitor.push_back( sRegenMonitor );
 	}
     return alArray;
@@ -2171,7 +2171,7 @@ bool DesignObj_Generator::CachedVersionOK()
 
 	for(size_t s=0;s<m_vectRegenMonitor.size();++s)
 	{
-		cout << "obj: " << m_pRow_DesignObj->PK_DesignObj_get() << " regen cache " << s << " of " << m_vectRegenMonitor.size() << " is: " << m_vectRegenMonitor[s] << "-" << endl;
+		cout << "obj: " << m_pRow_DesignObj->PK_DesignObj_get() << " regen cache " << (unsigned int)s << " of " << (unsigned int)m_vectRegenMonitor.size() << " is: " << m_vectRegenMonitor[s] << "-" << endl;
 		if( !m_pOrbiterGenerator->m_pRegenMonitor->CachedVersionOK(m_vectRegenMonitor[s]) )
 			return false;
 	}
@@ -2182,7 +2182,7 @@ void DesignObj_Generator::WriteRegenVersion(string sFilename)
 {
 	SerializeClass sc;
 	sc.StartWriting();
-	sc.Write_long(m_vectRegenMonitor.size());
+	sc.Write_long(long(m_vectRegenMonitor.size()));
 	for(size_t s=0;s<m_vectRegenMonitor.size();++s)
 		sc.Write_string(m_vectRegenMonitor[s]);
 
@@ -2200,7 +2200,7 @@ bool DesignObj_Generator::ReadRegenVersion(string sFilename)
 	if( !pPtr )
 		return false;
 	sc.StartReading((unsigned long) s,pPtr);
-	int count=sc.Read_long();
+	size_t count=sc.Read_long();
 	for(size_t s=0;s<count;++s)
 	{
 		string str;
@@ -2257,12 +2257,12 @@ void DesignObj_Generator::AddDataGridObjects()
 	// then we'll place these as child objects within the datagrid and update the m_mapChildDgObjects within the datagrid object to point to 
 	// the grid of objects.  The user may have specified a different object/height+width for the first row/column.  Iterate from the top row
 	// down, starting with the custom first row, then repeat for all additional rows
-	int RowHeight = atoi(GetParm(DESIGNOBJPARAMETER_Fixed_Row_Height_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
-	int NumRows = atoi(GetParm(DESIGNOBJPARAMETER_Num_of_Rows_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
-	int ColWidth = atoi(GetParm(DESIGNOBJPARAMETER_Fixed_Column_Width_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
-	int NumCols = atoi(GetParm(DESIGNOBJPARAMETER_Num_of_Columns_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
-	int FirstRowHeight = atoi(GetParm(DESIGNOBJPARAMETER_First_Row_Height_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
-	int FirstColWidth = atoi(GetParm(DESIGNOBJPARAMETER_First_Column_Width_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int RowHeight = atoi(GetParm(DESIGNOBJPARAMETER_Fixed_Row_Height_CONST,0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int NumRows = atoi(GetParm(DESIGNOBJPARAMETER_Num_of_Rows_CONST,0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int ColWidth = atoi(GetParm(DESIGNOBJPARAMETER_Fixed_Column_Width_CONST,0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int NumCols = atoi(GetParm(DESIGNOBJPARAMETER_Num_of_Columns_CONST,0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int FirstRowHeight = atoi(GetParm(DESIGNOBJPARAMETER_First_Row_Height_CONST,0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int FirstColWidth = atoi(GetParm(DESIGNOBJPARAMETER_First_Column_Width_CONST,0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
 
 	if( (!RowHeight && !NumRows) || (!ColWidth && !NumCols) )
 	{
@@ -2300,9 +2300,9 @@ void DesignObj_Generator::AddDataGridObjects()
 	}
 
 	Row_DesignObj *pRow_DesignObj_FirstRow=NULL,*pRow_DesignObj_FirstCol=NULL,*pRow_DesignObj_Cell=NULL;
-	int PK_DesignObj_FirstRow = atoi(GetParm(DESIGNOBJPARAMETER_PK_DesignObj_Row1_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
-	int PK_DesignObj_FirstCol = atoi(GetParm(DESIGNOBJPARAMETER_PK_DesignObj_Coll1_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
-	int PK_DesignObj_Cell = atoi(GetParm(DESIGNOBJPARAMETER_PK_DesignObj_Cell_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int PK_DesignObj_FirstRow = atoi(GetParm(DESIGNOBJPARAMETER_PK_DesignObj_Row1_CONST,0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int PK_DesignObj_FirstCol = atoi(GetParm(DESIGNOBJPARAMETER_PK_DesignObj_Coll1_CONST,0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
+	int PK_DesignObj_Cell = atoi(GetParm(DESIGNOBJPARAMETER_PK_DesignObj_Cell_CONST,0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get()).c_str());
 	if( PK_DesignObj_FirstRow )
 		pRow_DesignObj_FirstRow = m_mds->DesignObj_get()->GetRow(PK_DesignObj_FirstRow);
 	if( PK_DesignObj_FirstCol )

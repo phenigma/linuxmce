@@ -5,6 +5,7 @@
 #include "OrbiterRenderer_OpenGL.h"
 #include "Texture/TextureManager.h"
 #include "../../pluto_main/Define_DesignObjParameter.h"
+#include "../../Gen_Devices/AllCommandsRequests.h"
 
 using namespace DCE;
 

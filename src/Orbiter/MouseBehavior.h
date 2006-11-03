@@ -16,9 +16,6 @@ using namespace DCE;
 #define AXIS_LOCK_Y		2
 #define AXIS_LOCK_BOTH	3
 
-//forward declaration
-class OSDCompass;
-
 namespace DCE
 {
 	// A pure virtual base class for the call-backs
@@ -119,7 +116,6 @@ namespace DCE
 		int m_iPK_Button_Mouse_Last; // The last mouse button
 		unsigned long m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up; // When it was pressed
 		unsigned long m_dwTime_Last_Notch;
-		std::auto_ptr<OSDCompass> m_spCompass;
 		bool m_bMouseConstrained;
 		DesignObj_Orbiter *m_pObj_Previously_Highlighted;
 

@@ -13,29 +13,28 @@ using namespace std;
 	using namespace Frog;
 #endif
 
-
 class RendererImage
 {
 	public:
 		string m_sFilename;
 
 #ifndef POCKETFROG
-	SDL_Surface *m_pSDL_Surface;
+	SDL_Surface *m_pSurface;
 #else
-	Surface *m_pSDL_Surface;
+	Surface *m_pSurface;
 #endif
 
 		bool NewSurface;
 		
-		RendererImage() : m_sFilename(""), m_pSDL_Surface(NULL), NewSurface(true) {}
+		RendererImage() : m_sFilename(""), m_pSurface(NULL), NewSurface(true) {}
 		~RendererImage() 
 		{ 
-			if (m_pSDL_Surface) 
+			if (m_pSurface) 
 			{
 #ifndef POCKETFROG
-				SDL_FreeSurface(m_pSDL_Surface);
+				SDL_FreeSurface(m_pSurface);
 #else
-				delete m_pSDL_Surface;
+				delete m_pSurface;
 #endif
 			}
 		}

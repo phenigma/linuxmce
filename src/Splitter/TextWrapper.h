@@ -50,7 +50,6 @@ class TextLineWrap
 		~TextLineWrap();
 		list<Row> & Wrap(string text, int atX, int atY, int W, int H, string FontPath, TextStyle * pTextStyle,int PK_HorizAlignment,int PK_VertAlignment);
 		void Clear();
-		void RenderToScreen();
 		void RenderToSurface(SDL_Surface * Surface);
 };
 //-------------------------------------------------------------------------------------------------------

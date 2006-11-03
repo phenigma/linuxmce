@@ -34,7 +34,6 @@ sources += \
 	../utilities/linux/wrapper/wrapper_x11.cpp \
 	../utilities/linux/wrapper/image_file.cpp \
 	Linux/win_list_manager.cpp \
-	Linux/OSDCompass.cpp \
 	Linux/OrbiterRenderer_Linux.cpp \
 	DesignObj_Data.cpp \
 	DesignObj_Orbiter.cpp \

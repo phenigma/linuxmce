@@ -4,6 +4,7 @@
 #include "OrbiterRenderer.h"
 #include "DesignObj_DataGrid.h"
 #include "../DCE/DataGrid.h"
+#include "../Gen_Devices/AllCommandsRequests.h"
 
 using namespace DCE;
 

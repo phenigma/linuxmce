@@ -5,8 +5,6 @@
 #include "PlutoGraphic.h"
 #include "PlutoUtils/GraphicFormat.h"
 #include "ObjectRendererFactory.h"
-
-#include "Gen_Devices/AllCommandsRequests.h"
 //-------------------------------------------------------------------------------------------------------
 class ProntoCCF;
 namespace DCE

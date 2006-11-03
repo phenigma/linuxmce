@@ -5,6 +5,7 @@
 #include "../DCE/DataGrid.h"
 #include "CallBackData.h"
 #include "ScreenHandler.h"
+#include "../Gen_Devices/AllCommandsRequests.h"
 
 using namespace DCE;
 //-------------------------------------------------------------------------------------------------------
