@@ -230,7 +230,7 @@ string RegenMonitor::GetModInfo_Floorplan(int PK_FloorplanType)
 		MYSQL_ROW row;
 		if( (result_set_array.r=m_pMySqlHelper->mysql_query_result(sSQL)) )
 		{
-			while(row = mysql_fetch_row(result_set_array.r))
+			while( (row = mysql_fetch_row(result_set_array.r)) )
 			{
 				if( sPK_Device.size()!=0 )
                     sPK_Device += ",";
