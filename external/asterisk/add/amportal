@@ -51,6 +51,9 @@ check_asterisk() {
 # check to see if asterisk is running
 # Note, this isn't fool-proof.  If safe_asterisk is constantly restarting a dying asterisk, then there is a chance pidof will return non zero.  We call this twice to reduce chances of this happening
     pid_length=`pidof asterisk|awk '{print length($0)}'`
+
+    killall asterisk_keep_running.pl
+
     if [ "$pid_length" == "0" ]
     then
         killall -9 safe_asterisk
