@@ -19,6 +19,13 @@ function outputScreenOrDevice()
 	print "\tOption \"AllowGLXWithComposite\" \"true\"";
 	print "\tOption \"AddARGBGLXVisuals\" \"true\"";
 	print "\tOption \"renderAccel\" \"true\"";
+#<-mkr_b_via_b->
+	# http://wiki.openchrome.org/tikiwiki/tiki-index.php?page=EXAAcceleration
+	print "\tOption \"AccelMethod\" \"exa\"";
+	print "\tOption \"ExaScratchSize\" \"8192\"";
+	print "\tOption \"MaxDRIMem\" \"16384\"";
+	print "\tOption \"MigrationHeuristic\" \"greedy\"";
+#<-mkr_b_via_e->
 }
 
 function outputExtensions()
