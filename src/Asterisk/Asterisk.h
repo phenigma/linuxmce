@@ -17,10 +17,11 @@ namespace DCE
 		pthread_t voicemailThread;
 		std::map <int,int> dev2ext;
 		// Private methods
+		bool IsAsteriskServerRunning();
 public:
 		// Public member variables
 		int GetMBQuit() {return m_bQuit;};
-
+		virtual void PostConnect();
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor

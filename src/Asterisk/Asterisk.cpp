@@ -63,6 +63,32 @@ bool Asterisk::Register()
     return Connect(PK_DeviceTemplate_get());
 }
 
+void Asterisk::PostConnect()
+{
+	// Searching for an AppServer device
+       	DeviceData_Base *pDevice_AppServer = m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST,this);
+        if (! pDevice_AppServer)
+        {
+                g_pPlutoLogger->Write(LV_CRITICAL, "Asterisk::PostConnect App_Server device not found in installation. Bailing out.");
+                return;
+        }
+	g_pPlutoLogger->Write(LV_STATUS, "App_Server started");
+
+
+	if ( ! IsAsteriskServerRunning() ) {
+		// Starting the asterisk daemon
+		g_pPlutoLogger->Write(LV_STATUS, "Starting asterisk.");
+		DCE::CMD_Spawn_Application spawnApplication(
+				m_dwPK_Device, pDevice_AppServer->m_dwPK_Device,
+				"/usr/sbin/amportal",  	    	// launch this
+				"start-asterisk",	// reference it with this name
+				"start", 		// params
+				"",                     // execute this serialized message on exit with failure
+				"",                     // execute this serialized message on exit with success
+				false,false,false,true);
+		SendCommand(spawnApplication);
+	}
+}
 
 bool Asterisk::Connect(int iPK_DeviceTemplate) {
     if(!Asterisk_Command::Connect(iPK_DeviceTemplate)) {
@@ -505,4 +531,45 @@ void Asterisk::CreateChildren()
         exit(1);
     }
     pthread_detach(voicemailThread);
+}
+
+bool Asterisk::IsAsteriskServerRunning() {
+
+	struct sockaddr_in serverSocket;
+	struct hostent *host;
+	int socketAsterisk;
+
+	int asteriskPort=4596;
+	string asteriskHost="127.0.0.1";
+
+	socketAsterisk = socket(PF_INET, SOCK_STREAM, 0);
+	if (socketAsterisk == -1) 
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Could create client test socket for asterisk daemon. This should not happend here. Returning empty mrl.");
+		return false;
+	}
+
+	if( (host = gethostbyname(asteriskHost.c_str())) == NULL )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Could not resolve IP address. Not connecting.");
+		return false;
+	}
+
+	g_pPlutoLogger->Write(LV_WARNING, "Trying to connect to Asterisk daemon to see if is running.");
+
+	serverSocket.sin_family = AF_INET;
+	memcpy((char *) &serverSocket.sin_addr.s_addr, host->h_addr_list[0], host->h_length);
+	serverSocket.sin_port = htons(asteriskPort);
+
+	if ( connect(socketAsterisk, (struct sockaddr*)&serverSocket, sizeof(serverSocket)) == 0 )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "We have made a successful connection to asterisk on %s:%d. Life is good.", asteriskHost.c_str(), asteriskPort);
+		close(socketAsterisk);
+		return true;
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "We can't connect yet to the server.");
+		return false;
+	}
 }
