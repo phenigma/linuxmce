@@ -65,6 +65,17 @@ int DatabaseUtils::GetTopMostDevice(MySqlHelper *pMySqlHelper,int PK_Device)
 		return PK_Device;
 }
 
+int DatabaseUtils::GetIpOfDevice(MySqlHelper *pMySqlHelper,int PK_Device)
+{
+	string sSQL = "SELECT IPaddress FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) && row[0] )
+		return row[0];
+	else
+		return "";
+}
+
 int DatabaseUtils::GetNumberOfChildDevices(MySqlHelper *pMySqlHelper,int PK_Device)
 {
 	string sSQL = "SELECT count(PK_Device) FROM Device WHERE FK_Device_ControlledVia=" + StringUtils::itos(PK_Device);

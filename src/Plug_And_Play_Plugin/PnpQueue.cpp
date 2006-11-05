@@ -1216,7 +1216,14 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 			if( pRow_DeviceTemplate )
 			{
 				if( pRow_DeviceTemplate->FK_CommMethod_get()==COMMMETHOD_RS232_CONST && pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
-					sPath = TranslateSerialUSB(pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST]);
+				{
+					int PK_Device_Topmost = DatabaseUtils::GetTopMostDevice(m_pPlug_And_Play_Plugin->m_pDatabase_pluto_main,pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
+					string sIPAddress = DatabaseUtils::GetIpOfDevice(m_pPlug_And_Play_Plugin->m_pDatabase_pluto_main,pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
+					sPath = TranslateSerialUSB(pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST],sIPAddress);
+					g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d topmost %d ip %s port %s",
+						pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),
+						sIPAddress.c_str(),sPath.c_str());
+				}
 				else if( pRow_DeviceTemplate->FK_CommMethod_get()==COMMMETHOD_Ethernet_CONST )
 					sPath = pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get();
 			}

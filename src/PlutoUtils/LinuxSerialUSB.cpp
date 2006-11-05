@@ -17,7 +17,7 @@
 #include "PlutoUtils/LinuxSerialUSB.h"	 
 
 
-string TranslateSerialUSB(string sInput)
+string TranslateSerialUSB(string sInput,string sIPAddress)
 {
 #ifndef WIN32
 	
@@ -34,7 +34,12 @@ string TranslateSerialUSB(string sInput)
 
 	char tmpFile[40] = "/tmp/devusbXXXXXX";
 	mktemp(tmpFile);
-	string sCmd = "ls -l /sys/bus/usb-serial/devices/ | grep '" + sPciId + ".*-" + sUsbId + ":.*' >" + tmpFile;
+	string sCmd;
+
+	if( sIPAddress.empty()==false )
+		sCmd = "ssh " + sIPAddress + " ";
+
+	sCmd += "ls -l /sys/bus/usb-serial/devices/ | grep '" + sPciId + ".*-" + sUsbId + ":.*' >" + tmpFile;
 	system(sCmd.c_str());
 
 	vector<string> vectStr;

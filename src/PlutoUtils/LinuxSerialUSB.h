@@ -5,7 +5,7 @@
 #include "DCE/Logger.h"
 
 using namespace DCE;
-string TranslateSerialUSB(string sInput);
+string TranslateSerialUSB(string sInput,string sIPAddress="");
 
 #endif
 

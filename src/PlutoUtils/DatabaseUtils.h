@@ -23,6 +23,7 @@ using namespace std;
 namespace DatabaseUtils
 {
 	int GetTopMostDevice(MySqlHelper *pMySqlHelper,int PK_Device);
+	string GetIpOfDevice(MySqlHelper *pMySqlHelper,int PK_Device);
 	int GetNumberOfChildDevices(MySqlHelper *pMySqlHelper,int PK_Device);
 	void SetDeviceTemplateForDevice(MySqlHelper *pMySqlHelper,int PK_Device,int PK_DeviceTemplate);
 	int GetDeviceTemplateForDevice(MySqlHelper *pMySqlHelper,int PK_Device);
