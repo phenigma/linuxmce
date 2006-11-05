@@ -65,7 +65,7 @@ int DatabaseUtils::GetTopMostDevice(MySqlHelper *pMySqlHelper,int PK_Device)
 		return PK_Device;
 }
 
-int DatabaseUtils::GetIpOfDevice(MySqlHelper *pMySqlHelper,int PK_Device)
+string DatabaseUtils::GetIpOfDevice(MySqlHelper *pMySqlHelper,int PK_Device)
 {
 	string sSQL = "SELECT IPaddress FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
 	PlutoSqlResult result;
