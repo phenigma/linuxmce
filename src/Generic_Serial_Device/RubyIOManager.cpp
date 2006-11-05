@@ -100,7 +100,7 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
             	if(!sbaudrate.empty() )
 				{
 					int tbps;
-					if( sbaudrate[0] == 'B') {
+					if( sbaudrate[0] == 'B')
 						tbps = atoi(sbaudrate.substr(1, sbaudrate.length() -1).c_str());
 					else
 						tbps = atoi(sbaudrate.c_str());
