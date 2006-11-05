@@ -24,7 +24,8 @@ IOUtils::FormatHexBuffer(const char* buff, unsigned int size) {
 	} else {
 		char hxbuff[5];
 		for(unsigned int i = 0; i < size; i++) {
-			sprintf(hxbuff, "0x%0hhx", buff[i]);
+			unsigned char c = buff[i];
+			sprintf(hxbuff, "0x%0hhx", (int) c);
 			logstr += ((i > 0) ? " " : "");
 			logstr += hxbuff;
 		}
