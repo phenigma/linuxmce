@@ -288,7 +288,7 @@ string StripHex(const char *pBuffer,int Length)
 
 	for(int i=0;i<Length;++i)
 	{
-		char c=pBuffer[i];
+		unsigned char c=pBuffer[i];
 		if( c>=' ' && c<='~' )
 			Result += c;
 		else if( c=='\r' )
