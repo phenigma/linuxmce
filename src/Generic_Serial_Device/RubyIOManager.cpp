@@ -97,8 +97,13 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
     	        }
 
         	    string sbaudrate = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_BaudRate_CONST];
-            	if(!sbaudrate.empty() && sbaudrate[0] == 'B') {
-	                int tbps = atoi(sbaudrate.substr(1, sbaudrate.length() -1).c_str());
+            	if(!sbaudrate.empty() )
+				{
+					int tbps;
+					if( sbaudrate[0] == 'B') {
+						tbps = atoi(sbaudrate.substr(1, sbaudrate.length() -1).c_str());
+					else
+						tbps = atoi(sbaudrate.c_str());
     	            if(tbps != 0) {
         	            bps = tbps;
             	    }
