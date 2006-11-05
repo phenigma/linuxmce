@@ -100,6 +100,7 @@ public:
 
 	// Other
 	string GetDialNumber(Row_PhoneNumber *pRow_PhoneNumber);
+	void HangupAllCalls();
 
 	// Interceptors
 	bool OrbiterRegistered(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
@@ -163,9 +164,11 @@ public:
 
 	/** @brief COMMAND: #236 - PL_Hangup */
 	/** Hangs up a call */
+		/** @param #2 PK_Device */
+			/** The device to hangup the call for (ie the phone or orbiter).  If 0, the from device is assumed.  If -1, all calls are terminated */
 
-	virtual void CMD_PL_Hangup() { string sCMD_Result; CMD_PL_Hangup(sCMD_Result,NULL);};
-	virtual void CMD_PL_Hangup(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_PL_Hangup(int iPK_Device) { string sCMD_Result; CMD_PL_Hangup(iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_PL_Hangup(int iPK_Device,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #334 - Phone_Initiate */

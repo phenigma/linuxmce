@@ -212,7 +212,7 @@ public:
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string sPhoneCallerID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,bool bIsConference,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_PL_Hangup(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_PL_Hangup(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Phone_Answer(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Phone_Drop(string &sCMD_Result,class Message *pMessage) {};
@@ -340,7 +340,8 @@ public:
 				case COMMAND_PL_Hangup_CONST:
 					{
 						string sCMD_Result="OK";
-						CMD_PL_Hangup(sCMD_Result,pMessage);
+						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+						CMD_PL_Hangup(iPK_Device,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -357,7 +358,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_PL_Hangup(sCMD_Result,pMessage);
+								CMD_PL_Hangup(iPK_Device,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

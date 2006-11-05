@@ -808,19 +808,26 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 
 	/** @brief COMMAND: #236 - PL_Hangup */
 	/** Hangs up a call */
+		/** @param #2 PK_Device */
+			/** The device to hangup the call for (ie the phone or orbiter).  If 0, the from device is assumed.  If -1, all calls are terminated */
 
-void Telecom_Plugin::CMD_PL_Hangup(string &sCMD_Result,Message *pMessage)
+void Telecom_Plugin::CMD_PL_Hangup(int iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c236-e->
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Hangup command called.");
 
-	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
-	if(!pCallData) {
-		g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",pMessage->m_dwPK_Device_From);
+	if( iPK_Device==-1 )
+		HangupAllCalls();
+	else if( iPK_Device==0 )
+		iPK_Device = pMessage->m_dwPK_Device_From;
 
-		pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_orbiter2embedphone[pMessage->m_dwPK_Device_From]);
+	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(iPK_Device);
+	if(!pCallData) {
+		g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",iPK_Device);
+
+		pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_orbiter2embedphone[iPK_Device]);
 		if(!pCallData) {
-			g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",map_orbiter2embedphone[pMessage->m_dwPK_Device_From]);
+			g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",map_orbiter2embedphone[iPK_Device]);
 			return;
 		}
 	}
@@ -835,6 +842,27 @@ void Telecom_Plugin::CMD_PL_Hangup(string &sCMD_Result,Message *pMessage)
 	}
 }
 //<-dceag-createinst-b->!
+
+void Telecom_Plugin::HangupAllCalls()
+{
+	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
+	std::list<CallData*>::iterator it = calls->begin();
+	std::list<std::string> text_list;
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::HangupAllCalls hanging up %d",calls->size());
+#endif
+	while(it != calls->end())
+	{
+		CallData *pCallData = *it;
+		if(m_pDevice_pbx) {
+			/*send transfer command to PBX*/
+			CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+									0, pCallData->getID());
+			SendCommand(cmd_PBX_Hangup);
+			CallManager::getInstance()->removeCall(pCallData);
+		}
+	}
+}
 
 void Telecom_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar)
 {
