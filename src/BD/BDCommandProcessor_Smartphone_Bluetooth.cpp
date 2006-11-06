@@ -104,7 +104,7 @@ void *ServerThread(void *p)
 		//------------ Send Configuration ------------
 		OrbiterApp::GetInstance()->SendConfiguration();
 		//-------
-
+		
 		PLUTO_SAFETY_LOCK(ssm, pBDCommandProcessor->m_ServerSocketMutex);
 		g_pPlutoLogger->Write(LV_STATUS, "Client connected. Sleeping until no client is connected.");
 		ssm.CondWait();
@@ -116,7 +116,8 @@ void *ServerThread(void *p)
 //------------------------------------------------------------------------------------------------------------
 BDCommandProcessor_Smartphone_Bluetooth::BDCommandProcessor_Smartphone_Bluetooth()
 	: BDCommandProcessor("dummy"), m_ClientSocketMutex("client socket mutex"), 
-	m_ServerSocketMutex("sever socket mutex")
+	m_ServerSocketMutex("sever socket mutex"), m_ServerThreadID(pthread_t(NULL)),
+	m_ProcessCommandsThreadID(pthread_t(NULL))
 {
 	pthread_cond_init(&m_ClientSocketCond, NULL);
 	m_ClientSocketMutex.Init(NULL,&m_ClientSocketCond);
@@ -135,7 +136,7 @@ BDCommandProcessor_Smartphone_Bluetooth::BDCommandProcessor_Smartphone_Bluetooth
 	BT_SetService();
 
 	//creating the socket
-	m_ServerSocket = socket (AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);
+	m_ServerSocket = socket (AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);	
 	if(m_ServerSocket == INVALID_SOCKET) 
 	{
 		m_bDead = true;
@@ -168,7 +169,23 @@ BDCommandProcessor_Smartphone_Bluetooth::BDCommandProcessor_Smartphone_Bluetooth
 //------------------------------------------------------------------------------------------------------------
 BDCommandProcessor_Smartphone_Bluetooth::~BDCommandProcessor_Smartphone_Bluetooth()
 {
-	m_bDead = false;
+	m_bDead = true;
+
+	//wait for client thread to finish
+	pthread_cond_broadcast(&m_ClientSocketCond);
+	if(m_ProcessCommandsThreadID)
+	{
+		pthread_join(m_ProcessCommandsThreadID, NULL);
+		m_ProcessCommandsThreadID = (pthread_t)NULL;
+	}
+
+	//wait for server thread to finish
+	pthread_cond_broadcast(&m_ServerSocketCond);
+	if(m_ServerThreadID)
+	{
+		pthread_join(m_ServerThreadID, NULL);
+		m_ServerThreadID = (pthread_t)m_ServerThreadID;
+	}
 
 	if(m_ServerSocket)
 	{
@@ -181,7 +198,7 @@ BDCommandProcessor_Smartphone_Bluetooth::~BDCommandProcessor_Smartphone_Bluetoot
 		closesocket(m_ClientSocket);
 		CloseHandle ((LPVOID)m_ClientSocket);
 	}
-
+	
 	pthread_mutex_destroy(&m_ClientSocketMutex.mutex);
 	pthread_mutex_destroy(&m_ServerSocketMutex.mutex);
 }
@@ -189,7 +206,7 @@ BDCommandProcessor_Smartphone_Bluetooth::~BDCommandProcessor_Smartphone_Bluetoot
 bool BDCommandProcessor_Smartphone_Bluetooth::SendData(int size,const char *data)
 {
 #ifdef DEBUG_BLUETOOTH
-	PROF_START();
+//	PROF_START();
 #endif
 
 	if(!m_bClientConnected)
@@ -245,7 +262,7 @@ bool BDCommandProcessor_Smartphone_Bluetooth::SendData(int size,const char *data
 #endif
 
 #ifdef DEBUG_BLUETOOTH
-	PROF_STOP("Send data");
+//	PROF_STOP("Send data");
 #endif
 
 	return true;
@@ -254,7 +271,7 @@ bool BDCommandProcessor_Smartphone_Bluetooth::SendData(int size,const char *data
 char *BDCommandProcessor_Smartphone_Bluetooth::ReceiveData(int size)
 {
 #ifdef DEBUG_BLUETOOTH
-	PROF_START();
+//	PROF_START();
 #endif
 
 	if(!m_bClientConnected)
@@ -311,7 +328,7 @@ char *BDCommandProcessor_Smartphone_Bluetooth::ReceiveData(int size)
 #endif		
 
 #ifdef DEBUG_BLUETOOTH
-	PROF_STOP("Receive data");
+//	PROF_STOP("Receive data");
 #endif
 
 	return buffer; 
