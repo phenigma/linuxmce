@@ -125,8 +125,6 @@ void *UpdateMediaThread(void *)
 
 void OnModify(list<string> &listFiles) 
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Notified with new event...");        
-
 	for(list<string>::iterator it = listFiles.begin(); it != listFiles.end(); it++)
 	{
 		string sItem = *it;
@@ -158,7 +156,6 @@ void OnModify(list<string> &listFiles)
 		if(!bFound)
 		{
 			vectModifiedFolders.push_back(sItem);
-			g_pPlutoLogger->Write(LV_STATUS, "Waking up worker thread...");        
 			pthread_cond_broadcast(&g_ActionCond);
 		}
 	}

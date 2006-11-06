@@ -336,27 +336,6 @@ cout << sFile << " exists in db as: " << PK_File << endl;
         if(m_bAsDaemon)
 			Sleep(500);
 		
-
-		if(m_bAsDaemon)
-		{
-			string SQL = "select count(*) from File Where Path LIKE '" + 
-				StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sSubDir)) + "%' AND Missing = 0";
-		
-			PlutoSqlResult allresult;
-			MYSQL_ROW row;
-			if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
-			{
-				row = mysql_fetch_row(allresult.r);
-
-				if(row && atoi(row[0]) > 0 && !bRecursive)
-				{
-					g_pPlutoLogger->Write(LV_WARNING, "Skipping subdir %s cause it's already scanned", sSubDir.c_str());
-					Sleep(1000); 
-					continue;
-				}
-			}
-		}
-
         //is sDirectory a ripped dvd ?
 		if( 
             StringUtils::ToUpper(FileUtils::FilenameWithoutPath(sSubDir))=="VIDEO_TS" || 
