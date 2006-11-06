@@ -39,7 +39,7 @@ else
 
 		Q="SELECT PK_DeviceTemplate
 		        FROM DeviceTemplate
-				WHERE FK_Manufacturer=${FK_Manufacturer} AND FK_DeviceCategory=${FK_DeviceCategory}"
+				WHERE FK_Manufacturer=${FK_Manufacturer} AND FK_DeviceCategory=${FK_DeviceCategory} AND FK_CommMethod=2"
 		R=$(RunSQL "$Q")
 	fi
 

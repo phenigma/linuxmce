@@ -2358,9 +2358,9 @@ namespace DCE
 	};
 	class CMD_Spawn_Application : public PreformedCommand {
 	public:
-		CMD_Spawn_Application(long DeviceIDFrom, long DeviceIDTo,string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Spawn_Application(long DeviceIDFrom, long DeviceIDTo,string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,bool bDetach) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Spawn_Application_CONST,
-			8 /* number of parameters */,
+			9 /* number of parameters */,
 			COMMANDPARAMETER_Filename_CONST, sFilename.c_str(),
 			COMMANDPARAMETER_Name_CONST, sName.c_str(),
 			COMMANDPARAMETER_Arguments_CONST, sArguments.c_str(),
@@ -2368,13 +2368,14 @@ namespace DCE
 			COMMANDPARAMETER_SendOnSuccess_CONST, sSendOnSuccess.c_str(),
 			COMMANDPARAMETER_Show_logo_CONST, (bShow_logo ? "1" : "0"),
 			COMMANDPARAMETER_Retransmit_CONST, (bRetransmit ? "1" : "0"),
-			COMMANDPARAMETER_Exclusive_CONST, (bExclusive ? "1" : "0")); }
+			COMMANDPARAMETER_Exclusive_CONST, (bExclusive ? "1" : "0"),
+			COMMANDPARAMETER_Detach_CONST, (bDetach ? "1" : "0")); }
 	};
 	class CMD_Spawn_Application_DL : public PreformedCommand {
 	public:
-		CMD_Spawn_Application_DL(long DeviceIDFrom, string DeviceIDTo,string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Spawn_Application_DL(long DeviceIDFrom, string DeviceIDTo,string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,bool bDetach) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Spawn_Application_CONST,
-			8 /* number of parameters */,
+			9 /* number of parameters */,
 			COMMANDPARAMETER_Filename_CONST, sFilename.c_str(),
 			COMMANDPARAMETER_Name_CONST, sName.c_str(),
 			COMMANDPARAMETER_Arguments_CONST, sArguments.c_str(),
@@ -2382,13 +2383,14 @@ namespace DCE
 			COMMANDPARAMETER_SendOnSuccess_CONST, sSendOnSuccess.c_str(),
 			COMMANDPARAMETER_Show_logo_CONST, (bShow_logo ? "1" : "0"),
 			COMMANDPARAMETER_Retransmit_CONST, (bRetransmit ? "1" : "0"),
-			COMMANDPARAMETER_Exclusive_CONST, (bExclusive ? "1" : "0")); }
+			COMMANDPARAMETER_Exclusive_CONST, (bExclusive ? "1" : "0"),
+			COMMANDPARAMETER_Detach_CONST, (bDetach ? "1" : "0")); }
 	};
 	class CMD_Spawn_Application_DT : public PreformedCommand {
 	public:
-		CMD_Spawn_Application_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Spawn_Application_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,bool bDetach) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Spawn_Application_CONST,
-			8 /* number of parameters */,
+			9 /* number of parameters */,
 			COMMANDPARAMETER_Filename_CONST, sFilename.c_str(),
 			COMMANDPARAMETER_Name_CONST, sName.c_str(),
 			COMMANDPARAMETER_Arguments_CONST, sArguments.c_str(),
@@ -2396,13 +2398,14 @@ namespace DCE
 			COMMANDPARAMETER_SendOnSuccess_CONST, sSendOnSuccess.c_str(),
 			COMMANDPARAMETER_Show_logo_CONST, (bShow_logo ? "1" : "0"),
 			COMMANDPARAMETER_Retransmit_CONST, (bRetransmit ? "1" : "0"),
-			COMMANDPARAMETER_Exclusive_CONST, (bExclusive ? "1" : "0")); }
+			COMMANDPARAMETER_Exclusive_CONST, (bExclusive ? "1" : "0"),
+			COMMANDPARAMETER_Detach_CONST, (bDetach ? "1" : "0")); }
 	};
 	class CMD_Spawn_Application_Cat : public PreformedCommand {
 	public:
-		CMD_Spawn_Application_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Spawn_Application_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,bool bDetach) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Spawn_Application_CONST,
-			8 /* number of parameters */,
+			9 /* number of parameters */,
 			COMMANDPARAMETER_Filename_CONST, sFilename.c_str(),
 			COMMANDPARAMETER_Name_CONST, sName.c_str(),
 			COMMANDPARAMETER_Arguments_CONST, sArguments.c_str(),
@@ -2410,7 +2413,8 @@ namespace DCE
 			COMMANDPARAMETER_SendOnSuccess_CONST, sSendOnSuccess.c_str(),
 			COMMANDPARAMETER_Show_logo_CONST, (bShow_logo ? "1" : "0"),
 			COMMANDPARAMETER_Retransmit_CONST, (bRetransmit ? "1" : "0"),
-			COMMANDPARAMETER_Exclusive_CONST, (bExclusive ? "1" : "0")); }
+			COMMANDPARAMETER_Exclusive_CONST, (bExclusive ? "1" : "0"),
+			COMMANDPARAMETER_Detach_CONST, (bDetach ? "1" : "0")); }
 	};
 	class RESP_Get_Device_Data : public PreformedCommandResponse {
 		string *m_sValue_To_Assign;
