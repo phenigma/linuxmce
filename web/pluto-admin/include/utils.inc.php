@@ -1295,7 +1295,7 @@ function displayCriteria($FK_CriteriaParmNesting,$eventHandlerID,$installationID
 						$out.=generatePullDown('CriteriaParmValue_'.$rowCP['PK_CriteriaParm'],$tableName,'PK_'.$tableName,'Description',$rowCP['Value'],$dbADO,"WHERE FK_Installation='$installationID'");
 						break;
 						default:
-						$out.='<input type="textbox" name="CriteriaParmValue_'.$rowCP['PK_CriteriaParm'].'" value="'.$rowCP['Parm'].'">';
+						$out.='<input type="textbox" name="CriteriaParmValue_'.$rowCP['PK_CriteriaParm'].'" value="'.$rowCP['Value'].'">';
 						break;
 					}
 				}else{
