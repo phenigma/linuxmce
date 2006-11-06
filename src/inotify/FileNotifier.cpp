@@ -119,61 +119,24 @@ void *BackgroundWorkerThread(void *p)
 		sRootFolder = StringUtils::Replace(&sRootFolder,"\\","/");  // Be sure no Windows \'s
 		sRootFolder = FileUtils::ExcludeTrailingSlash(sRootFolder);
 		
-		list<string> listFilesOnDisk;
-		FileUtils::FindDirectories(listFilesOnDisk,sRootFolder,true,false,0,sRootFolder + "/");  
-		listFilesOnDisk.push_back(sRootFolder);
+		list<string> listDirsOnDisk;
+		FileUtils::FindDirectories(listDirsOnDisk,sRootFolder,true,false,0,sRootFolder + "/");  
+		listDirsOnDisk.push_back(sRootFolder);
 
-		for(list<string>::iterator it = listFilesOnDisk.begin(); it != listFilesOnDisk.end(); it++)
+		for(list<string>::iterator it = listDirsOnDisk.begin(); it != listDirsOnDisk.end(); it++)
 		{
 			if(pFileNotifier->m_bCancelThread)
 				return NULL;
 
 			string sItem = *it;
-				
-/*				
-			//this is not correct. we cannot rely on this. we might have a dvd
-			//with a lock file which must be ignored at the beginning, but must
-			//be deleted later; if nothing will be modified there, we won't 
-			//be able to scan that folder and delete it.
-*/
-			//timestamp on the disk
 			sItem = StringUtils::Replace(&sItem,"\\","/");  // Be sure no Windows \'s
 			sItem = FileUtils::ExcludeTrailingSlash(sItem);
-			string sModifiedDate = FileUtils::GetLastModifiedDateStr(sItem);
 
-			//timestamp on db
-			string sDBModifiedDate;
-			string sSQL;
-			MYSQL_ROW row;
+			list<string> listFiles;
+			listFiles.push_back(sItem);
+			pFileNotifier->FireOnCreate(listFiles);
 
-			sSQL = "SELECT psc_mod FROM File WHERE Path = '" + StringUtils::SQLEscape(sItem) + "' ORDER BY psc_mod DESC LIMIT 1";
-			PlutoSqlResult result_set;
-			if(
-				NULL != (result_set.r = pFileNotifier->m_pDatabase_pluto_media->mysql_query_result(sSQL)) && 
-				NULL != (row = mysql_fetch_row(result_set.r))
-			)
-				sDBModifiedDate = row[0];
-
-            g_pPlutoLogger->Write(LV_STATUS, "Folder timestamp %s: on disk %s - on database %s" , sItem.c_str(),
-	            sModifiedDate.c_str(), sDBModifiedDate.c_str());
-			
-			//compare timestamps
-			if(sModifiedDate != sDBModifiedDate && sDBModifiedDate != "")
-			{
-
-				g_pPlutoLogger->Write(LV_CRITICAL, "Need to sync folder %s: on disk %s - on database %s" , sItem.c_str(), 
-					sModifiedDate.c_str(), sDBModifiedDate.c_str());
-
-				//touch records in db
-				string sSQL = "UPDATE File SET psc_mod = '" + sModifiedDate + "' WHERE Path = '" + StringUtils::SQLEscape(sItem) + "'";
-				pFileNotifier->m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
-
-				list<string> listFiles;
-				listFiles.push_back(sItem);
-				pFileNotifier->FireOnCreate(listFiles);
-			}
-
-			Sleep(100);
+			g_pPlutoLogger->Write(LV_STATUS, "Background thread - scheduled for scanning: %s" , sItem.c_str());
 		}
 
 		g_pPlutoLogger->Write(LV_WARNING, "Background thread going to sleep...");
