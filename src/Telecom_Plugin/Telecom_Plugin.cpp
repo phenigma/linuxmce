@@ -854,9 +854,8 @@ void Telecom_Plugin::HangupAllCalls()
 	std::list<CallData*>::iterator it = calls->begin();
 	std::list<std::string> text_list;
 #ifdef DEBUG
-	g_pPlutoLogger->Write(CRITICAL,"Telecom_Plugin::HangupAllCalls hanging up %d -- disabled for now",calls->size());
+	g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::HangupAllCalls hanging up %d -- disabled for now",calls->size());
 #endif
-	return;
 	while(it != calls->end())
 	{
 		CallData *pCallData = *it;
