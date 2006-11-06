@@ -47,6 +47,7 @@ public:
 	OpenGLGraphic();
 	OpenGLGraphic(OrbiterRenderer *pOrbiterRenderer);
 	OpenGLGraphic(string Filename, eGraphicManagement GraphicManagement, OrbiterRenderer *pOrbiterRenderer);
+	OpenGLGraphic(SDL_Surface *pSurface);
 	/**
 	 *	Use that only in OpenGL thread
 	 */

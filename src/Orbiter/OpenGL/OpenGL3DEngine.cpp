@@ -24,9 +24,9 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include <SDL_ttf.h>
 
 #include "Mesh/MeshPainter.h"
+#include "Mesh/MeshBuilder.h"
 #include "Layers/GL2DEffectLayersCompose.h"
 #include "Texture/TextureManager.h"
-#include "Texture/GLFontManager.h"
 #include "DatagridAnimationManager.h"
 
 #include "Simulator.h"
@@ -98,7 +98,6 @@ void OpenGL3DEngine::Finalize(void)
 
 	MeshPainter::Instance()->CleanUp();
 	GLEffect2D::LayersCompose::Instance()->CleanUp();
-	GLFontManager::GetInstance()->CleanUp();
 	TextureManager::Instance()->CleanUp();
 
 	TTF_Quit();

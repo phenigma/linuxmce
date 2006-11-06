@@ -68,6 +68,18 @@ OpenGLGraphic::OpenGLGraphic(int Width, int Height) :
 	Prepare();
 }
 
+OpenGLGraphic::OpenGLGraphic(SDL_Surface *pSurface) : PlutoGraphic(), 
+	m_OpenGlMutex("OpenGLGraphicMutex"), MaxU(1.0f), MaxV(1.0f)
+{
+	Initialize();
+	LocalSurface = pSurface;
+
+	Width = pSurface->w;
+	Height = pSurface->h;
+
+	Prepare();
+}
+
 OpenGLGraphic::~OpenGLGraphic()
 {
 	

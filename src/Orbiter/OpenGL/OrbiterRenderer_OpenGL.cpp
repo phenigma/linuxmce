@@ -15,6 +15,8 @@
 #include "../../pluto_main/Define_Button.h"
 #include "DataGrid.h" 
 #include "DataGridRenderer.h"
+#include "../../Splitter/TextWrapper.h"
+#include "../../SDL_Helpers/SDL_Defs.h"
 //-----------------------------------------------------------------------------------------------------
 #include "GLMathUtils.h"
 #include "Widgets/basicwindow.h"
@@ -32,7 +34,6 @@
 #include "ObjectRenderer_OpenGL.h"
 //-----------------------------------------------------------------------------------------------------
 #include <SDL_ttf.h>
-#include "Texture/GLFontRenderer.h"
 //-----------------------------------------------------------------------------------------------------
 #include "../../pluto_main/Define_Effect.h"
 //-----------------------------------------------------------------------------------------------------
@@ -171,12 +172,8 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	MeshContainer* Container = MeshBuilder::BuildRectangle(Position, NULL);
 
 	Point3D Color(color.R() / 255.0f, color.G() / 255.0f, color.B() / 255.0f);
-	
-
 	Container->SetColor(Color);
 	Container->SetAlpha(color.A() / 255.0f);
-
-
 
 	string RectangleUniqueID; 
 	if ("" == ObjectID)
@@ -299,49 +296,22 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderText(string &sTextToDisplay, DesignObjText *Text,
 	TextStyle *pTextStyle, PlutoPoint point/* = PlutoPoint(0, 0)*/, string ObjectID/* = ""*/)
 {
-	//g_pPlutoLogger->Write(LV_CRITICAL, "Rendering text %s at %d, %d", sTextToDisplay.c_str(), 
-	//	Text->m_rPosition.X, Text->m_rPosition.Y);
+	PLUTO_SAFETY_LOCK(cm,OrbiterLogic()->m_ScreenMutex);
 
-	//ignore \r characters
-	sTextToDisplay = StringUtils::Replace(sTextToDisplay, "\r", "");
+	PlutoRectangle rectPosition(Text->m_rPosition);
+	rectPosition.X += point.X;
+	rectPosition.Y += point.Y;
 
 	string sParentObjectID = "";
 	if(NULL != Text->m_pObject)
 	{
 		sParentObjectID = Text->m_pObject->GenerateObjectHash(Text->m_pObject->m_pPopupPoint, false);
 
-		SolidRectangle(Text->m_pObject->m_pPopupPoint.X + Text->m_rPosition.Left(), 
-			Text->m_pObject->m_pPopupPoint.Y + Text->m_rPosition.Top(), 
-			Text->m_rPosition.Width,  Text->m_rPosition.Height,  pTextStyle->m_BackColor, 
-			sParentObjectID);
+		SolidRectangle(rectPosition.X, rectPosition.Y, rectPosition.Width, rectPosition.Height,
+			pTextStyle->m_BackColor, sParentObjectID);
 	}
-
-	int style = TTF_STYLE_NORMAL;
-	if (pTextStyle->m_bUnderline)
-	{
-		style = TTF_STYLE_UNDERLINE;
-	}
-	else
-	{
-		if (pTextStyle->m_bBold)
-			style |= TTF_STYLE_BOLD;
-		if (pTextStyle->m_bItalic)
-			style |= TTF_STYLE_ITALIC;
-	}
-
-	
-	GLFontRenderer * aGLTextRenderer = new GLFontRenderer(OrbiterLogic()->m_iImageHeight, 
-			pTextStyle->m_sFont,
-			pTextStyle->m_iPixelHeight * 1.2,
-			style, 
-			pTextStyle->m_ForeColor.R(), 
-			pTextStyle->m_ForeColor.G(), 
-			pTextStyle->m_ForeColor.B()
-		);
-
 
 	string TextUniqueID = ObjectID;
-
 	if(TextUniqueID == "")
 		TextUniqueID = 
 			"text " +
@@ -349,10 +319,33 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 			"-" + StringUtils::itos(Text->m_rPosition.X) + 
 			"-" + StringUtils::itos(Text->m_rPosition.Y);
 
- 	MeshFrame *Frame  = aGLTextRenderer->TextOut(TextUniqueID, sTextToDisplay, Text, pTextStyle, point);
+#ifdef WIN32
+	char pWindowsDirector[MAX_PATH];
+	GetWindowsDirectory(pWindowsDirector, MAX_PATH);
+	string BasePath = string(pWindowsDirector) + "\\Fonts\\";
+#else
+	string BasePath="/usr/share/fonts/truetype/msttcorefonts/";
+#endif //win32
+
+	SDL_Surface *pSurface = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, rectPosition.Width, rectPosition.Height, 32, 
+		rmask, gmask, bmask, amask);
+
+	SDL_Rect rectBar;
+	rectBar.x = 0; rectBar.y = 0; rectBar.w = rectPosition.Width; rectBar.h = rectPosition.Height;
+	SDL_FillRect(pSurface, &rectBar, SDL_MapRGBA(pSurface->format, 0, 0, 0, 0));
+
+	WrapAndRenderText(pSurface, sTextToDisplay, 0, 0, rectPosition.Width, rectPosition.Height, BasePath,
+		pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment, &OrbiterLogic()->m_mapTextStyle);
+
+	OpenGLGraphic *pGraphic = new OpenGLGraphic(pSurface);
+	MeshContainer* Container = MeshBuilder::BuildRectangle(rectPosition, pGraphic);
+
+	MeshFrame* Frame = new MeshFrame(TextUniqueID);
 	Frame->MarkAsVolatile();
+	Frame->SetMeshContainer(Container);
+
+	TextureManager::Instance()->PrepareConvert(pGraphic);
 	Engine->AddMeshFrameToDesktop(sParentObjectID, Frame);
-	delete aGLTextRenderer;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point)

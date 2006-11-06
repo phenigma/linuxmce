@@ -35,7 +35,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib dce.lib OpenGL32.lib GLU32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib libpng-pluto-d.lib zlib1-pluto-d.lib libmySQL.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib dce.lib OpenGL32.lib GLU32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib libpng-pluto-d.lib zlib1-pluto-d.lib libmySQL.lib SDL_Helpers.lib SDL_rotozoom-pluto-d.lib"
 				OutputFile="../../Debug/Orbiter_OpenGL_UI2.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;../../lib;../../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug;../../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug;../../../libs/Libraries/jpgsrc6b/vc7/Debug;&quot;../../../libs/CrossPlatform/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Debug&quot;;&quot;../../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;;&quot;../../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Debug&quot;;\mysql\lib\Debug"
@@ -279,22 +279,16 @@
 					Name="Textures"
 					Filter="">
 					<File
-						RelativePath=".\Texture\GLFont.cpp">
-					</File>
-					<File
-						RelativePath=".\Texture\GLFontManager.cpp">
-					</File>
-					<File
-						RelativePath=".\Texture\GLFontRenderer.cpp">
-					</File>
-					<File
-						RelativePath=".\Texture\GLFontTextureList.cpp">
-					</File>
-					<File
 						RelativePath=".\OpenGLGraphic.cpp">
 					</File>
 					<File
+						RelativePath="..\..\Splitter\TextSplitter.cpp">
+					</File>
+					<File
 						RelativePath=".\Texture\TextureManager.cpp">
+					</File>
+					<File
+						RelativePath="..\..\Splitter\TextWrapper.cpp">
 					</File>
 				</Filter>
 			</Filter>

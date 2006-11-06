@@ -52,9 +52,6 @@ TextureManager::TextureManager(void)
 
 TextureManager::~TextureManager(void)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "TextureManager destructor");
-
-	//for(std::map<std::string, MeshFrame*>::iterator it = Graphics.begin(); end = Graphics.end(); it != end; ++it)
 	while(Graphics.size())
 	{
 		std::map<std::string, MeshFrame*>::iterator it = Graphics.begin();
@@ -62,7 +59,6 @@ TextureManager::~TextureManager(void)
 		MeshFrame *pFrame = it->second;
 		Graphics.erase(it);
 
-		g_pPlutoLogger->Write(LV_STATUS, "Deleting %p/%s and children", pFrame, name.c_str());
 		pFrame->CleanUp();
 		delete pFrame;
 	}

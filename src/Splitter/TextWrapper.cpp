@@ -4,6 +4,7 @@
 #include "SDL_Helpers/SDL_RenderText.h"
 #include "SDL_Helpers/SDL_CompositeAlphaChannel.h"
 #include "SDL_Helpers/SDL_RenderUtils.h"
+
 #include "Orbiter/TextStyle.h"
 #include "DCE/Logger.h"
 using namespace DCE;
@@ -330,6 +331,5 @@ void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, 
     //blits the text surface to the original surface
 	SDL_SetAlpha(pTextSurface, 0, 0);
     SDL_BlitSurface(pTextSurface, NULL, Surface, &rect);
-	CompositeAlphaChannel(pTextSurface, Surface, &rect);
     SDL_FreeSurface(pTextSurface);
 }

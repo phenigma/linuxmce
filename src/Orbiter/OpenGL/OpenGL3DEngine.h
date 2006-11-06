@@ -22,7 +22,6 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include <map>
 
 #include "ExtensionManager.h"
-#include "Texture/GLFontRenderer.h"
 #include "Mesh/MeshFrame.h"
 
 #include "PlutoUtils/MultiThreadIncludes.h"

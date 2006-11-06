@@ -100,6 +100,8 @@ int DoRenderToSurface(SDL_Surface *Surface, list<RendererImage *> &RI, int posX,
 		dest.x = posX; dest.y = posY;
 
 		SDL_BlitSurface(myRI->m_pSurface, NULL, (SDL_Surface *) Surface, &dest);
+		CompositeAlphaChannel(myRI->m_pSurface, Surface, &dest);
+
 		posX += myRI->m_pSurface->w;
 	}
 
