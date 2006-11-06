@@ -638,7 +638,7 @@ void Router::RegisterMsgInterceptor(Message *pMessage)
 void Router::ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand)
 {
 	string sSql = "SELECT PK_CommandGroup_Command,FK_Command,FK_Device,FK_DeviceGroup,DeliveryConfirmation "
-		"FROM CommandGroup_Command WHERE FK_CommandGroup=" + StringUtils::itos(PK_CommandGroup);
+		"FROM CommandGroup_Command WHERE FK_CommandGroup=" + StringUtils::itos(PK_CommandGroup) + " ORDER BY OrderNum";
 
 	int RowCount=0;
 	PlutoSqlResult result_set;
