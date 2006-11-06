@@ -26,6 +26,9 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 
 	m_bTapAndRelease=false; // We'll set it to true later
 	string sResponse;
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::SpeedMouseHandler setting playback speed to 0");
+#endif
 	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,0,true);
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed,&sResponse);
 
@@ -46,6 +49,9 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 
 SpeedMouseHandler::~SpeedMouseHandler() 
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::~SpeedMouseHandler setting playback speed to normal");
+#endif
 	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","0","", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0,0);
@@ -95,6 +101,9 @@ bool SpeedMouseHandler::ButtonDown(int PK_Button)
 	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_6_CONST || PK_Button==BUTTON_Mouse_2_CONST )
 	{
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::ButtonDown setting playback speed to 0");
+#endif
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 		if( PK_Button==BUTTON_Mouse_2_CONST && m_bHasTimeline )
@@ -114,6 +123,9 @@ bool SpeedMouseHandler::ButtonUp(int PK_Button)
 	{
 		// There is a logic flaw that when there's only a speed control and no vertical, it goes straight here and immediately stops
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::ButtonUp setting playback speed to 0");
+#endif
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 		m_pMouseBehavior->Clear(true);
@@ -140,6 +152,9 @@ void SpeedMouseHandler::Move(int X,int Y,int PK_Direction)
 		}
 		if( Notch!=m_iLastNotch )
 		{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::Move setting playback speed to %d",Speed);
+#endif
 			DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,Speed,true);
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Change_Playback_Speed.m_pMessage);
 			m_iLastNotch=Notch;
