@@ -470,7 +470,7 @@ void PlutoMediaFile::AssignPlutoDevice(Row_File *pRow_File)
 
 	if(nEK_Device != 0)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "File %s/%s on pluto device %d", nEK_Device);
+		g_pPlutoLogger->Write(LV_STATUS, "File %s/%s on pluto device %d", m_sDirectory.c_str(), m_sFile.c_str(), nEK_Device);
 
 		pRow_File->EK_Device_set(nEK_Device);
 		pRow_File->Table_File_get()->Commit();
