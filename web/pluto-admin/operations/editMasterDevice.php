@@ -19,6 +19,7 @@ function editMasterDevice($output,$dbADO) {
 
 	//the form
 	if ($action=='form') {
+		
 		$queryGetMasterDeviceDetails = "
 			SELECT DeviceTemplate.*,FK_DeviceTemplate
 			FROM  DeviceTemplate 				
@@ -48,6 +49,8 @@ function editMasterDevice($output,$dbADO) {
 		$comments=$row['Comments'];
 		$isAVDevice = is_null($row['FK_DeviceTemplate'])?0:1;
 		$rubyCodesButton=($commandLine==$GLOBALS['GenericSerialDeviceCommandLine'])?'<input type="button" class="button" name="rubyCodes"  value="'.$TEXT_RUBY_CODES_CONST.'" onClick="windowOpen(\'index.php?section=rubyCodes&from=editMasterDevice&dtID='.$deviceID.'\',\'status=0,resizable=1,width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');")>':'';
+		$commMethod=$row['FK_CommMethod'];
+		$commMethods=getAssocArray('CommMethod','PK_CommMethod','Description',$dbADO,'','ORDER BY Description ASC');
 		
 		$rs->Close();
 
@@ -239,6 +242,10 @@ function editMasterDevice($output,$dbADO) {
 					<td><input type="checkbox" name="isIPBased" value="1" '.(($isIPBased==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'>
 					<input type="hidden" name="oldIsIPBased" value="'.(($isIPBased==1)?'1':'0').'"></td>
 				</tr>	
+				<tr>
+					<td valign="top">Comm Method</td>
+					<td>'.pulldownFromArray($commMethods,'commMethod',$commMethod).'
+				</tr>				
 				<tr>
 					<td valign="top">'.$TEXT_CONFIGURATION_SCRIPT_CONST.'</td>
 					<td><input type="text" name="ConfigureScript" value="'.$ConfigureScript.'" class="input_big">
@@ -734,7 +741,8 @@ function editMasterDevice($output,$dbADO) {
 		$dhcpArray=explode(',',@$_POST['dhcpArray']);
 		$isAVDevice = cleanInteger(@$_POST['isAVDevice']);
 		$old_isAVDevice = cleanInteger(@$_POST['old_isAVDevice']);
-
+		$commMethod=((int)@$_POST['commMethod']>0)?(int)@$_POST['commMethod']:NULL;
+		
 
 		if(($newMacFrom!='' && $newMacTo!='') || $VendorModelID!=''){
 			$dbADO->Execute('INSERT INTO DHCPDevice (FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High,Description,VendorModelID,SerialNumber,Parms,PnpDetectionScript,FK_PnpProtocol) VALUES (?,?,?,?,?,?,?,?,?)',array($deviceID,$newMacFrom,$newMacTo,$newComment,$VendorModelID,$SerialNumber,$Parms,$PnpDetectionScript,$PnpProtocol));
@@ -943,10 +951,11 @@ function editMasterDevice($output,$dbADO) {
 							ConfigureScript=?,
 							Comments=?,
 							ManufacturerURL=?,
-							InternalURLSuffix=?
+							InternalURLSuffix=?,
+							FK_CommMethod=?
 							WHERE PK_DeviceTemplate = ?";
 
-			$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$package,$isPlugIn,$isEmbedded,$inheritsMacFromPC,$isIPBased,$ConfigureScript,$comments,$manufacturerURL,$internalURLsufix,$deviceID));
+			$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$package,$isPlugIn,$isEmbedded,$inheritsMacFromPC,$isIPBased,$ConfigureScript,$comments,$manufacturerURL,$internalURLsufix,$commMethod,$deviceID));
 
 			if($isPlugIn==1 && $oldIsPlugIn==0){
 				$insertControlledVia = '
