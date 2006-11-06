@@ -100,12 +100,12 @@ function advancedEvents($output,$dbADO) {
 					<td align="center"><a href="#" onClick="if(confirm(\'Are you sure you want to delete the event?\'))self.location=\'index.php?section=advancedEvents&dID='.$rowEvents['PK_EventHandler'].'\'">'.$TEXT_DELETE_CONST.'</a></td>
 				</tr>';
 		}
-		if(count($displayedEH)!=0)
-			$out.='
-			<tr bgcolor="#E7E7E7">
-				<td colspan="8" align="center"><input type="button" class="button" name="addAdvancedEvent" value="'.$TEXT_CREATE_ADVANCED_EVENT_CONST.'" onClick="self.location=\'index.php?section=createAdvancedEvent\'"> <input type="submit" class="button" name="update" value="'.$TEXT_SAVE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td>
-			</tr>';
+		$saveBtns=(count($displayedEH)!=0)?'<input type="submit" class="button" name="update" value="'.$TEXT_SAVE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">':'';
+		
 		$out.='
+			<tr bgcolor="#E7E7E7">
+				<td colspan="8" align="center"><input type="button" class="button" name="addAdvancedEvent" value="'.$TEXT_CREATE_ADVANCED_EVENT_CONST.'" onClick="self.location=\'index.php?section=createAdvancedEvent\'"> '.$saveBtns.'</td>
+			</tr>
 			<tr>
 				<td colspan="8">&nbsp;</td>
 			</tr>';

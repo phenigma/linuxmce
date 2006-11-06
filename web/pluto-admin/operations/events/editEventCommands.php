@@ -75,51 +75,54 @@ function editEventCommands($output,$dbADO) {
 					<td colspan="2">
 							<fieldset>
 								<legend>'.$TEXT_COMMANDS_CONST.'</legend>
-								<table border="0">
+								<table>
 									';
-
+				
 				while ($rowCommandAssigned = $resCommandAssigned->FetchRow()) {
 					$out.='
-						<tr><td valign="top">
-							<select name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">
-								<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>
-						';
+						<tr>
+							<td valign="top">
+								<a name="hook_'.$rowCommandAssigned['PK_CommandGroup_Command'].'"></a>
+								<input type="hidden" name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" value="'.$rowCommandAssigned['FK_Device'].'">
+								'.getDeviceNameForScenarios($rowCommandAssigned['FK_Device'],$dbADO).'</td>';
 
-					$query = 'SELECT * From Device WHERE FK_Installation = ? order by Description ASC';
-					$resDevices=$dbADO->Execute($query,array($installationID));
-
-					if ($resDevices) {
-						while ($rowDevice = $resDevices->FetchRow()) {
-							$out.='<option '.($rowDevice['PK_Device']==$rowCommandAssigned['FK_Device']?' selected="selected" ':'').' value="'.$rowDevice['PK_Device'].'">'.$rowDevice['Description'].'</option>';
-						}
-					}
-
-					$out.='
-					 		</select></td>
+					 	$out.='
+					 		</td>
 						<td>
 						';
-
-					$query = "SELECT PK_Command,Command.Description
-												FROM Device 
-													INNER JOIN DeviceTemplate_DeviceCommandGroup ON Device.FK_DeviceTemplate = DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate 
-													INNER JOIN DeviceCommandGroup_Command ON DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup = DeviceCommandGroup_Command.FK_DeviceCommandGroup 
-													INNER JOIN Command on DeviceCommandGroup_Command.FK_Command = Command.PK_Command
-										   WHERE PK_Device=?";
-					$resNewCommand = $dbADO->Execute($query,array($rowCommandAssigned['FK_Device']));
-					if ($resNewCommand) {
-						$out.='<select name="deviceCommand_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">
-								<option value="0">-please select-</option>';
-						while ($rowNewCommand = $resNewCommand->FetchRow()) {
-							$out.='<option '.($rowCommandAssigned['FK_Command']==$rowNewCommand['PK_Command']?'selected="selected"':'').' value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
-						}
-						if ($resNewCommand->RecordCount()==0) {
-							$out.='<option value="0">-no command-</option>';
-						}
-						$out.='</select>';
+					if($rowCommandAssigned['FK_Device']!='-300'){
+						$query = "SELECT PK_Command,Command.Description
+								FROM Device 
+									INNER JOIN DeviceTemplate_DeviceCommandGroup ON Device.FK_DeviceTemplate = DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate 
+									INNER JOIN DeviceCommandGroup_Command ON DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup = DeviceCommandGroup_Command.FK_DeviceCommandGroup 
+									INNER JOIN Command on DeviceCommandGroup_Command.FK_Command = Command.PK_Command
+							   WHERE PK_Device=?";
+						$resNewCommand = $dbADO->Execute($query,array($rowCommandAssigned['FK_Device']));
+					}else{
+						$query = "
+							SELECT PK_Command,Command.Description
+								FROM Command 
+									INNER JOIN DeviceCommandGroup_Command ON 
+										DeviceCommandGroup_Command.FK_Command = Command.PK_Command
+									INNER JOIN DeviceTemplate_DeviceCommandGroup ON 
+										DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup = DeviceCommandGroup_Command.FK_DeviceCommandGroup 
+							   WHERE FK_DeviceTemplate=?
+									ORDER BY Command.Description ASC";
+						$resNewCommand = $dbADO->Execute($query,array(cleanInteger($GLOBALS['deviceTemplateOrbiter'])));
 					}
-
-
-					$query = "SELECT Command_CommandParameter.FK_CommandParameter,Command_CommandParameter.Description as C_CP_Description,CommandParameter.Description as CP_Description,
+						if ($resNewCommand) {
+							$out.='<select name="deviceCommand_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.action.value=\'form\';this.form.submit();">';
+									while ($rowNewCommand = $resNewCommand->FetchRow()) {
+										$out.='<option '.($rowCommandAssigned['FK_Command']==$rowNewCommand['PK_Command']?'selected="selected"':'').' value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
+									}
+									if ($resNewCommand->RecordCount()==0) {
+										$out.='<option value="0">-'.$TEXT_SCENARIO_NO_COMMAND_CONST.'-</option>';
+									}
+						$out.='</select>';
+						}
+						
+						
+							$query = "SELECT Command_CommandParameter.FK_CommandParameter,Command_CommandParameter.Description as C_CP_Description,CommandParameter.Description as CP_Description,
 										CommandGroup_Command_CommandParameter.IK_CommandParameter,
 										ParameterType.Description as PT_Description
 											FROM Command_CommandParameter 
@@ -130,81 +133,88 @@ function editEventCommands($output,$dbADO) {
 									  WHERE FK_Command = ? AND FK_CommandGroup_Command =?
 									  ORDER BY CommandParameter.Description asc
 								";
-					$resSelectParameters = $dbADO->Execute($query,array($rowCommandAssigned['FK_Command'],$rowCommandAssigned['PK_CommandGroup_Command']));
-					if ($resSelectParameters) {
-						$out.='<table border="0">';
-						while ($rowSelectParameters=$resSelectParameters->FetchRow()) {
-							$out.="<tr ".(strlen(trim($rowSelectParameters['CP_Description']))==0?" bgColor='green' ":"").">
+							$resSelectParameters = $dbADO->Execute($query,array($rowCommandAssigned['FK_Command'],$rowCommandAssigned['PK_CommandGroup_Command']));
+
+								if ($resSelectParameters) {
+									$out.='<table>';
+									while ($rowSelectParameters=$resSelectParameters->FetchRow()) {
+										$out.="<tr ".(strlen(trim($rowSelectParameters['CP_Description']))==0?" bgColor='lightgreen' ":"").">
 												<td>#{$rowSelectParameters['FK_CommandParameter']} <span title=\"{$rowSelectParameters['C_CP_Description']}\">{$rowSelectParameters['CP_Description']}</span> ({$rowSelectParameters['PT_Description']})</td>
 												<td><input type='text' name=\"CommandParameterValue_{$rowCommandAssigned['PK_CommandGroup_Command']}_{$rowSelectParameters['FK_CommandParameter']}\" value=\"{$rowSelectParameters['IK_CommandParameter']}\" >".'</td></tr>';
-						}
-						$out.='</table>';
-					}
+									}
+									$out.='</table>';
+								}
+								
+						
 					$out.='
 					
 							</td>
 						<td valign="top">
-						<input type="button" class="button" name="editA" value="'.$TEXT_REMOVE_CONST.'" onClick="self.location=\'index.php?section=editEventCommands&ehID='.$eventHandlerID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\'">
+						<input type="button" class="button" name="editA" value="'.$TEXT_REMOVE_CONST.'" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_COMMAND_FROM_EVENT_CONST.'\'))windowOpen(\'index.php?section=deleteCommandFromCommandGroup_Command&from=editCommandGroup&cgID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');"">
 						</td>						
+					</tr>
+					<tr>
+						<td align="center" colspan="2"><input type="button" class="button" name="testCommand" value="'.$TEXT_TEST_EVENT_COMMAND_CONST.'" onClick="self.location=\'index.php?section=editCommandGroup&cgID='.$commandGroupID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'&action=testCommand\'"></td>
 					</tr>
 					';
 				}
+				
 				$out.='
-				<tr>
-					<td colspan="3" align="center"><input type="submit" class="button" name="addNewDeviceButton" value="Save changes"></td>
-				</tr>
-				</table>
-				</fieldset>
+									<tr>
+										<td colspan="3" align="center">
+											<a name="hook_0"></a>
+											<input type="submit" class="button" name="addNewDeviceButton" value="'.$TEXT_SAVE_CONST.'"  >
+										</td>
+									</tr>
+								</table>
+							</fieldset>
+					
 			</td>
 		</tr>';				
 			}
-
-			
-			$out.='
-				<tr>
-					<td><B>'.$TEXT_DEVICE_CONST.'</B></td>
-					<td colspan="2"><select name="device" onChange="document.editEventCommands.action.value=\'form\';document.editEventCommands.submit()">
-							<option value="">'.$TEXT_SELECT_A_DEVICE_CONST.'</option>';
-				$queryDevice='
-					SELECT Device.*,DeviceTemplate.Description AS Template FROM Device
-						INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-					WHERE FK_Installation=?';
-				$resDevice=$dbADO->Execute($queryDevice,$installationID);
-				while($rowDevice=$resDevice->FetchRow()){
-					$out.='<option value="'.$rowDevice['PK_Device'].'" '.(($rowDevice['PK_Device']==@$_REQUEST['device'])?'selected':'').'>('.$rowDevice['Template'].') '.$rowDevice['Description'].'</option>';
+				$out.='<tr>
+					<td colspan="2"><a name="addDevice"></a>
+					 Device:'.
+				deviceForScenariosSelector('newDevice',cleanInteger(@$_REQUEST['newDevice']),$dbADO,1,'onChange="this.form.action.value=\'form\';this.form.submit();"');
+				
+				if (isset($_REQUEST['newDevice']) && cleanInteger($_REQUEST['newDevice'])!=0) {
+					if(cleanInteger(@$_REQUEST['newDevice']!='-300')){
+						$query = "SELECT PK_Command,Command.Description
+										FROM Device 
+												INNER JOIN DeviceTemplate_DeviceCommandGroup ON Device.FK_DeviceTemplate = DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate 
+												INNER JOIN DeviceCommandGroup_Command ON DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup = DeviceCommandGroup_Command.FK_DeviceCommandGroup 
+												INNER JOIN Command on DeviceCommandGroup_Command.FK_Command = Command.PK_Command
+									   WHERE PK_Device=?";
+						$resNewCommand = $dbADO->Execute($query,array(cleanInteger($_REQUEST['newDevice'])));
+					}else{
+						$query = "
+							SELECT PK_Command,Command.Description
+								FROM Command 
+									INNER JOIN DeviceCommandGroup_Command ON 
+										DeviceCommandGroup_Command.FK_Command = Command.PK_Command
+									INNER JOIN DeviceTemplate_DeviceCommandGroup ON 
+										DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup = DeviceCommandGroup_Command.FK_DeviceCommandGroup 
+							   WHERE FK_DeviceTemplate=?
+									ORDER BY Command.Description ASC";
+						$resNewCommand = $dbADO->Execute($query,array(cleanInteger($GLOBALS['deviceTemplateOrbiter'])));
+					}
+					if ($resNewCommand) {
+						$out.=' Command: <select name="addNewDeviceCommand">
+							<option value="0">-please select-</option>';
+								while ($rowNewCommand = $resNewCommand->FetchRow()) {
+									$out.='<option value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
+								}
+								if ($resNewCommand->RecordCount()==0) {
+									$out.='<option value="0">-no command-</option>';
+								}
+					$resNewCommand->Close();
+					$out.='</select>';
+					}
 				}
-			$out.='
-					</select></td>
-				</tr>';
-		
-			if(isset($_REQUEST['device']) && $_REQUEST['device']!=''){
-				$query = "
-					SELECT PK_Command,Command.Description
-						FROM Device 
-					INNER JOIN DeviceTemplate_DeviceCommandGroup ON Device.FK_DeviceTemplate = DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate 
-						INNER JOIN DeviceCommandGroup_Command ON DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup = DeviceCommandGroup_Command.FK_DeviceCommandGroup 
-						INNER JOIN Command on DeviceCommandGroup_Command.FK_Command = Command.PK_Command
-					WHERE PK_Device=?";
-				$resNewCommand = $dbADO->Execute($query,array(cleanInteger($_REQUEST['device'])));
-				if ($resNewCommand) {
-					$out.='
-				<tr>
-					<td>'.$TEXT_COMMAND_CONST.': </td>
-					<td><select name="addNewDeviceCommand" onChange="document.editEventCommands.submit()">
-						<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
-							while ($rowNewCommand = $resNewCommand->FetchRow()) {
-								$out.='<option value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
-							}
-							if ($resNewCommand->RecordCount()==0) {
-								$out.='<option value="0">-'.$TEXT_NO_COMMAND_CONST.'-</option>';
-							}
-					$out.='</select> <input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'">
+				$out.='
+						<input type="submit" class="button" name="addNewDeviceButton" value="'.$TEXT_ADD_CONST.'"  >
 					</td>
-				</tr>';
-				}
-			}
-
-		$out.='
+				</tr>
 		</table>
 		</form>
 		';
@@ -218,7 +228,7 @@ function editEventCommands($output,$dbADO) {
 		}
 
 		// command group process
-		$x=cleanInteger(@$_POST['device']);
+		$x=cleanInteger(@$_POST['newDevice']);
 		$y=cleanInteger(@$_POST['addNewDeviceCommand']);
 		if ($y!=0 && $x!=0) {
 			$queryInsertCommandGroup_Command = "INSERT INTO CommandGroup_Command
@@ -232,9 +242,9 @@ function editEventCommands($output,$dbADO) {
 					INNER JOIN 
 						Device ON CommandGroup_Command.FK_Device = Device.PK_Device						
 					WHERE 
-						Device.FK_Installation = ?
+						Device.FK_Installation = ? AND FK_CommandGroup=?
 				";								
-		$resCommandAssigned = $dbADO->Execute($selectCommandsAssigned,array($installationID));
+		$resCommandAssigned = $dbADO->Execute($selectCommandsAssigned,array($installationID,$commandGroupID));
 
 		$parametersUpdatedAlert = $TEXT_PARAMETERS_NOT_UPDATED_CONST;
 
@@ -248,13 +258,13 @@ function editEventCommands($output,$dbADO) {
 				$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($deviceSelected,$rowCommandAssigned['PK_CommandGroup_Command']));
 
 				if ($dbADO->Affected_Rows()==1) {//enter here only if the Device is changed
-				$updateCommandGroup_Command = 'UPDATE CommandGroup_Command SET FK_Command = NULL WHERE PK_CommandGroup_Command = ? ';
-				$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($rowCommandAssigned['PK_CommandGroup_Command']));
-				//delete old parameters
-				$deleteParamValues = 'DELETE FROM CommandGroup_Command_CommandParameter WHERE
+					$updateCommandGroup_Command = 'UPDATE CommandGroup_Command SET FK_Command = NULL WHERE PK_CommandGroup_Command = ? ';
+					$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($rowCommandAssigned['PK_CommandGroup_Command']));
+					//delete old parameters
+					$deleteParamValues = 'DELETE FROM CommandGroup_Command_CommandParameter WHERE
 									FK_CommandGroup_Command = ? 
 						';
-				$query = $dbADO->Execute($deleteParamValues,array($rowCommandAssigned['PK_CommandGroup_Command']));
+					$query = $dbADO->Execute($deleteParamValues,array($rowCommandAssigned['PK_CommandGroup_Command']));
 
 				} else {
 					$updateCommandGroup_Command = 'UPDATE CommandGroup_Command SET FK_Command = ? WHERE PK_CommandGroup_Command = ? ';

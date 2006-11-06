@@ -75,7 +75,8 @@ function createAdvancedEvent($output,$dbADO) {
 		$eventID=cleanInteger($_POST['event']);
 		
 		$ehID=createEventHandler($description,$eventID,$installationID,$dbADO,0);
-		header("Location: index.php?section=editEventCommands&ehID=$ehID");
+		header("Location: index.php?section=advancedEvents&highligh=$ehID");
+		exit();
 	}
 	
 	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
