@@ -26,8 +26,8 @@ namespace DCE
 	// Private member variables
 	pthread_t displayThread;
 	pthread_mutex_t mtx_err_messages;
-	pluto_pthread_mutex_t m_VoiceMailStatusMutex;
-	pluto_pthread_mutex_t m_ConferenceMutex;
+	pluto_pthread_mutex_t m_TelecomMutex;
+    pthread_mutexattr_t m_MutexAttr;
 	std::map<int, std::pair<string, string> > m_mapVoiceMailStatus;
 	DeviceData_Router* m_pDevice_pbx;
 

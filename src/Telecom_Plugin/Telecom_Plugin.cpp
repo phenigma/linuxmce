@@ -83,16 +83,16 @@ void * startDisplayThread(void * Arg);
 Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Telecom_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-	, m_VoiceMailStatusMutex("vm mutex")
-	, m_ConferenceMutex("conference")
+	, m_TelecomMutex("vm mutex")
 {
 	m_pDatabase_pluto_main = NULL;
 	m_pDatabase_pluto_telecom = NULL;
 	pthread_mutex_init(&mtx_err_messages,0);
 	iCmdCounter = 0;
 	next_conf_room = 1;
-	m_VoiceMailStatusMutex.Init(NULL);
-	m_ConferenceMutex.Init(NULL);
+    pthread_mutexattr_init( &m_MutexAttr );
+    pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
+	m_TelecomMutex.Init(&m_MutexAttr);
 	m_pDevice_pbx=NULL;
 }
 
@@ -172,8 +172,7 @@ Telecom_Plugin::~Telecom_Plugin()
 	delete m_pDatabase_pluto_main;
 	delete m_pDatabase_pluto_telecom;
 
-	pthread_mutex_destroy(&m_VoiceMailStatusMutex.mutex);
-	pthread_mutex_destroy(&m_ConferenceMutex.mutex);
+	pthread_mutex_destroy(&m_TelecomMutex.mutex);
 }
 
 //<-dceag-reg-b->
@@ -423,6 +422,7 @@ Telecom_Plugin::CommandResult( class Socket *pSocket, class Message *pMessage,
 void
 Telecom_Plugin::ProcessResult(int iCommandID, int iResult, std::string sMessage) {
 	CallManager *pCallManager = CallManager::getInstance();
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 	CallData *pCallData	= pCallManager->findCallByPendingCmdID(iCommandID);
 	if(!pCallData) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Obsolete command reply received.");
@@ -479,6 +479,7 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage,
 void
 Telecom_Plugin::ProcessRing(std::string sPhoneExtension, std::string sPhoneCallerID, std::string sPhoneCallID)
 {
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 	int phoneID=map_ext2device[atoi(sPhoneExtension.c_str())];
 	if(phoneID>0)
 	{
@@ -665,6 +666,7 @@ g_pPlutoLogger->Write(LV_CRITICAL, "our device is : id %d template %d",
 
 		int dwPK_FromDevice = NULL != pMessage ? pMessage->m_dwPK_Device_From : iPK_Device;
 
+		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(dwPK_FromDevice);
 		if(!pCallData) {
 			/*create new call data*/
@@ -748,6 +750,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 		return;
 	}
 
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
 	if(!pCallData) {
 		g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",pMessage->m_dwPK_Device_From);
@@ -816,6 +819,7 @@ void Telecom_Plugin::CMD_PL_Hangup(int iPK_Device,string &sCMD_Result,Message *p
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Hangup command called.");
 
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 	if( iPK_Device==-1 )
 		HangupAllCalls();
 	else if( iPK_Device==0 )
@@ -845,6 +849,7 @@ void Telecom_Plugin::CMD_PL_Hangup(int iPK_Device,string &sCMD_Result,Message *p
 
 void Telecom_Plugin::HangupAllCalls()
 {
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
 	std::list<CallData*>::iterator it = calls->begin();
 	std::list<std::string> text_list;
@@ -866,6 +871,7 @@ void Telecom_Plugin::HangupAllCalls()
 
 void Telecom_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar)
 {
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 	int devid=pDeviceData_Router->m_dwPK_Device;
 	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
 	std::list<CallData*>::iterator it = calls->begin();
@@ -945,6 +951,7 @@ void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCalle
 
 	if(m_pDevice_pbx) {
 
+		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
         CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
         if(!pCallData) {
             /*create new call data*/
@@ -1028,6 +1035,7 @@ void Telecom_Plugin::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,st
 	int phoneID=map_orbiter2embedphone[pMessage->m_dwPK_Device_From];
 	if(phoneID>0 || iPK_Device>0 )
 	{
+		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 		DCE::CMD_Phone_Initiate cmd(m_dwPK_Device,phoneID>0 ? phoneID : iPK_Device,0 /* phones don't use this */,sPhoneExtension);
 		SendCommand(cmd);
 		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
@@ -1055,6 +1063,7 @@ void Telecom_Plugin::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 	{
 		DCE::CMD_Phone_Answer cmd(m_dwPK_Device,phoneID);
 		SendCommand(cmd);
+		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
 		if(!pCallData) {
 			/*create new call data*/
@@ -1080,6 +1089,7 @@ void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 	{
 		DCE::CMD_Phone_Drop cmd(m_dwPK_Device,phoneID);
 		SendCommand(cmd);
+		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
 		if(pCallData) {
 			CallManager::getInstance()->removeCall(pCallData);
@@ -1196,7 +1206,7 @@ bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMes
 		vector<Row_Users *> vectRow_Users;
 		m_pDatabase_pluto_main->Users_get()->GetRows(USERS_FK_INSTALLATION_MAIN_FIELD + string("=") + StringUtils::itos(m_pRouter->iPK_Installation_get())+string(" OR ")+string(USERS_FK_INSTALLATION_MAIN_FIELD)+string(" IS NULL"),&vectRow_Users);
 
-		PLUTO_SAFETY_LOCK_ERRORSONLY(vm, m_VoiceMailStatusMutex);
+		PLUTO_SAFETY_LOCK_ERRORSONLY(vm, m_TelecomMutex);
 		for(size_t s=0;s<vectRow_Users.size();++s)
 		{
 			Row_Users *pRow_Users = vectRow_Users[s];
@@ -1220,6 +1230,7 @@ bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMes
 
 class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 	g_pPlutoLogger->Write(LV_STATUS, "ActiveCalls request received for GridID: %s",GridID.c_str());
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
@@ -1450,7 +1461,7 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage,
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) 
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(vm, m_ConferenceMutex);
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 
 	int iPhoneExtension = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PhoneExtension_CONST].c_str());
 	g_pPlutoLogger->Write(LV_STATUS, "Hangup %d(#%d) event received from PBX.",iPhoneExtension,map_ext2device[iPhoneExtension]);
@@ -1649,6 +1660,7 @@ void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,stri
 			oldpos=pos+1;
 			continue;
 		}
+		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(idev);
 		if(pCallData)
 		{
@@ -1786,7 +1798,7 @@ bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMess
 		text_param = StringUtils::itos(vm_new);		
 	}
 
-	PLUTO_SAFETY_LOCK_ERRORSONLY(vm, m_VoiceMailStatusMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(vm, m_TelecomMutex);
 	m_mapVoiceMailStatus[userid] = std::make_pair<string, string> (value_param, text_param);
 	vm.Release();
 
