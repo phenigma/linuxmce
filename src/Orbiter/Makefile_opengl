@@ -93,15 +93,11 @@ sources += \
 	OpenGL/Mesh/Point3D.cpp \
 	OpenGL/Mesh/MeshFrame.cpp \
 	OpenGL/Mesh/MeshTriangle.cpp \
-	OpenGL/Texture/GLFontRenderer.cpp \
-	OpenGL/Texture/GLFontTextureList.cpp \
 	OpenGL/Texture/TextureManager.cpp \
 	OpenGL/Widgets/basewidget.cpp \
 	OpenGL/Widgets/bezierwindow.cpp \
 	OpenGL/Widgets/basicwindow.cpp \
 	OpenGL/Widgets/DrawingWidgetsEngine.cpp	\
-	OpenGL/Texture/GLFontManager.cpp \
-	OpenGL/Texture/GLFont.cpp \
 	OpenGL/Layers/GL2DEffectLayer.cpp \
 	OpenGL/Layers/GL2DEffectLayersCompose.cpp \
 	OpenGL/Layers/GLRenderScreenToGraphic.cpp \
