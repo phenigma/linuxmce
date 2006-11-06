@@ -13,23 +13,23 @@ ERR_NONE=0
 
 function isFullDisk
 {
-	file=$1
-	blocks=$(stat --format=%a -f $file)
+	file="$1"
+	blocks=$(stat --format=%a -f "$file")
 	let "size=($blocks*4096)/1024/1024"
-	if [ "$size" -gt 1 ]; then
+	if [[ "$size" -gt 1 ]]; then
 		echo '0'
 	else
-		echo  '1'
+		echo '1'
 	fi
 }
 
 function isReadOnly
 {
-	file=$1
+	file="$1"
 	path=${file%/*}
-	touch $path/testing 2>/dev/null
-	if [ -e $path/testing ]; then
-		rm $path/testing
+	touch "$path"/testing 2>/dev/null
+	if [[ -e "$path"/testing ]]; then
+		rm "$path"/testing
 		echo '0'
 	else
 		echo '1'
@@ -45,7 +45,7 @@ function printUsage
 	echo "  name1 = file name track is to be saved as"
 }
 
-[ "$#" -lt "6" ] && printUsage && exit;
+[[ "$#" -lt "6" ]] && printUsage && exit;
 
 for i in "$@"; do
 	echo "Parameter: $i"
@@ -112,7 +112,7 @@ case $diskType in
 esac
 
 echo "$command"
-if [ "$command" == "" ]; then 
+if [[ "$command" == "" ]]; then 
 	exit 1;
 fi
 
@@ -141,7 +141,7 @@ if [[ "$diskType" == 2 ]]; then
 	fi
 elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" == 7 || "$diskType" == 8 ]]; then
 	mkdir -p "$Dir"
-	if [ ! -d "$Dir" ] then;
+	if [[ ! -d "$Dir" ]]; then
 		echo "Ripping failed: Couldn't create directory"
 		exit 1
 	fi
