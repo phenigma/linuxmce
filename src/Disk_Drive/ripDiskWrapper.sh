@@ -105,7 +105,7 @@ case $diskType in
 				exit 1
 			;;
 		esac
-		ProgressOutput=">(/usr/pluto/bin/Paranoia_LastMessage.sh|/usr/pluto/bin/Paranoia_Progress.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID \"$Dir/\$FileName\" \"$sourceDevice\" \"$mediaPluginDeviceID\")"
+		ProgressOutput=">(/usr/pluto/bin/Paranoia_Progress.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID \"$Dir/\$FileName\" \"$sourceDevice\" \"$mediaPluginDeviceID\")"
 		command="nice -n 15 cdparanoia -e -d $sourceDevice \$Track - 2> $ProgressOutput > $OutputFile"
 	;;
 	*)	result=$ERR_NOT_SUPPORTED_YET;;

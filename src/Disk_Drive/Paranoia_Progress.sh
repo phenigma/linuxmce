@@ -6,7 +6,9 @@ LastSector=0
 Percentage=0
 LastPercentage=0
 
+lastline=
 while read line; do
+	lastline="$line"
 	if [[ "$line" == *"sector"* ]]; then
 		value=${line##*sector}
 		value=${value%%(track*}
@@ -34,3 +36,4 @@ while read line; do
 		LastSector="$CurrentSector"
 	fi
 done
+echo "$lastline" >/tmp/rip_message
