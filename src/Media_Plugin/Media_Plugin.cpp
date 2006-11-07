@@ -1173,16 +1173,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartMedia() done - not sending to remote since stream is marked resumte");
 
 			for(map<int,class OldStreamInfo *>::iterator it = mapOldStreamInfo.begin(); it != mapOldStreamInfo.end(); ++it)
-			{
-				OldStreamInfo *pOldStreamInfo = it->second;
-				if(NULL != pOldStreamInfo)
-				{
-					delete pOldStreamInfo->m_pEntertainArea->m_pMediaStream;
-					pOldStreamInfo->m_pEntertainArea->m_pMediaStream = NULL;
-					delete pOldStreamInfo;
-				}
-			}
-			mapOldStreamInfo.clear();
+				delete it->second;
 
 			return true;
 		}
@@ -1247,16 +1238,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartMedia() function call completed with honors!");
 
 	for(map<int,class OldStreamInfo *>::iterator it = mapOldStreamInfo.begin(); it != mapOldStreamInfo.end(); ++it)
-	{
-		OldStreamInfo *pOldStreamInfo = it->second;
-		if(NULL != pOldStreamInfo)
-		{
-			delete pOldStreamInfo->m_pEntertainArea->m_pMediaStream;
-			pOldStreamInfo->m_pEntertainArea->m_pMediaStream = NULL;
-			delete pOldStreamInfo;
-		}
-	}
-	mapOldStreamInfo.clear();
+		delete it->second;
 
 	return true;
 }
