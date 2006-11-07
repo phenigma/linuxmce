@@ -24,9 +24,18 @@
 #include "DCE/Logger.h"
 #include "TextStyle.h"
 
-#if !defined(POCKETFROG) && !defined(ORBITER_OPENGL)
+#if !defined(POCKETFROG)
 #include <SDL_ttf.h>
 #endif
+
+TextStyle::TextStyle() : m_pTTF_Font(NULL), m_iPK_Style(0), m_iPK_StyleVariation(0),
+	m_iPK_Style_Selected(0), m_iPK_Style_Highlighed(0), m_iPK_Style_Alt(0),
+	m_ForeColor(PlutoColor()), m_BackColor(PlutoColor()), m_ShadowColor(PlutoColor()),
+	m_iPixelHeight(0), m_bBold(false), m_bItalic(false), m_bUnderline(false),
+	m_iShadowX(0), m_iShadowY(0), m_iBorderStyle(0), 
+	m_iPK_HorizAlignment(0), m_iPK_VertAlignment(0)
+{ 
+} 
 
 TextStyle::TextStyle(class Row_StyleVariation *pRow_StyleVariation)
 {
@@ -47,31 +56,18 @@ TextStyle::TextStyle(class Row_StyleVariation *pRow_StyleVariation)
 	m_iShadowX = pRow_StyleVariation->ShadowX_get();
 	m_iShadowY = pRow_StyleVariation->ShadowY_get();
 	m_iBorderStyle = pRow_StyleVariation->BorderStyle_get();
-	m_pTTF_Font=NULL;
 	m_iPK_HorizAlignment=pRow_StyleVariation->FK_HorizAlignment_get();
 	m_iPK_VertAlignment=pRow_StyleVariation->FK_VertAlignment_get();
- //	m_iRotate = pRow_StyleVariation->r;
-	/*
-	m_SelectedBGColor = pRow_StyleVariation->;
-	m_HighlightedBGColor = pRow_StyleVariation->;
-	m_sAltBGColor = pRow_StyleVariation->;
-*/
 #endif //ORBITER
+
+	m_pTTF_Font = NULL;
 }
 
 TextStyle::~TextStyle()
 {
-#if !defined(POCKETFROG) && !defined(ORBITER_OPENGL)
-	if( m_pTTF_Font )  
-	{
-		try
-		{
-			TTF_CloseFont((TTF_Font *)m_pTTF_Font);
-		}
-		catch(...)
-		{
-		}
-	}
+#if !defined(POCKETFROG)
+	if(NULL != m_pTTF_Font)  
+		TTF_CloseFont(m_pTTF_Font);
 #endif
 }
 

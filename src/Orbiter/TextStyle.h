@@ -4,6 +4,9 @@
 #include "SerializeClass/SerializeClass.h"
 #include "SerializeClass/ShapesColors.h"
 
+struct _TTF_Font;
+typedef struct _TTF_Font TTF_Font;
+
 // Encapsulate a text style
 class TextStyle : public SerializeClass
 {
@@ -17,10 +20,12 @@ public:
 	int m_iShadowX, m_iShadowY;  // Pixels to offset a drop shadow
 	int m_iBorderStyle;
 	int m_iRotate;
-	void *m_pTTF_Font; // Make this a void * for now, since trying to include the headers creates a nightmare.  We'll just cast
 	int m_iPK_HorizAlignment,m_iPK_VertAlignment;  // To hold the values so we can store them with the text
+
+	TTF_Font *m_pTTF_Font; 
+
 	TextStyle(class Row_StyleVariation *pRow_StyleVariation);
-	TextStyle() { m_pTTF_Font=NULL; } // Needed for de-serializing
+	TextStyle();
 
 	virtual ~TextStyle();
 	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);

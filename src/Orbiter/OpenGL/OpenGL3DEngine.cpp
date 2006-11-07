@@ -99,10 +99,6 @@ void OpenGL3DEngine::Finalize(void)
 	MeshPainter::Instance()->CleanUp();
 	GLEffect2D::LayersCompose::Instance()->CleanUp();
 	TextureManager::Instance()->CleanUp();
-
-	TTF_Quit();
-
-	SDL_Quit();
 }
 
 bool OpenGL3DEngine::Paint()

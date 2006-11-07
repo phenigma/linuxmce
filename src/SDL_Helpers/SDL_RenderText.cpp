@@ -7,7 +7,7 @@ PlutoSize SDL_RenderText::RealRenderText(RendererImage *pRenderImage, DesignObjT
 						 TextStyle *pTextStyle, PlutoPoint pos)
 {
 	int nPixelHeight = pTextStyle->m_iPixelHeight; 
-	if( !pTextStyle->m_pTTF_Font )
+	if(NULL == pTextStyle->m_pTTF_Font)
 	{
 		if (pTextStyle->m_sFont == "")
 			pTextStyle->m_sFont = "arial";

@@ -29,6 +29,8 @@ DesignObj_DataGrid::DesignObj_DataGrid(Orbiter *pOrbiter) : DesignObj_Orbiter(pO
 DesignObj_DataGrid::~DesignObj_DataGrid() 
 {
 	Flush();
+
+	m_pDataGridTable_Current_set(NULL);
 }
 //-------------------------------------------------------------------------------------------------------
 bool DesignObj_DataGrid::CanGoUp()			
@@ -510,7 +512,8 @@ g_pPlutoLogger->Write(LV_STATUS,"delete2 m_pCell->m_pGraphic %p:%p",pCell,pCell-
 			}
 		}
 	}
-	m_pDataGridTable_Current=pDataGridTable_Current;
+
+	m_pDataGridTable_Current = pDataGridTable_Current;
 }
 
 bool DesignObj_DataGrid::CellIsVisible(int Column,int Row)
