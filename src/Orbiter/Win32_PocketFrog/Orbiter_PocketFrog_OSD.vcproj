@@ -168,9 +168,6 @@
 				RelativePath="..\OrbiterFileBrowser.cpp">
 			</File>
 			<File
-				RelativePath="..\Linux\OSDCompass.cpp">
-			</File>
-			<File
 				RelativePath="..\ScreenHandler.cpp">
 			</File>
 			<File

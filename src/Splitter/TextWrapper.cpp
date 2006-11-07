@@ -293,7 +293,15 @@ void TextLineWrap::RenderToSurface(SDL_Surface * Surface)
 			case HORIZALIGNMENT_Center_CONST: X = int(Width / 2.0 - i2->Width / 2.0); break;
 			case HORIZALIGNMENT_Right_CONST: X = Width - i2->Width; break;
 		}
+
+		if(origX + X < 0) 
+			X = 0;
+			
+		if(origY + Y < 0)
+			Y = 0;
+
 		DoRenderToSurface(Surface, * i1, origX + X, origY + Y);
+
 		Y += i2->Height;
 	}
 }
