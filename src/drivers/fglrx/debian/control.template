@@ -1,0 +1,15 @@
+Source: fglrx-installer
+Section: restricted
+Priority: extra
+Maintainer: ATI Technologies Inc.
+Build-Depends: debhelper (>= 4.2.11), kernel-package
+
+Package: fglrx-kernel-#KVERS#
+Architecture: amd64 i386
+Provides: fglrx-kernel
+Depends: ${XSERVER}-driver-fglrx (= #VERSION#)
+Recommends: linux-image-#KVERS#
+Description: ATI binary kernel module for Linux #KVERS#
+ Video driver for the ATI Radeon and FireGL graphics accelerators.
+ .
+ This package provides the binary kernel module for Linux #KVERS#.
