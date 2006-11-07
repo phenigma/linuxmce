@@ -85,7 +85,7 @@ bool OrbiterRenderer_Linux::RenderScreen_ApplyMask(bool bUseMask)
     if (!pOrbiterLinux->m_bUseMask)
         return false;
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_Linux::RenderScreen_ApplyMask(%s) : start", bUseMask ? "true" : "false");
-    Window window = pOrbiterLinux->m_pX11->Window_GetRoot();
+    Window window = pOrbiterLinux->m_pX11->GetWmWindow();
     bool bResult = false;
     if (bUseMask)
     {

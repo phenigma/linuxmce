@@ -189,6 +189,7 @@ bool OrbiterLinux::X11_Init()
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : X11wrapper");
     m_pX11 = new X11wrapper();
     m_pX11->Assign_MainWindow(info.info.x11.window);
+    m_pX11->Assign_WmWindow(info.info.x11.wmwindow);
     m_pX11->Display_Open();
     m_pX11->GetDisplaySize(m_nDesktopWidth, m_nDesktopHeight);
     // initialize other classes
@@ -888,7 +889,7 @@ void OrbiterLinux::ResetAppliedMask()
 	
 	XShapeCombineRectangles (
 		m_pX11->GetDisplay(),
-		m_pX11->Window_GetRoot(),
+		m_pX11->GetWmWindow(),
 		ShapeBounding,
 		0, 0,
 		&rect,
@@ -956,7 +957,7 @@ void OrbiterLinux::ApplyMask(PlutoRectangle rectTotal, PlutoPoint point)
 			
 	XShapeCombineRectangles (
 		m_pX11->GetDisplay(),
-		m_pX11->Window_GetRoot(),
+		m_pX11->GetWmWindow(),
 		ShapeBounding,
 		0, 0,
 		rects,
