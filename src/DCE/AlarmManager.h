@@ -64,12 +64,12 @@ namespace DCE
 		/// Remove all alarms
 		void Clear();
 
-	protected:	
-
 		struct AlarmEntry;
-
 		typedef ::std::multimap<time_t, AlarmEntry*> SortedAlarmMap;
 		typedef ::std::map<int, AlarmEntry*> AlarmIDMap;
+
+		pluto_pthread_mutex_t *m_Mutex_get() { return &m_Mutex; }
+		SortedAlarmMap *m_SortedAlarms_get() { return &m_SortedAlarms; }
 
 		struct AlarmEntry
 		{
@@ -83,6 +83,7 @@ namespace DCE
 			bool deleted;
 		};
 
+	protected:	
 		SortedAlarmMap m_SortedAlarms;
 		AlarmIDMap m_AlarmIDMap;
 
@@ -93,7 +94,6 @@ namespace DCE
 
 		int m_LastID;
 		bool m_Run;
-
 	};
 }
 #endif

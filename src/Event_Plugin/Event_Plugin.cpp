@@ -106,7 +106,7 @@ bool Event_Plugin::GetConfig()
 		{
 			EventHandler *pEventHandler = new EventHandler(pRow_EventHandler->PK_EventHandler_get(),
 				pRow_EventHandler->FK_Event_get(),m_pRouter->m_mapCommandGroup_Find(pRow_EventHandler->FK_CommandGroup_get()),
-				m_mapCriteria_Find(pRow_EventHandler->FK_Criteria_get()));
+				m_mapCriteria_Find(pRow_EventHandler->FK_Criteria_get()),pRow_EventHandler->OncePerSeconds_get());
 
 			ListEventHandler *pListEventHandler = m_mapListEventHandler_Find(pRow_EventHandler->FK_Event_get());
 			if( !pListEventHandler )
@@ -278,7 +278,13 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 			continue;  // This event handler doesn't have anything to do anyway
 
 		bool bResult = true;  // it's true unless there's a criteria that evaluates to false
-		if( pEventHandler->m_pCriteria!=NULL )
+
+		if( pEventHandler->m_OncePerSeconds && pEventHandler->m_tLastFired && time(NULL)-pEventHandler->m_tLastFired<pEventHandler->m_OncePerSeconds )
+		{
+			g_pPlutoLogger->Write(LV_EVENTHANDLER,"Skipping Event Handler: %d last fired %d (time is %d)",pEventHandler->m_PK_EventHander,(int) pEventHandler->m_tLastFired,(int) time(NULL));
+			bResult=false;
+		}
+		else if( pEventHandler->m_pCriteria!=NULL )
 		{
 			try
 			{

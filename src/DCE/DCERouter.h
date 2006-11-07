@@ -436,6 +436,7 @@ namespace DCE
 		}
 
         void ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand=0);
+		void StopPendingCommandGroup(int PK_CommandGroup,string sDescription,string sHint);
 
         Database_pluto_main *GetDatabase() { return m_pDatabase_pluto_main; }
         void StartListening() { SocketListener::StartListening(m_Port); }

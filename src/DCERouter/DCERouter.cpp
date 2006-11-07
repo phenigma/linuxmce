@@ -77,6 +77,7 @@ void* MessageQueueThread_DCER(void* param) // renamed to cancel link-time name c
 class DelayedCommandInfo {
 	public:
 		int m_PK_CommandGroup,m_iStartingCommand;
+		string m_sDescription,m_sHint;
 };
 
 extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
@@ -635,6 +636,32 @@ void Router::RegisterMsgInterceptor(Message *pMessage)
             PK_Device_From,PK_Device_To,PK_DeviceTemplate,PK_DeviceCategory,MessageType,MessageID );
 }
 
+void Router::StopPendingCommandGroup(int PK_CommandGroup,string sDescription,string sHint)
+{
+	pluto_pthread_mutex_t *p_pluto_pthread_mutex_t = m_pAlarmManager->m_Mutex_get();
+
+	bool bGotEntry=false;
+	PLUTO_SAFETY_LOCK(mm,*p_pluto_pthread_mutex_t);
+	AlarmManager::SortedAlarmMap *p_SortedAlarmMap = m_pAlarmManager->m_SortedAlarms_get();
+	AlarmManager::SortedAlarmMap::iterator i;
+	for(i=p_SortedAlarmMap->begin();i!=p_SortedAlarmMap->end();i++)
+	{
+		AlarmManager::AlarmEntry *pAlarmEntry = i->second;
+		if( pAlarmEntry->id==ALARM_DELAYED_COMMAND_EXECUTION )
+		{
+			DelayedCommandInfo *pDelayedCommandInfo = (DelayedCommandInfo *) pAlarmEntry->param;
+			if( pDelayedCommandInfo->m_PK_CommandGroup==PK_CommandGroup
+				|| (sDescription.empty()==false && pDelayedCommandInfo->m_sDescription==sDescription)
+				|| (sHint.empty()==false && sHint==pDelayedCommandInfo->m_sHint) )
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"Router::StopPendingCommandGroup Canceling pending alarm %d",pDelayedCommandInfo->m_PK_CommandGroup);
+				pAlarmEntry->deleted=true;
+				bGotEntry=true;
+			}
+		}
+	}
+}
+
 void Router::ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand)
 {
 	string sSql = "SELECT PK_CommandGroup_Command,FK_Command,FK_Device,FK_DeviceGroup,DeliveryConfirmation "
@@ -665,6 +692,17 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand)
 					DelayedCommandInfo *pDelayedCommandInfo = new DelayedCommandInfo;
 					pDelayedCommandInfo->m_PK_CommandGroup=PK_CommandGroup;
 					pDelayedCommandInfo->m_iStartingCommand=RowCount+1;
+
+					sSql = "SELECT Description,Hint FROM CommandGroup WHERE PK_CommandGroup=" + StringUtils::itos(PK_CommandGroup);
+					PlutoSqlResult result_set2;
+					if( (result_set2.r=mysql_query_result(sSql)) && (row = mysql_fetch_row(result_set2.r)) )
+					{
+						if( row[0] )
+							pDelayedCommandInfo->m_sDescription = row[0];
+						if( row[1] )
+							pDelayedCommandInfo->m_sHint = row[1];
+					}
+
 					m_pAlarmManager->AddRelativeAlarm(Milliseconds/1000,this,ALARM_DELAYED_COMMAND_EXECUTION,pDelayedCommandInfo);
 					return;
 				}
@@ -1333,7 +1371,7 @@ void Router::OnDisconnected(int DeviceID)
 	m_RunningDevices.erase(DeviceID);
 }
 
-void Router::RegisteredEventHandler(ServerSocket *pSocket, int DeviceID)
+void Router::Registeredier(ServerSocket *pSocket, int DeviceID)
 {
     PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
     DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(DeviceID);
@@ -2733,6 +2771,13 @@ void Router::HandleRouterMessage(Message *pMessage)
 		int PK_CommandGroup = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_CommandGroup_CONST].c_str());
 		if( PK_CommandGroup )
 			ExecuteCommandGroup(PK_CommandGroup);
+	}
+	if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && pMessage->m_dwID==COMMAND_Stop_Pending_Command_Group_CONST )
+	{
+		int PK_CommandGroup = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_CommandGroup_CONST].c_str());
+		string sDescription = pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST];
+		string sHint = pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
+		StopPendingCommandGroup(PK_CommandGroup,sDescription,sHint);
 	}
 }
 

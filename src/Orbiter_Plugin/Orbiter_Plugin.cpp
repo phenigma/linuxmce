@@ -2826,7 +2826,7 @@ void Orbiter_Plugin::StartRetrievingScreenSaverFiles()
 			string sResponse;
 			if( !SendCommand(CMD_Spawn_Application,&sResponse) )
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Failed to start flicrk script.  Trying again in 1 minute");
+				g_pPlutoLogger->Write(LV_STATUS,"Failed to start flickr script.  Trying again in 1 minute");
 				m_pAlarmManager->AddRelativeAlarm(60,this,PROCESS_SCREEN_SAVER_PHOTOS,NULL);
 				return;
 			}
