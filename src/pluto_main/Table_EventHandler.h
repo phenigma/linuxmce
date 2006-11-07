@@ -90,6 +90,7 @@ short int m_Disabled;
 long int m_FK_Template;
 long int m_TemplateParm1;
 long int m_TemplateParm2;
+long int m_OncePerSeconds;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -97,7 +98,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[19];
+		bool is_null[20];
 	
 	public:
 		long int PK_EventHandler_get();
@@ -113,6 +114,7 @@ short int Disabled_get();
 long int FK_Template_get();
 long int TemplateParm1_get();
 long int TemplateParm2_get();
+long int OncePerSeconds_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -134,6 +136,7 @@ void Disabled_set(short int val);
 void FK_Template_set(long int val);
 void TemplateParm1_set(long int val);
 void TemplateParm2_set(long int val);
+void OncePerSeconds_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -152,6 +155,7 @@ bool Disabled_isNull();
 bool FK_Template_isNull();
 bool TemplateParm1_isNull();
 bool TemplateParm2_isNull();
+bool OncePerSeconds_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -169,6 +173,7 @@ void Disabled_setNull(bool val);
 void FK_Template_setNull(bool val);
 void TemplateParm1_setNull(bool val);
 void TemplateParm2_setNull(bool val);
+void OncePerSeconds_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -199,7 +204,7 @@ class Row_Template* FK_Template_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_EventHandler+ m_FK_Event+ m_TimedEvent+ m_Description+ m_FK_Criteria+ m_FK_Installation+ m_FK_CommandGroup+ m_UserCreated+ m_FK_CannedEvents+ m_Disabled+ m_FK_Template+ m_TemplateParm1+ m_TemplateParm2+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_EventHandler+ m_FK_Event+ m_TimedEvent+ m_Description+ m_FK_Criteria+ m_FK_Installation+ m_FK_CommandGroup+ m_UserCreated+ m_FK_CannedEvents+ m_Disabled+ m_FK_Template+ m_TemplateParm1+ m_TemplateParm2+ m_OncePerSeconds+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -217,6 +222,7 @@ string Disabled_asSQL();
 string FK_Template_asSQL();
 string TemplateParm1_asSQL();
 string TemplateParm2_asSQL();
+string OncePerSeconds_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
