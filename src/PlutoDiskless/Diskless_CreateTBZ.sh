@@ -128,7 +128,7 @@ elif [[ "$Branch" == 3 ]]; then # alternative selection
 PrioPkgs="pluto-boot-scripts"
 
 echo $PrioPkgs | xargs chroot "$TEMP_DIR" apt-get -f -y install
-cat /home/packages | xargs chroot "$TEMP_DIR" apt-get -f -y install
+cat /usr/pluto/install/PlutoMD-packages.txt | xargs chroot "$TEMP_DIR" apt-get -f -y install
 
 else
 
