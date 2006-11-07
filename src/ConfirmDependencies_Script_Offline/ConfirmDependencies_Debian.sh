@@ -21,7 +21,8 @@ AddPackageDevice()
 	local PK_PACKAGE="$2"
 
 	if [[ -n "$PK_Device" && -n "$PK_PACKAGE" ]]; then
-		Version=$(dpkg -s "$PKG_NAME" | grep ^Version: | cut -d' ' -f2-)
+		Version=$(awk "/^Package: $Pkg\$/,/^\$/" /var/lib/dpkg/status | grep '^Version: ' | cut -d' ' -f2-)
+		#Version=$(dpkg -s "$PKG_NAME" | grep ^Version: | cut -d' ' -f2-)
 		DateTime=$(date +'%Y-%m-%d %k:%M:%S')
 		Q="INSERT INTO Package_Device(FK_Package, FK_Device, Version, InstallDate) VALUES('$PK_PACKAGE', '$PK_Device', '$Version', '$DateTime')"
 		echo "$Q;" | /usr/bin/mysql -h $MySqlHost -u $MySqlUser pluto_main &>/dev/null || /bin/true
@@ -73,6 +74,12 @@ case "$URL_TYPE" in
 	apt)
 		## Display a bootsplash message
 		/usr/pluto/bin/BootMessage.sh "Installing: $PKG_NAME" 2>/dev/null || /bin/true
+		if PackageIsInstalled "$PKG_NAME"; then
+			AddPackageDevice "$PK_Device" "$PK_PACKAGE"
+			exit 0
+		fi
+
+		dpkg --configure -a --force-confold
 
 		if [[ -z "$REPOS" ]]; then
 			echo "$0: Blank repository entry" >&2

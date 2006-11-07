@@ -11,13 +11,18 @@ IP="$1"
 MAC="$2"
 Device="$3"
 Architecture="${4:-686}"
-FSarchive=PlutoMD.tar.bz2
+FSarchive1=PlutoMD.tar.bz2
+FSarchive2=PlutoMD-pre-install.tar.bz2
 DlPath="/usr/pluto/diskless/$Device"
 HexIP=$(gethostip -x "$IP")
 
 # Modules to be included in the initramfs
 Modules="ne 3c509 3c59x 8139cp 8139too dmfe e100 eepro100 eexpress epic100 hp100 ne2k-pci sis900 tlan de4x5 tulip via-rhine yellowfin forcedeth pcnet32 tg3 e1000 sk98lin fealnx natsemi r8169 b44 via_velocity skge sky2"
 
+FSarchive="$FSarchive1"
+if [[ -f /usr/pluto/install/"$FSarchive2" ]]; then
+	FSarchive="$FSarchive2"
+fi
 
 InstallKernel()
 {
