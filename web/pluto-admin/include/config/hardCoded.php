@@ -123,6 +123,7 @@
 	$GLOBALS['SW_Command']=328;						// SW
 	$GLOBALS['WB_Command']=327;						// WB
 	$GLOBALS['DelayCommand']=257;					// delay
+	$GLOBALS['GoToScreen']=741;						// Go to screen
 	
 	// PK_CommandParameters from table CommandParameters
 	

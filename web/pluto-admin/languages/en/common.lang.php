@@ -166,4 +166,8 @@ $TEXT_PACKAGE_CONST='Package';
 $TEXT_RESYNC_CONST='Resync Codes';
 $TEXT_START_CONST='Start';
 $TEXT_STOP_CONST='Stop';
+$TEXT_CONFIRM_DELETE_COMMAND_FROM_CG_CONST='Are you sure you want to delete the command?';
+$TEXT_TEST_COMMAND_CONST='Test command';
+$TEXT_UP_CONST='Up';
+$TEXT_DOWN_CONST='Down';
 ?>

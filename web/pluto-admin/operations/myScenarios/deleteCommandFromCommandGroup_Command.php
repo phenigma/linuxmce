@@ -41,8 +41,8 @@ function deleteCommandFromCommandGroup_Command($output,$dbADO) {
 			$out.="
 			<script>
 				alert('$commandsDeleted $parametersDeleted');
-			    opener.document.forms.{$from}.action.value='form';				
-				opener.document.forms.{$from}.submit();
+			    opener.document.forms[0].action.value='form';				
+				opener.document.forms[0].submit();
 				self.close();
 			</script>
 			";			

@@ -129,9 +129,7 @@ if($action=='form') {
 		break;			
 		case -1:
 		case 3:
-			$returnHook=processAdvancedScenarios($cgID,$section,$dbADO);
-			$isModified=$GLOBALS['isModified'];
-			$parametersUpdatedAlert=$GLOBALS['parametersUpdatedAlert'];
+			list ($isModified,$parametersUpdatedAlert,$returnHook)=processAdvancedScenarios($cgID,$section,$dbADO);
 			$msg="Command Group ".($isModified?"":"not")." updated! $parametersUpdatedAlert";
 		break;	
 	}
