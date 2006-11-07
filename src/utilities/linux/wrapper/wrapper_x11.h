@@ -109,6 +109,12 @@ public:
     // reuse the already created main window
     void Assign_MainWindow(Window window);
     Window GetMainWindow();
+    
+    /** Sets the window created by the window manager.*/
+    void Assign_WmWindow(Window window);
+    
+    /** Returns the window created by the window manager.*/
+    Window GetWmWindow();
 
     // reuse the already opened display for the main window
     void Assign_MainDisplay(Window window);
@@ -281,6 +287,7 @@ protected:
     bool v_bIsAssigned_Display;
 
     Window v_oMainWindow;
+    Window v_oWmWindow;
 
     XErrorHandler v_pOld_XErrorHandler;
     bool v_bIsChanged_XErrorHandler;

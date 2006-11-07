@@ -328,6 +328,24 @@ Window X11wrapper::GetMainWindow()
     return v_oMainWindow;
 }
 
+void X11wrapper::Assign_WmWindow(Window window)
+{
+#ifdef DEBUG
+    if (v_oWmWindow && window)
+    {
+        _LOG_WRN("will overwrite wm window id");
+    }
+    _LOG_NFO("wmwindow==%d", window);
+#endif
+
+    v_oWmWindow = window;
+}
+
+Window X11wrapper::GetWmWindow()
+{
+    return v_oWmWindow;
+}
+
 Display * X11wrapper::GetDisplay()
 {
     return v_pDisplay;
