@@ -37,7 +37,7 @@ function assureXorgSane()
 
 XClient=/usr/pluto/bin/Start_IceWM.sh
 XClientParm=()
-XServerParm=(-logverbose 5)
+XServerParm=(-logverbose 5 -br)
 Background=y
 XDisplay=:0
 
