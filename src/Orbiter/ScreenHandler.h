@@ -18,6 +18,7 @@ class MediaFileBrowserOptions
 public:
 	int m_PK_MediaType,m_PK_AttributeType_Sort,m_PK_Users,m_iPK_Screen;
 	string m_sPK_MediaSubType,m_sPK_FileFormat,m_sPK_Attribute_Genres,m_sSources,m_sPK_Users_Private;
+	string m_sSelectedFile;  // Used to hold the selected value
 	list<int> m_listPK_AttributeType_Sort_Prior;
 	list< pair<int,string> >m_listPK_Attribute_Description;  // For drilling down on attributes
 	map< pair<int,string>, DesignObj_Orbiter * > m_mapObjectsValues;

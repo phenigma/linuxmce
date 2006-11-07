@@ -291,7 +291,8 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		if( !pObj_Play || !pObj_Play->m_pParentObject )
 			return false; // Shouldn't happen
 
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,pCell_List->m_Value);
+		mediaFileBrowserOptions.m_sSelectedFile = pCell_List->m_Value;
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,mediaFileBrowserOptions.m_sSelectedFile);
 		m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
 
 		if( pCell_Pic && pCell_Pic->m_pGraphic && pCell_Pic->m_pGraphic->m_pGraphicData )
@@ -336,21 +337,14 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		if( !mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get() )
 			return false; //shouldn't happen
 
-		DataGridCell *pCell_List=NULL;
-		pCell_List = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get()->GetData(0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow);
-
-		if( !pCell_List || !pCell_List->m_Value )
-			return false; // Shouldn't happen
-
-g_pPlutoLogger->Write(LV_STATUS,"Play Media higlighted %d current row %d cell %p %s",
-mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow, mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow,pCell_List,pCell_List->m_Value);
+g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected Play Media higlighted %s",mediaFileBrowserOptions.m_sSelectedFile.c_str());
 
 		m_pOrbiter->CMD_Remove_Popup("","filedetails");
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
 #endif
 		DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
-			0,pCell_List->m_Value,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0);
+			0,mediaFileBrowserOptions.m_sSelectedFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0);
 		m_pOrbiter->SendCommand(CMD_MH_Play_Media);
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFileBrowserBack_CONST )

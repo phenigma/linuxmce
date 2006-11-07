@@ -450,9 +450,6 @@
 				Name="WizardLogic"
 				Filter="">
 				<File
-					RelativePath="..\Linux\OSDCompass.cpp">
-				</File>
-				<File
 					RelativePath="..\Linux\OSDScreenHandler.cpp">
 				</File>
 				<File

@@ -8026,7 +8026,14 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 	{
 		if( m_pMouseBehavior )
 			m_pMouseBehavior->SetMediaInfo(sTime,sTotal,sSpeed,sTitle,sSection);
-		if( m_sNowPlaying_Speed.empty()==false && m_bContainsVideo && m_iPK_Screen_OSD_Speed && m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen()!=m_iPK_Screen_OSD_Speed )
+		if( m_sNowPlaying_Speed.empty()==true && m_pScreenHistory_Current->PK_Screen()==m_iPK_Screen_OSD_Speed )
+		{
+			if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
+				CMD_Goto_Screen("",m_iPK_Screen_RemoteOSD);
+			else if( m_iPK_Screen_Remote )
+				CMD_Goto_Screen("",m_iPK_Screen_Remote);
+		}
+		else if( m_sNowPlaying_Speed.empty()==false && m_bContainsVideo && m_iPK_Screen_OSD_Speed && m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen()!=m_iPK_Screen_OSD_Speed )
 			CMD_Goto_Screen("",m_iPK_Screen_OSD_Speed);
 	}
 #endif
