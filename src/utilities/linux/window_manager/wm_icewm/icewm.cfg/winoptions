@@ -28,9 +28,9 @@ progress_window.progress_window.dTitleBar: 0
 prompt_user_window.prompt_user_window.dBorder: 0
 prompt_user_window.prompt_user_window.dTitleBar: 0
 
-SDL_App.SDL_App.dBorder: 0
-SDL_App.SDL_App.dTitleBar: 0
-SDL_App.SDL_App.ignoreNoFocusHint: 1
+Photo_Screen_Saver.Photo_Screen_Saver.dBorder: 0
+Photo_Screen_Saver.Photo_Screen_Saver.dTitleBar: 0
+Photo_Screen_Saver.Photo_Screen_Saver.ignoreNoFocusHint: 1
 
 # xterm start hack : move it to hidden desktop
 bogus_xterm.bogus_xterm.workspace: 1
