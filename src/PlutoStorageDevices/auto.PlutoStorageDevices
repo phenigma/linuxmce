@@ -127,9 +127,9 @@ case "$Template" in
 		
 		## Do the mount
 		if [[ "$Username" == "" || "$Username" == "guest" ]] ;then
-			echo "-fstype=cifs,guest,dmask=777,fmask=777 ://${IPaddress}/${Share}"
+			echo "-fstype=cifs,username=guest,guest,dir_mode=0777,file_mode=0777 ://${IPaddress}/${Share}"
 		else
-			echo "-fstype=cifs,username=$Username,password=$Password,dmask=777,fmask=777 ://${IPaddress}/${Share}"
+			echo "-fstype=cifs,username=$Username,password=$Password,dir_mode=0777,file_mode=0777 ://${IPaddress}/${Share}"
 		fi
 		;;
 
