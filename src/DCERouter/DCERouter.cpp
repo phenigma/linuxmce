@@ -2543,6 +2543,7 @@ void Router::Configure()
 			if( !pCommandGroup_Command->m_pCommand )
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"CommandGroup %d with invalid command",pRow_CommandGroup->PK_CommandGroup_get());
+				delete pCommandGroup_Command;
 				continue; // Shouldn't happen
 			}
             pCommandGroup->m_vectCommandGroup_Command.push_back(pCommandGroup_Command);
