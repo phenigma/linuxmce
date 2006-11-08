@@ -370,6 +370,12 @@ rm -f /etc/rc{0,6}.d/S*{umountnfs.sh,portmap,networking}
 if [[ "$FirstBoot" != "false" && ! -f /usr/pluto/install/.notdone ]] ;then
 	Message "Generating pluto bootscripts for the first time"
 	/usr/pluto/bin/generateRcScripts.sh
+
+	if [[ ! -f /etc/diskless.conf ]] ;then
+		Message "Updating software database (getxmls)"
+		/usr/pluto/bin/getxmls
+	fi
+
 	ConfSet "FirstBoot" "false" 2>/dev/null 1>/dev/null
 fi
 
