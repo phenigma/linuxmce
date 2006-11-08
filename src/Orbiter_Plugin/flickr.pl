@@ -358,7 +358,7 @@ sub getPictureDimensions {
 		my $r=XMLin($response->{_content});
 		foreach $buff (@{$r->{'sizes'}->{'size'}}) {
 			if ($buff->{'width'} >= $minW && $buff->{'height'} >= $minH) {
-				print "$id are dimensiunile dorite\n";
+				#print "$id are dimensiunile dorite\n";
 				$width = $buff->{'width'};
 				$height = $buff->{'height'};
 				$source = $buff->{'source'};
