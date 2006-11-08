@@ -1,4 +1,4 @@
-#ProcessInitialize 2006-10-10 22:48 ApexDestiny 6100
+#ProcessInitialize 2006-11-08 12:08 ApexDestiny 6100
 
 #create log file
 $logFile = File.new("/var/log/pluto/ApexDestiny6100.log", "w")
@@ -68,19 +68,21 @@ end
 
 log( "Starting Apex Destiny 6100\n" )
 
-if (device_.devdata_ != nil) then 
-	if (device_.devdata_[135] != nil) and ( device_.devdata_[135].empty? == false) then
-		$logFile.print "Mapping:" + device_.devdata_[135] + "\n"
-		# mapp( device_.devdata_[135] )
+$DEVICEDATA_Zones_CONST = 135
+if (device_.devdata_ != nil) then
+	if	( device_.devdata_.has_key?($DEVICEDATA_Zones_CONST) ) and
+		( device_.devdata_[$DEVICEDATA_Zones_CONST] != nil) and
+		( !device_.devdata_[$DEVICEDATA_Zones_CONST].empty? ) then
+		$logFile.print "Mapping:" + device_.devdata_[$DEVICEDATA_Zones_CONST] + "\n"
+		#mapp( device_.devdata_[$DEVICEDATA_Zones_CONST] )
 	else
 		$logFile.print "Mapping with empty string" + "\n"
-		# mapp("")
+		#mapp("")
 	end
 else
 	$logFile.print "Run without devicedata " + "\n"
-	# mapp( "" )	
+	#mapp( "" )
 end
-#mapp("")
 
 log("Start interogation" + "\n")
 ApexArmingRequest()
