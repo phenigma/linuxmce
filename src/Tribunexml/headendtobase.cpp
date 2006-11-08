@@ -13,19 +13,18 @@
 	See the GNU General Public License for more details.
 */
 
-#include "DCE/Logger.h"
-#include "PlutoUtils/StringUtils.h"
 #include <vector>
 #include <fstream>
 #include <time.h>
 #include <iostream>
+#include <string.h>
+#include "DCE/Logger.h"
+#include "PlutoUtils/StringUtils.h"
 
 extern "C"
 {
 #include <mysql/mysql.h>
 }
-
-string URL="http://192.168.125.1/tribune/";
 
 namespace DCE
 {
@@ -33,6 +32,8 @@ namespace DCE
 }
 using namespace DCE;
 using namespace std;
+string URL="http://192.168.125.1/tribune/";
+
 MYSQL *mysql=NULL;
 
 int getURL(const string filename){
@@ -55,11 +56,10 @@ int fillInsert(ifstream &f, string &result,short table=0) {
 	int num=buf.find("|");
 	result+="('";
 	while(num>=0){
-		if ((2==table)&&(field>11))
+		if ((1==table)&&(field>11))
 			break;
 		str=buf.substr(0,num);
-		if((table!=1)||((1==table)&&(field!=0)))
-			result+=StringUtils::SQLEscape(str)+"','";
+		result+=StringUtils::SQLEscape(str)+"','";
 		str="";
 		if((unsigned)num+1<=buf.size())
 			buf.erase(0,num+1);
@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
 		query="";
 		system("rm /tmp/headend.fsf");
 	}
-	head="INSERT INTO Lineups( FK_Headends, device, FK_Stations, tms_chan, service_tier, effective_date, expiration_date ) VALUES ";
+	head="INSERT INTO Lineups( row_id,headend_id, device, FK_Stations, tms_chan, service_tier, effective_date, expiration_date ) VALUES ";
 	if(!getURL("lineup.fsf")){
 		ifstream f("/tmp/lineup.fsf");
 		if (!f){
@@ -185,7 +185,7 @@ int main(int argc, char *argv[]) {
 			return true;
 		}
 		query="";
-		while(fillInsert(f, query,1)){
+		while(fillInsert(f, query)){
 			if(query.size()>=12800){
 				query=head+query;
 				if( sendQuery(query) ){
@@ -212,7 +212,7 @@ int main(int argc, char *argv[]) {
 			cerr<<"Error opening file /tmp/statrec.txt"<<endl;
 			return true;
 		}
-		while(fillInsert(f, query,2)){
+		while(fillInsert(f, query,1)){
 			if(query.size()>=12800){
 				query=head+query;
 				if( sendQuery(query) ){

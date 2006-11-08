@@ -34,6 +34,7 @@ namespace DCE
 }
 using namespace DCE;
 using namespace std;
+string device="empty";
 
 int getURL(const string filename){
 	string command=(string) "wget -O - \""+URL+filename+".tar.bz2\"|tar xjf - -C /tmp";
@@ -120,7 +121,6 @@ void postStation(ofstream &fxml,const Station *s){
 }
 
 void postLineup(const ChannelLineup &l, ofstream &fxml){
-	static string device="empty";
 	if(device!=l.device){
 		if(device!="empty"){
 			fxml<<"</lineup>"<<endl;
@@ -575,13 +575,13 @@ void CreateProgramXML(){
 		fxml<<"</crew>"<<endl
 				<<"</productionCrew>"<<endl;
 		fc.close();
-		ifstream fg("/tmp/genres.txt");
 		cout<<"Writing genres"<<endl;
-		fxml<<"</programGenre>"<<endl
-				<<"<genres>"<<endl;
+		ifstream fg("/tmp/genres.txt");
+		fxml<<"<genres>"<<endl;
 		postGenre(fg, fxml);
 		fg.close();
-		fxml<<"</genres>"<<endl;
+		fxml<<"</programGenre>"<<endl
+				<<"</genres>"<<endl;
 	}
 	fxml<<"</xtvd>"<<endl;
 }
@@ -600,6 +600,7 @@ void DoXMLCommonPart(vector<ChannelLineup> &chanLineupList){
 	fxml.close();
 	fxml.open("/tmp/lineup.xml");
 	fxml<<"<lineups>"<<endl;
+	device="empty";
 	for( vector<ChannelLineup>::iterator it=chanLineupList.begin(); it!=chanLineupList.end(); it++ ){
 		postLineup(*it,fxml);
 	}
@@ -618,22 +619,21 @@ void postXMLTomythconverg(const string sourceid, const string lineupname){
 	fxml.close();
 
 	system("cat /tmp/head.xml /tmp/station.xml /tmp/lineup.xml /tmp/schedule.xml /tmp/progs.xml |replace \"&\" \"&amp;\">/tmp/temp.xml");
-	string command=(string)"/usr/bin/mythfilldatabase --dd-file "+sourceid+" -1 "+lineupname+" /tmp/temp.xml";
+	string command=(string)"/usr/bin/mythfilldatabase --dd-file "+sourceid+" -1 \""+lineupname+"\" /tmp/temp.xml";
 	cout<<"Command: "<<command<<endl;
 	system(command.c_str());
- 	command=(string)"rm -rf /tmp/temp.xml /tmp/schedule.xml /tmp/station.xml /tmp/programs.txt /tmp/crew.txt /tmp/genres.txt /tmp/progrec.txt /tmp/progs.xml";
+	command=(string)"rm -rf /tmp/temp.xml /tmp/schedule.xml /tmp/station.xml /tmp/programs.txt /tmp/crew.txt /tmp/genres.txt /tmp/progrec.txt /tmp/progs.xml";
 	cout<<"Command: "<<command<<endl;
 	system(command.c_str());
 }
 
 int main(int argc, char *argv[]){
  	g_pPlutoLogger = new FileLogger(stdout);
-//	cout<<"Program begin"<<endl;
 	bool bError=false;
 	char c;
 	string sourceid="";
-	string hostmyth="localhost",usermyth="root",passwdmyth="",dbmyth="mythconverg";
-	string hosttribune="localhost",usertribune="root",passwdtribune="",dbtribune="tribune";
+	string hostmyth="dcerouter",usermyth="root",passwdmyth="",dbmyth="mythconverg";
+	string hosttribune="dcerouter",usertribune="root",passwdtribune="",dbtribune="pluto_myth";
 	for(int i=1;i<argc;i++){
 		if(argv[i][0]!='-'){
 			cerr<<"Unknown option"<<endl;
@@ -709,7 +709,8 @@ int main(int argc, char *argv[]){
 			query=(string)"SELECT l.name, h.zip_code, l.FK_Stations, l.device, l.tms_chan, l.effective_date, l.expiration_date "
 					"FROM UserLineups l "
 					"LEFT JOIN Headends h on l.FK_Headends=h.PK_Headends "
-					"WHERE l.sourceid="+rowmyth[0];
+					"WHERE l.sourceid="+rowmyth[0]+
+					" ORDER BY l.name, l.device";
 			cout<<"Getting lineups"<<endl;
 			if(mysql_real_query(mysqltribune,query.c_str(),(unsigned int) query.length())==0 &&(mrestribune=mysql_store_result(mysqltribune)))
 			{

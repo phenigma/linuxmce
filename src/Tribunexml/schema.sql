@@ -16,11 +16,11 @@ CREATE TABLE Headends(
  mso_name varchar(42),
  time_zone_code int(1),
  PRIMARY KEY(PK_Headends),
- UNIQUE (headend_id,community_name,zip_code)
 );
 
 CREATE TABLE Lineups(
- FK_Headends char(7),
+ row_id int(12),
+ headend_id char(7),
  FK_Stations int(12),
  device char(1),
  tms_chan char(5),
@@ -50,12 +50,13 @@ CREATE TABLE UserLineups(
  FK_Headends int(11) not NULL,
  FK_Stations int(12) not NULL,
  sourceid int(10) not NULL,
+ row_id int(12),
  name varchar(20) not NULL,
+ UserName varchar(100) not NULL,
  device char(1),
  tms_chan char(5),
  service_tier int(1),
  effective_date char(8),
  expiration_date char(8),
- PRIMARY KEY (PK_UserLineups),
- UNIQUE (FK_Headends,FK_Stations,sourceid)
+ PRIMARY KEY (PK_UserLineups)
 );
