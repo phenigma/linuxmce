@@ -15,6 +15,7 @@ sources = \
     BD_CP_ShowList.cpp \
     BD_CP_ShowVMC.cpp \
     BD_CP_UpdateVariables.cpp \
+	BD_CP_ShowMenu.cpp \
     BD_PC_Disconnect.cpp \
     BD_PC_KeyWasPressed.cpp \
     BD_PC_OrderPlaced.cpp \
