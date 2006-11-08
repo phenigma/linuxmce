@@ -1371,7 +1371,7 @@ void Router::OnDisconnected(int DeviceID)
 	m_RunningDevices.erase(DeviceID);
 }
 
-void Router::Registeredier(ServerSocket *pSocket, int DeviceID)
+void Router::RegisteredEventHandler(ServerSocket *pSocket, int DeviceID)
 {
     PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
     DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(DeviceID);
