@@ -47,7 +47,7 @@ kmod_build:: $(fglrx-libs) $(fglrx-cfiles) $(fglrx-hdrs) $(drm-hdrs)
 
 clean::
 	rm -rf $(PWD)/.tmp_versions
-	rm -f *.o *.ko .??*
+	rm -f *.o *.ko
 
 endif
 
