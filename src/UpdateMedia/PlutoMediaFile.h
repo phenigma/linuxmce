@@ -42,7 +42,7 @@ private:
     //internal helper functions
 	//This will add a record in the File table and additional attributes too in related tables
     int AddFileToDatabase(int PK_MediaType);
-	void AssignPlutoDevice(Row_File *pRow_File);
+	void AssignPlutoDevice();
 	string FileWithAttributes(bool bCreateId3File = true);
 
 	void SavePlutoAttributes(string sFullFileName);

@@ -73,7 +73,10 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 PlutoMediaFile::~PlutoMediaFile()
 {
 	if(!m_bSyncFilesOnly)
+	{
 		SyncDbAttributes();
+		AssignPlutoDevice();
+	}
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "Being called from pluto-admin. We won't add attributes back in db.");
 
@@ -453,12 +456,10 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 	g_pPlutoLogger->Write(LV_STATUS, "Added %s/%s to db with PK_File = %d", m_sDirectory.c_str(), m_sFile.c_str(),
 		pRow_File->PK_File_get());
 
-	AssignPlutoDevice(pRow_File);
-
     return pRow_File->PK_File_get();
 }
 //-----------------------------------------------------------------------------------------------------
-void PlutoMediaFile::AssignPlutoDevice(Row_File *pRow_File)
+void PlutoMediaFile::AssignPlutoDevice()
 {
 #ifdef UPDATE_MEDIA
 	map<int, int> mapMountedDevices;
@@ -468,14 +469,20 @@ void PlutoMediaFile::AssignPlutoDevice(Row_File *pRow_File)
 
 	int nEK_Device = PlutoDeviceForFile(m_sDirectory + "/" + m_sFile, mapMountedDevices);
 
-	if(nEK_Device != 0)
+	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(m_pPlutoMediaAttributes->m_nFileID);
+	if(NULL != pRow_File)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "File %s/%s on pluto device %d", m_sDirectory.c_str(), m_sFile.c_str(), nEK_Device);
 
-		pRow_File->EK_Device_set(nEK_Device);
+		if(nEK_Device != 0)
+			pRow_File->EK_Device_set(nEK_Device);
+		else
+			pRow_File->EK_Device_setNull(true);
+
 		pRow_File->Table_File_get()->Commit();
 	}
-#endif /*UPDATE_MEDIA*/
+
+#endif //UPDATE_MEDIA
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SetFileAttribute(int PK_File)
