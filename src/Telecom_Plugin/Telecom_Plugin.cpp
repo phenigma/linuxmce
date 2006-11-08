@@ -1032,7 +1032,7 @@ void Telecom_Plugin::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,st
 {
 	if( !iPK_Device )
 		iPK_Device = pMessage->m_dwPK_Device_From;
-	int phoneID=map_orbiter2embedphone[pMessage->m_dwPK_Device_From];
+	int phoneID=map_orbiter2embedphone[iPK_Device];
 	if(phoneID>0 || iPK_Device>0 )
 	{
 		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
