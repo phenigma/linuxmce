@@ -19,6 +19,7 @@ SOURCE  BD_CP_SimulateEvent.cpp
 SOURCE  BD_CP_CurrentSignalStrength.cpp
 SOURCE  BD_CP_MenuData.cpp
 SOURCE  BD_CP_SetBkgndImage.cpp
+SOURCE  BD_CP_ShowMenu.cpp
 SOURCE  BD_PC_SelectedFromList.cpp
 SOURCE  BD_PC_Disconnect.cpp
 SOURCE  BD_PC_KeyWasPressed.cpp
