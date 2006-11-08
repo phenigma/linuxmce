@@ -39,7 +39,7 @@ int main(int argc, const char * argv[])
 	g = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC | O_LARGEFILE);
 	if (g == -1)
 	{
-		printf("Failed to open '%s': %s\n", argv[1], strerror(errno));
+		printf("Failed to open '%s': %s\n", argv[2], strerror(errno));
 		return 1;
 	}
 
