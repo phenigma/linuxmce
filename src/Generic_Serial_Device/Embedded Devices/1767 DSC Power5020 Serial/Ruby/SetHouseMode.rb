@@ -1,4 +1,4 @@
-#SetHouseMode  09-Jun-06 11:40  ApexDestiny 6100
+#SetHouseMode 09-Ian-06 11:30
 #log parameters
 log( "SetHouseMode:" + "  " )
 log( "Value:"         +   value_to_assign           + "  " )
@@ -35,17 +35,19 @@ log( "\n" )
 
 case valueNo
 when 1      #unarmed at home
-	ApexDisarmPartition("1",password) 
+	partList.each { |i| 
+	DSCDisarmPartition(i.to_s ,password) }
 when 2      # armed away
-	ApexArmPartition("AWAY","1",password ) 
+	partList.each { |i| 
+	DSCArmPartition("CODE",i.to_s,password ) }
 when 3      # armed at home
-	DSCArmPartition("HOME","1",password) 
+	partList.each { |i| 
+	DSCArmPartition("STAY",i.to_s,password) }
 when 4      # sleeping
 	log( "Case 4:\n" )
 when 5      # entertaining
 	log( "Case 5:\n" )
 when 6      # armed extended away
-	ApexArmPartition("AWAY","1",password ) 
-end
-
+	partList.each { |i| 
+	DSCArmPartition("AWAY",i.to_s,password) }
 end

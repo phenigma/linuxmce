@@ -1,4 +1,4 @@
-#ProcessInitialize  09-Jun-06 11:40  Power5020
+#ProcessInitialize  2006-11-08 12:08  Power5020
 
 #create log file
 #$logFile = File.new("/var/log/pluto/DSC_Power.log", "w")
@@ -95,7 +95,7 @@ $errCode = {
 
 #if device has childs already initialise
 $partStatus[1]=true
-if (device_.childdevices_ == nil) or (device_.childdevices_.empty?) then 
+if (device_.childdevices_ == nil) or (device_.childdevices_.empty?) then
 	$bInit = false
 else 
 	$bInit = true 
@@ -104,17 +104,20 @@ end
 log( "Starting DSC Power5020\n" )
 logState( true )
 
-if (device_.devdata_ != nil) then 
-	if (device_.devdata_[135] != nil) and ( device_.devdata_[135].empty? == false) then
-		$logFile.print "Mapping:" + device_.devdata_[135] + "\n"
-		mapp( device_.devdata_[135] )
+$DEVICEDATA_Zones_CONST = 135
+if (device_.devdata_ != nil) then
+	if	( device_.devdata_.has_key?($DEVICEDATA_Zones_CONST) ) and
+		( device_.devdata_[$DEVICEDATA_Zones_CONST] != nil) and
+		( !device_.devdata_[$DEVICEDATA_Zones_CONST].empty? ) then
+		$logFile.print "Mapping:" + device_.devdata_[$DEVICEDATA_Zones_CONST] + "\n"
+		mapp( device_.devdata_[$DEVICEDATA_Zones_CONST] )
 	else
 		$logFile.print "Mapping with empty string" + "\n"
 		mapp("")
 	end
 else
 	$logFile.print "Run without devicedata " + "\n"
-	mapp( "" )	
+	mapp( "" )
 end
 #mapp("")
 
