@@ -748,6 +748,8 @@ void Orbiter::ScreenSaver( void *data )
 
 	if( m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu )
 		CMD_Display_OnOff("0",false);
+	else if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation )
+		CMD_Goto_Screen("",m_iPK_Screen_RemoteOSD); // Go to the remote instead
 	else
 	{
 		StartScreenSaver();
@@ -858,6 +860,11 @@ g_PlutoProfiler->DumpResults();
 			g_pPlutoLogger->Write(LV_WARNING,"Goto Screen -- wakign up from screen saver");
 #endif
 			StopScreenSaver();
+
+#ifdef ENABLE_MOUSE_BEHAVIOR
+			if( m_pMouseBehavior->m_bMouseVisible )
+				CMD_Show_Mouse_Pointer("1");
+#endif
 		}
 
 		m_pScreenHistory_Current->GetObj()->m_bActive=false;
@@ -2864,7 +2871,12 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d key %d",
 
 	bool bHandled=false;
 	if( !GotActivity(  ) )
-		return true;
+	{
+		if( !UsesUIVersion2() ||
+			(PK_Button != BUTTON_F6_CONST && PK_Button != BUTTON_Mouse_6_CONST && PK_Button != BUTTON_F7_CONST &&
+			PK_Button != BUTTON_Mouse_7_CONST && PK_Button != BUTTON_F8_CONST && PK_Button != BUTTON_Mouse_8_CONST) )
+				return true;  // Unless it's UI2 and one of the menu activation buttons ignore this
+	}
 
 	// 2005-dec-7  Do the capture keyboard stuff first in case one of the
 	// objects we selected needs the current value
@@ -3442,6 +3454,10 @@ bool Orbiter::GotActivity(  )
 		if( m_bScreenSaverActive )
 		{
 			StopScreenSaver();
+#ifdef ENABLE_MOUSE_BEHAVIOR
+			if( m_pMouseBehavior->m_bMouseVisible )
+				CMD_Show_Mouse_Pointer("1");
+#endif
 		}
 
 #ifdef DEBUG
@@ -9181,11 +9197,14 @@ void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
 		CMD_Set_Main_Menu("V");
 		GotoDesignObj(m_sMainMenu);
 #ifdef ENABLE_MOUSE_BEHAVIOR
+		bool bMouseVisible=m_pMouseBehavior->m_bMouseVisible;  // Save the state
+		CMD_Show_Mouse_Pointer("0");
 		if(UsesUIVersion2())
 		{
 			if( m_pMouseBehavior )
 				m_pMouseBehavior->Clear();
 		}
+		m_pMouseBehavior->m_bMouseVisible=bMouseVisible;  // Restore it
 #endif
 		
 #ifdef DEBUG
@@ -9231,6 +9250,8 @@ void Orbiter::StopScreenSaver()
 void Orbiter::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c548-e->
 {
+	if( !m_bDisplayOn )
+		CMD_Display_OnOff( "1",false );
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	m_pMouseBehavior->ButtonDown(BUTTON_Mouse_7_CONST);
 	m_pMouseBehavior->ButtonUp(BUTTON_Mouse_7_CONST);

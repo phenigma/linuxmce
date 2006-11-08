@@ -45,6 +45,7 @@ MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
     m_iTime_Last_Mouse_Down=m_iTime_Last_Mouse_Up=0;
 	m_bMouseConstrained=false;
 	m_bMouseKilled=false;
+	m_bMouseVisible=true;
 	Clear();
 }
 
@@ -291,9 +292,13 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 		return true;
 	}
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen==SCREEN_Main_CONST )
+	{
+		m_pOrbiter->StartScreenSaver(true);  // If the user hits the menu button from the main menu, go to the screen saver
+		Clear(true);
+	}
 	else if( (m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && (PK_Screen_OnScreen==SCREEN_mnuPlaybackControl_CONST || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_OSD_Speed || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_OSD_Track)) ||
-		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && (PK_Screen_OnScreen==SCREEN_mnuAmbiance_CONST || PK_Screen_OnScreen==SCREEN_mnuVolume_CONST || PK_Screen_OnScreen==SCREEN_mnuLights_CONST)) ||
-		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen==SCREEN_Main_CONST) )
+		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && (PK_Screen_OnScreen==SCREEN_mnuAmbiance_CONST || PK_Screen_OnScreen==SCREEN_mnuVolume_CONST || PK_Screen_OnScreen==SCREEN_mnuLights_CONST)) )
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown removing menu");
@@ -306,7 +311,9 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown stopping media %d %d==%d | %d",m_pOrbiter->m_iPK_MediaType,PK_Screen_OnScreen,m_pOrbiter->m_iPK_Screen_Remote,m_pOrbiter->m_iPK_Screen_RemoteOSD);
 #endif
-		if( m_pOrbiter->m_iPK_MediaType && (PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_Remote || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_RemoteOSD) )
+		if( !m_pOrbiter->m_iPK_MediaType && PK_Screen_OnScreen==SCREEN_Main_CONST )
+			m_pOrbiter->StartScreenSaver(true);  // If the user hits the close button from the main menu, go to the screen saver
+		else if( m_pOrbiter->m_iPK_MediaType && (PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_Remote || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_RemoteOSD) )
 		{
 			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,0,0,"");
 			m_pOrbiter->SendCommand(CMD_MH_Stop_Media);

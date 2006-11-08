@@ -106,7 +106,6 @@ Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectE
     m_AllowedConnectionsMutex("allow connections")
 //<-dceag-const-e->
 {
-    m_bNoUnknownDeviceIsProcessing = false;
     pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
 	m_UnknownDevicesMutex.Init(&m_MutexAttr);
@@ -480,7 +479,6 @@ bool Orbiter_Plugin::PendingTasks(vector<string> *vectPendingTasks)
 void Orbiter_Plugin::ProcessUnknownDevice()
 {
 g_pPlutoLogger->Write(LV_STATUS,"in process");
-    m_bNoUnknownDeviceIsProcessing = true;
 
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 
@@ -503,10 +501,7 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
     }
 
     if(NULL == pUnknownDeviceInfos)
-	{
-		m_bNoUnknownDeviceIsProcessing = false;
         return; //no new unknown device to process
-	}
 
     string sDeviceCategory;
     int iPK_DeviceTemplate;
@@ -517,7 +512,6 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
         g_pPlutoLogger->Write(LV_STATUS, "skipping detection of %s.  it's just a dongle",sMacAddress.c_str());
         DCE::CMD_Ignore_MAC_Address CMD_Ignore_MAC_Address(m_dwPK_Device,pUnknownDeviceInfos->m_iDeviceIDFrom,sMacAddress);
         SendCommand(CMD_Ignore_MAC_Address);
-        m_bNoUnknownDeviceIsProcessing = false;
         return;
     }
 
@@ -611,11 +605,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
                 if(NULL == m_mapUnknownDevices_Find(sMacAddress))
                     m_mapUnknownDevices[sMacAddress] = new UnknownDeviceInfos(pMessage->m_dwPK_Device_From, sID);  // We need to remember who detected this device
                 mm.Release();
-
-				g_pPlutoLogger->Write(LV_STATUS,"Need to process.  Bit flag is: %d",(int) m_bNoUnknownDeviceIsProcessing);
-
-                if(!m_bNoUnknownDeviceIsProcessing) //the list was empty... we are processing the first unknown device
-                    ProcessUnknownDevice();
+                ProcessUnknownDevice();
             }
 			else
             {
@@ -1046,8 +1036,6 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 
 	int PK_UI=0;
 
-	m_bNoUnknownDeviceIsProcessing = false;
-
 	if( !iPK_DeviceTemplate )
 	{
 		string sDeviceCategory;
@@ -1283,8 +1271,6 @@ void Orbiter_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string sMac_
         pRow_Device->PK_UnknownDevices_get(),
         pRow_Device->MacAddress_get().c_str()
     );
-
-    m_bNoUnknownDeviceIsProcessing = false;
 
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 		m_dwPK_Device, m_sPK_Device_AllOrbiters, "", SCREEN_NewPhoneDetected_CONST);

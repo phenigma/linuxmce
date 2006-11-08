@@ -1417,6 +1417,15 @@ string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
 {
 	string sDescription;
 
+	if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="mobile_phone" )
+	{
+		sDescription = pPnpQueueEntry->m_sText;
+		if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().empty()==false )
+			sDescription += "(" + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + ")";
+		if( sDescription.empty()==false )
+			return sDescription;
+	}
+
 	Row_DeviceTemplate *pRow_DeviceTemplate = NULL;
 	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() )
 		pRow_DeviceTemplate = pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_getrow();

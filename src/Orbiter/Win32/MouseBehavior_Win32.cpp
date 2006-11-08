@@ -24,6 +24,7 @@ void MouseBehavior_Win32::SetMousePosition(int X,int Y)
 
 void MouseBehavior_Win32::ShowMouse(bool bShow)
 {
+	m_bMouseVisible=bShow;
 	ShowCursor(bShow);
 }
 

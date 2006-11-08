@@ -115,7 +115,6 @@ public:
 
 	pluto_pthread_mutex_t m_UnknownDevicesMutex;
 	pthread_mutexattr_t m_MutexAttr;
-    bool m_bNoUnknownDeviceIsProcessing;
 	string m_sPK_Device_AllOrbiters,m_sPK_Device_AllOrbiters_AllowingPopups;
 	map<int,OH_Orbiter *> m_mapRemote_2_Orbiter;
 	map<int,OH_Orbiter *> m_mapMD_2_Orbiter;

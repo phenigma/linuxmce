@@ -116,7 +116,7 @@ namespace DCE
 		int m_iPK_Button_Mouse_Last; // The last mouse button
 		unsigned long m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up; // When it was pressed
 		unsigned long m_dwTime_Last_Notch;
-		bool m_bMouseConstrained;
+		bool m_bMouseConstrained,m_bMouseVisible;
 		DesignObj_Orbiter *m_pObj_Previously_Highlighted;
 
 	public:

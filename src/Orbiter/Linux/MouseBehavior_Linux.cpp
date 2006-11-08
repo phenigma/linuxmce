@@ -73,6 +73,7 @@ void MouseBehavior_Linux::ShowMouse(bool bShow)
 	//SDL_ShowCursor(bShow ? SDL_ENABLE : SDL_DISABLE);
 
     // at show, we want to show the standard mouse cursor
+	m_bMouseVisible=bShow;
     g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ShowMouse %d",(int) bShow);
     if (bShow)
 	{
