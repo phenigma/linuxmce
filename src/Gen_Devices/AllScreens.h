@@ -2769,11 +2769,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_NewPhoneDetected(long DeviceIDFrom, long DeviceIDTo,
-			string sMac_address, string sDescription)
+			string sMac_address, string sDescription, int iPK_PnpQueue)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "67" /* screen ID */,
-				47 /* Mac Address */, sMac_address.c_str(), 163 /* Description */, sDescription.c_str());
+				47 /* Mac Address */, sMac_address.c_str(), 163 /* Description */, sDescription.c_str(), 224 /* The pnp queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -2781,11 +2781,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_NewPhoneDetected_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sMac_address, string sDescription)
+			string sMac_address, string sDescription, int iPK_PnpQueue)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "67" /* screen ID */,
-				47 /* Mac Address */, sMac_address.c_str(), 163 /* Description */, sDescription.c_str());
+				47 /* Mac Address */, sMac_address.c_str(), 163 /* Description */, sDescription.c_str(), 224 /* The pnp queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -2793,11 +2793,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_NewPhoneDetected_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sMac_address, string sDescription)
+			string sMac_address, string sDescription, int iPK_PnpQueue)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "67" /* screen ID */,
-				47 /* Mac Address */, sMac_address.c_str(), 163 /* Description */, sDescription.c_str());
+				47 /* Mac Address */, sMac_address.c_str(), 163 /* Description */, sDescription.c_str(), 224 /* The pnp queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -2805,11 +2805,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_NewPhoneDetected_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sMac_address, string sDescription)
+			string sMac_address, string sDescription, int iPK_PnpQueue)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "67" /* screen ID */,
-				47 /* Mac Address */, sMac_address.c_str(), 163 /* Description */, sDescription.c_str());
+				47 /* Mac Address */, sMac_address.c_str(), 163 /* Description */, sDescription.c_str(), 224 /* The pnp queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -3101,7 +3101,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "75" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
+				2 /* PK_Device if positive.  If negative, this is a PK_PnpQueue before a device is created */, StringUtils::ltos(iPK_Device).c_str(), 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
 		}
 	};
 
@@ -3113,7 +3113,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "75" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
+				2 /* PK_Device if positive.  If negative, this is a PK_PnpQueue before a device is created */, StringUtils::ltos(iPK_Device).c_str(), 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
 		}
 	};
 
@@ -3125,7 +3125,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "75" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
+				2 /* PK_Device if positive.  If negative, this is a PK_PnpQueue before a device is created */, StringUtils::ltos(iPK_Device).c_str(), 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
 		}
 	};
 
@@ -3137,7 +3137,7 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "75" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
+				2 /* PK_Device if positive.  If negative, this is a PK_PnpQueue before a device is created */, StringUtils::ltos(iPK_Device).c_str(), 163 /* Description */, sDescription.c_str(), 164 /* Comments */, ssComments.c_str());
 		}
 	};
 
@@ -8245,54 +8245,6 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_New_Phone_Enter_Number : public PreformedCommand
-	{
-	public:
-		SCREEN_New_Phone_Enter_Number(long DeviceIDFrom, long DeviceIDTo,
-			int iPK_Device, string sPhoneName)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
-				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 191 /* Phone Name */, sPhoneName.c_str());
-		}
-	};
-
-	class SCREEN_New_Phone_Enter_Number_DL : public PreformedCommand
-	{
-	public:
-		SCREEN_New_Phone_Enter_Number_DL(long DeviceIDFrom, string sDeviceIDTo,
-			int iPK_Device, string sPhoneName)
-		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
-				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 191 /* Phone Name */, sPhoneName.c_str());
-		}
-	};
-
-	class SCREEN_New_Phone_Enter_Number_DT : public PreformedCommand
-	{
-	public:
-		SCREEN_New_Phone_Enter_Number_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			int iPK_Device, string sPhoneName)
-		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
-				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 191 /* Phone Name */, sPhoneName.c_str());
-		}
-	};
-
-	class SCREEN_New_Phone_Enter_Number_Cat : public PreformedCommand
-	{
-	public:
-		SCREEN_New_Phone_Enter_Number_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			int iPK_Device, string sPhoneName)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
-				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
-				2 /* PK_Device */, StringUtils::ltos(iPK_Device).c_str(), 191 /* Phone Name */, sPhoneName.c_str());
-		}
-	};
-
 	class SCREEN_Need_Reload_Router : public PreformedCommand
 	{
 	public:
@@ -8586,46 +8538,6 @@ namespace DCE
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "210" /* screen ID */,
 				2 /* Device to be rebooted */, StringUtils::ltos(iPK_Device).c_str(), 192 /* AppServer device which will execute half command */, sPK_Device_AppServer.c_str());
-		}
-	};
-
-	class SCREEN_mnuMainMenu2 : public PreformedCommand
-	{
-	public:
-		SCREEN_mnuMainMenu2(long DeviceIDFrom, long DeviceIDTo)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "211" /* screen ID */);
-		}
-	};
-
-	class SCREEN_mnuMainMenu2_DL : public PreformedCommand
-	{
-	public:
-		SCREEN_mnuMainMenu2_DL(long DeviceIDFrom, string sDeviceIDTo)
-		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "211" /* screen ID */);
-		}
-	};
-
-	class SCREEN_mnuMainMenu2_DT : public PreformedCommand
-	{
-	public:
-		SCREEN_mnuMainMenu2_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
-		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "211" /* screen ID */);
-		}
-	};
-
-	class SCREEN_mnuMainMenu2_Cat : public PreformedCommand
-	{
-	public:
-		SCREEN_mnuMainMenu2_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "211" /* screen ID */);
 		}
 	};
 
@@ -9817,7 +9729,7 @@ namespace DCE
 		virtual void SCREEN_CurrentLocation(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_MediaAttributeSearchInput(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_MediaAttributeSearchResult(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMac_address, string sDescription){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMac_address, string sDescription, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_FirstTime(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_FileList_PlayLists(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_VideosRemote(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -9950,7 +9862,6 @@ namespace DCE
 		virtual void SCREEN_VOIP_Provider(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_AV_Devices(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_NAS_Options(long PK_Screen, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_New_Phone_Enter_Number(long PK_Screen, int iPK_Device, string sPhoneName){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Need_Reload_Router(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Need_Regen_Orbiter(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, string sOptions, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
@@ -9958,7 +9869,6 @@ namespace DCE
 		virtual void SCREEN_mnuPVRRecording(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Demo_Media(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Download_are_ready_to_install(long PK_Screen, int iPK_Device, string sPK_Device_AppServer){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_mnuMainMenu2(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_mnuAmbiance(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TVConfirmInputsToggle(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_mnuPVR_OSD_Full_Screen(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -10416,7 +10326,8 @@ namespace DCE
 					ResetCallBacks();
 					string sMac_address = pMessage->m_mapParameters[47];
 					string sDescription = pMessage->m_mapParameters[163];
-					SCREEN_NewPhoneDetected(nPK_Screen, sMac_address, sDescription);
+					int iPK_PnpQueue = atoi(pMessage->m_mapParameters[224].c_str());
+					SCREEN_NewPhoneDetected(nPK_Screen, sMac_address, sDescription, iPK_PnpQueue);
 					break;
 				}
 				case 68:
@@ -11240,14 +11151,6 @@ namespace DCE
 					SCREEN_NAS_Options(nPK_Screen, iPK_PnpQueue);
 					break;
 				}
-				case 203:
-				{
-					ResetCallBacks();
-					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
-					string sPhoneName = pMessage->m_mapParameters[191];
-					SCREEN_New_Phone_Enter_Number(nPK_Screen, iPK_Device, sPhoneName);
-					break;
-				}
 				case 204:
 				{
 					ResetCallBacks();
@@ -11291,12 +11194,6 @@ namespace DCE
 					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
 					string sPK_Device_AppServer = pMessage->m_mapParameters[192];
 					SCREEN_Download_are_ready_to_install(nPK_Screen, iPK_Device, sPK_Device_AppServer);
-					break;
-				}
-				case 211:
-				{
-					ResetCallBacks();
-					SCREEN_mnuMainMenu2(nPK_Screen);
 					break;
 				}
 				case 212:

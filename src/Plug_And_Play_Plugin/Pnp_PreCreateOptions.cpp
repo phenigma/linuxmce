@@ -59,6 +59,8 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice(PnpQueueEntry *pPnpQueueEntry)
 		return OkayToCreateDevice_NetworkStorage(pPnpQueueEntry,pRow_DeviceTemplate);
 	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Surveillance_Cameras_CONST) )
 		return OkayToCreate_Cameras(pPnpQueueEntry,pRow_DeviceTemplate);
+	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Mobile_Orbiter_CONST) )
+		return OkayToCreate_MobilePhone(pPnpQueueEntry,pRow_DeviceTemplate);
 
 	return true;
 }
@@ -126,6 +128,52 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Room(PnpQueueEntry *pPnpQueueEntry
 bool Pnp_PreCreateOptions::OkayToCreateDevice_AlarmPanel(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)
 {
 	return true;
+}
+
+bool Pnp_PreCreateOptions::OkayToCreate_MobilePhone(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)
+{
+	// The user must answer 2 questions before we create a network storage device: 1) use it automatically, 2) use our directory structure.  See which questions were answered
+	bool bUserSpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_PK_Users_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
+	bool bPhoneSpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Mobile_Orbiter_Phone_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreate_MobilePhone %d/%d",(int) bUseAutoSpecified,(int) bUseDirectorySpecified);
+#endif
+
+	if( bUserSpecified && bPhoneSpecified )
+	{
+		DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
+			 m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,  m_pPnpQueue->m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_New_Phone_Enter_Number_CONST);
+
+
+		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(CMD_Remove_Screen_From_History_DL);
+		return true;  // The user specified both options
+	}
+
+	if( bUserSpecified && !bPhoneSpecified && time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
+	{
+		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
+		return false;  // The user specified only 1 option.  Give him TIMEOUT_PROMPTING_USER seconds to specify the other
+	}
+
+	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
+		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
+	
+	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
+
+	if( pPnpQueueEntry->m_pOH_Orbiter )
+	{
+		DCE::SCREEN_NewPhoneDetected SCREEN_NewPhoneDetected(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
+			pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get(),m_pPnpQueue->GetDescription(pPnpQueueEntry),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_NewPhoneDetected);
+	}
+	else
+	{
+		DCE::SCREEN_NewPhoneDetected_DL SCREEN_NewPhoneDetected_DL(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, 
+			pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get(),m_pPnpQueue->GetDescription(pPnpQueueEntry),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_NewPhoneDetected_DL);
+	}
+	return false;
 }
 
 bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)

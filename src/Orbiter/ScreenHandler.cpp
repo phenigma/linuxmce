@@ -615,11 +615,12 @@ void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,int &iValue)
 }
 
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, string sDescription)
+void ScreenHandler::SCREEN_NewPhoneDetected(long PK_Screen, string sMac_address, string sDescription, int iPK_PnpQueue)
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sMacAddress);
+	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::itos(iPK_PnpQueue));
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sMac_address);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sDescription);
-	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sMacAddress, "", false, false );
+	ScreenHandlerBase::SCREEN_NewPhoneDetected(PK_Screen, sMac_address, sDescription, iPK_PnpQueue);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_WhatModelMobileOrbiter(long PK_Screen, int iPK_Users, string sMac_address)

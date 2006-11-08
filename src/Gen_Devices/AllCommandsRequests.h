@@ -21920,5 +21920,41 @@ namespace DCE
 			COMMANDPARAMETER_List_PK_Device_CONST, sList_PK_Device.c_str(),
 			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str()); }
 	};
+	class CMD_Stop_Pending_Command_Group : public PreformedCommand {
+	public:
+		CMD_Stop_Pending_Command_Group(long DeviceIDFrom, long DeviceIDTo,string sText,int iPK_CommandGroup,string sDescription) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Stop_Pending_Command_Group_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
+			COMMANDPARAMETER_PK_CommandGroup_CONST, StringUtils::itos(iPK_CommandGroup).c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str()); }
+	};
+	class CMD_Stop_Pending_Command_Group_DL : public PreformedCommand {
+	public:
+		CMD_Stop_Pending_Command_Group_DL(long DeviceIDFrom, string DeviceIDTo,string sText,int iPK_CommandGroup,string sDescription) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Stop_Pending_Command_Group_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
+			COMMANDPARAMETER_PK_CommandGroup_CONST, StringUtils::itos(iPK_CommandGroup).c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str()); }
+	};
+	class CMD_Stop_Pending_Command_Group_DT : public PreformedCommand {
+	public:
+		CMD_Stop_Pending_Command_Group_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sText,int iPK_CommandGroup,string sDescription) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Stop_Pending_Command_Group_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
+			COMMANDPARAMETER_PK_CommandGroup_CONST, StringUtils::itos(iPK_CommandGroup).c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str()); }
+	};
+	class CMD_Stop_Pending_Command_Group_Cat : public PreformedCommand {
+	public:
+		CMD_Stop_Pending_Command_Group_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sText,int iPK_CommandGroup,string sDescription) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Stop_Pending_Command_Group_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
+			COMMANDPARAMETER_PK_CommandGroup_CONST, StringUtils::itos(iPK_CommandGroup).c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str()); }
+	};
 }
 #endif

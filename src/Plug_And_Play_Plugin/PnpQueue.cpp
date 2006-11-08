@@ -434,6 +434,13 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 		bMatchingCategory=true;
 	}
 
+	if( vectRow_DHCPDevice.size()==0 )  // Try one last time just to find anything in that category
+	{
+		sSqlWhere = "Category='" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->Category_get()) + "'";
+		m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sSqlWhere,&vectRow_DHCPDevice);
+		bMatchingCategory=true;
+	}
+
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d has %d candidates",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) vectRow_DHCPDevice.size());
 #endif
@@ -1125,6 +1132,7 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 	g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Running_Detction_Scripts: %s", pPnpQueueEntry->ToString().c_str());
 #endif
 
+	// There's a special case for mobile phones since they have their own screen to prompt the user
 	if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==0 )
 	{
 		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);

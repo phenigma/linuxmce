@@ -291,6 +291,7 @@ public:
 	void EVENT_Follow_Me_Media(int iPK_Orbiter,int iPK_Users,int iPK_EntArea,int iPK_EntArea_Left);
 	void EVENT_Follow_Me_Telecom(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left);
 	void EVENT_Follow_Me_Security(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left);
+	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -543,7 +544,7 @@ format */
 	virtual void CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #820 - Check Media Providers */
+	/** @brief COMMAND: #821 - Check Media Providers */
 	/** Find media devices where there is no provider specified and prompt the user */
 
 	virtual void CMD_Check_Media_Providers() { string sCMD_Result; CMD_Check_Media_Providers(sCMD_Result,NULL);};

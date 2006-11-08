@@ -99,6 +99,23 @@ public:
 			EVENTPARAMETER_PK_Room_Left_CONST, StringUtils::itos(iPK_Room_Left).c_str()));
 	}
 
+	virtual void Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+			EVENT_Device_Detected_CONST,
+			10 /* number of parameter's pairs (id, value) */,
+			EVENTPARAMETER_Mac_Address_CONST, sMac_Address.c_str(),
+			EVENTPARAMETER_Text_CONST, sText.c_str(),
+			EVENTPARAMETER_IP_Address_CONST, sIP_Address.c_str(),
+			EVENTPARAMETER_PK_DeviceTemplate_CONST, StringUtils::itos(iPK_DeviceTemplate).c_str(),
+			EVENTPARAMETER_VendorModelID_CONST, sVendorModelID.c_str(),
+			EVENTPARAMETER_PK_CommMethod_CONST, StringUtils::itos(iPK_CommMethod).c_str(),
+			EVENTPARAMETER_PK_PnpProtocol_CONST, StringUtils::itos(iPK_PnpProtocol).c_str(),
+			EVENTPARAMETER_PNP_Serial_Number_CONST, sPNP_Serial_Number.c_str(),
+			EVENTPARAMETER_DeviceData_CONST, sDeviceData.c_str(),
+			EVENTPARAMETER_Category_CONST, sCategory.c_str()));
+	}
+
 };
 
 
@@ -304,6 +321,7 @@ public:
 	void EVENT_Follow_Me_Media(int iPK_Orbiter,int iPK_Users,int iPK_EntArea,int iPK_EntArea_Left) { GetEvents()->Follow_Me_Media(iPK_Orbiter,iPK_Users,iPK_EntArea,iPK_EntArea_Left); }
 	void EVENT_Follow_Me_Telecom(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Telecom(iPK_Orbiter,iPK_Room,iPK_Users,iPK_Room_Left); }
 	void EVENT_Follow_Me_Security(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Security(iPK_Orbiter,iPK_Room,iPK_Users,iPK_Room_Left); }
+	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory) { GetEvents()->Device_Detected(sMac_Address.c_str(),sText.c_str(),sIP_Address.c_str(),iPK_DeviceTemplate,sVendorModelID.c_str(),iPK_CommMethod,iPK_PnpProtocol,sPNP_Serial_Number.c_str(),sDeviceData.c_str(),sCategory.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};

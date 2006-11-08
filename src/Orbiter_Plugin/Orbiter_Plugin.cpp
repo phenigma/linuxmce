@@ -59,6 +59,8 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_FloorplanType.h"
+#include "pluto_main/Define_CommMethod.h"
+#include "pluto_main/Define_PnpProtocol.h"
 #include "pluto_main/Table_EntertainArea.h"
 #include "pluto_main/Table_FloorplanObjectType.h"
 #include "pluto_main/Table_FloorplanObjectType_Color.h"
@@ -527,10 +529,7 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 	Description += "  Category: " + sDeviceCategory;
 	Description += "  Bluetooth ID: " + pUnknownDeviceInfos->m_sID;
 
-	DCE::SCREEN_NewPhoneDetected_DL SCREEN_NewPhoneDetected_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters_AllowingPopups,
-		sMacAddress, Description);
-	SendCommand(SCREEN_NewPhoneDetected_DL);
-
+	EVENT_Device_Detected(sMacAddress,Description,"",0,"",COMMMETHOD_Bluetooth_CONST,PNPPROTOCOL_Proprietary_CONST,"","","mobile_phone");
 }
 
 bool Orbiter_Plugin::IdentifyDevice(const string& sMacAddress, string &sDeviceCategoryDesc, int &iPK_DeviceTemplate, string &sManufacturerDesc)
@@ -1250,10 +1249,6 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 			CMD_Send_File_To_Phone(sMac_address, sPlutoMOInstallCmdLine, dwPK_AppServer);
 
 		bDontSendInstructions = true;
-
-		SCREEN_New_Phone_Enter_Number SCREEN_New_Phone_Enter_Number_(m_dwPK_Device, pMessage->m_dwPK_Device_From, 
-			pRow_Device->PK_Device_get(), pUnknownDeviceInfos ? pUnknownDeviceInfos->m_sID : "N/A");
-		SendCommand(SCREEN_New_Phone_Enter_Number_);
     }
 
 g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
@@ -2816,7 +2811,7 @@ void Orbiter_Plugin::StartRetrievingScreenSaverFiles()
 		for(vector<string>::iterator it=vectApps.begin();it!=vectApps.end();++it)
 		{
 			string sFilename = FileUtils::FilenameWithoutPath(*it);
-			string sArguments = /*StringUtils::itos(DATA_Get_Quantity()) +*/ "7\t" +
+			string sArguments = StringUtils::itos(DATA_Get_Quantity()) + "\t" +
 				StringUtils::itos(DATA_Get_Width()) + "\t" +
 				StringUtils::itos(DATA_Get_Height()) + "\t" +
 				sOnlyRetrieveTags;
@@ -2873,30 +2868,6 @@ string Orbiter_Plugin::PK_Device_Orbiters_In_Room_get(int PK_Room, bool bOnlyAll
 		if( it->second->m_bRegistered && it->second->m_dwPK_Room==PK_Room && (!bOnlyAllowingPopups || it->second->m_bSendPopups) )
 			sPK_Device += StringUtils::itos(it->first) + ",";
 	return sPK_Device;
-}
-
-//<-dceag-c820-b->
-
-	/** @brief COMMAND: #820 - Check Media Providers */
-	/** Find media devices where there is no provider specified and prompt the user */
-
-void Orbiter_Plugin::CMD_Check_Media_Providers(string &sCMD_Result,Message *pMessage)
-//<-dceag-c820-e->
-{
-    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Check_Media_Providers");
-#endif
-	if( !DatabaseUtils::AlreadyHasUsers(m_pDatabase_pluto_main,m_pRouter->m_pRow_Installation_get()->PK_Installation_get()) ||
-		!DatabaseUtils::AlreadyHasRooms(m_pDatabase_pluto_main,m_pRouter->m_pRow_Installation_get()->PK_Installation_get()) )
-			return; // Don't do this until the user has setup his basic system
-
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Check_Media_Providers checking");
-#endif
-	if( PromptForMissingMediaProviders() )
-		return; // Only do 1 at a time
-	PromptForMissingCapture_Card_Port();
 }
 
 bool Orbiter_Plugin::PromptForMissingMediaProviders()
@@ -3012,3 +2983,26 @@ bool Orbiter_Plugin::PromptForMissingCapture_Card_Port()
 	return true;  // Only do 1 at a time
 }
 
+//<-dceag-c821-b->
+
+	/** @brief COMMAND: #821 - Check Media Providers */
+	/** Find media devices where there is no provider specified and prompt the user */
+
+void Orbiter_Plugin::CMD_Check_Media_Providers(string &sCMD_Result,Message *pMessage)
+//<-dceag-c821-e->
+{
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Check_Media_Providers");
+#endif
+	if( !DatabaseUtils::AlreadyHasUsers(m_pDatabase_pluto_main,m_pRouter->m_pRow_Installation_get()->PK_Installation_get()) ||
+		!DatabaseUtils::AlreadyHasRooms(m_pDatabase_pluto_main,m_pRouter->m_pRow_Installation_get()->PK_Installation_get()) )
+			return; // Don't do this until the user has setup his basic system
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Check_Media_Providers checking");
+#endif
+	if( PromptForMissingMediaProviders() )
+		return; // Only do 1 at a time
+	PromptForMissingCapture_Card_Port();
+}

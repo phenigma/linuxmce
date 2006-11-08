@@ -125,7 +125,7 @@ public:
 	bool MediaBrowser_Render(CallBackData *pData);
 	void SetMediaSortFilterSelectedObjects();
 	void GetAttributesForMediaFile(const char *pFilename);
-	virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, string sDescription);
+	virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMac_address, string sDescription, int iPK_PnpQueue);
 	virtual void SCREEN_WhatModelMobileOrbiter(long PK_Screen, int iPK_Users, string sMac_address);
 	virtual void SCREEN_Pick_Room_For_Device(long PK_Screen, int iPK_Device, string sDescription, string ssComments);
 	virtual void SCREEN_SensorsNotReady(long PK_Screen, string sDescription);
