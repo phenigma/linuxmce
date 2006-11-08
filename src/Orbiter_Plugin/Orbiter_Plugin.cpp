@@ -1038,10 +1038,6 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c78-e->
 {
- 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
-		m_dwPK_Device, m_sPK_Device_AllOrbiters, "", SCREEN_NewPhoneDetected_CONST);
-    SendCommand(CMD_Remove_Screen_From_History_DL);
-
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
     UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices_Find(sMac_address);
     if(pUnknownDeviceInfos && !iPK_DeviceTemplate)
@@ -1166,7 +1162,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 		iFK_Room = DatabaseUtils::GetRoomForDevice(m_pDatabase_pluto_main, pUnknownDeviceInfos->m_iDeviceIDFrom);
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
-	int PK_Device = createDevice.DoIt(0,iPK_DeviceTemplate,"",sMac_address);
+	int PK_Device = createDevice.DoIt(0,iPK_DeviceTemplate,"",sMac_address,0,"",0,iPK_Room);
 	(*iPK_Device) = PK_Device;
 
 	g_pPlutoLogger->Write(

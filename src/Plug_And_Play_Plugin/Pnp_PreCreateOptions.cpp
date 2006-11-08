@@ -103,6 +103,9 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Room(PnpQueueEntry *pPnpQueueEntry
 	if( pPnpQueueEntry->m_iPK_Room!=-1 )
 		return true; // The user already specified this
 
+	if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="mobile_phone" )
+		return true; // Mobile phones float around the house anyway
+
 	Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(),DEVICEDATA_Autoassign_to_parents_room_CONST);
 	if( pRow_DeviceTemplate_DeviceData && atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str()) )
 		return true; // We will automatically pick the room in create device
@@ -143,8 +146,8 @@ bool Pnp_PreCreateOptions::OkayToCreate_MobilePhone(PnpQueueEntry *pPnpQueueEntr
 	if( bUserSpecified && bPhoneSpecified )
 	{
 		DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
-			 m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,  m_pPnpQueue->m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_New_Phone_Enter_Number_CONST);
-
+			 m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,  m_pPnpQueue->m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,
+			 StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_NewPhoneDetected_CONST);
 
 		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(CMD_Remove_Screen_From_History_DL);
 		return true;  // The user specified both options

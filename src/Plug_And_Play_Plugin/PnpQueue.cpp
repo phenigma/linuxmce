@@ -92,6 +92,7 @@ void PnpQueue::Run()
 	ReadOutstandingQueueEntries();
 	while( m_pPlug_And_Play_Plugin->m_pRouter->m_bIsLoading_get() )
 		Sleep(1000); // Wait for the router to be ready before we start to process
+	Sleep(15000);  // Wait another 15 seconds for the on screen orbiter's to startup
 
 	pnp.Relock();
 	
@@ -814,6 +815,22 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 	if( !pRow_DeviceTemplate || !pCommand_Impl_GIP ) // They must all be here
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Add_Device something went wrong for queue %d (%p)!",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pCommand_Impl_GIP);
+		return true; // Delete this, something went terribly wrong
+	}
+
+	if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="mobile_phone" )
+	{
+		// For mobile phones we use the 'new orbiter' command instead
+		int PK_Device=0;
+		DCE::CMD_New_Orbiter CMD_New_Orbiter(m_pPlug_And_Play_Plugin->m_dwPK_Device,m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_dwPK_Device,
+			"",
+			atoi(pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_PK_Users_CONST].c_str()),
+			pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get(),
+			pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get(),
+			0,0,0,0,0,0,&PK_Device);
+		m_pPlug_And_Play_Plugin->SendCommand(CMD_New_Orbiter);
+		if( !PK_Device )
+			g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Add_Device couldn't create mobile phone queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 		return true; // Delete this, something went terribly wrong
 	}
 

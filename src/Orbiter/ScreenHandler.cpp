@@ -1554,16 +1554,6 @@ void ScreenHandler::SCREEN_Get_Username_Password_For_Devices(long PK_Screen, boo
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_New_Phone_Enter_Number(long PK_Screen, int iPK_Device, string sPhoneName)
-{
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::ltos(iPK_Device));
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPhoneName);
-
-	GotoScreen(SCREEN_New_Phone_Enter_Number_CONST,StringUtils::ltos(iPK_Device),true,true);
-	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::New_Phone_Enter_Number_DeviceConfigured,
-		new ObjectInfoBackData());
-}
-//-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::New_Phone_Enter_Number_DeviceConfigured(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
