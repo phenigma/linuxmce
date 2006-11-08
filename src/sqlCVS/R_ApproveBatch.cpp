@@ -47,6 +47,8 @@ R_ApproveBatch::R_ApproveBatch( string sRepository, int psc_batch, bool bReject 
 
 bool R_ApproveBatch::ProcessRequest( class RA_Processor *pRA_Processor )
 {
+	(( sqlCVSprocessor * ) pRA_Processor)->LogActivityTime();
+
 	cout << "Received approve batch: " << m_psc_batch << " for repository: " << m_sRepository << endl;
 	sqlCVSprocessor *psqlCVSprocessor = ( sqlCVSprocessor * ) pRA_Processor;
 	Repository *pRepository = g_GlobalConfig.m_pDatabase->m_mapRepository_Find( m_sRepository );

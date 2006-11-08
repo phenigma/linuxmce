@@ -62,6 +62,8 @@ R_UpdateTable::~R_UpdateTable( )
 
 bool R_UpdateTable::ProcessRequest( class RA_Processor *pRA_Processor )
 {
+	(( sqlCVSprocessor * ) pRA_Processor)->LogActivityTime();
+
 	cout << "R_Update start table: " << m_sTableName << " m_psc_batch_last_sync: " <<
 		m_psc_batch_last_sync << " m_psc_id_last_sync: " << m_psc_id_last_sync << endl;
 	sqlCVSprocessor *psqlCVSprocessor = ( sqlCVSprocessor * ) pRA_Processor;

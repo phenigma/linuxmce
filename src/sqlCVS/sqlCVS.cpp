@@ -305,6 +305,9 @@ int main( int argc, char *argv[] )
 			case 'C':
 				g_GlobalConfig.m_iMaxConnectAttemptCount = atoi( argv[++optnum] );
 				break;
+			case 'T':
+				g_GlobalConfig.m_iServerProcessorTimeout = atoi( argv[++optnum] );
+				break;
 			case '?':
 				bError=true;
 				break;
@@ -368,7 +371,8 @@ int main( int argc, char *argv[] )
 			<< "-O PK -N PK    -- For use with change_key command" << endl
 			<< "-A anonymous   -- Support authorization witn anonymous~anonymous" << endl
 			<< "                  username and password - all records are commited w/o quarantine" << endl
-			<< "-C attempts count  -- Maximal attempts to connect server if it's busy, default is unlimited" << endl;
+			<< "-C attempts count  -- Maximal attempts to connect server if it's busy, default is unlimited" << endl
+			<< "-T processor timeout  -- Timeout for server-side processor (seconds, default is 15 min)" << endl;
 
 		exit( 1 );
 	}

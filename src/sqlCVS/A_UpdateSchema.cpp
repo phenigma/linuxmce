@@ -42,6 +42,8 @@ using namespace sqlCVS;
 
 void A_UpdateSchema::ProcessAction(class RA_Request *pRequest,class RA_Processor *pRA_Processor)
 {
+	(( sqlCVSprocessor * ) pRA_Processor)->LogActivityTime();
+
 	Repository *pRepository = g_GlobalConfig.m_pDatabase->m_mapRepository_Find(m_sRepository);
 	if( pRequest->ID()!=R_COMMIT_CHANGES && pRequest->ID()!=R_UPDATE_REPOSITORY )
 	{

@@ -53,6 +53,8 @@ R_CommitRow::R_CommitRow( sqlCVS::ChangedRow *pChangedRow )
 
 bool R_CommitRow::ProcessRequest( class RA_Processor *pRA_Processor )
 {
+	(( sqlCVSprocessor * ) pRA_Processor)->LogActivityTime();
+
 if( m_psc_id==333 )
 {
 int k=2;

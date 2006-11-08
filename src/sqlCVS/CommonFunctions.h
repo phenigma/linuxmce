@@ -117,6 +117,7 @@ namespace sqlCVS
 		bool m_bNewDatabase,m_bVerify,m_bVerifyID,m_bAllowUnmetDependencies,m_bCheckinEveryone,m_bNoPrompts,m_bAllowAnonymousLogin;
 
 		int m_iMaxConnectAttemptCount;
+		int m_iServerProcessorTimeout;
 		/**
 		 * @ brief constructor
 		 */
@@ -140,6 +141,7 @@ namespace sqlCVS
 			m_iScreenWidth=dceConfig.ReadInteger("ScreenWidth",120);
 			m_bAllowAnonymousLogin=false;
 			m_iMaxConnectAttemptCount = -1;
+			m_iServerProcessorTimeout = 900;
 		}
 
 		string GetRestrictionClause(string sTableName,vector<int> *p_vectRestrictions=NULL)

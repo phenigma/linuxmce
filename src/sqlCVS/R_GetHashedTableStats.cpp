@@ -49,6 +49,8 @@ R_GetHashedTableStats::R_GetHashedTableStats(string sTable, vector<int> *p_vectR
 
 bool R_GetHashedTableStats::ProcessRequest( class RA_Processor *pRA_Processor )
 {
+	(( sqlCVSprocessor * ) pRA_Processor)->LogActivityTime();
+
 	cout << "R_GetHashedTableStats" << endl;
 	std::ostringstream sSQL;
 	// See notes in Table::DetermineDeletions

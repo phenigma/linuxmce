@@ -33,6 +33,8 @@
 
 bool R_CloseTransaction::ProcessRequest( class RA_Processor *pRA_Processor )
 {
+	(( sqlCVSprocessor * ) pRA_Processor)->LogActivityTime();
+
 	sqlCVSprocessor *psqlCVSprocessor = ( sqlCVSprocessor * ) pRA_Processor;
 	psqlCVSprocessor->RecordChangesToTable();
 	psqlCVSprocessor->st.Commit();

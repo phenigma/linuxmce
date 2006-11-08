@@ -59,6 +59,8 @@ R_CommitTable::~R_CommitTable( )
 
 bool R_CommitTable::ProcessRequest( class RA_Processor *pRA_Processor )
 {
+	(( sqlCVSprocessor * ) pRA_Processor)->LogActivityTime();
+
 	sqlCVSprocessor *psqlCVSprocessor = ( sqlCVSprocessor * ) pRA_Processor;
 
 	psqlCVSprocessor->RecordChangesToTable();

@@ -44,6 +44,8 @@ R_GetRow::R_GetRow( string sTable, int psc_id )
 
 bool R_GetRow::ProcessRequest( class RA_Processor *pRA_Processor )
 {
+	(( sqlCVSprocessor * ) pRA_Processor)->LogActivityTime();
+
 	sqlCVSprocessor *psqlCVSprocessor = ( sqlCVSprocessor * ) pRA_Processor;
 	Table *pTable = g_GlobalConfig.m_pDatabase->m_mapTable_Find( m_sTable );
 	if( !pTable )

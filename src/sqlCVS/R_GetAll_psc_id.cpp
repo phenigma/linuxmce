@@ -46,6 +46,8 @@ R_GetAll_psc_id::R_GetAll_psc_id( string sTable, vector<int> *p_vectRestrictions
 
 bool R_GetAll_psc_id::ProcessRequest( class RA_Processor *pRA_Processor )
 {
+	(( sqlCVSprocessor * ) pRA_Processor)->LogActivityTime();
+
 	cout << "R_GetAll_psc_id" << endl;
 	std::ostringstream sSQL;
 	// See notes in Table::DetermineDeletions

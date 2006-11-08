@@ -119,8 +119,26 @@ RA_Processor *RA_Processor::CreateRA_Processor(class RAServerSocket *pRAServerSo
 	{
 		cout << "There is still another processor open for " << (int) (time(NULL) - g_psqlCVSprocessor->tTime_Creation) <<
 			" seconds for IP: " << g_psqlCVSprocessor->m_pRAServerSocket->m_sIPAddress << endl;
-		pRAServerSocket->SendString("BUSY_RETRY");
-		return NULL;
+		
+		int iInactivityTime = (int) (time(NULL) - g_psqlCVSprocessor->tTime_LastActivity);
+		
+		cout << "It is inactive " << iInactivityTime << " seconds. ";
+		if (iInactivityTime<g_GlobalConfig.m_iServerProcessorTimeout)
+		{
+			cout << "Remote client has to wait, telling him we are busy" << endl;
+			pRAServerSocket->SendString("BUSY_RETRY");
+			return NULL;
+		}
+		else
+		{
+			cout << "Closing inactive processor, creating new one for the new client" << endl;
+			delete g_psqlCVSprocessor;
+			g_psqlCVSprocessor = NULL;
+		}
+	}
+	else
+	{
+			cout << "Creating new processor for the new client" << endl;
 	}
 
 	g_psqlCVSprocessor = new sqlCVSprocessor( pRAServerSocket );

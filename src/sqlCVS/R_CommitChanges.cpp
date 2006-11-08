@@ -48,6 +48,8 @@ R_CommitChanges::R_CommitChanges( string sRepository, string sDefaultUser, strin
 
 bool R_CommitChanges::ProcessRequest( class RA_Processor *pRA_Processor )
 {
+	(( sqlCVSprocessor * ) pRA_Processor)->LogActivityTime();
+
 	cout << "Received Commit changes for repository: " << m_sRepository << endl;
 	sqlCVSprocessor *psqlCVSprocessor = ( sqlCVSprocessor * ) pRA_Processor;
 	psqlCVSprocessor->m_sComments = m_sComments;
