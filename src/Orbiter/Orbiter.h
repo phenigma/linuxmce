@@ -150,6 +150,7 @@ namespace DCE
 		int m_iImageHeight; /** < image height */
 		bool m_bFullScreen,m_bUseOpenGL,m_bUseComposite,m_bReportTimeCode;;
 		bool m_bLoadDatagridImagesInBackground;
+		bool m_bShowingSpeedBar; // For UI2 this means we temporarily are displaying the speed bar because we're not at normal 1x speed
 		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
 		map<int,string> m_mapScanCodeToRemoteButton; /** < Map of scan codes to remote button names used by Infrared Plugin */
 		map< pair<int,int>,pair<int,int> > m_mapEventToSubstitute; /** < Replace a combination of event,button with event,button */
@@ -272,7 +273,8 @@ namespace DCE
 		ScreenHandler *m_pScreenHandler;//Used to change screens
 		class LocationInfo *m_pLocationInfo_Initial; // The initial location
 		DeviceData_Impl *m_pDevice_ScreenSaver;
-		bool m_bScreenSaverActive;
+		bool m_bScreenSaverActive; // true if the photo screen saver app is running.  not necessarily if the menu is at the screen saver because in ui2 the gallery viewer runs anytime there is no media
+		time_t m_tLastMouseMove;
 
 		AskXine_Socket *m_pAskXine_Socket;
 
@@ -436,7 +438,7 @@ namespace DCE
 		* @brief Handle the screen saver
 		*/
 		void ScreenSaver( void *data );
-		void StartScreenSaver();
+		void StartScreenSaver(bool bGotoScreenSaverDesignObj=true);
 		void StopScreenSaver();
 
 		/**
