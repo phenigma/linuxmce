@@ -11,18 +11,31 @@ use Image::Magick;
 use Data::Dumper;
 use DBI;
 #use strict;
-use vars qw($dest $xs $r @buff $child_count);
+use vars qw($dest $xs $r @buff $child_count $minW $minH @fileList);
 
 $child_count = 5;
 
 $SIG{CHLD}='sig_child';
+
+if (-e '/tmp/flickr_start'){
+	my $currentTime = `date +%s`;
+	my $lastRunTime = `stat --format=%Z /tmp/flickr_start`;
+	my $nrSeconds = $currentTime - $lastRunTime;
+	if ($nrSeconds > 18000){
+		`touch /tmp/flickr_start`;
+	} else {
+		exit (1);
+	}
+} else {
+	`touch /tmp/flickr_start`;
+}
 
 # Config section. ###########################################
 
 my $fKey  = '74e14e217ff6bfb670ccec36c0aa122b'; # the flickr key
 $dest  = '/home/flickr'; # Destination folder
 my $daycount = 0;
-my ($tDays, $minW, $minH, $api, $response, $id, $buff, $IMGS, $search_string);
+my ($tDays, $api, $response, $id, $buff, $IMGS, $search_string);
 
 # Code body ##############################################
 # my ($tDays,$minW,$minH,$api,$flag,$response,$xs,$r,$id,$buff,$IMGS,$ua,@buff,$tag,@tags,$finaldst,$fms,@out,$ffield,$search_string);
@@ -67,66 +80,57 @@ if (!-d $dest) {
 	mkdir("$dest"); 
 }
 
-#deleting old files;
-#delete_old();
-
 $api = new Flickr::API({'key' => $fKey});
+my ($max_number, $picture_nr);
+#$max_number = 5;
+$max_number = getMaxNrFiles();
+$picture_nr = 0;
 
 if ($search_string){
-	
         $response = $api->execute_method('flickr.photos.search',{
                 'tags'=>"$search_string",
                 'sort'=>'interestingness-desc'
         });
-        $xs = new XML::Simple;
-        $r=XMLin($response->{_content});
-
-        foreach $id (sort keys %{$r->{'photos'}->{'photo'}}) {
-                 $IMGS->{$id}->{'secret'}=$r->{'photos'}->{'photo'}->{$id}->{'secret'};
-		#print ">>>>$IMGS->{$id}->{'secret'}<<<<\n";
-        }
+	if ($response->{success} == 1) {
+		$xs = new XML::Simple;
+		$r=XMLin($response->{_content});
+		foreach $id (sort keys %{$r->{'photos'}->{'photo'}}) {
+			last if ($picture_nr >= $max_number);
+			my ($width, $height, $source, $download) = getPictureDimensions($id, $api);
+			if ($download){
+				#print ">>poza $id cu nr $picture_nr<<<\n";
+				$IMGS->{$id}->{'secret'}=$r->{'photos'}->{'photo'}->{$id}->{'secret'};
+				$IMGS->{$id}->{'width'}= $width;
+				$IMGS->{$id}->{'height'}= $height;
+				$IMGS->{$id}->{'source'}= $source;
+				#$IMGS->{$id}->{'download'} = $download;
+				$picture_nr++;
+			}
+		}
+	}
 	my $child_pid;
         foreach $id (keys %{$IMGS}) {
                 $response = $api->execute_method('flickr.photos.getInfo',{'photo_id' => $id , 'secret' => $IMGS->{$id}->{'secret'}});
                 if ($response->{success} == 1) {
-			print "get info for $id\n";
+			#print "get info for $id\n";
 			$r=XMLin($response->{_content});
 			$IMGS->{$id}->{'time'}=$r->{'photo'}->{'dates'}->{'posted'};
 			$IMGS->{$id}->{'format'}=$r->{'photo'}->{'originalformat'};
 			$IMGS->{$id}->{'username'}=$r->{'photo'}->{'owner'}->{'username'};
-			$IMGS->{$id}->{'download'} = 0;
 			$response= $api->execute_method('flickr.photos.getSizes',{'photo_id' => $id});
-			if ($response->{success} == 1) {
-				#print "get size for $id\n";
-				$r=XMLin($response->{_content});
-				foreach $buff (@{$r->{'sizes'}->{'size'}}) {
-					if ($buff->{'width'} >= $minW && $buff->{'height'} >= $minH) {
-						$IMGS->{$id}->{'width'}= $buff->{'width'};
-						$IMGS->{$id}->{'height'}= $buff->{'height'};
-						$IMGS->{$id}->{'source'}= $buff->{'source'};
-						$IMGS->{$id}->{'download'} = 1;
-						print "$IMGS->{$id}->{'width'} x $IMGS->{$id}->{'height'} for $id\n";
-					}
-				}
-				if ($IMGS->{$id}->{'download'} == 1){
-					wait_child();
-					if (!defined($child_pid = fork())) {
-						die "cannot fork: $!";
-					} elsif ($child_pid) {
-						# I'm the parent
-						next;
-					} else {
-						# I'm the child
-						get_files($search_string, $IMGS->{$id}, $id);
-						exit(0);
-					} 
-				}
-
-			} else {
-				print STDERR "Skipped $id during an error.\n";
-				print STDERR "Error Message : $response->{error_message}\n";
+			if (!isFileOnDisk($id, $IMGS->{$id}, $search_string)){
+				wait_child();
+				if (!defined($child_pid = fork())) {
+					die "cannot fork: $!";
+				} elsif ($child_pid) {
+					# I'm the parent
+					next;
+				} else {
+					# I'm the child
+					get_files($search_string, $IMGS->{$id}, $id);
+					exit(0);
+				} 
 			}
-
                 } else {
                         print STDERR "Skipped $id during an error.\n";
                         print STDERR "Error Message : $response->{error_message}\n";
@@ -135,8 +139,7 @@ if ($search_string){
 	#get_files($search_string);
 } else {
 	my $child_pid;
-	while ( $daycount < $tDays ) {
-	
+	while ( ($daycount < $tDays) and ($picture_nr < $max_number)) {
 		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime (time()-($daycount*24*60*60));
 		$year=1900+$year;
 		$mon=$mon+1;
@@ -154,63 +157,54 @@ if ($search_string){
 			$xs = new XML::Simple;
 			$r=XMLin($response->{_content});
 			foreach $id (sort keys %{$r->{'photos'}->{'photo'}}) {
-				$IMGS->{$id}->{'secret'}=$r->{'photos'}->{'photo'}->{$id}->{'secret'};
-			}
-			foreach $id (keys %{$IMGS}) {
-				$response = $api->execute_method('flickr.photos.getInfo',{'photo_id' => $id , 'secret' => $IMGS->{$id}->{'secret'}});
-				if ($response->{success} == 1) {
-					$r=XMLin($response->{_content});
-					$IMGS->{$id}->{'time'}=$r->{'photo'}->{'dates'}->{'posted'};
-					#$IMGS->{$id}->{'title'}=$r->{'photo'}->{'title'};
-					#$IMGS->{$id}->{'description'}=$r->{'photo'}->{'description'};
-					#$IMGS->{$id}->{'taken'}=$r->{'photo'}->{'dates'}->{'taken'};
-					#$IMGS->{$id}->{'tags'}="";
-					$IMGS->{$id}->{'username'}=$r->{'photo'}->{'owner'}->{'username'};
-					#$IMGS->{$id}->{'realname'}=$r->{'photo'}->{'owner'}->{'realname'};
-					#$IMGS->{$id}->{'location'}=$r->{'photo'}->{'owner'}->{'location'};
-					$IMGS->{$id}->{'format'}=$r->{'photo'}->{'originalformat'};
-					$IMGS->{$id}->{'download'} = 0;
-					if ($IMGS->{$id}->{'time'} > time()-($tDays*24*60*60)) {
-						$response= $api->execute_method('flickr.photos.getSizes',{'photo_id' => $id});
-						if ($response->{success} == 1) {
-							$r=XMLin($response->{_content});
-							foreach $buff (@{$r->{'sizes'}->{'size'}}) {
-								if ($buff->{'width'} >= $minW && $buff->{'height'} >= $minH) {
-									$IMGS->{$id}->{'width'}= $buff->{'width'};
-									$IMGS->{$id}->{'height'}= $buff->{'height'};
-									$IMGS->{$id}->{'source'}= $buff->{'source'};
-									$IMGS->{$id}->{'download'} = 1;
-								}
-							}
-							if ($IMGS->{$id}->{'download'} == 1){
-								wait_child();
-								if (!defined($child_pid = fork())) {
-									die "cannot fork: $!";
-								} elsif ($child_pid) {
-									# I'm the parent
-									next;
-								} else {
-									# I'm the child
-									get_files('', $IMGS->{$id}, $id);
-									exit(0);
-								} 
-							}
-						} else {
-							print STDERR "Skipped $id during an error.\n";
-							print STDERR "Error Message : $response->{error_message}\n";
-						}
-					} else {
-						$IMGS->{$id}->{'download'} = 0;
-					}
-				} else {
-					print STDERR "Skipped $id during an error.\n";
-					print STDERR "Error Message : $response->{error_message}\n";
+				last if ($picture_nr >= $max_number);
+				my ($width, $height, $source, $download) = getPictureDimensions($id, $api);
+				if ($download){
+					#print ">>poza $id cu nr $picture_nr<<<\n";
+					$IMGS->{$id}->{'secret'}=$r->{'photos'}->{'photo'}->{$id}->{'secret'};
+					$IMGS->{$id}->{'width'}= $width;
+					$IMGS->{$id}->{'height'}= $height;
+					$IMGS->{$id}->{'source'}= $source;
+					#$IMGS->{$id}->{'download'} = $download;
+					$picture_nr++;
 				}
 			}
-		}#if
+		}
 		$daycount++;
 	}#while
+
+	foreach $id (keys %{$IMGS}) {
+		$response = $api->execute_method('flickr.photos.getInfo',{'photo_id' => $id , 'secret' => $IMGS->{$id}->{'secret'}});
+		if ($response->{success} == 1) {
+			$r=XMLin($response->{_content});
+			$IMGS->{$id}->{'time'}=$r->{'photo'}->{'dates'}->{'posted'};
+			$IMGS->{$id}->{'username'}=$r->{'photo'}->{'owner'}->{'username'};
+			$IMGS->{$id}->{'format'}=$r->{'photo'}->{'originalformat'};
+			#look for the file existence
+			if (!isFileOnDisk($id, $IMGS->{$id},'')){
+				if ($IMGS->{$id}->{'time'} > time()-($tDays*24*60*60)) {
+					#print "Intru pt $id\n";
+					wait_child();
+					if (!defined($child_pid = fork())) {
+						die "cannot fork: $!";
+					} elsif ($child_pid) {
+						# I'm the parent
+						next;
+					} else {
+						# I'm the child
+						get_files('', $IMGS->{$id}, $id);
+						exit(0);
+					} 
+				}
+			}
+		} else {
+			print STDERR "Skipped $id during an error.\n";
+			print STDERR "Error Message : $response->{error_message}\n";
+		}
+	}
 }
+#deleting old files;
+delete_old();
 
 sub get_files{
 	my $pattern = shift;
@@ -289,6 +283,29 @@ sub get_files{
 }
 
 sub delete_old{
+	# Remove old files
+	#my $totalFiles = `find /home/flickr/ -name '*.jpg'  | wc -l`;
+	my $listOfFiles = `find /home/flickr/ -name '*.jpg'`;
+	my @arrayOfFiles = split (/\n/, $listOfFiles);
+	
+	foreach ( @arrayOfFiles ) {
+		if (!isFileInList($_)){
+			`rm -f $_`;
+		}
+	}
+}
+
+sub isFileInList {
+	my $file = shift;
+
+	foreach (@fileList) {
+		return 1 if ($_ eq $file);
+	}
+
+	return 0;
+}
+
+sub getMaxNrFiles {
 	my $dbh = DBI->connect('dbi:mysql:pluto_main');
 	my $sth = $dbh->prepare("
 		SELECT 
@@ -304,16 +321,53 @@ sub delete_old{
 	$sth->execute || die "Sql Error";
 	my $row = $sth->fetchrow_hashref;
 	my $noOfFilesToKeep = $row->{IK_DeviceData};
-	
-	# Remove old files
-	my $totalFiles = `find /home/flickr/ -name '*.jpg'  | wc -l`;
-	my $extraFiles = $noOfFilesToKeep - $totalFiles;
-	my $listToRemove = `find /home/flickr/ -name '*.jpg' | tail $extraFiles`;
-	my @arrayToRemove = split (/\n/, $listToRemove);
-	
-	foreach ( @arrayToRemove ) {
-		`rm -f $_`;
+	return $noOfFilesToKeep;
+}
+
+sub isFileOnDisk {
+	my $id = shift;
+	my $image = shift;
+	my $pattern = shift;
+	my $finaldst;
+
+	if ($pattern eq '') 
+	{
+		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($image->{'time'});
+		$year=1900+$year;
+		$mon=$mon+1;
+		$mon="0".$mon if($mon <= 9);
+		$mday="0".$mday if ($mday <=9);
+		$finaldst = $dest."/".$year."/".$mon."/".$mday."/".$id.".".$image->{'format'};
+	} else {
+		$finaldst = $dest."/".'tags'."/".$buff.".".$image->{'format'};
 	}
+	push (@fileList, $finaldst);
+	#print "destinatia: $finaldst \n";
+	if (!-e $finaldst){
+		return 0;
+	}
+	return 1;
+}
+
+sub getPictureDimensions {
+	my $id = shift;
+	my $api = shift;
+	my ($buff, $width, $height, $source, $download);
+	my $response= $api->execute_method('flickr.photos.getSizes',{'photo_id' => $id});
+	if ($response->{success} == 1) {
+		my $r=XMLin($response->{_content});
+		foreach $buff (@{$r->{'sizes'}->{'size'}}) {
+			if ($buff->{'width'} >= $minW && $buff->{'height'} >= $minH) {
+				print "$id are dimensiunile dorite\n";
+				$width = $buff->{'width'};
+				$height = $buff->{'height'};
+				$source = $buff->{'source'};
+				$download = 1;
+			}
+		}
+		return ($width, $height, $source, $download);
+	}
+	return (0,0,0,0)
 }
 
 sub sig_child {
