@@ -18,6 +18,7 @@
 #include "VIPShared/BD_PC_SelectedItem.h"
 #include "VIPShared/BD_PC_MouseEvent.h"
 #include "Win32/DrawTextExUTF8.h"
+#include "PlutoUtils/PlutoDefs.h"
 
 using namespace DCE;
 
@@ -108,6 +109,7 @@ OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hIns
 	m_nBkgndImageType = 0;
 	m_pBkgndImage_Size = 0;
 	m_pBkgndImage_Data = NULL;
+	m_pBkgndImage_Repaint = false;
 
 //#define TEST_DATAGRID
 #ifdef TEST_DATAGRID
@@ -234,7 +236,10 @@ OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hIns
 	
 	ShowDisconnected();
 	RefreshScreen();
-//	Hide();
+	
+	m_bTimerUp = false;
+	if ( SetTimer( SLEEP_TIMER_ID, SLEEP_TIMER_TIMEOUT ) )
+		m_bTimerUp = true;
 
 	return true;
 }
@@ -242,11 +247,7 @@ OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hIns
 /*virtual*/ void OrbiterApp::GameEnd()
 {
 	// Clearing LRMenu
-	if ( m_pMainMenu ) {
-		delete m_pMainMenu;
-		m_pMainMenu = NULL;
-	}
-
+	PLUTO_SAFE_DELETE( m_pMainMenu )
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::GameLoop()
@@ -344,16 +345,19 @@ void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongK
 	}	
 	switch(*wParam){		
 		case VK_LWIN: *wParam = 0; break; // sends VK_LWIN most the time -> not a real key
-		case 0xC2: *wParam = VK_ESCAPE; break; // <Ok> Short
-		case 0xC1: *wParam = VK_LWIN; break; // <LWin>	Short	
+		case 0xC2: *wParam = VK_ESCAPE; *bLongKey = false; break; // <Ok> Short
+		case 0xC1: *wParam = VK_LWIN; *bLongKey = false; break; // <LWin>	Short	
 		case 228:
 		case VK_F4: *wParam = VK_F4; *bLongKey = true; break; // <EndCall> Long
 
 		case 0xC5: *wParam = VK_ESCAPE; *bLongKey = true; break; // <Ok> Long
 
+		case 0xC8: *wParam = VK_F4; *bLongKey = false; break; // <EndCall> Short
+
 		case '8': if ( bLastKeyShift ) *wParam = VK_NUMPAD8; break;// *
 		case '3': if ( bLastKeyShift ) *wParam = VK_NUMPAD9; break;// #	
-	}
+		
+	}	
 }
 #endif
 
@@ -389,20 +393,18 @@ void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongK
 		SendKey(nPK_Button ? nPK_Button : - wParam, uMsg == WM_KEYUP);
 		return;
 	}
-	HMENU hTest;
 
 	// Handle keys on local rendered menus
 	if ( m_pMainMenu ) {
 		if ( m_pMainMenu->HandleKeys( nPK_Button, uMsg == WM_KEYUP ) ) return;
 	}
-	
 
 	m_bNeedRefresh = false;
 
 	//handles data grid keys
 	bool bRes1 = HandleDataGridKeys(nPK_Button, uMsg == WM_KEYUP); //handles up, down and enter for data grid
 	bool bRes2 = HandleAutomaticDataGridScrolling(nPK_Button, uMsg == WM_KEYUP); //handles data grid automatic scroll
-
+	
 	if(bRes1 || bRes2)
 	{
 		if(m_bNeedRefresh)
@@ -410,7 +412,9 @@ void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongK
 
 		return;
 	}
-	
+
+	if(m_bDataKeys)
+		return;
 
 	//handles capture keyboard keys
 	if(HandleCaptureKeyboardKeys(nPK_Button, uMsg == WM_KEYUP, bIsLongKey))
@@ -421,8 +425,6 @@ void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongK
 		return; 
 	}
 
-	if(m_bDataKeys)
-		return;
 
 	if(uMsg == WM_KEYUP)
 	{
@@ -721,12 +723,16 @@ void OrbiterApp::RenderDataGrid(unsigned long ulX, unsigned long ulY, unsigned l
 	const int cnSmallOffsetY = 14;
 	const int cnShadowLen = 3;
 
+
+	
 	int nVisibleItems = ulHeight / nRowHeight;
 	nRowHeight = ulHeight / nVisibleItems;
 
 	GetDisplay()->FillRect(ulX, ulY, ulX + ulWidth, ulY + nRowHeight * nVisibleItems, GetColor16(darkGray));
 
 	int i = 0;
+
+/*
 	//let's see how many items are visible right now
 	for(i = m_ulGridTopItem; i < m_ulGridTopItem + nVisibleItems; i++)
 	{
@@ -761,6 +767,55 @@ void OrbiterApp::RenderDataGrid(unsigned long ulX, unsigned long ulY, unsigned l
 	if(ulGridBottomItem > vectDataGrid.size())
 		ulGridBottomItem = vectDataGrid.size();
 
+*/  
+	unsigned long ulGridBottomItem = 0;
+	CalcDataGridItemsLayout( ulGridBottomItem, nRowHeight );
+
+#if defined(SMARTPHONE2005)	
+	bool bHasScroll = true;
+	//if ( m_vectDataGrid.size()==ulGridBottomItem ) bHasScroll = false;
+	
+
+	if ( bHasScroll ) { //Draw scroll bar
+		ulWidth -= DEFAULT_DATAGRID_SCROLLWIDTH;
+		GetDisplay()->FillRect( ulX + ulWidth,
+								ulY,
+								ulX + ulWidth + DEFAULT_DATAGRID_SCROLLWIDTH,
+								ulY + ulHeight,
+								GetColor16(blue_lite)
+								);		
+		GetDisplay()->DrawRect( ulX + ulWidth,
+								ulY,
+								ulX + ulWidth + DEFAULT_DATAGRID_SCROLLWIDTH,
+								ulY + ulHeight,
+								GetColor16(darkGray)
+								);		
+		GetDisplay()->DrawRect( ulX + ulWidth,
+								ulY,
+								ulX + ulWidth + DEFAULT_DATAGRID_SCROLLWIDTH,
+								ulY + DEFAULT_DATAGRID_SCROLLWIDTH,
+								GetColor16(darkGray)
+								);
+		GetDisplay()->DrawRect( ulX + ulWidth,
+								ulY + ulHeight - DEFAULT_DATAGRID_SCROLLWIDTH,
+								ulX + ulWidth + DEFAULT_DATAGRID_SCROLLWIDTH,
+								ulY + ulHeight,
+								GetColor16(darkGray)
+								);
+		Point UpperTrg[3] = {
+							 Point(ulX + ulWidth+2, ulY+DEFAULT_DATAGRID_SCROLLWIDTH-2), 
+							 Point(ulX + ulWidth+DEFAULT_DATAGRID_SCROLLWIDTH-1, ulY+DEFAULT_DATAGRID_SCROLLWIDTH-2), 
+							 Point(ulX + ulWidth+DEFAULT_DATAGRID_SCROLLWIDTH/2, ulY+1 ) 
+							};
+		Point LowerTrg[3] = {
+							 Point(ulX + ulWidth+2, ulY+ulHeight-DEFAULT_DATAGRID_SCROLLWIDTH+1), 
+							 Point(ulX + ulWidth+DEFAULT_DATAGRID_SCROLLWIDTH-1, ulY+ulHeight-DEFAULT_DATAGRID_SCROLLWIDTH+1), 
+							 Point(ulX + ulWidth+DEFAULT_DATAGRID_SCROLLWIDTH/2, ulY+ulHeight-2 ) 
+							};
+		GetDisplay()->FillPoly( UpperTrg, 3, GetColor16(liteGray) );
+		GetDisplay()->FillPoly( LowerTrg, 3, GetColor16(liteGray) );
+	}
+#endif
 	int nExpandOffset = 0;
 	string s1, s2;
 
@@ -825,11 +880,12 @@ void OrbiterApp::RenderDataGrid(unsigned long ulX, unsigned long ulY, unsigned l
 
 		COLORREF ItemColor = m_ulGridSelectedItem == i ? black : white;
 
-		RenderText(s1, ulX + cnSmallOffsetX, ulY +  (i - m_ulGridTopItem) * nRowHeight + nExpandOffset, ulWidth, nRowHeight, ItemColor);
+		RenderText(s1, ulX + cnSmallOffsetX, ulY +  (i - m_ulGridTopItem) * nRowHeight + nExpandOffset, ulWidth - cnSmallOffsetX, 
+				   nRowHeight, ItemColor);
 		if(nBNpos != string::npos)
 		{
 			RenderText(s2, ulX + cnSmallOffsetX, ulY + (i - m_ulGridTopItem) * nRowHeight + nExpandOffset + nItemSizeOffset, 
-				ulWidth, nRowHeight, ItemColor);
+				ulWidth - cnSmallOffsetX, nRowHeight, ItemColor);
 
 			nExpandOffset += nRowHeight;
 		}
@@ -889,11 +945,16 @@ void OrbiterApp::RefreshScreen()
 		// try updating background and repainting manu
 			if ( NULL != m_pBkgndImage_Data ) {
 				DrawImage( m_nBkgndImageType, m_pBkgndImage_Data, m_pBkgndImage_Size, 0, 0, 0, 0 );		
+				m_pBkgndImage_Repaint = false;
 			}
 		m_pMainMenu->Paint( m_bMainMenuRepaint );
 		m_bMainMenuRepaint = false;
 	}
 	else { // there's no local rendered menu active
+		if ( m_pBkgndImage_Repaint && NULL != m_pBkgndImage_Data ) {
+			DrawImage( m_nBkgndImageType, m_pBkgndImage_Data, m_pBkgndImage_Size, 0, 0, 0, 0 );		
+			m_pBkgndImage_Repaint = false;
+		}
 		if(NULL != m_pMenu || (m_pImageStatic_Size && m_pImageStatic_Data))
 		{
 			if(!m_bRender_SignalStrengthOnly)
@@ -1333,9 +1394,9 @@ bool OrbiterApp::ClearAllEdit()
 //------------------------------------------------------------------------------------------------------------------
 bool OrbiterApp::ScrollListUp()
 {
-	m_bRedrawOnlyGrid = true;
 	if(m_ulGridSelectedItem > 0)
 	{
+		m_bRedrawOnlyGrid = true;
 		m_ulGridSelectedItem--;
 		if(m_bGridSendSelectedOnMove)
 			SelectCurrentItem();
@@ -1348,9 +1409,9 @@ bool OrbiterApp::ScrollListUp()
 //---------------------------------------------------------------------------------------------------------
 bool OrbiterApp::ScrollListDown()
 {
-	m_bRedrawOnlyGrid = true;
 	if(m_ulGridSelectedItem < m_vectDataGrid.size() - 1)
 	{
+		m_bRedrawOnlyGrid = true;
 		m_ulGridSelectedItem++;
 		if(m_bGridSendSelectedOnMove)
 			SelectCurrentItem(); 
@@ -1394,6 +1455,7 @@ void OrbiterApp::AutomaticallyScrollDataGrid(bool bKeyUp)
 
 	m_bScrollUp = bKeyUp;
 	::SetTimer(m_hWnd, ScrollTimerId, 250, ScrollTimerCallBack);
+	
 }
 //------------------------------------------------------------------------------------------------------------------
 void OrbiterApp::SetCurrentSignalStrength(int nSignalStrength) 
@@ -1589,8 +1651,8 @@ void OrbiterApp::Hide()
 	::ShowWindow(::GetDesktopWindow(), SW_SHOW);
 	
 
-	#if defined(SMARTPHONE2005)	//--- CHANGED4WM5 ----//
-		//SetKeybdHook( true );
+	#if defined(SMARTPHONE2005) && defined(_TEST_KEYBOARD_HOOK) 	//--- CHANGED4WM5 ----//
+		SetKeybdHook( true );
 	#endif
 }
 //------------------------------------------------------------------------------------------------------------------
@@ -1607,8 +1669,8 @@ void OrbiterApp::Show()
 	Sleep(50);
 	::MessageBeep(MB_ICONQUESTION);
 
-	#if defined(SMARTPHONE2005)	//--- CHANGED4WM5 ----//
-		//SetKeybdHook( );
+	#if defined(SMARTPHONE2005) && defined(_TEST_KEYBOARD_HOOK) 	//--- CHANGED4WM5 ----//
+		SetKeybdHook( );
 	#endif
 }
 //------------------------------------------------------------------------------------------------------------------
@@ -1632,6 +1694,7 @@ void OrbiterApp::SetBkgndImage( unsigned char nImageType, int nSize, char *pData
 	memcpy(m_pBkgndImage_Data, pData, nSize);
 
 	m_bMainMenuRepaint = true;
+	m_pBkgndImage_Repaint = true;
 
 	RefreshScreen();
 }
@@ -1659,6 +1722,8 @@ void OrbiterApp::CheckBookmarks( void )
 	
 }
 
+#if defined(SMARTPHONE2005) && defined(_TEST_KEYBOARD_HOOK) 	//--- CHANGED4WM5 ----//
+
 
 const int WH_KEYBOARD_LL = 20;
 
@@ -1683,9 +1748,8 @@ LRESULT CALLBACK HookProcedure(int nCode, WPARAM wParam, LPARAM lParam)
 	return CallNextHookEx(hHook, nCode, wParam, lParam);
 }
 
-#if defined(SMARTPHONE2005)	//--- CHANGED4WM5 ----//
 void OrbiterApp::SetKeybdHook( bool bClear )
-{/*
+{
 	if ( bClear ) {
 		if ( hHook ) {
 			UnhookWindowsHookEx( hHook );			
@@ -1695,15 +1759,16 @@ void OrbiterApp::SetKeybdHook( bool bClear )
 	}
 	else {
 		pInst = this;
-		hHook = SetWindowsHookExW(WH_KEYBOARD_LL, HookProcedure, GetModuleHandle(NULL), 0);
+		//hHook = SetWindowsHookExW(WH_KEYBOARD_LL, HookProcedure, GetModuleHandle(NULL), 0);
 		if ( !hHook )
 			g_pPlutoLogger->Write(LV_STATUS,"OrbiterApp::SetkeybdHook - Hooking err!");
 		else 
 			g_pPlutoLogger->Write(LV_STATUS,"OrbiterApp::SetkeybdHook - Hook installed!");
 	}
-	*/
+	
 }
 #endif
+
 
 /*
  
@@ -1823,6 +1888,7 @@ bool CSmartphone2003Favorites::DelLinkFromFavorites(LPCTSTR pszName)
 void OrbiterApp::SetMenuData( MenuData& data )
 {
 	#ifdef _LOCAL_RENDERED_OBJECTS_
+		PLUTO_SAFE_DELETE( m_pMainMenu )
 		m_pMainMenu = data.CreateMainMenu();
 		if ( m_pMainMenu ) {
 			RECT rr = {0, 0, APP_WIDTH, APP_HEIGHT};
@@ -1839,6 +1905,7 @@ void OrbiterApp::SetMenuData( MenuData& data )
 
 void OrbiterApp::SendConfiguration( void )
 {
+	
 	#ifdef _LOCAL_RENDERED_OBJECTS_
 		if(!m_pBDCommandProcessor->m_bClientConnected )
 			return;
@@ -1848,6 +1915,7 @@ void OrbiterApp::SendConfiguration( void )
 		BDCommand *pCommand = new BD_PC_Configure( cfg );
 		m_pBDCommandProcessor->AddCommand(pCommand);
 	#endif
+	
 }
 
 //------------------------------------------------------------------------------------------------------------------
@@ -1879,9 +1947,36 @@ bool OrbiterApp::HandleDataGridStylus( int iX, int iY )
 	unsigned long ulGridBottomItem = 0;
 	int nRowHeight = 0;
 	CalcDataGridItemsLayout( ulGridBottomItem, nRowHeight );
+
+	// Check for stylus inside scroll buttons
+	if ( iY > m_ulGridY && 
+		 iY < m_ulGridY+DEFAULT_DATAGRID_SCROLLWIDTH &&
+		 iX > m_ulGridX + m_ulGridWidth - DEFAULT_DATAGRID_SCROLLWIDTH && 
+		 iX < m_ulGridX + m_ulGridWidth ) 
+	{	
+		if ( m_ulGridSelectedItem > 0 ) {
+			m_ulGridSelectedItem--;
+			SelectCurrentItem();
+		}
+		return true;
+	}
+	if ( iY > m_ulGridY + m_ulGridHeight - DEFAULT_DATAGRID_SCROLLWIDTH && 
+		 iY < m_ulGridY + m_ulGridHeight &&
+		 iX > m_ulGridX + m_ulGridWidth - DEFAULT_DATAGRID_SCROLLWIDTH && 
+		 iX < m_ulGridX + m_ulGridWidth ) 
+	{	
+		if ( m_ulGridSelectedItem < m_vectDataGrid.size()-1 ) {
+			m_ulGridSelectedItem++;
+			SelectCurrentItem();
+		}
+		return true;
+	}
+
+	// Check for stylus inside items
 	int nCrtPos = m_ulGridY;
 	for(int i = m_ulGridTopItem; i < ulGridBottomItem; i++){
-		if ( iY>nCrtPos && iY<nCrtPos+nRowHeight ) {	
+		if ( iY>nCrtPos && iY<nCrtPos+nRowHeight &&
+			iX<m_ulGridX+m_ulGridWidth-DEFAULT_DATAGRID_SCROLLWIDTH ) {	
 			m_ulGridSelectedItem = i;
 			SelectCurrentItem();
 			SendKey( BUTTON_Enter_CONST, 2 );
@@ -1934,4 +2029,41 @@ void OrbiterApp::CalcDataGridItemsLayout( unsigned long &ulBottomItem, int &nRow
 	ulBottomItem = m_ulGridTopItem + nVisibleItems;
 
 	if( ulBottomItem > m_vectDataGrid.size() )	ulBottomItem = m_vectDataGrid.size();	
+}
+//------------------------------------------------------------------------------------------------------------------
+LRESULT OrbiterApp::OnTimer( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled )
+{
+	if ( wparam==SLEEP_TIMER_ID ) {
+		bHandled = TRUE;
+		m_bTimerUp = false;
+		KillTimer( SLEEP_TIMER_ID );
+		if(!m_pBDCommandProcessor->m_bClientConnected ) 
+			Hide();
+	}
+	return 0;
+}
+//------------------------------------------------------------------------------------------------------------------
+void OrbiterApp::Connected( void )
+{
+	if ( m_bTimerUp ) {
+		m_bTimerUp = false;
+		KillTimer( SLEEP_TIMER_ID );		
+	}
+}
+//-----------------------------------------------------------------------------------------------------------------
+void OrbiterApp::ShowMenu( long nCrtRoom )
+{
+	if ( m_pMainMenu ) 
+		if ( !m_pMainMenu ->IsShowing() ) {
+			Reset();
+			if ( m_pBkgndImage_Data ) {
+				m_pBkgndImage_Repaint = true;
+				RefreshScreen();
+			}
+			LRPhoneMenu* pPhoneMenu = dynamic_cast<LRPhoneMenu*>(m_pMainMenu);
+			if ( pPhoneMenu ) {
+				pPhoneMenu->SetCrtRoom( nCrtRoom );
+			}
+		}
+	
 }

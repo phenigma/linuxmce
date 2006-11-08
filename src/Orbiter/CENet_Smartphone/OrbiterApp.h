@@ -23,6 +23,10 @@ class LRMenu;
 #define MAX_URL_LENGTH 512
 
 #define DEFAULT_DATAGRID_ROWHEIGHT 20
+#define DEFAULT_DATAGRID_SCROLLWIDTH 15
+
+#define SLEEP_TIMER_TIMEOUT		10000
+#define SLEEP_TIMER_ID			3
 
 #if defined(_VC80_UPGRADE)		//--- CHANGED4WM5 ----//	
 	#define DisplayDevice Display
@@ -35,7 +39,14 @@ class CSmartphone2003Favorites;
 class OrbiterApp: public PlutoGame, public RenderMenu
 {
 private:
-    
+	BEGIN_MSG_MAP( OrbiterApp )
+		MESSAGE_HANDLER( WM_TIMER,		 OnTimer )
+		CHAIN_MSG_MAP( Game )
+	END_MSG_MAP()
+
+	LRESULT OnTimer( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled );
+	bool m_bTimerUp;
+
 	// local rendered main menu instance
 	LRMenu* m_pMainMenu;
 	// flag for full repainting main menu - when background image changes
@@ -78,6 +89,7 @@ private:
 	unsigned char m_nBkgndImageType;
 	unsigned long m_pBkgndImage_Size;
 	char *m_pBkgndImage_Data;
+	bool m_pBkgndImage_Repaint;
 
 	//datagrid
 	bool m_bGridExists;
@@ -184,6 +196,9 @@ public:
 	void Hide();
 	void Show();
 
+	// called by CommandProcessor - kills sleep timer
+	void Connected( void );
+
 	//datagrid automatic scroll
 	bool ScrollListUp();
 	bool ScrollListDown();
@@ -214,6 +229,8 @@ public:
 	void SendSelectedItem( string sItemId );
 	// - sent: Mouse event (Stylus event)
 	void SendMouseEvent( int iX, int iY, int EventType );
+	// - received: Shows Menu
+	void ShowMenu( long nCrtRoom );
 
 	// - outgoing
 	void SendKey(int nKeyCode, int nEventType);

@@ -40,6 +40,7 @@
 
 #include "../VIPShared/BD_CP_SetBkgndImage.h"
 #include "../VIPShared/BD_PC_MouseEvent.h"
+#include "../VIPShared/BD_CP_ShowMenu.h"
 #include "Orbiter/TextStyle.h"
 
 #define ADVANCED_OPTIONS_SCREEN "2022"
@@ -315,12 +316,9 @@ void OrbiterBluetooth::HandleMouseEvent( int iX, int iY, int EventType )
 {
 	switch ( (BD_PC_MouseEvent::MouseEventType)EventType ){
 		case BD_PC_MouseEvent::meMove:
-
-			g_pPlutoLogger->Write(LV_WARNING, "#	Move at: %d %d!", iX, iY );
 			break;
 		case BD_PC_MouseEvent::meStylusDown:
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "#	StylusDown at: %d %d!", iX, iY );
 				/*
 				* Simulate Mouse click at iX, iY
 				*/
@@ -340,9 +338,22 @@ void OrbiterBluetooth::HandleMouseEvent( int iX, int iY, int EventType )
 			}
 			break;
 		case BD_PC_MouseEvent::meStylusUp:
-			g_pPlutoLogger->Write(LV_WARNING, "#	StylusUp at: %d %d!", iX, iY );
 			break;
 
 	}	
+}
+//-----------------------------------------------------------------------------------------------------
+void OrbiterBluetooth::ShowMenu( )
+{
+	int nCrtRoom = 0;
+	if ( m_pLocationInfo ) {
+		nCrtRoom =  m_pLocationInfo->iLocation;
+	}
+
+	// send BD_CP_SHOWMENU
+	if( m_pBDCommandProcessor ) {
+		BD_CP_ShowMenu *pBD_CP_ShowMenu = new BD_CP_ShowMenu( nCrtRoom );
+		m_pBDCommandProcessor->AddCommand( pBD_CP_ShowMenu );
+	}
 }
 //-----------------------------------------------------------------------------------------------------

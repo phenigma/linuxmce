@@ -31,6 +31,7 @@
 #include "BD_PC_SetImageQuality.h"
 #include "BD_PC_Configure.h"
 #include "BD_PC_SelectedItem.h"
+#include "BD_PC_MouseEvent.h"
 
 #include "BD/BD_HaveNothing.h"
 #include "BD_CP_SendMeKeystrokes.h"
@@ -45,7 +46,9 @@
 #include "BD_CP_CurrentSignalStrength.h"
 #include "BD_CP_MenuData.h"
 #include "BD_CP_SetBkgndImage.h"
-#include "BD_PC_MouseEvent.h"
+#include "BD_CP_ShowMenu.h"
+
+
 
 class BDCommand *BuildCommandFromData( unsigned long dwType )
 {
@@ -107,6 +110,8 @@ class BDCommand *BuildCommandFromData( unsigned long dwType )
 		return new BD_CP_SetBkgndImage();
 	case BD_CP_MENU_DATA:
 		return new BD_CP_MenuData();
+	case BD_CP_SHOW_MENU:
+		return new BD_CP_ShowMenu();
 
 	default:
 		// Log Error

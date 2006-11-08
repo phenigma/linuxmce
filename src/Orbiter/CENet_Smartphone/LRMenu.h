@@ -52,19 +52,19 @@ typedef unsigned char uchar;
 #define MENU_BACK_KEY	'b'
 //---------------------------------------------------------------------------------------------------------
 
+/*
 #define SAFE_DELETE( pointer ) { \
 							if ( pointer ) { \
 								delete pointer; \
 								pointer = NULL; \
 							} \
 		}
-
+*/
 #define RETURN_ON_TRUE( test ) { \
 							if ( test ) \
 								return; \
 		}
 
-#define CHECK_RENDERER( ) RETURN_ON_TRUE( !LocalRenderer::Valid() )
 #define CHECK_UPDATING( ) RETURN_ON_TRUE( m_bChanging )
 //---------------------------------------------------------------------------------------------------------
 
@@ -119,9 +119,6 @@ public:
 	// Application viewport - used to reset viewport 
 	static void SetAppViewport( Rect rViewport ) { m_rAppViewport = rViewport; }
 	static Rect& GetAppViewport( ) { return m_rAppViewport; }
-
-	// Check Display Device
-	static bool Valid() {  return GetDisplay()!=NULL; }
 
 };
 
@@ -428,7 +425,7 @@ public:
 
 	// Add menu item
 	LRMenuItem* AddItem( LRMenuItemData& ItemData );
-	void AddItem( LRMenuItem* pMenuItem );
+	virtual void AddItem( LRMenuItem* pMenuItem );
 
 	// Begin/End items list change - menu won't draw while items list is changing
 	void BeginUpdate() { m_bChanging = true; }
@@ -473,9 +470,12 @@ public:
  *	LRPhoneMenu - Phone menu
  *
  */
+class LRCrtRoomItem;
 class LRPhoneMenu: public LRMenu {
+protected:
+	LRCrtRoomItem* m_pCrtRoomItem;
 private:
-	LRPhoneMenu(){}
+	LRPhoneMenu(){m_pCrtRoomItem = NULL;}
 public:
 	typedef enum { tbcFore=0, tbcBack, tbcHlFore, tbcHlBack, tbcNone } TextBitsColor;
 protected:
@@ -485,6 +485,7 @@ protected:
 		m_pDisplayMenu = m_pMenuRoot;
 		m_bIsShowing = false;
 	}
+	
 
 public:		
 	// Constructor blocked so we can use CreateMenuRoot with LRPhoneMenuItemRoot
@@ -498,6 +499,11 @@ public:
 		if ( ColorIdx==tbcNone ) return RGB(0,0,0);
 		else return m_clTextColor[ColorIdx];
 	}
+
+	virtual void AddItem( LRMenuItem* pMenuItem );
+
+	// Set current room
+	void SetCrtRoom( long nCrtRoom );
 };
 
 /*
@@ -553,17 +559,21 @@ protected:
 	// reimplemented to add links in root menu when choosing a room
 	virtual bool DoAction( void );
 public:
+	LRRoomItem( LRMenuItem* pParent=NULL ):LRPhoneMenuItem(pParent) { 
+		m_iRoomId = -1;
+	}
+	LRRoomItem( LRMenuItemData& ItemData, LRMenuItem* pParent=NULL ):LRPhoneMenuItem( ItemData, pParent ){		
+		m_iRoomId = -1;
+	}
 	virtual LRMenuItem* AddItem( LRMenuItemData& ItemData ) { 
 		LRMenuItem* pItem = LRMenuItem::AddItem( ItemData ); 
 		pItem->SetVisible( false );
-		m_iRoomId = 0;
 		return pItem;
 	}
 
 	// All Scenarios are invisible - they'll be linked in root menu
 	virtual void AddItem( LRMenuItem* pMenuItem ) { 		
-		LRMenuItem::AddItem( pMenuItem ); 
-		m_iRoomId = 0;
+		LRMenuItem::AddItem( pMenuItem ); 		
 		pMenuItem->SetVisible( false );
 	}
 

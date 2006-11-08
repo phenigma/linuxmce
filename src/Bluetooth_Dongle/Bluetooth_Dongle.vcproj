@@ -221,6 +221,9 @@
 					RelativePath="..\VIPShared\BD_CP_ShowList.cpp">
 				</File>
 				<File
+					RelativePath="..\VIPShared\BD_CP_ShowMenu.cpp">
+				</File>
+				<File
 					RelativePath="..\VIPShared\BD_CP_ShowVMC.cpp">
 				</File>
 				<File
@@ -322,9 +325,6 @@
 				</File>
 				<File
 					RelativePath="..\Orbiter\PlutoGraphic.cpp">
-				</File>
-				<File
-					RelativePath="..\OrbiterGen\Renderer.cpp">
 				</File>
 				<File
 					RelativePath="..\Orbiter\RendererMNG.cpp">

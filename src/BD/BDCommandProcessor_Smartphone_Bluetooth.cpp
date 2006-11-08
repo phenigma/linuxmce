@@ -101,6 +101,8 @@ void *ServerThread(void *p)
 		pthread_create(&pBDCommandProcessor->m_ProcessCommandsThreadID, NULL, ProcessCommandsThread, 
 			(void*)pBDCommandProcessor); 
 
+		//--------------------------------------------
+		OrbiterApp::GetInstance()->Connected();
 		//------------ Send Configuration ------------
 		OrbiterApp::GetInstance()->SendConfiguration();
 		//-------

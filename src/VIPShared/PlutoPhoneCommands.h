@@ -28,6 +28,7 @@
 #define BD_CP_CURRENT_SIGNAL_STRENGTH   110
 #define BD_CP_SET_BKGND_IMAGE			111
 #define BD_CP_MENU_DATA					112
+#define BD_CP_SHOW_MENU					113
 
 
 class BDCommand *BuildCommandFromData( unsigned long dwType );

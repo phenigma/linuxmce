@@ -573,8 +573,66 @@ NODEP_CPP_BD_CP_SHO=\
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\VIPShared\BD_CP_ShowVMC.cpp
+SOURCE=..\..\VIPShared\BD_CP_ShowMenu.cpp
 DEP_CPP_BD_CP_SHOW=\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\BD\BDCommand.h"\
+	"..\..\BD\BDCommandProcessor.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\pluto_main\Define_Button.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\PlutoDefs.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\..\VIPDesign\VIPDesignDoc.h"\
+	"..\..\VIPShared\BD_CP_ShowMenu.h"\
+	"..\..\VIPShared\MenuData.h"\
+	"..\..\VIPShared\PlutoConfig.h"\
+	"..\..\VIPShared\PlutoPhoneCommands.h"\
+	"..\..\VIPShared\RenderMenu.h"\
+	"..\..\VIPShared\VIPIncludes.h"\
+	"..\..\VIPShared\VipMenu.h"\
+	"..\CENet\wince.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\TextStyle.h"\
+	".\OrbiterApp.h"\
+	".\stdafx.h"\
+	
+NODEP_CPP_BD_CP_SHOW=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\..\VIPShared\PlutoMOAppUi.h"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\VIPShared\BD_CP_ShowVMC.cpp
+DEP_CPP_BD_CP_SHOWV=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
@@ -603,7 +661,7 @@ DEP_CPP_BD_CP_SHOW=\
 	"..\CENet\wince.h"\
 	".\stdafx.h"\
 	
-NODEP_CPP_BD_CP_SHOW=\
+NODEP_CPP_BD_CP_SHOWV=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	"..\..\VIPShared\PlutoMOAppUi.h"\
 	
@@ -697,10 +755,8 @@ DEP_CPP_BD_PC=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
@@ -869,10 +925,8 @@ DEP_CPP_BD_PC_K=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
@@ -935,6 +989,89 @@ NODEP_CPP_BD_PC_K=\
 # Begin Source File
 
 SOURCE=..\..\VIPShared\BD_PC_MouseEvent.cpp
+DEP_CPP_BD_PC_M=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\BD\BDCommand.h"\
+	"..\..\BD\BDCommandProcessor.h"\
+	"..\..\BD\BDCommandProcessor_Linux_Bluetooth.h"\
+	"..\..\BD\BDCommandProcessor_Windows_Bluetooth.h"\
+	"..\..\Bluetooth_Dongle\Bluetooth_Dongle.h"\
+	"..\..\Bluetooth_Dongle\OrbiterBluetooth.h"\
+	"..\..\DCE\ClientSocket.h"\
+	"..\..\DCE\Command_Impl.h"\
+	"..\..\DCE\DeviceData_Base.h"\
+	"..\..\DCE\DeviceData_Impl.h"\
+	"..\..\DCE\Event_Impl.h"\
+	"..\..\DCE\HandleRequestSocket.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\Socket.h"\
+	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
+	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\LIRC_DCE\IRReceiverBase.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
+	"..\..\pluto_main\Define_DeviceTemplate.h"\
+	"..\..\pluto_main\Define_Event.h"\
+	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\Profiler.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\..\VIPShared\BD_PC_MouseEvent.h"\
+	"..\..\VIPShared\BDCommandProcessor_BluetoothDongle.h"\
+	"..\..\VIPShared\MenuData.h"\
+	"..\..\VIPShared\PhoneConfig.h"\
+	"..\..\VIPShared\PhoneDetection_Bluetooth_Linux.h"\
+	"..\..\VIPShared\PhoneDetection_Bluetooth_Windows.h"\
+	"..\..\VIPShared\PhoneDetection_Simulate.h"\
+	"..\..\VIPShared\PhoneDetectionEngine.h"\
+	"..\..\VIPShared\PlutoPhoneCommands.h"\
+	"..\..\VIPShared\VIPIncludes.h"\
+	"..\..\WinBluetooth\inc\BtIfClasses.h"\
+	"..\..\WinBluetooth\inc\BtIfDefinitions.h"\
+	"..\..\WinBluetooth\inc\com_error.h"\
+	"..\..\WinBluetooth\StdDll\BtServiceSelection.h"\
+	"..\..\WinBluetooth\StdDll\RfCommExp.h"\
+	"..\..\WinBluetooth\StdDll\StdDLLif.h"\
+	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
+	"..\CENet\wince.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_DataGrid.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\ObjectRendererFactory.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\PlutoGraphic.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_BD_PC_M=\
+	"..\..\level1\Controller\AppServer\ControllerAppServer.h"\
+	"..\..\level2\AppServer\MODCommandImpl.h"\
+	"..\..\pluto_dce\Table_Command.h"\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
 # End Source File
 # Begin Source File
 
@@ -1076,10 +1213,8 @@ DEP_CPP_BD_PC_S=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
@@ -1159,10 +1294,8 @@ DEP_CPP_BD_PC_SE=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
@@ -1244,10 +1377,8 @@ DEP_CPP_BD_PC_SET=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
@@ -1326,10 +1457,8 @@ DEP_CPP_BD_PC_SETV=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
@@ -1548,11 +1677,11 @@ DEP_CPP_BDCOMMA=\
 	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\TextStyle.h"\
 	".\OrbiterApp.h"\
+	{$(INCLUDE)}"bthapi.h"\
+	{$(INCLUDE)}"Ws2bth.h"\
 	
 NODEP_CPP_BDCOMMA=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\s2bth.h"\
-	".\thapi.h"\
 	
 # End Source File
 # Begin Source File
@@ -1681,6 +1810,7 @@ DEP_CPP_LRMEN=\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\PlutoDefs.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
@@ -1858,12 +1988,14 @@ DEP_CPP_ORBIT=\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\PlutoDefs.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\VIPShared\BD_PC_Configure.h"\
 	"..\..\VIPShared\BD_PC_GetSignalStrength.h"\
 	"..\..\VIPShared\BD_PC_KeyWasPressed.h"\
+	"..\..\VIPShared\BD_PC_MouseEvent.h"\
 	"..\..\VIPShared\BD_PC_SelectedFromList.h"\
 	"..\..\VIPShared\BD_PC_SelectedItem.h"\
 	"..\..\VIPShared\BD_PC_SetImageQuality.h"\
@@ -1881,14 +2013,14 @@ DEP_CPP_ORBIT=\
 	".\IncomingCallNotifier.h"\
 	".\LRMenu.h"\
 	".\OrbiterApp.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"vibrate.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_ORBIT=\
 	"..\..\BD\VipMenu.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\ibrate.h"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 # End Source File
 # Begin Source File
@@ -1932,6 +2064,7 @@ DEP_CPP_PLUTO=\
 	"..\..\VIPShared\BD_CP_SetBkgndImage.h"\
 	"..\..\VIPShared\BD_CP_ShowImage.h"\
 	"..\..\VIPShared\BD_CP_ShowList.h"\
+	"..\..\VIPShared\BD_CP_ShowMenu.h"\
 	"..\..\VIPShared\BD_CP_ShowVMC.h"\
 	"..\..\VIPShared\BD_CP_SimulateEvent.h"\
 	"..\..\VIPShared\BD_CP_UpdateVariables.h"\
@@ -1939,6 +2072,7 @@ DEP_CPP_PLUTO=\
 	"..\..\VIPShared\BD_PC_Disconnect.h"\
 	"..\..\VIPShared\BD_PC_GetSignalStrength.h"\
 	"..\..\VIPShared\BD_PC_KeyWasPressed.h"\
+	"..\..\VIPShared\BD_PC_MouseEvent.h"\
 	"..\..\VIPShared\BD_PC_OrderPlaced.h"\
 	"..\..\VIPShared\BD_PC_ReportingVariables.h"\
 	"..\..\VIPShared\BD_PC_ReportMyVersion.h"\

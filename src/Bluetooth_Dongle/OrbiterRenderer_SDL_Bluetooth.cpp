@@ -38,7 +38,7 @@ OrbiterRenderer_SDL_Bluetooth::~OrbiterRenderer_SDL_Bluetooth()
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL_Bluetooth::DisplayImageOnScreen(SDL_Surface *pScreenImage)
-{
+{	
 	OrbiterBluetooth *pOrbiterBluetooth = dynamic_cast<OrbiterBluetooth *>(OrbiterLogic());
 
 	if(NULL != pOrbiterBluetooth)
@@ -68,7 +68,13 @@ void OrbiterRenderer_SDL_Bluetooth::DisplayImageOnScreen(SDL_Surface *pScreenIma
 		}
 		else 
 		{
-			//not sending image... 
+			//not sending image...
+
+			//Sending ShowMenu command			
+			if ( SCREEN_Main_CONST==nPK_Screen && 
+				 pOrbiterBluetooth->GetPhoneConfig().GetMenuMode()==PhoneConfig::mmMenu ) {
+				 pOrbiterBluetooth->ShowMenu( );
+			}
 		}
 
 	}

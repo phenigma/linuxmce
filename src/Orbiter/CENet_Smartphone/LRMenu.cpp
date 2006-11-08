@@ -1,5 +1,7 @@
 #include "LRMenu.h"
 #include "../../pluto_main/Define_Button.h"
+#include "PlutoUtils/PlutoDefs.h"
+
 //---------------------------------------------------------------------------------------------------------
 #if defined(SMARTPHONE2005) || defined(_VC80_UPGRADE)		//--- CHANGED4WM5 ----//
 	#define clock		GetTickCount
@@ -197,7 +199,7 @@ LRMenu::LRMenu()
 //---------------------------------------------------------------------------------------------------------
 LRMenu::~LRMenu()
 {
-	SAFE_DELETE( m_pMenuRoot );
+	PLUTO_SAFE_DELETE( m_pMenuRoot );
 	m_pMenuRoot = NULL;
 }
 //---------------------------------------------------------------------------------------------------------
@@ -265,7 +267,6 @@ void LRMenu::Paint( bool bFull )
 //---------------------------------------------------------------------------------------------------------
 bool LRMenu::KeyPress( uchar ucKey )
 {
-	if ( !LocalRenderer::Valid() ) return false;
 	if ( !m_pDisplayMenu ) return false;
 	if ( !IsShowing() ) return false;
 
@@ -392,6 +393,7 @@ bool LRMenu::HandleStylus( int iX, int iY )
 	return true;
 }
 
+
 //---------------------------------------------------------------------------------------------------------
 /*
  *
@@ -434,7 +436,7 @@ bool LRMenu::HandleStylus( int iX, int iY )
 void LRMenuItem::ClearSubmenu()
 {
 	for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin() ; iter!=m_vMenuItems.end(); ++iter ){
-		SAFE_DELETE( *iter );
+		PLUTO_SAFE_DELETE( *iter );
 	}
 	m_vMenuItems.empty();
 	m_uiItemsHeight = m_uiItemsWidth = 0;
@@ -442,7 +444,7 @@ void LRMenuItem::ClearSubmenu()
 //---------------------------------------------------------------------------------------------------------
 LRMenuItem::~LRMenuItem()
 {
-	SAFE_DELETE( m_pClone );
+	PLUTO_SAFE_DELETE( m_pClone );
 
 	ClearSubmenu();
 }
@@ -500,7 +502,6 @@ bool LRMenuItem::BeginPaint( RECT r, bool bForceRepaint )
 	if ( m_bPainting ) return true;
 
 	if ( !m_bDirty && !bForceRepaint ) return false;
-	if ( !LocalRenderer::Valid() ) return false;
 
 	m_rClientRect = r;
 	m_bPainting = true;
@@ -577,8 +578,6 @@ void LRMenuItem::MakeSubmenuDirty( bool bDirty )
 //---------------------------------------------------------------------------------------------------------
 void LRMenuItem::ShowSubmenu( bool bShow )
 {
-	CHECK_RENDERER();
-
 	if ( bShow ){	// Show Submenu
 		CalcSubmenuLayout( LocalRenderer::GetViewport() );
 		// Save background
@@ -589,7 +588,7 @@ void LRMenuItem::ShowSubmenu( bool bShow )
 	else if (m_pClone) {	// Hide submenu		
 		// Restore background
 		LocalRenderer::RestoreRect( m_rSubmenu.left, m_rSubmenu.top, m_pClone );
-		SAFE_DELETE( m_pClone );		
+		PLUTO_SAFE_DELETE( m_pClone );		
 		#if defined(SMARTPHONE2005)
 			// Reset the viewport, because PocketFrog sets it on Update
 			if ( NULL == m_pParent ) LocalRenderer::Update( NULL );
@@ -608,7 +607,6 @@ void LRMenuItem::ShowSubmenu( bool bShow )
 void LRMenuItem::PaintSubmenu( bool bForceRepaint )
 {
 	if ( !m_bIsShowing ) return;
-	CHECK_RENDERER();
 
 	Rect r(m_rSubmenu );	
 	// Draw contour
@@ -733,12 +731,29 @@ bool LRMenuItem::PointIn( int iX, int iY )
 COLORREF LRPhoneMenu::m_clTextColor[tbcNone] = { RGB(0,0,0), RGB(0,0,0), RGB(0,0,0), RGB(0,0,0) };
 
 LRPhoneMenu* LRPhoneMenu::Create()
-{
+{	
 	LRPhoneMenu* pMenu = new LRPhoneMenu;
 	pMenu->CreateMenuRoot();
 	return pMenu;
 }
+//---------------------------------------------------------------------------------------------------------
+void LRPhoneMenu::SetCrtRoom( long nCrtRoom )
+{
+	if ( m_pCrtRoomItem ) {
 
+		if ( IsShowing() ) {
+			Hide();
+		}		
+		m_pCrtRoomItem->SelectRoom( nCrtRoom );
+		Show( 0, 0);
+	}
+}
+//---------------------------------------------------------------------------------------------------------
+/*virtual*/ void LRPhoneMenu::AddItem( LRMenuItem* pMenuItem )
+{
+	LRMenu::AddItem( pMenuItem );
+	m_pCrtRoomItem = dynamic_cast<LRCrtRoomItem*>(pMenuItem);
+}
 
 //---------------------------------------------------------------------------------------------------------
 /*
@@ -806,7 +821,7 @@ void LRPhoneMenuItemRoot::RemoveLinks( void )
 	if ( m_vMenuItems.size()<=1 ) return;
 
 	for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin()+1 ; iter!=m_vMenuItems.end(); ++iter ){
-		SAFE_DELETE( *iter );
+		PLUTO_SAFE_DELETE( *iter );
 	}
 	m_vMenuItems.erase( m_vMenuItems.begin()+1, m_vMenuItems.end() );
 }
