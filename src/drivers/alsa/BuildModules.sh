@@ -36,6 +36,6 @@ fi
 echo "#!/bin/bash" > mkr_postinst.sh
 for KERN in ${MakeRelease_Kernel} ;do
 	BuildModules "$KERN"
-	echo "depmod \"$KERN\" 2>/dev/null || /bin/true" >> mkr_postints.sh
+	echo "depmod \"$KERN\" 2>/dev/null || /bin/true" >> mkr_postinst.sh
 done
 chmod +x mkr_postinst.sh
