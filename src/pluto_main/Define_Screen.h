@@ -200,7 +200,6 @@
 #define SCREEN_VOIP_Provider_CONST 200
 #define SCREEN_AV_Devices_CONST 201
 #define SCREEN_NAS_Options_CONST 202
-#define SCREEN_New_Phone_Enter_Number_CONST 203
 #define SCREEN_Need_Reload_Router_CONST 204
 #define SCREEN_Need_Regen_Orbiter_CONST 205
 #define SCREEN_Sensors_Viewed_By_Camera_CONST 206
@@ -208,7 +207,6 @@
 #define SCREEN_mnuPVRRecording_CONST 208
 #define SCREEN_Demo_Media_CONST 209
 #define SCREEN_Download_are_ready_to_install_CONST 210
-#define SCREEN_mnuMainMenu2_CONST 211
 #define SCREEN_mnuAmbiance_CONST 212
 #define SCREEN_TVConfirmInputsToggle_CONST 216
 #define SCREEN_mnuPVR_OSD_Full_Screen_CONST 218
