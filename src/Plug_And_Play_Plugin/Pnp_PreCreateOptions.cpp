@@ -137,7 +137,7 @@ bool Pnp_PreCreateOptions::OkayToCreate_MobilePhone(PnpQueueEntry *pPnpQueueEntr
 	bool bPhoneSpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Mobile_Orbiter_Phone_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreate_MobilePhone %d/%d",(int) bUseAutoSpecified,(int) bUseDirectorySpecified);
+	g_pPlutoLogger->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreate_MobilePhone %d/%d",(int) bUserSpecified,(int) bPhoneSpecified);
 #endif
 
 	if( bUserSpecified && bPhoneSpecified )

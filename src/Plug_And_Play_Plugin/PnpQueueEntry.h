@@ -19,7 +19,17 @@ namespace DCE
 		friend class Pnp_PostCreateOptions;
 
 		bool m_bCreateWithoutPrompting;
-		typedef enum { pnpqe_blocked_none=0, pnpqe_blocked_running_detection_scripts, pnpqe_blocked_prompting_device_template, pnpqe_blocked_pre_pnp_script, pnpqe_blocked_prompting_options, pnpqe_blocked_installing_software, pnpqe_blocked_waiting_for_other_prompting, pnpqe_block_processing_suspended, pnpqe_blocked_waiting_for_other_device } EBlockedState;
+		typedef enum { pnpqe_blocked_none=0, 
+			pnpqe_blocked_running_detection_scripts=1, 
+			pnpqe_blocked_prompting_device_template=2, 
+			pnpqe_blocked_pre_pnp_script=3, 
+			pnpqe_blocked_prompting_options=4, 
+			pnpqe_blocked_installing_software=5, 
+			pnpqe_blocked_waiting_for_other_prompting=6, 
+			pnpqe_block_processing_suspended=7, 
+			pnpqe_blocked_waiting_for_other_device=8
+		} EBlockedState;
+
 		EBlockedState m_EBlockedState;
 		time_t m_tTimeBlocked;
 		Database_pluto_main *m_pDatabase_pluto_main;
