@@ -194,9 +194,6 @@
 					RelativePath=".\Proxy_OrbiterRenderer_SDL.cpp">
 				</File>
 				<File
-					RelativePath="..\OrbiterGen\Renderer.cpp">
-				</File>
-				<File
 					RelativePath="..\Orbiter\RendererMNG.cpp">
 				</File>
 				<File
