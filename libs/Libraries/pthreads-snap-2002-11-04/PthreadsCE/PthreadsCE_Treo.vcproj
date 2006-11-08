@@ -22,8 +22,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Smartphone 2003 (ARMV4)"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="ARMV4Dbg"
+			IntermediateDirectory="ARMV4Dbg"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -54,8 +54,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
-				Optimization="2"
-				InlineFunctionExpansion="1"
+				Optimization="0"
+				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories="../../Libraries/pthreads-snap-2002-11-04,../..,../../Libraries/Pocketfrog_0_6_0,../../Libraries/STLport-4.5.3/stlport,../../Libraries/zlib,../../Libraries/jpgsrc6b,../../Libraries/libmng,../../Libraries/lcms/include"
 				PreprocessorDefinitions="WINCE;DEBUG;ARM;_ARM_;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);UNICODE;_USRDLL;PTHREADSCE_EXPORTS;HAVE_CONFIG_H"
 				StringPooling="true"
@@ -86,7 +86,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
 				AdditionalDependencies="commctrl.lib coredll.lib secchk.lib ccrtrtti.lib"
-				OutputFile="$(PlatformName)\$(ConfigurationName)/PthreadsCE.dll"
+				OutputFile="ARMV4Dbg/PthreadsCE.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
@@ -96,7 +96,7 @@
 				StackCommitSize="4096"
 				EntryPointSymbol="_DllMainCRTStartup"
 				BaseAddress="0x00100000"
-				ImportLibrary="$(PlatformName)\$(ConfigurationName)/PthreadsCE.lib"
+				ImportLibrary="ARMV4Dbg/PthreadsCE.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -262,10 +262,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
-				Optimization="2"
+				Optimization="0"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../../Libraries/pthreads-snap-2002-11-04,../..,../../Libraries/Pocketfrog_0_6_0,../../Libraries/STLport-4.5.3/stlport,../../Libraries/zlib,../../Libraries/jpgsrc6b,../../Libraries/libmng,../../Libraries/lcms/include"
-				PreprocessorDefinitions="WINCE;DEBUG;ARM;_ARM_;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);UNICODE;_USRDLL;PTHREADSCE_EXPORTS;HAVE_CONFIG_H"
+				PreprocessorDefinitions="WINCE;DEBUG;ARM;_ARM_;ARMV4;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);UNICODE;_USRDLL;PTHREADSCE_EXPORTS;HAVE_CONFIG_H"
 				StringPooling="true"
 				RuntimeLibrary="1"
 				EnableFunctionLevelLinking="true"
@@ -305,6 +305,7 @@
 				EntryPointSymbol="_DllMainCRTStartup"
 				BaseAddress="0x00100000"
 				ImportLibrary="ARMV4IDbg/PthreadsCE.lib"
+				TargetMachine="16"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -366,15 +367,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
-				Optimization="4"
+				Optimization="2"
 				AdditionalIncludeDirectories="../../Libraries/pthreads-snap-2002-11-04,../..,../../Libraries/Pocketfrog_0_6_0,../../Libraries/STLport-4.5.3/stlport,../../Libraries/zlib,../../Libraries/jpgsrc6b,../../Libraries/libmng,../../Libraries/lcms/include"
 				PreprocessorDefinitions="ARM;_ARM_;NDEBUG;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);UNICODE;_USRDLL;PTHREADSCE_EXPORTS;HAVE_CONFIG_H;WINCE"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile="$(PlatformName)\$(ConfigurationName)/PthreadsCE.pch"
-				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)/"
-				ObjectFile="$(PlatformName)\$(ConfigurationName)/"
-				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)/"
+				AssemblerListingLocation="ARMV4Rel/"
+				ObjectFile="ARMV4Rel/"
+				ProgramDataBaseFileName="ARMV4Rel/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 			/>
@@ -394,16 +395,16 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
 				AdditionalDependencies="commctrl.lib coredll.lib secchk.lib ccrtrtti.lib"
-				OutputFile="$(PlatformName)\$(ConfigurationName)/PthreadsCE.dll"
+				OutputFile="ARMV4Rel/PthreadsCE.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
-				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/PthreadsCE.pdb"
+				ProgramDatabaseFile="ARMV4Rel/PthreadsCE.pdb"
 				StackReserveSize="65536"
 				StackCommitSize="4096"
 				EntryPointSymbol="_DllMainCRTStartup"
 				BaseAddress="0x00100000"
-				ImportLibrary="$(PlatformName)\$(ConfigurationName)/PthreadsCE.lib"
+				ImportLibrary="ARMV4Rel/PthreadsCE.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -418,6 +419,9 @@
 			/>
 			<Tool
 				Name="VCCodeSignTool"
+				AuthenticodeSignature="false"
+				Certificate="SHA-1 Hash=FFA553411DC564DEA7666C54E1278EC08DECCF24|FFA553411DC564DEA7666C54E1278EC08DECCF24"
+				ProvisionDevice="0"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -616,6 +620,9 @@
 			/>
 			<Tool
 				Name="VCCodeSignTool"
+				AuthenticodeSignature="false"
+				Certificate="SHA-1 Hash=|"
+				ProvisionDevice="0"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
