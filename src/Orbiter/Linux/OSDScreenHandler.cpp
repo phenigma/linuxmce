@@ -582,7 +582,7 @@ void OSDScreenHandler::SCREEN_This_Room(long PK_Screen, bool bAlways)
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, DatabaseUtils::GetNameForRoom(m_pWizardLogic,PK_Room));
 
 			string sText=m_pOrbiter->m_mapTextString[TEXT_confirm_room_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_YES_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_NO_CONST];
-			string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_TV_provider_CONST) "|" 
+			string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_TV_Manufacturer_CONST) "|" 
 				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_This_Room_CONST) " " TOSTRING(COMMANDPARAMETER_Always_CONST) " 1";
 
 			DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
@@ -636,85 +636,7 @@ bool OSDScreenHandler::ThisRoom_ObjectSelected(CallBackData *pData)
 	}
 	return false;
 }
-//-----------------------------------------------------------------------------------------------------
-// TV Provider Wizard
-//-----------------------------------------------------------------------------------------------------
-void OSDScreenHandler::SCREEN_TV_provider(long PK_Screen)
-{
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butTVProviderWizard_CONST));
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "0");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "0");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Location_CONST, StringUtils::itos(m_pWizardLogic->GetPostalCode()));
 
-	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::TV_provider_ObjectSelected, 
-		new ObjectInfoBackData());
-
-	ScreenHandlerBase::SCREEN_TV_provider(PK_Screen);
-}
-//-----------------------------------------------------------------------------------------------------
-bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
-{
-	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
-
-	switch(GetCurrentScreen_PK_DesignObj())
-	{
-		case DESIGNOBJ_TVProvider_CONST:
-		{
-			if(DESIGNOBJ_butTVBoxManuf_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
-			{
-				string sInput1 = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_3_CONST);
-				string sInput2 = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_4_CONST);
-
-				int PK_PostalCode = m_pWizardLogic->GetPostalCode();
-
-				if(atoi(sInput1.c_str())==0)
-				{
-					DCE::SCREEN_TV_Manufacturer SCREEN_TV_Manufacturer_(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device);
-					string sResult;
-					m_pOrbiter->CMD_Goto_Screen("", SCREEN_TV_Manufacturer_CONST, sResult, SCREEN_TV_Manufacturer_.m_pMessage);
-					return true;
-				}
-
-				// Temporary hack until we get a solution for auto-configuring Myth
-				return false;
-			}
-		}
-		break;
-
-
-		case DESIGNOBJ_TVBoxManuf_CONST:
-		{
-			if(DESIGNOBJ_butTVBoxInput_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
-			{
-				string sManufacturer = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST);
-				if(sManufacturer == "")
-					return true;
-			}
-		}
-		break;
-
-		case DESIGNOBJ_TVBoxModel_CONST:
-		{
-			if(DESIGNOBJ_butTVManuf_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
-			{
-				string sModel = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_3_CONST);
-				if(sModel == "")
-					return true;
-
-				//we have the TVBox Manufacturer and TVBox Model!
-				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_Cable_Boxes_CONST);
-				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_Satellite_Boxes_CONST);
-				m_pWizardLogic->m_nPK_Device_TVProvider_External = m_pWizardLogic->AddDevice(atoi(sModel.c_str()));
-				m_pWizardLogic->AddExternalTuner(m_pWizardLogic->m_nPK_Device_TVProvider_External);  // Make this point to our PVR card's input
-			}
-		}
-		break;
-	}
-
-	return false;
-}
 //-----------------------------------------------------------------------------------------------------
 // A/V Connection Wizard
 //-----------------------------------------------------------------------------------------------------
@@ -1226,7 +1148,7 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_AV_Devices(long PK_Screen)
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butAVDevicesWizard_CONST));
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butAddSoftware_CONST));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Filter_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");

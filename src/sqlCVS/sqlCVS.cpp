@@ -758,7 +758,7 @@ bool ParseMaskFile(Database &database)
 		Table *pTable = database.m_mapTable_Find(sTable);
 		if( !pRepository || !pTable || sWhere.size()==0 )
 		{
-			cerr << "Mask file has invalid format" << endl;
+			cerr << "Mask file has invalid format.  Use: REP:designer    TABLE:DesignObjVariation_DesignObjParameter     CHANGE:DEL      WHERE:1=1" << endl;
 			return false;
 		}
 
@@ -772,7 +772,7 @@ bool ParseMaskFile(Database &database)
 			eToc=toc_Delete;
 		else
 		{
-			cerr << "Mask file has invalid format" << endl;
+			cerr << "Mask file has invalid format.  Use: REP:designer    TABLE:DesignObjVariation_DesignObjParameter     CHANGE:DEL      WHERE:1=1" << endl;
 			return false;
 		}
 

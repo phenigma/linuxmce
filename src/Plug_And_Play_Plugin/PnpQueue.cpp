@@ -831,6 +831,7 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 		m_pPlug_And_Play_Plugin->SendCommand(CMD_New_Orbiter);
 		if( !PK_Device )
 			g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Add_Device couldn't create mobile phone queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);   // CreateDevice already adds the software and starts it, so we're done
 		return true; // Delete this, something went terribly wrong
 	}
 

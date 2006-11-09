@@ -49,10 +49,6 @@ public:
 	bool ThisRoom_ObjectSelected(CallBackData *pData);
 	bool This_Room_GridSelected(CallBackData *pData);
 
-	//4. TV Provider
-	virtual void SCREEN_TV_provider(long PK_Screen);
-	virtual bool TV_provider_ObjectSelected(CallBackData *pData);
-
 	//5. TV Manuf.
 	virtual void SCREEN_TV_Manufacturer(long PK_Screen);
 	virtual bool TV_Manufacturer_ObjectSelected(CallBackData *pData);

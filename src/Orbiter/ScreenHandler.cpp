@@ -1654,6 +1654,7 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void ScreenHandler::SCREEN_Add_Software(long PK_Screen)
 {
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butAVDevicesWizard_CONST));
 	ScreenHandlerBase::SCREEN_Add_Software(PK_Screen);
 	RegisterCallBack(cbObjectHighlighted, (ScreenHandlerCallBack) &ScreenHandler::AddSoftware_ObjectHighlighted,	new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::AddSoftware_GridSelected, new DatagridCellBackData());
@@ -1714,8 +1715,9 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 	if( pCellInfoData->m_pDataGridCell )
 	{
 		int PK_Software = atoi(pCellInfoData->m_pDataGridCell->GetValue());
+		string sInstallation_Status = pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("Installation_status");
 		string sText,sCommand;
-		if( PK_Software>0 )
+		if( PK_Software && sInstallation_Status!="Yes" )
 		{
 			sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_Add_Software_CONST];
 			sCommand = StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn)
@@ -1723,9 +1725,9 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 				+ " " + pCellInfoData->m_pDataGridCell->GetValue() + " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " "
 				+ StringUtils::itos(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector) + " " TOSTRING(COMMANDPARAMETER_TrueFalse_CONST) " 1";
 		}
-		else if( PK_Software<0 )
+		else if( PK_Software )
 		{
-			sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_Add_Software_CONST];
+			sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_delete_software_CONST];
 			sCommand = StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn)
 				+ " 1 " + TOSTRING(COMMAND_Add_Software_CONST) + " " + TOSTRING(COMMANDPARAMETER_PK_Software_CONST)
 				+ " " + StringUtils::itos(PK_Software*-1) + " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " "

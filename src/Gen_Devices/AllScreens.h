@@ -7917,46 +7917,6 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_TV_provider : public PreformedCommand
-	{
-	public:
-		SCREEN_TV_provider(long DeviceIDFrom, long DeviceIDTo)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "195" /* screen ID */);
-		}
-	};
-
-	class SCREEN_TV_provider_DL : public PreformedCommand
-	{
-	public:
-		SCREEN_TV_provider_DL(long DeviceIDFrom, string sDeviceIDTo)
-		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "195" /* screen ID */);
-		}
-	};
-
-	class SCREEN_TV_provider_DT : public PreformedCommand
-	{
-	public:
-		SCREEN_TV_provider_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
-		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "195" /* screen ID */);
-		}
-	};
-
-	class SCREEN_TV_provider_Cat : public PreformedCommand
-	{
-	public:
-		SCREEN_TV_provider_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "195" /* screen ID */);
-		}
-	};
-
 	class SCREEN_TV_Manufacturer : public PreformedCommand
 	{
 	public:
@@ -9854,7 +9814,6 @@ namespace DCE
 		virtual void SCREEN_RoomsWizard(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_UsersWizard(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_CountryWizard(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_TV_provider(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TV_Manufacturer(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Receiver(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_LightsSetup(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -11100,12 +11059,6 @@ namespace DCE
 				{
 					ResetCallBacks();
 					SCREEN_CountryWizard(nPK_Screen);
-					break;
-				}
-				case 195:
-				{
-					ResetCallBacks();
-					SCREEN_TV_provider(nPK_Screen);
 					break;
 				}
 				case 196:

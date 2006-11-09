@@ -192,7 +192,6 @@
 #define SCREEN_RoomsWizard_CONST 192
 #define SCREEN_UsersWizard_CONST 193
 #define SCREEN_CountryWizard_CONST 194
-#define SCREEN_TV_provider_CONST 195
 #define SCREEN_TV_Manufacturer_CONST 196
 #define SCREEN_Receiver_CONST 197
 #define SCREEN_LightsSetup_CONST 198

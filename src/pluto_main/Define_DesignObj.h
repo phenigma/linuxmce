@@ -1824,7 +1824,7 @@
 #define DESIGNOBJ_AVDeviceVideo_CONST 4678
 #define DESIGNOBJ_butLocationWizard_CONST 4679
 #define DESIGNOBJ_AlarmName_CONST 4680
-#define DESIGNOBJ_butTVProviderWizard_CONST 4681
+#define DESIGNOBJ_butAddSoftware_CONST 4681
 #define DESIGNOBJ_butAlarmPanelWizard_CONST 4682
 #define DESIGNOBJ_butTVBoxManuf_CONST 4683
 #define DESIGNOBJ_butTVBoxInput_CONST 4684
@@ -2191,7 +2191,7 @@
 #define DESIGNOBJ_popAlertMessage_CONST 5132
 #define DESIGNOBJ_objShowAlertPopup_CONST 5133
 #define DESIGNOBJ_butClearKeyboardEntry_CONST 5135
-#define DESIGNOBJ_butAddSoftware_CONST 5136
+#define DESIGNOBJ_butAddSoftwareAdv_CONST 5136
 #define DESIGNOBJ_mnuAddSoftware_CONST 5137
 #define DESIGNOBJ_dgInstallableApps_CONST 5138
 #define DESIGNOBJ_NoReceiver_CONST 5139

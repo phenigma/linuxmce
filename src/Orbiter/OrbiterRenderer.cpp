@@ -977,6 +977,19 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 	if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size() == 0)
 		return;
 
+	vector<DesignObj_Orbiter *> vectObjs_NeedRedraw;
+	vector<DesignObjText *> vectTexts_NeedRedraw;
+
+	// We want to release the mutex since the redrawing may loop back and try to re-use these global objects
+	for(vector<DesignObj_Orbiter *>::iterator it=m_vectObjs_NeedRedraw.begin();it!=m_vectObjs_NeedRedraw.end();++it)
+		vectObjs_NeedRedraw.push_back(*it);
+	for(vector<DesignObjText *>::iterator it=m_vectTexts_NeedRedraw.begin();it!=m_vectTexts_NeedRedraw.end();++it)
+		vectTexts_NeedRedraw.push_back(*it);
+
+	m_vectObjs_NeedRedraw.clear();
+	m_vectTexts_NeedRedraw.clear();
+	nd.Release();
+
 	BeginPaint();
 
 	bool bRehighlight=false;
@@ -990,8 +1003,8 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 	}
 
 	//render objects
-	for(vector<DesignObj_Orbiter *>::iterator it = m_vectObjs_NeedRedraw.begin(), 
-		end = m_vectObjs_NeedRedraw.end(); it != end; ++it )
+	for(vector<DesignObj_Orbiter *>::iterator it = vectObjs_NeedRedraw.begin(), 
+		end = vectObjs_NeedRedraw.end(); it != end; ++it )
 	{
 		class DesignObj_Orbiter *pObj = *it;
 		if(pObj && pObj->m_bOnScreen)
@@ -1010,8 +1023,8 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 	}
 
 	//render texts
-	for(vector<DesignObjText *>::iterator it_text = m_vectTexts_NeedRedraw.begin(), 
-		end_text = m_vectTexts_NeedRedraw.end(); it_text != end_text; ++it_text )
+	for(vector<DesignObjText *>::iterator it_text = vectTexts_NeedRedraw.begin(), 
+		end_text = vectTexts_NeedRedraw.end(); it_text != end_text; ++it_text )
 	{
 		DesignObjText *pText = *it_text;
 		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
@@ -1038,10 +1051,6 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 			RenderObjectAsync(pText->m_pObject);
 		}
 	}
-
-	m_vectObjs_NeedRedraw.clear();
-	m_vectTexts_NeedRedraw.clear();
-	nd.Release();
 
 	if(NULL != OrbiterLogic()->m_pObj_Highlighted && (bRehighlight || OrbiterLogic()->m_pObj_Highlighted != OrbiterLogic()->m_pObj_Highlighted_Last))
 	{
