@@ -748,8 +748,6 @@ void Orbiter::ScreenSaver( void *data )
 
 	if( m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu )
 		CMD_Display_OnOff("0",false);
-	else if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation )
-		CMD_Goto_Screen("",m_iPK_Screen_RemoteOSD); // Go to the remote instead
 	else
 	{
 		StartScreenSaver();
@@ -7596,7 +7594,10 @@ void Orbiter::CMD_Show_Floorplan(int iPosition_X,int iPosition_Y,string sType,st
 		if(UsesUIVersion2() && m_pMouseBehavior )
 			m_pMouseBehavior->Clear();
 #endif
-		GotoDesignObj(pObj->m_ObjectID);
+		DCE::SCREEN_Floorplan SCREEN_Floorplan(m_dwPK_Device,m_dwPK_Device,pObj->m_ObjectID);
+		string sResult;
+		CMD_Goto_Screen("", SCREEN_Floorplan_CONST, sResult, SCREEN_Floorplan.m_pMessage);
+		delete SCREEN_Floorplan.m_pMessage;
 	}
 	else
 		CMD_Show_Popup(pObj->m_ObjectID,iPosition_X,iPosition_Y,"","floorplan",false,false);
@@ -9203,6 +9204,12 @@ void Orbiter::UpdateTimeCodeLoop()
 void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::StartScreenSaver");
+
+	if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation )
+	{
+		CMD_Goto_Screen("",m_iPK_Screen_RemoteOSD); // Go to the remote instead
+		return;
+	}
 
 	if( m_pDesignObj_Orbiter_ScreenSaveMenu && bGotoScreenSaverDesignObj )
 	{

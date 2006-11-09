@@ -9597,6 +9597,54 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_Floorplan : public PreformedCommand
+	{
+	public:
+		SCREEN_Floorplan(long DeviceIDFrom, long DeviceIDTo,
+			string sPK_DesignObj)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "248" /* screen ID */,
+				3 /* The DesignObj for the floorplan */, sPK_DesignObj.c_str());
+		}
+	};
+
+	class SCREEN_Floorplan_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Floorplan_DL(long DeviceIDFrom, string sDeviceIDTo,
+			string sPK_DesignObj)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "248" /* screen ID */,
+				3 /* The DesignObj for the floorplan */, sPK_DesignObj.c_str());
+		}
+	};
+
+	class SCREEN_Floorplan_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Floorplan_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			string sPK_DesignObj)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "248" /* screen ID */,
+				3 /* The DesignObj for the floorplan */, sPK_DesignObj.c_str());
+		}
+	};
+
+	class SCREEN_Floorplan_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Floorplan_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			string sPK_DesignObj)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "248" /* screen ID */,
+				3 /* The DesignObj for the floorplan */, sPK_DesignObj.c_str());
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9854,6 +9902,7 @@ namespace DCE
 		virtual void SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_Device, string sText, string sDescription){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Get_Username_Password_For_Devices(long PK_Screen, bool bAlready_processed, string sDescription, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Get_Capture_Card_Port(long PK_Screen, int iPK_Device, string sName, string sDescription, string ssComments){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Floorplan(long PK_Screen, string sPK_DesignObj){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -11320,6 +11369,13 @@ namespace DCE
 					string sDescription = pMessage->m_mapParameters[163];
 					string ssComments = pMessage->m_mapParameters[164];
 					SCREEN_Get_Capture_Card_Port(nPK_Screen, iPK_Device, sName, sDescription, ssComments);
+					break;
+				}
+				case 248:
+				{
+					ResetCallBacks();
+					string sPK_DesignObj = pMessage->m_mapParameters[3];
+					SCREEN_Floorplan(nPK_Screen, sPK_DesignObj);
 					break;
 				}
 

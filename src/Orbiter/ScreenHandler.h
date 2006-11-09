@@ -158,6 +158,7 @@ public:
 	virtual void SCREEN_DialogPhoneInstructions(long PK_Screen, string sInstructions, string sPhoneName);
 	virtual void SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sMacAddress, string sCommandLine, 
 		string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer);
+	virtual void SCREEN_Floorplan(long PK_Screen, string sPK_DesignObj);
 
 	//Screens with locations
 	virtual void SCREEN_Main(long PK_Screen, string sLocation);

@@ -1980,4 +1980,10 @@ void ScreenHandler::SCREEN_Get_Capture_Card_Port(long PK_Screen, int iPK_Device,
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, StringUtils::ltos(iPK_Device));
 	ScreenHandlerBase::SCREEN_Get_Capture_Card_Port(PK_Screen, iPK_Device, sName, sDescription, ssComments);
 }
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void ScreenHandler::SCREEN_Floorplan(long PK_Screen, string sPK_DesignObj)
+{
+	ScreenHandlerBase::SCREEN_Floorplan(PK_Screen, sPK_DesignObj);
+	m_pOrbiter->GotoDesignObj(sPK_DesignObj);
+}
 
