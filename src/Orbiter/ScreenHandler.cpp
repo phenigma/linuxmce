@@ -1654,7 +1654,7 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void ScreenHandler::SCREEN_Add_Software(long PK_Screen)
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butAVDevicesWizard_CONST));
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butAddSoftware_CONST));
 	ScreenHandlerBase::SCREEN_Add_Software(PK_Screen);
 	RegisterCallBack(cbObjectHighlighted, (ScreenHandlerCallBack) &ScreenHandler::AddSoftware_ObjectHighlighted,	new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::AddSoftware_GridSelected, new DatagridCellBackData());

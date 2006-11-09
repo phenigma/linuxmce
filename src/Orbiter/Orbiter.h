@@ -708,7 +708,7 @@ namespace DCE
 		/**
 		* @brief Something happened, like a touch or a button, reset any timeouts or screen saver.  Returns false if it should be ignored
 		*/
-		virtual bool GotActivity(  );
+		virtual bool GotActivity( int PK_Button );  // 0=it's a mouse click
 
 		virtual void SimulateMouseClick(int x, int y);
 

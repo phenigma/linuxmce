@@ -2669,7 +2669,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to 
 
 	if( pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::REGION_DOWN )
 	{
-		if( !GotActivity(  ) )
+		if( !GotActivity( pEvent->type == Orbiter::Event::BUTTON_DOWN ? pEvent->data.button.m_iPK_Button : 0 ) )
 			return;
 
 		if( pEvent->type == Orbiter::Event::BUTTON_DOWN )
@@ -2704,7 +2704,7 @@ bool Orbiter::PreprocessEvent(Orbiter::Event &event)
 bool Orbiter::ProcessEvent( Orbiter::Event &event )
 {
 	if ( (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::REGION_DOWN)
-		&& !GotActivity(  ) )
+		&& !GotActivity( event.type == Orbiter::Event::BUTTON_DOWN ? event.data.button.m_iPK_Button : 0 ) )
 			return true;
 
 #ifdef DEBUG
@@ -2870,13 +2870,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d key %d",
 	class ScreenHistory *pScreenHistory = m_pScreenHistory_Current;
 
 	bool bHandled=false;
-	if( !GotActivity(  ) )
-	{
-		if( !UsesUIVersion2() ||
-			(PK_Button != BUTTON_F6_CONST && PK_Button != BUTTON_Mouse_6_CONST && PK_Button != BUTTON_F7_CONST &&
-			PK_Button != BUTTON_Mouse_7_CONST && PK_Button != BUTTON_F8_CONST && PK_Button != BUTTON_Mouse_8_CONST) )
-				return true;  // Unless it's UI2 and one of the menu activation buttons ignore this
-	}
 
 	// 2005-dec-7  Do the capture keyboard stuff first in case one of the
 	// objects we selected needs the current value
@@ -3348,7 +3341,7 @@ bool Orbiter::RegionDown( int x,  int y )
 		return true;
 
 	NeedToRender render( this, "Region Down" );  // Redraw anything that was changed by this command
-	if( !GotActivity(  ) )
+	if( !GotActivity( 0 ) )
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Ignoring click %d,%d",x,y);
@@ -3428,7 +3421,7 @@ bool Orbiter::RegionDown( int x,  int y )
 	return bHandled;
 }
 //------------------------------------------------------------------------
-bool Orbiter::GotActivity(  )
+bool Orbiter::GotActivity( int PK_Button )
 {
 	m_LastActivityTime=time( NULL );
 
@@ -3440,6 +3433,7 @@ bool Orbiter::GotActivity(  )
 	if( !m_bDisplayOn || 
 		(m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu) )
 	{
+		bool bReturnValue=false;  // Normally we won't want this key to be processed, with one exception below
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"GotActiity monitor m_bDisplayOn is %d",(int) m_bDisplayOn);
 #endif
@@ -3448,8 +3442,18 @@ bool Orbiter::GotActivity(  )
 
 		NeedToRender render( this, "GotActivity" );
 		CMD_Set_Main_Menu("N");
-		if( m_pScreenHistory_Current && m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu )
-			CMD_Go_back("","1");
+
+		if( !UsesUIVersion2() ||
+			(PK_Button != BUTTON_F6_CONST && PK_Button != BUTTON_Mouse_6_CONST && PK_Button != BUTTON_F7_CONST &&
+			PK_Button != BUTTON_Mouse_7_CONST && PK_Button != BUTTON_F8_CONST && PK_Button != BUTTON_Mouse_8_CONST) )
+		{
+			if( m_pScreenHistory_Current && m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu )
+				CMD_Go_back("","1");
+		}
+		else
+		{
+			bReturnValue=true;  // For the 3 menu nav keys in UI2, do process it
+		}
 
 		if( m_bScreenSaverActive )
 		{
@@ -3463,7 +3467,7 @@ bool Orbiter::GotActivity(  )
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Ignoring click because screen saver was active");
 #endif
-		return false; // Don't do anything with this
+		return bReturnValue; // Don't do anything with this
 	}
 
 	if(  NULL != m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds  )
@@ -7872,7 +7876,7 @@ void Orbiter::CMD_Back_Clear_Entry(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
-	if(GotActivity())
+	if(GotActivity(BUTTON_Enter_CONST))
 	{
 		/*
 		PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
@@ -7908,7 +7912,7 @@ void Orbiter::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
 {
-	if(GotActivity())
+	if(GotActivity(BUTTON_Up_Arrow_CONST))
 	{
 		/*
 		HighlightNextObject(DIRECTION_Up_CONST);
@@ -7932,7 +7936,7 @@ void Orbiter::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
 {
-	if(GotActivity())
+	if(GotActivity(BUTTON_Down_Arrow_CONST))
 	{
 		/*
 		HighlightNextObject( DIRECTION_Down_CONST );
@@ -7955,7 +7959,7 @@ void Orbiter::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
 {
-	if( GotActivity(  ) )
+	if( GotActivity( BUTTON_Left_Arrow_CONST ) )
 	{
 		/*
 		HighlightNextObject( DIRECTION_Left_CONST );
@@ -7978,7 +7982,7 @@ void Orbiter::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
 {
-	if( GotActivity(  ) )
+	if( GotActivity(BUTTON_Right_Arrow_CONST) )
 	{
 		/*
 		HighlightNextObject( DIRECTION_Right_CONST );

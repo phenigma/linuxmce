@@ -241,12 +241,13 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	int PK_Screen_OnScreen = m_pOrbiter->m_pScreenHistory_Current->PK_Screen();
 
 	// Special case for the media control
-	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen!=SCREEN_Main_CONST )
+	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && (PK_Screen_OnScreen!=SCREEN_Main_CONST || (m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() == m_pOrbiter->m_pDesignObj_Orbiter_ScreenSaveMenu) ) )
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing main menu");
 #endif
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
+		m_pOrbiter->CMD_Set_Main_Menu("N");
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
 		ShowMouse(true);
 		SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
@@ -292,7 +293,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 		return true;
 	}
-	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen==SCREEN_Main_CONST )
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen==SCREEN_Main_CONST && m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() != m_pOrbiter->m_pDesignObj_Orbiter_ScreenSaveMenu )
 	{
 		m_pOrbiter->StartScreenSaver(true);  // If the user hits the menu button from the main menu, go to the screen saver
 		Clear(true);
