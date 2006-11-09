@@ -219,7 +219,9 @@ GetVideoDriver()
 		"") VideoDriver="vesa" ;; # just-in-case default
 	esac
 #<-mkr_B_via_e->
-#
+#<-mkr_b_via_b->
+	VideoDriver=viaprop
+#<-mkr_b_via_e->
 	echo "$VideoDriver"
 }
 
