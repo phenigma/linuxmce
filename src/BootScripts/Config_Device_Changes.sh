@@ -70,7 +70,21 @@ Unset_NeedConfigure_Children()
 	done
 }
 
-#
+#<-mkr_b_via_b->
+Install_VIA_ALSA()
+{
+	local Pkgs_VIA
+	Pkgs_VIA=(via-alsa-2.6.16.20-pluto-1-686)
+
+	echo "$(date -R) --> Finding installed ALSA packages (VIA)"
+	VIA_inst="$(InstalledPackages "${Pkgs_VIA[@]}")"
+	echo "$(date -R) <-- Finding installed ALSA packages (VIA)"
+
+	if [[ -z "$VIA_inst" ]]; then
+		apt-get -y -f install "${Pkgs_VIA[@]}"
+	fi
+}
+#<-mkr_b_via_e->
 
 # Clean up video driver packages
 # When a video card is removed/replaced, remove its packages
@@ -152,7 +166,15 @@ CleanupVideo()
 				ATI_dev=$(/usr/pluto/bin/CreateDevice -d "$NewDeviceTemplate" -R "$PK_Device")
 			fi
 		;;
-#
+#<-mkr_b_via_b->
+		viaprop) # Proprietary VIA drivers
+			if [[ -z "$VIA_dev" ]]; then
+				NewDeviceTemplate=$DEVICETEMPLATE_Unichrome
+				VIA_dev=$(/usr/pluto/bin/CreateDevice -d "$NewDeviceTemplate" -R "$PK_Device")
+				Install_VIA_ALSA
+			fi
+		;;
+#<-mkr_b_via_e->
 	esac
 	echo "$(date -R) <-- Auto-create video card device"
 
@@ -250,5 +272,7 @@ fi
 # Run alsaconf-noninteractive
 if [[ -x /usr/pluto/bin/alsaconf-noninteractive ]]; then
 	/usr/pluto/bin/alsaconf-noninteractive
-#
+#<-mkr_b_via_b->
+	amixer sset 'Master Front' 74% unmute
+#<-mkr_b_via_e->
 fi
