@@ -5794,7 +5794,7 @@ void Orbiter::GetButtonsInObject( DesignObj_Data *pObj, vector<int> &vectButtons
 bool Orbiter::CaptureKeyboard_EditText_DeleteLastChar(  )
 {
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-		string OldValue = m_mapVariable[m_iCaptureKeyboard_PK_Variable];
+	string OldValue = m_sCaptureKeyboard_InternalBuffer;
 	string NewValue = "";
 
 	if( OldValue.size(  ) )
@@ -5805,6 +5805,9 @@ bool Orbiter::CaptureKeyboard_EditText_DeleteLastChar(  )
 	vm.Release();
 
 	ExecuteScreenHandlerCallback(cbCapturedKeyboardBufferChanged);
+
+	if(m_iCaptureKeyboard_EditType == 2)
+		std::fill_n(NewValue.begin(), NewValue.length(), '*');
 
 	if( NULL != m_pCaptureKeyboard_Text )
 	{
