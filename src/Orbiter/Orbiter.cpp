@@ -5492,7 +5492,11 @@ void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &
 	g_pPlutoLogger->Write(LV_CRITICAL,"Variable: %d set to %s",iPK_Variable,sValue_To_Assign.c_str());
 #endif
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-		m_mapVariable[iPK_Variable] = sValue_To_Assign;
+	m_mapVariable[iPK_Variable] = sValue_To_Assign;
+
+	//hook for capture keyboard
+	if(m_bCaptureKeyboard_OnOff && m_iCaptureKeyboard_PK_Variable == iPK_Variable)
+		m_sCaptureKeyboard_InternalBuffer = sValue_To_Assign;
 }
 
 //<-dceag-c28-b->
