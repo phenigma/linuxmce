@@ -1,4 +1,4 @@
-CREATE TABLE Headends(
+CREATE TABLE IF NOT EXISTS Headends(
  PK_Headends int(11) NOT NULL auto_increment,
  headend_id char(7),
  community_name varchar(28),
@@ -15,10 +15,10 @@ CREATE TABLE Headends(
  headend_location varchar(28),
  mso_name varchar(42),
  time_zone_code int(1),
- PRIMARY KEY(PK_Headends),
+ PRIMARY KEY(PK_Headends)
 );
 
-CREATE TABLE Lineups(
+CREATE TABLE IF NOT EXISTS Lineups(
  row_id int(12),
  headend_id char(7),
  FK_Stations int(12),
@@ -29,7 +29,7 @@ CREATE TABLE Lineups(
  expiration_date char(8)
 );
 
-CREATE TABLE Stations(
+CREATE TABLE IF NOT EXISTS Stations(
  PK_Stations int(12),
  station_time_zone varchar(30),
  station_name varchar(40),
@@ -45,7 +45,7 @@ CREATE TABLE Stations(
  PRIMARY KEY(PK_Stations)
 );
 
-CREATE TABLE UserLineups(
+CREATE TABLE IF NOT EXISTS UserLineups(
  PK_UserLineups int(11) not NULL auto_increment,
  FK_Headends int(11) not NULL,
  FK_Stations int(12) not NULL,
@@ -61,7 +61,7 @@ CREATE TABLE UserLineups(
  PRIMARY KEY (PK_UserLineups)
 );
 
-CREATE TABLE tmp_Headends(
+CREATE TABLE IF NOT EXISTS tmp_Headends(
  headend_id char(7),
  community_name varchar(28),
  county_name varchar(25),
@@ -82,7 +82,7 @@ CREATE TABLE tmp_Headends(
  stationname varchar(40)
 );
 
-CREATE TABLE tmp_Stations(
+CREATE TABLE IF NOT EXISTS tmp_Stations(
  PK_Stations int(12),
  station_time_zone varchar(30),
  station_name varchar(40),
