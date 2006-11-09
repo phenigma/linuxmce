@@ -232,6 +232,7 @@
 #define SCREEN_Choose_Provider_for_Device_CONST 245
 #define SCREEN_Get_Username_Password_For_Devices_CONST 246
 #define SCREEN_Get_Capture_Card_Port_CONST 247
+#define SCREEN_Floorplan_CONST 248
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
