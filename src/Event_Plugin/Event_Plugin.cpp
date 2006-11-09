@@ -306,6 +306,7 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 			EventInstance *pEventInstance = new EventInstance(m_dwID_EventInstance++,pEventHandler);
 			pEventInstance->pMessage = new Message(pMessage);
 			pEventInstance->m_PKID_Device_OriginatedThisEvent = pMessage->m_dwPK_Device_From;
+			pEventHandler->m_tLastFired = time(NULL);
 			ExecuteEvent(pEventInstance);
 		}
 	}
