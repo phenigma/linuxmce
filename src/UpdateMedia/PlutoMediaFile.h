@@ -47,6 +47,7 @@ private:
 
 	void SavePlutoAttributes(string sFullFileName);
 	void LoadPlutoAttributes(string sFullFileName);
+	void LoadLegacyAttributes(string sFullFileName);
 	void LoadAttributesFromDB(string sFullFileName, int PK_File);
 
 	void SyncDbAttributes();

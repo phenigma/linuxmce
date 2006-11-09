@@ -68,6 +68,18 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 
 	g_pPlutoLogger->Write(LV_STATUS, "Processing path %s, file %s. Found %d attributes in id3 file", 
 		m_sDirectory.c_str(), m_sFile.c_str(), m_pPlutoMediaAttributes->m_mapAttributes.size());
+
+	if(!IsSupported(m_sFile) && !bIsDir)
+	{
+		string sLegacyId3File = FileUtils::FileWithoutExtension(m_sDirectory + "/" + m_sFile) + ".id3";
+		if(FileUtils::FileExists(sLegacyId3File))
+		{
+			LoadLegacyAttributes(sLegacyId3File);
+
+			g_pPlutoLogger->Write(LV_STATUS, "# Removing legacy id3 file %s", sLegacyId3File.c_str());
+			FileUtils::DelFile(sLegacyId3File);
+		}
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::~PlutoMediaFile()
@@ -100,6 +112,10 @@ PlutoMediaFile::~PlutoMediaFile()
 {
 	const string csSupportedExtensions("mp3:ogg:aac");
 	string sExtension = StringUtils::ToLower(FileUtils::FindExtension(sFileName));
+
+	if(sExtension.empty())
+		return false;
+
     return csSupportedExtensions.find(sExtension) != string::npos;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -739,6 +755,91 @@ void PlutoMediaFile::LoadPlutoAttributes(string sFullFileName)
 
 	g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: pluto attributes merged (for id3 file) %d", 
 		m_pPlutoMediaAttributes->m_mapAttributes.size());
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::LoadLegacyAttributes(string sFullFileName)
+{
+	g_pPlutoLogger->Write(LV_STATUS, "# LoadLegacyAttributes (from id3 file): %s", sFullFileName.c_str());
+
+	PlutoMediaAttributes *pPlutoLegacyAttributes = new PlutoMediaAttributes();
+
+	//deserialize data from user defined tag
+	char *pData = NULL;
+	size_t Size = 0;
+	GetUserDefinedInformation(sFullFileName, pData, Size);
+
+	if(NULL != pData)
+	{
+		pPlutoLegacyAttributes->SerializeRead((unsigned long)Size, pData);
+		delete []pData;
+		pData = NULL;
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: pluto legacy attributes loaded (from id3 file - general object tag) %d", 
+		pPlutoLegacyAttributes->m_mapAttributes.size());
+
+	//get common id3 attributes
+	map<int, string> mapAttributes;
+	GetId3Info(sFullFileName, mapAttributes);	
+
+	g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: id3 legacy attributes loaded (from id3 file - common tags) %d", 
+		mapAttributes.size());
+
+	//merge common id3 legacy attributes
+	for(map<int, string>::iterator it = mapAttributes.begin(), end = mapAttributes.end(); it != end; ++it)
+	{
+		int nType = it->first;
+		string sValue = it->second;
+
+		MapPlutoMediaAttributes::iterator itm = m_pPlutoMediaAttributes->m_mapAttributes.find(nType);
+		if(itm == m_pPlutoMediaAttributes->m_mapAttributes.end())
+			m_pPlutoMediaAttributes->m_mapAttributes.insert(
+				std::make_pair(
+					nType, 
+					new PlutoMediaAttribute(nType, sValue)
+				)
+			);
+		else
+			itm->second->m_sName = sValue;
+	}
+
+	//merge legacy attributes
+	for(MapPlutoMediaAttributes::iterator itp = pPlutoLegacyAttributes->m_mapAttributes.begin(),
+		endp = pPlutoLegacyAttributes->m_mapAttributes.end(); itp != endp; ++itp)
+	{
+		PlutoMediaAttribute *pPlutoMediaAttribute = itp->second;
+
+		bool bFound = false;
+
+		for(MapPlutoMediaAttributes::iterator itm = m_pPlutoMediaAttributes->m_mapAttributes.begin(),
+			endm = m_pPlutoMediaAttributes->m_mapAttributes.end(); itm != endm; ++itm)
+		{
+			if(*itm->second == *pPlutoMediaAttribute)
+			{
+				bFound = true;
+				break;
+			}
+		}
+
+		if(!bFound)
+		{
+            m_pPlutoMediaAttributes->m_mapAttributes.insert(
+				make_pair(
+					pPlutoMediaAttribute->m_nType, 
+					new PlutoMediaAttribute(
+						pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName,
+						pPlutoMediaAttribute->m_nTrack, pPlutoMediaAttribute->m_nSection
+					)
+				)
+			);
+		}
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: pluto attributes after merge (for id3 file) %d", 
+		m_pPlutoMediaAttributes->m_mapAttributes.size());
+
+	delete pPlutoLegacyAttributes;
+	pPlutoLegacyAttributes = NULL;
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadAttributesFromDB(string, int PK_File)
