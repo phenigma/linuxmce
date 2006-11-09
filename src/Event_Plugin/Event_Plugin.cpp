@@ -298,7 +298,9 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 			}
 		}
 
-		g_pPlutoLogger->Write(LV_EVENTHANDLER,"Evaluated Event Handler: %d to: %d",pEventHandler->m_PK_EventHander,(int) bResult);
+		g_pPlutoLogger->Write(LV_EVENTHANDLER,"Evaluated Event Handler: %d to: %d once per: %d last fired %d (time is %d)",
+			pEventHandler->m_PK_EventHander,(int) bResult,
+			pEventHandler->m_OncePerSeconds,(int) pEventHandler->m_tLastFired,(int) time(NULL));
 		if( bResult ) 
 		{
 			EventInstance *pEventInstance = new EventInstance(m_dwID_EventInstance++,pEventHandler);
