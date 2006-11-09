@@ -244,7 +244,7 @@ int main(int argc, char *argv[]){
 				cout<<"Error opening file search.html"<<endl;
 				return false;
 			}
-			query="select PK_Device from Device where IPaddress is not NULL and IPaddress<>\'\'";
+			query="select PK_Device from Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate where FK_DeviceCategory in (6,7,8) AND IPaddress is not NULL and IPaddress<>\'\'";
 			vector<string> vPK_Device;
 			if(mysql_real_query(mysql,query,(unsigned int) strlen(query))==0&&(mres=mysql_store_result(mysql))) {
 				while ( (row=mysql_fetch_row(mres)) )
