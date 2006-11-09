@@ -2240,7 +2240,7 @@
 #define DESIGNOBJ_butNoCaptureCardPort_CONST 5186
 #define DESIGNOBJ_dgCaptureCardPorts_CONST 5187
 #define DESIGNOBJ_speak_CONST 5188
-#define DESIGNOBJ_doInstalledApps_Body_CONST 5189
+#define DESIGNOBJ_cellInstalledApps_CONST 5189
 #define DESIGNOBJ_Installed_Apps_Icon_CONST 5190
 #define DESIGNOBJ_Installed_Apps_Not_Virus_Free_CONST 5191
 #define DESIGNOBJ_Default_Scroll_Up_CONST 5194
@@ -2249,6 +2249,7 @@
 #define DESIGNOBJ_cellTVChannels_CONST 5197
 #define DESIGNOBJ_iconTVChannels_CONST 5198
 #define DESIGNOBJ_butDoneAddSoftware_CONST 5200
+#define DESIGNOBJ_iconCheckMark_CONST 5201
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
