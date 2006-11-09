@@ -862,7 +862,7 @@ g_PlutoProfiler->DumpResults();
 			StopScreenSaver();
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
-			if( m_pMouseBehavior->m_bMouseVisible )
+			if( NULL != m_pMouseBehavior && m_pMouseBehavior->m_bMouseVisible )
 				CMD_Show_Mouse_Pointer("1");
 #endif
 		}
