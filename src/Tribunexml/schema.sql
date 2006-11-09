@@ -60,3 +60,39 @@ CREATE TABLE UserLineups(
  expiration_date char(8),
  PRIMARY KEY (PK_UserLineups)
 );
+
+CREATE TABLE tmp_Headends(
+ headend_id char(7),
+ community_name varchar(28),
+ county_name varchar(25),
+ county_size char(1),
+ st_county_code char(5),
+ state_served char(2),
+ zip_code char(5),
+ dma_code int(3),
+ dma_name varchar(70),
+ mso_code char(5),
+ dma_rank char(4),
+ headend_name varchar(42),
+ headend_location varchar(28),
+ mso_name varchar(42),
+ time_zone_code int(1),
+ stationid char(12),
+ callsign char(10),
+ stationname varchar(40)
+);
+
+CREATE TABLE tmp_Stations(
+ PK_Stations int(12),
+ station_time_zone varchar(30),
+ station_name varchar(40),
+ station_call_sign varchar(10),
+ station_affil varchar(25),
+ station_city varchar(20),
+ station_state varchar(15),
+ station_zip_code varchar(12),
+ station_country varchar(15),
+ dma_name varchar(70),
+ dma_num int(10),
+ fcc_channel_num int(8)
+);
