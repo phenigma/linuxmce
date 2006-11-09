@@ -343,7 +343,10 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 			pTextStyle->m_ForeColor = PlutoColor::Red();
 		}
 
+		PlutoColor BackColor = pTextStyle->m_BackColor;
+		pTextStyle->m_BackColor = CellColor;
 		m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->RenderText(sText, &Text, pTextStyle, point);
+		pTextStyle->m_BackColor = BackColor;
 		pTextStyle->m_ForeColor = TextColor;
 	}
 	else
