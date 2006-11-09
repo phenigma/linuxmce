@@ -849,7 +849,7 @@
 #define TEXT_Remove_user_CONST 1556
 #define TEXT_Enter_city_CONST 1557
 #define TEXT_What_rooms_are_in_your_house_CONST 1558
-#define TEXT_TV_Provider_CONST 1559
+#define TEXT_Add_Software_tab_CONST 1559
 #define TEXT_Alarm_Panel_CONST 1560
 #define TEXT_Do_you_use_cable_satellite_or_antenna_CONST 1561
 #define TEXT_Manufacturer_of_box_CONST 1562

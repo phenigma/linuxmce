@@ -1813,7 +1813,6 @@
 #define DESIGNOBJ_grpManufacturerKeyboard_CONST 4667
 #define DESIGNOBJ_dgDeviceTemplateByMfrModel_CONST 4668
 #define DESIGNOBJ_grpDeviceTemplateByMfrModelKey_CONST 4669
-#define DESIGNOBJ_TVProvider_CONST 4670
 #define DESIGNOBJ_TVBoxManuf_CONST 4671
 #define DESIGNOBJ_TVBoxModel_CONST 4672
 #define DESIGNOBJ_ReceiverManuf_CONST 4673
@@ -2192,7 +2191,7 @@
 #define DESIGNOBJ_objShowAlertPopup_CONST 5133
 #define DESIGNOBJ_butClearKeyboardEntry_CONST 5135
 #define DESIGNOBJ_butAddSoftwareAdv_CONST 5136
-#define DESIGNOBJ_mnuAddSoftware_CONST 5137
+#define DESIGNOBJ_AddSoftware_CONST 5137
 #define DESIGNOBJ_dgInstallableApps_CONST 5138
 #define DESIGNOBJ_NoReceiver_CONST 5139
 #define DESIGNOBJ_butAlarmSetupRoom_CONST 5140
@@ -2249,6 +2248,7 @@
 #define DESIGNOBJ_objBackground_CONST 5196
 #define DESIGNOBJ_cellTVChannels_CONST 5197
 #define DESIGNOBJ_iconTVChannels_CONST 5198
+#define DESIGNOBJ_butDoneAddSoftware_CONST 5200
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
