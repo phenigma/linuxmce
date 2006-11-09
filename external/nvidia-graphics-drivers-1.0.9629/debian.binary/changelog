@@ -1,3 +1,9 @@
+nvidia-graphics-drivers (1.0.9629-1) unstable; urgency=low
+
+  * built with 9629
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Thu, 09 Nov 2006 13:43:16 +0200
+
 nvidia-kernel (1.0.8762-2pluto1) unstable; urgency=low
 
   * built for kernel 2.6.16.20-pluto-1-686
