@@ -2667,6 +2667,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to 
 #endif
 	}
 
+    PreprocessEvent(*pEvent);
+
 	if( pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::REGION_DOWN )
 	{
 		if( !GotActivity( pEvent->type == Orbiter::Event::BUTTON_DOWN ? pEvent->data.button.m_iPK_Button : 0 ) )
@@ -2690,7 +2692,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to 
 		TemporaryHidFunction(pEvent);
 	}
 	
-    PreprocessEvent(*pEvent);
 	ProcessEvent(*pEvent);
 }
 
