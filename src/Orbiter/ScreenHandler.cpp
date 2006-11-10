@@ -1211,6 +1211,8 @@ bool ScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 bool ScreenHandler::ChooseProvider_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( m_pOrbiter->m_pScreenHistory_Current->ScreenID().empty() )
+		return false; // It might be another popup ontop of us, but it's not what we're looking for
 	if( pObjectInfoData->m_pObj->m_pParentObject && pObjectInfoData->m_pObj->m_pParentObject->m_iBaseObjectID==DESIGNOBJ_mnuPopupMessage_CONST )
 	{
 		if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse1_CONST && (m_iStage==CPS_CONFIRM || m_iStage==CPS_CHOOSE_SOURCE) )
