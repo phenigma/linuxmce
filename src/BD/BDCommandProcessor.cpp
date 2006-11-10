@@ -200,6 +200,13 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 	if( dwType )
 	{
 		BDCommand *pCommand = BuildCommandFromData( dwType ); // creates a new command to parse the data
+
+		if(NULL == pCommand)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"# Received unknown command, type %d", dwType);
+			return false;
+		}
+
 g_pPlutoLogger->Write(LV_WARNING,"# Received %s command #", pCommand->Description());
 
 		pCommand->ParseCommand( dwSize, pcData );
