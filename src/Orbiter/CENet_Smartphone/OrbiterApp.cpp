@@ -955,44 +955,46 @@ void OrbiterApp::RefreshScreen()
 			DrawImage( m_nBkgndImageType, m_pBkgndImage_Data, m_pBkgndImage_Size, 0, 0, 0, 0 );		
 			m_pBkgndImage_Repaint = false;
 		}
-		if(NULL != m_pMenu || (m_pImageStatic_Size && m_pImageStatic_Data))
-		{
-			if(!m_bRender_SignalStrengthOnly)
+		else {
+			if(NULL != m_pMenu || (m_pImageStatic_Size && m_pImageStatic_Data))
 			{
-				if(!m_bRedrawOnlyGrid && !m_bRedrawOnlyEdit)
+				if(!m_bRender_SignalStrengthOnly)
 				{
-					DoRender();
+					if(!m_bRedrawOnlyGrid && !m_bRedrawOnlyEdit)
+					{
+						DoRender();
+					}
+
+					if(m_bGridExists)
+					{
+						RenderDataGrid(m_ulGridX, m_ulGridY, m_ulGridWidth, m_ulGridHeight, m_vectDataGrid);
+					}			
+
+					if(m_CaptureKeyboardParam.bTextBox)
+						RenderEditBox();
 				}
 
-				if(m_bGridExists)
+				if(m_bSignalStrengthScreen)
 				{
-					RenderDataGrid(m_ulGridX, m_ulGridY, m_ulGridWidth, m_ulGridHeight, m_vectDataGrid);
-				}			
+					RenderSignalStrength(m_nSignalStrength);
 
-				if(m_CaptureKeyboardParam.bTextBox)
-					RenderEditBox();
-			}
+					//request new signal strength
+					if(m_pBDCommandProcessor->m_bClientConnected)
+					{
+						BDCommand *pCommand = new BD_PC_GetSignalStrength();
+						m_pBDCommandProcessor->AddCommand(pCommand);
+					}
 
-			if(m_bSignalStrengthScreen)
-			{
-				RenderSignalStrength(m_nSignalStrength);
+					m_bRedrawOnlyGrid = false;
+					m_bRedrawOnlyEdit = false;
 
-				//request new signal strength
-				if(m_pBDCommandProcessor->m_bClientConnected)
-				{
-					BDCommand *pCommand = new BD_PC_GetSignalStrength();
-					m_pBDCommandProcessor->AddCommand(pCommand);
+					return;
 				}
 
-				m_bRedrawOnlyGrid = false;
-				m_bRedrawOnlyEdit = false;
-
-				return;
-			}
-
-			if(m_bImageQualityScreen)			
-			{
-				RenderImageQuality();			
+				if(m_bImageQualityScreen)			
+				{
+					RenderImageQuality();			
+				}
 			}
 		}
 	}
