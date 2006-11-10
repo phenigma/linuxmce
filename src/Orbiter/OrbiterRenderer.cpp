@@ -981,10 +981,10 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 	vector<DesignObjText *> vectTexts_NeedRedraw;
 
 	// We want to release the mutex since the redrawing may loop back and try to re-use these global objects
-	for(vector<DesignObj_Orbiter *>::iterator it=m_vectObjs_NeedRedraw.begin();it!=m_vectObjs_NeedRedraw.end();++it)
-		vectObjs_NeedRedraw.push_back(*it);
-	for(vector<DesignObjText *>::iterator it=m_vectTexts_NeedRedraw.begin();it!=m_vectTexts_NeedRedraw.end();++it)
-		vectTexts_NeedRedraw.push_back(*it);
+	for(vector<DesignObj_Orbiter *>::iterator ito=m_vectObjs_NeedRedraw.begin();ito!=m_vectObjs_NeedRedraw.end();++ito)
+		vectObjs_NeedRedraw.push_back(*ito);
+	for(vector<DesignObjText *>::iterator itt=m_vectTexts_NeedRedraw.begin();itt!=m_vectTexts_NeedRedraw.end();++itt)
+		vectTexts_NeedRedraw.push_back(*itt);
 
 	m_vectObjs_NeedRedraw.clear();
 	m_vectTexts_NeedRedraw.clear();
