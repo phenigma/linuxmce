@@ -228,8 +228,18 @@ void PnpQueueEntry::AssignDeviceData(Row_Device *pRow_Device)
 
 bool PnpQueueEntry::IsDuplicate(PnpQueueEntry *pPnpQueueEntry)
 {
-	if( (m_pRow_PnpQueue->FK_CommMethod_get()==pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get() // Don't worry about com method for serial devices since it can change from usb to rs232 for generic serial
-		|| (m_pRow_PnpQueue->Category_get()=="serial" && pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="serial") ) &&
+	bool bForcedMatch=false;  // So we can do some additional determinations of matching
+
+	// Com ports switch from usb to serial and the vendor/model id gets stripped
+	if( m_pRow_PnpQueue->Category_get()=="serial" && pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="serial" )
+	{
+		string sPort = m_mapPK_DeviceData_Find(DEVICEDATA_COM_Port_on_PC_CONST);
+		if( sPort.empty()==false && sPort==pPnpQueueEntry->m_mapPK_DeviceData_Find(DEVICEDATA_COM_Port_on_PC_CONST) )
+			bForcedMatch=true;
+	}
+
+	if( bForcedMatch ||
+		(m_pRow_PnpQueue->FK_CommMethod_get()==pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get() &&
 		m_pRow_PnpQueue->Removed_get()==pPnpQueueEntry->m_pRow_PnpQueue->Removed_get() && 
 		m_pRow_PnpQueue->Path_get()==pPnpQueueEntry->m_pRow_PnpQueue->Path_get() &&
 		m_pRow_PnpQueue->VendorModelId_get()==pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() &&
@@ -237,7 +247,7 @@ bool PnpQueueEntry::IsDuplicate(PnpQueueEntry *pPnpQueueEntry)
 		m_pRow_PnpQueue->MACaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() &&
 		m_pRow_PnpQueue->SerialNumber_get()==pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() &&
 		m_pRow_PnpQueue->Category_get()==pPnpQueueEntry->m_pRow_PnpQueue->Category_get() &&
-		m_pRow_PnpQueue->Parms_get()==pPnpQueueEntry->m_pRow_PnpQueue->Parms_get() )
+		m_pRow_PnpQueue->Parms_get()==pPnpQueueEntry->m_pRow_PnpQueue->Parms_get()) )
 	{
 		if( m_pRow_PnpQueue->FK_CommMethod_get()!=COMMMETHOD_Ethernet_CONST && 
 			m_pRow_PnpQueue->FK_Device_Reported_get()!=pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Reported_get() )
