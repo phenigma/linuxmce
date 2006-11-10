@@ -8,6 +8,8 @@
 
 #include "SkinGenerator.h"
 
+#include "WizardWidgetImage.h"
+
 #include <iostream>
 
 WizardPageVideoRatio::WizardPageVideoRatio(GenericBackEnd* FrontEnd, std::string Name)
@@ -147,18 +149,72 @@ void WizardPageVideoRatio::DoDecreaseSetting()
 {
 	std::vector<WizardWidgetBase*>::iterator Item;
 	WizardWidgetScrollList* NewSelectedScrollList = NULL;
+	WizardWidgetImage* NewSelectedImage = NULL;
 	for (Item = Page->Children.begin(); Item < Page->Children.end(); ++Item)
 	{
 		if (*Item == pWidget)
 		{
 			NewSelectedScrollList = dynamic_cast<WizardWidgetScrollList*>(pWidget);
+			NewSelectedImage = dynamic_cast<WizardWidgetImage*>(pWidget);
+
 			if (NewSelectedScrollList)
 			{
 				Selected->SetFocus(false);
 				Selected = NewSelectedScrollList;
 				Selected->SetFocus(true);
 			}
-			else
+			else if (NewSelectedImage)
+			{
+				if (NewSelectedImage->GetName() == "ResolutionUp")
+				{
+					Selected->SetFocus(false);
+					Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
+					Selected->SetFocus(true);
+
+					SDL_Event Event;
+					Event.type = SDL_KEYUP;
+					Event.key.state = SDL_RELEASED;
+					Event.key.keysym.sym = SDLK_UP;
+					SDL_PushEvent(&Event);
+				}
+				else if (NewSelectedImage->GetName() == "ResolutionDown")
+				{
+					Selected->SetFocus(false);
+					Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
+					Selected->SetFocus(true);
+
+					SDL_Event Event;
+					Event.type = SDL_KEYUP;
+					Event.key.state = SDL_RELEASED;
+					Event.key.keysym.sym = SDLK_DOWN;
+					SDL_PushEvent(&Event);
+				}
+				else if (NewSelectedImage->GetName() == "RefreshUp")
+				{
+					Selected->SetFocus(false);
+					Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"));
+					Selected->SetFocus(true);
+
+					SDL_Event Event;
+					Event.type = SDL_KEYUP;
+					Event.key.state = SDL_RELEASED;
+					Event.key.keysym.sym = SDLK_UP;
+					SDL_PushEvent(&Event);
+				}
+				else if (NewSelectedImage->GetName() == "RefreshDown")
+				{
+					Selected->SetFocus(false);
+					Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"));
+					Selected->SetFocus(true);
+
+					SDL_Event Event;
+					Event.type = SDL_KEYUP;
+					Event.key.state = SDL_RELEASED;
+					Event.key.keysym.sym = SDLK_DOWN;
+					SDL_PushEvent(&Event);
+				}
+			}
+			else if ((*Item)->GetName() == "BtnOK")
 			{
 				SDL_Event Event;
 				Event.type = SDL_KEYUP;

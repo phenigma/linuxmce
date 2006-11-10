@@ -19,6 +19,7 @@
 
 #include "WizardWidgetLabel.h"
 #include "WizardWidgetScrollList.h"
+#include "WizardWidgetImage.h"
 #include "Wizard.h"
 
 WizardPageUISwitcher::WizardPageUISwitcher(GenericBackEnd* FrontEnd, std::string Name)
@@ -133,18 +134,45 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 {
 	std::vector<WizardWidgetBase*>::iterator Item;
 	WizardWidgetButton* NewSelectedButton = NULL;
+	WizardWidgetImage* NewSelectedImage = NULL;
 	for (Item = Page->Children.begin(); Item < Page->Children.end(); ++Item)
 	{
 		if (*Item == pWidget)
 		{
 			NewSelectedButton = dynamic_cast<WizardWidgetButton*>(pWidget);
-			if (NewSelectedButton->GetName() == "BtnOK")
+			NewSelectedImage = dynamic_cast<WizardWidgetImage*>(pWidget);
+			if (NewSelectedButton == NULL && NewSelectedImage == NULL)
+				break;
+
+			if (NewSelectedButton != NULL)
 			{
-				SDL_Event Event;
-				Event.type = SDL_KEYUP;
-				Event.key.state = SDL_RELEASED;
-				Event.key.keysym.sym = SDLK_RETURN;
-				SDL_PushEvent(&Event);
+				if (NewSelectedButton->GetName() == "BtnOK")
+				{
+					SDL_Event Event;
+					Event.type = SDL_KEYUP;
+					Event.key.state = SDL_RELEASED;
+					Event.key.keysym.sym = SDLK_RETURN;
+					SDL_PushEvent(&Event);
+				}
+			}
+			else if (NewSelectedImage != NULL)
+			{
+				if (NewSelectedImage->GetName() == "UI_Up")
+				{
+					SDL_Event Event;
+					Event.type = SDL_KEYUP;
+					Event.key.state = SDL_RELEASED;
+					Event.key.keysym.sym = SDLK_UP;
+					SDL_PushEvent(&Event);
+				}
+				else if (NewSelectedImage->GetName() == "UI_Down")
+				{
+					SDL_Event Event;
+					Event.type = SDL_KEYUP;
+					Event.key.state = SDL_RELEASED;
+					Event.key.keysym.sym = SDLK_DOWN;
+					SDL_PushEvent(&Event);
+				}
 			}
 		}
 	}

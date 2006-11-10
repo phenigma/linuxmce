@@ -258,6 +258,16 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 		HighScrollBackColor,
 		HighScrollBackFocusedColor,
 		false));
+	Page->AddChild(CreateControlImage(
+		"ResolutionUp",
+		ImageFolder + "up_off.png",
+		285, 260
+		));
+	Page->AddChild(CreateControlImage(
+		"ResolutionDown",
+		ImageFolder + "down_off.png",
+		285, 368
+		));
 
 	Page->AddChild(CreateControlScrollList("RefreshScroll",
 		340, 260,
@@ -267,6 +277,17 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 		HighScrollBackColor,
 		HighScrollBackFocusedColor,
 		false));
+	Page->AddChild(CreateControlImage(
+		"RefreshUp",
+		ImageFolder + "up_off.png",
+		545, 260
+		));
+	Page->AddChild(CreateControlImage(
+		"RefreshDown",
+		ImageFolder + "down_off.png",
+		545, 368
+		));
+
 	Page->AddChild(CreateControlButton("BtnOK",
 		" OK ",
 		320, 440,
@@ -420,6 +441,16 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 		HighScrollBackColor,
 		HighScrollBackFocusedColor,
 		false));
+	Page->AddChild(CreateControlImage(
+		"UI_Up",
+		ImageFolder + "up_off.png",
+		425, 280
+		));
+	Page->AddChild(CreateControlImage(
+		"UI_Down",
+		ImageFolder + "down_off.png",
+		425, 385
+		));
 
 	Page->AddChild(CreateControlButton("BtnOK",
 		" OK ",
