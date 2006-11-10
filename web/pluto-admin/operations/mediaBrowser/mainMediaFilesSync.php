@@ -35,7 +35,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			function requestName(oldDir)
 			{
 				var newDir=prompt("'.$TEXT_REQUEST_DIRECTORY_NAME_CONST.' ",oldDir);
-				if(newDir!=oldDir && newDir!=""){
+				if(newDir!=oldDir && newDir!="" && newDir!=null){
 					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($path).'&action=renDir&newDir="+newDir;
 				}
 			}
