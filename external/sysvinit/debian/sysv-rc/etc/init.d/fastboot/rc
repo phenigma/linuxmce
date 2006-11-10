@@ -122,8 +122,12 @@ done
 /etc/init.d/fastboot/depend/generateDep.sh $runlevel start
 
 
+
 if [[ "$runlevel" == "0" || "$runlevel" == "6" ]] ;then
-    make -k -i -j -f /etc/init.d/fastboot/rc.mk RUNLEVEL=$runlevel JOB=start 2>/dev/null 1>/dev/null
+	make -k -i -j -f /etc/init.d/fastboot/rc.mk RUNLEVEL=$runlevel JOB=start 2>/dev/null 1>/dev/null
 else
+	if [[ -f /proc/splash ]] ;then
+		echo verbose > /proc/splash
+	fi
 	make -k -i -j -f /etc/init.d/fastboot/rc.mk RUNLEVEL=$runlevel JOB=start &>/dev/null &
 fi
