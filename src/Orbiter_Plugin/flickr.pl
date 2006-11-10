@@ -18,13 +18,17 @@ $child_count = 5;
 $SIG{CHLD}='sig_child';
 
 if (-e '/tmp/flickr_start'){
-	my $currentTime = `date +%s`;
-	my $lastRunTime = `stat --format=%Z /tmp/flickr_start`;
-	my $nrSeconds = $currentTime - $lastRunTime;
-	if ($nrSeconds > 18000){
-		`touch /tmp/flickr_start`;
-	} else {
-		exit (1);
+	my $line = `tail -n 1 /tmp/flickr_start`;
+	chomp($line);
+	if ($line eq 'Pictures downloaded'){
+		my $currentTime = `date +%s`;
+		my $lastRunTime = `stat --format=%Z /tmp/flickr_start`;
+		my $nrSeconds = $currentTime - $lastRunTime;
+		if ($nrSeconds > 18000){
+			`touch /tmp/flickr_start`;
+		} else {
+			exit (1);
+		}
 	}
 } else {
 	`touch /tmp/flickr_start`;
@@ -48,23 +52,23 @@ if ( $#ARGV >= 0 ) {
 	if ($ARGV[0]) {
 		$tDays = $ARGV[0];
 		print "Search days: $tDays";
-		}
+	}
 			
 	if ($ARGV[1]) {
 		$minW = $ARGV[1];
 		print "\tMin width: $minW";
-		}
+	}
 					
 	if ($ARGV[2]) {
 		$minH = $ARGV[2];
 		print "\tMin height: $minH\n";
-		}
 	}
 	
 	if ($ARGV[3]) {
 		$search_string = $ARGV[3];
 		print "\tSearch string:$search_string\n";
 	}
+}
 
 if ($#ARGV < 0) {
         $tDays = 5;
@@ -73,7 +77,7 @@ if ($#ARGV < 0) {
 	$search_string = '';
 	#$search_string = 'red cars';
         print "[flickr.pl] Using default values - days: $tDays, width: $minW, height: $minH, no search string \n";
-        }
+}
                                                
  
 if (!-d $dest) {
@@ -203,6 +207,11 @@ if ($search_string){
 		}
 	}
 }
+
+open DATA, ">/tmp/flickr_start" or die "can't open /tmp/flickr_start";
+print DATA 'Pictures downloaded';
+close(DATA);
+
 #deleting old files;
 delete_old();
 
@@ -282,7 +291,7 @@ sub get_files{
 	qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -o 0 2 1 391 145 "$ffield" 122 30 |;
 }
 
-sub delete_old{
+sub delete_old {
 	# Remove old files
 	#my $totalFiles = `find /home/flickr/ -name '*.jpg'  | wc -l`;
 	my $listOfFiles = `find /home/flickr/ -name '*.jpg'`;
