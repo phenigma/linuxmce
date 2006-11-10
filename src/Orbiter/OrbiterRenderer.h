@@ -42,6 +42,11 @@ private:
 	vector<DesignObj_Orbiter *> m_vectObjs_NeedRedraw;
 	vector<DesignObjText *> m_vectTexts_NeedRedraw;
 
+	//helper method
+	void RelativePosition(const PlutoRectangle& rectCurrentObject, 
+		const PlutoRectangle& rectCandidateObject,
+		int &Direction_Primary, int &Direction_Secondary, int &Distance);
+
 protected:
 
 	OrbiterRenderer(Orbiter *pOrbiter);

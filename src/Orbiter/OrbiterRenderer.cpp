@@ -560,7 +560,9 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 
 		PlutoPoint CandidateObjectPosition = p->m_pMidPoint + p->m_pPopupPoint;
 		PlutoPoint CurrentObjectPosition = pObjCurrent->m_pMidPoint + pObjCurrent->m_pPopupPoint;
-		CurrentObjectPosition.RelativePosition(CandidateObjectPosition, Direction_Primary, Direction_Secondary, Distance);
+		//CurrentObjectPosition.RelativePosition(CandidateObjectPosition, Direction_Primary, Direction_Secondary, Distance);
+		RelativePosition(pObjCurrent->m_rPosition + pObjCurrent->m_pPopupPoint, 
+			p->m_rPosition + p->m_pPopupPoint, Direction_Primary, Direction_Secondary, Distance);
 
 		if( Direction_Primary==PK_Direction )
 		{
@@ -1416,4 +1418,46 @@ void OrbiterRenderer::HandleRefreshCommand(string sDataGrid_ID)
 		RenderObjectAsync(OrbiterLogic()->m_pScreenHistory_Current->GetObj());
 
 	NeedToRender render( OrbiterLogic(), "CMD_Refresh" );  // Redraw anything that was changed by this command
+}
+
+void OrbiterRenderer::RelativePosition(const PlutoRectangle& A, 
+	const PlutoRectangle& B,
+	int &Direction_Primary, int &Direction_Secondary, int &Distance)
+{
+	PlutoPoint A_center(A.X + A.Width / 2, A.Y + A.Height / 2);
+	PlutoPoint B_center(B.X + B.Width / 2, B.Y + B.Height / 2);
+	A_center.RelativePosition(B_center, Direction_Primary, Direction_Secondary, Distance);
+
+	//... and now the adjustments:
+
+	bool bAdjustments = false;
+	PlutoRectangle rectB(B);
+
+	if(Direction_Secondary == DIRECTION_Up_CONST)
+	{
+		PlutoRectangle rectUp(A.X + 1, 0, A.Width - 2, A.Y);
+		if(rectB.IntersectsWith(rectUp))
+		{
+			bAdjustments = true;
+			Direction_Primary = DIRECTION_Up_CONST;
+		}
+	}
+	else if(Direction_Secondary == DIRECTION_Down_CONST)
+	{
+		PlutoRectangle rectDown(A.X + 1, A.Y + A.Height, A.Width - 2, OrbiterLogic()->m_iImageHeight);
+		if(rectB.IntersectsWith(rectDown))
+		{
+			bAdjustments = true;
+			Direction_Primary = DIRECTION_Down_CONST;
+		}
+	}
+	else if(Direction_Secondary == DIRECTION_Right_CONST)
+	{
+		PlutoRectangle rectRight(A.X + A.Width, A.Y + 1, OrbiterLogic()->m_iImageWidth, A.Y + A.Height - 2);
+		if(rectB.IntersectsWith(rectRight))
+		{
+			bAdjustments = true;
+			Direction_Primary = DIRECTION_Right_CONST;
+		}
+	}
 }

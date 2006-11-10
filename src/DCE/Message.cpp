@@ -457,6 +457,8 @@ void Message::Clear()
 {
 #ifdef LL_DEBUG
 	m_MessageID = g_MessageID++;
+#else
+	m_MessageID = 0;
 #endif
 
 	m_bCanBuffer = true;
