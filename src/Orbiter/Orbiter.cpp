@@ -4002,8 +4002,13 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		}
 		else if(  Variable=="E" && m_pLocationInfo  )
 			Output += StringUtils::itos( m_pLocationInfo->PK_EntertainArea );
-		else if(  Variable=="MD" && m_pLocationInfo  )
-			Output += StringUtils::itos( m_pLocationInfo->m_dwPK_Device_MediaDirector );
+		else if(  Variable=="MD" )
+		{
+			if( m_pLocationInfo && m_pLocationInfo->m_dwPK_Device_MediaDirector!=-1 )
+				Output += StringUtils::itos( m_pLocationInfo->m_dwPK_Device_MediaDirector );
+			else if( m_bIsOSD )
+				Output += StringUtils::itos( m_pData->m_dwPK_Device_ControlledVia );
+		}
 		else if(  Variable=="MDH"  )
 			Output += StringUtils::itos( m_pLocationInfo_Initial->m_dwPK_Device_MediaDirector );
 		else if(  Variable=="L:0" && m_pLocationInfo  )

@@ -811,7 +811,7 @@ string StringUtils::SQLEscape( string sInput )
     return sOutput;
 }
 
-bool StringUtils::StartsWith( string sFirst, string sSecond, bool bIgnoreCase )
+bool StringUtils::StartsWith( string sSearchIn, string sSearchFor, bool bIgnoreCase )
 {
     if( bIgnoreCase )
         return sFirst.length()>=sSecond.length() && StringUtils::ToLower(sFirst.substr(0,sSecond.length()))==StringUtils::ToLower(sSecond);
@@ -819,7 +819,7 @@ bool StringUtils::StartsWith( string sFirst, string sSecond, bool bIgnoreCase )
         return sFirst.length()>=sSecond.length() && sFirst.substr(0,sSecond.length())==sSecond;
 }
 
-bool StringUtils::EndsWith( string sFirst, string sSecond, bool bIgnoreCase )
+bool StringUtils::EndsWith( string sSearchIn, string sSearchFor, bool bIgnoreCase )
 {
     if( bIgnoreCase )
         return sFirst.length()>=sSecond.length() && StringUtils::ToLower(sFirst.substr(sFirst.length()-sSecond.length()))==StringUtils::ToLower(sSecond);
