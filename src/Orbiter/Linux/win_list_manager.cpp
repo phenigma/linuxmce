@@ -49,10 +49,12 @@ void WinListManager::ShowSdlWindow(bool bExclusive)
     if (!m_bHideSdlWindow)
 		ActivateSdlWindow();
 
-	//else
-    //    m_pWMController->ActivateWindow(sLastWindow);
     // TODO: possible bugfix: no FullScreen attribute
     m_pWMController->SetFullScreen(m_sSdlWindowName, bExclusive);
+
+	if(m_sExternApplicationName != "")
+	    m_pWMController->ActivateWindow(m_sExternApplicationName);
+
     return;
 }
 
