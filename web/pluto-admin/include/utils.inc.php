@@ -2349,7 +2349,7 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 	// old create device by calling directly the command
 	
 	if($GLOBALS['inDebug']==1){
-		$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$FK_DeviceTemplate.' -i '.$FK_Installation;
+		$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$FK_DeviceTemplate.' -i '.$FK_Installation.(((int)$controlledBy!=0)?' -C '.$controlledBy:'');
 		$insertID=exec_batch_command($cmd);
 		$dbADO->Execute('UPDATE Device SET FK_Room=? WHERE PK_Device=?',array($roomID,$insertID));
 	}else{
@@ -2835,12 +2835,16 @@ function displayRemotes($mdID,$dbADO,$section)
 	while($row=$res->fetchRow()){
 		$remotes[$row['PK_Device']]=$row['Description'];
 	}
-	$delLinks='';
+	$delLinks=(count($remotes)>0)?'<table width="100%">':'';
 	foreach ($remotes AS $rid=>$description){
-		$delLinks.='<a href="javascript:if(confirm(\''.$TEXT_DELETE_REMOTE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section='.$section.'&type=media_directors&action=del&delRemote='.$rid.'\';">'.$description.'</a>, ';
+		$delLinks.='
+		<tr>
+			<td><a href="index.php?section=editDeviceParams&deviceID='.$rid.'">'.$description.'</a></td>
+			<td><a href="javascript:if(confirm(\''.$TEXT_DELETE_REMOTE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section='.$section.'&type=media_directors&action=del&delRemote='.$rid.'\';">'.$TEXT_DELETE_CONST.'</a></td>
+		</tr>';
 	}
-	$note=($delLinks!='')?' Click to remove':'';
-	$out.='<input type="button" class="button_fixed" name="button" value="'.$TEXT_ADD_REMOTE_CONST.'" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$GLOBALS['RemoteControlls'].'&parmToKeep='.urlencode('mdID='.$mdID).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> '.substr($delLinks,0,-2).$note;
+	$delLinks.=(count($remotes)>0)?'</table>':'';
+	$out.=$delLinks.'<input type="button" class="button_fixed" name="button" value="'.$TEXT_ADD_REMOTE_CONST.'" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$GLOBALS['RemoteControlls'].'&parmToKeep='.urlencode('mdID='.$mdID).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> ';
 	
 	return $out;
 }
@@ -5175,6 +5179,7 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 		<input type="hidden" name="section" value="'.$section.'">
 		<input type="hidden" name="action" value="choose">
 		<input type="hidden" name="from" value="'.@$_REQUEST['from'].'">
+		<input type="hidden" name="parmToKeep" value="'.@$_REQUEST['parmToKeep'].'">
 	
 	<table align="center" border="0" cellpadding="2" cellspacing="0" width="550">';
 	if($returnValue==1){
@@ -5432,7 +5437,7 @@ function getsTreeChilds($jsNodes,$pid,$categoriesArray,$categoriesParents,$restr
 function dtPickerJS($returnValue){
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deviceTemplatePicker.lang.php');
-	
+
 	$out='
 	<script>
 	function setDeviceCategory(val){
