@@ -69,7 +69,7 @@
 	<input name='action' value='Add' type='submit'/></form>";
 	}elseif($action=='Details'){
 		echo "<h1>Lineup Wizard - Details</h1><br/>";
-		$query="SELECT UserName FROM UserLineups WHERE name=$lineup";
+		$query="SELECT UserName FROM UserLineups WHERE name='$lineup'";
 		$res=sendQuery($query, $handle_pluto);
 		if($row=mysql_fetch_array($res, MYSQL_ASSOC)){
 			echo "
@@ -116,7 +116,7 @@
 		}
 	}elseif($action=='Modify'){ // Modification lineup
 		echo "<h1>Lineup Wizard - Modify</h1><br/>";
-		$query="SELECT UserName FROM UserLineups WHERE name=$lineup";
+		$query="SELECT UserName FROM UserLineups WHERE name='$lineup'";
 		$res=sendQuery($query, $handle_pluto);
 		if($row=mysql_fetch_array($res, MYSQL_ASSOC)){
 			echo "
@@ -227,7 +227,7 @@
 		<input name='action' value='Enter' type='submit'/>
 	</form>";
 	}elseif($action=='Enter'){
-		$query="SELECT distinct PK_Headends, community_name, headend_name FROM Headends WHERE zip_code='$zipcode'";
+		$query="SELECT PK_Headends, community_name, headend_name FROM Headends WHERE zip_code='$zipcode'";
 		$res=sendQuery($query, $handle_pluto);
 		if(mysql_num_rows($res)){
 			echo "<h1>Lineup Wizard - Step 2</h1><br/>
@@ -262,11 +262,12 @@
 	</form>";
 		}
 	}elseif($action=='Next'){
+		echo "<h1>Lineup Wizard - Step 3</h1><br/>";
 		$query="SELECT count(*) from UserLineups WHERE name='$zipcode|$provider'";
 		$res=sendQuery($query, $handle_pluto);
 		if($row=mysql_fetch_array($res, MYSQL_NUM)){
 			if(0!=$row[0]){
-				echo "<h1>Lineup Wizard - Step 3</h1><br/>
+				echo "
 	This provider exists in you settings. You may change channels for him <br/>
 	<form action='".script_name."' method='POST'>
 		<input name='action' value='OK' type='submit'>
@@ -288,7 +289,7 @@
 					$stations[]=$row['name'];
 				}
 			}
-			echo "<h1>Lineup Wizard - Step 3</h1><br/>
+			echo "
 	<form action='".script_name."' method='POST'>
 		<input type='hidden' name='zipcode' value='$zipcode'>
 		<input type='hidden' name='provider' value='$provider'>
