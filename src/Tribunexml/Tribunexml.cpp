@@ -651,7 +651,7 @@ int main(int argc, char *argv[]){
 			case 'P':passwdtribune=argv[++i];break;
 			case 'D':dbtribune=argv[++i];break;
 			case 's':sourceid=argv[++i];break;
-			case 'R':URL==argv[++i];break;
+			case 'R':URL=argv[++i];break;
 			default:cerr<<"Unknown option"<<endl;
 							bError=true;
 		}
