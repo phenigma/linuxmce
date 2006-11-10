@@ -814,17 +814,17 @@ string StringUtils::SQLEscape( string sInput )
 bool StringUtils::StartsWith( string sSearchIn, string sSearchFor, bool bIgnoreCase )
 {
     if( bIgnoreCase )
-        return sFirst.length()>=sSecond.length() && StringUtils::ToLower(sFirst.substr(0,sSecond.length()))==StringUtils::ToLower(sSecond);
+        return sSearchIn.length()>=sSearchFor.length() && StringUtils::ToLower(sSearchIn.substr(0,sSearchFor.length()))==StringUtils::ToLower(sSearchFor);
     else
-        return sFirst.length()>=sSecond.length() && sFirst.substr(0,sSecond.length())==sSecond;
+        return sSearchIn.length()>=sSearchFor.length() && sSearchIn.substr(0,sSearchFor.length())==sSearchFor;
 }
 
 bool StringUtils::EndsWith( string sSearchIn, string sSearchFor, bool bIgnoreCase )
 {
     if( bIgnoreCase )
-        return sFirst.length()>=sSecond.length() && StringUtils::ToLower(sFirst.substr(sFirst.length()-sSecond.length()))==StringUtils::ToLower(sSecond);
+        return sSearchIn.length()>=sSearchFor.length() && StringUtils::ToLower(sSearchIn.substr(sSearchIn.length()-sSearchFor.length()))==StringUtils::ToLower(sSearchFor);
     else
-        return sFirst.length()>=sSecond.length() && sFirst.substr(sFirst.length()-sSecond.length())==sSecond;
+        return sSearchIn.length()>=sSearchFor.length() && sSearchIn.substr(sSearchIn.length()-sSearchFor.length())==sSearchFor;
 }
 
 bool StringUtils::OnlyWhiteSpace( const char *pInput )
