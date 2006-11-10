@@ -152,8 +152,8 @@ int findXML(FILE *fpage){
 	return 1;
 }
 		
-int IsExists(MYSQL *mysql,const string packageName,const string version){
-	string query="SELECT Version FROM `Software` where PackageName=\""+packageName+"\"";
+int IsExists(MYSQL *mysql,const string packageName,const string version, const string sPK_Device){
+	string query="SELECT Version FROM `Software` where PackageName=\""+packageName+"\" AND FK_Device="+sPK_Device;
 	MYSQL_RES *res;
 	MYSQL_ROW row;
 	if(mysql_real_query(mysql,query.c_str(),(unsigned int) strlen(query.c_str()))){
@@ -285,71 +285,73 @@ int main(int argc, char *argv[]){
 							continue;
 						sQuery="";
 						query="";
-						switch(IsExists(mysql,packageName,version)){
-							case -1:
-								return false;
-							case 0:
-								package=package->next;
-								continue;
-							case 1:
-								sHeadQuery="UPDATE `Software` set Iconstr=\"";
-								Bytes=decode(pDataDecoded,package);
-								pGoodData=new char[Bytes*2+1];
-								length=Bytes=mysql_real_escape_string(mysql, pGoodData, pDataDecoded,Bytes);
-								delete pDataDecoded;
-								sQuery=getParamValue("\",Title=\"", "title",package);
-								sQuery+=getParamValue("\",Description=\"", "description",package);
-								sQuery+=getParamValue("\",HomeURL=\"", "homeurl",package);
-								sQuery+=getParamValue("\",Category=\"", "category",package);
-								sQuery+=getParamValue("\",Downloadurl=\"", "downloadurl",package);
-								sQuery+=getParamValue("\",RepositoryName=\"", "repositoryname",package);
-								sQuery+=getParamValue("\",Misc=\"", "misc",package);
-								sQuery+=getParamValue("\",Version=\"", "version",package);
-								sQuery+=getParamValue("\",Target=\"", "target",package);
-								sQuery+=getParamValue("\",Importance=\"", "importance",package);
-								sQuery+=getParamValue("\",PC_Type=\"", "PC_Type",package);
-								sQuery+=getParamValue("\",Required_Version_Min=\"", "Required_Version_Min",package);
-								sQuery+=getParamValue("\",Required_Version_Max=\"", "Required_Version_Max",package);
-								sQuery+="\" WHERE PackageName=\""+packageName+"\"";
-								length+=sHeadQuery.length();
-								length+=sQuery.length();
-								query=new char[length];
-								memcpy(query, sHeadQuery.c_str(), sHeadQuery.length());
-								i=sHeadQuery.length();
-								memcpy(query+i, pGoodData, Bytes);
-								i+=Bytes;
-								memcpy(query+i, sQuery.c_str(), sQuery.length());
-								delete pGoodData;
-								break;
-							case 2:
-								Bytes=decode(pDataDecoded,package);
-								pGoodData=new char[Bytes*2+1];
-								length=Bytes=mysql_real_escape_string(mysql, pGoodData, pDataDecoded,Bytes);
-								delete pDataDecoded;
-								sQuery=getParamValue("\",\"", "title",package);
-								sQuery+=getParamValue("\",\"", "description",package);
-								sQuery+=getParamValue("\",\"", "homeurl",package);
-								sQuery+=getParamValue("\",\"", "category",package);
-								sQuery+=getParamValue("\",\"", "downloadurl",package);
-								sQuery+=getParamValue("\",\"", "repositoryname",package);
-								sQuery+=getParamValue("\",\"", "packagename",package);
-								sQuery+=getParamValue("\",\"", "misc",package);
-								sQuery+=getParamValue("\",\"", "version",package);
-								sQuery+=getParamValue("\",\"", "target",package);
-								sQuery+=getParamValue("\",\"", "importance",package);
-								sQuery+=getParamValue("\",\"", "PC_Type",package);
-								sQuery+=getParamValue("\",\"", "Required_Version_Min",package);
-								sQuery+=getParamValue("\",\"", "Required_Version_Max",package);
-								length+=sQuery.length();
-								i=0;
-								for(size_t s=0;s<vPK_Device.size();++s)
-									i+=vPK_Device[s].length()+3;
-								length=(length+3)*vPK_Device.size()+head.length()-1+i;
-								query=new char[length];
-								i=0;
-								memcpy(query, head.c_str(), head.length());
-								i=head.length();
-								for(size_t s=0;s<vPK_Device.size();++s){
+						for(size_t s=0;s<vPK_Device.size();++s){
+							switch(IsExists(mysql,packageName,version,vPK_Device[s])){
+								case -1:
+									return false;
+								case 0:
+//									package=package->next;
+									continue;
+								case 1:
+									sHeadQuery="UPDATE `Software` set Iconstr=\"";
+									Bytes=decode(pDataDecoded,package);
+									pGoodData=new char[Bytes*2+1];
+									length=Bytes=mysql_real_escape_string(mysql, pGoodData, pDataDecoded,Bytes);
+									delete pDataDecoded;
+									sQuery=getParamValue("\",Title=\"", "title",package);
+									sQuery+=getParamValue("\",Description=\"", "description",package);
+									sQuery+=getParamValue("\",HomeURL=\"", "homeurl",package);
+									sQuery+=getParamValue("\",Category=\"", "category",package);
+									sQuery+=getParamValue("\",Downloadurl=\"", "downloadurl",package);
+									sQuery+=getParamValue("\",RepositoryName=\"", "repositoryname",package);
+									sQuery+=getParamValue("\",Misc=\"", "misc",package);
+									sQuery+=getParamValue("\",Version=\"", "version",package);
+									sQuery+=getParamValue("\",Target=\"", "target",package);
+									sQuery+=getParamValue("\",Importance=\"", "importance",package);
+									sQuery+=getParamValue("\",PC_Type=\"", "PC_Type",package);
+									sQuery+=getParamValue("\",Required_Version_Min=\"", "Required_Version_Min",package);
+									sQuery+=getParamValue("\",Required_Version_Max=\"", "Required_Version_Max",package);
+									sQuery+="\" WHERE PackageName=\""+packageName+"\" AND FK_Device="+vPK_Device[s];
+									length+=sHeadQuery.length();
+									length+=sQuery.length();
+									query=new char[length];
+									memcpy(query, sHeadQuery.c_str(), sHeadQuery.length());
+									i=sHeadQuery.length();
+									memcpy(query+i, pGoodData, Bytes);
+									i+=Bytes;
+									memcpy(query+i, sQuery.c_str(), sQuery.length());
+									delete pGoodData;
+									break;
+								case 2:
+									Bytes=decode(pDataDecoded,package);
+									pGoodData=new char[Bytes*2+1];
+									length=Bytes=mysql_real_escape_string(mysql, pGoodData, pDataDecoded,Bytes);
+									delete pDataDecoded;
+									sQuery=getParamValue("\",\"", "title",package);
+									sQuery+=getParamValue("\",\"", "description",package);
+									sQuery+=getParamValue("\",\"", "homeurl",package);
+									sQuery+=getParamValue("\",\"", "category",package);
+									sQuery+=getParamValue("\",\"", "downloadurl",package);
+									sQuery+=getParamValue("\",\"", "repositoryname",package);
+									sQuery+=getParamValue("\",\"", "packagename",package);
+									sQuery+=getParamValue("\",\"", "misc",package);
+									sQuery+=getParamValue("\",\"", "version",package);
+									sQuery+=getParamValue("\",\"", "target",package);
+									sQuery+=getParamValue("\",\"", "importance",package);
+									sQuery+=getParamValue("\",\"", "PC_Type",package);
+									sQuery+=getParamValue("\",\"", "Required_Version_Min",package);
+									sQuery+=getParamValue("\",\"", "Required_Version_Max",package);
+									length+=sQuery.length();
+//									i=0;
+//									for(size_t s=0;s<vPK_Device.size();++s)
+//										i+=vPK_Device[s].length()+3;
+//									length=(length+3)*vPK_Device.size()+head.length()-1+i;
+									length=length+head.length()+vPK_Device[s].length()+5;
+									query=new char[length];
+									i=0;
+									memcpy(query, head.c_str(), head.length());
+									i=head.length();
+//									for(size_t s=0;s<vPK_Device.size();++s){
 									memcpy(query+i, "(\"", 2);
 									i+=2;
 									memcpy(query+i, pGoodData, Bytes);
@@ -358,11 +360,14 @@ int main(int argc, char *argv[]){
 									i+=sQuery.length();
 									memcpy(query+i, ((string)"\","+vPK_Device[s]+")").c_str(), vPK_Device[s].length()+3);
 									i+=vPK_Device[s].length()+3;
-									if(s<vPK_Device.size()-1)
-										memcpy(query+i++, ",", 1);
-								}
-								delete pGoodData;
+//									if(s<vPK_Device.size()-1)
+//										memcpy(query+i++, ",", 1);
+//									}
+									delete pGoodData;
+							}
 						}
+//						cout<<query<<endl;
+//						return false;
 						if(length){
 							if(mysql_real_query(mysql,query,(unsigned int) length)){
 								cout<<"Error making query: "<<mysql_error(mysql)<<endl;
