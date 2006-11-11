@@ -9212,7 +9212,8 @@ void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
 
 	if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation )
 	{
-		CMD_Goto_Screen("",m_iPK_Screen_RemoteOSD); // Go to the remote instead
+		if( bGotoScreenSaverDesignObj && (!m_pScreenHistory_Current || m_pScreenHistory_Current->PK_Screen()!=m_iPK_Screen_RemoteOSD) )
+			CMD_Goto_Screen("",m_iPK_Screen_RemoteOSD); // Go to the remote instead
 		return;
 	}
 
