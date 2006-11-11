@@ -749,6 +749,9 @@
 #define COMMAND_Specify_Capture_Card_Port_CONST 825
 #define COMMAND_Speak_in_house_CONST 826
 #define COMMAND_Stop_Pending_Command_Group_CONST 827
+#define COMMAND_Get_List_of_Remotes_CONST 828
+#define COMMAND_Get_Remote_ID_CONST 829
+#define COMMAND_Set_Active_Remote_CONST 830
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

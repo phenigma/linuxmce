@@ -26,6 +26,7 @@ namespace DCE
 		int m_dwPK_Room,m_dwPK_Room_Locked;  // The current room
 		int m_dwPK_Skin;
 		int m_dwPK_UI;
+		int m_dwPK_Device_CurrentRemote;
 
 		int m_iLastSignalStrength;
 		int m_iFailedToConnectCount;
@@ -53,6 +54,7 @@ namespace DCE
 			m_bDontAutoShowRemote=false;
 			m_dwPK_Skin = atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PK_Skin_CONST).c_str());
 			m_dwPK_UI = atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PK_UI_CONST).c_str());
+			m_dwPK_Device_CurrentRemote=0;
 		}
 
 		~OH_Orbiter();

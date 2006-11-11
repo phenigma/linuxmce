@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include <string.h>
 
+bool ProcessBindRequest(Orbiter *pOrbiter,char *inPacket,char *write_packet);
+bool ProcessButton(Orbiter *pOrbiter,char *inPacket,char *write_packet);
+
 void *ProcessHIDEvents(void *p)
 {
 	Orbiter *pOrbiter = (Orbiter *) p;
@@ -24,77 +27,76 @@ void *ProcessHIDEvents(void *p)
 
 	/* ... */
 
-	for (bus = busses; bus; bus = bus->next) {
+	for (bus = busses; bus; bus = bus->next) 
+	{
 		struct usb_device *dev;
 
 		for (dev = bus->devices; dev; dev = dev->next) {
 
+#ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents %04x:%04x\n", dev->descriptor.idVendor, dev->descriptor.idProduct);
-
-			if ( (dev->descriptor.idVendor==0x0c16) && (dev->descriptor.idProduct==0x0006) )
+#endif
+			if ( (dev->descriptor.idVendor==0x0c16) && (dev->descriptor.idProduct==0x0006) )  // The gyration remote
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents device found!");
 
 				usb_dev_handle * handle = usb_open(dev);
 
 				int res = 0;
-
-				/*                                    res = usb_set_configuration(handle, 1);
-				g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents set configuration: %i\n", res);
-				if (res<0)
-				return 1;
-				*/                          /*
-				res = usb_detach_kernel_driver_np(handle, 1);
-				g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents detach interface: %i\n", res);
-				if (res<0){ perror("error: "); /*return 1;*//*}
-				*/
 				res = usb_claim_interface(handle, 1);
-				g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents claim interface: %i\n", res);
-				if (res<0){ perror("error: ");
-				return NULL;}
+				if (res<0)
+				{ 
+					g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents claim interface: %i\n", res);
+					perror("error: ");
+					return NULL;
+				}
 
 				char outPacket[4] = { 0x08, 0x40, 0x00, 0x00 };
 				char inPacket[6];
 
 				res = usb_control_msg(handle, 0x21, 9, 8+(0x03<<8) /*int value*/, 1 /* int index */, outPacket, 4, 250);
+
 				//                                                      res = usb_interrupt_write(handle, 0x01, outPacket, 4, 250);
-				if (res<0) perror("err: ");                             g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents write result: %i\n", res);
-				//                                                      if (res<0) return 1;
+				if (res<0)
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents first usb_control_msg: %i\n", res);
+					perror("err: ");
+				}
 
 				int cnt=0;
 				while(1)
 				{
 					res = usb_interrupt_read(handle, 0x82, inPacket, 6, 250);
-					//g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents read result: %i\n", res);
 					if (res<0&&res!=-110) break;
 					if (res<=0)
 					{
-						if (cnt%100==0) g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents .", cnt++);
+#ifdef DEBUG
+						if (cnt%100==0) 
+							g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents .", cnt++);
+#endif
 						usleep(10000);
 						cnt++;
 					}
 					else
 					{
-						g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents \n[READER] %04i.%03i: read bytes: ", cnt/100, cnt%100);
-						int i;
-						for (i=0; i<res; i++)
-							g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents %02x ", (int)(unsigned char) inPacket[i]);
-						g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents \n");
+						g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents \n[READER] %04i.%03i: read bytes: %d", cnt/100, cnt%100,res);
 
-						if( inPacket[0]==8 && inPacket[1]==0x20 )
+						if( res==6 && inPacket[0]==8 )  // It's for us
 						{
-							g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessHIDEvents got a bind request.  Donig it.\n");
-							char write_packet[5];
-							write_packet[0]=8;
-							write_packet[1]=0x20;
-							write_packet[2]=0x02;  // The remote ID
-							write_packet[3]=0;
-							int ctrl = usb_control_msg(handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
-							g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessHIDEvents  usb_control_msg %d\n",(int) ctrl);
-							if (ctrl<0) perror("error: ");
+							if( inPacket[1]==0x20 )  // A bind request
+							{
+								char write_packet[5];
+								ProcessBindRequest(pOrbiter,inPacket,write_packet);
+								int ctrl = usb_control_msg(handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
+								if (ctrl<0)
+								{
+									g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents ProcessBindRequest  usb_control_msg %d\n",(int) ctrl);
+									perror("error: ");
+								}
+							}
+							else if( inPacket[1]==0x25 )  // A button
+								ProcessButton(pOrbiter,inPacket);
 						}
-
-						//                                                    break;
 					}
 
 				}
@@ -107,8 +109,49 @@ void *ProcessHIDEvents(void *p)
 		}
 	}
 
+	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents Exiting");
 
 	return 0;
+}
+
+bool ProcessBindRequest(Orbiter *pOrbiter,char *inPacket,char *write_packet)
+{
+	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessBindRequest got a bind request for %d %d %d %d",
+		(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
+
+	write_packet[0]=8;
+	write_packet[1]=0x20;
+	write_packet[2]=0x02;  // The remote ID
+	write_packet[3]=0;
+	int ctrl = usb_control_msg(handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
+	if (ctrl<0)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents ProcessBindRequest  usb_control_msg %d\n",(int) ctrl);
+		perror("error: ");
+	}
+	return true;
+}
+
+
+bool ProcessButton(Orbiter *pOrbiter,char *inPacket)
+{
+	static int iRemoteID=0;
+	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessButton for %d %d %d %d",
+		(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
+	
+	Orbiter::Event *pEvent = new Orbiter::Event;
+	pEvent->type=Orbiter::Event::HID;
+
+	char packet_data[200];
+	sprintf(packet_data,"HID packet: ");
+	for (i = 0; i < RECV_PACKET_LEN; i++)
+	{
+		pEvent->data.hid.m_pbHid[i] = packet[i];
+		sprintf(packet_data,"%02x ", packet[i]);
+	}
+
+	pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
+	return true;
 }
 
 /*

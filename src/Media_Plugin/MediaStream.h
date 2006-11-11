@@ -77,6 +77,7 @@ namespace DCE
         string m_sPlaylistName;      /** the name of the playlist which was loaded from the database. */
 		int m_discid;  /** A unique number to identify the disc inserted, if this is from a removable disc (CD/DVD) */
 		bool m_bIdentifiedDisc;
+		int m_dwPK_Device_Remote; /** What remote control started this content */
 		
 		/** When this media is identified, the priority of the identifying module is stored here so if another
 		module also identifies it, we can take the one with the highest priority */

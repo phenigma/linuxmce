@@ -550,6 +550,40 @@ format */
 	virtual void CMD_Check_Media_Providers(string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #828 - Get List of Remotes */
+	/** Get the list of follow-me enabled remote controls */
+		/** @param #9 Text */
+			/** The list of remotes in the format:
+]PK_Device],[PK_User],[RemoteID] */
+
+	virtual void CMD_Get_List_of_Remotes(string *sText) { string sCMD_Result; CMD_Get_List_of_Remotes(sText,sCMD_Result,NULL);};
+	virtual void CMD_Get_List_of_Remotes(string *sText,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #829 - Get Remote ID */
+	/** For the special follow-me controls, this takes in a serial number and returns a unique 8-bit id for the remote, and the PK_Device */
+		/** @param #2 PK_Device */
+			/** The device id */
+		/** @param #48 Value */
+			/** The 8-bit unique id for this remote */
+		/** @param #206 UID */
+			/** The serial number */
+
+	virtual void CMD_Get_Remote_ID(string sUID,int *iPK_Device,int *iValue) { string sCMD_Result; CMD_Get_Remote_ID(sUID.c_str(),iPK_Device,iValue,sCMD_Result,NULL);};
+	virtual void CMD_Get_Remote_ID(string sUID,int *iPK_Device,int *iValue,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #830 - Set Active Remote */
+	/** Specified which remote control is controling a particular device. */
+		/** @param #2 PK_Device */
+			/** The device that is controlling it */
+		/** @param #198 PK_Orbiter */
+			/** The orbiter being controlled */
+
+	virtual void CMD_Set_Active_Remote(int iPK_Device,int iPK_Orbiter) { string sCMD_Result; CMD_Set_Active_Remote(iPK_Device,iPK_Orbiter,sCMD_Result,NULL);};
+	virtual void CMD_Set_Active_Remote(int iPK_Device,int iPK_Orbiter,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 

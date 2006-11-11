@@ -2988,3 +2988,75 @@ void Orbiter_Plugin::CMD_Check_Media_Providers(string &sCMD_Result,Message *pMes
 		return; // Only do 1 at a time
 	PromptForMissingCapture_Card_Port();
 }
+
+//<-dceag-c828-b->
+
+	/** @brief COMMAND: #828 - Get List of Remotes */
+	/** Get the list of follow-me enabled remote controls */
+		/** @param #9 Text */
+			/** The list of remotes in the format:
+]PK_Device],[PK_User],[RemoteID] */
+
+void Orbiter_Plugin::CMD_Get_List_of_Remotes(string *sText,string &sCMD_Result,Message *pMessage)
+//<-dceag-c828-e->
+{
+}
+
+//<-dceag-c829-b->
+
+	/** @brief COMMAND: #829 - Get Remote ID */
+	/** For the special follow-me controls, this takes in a serial number and returns a unique 8-bit id for the remote, and the PK_Device */
+		/** @param #2 PK_Device */
+			/** The device id */
+		/** @param #48 Value */
+			/** The 8-bit unique id for this remote */
+		/** @param #206 UID */
+			/** The serial number */
+
+void Orbiter_Plugin::CMD_Get_Remote_ID(string sUID,int *iPK_Device,int *iValue,string &sCMD_Result,Message *pMessage)
+//<-dceag-c829-e->
+{
+	string sSQL = "SELECT PK_Device FROM Device_DeviceData JOIN Device ON FK_Device=PK_Device WHERE FK_DeviceData=" TOSTRING(DEVICEDATA_Serial_Number_CONST) " AND IK_DeviceData='" + sUID + "' AND FK_DeviceTemplate=" TOSTRING(DEVICETEMPLATE_MCR_Remote_CONST);
+	PlutoSqlResult result_set;
+    MYSQL_ROW row;
+	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) )
+	{
+		*iPK_Device = atoi(row[0]);
+		string sValue = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,*iPK_Device,DEVICEDATA_PortChannel_Number_CONST);
+		*iValue = atoi(sValue.c_str());
+		return;
+	}
+
+	DCE::CMD_Create_Device CMD_Create_Device(m_dwPK_Device,m_pGeneral_Info_Plugin->m_dwPK_Device,DEVICETEMPLATE_MCR_Remote_CONST,"",0,"","",0,0,pMessage->m_dwPK_Device_From,0,iPK_Device);
+	if( !SendCommand(CMD_Create_Device) || *iPK_Device==0 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter_Plugin::CMD_Get_Remote_ID error creating remote");
+		return;
+	}
+
+	*iValue=1;
+	sSQL = "SELECT max(IK_DeviceData) FROM Device_DeviceData JOIN Device ON FK_Device=PK_Device WHERE FK_DeviceData=" 
+		TOSTRING(DEVICEDATA_PortChannel_Number_CONST) " AND FK_DeviceTemplate=" TOSTRING(DEVICETEMPLATE_MCR_Remote_CONST);
+	PlutoSqlResult result_set2;
+	if( (result_set2.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set2.r)) && atoi(row[0])>0 )
+		*iValue = atoi(row[0]) + 1;
+	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,*iPK_Device,DEVICEDATA_PortChannel_Number_CONST,StringUtils::itos(*iValue));
+}
+
+//<-dceag-c830-b->
+
+	/** @brief COMMAND: #830 - Set Active Remote */
+	/** Specified which remote control is controling a particular device. */
+		/** @param #2 PK_Device */
+			/** The device that is controlling it */
+		/** @param #198 PK_Orbiter */
+			/** The orbiter being controlled */
+
+void Orbiter_Plugin::CMD_Set_Active_Remote(int iPK_Device,int iPK_Orbiter,string &sCMD_Result,Message *pMessage)
+//<-dceag-c830-e->
+{
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Orbiter);
+	if( pOH_Orbiter )
+		pOH_Orbiter->m_dwPK_Device_CurrentRemote=iPK_Device;
+}
