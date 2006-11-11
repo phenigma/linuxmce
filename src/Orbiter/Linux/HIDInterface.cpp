@@ -7,8 +7,8 @@
 #include <stdio.h>
 #include <string.h>
 
-bool ProcessBindRequest(Orbiter *pOrbiter,char *inPacket,char *write_packet);
-bool ProcessButton(Orbiter *pOrbiter,char *inPacket,char *write_packet);
+bool ProcessBindRequest(Orbiter *pOrbiter,usb_dev_handle *handle,char *inPacket,char *write_packet);
+bool ProcessHIDButton(Orbiter *pOrbiter,char *inPacket);
 
 void *ProcessHIDEvents(void *p)
 {
@@ -86,7 +86,7 @@ void *ProcessHIDEvents(void *p)
 							if( inPacket[1]==0x20 )  // A bind request
 							{
 								char write_packet[5];
-								ProcessBindRequest(pOrbiter,inPacket,write_packet);
+								ProcessBindRequest(pOrbiter,handle,inPacket,write_packet);
 								int ctrl = usb_control_msg(handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
 								if (ctrl<0)
 								{
@@ -95,7 +95,7 @@ void *ProcessHIDEvents(void *p)
 								}
 							}
 							else if( inPacket[1]==0x25 )  // A button
-								ProcessButton(pOrbiter,inPacket);
+								ProcessHIDButton(pOrbiter,inPacket);
 						}
 					}
 
@@ -114,7 +114,7 @@ void *ProcessHIDEvents(void *p)
 	return 0;
 }
 
-bool ProcessBindRequest(Orbiter *pOrbiter,char *inPacket,char *write_packet)
+bool ProcessBindRequest(Orbiter *pOrbiter,usb_dev_handle *handle,char *inPacket,char *write_packet)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessBindRequest got a bind request for %d %d %d %d",
 		(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
@@ -133,22 +133,14 @@ bool ProcessBindRequest(Orbiter *pOrbiter,char *inPacket,char *write_packet)
 }
 
 
-bool ProcessButton(Orbiter *pOrbiter,char *inPacket)
+bool ProcessHIDButton(Orbiter *pOrbiter,char *inPacket)
 {
 	static int iRemoteID=0;
-	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessButton for %d %d %d %d",
+	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessHIDButton for %d %d %d %d",
 		(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
 	
 	Orbiter::Event *pEvent = new Orbiter::Event;
 	pEvent->type=Orbiter::Event::HID;
-
-	char packet_data[200];
-	sprintf(packet_data,"HID packet: ");
-	for (i = 0; i < RECV_PACKET_LEN; i++)
-	{
-		pEvent->data.hid.m_pbHid[i] = packet[i];
-		sprintf(packet_data,"%02x ", packet[i]);
-	}
 
 	pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
 	return true;
