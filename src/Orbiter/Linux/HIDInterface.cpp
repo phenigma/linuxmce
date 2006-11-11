@@ -9,130 +9,104 @@
 
 void *ProcessHIDEvents(void *p)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents starting");
-
 	Orbiter *pOrbiter = (Orbiter *) p;
-	HIDInterface* hid;
-	hid_return ret;
+	struct usb_bus *busses;
+	usb_set_debug(255);
 
-	HIDInterfaceMatcher matcher = { 0x0c16, 0x0006, NULL, NULL, 0 };
+	usb_init();
+	usb_find_busses();
+	usb_find_devices();
 
-	/* see include/debug.h for possible values */
-	//hid_set_debug(HID_DEBUG_ALL);
-	hid_set_debug(HID_DEBUG_NONE);
-	hid_set_debug_stream(stderr);
-	/* passed directly to libusb */
-	hid_set_usb_debug(0);
-	
-	ret = hid_init();
-	if (ret != HID_RET_SUCCESS)
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents hid_init failed with return code %d", ret);
-		return NULL;
-	}
+	busses = usb_get_busses();
 
-	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents initialized");
+	struct usb_bus *bus;
+	int c, i, a;
 
-	hid = hid_new_HIDInterface();
-	if (hid == 0)
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents hid_new_HIDInterface() failed, out of memory?");
-		return NULL;
-	}
+	/* ... */
 
-	ret = hid_force_open(hid, 0, &matcher, 3);
-	if (ret != HID_RET_SUCCESS)
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents hid_force_open failed with return code %d\n", ret);
-		return NULL;
-	}
+	for (bus = busses; bus; bus = bus->next) {
+		struct usb_device *dev;
 
-	ret = hid_write_identification(stdout, hid);
-	if (ret != HID_RET_SUCCESS) {
-		g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents hid_write_identification failed with return code %d\n", ret);
-		return NULL;
-	}
+		for (dev = bus->devices; dev; dev = dev->next) {
 
-	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents wrote identification");
+			printf("%04x:%04x\n", dev->descriptor.idVendor, dev->descriptor.idProduct);
 
-	const unsigned char RECV_PACKET_LEN = 6;
-	unsigned char packet[RECV_PACKET_LEN];
-	do
-	{
-		ret = hid_interrupt_read(hid, 0x82, (char *) packet, RECV_PACKET_LEN, 250);
-		int i;
-		if (ret != HID_RET_SUCCESS && ret != HID_RET_FAIL_INT_READ)
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents hid_get_input_report failed with return code %d\n", ret);
-		}
-		else if (ret != HID_RET_FAIL_INT_READ)
-		{
-
-			Orbiter::Event *pEvent = new Orbiter::Event;
-			pEvent->type=Orbiter::Event::HID;
-
-			char packet_data[200];
-			sprintf(packet_data,"HID packet: ");
-			for (i = 0; i < RECV_PACKET_LEN; i++)
+			if ( (dev->descriptor.idVendor==0x0c16) && (dev->descriptor.idProduct==0x0006) )
 			{
-				pEvent->data.hid.m_pbHid[i] = packet[i];
-				sprintf(packet_data,"%02x ", packet[i]);
+				printf ("device found!");
+
+				usb_dev_handle * handle = usb_open(dev);
+
+				int res = 0;
+
+				/*                                    res = usb_set_configuration(handle, 1);
+				printf("set configuration: %i\n", res);
+				if (res<0)
+				return 1;
+				*/                          /*
+				res = usb_detach_kernel_driver_np(handle, 1);
+				printf("detach interface: %i\n", res);
+				if (res<0){ perror("error: "); /*return 1;*//*}
+				*/
+				res = usb_claim_interface(handle, 1);
+				printf("claim interface: %i\n", res);
+				if (res<0){ perror("error: ");
+				return 1;}
+
+				char outPacket[4] = { 0x08, 0x40, 0x00, 0x00 };
+				char inPacket[6];
+
+				res = usb_control_msg(handle, 0x21, 9, 8+(0x03<<8) /*int value*/, 1 /* int index */, outPacket, 4, 250);
+				//                                                      res = usb_interrupt_write(handle, 0x01, outPacket, 4, 250);
+				if (res<0) perror("err: ");                             printf ("write result: %i\n", res);
+				//                                                      if (res<0) return 1;
+
+				int cnt=0;
+				while(1)
+				{
+					res = usb_interrupt_read(handle, 0x82, inPacket, 6, 250);
+					//printf ("read result: %i\n", res);
+					if (res<0&&res!=-110) break;
+					if (res<=0)
+					{
+						if (cnt%100==0) printf(".", cnt++);
+						usleep(10000);
+						cnt++;
+					}
+					else
+					{
+						printf("\n[READER] %04i.%03i: read bytes: ", cnt/100, cnt%100);
+						int i;
+						for (i=0; i<res; i++)
+							printf("%02x ", (int)(unsigned char) inPacket[i]);
+						printf("\n");
+
+						if( inPacket[0]==8 && inPacket[1]==0x20 )
+						{
+							printf("ProcessHIDEvents got a bind request.  Donig it.\n");
+							char write_packet[5];
+							write_packet[0]=8;
+							write_packet[1]=0x20;
+							write_packet[2]=0x02;  // The remote ID
+							write_packet[3]=0;
+							int ctrl = usb_control_msg(handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
+							printf("ProcessHIDEvents  usb_control_msg %d\n",(int) ctrl);
+							if (ctrl<0) perror("error: ");
+						}
+
+						//                                                    break;
+					}
+
+				}
+
+				usb_release_interface(handle, 1);
+
+
+				usb_close(handle);
 			}
-
-g_pPlutoLogger->Write(LV_WARNING,"ProcessHIDEvents hid_get_input_report ret %d packet %s\n", ret, packet_data);
-
-			if( packet[0]==8 && packet[1]==0x20 )
-			{
-#ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents got a bind request.  Donig it.");
-#endif
-				char write_packet[5];
-				write_packet[0]=8;
-				write_packet[1]=0x20;
-				write_packet[2]=0x01;  // The remote ID
-				write_packet[3]=0;
-/*
-int len = usb_interrupt_write(hid->dev_handle,0x80, (char *) write_packet, 4, 250);
-g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents  usb_interrupt_write %d",(int) len);
-*/
-int ctrl = usb_control_msg(hid->dev_handle, 0x21, 9, 0 /*int value*/, 0 /* int index */, write_packet, 4, 250);
-g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents  usb_control_msg %d",(int) ctrl);
-
-/*
-
-				hid_return ret_write = hid_interrupt_write(hid, 0x80, (char *) write_packet, 4, 250);
-#ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents hid_return was %d",(int) ret_write);
-#endif
-*/
-			}
-
-#ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents queueing to orbiter   rrr");
-#endif
-			pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
 		}
-		bool bisopen = hid_is_opened(hid);
-		g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents hid_get_input_report ret %d *IDLE* %d\n", ret,(int) bisopen);
-	} while (!pOrbiter->m_bQuit);
-
-	ret = hid_close(hid);
-	if (ret != HID_RET_SUCCESS)
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents hid_close failed with return code %d\n", ret);
-		return NULL;
 	}
 
-	hid_delete_HIDInterface(&hid);
 
-	ret = hid_cleanup();
-	if (ret != HID_RET_SUCCESS)
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents hid_cleanup failed with return code %d\n", ret);
-		return NULL;
-	}
-	
-	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents exiting");
-
-	return NULL;
+	return 0;
 }
