@@ -23,7 +23,15 @@ public:
 	DataGridCell *m_pCell;
 	pair<int,int> m_ColRow;
 
-	BackgroundImage(string sPic,DesignObj_DataGrid *pObj_Grid,DataGridCell *pCell,pair<int,int> ColRow) { m_pObj_Grid=pObj_Grid; m_pCell=pCell; m_ColRow=ColRow; m_sPic=sPic; }
+	BackgroundImage(string sPic,DesignObj_DataGrid *pObj_Grid,DataGridCell *pCell,pair<int,int> ColRow) 
+	{ 
+		m_pObj_Grid=pObj_Grid; m_pCell=pCell; m_ColRow=ColRow; m_sPic=sPic; 
+		g_pPlutoLogger->Write(LV_STATUS,"BackgroundImage::BackgroundImage %p",this);
+	}
+	~BackgroundImage()
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"BackgroundImage::~BackgroundImage %p",this);
+	}
 };
 
 using namespace DCE;

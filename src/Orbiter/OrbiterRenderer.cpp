@@ -48,6 +48,7 @@ OrbiterRenderer::OrbiterRenderer(Orbiter *pOrbiter) :
 	m_vectTexts_NeedRedraw.clear();
 	m_vectObjs_NeedRedraw.clear();
 
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	for(list<BackgroundImage *>::iterator it = m_listBackgroundImage.begin(), 
 		end = m_listBackgroundImage.end(); it != end; ++it)
 	{
@@ -55,6 +56,7 @@ OrbiterRenderer::OrbiterRenderer(Orbiter *pOrbiter) :
 		delete pBackgroundImage;
 	}
 	m_listBackgroundImage.clear();
+	vm.Release();
 
 	nd.Release();
 
@@ -1310,11 +1312,12 @@ void OrbiterRenderer::BackgroundImageLoad(const char *Filename, DesignObj_DataGr
 	bool bNeedToStartThread;
 	PLUTO_SAFETY_LOCK(M, m_pOrbiter->m_VariableMutex);
 	bNeedToStartThread = (m_listBackgroundImage.size() == 0);
+	BackgroundImage *pBackgroundImage = new BackgroundImage(Filename,pObj_DataGrid,pCell,ColRow);
 	if( bDoFirst )
-		m_listBackgroundImage.push_front( new BackgroundImage(Filename,pObj_DataGrid,pCell,ColRow) );
+		m_listBackgroundImage.push_front( pBackgroundImage );
 	else
-		m_listBackgroundImage.push_back( new BackgroundImage(Filename,pObj_DataGrid,pCell,ColRow) );
-g_pPlutoLogger->Write(LV_EVENT,"OrbiterRenderer::BackgroundImageLoad %s size: %d",Filename,(int) m_listBackgroundImage.size());
+		m_listBackgroundImage.push_back( pBackgroundImage );
+g_pPlutoLogger->Write(LV_EVENT,"OrbiterRenderer::BackgroundImageLoad p %p %s size: %d",pBackgroundImage,Filename,(int) m_listBackgroundImage.size());
 
 	M.Release();
 	if (bNeedToStartThread)

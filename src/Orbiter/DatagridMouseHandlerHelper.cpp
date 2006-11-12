@@ -318,6 +318,7 @@ g_pPlutoLogger->Write(LV_ACTION, "**stop**");
 #else
 	m_pMouseBehavior->SetMousePosition(m_LastX, m_eCapturingOffscreenMovement == cosm_DOWN ? m_Bottom-1 : m_Top+1);
 #endif
+	m_pMouseBehavior->ConstrainMouse();
 	m_pMouseBehavior->ShowMouse(true);
 	m_eCapturingOffscreenMovement=cosm_NO;
 }
@@ -367,6 +368,8 @@ g_pPlutoLogger->Write(LV_ACTION, "**go**");
 			m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
 		}
 
+		PlutoRectangle r(m_iLeft,m_Top,m_iRight-m_iLeft,m_Bottom-m_Top);
+		m_pMouseBehavior->ConstrainMouse(r);
 #ifndef WIN32
 		m_pMouseBehavior->ShowMouse(false);
 #endif

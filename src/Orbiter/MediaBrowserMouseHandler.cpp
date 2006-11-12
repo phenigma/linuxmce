@@ -112,7 +112,7 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d)", X, Y, PK_Direction);
 #endif
-	if( m_pMouseBehavior->m_bMouseConstrained )  // There's a popup grabbing the mouse
+	if( m_pMouseBehavior->m_bMouseConstrained && !m_pDatagridMouseHandlerHelper->CapturingMouse() )  // There's a popup grabbing the mouse
 		return;
 	if( !m_pObj_ListGrid || !m_pObj_PicGrid )
 		return;  // Shouldn't happen
@@ -191,12 +191,14 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 
 	int X=0,Y=0;
 	if( m_pObj_PicGrid->m_iHighlightedColumn )
-		X = (m_pObj_PicGrid->m_iHighlightedColumn*m_pObj_PicGrid->m_FixedColumnWidth) - ((m_pObj_CoverArtPopup->m_rPosition.Width - m_pObj_PicGrid->m_FixedColumnWidth)/2);
+		X = m_pObj_PicGrid->m_rPosition.X + (m_pObj_PicGrid->m_iHighlightedColumn*m_pObj_PicGrid->m_FixedColumnWidth) - ((m_pObj_CoverArtPopup->m_rPosition.Width - m_pObj_PicGrid->m_FixedColumnWidth)/2);
 	if( m_pObj_PicGrid->m_iHighlightedRow )
 		Y = m_pObj_PicGrid->m_rPosition.Y + (m_pObj_PicGrid->m_iHighlightedRow*m_pObj_PicGrid->m_FixedRowHeight) - ((m_pObj_CoverArtPopup->m_rPosition.Height - m_pObj_PicGrid->m_FirstRowHeight)/2);
 
 	if( X + m_pObj_CoverArtPopup->m_rPosition.Width > m_pObj_PicGrid->m_rPosition.Right() )
 		X = m_pObj_PicGrid->m_rPosition.Right() - m_pObj_CoverArtPopup->m_rPosition.Width;
+	else if( X < m_pObj_PicGrid->m_rPosition.X )
+		X = m_pObj_PicGrid->m_rPosition.X;
 	if( Y + m_pObj_CoverArtPopup->m_rPosition.Height > m_pObj_PicGrid->m_rPosition.Bottom() )
 		Y = m_pObj_PicGrid->m_rPosition.Bottom() - m_pObj_CoverArtPopup->m_rPosition.Height;
 	else if( Y < m_pObj_PicGrid->m_rPosition.Y )
