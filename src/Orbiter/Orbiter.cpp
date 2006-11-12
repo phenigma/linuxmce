@@ -2675,8 +2675,8 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		pEvent->type = (DCE::Orbiter::Event::EventType) it->second.first;
 		pEvent->data.button.m_iPK_Button = it->second.second;
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to type %d key %d",
-					  pEvent->type, pEvent->data.button.m_iPK_Button);
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to type %d key %d",
+		  pEvent->type, pEvent->data.button.m_iPK_Button);
 #endif
 	}
 
@@ -2694,9 +2694,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to 
 			if( it!=m_mapScanCodeToRemoteButton.end() )
 			{
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s",it->second.c_str());
-				ReceivedCode(0,it->second.c_str());
+				g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s",it->second.c_str());
 #endif
+				ReceivedCode(0,it->second.c_str());
 			}
 		}
 	}

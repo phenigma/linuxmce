@@ -149,6 +149,12 @@ public:
         return it==m_mapOH_User.end() ? NULL : (*it).second;
     }
 
+	map<int,int> m_mapRemote_Orbiter; // A map of remote PK_Device_Remote to the current PK_Device_Orbiter they are controlling
+    int m_mapRemote_Orbiter_Find(int PK_Device) {
+        map<int,int>::iterator it = m_mapRemote_Orbiter.find(PK_Device);
+        return it==m_mapRemote_Orbiter.end() ? NULL : (*it).second;
+    }
+
     class AllowedConnections *m_mapAllowedConnections_Find(string sMacAddress) {
         map<string, class AllowedConnections *>::iterator it = m_mapAllowedConnections.find(sMacAddress);
         return it==m_mapAllowedConnections.end() ? NULL : (*it).second;
@@ -285,11 +291,11 @@ public:
 	int DATA_Get_Quantity();
 
 			*****EVENT***** accessors inherited from base class
-	void EVENT_Follow_Me_Lighting(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left);
-	void EVENT_Follow_Me_Climate(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left);
-	void EVENT_Follow_Me_Media(int iPK_Orbiter,int iPK_Users,int iPK_EntArea,int iPK_EntArea_Left);
-	void EVENT_Follow_Me_Telecom(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left);
-	void EVENT_Follow_Me_Security(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left);
+	void EVENT_Follow_Me_Lighting(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left);
+	void EVENT_Follow_Me_Climate(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left);
+	void EVENT_Follow_Me_Media(int iPK_Orbiter,int iPK_Device,int iPK_Users,int iPK_EntArea,int iPK_EntArea_Left);
+	void EVENT_Follow_Me_Telecom(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left);
+	void EVENT_Follow_Me_Security(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left);
 	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory);
 
 			*****COMMANDS***** we need to implement
@@ -577,11 +583,13 @@ format */
 	/** Specified which remote control is controling a particular device. */
 		/** @param #2 PK_Device */
 			/** The device that is controlling it */
+		/** @param #197 Fire Event */
+			/** If true, a follow me will get fired for this remote */
 		/** @param #198 PK_Orbiter */
 			/** The orbiter being controlled */
 
-	virtual void CMD_Set_Active_Remote(int iPK_Device,int iPK_Orbiter) { string sCMD_Result; CMD_Set_Active_Remote(iPK_Device,iPK_Orbiter,sCMD_Result,NULL);};
-	virtual void CMD_Set_Active_Remote(int iPK_Device,int iPK_Orbiter,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Active_Remote(int iPK_Device,bool bFire_Event,int iPK_Orbiter) { string sCMD_Result; CMD_Set_Active_Remote(iPK_Device,bFire_Event,iPK_Orbiter,sCMD_Result,NULL);};
+	virtual void CMD_Set_Active_Remote(int iPK_Device,bool bFire_Event,int iPK_Orbiter,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

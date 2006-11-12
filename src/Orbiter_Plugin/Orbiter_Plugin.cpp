@@ -2035,19 +2035,19 @@ void Orbiter_Plugin::FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int
 	}
 
 	if( pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Lighting && sMask.find('L')!=string::npos )
-		EVENT_Follow_Me_Lighting(iPK_Orbiter, iPK_RoomOrEntArea, iPK_Users, iPK_RoomOrEntArea_Left);
+		EVENT_Follow_Me_Lighting(iPK_Orbiter, 0, iPK_RoomOrEntArea, iPK_Users, iPK_RoomOrEntArea_Left);
 
 	if( pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Climate && sMask.find('C')!=string::npos )
-		EVENT_Follow_Me_Climate(iPK_Orbiter, iPK_RoomOrEntArea, iPK_Users, iPK_RoomOrEntArea_Left);
+		EVENT_Follow_Me_Climate(iPK_Orbiter, 0, iPK_RoomOrEntArea, iPK_Users, iPK_RoomOrEntArea_Left);
 
 	if( pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Security && sMask.find('S')!=string::npos )
-		EVENT_Follow_Me_Security(iPK_Orbiter, iPK_RoomOrEntArea, iPK_Users, iPK_RoomOrEntArea_Left);
+		EVENT_Follow_Me_Security(iPK_Orbiter, 0, iPK_RoomOrEntArea, iPK_Users, iPK_RoomOrEntArea_Left);
 
 	if( pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Telecom && sMask.find('T')!=string::npos )
-		EVENT_Follow_Me_Telecom(iPK_Orbiter, iPK_RoomOrEntArea, iPK_Users, iPK_RoomOrEntArea_Left);
+		EVENT_Follow_Me_Telecom(iPK_Orbiter, 0, iPK_RoomOrEntArea, iPK_Users, iPK_RoomOrEntArea_Left);
 
 	if( pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Media && sMask.find('M')!=string::npos )
-		EVENT_Follow_Me_Media(iPK_Orbiter, iPK_Users, iPK_RoomOrEntArea, iPK_RoomOrEntArea_Left);
+		EVENT_Follow_Me_Media(iPK_Orbiter, 0, iPK_Users, iPK_RoomOrEntArea, iPK_RoomOrEntArea_Left);
 }
 
 void Orbiter_Plugin::SetBoundIcons(int iPK_Users,bool bOnOff,string sType)
@@ -2831,7 +2831,7 @@ bool Orbiter_Plugin::PresenceDetected( class Socket *pSocket, class Message *pMe
 			return false;
 		}
 
-		EVENT_Follow_Me_Media(0, it->second, pMediaDevice->m_mapEntertainArea.begin()->first, 0);
+		EVENT_Follow_Me_Media(0, 0, it->second, pMediaDevice->m_mapEntertainArea.begin()->first, 0);
 	}
 	else
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::PresenceDetected no user associated with %s",sID.c_str());
@@ -3027,7 +3027,8 @@ void Orbiter_Plugin::CMD_Get_Remote_ID(string sUID,int *iPK_Device,int *iValue,s
 		return;
 	}
 
-	DCE::CMD_Create_Device CMD_Create_Device(m_dwPK_Device,m_pGeneral_Info_Plugin->m_dwPK_Device,DEVICETEMPLATE_MCR_Remote_CONST,"",0,"","",0,0,pMessage->m_dwPK_Device_From,0,iPK_Device);
+	DCE::CMD_Create_Device CMD_Create_Device(m_dwPK_Device,m_pGeneral_Info_Plugin->m_dwPK_Device,DEVICETEMPLATE_MCR_Remote_CONST,
+		"",0,"","",0,0,pMessage->m_dwPK_Device_From,0,iPK_Device);
 	if( !SendCommand(CMD_Create_Device) || *iPK_Device==0 )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter_Plugin::CMD_Get_Remote_ID error creating remote");
@@ -3050,14 +3051,33 @@ void Orbiter_Plugin::CMD_Get_Remote_ID(string sUID,int *iPK_Device,int *iValue,s
 	/** Specified which remote control is controling a particular device. */
 		/** @param #2 PK_Device */
 			/** The device that is controlling it */
+		/** @param #197 Fire Event */
+			/** If true, a follow me will get fired for this remote */
 		/** @param #198 PK_Orbiter */
 			/** The orbiter being controlled */
 
-void Orbiter_Plugin::CMD_Set_Active_Remote(int iPK_Device,int iPK_Orbiter,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Set_Active_Remote(int iPK_Device,bool bFire_Event,int iPK_Orbiter,string &sCMD_Result,Message *pMessage)
 //<-dceag-c830-e->
 {
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+	int PK_Orbiter_Prior = m_mapRemote_Orbiter_Find(iPK_Device); // See what Orbiter this was previously bound to
+	OH_Orbiter *pOH_Orbiter_Prior = PK_Orbiter_Prior ? m_mapOH_Orbiter_Find(PK_Orbiter_Prior) : NULL;
+
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Orbiter);
 	if( pOH_Orbiter )
+	{
 		pOH_Orbiter->m_dwPK_Device_CurrentRemote=iPK_Device;
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Set_Active_Remote Orbiter %d has remote %d previously orbiter %d",
+			iPK_Orbiter,iPK_Device,PK_Orbiter_Prior);
+		if( bFire_Event )
+		{
+			EVENT_Follow_Me_Media(iPK_Orbiter, iPK_Device,
+				pOH_Orbiter_Prior && pOH_Orbiter_Prior->m_pOH_User ? pOH_Orbiter_Prior->m_pOH_User->m_iPK_Users : NULL,
+				pOH_Orbiter && pOH_Orbiter->m_pEntertainArea ? pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea : 0,
+				pOH_Orbiter_Prior && pOH_Orbiter_Prior->m_pEntertainArea ? pOH_Orbiter_Prior->m_pEntertainArea->m_iPK_EntertainArea : 0);
+		}
+		m_mapRemote_Orbiter[iPK_Device]=iPK_Orbiter;
+	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter_Plugin::CMD_Set_Active_Remote No orbiter %d",iPK_Orbiter);
 }

@@ -309,13 +309,13 @@ void Lighting_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Rout
 */
 
 
-void Lighting_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
+void Lighting_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
 {
 g_pPlutoLogger->Write(LV_WARNING,"Lighting entered room, exec %d",m_mapRoom_CommandGroup[iPK_RoomOrEntArea].first);
 	ExecCommandGroup(m_mapRoom_CommandGroup[iPK_RoomOrEntArea].first);
 }
 
-void Lighting_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
+void Lighting_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
 {
 g_pPlutoLogger->Write(LV_WARNING,"Lighting left room, exec %d",m_mapRoom_CommandGroup[iPK_RoomOrEntArea_Left].second);
 	ExecCommandGroup(m_mapRoom_CommandGroup[iPK_RoomOrEntArea_Left].second);

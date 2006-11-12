@@ -1007,10 +1007,13 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
 	    pMediaStream->m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
 		pMediaStream->m_sStartPosition = sStartingPosition;
 		pMediaStream->m_sAppName = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_Name_CONST);
-
         pMediaStream->m_pOH_Orbiter_StartedMedia = pOH_Orbiter;
-		if( pOH_Orbiter && pOH_Orbiter->m_pOH_User )
-			pMediaStream->m_iPK_Users = pOH_Orbiter->m_pOH_User->m_iPK_Users;
+		if( pOH_Orbiter )
+		{
+			pMediaStream->m_dwPK_Device_Remote = pOH_Orbiter->m_dwPK_Device_CurrentRemote;
+			if( pOH_Orbiter->m_pOH_User )
+				pMediaStream->m_iPK_Users = pOH_Orbiter->m_pOH_User->m_iPK_Users;
+		}
 
         pMediaStream->m_dequeMediaFile += *dequeMediaFile;
     }
@@ -2852,7 +2855,7 @@ void Media_Plugin::CMD_Get_EntAreas_For_Device(int iPK_Device,string *sText,stri
 	}
 }
 
-void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
+void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
 {
 	// See if we have any pending media for this user
 	MediaStream *pMediaStream = NULL;
@@ -2880,7 +2883,7 @@ void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_
 	}
 }
 
-void Media_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
+void Media_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
 {
 	if( iPK_RoomOrEntArea && iPK_RoomOrEntArea_Left )
 		return; // It's just a move, we're going to get EnteredRoom called immediately hereafter

@@ -44,56 +44,61 @@ public:
 	* @brief Events methods for our device
 	*/
 
-	virtual void Follow_Me_Lighting(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left)
+	virtual void Follow_Me_Lighting(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left)
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 			EVENT_Follow_Me_Lighting_CONST,
-			4 /* number of parameter's pairs (id, value) */,
+			5 /* number of parameter's pairs (id, value) */,
 			EVENTPARAMETER_PK_Orbiter_CONST, StringUtils::itos(iPK_Orbiter).c_str(),
+			EVENTPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
 			EVENTPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
 			EVENTPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str(),
 			EVENTPARAMETER_PK_Room_Left_CONST, StringUtils::itos(iPK_Room_Left).c_str()));
 	}
 
-	virtual void Follow_Me_Climate(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left)
+	virtual void Follow_Me_Climate(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left)
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 			EVENT_Follow_Me_Climate_CONST,
-			4 /* number of parameter's pairs (id, value) */,
+			5 /* number of parameter's pairs (id, value) */,
 			EVENTPARAMETER_PK_Orbiter_CONST, StringUtils::itos(iPK_Orbiter).c_str(),
+			EVENTPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
 			EVENTPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
 			EVENTPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str(),
 			EVENTPARAMETER_PK_Room_Left_CONST, StringUtils::itos(iPK_Room_Left).c_str()));
 	}
 
-	virtual void Follow_Me_Media(int iPK_Orbiter,int iPK_Users,int iPK_EntArea,int iPK_EntArea_Left)
+	virtual void Follow_Me_Media(int iPK_Orbiter,int iPK_Device,int iPK_Users,int iPK_EntArea,int iPK_EntArea_Left)
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 			EVENT_Follow_Me_Media_CONST,
-			4 /* number of parameter's pairs (id, value) */,
+			5 /* number of parameter's pairs (id, value) */,
 			EVENTPARAMETER_PK_Orbiter_CONST, StringUtils::itos(iPK_Orbiter).c_str(),
+			EVENTPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
 			EVENTPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str(),
 			EVENTPARAMETER_PK_EntArea_CONST, StringUtils::itos(iPK_EntArea).c_str(),
 			EVENTPARAMETER_PK_EntArea_Left_CONST, StringUtils::itos(iPK_EntArea_Left).c_str()));
 	}
 
-	virtual void Follow_Me_Telecom(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left)
+	virtual void Follow_Me_Telecom(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left)
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 			EVENT_Follow_Me_Telecom_CONST,
-			4 /* number of parameter's pairs (id, value) */,
+			5 /* number of parameter's pairs (id, value) */,
 			EVENTPARAMETER_PK_Orbiter_CONST, StringUtils::itos(iPK_Orbiter).c_str(),
+			EVENTPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
 			EVENTPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
 			EVENTPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str(),
 			EVENTPARAMETER_PK_Room_Left_CONST, StringUtils::itos(iPK_Room_Left).c_str()));
 	}
 
-	virtual void Follow_Me_Security(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left)
+	virtual void Follow_Me_Security(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left)
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 			EVENT_Follow_Me_Security_CONST,
-			4 /* number of parameter's pairs (id, value) */,
+			5 /* number of parameter's pairs (id, value) */,
 			EVENTPARAMETER_PK_Orbiter_CONST, StringUtils::itos(iPK_Orbiter).c_str(),
+			EVENTPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
 			EVENTPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
 			EVENTPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str(),
 			EVENTPARAMETER_PK_Room_Left_CONST, StringUtils::itos(iPK_Room_Left).c_str()));
@@ -316,11 +321,11 @@ public:
 	int DATA_Get_Height() { return GetData()->Get_Height(); }
 	int DATA_Get_Quantity() { return GetData()->Get_Quantity(); }
 	//Event accessors
-	void EVENT_Follow_Me_Lighting(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Lighting(iPK_Orbiter,iPK_Room,iPK_Users,iPK_Room_Left); }
-	void EVENT_Follow_Me_Climate(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Climate(iPK_Orbiter,iPK_Room,iPK_Users,iPK_Room_Left); }
-	void EVENT_Follow_Me_Media(int iPK_Orbiter,int iPK_Users,int iPK_EntArea,int iPK_EntArea_Left) { GetEvents()->Follow_Me_Media(iPK_Orbiter,iPK_Users,iPK_EntArea,iPK_EntArea_Left); }
-	void EVENT_Follow_Me_Telecom(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Telecom(iPK_Orbiter,iPK_Room,iPK_Users,iPK_Room_Left); }
-	void EVENT_Follow_Me_Security(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Security(iPK_Orbiter,iPK_Room,iPK_Users,iPK_Room_Left); }
+	void EVENT_Follow_Me_Lighting(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Lighting(iPK_Orbiter,iPK_Device,iPK_Room,iPK_Users,iPK_Room_Left); }
+	void EVENT_Follow_Me_Climate(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Climate(iPK_Orbiter,iPK_Device,iPK_Room,iPK_Users,iPK_Room_Left); }
+	void EVENT_Follow_Me_Media(int iPK_Orbiter,int iPK_Device,int iPK_Users,int iPK_EntArea,int iPK_EntArea_Left) { GetEvents()->Follow_Me_Media(iPK_Orbiter,iPK_Device,iPK_Users,iPK_EntArea,iPK_EntArea_Left); }
+	void EVENT_Follow_Me_Telecom(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Telecom(iPK_Orbiter,iPK_Device,iPK_Room,iPK_Users,iPK_Room_Left); }
+	void EVENT_Follow_Me_Security(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Security(iPK_Orbiter,iPK_Device,iPK_Room,iPK_Users,iPK_Room_Left); }
 	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory) { GetEvents()->Device_Detected(sMac_Address.c_str(),sText.c_str(),sIP_Address.c_str(),iPK_DeviceTemplate,sVendorModelID.c_str(),iPK_CommMethod,iPK_PnpProtocol,sPNP_Serial_Number.c_str(),sDeviceData.c_str(),sCategory.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
@@ -345,7 +350,7 @@ public:
 	virtual void CMD_Check_Media_Providers(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_List_of_Remotes(string *sText,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Remote_ID(string sUID,int *iPK_Device,int *iValue,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Set_Active_Remote(int iPK_Device,int iPK_Orbiter,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Active_Remote(int iPK_Device,bool bFire_Event,int iPK_Orbiter,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -1005,8 +1010,9 @@ public:
 					{
 						string sCMD_Result="OK";
 						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+						bool bFire_Event=(pMessage->m_mapParameters[COMMANDPARAMETER_Fire_Event_CONST]=="1" ? true : false);
 						int iPK_Orbiter=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Orbiter_CONST].c_str());
-						CMD_Set_Active_Remote(iPK_Device,iPK_Orbiter,sCMD_Result,pMessage);
+						CMD_Set_Active_Remote(iPK_Device,bFire_Event,iPK_Orbiter,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1023,7 +1029,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Set_Active_Remote(iPK_Device,iPK_Orbiter,sCMD_Result,pMessage);
+								CMD_Set_Active_Remote(iPK_Device,bFire_Event,iPK_Orbiter,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
