@@ -2858,7 +2858,7 @@ void Media_Plugin::CMD_Get_EntAreas_For_Device(int iPK_Device,string *sText,stri
 void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
 {
 	// See if we have any pending media for this user
-	MediaStream *pMediaStream = NULL;
+	MediaStream *pMediaStream = NULL,*pMediaStream_User = NULL;  // Matching the device (ie remote control) has first priority
 	time_t tStarted = 0;
 
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
@@ -2867,9 +2867,17 @@ void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_
 	for( MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it )
 	{
 		MediaStream *pMS = (*it).second;
-		if( pMS->m_iPK_Users && pMS->m_iPK_Users==iPK_Users && pMS->m_tTime > tStarted )
+		if( iPK_Device && pMS->m_dwPK_Device_Remote==iPK_Device )
+		{
 			pMediaStream = pMS;
+			break;
+		}
+		if( pMS->m_iPK_Users && pMS->m_iPK_Users==iPK_Users && pMS->m_tTime > tStarted )
+			pMediaStream_User = pMS;
 	}
+
+	if( !pMediaStream )  // If a device (ie remote control) wasn't specified, or wasn't associated with the stream, find whatever this user was consuming
+		pMediaStream = pMediaStream_User;
 
 	if( !pMediaStream )
 		g_pPlutoLogger->Write(LV_STATUS,"Move Media, but user %d isn't listening to anything.  Open Streams: %d",iPK_Users,(int) m_mapMediaStream.size());
