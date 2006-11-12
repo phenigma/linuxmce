@@ -26,7 +26,7 @@ public:
 	PlutoHIDInterface(Orbiter *pOrbiter);
 	void ProcessHIDEvents();
 
-	bool ProcessBindRequest(char *inPacket,char *write_packet);
+	bool ProcessBindRequest(char *inPacket);
 	bool ProcessHIDButton(char *inPacket);
 };
 

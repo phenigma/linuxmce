@@ -1,6 +1,7 @@
 #include "DCE/Logger.h"
 #include "../Orbiter.h"
 #include "HIDInterface.h"
+#include "Gen_Devices/AllCommandsRequests.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -115,14 +116,14 @@ void PlutoHIDInterface::ProcessHIDEvents()
 	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents Exiting");
 }
 
-bool PlutoHIDInterface::ProcessBindRequest(char *inPacket,char *write_packet)
+bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessBindRequest got a bind request for %d %d %d %d",
 		(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
 	char sSerialNumber[15];
 	sprintf(sSerialNumber,"%x.%x.%x.%x",(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
 	int PK_Device=0,RemoteID=0;
-    DCE::CMD_Get_Remote_ID(sSerialNumber,&PK_Device,RemoteID);
+    DCE::CMD_Get_Remote_ID CMD_Get_Remote_ID(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_OrbiterPlugIn,sSerialNumber,&PK_Device,&RemoteID);
 	if( !m_pOrbiter->SendCommand(CMD_Get_Remote_ID) || PK_Device==0 || RemoteID==0 )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessBindRequest failed to set RemoteID");
