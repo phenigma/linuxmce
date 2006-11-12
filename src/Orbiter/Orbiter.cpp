@@ -82,6 +82,12 @@ using namespace DCE;
 #include "Linux/OSDScreenHandler.h"
 #endif
 
+#ifndef WIN32
+#ifdef ORBITER_OPENGL
+	#include "Linux/HIDInterface.h"
+#endif
+#endif
+
 //#define PROFILING_GRID
 PlutoProfiler *g_PlutoProfiler = new PlutoProfiler();
 
@@ -165,11 +171,6 @@ template<class T> inline static T Dist( T x,  T y ) { return x * x + y * y; }
 //------------------------------------------------------------------------
 void *MaintThread(void *p);
 
-#ifndef WIN32
-#ifdef ORBITER_OPENGL
-	void *ProcessHIDEvents(void *p);
-#endif
-#endif
 
 void *UpdateTimeCodeThread(void *p);
 static bool bMaintThreadIsRunning = false;
@@ -334,8 +335,9 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 
 #ifndef WIN32
 #ifdef ORBITER_OPENGL
+	m_pHIDInterface=new PlutoHIDInterface(this);
 	pthread_t HidThreadID;
-	pthread_create(&HidThreadID, NULL, ProcessHIDEvents, (void*)this);
+	pthread_create(&HidThreadID, NULL, ProcessHIDEvents, (void*)m_pHIDInterface);
 	pthread_detach(HidThreadID);
 #endif
 #endif
@@ -351,6 +353,13 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 Orbiter::~Orbiter()
 //<-dceag-dest-e->
 {
+#ifndef WIN32
+#ifdef ORBITER_OPENGL
+	delete m_pHIDInterface;
+	m_pHIDInterface=NULL;
+#endif
+#endif
+
 	m_pOrbiterRenderer->Destroy();
 
 	WriteStatusOutput("Orbiter destructor");

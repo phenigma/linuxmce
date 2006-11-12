@@ -104,6 +104,11 @@ namespace DCE
 		class PlutoGraphic * m_pBackgroundImage;
 		static Orbiter *m_pInstance; 
 		list<PlutoAlert *> m_listPlutoAlert;  // Current alerts displayed on the screen as a popup message
+		#ifndef WIN32
+		#ifdef ORBITER_OPENGL
+			class HIDInterface *m_pHIDInterface;
+		#endif
+		#endif
 
 	protected:
 		void DumpScreenHistory(); // temporary function
