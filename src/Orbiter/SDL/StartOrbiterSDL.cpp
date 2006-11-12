@@ -435,7 +435,7 @@ bool SDL_App_Object::Create()
         g_pPlutoLogger->Write(LV_CRITICAL, "error returned by : CreateOrbiter()");
         return false;
     }
-    g_pPlutoLogger->Write(LV_CRITICAL, "Created : ptr=%p", m_pSDL_Event_Loop_Data->pOrbiter);
+    g_pPlutoLogger->Write(LV_STATUS, "Created : ptr=%p", m_pSDL_Event_Loop_Data->pOrbiter);
     return true;
 };
 

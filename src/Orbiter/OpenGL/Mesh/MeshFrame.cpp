@@ -108,13 +108,13 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 {
 	if(Frame == NULL)
 	{
-		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::AddChild: Frame is NULL!!!");	
+		DCE::g_pPlutoLogger->Write(LV_WARNING, "MeshFrame::AddChild: Frame is NULL!!!");	
 		return;
 	}
 
 	if(NULL != Frame->Parent)
 	{
-		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::AddChild: Frame %p/%s already has a parent %p!",
+		DCE::g_pPlutoLogger->Write(LV_WARNING, "MeshFrame::AddChild: Frame %p/%s already has a parent %p!",
 			Frame, Frame->Name_.c_str(), Frame->Parent);	
 
 		//throw "Frame already has a parent";

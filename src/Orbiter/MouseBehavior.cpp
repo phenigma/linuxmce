@@ -357,7 +357,7 @@ void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 		if( pObj==m_pObj_Previously_Highlighted )
 			return;  // Nothing to do
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_CRITICAL, "mmm MouseBehavior::HighlightObject : UNHIGHLIGHT %s %d",
+		g_pPlutoLogger->Write(LV_STATUS, "mmm MouseBehavior::HighlightObject : UNHIGHLIGHT %s %d",
 			m_pObj_Previously_Highlighted->m_ObjectID.c_str(), m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight);
 #endif		
 		m_pObj_Previously_Highlighted->m_GraphicToDisplay_set(m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight);
@@ -375,7 +375,7 @@ void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 
 	pObj->m_GraphicToDisplay_set(GRAPHIC_HIGHLIGHTED,true);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_CRITICAL, "mmm MouseBehavior::HighlightObject : HIGHLIGHT %s",
+	g_pPlutoLogger->Write(LV_STATUS, "mmm MouseBehavior::HighlightObject : HIGHLIGHT %s",
 		pObj->m_ObjectID.c_str());
 #endif
 	m_pOrbiter->Renderer()->DoHighlightObject();

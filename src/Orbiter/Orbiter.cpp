@@ -4309,7 +4309,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 			string sVarValue = m_mapVariable[PK_Variable];
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_CRITICAL," Variable: %d has value %s",PK_Variable,sVarValue.c_str());
+			g_pPlutoLogger->Write(LV_STATUS," Variable: %d has value %s",PK_Variable,sVarValue.c_str());
 #endif
 
 			vm.Release();
