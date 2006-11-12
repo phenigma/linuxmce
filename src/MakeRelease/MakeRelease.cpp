@@ -510,7 +510,7 @@ bool PackageIsCompatible(Row_Package *pRow_Package)
 bool CreateSources(Row_Package *pRow_Package)
 {
 	cout << "====================================================" << endl;
-	cout << "Creating sources for : " << pRow_Package->Description_get() << endl;
+	cout << "Creating sources for : " << pRow_Package->Description_get() << "#: " << pRow_Package->PK_Package_get() << " Source: #" << pRow_Package->FK_Package_Sourcecode_get() << endl;
 	cout << "====================================================" << endl;
 
 	vector<Row_Package_Source *> vectRow_Package_Source_All;
