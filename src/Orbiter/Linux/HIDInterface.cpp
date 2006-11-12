@@ -98,16 +98,7 @@ void PlutoHIDInterface::ProcessHIDEvents()
 						if( res==6 && inPacket[0]==8 )  // It's for us
 						{
 							if( inPacket[1]==0x20 )  // A bind request
-							{
-								char write_packet[5];
-								ProcessBindRequest(inPacket,write_packet);
-								int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
-								if (ctrl<0)
-								{
-									g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents ProcessBindRequest  usb_control_msg %d\n",(int) ctrl);
-									perror("error: ");
-								}
-							}
+								ProcessBindRequest(inPacket);
 							else if( inPacket[1]==0x25 )  // A button
 								ProcessHIDButton(inPacket);
 						}
@@ -128,17 +119,29 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket,char *write_packet)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessBindRequest got a bind request for %d %d %d %d",
 		(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
+	char sSerialNumber[15];
+	sprintf(sSerialNumber,"%x.%x.%x.%x",(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
+	int PK_Device=0,RemoteID=0;
+    DCE::CMD_Get_Remote_ID(sSerialNumber,&PK_Device,RemoteID);
+	if( !m_pOrbiter->SendCommand(CMD_Get_Remote_ID) || PK_Device==0 || RemoteID==0 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessBindRequest failed to set RemoteID");
+		RemoteID=255; // A bogus number
+	}
 
+	char write_packet[5];
 	write_packet[0]=8;
 	write_packet[1]=0x20;
 	write_packet[2]=0x02;  // The remote ID
-	write_packet[3]=0;
+	write_packet[3]=(char) RemoteID;
 	int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
 	if (ctrl<0)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents ProcessBindRequest  usb_control_msg %d\n",(int) ctrl);
 		perror("error: ");
+		return false;
 	}
+	m_mapRemoteID_Device[ RemoteID ] = PK_Device;
 	return true;
 }
 
@@ -148,11 +151,18 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessHIDButton for %d %d %d %d",
 		(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
 
-	int *p_iRemoteID = (int *) inPacket[2];
-	if( *p_iRemoteID!=m_iRemoteID )
+	int iRemoteID = inPacket[2];
+	if( iRemoteID!=m_iRemoteID )
 	{
-		m_iRemoteID = *p_iRemoteID;
-		m_iPK_Device_Remote = GetDeviceForRemoteID();
+		m_iPK_Device_Remote = m_mapRemoteID_Device_Find(m_iRemoteID);
+		if( !m_iPK_Device_Remote )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessHIDButton Remote ID %d is unknown",iRemoteID);
+			return false;
+		}
+		m_iRemoteID = iRemoteID;
+		DCE::CMD_Set_Active_Remote CMD_Set_Active_Remote(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_OrbiterPlugIn,m_iPK_Device_Remote,m_pOrbiter->m_dwPK_Device);
+		m_pOrbiter->SendCommand(CMD_Set_Active_Remote);
 		g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessHIDButton new remote %d device %d",m_iRemoteID,m_iPK_Device_Remote );
 	}
 	
@@ -161,10 +171,6 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 
 	m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
 	return true;
-}
-
-int PlutoHIDInterface::GetDeviceForRemoteID()
-{
 }
 
 

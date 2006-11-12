@@ -18,6 +18,8 @@ private:
 	bool m_bRunning;
 	pluto_pthread_mutex_t m_HIDMutex;  // This will also protect the callback map
 	int m_iRemoteID,m_iPK_Device_Remote;
+	map<int,int> m_mapRemoteID_Device;
+	int m_mapRemoteID_Device_Find(int RemoteID)	{ map<int,int>::iterator it = m_mapRemoteID_Device.find(RemoteID); return it==m_mapRemoteID_Device.end() ? NULL : (*it).second; }
 	Orbiter *m_pOrbiter;
 
 public:
@@ -26,7 +28,6 @@ public:
 
 	bool ProcessBindRequest(char *inPacket,char *write_packet);
 	bool ProcessHIDButton(char *inPacket);
-	int GetDeviceForRemoteID();
 };
 
 #endif // PlutoHIDInterface_h
