@@ -1,21 +1,18 @@
 #include "DCE/Logger.h"
 #include "../Orbiter.h"
+#include "HIDInterface.h"
 
-#define HAVE_STDBOOL_H
-extern 
-#include <hid.h>
-#include <usb.h>
 #include <stdio.h>
 #include <string.h>
 
 void *ProcessHIDEvents(void *p)
 {
-	HIDInterface *pHIDInterface = (HIDInterface *) p;
-	pHIDInterface->ProcessHIDEvents();
+	PlutoHIDInterface *pPlutoHIDInterface = (PlutoHIDInterface *) p;
+	pPlutoHIDInterface->ProcessHIDEvents();
 	return NULL;
 }
 
-HIDInterface::HIDInterface(Orbiter *pOrbiter) : m_HIDMutex("HID")
+PlutoHIDInterface::PlutoHIDInterface(Orbiter *pOrbiter) : m_HIDMutex("HID")
 {
 	m_pOrbiter=pOrbiter; 
 	m_p_usb_dev_handle=NULL; 
@@ -24,7 +21,7 @@ HIDInterface::HIDInterface(Orbiter *pOrbiter) : m_HIDMutex("HID")
 	m_iRemoteID=m_iPK_Device_Remote=0;
 }
 
-void HIDInterface::ProcessHIDEvents()
+void PlutoHIDInterface::ProcessHIDEvents()
 {
 	struct usb_bus *busses;
 	usb_set_debug(255);
@@ -103,7 +100,7 @@ void HIDInterface::ProcessHIDEvents()
 							if( inPacket[1]==0x20 )  // A bind request
 							{
 								char write_packet[5];
-								ProcessBindRequest(m_pOrbiter,m_p_usb_dev_handle,inPacket,write_packet);
+								ProcessBindRequest(inPacket,write_packet);
 								int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
 								if (ctrl<0)
 								{
@@ -112,7 +109,7 @@ void HIDInterface::ProcessHIDEvents()
 								}
 							}
 							else if( inPacket[1]==0x25 )  // A button
-								ProcessHIDButton(m_pOrbiter,inPacket);
+								ProcessHIDButton(inPacket);
 						}
 					}
 				}
@@ -127,7 +124,7 @@ void HIDInterface::ProcessHIDEvents()
 	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents Exiting");
 }
 
-bool HIDInterface::ProcessBindRequest(usb_dev_handle *m_p_usb_dev_handle,char *inPacket,char *write_packet)
+bool PlutoHIDInterface::ProcessBindRequest(char *inPacket,char *write_packet)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessBindRequest got a bind request for %d %d %d %d",
 		(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
@@ -146,17 +143,17 @@ bool HIDInterface::ProcessBindRequest(usb_dev_handle *m_p_usb_dev_handle,char *i
 }
 
 
-bool HIDInterface::ProcessHIDButton(char *inPacket)
+bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessHIDButton for %d %d %d %d",
 		(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
 
 	int *p_iRemoteID = (int *) inPacket[2];
-	if( *p_iRemoteID!=iRemoteID )
+	if( *p_iRemoteID!=m_iRemoteID )
 	{
-		iRemoteID = *p_iRemoteID;
-		iPK_Device_Remote = GetRemoteID(m_pOrbiter,iRemoteID);
-		g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessHIDButton new remote %d device %d",iRemoteID,iPK_Device_Remote );
+		m_iRemoteID = *p_iRemoteID;
+		m_iPK_Device_Remote = GetDeviceForRemoteID();
+		g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessHIDButton new remote %d device %d",m_iRemoteID,m_iPK_Device_Remote );
 	}
 	
 	Orbiter::Event *pEvent = new Orbiter::Event;
@@ -166,7 +163,7 @@ bool HIDInterface::ProcessHIDButton(char *inPacket)
 	return true;
 }
 
-int HIDInterface::GetRemoteID(int iRemoteID)
+int PlutoHIDInterface::GetDeviceForRemoteID()
 {
 }
 
