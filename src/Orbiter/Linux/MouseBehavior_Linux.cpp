@@ -13,6 +13,13 @@
 
 #include "utilities/linux/transparency/transparency.h"
 
+#ifndef WIN32
+#ifdef ORBITER_OPENGL
+#include "HIDInterface.h"
+#endif
+#endif
+
+
 using namespace DCE;
 
 //-----------------------------------------------------------------------------------------------------
@@ -73,6 +80,17 @@ void MouseBehavior_Linux::ShowMouse(bool bShow)
 	//SDL_ShowCursor(bShow ? SDL_ENABLE : SDL_DISABLE);
 
     // at show, we want to show the standard mouse cursor
+#ifndef WIN32
+#ifdef ORBITER_OPENGL
+	if( m_pOrbiter->m_pHIDInterface )
+	{
+		if( bShow )
+			m_pOrbiter->m_pHIDInterface->StartMouse();
+		else
+			m_pOrbiter->m_pHIDInterface->StopMouse();
+	}
+#endif
+#endif
 	m_bMouseVisible=bShow;
     g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ShowMouse %d",(int) bShow);
     if (bShow)

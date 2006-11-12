@@ -279,11 +279,13 @@ void DesignObj_DataGrid::DataGridTable_Set(DataGridTable *pDataGridTable,int Cur
 {
 	// Be sure there's no background images waiting to be loaded pointing to this
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-	for(list<BackgroundImage *>::iterator it=m_pOrbiter->Renderer()->m_listBackgroundImage.begin();it!=m_pOrbiter->Renderer()->m_listBackgroundImage.end();++it)
+	for(list<BackgroundImage *>::iterator it=m_pOrbiter->Renderer()->m_listBackgroundImage.begin();it!=m_pOrbiter->Renderer()->m_listBackgroundImage.end();)
 	{
 		BackgroundImage *pBackgroundImage = *it;
 		if( pBackgroundImage->m_pObj_Grid == this )
-			m_pOrbiter->Renderer()->m_listBackgroundImage.erase(it);
+			m_pOrbiter->Renderer()->m_listBackgroundImage.erase(it++);
+		else
+			++it;
 	}
 	vm.Release();
 

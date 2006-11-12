@@ -110,11 +110,6 @@ namespace DCE
 		class PlutoGraphic * m_pBackgroundImage;
 		static Orbiter *m_pInstance; 
 		list<PlutoAlert *> m_listPlutoAlert;  // Current alerts displayed on the screen as a popup message
-		#ifndef WIN32
-		#ifdef ORBITER_OPENGL
-			PlutoHIDInterface *m_pHIDInterface;
-		#endif
-		#endif
 
 	protected:
 		void DumpScreenHistory(); // temporary function
@@ -168,6 +163,11 @@ namespace DCE
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		class MouseBehavior *m_pMouseBehavior;  // Class to handle special logic such as locking mouse movements, speed bumps, etc.
+#endif
+#ifndef WIN32
+#ifdef ORBITER_OPENGL
+		PlutoHIDInterface *m_pHIDInterface;
+#endif
 #endif
 		//<-dceag-const-b->!
 

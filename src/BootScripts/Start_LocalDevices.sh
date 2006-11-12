@@ -112,7 +112,7 @@ RunningDevices="$(< "$AlreadyRunning")"
 for Device in $RunningDevices; do
 	if [[ "$EnabledDevices" != *" $Device "* ]]; then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$basename" "Telling device '$Device' to stop"
-		/usr/pluto/bin/MessageSend "$DCERouter" 0 "$Device" 7 0
+		/usr/pluto/bin/MessageSend "$DCERouter" 0 "$Device" 7 0 163 "start_local_devices"
 	fi
 done
 

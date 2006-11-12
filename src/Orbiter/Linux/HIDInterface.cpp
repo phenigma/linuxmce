@@ -39,8 +39,14 @@ void PlutoHIDInterface::ProcessHIDEvents()
 
 	/* ... */
 
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents starting");
+#endif
 	for (bus = busses; bus; bus = bus->next) 
 	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents bus %s",bus->dirname);
+#endif
 		struct usb_device *dev;
 
 		for (dev = bus->devices; dev; dev = dev->next) {
@@ -78,7 +84,7 @@ void PlutoHIDInterface::ProcessHIDEvents()
 				int cnt=0;
 				while(!m_pOrbiter->m_bQuit)
 				{
-					PLUTO_SAFETY_LOCK(hm,m_HIDMutex);
+					PLUTO_SAFETY_LOCK_ERRORSONLY(hm,m_HIDMutex);
 					m_bRunning=true;
 					res = usb_interrupt_read(m_p_usb_dev_handle, 0x82, inPacket, 6, 250);
 					if (res<0&&res!=-110) break;
@@ -154,10 +160,79 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 		perror("error: ");
 		return false;
 	}
+	m_pOrbiter->CMD_Display_Alert("Remote " + StringUtils::itos(PK_Device) + " connected","connectremote","3");
+	m_pOrbiter->GotActivity(0);  // In case the tv is off or the screen saver
+	SetActiveRemote(RemoteID,false);
 	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest remote %d PK_Device %d",RemoteID,PK_Device);
 	return true;
 }
 
+bool PlutoHIDInterface::StartMouse()
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(hm,m_HIDMutex);
+	if( !m_bRunning )
+	{
+		g_pPlutoLogger->Write(LV_WARNING,"PlutoHIDInterface::StartMouse m_bRunning==false");
+		return false;
+
+	}
+	char write_packet[5];
+	write_packet[0]=8;
+	write_packet[1]=0x60;
+	write_packet[2]=(char) m_iRemoteID;
+	write_packet[3]=0;
+	int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
+	if (ctrl<0)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::StartMouse  usb_control_msg %d\n",(int) ctrl);
+		perror("error: ");
+		return false;
+	}
+	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::StartMouse remote %d",m_iRemoteID);
+	return true;
+}
+
+bool PlutoHIDInterface::StopMouse()
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(hm,m_HIDMutex);
+	if( !m_bRunning )
+	{
+		g_pPlutoLogger->Write(LV_WARNING,"PlutoHIDInterface::StopMouse m_bRunning==false");
+		return false;
+
+	}
+	char write_packet[5];
+	write_packet[0]=8;
+	write_packet[1]=0x30;
+	write_packet[2]=(char) m_iRemoteID;
+	write_packet[3]=0;
+	int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
+	if (ctrl<0)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::StopMouse  usb_control_msg %d\n",(int) ctrl);
+		perror("error: ");
+		return false;
+	}
+	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::StopMouse remote %d",m_iRemoteID);
+	return true;
+}
+
+bool PlutoHIDInterface::SetActiveRemote(int iRemoteID,bool bFollowMe)
+{
+	int PK_Device = m_mapRemoteID_Device_Find(iRemoteID);
+	if( !PK_Device )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::SetActiveRemote Remote ID %d is unknown",iRemoteID);
+		return false;
+	}
+	m_pOrbiter->CMD_Display_Alert("Remote " + StringUtils::itos(PK_Device) + " active","actremote","3");
+	m_iPK_Device_Remote = PK_Device;
+	m_iRemoteID = iRemoteID;
+	DCE::CMD_Set_Active_Remote CMD_Set_Active_Remote(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_OrbiterPlugIn,m_iPK_Device_Remote,
+			bFollowMe,m_pOrbiter->m_dwPK_Device);
+	m_pOrbiter->SendCommand(CMD_Set_Active_Remote);
+	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::SetActiveRemote new remote %d device %d",m_iRemoteID,m_iPK_Device_Remote );
+}
 
 bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 {
@@ -168,19 +243,7 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 
 	int iRemoteID = p_Packet[2];
 	if( iRemoteID!=m_iRemoteID || p_Packet[3]==201 )  // 201 isn't really follow me.  Do this just for testing
-	{
-		m_iPK_Device_Remote = m_mapRemoteID_Device_Find(iRemoteID);
-		if( !m_iPK_Device_Remote )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessHIDButton Remote ID %d is unknown",iRemoteID);
-			return false;
-		}
-		m_iRemoteID = iRemoteID;
-		DCE::CMD_Set_Active_Remote CMD_Set_Active_Remote(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_OrbiterPlugIn,m_iPK_Device_Remote,
-				p_Packet[3]==201,m_pOrbiter->m_dwPK_Device);
-		m_pOrbiter->SendCommand(CMD_Set_Active_Remote);
-		g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton new remote %d device %d",m_iRemoteID,m_iPK_Device_Remote );
-	}
+		SetActiveRemote(iRemoteID,p_Packet[3]==201);
 	
 	// If p_Packet[3]==0 then this is notifying us that the button was released.  If it's not, it's notifying us that a button was pressed
 	// if m_iHoldingDownButton is !0, then we're already reporting a button as being depressed, so we need to fire a button up if the 

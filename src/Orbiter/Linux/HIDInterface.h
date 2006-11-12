@@ -31,6 +31,9 @@ public:
 
 	bool ProcessBindRequest(char *inPacket);
 	bool ProcessHIDButton(char *inPacket);
+	bool SetActiveRemote(int iRemoteID,bool bFollowMe);
+	bool StartMouse();
+	bool StopMouse();
 };
 
 #endif // PlutoHIDInterface_h
