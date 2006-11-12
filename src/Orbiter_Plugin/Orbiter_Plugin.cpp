@@ -3041,6 +3041,7 @@ void Orbiter_Plugin::CMD_Get_Remote_ID(string sUID,int *iPK_Device,int *iValue,s
 	if( (result_set2.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set2.r)) && atoi(row[0])>0 )
 		*iValue = atoi(row[0]) + 1;
 	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,*iPK_Device,DEVICEDATA_PortChannel_Number_CONST,StringUtils::itos(*iValue));
+	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,*iPK_Device,DEVICEDATA_Serial_Number_CONST,sUID);
 }
 
 //<-dceag-c830-b->

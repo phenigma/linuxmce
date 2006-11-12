@@ -333,15 +333,6 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	pthread_create(&m_MaintThreadID, NULL, MaintThread, (void*)this);
 	pthread_detach(m_MaintThreadID);
 
-#ifndef WIN32
-#ifdef ORBITER_OPENGL
-	m_pHIDInterface=new PlutoHIDInterface(this);
-	pthread_t HidThreadID;
-	pthread_create(&HidThreadID, NULL, ProcessHIDEvents, (void*)m_pHIDInterface);
-	pthread_detach(HidThreadID);
-#endif
-#endif
-
 	srand( (unsigned)time( NULL ) );  // For the screen saver
 
 	m_pBackgroundImage = NULL;
@@ -673,6 +664,21 @@ bool Orbiter::GetConfig()
 	m_pDevice_ScreenSaver = m_pData->FindSelfOrChildWithinCategory(DEVICECATEGORY_Screen_Savers_CONST);
 
 	return true;
+}
+
+
+void Orbiter::PostConnect()
+{
+
+#ifndef WIN32
+#ifdef ORBITER_OPENGL
+	m_pHIDInterface=new PlutoHIDInterface(this);
+	pthread_t HidThreadID;
+	pthread_create(&HidThreadID, NULL, ProcessHIDEvents, (void*)m_pHIDInterface);
+	pthread_detach(HidThreadID);
+#endif
+#endif
+
 }
 
 //<-dceag-reg-b->
@@ -2674,14 +2680,15 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to 
 #endif
 	}
 
-    PreprocessEvent(*pEvent);
+	int Type=pEvent->type;  // Preprocess Event will change this from BUTTON_DOWN to 'unknown' if it's not a known key.  However there might skill be an entry for it in m_mapScanCodeToRemoteButton.end
+    	PreprocessEvent(*pEvent);
 
-	if( pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::REGION_DOWN )
+	if( Type == Orbiter::Event::BUTTON_DOWN || Type == Orbiter::Event::REGION_DOWN )
 	{
-		if( !GotActivity( pEvent->type == Orbiter::Event::BUTTON_DOWN ? pEvent->data.button.m_iPK_Button : 0 ) )
+		if( !GotActivity( pEvent->type == Orbiter::Event::BUTTON_DOWN ? pEvent->data.button.m_iPK_Button : 0 ) )  // Use pEvent->type not Type since if it's not a known type it won't map to m_iPK_Button
 			return;
 
-		if( pEvent->type == Orbiter::Event::BUTTON_DOWN )
+		if( Type == Orbiter::Event::BUTTON_DOWN )  // Use Type instead of pEvent->type since the user may have some mapping for this
 		{
 			map<int,string>::iterator it = m_mapScanCodeToRemoteButton.find(pEvent->data.button.m_iPK_Button);
 			if( it!=m_mapScanCodeToRemoteButton.end() )

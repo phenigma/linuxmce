@@ -20,6 +20,7 @@ PlutoHIDInterface::PlutoHIDInterface(Orbiter *pOrbiter) : m_HIDMutex("HID")
 	m_bRunning=false;
 	m_HIDMutex.Init(NULL);
 	m_iRemoteID=m_iPK_Device_Remote=0;
+	m_iHoldingDownButton=0;
 }
 
 void PlutoHIDInterface::ProcessHIDEvents()
@@ -120,21 +121,32 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessBindRequest got a bind request for %d %d %d %d",
 		(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
-	char sSerialNumber[15];
-	sprintf(sSerialNumber,"%x.%x.%x.%x",(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
-	int PK_Device=0,RemoteID=0;
-    DCE::CMD_Get_Remote_ID CMD_Get_Remote_ID(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_OrbiterPlugIn,sSerialNumber,&PK_Device,&RemoteID);
-	if( !m_pOrbiter->SendCommand(CMD_Get_Remote_ID) || PK_Device==0 || RemoteID==0 )
+
+
+	unsigned char *pSerialNumber = (unsigned char *) inPacket; // Unsigned so it's not negative numbers
+	char sSerialNumber[30];
+	sprintf(sSerialNumber,"%x.%x.%x.%x",(int) pSerialNumber[2],(int) pSerialNumber[3],(int) pSerialNumber[4],(int) pSerialNumber[5]);
+
+	int PK_Device=0,RemoteID=m_mapSerialNumber_RemoteID_Find(sSerialNumber);
+	if( RemoteID==0 )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessBindRequest failed to set RemoteID");
-		RemoteID=255; // A bogus number
+		DCE::CMD_Get_Remote_ID CMD_Get_Remote_ID(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_OrbiterPlugIn,sSerialNumber,&PK_Device,&RemoteID);
+		if( !m_pOrbiter->SendCommand(CMD_Get_Remote_ID) || PK_Device==0 || RemoteID==0 )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessBindRequest failed to set RemoteID");
+			RemoteID=255; // A bogus number
+		}
+		m_mapRemoteID_Device[ RemoteID ] = PK_Device;
+		m_mapSerialNumber_RemoteID[ sSerialNumber ] = RemoteID;
 	}
+	else
+		PK_Device=m_mapRemoteID_Device_Find(RemoteID);
 
 	char write_packet[5];
 	write_packet[0]=8;
 	write_packet[1]=0x20;
-	write_packet[2]=0x02;  // The remote ID
-	write_packet[3]=(char) RemoteID;
+	write_packet[2]=(char) RemoteID;
+	write_packet[3]=0;
 	int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
 	if (ctrl<0)
 	{
@@ -142,20 +154,22 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 		perror("error: ");
 		return false;
 	}
-	m_mapRemoteID_Device[ RemoteID ] = PK_Device;
+	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessBindRequest remote %d PK_Device %d",RemoteID,PK_Device);
 	return true;
 }
 
 
 bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessHIDButton for %d %d %d %d",
-		(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
+	unsigned char *p_Packet = (unsigned char *) inPacket;
 
-	int iRemoteID = inPacket[2];
+	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessHIDButton for %d %d %d %d",
+		(int) p_Packet[2],(int) p_Packet[3],(int) p_Packet[4],(int) p_Packet[5]);
+
+	int iRemoteID = p_Packet[2];
 	if( iRemoteID!=m_iRemoteID )
 	{
-		m_iPK_Device_Remote = m_mapRemoteID_Device_Find(m_iRemoteID);
+		m_iPK_Device_Remote = m_mapRemoteID_Device_Find(iRemoteID);
 		if( !m_iPK_Device_Remote )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessHIDButton Remote ID %d is unknown",iRemoteID);
@@ -167,8 +181,35 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 		g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessHIDButton new remote %d device %d",m_iRemoteID,m_iPK_Device_Remote );
 	}
 	
+	// If p_Packet[3]==0 then this is notifying us that the button was released.  If it's not, it's notifying us that a button was pressed
+	// if m_iHoldingDownButton is !0, then we're already reporting a button as being depressed, so we need to fire a button up if the 
+	// user is pressing another button
+	if( m_iHoldingDownButton )
+	{
+		Orbiter::Event *pEvent = new Orbiter::Event;
+		pEvent->type=Orbiter::Event::BUTTON_UP;
+		pEvent->data.button.m_iPK_Button = m_iHoldingDownButton + 100000;
+		m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
+		if( p_Packet[3]==0 )
+		{
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessHIDButton button %d was released",m_iHoldingDownButton);
+#endif
+			m_iHoldingDownButton=0;  // we're not holding down any buttons anymore
+			return true;
+		}
+	}
+
+	if( p_Packet[3]==0 )
+	{
+		g_pPlutoLogger->Write(LV_WARNING,"ProcessHIDEvents ProcessHIDButton got a button up with nothing down");
+		return true; // Shouldn't get here because m_iHoldingDownButton should be non-null if we're getting a button up
+	}
+
+	m_iHoldingDownButton=p_Packet[3];
 	Orbiter::Event *pEvent = new Orbiter::Event;
-	pEvent->type=Orbiter::Event::HID;
+	pEvent->type=Orbiter::Event::BUTTON_DOWN;
+	pEvent->data.button.m_iPK_Button = m_iHoldingDownButton + 100000; // We're using especially high numbers, > 100000 for these special buttons
 
 	m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
 	return true;

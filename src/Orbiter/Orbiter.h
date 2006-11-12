@@ -193,6 +193,7 @@ namespace DCE
 		* as a plug-in. Otherwise Connect() will be called from the main()
 		*/
 		virtual bool Register(  );
+		virtual void PostConnect();
 
 		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
