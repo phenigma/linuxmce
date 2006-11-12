@@ -2,17 +2,30 @@
 #include "../Orbiter.h"
 
 #define HAVE_STDBOOL_H
+extern 
 #include <hid.h>
 #include <usb.h>
 #include <stdio.h>
 #include <string.h>
 
-bool ProcessBindRequest(Orbiter *pOrbiter,usb_dev_handle *handle,char *inPacket,char *write_packet);
-bool ProcessHIDButton(Orbiter *pOrbiter,char *inPacket);
-
 void *ProcessHIDEvents(void *p)
 {
-	Orbiter *pOrbiter = (Orbiter *) p;
+	HIDInterface *pHIDInterface = (HIDInterface *) p;
+	pHIDInterface->ProcessHIDEvents();
+	return NULL;
+}
+
+HIDInterface::HIDInterface(Orbiter *pOrbiter) : m_HIDMutex("HID")
+{
+	m_pOrbiter=pOrbiter; 
+	m_p_usb_dev_handle=NULL; 
+	m_bRunning=false;
+	m_HIDMutex.Init(NULL);
+	m_iRemoteID=m_iPK_Device_Remote=0;
+}
+
+void HIDInterface::ProcessHIDEvents()
+{
 	struct usb_bus *busses;
 	usb_set_debug(255);
 
@@ -40,23 +53,23 @@ void *ProcessHIDEvents(void *p)
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents device found!");
 
-				usb_dev_handle * handle = usb_open(dev);
+				m_p_usb_dev_handle = usb_open(dev);
 
 				int res = 0;
-				res = usb_claim_interface(handle, 1);
+				res = usb_claim_interface(m_p_usb_dev_handle, 1);
 				if (res<0)
 				{ 
 					g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents claim interface: %i\n", res);
 					perror("error: ");
-					return NULL;
+					return;
 				}
 
 				char outPacket[4] = { 0x08, 0x40, 0x00, 0x00 };
 				char inPacket[6];
 
-				res = usb_control_msg(handle, 0x21, 9, 8+(0x03<<8) /*int value*/, 1 /* int index */, outPacket, 4, 250);
+				res = usb_control_msg(m_p_usb_dev_handle, 0x21, 9, 8+(0x03<<8) /*int value*/, 1 /* int index */, outPacket, 4, 250);
 
-				//                                                      res = usb_interrupt_write(handle, 0x01, outPacket, 4, 250);
+				//                                                      res = usb_interrupt_write(m_p_usb_dev_handle, 0x01, outPacket, 4, 250);
 				if (res<0)
 				{
 					g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents first usb_control_msg: %i\n", res);
@@ -64,9 +77,11 @@ void *ProcessHIDEvents(void *p)
 				}
 
 				int cnt=0;
-				while(1)
+				while(!m_pOrbiter->m_bQuit)
 				{
-					res = usb_interrupt_read(handle, 0x82, inPacket, 6, 250);
+					PLUTO_SAFETY_LOCK(hm,m_HIDMutex);
+					m_bRunning=true;
+					res = usb_interrupt_read(m_p_usb_dev_handle, 0x82, inPacket, 6, 250);
 					if (res<0&&res!=-110) break;
 					if (res<=0)
 					{
@@ -74,7 +89,9 @@ void *ProcessHIDEvents(void *p)
 						if (cnt%100==0) 
 							g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents .", cnt++);
 #endif
-						usleep(10000);
+						hm.Release();  
+						usleep(10000);  // Give somebody else a chance to use this
+						hm.Relock();
 						cnt++;
 					}
 					else
@@ -86,8 +103,8 @@ void *ProcessHIDEvents(void *p)
 							if( inPacket[1]==0x20 )  // A bind request
 							{
 								char write_packet[5];
-								ProcessBindRequest(pOrbiter,handle,inPacket,write_packet);
-								int ctrl = usb_control_msg(handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
+								ProcessBindRequest(m_pOrbiter,m_p_usb_dev_handle,inPacket,write_packet);
+								int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
 								if (ctrl<0)
 								{
 									g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents ProcessBindRequest  usb_control_msg %d\n",(int) ctrl);
@@ -95,26 +112,22 @@ void *ProcessHIDEvents(void *p)
 								}
 							}
 							else if( inPacket[1]==0x25 )  // A button
-								ProcessHIDButton(pOrbiter,inPacket);
+								ProcessHIDButton(m_pOrbiter,inPacket);
 						}
 					}
-
 				}
 
-				usb_release_interface(handle, 1);
-
-
-				usb_close(handle);
+				m_bRunning=false;
+				usb_release_interface(m_p_usb_dev_handle, 1);
+				usb_close(m_p_usb_dev_handle);
 			}
 		}
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents Exiting");
-
-	return 0;
 }
 
-bool ProcessBindRequest(Orbiter *pOrbiter,usb_dev_handle *handle,char *inPacket,char *write_packet)
+bool HIDInterface::ProcessBindRequest(usb_dev_handle *m_p_usb_dev_handle,char *inPacket,char *write_packet)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessBindRequest got a bind request for %d %d %d %d",
 		(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
@@ -123,7 +136,7 @@ bool ProcessBindRequest(Orbiter *pOrbiter,usb_dev_handle *handle,char *inPacket,
 	write_packet[1]=0x20;
 	write_packet[2]=0x02;  // The remote ID
 	write_packet[3]=0;
-	int ctrl = usb_control_msg(handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
+	int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
 	if (ctrl<0)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"ProcessHIDEvents ProcessBindRequest  usb_control_msg %d\n",(int) ctrl);
@@ -133,23 +146,35 @@ bool ProcessBindRequest(Orbiter *pOrbiter,usb_dev_handle *handle,char *inPacket,
 }
 
 
-bool ProcessHIDButton(Orbiter *pOrbiter,char *inPacket)
+bool HIDInterface::ProcessHIDButton(char *inPacket)
 {
-	static int iRemoteID=0;
 	g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessHIDButton for %d %d %d %d",
 		(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
+
+	int *p_iRemoteID = (int *) inPacket[2];
+	if( *p_iRemoteID!=iRemoteID )
+	{
+		iRemoteID = *p_iRemoteID;
+		iPK_Device_Remote = GetRemoteID(m_pOrbiter,iRemoteID);
+		g_pPlutoLogger->Write(LV_STATUS,"ProcessHIDEvents ProcessHIDButton new remote %d device %d",iRemoteID,iPK_Device_Remote );
+	}
 	
 	Orbiter::Event *pEvent = new Orbiter::Event;
 	pEvent->type=Orbiter::Event::HID;
 
-	pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
+	m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
 	return true;
 }
+
+int HIDInterface::GetRemoteID(int iRemoteID)
+{
+}
+
 
 /*
 	Kirill's note:
 	short note:
-	usb_control_msg(handle, 0x21, 9, 8+(0x03<<8) , 1 , outPacket, 4, 250);
+	usb_control_msg(m_p_usb_dev_handle, 0x21, 9, 8+(0x03<<8) , 1 , outPacket, 4, 250);
 	you see here the combination:
 	8+(0x03<<8) , 1
 
