@@ -35,6 +35,12 @@ class OrbiterRenderer;
 class DesignObj_DataGrid;
 class AskXine_Socket;
 /** For brevity,  DesignObj_Orbiter will be abbreviated Obj */
+#ifndef WIN32
+#ifdef ORBITER_OPENGL
+	class PlutoHIDInterface;
+#endif
+#endif
+
 
 namespace DCE
 {
@@ -106,7 +112,7 @@ namespace DCE
 		list<PlutoAlert *> m_listPlutoAlert;  // Current alerts displayed on the screen as a popup message
 		#ifndef WIN32
 		#ifdef ORBITER_OPENGL
-			class HIDInterface *m_pHIDInterface;
+			PlutoHIDInterface *m_pHIDInterface;
 		#endif
 		#endif
 
