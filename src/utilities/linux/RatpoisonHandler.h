@@ -94,7 +94,7 @@ return; // Sometimes it's reporting that ratpoison is dead when it really isn't.
             g_pPlutoLogger->Write(LV_STATUS, "Starting ratpoison with command: %s", sStartRatpoisonCmd.c_str());
             g_pPlutoLogger->Write(LV_STATUS, "Sleeping 5 seconds, then restarting...");
             Sleep(5000);
-	    system("/usr/pluto/bin/MessageSend dcerouter 0 -1000 7 1");
+	    system("/usr/pluto/bin/MessageSend dcerouter 0 -1000 7 1 163 ratpoison");
             exit(13);
 		}
 

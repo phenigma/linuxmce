@@ -1069,7 +1069,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
 		{
 			map<long, string>::iterator p = (*SafetyMessage)->m_mapParameters.begin();
 			if ( p != (*SafetyMessage)->m_mapParameters.end() )
-				SetDeviceDataInDB((*SafetyMessage)->m_dwPK_Device_From,p->first,p->second);
+				SetDeviceDataInDB((*SafetyMessage)->m_dwID,p->first,p->second);
 		}
 		else if ( (*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_DATAPARM_REQUEST )
 		{

@@ -228,7 +228,7 @@ GetVideoDriver()
 ReloadDevicesOnThisMachine()
 {
 	for Dev in $(cat /usr/pluto/locks/pluto_spawned_local_devices.txt); do
-		/usr/pluto/bin/MessageSend "$DCERouter" 0 "$Dev" 7 1
+		/usr/pluto/bin/MessageSend "$DCERouter" 0 "$Dev" 7 1 163 "Utils.sh ReloadDevicesOnThisMachine"
 	done
 }
 

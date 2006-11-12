@@ -619,7 +619,7 @@ bool General_Info_Plugin::PendingTasks(vector<string> *vectPendingTasks)
 		{
 			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(it->first);
 			vectPendingTasks->push_back("Still downloading packages m_mapMediaDirectors_PendingConfig on: " + (pRow_Device ? pRow_Device->Description_get() : StringUtils::itos(it->first)));
-			g_pPlutoLogger->Write( LV_STATUS, "General_Info_Plugin::PendingTasks md %d is busy",it->first);
+			g_pPlutoLogger->Write( LV_STATUS, "General_Info_Plugin::PendingTasks m_mapMediaDirectors_PendingConfig md %d is busy",it->first);
 			bOkayToReload=false;
 		}
 	}
@@ -2835,8 +2835,13 @@ void General_Info_Plugin::CMD_Set_Enable_Status(int iPK_Device,bool bEnable,stri
 	if(NULL != pRow_Device)
 	{
 		//the device exists; setting 'Disabled' flag
+		pRow_Device->Reload();
 		pRow_Device->Disabled_set(bEnable ? 0 : 1);
 		pRow_Device->Table_Device_get()->Commit();
+
+		// If it's a serial device, remove the com port
+		string sSQL = "UPDATE Device_DeviceData SET IK_DeviceData=NULL WHERE FK_Device=" + StringUtils::itos(iPK_Device) + " AND FK_DeviceData=" TOSTRING(DEVICEDATA_COM_Port_on_PC_CONST);
+		m_pDatabase_pluto_main->threaded_mysql_query(sSQL,true);
 	}
 	else
 	{

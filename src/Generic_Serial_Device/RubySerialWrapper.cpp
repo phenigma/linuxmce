@@ -29,7 +29,7 @@ namespace DCE {
 		}
 	}
 
-	void RubySerialWrapper::DisableDevice( int device, bool bDisable ) 
+	void RubySerialWrapper::DisableDevice( int PK_Device, bool bDisable ) 
 	{
 		if( pdce_ != NULL /*&& device_ != NULL*/ ) {
 
@@ -38,7 +38,7 @@ namespace DCE {
 
 			pcmd->setTemplate( DEVICETEMPLATE_General_Info_Plugin_CONST );
 
-			pcmd->params_[COMMANDPARAMETER_PK_Device_CONST] = StringUtils::itos( device );
+			pcmd->params_[COMMANDPARAMETER_PK_Device_CONST] = StringUtils::itos( PK_Device );
 
 			if ( bDisable )
 				pcmd->params_[COMMANDPARAMETER_Enable_CONST] = "0";
@@ -51,12 +51,12 @@ namespace DCE {
 
 	}
 
-	void RubySerialWrapper::SetDeviceDataInDB( int device, int PK_DeviceData, const char* value )
+	void RubySerialWrapper::SetDeviceDataInDB( int PK_Device, int PK_DeviceData, const char* value )
 	{
 		if(pdce_) {
 
 			RubyCommandWrapper *pcmd = new RubyCommandWrapper( device_.getDevId(), 
-				DEVICEID_DCEROUTER, PRIORITY_NORMAL, MESSAGETYPE_DATAPARM_CHANGE, 0 );
+				DEVICEID_DCEROUTER, PRIORITY_NORMAL, MESSAGETYPE_DATAPARM_CHANGE, PK_Device ? PK_Device : device_.getDevId() );
 
 			pcmd->params_[PK_DeviceData] = value;
 

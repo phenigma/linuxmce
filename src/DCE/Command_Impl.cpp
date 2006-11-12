@@ -26,6 +26,7 @@
 
 #include "PlutoUtils/CommonIncludes.h"
 #include "DCE/Logger.h"
+#include "Gen_Devices/AllCommandsRequests.h"
 
 #ifndef WINCE
 #include "DCERouter.h"
@@ -1008,9 +1009,15 @@ bool Command_Impl::SetStatus( string sStatus, int dwPK_Device )
 	return m_pcRequestSocket->m_pClientSocket->SendString("SET_STATUS " + StringUtils::itos( dwPK_Device ? dwPK_Device : m_dwPK_Device ) + " " + sStatus );
 }
 
+void Command_Impl::EnableDevice( int PK_Device, bool bEnabled ) 
+{
+	DCE::CMD_Set_Enable_Status_DT CMD_Set_Enable_Status_DT(m_dwPK_Device,DEVICETEMPLATE_General_Info_Plugin_CONST,BL_SameHouse,PK_Device,bEnabled);
+	SendCommand(CMD_Set_Enable_Status_DT);
+}
+
 void Command_Impl::SetDeviceDataInDB(int PK_Device,int PK_DeviceData,string Value)
 {
-	Message *pMessage = new Message(PK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_DATAPARM_CHANGE,0,1,PK_DeviceData,Value.c_str());
+	Message *pMessage = new Message(m_dwPK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_DATAPARM_CHANGE,PK_Device,1,PK_DeviceData,Value.c_str());
 	m_pcRequestSocket->SendMessage(pMessage);
 }
 

@@ -29,6 +29,8 @@
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_PnpQueue.h"
 #include "pluto_main/Table_Device.h"
+#include "pluto_main/Table_Manufacturer.h"
+#include "pluto_main/Table_DeviceCategory.h"
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Table_DHCPDevice.h"
 #include "pluto_main/Table_UnknownDevices.h"
@@ -1443,12 +1445,23 @@ string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
 			sDescription = pRow_DeviceTemplate->Description_get() + " (" + pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get() + ") " +
 			pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_Description_CONST];
 
+		bool bDefaultDescription=false; // Will add more comments if this is just the device template description as the default
 		if( sDescription.empty() )
+		{
 			sDescription = pRow_DeviceTemplate->Description_get();
+			bDefaultDescription=true;
+		}
 
 		map<int,string>::iterator it;
 		if( (it=pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Description_CONST))!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
 			sDescription += "(" + it->second + ")";
+		else if( bDefaultDescription )
+		{
+			Row_Manufacturer *pRow_Manufacturer = pRow_DeviceTemplate->FK_Manufacturer_getrow();
+			Row_DeviceCategory *pRow_DeviceCategory = pRow_DeviceTemplate->FK_DeviceCategory_getrow();
+			sDescription += "(" + (pRow_Manufacturer ? pRow_Manufacturer->Description_get() + " / " : "") +
+				(pRow_DeviceCategory ? pRow_DeviceCategory->Description_get() : "") + ")";
+		}
 	}
 
 	if( sDescription.size()==0 )

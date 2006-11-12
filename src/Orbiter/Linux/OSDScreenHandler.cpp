@@ -1637,6 +1637,8 @@ bool OSDScreenHandler::LightsSetup_ObjectSelected(CallBackData *pData)
 			if(DESIGNOBJ_butLightType2_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
 				int PK_Room = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST).c_str());
+				g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::LightsSetup_ObjectSelected DESIGNOBJ_LightSetupRooms_CONST device %d room %d",
+					m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,PK_Room);
 				if( !PK_Room || !DatabaseUtils::SetDeviceInRoom(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,PK_Room) )
 					return true;  // This room isn't valid
 			}

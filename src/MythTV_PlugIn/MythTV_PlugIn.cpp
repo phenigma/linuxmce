@@ -812,8 +812,12 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 				else
 					g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards cannot find topmost device for %d", pRow_Device->PK_Device_get());
 
-				// The MPEG probably shouldn't be hardcoded
-				sSQL = "INSERT INTO `capturecard`(cardtype,hostname) VALUES ('MPEG','" + sHostname + "');";
+				sSQL = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Configuration_CONST);
+				if( sSQL.empty() )
+					sSQL = "INSERT INTO `capturecard`(cardtype,hostname) VALUES ('MPEG','" + sHostname + "');";
+				else
+					StringUtils::Replace(&sSQL,"<%=HOST%>",sHostname);
+
 				cardid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
 				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Port_CONST,StringUtils::itos(cardid));
 			}

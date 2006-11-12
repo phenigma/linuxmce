@@ -70,9 +70,9 @@ public:
 	std::list<VALUE> children_;
 	RubyDeviceWrapper device_; /*our device*/
 
-	void DisableDevice( int device, bool bDisable );
+	void DisableDevice( int PK_Device, bool bDisable );
 
-	void SetDeviceDataInDB( int device, int PK_DeviceData, const char* value );
+	void SetDeviceDataInDB( int PK_Device, int PK_DeviceData, const char* value );
 	const char* GetCurrentDeviceData( int PK_Device, int PK_DeviceData );
 	
 private:

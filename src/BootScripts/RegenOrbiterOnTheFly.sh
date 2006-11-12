@@ -32,7 +32,7 @@ for OrbiterDev in $Orbiters; do
 
 	Q="UPDATE Orbiter set RegenPercent=0 where PK_Orbiter=$OrbiterDev"
 	RunSQL "$Q"
-	/usr/pluto/bin/MessageSend localhost 0 $OrbiterDev 7 1
+	/usr/pluto/bin/MessageSend localhost 0 $OrbiterDev 7 1 163 "RegenOrbiterOnTheFly.sh"
 
 	echo "on the fly regen of $OrbiterDev $2 $3" >> /var/log/pluto/orbitergen.log
 	/usr/pluto/bin/OrbiterGen -d "$OrbiterDev" $3 -g "$SkinDir" -f "$FontDir" -o "$OutDir" -h "$MySqlHost"  >> /var/log/pluto/orbitergen.log || Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to generate Orbiter nr. $OrbiterDev"

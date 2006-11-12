@@ -1,6 +1,8 @@
 #!/bin/bash
 . /usr/pluto/bin/Config_Ops.sh
 
+exit
+
 if [[ "$OfflineMode" == "true" ]]; then
 	echo "$0: OfflineMode is active, i can't share no IRCodes, skiping"
 	exit 0

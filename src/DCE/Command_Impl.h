@@ -387,6 +387,8 @@ namespace DCE
 		/** @brief Sets the "status" for the given device, or this device by default */
 		virtual bool SetStatus( string sStatus, int dwPK_Device=0 );
 
+		virtual void EnableDevice( int PK_Device, bool bEnabled ); // Sets the given device to enabled if true, or disable if false
+
 		/**
 		 * @brief Gets the current value of a given device data from one of our children
 		 */
