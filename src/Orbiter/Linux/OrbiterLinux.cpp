@@ -356,9 +356,7 @@ void OrbiterLinux::Destroy()
 
 bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 {
-	if (event.type == Orbiter::Event::HID)
-		return TranslateEvent_HID(event);
-	else if (event.type != Orbiter::Event::BUTTON_DOWN && event.type != Orbiter::Event::BUTTON_UP)
+	if (event.type != Orbiter::Event::BUTTON_DOWN && event.type != Orbiter::Event::BUTTON_UP)
 		return false;
 
 	/* event.type == BUTTON_DOWN or BUTTON_UP */

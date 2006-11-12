@@ -167,7 +167,7 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 		(int) p_Packet[2],(int) p_Packet[3],(int) p_Packet[4],(int) p_Packet[5]);
 
 	int iRemoteID = p_Packet[2];
-	if( iRemoteID!=m_iRemoteID )
+	if( iRemoteID!=m_iRemoteID || p_Packet[3]==201 )  // 201 isn't really follow me.  Do this just for testing
 	{
 		m_iPK_Device_Remote = m_mapRemoteID_Device_Find(iRemoteID);
 		if( !m_iPK_Device_Remote )
@@ -176,7 +176,8 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 			return false;
 		}
 		m_iRemoteID = iRemoteID;
-		DCE::CMD_Set_Active_Remote CMD_Set_Active_Remote(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_OrbiterPlugIn,m_iPK_Device_Remote,m_pOrbiter->m_dwPK_Device);
+		DCE::CMD_Set_Active_Remote CMD_Set_Active_Remote(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_OrbiterPlugIn,m_iPK_Device_Remote,
+				p_Packet[3]==201,m_pOrbiter->m_dwPK_Device);
 		m_pOrbiter->SendCommand(CMD_Set_Active_Remote);
 		g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton new remote %d device %d",m_iRemoteID,m_iPK_Device_Remote );
 	}
