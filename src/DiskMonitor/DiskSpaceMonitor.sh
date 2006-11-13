@@ -151,8 +151,6 @@ for Device in $StorageDevices; do
 	if [[ $Device_isMounted == "0" ]] ;then
 		Logging $TYPE $SEVERITY_NORMAL $module "Filesystem ( $Device_MountPoint ) is Offline"
 	fi
-	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$Device_isMounted' WHERE FK_DeviceData = '$DD_ONLINE' AND FK_Device = '$Device_ID'"
-	RunSQL "$Q"
 
 	[[ $Device_isMounted == "0" ]] && continue
 	
