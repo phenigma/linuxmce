@@ -30,7 +30,7 @@ TimedEvent::TimedEvent(Row_EventHandler *pRow_EventHandler)
 		else if( pRow_CriteriaParm->FK_CriteriaParmList_get()==CRITERIAPARMLIST_Day_Of_Month_CONST )
 			m_sDaysOfMonth=pRow_CriteriaParm->Value_get();
 		else if( pRow_CriteriaParm->FK_CriteriaParmList_get()==CRITERIAPARMLIST_Specific_Date_CONST )
-			m_tTime=StringUtils::StringToDate(pRow_CriteriaParm->Value_get());
+			m_tTime=StringUtils::SQLDateTime(pRow_CriteriaParm->Value_get());
 	}
 	
 	CalcNextTime();
@@ -150,12 +150,12 @@ g_pPlutoLogger->Write(LV_STATUS,"Added interval timer %s at %d now %d seconds %d
 		}
 		break;
 	case ABSOLUTE_TIME:
-		return; // Nothing to do here
+		break;
 	}
-	if( m_tTime && m_tTime < time(NULL) )
+	if( m_tTime && m_tTime < time(NULL) && m_iTimedEventType!=ABSOLUTE_TIME )
 		m_tTime = time(NULL);
 struct tm *tmLocal = localtime(&m_tTime);
-g_pPlutoLogger->Write(LV_STATUS,"Timer: %s set for %d/%d/%d %d:%d:%d in %d seconds",
+g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::CalcNextTime Timer: %s set for %d/%d/%d %d:%d:%d in %d seconds",
 	m_pRow_EventHandler->Description_get().c_str(),tmLocal->tm_mon+1,tmLocal->tm_mday,tmLocal->tm_year-100,tmLocal->tm_hour,tmLocal->tm_min,tmLocal->tm_sec,m_tTime - time(NULL));
 }
 
