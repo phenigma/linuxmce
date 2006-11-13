@@ -6233,7 +6233,6 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	g_pPlutoLogger->Write(LV_CRITICAL, "Received 'Set Now Playing' with window %s", sName.c_str());
 #endif
 
-	CMD_Activate_Window(sName);
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
 	m_iPK_MediaType=iPK_MediaType;
@@ -6324,7 +6323,10 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Set_Now_Playing device %d video %d",m_dwPK_Device_NowPlaying,(int) m_bContainsVideo);
 		if( m_dwPK_Device_NowPlaying && m_bContainsVideo )
+		{
 			StopScreenSaver();
+			CMD_Activate_Window(sName);
+		}
 		else
 			StartScreenSaver(false);  // Don't go to the menu, just start the app in the background
 	}
