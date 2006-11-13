@@ -694,10 +694,16 @@ time_t StringUtils::SQLDateTime( string sSQLDate )
 
 		p1=p2+1;
 		p2 = sSQLDate.find(':',p1+1);
-		if( p2 )
+		if( p2!=string::npos )
+		{
 			t.tm_min = atoi(sSQLDate.substr(p1,p2-p1).c_str());
-
-		t.tm_sec = atoi(sSQLDate.substr(p2+1).c_str());
+			t.tm_sec = atoi(sSQLDate.substr(p2+1).c_str());
+		}
+		else
+		{
+			t.tm_min = atoi(sSQLDate.substr(p1).c_str());
+			t.tm_sec = 0;
+		}
 	}
 	else if( sSQLDate.find('/')!=string::npos && sSQLDate.find(':')!=string::npos ) // yyyy-mm-dd hh:mm:ss
 	{
