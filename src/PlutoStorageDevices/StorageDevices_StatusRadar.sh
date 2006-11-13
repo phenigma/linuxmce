@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [[ $1 != "background" ]] ;then
+        echo "Backgrounding ..."
+        screen -d -m -S "StorageStatusRadar" "$0" "background"
+        exit 0
+fi
+
+
 . /usr/pluto/bin/SQL_Ops.sh 2>/dev/null || exit 1
 . /usr/pluto/bin/Config_Ops.sh 2>/dev/null || exit 1
 

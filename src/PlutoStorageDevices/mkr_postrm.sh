@@ -7,3 +7,7 @@ mv /etc/crontab.$$ /etc/crontab
 ## Remove the init script that does the samba server scanning
 rm -f /etc/rc2.d/StorageDevices_SambaRadar.sh
 rm -f /etc/init.d/StorageDevices_SambaRadar.sh
+
+## Remove the init script that does the status (online/offline) scanning
+rm -f /etc/rc2.d/StorageDevices_StatusRadar.sh
+rm -f /etc/init.d/StorageDevices_StatusRadar.sh

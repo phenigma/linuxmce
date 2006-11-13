@@ -15,3 +15,7 @@ if [[ ! -f /etc/diskless.conf ]] ;then
 	ln -s /usr/pluto/bin/StorageDevices_SambaRadar.sh /etc/rc2.d/StorageDevices_SambaRadar.sh
 	ln -s /usr/pluto/bin/StorageDevices_SambaRadar.sh /etc/init.d/StorageDevices_SambaRadar.sh
 fi
+
+## Add a init script that will scan the devices for state info (online/ofline)
+ln -s /usr/pluto/bin/StorageDevices_StatusRadar.sh /etc/rc2.d/StorageDevices_StatusRadar.sh
+ln -s /usr/pluto/bin/StorageDevices_StatusRadar.sh /etc/init.d/StorageDevices_StatusRadar.sh
