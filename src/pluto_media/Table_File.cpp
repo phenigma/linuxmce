@@ -24,6 +24,7 @@ using namespace std;
 #include "Table_CoverArtScan.h"
 #include "Table_File_Attribute.h"
 #include "Table_File_Users.h"
+#include "Table_LongAttribute.h"
 #include "Table_Picture_File.h"
 #include "Table_PlaylistEntry.h"
 
@@ -1315,6 +1316,13 @@ void Row_File::File_Users_FK_File_getrows(vector <class Row_File_Users*> *rows)
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_File_Users *pTable = table->database->File_Users_get();
+pTable->GetRows("`FK_File`=" + StringUtils::itos(m_PK_File),rows);
+}
+void Row_File::LongAttribute_FK_File_getrows(vector <class Row_LongAttribute*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_LongAttribute *pTable = table->database->LongAttribute_get();
 pTable->GetRows("`FK_File`=" + StringUtils::itos(m_PK_File),rows);
 }
 void Row_File::Picture_File_FK_File_getrows(vector <class Row_Picture_File*> *rows)

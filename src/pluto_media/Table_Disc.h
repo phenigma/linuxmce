@@ -172,6 +172,7 @@ class Row_FileFormat* FK_FileFormat_getrow();
 void CoverArtScan_FK_Disc_getrows(vector <class Row_CoverArtScan*> *rows);
 void Disc_Attribute_FK_Disc_getrows(vector <class Row_Disc_Attribute*> *rows);
 void Disc_Users_FK_Disc_getrows(vector <class Row_Disc_Users*> *rows);
+void LongAttribute_FK_Disc_getrows(vector <class Row_LongAttribute*> *rows);
 void Picture_Disc_FK_Disc_getrows(vector <class Row_Picture_Disc*> *rows);
 
 

@@ -22,6 +22,7 @@ using namespace std;
 #include "Table_CoverArtScan.h"
 #include "Table_Disc_Attribute.h"
 #include "Table_File_Attribute.h"
+#include "Table_LongAttribute.h"
 #include "Table_Picture_Attribute.h"
 #include "Table_SearchToken_Attribute.h"
 
@@ -919,6 +920,13 @@ void Row_Attribute::File_Attribute_FK_Attribute_getrows(vector <class Row_File_A
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_File_Attribute *pTable = table->database->File_Attribute_get();
+pTable->GetRows("`FK_Attribute`=" + StringUtils::itos(m_PK_Attribute),rows);
+}
+void Row_Attribute::LongAttribute_FK_Attribute_getrows(vector <class Row_LongAttribute*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_LongAttribute *pTable = table->database->LongAttribute_get();
 pTable->GetRows("`FK_Attribute`=" + StringUtils::itos(m_PK_Attribute),rows);
 }
 void Row_Attribute::Picture_Attribute_FK_Attribute_getrows(vector <class Row_Picture_Attribute*> *rows)

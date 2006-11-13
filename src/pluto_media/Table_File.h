@@ -181,6 +181,7 @@ class Row_FileFormat* FK_FileFormat_getrow();
 void CoverArtScan_FK_File_getrows(vector <class Row_CoverArtScan*> *rows);
 void File_Attribute_FK_File_getrows(vector <class Row_File_Attribute*> *rows);
 void File_Users_FK_File_getrows(vector <class Row_File_Users*> *rows);
+void LongAttribute_FK_File_getrows(vector <class Row_LongAttribute*> *rows);
 void Picture_File_FK_File_getrows(vector <class Row_Picture_File*> *rows);
 void PlaylistEntry_FK_File_getrows(vector <class Row_PlaylistEntry*> *rows);
 

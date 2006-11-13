@@ -1,10 +1,10 @@
-#ifndef __Table_Attribute_H__
-#define __Table_Attribute_H__
+#ifndef __Table_LongAttribute_H__
+#define __Table_LongAttribute_H__
 
 #include "TableRow.h"
 #include "Database_pluto_media.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
-#include "Define_Attribute.h"
+#include "Define_LongAttribute.h"
 #include "SerializeClass/SerializeClass.h"
 
 // If we declare the maps locally, the compiler will create multiple copies of them
@@ -15,33 +15,33 @@
 class DECLSPECIFIER TableRow;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Table_Attribute : public TableBase , SingleLongKeyBase
+class DECLSPECIFIER Table_LongAttribute : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_media *database;
 	struct Key;	//forward declaration
 	
 public:
-	Table_Attribute(Database_pluto_media *pDatabase):database(pDatabase)
+	Table_LongAttribute(Database_pluto_media *pDatabase):database(pDatabase)
 	{
 	};
-	~Table_Attribute();
+	~Table_LongAttribute();
 
 private:		
-	friend class Row_Attribute;
+	friend class Row_LongAttribute;
 	struct Key
 	{
-		friend class Row_Attribute;
-		long int pk_PK_Attribute;
+		friend class Row_LongAttribute;
+		long int pk_PK_LongAttribute;
 
 		
-		Key(long int in_PK_Attribute);
+		Key(long int in_PK_LongAttribute);
 	
-		Key(class Row_Attribute *pRow);
+		Key(class Row_LongAttribute *pRow);
 	};
 	struct Key_Less
 	{			
-		bool operator()(const Table_Attribute::Key &key1, const Table_Attribute::Key &key2) const;
+		bool operator()(const Table_LongAttribute::Key &key1, const Table_LongAttribute::Key &key2) const;
 	};	
 
 	
@@ -54,32 +54,35 @@ public:
 	// the rows since they will be re-attempted.  If you set either flag to true, the failed
 	// row can be deleted.  Use with caution since your pointers become invalid!
 	bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);
-	bool GetRows(string where_statement,vector<class Row_Attribute*> *rows);
-	class Row_Attribute* AddRow();
+	bool GetRows(string where_statement,vector<class Row_LongAttribute*> *rows);
+	class Row_LongAttribute* AddRow();
 	Database_pluto_media *Database_pluto_media_get() { return database; }
 	
 		
-	class Row_Attribute* GetRow(long int in_PK_Attribute);
+	class Row_LongAttribute* GetRow(long int in_PK_LongAttribute);
 	
 
 private:	
 	
 		
-	class Row_Attribute* FetchRow(SingleLongKey &key);
+	class Row_LongAttribute* FetchRow(SingleLongKey &key);
 		
 			
 };
 
-class DECLSPECIFIER Row_Attribute : public TableRow, public SerializeClass
+class DECLSPECIFIER Row_LongAttribute : public TableRow, public SerializeClass
 	{
-		friend struct Table_Attribute::Key;
-		friend class Table_Attribute;
+		friend struct Table_LongAttribute::Key;
+		friend class Table_LongAttribute;
 	private:
-		Table_Attribute *table;
+		Table_LongAttribute *table;
 		
-		long int m_PK_Attribute;
+		long int m_PK_LongAttribute;
 long int m_FK_AttributeType;
-string m_Name;
+long int m_FK_Disc;
+long int m_FK_File;
+long int m_FK_Attribute;
+string m_Text;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -87,12 +90,15 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[9];
+		bool is_null[12];
 	
 	public:
-		long int PK_Attribute_get();
+		long int PK_LongAttribute_get();
 long int FK_AttributeType_get();
-string Name_get();
+long int FK_Disc_get();
+long int FK_File_get();
+long int FK_Attribute_get();
+string Text_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -101,9 +107,12 @@ string psc_mod_get();
 long int psc_restrict_get();
 
 		
-		void PK_Attribute_set(long int val);
+		void PK_LongAttribute_set(long int val);
 void FK_AttributeType_set(long int val);
-void Name_set(string val);
+void FK_Disc_set(long int val);
+void FK_File_set(long int val);
+void FK_Attribute_set(long int val);
+void Text_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -112,7 +121,10 @@ void psc_mod_set(string val);
 void psc_restrict_set(long int val);
 
 		
-		bool FK_AttributeType_isNull();
+		bool FK_Disc_isNull();
+bool FK_File_isNull();
+bool FK_Attribute_isNull();
+bool Text_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -120,7 +132,10 @@ bool psc_frozen_isNull();
 bool psc_restrict_isNull();
 
 			
-		void FK_AttributeType_setNull(bool val);
+		void FK_Disc_setNull(bool val);
+void FK_File_setNull(bool val);
+void FK_Attribute_setNull(bool val);
+void Text_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -131,35 +146,35 @@ void psc_restrict_setNull(bool val);
 		void Delete();
 		void Reload();		
 	
-		Row_Attribute(Table_Attribute *pTable);
+		Row_LongAttribute(Table_LongAttribute *pTable);
 	
 		bool IsDeleted(){return is_deleted;};
 		bool IsModified(){return is_modified;};			
-		class Table_Attribute *Table_Attribute_get() { return table; };
+		class Table_LongAttribute *Table_LongAttribute_get() { return table; };
 
 		// Return the rows for foreign keys 
 		class Row_AttributeType* FK_AttributeType_getrow();
+class Row_Disc* FK_Disc_getrow();
+class Row_File* FK_File_getrow();
+class Row_Attribute* FK_Attribute_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		void CoverArtScan_FK_Attribute_getrows(vector <class Row_CoverArtScan*> *rows);
-void Disc_Attribute_FK_Attribute_getrows(vector <class Row_Disc_Attribute*> *rows);
-void File_Attribute_FK_Attribute_getrows(vector <class Row_File_Attribute*> *rows);
-void LongAttribute_FK_Attribute_getrows(vector <class Row_LongAttribute*> *rows);
-void Picture_Attribute_FK_Attribute_getrows(vector <class Row_Picture_Attribute*> *rows);
-void SearchToken_Attribute_FK_Attribute_getrows(vector <class Row_SearchToken_Attribute*> *rows);
-
+		
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Attribute+ m_FK_AttributeType+ m_Name+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_LongAttribute+ m_FK_AttributeType+ m_FK_Disc+ m_FK_File+ m_FK_Attribute+ m_Text+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string PK_Attribute_asSQL();
+		string PK_LongAttribute_asSQL();
 string FK_AttributeType_asSQL();
-string Name_asSQL();
+string FK_Disc_asSQL();
+string FK_File_asSQL();
+string FK_Attribute_asSQL();
+string Text_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

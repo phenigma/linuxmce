@@ -24,6 +24,7 @@ using namespace std;
 #include "Table_CoverArtScan.h"
 #include "Table_Disc_Attribute.h"
 #include "Table_Disc_Users.h"
+#include "Table_LongAttribute.h"
 #include "Table_Picture_Disc.h"
 
 
@@ -1183,6 +1184,13 @@ void Row_Disc::Disc_Users_FK_Disc_getrows(vector <class Row_Disc_Users*> *rows)
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Disc_Users *pTable = table->database->Disc_Users_get();
+pTable->GetRows("`FK_Disc`=" + StringUtils::itos(m_PK_Disc),rows);
+}
+void Row_Disc::LongAttribute_FK_Disc_getrows(vector <class Row_LongAttribute*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_LongAttribute *pTable = table->database->LongAttribute_get();
 pTable->GetRows("`FK_Disc`=" + StringUtils::itos(m_PK_Disc),rows);
 }
 void Row_Disc::Picture_Disc_FK_Disc_getrows(vector <class Row_Picture_Disc*> *rows)

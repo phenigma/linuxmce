@@ -147,6 +147,7 @@ void psc_restrict_setNull(bool val);
 
 		// Return the rows in other tables with foreign keys pointing here
 		void Attribute_FK_AttributeType_getrows(vector <class Row_Attribute*> *rows);
+void LongAttribute_FK_AttributeType_getrows(vector <class Row_LongAttribute*> *rows);
 void MediaType_AttributeType_FK_AttributeType_getrows(vector <class Row_MediaType_AttributeType*> *rows);
 
 

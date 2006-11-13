@@ -19,6 +19,7 @@ using namespace std;
 #include "Table_AttributeType.h"
 
 #include "Table_Attribute.h"
+#include "Table_LongAttribute.h"
 #include "Table_MediaType_AttributeType.h"
 
 
@@ -944,6 +945,13 @@ void Row_AttributeType::Attribute_FK_AttributeType_getrows(vector <class Row_Att
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Attribute *pTable = table->database->Attribute_get();
+pTable->GetRows("`FK_AttributeType`=" + StringUtils::itos(m_PK_AttributeType),rows);
+}
+void Row_AttributeType::LongAttribute_FK_AttributeType_getrows(vector <class Row_LongAttribute*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_LongAttribute *pTable = table->database->LongAttribute_get();
 pTable->GetRows("`FK_AttributeType`=" + StringUtils::itos(m_PK_AttributeType),rows);
 }
 void Row_AttributeType::MediaType_AttributeType_FK_AttributeType_getrows(vector <class Row_MediaType_AttributeType*> *rows)

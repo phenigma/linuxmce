@@ -36,6 +36,7 @@ tblFile=NULL;
 tblFileFormat=NULL;
 tblFile_Attribute=NULL;
 tblFile_Users=NULL;
+tblLongAttribute=NULL;
 tblMediaProvider=NULL;
 tblMediaSource=NULL;
 tblMediaSubType=NULL;
@@ -103,6 +104,9 @@ if( tblFile_Attribute!=NULL )
 		bResult=false;
 if( tblFile_Users!=NULL )
 	if( !Commit_File_Users(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblLongAttribute!=NULL )
+	if( !Commit_LongAttribute(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
 if( tblMediaProvider!=NULL )
 	if( !Commit_MediaProvider(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
@@ -188,6 +192,7 @@ DeleteTable_File();
 DeleteTable_FileFormat();
 DeleteTable_File_Attribute();
 DeleteTable_File_Users();
+DeleteTable_LongAttribute();
 DeleteTable_MediaProvider();
 DeleteTable_MediaSource();
 DeleteTable_MediaSubType();
