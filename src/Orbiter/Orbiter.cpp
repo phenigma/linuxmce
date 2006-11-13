@@ -2820,7 +2820,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d key %d",
 	{
 		static bool bShowCursor=true;
 		bShowCursor=!bShowCursor;
-		m_pMouseBehavior->ShowMouse(bShowCursor);
+		if( m_pMouseBehavior )
+			m_pMouseBehavior->ShowMouse(bShowCursor);
 	}
 
 	if(event.type == Orbiter::Event::BUTTON_DOWN && !bSkipProcessing && NULL != m_pMouseBehavior)
@@ -3474,7 +3475,7 @@ bool Orbiter::GotActivity( int PK_Button )
 		{
 			StopScreenSaver();
 #ifdef ENABLE_MOUSE_BEHAVIOR
-			if( m_pMouseBehavior->m_bMouseVisible )
+			if( m_pMouseBehavior && m_pMouseBehavior->m_bMouseVisible )
 				CMD_Show_Mouse_Pointer("1");
 #endif
 		}
@@ -9240,14 +9241,13 @@ void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
 		CMD_Set_Main_Menu("V");
 		GotoDesignObj(m_sMainMenu);
 #ifdef ENABLE_MOUSE_BEHAVIOR
-		bool bMouseVisible=m_pMouseBehavior->m_bMouseVisible;  // Save the state
-		CMD_Show_Mouse_Pointer("0");
-		if(UsesUIVersion2())
+		if(UsesUIVersion2() && m_pMouseBehavior )
 		{
-			if( m_pMouseBehavior )
-				m_pMouseBehavior->Clear();
+			bool bMouseVisible=m_pMouseBehavior->m_bMouseVisible;  // Save the state
+			CMD_Show_Mouse_Pointer("0");
+			m_pMouseBehavior->Clear();
+			m_pMouseBehavior->m_bMouseVisible=bMouseVisible;  // Restore it
 		}
-		m_pMouseBehavior->m_bMouseVisible=bMouseVisible;  // Restore it
 #endif
 		
 #ifdef DEBUG
@@ -9296,8 +9296,13 @@ void Orbiter::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 	if( !m_bDisplayOn )
 		CMD_Display_OnOff( "1",false );
 #ifdef ENABLE_MOUSE_BEHAVIOR
-	m_pMouseBehavior->ButtonDown(BUTTON_Mouse_7_CONST);
-	m_pMouseBehavior->ButtonUp(BUTTON_Mouse_7_CONST);
+	if( m_pMouseBehavior )
+	{
+		m_pMouseBehavior->ButtonDown(BUTTON_Mouse_7_CONST);
+		m_pMouseBehavior->ButtonUp(BUTTON_Mouse_7_CONST);
+	}
+	else
+		GotoMainMenu();
 #else
 	GotoMainMenu();
 #endif

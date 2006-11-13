@@ -314,8 +314,11 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 
 		m_pOrbiter->m_pObj_Highlighted = pObj_Play;
 #ifdef ENABLE_MOUSE_BEHAVIOR
-		m_pOrbiter->m_pMouseBehavior->ConstrainMouse(pObj_Play->m_pParentObject->m_rPosition + pObj_Play->m_pPopupPoint );
-		m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
+		if( m_pOrbiter->m_pMouseBehavior )
+		{
+			m_pOrbiter->m_pMouseBehavior->ConstrainMouse(pObj_Play->m_pParentObject->m_rPosition + pObj_Play->m_pPopupPoint );
+			m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
+		}
 #endif
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Close_CONST )
@@ -329,7 +332,8 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
-		m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
+		if( m_pOrbiter->m_pMouseBehavior )
+			m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
 #endif
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Play_CONST )
@@ -341,7 +345,8 @@ g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected Play
 
 		m_pOrbiter->CMD_Remove_Popup("","filedetails");
 #ifdef ENABLE_MOUSE_BEHAVIOR
-		m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
+		if( m_pOrbiter->m_pMouseBehavior )
+			m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
 #endif
 		DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
 			0,mediaFileBrowserOptions.m_sSelectedFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0);
@@ -425,7 +430,8 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 	{
 		SelectedAttributeCell(pCellInfoData->m_pDataGridCell);
 #ifdef ENABLE_MOUSE_BEHAVIOR
-		m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
+		if( m_pOrbiter->m_pMouseBehavior )
+			m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
 #endif
 		m_pOrbiter->CMD_Remove_Popup("","filedetails");
 		m_pOrbiter->CMD_Remove_Popup("","coverart");
