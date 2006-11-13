@@ -172,7 +172,8 @@ function editEvent($output,$dbADO) {
 					alert('$TEXT_EVENT_MODIFIED_CONST');
 				    opener.document.forms.{$from}.action.value='form';				
 					opener.document.forms.{$from}.submit();
-					self.close();
+					document.location.href='index.php?section=editEvent&from=$from&EventID=$selectedEvent&unique=".uniqid("pluto")."';
+					//self.close();
 				</script>
 				";	
 		
