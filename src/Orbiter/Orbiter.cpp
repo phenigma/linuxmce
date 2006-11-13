@@ -624,7 +624,7 @@ bool Orbiter::GetConfig()
 					string sCode;
 					m_mapScanCodeToRemoteButton[ atoi(it2->substr(pos + 1).c_str())] = StringUtils::ToUpper(it2->substr(0,pos));
 
-					g_pPlutoLogger->Write(LV_CRITICAL, "Added scan code %d -> %s", atoi( it2->substr(pos + 1).c_str()), StringUtils::ToUpper(it2->substr(0,pos)).c_str());
+					g_pPlutoLogger->Write(LV_STATUS, "Added scan code %d -> %s", atoi( it2->substr(pos + 1).c_str()), StringUtils::ToUpper(it2->substr(0,pos)).c_str());
 				}
 			}
 

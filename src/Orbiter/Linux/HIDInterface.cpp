@@ -73,8 +73,6 @@ void PlutoHIDInterface::ProcessHIDEvents()
 				char inPacket[6];
 
 				res = usb_control_msg(m_p_usb_dev_handle, 0x21, 9, 8+(0x03<<8) /*int value*/, 1 /* int index */, outPacket, 4, 250);
-
-				//                                                      res = usb_interrupt_write(m_p_usb_dev_handle, 0x01, outPacket, 4, 250);
 				if (res<0)
 				{
 					g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessHIDEvents first usb_control_msg: %i\n", res);
@@ -101,7 +99,9 @@ void PlutoHIDInterface::ProcessHIDEvents()
 					}
 					else
 					{
-						g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents \n[READER] %04i.%03i: read bytes: %d", cnt/100, cnt%100,res);
+						unsigned char *pPtr = (unsigned char *) inPacket;
+						g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents [READER] %04i.%03i: read bytes: %d %d.%d.%d.%d.%d.%d", 
+							cnt/100, cnt%100, res, (int) pPtr[0],(int) pPtr[1],(int) pPtr[2],(int) pPtr[3],(int) pPtr[4],(int) pPtr[5]);
 
 						if( res==6 && inPacket[0]==8 )  // It's for us
 						{
@@ -125,13 +125,10 @@ void PlutoHIDInterface::ProcessHIDEvents()
 
 bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest got a bind request for %d %d %d %d",
-		(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
-
-
 	unsigned char *pSerialNumber = (unsigned char *) inPacket; // Unsigned so it's not negative numbers
 	char sSerialNumber[30];
 	sprintf(sSerialNumber,"%x.%x.%x.%x",(int) pSerialNumber[2],(int) pSerialNumber[3],(int) pSerialNumber[4],(int) pSerialNumber[5]);
+	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest got a bind request for %s",sSerialNumber);
 
 	int PK_Device=0,RemoteID=m_mapSerialNumber_RemoteID_Find(sSerialNumber);
 	if( RemoteID==0 )

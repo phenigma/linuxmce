@@ -628,7 +628,7 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 
 	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND && pMessage->m_dwID == SYSCOMMAND_RELOAD && pMessage->m_dwPK_Device_To==m_dwPK_Device )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Got a reload command");
+		g_pPlutoLogger->Write(LV_WARNING,"Got a reload command from %d %s",pMessage->m_dwPK_Device_From,pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST].c_str());
 		SendString("BYE");
 		Sleep(250);
 		OnReload();
