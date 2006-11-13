@@ -3,15 +3,16 @@
 # This script looks for samba servers on the network and trigers a device detected event
 # for every server that it finds.
 
-. /usr/pluto/bin/SQL_Ops.sh
-. /usr/pluto/bin/Config_Ops.sh
-. /usr/pluto/bin/Network_Parameters.sh
-
 if [[ $1 != "background" ]] ;then
 	echo "Backgrounding ..."
 	screen -d -m -S "SambaRadar" "$0" "background"
 	exit 0
 fi
+
+. /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/Network_Parameters.sh
+
 
 ## Loging function
 function Log() {
@@ -42,7 +43,14 @@ while : ;do
 
 	## Scan the network for samba servers
 	Log "Scanning network $IntNetwork"
-	for outputLine in $( nbtscan $IntNetwork -s '#' -q | tr -d ' ') ;do
+
+	nbtscan_output=$( nbtscan $IntNetwork -s '#' -q | tr -d ' ') 
+	if [[ $? != "0" ]]; then
+		nbtscan_output=""
+	fi
+	
+	
+	for outputLine in $nbtscan_output ;do
 		## Get the important info
 		serverIP=$(echo $outputLine | cut -d'#' -f1)
 		serverName=$(echo $outputLine | cut -d'#' -f2)
