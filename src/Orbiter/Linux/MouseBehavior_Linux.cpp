@@ -82,6 +82,7 @@ void MouseBehavior_Linux::ShowMouse(bool bShow)
     // at show, we want to show the standard mouse cursor
 #ifndef WIN32
 #ifdef ORBITER_OPENGL
+	/* no-- what about the media browser it's hidden
 	if( m_pOrbiter->m_pHIDInterface )
 	{
 		if( bShow )
@@ -89,6 +90,7 @@ void MouseBehavior_Linux::ShowMouse(bool bShow)
 		else
 			m_pOrbiter->m_pHIDInterface->StopMouse();
 	}
+	*/
 #endif
 #endif
 	m_bMouseVisible=bShow;
