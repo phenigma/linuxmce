@@ -189,6 +189,19 @@ while : ;do
 				continue
 			fi
 
+                        ## See if the share is mountable
+                        mountDirTemp=$(mktemp -d)
+                        mount ${Device_ID}:${Share_Name} $mountDirTemp 1>/dev/null 2>/dev/null
+                        isShareMountable=$?
+
+                        if [[ "$isShareMountable" != "0" ]] ;then
+                                Log "Share $Share_ID ($Share_Name) cannot be mounted"
+                                SetDeviceOnline "$Share_ID" "0"
+                        else
+                                umount -lf $mountDirTemp 1>/dev/null 2>/dev/null
+                                rm -r $mountDirTemp
+                        fi
+
 			SetDeviceOnline "$Share_ID" "1"
 		done
 	done
@@ -219,14 +232,76 @@ while : ;do
 
 		## Is one of our internal drives
 		if [[ "$IDrive_Parent" == "$PK_Device" ]] ;then
-			## 
+			
+			## See if is still available in /proc/partitions
+			cat /proc/partitions | grep -q "${IDrive_BlockDev##/dev/}$"
+			isDriveAvailable=$?
+			
+			if [[ "$isDriveAvailable" != "0" ]] ;then
+				Log "Drive $IDrive_ID ($IDrive_BlockDev) cannot be found in /proc/partitions"
+				SetDeviceOnline "$IDrive_ID" "0"
+				continue
+			fi
+
+			## See if the drive is mountable
+			mountDirTemp=$(mktemp -d)			
+			mount ${IDrive_BlockDev} $mountDirTemp 1>/dev/null 2>/dev/null
+			isDriveMountable=$?
+			
+			if [[ "$isDriveMountable" != "0" ]] ;then
+				Log "Drive $IDrive_ID ($IDrive_BlockDev) cannot be mounted"
+				SetDeviceOnline "$IDrive_ID" "0"
+				continue
+			else
+				umount -lf $mountDirTemp 1>/dev/null 2>/dev/null
+				rm -r $mountDirTemp
+			fi
+
+			SetDeviceOnline "$IDrive_ID" "1"
+			
 
 		## Is a internal drive located on a remote computer
 		else
-			echo "Not mine ($BlockDev)"
+			## Get the ip of the parent device
+			IDrive_IP=$(RunSQL "SELECT IPaddress FROM Device WHERE PK_Device='${IDrive_Parent}'")
+			IDrive_IP=$(Field "1" "$IDrive_IP")
+
+                        ## Test to see if the parent is online or not
+			ping -qnc 1 -W 1 "$IDrive_IP" &> /dev/null
+			HostIsUp=$?
+			if [[ "$HostIsUp" != "0" ]] ;then
+				SetKidsOnline "$IDrive_Parent" "0"
+				Log "Device $IDrive_Parent ($IDrive_IP) doesn't respond to our ping."
+				continue
+			fi
+
+			## Test if the share is in the list on nfs shares
+                        showmount -e $IDrive_IP | cut -d ' ' -f1 | grep "^/mnt/device/${IDrive_ID}$"
+                        isDriveInList=$?
+
+                        if [[ "$isDriveInList" != "0" ]] ;then
+                                Log "Drive $IDrive_ID ($IDrive_BlockDev) is not advertised by it's parent ($IDrive_IP)"
+                                SetDeviceOnline "$IDrive_ID" "0"
+                                continue
+                        fi
+
+                        ## See if the share is mountable
+                        mountDirTemp=$(mktemp -d)
+                        mount ${IDrive_IP}:/mnt/device/${IDrive_IP} $mountDirTemp 1>/dev/null 2>/dev/null
+                        isDriveMountable=$?
+
+                        if [[ "$isDriveeMountable" != "0" ]] ;then
+				Log "Drive $IDrive_ID ($IDrive_IP $IDrive_BlockDev) cannot be mounted"
+                                SetDeviceOnline "$IDrive_ID" "0"
+                        else
+                                umount -lf $mountDirTemp 1>/dev/null 2>/dev/null
+                                rm -r $mountDirTemp
+                        fi
+
+                        SetDeviceOnline "$IDrive_ID" "1"
 		fi
 	done
 	
 
-	sleep 10
+	sleep 5
 done
