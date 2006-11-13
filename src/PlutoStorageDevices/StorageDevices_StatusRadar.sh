@@ -28,7 +28,7 @@ function SetDeviceOnline() {
 		umount -lf /mnt/device/$Device_ID 2>/dev/null 1>/dev/null
 	fi
 	
-	Log "Setting $Device_ID Online flag to $OnlineValue"
+	Log "----------------- DEVICE $Device_ID $OnlineValue"
 }
 
 function SetKidsOnline() {
@@ -114,7 +114,7 @@ while : ;do
 		SambaShareList=$(RunSQL "$Q")
 
 		## Test each samba share to see if is available or not
-		for SambaShare in "$SambaShareList" ;do
+		for SambaShare in $SambaShareList ;do
 			
 			if [[ "$SambaShare" == "" ]] ;then
 				continue
@@ -169,7 +169,7 @@ while : ;do
 		NFSShareList=$(RunSQL "$Q")
 
 		## Test each nfs share to see if is available on not
-		for NFSShare in "$NFSShareList" ;do
+		for NFSShare in $NFSShareList ;do
 			if [[ "$NFSShare" == "" ]] ;then 
 				continue
 			fi
@@ -221,7 +221,7 @@ while : ;do
 	InternalDriveList=$(RunSQL "$Q")
 	
 	## Test each internal drive and see if is available
-	for InternalDrive in "$InternalDriveList" ;do
+	for InternalDrive in $InternalDriveList ;do
 		if [[ "$InternalDrive" == "" ]] ;then
 			continue;
 		fi
