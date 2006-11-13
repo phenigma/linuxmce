@@ -225,8 +225,8 @@ function editTimedEvent($output,$dbADO) {
 				$out.='<input type="checkbox" name="dayOfWeek_'.$key.'" '.((is_array(@$checkedArray) && in_array($key,$checkedArray))?'checked':'').'> '.$dayName;
 			}
 		$out.='<br>Time: <input type="text" name="dayOfWeekTime" value="'.((isset($rowOldTime['Value']))?$rowOldTime['Value']:date('h:i')).'"> (comma separated list for multiple values)</span>';
-		$out.='<span id="type_3" style="display:'.(($timedEventType!=3)?'none':'').';">What day of the month (e.g. 2,7)? <input type="text" name="dayOfMonths" value="'.((isset($rowOldMonthValues['Value']))?$rowOldMonthValues['Value']:'').'"> Time: (e.g. 10:00,21:30)<input type="text" name="dayOfMonthTime" value="'.((isset($rowOldMonthTime['Value']))?$rowOldMonthTime['Value']:date('h:i')).'"></span>';
-		$out.='<span id="type_4" style="display:'.(($timedEventType!=4)?'none':'').';">What date day/month/year? <input type="text" name="absoluteDate" size="7" value="'.((isset($dataParts[0]))?formatMySQLDate($dataParts[0],'d/m/Y'):date('d/m/Y')).'">  What time? <input type="text" name="absoluteTime" value="'.((isset($dataParts[1]))?$dataParts[1]:date('h:i')).'"> (comma separated list for multiple values)</span>';
+		$out.='<span id="type_3" style="display:'.(($timedEventType!=3)?'none':'').';">What day of the month (e.g. 2,7)? <input type="text" name="dayOfMonths" value="'.((isset($rowOldMonthValues['Value']))?$rowOldMonthValues['Value']:'').'"> Time: (e.g. 10:00,21:30:35) <input type="text" name="dayOfMonthTime" value="'.((isset($rowOldMonthTime['Value']))?$rowOldMonthTime['Value']:date('h:i')).'"></span>';
+		$out.='<span id="type_4" style="display:'.(($timedEventType!=4)?'none':'').';">What date day/month/year? <input type="text" name="absoluteDate" size="7" value="'.((isset($dataParts[0]))?formatMySQLDate($dataParts[0],'d/m/Y'):date('d/m/Y')).'">  What time? (e.g. 10:00,21:30:35) <input type="text" name="absoluteTime" value="'.((isset($dataParts[1]))?$dataParts[1]:date('h:i')).'"> (comma separated list for multiple values)</span>';
 		$out.='</td>
 			</tr>		
 			<tr>
