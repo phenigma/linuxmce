@@ -594,6 +594,17 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 		}
 	}
 
+	if(NULL != pObj_Secondary && NULL != pObj_Primary && Distance_Primary > Distance_Secondary)
+	{
+		PlutoPoint PrimaryObjectPosition = pObj_Primary->m_pMidPoint + pObj_Primary->m_pPopupPoint;
+		PlutoPoint SecondaryObjectPosition = pObj_Secondary->m_pMidPoint + pObj_Secondary->m_pPopupPoint;
+
+		if((PK_Direction == DIRECTION_Right_CONST || PK_Direction == DIRECTION_Left_CONST) && PrimaryObjectPosition.Y == SecondaryObjectPosition.Y) 
+			pObj_Primary = pObj_Secondary;
+		else if((PK_Direction == DIRECTION_Up_CONST || PK_Direction == DIRECTION_Down_CONST) && PrimaryObjectPosition.X == SecondaryObjectPosition.X)
+			pObj_Primary = pObj_Secondary;
+	}
+
 	if( pObj_Primary )
 		return pObj_Primary;
 	if( pObj_Secondary )
