@@ -15,6 +15,7 @@
 #include "../../pluto_main/Define_Button.h"
 #include "DataGrid.h" 
 #include "DataGridRenderer.h"
+#include "ScreenHandler.h"
 #include "../../Splitter/TextWrapper.h"
 #include "../../SDL_Helpers/SDL_Defs.h"
 //-----------------------------------------------------------------------------------------------------
@@ -518,6 +519,16 @@ void OrbiterRenderer_OpenGL::OnIdle()
 /*virtual*/ void OrbiterRenderer_OpenGL::DoHighlightObject()
 {
 	if(sbNoSelection == OrbiterLogic()->m_nSelectionBehaviour || !OrbiterLogic()->m_pObj_Highlighted || !OrbiterLogic()->m_pObj_Highlighted->m_bOnScreen )
+		return;
+
+	CallBackData *pCallBackData = OrbiterLogic()->m_pScreenHandler_get()->m_mapCallBackData_Find(cbObjectHighlighted);
+	if(pCallBackData)
+	{
+		ObjectInfoBackData *pObjectData = (ObjectInfoBackData *)pCallBackData;
+		pObjectData->m_pObj = OrbiterLogic()->m_pObj_Highlighted;
+		pObjectData->m_PK_DesignObj_SelectedObject = OrbiterLogic()->m_pObj_Highlighted->m_iBaseObjectID;
+	}
+	if(OrbiterLogic()->ExecuteScreenHandlerCallback(cbObjectHighlighted))
 		return;
 
 	if(NULL != m_pLastHighlightedObject &&	m_pLastHighlightedObject != OrbiterLogic()->m_pObj_Highlighted)

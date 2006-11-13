@@ -247,6 +247,9 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 			PlutoPoint(), 255, "", sObjectID, sObjectID);
 	}
 
+	OrbiterLogic()->m_pObj_Highlighted_Last = NULL;
+	OrbiterLogic()->m_pObj_Highlighted = NULL;
+
 	if ( OrbiterLogic()->m_pScreenHistory_Current  )
 	{
 		OrbiterLogic()->m_pScreenHistory_Current->GetObj()->RenderObject(OrbiterLogic()->m_pScreenHistory_Current->GetObj());
