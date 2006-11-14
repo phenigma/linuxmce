@@ -30,6 +30,9 @@ DesignObj_DataGrid::~DesignObj_DataGrid()
 {
 	Flush();
 
+	delete m_pDataGridTable_Current;
+	m_pDataGridTable_Current = NULL;
+
 	m_pDataGridTable_Current_set(NULL);
 }
 //-------------------------------------------------------------------------------------------------------

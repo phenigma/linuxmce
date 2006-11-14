@@ -30,10 +30,10 @@ BOOL PngLoadImage (PTSTR pstrFileName, png_byte **ppbImageData, int *piWidth, in
 //-------------------------------------------------------------------------------------------------------
 Surface *PocketFrog_LoadPNG(DisplayDevice* pDevice, string sFilename)
 {
-	static BYTE              *pbImage;
-	static int                cxImgSize, cyImgSize;
-	static int                cImgChannels;
-	static png_color          bkgColor = {127, 127, 127};
+	BYTE              *pbImage = NULL;
+	int                cxImgSize = 0, cyImgSize = 0;
+	int                cImgChannels = 0;
+	png_color          bkgColor = {127, 127, 127};
 
 	if(!PngLoadImage ((PTSTR)sFilename.c_str(), &pbImage, &cxImgSize, &cyImgSize, &cImgChannels, &bkgColor))
 		return NULL;
@@ -63,6 +63,9 @@ Surface *PocketFrog_LoadPNG(DisplayDevice* pDevice, string sFilename)
 			}
 			pRasterizer->SetPixel(x, y, _16bit_color);
 		}
+
+	free(pbImage);
+	pbImage = NULL;
 
     delete pRasterizer;
 	return pSurface;
