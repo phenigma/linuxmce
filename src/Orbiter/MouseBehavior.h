@@ -16,6 +16,8 @@ using namespace DCE;
 #define AXIS_LOCK_Y		2
 #define AXIS_LOCK_BOTH	3
 
+class OSDScreenHandler;
+
 namespace DCE
 {
 	// A pure virtual base class for the call-backs
@@ -95,7 +97,7 @@ namespace DCE
 		friend class LockedMouseHandler;
 		friend class KeyboardMouseHandler;
 		friend class DatagridMouseHandlerHelper;
-		friend class OSDScreenHandler;
+		friend class ::OSDScreenHandler;
 		
 
 	protected:

@@ -8,6 +8,7 @@
 #endif
 
 class OrbiterLinux;
+class OrbiterRendererFactory;
 
 namespace DCE
 {
@@ -20,7 +21,7 @@ namespace DCE
 #endif
 	{
 	private:
-		friend class OrbiterRendererFactory;
+		friend class ::OrbiterRendererFactory;
 		OrbiterRenderer_Linux(Orbiter *pOrbiter);
 
 	public:

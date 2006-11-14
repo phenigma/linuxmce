@@ -34,6 +34,10 @@ class OSDScreenHandler;
 class OrbiterRenderer;
 class DesignObj_DataGrid;
 class AskXine_Socket;
+
+class BD_PC_SetVariable;
+class DataGridRenderer;
+
 /** For brevity,  DesignObj_Orbiter will be abbreviated Obj */
 #ifndef WIN32
 #ifdef ORBITER_OPENGL
@@ -118,14 +122,14 @@ namespace DCE
 
 		OrbiterRenderer *m_pOrbiterRenderer;
 
-		friend class BD_PC_SetVariable; /** < Needs to maniuplate our variables */
+		friend class ::BD_PC_SetVariable; /** < Needs to maniuplate our variables */
 		friend class NeedToRender; /** < Needs to maniuplate our variables */
-		friend class ScreenHandler;
-		friend class OSDScreenHandler;
-		friend class OrbiterRenderer;
-		friend class DesignObj_Orbiter;
-		friend class DataGridRenderer;
-		friend class ObjectRenderer;
+		friend class ::ScreenHandler;
+		friend class ::OSDScreenHandler;
+		friend class ::OrbiterRenderer;
+		friend class ::DesignObj_Orbiter;
+		friend class ::DataGridRenderer;
+		friend class ::ObjectRenderer;
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		friend class MouseBehavior;
