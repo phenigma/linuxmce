@@ -174,9 +174,13 @@ fi
 Q="UPDATE Device SET IPaddress='$dcerouterIP' WHERE PK_Device='$PK_Device'"
 RunSQL "$Q"
 
+# set the hostname to 'dcerouter'
+echo dcerouter >/etc/hostname
+hostname dcerouter
+
 hosts="
 127.0.0.1       localhost.localdomain   localhost
-$dcerouterIP	dcerouter $(/bin/hostname)
+$dcerouterIP	dcerouter
 #%MOON_HOSTS%
 
 # The following lines are desirable for IPv6 capable hosts
