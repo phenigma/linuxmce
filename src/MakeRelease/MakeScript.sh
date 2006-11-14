@@ -10,6 +10,9 @@ branch="trunk"
 flavor=pluto
 upload="y"
 
+rev_pub=HEAD
+rev_prv=HEAD
+
 echo "Marker: starting `date`"
 # if we receive a "force-build" parameter, ignore this setting
 for ((i = 1; i <= "$#"; i++)); do
@@ -40,6 +43,13 @@ for ((i = 1; i <= "$#"; i++)); do
 		;;
 		no-build)
 			nobuild="-b" 
+		;;
+		rev=*,*)
+			rev_pub=${rev%,*}
+			rev_prv=${rev#,*}
+		;;
+		branch=*)
+			branch=${branch#branch=}
 		;;
 		*)
 			echo "WARNING: Unknown parameter '${!i}'"
@@ -138,7 +148,7 @@ echo Using version with id: "$version"
 
 if [[ "$nobuild" == "" ]]; then
 	if [[ -z "$nocheckout" ]]; then
-		echo "Marker: svn co $flavor `date`"
+		echo "Marker: svn co (r $rev_pub,$rev_prv) $flavor `date`"
 		# Prepare build directory
 		rm -rf $build_dir
 		mkdir -p $build_dir/private
@@ -146,9 +156,9 @@ if [[ "$nobuild" == "" ]]; then
 		# Check out private repository
 		cd $build_dir/private
 		if [[ "$branch" == trunk ]]; then
-			svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" http://10.0.0.170/pluto-private/trunk/. | tee $build_dir/svn.log
+			svn co -r$rev_prv --username automagic --password "$(</etc/pluto/automagic.pwd)" http://10.0.0.170/pluto-private/trunk/. | tee $build_dir/svn.log
 		else
-			svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" http://10.0.0.170/pluto-private/branches/"$branch" | tee $build_dir/svn.log
+			svn co -r$rev_prv --username automagic --password "$(</etc/pluto/automagic.pwd)" http://10.0.0.170/pluto-private/branches/"$branch" | tee $build_dir/svn.log
 			rm -f trunk
 			ln -s "$branch" trunk # workaround as to not change all of the script
 		fi
@@ -156,9 +166,9 @@ if [[ "$nobuild" == "" ]]; then
 		# Check out public repository
 		cd $build_dir
 		if [[ "$branch" == trunk ]]; then
-			svn co http://10.0.0.170/pluto/trunk/. | tee -a $build_dir/svn.log
+			svn co -r$rev_pub http://10.0.0.170/pluto/trunk/. | tee -a $build_dir/svn.log
 		else
-			svn co http://10.0.0.170/pluto/branches/"$branch" | tee -a $build_dir/svn.log
+			svn co -r$rev_pub http://10.0.0.170/pluto/branches/"$branch" | tee -a $build_dir/svn.log
 			rm -f trunk
 			ln -s "$branch" trunk # workaround as to not change all of the script
 		fi
@@ -211,7 +221,7 @@ else
 fi
 
 echo "Marker: Prepping files"
-MakeRelease_PrepFiles -p $build_dir/trunk -e "*.cpp,*.h,Makefile*,*.php,*.sh,*.pl" -c /etc/MakeRelease/$flavor.conf
+MakeRelease_PrepFiles -p $build_dir/trunk -e "*.cpp,*.h,Makefile*,*.php,*.sh,*.pl,*.awk" -c /etc/MakeRelease/$flavor.conf
 
 #Do some database maintenance to correct any errors
 # Be sure all debian packages are marked as being compatible with debian distro
@@ -344,7 +354,7 @@ if [[ "$version" !=  "1" || "$upload" == "y" ]]; then
 	echo "Marker: uploading download.tar.gz `date`"
 	
 	## Create tarball containing /home/builds/build directory and upload it
-	rm ../upload/download.$flavor.tar.gz
+	rm ../upload/download.$flavor.tar.gz; ssh uploads@deb.plutohome.com "rm download.$flavor.tar.gz; rm replacements.$flavor.tar.gz"
 	tar zcvf ../upload/download.$flavor.tar.gz *
 	scp ../upload/download.$flavor.tar.gz uploads@deb.plutohome.com:~/
 
@@ -387,17 +397,17 @@ echo "Everything okay.  Press any key"
 if [ "x$nobuild" = "x" ]; then
 	(echo -e "MakeRelease $version ok\n\n") | mail -s "MakeRelease $version ok" razvan.g@plutohome.com -c aaron@plutohome.com
 else
-	(echo -e "MakeRelease $version ok\n\nNeed to reset nobuild flag") | mail -s "**reset nobuild flag** MakeRelease $version ok" mihai.t@plutohome.com -c aaron@plutohome.com
+	(echo -e "MakeRelease $version ok\n\nNeed to reset nobuild flag") | mail -s "**reset nobuild flag** MakeRelease $version ok" aaron@plutohome.com
 fi
 
 if [ $version -ne 1 ]; then
-	(echo -e "Change version back to 1\n\n") | mail -s "**change version back to 1**" mihai.t@plutohome.com -c aaron@plutohome.com
+	(echo -e "Change version back to 1\n\n") | mail -s "**change version back to 1**" aaron@plutohome.com
 fi
 
 if [ "x$fastrun" = "x" ]; then
 	echo "Normal debug build"
 else
-	(echo -e "Remove fastrun flag\n\n") | mail -s "**remove fastrun flag**" mihai.t@plutohome.com -c aaron@plutohome.com
+	(echo -e "Remove fastrun flag\n\n") | mail -s "**remove fastrun flag**" aaron@plutohome.com
 fi
 #sh -x /home/SendToSwiss.sh
 read
