@@ -83,5 +83,7 @@ namespace DCE {
 
 		}
 		// Message *pMessage = new Message(m_dwPK_Device,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_DATAPARM_REQUEST, PK_DeviceData,0);
+		
+		return NULL;
 	}
 };
