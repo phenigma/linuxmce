@@ -1356,6 +1356,8 @@ g_pPlutoLogger->Write(LV_EVENT,"OrbiterRenderer::BackgroundImageLoad p %p %s siz
 /*virtual*/ void OrbiterRenderer::UpdateObjectImage(string sPK_DesignObj, string sType, 
 char *pData, int iData_Size, string sDisable_Aspect_Lock)
 {
+	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );
+
 	DesignObj_Orbiter *pObj = OrbiterLogic()->FindObject( sPK_DesignObj );
 	if(!pObj)
 	{
