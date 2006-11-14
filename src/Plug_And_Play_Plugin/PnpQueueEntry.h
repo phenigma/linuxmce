@@ -1,6 +1,8 @@
 #ifndef PnpQueueEntry_h
 #define PnpQueueEntry_h
 
+#include "Plug_And_Play_Plugin.h"
+
 using namespace std;
 class Database_pluto_main;
 class Row_PnpQueue;
