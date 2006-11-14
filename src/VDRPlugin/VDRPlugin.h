@@ -10,13 +10,10 @@
 #include "../Media_Plugin/Media_Plugin.h"
 #include "../Media_Plugin/MediaStream.h"
 #include "../Media_Plugin/MediaHandlerBase.h"
+#include "VDRMediaStream.h"
 #include "EPG.h"
+#include "EPGGrid.h"
 class Row_Bookmark;
-
-namespace VDREPG
-{
-	class EPG;
-}
 
 //<-dceag-decl-b->!
 namespace DCE
@@ -33,7 +30,7 @@ namespace DCE
 	    pluto_pthread_mutex_t m_VDRMutex; // Protect the maps
 		pthread_cond_t m_VDRCond; /** < condition for the messages in the queue */
 
-		friend class EpgGrid; // needs to use our mutex
+		friend class VDREPG::EpgGrid; // needs to use our mutex
 		friend class VDRMediaStream;
 
 		// Private methods
