@@ -365,49 +365,58 @@ continue;
 Media_Plugin::~Media_Plugin()
 //<-dceag-dest-e->
 {
+	{
+		PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+		for(map<int,MediaDevice *>::iterator it=m_mapMediaDevice.begin();it!=m_mapMediaDevice.end();++it)
+			delete (*it).second;
+		for(map<int,EntertainArea *>::iterator it=m_mapEntertainAreas.begin();it!=m_mapEntertainAreas.end();++it)
+			delete (*it).second;
+
+		for(size_t s=0;s<m_vectMediaHandlerInfo.size();++s)
+		{
+			MediaHandlerInfo *pMediaHandlerInfo = m_vectMediaHandlerInfo[s];
+			delete pMediaHandlerInfo;
+		}
+
+		delete m_pGenericMediaHandlerInfo;
+		delete m_pGeneric_NonPluto_Media;
+
+		for(int i = 0; i < NUM_UI_VERSIONS; ++i)
+		{
+			for(map< int, class RemoteControlSet *>::iterator itm = m_mapMediaType_RemoteControl[i].begin();
+				itm != m_mapMediaType_RemoteControl[i].end(); ++itm)
+			{
+				delete itm->second;
+			}
+			m_mapMediaType_RemoteControl[i].clear();
+
+			map< pair<int,int>, class RemoteControlSet *>::iterator itp;
+			for(itp = m_mapOrbiter_MediaType_RemoteControl[i].begin();
+				itp != m_mapOrbiter_MediaType_RemoteControl[i].end(); ++itp)
+			{
+				delete itp->second;
+			}
+			m_mapOrbiter_MediaType_RemoteControl[i].clear();
+
+			for(itp = m_mapDeviceTemplate_MediaType_RemoteControl[i].begin();
+				itp != m_mapDeviceTemplate_MediaType_RemoteControl[i].end(); ++itp)
+			{
+				delete itp->second;
+			}
+			m_mapDeviceTemplate_MediaType_RemoteControl[i].clear();
+		}
+	}
+
 	delete m_pAlarmManager;
-    delete m_pMediaAttributes;
+	m_pAlarmManager = NULL;
+	delete m_pMediaAttributes;
+	m_pMediaAttributes = NULL;
 	delete m_pDatabase_pluto_main;
+	m_pDatabase_pluto_main = NULL;
 	delete m_pDatabase_pluto_media;
-	for(map<int,MediaDevice *>::iterator it=m_mapMediaDevice.begin();it!=m_mapMediaDevice.end();++it)
-		delete (*it).second;
-	for(map<int,EntertainArea *>::iterator it=m_mapEntertainAreas.begin();it!=m_mapEntertainAreas.end();++it)
-		delete (*it).second;
+	m_pDatabase_pluto_media = NULL;
 
-	for(size_t s=0;s<m_vectMediaHandlerInfo.size();++s)
-	{
-		MediaHandlerInfo *pMediaHandlerInfo = m_vectMediaHandlerInfo[s];
-		delete pMediaHandlerInfo;
-	}
-
-    delete m_pGenericMediaHandlerInfo;
-	delete m_pGeneric_NonPluto_Media;
-
-	for(int i = 0; i < NUM_UI_VERSIONS; ++i)
-	{
-		for(map< int, class RemoteControlSet *>::iterator itm = m_mapMediaType_RemoteControl[i].begin();
-			itm != m_mapMediaType_RemoteControl[i].end(); ++itm)
-		{
-			delete itm->second;
-		}
-		m_mapMediaType_RemoteControl[i].clear();
-
-		map< pair<int,int>, class RemoteControlSet *>::iterator itp;
-		for(itp = m_mapOrbiter_MediaType_RemoteControl[i].begin();
-			itp != m_mapOrbiter_MediaType_RemoteControl[i].end(); ++itp)
-		{
-			delete itp->second;
-		}
-		m_mapOrbiter_MediaType_RemoteControl[i].clear();
-
-		for(itp = m_mapDeviceTemplate_MediaType_RemoteControl[i].begin();
-			itp != m_mapDeviceTemplate_MediaType_RemoteControl[i].end(); ++itp)
-		{
-			delete itp->second;
-		}
-		m_mapDeviceTemplate_MediaType_RemoteControl[i].clear();
-	}
-	
     pthread_mutexattr_destroy(&m_MutexAttr);
 }
 
