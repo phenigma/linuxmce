@@ -44,6 +44,26 @@ MessageReplicatorList::unlock() {
 	pthread_mutex_unlock(&mutexid_);
 }
 
+// TODO: it should be const reference as parameter
+bool
+MessageReplicatorList::findReplaceable(MessageReplicator & msgReplicator)
+{
+	bool found = false;
+	
+	lock();
+	for(std::list<MessageReplicator>::iterator it=begin(); it!=end(); ++it)
+	{
+		if( (*it).isReplaceable() && (*it).getMessage().m_dwID == msgReplicator.getMessage().m_dwID )
+		{
+			found = true;
+			break;
+		}
+	}
+	unlock();
+	
+	return found;
+}
+
 /*****************************************************************
 TranslationBase
 *****************************************************************/
@@ -61,12 +81,17 @@ MessageTranslationManager
 *****************************************************************/
 
 MessageTranslationManager::MessageTranslationManager()
-	: threadid_(0), stopqueue_(false)
+	: threadid_(0),
+	  stopqueue_(false),
+	  ptranslator_(NULL),
+	  pdispatcher_(NULL)
 {
 	ProcessUtils::ResetMsTime();
 }
 
 MessageTranslationManager::MessageTranslationManager(MessageTranslator* ptranslator, MessageDispatcher* pdispatcher)
+	: threadid_(0),
+	  stopqueue_(false)
 {
 	ProcessUtils::ResetMsTime();
 	setTranslator(ptranslator);
@@ -79,6 +104,9 @@ MessageTranslationManager::~MessageTranslationManager()
 	if(threadid_ != 0) {
 		pthread_join(threadid_, 0);
 	}
+	
+	//TODO
+	// to delete the translator and dispatcher ??
 }
 
 bool 
@@ -226,13 +254,21 @@ MessageTranslationManager::_QueueProc() {
 			// Eugen C. + Aaron B.
 			if( 0L == replmsg.getTimeStart() ||
 				1000 > ProcessUtils::GetMsTime() - replmsg.getTimeStart() ) {
-				g_pPlutoLogger->Write(LV_WARNING,"_QueueProc Pre - %d : %d", replmsg.getMessage().m_dwID, replmsg.getPreDelay());
-				assert(pdispatcher_);
-				if(pdispatcher_) {
-					g_pPlutoLogger->Write(LV_STATUS,"_QueueProc ------- %d", replmsg.getMessage().m_dwID);
-					pdispatcher_->DispatchMessage(replmsg);
+				// if we find another replaceable message, then we can ignore the current one
+				if( replmsg.isReplaceable() && msgqueue_.findReplaceable(replmsg) )
+				{
+					g_pPlutoLogger->Write(LV_WARNING,"---- _QueueProc Replaced - %d", replmsg.getMessage().m_dwID);
 				}
-				g_pPlutoLogger->Write(LV_WARNING,"_QueueProc Post - %d : %d", replmsg.getMessage().m_dwID, replmsg.getPostDelay());
+				else
+				{
+					g_pPlutoLogger->Write(LV_WARNING,"_QueueProc Pre - %d : %d", replmsg.getMessage().m_dwID, replmsg.getPreDelay());
+					assert(pdispatcher_);
+					if(pdispatcher_) {
+						g_pPlutoLogger->Write(LV_STATUS,"_QueueProc ------- %d", replmsg.getMessage().m_dwID);
+						pdispatcher_->DispatchMessage(replmsg);
+					}
+					g_pPlutoLogger->Write(LV_WARNING,"_QueueProc Post - %d : %d", replmsg.getMessage().m_dwID, replmsg.getPostDelay());
+				}
 			}
 			else
 			{

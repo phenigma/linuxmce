@@ -33,22 +33,27 @@ MessageReplicator
 *****************************************************************/
 class MessageReplicator {
 public:
+
 	MessageReplicator(const Message& msg, int count = 1, int predelay = 0, int postdelay = 0) 
 		: msg_(msg),
 		  count_(count),
 		  predelay_(predelay),
 		  postdelay_(postdelay),
-		  timeStart_(0L)
+		  timeStart_(0L),
+		  replaceable_(false)
 	{
 		// this should be something (Device Data) from database
 		switch( msg_.m_dwID )
 		{
 			case COMMAND_Vol_Up_CONST :
 			case COMMAND_Vol_Down_CONST :
-			case COMMAND_Set_Volume_CONST :
 			case COMMAND_Center_Volume_Down_CONST :
 			case COMMAND_Center_Volume_Up_CONST :
 				timeStart_ = ProcessUtils::GetMsTime();
+				break;
+			
+			case COMMAND_Set_Volume_CONST :
+				replaceable_ = true;
 				break;
 			
 			default :
@@ -61,11 +66,11 @@ public:
 		  count_(msg.count_),
 		  predelay_(msg.predelay_),
 		  postdelay_(msg.postdelay_),
-		  timeStart_(msg.timeStart_)
+		  timeStart_(msg.timeStart_),
+		  replaceable_(msg.replaceable_)
 	{
 	}
 
-public:
 	Message& getMessage() {
 		return msg_;
 	}
@@ -91,19 +96,30 @@ public:
 		postdelay_ = postdelay;
 	}
 	
-	unsigned long getTimeStart() {
+	unsigned long getTimeStart() const {
 		return timeStart_;
 	}
 	void setTimeStart(unsigned long timeStart) {
 		timeStart_ = timeStart;
 	}
+	
+	bool isReplaceable() const
+	{
+		return replaceable_;
+	}
+	void setReplaceable(bool replaceable)
+	{
+		replaceable_ = replaceable;
+	}
 
 private:
+
 	Message msg_;
 	int count_;
 	int predelay_;
 	int postdelay_;
 	unsigned long timeStart_;
+	bool replaceable_;
 };
 
 /*****************************************************************
@@ -111,14 +127,21 @@ MessageReplicatorList
 *****************************************************************/
 class MessageReplicatorList : public std::list<MessageReplicator> {
 public:
+	
 	MessageReplicatorList();
 	virtual ~MessageReplicatorList();
 
-public:
+	/** Lock the access to the queue.*/
 	void lock();
+	
+	/** Unlock the access to the queue.*/
 	void unlock();
+	
+	/** Find a replaceable message in the queue.*/
+	bool findReplaceable(MessageReplicator&);
 		
 private:
+	
 	pthread_mutex_t mutexid_;	
 };
 
