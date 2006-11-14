@@ -3,6 +3,7 @@
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/ProcessUtils.h"
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
@@ -351,7 +352,10 @@ bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
 	for(size_t i = 0; i < m_pData->m_vectDeviceData_Impl_Children.size(); ++i) {
 		DeviceData_Impl *pDeviceData_Impl = m_pData->m_vectDeviceData_Impl_Children[i];
 
-		// Firewire cameras don't have a v4l device, we need to use vloopback to create it	
+		if (pDeviceData_Impl->m_bDisabled)
+			continue;
+
+		// Firewire cameras don't have a v4l device, we need to use vloopback to create it
 		if (pDeviceData_Impl->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Firewire_Camera_CONST) {
 			CreateVideoDeviceFor1394(pDeviceData_Impl);
 		} 
@@ -524,8 +528,15 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 	
 
 	//description: device description and roomname
-	string sDescription =  pDeviceData->m_sDescription ;	
-	string sRoom = "Unknown Room";
+	string sDescription =  pDeviceData->m_sDescription;
+	string sSQL_GetRoomName = "SELECT Description FROM Room WHERE PK_Room=" + StringUtils::itos(pDeviceData->m_dwPK_Room);
+	string sRoom;
+
+	{
+		char * cmd[] = { "/usr/pluto/bin/RunSQL.sh", (char *) sSQL_GetRoomName.c_str(), NULL };
+		ProcessUtils::GetCommandOutput(cmd[0], cmd, sRoom);
+		StringUtils::Replace(&sRoom, "\x02", " ");
+	}
 	
 	if(!sDescription.empty() || !sRoom.empty()) {
 		conffile	<< "text_left " << StringUtils::Replace(&sDescription, " ", "_") << "\\n" << StringUtils::Replace(&sRoom, " ", "_") << endl << endl << endl;
