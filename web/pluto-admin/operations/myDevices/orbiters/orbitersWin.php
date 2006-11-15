@@ -52,7 +52,7 @@ function orbitersWin($output,$dbADO) {
 		<tr bgcolor="#F0F3F8">
 			<td>Outlook sync utility</td>
 			<td>Windows XP</td>
-			<td><a href="fdownload.php?filepath=installers/mysql2outlooksetup.msi" target="_blank">(download)</a></td>
+			<td><a href="fdownload.php?filepath=installers/OutlookSync.msi" target="_blank">(download)</a></td>
 		</tr>				
 	</table>
 		
