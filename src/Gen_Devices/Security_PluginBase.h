@@ -168,17 +168,17 @@ public:
 			return m_mapParameters[DEVICEDATA_Neighbors_to_Call_CONST];
 	}
 
-	int Get_PK_HouseMode()
+	string Get_Configuration()
 	{
 		if( m_bRunningWithoutDeviceData )
-			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_PK_HouseMode_CONST).c_str());
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Configuration_CONST);
 		else
-			return atoi(m_mapParameters[DEVICEDATA_PK_HouseMode_CONST].c_str());
+			return m_mapParameters[DEVICEDATA_Configuration_CONST];
 	}
 
-	void Set_PK_HouseMode(int Value)
+	void Set_Configuration(string Value)
 	{
-		SetParm(DEVICEDATA_PK_HouseMode_CONST,StringUtils::itos(Value).c_str());
+		SetParm(DEVICEDATA_Configuration_CONST,Value.c_str());
 	}
 	string Get_PK_Device()
 	{
@@ -260,7 +260,10 @@ public:
 			return false;
 		m_pData = new Security_Plugin_Data();
 		if( Size )
-			m_pData->SerializeRead(Size,pConfig);
+		{
+			if( m_pData->SerializeRead(Size,pConfig)==false )
+				return false;
+		}
 		else
 		{
 			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
@@ -273,7 +276,8 @@ public:
 		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
-		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
+		if( m_pData->m_AllDevices.SerializeRead(Size,pConfig)==false )
+			return false;
 		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
 		m_pcRequestSocket = new Event_Impl(m_dwPK_Device, DEVICETEMPLATE_Security_Plugin_CONST,m_sHostName);
@@ -282,6 +286,7 @@ public:
 			m_pEvent->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
 			m_pcRequestSocket->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
 		}
+		PostConfigCleanup();
 		return true;
 	};
 	Security_Plugin_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
@@ -299,8 +304,8 @@ public:
 	string DATA_Get_Mobile_Orbiter_Notification() { return GetData()->Get_Mobile_Orbiter_Notification(); }
 	string DATA_Get_Other_Phone_Notifications() { return GetData()->Get_Other_Phone_Notifications(); }
 	string DATA_Get_Neighbors_to_Call() { return GetData()->Get_Neighbors_to_Call(); }
-	int DATA_Get_PK_HouseMode() { return GetData()->Get_PK_HouseMode(); }
-	void DATA_Set_PK_HouseMode(int Value,bool bUpdateDatabase=false) { GetData()->Set_PK_HouseMode(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,38,Value); }
+	string DATA_Get_Configuration() { return GetData()->Get_Configuration(); }
+	void DATA_Set_Configuration(string Value,bool bUpdateDatabase=false) { GetData()->Set_Configuration(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,59,Value); }
 	string DATA_Get_PK_Device() { return GetData()->Get_PK_Device(); }
 	string DATA_Get_Emergency_Calls() { return GetData()->Get_Emergency_Calls(); }
 	//Event accessors
@@ -320,13 +325,30 @@ public:
 	{
 		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal)==rmr_Processed )
+		{
+			if( pMessageOriginal->m_eExpectedResponse==ER_ReplyMessage && !pMessageOriginal->m_bRespondedToMessage )
+			{
+				pMessageOriginal->m_bRespondedToMessage=true;
+				Message *pMessageOut=new Message(m_dwPK_Device,pMessageOriginal->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+				pMessageOut->m_mapParameters[0]="OK";
+				SendMessage(pMessageOut);
+			}
+			else if( (pMessageOriginal->m_eExpectedResponse==ER_DeliveryConfirmation || pMessageOriginal->m_eExpectedResponse==ER_ReplyString) && !pMessageOriginal->m_bRespondedToMessage )
+			{
+				pMessageOriginal->m_bRespondedToMessage=true;
+				SendString("OK");
+			}
 			return rmr_Processed;
+		}
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
 			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
+				// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+				if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+					return rmr_Buffered;
 				switch(pMessage->m_dwID)
 				{
 				case COMMAND_Set_House_Mode_CONST:
@@ -389,7 +411,7 @@ public:
 					iHandled++;
 					continue;
 				}
-				iHandled += Command_Impl::ReceivedMessage(pMessage);
+				iHandled += (Command_Impl::ReceivedMessage(pMessage)==rmr_NotProcessed ? 0 : 1);
 			}
 			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
@@ -404,7 +426,12 @@ public:
 				DeviceData_Impl *pDeviceData_Impl = m_pData->FindChild(pMessage->m_dwPK_Device_To);
 				string sCMD_Result="UNHANDLED";
 				if( pDeviceData_Impl )
+				{
+					// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+					if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+						return rmr_Buffered;
 					ReceivedCommandForChild(pDeviceData_Impl,sCMD_Result,pMessage);
+				}
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);
 					if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
@@ -424,7 +451,7 @@ public:
 				}
 			}
 			if( iHandled==0 && !pMessage->m_bRespondedToMessage &&
-			(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString) )
+			(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString || pMessage->m_eExpectedResponse==ER_DeliveryConfirmation) )
 			{
 				pMessage->m_bRespondedToMessage=true;
 				if( pMessage->m_eExpectedResponse==ER_ReplyMessage )

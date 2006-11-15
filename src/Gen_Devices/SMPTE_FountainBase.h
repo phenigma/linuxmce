@@ -44,6 +44,23 @@ public:
 	* @brief Events methods for our device
 	*/
 
+	virtual void Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+			EVENT_Device_Detected_CONST,
+			10 /* number of parameter's pairs (id, value) */,
+			EVENTPARAMETER_Mac_Address_CONST, sMac_Address.c_str(),
+			EVENTPARAMETER_Text_CONST, sText.c_str(),
+			EVENTPARAMETER_IP_Address_CONST, sIP_Address.c_str(),
+			EVENTPARAMETER_PK_DeviceTemplate_CONST, StringUtils::itos(iPK_DeviceTemplate).c_str(),
+			EVENTPARAMETER_VendorModelID_CONST, sVendorModelID.c_str(),
+			EVENTPARAMETER_PK_CommMethod_CONST, StringUtils::itos(iPK_CommMethod).c_str(),
+			EVENTPARAMETER_PK_PnpProtocol_CONST, StringUtils::itos(iPK_PnpProtocol).c_str(),
+			EVENTPARAMETER_PNP_Serial_Number_CONST, sPNP_Serial_Number.c_str(),
+			EVENTPARAMETER_DeviceData_CONST, sDeviceData.c_str(),
+			EVENTPARAMETER_Category_CONST, sCategory.c_str()));
+	}
+
 };
 
 
@@ -160,7 +177,10 @@ public:
 			return false;
 		m_pData = new SMPTE_Fountain_Data();
 		if( Size )
-			m_pData->SerializeRead(Size,pConfig);
+		{
+			if( m_pData->SerializeRead(Size,pConfig)==false )
+				return false;
+		}
 		else
 		{
 			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
@@ -173,7 +193,8 @@ public:
 		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
-		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
+		if( m_pData->m_AllDevices.SerializeRead(Size,pConfig)==false )
+			return false;
 		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
 		m_pcRequestSocket = new Event_Impl(m_dwPK_Device, DEVICETEMPLATE_SMPTE_Fountain_CONST,m_sHostName);
@@ -182,6 +203,7 @@ public:
 			m_pEvent->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
 			m_pcRequestSocket->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
 		}
+		PostConfigCleanup();
 		return true;
 	};
 	SMPTE_Fountain_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
@@ -198,6 +220,7 @@ public:
 	string DATA_Get_Configuration() { return GetData()->Get_Configuration(); }
 	string DATA_Get_Alsa_Output_Device() { return GetData()->Get_Alsa_Output_Device(); }
 	//Event accessors
+	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory) { GetEvents()->Device_Detected(sMac_Address.c_str(),sText.c_str(),sIP_Address.c_str(),iPK_DeviceTemplate,sVendorModelID.c_str(),iPK_CommMethod,iPK_PnpProtocol,sPNP_Serial_Number.c_str(),sDeviceData.c_str(),sCategory.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,class Message *pMessage) {};

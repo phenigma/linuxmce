@@ -123,6 +123,14 @@ public:
 			return (m_mapParameters[DEVICEDATA_Only_One_Per_PC_CONST]=="1" ? true : false);
 	}
 
+	bool Get_Autoassign_to_parents_room()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Autoassign_to_parents_room_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Autoassign_to_parents_room_CONST]=="1" ? true : false);
+	}
+
 };
 
 
@@ -187,7 +195,10 @@ public:
 			return false;
 		m_pData = new HAL_Data();
 		if( Size )
-			m_pData->SerializeRead(Size,pConfig);
+		{
+			if( m_pData->SerializeRead(Size,pConfig)==false )
+				return false;
+		}
 		else
 		{
 			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
@@ -200,7 +211,8 @@ public:
 		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
-		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
+		if( m_pData->m_AllDevices.SerializeRead(Size,pConfig)==false )
+			return false;
 		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
 		m_pcRequestSocket = new Event_Impl(m_dwPK_Device, DEVICETEMPLATE_HAL_CONST,m_sHostName);
@@ -209,6 +221,7 @@ public:
 			m_pEvent->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
 			m_pcRequestSocket->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
 		}
+		PostConfigCleanup();
 		return true;
 	};
 	HAL_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
@@ -223,6 +236,7 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	bool DATA_Get_Only_One_Per_PC() { return GetData()->Get_Only_One_Per_PC(); }
+	bool DATA_Get_Autoassign_to_parents_room() { return GetData()->Get_Autoassign_to_parents_room(); }
 	//Event accessors
 	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory) { GetEvents()->Device_Detected(sMac_Address.c_str(),sText.c_str(),sIP_Address.c_str(),iPK_DeviceTemplate,sVendorModelID.c_str(),iPK_CommMethod,iPK_PnpProtocol,sPNP_Serial_Number.c_str(),sDeviceData.c_str(),sCategory.c_str()); }
 	void EVENT_Device_Removed(string sMac_Address,string sText,int iPK_Device,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory) { GetEvents()->Device_Removed(sMac_Address.c_str(),sText.c_str(),iPK_Device,sIP_Address.c_str(),iPK_DeviceTemplate,sVendorModelID.c_str(),iPK_CommMethod,iPK_PnpProtocol,sPNP_Serial_Number.c_str(),sDeviceData.c_str(),sCategory.c_str()); }
@@ -233,7 +247,21 @@ public:
 	{
 		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal)==rmr_Processed )
+		{
+			if( pMessageOriginal->m_eExpectedResponse==ER_ReplyMessage && !pMessageOriginal->m_bRespondedToMessage )
+			{
+				pMessageOriginal->m_bRespondedToMessage=true;
+				Message *pMessageOut=new Message(m_dwPK_Device,pMessageOriginal->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+				pMessageOut->m_mapParameters[0]="OK";
+				SendMessage(pMessageOut);
+			}
+			else if( (pMessageOriginal->m_eExpectedResponse==ER_DeliveryConfirmation || pMessageOriginal->m_eExpectedResponse==ER_ReplyString) && !pMessageOriginal->m_bRespondedToMessage )
+			{
+				pMessageOriginal->m_bRespondedToMessage=true;
+				SendString("OK");
+			}
 			return rmr_Processed;
+		}
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
@@ -276,7 +304,7 @@ public:
 				}
 			}
 			if( iHandled==0 && !pMessage->m_bRespondedToMessage &&
-			(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString) )
+			(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString || pMessage->m_eExpectedResponse==ER_DeliveryConfirmation) )
 			{
 				pMessage->m_bRespondedToMessage=true;
 				if( pMessage->m_eExpectedResponse==ER_ReplyMessage )

@@ -180,7 +180,10 @@ public:
 			return false;
 		m_pData = new App_Server_Data();
 		if( Size )
-			m_pData->SerializeRead(Size,pConfig);
+		{
+			if( m_pData->SerializeRead(Size,pConfig)==false )
+				return false;
+		}
 		else
 		{
 			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
@@ -193,7 +196,8 @@ public:
 		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
-		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
+		if( m_pData->m_AllDevices.SerializeRead(Size,pConfig)==false )
+			return false;
 		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
 		m_pcRequestSocket = new Event_Impl(m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST,m_sHostName);
