@@ -64,58 +64,85 @@ bool XProgressWnd::DrawWindow()
         bRet = m_pButton->DrawWindow();
     }
 
-    if (bRet) {
+    if (bRet) 
+	{
         unsigned long mask = GCForeground | GCBackground | GCLineWidth;
         XGCValues values;
-        values.line_width = 1;
-        values.foreground = 0x000000;
-        values.background = 0x000000;
-        GC gcBackground = XCreateGC(
-                    m_pDisplay,
-                    m_wndThis,
-                    mask,
-                    &values);
+		
+		const int nDesktopBackground = 0x000080;
+		const int nBarBorderColor = 0xF0F0F0;
+		const int nBarBorderShadowColor = 0x000000;
+		const int nBarBackgroundColor = 0xFFFF80;
+		const int nBarFillColor = 0x00A040;
+		const int nBarBorderWidth = 2;
+		const int nBarBorderShadowDepth = 4;
+		const int nBarBorderShadowWidth = 6;
+        int nBarWidth = (m_nBarWidth - nBarBorderWidth * 2)  * m_nProgress / 100;	
+				
+		//bar - background
+        values.line_width = nBarBorderWidth;
+        values.foreground = nDesktopBackground;
+        values.background = nDesktopBackground;
+        GC gcBackground = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
         XFillRectangle(m_pDisplay, m_wndThis, gcBackground, 2, 2, m_nWidth-4, m_nHeight-4);
-
-        values.foreground = 0xFFFFFF;
-        values.background = 0xFFFFFF;
-
-        GC gcBorder = XCreateGC(
-                    m_pDisplay,
-                    m_wndThis,
-                    mask,
-                    &values);
-
-        values.foreground = 0x0000FF;
-        values.background = 0x0000FF;
-        GC gcBar = XCreateGC(
-                    m_pDisplay,
-                    m_wndThis,
-                    mask,
-                    &values);
-
-        Font font = XLoadFont(m_pDisplay, "-*-*-*-R-Normal--*-140-75-75-*-*");
+		XFreeGC(m_pDisplay, gcBackground);
+		
+		//bar - border - shadow
+		values.line_width = nBarBorderShadowWidth;
+        values.foreground = nBarBorderShadowColor;
+        values.background = nBarBorderShadowColor;
+        GC gcBorderShadow = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
+        XDrawRectangle(m_pDisplay, m_wndThis, gcBorderShadow, 
+			m_nBarX + nBarBorderShadowDepth, m_nBarY + nBarBorderShadowDepth, 
+			m_nBarWidth, m_nBarHeight);
+		XFreeGC(m_pDisplay, gcBorderShadow);
+				
+		//bar - border
+		values.line_width = 0;
+        values.background = nBarBorderColor;
+		values.foreground = nBarBorderColor;
+        GC gcBorder = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
+        XDrawRectangle(m_pDisplay, m_wndThis, gcBorder, m_nBarX, m_nBarY, m_nBarWidth, m_nBarHeight);	
+		XFreeGC(m_pDisplay, gcBorder);
+		
+		//bar - background color
+        values.background = nBarBackgroundColor;
+		values.foreground = nBarBackgroundColor;
+        GC gcBarBackground = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
+        XFillRectangle(m_pDisplay, m_wndThis, gcBarBackground, m_nBarX+2, m_nBarY+2, 
+			m_nBarWidth-4, m_nBarHeight-4);
+		XFreeGC(m_pDisplay, gcBarBackground);
+		
+		//bar - fill color
+        values.background = nBarFillColor;
+		values.foreground = nBarFillColor;
+        GC gcBar = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
+        XFillRectangle(m_pDisplay, m_wndThis, gcBar, m_nBarX + 2, m_nBarY + 2, 
+			nBarWidth - 4 > 0 ? nBarWidth - 4 : 0, m_nBarHeight - 4);
+		XFreeGC(m_pDisplay, gcBar);
+		
+		//render caption text
+        Font font = XLoadFont(m_pDisplay, "-*-helvetica-bold-R-Normal--*-240-75-75-*-*");
         mask = GCForeground | GCBackground | GCLineWidth | GCFont;
         values.foreground = 0xFFFFFF;
         values.background = 0xFFFFFF;
         values.font = font;
-        GC gcText = XCreateGC(
-                    m_pDisplay,
-                    m_wndThis,
-                    mask,
-                    &values);
-
-        int nBarWidth = (m_nBarWidth-3) * m_nProgress / 100;
-
+        GC gcText = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
         XDrawString(m_pDisplay, m_wndThis, gcText, m_nTextX, m_nTextY, m_sText.c_str(), m_sText.length());
-        XDrawRectangle(m_pDisplay, m_wndThis, gcBorder, m_nBarX, m_nBarY, m_nBarWidth, m_nBarHeight);
-        XFillRectangle(m_pDisplay, m_wndThis, gcBar, m_nBarX+2, m_nBarY+2, nBarWidth, m_nBarHeight-2);
+		XUnloadFont(m_pDisplay, font);
+		XFreeGC(m_pDisplay, gcText);
 
-        XUnloadFont(m_pDisplay, font);
-        XFreeGC(m_pDisplay, gcText);
-        XFreeGC(m_pDisplay, gcBar);
-        XFreeGC(m_pDisplay, gcBorder);
-        XFreeGC(m_pDisplay, gcBackground);
+		//render progress text		
+        font = XLoadFont(m_pDisplay, "-*-helvetica-bold-R-Normal--*-240-75-75-*-*");
+        mask = GCForeground | GCBackground | GCLineWidth | GCFont;
+        values.foreground = 0x000000;
+        values.background = 0x000000;
+        values.font = font;
+        gcText = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
+		string sPercentText = StringUtils::ltos(m_nProgress) + "%";
+		XDrawString(m_pDisplay, m_wndThis, gcText, m_nBarX + m_nBarWidth / 2, m_nBarY + 30, sPercentText.c_str(), sPercentText.length());
+		XUnloadFont(m_pDisplay, font);
+		XFreeGC(m_pDisplay, gcText);		
     }
 
     //XUnlockDisplay(m_pDisplay);
@@ -220,9 +247,6 @@ pthread_t XProgressWnd::Run()
     int nDesktopX, nDesktopY;
     nDesktopX = DisplayWidth(pDisplay, nScreenNo);
     nDesktopY = DisplayHeight(pDisplay, nScreenNo);
-    int nWidth = 250, nHeight = 140;
-    int xPos = (nDesktopX - nWidth) / 2;
-    int yPos = (nDesktopY - nHeight) / 2;
     CreateWindow(pDisplay, nScreenNo, DefaultRootWindow(pDisplay), 0, 0, nDesktopX, nDesktopY);
     ShowWindow();
     DrawWindow();
@@ -261,11 +285,11 @@ int XProgressWnd::CreateWindow(Display *pDisplay, int screen, Window wndParent, 
     X3DWindow::CreateWindow(pDisplay, screen, wndParent, x, y, cx, cy);
 
     m_nTextX = 20;
-    m_nTextY = 40;
+    m_nTextY = m_nWidth / 2;
     m_nBarX = 20;
-    m_nBarY = 50;
+    m_nBarY = m_nHeight - 100;
     m_nBarWidth = m_nWidth - 40;
-    m_nBarHeight = 24;
+    m_nBarHeight = 50;
 
     if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Constructing ProgressWindow");
 
