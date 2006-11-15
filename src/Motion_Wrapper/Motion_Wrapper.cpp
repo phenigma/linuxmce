@@ -24,6 +24,7 @@ using namespace DCE;
 #define SNAPSHOT_SLEEP_TIME	100
 
 static pid_t * my_motion_pid = NULL;
+static std::vector<pid_t> dc1394_pids;
 
 void StartMotion(pid_t * pid)
 {
@@ -61,6 +62,14 @@ void sighandler(int sig)
 			g_pPlutoLogger->Write(LV_STATUS, "Child exited; pid: %d; motion_pid: %d", pid, my_motion_pid ? * my_motion_pid : 0);
 			if (my_motion_pid != NULL && pid == * my_motion_pid)
 				StartMotion(NULL);
+		
+			std::vector<pid_t>::iterator i;	
+			for (i=dc1394_pids.begin(); i != dc1394_pids.end(); i++) {
+				if (*i == pid) {
+					dc1394_pids.erase(i);
+					break;	
+				}
+			}
 			break;
 	}
 }
@@ -276,6 +285,13 @@ Motion_Wrapper::~Motion_Wrapper()
 		waitpid(motionpid_,NULL,0);
 		g_pPlutoLogger->Write(LV_STATUS, "Done.");
 	}
+
+	std::vector<pid_t>::iterator i;	
+	for (i=dc1394_pids.begin(); i!=dc1394_pids.end(); i++) {
+		kill(*i, SIGKILL);
+		waitpid(*i,NULL,0);
+	}
+
 }
 
 bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
@@ -466,12 +482,14 @@ void Motion_Wrapper::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 bool
 Motion_Wrapper::CreateVideoDeviceFor1394(DeviceData_Impl* pDeviceData) {
 	int PK_Device = pDeviceData->m_dwPK_Device;
+	pid_t dc1394_pid = 0;
+
 	g_pPlutoLogger->Write(LV_STATUS, "Generating v4l device for %d ieee1394 video device", PK_Device);
 
 	string sDevice = pDeviceData->mapParameters_Find(DEVICEDATA_Device_CONST);
 
-
-	if( ! fork() )
+	dc1394_pid = fork();
+	if( dc1394_pid == 0 )
         {
 		// V4L devices for video1394 get piped to: 30 + ( video1394# - 1) * 2 [ video30, video32 ]
 		string v4lParam = "--vloopback=/dev/video"+StringUtils::itos(atoi(sDevice.c_str()) * 2 + 30);
@@ -483,7 +501,9 @@ Motion_Wrapper::CreateVideoDeviceFor1394(DeviceData_Impl* pDeviceData) {
                 g_pPlutoLogger->Write(LV_CRITICAL, "Could not launch dc1394_vloopback !");
 
 		_exit(1);
-        }
+        } else {
+		dc1394_pids.push_back(dc1394_pid);
+	}
 
 	return true;
 }
