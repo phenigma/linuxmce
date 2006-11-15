@@ -32,9 +32,9 @@ LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 whattodo:
 	@echo "type 'make bin', 'make so' or 'make all'"
 
-all: bin so 
+all: bin so
 
-bin: SimplePhone 
+bin: SimplePhone
 
 so: SimplePhone.so
 

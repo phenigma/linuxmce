@@ -99,7 +99,7 @@ private:
 	/** Peforms a WRITE request on the bus */
 		/** @param #108 Address */
 			/** EIB Group Address */
-		/** @param #109 Data */
+		/** @param #109 Data String */
 			/** EIB Data */
 		/** @param #110 DataType */
 			/** EIB Data Type:
@@ -117,8 +117,8 @@ private:
 [14]-8bit counter
 [15]-character string */
 
-	virtual void CMD_EIB_Write(string sAddress,string sData,int iDataType) { string sCMD_Result; CMD_EIB_Write(sAddress.c_str(),sData.c_str(),iDataType,sCMD_Result,NULL);};
-	virtual void CMD_EIB_Write(string sAddress,string sData,int iDataType,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_EIB_Write(string sAddress,string sData_String,int iDataType) { string sCMD_Result; CMD_EIB_Write(sAddress.c_str(),sData_String.c_str(),iDataType,sCMD_Result,NULL);};
+	virtual void CMD_EIB_Write(string sAddress,string sData_String,int iDataType,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #275 - EIB_Read */

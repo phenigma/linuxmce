@@ -602,7 +602,7 @@ void EIB::SomeFunction()
 	/** Peforms a WRITE request on the bus */
 		/** @param #108 Address */
 			/** EIB Group Address */
-		/** @param #109 Data */
+		/** @param #109 Data String */
 			/** EIB Data */
 		/** @param #110 DataType */
 			/** EIB Data Type:
@@ -620,11 +620,11 @@ void EIB::SomeFunction()
 [14]-8bit counter
 [15]-character string */
 
-void EIB::CMD_EIB_Write(string sAddress,string sData,int iDataType,string &sCMD_Result,Message *pMessage)
+void EIB::CMD_EIB_Write(string sAddress,string sData_String,int iDataType,string &sCMD_Result,Message *pMessage)
 //<-dceag-c273-e->
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Received a Write request: (To= %s, Data Type=%d, Data=%s) ", 
-												sAddress.c_str(), iDataType, sData.c_str());
+												sAddress.c_str(), iDataType, sData_String.c_str());
 	
 	if(sAddress.length() == 0) {
 		g_pPlutoLogger->Write(LV_STATUS, "Empty Group Address passed as parameter");
@@ -639,37 +639,37 @@ void EIB::CMD_EIB_Write(string sAddress,string sData,int iDataType,string &sCMD_
 	case DT_DIMMING_CONTROL:
 	case DT_DRIVE_CONTROL:
 	case 8:
-		tlmsg.setShortUserData(atoi(sData.c_str()));
+		tlmsg.setShortUserData(atoi(sData_String.c_str()));
 		break;
 		
 	case DT_SCALING:
 	case DT_ASCIICHAR:
 	case DT_COUNTER8: {
-		unsigned char data = atoi(sData.c_str());
+		unsigned char data = atoi(sData_String.c_str());
 		tlmsg.setUserData(&data, 1);
 		} break;
 		
 	case DT_VALUE:
 	case DT_COUNTER16: {
-		unsigned short data = atoi(sData.c_str());
+		unsigned short data = atoi(sData_String.c_str());
 		tlmsg.setUserData((unsigned char*)&data, 2);
 		} break;
 	
 	case DT_TIME:
 	case DT_DATE: {
-		unsigned int data = atoi(sData.c_str());
+		unsigned int data = atoi(sData_String.c_str());
 		tlmsg.setUserData((unsigned char*)&data, 3);
 		} break;
 	
 	case DT_FLOAT:
 	case DT_COUNTER32:
 	case 12: {
-		unsigned int data = atoi(sData.c_str());
+		unsigned int data = atoi(sData_String.c_str());
 		tlmsg.setUserData((unsigned char*)&data, 4);
 		} break;
 	
 	case DT_STRING: {
-		tlmsg.setUserData((unsigned char*)sData.c_str(), sData.length());
+		tlmsg.setUserData((unsigned char*)sData_String.c_str(), sData_String.length());
 		} break;
 	
 	default:

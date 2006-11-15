@@ -18,6 +18,8 @@
 #define SERIALIZE_DATA_TYPE_MAP_DCECATEGORY					2001
 #define SERIALIZE_DATA_TYPE_MAP_DCEDEVICE_GROUP			2002
 
+#define DCE_SCHEMA			2
+
 namespace DCE
 {
 	typedef map<int,class Command_Base *> Map_Command_Base;
@@ -88,7 +90,7 @@ namespace DCE
 		// something needs the pointers to survive, it can call DontDeleteData
 		bool m_bDontDeleteData;
 	public:
-		AllDevices() { m_bDontDeleteData=false; }
+		AllDevices() { m_bDontDeleteData=false; m_iSC_Version = DCE_SCHEMA; }
 		virtual ~AllDevices();
 		void DontDeleteData() { m_bDontDeleteData=true; }
 
@@ -139,6 +141,8 @@ namespace DCE
 		{
 			(*this) + m_mapDeviceData_Base + m_mapDeviceCategory + m_mapDeviceGroup; // this is serialized custom
 		}
+
+		virtual bool OkayToDeserialize(int iSC_Version) { return iSC_Version==DCE_SCHEMA; }
 
 		/**
 		 * @returns "AllDevices" so that the SerializeClass knows what to serialize
@@ -292,6 +296,7 @@ namespace DCE
 			m_dwPK_Device=m_dwPK_Installation=m_dwPK_DeviceTemplate=m_dwPK_Device_ControlledVia=m_dwPK_DeviceCategory=
 				m_dwPK_Room=m_dwPK_Device_MD=m_dwPK_Device_Core=0;
 			m_bDisabled = false;
+			m_iSC_Version = DCE_SCHEMA;
 		}
 
 		/**
@@ -321,6 +326,7 @@ namespace DCE
 			m_bInheritsMacFromPC = bInheritsMacFromPC;
 			m_bDeviceData_Impl = false;
 			m_bDisabled = bDisabled;
+			m_iSC_Version = DCE_SCHEMA;
 		}
 
 		/**
@@ -332,6 +338,8 @@ namespace DCE
 				m_dwPK_DeviceCategory + m_dwPK_Room + m_bIsPlugIn + m_bIsEmbedded + m_sCommandLine + m_mapCommands + m_sDescription + m_sIPAddress + m_sMacAddress + 
 				m_bInheritsMacFromPC + m_dwPK_Device_MD + m_dwPK_Device_Core + m_bDisabled;
 		}
+
+		virtual bool OkayToDeserialize(int iSC_Version) { return iSC_Version==DCE_SCHEMA; }
 
 		/**
 		 * @brief searches to see if the device belongs to the specified category

@@ -65,6 +65,7 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	bool DATA_Get_Only_One_Per_PC();
+	bool DATA_Get_Autoassign_to_parents_room();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory);
@@ -72,6 +73,7 @@ public:
 
 			*****COMMANDS***** we need to implement
 	*/
+
 
 //<-dceag-h-e->
 private:

@@ -582,7 +582,10 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\t\treturn false;" << endl;
 	fstr_DeviceCommand << "\t\tm_pData = new "  << Name  << "_Data();" << endl;
 	fstr_DeviceCommand << "\t\tif( Size )" << endl;
-	fstr_DeviceCommand << "\t\t\tm_pData->SerializeRead(Size,pConfig);" << endl;
+	fstr_DeviceCommand << "\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\tif( m_pData->SerializeRead(Size,pConfig)==false )" << endl;
+	fstr_DeviceCommand << "\t\t\t\treturn false;" << endl;
+	fstr_DeviceCommand << "\t\t}" << endl;
 	fstr_DeviceCommand << "\t\telse" << endl;
 	fstr_DeviceCommand << "\t\t{" << endl;
 	fstr_DeviceCommand << "\t\t\tm_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data" << endl;
@@ -596,7 +599,8 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 
 	fstr_DeviceCommand << "\t\tdelete[] pConfig;" << endl;
 	fstr_DeviceCommand << "\t\tpConfig = m_pEvent->GetDeviceList(Size);" << endl;
-	fstr_DeviceCommand << "\t\tm_pData->m_AllDevices.SerializeRead(Size,pConfig);" << endl;
+	fstr_DeviceCommand << "\t\tif( m_pData->m_AllDevices.SerializeRead(Size,pConfig)==false )" << endl;
+	fstr_DeviceCommand << "\t\t\treturn false;" << endl;
 	fstr_DeviceCommand << "\t\tdelete[] pConfig;" << endl;
 	fstr_DeviceCommand << "\t\tm_pData->m_pEvent_Impl = m_pEvent;" << endl;
 	fstr_DeviceCommand << "\t\tm_pcRequestSocket = new Event_Impl(m_dwPK_Device, " << GetDeviceTemplateConstStr(p_Row_DeviceTemplate) << ",m_sHostName);" << endl;

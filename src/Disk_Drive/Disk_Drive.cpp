@@ -376,9 +376,30 @@ void Disk_Drive::RunMonitorLoop()
 			/** Disc unit index number
 Disk_Drive: 0
 Powerfile: 0, 1, ... */
+		/** @param #233 DriveID */
+			/** The ID of the storage drive. Can be the ID of the core. */
+		/** @param #234 Directory */
+			/** The relative directory for the file to rip */
 
-void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 	m_pDisk_Drive_Functions->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, iDrive_Number, sCMD_Result, pMessage);
+}
+//<-dceag-c817-b->
+
+	/** @brief COMMAND: #817 - Get Default Ripping Info */
+	/** Get default ripping info: default filename, id and name of the storage device with most free space. */
+		/** @param #13 Filename */
+			/** Default ripping name. */
+		/** @param #219 Path */
+			/** Base path for ripping. */
+		/** @param #233 DriveID */
+			/** The id of the storage device with most free space. */
+		/** @param #235 Storage Device Name */
+			/** The name of the storage device with most free space. */
+
+void Disk_Drive::CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
+//<-dceag-c817-e->
+{
 }

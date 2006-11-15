@@ -176,9 +176,28 @@ Powerfile: 0, 1, ... */
 			/** Disc unit index number
 Disk_Drive: 0
 Powerfile: 0, 1, ... */
+		/** @param #233 DriveID */
+			/** The ID of the storage drive. Can be the ID of the core. */
+		/** @param #234 Directory */
+			/** The relative directory for the file to rip */
 
-	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,iDrive_Number,sCMD_Result,NULL);};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,int iDriveID,string sDirectory) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,iDrive_Number,iDriveID,sDirectory.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #817 - Get Default Ripping Info */
+	/** Get default ripping info: default filename, id and name of the storage device with most free space. */
+		/** @param #13 Filename */
+			/** Default ripping name. */
+		/** @param #219 Path */
+			/** Base path for ripping. */
+		/** @param #233 DriveID */
+			/** The id of the storage device with most free space. */
+		/** @param #235 Storage Device Name */
+			/** The name of the storage device with most free space. */
+
+	virtual void CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name) { string sCMD_Result; CMD_Get_Default_Ripping_Info(sFilename,sPath,iDriveID,sStorage_Device_Name,sCMD_Result,NULL);};
+	virtual void CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

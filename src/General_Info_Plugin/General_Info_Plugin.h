@@ -427,6 +427,7 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 	virtual void CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iPK_Software) { string sCMD_Result; CMD_Add_Software(iPK_Device,bTrueFalse,iPK_Software,sCMD_Result,NULL);};
 	virtual void CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iPK_Software,string &sCMD_Result,Message *pMessage);
 
+
 //<-dceag-h-e->
 	private:
 		mapMacPKDescription m_mapMacPKDescription;
