@@ -100,7 +100,7 @@ void PlutoHIDInterface::ProcessHIDEvents()
 					else
 					{
 						unsigned char *pPtr = (unsigned char *) inPacket;
-						g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents [READER] %04i.%03i: read bytes: %d %d.%d.%d.%d.%d.%d", 
+						g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents [READER] %04i.%03i: read bytes: %d %x.%x.%x.%x.%x.%x", 
 							cnt/100, cnt%100, res, (int) pPtr[0],(int) pPtr[1],(int) pPtr[2],(int) pPtr[3],(int) pPtr[4],(int) pPtr[5]);
 
 						if( res==6 && inPacket[0]==8 )  // It's for us

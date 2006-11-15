@@ -445,7 +445,7 @@ public:
 
 
 	/** @brief COMMAND: #548 - Menu */
-	/** Go to the PVR's main menu */
+	/** Show a menu associated with this media */
 		/** @param #9 Text */
 			/** A string indicating which menu should appear.  The parameter is only used for smart media devices */
 

@@ -156,8 +156,8 @@ public:
 	string DATA_Get_Mobile_Orbiter_Notification();
 	string DATA_Get_Other_Phone_Notifications();
 	string DATA_Get_Neighbors_to_Call();
-	int DATA_Get_PK_HouseMode();
-	void DATA_Set_PK_HouseMode(int Value);
+	string DATA_Get_Configuration();
+	void DATA_Set_Configuration(string Value);
 	string DATA_Get_PK_Device();
 	string DATA_Get_Emergency_Calls();
 

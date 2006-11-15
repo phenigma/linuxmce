@@ -123,10 +123,10 @@ char *Text_To_Speech::CreateWAV(string sText,int &Size)
 	/** Will convert the text to an audio file, and send it to the device with the "Play Media" Command. */
 		/** @param #9 Text */
 			/** What to say */
-		/** @param #103 PK_Device_List */
+		/** @param #103 List PK Device */
 			/** A comma delimited list of the devices to send it to */
 
-void Text_To_Speech::CMD_Send_Audio_To_Device(string sText,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
+void Text_To_Speech::CMD_Send_Audio_To_Device(string sText,string sList_PK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c253-e->
 {
 	PLUTO_SAFETY_LOCK(tm,m_TTSMutex);
@@ -137,9 +137,9 @@ void Text_To_Speech::CMD_Send_Audio_To_Device(string sText,string sPK_Device_Lis
 	if( FileUtils::FileExists(sFile) )
 	{
 		string::size_type pos=0;
-		while( pos<sPK_Device_List.size() && pos!=string::npos )
+		while( pos<sList_PK_Device.size() && pos!=string::npos )
 		{
-			int PK_Device = atoi(StringUtils::Tokenize(sPK_Device_List,",",pos).c_str());
+			int PK_Device = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str());
 			if( PK_Device )
 			{
 				DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_dwPK_Device,m_dwPK_Device_MediaPlugin,PK_Device,sFile,0,0,"",true,false);

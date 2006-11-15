@@ -47,7 +47,7 @@ private:
 
 	/*
 			*****DATA***** accessors inherited from base class
-	string DATA_Get_Name();
+	string DATA_Get_BranchNo();
 
 			*****EVENT***** accessors inherited from base class
 
@@ -59,11 +59,11 @@ private:
 	/** Will convert the text to an audio file, and send it to the device with the "Play Media" Command. */
 		/** @param #9 Text */
 			/** What to say */
-		/** @param #103 PK_Device_List */
+		/** @param #103 List PK Device */
 			/** A comma delimited list of the devices to send it to */
 
-	virtual void CMD_Send_Audio_To_Device(string sText,string sPK_Device_List) { string sCMD_Result; CMD_Send_Audio_To_Device(sText.c_str(),sPK_Device_List.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Send_Audio_To_Device(string sText,string sPK_Device_List,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Send_Audio_To_Device(string sText,string sList_PK_Device) { string sCMD_Result; CMD_Send_Audio_To_Device(sText.c_str(),sList_PK_Device.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Send_Audio_To_Device(string sText,string sList_PK_Device,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #256 - Text To Wave */

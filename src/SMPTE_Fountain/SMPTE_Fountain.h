@@ -96,6 +96,7 @@ public:
 	string DATA_Get_Alsa_Output_Device();
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -119,6 +120,7 @@ public:
 
 	virtual void CMD_Off(int iPK_Pipe) { string sCMD_Result; CMD_Off(iPK_Pipe,sCMD_Result,NULL);};
 	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 	};
