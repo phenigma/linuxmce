@@ -374,3 +374,6 @@ void SqueezeBox_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,str
 
 void SqueezeBox_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c548-e->
+{
+}
+
