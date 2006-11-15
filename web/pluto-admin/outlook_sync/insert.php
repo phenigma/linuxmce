@@ -46,7 +46,7 @@ while (!feof($fd)) {
    }
 	while((($buffer=fgets($fd,4096))) && (!feof($fd))){if (trim($buffer)!='') break;}
 	if (!(feof($fd))){
-
+		$buffer=mysql_real_escape_string($buffer);
 		$arrfields=explode("~",$buffer);
 		$sql="select PK_Contact from Contact where EntryID='".$arrfields[0]."'";
 
