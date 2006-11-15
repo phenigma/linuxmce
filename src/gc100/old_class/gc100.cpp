@@ -980,7 +980,8 @@ void GC100CommandImpl::SET_LEARN_FREQUENCY(string IR_FREQUENCY)
 		double freq = strtod(IR_FREQUENCY.c_str(), &dummy);
 		if (freq > 20000.0)
 			m_SlinkeBase->SetIRCarrier(freq);
-	}*/
+	}
+*/
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -1136,13 +1137,15 @@ OCSafetyLock sl(&shared_lock);
 					// send it anyway in case of lowlevel
 					devnum = -1;
 				}
-*/
+
+*/
 				
 	/*				m_IRDeviceID = m_pThisMessage->m_DeviceIDFrom;
 		m_IRActionID = atoi(ID.c_str());
 		m_bLearning = true; */
 
-/*
+
+/*
 				printf("IRCode: %f, %40.40s...\n", m_SlinkeBase->GetIRCarrier(), data.c_str());
 				if (m_bLearning)
 				{
@@ -1153,7 +1156,8 @@ OCSafetyLock sl(&shared_lock);
 					OCMessage *pMessage = new OCMessage(m_IRDeviceID, 0, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENTLIST_LEARNED_CODE_CONST, 3, C_EVENTPARAMETER_PKID_CONTROLLER_CONST, StringUtils::itos(m_ControllerID).c_str(),C_EVENTPARAMETER_TOKEN_CONST, PlutoIR.c_str(), C_EVENTPARAMETER_ID_CONST, StringUtils::itos(m_IRActionID).c_str());
 					GetEvents()->SendOCMessage(pMessage);
 				}
-			}*/
+			}
+*/
 			//sleep_ms(25);
 }
 

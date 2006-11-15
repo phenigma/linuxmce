@@ -432,6 +432,7 @@ public:
 	virtual void CMD_Menu(string sText) { string sCMD_Result; CMD_Menu(sText.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Menu(string sText,string &sCMD_Result,Message *pMessage);
 
+
 //<-dceag-h-e->
 	void ReportTimecodeViaIP(int iStreamID, int Speed);
 	bool Connect(int iPK_DeviceTemplate );

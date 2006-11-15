@@ -1,4 +1,4 @@
-//<-dceag-incl-b->
+//<-dceag-incl-b->!
 #include "Xine_Player.h"
 #include "DCE/Logger.h"
 #include "ServerLogger.h"
@@ -138,7 +138,7 @@ extern "C" {
 }
 //<-dceag-plug-e->
 
-//<-dceag-main-b->
+//<-dceag-main-b->!
 int main(int argc, char* argv[]) 
 {
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
