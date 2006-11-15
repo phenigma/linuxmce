@@ -12,3 +12,4 @@
 014_missing_mmx_blit.diff
 015_kfreebsd_gnu.diff
 099_page_size.diff
+301_pluto-nvidia.diff

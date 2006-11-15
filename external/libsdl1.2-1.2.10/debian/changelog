@@ -1,3 +1,9 @@
+libsdl1.2 (1.2.10-3ubuntu2pluto1) edgy; urgency=low
+
+  * Added Pluto nVidia patch
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Thu, 16 Nov 2006 00:37:55 +0200
+
 libsdl1.2 (1.2.10-3ubuntu2) edgy; urgency=low
 
   * Add 099_page_size.diff, to prevent usage of page.h and PAGE_SIZE, use
