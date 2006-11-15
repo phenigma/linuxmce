@@ -1000,3 +1000,5 @@ void Slim_Server_Streamer::CMD_Simulate_Keypress(string sPK_Button,string sName,
 
 void Slim_Server_Streamer::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c548-e->
+{
+}
