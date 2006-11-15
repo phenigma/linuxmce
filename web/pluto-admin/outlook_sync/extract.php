@@ -20,4 +20,7 @@ while ($row=mysql_fetch_row($result)){
 	}
 	echo $fldstring."|";
 }
+if (mysql_num_rows($result)==0){
+	echo "End";
+}
 ?>
