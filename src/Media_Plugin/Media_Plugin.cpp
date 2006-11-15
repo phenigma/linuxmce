@@ -223,7 +223,7 @@ bool Media_Plugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-    m_pDatabase_pluto_main = new Database_pluto_main( );
+    m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
     if( !m_pDatabase_pluto_main->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
@@ -231,7 +231,7 @@ bool Media_Plugin::GetConfig()
         return false;
     }
 
-    m_pDatabase_pluto_media = new Database_pluto_media( );
+    m_pDatabase_pluto_media = new Database_pluto_media(g_pPlutoLogger);
     if( !m_pDatabase_pluto_media->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_media", m_pRouter->iDBPort_get( ) ) )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );

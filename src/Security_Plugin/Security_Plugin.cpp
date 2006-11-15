@@ -123,7 +123,7 @@ bool Security_Plugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	m_pDatabase_pluto_main = new Database_pluto_main( );
+	m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
 	if( !m_pDatabase_pluto_main->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
@@ -131,7 +131,7 @@ bool Security_Plugin::GetConfig()
 		return false;
 	}
 
-	m_pDatabase_pluto_security = new Database_pluto_security( );
+	m_pDatabase_pluto_security = new Database_pluto_security(g_pPlutoLogger);
 	if( !m_pDatabase_pluto_security->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_security", m_pRouter->iDBPort_get( ) ) )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );

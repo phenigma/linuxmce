@@ -257,7 +257,7 @@ bool Powerfile_C200::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 //m_sIPAddress = ;  // todo
-    m_pDatabase_pluto_media = new Database_pluto_media( );
+    m_pDatabase_pluto_media = new Database_pluto_media(g_pPlutoLogger);
 	// TODO: the connection data is stored in pluto.conf; use it
     if (!m_pDatabase_pluto_media->Connect("dcerouter", "root", "", "pluto_media", 3306))
     {

@@ -41,7 +41,7 @@ using namespace DefaultScenarios;
 bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string pass, string db_name, int port)
 {
 	g_pPlutoLogger->Write( LV_STATUS, "Starting UpdateEnt Areas" );
-	m_pDatabase_pluto_main = new Database_pluto_main( );
+	m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
 	if( !m_pDatabase_pluto_main->Connect( host, user, pass, db_name, port ) )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );

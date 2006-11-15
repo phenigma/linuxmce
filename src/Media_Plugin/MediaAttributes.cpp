@@ -50,7 +50,7 @@ MediaAttributes::MediaAttributes(string host, string user, string pass, string d
 {
 	m_nPK_Installation = nPK_Installation;
 	m_pMediaAttributes_LowLevel=NULL;
-    m_pDatabase_pluto_media = new Database_pluto_media( );
+    m_pDatabase_pluto_media = new Database_pluto_media(g_pPlutoLogger);
     if( !m_pDatabase_pluto_media->Connect( host, user, pass, db_name, port  ) )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );

@@ -82,14 +82,14 @@ UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string 
 #endif
 
     //connect to the databases
-	m_pDatabase_pluto_media = new Database_pluto_media( );
+	m_pDatabase_pluto_media = new Database_pluto_media(g_pPlutoLogger);
 	if( !m_pDatabase_pluto_media->Connect( host, user, pass, sPlutoMediaDbName, port ) )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
 		return;
 	}
 
-	m_pDatabase_pluto_main = new Database_pluto_main( );
+	m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
 	if( !m_pDatabase_pluto_main->Connect( host, user, pass, sPlutoMainDbName, port ) )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );

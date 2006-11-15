@@ -146,7 +146,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
 
     m_Port = ListenPort;
 
-    m_pDatabase_pluto_main = new Database_pluto_main();
+    m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
 
     if(!m_pDatabase_pluto_main->Connect(m_sDBHost,m_sDBUser,m_sDBPassword,m_sDBName,m_dwIDBPort) )
     {

@@ -60,7 +60,7 @@ bool Plug_And_Play_Plugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-    m_pDatabase_pluto_main = new Database_pluto_main( );
+    m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
     if( !m_pDatabase_pluto_main->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );

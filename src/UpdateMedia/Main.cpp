@@ -266,14 +266,14 @@ int main(int argc, char *argv[])
 #endif
 
         //connect to the databases
-        g_pDatabase_pluto_media = new Database_pluto_media( );
+        g_pDatabase_pluto_media = new Database_pluto_media(g_pPlutoLogger);
         if( !g_pDatabase_pluto_media->Connect(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword, sPlutoMediaDbName,dceConfig.m_iDBPort) )
         {
             g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
             return 1;
         }
 
-        g_pDatabase_pluto_main = new Database_pluto_main( );
+        g_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
         if( !g_pDatabase_pluto_main->Connect(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword, sPlutoMainDbName,dceConfig.m_iDBPort) )
         {
             g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );

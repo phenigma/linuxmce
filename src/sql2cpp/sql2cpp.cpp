@@ -325,6 +325,7 @@ int main( int argc, char *argv[] )
 	db_h_out << "#include <mysql.h>" << endl;
 
 	db_h_out << "#include \"PlutoUtils/MySQLHelper.h\"" << endl;
+	db_h_out << "#include \"DCE/Logger.h\"" << endl;
 
     db_h_out << "#ifdef WIN32" << endl;
     db_h_out << "#ifdef EXPORT_DLL" << endl;
@@ -347,7 +348,7 @@ int main( int argc, char *argv[] )
 	db_h_out << "class DECLSPECIFIER Database_" << sDBName << ": public MySqlHelper" << endl;
 	db_h_out << "{" << endl;
 	db_h_out << "public:" << endl;
-	db_h_out << "Database_" << sDBName << "();" << endl;
+	db_h_out << "Database_" << sDBName << "(Logger *pLogger=NULL);" << endl;
 	db_h_out << "~Database_" << sDBName << "();" << endl;
 	db_h_out << "void DeleteAllTables();" << endl;
 
@@ -419,8 +420,9 @@ int main( int argc, char *argv[] )
     db_cpp_out << endl << "}";
     db_cpp_out << endl << "using namespace DCE;" << endl;
 
-	db_cpp_out << "Database_" << sDBName << "::Database_" << sDBName << "()" << endl;
+	db_cpp_out << "Database_" << sDBName << "::Database_" << sDBName << "(Logger *pLogger)" << endl;
 	db_cpp_out << "{" << endl;
+	db_cpp_out << "\tg_pPlutoLogger=pLogger;" << endl;
 	for (vector<TableInfo_Generator *>::iterator i=dbInfo.listTableInfo_get()->begin(); i!=dbInfo.listTableInfo_get()->end(); i++)
 	{
 		db_cpp_out << "tbl"+(*i)->get_table_name()+"=NULL;" << endl;

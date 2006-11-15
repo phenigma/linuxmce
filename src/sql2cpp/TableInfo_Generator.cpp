@@ -439,7 +439,7 @@ string TableInfo_Generator::get_primary_autoinc_key_init()
 {
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
 		if (((*i)->m_iFlags & PRI_KEY_FLAG) && ((*i)->m_iFlags & AUTO_INCREMENT_FLAG ))
-			return string( "if (id!=0)\npRow->m_" ) + (*i)->m_pcFieldName + "=id;\n";
+			return string( "if (id!=0)\n\t\tpRow->m_" ) + (*i)->m_pcFieldName + "=id;\nelse if( g_pPlutoLogger )\n\t\tg_pPlutoLogger->Write(LV_CRITICAL,\"" + (*i)->m_pcFieldName + " is auto increment but has no value %s\",database->m_sLastMySqlError.c_str());";
 	
 	return "";
 }

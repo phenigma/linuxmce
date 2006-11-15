@@ -41,7 +41,7 @@ using namespace DCE;
 
 PlutoDHCP::PlutoDHCP(int PK_Installation,string host, string user, string pass, string db_name, int port) 
 {
-    m_pDatabase_pluto_main = new Database_pluto_main( );
+    m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
     if( !m_pDatabase_pluto_main->Connect( host, user, pass, db_name, port ) )
 	{
 		cerr << "Cannot connect to database" << endl;

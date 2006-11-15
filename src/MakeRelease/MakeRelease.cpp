@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
 	fstr_compile.open("Compile.script",fstream::out);  // A log of all the commands we executed to do the compile
 	fstr_make_release.open("MakeRelease.script",fstream::out);  // A log of all the commands we executed to make the release
 
-	g_pDatabase_pluto_main = new Database_pluto_main();
+	g_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
 	if(!g_pDatabase_pluto_main->Connect(&dceConfig))
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
