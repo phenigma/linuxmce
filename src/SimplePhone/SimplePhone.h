@@ -100,7 +100,6 @@ public:
 	virtual void CMD_Phone_Drop() { string sCMD_Result; CMD_Phone_Drop(sCMD_Result,NULL);};
 	virtual void CMD_Phone_Drop(string &sCMD_Result,Message *pMessage);
 
-
 //<-dceag-h-e->
     };
 
