@@ -857,3 +857,12 @@ void VDRPlugin::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message *pM
 //<-dceag-c764-e->
 {
 }
+//<-dceag-c824-b->
+
+	/** @brief COMMAND: #824 - Sync Providers and Cards */
+	/** Synchronize settings for pvr cards and provders */
+
+void VDRPlugin::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pMessage)
+//<-dceag-c824-e->
+{
+}

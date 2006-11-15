@@ -146,6 +146,13 @@ live, nonlive, osd */
 	virtual void CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #824 - Sync Providers and Cards */
+	/** Synchronize settings for pvr cards and provders */
+
+	virtual void CMD_Sync_Providers_and_Cards() { string sCMD_Result; CMD_Sync_Providers_and_Cards(sCMD_Result,NULL);};
+	virtual void CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	};
 
