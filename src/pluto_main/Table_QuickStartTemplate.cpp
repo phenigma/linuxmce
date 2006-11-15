@@ -648,6 +648,8 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_QuickStartT
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Table_QuickStartTemplate::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -663,8 +665,9 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_QuickStartT
 			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
-pRow->m_PK_QuickStartTemplate=id;
-	
+		pRow->m_PK_QuickStartTemplate=id;
+else if( g_pPlutoLogger )
+		g_pPlutoLogger->Write(LV_CRITICAL,"PK_QuickStartTemplate is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_QuickStartTemplate);	
@@ -706,6 +709,8 @@ update_values_list = update_values_list + "`PK_QuickStartTemplate`="+pRow->PK_Qu
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Table_QuickStartTemplate::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -751,6 +756,8 @@ condition = condition + "`PK_QuickStartTemplate`=" + tmp_PK_QuickStartTemplate;
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Table_QuickStartTemplate::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			return false;
 		}	
 		
@@ -785,6 +792,8 @@ bool Table_QuickStartTemplate::GetRows(string where_statement,vector<class Row_Q
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_QuickStartTemplate::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return false;
 	}	
 
@@ -793,6 +802,8 @@ bool Table_QuickStartTemplate::GetRows(string where_statement,vector<class Row_Q
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_QuickStartTemplate::GetRows mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
@@ -1076,6 +1087,8 @@ condition = condition + "`PK_QuickStartTemplate`=" + tmp_PK_QuickStartTemplate;
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_QuickStartTemplate::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return NULL;
 	}	
 
@@ -1084,6 +1097,8 @@ condition = condition + "`PK_QuickStartTemplate`=" + tmp_PK_QuickStartTemplate;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_QuickStartTemplate::FetchRow mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	

@@ -15,6 +15,8 @@
 #define CONTACT_TITLE_TABLE_FIELD "Contact.Title"
 #define CONTACT_EMAIL_FIELD "Email"
 #define CONTACT_EMAIL_TABLE_FIELD "Contact.Email"
+#define CONTACT_ENTRYID_FIELD "EntryID"
+#define CONTACT_ENTRYID_TABLE_FIELD "Contact.EntryID"
 #define CONTACT_EK_USERS_FIELD "EK_Users"
 #define CONTACT_EK_USERS_TABLE_FIELD "Contact.EK_Users"
 #define CONTACT_PSC_ID_FIELD "psc_id"

@@ -666,6 +666,8 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Distro_asSQ
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Table_Distro::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -681,8 +683,9 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Distro_asSQ
 			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
-pRow->m_PK_Distro=id;
-	
+		pRow->m_PK_Distro=id;
+else if( g_pPlutoLogger )
+		g_pPlutoLogger->Write(LV_CRITICAL,"PK_Distro is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_Distro);	
@@ -724,6 +727,8 @@ update_values_list = update_values_list + "`PK_Distro`="+pRow->PK_Distro_asSQL()
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Table_Distro::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -769,6 +774,8 @@ condition = condition + "`PK_Distro`=" + tmp_PK_Distro;
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Table_Distro::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			return false;
 		}	
 		
@@ -803,6 +810,8 @@ bool Table_Distro::GetRows(string where_statement,vector<class Row_Distro*> *row
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_Distro::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return false;
 	}	
 
@@ -811,6 +820,8 @@ bool Table_Distro::GetRows(string where_statement,vector<class Row_Distro*> *row
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_Distro::GetRows mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
@@ -1116,6 +1127,8 @@ condition = condition + "`PK_Distro`=" + tmp_PK_Distro;
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_Distro::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return NULL;
 	}	
 
@@ -1124,6 +1137,8 @@ condition = condition + "`PK_Distro`=" + tmp_PK_Distro;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_Distro::FetchRow mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	

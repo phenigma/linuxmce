@@ -478,6 +478,8 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTempl
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Table_DeviceTemplate_DeviceCategory_ControlledVia::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -493,8 +495,9 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTempl
 			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
-pRow->m_PK_DeviceTemplate_DeviceCategory_ControlledVia=id;
-	
+		pRow->m_PK_DeviceTemplate_DeviceCategory_ControlledVia=id;
+else if( g_pPlutoLogger )
+		g_pPlutoLogger->Write(LV_CRITICAL,"PK_DeviceTemplate_DeviceCategory_ControlledVia is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_DeviceTemplate_DeviceCategory_ControlledVia);	
@@ -536,6 +539,8 @@ update_values_list = update_values_list + "`PK_DeviceTemplate_DeviceCategory_Con
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Table_DeviceTemplate_DeviceCategory_ControlledVia::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -581,6 +586,8 @@ condition = condition + "`PK_DeviceTemplate_DeviceCategory_ControlledVia`=" + tm
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Table_DeviceTemplate_DeviceCategory_ControlledVia::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			return false;
 		}	
 		
@@ -615,6 +622,8 @@ bool Table_DeviceTemplate_DeviceCategory_ControlledVia::GetRows(string where_sta
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_DeviceTemplate_DeviceCategory_ControlledVia::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return false;
 	}	
 
@@ -623,6 +632,8 @@ bool Table_DeviceTemplate_DeviceCategory_ControlledVia::GetRows(string where_sta
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_DeviceTemplate_DeviceCategory_ControlledVia::GetRows mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
@@ -851,6 +862,8 @@ condition = condition + "`PK_DeviceTemplate_DeviceCategory_ControlledVia`=" + tm
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_DeviceTemplate_DeviceCategory_ControlledVia::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return NULL;
 	}	
 
@@ -859,6 +872,8 @@ condition = condition + "`PK_DeviceTemplate_DeviceCategory_ControlledVia`=" + tm
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_DeviceTemplate_DeviceCategory_ControlledVia::FetchRow mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	

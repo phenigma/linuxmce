@@ -385,6 +385,8 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_System_asSQ
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Table_System::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -400,8 +402,9 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_System_asSQ
 			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
-pRow->m_PK_System=id;
-	
+		pRow->m_PK_System=id;
+else if( g_pPlutoLogger )
+		g_pPlutoLogger->Write(LV_CRITICAL,"PK_System is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_System);	
@@ -443,6 +446,8 @@ update_values_list = update_values_list + "`PK_System`="+pRow->PK_System_asSQL()
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Table_System::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -488,6 +493,8 @@ condition = condition + "`PK_System`=" + tmp_PK_System;
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Table_System::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			return false;
 		}	
 		
@@ -522,6 +529,8 @@ bool Table_System::GetRows(string where_statement,vector<class Row_System*> *row
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_System::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return false;
 	}	
 
@@ -530,6 +539,8 @@ bool Table_System::GetRows(string where_statement,vector<class Row_System*> *row
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_System::GetRows mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
@@ -714,6 +725,8 @@ condition = condition + "`PK_System`=" + tmp_PK_System;
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_System::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return NULL;
 	}	
 
@@ -722,6 +735,8 @@ condition = condition + "`PK_System`=" + tmp_PK_System;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_System::FetchRow mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	

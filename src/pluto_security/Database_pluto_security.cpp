@@ -22,8 +22,9 @@ namespace DCE
 	Logger *g_pPlutoLogger; //dummy
 }
 using namespace DCE;
-Database_pluto_security::Database_pluto_security()
+Database_pluto_security::Database_pluto_security(Logger *pLogger)
 {
+	g_pPlutoLogger=pLogger;
 tblAlert=NULL;
 tblAlertType=NULL;
 tblAlert_Device=NULL;

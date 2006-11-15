@@ -2,6 +2,7 @@
 #define __Database_pluto_main_H_
 #include <mysql.h>
 #include "PlutoUtils/MySQLHelper.h"
+#include "DCE/Logger.h"
 #ifdef WIN32
 #ifdef EXPORT_DLL
 	#ifndef DECLSPECIFIER
@@ -21,7 +22,7 @@ class DECLSPECIFIER SerializeClass;
 class DECLSPECIFIER Database_pluto_main: public MySqlHelper
 {
 public:
-Database_pluto_main();
+Database_pluto_main(Logger *pLogger=NULL);
 ~Database_pluto_main();
 void DeleteAllTables();
 private:

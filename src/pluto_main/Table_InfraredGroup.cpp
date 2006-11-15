@@ -460,6 +460,8 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_InfraredGro
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Table_InfraredGroup::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -475,8 +477,9 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_InfraredGro
 			long int id = (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
-pRow->m_PK_InfraredGroup=id;
-	
+		pRow->m_PK_InfraredGroup=id;
+else if( g_pPlutoLogger )
+		g_pPlutoLogger->Write(LV_CRITICAL,"PK_InfraredGroup is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_InfraredGroup);	
@@ -518,6 +521,8 @@ update_values_list = update_values_list + "`PK_InfraredGroup`="+pRow->PK_Infrare
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Table_InfraredGroup::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -563,6 +568,8 @@ condition = condition + "`PK_InfraredGroup`=" + tmp_PK_InfraredGroup;
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Table_InfraredGroup::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			return false;
 		}	
 		
@@ -597,6 +604,8 @@ bool Table_InfraredGroup::GetRows(string where_statement,vector<class Row_Infrar
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_InfraredGroup::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return false;
 	}	
 
@@ -605,6 +614,8 @@ bool Table_InfraredGroup::GetRows(string where_statement,vector<class Row_Infrar
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_InfraredGroup::GetRows mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
@@ -822,6 +833,8 @@ condition = condition + "`PK_InfraredGroup`=" + tmp_PK_InfraredGroup;
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_InfraredGroup::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return NULL;
 	}	
 
@@ -830,6 +843,8 @@ condition = condition + "`PK_InfraredGroup`=" + tmp_PK_InfraredGroup;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Table_InfraredGroup::FetchRow mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	

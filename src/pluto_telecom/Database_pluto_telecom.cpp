@@ -22,8 +22,9 @@ namespace DCE
 	Logger *g_pPlutoLogger; //dummy
 }
 using namespace DCE;
-Database_pluto_telecom::Database_pluto_telecom()
+Database_pluto_telecom::Database_pluto_telecom(Logger *pLogger)
 {
+	g_pPlutoLogger=pLogger;
 tblCallersForMe=NULL;
 tblContact=NULL;
 tblContact_Users_Sync=NULL;

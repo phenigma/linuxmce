@@ -22,8 +22,9 @@ namespace DCE
 	Logger *g_pPlutoLogger; //dummy
 }
 using namespace DCE;
-Database_pluto_media::Database_pluto_media()
+Database_pluto_media::Database_pluto_media(Logger *pLogger)
 {
+	g_pPlutoLogger=pLogger;
 tblAttribute=NULL;
 tblAttributeType=NULL;
 tblBookmark=NULL;
