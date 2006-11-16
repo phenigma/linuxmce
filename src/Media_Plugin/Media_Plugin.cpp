@@ -417,6 +417,7 @@ Media_Plugin::~Media_Plugin()
 	delete m_pDatabase_pluto_media;
 	m_pDatabase_pluto_media = NULL;
 
+	pthread_mutex_destroy(&m_MediaMutex.mutex);
     pthread_mutexattr_destroy(&m_MutexAttr);
 }
 

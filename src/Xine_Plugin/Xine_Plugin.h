@@ -29,6 +29,9 @@ namespace DCE
 	class Xine_Plugin : public Xine_Plugin_Command, public MediaHandlerBase
 	{
 	//<-dceag-decl-e->
+
+		pluto_pthread_mutex_t m_XineMediaMutex; //protect us from ourselves
+
 	//<-dceag-const-b->
 public:
 		// Constructors/Destructor

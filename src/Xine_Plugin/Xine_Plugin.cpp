@@ -51,7 +51,9 @@ using namespace DCE;
 Xine_Plugin::Xine_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Xine_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, m_XineMediaMutex("xine media mutex")
 {
+	m_XineMediaMutex.Init(NULL);
 }
 
 //<-dceag-getconfig-b->
@@ -69,7 +71,11 @@ bool Xine_Plugin::GetConfig()
 Xine_Plugin::~Xine_Plugin()
 //<-dceag-dest-e->
 {
+	{
+		PLUTO_SAFETY_LOCK( mm, m_XineMediaMutex );
+	}
 
+	pthread_mutex_destroy(&m_XineMediaMutex.mutex);
 }
 
 //<-dceag-reg-b->
@@ -133,6 +139,11 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMedi
 {
 	XineMediaStream *pXineMediaStream;
 	MediaDevice *pMediaDevice_PassedIn;
+
+	PLUTO_SAFETY_LOCK( xm, m_XineMediaMutex );
+
+	if(m_bQuit)
+		return NULL;
 
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
