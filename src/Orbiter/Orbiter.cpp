@@ -5142,7 +5142,7 @@ bool Orbiter::Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Di
 	// todo 2.0?    NeedsUpdate( 2 ); // Moving grids is slow; take care of an animation if necessary
 
 	DesignObj_Orbiter *pObj=NULL;
-	m_pObj_Highlighted = NULL;
+	//m_pObj_Highlighted = NULL;
 
 	int LoopNum=-1;
 	if ( sPK_DesignObj.empty(  ) )
@@ -8820,25 +8820,35 @@ DataGridCell *Orbiter::GetDataGridHighlightCell(DesignObj_DataGrid *pGrid)
 			pGrid->m_iHighlightedColumn=0;
 	}
 
+	//adjustments
+	if(pGrid->m_iHighlightedColumn >= pGrid->m_MaxCol)
+		pGrid->m_iHighlightedColumn = pGrid->m_MaxCol - 1;
+
 	int nHColumn = pGrid->m_iHighlightedColumn!=-1 ? pGrid->m_iHighlightedColumn + pGrid->m_GridCurCol : pGrid->m_GridCurCol;
 	int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow - (pDataGridTable->m_iUpRow >= 0 ? 1 : 0) : 0;
 
 	if( nHColumn==-1 && nHRow==-1 )
 		return NULL;
 
-	if(nHRow < pGrid->DataGridTable_Get()->m_StartingRow)
-	{
+	if(nHRow < pDataGridTable->m_StartingRow)
 		pGrid->m_iHighlightedRow = 1;
-		nHRow = pGrid->DataGridTable_Get()->m_StartingRow; //set the highlighted row
-	}
 
-	return pGrid->DataGridTable_Get()->GetData(nHColumn, nHRow);
+	nHRow = pDataGridTable->m_StartingRow + pGrid->m_iHighlightedRow; //set the highlighted row
+
+	return pDataGridTable->GetData(nHColumn, nHRow);
 }
 
 void Orbiter::GetDataGridHighlightCellCoordinates(DesignObj_DataGrid *pGrid,PlutoRectangle &rect)
 {
 	PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 	DataGridCell *pCell = GetDataGridHighlightCell(pGrid);
+
+	if(NULL == pCell)
+	{
+		pGrid->m_iHighlightedRow--;
+		pCell = GetDataGridHighlightCell(pGrid);
+	}
+
 	if( !pCell )
 	{
 		rect.X=rect.Y=rect.Width=rect.Height=0;
