@@ -688,11 +688,11 @@ namespace HADesigner
 // sean			m_intCommandGroupID = (drVariation.fFK_CommandGroup_OnActivateIsNull) ? -1 : drVariation.fFK_CommandGroup_OnActivate;
 			m_intCButton = (drVariation.fFK_ButtonIsNull) ? -1 : drVariation.fFK_Button;
 			m_intCEffectSelectNoChange = 
-				(drVariation.fFK_EffectType_Selected_NoChangeIsNull) ? 0 : drVariation.fFK_EffectType_Selected_NoChange;
+				(drVariation.fFK_EffectType_Selected_NoChangeIsNull) ? -1 : drVariation.fFK_EffectType_Selected_NoChange;
 			m_intCEffectSelectWithChange = 
-				(drVariation.fFK_EffectType_Selected_WithChangeIsNull) ? 0 : drVariation.fFK_EffectType_Selected_WithChange;
+				(drVariation.fFK_EffectType_Selected_WithChangeIsNull) ? -1 : drVariation.fFK_EffectType_Selected_WithChange;
 			m_intCEffectHighlight = 
-				(drVariation.fFK_EffectType_HighlightedIsNull) ? 0 : drVariation.fFK_EffectType_Highlighted;
+				(drVariation.fFK_EffectType_HighlightedIsNull) ? -1 : drVariation.fFK_EffectType_Highlighted;
 
 			m_boolDontResetSelectedState = (drVariation.fDontResetSelectedState==1);
 // SEAN			m_intCommandID = (drVariation.fFK_CommandIsNull) ? -1 : drVariation.fFK_Command;
