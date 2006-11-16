@@ -45,8 +45,8 @@ for ((i = 1; i <= "$#"; i++)); do
 			nobuild="-b" 
 		;;
 		rev=*,*)
-			rev_pub=${rev%,*}
-			rev_prv=${rev#,*}
+			rev_pub=${!i%,*}
+			rev_prv=${!i#,*}
 		;;
 		branch=*)
 			branch=${!i#branch=}
@@ -114,7 +114,7 @@ echo Using version with id: "$version"
 		if [[ -z "$nosqlcvs_sync" ]]; then
 			bash -x /home/database-dumps/sync-sqlcvs.sh
 		fi
-		rm /tmp/sqlcvs_dumps.tar.gz
+		rm -f /tmp/sqlcvs_dumps_"$flavor".tar.gz
 		ssh uploads@plutohome.com "
 			rm -f /tmp/main_sqlcvs_\"$flavor\".dump /tmp/myth_sqlcvs_\"$flavor\" /home/uploads/sqlcvs_dumps_\"$flavor\".tar.gz;
 			mysqldump -e --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata main_sqlcvs > /tmp/main_sqlcvs_\"$flavor\".dump;
