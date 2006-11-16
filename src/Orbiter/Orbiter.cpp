@@ -377,8 +377,11 @@ Orbiter::~Orbiter()
 
 	g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 
-	if( m_pcRequestSocket ) // Will be NULL if we died without successfully getting our config
+	if(NULL != m_pcRequestSocket) // Will be NULL if we died without successfully getting our config
 	{
+		if(NULL != m_pcRequestSocket->m_pClientSocket)
+			m_pcRequestSocket->m_pClientSocket->SetReceiveTimeout(5);
+
 		char *pData=NULL;int iSize=0;
 		DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "0", 0, "", 0, &pData, &iSize );
 		SendCommand( CMD_Orbiter_Registered );
