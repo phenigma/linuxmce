@@ -81,7 +81,8 @@ case "$Template" in
 			fi
 		
 			## Do the mount
-			echo "$NFS_MOUNT_OPTS $IPaddress:/mnt/device/$StorageDevice"
+			#echo "$NFS_MOUNT_OPTS $IPaddress:/mnt/device/$StorageDevice"
+			echo "-fstype=cifs,user=guest,guest,dir_mode=0777,file_mode=0777 ://$IPaddress/Storage$StorageDevice\\\$"
 			#echo "-fstype=fuse sshfs\#$IPaddress:/mnt/device/$StorageDevice"
 		fi
 		;;

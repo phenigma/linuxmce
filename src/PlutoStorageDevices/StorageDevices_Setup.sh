@@ -32,6 +32,9 @@ fi
 ## Exports our local storage devices so other computers can access them (runs on every computer)
 /usr/pluto/bin/StorageDevices_ExportsNFS.sh
 
+## Export our local storage device over samba too
+/usr/pluto/bin/StorageDevice_ExportSMB.sh
+
 ## Creates a Pluto Directory structure on local devices (runs on every computer)
 /usr/pluto/bin/StorageDevices_PlutoDirStructure.sh
 
