@@ -213,7 +213,6 @@ apt-get update
 if ! apt-get -y -f install pluto-dcerouter; then
 	echo "Installation failed"
 	read
-	exit 1
 fi
 
 . /usr/pluto/bin/Config_Ops.sh
