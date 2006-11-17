@@ -6,27 +6,35 @@
 
 [global]
 ## BEGIN : Domain and Hostname
-   workgroup = pluto
-   server string = %h server (Samba %v)
+	workgroup = pluto
+	server string = %h server (Samba %v)
 ## END : Domain and Hostname
-
-   invalid users = root
-   log file = /var/log/samba/log.%m
-   max log size = 1000
-   syslog = 0
-   encrypt passwords = true
-   socket options = TCP_NODELAY
-   dns proxy = no
-   passwd program = /usr/bin/passwd %u
-   passwd chat = *Enter\snew\sUNIX\spassword:* %n\n *Retype\snew\sUNIX\spassword:* %n\n .
-   username map = /etc/samba/usermap.txt
-   unix extensions = yes
+	invalid users = root
+	log file = /var/log/samba/log.%m
+	max log size = 1000
+	syslog = 0
+	encrypt passwords = true
+	socket options = TCP_NODELAY
+	dns proxy = no
+	passwd program = /usr/bin/passwd %u
+	passwd chat = *Enter\snew\sUNIX\spassword:* %n\n *Retype\snew\sUNIX\spassword:* %n\n .
+	username map = /etc/samba/usermap.txt
+	unix extensions = yes
+	security = share
 
 [public]
-   comment = public files
-   browseable = yes
-   writable = yes
-   create mask = 0777
-   directory mask = 0777
-   path = /home/public/data
-   public = no
+	comment = public files
+	browseable = yes
+	writable = yes
+	create mask = 0777
+	directory mask = 0777
+	path = /home/public/data
+	public = no
+
+[home]
+	comment = shared home files
+	browsable = yes
+	writable = yes
+	path = /home
+	public = yes
+	guest ok = yes
