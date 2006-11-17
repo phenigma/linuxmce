@@ -430,10 +430,29 @@ function setTemplateFileType($type) {
   		$this->content = str_replace("{LoginLogout}", $logout, $this->content);
   	}
   }
-  
-  
-  function displayContent(){echo $this->content;}
 
+  function mkrReplace(){
+	$mkrArray=array();
+	$labelArray=array();
+	
+	$mkrArray[]='<-mkr_t_name_mixed->';
+	$labelArray[]=ucfirst(strtolower(MKR_NAME));
+	
+	$this->content=str_replace($mkrArray,$labelArray,$this->content);
+	
+	return $this->content;
+}
+  
+  
+  function displayContent(){
+  	// replace mkr_stuff
+  	$this->content=$this->mkrReplace();
+  	
+  	echo $this->content;
+ }
+
+
+ 
   function output() {
   	$this->setProjectName(@$_SESSION['packageName']);
   	$this->displayTitle();

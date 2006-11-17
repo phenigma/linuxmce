@@ -29,6 +29,7 @@
 	
 	define("VERSION","0.1");
 	define("APPLICATION_NAME","Pluto support");
+	define("MKR_NAME","Pluto");
 	
 	define("APPROOT",$_SERVER['DOCUMENT_ROOT']."".$directory); 
 	define("APPURL",$domain.$directory);
