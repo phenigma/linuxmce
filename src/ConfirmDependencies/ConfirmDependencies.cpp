@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
 	}
 	PrintCmd(argc, argv);
 
-	Database_pluto_main database_pluto_main;
+	Database_pluto_main database_pluto_main(g_pPlutoLogger);
 	if(!database_pluto_main.Connect(&dceConfig))
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
