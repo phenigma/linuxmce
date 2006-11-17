@@ -47,8 +47,17 @@ namespace UpdateMediaFileUtils
 
 	int MountedDeviceForFile(string sFilePath)
 	{
+#ifdef WIN32
+		struct __stat64 buf;
+#else
 		struct stat64 buf;
+#endif
+
+#ifdef WIN32
+		if(!_stat64(sFilePath.c_str(), &buf))
+#else
 		if(!stat64(sFilePath.c_str(), &buf))
+#endif
 			return buf.st_dev;
 
 		cout << "ERROR: " << errno << " - desc: " << strerror(errno) << endl;
