@@ -8,6 +8,7 @@
 #  '## END : SectionName
 #  '
 
+TEMPLATE_FILES_DIRECTORY="/usr/pluto/templates"
 
 ## Creates and/or populates a section from a file
 PopulateSection()
@@ -27,6 +28,17 @@ PopulateSection()
 		touch "$File"
 	fi
 
+	## Check if we have a template file for this config and
+	## try to see if is allready used
+	TemplateFile="$TEMPLATE_FILES_DIRECTORY/$(basename $File).template"
+	if [[ -f "$TemplateFile" ]] ;then
+		grep -q "## @FileType: Pluto Sectioned Config File ##" $File
+		isPlutoSectionedFileUsed=$?
+		if [[ "$isPlutoSectionedFileUsed" != 0 ]] ;then
+			cp -f $TemplateFile $File
+		fi
+	fi	
+	
 	## Check if our section exists in the file
 	grep -q "^## BEGIN : $SectionName" "$File"
 	if [[ "$?" != "0" ]]; then
