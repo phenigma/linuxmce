@@ -14,11 +14,17 @@ using namespace std;
 class GraphicImage
 {
 	SDL_Surface *LocalSurface;
+
+	bool CheckExtension(const char* checkFor);
+	bool SupportTextureNonPowerOfTwo();
+	void Convert(void);
+
 public:
 	GraphicImage(void);
 	~GraphicImage(void);
 	bool Load(string FileName);
-	void Convert(void);
+	void Prepare(int nScreenWidth, int nScreenHeight);
+
 public:
 	GLuint Texture;
 	float MaxU;
@@ -27,7 +33,7 @@ public:
 	int Height;
 public:
 	void ReleaseTexture(void);
-	void ScaleImage(void);
+	void ScaleImage(int nScreenWidth, int nScreenHeight);
 };
 
 #endif

@@ -18,12 +18,20 @@ GraphicImage::~GraphicImage()
 bool GraphicImage::Load(string FileName)
 {
 	LocalSurface = IMG_Load(FileName.c_str()); 
-	if (LocalSurface == NULL)
-		return false;
-	ScaleImage();
-	Convert();
+	return NULL != LocalSurface;
+}
 
-	return true;
+void GraphicImage::Prepare(int nScreenWidth, int nScreenHeight)
+{
+	if(SupportTextureNonPowerOfTwo())
+	{
+		MaxU = 1;
+		MaxV = 1;
+	}
+	else
+		ScaleImage(nScreenWidth, nScreenHeight);
+
+	Convert();
 }
 
 void GraphicImage::Convert(void)
@@ -67,7 +75,7 @@ void GraphicImage::ReleaseTexture(void)
 	Texture = 0;
 }
 
-void GraphicImage::ScaleImage()
+void GraphicImage::ScaleImage(int nScreenWidth, int nScreenHeight)
 {
 	if(LocalSurface == NULL)
 		return;
@@ -75,6 +83,8 @@ void GraphicImage::ScaleImage()
 	SDL_Surface* Surface = LocalSurface;
 	Width = MinPowerOf2(Surface->w);
 	Height = MinPowerOf2(Surface->h);
+
+	//TODO: use screen dim. to create a surface with optimal size
 
 	if (Width == Surface->w && Height == Surface->h)
 		return;
@@ -101,3 +111,16 @@ void GraphicImage::ScaleImage()
 	SDL_BlitSurface(Surface, NULL, LocalSurface, NULL);
 	SDL_FreeSurface(Surface);  
 }
+
+bool GraphicImage::CheckExtension(const char* checkFor)
+{
+	const GLubyte* extensions = glGetString(GL_EXTENSIONS);
+	string sExtensions(reinterpret_cast<const char *>(extensions));
+	return sExtensions.find(checkFor) != string::npos;
+}
+
+bool GraphicImage::SupportTextureNonPowerOfTwo()
+{
+	return CheckExtension("ARB_texture_rectangle") || CheckExtension("ARB_texture_non_power_of_two");
+}
+

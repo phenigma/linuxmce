@@ -14,8 +14,8 @@ class AnimatedPicture
 	GraphicImage* Picture;
 	Frame* PictureFrame;
 	ZoomBase* Zoom;
-	int ScreenWidth;
-	int ScreenHeight;
+	int m_nScreenWidth, m_nScreenHeight;
+
 public:
 	AnimatedPicture(int ScreenWidth, int ScreenHeight);
 
