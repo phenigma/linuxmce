@@ -328,6 +328,14 @@ for Client in $R; do
 				chmod +x $DlPath/$SyncTime
 		fi
 		
+		## Create /var/log/pluto for this device as a symlink
+		mkdir -p "/home/logs/diskless_$MOON_ID"
+		if [[ -d $DlPath/var/log/pluto	]] ;then
+			mv -r $DlPath/var/log/pluto/* /home/log/diskless_$MOON_ID
+			rm -rf $DlPath/var/log/pluto/
+		fi
+		ln -s "/home/logs/diskless_$MOON_ID" "$DlPath/var/log/pluto"
+	
 		## Dome configuring this MD
 		Q="UPDATE Device SET NeedConfigure = 0 WHERE PK_Device=$PK_Device"
 		RunSQL "$Q"
