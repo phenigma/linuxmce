@@ -32,11 +32,11 @@ force group = root
 "
 done
 
-touch /etc/samba/smb.conf.pluto_storage
-PopulateSection "/etc/samba/smb.conf.pluto_storage" "InternalStorageDevices" "$Exports_InternalStorageDevices"
+PopulateSection "/etc/samba/smb.conf" "InternalStorageDevices" "$Exports_InternalStorageDevices"
 
 ## Check and start/reload the nfs-kernel-server
 if [[ "$(pidof smbd)" == "" ]] ;then
-	invoke-rc.d samba restart
+	invoke-rc.d samba start
+else
+	invoke-rc.d samba reload
 fi
-invoke-rc.d samba reload
