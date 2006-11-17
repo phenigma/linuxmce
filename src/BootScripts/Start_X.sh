@@ -68,7 +68,7 @@ if [[ "$Background" == y ]]; then
 	AlphaBlending=$(AlphaBlendingEnabled)
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "X server: backround; AlphaBlending: $AlphaBlending"
 	if [[ "$AlphaBlending" == 1 ]]; then
-		DISPLAY=:0 /usr/bin/xcompmgr &
+		DISPLAY=:0 /usr/bin/xcompmgr &>/dev/null </dev/null &
 		disown -a
 	fi
 else
