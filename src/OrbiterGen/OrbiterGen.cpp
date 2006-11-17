@@ -285,21 +285,21 @@ int OrbiterGenerator::DoIt()
 {
 	MySQLConnect(); // Connect our helper
 	// and also the sql2cpp classes
-	if( !mds.Connect(m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,m_sMySQLDBName,m_iMySQLPort) )
+	if( !m_spDatabase_pluto_main->Connect(m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,m_sMySQLDBName,m_iMySQLPort) )
 	{
 		cout << "Failed to connect to database" << endl;
 		exit(1);
 	}
 
-	if( !m_Database_pluto_media.Connect(m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,"pluto_media",m_iMySQLPort) )
+	if( !m_spDatabase_pluto_media->Connect(m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,"pluto_media",m_iMySQLPort) )
 	{
 		cout << "Failed to connect to pluto_media database" << endl;
 		exit(1);
 	}
 
-	m_pRegenMonitor = new RegenMonitor(this,&m_Database_pluto_media);
+	m_pRegenMonitor = new RegenMonitor(this, m_spDatabase_pluto_media.get());
 
-	m_pRow_Device = mds.Device_get()->GetRow(m_iPK_Orbiter);
+	m_pRow_Device = m_spDatabase_pluto_main->Device_get()->GetRow(m_iPK_Orbiter);
 	if( !m_pRow_Device )
 	{
 		cout << "Device " << m_iPK_Orbiter << " doesn't exist" << endl;
@@ -309,12 +309,12 @@ int OrbiterGenerator::DoIt()
 	m_bIsMobilePhone = m_pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Mobile_Orbiter_CONST;
 
 	m_bNewOrbiter=false; // Will set to true if this is the first time this Orbiter was generated
-	m_pRow_Orbiter = mds.Orbiter_get()->GetRow(m_iPK_Orbiter);
+	m_pRow_Orbiter = m_spDatabase_pluto_main->Orbiter_get()->GetRow(m_iPK_Orbiter);
 	if( !m_pRow_Orbiter )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"new orbiter %d",m_iPK_Orbiter);
 		m_bNewOrbiter=true;
-		m_pRow_Orbiter = mds.Orbiter_get()->AddRow();
+		m_pRow_Orbiter = m_spDatabase_pluto_main->Orbiter_get()->AddRow();
 		m_pRow_Orbiter->PK_Orbiter_set(m_iPK_Orbiter);
 		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 	}
@@ -360,16 +360,16 @@ int OrbiterGenerator::DoIt()
 #endif
 
 	m_pRow_Skin = NULL;
-	Row_Device_DeviceData *pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Skin_CONST);
+	Row_Device_DeviceData *pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Skin_CONST);
 	if( pRow_Device_DeviceData )
-		m_pRow_Skin = mds.Skin_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
+		m_pRow_Skin = m_spDatabase_pluto_main->Skin_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
 
 	if( !m_pRow_Skin  )
 	{
 		if( m_bIsMobilePhone )
-			m_pRow_Skin = mds.Skin_get()->GetRow( 3 );  // The default phone skin
+			m_pRow_Skin = m_spDatabase_pluto_main->Skin_get()->GetRow( 3 );  // The default phone skin
 		else
-			m_pRow_Skin = mds.Skin_get()->GetRow( 1 );  // The default skin
+			m_pRow_Skin = m_spDatabase_pluto_main->Skin_get()->GetRow( 1 );  // The default skin
 	}
 
 	if( !m_pRow_Skin )
@@ -377,7 +377,7 @@ int OrbiterGenerator::DoIt()
 		cerr << "Cannot find Orbiter's Skin" << endl;
 		cout << "Setting RegenInProgress_set 2 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
 		m_pRow_Orbiter->RegenInProgress_set(false);
-		mds.Orbiter_get()->Commit();
+		m_spDatabase_pluto_main->Orbiter_get()->Commit();
 		exit(1);
 	}
 
@@ -392,18 +392,18 @@ int OrbiterGenerator::DoIt()
 
 	// Get the UI
 	m_pRow_UI = NULL;
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_UI_CONST);
+	pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_UI_CONST);
 	if( pRow_Device_DeviceData )
-		m_pRow_UI = mds.UI_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
+		m_pRow_UI = m_spDatabase_pluto_main->UI_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
 	if( !m_pRow_UI )
-		m_pRow_UI = mds.UI_get()->GetRow( 1 ); // Default
+		m_pRow_UI = m_spDatabase_pluto_main->UI_get()->GetRow( 1 ); // Default
 
 	if( !m_pRow_UI )
 	{
 		cerr << "Cannot find Orbiter's UI" << endl;
 		cout << "Setting RegenInProgress_set 5 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
 		m_pRow_Orbiter->RegenInProgress_set(false);
-		mds.Orbiter_get()->Commit();
+		m_spDatabase_pluto_main->Orbiter_get()->Commit();
 		exit(1);
 	}
 	m_iUiVersion = m_pRow_UI->Version_get();
@@ -414,7 +414,7 @@ int OrbiterGenerator::DoIt()
 	int PK_Skin_Original = m_mapSkinTranslated[m_pRow_Skin->PK_Skin_get()];
 	if( PK_Skin_Original )
 	{
-		pRow_Skin_For_Translation = mds.Skin_get()->GetRow(PK_Skin_Original);
+		pRow_Skin_For_Translation = m_spDatabase_pluto_main->Skin_get()->GetRow(PK_Skin_Original);
 		if( !pRow_Skin_For_Translation )
 			pRow_Skin_For_Translation = m_pRow_Skin;
 	}
@@ -423,7 +423,7 @@ int OrbiterGenerator::DoIt()
 	PopulateEffects(m_mapEffects, m_pRow_Skin->PK_Skin_get());
 
 	vector<Row_MediaType *> vectRow_MediaType;
-	mds.MediaType_get()->GetRows("1=1",&vectRow_MediaType);
+	m_spDatabase_pluto_main->MediaType_get()->GetRows("1=1",&vectRow_MediaType);
 	for(vector<Row_MediaType *>::iterator it=vectRow_MediaType.begin();it!=vectRow_MediaType.end();++it)
 	{
 		Row_MediaType *pRow_MediaType = *it;
@@ -432,34 +432,34 @@ int OrbiterGenerator::DoIt()
 	}
 
 	vector<Row_AttributeType *> vectRow_AttributeType;
-	m_Database_pluto_media.AttributeType_get()->GetRows("1=1",&vectRow_AttributeType);
+	m_spDatabase_pluto_media->AttributeType_get()->GetRows("1=1",&vectRow_AttributeType);
 	for(vector<Row_AttributeType *>::iterator it=vectRow_AttributeType.begin();it!=vectRow_AttributeType.end();++it)
 		m_mapPK_AttributeType_Description[ (*it)->PK_AttributeType_get() ] = (*it)->Description_get();
 
-	PopulateScreenMap(&mds, m_mapDesignObj, m_pRow_UI, pRow_Skin_For_Translation, m_pRow_Device);
+	PopulateScreenMap(m_spDatabase_pluto_main.get(), m_mapDesignObj, m_pRow_UI, pRow_Skin_For_Translation, m_pRow_Device);
 	vector<Row_Screen *> vectRow_Screen_GoBack;
-	mds.Screen_get()->GetRows("GoBackToScreen=1",&vectRow_Screen_GoBack);
+	m_spDatabase_pluto_main->Screen_get()->GetRows("GoBackToScreen=1",&vectRow_Screen_GoBack);
 	for(vector<Row_Screen *>::iterator it_vsgb=vectRow_Screen_GoBack.begin();it_vsgb!=vectRow_Screen_GoBack.end();++it_vsgb)
 		m_mapPK_Screen_GoBackToScreen[ (*it_vsgb)->PK_Screen_get() ]=1;
 
 	m_pRow_Screen_MainMenu = NULL;
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Screen_CONST);
+	pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Screen_CONST);
 
 	if( pRow_Device_DeviceData )
-		m_pRow_Screen_MainMenu = mds.Screen_get()->GetRow(atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
+		m_pRow_Screen_MainMenu = m_spDatabase_pluto_main->Screen_get()->GetRow(atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
 
 	if( !m_pRow_Screen_MainMenu )
 		m_pRow_Screen_MainMenu = m_pRow_Skin->FK_Screen_MainMenu_getrow();
 
 	if( !m_pRow_Screen_MainMenu )
-		m_pRow_Screen_MainMenu = mds.Screen_get()->GetRow(SCREEN_Main_CONST);
+		m_pRow_Screen_MainMenu = m_spDatabase_pluto_main->Screen_get()->GetRow(SCREEN_Main_CONST);
 
 	if( !m_pRow_Screen_MainMenu )
 	{
 		cerr << "Cannot find Orbiter's Main Menu: " << endl;
 		cout << "Setting RegenInProgress_set 3 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
 		m_pRow_Orbiter->RegenInProgress_set(false);
-		mds.Orbiter_get()->Commit();
+		m_spDatabase_pluto_main->Orbiter_get()->Commit();
 		exit(1);
 	}
 
@@ -469,7 +469,7 @@ int OrbiterGenerator::DoIt()
 	m_pRow_Screen_Sleeping = m_pRow_Skin->FK_Screen_Sleeping_getrow();
 
 	if( !m_pRow_Screen_Sleeping )
-		m_pRow_Screen_Sleeping = mds.Screen_get()->GetRow(SCREEN_Sleeping_CONST);
+		m_pRow_Screen_Sleeping = m_spDatabase_pluto_main->Screen_get()->GetRow(SCREEN_Sleeping_CONST);
 
 	if( !m_pRow_Screen_Sleeping )
 		m_pRow_Screen_Sleeping = m_pRow_Screen_MainMenu;
@@ -477,7 +477,7 @@ int OrbiterGenerator::DoIt()
 	m_pRow_Screen_ScreenSaver = m_pRow_Skin->FK_Screen_ScreenSaver_getrow();
 
 	if( !m_pRow_Screen_ScreenSaver )
-		m_pRow_Screen_ScreenSaver = mds.Screen_get()->GetRow(SCREEN_ScreenSaver_CONST);
+		m_pRow_Screen_ScreenSaver = m_spDatabase_pluto_main->Screen_get()->GetRow(SCREEN_ScreenSaver_CONST);
 
 	if( !m_pRow_Screen_ScreenSaver )
 		m_pRow_Screen_ScreenSaver = m_pRow_Screen_MainMenu;
@@ -488,30 +488,30 @@ int OrbiterGenerator::DoIt()
 
 	// Get the language
 	m_pRow_Language = NULL;
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Language_CONST);
+	pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Language_CONST);
 	if( pRow_Device_DeviceData )
-		m_pRow_Language = mds.Language_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
+		m_pRow_Language = m_spDatabase_pluto_main->Language_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
 	if( !m_pRow_Language )
-		m_pRow_Language = mds.Language_get()->GetRow( 1 ); // English
+		m_pRow_Language = m_spDatabase_pluto_main->Language_get()->GetRow( 1 ); // English
 
 	if( !m_pRow_Language )
 	{
 		cerr << "Cannot find Orbiter's Language" << endl;
 		cout << "Setting RegenInProgress_set 4 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
 		m_pRow_Orbiter->RegenInProgress_set(false);
-		mds.Orbiter_get()->Commit();
+		m_spDatabase_pluto_main->Orbiter_get()->Commit();
 		exit(1);
 	}
 
 	// Get the no effects flag
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_No_Effects_CONST);
+	pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_No_Effects_CONST);
 	if( pRow_Device_DeviceData )
 		m_bNoEffects = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str())==1;
 	else
 		m_bNoEffects = false;
 
 	// Get the use alpha blended gui flag
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Use_alpha_blended_UI_CONST);
+	pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Use_alpha_blended_UI_CONST);
 	if( pRow_Device_DeviceData )
 		m_bUseAlphaBlending = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str())==1;
 	else
@@ -523,11 +523,11 @@ int OrbiterGenerator::DoIt()
 // HACK - TEMPORARILY DISABLE EFFECTS
 m_bNoEffects = true;
 
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Rotation_CONST);
+	pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Rotation_CONST);
 	m_iRotation = pRow_Device_DeviceData ? atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) : 0;
 
 	// Get the ignore state flag
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Ignore_State_CONST);
+	pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Ignore_State_CONST);
 	if( pRow_Device_DeviceData )
 	{
 		string sIgnoreState = pRow_Device_DeviceData->IK_DeviceData_get();
@@ -551,7 +551,7 @@ m_bNoEffects = true;
 		pDeviceCategory_MD = pDeviceCategory_MD->FK_DeviceCategory_Parent_getrow();
 	}
 
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Use_OCG_Format_CONST);
+	pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Use_OCG_Format_CONST);
 	if( pRow_Device_DeviceData )
 		m_bUseOCG = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str())==1;
 	else
@@ -576,11 +576,11 @@ m_bNoEffects = true;
 		pRow_EntertainArea_Default = vectRow_Device_EntertainArea[0]->FK_EntertainArea_getrow();
 
 	vector<Row_Variable *> vectrv;
-	mds.Variable_get()->GetRows("1=1",&vectrv);
+	m_spDatabase_pluto_main->Variable_get()->GetRows("1=1",&vectrv);
 	for(size_t s=0;s<vectrv.size();++s)
 	{
 		Row_Variable *drVariable = vectrv[s];
-		Row_Orbiter_Variable *drCV = mds.Orbiter_Variable_get()->GetRow(m_pRow_Orbiter->PK_Orbiter_get(),drVariable->PK_Variable_get());
+		Row_Orbiter_Variable *drCV = m_spDatabase_pluto_main->Orbiter_Variable_get()->GetRow(m_pRow_Orbiter->PK_Orbiter_get(),drVariable->PK_Variable_get());
 		if( drCV && !drCV->Value_isNull() )
 		{
 			m_mapVariable[drVariable->PK_Variable_get()]=drCV->Value_get();
@@ -590,11 +590,11 @@ m_bNoEffects = true;
 	}
 
 	Row_Users *drUsers_Default = NULL;
-	Row_Device_DeviceData *drD_C_DP_DefaultUser = mds.Device_DeviceData_get()->GetRow(m_pRow_Orbiter->PK_Orbiter_get(),DEVICEDATA_PK_Users_CONST);
+	Row_Device_DeviceData *drD_C_DP_DefaultUser = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Orbiter->PK_Orbiter_get(),DEVICEDATA_PK_Users_CONST);
 
 	if( drD_C_DP_DefaultUser )
 	{
-		Row_Installation_Users *pRow_Installation_Users=mds.Installation_Users_get()->GetRow(m_pRow_Device->FK_Installation_get(),atoi(drD_C_DP_DefaultUser->IK_DeviceData_get().c_str()));
+		Row_Installation_Users *pRow_Installation_Users=m_spDatabase_pluto_main->Installation_Users_get()->GetRow(m_pRow_Device->FK_Installation_get(),atoi(drD_C_DP_DefaultUser->IK_DeviceData_get().c_str()));
 		if( pRow_Installation_Users )
 			drUsers_Default = pRow_Installation_Users->FK_Users_getrow();
 	}
@@ -602,7 +602,7 @@ m_bNoEffects = true;
 	if( !drUsers_Default )
 	{
 		vector<Row_Installation_Users *> vectRow_Installation_Users;
-		mds.Installation_Users_get()->GetRows(INSTALLATION_USERS_FK_INSTALLATION_FIELD "=" + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Installation_Users);
+		m_spDatabase_pluto_main->Installation_Users_get()->GetRows(INSTALLATION_USERS_FK_INSTALLATION_FIELD "=" + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Installation_Users);
 		if( vectRow_Installation_Users.size() )
 		{
 			cout << "***Warning*** No default user specified.  Picking first one: " << vectRow_Installation_Users[0]->FK_Users_get() << endl;
@@ -613,7 +613,7 @@ m_bNoEffects = true;
 		else
 		{
 			vector<Row_Users *> vectRow_Users;
-			mds.Users_get()->GetRows("1=1",&vectRow_Users); // Just find any user
+			m_spDatabase_pluto_main->Users_get()->GetRows("1=1",&vectRow_Users); // Just find any user
 			if( vectRow_Users.size()>0 )
 			{
 				cout << "***Warning*** No users at all in this installation.  Picking one" << endl;
@@ -657,7 +657,7 @@ m_bNoEffects = true;
 		m_pRow_Device->FK_Device_ControlledVia_getrow()->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST )
 	{
 		// This is an on-screen orbiter
-		pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->FK_Device_ControlledVia_get(),DEVICEDATA_Video_settings_CONST);
+		pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->FK_Device_ControlledVia_get(),DEVICEDATA_Video_settings_CONST);
 		if( pRow_Device_DeviceData )
 		{
 			string sSize = pRow_Device_DeviceData->IK_DeviceData_get();
@@ -672,17 +672,17 @@ m_bNoEffects = true;
 
 	if( !m_pRow_Size )
 	{
-		pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Size_CONST);
+		pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Size_CONST);
 		if( pRow_Device_DeviceData )
-			m_pRow_Size = mds.Size_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
+			m_pRow_Size = m_spDatabase_pluto_main->Size_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
 	}
 
 	if( !m_pRow_Size )
 	{
 		if( m_bIsMobilePhone )
-			m_pRow_Size = mds.Size_get()->GetRow( 3 );  // The default phone size
+			m_pRow_Size = m_spDatabase_pluto_main->Size_get()->GetRow( 3 );  // The default phone size
 		else
-			m_pRow_Size = mds.Size_get()->GetRow( 1 );  // The default size
+			m_pRow_Size = m_spDatabase_pluto_main->Size_get()->GetRow( 1 );  // The default size
 	}
 
 	if( !m_pRow_Size )
@@ -695,7 +695,7 @@ m_bNoEffects = true;
 	m_sScale.Height = m_pRow_Size->ScaleY_get();
 	int iSpacingParameter=0;
 
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Spacing_CONST);
+	pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Spacing_CONST);
 	if( pRow_Device_DeviceData && atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) )
 	{
 		iSpacingParameter = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str());
@@ -706,7 +706,7 @@ m_bNoEffects = true;
 			// We're not going to ever commit m_pRow_Size, so just change the scale accordingly
 			m_pRow_Size->ScaleX_set( m_pRow_Size->ScaleX_get() - (m_pRow_Size->ScaleX_get() * iSpacingParameter / 100) );
 			m_pRow_Size->ScaleY_set( m_pRow_Size->ScaleY_get() - (m_pRow_Size->ScaleY_get() * iSpacingParameter / 100) );
-			pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Offset_CONST);
+			pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Offset_CONST);
 			if( pRow_Device_DeviceData )
 			{
 				string::size_type pos=0;
@@ -753,10 +753,10 @@ m_bNoEffects = true;
 	if( !m_bNewOrbiter )
 	{
 		vector<Row_Room *> vectRow_Room;
-		mds.Room_get()->GetRows("WHERE 1=1 LIMIT 1",&vectRow_Room);
+		m_spDatabase_pluto_main->Room_get()->GetRows("WHERE 1=1 LIMIT 1",&vectRow_Room);
 		
 		vector<Row_Users *> vectRow_Users;
-		mds.Users_get()->GetRows("WHERE 1=1 LIMIT 1",&vectRow_Users);
+		m_spDatabase_pluto_main->Users_get()->GetRows("WHERE 1=1 LIMIT 1",&vectRow_Users);
 
 		if( vectRow_Room.size()==0 || vectRow_Users.size()==0 )
 		{
@@ -765,10 +765,10 @@ m_bNoEffects = true;
 		}
 	}
 
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_ScreenWidth_CONST);
+	pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_ScreenWidth_CONST);
 	if( !pRow_Device_DeviceData )
 	{
-		pRow_Device_DeviceData = mds.Device_DeviceData_get()->AddRow();
+		pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->AddRow();
 		pRow_Device_DeviceData->FK_Device_set(m_pRow_Device->PK_Device_get());
 		pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_ScreenWidth_CONST);
 	}
@@ -776,12 +776,12 @@ m_bNoEffects = true;
 		pRow_Device_DeviceData->IK_DeviceData_set( StringUtils::itos(m_pRow_Size->Height_get()) );
 	else
 		pRow_Device_DeviceData->IK_DeviceData_set( StringUtils::itos(m_pRow_Size->Width_get()) );
-	mds.Device_DeviceData_get()->Commit();
+	m_spDatabase_pluto_main->Device_DeviceData_get()->Commit();
 
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_ScreenHeight_CONST);
+	pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_ScreenHeight_CONST);
 	if( !pRow_Device_DeviceData )
 	{
-		pRow_Device_DeviceData = mds.Device_DeviceData_get()->AddRow();
+		pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->AddRow();
 		pRow_Device_DeviceData->FK_Device_set(m_pRow_Device->PK_Device_get());
 		pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_ScreenHeight_CONST);
 	}
@@ -789,7 +789,7 @@ m_bNoEffects = true;
 		pRow_Device_DeviceData->IK_DeviceData_set( StringUtils::itos(m_pRow_Size->Width_get()) );
 	else
 		pRow_Device_DeviceData->IK_DeviceData_set( StringUtils::itos(m_pRow_Size->Height_get()) );
-	mds.Device_DeviceData_get()->Commit();
+	m_spDatabase_pluto_main->Device_DeviceData_get()->Commit();
 
 	// m_sizeScreen is the unscaled resolution
 	m_sizeScreen = new PlutoSize(m_pRow_Size->Width_get() * 1000 / m_sScale.Width,m_pRow_Size->Height_get() * 1000 / m_sScale.Height);
@@ -840,13 +840,13 @@ m_bNoEffects = true;
 	// If a User has the flag 'requires pin' set to true, then unless the user is specifically allowed
 	// to use this orbiter by having a record in Room_Users with FK_Room=NULL, then this user requires a pin
 	vector<Row_Users *> vectRow_Users;
-	mds.Users_get()->GetRows("LEFT JOIN Room_Users ON FK_Users=PK_Users AND FK_Orbiter=" + StringUtils::itos(m_pRow_Device->PK_Device_get()) + " WHERE RequirePinToSelect=1 AND FK_Users IS NULL",
+	m_spDatabase_pluto_main->Users_get()->GetRows("LEFT JOIN Room_Users ON FK_Users=PK_Users AND FK_Orbiter=" + StringUtils::itos(m_pRow_Device->PK_Device_get()) + " WHERE RequirePinToSelect=1 AND FK_Users IS NULL",
 		&vectRow_Users);
 	for(size_t s=0;s<vectRow_Users.size();++s)
 		m_vectPK_Users_RequiringPIN.push_back( vectRow_Users[s]->PK_Users_get() );
 
 	vector<Row_Room *> vectRow_Room;
-	mds.Room_get()->GetRows("HideFromOrbiter=0 AND FK_Installation=" + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Room);
+	m_spDatabase_pluto_main->Room_get()->GetRows("HideFromOrbiter=0 AND FK_Installation=" + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Room);
 	for(size_t s=0;s<vectRow_Room.size();++s)
 	{
 		Row_Room *pRow_Room = vectRow_Room[s];
@@ -894,7 +894,7 @@ m_bNoEffects = true;
 	m_dwPK_Device_LocalAppServer=m_dwPK_Device_LocalMediaPlayer=m_dwPK_Device_LocalOsdIRReceiver=m_dwPK_Device_LocalOsdVfdLcd=0;
 
 	vector<Row_Device *> vectRow_Device;
-	mds.Device_get()->GetRows(DEVICE_FK_INSTALLATION_FIELD + string("=") + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Device);
+	m_spDatabase_pluto_main->Device_get()->GetRows(DEVICE_FK_INSTALLATION_FIELD + string("=") + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Device);
 	for(size_t s=0;s<vectRow_Device.size();++s)
 	{
 		Row_Device *pRow_Device = vectRow_Device[s];
@@ -1087,8 +1087,8 @@ m_bNoEffects = true;
 			m_iLocation_Initial = li->iLocation;
 		}
 
-		m_pRow_Room = mds.Room_get()->GetRow(li->PK_Room);
-		m_pRow_EntertainArea = li->PK_EntertainArea>0 ? mds.EntertainArea_get()->GetRow(li->PK_EntertainArea) : NULL;
+		m_pRow_Room = m_spDatabase_pluto_main->Room_get()->GetRow(li->PK_Room);
+		m_pRow_EntertainArea = li->PK_EntertainArea>0 ? m_spDatabase_pluto_main->EntertainArea_get()->GetRow(li->PK_EntertainArea) : NULL;
 		m_iLocation = li->iLocation;
 		DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,GetDesignObjFromScreen(m_pRow_Screen_MainMenu),PlutoRectangle(0,0,0,0),NULL,true,false);
 		if( m_pRow_Screen_Sleeping!=m_pRow_Screen_MainMenu )
@@ -1147,7 +1147,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					// We're going to have to lookup the Row_DesignObj manually, and we're going to need to search for goto's in all the children
 					// since this was built from cache, and so the children were not created when the object was created
-					pRow_DesignObj = mds.DesignObj_get()->GetRow(atoi(oco->m_ObjectID.c_str()));
+					pRow_DesignObj = m_spDatabase_pluto_main->DesignObj_get()->GetRow(atoi(oco->m_ObjectID.c_str()));
 					SearchForGotos(oco);
 					if( iNumGeneratedScreens!=m_htGeneratedScreens.size() )
 					{
@@ -1173,10 +1173,10 @@ loop_to_keep_looking_for_objs_to_include:
 
 	for(map<int,int>::iterator it=m_mapDesignObj.begin();it!=m_mapDesignObj.end();++it)
 	{
-		Row_Screen *pRow_Screen = mds.Screen_get()->GetRow(it->first);
+		Row_Screen *pRow_Screen = m_spDatabase_pluto_main->Screen_get()->GetRow(it->first);
 		if( pRow_Screen && pRow_Screen->AlwaysInclude_get() )
 		{
-			Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(it->second);
+			Row_DesignObj *drNewDesignObj = m_spDatabase_pluto_main->DesignObj_get()->GetRow(it->second);
 			alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 		}
 	}
@@ -1217,7 +1217,7 @@ loop_to_keep_looking_for_objs_to_include:
 		{
 			try
 			{
-				Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[0]));
+				Row_DesignObj *drNewDesignObj = m_spDatabase_pluto_main->DesignObj_get()->GetRow(atoi(row[0]));
 				alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 			}
 			catch(...)
@@ -1226,7 +1226,7 @@ loop_to_keep_looking_for_objs_to_include:
 	}
 
 	vector<Row_DesignObj *> vectRow_DesignObj_AlwaysInclude;
-	mds.DesignObj_get()->GetRows("AlwaysInclude=1",&vectRow_DesignObj_AlwaysInclude);
+	m_spDatabase_pluto_main->DesignObj_get()->GetRows("AlwaysInclude=1",&vectRow_DesignObj_AlwaysInclude);
 	for(size_t s=0;s<vectRow_DesignObj_AlwaysInclude.size();++s)
 		alNewDesignObjsToGenerate.push_back(vectRow_DesignObj_AlwaysInclude[s]);
 
@@ -1257,7 +1257,7 @@ loop_to_keep_looking_for_objs_to_include:
 				}
 				if( row[1] ) // Device.FK_DesignObj
 				{
-					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[1]));
+					Row_DesignObj *drNewDesignObj = m_spDatabase_pluto_main->DesignObj_get()->GetRow(atoi(row[1]));
 					if( !drNewDesignObj )
 						cerr << "Cannot find Device.FK_DesignObj: " << row[1] << endl;
 					else
@@ -1265,7 +1265,7 @@ loop_to_keep_looking_for_objs_to_include:
 				}
 				if( row[2] ) // FK_DesignObj_Popup
 				{
-					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[2]));
+					Row_DesignObj *drNewDesignObj = m_spDatabase_pluto_main->DesignObj_get()->GetRow(atoi(row[2]));
 					if( !drNewDesignObj )
 						cerr << "Cannot find FK_DesignObj_Popup: " << row[2] << endl;
 					else
@@ -1351,7 +1351,7 @@ loop_to_keep_looking_for_objs_to_include:
 				}
 				if( row[1] ) // FK_DesignObj_Popup
 				{
-					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[1]));
+					Row_DesignObj *drNewDesignObj = m_spDatabase_pluto_main->DesignObj_get()->GetRow(atoi(row[1]));
 					if( !drNewDesignObj )
 						cerr << "Cannot find FK_DesignObj_Popup: " << row[1] << endl;
 					else
@@ -1436,7 +1436,7 @@ loop_to_keep_looking_for_objs_to_include:
 			{
 				if( row[0] )
 				{
-					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[0]));
+					Row_DesignObj *drNewDesignObj = m_spDatabase_pluto_main->DesignObj_get()->GetRow(atoi(row[0]));
 					if( !drNewDesignObj )
 						cerr << "Cannot find devicetempate_designobj: " << row[0] << endl;
 					else
@@ -1510,11 +1510,11 @@ loop_to_keep_looking_for_objs_to_include:
 	if( m_pRow_UI->Version_get()==2 ) //&& (m_map_PK_DesignObj_SoleScreenToGen.size()==0 || m_map_PK_DesignObj_SoleScreenToGen[DESIGNOBJ_grpMediaSortOptions_CONST]==true) )
 	{
 		Row_DesignObj *pRow_DesignObj_Array[5] = { NULL, NULL, NULL, NULL, NULL };
-		pRow_DesignObj_Array[0] = mds.DesignObj_get()->GetRow(5100);
-		pRow_DesignObj_Array[1] = mds.DesignObj_get()->GetRow(5103);
-		pRow_DesignObj_Array[2] = mds.DesignObj_get()->GetRow(5106);
-		pRow_DesignObj_Array[3] = mds.DesignObj_get()->GetRow(5112);
-		pRow_DesignObj_Array[4] = mds.DesignObj_get()->GetRow(5109);
+		pRow_DesignObj_Array[0] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(5100);
+		pRow_DesignObj_Array[1] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(5103);
+		pRow_DesignObj_Array[2] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(5106);
+		pRow_DesignObj_Array[3] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(5112);
+		pRow_DesignObj_Array[4] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(5109);
 
 		int iPK_MediaType_Searchable[] = {MEDIATYPE_pluto_StoredAudio_CONST,MEDIATYPE_pluto_StoredVideo_CONST,MEDIATYPE_pluto_Pictures_CONST,MEDIATYPE_np_Game_CONST,MEDIATYPE_misc_DocViewer_CONST};
 		for(int i=0;i<5;++i)
@@ -1551,8 +1551,8 @@ loop_to_keep_looking_for_objs_to_include:
 			LocationInfo *li = (*itd);
 			if( li->iLocation == m_iLocation )
 			{
-				m_pRow_Room = mds.Room_get()->GetRow(li->PK_Room);
-				m_pRow_EntertainArea = li->PK_EntertainArea>0 ? mds.EntertainArea_get()->GetRow(li->PK_EntertainArea) : NULL;
+				m_pRow_Room = m_spDatabase_pluto_main->Room_get()->GetRow(li->PK_Room);
+				m_pRow_EntertainArea = li->PK_EntertainArea>0 ? m_spDatabase_pluto_main->EntertainArea_get()->GetRow(li->PK_EntertainArea) : NULL;
 				break;
 			}
 		}
@@ -1602,7 +1602,7 @@ loop_to_keep_looking_for_objs_to_include:
 
 	// temp -- use of styles isn't yet well defined.  just hack in something to get a style variation for each style right now
 	vector<Row_Style *> vectRow_Style;
-	mds.Style_get()->GetRows("1=1",&vectRow_Style); // all styles
+	m_spDatabase_pluto_main->Style_get()->GetRows("1=1",&vectRow_Style); // all styles
 	for(size_t style=0;style<vectRow_Style.size();++style)
 	{
 		Row_Style *pRow_Style = vectRow_Style[style];
@@ -1628,7 +1628,7 @@ loop_to_keep_looking_for_objs_to_include:
 	}
 
 	vector<Row_Text *> vectRow_Text;
-	mds.Text_get()->GetRows("AddToOrbiter=1",&vectRow_Text); // all Texts to pass on to the Orbiter
+	m_spDatabase_pluto_main->Text_get()->GetRows("AddToOrbiter=1",&vectRow_Text); // all Texts to pass on to the Orbiter
 	for(size_t Text=0;Text<vectRow_Text.size();++Text)
 	{
 		Row_Text *pRow_Text = vectRow_Text[Text];
@@ -1711,10 +1711,10 @@ loop_to_keep_looking_for_objs_to_include:
 				}
 
 				// We can cache this the next time
-				Row_CachedScreens *pdrCachedScreen = mds.CachedScreens_get()->GetRow(m_pRow_Orbiter->PK_Orbiter_get(),oco->m_pRow_DesignObj->PK_DesignObj_get(),oco->m_iVersion);
+				Row_CachedScreens *pdrCachedScreen = m_spDatabase_pluto_main->CachedScreens_get()->GetRow(m_pRow_Orbiter->PK_Orbiter_get(),oco->m_pRow_DesignObj->PK_DesignObj_get(),oco->m_iVersion);
 				if( !pdrCachedScreen )
 				{
-					pdrCachedScreen = mds.CachedScreens_get()->AddRow();
+					pdrCachedScreen = m_spDatabase_pluto_main->CachedScreens_get()->AddRow();
 					pdrCachedScreen->FK_Orbiter_set(m_pRow_Orbiter->PK_Orbiter_get());
 					pdrCachedScreen->FK_DesignObj_set(oco->m_pRow_DesignObj->PK_DesignObj_get());
 					pdrCachedScreen->Version_set(oco->m_iVersion);
@@ -1731,7 +1731,7 @@ loop_to_keep_looking_for_objs_to_include:
 				pdrCachedScreen->Schema_set(ORBITER_SCHEMA);
 				pdrCachedScreen->ContainsArrays_set(oco->m_bContainsArrays ? 1 : 0);
 				pdrCachedScreen->Modification_LastGen_set(oco->m_pRow_DesignObj->psc_mod_get());
-				mds.CachedScreens_get()->Commit();
+				m_spDatabase_pluto_main->CachedScreens_get()->Commit();
 			}
 			else
 			{
@@ -1745,7 +1745,7 @@ loop_to_keep_looking_for_objs_to_include:
 	fstr_Orbiter << StringUtils::itos((int) m_mapUsedOrbiterCriteria.size()) << "|";
 	for(map<int,int>::iterator itucc=m_mapUsedOrbiterCriteria.begin();itucc!=m_mapUsedOrbiterCriteria.end();++itucc)
 	{
-	Row_Criteria * drCriteria = mds.Criteria_get()->GetRow((*itucc).first);
+	Row_Criteria * drCriteria = m_spDatabase_pluto_main->Criteria_get()->GetRow((*itucc).first);
 	fstr_Orbiter << drCriteria->FK_CriteriaList_get() << "|" << drCriteria->PK_Criteria_get() << "|";
 	OutputCriteriaNest(drCriteria->FK_CriteriaParmNesting_getrow());
 	}
@@ -1766,7 +1766,7 @@ loop_to_keep_looking_for_objs_to_include:
 	*/
 /* todo 2.0
 	// Be sure to add any styles that are forced to be included
-	vector<Row_Style *> vectStyles = mds.Style_get()->GetRows(string(STYLE_ALWAYSINCLUDEONORBITER_FIELD) + "=1");
+	vector<Row_Style *> vectStyles = m_spDatabase_pluto_main->Style_get()->GetRows(string(STYLE_ALWAYSINCLUDEONORBITER_FIELD) + "=1");
 	for(size_t s=0;s<vectStyles.size();++s)
 	{
 		Row_StyleVariation *temp1,*temp2;
@@ -1888,8 +1888,8 @@ void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjC
 						if( m_iLocation< int(m_dequeLocation.size()) )
 						{
 							LocationInfo *li = m_dequeLocation[m_iLocation];
-							m_pRow_Room = mds.Room_get()->GetRow(li->PK_Room);
-							m_pRow_EntertainArea = mds.EntertainArea_get()->GetRow(li->PK_EntertainArea);
+							m_pRow_Room = m_spDatabase_pluto_main->Room_get()->GetRow(li->PK_Room);
+							m_pRow_EntertainArea = m_spDatabase_pluto_main->EntertainArea_get()->GetRow(li->PK_EntertainArea);
 						}
 						else
 							cout << "ERROR: Cached screen refers to invalid location" << endl;
@@ -1898,7 +1898,7 @@ void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjC
 				}
 				else
 					sDesignObj = (*itParm).second;
-				Row_DesignObj *p_m_pRow_DesignObj = mds.DesignObj_get()->GetRow(atoi(sDesignObj.c_str()));
+				Row_DesignObj *p_m_pRow_DesignObj = m_spDatabase_pluto_main->DesignObj_get()->GetRow(atoi(sDesignObj.c_str()));
 if( sDesignObj=="4870" )
 {
 string x = First2Dots(sDesignObj);
@@ -2066,7 +2066,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 			string Value="";
 			if( drOVCP->Value_isNull() || drOVCP->Value_get()=="" )
 			{
-				Row_DesignObjVariation_DesignObjParameter * drOVCP2 = mds.DesignObjVariation_DesignObjParameter_get()->GetRow(ocDesignObj->m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get(),drOVCP->FK_DesignObjParameter_get());
+				Row_DesignObjVariation_DesignObjParameter * drOVCP2 = m_spDatabase_pluto_main->DesignObjVariation_DesignObjParameter_get()->GetRow(ocDesignObj->m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get(),drOVCP->FK_DesignObjParameter_get());
 				if( drOVCP2 )
 					Value = drOVCP2->Value_get();
 			}
@@ -2103,7 +2103,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 				int Style = atoi(Value.c_str());
 /* todo, I'm just going to grab all styles now.  This is a problem when it doesn't regen a cached screen, it doesn't get the styles
 				vector<Row_StyleVariation *> vectrsv;
-				Row_Style *pRow_Style = mds.Style_get()->GetRow(Style);
+				Row_Style *pRow_Style = m_spDatabase_pluto_main->Style_get()->GetRow(Style);
 				if( pRow_Style )
 				{
 					pRow_Style->StyleVariation_FK_Style_getrows(&vectrsv);
@@ -2203,7 +2203,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 	else
 	fstr_Orbiter << "0|0|");
 
-	Row_CommandGroup * drAG = (ocDesignObj->m_iPK_CommandGroup==0 ? null : mds.tCommandGroup[ocDesignObj->m_iPK_CommandGroup]);
+	Row_CommandGroup * drAG = (ocDesignObj->m_iPK_CommandGroup==0 ? null : m_spDatabase_pluto_main->tCommandGroup[ocDesignObj->m_iPK_CommandGroup]);
 
 	fstr_Orbiter <<  ocDesignObj->m_iPK_CommandGroup==0 ? "" : ocDesignObj->m_iPK_CommandGroup.ToString() );
 	fstr_Orbiter << "|");
@@ -2508,18 +2508,18 @@ Row_Size *OrbiterGenerator::TranslateSize(string sSize)
 
 	// Try to find an exact match for this UI
 	vector<Row_Size *> vectRow_Size;
-	mds.Size_get()->GetRows("Width=" + StringUtils::itos(Width) + " AND Height=" + StringUtils::itos(Height) + " AND FK_UI=" + StringUtils::itos(m_pRow_UI->PK_UI_get()),&vectRow_Size);
+	m_spDatabase_pluto_main->Size_get()->GetRows("Width=" + StringUtils::itos(Width) + " AND Height=" + StringUtils::itos(Height) + " AND FK_UI=" + StringUtils::itos(m_pRow_UI->PK_UI_get()),&vectRow_Size);
 	if( vectRow_Size.size() )
 		return vectRow_Size[0];
 
 	// Any match for this width and height
-	mds.Size_get()->GetRows("Width=" + StringUtils::itos(Width) + " AND Height=" + StringUtils::itos(Height),&vectRow_Size);
+	m_spDatabase_pluto_main->Size_get()->GetRows("Width=" + StringUtils::itos(Width) + " AND Height=" + StringUtils::itos(Height),&vectRow_Size);
 	if( vectRow_Size.size() )
 		return vectRow_Size[0];
 
 	// No matches.  Build our own
 	int Scale = Height * 1000 / 1600;
-	Row_Size *pRow_Size = new Row_Size(mds.Size_get());
+	Row_Size *pRow_Size = new Row_Size(m_spDatabase_pluto_main->Size_get());
 	pRow_Size->Width_set(Width);
 	pRow_Size->Height_set(Height);
 	if( Width==1280 && Height==1024 )  // 1280x1024 is not a normal 3:4 aspect ratio.  Other VGA resolutions are
@@ -2613,8 +2613,8 @@ string OrbiterGenerator::First2Dots(string sDesignObj)
 		}
 	}
 
-	m_pRow_Room = mds.Room_get()->GetRow(li->PK_Room);
-	m_pRow_EntertainArea = li->PK_EntertainArea>0 ? mds.EntertainArea_get()->GetRow(li->PK_EntertainArea) : NULL;
+	m_pRow_Room = m_spDatabase_pluto_main->Room_get()->GetRow(li->PK_Room);
+	m_pRow_EntertainArea = li->PK_EntertainArea>0 ? m_spDatabase_pluto_main->EntertainArea_get()->GetRow(li->PK_EntertainArea) : NULL;
 	return sDesignObj.substr(0,pos_second_dot);
 }
 
@@ -2627,7 +2627,7 @@ void OrbiterGenerator::PopulateScreenMap()
 		"ORDER BY FK_Screen,FK_DeviceTemplate DESC, FK_UI DESC, FK_Skin DESC";
 
 	vector<Row_Screen_DesignObj *> vectRow_Screen_DesignObj;
-	mds.Screen_DesignObj_get()->GetRows(SQL,&vectRow_Screen_DesignObj);
+	m_spDatabase_pluto_main->Screen_DesignObj_get()->GetRows(SQL,&vectRow_Screen_DesignObj);
 
 	int PK_Screen_Last=0;  // Keep track of the last one, we only 1 want design obj per screen, the first one
 	for(size_t s=0;s<vectRow_Screen_DesignObj.size();++s)
@@ -2649,7 +2649,7 @@ Row_DesignObj *OrbiterGenerator::GetDesignObjFromScreen(int PK_Screen)
 		return NULL;
 	}
 
-	return mds.DesignObj_get()->GetRow(it->second);
+	return m_spDatabase_pluto_main->DesignObj_get()->GetRow(it->second);
 }
 
 Row_DesignObj *OrbiterGenerator::GetDesignObjFromScreen(Row_Screen *pRow_Screen)
@@ -2677,7 +2677,7 @@ Row_Skin *OrbiterGenerator::TranslateSkin(Row_Skin *pRow_Skin)
 
 
 	if( PK_Skin_New )
-		return mds.Skin_get()->GetRow(PK_Skin_New);
+		return m_spDatabase_pluto_main->Skin_get()->GetRow(PK_Skin_New);
 	else
 		return NULL;
 }
@@ -2687,7 +2687,7 @@ void OrbiterGenerator::PopulateEffects(map<int, int> &mapEffects, int FK_Skin)
 	mapEffects.clear();
 
 	vector<Row_EffectType_Effect_Skin *> vectRow_EffectType_Effect_Skin;
-	mds.EffectType_Effect_Skin_get()->GetRows("WHERE FK_Skin = " + StringUtils::ltos(FK_Skin), &vectRow_EffectType_Effect_Skin);
+	m_spDatabase_pluto_main->EffectType_Effect_Skin_get()->GetRows("WHERE FK_Skin = " + StringUtils::ltos(FK_Skin), &vectRow_EffectType_Effect_Skin);
 
 	vector<Row_EffectType_Effect_Skin *>::iterator it;
 	for(it = vectRow_EffectType_Effect_Skin.begin(); it != vectRow_EffectType_Effect_Skin.end(); ++it)

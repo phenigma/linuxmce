@@ -10,11 +10,13 @@
 #include "PlutoUtils/MySQLHelper.h"
 #include "RegenMonitor.h"
 
+#include <memory>
+
 class OrbiterGenerator : public OrbiterData, public MySqlHelper
 {
 public:
-	Database_pluto_main mds;
-	Database_pluto_media m_Database_pluto_media;
+	std::auto_ptr<Database_pluto_main> m_spDatabase_pluto_main;
+	std::auto_ptr<Database_pluto_media> m_spDatabase_pluto_media;
 
 	class Row_Orbiter * m_pRow_Orbiter;
 	class Row_Device * m_pRow_Device;
@@ -67,6 +69,9 @@ public:
 	OrbiterGenerator(string sGraphicsFiles,string sFontFiles,string sOutputFiles,int PK_Orbiter,string DBHost,string DBUser,string DBPassword,string DBName,int DBPort)
 		: MySqlHelper(DBHost, DBUser, DBPassword, DBName, DBPort)
 	{
+		m_spDatabase_pluto_main.reset(new Database_pluto_main(g_pPlutoLogger));
+		m_spDatabase_pluto_media.reset(new Database_pluto_media(g_pPlutoLogger));
+
 		m_bOrbiterChanged=false;
 		m_sGraphicsBasePath=sGraphicsFiles;
 		m_sFontPath=sFontFiles;

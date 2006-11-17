@@ -1383,7 +1383,7 @@ void DesignObj_Generator::PickVariation(OrbiterGenerator *pGenerator,class Row_D
     {
         Row_DesignObjVariation *drOV = vectrov[s];
         // see if a specific criteria was specified for this skin
-        Row_Device *pDevice = pGenerator->mds.Device_get()->GetRow(pGenerator->m_pRow_Orbiter->PK_Orbiter_get());
+        Row_Device *pDevice = pGenerator->m_spDatabase_pluto_main->Device_get()->GetRow(pGenerator->m_pRow_Orbiter->PK_Orbiter_get());
 
 		if( drOV->FK_UI_isNull() )
         {
@@ -1620,7 +1620,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                     NULL, 0, 0, 0, 0,false,false,false));
 
 				vector<Row_MediaType_AttributeType *> vectRow_MediaType_AttributeType;
-				m_pOrbiterGenerator->m_Database_pluto_media.MediaType_AttributeType_get()->GetRows(sSQL,&vectRow_MediaType_AttributeType);
+				m_pOrbiterGenerator->m_spDatabase_pluto_media->MediaType_AttributeType_get()->GetRows(sSQL,&vectRow_MediaType_AttributeType);
 				for( vector<Row_MediaType_AttributeType *>::iterator it=vectRow_MediaType_AttributeType.begin();it!=vectRow_MediaType_AttributeType.end();++it )
 				{
 					Row_MediaType_AttributeType *pRow_MediaType_AttributeType = *it;
@@ -1644,7 +1644,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 					" AND FK_AttributeType="  TOSTRING(ATTRIBUTETYPE_Genre_CONST) " AND Missing=0";
 
 				vector<Row_Attribute *> vectRow_Attribute;
-				m_pOrbiterGenerator->m_Database_pluto_media.Attribute_get()->GetRows(sSQL,&vectRow_Attribute);
+				m_pOrbiterGenerator->m_spDatabase_pluto_media->Attribute_get()->GetRows(sSQL,&vectRow_Attribute);
 				for( vector<Row_Attribute *>::iterator it=vectRow_Attribute.begin();it!=vectRow_Attribute.end();++it )
 				{
 					Row_Attribute *pRow_Attribute = *it;
@@ -1662,7 +1662,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
 				string sSQL = "JOIN MediaType_MediaSubType on FK_MediaSubType = PK_MediaSubType WHERE EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType);
 				vector<Row_MediaSubType *> vectRow_MediaSubType;
-				m_pOrbiterGenerator->m_Database_pluto_media.MediaSubType_get()->GetRows(sSQL,&vectRow_MediaSubType);
+				m_pOrbiterGenerator->m_spDatabase_pluto_media->MediaSubType_get()->GetRows(sSQL,&vectRow_MediaSubType);
 				for( vector<Row_MediaSubType *>::iterator it=vectRow_MediaSubType.begin();it!=vectRow_MediaSubType.end();++it )
 				{
 					Row_MediaSubType *pRow_MediaSubType = *it;
@@ -1680,7 +1680,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
 				string sSQL = "JOIN MediaType_MediaSource on FK_MediaSource = PK_MediaSource WHERE EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType);
 				vector<Row_MediaSource *> vectRow_MediaSource;
-				m_pOrbiterGenerator->m_Database_pluto_media.MediaSource_get()->GetRows(sSQL,&vectRow_MediaSource);
+				m_pOrbiterGenerator->m_spDatabase_pluto_media->MediaSource_get()->GetRows(sSQL,&vectRow_MediaSource);
 				for( vector<Row_MediaSource *>::iterator it=vectRow_MediaSource.begin();it!=vectRow_MediaSource.end();++it )
 				{
 					Row_MediaSource *pRow_MediaSource = *it;
@@ -1698,7 +1698,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
 				string sSQL = "JOIN MediaType_FileFormat on FK_FileFormat = PK_FileFormat WHERE EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType);
 				vector<Row_FileFormat *> vectRow_FileFormat;
-				m_pOrbiterGenerator->m_Database_pluto_media.FileFormat_get()->GetRows(sSQL,&vectRow_FileFormat);
+				m_pOrbiterGenerator->m_spDatabase_pluto_media->FileFormat_get()->GetRows(sSQL,&vectRow_FileFormat);
 				for( vector<Row_FileFormat *>::iterator it=vectRow_FileFormat.begin();it!=vectRow_FileFormat.end();++it )
 				{
 					Row_FileFormat *pRow_FileFormat = *it;

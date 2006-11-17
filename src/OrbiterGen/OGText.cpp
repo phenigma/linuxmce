@@ -76,7 +76,7 @@ todo c++
 
 Row_Text_LS *CGText::GetText_LS(int PK_Text,OrbiterGenerator *pOrbiterGen)
 {
-	Database_pluto_main *mds = &pOrbiterGen->mds;
+	Database_pluto_main *mds = pOrbiterGen->m_spDatabase_pluto_main.get();
 	Row_Text_LS *pRow_Text_LS = mds->Text_LS_get()->GetRow(PK_Text,pOrbiterGen->m_pRow_Language->PK_Language_get());
 	if( pRow_Text_LS==NULL )
 		pRow_Text_LS=mds->Text_LS_get()->GetRow(PK_Text,0);
