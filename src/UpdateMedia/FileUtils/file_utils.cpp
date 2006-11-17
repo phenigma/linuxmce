@@ -4,6 +4,7 @@
 #include <limits.h>
 #include <sys/types.h>
 #include <iostream>
+#include <string.h>
 
 using namespace std;
 
@@ -46,9 +47,11 @@ namespace UpdateMediaFileUtils
 
 	int MountedDeviceForFile(string sFilePath)
 	{
-		struct stat buf;
-		if(!stat(sFilePath.c_str(), &buf))
+		struct stat64 buf;
+		if(!stat64(sFilePath.c_str(), &buf))
 			return buf.st_dev;
+
+		cout << "ERROR: " << errno << " - desc: " << strerror(errno) << endl;
 
 		return 0;
 	}

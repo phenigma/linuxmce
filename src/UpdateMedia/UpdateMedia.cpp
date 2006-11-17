@@ -216,6 +216,9 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 	// Now start matching them up
 	for(list<string>::iterator it=listFilesOnDisk.begin();it!=listFilesOnDisk.end();++it)
 	{
+		if(m_bAsDaemon)
+			Sleep(100);
+			
 		if(UpdateMediaSig::bSignalTrapCaught)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "SIGTERM received. Exiting...");
