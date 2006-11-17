@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 			return 0;
 
 		vector<Row_DeviceTemplate *> vectRow_DeviceTemplate;
-		gen.m_dce.DeviceTemplate_get()->GetRows( string(DEVICETEMPLATE_IMPLEMENTSDCE_FIELD) + "=1", &vectRow_DeviceTemplate);
+		gen.m_spDatabase_pluto_main->DeviceTemplate_get()->GetRows( string(DEVICETEMPLATE_IMPLEMENTSDCE_FIELD) + "=1", &vectRow_DeviceTemplate);
 		for(size_t s=0;s<vectRow_DeviceTemplate.size();++s)
 		{
 			Row_DeviceTemplate *pRow_DeviceTemplate = vectRow_DeviceTemplate[s];
@@ -201,7 +201,9 @@ DCEGen::DCEGen(int PK_DeviceTemplate,string GeneratedOutput,string TemplateInput
 	m_sTemplateInput=TemplateInput;
 	m_sTemplateOutput=TemplateOutput;
 
-	if( !m_dce.Connect(DBHost,DBUser,DBPassword,DBName,DBPort) )
+	m_spDatabase_pluto_main.reset(new Database_pluto_main(g_pPlutoLogger));
+
+	if( !m_spDatabase_pluto_main->Connect(DBHost,DBUser,DBPassword,DBName,DBPort) )
 	{
 		cerr << "Failed to connect to database" << endl;
 		exit(1);
@@ -224,7 +226,7 @@ void DCEGen::GenerateDevice(int PK_DeviceTemplate,bool bTemplates)
 	// DeviceTemplate_DeviceCategory_ControlledVia
 	map<int,Row_DeviceTemplate *> mapRow_MasterDevice_Children;
 
-	Row_DeviceTemplate *p_Row_DeviceTemplate = m_dce.DeviceTemplate_get()->GetRow(PK_DeviceTemplate);
+	Row_DeviceTemplate *p_Row_DeviceTemplate = m_spDatabase_pluto_main->DeviceTemplate_get()->GetRow(PK_DeviceTemplate);
 	if( !p_Row_DeviceTemplate )
 	{
 		cerr << "Device Template: " << PK_DeviceTemplate << " doesn't exist." << endl;
@@ -400,7 +402,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 		deviceInfo.m_mapEventDeclarations[pRow_DeviceTemplate_Event->FK_Event_get()]=EventDeclaration;
 		deviceInfo.m_mapEventParms[pRow_DeviceTemplate_Event->FK_Event_get()]=sParmsWithNoType;
 		fstr_DeviceCommand << "\t\tSendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, " << endl; 
-		fstr_DeviceCommand << "\t\t\t" + GetEventConstStr(m_dce.Event_get()->GetRow(pRow_DeviceTemplate_Event->FK_Event_get())) << "," << endl;
+		fstr_DeviceCommand << "\t\t\t" + GetEventConstStr(m_spDatabase_pluto_main->Event_get()->GetRow(pRow_DeviceTemplate_Event->FK_Event_get())) << "," << endl;
 		fstr_DeviceCommand << "\t\t\t" + sPassingToMessage;
 		fstr_DeviceCommand << "));" << endl << "\t}" << endl << endl;
 	}
@@ -439,7 +441,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 		pRow_DeviceCategory = pRow_DeviceCategory->FK_DeviceCategory_Parent_getrow();
 	}
 	vector<Row_DeviceCategory_DeviceData *> vectRow_DeviceCategory_DeviceData;
-	m_dce.DeviceCategory_DeviceData_get()->GetRows("FK_DeviceCategory IN (" + sCategories + ")",&vectRow_DeviceCategory_DeviceData);
+	m_spDatabase_pluto_main->DeviceCategory_DeviceData_get()->GetRows("FK_DeviceCategory IN (" + sCategories + ")",&vectRow_DeviceCategory_DeviceData);
 	for(size_t i3=0;i3<vectRow_DeviceCategory_DeviceData.size();++i3)
 	{
 		Row_DeviceCategory_DeviceData *pRow_DeviceCategory_DeviceData =
@@ -646,7 +648,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	map<int,string>::iterator itEventDeclarations;
 	for(itEventDeclarations=deviceInfo.m_mapEventDeclarations.begin();itEventDeclarations!=deviceInfo.m_mapEventDeclarations.end();++itEventDeclarations)
 	{
-		Row_Event *pRow_Event = m_dce.Event_get()->GetRow( (*itEventDeclarations).first );
+		Row_Event *pRow_Event = m_spDatabase_pluto_main->Event_get()->GetRow( (*itEventDeclarations).first );
 		fstr_DeviceCommand << "\tvoid EVENT_" << (*itEventDeclarations).second << " { GetEvents()->" << FileUtils::ValidCPPName(pRow_Event->Description_get()) << "(" << deviceInfo.m_mapEventParms[(*itEventDeclarations).first] << "); }" << endl;
 	}
 
@@ -760,7 +762,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 
 		for(itStringString=mapRNameParms.begin();itStringString!=mapRNameParms.end();++itStringString)
 		{
-			Row_Request *pRow_Request = m_dce.Request_get()->GetRow(  atoi(mapRNameRequestID[(*itStringString).first].c_str()));
+			Row_Request *pRow_Request = m_spDatabase_pluto_main->Request_get()->GetRow(  atoi(mapRNameRequestID[(*itStringString).first].c_str()));
 			fstr_DeviceCommand << "\t\t\tcase " << mapRNameRequestID[(*itStringString).first] << ":" << endl;
 			fstr_DeviceCommand << "\t\t\t\t{" << endl;
 			vector<Row_Request_RequestParameter_In *> vectRow_Request_RequestParameter_In;
@@ -1229,7 +1231,7 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 			map<int,string>::iterator itEventDeclarations;
 			for(itEventDeclarations=pDeviceInfo->m_mapEventDeclarations.begin();itEventDeclarations!=pDeviceInfo->m_mapEventDeclarations.end();++itEventDeclarations)
 			{
-				//Row_Event *pRow_Event = m_dce.Event_get()->GetRow( (*itEventDeclarations).first );
+				//Row_Event *pRow_Event = m_spDatabase_pluto_main->Event_get()->GetRow( (*itEventDeclarations).first );
 				fputs(("\tvoid EVENT_" + (*itEventDeclarations).second + ";"EOL).c_str(),file);
 			}
 
@@ -1401,14 +1403,14 @@ void DCEGen::CreateFunctionParms(Row_Command *pRow_Command,CommandInfo *pCommand
 			// Call this just to get m_sParmsWithType_Out
 			string foo;
 			CreateFunctionParms(pRow_Command_CommandParameter->FK_CommandParameter_get(),
-				GetCommandParameterConstStr(m_dce.CommandParameter_get()->GetRow(pRow_Command_CommandParameter->FK_CommandParameter_get())),
+				GetCommandParameterConstStr(m_spDatabase_pluto_main->CommandParameter_get()->GetRow(pRow_Command_CommandParameter->FK_CommandParameter_get())),
 				pRow_Command_CommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get(),
 				FileUtils::ValidCPPName(pRow_Command_CommandParameter->FK_CommandParameter_getrow()->Description_get()),
 				pCommandInfo->m_sParmsWithType_Out,pCommandInfo->m_sAssignParmToLocal_Out,pCommandInfo->m_sParmsWithNoType_Out,foo);
 			continue;
 		}
 		CreateFunctionParms(pRow_Command_CommandParameter->FK_CommandParameter_get(),
-			GetCommandParameterConstStr(m_dce.CommandParameter_get()->GetRow(pRow_Command_CommandParameter->FK_CommandParameter_get())),
+			GetCommandParameterConstStr(m_spDatabase_pluto_main->CommandParameter_get()->GetRow(pRow_Command_CommandParameter->FK_CommandParameter_get())),
 			pRow_Command_CommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get(),
 			FileUtils::ValidCPPName(pRow_Command_CommandParameter->FK_CommandParameter_getrow()->Description_get()),
 			pCommandInfo->m_sParmsWithType_In,pCommandInfo->m_sAssignParmToLocal_In,pCommandInfo->m_sParmsWithNoType_In,pCommandInfo->m_sPassingToMessage_In);
@@ -1422,7 +1424,7 @@ void DCEGen::CreateFunctionParms(Row_Command *pRow_Command,CommandInfo *pCommand
 		if( !pRow_Command_CommandParameter->IsOut_get() )
 			continue;
 		CreateFunctionParms(pRow_Command_CommandParameter->FK_CommandParameter_get(),
-			GetCommandParameterConstStr(m_dce.CommandParameter_get()->GetRow(pRow_Command_CommandParameter->FK_CommandParameter_get())),
+			GetCommandParameterConstStr(m_spDatabase_pluto_main->CommandParameter_get()->GetRow(pRow_Command_CommandParameter->FK_CommandParameter_get())),
 			pRow_Command_CommandParameter->FK_CommandParameter_getrow()->FK_ParameterType_get(),
 			FileUtils::ValidCPPName(pRow_Command_CommandParameter->FK_CommandParameter_getrow()->Description_get()),
 			pCommandInfo->m_sParmsWithTypePointers_Out,pCommandInfo->m_sAssignLocalToParm,pCommandInfo->m_sParmsWithNoType_In,pCommandInfo->m_sPassingToMessage_Out,true);
@@ -1469,7 +1471,7 @@ void DCEGen::CreateFunctionParms(Row_Event *pRow_Event,int &ParmCount,string &sP
 		Row_Event_EventParameter *pRow_Event_EventParameter = vectRow_Event_EventParameter[i];
 		CreateFunctionParms(
 			pRow_Event_EventParameter->FK_EventParameter_get(),
-			GetEventParameterConstStr(m_dce.EventParameter_get()->GetRow(pRow_Event_EventParameter->FK_EventParameter_get())),
+			GetEventParameterConstStr(m_spDatabase_pluto_main->EventParameter_get()->GetRow(pRow_Event_EventParameter->FK_EventParameter_get())),
 			pRow_Event_EventParameter->FK_EventParameter_getrow()->FK_ParameterType_get(),
 			FileUtils::ValidCPPName(pRow_Event_EventParameter->FK_EventParameter_getrow()->Description_get()),
 			sParmsWithType,sAssignParmToLocal,sParmsWithNoType,sPassingToMessage);
@@ -1606,7 +1608,7 @@ void DCEGen::WriteGlobals()
 	fstr_DeviceCommand << "\t //  Commands" << endl;
 
 	vector<Row_Command *> vectRow_Command;
-	m_dce.Command_get()->GetRows("1=1",&vectRow_Command);
+	m_spDatabase_pluto_main->Command_get()->GetRows("1=1",&vectRow_Command);
 
 	map<string,bool> mapCommands;  // It's possible commands are similar and when stripped by ValidCppName they have the same name, like 10+ and 10-.  These are never DCE commands anyway
 	for(size_t s=0;s<vectRow_Command.size();++s)

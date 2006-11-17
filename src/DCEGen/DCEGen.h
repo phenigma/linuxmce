@@ -81,7 +81,7 @@ class DCEGen : public MySqlHelper
 public:
 	map<int,int> m_mapGeneratedDevices;  // Keep track of the devices we've already generated
 	int m_dwPK_DeviceTemplate;
-	Database_pluto_main m_dce;
+	auto_ptr<Database_pluto_main> m_spDatabase_pluto_main;
 
 	DCEGen(int PK_DeviceTemplate,string GeneratedOutput,string TemplateInput,string TemplateOutput,string DBHost,string DBUser,string DBPassword,string DBName,int DBPort);
 

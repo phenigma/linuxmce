@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 		exit(0);
 	}
 
-	Database_pluto_main mds; 
+	Database_pluto_main mds(g_pPlutoLogger); 
 	if(!mds.Connect(DBHost, DBUser, DBPassword, DBName, DBPort))
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to connect to database (host %s, user %s, password %s, dbname %s, "
