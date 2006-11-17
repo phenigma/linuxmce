@@ -13,7 +13,7 @@ using namespace std;
 class ProcessUtils
 {
 public:
-	static unsigned long ProcessUtils::g_SecondsReset;
+	static unsigned long g_SecondsReset;
 	void ResetMsTime();
 	unsigned long GetMicroTime();
 };
