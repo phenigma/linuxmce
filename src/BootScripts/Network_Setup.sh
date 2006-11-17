@@ -3,6 +3,7 @@
 . /usr/pluto/bin/Network_Parameters.sh
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/Section_Ops.sh
 
 # vars:
 # CORE_INTERNAL_ADDRESS
