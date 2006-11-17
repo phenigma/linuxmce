@@ -54,7 +54,7 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 	MeshFrame * BeforeDataGrid = RenderFrame;
 
 	MeshFrame *BeforeDataGridClone = NULL;
-	if(0 != StartAnimation)
+	if(0 != StartAnimation && BeforeDataGrid != NULL)
 	{
 		TextureManager::Instance()->SuspendTextureRelease();
 
