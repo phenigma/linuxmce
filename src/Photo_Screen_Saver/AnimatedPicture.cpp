@@ -19,11 +19,7 @@ AnimatedPicture::~AnimatedPicture(void)
 bool AnimatedPicture::LoadFromFile(string FileName)
 {
 	bool Result = Picture->Load(FileName);
-	Sleep(200);
-
 	Picture->Prepare(m_nScreenWidth, m_nScreenHeight);
-	Sleep(200);
-
 	PictureFrame = BuildRectangle(0.0f, 0.0f, 1.0f, 1.0f, Picture);
 	
 	return Result;
