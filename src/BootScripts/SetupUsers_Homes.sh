@@ -3,6 +3,7 @@
 
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/Section_Ops.sh
 
 TemplateDir=/usr/pluto/templates
 
@@ -24,7 +25,6 @@ if [[ "$MakeUsers" == yes ]]; then
 	awk '!/^pluto_/' /etc/passwd >/etc/passwd.$$
 	awk '!/^pluto_/' /etc/shadow >/etc/shadow.$$
 
-	cp $TemplateDir/smb.conf.tmpl /etc/samba/smb.conf.$$
 	cp $TemplateDir/smbpasswd.tmpl /etc/samba/smbpasswd.$$
 	: >/etc/samba/usermap.txt
 fi
@@ -41,6 +41,7 @@ user_dirs="audio pictures documents videos"
 user_static_dirs="data"
 
 UserList=
+SambaUserShares=
 
 for Users in $R; do
 	PlutoUserID=$(Field 1 "$Users")
@@ -60,7 +61,9 @@ for Users in $R; do
 #	echo "$Users : $PlutoUserID - $UserName - $LinuxPassword - $SambaPassword"
 	
 	if [[ "$MakeUsers" == yes ]]; then
-		SambaShare="[$UserName]
+		SambaUserShares="${SambaUserShares}
+
+		[$UserName]
 		comment = $UserName's private files
 		browseable = yes
 		writable = yes
@@ -75,7 +78,6 @@ for Users in $R; do
 		PasswdEntry="pluto_$UserName:x:$LinuxUserID:$LinuxUserID:,,,:/home/user_$PlutoUserID:/bin/false"
 		GroupEntry="pluto_$UserName:x:$LinuxUserID:www-data"
 		SambaUnixMap="pluto_$UserName = $UserName"
-		echo "$SambaShare" >>/etc/samba/smb.conf.$$
 		echo "$SambaEntry" >>/etc/samba/smbpasswd.$$
 		echo "$ShadowEntry" >>/etc/shadow.$$
 		echo "$PasswdEntry" >>/etc/passwd.$$
@@ -118,6 +120,10 @@ for Users in $R; do
 	((LinuxUserID++))
 done
 
+if [[ "$MakeUsers" == yes ]] ;then
+	PopulateSection "/etc/samba/smb.conf" "User Shares" "$SambaUserShares"
+fi
+
 for dir in $global_static_dirs; do
 	mkdir -p -m 0755 "$BaseDir/${dir/~/ }"
 done
@@ -155,7 +161,7 @@ for Device in $R; do
 done
 
 if [[ "$MakeUsers" == yes ]]; then
-	files="samba/smb.conf samba/smbpasswd shadow passwd group"
+	files="samba/smbpasswd shadow passwd group"
 	for file in $files; do
 		mv -f /etc/$file.$$ /etc/$file
 	done
@@ -166,6 +172,10 @@ if [[ "$MakeUsers" == yes ]]; then
 		adduser pluto_$User public &>/dev/null
 		chown --dereference -R pluto_$User.pluto_$User /home/$User/
 	done
+
+	if [[ "$(pidof smbd)" != "" ]] ;then
+		invoke-rc.d samba reload
+	fi
 fi
 
 chmod -R 2770 "$BaseDir"/user_* 2>/dev/null

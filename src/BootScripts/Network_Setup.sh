@@ -198,7 +198,7 @@ Q="FLUSH PRIVILEGES"
 RunSQL "$Q"
 
 
-## Setup smb.conf.pluto
+## Setup Samba Domain / Hostname
 DD_Domain=187
 DD_ComputerName=188
 
@@ -210,12 +210,12 @@ Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData=$DD_ComputerN
 ComputerName=$(RunSQL "$Q")
 ComputerName=$(Field "1" "$ComputerName")
 
-echo "
-[global]
+SambaDomainHost="
 	workgroup = $DomainName
 	server string =	$ComputerName
 	netbios name = $ComputerName
-" > /etc/samba/smb.conf.pluto
-
-# This code here - for safe keeping - has something to do with PPPoE and PMTU
-#iptables -A FORWARD -o ppp0 -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss --mss 1400:1536 -j TCPMSS --clamp-mss-to-pmtu
+"
+PopulateSection "/etc/samba/smb.conf" "Domain and Hostname" "$SambaDomainHost"
+if [[ "$(pidof smbd)" != "" ]] ;then
+	invoke-rc.d samba reload
+fi
