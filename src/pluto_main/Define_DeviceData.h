@@ -169,6 +169,7 @@
 #define DEVICEDATA_Online_CONST 195
 #define DEVICEDATA_Output_Channels_CONST 196
 #define DEVICEDATA_Realtime_Priority_CONST 197
+#define DEVICEDATA_Tags_CONST 198
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
