@@ -1193,7 +1193,7 @@ DesktopBackgroundScaled=1 # 0/1
 DesktopBackgroundColor="rgb:00/00/00"
 
 #  Desktop background image
-DesktopBackgroundImage=""
+DesktopBackgroundImage="/root/.icewm/black.png"
 
 #  Color to announce for semi-transparent windows
 DesktopTransparencyColor=""
