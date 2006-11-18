@@ -2250,6 +2250,7 @@
 #define DESIGNOBJ_iconTVChannels_CONST 5198
 #define DESIGNOBJ_butDoneAddSoftware_CONST 5200
 #define DESIGNOBJ_iconCheckMark_CONST 5201
+#define DESIGNOBJ_unscaled_app_Desktop_CONST 5202
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
