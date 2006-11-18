@@ -752,6 +752,7 @@
 #define COMMAND_Get_List_of_Remotes_CONST 828
 #define COMMAND_Get_Remote_ID_CONST 829
 #define COMMAND_Set_Active_Remote_CONST 830
+#define COMMAND_Refresh_List_of_Online_Devices_CONST 831
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

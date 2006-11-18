@@ -1302,7 +1302,7 @@ g_pPlutoLogger->Write(LV_STATUS,"delete1 pBackgroundImage->m_pCell->m_pGraphic %
 
 			pBackgroundImage->m_pCell->m_pGraphic = pPlutoGraphic;
 			int j=pBackgroundImage->m_ColRow.first;
-			int i=pBackgroundImage->m_ColRow.second;
+			int i=pBackgroundImage->m_ColRow.second - pBackgroundImage->m_pObj_Grid->m_GridCurRow; // The current visible row
 			int x, y, w, h;
 			PlutoPoint point(0,0);
 			pBackgroundImage->m_pObj_Grid->GetGridCellDimensions(pBackgroundImage->m_pCell->m_Colspan,  pBackgroundImage->m_pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );

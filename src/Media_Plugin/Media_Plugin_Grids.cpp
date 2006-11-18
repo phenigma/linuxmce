@@ -254,10 +254,17 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		sSQL_Where += " AND FK_Attribute=" + StringUtils::itos(PK_Attribute);
 	}
 
+	if( time(NULL)-m_tLastScanOfOnlineDevices>300 )
+		CMD_Refresh_List_of_Online_Devices();  // If it's been more than 5 minutes since we scanned for the list of devices
+
+	string sOnline;
+	if( m_sPK_Devices_Online.empty()==false )
+		sOnline = " AND (EK_Device IS NULL OR EK_Device IN (" + m_sPK_Devices_Online + ")) ";
+
 	string sPK_File,sPK_Disc;
     PlutoSqlResult resultf,resultd;
     MYSQL_ROW row;
-	if( bFile && ( resultf.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_File + sSQL_Where + " AND Missing=0 " + (sPath.size() ? " AND Path in (" + sPath + ")" : "")) ) )
+	if( bFile && ( resultf.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_File + sOnline + sSQL_Where + " AND Missing=0 " + (sPath.size() ? " AND Path in (" + sPath + ")" : "")) ) )
         while( ( row=mysql_fetch_row( resultf.r ) ) )
 			sPK_File += row[0] + string(",");
 

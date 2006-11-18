@@ -51,7 +51,7 @@ public:
 	map<int, int> m_mapEffects; //The map with effects
 	int m_iPK_Orbiter;
 	int m_iScreensTotal,m_iScreensToRender,m_iLastReportedPercentage;  // Keep track of screens we're going to need to render
-	PlutoSize m_sScale;
+	PlutoSize m_sScale,m_sScale_Orig;  // orig is the value without reduction for the borders in case the object has DESIGNOBJPARAMETER_Dont_Scale_CONST==1
 	bool m_bDontAutoRegenArrays;
 	string m_sDesc_Array;
 	class Row_Icon * m_pRow_Icon;

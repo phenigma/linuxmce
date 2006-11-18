@@ -22124,5 +22124,29 @@ namespace DCE
 			COMMANDPARAMETER_Fire_Event_CONST, (bFire_Event ? "1" : "0"),
 			COMMANDPARAMETER_PK_Orbiter_CONST, StringUtils::itos(iPK_Orbiter).c_str()); }
 	};
+	class CMD_Refresh_List_of_Online_Devices : public PreformedCommand {
+	public:
+		CMD_Refresh_List_of_Online_Devices(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Refresh_List_of_Online_Devices_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_Refresh_List_of_Online_Devices_DL : public PreformedCommand {
+	public:
+		CMD_Refresh_List_of_Online_Devices_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Refresh_List_of_Online_Devices_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_Refresh_List_of_Online_Devices_DT : public PreformedCommand {
+	public:
+		CMD_Refresh_List_of_Online_Devices_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Refresh_List_of_Online_Devices_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_Refresh_List_of_Online_Devices_Cat : public PreformedCommand {
+	public:
+		CMD_Refresh_List_of_Online_Devices_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Refresh_List_of_Online_Devices_CONST,
+			0 /* number of parameters */); }
+	};
 }
 #endif

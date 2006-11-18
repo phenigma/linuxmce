@@ -355,6 +355,7 @@ continue;
 
 	m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(1);      // number of worker threads
+	CMD_Refresh_List_of_Online_Devices();
 
 	return true;
 }
@@ -5144,4 +5145,38 @@ void Media_Plugin::CMD_Specify_Capture_Card_Port(int iPK_Device,int iPK_Device_R
 	SendCommand(CMD_Remove_Screen_From_History_DL);
 	DCE::CMD_Check_Media_Providers CMD_Check_Media_Providers(m_dwPK_Device,m_pOrbiter_Plugin->m_dwPK_Device);
 	SendCommand(CMD_Check_Media_Providers);
+}
+
+//<-dceag-c831-b->
+
+	/** @brief COMMAND: #831 - Refresh List of Online Devices */
+	/** Send this command when the list of devices that are online/offline changes */
+
+void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Message *pMessage)
+//<-dceag-c831-e->
+{
+	m_sPK_Devices_Online="";
+	string sSQL = "SELECT PK_Device FROM Device "
+		"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
+		"LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_Online_CONST) " "
+		"WHERE FK_DeviceCategory IN (" TOSTRING(DEVICECATEGORY_Hard_Drives_CONST) "," TOSTRING(DEVICECATEGORY_Network_Storage_CONST) ") "
+		"AND (IK_DeviceData IS NULL OR IK_DeviceData<>0)";
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+
+	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sSQL))  )
+	{
+		while( (row = mysql_fetch_row( result.r )) )
+		{
+			if( m_sPK_Devices_Online.empty()==false )
+				m_sPK_Devices_Online+=",";
+			m_sPK_Devices_Online += row[0];
+		}
+	}
+
+	m_tLastScanOfOnlineDevices=time(NULL);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Refresh_List_of_Online_Devices now %s",m_sPK_Devices_Online.c_str());
+#endif
 }

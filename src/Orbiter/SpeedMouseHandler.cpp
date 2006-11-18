@@ -29,8 +29,6 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::SpeedMouseHandler setting playback speed to 0");
 #endif
-	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,0,true);
-	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed,&sResponse);
 
 	string sText,sMediaPosition;
 	DCE::CMD_Report_Playback_Position CMD_Report_Playback_Position(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,&sText,&sMediaPosition);
@@ -45,10 +43,27 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 	m_iCancelLevel = m_CurrentMedia_Pos;
 	m_iLastNotch=0;
 	m_pMouseBehavior->m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();  // The above may have taken too much time already
+
+	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::SpeedMouseHandler skipping because the speed wasn't changed by the mouse");
+#endif
+		return;
+	}
+	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,0,true);
+	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed,&sResponse);
 }
 
 SpeedMouseHandler::~SpeedMouseHandler() 
 {
+	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::]`SpeedMouseHandler skipping because the speed wasn't changed by the mouse");
+#endif
+		return;
+	}
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::~SpeedMouseHandler setting playback speed to normal");
 #endif
@@ -60,6 +75,13 @@ SpeedMouseHandler::~SpeedMouseHandler()
 
 void SpeedMouseHandler::Start()
 {
+	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::Start skipping because the speed wasn't changed by the mouse");
+#endif
+		return;
+	}
 	PlutoRectangle rect(m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X,
 		m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + int(m_pObj->m_rPosition.Height*.2),
 		m_pObj->m_rPosition.Width,1);
@@ -98,6 +120,13 @@ void SpeedMouseHandler::Stop()
 
 bool SpeedMouseHandler::ButtonDown(int PK_Button)
 {
+	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::ButtonDown skipping because the speed wasn't changed by the mouse");
+#endif
+		return false; // Keep processing
+	}
 	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_6_CONST || PK_Button==BUTTON_Mouse_2_CONST )
 	{
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
@@ -119,6 +148,13 @@ bool SpeedMouseHandler::ButtonDown(int PK_Button)
 
 bool SpeedMouseHandler::ButtonUp(int PK_Button)
 {
+	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::ButtonUp skipping because the speed wasn't changed by the mouse");
+#endif
+		return false; // Keep processing
+	}
 	if( PK_Button==BUTTON_Mouse_6_CONST )  // The user was in press and hold mode, or tapped again after the menu appeared on screen
 	{
 		// There is a logic flaw that when there's only a speed control and no vertical, it goes straight here and immediately stops
@@ -136,6 +172,13 @@ bool SpeedMouseHandler::ButtonUp(int PK_Button)
 
 void SpeedMouseHandler::Move(int X,int Y,int PK_Direction)
 {
+	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::Move skipping because the speed wasn't changed by the mouse");
+#endif
+		return;
+	}
 	m_iLastGoodPosition = X;
 	int XStart = m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2;
 	if( m_bTapAndRelease || !m_bHasTimeline )  // holding button down, change speed, or this stream doesn't support absolute positioning anyway

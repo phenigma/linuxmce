@@ -4734,9 +4734,8 @@ void Orbiter::CMD_Display_OnOff(string sOnOff,bool bAlready_processed,string &sC
 void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,string &sCMD_Result,Message *pMessage)
 //<-dceag-c4-e->
 {
-#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"CMD_Go_back currently: %s (%d) cs: %s",m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(),m_pScreenHistory_Current->PK_Screen(),sPK_DesignObj_CurrentScreen.c_str());
-#endif
+
 	if( !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )
 		return;
 
@@ -4849,9 +4848,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Go_back to %d with %d=%s",pScreenHistory-
 void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,string &sCMD_Result,Message *pMessage)
 //<-dceag-c5-e->
 {
-#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_DesignObj: %s with cant go back %d",sPK_DesignObj.c_str(),(int) bCant_Go_Back);
-#endif
+
 	PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );  // Nothing more can happen
 
 	bool bIsRemote=false;
@@ -6332,7 +6330,10 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 			CMD_Activate_Window(sName);
 		}
 		else
+		{
 			StartScreenSaver(false);  // Don't go to the menu, just start the app in the background
+			m_bShowingSpeedBar=false;
+		}
 	}
 
 	if( m_bReportTimeCode && !m_bUpdateTimeCodeLoopRunning )
@@ -8619,14 +8620,12 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 	if( pMessage==NULL )
 		pMessage = new Message();
 
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "Received goto screen message id %d params: message %p", iPK_Screen, pMessage);
+	g_pPlutoLogger->Write(LV_WARNING, "CMD_Goto_Screen message id %d params: message %p", iPK_Screen, pMessage);
 	for(map<long, string>::iterator it = pMessage->m_mapParameters.begin(); it != pMessage->m_mapParameters.end(); it++)
 	{
 		string sValue = it->second;
 		g_pPlutoLogger->Write(LV_WARNING, "Param id: %5d, value: %s", it->first, sValue.c_str());
 	}
-#endif
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	// With the new UI 

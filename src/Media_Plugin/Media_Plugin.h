@@ -89,7 +89,11 @@ private:
     int m_iStreamID;
     pthread_mutexattr_t m_MutexAttr;
     MapMediaStream m_mapMediaStream; // All active streams
+	string m_sPK_Devices_Online; // List of available storage devices, comma separated
+	time_t m_tLastScanOfOnlineDevices;
 	map< pair<int,int>,bool > m_mapMediaType_AttributeType_Identifier;  // MediaType/AttributeType Combinations that uniquely identify a media file
+	map< int, pair<time_t,bool> > m_mapMediaDevicesOnline; // PK_Device (for NAS, drives, etc.) with the last time the status was checked and true if it's online
+	pair<time_t,bool> m_mapMediaDevicesOnline_Find(int iPK_Device) { map< int, pair<time_t,bool> >::iterator it = m_mapMediaDevicesOnline.find(iPK_Device); return it==m_mapMediaDevicesOnline.end() ? make_pair<time_t,bool> (0,false) : (*it).second; }
 
 	// mapping from disk drive to the job info
 	map<int, class RippingJob *> m_mapRippingJobs;
@@ -1043,6 +1047,12 @@ Powerfile: 0, 1, ... */
 	virtual void CMD_Specify_Capture_Card_Port(int iPK_Device,int iPK_Device_Related) { string sCMD_Result; CMD_Specify_Capture_Card_Port(iPK_Device,iPK_Device_Related,sCMD_Result,NULL);};
 	virtual void CMD_Specify_Capture_Card_Port(int iPK_Device,int iPK_Device_Related,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #831 - Refresh List of Online Devices */
+	/** Send this command when the list of devices that are online/offline changes */
+
+	virtual void CMD_Refresh_List_of_Online_Devices() { string sCMD_Result; CMD_Refresh_List_of_Online_Devices(sCMD_Result,NULL);};
+	virtual void CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 };

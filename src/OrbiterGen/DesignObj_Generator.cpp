@@ -132,7 +132,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
 if( m_pOrbiterGenerator->m_iLocation )
 int k=2;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==5138 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==4834 ||  m_pRow_DesignObj->PK_DesignObj_get()==4836 ) 
+if( m_pRow_DesignObj->PK_DesignObj_get()==3558 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==4834 ||  m_pRow_DesignObj->PK_DesignObj_get()==4836 ) 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -145,6 +145,8 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==5138 ) // ||  m_pRow_DesignObj->PK_Des
 
     // Pick the standard variation, the specialized variation we will use for parameters, and all matching variations for including child objects
     PickVariation(m_pOrbiterGenerator,m_pRow_DesignObj,&m_pRow_DesignObjVariation,&m_pRow_DesignObjVariation_Standard,&m_alDesignObjVariations);
+
+	m_bDontScale = GetParm(DESIGNOBJPARAMETER_Dont_Scale_CONST, 0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get())=="1";
 
     if( !m_pRow_DesignObjVariation_Standard )
     {
@@ -919,7 +921,10 @@ int k=2;
 								// they will be offset by the parent floorplan object
 								// and they are to be centered on the point, rather than upper/left like the others.  That will be 
 								// handled when ScaleAllValues is called the second time.
-								pDesignObj_Generator->ScaleAllValues(m_pOrbiterGenerator->m_sScale.Width,m_pOrbiterGenerator->m_sScale.Height,NULL);
+								if( pDesignObj_Generator->m_bDontScale )
+									pDesignObj_Generator->ScaleAllValues(m_pOrbiterGenerator->m_sScale_Orig.Width,m_pOrbiterGenerator->m_sScale_Orig.Height,NULL);
+								else
+									pDesignObj_Generator->ScaleAllValues(m_pOrbiterGenerator->m_sScale.Width,m_pOrbiterGenerator->m_sScale.Height,NULL);
 								m_alChildDesignObjs.push_back(pDesignObj_Generator);
 								pDesignObj_Generator->m_rBackgroundPosition.X=X;
 								pDesignObj_Generator->m_rBackgroundPosition.Y=Y;

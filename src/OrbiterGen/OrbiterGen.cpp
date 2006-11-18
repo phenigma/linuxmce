@@ -809,6 +809,7 @@ m_bNoEffects = true;
 		m_rSpacing.X,m_rSpacing.Y,m_rSpacing.Width,m_rSpacing.Height,m_sScale.Width,m_sScale.Height);
 #endif
 
+	m_sScale_Orig = m_sScale;
 	// See if we need to reduce the scaling because of borders around the screen
 	if( m_rSpacing.X || m_rSpacing.Width )
 		m_sScale.Width = int((double) m_sScale.Width * (100-iSpacingParameter) / 100);
@@ -1587,7 +1588,10 @@ loop_to_keep_looking_for_objs_to_include:
 			{
 				// The scaling process will also let us know if we have any arrays within our child objects.  If so
 				// we know we cannot cache this screen.  So we pass in the top-most object throughout
-				oco->ScaleAllValues(m_sScale.Width,m_sScale.Height,oco);
+				if( oco->m_bDontScale )
+					oco->ScaleAllValues(m_sScale_Orig.Width,m_sScale_Orig.Height,oco);
+				else
+					oco->ScaleAllValues(m_sScale.Width,m_sScale.Height,oco);
 			}
 			if( oco->m_alMPArray.size()<=1 )
 				NumScreens++;
@@ -1676,8 +1680,10 @@ loop_to_keep_looking_for_objs_to_include:
 
 				bool bScaledDown=false;  // Keep track of whether or not we scaled this screen down
 				// Don't force popups to be full-screen
-				if( m_mapPopups.find(oco->m_pRow_DesignObj->PK_DesignObj_get())==m_mapPopups.end() )
+				if( oco->m_bDontScale==false && m_mapPopups.find(oco->m_pRow_DesignObj->PK_DesignObj_get())==m_mapPopups.end() )
 				{
+if( oco->m_pRow_DesignObj->PK_DesignObj_get()==4967 || oco->m_pRow_DesignObj->PK_DesignObj_get()==3558 )
+int k=2;
 					oco->m_rPosition.Right(m_Width-m_rSpacing.Width);
 					oco->m_rPosition.Bottom(m_Height-m_rSpacing.Height);
 					oco->m_rBackgroundPosition.Right(m_Width-m_rSpacing.Width);
@@ -2154,6 +2160,23 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 			ScaleCommandList(ocDesignObj,oz->m_Commands);
 		}
 	}
+	if( ocDesignObj->m_ObjectType==DESIGNOBJTYPE_App_Desktop_CONST && (ocDesignObj->m_rPosition.Width==0 || ocDesignObj->m_rPosition.Height==0) )
+	{
+		if( ocDesignObj->m_bDontScale )
+		{
+			if( ocDesignObj->m_rPosition.Width==0 )
+				ocDesignObj->m_rPosition.Width=m_Width;
+			if( ocDesignObj->m_rPosition.Height==0 )
+				ocDesignObj->m_rPosition.Height=m_Height;
+		}
+		else
+		{
+			if( ocDesignObj->m_rPosition.Width==0 )
+				ocDesignObj->m_rPosition.Width=m_Width-m_rSpacing.Width*2;
+			if( ocDesignObj->m_rPosition.Height==0 )
+				ocDesignObj->m_rPosition.Height=m_Height-m_rSpacing.Height*2;
+		}
+	}
 	ScaleCommandList(ocDesignObj,ocDesignObj->m_Action_LoadList);
 	ScaleCommandList(ocDesignObj,ocDesignObj->m_Action_StartupList);
 	ScaleCommandList(ocDesignObj,ocDesignObj->m_Action_TimeoutList);
@@ -2360,9 +2383,11 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 			OutputDesignObjs(oco,ArrayPage,true,ParentScreen);
 		}
 	}
+if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==4967 || ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==3558 )
+int k=2;
 
 	// Offset for the spacing
-	if( m_mapPopups.find(atoi(ParentScreen.c_str()))==m_mapPopups.end() )
+	if( ocDesignObj->m_bDontScale==false && m_mapPopups.find(atoi(ParentScreen.c_str()))==m_mapPopups.end() )
 	{
 		ocDesignObj->m_rPosition.X += m_rSpacing.X;
 		ocDesignObj->m_rPosition.Y += m_rSpacing.Y;
@@ -2429,8 +2454,10 @@ AB 1/17/2005 - text styles are shared -- this was causing it to change backgroun
 			p_DesignObjText->m_mapAltVersions[(*itatv).first] = (*itatv).second;
 		}
 	}
+if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==4967 || ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==3558 )
+int k=2;
 	// Offset for the spacing
-	if( m_mapPopups.find(atoi(ParentScreen.c_str()))==m_mapPopups.end() )
+	if( ocDesignObj->m_bDontScale==false && m_mapPopups.find(atoi(ParentScreen.c_str()))==m_mapPopups.end() )
 	{
 		p_DesignObjText->m_rPosition.X += m_rSpacing.X;
 		p_DesignObjText->m_rPosition.Y += m_rSpacing.Y;
