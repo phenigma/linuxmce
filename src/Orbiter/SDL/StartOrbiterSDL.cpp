@@ -305,7 +305,7 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 		pCLinux->Initialize(gtSDLGraphic);
-		g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter logic initialized!");
+		g_pPlutoLogger->Write(LV_STATUS, "Orbiter logic initialized!");
 
 		if(!pCLinux->m_bQuit)
 		{

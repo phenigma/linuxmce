@@ -614,7 +614,7 @@ bool Orbiter::GetConfig()
 
 			s = pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_Configuration_CONST);
 
-			g_pPlutoLogger->Write(LV_CRITICAL, "Scan codes for remote %d: %s", pDeviceData_Impl->m_dwPK_Device, s.c_str());
+			g_pPlutoLogger->Write(LV_STATUS, "Scan codes for remote %d: %s", pDeviceData_Impl->m_dwPK_Device, s.c_str());
 			
 			vector<string> vectTokens;
 			StringUtils::Tokenize(s,"\r\n",vectTokens);
@@ -5515,7 +5515,7 @@ void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &
 //<-dceag-c27-e->
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_CRITICAL,"Variable: %d set to %s",iPK_Variable,sValue_To_Assign.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"Variable: %d set to %s",iPK_Variable,sValue_To_Assign.c_str());
 #endif
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 	m_mapVariable[iPK_Variable] = sValue_To_Assign;
@@ -7064,7 +7064,7 @@ void Orbiter::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *
 //<-dceag-c354-e->
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter::CMD_Show_Mouse_Pointer %s", sOnOff.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Orbiter::CMD_Show_Mouse_Pointer %s", sOnOff.c_str());
 #endif
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if(	m_pMouseBehavior )
@@ -8098,20 +8098,25 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 	{
 		if( m_pMouseBehavior )
 			m_pMouseBehavior->SetMediaInfo(sTime,sTotal,sSpeed,sTitle,sSection);
-		if( m_sNowPlaying_Speed.empty()==true && m_pScreenHistory_Current->PK_Screen()==m_iPK_Screen_OSD_Speed && m_bShowingSpeedBar )
+		if( m_sNowPlaying_Speed.empty()==true && m_bShowingSpeedBar )
 		{
+			// We displayed a speed bar, per below.  Remove it
 			m_bShowingSpeedBar=false;
+			if( m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen()==m_iPK_Screen_OSD_Speed )
+				CMD_Go_back("","1");
+			/*
 			if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
 				CMD_Goto_Screen("",m_iPK_Screen_RemoteOSD);
 			else if( m_iPK_Screen_Remote )
 				CMD_Goto_Screen("",m_iPK_Screen_Remote);
+				*/
 		}
-		else if( m_sNowPlaying_Speed.empty()==false && m_bContainsVideo && m_iPK_Screen_OSD_Speed && m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen()!=m_iPK_Screen_OSD_Speed )
+		else if( m_sNowPlaying_Speed.empty()==false && m_bContainsVideo && m_iPK_Screen_OSD_Speed && m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen()!=m_iPK_Screen_OSD_Speed && !m_bShowingSpeedBar )
 		{
-			m_bShowingSpeedBar=true;
-			int PK_DesignObj = m_mapDesignObj[m_iPK_Screen_OSD_Speed];
-			// Just get the design obj so we're not shifting screens, just objects, and we'll do a go back when it returns to normal
-			CMD_Goto_DesignObj(0,StringUtils::itos(PK_DesignObj),"","",false,true);
+			// If we're not on the speed screen already (ie the speed was adjusted with an i/r remote or other means besides this osd)
+			// Display the speed bar just as a goto designobj, not a full screen, and we'll go back when the speed returns to normal
+			m_bShowingSpeedBar=true;  // SpeedMouseHandler knows to ignore mouse movements when this is true
+			CMD_Goto_Screen("",m_iPK_Screen_OSD_Speed);
 		}
 	}
 #endif
