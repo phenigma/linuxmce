@@ -1189,7 +1189,7 @@ void OrbiterRenderer::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbi
 		pObj->m_vectGraphic.clear();
 		pObj->m_iCurrentFrame = 0;
 		OrbiterLogic()->m_vectObjs_VideoOnScreen.push_back(pObj);
-		OrbiterLogic()->m_bAlreadyQueuedVideo=false;
+		OrbiterLogic()->m_bAlreadyQueuedVideo=false;  // When we start to paint a video object we need to add the maint timer to render it
 	}
 
 	if(  pObj->m_GraphicToDisplay==GRAPHIC_SELECTED  )

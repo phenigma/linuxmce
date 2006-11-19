@@ -181,6 +181,9 @@ public:
 
 	virtual void SCREEN_Download_are_ready_to_install(long PK_Screen, int iPK_Device, string sPK_Device_AppServer);
 
+	virtual void SCREEN_CreateViewBookmarks(long PK_Screen);
+	bool Bookmark_GridSelected(CallBackData *pData);
+
 	//cameras
 	virtual void SCREEN_SingleCameraViewOnly(long PK_Screen, int iPK_Device);
 	virtual void SCREEN_QuadViewCameras(long PK_Screen, string sList_PK_Device);

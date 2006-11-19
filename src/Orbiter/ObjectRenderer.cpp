@@ -302,7 +302,6 @@ int k=2;
 			// deletes it, then request a video frame right away, otherwise we're redrawing
 			// and should wait the correct interval
 
-			// Don't purge existing callbacks since there can be multiple frames on the screen
 			m_pObj_Owner->m_pOrbiter->CallMaintenanceInMiliseconds( m_pObj_Owner->m_vectGraphic.size()==0 ? 0 : m_pObj_Owner->m_pOrbiter->m_iVideoFrameInterval, &Orbiter::GetVideoFrame, NULL, pe_ALL );
 			m_pObj_Owner->m_pOrbiter->m_bAlreadyQueuedVideo=true;  // Only schedule once -- that will redraw all video frames
 		}

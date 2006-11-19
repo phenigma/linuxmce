@@ -913,6 +913,20 @@ void ScreenHandler::SCREEN_DialogCannotBookmark(long PK_Screen, string sErrors)
 		"%> " + sErrors);
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_CreateViewBookmarks(long PK_Screen)
+{
+	// If this is an on screen display, when the user selects a bookmark we should return to the remote control
+	if( m_pOrbiter->m_bIsOSD && m_pOrbiter->m_iLocation_Initial==m_pOrbiter->m_pLocationInfo->iLocation )
+		RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::Bookmark_GridSelected, new DatagridCellBackData());
+	ScreenHandlerBase::SCREEN_CreateViewBookmarks(PK_Screen);
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::Bookmark_GridSelected(CallBackData *pData)
+{
+	m_pOrbiter->CMD_Go_back("","");
+	return false; // Keep processing
+}
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogAskToResume(long PK_Screen, string sPK_Device_From, string sPK_Device_MediaSource, 
 					string sStreamID_String, string sPosition, string sUsers, string sPK_MediaType_String, int iPK_Screen_GoTo)
 {
@@ -1510,19 +1524,12 @@ void ScreenHandler::SCREEN_QuadViewCameras(long PK_Screen, string sList_PK_Devic
 	vector<string> vectDevices;
 	StringUtils::Tokenize(sList_PK_Device, ",", vectDevices);
 
-	if(vectDevices.size() == 4)
-	{
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, vectDevices[0]);
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_2_CONST, vectDevices[1]);
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_3_CONST, vectDevices[2]);
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_4_CONST, vectDevices[3]);
-		ScreenHandlerBase::SCREEN_QuadViewCameras(PK_Screen, sList_PK_Device);
-	}
-	else
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "The list of devices for SCREEN_QuadViewCameras is wrong: %s",
-			sList_PK_Device.c_str());
-	}
+	size_t NumCameras = vectDevices.size();
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, NumCameras>=1 ? vectDevices[0] : "0");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_2_CONST, NumCameras>=2 ? vectDevices[1] : "0");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_3_CONST, NumCameras>=3 ? vectDevices[2] : "0");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_4_CONST, NumCameras>=4 ? vectDevices[3] : "0");
+	ScreenHandlerBase::SCREEN_QuadViewCameras(PK_Screen, sList_PK_Device);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NAS_Options(long PK_Screen, int iPK_PnpQueue)

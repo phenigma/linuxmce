@@ -291,6 +291,7 @@ namespace DCE
 		DeviceData_Impl *m_pDevice_ScreenSaver;
 		bool m_bScreenSaverActive; // true if the photo screen saver app is running.  not necessarily if the menu is at the screen saver because in ui2 the gallery viewer runs anytime there is no media
 		time_t m_tLastMouseMove;
+		int m_iLastVideoObjectRendered; // If there are multiple ones on screen, don't block the maint thread while polling all of them, use this as a counter to process one a time
 
 		AskXine_Socket *m_pAskXine_Socket;
 

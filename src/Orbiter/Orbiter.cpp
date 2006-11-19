@@ -247,6 +247,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_dwPK_DeviceTemplate = PK_DeviceTemplate;
 	m_iUiVersion = 0;
 	m_tLastMouseMove = 0;
+	m_iLastVideoObjectRendered = 0;
 
 	//initialize
 	m_pObj_NowPlayingOnScreen = NULL;
@@ -4589,52 +4590,40 @@ void Orbiter::StartCachingGrid( void *iData )
 
 void Orbiter::GetVideoFrame( void *data )
 {
-	//Since this may take a while and we don't want to block the mutex the whole time, make a local copy
+	// We'll render just one of the frames and use m_iLastVideoObjectRendered so we can do them in order
+	// This is because if we have multiple devices on the screen, and each may block for several seconds while
+	// waiting for the video device to provide the frame, we don't want to block the maint thread for too long
 	PLUTO_SAFETY_LOCK( vm, m_ScreenMutex )
-	vector<DesignObj_Orbiter *> vectObjs_VideoOnScreen; /** < All the video on screen */
-	vectObjs_VideoOnScreen.resize(m_vectObjs_VideoOnScreen.size());
-	std::copy(m_vectObjs_VideoOnScreen.begin(), m_vectObjs_VideoOnScreen.end(), vectObjs_VideoOnScreen.begin());
-	vm.Release();
-
-	vector<DesignObj_Orbiter *>::iterator it;
-	for(it = vectObjs_VideoOnScreen.begin(); it != vectObjs_VideoOnScreen.end(); it++)
+	if( m_vectObjs_VideoOnScreen.size()==0 )
 	{
-		DesignObj_Orbiter *pObj = *it;
-#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS, "Orbiter::GetVideoFrame() The target object is: %s", pObj->m_ObjectID.c_str());
-#endif
-		if( !pObj->m_bOnScreen )
-		{
-#ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS, "Orbiter::GetVideoFrame() The target object si not on screen: %s", pObj->m_ObjectID.c_str());
-#endif
-			return; // The object isn't on screen anymore
-		}
+		m_iLastVideoObjectRendered=0;
+		return;
+	}
 
-		// If it's hidden,  keep the timer going in case it becomes visible again
-		if(  !pObj->IsHidden(  )  )
+	if( m_iLastVideoObjectRendered>=m_vectObjs_VideoOnScreen.size() || m_iLastVideoObjectRendered<0 )
+		m_iLastVideoObjectRendered=0;
+
+	DesignObj_Orbiter *pObj = m_vectObjs_VideoOnScreen[m_iLastVideoObjectRendered++];
+	vm.Release();
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, "Orbiter::GetVideoFrame() The target object is: %s", pObj->m_ObjectID.c_str());
+#endif
+	if( pObj->m_bOnScreen && !pObj->IsHidden(  )  )
+	{
+		char *pBuffer=NULL; int Size=0;  string sFormat = "jpg";
+		int PK_Device = atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Source_CONST ).c_str(  ) );
+		if( PK_Device )
 		{
-			char *pBuffer=NULL; int Size=0;  string sFormat = "jpg";
-			int PK_Device = atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Source_CONST ).c_str(  ) );
-			if( PK_Device )
+			DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame( m_dwPK_Device, PK_Device, "0",  0 /* stream */, pObj->m_rPosition.Width, pObj->m_rPosition.Height, &pBuffer, &Size, &sFormat );
+			if(  SendCommand( CMD_Get_Video_Frame ) && pBuffer  )
 			{
-				DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame( m_dwPK_Device, PK_Device, "0",  0 /* stream */, pObj->m_rPosition.Width, pObj->m_rPosition.Height, &pBuffer, &Size, &sFormat );
-				if(  SendCommand( CMD_Get_Video_Frame ) && pBuffer  )
-				{
-					CMD_Update_Object_Image( pObj->m_ObjectID,  sFormat ,  pBuffer,  Size, "1" );
-					delete [] pBuffer; //we don't need it anymore
-				}
-				else
-				{
-					g_pPlutoLogger->Write(LV_WARNING, "CMD_Get_Video_Frame failed: the image buffer is empty");
-
-					// Don't purge existing callbacks since there can be multiple frames on the screen
-					CallMaintenanceInMiliseconds( m_iVideoFrameInterval, &Orbiter::GetVideoFrame, NULL, pe_ALL );
-				}
+				CMD_Update_Object_Image( pObj->m_ObjectID,  sFormat ,  pBuffer,  Size, "1" );
+				delete [] pBuffer; //we don't need it anymore
 			}
 		}
 	}
-	m_bAlreadyQueuedVideo=false;
+
+	CallMaintenanceInMiliseconds( m_iVideoFrameInterval, &Orbiter::GetVideoFrame, NULL, pe_ALL );
 	NeedToRender render( this, "GetVideoFrame" );  // Block this at the end so other renderings may occur in the meantime
 }
 
