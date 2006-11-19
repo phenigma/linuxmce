@@ -870,7 +870,7 @@ g_PlutoProfiler->DumpResults();
 	if ( m_pScreenHistory_Current )
 	{
 		// If the screen saver is on, and we're not changing to the screen saver, in UI1 this means shut it off
-		if( m_bScreenSaverActive && m_pScreenHistory_Current->GetObj()!=m_pDesignObj_Orbiter_ScreenSaveMenu )
+		if( m_bScreenSaverActive && pScreenHistory->GetObj()!=m_pDesignObj_Orbiter_ScreenSaveMenu )
 		{
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_WARNING,"Goto Screen -- wakign up from screen saver");
@@ -878,7 +878,7 @@ g_PlutoProfiler->DumpResults();
 			StopScreenSaver();
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
-			if( NULL != m_pMouseBehavior && m_pMouseBehavior->m_bMouseVisible )
+			if( NULL != m_pMouseBehavior && m_pMouseBehavior->m_bMouseVisible )  // If m_bMouseVisible is true, it should be visible since screen saver doesn't set this, and that way if the screen saver hid it we'll restore it
 				CMD_Show_Mouse_Pointer("1");
 #endif
 		}
@@ -3478,7 +3478,7 @@ bool Orbiter::GotActivity( int PK_Button )
 		{
 			StopScreenSaver();
 #ifdef ENABLE_MOUSE_BEHAVIOR
-			if( m_pMouseBehavior && m_pMouseBehavior->m_bMouseVisible )
+			if( m_pMouseBehavior && m_pMouseBehavior->m_bMouseVisible )   // If m_bMouseVisible is true, it should be visible since screen saver doesn't set this, and that way if the screen saver hid it we'll restore it
 				CMD_Show_Mouse_Pointer("1");
 #endif
 		}

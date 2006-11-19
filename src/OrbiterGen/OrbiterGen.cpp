@@ -711,8 +711,16 @@ m_bNoEffects = true;
 			{
 				string::size_type pos=0;
 				string sValue = pRow_Device_DeviceData->IK_DeviceData_get();
-				m_rSpacing.X += atoi(StringUtils::Tokenize(sValue,",",pos).c_str());
-				m_rSpacing.Y += atoi(StringUtils::Tokenize(sValue,",",pos).c_str());
+				int XOffset = atoi(StringUtils::Tokenize(sValue,",",pos).c_str());
+				if( abs(XOffset)>m_rSpacing.X )  // Just in case the offset is too much
+					XOffset = XOffset<0 ? m_rSpacing.X*-1 : m_rSpacing.X;
+				int YOffset = atoi(StringUtils::Tokenize(sValue,",",pos).c_str());
+				if( abs(YOffset)>m_rSpacing.Y )  // Just in case the offset is too much
+					YOffset = YOffset<0 ? m_rSpacing.Y*-1 : m_rSpacing.Y;
+				m_rSpacing.X += XOffset;
+				m_rSpacing.Width -= XOffset;
+				m_rSpacing.Y += YOffset;
+				m_rSpacing.Height -= YOffset;
 			}
 		}
 		else
@@ -2389,6 +2397,8 @@ int k=2;
 	// Offset for the spacing
 	if( ocDesignObj->m_bDontScale==false && m_mapPopups.find(atoi(ParentScreen.c_str()))==m_mapPopups.end() )
 	{
+if( ocDesignObj->m_ObjectID=="1255.0.0" )
+int k=2;
 		ocDesignObj->m_rPosition.X += m_rSpacing.X;
 		ocDesignObj->m_rPosition.Y += m_rSpacing.Y;
 		ocDesignObj->m_rBackgroundPosition.X += m_rSpacing.X;

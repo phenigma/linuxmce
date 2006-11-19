@@ -95,7 +95,10 @@ g_pPlutoLogger->Write(LV_STATUS,"MouseBehavior::Clear MouseHandler dest %p goto 
 		else if( m_pOrbiter->m_iPK_Screen_Remote )
 			m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_iPK_Screen_Remote);
 		else
+		{
+			m_pOrbiter->CMD_Set_Main_Menu("N");
 			m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
+		}
 	}
 }
 
@@ -318,9 +321,11 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		{
 			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,0,0,"");
 			m_pOrbiter->SendCommand(CMD_MH_Stop_Media);
-			m_pOrbiter->m_iPK_Screen_RemoteOSD=m_pOrbiter->m_iPK_Screen_Remote=0;  // So the Clear below does't try to go to the main menu
+			m_pOrbiter->m_iPK_Screen_RemoteOSD=m_pOrbiter->m_iPK_Screen_Remote=0;  // So the Clear below does't try to go to the remote as the main menu
+			Clear(true);
 		}
-		Clear(true);
+		else
+			Clear(true);
 		return true;
 	}
 
