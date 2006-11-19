@@ -201,6 +201,9 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,strin
 void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
+	if( iStreamID==0 )
+		g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Player::CMD_Play_Media iStreamID is 0");
+
 	Xine_Stream *prevStream =  ptrFactory->GetStream( 1 );
 	if ((prevStream != NULL) && (prevStream->m_bIsRendering) && (iStreamID!=0) && (iStreamID!=prevStream->m_iStreamID) )
 	{
@@ -221,8 +224,13 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 		return;
 	}
 	
-	pStream->m_iStreamID = iStreamID;
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() set actual stream ID=%i.",iStreamID);
+	if( iStreamID )
+	{
+		if( pStream->m_iStreamID && pStream->m_iStreamID!=iStreamID )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Player::CMD_Play_Media Stream id was %d now %d",pStream->m_iStreamID,iStreamID);
+		pStream->m_iStreamID = iStreamID;
+	}
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() set actual stream ID=%i.",pStream->m_iStreamID);
 	
 	// hiding menu if it was on screen
 	if (pStream->m_iMenuButtons!=0)

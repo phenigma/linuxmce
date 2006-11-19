@@ -273,7 +273,7 @@ public:
     void RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class MediaHandlerBase *pMediaHandlerBase,vector<int> &vectPK_DeviceTemplate,bool bUsesDCE);
 
     void AddDeviceToEntertainArea(EntertainArea *pEntertainArea,Row_Device *pRow_Device);
-	void DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, string sPK_EntertainArea, vector<EntertainArea *> &vectEntertainArea );
+	void DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, string sPK_EntertainArea, vector<EntertainArea *> &vectEntertainArea, int *p_iStreamID=NULL );
     class MediaStream *DetermineStreamOnOrbiter(int iPK_Device_Orbiter,bool bErrorIfNotFound=true)
     {
         vector<class EntertainArea *> vectEntertainArea;

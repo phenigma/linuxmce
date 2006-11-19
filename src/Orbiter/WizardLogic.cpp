@@ -26,8 +26,8 @@ WizardLogic::~WizardLogic()
 bool WizardLogic::Setup()
 {
 #ifdef WIN32
-	if( !MySQLConnect("192.168.2.133", "root", "", "pluto_main") )
-//	if( !MySQLConnect(m_pOrbiter->m_sIPAddress, "root", "", "pluto_main") )
+//	if( !MySQLConnect("192.168.2.133", "root", "", "pluto_main") )
+	if( !MySQLConnect(m_pOrbiter->m_sIPAddress, "root", "", "pluto_main") )
 #else
 	if( !MySQLConnect(m_pOrbiter->m_sIPAddress, "root", "", "pluto_main") )
 #endif
@@ -840,7 +840,8 @@ int WizardLogic::AddDevice(int PK_DeviceTemplate, string sDeviceDataList /* = ""
 {
 	int iPK_Device=0;
 	DCE::CMD_Create_Device CMD_Create_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,
-                                           PK_DeviceTemplate,"",m_pOrbiter->m_pData->m_dwPK_Room,"",sDeviceDataList,0,PK_Device_ControlledVia,m_pOrbiter->m_pData->m_dwPK_Device,m_pOrbiter->m_pData->m_dwPK_Device,
+                                           PK_DeviceTemplate,"",m_pOrbiter->m_pData->m_dwPK_Room,"",sDeviceDataList,0,PK_Device_ControlledVia,
+										   "",m_pOrbiter->m_pData->m_dwPK_Device,m_pOrbiter->m_pData->m_dwPK_Device,
                                            &iPK_Device);
 	m_pOrbiter->SendCommand(CMD_Create_Device);
 	return iPK_Device;

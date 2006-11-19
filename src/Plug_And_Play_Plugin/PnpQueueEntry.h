@@ -27,9 +27,10 @@ namespace DCE
 			pnpqe_blocked_pre_pnp_script=3, 
 			pnpqe_blocked_prompting_options=4, 
 			pnpqe_blocked_installing_software=5, 
-			pnpqe_blocked_waiting_for_other_prompting=6, 
+			pnpqe_blocked_waiting_for_other_prompting=6, // Waiting for other orbiters to respond to the pnp message
 			pnpqe_block_processing_suspended=7, 
-			pnpqe_blocked_waiting_for_other_device=8
+			pnpqe_blocked_waiting_for_other_device=8,
+			pnpqe_blocked_waiting_for_orbiters=9  // There are no orbiters registered, block this until there are
 		} EBlockedState;
 
 		EBlockedState m_EBlockedState;
@@ -45,6 +46,7 @@ namespace DCE
 		string m_sPK_Orbiter_List_For_Prompts;
 		string m_sDetectionScript_Running;
 		string m_sText;
+		string m_sDescription; // What will be the name of the device
 		Plug_And_Play_Plugin *m_pPlug_And_Play_Plugin;
 
 	public:

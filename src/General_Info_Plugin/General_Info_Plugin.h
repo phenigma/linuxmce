@@ -313,13 +313,15 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 			/** Only needed if this is a dhcp pnp device */
 		/** @param #156 PK_Device_ControlledVia */
 			/** The controlled via */
+		/** @param #163 Description */
+			/** The name for the device */
 		/** @param #198 PK_Orbiter */
 			/** The orbiter which should be used to prompt the user for any extra information.  Zero means all orbiters */
 		/** @param #201 PK_Device_Related */
 			/** Will make the new device relate to this one if possible */
 
-	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device) { string sCMD_Result; CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData_String.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,iPK_Orbiter,iPK_Device_Related,iPK_Device,sCMD_Result,NULL);};
-	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,string sDescription,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device) { string sCMD_Result; CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData_String.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,sDescription.c_str(),iPK_Orbiter,iPK_Device_Related,iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,string sDescription,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #719 - Delete Device */
@@ -426,7 +428,6 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 
 	virtual void CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iPK_Software) { string sCMD_Result; CMD_Add_Software(iPK_Device,bTrueFalse,iPK_Software,sCMD_Result,NULL);};
 	virtual void CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iPK_Software,string &sCMD_Result,Message *pMessage);
-
 
 //<-dceag-h-e->
 	private:

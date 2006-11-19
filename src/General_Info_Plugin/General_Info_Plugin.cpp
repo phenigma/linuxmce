@@ -2307,7 +2307,7 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 		bCreatedNew=true;
 		CMD_Create_Device(PK_DeviceTemplate,"",0,"",
 			StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|" + sInternalID,
-			0,pRow_Device->PK_Device_get(),0,0,&iPK_Device);
+			0,pRow_Device->PK_Device_get(),"",0,0,&iPK_Device);
 		pRow_Device_Child = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
 		if( !pRow_Device_Child )
 		{
@@ -2375,12 +2375,14 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 			/** Only needed if this is a dhcp pnp device */
 		/** @param #156 PK_Device_ControlledVia */
 			/** The controlled via */
+		/** @param #163 Description */
+			/** The name for the device */
 		/** @param #198 PK_Orbiter */
 			/** The orbiter which should be used to prompt the user for any extra information.  Zero means all orbiters */
 		/** @param #201 PK_Device_Related */
 			/** Will make the new device relate to this one if possible */
 
-void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,Message *pMessage)
+void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,string sDescription,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c718-e->
 {
 	Row_DHCPDevice *pRow_DHCPDevice = NULL;
@@ -2406,7 +2408,7 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
 	createDevice.m_bInstallPackagesInBackground = true;
-	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIP_Address,sMac_address,iPK_Device_ControlledVia,sData_String,iPK_Device_Related,iPK_Room > 0 ? iPK_Room : 0);
+	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sDescription,sIP_Address,sMac_address,iPK_Device_ControlledVia,sData_String,iPK_Device_Related,iPK_Room > 0 ? iPK_Room : 0);
 
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d template %d mac %s room %d ip %d data %s",

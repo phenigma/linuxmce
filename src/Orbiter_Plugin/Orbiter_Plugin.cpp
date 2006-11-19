@@ -1150,7 +1150,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 		iFK_Room = DatabaseUtils::GetRoomForDevice(m_pDatabase_pluto_main, pUnknownDeviceInfos->m_iDeviceIDFrom);
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
-	int PK_Device = createDevice.DoIt(0,iPK_DeviceTemplate,"",sMac_address,0,"",0,iPK_Room);
+	int PK_Device = createDevice.DoIt(0,iPK_DeviceTemplate,"","",sMac_address,0,"",0,iPK_Room);
 	(*iPK_Device) = PK_Device;
 
 	g_pPlutoLogger->Write(
@@ -3028,7 +3028,7 @@ void Orbiter_Plugin::CMD_Get_Remote_ID(string sUID,int *iPK_Device,int *iValue,s
 	}
 
 	DCE::CMD_Create_Device CMD_Create_Device(m_dwPK_Device,m_pGeneral_Info_Plugin->m_dwPK_Device,DEVICETEMPLATE_MCR_Remote_CONST,
-		"",0,"","",0,0,pMessage->m_dwPK_Device_From,0,iPK_Device);
+		"",0,"","",0,0,"",pMessage->m_dwPK_Device_From,0,iPK_Device);
 	if( !SendCommand(CMD_Create_Device) || *iPK_Device==0 )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter_Plugin::CMD_Get_Remote_ID error creating remote");

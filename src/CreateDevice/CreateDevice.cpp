@@ -40,7 +40,7 @@ extern DCEConfig dceConfig;
 using namespace std;
 using namespace DCE;
 
-int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia,string sDeviceData,int iPK_Device_RelatedTo,int iPK_Room)
+int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescription,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia,string sDeviceData,int iPK_Device_RelatedTo,int iPK_Room)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"CreateDevice::DoIt called with: iPK_DHCPDevice=%d; iPK_DeviceTemplate=%d"
 		"; sIPAddress=%s; sMacAddress=%d; PK_Device_ControlledVia=%d" 
@@ -131,7 +131,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	SQL = "INSERT INTO Device(Description,FK_DeviceTemplate,FK_Installation,FK_Room,IPAddress,MACaddress,Status";
 	if( PK_Device_ControlledVia )
 		SQL += ",FK_Device_ControlledVia";
-	SQL+=") VALUES('" + StringUtils::SQLEscape(row[1]) + "'," + StringUtils::itos(iPK_DeviceTemplate) + "," + StringUtils::itos(m_iPK_Installation) + 
+	SQL+=") VALUES('" + StringUtils::SQLEscape(sDescription.empty()==false ? sDescription : row[1]) + "'," + StringUtils::itos(iPK_DeviceTemplate) + "," + StringUtils::itos(m_iPK_Installation) + 
 		"," + (iPK_Room ? StringUtils::itos(iPK_Room) : "NULL") + ",'" + sIPAddress + "','" + sMacAddress + "','" + (m_bDontCallConfigureScript ? "" : "**RUN_CONFIG**") + "'";
 	if( PK_Device_ControlledVia )
 		SQL += "," + StringUtils::itos(PK_Device_ControlledVia);
@@ -261,7 +261,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 			while( (row=mysql_fetch_row( result_child_dev.r )) )
 			{
 	g_pPlutoLogger->Write(LV_STATUS,"Found install wizard %d",atoi(row[0]));
-				DoIt(0,atoi(row[0]),"","",0,"",PK_Device);
+				DoIt(0,atoi(row[0]),"","","",0,"",PK_Device);
 			}
 		}
 	}
@@ -274,7 +274,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 			while( (row=mysql_fetch_row( result_child_dev.r )) )
 			{
 	g_pPlutoLogger->Write(LV_STATUS,"Found install wizard %d",atoi(row[0]));
-				DoIt(0,atoi(row[0]),"","",0,"",PK_Device);
+				DoIt(0,atoi(row[0]),"","","",0,"",PK_Device);
 			}
 		}
 	}
@@ -295,6 +295,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 				return 0;
 			}
 		}
+		else if( iPK_Device_RelatedTo )
+			g_pPlutoLogger->Write(LV_CRITICAL,"CreateDevice::DoIt was given a iPK_Device_RelatedTo %d but can't find a candidate",iPK_Device_RelatedTo);
 	}
 
 	// See if auto assign to parent's room is specified
@@ -399,7 +401,7 @@ void CreateDevice::CreateAutoCreateChildDevice(int iPK_Device_Parent,int PK_Devi
 {
 	MYSQL_ROW row;
 	string SQL;
-	int PK_Device = DoIt(0,PK_DeviceTemplate,"","",iPK_Device_Parent);
+	int PK_Device = DoIt(0,PK_DeviceTemplate,"","","",iPK_Device_Parent);
 	if( bRerouteMessagesToParent )
 	{
 		// Need to reroute messages to parent
@@ -520,13 +522,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) res
 
 				// That device doesn't exist.  We need to create it
 				if( iRelation==1 && !bOnlyAddDevicesOnCore )  // It's a sister device
-					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device_Parent,sDeviceData);
+					DoIt(0,iPK_DeviceTemplate_Related,"","","",PK_Device_Parent,sDeviceData);
 				else if( iRelation==2 )  // It's a child of the core (ie DCERouter's parent)
-					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device_Core,sDeviceData);
+					DoIt(0,iPK_DeviceTemplate_Related,"","","",PK_Device_Core,sDeviceData);
 				else if( iRelation==3 )  // It's a plugin (ie child of DCERouter)
-					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device_DCERouter,sDeviceData);
+					DoIt(0,iPK_DeviceTemplate_Related,"","","",PK_Device_DCERouter,sDeviceData);
 				else if( iRelation==5 )  // It's my child
-					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device,sDeviceData);
+					DoIt(0,iPK_DeviceTemplate_Related,"","","",PK_Device,sDeviceData);
 			}
 			else if( iRelation==4 )  // Put it anywhere on this PC
 			{
@@ -545,7 +547,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) res
 				if( bFound )
 					continue;
 
-				DoIt(0,iPK_DeviceTemplate_Related,"","",0,sDeviceData,PK_Device);
+				DoIt(0,iPK_DeviceTemplate_Related,"","","",0,sDeviceData,PK_Device);
 			}
 		}
 	}

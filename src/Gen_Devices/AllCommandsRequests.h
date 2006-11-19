@@ -18846,9 +18846,9 @@ namespace DCE
 	};
 	class CMD_Create_Device : public PreformedCommand {
 	public:
-		CMD_Create_Device(long DeviceIDFrom, long DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Create_Device(long DeviceIDFrom, long DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,string sDescription,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Create_Device_CONST,
-			10 /* number of parameters */,
+			11 /* number of parameters */,
 			COMMANDPARAMETER_PK_DeviceTemplate_CONST, StringUtils::itos(iPK_DeviceTemplate).c_str(),
 			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
 			COMMANDPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
@@ -18856,15 +18856,16 @@ namespace DCE
 			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
 			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str(),
 			COMMANDPARAMETER_PK_Device_ControlledVia_CONST, StringUtils::itos(iPK_Device_ControlledVia).c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str(),
 			COMMANDPARAMETER_PK_Orbiter_CONST, StringUtils::itos(iPK_Orbiter).c_str(),
 			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str(),
 			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(*iPK_Device).c_str());		m_pcResponse = new RESP_Create_Device(iPK_Device); }
 	};
 	class CMD_Create_Device_DL : public PreformedCommand {
 	public:
-		CMD_Create_Device_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Create_Device_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,string sDescription,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Create_Device_CONST,
-			10 /* number of parameters */,
+			11 /* number of parameters */,
 			COMMANDPARAMETER_PK_DeviceTemplate_CONST, StringUtils::itos(iPK_DeviceTemplate).c_str(),
 			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
 			COMMANDPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
@@ -18872,15 +18873,16 @@ namespace DCE
 			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
 			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str(),
 			COMMANDPARAMETER_PK_Device_ControlledVia_CONST, StringUtils::itos(iPK_Device_ControlledVia).c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str(),
 			COMMANDPARAMETER_PK_Orbiter_CONST, StringUtils::itos(iPK_Orbiter).c_str(),
 			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str(),
 			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(*iPK_Device).c_str());		m_pcResponse = new RESP_Create_Device(iPK_Device); }
 	};
 	class CMD_Create_Device_DT : public PreformedCommand {
 	public:
-		CMD_Create_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Create_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,string sDescription,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Create_Device_CONST,
-			10 /* number of parameters */,
+			11 /* number of parameters */,
 			COMMANDPARAMETER_PK_DeviceTemplate_CONST, StringUtils::itos(iPK_DeviceTemplate).c_str(),
 			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
 			COMMANDPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
@@ -18888,13 +18890,31 @@ namespace DCE
 			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
 			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str(),
 			COMMANDPARAMETER_PK_Device_ControlledVia_CONST, StringUtils::itos(iPK_Device_ControlledVia).c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str(),
 			COMMANDPARAMETER_PK_Orbiter_CONST, StringUtils::itos(iPK_Orbiter).c_str(),
 			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str(),
 			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(*iPK_Device).c_str());		m_pcResponse = new RESP_Create_Device(iPK_Device); }
 	};
 	class CMD_Create_Device_Cat : public PreformedCommand {
 	public:
-		CMD_Create_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Create_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,string sDescription,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Create_Device_CONST,
+			11 /* number of parameters */,
+			COMMANDPARAMETER_PK_DeviceTemplate_CONST, StringUtils::itos(iPK_DeviceTemplate).c_str(),
+			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
+			COMMANDPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
+			COMMANDPARAMETER_IP_Address_CONST, sIP_Address.c_str(),
+			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
+			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str(),
+			COMMANDPARAMETER_PK_Device_ControlledVia_CONST, StringUtils::itos(iPK_Device_ControlledVia).c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str(),
+			COMMANDPARAMETER_PK_Orbiter_CONST, StringUtils::itos(iPK_Orbiter).c_str(),
+			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str(),
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(*iPK_Device).c_str());		m_pcResponse = new RESP_Create_Device(iPK_Device); }
+	};
+	class CMD_NOREP_Create_Device : public PreformedCommand {
+	public:
+		CMD_NOREP_Create_Device(long DeviceIDFrom, long DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,string sDescription,int iPK_Orbiter,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Create_Device_CONST,
 			10 /* number of parameters */,
 			COMMANDPARAMETER_PK_DeviceTemplate_CONST, StringUtils::itos(iPK_DeviceTemplate).c_str(),
@@ -18904,30 +18924,15 @@ namespace DCE
 			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
 			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str(),
 			COMMANDPARAMETER_PK_Device_ControlledVia_CONST, StringUtils::itos(iPK_Device_ControlledVia).c_str(),
-			COMMANDPARAMETER_PK_Orbiter_CONST, StringUtils::itos(iPK_Orbiter).c_str(),
-			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str(),
-			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(*iPK_Device).c_str());		m_pcResponse = new RESP_Create_Device(iPK_Device); }
-	};
-	class CMD_NOREP_Create_Device : public PreformedCommand {
-	public:
-		CMD_NOREP_Create_Device(long DeviceIDFrom, long DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Create_Device_CONST,
-			9 /* number of parameters */,
-			COMMANDPARAMETER_PK_DeviceTemplate_CONST, StringUtils::itos(iPK_DeviceTemplate).c_str(),
-			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
-			COMMANDPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
-			COMMANDPARAMETER_IP_Address_CONST, sIP_Address.c_str(),
-			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
-			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str(),
-			COMMANDPARAMETER_PK_Device_ControlledVia_CONST, StringUtils::itos(iPK_Device_ControlledVia).c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str(),
 			COMMANDPARAMETER_PK_Orbiter_CONST, StringUtils::itos(iPK_Orbiter).c_str(),
 			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str()); }
 	};
 	class CMD_NOREP_Create_Device_DL : public PreformedCommand {
 	public:
-		CMD_NOREP_Create_Device_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_NOREP_Create_Device_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,string sDescription,int iPK_Orbiter,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Create_Device_CONST,
-			9 /* number of parameters */,
+			10 /* number of parameters */,
 			COMMANDPARAMETER_PK_DeviceTemplate_CONST, StringUtils::itos(iPK_DeviceTemplate).c_str(),
 			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
 			COMMANDPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
@@ -18935,14 +18940,15 @@ namespace DCE
 			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
 			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str(),
 			COMMANDPARAMETER_PK_Device_ControlledVia_CONST, StringUtils::itos(iPK_Device_ControlledVia).c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str(),
 			COMMANDPARAMETER_PK_Orbiter_CONST, StringUtils::itos(iPK_Orbiter).c_str(),
 			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str()); }
 	};
 	class CMD_NOREP_Create_Device_DT : public PreformedCommand {
 	public:
-		CMD_NOREP_Create_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_NOREP_Create_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,string sDescription,int iPK_Orbiter,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Create_Device_CONST,
-			9 /* number of parameters */,
+			10 /* number of parameters */,
 			COMMANDPARAMETER_PK_DeviceTemplate_CONST, StringUtils::itos(iPK_DeviceTemplate).c_str(),
 			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
 			COMMANDPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
@@ -18950,14 +18956,15 @@ namespace DCE
 			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
 			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str(),
 			COMMANDPARAMETER_PK_Device_ControlledVia_CONST, StringUtils::itos(iPK_Device_ControlledVia).c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str(),
 			COMMANDPARAMETER_PK_Orbiter_CONST, StringUtils::itos(iPK_Orbiter).c_str(),
 			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str()); }
 	};
 	class CMD_NOREP_Create_Device_Cat : public PreformedCommand {
 	public:
-		CMD_NOREP_Create_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_NOREP_Create_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,string sDescription,int iPK_Orbiter,int iPK_Device_Related) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Create_Device_CONST,
-			9 /* number of parameters */,
+			10 /* number of parameters */,
 			COMMANDPARAMETER_PK_DeviceTemplate_CONST, StringUtils::itos(iPK_DeviceTemplate).c_str(),
 			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
 			COMMANDPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
@@ -18965,6 +18972,7 @@ namespace DCE
 			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
 			COMMANDPARAMETER_PK_DHCPDevice_CONST, StringUtils::itos(iPK_DHCPDevice).c_str(),
 			COMMANDPARAMETER_PK_Device_ControlledVia_CONST, StringUtils::itos(iPK_Device_ControlledVia).c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str(),
 			COMMANDPARAMETER_PK_Orbiter_CONST, StringUtils::itos(iPK_Orbiter).c_str(),
 			COMMANDPARAMETER_PK_Device_Related_CONST, StringUtils::itos(iPK_Device_Related).c_str()); }
 	};

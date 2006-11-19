@@ -1325,8 +1325,6 @@ void Media_Plugin::StopCaptureCard(MediaStream *pMediaStream)
 
 ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 {
-if( pMessage->m_dwID==COMMAND_Stop_CONST )
-int k=2;
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
     g_pPlutoLogger->Write( LV_STATUS, "Media plug in received message id: %d", pMessage->m_dwID );
@@ -1985,10 +1983,12 @@ g_pPlutoLogger->Write(LV_WARNING,"EA %d %s bound %d remotes was at screen %d sen
     }
 }
 
-void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, string sPK_EntertainArea, vector<EntertainArea *> &vectEntertainArea )
+void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, string sPK_EntertainArea, vector<EntertainArea *> &vectEntertainArea, int *p_iStreamID )
 {
     g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea1");
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	MediaStream *pMediaStream = NULL;
 
     // See if we need to figure out the entertainment area on our own. If so, the only way to do this is if the message came from an orbiter
     if( sPK_EntertainArea.size()==0 )
@@ -2001,7 +2001,17 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 		{
 			// Maybe there's a specific media device we should use
 			for( MapEntertainArea::iterator it=pMediaDevice->m_mapEntertainArea.begin( );it!=pMediaDevice->m_mapEntertainArea.end( );++it )
+			{
+				EntertainArea *pEntertainArea = it->second;
+				if( pEntertainArea->m_pMediaStream )
+				{
+					if( !pMediaStream )
+						pMediaStream = pEntertainArea->m_pMediaStream;
+					else if( pMediaStream!=pEntertainArea->m_pMediaStream )
+						g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::DetermineEntArea found stream %d and now %d",pMediaStream->m_iStreamID_get(),pEntertainArea->m_pMediaStream->m_iStreamID_get());
+				}
 				vectEntertainArea.push_back(( *it ).second);
+			}
 		}
         else if( !pOH_Orbiter )
         {
@@ -2016,6 +2026,13 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 				class EntertainArea *pEntertainArea = ( *itEntArea ).second;
 				if( pEntertainArea->m_pRoom && pEntertainArea->m_pRoom->m_dwPK_Room == pOH_Orbiter->m_dwPK_Room )
 				{
+					if( pEntertainArea->m_pMediaStream )
+					{
+						if( !pMediaStream )
+							pMediaStream = pEntertainArea->m_pMediaStream;
+						else if( pMediaStream!=pEntertainArea->m_pMediaStream )
+							g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::DetermineEntArea 2 found stream %d and now %d",pMediaStream->m_iStreamID_get(),pEntertainArea->m_pMediaStream->m_iStreamID_get());
+					}
 		            vectEntertainArea.push_back(pEntertainArea);
 					break;
 				}
@@ -2031,7 +2048,16 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 			}
         }
 		else
+		{
+			if( pOH_Orbiter->m_pEntertainArea->m_pMediaStream )
+			{
+				if( !pMediaStream )
+					pMediaStream = pOH_Orbiter->m_pEntertainArea->m_pMediaStream;
+				else if( pMediaStream!=pOH_Orbiter->m_pEntertainArea->m_pMediaStream )
+					g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::DetermineEntArea 3 found stream %d and now %d",pMediaStream->m_iStreamID_get(),pOH_Orbiter->m_pEntertainArea->m_pMediaStream->m_iStreamID_get());
+			}
 			vectEntertainArea.push_back(pOH_Orbiter->m_pEntertainArea);
+		}
     }
 
     g_pPlutoLogger->Write(LV_STATUS, "Found the proper ent area: %d", (int) vectEntertainArea.size());
@@ -2045,7 +2071,21 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 			g_pPlutoLogger->Write( LV_CRITICAL, "Received a play media for an invalid entertainment area %d %d %s",iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea.c_str() );
 			return; // Don't know what area it should be played in
 		}
+		if( pEntertainArea->m_pMediaStream )
+		{
+			if( !pMediaStream )
+				pMediaStream = pEntertainArea->m_pMediaStream;
+			else if( pMediaStream!=pEntertainArea->m_pMediaStream )
+				g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::DetermineEntArea 2 found stream %d and now %d",pMediaStream->m_iStreamID_get(),pEntertainArea->m_pMediaStream->m_iStreamID_get());
+		}
 		vectEntertainArea.push_back(pEntertainArea);
+	}
+
+	if( pMediaStream && p_iStreamID )
+	{
+		if( *p_iStreamID && *p_iStreamID!=pMediaStream->m_iStreamID_get() )
+			g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::DetermineEntArea past in stream id %d but found %d",*p_iStreamID,pMediaStream->m_iStreamID_get());
+		*p_iStreamID = pMediaStream->m_iStreamID_get();
 	}
 }
 
@@ -4359,7 +4399,7 @@ void Media_Plugin::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,st
 
 	vector<EntertainArea *> vectEntertainArea;
 	// Only an Orbiter will tell us to play media
-    DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea );
+    DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea, &iStreamID );
 	Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->GetRow( atoi(sMediaPosition.c_str()) );
 	EntertainArea *pEntertainArea;
 	if( vectEntertainArea.size()==0 || (pEntertainArea=vectEntertainArea[0])==NULL || !pEntertainArea->m_pMediaStream || !pRow_Bookmark )

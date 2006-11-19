@@ -9,6 +9,7 @@ class Row_PnpQueue;
 #define TIMEOUT_DETECTION_SCRIPT				20	// Maximum number of seconds to wait for a detction script to return
 #define TIMEOUT_WAITING_FOR_DEVICE				20	// Maximum number of seconds to wait for a device to come online
 #define TIMEOUT_PRE_PNP_SCRIPT					120  // How long to wait for the pre pnp script
+#define TIMEOUT_WAITING_ORBITERS				60 // How long to wait for orbiters to register that can handle this device
 
 #define	PNP_DETECT_STAGE_DETECTED				10
 #define	PNP_DETECT_STAGE_CONFIRMING_POSSIBLE_DT	11
@@ -64,8 +65,9 @@ namespace DCE
 		void ReleaseQueuesBlockedFromPromptingState(PnpQueueEntry *pPnpQueueEntry);
 		bool BlockIfOtherQueuesAtPromptingState(PnpQueueEntry *pPnpQueueEntry);
 		void ReadOutstandingQueueEntries();
-		void DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry);
+		bool DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry);
 		string GetDescription(PnpQueueEntry *pPnpQueueEntry);
+		string GetDeviceName(PnpQueueEntry *pPnpQueueEntry);  // Get the default name to use for this device
 		bool DeviceMatchesCriteria(Row_Device *pRow_Device,PnpQueueEntry *pPnpQueueEntry);
 		void SetDisableFlagForDeviceAndChildren(Row_Device *pRow_Device,bool bDisabled);
 

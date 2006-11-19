@@ -131,6 +131,7 @@ void PnpQueue::Run()
 			if( pPnpQueueEntry->m_EBlockedState != PnpQueueEntry::pnpqe_blocked_none &&
 				( (pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_prompting_options && pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_prompting_device_template) || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER) &&
 				( pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_running_detection_scripts || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_DETECTION_SCRIPT ) &&
+				( pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_waiting_for_orbiters || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_WAITING_ORBITERS ) &&
 				( pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_waiting_for_other_device || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_WAITING_FOR_DEVICE ) 
 				)
 			{
@@ -633,8 +634,12 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT user didn't respond to queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 #endif
 
-		DetermineOrbitersForPrompting(pPnpQueueEntry);
+		if( DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
+			return false; // No orbiters.  Skip this one for now
 	}
+
+	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_waiting_for_orbiters && DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
+		return false; // No orbiters.  Skip this one for now
 
 	if( BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
 		return false; // Let this one get backed up
@@ -796,7 +801,8 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_Options(PnpQueueEntry *pP
 		if( time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
 			return false; // We're waiting for user input.  Give the user more time.
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_Options user didn't respond to queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
-		DetermineOrbitersForPrompting(pPnpQueueEntry);
+		if( DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
+			return false; // No orbiters.  Skip this one for now
 	}
 
 	if( m_Pnp_PreCreateOptions.OkayToCreateDevice(pPnpQueueEntry)==false )  // See if the user needs to specify some options
@@ -839,10 +845,12 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 		return true; // Delete this, something went terribly wrong
 	}
 
+	pPnpQueueEntry->m_sDescription = GetDeviceName(pPnpQueueEntry);
 	int iPK_Device=0;
 	DCE::CMD_Create_Device CMD_Create_Device( m_pPlug_And_Play_Plugin->m_dwPK_Device, pCommand_Impl_GIP->m_dwPK_Device, 
 		pRow_DeviceTemplate->PK_DeviceTemplate_get(), pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get(), pPnpQueueEntry->m_iPK_Room, pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get(),
 		pPnpQueueEntry->DeviceDataAsString(),pPnpQueueEntry->m_iPK_DHCPDevice,0 /* let it find the parent based on the relationship */,
+		pPnpQueueEntry->m_sDescription,
 		pPnpQueueEntry->m_pOH_Orbiter ? pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device : 0,
 		pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),&iPK_Device);
 
@@ -1318,7 +1326,10 @@ bool PnpQueue::BlockIfOtherQueuesAtPromptingState(PnpQueueEntry *pPnpQueueEntry)
 	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
 	{
 		PnpQueueEntry *pPnpQueueEntry2 = it->second;
-		if( pPnpQueueEntry2!=pPnpQueueEntry && pPnpQueueEntry2->m_EBlockedState!=PnpQueueEntry::pnpqe_block_processing_suspended && pPnpQueueEntry2->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_waiting_for_other_prompting && (pPnpQueueEntry2->m_pRow_PnpQueue->Stage_get()==PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT || pPnpQueueEntry2->m_pRow_PnpQueue->Stage_get()==PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT) )
+		if( pPnpQueueEntry2!=pPnpQueueEntry && pPnpQueueEntry2->m_EBlockedState!=PnpQueueEntry::pnpqe_block_processing_suspended && 
+			pPnpQueueEntry2->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_waiting_for_other_prompting && 
+			pPnpQueueEntry2->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_waiting_for_orbiters && 
+			(pPnpQueueEntry2->m_pRow_PnpQueue->Stage_get()==PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT || pPnpQueueEntry2->m_pRow_PnpQueue->Stage_get()==PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT) )
 		{
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::BlockIfOtherQueuesAtPromptingState queue %d auto-blocking for others blocked",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
@@ -1362,7 +1373,7 @@ void PnpQueue::ReadOutstandingQueueEntries()
 	}
 }
 
-void PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry)
+bool PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry)
 {
 	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_Ethernet_CONST ) // This is universal, could be anywhere, ask on all orbiters
 	{
@@ -1413,9 +1424,37 @@ void PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry)
 			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.c_str());
 #endif
 	}
+
+	// Now go through the list and remove any that aren't registered
+	string sOutput;
+	string::size_type pos=0;
+	while( pos<pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.size() )
+	{
+		OH_Orbiter *pOH_Orbiter = m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( atoi(StringUtils::Tokenize(pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,",",pos).c_str()) );
+		if( pOH_Orbiter && pOH_Orbiter->m_bRegistered )
+		{
+			if( sOutput.empty()==false )
+				sOutput += ",";
+			sOutput += StringUtils::itos( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device );
+		}
+		else
+			g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::DetermineOrbitersForPrompting queue %d orbiter %d not registered",
+				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+	}
+
+	if( sOutput.empty() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::DetermineOrbitersForPrompting queue %d no orbiters",
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_waiting_for_orbiters);
+		return false;
+	}
+
+	pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts = sOutput;
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::DetermineOrbitersForPrompting queue %d returning %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.c_str());
 #endif
+	return true;
 }
 
 string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
@@ -1469,6 +1508,34 @@ string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
 	if( sDescription.size()==0 )
 		sDescription = pPnpQueueEntry->m_pRow_Device_Reported->Description_get();
 	return sDescription;
+}
+
+string PnpQueue::GetDeviceName(PnpQueueEntry *pPnpQueueEntry)
+{
+	Row_DeviceTemplate *pRow_DeviceTemplate = NULL;
+	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() )
+		pRow_DeviceTemplate = pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_getrow();
+	else if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin()!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end() )
+		pRow_DeviceTemplate=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin()->second->FK_DeviceTemplate_getrow();
+
+	if( !pRow_DeviceTemplate )
+		return NULL;
+
+	if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST && pPnpQueueEntry->m_iPK_Room )
+	{
+		Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(pPnpQueueEntry->m_iPK_Room);
+		if( pRow_Room )
+			return pRow_Room->Description_get();
+	}
+	else if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Hard_Drives_CONST )
+	{
+		string sDescription = pRow_DeviceTemplate->Description_get() + "/" + pPnpQueueEntry->m_pRow_Device_Reported->Description_get();
+		string sDevice = pPnpQueueEntry->m_mapPK_DeviceData_Find(DEVICEDATA_Block_Device_CONST);
+		if( StringUtils::StartsWith(sDevice,"/dev/") )
+			sDescription += " (" + sDevice.substr(5) + ")";
+		return sDescription;
+	}
+	return "";
 }
 
 void PnpQueue::SetDisableFlagForDeviceAndChildren(Row_Device *pRow_Device,bool bDisabled)
