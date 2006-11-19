@@ -221,6 +221,9 @@ void MythTV_Player::updateMode(string toMode)
 
 void MythTV_Player::pollMythStatus()
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"MythTV_Player::pollMythStatus %d",m_mythStatus);
+#endif
 	if (m_mythStatus == MYTHSTATUS_STARTUP)
 	{
 		PLUTO_SAFETY_LOCK(mm,m_MythMutex);
@@ -235,7 +238,7 @@ void MythTV_Player::pollMythStatus()
 		// updateMode("live");
 	
 		string sResult;
-		time_t timeout=40+time(NULL);
+		time_t timeout=60+time(NULL);
 		
 		do
 		{
@@ -253,6 +256,7 @@ void MythTV_Player::pollMythStatus()
 			g_pPlutoLogger->Write(LV_CRITICAL,"Failed initial communications with Mythfrontend.");
 			vector<void *> data;
 			ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data);			
+			g_pPlutoLogger->Write(LV_CRITICAL,"Killed Mythfrontend.");
 		}
 	} 
 	else if (m_mythStatus != MYTHSTATUS_DISCONNECTED)

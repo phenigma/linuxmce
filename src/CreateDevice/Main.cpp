@@ -102,7 +102,7 @@ void ImportChildDevices(CreateDevice &createDevice,int iPK_Device_Controlled_Via
 		string sMacAddress = StringUtils::Tokenize( s, "\t", pos );
 		if( PK_DeviceTemplate )
 		{
-			int PK_Device=createDevice.DoIt(0,PK_DeviceTemplate,sIPAddress,sMacAddress,iPK_Device_Controlled_Via,"",0);
+			int PK_Device=createDevice.DoIt(0,PK_DeviceTemplate,"",sIPAddress,sMacAddress,iPK_Device_Controlled_Via,"",0);
 			if( PK_Device )
 			{
 				if( sRoomName.size() )
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	int PK_Device=createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIPAddress,sMacAddress,iPK_Device_Controlled_Via,sDeviceData,iPK_Device_RelatedTo);
+	int PK_Device=createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,"",sIPAddress,sMacAddress,iPK_Device_Controlled_Via,sDeviceData,iPK_Device_RelatedTo);
 	if( PK_Device==0 )
 	{
 		cerr << "CreateDevice failed" << endl;

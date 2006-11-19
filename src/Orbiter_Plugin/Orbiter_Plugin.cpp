@@ -1663,7 +1663,6 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered sRegenAllDevicesRooms %d not equal %s=%s",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
 #endif
-			m_sRegenAllDevicesRooms=sRegenAllDevicesRooms;
 			DCE::SCREEN_Need_Reload_Router SCREEN_Need_Reload_Router(m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			SendCommand(SCREEN_Need_Reload_Router);
 		}

@@ -38,7 +38,6 @@ namespace DCE
 		MySqlHelper *m_pMySqlHelper_Myth;
 		map<int, int> m_mapMythInputsToDevices;
 		EPGGrid *m_pEPGGrid;
-		DeviceData_Router *m_pMythBackend_ProxyDevice;
 
 		/** Private member variables */
         map<int, int> m_mapDevicesToStreams;

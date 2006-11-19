@@ -65,6 +65,7 @@ using namespace DCE;
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_FloorplanObjectType.h"
 #include "pluto_main/Define_FloorplanObjectType_Color.h"
+#include "pluto_main/Define_Screen.h"
 
 #include "pluto_security/Table_Alert.h"
 #include "pluto_security/Table_Alert_Device.h"
@@ -489,16 +490,9 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	m_pAlarmManager->AddRelativeAlarm(pRow_AlertType->ExitDelay_get(),this,PROCESS_MODE_CHANGE,NULL);
 
 	//Send to all orbiter the message
-	for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();
-		it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
-	{
-		OH_Orbiter *pOH_Orbiter = (*it).second;
-		int deviceTo = pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
-
-		DCE::SCREEN_ModeChanged SCREEN_ModeChanged(0, deviceTo, sPK_HouseMode, 
-			sHouseModeTime, sExitDelay, sAlerts);
-		SendCommand(SCREEN_ModeChanged);
-	}
+	DCE::SCREEN_ModeChanged SCREEN_ModeChanged(0, pMessage->m_dwPK_Device_From, sPK_HouseMode, 
+		sHouseModeTime, sExitDelay, sAlerts);
+	SendCommand(SCREEN_ModeChanged);
 
 	Row_ModeChange *pRow_ModeChange = m_pDatabase_pluto_security->ModeChange_get()->AddRow();
 	pRow_ModeChange->EK_HouseMode_set(PK_HouseMode);
@@ -560,6 +554,9 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 
 	if( bSecurityOrFire )
 		EVENT_Reset_Alarm();  // There were breaches, which likely caused media to start playing.  Reset the alarm
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,
+		"",SCREEN_SecurityPanel_CONST);
+	SendCommand(CMD_Remove_Screen_From_History_DL);
 	EVENT_House_Mode_Changed(iPK_DeviceGroup,PK_HouseMode);
 }
 
@@ -779,11 +776,7 @@ bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool 
 				pRow_AlertType->PK_AlertType_get()==ALERTTYPE_Air_Quality_CONST) )
 			{
 				m_pAlarmManager->AddRelativeAlarm(0,this,PROCESS_COUNTDOWN_BEFORE_ALARM,(void *) pRow_Alert);
-				/*
-				DCE::CMD_Goto_DesignObj_DL CMD_Goto_DesignObj_DL(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,
-					0,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST),"","",false,false);
-				SendCommand(CMD_Goto_DesignObj_DL);
-				*/
+
 				SCREEN_SecurityPanel_DL SCREEN_SecurityPanel_DL_(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters);
 				SendCommand(SCREEN_SecurityPanel_DL_);
 			}

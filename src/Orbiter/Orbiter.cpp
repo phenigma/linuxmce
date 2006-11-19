@@ -5671,6 +5671,9 @@ void Orbiter::CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_Curren
 void Orbiter::CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,Message *pMessage)
 //<-dceag-c72-e->
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Surrender_to_OS %s %d",sOnOff.c_str(),(int) bFully_release_keyboard);
+#endif
 	m_bYieldScreen = ( sOnOff=="1" );
 	m_bYieldInput = bFully_release_keyboard;
 }

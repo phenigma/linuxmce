@@ -48,7 +48,6 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
 //<-dceag-const-e->
 {
 	m_pEPGGrid = NULL;
-    	m_pMythBackend_ProxyDevice = NULL;
 //	m_bPreProcessSpeedControl=false;  // We do some ridiculous hacks in Myth player to convert speed control commands to keystrokes
 //	m_pMythWrapper = NULL;
 	m_pMySqlHelper_Myth = NULL;
@@ -311,36 +310,6 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaHandlerInfo *pMed
 				pMediaDevice->m_pDeviceData_Router->GetIPAddress().c_str());
 
     MythTvMediaStream *pMediaStream = new MythTvMediaStream(pMediaHandlerInfo, iPK_MediaProvider, pMediaDevice, 0, st_RemovableMedia,StreamID);
-
-	if ( m_pMythBackend_ProxyDevice == NULL )
-	{
-		ListDeviceData_Router *pDevices;
-
-		pDevices = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_MythTV_Backend_Proxy_CONST);
-
-		if ( pDevices == NULL )
-			g_pPlutoLogger->Write(LV_CRITICAL, "There need to be at least one device with template %d in the system if you want to be able to see what shows are playing on various devices", DEVICETEMPLATE_MythTV_Backend_Proxy_CONST);
-		else
-		{
-			if ( pDevices->size() > 1 )
-				g_pPlutoLogger->Write(LV_WARNING, "You only need one device of type %d in the system (it should run where the MythTVMasterBackend it running).", DEVICETEMPLATE_MythTV_Backend_Proxy_CONST);
-
-			m_pMythBackend_ProxyDevice = pDevices->front();
-
-			g_pPlutoLogger->Write(LV_STATUS, "Found %d as the MythTV Backend Proxy device", m_pMythBackend_ProxyDevice->m_dwPK_Device);
-		}
-	}
-
-	if ( m_pMythBackend_ProxyDevice != NULL )
-	{
-		DCE::CMD_Track_Frontend_At_IP enableTracking(
-				m_dwPK_Device,	// from me
-				m_pMythBackend_ProxyDevice->m_dwPK_Device, // to the proxy
-				pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-				pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->GetIPAddress());
-
-		SendCommand(enableTracking);
-	}
 
 	pMediaStream->m_sMediaDescription = "Not available";
     pMediaStream->m_sSectionDescription = "Not available";
