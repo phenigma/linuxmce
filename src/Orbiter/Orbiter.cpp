@@ -836,7 +836,7 @@ g_PlutoProfiler->DumpResults();
 
 #ifdef DEBUG
 	if(pScreenHistory)
-		g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s",
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::NeedToChangeScreens Need to change screens executed to %s",
 		pScreenHistory->GetObj()->m_ObjectID.c_str());
 #endif
 
@@ -9244,6 +9244,7 @@ void Orbiter::UpdateTimeCodeLoop()
 
 void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
 {
+	NeedToRender render( this, "StartScreenSaver" );  // May result in starting a new screen saver session
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::StartScreenSaver");
 
 	if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation )

@@ -232,7 +232,7 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 	}
 
 #ifndef WINCE
-	g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s", OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
+	g_pPlutoLogger->Write( LV_STATUS, "OrbiterRenderer::RenderScreen Render screen: %s", OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
 #endif
 
 #if ( defined( PROFILING ) )
