@@ -264,7 +264,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	string sPK_File,sPK_Disc;
     PlutoSqlResult resultf,resultd;
     MYSQL_ROW row;
-	if( bFile && ( resultf.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_File + sOnline + sSQL_Where + " AND Missing=0 " + (sPath.size() ? " AND Path in (" + sPath + ")" : "")) ) )
+	if( bFile && ( resultf.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_File + sSQL_Where + sOnline + " AND Missing=0 " + (sPath.size() ? " AND Path in (" + sPath + ")" : "")) ) )
         while( ( row=mysql_fetch_row( resultf.r ) ) )
 			sPK_File += row[0] + string(",");
 
