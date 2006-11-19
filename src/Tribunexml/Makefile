@@ -1,6 +1,6 @@
 ROOT = ..
 
-bin_PROGRAMS = Tribunexml headendtobase rmprogs
+bin_PROGRAMS = Tribunexml headendtobase rmprogs filterprogs
 
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
@@ -12,21 +12,21 @@ LDLIBS = $(BASELDLIBS)
 
 MYNAME = Tribunexml
 MYNAME2 = headendtobase
+MYNAME3 = rmprogs
+MYNAME4 = filterprogs
 VERSION = 0.0.1
 
 sources = Tribunexml.cpp
 sources2 =  headendtobase.cpp
-
-MYNAME3 = rmprogs
-
 sources3 = rmprogs.cpp
+sources4 = filterprogs.cpp
 
 whattodo:
 	@echo "type 'make bin' or 'make all'"
 
 all: bin
 
-bin: Tribunexml headendtobase rmprogs
+bin: Tribunexml headendtobase rmprogs filterprogs
 
 Tribunexml: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
@@ -40,8 +40,12 @@ rmprogs: $(sources3:.cpp=.o)
 	$(CXX) -o $(MYNAME3) $(call cpath,$+) $(LDFLAGS)
 	cp $@ ../bin
 
+filterprogs: $(sources4:.cpp=.o)
+	$(CXX) -o $(MYNAME4) $(call cpath,$+) $(LDFLAGS)
+	cp $@ ../bin
+
 clean:
-	rm -f $(sources:.cpp=.o) $(sources2:.cpp=.o) $(sources3:.cpp=.o)
+	rm -f $(sources:.cpp=.o) $(sources2:.cpp=.o) $(sources3:.cpp=.o) $(sources4:.cpp=.o)
 
 include $(ROOT)/PlutoUtils/make.rules
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))

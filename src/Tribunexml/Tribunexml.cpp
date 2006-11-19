@@ -514,7 +514,7 @@ void fillNext(const string station_id,const int funcNo,ofstream &fxml){
 			while(fillSchedule(f,&s)){
 				postSchedule(fxml,&s);
 			}
-			command=(string)"cut -f2 -d'|' "+fileName+" | sort | uniq | sed 's/^/\\^/' | sed 's/$/|/' >>  /tmp/programs.txt";
+			command=(string)"cut -f2 -d'|' "+fileName+" | sort | uniq | sed 's/$/|/' >>  /tmp/programs.txt";
 			system(command.c_str());
 			break;
 	}
@@ -556,7 +556,8 @@ void CreateXML(const ChannelLineup clineup){
 void CreateProgramXML(){
 	ofstream fxml("/tmp/progs.xml");
 	if(FileUtils::FileExists("/tmp/programs.txt")){
-		string command=(string)"sort /tmp/programs.txt|uniq >/tmp/programs.txt;grep -e -F -f /tmp/programs.txt "+WORK+"/progrec.txt > /tmp/progrec.txt;grep -e -F -f /tmp/programs.txt "+WORK+"/crew.txt > /tmp/crew.txt;grep -e -F -f /tmp/programs.txt "+WORK+"/genres.txt > /tmp/genres.txt";
+		string command=(string)"sort /tmp/programs.txt|uniq >/tmp/programs.txt;cat "+WORK+"/progrec.txt| ./filterprogs /tmp/programs.txt > /tmp/progrec.txt;cat "+WORK+"/crew.txt| ./filterprogs /tmp/programs.txt > /tmp/crew.txt;cat "+WORK+"/genres.txt|./filterprogs /tmp/programs.txt > /tmp/genres.txt";
+		cout<<command<<endl;
 		system(command.c_str());
 
 		ifstream fp("/tmp/progrec.txt");
