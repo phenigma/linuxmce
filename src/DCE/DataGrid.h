@@ -105,7 +105,9 @@ namespace DCE
 
 		// Used only by Orbiter, these are the rows which have up/down arrows.  If up==-1, there is no up arrow, same for down.  Otherwise it's 0 based
 		// Orbiter may shift data around to make room for up/down arrows
-		int m_iDownRow,m_iUpRow;  
+		int m_iDownRow,m_iUpRow;
+
+		int m_iRequestID; // The rendering device can keep track of which data grid request id was used to create this grid
 
 		DataGridTable();
 		DataGridTable(int Size, char *Data,bool bShiftDown=false);  // If Shift down = true, while deserializing we will shift the cells down by 1

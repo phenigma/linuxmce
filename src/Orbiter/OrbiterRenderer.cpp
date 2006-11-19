@@ -1264,13 +1264,13 @@ void *ImageLoadThread(void *p)
 		if( !pBackgroundImage->m_pObj_Grid->m_bOnScreen )  // This may have gone off screen, if so ignore it
 			continue;
 		vm.Release();
-
 		size_t GraphicLength;
 		char *pGraphicData = FileUtils::ReadFileIntoBuffer(pBackgroundImage->m_sPic, GraphicLength);
 		PLUTO_SAFETY_LOCK(M, pRenderer->m_pOrbiter->m_DatagridMutex);
 		vm.Relock();
 
-		if( !pBackgroundImage->m_pObj_Grid->m_bOnScreen )  // This may have gone off screen while loading the graphic with the mutex unlocked
+		DataGridTable *pDataGridTable = pBackgroundImage->m_pObj_Grid->m_pDataGridTable_Current_get();
+		if( !pDataGridTable || !pBackgroundImage->m_pObj_Grid->m_bOnScreen || pDataGridTable->m_iRequestID!=pBackgroundImage->m_iRequestID )  // This may have gone off screen while loading the graphic with the mutex unlocked
 		{
 			delete pGraphicData;
 			continue;
@@ -1291,13 +1291,16 @@ void *ImageLoadThread(void *p)
 			vm.Relock();
 
 			// Again check since this may have gone off-screen while we were releasing the mutex to load the image
-			if( !pBackgroundImage->m_pObj_Grid->CellIsVisible( pBackgroundImage->m_ColRow.first, pBackgroundImage->m_ColRow.second ) )
+			DataGridTable *pDataGridTable2 = pBackgroundImage->m_pObj_Grid->m_pDataGridTable_Current_get();
+			if( !pDataGridTable2 || pDataGridTable2->m_iRequestID!=pBackgroundImage->m_iRequestID || !pBackgroundImage->m_pObj_Grid->CellIsVisible( pBackgroundImage->m_ColRow.first, pBackgroundImage->m_ColRow.second ) )
 			{
 				delete pPlutoGraphic;
 				continue;
 			}
 
-g_pPlutoLogger->Write(LV_STATUS,"delete1 pBackgroundImage->m_pCell->m_pGraphic %p:%p",pBackgroundImage->m_pCell,pBackgroundImage->m_pCell->m_pGraphic);
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"delete1 pBackgroundImage->m_pCell->m_pGraphic %p:%p",pBackgroundImage->m_pCell,pBackgroundImage->m_pCell->m_pGraphic);
+#endif
 			delete pBackgroundImage->m_pCell->m_pGraphic;
 
 			pBackgroundImage->m_pCell->m_pGraphic = pPlutoGraphic;
@@ -1316,17 +1319,19 @@ g_pPlutoLogger->Write(LV_STATUS,"delete1 pBackgroundImage->m_pCell->m_pGraphic %
 
 		bContinue = (pRenderer->m_listBackgroundImage.size() > 0);
 		bRedraw = ((pRenderer->m_listBackgroundImage.size() % 10) == 0);
-g_pPlutoLogger->Write(LV_EVENT,"ImageLoadThread %s size: %d (%d) %d",pBackgroundImage->m_sPic.c_str(),(int) pRenderer->m_listBackgroundImage.size(),(int) bRedraw,(int) bContinue);
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_EVENT,"ImageLoadThread %s size: %d (%d) %d",pBackgroundImage->m_sPic.c_str(),(int) pRenderer->m_listBackgroundImage.size(),(int) bRedraw,(int) bContinue);
+#endif
 	} while(bContinue);
 	return NULL;
 }
 
-void OrbiterRenderer::BackgroundImageLoad(const char *Filename, DesignObj_DataGrid *pObj_DataGrid, DataGridCell *pCell, pair<int,int> ColRow, bool bDoFirst )
+void OrbiterRenderer::BackgroundImageLoad(const char *Filename, DesignObj_DataGrid *pObj_DataGrid,int RequestID, DataGridCell *pCell, pair<int,int> ColRow, bool bDoFirst )
 {
 	bool bNeedToStartThread;
 	PLUTO_SAFETY_LOCK(M, m_pOrbiter->m_VariableMutex);
 	bNeedToStartThread = (m_listBackgroundImage.size() == 0);
-	BackgroundImage *pBackgroundImage = new BackgroundImage(Filename,pObj_DataGrid,pCell,ColRow);
+	BackgroundImage *pBackgroundImage = new BackgroundImage(Filename,pObj_DataGrid,RequestID,pCell,ColRow);
 	if( bDoFirst )
 		m_listBackgroundImage.push_front( pBackgroundImage );
 	else

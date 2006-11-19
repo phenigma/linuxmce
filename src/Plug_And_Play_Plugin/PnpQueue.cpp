@@ -94,7 +94,9 @@ void PnpQueue::Run()
 	ReadOutstandingQueueEntries();
 	while( m_pPlug_And_Play_Plugin->m_pRouter->m_bIsLoading_get() )
 		Sleep(1000); // Wait for the router to be ready before we start to process
-	Sleep(30000);  // Wait another 30 seconds for the on screen orbiter's to startup
+	time_t tTimeout = time(NULL) + 30; // Wait another 30 seconds for the on screen orbiter's to startup
+	while( time(NULL) < tTimeout && !m_pPlug_And_Play_Plugin->m_bQuit )
+		Sleep(1000);
 
 	pnp.Relock();
 	

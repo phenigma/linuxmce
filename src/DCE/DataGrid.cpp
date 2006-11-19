@@ -380,6 +380,7 @@ void DataGridTable::ClearData()
 	m_RowCount = 0;
 	m_StartingRow = 0;
 	m_MemoryDataTable.clear();
+	m_iRequestID = 0;
 }   
 
 void DataGridTable::ToData(string GridID,int &Size, char* &Data)

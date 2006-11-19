@@ -164,6 +164,8 @@ g_PlutoProfiler->Stop("send command");
 				else
 					pDataGridTable = new DataGridTable( size,  data );
 
+				pDataGridTable->m_iRequestID=m_pOrbiter->m_dwIDataGridRequestCounter;
+
 				delete[] data;
 				data = NULL;
 
@@ -177,7 +179,7 @@ g_PlutoProfiler->Stop("send command");
 #ifdef DEBUG
 						g_pPlutoLogger->Write(LV_EVENT,"DataGridRenderer::RenderCell loading %s in bg for %d,%d",pPath,pDataGridTable->CovertColRowType(it->first).first,pDataGridTable->CovertColRowType(it->first).second);
 #endif
-						m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, this, pCell, pDataGridTable->CovertColRowType(it->first),!bCache);
+						m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, this, m_pOrbiter->m_dwIDataGridRequestCounter, pCell, pDataGridTable->CovertColRowType(it->first),!bCache);
 					}
 	//				M.Relock();
 				}

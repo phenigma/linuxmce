@@ -38,6 +38,7 @@ public:
 	string m_sGridID,m_sOptions,m_sExtraInfo,m_sSeek;
 	DesignObj_Orbiter *m_pObjLeft, *m_pObjRight, *m_pObjUp, *m_pObjDown;
 	void m_pDataGridTable_Current_set(DataGridTable *pDataGridTable_Current);
+	DataGridTable *m_pDataGridTable_Current_get() { return m_pDataGridTable_Current; }
 	int m_CachedCurRow,m_CachedCurCol;
 	map< pair<int,int>, DataGridTable *> m_mapDataGridTable_Cache; // Map Row,Col to the cached grid.  These are all pages, or views of the grid that we've cached
 	map<int,int> m_mapNumberOfPagesToCache;  // Map of PK_Direction to a number of pages to cache in that direction

@@ -22,11 +22,13 @@ public:
 	DesignObj_DataGrid *m_pObj_Grid;
 	DataGridCell *m_pCell;
 	pair<int,int> m_ColRow;
+	int m_iRequestID; // Keep track of which request generated this table so we know if it's changed the cell will have been deleted
 
-	BackgroundImage(string sPic,DesignObj_DataGrid *pObj_Grid,DataGridCell *pCell,pair<int,int> ColRow) 
+	BackgroundImage(string sPic,DesignObj_DataGrid *pObj_Grid,int RequestID,DataGridCell *pCell,pair<int,int> ColRow) 
 	{ 
 		m_pObj_Grid=pObj_Grid; m_pCell=pCell; m_ColRow=ColRow; m_sPic=sPic; 
 		g_pPlutoLogger->Write(LV_STATUS,"BackgroundImage::BackgroundImage %p",this);
+		m_iRequestID=RequestID;
 	}
 	~BackgroundImage()
 	{
@@ -243,7 +245,7 @@ public:
 	virtual void ObjectOffScreen( DesignObj_Orbiter *pObj );
 
 	// If bDoFirst is true it's added to the front of the list, otherwise to the back
-	void BackgroundImageLoad(const char *Filename, DesignObj_DataGrid *pObj_DataGrid, DataGridCell *pCell, pair<int,int> ColRow, bool bDoFirst);
+	void BackgroundImageLoad(const char *Filename, DesignObj_DataGrid *pObj_DataGrid,int RequestID, DataGridCell *pCell, pair<int,int> ColRow, bool bDoFirst);
 
 	/**
 	* @brief Setup the window related tasks 
