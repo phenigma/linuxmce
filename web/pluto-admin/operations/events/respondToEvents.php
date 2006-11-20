@@ -129,14 +129,22 @@ function respondToEvents($output,$dbADO) {
 
 		$description=cleanString($_POST['Description']);
 		$cannedEvent=cleanInteger($_POST['cannedEvent']);
-		$insertCriteriaParmNesting='INSERT INTO CriteriaParmNesting (IsAnd,IsNot) VALUES (1,0)';
-		$dbADO->Execute($insertCriteriaParmNesting);
-		$insertID=$dbADO->Insert_ID();
 		
-		$insertCriteria='INSERT INTO Criteria(FK_CriteriaParmNesting,FK_CriteriaList,Description,FK_Installation) VALUES (?,?,?,?)';
-		$dbADO->Execute($insertCriteria,array($insertID,$GLOBALS['EventCriteriaList'],'event',$installationID));
-		$criteriaID=$dbADO->Insert_ID();
-		
+		$res=$dbADO->Execute('SELECT * FROM CannedEvents_CriteriaParmList WHERE FK_CannedEvents=?',array($cannedEvent));
+		if($res->RecordCount()>0){
+			$insertCriteriaParmNesting='INSERT INTO CriteriaParmNesting (IsAnd,IsNot) VALUES (1,0)';
+			$dbADO->Execute($insertCriteriaParmNesting);
+			$insertID=$dbADO->Insert_ID();
+			
+			$insertCriteria='INSERT INTO Criteria(FK_CriteriaParmNesting,FK_CriteriaList,Description,FK_Installation) VALUES (?,?,?,?)';
+			$dbADO->Execute($insertCriteria,array($insertID,$GLOBALS['EventCriteriaList'],'event',$installationID));
+			$criteriaID=$dbADO->Insert_ID();
+		}else{
+			// null as string since it's used in a composed query
+			$criteriaID='NULL';
+		}
+	
+				
 		$insertCommandGroup='
 			INSERT INTO CommandGroup 
 				(FK_Array,FK_Installation,Description,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template)
