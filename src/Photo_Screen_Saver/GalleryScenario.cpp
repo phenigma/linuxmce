@@ -45,7 +45,7 @@ bool GalleryScenario::Update(void)
 		{
 			g_pPlutoLogger->Write(LV_ALARM, "Painting the image...");
 			BeforePicture->LoadFromFile(Browser->NextFile());
-			BeforePicture->SetZoomKind(CurrentTime, 5400);
+			BeforePicture->SetZoomKind(CurrentTime, ZoomTime);
 			BeforePicture->Update(CurrentTime);
 			BeforePicture->Paint();
 			StateMachine->AboutToPaintStaticImage();
@@ -56,7 +56,7 @@ bool GalleryScenario::Update(void)
 		{
 			g_pPlutoLogger->Write(LV_ALARM, "Painting the image...");
 			BeforePicture->LoadFromFile(Browser->NextFile());
-			BeforePicture->SetZoomKind(CurrentTime, 5400);
+			BeforePicture->SetZoomKind(CurrentTime, ZoomTime);
 			BeforePicture->Update(CurrentTime);
 			BeforePicture->Paint();
 			nLastTimeUpdated = SDL_GetTicks();
@@ -73,8 +73,8 @@ bool GalleryScenario::Update(void)
 		AfterPicture->LoadFromFile(Browser->NextFile());
 
 
-		BeforePicture->SetZoomKind(CurrentTime, 1500);
-		AfterPicture->SetZoomKind(CurrentTime, 5400);
+		BeforePicture->SetZoomKind(CurrentTime, ZoomTime);
+		AfterPicture->SetZoomKind(CurrentTime, ZoomTime);
 
 		NewImageStartTime = CurrentTime;
 
@@ -82,7 +82,7 @@ bool GalleryScenario::Update(void)
 		Fades = FadeFactory::Instance()->CreateFadeMode(0, 
 			AfterPicture->GetFrame(), BeforePicture->GetFrame(), 
 			SDL_GetTicks(),
-			FaddingTime*5);
+			FaddingTime);
 
 		break;
 	case STATUS_FADE_IMAGES:
@@ -113,14 +113,14 @@ bool GalleryScenario::Update(void)
 			AfterPicture->LoadFromFile(Browser->NextFile());
 			StateMachine->FadeImages();
 
-			AfterPicture->SetZoomKind(CurrentTime, 5400);
+			AfterPicture->SetZoomKind(CurrentTime, ZoomTime);
 			StateMachine->FadeImages();
 
 			delete Fades;
 			Fades = FadeFactory::Instance()->CreateFadeMode(0, 
 				AfterPicture->GetFrame(), BeforePicture->GetFrame(), 
 				SDL_GetTicks(),
-				FaddingTime*5);
+				FaddingTime);
 		}
 		break;
 	default:;
