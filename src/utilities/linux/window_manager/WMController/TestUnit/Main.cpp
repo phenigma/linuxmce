@@ -79,10 +79,10 @@ int main(int argc, char *argv[])
 
     WMControllerImpl *pWMController = new WMControllerImpl();
 
-    if(sVerbose == "1" || sVerbose == "0")
-	{
-		pWMController->SetVerbose(sVerbose == "1");
-	}
+//    if(sVerbose == "1" || sVerbose == "0")
+//	{
+//		pWMController->SetVerbose(sVerbose == "1");
+//	}
 
 	if(bListWindows)
     {

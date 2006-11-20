@@ -6,7 +6,8 @@ LDFLAGS= -L/usr/X11R6/lib -L../../../../../lib
 LDLIBS= -lSM -lICE -lX11 -lXmu  -lglib-2.0
 
 sources = \
-	../wmctrl.cpp \
+	../../wmctrl/wmctrl.cpp \
+	../../../wrapper/image_file.cpp \
 	../WMController.cpp \
 	../../../wrapper/wrapper_x11.cpp \
 	Main.cpp 
