@@ -41,7 +41,8 @@ InstallKernel()
 		return 0
 	fi
 	
-	kernel="$(find /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ -name "linux-image-${KERNEL_VERSION}_*.deb")"
+	deb_version=$(dpkg -l linux-image-`uname -r` | grep '^ii' |cut -d ' ' -f4)
+	kernel="$(find /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ -name "linux-image-${KERNEL_VERSION}_${deb_version}_*.deb")"	
 	words="$(echo "$kernel" | wc -w)"
 	if [[ "$words" -eq 0 ]]; then
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "No kernel matching 'linux-image-$KERNEL_VERSION' was found"
