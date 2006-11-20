@@ -51,11 +51,15 @@ MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 
 MouseBehavior::~MouseBehavior()
 {
+	PLUTO_SAFETY_LOCK(mb, m_pOrbiter->m_ScreenMutex);
+
 	if(NULL != m_pMouseHandler)
 	{
 		delete m_pMouseHandler;
 		m_pMouseHandler = NULL;
 	}
+
+	mb.Release();
 
 	delete m_pMouseGovernor;
 	delete m_pMouseIterator;

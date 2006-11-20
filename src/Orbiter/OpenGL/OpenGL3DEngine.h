@@ -76,7 +76,6 @@ public:
 	bool ForceReleaseTextures;
 
 	GLEffect2D::LayersCompose* Compose;
-	bool Quit;
 	ExtensionManager GL;
 	/**
 	 *	Default constructor
