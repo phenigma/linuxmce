@@ -2107,7 +2107,9 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 {
-	g_pPlutoLogger->Write(LV_WARNING, "OSDScreenHandler::SpeedControlCustomRender()");
+	g_pPlutoLogger->Write(LV_WARNING, "OSDScreenHandler::SpeedControlCustomRender() screen %d",m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+	if( m_pOrbiter->m_pScreenHistory_Current->PK_Screen()!=SCREEN_mnuSpeedControl_CONST )
+		return false;
 
 	//we don't need this right now
 	RenderScreenCallBackData *pRenderData = dynamic_cast<RenderScreenCallBackData *>(pData);
