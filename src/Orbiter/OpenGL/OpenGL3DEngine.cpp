@@ -39,6 +39,7 @@ using namespace DCE;
 //#define DISABLE_HIGHLIGHT 
 
 OpenGL3DEngine::OpenGL3DEngine() : 
+	m_bQuit(false),
 	AnimationRemain (false),
 	SceneMutex("scene mutex"),
 	Compose(NULL),

@@ -85,11 +85,11 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 	pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
 	pOrbiterRenderer->Engine->Paint();
 
-	while(!pOrbiterRenderer->OrbiterLogic()->m_bQuit)
+	while(pOrbiterRenderer->Engine && !pOrbiterRenderer->Engine->m_bQuit)
 	{
 #ifdef WIN32	
 		SDL_Event SDL_Event_Pending;
-		while(SDL_PollEvent(&SDL_Event_Pending) && !pOrbiterRenderer->OrbiterLogic()->m_bQuit)
+		while(SDL_PollEvent(&SDL_Event_Pending) && !pOrbiterRenderer->Engine->m_bQuit)
 			SDL_PushEvent(&SDL_Event_Pending);
 #endif			
 
@@ -126,6 +126,9 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 /*virtual*/ OrbiterRenderer_OpenGL::~OrbiterRenderer_OpenGL()
 {
 	g_pPlutoLogger->Write(LV_CRITICAL, "");
+
+	if(NULL != Engine)
+		Engine->m_bQuit = true;
 
 	if(GLThread != 0)
 		pthread_join(GLThread, NULL);

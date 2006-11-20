@@ -74,6 +74,7 @@ class OpenGL3DEngine
 	virtual void Finalize(void);
 public:
 	bool ForceReleaseTextures;
+	bool m_bQuit;
 
 	GLEffect2D::LayersCompose* Compose;
 	ExtensionManager GL;
