@@ -179,7 +179,7 @@ g_PlutoProfiler->Stop("send command");
 #ifdef DEBUG
 						g_pPlutoLogger->Write(LV_EVENT,"DataGridRenderer::RenderCell loading %s in bg for %d,%d",pPath,pDataGridTable->CovertColRowType(it->first).first,pDataGridTable->CovertColRowType(it->first).second);
 #endif
-						m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, this, m_pOrbiter->m_dwIDataGridRequestCounter, pCell, pDataGridTable->CovertColRowType(it->first),!bCache);
+						m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, this, m_pOrbiter->m_dwIDataGridRequestCounter, make_pair<int,int> (GridCurRow, GridCurCol), pCell, pDataGridTable->CovertColRowType(it->first),!bCache);
 					}
 	//				M.Relock();
 				}

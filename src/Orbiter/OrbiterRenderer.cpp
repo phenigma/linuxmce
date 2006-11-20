@@ -1269,7 +1269,7 @@ void *ImageLoadThread(void *p)
 		PLUTO_SAFETY_LOCK(M, pRenderer->m_pOrbiter->m_DatagridMutex);
 		vm.Relock();
 
-		DataGridTable *pDataGridTable = pBackgroundImage->m_pObj_Grid->m_pDataGridTable_Current_get();
+		DataGridTable *pDataGridTable = pBackgroundImage->m_pObj_Grid->DataGridTable_Get(pBackgroundImage->m_DataGridTable_Cache.first,pBackgroundImage->m_DataGridTable_Cache.second);
 		if( !pDataGridTable || !pBackgroundImage->m_pObj_Grid->m_bOnScreen || pDataGridTable->m_iRequestID!=pBackgroundImage->m_iRequestID )  // This may have gone off screen while loading the graphic with the mutex unlocked
 		{
 			delete pGraphicData;
@@ -1291,7 +1291,7 @@ void *ImageLoadThread(void *p)
 			vm.Relock();
 
 			// Again check since this may have gone off-screen while we were releasing the mutex to load the image
-			DataGridTable *pDataGridTable2 = pBackgroundImage->m_pObj_Grid->m_pDataGridTable_Current_get();
+			DataGridTable *pDataGridTable2 = pBackgroundImage->m_pObj_Grid->DataGridTable_Get(pBackgroundImage->m_DataGridTable_Cache.first,pBackgroundImage->m_DataGridTable_Cache.second);
 			if( !pDataGridTable2 || pDataGridTable2->m_iRequestID!=pBackgroundImage->m_iRequestID || !pBackgroundImage->m_pObj_Grid->CellIsVisible( pBackgroundImage->m_ColRow.first, pBackgroundImage->m_ColRow.second ) )
 			{
 				delete pPlutoGraphic;
@@ -1326,12 +1326,12 @@ void *ImageLoadThread(void *p)
 	return NULL;
 }
 
-void OrbiterRenderer::BackgroundImageLoad(const char *Filename, DesignObj_DataGrid *pObj_DataGrid,int RequestID, DataGridCell *pCell, pair<int,int> ColRow, bool bDoFirst )
+void OrbiterRenderer::BackgroundImageLoad(const char *Filename, DesignObj_DataGrid *pObj_DataGrid,int RequestID, pair<int,int> DataGridTable_Cache, DataGridCell *pCell, pair<int,int> ColRow, bool bDoFirst )
 {
 	bool bNeedToStartThread;
 	PLUTO_SAFETY_LOCK(M, m_pOrbiter->m_VariableMutex);
 	bNeedToStartThread = (m_listBackgroundImage.size() == 0);
-	BackgroundImage *pBackgroundImage = new BackgroundImage(Filename,pObj_DataGrid,RequestID,pCell,ColRow);
+	BackgroundImage *pBackgroundImage = new BackgroundImage(Filename,pObj_DataGrid,RequestID,DataGridTable_Cache,pCell,ColRow);
 	if( bDoFirst )
 		m_listBackgroundImage.push_front( pBackgroundImage );
 	else

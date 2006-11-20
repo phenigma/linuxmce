@@ -23,12 +23,14 @@ public:
 	DataGridCell *m_pCell;
 	pair<int,int> m_ColRow;
 	int m_iRequestID; // Keep track of which request generated this table so we know if it's changed the cell will have been deleted
+	pair<int,int> m_DataGridTable_Cache; // Which datagrid table we were caching, corresponding to m_mapDataGridTable_Cache
 
-	BackgroundImage(string sPic,DesignObj_DataGrid *pObj_Grid,int RequestID,DataGridCell *pCell,pair<int,int> ColRow) 
+	BackgroundImage(string sPic,DesignObj_DataGrid *pObj_Grid,int RequestID,pair<int,int> DataGridTable_Cache,DataGridCell *pCell,pair<int,int> ColRow) 
 	{ 
 		m_pObj_Grid=pObj_Grid; m_pCell=pCell; m_ColRow=ColRow; m_sPic=sPic; 
 		g_pPlutoLogger->Write(LV_STATUS,"BackgroundImage::BackgroundImage %p",this);
 		m_iRequestID=RequestID;
+		m_DataGridTable_Cache=DataGridTable_Cache;
 	}
 	~BackgroundImage()
 	{
@@ -245,7 +247,9 @@ public:
 	virtual void ObjectOffScreen( DesignObj_Orbiter *pObj );
 
 	// If bDoFirst is true it's added to the front of the list, otherwise to the back
-	void BackgroundImageLoad(const char *Filename, DesignObj_DataGrid *pObj_DataGrid,int RequestID, DataGridCell *pCell, pair<int,int> ColRow, bool bDoFirst);
+	// Colrow is the location for the picture (the actual cell), DataGridTable_Cache is the first col/row
+	// of the table we're caching so we can look it up later with DesignObj_DataGrid::DataGridTable_Get
+	void BackgroundImageLoad(const char *Filename, DesignObj_DataGrid *pObj_DataGrid,int RequestID, pair<int,int> DataGridTable_Cache, DataGridCell *pCell, pair<int,int> ColRow, bool bDoFirst);
 
 	/**
 	* @brief Setup the window related tasks 
