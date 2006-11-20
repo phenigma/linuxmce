@@ -27,8 +27,10 @@ Monitor == 1 && /EndSection/ {
 }
 /SubSection..*"Display"/ { Display = 1; }
 Display == 1 && /Modes[^"]/ { next; }
+Display == 1 && /Virtual/ { next; }
 /EndSubSection/ && Display == 1 {
 	print "\t\tModes\t\t\"" ResX "x" ResY "\"";
+	print "\t\tVirtual\t\t" ResX " " ResY;
 	Display = 0;
 }
 /Section..*"Screen"/ { Screen = 1; }
