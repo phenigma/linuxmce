@@ -246,12 +246,9 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 	if(pServerSocket->m_iReferencesOutstanding_get() > 1)
 	{  
 		// Something besides us is still referencing this pointer
-		// We won't actually delete it because we don't want to wait for the other thread to finish, and besides that thread
-		// should also call this function since the socket is now dead (we just closed it)
-
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot remove socket %d, ourstanding refercences: %d",
+		g_pPlutoLogger->Write(LV_CRITICAL, "Removing socket %d, ourstanding refercences: %d",
 			pServerSocket->m_dwPK_Device, pServerSocket->m_iReferencesOutstanding_get());
-		return; 
+		Sleep(100);
 	}
 
 	g_pPlutoLogger->Write(LV_SOCKET, "Removing socket %p from socket listener", pServerSocket);
