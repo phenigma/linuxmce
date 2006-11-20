@@ -269,7 +269,7 @@ fi;
 # Creating target folder.
 mkdir -p "$BASE_OUT_FOLDER/$version_name";
 echo "Marker: starting compilation `date`"
-if ! MakeRelease $fastrun $nobuild $dont_compile_existing -O "$BASE_OUT_FOLDER/$version_name" -D main_sqlcvs_"$flavor"" -c -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
+if ! MakeRelease $fastrun $nobuild $dont_compile_existing -O "$BASE_OUT_FOLDER/$version_name" -D main_sqlcvs_"$flavor" -c -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
