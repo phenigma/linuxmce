@@ -38,3 +38,5 @@
 	path = /home
 	public = yes
 	guest ok = yes
+	force user = root
+	force group = root
