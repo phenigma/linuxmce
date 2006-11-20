@@ -9237,7 +9237,7 @@ void Orbiter::UpdateTimeCodeLoop()
 void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
 {
 	NeedToRender render( this, "StartScreenSaver" );  // May result in starting a new screen saver session
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::StartScreenSaver");
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::StartScreenSaver %d",(int) bGotoScreenSaverDesignObj);
 
 	if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation )
 	{

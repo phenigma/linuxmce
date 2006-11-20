@@ -3982,15 +3982,23 @@ int Media_Plugin::GetStorageDeviceWithMostFreeSpace(string& sFullDescription, st
 		StringUtils::ltos(DEVICECATEGORY_Network_Storage_CONST) + 
 		+ ") AND FK_DeviceData = " + 
 		StringUtils::ltos(DEVICEDATA_Free_Disk_Space_in_MBytes_CONST) + " " +
-		"ORDER BY CAST(Device_DeviceData.IK_DeviceData AS UNSIGNED) DESC " +
-		"LIMIT 1";
+		"ORDER BY CAST(Device_DeviceData.IK_DeviceData AS UNSIGNED) DESC ";
 
 	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sSQL.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
 	{
-		if((row = mysql_fetch_row(result.r)))
+		while((row = mysql_fetch_row(result.r)))
 		{
 			if(NULL != row[0] && NULL != row[1] && NULL != row[3])
 			{
+				int PK_Device = atoi(row[0]);
+				string sOnline = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,PK_Device,DEVICEDATA_Online_CONST);
+				if( sOnline.empty()==false && atoi(sOnline.c_str())==0 )
+					continue;  // This disc isn't online
+
+				string sReadOnly = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,PK_Device,DEVICEDATA_Readonly_CONST);
+				if( sReadOnly.empty()==false && atoi(sReadOnly.c_str())==1 )
+					continue;  // This disc isn't online
+
 				string sFreeSpace;
 				if(0 == row[2] || string(row[2]).empty())
 					sFreeSpace = "0";
@@ -4003,7 +4011,7 @@ int Media_Plugin::GetStorageDeviceWithMostFreeSpace(string& sFullDescription, st
 					sMountedPath = string("/mnt/device/") + row[0] + "/";
 
 				sFullDescription = string(row[1]) + " (#" + row[0] + ") " + sFreeSpace + "MB";
-				return atoi(row[0]);
+				return PK_Device;
 			}
 		}
 	}

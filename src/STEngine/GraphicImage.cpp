@@ -3,6 +3,9 @@
 #include "SDL_image.h"
 #include "MathUtils.h"
 
+#include "DCE/Logger.h"
+using namespace DCE;
+
 GraphicImage::GraphicImage()
 : LocalSurface(NULL), Texture(0)
 {
@@ -18,6 +21,19 @@ GraphicImage::~GraphicImage()
 bool GraphicImage::Load(string FileName)
 {
 	LocalSurface = IMG_Load(FileName.c_str()); 
+	if( LocalSurface )
+	{
+		if( LocalSurface->w * LocalSurface->h > 3240000 )  // 1800x1800 is a reasonable max size
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Aborting load of %s because size w: %d h: %d is too big",FileName.c_str(),LocalSurface->w,LocalSurface->h);
+			SDL_FreeSurface(LocalSurface);
+			LocalSurface=NULL;
+		}
+		else
+			g_pPlutoLogger->Write(LV_STATUS,"Loaded %s w: %d h: %d",FileName.c_str(),LocalSurface->w,LocalSurface->h);
+	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to load %s",FileName.c_str());
 	return NULL != LocalSurface;
 }
 
