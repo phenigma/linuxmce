@@ -11,7 +11,7 @@ use Image::Magick;
 use Data::Dumper;
 use DBI;
 #use strict;
-use vars qw($dest $xs $r @buff $child_count $minW $minH @fileList);
+use vars qw($dest $xs $r @buff $child_count $minW $minH $maxW $maxH @fileList);
 
 $child_count = 5;
 
@@ -63,17 +63,29 @@ if ( $#ARGV >= 0 ) {
 		$minH = $ARGV[2];
 		print "\tMin height: $minH\n";
 	}
-	
+
 	if ($ARGV[3]) {
-		$search_string = $ARGV[3];
+		$maxW = $ARGV[3];
+		print "\tMin width: $minW";
+	}
+					
+	if ($ARGV[4]) {
+		$maxH = $ARGV[4];
+		print "\tMin height: $minH\n";
+	}	
+	
+	if ($ARGV[5]) {
+		$search_string = $ARGV[5];
 		print "\tSearch string:$search_string\n";
 	}
 }
 
 if ($#ARGV < 0) {
         $tDays = 5;
-        $minW = 1200;
-        $minH = 700;
+        $minW = 800;
+        $minH = 600;
+	$maxW = 1024;
+	$maxH = 1024;
 	$search_string = '';
 	#$search_string = 'red cars';
         print "[flickr.pl] Using default values - days: $tDays, width: $minW, height: $minH, no search string \n";
@@ -368,6 +380,7 @@ sub getPictureDimensions {
 		foreach $buff (@{$r->{'sizes'}->{'size'}}) {
 			if ($buff->{'width'} >= $minW && $buff->{'height'} >= $minH) {
 				#print "$id are dimensiunile dorite\n";
+				last if ($buff->{'width'} > $maxW || $buff->{'height'} >= $maxH);
 				$width = $buff->{'width'};
 				$height = $buff->{'height'};
 				$source = $buff->{'source'};
