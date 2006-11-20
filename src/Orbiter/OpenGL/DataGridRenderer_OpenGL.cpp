@@ -25,7 +25,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "SDL.h"
 
 DataGridRenderer_OpenGL::DataGridRenderer_OpenGL(DesignObj_Orbiter *pOwner)
-: DataGridRenderer(pOwner), RenderFrame(NULL)
+: DataGridRenderer(pOwner), m_pRenderFrame(NULL)
 {
 	Orbiter* pOrbiter = pOwner->m_pOrbiter;
 	OrbiterRenderer_OpenGL* pRendererGL = dynamic_cast<OrbiterRenderer_OpenGL*>(pOrbiter->Renderer());
@@ -51,7 +51,7 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 	string DatagridFrameID = "datagrid " + m_pObj_Owner->GenerateObjectHash(point, false);
 
 	g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject");
-	MeshFrame * BeforeDataGrid = RenderFrame;
+	MeshFrame * BeforeDataGrid = m_pRenderFrame;
 
 	MeshFrame *BeforeDataGridClone = NULL;
 	if(0 != StartAnimation && BeforeDataGrid != NULL)
@@ -60,6 +60,9 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 
 		//create a clone
 		BeforeDataGridClone = BeforeDataGrid->Clone();
+
+		//disconnect from parent
+		BeforeDataGridClone->ResetParent();
 
 		//replace old datagrid with the clone in the animation
 		Engine->ReplaceMeshInAnimations(BeforeDataGrid, BeforeDataGridClone);
@@ -73,21 +76,21 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 
 	DataGridRenderer::RenderObject(pObj_Screen, point);
 
-	RenderFrame = Engine->EndDatagridDrawing(DatagridFrameID);
+	m_pRenderFrame = Engine->EndDatagridDrawing(DatagridFrameID);
 	Engine->BeginModifyGeometry();
 
-	if(0 != StartAnimation)
+	if(0 != StartAnimation && NULL != BeforeDataGridClone)
 	{
 		vector<string> Dependencies;
 		BuildDependencies(Dependencies);
 		g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::StartAnimation");
 		Engine->GetDatagridAnimationManager()->PrepareForAnimation(
-			DatagridFrameID, BeforeDataGridClone, RenderFrame, m_AnimationSpeed, iPK_Direction, 
+			DatagridFrameID, BeforeDataGridClone, m_pRenderFrame, m_AnimationSpeed, iPK_Direction, 
 			GetAlphaLevel() / 255.0f, Dependencies);
 		StartAnimation = 0;
 	}
 	else
-		Engine->AddMeshFrameToDesktop("", RenderFrame);
+		Engine->AddMeshFrameToDesktop("", m_pRenderFrame);
 }
 
 void DataGridRenderer_OpenGL::m_AnimationSpeed_set(int AnimationSpeed)

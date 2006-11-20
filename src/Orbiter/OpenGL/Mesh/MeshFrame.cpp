@@ -45,6 +45,8 @@ MeshFrame::~MeshFrame(void)
 	}
 	else
 		TextureManager::Instance()->InvalidateItem(this);
+
+	//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame destructor %p/%s, volatile %d", this, this->Name_.c_str(), Volatile_);
 }
 
 void MeshFrame::MarkAsVolatile() 
@@ -69,10 +71,6 @@ void MeshFrame::MarkAsVolatile()
 
 		if(!VolatilesOnly || pMeshFrame->IsVolatile())
 		{
-			//if(pMeshFrame->IsVolatile())
-			//	DCE::g_pPlutoLogger->Write(LV_WARNING, "ttt MeshFrame::CleanUp: deleted a volatile %p/%s",
-			//		pMeshFrame, pMeshFrame->Name().c_str());
-
 			pMeshFrame->CleanUp();
 			delete pMeshFrame;
 			pMeshFrame = NULL;
@@ -86,6 +84,7 @@ void MeshFrame::MarkAsVolatile()
 		}
 		else
 		{
+			pMeshFrame->ResetParent();
 			++Child;
 		}
 	}	

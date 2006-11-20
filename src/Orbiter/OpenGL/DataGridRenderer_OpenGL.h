@@ -31,7 +31,7 @@ class DataGridRenderer_OpenGL :
 	public DataGridRenderer
 {
 	OpenGL3DEngine* Engine;
-	MeshFrame* RenderFrame;
+	MeshFrame* m_pRenderFrame;
 	int m_AnimationSpeed;
 
 	void BuildDependencies(vector<string> & Dependencies);
