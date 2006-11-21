@@ -13,6 +13,9 @@ upload="y"
 rev_pub=HEAD
 rev_prv=HEAD
 
+automagic_pwd="$(</etc/pluto/automagic.pwd)"
+mysql_ph_pluto_main_pwd="$(</etc/pluto/mysql_ph_pluto_main.pwd)"
+
 echo "Marker: starting `date`"
 # if we receive a "force-build" parameter, ignore this setting
 for ((i = 1; i <= "$#"; i++)); do
@@ -117,8 +120,8 @@ echo Using version with id: "$version"
 		rm -f /tmp/sqlcvs_dumps_"$flavor".tar.gz
 		ssh uploads@plutohome.com "
 			rm -f /tmp/main_sqlcvs_\"$flavor\".dump /tmp/myth_sqlcvs_\"$flavor\" /home/uploads/sqlcvs_dumps_\"$flavor\".tar.gz;
-			mysqldump -e --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata main_sqlcvs > /tmp/main_sqlcvs_\"$flavor\".dump;
-			mysqldump -e --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata myth_sqlcvs > /tmp/myth_sqlcvs_\"$flavor\".dump;
+			mysqldump -e --quote-names --allow-keywords --add-drop-table -u root -p\"$mysql_ph_pluto_main_pwd\" main_sqlcvs > /tmp/main_sqlcvs_\"$flavor\".dump;
+			mysqldump -e --quote-names --allow-keywords --add-drop-table -u root -p\"$mysql_ph_pluto_main_pwd\" myth_sqlcvs > /tmp/myth_sqlcvs_\"$flavor\".dump;
 			cd /tmp;
 			tar zcvf /home/uploads/sqlcvs_dumps_\"$flavor\".tar.gz main_sqlcvs_\"$flavor\".dump myth_sqlcvs_\"$flavor\".dump"
 		scp uploads@plutohome.com:/home/uploads/sqlcvs_dumps_"$flavor".tar.gz /tmp/
@@ -158,9 +161,9 @@ if [[ "$nobuild" == "" ]]; then
 		# Check out private repository
 		cd $build_dir/private
 		if [[ "$branch" == trunk ]]; then
-			svn co -r$rev_prv --username automagic --password "$(</etc/pluto/automagic.pwd)" http://10.0.0.170/pluto-private/trunk/. | tee $build_dir/svn.log
+			svn co -r$rev_prv --username automagic --password "$automagic_pwd" http://10.0.0.170/pluto-private/trunk/. | tee $build_dir/svn.log
 		else
-			svn co -r$rev_prv --username automagic --password "$(</etc/pluto/automagic.pwd)" http://10.0.0.170/pluto-private/branches/"$branch" | tee $build_dir/svn.log
+			svn co -r$rev_prv --username automagic --password "$automagic_pwd" http://10.0.0.170/pluto-private/branches/"$branch" | tee $build_dir/svn.log
 			rm -f trunk
 			ln -s "$branch" trunk # workaround as to not change all of the script
 		fi
@@ -215,7 +218,7 @@ if [[ "$nobuild" == "" ]]; then
 
 	## temporary
 	svn revert Table_Device.cpp  Table_Device_DeviceData.cpp Table_Orbiter.cpp Table_CommandGroup_Command_CommandParameter.cpp Table_CommandGroup.cpp Table_CommandGroup_Command.cpp
-	svn -m "Automatic Regen" --username automagic --password "$(</etc/pluto/automagic.pwd)" --non-interactive commit
+	svn -m "Automatic Regen" --username automagic --password "$automagic_pwd" --non-interactive commit
     cd $build_dir/trunk
     svn info > svn.info
 else
