@@ -983,6 +983,7 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
 		pMediaStream_AllEAsPlaying=vectEntertainArea[s]->m_pMediaStream;
 	}
 
+       OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(PK_Device_Orbiter);
 	// See if we can queue it
     if( !bResume && pMediaStream_AllEAsPlaying && !pMediaStream_AllEAsPlaying->m_bResume &&
 		pMediaStream_AllEAsPlaying->m_pMediaHandlerInfo->m_pMediaHandlerBase == pMediaHandlerInfo->m_pMediaHandlerBase &&
@@ -998,8 +999,6 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
     }
     else
     {
-
-        OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(PK_Device_Orbiter);
 		if ( (pMediaStream = pMediaHandlerInfo->m_pMediaHandlerBase->CreateMediaStream(pMediaHandlerInfo,iPK_MediaProvider,vectEntertainArea,pMediaDevice,(pOH_Orbiter ? pOH_Orbiter->PK_Users_get() : 0),dequeMediaFile,++m_iStreamID)) == NULL )
 		{
 			if( PK_Device_Orbiter )
@@ -1018,18 +1017,19 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
 	    pMediaStream->m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
 		pMediaStream->m_sStartPosition = sStartingPosition;
 		pMediaStream->m_sAppName = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_Name_CONST);
-        pMediaStream->m_pOH_Orbiter_StartedMedia = pOH_Orbiter;
-		if( pOH_Orbiter )
-		{
-			pMediaStream->m_dwPK_Device_Remote = pOH_Orbiter->m_dwPK_Device_CurrentRemote;
-			if( pOH_Orbiter->m_pOH_User )
-				pMediaStream->m_iPK_Users = pOH_Orbiter->m_pOH_User->m_iPK_Users;
-		}
 
         pMediaStream->m_dequeMediaFile += *dequeMediaFile;
     }
 
-    pMediaStream->m_pMediaHandlerInfo = pMediaHandlerInfo;
+	if( pOH_Orbiter )
+	{
+	    pMediaStream->m_pOH_Orbiter_StartedMedia = pOH_Orbiter;
+		pMediaStream->m_dwPK_Device_Remote = pOH_Orbiter->m_dwPK_Device_CurrentRemote;
+		if( pOH_Orbiter->m_pOH_User )
+			pMediaStream->m_iPK_Users = pOH_Orbiter->m_pOH_User->m_iPK_Users;
+	}
+
+	pMediaStream->m_pMediaHandlerInfo = pMediaHandlerInfo;
 	for(size_t s=0;s<vectEntertainArea.size();++s)
 	{
 		EntertainArea *pEntertainArea = vectEntertainArea[s];
