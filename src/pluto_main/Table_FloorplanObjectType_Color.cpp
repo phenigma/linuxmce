@@ -136,7 +136,7 @@ is_null[7] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
 is_null[8] = false;
-m_psc_mod = "0000-00-00 00:00:00";
+m_psc_mod = "00000000000000";
 is_null[9] = false;
 is_null[10] = true;
 m_psc_restrict = 0;
@@ -382,8 +382,8 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 if (is_null[9])
 return "NULL";
 
-char *buf = new char[39];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)19,m_psc_mod.size()));
+char *buf = new char[29];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
