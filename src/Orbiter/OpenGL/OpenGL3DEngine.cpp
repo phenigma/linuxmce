@@ -149,7 +149,7 @@ bool OpenGL3DEngine::Paint()
 			Color.X = 1.0f;
 			Color.Y = 1.0f;
 			Color.Z = (GetTick() / 2 % 512) / 255.0f*MilisecondsHighLight/300;
-			Color.Z = abs(Color.Z - 1.0f)/2.0f+ 0.5f;
+			Color.Z = fabs(Color.Z - 1.0f)/2.0f+ 0.5f;
 			Color.X = Color.Z;
 			Color.Y = Color.Z;
 
@@ -163,7 +163,7 @@ bool OpenGL3DEngine::Paint()
 			Color.X = 1.0f;
 			Color.Y = 1.0f;
 			Color.Z = (GetTick() / 2 % 512) / 255.0f*MilisecondsHighLight/300;
-			Color.Z = abs(Color.Z - 1.0f)/2.0f+ 0.5f;
+			Color.Z = fabs(Color.Z - 1.0f)/2.0f+ 0.5f;
 			Color.X = Color.Z;
 			Color.Y = Color.Z;
 			HighLightFrame->SetColor(Color);
