@@ -211,6 +211,7 @@ Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData=$DD_ComputerN
 ComputerName=$(RunSQL "$Q")
 ComputerName=$(Field "1" "$ComputerName")
 
+## Configure Samba Server
 SambaDomainHost="
 	workgroup = $DomainName
 	server string =	$ComputerName
@@ -220,3 +221,14 @@ PopulateSection "/etc/samba/smb.conf" "Domain and Hostname" "$SambaDomainHost"
 if [[ "$(pidof smbd)" != "" ]] ;then
 	invoke-rc.d samba reload
 fi
+
+## Configure NIS Server
+echo "pluto" > /etc/defaultdomain
+cp /usr/pluto/templates/nis-server.template /etc/default/
+echo "
+host 127.0.0.1
+$IntNetmask $IntIP
+" > /etc/ypserv.securenets
+invoke-rc.d nis stop
+invoke-rc.d nis start
+/usr/lib/yp/ypinit -m
