@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string.h>
 
+#include <errno.h>
+
 using namespace std;
 
 namespace UpdateMediaFileUtils
