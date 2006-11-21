@@ -74,7 +74,9 @@ for Device in $InternalOwnStorageDevices; do
 			else
 				userDir="user_$user"
 			fi
-			
+	
+			Device_Description=$(echo $Device_Description | tr '/' '-')	# Prevent / char to get in a file name
+	
 			symlinkDestination="/home/$userDir/data/$mediaDir/$Device_Description [$Device_ID]"
 			if [[ "$Device_UsePlutoDirStructure" == "1" ]]; then
 				symlinkSource="/mnt/device/$Device_ID/$userDir/data/$mediaDir"
