@@ -16,6 +16,7 @@ public:
     WinListManager(WMControllerImpl *pWMController, const string &sSdlWindowName);
     ~WinListManager();
 
+    void ActivateWindow(const string& sWindowsName);
     void ActivateSdlWindow();
 
     void ShowSdlWindow(bool bExclusive);

@@ -21,6 +21,12 @@ WinListManager::~WinListManager()
     pthread_mutexattr_destroy(&m_WindowsMutexAttr);
 }
 
+void WinListManager::ActivateWindow(const string& sWindowsName)
+{
+	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+	m_pWMController->ActivateWindow(sWindowsName);
+}
+
 void WinListManager::ActivateSdlWindow()
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);

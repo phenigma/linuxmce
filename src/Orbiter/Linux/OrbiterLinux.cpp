@@ -308,7 +308,7 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
             // TODO: do the proper activating code for windows
             m_pWinListManager->PositionWindow(sWindowName, rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
         }
-        m_pWMController->ActivateWindow(m_pWinListManager->GetExternApplicationName());
+        m_pWinListManager->ActivateWindow(m_pWinListManager->GetExternApplicationName());
     }
     else
         CallMaintenanceInMiliseconds( bIsWindowAvailable ? 1000 : 200, (OrbiterCallBack)&OrbiterLinux::ActivateExternalWindowAsync, NULL, pe_ALL );
@@ -604,7 +604,7 @@ void OrbiterLinux::CMD_Surrender_to_OS(string sOnOff, bool bFully_release_keyboa
     if (m_bYieldInput)
     {
         g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::CMD_Surrender_to_OS() : ActivateWindow('%s')", m_pWinListManager->GetExternApplicationName().c_str());
-        m_pWMController->ActivateWindow(m_pWinListManager->GetExternApplicationName());
+        m_pWinListManager->ActivateWindow(m_pWinListManager->GetExternApplicationName());
     }
 
 	if(sOnOff == "0")
