@@ -2273,6 +2273,13 @@
 #define DESIGNOBJ_butClimateFloorplan_CONST 5240
 #define DESIGNOBJ_butTelecomFloorplan_CONST 5241
 #define DESIGNOBJ_butSecurityFloorplan_CONST 5242
+#define DESIGNOBJ_butSubMenuButtonClimate_CONST 5244
+#define DESIGNOBJ_butSubMenuButtonLights_CONST 5245
+#define DESIGNOBJ_butSubMenuButtonMedia_CONST 5246
+#define DESIGNOBJ_butSubMenuButtonSecurity_CONST 5247
+#define DESIGNOBJ_butSubMenuButtonTelecom_CONST 5248
+#define DESIGNOBJ_butChangeRoom_CONST 5249
+#define DESIGNOBJ_mnuCurrentTime_CONST 5250
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
