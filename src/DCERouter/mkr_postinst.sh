@@ -109,3 +109,13 @@ if [[ -n "$PrevVersion" ]]; then
 		fi
 	done
 fi
+
+## Samba Share Helper
+smbUser="sambahelper"
+smbPass="HardcodedPass4Now" ## I'll change this, this is for testing only
+useradd -c "Pluto Samba Share Helper" -d /tmp -s /bin/false sambahelper -p $(mkpasswd -H md5 "$smbPass" 'PlutoSmb')
+echo "
+username=$smbUser
+password=$smbPass
+" > /usr/pluto/var/sambaCredentials.secret
+chmod 600 /usr/pluto/var/sambaCredentials.secret
