@@ -18,7 +18,9 @@ DD_DIRECTORIES=153
 DD_USERS=3
 
 ## Remove old symlinks from home
-find /home/ -lname "*/mnt/device/*" -print0 | xargs -0 rm -f
+for userdir in /home/user_* /home/public ;do
+	find ${userdir}/data -lname "*/mnt/device/*" -print0 -mindepth 1 -maxdepth 2 -xdev | xargs -0 rm -f
+done
 
 ## Lookup our internal storage devices in the db
 Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_GENERIC_SAMBA_SHARE, $TPL_GENERIC_NFS_SHARE)"
