@@ -171,6 +171,7 @@ namespace DCE
 #ifndef WIN32
 #ifdef ORBITER_OPENGL
 		PlutoHIDInterface *m_pHIDInterface;
+		pthread_t m_HidThreadID;
 #endif
 #endif
 		//<-dceag-const-b->!

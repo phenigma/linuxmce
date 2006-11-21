@@ -166,7 +166,7 @@ public:
 	}
 };
 
-//------------------------------------------------------------------------
+///------------------------------------------------------------------------
 template<class T> inline static T Dist( T x,  T y ) { return x * x + y * y; }
 //------------------------------------------------------------------------
 void *MaintThread(void *p);
@@ -234,6 +234,13 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 				 IRReceiverBase(this)
 				 //<-dceag-const-e->
 {
+#ifndef WIN32
+#ifdef ORBITER_OPENGL
+        m_pHIDInterface=NULL;
+	m_HidThreadID=(pthread_t)NULL;
+#endif
+#endif
+	
 	WriteStatusOutput((char *)(string("Orbiter version: ") + VERSION).c_str());
 	WriteStatusOutput("Orbiter constructor");
 
@@ -347,6 +354,9 @@ Orbiter::~Orbiter()
 {
 #ifndef WIN32
 #ifdef ORBITER_OPENGL
+	if(m_HidThreadID)
+		pthread_join(m_HidThreadID, NULL);
+	
 	delete m_pHIDInterface;
 	m_pHIDInterface=NULL;
 #endif
@@ -677,9 +687,7 @@ void Orbiter::PostConnect()
 #ifndef WIN32
 #ifdef ORBITER_OPENGL
 	m_pHIDInterface=new PlutoHIDInterface(this);
-	pthread_t HidThreadID;
-	pthread_create(&HidThreadID, NULL, ProcessHIDEvents, (void*)m_pHIDInterface);
-	pthread_detach(HidThreadID);
+	pthread_create(&m_HidThreadID, NULL, ProcessHIDEvents, (void*)m_pHIDInterface);
 #endif
 #endif
 
