@@ -39,27 +39,25 @@ MeshFrame::~MeshFrame(void)
 	delete Mesh;
 	Mesh = NULL;
 
-	if(Volatile_)
-	{
-		//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "ttt volatile MeshFrame destructor %p/%s", this, this->Name_.c_str());
-	}
-	else
+	if(!Volatile_)
 		TextureManager::Instance()->InvalidateItem(this);
 
-	//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame destructor %p/%s, volatile %d", this, this->Name_.c_str(), Volatile_);
+#ifdef DEBUG
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame destructor %p/%s, volatile %d", this, this->Name_.c_str(), Volatile_);
+#endif
 }
 
 void MeshFrame::MarkAsVolatile() 
 { 
 	Volatile_ = true; 
-
-	//DCE::g_pPlutoLogger->Write(LV_STATUS, "ttt volatile MeshFrame setter %p/%s", this, this->Name_.c_str());
 }
 
 
 /*virtual*/ void MeshFrame::CleanUp(bool VolatilesOnly/* = false*/)
 {
-	//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "xxxxx MeshFrame::CleanUp: %p/%s", this, Name_.c_str());	
+#ifdef DEBUG
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::CleanUp: %p/%s", this, Name_.c_str());	
+#endif
 
 	delete Mesh;
 	Mesh = NULL;
@@ -119,8 +117,11 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 		//throw "Frame already has a parent";
 	}
 
-//	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::AddChild: Added %p/%s to %p/%s", Frame, Frame->Name_.c_str(),
-//		this, Name_.c_str());	
+#ifdef DEBUG
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::AddChild: Added %p/%s to %p/%s", Frame, Frame->Name_.c_str(),
+		this, Name_.c_str());	
+#endif
+
 	Children.push_back(Frame);
 	Frame->Parent = this;
 
@@ -150,8 +151,10 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 		{
 			Frame->Parent->Children.erase(Child);
 
-//			DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::RemoveChild %p/%s from parent %p/%s", 
-//				Frame, Frame->Name_.c_str(), Frame->Parent, Frame->Parent->Name_.c_str());
+#ifdef DEBUG
+			DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::RemoveChild %p/%s from parent %p/%s", 
+				Frame, Frame->Name_.c_str(), Frame->Parent, Frame->Parent->Name_.c_str());
+#endif
 
 			Frame->Parent = NULL;
 
@@ -195,9 +198,11 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 			NewFrame->Parent = OldFrame->Parent;
 			*Child = NewFrame;
 
-//			DCE::g_pPlutoLogger->Write(LV_STATUS, "ttt MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
-//				OldFrame, OldFrame->Name_.c_str(), OldFrame->Parent, OldFrame->Parent->Name_.c_str(),
-//				NewFrame, NewFrame->Name_.c_str());
+#ifdef DEBUG
+			DCE::g_pPlutoLogger->Write(LV_STATUS, "ttt MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
+				OldFrame, OldFrame->Name_.c_str(), OldFrame->Parent, OldFrame->Parent->Name_.c_str(),
+				NewFrame, NewFrame->Name_.c_str());
+#endif
 
 			if(NewFrame != OldFrame && NULL != OldFrame && OldFrame->IsVolatile())
 			{
