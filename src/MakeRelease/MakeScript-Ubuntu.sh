@@ -47,6 +47,9 @@ for ((i = 1; i <= "$#"; i++)); do
 		no-build)
 			nobuild="-b" 
 		;;
+		no-upload)
+			upload=
+		;;
 		rev=*,*)
 			rev_pub=${!i%,*}
 			rev_prv=${!i#,*}
@@ -265,7 +268,7 @@ fi;
 # Creating target folder.
 mkdir -p "$BASE_OUT_FOLDER/$version_name";
 echo "Marker: starting compilation `date`"
-if ! MakeRelease $fastrun $nobuild $dont_compile_existing -O "$BASE_OUT_FOLDER/$version_name" -D main_sqlcvs_"$flavor" -c -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
+if ! MakeRelease -h localhost $fastrun $nobuild $dont_compile_existing -O "$BASE_OUT_FOLDER/$version_name" -D main_sqlcvs_"$flavor" -c -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
@@ -276,7 +279,7 @@ fi
 cp /home/builds/Windows_Output/src/bin/* $build_dir/trunk/src/bin
 
 echo "Marker: starting package building `date`"
-if ! MakeRelease $fastrun -D main_sqlcvs_"$flavor" -O "$BASE_OUT_FOLDER/$version_name" -b -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
+if ! MakeRelease -h localhost $fastrun -D main_sqlcvs_"$flavor" -O "$BASE_OUT_FOLDER/$version_name" -b -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
@@ -292,45 +295,6 @@ BuildScript="$build_dir/trunk/src/BUILD.sh"
 echo Setting this version as the current one.
 rm -f $BASE_OUT_FOLDER/current-"$flavor"
 ln -s $BASE_OUT_FOLDER/$version_name $BASE_OUT_FOLDER/current-"$flavor"
-
-ln -s "/home/samba/repositories/$flavor/$replacementsdeb" /home/mirrors/Debian.ro.Sarge/debian/dists
-ln -s "/home/samba/repositories/$flavor/$maindeb" /home/mirrors/Debian.ro.Sarge/debian/dists
-
-pushd "$BASE_INSTALLATION_2_6_12_CD_FOLDER"
-"$BASE_INSTALLATION_2_6_12_CD_FOLDER/build-cd1.sh" --iso-dir "$BASE_OUT_FOLDER/$version_name" --cache
-"$BASE_INSTALLATION_2_6_12_CD_FOLDER/build-cd2.sh" --iso-dir "$BASE_OUT_FOLDER/$version_name"
-popd
-
-if ! MakeRelease -D main_sqlcvs_"$flavor" -O "$BASE_OUT_FOLDER/$version_name" -a -o 7 -n / -s /home/samba/builds/Windows_Output/ -r 10 -O "$BASE_OUT_FOLDER/$version_name" -v $version -b -k 116,119,124,126,154,159,193,203,213,226,237,242,255,277,204,118,303,128,162,191,195,280,272,363,364,341 > $build_dir/MakeRelease2.log ; then
-	echo "MakeRelease Failed.  Press any key"
-	reportError
-	read
-	exit
-fi
-
-if ! MakeRelease -D main_sqlcvs_"$flavor" -a -O "$BASE_OUT_FOLDER/$version_name" -o 7 -n / -s $build_dir/trunk -r 10 -v $version -b -k 211,214,233,256,219,220 > $build_dir/MakeRelease3.log ; then
-	echo "MakeRelease Failed.  Press any key"
-	reportError
-	read
-	exit
-fi
-
-if ! MakeRelease -D main_sqlcvs_"$flavor" -a -O "$BASE_OUT_FOLDER/$version_name" -o 12 -n / -s /home/samba/builds/Windows_Output/ -r 15 -v $version -b -k 119 > $build_dir/MakeRelease4.log ; then
-	echo "MakeRelease Failed.  Press any key"
-	reportError
-	read
-	exit
-fi
-
-if ! MakeRelease -D main_sqlcvs_"$flavor" -a -O "$BASE_OUT_FOLDER/$version_name" -o 8 -n / -s /home/samba/builds/Windows_Output/ -r 16 -v $version -b -k 119 > $build_dir/MakeRelease5.log ; then
-	echo "MakeRelease Failed.  Press any key"
-	reportError
-	read
-	exit
-fi
-
-cp -r /home/samba/builds/Windows_Output/winlib $BASE_OUT_FOLDER/$version_name
-cp -r /home/samba/builds/Windows_Output/winnetdlls $BASE_OUT_FOLDER/$version_name
 
 mkdir -p /home/builds/upload
 pushd /home/builds
