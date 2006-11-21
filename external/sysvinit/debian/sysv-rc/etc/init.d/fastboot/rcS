@@ -266,6 +266,9 @@ fi
 if [[ -x /etc/init.d/portmap ]]; then
 	/etc/init.d/portmap start 1> /dev/null # Search me ! :/
 fi
+if [[ -x /etc/init.d/nis ]] ;then
+	/etc/init.d/nis start 1>/dev/null # Start nis daemon
+fi
 
 ## Now we can safely mount remoute filesystems
 Message "Mounting remote filesystems"
