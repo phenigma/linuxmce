@@ -1049,7 +1049,10 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
 	pMediaStream->m_bResume=bResume;
 	pMediaStream->m_bContainsTitlesOrSections=bContainsTitlesOrSections;
 
-	g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from StartMedia");
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::StartMedia stream %d orbiter %d user %d remote %d",
+		pMediaStream->m_iStreamID_get(),pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0,
+		pMediaStream->m_iPK_Users,pMediaStream->m_dwPK_Device_Remote);
+		
 	if( StartMedia(pMediaStream) )
 		return pMediaStream;
 	return NULL;
@@ -2918,6 +2921,10 @@ void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_
 	for( MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it )
 	{
 		MediaStream *pMS = (*it).second;
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::FollowMe_EnteredRoom stream %d use %d device %d, comp to %d %d",
+			pMS->m_iStreamID_get(),pMS->m_iPK_Users,pMS->m_dwPK_Device_Remote,iPK_Users,iPK_Device);
+#endif
 		if( iPK_Device && pMS->m_dwPK_Device_Remote==iPK_Device )
 		{
 			pMediaStream = pMS;
