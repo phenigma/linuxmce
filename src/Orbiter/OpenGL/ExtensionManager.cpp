@@ -30,8 +30,6 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include <GL/glu.h>
 #include <GL/glext.h>
 
-#include <SDL_ttf.h>
-
 #include "Mesh/MeshPainter.h"
 
 ExtensionManager::ExtensionManager(void)
@@ -113,9 +111,6 @@ void ExtensionManager::Resize(int Width, int Height)
 /*virtual*/ bool ExtensionManager::InitVideoMode(int Width, int Height, int Bpp, bool FullScreen, 
 		bool UseComposite)
 {
-	if(TTF_WasInit())
-		TTF_Quit();
-
 	if(SDL_INIT_VIDEO & SDL_WasInit(SDL_INIT_VIDEO))
 		SDL_Quit();
 
