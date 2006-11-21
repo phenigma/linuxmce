@@ -4600,7 +4600,7 @@ void Orbiter::GetVideoFrame( void *data )
 		return;
 	}
 
-	if( m_iLastVideoObjectRendered>=m_vectObjs_VideoOnScreen.size() || m_iLastVideoObjectRendered<0 )
+	if( m_iLastVideoObjectRendered>=int(m_vectObjs_VideoOnScreen.size()) || m_iLastVideoObjectRendered<0 )
 		m_iLastVideoObjectRendered=0;
 
 	DesignObj_Orbiter *pObj = m_vectObjs_VideoOnScreen[m_iLastVideoObjectRendered++];
@@ -8632,7 +8632,11 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 
 	m_pScreenHistory_NewEntry = new ScreenHistory(iPK_Screen, m_pScreenHistory_Current,pMessage);
 	m_pScreenHistory_NewEntry->ScreenID(sID);
+
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	m_pScreenHandler->ReceivedGotoScreenMessage(iPK_Screen, pMessage);
+	cm.Release();
+
 	if( bCreatedMessage )
 	{
 		delete pMessage;

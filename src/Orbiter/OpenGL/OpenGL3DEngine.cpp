@@ -508,9 +508,9 @@ void OpenGL3DEngine::StartDatagridDrawing(string ObjectHash)
 MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
-
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
-
+#endif
 	MeshFrame* Result = CurrentLayer;
 
 	CurrentLayer = FrameDatagrid;

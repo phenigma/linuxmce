@@ -48,6 +48,8 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 #include "DCE/DataGrid.h"
 /*virtual*/ void DataGridRenderer_OpenGL::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
+	PLUTO_SAFETY_LOCK(cm, m_pObj_Owner->m_pOrbiter->m_ScreenMutex);
+
 	string DatagridFrameID = "datagrid " + m_pObj_Owner->GenerateObjectHash(point, false);
 
 	g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject");
@@ -91,6 +93,8 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 	}
 	else
 		Engine->AddMeshFrameToDesktop("", m_pRenderFrame);
+
+	g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject ENDED");
 }
 
 void DataGridRenderer_OpenGL::m_AnimationSpeed_set(int AnimationSpeed)
