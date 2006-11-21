@@ -3,6 +3,8 @@
 
 #include "../Orbiter/SDL/OrbiterRenderer_SDL.h"
 
+class OrbiterRendererFactory;
+
 namespace DCE
 {
 	class Orbiter;
@@ -10,7 +12,7 @@ namespace DCE
 	class Proxy_OrbiterRenderer_SDL : public OrbiterRenderer_SDL
 	{
 	private:
-		friend class OrbiterRendererFactory;
+		friend class ::OrbiterRendererFactory;
 		Proxy_OrbiterRenderer_SDL(Orbiter *pOrbiter);
 
 		bool DisplayProgress(string sMessage, int nProgress);

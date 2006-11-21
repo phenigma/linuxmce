@@ -11,6 +11,9 @@ using namespace std;
 #define CURRENT_SCREEN_IMAGE        "screen.png"
 #define CURRENT_SCREEN_XML          "screen.xml"
 //-----------------------------------------------------------------------------------------------------
+
+class DataGridRenderer_Proxy;
+
 namespace DCE
 {
 	class Proxy_OrbiterRenderer_SDL;
@@ -18,7 +21,7 @@ namespace DCE
 	class Proxy_Orbiter : public Orbiter, public SocketListener
 	{
 		friend class Proxy_OrbiterRenderer_SDL;
-		friend class DataGridRenderer_Proxy;
+		friend class ::DataGridRenderer_Proxy;
 
 		bool IsProcessingRequest();
 		void StartProcessingRequest();
