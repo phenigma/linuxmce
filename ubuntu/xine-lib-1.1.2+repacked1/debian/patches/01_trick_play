@@ -21,9 +21,9 @@ esac
 exit 0
 
 @DPATCH@
-diff -ruN xine-lib-1.1.2/include/xine.h xine-lib-1.1.2-new/include/xine.h
---- xine-lib-1.1.2/include/xine.h	2006-09-01 00:15:32.000000000 +0300
-+++ xine-lib-1.1.2-new/include/xine.h	2006-09-01 01:05:33.000000000 +0300
+diff -ruN xine-lib-1.1.2/include/xine.h.in xine-lib-1.1.2-new/include/xine.h.in
+--- xine-lib-1.1.2/include/xine.h.in	2006-09-01 00:15:32.000000000 +0300
++++ xine-lib-1.1.2-new/include/xine.h.in	2006-09-01 01:05:33.000000000 +0300
 @@ -251,6 +251,31 @@
  int  xine_play (xine_stream_t *stream, int start_pos, int start_time);
  
