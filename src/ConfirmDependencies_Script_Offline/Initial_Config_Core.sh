@@ -158,6 +158,9 @@ fi
 exec 1>&3 3>&-
 sleep 0.5
 
+mkdir -p /etc/apt/apt.conf.d/
+ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
+
 ## Setup Offline Mode
 OfflineMode="false"
 if [[ "$UseInternet" == "N" || "$UseInternet" == "n" ]] ;then
@@ -170,8 +173,6 @@ APT::Get::Fix-Missing "true";
 APT::Get::quiet "1";
 Dir::Etc::sourcelist "sources.list.offline";
 '
-	mkdir -p /etc/apt/apt.conf.d/
-	ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
 	mkdir -p /usr/pluto/var
 	echo -e $OfflineApt > /usr/pluto/var/apt.conf.offline
 fi
