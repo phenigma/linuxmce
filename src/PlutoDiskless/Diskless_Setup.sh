@@ -2,6 +2,7 @@
 
 . /usr/pluto/bin/Network_Parameters.sh
 . /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/Section_Ops.sh
 . /usr/pluto/bin/LockUtils.sh
 
 SkipLock=n
@@ -225,6 +226,11 @@ for Client in $R; do
 			pluto_conf="${pluto_conf}Vendor = $Vendor \n"
 			echo -e $pluto_conf > $DlPath/etc/pluto.conf
 		fi
+		
+		## Setup nis
+		echo -n " nis"
+		cp /usr/pluto/tempaltes/nis-client.template $DlPath/etc/default/nis
+		PopulateSection "$DlPath/etc/default/nis" "Nis Master" "$IntIP"		
 
 		## Setup fstab
 		echo -n " fstab"
