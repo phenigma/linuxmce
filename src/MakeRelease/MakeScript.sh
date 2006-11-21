@@ -210,12 +210,6 @@ if [[ "$nobuild" == "" ]]; then
 	cd $build_dir/trunk/src/bin
 	rm ../pluto_main/*
 	# We have to use pluto_main so the class is named correctly, but that means we need to be sure  the local pluto_main is up to date
-	sql2cpp -D pluto_main -h localhost
-	cd ../pluto_main
-
-	## temporary
-	svn revert Table_Device.cpp  Table_Device_DeviceData.cpp Table_Orbiter.cpp Table_CommandGroup_Command_CommandParameter.cpp Table_CommandGroup.cpp Table_CommandGroup_Command.cpp
-	svn -m "Automatic Regen" --username automagic --password "$(</etc/pluto/automagic.pwd)" --non-interactive commit
     cd $build_dir/trunk
     svn info > svn.info
 else
