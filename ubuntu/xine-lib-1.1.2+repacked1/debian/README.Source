@@ -1,0 +1,17 @@
+Sourcepackage notes for ubuntu's xine-lib source package.
+
+xine ships an internal copy of ffmpeg. That copy of ffmpeg is mainly
+used to build the ffmpeg plugin. This has been stripped off to the
+xine-extracodecs package for political/legal reasons.
+
+The problem is that there are some other parts in xine, which require
+some parts of ffmpeg to build, e.g. the planar plugin. Luckily, the
+required parts should not have any patent problems, so it was included
+as copy in src/libpostproc. In the next upload, it should be moved to
+the xine-extracodecs package.
+
+The whole situation is a PITA and should be rectified. One way would
+be to demote xine to universe, where it can build-depend on the ffmpeg
+source package. This isn't possible at this point, because there are
+some reverse (build-) dependencies in main.
+
