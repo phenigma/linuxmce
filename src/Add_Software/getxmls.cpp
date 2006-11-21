@@ -83,7 +83,7 @@ int findURL(FILE *f,string &link,const uint searchEngine){
 	char buf[MaxBuf+1];
 	int pos,pos2;
 	string buf2="";
-	link=(string)"wget -q "+UserAgent+" -O /tmp/out.html \"";
+	link=(string)"wget --timeout 2 --tries=1 -q "+UserAgent+" -O /tmp/out.html \"";
 	while (fread(buf,MaxBuf,1,f)){
 		buf[MaxBuf]='\0';
 		buf2+=buf;
@@ -121,7 +121,7 @@ int findXML(FILE *fpage){
 	char buf[MaxBuf+1];
 	int pos,pos2,pos3;
 	string buf2="";
-	string link=(string)"wget -q "+UserAgent+" -O /tmp/out.xml ";
+	string link=(string)"wget --timeout 2 --tries=1 -q "+UserAgent+" -O /tmp/out.xml ";
 	while (fread(buf,MaxBuf,1,fpage)){
 		buf[MaxBuf]='\0';
 		buf2+=buf;
@@ -235,7 +235,7 @@ int main(int argc, char *argv[]){
 		return false;
 	}
 	for(uint noEngine=0;noEngine<url.size();noEngine++){
-		res=system(((string)"wget -q "+UserAgent+" -O /tmp/search.html \""+url[noEngine]+"\"").c_str());
+		res=system(((string)"wget --timeout 2 --tries=1 -q "+UserAgent+" -O /tmp/search.html \""+url[noEngine]+"\"").c_str());
 		if (!res){
 			FILE *fsearch,*fxml,*fpage;
 			dxml_element *packages,*package;
