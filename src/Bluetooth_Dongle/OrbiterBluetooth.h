@@ -11,6 +11,7 @@ using namespace std;
 #include "../VIPShared/PhoneConfig.h"
 //-----------------------------------------------------------------------------------------------------
 class BDCommandProcessor;
+class DataGridRenderer_Bluetooth;
 //-----------------------------------------------------------------------------------------------------
 
 namespace DCE
@@ -18,7 +19,7 @@ namespace DCE
 
 class OrbiterBluetooth : public Orbiter
 {
-	friend class DataGridRenderer_Bluetooth;
+	friend class ::DataGridRenderer_Bluetooth;
 
 	bool  m_bShowListSent;
     int   m_ImageQuality;

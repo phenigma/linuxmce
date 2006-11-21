@@ -3,6 +3,8 @@
 
 #include "../Orbiter/SDL/OrbiterRenderer_SDL.h"
 
+class OrbiterRendererFactory;
+
 namespace DCE
 {
 	class Orbiter;
@@ -10,7 +12,7 @@ namespace DCE
 	class OrbiterRenderer_SDL_Bluetooth : public OrbiterRenderer_SDL
 	{
 	private:
-		friend class OrbiterRendererFactory;
+		friend class ::OrbiterRendererFactory;
 		OrbiterRenderer_SDL_Bluetooth(Orbiter *pOrbiter);
 
 		//private data
