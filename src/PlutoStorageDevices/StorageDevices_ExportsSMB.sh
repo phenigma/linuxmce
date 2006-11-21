@@ -25,8 +25,8 @@ writable = yes
 create mask = 0770
 directory mask = 0770
 path = /mnt/device/$Device_ID
-public = yes
-guest ok = yes
+public = no
+guest ok = no
 force user = root
 force group = root	
 "
