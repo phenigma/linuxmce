@@ -211,7 +211,6 @@ if [[ "$nobuild" == "" ]]; then
 		
 	mkdir -p $build_dir/trunk/src/bin
 	cd $build_dir/trunk/src/bin
-	rm ../pluto_main/*
 
     cd $build_dir/trunk
     svn info > svn.info
