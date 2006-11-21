@@ -252,7 +252,10 @@ Router::~Router()
 	m_mapPlugIn.clear();
 	m_bTerminate=true;
 	cout << "Killing everything in DCERouter" << endl;
-    delete[] m_pDeviceStructure;
+
+	DropAllSockets();
+	
+	delete[] m_pDeviceStructure;
 	delete[] m_pBufferForDeviceCategories;
 
 #ifndef WIN32
