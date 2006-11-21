@@ -20,10 +20,12 @@ class OSDScreenHandler;
 
 namespace DCE
 {
+	class MouseBehavior;
+	
 	// A pure virtual base class for the call-backs
 	class MouseHandler
 	{
-		friend class MouseBehavior;
+		friend class DCE::MouseBehavior;
 		friend class DatagridMouseHandlerHelper;
 
 	public:
