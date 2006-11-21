@@ -21,7 +21,7 @@ sources = Main.cpp Proxy_Orbiter.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/SDL -DORBITER -DPROXY_ORBITER
 LDFLAGS +=
-XTRALDLIBS = -lSDL_Helpers -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lcurl -lGL -lXrender
+XTRALDLIBS = -lSDL_Helpers -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lcurl -lGL -lXrender -ljpeg
 
 sources += \
 	Proxy_OrbiterRenderer_SDL.cpp \
