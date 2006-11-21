@@ -10,8 +10,9 @@ use XML::Simple;
 use Image::Magick;
 use Data::Dumper;
 use DBI;
+use POSIX qw(ceil floor);
 #use strict;
-use vars qw($dest $xs $r @buff $child_count $minW $minH $maxW $maxH @fileList);
+use vars qw($dest $xs $r @buff $child_count $minW $minH @fileList);
 
 $child_count = 5;
 
@@ -69,23 +70,12 @@ if ( $#ARGV >= 0 ) {
 		print "\tMin width: $minW";
 	}
 					
-	if ($ARGV[4]) {
-		$maxH = $ARGV[4];
-		print "\tMin height: $minH\n";
-	}	
-	
-	if ($ARGV[5]) {
-		$search_string = $ARGV[5];
-		print "\tSearch string:$search_string\n";
-	}
 }
 
 if ($#ARGV < 0) {
         $tDays = 5;
         $minW = 800;
         $minH = 600;
-	$maxW = 1024;
-	$maxH = 1024;
 	$search_string = '';
 	#$search_string = 'red cars';
         print "[flickr.pl] Using default values - days: $tDays, width: $minW, height: $minH, no search string \n";
@@ -275,6 +265,22 @@ sub get_files{
 	$xs=Image::Magick->new;
 	$r=$xs->Read("$finaldst");
 	warn "$r" if "$r";
+	#print "-------------------\n";
+	#print "Old image width: $image->{'width'} and height: $image->{'height'}\n";
+	if ($image->{'width'} > 1024 || $image->{'height'} > 1024){
+		if($image->{'width'} > $image->{'height'}){
+			$image->{'height'} = floor(($image->{'height'}/$image->{'width'})*1024);
+			$image->{'width'} = 1024;
+		} 
+		elsif($image->{'height'} > $image->{'width'}){
+			$image->{'width'} = floor(($image->{'width'}/$image->{'height'})*1024);
+			$image->{'height'} = 1024;
+		}
+	}
+	#print "New image width: $image->{'width'} and height: $image->{'height'}\n";
+	#print "-------------------\n";
+	$r=$xs->Scale(width=>$image->{'width'}, 
+		      height=>$image->{'height'});
 	$r = $xs->Annotate( font=>'/usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf', 
 				pointsize=>20, 
 				fill=>'red', 
@@ -379,8 +385,7 @@ sub getPictureDimensions {
 		my $r=XMLin($response->{_content});
 		foreach $buff (@{$r->{'sizes'}->{'size'}}) {
 			if ($buff->{'width'} >= $minW && $buff->{'height'} >= $minH) {
-				#print "$id are dimensiunile dorite\n";
-				last if ($buff->{'width'} > $maxW || $buff->{'height'} >= $maxH);
+				#last if ($buff->{'width'} > $maxW || $buff->{'height'} >= $maxH);
 				$width = $buff->{'width'};
 				$height = $buff->{'height'};
 				$source = $buff->{'source'};
