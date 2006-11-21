@@ -236,10 +236,12 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 {
 #ifndef WIN32
 #ifdef ORBITER_OPENGL
-        m_pHIDInterface=NULL;
+    m_pHIDInterface=NULL;
 	m_HidThreadID=(pthread_t)NULL;
 #endif
 #endif
+
+	m_MaintThreadID = (pthread_t)NULL;
 	
 	WriteStatusOutput((char *)(string("Orbiter version: ") + VERSION).c_str());
 	WriteStatusOutput("Orbiter constructor");
@@ -339,8 +341,6 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 		m_ScreenMutex.Init( &m_MutexAttr );
 
 	pthread_create(&m_MaintThreadID, NULL, MaintThread, (void*)this);
-	pthread_detach(m_MaintThreadID);
-
 	srand( (unsigned)time( NULL ) );  // For the screen saver
 
 	m_pBackgroundImage = NULL;
@@ -355,10 +355,15 @@ Orbiter::~Orbiter()
 #ifndef WIN32
 #ifdef ORBITER_OPENGL
 	if(m_HidThreadID)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Waiting for HID thread to finish...");
 		pthread_join(m_HidThreadID, NULL);
+	}
 	
 	delete m_pHIDInterface;
 	m_pHIDInterface=NULL;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Done with HID thread.");
 #endif
 #endif
 
@@ -528,7 +533,11 @@ Orbiter::~Orbiter()
 
 	//wait TimeCodeThread to finish
 	if(m_TimeCodeID && m_bUpdateTimeCodeLoopRunning)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Waiting for TimeCode thread to finish...");
 		pthread_join(m_TimeCodeID, NULL);
+		g_pPlutoLogger->Write(LV_STATUS, "Done with TimeCode thread.");
+	}
 
 	pthread_mutexattr_destroy(&m_MutexAttr);
 	pthread_mutex_destroy(&m_VariableMutex.mutex);
@@ -6844,6 +6853,10 @@ void Orbiter::KillMaintThread()
 			exit(1);
 		}
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "Waiting for Maint thread to finish...");
+	pthread_join(m_MaintThreadID, NULL);
+	g_pPlutoLogger->Write(LV_STATUS, "Done with Maint thread.");
 }
 
 void Orbiter::StopSimulatorThread()
