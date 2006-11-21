@@ -21,7 +21,7 @@ sources = Main.cpp Bluetooth_Dongle.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/SDL -DORBITER -DBLUETOOTH_DONGLE
 LDFLAGS +=
-XTRALDLIBS = -lVIPCommon -lBDCommon -lSDL_Helpers -lbluetooth -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lGL -lXrender
+XTRALDLIBS = -lVIPCommon -lBDCommon -lSDL_Helpers -lbluetooth -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lGL -lXrender -ljpeg
 
 Gen_Dev_Files += $(GENDEV)/OrbiterBase.cpp
 sources += \
