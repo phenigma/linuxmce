@@ -209,6 +209,20 @@ if [[ "$UpgradeMode" == "true" ]];then
 	mv /.backup/mysql/* /var/lib/mysql
 fi
 
+## Put a temporar nis config files that will prevent ypbind to start
+echo "
+NISSERVER=false
+NISCLIENT=false
+YPPWDDIR=/etc
+YPCHANGEOK=chsh
+NISMASTER=
+YPSERVARGS=
+YPBINDARGS=
+YPPASSWDDARGS=
+YPXFRDARGS=
+" > /etc/default/nis
+
+
 ## Install the software
 apt-get update
 if ! apt-get -y -f install pluto-dcerouter; then
