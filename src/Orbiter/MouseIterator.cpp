@@ -49,12 +49,15 @@ MouseIterator::MouseIterator(MouseBehavior *pMouseBehavior) : m_IteratorMutex("I
 
 MouseIterator::~MouseIterator()
 {
+	g_pPlutoLogger->Write(LV_WARNING,"MouseIterator::~MouseIterator");
 	m_bQuit=true;
 	while( m_bThreadRunning )
 	{
+		g_pPlutoLogger->Write(LV_WARNING,"MouseIterator::~MouseIterator broadcasting");
 		pthread_cond_broadcast( &m_IteratorCond );
 		Sleep(5);
 	}
+	g_pPlutoLogger->Write(LV_WARNING,"MouseIterator::~MouseIterator done");
 }
 
 void MouseIterator::Run()
@@ -150,7 +153,7 @@ void MouseIterator::DoIteration()
 			if( m_dwParm==-2 )
 			{
 				NeedToRender render( m_pOrbiter, "iterator grid" );  // Redraw anything that was changed by this command
-				bResult = m_pOrbiter->Scroll_Grid("",m_sParm,DIRECTION_Up_CONST,false);
+				bResult = m_pOrbiter->Scroll_Grid("",m_sParm,DIRECTION_Up_CONST);
 			}
 			else if( m_dwParm==-1 )
 				m_pOrbiter->CMD_Move_Up();
@@ -159,7 +162,7 @@ void MouseIterator::DoIteration()
 			else if( m_dwParm==2 )
 			{
 				NeedToRender render( m_pOrbiter, "iterator grid" );  // Redraw anything that was changed by this command
-				bResult = m_pOrbiter->Scroll_Grid("",m_sParm,DIRECTION_Down_CONST,false);
+				bResult = m_pOrbiter->Scroll_Grid("",m_sParm,DIRECTION_Down_CONST);
 			}
 
 			if( !bResult )

@@ -62,7 +62,7 @@ public:
 	virtual bool CalculateGridMovement(int Direction, int &Cur,  int CellsToSkip, DataGridTable *pDataGridTable=NULL);
 
 	virtual void Flush(bool bFlushGraphics=false); // Flush data that is cached with this object, such as the contents of a datagrid.  If bFlushGraphics, then any cached graphics are also purged
-	virtual bool Scroll_Grid(string sRelative_Level, int iPK_Direction,bool bMoveOneLineIfCannotPage);
+	virtual bool Scroll_Grid(string sRelative_Level, int iPK_Direction);
 
 	virtual void RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point = PlutoPoint(0, 0));
 	virtual void GetGridCellDimensions(int Colspan,  int Rowspan,  int Column,  int Row,  int &x,  int &y,  int &w,  int &h );

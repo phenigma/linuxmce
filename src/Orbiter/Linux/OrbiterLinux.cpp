@@ -343,12 +343,16 @@ void OrbiterLinux::Destroy()
     m_pRecordHandler = NULL;
     if (m_pMouseBehavior)
     {
+	    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() killing mouse behavior");
         delete m_pMouseBehavior;
         m_pMouseBehavior = NULL;
     }
+	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() calling X11 Exit");
     X11_Exit();
+	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() deleting Window manager");
     delete m_pWinListManager;
     m_pWinListManager = NULL;
+	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() deleting Window controller");
     delete m_pWMController;
     m_pWMController = NULL;
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() : done");

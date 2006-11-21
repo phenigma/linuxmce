@@ -5135,11 +5135,11 @@ void Orbiter::CMD_Remove_Screen_From_History(string sID,int iPK_Screen,string &s
 void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage)
 //<-dceag-c9-e->
 {
-	Scroll_Grid(sRelative_Level,sPK_DesignObj,iPK_Direction,true);
+	Scroll_Grid(sRelative_Level,sPK_DesignObj,iPK_Direction);
 }
 
 // Do this is a separate function that will return false when it can't scroll anymore
-bool Orbiter::Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,bool bMoveOneLineIfCannotPage)
+bool Orbiter::Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction)
 {
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 	PLUTO_SAFETY_LOCK( dng, m_DatagridMutex );  // Lock them in the same order as render screen
@@ -5173,7 +5173,7 @@ bool Orbiter::Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Di
 		if (pObj_Datagrid)
 		{
 			dng.Release();
-            if( pObj_Datagrid->Scroll_Grid(sRelative_Level, iPK_Direction,bMoveOneLineIfCannotPage) )
+            if( pObj_Datagrid->Scroll_Grid(sRelative_Level, iPK_Direction) )
 				bResult=true;
 			dng.Relock();
 		}

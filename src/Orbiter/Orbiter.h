@@ -496,7 +496,7 @@ namespace DCE
 		* @todo ask
 		*/
 		bool SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid, int iX, int iY, SelectionMethod selectionMethod );
-		bool Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,bool bMoveOneLineIfCannotPage);
+		bool Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction);
 
 		/**
 		* @brief

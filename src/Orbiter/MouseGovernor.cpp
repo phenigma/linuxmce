@@ -41,15 +41,19 @@ MouseGovernor::MouseGovernor(MouseBehavior *pMouseBehavior) : m_GovernorMutex("g
 
 MouseGovernor::~MouseGovernor()
 {
+	g_pPlutoLogger->Write(LV_STATUS,"MouseGovernor::~MouseGovernor");
 	m_bQuit=true;
 	while( m_bThreadRunning )
 	{
+		g_pPlutoLogger->Write(LV_STATUS,"MouseGovernor::~MouseGovernor m_bThreadRunning");
 		pthread_cond_broadcast( &m_GovernorCond );
 		Sleep(5);
 	}
 
 	//make sure no one else is using the mutex
+	g_pPlutoLogger->Write(LV_STATUS,"MouseGovernor::~MouseGovernor relocking");
 	PLUTO_SAFETY_LOCK(m,m_GovernorMutex);
+	g_pPlutoLogger->Write(LV_STATUS,"MouseGovernor::~MouseGovernor done");
 }
 
 void MouseGovernor::Run()
@@ -58,10 +62,15 @@ void MouseGovernor::Run()
 	while( !m_bQuit )
 	{
 		if( m_dwBufferMs==0 && m_pMessage==NULL )
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"MouseGovernor::Run sleeping 3");
 			m.CondWait(); // Nothing to do.  Just wait
+			g_pPlutoLogger->Write(LV_WARNING,"MouseGovernor::Run woke up 3");
+		}
 		unsigned long dwTime = ProcessUtils::GetMsTime();
 		if( int(dwTime - m_dwTime_Last_SentMessage) >= m_dwBufferMs && NULL != m_pMessage )
 		{
+			g_pPlutoLogger->Write(LV_WARNING,"MouseGovernor::Run sending message");
 			DoSendMessage(m_pMessage);
 			m_pMessage=NULL;
 		}
@@ -69,12 +78,15 @@ void MouseGovernor::Run()
 		{
 			int TimeToWaitInMs = m_dwBufferMs - ( dwTime-m_dwTime_Last_SentMessage );
 			int SecondsToWait = TimeToWaitInMs / 1000;
+			g_pPlutoLogger->Write(LV_WARNING,"MouseGovernor::Run sleeping 4");
 			m.TimedCondWait(SecondsToWait,(TimeToWaitInMs % 1000) * 1000000);
+			g_pPlutoLogger->Write(LV_WARNING,"MouseGovernor::Run woke up 4");
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"MouseGovernor::Run woke up but message is null");
+			g_pPlutoLogger->Write(LV_WARNING,"MouseGovernor::Run sleeping 2");
 			m.CondWait();
+			g_pPlutoLogger->Write(LV_WARNING,"MouseGovernor::Run woke up 2");
 		}
 	}
 

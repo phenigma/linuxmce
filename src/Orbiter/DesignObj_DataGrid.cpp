@@ -435,7 +435,7 @@ bool DesignObj_DataGrid::CalculateGridMovement(int Direction, int &Cur,  int Cel
 	return (Cur!=InitialCur);
 }
 
-bool DesignObj_DataGrid::Scroll_Grid(string sRelative_Level, int iPK_Direction,bool bMoveOneLineIfCannotPage)
+bool DesignObj_DataGrid::Scroll_Grid(string sRelative_Level, int iPK_Direction)
 {
 	if ( DataGridTable_Get() )
 	{
@@ -449,40 +449,22 @@ bool DesignObj_DataGrid::Scroll_Grid(string sRelative_Level, int iPK_Direction,b
 			if(  iPK_Direction == DIRECTION_Up_CONST )
 			{
 				if (!CalculateGridMovement(DIRECTION_Up_CONST, m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) ))
-				{
-					if( bMoveOneLineIfCannotPage )
-						m_pOrbiter->CMD_Move_Up();
 					return false;
-				}
 			}
 			else if(  iPK_Direction == DIRECTION_Down_CONST  )
 			{
 				if (!CalculateGridMovement(DIRECTION_Down_CONST, m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) ) )
-				{
-					if (DataGridTable_Get()->getTotalRowCount() > 0 && bMoveOneLineIfCannotPage)
-					{
-						m_pOrbiter->CMD_Move_Down();
-					}
 					return false;
-				}
 			}
 			else if(  iPK_Direction == DIRECTION_Left_CONST  )
 			{
 				if (!CalculateGridMovement(DIRECTION_Left_CONST,  m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) ))
-				{
-					if( bMoveOneLineIfCannotPage )
-						m_pOrbiter->CMD_Move_Left();
 					return false;
-				}
 			}
 			else if(  iPK_Direction == DIRECTION_Right_CONST  )
 			{
 				if (!CalculateGridMovement(DIRECTION_Right_CONST,  m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) ))
-				{
-					if( bMoveOneLineIfCannotPage )
-						m_pOrbiter->CMD_Move_Right();
 					return false;
-				}
 			}
 		}
 	}
@@ -492,7 +474,7 @@ bool DesignObj_DataGrid::Scroll_Grid(string sRelative_Level, int iPK_Direction,b
 		if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 		{
 			DesignObj_DataGrid *pObj_Datagrid = (DesignObj_DataGrid *) pObj;
-			pObj_Datagrid->Scroll_Grid(sRelative_Level, iPK_Direction, bMoveOneLineIfCannotPage);
+			pObj_Datagrid->Scroll_Grid(sRelative_Level, iPK_Direction);
 		}
 	}
 g_pPlutoLogger->Write(LV_EVENTHANDLER,"Scrolled datagrid %s to row %d col %d",m_sGridID.c_str(),m_GridCurRow,m_GridCurCol);

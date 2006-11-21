@@ -392,12 +392,12 @@ g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
 
 	if( m_eCapturingOffscreenMovement==cosm_UP )
 	{
-		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ScrollingGrid->m_ObjectID,DIRECTION_Up_CONST,false);
+		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ScrollingGrid->m_ObjectID,DIRECTION_Up_CONST);
 		m_bHitBottom=false;
 	}
 	else
 	{
-		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ScrollingGrid->m_ObjectID,DIRECTION_Down_CONST,false);
+		bResult = m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pObj_ScrollingGrid->m_ObjectID,DIRECTION_Down_CONST);
 		if( !bResult )
 			m_bHitBottom=true;
 	}
