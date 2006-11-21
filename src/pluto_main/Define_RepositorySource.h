@@ -20,6 +20,7 @@
 #define REPOSITORYSOURCE_SourceForge_Windows_Archives_CONST 17
 #define REPOSITORYSOURCE_SourceForge_Source_Archives_CONST 18
 #define REPOSITORYSOURCE_Absolute_URL_CONST 19
+#define REPOSITORYSOURCE_Ubuntu_CONST 20
 
 #define REPOSITORYSOURCE_TABLE "RepositorySource"
 #define REPOSITORYSOURCE_PK_REPOSITORYSOURCE_FIELD "PK_RepositorySource"

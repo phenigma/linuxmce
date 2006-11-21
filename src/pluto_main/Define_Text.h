@@ -1113,6 +1113,7 @@
 #define TEXT_TV_Channel_name_CONST 1829
 #define TEXT_TV_Channel_time_CONST 1830
 #define TEXT_Installed_CONST 1831
+#define TEXT_no_all_orbiters_CONST 1832
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
