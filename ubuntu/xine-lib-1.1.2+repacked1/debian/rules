@@ -58,6 +58,8 @@ ifeq (,$(findstring optimize,$(DEB_BUILD_OPTIONS)))
  DEB_BUILD_CONFIG_OPTIONS += --build=$(DEB_BUILD_GNU_TYPE)
 endif
 
+include /usr/share/dpatch/dpatch.make
+
 # --mandir - remove after etch released (autoconf >= 2.59c gets it right)
 CONFIGURE_FLAGS := --prefix=/usr \
 	--mandir=\$${prefix}/share/man \
@@ -87,7 +89,7 @@ else
 endif
 	touch configure-stamp
 
-build: configure-stamp build-stamp
+build: patch configure-stamp build-stamp
 build-stamp:
 	dh_testdir
 	$(MAKE)
@@ -99,7 +101,7 @@ update-config-sub-guess:
 	cp -f /usr/share/misc/config.sub config.sub
 	cp -f /usr/share/misc/config.guess config.guess
 
-clean:
+clean: unpatch
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp po/*.gmo po/stamp-po
@@ -146,7 +148,7 @@ binary-arch: build install
 	dh_builddeb
 
 binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install configure
+.PHONY: build clean binary-indep binary-arch binary install configure patch unpatch
 
 # this target is used to strip of libffmpeg/libfaad/libmad
 # canoical has concerns distributing them on the live/desktop cd

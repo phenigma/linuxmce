@@ -1,3 +1,9 @@
+xine-lib (1.1.2+repacked1-0ubuntu3pluto1) edgy; urgency=low
+
+   * Added Pluto patches
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Tue, 21 Nov 2006 09:18:39 -0500
+
 xine-lib (1.1.2+repacked1-0ubuntu3) edgy; urgency=low
 
    * Change in src/demuxers/demux_shn.c for *.shn
