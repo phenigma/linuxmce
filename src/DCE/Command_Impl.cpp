@@ -604,7 +604,7 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 		{
 			SendString("BYE");
 			Sleep(250);
-			OnQuit();
+			OnReload();
 			/* see notes in header file 1/2/2004
 			Disconnect();
 			if (m_pEvent && m_pEvent->m_pClientSocket)
@@ -751,7 +751,7 @@ void Command_Impl::ProcessMessageQueue()
 				// whether the destination device responded or not.  If we didn't, our socket must be bad.  Exit and
 				// let the framework restart us
 				g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Going to quit");
-				OnQuit();
+				OnReload();
 			}
 		}
 		mq.Relock();
@@ -820,7 +820,7 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done conf %d r
 			// let the framework restart us
 			g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand cannot send message type %d id %d to %d with confirmation.  Going to quit",
 				Type,ID,PK_Device_To);
-			OnQuit();
+			OnReload();
 		}
 		return bResult && *p_sResponse == "OK";
 	}
@@ -860,7 +860,7 @@ iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m
 			// let the framework restart us
 			g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand cannot send with return message.  type %d id %d to %d Going to quit",
 				Type,ID,PK_Device_To);
-			OnQuit();
+			OnReload();
 		}
 
 		return false;

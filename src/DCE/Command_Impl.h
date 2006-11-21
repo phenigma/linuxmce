@@ -210,7 +210,7 @@ namespace DCE
 		 * sets the m_bReload, m_bQuit, m_bTerminate flags to true
 		 * @todo test if it's a plug-in, just die and it will be reloaded (same as above Disconnect());
 		 */
-		virtual void OnReload() { m_bReload = true; m_bQuit = true; m_bTerminate=true; }
+		virtual void OnReload() { m_bReload = true; m_bQuit = true; m_bTerminate=true; pthread_cond_broadcast( &m_listMessageQueueCond );}
 		
 		/**
 		* @brief For now will only be used by plugins, but later this member function could
@@ -222,7 +222,7 @@ namespace DCE
 		 * @brief just calls OnQuit()
 		 * @see m_bQuit
 		 */
-		virtual void OnUnexpectedDisconnect() { OnQuit(); };
+		virtual void OnUnexpectedDisconnect() { OnReload(); };
 		
 		/**
 		 * @brief called when the socket disconnects, should be overriden
