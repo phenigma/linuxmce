@@ -19,7 +19,7 @@ sources = Main.cpp Generic_Serial_Device.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS += -I$(ROOT)/MessageTranslation -I/usr/lib/ruby/1.8/i386-linux 
+CPPFLAGS += -I$(ROOT)/MessageTranslation -I/usr/lib/ruby/1.8/i386-linux -I/usr/lib/ruby/1.8/i486-linux
 LDFLAGS +=
 XTRALDLIBS = -lruby1.8 -lSerial -lrt -lMessageTranslation
 
