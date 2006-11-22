@@ -15,6 +15,9 @@ TPL_FILESERVER=1837
 TPL_WINDOWS_SHARE=1768
 TPL_NFS_SHARE=1769
 TPL_INTERNAL_DRIVE=1790
+TPL_MEDIA_PLUGIN=2
+
+CMD_REFRESH_LIST_OF_ONLINE_DEVICES=831
 
 DD_SHARE_NAME=126
 DD_USERNAME=127
@@ -29,13 +32,26 @@ function SetDeviceOnline() {
 	local OnlineValue=$2
 	local Q=""
 	
-	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$OnlineValue' WHERE FK_Device = '$Device_ID' AND FK_DeviceData= '$DD_ONLINE'"
-	RunSQL "$Q"
-	if [[ $OnlineValue == "0" ]] ;then
-		umount -lf /mnt/device/$Device_ID 2>/dev/null 1>/dev/null
-	fi
+	Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = '$Device_ID' AND FK_DeviceData='$DD_ONLINE'"
+	OldValue=$(RunSQL "$Q")
+	OldValue=$(Field "1" "$OnlineValue")
+
+	if [[ "$OldValue" != "$OnlineValue" ]] ;then
+
+		Q="UPDATE Device_DeviceData SET IK_DeviceData = '$OnlineValue' WHERE FK_Device = '$Device_ID' AND FK_DeviceData= '$DD_ONLINE'"
+		RunSQL "$Q"
+
+		if [[ $OnlineValue == "0" ]] ;then
+			umount -lf /mnt/device/$Device_ID 2>/dev/null 1>/dev/null
+		fi
+
+		/usr/pluto/bin/MessageSend -targetType template $Device_ID $TPL_MEDIA_PLUGIN 1 $CMD_REFRESH_LIST_OF_ONLINE_DEVICES	
+
+		Log "----------------- DEVICE $Device_ID $OnlineValue"		
+	else
 	
-	Log "----------------- DEVICE $Device_ID $OnlineValue"
+		Log "----------------- DEVICE $Device_ID $OnlineValue (unchanged)"	
+	fi
 }
 
 function SetKidsOnline() {
