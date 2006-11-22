@@ -329,7 +329,7 @@ bool DatagridMouseHandlerHelper::Move(int X,int Y,int PK_Direction)
 	if( X<m_iLeft || (m_iRight && X>m_iRight) )
 		return false;
 
-g_pPlutoLogger->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move **go** Y %d m_Bottom %d m_eCapturingOffscreenMovement %d m_bHitBottom %d currow %d",
+g_pPlutoLogger->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move Y %d m_Bottom %d m_eCapturingOffscreenMovement %d m_bHitBottom %d currow %d",
 					  Y,m_Bottom,(int) m_eCapturingOffscreenMovement,(int) m_bHitBottom,m_pObj_ScrollingGrid->m_GridCurRow);
 	if (m_eCapturingOffscreenMovement != cosm_NO)
 	{
@@ -344,6 +344,8 @@ g_pPlutoLogger->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move **go** Y %d m
 	if ( (Y <= m_Top && m_pObj_ScrollingGrid->m_GridCurRow>0) || (Y >= m_Bottom && !m_bHitBottom) )
 #endif
 	{
+g_pPlutoLogger->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move ****GO**** Y %d m_Bottom %d m_eCapturingOffscreenMovement %d m_bHitBottom %d currow %d",
+					  Y,m_Bottom,(int) m_eCapturingOffscreenMovement,(int) m_bHitBottom,m_pObj_ScrollingGrid->m_GridCurRow);
 #ifdef WIN32
 		if( Y <= m_Top+6 ) 
 #else
