@@ -53,15 +53,8 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
 						   bool bFullScreen)
 
         : Orbiter(DeviceID, PK_DeviceTemplate, ServerAddress, sLocalDirectory, bLocalMode,
-                     nImageWidth, nImageHeight, NULL),
-          // defaults
-          /**
-           * @hack to make it work for the short term. We need to find a way to set the class name properly or use the window ID if we can find it.
-           * The reason this is hack is because there could be potentially multiple SDL_Applications running at the same time which could break the controlling code.
-           */
-          m_strWindowName("Orbiter"),
-          m_strDisplayName(getenv("DISPLAY"))
-    // initializations
+                     nImageWidth, nImageHeight, NULL)
+        , m_strWindowName("Orbiter")
         , m_pRecordHandler(NULL)
         , m_nDesktopWidth(0)
         , m_nDesktopHeight(0)
@@ -79,8 +72,17 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
         , m_pWinListManager(NULL)
         , m_pWMController(NULL)
         , m_pX11(NULL)
-		, m_bMaskApplied(false)
+	, m_bMaskApplied(false)
 {
+    const char *pDisplayName = getenv("DISPLAY");
+    if(NULL != pDisplayName)
+        m_strDisplayName = pDisplayName;
+    else
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "getenv returned NULL for variable DISPLAY! Assuming it's :0");
+	m_strDisplayName = ":0";
+    }
+	
     m_nProgressWidth = 400;
     m_nProgressHeight = 200;
     m_pWMController = new WMControllerImpl();
