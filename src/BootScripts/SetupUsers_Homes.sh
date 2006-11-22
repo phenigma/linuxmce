@@ -182,5 +182,16 @@ chmod -R 2770 "$BaseDir"/user_* 2>/dev/null
 chmod -R 2775 "$BaseDir"/public 2>/dev/null
 chgrp -R public "$BaseDir"/public
 
+## ReAdd the sambahelper user to smbpasswd
+if [[ -r /usr/pluto/var/sambaCredentials.secret ]] ;then
+	smbpass=$(cat /usr/pluto/var/sambaCredentials.secret | grep '^password' | cut -d '=' -f2)
+	smbpass=$(/usr/pluto/bin/smbpass.pl $smbpass)
+
+	smbuser=$(cat /usr/pluto/var/sambaCredentials.secret | grep '^user' | cut -d '=' -f2)
+	smbuserid=$(id -u $smbuser)
+
+	echo "$smbuser:$LinuxUserID:$smbpass:[U          ]:LCT-00000001:,,," >> /etc/samba/smbpasswd 
+fi
+
 ## Rebuild NIS cache
 make -C /var/yp
