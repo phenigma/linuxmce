@@ -28,6 +28,7 @@ class Row_PnpQueue;
 class Database_pluto_main;
 class Row_Device;
 
+#include <pthread.h>
 #include "Pnp_PreCreateOptions.h"
 
 namespace DCE
@@ -49,6 +50,7 @@ namespace DCE
 		bool m_bThreadRunning;
 		Pnp_PreCreateOptions m_Pnp_PreCreateOptions;
 		map<string,fnLocateDevice> m_mapCategoryLocateDevice;
+		pthread_t m_PnpQueueThread_Id;
 
 	public:
 		PnpQueue(class Plug_And_Play_Plugin *pPlug_And_Play_Plugin);

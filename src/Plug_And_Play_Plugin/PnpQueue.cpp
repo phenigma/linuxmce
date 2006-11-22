@@ -57,20 +57,17 @@ void *PnpThread(void *p)
 }
 
 PnpQueue::PnpQueue(class Plug_And_Play_Plugin *pPlug_And_Play_Plugin)
-	: m_Pnp_PreCreateOptions(this,pPlug_And_Play_Plugin)
+	: m_Pnp_PreCreateOptions(this,pPlug_And_Play_Plugin), m_PnpQueueThread_Id(pthread_t(NULL))
 {
 	m_pPlug_And_Play_Plugin=pPlug_And_Play_Plugin;
 	m_pDatabase_pluto_main=m_pPlug_And_Play_Plugin->m_pDatabase_pluto_main;
 
 	m_bThreadRunning=true;
-	pthread_t pthread_id; 
-	if(pthread_create( &pthread_id, NULL, PnpThread, (void*)this) )
+	if(pthread_create( &m_PnpQueueThread_Id, NULL, PnpThread, (void*)this) )
 	{
 		m_bThreadRunning=false;
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create PNP thread" );
 	}
-	else
-		pthread_detach(pthread_id);
 
 	m_mapCategoryLocateDevice["fileserver"] = &PnpQueue::LocateFileServer;
 	m_mapCategoryLocateDevice["fileshare"] = &PnpQueue::LocateFileShare;
@@ -83,6 +80,9 @@ PnpQueue::~PnpQueue()
 		pthread_cond_broadcast( &m_pPlug_And_Play_Plugin->m_PnpCond );
 		Sleep(5);
 	}
+
+	if(m_PnpQueueThread_Id)
+		pthread_join(m_PnpQueueThread_Id, NULL);
 }
 
 void PnpQueue::Run()

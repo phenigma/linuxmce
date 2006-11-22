@@ -48,9 +48,8 @@ Plug_And_Play_Plugin::Plug_And_Play_Plugin(int DeviceID, string ServerAddress,bo
 Plug_And_Play_Plugin::~Plug_And_Play_Plugin()
 //<-dceag-dest-e->
 {
-	delete m_pDatabase_pluto_main;
-
 	delete m_pPnpQueue;
+	delete m_pDatabase_pluto_main;
 }
 
 //<-dceag-getconfig-b->
