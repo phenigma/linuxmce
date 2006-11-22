@@ -243,7 +243,8 @@ void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
 {
 	m_LastX=X;
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativeMove(%d, %d, %d)", X, Y, m_iLastNotch);
+    g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativeMove(%d, %d, %d) bottom %d top %d direction %s",
+		X, Y, m_iLastNotch,m_Bottom,m_Top,m_eCapturingOffscreenMovement == cosm_UP ? "UP" : "DOWN");
 #endif
 	int Notch;
 	if( m_eCapturingOffscreenMovement == cosm_UP )
@@ -328,6 +329,8 @@ bool DatagridMouseHandlerHelper::Move(int X,int Y,int PK_Direction)
 	if( X<m_iLeft || (m_iRight && X>m_iRight) )
 		return false;
 
+g_pPlutoLogger->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move **go** Y %d m_Bottom %d m_eCapturingOffscreenMovement %d m_bHitBottom %d currow %d",
+					  Y,m_Bottom,(int) m_eCapturingOffscreenMovement,(int) m_bHitBottom,m_pObj_ScrollingGrid->m_GridCurRow);
 	if (m_eCapturingOffscreenMovement != cosm_NO)
 	{
 		RelativeMove(X,Y);
@@ -341,7 +344,6 @@ bool DatagridMouseHandlerHelper::Move(int X,int Y,int PK_Direction)
 	if ( (Y <= m_Top && m_pObj_ScrollingGrid->m_GridCurRow>0) || (Y >= m_Bottom && !m_bHitBottom) )
 #endif
 	{
-g_pPlutoLogger->Write(LV_ACTION, "**go**");
 #ifdef WIN32
 		if( Y <= m_Top+6 ) 
 #else
