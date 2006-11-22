@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
 			<< "\t\twhich will be echoed to the screen as resp: [response]" << endl
 			<< "\t-bl means the broadcast level if the message is sent to category or template;" << endl
 			<< "\t\tvalues: none, direct_siblings, same_computer, same_room, same_house*, all_houses" << endl
-			<< "\t\tneeds valid device ID for this to be useful" << endl;
+			<< "\t\tneeds valid device ID for this to be useful" << endl
 			<< "\tthe parm ID can be prefixed with a letter:" << endl
 			<< "\t\tD send as a data paramter, rather than text" << endl
 			<< "\t\tU send as a data paramter, rather than text, parameter is UU-encoded" << endl
