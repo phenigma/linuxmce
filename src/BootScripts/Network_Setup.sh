@@ -231,4 +231,4 @@ $IntNetmask $IntIP
 " > /etc/ypserv.securenets
 invoke-rc.d nis stop
 invoke-rc.d nis start
-/usr/lib/yp/ypinit -m
+echo | /usr/lib/yp/ypinit -m
