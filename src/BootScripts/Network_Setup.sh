@@ -224,10 +224,19 @@ fi
 
 ## Configure NIS Server
 echo "pluto" > /etc/defaultdomain
-cp /usr/pluto/templates/nis-server.template /etc/default/nis
+cp /usr/pluto/templates/nis-server.template /etc/default/
+
+IntNetIP=""
+for i in 1 2 3 4 ;do
+	[[ "$IntNetIP" != "" ]] && IntNetIP="${IntNetIP}."
+	maskPart=$(echo $IntNetmask | cut -d'.' -f$i)
+	ipPart=$(echo $IntIP | cut -d'.' -f$i)
+	IntNetIP="${IntNetIP}$(($ipPart&$maskPart))"
+done
+
 echo "
 host 127.0.0.1
-$IntNetmask $IntIP
+$IntNetmask $IntNetIP
 " > /etc/ypserv.securenets
 invoke-rc.d nis stop
 invoke-rc.d nis start
