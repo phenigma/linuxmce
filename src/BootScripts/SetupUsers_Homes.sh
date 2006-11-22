@@ -181,3 +181,6 @@ fi
 chmod -R 2770 "$BaseDir"/user_* 2>/dev/null
 chmod -R 2775 "$BaseDir"/public 2>/dev/null
 chgrp -R public "$BaseDir"/public
+
+## Rebuild NIS cache
+make -C /var/yp
