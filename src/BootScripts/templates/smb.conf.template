@@ -20,7 +20,7 @@
 	passwd chat = *Enter\snew\sUNIX\spassword:* %n\n *Retype\snew\sUNIX\spassword:* %n\n .
 	username map = /etc/samba/usermap.txt
 	unix extensions = yes
-	security = share
+	security = user
 
 [public]
 	comment = public files
@@ -36,7 +36,7 @@
 	browsable = yes
 	writable = yes
 	path = /home
-	public = yes
-	guest ok = yes
+	public = no
+	guest ok = no
 	force user = root
 	force group = root
