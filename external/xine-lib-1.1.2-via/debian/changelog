@@ -1,3 +1,9 @@
+xine-lib (1.1.2-1pluto6via2) unstable; urgency=low
+
+  * Trick play reenabled (kirill)
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Wed, 22 Nov 2006 15:53:06 +0200
+
 xine-lib (1.1.2-1pluto5via) unstable; urgency=low
 
   * Compiled with via patches
