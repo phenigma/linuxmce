@@ -451,7 +451,7 @@ void Xine_Stream_Factory::CloseStreamAV(int iStreamID)
 
 void Xine_Stream_Factory::setVideoDriver(string strVideoDriver)
 {
-	if ( (strVideoDriver!="") && (strVideoDriver=="xv"||strVideoDriver=="xxmc"||strVideoDriver=="opengl"||strVideoDriver=="sdl"||strVideoDriver=="xshm") )
+	if ( (strVideoDriver!="") && (strVideoDriver=="cle266x11"||strVideoDriver=="xv"||strVideoDriver=="xxmc"||strVideoDriver=="opengl"||strVideoDriver=="sdl"||strVideoDriver=="xshm") )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Overriding video driver setting, using '%s' for video output", strVideoDriver.c_str());
 		m_sXineVideoDriverName = strVideoDriver;
