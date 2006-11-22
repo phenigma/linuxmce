@@ -229,8 +229,8 @@ for Client in $R; do
 		
 		## Setup nis
 		echo -n " nis"
-		cp /usr/pluto/tempaltes/nis-client.template $DlPath/etc/default/nis
-		PopulateSection "$DlPath/etc/default/nis" "Nis Master" "$IntIP"		
+		cp /usr/pluto/templates/nis-client.template $DlPath/etc/default/nis
+		PopulateSection "$DlPath/etc/default/nis" "Nis Master" "NISMASTER=$IntIP"	
 
 		## Setup fstab
 		echo -n " fstab"
