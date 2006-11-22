@@ -117,6 +117,8 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 {
     Clear();
 
+	m_eBroadcastLevel = BL_SameHouse;
+
 	int baseMessageSpecPos = 0;
 	int targetType = 0; // Device;
 	bool bResponseRequired=false,bOutParams=false;
@@ -146,6 +148,23 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
             sOutputParametersPath = cArguments[baseMessageSpecPos];
             baseMessageSpecPos++;
         }
+		else if ( strcmp(cArguments[baseMessageSpecPos], "-bl") == 0 )
+		{
+			baseMessageSpecPos++;
+			if ( strcmp(cArguments[baseMessageSpecPos], "none") == 0)
+				m_eBroadcastLevel = BL_None;
+			else if ( strcmp(cArguments[baseMessageSpecPos], "direct_siblings") == 0 )
+				m_eBroadcastLevel = BL_DirectSiblings;
+			else if ( strcmp(cArguments[baseMessageSpecPos], "same_computer") == 0 )
+				m_eBroadcastLevel = BL_SameComputer;
+			else if ( strcmp(cArguments[baseMessageSpecPos], "same_room") == 0 )
+				m_eBroadcastLevel = BL_SameRoom;
+			else if ( strcmp(cArguments[baseMessageSpecPos], "same_house") == 0 )
+				m_eBroadcastLevel = BL_SameHouse;
+			else if ( strcmp(cArguments[baseMessageSpecPos], "all_houses") == 0 )
+				m_eBroadcastLevel = BL_AllHouses;
+			baseMessageSpecPos ++;
+		}
 		else
 			g_pPlutoLogger->Write(LV_CRITICAL,"Create message Unknown argument: %s",cArguments[baseMessageSpecPos]);
 	}
@@ -169,7 +188,6 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 	m_dwID=atoi(cArguments[baseMessageSpecPos + 3]);
 	m_dwPriority = PRIORITY_NORMAL;
 	m_bIncludeChildren = true;
-	m_eBroadcastLevel = BL_SameHouse;
 
 	if( targetType==1 )
 	{
