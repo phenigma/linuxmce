@@ -384,7 +384,8 @@ void App_Server::ProcessExited(int pid, int status)
 void App_Server::SendMessageList(string messageList)
 {
 	StringUtils::Replace(&messageList, "@AppDev@", StringUtils::itos(m_dwPK_Device));
-	messageList += " " + StringUtils::itos(COMMANDPARAMETER_Comment_CONST) + " \"App_Server::SendMessageList\"";
+	if (messageList.length() > 0)
+		messageList += " " + StringUtils::itos(COMMANDPARAMETER_Comment_CONST) + " \"App_Server::SendMessageList\"";
     g_pPlutoLogger->Write(LV_STATUS, "Sending this command chain: -->%s<--", messageList.c_str() );
 
     Message *pMessage = new Message(messageList);    // empty message (to only caryy the rest with him).
