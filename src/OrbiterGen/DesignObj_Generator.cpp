@@ -146,14 +146,14 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==3558 ) // ||  m_pRow_DesignObj->PK_Des
     // Pick the standard variation, the specialized variation we will use for parameters, and all matching variations for including child objects
     PickVariation(m_pOrbiterGenerator,m_pRow_DesignObj,&m_pRow_DesignObjVariation,&m_pRow_DesignObjVariation_Standard,&m_alDesignObjVariations);
 
-	m_bDontScale = GetParm(DESIGNOBJPARAMETER_Dont_Scale_CONST, 0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get())=="1";
-
     if( !m_pRow_DesignObjVariation_Standard )
     {
         cerr << "Aborting building of: " << m_pRow_DesignObj->PK_DesignObj_get() << " because there were no variations." << endl << "Attempts to use will fail at runtime." << endl;
 		m_pOrbiterGenerator->m_iPK_CommandGroup=0;
         return;
     }
+
+	m_bDontScale = GetParm(DESIGNOBJPARAMETER_Dont_Scale_CONST, 0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get())=="1";
 
 	m_bLocationSpecific=false;
 	if( m_pOrbiterGenerator->m_mapDesignObj_WithArrays.find(m_pRow_DesignObjVariation_Standard->FK_DesignObj_get())!=
@@ -1561,6 +1561,29 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                         PriorSort=drAG_R->Sort_get();
                     }
                 }
+				// Add the floorplan icon
+				int PK_DesignObj=0;
+				switch(PK_Array)
+				{
+					case ARRAY_Lighting_Scenarios_CONST:
+						PK_DesignObj=DESIGNOBJ_butLightsOverview_CONST;
+						break;
+					case ARRAY_Climate_Scenarios_CONST:
+						PK_DesignObj=DESIGNOBJ_butClimateOverview_CONST;
+						break;
+					case ARRAY_Security_Scenarios_CONST:
+						PK_DesignObj=DESIGNOBJ_butSecurityOverview_CONST;
+						break;
+					case ARRAY_Communication_Scenarios_CONST:
+						PK_DesignObj=DESIGNOBJ_butTeleOverview_CONST;
+						break;
+				}
+				if( PK_DesignObj )
+				{
+					alArray->push_back(new ArrayValue("","",NULL,
+						0,PK_DesignObj,
+						0, 0, false,false,false));
+				}
             }
             break;
         case ARRAY_Media_Scenarios_CONST:
@@ -1601,6 +1624,9 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                     }
                 }
             }
+			alArray->push_back(new ArrayValue("","",NULL,
+				0,DESIGNOBJ_butMediaOverview_CONST,
+				0, 0, false,false,false));
             break;
 
 		case ARRAY_PK_MediaType_CONST:

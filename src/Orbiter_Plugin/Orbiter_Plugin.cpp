@@ -528,6 +528,8 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 
 bool Orbiter_Plugin::IdentifyDevice(const string& sMacAddress, string &sDeviceCategoryDesc, int &iPK_DeviceTemplate, string &sManufacturerDesc)
 {
+	if( sMacAddress.empty() )
+		return false;
 	PhoneDevice pd("", sMacAddress, 0);
     vector<Row_DHCPDevice *> vectRow_DHCPDevice;
     ostringstream sql;
@@ -3020,6 +3022,9 @@ void Orbiter_Plugin::CMD_Get_Remote_ID(string sUID,int *iPK_Device,int *iValue,s
     MYSQL_ROW row;
 	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) )
 	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Get_Remote_ID %s is %d",sUID.c_str(),*iPK_Device);
+#endif
 		*iPK_Device = atoi(row[0]);
 		string sValue = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,*iPK_Device,DEVICEDATA_PortChannel_Number_CONST);
 		*iValue = atoi(sValue.c_str());

@@ -4059,6 +4059,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += m_pScreenHistory_Current->ScreenID();
 		else if(  Variable=="V" )
 			Output += string(VERSION) + "(" + g_szCompile_Date + ")";
+		else if(  Variable=="CLOCK" )
+			Output += StringUtils::HourMinute(time(NULL),true);
 		else if(  Variable=="MT" )
 		{
 			Output += StringUtils::itos(m_iPK_MediaType);
