@@ -252,7 +252,7 @@ void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
 #ifdef WIN32
 		if( Y >= m_Bottom-6 )
 #else
-		if( Y >= m_Bottom )
+		if( Y >= m_Bottom-1 )
 #endif
 		{
 			ReleaseRelative();
@@ -274,7 +274,7 @@ void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
 #ifdef WIN32
 		if (Y <=m_Top+6 )  
 #else
-		if (Y <=m_Top )  
+		if (Y <=m_Top+1 )  
 #endif
 		{
 			ReleaseRelative();
@@ -341,7 +341,7 @@ g_pPlutoLogger->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move Y %d m_Bottom
 #ifdef WIN32
 	if ( (Y <= m_Top+6 && m_pObj_ScrollingGrid->m_GridCurRow>0) || (Y >= m_Bottom-6 && !m_bHitBottom) )
 #else
-	if ( (Y <= m_Top && m_pObj_ScrollingGrid->m_GridCurRow>0) || (Y >= m_Bottom && !m_bHitBottom) )
+	if ( (Y <= m_Top+1 && m_pObj_ScrollingGrid->m_GridCurRow>0) || (Y >= m_Bottom-1 && !m_bHitBottom) )
 #endif
 	{
 g_pPlutoLogger->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move ****GO**** Y %d m_Bottom %d m_eCapturingOffscreenMovement %d m_bHitBottom %d currow %d",
@@ -349,7 +349,7 @@ g_pPlutoLogger->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move ****GO**** Y 
 #ifdef WIN32
 		if( Y <= m_Top+6 ) 
 #else
-		if( Y <= m_Top ) 
+		if( Y <= m_Top+1 ) 
 #endif
 		{
 			m_eCapturingOffscreenMovement = cosm_UP;
