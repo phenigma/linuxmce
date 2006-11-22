@@ -119,3 +119,15 @@ username=$smbUser
 password=$smbPass
 " > /usr/pluto/var/sambaCredentials.secret
 chmod 600 /usr/pluto/var/sambaCredentials.secret
+
+## Add the sambahelper user to smbpasswd
+if [[ -r /usr/pluto/var/sambaCredentials.secret ]] ;then
+	smbpass=$(cat /usr/pluto/var/sambaCredentials.secret | grep '^password' | cut -d '=' -f2)
+	smbpass=$(/usr/pluto/bin/smbpass.pl $smbpass)
+
+	smbuser=$(cat /usr/pluto/var/sambaCredentials.secret | grep '^user' | cut -d '=' -f2)
+	smbuserid=$(id -u $smbuser)
+
+	echo "$smbuser:$LinuxUserID:$smbpass:[U          ]:LCT-00000001:,,," >> /etc/samba/smbpasswd 
+fi
+
