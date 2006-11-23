@@ -320,7 +320,7 @@ namespace DCE
 
 		// The remotes for the current media
 		int m_iPK_Screen_Remote,m_iPK_DesignObj_Remote_Popup,m_iPK_Screen_FileList,m_iPK_Screen_RemoteOSD,m_iPK_Screen_OSD_Speed,m_iPK_Screen_OSD_Track;
-		string m_sNowPlaying_MediaType,m_sNowPlaying,m_sNowPlaying_Section,m_sNowPlaying_TimeShort,m_sNowPlaying_TimeLong,m_sNowPlaying_Speed,m_sDefaultRippingName,m_sApplicationName; /** < set by the media engine, this is whatever media is currently playing */
+		string m_sNowPlaying_MediaType,m_sNowPlaying,m_sNowPlaying_Section,m_sNowPlaying_TimeShort,m_sNowPlaying_TimeLong,m_sNowPlaying_Speed,m_sDefaultRippingName,m_sApplicationName,m_sNowPlaying_Window; /** < set by the media engine, this is whatever media is currently playing */
 		int m_nDefaultStorageDeviceForRipping;
 		string m_sDefaultStorageDeviceForRippingName;
 		int m_iPK_MediaType;
@@ -352,7 +352,7 @@ namespace DCE
 		bool m_bRepeatingObject; /** < True if we're currently holding down a repeating button */
 		bool m_bRerenderScreen; /** <  Set to true means ignore the objects to redraw, and just redraw the whole screen */
 		string m_sActiveApplication_Description,m_sActiveApplication_Window; /** The name of any actively running application */
-		int m_PK_DesignObj_ActiveApp_OSD,m_PK_DesignObj_ActiveApp_Remote;  /** The remotes to use for the running application */
+		int m_PK_Screen_ActiveApp_OSD,m_PK_Screen_ActiveApp_Remote;  /** The remotes to use for the running application */
 
 
 		OrbiterFileBrowser_Collection *m_pOrbiterFileBrowser_Collection;
@@ -1794,33 +1794,32 @@ light, climate, media, security, telecom */
 
 	/** @brief COMMAND: #810 - Set Active Application */
 	/** Tells an On screen orbiter what application is currently active */
-		/** @param #3 PK_DesignObj */
-			/** The DesignObj for the OSD */
-		/** @param #16 PK_DesignObj_CurrentScreen */
-			/** The DesignObj for the orbiter remote */
 		/** @param #50 Name */
 			/** A description of the app */
+		/** @param #159 PK_Screen */
+			/** The Screen for the OSD */
 		/** @param #216 Identifier */
 			/** The window identifier */
+		/** @param #226 PK_Screen_GoTo */
+			/** The screen for the orbiter remote */
 
-	virtual void CMD_Set_Active_Application(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sName,string sIdentifier) { string sCMD_Result; CMD_Set_Active_Application(sPK_DesignObj.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sName.c_str(),sIdentifier.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Set_Active_Application(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sName,string sIdentifier,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Active_Application(string sName,int iPK_Screen,string sIdentifier,int iPK_Screen_GoTo) { string sCMD_Result; CMD_Set_Active_Application(sName.c_str(),iPK_Screen,sIdentifier.c_str(),iPK_Screen_GoTo,sCMD_Result,NULL);};
+	virtual void CMD_Set_Active_Application(string sName,int iPK_Screen,string sIdentifier,int iPK_Screen_GoTo,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #811 - Get Active Application */
 	/**  */
-		/** @param #3 PK_DesignObj */
-			/** The DesignObj for the OSD */
-		/** @param #16 PK_DesignObj_CurrentScreen */
-			/** The DesignObj for the orbiter remote */
 		/** @param #50 Name */
 			/** A description of the app */
+		/** @param #159 PK_Screen */
+			/** The Screen for the OSD */
 		/** @param #216 Identifier */
 			/** The window identifier */
+		/** @param #226 PK_Screen_GoTo */
+			/** The Screen for the orbiter remote */
 
-	virtual void CMD_Get_Active_Application(string *sPK_DesignObj,string *sPK_DesignObj_CurrentScreen,string *sName,string *sIdentifier) { string sCMD_Result; CMD_Get_Active_Application(sPK_DesignObj,sPK_DesignObj_CurrentScreen,sName,sIdentifier,sCMD_Result,NULL);};
-	virtual void CMD_Get_Active_Application(string *sPK_DesignObj,string *sPK_DesignObj_CurrentScreen,string *sName,string *sIdentifier,string &sCMD_Result,Message *pMessage);
-
+	virtual void CMD_Get_Active_Application(string *sName,int *iPK_Screen,string *sIdentifier,int *iPK_Screen_GoTo) { string sCMD_Result; CMD_Get_Active_Application(sName,iPK_Screen,sIdentifier,iPK_Screen_GoTo,sCMD_Result,NULL);};
+	virtual void CMD_Get_Active_Application(string *sName,int *iPK_Screen,string *sIdentifier,int *iPK_Screen_GoTo,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 

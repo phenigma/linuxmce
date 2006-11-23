@@ -689,20 +689,20 @@ void ScreenHandler::SCREEN_Computing(long PK_Screen)
 	string sActiveApplication_Description;
 	if( m_pOrbiter->m_dwPK_Device != m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter )  // Not us
 	{
-		string sPK_DesignObj_ActiveApp_OSD,sPK_DesignObj_ActiveApp_Remote;
+		int PK_Screen_ActiveApp_OSD,PK_Screen_ActiveApp_Remote;
 
 		DCE::CMD_Get_Active_Application CMD_Get_Active_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,
-			&sPK_DesignObj_ActiveApp_OSD,&sPK_DesignObj_ActiveApp_Remote,&m_sActiveApplication_Description,&m_sActiveApplication_Window);
+			&m_sActiveApplication_Description,&PK_Screen_ActiveApp_OSD,&m_sActiveApplication_Window,&PK_Screen_ActiveApp_Remote);
 		m_pOrbiter->SendCommand(CMD_Get_Active_Application);
-		m_PK_DesignObj_ActiveApp_OSD = atoi(sPK_DesignObj_ActiveApp_OSD.c_str());
-		m_PK_DesignObj_ActiveApp_Remote = atoi(sPK_DesignObj_ActiveApp_Remote.c_str());
+		m_PK_Screen_ActiveApp_OSD = PK_Screen_ActiveApp_OSD;
+		m_PK_Screen_ActiveApp_Remote = PK_Screen_ActiveApp_Remote;
 	}
 	else
 	{
 		m_sActiveApplication_Description = m_pOrbiter->m_sActiveApplication_Description;
 		m_sActiveApplication_Window = m_pOrbiter->m_sActiveApplication_Window;
-		m_PK_DesignObj_ActiveApp_OSD = m_pOrbiter->m_PK_DesignObj_ActiveApp_OSD;
-		m_PK_DesignObj_ActiveApp_Remote = m_pOrbiter->m_PK_DesignObj_ActiveApp_Remote;
+		m_PK_Screen_ActiveApp_OSD = m_pOrbiter->m_PK_Screen_ActiveApp_OSD;
+		m_PK_Screen_ActiveApp_Remote = m_pOrbiter->m_PK_Screen_ActiveApp_Remote;
 	}
 
 	string sOnOff = m_sActiveApplication_Description.size() ? "1" : "0";
@@ -710,6 +710,12 @@ void ScreenHandler::SCREEN_Computing(long PK_Screen)
 	m_pOrbiter->CMD_Show_Object(NeedToRender::m_pScreenHistory_get()->GetObj()->m_ObjectID + "." TOSTRING(DESIGNOBJ_objExitAppOnOSD_CONST),0,"","",sOnOff);
 
 	m_pOrbiter->CMD_Set_Text(NeedToRender::m_pScreenHistory_get()->GetObj()->m_ObjectID,m_sActiveApplication_Description,TEXT_STATUS_CONST);
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_GenericAppController(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_GenericAppController(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Computing_ObjectSelected, new ObjectInfoBackData());
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_GenericAppFullScreen(long PK_Screen)
@@ -729,7 +735,7 @@ bool ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
 		if( m_pOrbiter->m_dwPK_Device != m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter )  // Not us
 		{
 			DCE::CMD_Set_Active_Application CMD_Set_Active_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,
-				"","","","");
+				"",0,"",0);
 			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,"",SCREEN_Main_CONST);
 			CMD_Set_Active_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 			m_pOrbiter->SendCommand(CMD_Set_Active_Application);
@@ -738,6 +744,7 @@ bool ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
 		{
 			m_pOrbiter->m_sActiveApplication_Description = "";
 			m_pOrbiter->m_sActiveApplication_Window = "";
+			m_PK_Screen_ActiveApp_OSD=m_PK_Screen_ActiveApp_Remote=0;
 		}
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
 	}
@@ -745,10 +752,10 @@ bool ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
 	{
 		if( m_pOrbiter->m_dwPK_Device != m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter )
 		{
-			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,
-				0,StringUtils::itos(m_PK_DesignObj_ActiveApp_OSD),"","",false,true);
-			m_pOrbiter->SendCommand(CMD_Goto_DesignObj);
-			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(m_PK_DesignObj_ActiveApp_Remote),"","",false,false);
+			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,
+				"",m_PK_Screen_ActiveApp_OSD);
+			m_pOrbiter->SendCommand(CMD_Goto_Screen);
+			m_pOrbiter->CMD_Goto_Screen("",m_PK_Screen_ActiveApp_Remote);
 
 			if(m_sActiveApplication_Window != "")
 			{
@@ -760,7 +767,7 @@ bool ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
 		}
 		else
 		{
-			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(m_PK_DesignObj_ActiveApp_OSD),"","",false,false);
+			m_pOrbiter->CMD_Goto_Screen("",m_PK_Screen_ActiveApp_OSD);
 			m_pOrbiter->CMD_Activate_Window(m_sActiveApplication_Window);
 		}
 	}
@@ -775,12 +782,12 @@ bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 	{
 		string::size_type pos=0;
 		string sActiveApplication_Window = StringUtils::Tokenize(pCellInfoData->m_sValue,"\t",pos);
-		int PK_DesignObj_Remote = atoi(StringUtils::Tokenize(pCellInfoData->m_sValue,"\t",pos).c_str());
-		int PK_DesignObj_OSD = atoi(StringUtils::Tokenize(pCellInfoData->m_sValue,"\t",pos).c_str());
-		if( !PK_DesignObj_Remote )
-			PK_DesignObj_Remote = DESIGNOBJ_mnuGenericAppController_CONST;
-		if( !PK_DesignObj_OSD )
-			PK_DesignObj_OSD=DESIGNOBJ_generic_app_full_screen_CONST;
+		int PK_Screen_Remote = atoi(StringUtils::Tokenize(pCellInfoData->m_sValue,"\t",pos).c_str());
+		int PK_Screen_OSD = atoi(StringUtils::Tokenize(pCellInfoData->m_sValue,"\t",pos).c_str());
+		if( !PK_Screen_Remote )
+			PK_Screen_Remote = SCREEN_GenericAppController_CONST;
+		if( !PK_Screen_OSD )
+			PK_Screen_OSD=SCREEN_GenericAppFullScreen_CONST;
 		string sActiveApplication_Description = StringUtils::Tokenize(pCellInfoData->m_sValue,"\t",pos);
 		string sBinary = StringUtils::Tokenize(pCellInfoData->m_sValue,"\t",pos);
 		string sArguments = pos<pCellInfoData->m_sValue.size() ? pCellInfoData->m_sValue.substr(pos) : "";
@@ -789,14 +796,14 @@ bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 			" " + TOSTRING(COMMANDPARAMETER_Name_CONST) + " \"\" " + TOSTRING(COMMANDPARAMETER_Identifier_CONST) + " \"\" " +
 			TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) + " 0 " + TOSTRING(COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST) + " 0"
 			" & 0 " + StringUtils::itos(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter) + 
-			" 1 4 16 " + StringUtils::itos(PK_DesignObj_OSD);
+			" 1 8 159 " + StringUtils::itos(PK_Screen_OSD);
 
 		if( m_pOrbiter->m_dwPK_Device != m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter )  // Not us
 			sMessageOnComplete += " & 0 " + StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " 1 " + TOSTRING(COMMAND_Set_Active_Application_CONST) +
 			" " + TOSTRING(COMMANDPARAMETER_Name_CONST) + " \"\" " + TOSTRING(COMMANDPARAMETER_Identifier_CONST) + " \"\" " +
 			TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) + " 0 " + TOSTRING(COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST) + " 0"
 			" & 0 " + StringUtils::itos(m_pOrbiter->m_dwPK_Device) + 
-			" 1 4 16 " + StringUtils::itos(PK_DesignObj_Remote);
+			" 1 8 159 " + StringUtils::itos(PK_Screen_Remote);
 
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_AppServer,
 			sBinary,"generic-app",sArguments,sMessageOnComplete,sMessageOnComplete,false,false,true,false);
@@ -812,10 +819,10 @@ bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 			CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(screen_GenericAppFullScreen.m_pMessage);
 
 			DCE::CMD_Set_Active_Application CMD_Set_Active_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,
-				StringUtils::itos(PK_DesignObj_OSD),StringUtils::itos(PK_DesignObj_Remote),sActiveApplication_Description,sActiveApplication_Window);
+				sActiveApplication_Description,PK_Screen_OSD,sActiveApplication_Window,PK_Screen_Remote);
 			CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Active_Application.m_pMessage);
 
-			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(PK_DesignObj_Remote),"","",false,false);
+			m_pOrbiter->CMD_Goto_Screen("",PK_Screen_Remote);
 
 			DCE::CMD_Activate_Window cmd_Activate_Window(
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,
@@ -824,11 +831,11 @@ bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 		}
 		else
 		{
-			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(PK_DesignObj_OSD),"","",false,false);
+			m_pOrbiter->CMD_Goto_Screen("",PK_Screen_OSD);
 			m_pOrbiter->m_sActiveApplication_Window = sActiveApplication_Window;
 			m_pOrbiter->m_sActiveApplication_Description = sActiveApplication_Description;
-			m_pOrbiter->m_PK_DesignObj_ActiveApp_OSD = PK_DesignObj_OSD;
-			m_pOrbiter->m_PK_DesignObj_ActiveApp_Remote = PK_DesignObj_Remote;
+			m_pOrbiter->m_PK_Screen_ActiveApp_OSD = PK_Screen_OSD;
+			m_pOrbiter->m_PK_Screen_ActiveApp_Remote = PK_Screen_Remote;
 			m_pOrbiter->CMD_Activate_Window(sActiveApplication_Window);
 		}
 		m_pOrbiter->SendCommand(CMD_Spawn_Application);

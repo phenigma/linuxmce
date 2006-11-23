@@ -73,7 +73,7 @@ protected:
 	map<CallBackType, ScreenHandlerCallBack> m_mapCallBack;
 	map<CallBackType, CallBackData *> m_mapCallBackData;
 	string m_sActiveApplication_Description,m_sActiveApplication_Window;
-	int m_PK_DesignObj_ActiveApp_OSD,m_PK_DesignObj_ActiveApp_Remote;
+	int m_PK_Screen_ActiveApp_OSD,m_PK_Screen_ActiveApp_Remote;
 	int m_iStage; // Some screens go through stages and need a variable to track that
 	time_t m_tLastDeviceAdded;
 
@@ -135,6 +135,7 @@ public:
 	virtual void SCREEN_PopupMessage(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack);
 	virtual void SCREEN_GenericKeyboard(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sCannotGoBack){ SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, sDescription, "0", "0", sCannotGoBack); }  // Treat this like the popup message
 
+	virtual void SCREEN_GenericAppController(long PK_Screen);
 	virtual void SCREEN_GenericAppFullScreen(long PK_Screen);
 	virtual void SCREEN_Computing(long PK_Screen);
 	bool Computing_ObjectSelected(CallBackData *pData);

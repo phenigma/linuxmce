@@ -292,7 +292,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_bRepeatingObject=false;
 	m_bShowShortcuts = false;
 	m_bLoadDatagridImagesInBackground=true;
-	m_iPK_Screen_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_Screen_FileList=m_iPK_Screen_RemoteOSD=m_iPK_Screen_OSD_Speed=m_iPK_Screen_OSD_Track=m_PK_DesignObj_ActiveApp_OSD=m_PK_DesignObj_ActiveApp_Remote=0;
+	m_iPK_Screen_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_Screen_FileList=m_iPK_Screen_RemoteOSD=m_iPK_Screen_OSD_Speed=m_iPK_Screen_OSD_Track=m_PK_Screen_ActiveApp_OSD=m_PK_Screen_ActiveApp_Remote=0;
 	m_iPK_MediaType=0;
 	m_pScreenHistory_Current=NULL;
 	m_pObj_LastSelected=m_pObj_Highlighted=m_pObj_Highlighted_Last=NULL;
@@ -897,11 +897,15 @@ g_PlutoProfiler->DumpResults();
 		if( m_bScreenSaverActive && pScreenHistory->GetObj()!=m_pDesignObj_Orbiter_ScreenSaveMenu )
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_WARNING,"Goto Screen -- wakign up from screen saver");
+			g_pPlutoLogger->Write(LV_WARNING,"Orbiter::NeedToChangeScreens Goto Screen -- wakign up from screen saver");
 #endif
-			StopScreenSaver();
+			StopScreenSaver();  // The function will ignore this for ui2 if there's no media playing
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS, "Orbiter::NeedToChangeScreens calling CMD_Show_Mouse_Pointer mb %p vis %d",
+				m_pMouseBehavior, (int) m_pMouseBehavior->m_bMouseVisible);
+#endif
 			if( NULL != m_pMouseBehavior && m_pMouseBehavior->m_bMouseVisible )  // If m_bMouseVisible is true, it should be visible since screen saver doesn't set this, and that way if the screen saver hid it we'll restore it
 				CMD_Show_Mouse_Pointer("1");
 #endif
@@ -3498,6 +3502,10 @@ bool Orbiter::GotActivity( int PK_Button )
 		{
 			StopScreenSaver();
 #ifdef ENABLE_MOUSE_BEHAVIOR
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS, "Orbiter::GotActivity calling CMD_Show_Mouse_Pointer mb %p vis %d",
+				m_pMouseBehavior, (int) m_pMouseBehavior->m_bMouseVisible);
+#endif
 			if( m_pMouseBehavior && m_pMouseBehavior->m_bMouseVisible )   // If m_bMouseVisible is true, it should be visible since screen saver doesn't set this, and that way if the screen saver hid it we'll restore it
 				CMD_Show_Mouse_Pointer("1");
 #endif
@@ -6251,6 +6259,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
 	m_iPK_MediaType=iPK_MediaType;
+	m_sNowPlaying_Window = sName;
 	m_sNowPlaying = SubstituteVariables(sValue_To_Assign, NULL, 0, 0);
 	m_sNowPlaying_Section = SubstituteVariables(sText, NULL, 0, 0);
 	string::size_type pos=0;
@@ -6334,25 +6343,24 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 			m_pOrbiterRenderer->RenderObjectAsync(m_pObj_NowPlaying_Section_OnScreen);
 	}
 
-	if( UsesUIVersion2() )
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Set_Now_Playing device %d video %d",m_dwPK_Device_NowPlaying,(int) m_bContainsVideo);
+	if( m_dwPK_Device_NowPlaying && m_bContainsVideo )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Set_Now_Playing device %d video %d",m_dwPK_Device_NowPlaying,(int) m_bContainsVideo);
-		if( m_dwPK_Device_NowPlaying && m_bContainsVideo )
-		{
+		if( UsesUIVersion2() )
 			StopScreenSaver();
-			CMD_Activate_Window(sName);
-		}
+		if( m_sActiveApplication_Window.empty() )
+			CMD_Activate_Window(m_sNowPlaying_Window);
 		else
 		{
-			StartScreenSaver(false);  // Don't go to the menu, just start the app in the background
-			m_bShowingSpeedBar=false;
+			g_pPlutoLogger->Write(LV_WARNING,"Orbiter::CMD_Set_Now_Playing media is playing, but so is the application %s",m_sActiveApplication_Window.c_str());
+			CMD_Activate_Window(m_sActiveApplication_Window);
 		}
 	}
 	else
 	{
-		//this is UI1
-		if(m_dwPK_Device_NowPlaying && m_bContainsVideo)
-			CMD_Activate_Window(sName);
+		if( UsesUIVersion2() )
+			StartScreenSaver(false);  // Don't go to the menu, just start the app in the background
+		m_bShowingSpeedBar=false;
 	}
 
 	if( m_bReportTimeCode && !m_bUpdateTimeCodeLoopRunning )
@@ -9078,44 +9086,64 @@ void Orbiter::ServiceAlerts( void *iData )
 
 	/** @brief COMMAND: #810 - Set Active Application */
 	/** Tells an On screen orbiter what application is currently active */
-		/** @param #3 PK_DesignObj */
-			/** The DesignObj for the OSD */
-		/** @param #16 PK_DesignObj_CurrentScreen */
-			/** The DesignObj for the orbiter remote */
 		/** @param #50 Name */
 			/** A description of the app */
+		/** @param #159 PK_Screen */
+			/** The Screen for the OSD */
 		/** @param #216 Identifier */
 			/** The window identifier */
+		/** @param #226 PK_Screen_GoTo */
+			/** The screen for the orbiter remote */
 
-void Orbiter::CMD_Set_Active_Application(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sName,string sIdentifier,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Set_Active_Application(string sName,int iPK_Screen,string sIdentifier,int iPK_Screen_GoTo,string &sCMD_Result,Message *pMessage)
 //<-dceag-c810-e->
 {
 	m_sActiveApplication_Description=sName;
 	m_sActiveApplication_Window=sIdentifier;
-	m_PK_DesignObj_ActiveApp_OSD = atoi(sPK_DesignObj.c_str());
-	m_PK_DesignObj_ActiveApp_Remote = atoi(sPK_DesignObj_CurrentScreen.c_str());
+	m_PK_Screen_ActiveApp_OSD = iPK_Screen;
+	m_PK_Screen_ActiveApp_Remote = iPK_Screen_GoTo;
+	if( UsesUIVersion2() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Set_Active_Application m_sActiveApplication_Description %s m_sNowPlaying_Window %s",
+			m_sActiveApplication_Description.c_str(),m_sNowPlaying_Window.c_str());
+		if( m_sActiveApplication_Description.empty() )
+		{
+			if( m_sNowPlaying_Window.empty()==false )
+			{
+				g_pPlutoLogger->Write(LV_WARNING,"Orbiter::CMD_Set_Active_Application activating media that's playing simultaneously");;
+				StopScreenSaver();
+				CMD_Activate_Window(m_sNowPlaying_Window);
+			}
+			else
+			{
+				StartScreenSaver(false);  // Don't go to the menu, just start the app in the background
+			}
+		}
+		else
+			StopScreenSaver();
+	}
 }
 
 //<-dceag-c811-b->
 
 	/** @brief COMMAND: #811 - Get Active Application */
 	/**  */
-		/** @param #3 PK_DesignObj */
-			/** The DesignObj for the OSD */
-		/** @param #16 PK_DesignObj_CurrentScreen */
-			/** The DesignObj for the orbiter remote */
 		/** @param #50 Name */
 			/** A description of the app */
+		/** @param #159 PK_Screen */
+			/** The Screen for the OSD */
 		/** @param #216 Identifier */
 			/** The window identifier */
+		/** @param #226 PK_Screen_GoTo */
+			/** The Screen for the orbiter remote */
 
-void Orbiter::CMD_Get_Active_Application(string *sPK_DesignObj,string *sPK_DesignObj_CurrentScreen,string *sName,string *sIdentifier,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Get_Active_Application(string *sName,int *iPK_Screen,string *sIdentifier,int *iPK_Screen_GoTo,string &sCMD_Result,Message *pMessage)
 //<-dceag-c811-e->
 {
 	*sName=m_sActiveApplication_Description;
 	*sIdentifier=m_sActiveApplication_Window;
-	*sPK_DesignObj = StringUtils::itos(m_PK_DesignObj_ActiveApp_OSD);
-	*sPK_DesignObj_CurrentScreen = StringUtils::itos(m_PK_DesignObj_ActiveApp_Remote);
+	*iPK_Screen = m_PK_Screen_ActiveApp_OSD;
+	*iPK_Screen_GoTo = m_PK_Screen_ActiveApp_Remote;
 }
 
 void Orbiter::ForceCurrentScreenIntoHistory()
@@ -9293,6 +9321,10 @@ void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
 		if(UsesUIVersion2() && m_pMouseBehavior )
 		{
 			bool bMouseVisible=m_pMouseBehavior->m_bMouseVisible;  // Save the state
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS, "Orbiter::StartScreenSaver calling CMD_Show_Mouse_Pointer vis %d",
+				(int) m_pMouseBehavior->m_bMouseVisible);
+#endif
 			CMD_Show_Mouse_Pointer("0");
 			m_pMouseBehavior->Clear();
 			m_pMouseBehavior->m_bMouseVisible=bMouseVisible;  // Restore it
@@ -9320,7 +9352,8 @@ void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
 
 void Orbiter::StopScreenSaver()
 {
-	if( UsesUIVersion2() && (!m_dwPK_Device_NowPlaying || !m_bContainsVideo) )  // Don't actually stop the background app if this is ui2 and we're not playing media
+	// Don't actually stop the background app if this is ui2 and we're not playing media and we don't have an active computing app
+	if( UsesUIVersion2() && (!m_dwPK_Device_NowPlaying || !m_bContainsVideo) && m_sActiveApplication_Description.empty() )  
 		return;
 
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::StopScreenSaver");

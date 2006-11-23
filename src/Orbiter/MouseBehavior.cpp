@@ -302,7 +302,15 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen==SCREEN_Main_CONST && m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() != m_pOrbiter->m_pDesignObj_Orbiter_ScreenSaveMenu )
 	{
-		m_pOrbiter->StartScreenSaver(true);  // If the user hits the menu button from the main menu, go to the screen saver
+		// If the user hits the menu button from the main menu, go to the screen saver, unless there's a computing app
+		if( m_pOrbiter->m_PK_Screen_ActiveApp_OSD )
+		{
+			NeedToRender render( m_pOrbiter, "m_PK_Screen_ActiveApp_OSD" );
+			Clear(false);
+			m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_PK_Screen_ActiveApp_OSD);
+		}
+		else
+			m_pOrbiter->StartScreenSaver(true); 
 	}
 	else if( (m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && (PK_Screen_OnScreen==SCREEN_mnuPlaybackControl_CONST || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_OSD_Speed || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_OSD_Track)) ||
 		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && (PK_Screen_OnScreen==SCREEN_mnuAmbiance_CONST || PK_Screen_OnScreen==SCREEN_mnuVolume_CONST || PK_Screen_OnScreen==SCREEN_mnuLights_CONST)) )
@@ -319,7 +327,17 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown stopping media %d %d==%d | %d",m_pOrbiter->m_iPK_MediaType,PK_Screen_OnScreen,m_pOrbiter->m_iPK_Screen_Remote,m_pOrbiter->m_iPK_Screen_RemoteOSD);
 #endif
 		if( !m_pOrbiter->m_iPK_MediaType && PK_Screen_OnScreen==SCREEN_Main_CONST )
-			m_pOrbiter->StartScreenSaver(true);  // If the user hits the close button from the main menu, go to the screen saver
+		{
+			// If the user hits the close button from the main menu, go to the screen saver, unless there's an active computing application
+			if( m_pOrbiter->m_PK_Screen_ActiveApp_OSD )
+			{
+				NeedToRender render( m_pOrbiter, "m_PK_Screen_ActiveApp_OSD" );
+				Clear(false);
+				m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_PK_Screen_ActiveApp_OSD);
+			}
+			else
+				m_pOrbiter->StartScreenSaver(true);  
+		}
 		else if( m_pOrbiter->m_iPK_MediaType && (PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_Remote || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_RemoteOSD) )
 		{
 			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,0,0,"");
