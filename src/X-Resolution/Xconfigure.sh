@@ -151,7 +151,7 @@ if [[ ! -f "$ConfigFile" || ! -s "$ConfigFile" ]]; then
 	Defaults=y
 fi
 
-if [[ "$Defaults" == y ]]; then
+if [[ "$Defaults" == y && "$ResolutionSet" != y ]]; then
 	ResX=640
 	ResY=480
 	Refresh=60
