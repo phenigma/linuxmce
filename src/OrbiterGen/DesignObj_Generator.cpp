@@ -1561,28 +1561,31 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                         PriorSort=drAG_R->Sort_get();
                     }
                 }
-				// Add the floorplan icon
-				int PK_DesignObj=0;
-				switch(PK_Array)
+				if( m_pOrbiterGenerator->m_pRow_UI->PK_UI_get()==UI_V2_Normal_Horizontal_16_9_CONST )
 				{
-					case ARRAY_Lighting_Scenarios_CONST:
-						PK_DesignObj=DESIGNOBJ_butLightsOverview_CONST;
-						break;
-					case ARRAY_Climate_Scenarios_CONST:
-						PK_DesignObj=DESIGNOBJ_butClimateOverview_CONST;
-						break;
-					case ARRAY_Security_Scenarios_CONST:
-						PK_DesignObj=DESIGNOBJ_butSecurityOverview_CONST;
-						break;
-					case ARRAY_Communication_Scenarios_CONST:
-						PK_DesignObj=DESIGNOBJ_butTeleOverview_CONST;
-						break;
-				}
-				if( PK_DesignObj )
-				{
-					alArray->push_back(new ArrayValue("","",NULL,
-						0,PK_DesignObj,
-						0, 0, false,false,false));
+					// Add the floorplan icon
+					int PK_DesignObj=0;
+					switch(PK_Array)
+					{
+						case ARRAY_Lighting_Scenarios_CONST:
+							PK_DesignObj=DESIGNOBJ_butLightsOverview_CONST;
+							break;
+						case ARRAY_Climate_Scenarios_CONST:
+							PK_DesignObj=DESIGNOBJ_butClimateOverview_CONST;
+							break;
+						case ARRAY_Security_Scenarios_CONST:
+							PK_DesignObj=DESIGNOBJ_butSecurityOverview_CONST;
+							break;
+						case ARRAY_Communication_Scenarios_CONST:
+							PK_DesignObj=DESIGNOBJ_butTeleOverview_CONST;
+							break;
+					}
+					if( PK_DesignObj )
+					{
+						alArray->push_back(new ArrayValue("","",NULL,
+							0,PK_DesignObj,
+							0, 0, false,false,false));
+					}
 				}
             }
             break;
@@ -1624,9 +1627,10 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                     }
                 }
             }
-			alArray->push_back(new ArrayValue("","",NULL,
-				0,DESIGNOBJ_butMediaOverview_CONST,
-				0, 0, false,false,false));
+			if( m_pOrbiterGenerator->m_pRow_UI->PK_UI_get()==UI_V2_Normal_Horizontal_16_9_CONST )
+				alArray->push_back(new ArrayValue("","",NULL,
+					0,DESIGNOBJ_butMediaOverview_CONST,
+					0, 0, false,false,false));
             break;
 
 		case ARRAY_PK_MediaType_CONST:
