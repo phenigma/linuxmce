@@ -111,6 +111,7 @@ while [[ $# -gt 0 ]]; do
 		;;
 		--force) Force=y ;;
 		--update-video-driver) UpdateVideoDriver=y ;;
+		--keep-resolution) KeepCurrentResolution=y ;;
 		--force-vesa) ForceVESA=y ;;
 		--conffile) ConfigFile="$2"; shift ;;
 		--skiplock) SkipLock=1 ;;
@@ -118,32 +119,6 @@ while [[ $# -gt 0 ]]; do
 	esac
 	shift
 done
-
-if [[ -z "$ResolutionSet" ]]; then
-	. /usr/pluto/bin/SQL_Ops.sh
-	DEVICECATEGORY_Media_Director=8
-	DEVICEDATA_Video_settings=89
-
-	ComputerDev=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Media_Director" '' 'include-parent')
-
-	Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$ComputerDev' AND FK_DeviceData='$DEVICEDATA_Video_settings' LIMIT 1"
-	VideoSetting=$(RunSQL "$Q")
-	VideoSetting=$(Field "1" "$VideoSetting")
-
-	if [[ -n "$VideoSetting" ]]; then
-		Refresh=$(echo $VideoSetting | cut -d '/' -f2)
-		ResolutionInfo=$(echo $VideoSetting | cut -d '/' -f1)
-		ResX=$(echo $ResolutionInfo | cut -d' ' -f1)
-		ResY=$(echo $ResolutionInfo | cut -d' ' -f2)
-	else
-		ResX='640'
-		ResY='480'
-		Refresh='60'
-	fi
-	
-	ScanType=
-	Resolution="${ResX}x${ResY}"
-fi
 
 if [[ ! -f /usr/pluto/bin/X-ChangeDisplayDriver.awk ]]; then
 	Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/bin/X-ChangeDisplayDriver.awk."
@@ -174,6 +149,49 @@ if [[ ! -f "$ConfigFile" || ! -s "$ConfigFile" ]]; then
 	# TODO: Detect incomplete/corrupt config files too
 	Logging "$TYPE" "$SEVERITY_WARNING" "Xconfigure" "Config file '$ConfigFile' not found or empty. Forcing use of defaults."
 	Defaults=y
+fi
+
+if [[ "$Defaults" == y ]]; then
+	ResX=640
+	ResY=480
+	Refresh=60
+	Resolution="${ResX}x${ResY}"
+	ScanType=
+	ResolutionSet=y
+fi
+
+if [[ -z "$ResolutionSet" ]]; then
+	. /usr/pluto/bin/SQL_Ops.sh
+	DEVICECATEGORY_Media_Director=8
+	DEVICEDATA_Video_settings=89
+
+	ComputerDev=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Media_Director" '' 'include-parent')
+
+	Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$ComputerDev' AND FK_DeviceData='$DEVICEDATA_Video_settings' LIMIT 1"
+	VideoSetting=$(RunSQL "$Q")
+	VideoSetting=$(Field "1" "$VideoSetting")
+
+	if [[ -n "$VideoSetting" ]]; then
+		Refresh=$(echo $VideoSetting | cut -d '/' -f2)
+		ResolutionInfo=$(echo $VideoSetting | cut -d '/' -f1)
+		ResX=$(echo $ResolutionInfo | cut -d' ' -f1)
+		ResY=$(echo $ResolutionInfo | cut -d' ' -f2)
+	else
+		ResX='640'
+		ResY='480'
+		Refresh='60'
+	fi
+	
+	ScanType=
+	Resolution="${ResX}x${ResY}"
+fi
+
+if [[ -n "$KeepCurrentResolution" ]]; then
+	ResX=
+	ResY=
+	Refresh=
+	Resolution=
+	ScanType=
 fi
 
 DisplayDriver=$(GetVideoDriver)
