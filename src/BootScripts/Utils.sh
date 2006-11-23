@@ -298,3 +298,30 @@ UI_SetOptions()
 	"
 	RunSQL "$Q"
 }
+
+function GeneratePassword() {
+        local alpha1=(Q W E R T Y U I O P A S D F G H J K L Z X C V B N M)
+        local alpha2=(q w e r t y u i o p a s d f g h j k l z x c v b n m)
+        local alpha3=(1 2 3 4 5 6 7 8 9 0)
+
+        local pass=""
+        pass=$pass"${alpha1[$(($RANDOM%26))]}${alpha1[$(($RANDOM%26))]}${alpha1[$(($RANDOM%26))]}"
+        pass=$pass"${alpha2[$(($RANDOM%26))]}${alpha2[$(($RANDOM%26))]}${alpha2[$(($RANDOM%26))]}"
+        pass=$pass"${alpha3[$(($RANDOM%10))]}${alpha3[$(($RANDOM%10))]}"
+
+        local fromwhere=$(( $RANDOM % 3 + 1 ))
+        [[ $fromwhere == 1 ]] && pass=$pass"${alpha1[$(($RANDOM%26))]}"
+        [[ $fromwhere == 2 ]] && pass=$pass"${alpha2[$(($RANDOM%26))]}"
+        [[ $fromwhere == 3 ]] && pass=$pass"${alpha3[$(($RANDOM%10))]}"
+
+
+        for i in `seq 1 100` ;do
+                local split=$(( $RANDOM % ${#pass} + 1 ))
+                pass1=${pass:$split}
+                pass2=${pass:0:$split}
+                pass="${pass1}${pass2}"
+        done
+
+        echo $pass
+}
+
