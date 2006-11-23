@@ -35,15 +35,15 @@ AnimationScrollDatagrid::AnimationScrollDatagrid(string ObjectID, OpenGL3DEngine
 	this->MaxAlpha = fMaxAlphaLevel;
 	this->ObjectID = ObjectID;
 
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "abc AnimationScrollDatagrid before %p/%s and after %p/%s",
+		BeforeGrid, BeforeGrid->Name().c_str(), AfterGrid, AfterGrid->Name().c_str());
+
 	CopyDependencies(pDependencies);
 }
 
 AnimationScrollDatagrid::~AnimationScrollDatagrid(void)
 {
-	this->AfterGrid = NULL;
-
-	BeforeGrid->CleanUp();
-	delete BeforeGrid;
+	AfterGrid = NULL;
 	BeforeGrid = NULL;
 
 	TextureManager::Instance()->ResumeTextureRelease();

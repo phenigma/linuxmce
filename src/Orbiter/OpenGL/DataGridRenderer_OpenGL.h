@@ -27,8 +27,8 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 class OpenGL3DEngine;
 class DesignObj_Orbiter;
 class MeshFrame;
-class DataGridRenderer_OpenGL :
-	public DataGridRenderer
+
+class DataGridRenderer_OpenGL : public DataGridRenderer
 {
 	OpenGL3DEngine* Engine;
 	MeshFrame* m_pRenderFrame;
@@ -42,6 +42,7 @@ public:
 
 	virtual void RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point = PlutoPoint(0, 0));
 	void m_AnimationSpeed_set(int AnimationSpeed);
+	void Reset() { StartAnimation = 0; m_pRenderFrame = NULL;}
 };
 
 #endif

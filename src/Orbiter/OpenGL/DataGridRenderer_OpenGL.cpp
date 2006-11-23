@@ -18,6 +18,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 */
 #include "DataGridRenderer_OpenGL.h"
 
+#include "DCE/DataGrid.h"
 #include "OpenGL3DEngine.h"
 #include "OrbiterRenderer_OpenGL.h"
 #include "DatagridAnimationManager.h"
@@ -45,23 +46,33 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 
 }
 
-#include "DCE/DataGrid.h"
 /*virtual*/ void DataGridRenderer_OpenGL::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
 	PLUTO_SAFETY_LOCK(cm, m_pObj_Owner->m_pOrbiter->m_ScreenMutex);
 
 	string DatagridFrameID = "datagrid " + m_pObj_Owner->GenerateObjectHash(point, false);
+	g_pPlutoLogger->Write(LV_STATUS, "abc DataGridRenderer_OpenGL::RenderObject %s", DatagridFrameID.c_str());
 
-	g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject");
-	MeshFrame * BeforeDataGrid = m_pRenderFrame;
+	//save the datagrid's mesh frame tree before rendering
+	MeshFrame *BeforeDataGrid = m_pRenderFrame;
 
-	MeshFrame *BeforeDataGridClone = NULL;
+	//render datagrid in a frame
+	Engine->EndModifyGeometry();
+	Engine->StartDatagridDrawing(DatagridFrameID);
+	DataGridRenderer::RenderObject(pObj_Screen, point);
+    m_pRenderFrame = Engine->EndDatagridDrawing(DatagridFrameID);
+	Engine->BeginModifyGeometry();
+
+	//stop all animations
+	Engine->GetDatagridAnimationManager()->StopAnimations();
+
 	if(0 != StartAnimation && BeforeDataGrid != NULL)
 	{
+		//suspend texture releases
 		TextureManager::Instance()->SuspendTextureRelease();
 
 		//create a clone
-		BeforeDataGridClone = BeforeDataGrid->Clone();
+		MeshFrame *BeforeDataGridClone = BeforeDataGrid->Clone();
 
 		//disconnect from parent
 		BeforeDataGridClone->ResetParent();
@@ -71,18 +82,8 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 
 		//old datagrid already deleted when it was replaced with its clone
 		BeforeDataGrid = NULL;
-	}
 
-	Engine->EndModifyGeometry();
-	Engine->StartDatagridDrawing(DatagridFrameID);
-
-	DataGridRenderer::RenderObject(pObj_Screen, point);
-
-	m_pRenderFrame = Engine->EndDatagridDrawing(DatagridFrameID);
-	Engine->BeginModifyGeometry();
-
-	if(0 != StartAnimation && NULL != BeforeDataGridClone)
-	{
+		//prepare animation
 		vector<string> Dependencies;
 		BuildDependencies(Dependencies);
 		g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::StartAnimation");
@@ -92,9 +93,11 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 		StartAnimation = 0;
 	}
 	else
+	{
 		Engine->AddMeshFrameToDesktop("", m_pRenderFrame);
+	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject ENDED");
+	g_pPlutoLogger->Write(LV_STATUS, "abc DataGridRenderer_OpenGL::RenderObject ENDED %s", DatagridFrameID.c_str());
 }
 
 void DataGridRenderer_OpenGL::m_AnimationSpeed_set(int AnimationSpeed)

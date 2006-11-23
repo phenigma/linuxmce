@@ -503,6 +503,7 @@ void OpenGL3DEngine::StartDatagridDrawing(string ObjectHash)
 
 	FrameDatagrid = CurrentLayer;
 	CurrentLayer = new MeshFrame(ObjectHash);
+	CurrentLayer->MarkAsVolatile();
 }
 
 MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
@@ -526,10 +527,8 @@ void OpenGL3DEngine::InvalidateFrame(string ObjectHash)
 	if(NULL != pDatagridFrame)
 	{
 		MeshFrame *pNewDummyDatagridFrame = new MeshFrame(ObjectHash);
+		pNewDummyDatagridFrame->MarkAsVolatile();
 		CurrentLayer->ReplaceChild(pDatagridFrame, pNewDummyDatagridFrame);
-
-		pDatagridFrame->CleanUp();
-		delete pDatagridFrame;
 	}
 }
 

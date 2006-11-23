@@ -19,6 +19,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "MeshContainer.h"
 
 #include "../GLMathUtils.h"
+#include "../OpenGLGraphic.h"
 
 #include <map>
 
@@ -31,6 +32,19 @@ MeshContainer::~MeshContainer(void)
 {
 	delete [] Vertexes;
 	delete [] Triangles;
+}
+
+void MeshContainer::DisposeTextures()
+{
+	map<OpenGLGraphic *, bool> mapTextures;
+
+	for(int i = 0; i < NoTriangles; i++)
+		if(NULL != Triangles[i].Texture)
+			mapTextures[Triangles[i].Texture] = true;
+
+	for(map<OpenGLGraphic *, bool>::iterator it = mapTextures.begin(); it != mapTextures.end(); ++it)
+		delete it->first;
+	mapTextures.clear();
 }
 
 void MeshContainer::SetAlpha(float Alpha)

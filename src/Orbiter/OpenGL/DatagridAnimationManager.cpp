@@ -55,7 +55,6 @@ void DatagridAnimationManager::Cleanup()
 		AnimationScrollDatagrid *pAnimation = *it;
 
 		m_pEngine->RemoveMeshFrameFromDesktop(pAnimation->BeforeGrid);
-		pAnimation->BeforeGrid->CleanUp();
 		delete pAnimation;
 	}
 

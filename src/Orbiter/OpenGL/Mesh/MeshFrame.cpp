@@ -23,15 +23,14 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "DCE/Logger.h"
 
 MeshFrame::MeshFrame(string Name, MeshContainer* Mesh) 
-: Visible_(true),
-TextureTransform(),
-Transform(),
-Parent(NULL),
-Volatile_(false)
+	: Visible_(true),
+	TextureTransform(),
+	Transform(),
+	Parent(NULL),
+	Volatile_(false)
 {
 	this->Mesh = Mesh;
 	this->Name_ = Name;
-
 }
 
 MeshFrame::~MeshFrame(void)
@@ -58,6 +57,9 @@ void MeshFrame::MarkAsVolatile()
 #ifdef DEBUG
 	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::CleanUp: %p/%s", this, Name_.c_str());	
 #endif
+
+	if(IsVolatile() && NULL != Mesh)
+		Mesh->DisposeTextures();
 
 	delete Mesh;
 	Mesh = NULL;
@@ -89,9 +91,6 @@ void MeshFrame::MarkAsVolatile()
 
 	if(!VolatilesOnly)
 		Children.clear();
-
-	delete Mesh;
-	Mesh = NULL;
 
 	Volatile_ = false;
 }
@@ -317,6 +316,7 @@ MeshContainer* MeshFrame::GetMeshContainer()
 MeshFrame *MeshFrame::Clone()
 {
 	MeshFrame *Result = new MeshFrame(Name_ + " clone");
+	Result->MarkAsVolatile();
 	Result->Visible_ = Visible_;
 
 	if(NULL != Mesh)

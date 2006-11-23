@@ -33,6 +33,7 @@
 #include "Mesh/MeshFrame.h"
 #include "Mesh/MeshBuilder.h"
 #include "ObjectRenderer_OpenGL.h"
+#include "DataGridRenderer_OpenGL.h"
 //-----------------------------------------------------------------------------------------------------
 #include <SDL_ttf.h>
 //-----------------------------------------------------------------------------------------------------
@@ -383,6 +384,18 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	int nAlphaChannel/* = 255*/, string ParentObjectID/* = ""*/, string ObjectID/* = ""*/, 
 	string ObjectHash/* = ""*/)
 {
+#ifndef DISABLE_MESHFRAME_CACHE
+	if(ObjectID == "background-image-test")
+	{
+		MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(ObjectID);
+		if(NULL != Frame)
+		{
+			TextureManager::Instance()->AttachToScene(ParentObjectID, Frame);
+			return;
+		}
+	}
+#endif
+
 g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 	if(ObjectID == "")
 	{
@@ -647,6 +660,13 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 {
 	if(pObj->m_PK_Effect_Off_Screen > 0)
 		m_spPendingGLEffects->m_nOffScreenTransitionEffectID = pObj->m_PK_Effect_Off_Screen;
+
+	if(pObj->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST)
+	{
+		DataGridRenderer_OpenGL *pDatagridRenderer = dynamic_cast<DataGridRenderer_OpenGL *>(pObj->Renderer());
+		if(NULL != pDatagridRenderer)
+			pDatagridRenderer->Reset();
+	}
 
 	OrbiterRenderer::ObjectOffScreen(pObj);
 }

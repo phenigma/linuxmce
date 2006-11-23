@@ -68,6 +68,10 @@ public:
 	 *	Creates a geometry clone
 	 */
 	MeshContainer* Clone();
+	/**
+	*	Makes a list with all texture mapped on its triangles and release them
+	*/
+	void DisposeTextures();
 };
 
 #endif 
