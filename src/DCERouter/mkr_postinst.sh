@@ -1,6 +1,7 @@
 #!/bin/bash
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/Utils.sh
 
 # 2005-04-11 * Disabled. Considered not needed anymore
 #echo "Converting all tables except 'mysql' to InnoDB (this may take a while)"
@@ -112,8 +113,8 @@ fi
 
 ## Samba Share Helper
 smbUser="sambahelper"
-smbPass="HardcodedPass4Now" ## I'll change this, this is for testing only
-useradd -c "Pluto Samba Share Helper" -d /tmp -s /bin/false sambahelper -p $(mkpasswd -H md5 "$smbPass" 'PlutoSmb')
+smbPass=$(GeneratePassword)
+useradd -c "Pluto Samba Share Helper" -d /tmp -s /bin/false sambahelper
 echo "
 username=$smbUser
 password=$smbPass
