@@ -244,6 +244,7 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
     vector<int> vectButtonMaps;
     GetButtonsInObject(pObj,vectButtonMaps);
 
+	// If bApplicationInBackground==true, that's for UI2 with orbiter always being on top
 	bool bApplicationInBackground = pObj->m_mapObjParms_Find(DESIGNOBJPARAMETER_In_Background_CONST) == "1";
 	
 #ifdef DEBUG

@@ -968,6 +968,11 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
 		(dequeMediaFile->size() &&
 			((*dequeMediaFile)[0]->m_sExtension=="DVD" || StringUtils::StartsWith((*dequeMediaFile)[0]->m_sPath,"DVD:",true))	) )
 				bContainsTitlesOrSections=true;
+g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::StartMedia type %d size %d extension %s path %s cont %d",
+pMediaHandlerInfo->m_PK_MediaType,dequeMediaFile->size(),
+dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sExtension.c_str() : "NO",
+dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sPath.c_str() : "NO",
+(int) bContainsTitlesOrSections);
 
 
     // If all EA's are playing the same stream, it might be possible to queue it

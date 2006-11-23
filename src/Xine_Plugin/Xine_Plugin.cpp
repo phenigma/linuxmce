@@ -103,6 +103,19 @@ bool Xine_Plugin::Register()
 	for(size_t s=0;s<m_vectMediaHandlerInfo.size();++s)
 		m_vectMediaHandlerInfo[s]->m_bMultipleDestinations=false;
 
+	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_Xine_Player_CONST);
+	if( pListDeviceData_Router )
+	{
+		for( ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it )
+		{
+			DeviceData_Router *pDevice_Xine_Player = *it;
+			DeviceData_Router *pDevice_PC = pDevice_Xine_Player->GetTopMostDevice();
+			vector<DeviceData_Router *> vectDevice_CaptureCards;
+			if( pDevice_PC )
+				pDevice_PC->FindChildrenWithinCategory(DEVICECATEGORY_Capture_Cards_CONST,vectDevice_CaptureCards);
+		}
+	}
+
 	RegisterMsgInterceptor(( MessageInterceptorFn )( &Xine_Plugin::MenuOnScreen ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Menu_Onscreen_CONST );
 
 	return Connect(PK_DeviceTemplate_get());

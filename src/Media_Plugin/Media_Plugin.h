@@ -496,28 +496,29 @@ public:
 	// This sends the set now playing command to an orbiter.  If pMessage is passed, it adds the command without sending it
 	void SetNowPlaying( int dwPK_Device, MediaStream *pMediaStream, bool bRefreshScreen, bool bGotoRemote=false, Message *pMessage=NULL )
 	{
+g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::SetNowPlaying stream %p refresh %d"
+					  ,pMediaStream,(int) bRefreshScreen);
 		string sRemotes;
 		RemoteControlSet *pRemoteControlSet = NULL;
 		if( pMediaStream )
 		{
-			pRemoteControlSet = GetRemoteControlSet(dwPK_Device,pMediaStream);
-			if( !pRemoteControlSet )
-				return;
-
-			int PK_DesignObj_Remote_Popup = pRemoteControlSet->m_iPK_DesignObj_Remote_Popup;
-
 			// As a temporary measure we don't have a method for making certain stored video clips use a different
 			// set of menu options than others, and yet stored dvd's need menu, subtitle, etc., options that normal
 			// media doesn't.  We should comed up with a 'stream capabilities' function that allows us to add playback 
 			// options on the fly, but until then, if it's a stored video file, and it has titles/sections, use the dvd's menu options
+g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::SetNowPlaying type %d containstitles %d",pMediaStream->m_iPK_MediaType,(int) pMediaStream->m_bContainsTitlesOrSections);
 			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST && pMediaStream->m_bContainsTitlesOrSections )
 			{
-				RemoteControlSet *pRemoteControlSet_dvd = GetRemoteControlSet(dwPK_Device,pMediaStream,MEDIATYPE_pluto_DVD_CONST);
-				if( pRemoteControlSet_dvd )
-					PK_DesignObj_Remote_Popup = pRemoteControlSet_dvd->m_iPK_DesignObj_Remote_Popup;
+				pRemoteControlSet = GetRemoteControlSet(dwPK_Device,pMediaStream,MEDIATYPE_pluto_DVD_CONST);
+g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::SetNowPlaying pRemoteControlSet_dvd %p",pRemoteControlSet);
 			}
+			else
+				pRemoteControlSet = GetRemoteControlSet(dwPK_Device,pMediaStream);
+			if( !pRemoteControlSet )
+				return;
+
 			sRemotes = StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_Screen_Alt_Remote ? pRemoteControlSet->m_iPK_Screen_Alt_Remote : pRemoteControlSet->m_iPK_Screen_Remote) + ","
-				+ StringUtils::itos(PK_DesignObj_Remote_Popup) + ","   // ON UI2 the leftmost popup menu on the main menu
+				+ StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_Remote_Popup) + ","   // ON UI2 the leftmost popup menu on the main menu
 				+ StringUtils::itos(pRemoteControlSet->m_iPK_Screen_FileList) + ","
 				+ StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_Screen_Alt_OSD ? pRemoteControlSet->m_iPK_Screen_Alt_OSD : pRemoteControlSet->m_iPK_Screen_OSD) + ","
 				+ StringUtils::itos(pRemoteControlSet->m_iPK_Screen_OSD_Speed) + ","

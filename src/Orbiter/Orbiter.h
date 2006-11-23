@@ -154,11 +154,13 @@ namespace DCE
 
 		OrbiterRenderer *Renderer();
 		ScreenHandler *m_pScreenHandler_get() { return m_pScreenHandler; }
+		string m_sApplicationName_get() { return m_sApplicationName; }
+
 		int CurrentScreen();
 
 		int m_iImageWidth; /** < image width */
 		int m_iImageHeight; /** < image height */
-		bool m_bFullScreen,m_bUseOpenGL,m_bUseComposite,m_bReportTimeCode;;
+		bool m_bFullScreen,m_bUseOpenGL,m_bUseComposite,m_bReportTimeCode;
 		bool m_bLoadDatagridImagesInBackground;
 		bool m_bShowingSpeedBar; // For UI2 this means we temporarily are displaying the speed bar because we're not at normal 1x speed
 		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */

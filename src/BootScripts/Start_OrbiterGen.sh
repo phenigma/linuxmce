@@ -10,6 +10,9 @@ OutDir=/usr/pluto/orbiter
 
 /usr/pluto/bin/UpdateEntArea -h localhost > >(tee -a /var/log/pluto/updateea.log)
 
+Q="UPDATE Orbiter SET RegenInProgress=0"  # This is only run at bootup, so no regens are in progress
+RunSQL "$Q"
+
 Q="SELECT PK_Installation FROM Installation LIMIT 1"
 installation=$(echo "$Q;" | /usr/bin/mysql -h $MySqlHost pluto_main | tail +2)
 

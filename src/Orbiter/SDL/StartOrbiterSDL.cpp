@@ -331,6 +331,10 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 
 			if(Simulator::GetInstance()->m_bEnableGenerator)
 				Simulator::GetInstance()->StartRandomEventGenerator();
+			
+			// If media is playing set now playing will set m_sApplicationName before this finishes
+			if( pCLinux->UsesUIVersion2() && !pCLinux->m_bNewOrbiter && pCLinux->m_sApplicationName_get().empty() )
+				pCLinux->StartScreenSaver(false);
 
 			return pCLinux;
 		}

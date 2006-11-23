@@ -763,7 +763,11 @@ int Orbiter::CurrentScreen()
 void Orbiter::ScreenSaver( void *data )
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"::Screen saver Bypass screen saver now: %d",(int)m_bBypassScreenSaver);
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ScreenSaver Bypass screen saver now: %d obj %s ss %s",
+		(int)m_bBypassScreenSaver,
+		m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() ? m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : "*NONE*",
+		m_pDesignObj_Orbiter_ScreenSaveMenu ? m_pDesignObj_Orbiter_ScreenSaveMenu->m_ObjectID.c_str() : "*NONE*");
+
 #endif
 	if( m_bBypassScreenSaver )
 		return;
@@ -2136,10 +2140,6 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 
 		m_pOrbiterRenderer->AdjustWindowSize(m_pScreenHistory_Current->GetObj()->m_rPosition.Width,
 			m_pScreenHistory_Current->GetObj()->m_rPosition.Height);
-
-		// If media is playing set now playing will set m_sApplicationName before this finishes
-		if( UsesUIVersion2() && !m_bNewOrbiter && m_sApplicationName.empty() )
-			StartScreenSaver(false);
 
 		m_bStartingUp=false;
 
@@ -4712,7 +4712,7 @@ void Orbiter::CMD_Display_OnOff(string sOnOff,bool bAlready_processed,string &sC
 {
 	m_bDisplayOn = sOnOff=="1";
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Setting monitor display on/off: %s %d m_bDisplayOn: %d",sOnOff.c_str(),(int) bAlready_processed,(int) m_bDisplayOn);
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Display_OnOff Setting monitor display on/off: %s %d m_bDisplayOn: %d",sOnOff.c_str(),(int) bAlready_processed,(int) m_bDisplayOn);
 #endif
 	if( bAlready_processed )
 		return;
@@ -9300,7 +9300,7 @@ void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
 #endif
 		
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"::Screen saver goto screen m_bDisplayOn = true; %p", m_pDesignObj_Orbiter_ScreenSaveMenu);
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::StartScreenSaver goto screen m_bDisplayOn = true; %p", m_pDesignObj_Orbiter_ScreenSaveMenu);
 #endif
 	}
 

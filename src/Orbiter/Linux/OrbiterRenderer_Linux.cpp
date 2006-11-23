@@ -53,7 +53,7 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 		}		
 		
 		pOrbiterLinux->m_pWinListManager->HideAllWindows();
-		pOrbiterLinux->m_bIsExclusiveMode = true;
+		pOrbiterLinux->m_bIsExclusiveMode = true; // This is set to false if there's an application desktop
 
 		{
 			if(NULL == pOrbiterLinux->GetDisplay())
