@@ -1116,6 +1116,7 @@
 #define TEXT_no_all_orbiters_CONST 1832
 #define TEXT_Room_CONST 1833
 #define TEXT_Change_CONST 1834
+#define TEXT_User_name_CONST 1836
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

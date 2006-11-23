@@ -2279,10 +2279,10 @@
 #define DESIGNOBJ_butSubMenuButtonSecurity_CONST 5246
 #define DESIGNOBJ_butSubMenuButtonTelecom_CONST 5247
 #define DESIGNOBJ_butChangeRoom_CONST 5248
-#define DESIGNOBJ_mnuCurrentTime_CONST 5249
-#define DESIGNOBJ_grpCurrentUser_CONST 5251
-#define DESIGNOBJ_hiddenUserPlaceholder_CONST 5252
-#define DESIGNOBJ_butChangeUser_CONST 5253
+#define DESIGNOBJ_butCurrentTime_CONST 5249
+#define DESIGNOBJ_grpCurrentUser_CONST 5250
+#define DESIGNOBJ_hiddenUserPlaceholder_CONST 5251
+#define DESIGNOBJ_butChangeUser_CONST 5252
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
