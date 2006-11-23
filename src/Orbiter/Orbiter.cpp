@@ -358,6 +358,7 @@ Orbiter::~Orbiter()
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Waiting for HID thread to finish...");
 		pthread_join(m_HidThreadID, NULL);
+		m_HidThreadID = NULL;
 	}
 	
 	delete m_pHIDInterface;
@@ -532,10 +533,11 @@ Orbiter::~Orbiter()
 	vm.Release();
 
 	//wait TimeCodeThread to finish
-	if(m_TimeCodeID && m_bUpdateTimeCodeLoopRunning)
+	if(m_TimeCodeID)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Waiting for TimeCode thread to finish...");
 		pthread_join(m_TimeCodeID, NULL);
+		m_TimeCodeID = NULL;
 		g_pPlutoLogger->Write(LV_STATUS, "Done with TimeCode thread.");
 	}
 
@@ -6862,9 +6864,13 @@ void Orbiter::KillMaintThread()
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Waiting for Maint thread to finish...");
-	pthread_join(m_MaintThreadID, NULL);
-	g_pPlutoLogger->Write(LV_STATUS, "Done with Maint thread.");
+	if(m_MaintThreadID)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Waiting for Maint thread to finish...");
+		pthread_join(m_MaintThreadID, NULL);
+		m_MaintThreadID = NULL;
+		g_pPlutoLogger->Write(LV_STATUS, "Done with Maint thread.");
+	}
 }
 
 void Orbiter::StopSimulatorThread()
