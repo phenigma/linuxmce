@@ -224,7 +224,7 @@ fi
 
 ## Configure NIS Server
 echo "pluto" > /etc/defaultdomain
-cp /usr/pluto/templates/nis-server.template /etc/default/
+cp /usr/pluto/templates/nis-server.template /etc/default/nis
 
 IntNetIP=""
 for i in 1 2 3 4 ;do
