@@ -6346,6 +6346,12 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 			m_bShowingSpeedBar=false;
 		}
 	}
+	else
+	{
+		//this is UI1
+		if(m_dwPK_Device_NowPlaying && m_bContainsVideo)
+			CMD_Activate_Window(sName);
+	}
 
 	if( m_bReportTimeCode && !m_bUpdateTimeCodeLoopRunning )
 	{
