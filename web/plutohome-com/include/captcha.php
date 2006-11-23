@@ -39,6 +39,9 @@ class captcha {
       verify input, @returns boolean
    */
    function check() {
+   	  if(trim($_REQUEST["captcha_input"])==''){
+   	  	return false;
+   	  }
       $to = (int)(time()/1000000);
       if (@$_COOKIE[CAPTCHA_COOKIE] == $to) {
          return(true);
