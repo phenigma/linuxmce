@@ -34,7 +34,7 @@ function SetDeviceOnline() {
 	
 	Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = '$Device_ID' AND FK_DeviceData='$DD_ONLINE'"
 	OldValue=$(RunSQL "$Q")
-	OldValue=$(Field "1" "$OnlineValue")
+	OldValue=$(Field "1" "$OldValue")
 
 	if [[ "$OldValue" != "$OnlineValue" ]] ;then
 
@@ -285,6 +285,7 @@ while : ;do
 
 		## Is a internal drive located on a remote computer
 		else
+
 			## Get the ip of the parent device
 			IDrive_IP=$(RunSQL "SELECT IPaddress FROM Device WHERE PK_Device='${IDrive_Parent}'")
 			IDrive_IP=$(Field "1" "$IDrive_IP")
@@ -298,27 +299,24 @@ while : ;do
 				continue
 			fi
 
-			## Test if the share is in the list on nfs shares
-                        showmount -e $IDrive_IP | cut -d ' ' -f1 | grep "^/mnt/device/${IDrive_ID}$"
-                        isDriveInList=$?
+                        ## Test if the share is still in the list
+                        smbclient -A /usr/pluto/var/sambaCredentials.secret --list=//$IDrive_IP --grepable 2>/dev/null | grep "^Disk" | cut -d'|' -f2 | grep -q "^Storage$IDrive_ID\$$"
+                        isShareInList=$?
 
-                        if [[ "$isDriveInList" != "0" ]] ;then
-                                Log "Drive $IDrive_ID ($IDrive_BlockDev) is not advertised by it's parent ($IDrive_IP)"
+                        if [[ "$isShareInList" != "0" ]] ;then
+                                Log "Drive $IDrive_ID ($IDrive_BlockDev) is not advertised by it's parent smb server ($IDrive_IP)"
                                 SetDeviceOnline "$IDrive_ID" "0"
                                 continue
                         fi
 
-                        ## See if the share is mountable
-                        mountDirTemp=$(mktemp -d)
-                        mount ${IDrive_IP}:/mnt/device/${IDrive_IP} $mountDirTemp 1>/dev/null 2>/dev/null
-                        isDriveMountable=$?
+                        ## Test if the share is still mountable with the username/password that we have
+                        smbclient -A /usr/pluto/var/sambaCredentials.secret "//$IDrive_IP/Storage$IDrive_ID\$" -c 'ls' 1>/dev/null 2>/dev/null
+                        isShareMountable=$?
 
-                        if [[ "$isDriveeMountable" != "0" ]] ;then
+                        if [[ "$isShareMountable" != "0" ]] ;then
 				Log "Drive $IDrive_ID ($IDrive_IP $IDrive_BlockDev) cannot be mounted"
                                 SetDeviceOnline "$IDrive_ID" "0"
-                        else
-                                umount -lf $mountDirTemp 1>/dev/null 2>/dev/null
-                                rm -r $mountDirTemp
+                                continue
                         fi
 
                         SetDeviceOnline "$IDrive_ID" "1"
