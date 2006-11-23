@@ -51,6 +51,7 @@ void *ServerSocket::BeginWapClientThread(void *SvSock)
 	{
 		//I'll do it by myself
 		g_pPlutoLogger->Write(LV_STATUS, "Detected disconnect: detaching thread for %d", pServerSocket->m_dwPK_Device);
+		pServerSocket->SelfDestroying();
 		pthread_detach(pServerSocket->m_ClientThreadID);
 		pServerSocket->m_ClientThreadID = (pthread_t)NULL;
 
@@ -64,7 +65,8 @@ void *ServerSocket::BeginWapClientThread(void *SvSock)
 ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName, string sIPAddress, string sMacAddress ) :
 	Socket( sName, sIPAddress, sMacAddress ),
 	m_ConnectionMutex( "connection " + sName ),
-	m_ClientThreadID( (pthread_t)NULL )
+	m_ClientThreadID( (pthread_t)NULL ),
+	m_bSelfDestroying(false)
 {
 	m_iInstanceID = 0;
 	m_bSendOnlySocket = false;

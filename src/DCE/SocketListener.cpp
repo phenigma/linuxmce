@@ -391,16 +391,46 @@ bool SocketListener::SendData( int iDeviceID, int iLength, const char *pcData )
 
 void SocketListener::DropAllSockets()
 {
+	g_pPlutoLogger->Write(LV_WARNING, "Dropping all sockets...");
+
+	time_t tStart = time(NULL);
+
 	PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
 	while(0 != m_mapServerSocket.size())
 	{
+		if(time(NULL) - tStart > 10)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Big problem: can't wait for server sockets anymore!");
+			break;
+		}
+	
 		ServerSocket *pServerSocket = m_mapServerSocket.begin()->second;
-		RemoveAndDeleteSocket(pServerSocket);
+		
+		if(!pServerSocket->IsSelfDestroying())
+			RemoveAndDeleteSocket(pServerSocket);
+		
+		lm.Release();
+		Sleep(10);
+		lm.Relock();
 	}
 
 	while(0 != m_vectorServerSocket.size())
 	{
+		if(time(NULL) - tStart > 10)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Big problem: can't wait for server sockets anymore!");
+			break;
+		}		
+		
 		ServerSocket *pServerSocket = *m_vectorServerSocket.begin();
-		RemoveAndDeleteSocket(pServerSocket);
+		
+		if(!pServerSocket->IsSelfDestroying())
+			RemoveAndDeleteSocket(pServerSocket);
+		
+		lm.Release();
+		Sleep(10);
+		lm.Relock();
 	}
+	
+	g_pPlutoLogger->Write(LV_WARNING, "Done dropping sockets!");
 }

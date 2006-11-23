@@ -28,12 +28,10 @@ namespace DCE
 	{
 	private:
 		int m_iReferencesOutstanding; /** < How many references to this are outstanding, we can only delete it when this is 0 */
-
+		bool m_bSelfDestroying; /** < The thread is responsible for destroying the server socket and removing it from the map */
 
 	public:
 		long m_dwPK_Device; /** < the device ID */
-
-
 
 		pluto_pthread_mutex_t m_ConnectionMutex; /** < for controlling access to the shared memory */
 		pthread_t m_ClientThreadID; /** < the thread running the main loop */
@@ -63,6 +61,9 @@ namespace DCE
 		void IncrementReferences() { m_iReferencesOutstanding++; }
 		void DecrementReferences() { m_iReferencesOutstanding--; }
 		int m_iReferencesOutstanding_get() { return m_iReferencesOutstanding; }
+		
+		bool IsSelfDestroying() { return m_bSelfDestroying; }
+		void SelfDestroying() { m_bSelfDestroying = true; }
 
 	private:
 		/**
