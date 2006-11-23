@@ -147,6 +147,13 @@ if ( defined $ARGV[1] && $ARGV[1] eq "cache" )
 	`rm image-netinst/Debian-Cache/*-doc-*.deb`;
 	`rm image-netinst/Debian-Cache/qt3-dev-tools*`;
 	`rm image-netinst/Debian-Cache/libwxgtk2.6*`;
+	
+	`rm image-netinst/Debian-Cache/libpam-smbpass_*`;
+	`rm image-netinst/Debian-Cache/python2.4-samba_*`;
+	`rm image-netinst/Debian-Cache/samba-dbg_*`;
+	`rm image-netinst/Debian-Cache/samba-doc*`;
+	`rm image-netinst/Debian-Cache/swat_*`;
+	`rm image-netinst/Debian-Cache/winbind_*`;
 
 	# ugly, ugly, ugly, hack
 	`rm image-netinst/Debian-Cache/pluto-bluetooth-dongle*`;

@@ -156,10 +156,10 @@ find -xtype f -exec md5sum '{}' ';' | awk '!/md5sum\.txt/ && !/\.\/isolinux/' >>
 popd >/dev/null
 
 echo "Building iso image $ISO_Dir/installation-cd.iso"
-mkisofs -V "$Version" -J -o "$ISO_Dir/installation-cd-1-$Version.$MakeRelease_Flavor.iso" -r -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table image-netinst/
+mkisofs -V "$Version" -J -o "$ISO_Dir/installation-cd-1-$Version.iso" -r -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table image-netinst/
 
 pushd "$ISO_Dir" >/dev/null
-md5sum installation-cd-1-$Version.$MakeRelease_Flavor.iso >installation-cd-1-$Version.$MakeRelease_Flavor.md5
+md5sum installation-cd-1-$Version.iso >installation-cd-1-$Version.md5
 popd >/dev/null
 
 if [[ -f message.txt ]]; then

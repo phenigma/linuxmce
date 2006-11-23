@@ -94,10 +94,10 @@ cd $BONUSCACHEDIR
 md5sum *.deb >> $MD5FILE
 
 # create iso
-mkisofs -V "Installation CD 2" -J -input-charset iso-8859-1 -o $ISO_Dir/installation-cd-2-$Version.$MakeRelease_Flavor.iso $BONUSCDDIR
+mkisofs -V "Installation CD 2" -J -input-charset iso-8859-1 -o $ISO_Dir/installation-cd-2-$Version.iso $BONUSCDDIR
 
 pushd "$ISO_Dir" >/dev/null
-md5sum installation-cd-2-$Version.$MakeRelease_Flavor.iso >installation-cd-2-$Version.$MakeRelease_Flavor.md5
+md5sum installation-cd-2-$Version.iso >installation-cd-2-$Version.md5
 popd >/dev/null
 # clean after iso is finished
 rm -rf $BONUSCDDIR
