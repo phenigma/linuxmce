@@ -67,6 +67,8 @@ done
 exec 1> >(tee /tmp/MakeScript-$flavor.log) 2>&1
 echo "Building: branch=$branch, rev=$rev_pub,$rev_prv, flavor=$flavor"
 
+Pkgs="116,135 117,136 118,137 119,138 122,141 124,143 126,145 133,152 134,153 154,155 162,161 191,190 193,192 195,194 197,196 200,199 203,202 204 213,212 211 214 219 220 226,227 229,339 206 233 234 237,201 238,198 240,239 242,241 247,248 255,254 256 266 270,271 272,281 277,278 280,279 283,284 290,289 294 302 303,304 316,315 318,319 456,455 307,335 337,336 341,342 346,347 363 364 391 393,392 394 397,396 401,398 404,403 407 420,419 340,421 425,424 427,426 430,429 432,431 436 447,446 448 453,452 454 462,607 465,464 467,466 469,468 471,470 472 473 488,487 490 493,492 406,405 491,330 497,496 499,498 502 503,508 504 506,505 509 516,515 520 522 523 526,525 528 530,529 533 535,536 539,538 540 543,542 545,544 549 553 554 556,555 562 564,563 274,28 567 568 569 573,572 576 578 579 580 582,581 584,583 590,589 599,598"
+
 ## Read and export the configuration options
 . /home/WorkNew/src/MakeRelease/MR_Conf.sh
 export MakeRelease_Flavor="$flavor"
@@ -267,102 +269,28 @@ fi;
 
 # Creating target folder.
 mkdir -p "$BASE_OUT_FOLDER/$version_name";
+: >$build_dir/MakeRelease1.log
+: >$build_dir/Messages.log
+
 echo "Marker: starting compilation `date`"
-if ! MakeRelease -h localhost $fastrun $nobuild $dont_compile_existing -O "$BASE_OUT_FOLDER/$version_name" -D main_sqlcvs_"$flavor" -c -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
-	echo "MakeRelease Failed.  Press any key"
-	reportError
-	read
-	exit
-fi
+for Pkg in $Pkgs; do
+	if ! MakeRelease -k $Pkg -h localhost $fastrun $nobuild $dont_compile_existing -O "$BASE_OUT_FOLDER/$version_name" -D main_sqlcvs_"$flavor" -c -a -o 1 -r 20 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee -a $build_dir/MakeRelease1.log); then
+		echo "Failed to compile: $Pkg" |tee -a $build_dir/Messages.log
+	fi
+done
 
 # We did a 'don't make package' above with -c so the windows builder may continue building/outputting the latest bins
 cp /home/builds/Windows_Output/src/bin/* $build_dir/trunk/src/bin
 
 echo "Marker: starting package building `date`"
-if ! MakeRelease -h localhost $fastrun -D main_sqlcvs_"$flavor" -O "$BASE_OUT_FOLDER/$version_name" -b -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
-	echo "MakeRelease Failed.  Press any key"
-	reportError
-	read
-	exit
-fi
-
-#TODO: What the bleep is BUILD.sh ? (razvan)
-BuildScript="$build_dir/trunk/src/BUILD.sh"
-(echo '#!/bin/bash'; sed 's#cd $build_dir/trunk//src/#popd 2>/dev/null\npushd #g' Compile.script) >"$BuildScript"
-
-`dirname $0`/scripts/propagate.sh "$BASE_OUT_FOLDER/$version_name/"
-
-echo Setting this version as the current one.
-rm -f $BASE_OUT_FOLDER/current-"$flavor"
-ln -s $BASE_OUT_FOLDER/$version_name $BASE_OUT_FOLDER/current-"$flavor"
-
-mkdir -p /home/builds/upload
-pushd /home/builds
-
-cd $version_name
-#md5sum installation-cd.iso > installation-cd-1-$version_name.$flavor.md5
-#mv installation-cd.iso installation-cd-1-$version_name.$flavor.iso
-echo $version_name > current_version
-
-
-if [[ "$version" !=  "1" || "$upload" == "y" ]]; then
-	echo "Marker: uploading download.tar.gz `date`"
-	
-	## Create tarball containing /home/builds/build directory and upload it
-	rm ../upload/download.$flavor.tar.gz; ssh uploads@deb.plutohome.com "rm download.$flavor.tar.gz; rm replacements.$flavor.tar.gz"
-	tar zcvf ../upload/download.$flavor.tar.gz *
-	scp ../upload/download.$flavor.tar.gz uploads@deb.plutohome.com:~/
-
-	## Create replacements repo tarball and upload it
-	rm ../upload/replacements.$flavor.tar.gz
-	pushd /home/samba/repositories/$flavor/$replacementsdeb
-	tar -hzcvf /home/builds/upload/replacements.$flavor.tar.gz  *
-	popd
-	scp ../upload/replacements.$flavor.tar.gz uploads@deb.plutohome.com:~/
-
-	if [ "$flavor" != "pluto" ]; then
-		## Extract the files on plutohome.com
-		echo "Marker: setting up `date`"
-		ssh uploads@deb.plutohome.com "/home/uploads/SetupUploads.sh \"$flavor\" \"$replacementsdeb\"  \"$maindeb\""
-	else
-#		ssh uploads@plutohome.com "rm ~/*download* ~/*replace*"
-#		tar zcvf ../upload/download.tar.gz *
-#		scp ../upload/download.tar.gz uploads@plutohome.com:~/
-#		cd ../upload
-#	    sh -x `dirname $0`/scripts/DumpVersionPackage.sh
-#		scp dumpvp.tar.gz uploads@plutohome.com:~/
-#
-#		echo "Marker: uploading replacements `date`"
-#
-#		cd /home/WorkNew/src/MakeRelease
-#		bash -x DirPatch.sh
-#		scp replacements.tar.gz uploads@plutohome.com:~/
-#		scp replacements.patch.sh uploads@plutohome.com:~/
-		:
+for Pkg in $Pkgs; do
+	if ! MakeRelease -k $Pkg -h localhost $fastrun -D main_sqlcvs_"$flavor" -O "$BASE_OUT_FOLDER/$version_name" -b -a -o 1 -r 20 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee -a $build_dir/MakeRelease1.log); then
+		echo "Failed to build package: $Pkg" |tee -a $build_dir/Messages.log
 	fi
-
-	popd	
-fi
+done
 
 cp $build_dir/MakeRelease*.log "$BASE_OUT_FOLDER"/"$version_name"
 
 echo "Marker: done `date`"
 echo "Everything okay.  Press any key"
-
-if [ "x$nobuild" = "x" ]; then
-	(echo -e "MakeRelease $version ok\n\n") | mail -s "MakeRelease $version ok" razvan.g@plutohome.com -c aaron@plutohome.com
-else
-	(echo -e "MakeRelease $version ok\n\nNeed to reset nobuild flag") | mail -s "**reset nobuild flag** MakeRelease $version ok" aaron@plutohome.com
-fi
-
-if [ $version -ne 1 ]; then
-	(echo -e "Change version back to 1\n\n") | mail -s "**change version back to 1**" aaron@plutohome.com
-fi
-
-if [ "x$fastrun" = "x" ]; then
-	echo "Normal debug build"
-else
-	(echo -e "Remove fastrun flag\n\n") | mail -s "**remove fastrun flag**" aaron@plutohome.com
-fi
-#sh -x /home/SendToSwiss.sh
 read
