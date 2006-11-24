@@ -2252,7 +2252,7 @@
 #define DESIGNOBJ_iconCheckMark_CONST 5201
 #define DESIGNOBJ_unscaled_app_Desktop_CONST 5202
 #define DESIGNOBJ_butNoRegenAllLater_CONST 5203
-#define DESIGNOBJ_mnuRainbowMenu_CONST 5204
+#define DESIGNOBJ_mnuRainbowMainMenu_CONST 5204
 #define DESIGNOBJ_butClimatePopup_CONST 5207
 #define DESIGNOBJ_butTelecomPopup_CONST 5209
 #define DESIGNOBJ_butSecurityPopup_CONST 5210
