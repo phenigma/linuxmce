@@ -21,6 +21,12 @@ WinListManager::~WinListManager()
     pthread_mutexattr_destroy(&m_WindowsMutexAttr);
 }
 
+void WinListManager::ResetOrbiterWindow()
+{
+    PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+    m_pWMController->SetLayer(m_sSdlWindowName, LayerAbove);
+}
+
 void WinListManager::ActivateWindow(const string& sWindowsName)
 {
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);

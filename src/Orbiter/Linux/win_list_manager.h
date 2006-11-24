@@ -41,6 +41,8 @@ public:
 
 	void SetSdlWindowVisibility(bool bValue);
 
+	void ResetOrbiterWindow();
+	
 protected:
     pthread_mutexattr_t m_WindowsMutexAttr;
 	pluto_pthread_mutex_t m_WindowsMutex;

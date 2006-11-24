@@ -196,6 +196,13 @@ bool OrbiterLinux::X11_Init()
     m_pX11->GetDisplaySize(m_nDesktopWidth, m_nDesktopHeight);
     // initialize other classes
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : done");
+    
+
+    //temporary workaround for xfwm window manager
+    //this will set orbiter above when its window is created
+    //then orbiter will set it to the right layer
+    m_pWinListManager->ResetOrbiterWindow();
+    
     return true;
 }
 
