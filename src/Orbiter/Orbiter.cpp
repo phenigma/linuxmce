@@ -5257,9 +5257,19 @@ void Orbiter::CMD_Regen_Screen(string &sCMD_Result,Message *pMessage)
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Regen_Screen");
 #endif
+//	m_pMessage from screen history with parms
+
 	NeedToRender render( this, "Regen Screen" );
 	if( m_pScreenHistory_Current )
-		NeedToRender::NeedToChangeScreens( this, m_pScreenHistory_Current );
+	{
+		Message message; // Create a temporary message to store the parameters
+		for( map<long, string>::iterator it=m_pScreenHistory_Current->m_mapParameters.begin();
+			it!=m_pScreenHistory_Current->m_mapParameters.end();++it )
+				message.m_mapParameters[ it->first ] = it->second;
+
+		string sResult;
+		CMD_Goto_Screen(m_pScreenHistory_Current->ScreenID(),m_pScreenHistory_Current->PK_Screen(),sResult,&message);
+	}
 }
 
 //<-dceag-c16-b->
