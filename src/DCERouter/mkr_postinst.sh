@@ -114,7 +114,7 @@ fi
 ## Samba Share Helper
 smbUser="sambahelper"
 smbPass=$(GeneratePassword)
-useradd -c "Pluto Samba Share Helper" -d /tmp -s /bin/false sambahelper
+useradd -c "Pluto Samba Share Helper" -d /tmp -s /bin/false sambahelper || /bin/true
 echo "
 username=$smbUser
 password=$smbPass
