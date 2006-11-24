@@ -77,6 +77,8 @@ namespace DCE
 			void CloseStreamAV(int iStreamID);
 			
 			void DestroyStream(int iStreamID);
+			
+			void HideStreamWindows(int iStreamID);
 	};
 
 }

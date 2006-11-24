@@ -426,6 +426,28 @@ void Xine_Stream_Factory::DestroyStream(int iStreamID)
 	g_pPlutoLogger->Write(LV_WARNING,"Destroyed stream with internalID=%i", iStreamID);
 }
 
+void Xine_Stream_Factory::HideStreamWindows(int iStreamID)
+{
+	Xine_Stream *pStream = NULL;
+	map<int, Xine_Stream*>::iterator stream;
+	
+	{	
+		PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
+		stream = streamsMap.find(iStreamID);
+		
+		if (stream != streamsMap.end())
+		{
+			pStream = (*stream).second;
+		}
+	}
+	
+	if (pStream)
+	{
+		pStream->hideWindows();
+	}
+	g_pPlutoLogger->Write(LV_WARNING,"Hide windows for stream with internalID=%i", iStreamID);
+}
+
 void Xine_Stream_Factory::CloseStreamAV(int iStreamID)
 {
 	Xine_Stream *pStream = NULL;

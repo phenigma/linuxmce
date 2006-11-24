@@ -369,6 +369,7 @@ namespace DCE
 			int getDeviceId();
 			bool isSlimClient();
 			void setSlimClient( bool isSlimClient );
+			void hideWindows();
 			
 	};
 	

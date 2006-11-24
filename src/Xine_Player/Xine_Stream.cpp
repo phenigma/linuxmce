@@ -253,6 +253,13 @@ bool Xine_Stream::ShutdownStream()
 	return true;
 }
 
+// moving windows to other screen
+void Xine_Stream::hideWindows()
+{
+      XReparentWindow(m_pXDisplay, windows[ 0 ], XRootWindow( m_pXDisplay, m_iCurrentScreen ), 10, 20);
+      XReparentWindow(m_pXDisplay, windows[ 1 ], XRootWindow( m_pXDisplay, m_iCurrentScreen ), 10, 20);
+}
+
 // creates stream windows
 bool Xine_Stream::CreateWindows()
 {
@@ -277,15 +284,17 @@ bool Xine_Stream::CreateWindows()
 
 	XLockDisplay( m_pXDisplay );
 
-	m_iCurrentScreen = XDefaultScreen( m_pXDisplay );
+	//m_iCurrentScreen = XDefaultScreen( m_pXDisplay );
+	// creating it on last (invisible) screen
+	m_iCurrentScreen = XScreenCount( m_pXDisplay )-1;
 	xpos = 10;
 	ypos = 20;
 	width = 720;
 	height = 540;
 
-	windows[ 0 ] = XCreateSimpleWindow( m_pXDisplay, XDefaultRootWindow( m_pXDisplay ), xpos, ypos, width, height, 
+	windows[ 0 ] = XCreateSimpleWindow( m_pXDisplay, XRootWindow( m_pXDisplay, m_iCurrentScreen ), xpos, ypos, width, height, 
 																			1, 0, 0 );
-	windows[ 1 ] = XCreateSimpleWindow( m_pXDisplay, XDefaultRootWindow( m_pXDisplay ),
+	windows[ 1 ] = XCreateSimpleWindow( m_pXDisplay, XRootWindow( m_pXDisplay, m_iCurrentScreen ),
 																			0, 0, ( DisplayWidth( m_pXDisplay, m_iCurrentScreen ) ), DisplayHeight( m_pXDisplay, m_iCurrentScreen ),
 																			0, 0, 0 );
 
