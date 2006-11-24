@@ -78,7 +78,7 @@ public:
 string g_sPackages, g_sPackages_Exclude, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date, g_sBaseVersion, g_sReplacePluto, g_sOutputPath;
 string g_sPK_RepositorySource;
 int g_iPK_Distro=0,g_iSVNRevision=0;
-bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false, g_bDontTouchDB = false, g_bSetVersion = true, g_bOnlyCompileIfNotFound = false, g_bContinueOnError = false;
+bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false, g_bDontTouchDB = false, g_bSetVersion = true, g_bOnlyCompileIfNotFound = false;
 Database_pluto_main *g_pDatabase_pluto_main;
 Row_Version *g_pRow_Version;
 Row_Distro *g_pRow_Distro;
@@ -253,9 +253,6 @@ int main(int argc, char *argv[])
 			break;
 		case 'V':
 			g_bSetVersion = false;
-			break;
-		case 'E':
-			g_bContinueOnError = true;
 			break;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
@@ -690,7 +687,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 				if( !FileUtils::FileExists(sDirectory + "/" + File) )
 				{
 					cout << "***WARNING*** " << sDirectory << "/" << File << " not found" <<  endl;
-					if( (g_bSupressPrompts && !g_bContinueOnError) || !AskYNQuestion("Continue?", g_bContinueOnError) )
+					if( g_bSupressPrompts || !AskYNQuestion("Continue?",false) )
 						return false;
 				}
 					//cout<<"\ncreate source SD: "<<sDirectory<<' '<<File;
@@ -764,7 +761,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 
 		if( sInputPath.length()==0 )
 		{
-			if( (g_bSupressPrompts && !g_bContinueOnError) || !AskYNQuestion("***WARNING*** Directory is empty.  Continue?", g_bContinueOnError) )
+			if( g_bSupressPrompts || !AskYNQuestion("***WARNING*** Directory is empty.  Continue?",false) )
 				return false;
 
 			sInputPath = g_sNonSourcecodePrefix;
@@ -799,7 +796,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 					cout << "Path: " << pRow_Package_Directory_File->FK_Package_Directory_getrow()->Path_get() << endl;
 					cout << pRow_Package_Directory_File->MakeCommand_get() << " ***FAILED***" << endl;
 					cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
-					if( (g_bSupressPrompts && !g_bContinueOnError) || !AskYNQuestion("Continue anyway?", g_bContinueOnError) )
+					if( g_bSupressPrompts || !AskYNQuestion("Continue anyway?",false) )
 						return false;
 				}
 			}
@@ -836,7 +833,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 				if( !FileUtils::FileExists(sInputPath + "/" + File) )
 				{
 					cout << "***WARNING*** " << sInputPath << "/" << File << " not found" <<  endl;
-					if( (g_bSupressPrompts && !g_bContinueOnError) || !AskYNQuestion("Continue?", g_bContinueOnError) )
+					if( g_bSupressPrompts || !AskYNQuestion("Continue?",false) )
 						return false;
 				}
 				//cout<<"\ncreate source : "<<sInputPath<<' '<<File;
@@ -1171,7 +1168,7 @@ cout << "Doing snr on " << sSourceDirectory << "/" << *it << endl;
 			{
 				cout << pRow_Package_Directory_File->MakeCommand_get() << " ***FAILED***" << endl;
 				cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
-				if( (g_bSupressPrompts && ! g_bContinueOnError) || !AskYNQuestion("Continue anyway?", g_bContinueOnError) )
+				if( g_bSupressPrompts || !AskYNQuestion("Continue anyway?",false) )
 					return false;
 			}
 			cout << pRow_Package_Directory_File->MakeCommand_get() << " succeeded" << endl;
@@ -1179,7 +1176,7 @@ cout << "Doing snr on " << sSourceDirectory << "/" << *it << endl;
 			if( !FileUtils::FileExists(sCompiledOutput + "/" + pRow_Package_Directory_File->File_get()) ) 
 			{
 				cout << "***ERROR*** The file: " << sCompiledOutput << "/" << pRow_Package_Directory_File->File_get() << " was not created.";
-				if( (g_bSupressPrompts && ! g_bContinueOnError) || !AskYNQuestion("Continue anyway?", g_bContinueOnError) )
+				if( g_bSupressPrompts || !AskYNQuestion("Continue anyway?",false) )
 					return false;
 			}
 			cout << sCompiledOutput << "/" << pRow_Package_Directory_File->File_get() << " exists" << endl;
