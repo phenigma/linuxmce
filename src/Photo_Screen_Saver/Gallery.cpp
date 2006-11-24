@@ -89,17 +89,10 @@ Gallery* Gallery::Instance(void)
 void Gallery::PaintScreen(void)
 {
 	Utils.ResetMsTime();
-#ifdef DEBUG
-	DCE::g_pPlutoLogger->Write(LV_WARNING, "StartFlip %d", Utils.GetMicroTime());
-#endif
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	if(Scenario->Update())
 		FrontEnd->Flip();
-
-#ifdef DEBUG
-	DCE::g_pPlutoLogger->Write(LV_WARNING, "EndFlip %d", Utils.GetMicroTime());
-#endif
 }
 
 bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName, bool bUseAnimation)

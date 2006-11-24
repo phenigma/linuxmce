@@ -112,8 +112,15 @@ bool Lighting_Plugin::GetConfig()
 Lighting_Plugin::~Lighting_Plugin()
 //<-dceag-dest-e->
 {
-	delete m_pAlarmManager;
 	delete m_pDatabase_pluto_main;
+}
+
+void Lighting_Plugin::PrepareToDelete()
+{
+	PLUTO_SAFETY_LOCK(lm,m_LightingMutex);
+	Command_Impl::PrepareToDelete();
+	delete m_pAlarmManager;
+	m_pAlarmManager = NULL;
 }
 
 //<-dceag-reg-b->

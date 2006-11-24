@@ -75,14 +75,6 @@ PnpQueue::PnpQueue(class Plug_And_Play_Plugin *pPlug_And_Play_Plugin)
 
 PnpQueue::~PnpQueue()
 {
-	while( m_bThreadRunning )
-	{
-		pthread_cond_broadcast( &m_pPlug_And_Play_Plugin->m_PnpCond );
-		Sleep(5);
-	}
-
-	if(m_PnpQueueThread_Id)
-		pthread_join(m_PnpQueueThread_Id, NULL);
 }
 
 void PnpQueue::Run()

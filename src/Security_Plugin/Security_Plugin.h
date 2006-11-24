@@ -97,6 +97,7 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
+	void PrepareToDelete();
 	class Datagrid_Plugin *m_pDatagrid_Plugin;
 	Database_pluto_main *m_pDatabase_pluto_main;
 	Database_pluto_security *m_pDatabase_pluto_security;

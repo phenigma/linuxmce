@@ -52,6 +52,22 @@ Plug_And_Play_Plugin::~Plug_And_Play_Plugin()
 	delete m_pDatabase_pluto_main;
 }
 
+
+void Plug_And_Play_Plugin::PrepareToDelete()
+{
+	Command_Impl::PrepareToDelete();
+	g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::PrepareToDelete waiting for thread");
+	while( m_pPnpQueue && m_pPnpQueue->m_bThreadRunning )
+	{
+		pthread_cond_broadcast( &m_PnpCond );
+		Sleep(50);
+	}
+
+	if(m_pPnpQueue->m_PnpQueueThread_Id)
+		pthread_join(m_pPnpQueue->m_PnpQueueThread_Id, NULL);
+	g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::PrepareToDelete done");
+}
+
 //<-dceag-getconfig-b->
 bool Plug_And_Play_Plugin::GetConfig()
 {

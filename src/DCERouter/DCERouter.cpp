@@ -247,6 +247,12 @@ Router::~Router()
     for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
 	{
 		class Command_Impl *pCommand_Impl = (*it).second;
+		pCommand_Impl->PrepareToDelete(); // Let it kill all it's threads before we delete it, in case some threads are still using other plugins
+	}
+
+	for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
+	{
+		class Command_Impl *pCommand_Impl = (*it).second;
 		delete pCommand_Impl;
 	}
 	m_mapPlugIn.clear();

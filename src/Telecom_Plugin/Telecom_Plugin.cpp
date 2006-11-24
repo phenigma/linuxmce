@@ -175,6 +175,12 @@ Telecom_Plugin::~Telecom_Plugin()
 	pthread_mutex_destroy(&m_TelecomMutex.mutex);
 }
 
+void Telecom_Plugin::PrepareToDelete()
+{
+	Command_Impl::PrepareToDelete();
+	pthread_join(m_displayThread,NULL);
+}
+
 //<-dceag-reg-b->
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
 bool Telecom_Plugin::Register()
@@ -224,14 +230,13 @@ bool Telecom_Plugin::Register()
 	RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::VoIP_Problem) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_VoIP_Problem_Detected_CONST);
 	RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::VoiceMailChanged) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Voice_Mail_Changed_CONST);
 	
-    if (pthread_create(&displayThread, NULL, startDisplayThread, (void *) this))
+    if (pthread_create(&m_displayThread, NULL, startDisplayThread, (void *) this))
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Display Thread");
         m_bQuit = 1;
         exit(1);
     }
-    pthread_detach(displayThread);
-	
+
 	return Connect(PK_DeviceTemplate_get());
 }
 

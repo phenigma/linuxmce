@@ -102,6 +102,12 @@ namespace DCE
 		virtual ~Command_Impl();
 
 		/**
+		 * @brief Plugins may contain pointers to each other.  If Plugin a is deleted while Plugin b still has a pointer to a
+		 * it can crash.  To prevent this, before deleting a device this function is called, which should stop all threads.
+		 */
+		virtual void PrepareToDelete();
+
+		/**
 		 * @brief  now all this used to do is done automatically; keeping it for now *just in case*
 		 * If your implementation can handle child devices, it MUST override and process
 		 * CreateCommand to instantiate your customized command processors.  

@@ -229,18 +229,25 @@ bool Security_Plugin::GetConfig()
 Security_Plugin::~Security_Plugin()
 //<-dceag-dest-e->
 {
+	delete m_pDatabase_pluto_main;
+	delete m_pDatabase_pluto_security;
+
+    pthread_mutexattr_destroy(&m_MutexAttr);
+}
+
+void Security_Plugin::PrepareToDelete()
+{
+	Command_Impl::PrepareToDelete();
 	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
 	delete m_pAlarmManager;
+	m_pAlarmManager = NULL;
+
 	if( m_mapNotification.size() )
 	{
 		for( map<pthread_t,Notification *>::iterator it=m_mapNotification.begin();it!=m_mapNotification.end();++it)
 			pthread_cancel(it->first);
 	}
 
-	delete m_pDatabase_pluto_main;
-	delete m_pDatabase_pluto_security;
-
-    pthread_mutexattr_destroy(&m_MutexAttr);
 }
 
 //<-dceag-reg-b->

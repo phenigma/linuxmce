@@ -65,6 +65,15 @@ VDRPlugin::~VDRPlugin()
 {
 	// Wait 10 seconds for the epg thread to quit
 	m_bQuit=true;
+
+	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
+	for(map<int,VDREPG::EPG *>::iterator it=m_mapEPG.begin();it!=m_mapEPG.end();++it)
+		delete it->second;
+}
+
+void VDRPlugin::PrepareToDelete()
+{
+	Command_Impl::PrepareToDelete();
 	for(int i=0;i<1000;++i)
 		if( !m_bEPGThreadRunning )
 			break;
@@ -76,11 +85,8 @@ VDRPlugin::~VDRPlugin()
 
 		if( m_bEPGThreadRunning )
 			g_pPlutoLogger->Write(LV_CRITICAL,"Could not kill EPG thread");
-
-		PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
-		for(map<int,VDREPG::EPG *>::iterator it=m_mapEPG.begin();it!=m_mapEPG.end();++it)
-			delete it->second;
 }
+
 
 void VDRPlugin::FetchEPG()
 {

@@ -24,7 +24,7 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 	// Private member variables
-	pthread_t displayThread;
+	pthread_t m_displayThread;
 	pthread_mutex_t mtx_err_messages;
 	pluto_pthread_mutex_t m_TelecomMutex;
     pthread_mutexattr_t m_MutexAttr;
@@ -76,6 +76,8 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
+
+	virtual void PrepareToDelete();
 
 	class Datagrid_Plugin *m_pDatagrid_Plugin;
 	class Orbiter_Plugin *m_pOrbiter_Plugin;

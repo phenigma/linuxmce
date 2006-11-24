@@ -409,8 +409,6 @@ Media_Plugin::~Media_Plugin()
 		}
 	}
 
-	delete m_pAlarmManager;
-	m_pAlarmManager = NULL;
 	delete m_pMediaAttributes;
 	m_pMediaAttributes = NULL;
 	delete m_pDatabase_pluto_main;
@@ -420,6 +418,14 @@ Media_Plugin::~Media_Plugin()
 
 	pthread_mutex_destroy(&m_MediaMutex.mutex);
     pthread_mutexattr_destroy(&m_MutexAttr);
+}
+
+void Media_Plugin::PrepareToDelete()
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+	Command_Impl::PrepareToDelete();
+	delete m_pAlarmManager;
+	m_pAlarmManager = NULL;
 }
 
 //<-dceag-reg-b->

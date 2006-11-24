@@ -187,8 +187,34 @@ Command_Impl::~Command_Impl()
 	if( m_pcRequestSocket && m_pcRequestSocket->m_pClientSocket && m_pcRequestSocket->m_pClientSocket->m_Socket != INVALID_SOCKET )
 		m_pcRequestSocket->m_pClientSocket->Close();
 	
+	PrepareToDelete();
+
+	if (m_pData)
+		delete m_pData;
+	if (this==m_pPrimaryDeviceCommand && m_pEvent)
+		delete m_pEvent;
+	if( m_pcRequestSocket )
+		delete m_pcRequestSocket;
+
+	m_pEvent=m_pcRequestSocket=NULL;
+
+	for(list<Message *>::iterator it = m_listMessageQueue.begin(); it != m_listMessageQueue.end(); it++)
+	{
+		delete *it;
+	}
+	m_listMessageQueue.clear();
+
+	g_pPlutoLogger->Write( LV_STATUS, "~Command_Impl finished" );
+
+	pthread_mutex_destroy(&m_listMessageQueueMutex.mutex);
+}
+
+void Command_Impl::PrepareToDelete()
+{
+	m_bQuit=true;
 	time_t tTime = time(NULL);
 
+	// Stop any threads
 	while( m_bMessageQueueThreadRunning )
 	{
 		pthread_cond_broadcast( &m_listMessageQueueCond );
@@ -201,29 +227,11 @@ Command_Impl::~Command_Impl()
 	}
 	g_pPlutoLogger->Write( LV_STATUS, "Message queue thread quit" );
 
-	if (m_pData)
-		delete m_pData;
-	if (this==m_pPrimaryDeviceCommand && m_pEvent)
-		delete m_pEvent;
-	if( m_pcRequestSocket )
-		delete m_pcRequestSocket;
-
-	m_pEvent=m_pcRequestSocket=NULL;
 	if( m_bKillSpawnedDevicesOnExit )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "About to call kill spawned devices" );
 		KillSpawnedDevices();
 	}
-
-	for(list<Message *>::iterator it = m_listMessageQueue.begin(); it != m_listMessageQueue.end(); it++)
-	{
-		delete *it;
-	}
-	m_listMessageQueue.clear();
-
-	g_pPlutoLogger->Write( LV_STATUS, "~Command_Impl finished" );
-
-	pthread_mutex_destroy(&m_listMessageQueueMutex.mutex);
 }
 
 Command_Impl *Command_Impl::CreateCommand( int iPK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent )

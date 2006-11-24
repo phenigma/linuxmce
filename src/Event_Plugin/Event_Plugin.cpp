@@ -189,9 +189,6 @@ Event_Plugin::~Event_Plugin()
 	delete m_pDatabase_pluto_main;
 	m_pDatabase_pluto_main = NULL;
 
-	delete m_pAlarmManager;
-	m_pAlarmManager = NULL;
-
 	for(map<int,ListEventHandler *>::iterator it = m_mapListEventHandler.begin(), end =
 		m_mapListEventHandler.end(); it != end; ++it)
 	{
@@ -208,6 +205,14 @@ Event_Plugin::~Event_Plugin()
 	for(map<int,Criteria *>::iterator itc = m_mapCriteria.begin(), endc = m_mapCriteria.end(); itc != endc; ++itc)
 		delete itc->second;
 	m_mapCriteria.clear();
+}
+
+void Event_Plugin::PrepareToDelete()
+{
+	PLUTO_SAFETY_LOCK(em,m_EventMutex);
+	Command_Impl::PrepareToDelete();
+	delete m_pAlarmManager;
+	m_pAlarmManager = NULL;
 }
 
 //<-dceag-reg-b->

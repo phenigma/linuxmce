@@ -252,7 +252,6 @@ Orbiter_Plugin::~Orbiter_Plugin()
 	delete m_pDatabase_pluto_media;
     delete m_pDatabase_pluto_security;
 	delete m_pRegenMonitor;
-	delete m_pAlarmManager;
 
 	for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
 		delete (*it).second;
@@ -264,6 +263,14 @@ Orbiter_Plugin::~Orbiter_Plugin()
     for(map<string, class AllowedConnections *>::iterator it=m_mapAllowedConnections.begin();it!=m_mapAllowedConnections.end();++it)
         delete (*it).second;
     ac.Release();
+}
+
+void Orbiter_Plugin::PrepareToDelete()
+{
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+	Command_Impl::PrepareToDelete();
+	delete m_pAlarmManager;
+	m_pAlarmManager = NULL;
 }
 
 /* Kind of a hack -- The goal was to allow the lighting, telecom, media, climate and security plug-ins to be
