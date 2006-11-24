@@ -620,6 +620,7 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 		switch(pRow_Package_Source->FK_RepositorySource_get())
 		{
 		case REPOSITORYSOURCE_Pluto_Debian_CONST:
+		case REPOSITORYSOURCE_Ubuntu_Pluto_Addons_CONST:
 			return CreateSource_PlutoDebian(pRow_Package_Source,listFileInfo);
 			break;
 		case REPOSITORYSOURCE_SourceForge_CVS_CONST:
