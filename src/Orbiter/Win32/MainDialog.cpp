@@ -187,14 +187,12 @@ DWORD WINAPI OrbiterThread( LPVOID lpParameter)
 	{
 		s = "Fatal error: " + s;
 		WriteStatusOutput(s.c_str());
-		PromptUserEx(s, NULL);
 		exit(1);
 	}
 	catch(const char *s)
 	{
 		string sErrorMessage = string("Fatal error: ") + s;
 		WriteStatusOutput(sErrorMessage.c_str());
-		PromptUserEx(sErrorMessage, NULL);
 		exit(1);
 	}
 

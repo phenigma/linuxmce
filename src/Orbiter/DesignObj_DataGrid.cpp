@@ -495,8 +495,14 @@ void DesignObj_DataGrid::m_pDataGridTable_Current_set(DataGridTable *pDataGridTa
 			DataGridCell *pCell = it->second;
 			if( pCell->m_pGraphic )
 			{
-g_pPlutoLogger->Write(LV_STATUS,"delete2 m_pCell->m_pGraphic %p:%p",pCell,pCell->m_pGraphic);
+			//NOTE: for orbiter opengl, the engine will take care of graphics/textures
+			//in this case, we don't want to delete the graphics files at this moment, because
+			//we won't be able to do a datagrid animation (we won't have the coverarts from prev. page of the datagrid)
+			//the engine will deallocate the memory for graphics of the datagrid when the animation stops
+#ifndef ORBITER_OPENGL
+				g_pPlutoLogger->Write(LV_STATUS,"delete2 m_pCell->m_pGraphic %p:%p",pCell,pCell->m_pGraphic);
 				delete pCell->m_pGraphic;
+#endif
 				pCell->m_pGraphic=NULL;
 			}
 		}

@@ -40,10 +40,16 @@ void MeshContainer::DisposeTextures()
 
 	for(int i = 0; i < NoTriangles; i++)
 		if(NULL != Triangles[i].Texture)
+		{
 			mapTextures[Triangles[i].Texture] = true;
+			Triangles[i].Texture = NULL;
+		}
 
 	for(map<OpenGLGraphic *, bool>::iterator it = mapTextures.begin(); it != mapTextures.end(); ++it)
-		delete it->first;
+	{
+		OpenGLGraphic *pGraphic = it->first;
+		delete pGraphic;
+	}
 	mapTextures.clear();
 }
 
@@ -91,6 +97,7 @@ MeshContainer* MeshContainer::Clone()
 
 	Result->Triangles = new MeshTriangle[NoTriangles];
 	Result->NoTriangles = NoTriangles;
+
 	for(int Counter = 0; Counter < NoTriangles; Counter++)
 	{
 		Result->Triangles[Counter] = Triangles[Counter];
@@ -111,6 +118,10 @@ MeshContainer* MeshContainer::Clone()
 		}
 		Result->Triangles[Counter].Texture = GraphicClone;
 	}
+
+	for(int Counter = 0; Counter < NoTriangles; Counter++)
+		if(NULL != Triangles[Counter].Texture)
+			Triangles[Counter].Texture->Texture = NULL;
 
 	Result->Blended_ = Blended_;
 

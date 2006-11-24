@@ -63,6 +63,8 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
     m_pRenderFrame = Engine->EndDatagridDrawing(DatagridFrameID);
 	Engine->BeginModifyGeometry();
 
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, Engine->GetSceneMutex());
+	
 	//stop all animations
 	Engine->GetDatagridAnimationManager()->StopAnimations();
 
@@ -96,6 +98,8 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 	{
 		Engine->AddMeshFrameToDesktop("", m_pRenderFrame);
 	}
+
+    sm.Release();
 
 	g_pPlutoLogger->Write(LV_STATUS, "abc DataGridRenderer_OpenGL::RenderObject ENDED %s", DatagridFrameID.c_str());
 }
