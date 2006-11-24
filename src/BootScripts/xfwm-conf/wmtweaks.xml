@@ -17,8 +17,8 @@
 	<option name="Xfwm/ResizeOpacity" type="int" value="100"/>
 	<option name="Xfwm/RestoreOnMove" type="int" value="1"/>
 	<option name="Xfwm/ScrollWorkspaces" type="int" value="1"/>
-	<option name="Xfwm/ShowFrameShadow" type="int" value="1"/>
-	<option name="Xfwm/ShowPopupShadow" type="int" value="1"/>
+	<option name="Xfwm/ShowFrameShadow" type="int" value="0"/>
+	<option name="Xfwm/ShowPopupShadow" type="int" value="0"/>
 	<option name="Xfwm/SnapResist" type="int" value="0"/>
 	<option name="Xfwm/ToggleWorkspaces" type="int" value="1"/>
 	<option name="Xfwm/UnredirectOverlays" type="int" value="0"/>
