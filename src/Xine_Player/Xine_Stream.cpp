@@ -286,7 +286,9 @@ bool Xine_Stream::CreateWindows()
 
 	//m_iCurrentScreen = XDefaultScreen( m_pXDisplay );
 	// creating it on last (invisible) screen
-	m_iCurrentScreen = XScreenCount( m_pXDisplay )-1;
+	int iScreens = XScreenCount( m_pXDisplay );
+	g_pPlutoLogger->Write( LV_WARNING, "Count of screens at this display: %i", iScreens);
+	m_iCurrentScreen = iScreens-1;
 	xpos = 10;
 	ypos = 20;
 	width = 720;
