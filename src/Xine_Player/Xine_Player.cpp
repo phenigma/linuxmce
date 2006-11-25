@@ -689,7 +689,7 @@ void Xine_Player::CMD_Stop(bool bEject,string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Play(string &sCMD_Result,Message *pMessage)
 //<-dceag-c139-e->
 {
-	CMD_Play_Media( "", 0, 1, "");
+	CMD_Play_Media( 0, 1, "", "");
 }
 
 //<-dceag-c140-b->
@@ -1058,7 +1058,7 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 		}
 	}
 	if (pStream)
-		CMD_Play_Media(pStream->m_sCurrentFile,0,iStreamID,sMediaPosition,sCMD_Result,pMessage);
+		CMD_Play_Media(0,iStreamID,sMediaPosition,pStream->m_sCurrentFile,sCMD_Result,pMessage);
 }
 
 //<-dceag-c548-b->
