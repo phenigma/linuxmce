@@ -235,20 +235,37 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 		(mediaURL.size()>5 && mediaURL.substr(0,5)=="/dev/" && pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST) )
 			mediaURL = "dvd://" + mediaURL;
 
-	bool bRequiresStreaming = pXineMediaStream->SingleEaAndSameDestSource()==false;
+	if( pXineMediaStream->SingleEaAndSameDestSource()==false )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
+			m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+			pMediaStream->m_iDequeMediaFile_Pos);
+		DCE::CMD_Start_Streaming cmd(m_dwPK_Device,
+								pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+								pXineMediaStream->m_iPK_MediaType,
+								pXineMediaStream->m_iStreamID_get( ),
+								pMediaFile && pMediaFile->m_sStartPosition.size() ? pMediaFile->m_sStartPosition : pXineMediaStream->m_sStartPosition,
+								pXineMediaStream->GetTargets(),
+								mediaURL);
 
-	g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
-		m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-		pMediaStream->m_iDequeMediaFile_Pos);
-	DCE::CMD_Play_Media cmd(m_dwPK_Device,
-							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-							pXineMediaStream->m_iPK_MediaType,
-							pXineMediaStream->m_iStreamID_get( ),
-							pMediaFile && pMediaFile->m_sStartPosition.size() ? pMediaFile->m_sStartPosition : pXineMediaStream->m_sStartPosition,
-							mediaURL);
+		// No handling of errors (it will in some cases deadlock the router.)
+		SendCommand(cmd);
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
+			m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+			pMediaStream->m_iDequeMediaFile_Pos);
+		DCE::CMD_Play_Media cmd(m_dwPK_Device,
+								pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+								pXineMediaStream->m_iPK_MediaType,
+								pXineMediaStream->m_iStreamID_get( ),
+								pMediaFile && pMediaFile->m_sStartPosition.size() ? pMediaFile->m_sStartPosition : pXineMediaStream->m_sStartPosition,
+								mediaURL);
 
-	// No handling of errors (it will in some cases deadlock the router.)
-	SendCommand(cmd);
+		// No handling of errors (it will in some cases deadlock the router.)
+		SendCommand(cmd);
+	}
 
 	if( pMediaFile && pXineMediaStream->m_iPK_Playlist==0 )  // If this is part of a playlist, rather than just a normal bookmark, the user will likely want it to keep resuming at the set position
 		pMediaFile->m_sStartPosition=""; // Be sure to reset the start position so next time we start at the beginning of the file if this is in a queue

@@ -208,7 +208,7 @@ public:
 	virtual void CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Mute(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string sStreamingTargets,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMediaPosition,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Stop_Streaming(int iStreamID,string sStreamingTargets,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,class Message *pMessage) {};
@@ -545,14 +545,13 @@ public:
 						int iPK_MediaType=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST].c_str());
 						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
 						string sMediaPosition=pMessage->m_mapParameters[COMMANDPARAMETER_MediaPosition_CONST];
-						string sStreamingTargets=pMessage->m_mapParameters[COMMANDPARAMETER_StreamingTargets_CONST];
 						string sMediaURL=pMessage->m_mapParameters[COMMANDPARAMETER_MediaURL_CONST];
-						CMD_Start_Streaming(iPK_MediaType,iStreamID,sMediaPosition.c_str(),sStreamingTargets.c_str(),&sMediaURL,sCMD_Result,pMessage);
+						string sStreamingTargets=pMessage->m_mapParameters[COMMANDPARAMETER_StreamingTargets_CONST];
+						CMD_Start_Streaming(iPK_MediaType,iStreamID,sMediaPosition.c_str(),sMediaURL.c_str(),sStreamingTargets.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-						pMessageOut->m_mapParameters[COMMANDPARAMETER_MediaURL_CONST]=sMediaURL;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
@@ -565,7 +564,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Start_Streaming(iPK_MediaType,iStreamID,sMediaPosition.c_str(),sStreamingTargets.c_str(),&sMediaURL,sCMD_Result,pMessage);
+								CMD_Start_Streaming(iPK_MediaType,iStreamID,sMediaPosition.c_str(),sMediaURL.c_str(),sStreamingTargets.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

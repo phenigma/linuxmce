@@ -1318,7 +1318,7 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 			g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard -- no app server to set port for %d",pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device);
 	}
 
-	DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,pDevice_MediaPlayer->m_dwPK_Device,"fifo://" + sDevice,0,pMediaStream->m_iStreamID_get(),"");
+	DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,pDevice_MediaPlayer->m_dwPK_Device,0,pMediaStream->m_iStreamID_get(),"","fifo://" + sDevice);
 	SendCommand(CMD_Play_Media);
 
 	// We're using a capture card.  Make it active
@@ -5222,10 +5222,10 @@ void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Messag
 //<-dceag-c831-e->
 {
 	m_sPK_Devices_Online="";
-	string sSQL = "SELECT PK_Device FROM Device "
+	string sSQL = "SELECT PK_Device,FK_DeviceCategory FROM Device "
 		"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
 		"LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_Online_CONST) " "
-		"WHERE FK_DeviceCategory IN (" TOSTRING(DEVICECATEGORY_Hard_Drives_CONST) "," TOSTRING(DEVICECATEGORY_Network_Storage_CONST) ") "
+		"WHERE FK_DeviceCategory IN (" TOSTRING(DEVICECATEGORY_Hard_Drives_CONST) "," TOSTRING(DEVICECATEGORY_Network_Storage_CONST) "," TOSTRING(DEVICECATEGORY_Disc_Drives_CONST) ") "
 		"AND (IK_DeviceData IS NULL OR IK_DeviceData<>0)";
 
 	PlutoSqlResult result;
@@ -5235,6 +5235,8 @@ void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Messag
 	{
 		while( (row = mysql_fetch_row( result.r )) )
 		{
+			if( atoi(row[1])==DEVICECATEGORY_Disc_Drives_CONST && m_pRouter->DeviceIsRegistered( atoi(row[0]) )==false )
+				continue; // This disc drive isn't online
 			if( m_sPK_Devices_Online.empty()==false )
 				m_sPK_Devices_Online+=",";
 			m_sPK_Devices_Online += row[0];

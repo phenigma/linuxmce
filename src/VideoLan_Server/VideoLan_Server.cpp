@@ -371,7 +371,7 @@ void VideoLan_Server::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Messa
 		/** @param #105 StreamingTargets */
 			/** Target destinations for streaming. Semantics dependent on the target device. */
 
-void VideoLan_Server::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,Message *pMessage)
+void VideoLan_Server::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string sStreamingTargets,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
 {
 	cout << "Need to implement command #249 - Start Streaming" << endl;

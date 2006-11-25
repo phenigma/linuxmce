@@ -59,4 +59,23 @@ namespace DCE {
 
 		return MediaStream::CanPlayMore();
 	}
+
+	string XineMediaStream::GetTargets()
+	{
+		string sTargets;
+		for(map<int, class EntertainArea *>::iterator it=m_mapEntertainArea.begin();it!=m_mapEntertainArea.end();++it)
+		{
+			EntertainArea *pEntertainArea = it->second;
+			ListMediaDevice *pListMediaDevice = pEntertainArea->m_mapMediaDeviceByTemplate_Find(DEVICETEMPLATE_Xine_Player_CONST);
+			if( pListMediaDevice && pListMediaDevice->size() )
+			{
+				MediaDevice *pMediaDevice = *(pListMediaDevice->begin());
+				if( sTargets.empty()==false )
+					sTargets += ",";
+				sTargets += StringUtils::itos( pMediaDevice->m_pDeviceData_Router->m_dwPK_Device );
+			}
+		}
+		return sTargets;
+	}
 };
+

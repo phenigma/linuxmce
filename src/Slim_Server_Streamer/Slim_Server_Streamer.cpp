@@ -159,7 +159,7 @@ void Slim_Server_Streamer::ReceivedUnknownCommand(string &sCMD_Result,Message *p
 		/** @param #105 StreamingTargets */
 			/** Target destinations for streaming. Semantics dependent on the target device. */
 
-void Slim_Server_Streamer::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,Message *pMessage)
+void Slim_Server_Streamer::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string sStreamingTargets,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
 {
 	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);

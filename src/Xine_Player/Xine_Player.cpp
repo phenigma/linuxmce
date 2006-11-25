@@ -1136,3 +1136,22 @@ string Xine_Player::Get_MD_AudioSettings()
 
 	return m_pData->m_pEvent_Impl->GetDeviceDataFromDatabase(PK_MD,DEVICEDATA_Audio_settings_CONST);
 }
+//<-dceag-c249-b->
+
+	/** @brief COMMAND: #249 - Start Streaming */
+	/** Like play media, but it means the destination device is not the same as the source */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
+		/** @param #41 StreamID */
+			/** Identifier for this streaming session. */
+		/** @param #42 MediaPosition */
+			/** Where to start playing from */
+		/** @param #59 MediaURL */
+			/** The url to use to play this stream. */
+		/** @param #105 StreamingTargets */
+			/** Target destinations for streaming. Semantics dependent on the target device. */
+
+void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string sStreamingTargets,string &sCMD_Result,Message *pMessage)
+//<-dceag-c249-e->
+{
+}

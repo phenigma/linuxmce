@@ -400,6 +400,23 @@ public:
 	virtual void CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #249 - Start Streaming */
+	/** Like play media, but it means the destination device is not the same as the source */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
+		/** @param #41 StreamID */
+			/** Identifier for this streaming session. */
+		/** @param #42 MediaPosition */
+			/** Where to start playing from */
+		/** @param #59 MediaURL */
+			/** The url to use to play this stream. */
+		/** @param #105 StreamingTargets */
+			/** Target destinations for streaming. Semantics dependent on the target device. */
+
+	virtual void CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string sStreamingTargets) { string sCMD_Result; CMD_Start_Streaming(iPK_MediaType,iStreamID,sMediaPosition.c_str(),sMediaURL.c_str(),sStreamingTargets.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string sStreamingTargets,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #259 - Report Playback Position */
 	/** This will report the playback position of the current stream. */
 		/** @param #9 Text */

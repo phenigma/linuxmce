@@ -42,6 +42,8 @@ namespace DCE
 			bool ShouldUseStreaming();
 
 			bool CanPlayMore();
+
+			string GetTargets();
 	};
 
 };

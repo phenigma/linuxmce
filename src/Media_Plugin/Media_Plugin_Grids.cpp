@@ -268,7 +268,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
         while( ( row=mysql_fetch_row( resultf.r ) ) )
 			sPK_File += row[0] + string(",");
 
-    if( (bJukebox || bLocalDisc) && ( resultd.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Disc + sSQL_Where ) ) )
+    if( (bJukebox || bLocalDisc) && ( resultd.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Disc + sSQL_Where + sOnline ) ) )
         while( ( row=mysql_fetch_row( resultd.r ) ) )
 			sPK_Disc += row[0] + string(",");
 
