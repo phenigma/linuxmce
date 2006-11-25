@@ -3092,6 +3092,9 @@ void General_Info_Plugin::CMD_Get_Unused_Serial_Ports(int iPK_Device,string *sVa
 void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iPK_Software,string &sCMD_Result,Message *pMessage)
 //<-dceag-c813-e->
 {
+	if( iPK_Device<1 )
+		iPK_Device = pMessage->m_dwPK_Device_From;
+
 	g_pPlutoLogger->Write(LV_STATUS,"Starting Add software");
 	string sPK_Device=StringUtils::itos(DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,iPK_Device));
 	g_pPlutoLogger->Write(LV_DEBUG,sPK_Device.c_str());
