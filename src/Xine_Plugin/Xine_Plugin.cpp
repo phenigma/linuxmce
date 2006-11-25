@@ -244,7 +244,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 							pXineMediaStream->m_iPK_MediaType,
 							pXineMediaStream->m_iStreamID_get( ),
-							pMediaFile && pMediaFile->m_sStartPosition.size() ? pMediaFile->m_sStartPosition : pXineMediaStream->m_sStartPosition
+							pMediaFile && pMediaFile->m_sStartPosition.size() ? pMediaFile->m_sStartPosition : pXineMediaStream->m_sStartPosition,
 							mediaURL);
 
 	// No handling of errors (it will in some cases deadlock the router.)
@@ -255,11 +255,6 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 
 	g_pPlutoLogger->Write(LV_WARNING, "play media command sent from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 
-	return true;
-}
-
-bool Xine_Plugin::StartMedia( XineMediaStream *pXineMediaStream,string &sError )
-{
 	return true;
 }
 
