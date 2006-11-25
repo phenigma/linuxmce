@@ -314,8 +314,8 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream,string &sError )
 		return false;
 	}
 	pVDRMediaStream->m_EventID = pEvent->m_EventID;
-	DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,PK_Device,"",pVDRMediaStream->m_iPK_MediaType,
-		pVDRMediaStream->m_iStreamID_get(), " CHAN:" + StringUtils::itos(pEvent->m_pChannel->m_ChannelID));
+	DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,PK_Device,pVDRMediaStream->m_iPK_MediaType,
+		pVDRMediaStream->m_iStreamID_get(), " CHAN:" + StringUtils::itos(pEvent->m_pChannel->m_ChannelID),"");
 
 	SendCommand(CMD_Play_Media);
 	return true;

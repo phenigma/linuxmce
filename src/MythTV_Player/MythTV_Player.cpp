@@ -813,16 +813,16 @@ void MythTV_Player::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #37 - Play Media */
 	/** This command will instruct a Media Player to play a media stream identified by a media descriptor created by the "Create Media" command. */
-		/** @param #13 Filename */
-			/** The file to play.  The format is specific on the media type and the media player. */
 		/** @param #29 PK_MediaType */
 			/** The type of media */
 		/** @param #41 StreamID */
 			/** The media that we need to play. */
 		/** @param #42 MediaPosition */
 			/** The position at which we need to start playing. */
+		/** @param #59 MediaURL */
+			/** The file to play, or other media id.  The format is specific on the media type and the media player. */
 
-void MythTV_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
+void MythTV_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
 #ifndef WIN32

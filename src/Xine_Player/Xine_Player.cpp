@@ -189,16 +189,16 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,strin
 
 	/** @brief COMMAND: #37 - Play Media */
 	/** This command will instruct a Media Player to play a media stream identified by a media descriptor created by the "Create Media" command. */
-		/** @param #13 Filename */
-			/** The file to play.  The format is specific on the media type and the media player. */
 		/** @param #29 PK_MediaType */
 			/** The type of media */
 		/** @param #41 StreamID */
 			/** The media that we need to play. */
 		/** @param #42 MediaPosition */
 			/** The position at which we need to start playing. */
+		/** @param #59 MediaURL */
+			/** The file to play, or other media id.  The format is specific on the media type and the media player. */
 
-void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
 	if( iStreamID==0 )
@@ -216,7 +216,7 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 
 	Xine_Stream *pStream =  ptrFactory->GetStream( 1, true, pMessage->m_dwPK_Device_From);
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s (%s) with corresponding stream %p.", sFilename.c_str(),sMediaPosition.c_str(),pStream);
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s (%s) with corresponding stream %p.", sMediaURL.c_str(),sMediaPosition.c_str(),pStream);
 	
 	if (pStream==NULL)
 	{
@@ -237,14 +237,14 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 		pStream->FireMenuOnScreen( 0 );
 	
 	
-	if( sFilename.size()==0 && sMediaPosition.size()==0)
+	if( sMediaURL.size()==0 && sMediaPosition.size()==0)
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() with empty filename and position");
 		pStream->changePlaybackSpeed(Xine_Stream::PLAYBACK_NORMAL);		
 		return;
 	}
 	
-	if( sFilename.size()==0 && pStream->m_bIsRendering)
+	if( sMediaURL.size()==0 && pStream->m_bIsRendering)
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() with empty filename");
 		pStream->changePlaybackSpeed(Xine_Stream::PLAYBACK_STOP);
@@ -252,17 +252,17 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 		return;
 	}
 	
-	pStream->m_sCurrentFile=sFilename;
+	pStream->m_sCurrentFile=sMediaURL;
 
 	
 	string sMediaInfo;
 	
-	if (pStream->OpenMedia( sFilename, sMediaInfo,  sMediaPosition))
+	if (pStream->OpenMedia( sMediaURL, sMediaInfo,  sMediaPosition))
 	{
 		if (pStream->playStream( sMediaPosition))
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
-			EVENT_Playback_Started(sFilename,iStreamID,sMediaInfo,pStream->m_sAudioInfo,pStream->m_sVideoInfo);
+			EVENT_Playback_Started(sMediaURL,iStreamID,sMediaInfo,pStream->m_sAudioInfo,pStream->m_sVideoInfo);
 		}
 		else
 		{
@@ -270,13 +270,13 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 			if (pStream->playStream( sMediaPosition))
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
-				EVENT_Playback_Started(sFilename,iStreamID,sMediaInfo,pStream->m_sAudioInfo,pStream->m_sVideoInfo);
+				EVENT_Playback_Started(sMediaURL,iStreamID,sMediaInfo,pStream->m_sAudioInfo,pStream->m_sVideoInfo);
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "Xine_Player::CMD_Play_Media() failed to play %s without position info",sFilename.c_str());
+				g_pPlutoLogger->Write(LV_CRITICAL, "Xine_Player::CMD_Play_Media() failed to play %s without position info",sMediaURL.c_str());
 				g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", iStreamID);
-				EVENT_Playback_Completed(sFilename,iStreamID,true);  // true = there was an error, don't keep repeating
+				EVENT_Playback_Completed(sMediaURL,iStreamID,true);  // true = there was an error, don't keep repeating
 			}
 		}
 	}
@@ -285,7 +285,7 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() Failed to open media");
 	}
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() ended for filename: %s with stream %p.", sFilename.c_str(), pStream);
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() ended for filename: %s with stream %p.", sMediaURL.c_str(), pStream);
 	
 }
 

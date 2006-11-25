@@ -130,9 +130,8 @@ VDR::~VDR()
 bool VDR::LaunchVDR()
 {
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,m_pDevice_Xine->m_dwPK_Device,
-			"xvdr://" + m_sXineIP + "#nocache;demux:mpeg_block",
 			MEDIATYPE_pluto_LiveTV_CONST,
-			1,""); // Stream ID and start position not important BURGIMAN
+			1,"","xvdr://" + m_sXineIP + "#nocache;demux:mpeg_block"); // Stream ID and start position not important BURGIMAN
 	return SendCommand(cmd);
 }
                                             
@@ -196,16 +195,16 @@ void VDR::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #37 - Play Media */
 	/** This command will instruct a Media Player to play a media stream identified by a media descriptor created by the "Create Media" command. */
-		/** @param #13 Filename */
-			/** The file to play.  The format is specific on the media type and the media player. */
 		/** @param #29 PK_MediaType */
 			/** The type of media */
 		/** @param #41 StreamID */
 			/** The media that we need to play. */
 		/** @param #42 MediaPosition */
 			/** The position at which we need to start playing. */
+		/** @param #59 MediaURL */
+			/** The file to play, or other media id.  The format is specific on the media type and the media player. */
 
-void VDR::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
+void VDR::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
         /** dirty hack for xine testing */

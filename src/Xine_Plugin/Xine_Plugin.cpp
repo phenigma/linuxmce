@@ -97,25 +97,6 @@ bool Xine_Plugin::Register()
 	vectPK_DeviceTemplate.push_back(DEVICETEMPLATE_Xine_Player_CONST);
 	m_pMedia_Plugin->RegisterMediaPlugin( this, this, vectPK_DeviceTemplate, true );
 
-	// In our device data we will give ourselves a higher priority and set multipledestinations=false since this 
-	// media handler doesn't do multipledestinations, but, if there's only 1 destination, this
-	// should be chosen over another handler that does streaming since this is more efficient
-	for(size_t s=0;s<m_vectMediaHandlerInfo.size();++s)
-		m_vectMediaHandlerInfo[s]->m_bMultipleDestinations=false;
-
-	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_Xine_Player_CONST);
-	if( pListDeviceData_Router )
-	{
-		for( ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it )
-		{
-			DeviceData_Router *pDevice_Xine_Player = *it;
-			DeviceData_Router *pDevice_PC = pDevice_Xine_Player->GetTopMostDevice();
-			vector<DeviceData_Router *> vectDevice_CaptureCards;
-			if( pDevice_PC )
-				pDevice_PC->FindChildrenWithinCategory(DEVICECATEGORY_Capture_Cards_CONST,vectDevice_CaptureCards);
-		}
-	}
-
 	RegisterMsgInterceptor(( MessageInterceptorFn )( &Xine_Plugin::MenuOnScreen ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Menu_Onscreen_CONST );
 
 	return Connect(PK_DeviceTemplate_get());
@@ -225,7 +206,7 @@ XineMediaStream *Xine_Plugin::ConvertToXineMediaStream(MediaStream *pMediaStream
 	return static_cast<XineMediaStream*>(pMediaStream);
 }
 
-bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream,string &sError )
+bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
@@ -235,9 +216,6 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	XineMediaStream *pXineMediaStream = NULL;
 	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StartMedia(): ")) == NULL )
 		return false;
-
-	if ( pXineMediaStream->ShouldUseStreaming() )
-		return false; // We don't do streaming
 
 	string sFileToPlay = pXineMediaStream->GetFilenameToPlay("Empty file name");
 
@@ -257,15 +235,17 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 		(mediaURL.size()>5 && mediaURL.substr(0,5)=="/dev/" && pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST) )
 			mediaURL = "dvd://" + mediaURL;
 
+	bool bRequiresStreaming = pXineMediaStream->SingleEaAndSameDestSource()==false;
+
 	g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
 		m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 		pMediaStream->m_iDequeMediaFile_Pos);
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,
 							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-							mediaURL,
 							pXineMediaStream->m_iPK_MediaType,
 							pXineMediaStream->m_iStreamID_get( ),
-							pMediaFile && pMediaFile->m_sStartPosition.size() ? pMediaFile->m_sStartPosition : pXineMediaStream->m_sStartPosition);
+							pMediaFile && pMediaFile->m_sStartPosition.size() ? pMediaFile->m_sStartPosition : pXineMediaStream->m_sStartPosition
+							mediaURL);
 
 	// No handling of errors (it will in some cases deadlock the router.)
 	SendCommand(cmd);
@@ -275,15 +255,11 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 
 	g_pPlutoLogger->Write(LV_WARNING, "play media command sent from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 
-// 	if( !SendCommand( cmd, &Response ) )
-// 		g_pPlutoLogger->Write( LV_CRITICAL, "The player %d (%s) didn't respond to play media command!",
-// 					pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-// 					pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_sDescription.c_str());
-// 	else
-// 		g_pPlutoLogger->Write(LV_STATUS, "The sources device responded to play media command!" );
+	return true;
+}
 
-	// If there are more than 1 song in the queue, we likely added to an existing queue, so we want
-	// to refresh=true so any orbiters will re-render the play list
+bool Xine_Plugin::StartMedia( XineMediaStream *pXineMediaStream,string &sError )
+{
 	return true;
 }
 

@@ -417,10 +417,10 @@ bool VideoLan_PlugIn::StartStreaming(VideoLanMediaStream *pMediaStream)
 
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,
 							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-							mediaURL,
 							pMediaStream->m_iPK_MediaType,
 							pMediaStream->m_iStreamID_get( ),
-							pMediaFile ? pMediaFile->m_sStartPosition : "");
+							pMediaFile ? pMediaFile->m_sStartPosition : "",
+							mediaURL);
 
 	// No handling of errors (it will in some cases deadlock the router.)
 	SendCommand(cmd);

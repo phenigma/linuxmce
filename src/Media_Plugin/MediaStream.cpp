@@ -509,3 +509,15 @@ int MediaStream::GetRemoteControlScreen(int PK_Orbiter)
 	else
 		return pRemoteControlSet->m_iPK_Screen_Remote;
 }
+
+bool MediaStream::SingleEaAndSameDestSource()
+{
+	if( m_mapEntertainArea.size()!=1 )
+		return false;  // It's playing in more than 1 place.  
+
+	EntertainArea *pEntertainArea = m_mapEntertainArea.begin()->second;
+	if( m_pMediaDevice_Source->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea ) == m_pMediaDevice_Source->m_mapEntertainArea.end() )
+		return false;  // The place it's playing isn't the same as the source. 
+
+	return true;
+}

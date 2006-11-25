@@ -445,7 +445,9 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 			{
 				// The Orbiter wants us to attach an action to files too
 				DCE::CMD_MH_Play_Media_Cat cmd(PK_Controller, DEVICECATEGORY_Media_Plugins_CONST, false, BL_SameHouse,
-					0 /* any device */,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0 /* whatever media type the file is */,0 /* any master device */,"" /* current entertain area */, false /* resume */, 0 /* repeat */);
+					0 /* any device */,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,
+					0 /* whatever media type the file is */,0 /* any master device */,"" /* current entertain area */,
+					false /* resume */, 0 /* repeat */);
 				pCell->m_pMessage = new Message(cmd.m_pMessage);
 				pCellPicture->m_pMessage = new Message(cmd.m_pMessage);
 				delete cmd.m_pMessage;

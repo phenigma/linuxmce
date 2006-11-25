@@ -326,10 +326,13 @@ Message::Message( string sMessageInStringFormat )
 	{
 		// There are more messages
 		pArgs = StringUtils::ConvertStringToArgs(sMessageInStringFormat.substr(iPosNextCumulative),iNumArgs,&iPosNext);
-		iPosNextCumulative+=iPosNext;
-		Message *pMessage = new Message();
-		pMessage->BuildFromArgs( iNumArgs, pArgs );
-		m_vectExtraMessages.push_back(pMessage);
+		if( iNumArgs )
+		{
+			iPosNextCumulative+=iPosNext;
+			Message *pMessage = new Message();
+			pMessage->BuildFromArgs( iNumArgs, pArgs );
+			m_vectExtraMessages.push_back(pMessage);
+		}
 	}
 }
 

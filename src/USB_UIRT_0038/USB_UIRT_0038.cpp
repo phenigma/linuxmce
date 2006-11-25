@@ -751,7 +751,7 @@ void USB_UIRT_0038::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *
 //<-dceag-c687-e->
 {
 	m_cCurrentScreen=(char) iValue;
-	g_pPlutoLogger->Write(LV_STATUS,"Screen type now %c",m_cCurrentScreen);
+	g_pPlutoLogger->Write(LV_STATUS,"USB_UIRT_0038::CMD_Set_Screen_Type Screen type now %c",m_cCurrentScreen);
 }
 
 

@@ -904,7 +904,7 @@ g_PlutoProfiler->DumpResults();
 #ifdef ENABLE_MOUSE_BEHAVIOR
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS, "Orbiter::NeedToChangeScreens calling CMD_Show_Mouse_Pointer mb %p vis %d",
-				m_pMouseBehavior, (int) m_pMouseBehavior->m_bMouseVisible);
+				m_pMouseBehavior, m_pMouseBehavior ? (int) m_pMouseBehavior->m_bMouseVisible : 0);
 #endif
 			if( NULL != m_pMouseBehavior && m_pMouseBehavior->m_bMouseVisible )  // If m_bMouseVisible is true, it should be visible since screen saver doesn't set this, and that way if the screen saver hid it we'll restore it
 				CMD_Show_Mouse_Pointer("1");
@@ -930,7 +930,7 @@ g_PlutoProfiler->DumpResults();
 			{
 				m_listScreenHistory.push_back( m_pScreenHistory_Current );
 #ifdef DEBUG
-				g_pPlutoLogger->Write(LV_WARNING, "m_listScreenHistory Adding to screens history list screen %d size %d", m_pScreenHistory_Current->PK_Screen(),(int) m_listScreenHistory.size());
+				g_pPlutoLogger->Write(LV_WARNING, "Orbiter::NeedToChangeScreens m_listScreenHistory Adding to screens history list screen %d size %d", m_pScreenHistory_Current->PK_Screen(),(int) m_listScreenHistory.size());
 #endif
 			}
 
@@ -959,7 +959,7 @@ g_PlutoProfiler->DumpResults();
 		m_tTimeoutTime = time(NULL) + m_iTimeoutBlank;
 
 #ifdef DEBUG
-		g_pPlutoLogger->Write( LV_STATUS, "About to call maint for display off with timeout: %d ms", m_iTimeoutBlank * 1000);
+		g_pPlutoLogger->Write( LV_STATUS, "Orbiter::NeedToChangeScreens About to call maint for display off with timeout: %d ms", m_iTimeoutBlank * 1000);
 #endif
 
 		CallMaintenanceInMiliseconds( m_iTimeoutBlank * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
@@ -967,7 +967,7 @@ g_PlutoProfiler->DumpResults();
 	else if( !(m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu) && !m_bBypassScreenSaver && m_iTimeoutScreenSaver )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write( LV_STATUS, "About to call maint for screen saver with timeout: %d ms", m_iTimeoutScreenSaver * 1000);
+		g_pPlutoLogger->Write( LV_STATUS, "Orbiter::NeedToChangeScreens About to call maint for screen saver with timeout: %d ms", m_iTimeoutScreenSaver * 1000);
 #endif
 		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
 	}
@@ -975,19 +975,19 @@ g_PlutoProfiler->DumpResults();
 	m_pScreenHistory_Current=pScreenHistory;
 	m_pScreenHistory_Current->GetObj()->m_bActive=true;
 #ifdef DEBUG
-g_pPlutoLogger->Write( LV_STATUS, "need to change timeout %d",m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds);
+g_pPlutoLogger->Write( LV_STATUS, "Orbiter::NeedToChangeScreens need to change timeout %d",m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds);
 #endif
 
 	if( m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds )
 	{
 #ifdef DEBUG
-g_pPlutoLogger->Write( LV_STATUS, "calling timeout");
+g_pPlutoLogger->Write( LV_STATUS, "Orbiter::NeedToChangeScreens calling timeout");
 #endif
 		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->GetObj(), pe_ALL );
 	}
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_STATUS, "Changing screen to %s ir %d type %c",
+	g_pPlutoLogger->Write( LV_STATUS, "Orbiter::NeedToChangeScreens Changing screen to %s ir %d type %c",
 		m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ), m_dwPK_Device_LocalOsdIRReceiver, m_pScreenHistory_Current->GetObj()->m_cScreenType);
 #endif
 

@@ -285,8 +285,8 @@ void SMPTE_Fountain::SynchronizationThread()
 				m_smpteXineSongStop = -1;
 				m_smpteStartXineTime = 0;
 				g_pPlutoLogger->Write(LV_STATUS, "Sending Xine start command");
-				DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,m_pDevice_Xine->m_dwPK_Device,m_pStartMediaInfo->m_sFilename,
-					m_pStartMediaInfo->m_iPK_MediaType,m_pStartMediaInfo->m_iStreamID,m_pStartMediaInfo->m_sMediaPosition);
+				DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,m_pDevice_Xine->m_dwPK_Device,
+					m_pStartMediaInfo->m_iPK_MediaType,m_pStartMediaInfo->m_iStreamID,m_pStartMediaInfo->m_sMediaPosition,m_pStartMediaInfo->m_sFilename);
 				CMD_Play_Media.m_pMessage->m_mapParameters[COMMANDPARAMETER_OriginatorNumber_CONST] = StringUtils::itos(m_dwPK_Device);
 				SendCommand(CMD_Play_Media);
 				g_pPlutoLogger->Write(LV_STATUS, "Finished sending Xine start command");

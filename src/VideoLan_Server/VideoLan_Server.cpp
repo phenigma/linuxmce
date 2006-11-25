@@ -135,22 +135,22 @@ COMMANDS TO IMPLEMENT
 
 	/** @brief COMMAND: #37 - Play Media */
 	/** This command will instruct a Media Player to play a media stream identified by a media descriptor created by the "Create Media" command. */
-		/** @param #13 Filename */
-			/** The file to play.  The format is specific on the media type and the media player. */
 		/** @param #29 PK_MediaType */
 			/** The type of media */
 		/** @param #41 StreamID */
 			/** The media that we need to play. */
 		/** @param #42 MediaPosition */
 			/** The position at which we need to start playing. */
+		/** @param #59 MediaURL */
+			/** The file to play, or other media id.  The format is specific on the media type and the media player. */
 
-void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
+void VideoLan_Server::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
 	PLUTO_SAFETY_LOCK(vlc,m_VideoLanMutex);
 
 	cout << "Need to implement command #37 - Play Media" << endl;
-	cout << "Parm #13 - Filename=" << sFilename << endl;
+	cout << "Parm #13 - Filename=" << sMediaURL << endl;
 	cout << "Parm #29 - PK_MediaType=" << iPK_MediaType << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 
@@ -189,8 +189,8 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 		return;
 	}
 
-	pVideoLanServerInstance->m_sFilename = sFilename;
-	pVideoLanServerInstance->m_sCommandLine = "--intf\trc\t" + sFilename + 
+	pVideoLanServerInstance->m_sFilename = sMediaURL;
+	pVideoLanServerInstance->m_sCommandLine = "--intf\trc\t" + sMediaURL + 
 		"\t--sout\t" + GetVlanStream(vectIPs,iStreamID);
 	pVideoLanServerInstance->m_sSpawnName = "vlc_s_" + StringUtils::itos(iStreamID);
 
@@ -204,7 +204,7 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 	g_pPlutoLogger->Write(LV_STATUS,"Found %d Devices",(int) vectDevices.size());
 	for(size_t s=0;s<vectDevices.size();++s)
 	{
-		DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,vectDevices[s],"udp:",iPK_MediaType,iStreamID,"");
+		DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,vectDevices[s],iPK_MediaType,iStreamID,"","udp:");
 		SendCommand(CMD_Play_Media);
 	}
 
@@ -360,14 +360,18 @@ void VideoLan_Server::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Messa
 
 	/** @brief COMMAND: #249 - Start Streaming */
 	/** Starts streaming */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
 		/** @param #41 StreamID */
 			/** Identifier for this streaming session. */
+		/** @param #42 MediaPosition */
+			/** Where to start playing from */
 		/** @param #59 MediaURL */
 			/** The url to use to play this stream. */
 		/** @param #105 StreamingTargets */
 			/** Target destinations for streaming. Semantics dependent on the target device. */
 
-void VideoLan_Server::CMD_Start_Streaming(int iStreamID,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,Message *pMessage)
+void VideoLan_Server::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
 {
 	cout << "Need to implement command #249 - Start Streaming" << endl;

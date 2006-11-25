@@ -148,14 +148,18 @@ void Slim_Server_Streamer::ReceivedUnknownCommand(string &sCMD_Result,Message *p
 
 	/** @brief COMMAND: #249 - Start Streaming */
 	/** Starts streaming */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
 		/** @param #41 StreamID */
 			/** Identifier for this streaming session. */
+		/** @param #42 MediaPosition */
+			/** Where to start playing from */
 		/** @param #59 MediaURL */
 			/** The url to use to play this stream. */
 		/** @param #105 StreamingTargets */
 			/** Target destinations for streaming. Semantics dependent on the target device. */
 
-void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,Message *pMessage)
+void Slim_Server_Streamer::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
 {
 	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
@@ -594,16 +598,16 @@ void Slim_Server_Streamer::SetStateForStream(int iStreamID, StreamStateType newS
 
 	/** @brief COMMAND: #37 - Play Media */
 	/** This command will instruct a Media Player to play a media stream identified by a media descriptor created by the "Create Media" command. */
-		/** @param #13 Filename */
-			/** The file to play.  The format is specific on the media type and the media player. */
 		/** @param #29 PK_MediaType */
 			/** The type of media */
 		/** @param #41 StreamID */
 			/** The media that we need to play. */
 		/** @param #42 MediaPosition */
 			/** The position at which we need to start playing. */
+		/** @param #59 MediaURL */
+			/** The file to play, or other media id.  The format is specific on the media type and the media player. */
 
-void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
+void Slim_Server_Streamer::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
 	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
@@ -616,7 +620,7 @@ void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int
 	}
 
 	SetStateForStream(iStreamID, STATE_CHANGING);
-	SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(&sFilename,"//", "/")));
+	SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(&sMediaURL,"//", "/")));
 
 	string strResult = SendReceiveCommand(sControlledPlayerMac + " mode ?", false);
 	if( strResult == sControlledPlayerMac + " mode stop" || strResult == sControlledPlayerMac + " mode %3F" )
@@ -625,14 +629,14 @@ void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int
 		// but it works on subsequent plays.  It seems to be a bug in slimserver, but since I don't know this code well,
 		// just put a hack in here for the moment by making it try again
 		g_pPlutoLogger->Write(LV_WARNING,"Squeeze box reports it's state is stopped right after a new start.  Try again");
-		SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(&sFilename,"//", "/")));
+		SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(&sMediaURL,"//", "/")));
 		strResult = SendReceiveCommand(sControlledPlayerMac + " mode ?", false);
 		if( strResult == sControlledPlayerMac + " mode stop" || strResult == sControlledPlayerMac + " mode %3F" )
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"A second time!  Try again");
 			SendReceiveCommand(sControlledPlayerMac + " playlist clear");
 			SendReceiveCommand(sControlledPlayerMac + " stop");
-			SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(&sFilename,"//", "/")));
+			SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(&sMediaURL,"//", "/")));
 		}
 	}
 

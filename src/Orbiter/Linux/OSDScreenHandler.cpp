@@ -1321,7 +1321,7 @@ bool OSDScreenHandler::VideoWizardDone_OnScreen(CallBackData *pData)
 	if( !m_bAlreadyPlayFinalGreeting )
 	{
 		m_bAlreadyPlayFinalGreeting=true;
-		DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalMediaPlayer,"/home/videowiz/final.mpg",0,0,"");
+		DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalMediaPlayer,0,0,"","/home/videowiz/final.mpg");
 		m_pOrbiter->SendCommand(CMD_Play_Media);
 	}
 	return false;
@@ -2017,7 +2017,7 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 	if(DESIGNOBJ_butFinal_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 	{
 		DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->TranslateVirtualDevice(DEVICETEMPLATE_VirtDev_Local_Media_Player_CONST),
-                                           "/home/videowiz/final.mpg",0,0,"");
+                                           0,0,"","/home/videowiz/final.mpg");
 		m_pOrbiter->SendCommand(CMD_Play_Media);
 	}
 

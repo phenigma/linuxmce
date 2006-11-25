@@ -196,14 +196,14 @@ public:
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Pause_Media(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Restart_Media(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,bool bReport,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Start_Streaming(int iStreamID,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMediaPosition,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Stop_Streaming(int iStreamID,string sStreamingTargets,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,class Message *pMessage) {};
@@ -270,11 +270,11 @@ public:
 				case COMMAND_Play_Media_CONST:
 					{
 						string sCMD_Result="OK";
-						string sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
 						int iPK_MediaType=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST].c_str());
 						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
 						string sMediaPosition=pMessage->m_mapParameters[COMMANDPARAMETER_MediaPosition_CONST];
-						CMD_Play_Media(sFilename.c_str(),iPK_MediaType,iStreamID,sMediaPosition.c_str(),sCMD_Result,pMessage);
+						string sMediaURL=pMessage->m_mapParameters[COMMANDPARAMETER_MediaURL_CONST];
+						CMD_Play_Media(iPK_MediaType,iStreamID,sMediaPosition.c_str(),sMediaURL.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -291,7 +291,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Play_Media(sFilename.c_str(),iPK_MediaType,iStreamID,sMediaPosition.c_str(),sCMD_Result,pMessage);
+								CMD_Play_Media(iPK_MediaType,iStreamID,sMediaPosition.c_str(),sMediaURL.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -460,10 +460,12 @@ public:
 				case COMMAND_Start_Streaming_CONST:
 					{
 						string sCMD_Result="OK";
+						int iPK_MediaType=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST].c_str());
 						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
+						string sMediaPosition=pMessage->m_mapParameters[COMMANDPARAMETER_MediaPosition_CONST];
 						string sStreamingTargets=pMessage->m_mapParameters[COMMANDPARAMETER_StreamingTargets_CONST];
 						string sMediaURL=pMessage->m_mapParameters[COMMANDPARAMETER_MediaURL_CONST];
-						CMD_Start_Streaming(iStreamID,sStreamingTargets.c_str(),&sMediaURL,sCMD_Result,pMessage);
+						CMD_Start_Streaming(iPK_MediaType,iStreamID,sMediaPosition.c_str(),sStreamingTargets.c_str(),&sMediaURL,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -481,7 +483,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Start_Streaming(iStreamID,sStreamingTargets.c_str(),&sMediaURL,sCMD_Result,pMessage);
+								CMD_Start_Streaming(iPK_MediaType,iStreamID,sMediaPosition.c_str(),sStreamingTargets.c_str(),&sMediaURL,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

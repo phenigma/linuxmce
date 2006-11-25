@@ -197,6 +197,10 @@ namespace DCE
 		*/
 		string GetEntAreasWithout(EntertainArea *pEntertainArea);
 		string GetEntAreasWithout(map<int,class EntertainArea *> *p_mapEntertainArea);
+
+		// Returns true if this is a vanilla stream where it's only playing in 1 ent area, and the source and destination
+		// devices are the same.  Otherwise it's going to require some sort of streaming
+		bool SingleEaAndSameDestSource(); 
 	};
 
     typedef map<int,MediaStream *> MapMediaStream;

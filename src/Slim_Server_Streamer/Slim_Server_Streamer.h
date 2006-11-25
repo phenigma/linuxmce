@@ -111,17 +111,17 @@ public:
 
 	/** @brief COMMAND: #37 - Play Media */
 	/** This command will instruct a Media Player to play a media stream identified by a media descriptor created by the "Create Media" command. */
-		/** @param #13 Filename */
-			/** The file to play.  The format is specific on the media type and the media player. */
 		/** @param #29 PK_MediaType */
 			/** The type of media */
 		/** @param #41 StreamID */
 			/** The media that we need to play. */
 		/** @param #42 MediaPosition */
 			/** The position at which we need to start playing. */
+		/** @param #59 MediaURL */
+			/** The file to play, or other media id.  The format is specific on the media type and the media player. */
 
-	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition) { string sCMD_Result; CMD_Play_Media(sFilename.c_str(),iPK_MediaType,iStreamID,sMediaPosition.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL) { string sCMD_Result; CMD_Play_Media(iPK_MediaType,iStreamID,sMediaPosition.c_str(),sMediaURL.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #38 - Stop Media */
@@ -213,15 +213,19 @@ public:
 
 	/** @brief COMMAND: #249 - Start Streaming */
 	/** Starts streaming */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
 		/** @param #41 StreamID */
 			/** Identifier for this streaming session. */
+		/** @param #42 MediaPosition */
+			/** Where to start playing from */
 		/** @param #59 MediaURL */
 			/** The url to use to play this stream. */
 		/** @param #105 StreamingTargets */
 			/** Target destinations for streaming. Semantics dependent on the target device. */
 
-	virtual void CMD_Start_Streaming(int iStreamID,string sStreamingTargets,string *sMediaURL) { string sCMD_Result; CMD_Start_Streaming(iStreamID,sStreamingTargets.c_str(),sMediaURL,sCMD_Result,NULL);};
-	virtual void CMD_Start_Streaming(int iStreamID,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sStreamingTargets,string *sMediaURL) { string sCMD_Result; CMD_Start_Streaming(iPK_MediaType,iStreamID,sMediaPosition.c_str(),sStreamingTargets.c_str(),sMediaURL,sCMD_Result,NULL);};
+	virtual void CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #259 - Report Playback Position */
@@ -266,7 +270,6 @@ public:
 
 	virtual void CMD_Menu(string sText) { string sCMD_Result; CMD_Menu(sText.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Menu(string sText,string &sCMD_Result,Message *pMessage);
-
 
 //<-dceag-h-e->
     };
