@@ -54,6 +54,7 @@ public:
 	DesignObj_Generator(class OrbiterGenerator *pOrbiterGenerator,class Row_DesignObj * drDesignObj,class PlutoRectangle rPosition,class DesignObj_Generator *ocoParent,bool bAddToGenerated,bool bDontShare);
 	~DesignObj_Generator();
 
+	void Process();
 	int LookForGoto(DesignObjCommandList *alCommands);
 	void HandleGoto(int PK_DesignObj_Goto);
 	static void PickVariation(OrbiterGenerator *pGenerator,class Row_DesignObj *drDesignObj,class Row_DesignObjVariation **drDesignObjVariation,class Row_DesignObjVariation **drStandardVariation, vector<class Row_DesignObjVariation *> *alDesignObjVariations);

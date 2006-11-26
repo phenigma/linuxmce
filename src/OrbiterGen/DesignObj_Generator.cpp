@@ -140,9 +140,6 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==3558 ) // ||  m_pRow_DesignObj->PK_Des
     int k=2; 
 }
 
-    // Put this at the top since we've got a goto below that may skip its initializatoin
-    vector<Row_DesignObjVariation_DesignObj *> alArrays;
-
     // Pick the standard variation, the specialized variation we will use for parameters, and all matching variations for including child objects
     PickVariation(m_pOrbiterGenerator,m_pRow_DesignObj,&m_pRow_DesignObjVariation,&m_pRow_DesignObjVariation_Standard,&m_alDesignObjVariations);
 
@@ -291,7 +288,12 @@ int k=2;
         m_iPK_CommandGroup_Touch_Extra = m_pOrbiterGenerator->m_iPK_CommandGroup;
         m_pOrbiterGenerator->m_iPK_CommandGroup=0;  // reset back to 0 so it doesn't affect the children
     }
-    for(int GraphicType=1;GraphicType<=4;++GraphicType)
+	Process();
+}
+	
+void DesignObj_Generator::Process()
+{
+	for(int GraphicType=1;GraphicType<=4;++GraphicType)
     {
         // Handle the background image
         string o;
@@ -773,9 +775,9 @@ int k=2;
 
 	//assign here the effects for each effect event for an object, based on Generator's mapping between
 	//effect type and effect for the right skin
-	m_FK_Effect_Selected_WithChange = pGenerator->m_mapEffects[m_pRow_DesignObjVariation->FK_EffectType_Selected_WithChange_get()]; 
-	m_FK_Effect_Selected_NoChange = pGenerator->m_mapEffects[m_pRow_DesignObjVariation->FK_EffectType_Selected_NoChange_get()]; 
-	m_FK_Effect_Highlighted = pGenerator->m_mapEffects[m_pRow_DesignObjVariation->FK_EffectType_Highlighted_get()]; 
+	m_FK_Effect_Selected_WithChange = m_pOrbiterGenerator->m_mapEffects[m_pRow_DesignObjVariation->FK_EffectType_Selected_WithChange_get()]; 
+	m_FK_Effect_Selected_NoChange = m_pOrbiterGenerator->m_mapEffects[m_pRow_DesignObjVariation->FK_EffectType_Selected_NoChange_get()]; 
+	m_FK_Effect_Highlighted = m_pOrbiterGenerator->m_mapEffects[m_pRow_DesignObjVariation->FK_EffectType_Highlighted_get()]; 
 
     if( m_iPK_CommandGroup_Touch_Extra!=0 )
     {
@@ -952,6 +954,9 @@ int k=2;
 int k=2;
     }
 
+	// Put this at the top since we've got a goto below that may skip its initializatoin
+    vector<Row_DesignObjVariation_DesignObj *> alArrays;
+
     // Add all child objects, except for arrays, which we just store in alArrays
     for(size_t s=0;s<m_alDesignObjVariations.size();++s)
     {
@@ -968,7 +973,7 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==4891 )
 {
     int k=2;
 }
-            drDesignObj = drOVO->FK_DesignObj_Child_getrow();
+            Row_DesignObj *drDesignObj = drOVO->FK_DesignObj_Child_getrow();
 if( drDesignObj->PK_DesignObj_get()==4891 )
 {
 int k=2;
