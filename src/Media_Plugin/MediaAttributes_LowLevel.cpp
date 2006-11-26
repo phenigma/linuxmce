@@ -195,23 +195,6 @@ string MediaAttributes_LowLevel::GetFilePathFromFileID( int PK_File )
     return "";
 }
 
-string MediaAttributes_LowLevel::GetMRLFromDiscID( int PK_Disc )
-{
-    string SQL = "SELECT EK_Device FROM Disc WHERE PK_Disc=" + StringUtils::itos( PK_Disc );
-    PlutoSqlResult result;
-    MYSQL_ROW row;
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
-    {
-        int PK_Device = atoi(row[0]);
-		string sDrive = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,PK_Device,DEVICEDATA_Drive_CONST);
-		if( sDrive.empty() )
-			sDrive = "/dev/cdrom";
-		return sDrive + "\t(" + row[0] + ")\t";  // This \t(xxx)\t is used to know which drive it is.  See xine plugin
-    }
-
-    return "/dev/cdrom";
-}
-
 int MediaAttributes_LowLevel::GetFileIDFromAttributeID( int PK_Attribute )
 {
     string Result;

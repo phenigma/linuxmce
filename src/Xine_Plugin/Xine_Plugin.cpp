@@ -226,7 +226,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 
 	if( pMediaFile && pMediaFile->m_dwPK_Disk )
 	{
-		sFileToPlay = m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetMRLFromDiscID(pMediaFile->m_dwPK_Disk);
+		sFileToPlay = m_pMedia_Plugin->GetMRLFromDiscID(pMediaFile->m_dwPK_Disk);
 		pXineMediaStream->m_dwPK_Disc = pMediaFile->m_dwPK_Disk;
 	}
 	else 

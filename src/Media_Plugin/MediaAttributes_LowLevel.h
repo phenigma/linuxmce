@@ -106,7 +106,6 @@ public:
 
     // Utility functions
     string GetFilePathFromFileID(int PK_File);
-	string GetMRLFromDiscID( int PK_Disc );
     string GetFilePathsFromAttributeID(int PK_Atribute);
     int GetFileIDFromFilePath(string File);
     string GetAnyPictureUnderDirectory(string File,int *PK_Picture,int MaxDepthToSearch);

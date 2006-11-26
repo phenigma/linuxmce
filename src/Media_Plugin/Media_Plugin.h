@@ -453,7 +453,7 @@ public:
 
 
 	int GetStorageDeviceWithMostFreeSpace(string& sFullDescription, string& sMountedPath);
-
+	string GetMRLFromDiscID( int PK_Disc );
 
 	/*
 	*	Since this class is so big, all the datagrid function have been moved to Media_Plugin_Grids.cpp
