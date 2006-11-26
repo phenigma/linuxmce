@@ -268,7 +268,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
         while( ( row=mysql_fetch_row( resultf.r ) ) )
 			sPK_File += row[0] + string(",");
 
-    if( (bJukebox || bLocalDisc) && ( resultd.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Disc + sSQL_Where + sOnline ) ) )
+    if( (bJukebox || bLocalDisc) && ( resultd.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Disc + sSQL_Where + " AND EK_Device IN (" + m_sPK_Devices_Online + ")") ) )
         while( ( row=mysql_fetch_row( resultd.r ) ) )
 			sPK_Disc += row[0] + string(",");
 
@@ -284,13 +284,19 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 			PopulateFileBrowserInfoForFile(pMediaListGrid,PK_AttributeType_Sort,bSubDirectory,sPK_Sources /* this how we get back to where we are now */,sPK_File,mapFile_To_Pic);
 		}
 		else
-			PopulateFileBrowserInfoForAttribute(pMediaListGrid,PK_AttributeType_Sort,sPK_File);
+			PopulateFileBrowserInfoForAttribute(pMediaListGrid,PK_AttributeType_Sort,sPK_File,"File");
 	}
 
 	if( sPK_Disc.size() )
 	{
 		sPK_Disc[ sPK_Disc.size()-1 ]=' '; // Get rid of the trailing comma
-		FetchPictures("Disc",sPK_Disc,mapDisc_To_Pic);
+		if( bShowFiles )
+		{
+			FetchPictures("Disc",sPK_Disc,mapDisc_To_Pic);
+			PopulateFileBrowserInfoForDisc(pMediaListGrid,PK_AttributeType_Sort,sPK_Disc,mapDisc_To_Pic);
+		}
+		else
+			PopulateFileBrowserInfoForAttribute(pMediaListGrid,PK_AttributeType_Sort,sPK_Disc,"Disc");
 	}
 	
 
@@ -355,6 +361,29 @@ void Media_Plugin::PopulateFileBrowserInfoForPlayList(MediaListGrid *pMediaListG
 		}
 }
 
+void Media_Plugin::PopulateFileBrowserInfoForDisc(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort,string &sPK_Disk,map<int,int> &mapDisk_To_Pic)
+{
+	string sSQL_Sort;
+	if( PK_AttributeType_Sort==ATTRIBUTETYPE_Title_CONST || PK_AttributeType_Sort==ATTRIBUTETYPE_Song_CONST )  // Merge song and title.  both uniquely identify a music Disc
+		sSQL_Sort = "SELECT PK_Disc,Name FROM Disc JOIN Disc_Attribute ON FK_Disc=PK_Disc JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Title_CONST) "," TOSTRING(ATTRIBUTETYPE_Song_CONST) ") WHERE PK_Disc in (" + sPK_Disk + ")";
+	else
+		sSQL_Sort = "SELECT PK_Disc,Name FROM Disc JOIN Disc_Attribute ON FK_Disc=PK_Disc JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE PK_Disc in (" + sPK_Disk + ")";
+
+    PlutoSqlResult result;
+    MYSQL_ROW row;
+	map<int,int>::iterator it;
+	FileBrowserInfo *pFileBrowserInfo;
+	// 0 =PK_File, 1=Path, 2=Name, 3=IsDirectory
+    if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Sort ) )
+        while( ( row=mysql_fetch_row( result.r ) ) )
+		{
+			pFileBrowserInfo = new FileBrowserInfo(row[1],string("!r") + row[0],atoi(row[0]),false,false);
+			if( (it=mapDisk_To_Pic.find( atoi(row[0]) ))!=mapDisk_To_Pic.end() )
+				pFileBrowserInfo->m_PK_Picture = it->second;
+			pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);
+		}
+}
+
 void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, bool bSubDirectory, string &sPath, string &sPK_File,map<int,int> &mapFile_To_Pic)
 {
 	string sSQL_Sort;
@@ -378,7 +407,7 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 				string sThisPath = string(row[1]) + "/" + row[2];
 				StringUtils::Replace(&sThisPath,"'","\\'");  // Make it , separated, ' quoted and escaped so it works as a sql in (path) clause
 				// sPath will be the sources (juke box, etc.) + \t + any prior directories
-				if( sPath.find("\t!D")==string::npos )
+				if( sPath.find("\t!D")==string::npos )  // !D 1 directory
 					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + "!D'" + sThisPath +"'",atoi(row[0]),true,false);
 				else
 					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + ",'" + sThisPath +"'",atoi(row[0]),true,false);
@@ -391,9 +420,9 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 		}
 }
 
-void Media_Plugin::PopulateFileBrowserInfoForAttribute(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, string &sPK_File)
+void Media_Plugin::PopulateFileBrowserInfoForAttribute(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, string &sPK_File_Or_Disc,string sTable)
 {
-	string sSQL_Sort = "SELECT PK_Attribute,Name,min(FK_Picture) AS FK_Picture FROM File JOIN File_Attribute ON FK_File=PK_File JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " LEFT JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=PK_Attribute WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ") GROUP BY PK_Attribute,Name";
+	string sSQL_Sort = "SELECT PK_Attribute,Name,min(FK_Picture) AS FK_Picture FROM " + sTable + " JOIN " + sTable + "_Attribute ON FK_" + sTable + "=PK_" + sTable + " JOIN Attribute ON " + sTable + "_Attribute.FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " LEFT JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=PK_Attribute WHERE IsDirectory=0 AND PK_" + sTable + " in (" + sPK_File_Or_Disc + ") GROUP BY PK_Attribute,Name";
 
 FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
 

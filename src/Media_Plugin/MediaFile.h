@@ -12,16 +12,25 @@ class MediaFile
 public:
 	MediaFile(int dwPK_File,string sFullyQualifiedFile)	{
 		m_dwPK_File=dwPK_File; m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
-		m_dwPK_Bookmark=0;
+		m_dwPK_Bookmark=m_dwPK_Disk=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
 		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sFullyQualifiedFile));
 	}
 
+	MediaFile(int PK_Disk)	{
+		m_dwPK_Disk=PK_Disk;
+		m_dwPK_File=0;
+		m_dwPK_Bookmark=0;
+		m_dwDuration=0;
+		m_tTimeout=0;
+		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
+	}
+
 	MediaFile(string sMRL)	{
 		m_sFilename=sMRL;
-		m_dwPK_File=0;
+		m_dwPK_File=m_dwPK_Disk=0;
 		m_dwPK_Bookmark=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
@@ -32,6 +41,7 @@ public:
 	MediaFile(MediaAttributes_LowLevel *pMediaAttributes_LowLevel, string sFullyQualifiedFile) {
 		m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
 		m_dwPK_File=pMediaAttributes_LowLevel->GetFileIDFromFilePath(sFullyQualifiedFile);
+		m_dwPK_Disk=0;
 		if( m_dwPK_File )
 		{
 			vector<Row_Bookmark *> m_vectRow_Bookmark;
@@ -52,6 +62,7 @@ public:
 
 	MediaFile(MediaFile *pMediaFile_Copy) {
 		m_dwPK_File=pMediaFile_Copy->m_dwPK_File;
+		m_dwPK_Disk=pMediaFile_Copy->m_dwPK_Disk;
 		m_sPath=pMediaFile_Copy->m_sPath;
 		m_sFilename=pMediaFile_Copy->m_sFilename;
 		m_sDescription=pMediaFile_Copy->m_sDescription;
@@ -67,6 +78,7 @@ public:
 
 	MediaFile(Row_PlaylistEntry *pRow_PlaylistEntry) {
 		m_dwPK_File=pRow_PlaylistEntry->FK_File_get();
+		m_dwPK_Disk=0;
 		m_dwPK_Bookmark=pRow_PlaylistEntry->FK_Bookmark_get();
 		m_dwDuration=pRow_PlaylistEntry->Duration_get();
 		m_tTimeout=0;
@@ -102,7 +114,7 @@ public:
 	deque<MediaTitle *> m_dequeMediaTitle;
 	map< int,int > m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType=PK_Attribute */
     int m_mapPK_Attribute_Find(int PK_AttributeType) { map<int,int>::iterator it = m_mapPK_Attribute.find(PK_AttributeType); return it==m_mapPK_Attribute.end() ? NULL : (*it).second; }
-	int m_dwPK_File;
+	int m_dwPK_File,m_dwPK_Disk;
 	unsigned long m_dwPK_Bookmark,m_dwDuration,m_dwPK_CommandGroup_Start,m_dwPK_CommandGroup_Stop;
 	time_t m_tTimeout;
 	string m_sPath,m_sFilename,m_sDescription,m_sExtension;

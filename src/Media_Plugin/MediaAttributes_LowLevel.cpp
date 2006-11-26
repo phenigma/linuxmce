@@ -18,9 +18,11 @@
 #include "PlutoUtils/CommonIncludes.h"
 #include "MediaAttributes.h"
 #include "Logger.h"
+#include "PlutoUtils/DatabaseUtils.h"
 
 // pluto_media related database access
 #include "pluto_main/Table_MediaType.h"
+#include "pluto_main/Define_DeviceData.h"
 
 #include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
@@ -92,6 +94,8 @@ void MediaAttributes_LowLevel::TransformFilenameToDeque(string sFilename,deque<M
 			}
 		}	
 	}
+	else if( sFilename[1] == 'r' || sFilename[1] == 'R' )  // Removable media (ie a disc)
+		dequeFilenames.push_back(new MediaFile(atoi(sFilename.substr(2).c_str())));
 	else
 	{
 		dequeFilenames.push_back(new MediaFile(this,sFilename));  // Just a normal file
@@ -189,6 +193,23 @@ string MediaAttributes_LowLevel::GetFilePathFromFileID( int PK_File )
     }
 
     return "";
+}
+
+string MediaAttributes_LowLevel::GetMRLFromDiscID( int PK_Disc )
+{
+    string SQL = "SELECT EK_Device FROM Disc WHERE PK_Disc=" + StringUtils::itos( PK_Disc );
+    PlutoSqlResult result;
+    MYSQL_ROW row;
+    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    {
+        int PK_Device = atoi(row[0]);
+		string sDrive = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,PK_Device,DEVICEDATA_Drive_CONST);
+		if( sDrive.empty() )
+			sDrive = "/dev/cdrom";
+		return sDrive + "\t(" + row[0] + ")\t";  // This \t(xxx)\t is used to know which drive it is.  See xine plugin
+    }
+
+    return "/dev/cdrom";
 }
 
 int MediaAttributes_LowLevel::GetFileIDFromAttributeID( int PK_Attribute )
@@ -1250,7 +1271,14 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 
 string MediaAttributes_LowLevel::GetDefaultDescriptionForMediaFile(MediaFile *pMediaFile)
 {
-	string sSQL = "SELECT FK_AttributeType,Attribute.Name FROM File_Attribute JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_File = "
+	string sSQL;
+	
+	if( pMediaFile->m_dwPK_Disk )
+		sSQL = "SELECT FK_AttributeType,Attribute.Name FROM Disc_Attribute JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc = "
+			+ StringUtils::itos(pMediaFile->m_dwPK_Disk) + " AND Track=0 AND Section=0 AND FK_AttributeType IN ("
+			TOSTRING(ATTRIBUTETYPE_Title_CONST) "," TOSTRING(ATTRIBUTETYPE_Performer_CONST) "," TOSTRING(ATTRIBUTETYPE_Album_CONST) ")";
+	else
+		sSQL = "SELECT FK_AttributeType,Attribute.Name FROM File_Attribute JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_File = "
 			+ StringUtils::itos(pMediaFile->m_dwPK_File) + " AND Track=0 AND Section=0 AND FK_AttributeType IN ("
 			TOSTRING(ATTRIBUTETYPE_Title_CONST) "," TOSTRING(ATTRIBUTETYPE_Performer_CONST) "," TOSTRING(ATTRIBUTETYPE_Album_CONST) ")";
 		

@@ -239,6 +239,10 @@ bool Media_Plugin::GetConfig()
         return false;
     }
 
+	// We'll set these when the disks start up
+	string sSQL = "UPDATE Disc SET EK_Device=NULL";
+	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+
 	vector<Row_MediaType_AttributeType *> vectMediaType_AttributeType;
 	m_pDatabase_pluto_media->MediaType_AttributeType_get()->GetRows("Identifier=1",&vectMediaType_AttributeType);
 	for(vector<Row_MediaType_AttributeType *>::iterator it=vectMediaType_AttributeType.begin();it!=vectMediaType_AttributeType.end();++it)
@@ -651,7 +655,8 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     int PK_MediaType = atoi( pMessage->m_mapParameters[EVENTPARAMETER_FK_MediaType_CONST].c_str( ) );
 	int discid = atoi( pMessage->m_mapParameters[EVENTPARAMETER_ID_CONST].c_str( ) );
-    string MRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];
+	// We will embed into the MRL \t(disk drive)\t so that in the plugin the system can know if we're playing a drive other than our local one
+	string MRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST] + "\t(" + StringUtils::itos(pMessage->m_dwPK_Device_From) + ")\t";
 
     // First figure out what entertainment area this corresponds to. We are expecting that whatever media player is running on this pc will have
     // added the disc drive to it's entertainment area when it registered
@@ -856,20 +861,31 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 
 	if( !iPK_MediaType && p_dequeMediaFile->size() )
 	{
-        string Extension = StringUtils::ToUpper(FileUtils::FindExtension((*p_dequeMediaFile)[0]->m_sFilename));
-
-		map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
-
-		for(size_t s=0;s<vectEntertainArea.size();++s)
+		MediaFile *pMediaFile = (*p_dequeMediaFile)[0];
+		if( pMediaFile->m_dwPK_Disk )  // Is it a disk?
 		{
-			EntertainArea *pEntertainArea=vectEntertainArea[s];
-			List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_Extension_Find(Extension);
-		    if( pList_MediaHandlerInfo && pList_MediaHandlerInfo->size() )
+			Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(pMediaFile->m_dwPK_Disk);
+			if( pRow_Disc )
+				iPK_MediaType = pRow_Disc->EK_MediaType_get();
+		}
+		
+		if( !iPK_MediaType )
+		{
+			string Extension = StringUtils::ToUpper(FileUtils::FindExtension(pMediaFile->m_sFilename));
+
+			map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
+
+			for(size_t s=0;s<vectEntertainArea.size();++s)
 			{
-			    MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
-				iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
-				break;
-	        }
+				EntertainArea *pEntertainArea=vectEntertainArea[s];
+				List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_Extension_Find(Extension);
+				if( pList_MediaHandlerInfo && pList_MediaHandlerInfo->size() )
+				{
+					MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
+					iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
+					break;
+				}
+			}
 		}
 
 		if( !iPK_MediaType )
@@ -883,7 +899,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 			}
 			else
 				g_pPlutoLogger->Write(LV_CRITICAL,"Found nothing in %d ent areas to play files of %s",
-					(int) vectEntertainArea.size(),Extension.c_str());
+					(int) vectEntertainArea.size(),pMediaFile->FullyQualifiedFile().c_str());
 		}
 	}
 
@@ -4891,9 +4907,9 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 	listMediaAttribute listMediaAttribute_;
 	int PK_Disc=0;
 	if( sFormat=="CDDB-TAB" && pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
-		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_CDDB_Media_ID(pMediaStream->m_iPK_MediaType,listMediaAttribute_,sValue_To_Assign);
+		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_CDDB_Media_ID(iPK_MediaType,listMediaAttribute_,sValue_To_Assign);
 	if( sFormat=="MISC-TAB" )
-		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(pMediaStream->m_iPK_MediaType,listMediaAttribute_,sValue_To_Assign);
+		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(iPK_MediaType,listMediaAttribute_,sValue_To_Assign);
 	*iEK_Disc = PK_Disc;
 
 	if( pData && iData_Size )
@@ -5041,9 +5057,15 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Get_Attributes_For_Media no valid file found %s",sFilename.c_str());
 		return;
 	}
-	*sValue_To_Assign = "FILE\t" + pMediaFile->HumanReadableFullyQualifiedFile() +
-		"\tTITLE\t" + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetDefaultDescriptionForMediaFile(pMediaFile) +
-		"\t";	
+
+	if( pMediaFile->m_dwPK_Disk )
+		*sValue_To_Assign = "FILE\tDisc #" + StringUtils::itos(pMediaFile->m_dwPK_Disk) +
+			"\tTITLE\t" + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetDefaultDescriptionForMediaFile(pMediaFile) +
+			"\t";	
+	else
+		*sValue_To_Assign = "FILE\t" + pMediaFile->HumanReadableFullyQualifiedFile() +
+			"\tTITLE\t" + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetDefaultDescriptionForMediaFile(pMediaFile) +
+			"\t";	
 }
 //<-dceag-c817-b->
 
@@ -5277,4 +5299,5 @@ void Media_Plugin::CMD_Report_Discs_in_Drive(int iPK_Device,string ssEK_Disc_Lis
 		sSQL = "UPDATE Disc SET EK_Device=" + StringUtils::itos(iPK_Device) + " WHERE PK_Disc IN ( " + ssEK_Disc_List + " )";
 		m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
 	}
+	CMD_Refresh_List_of_Online_Devices(); // Check again which devices are online because a disk drive has now registered
 }

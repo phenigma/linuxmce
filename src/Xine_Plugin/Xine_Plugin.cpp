@@ -217,23 +217,53 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StartMedia(): ")) == NULL )
 		return false;
 
-	string sFileToPlay = pXineMediaStream->GetFilenameToPlay("Empty file name");
+	string sFileToPlay;
+	
+	MediaFile *pMediaFile = NULL;
+	// HACK: -- todo: get real informations.
+	if( pXineMediaStream->m_dequeMediaFile.size()>pXineMediaStream->m_iDequeMediaFile_Pos )
+		pMediaFile = pXineMediaStream->m_dequeMediaFile[pXineMediaStream->m_iDequeMediaFile_Pos];
+
+	if( pMediaFile && pMediaFile->m_dwPK_Disk )
+	{
+		sFileToPlay = m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetMRLFromDiscID(pMediaFile->m_dwPK_Disk);
+		pXineMediaStream->m_dwPK_Disc = pMediaFile->m_dwPK_Disk;
+	}
+	else 
+		sFileToPlay = pXineMediaStream->GetFilenameToPlay("Empty file name");
 
 	g_pPlutoLogger->Write( LV_STATUS, "Xine_Plugin::StartMedia() Media type %d %s", pMediaStream->m_iPK_MediaType, sFileToPlay.c_str());
 
 	string mediaURL;
 	string Response;
 
-	MediaFile *pMediaFile = NULL;
-	// HACK: -- todo: get real informations.
-	if( pXineMediaStream->m_dequeMediaFile.size()>pXineMediaStream->m_iDequeMediaFile_Pos )
-		pMediaFile = pXineMediaStream->m_dequeMediaFile[pXineMediaStream->m_iDequeMediaFile_Pos];
-
 	mediaURL = sFileToPlay;
 
 	if ( FileUtils::FindExtension(mediaURL)=="dvd" ||
 		(mediaURL.size()>5 && mediaURL.substr(0,5)=="/dev/" && pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST) )
 			mediaURL = "dvd://" + mediaURL;
+
+	// If there's a \t(xxx)\t embedded in the file name, than this is a disc and xxx is the drive
+	string::size_type size = mediaURL.size();
+	string::size_type posDrive;
+	if( size>3 && mediaURL[size-1]=='\t' && mediaURL[size-2]==')' && (posDrive=mediaURL.find("\t("))!=string::npos )
+	{
+		int PK_Device_Drive = atoi( mediaURL.substr( posDrive+2 ).c_str() );
+		DeviceData_Router *pDevice_Drive = m_pMedia_Plugin->m_pRouter->m_mapDeviceData_Router_Find(PK_Device_Drive);
+		mediaURL = mediaURL.substr(0,posDrive);  // It didn't work with this and the above as 1 command
+
+		if( pDevice_Drive && pDevice_Drive->GetTopMostDevice() != pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->GetTopMostDevice() )
+		{
+			// We don't have the correct source xine.  Find one that's on the same pc as the disk drive, and it will be the source
+			DeviceData_Router *pDevice_Xine = (DeviceData_Router *) pDevice_Drive->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
+			MediaDevice *pDevice_Source = NULL;
+			if( pDevice_Xine==NULL || (pDevice_Source=m_pMedia_Plugin->m_mapMediaDevice_Find(pDevice_Xine->m_dwPK_Device))==NULL )
+				// This probably isn't want they want, but go ahead and let it play the local disc anyway
+				g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Plugin::StartMedia -- need to play a disc on a pc with no xine!");
+			else
+				pXineMediaStream->m_pMediaDevice_Source = pDevice_Source;
+		}
+	}
 
 	if( pXineMediaStream->SingleEaAndSameDestSource()==false )
 	{
@@ -245,8 +275,8 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 								pXineMediaStream->m_iPK_MediaType,
 								pXineMediaStream->m_iStreamID_get( ),
 								pMediaFile && pMediaFile->m_sStartPosition.size() ? pMediaFile->m_sStartPosition : pXineMediaStream->m_sStartPosition,
-								pXineMediaStream->GetTargets(),
-								mediaURL);
+								mediaURL,
+								pXineMediaStream->GetTargets());
 
 		// No handling of errors (it will in some cases deadlock the router.)
 		SendCommand(cmd);
