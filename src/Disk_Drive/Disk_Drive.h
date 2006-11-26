@@ -185,6 +185,29 @@ Powerfile: 0, 1, ... */
 	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #742 - Media Identified */
+	/** Media has been identified */
+		/** @param #2 PK_Device */
+			/** The disk drive */
+		/** @param #5 Value To Assign */
+			/** The identified data */
+		/** @param #10 ID */
+			/** The ID of the disc */
+		/** @param #19 Data */
+			/** The picture/cover art */
+		/** @param #20 Format */
+			/** The format of the data */
+		/** @param #59 MediaURL */
+			/** The URL for the disc drive */
+		/** @param #131 EK_Disc */
+			/** If a disc was added accordingly, this reports the disc id */
+		/** @param #193 URL */
+			/** The URL for the picture */
+
+	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,int *iEK_Disc) { string sCMD_Result; CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),sMediaURL.c_str(),sURL.c_str(),iEK_Disc,sCMD_Result,NULL);};
+	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #817 - Get Default Ripping Info */
 	/** Get default ripping info: default filename, id and name of the storage device with most free space. */
 		/** @param #13 Filename */
@@ -198,7 +221,6 @@ Powerfile: 0, 1, ... */
 
 	virtual void CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name) { string sCMD_Result; CMD_Get_Default_Ripping_Info(sFilename,sPath,iDriveID,sStorage_Device_Name,sCMD_Result,NULL);};
 	virtual void CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage);
-
 
 //<-dceag-h-e->
 	private:

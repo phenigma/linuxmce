@@ -26,11 +26,18 @@ Disk_Drive_Functions::Disk_Drive_Functions(Command_Impl * pCommand_Impl, const s
 {
 	m_DiskMutex.Init(NULL);
 	m_pDevice_AppServer = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
+	DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,
+		BL_SameHouse,m_pCommand_Impl->m_dwPK_Device,"");
+	m_pCommand_Impl->SendCommand(CMD_Report_Discs_in_Drive_DT);
 }
 
 void Disk_Drive_Functions::EVENT_Media_Inserted(int iFK_MediaType, string sMRL, string sID, string sName)
 {
 	m_pCommand_Impl->m_pEvent->SendMessage(new Message(m_pCommand_Impl->m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 3, 4, 3, StringUtils::itos(iFK_MediaType).c_str(), 4, sMRL.c_str(), 7, sID.c_str(), 35, sName.c_str()));
+
+	DCE::CMD_Identify_Media_Cat CMD_Identify_Media_Cat(m_pCommand_Impl->m_dwPK_Device,DEVICECATEGORY_Media_Identifiers_CONST,false,
+		BL_SameComputer,m_pCommand_Impl->m_dwPK_Device,sID,sMRL,m_pCommand_Impl->m_dwPK_Device);
+	SendCommand(CMD_Identify_Media);
 }
 
 void Disk_Drive_Functions::EVENT_Ripping_Progress(string sText, int iResult, string sValue, string sName, int iEK_Disc)
