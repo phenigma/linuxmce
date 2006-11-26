@@ -417,6 +417,8 @@ void Disk_Drive::CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,in
 			/** The picture/cover art */
 		/** @param #20 Format */
 			/** The format of the data */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
 		/** @param #59 MediaURL */
 			/** The URL for the disc drive */
 		/** @param #131 EK_Disc */
@@ -424,11 +426,11 @@ void Disk_Drive::CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,in
 		/** @param #193 URL */
 			/** The URL for the picture */
 
-void Disk_Drive::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,Message *pMessage)
 //<-dceag-c742-e->
 {
 	DCE::CMD_Media_Identified_DT CMD_Media_Identified_DT(m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
-		BL_SameHouse,m_dwPK_Device,sValue_To_Assign,sID,pData,iData_Size,sFormat,sMediaURL,sURL,iEK_Disc);
+		BL_SameHouse,m_dwPK_Device,sValue_To_Assign,sID,pData,iData_Size,sFormat,iPK_MediaType,sMediaURL,sURL,iEK_Disc);
 	SendCommand(CMD_Media_Identified_DT);
 
 	g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive::CMD_Media_Identified disc is %d",*iEK_Disc);

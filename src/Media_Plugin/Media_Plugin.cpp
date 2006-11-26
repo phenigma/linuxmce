@@ -4845,6 +4845,8 @@ void Media_Plugin::CMD_Shuffle(string &sCMD_Result,Message *pMessage)
 			/** The picture/cover art */
 		/** @param #20 Format */
 			/** The format of the data */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
 		/** @param #59 MediaURL */
 			/** The URL for the disc drive */
 		/** @param #131 EK_Disc */
@@ -4852,7 +4854,7 @@ void Media_Plugin::CMD_Shuffle(string &sCMD_Result,Message *pMessage)
 		/** @param #193 URL */
 			/** The URL for the picture */
 
-void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,Message *pMessage)
 //<-dceag-c742-e->
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
