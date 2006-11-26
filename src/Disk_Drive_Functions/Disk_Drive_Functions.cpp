@@ -103,10 +103,10 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 
         g_pPlutoLogger->Write(LV_WARNING, "Disc of type %d was detected", status, mrl.c_str());
 
+	m_discid=time(NULL);
         if ( bFireEvent && status )
         {
-			m_discid=time(NULL);
-			g_pPlutoLogger->Write(LV_WARNING, "One Media Inserted event fired (%s) m_discid: %d", mrl.c_str(),m_discid);
+		g_pPlutoLogger->Write(LV_WARNING, "One Media Inserted event fired (%s) m_discid: %d", mrl.c_str(),m_discid);
             EVENT_Media_Inserted(status, mrl,StringUtils::itos(m_discid),m_sDrive);
         }
         else
@@ -115,8 +115,8 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
         }
 
 		DCE::CMD_Identify_Media_Cat CMD_Identify_Media_Cat(m_pCommand_Impl->m_dwPK_Device,DEVICECATEGORY_Media_Identifiers_CONST,false,
-			BL_SameComputer,m_pCommand_Impl->m_dwPK_Device,sID,sMRL,m_pCommand_Impl->m_dwPK_Device);
-		SendCommand(CMD_Identify_Media);
+			BL_SameComputer,m_pCommand_Impl->m_dwPK_Device,StringUtils::itos(m_discid),mrl,m_pCommand_Impl->m_dwPK_Device);
+		m_pCommand_Impl->SendCommand(CMD_Identify_Media_Cat);
 
 		m_mediaInserted = true;
     }
