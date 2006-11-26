@@ -1044,28 +1044,6 @@ int k=2;
 		AddDataGridObjects();
 	}
 
-	// Don't stretch out the floorplan objects
-    if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
-    {
-        // First go through all of the arrays and set the appropriate bounds so we can calculate the size of this object
-        for(size_t s=0;s<m_alChildDesignObjs.size();++s)
-        {
-            DesignObj_Generator *oco = m_alChildDesignObjs[s];
-			if( oco->m_iScale!=100 )
-				continue; // If this is a specially scaled object don't factor it in
-            if( oco->m_rPosition.Width>0 )
-            {
-                if( m_rPosition.Width>0 )
-                    m_rPosition = PlutoRectangle::Union(m_rPosition,oco->m_rPosition);
-                else
-				{
-					m_rPosition.Right(oco->m_rPosition.Right());
-					m_rPosition.Bottom(oco->m_rPosition.Bottom());
-				}
-            }
-        }
-    }
-
     // Now fill in all the arrays
     for(size_t s=0;s<alArrays.size();++s)
     {
@@ -1111,7 +1089,29 @@ int k=2;
 		}
 	}
 
-    int PK_DesignObj_Goto = 0;
+	// Don't stretch out the floorplan objects
+    if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
+    {
+        // First go through all of the arrays and set the appropriate bounds so we can calculate the size of this object
+        for(size_t s=0;s<m_alChildDesignObjs.size();++s)
+        {
+            DesignObj_Generator *oco = m_alChildDesignObjs[s];
+			if( oco->m_iScale!=100 )
+				continue; // If this is a specially scaled object don't factor it in
+            if( oco->m_rPosition.Width>0 )
+            {
+                if( m_rPosition.Width>0 )
+                    m_rPosition = PlutoRectangle::Union(m_rPosition,oco->m_rPosition);
+                else
+				{
+					m_rPosition.Right(oco->m_rPosition.Right());
+					m_rPosition.Bottom(oco->m_rPosition.Bottom());
+				}
+            }
+        }
+    }
+
+	int PK_DesignObj_Goto = 0;
     int tmpDesignObj_Goto;
 
     DesignObjCommandList::iterator itActions;

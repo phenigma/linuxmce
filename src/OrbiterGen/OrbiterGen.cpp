@@ -2010,6 +2010,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 			PageList = htDevicePages[abs(ocDesignObj->m_iFloorplanDevice)];
 		if( PageList.find(StringUtils::itos(ocDesignObj->m_iFloorplanPage) + ",")!=string::npos )
 		{
+int k=2;
 			throw "Floorplan device " + StringUtils::itos(ocDesignObj->m_iFloorplanDevice) + " Page " + StringUtils::itos(ocDesignObj->m_iFloorplanPage) + " already in the system";
 		}
 		PageList += StringUtils::itos(ocDesignObj->m_iFloorplanPage) + ",";
