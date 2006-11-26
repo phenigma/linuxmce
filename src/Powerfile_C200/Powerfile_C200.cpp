@@ -1237,7 +1237,7 @@ void PowerfileIdentify_Task::Run()
 	int iPK_Device = pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device;
 
 	DCE::CMD_Identify_Media_Cat CMD_Identify_Media_Cat(iPK_Device, DEVICECATEGORY_Media_Identifiers_CONST,
-		false, BL_SameComputer, iPK_Device, StringUtils::itos(m_iSlot), m_pDDF->m_sDrive);
+		false, BL_SameComputer, iPK_Device, StringUtils::itos(m_iSlot), m_pDDF->m_sDrive,iPK_Device);
 	pPowerfile_Job->m_pPowerfile_C200->SendCommand(CMD_Identify_Media_Cat);
 	
 	time_t TimeOut = time(NULL) + 60; // 60s timeout
