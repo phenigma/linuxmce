@@ -715,7 +715,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 			MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,0,PK_Orbiter,vectEntertainArea,pDeviceFrom->m_dwPK_Device,&dequeMediaFile,false,0,"");
 			if( pMediaStream )
 				pMediaStream->m_discid = discid;
-
+/*
 			if( pMediaDevice->m_pDevice_Media_ID )
 			{
 				// Notify the identifiers that it's time to ID what this is
@@ -723,7 +723,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 					pDeviceFrom->m_dwPK_Device,StringUtils::itos(discid),pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST]);
 				SendCommand(CMD_Identify_Media);
 			}
-
+*/
 			return false;
         }
     }
@@ -4847,10 +4847,12 @@ void Media_Plugin::CMD_Shuffle(string &sCMD_Result,Message *pMessage)
 			/** The format of the data */
 		/** @param #59 MediaURL */
 			/** The URL for the disc drive */
+		/** @param #131 EK_Disc */
+			/** If a disc was added accordingly, this reports the disc id */
 		/** @param #193 URL */
 			/** The URL for the picture */
 
-void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,Message *pMessage)
 //<-dceag-c742-e->
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
@@ -4884,10 +4886,21 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 		}
 	}
 
+	listMediaAttribute listMediaAttribute_;
+	int PK_Disc=0;
+	if( sFormat=="CDDB-TAB" && pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_CDDB_Media_ID(pMediaStream->m_iPK_MediaType,listMediaAttribute_,sValue_To_Assign);
+	if( sFormat=="MISC-TAB" )
+		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(pMediaStream->m_iPK_MediaType,listMediaAttribute_,sValue_To_Assign);
+	*iEK_Disc = PK_Disc;
+
+	if( pData && iData_Size )
+		m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToDisc(PK_Disc,pData,iData_Size,sURL);
+
 	if( !pMediaStream )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find media identified");
-		return;
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Media_Identified Disc is not currently playing");
+		return;  // Nothing more to do
 	}
 
 	if( pMediaStream->m_IdentifiedPriority && pMediaStream->m_IdentifiedPriority>=Priority )
@@ -4896,15 +4909,6 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 		return;
 	}
 	pMediaStream->m_IdentifiedPriority=Priority;
-	listMediaAttribute listMediaAttribute_;
-	int PK_Disc=0;
-	if( sFormat=="CDDB-TAB" && pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
-		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_CDDB_Media_ID(pMediaStream->m_iPK_MediaType,listMediaAttribute_,sValue_To_Assign);
-	if( sFormat=="MISC-TAB" )
-		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(pMediaStream->m_iPK_MediaType,listMediaAttribute_,sValue_To_Assign);
-
-	if( pData && iData_Size )
-		m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToDisc(PK_Disc,pData,iData_Size,sURL);
 
 	if( PK_Disc )
 	{
@@ -5247,4 +5251,28 @@ void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Messag
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Refresh_List_of_Online_Devices now %s",m_sPK_Devices_Online.c_str());
 #endif
+}
+
+//<-dceag-c832-b->
+
+	/** @brief COMMAND: #832 - Report Discs in Drive */
+	/** Report which PK_Disc's are in a given drive */
+		/** @param #2 PK_Device */
+			/** The drive */
+		/** @param #243 sEK_Disc_List */
+			/** A comma separated of the discs in the drive in the format: PK_Disc, Slot \t PK_Disc, slot, etc. */
+
+void Media_Plugin::CMD_Report_Discs_in_Drive(int iPK_Device,string ssEK_Disc_List,string &sCMD_Result,Message *pMessage)
+//<-dceag-c832-e->
+{
+	string sSQL = "UPDATE Disc SET EK_Device=NULL WHERE EK_Device=" + StringUtils::itos(iPK_Device);
+	if( ssEK_Disc_List.empty()==false )
+		sSQL += " AND PK_Disc NOT IN( " + ssEK_Disc_List + " )";
+	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+
+	if( ssEK_Disc_List.empty()==false )
+	{
+		sSQL = "UPDATE Disc SET EK_Device=" + StringUtils::itos(iPK_Device) + " WHERE PK_Disc IN ( " + ssEK_Disc_List + " )";
+		m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+	}
 }

@@ -974,11 +974,13 @@ Powerfile: 0, 1, ... */
 			/** The format of the data */
 		/** @param #59 MediaURL */
 			/** The URL for the disc drive */
+		/** @param #131 EK_Disc */
+			/** If a disc was added accordingly, this reports the disc id */
 		/** @param #193 URL */
 			/** The URL for the picture */
 
-	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL) { string sCMD_Result; CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),sMediaURL.c_str(),sURL.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,int *iEK_Disc) { string sCMD_Result; CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),sMediaURL.c_str(),sURL.c_str(),iEK_Disc,sCMD_Result,NULL);};
+	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #780 - Remove playlist */
@@ -1056,6 +1058,17 @@ Powerfile: 0, 1, ... */
 
 	virtual void CMD_Refresh_List_of_Online_Devices() { string sCMD_Result; CMD_Refresh_List_of_Online_Devices(sCMD_Result,NULL);};
 	virtual void CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #832 - Report Discs in Drive */
+	/** Report which PK_Disc's are in a given drive */
+		/** @param #2 PK_Device */
+			/** The drive */
+		/** @param #243 sEK_Disc_List */
+			/** A comma separated of the discs in the drive in the format: PK_Disc, Slot \t PK_Disc, slot, etc. */
+
+	virtual void CMD_Report_Discs_in_Drive(int iPK_Device,string ssEK_Disc_List) { string sCMD_Result; CMD_Report_Discs_in_Drive(iPK_Device,ssEK_Disc_List.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Report_Discs_in_Drive(int iPK_Device,string ssEK_Disc_List,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 };
