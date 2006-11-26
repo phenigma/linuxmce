@@ -427,14 +427,14 @@ void Disk_Drive::CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,in
 void Disk_Drive::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,Message *pMessage)
 //<-dceag-c742-e->
 {
-	DCE::CMD_Media_Identified_DT CMD_Media_Identified_DT(m_dwPK_Device,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,
+	DCE::CMD_Media_Identified_DT CMD_Media_Identified_DT(m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
 		BL_SameHouse,m_dwPK_Device,sValue_To_Assign,sID,pData,iData_Size,sFormat,sMediaURL,sURL,iEK_Disc);
 	SendCommand(CMD_Media_Identified_DT);
 
 	g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive::CMD_Media_Identified disc is %d",*iEK_Disc);
 	if( *iEK_Disc )
 	{
-		DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_dwPK_Device,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,
+		DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
 			BL_SameHouse,m_dwPK_Device,StringUtils::itos(*iEK_Disc));
 		SendCommand(CMD_Report_Discs_in_Drive_DT);
 
