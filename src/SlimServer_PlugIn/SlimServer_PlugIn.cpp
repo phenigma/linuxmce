@@ -28,6 +28,7 @@ bool SlimServer_PlugIn::GetConfig()
 	if( !SlimServer_PlugIn_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
+	return true;
 }
 
 //<-dceag-const2-b->
@@ -379,13 +380,14 @@ bool SlimServer_PlugIn::StartStreaming(SlimServerMediaStream *pMediaStream)
 	// virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage);
 	itPlaybackDevices = mapPlaybackDevices.begin();
 
-	string resultingURL;
 	DCE::CMD_Start_Streaming startStreamingCommand(
 					m_dwPK_Device,
 					pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+					0,
 					pMediaStream->m_iStreamID_get(),
-					strTargetDevices,
-					&resultingURL );
+					"",
+					"",
+					strTargetDevices);
 
 	if( !SendCommand(startStreamingCommand) )
 	{
@@ -399,12 +401,13 @@ g_pPlutoLogger->Write(LV_CRITICAL,"About to call CMD_Play_Media sole master to %
 	if( pMediaStream->m_dequeMediaFile.size()>pMediaStream->m_iDequeMediaFile_Pos )
 		pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
 
+	string sFilename = pMediaStream->GetFilenameToPlay("Empty file name");
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,
 							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-							pMediaStream->GetFilenameToPlay("Empty file name"),
 							pMediaStream->m_iPK_MediaType,
 							pMediaStream->m_iStreamID_get( ),
-							pMediaFile ? pMediaFile->m_sStartPosition : "");
+							pMediaFile ? pMediaFile->m_sStartPosition : "",
+							sFilename);
 
 	// No handling of errors (it will in some cases deadlock the router.)
 	SendCommand(cmd);

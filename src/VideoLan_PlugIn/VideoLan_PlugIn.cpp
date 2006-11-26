@@ -381,9 +381,11 @@ bool VideoLan_PlugIn::StartStreaming(VideoLanMediaStream *pMediaStream)
 	DCE::CMD_Start_Streaming startStreamingCommand(
 					m_dwPK_Device,
 					pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+					0,
 					pMediaStream->m_iStreamID_get(),
-					strTargetDevices,
-					&resultingURL );
+					"",
+					resultingURL,
+					strTargetDevices);
 
 	if( !SendCommand(startStreamingCommand) )
 	{
