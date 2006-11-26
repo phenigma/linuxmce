@@ -381,7 +381,7 @@ void VideoLan_Server::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string
 
 	PLUTO_SAFETY_LOCK(vlc,m_VideoLanMutex);
 
-	VideoLanServerInstance *pVideoLanServerInstance = new VideoLanServerInstance(this,iStreamID,sStreamingTargets,*sMediaURL);
+	VideoLanServerInstance *pVideoLanServerInstance = new VideoLanServerInstance(this,iStreamID,sStreamingTargets,sMediaURL);
 	m_mapVideoLanServerInstance[iStreamID]=pVideoLanServerInstance;
 }
 
