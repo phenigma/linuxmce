@@ -24,6 +24,7 @@ public:
 	// These are the input values, the 'real' location on the server that Orbiter Gen uses.  The regular variables without Orig
 	// are the rendered versions.
 	string m_sOrigBackgroundFile, m_sOrigSelectedFile, m_sOrigHighlightGraphicFilename;
+	string m_sAdjustments;
 	vector<string> m_vectOrigAltGraphicFilename;
 
 	vector<string> m_vectRegenMonitor;  // A list of strings indicating dependencies for regenerating
@@ -37,6 +38,7 @@ public:
 	vector<class CGArray *> m_alNonMPArrays,m_alMPArray;
 	vector<class CGVarAss *> m_alVariableAssignments;
 	map< pair<int,int>, DesignObj_Generator *> m_mapChildDgObjects; // If this is a datagrid and it has child objects for cells, this maps the cell object to col,row
+	map< int,string > m_mapParameterOverides; // If a value is here for PK_DesignObjParmeter (per m_sAdjustments) it will override the normal value in the db from GetParm
 	DesignObj_Generator *m_DesignObj_GeneratorGoto;
 	string m_sDesignObjGoto;
 	bool m_bContainsArrays;
@@ -51,10 +53,13 @@ public:
 	class Row_Device * m_pRow_Device_Goto;
 
 	DesignObj_Generator() { m_bRendered=false; } // when we're serializing from disk
-	DesignObj_Generator(class OrbiterGenerator *pOrbiterGenerator,class Row_DesignObj * drDesignObj,class PlutoRectangle rPosition,class DesignObj_Generator *ocoParent,bool bAddToGenerated,bool bDontShare);
+
+	// If process = false, the Process() function which does all the work won't be called so the caller can change the order things are processed to account for m_sAdjustments
+	DesignObj_Generator(class OrbiterGenerator *pOrbiterGenerator,class Row_DesignObj * drDesignObj,class PlutoRectangle rPosition,class DesignObj_Generator *ocoParent,bool bAddToGenerated,bool bDontShare,bool bProcess=true);
 	~DesignObj_Generator();
 
 	void Process();
+	void HandleAdjustments();
 	int LookForGoto(DesignObjCommandList *alCommands);
 	void HandleGoto(int PK_DesignObj_Goto);
 	static void PickVariation(OrbiterGenerator *pGenerator,class Row_DesignObj *drDesignObj,class Row_DesignObjVariation **drDesignObjVariation,class Row_DesignObjVariation **drStandardVariation, vector<class Row_DesignObjVariation *> *alDesignObjVariations);
@@ -81,6 +86,14 @@ public:
 	void WriteFloorplanInfo(string sFilename);
 	string GetText(int PK_Text); // Returns the text string in the current language
 	void AddDataGridObjects();
+
+
+	void HandleAdjustment(string sToken);
+	void ProcessAddition(char cValue,int iValue,bool bAdd);
+	void ProcessAssignment(string sValue,string sValueToAssign);
+	bool ProcessCriteria(string sCriteria);
+	string CalculateValue(string sValue);
+	void FindChild(int PK_DesignObj,DesignObj_Generator **ppDesignObj_Generator,CGArray **ppCGArray);
 };
 
 #endif

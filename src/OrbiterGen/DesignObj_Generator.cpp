@@ -76,7 +76,7 @@ extern bool g_bBootSplash;
 
 #define TOTAL_ESTIMATED_SCREENS 200
 
-DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_DesignObj * drDesignObj,class PlutoRectangle rPosition,class DesignObj_Generator *ocoParent,bool bAddToGenerated,bool bDontShare)
+DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_DesignObj * drDesignObj,class PlutoRectangle rPosition,class DesignObj_Generator *ocoParent,bool bAddToGenerated,bool bDontShare,bool bProcess)
 {
     m_pRow_DesignObjVariation=NULL;
     m_pRow_DesignObjVariation_Standard=NULL;
@@ -132,7 +132,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
 if( m_pOrbiterGenerator->m_iLocation )
 int k=2;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==3558 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==4834 ||  m_pRow_DesignObj->PK_DesignObj_get()==4836 ) 
+if( m_pRow_DesignObj->PK_DesignObj_get()==5111 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==4834 ||  m_pRow_DesignObj->PK_DesignObj_get()==4836 ) 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -288,11 +288,15 @@ int k=2;
         m_iPK_CommandGroup_Touch_Extra = m_pOrbiterGenerator->m_iPK_CommandGroup;
         m_pOrbiterGenerator->m_iPK_CommandGroup=0;  // reset back to 0 so it doesn't affect the children
     }
-	Process();
+	m_sAdjustments = GetParm(DESIGNOBJPARAMETER_Adjustments_CONST,0 != m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get());
+
+	if( bProcess )
+		Process();
 }
 	
 void DesignObj_Generator::Process()
 {
+	HandleAdjustments();
 	for(int GraphicType=1;GraphicType<=4;++GraphicType)
     {
         // Handle the background image
@@ -954,7 +958,6 @@ int k=2;
 int k=2;
     }
 
-	// Put this at the top since we've got a goto below that may skip its initializatoin
     vector<Row_DesignObjVariation_DesignObj *> alArrays;
 
     // Add all child objects, except for arrays, which we just store in alArrays
@@ -969,16 +972,9 @@ int k=2;
         for(size_t s2=0;s2<vectovo.size();++s2)
         {
             Row_DesignObjVariation_DesignObj * drOVO = vectovo[s2];
-if( drOVO->PK_DesignObjVariation_DesignObj_get()==4891 )
-{
-    int k=2;
-}
             Row_DesignObj *drDesignObj = drOVO->FK_DesignObj_Child_getrow();
-if( drDesignObj->PK_DesignObj_get()==4891 )
-{
-int k=2;
-}
-            if( (m_rPosition.X+drOVO->X_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Width && (m_rPosition.Y+drOVO->Y_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Height )
+ 
+			if( (m_rPosition.X+drOVO->X_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Width && (m_rPosition.Y+drOVO->Y_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Height )
             {
                 if( drDesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Array_CONST )
                     alArrays.push_back(drOVO);
@@ -1011,7 +1007,8 @@ int k=2;
                     }
                     else
                     {
-                        DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),PlutoRectangle(m_rPosition.X+(drOVO->X_get()*m_iScale/100),m_rPosition.Y+(drOVO->Y_get()*m_iScale/100),drOVO->Width_get(),drOVO->Height_get()),this,false,false);
+						// Don't auto process because we want to process children with m_sAdjustments after we do those without since they may depend on others
+                        DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),PlutoRectangle(m_rPosition.X+(drOVO->X_get()*m_iScale/100),m_rPosition.Y+(drOVO->Y_get()*m_iScale/100),drOVO->Width_get(),drOVO->Height_get()),this,false,false,false);
                         if( !pDesignObj_Generator->m_pRow_DesignObjVariation )
                         {
                             cout << "Not adding object: " << drOVO->FK_DesignObj_Child_get() << " to object: " << drOVO->FK_DesignObjVariation_Parent_getrow()->FK_DesignObj_get() << " because there are no qualifying variations." << endl;
@@ -1022,10 +1019,6 @@ int k=2;
                             pDesignObj_Generator->m_bCanBeHidden = drOVO->CanBeHidden_get()==1;
                             pDesignObj_Generator->m_bHideByDefault = drOVO->HideByDefault_get()==1;
                             pDesignObj_Generator->m_bChildrenBeforeText = drOVO->DisplayChildrenBeforeText_get()==1;
-if( pDesignObj_Generator->m_bChildrenBeforeText )
-{
-int k=2;
-}
                             pDesignObj_Generator->m_bChildrenBehind = drOVO->DisplayChildrenBehindBackground_get()==1;
                             pDesignObj_Generator->m_bDontMergeBackground = drOVO->DontMergeBackground_get()==1;
                             pDesignObj_Generator->m_bTabStop = drOVO->IsTabStop_get()==1;
@@ -1045,10 +1038,7 @@ int k=2;
         }
     }
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==5138 )
-int k=2;
-
-    // If this is a datagrid, add datagrid children
+	// If this is a datagrid, add datagrid children
     if( m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Datagrid_CONST )
 	{
 		AddDataGridObjects();
@@ -1109,6 +1099,17 @@ int k=2;
         else
             m_alNonMPArrays.push_back(pCGArray);
     }
+
+	// Make 2 passes and process first the objects with no adjustments
+	for(int Pass=0;Pass<2;++Pass)
+	{
+		for(vector<class DesignObj_Generator *>::iterator it=m_alChildDesignObjs.begin();it!=m_alChildDesignObjs.end();++it)
+		{
+			DesignObj_Generator *pObj = *it;
+			if( (pObj->m_sAdjustments.empty()==true && Pass==0) || (pObj->m_sAdjustments.empty()==false && Pass==1) )
+				pObj->Process();
+		}
+	}
 
     int PK_DesignObj_Goto = 0;
     int tmpDesignObj_Goto;
@@ -2015,6 +2016,10 @@ string DesignObj_Generator::GetParm(int PK_DesignObjParameter,Row_DesignObjVaria
 }
 string DesignObj_Generator::GetParm(int PK_DesignObjParameter,Row_DesignObjVariation * drDesignObjVariation,bool bReplaceNulls)
 {
+	map< int,string >::iterator it=m_mapParameterOverides.find(PK_DesignObjParameter);
+	if( it!=m_mapParameterOverides.end() )
+		return it->second;
+
     string oValue="";
     Row_DesignObjVariation_DesignObjParameter * drODP = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(drDesignObjVariation->PK_DesignObjVariation_get(),PK_DesignObjParameter);
 
@@ -2417,6 +2422,211 @@ void DesignObj_Generator::AddDataGridObjects()
 				ColPos += ColWidth;
 			}
 			RowPos += RowHeight;
+		}
+	}
+}
+
+void DesignObj_Generator::HandleAdjustments()
+{
+	// Each adjustment is separated with a : and is in the format [criteria]![what to adjust]![operator]![adjusted value]
+	// criteria can include: UI=[PK_UI], Skin=[PK_Skin], Aspect=[16_9 | 3_4], and each can be separated with & or | for and or or
+	// what to adjust can be: x, y, w, h, r (right), b (bottom), or pX (parameter #X)
+	// operator can be +, - or =
+	// adjusted value can be an actual value or <%=token%> where token can be:
+		// screen_width, screen_height, Ox.y where x is a PK_DesignObj and y is the same as 'what to adjust' values
+
+	string::size_type pos=0;
+	while(pos<m_sAdjustments.size())
+	{
+		string sToken = StringUtils::Tokenize(m_sAdjustments,":",pos);
+		HandleAdjustment(sToken);	
+	}
+}
+
+void DesignObj_Generator::HandleAdjustment(string sToken)
+{
+	string::size_type pos=0;
+	string sCriteria = StringUtils::Tokenize(sToken,"!",pos);
+	string sWhat = StringUtils::Tokenize(sToken,"!",pos);
+	string sOperator = StringUtils::Tokenize(sToken,"!",pos);
+	string sValue = StringUtils::Tokenize(sToken,"!",pos);
+
+	if( sWhat.empty() || sOperator.empty() || sValue.empty() )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"DesignObj_Generator::HandleAdjustment values are empth");
+		return;
+	}
+	if( ProcessCriteria(sCriteria)==false )
+		return;
+
+	string sCalculatedValue = CalculateValue(sValue);
+	if( sOperator=="-" || sOperator=="+" )
+		ProcessAddition(sWhat[0],atoi(sCalculatedValue.c_str()),sOperator=="+");
+	else if( sOperator=="=" )
+		ProcessAssignment(sWhat,sValue);
+}
+
+bool DesignObj_Generator::ProcessCriteria(string sCriteria)
+{
+	return true;
+}
+
+string DesignObj_Generator::CalculateValue(string sValue)
+{
+	if( sValue=="screen_width" )
+		return StringUtils::itos(m_pOrbiterGenerator->m_Width);
+	else if( sValue=="screen_height" )
+		return StringUtils::itos(m_pOrbiterGenerator->m_Height);
+	else if( sValue.size()>1 && sValue[0]=='O' )
+	{
+		string::size_type pos = sValue.find('.');
+		int PK_DesignObj = atoi(sValue.substr(1).c_str());
+		DesignObj_Generator *pDesignObj_Generator=NULL;
+		CGArray *pCGArray=NULL;
+		m_pDesignObj_TopMost->FindChild(PK_DesignObj,&pDesignObj_Generator,&pCGArray);
+		if( pDesignObj_Generator && pos!=string::npos && sValue.size()>pos+1 )
+		{
+			char cValue = sValue[pos+1];
+			switch(cValue)
+			{
+			case 'x':
+				return StringUtils::itos(pDesignObj_Generator->m_rPosition.X);
+			case 'y':
+				return StringUtils::itos(pDesignObj_Generator->m_rPosition.Y);
+			case 'w':
+				return StringUtils::itos(pDesignObj_Generator->m_rPosition.Width);
+			case 'h':
+				return StringUtils::itos(pDesignObj_Generator->m_rPosition.Height);
+			case 'r':
+				return StringUtils::itos(pDesignObj_Generator->m_rPosition.Right());
+			case 'b':
+				return StringUtils::itos(pDesignObj_Generator->m_rPosition.Bottom());
+			case 'p':
+				if( sValue.size()>pos+2 )
+				{
+					int PK_DesignObjParameter = atoi( sValue.substr(pos+2).c_str() );
+					return pDesignObj_Generator->GetParm( PK_DesignObjParameter );
+				}
+			}
+		}
+		if( pCGArray && pos!=string::npos && sValue.size()>pos+1 )
+		{
+			char cValue = sValue[pos+1];
+			switch(cValue)
+			{
+			case 'x':
+				return StringUtils::itos(pCGArray->m_rBounds.X);
+			case 'y':
+				return StringUtils::itos(pCGArray->m_rBounds.Y);
+			case 'w':
+				return StringUtils::itos(pCGArray->m_rBounds.Width);
+			case 'h':
+				return StringUtils::itos(pCGArray->m_rBounds.Height);
+			case 'r':
+				return StringUtils::itos(pCGArray->m_rBounds.Right());
+			case 'b':
+				return StringUtils::itos(pCGArray->m_rBounds.Bottom());
+			}
+		}
+	}
+
+	return "";
+}
+
+void DesignObj_Generator::ProcessAddition(char cValue,int iValue,bool bAdd)
+{
+	switch(cValue)
+	{
+	case 'x':
+		m_rPosition.X += iValue * (bAdd ? 1 : -1);
+		return;
+	case 'y':
+		m_rPosition.Y += iValue * (bAdd ? 1 : -1);
+		return;
+	case 'w':
+		m_rPosition.Width += iValue * (bAdd ? 1 : -1);
+		return;
+	case 'h':
+		m_rPosition.Height += iValue * (bAdd ? 1 : -1);
+		return;
+	case 'r':
+		m_rPosition.Right(  m_rPosition.Right() + (iValue * (bAdd ? 1 : -1)) );
+		return;
+	case 'b':
+		m_rPosition.Bottom(  m_rPosition.Bottom() + (iValue * (bAdd ? 1 : -1)) );
+		return;
+	}
+}
+
+void DesignObj_Generator::ProcessAssignment(string sValue,string sValueToAssign)
+{
+	if( sValue.size()<1 )
+		return;
+	char cValue = sValue[0];
+	switch(cValue)
+	{
+	case 'x':
+		m_rPosition.X = atoi(sValueToAssign.c_str());
+		return;
+	case 'y':
+		m_rPosition.Y = atoi(sValueToAssign.c_str());
+		return;
+	case 'w':
+		m_rPosition.Width = atoi(sValueToAssign.c_str());
+		return;
+	case 'h':
+		m_rPosition.Height = atoi(sValueToAssign.c_str());
+		return;
+	case 'r':
+		m_rPosition.Right( atoi(sValueToAssign.c_str()) );
+		return;
+	case 'b':
+		m_rPosition.Bottom( atoi(sValueToAssign.c_str()) );
+		return;
+	case 'p':
+		if( sValue.size()>1 )
+		{
+			int PK_DesignObjParameter = atoi( sValue.substr(1).c_str() );
+			m_mapParameterOverides[ PK_DesignObjParameter ] = sValueToAssign;
+		}
+		return;
+	}
+}
+
+void DesignObj_Generator::FindChild(int PK_DesignObj,DesignObj_Generator **ppDesignObj_Generator,CGArray **ppCGArray)
+{
+	for(vector<class DesignObj_Generator *>::iterator it=m_alChildDesignObjs.begin();it!=m_alChildDesignObjs.end();++it)
+	{
+		DesignObj_Generator *pDesignObj_Generator = *it;
+		if( pDesignObj_Generator->m_pRow_DesignObj->PK_DesignObj_get()==PK_DesignObj )
+		{
+			*ppDesignObj_Generator = pDesignObj_Generator;
+			return;
+		}
+		else
+		{
+			 pDesignObj_Generator->FindChild(PK_DesignObj,ppDesignObj_Generator,ppCGArray);
+			 if( *ppDesignObj_Generator || *ppCGArray )
+				 return;
+		}
+	}
+
+	for(vector<class CGArray *>::iterator it=m_alNonMPArrays.begin();it!=m_alNonMPArrays.end();++it)
+	{
+		CGArray *pCGArray = *it;
+		if( pCGArray->m_drDesignObjVariation_DesignObj->FK_DesignObj_Child_get()==PK_DesignObj )
+		{
+			*ppCGArray=pCGArray;
+			return;
+		}
+	}
+	for(vector<class CGArray *>::iterator it=m_alMPArray.begin();it!=m_alMPArray.end();++it)
+	{
+		CGArray *pCGArray = *it;
+		if( pCGArray->m_drDesignObjVariation_DesignObj->FK_DesignObj_Child_get()==PK_DesignObj )
+		{
+			*ppCGArray=pCGArray;
+			return;
 		}
 	}
 }
