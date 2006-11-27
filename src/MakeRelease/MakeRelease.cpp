@@ -100,6 +100,7 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 
 // These are the specific output functions that need to be implemented and expanded upon
 bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo);
+bool CreateSource_PlutoUbuntu(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo);
 bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo);
 bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo);
 
@@ -620,8 +621,10 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 		switch(pRow_Package_Source->FK_RepositorySource_get())
 		{
 		case REPOSITORYSOURCE_Pluto_Debian_CONST:
-		case REPOSITORYSOURCE_Ubuntu_Pluto_Addons_CONST:
 			return CreateSource_PlutoDebian(pRow_Package_Source,listFileInfo);
+			break;
+		case REPOSITORYSOURCE_Ubuntu_Pluto_Addons_CONST:
+			return CreateSource_PlutoUbuntu(pRow_Package_Source,listFileInfo);
 			break;
 		case REPOSITORYSOURCE_SourceForge_CVS_CONST:
 			return CreateSource_SourceForgeCVS(pRow_Package_Source,listFileInfo);
@@ -1427,6 +1430,215 @@ cout << "Copying Files\n";
 
 // listFileInfo is input not output!!! (we should get used to using const when a reference is for input)
 
+
+bool CreateSource_PlutoUbuntu(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
+{
+	string Version("");
+	if (!pRow_Package_Source->Version_isNull())
+	{
+		Version = pRow_Package_Source->Version_get();
+	}
+	if (Version == "")
+	{
+		Version = "2.0.0.0";
+	}
+	
+	string Package_Name = StringUtils::ToLower(pRow_Package_Source->Name_get());
+	string Dir(g_sOutputPath + "/tmp/" + Package_Name + "-" + Version);
+	string Prefix("/usr/");
+	if (pRow_Package_Source->FK_Package_getrow()->IsSource_get())
+	{
+		Prefix = "/usr/pluto/sources/";
+	}
+
+
+#ifndef WIN32
+	FILE *f;
+	system(("rm -rf " + Dir).c_str());
+	system(("mkdir -p " + Dir + "/root").c_str());
+	char CurrentDir[1024];
+	getcwd(CurrentDir, 1024);
+	chdir(Dir.c_str());
+	cout << "chdir " << Dir << endl;
+
+string Makefile = "none:\n"
+"\t\n"
+"\n"
+"install:\n"
+"\tcp -a root/* $(DESTDIR) || true\n";
+
+	f = fopen((Dir + "/Makefile").c_str(), "w");
+	if (!f)
+	{
+		cout << "Error: cannot open Makefile:" << Dir << "/Makefile" << endl;
+		return false;
+	}
+	fprintf(f, "%s", Makefile.c_str(), Makefile.length());
+	fclose(f);
+	system("echo | dh_make -c gpl -s -n");
+#endif
+
+	list<FileInfo *>::iterator iFileInfo;
+	for (iFileInfo = listFileInfo.begin(); iFileInfo != listFileInfo.end(); iFileInfo++)
+	{
+		string sSource = (*iFileInfo)->m_sSource;
+
+		// TODO: Error checks
+		if (sSource.find("mkr_postinst") != string::npos) // NOTE: not right; should check at begining of file name
+		{
+		}
+		else if (sSource.find("mkr_preinst") != string::npos) // NOTE: not right; should check at begining of file name
+		{
+		}
+		else if (sSource.find("mkr_prerm") != string::npos) // NOTE: not right; should check at begining of file name
+		{
+		}
+		else if (sSource.find("mkr_postrm") != string::npos) // NOTE: not right; should check at begining of file name
+		{
+		}
+		else
+		{
+			// no prefix for absolute paths (the ones that start with a slash)
+			string thePrefix(Prefix);
+			if ((*iFileInfo)->m_sDestination[0] == '/')
+				thePrefix = "";
+		
+			string sDestination;
+			if ((*iFileInfo)->m_sDestination.find("/debian") != string::npos) {
+				sDestination = Dir + thePrefix + (*iFileInfo)->m_sDestination;
+			} else {
+				sDestination = Dir + "/root/" + thePrefix + (*iFileInfo)->m_sDestination;
+			}
+		
+		
+			cout << "COPY: " << sSource << " --> " + sDestination << endl;
+			if( !g_bSimulate )
+				CopySourceFile(sSource, sDestination);
+		}
+	}
+
+	// Get a list of all the other packages which we depend on, and which have Debian sources.  We are going to add them to the .deb as dependencies
+	vector<Row_Package_Source *> vect_pRow_Package_Source_Dependencies;
+	pRow_Package_Source->Table_Package_Source_get()->GetRows("JOIN Package_Package ON Package_Package.FK_Package_DependsOn=Package_Source.FK_Package AND Package_Package.FK_Package=" + 
+		StringUtils::itos(pRow_Package_Source->FK_Package_get()) + " WHERE FK_RepositorySource IN (" + StringUtils::itos(REPOSITORYSOURCE_Pluto_Debian_CONST)
+		+ "," + StringUtils::itos(REPOSITORYSOURCE_Debian_CONST) + "," + StringUtils::itos(REPOSITORYSOURCE_MythTV_CONST) + ")",
+		&vect_pRow_Package_Source_Dependencies);
+
+	string sDepends,sPreDepends;
+
+	if( pRow_Package_Source->FK_Package_getrow()->FK_Manufacturer_get()==1
+			&& !isDriverPackage(pRow_Package_Source->FK_Package_get()) ) // Pluto && ! kernel_module
+	{
+		sPreDepends = "pluto-kernel-upgrade ";
+	}
+	for (size_t s=0;s<vect_pRow_Package_Source_Dependencies.size();++s)
+	{
+		Row_Package_Source *pRow_Package_Source_Dependency = vect_pRow_Package_Source_Dependencies[s];
+		Row_Package_Package *pRow_Package_Package = g_pDatabase_pluto_main->Package_Package_get()->GetRow(pRow_Package_Source->FK_Package_get(),pRow_Package_Source_Dependency->FK_Package_get());
+		string sPkgName = pRow_Package_Source_Dependency->Name_get();
+		string sPkgVersion = pRow_Package_Source_Dependency->Version_get();
+		int count = 0;
+		for (size_t i = 0; i < sPkgVersion.length(); i++)
+		{
+			if (sPkgVersion[i] == '.')
+				count++;
+		}
+
+		string sPkgVerBase = sPkgVersion;
+		if (count == 4)
+		{
+			string::size_type iLastDot = sPkgVersion.rfind(".", sPkgVersion.length());
+			sPkgVerBase = iLastDot == string::npos ? "" : sPkgVersion.substr(0, iLastDot);
+		}
+		int iPkgManufacturer = pRow_Package_Source_Dependency->FK_Package_getrow()->FK_Manufacturer_get();
+		if (iPkgManufacturer == 1 ) /* HARDCODED: 1 = Pluto */
+		{
+			if( pRow_Package_Package->PreDependency_get()==1 )
+				sPreDepends += ", " + sPkgName;
+			else
+				sDepends += ", " + sPkgName;
+			if( sPkgVerBase != "" )
+			{
+				string::size_type iLastDotNext = sPkgVerBase.rfind(".", sPkgVerBase.length());
+				string sPkgVerBaseMajor = sPkgVerBase.substr(0, iLastDotNext + 1);
+				string sPkgVerBaseMinor = sPkgVerBase.substr(iLastDotNext + 1);
+				int iPkgVerBaseNext = atoi(sPkgVerBaseMinor.c_str()) + 1;
+				if( pRow_Package_Package->PreDependency_get()==1 )
+					sPreDepends += string("")+ " (>= " + sPkgVerBase + ")" + ", " + sPkgName + " (<< " + sPkgVerBaseMajor + StringUtils::itos(iPkgVerBaseNext) + ")";
+				else
+					sDepends += string("")+ " (>= " + sPkgVerBase + ")" + ", " + sPkgName + " (<< " + sPkgVerBaseMajor + StringUtils::itos(iPkgVerBaseNext) + ")";
+			}
+		}
+		else
+			sPreDepends += ", " + sPkgName;
+		g_DebianPackages[sPkgName] = true;
+	}
+	g_DebianPackages[Package_Name] = true;
+	cout << "Depends list: " << sDepends << endl;
+	cout << "PreDepends list: " << sPreDepends << endl;
+	cout << "Replaces: " << pRow_Package_Source->Replaces_get() << endl;  // This is a comma-delimited list
+	cout << "Conflicts: " << pRow_Package_Source->Conflicts_get() << endl;  // This is a comma-delimited list
+	cout << "Provides: " << pRow_Package_Source->Provides_get() << endl;  // This is a comma-delimited list
+
+#ifndef WIN32
+	string sed_predepends = "";
+	if (sPreDepends != "")
+	{
+		sed_predepends = "\\nPre-Depends: ${shlibs:Depends}, ${misc:Depends}" + sPreDepends;
+	}
+	string sed_cmd = "s/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + sed_predepends + "/";
+	string replaces = pRow_Package_Source->Replaces_get();
+	string conflicts = pRow_Package_Source->Conflicts_get();
+	string provides = pRow_Package_Source->Provides_get();
+	if (replaces != "")
+	{
+		sed_cmd += "; /^Description: / { x; s/^.*$/Replaces: " + replaces + "/; p; x; }";
+	}
+	if (conflicts != "")
+	{
+		sed_cmd += "; /^Description: / { x; s/^.*$/Conflicts: " + conflicts + "/; p; x; }";
+	}
+	if (provides != "")
+	{
+		sed_cmd += "; /^Description: / { x; s/^.*$/Provides: " + provides + "/; p; x; }";
+	}
+	string cmd = string("sed -i '" + sed_cmd + "' " + Dir + "/debian/control");
+	cout << cmd << endl;
+	system(cmd.c_str());
+
+	// handle dh_strip
+	if (isStrippablePackage(pRow_Package_Source->FK_Package_get()))
+		sed_cmd = "s/^.*dh_strip.*$/\tdh_strip/g";
+	else
+		sed_cmd = "s/^.*dh_strip.*$/\t# dh_strip/g";
+	cmd = string("sed -i '" + sed_cmd + "' " + Dir + "/debian/rules");
+	cout << cmd << endl;
+	system(cmd.c_str());
+
+	cout << string(("dpkg-buildpackage -b -rfakeroot -us -uc")) << endl;
+	if (!g_bSimulate)
+	{
+		// in C++, the headers do a "*(int *) &(status)" - where C uses the "status" parameter verbatim
+		int status = system("dpkg-buildpackage -b -rfakeroot -us -uc");
+		printf("dpkg-buildpackage returned %d\n", WEXITSTATUS(status));
+		if (WEXITSTATUS(status))
+		{
+			cout << "dpkg-buildpackage -b failed.  Aborting." << endl;
+			return false;
+		}
+	}
+#endif
+	
+#ifndef WIN32
+	chdir(CurrentDir);
+	cout << "chdir " << Dir << endl;
+	if( !g_bSimulate )
+		system(("rm -rf " + Dir).c_str());
+#endif
+	
+	return true;
+}
+
 bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
 	string Version("");
@@ -1616,7 +1828,9 @@ string Makefile = "none:\n"
 			string thePrefix(Prefix);
 			if ((*iFileInfo)->m_sDestination[0] == '/')
 				thePrefix = "";
-		
+	
+			if ((*iFileInfo)->m_sDestination.find("/debian") != string::npos) { continue; }
+
 			string sDestination = Dir + "/root/" + thePrefix + (*iFileInfo)->m_sDestination;
 		
 			cout << "COPY: " << sSource << " --> " + sDestination << endl;
