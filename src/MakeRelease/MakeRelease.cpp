@@ -1520,7 +1520,7 @@ string Makefile = "none:\n"
 	// Get a list of all the other packages which we depend on, and which have Debian sources.  We are going to add them to the .deb as dependencies
 	vector<Row_Package_Source *> vect_pRow_Package_Source_Dependencies;
 	pRow_Package_Source->Table_Package_Source_get()->GetRows("JOIN Package_Package ON Package_Package.FK_Package_DependsOn=Package_Source.FK_Package AND Package_Package.FK_Package=" + 
-		StringUtils::itos(pRow_Package_Source->FK_Package_get()) + " WHERE FK_RepositorySource IN (" + StringUtils::itos(REPOSITORYSOURCE_Pluto_Debian_CONST)
+		StringUtils::itos(pRow_Package_Source->FK_Package_get()) + " WHERE FK_RepositorySource IN (" + StringUtils::itos(REPOSITORYSOURCE_Ubuntu_Pluto_Addons_CONST)
 		+ "," + StringUtils::itos(REPOSITORYSOURCE_Debian_CONST) + "," + StringUtils::itos(REPOSITORYSOURCE_MythTV_CONST) + ")",
 		&vect_pRow_Package_Source_Dependencies);
 
