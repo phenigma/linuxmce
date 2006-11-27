@@ -1093,7 +1093,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 
 	if(  pObj->m_vectSelectedGraphic.size() && pObj->m_GraphicToDisplay != GRAPHIC_SELECTED ) // TODO 2.0 && m_ChangeToScreen.length(  ) == 0 )
 	{
-		pObj->m_GraphicToDisplay_set(GRAPHIC_SELECTED);
+		pObj->m_GraphicToDisplay_set("o1",GRAPHIC_SELECTED);
 		m_pOrbiterRenderer->RenderObjectAsync(pObj);
 
 		if(pObj->m_vectSelectedGraphic.size())
@@ -1124,7 +1124,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 					//if it is playing, cancel this
 					pObj_Sel->m_pvectCurrentPlayingGraphic = NULL;
 					pObj_Sel->m_iCurrentFrame = 0;
-					pObj_Sel->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
+					pObj_Sel->m_GraphicToDisplay_set("o2",GRAPHIC_NORMAL);
 
 #ifdef DEBUG
 					g_pPlutoLogger->Write(LV_STATUS, "State reseted for object with id %s",
@@ -3103,7 +3103,7 @@ bool Orbiter::ButtonDown( int iPK_Button )
 		if( pCallBackInfo->m_fnCallBack == &Orbiter::DeselectObjects)
 		{
 			DesignObj_Orbiter *pObj = (DesignObj_Orbiter *)pCallBackInfo->m_pData;
-			pObj->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
+			pObj->m_GraphicToDisplay_set("o3",GRAPHIC_NORMAL);
 			m_pOrbiterRenderer->RenderObjectAsync(pObj);
 
 			m_mapPendingCallbacks.erase(it++);
@@ -4592,7 +4592,7 @@ void Orbiter::DeselectObjects( void *data )
 
 	if(pObj->m_GraphicToDisplay == GRAPHIC_SELECTED)
 	{
-		pObj->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
+		pObj->m_GraphicToDisplay_set("o4",GRAPHIC_NORMAL);
 		m_pOrbiterRenderer->RenderObjectAsync(pObj);
 
 		// Remove it from the list
@@ -5349,7 +5349,7 @@ void Orbiter::CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string 
 	mt.Release();
 	cm.Relock();
 
-	pObj->m_GraphicToDisplay_set(atoi( sID.c_str(  ) ));
+	pObj->m_GraphicToDisplay_set("o5",atoi( sID.c_str(  ) ));
 	if(  pObj->m_GraphicToDisplay==GRAPHIC_SELECTED  )
 	{
 		m_pOrbiterRenderer->SaveBackgroundForDeselect(pObj, pObj->m_pPopupPoint);  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
@@ -5526,7 +5526,7 @@ void Orbiter::CMD_Set_Bound_Icon(string sValue_To_Assign,string sText,string sTy
 	{
 		DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) *it;
 		pObj->m_bDontResetState=true;
-		pObj->m_GraphicToDisplay_set(iValue, true, true);
+		pObj->m_GraphicToDisplay_set("o6",iValue, true, true);
 		if(pObj->m_bOnScreen)
 			m_pOrbiterRenderer->RenderObjectAsync(pObj);
 	}
@@ -7289,7 +7289,7 @@ void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)
 	}
 	else if(  !bDontResetState  )
 	{
-		pObj->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
+		pObj->m_GraphicToDisplay_set("o7",GRAPHIC_NORMAL);
 		pObj->m_bHidden=pObj->m_bHideByDefault;
 	}
 

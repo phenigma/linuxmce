@@ -104,7 +104,7 @@ void SpeedMouseHandler::Start()
 		int Y = m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + (m_pObj->m_rPosition.Height/2);
 		m_pMouseBehavior->SetMousePosition(X,Y);
 		m_iLastGoodPosition=X;
-		m_pObj->m_GraphicToDisplay_set(1);
+		m_pObj->m_GraphicToDisplay_set("smh1",1);
 	}
 	else
 	{

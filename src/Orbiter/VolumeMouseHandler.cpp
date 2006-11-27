@@ -45,7 +45,7 @@ m_iCancelLevel, (int) m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audi
 	if( m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audio_DiscreteVolume==false || m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{
 		m_bTapAndRelease=true;
-		m_pObj->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
+		m_pObj->m_GraphicToDisplay_set("vmh1",GRAPHIC_NORMAL);
 		int X=m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2;
 		m_iLastGoodPosition=X;
 		m_pMouseBehavior->SetMousePosition(X,m_pObj->m_rPosition.Y+m_pObj->m_pPopupPoint.Y+m_pObj->m_rPosition.Height/2);
@@ -55,7 +55,7 @@ m_iCancelLevel, (int) m_pMouseBehavior->m_pOrbiter->m_bPK_Device_NowPlaying_Audi
 	{
 		m_pMouseBehavior->m_pMouseGovernor->SetBuffer(250);
 		m_bTapAndRelease=false;
-		m_pObj->m_GraphicToDisplay_set(1);
+		m_pObj->m_GraphicToDisplay_set("vmh2",1);
 		m_iLastNotch = m_iCancelLevel;
 		int X = m_pObj->m_rPosition.Width * m_iLastNotch / 100;
 		m_iLastGoodPosition=X;

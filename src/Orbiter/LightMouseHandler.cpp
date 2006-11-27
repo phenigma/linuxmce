@@ -28,13 +28,13 @@ void LightMouseHandler::Start()
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{
 		m_bTapAndRelease=true;
-		m_pObj->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
+		m_pObj->m_GraphicToDisplay_set("lmh1",GRAPHIC_NORMAL);
 		m_iLastNotch=0;
 		m_iCancelLevel = 50;
 	}
 	else
 	{
-		m_pObj->m_GraphicToDisplay_set(1);
+		m_pObj->m_GraphicToDisplay_set("lmh2",1);
 		m_bTapAndRelease=false;
 		m_iLastNotch=5;
 	}

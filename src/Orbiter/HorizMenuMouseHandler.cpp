@@ -66,7 +66,7 @@ bool HorizMenuMouseHandler::ButtonDown(int PK_Button)
 			if(NULL != pObj_ToHighlight && pObj_ToHighlight != m_pObj_ActiveMenuPad && 
 				(GetMainMenuPopup(pObj_ToHighlight) != "" || GetFileBrowserPopup(pObj_ToHighlight) != ""))
 			{
-				m_pObj_ActiveMenuPad->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
+				m_pObj_ActiveMenuPad->m_GraphicToDisplay_set("hmm1",GRAPHIC_NORMAL);
 				ShowPopup(pObj_ToHighlight);
 				m_pObj_ActiveMenuPad = pObj_ToHighlight;
 			}
@@ -90,7 +90,7 @@ bool HorizMenuMouseHandler::ButtonUp(int PK_Button)
 	case BUTTON_Right_Arrow_CONST:
 		if( m_pObj_ActiveMenuPad ) 
 		{
-			m_pObj_ActiveMenuPad->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
+			m_pObj_ActiveMenuPad->m_GraphicToDisplay_set("hmm2",GRAPHIC_NORMAL);
 			// If there's a menu pad, temporarily make it highlighted so the following function can easliy calculate left/right accurately
 			m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = m_pObj_ActiveMenuPad;
 		}
@@ -125,7 +125,7 @@ void HorizMenuMouseHandler::Move(int X,int Y,int PK_Direction)
 		if( pObj_ToHighlight && pObj_ToHighlight!=m_pObj_ActiveMenuPad )
 		{
 			if( m_pObj_ActiveMenuPad )
-				m_pObj_ActiveMenuPad->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
+				m_pObj_ActiveMenuPad->m_GraphicToDisplay_set("hmm3",GRAPHIC_NORMAL);
 			ShowPopup(pObj_ToHighlight);
 			m_pObj_ActiveMenuPad=pObj_ToHighlight;
 		}
@@ -133,7 +133,7 @@ void HorizMenuMouseHandler::Move(int X,int Y,int PK_Direction)
 		{
 			if( m_pObj_ActiveMenuPad )
 			{
-				m_pObj_ActiveMenuPad->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
+				m_pObj_ActiveMenuPad->m_GraphicToDisplay_set("hmm4",GRAPHIC_NORMAL);
 				m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_ActiveMenuPad);
 			}
 			m_pObj_ActiveMenuPad = NULL;
@@ -171,11 +171,11 @@ void HorizMenuMouseHandler::ShowPopup(DesignObj_Orbiter *pObj_MenuPad)
 {
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "HorizMenuMouseHandler::ShowPopup" );
 
-	pObj_MenuPad->m_GraphicToDisplay_set(GRAPHIC_SELECTED);
+	pObj_MenuPad->m_GraphicToDisplay_set("hmm5",GRAPHIC_SELECTED);
 	m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(pObj_MenuPad);
 	if( m_pObj_ActiveMenuPad && m_pObj_ActiveMenuPad!=pObj_MenuPad )
 	{
-		m_pObj_ActiveMenuPad->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
+		m_pObj_ActiveMenuPad->m_GraphicToDisplay_set("hmm6",GRAPHIC_NORMAL);
 		m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_ActiveMenuPad);
 	}
 	string sSubMenu;

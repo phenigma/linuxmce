@@ -327,9 +327,9 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 			)
 		{
 			if(m_pObj_Owner->m_pDesignObj_Orbiter_TiedTo == m_pObj_Owner->m_pOrbiter->m_pObj_Highlighted)
-				m_pObj_Owner->m_GraphicToDisplay_set(GRAPHIC_HIGHLIGHTED);
+				m_pObj_Owner->m_GraphicToDisplay_set("or1",GRAPHIC_HIGHLIGHTED);
 			else
-				m_pObj_Owner->m_GraphicToDisplay_set(m_pObj_Owner->m_pDesignObj_Orbiter_TiedTo->m_GraphicToDisplay);
+				m_pObj_Owner->m_GraphicToDisplay_set("or2",m_pObj_Owner->m_pDesignObj_Orbiter_TiedTo->m_GraphicToDisplay);
 		}
 		else
 		{
@@ -340,9 +340,9 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 				(m_pObj_Owner->m_iRowTiedTo == -1 || m_pObj_Owner->m_iRowTiedTo == pObjGrid->m_iHighlightedRow) &&
 				(m_pObj_Owner->m_iColumnTiedTo == -1 || m_pObj_Owner->m_iColumnTiedTo == pObjGrid->m_iHighlightedColumn)
 				)
-				m_pObj_Owner->m_GraphicToDisplay_set(GRAPHIC_HIGHLIGHTED);
+				m_pObj_Owner->m_GraphicToDisplay_set("or3",GRAPHIC_HIGHLIGHTED);
 			else
-				m_pObj_Owner->m_GraphicToDisplay_set(GRAPHIC_NORMAL);
+				m_pObj_Owner->m_GraphicToDisplay_set("or4",GRAPHIC_NORMAL);
 		}
 	}
 
@@ -394,7 +394,7 @@ int k=2;
 		m_pObj_Owner->m_pvectCurrentGraphic = &(m_pObj_Owner->m_vectHighlightedGraphic);
 
 		//make sure they are in sync
-		m_pObj_Owner->m_GraphicToDisplay_set(GRAPHIC_HIGHLIGHTED);
+		m_pObj_Owner->m_GraphicToDisplay_set("or6",GRAPHIC_HIGHLIGHTED);
 
 		//we'll need to do the highlighting here, since we need the normal surface for un-highlighting
 		//we won't do it on RealRedraw for this kind of objects

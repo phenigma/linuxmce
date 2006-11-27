@@ -26,7 +26,7 @@ Disk_Drive_Functions::Disk_Drive_Functions(Command_Impl * pCommand_Impl, const s
 {
 	m_DiskMutex.Init(NULL);
 	m_pDevice_AppServer = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
-	DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,
+	DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
 		BL_SameHouse,m_pCommand_Impl->m_dwPK_Device,"");
 	m_pCommand_Impl->SendCommand(CMD_Report_Discs_in_Drive_DT);
 }
@@ -128,6 +128,9 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
         {
 			m_discid=0;
             m_mediaInserted = false;
+			DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
+				BL_SameHouse,m_pCommand_Impl->m_dwPK_Device,"");
+			m_pCommand_Impl->SendCommand(CMD_Report_Discs_in_Drive_DT);
             g_pPlutoLogger->Write(LV_STATUS, "Disk is not in the drive at the moment");
         }
     }
