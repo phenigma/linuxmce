@@ -294,11 +294,11 @@ void OrbiterBluetooth::GetMenuData( MenuData& data  )
 			for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it) {
 				// Here are all the buttons
 				DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)(*it);
-				string sScenarioID = pDesignObj_Orbiter->GetArrayValue();
+				string sScenarioID = pDesignObj_Orbiter->GetVariableAssignment(VARIABLE_Array_ID_CONST);
 				if( sScenarioID.empty() )
 					continue;
 				string sObjectID = pDesignObj_Orbiter->m_ObjectID;
-				string sScenarioDesc = pDesignObj_Orbiter->GetArrayValue( true );				
+				string sScenarioDesc = pDesignObj_Orbiter->GetVariableAssignment( VARIABLE_Array_Desc_CONST );				
 				// Add subscenario for nRoomID, sScenarioDescs[i]
 				data.AddSubScenario( nRoomID, sScenarioDescs[i], sObjectID, sScenarioDesc );
 			}
