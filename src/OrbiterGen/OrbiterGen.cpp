@@ -1516,37 +1516,33 @@ loop_to_keep_looking_for_objs_to_include:
 	}
 
 	// Now include all the media sort options if this it UI version 2
-	if( m_pRow_UI->Version_get()==2 ) //&& (m_map_PK_DesignObj_SoleScreenToGen.size()==0 || m_map_PK_DesignObj_SoleScreenToGen[DESIGNOBJ_grpMediaSortOptions_CONST]==true) )
+	Row_DesignObj *pRow_DesignObj_Array[5] = { NULL, NULL, NULL, NULL, NULL };
+	pRow_DesignObj_Array[0] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(DESIGNOBJ_popFBSF_Sort_CONST);
+	pRow_DesignObj_Array[1] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(DESIGNOBJ_popFBSF_Genres_CONST);
+	pRow_DesignObj_Array[2] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(DESIGNOBJ_popFBSF_PK_MediaSubType_CONST);
+	pRow_DesignObj_Array[3] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(DESIGNOBJ_popFBSF_MediaSource_CONST);
+
+	int iPK_MediaType_Searchable[] = {MEDIATYPE_pluto_StoredAudio_CONST,MEDIATYPE_pluto_StoredVideo_CONST,MEDIATYPE_pluto_Pictures_CONST,MEDIATYPE_np_Game_CONST,MEDIATYPE_misc_DocViewer_CONST};
+	for(int i=0;i<4;++i)
 	{
-		Row_DesignObj *pRow_DesignObj_Array[5] = { NULL, NULL, NULL, NULL, NULL };
-		pRow_DesignObj_Array[0] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(5100);
-		pRow_DesignObj_Array[1] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(5103);
-		pRow_DesignObj_Array[2] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(5106);
-		pRow_DesignObj_Array[3] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(5112);
-		pRow_DesignObj_Array[4] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(5109);
-
-		int iPK_MediaType_Searchable[] = {MEDIATYPE_pluto_StoredAudio_CONST,MEDIATYPE_pluto_StoredVideo_CONST,MEDIATYPE_pluto_Pictures_CONST,MEDIATYPE_np_Game_CONST,MEDIATYPE_misc_DocViewer_CONST};
-		for(int i=0;i<5;++i)
+		m_dwMediaType = iPK_MediaType_Searchable[i];
+		for(int iRow_DesignObj=0;iRow_DesignObj<5;++iRow_DesignObj)
 		{
-			m_dwMediaType = iPK_MediaType_Searchable[i];
-			for(int iRow_DesignObj=0;iRow_DesignObj<5;++iRow_DesignObj)
-			{
-				Row_DesignObj *pRow_DesignObj = pRow_DesignObj_Array[iRow_DesignObj];
-				if( !pRow_DesignObj )
-					continue;  // Shouldn't happen
+			Row_DesignObj *pRow_DesignObj = pRow_DesignObj_Array[iRow_DesignObj];
+			if( !pRow_DesignObj )
+				continue;  // Shouldn't happen
 
-				m_mapDesignObj_WithArrays[ pRow_DesignObj->PK_DesignObj_get() ] = true;
-				DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
-				ocDesignObj->m_bIsPopup=true;
-				m_mapPopups[ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()]=true;
-				if( ocDesignObj->m_bUsingCache )
-				{
-					SearchForGotos(ocDesignObj);
-				}
+			m_mapDesignObj_WithArrays[ pRow_DesignObj->PK_DesignObj_get() ] = true;
+			DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
+			ocDesignObj->m_bIsPopup=true;
+			m_mapPopups[ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()]=true;
+			if( ocDesignObj->m_bUsingCache )
+			{
+				SearchForGotos(ocDesignObj);
 			}
 		}
-		m_dwMediaType=0;
 	}
+	m_dwMediaType=0;
 
 	list< pair<Row_DesignObj *,int> >::iterator itnol;
 	for(itnol=alNewDesignObjLocationsToGenerate.begin();itnol!=alNewDesignObjLocationsToGenerate.end();++itnol)
@@ -2392,13 +2388,16 @@ int k=2;
 			OutputDesignObjs(oco,ArrayPage,true,ParentScreen);
 		}
 	}
-if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==4967 || ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==3558 )
+if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==5112 )
+int k=2;
+
+if( ocDesignObj->m_ObjectID.find("5112.5.0.5113")!=string::npos )
 int k=2;
 
 	// Offset for the spacing
 	if( ocDesignObj->m_bDontScale==false && m_mapPopups.find(atoi(ParentScreen.c_str()))==m_mapPopups.end() )
 	{
-if( ocDesignObj->m_ObjectID=="1255.0.0" )
+if( ocDesignObj->m_ObjectID.find("5112")!=string::npos )
 int k=2;
 		ocDesignObj->m_rPosition.X += m_rSpacing.X;
 		ocDesignObj->m_rPosition.Y += m_rSpacing.Y;

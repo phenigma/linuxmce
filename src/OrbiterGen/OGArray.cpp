@@ -24,8 +24,9 @@
 #include "pluto_main/Table_Variable.h"
 #include "pluto_main/Define_Button.h"
 
-CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row_DesignObjVariation_DesignObj * drDesignObjVariation_DesignObj,vector<class ArrayValue *> *alValues,class PlutoRectangle rBounds,int StartingOffset,int Page)
+CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row_DesignObjVariation_DesignObj * drDesignObjVariation_DesignObj,vector<class ArrayValue *> *alValues,class PlutoRectangle rBounds,int StartingOffset,int Page,int PK_Array)
 {
+	m_PK_Array=PK_Array;
 	m_bContainsMore=false;
 	m_iLastVisibleArrayEntry=0;
 	iScreenNum=0;
@@ -252,6 +253,12 @@ int k=2;
 		oa = new CGCommand(COMMAND_Set_Variable_CONST,m_DesignObj_Generator_Parent);
 		oa->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST]=StringUtils::itos(VARIABLE_Array_Desc_CONST);
 		oa->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST]=av->m_sDescription;
+		oa->m_PK_Device = DEVICEID_HANDLED_INTERNALLY;
+		oz->m_Commands.push_back(oa);
+
+		oa = new CGCommand(COMMAND_Set_Variable_CONST,m_DesignObj_Generator_Parent);
+		oa->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST]=StringUtils::itos(VARIABLE_PK_Array_CONST);
+		oa->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST]=m_PK_Array;
 		oa->m_PK_Device = DEVICEID_HANDLED_INTERNALLY;
 		oz->m_Commands.push_back(oa);
 

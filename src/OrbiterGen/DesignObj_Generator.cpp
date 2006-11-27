@@ -78,6 +78,7 @@ extern bool g_bBootSplash;
 
 DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_DesignObj * drDesignObj,class PlutoRectangle rPosition,class DesignObj_Generator *ocoParent,bool bAddToGenerated,bool bDontShare,bool bProcess)
 {
+g_pPlutoLogger->Write(LV_STATUS,"const %p %d",this,drDesignObj->PK_DesignObj_get());
     m_pRow_DesignObjVariation=NULL;
     m_pRow_DesignObjVariation_Standard=NULL;
     m_bContainsArrays=false;
@@ -132,7 +133,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
 if( m_pOrbiterGenerator->m_iLocation )
 int k=2;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==5111 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==4834 ||  m_pRow_DesignObj->PK_DesignObj_get()==4836 ) 
+if( m_pRow_DesignObj->PK_DesignObj_get()==5109 ||  m_pRow_DesignObj->PK_DesignObj_get()==5106 ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -1049,14 +1050,15 @@ int k=2;
     {
         Row_DesignObjVariation_DesignObj * drOVO = alArrays[s];
 
-        vector<class ArrayValue *> *alArrayValues = GetArrayValues(drOVO);
+		int PK_Array;
+		vector<class ArrayValue *> *alArrayValues = GetArrayValues(drOVO,PK_Array);  // PK_Array will be filled in
         PlutoRectangle rtArray(m_rPosition.X + drOVO->X_get(),m_rPosition.Y + drOVO->Y_get(),drOVO->Width_isNull() ? 0 : drOVO->Width_get(),drOVO->Height_isNull() ?  0 : drOVO->Height_get());
         if( rtArray.Right()>m_pOrbiterGenerator->m_sizeScreen->Width || rtArray.Width==0 )
             rtArray.Width = m_pOrbiterGenerator->m_sizeScreen->Width - rtArray.Left();
         if( rtArray.Bottom()>m_pOrbiterGenerator->m_sizeScreen->Height || rtArray.Height==0 )
             rtArray.Height = m_pOrbiterGenerator->m_sizeScreen->Height - rtArray.Top();
 
-        CGArray *pCGArray = new CGArray(this,drOVO,alArrayValues,rtArray,0,0);
+        CGArray *pCGArray = new CGArray(this,drOVO,alArrayValues,rtArray,0,0,PK_Array);
 	    if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST  )
 			m_rPosition = PlutoRectangle::Union(m_rPosition,pCGArray->m_rBounds);
 		
@@ -1070,7 +1072,7 @@ int k=2;
 
             while( pCGArray->m_bContainsMore )
             {
-                pCGArray = new CGArray(this,drOVO,alArrayValues,rtArray,pCGArray->m_iLastVisibleArrayEntry,Page++);
+                pCGArray = new CGArray(this,drOVO,alArrayValues,rtArray,pCGArray->m_iLastVisibleArrayEntry,Page++,PK_Array);
                 m_alMPArray.push_back(pCGArray);
             }
         }
@@ -1217,6 +1219,7 @@ int k=2;
 
 DesignObj_Generator::~DesignObj_Generator()
 {
+g_pPlutoLogger->Write(LV_STATUS,"dest %p",this);
 }
 
 int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
@@ -1518,7 +1521,7 @@ TextStyle *DesignObj_Generator::PickStyleVariation(vector<Row_StyleVariation *> 
     return pTextStyle;
 }
 
-vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVariation_DesignObj * drOVO)
+vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVariation_DesignObj * drOVO,int &PK_Array)
 {
     vector<class ArrayValue *> *alArray = new vector<class ArrayValue *>;
 
@@ -1534,7 +1537,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 	bool bNoSubstitutions = sExtraInfo.find('X')!=string::npos;
 	bool bNoIcons = sExtraInfo.find('I')!=string::npos;
 
-    int PK_Array = atoi(oArray.c_str());
+    PK_Array = atoi(oArray.c_str());
     int PriorSort=-1;
     switch(PK_Array)
     {
@@ -2188,10 +2191,8 @@ int k=2;
 
 void DesignObj_Generator::HandleRotation(int iRotate)
 {
-if( this->m_pRow_DesignObj->PK_DesignObj_get()==2432 )
-{
-int k=2;
-}
+	if( !m_pOrbiterGenerator )
+		return; // We were serialized from disk anyway
 	m_rBackgroundPosition.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
 	m_rPosition.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
 	m_rBitmapOffset.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);

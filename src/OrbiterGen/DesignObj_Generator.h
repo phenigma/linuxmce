@@ -52,7 +52,7 @@ public:
 	int m_iPK_CommandGroup_Touch_Extra;  // An extra action group to execute, used when this object is a button in an action group array.  
 	class Row_Device * m_pRow_Device_Goto;
 
-	DesignObj_Generator() { m_bRendered=false; } // when we're serializing from disk
+	DesignObj_Generator() { m_bRendered=false; m_pOrbiterGenerator=NULL; } // when we're serializing from disk
 
 	// If process = false, the Process() function which does all the work won't be called so the caller can change the order things are processed to account for m_sAdjustments
 	DesignObj_Generator(class OrbiterGenerator *pOrbiterGenerator,class Row_DesignObj * drDesignObj,class PlutoRectangle rPosition,class DesignObj_Generator *ocoParent,bool bAddToGenerated,bool bDontShare,bool bProcess=true);
@@ -67,7 +67,7 @@ public:
 	static TextStyle *PickStyleVariation(vector<Row_StyleVariation *> &vectrsv,OrbiterGenerator *pGenerator,int Version);
 	void HandleRotation(int iRotate);
 
-	vector<class ArrayValue *> *GetArrayValues(class Row_DesignObjVariation_DesignObj * drOVO);
+	vector<class ArrayValue *> *GetArrayValues(class Row_DesignObjVariation_DesignObj * drOVO,int &PK_Array);
 	void ScaleAllValues(int FactorX,int FactorY,class DesignObj_Generator *pTopmostObject);
 	class PlutoPoint *ScaleValue(class PlutoPoint *pt,int FactorX,int FactorY);
 	string GetParm(int PK_Parameter);

@@ -32,7 +32,7 @@ public:
 	int m_iLastVisibleArrayEntry,iScreenNum;
 	vector<class DesignObj_Generator *> m_alChildDesignObjs;
 	vector<class ArrayValue *> *m_alValues;
-	int m_iStartingOffset,m_iPage;
+	int m_iStartingOffset,m_iPage,m_PK_Array;
 	class DesignObj_Generator *m_DesignObj_Generator_Parent,*m_ocBack,*m_ocFwd;
 	class PlutoRectangle m_rBounds;
 	class Database_pluto_main *m_mds;
@@ -44,7 +44,7 @@ public:
 	class Row_DesignObjVariation_DesignObj * m_drDesignObjVariation_DesignObj;
 	class PlutoPoint m_ptNextPosition;
 
-	CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row_DesignObjVariation_DesignObj * drDesignObjVariation_DesignObj,vector<class ArrayValue *> *alValues,class PlutoRectangle rBounds,int StartingOffset,int Page);
+	CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row_DesignObjVariation_DesignObj * drDesignObjVariation_DesignObj,vector<class ArrayValue *> *alValues,class PlutoRectangle rBounds,int StartingOffset,int Page,int PK_Array);
 	void CheckLastEntry();
 };
 
