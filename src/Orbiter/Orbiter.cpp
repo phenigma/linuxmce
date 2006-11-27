@@ -2905,7 +2905,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d key %d",
 /*virtual*/ bool Orbiter::HandleButtonEvent(int PK_Button)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_CRITICAL, "HandleButtonEvent button %d, shift %d, caps %d", PK_Button, m_bShiftDown, m_bCapsLock);
+	g_pPlutoLogger->Write(LV_STATUS, "HandleButtonEvent button %d, shift %d, caps %d", PK_Button, m_bShiftDown, m_bCapsLock);
 #endif
 	
 	if( !PK_Button || !m_pScreenHistory_Current )
@@ -6265,7 +6265,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 		return;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_CRITICAL, "Received 'Set Now Playing' with window %s", sName.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Received 'Set Now Playing' with window %s", sName.c_str());
 #endif
 
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );

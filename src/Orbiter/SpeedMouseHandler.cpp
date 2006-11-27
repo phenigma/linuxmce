@@ -27,12 +27,12 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 	m_bTapAndRelease=false; // We'll set it to true later
 	string sResponse;
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::SpeedMouseHandler setting playback speed to 0");
+	g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::SpeedMouseHandler setting playback speed to 0 device %d",m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying);
 #endif
 
 	string sText,sMediaPosition;
 	DCE::CMD_Report_Playback_Position CMD_Report_Playback_Position(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,&sText,&sMediaPosition);
-	m_bHasTimeline = m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Report_Playback_Position) && ParsePosition(sMediaPosition);
+	m_bHasTimeline = m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying && m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Report_Playback_Position) && ParsePosition(sMediaPosition);
 
 	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","1","", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0,0);  // 0 for the screen means don't send us to the real remote if we're on the wrong one
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Bind_to_Media_Remote);
@@ -44,10 +44,10 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 	m_iLastNotch=0;
 	m_pMouseBehavior->m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();  // The above may have taken too much time already
 
-	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
+	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar || !m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::SpeedMouseHandler skipping because the speed wasn't changed by the mouse");
+		g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::SpeedMouseHandler skipping because the speed wasn't changed by the mouse or nothing is playing");
 #endif
 		return;
 	}
@@ -75,7 +75,7 @@ SpeedMouseHandler::~SpeedMouseHandler()
 
 void SpeedMouseHandler::Start()
 {
-	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
+	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar || !m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying )
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::Start skipping because the speed wasn't changed by the mouse");

@@ -263,6 +263,11 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		if( !pCell_List )
 			return false; // Shouldn't happen
 
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected sel grid value %s text %s",
+			pCell_List->m_Value ? pCell_List->m_Value : "*NULL*",pCell_List->m_Text ? pCell_List->m_Text : "*NULL*");
+#endif
+
 		if( !pCell_List->m_Value || strstr(pCell_List->m_Value,"\t!D")!=NULL )  // If it contains this, the user is going into a subdirectory
 		{
 			// It's a sub directory.  Update the source and refresh the page
@@ -469,6 +474,14 @@ string ScreenHandler::GetFileBrowserPopup(DesignObj_Orbiter *pObj_MenuPad)
 bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_DatagridSelected sel value %s text %s row %d col %d cell value %s",
+			pCellInfoData->m_sValue.c_str(),pCellInfoData->m_sText.c_str(),
+			pCellInfoData->m_Row,pCellInfoData->m_Column,
+			pCellInfoData->m_pDataGridCell && pCellInfoData->m_pDataGridCell->m_Value ? pCellInfoData->m_pDataGridCell->m_Value : "*NONE*");
+
+#endif
+
 	if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Media_Attributes_For_File_CONST )
 	{
 		SelectedAttributeCell(pCellInfoData->m_pDataGridCell);
