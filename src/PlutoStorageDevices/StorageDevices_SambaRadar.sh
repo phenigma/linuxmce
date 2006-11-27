@@ -13,6 +13,8 @@ fi
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Network_Parameters.sh
 
+CAT_FILESERVER=164
+CAT_MD=8
 
 ## Loging function
 function Log() {
@@ -61,8 +63,8 @@ while : ;do
 		## Check to see if the ip is already in the database
 		Q="
 			SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=164 AND IPaddress='${serverIP}' LIMIT 1;
+			SELECT PK_Device FROM Device WHERE IPaddress = '${serverIP}' INNER JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTempalate AND FK_DeviceCatetory IN ($CAT_MD, $CAT_FILESERVER);
 			SELECT IPaddress FROM UnknownDevices WHERE IPaddress='${serverIP}' LIMIT 1;
-			SELECT IPaddress FROM PnpQueue WHERE IPaddress='${serverIP}' AND Category='fileserver' LIMIT 1
 		"
 		Result=$(RunSQL "$Q")
 
