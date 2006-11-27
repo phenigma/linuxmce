@@ -651,11 +651,19 @@ function isDiskless($deviceID,$deviceData){
 }
 
 function setAlphaBlend($orbiterID,$alphaBlend,$dbADO){
-		/* @var $dbADO ADOConnection */
+	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 
 	$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array($alphaBlend,$orbiterID,$GLOBALS['UsealphablendedUI']));
-	if($dbADO->Affected_Rows()>0){
+	$count=$dbADO->Affected_Rows();
+	if($alphaBlend==1){
+		$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array(4,$orbiterID,$GLOBALS['DD_PK_UI']));
+		$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array(1,$orbiterID,$GLOBALS['UseOpenGLeffects']));
+	}else{
+		$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array(1,$orbiterID,$GLOBALS['DD_PK_UI']));
+		$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array(0,$orbiterID,$GLOBALS['UseOpenGLeffects']));
+	}
+	if($count>0){
 		// call the script who will restart X
 		restartX($orbiterID,getTopLevelParentIP($orbiterID,$dbADO));
 	}

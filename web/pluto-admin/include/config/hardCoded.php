@@ -199,6 +199,7 @@
 	$GLOBALS['PK_MediaAttribute']=182;			// PK_MediaAttribute
 	$GLOBALS['ComputerDomain']=187;				// Computer domain
 	$GLOBALS['ComputerName']=188;				// Computer name
+	$GLOBALS['DD_PK_UI']=104;					// UI
 	
 	// PK_FloorplanType from table FloorplanType 
 
