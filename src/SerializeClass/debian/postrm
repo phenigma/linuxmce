@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+if [[ "$1" == "configure" ]] ;then
+	rm /etc/ld.so.conf.d/pluto-serializeclass.conf
+	ldconfig
+fi
+
