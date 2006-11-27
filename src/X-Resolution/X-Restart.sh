@@ -1,9 +1,20 @@
 #!/bin/bash
 
-. /usr/pluto/bin/Utils.sh
+function DisplayUsage() {
+	echo "Usage: RestartX.sh <orbiterID> <computerIP>"
+}
 
-ReloadDevicesOnThisMachine
-pidOfX=$(ps ax|grep 'X :0 -ignoreABI -ac -allowMouseOpenFail vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
-kill $pidOfX
-sleep 5
-/usr/pluto/bin/Start_X.sh
+if [[ "$#" != "2" ]] ;then
+	DisplayUsage
+	exit 1	
+fi
+
+orbiterID=$1
+computerIP=$2
+
+/usr/pluto/bin/LaunchRemoteCmd.sh "$computerIP" "
+	. /usr/pluto/bin/Utils.sh;
+	/usr/pluto/bin/Xconfigure.sh --keep-resolution --update-video-driver
+	cp /etc/X11/xorg.conf{,.test}
+	#kill $(ps ax|grep 'X :0 -ignoreABI -ac -allowMouseOpenFail vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
+	/usr/pluto/bin/Xres_config_end.sh y" &
