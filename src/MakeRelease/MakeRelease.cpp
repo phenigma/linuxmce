@@ -1529,7 +1529,6 @@ string Makefile = "none:\n"
 	if( pRow_Package_Source->FK_Package_getrow()->FK_Manufacturer_get()==1
 			&& !isDriverPackage(pRow_Package_Source->FK_Package_get()) ) // Pluto && ! kernel_module
 	{
-		sPreDepends = "pluto-kernel-upgrade ";
 	}
 	for (size_t s=0;s<vect_pRow_Package_Source_Dependencies.size();++s)
 	{
