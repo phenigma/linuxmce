@@ -482,6 +482,10 @@ string MediaStream::GetEntAreasWithout(map<int,class EntertainArea *> *p_mapEnte
 
 int MediaStream::GetRemoteControlScreen(int PK_Orbiter)
 {
+	int PK_MediaType=m_iPK_MediaType;
+	if( m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST && m_bContainsTitlesOrSections )
+		PK_MediaType = MEDIATYPE_pluto_DVD_CONST;
+
 	Media_Plugin *pMedia_Plugin = m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin;
 	RemoteControlSet *pRemoteControlSet = pMedia_Plugin->PickRemoteControlMap(
 		PK_Orbiter,
