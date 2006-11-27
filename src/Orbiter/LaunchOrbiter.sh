@@ -36,11 +36,11 @@ fi
 Counter=0
 isIceWmRunning=0
 while [[ "$isIceWmRunning" -eq 0 ]]; do
-	isIceWmRunning=$(ps -A | grep icewm | wc -l)
+	isIceWmRunning=$(ps -A | grep xfwm4 | wc -l)
 	if [[ "$isIceWmRunning" -eq 0 ]]; then
 		((Counter++))
 		if [[ "$Counter" -gt 20 ]]; then
-			Logging "$TYPE" "$SEVERITY_CRITICAL" "LaunchOrbiter" "IceWM failed to start"
+			Logging "$TYPE" "$SEVERITY_CRITICAL" "LaunchOrbiter" "xfwm4 failed to start"
 			break
 		fi
 		sleep 1
