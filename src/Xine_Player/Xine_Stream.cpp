@@ -291,14 +291,12 @@ bool Xine_Stream::CreateWindows()
 	//m_iCurrentScreen = iScreens-1;
 	xpos = 10;
 	ypos = 20;
-	width = 720;
-	height = 540;
+	width = 1;
+	height = 1;
+	int border = 0;
 
-	windows[ 0 ] = XCreateSimpleWindow( m_pXDisplay, XDefaultRootWindow( m_pXDisplay ), xpos, ypos, width, height, 
-																			1, 0, 0 );
-	windows[ 1 ] = XCreateSimpleWindow( m_pXDisplay, XDefaultRootWindow( m_pXDisplay ),
-																			0, 0, ( DisplayWidth( m_pXDisplay, m_iCurrentScreen ) ), DisplayHeight( m_pXDisplay, m_iCurrentScreen ),
-																			0, 0, 0 );
+	windows[ 0 ] = XCreateSimpleWindow( m_pXDisplay, XDefaultRootWindow( m_pXDisplay ), xpos, ypos, width, height, border, 0, 0 );
+	windows[ 1 ] = XCreateSimpleWindow( m_pXDisplay, XDefaultRootWindow( m_pXDisplay ), xpos, ypos, width, height, border, 0, 0 );
 
 /*
 	windows[ 0 ] = XCreateSimpleWindow( m_pXDisplay, XRootWindow( m_pXDisplay, m_iCurrentScreen ), xpos, ypos, width, height, 
