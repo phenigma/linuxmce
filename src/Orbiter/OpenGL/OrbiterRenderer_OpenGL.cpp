@@ -734,7 +734,7 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 	PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_OpenGL::RenderPopup ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
 #endif
 
 	if(Popups)

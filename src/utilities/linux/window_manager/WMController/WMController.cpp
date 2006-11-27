@@ -25,7 +25,7 @@ bool WMControllerImpl::SetVisible(const string& sWindowName, bool bVisible)
 #ifdef DEBUG
 	fprintf(stderr, "WMControllerImpl::SetVisible() : window name: %s, visible: %d\n", sWindowName.c_str(), bVisible);
 #endif
-    return wmctrl.ActionCommand('t', sWindowName.c_str(), bVisible ? "0" : "1");
+    return true; // temp -- disable this to see what happens wmctrl.ActionCommand('t', sWindowName.c_str(), bVisible ? "0" : "1");
 }
 
 //-------------------------------------------------------------------------------------------------------------
