@@ -144,8 +144,4 @@ void AnimationScrollDatagrid::StopAnimation()
 	MeshTransform Transform2;
 	AfterGrid->SetTransform(Transform2);
 	Engine->RemoveMeshFrameFromDesktop(BeforeGrid);
-
-	//BeforeGrid->CleanUp();
-	//delete BeforeGrid;
-	//BeforeGrid = NULL;
 }

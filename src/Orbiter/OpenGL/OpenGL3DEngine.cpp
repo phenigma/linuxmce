@@ -193,6 +193,7 @@ void OpenGL3DEngine::NewScreen(string ScreenName)
 	UnHighlight();
 	UnSelect();
 	m_spDatagridAnimationManager->StopAnimations();
+	m_spDatagridAnimationManager->StopPendingAnimations();
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 	
@@ -701,6 +702,17 @@ void OpenGL3DEngine::UpdateTopMostObjects()
 void OpenGL3DEngine::ReplaceMeshInAnimations(MeshFrame *OldFrame, MeshFrame *NewFrame)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+
+	g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::ReplaceMeshInAnimations %p/%s with %p/%s",
+		OldFrame, OldFrame->Name().c_str(), NewFrame, NewFrame->Name().c_str());
+
+	MeshFrame *pOldCloneFrame = OriginalCurrentLayer->FindChild(NewFrame->Name());
+	if(NULL != pOldCloneFrame)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::ReplaceMeshInAnimations also replacing %p/%s",
+			pOldCloneFrame, pOldCloneFrame->Name().c_str());
+		m_spDatagridAnimationManager->ReplaceMeshInAnimations(pOldCloneFrame, NewFrame);
+	}
 
 	AddMeshFrameToDesktop("", NewFrame);
 	RemoveMeshFrameFromDesktop(OldFrame);

@@ -50,11 +50,11 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 {
 	PLUTO_SAFETY_LOCK(cm, m_pObj_Owner->m_pOrbiter->m_ScreenMutex);
 
-	string DatagridFrameID = "datagrid " + m_pObj_Owner->GenerateObjectHash(point, false);
-	g_pPlutoLogger->Write(LV_STATUS, "abc DataGridRenderer_OpenGL::RenderObject %s", DatagridFrameID.c_str());
-
 	//save the datagrid's mesh frame tree before rendering
 	MeshFrame *BeforeDataGrid = m_pRenderFrame;
+
+	string DatagridFrameID = "datagrid " + m_pObj_Owner->GenerateObjectHash(point, false);
+	g_pPlutoLogger->Write(LV_STATUS, "DataGridRenderer_OpenGL::RenderObject %s", DatagridFrameID.c_str());
 
 	//render datagrid in a frame
 	Engine->EndModifyGeometry();
@@ -63,11 +63,10 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
     m_pRenderFrame = Engine->EndDatagridDrawing(DatagridFrameID);
 	Engine->BeginModifyGeometry();
 
+	g_pPlutoLogger->Write(LV_STATUS, "DataGridRenderer_OpenGL::RenderObject %s MIDDLE", DatagridFrameID.c_str());
+
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, Engine->GetSceneMutex());
 	
-	//stop all animations
-	Engine->GetDatagridAnimationManager()->StopAnimations();
-
 	if(0 != StartAnimation && BeforeDataGrid != NULL)
 	{
 		//suspend texture releases
@@ -88,7 +87,8 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 		//prepare animation
 		vector<string> Dependencies;
 		BuildDependencies(Dependencies);
-		g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::StartAnimation");
+		g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject StartAnimation %s B(%p) - A(%p)",
+			DatagridFrameID.c_str(), BeforeDataGridClone, m_pRenderFrame);
 		Engine->GetDatagridAnimationManager()->PrepareForAnimation(
 			DatagridFrameID, BeforeDataGridClone, m_pRenderFrame, m_AnimationSpeed, iPK_Direction, 
 			GetAlphaLevel() / 255.0f, Dependencies);
@@ -96,6 +96,11 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 	}
 	else
 	{
+		g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject normal render... stopping all animations! Current datagrid frame %p/%s",
+			m_pRenderFrame, m_pRenderFrame->Name().c_str());
+
+		Engine->GetDatagridAnimationManager()->StopAnimations();
+		Engine->GetDatagridAnimationManager()->StopPendingAnimations();
 		Engine->AddMeshFrameToDesktop("", m_pRenderFrame);
 	}
 

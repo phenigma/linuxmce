@@ -71,6 +71,7 @@ public:
 	 *	Stop all animation for one reason (for instance it changes the screen)
 	 */
 	void StopAnimations();
+	void StopPendingAnimations();
 
 	/**
 	 *	Replaces one frame if exist in animations with an updated one 

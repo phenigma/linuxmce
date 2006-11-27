@@ -20,6 +20,9 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "AnimationScrollDatagrid.h"
 #include "OpenGL3DEngine.h"
 
+#include "DCE/Logger.h"
+using namespace DCE;
+
 bool DatagridAnimationManager::Update()
 {
 	if(!m_vectCurrentAnimations.size())
@@ -54,6 +57,9 @@ void DatagridAnimationManager::Cleanup()
 	{
 		AnimationScrollDatagrid *pAnimation = *it;
 
+		g_pPlutoLogger->Write(LV_STATUS, "DatagridAnimationManager::StopAnimation (anim %p) B(%p) - A(%p), pending %d",
+			pAnimation, pAnimation->BeforeGrid, pAnimation->AfterGrid, m_vectCurrentAnimations.size() - 1);
+
 		m_pEngine->RemoveMeshFrameFromDesktop(pAnimation->BeforeGrid);
 		delete pAnimation;
 	}
@@ -66,12 +72,25 @@ void DatagridAnimationManager::PrepareForAnimation(string ObjectID, MeshFrame *B
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, m_pEngine->GetSceneMutex());
 
-	if(m_vectPendingAnimations.size() == 0)
-		OnPrepareForAnimation();
-
 	AnimationScrollDatagrid* pAnimation = new AnimationScrollDatagrid(ObjectID, m_pEngine, BeforeGrid, AfterGrid, MilisecondTime, Direction, fMaxAlphaLevel, Dependencies); 
 
+	for(vector<AnimationScrollDatagrid *>::iterator it = m_vectPendingAnimations.begin();
+		it != m_vectPendingAnimations.end(); ++it)
+	{
+		AnimationScrollDatagrid* pLocalAnimation = *it;
+		if(pLocalAnimation->ObjectID == ObjectID)
+		{
+			delete pLocalAnimation;
+			m_vectPendingAnimations.erase(it);
+			break;
+		}
+	}
+
 	m_vectPendingAnimations.push_back(pAnimation);
+
+	g_pPlutoLogger->Write(LV_STATUS, "DatagridAnimationManager::PrepareForAnimation %s B(%p) - A(%p), pending %d",
+		ObjectID.c_str(), BeforeGrid, AfterGrid, m_vectPendingAnimations.size());
+
 	pAnimation->StartAnimation();
 
 	if(AnimationsPrepared())
@@ -116,12 +135,17 @@ void DatagridAnimationManager::OnStartAnimation()
 
 	Cleanup();
 
+	g_pPlutoLogger->Write(LV_STATUS, "DatagridAnimationManager::OnStartAnimation");
+
 	int StartTime = SDL_GetTicks();
 	for(vector<AnimationScrollDatagrid*>::iterator it = m_vectPendingAnimations.begin();
 		it != m_vectPendingAnimations.end(); ++it
 	)
 	{
 		AnimationScrollDatagrid *pAnimation = *it;
+		
+		g_pPlutoLogger->Write(LV_STATUS, "DatagridAnimationManager::OnStartAnimation %s B(%p) - A(%p)",
+			pAnimation->ObjectID.c_str(), pAnimation->BeforeGrid, pAnimation->AfterGrid);
 
 		m_pEngine->AddMeshFrameToDesktop("", pAnimation->AfterGrid);
 		pAnimation->UpdateStartTime(StartTime);
@@ -149,15 +173,42 @@ void DatagridAnimationManager::ReplaceMeshInAnimations(MeshFrame *OldFrame, Mesh
 		it != m_vectCurrentAnimations.end(); ++it)
 	{
 		AnimationScrollDatagrid *pAnimationScrollDatagrid = *it;
+
 		if(pAnimationScrollDatagrid->AfterGrid == OldFrame)
 		{
 			pAnimationScrollDatagrid->AfterGrid = NewFrame;
 		}
 
+		if(pAnimationScrollDatagrid->BeforeGrid == OldFrame)
+		{
+			m_pEngine->RemoveMeshFrameFromDesktop(pAnimationScrollDatagrid->BeforeGrid);
+			delete pAnimationScrollDatagrid;
+			m_vectCurrentAnimations.erase(it);
+			break;
+		}
 	}
 }
 
 void DatagridAnimationManager::StopAnimations()
 {
 	Cleanup();
+}
+
+void DatagridAnimationManager::StopPendingAnimations()
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, m_pEngine->GetSceneMutex());
+
+	for(vector<AnimationScrollDatagrid*>::iterator it = m_vectPendingAnimations.begin();
+		it != m_vectPendingAnimations.end(); ++it)
+	{
+		AnimationScrollDatagrid *pAnimation = *it;
+
+		g_pPlutoLogger->Write(LV_STATUS, "DatagridAnimationManager::StopPendingAnimation (anim %p) B(%p) - A(%p), pending %d",
+			pAnimation, pAnimation->BeforeGrid, pAnimation->AfterGrid, m_vectPendingAnimations.size() - 1);
+
+		m_pEngine->RemoveMeshFrameFromDesktop(pAnimation->BeforeGrid);
+		delete pAnimation;
+	}
+
+	m_vectPendingAnimations.clear();
 }
