@@ -1115,7 +1115,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 			for( size_t s=0;s<m_vectObjs_Selected.size(  );++s )
 			{
 				DesignObj_Orbiter *pObj_Sel = m_vectObjs_Selected[s];
-				if(  pObj_Sel->m_GraphicToDisplay==GRAPHIC_SELECTED  )
+				if(  pObj_Sel->m_GraphicToDisplay==GRAPHIC_SELECTED && !pObj_Sel->m_bDontResetState )
 				{
 #ifdef DEBUG
 					g_pPlutoLogger->Write(LV_STATUS, "About to reset state for object with id %s",
@@ -2394,7 +2394,9 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 //--------------------------------------------------------------------------------------------------------------
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
-if( pObj->m_iBaseObjectID==3319 )
+if( pObj->m_iBaseObjectID==5109 )
+int k=2;
+if( pObj->m_ObjectID.find("5109")!=string::npos )
 int k=2;
 	for(size_t s=0;s<pObj->m_vectDesignObjText.size();++s)
 		pObj->m_vectDesignObjText[s]->m_pObject = pObj;

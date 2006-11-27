@@ -94,7 +94,7 @@ public:
 	ObjectRenderer *Renderer() { return m_pObjectRenderer; };
 	virtual void Flush(bool bFlushGraphics=false); // Flush data that is cached with this object, such as the contents of a datagrid.  If bFlushGraphics, then any cached graphics are also purged
 
-	string GetArrayValue(bool bDescription=false); // If this is an item in an array, it will return the id of the array
+	string GetVariableAssignment(int PK_Variable);  // If this object assigns PK_Variable it will return the assigned value
 	// Runtime states
 	bool m_bActive, m_bHidden;
 

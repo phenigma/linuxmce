@@ -231,8 +231,6 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 
 /*virtual*/ void ObjectRenderer::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
-if( m_pObj_Owner->m_ObjectID.find(".4782")!=string::npos )
-int k=2;
 	if(!PreRenderActions(pObj_Screen, point))
 		return;
 

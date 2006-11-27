@@ -60,10 +60,10 @@ public:
 			m_pObj_PicGrid=(DesignObj_DataGrid *) m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_Pics_CONST));
 	}
 
-	void SelectArrays(DesignObj_Orbiter *pObj,string &sValues);
-	void SelectArrays(DesignObj_Orbiter *pObj,int &iValue);
-	void SelectedArray(DesignObj_Orbiter *pObj,string &sValues,bool bTreatZeroAsAll);
-	void SelectedArray(DesignObj_Orbiter *pObj,int &iValue);
+	void SelectArrays(DesignObj_Orbiter *pObj,int PK_Array,string &sValues);
+	void SelectArrays(DesignObj_Orbiter *pObj,int PK_Array,int &iValue);
+	void SelectedArray(DesignObj_Orbiter *pObj,int PK_Array,string &sValues,bool bTreatZeroAsAll);
+	void SelectedArray(DesignObj_Orbiter *pObj,int PK_Array,int &iValue);
 };
 
 class ScreenHandler : public ScreenHandlerBase
@@ -120,6 +120,7 @@ public:
 
 	virtual void SCREEN_FileList_Music_Movies_Video(long PK_Screen);
 	bool MediaBrowser_ObjectSelected(CallBackData *pData);
+	string GetFileBrowserPopup(DesignObj_Orbiter *pObj_MenuPad);
 	bool MediaBrowser_DatagridSelected(CallBackData *pData);
 	void SelectedAttributeCell(DataGridCell *pCell);
 	bool MediaBrowser_Render(CallBackData *pData);

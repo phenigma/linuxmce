@@ -21,7 +21,7 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
 	m_pObj_ListGrid=m_pObj_PicGrid=NULL;
-	m_pObj_Sort=m_pObj_Private=m_pObj_CoverArtPopup=NULL;
+	m_pObj_Sort=m_pObj_Source=m_pObj_CoverArtPopup=NULL;
 
 	if( !m_pObj )
 		return; // Shouldn't happen
@@ -37,10 +37,10 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 			m_pObj_PicGrid = (DesignObj_DataGrid *) pDesignObj_Orbiter;
 		else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_butFBSF_Show_Sort_CONST )
 			m_pObj_Sort = pDesignObj_Orbiter;
-		else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_butFBSF_Show_MediaPrivate_CONST )
-			m_pObj_Private = pDesignObj_Orbiter;
+		else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_butFBSF_Show_MediaSource_CONST )
+			m_pObj_Source = pDesignObj_Orbiter;
 	}
-	if( !m_pObj_ListGrid || !m_pObj_PicGrid || !m_pObj_Sort || !m_pObj_Private )
+	if( !m_pObj_ListGrid || !m_pObj_PicGrid || !m_pObj_Sort || !m_pObj_Source )
 		g_pPlutoLogger->Write(LV_CRITICAL,"MediaBrowserMouseHandler::MediaBrowserMouseHandler");
 	else
 	{
@@ -48,7 +48,7 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 		m_pObj_PicGrid->m_iHighlightedRow=m_pObj_PicGrid->m_iHighlightedColumn=0;
 		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = m_pObj_ListGrid;
 		m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
-		m_rSortFilterMenu = PlutoRectangle::Union(m_pObj_Sort->m_rPosition, m_pObj_Private->m_rPosition );
+		m_rSortFilterMenu = PlutoRectangle::Union(m_pObj_Sort->m_rPosition, m_pObj_Source->m_rPosition );
 	}
 	m_pObj_CoverArtPopup=m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_popCoverArt_CONST);
 
