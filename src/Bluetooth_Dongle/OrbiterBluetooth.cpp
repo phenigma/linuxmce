@@ -43,6 +43,8 @@
 #include "../VIPShared/BD_CP_ShowMenu.h"
 #include "Orbiter/TextStyle.h"
 
+#include "pluto_main/Define_Variable.h"
+
 #define ADVANCED_OPTIONS_SCREEN "2022"
 #define IMAGE_QUALITY_SCREEN    "1274"
 
