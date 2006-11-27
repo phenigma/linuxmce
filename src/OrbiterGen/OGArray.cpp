@@ -258,7 +258,7 @@ int k=2;
 
 		oa = new CGCommand(COMMAND_Set_Variable_CONST,m_DesignObj_Generator_Parent);
 		oa->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST]=StringUtils::itos(VARIABLE_PK_Array_CONST);
-		oa->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST]=m_PK_Array;
+		oa->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST]=StringUtils::itos(m_PK_Array);
 		oa->m_PK_Device = DEVICEID_HANDLED_INTERNALLY;
 		oz->m_Commands.push_back(oa);
 

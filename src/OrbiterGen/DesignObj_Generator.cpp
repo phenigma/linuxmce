@@ -133,7 +133,7 @@ g_pPlutoLogger->Write(LV_STATUS,"const %p %d",this,drDesignObj->PK_DesignObj_get
 if( m_pOrbiterGenerator->m_iLocation )
 int k=2;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==5109 ||  m_pRow_DesignObj->PK_DesignObj_get()==5106 ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
+if( m_pRow_DesignObj->PK_DesignObj_get()==2244 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==5106 ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -912,7 +912,7 @@ int k=2;
 						if( !pRow_FloorplanObjectType->FK_DesignObj_Control_isNull() )
 						{
 							DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_FloorplanObjectType->FK_DesignObj_Control_getrow(),
-								rectangle,this,false,false);  // See if it will fill in the wdith/height automatically
+								rectangle,this,false,false,false);  // See if it will fill in the wdith/height automatically
 							if( pDesignObj_Generator->m_pRow_DesignObjVariation )
 							{
 								pDesignObj_Generator->m_bCanBeHidden = false;
@@ -992,7 +992,7 @@ int k=2;
                             Row_Floorplan *pRow_Floorplan = vectRow_Floorplan[s];
                             m_pOrbiterGenerator->m_iFloorplanPage = ++PageCount;
                             PlutoRectangle rectangle(m_rPosition.X+drOVO->X_get(),m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get());
-                            DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),rectangle,this,false,false);
+                            DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),rectangle,this,false,false,false);
 							if( pDesignObj_Generator->m_pRow_DesignObjVariation )
 							{
 								pDesignObj_Generator->m_bCanBeHidden = true;
