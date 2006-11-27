@@ -2283,6 +2283,8 @@
 #define DESIGNOBJ_grpCurrentUser_CONST 5250
 #define DESIGNOBJ_hiddenUserPlaceholder_CONST 5251
 #define DESIGNOBJ_butChangeUser_CONST 5252
+#define DESIGNOBJ_grpPrivateMedia_CONST 5262
+#define DESIGNOBJ_grpFileFormat_CONST 5263
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
