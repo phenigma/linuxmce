@@ -490,7 +490,7 @@ int MediaStream::GetRemoteControlScreen(int PK_Orbiter)
 	RemoteControlSet *pRemoteControlSet = pMedia_Plugin->PickRemoteControlMap(
 		PK_Orbiter,
 		m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
-		m_iPK_MediaType);
+		PK_MediaType);
 	if( !pRemoteControlSet )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"MediaStream::GetRemoteControlScreen Cannot find remote controls for Orbiter %d",PK_Orbiter);
