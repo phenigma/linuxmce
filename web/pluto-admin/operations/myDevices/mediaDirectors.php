@@ -664,6 +664,10 @@ function setAlphaBlend($orbiterID,$alphaBlend,$dbADO){
 		$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array(0,$orbiterID,$GLOBALS['UseOpenGLeffects']));
 	}
 	if($count>0){
+		// full regen the orbiter
+		$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$orbiterID.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$orbiterID.' 21 "-r"';
+		exec_batch_command($commandToSend);
+		
 		// call the script who will restart X
 		restartX($orbiterID,getTopLevelParentIP($orbiterID,$dbADO));
 	}
