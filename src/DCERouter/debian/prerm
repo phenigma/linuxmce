@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e 
+
+case "$1" in
+    remove|deconfigure)
+		if [ -x /etc/init.d/pluto0dcerouter ]; then
+			invoke-rc.d pluto-dcerouter stop
+		fi
+		;;
+	upgrade)
+		;;
+	failed-upgrade)
+		;;
+	*)
+		echo "prerm called with unknown argument \`$1'" >&2
+		exit 0
+		;;
+esac
+
+exit 0

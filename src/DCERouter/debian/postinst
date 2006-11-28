@@ -1,2 +1,12 @@
 #!/bin/bash
 
+action="$1"
+oldversion="$2"
+
+if [[ "$action" != "configure" ]] ;then
+	exit 0
+fi
+
+update-rc.d pluto-dcerouter multiuser >/dev/null
+invoke-rc.d pluto-dcerouter restart
+
