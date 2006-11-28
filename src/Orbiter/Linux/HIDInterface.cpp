@@ -137,7 +137,7 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 		DCE::CMD_Get_Remote_ID CMD_Get_Remote_ID(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_OrbiterPlugIn,sSerialNumber,&PK_Device,&RemoteID);
 		if( !m_pOrbiter->SendCommand(CMD_Get_Remote_ID) || PK_Device==0 || RemoteID==0 )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessBindRequest failed to set RemoteID");
+			g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessBindRequest failed to get RemoteID answer from orbiter plugin");
 			RemoteID=255; // A bogus number
 		}
 		m_mapRemoteID_Device[ RemoteID ] = PK_Device;

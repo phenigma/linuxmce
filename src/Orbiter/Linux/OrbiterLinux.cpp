@@ -371,7 +371,10 @@ void OrbiterLinux::Destroy()
 bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 {
 	if (event.type != Orbiter::Event::BUTTON_DOWN && event.type != Orbiter::Event::BUTTON_UP)
-		return false;
+		return true;
+
+	if( event.data.button.m_iPK_Button>100000 )  // We use numbers > 100000 for our internal remote
+		return true;
 
 	/* event.type == BUTTON_DOWN or BUTTON_UP */
 
@@ -382,7 +385,7 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
     kevent.type = KeyPress;
     kevent.display = GetDisplay();
     kevent.state = 0;
-    kevent.keycode = event.data.button.m_iPK_Button;;
+    kevent.keycode = event.data.button.m_iPK_Button;
     XLookupString(&kevent, buf, sizeof(buf), &keysym, 0);
 
 	printf("KEYCode: %d %x \n", (int)keysym, (unsigned int)keysym);
