@@ -182,10 +182,6 @@ Command_Impl::~Command_Impl()
 	g_pPlutoLogger->Write( LV_STATUS, "Waiting for message queue thread to quit" );
 
 	m_bQuit=true;
-	if( m_pEvent && m_pEvent->m_pClientSocket && m_pEvent->m_pClientSocket->m_Socket != INVALID_SOCKET )
-		m_pEvent->m_pClientSocket->Close();
-	if( m_pcRequestSocket && m_pcRequestSocket->m_pClientSocket && m_pcRequestSocket->m_pClientSocket->m_Socket != INVALID_SOCKET )
-		m_pcRequestSocket->m_pClientSocket->Close();
 	
 	PrepareToDelete();
 
@@ -212,6 +208,11 @@ Command_Impl::~Command_Impl()
 void Command_Impl::PrepareToDelete()
 {
 	m_bQuit=true;
+	if( m_pEvent && m_pEvent->m_pClientSocket && m_pEvent->m_pClientSocket->m_Socket != INVALID_SOCKET )
+		m_pEvent->m_pClientSocket->Close();
+	if( m_pcRequestSocket && m_pcRequestSocket->m_pClientSocket && m_pcRequestSocket->m_pClientSocket->m_Socket != INVALID_SOCKET )
+		m_pcRequestSocket->m_pClientSocket->Close();
+
 	time_t tTime = time(NULL);
 
 	// Stop any threads
