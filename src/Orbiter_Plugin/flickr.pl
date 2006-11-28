@@ -88,8 +88,8 @@ if (!-d $dest) {
 
 $api = new Flickr::API({'key' => $fKey});
 my ($max_number, $picture_nr);
-#$max_number = 100;
-$max_number = getMaxNrFiles();
+$max_number = 100;
+#$max_number = getMaxNrFiles();
 $picture_nr = 0;
 
 if ($search_string){
@@ -265,9 +265,10 @@ sub get_files{
 	$xs=Image::Magick->new;
 	$r=$xs->Read("$finaldst");
 	warn "$r" if "$r";
-	open TEST, ">>/home/alex/testflickr";
-	print TEST "--Image: $finaldst \n";
+	open TEST, ">>/tmp/flickr.log";
 	print TEST "-------------------\n";
+	my $test_date = `date`;
+	print TEST "--$test_date Image: $finaldst \n";
 	print TEST "Old image width: $image->{'width'} and height: $image->{'height'}\n";
 	if (($image->{'width'} > 1024 || $image->{'height'} > 1024)||
 	    ($image->{'width'} > 1024 && $image->{'height'} > 1024)) {
@@ -287,8 +288,7 @@ sub get_files{
 		}
 	}
 	print TEST "New image width: $image->{'width'} and height: $image->{'height'}\n";
-	print TEST "-------------------\n";
-	close(TEST);
+	
 	$r=$xs->Scale(width=>$image->{'width'}, 
 		      height=>$image->{'height'});
 	$r = $xs->Annotate( font=>'/usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf', 
@@ -299,7 +299,11 @@ sub get_files{
 	warn "$r" if "$r";
 	$r=$xs->Write($finaldst);
 	print "[flickr.pl] Writing file $finaldst.\n";
-				
+	$test_date = `date`;
+	print TEST "$test_date Sending /usr/pluto/bin/MessageSend dcerouter -targetType template -o 0 2 1 819 13 $finaldst\n";
+	print TEST "-------------------\n";
+	close(TEST);
+
 	my $fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -o 0 2 1 819 13 "$finaldst" |; 
 				
 	## If the router is not available for the moment
@@ -322,14 +326,20 @@ sub get_files{
 sub delete_old {
 	# Remove old files
 	#my $totalFiles = `find /home/flickr/ -name '*.jpg'  | wc -l`;
+	open TEST, ">>/tmp/flickr.log";
+	print TEST "\n\n-------------DELETING OLD----------------------\n\n";
 	my $listOfFiles = `find /home/flickr/ -name '*.jpg'`;
 	my @arrayOfFiles = split (/\n/, $listOfFiles);
 	
 	foreach ( @arrayOfFiles ) {
 		if (!isFileInList($_)){
+			my $test_date = `date`;
+			print TEST "$test_date Removing file: $_ \n";
 			`rm -f $_`;
 		}
 	}
+	print TEST "\n\n-------------DELETING END---------------------\n\n";
+	close(TEST);
 }
 
 sub isFileInList {
