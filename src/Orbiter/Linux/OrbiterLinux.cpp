@@ -146,7 +146,7 @@ void OrbiterLinux::reinitGraphics()
 {
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::reinitGraphics()");
 
-    m_pWinListManager->ShowSdlWindow(m_bIsExclusiveMode);
+    m_pWinListManager->ShowSdlWindow(m_bIsExclusiveMode, m_bYieldInput);
 
     OrbiterCallBack callback = (OrbiterCallBack)&OrbiterLinux::setInputFocusToMe;
     CallMaintenanceInMiliseconds( 3000, callback, NULL, pe_ALL );
@@ -265,7 +265,7 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
 	//if an application like xine has to be in background, we'll move orbiter to be on layer above.
 	m_bIsExclusiveMode = bApplicationInBackground;
 
-	m_pWinListManager->ShowSdlWindow(bApplicationInBackground);
+	m_pWinListManager->ShowSdlWindow(bApplicationInBackground, m_bYieldInput);
     if (pObj->m_ObjectType == DESIGNOBJTYPE_App_Desktop_CONST)
     {
         //g_pPlutoLogger->Write(LV_CRITICAL,"OrbiterLinux::RenderDesktop rendering of %s",pObj->m_ObjectID.c_str());

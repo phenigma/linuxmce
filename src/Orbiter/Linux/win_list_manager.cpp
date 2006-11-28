@@ -42,15 +42,17 @@ void WinListManager::ActivateSdlWindow()
     m_pWMController->ActivateWindow(m_sSdlWindowName);
 }
 
-void WinListManager::ShowSdlWindow(bool bExclusive)
+void WinListManager::ShowSdlWindow(bool bExclusive, bool bYieldInput)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 #ifdef DEBUG
     g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowSdlWindow(%s)", bExclusive ? "true" : "false");
 #endif
+/*
     string sLastWindow;
     for (list<string>::iterator it = m_listVisibleWindows.begin(); it != m_listVisibleWindows.end(); ++it)
         sLastWindow = *it;
+*/
 
 	// when Orbiter is fullscreen no other dialog can be on top of
     // it, so it will be maximized instead
@@ -60,17 +62,20 @@ void WinListManager::ShowSdlWindow(bool bExclusive)
 
     if (!m_bHideSdlWindow)
 		ActivateSdlWindow();
-
+    
     // TODO: possible bugfix: no FullScreen attribute
-    m_pWMController->SetFullScreen(m_sSdlWindowName, bExclusive);
+    //m_pWMController->SetFullScreen(m_sSdlWindowName, bExclusive);
 
+    if (bYieldInput)
+    {
 	if(m_sExternApplicationName != "")
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"WinListManager::ShowSdlWindow activating %s exclusive %d",
 			m_sExternApplicationName.c_str(),(int) bExclusive);
-	    m_pWMController->ActivateWindow(m_sExternApplicationName);
 		m_pWMController->SetLayer(m_sExternApplicationName, bExclusive ? LayerBelow : LayerAbove);
+		m_pWMController->ActivateWindow(m_sExternApplicationName);
 	}
+    }
 
     return;
 }

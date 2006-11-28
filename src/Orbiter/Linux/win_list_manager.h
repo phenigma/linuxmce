@@ -19,7 +19,7 @@ public:
     void ActivateWindow(const string& sWindowsName);
     void ActivateSdlWindow();
 
-    void ShowSdlWindow(bool bExclusive);
+    void ShowSdlWindow(bool bExclusive, bool bYieldInput);
 
     void ShowWindow(const string &sWindowName);
     void MaximizeWindow(const string &sWindowName);
