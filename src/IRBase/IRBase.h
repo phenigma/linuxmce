@@ -13,8 +13,13 @@ string ConvertRC5_6(string sCode);  // From GenerateRcX
 class IRBase : public AVMessageProcessor {
 	Command_Impl *m_pCommand_Impl;
 public:
-	IRBase() { m_bMustConvertRC5_6=false; m_pCommand_Impl=NULL; }
-	virtual ~IRBase() {};
+	IRBase()
+		: m_pCommand_Impl(NULL),
+		  m_bMustConvertRC5_6(false),
+		  m_bQuit_(false)
+	{};
+	
+	virtual ~IRBase() { m_bQuit_ = true; };
 
 public:
 	typedef pair<long, long> longPair;
@@ -46,6 +51,7 @@ private:
 
 protected:
 	bool m_bMustConvertRC5_6;
+	bool m_bQuit_;
 };
 
 #endif

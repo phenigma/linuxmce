@@ -87,7 +87,9 @@ IRBase::handleStart(Command_Impl *pCommand_Impl) {
 
 void 
 IRBase::handleStop()
-{}
+{
+	m_bQuit_ = true;
+}
 
 bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepls) {
 	if(AVMessageTranslator::Translate(inrepl, outrepls)) {
@@ -127,6 +129,11 @@ void
 IRBase::DispatchMessage(Message* pmsg) {
 	g_pPlutoLogger->Write(LV_STATUS, "In IRBase::DispatchMessage");
 	
+	if( m_bQuit_ )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Didn't process the message, quiting");
+	}
+	
 	string irport, ircode;
 	int cmd = 0, devid = pmsg->m_dwPK_Device_To;
 
@@ -150,12 +157,12 @@ IRBase::DispatchMessage(Message* pmsg) {
 			}
 		} else {
 			string::size_type pos=0;
-			while(pos<ircode.size() && pos!=string::npos )
+			while(pos<ircode.size() && pos!=string::npos && !m_bQuit_)
 			{
 				string _ircode = StringUtils::Tokenize(ircode,"&",pos);
 				g_pPlutoLogger->Write(LV_STATUS,"pos %d size %d Checking %s\n for multiple codes, got: %s",pos,(int) ircode.size(),ircode.c_str(),_ircode.c_str());
 				SendIR(irport,_ircode);
-				if( pos<ircode.size() )
+				if( pos<ircode.size() && !m_bQuit_ )
 				{
 					g_pPlutoLogger->Write(LV_STATUS,"Sleeping for 500 ms since there are multiple codes");
 					Sleep(500);
@@ -180,12 +187,12 @@ IRBase::DispatchMessage(Message* pmsg) {
 					devid, cmd, irport.c_str(), ircode.c_str());
 
 		string::size_type pos=0;
-		while(pos<ircode.size() && pos!=string::npos )
+		while(pos<ircode.size() && pos!=string::npos && !m_bQuit_)
 		{
 			string _ircode = StringUtils::Tokenize(ircode,"&",pos);
 			g_pPlutoLogger->Write(LV_STATUS,"pos %d size %d Checking %s\n for multiple codes, got: %s",pos,(int) ircode.size(),ircode.c_str(),_ircode.c_str());
 			SendIR(irport,_ircode);
-			if( pos<ircode.size() )
+			if( pos<ircode.size() && !m_bQuit_ )
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"Sleeping for 500 ms since there are multiple codes");
 				Sleep(500);
