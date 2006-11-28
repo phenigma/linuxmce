@@ -100,8 +100,6 @@ OrbiterRenderer_SDL::~OrbiterRenderer_SDL()
 
 	m_pScreenImage = NULL;
 	g_pPlutoLogger->Write(LV_STATUS, "~OrbiterRenderer_SDL finished");
-
-	TTF_Quit();
 }
 
 void OrbiterRenderer_SDL::Configure()
