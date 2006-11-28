@@ -88,8 +88,8 @@ if (!-d $dest) {
 
 $api = new Flickr::API({'key' => $fKey});
 my ($max_number, $picture_nr);
-$max_number = 100;
-#$max_number = getMaxNrFiles();
+#$max_number = 100;
+$max_number = getMaxNrFiles();
 $picture_nr = 0;
 
 if ($search_string){
