@@ -61,6 +61,9 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 		ExtensionManager_->EnableBlended(true);
 	}
 
+	if(NULL == Container.Triangles)
+		return;
+
 	int Count;
 	MeshVertex* Vertexes = new MeshVertex[Container.NoVertexes];
 	
