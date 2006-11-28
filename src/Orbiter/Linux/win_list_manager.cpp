@@ -66,6 +66,8 @@ void WinListManager::ShowSdlWindow(bool bExclusive)
 
 	if(m_sExternApplicationName != "")
 	{
+		g_pPlutoLogger->Write(LV_STATUS,"WinListManager::ShowSdlWindow activating %s exclusive %d",
+			m_sExternApplicationName.c_str(),(int) bExclusive);
 	    m_pWMController->ActivateWindow(m_sExternApplicationName);
 		if( !bExclusive )
 		    m_pWMController->SetLayer(m_sSdlWindowName, LayerAbove);
