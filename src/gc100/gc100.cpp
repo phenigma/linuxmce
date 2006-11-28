@@ -138,12 +138,24 @@ gc100::~gc100()
 {
 	signal(SIGSEGV,SIG_IGN);           //ignore SIGFAULT here
 	m_bQuit = true;                    //force quit	
-	Sleep(100);                        //wait a little
+	handleStop();                      //force IRBase::DispatchMessage to stop
+	Sleep(600);                        //wait a little
+	
+	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
+	
 	if (m_EventThread != 0)
 	{
 		pthread_cancel(m_EventThread);     //pthread_cancel is asynchron so call it first and continue cleanup		
 		pthread_join(m_EventThread, NULL); //finish
 	}
+/*	if (m_SocketThread != 0)
+	{
+		pthread_cancel(m_SocketThread);     //pthread_cancel is asynchron so call it first and continue cleanup		
+		pthread_join(m_SocketThread, NULL); //finish
+	}*/
+	
+	sl.Release();
+	pthread_mutex_destroy(&gc100_mutex.mutex);
 }
 
 //<-dceag-reg-b->
