@@ -15,7 +15,7 @@ for ((i = 0; i < ${#Params[@]}; i++)); do
 		-S) Device_Action="start" ;;
 		-K) Device_Action="stop" ;;
 		-D) Device_Action="demonize" ;;
-		--) ((i++)); Device_CmdLine=${Params[@]:$i} ; break ;;
+		--) ((i++)); Device_CmdLine=("${Params[@]:$i}") ; break ;;
         esac
 done
 
@@ -59,14 +59,16 @@ case "$Device_Action" in
 			fi
 		fi
 
-		screen -d -m -S "$Device_Name" $0 -n "$Device_Name" -d "$Device_ID" -D -- "$Device_CmdLine"
+		screen -d -m -S "$Device_Name" $0 -n "$Device_Name" -d "$Device_ID" -D -- "${Device_CmdLine[@]}"
 		echo "$$" > "$pidFile"
+
+		echo "Starting : ${Device_CmdLine[@]}"
 	;;
 
 	demonize)
 		no_of_restarts=0
 		while [[ $no_of_restarts < 50 ]] ;do
-			$Device_CmdLine >> $logFile
+			"${Device_CmdLine[@]}" >> $logFile
 			err_code=$?
 
 			if [[ "$err_code" == "3" ]] ;then
