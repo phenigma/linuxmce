@@ -4763,6 +4763,24 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 	DumpScreenHistory();
 #endif
 
+	int PK_Screen_OnScreen = m_pScreenHistory_Current->PK_Screen();
+	if( PK_Screen_OnScreen==SCREEN_Main_CONST && m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() != m_pDesignObj_Orbiter_ScreenSaveMenu )
+	{
+		// If the user hits the menu button from the main menu, go to the screen saver, unless there's a computing app
+		if( m_PK_Screen_ActiveApp_OSD )
+		{
+			NeedToRender render( this, "m_PK_Screen_ActiveApp_OSD" );
+#ifdef ENABLE_MOUSE_BEHAVIOR
+			if( m_pMouseBehavior )
+				m_pMouseBehavior->Clear(false);
+#endif
+			CMD_Goto_Screen("",m_PK_Screen_ActiveApp_OSD);
+		}
+		else
+			StartScreenSaver(true); 
+		return;
+	}
+
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 	ScreenHistory *pScreenHistory=NULL;
 

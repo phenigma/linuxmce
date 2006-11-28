@@ -657,7 +657,7 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 					// Save which row in the actual table we are pointing to,  so we can point there again after doing the scroll
 					int iHighlightedAbsoluteRow = pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow;
 					dg.Release();
-					OrbiterLogic()->CMD_Scroll_Grid( "", "", PK_Direction );
+					OrbiterLogic()->CMD_Scroll_Grid( "", pDesignObj_DataGrid->m_ObjectID, PK_Direction );
 					pDesignObj_DataGrid->m_iHighlightedRow=iHighlightedAbsoluteRow - pDesignObj_DataGrid->m_GridCurRow;
 
 					if( pDesignObj_DataGrid->m_iHighlightedRow > pDesignObj_DataGrid->m_MaxRow - 1 )
@@ -682,7 +682,7 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 				if(pDesignObj_DataGrid->m_iHighlightedRow >= pDesignObj_DataGrid->m_MaxRow - (pDataGridTable->m_iDownRow >= 0 ? 1 : 0) /*- (pDesignObj_DataGrid->m_iUpRow >= 0 ? 1 : 0)*/)
 				{
 					dg.Release();
-					OrbiterLogic()->CMD_Scroll_Grid( "", "", PK_Direction );
+					OrbiterLogic()->CMD_Scroll_Grid( "", pDesignObj_DataGrid->m_ObjectID, PK_Direction );
 					pDesignObj_DataGrid->m_iHighlightedRow = 0;
 				}
 			}
@@ -698,7 +698,7 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 				if(  pDesignObj_DataGrid->m_iHighlightedColumn<0  )
 				{
 					dg.Release();
-					OrbiterLogic()->CMD_Scroll_Grid( "", "", PK_Direction );
+					OrbiterLogic()->CMD_Scroll_Grid( "", pDesignObj_DataGrid->m_ObjectID, PK_Direction );
 					pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_MaxCol;
 				}
 			}
@@ -716,7 +716,7 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 				if(  pDesignObj_DataGrid->m_iHighlightedColumn>=pDesignObj_DataGrid->m_MaxCol  )
 				{
 					dg.Release();
-					OrbiterLogic()->CMD_Scroll_Grid( "", "", PK_Direction );
+					OrbiterLogic()->CMD_Scroll_Grid( "", pDesignObj_DataGrid->m_ObjectID, PK_Direction );
 					pDesignObj_DataGrid->m_iHighlightedColumn=0;
 				}
 			}

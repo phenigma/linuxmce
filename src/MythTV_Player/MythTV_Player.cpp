@@ -1206,6 +1206,11 @@ void MythTV_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 		updateMode("PlaybackBox");
 		sendMythCommand("jump managerecordings");
 	}
+	else if( sText=="livetv" )
+	{
+		updateMode("PlaybackBox");
+		sendMythCommand("jump livetv");
+	}
 	else
 	{
 		updateMode("PlaybackBox");

@@ -799,7 +799,7 @@ bool ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 	if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_objExitAppOnOSD_CONST )
 	{
-		DCE::CMD_Kill_Application CMD_Kill_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_AppServer,"generic-app",true);
+		DCE::CMD_Kill_Application CMD_Kill_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_AppServer,"generic_app",true);
 		m_pOrbiter->SendCommand(CMD_Kill_Application);
 
 		if( m_pOrbiter->m_dwPK_Device != m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter )  // Not us
@@ -876,7 +876,7 @@ bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 			" 1 8 159 " + StringUtils::itos(PK_Screen_Remote);
 
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_AppServer,
-			sBinary,"generic-app",sArguments,sMessageOnComplete,sMessageOnComplete,false,false,true,false);
+			sBinary,"generic_app",sArguments,sMessageOnComplete,sMessageOnComplete,false,false,true,false);
 		
 		if( m_pOrbiter->m_dwPK_Device != m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter )  // Not us
 		{
