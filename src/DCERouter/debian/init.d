@@ -30,18 +30,29 @@ case "$1" in
 	start)
 		log_daemon_msg "Starting DCE Router: "
 
-		start-stop-plutodaemon.sh -S -n "DCERouter" --  /usr/pluto/bin/DCERouter -h "$MySqlHost" -u "$MySqlUser" -p "$MySqlPassword" -D "$MySqlDBName" -p "$MySqlPort"
+		start-stop-plutodevice.sh -S -n "DCERouter" --  /usr/pluto/bin/DCERouter -h "$MySqlHost" -u "$MySqlUser" -p "$MySqlPassword" -D "$MySqlDBName" -P "$MySqlPort"
 		
 		if [[ $? != "0" ]] ;then
 			log_end_msg 1
 			exit 1
 		fi
 
-		log_end_msg 0
+		timeout=60
+		waited=0		
+		while ! nc -z localhost 3450 &>/dev/null && [ "$waited" -lt "$timeout" ]; do
+			sleep 0.4
+			((waited++))
+		done
+
+		if ! nc -z localhost 3450 ;then
+			log_end_msg 1
+		else
+			log_end_msg 0
+		fi
 		;;
 	stop)
 		log_daemon_msg "Stoping DCE Router: "
-		start-stop-plutodaemon.sh -K -n "DCERouter"
+		start-stop-plutodevice.sh -K -n "DCERouter"
 
 		log_end_msg 0
 		;;
