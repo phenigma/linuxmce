@@ -9389,6 +9389,7 @@ void Orbiter::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 {
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Menu display %d",(int) m_bDisplayOn);
+#endif
 
 	if( !GotActivity(0) )
 		return;
