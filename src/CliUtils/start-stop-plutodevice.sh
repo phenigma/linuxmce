@@ -59,14 +59,13 @@ case "$Device_Action" in
 			fi
 		fi
 
-		screen -d -m -S "$Device_Name" $0 -n "$Device_Name" -d "$Device_ID" -D -- "${Device_CmdLine[@]}"
-		echo "$$" > "$pidFile"
-
-		echo "Starting : ${Device_CmdLine[@]}"
+		screen -D -m -S "$Device_Name" $0 -n "$Device_Name" -d "$Device_ID" -D -- "${Device_CmdLine[@]}" &
+		echo $! > $pidFile
 	;;
 
 	demonize)
 		no_of_restarts=0
+		trap "rm -f $pidFile" EXIT
 		while [[ $no_of_restarts < 50 ]] ;do
 			"${Device_CmdLine[@]}" >> $logFile
 			err_code=$?
@@ -92,6 +91,12 @@ case "$Device_Action" in
 
 
 	stop)
+		if [[ -f $pidFile ]] ;then
+			testPid=$(cat $pidFile)
+			if [[ -f /proc/$testPid/cmdline && "$testPid" != "" ]] ;then
+				kill $testPid
+			fi
+		fi
 	;;
 
 	*)
