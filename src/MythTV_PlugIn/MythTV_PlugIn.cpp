@@ -374,34 +374,27 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 	{
 		while((row = mysql_fetch_row(result.r)))
 		{
-			if( nWidth<2 )  // Just a single column
-			{
-				string sDesc = string( row[1] ) + " " + row[2] + " " + row[4];
-				pCell = new DataGridCell(sDesc,row[1]);
-				pDataGridTable->SetData(0,iRow++,pCell);
-			}
-			else
-			{
-				string sChannelName = string(row[1]) + " " + row[2];
-				pCell = new DataGridCell(sChannelName,row[1]);
-				if( row[3] && row[3][0] )  // There's an icon
-					pCell->SetImagePath( row[3] );
+			string sDesc = string( row[1] ) + " " + row[2] + " " + row[4];
+			pCell = new DataGridCell(sDesc,row[1]);
 
-				time_t tStart = StringUtils::SQLDateTime( row[5] );
-				time_t tStop = StringUtils::SQLDateTime( row[6] );
-				string sDesc = StringUtils::HourMinute(tStart) + " - " + StringUtils::HourMinute(tStop);
-				string sNumber = NULL != row[0] ? row[0] : "";
-				string sInfo = NULL != row[4] ? row[4]: "";
+			string sChannelName = string(row[1]) + " " + row[2];
+			if( row[3] && row[3][0] )  // There's an icon
+				pCell->m_mapAttributes["Icon"] = row[3];
 
-				pCell->m_mapAttributes["Number"] = sNumber;
-				pCell->m_mapAttributes["Name"] = sChannelName;
-				pCell->m_mapAttributes["Time"] = sDesc;
-				pCell->m_mapAttributes["Info"] = sInfo;
+			time_t tStart = StringUtils::SQLDateTime( row[5] );
+			time_t tStop = StringUtils::SQLDateTime( row[6] );
+			string sTime = StringUtils::HourMinute(tStart) + " - " + StringUtils::HourMinute(tStop);
+			string sNumber = NULL != row[0] ? row[0] : "";
+			string sInfo = NULL != row[4] ? row[4]: "";
 
-				//g_pPlutoLogger->Write(LV_WARNING, "Number %s, name %s, time %s, info %s", 
-				//	sNumber.c_str(), sChannelName.c_str(), sDesc.c_str(), sInfo.c_str());
-				pDataGridTable->SetData(0,iRow++,pCell);
-			}
+			pCell->m_mapAttributes["Number"] = sNumber;
+			pCell->m_mapAttributes["Name"] = sChannelName;
+			pCell->m_mapAttributes["Time"] = sTime;
+			pCell->m_mapAttributes["Info"] = sInfo;
+
+			//g_pPlutoLogger->Write(LV_WARNING, "Number %s, name %s, time %s, info %s", 
+			//	sNumber.c_str(), sChannelName.c_str(), sDesc.c_str(), sInfo.c_str());
+			pDataGridTable->SetData(0,iRow++,pCell);
 		}
 	}
  

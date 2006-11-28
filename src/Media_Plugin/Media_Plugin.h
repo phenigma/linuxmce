@@ -499,7 +499,7 @@ public:
 	// This sends the set now playing command to an orbiter.  If pMessage is passed, it adds the command without sending it
 	void SetNowPlaying( int dwPK_Device, MediaStream *pMediaStream, bool bRefreshScreen, bool bGotoRemote=false, Message *pMessage=NULL )
 	{
-g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::SetNowPlaying stream %p refresh %d"
+g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying stream %p refresh %d"
 					  ,pMediaStream,(int) bRefreshScreen);
 		string sRemotes;
 		RemoteControlSet *pRemoteControlSet = NULL;
@@ -509,11 +509,11 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::SetNowPlaying stream %p refresh
 			// set of menu options than others, and yet stored dvd's need menu, subtitle, etc., options that normal
 			// media doesn't.  We should comed up with a 'stream capabilities' function that allows us to add playback 
 			// options on the fly, but until then, if it's a stored video file, and it has titles/sections, use the dvd's menu options
-g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::SetNowPlaying type %d containstitles %d",pMediaStream->m_iPK_MediaType,(int) pMediaStream->m_bContainsTitlesOrSections);
+g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying type %d containstitles %d",pMediaStream->m_iPK_MediaType,(int) pMediaStream->m_bContainsTitlesOrSections);
 			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST && pMediaStream->m_bContainsTitlesOrSections )
 			{
 				pRemoteControlSet = GetRemoteControlSet(dwPK_Device,pMediaStream,MEDIATYPE_pluto_DVD_CONST);
-g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::SetNowPlaying pRemoteControlSet_dvd %p",pRemoteControlSet);
+g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying pRemoteControlSet_dvd %p",pRemoteControlSet);
 			}
 			else
 				pRemoteControlSet = GetRemoteControlSet(dwPK_Device,pMediaStream);

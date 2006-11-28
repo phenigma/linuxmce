@@ -804,12 +804,16 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 
 	pObj->m_iCurrentFrame = 0;
 
+	sType = StringUtils::ToLower(sType);
+
 	if(sType == "bmp")
 		pPlutoGraphic->m_GraphicFormat = GR_BMP;
 	else if(sType == "jpg")
 		pPlutoGraphic->m_GraphicFormat = GR_JPG;
 	else if(sType == "png")
 		pPlutoGraphic->m_GraphicFormat = GR_PNG;
+	else if(sType == "gif")
+		pPlutoGraphic->m_GraphicFormat = GR_GIF;
 	else
 		pPlutoGraphic->m_GraphicFormat = GR_UNKNOWN;
 
@@ -818,7 +822,7 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 	{
 		TextureManager::Instance()->InvalidateItem(pObj->GenerateObjectHash(pObj->m_pPopupPoint));
 
-		if(iData_Size != 0)
+		if(iData_Size != 0 && pPlutoGraphic->m_GraphicFormat != GR_GIF /* hmmm... guess gif doesn't work?? */ )
 		{
 			pPlutoGraphic->LoadGraphic(pData, iData_Size, OrbiterLogic()->m_iRotation);  // These weren't pre-rotated
 			pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);

@@ -193,6 +193,9 @@ public:
 	bool Sensors_ObjectSelected(CallBackData *pData);
 
 	virtual bool New_Phone_Enter_Number_DeviceConfigured(CallBackData *pData);
+	virtual void SCREEN_TV_Channels(long PK_Screen);
+	bool TV_Channels_GridRendering(CallBackData *pData);
+
 	virtual void SCREEN_Add_Software(long PK_Screen);
 	bool AddSoftware_ObjectHighlighted(CallBackData *pData);
 	bool AddSoftware_GridRendering(CallBackData *pData);
