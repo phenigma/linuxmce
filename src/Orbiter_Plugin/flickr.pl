@@ -74,8 +74,8 @@ if ( $#ARGV >= 0 ) {
 
 if ($#ARGV < 0) {
         $tDays = 5;
-        $minW = 800;
-        $minH = 600;
+        $minW = 1000;
+        $minH = 700;
 	$search_string = '';
 	#$search_string = 'red cars';
         print "[flickr.pl] Using default values - days: $tDays, width: $minW, height: $minH, no search string \n";
@@ -88,8 +88,8 @@ if (!-d $dest) {
 
 $api = new Flickr::API({'key' => $fKey});
 my ($max_number, $picture_nr);
-#$max_number = 5;
-$max_number = getMaxNrFiles();
+$max_number = 100;
+#$max_number = getMaxNrFiles();
 $picture_nr = 0;
 
 if ($search_string){
@@ -265,20 +265,30 @@ sub get_files{
 	$xs=Image::Magick->new;
 	$r=$xs->Read("$finaldst");
 	warn "$r" if "$r";
-	#print "-------------------\n";
-	#print "Old image width: $image->{'width'} and height: $image->{'height'}\n";
-	if ($image->{'width'} > 1024 || $image->{'height'} > 1024){
+	open TEST, ">>/home/alex/testflickr";
+	print TEST "--Image: $finaldst \n";
+	print TEST "-------------------\n";
+	print TEST "Old image width: $image->{'width'} and height: $image->{'height'}\n";
+	if (($image->{'width'} > 1024 || $image->{'height'} > 1024)||
+	    ($image->{'width'} > 1024 && $image->{'height'} > 1024)) {
 		if($image->{'width'} > $image->{'height'}){
 			$image->{'height'} = floor(($image->{'height'}/$image->{'width'})*1024);
+			$image->{'height'} = 768 if($image->{'height'} > 768);
 			$image->{'width'} = 1024;
 		} 
 		elsif($image->{'height'} > $image->{'width'}){
 			$image->{'width'} = floor(($image->{'width'}/$image->{'height'})*1024);
+			$image->{'width'} = 768 if($image->{'width'} > 768);
 			$image->{'height'} = 1024;
 		}
+		elsif($image->{'height'} == $image->{'width'}){
+			$image->{'width'} = 768;
+			$image->{'height'} = 768;
+		}
 	}
-	#print "New image width: $image->{'width'} and height: $image->{'height'}\n";
-	#print "-------------------\n";
+	print TEST "New image width: $image->{'width'} and height: $image->{'height'}\n";
+	print TEST "-------------------\n";
+	close(TEST);
 	$r=$xs->Scale(width=>$image->{'width'}, 
 		      height=>$image->{'height'});
 	$r = $xs->Annotate( font=>'/usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf', 
