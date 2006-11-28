@@ -1505,7 +1505,12 @@ string Makefile = "none:\n"
 		
 			string sDestination;
 			if ((*iFileInfo)->m_sDestination.find("/debian") != string::npos) {
-				sDestination = Dir + thePrefix + (*iFileInfo)->m_sDestination;
+				sSource = (*iFileInfo)->m_sSource;
+				if (sSource.find("init.d") != string::npos) {
+					sDestination = Dir + "/root/etc/init.d/" + Package_Name;
+				} else {
+					sDestination = Dir + thePrefix + (*iFileInfo)->m_sDestination;
+				}
 			} else {
 				sDestination = Dir + "/root/" + thePrefix + (*iFileInfo)->m_sDestination;
 			}
