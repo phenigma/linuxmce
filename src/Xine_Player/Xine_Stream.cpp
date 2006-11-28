@@ -1761,6 +1761,149 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 			}
 			break;
 
+		case XINE_EVENT_UI_MESSAGE:
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "Received XINE_EVENT_UI_MESSAGE, decoding:" );
+			
+			string message;
+			
+			xine_ui_message_data_t *data = (xine_ui_message_data_t *) event->data;
+			switch(data->type)
+			{
+				case XINE_MSG_NO_ERROR:
+				{
+					/* copy strings, and replace '\0' separators by '\n' */
+					char* s = data->messages;
+					char* d = new char[2000];
+
+					while(s && (*s != '\0') && ((*s + 1) != '\0'))
+					{
+						switch(*s)
+						{
+							case '\0':
+							{
+								*d = '\n';
+								break;
+							}
+							default:
+							{
+								*d = *s;
+								break;
+							}
+						}
+						s++;
+						d++;
+					}
+					*++d = '\0';
+
+					message = d;
+					delete [] d;
+					break;
+				}
+				case XINE_MSG_GENERAL_WARNING:
+				{
+					message = "XINE_MSG_GENERAL_WARNING: ";
+
+					if(data->explanation)
+						message = message + ((char *) data + data->explanation) + " " + ((char *) data + data->parameters);
+					else
+						message = message + "no information";
+
+					break;
+				}
+				case XINE_MSG_SECURITY:
+				{
+					message = "XINE_MSG_SECURITY: ";
+
+					if(data->explanation)
+						message = message + ((char *) data + data->explanation) + " " + ((char *) data + data->parameters);
+
+					break;
+				}
+				case XINE_MSG_UNKNOWN_HOST:
+				{
+					message = "XINE_MSG_UNKNOWN_HOST: ";
+					if(data->explanation)
+						message = message + ((char *) data + data->parameters) ;
+					break;
+				}
+				case XINE_MSG_UNKNOWN_DEVICE:
+				{
+					message = "XINE_MSG_UNKNOWN_DEVICE: ";
+					if(data->explanation)
+						message = message  + ((char *) data + data->parameters) ;
+					break;
+				}
+				case XINE_MSG_NETWORK_UNREACHABLE:
+				{
+					message = "XINE_MSG_NETWORK_UNREACHABLE: ";
+					if(data->explanation)
+						message = message + ((char *) data + data->parameters) ;
+					break;
+				}
+				case XINE_MSG_AUDIO_OUT_UNAVAILABLE:
+				{
+					message = "XINE_MSG_AUDIO_OUT_UNAVAILABLE: ";
+					if(data->explanation)
+						message = message + ((char *) data + data->parameters) ;
+					break;
+				}
+				case XINE_MSG_CONNECTION_REFUSED:
+				{
+					message = "XINE_MSG_CONNECTION_REFUSED: ";
+					if(data->explanation)
+						message = message + ((char *) data + data->parameters) ;
+					break;
+				}
+				case XINE_MSG_FILE_NOT_FOUND:
+				{
+					message = "XINE_MSG_FILE_NOT_FOUND: ";
+					if(data->explanation)
+						message = message  + ((char *) data + data->parameters) ;
+					break;
+				}
+				case XINE_MSG_PERMISSION_ERROR:
+				{
+					message = "XINE_MSG_PERMISSION_ERROR: ";
+					if(data->explanation)
+						message = message  + ((char *) data + data->parameters) ;
+					break;
+				}
+				case XINE_MSG_READ_ERROR:
+				{
+					message = "XINE_MSG_READ_ERROR: ";
+					if(data->explanation)
+						message = message  + ((char *) data + data->parameters) ;
+					break;
+				}
+				case XINE_MSG_LIBRARY_LOAD_ERROR:
+				{
+					message = "XINE_MSG_LIBRARY_LOAD_ERROR: ";
+					if(data->explanation)
+						message = message + ((char *) data + data->parameters);
+					break;
+				}
+				case XINE_MSG_ENCRYPTED_SOURCE:
+				{
+					message = "XINE_MSG_ENCRYPTED_SOURCE: ";
+					if(data->explanation)
+						message = message  + ((char *) data + data->parameters) ;
+					break;
+				}
+				default:
+				{
+					message ="Unknown error: ";
+					if(data->explanation)
+						message = message + ((char *) data + data->explanation) + " " + ((char *) data + data->parameters);
+					break;
+				}
+			}
+			
+			g_pPlutoLogger->Write( LV_WARNING, "Message details: %s", message.c_str() );
+			
+		}
+		break;
+
 		default:
 			g_pPlutoLogger->Write( LV_STATUS, "Got unprocessed Xine playback event: %d", event->type );
 			break;
