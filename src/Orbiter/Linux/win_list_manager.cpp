@@ -65,7 +65,11 @@ void WinListManager::ShowSdlWindow(bool bExclusive)
     m_pWMController->SetFullScreen(m_sSdlWindowName, bExclusive);
 
 	if(m_sExternApplicationName != "")
+	{
 	    m_pWMController->ActivateWindow(m_sExternApplicationName);
+		if( !bExclusive )
+		    m_pWMController->SetLayer(m_sSdlWindowName, LayerAbove);
+	}
 
     return;
 }
