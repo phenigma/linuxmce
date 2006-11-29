@@ -77,7 +77,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 			{
 				if( bContainsCells )
 				{
-					map< pair<int,int>, DesignObj_Orbiter *>::iterator it=m_pObj_Owner_DataGrid->m_mapChildDgObjects.find( make_pair<int,int> (DGColumn,DGRow) );
+					map< pair<int,int>, DesignObj_Orbiter *>::iterator it=m_pObj_Owner_DataGrid->m_mapChildDgObjects.find( make_pair<int,int> (DGColumn,DGRow % pDataGridTable->m_RowCount) );
 					if(	it!=m_pObj_Owner_DataGrid->m_mapChildDgObjects.end() )
 					{
 						it->second->m_bHidden=false;
