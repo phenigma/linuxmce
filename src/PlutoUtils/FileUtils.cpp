@@ -125,7 +125,7 @@ char *FileUtils::ReadURL(string sUrl, size_t &Size,bool bNullTerminate)
 	{
 		buffer = (char *) realloc(buffer, iResult + 1); // http_fetch doesn't store a \0 in the end
 		buffer[iResult] = 0;
-		Size = iResult;x
+		Size = iResult;
 	}
 	else if( iResult>0 )
 		Size = iResult;
