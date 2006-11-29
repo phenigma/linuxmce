@@ -170,6 +170,10 @@
 #define DEVICEDATA_Output_Channels_CONST 196
 #define DEVICEDATA_Realtime_Priority_CONST 197
 #define DEVICEDATA_Tags_CONST 198
+#define DEVICEDATA_No_of_Disks_CONST 199
+#define DEVICEDATA_State_CONST 200
+#define DEVICEDATA_Drive_Size_CONST 201
+#define DEVICEDATA_Spare_CONST 202
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
