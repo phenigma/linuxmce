@@ -62,6 +62,7 @@ PlutoMediaAttributes::PlutoMediaAttributes() :
 	SerializeClass(), 
 	m_nInstallationID(0), m_nFileID(0), m_nPictureID(0)
 {
+	m_iSC_Version = SERIALIZE_PLUTO_MEDIA_ATTRIBUTES_VERSION;
 }
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaAttributes::~PlutoMediaAttributes()

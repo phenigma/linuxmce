@@ -1477,11 +1477,20 @@ void OrbiterRenderer::RelativePosition(const PlutoRectangle& A,
 	}
 	else if(Direction_Secondary == DIRECTION_Right_CONST)
 	{
-		PlutoRectangle rectRight(A.X + A.Width, A.Y + 1, OrbiterLogic()->m_iImageWidth, A.Y + A.Height - 2);
+		PlutoRectangle rectRight(A.X + A.Width, A.Y + 1, OrbiterLogic()->m_iImageWidth, A.Height - 2);
 		if(rectB.IntersectsWith(rectRight))
 		{
 			bAdjustments = true;
 			Direction_Primary = DIRECTION_Right_CONST;
+		}
+	}
+	else if(Direction_Secondary == DIRECTION_Left_CONST)
+	{
+		PlutoRectangle rectLeft(0, A.Y + 1, A.X, A.Height - 2);
+		if(rectB.IntersectsWith(rectLeft))
+		{
+			bAdjustments = true;
+			Direction_Primary = DIRECTION_Left_CONST;
 		}
 	}
 }

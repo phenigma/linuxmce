@@ -168,6 +168,22 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 					}
 				}
 				break;
+			case SERIALIZE_DATA_TYPE_MAP_STRING_PAIR_INT:
+				{
+					map<string, pair<int,int> > *pMap = (map<string, pair<int,int> > *) pItem->m_pItem;
+					Write_unsigned_long((unsigned long) pMap->size());
+#ifdef DEBUG_SERIALIZATION
+					cout << "Writing " << (unsigned long) pMap->size() << " map string pair ints" << endl;
+#endif
+					for(map<string, pair<int,int> >::iterator it=pMap->begin();it!=pMap->end();++it)
+					{
+						string s = it->first;
+						Write_string( s );
+						Write_unsigned_long( it->second.first );
+						Write_unsigned_long( it->second.second );
+					}
+				}
+				break;
 			case SERIALIZE_DATA_TYPE_INT_STRING:
 				{
 					map<int,string> *pMap = (map<int,string> *) pItem->m_pItem;
@@ -313,6 +329,23 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 						long l1 = Read_unsigned_long();
 						long l2 = Read_unsigned_long();
 						pVect->push_back( pair<int,int> (l1,l2) );
+					}
+				}
+				break;
+			case SERIALIZE_DATA_TYPE_MAP_STRING_PAIR_INT:
+				{
+					map<string, pair<int,int> > *pMap = (map<string, pair<int,int> > *) pItem->m_pItem;
+					unsigned long count = Read_unsigned_long();
+#ifdef DEBUG_SERIALIZATION
+					cout << "Reading " << count << " map string pair ints" << endl;
+#endif
+					for(size_t s=0;s<count;++s)
+					{
+						string str;
+						Read_string(str);
+						int i1 = Read_unsigned_long();
+						int i2 = Read_unsigned_long();
+						(*pMap)[str] = make_pair<int,int> (i1,i2);
 					}
 				}
 				break;

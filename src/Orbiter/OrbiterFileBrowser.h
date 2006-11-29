@@ -7,7 +7,7 @@
 
 #include "SerializeClass/SerializeClass.h"
 #define SERIALIZE_DATA_TYPE_MAP_OBJFILEBROWSER		1000
-
+#define SERIALIZE_OBJECT_FILE_BROWSER_VERSION		2
 
 class OrbiterFileBrowser_Entry : public SerializeClass
 {
@@ -28,6 +28,12 @@ class OrbiterFileBrowser_Collection : public SerializeClass
 {
 public:
 	MapOrbiterFileBrowser m_mapOrbiterFileBrowser;
+	map<string, pair<int,int> > m_mapRemoteControls;
+
+	OrbiterFileBrowser_Collection()
+	{
+		m_iSC_Version = SERIALIZE_OBJECT_FILE_BROWSER_VERSION;
+	}
 
 	~OrbiterFileBrowser_Collection()
 	{
@@ -40,7 +46,12 @@ public:
 
 	void SetupSerialization(int iSC_Version)
 	{
+		StartSerializeList() + m_mapRemoteControls;
 		(*this) + m_mapOrbiterFileBrowser; // this is serialized custom
+	}
+	bool OkayToDeserialize(int iSC_Version)
+	{
+		return SERIALIZE_OBJECT_FILE_BROWSER_VERSION == iSC_Version;
 	}
 };
 
