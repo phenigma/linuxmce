@@ -2709,26 +2709,27 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 #endif
 	}
 
-	int Type=pEvent->type;  // Preprocess Event will change this from BUTTON_DOWN to 'unknown' if it's not a known key.  However there might skill be an entry for it in m_mapScanCodeToRemoteButton.end
-    	PreprocessEvent(*pEvent);
-
-	if( Type == Orbiter::Event::BUTTON_DOWN || Type == Orbiter::Event::REGION_DOWN )
-	{
-		if( !GotActivity( pEvent->type == Orbiter::Event::BUTTON_DOWN ? pEvent->data.button.m_iPK_Button : 0 ) )  // Use pEvent->type not Type since if it's not a known type it won't map to m_iPK_Button
+	if( (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::REGION_DOWN) &&
+        !GotActivity( pEvent->type == Orbiter::Event::BUTTON_DOWN ? pEvent->data.button.m_iPK_Button : 0 ) )  // Use pEvent->type not Type since if it's not a known type it won't map to m_iPK_Button
 			return;
 
-		if( Type == Orbiter::Event::BUTTON_DOWN )  // Use Type instead of pEvent->type since the user may have some mapping for this
+	if( pEvent->type == Orbiter::Event::BUTTON_DOWN )  // Use Type instead of pEvent->type since the user may have some mapping for this
+	{
+		// Do this first because PreprocessEvent will convert this to a PK_Button, which is a different number
+		// and we're looking for scan codes
+		map<int,string>::iterator it = m_mapScanCodeToRemoteButton.find(pEvent->data.button.m_iPK_Button);
+		if( it!=m_mapScanCodeToRemoteButton.end() )
 		{
-			map<int,string>::iterator it = m_mapScanCodeToRemoteButton.find(pEvent->data.button.m_iPK_Button);
-			if( it!=m_mapScanCodeToRemoteButton.end() )
-			{
 #ifdef DEBUG
-				g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s",it->second.c_str());
+			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s",it->second.c_str());
 #endif
-				ReceivedCode(0,it->second.c_str());
-			}
+			ReceivedCode(0,it->second.c_str());
+			return;
 		}
 	}
+    
+	// Do this after checking for scan codes because this will convert this to a different number
+	PreprocessEvent(*pEvent);
 
 	if (pEvent->type == Orbiter::Event::HID)
 	{
@@ -4196,7 +4197,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 				DataGridTable *pDataGridTable = pObj->m_pDesignObj_DataGrid->DataGridTable_Get();
 				if( pDataGridTable )
 				{
-					DataGridCell *pCell = pDataGridTable->GetData(pObj->m_iGridCol, pObj->m_iGridRow);
+					DataGridCell *pCell = pDataGridTable->GetData(pObj->m_iGridCol + pObj->m_pDesignObj_DataGrid->m_GridCurCol, pObj->m_iGridRow + pObj->m_pDesignObj_DataGrid->m_GridCurRow);
 					if( pCell )
 						Output += pCell->m_mapAttributes[ Variable.substr(3) ];
 					else

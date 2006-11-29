@@ -837,6 +837,15 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 			DCE::CMD_Spawn_Application CMD_Spawn_Application_fill(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 				"/usr/pluto/bin/FillDbAndFetchIcons.sh","filldb","","","",false,false,false,true);
 			SendCommand(CMD_Spawn_Application_fill);
+
+			SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
+				"Please don't reload the router, or reboot, or use TV for 5 minutes while I setup your channel data", // Main message
+				"", // Command Line
+				"generic message", // Description
+				"0", // sPromptToResetRouter
+				300, // sTimeout
+				"1"); // sCannotGoBack
+			SendCommand(SCREEN_PopupMessage_DL);
 		}
 	}
 }
