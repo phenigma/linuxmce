@@ -95,3 +95,6 @@ if [ "$PK_Device_QuickStart" = "" ]; then
 	Q="INSERT INTO Device_QuickStart(FK_Device,Description,SortOrder,FK_QuickStartTemplate) SELECT $PK_Device_MD,Description,1,PK_QuickStartTemplate FROM QuickStartTemplate WHERE PK_QuickStartTemplate=2"
 	RunSQL "$Q"
 fi
+
+## Add the myth user to the public group so it will be able to write intro /public/data dir
+adduser --quiet mythtv public
