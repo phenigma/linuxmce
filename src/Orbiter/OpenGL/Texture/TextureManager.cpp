@@ -47,6 +47,8 @@ TextureManager::TextureManager(void)
 	TextureLock("texture mutex"),
 	ReleaseTextureSuspended(0)
 {
+	m_bCacheEnabled = true;
+
 	TextureLock.Init(NULL);
 }
 
@@ -255,4 +257,19 @@ void TextureManager::AttachToScene(string ParentObjectID, MeshFrame* Frame)
 		if(NULL != pFrameFromDesktop && pFrameFromDesktop != Frame)
 			Graphics[pFrameFromDesktop->Name()]	= pFrameFromDesktop;
 	}
+}
+
+bool TextureManager::CacheEnabled()
+{
+	return m_bCacheEnabled;
+}
+
+void TextureManager::DisableCache()
+{
+	m_bCacheEnabled = false;
+}
+
+void TextureManager::EnableCache()
+{
+	m_bCacheEnabled = true;
 }

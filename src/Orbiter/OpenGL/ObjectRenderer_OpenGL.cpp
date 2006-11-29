@@ -9,8 +9,6 @@
 
 using namespace DCE;
 
-//#define DISABLE_MESHFRAME_CACHE
-
 ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : ObjectRenderer(pOwner)
 {
 	
@@ -23,8 +21,6 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 
 /*virtual*/ void ObjectRenderer_OpenGL::RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point)
 {
-g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic1");
-
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "mmmm RenderGraphic  %s state %s",
 					   m_pObj_Owner->m_ObjectID.c_str(), 
@@ -39,17 +35,16 @@ g_pPlutoLogger->Write(LV_STATUS, "mmmm RenderGraphic  %s state %s",
 		sParentObjectID = pParentObj->GenerateObjectHash(point, false);
 	}
 
-#ifndef DISABLE_MESHFRAME_CACHE
-	MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(m_pObj_Owner->GenerateObjectHash(point));
-	if(NULL != Frame)
+	if(TextureManager::Instance()->CacheEnabled())
 	{
-		TextureManager::Instance()->AttachToScene(sParentObjectID, Frame);
-g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
-		return;
+		MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(m_pObj_Owner->GenerateObjectHash(point));
+		if(NULL != Frame)
+		{
+			TextureManager::Instance()->AttachToScene(sParentObjectID, Frame);
+			return;
+		}
 	}
-#endif
-if( m_pObj_Owner->m_iBaseObjectID==4782 )
-int k=2;
+
 	PlutoGraphic *pPlutoGraphic = NULL;
 	pPlutoGraphic = 
 		m_pObj_Owner->m_pvectCurrentGraphic != NULL && m_pObj_Owner->m_pvectCurrentGraphic->size() > 0 ?
@@ -61,7 +56,6 @@ int k=2;
 	//we have nothing to render
 	if(NULL == pPlutoGraphic)
 	{
-g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 		return;
 	}
 
@@ -87,17 +81,11 @@ g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", m_pObj_Owner->m_ObjectID.c_str());
 #endif
-g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 }
 
 
 void ObjectRenderer_OpenGL::LoadPicture(PlutoGraphic* pPlutoGraphic)
 {
-
-//g_pPlutoLogger->Write(LV_STATUS, "(2) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
-//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
-
-
 	string sFileName = "";
 	if(
 		pPlutoGraphic->IsEmpty() && NULL != GetCacheImageManager() && pPlutoGraphic->m_Filename.length() &&

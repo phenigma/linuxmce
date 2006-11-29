@@ -44,6 +44,7 @@ class TextureManager
 	TextureManager();
 	static TextureManager* Instance_;
 	bool TextureEnable_;
+	bool m_bCacheEnabled;
 
 	int SupportTextureNonPowerOfTwo_;
 
@@ -86,6 +87,10 @@ public:
 	void InvalidateItem(MeshFrame *pFrame);
 
 	void AttachToScene(std::string ParentObjectID, MeshFrame* Frame);
+
+	bool CacheEnabled();
+	void DisableCache();
+	void EnableCache();
 };
 
 #endif //TextureManager_H_

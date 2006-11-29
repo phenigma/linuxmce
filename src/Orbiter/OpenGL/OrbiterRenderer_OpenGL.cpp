@@ -384,8 +384,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	int nAlphaChannel/* = 255*/, string ParentObjectID/* = ""*/, string ObjectID/* = ""*/, 
 	string ObjectHash/* = ""*/)
 {
-#ifndef DISABLE_MESHFRAME_CACHE
-	if(ObjectID == "background-image-test")
+	if(TextureManager::Instance()->CacheEnabled() && ObjectID == "background-image-test")
 	{
 		MeshFrame* Frame = TextureManager::Instance()->GetCacheItem(ObjectID);
 		if(NULL != Frame)
@@ -394,7 +393,6 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 			return;
 		}
 	}
-#endif
 
 g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 	if(ObjectID == "")

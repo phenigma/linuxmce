@@ -119,10 +119,6 @@ MeshContainer* MeshContainer::Clone()
 		Result->Triangles[Counter].Texture = GraphicClone;
 	}
 
-	for(int Counter = 0; Counter < NoTriangles; Counter++)
-		if(NULL != Triangles[Counter].Texture)
-			Triangles[Counter].Texture->Texture = NULL;
-
 	Result->Blended_ = Blended_;
 
 	return Result;

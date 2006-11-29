@@ -35,6 +35,9 @@ MeshFrame::MeshFrame(string Name, MeshContainer* Mesh)
 
 MeshFrame::~MeshFrame(void)
 {
+	if(IsVolatile() && NULL != Mesh)
+		Mesh->DisposeTextures();
+
 	delete Mesh;
 	Mesh = NULL;
 
@@ -51,18 +54,11 @@ void MeshFrame::MarkAsVolatile()
 	Volatile_ = true; 
 }
 
-
 /*virtual*/ void MeshFrame::CleanUp(bool VolatilesOnly/* = false*/)
 {
 #ifdef DEBUG
 	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::CleanUp: %p/%s", this, Name_.c_str());	
 #endif
-
-	if(IsVolatile() && NULL != Mesh)
-		Mesh->DisposeTextures();
-
-	delete Mesh;
-	Mesh = NULL;
 
 	vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); )
