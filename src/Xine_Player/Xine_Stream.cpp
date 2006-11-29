@@ -5,8 +5,11 @@
 #include <xine/video_out.h>
 #include <xine/audio_out.h>
 
+#include <dvdnav/dvdnav.h>
+
 // HACK we have to link against local copy of libdvdnav.a - otherwise MPEG2 playback gets crazy
 /*declarations copied from xine-customized version of libdvd-nav	*/
+/*
 extern "C"
 {
 typedef struct dvdnav_s dvdnav_t;
@@ -24,7 +27,9 @@ dvdnav_status_t dvdnav_get_number_of_titles(dvdnav_t *self, int32_t *titles);
 
 dvdnav_status_t dvdnav_get_number_of_parts(dvdnav_t *self, int32_t title, int32_t *parts);
 }
+*/
 /*	end of copied declarations	*/
+
 
 extern "C"
 {
