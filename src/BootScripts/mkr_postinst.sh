@@ -26,3 +26,8 @@ cp /usr/pluto/templates/logrotate.pluto.tmpl /etc/logrotate.d/pluto
 
 ## Copy our asound.conf to the system
 cp /usr/pluto/templates/asound.conf /etc/asound.conf
+
+## Prevent updatedb from running from cron
+if ! grep -qF 'exit 0 # Pluto' /etc/updatedb.conf; then
+	echo "exit 0 # Pluto" >>/etc/updatedb.conf
+fi
