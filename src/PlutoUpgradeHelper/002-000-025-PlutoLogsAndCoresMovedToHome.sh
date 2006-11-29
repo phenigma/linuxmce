@@ -12,10 +12,11 @@ ln -s /home/coredump /usr/pluto/coredump
 
 if [[ ! -L /var/log/pluto && -d /var/log/pluto ]]; then
         mkdir -p /home/logs
-        mv /var/log/pluto /home/logs
+        mv /var/log/pluto /home/logs	
+	rm -f /var/log/pluto
+	ln -s /home/logs/pluto /var/log/pluto
 else
         mkdir -p /home/logs/pluto
 fi
-rm -f /var/log/pluto
-ln -s /home/logs/pluto /var/log/pluto
+
 
