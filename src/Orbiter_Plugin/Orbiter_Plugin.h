@@ -197,10 +197,8 @@ public:
 	void DisplayMessageOnOrbiter(string sPK_Device,string sMessage,bool bPromptToResetRouter=false,int iTimeout=0,bool bCantGoBack=false,
 		string sOption1="",string sMessage1="",string sOption2="",string sMessage2="",string sOption3="",string sMessage3="",string sOption4="", string sMessage4="" )
 	{
-		//TODO: remove me!
-,
 		if ( sMessage == "" )
-			sMessage = "Unable to save playlist";
+			return;
 
 		if( sPK_Device.size()==0 )
 			sPK_Device = m_sPK_Device_AllOrbiters_AllowingPopups;
