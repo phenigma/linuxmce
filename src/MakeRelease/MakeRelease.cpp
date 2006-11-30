@@ -624,7 +624,8 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 			return CreateSource_PlutoDebian(pRow_Package_Source,listFileInfo);
 			break;
 		case REPOSITORYSOURCE_Ubuntu_Pluto_Addons_CONST:
-			return CreateSource_PlutoUbuntu(pRow_Package_Source,listFileInfo);
+			//return CreateSource_PlutoUbuntu(pRow_Package_Source,listFileInfo);
+			return CreateSource_PlutoDebian(pRow_Package_Source,listFileInfo);
 			break;
 		case REPOSITORYSOURCE_SourceForge_CVS_CONST:
 			return CreateSource_SourceForgeCVS(pRow_Package_Source,listFileInfo);
