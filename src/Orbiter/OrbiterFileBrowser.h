@@ -32,7 +32,7 @@ public:
 	map<int,int> m_mapRemoteID_Device;
 
 	int m_mapRemoteID_Device_Find(int RemoteID)	{ map<int,int>::iterator it = m_mapRemoteID_Device.find(RemoteID); return it==m_mapRemoteID_Device.end() ? NULL : (*it).second; }
-	pair<int,int> m_mapRemoteControls_Find(string sSerialNumber) { map<string, pair<int,int> >::iterator it = m_mapRemoteControls.find(sSerialNumber); return it==m_mapRemoteControls.end() ? NULL : (*it).second; }
+	pair<int,int> m_mapRemoteControls_Find(string sSerialNumber) { map<string, pair<int,int> >::iterator it = m_mapRemoteControls.find(sSerialNumber); return it==m_mapRemoteControls.end() ? make_pair<int,int> (0,0) : (*it).second; }
 
 
 	OrbiterFileBrowser_Collection()
