@@ -39,6 +39,7 @@ if (-e '/tmp/flickr_start'){
 
 my $fKey  = '74e14e217ff6bfb670ccec36c0aa122b'; # the flickr key
 $dest  = '/home/flickr'; # Destination folder
+symlink("/home/flickr","/home/public/data/pictures/flickr");
 my $daycount = 0;
 my ($tDays, $api, $response, $id, $buff, $IMGS, $search_string);
 
