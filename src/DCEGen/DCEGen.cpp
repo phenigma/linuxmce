@@ -1866,7 +1866,7 @@ string DCEGen::CastTypeToChar(string s,int PK_ParameterType)
 		return "StringUtils::ftos(" + s + ").c_str()";
 		break;
 	case PARAMETERTYPE_bool_CONST:
-		return "(" + s + " ? : \"1\" : \"0\")";
+		return "(" + s + " ? \"1\" : \"0\")";
 		break;
 	case PARAMETERTYPE_Special_CONST:
 		return s + ".c_str();";
