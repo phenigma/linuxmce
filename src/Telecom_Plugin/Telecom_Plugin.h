@@ -94,8 +94,9 @@ public:
 	class DataGridTable *UserVoiceMailGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 
 	// Follow-me
-	virtual void FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left) {}
-	virtual void FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left) {}
+	bool TelecomFollowMe( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+	virtual void FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left);
+	virtual void FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left);
 
 	// Floorplan
 	virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar);
@@ -157,11 +158,15 @@ public:
 			/** User ID to transfer call to */
 		/** @param #83 PhoneExtension */
 			/** Local Extension to transfer call to */
+		/** @param #86 CallID */
+			/** The ID of the call */
+		/** @param #184 PK_Device_From */
+			/** The device that currently has the call.  Used to find the call to transfer unless a Call ID is specified.  If neither is specified, the device sending the message is used. */
 		/** @param #196 IsConference */
 			/** Transfer the call to a conference room? */
 
-	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,bool bIsConference) { string sCMD_Result; CMD_PL_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),bIsConference,sCMD_Result,NULL);};
-	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,bool bIsConference,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sCallID,string sPK_Device_From,bool bIsConference) { string sCMD_Result; CMD_PL_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sCallID.c_str(),sPK_Device_From.c_str(),bIsConference,sCMD_Result,NULL);};
+	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sCallID,string sPK_Device_From,bool bIsConference,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #236 - PL_Hangup */
@@ -261,7 +266,6 @@ public:
 
 	virtual void CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,string sList_PK_Device,int iPK_Device_Related) { string sCMD_Result; CMD_Speak_in_house(iPK_Device,sPhoneNumber.c_str(),sList_PK_Device.c_str(),iPK_Device_Related,sCMD_Result,NULL);};
 	virtual void CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,string sList_PK_Device,int iPK_Device_Related,string &sCMD_Result,Message *pMessage);
-
 
 //<-dceag-h-e->
 

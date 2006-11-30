@@ -16,6 +16,8 @@
 #include <list>
 #include "calldata.h"
 
+using namespace std;
+
 namespace DCE {
 
 typedef std::list<CallData*> ListCallData_Manager;
@@ -38,6 +40,7 @@ public:
 
 	CallData* findCallByPendingCmdID(int id);
 	CallData* findCallByOwnerDevID(int id);
+	CallData* findCallByCallId(string id);
 	ListCallData_Manager* getCallList();
 	
 private:

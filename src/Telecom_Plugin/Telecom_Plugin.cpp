@@ -229,6 +229,7 @@ bool Telecom_Plugin::Register()
     RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::Hangup) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_PBX_Hangup_CONST);
 	RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::VoIP_Problem) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_VoIP_Problem_Detected_CONST);
 	RegisterMsgInterceptor( ( MessageInterceptorFn )(&Telecom_Plugin::VoiceMailChanged) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Voice_Mail_Changed_CONST);
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::TelecomFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Telecom_CONST );
 	
     if (pthread_create(&m_displayThread, NULL, startDisplayThread, (void *) this))
     {
@@ -703,10 +704,14 @@ g_pPlutoLogger->Write(LV_CRITICAL, "our device is : id %d template %d",
 			/** User ID to transfer call to */
 		/** @param #83 PhoneExtension */
 			/** Local Extension to transfer call to */
+		/** @param #86 CallID */
+			/** The ID of the call */
+		/** @param #184 PK_Device_From */
+			/** The device that currently has the call.  Used to find the call to transfer unless a Call ID is specified.  If neither is specified, the device sending the message is used. */
 		/** @param #196 IsConference */
 			/** Transfer the call to a conference room? */
 
-void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,bool bIsConference,string &sCMD_Result,Message *pMessage)
+void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sCallID,string sPK_Device_From,bool bIsConference,string &sCMD_Result,Message *pMessage)
 //<-dceag-c234-e->
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Transfer command called with params: DeviceID=%d UserID=%d Extension=%s", iPK_Device,iPK_Users,sPhoneExtension.c_str());
@@ -756,13 +761,36 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	}
 
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
-	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
-	if(!pCallData) {
-		g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",pMessage->m_dwPK_Device_From);
+	CallData *pCallData = NULL;
+	
+	// Match first by the call id
+	if( sCallID.empty()==false )
+	{
+		pCallData = CallManager::getInstance()->findCallByCallId(sCallID);
+		if( !pCallData )
+			g_pPlutoLogger->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Transfer cannot locate call id %s",sCallID.c_str());
+	}
 
-		pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_orbiter2embedphone[pMessage->m_dwPK_Device_From]);
-		if(!pCallData) {
-			g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",map_orbiter2embedphone[pMessage->m_dwPK_Device_From]);
+	// then by the sPK_Device_From
+	if( pCallData==NULL && sPK_Device_From.empty() )
+	{
+		pCallData = CallManager::getInstance()->findCallByOwnerDevID(atoi(sPK_Device_From.c_str()));
+		if( pCallData==NULL )
+			pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_orbiter2embedphone[atoi(sPK_Device_From.c_str())]);
+		if( pCallData==NULL )
+			g_pPlutoLogger->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Transfer cannot locate call from %s",sPK_Device_From.c_str());
+	}
+
+	// Lastly by the originator of the message
+	if( pCallData==NULL )
+	{
+		pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
+		if( pCallData==NULL )
+			pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_orbiter2embedphone[pMessage->m_dwPK_Device_From]);
+
+		if( pCallData==NULL )
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Transfer No calldata found for device %d",pMessage->m_dwPK_Device_From);
 			return;
 		}
 	}
@@ -1050,6 +1078,17 @@ void Telecom_Plugin::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,st
 			pCallData->setOwnerDevID(phoneID);
 			CallManager::getInstance()->addCall(pCallData);
 		}
+		
+		// Set the remote control that originated this
+		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
+		if( pOH_Orbiter )
+		{
+			if( pOH_Orbiter->m_dwPK_Device_CurrentRemote )
+				pCallData->m_PK_Device_Remote_set( pOH_Orbiter->m_dwPK_Device_CurrentRemote );
+			if( pOH_Orbiter->m_pOH_User )
+				pCallData->m_PK_Users_set( pOH_Orbiter->m_pOH_User->m_iPK_Users );
+		}
+
 		pCallData->setState(CallData::STATE_ORIGINATING);
 	}
 
@@ -2086,4 +2125,84 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 		g_pPlutoLogger->Write(LV_CRITICAL, "Telecom_Plugin::CMD_Speak_in_house: ain't got "
 			"the extension/phone number of the caller");
 	}
+}
+
+bool Telecom_Plugin::TelecomFollowMe( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	return HandleFollowMe(pMessage);
+}
+
+void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
+{
+	// See if we have any pending media for this user
+	CallData *pCallData_User = NULL,*pCallData_Remote = NULL,*pCallData_Room = NULL;  // Matching the device (ie remote control) has first priority.  Otherwise find the user, or whatever was in the prior room
+
+	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::FollowMe_EnteredRoom orbiter %d device %d user %d room %d calls %d",
+		iPK_Orbiter, iPK_Device, iPK_Users, iPK_RoomOrEntArea, (int) calls->size();
+#endif
+
+	for(std::list<CallData*>::iterator it = calls->begin();it != calls->end();++it)
+	{
+		CallData *pCallData = *it;
+		if( iPK_Device && iPK_Device==pCallData->m_PK_Device_Remote_get() )
+			pCallData_Remote = pCallData;
+
+		if( iPK_Users && iPK_Users==pCallData->m_PK_Users_get() )
+			pCallData_User = pCallData;
+
+		if( iPK_RoomOrEntArea_Left )
+		{
+			DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(pCallData->getOwnerDevID());
+			if( pDevice && pDevice->m_dwPK_Room==iPK_RoomOrEntArea_Left )
+				pCallData_Room = pCallData;
+		}
+	}
+
+	// The call that matches this remote takes priority over the one for the user and then for the room
+	CallData *pCallData = pCallData_Remote ? pCallData_Remote : (pCallData_User ? pCallData_User : pCallData_Room);
+	if( !pCallData )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::FollowMe_EnteredRoom no call to transfer.  size %d",(int) calls->size());
+		return;
+	}
+
+	// We know the call.  Transfer it to a phone in iPK_RoomOrEntArea
+	DeviceData_Router *pDevice_HardPhone=NULL,*pDevice_SoftPhone=NULL;  // See if we have a hard or soft phone in that room
+    ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Hard_Phones_CONST);
+	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+	{
+		if( (*it)->m_dwPK_Room==iPK_RoomOrEntArea )
+		{
+			pDevice_HardPhone = *it;
+			break;
+		}
+	}
+
+	pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Soft_Phones_CONST);
+	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+	{
+		if( (*it)->m_dwPK_Room==iPK_RoomOrEntArea )
+		{
+			pDevice_SoftPhone = *it;
+			break;
+		}
+	}
+
+	if( pDevice_HardPhone==NULL && pDevice_SoftPhone==NULL )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Telecom_Plugin::FollowMe_EnteredRoom no phones in room %d",iPK_RoomOrEntArea);
+		return;
+	}
+
+	if( pDevice_HardPhone )
+		CMD_PL_Transfer(pDevice_HardPhone->m_dwPK_Device,0,"",pCallData->getID(),"" /* from */, false /*not conference*/);
+	else
+		CMD_PL_Transfer(pDevice_SoftPhone->m_dwPK_Device,0,"",pCallData->getID(),"" /* from */, false /*not conference*/);
+}
+
+void Telecom_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
+{
 }

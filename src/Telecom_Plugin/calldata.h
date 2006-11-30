@@ -49,6 +49,16 @@ public:
 	void setOwnerDevID(int id) {
 			ownerDevID_ = id; }
 
+	int m_PK_Device_Remote_get() {
+			return m_PK_Device_Remote; }
+	void m_PK_Device_Remote_set(int PK_Device_Remote) {
+			m_PK_Device_Remote = PK_Device_Remote; }
+
+	int m_PK_Users_get() {
+			return m_PK_Users; }
+	void m_PK_Users_set(int PK_Users) {
+			m_PK_Users = PK_Users; }
+
 	std::string getID() {
 			return id_; }
 	void setID(std::string id) {
@@ -67,6 +77,8 @@ private:
 
 	int pendingCmdID_;
 	int ownerDevID_;
+	int m_PK_Device_Remote; // The remote control that started this call
+	int m_PK_Users; // The user that originated this call
 };
 
 };

@@ -65,7 +65,8 @@ class _CallDataComparator {
 public:
 	enum COMPARETYPE {
 		COMPARE_PENDINGCMDID = 0,
-		COMPARE_OWNERDEVID
+		COMPARE_OWNERDEVID,
+		COMPARE_CALLID
 	};
 	
 public:
@@ -79,6 +80,9 @@ public:
 			break;
 		case COMPARE_OWNERDEVID:
 				return pCallData->getOwnerDevID() == (int)data_;
+			break;
+		case COMPARE_CALLID:
+				return pCallData->getID() == *((string *) data_);
 			break;
 			
 		default:
@@ -105,6 +109,15 @@ CallManager::findCallByOwnerDevID(int id) {
 	ListCallData_Manager::iterator it = 
 			find_if(calls_.begin(), calls_.end(), 
 				_CallDataComparator((void*)id, _CallDataComparator::COMPARE_OWNERDEVID));
+					
+	return (it != calls_.end()) ? *it : 0;
+}
+
+CallData*
+CallManager::findCallByCallId(string id) {
+	ListCallData_Manager::iterator it = 
+			find_if(calls_.begin(), calls_.end(), 
+				_CallDataComparator((void*)&id, _CallDataComparator::COMPARE_CALLID));
 					
 	return (it != calls_.end()) ? *it : 0;
 }

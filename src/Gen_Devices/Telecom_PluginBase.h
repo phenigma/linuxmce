@@ -215,7 +215,7 @@ public:
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string sPhoneCallerID,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,bool bIsConference,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sCallID,string sPK_Device_From,bool bIsConference,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PL_Hangup(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Phone_Answer(string &sCMD_Result,class Message *pMessage) {};
@@ -318,8 +318,10 @@ public:
 						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
 						int iPK_Users=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Users_CONST].c_str());
 						string sPhoneExtension=pMessage->m_mapParameters[COMMANDPARAMETER_PhoneExtension_CONST];
+						string sCallID=pMessage->m_mapParameters[COMMANDPARAMETER_CallID_CONST];
+						string sPK_Device_From=pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_From_CONST];
 						bool bIsConference=(pMessage->m_mapParameters[COMMANDPARAMETER_IsConference_CONST]=="1" ? true : false);
-						CMD_PL_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),bIsConference,sCMD_Result,pMessage);
+						CMD_PL_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sCallID.c_str(),sPK_Device_From.c_str(),bIsConference,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -336,7 +338,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_PL_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),bIsConference,sCMD_Result,pMessage);
+								CMD_PL_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sCallID.c_str(),sPK_Device_From.c_str(),bIsConference,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

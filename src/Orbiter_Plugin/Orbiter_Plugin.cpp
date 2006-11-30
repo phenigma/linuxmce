@@ -3097,12 +3097,18 @@ void Orbiter_Plugin::CMD_Set_Active_Remote(int iPK_Device,bool bFire_Event,int i
 		pOH_Orbiter->m_dwPK_Device_CurrentRemote=iPK_Device;
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Set_Active_Remote Orbiter %d has remote %d previously orbiter %d",
 			iPK_Orbiter,iPK_Device,PK_Orbiter_Prior);
-		if( bFire_Event && pOH_Orbiter->m_pEntertainArea )
+		if( bFire_Event )
 		{
-			EVENT_Follow_Me_Media(iPK_Orbiter, iPK_Device,
+			if( pOH_Orbiter->m_pEntertainArea )
+				EVENT_Follow_Me_Media(iPK_Orbiter, iPK_Device,
+					pOH_Orbiter_Prior && pOH_Orbiter_Prior!=pOH_Orbiter && pOH_Orbiter_Prior->m_pOH_User ? pOH_Orbiter_Prior->m_pOH_User->m_iPK_Users : NULL,
+					pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea,
+					pOH_Orbiter_Prior && pOH_Orbiter_Prior->m_pEntertainArea ? pOH_Orbiter_Prior->m_pEntertainArea->m_iPK_EntertainArea : 0);
+
+			EVENT_Follow_Me_Telecom(iPK_Orbiter, iPK_Device,
+				pOH_Orbiter->m_dwPK_Room,
 				pOH_Orbiter_Prior && pOH_Orbiter_Prior!=pOH_Orbiter && pOH_Orbiter_Prior->m_pOH_User ? pOH_Orbiter_Prior->m_pOH_User->m_iPK_Users : NULL,
-				pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea,
-				pOH_Orbiter_Prior && pOH_Orbiter_Prior->m_pEntertainArea ? pOH_Orbiter_Prior->m_pEntertainArea->m_iPK_EntertainArea : 0);
+				pOH_Orbiter_Prior ? pOH_Orbiter_Prior->m_dwPK_Room : 0);
 		}
 		m_mapRemote_Orbiter[iPK_Device]=iPK_Orbiter;
 	}
