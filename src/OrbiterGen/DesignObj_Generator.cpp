@@ -2088,9 +2088,10 @@ int k=2;
             if( !drUser )
             {
 				g_pPlutoLogger->Write(LV_CRITICAL,"User %d in text %s is invalid",PK_User,Text.c_str());
+				sValue = "";
             }
-
-            sValue = drUser->Nickname_isNull() ? drUser->UserName_get() : drUser->Nickname_get();
+			else
+	            sValue = drUser->Nickname_isNull() ? drUser->UserName_get() : drUser->Nickname_get();
         }
         else if( sVariable[0]=='T' && sVariable.length()>1 )  // <%=T592%> means text object 592
         {
