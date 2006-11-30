@@ -108,6 +108,8 @@
 #define DEVICECATEGORY_Screen_Savers_CONST 163
 #define DEVICECATEGORY_FileMedia_Server_CONST 164
 #define DEVICECATEGORY_Raid_Devices_CONST 165
+#define DEVICECATEGORY_Raid_Generic_CONST 166
+#define DEVICECATEGORY_Raid_Hard_Drives_CONST 167
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"
