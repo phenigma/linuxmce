@@ -377,7 +377,7 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("VendorModelId='DT:") + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get()) + "'";
 
 	if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
-		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("SerialNumber='") + pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() + "'";
+		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("SerialNumber='") + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get()) + "'";
 	else if( pPnpQueueEntry->m_pRow_PnpQueue->Parms_get().size() )
 		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("SerialNumber='") + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->Parms_get()) + "'";
 
