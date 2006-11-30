@@ -53,6 +53,8 @@ public:
 	string DATA_Get_Name();
 	int DATA_Get_ZoomTime();
 	int DATA_Get_FadeTime();
+	bool DATA_Get_Supports_NPOT_Textures();
+	void DATA_Set_Supports_NPOT_Textures(bool Value);
 
 			*****EVENT***** accessors inherited from base class
 

@@ -112,11 +112,12 @@ class GallerySetup
 	string m_sImages;
 	int ZoomTime, FaddingTime;
 	bool m_bUseAnimation;
+
 public:
 	pthread_t* ThreadID;
 	bool* m_bQuit;
 	
-	GallerySetup(string Width, string Height, bool bUseAnimation, int ZoomTime, int FaddingTime, string ImageList);
+	GallerySetup(string Width, string Height, bool bUseAnimation, int ZoomTime, int FaddingTime, string ImageList, bool bNPOTTextures);
 	int GetWidth();
 	int GetHeight();
 	int GetZoomTime();
@@ -125,7 +126,7 @@ public:
 	bool GetUseAnimation();
 };
 
-GallerySetup::GallerySetup(string Width, string Height, bool bUseAnimation, int ZoomTime, int FaddingTime, string ImageList)
+GallerySetup::GallerySetup(string Width, string Height, bool bUseAnimation, int ZoomTime, int FaddingTime, string ImageList, bool bNPOTTextures)
 {
 	this->Width_ = atoi(Width.c_str());
 	this->Height_ = atoi(Height.c_str());
@@ -133,6 +134,8 @@ GallerySetup::GallerySetup(string Width, string Height, bool bUseAnimation, int 
 	this->ZoomTime = ZoomTime;
 	this->FaddingTime = FaddingTime;
 	m_bUseAnimation = bUseAnimation;
+
+	TextureManager::Instance()->SetupNPOTSupport(bNPOTTextures);
 }
 
 int GallerySetup::GetWidth()
@@ -178,10 +181,11 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 {
 	string w = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenWidth_CONST);
 	string h = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenHeight_CONST);
+	bool bNPOTTextures = DATA_Get_Supports_NPOT_Textures();
 	string sUseAnimation = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_Use_alpha_blended_UI_CONST);
 	bool bUseAnimation = sUseAnimation == "1";
 	
-	GallerySetup* SetupInfo = new GallerySetup(w, h, bUseAnimation, DATA_Get_ZoomTime(), DATA_Get_FadeTime(), m_sFileList);
+	GallerySetup* SetupInfo = new GallerySetup(w, h, bUseAnimation, DATA_Get_ZoomTime(), DATA_Get_FadeTime(), m_sFileList, bNPOTTextures);
 	if(0 == ThreadID)
 	{
 		SetupInfo->ThreadID = &ThreadID;

@@ -3,6 +3,8 @@
 #include "SDL_image.h"
 #include "MathUtils.h"
 
+#include "TextureManager.h"
+
 #include "DCE/Logger.h"
 using namespace DCE;
 
@@ -39,7 +41,10 @@ bool GraphicImage::Load(string FileName)
 
 void GraphicImage::Prepare(int nScreenWidth, int nScreenHeight)
 {
-	if(SupportTextureNonPowerOfTwo())
+	g_pPlutoLogger->Write(LV_STATUS, "NPOT textures %ssupported", 
+		TextureManager::Instance()->SupportTextureNonPowerOfTwo() ? "" : "NOT ");
+
+	if(TextureManager::Instance()->SupportTextureNonPowerOfTwo())
 	{
 		MaxU = 1;
 		MaxV = 1;
@@ -128,15 +133,8 @@ void GraphicImage::ScaleImage(int nScreenWidth, int nScreenHeight)
 	SDL_FreeSurface(Surface);  
 }
 
-bool GraphicImage::CheckExtension(const char* checkFor)
-{
-	const GLubyte* extensions = glGetString(GL_EXTENSIONS);
-	string sExtensions(reinterpret_cast<const char *>(extensions));
-	return sExtensions.find(checkFor) != string::npos;
-}
-
 bool GraphicImage::SupportTextureNonPowerOfTwo()
 {
-	return CheckExtension("ARB_texture_rectangle") || CheckExtension("ARB_texture_non_power_of_two");
+	return TextureManager::Instance()->SupportTextureNonPowerOfTwo();
 }
 

@@ -17,7 +17,7 @@ TextureManager* TextureManager::Instance()
 
 TextureManager::TextureManager(void) 
 	: LastTexture(0), 
-	SupportTextureNonPowerOfTwo_(-1)
+	m_bSupportTextureNonPowerOfTwo(false)
 {
 	glEnable(GL_TEXTURE_2D);
 }
@@ -62,15 +62,12 @@ void TextureManager::CleanUp()
 	Instance_ = NULL;
 }
 
+void TextureManager::SetupNPOTSupport(bool bSupportTextureNonPowerOfTwo)
+{
+	m_bSupportTextureNonPowerOfTwo = bSupportTextureNonPowerOfTwo;
+}
 
 bool TextureManager::SupportTextureNonPowerOfTwo()
 {
-	if(SupportTextureNonPowerOfTwo_ == -1)
-	{
-		SupportTextureNonPowerOfTwo_ = 
-			ExtensionManager::CheckExtension("ARB_texture_rectangle") || 
-			ExtensionManager::CheckExtension("ARB_texture_non_power_of_two");
-	}
-
-	return SupportTextureNonPowerOfTwo_ > 0;
+	return m_bSupportTextureNonPowerOfTwo;
 }

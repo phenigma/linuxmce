@@ -112,6 +112,18 @@ public:
 			return atoi(m_mapParameters[DEVICEDATA_FadeTime_CONST].c_str());
 	}
 
+	bool Get_Supports_NPOT_Textures()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Supports_NPOT_Textures_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Supports_NPOT_Textures_CONST]=="1" ? true : false);
+	}
+
+	void Set_Supports_NPOT_Textures(bool Value)
+	{
+		SetParm(DEVICEDATA_Supports_NPOT_Textures_CONST,(Value ? "1" : "0"));
+	}
 };
 
 
@@ -176,7 +188,10 @@ public:
 			return false;
 		m_pData = new Photo_Screen_Saver_Data();
 		if( Size )
-			m_pData->SerializeRead(Size,pConfig);
+		{
+			if( m_pData->SerializeRead(Size,pConfig)==false )
+				return false;
+		}
 		else
 		{
 			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
@@ -189,7 +204,8 @@ public:
 		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
-		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
+		if( m_pData->m_AllDevices.SerializeRead(Size,pConfig)==false )
+			return false;
 		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
 		m_pcRequestSocket = new Event_Impl(m_dwPK_Device, DEVICETEMPLATE_Photo_Screen_Saver_CONST,m_sHostName);
@@ -216,6 +232,8 @@ public:
 	string DATA_Get_Name() { return GetData()->Get_Name(); }
 	int DATA_Get_ZoomTime() { return GetData()->Get_ZoomTime(); }
 	int DATA_Get_FadeTime() { return GetData()->Get_FadeTime(); }
+	bool DATA_Get_Supports_NPOT_Textures() { return GetData()->Get_Supports_NPOT_Textures(); }
+	void DATA_Set_Supports_NPOT_Textures(bool Value,bool bUpdateDatabase=false) { GetData()->Set_Supports_NPOT_Textures(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,203,Value); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,class Message *pMessage) {};

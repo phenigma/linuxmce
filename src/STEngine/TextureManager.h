@@ -24,7 +24,7 @@ class TextureManager
 	static TextureManager* Instance_;
 	bool TextureEnable_;
 
-	int SupportTextureNonPowerOfTwo_;
+	bool m_bSupportTextureNonPowerOfTwo;
 
 public:
 	static TextureManager* Instance();
@@ -36,6 +36,7 @@ public:
 
 	void RemoveFromConvertQueue(GraphicImage* TextureGraphic);
  
+	void SetupNPOTSupport(bool bSupportTextureNonPowerOfTwo);
 	bool SupportTextureNonPowerOfTwo();
 };
 
