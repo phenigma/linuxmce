@@ -31,6 +31,10 @@ public:
 	map<string, pair<int,int> > m_mapRemoteControls;
 	map<int,int> m_mapRemoteID_Device;
 
+	int m_mapRemoteID_Device_Find(int RemoteID)	{ map<int,int>::iterator it = m_mapRemoteID_Device.find(RemoteID); return it==m_mapRemoteID_Device.end() ? NULL : (*it).second; }
+	pair<int,int> m_mapRemoteControls_Find(string sSerialNumber) { map<string, pair<int,int> >::iterator it = m_mapRemoteControls.find(sSerialNumber); return it==m_mapRemoteControls.end() ? NULL : (*it).second; }
+
+
 	OrbiterFileBrowser_Collection()
 	{
 		m_iSC_Version = SERIALIZE_OBJECT_FILE_BROWSER_VERSION;
