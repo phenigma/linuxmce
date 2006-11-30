@@ -230,7 +230,7 @@ sub get_files{
 			die "Cannot create ".$dest."/".'tags'."\n";
 		}
 	} 
-	
+	my $symdest="/home/public/data/pictures/flickr";
 	if ($pattern eq '') {
 		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($image->{'time'});
 		$year=1900+$year;
@@ -257,11 +257,14 @@ sub get_files{
 		}
 
 		$finaldst = $dest."/".$year."/".$mon."/".$mday."/".$buff.".".$image->{'format'};
+		$symdest.=$symdest."/".$year."/".$mon."/".$mday."/".$buff.".".$image->{'format'};
 	} else {
 		$finaldst = $dest."/".'tags'."/".$buff.".".$image->{'format'};
+		$symdest.=$symdest."/".'tags'."/".$buff.".".$image->{'format'};
 	}
-
-	`wget $image->{'source'} -O $finaldst 1>/dev/null 2>/dev/null`;
+	
+	`touch "$finaldst.lock"`;
+	`wget $image->{'source'} -O "$finaldst" 1>/dev/null 2>/dev/null`;
 
 	$xs=Image::Magick->new;
 	$r=$xs->Read("$finaldst");
@@ -301,19 +304,20 @@ sub get_files{
 	$r=$xs->Write($finaldst);
 	print "[flickr.pl] Writing file $finaldst.\n";
 	$test_date = `date`;
-	print TEST "$test_date Sending /usr/pluto/bin/MessageSend dcerouter -targetType template -o 0 2 1 819 13 $finaldst\n";
+	print TEST "$test_date Sending /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 $symdest\n";
 	print TEST "-------------------\n";
 	close(TEST);
 
-	my $fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -o 0 2 1 819 13 "$finaldst" |; 
+	my $fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 "$symdest" |; 
 				
 	## If the router is not available for the moment
 	while ( $fms =~ m/Cannot communicate with router/ ) {
 		printf "Waiting for router to come up";
 		sleep 10;
-		$fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -o 0 2 1 819 13 "$finaldst" |;
+		$fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 "$symdest" |;
 	}
 				
+	`rm "$finaldst.lock"`;
 	$fms =~ s/\n//g;
 	@out = split (/:/, $fms);
 	$ffield = $out[2];
@@ -321,7 +325,7 @@ sub get_files{
 					
 	# second message send
 	#	print "Fire-ing second messagesend event\n";
-	qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -o 0 2 1 391 145 "$ffield" 122 30 |;
+	qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 391 145 "$ffield" 122 30 |;
 }
 
 sub delete_old {
