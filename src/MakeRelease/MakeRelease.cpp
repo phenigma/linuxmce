@@ -85,7 +85,7 @@ Row_Distro *g_pRow_Distro;
 DCEConfig dceConfig;
 
 // Int is the package ID, bool is true/false if it's been built.  This will be prepopulated with all the packages and 'false'
-map<int,bool> g_mapPackagesToBuild;  
+map<int,bool> g_mapPackagesToBuild,g_mapPackagesCompileSourceInOrder;
 
 // The source code needs to be compiled in a certain order.  So we call CompileSourceInOrder first
 // which is recursive and will call itself for all it's dependencies first.  It will then call
@@ -857,6 +857,8 @@ bool CompileSourceInOrder(Row_Package *pRow_Package)
 	if( g_mapPackagesToBuild.find(pRow_Package->PK_Package_get())==g_mapPackagesToBuild.end() )
 		return true; // It's okay--this isn't one of the packages in our list anyway
 
+	g_mapPackagesCompileSourceInOrder[pRow_Package->PK_Package_get()]=true;
+
 	// Get all the dependencies of this package and build them first
 	vector<Row_Package_Package *> vectRow_Package_Package;
 	pRow_Package->Package_Package_FK_Package_getrows(&vectRow_Package_Package);
@@ -872,8 +874,11 @@ bool CompileSourceInOrder(Row_Package *pRow_Package)
 			else
 				return true;
 		}
-		if( !CompileSourceInOrder(pRow_Package_Package_DependsOn) )
-			return false;
+
+		// Don't allow an infinite recursion
+		if( g_mapPackagesCompileSourceInOrder[pRow_Package_Package_DependsOn->PK_Package_get()]==false &&
+			!CompileSourceInOrder(pRow_Package_Package_DependsOn) )
+				return false;
 	}
 
 	if( !pRow_Package->FK_Package_Sourcecode_isNull() && !CompileSourceInOrder(pRow_Package->FK_Package_Sourcecode_getrow()) )
