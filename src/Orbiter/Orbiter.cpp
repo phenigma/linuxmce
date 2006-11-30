@@ -2128,6 +2128,11 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			m_pOrbiterFileBrowser_Collection->SerializeRead(iSize,pData);
 			delete pData;
 
+			// Create another map to go from remote id to device id
+			for(map<string, pair<int,int> >::iterator it=m_pOrbiterFileBrowser_Collection->m_mapRemoteControls.begin();
+				it!=m_pOrbiterFileBrowser_Collection->m_mapRemoteControls.end();++it)
+					m_pOrbiterFileBrowser_Collection->m_mapRemoteID_Device[ it->second.second ] = it->second.first;
+
 			// Debug various issues with startup sequence irregularities
 			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::Initialize finished startup phase");
 		} // Originally this context ended before the startup actions.  This meant onload actions,

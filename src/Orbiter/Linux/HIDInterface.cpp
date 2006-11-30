@@ -105,7 +105,7 @@ void PlutoHIDInterface::ProcessHIDEvents()
 
 						if( res==6 && inPacket[0]==8 )  // It's for us
 						{
-							if( inPacket[1]==0x20 )  // A bind request
+							if( inPacket[1]==0x20 || inPacket[1]==0x26 )  // A bind request
 								ProcessBindRequest(inPacket);
 							else if( inPacket[1]==0x25 )  // A button
 								ProcessHIDButton(inPacket);
@@ -162,8 +162,8 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest wrote message %d",ctrl);
 	m_pOrbiter->CMD_Display_Alert("Remote " + StringUtils::itos(PK_Device) + " connected","connectremote","3");
 	m_pOrbiter->GotActivity(0);  // In case the tv is off or the screen saver
-	SetActiveRemote(RemoteID,false);
-	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest remote %d PK_Device %d",RemoteID,PK_Device);
+	SetActiveRemote(RemoteID,inPacket[1]==0x26);
+	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest remote %d PK_Device %d follow: %d",RemoteID,PK_Device,(int) inPacket[1]==0x26);
 	return true;
 }
 
@@ -242,8 +242,8 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 		(int) p_Packet[2],(int) p_Packet[3],(int) p_Packet[4],(int) p_Packet[5]);
 
 	int iRemoteID = p_Packet[2];
-	if( iRemoteID!=m_iRemoteID || p_Packet[3]==201 )  // 201 isn't really follow me.  Do this just for testing
-		SetActiveRemote(iRemoteID,p_Packet[3]==201);
+	if( iRemoteID!=m_iRemoteID )
+		SetActiveRemote(iRemoteID,false);
 	
 	// If p_Packet[3]==0 then this is notifying us that the button was released.  If it's not, it's notifying us that a button was pressed
 	// if m_iHoldingDownButton is !0, then we're already reporting a button as being depressed, so we need to fire a button up if the 

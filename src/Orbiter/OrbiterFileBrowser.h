@@ -29,6 +29,7 @@ class OrbiterFileBrowser_Collection : public SerializeClass
 public:
 	MapOrbiterFileBrowser m_mapOrbiterFileBrowser;
 	map<string, pair<int,int> > m_mapRemoteControls;
+	map<int,int> m_mapRemoteID_Device;
 
 	OrbiterFileBrowser_Collection()
 	{

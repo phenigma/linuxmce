@@ -18,10 +18,12 @@ private:
 	bool m_bRunning;
 	pluto_pthread_mutex_t m_HIDMutex;  // This will also protect the callback map
 	int m_iRemoteID,m_iPK_Device_Remote;
+	/*
 	map<int,int> m_mapRemoteID_Device; // Map of known remote id's to device id's
 	map<string,int> m_mapSerialNumber_RemoteID; // Map of known serial number's to remote id's
 	int m_mapRemoteID_Device_Find(int RemoteID)	{ map<int,int>::iterator it = m_mapRemoteID_Device.find(RemoteID); return it==m_mapRemoteID_Device.end() ? NULL : (*it).second; }
 	int m_mapSerialNumber_RemoteID_Find(string sSerialNumber) { map<string,int>::iterator it = m_mapSerialNumber_RemoteID.find(sSerialNumber); return it==m_mapSerialNumber_RemoteID.end() ? NULL : (*it).second; }
+	*/
 	int m_iHoldingDownButton; // The button currently being held down
 	Orbiter *m_pOrbiter;
 
