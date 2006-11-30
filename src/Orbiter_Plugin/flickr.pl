@@ -257,10 +257,10 @@ sub get_files{
 		}
 
 		$finaldst = $dest."/".$year."/".$mon."/".$mday."/".$buff.".".$image->{'format'};
-		$symdest.=$symdest."/".$year."/".$mon."/".$mday."/".$buff.".".$image->{'format'};
+		$symdest.="/".$year."/".$mon."/".$mday."/".$buff.".".$image->{'format'};
 	} else {
 		$finaldst = $dest."/".'tags'."/".$buff.".".$image->{'format'};
-		$symdest.=$symdest."/".'tags'."/".$buff.".".$image->{'format'};
+		$symdest.="/".'tags'."/".$buff.".".$image->{'format'};
 	}
 	
 	`touch "$finaldst.lock"`;
