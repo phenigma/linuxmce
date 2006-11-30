@@ -2,6 +2,7 @@
 #include "../Orbiter.h"
 #include "HIDInterface.h"
 #include "Gen_Devices/AllCommandsRequests.h"
+#include "../OrbiterFileBrowser.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -130,7 +131,9 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 	sprintf(sSerialNumber,"%x.%x.%x.%x",(int) pSerialNumber[2],(int) pSerialNumber[3],(int) pSerialNumber[4],(int) pSerialNumber[5]);
 	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest got a bind request for %s",sSerialNumber);
 
-	int PK_Device=0,RemoteID=m_mapSerialNumber_RemoteID_Find(sSerialNumber);
+	pair<int,int> ipair = m_pOrbiter->m_pOrbiterFileBrowser_Collection->m_mapRemoteControls_Find(sSerialNumber);
+	int PK_Device=ipair.first,RemoteID=ipair.second;
+	
 	if( RemoteID==0 )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest requesting remote ID...");
@@ -140,11 +143,11 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 			g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessBindRequest failed to get RemoteID answer from orbiter plugin");
 			RemoteID=255; // A bogus number
 		}
-		m_mapRemoteID_Device[ RemoteID ] = PK_Device;
-		m_mapSerialNumber_RemoteID[ sSerialNumber ] = RemoteID;
+		m_pOrbiter->m_pOrbiterFileBrowser_Collection->m_mapRemoteID_Device[ RemoteID ] = PK_Device;
+		m_pOrbiter->m_pOrbiterFileBrowser_Collection->m_mapRemoteControls[ sSerialNumber ] = make_pair<int,int> (PK_Device,RemoteID);
 	}
 	else
-		PK_Device=m_mapRemoteID_Device_Find(RemoteID);
+		PK_Device=m_pOrbiter->m_pOrbiterFileBrowser_Collection->m_mapRemoteID_Device_Find(RemoteID);
 
 	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest we are remote %d device %d",RemoteID,PK_Device);
 	char write_packet[5];
@@ -219,7 +222,7 @@ bool PlutoHIDInterface::StopMouse()
 
 bool PlutoHIDInterface::SetActiveRemote(int iRemoteID,bool bFollowMe)
 {
-	int PK_Device = m_mapRemoteID_Device_Find(iRemoteID);
+	int PK_Device = m_pOrbiter->m_pOrbiterFileBrowser_Collection->m_mapRemoteID_Device_Find(iRemoteID);
 	if( !PK_Device )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::SetActiveRemote Remote ID %d is unknown",iRemoteID);
