@@ -3512,7 +3512,7 @@ bool Orbiter::GotActivity( int PK_Button )
 #ifdef ENABLE_MOUSE_BEHAVIOR
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS, "Orbiter::GotActivity calling CMD_Show_Mouse_Pointer mb %p vis %d",
-				m_pMouseBehavior, (int) m_pMouseBehavior->m_bMouseVisible);
+				m_pMouseBehavior, NULL != m_pMouseBehavior ? (int) m_pMouseBehavior->m_bMouseVisible : -1);
 #endif
 			if( m_pMouseBehavior && m_pMouseBehavior->m_bMouseVisible )   // If m_bMouseVisible is true, it should be visible since screen saver doesn't set this, and that way if the screen saver hid it we'll restore it
 				CMD_Show_Mouse_Pointer("1");
