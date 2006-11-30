@@ -1057,6 +1057,6 @@ map<string,int> PlutoMediaIdentifier::m_mapExtensions;
     //if we don't find any extention to match it, we'll use MediaIdentifier which uses the magic from files
     string sExtension = FileUtils::FindExtension(sFilename);
     map<string, int>::iterator it = m_mapExtensions.find(sExtension);
-    return it != m_mapExtensions.end() ? it->second : MediaIdentifier::GetFileMediaType(sFilename);
+    return it != m_mapExtensions.end() ? it->second : 0 /*MediaIdentifier::GetFileMediaType(sFilename)*/;
 }
 //-----------------------------------------------------------------------------------------------------
