@@ -1652,15 +1652,19 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		
 		OrbiterFileBrowser_Collection *pOrbiterFileBrowser_Collection = m_pMedia_Plugin->CreateOrbiterFileList(pOH_Orbiter);
 		ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_MCR_Remote_CONST);
-		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
-		{
-			DeviceData_Router *pDeviceData_Router = *it;
-			string sSerialNumber = pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_Serial_Number_CONST);
-			if( sSerialNumber.empty() )
-				continue;
 
-			int iRemoteID = atoi(pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
-			pOrbiterFileBrowser_Collection->m_mapRemoteControls[ sSerialNumber ] = make_pair<int,int> (pDeviceData_Router->m_dwPK_Device,iRemoteID);
+		if(NULL != pListDeviceData_Router)
+		{
+			for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+			{
+				DeviceData_Router *pDeviceData_Router = *it;
+				string sSerialNumber = pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_Serial_Number_CONST);
+				if( sSerialNumber.empty() )
+					continue;
+
+				int iRemoteID = atoi(pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
+				pOrbiterFileBrowser_Collection->m_mapRemoteControls[ sSerialNumber ] = make_pair<int,int> (pDeviceData_Router->m_dwPK_Device,iRemoteID);
+			}
 		}
 
 		vector<Row_Users *> vectRow_Users;
