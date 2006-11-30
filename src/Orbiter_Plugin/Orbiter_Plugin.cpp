@@ -1662,6 +1662,12 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 			int iRemoteID = atoi(pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
 			pOrbiterFileBrowser_Collection->m_mapRemoteControls[ sSerialNumber ] = make_pair<int,int> (pDeviceData_Router->m_dwPK_Device,iRemoteID);
 		}
+
+		vector<Row_Users *> vectRow_Users;
+		m_pDatabase_pluto_main->Users_get()->GetRows("1=1",&vectRow_Users);
+		for(vector<Row_Users *>::iterator itUsers=vectRow_Users.begin();itUsers!=vectRow_Users.end();++itUsers)
+			pOrbiterFileBrowser_Collection->m_mapUsernames[ (*itUsers)->PK_Users_get() ] = (*itUsers)->UserName_get();
+
 		pOrbiterFileBrowser_Collection->SerializeWrite();
 		*iData_Size = pOrbiterFileBrowser_Collection->m_dwAllocatedSize;
 		*pData = pOrbiterFileBrowser_Collection->m_pcDataBlock;

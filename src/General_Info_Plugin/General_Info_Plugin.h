@@ -381,7 +381,7 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 
 
 	/** @brief COMMAND: #802 - Get Available Storage Device */
-	/**  */
+	/** The the available storage devices */
 		/** @param #2 PK_Device */
 			/** The device id for the NAS or internal drive being used.  If it will be stored on the Core's internal home directory, this will be the device id for the Core.  0 is no device can save the file. */
 		/** @param #163 Description */
@@ -407,7 +407,7 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 
 
 	/** @brief COMMAND: #808 - Get Unused Serial Ports */
-	/**  */
+	/** Get the unused serial ports */
 		/** @param #2 PK_Device */
 			/** The computer to get the ports for */
 		/** @param #5 Value To Assign */
@@ -428,6 +428,17 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 
 	virtual void CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iPK_Software) { string sCMD_Result; CMD_Add_Software(iPK_Device,bTrueFalse,iPK_Software,sCMD_Result,NULL);};
 	virtual void CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iPK_Software,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #833 - Get User Name */
+	/** Given a PK_User, get the users name */
+		/** @param #5 Value To Assign */
+			/** The user's name */
+		/** @param #17 PK_Users */
+			/** The user id */
+
+	virtual void CMD_Get_User_Name(int iPK_Users,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_User_Name(iPK_Users,sValue_To_Assign,sCMD_Result,NULL);};
+	virtual void CMD_Get_User_Name(int iPK_Users,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	private:

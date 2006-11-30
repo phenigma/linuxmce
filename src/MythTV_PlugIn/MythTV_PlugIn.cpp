@@ -28,6 +28,7 @@ using namespace DCE;
 #include "../pluto_main/Define_DeviceData.h"
 #include "../pluto_main/Table_EventParameter.h"
 #include "../pluto_media/Table_MediaProvider.h"
+#include "../Gen_Devices/AllScreens.h"
 
 #include "DataGrid.h"
 #include "EPGGrid.h"
@@ -838,14 +839,14 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 				"/usr/pluto/bin/FillDbAndFetchIcons.sh","filldb","","","",false,false,false,true);
 			SendCommand(CMD_Spawn_Application_fill);
 
-			SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
+			DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
 				"Please don't reload the router, or reboot, or use TV for 5 minutes while I setup your channel data", // Main message
 				"", // Command Line
 				"generic message", // Description
 				"0", // sPromptToResetRouter
-				300, // sTimeout
+				"300", // sTimeout
 				"1"); // sCannotGoBack
-			SendCommand(SCREEN_PopupMessage_DL);
+			SendCommand(SCREEN_PopupMessage);
 		}
 	}
 }

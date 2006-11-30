@@ -754,6 +754,7 @@
 #define COMMAND_Set_Active_Remote_CONST 830
 #define COMMAND_Refresh_List_of_Online_Devices_CONST 831
 #define COMMAND_Report_Discs_in_Drive_CONST 832
+#define COMMAND_Get_User_Name_CONST 833
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

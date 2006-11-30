@@ -4290,6 +4290,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += StringUtils::itos( m_pLocationInfo->PK_Room );
 		else if(  Variable=="U" )
 			Output += StringUtils::itos( m_dwPK_Users );
+		else if(  Variable=="UN" )
+			Output += m_pOrbiterFileBrowser_Collection->m_mapUsernames_Find(m_dwPK_Users);
 		else if(  Variable=="X"  )
 			Output += StringUtils::itos( X );
 		else if(  Variable=="Y"  )

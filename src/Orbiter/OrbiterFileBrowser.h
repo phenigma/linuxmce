@@ -30,9 +30,11 @@ public:
 	MapOrbiterFileBrowser m_mapOrbiterFileBrowser;
 	map<string, pair<int,int> > m_mapRemoteControls;
 	map<int,int> m_mapRemoteID_Device;
+	map<int,string> m_mapUsernames;
 
-	int m_mapRemoteID_Device_Find(int RemoteID)	{ map<int,int>::iterator it = m_mapRemoteID_Device.find(RemoteID); return it==m_mapRemoteID_Device.end() ? NULL : (*it).second; }
+	int m_mapRemoteID_Device_Find(int RemoteID)	{ map<int,int>::iterator it = m_mapRemoteID_Device.find(RemoteID); return it==m_mapRemoteID_Device.end() ? 0 : (*it).second; }
 	pair<int,int> m_mapRemoteControls_Find(string sSerialNumber) { map<string, pair<int,int> >::iterator it = m_mapRemoteControls.find(sSerialNumber); return it==m_mapRemoteControls.end() ? make_pair<int,int> (0,0) : (*it).second; }
+	string m_mapUsernames_Find(int PK_Users)	{ map<int,string>::iterator it = m_mapUsernames.find(PK_Users); return it==m_mapUsernames.end() ? "" : (*it).second; }
 
 
 	OrbiterFileBrowser_Collection()
@@ -51,7 +53,7 @@ public:
 
 	void SetupSerialization(int iSC_Version)
 	{
-		StartSerializeList() + m_mapRemoteControls;
+		StartSerializeList() + m_mapRemoteControls + m_mapUsernames;
 		(*this) + m_mapOrbiterFileBrowser; // this is serialized custom
 	}
 	bool OkayToDeserialize(int iSC_Version)
