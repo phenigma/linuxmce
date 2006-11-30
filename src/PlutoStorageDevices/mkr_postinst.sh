@@ -19,3 +19,32 @@ fi
 ## Add a init script that will scan the devices for state info (online/ofline)
 ln -s /usr/pluto/bin/StorageDevices_StatusRadar.sh /etc/rc2.d/StorageDevices_StatusRadar.sh
 ln -s /usr/pluto/bin/StorageDevices_StatusRadar.sh /etc/init.d/StorageDevices_StatusRadar.sh
+
+## Samba Share Helper 
+if [[ "$(id -u sambahelper)" == "" ]] ;then
+	useradd -c "Pluto Samba Share Helper" -d /tmp -s /bin/false sambahelper
+fi
+
+if [[ ! -f /usr/pluto/var/sambaCredentials.secret ]] ;then
+	smbUser="sambahelper"
+	smbPass=$(GeneratePassword)
+	echo "
+username=$smbUser
+password=$smbPass
+" > /usr/pluto/var/sambaCredentials.secret
+fi
+
+chmod 600 /usr/pluto/var/sambaCredentials.secret
+
+## Add the sambahelper user to smbpasswd
+if [[ -r /usr/pluto/var/sambaCredentials.secret ]] ;then
+	smbpass=$(cat /usr/pluto/var/sambaCredentials.secret | grep '^password' | cut -d '=' -f2)
+	smbpass=$(/usr/pluto/bin/smbpass.pl $smbpass)
+
+	smbuser=$(cat /usr/pluto/var/sambaCredentials.secret | grep '^user' | cut -d '=' -f2)
+	smbuserid=$(id -u $smbuser)
+
+	echo "$smbuser:$LinuxUserID:$smbpass:[U          ]:LCT-00000001:,,," >> /etc/samba/smbpasswd 
+fi
+
+
