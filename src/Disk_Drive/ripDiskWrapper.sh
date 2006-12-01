@@ -1,6 +1,8 @@
 #!/bin/bash
 
 
+. /usr/pluto/bin/Config_Ops.sh
+
 # This is stupid i know but it is all that i could find as a solution in the hurry
 #	See Disk_Drive.h for the treated values.
 ERR_NOT_SUPPORTED_YET=6
@@ -136,13 +138,16 @@ if [[ "$diskType" == 2 ]]; then
 			fi
 		fi
 		echo "Ripping failed: $Message"
+		/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" -1000 2 35 35 "$targetFileName" 20 0 13 "$sourceDevice" 30 "$Message" 26 "$mediaPluginDeviceID" >/dev/null
 		rm "$targetFileName.dvd.in-progress";
 		exit 1;
 	fi
 elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" == 7 || "$diskType" == 8 ]]; then
 	mkdir -p "$Dir"
 	if [[ ! -d "$Dir" ]]; then
-		echo "Ripping failed: Couldn't create directory"
+		$Message="Couldn't create directory";
+		/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" -1000 2 35 35 "$targetFileName" 20 0 13 "$sourceDevice" 30 "$Message" 26 "$mediaPluginDeviceID" >/dev/null
+		echo "Ripping failed: $Message"
 		exit 1
 	fi
 	trackList=${trackList// /@~#}
@@ -168,6 +173,7 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 			fi
 			
 			echo "Ripping failed: $Message"
+			/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" -1000 2 35 35 "$targetFileName" 20 0 13 "$sourceDevice" 30 "$Message" 26 "$mediaPluginDeviceID" >/dev/null
 			rm "$Dir/$Filename.$FinalExt.in-progress" &>/dev/null
 			exit 1;
 		fi
