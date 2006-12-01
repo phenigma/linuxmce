@@ -58,6 +58,11 @@ while : ;do
 		serverName=$(echo $outputLine | cut -d'#' -f2)
 		serverMAC=$(echo $outputLine | cut -d'#' -f5)
 
+		if [[ "$serverMAC" == "00:00:00:00:00:00" ]]; then
+			serverMAC_ARP=$(arp -n "$serverIP" | tail +2 | grep ether | awk '{print $3}')
+			[[ -n "$serverMAC_ARP" ]] && serverMAC="$serverMAC_ARP"
+		fi
+
 		Log "Processing $serverIP"
 
 		## Check to see if the ip is already in the database
