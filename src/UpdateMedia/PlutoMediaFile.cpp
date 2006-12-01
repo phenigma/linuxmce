@@ -37,6 +37,11 @@
 #include "MediaState.h"
 #endif
 
+#include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
+
 using namespace UpdateMediaFileUtils;
 using namespace std;
 using namespace DCE;
@@ -61,6 +66,18 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 	m_nOurInstallationID = PK_Installation;
 	m_nPK_MediaType = 0;
 	m_bIsDir = bIsDir;
+
+	string sFilePath = sDirectory + "/" + sFile;
+
+#ifdef WIN32
+	struct __stat64 buf;
+	if(!_stat64(sFilePath.c_str(), &buf))
+		m_bIsDir = (0 != (buf.st_mode & _S_IFDIR)); 
+#else
+	struct stat64 buf;
+	if(!stat64(sFilePath.c_str(), &buf))
+		m_bIsDir = S_ISDIR(buf.st_mode);
+#endif
 
 	g_pPlutoLogger->Write(LV_WARNING, "# PlutoMediaFile STARTED: dir %s file %s", 
 		m_sDirectory.c_str(), m_sFile.c_str());
@@ -681,6 +698,12 @@ string PlutoMediaFile::FileWithAttributes(bool bCreateId3File)
 
 		if(!bCreateId3File)
 			return "";
+
+		if(m_pPlutoMediaAttributes->m_mapAttributes.size() == 0)
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "# Won't create id3 file (the media file doesn't have attributes)");
+			return "";
+		}
 
 		if(!FileUtils::DirExists(m_sDirectory + "/" + sFileWithAttributes))
 			FileUtils::WriteTextFile(m_sDirectory + "/" + sFileWithAttributes, ""); //touch it
