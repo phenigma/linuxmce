@@ -26,6 +26,8 @@
 
 #include "pluto_main/Define_HorizAlignment.h"
 #include "pluto_main/Define_VertAlignment.h"
+
+#include "../utilities/linux/wrapper/image_file.h"
 //---------------------------------------------------------------------------------------------------
 #include "DCE/Logger.h"
 using namespace DCE;
@@ -642,7 +644,7 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
 //---------------------------------------------------------------------------------------------------
 bool Renderer::SaveSurfaceToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName)
 {
-#ifdef 0
+#ifndef WIN32
 	typedef long int COORD_TYPE;
 	int width = pSurface->w;
 	int height = pSurface->h;
