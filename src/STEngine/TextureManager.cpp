@@ -19,7 +19,7 @@ TextureManager::TextureManager(void)
 	: LastTexture(0), 
 	m_bSupportTextureNonPowerOfTwo(false)
 {
-	glEnable(GL_TEXTURE_2D);
+//	glEnable(GL_TEXTURE_2D);
 }
 
 TextureManager::~TextureManager(void)
