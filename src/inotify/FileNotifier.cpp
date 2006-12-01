@@ -141,7 +141,13 @@ void *BackgroundWorkerThread(void *p)
 
 		g_pPlutoLogger->Write(LV_WARNING, "Background thread going to sleep...");
 
-		Sleep(300 * 1000); //every 5 minutes
+#ifdef WIN32
+		int nSecondsToSleep = 30;
+#else
+		int nSecondsToSleep = 5 * 60;
+#endif
+
+		Sleep(nSecondsToSleep * 1000); 
 	}
 
 	return NULL;

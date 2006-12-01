@@ -12,6 +12,7 @@ UpdateMedia.cpp \
 PlutoMediaFile.cpp \
 MediaIdentifier.cpp \
 PlutoMediaAttributes.cpp \
+MediaState.cpp \
 FileUtils/file_utils.cpp \
 $(ROOT)/Media_Plugin/MediaAttributes_LowLevel.cpp \
 $(ROOT)/inotify/FileNotifier.cpp \

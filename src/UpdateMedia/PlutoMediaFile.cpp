@@ -33,6 +33,10 @@
 #include "MediaIdentifier.h"
 #include "FileUtils/file_utils.h"
 
+#ifdef UPDATE_MEDIA
+#include "MediaState.h"
+#endif
+
 using namespace UpdateMediaFileUtils;
 using namespace std;
 using namespace DCE;
@@ -88,6 +92,20 @@ PlutoMediaFile::~PlutoMediaFile()
 	{
 		SyncDbAttributes();
 		AssignPlutoDevice();
+
+#ifdef UPDATE_MEDIA
+		if(0 != m_nPK_MediaType)
+		{
+			string sDbTimestamp;
+			int nAttributesCount;
+			MediaState::Instance().ReadDbInfo(m_pDatabase_pluto_media, m_pPlutoMediaAttributes->m_nFileID, sDbTimestamp, nAttributesCount);
+			string sFileTimestamp;
+			MediaState::Instance().ReadFileInfo(make_pair(m_sDirectory, m_sFile), sFileTimestamp);
+
+			MediaState::Instance().UpdateDbStateForFile(m_pPlutoMediaAttributes->m_nFileID, nAttributesCount, sDbTimestamp);
+			MediaState::Instance().UpdateFileSystemStateForFile(make_pair(m_sDirectory, m_sFile), m_pPlutoMediaAttributes->m_nFileID, sFileTimestamp);
+		}
+#endif
 	}
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "Being called from pluto-admin. We won't add attributes back in db.");

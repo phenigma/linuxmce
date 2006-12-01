@@ -3,6 +3,7 @@
 #include "PlutoUtils/Other.h"
 #include "Logger.h"
 #include "UpdateMedia.h"
+#include "MediaState.h"
 
 #include <iostream>
 #include <sstream>
@@ -216,9 +217,6 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 	// Now start matching them up
 	for(list<string>::iterator it=listFilesOnDisk.begin();it!=listFilesOnDisk.end();++it)
 	{
-		if(m_bAsDaemon)
-			Sleep(100);
-			
 		if(UpdateMediaSig::bSignalTrapCaught)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "SIGTERM received. Exiting...");
@@ -226,6 +224,25 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 		}
 		
 		string sFile = *it;
+
+		if(m_bAsDaemon)
+		{
+			string sDbTimestamp;
+			int nAttributesCount;
+			MediaState::Instance().ReadDbInfo(m_pDatabase_pluto_media, make_pair(sDirectory, sFile), sDbTimestamp, nAttributesCount);
+			string sFileTimestamp;
+			MediaState::Instance().ReadFileInfo(make_pair(sDirectory, sFile), sFileTimestamp);
+
+			if(!MediaState::Instance().NeedsSync(sDirectory, sFile, sDbTimestamp, nAttributesCount, sFileTimestamp))
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Ignoring %s/%s (it's already sync'd)", sDirectory.c_str(), sFile.c_str()); 
+				Sleep(5);
+				continue;
+			}
+
+			g_pPlutoLogger->Write(LV_STATUS, "Processing %s/%s (it's not sync'd)", sDirectory.c_str(), sFile.c_str()); 
+			Sleep(100);
+		}
 
 		if(!FileUtils::FileExists(sDirectory + "/" + sFile)) //the file was just being deleted
 		{

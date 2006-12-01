@@ -152,6 +152,9 @@
 				RelativePath=".\MediaIdentifier.cpp">
 			</File>
 			<File
+				RelativePath=".\MediaState.cpp">
+			</File>
+			<File
 				RelativePath=".\PlutoMediaAttributes.cpp">
 			</File>
 			<File
