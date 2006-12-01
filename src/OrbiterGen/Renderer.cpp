@@ -42,7 +42,7 @@ Renderer::Renderer() :
 //---------------------------------------------------------------------------------------------------
 void Renderer::Setup(string FontPath, string OutputDirectory, int Width, int Height, 
 	bool bUseAlphaBlending, char cDefaultScaleForMenuBackground, char cDefaultScaleForOtherGraphics,
-	float fScaleX, float fScaleY, int Rotate)
+	float fScaleX, float fScaleY, int Rotate, bool bCreateMask)
 {
 #ifndef WIN32
 	setenv("SDL_VIDEODRIVER", "dummy", 1); 
@@ -58,6 +58,7 @@ void Renderer::Setup(string FontPath, string OutputDirectory, int Width, int Hei
 	m_cDefaultScaleForOtherGraphics=cDefaultScaleForOtherGraphics;
 	m_fScaleX = fScaleX;
 	m_fScaleY = fScaleY;
+	m_bCreateMask = bCreateMask;
 
 	if(Rotate)
 		m_Rotate = 360 - Rotate;  // SDL treats rotation as counter clockwise, we do clockwise
@@ -434,7 +435,12 @@ void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, s
 	SDL_Surface *pSDL_Surface = pRendererImage->m_pSurface;
 
 	if (!m_bUseAlphaBlending)
+	{
+		if (m_bCreateMask)
+			SaveSurfaceToXbmMaskFile(pSDL_Surface, 0, sFilename + ".mask.xbm");
+
 		SetGeneralSurfaceOpacity(pSDL_Surface, SDL_ALPHA_OPAQUE); // remove all transparency from the surface
+	}
     
 	if( m_Rotate )
 		pSDL_Surface = rotozoomSurface (pRendererImage->m_pSurface, m_Rotate, 1,0);
@@ -632,5 +638,41 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
     SubSurface->NewSurface = false;
 
     return SubSurface;
+}
+//---------------------------------------------------------------------------------------------------
+bool Renderer::SaveSurfaceToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName)
+{
+#ifndef WIN32
+	typedef long int COORD_TYPE;
+	int width = pSurface->w;
+	int height = pSurface->h;
+	// size of coordinates in the buffer
+	// allocate the buffer
+	char *pRawImage = new char[width * height];
+	if (pRawImage == NULL)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "cannot allocate memory");
+		return false;
+	}
+	// compute the image
+	for(int x = 0; x < width; x++)
+	{
+		for(int y = 0; y < height; y++)
+		{
+			char *pD = (char *) pSurface->pixels + y * pSurface->pitch + x * 4;
+			*(pRawImage + y*width + x) = (char)(pD[3] <= nMaxOpacity);
+		}
+	}
+
+	bool bResult = Xbm_WriteFile(sFileName, pRawImage, width, height);
+	delete pRawImage;
+	if (! bResult)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "cannot write to xbm mask file '%s'", sFileName.c_str());
+		return false;
+	}
+#endif
+
+	return true;
 }
 //---------------------------------------------------------------------------------------------------

@@ -48,6 +48,9 @@ private:
 
 	static Renderer m_Instance;
 
+	//helper function
+	bool SaveSurfaceToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName);
+
 public:
 
 	static Renderer &GetInstance() { return m_Instance; }
@@ -55,7 +58,7 @@ public:
 	//setup function
 	void Setup(string FontPath, string OutputDirectory, int Width,int Height, 
 		bool bUseAlphaBlending, char cDefaultScaleForMenuBackground, char cDefaultScaleForOtherGraphics,
-		float fScaleX, float fScaleY, int Rotate);
+		float fScaleX, float fScaleY, int Rotate, bool bCreateMask);
 
 	//rendering methods
 	void RenderObject(RendererImage *pRenderImage, DesignObj_Generator *pDesignObj_Generator,

@@ -1700,7 +1700,7 @@ int k=2;
 				try
 				{
 					Renderer::GetInstance().Setup(m_sFontPath, m_sOutputPath, m_Width, m_Height, m_bUseAlphaBlending,
-						cScaleMenuBg, cScaleOtherGraphics, (float) m_sScale.Width/1000, (float) m_sScale.Height/1000, m_iRotation);
+						cScaleMenuBg, cScaleOtherGraphics, (float) m_sScale.Width/1000, (float) m_sScale.Height/1000, m_iRotation, m_bUseMask);
 
 					// Render everything
 					Renderer::GetInstance().RenderObject(NULL, oco, PlutoPoint(0,0), -1);  					
