@@ -40,9 +40,7 @@ class DataGridRenderer;
 
 /** For brevity,  DesignObj_Orbiter will be abbreviated Obj */
 #ifndef WIN32
-#ifdef ORBITER_OPENGL
 	class PlutoHIDInterface;
-#endif
 #endif
 
 
@@ -172,10 +170,8 @@ namespace DCE
 		class MouseBehavior *m_pMouseBehavior;  // Class to handle special logic such as locking mouse movements, speed bumps, etc.
 #endif
 #ifndef WIN32
-#ifdef ORBITER_OPENGL
 		PlutoHIDInterface *m_pHIDInterface;
 		pthread_t m_HidThreadID;
-#endif
 #endif
 		//<-dceag-const-b->!
 

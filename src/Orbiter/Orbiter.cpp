@@ -83,9 +83,7 @@ using namespace DCE;
 #endif
 
 #ifndef WIN32
-#ifdef ORBITER_OPENGL
 	#include "Linux/HIDInterface.h"
-#endif
 #endif
 
 //#define PROFILING_GRID
@@ -235,10 +233,8 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 				 //<-dceag-const-e->
 {
 #ifndef WIN32
-#ifdef ORBITER_OPENGL
     m_pHIDInterface=NULL;
 	m_HidThreadID=(pthread_t)NULL;
-#endif
 #endif
 
 	m_MaintThreadID = (pthread_t)NULL;
@@ -353,7 +349,6 @@ Orbiter::~Orbiter()
 //<-dceag-dest-e->
 {
 #ifndef WIN32
-#ifdef ORBITER_OPENGL
 	if(m_HidThreadID)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Waiting for HID thread to finish...");
@@ -365,7 +360,6 @@ Orbiter::~Orbiter()
 	m_pHIDInterface=NULL;
 
 	g_pPlutoLogger->Write(LV_STATUS, "Done with HID thread.");
-#endif
 #endif
 
 	m_pOrbiterRenderer->Destroy();
@@ -696,10 +690,8 @@ void Orbiter::PostConnect()
 {
 
 #ifndef WIN32
-#ifdef ORBITER_OPENGL
 	m_pHIDInterface=new PlutoHIDInterface(this);
 	pthread_create(&m_HidThreadID, NULL, ProcessHIDEvents, (void*)m_pHIDInterface);
-#endif
 #endif
 
 }
