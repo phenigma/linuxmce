@@ -158,6 +158,7 @@ Upgrade_Essential()
 		libvolume-id0
 		udev=0.086-1
 		initramfs-tools
+		gzip=1.3.5-14
 	"
 	local NeededReq=""
 	local Pkg Name ReqVer InstVer InstState
