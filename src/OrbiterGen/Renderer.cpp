@@ -642,7 +642,7 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
 //---------------------------------------------------------------------------------------------------
 bool Renderer::SaveSurfaceToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, const string &sFileName)
 {
-#ifndef WIN32
+#ifdef 0
 	typedef long int COORD_TYPE;
 	int width = pSurface->w;
 	int height = pSurface->h;
