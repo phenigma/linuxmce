@@ -63,7 +63,7 @@ while : ;do
 		## Check to see if the ip is already in the database
 		Q="
 			SELECT PK_Device FROM Device INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory IN ($CAT_MD, $CAT_FILESERVER) AND IPaddress='${serverIP}' LIMIT 1;
-			SELECT IPaddress FROM UnknownDevices WHERE IPaddress='${serverIP}' LIMIT ;
+			SELECT IPaddress FROM UnknownDevices WHERE IPaddress='${serverIP}' LIMIT 1;
 			SELECT IPaddress FROM PnpQueue WHERE IPaddress='${serverIP}' AND Category='fileserver' LIMIT 1
 		"
 		Result=$(RunSQL "$Q")
