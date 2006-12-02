@@ -26,7 +26,7 @@ void DeadlockHandler(PlutoLock *pPlutoLock)
         ::MessageBox(NULL, TEXT("Deadlock problem.  Going to reload and quit"), TEXT("Orbiter"), MB_OK);
 
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock problem.  %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Win32/StartOrbiter Deadlock problem.  %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
 		g_pCommand_Impl->OnReload();
 	}
 }
@@ -39,7 +39,7 @@ void SocketCrashHandler(Socket *pSocket)
         ::MessageBox(NULL, TEXT("Socket problem.  Going to reload and quit"), TEXT("Orbiter"), MB_OK);
 
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Win32/StartOrbiter Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
 		g_pCommand_Impl->OnReload();
 	}
 }

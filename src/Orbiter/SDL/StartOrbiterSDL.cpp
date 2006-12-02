@@ -56,23 +56,51 @@ bool Init_System()
 extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
 extern void (*g_pSocketCrashHandler)(Socket *pSocket);
 extern Command_Impl *g_pCommand_Impl;
+
+bool g_WatchDogFlag=false;
+void* WatchDogRoutine(void* param)
+{
+	if( g_pPlutoLogger )
+		g_pPlutoLogger->Write(LV_STATUS,"Started watchdog routine\n");
+	usleep(10000000);
+	if (g_WatchDogFlag)
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Terminating Orbiter: watchdog detected hard deadlock, seems soft reload failed\n");
+		fflush(stdout);
+		kill(getpid(), SIGTERM);
+	}
+		
+	return NULL;
+}
+
 void DeadlockHandler(PlutoLock *pPlutoLock)
 {
-    // This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
+	// force reload - otherwise orbiter locks can block us forever
+	pthread_t watchdog_thread;
+	g_WatchDogFlag = true;
+	pthread_create(&watchdog_thread, NULL,WatchDogRoutine, NULL);
+
+	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
     if( g_pCommand_Impl )
     {
         if( g_pPlutoLogger )
-            g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock problem.  %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+            g_pPlutoLogger->Write(LV_CRITICAL,"StartOrbiterSDL Deadlock problem.  %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
         g_pCommand_Impl->OnReload();
     }
 }
 void SocketCrashHandler(Socket *pSocket)
 {
-    // This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
+	// force reload - otherwise orbiter locks can block us forever
+	pthread_t watchdog_thread;
+	g_WatchDogFlag = true;
+	pthread_create(&watchdog_thread, NULL,WatchDogRoutine, NULL);
+
+	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
     if( g_pCommand_Impl )
     {
         if( g_pPlutoLogger )
-            g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+            g_pPlutoLogger->Write(LV_CRITICAL,"StartOrbiterSDL Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
         g_pCommand_Impl->OnReload();
     }
 }

@@ -30,6 +30,9 @@ void WinListManager::ResetOrbiterWindow()
 void WinListManager::ActivateWindow(const string& sWindowsName)
 {
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+#ifdef DEBUG
+    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ActivateWindow()");
+#endif
 	m_pWMController->ActivateWindow(sWindowsName);
 }
 
@@ -57,26 +60,48 @@ void WinListManager::ShowSdlWindow(bool bExclusive, bool bYieldInput)
 	// when Orbiter is fullscreen no other dialog can be on top of
     // it, so it will be maximized instead
     m_pWMController->SetVisible(m_sSdlWindowName, !m_bHideSdlWindow);
-    m_pWMController->SetMaximized(m_sSdlWindowName, true);
-    m_pWMController->SetLayer(m_sSdlWindowName, bExclusive ? LayerAbove : LayerBelow);
+#ifdef DEBUG
+    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowSdlWindow SetVisible");
+#endif
+
+	m_pWMController->SetMaximized(m_sSdlWindowName, true);
+#ifdef DEBUG
+    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowSdlWindow SetMaximized");
+#endif
+
+	m_pWMController->SetLayer(m_sSdlWindowName, bExclusive ? LayerAbove : LayerBelow);
+#ifdef DEBUG
+    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowSdlWindow SetLayer");
+#endif
 
     if (!m_bHideSdlWindow)
+	{
+#ifdef DEBUG
+    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowSdlWindow going to ActivateSdlWindow");
+#endif
 		ActivateSdlWindow();
+	}
     
     // TODO: possible bugfix: no FullScreen attribute
     //m_pWMController->SetFullScreen(m_sSdlWindowName, bExclusive);
 
     if (bYieldInput)
     {
-	if(m_sExternApplicationName != "")
-	{
-		g_pPlutoLogger->Write(LV_STATUS,"WinListManager::ShowSdlWindow activating %s exclusive %d",
-			m_sExternApplicationName.c_str(),(int) bExclusive);
-		m_pWMController->SetLayer(m_sExternApplicationName, bExclusive ? LayerBelow : LayerAbove);
-		m_pWMController->ActivateWindow(m_sExternApplicationName);
-	}
+#ifdef DEBUG
+    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowSdlWindow going to bYieldInput");
+#endif
+		if(m_sExternApplicationName != "")
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"WinListManager::ShowSdlWindow activating %s exclusive %d",
+				m_sExternApplicationName.c_str(),(int) bExclusive);
+			m_pWMController->SetLayer(m_sExternApplicationName, bExclusive ? LayerBelow : LayerAbove);
+			m_pWMController->ActivateWindow(m_sExternApplicationName);
+		}
     }
 
+#ifdef DEBUG
+    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowSdlWindow done");
+#endif
     return;
 }
 
