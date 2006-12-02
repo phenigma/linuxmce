@@ -2619,7 +2619,6 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 
 	if( pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP )  // Use Type instead of pEvent->type since the user may have some mapping for this
 	{
-pEvent->data.button.m_iPK_Button=100130;
 		StopRepeatCode();  // In case the IRReceiverBase was repeating a key sequence
 
 		map< pair<int,char>, string>::iterator it = m_mapScanCodeToRemoteButton.end();
@@ -2654,12 +2653,12 @@ pEvent->data.button.m_iPK_Button=100130;
 		else
 		{
 			gettimeofday(&m_tButtonDown,NULL);
-			it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iPK_Button, 'R') );
+			it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iPK_Button, 'D') );
 
 			map< pair<int,char>, string>::iterator itRepeat = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iPK_Button, 'R'));
 			if( itRepeat!=m_mapScanCodeToRemoteButton.end() )
 			{
-				sRepeatKey = it->second;  // This is the key to repeat
+				sRepeatKey = itRepeat->second;  // This is the key to repeat
 
 				// it is the key we'll fire first for 'down'.  This can be different from the repeat.  However, if there is a repeat
 				// and there is no down, then the repeat is the down

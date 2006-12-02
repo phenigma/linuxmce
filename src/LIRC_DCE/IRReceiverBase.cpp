@@ -121,7 +121,7 @@ IRReceiverBase::~IRReceiverBase()
 	m_mapKeyMapping.clear();
 }
 
-void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const char *pRepeat)
+void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const char *pRepeat, int iRepeat)
 {
 	char cRemoteLayout = m_mapRemoteLayout[PK_Device_Remote];
 	map<string,MapKeysToMessages *>::iterator it = m_mapKeyMapping.find(StringUtils::ToUpper(pCode));
@@ -143,6 +143,9 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const c
 			Message *pm = itMessage->second;
 			g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::ReceivedCode Sending Message Type %d ID %d by  code: %s device %d (screen %c remote layout %c)",
 					pm->m_dwMessage_Type,pm->m_dwID,pCode,PK_Device_Remote,m_cCurrentScreen,cRemoteLayout);
+			if( pm->m_dwMessage_Type==MESSAGETYPE_COMMAND && iRepeat )
+				pm->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST] = StringUtils::itos(iRepeat);
+
 			m_pCommand_Impl->QueueMessageToRouter(new Message(pm));
 		}
 		else
@@ -158,6 +161,7 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const c
 			StopRepeatCode();
 
 		m_bRepeatKey=true;
+		m_sRepeatCode=pRepeat;
 		m_PK_Device_Remote=PK_Device_Remote;
 		pthread_create(&m_pt_Repeat, NULL, ::RepeatThread, (void*)this);
 	}
@@ -168,6 +172,7 @@ void IRReceiverBase::StopRepeatCode()
 	m_bRepeatKey=false;
 	if( m_pt_Repeat )
 	{
+		pthread_cond_broadcast(&m_RepeatThreadCond);
 		pthread_join(m_pt_Repeat,NULL);
 		m_pt_Repeat=0;
 	}
@@ -176,18 +181,19 @@ void IRReceiverBase::StopRepeatCode()
 void IRReceiverBase::RepeatThread()
 {
 	PLUTO_SAFETY_LOCK(rm,m_RepeatThreadMutex);
-	rm.TimedCondWait(0,500000);
+	rm.TimedCondWait(0,500 * 1000000);
 
 	if( !m_bRepeatKey || m_sRepeatCode.empty() )
 		return;
 
+	int iRepeat=0;
 	ReceivedCode(m_PK_Device_Remote,m_sRepeatCode.c_str());
 	while( m_bRepeatKey )
 	{
-		rm.TimedCondWait(0,250000);
+		rm.TimedCondWait(0,250 * 1000000);
 		if( !m_bRepeatKey )
 			return;
-		ReceivedCode(m_PK_Device_Remote,m_sRepeatCode.c_str());
+		ReceivedCode(m_PK_Device_Remote,m_sRepeatCode.c_str(),NULL,iRepeat++);
 	}
 }
 

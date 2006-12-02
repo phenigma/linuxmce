@@ -31,7 +31,7 @@ namespace DCE
 		IRReceiverBase(Command_Impl *pCommand_Impl);
 		~IRReceiverBase();
         
-		void ReceivedCode(int PK_Device_Remote,const char *pCode,const char *pRepeat=NULL);
+		void ReceivedCode(int PK_Device_Remote,const char *pCode,const char *pRepeat=NULL,int iRepeat=0);  // if Repeat>0 this will be in COMMANDPARAMETER_Repeat_Command_CONST, which is used by i/r devices
 		void GetConfig(DeviceData_Impl *pData);
 		void StopRepeatCode();  // Stop any code that's repeating
 
