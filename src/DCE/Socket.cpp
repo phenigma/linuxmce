@@ -53,6 +53,8 @@
   #endif
 #endif
 
+#define MAX_DELAY_FOR_RECEIVE_RESPONSE	20
+
 using namespace DCE;
 
 void (*g_pReceivePingHandler)(Socket *pSocket)=NULL;
@@ -289,7 +291,7 @@ Message *Socket::SendReceiveMessage( Message *pMessage)
 
 	string sResult;
 	Message *pOutMessage;
-	if ( ReceiveString( sResult ) && sResult.substr(0,7)=="MESSAGE" && sResult.size()>7 ) // got the response we expected
+	if ( ReceiveString( sResult, MAX_DELAY_FOR_RECEIVE_RESPONSE ) && sResult.substr(0,7)=="MESSAGE" && sResult.size()>7 ) // got the response we expected
 	{
 		if( sResult[7]=='T' )
 			pOutMessage = ReceiveMessage( atoi( sResult.substr( 9 ).c_str() ),true);
@@ -713,7 +715,7 @@ string Socket::SendReceiveString( string sLine, int nTimeout/* = -1*/)
 	SendString( sLine );
 
 	string sResponse;
-	if( ReceiveString( sResponse, nTimeout ) )
+	if( ReceiveString( sResponse, nTimeout!=-1 || m_iReceiveTimeout ? nTimeout : MAX_DELAY_FOR_RECEIVE_RESPONSE) )
 		return sResponse;
 	return "";
 }

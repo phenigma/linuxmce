@@ -64,6 +64,23 @@ extern DCEConfig g_DCEConfig;
 
 #define  VERSION "<=version=>"
 
+bool g_WatchDogFlag=false;
+void* WatchDogRoutine(void* param)
+{
+    g_pPlutoLogger->Write(LV_STATUS,"DCERouter Started watchdog routine\n");
+    Sleep(20000);
+	if (g_WatchDogFlag)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Terminating DCERouter: watchdog detected hard deadlock, seems soft reload failed\n");
+#ifndef WIN32
+		fflush(stdout);
+		kill(getpid(), SIGTERM);
+#endif
+	}
+		
+	return NULL;
+}
+
 void* MessageQueueThread_DCER(void* param) // renamed to cancel link-time name collision in MS C++ 7.0 / VS .NET 2002
 {
     Router* pc = (Router*)param;
@@ -1484,30 +1501,35 @@ bool Router::Run()
 
 	bool bReload=false;
     // The main loop of this app doesn't do anything!
-    while(!m_bQuit && m_bRunning)
+    while(!m_bQuit && m_bRunning && !m_bReload)
     {
         // TODO: Check m_mapServerSocket and see if we've lost any
         // command connections.
-		if (m_bReload)
-		{
-		    g_pPlutoLogger->Write(LV_STATUS, "Detected m_bReload=true %d %d",(int) m_bQuit,(int) m_bRunning);
-
-			RefuseIncomingConnections();
-			DoReload();
-			Sleep(3000); // Wait 3 seconds for all devices to get the message before dropping the sockets
-			bReload=true;
-			
-			//wake up message queue thread
-			pthread_cond_broadcast(&m_MessageQueueCond);
-			//wait for it to finish
-			//pthread_join(m_pthread_queue_id, NULL);
-
-			break;
-		}
         Sleep(1000);
     }
 
+	g_pPlutoLogger->Write(LV_STATUS, "DCERouter will exit quit %d running %d reload %d",
+		(int) m_bQuit, (int) m_bRunning, (int) m_bReload);
+
+	m_bQuit=true;
+	m_bRunning=false;
+	RefuseIncomingConnections();
+
+	if (m_bReload)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Detected m_bReload=true %d %d",(int) m_bQuit,(int) m_bRunning);
+
+		DoReload();
+		Sleep(3000); // Wait 3 seconds for all devices to get the message before dropping the sockets
+		bReload=true;
+	}
+
+	pthread_cond_broadcast(&m_MessageQueueCond);
 	Sleep(1000); // Let the sockets close
+
+	pthread_t watchdog_thread;
+	g_WatchDogFlag = true;
+	pthread_create(&watchdog_thread, NULL,WatchDogRoutine, NULL);
 
 	g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: All Done!");
     return bReload;
