@@ -82,7 +82,7 @@ using namespace DCE;
 #include "Linux/OSDScreenHandler.h"
 #endif
 
-#ifndef WIN32
+#ifdef HID_REMOTE
 	#include "Linux/HIDInterface.h"
 #endif
 
@@ -232,7 +232,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 				 IRReceiverBase(this)
 				 //<-dceag-const-e->
 {
-#ifndef WIN32
+#ifdef HID_REMOTE
     m_pHIDInterface=NULL;
 	m_HidThreadID=(pthread_t)NULL;
 #endif
@@ -245,6 +245,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_bFullScreen = bFullScreen;
 	m_bContainsVideo = false;
 	m_pInstance = this;
+	m_TypeToIgnore = Orbiter::Event::NONE;
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_pOrbiterRenderer = OrbiterRendererFactory::CreateRenderer(this);
 
@@ -348,7 +349,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 Orbiter::~Orbiter()
 //<-dceag-dest-e->
 {
-#ifndef WIN32
+#ifdef HID_REMOTE
 	if(m_HidThreadID)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Waiting for HID thread to finish...");
@@ -638,10 +639,13 @@ bool Orbiter::GetConfig()
 			for(it2=vectTokens.begin();it2!=vectTokens.end();++it2)
 			{
 				string::size_type pos = it2->find(',');
+				string::size_type pos2 = (pos!=string::npos) ? it2->find(',',pos+1) : string::npos;
 				if( pos!=string::npos && pos<it2->size() )
 				{
+					int ScanCode = atoi(it2->substr(pos + 1).c_str());
+					char Action = (pos2!=string::npos && pos2<it2->size()) ? (*it2)[pos2+1] : 'D'; // Default to down
 					string sCode;
-					m_mapScanCodeToRemoteButton[ atoi(it2->substr(pos + 1).c_str())] = StringUtils::ToUpper(it2->substr(0,pos));
+					m_mapScanCodeToRemoteButton[ make_pair<int,char> (ScanCode,Action) ] = StringUtils::ToUpper(it2->substr(0,pos));
 
 					g_pPlutoLogger->Write(LV_STATUS, "Added scan code %d -> %s", atoi( it2->substr(pos + 1).c_str()), StringUtils::ToUpper(it2->substr(0,pos)).c_str());
 				}
@@ -689,7 +693,7 @@ bool Orbiter::GetConfig()
 void Orbiter::PostConnect()
 {
 
-#ifndef WIN32
+#ifdef HID_REMOTE
 	m_pHIDInterface=new PlutoHIDInterface(this);
 	pthread_create(&m_HidThreadID, NULL, ProcessHIDEvents, (void*)m_pHIDInterface);
 #endif
@@ -2573,115 +2577,6 @@ bool Orbiter::RenderDesktop( class DesignObj_Orbiter *pObj,  PlutoRectangle rect
 	return true;
 }
 
-/*
- * Temporary HID function; to be replaced or removed when actual code is in place
- */
-static void TemporaryHidFunction(Orbiter::Event *pEvent)
-{
-	if (pEvent->type != Orbiter::Event::HID)
-		return; // just to be sure
-
-	g_pPlutoLogger->Write(LV_WARNING, "TemporaryHidFunction: Received HID event: %02x %02x %02x %02x %02x %02x",
-		pEvent->data.hid.m_pbHid[0], pEvent->data.hid.m_pbHid[1], pEvent->data.hid.m_pbHid[2], pEvent->data.hid.m_pbHid[3], pEvent->data.hid.m_pbHid[4], pEvent->data.hid.m_pbHid[5]);
-	g_pPlutoLogger->Write(LV_STATUS, "HID Page: %02x", pEvent->data.hid.m_pbHid[0]);
-
-	string sHidCmd = "";
-	switch (pEvent->data.hid.m_pbHid[1])
-	{
-		case 0x20: sHidCmd = "GetID"; break;
-		case 0x26: sHidCmd = "SyncID"; break;
-		case 0x27: sHidCmd = "FollowMe"; break;
-		case 0x21: sHidCmd = "BindOK"; break;
-		case 0x22: sHidCmd = "BindFail"; break;
-		case 0x23: sHidCmd = "LegacyBindOK"; break;
-		case 0x24: sHidCmd = "LegacyBindTimeout"; break;
-		case 0x25: sHidCmd = "KeyIn"; break;
-		default: sHidCmd = "**UNKNOWN**"; break;
-	}
-	g_pPlutoLogger->Write(LV_STATUS, "HID Cmd: %s", sHidCmd.c_str());
-
-	string sKey = "";
-	if (pEvent->data.hid.m_pbHid[0] == 8 && pEvent->data.hid.m_pbHid[1] == 0x25)
-	{
-		switch (pEvent->data.hid.m_pbHid[3])
-		{
-			case 0x00: sKey = "Previous key up"; break;
-			case 0x82: sKey = "Power"; break;
-			case 0xC1: sKey = "Live TV"; break;
-			case 0x8D: sKey = "Guide"; break;
-			case 0xE9: sKey = "Volume+"; break;
-			case 0xEA: sKey = "Volume-"; break;
-			case 0x9C: sKey = "Channel+"; break;
-			case 0x9D: sKey = "Channel-"; break;
-			case 0xE2: sKey = "Mute"; break;
-			case 0x49: sKey = "My TV"; break;
-			case 0x46: sKey = "My Pictures"; break;
-			case 0x47: sKey = "My Music"; break;
-			case 0x4A: sKey = "My Videos"; break;
-			case 0xC9: sKey = "Help"; break;
-			case 0xC2: sKey = "DVD Menu"; break;
-			case 0xCA: sKey = "Input"; break;
-			case 0xCB: sKey = "Media"; break;
-			case 0xCC: sKey = "Menu"; break;
-			case 0xCD: sKey = "Ambiance"; break;
-		}
-	}
-	else if (pEvent->data.hid.m_pbHid[0] == 1)
-	{
-		switch (pEvent->data.hid.m_pbHid[3])
-		{
-			case 0x00: sKey = "Previous key up"; break;
-			case 0x52: sKey = "KBD Up Arrow"; break;
-			case 0x50: sKey = "KBD Left Arrow"; break;
-			case 0x28: sKey = "KBD OK"; break;
-			case 0x4F: sKey = "KBD Right Arrow"; break;
-			case 0x51: sKey = "KBD Down Arrow"; break;
-			case 0x1E: sKey = "KBD 1"; break;
-			case 0x1F: sKey = "KBD 2"; break;
-			case 0x20:
-				if (pEvent->data.hid.m_pbHid[1] == 0x00)
-					sKey = "KBD 3";
-				else if (pEvent->data.hid.m_pbHid[1] == 0x02)
-					sKey = "KBD #";
-				else
-					sKey = "KBD 3, Unknown Shift State";
-				break;
-			case 0x21: sKey = "KBD 4"; break;
-			case 0x22: sKey = "KBD 5"; break;
-			case 0x23: sKey = "KBD 6"; break;
-			case 0x24: sKey = "KBD 7"; break;
-			case 0x25:
-				if (pEvent->data.hid.m_pbHid[1] == 0x00)
-					sKey = "KBD 8";
-				else if (pEvent->data.hid.m_pbHid[1] == 0x02)
-					sKey = "KBD *";
-				else
-					sKey = "KBD 8, Unknown Shift State";
-				break;
-			case 0x26: sKey = "KBD 9"; break;
-			case 0x27: sKey = "KBD 0"; break;
-			case 0x2A: sKey = "KBD Clear"; break;
-			case 0x58: sKey = "KBD Enter (Keypad)"; break;
-			default: sKey = "KBD Unknown"; break;
-		}
-	}
-	else if (pEvent->data.hid.m_pbHid[0] == 2)
-	{
-		switch (pEvent->data.hid.m_pbHid[1])
-		{
-			case 0xB0: sKey = "Media Play"; break;
-			case 0xB1: sKey = "Media Pause"; break;
-			case 0xB2: sKey = "Media Record"; break;
-			case 0xB3: sKey = "Media Fast Forward"; break;
-			case 0xB4: sKey = "Media Rewind"; break;
-			case 0xB5: sKey = "Media Next"; break;
-			case 0xB6: sKey = "Media Previous"; break;
-			case 0xB7: sKey = "Media Stop"; break;
-			default: sKey = "Media Unknown"; break;
-		}
-	}
-	g_pPlutoLogger->Write(LV_STATUS, "HID Key: %s", sKey.c_str());
-}
 
 /*
 ACCEPT OUTSIDE INPUT
@@ -2708,19 +2603,77 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 
 	if( (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::REGION_DOWN) &&
         !GotActivity( pEvent->type == Orbiter::Event::BUTTON_DOWN ? pEvent->data.button.m_iPK_Button : 0 ) )  // Use pEvent->type not Type since if it's not a known type it won't map to m_iPK_Button
-			return;
-
-	if( pEvent->type == Orbiter::Event::BUTTON_DOWN )  // Use Type instead of pEvent->type since the user may have some mapping for this
 	{
+		// Ignore the up when it comes in
+		m_TypeToIgnore = pEvent->type == Orbiter::Event::BUTTON_DOWN ? Orbiter::Event::BUTTON_UP : Orbiter::Event::REGION_UP;
+		return;
+	}
+
+	// Check if we were just woken up above and need to ignore the corresponding up
+	if( pEvent->type==m_TypeToIgnore )
+	{
+		m_TypeToIgnore=Orbiter::Event::NONE;
+		return;
+	}
+	m_TypeToIgnore=Orbiter::Event::NONE;
+
+	if( pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP )  // Use Type instead of pEvent->type since the user may have some mapping for this
+	{
+pEvent->data.button.m_iPK_Button=100130;
+		StopRepeatCode();  // In case the IRReceiverBase was repeating a key sequence
+
+		map< pair<int,char>, string>::iterator it = m_mapScanCodeToRemoteButton.end();
+
+		string sRepeatKey;  // This will not be empty if we're pressing a key that can be repeated.  It will be the key to repeat
+
 		// Do this first because PreprocessEvent will convert this to a PK_Button, which is a different number
 		// and we're looking for scan codes
-		map<int,string>::iterator it = m_mapScanCodeToRemoteButton.find(pEvent->data.button.m_iPK_Button);
+		char cAction = 'D'; // Action is D=down, U=up, R=Repeat, H=Held Down
+		if( pEvent->type == Orbiter::Event::BUTTON_UP )
+		{
+			timespec tButtonUp;
+			gettimeofday(&tButtonUp,NULL);
+			timespec m_tInterval = tButtonUp - m_tButtonDown;
+			long tMilisecondsPassed = m_tInterval.tv_sec * 1000 + m_tInterval.tv_nsec / 1000000;
+			if( tMilisecondsPassed > 500 )
+				it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iPK_Button, 'H'));
+
+			if( it == m_mapScanCodeToRemoteButton.end() )  // Either we didn't hold the button or there is no hold specific event
+				it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iPK_Button, 'U'));
+
+			// There's nothing for the 'up'.  See if there was a down or repeat.  If so we'll ignore
+			// this up so it's not processed by the framework.  Otherwise the i/r mechanism may do something for
+			// the down, and the framework something else for the up
+			if( it == m_mapScanCodeToRemoteButton.end() ) 
+			{
+				if( m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iPK_Button, 'D'))!=m_mapScanCodeToRemoteButton.end() ||
+					m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iPK_Button, 'R'))!=m_mapScanCodeToRemoteButton.end() )
+						return;
+			}
+		}
+		else
+		{
+			gettimeofday(&m_tButtonDown,NULL);
+			it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iPK_Button, 'R') );
+
+			map< pair<int,char>, string>::iterator itRepeat = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iPK_Button, 'R'));
+			if( itRepeat!=m_mapScanCodeToRemoteButton.end() )
+			{
+				sRepeatKey = it->second;  // This is the key to repeat
+
+				// it is the key we'll fire first for 'down'.  This can be different from the repeat.  However, if there is a repeat
+				// and there is no down, then the repeat is the down
+				if( it == m_mapScanCodeToRemoteButton.end() )
+					it = itRepeat;
+			}
+		}
+
 		if( it!=m_mapScanCodeToRemoteButton.end() )
 		{
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s",it->second.c_str());
 #endif
-			ReceivedCode(0,it->second.c_str());
+			ReceivedCode(0,it->second.c_str(),sRepeatKey.c_str());
 			return;
 		}
 	}
@@ -2728,11 +2681,6 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 	// Do this after checking for scan codes because this will convert this to a different number
 	PreprocessEvent(*pEvent);
 
-	if (pEvent->type == Orbiter::Event::HID)
-	{
-		TemporaryHidFunction(pEvent);
-	}
-	
 	ProcessEvent(*pEvent);
 }
 
@@ -3181,9 +3129,9 @@ bool Orbiter::ButtonUp( int iPK_Button )
 		return false;
 	}
 
-	timespec m_tButtonUp;
-	gettimeofday(&m_tButtonUp,NULL);
-	timespec m_tInterval = m_tButtonUp - m_tButtonDown;
+	timespec tButtonUp;
+	gettimeofday(&tButtonUp,NULL);
+	timespec m_tInterval = tButtonUp - m_tButtonDown;
 	long tMilisecondsPassed = m_tInterval.tv_sec * 1000 + m_tInterval.tv_nsec / 1000000;
 
 	if(tMilisecondsPassed > 500) //more then half of second

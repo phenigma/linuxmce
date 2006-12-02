@@ -1358,7 +1358,10 @@ class DataGridTable *General_Info_Plugin::SensorType(string GridID, string Parms
 
 class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
-//	g_pPlutoLogger->Write(LV_WARNING,"Starting install list");
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_WARNING,"General_Info_Plugin::AddSoftware Starting install list");
+#endif
+
 	string::size_type pos = 0;
 	PlutoSqlResult result;
 	MYSQL_ROW row;

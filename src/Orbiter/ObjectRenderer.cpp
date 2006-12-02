@@ -385,7 +385,7 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 if( m_pObj_Owner->m_iBaseObjectID==4782 )
 int k=2;
 	if(
-		(m_pObj_Owner == m_pObj_Owner->m_pOrbiter->m_pObj_Highlighted || m_pObj_Owner->m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED ||
+		(m_pObj_Owner == m_pObj_Owner->m_pOrbiter->m_pObj_Highlighted || m_pObj_Owner->ChildOf(m_pObj_Owner->m_pOrbiter->m_pObj_Highlighted) || m_pObj_Owner->m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED ||
 		(m_pObj_Owner->m_pOrbiter->m_pObj_Highlighted && m_pObj_Owner->m_bTabStop && m_pObj_Owner == m_pObj_Owner->m_pOrbiter->m_pObj_Highlighted->m_pParentObject)
 		) && // If I'm also a tab stop, and my child is a highlighted object, leave me highlighted too
 		m_pObj_Owner->m_vectHighlightedGraphic.size() 

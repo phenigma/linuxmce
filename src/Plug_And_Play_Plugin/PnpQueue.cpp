@@ -250,7 +250,8 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 			pDevice = pDevice->GetTopMostDevice();  // Get the computer it's on
 			pair<time_t,time_t> pTimeUp = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceUpStatus_Find( pDevice->m_dwPK_Device );
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Detected: %s uptime for rs232 on %d is %d", 
+			g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Detected: queue %d %s uptime for rs232 on %d is %d", 
+				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),
 				pPnpQueueEntry->ToString().c_str(), pDevice->m_dwPK_Device, pTimeUp.first);
 #endif
 			if( pTimeUp.first==0 || time(NULL)-pTimeUp.first<20 )
@@ -466,6 +467,7 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 		Row_DeviceTemplate *pRow_DeviceTemplate = pRow_DHCPDevice->FK_DeviceTemplate_getrow();
 		if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Serial_Ports_CONST )
 		{
+			g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d is usb->rs232",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 			pPnpQueueEntry->m_mapPK_DHCPDevice_possible.clear();
 			pPnpQueueEntry->m_iPK_DHCPDevice=0;
 			pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_set(COMMMETHOD_RS232_CONST);

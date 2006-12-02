@@ -12,12 +12,25 @@
 using namespace std;
 using namespace DCE;
 
+void *RepeatThread(void *p)
+{
+	IRReceiverBase* pIRReceiverBase = (IRReceiverBase *)p;
+	pIRReceiverBase->RepeatThread();
+	return NULL;
+}
+
 IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl)
-: m_Virtual_Device_Translator()
+: m_Virtual_Device_Translator(), m_RepeatThreadMutex("repeat")
 {
 	m_pCommand_Impl=pCommand_Impl;
 	m_cCurrentScreen='M';
-	
+
+	pthread_cond_init(&m_RepeatThreadCond, NULL);
+	m_RepeatThreadMutex.Init(NULL,&m_RepeatThreadCond);
+
+	m_bRepeatKey=false;
+	m_pt_Repeat=0;
+
 	m_mapAVWCommands["ok"] = "return";
 	m_mapAVWCommands["volup"] = "plus";
 	m_mapAVWCommands["voldn"] = "minus";
@@ -83,6 +96,14 @@ void IRReceiverBase::GetConfig(DeviceData_Impl *pData)
 
 IRReceiverBase::~IRReceiverBase()
 {
+	if( m_pt_Repeat )
+	{
+		m_bRepeatKey = false;
+		pthread_cond_broadcast(&m_RepeatThreadCond);
+		pthread_join(m_pt_Repeat,NULL);
+		m_pt_Repeat=0;
+	}
+
 	for(map<string,MapKeysToMessages *>::iterator it=m_mapKeyMapping.begin();it!=m_mapKeyMapping.end();++it)
 	{
 		MapKeysToMessages *pMapKeysToMessages = it->second;
@@ -100,7 +121,7 @@ IRReceiverBase::~IRReceiverBase()
 	m_mapKeyMapping.clear();
 }
 
-void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode)
+void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const char *pRepeat)
 {
 	char cRemoteLayout = m_mapRemoteLayout[PK_Device_Remote];
 	map<string,MapKeysToMessages *>::iterator it = m_mapKeyMapping.find(StringUtils::ToUpper(pCode));
@@ -129,6 +150,45 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode)
 	}
 	else
 		g_pPlutoLogger->Write(LV_WARNING,"Cannot find code %s device %d",pCode,PK_Device_Remote);
+
+	// See if we've got a code to repeat
+	if( pRepeat && *pRepeat )
+	{
+		if( m_pt_Repeat )
+			StopRepeatCode();
+
+		m_bRepeatKey=true;
+		m_PK_Device_Remote=PK_Device_Remote;
+		pthread_create(&m_pt_Repeat, NULL, ::RepeatThread, (void*)this);
+	}
+}
+
+void IRReceiverBase::StopRepeatCode()
+{
+	m_bRepeatKey=false;
+	if( m_pt_Repeat )
+	{
+		pthread_join(m_pt_Repeat,NULL);
+		m_pt_Repeat=0;
+	}
+}
+
+void IRReceiverBase::RepeatThread()
+{
+	PLUTO_SAFETY_LOCK(rm,m_RepeatThreadMutex);
+	rm.TimedCondWait(0,500000);
+
+	if( !m_bRepeatKey || m_sRepeatCode.empty() )
+		return;
+
+	ReceivedCode(m_PK_Device_Remote,m_sRepeatCode.c_str());
+	while( m_bRepeatKey )
+	{
+		rm.TimedCondWait(0,250000);
+		if( !m_bRepeatKey )
+			return;
+		ReceivedCode(m_PK_Device_Remote,m_sRepeatCode.c_str());
+	}
 }
 
 #ifndef WIN32

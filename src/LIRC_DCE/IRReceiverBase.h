@@ -21,16 +21,28 @@ namespace DCE
 		char m_cCurrentScreen;
  		std::map<std::string, std::string> m_mapAVWCommands;
 
+		pluto_pthread_mutex_t m_RepeatThreadMutex;  // Needed so we can have a timed cond wait
+		pthread_cond_t m_RepeatThreadCond;
+		bool m_bRepeatKey;  // This is true when we're repeating a key
+		pthread_t m_pt_Repeat; // The thread that we're using to do the repeating
+		string m_sRepeatCode; // The code that we're repeating
+		int m_PK_Device_Remote; // The remote corresponding to the repeat code
+
 		IRReceiverBase(Command_Impl *pCommand_Impl);
 		~IRReceiverBase();
         
-		void ReceivedCode(int PK_Device_Remote,const char *pCode);
+		void ReceivedCode(int PK_Device_Remote,const char *pCode,const char *pRepeat=NULL);
 		void GetConfig(DeviceData_Impl *pData);
+		void StopRepeatCode();  // Stop any code that's repeating
+
 #ifndef WIN32
 		void ForceKeystroke(string sCommand, string sAVWHost, int iAVWPort);
 		bool SendSocketText(int Socket, std::string Text) const;
 		std::string GetSocketText(int Socket) const;
 #endif
+	public:
+		void RepeatThread();  // The loop to handle repeating codes
+
 	};
 }
 

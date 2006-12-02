@@ -39,7 +39,7 @@ class BD_PC_SetVariable;
 class DataGridRenderer;
 
 /** For brevity,  DesignObj_Orbiter will be abbreviated Obj */
-#ifndef WIN32
+#ifdef HID_REMOTE
 	class PlutoHIDInterface;
 #endif
 
@@ -146,6 +146,40 @@ namespace DCE
 #endif
 
 	public: //data
+		class Event
+		{
+		public:
+			typedef enum _EventType {
+				QUIT,
+				NOT_PROCESSED,
+				BUTTON_DOWN, // keyboard
+				BUTTON_UP,
+				REGION_DOWN, // mouse
+				REGION_UP,
+				MOUSE_MOVE,
+				MOUSE_RELATIVE_MOVE,
+				HID,
+				NONE
+			} EventType;
+
+			EventType type;
+
+			union {
+				struct {
+					int m_iPK_Button;
+				} button;
+
+				struct {
+					int m_iButton;
+					int m_iX;
+					int m_iY;
+				} region;
+
+				struct {
+					unsigned char m_pbHid[6];
+				} hid;
+			} data;
+		};
 
 		//these two methods should not be used from within bluetooth dongle
 		static void DestroyInstance();
@@ -163,13 +197,13 @@ namespace DCE
 		bool m_bLoadDatagridImagesInBackground;
 		bool m_bShowingSpeedBar; // For UI2 this means we temporarily are displaying the speed bar because we're not at normal 1x speed
 		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
-		map<int,string> m_mapScanCodeToRemoteButton; /** < Map of scan codes to remote button names used by Infrared Plugin */
+		map< pair<int,char>,string> m_mapScanCodeToRemoteButton; /** < Map of scan codes to remote button names used by Infrared Plugin */
 		map< pair<int,int>,pair<int,int> > m_mapEventToSubstitute; /** < Replace a combination of event,button with event,button */
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		class MouseBehavior *m_pMouseBehavior;  // Class to handle special logic such as locking mouse movements, speed bumps, etc.
 #endif
-#ifndef WIN32
+#ifdef HID_REMOTE
 		PlutoHIDInterface *m_pHIDInterface;
 		pthread_t m_HidThreadID;
 #endif
@@ -258,6 +292,8 @@ namespace DCE
 		bool m_bAltDown;
 		bool m_bCapsLock;
 		bool m_bUpdateTimeCodeLoopRunning; /** < True when the updatetimecodeloop is running */
+		Event::EventType m_TypeToIgnore; // If the screen saver is woken up by a button down or region down, we'll set this to ignore the next button/region up
+
 
 		class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
 		class DesignObj_Orbiter *m_pObj_SelectedLastScreen;   // The last object we selected.  Used by floorplans to toggle states
@@ -655,40 +691,6 @@ namespace DCE
 		*/
 
 	public:
-
-		class Event
-		{
-		public:
-			typedef enum _EventType {
-				QUIT,
-				NOT_PROCESSED,
-				BUTTON_DOWN, // keyboard
-				BUTTON_UP,
-				REGION_DOWN, // mouse
-				REGION_UP,
-				MOUSE_MOVE,
-				MOUSE_RELATIVE_MOVE,
-				HID
-			} EventType;
-
-			EventType type;
-
-			union {
-				struct {
-					int m_iPK_Button;
-				} button;
-
-				struct {
-					int m_iButton;
-					int m_iX;
-					int m_iY;
-				} region;
-
-				struct {
-					unsigned char m_pbHid[6];
-				} hid;
-			} data;
-		};
 
 		virtual bool PreprocessEvent( Orbiter::Event &event );
 		virtual bool ProcessEvent( Orbiter::Event &event );

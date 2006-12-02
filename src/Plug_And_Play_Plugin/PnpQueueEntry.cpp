@@ -203,7 +203,8 @@ void PnpQueueEntry::FindTopLevelDevice()
 	m_pRow_Device_Reported = m_pRow_PnpQueue->FK_Device_Reported_getrow();
 	if( !m_pRow_Device_Reported ) // Just use the plugin's device as the reporter if none was specified
 	{
-g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueueEntry::FindTopLevelDevice queue has no reporter %d",m_pRow_PnpQueue->FK_Device_Reported_get());
+g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueueEntry::FindTopLevelDevice queue %d has no reporter %d",
+					  m_pRow_PnpQueue->PK_PnpQueue_get(),m_pRow_PnpQueue->FK_Device_Reported_get());
 		m_pRow_Device_Reported = m_pDatabase_pluto_main->Device_get()->GetRow(m_pPlug_And_Play_Plugin->m_dwPK_Device);
 	}
 #ifdef DEBUG
