@@ -21,7 +21,7 @@ sources = Main.cpp Orbiter.cpp $(Gen_Dev_Files)
 CXXFLAGS += -g -O0
 CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DENABLE_MOUSE_BEHAVIOR -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen -I$(ROOT)/SDL_Helpers
 LDFLAGS += -L/usr/X11R6/lib
-XTRALDLIBS += -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst -lXext -lGL -lXrender -lGLU -lSDL_Helpers
+XTRALDLIBS += -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst -lXext -lGL -lXrender -lGLU -lSDL_Helpers -lhid
 
 # wmctrl wrapper
 CPPFLAGS += -I/usr/X11R6/include -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
@@ -34,6 +34,7 @@ sources += \
 	../utilities/linux/wrapper/wrapper_x11.cpp \
 	../utilities/linux/wrapper/image_file.cpp \
 	Linux/win_list_manager.cpp \
+	Linux/HIDInterface.cpp \
 	Linux/OrbiterRenderer_Linux.cpp \
 	DesignObj_Data.cpp \
 	DesignObj_Orbiter.cpp \
