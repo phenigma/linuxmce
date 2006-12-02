@@ -19,7 +19,7 @@ sources = Main.cpp Orbiter.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS += -g -O0
-CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DENABLE_MOUSE_BEHAVIOR -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen -I$(ROOT)/SDL_Helpers
+CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DENABLE_MOUSE_BEHAVIOR -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen -I$(ROOT)/SDL_Helpers -DHID_REMOTE
 LDFLAGS += -L/usr/X11R6/lib
 XTRALDLIBS += -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst -lXext -lGL -lXrender -lGLU -lSDL_Helpers -lhid
 
