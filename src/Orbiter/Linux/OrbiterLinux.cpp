@@ -368,188 +368,6 @@ void OrbiterLinux::Destroy()
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() : done");
 }
 
-bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
-{
-	if (event.type != Orbiter::Event::BUTTON_DOWN && event.type != Orbiter::Event::BUTTON_UP)
-		return true;
-
-	if( event.data.button.m_iPK_Button>100000 )  // We use numbers > 100000 for our internal remote
-		return true;
-
-	/* event.type == BUTTON_DOWN or BUTTON_UP */
-
-    XKeyEvent  kevent;
-    KeySym   keysym;
-    char   buf[1];
-
-    kevent.type = KeyPress;
-    kevent.display = GetDisplay();
-    kevent.state = 0;
-    kevent.keycode = event.data.button.m_iPK_Button;
-    XLookupString(&kevent, buf, sizeof(buf), &keysym, 0);
-
-	printf("KEYCode: %d %x \n", (int)keysym, (unsigned int)keysym);
-
-    switch ( keysym )
-    {
-        case XK_Shift_L:   case XK_Shift_R:
-			event.data.button.m_iPK_Button = BUTTON_left_shift_CONST;
-			g_pPlutoLogger->Write(LV_STATUS, "shift %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up");
-            m_bShiftDown = ( event.type == Orbiter::Event::BUTTON_DOWN );
-			m_bShiftDownOnScreenKeyboard = false;
-            break;
-        case XK_Control_L:    case XK_Control_R:
-            m_bControlDown = ( event.type == Orbiter::Event::BUTTON_DOWN );
-            break;
-        case XK_Alt_L:    case XK_Alt_R:
-            m_bAltDown = ( event.type == Orbiter::Event::BUTTON_DOWN );
-            break;
-        case XK_Caps_Lock:
-            if ( event.type == Orbiter::Event::BUTTON_UP )
-                m_bCapsLock = ! m_bCapsLock;
-            break;
-
-        case XK_F1:     event.data.button.m_iPK_Button = BUTTON_F1_CONST; break;
-        case XK_F2:     event.data.button.m_iPK_Button = BUTTON_F2_CONST; break;
-        case XK_F3:     event.data.button.m_iPK_Button = BUTTON_F3_CONST; break;
-        case XK_F4:     event.data.button.m_iPK_Button = BUTTON_F4_CONST; break;
-        case XK_F5:     event.data.button.m_iPK_Button = BUTTON_F5_CONST; break;
-		case XK_F6:     event.data.button.m_iPK_Button = BUTTON_F6_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F6 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
-		case XK_F7:     event.data.button.m_iPK_Button = BUTTON_F7_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F7 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
-		case XK_F8:     event.data.button.m_iPK_Button = BUTTON_F8_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F8 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
-
-        case XK_0: case XK_KP_0:
-            if(m_bShiftDown)
-                event.data.button.m_iPK_Button = BUTTON_right_parenthesis_CONST;
-            else
-                event.data.button.m_iPK_Button = BUTTON_0_CONST;
-            break;
-        case XK_1: case XK_KP_1:
-            if(m_bShiftDown)
-                event.data.button.m_iPK_Button = BUTTON_exclamation_point_CONST;
-            else
-                event.data.button.m_iPK_Button = BUTTON_1_CONST;
-            break;
-        case XK_2: case XK_KP_2:
-            if(m_bShiftDown)
-                event.data.button.m_iPK_Button = BUTTON_at_sign_CONST;
-            else
-                event.data.button.m_iPK_Button = BUTTON_2_CONST;
-            break;
-        case XK_3: case XK_KP_3:
-           if(m_bShiftDown)
-                event.data.button.m_iPK_Button = BUTTON_Pound_CONST;
-            else
-                event.data.button.m_iPK_Button = BUTTON_3_CONST;
-            break;
-        case XK_4: case XK_KP_4:
-            if(m_bShiftDown)
-                event.data.button.m_iPK_Button = BUTTON_dollar_CONST;
-            else
-                event.data.button.m_iPK_Button = BUTTON_4_CONST;
-            break;
-        case XK_5: case XK_KP_5:
-            if(m_bShiftDown)
-			{
-                event.data.button.m_iPK_Button = BUTTON_percent_CONST;
-				g_pPlutoLogger->Write(LV_STATUS, "% key");
-			}
-            else
-			{
-                event.data.button.m_iPK_Button = BUTTON_5_CONST;
-				g_pPlutoLogger->Write(LV_STATUS, "5 key");
-			}
-            break;
-        case XK_6: case XK_KP_6:
-            if(m_bShiftDown)
-                event.data.button.m_iPK_Button = BUTTON_caret_CONST;
-            else
-                event.data.button.m_iPK_Button = BUTTON_6_CONST;
-            break;
-        case XK_7: case XK_KP_7:
-            if(m_bShiftDown)
-                event.data.button.m_iPK_Button = BUTTON_ampersand_CONST;
-            else
-                event.data.button.m_iPK_Button = BUTTON_7_CONST;
-            break;
-        case XK_8: case XK_KP_8:
-            if(m_bShiftDown)
-                event.data.button.m_iPK_Button = BUTTON_Asterisk_CONST;
-            else
-                event.data.button.m_iPK_Button = BUTTON_8_CONST;
-            break;
-        case XK_9: case XK_KP_9:
-            if(m_bShiftDown)
-                event.data.button.m_iPK_Button = BUTTON_left_parenthesis_CONST;
-            else
-                event.data.button.m_iPK_Button = BUTTON_9_CONST;
-            break;
-
-        case XK_Up:
-			if(m_bShiftDown)
-				event.data.button.m_iPK_Button = BUTTON_Shift_Up_Arrow_CONST;
-			else
-				event.data.button.m_iPK_Button = BUTTON_Up_Arrow_CONST;
-			break;
-        case XK_Down:
-			if(m_bShiftDown)
-				event.data.button.m_iPK_Button = BUTTON_Shift_Down_Arrow_CONST;
-			else
-				event.data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST;
-			break;
-        case XK_Left:
-			if(m_bShiftDown)
-				event.data.button.m_iPK_Button = BUTTON_Shift_Left_Arrow_CONST;
-			else
-		      	event.data.button.m_iPK_Button = BUTTON_Left_Arrow_CONST;
-            break;
-        case XK_Right:
-			if(m_bShiftDown)
-				event.data.button.m_iPK_Button = BUTTON_Shift_Right_Arrow_CONST;
-			else
-				event.data.button.m_iPK_Button = BUTTON_Right_Arrow_CONST;
-			break;
-
-/* modificari */
-        case XK_F9:     event.data.button.m_iPK_Button = BUTTON_F9_CONST; break;
-        case XK_F10:    event.data.button.m_iPK_Button = BUTTON_F10_CONST; break;
-        case XK_Escape: event.data.button.m_iPK_Button = BUTTON_escape_CONST; break;
-        case XK_Tab:    event.data.button.m_iPK_Button = BUTTON_tab_CONST; break;
-        case XK_KP_Enter: case XK_Return:       event.data.button.m_iPK_Button = BUTTON_Enter_CONST;  break;
-		case XK_KP_Space: case XK_space:        event.data.button.m_iPK_Button = BUTTON_space_CONST; break;
-        case XK_BackSpace:      event.data.button.m_iPK_Button = BUTTON_Back_CONST;  break;
-        case XK_underscore:     event.data.button.m_iPK_Button = BUTTON_underscore_CONST;  break;
-        case XK_minus:  event.data.button.m_iPK_Button = BUTTON_dash_CONST;  break;
-        case XK_equal:  case XK_KP_Equal:
-			event.data.button.m_iPK_Button = BUTTON_equals_sign_CONST;
-			break;
-	case XK_slash:	event.data.button.m_iPK_Button = BUTTON_slash_CONST;  break;
-        case XK_period: event.data.button.m_iPK_Button = BUTTON_dot_CONST;  break;
-        case XK_comma:  case XK_KP_Separator:   event.data.button.m_iPK_Button =  BUTTON_comma_CONST; break;
-        case XK_colon:  event.data.button.m_iPK_Button = BUTTON_colon_CONST; break;
-        case XK_semicolon:      event.data.button.m_iPK_Button = BUTTON_semicolumn_CONST; break;
-        case XK_quotedbl:       event.data.button.m_iPK_Button = BUTTON_double_quote_CONST; break;
-			
-/* end modificari */
-
-        default:
-            if ( XK_a <= keysym && keysym <= XK_z )
-			{
-				event.data.button.m_iPK_Button = BUTTON_a_CONST + keysym - XK_a;
-			}
-            else
-            {
-                event.type = Orbiter::Event::NOT_PROCESSED;
-            }
-    }
-
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "The keysym was %d, the final event type %d, button %d", keysym, event.type, event.data.button.m_iPK_Button);
-#endif
-
-	return true;
-}
-
 void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 {
     g_pPlutoLogger->Write(LV_WARNING, "CMD off not implemented on the orbiter yet");
@@ -764,4 +582,186 @@ void OrbiterLinux::ApplyMask(PlutoRectangle rectTotal, PlutoPoint point)
 		4, ShapeSet, Unsorted);
 	
 	m_bMaskApplied = true;
+}
+
+bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
+{
+	if( event.type != Orbiter::Event::BUTTON_DOWN && event.type != Orbiter::Event::BUTTON_UP )
+		return false;
+
+	event.data.button.m_iPK_Button = TranslateXKeyCodeToPlutoButton(event.data.button.m_iKeycode);
+	return false;
+}
+
+int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode)
+{
+	/* event.type == BUTTON_DOWN or BUTTON_UP */
+
+	int iPK_Button=0;
+    XKeyEvent  kevent;
+    KeySym   keysym;
+    char   buf[1];
+
+    kevent.type = KeyPress;
+    kevent.display = GetDisplay();
+    kevent.state = 0;
+    kevent.keycode = Keycode;
+    XLookupString(&kevent, buf, sizeof(buf), &keysym, 0);
+
+	printf("KEYCode: %d %x \n", (int)keysym, (unsigned int)keysym);
+
+    switch ( keysym )
+    {
+        case XK_Shift_L:   case XK_Shift_R:
+			iPK_Button = BUTTON_left_shift_CONST;
+			g_pPlutoLogger->Write(LV_STATUS, "shift %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up");
+            m_bShiftDown = ( event.type == Orbiter::Event::BUTTON_DOWN );
+			m_bShiftDownOnScreenKeyboard = false;
+            break;
+        case XK_Control_L:    case XK_Control_R:
+            m_bControlDown = ( event.type == Orbiter::Event::BUTTON_DOWN );
+            break;
+        case XK_Alt_L:    case XK_Alt_R:
+            m_bAltDown = ( event.type == Orbiter::Event::BUTTON_DOWN );
+            break;
+        case XK_Caps_Lock:
+            if ( event.type == Orbiter::Event::BUTTON_UP )
+                m_bCapsLock = ! m_bCapsLock;
+            break;
+
+        case XK_F1:     iPK_Button = BUTTON_F1_CONST; break;
+        case XK_F2:     iPK_Button = BUTTON_F2_CONST; break;
+        case XK_F3:     iPK_Button = BUTTON_F3_CONST; break;
+        case XK_F4:     iPK_Button = BUTTON_F4_CONST; break;
+        case XK_F5:     iPK_Button = BUTTON_F5_CONST; break;
+		case XK_F6:     iPK_Button = BUTTON_F6_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F6 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
+		case XK_F7:     iPK_Button = BUTTON_F7_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F7 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
+		case XK_F8:     iPK_Button = BUTTON_F8_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F8 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
+
+        case XK_0: case XK_KP_0:
+            if(m_bShiftDown)
+                iPK_Button = BUTTON_right_parenthesis_CONST;
+            else
+                iPK_Button = BUTTON_0_CONST;
+            break;
+        case XK_1: case XK_KP_1:
+            if(m_bShiftDown)
+                iPK_Button = BUTTON_exclamation_point_CONST;
+            else
+                iPK_Button = BUTTON_1_CONST;
+            break;
+        case XK_2: case XK_KP_2:
+            if(m_bShiftDown)
+                iPK_Button = BUTTON_at_sign_CONST;
+            else
+                iPK_Button = BUTTON_2_CONST;
+            break;
+        case XK_3: case XK_KP_3:
+           if(m_bShiftDown)
+                iPK_Button = BUTTON_Pound_CONST;
+            else
+                iPK_Button = BUTTON_3_CONST;
+            break;
+        case XK_4: case XK_KP_4:
+            if(m_bShiftDown)
+                iPK_Button = BUTTON_dollar_CONST;
+            else
+                iPK_Button = BUTTON_4_CONST;
+            break;
+        case XK_5: case XK_KP_5:
+            if(m_bShiftDown)
+			{
+                iPK_Button = BUTTON_percent_CONST;
+				g_pPlutoLogger->Write(LV_STATUS, "% key");
+			}
+            else
+			{
+                iPK_Button = BUTTON_5_CONST;
+				g_pPlutoLogger->Write(LV_STATUS, "5 key");
+			}
+            break;
+        case XK_6: case XK_KP_6:
+            if(m_bShiftDown)
+                iPK_Button = BUTTON_caret_CONST;
+            else
+                iPK_Button = BUTTON_6_CONST;
+            break;
+        case XK_7: case XK_KP_7:
+            if(m_bShiftDown)
+                iPK_Button = BUTTON_ampersand_CONST;
+            else
+                iPK_Button = BUTTON_7_CONST;
+            break;
+        case XK_8: case XK_KP_8:
+            if(m_bShiftDown)
+                iPK_Button = BUTTON_Asterisk_CONST;
+            else
+                iPK_Button = BUTTON_8_CONST;
+            break;
+        case XK_9: case XK_KP_9:
+            if(m_bShiftDown)
+                iPK_Button = BUTTON_left_parenthesis_CONST;
+            else
+                iPK_Button = BUTTON_9_CONST;
+            break;
+
+        case XK_Up:
+			if(m_bShiftDown)
+				iPK_Button = BUTTON_Shift_Up_Arrow_CONST;
+			else
+				iPK_Button = BUTTON_Up_Arrow_CONST;
+			break;
+        case XK_Down:
+			if(m_bShiftDown)
+				iPK_Button = BUTTON_Shift_Down_Arrow_CONST;
+			else
+				iPK_Button = BUTTON_Down_Arrow_CONST;
+			break;
+        case XK_Left:
+			if(m_bShiftDown)
+				iPK_Button = BUTTON_Shift_Left_Arrow_CONST;
+			else
+		      	iPK_Button = BUTTON_Left_Arrow_CONST;
+            break;
+        case XK_Right:
+			if(m_bShiftDown)
+				iPK_Button = BUTTON_Shift_Right_Arrow_CONST;
+			else
+				iPK_Button = BUTTON_Right_Arrow_CONST;
+			break;
+
+/* modificari */
+        case XK_F9:     iPK_Button = BUTTON_F9_CONST; break;
+        case XK_F10:    iPK_Button = BUTTON_F10_CONST; break;
+        case XK_Escape: iPK_Button = BUTTON_escape_CONST; break;
+        case XK_Tab:    iPK_Button = BUTTON_tab_CONST; break;
+        case XK_KP_Enter: case XK_Return:       iPK_Button = BUTTON_Enter_CONST;  break;
+		case XK_KP_Space: case XK_space:        iPK_Button = BUTTON_space_CONST; break;
+        case XK_BackSpace:      iPK_Button = BUTTON_Back_CONST;  break;
+        case XK_underscore:     iPK_Button = BUTTON_underscore_CONST;  break;
+        case XK_minus:  iPK_Button = BUTTON_dash_CONST;  break;
+        case XK_equal:  case XK_KP_Equal:
+			iPK_Button = BUTTON_equals_sign_CONST;
+			break;
+	case XK_slash:	iPK_Button = BUTTON_slash_CONST;  break;
+        case XK_period: iPK_Button = BUTTON_dot_CONST;  break;
+        case XK_comma:  case XK_KP_Separator:   iPK_Button =  BUTTON_comma_CONST; break;
+        case XK_colon:  iPK_Button = BUTTON_colon_CONST; break;
+        case XK_semicolon:      iPK_Button = BUTTON_semicolumn_CONST; break;
+        case XK_quotedbl:       iPK_Button = BUTTON_double_quote_CONST; break;
+			
+/* end modificari */
+
+        default:
+            if ( XK_a <= keysym && keysym <= XK_z )
+			{
+				iPK_Button = BUTTON_a_CONST + keysym - XK_a;
+			}
+    }
+
+#ifdef DEBUG
+    g_pPlutoLogger->Write(LV_STATUS, "The keysym was %d, the final event type %d, button %d", keysym, event.type, iPK_Button);
+#endif
+
+	return iPK_Button;
 }

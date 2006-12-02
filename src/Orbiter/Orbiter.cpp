@@ -686,6 +686,24 @@ bool Orbiter::GetConfig()
 
 	m_pDevice_ScreenSaver = m_pData->FindSelfOrChildWithinCategory(DEVICECATEGORY_Screen_Savers_CONST);
 
+	vector<string> vectShortcuts;
+	StringUtils::Tokenize(DATA_Get_Shortcut(),"\r\n",vectShortcuts);
+	for(vector<string>::iterator it=vectShortcuts.begin();it!=vectShortcuts.end();++it)
+	{
+		string::size_type pos=0;
+		bool bAutomatic = StringUtils::Tokenize( *it, "\t", pos )=="1";
+		string sCharacter = StringUtils::Tokenize( *it, "\t", pos );
+		string sMessage = StringUtils::Tokenize( *it, "\t", pos );
+
+		if( sCharacter.empty() || sMessage.empty() )
+			continue;
+
+		Message *pMessage = new Message(sMessage);
+		if( pMessage->m_dwPK_Device_To<0 )
+			pMessage->m_dwPK_Device_To = TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
+		m_mapShortcut[ sCharacter[0] ] = pMessage;
+	}
+
 	return true;
 }
 
@@ -2590,16 +2608,18 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 					  pEvent->type, (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP ? pEvent->data.button.m_iPK_Button : -999));
 #endif
 
-	map< pair<int,int>,pair<int,int> >::iterator it = m_mapEventToSubstitute.find( make_pair<int,int> (pEvent->type,pEvent->data.button.m_iPK_Button) );
+	map< pair<int,int>,pair<int,int> >::iterator it = m_mapEventToSubstitute.find( make_pair<int,int> (pEvent->type,pEvent->data.button.m_iKeycode) );
 	if( it!=m_mapEventToSubstitute.end() )
 	{
 		pEvent->type = (DCE::Orbiter::Event::EventType) it->second.first;
-		pEvent->data.button.m_iPK_Button = it->second.second;
+		pEvent->data.button.m_iKeycode = it->second.second;
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to type %d key %d",
-		  pEvent->type, pEvent->data.button.m_iPK_Button);
+		  pEvent->type, pEvent->data.button.m_iKeycode);
 #endif
 	}
+
+	PreprocessEvent(*pEvent);  // This will fill in the PK_Button if it's not already there
 
 	if( (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::REGION_DOWN) &&
         !GotActivity( pEvent->type == Orbiter::Event::BUTTON_DOWN ? pEvent->data.button.m_iPK_Button : 0 ) )  // Use pEvent->type not Type since if it's not a known type it won't map to m_iPK_Button
@@ -2625,7 +2645,6 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 
 		string sRepeatKey;  // This will not be empty if we're pressing a key that can be repeated.  It will be the key to repeat
 
-		// Do this first because PreprocessEvent will convert this to a PK_Button, which is a different number
 		// and we're looking for scan codes
 		char cAction = 'D'; // Action is D=down, U=up, R=Repeat, H=Held Down
 		if( pEvent->type == Orbiter::Event::BUTTON_UP )
@@ -2635,27 +2654,32 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 			timespec m_tInterval = tButtonUp - m_tButtonDown;
 			long tMilisecondsPassed = m_tInterval.tv_sec * 1000 + m_tInterval.tv_nsec / 1000000;
 			if( tMilisecondsPassed > 500 )
-				it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iPK_Button, 'H'));
+				it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'H'));
 
 			if( it == m_mapScanCodeToRemoteButton.end() )  // Either we didn't hold the button or there is no hold specific event
-				it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iPK_Button, 'U'));
+				it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'U'));
 
 			// There's nothing for the 'up'.  See if there was a down or repeat.  If so we'll ignore
 			// this up so it's not processed by the framework.  Otherwise the i/r mechanism may do something for
 			// the down, and the framework something else for the up
 			if( it == m_mapScanCodeToRemoteButton.end() ) 
 			{
-				if( m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iPK_Button, 'D'))!=m_mapScanCodeToRemoteButton.end() ||
-					m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iPK_Button, 'R'))!=m_mapScanCodeToRemoteButton.end() )
-						return;
+				if( m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'D'))!=m_mapScanCodeToRemoteButton.end() ||
+					m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'R'))!=m_mapScanCodeToRemoteButton.end() )
+				{
+#ifdef DEBUG
+					g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing ignoring keycode %d up because there's a DOWN",pEvent->data.button.m_iKeycode);
+#endif
+					return;
+				}
 			}
 		}
 		else
 		{
 			gettimeofday(&m_tButtonDown,NULL);
-			it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iPK_Button, 'D') );
+			it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'D') );
 
-			map< pair<int,char>, string>::iterator itRepeat = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iPK_Button, 'R'));
+			map< pair<int,char>, string>::iterator itRepeat = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'R'));
 			if( itRepeat!=m_mapScanCodeToRemoteButton.end() )
 			{
 				sRepeatKey = itRepeat->second;  // This is the key to repeat
@@ -2664,6 +2688,14 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 				// and there is no down, then the repeat is the down
 				if( it == m_mapScanCodeToRemoteButton.end() )
 					it = itRepeat;
+			}
+			if( it==m_mapScanCodeToRemoteButton.end() && 
+				m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'U') )!=m_mapScanCodeToRemoteButton.end() )
+			{
+#ifdef DEBUG
+				g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing ignoring keycode %d down because there's an UP",pEvent->data.button.m_iKeycode);
+#endif
+				return;
 			}
 		}
 
@@ -2677,9 +2709,6 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		}
 	}
     
-	// Do this after checking for scan codes because this will convert this to a different number
-	PreprocessEvent(*pEvent);
-
 	ProcessEvent(*pEvent);
 }
 
@@ -9106,7 +9135,7 @@ void Orbiter::CMD_Set_Active_Application(string sName,int iPK_Screen,string sIde
 //<-dceag-c811-b->
 
 	/** @brief COMMAND: #811 - Get Active Application */
-	/**  */
+	/** Return the currently active application */
 		/** @param #50 Name */
 			/** A description of the app */
 		/** @param #159 PK_Screen */
@@ -9372,4 +9401,26 @@ void Orbiter::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 #else
 	GotoMainMenu();
 #endif
+}
+
+//<-dceag-c834-b->
+
+	/** @brief COMMAND: #834 - Execute Shortcut */
+	/** Execute the shortcut associated with a key.  Called when a key is held down. */
+		/** @param #48 Value */
+			/** The ascii value of the key (ie 65='A').  Valid are 0-9,*,#,A-Z */
+
+void Orbiter::CMD_Execute_Shortcut(int iValue,string &sCMD_Result,Message *pMessage)
+//<-dceag-c834-e->
+{
+	char cKey = (char) iValue;
+	map< char, Message *>::iterator it=m_mapShortcut.find(cKey);
+	if( it!=m_mapShortcut.end() )
+	{
+		Message *pMessage = it->second;
+		if( pMessage->m_dwPK_Device_To==m_dwPK_Device )
+			ReceivedMessage( pMessage );
+		else
+			QueueMessageToRouter(new Message(pMessage));
+	}
 }

@@ -109,9 +109,7 @@ public:
     // can be called from outside
     virtual void Destroy();
 
-    virtual bool PreprocessEvent( Orbiter::Event &event );
-
-    virtual Display * GetDisplay(); // use this
+	virtual Display * GetDisplay(); // use this
     virtual Window GetMainWindow(); // use this
     virtual Display * GetDisplay_MainWindow(); // do not use
 
@@ -129,7 +127,10 @@ public:
     void GrabPointer(bool bEnable);
     void GrabKeyboard(bool bEnable);
 
-    virtual void X_LockDisplay();
+	virtual bool PreprocessEvent(Orbiter::Event &event);
+	int TranslateXKeyCodeToPlutoButton(int Keycode);
+
+	virtual void X_LockDisplay();
     virtual void X_UnlockDisplay();
 
 	XRecordExtensionHandler * GetXRecordExtensionHandler()

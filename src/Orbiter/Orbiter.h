@@ -167,6 +167,7 @@ namespace DCE
 			union {
 				struct {
 					int m_iPK_Button;
+					int m_iKeycode;  // The internal keycode, not Pluto's button code
 				} button;
 
 				struct {
@@ -368,6 +369,7 @@ namespace DCE
 		int m_iVideoFrameInterval; /** < The interval between two frame requested from the router */
 
 		map<int,Message *> m_mapHardKeys;  /** < Messages to fire when keys are pressed */
+		map< char, Message *> m_mapShortcut; // Map characters held down with message to send	
 
 		DesignObjText *m_pCaptureKeyboard_Text; /** < @todo ask */
 		map<int,  vector<PlutoGraphic*> *> m_mapUserIcons; /** < user icons */
@@ -942,6 +944,7 @@ namespace DCE
 	int DATA_Get_Listen_Port();
 	int DATA_Get_PK_Screen();
 	bool DATA_Get_Get_Time_Code_for_Media();
+	string DATA_Get_Shortcut();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);
@@ -1807,7 +1810,7 @@ light, climate, media, security, telecom */
 
 
 	/** @brief COMMAND: #811 - Get Active Application */
-	/**  */
+	/** Return the currently active application */
 		/** @param #50 Name */
 			/** A description of the app */
 		/** @param #159 PK_Screen */
@@ -1819,6 +1822,15 @@ light, climate, media, security, telecom */
 
 	virtual void CMD_Get_Active_Application(string *sName,int *iPK_Screen,string *sIdentifier,int *iPK_Screen_GoTo) { string sCMD_Result; CMD_Get_Active_Application(sName,iPK_Screen,sIdentifier,iPK_Screen_GoTo,sCMD_Result,NULL);};
 	virtual void CMD_Get_Active_Application(string *sName,int *iPK_Screen,string *sIdentifier,int *iPK_Screen_GoTo,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #834 - Execute Shortcut */
+	/** Execute the shortcut associated with a key.  Called when a key is held down. */
+		/** @param #48 Value */
+			/** The ascii value of the key (ie 65='A').  Valid are 0-9,*,#,A-Z */
+
+	virtual void CMD_Execute_Shortcut(int iValue) { string sCMD_Result; CMD_Execute_Shortcut(iValue,sCMD_Result,NULL);};
+	virtual void CMD_Execute_Shortcut(int iValue,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 
