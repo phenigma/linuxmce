@@ -687,8 +687,9 @@ bool Orbiter::GetConfig()
 	m_pDevice_ScreenSaver = m_pData->FindSelfOrChildWithinCategory(DEVICECATEGORY_Screen_Savers_CONST);
 
 	vector<string> vectShortcuts;
-	StringUtils::Tokenize(DATA_Get_Shortcut(),"\r\n",vectShortcuts);
-	for(vector<string>::iterator it=vectShortcuts.begin();it!=vectShortcuts.end();++it)
+	string sShortcuts=DATA_Get_Shortcut();
+	StringUtils::Tokenize(sShortcuts,"\r\n",vectShortcuts);
+ 	for(vector<string>::iterator it=vectShortcuts.begin();it!=vectShortcuts.end();++it)
 	{
 		string::size_type pos=0;
 		bool bAutomatic = StringUtils::Tokenize( *it, "\t", pos )=="1";
