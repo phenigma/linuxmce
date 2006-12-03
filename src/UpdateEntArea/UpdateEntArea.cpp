@@ -111,7 +111,8 @@ void UpdateEntArea::UpdateOrbiterShortcuts()
 		if( pRow_Device_DeviceData )
 		{
 			vector<string> vectExistingShortcuts;
-			StringUtils::Tokenize(pRow_Device_DeviceData->IK_DeviceData_get(),"\r\n",vectExistingShortcuts);
+			string s = pRow_Device_DeviceData->IK_DeviceData_get();
+			StringUtils::Tokenize(s,"\r\n",vectExistingShortcuts);
 			for(vector<string>::iterator it=vectExistingShortcuts.begin();it!=vectExistingShortcuts.end();++it)
 			{
 				string::size_type pos=0;
