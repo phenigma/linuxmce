@@ -90,6 +90,9 @@ public:
 		/** What tv options are available in the area -- this is a temporary hack until we get a proper source for this */
 		class DataGridTable *TvProviders(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 
+		// Set a value in mythconverg's setting table.  If hostname=*, all known hosts will be set.  If it's empty, hostname will be NULL
+		void UpdateMythSetting(string value,string data,string hostname);
+
         //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
@@ -98,6 +101,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_PK_Device();
 	int DATA_Get_Priority();
 
 			*****EVENT***** accessors inherited from base class
@@ -163,7 +167,6 @@ live, nonlive, osd */
 
 	virtual void CMD_Sync_Providers_and_Cards() { string sCMD_Result; CMD_Sync_Providers_and_Cards(sCMD_Result,NULL);};
 	virtual void CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pMessage);
-
 
 //<-dceag-h-e->
     };

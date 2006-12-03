@@ -55,7 +55,8 @@ addEntries MasterServerPort     6143;
 addEntries BackendServerIP 		$hostip $hostname;
 addEntries BackendServerPort 	6143 	$hostname;
 
-addEntries RecordFilePrefix 	/home/mythtv/shows/$hostip $hostname;
+# Change this.  Mythtv plugin will set this to one of the mouted drives
+#addEntries RecordFilePrefix 	/home/mythtv/shows/$hostip $hostname;
 addEntries LiveBufferDir 		/home/mythtv/cache/$hostip $hostname;
 addEntries VertScanPercentage	2	$hostname;
 addEntries HorizScanPercentage	1	$hostname;
@@ -74,9 +75,9 @@ addEntries FFRewSpeed3	8	$hostname;
 addEntries FFRewSpeed4  16 	$hostname;
 
 echo -n Creating and/or setting the cache and recorded folder paths ...
-mkdir -p 		/home/mythtv/shows/$hostip
-chown mythtv 	/home/mythtv/shows/$hostip
-chmod 766 	 	/home/mythtv/shows/$hostip
+#mkdir -p 		/home/mythtv/shows/$hostip
+#chown mythtv 	/home/mythtv/shows/$hostip
+#chmod 766 	 	/home/mythtv/shows/$hostip
 
 mkdir -p 		/home/mythtv/cache/$hostip
 chown mythtv 	/home/mythtv/cache/$hostip

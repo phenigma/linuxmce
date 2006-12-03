@@ -63,6 +63,11 @@ bool MythTV_PlugIn::GetConfig()
 	m_pMySqlHelper_Myth = new MySqlHelper(m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ),"mythconverg");
 	m_pEPGGrid = new EPGGrid(m_pMySqlHelper_Myth);
 
+	UpdateMythSetting("JobAllowUserJob1","1","*");
+	UpdateMythSetting("AutoRunUserJob1","1","");
+	UpdateMythSetting("UserJob1","/usr/pluto/bin/SaveMythRecording.sh %CHANID% %STARTTIME% %DIR% %FILE%","");
+	UpdateMythSetting("UserJobDesc1","Save the recorded show into Pluto's database","");
+
 	return true;
 }
 
@@ -130,6 +135,33 @@ bool MythTV_PlugIn::Register()
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Channel_Changed_CONST );
 	// RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Info_Changed_CONST );
 
+	// Get all the backend ip's so we can match the hostname myth uses to our own device id
+	map<string,int> mapIpToDevice;
+	vector<Row_Device *> vectRow_Device;
+	// Get the top level devices
+	m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRows("FK_Device_ControlledVia IS NULL",&vectRow_Device);
+	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
+		mapIpToDevice[ (*it)->IPaddress_get() ] = (*it)->PK_Device_get();
+
+	int PK_Device_Storage = atoi(DATA_Get_PK_Device().c_str());
+	string sFilename = PK_Device_Storage ? "/mnt/device/" + StringUtils::itos(PK_Device_Storage) + "/public/data/videos/" : "/home/public/data/videos/";
+
+	string sSQL = "SELECT data,hostname from settings where value='BackendServerIP'";
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( (result.r = m_pMySqlHelper_Myth->mysql_query_result(sSQL)) )
+	{
+		while( ( row=mysql_fetch_row( result.r ) ) )
+		{
+			int PK_Device = row[0] ? mapIpToDevice[row[0]] : 0;
+			string sDirectory = sFilename + StringUtils::itos(PK_Device);
+			string sCmd = "mkdir -p \"" + sDirectory + "\"";
+			g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::Register %s",sCmd.c_str());
+			system(sCmd.c_str());
+			UpdateMythSetting("RecordFilePrefix",sDirectory,row[1]);
+		}
+	}
+	
 	BuildAttachedInfraredTargetsMap();
     return Connect(PK_DeviceTemplate_get());
 }
@@ -850,3 +882,48 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 		}
 	}
 }
+
+void MythTV_PlugIn::UpdateMythSetting(string value,string data,string hostname)
+{
+	if( hostname=="*" )
+	{
+		// For some reason mysql returns an error: Error Code : 1030, Got error 28 from table handler
+		// When you run SELECT DISTINCT hostname FROM settings
+		// So we'll keep a map so we can skip ones we've already done
+		map<string,bool> mapExistingHosts;
+
+		string sSQL = "SELECT hostname FROM settings";
+		PlutoSqlResult result;
+		MYSQL_ROW row;
+		if( (result.r = m_pMySqlHelper_Myth->mysql_query_result(sSQL)) )
+		{
+			while( ( row=mysql_fetch_row( result.r ) ) )
+			{
+				if( row[0] )
+				{
+					if( mapExistingHosts[row[0]] )
+						continue;
+					mapExistingHosts[row[0]]=true;
+					UpdateMythSetting(value,data,row[0]);
+				}
+			}
+		}
+		return;
+	}
+
+	string sSQL = "SELECT value FROM settings WHERE value='" + StringUtils::SQLEscape(value) + "' AND " 
+		" hostname " + (hostname.empty() ? "IS NULL" : "='" + StringUtils::SQLEscape(hostname) + "'");
+	PlutoSqlResult result;
+	if( (result.r = m_pMySqlHelper_Myth->mysql_query_result(sSQL))==NULL || result.r->row_count==0 )
+	{
+		sSQL = "INSERT INTO settings(value,hostname) VALUES('" + StringUtils::SQLEscape(value) + "',"
+			+ (hostname.empty() ? "NULL" : "'" + StringUtils::SQLEscape(hostname) + "'") + ")";
+		m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
+	}
+
+	sSQL = "UPDATE settings set data='" + StringUtils::SQLEscape(data) + "' WHERE value='" + StringUtils::SQLEscape(value) + "' "
+		" AND hostname " + (hostname.empty() ? "IS NULL" : "='" + StringUtils::SQLEscape(hostname) + "'");
+
+	m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
+}
+

@@ -95,6 +95,14 @@ public:
 	* @brief Device data access methods:
 	*/
 
+	string Get_PK_Device()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_PK_Device_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_PK_Device_CONST];
+	}
+
 	int Get_Priority()
 	{
 		if( m_bRunningWithoutDeviceData )
@@ -207,6 +215,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_PK_Device() { return GetData()->Get_PK_Device(); }
 	int DATA_Get_Priority() { return GetData()->Get_Priority(); }
 	//Event accessors
 	void EVENT_Error_Occured(string sError_Message) { GetEvents()->Error_Occured(sError_Message.c_str()); }

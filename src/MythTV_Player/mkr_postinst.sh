@@ -56,7 +56,7 @@ if [ "$isSetup" != 0  ]; then
 	echo "Removing old mythtv configuration for this machine";
 	echo "delete from settings where hostname='`hostname`' AND value LIkE 'BackendServer%'" | $mysql_command;
 	echo "delete from settings where value LIkE 'MasterServer%'" | $mysql_command;
-	echo "delete from settings where hostname='`hostname`' AND value LIkE 'RecordFilePrefix'" | $mysql_command;
+	#echo "delete from settings where hostname='`hostname`' AND value LIkE 'RecordFilePrefix'" | $mysql_command;
 fi;
 
 echo "Setting up mythtv configuration for this machine";
@@ -67,7 +67,7 @@ routerip=`gethostip dcerouter | cut -f 2 -d ' '`;
 addEntries BackendServerIP $hostip $hostname;
 addEntries BackendServerPort 6143 $hostname;
 addEntries BackendServerStatus 6544 $hostname;
-addEntries RecordFilePrefix /var/lib/mythtv/ $hostname;
+#addEntries RecordFilePrefix /var/lib/mythtv/ $hostname;
 
 addEntries MasterServerIP	$routerip;
 addEntries MasterServerPort	6143;
