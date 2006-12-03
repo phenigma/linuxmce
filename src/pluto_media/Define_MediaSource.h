@@ -1,9 +1,10 @@
 #ifndef __Define_MediaSource_H__
 #define __Define_MediaSource_H__
 
-#define MEDIASOURCE_File_CONST 1
-#define MEDIASOURCE_Jukebox_CONST 2
-#define MEDIASOURCE_Local_Disc_CONST 3
+#define MEDIASOURCE_Hard_Drives_CONST 1
+#define MEDIASOURCE_Discs__Jukeboxes_CONST 2
+#define MEDIASOURCE_Bookmarks_CONST 3
+#define MEDIASOURCE_Downloadable_CONST 4
 
 #define MEDIASOURCE_TABLE "MediaSource"
 #define MEDIASOURCE_PK_MEDIASOURCE_FIELD "PK_MediaSource"
