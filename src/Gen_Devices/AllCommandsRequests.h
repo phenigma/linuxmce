@@ -22308,5 +22308,33 @@ namespace DCE
 			1 /* number of parameters */,
 			COMMANDPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str()); }
 	};
+	class CMD_Execute_Shortcut : public PreformedCommand {
+	public:
+		CMD_Execute_Shortcut(long DeviceIDFrom, long DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Execute_Shortcut_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Execute_Shortcut_DL : public PreformedCommand {
+	public:
+		CMD_Execute_Shortcut_DL(long DeviceIDFrom, string DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Execute_Shortcut_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Execute_Shortcut_DT : public PreformedCommand {
+	public:
+		CMD_Execute_Shortcut_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Execute_Shortcut_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str()); }
+	};
+	class CMD_Execute_Shortcut_Cat : public PreformedCommand {
+	public:
+		CMD_Execute_Shortcut_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Execute_Shortcut_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str()); }
+	};
 }
 #endif

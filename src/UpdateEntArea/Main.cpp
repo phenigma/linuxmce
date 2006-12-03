@@ -116,6 +116,8 @@ int main(int argc, char *argv[])
 	else
 		updateEntArea.AddDefaultScenarios();
 
+	updateEntArea.UpdateOrbiterShortcuts();
+
 	if( g_bChangedScenarios )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Scenarios were changed.  Updating Orbiters");

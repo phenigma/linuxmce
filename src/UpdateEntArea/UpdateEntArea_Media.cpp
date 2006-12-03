@@ -22,6 +22,8 @@
 
 #endif
 
+#include "DCE/Message.h"
+
 #include "pluto_main/Table_Device_DeviceData.h"
 #include "pluto_main/Table_DeviceData.h"
 #include "pluto_main/Table_DeviceGroup.h"
@@ -82,6 +84,7 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 	MYSQL_ROW row;
 	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
 	{
+		bool bFirstTV=true; // Add only 1 tv shortcut
 		while ((row = mysql_fetch_row(result_set.r)))
 		{
 			string sDesc = "TV";
@@ -89,17 +92,36 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 				sDesc += string("\n") + row[1];
 			pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_Pluto_Sources_CONST,sDesc,ICON_TV_CONST,atoi(row[0]),MEDIATYPE_pluto_LiveTV_CONST);
 			if( pCommandGroup )
+			{
+				if( bFirstTV )
+				{
+					AddShortcut(pRow_EntertainArea->FK_Room_get(),'4',"0 " TOSTRING(DEVICEID_DCEROUTER) " 1 " 
+						TOSTRING(COMMAND_Execute_Command_Group_CONST) " " TOSTRING(COMMANDPARAMETER_PK_CommandGroup_CONST) " " +
+						StringUtils::itos(pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get()));
+					bFirstTV=false;
+				}
 				pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,iOrder++,2,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST).c_str(),COMMANDPARAMETER_PK_Device_CONST,row[0]);
+			}
 		}
 	}
 
 	pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_FileDisc_CONST,"Video",ICON_Video_CONST,0,MEDIATYPE_pluto_StoredVideo_CONST);
 	if( pCommandGroup )
+	{
+		AddShortcut(pRow_EntertainArea->FK_Room_get(),'5',"0 " TOSTRING(DEVICETEMPLATE_This_Orbiter_CONST) " 1 " 
+			TOSTRING(COMMAND_Show_File_List_CONST) " " TOSTRING(COMMANDPARAMETER_PK_MediaType_CONST) " " +
+			StringUtils::itos(MEDIATYPE_pluto_StoredVideo_CONST));
 		pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_StoredVideo_CONST).c_str());
+	}
 
 	pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_FileDisc_CONST,"Audio",ICON_Music_CONST,0,MEDIATYPE_pluto_StoredAudio_CONST);
 	if( pCommandGroup )
+	{
+		AddShortcut(pRow_EntertainArea->FK_Room_get(),'6',"0 " TOSTRING(DEVICETEMPLATE_This_Orbiter_CONST) " 1 " 
+			TOSTRING(COMMAND_Show_File_List_CONST) " " TOSTRING(COMMANDPARAMETER_PK_MediaType_CONST) " " +
+			StringUtils::itos(MEDIATYPE_pluto_StoredAudio_CONST));
 		pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_StoredAudio_CONST).c_str());
+	}
 
 	pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_FileDisc_CONST,"Playlists",ICON_Playlist_CONST,0,MEDIATYPE_misc_Playlist_CONST);
 	if( pCommandGroup )

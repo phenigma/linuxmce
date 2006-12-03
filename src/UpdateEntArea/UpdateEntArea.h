@@ -17,6 +17,8 @@ namespace DefaultScenarios
 
 typedef enum { lomNone=0, lomContainsMD=1, lomContainsOtherVideo=2, lomContainsAudio=3 } LevelOfMedia;
 
+typedef map<char,string> MapShortcuts;  // Map the characters (like 1,2,3) to their default shortcuts
+
 class UpdateEntArea 
 {
 	int m_iPK_Installation;
@@ -25,6 +27,7 @@ class UpdateEntArea
 		m_dwPK_Device_DCERouter;
 	map<int, pair<LevelOfMedia, bool> > m_mapRoom_Media;  // For a room, what type of media is in it, and bool=true when it's manually configure
 	map<int, LevelOfMedia > m_mapEnt_Area_Auto_Media;  // For an ent area that is automatic, what type of media is in it
+	map<int, MapShortcuts *> m_mapOrbiter_Shortcuts; // Map a room to it's shortcuts
 
 	CreateDevice *m_pCreateDevice;
 
@@ -60,6 +63,7 @@ public:
 
 	// This just calls all the default AddScenarios below
 	void AddDefaultScenarios();
+	void UpdateOrbiterShortcuts();  // Use m_mapOrbiter_Shortcuts to set the device data for all the orbiters
 
 	// Call these to add default scenarios to all rooms/EA's
 	void AddDefaultMediaScenarios();  // UpdateEntArea_Media.cpp
@@ -82,6 +86,7 @@ public:
 	void AddSingleCameraScenarios(Row_Room *pRow_Room,vector<Row_Device *> &vectRow_Device,CommandGroupArray &commandGroupArray);
 	void SetDefaultAnnouncementDevices();
 	void SetDefaultNotifications();
+	void AddShortcut(int PK_Room, char cCharacter, string sMessage);
 
 	// Helper functions for events
 	Row_EventHandler *CreateGenericEventHandler(CommandGroupArray &commandGroupArray,int PK_Template,int Parm1,int Parm2,string sDescription,int PK_Event);

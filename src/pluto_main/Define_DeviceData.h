@@ -176,6 +176,7 @@
 #define DEVICEDATA_Spare_CONST 202
 #define DEVICEDATA_Supports_NPOT_Textures_CONST 203
 #define DEVICEDATA_New_Add_CONST 204
+#define DEVICEDATA_Shortcut_CONST 205
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

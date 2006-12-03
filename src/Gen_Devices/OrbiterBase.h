@@ -345,6 +345,14 @@ public:
 			return (m_mapParameters[DEVICEDATA_Get_Time_Code_for_Media_CONST]=="1" ? true : false);
 	}
 
+	string Get_Shortcut()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Shortcut_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Shortcut_CONST];
+	}
+
 };
 
 
@@ -482,6 +490,7 @@ public:
 	int DATA_Get_Listen_Port() { return GetData()->Get_Listen_Port(); }
 	int DATA_Get_PK_Screen() { return GetData()->Get_PK_Screen(); }
 	bool DATA_Get_Get_Time_Code_for_Media() { return GetData()->Get_Get_Time_Code_for_Media(); }
+	string DATA_Get_Shortcut() { return GetData()->Get_Shortcut(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server
@@ -564,6 +573,7 @@ public:
 	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Active_Application(string sName,int iPK_Screen,string sIdentifier,int iPK_Screen_GoTo,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Active_Application(string *sName,int *iPK_Screen,string *sIdentifier,int *iPK_Screen_GoTo,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Execute_Shortcut(int iValue,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -2731,6 +2741,32 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Get_Active_Application(&sName,&iPK_Screen,&sIdentifier,&iPK_Screen_GoTo,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Execute_Shortcut_CONST:
+					{
+						string sCMD_Result="OK";
+						int iValue=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Value_CONST].c_str());
+						CMD_Execute_Shortcut(iValue,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Execute_Shortcut(iValue,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
