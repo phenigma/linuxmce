@@ -142,6 +142,15 @@
 				RelativePath=".\Table_Disc_Users.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Download.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_DownloadSource.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Download_Attribute.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_File.cpp">
 			</File>
 			<File
@@ -185,6 +194,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_Picture_Disc.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Picture_Download.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_Picture_File.cpp">

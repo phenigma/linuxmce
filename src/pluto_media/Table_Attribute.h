@@ -144,6 +144,7 @@ void psc_restrict_setNull(bool val);
 		// Return the rows in other tables with foreign keys pointing here
 		void CoverArtScan_FK_Attribute_getrows(vector <class Row_CoverArtScan*> *rows);
 void Disc_Attribute_FK_Attribute_getrows(vector <class Row_Disc_Attribute*> *rows);
+void Download_Attribute_FK_Attribute_getrows(vector <class Row_Download_Attribute*> *rows);
 void File_Attribute_FK_Attribute_getrows(vector <class Row_File_Attribute*> *rows);
 void LongAttribute_FK_Attribute_getrows(vector <class Row_LongAttribute*> *rows);
 void Picture_Attribute_FK_Attribute_getrows(vector <class Row_Picture_Attribute*> *rows);

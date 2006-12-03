@@ -33,6 +33,9 @@ tblCoverArtScanEntry=NULL;
 tblDisc=NULL;
 tblDisc_Attribute=NULL;
 tblDisc_Users=NULL;
+tblDownload=NULL;
+tblDownloadSource=NULL;
+tblDownload_Attribute=NULL;
 tblFile=NULL;
 tblFileFormat=NULL;
 tblFile_Attribute=NULL;
@@ -48,6 +51,7 @@ tblMediaType_MediaSubType=NULL;
 tblPicture=NULL;
 tblPicture_Attribute=NULL;
 tblPicture_Disc=NULL;
+tblPicture_Download=NULL;
 tblPicture_File=NULL;
 tblPlaylist=NULL;
 tblPlaylistEntry=NULL;
@@ -94,6 +98,15 @@ if( tblDisc_Attribute!=NULL )
 if( tblDisc_Users!=NULL )
 	if( !Commit_Disc_Users(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
+if( tblDownload!=NULL )
+	if( !Commit_Download(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblDownloadSource!=NULL )
+	if( !Commit_DownloadSource(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblDownload_Attribute!=NULL )
+	if( !Commit_Download_Attribute(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblFile!=NULL )
 	if( !Commit_File(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
@@ -138,6 +151,9 @@ if( tblPicture_Attribute!=NULL )
 		bResult=false;
 if( tblPicture_Disc!=NULL )
 	if( !Commit_Picture_Disc(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblPicture_Download!=NULL )
+	if( !Commit_Picture_Download(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
 if( tblPicture_File!=NULL )
 	if( !Commit_Picture_File(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
@@ -189,6 +205,9 @@ DeleteTable_CoverArtScanEntry();
 DeleteTable_Disc();
 DeleteTable_Disc_Attribute();
 DeleteTable_Disc_Users();
+DeleteTable_Download();
+DeleteTable_DownloadSource();
+DeleteTable_Download_Attribute();
 DeleteTable_File();
 DeleteTable_FileFormat();
 DeleteTable_File_Attribute();
@@ -204,6 +223,7 @@ DeleteTable_MediaType_MediaSubType();
 DeleteTable_Picture();
 DeleteTable_Picture_Attribute();
 DeleteTable_Picture_Disc();
+DeleteTable_Picture_Download();
 DeleteTable_Picture_File();
 DeleteTable_Playlist();
 DeleteTable_PlaylistEntry();

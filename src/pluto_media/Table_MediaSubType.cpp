@@ -19,6 +19,7 @@ using namespace std;
 #include "Table_MediaSubType.h"
 
 #include "Table_Disc.h"
+#include "Table_Download.h"
 #include "Table_File.h"
 #include "Table_MediaType_MediaSubType.h"
 
@@ -910,6 +911,13 @@ void Row_MediaSubType::Disc_FK_MediaSubType_getrows(vector <class Row_Disc*> *ro
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Disc *pTable = table->database->Disc_get();
+pTable->GetRows("`FK_MediaSubType`=" + StringUtils::itos(m_PK_MediaSubType),rows);
+}
+void Row_MediaSubType::Download_FK_MediaSubType_getrows(vector <class Row_Download*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Download *pTable = table->database->Download_get();
 pTable->GetRows("`FK_MediaSubType`=" + StringUtils::itos(m_PK_MediaSubType),rows);
 }
 void Row_MediaSubType::File_FK_MediaSubType_getrows(vector <class Row_File*> *rows)

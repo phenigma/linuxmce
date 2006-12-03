@@ -21,6 +21,7 @@ using namespace std;
 
 #include "Table_CoverArtScan.h"
 #include "Table_Disc_Attribute.h"
+#include "Table_Download_Attribute.h"
 #include "Table_File_Attribute.h"
 #include "Table_LongAttribute.h"
 #include "Table_Picture_Attribute.h"
@@ -928,6 +929,13 @@ void Row_Attribute::Disc_Attribute_FK_Attribute_getrows(vector <class Row_Disc_A
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Disc_Attribute *pTable = table->database->Disc_Attribute_get();
+pTable->GetRows("`FK_Attribute`=" + StringUtils::itos(m_PK_Attribute),rows);
+}
+void Row_Attribute::Download_Attribute_FK_Attribute_getrows(vector <class Row_Download_Attribute*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Download_Attribute *pTable = table->database->Download_Attribute_get();
 pTable->GetRows("`FK_Attribute`=" + StringUtils::itos(m_PK_Attribute),rows);
 }
 void Row_Attribute::File_Attribute_FK_Attribute_getrows(vector <class Row_File_Attribute*> *rows)

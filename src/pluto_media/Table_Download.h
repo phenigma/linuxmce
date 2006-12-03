@@ -1,10 +1,10 @@
-#ifndef __Table_MediaSubType_H__
-#define __Table_MediaSubType_H__
+#ifndef __Table_Download_H__
+#define __Table_Download_H__
 
 #include "TableRow.h"
 #include "Database_pluto_media.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
-#include "Define_MediaSubType.h"
+#include "Define_Download.h"
 #include "SerializeClass/SerializeClass.h"
 
 // If we declare the maps locally, the compiler will create multiple copies of them
@@ -15,33 +15,33 @@
 class DECLSPECIFIER TableRow;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Table_MediaSubType : public TableBase , SingleLongKeyBase
+class DECLSPECIFIER Table_Download : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_media *database;
 	struct Key;	//forward declaration
 	
 public:
-	Table_MediaSubType(Database_pluto_media *pDatabase):database(pDatabase)
+	Table_Download(Database_pluto_media *pDatabase):database(pDatabase)
 	{
 	};
-	~Table_MediaSubType();
+	~Table_Download();
 
 private:		
-	friend class Row_MediaSubType;
+	friend class Row_Download;
 	struct Key
 	{
-		friend class Row_MediaSubType;
-		long int pk_PK_MediaSubType;
+		friend class Row_Download;
+		long int pk_PK_Download;
 
 		
-		Key(long int in_PK_MediaSubType);
+		Key(long int in_PK_Download);
 	
-		Key(class Row_MediaSubType *pRow);
+		Key(class Row_Download *pRow);
 	};
 	struct Key_Less
 	{			
-		bool operator()(const Table_MediaSubType::Key &key1, const Table_MediaSubType::Key &key2) const;
+		bool operator()(const Table_Download::Key &key1, const Table_Download::Key &key2) const;
 	};	
 
 	
@@ -54,32 +54,35 @@ public:
 	// the rows since they will be re-attempted.  If you set either flag to true, the failed
 	// row can be deleted.  Use with caution since your pointers become invalid!
 	bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);
-	bool GetRows(string where_statement,vector<class Row_MediaSubType*> *rows);
-	class Row_MediaSubType* AddRow();
+	bool GetRows(string where_statement,vector<class Row_Download*> *rows);
+	class Row_Download* AddRow();
 	Database_pluto_media *Database_pluto_media_get() { return database; }
 	
 		
-	class Row_MediaSubType* GetRow(long int in_PK_MediaSubType);
+	class Row_Download* GetRow(long int in_PK_Download);
 	
 
 private:	
 	
 		
-	class Row_MediaSubType* FetchRow(SingleLongKey &key);
+	class Row_Download* FetchRow(SingleLongKey &key);
 		
 			
 };
 
-class DECLSPECIFIER Row_MediaSubType : public TableRow, public SerializeClass
+class DECLSPECIFIER Row_Download : public TableRow, public SerializeClass
 	{
-		friend struct Table_MediaSubType::Key;
-		friend class Table_MediaSubType;
+		friend struct Table_Download::Key;
+		friend class Table_Download;
 	private:
-		Table_MediaSubType *table;
+		Table_Download *table;
 		
-		long int m_PK_MediaSubType;
-string m_Description;
-string m_Define;
+		long int m_PK_Download;
+long int m_FK_DownloadSource;
+long int m_EK_MediaType;
+long int m_FK_MediaSubType;
+long int m_FK_FileFormat;
+string m_MRL;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -87,12 +90,15 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[9];
+		bool is_null[12];
 	
 	public:
-		long int PK_MediaSubType_get();
-string Description_get();
-string Define_get();
+		long int PK_Download_get();
+long int FK_DownloadSource_get();
+long int EK_MediaType_get();
+long int FK_MediaSubType_get();
+long int FK_FileFormat_get();
+string MRL_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -101,9 +107,12 @@ string psc_mod_get();
 long int psc_restrict_get();
 
 		
-		void PK_MediaSubType_set(long int val);
-void Description_set(string val);
-void Define_set(string val);
+		void PK_Download_set(long int val);
+void FK_DownloadSource_set(long int val);
+void EK_MediaType_set(long int val);
+void FK_MediaSubType_set(long int val);
+void FK_FileFormat_set(long int val);
+void MRL_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -112,7 +121,9 @@ void psc_mod_set(string val);
 void psc_restrict_set(long int val);
 
 		
-		bool Define_isNull();
+		bool FK_MediaSubType_isNull();
+bool FK_FileFormat_isNull();
+bool MRL_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -120,7 +131,9 @@ bool psc_frozen_isNull();
 bool psc_restrict_isNull();
 
 			
-		void Define_setNull(bool val);
+		void FK_MediaSubType_setNull(bool val);
+void FK_FileFormat_setNull(bool val);
+void MRL_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -131,32 +144,36 @@ void psc_restrict_setNull(bool val);
 		void Delete();
 		void Reload();		
 	
-		Row_MediaSubType(Table_MediaSubType *pTable);
+		Row_Download(Table_Download *pTable);
 	
 		bool IsDeleted(){return is_deleted;};
 		bool IsModified(){return is_modified;};			
-		class Table_MediaSubType *Table_MediaSubType_get() { return table; };
+		class Table_Download *Table_Download_get() { return table; };
 
 		// Return the rows for foreign keys 
-		
+		class Row_DownloadSource* FK_DownloadSource_getrow();
+class Row_MediaSubType* FK_MediaSubType_getrow();
+class Row_FileFormat* FK_FileFormat_getrow();
+
 
 		// Return the rows in other tables with foreign keys pointing here
-		void Disc_FK_MediaSubType_getrows(vector <class Row_Disc*> *rows);
-void Download_FK_MediaSubType_getrows(vector <class Row_Download*> *rows);
-void File_FK_MediaSubType_getrows(vector <class Row_File*> *rows);
-void MediaType_MediaSubType_FK_MediaSubType_getrows(vector <class Row_MediaType_MediaSubType*> *rows);
+		void Download_Attribute_FK_Download_getrows(vector <class Row_Download_Attribute*> *rows);
+void Picture_Download_FK_Download_getrows(vector <class Row_Picture_Download*> *rows);
 
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_MediaSubType+ m_Description+ m_Define+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Download+ m_FK_DownloadSource+ m_EK_MediaType+ m_FK_MediaSubType+ m_FK_FileFormat+ m_MRL+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string PK_MediaSubType_asSQL();
-string Description_asSQL();
-string Define_asSQL();
+		string PK_Download_asSQL();
+string FK_DownloadSource_asSQL();
+string EK_MediaType_asSQL();
+string FK_MediaSubType_asSQL();
+string FK_FileFormat_asSQL();
+string MRL_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

@@ -14,6 +14,9 @@ Table_CoverArtScanEntry.cpp \
 Table_Disc.cpp \
 Table_Disc_Attribute.cpp \
 Table_Disc_Users.cpp \
+Table_Download.cpp \
+Table_DownloadSource.cpp \
+Table_Download_Attribute.cpp \
 Table_File.cpp \
 Table_FileFormat.cpp \
 Table_File_Attribute.cpp \
@@ -29,6 +32,7 @@ Table_MediaType_MediaSubType.cpp \
 Table_Picture.cpp \
 Table_Picture_Attribute.cpp \
 Table_Picture_Disc.cpp \
+Table_Picture_Download.cpp \
 Table_Picture_File.cpp \
 Table_Playlist.cpp \
 Table_PlaylistEntry.cpp \

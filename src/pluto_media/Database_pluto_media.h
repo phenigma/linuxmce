@@ -42,6 +42,12 @@ class Table_Disc_Attribute* tblDisc_Attribute;
 bool Commit_Disc_Attribute(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Disc_Users* tblDisc_Users;
 bool Commit_Disc_Users(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_Download* tblDownload;
+bool Commit_Download(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_DownloadSource* tblDownloadSource;
+bool Commit_DownloadSource(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_Download_Attribute* tblDownload_Attribute;
+bool Commit_Download_Attribute(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_File* tblFile;
 bool Commit_File(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_FileFormat* tblFileFormat;
@@ -72,6 +78,8 @@ class Table_Picture_Attribute* tblPicture_Attribute;
 bool Commit_Picture_Attribute(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Picture_Disc* tblPicture_Disc;
 bool Commit_Picture_Disc(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_Picture_Download* tblPicture_Download;
+bool Commit_Picture_Download(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Picture_File* tblPicture_File;
 bool Commit_Picture_File(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Playlist* tblPlaylist;
@@ -105,6 +113,9 @@ class Table_CoverArtScanEntry* CoverArtScanEntry_get() { if( !tblCoverArtScanEnt
 class Table_Disc* Disc_get() { if( !tblDisc ) CreateTable_Disc(); return tblDisc; }
 class Table_Disc_Attribute* Disc_Attribute_get() { if( !tblDisc_Attribute ) CreateTable_Disc_Attribute(); return tblDisc_Attribute; }
 class Table_Disc_Users* Disc_Users_get() { if( !tblDisc_Users ) CreateTable_Disc_Users(); return tblDisc_Users; }
+class Table_Download* Download_get() { if( !tblDownload ) CreateTable_Download(); return tblDownload; }
+class Table_DownloadSource* DownloadSource_get() { if( !tblDownloadSource ) CreateTable_DownloadSource(); return tblDownloadSource; }
+class Table_Download_Attribute* Download_Attribute_get() { if( !tblDownload_Attribute ) CreateTable_Download_Attribute(); return tblDownload_Attribute; }
 class Table_File* File_get() { if( !tblFile ) CreateTable_File(); return tblFile; }
 class Table_FileFormat* FileFormat_get() { if( !tblFileFormat ) CreateTable_FileFormat(); return tblFileFormat; }
 class Table_File_Attribute* File_Attribute_get() { if( !tblFile_Attribute ) CreateTable_File_Attribute(); return tblFile_Attribute; }
@@ -120,6 +131,7 @@ class Table_MediaType_MediaSubType* MediaType_MediaSubType_get() { if( !tblMedia
 class Table_Picture* Picture_get() { if( !tblPicture ) CreateTable_Picture(); return tblPicture; }
 class Table_Picture_Attribute* Picture_Attribute_get() { if( !tblPicture_Attribute ) CreateTable_Picture_Attribute(); return tblPicture_Attribute; }
 class Table_Picture_Disc* Picture_Disc_get() { if( !tblPicture_Disc ) CreateTable_Picture_Disc(); return tblPicture_Disc; }
+class Table_Picture_Download* Picture_Download_get() { if( !tblPicture_Download ) CreateTable_Picture_Download(); return tblPicture_Download; }
 class Table_Picture_File* Picture_File_get() { if( !tblPicture_File ) CreateTable_Picture_File(); return tblPicture_File; }
 class Table_Playlist* Playlist_get() { if( !tblPlaylist ) CreateTable_Playlist(); return tblPlaylist; }
 class Table_PlaylistEntry* PlaylistEntry_get() { if( !tblPlaylistEntry ) CreateTable_PlaylistEntry(); return tblPlaylistEntry; }
@@ -146,6 +158,9 @@ void CreateTable_CoverArtScanEntry();
 void CreateTable_Disc();
 void CreateTable_Disc_Attribute();
 void CreateTable_Disc_Users();
+void CreateTable_Download();
+void CreateTable_DownloadSource();
+void CreateTable_Download_Attribute();
 void CreateTable_File();
 void CreateTable_FileFormat();
 void CreateTable_File_Attribute();
@@ -161,6 +176,7 @@ void CreateTable_MediaType_MediaSubType();
 void CreateTable_Picture();
 void CreateTable_Picture_Attribute();
 void CreateTable_Picture_Disc();
+void CreateTable_Picture_Download();
 void CreateTable_Picture_File();
 void CreateTable_Playlist();
 void CreateTable_PlaylistEntry();
@@ -181,6 +197,9 @@ void DeleteTable_CoverArtScanEntry();
 void DeleteTable_Disc();
 void DeleteTable_Disc_Attribute();
 void DeleteTable_Disc_Users();
+void DeleteTable_Download();
+void DeleteTable_DownloadSource();
+void DeleteTable_Download_Attribute();
 void DeleteTable_File();
 void DeleteTable_FileFormat();
 void DeleteTable_File_Attribute();
@@ -196,6 +215,7 @@ void DeleteTable_MediaType_MediaSubType();
 void DeleteTable_Picture();
 void DeleteTable_Picture_Attribute();
 void DeleteTable_Picture_Disc();
+void DeleteTable_Picture_Download();
 void DeleteTable_Picture_File();
 void DeleteTable_Playlist();
 void DeleteTable_PlaylistEntry();
