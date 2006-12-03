@@ -589,13 +589,13 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 	if( event.type != Orbiter::Event::BUTTON_DOWN && event.type != Orbiter::Event::BUTTON_UP )
 		return false;
 
-	event.data.button.m_iPK_Button = TranslateXKeyCodeToPlutoButton(event.data.button.m_iKeycode);
+	event.data.button.m_iPK_Button = TranslateXKeyCodeToPlutoButton(event.data.button.m_iKeycode,event.type);
 	return false;
 }
 
-int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode)
+int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode,int Type)
 {
-	/* event.type == BUTTON_DOWN or BUTTON_UP */
+	/* Type == BUTTON_DOWN or BUTTON_UP */
 
 	int iPK_Button=0;
     XKeyEvent  kevent;
@@ -614,18 +614,18 @@ int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode)
     {
         case XK_Shift_L:   case XK_Shift_R:
 			iPK_Button = BUTTON_left_shift_CONST;
-			g_pPlutoLogger->Write(LV_STATUS, "shift %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up");
-            m_bShiftDown = ( event.type == Orbiter::Event::BUTTON_DOWN );
+			g_pPlutoLogger->Write(LV_STATUS, "shift %s", Type == Orbiter::Event::BUTTON_DOWN ? "down" : "up");
+            m_bShiftDown = ( Type == Orbiter::Event::BUTTON_DOWN );
 			m_bShiftDownOnScreenKeyboard = false;
             break;
         case XK_Control_L:    case XK_Control_R:
-            m_bControlDown = ( event.type == Orbiter::Event::BUTTON_DOWN );
+            m_bControlDown = ( Type == Orbiter::Event::BUTTON_DOWN );
             break;
         case XK_Alt_L:    case XK_Alt_R:
-            m_bAltDown = ( event.type == Orbiter::Event::BUTTON_DOWN );
+            m_bAltDown = ( Type == Orbiter::Event::BUTTON_DOWN );
             break;
-        case XK_Caps_Lock:
-            if ( event.type == Orbiter::Event::BUTTON_UP )
+	case XK_Caps_Lock:
+            if ( Type == Orbiter::Event::BUTTON_UP )
                 m_bCapsLock = ! m_bCapsLock;
             break;
 
@@ -634,9 +634,9 @@ int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode)
         case XK_F3:     iPK_Button = BUTTON_F3_CONST; break;
         case XK_F4:     iPK_Button = BUTTON_F4_CONST; break;
         case XK_F5:     iPK_Button = BUTTON_F5_CONST; break;
-		case XK_F6:     iPK_Button = BUTTON_F6_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F6 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
-		case XK_F7:     iPK_Button = BUTTON_F7_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F7 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
-		case XK_F8:     iPK_Button = BUTTON_F8_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F8 %s", event.type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
+		case XK_F6:     iPK_Button = BUTTON_F6_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F6 %s", Type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
+		case XK_F7:     iPK_Button = BUTTON_F7_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F7 %s", Type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
+		case XK_F8:     iPK_Button = BUTTON_F8_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F8 %s", Type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
 
         case XK_0: case XK_KP_0:
             if(m_bShiftDown)
@@ -760,7 +760,7 @@ int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode)
     }
 
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "The keysym was %d, the final event type %d, button %d", keysym, event.type, iPK_Button);
+    g_pPlutoLogger->Write(LV_STATUS, "The keysym was %d, the final Type %d, button %d", keysym, Type, iPK_Button);
 #endif
 
 	return iPK_Button;

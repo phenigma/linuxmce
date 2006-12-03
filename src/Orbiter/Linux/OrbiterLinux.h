@@ -128,7 +128,7 @@ public:
     void GrabKeyboard(bool bEnable);
 
 	virtual bool PreprocessEvent(Orbiter::Event &event);
-	int TranslateXKeyCodeToPlutoButton(int Keycode);
+	int TranslateXKeyCodeToPlutoButton(int Keycode,int Type);
 
 	virtual void X_LockDisplay();
     virtual void X_UnlockDisplay();
