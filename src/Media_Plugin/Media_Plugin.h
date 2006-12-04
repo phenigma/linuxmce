@@ -521,6 +521,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying pRemoteControlSet_d
 			if( !pRemoteControlSet )
 				return;
 
+g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use alt screens %d alt osd %d alt remote %d",
+					  (int) pMediaStream->m_bUseAltScreens,pRemoteControlSet->m_iPK_Screen_Alt_OSD,pRemoteControlSet->m_iPK_Screen_Alt_Remote);
+
 			sRemotes = StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_Screen_Alt_Remote ? pRemoteControlSet->m_iPK_Screen_Alt_Remote : pRemoteControlSet->m_iPK_Screen_Remote) + ","
 				+ StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_Remote_Popup) + ","   // ON UI2 the leftmost popup menu on the main menu
 				+ StringUtils::itos(pRemoteControlSet->m_iPK_Screen_FileList) + ","

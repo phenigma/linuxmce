@@ -307,6 +307,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 			Sleep(500);
 		
 		int i = PlutoMediaFile_.GetPicAttribute(PK_File);
+		g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory File %d i %d Picture %d",PK_File,i,PK_Picture);
 		if(!PK_Picture)
 			PK_Picture = i;
 
@@ -326,6 +327,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 				Row_Picture_Attribute *pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->GetRow(PK_Picture,pRow_Attribute->PK_Attribute_get());
 				if( !pRow_Picture_Attribute )
 				{
+		g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory Adding Picture_Attribute File %d Picture %d attr %d size %d %s",PK_File,PK_Picture,pRow_Attribute->PK_Attribute_get(),(int) vectRow_Attribute.size(),sSql.c_str());
 					pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->AddRow();
 					pRow_Picture_Attribute->FK_Picture_set(PK_Picture);
 					pRow_Picture_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());

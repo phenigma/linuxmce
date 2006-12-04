@@ -171,6 +171,9 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const c
 
 void IRReceiverBase::StopRepeatCode()
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::StopRepeatCode");
+#endif
 	m_bRepeatKey=false;
 	if( m_pt_Repeat )
 	{

@@ -1001,12 +1001,12 @@ g_pPlutoLogger->Write( LV_STATUS, "Orbiter::NeedToChangeScreens calling timeout"
 		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->GetObj(), pe_ALL );
 	}
 
+	m_cCurrentScreen=m_pScreenHistory_Current->GetObj()->m_cScreenType;
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "Orbiter::NeedToChangeScreens Changing screen to %s ir %d type %c",
-		m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ), m_dwPK_Device_LocalOsdIRReceiver, m_pScreenHistory_Current->GetObj()->m_cScreenType);
+		m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ), m_dwPK_Device_LocalOsdIRReceiver, m_cCurrentScreen);
 #endif
 
-	m_cCurrentScreen=m_pScreenHistory_Current->GetObj()->m_cScreenType;
 	if( m_dwPK_Device_LocalOsdIRReceiver )
 	{
 		DCE::CMD_Set_Screen_Type CMD_Set_Screen_Type(m_dwPK_Device,m_dwPK_Device_LocalOsdIRReceiver,m_cCurrentScreen);
@@ -2605,8 +2605,9 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 {
 	Orbiter::Event *pEvent = (Orbiter::Event*)eventData;
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing type %d key %d",
-					  pEvent->type, (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP ? pEvent->data.button.m_iPK_Button : -999));
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing type %d key %d keycode %d",
+					  pEvent->type, (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP ? pEvent->data.button.m_iPK_Button : -999),
+					  (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP ? pEvent->data.button.m_iKeycode : -999));
 #endif
 
 	map< pair<int,int>,pair<int,int> >::iterator it = m_mapEventToSubstitute.find( make_pair<int,int> (pEvent->type,pEvent->data.button.m_iKeycode) );
@@ -2703,7 +2704,7 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		if( it!=m_mapScanCodeToRemoteButton.end() )
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s",it->second.c_str());
+			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s repeat %s",it->second.c_str(),sRepeatKey.c_str());
 #endif
 			ReceivedCode(0,it->second.c_str(),sRepeatKey.c_str());
 			return;
