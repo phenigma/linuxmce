@@ -123,14 +123,37 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				$pos++;
 				$out.='
 						<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#FFFFFF').'">
-							<td><b>'.$rowAttributes['Description'].'</b></td>
-							<td><a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties">'.$rowAttributes['Name'].'</a></td>
-							<td align="center"><a href="#" onClick="if(confirm(\''.$TEXT_DELETE_ATTRIBUTE_FROM_FILE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=delete&dAtr='.$rowAttributes['PK_Attribute'].'&dpath='.urlencode(stripslashes($rowFile['Path'])).'\'">'.$TEXT_REMOVE_CONST.'</a></td>
+							<td width="100"><b>'.$rowAttributes['Description'].'</b></td>
+							<td>'.$rowAttributes['Name'].'</td>
+							<td width="100" align="center"><a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties">'.$TEXT_EDIT_CONST.'</a> <a href="#" onClick="if(confirm(\''.$TEXT_DELETE_ATTRIBUTE_FROM_FILE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=delete&dAtr='.$rowAttributes['PK_Attribute'].'&dpath='.urlencode(stripslashes($rowFile['Path'])).'\'">'.$TEXT_REMOVE_CONST.'</a></td>
 						</tr>';
 			}
 			$out.='
 				</table></td>
 			</tr>			
+			<tr bgcolor="#EBEFF9">
+				<td valign="top"><B>'.$TEXT_LONG_ATTRIBUTES_CONST.':</B></td>
+				<td><table width="100%">';
+			$queryAttributes='
+				SELECT LongAttribute.*, AttributeType.Description 
+				FROM LongAttribute
+				INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
+				WHERE FK_File=?';
+			$resAttributes=$mediadbADO->Execute($queryAttributes,$fileID);
+			$pos=0;
+			while($rowAttributes=$resAttributes->FetchRow()){
+				$pos++;
+				$out.='
+						<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#FFFFFF').'">
+							<td width="100"><b>'.$rowAttributes['Description'].'</b></td>
+							<td>'.nl2br($rowAttributes['Text']).'</td>
+							<td width="100" align="center"><a href="index.php?section=editLongAttribute&laID='.$rowAttributes['PK_LongAttribute'].'&fileID='.$fileID.'">'.$TEXT_EDIT_CONST.'</a> <a href="#" onClick="if(confirm(\''.$TEXT_DELETE_ATTRIBUTE_FROM_FILE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=delete&dLAtr='.$rowAttributes['PK_LongAttribute'].'&dpath='.urlencode(stripslashes($rowFile['Path'])).'\'">'.$TEXT_REMOVE_CONST.'</a></td>
+						</tr>';
+			}
+			$out.='
+				</table></td>
+			</tr>			
+			
 			<tr>
 				<td colspan="2" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">
 				<input type="hidden" name="oldPath" value="'.$rowFile['Path'].'">
@@ -213,6 +236,17 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				</tr>';
 			}
 			$out.='
+			<tr>
+				<td colspan="2">&nbsp;</td>
+			</tr>
+			<tr>
+				<td><B>'.$TEXT_LONG_ATTRIBUTE_TYPE.':</B></td>
+				<td><B>'.$TEXT_ADD_LONG_ATTRIBUTE_CONST.':</B></td>
+			</tr>
+			<tr>
+				<td valign="top">'.pulldownFromArray($attributeTypes,'longAttributeType',0).'</td>
+				<td valign="top"><textarea name="longAttributeText"></textarea> <input type="submit" class="button" name="addLA" value="'.$TEXT_ADD_CONST.'"></td>				
+			</tr>	
 		</table>';
 		$out.='
 		</form>';
@@ -242,6 +276,15 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			@unlink($GLOBALS['mediaPicsPath'].$toDelete.'_tn.jpg');
 		}
 
+		if(isset($_POST['addLA'])){
+			$longAttributeType=(int)@$_POST['longAttributeType'];
+			$longAttributeText=cleanString($_POST['longAttributeText']);
+			if($longAttributeType!=0 && $longAttributeType!=''){
+				$mediadbADO->Execute('INSERT INTO LongAttribute (FK_File,FK_AttributeType,Text) VALUES (?,?,?)',array($fileID,$longAttributeType,$longAttributeText));
+			}
+		}
+
+		
 		if(isset($_POST['add'])){
 			$newAttributeType=$_POST['newAttributeType'];
 			$newAttributeName=cleanString($_POST['newAttributeName']);
@@ -290,6 +333,18 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			exit();		
 		}
 	
+		if(isset($_REQUEST['dLAtr'])){
+			$deleteAttribute=$_REQUEST['dLAtr'];
+			$mediadbADO->Execute('DELETE FROM LongAttribute WHERE PK_LongAttribute=?',array($deleteAttribute));
+
+			$dpath=$_REQUEST['dpath'];
+			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -w -d "'.$dpath.'"';
+			exec($cmd);
+			
+			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_ATTRIBUTE_DELETED_FROM_FILE_CONST.': '.$cmd);	
+			exit();		
+		}
+		
 		$path=stripslashes(@$_POST['Path']);
 		$fileName=@$_POST['filename'];
 		$newFilePath=$path.'/'.$fileName;
@@ -337,7 +392,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			// update pics urls
 			$picsArray=explode(',',$_POST['picsArray']);
 			foreach ($picsArray AS $pic){
-				$picUrl=cleanString($_POST['url_'.$pic]);
+				$picUrl=cleanString(@$_POST['url_'.$pic]);
 				$mediadbADO->Execute('UPDATE Picture SET URL=? WHERE PK_Picture=?',array($picUrl,$pic));
 			}
 			

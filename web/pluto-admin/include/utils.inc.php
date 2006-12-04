@@ -5991,10 +5991,12 @@ function deleteScans($id,$mediadbADO){
 
 function syncAttributes($table,$itemValue,$id,$mediadbADO){
 	$attributeTypes=getAssocArray('AttributeType','Description','PK_AttributeType',$mediadbADO);
-	
-	$existingAttributes=getAssocArray('Attribute','AttributeType.Description AS Description','Attribute.Name',$mediadbADO,'INNER JOIN '.$table.'_Attribute ON FK_Attribute=PK_Attribute INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType WHERE FK_'.$table.'='.$itemValue);
-	$amazonAttributes=getAssocArray('CoverArtScanEntry','PK_CoverArtScanEntry','Attributes',$mediadbADO,'WHERE PK_CoverArtScanEntry='.$id);
+	$existingAttributes=getAssocArray($table.'_Attribute','Attribute.Name','FK_Attribute',$mediadbADO,'INNER JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_'.$table.'='.$itemValue);
+	$combined=getAssocArray($table.'_Attribute','Attribute.Name','FK_Attribute',$mediadbADO,'INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute INNER JOIN '.$table.' ON FK_'.$table.'=PK_'.$table.' INNER JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType=Attribute.FK_AttributeType WHERE FK_Attribute IN ('.join(',',array_values($existingAttributes)).') AND CombineAsOne=1');
 
+	
+	$allAttributes=getAssocArray('Attribute','Attribute.Name','PK_Attribute',$mediadbADO);
+	$amazonAttributes=getAssocArray('CoverArtScanEntry','PK_CoverArtScanEntry','Attributes',$mediadbADO,'WHERE PK_CoverArtScanEntry='.$id);
 	if(count($amazonAttributes)==0){
 		return '';		
 	}
@@ -6006,12 +6008,22 @@ function syncAttributes($table,$itemValue,$id,$mediadbADO){
 		if(count($parts)==2){
 			$atype=str_replace(array('Average Customer Review', 'Actor','Directors','Artist'),array('Rating', 'Performer','Director','Performer'),$parts[0]);
 			$aname=$parts[1];
-
-			if(!in_array($atype,array_keys($existingAttributes)) && isset($attributeTypes[$atype])){
-
-				$mediadbADO->Execute('INSERT INTO Attribute (FK_AttributeType,Name) VALUES (?,?)',array($attributeTypes[$atype],$aname));
-				$aid=$mediadbADO->Insert_Id();
-				$mediadbADO->Execute('INSERT INTO '.$table.'_Attribute (FK_'.$table.',FK_Attribute) VALUES (?,?)',array($itemValue,$aid));
+			
+			if(isset($attributeTypes[$atype])){
+				// if the attribute doesn't exist at all, add it
+				if(!isset($allAttributes[$aname])){
+					$mediadbADO->Execute('INSERT INTO Attribute (FK_AttributeType,Name) VALUES (?,?)',array($attributeTypes[$atype],$aname));
+					$aid=$mediadbADO->Insert_Id();
+				}else{
+					// if it's CombineAsOne=1 add it
+					$noAdd=(isset($combined[$aname]))?1:0;
+					$aid=$allAttributes[$aname];
+				}
+	
+				if(!isset($existingAttributes[$aname]) && $noAdd==0){
+	
+					$mediadbADO->Execute('INSERT INTO '.$table.'_Attribute (FK_'.$table.',FK_Attribute) VALUES (?,?)',array($itemValue,$aid));
+				}
 			}
 		}
 	}

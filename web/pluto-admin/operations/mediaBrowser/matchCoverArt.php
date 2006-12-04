@@ -103,7 +103,7 @@ function formatScannedItems($scannedArray){
 
 	$pageLinks='';
 	for($i=1;$i<=$noPages;$i++){
-		$pageLinks.=($i==$page)?' '.$i.' ':' <a href="index.php?section=matchCoverArt?page='.$i.'">'.$i.'</a>';
+		$pageLinks.=($i==$page)?' '.$i.' ':' <a href="index.php?section=matchCoverArt&page='.$i.'">'.$i.'</a>';
 	} 
 	$out.='
 		<tr>

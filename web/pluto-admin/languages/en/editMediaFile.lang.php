@@ -27,4 +27,12 @@ $TEXT_GET_INFO_ON_AMAZON_CONST='Get Amazon attributes';
 $TEXT_SEARCH_PHRASE_CONST='Search phrase';
 $TEXT_SEARCH_OPTIONS_CONST='Search options';
 $TEXT_SEARCH_AMAZON_CONST='Search AMAZON';
+$TEXT_LONG_ATTRIBUTES_CONST='Long attributes';
+$TEXT_LONG_ATTRIBUTE_CONST='Long attribute';
+$TEXT_ADD_LONG_ATTRIBUTE_CONST='Add block of text';
+$TEXT_LONG_ATTRIBUTE_TYPE='Long attribute type';
+$TEXT_EDIT_LONGATTRIBUTE_CONST='Edit long attribute';
+$TEXT_ATTRIBUTE_TYPE_CONST='Attribute type';
+$TEXT_ATTRIBUTE_UPDATED_CONST='Attribute updated';
+$TEXT_TYPE_TEXT_REQUIRED_CONST='Both attribute type and attribute content are required.';
 ?>
