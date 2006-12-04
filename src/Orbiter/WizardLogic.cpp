@@ -29,7 +29,10 @@ bool WizardLogic::Setup()
 //	if( !MySQLConnect("192.168.2.133", "root", "", "pluto_main") )
 	if( !MySQLConnect(m_pOrbiter->m_sIPAddress, "root", "", "pluto_main") )
 #else
-	if( !MySQLConnect(m_pOrbiter->m_sIPAddress, "root", "", "pluto_main") )
+    const char *pMySqlHost = getenv("MySqlHost");
+	string sHost = pMySqlHost && strlen(pMySqlHost) ? pMySqlHost : m_pOrbiter->m_sIPAddress;
+	g_pPlutoLogger->Write(LV_STATUS,"WizardLogic::Setup using host %s (%p)",sHost.c_str(),pMySqlHost);
+	if( !MySQLConnect(sHost, "root", "", "pluto_main") )
 #endif
 		return false;
 
