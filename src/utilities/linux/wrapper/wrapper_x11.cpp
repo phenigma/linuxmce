@@ -488,8 +488,8 @@ Window X11wrapper::Window_Create(int nPosX, int nPosY, unsigned int nWidth, unsi
             );
 
 	//make it transparent
-	//unsigned int opacity = 0;
-	//XChangeProperty(GetDisplay(), window, XInternAtom(GetDisplay(), OPACITY, False), XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &opacity, 1L);
+	unsigned int opacity = 0;
+	XChangeProperty(GetDisplay(), window, XInternAtom(GetDisplay(), OPACITY, False), XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &opacity, 1L);
 	
         _COND_XBOOL_LOG_ERR_BREAK(window != 0);
     } while ((xcode = 0));
