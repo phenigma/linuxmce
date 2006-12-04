@@ -2605,9 +2605,12 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 {
 	Orbiter::Event *pEvent = (Orbiter::Event*)eventData;
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing type %d key %d keycode %d",
-					  pEvent->type, (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP ? pEvent->data.button.m_iPK_Button : -999),
-					  (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP ? pEvent->data.button.m_iKeycode : -999));
+	if( pEvent->type == Orbiter::Event::MOUSE_MOVE )
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing mouse x %d y %d",
+			pEvent->data.region.m_iX,pEvent->data.region.m_iY);
+	else
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing type %d key %d keycode %d",
+			pEvent->type, pEvent->data.button.m_iPK_Button, pEvent->data.button.m_iKeycode);
 #endif
 
 	map< pair<int,int>,pair<int,int> >::iterator it = m_mapEventToSubstitute.find( make_pair<int,int> (pEvent->type,pEvent->data.button.m_iKeycode) );
@@ -5162,6 +5165,9 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 // Do this is a separate function that will return false when it can't scroll anymore
 bool Orbiter::Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction)
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::Scroll_Grid %s/%s/%d",sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction);
+#endif
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 	PLUTO_SAFETY_LOCK( dng, m_DatagridMutex );  // Lock them in the same order as render screen
 	// todo 2.0?    NeedsUpdate( 2 ); // Moving grids is slow; take care of an animation if necessary

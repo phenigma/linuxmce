@@ -235,10 +235,18 @@ g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback
 							pEvent_cb && pEvent_cb->type==Orbiter::Event::MOUSE_MOVE )
 								pCallBackInfo->m_bStop=true;
 					}
-				}
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback queueing to orbiter   rrr");
+g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback queueing to orbiter mouse x %d y %d",
+					  pEvent->data.region.m_iX,pEvent->data.region.m_iY);
 #endif
+				}
+				else
+				{
+#ifdef DEBUG
+g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback queueing to orbiter button type %d key %d keycode %d",
+					  pEvent->type,pEvent->data.button.m_iPK_Button,pEvent->data.button.m_iKeycode);
+#endif
+				}
 				pRecordingHandler->m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
 			}
 	}

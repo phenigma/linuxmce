@@ -435,6 +435,16 @@ FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
     MYSQL_ROW row;
 	map<int,int>::iterator it;
     if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Sort ) )
+	{
+		// If we're looking for albums and there are none, just show the songs
+		if( result.r->row_count==0 && PK_AttributeType_Sort==ATTRIBUTETYPE_Album_CONST )
+		{
+			result.ClearResults();
+			sSQL_Sort = "SELECT PK_Attribute,Name,min(FK_Picture) AS FK_Picture FROM " + sTable + " JOIN " + sTable + "_Attribute ON FK_" + sTable + "=PK_" + sTable + " JOIN Attribute ON " + sTable + "_Attribute.FK_Attribute=PK_Attribute AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Song_CONST) "," TOSTRING(ATTRIBUTETYPE_Track_CONST) "," TOSTRING(ATTRIBUTETYPE_Title_CONST) ") LEFT JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=PK_Attribute WHERE IsDirectory=0 AND PK_" + sTable + " in (" + sPK_File_Or_Disc + ") GROUP BY PK_Attribute,Name";
+			if( (result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Sort ))==NULL )
+				return;
+		}
+
         while( ( row=mysql_fetch_row( result.r ) ) )
 		{
 			FileBrowserInfo *pFileBrowserInfo = new FileBrowserInfo(row[1],string("!A") + row[0],atoi(row[0]));
@@ -442,6 +452,7 @@ FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
 				pFileBrowserInfo->m_PK_Picture = atoi(row[2]);
 			pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);
 		}
+	}
 }
 
 void Media_Plugin::PopulateFileBrowserInfoForBookmark(MediaListGrid *pMediaListGrid,string &sPK_File,string &sPK_Disc)

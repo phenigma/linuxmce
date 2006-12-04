@@ -292,6 +292,11 @@ void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
 		}
 	}
 
+	if( Notch<0 )
+		Notch=0;
+	if( Notch>5 )
+		Notch=5;
+
 	m_iLastNotch=Notch;
 
 	int Frequency;

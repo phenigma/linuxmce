@@ -477,7 +477,9 @@ bool DesignObj_DataGrid::Scroll_Grid(string sRelative_Level, int iPK_Direction)
 			pObj_Datagrid->Scroll_Grid(sRelative_Level, iPK_Direction);
 		}
 	}
-g_pPlutoLogger->Write(LV_EVENTHANDLER,"Scrolled datagrid %s to row %d col %d",m_sGridID.c_str(),m_GridCurRow,m_GridCurCol);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_EVENTHANDLER,"Scrolled datagrid %s to row %d col %d",m_sGridID.c_str(),m_GridCurRow,m_GridCurCol);
+#endif
 	DataGridRenderer *pDataGridRenderer = dynamic_cast<DataGridRenderer *>(m_pObjectRenderer);
 	pDataGridRenderer->iPK_Direction = iPK_Direction;
 	pDataGridRenderer->StartAnimation = 1;
