@@ -4,10 +4,13 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 #include "DCE/Message.h"
+#include "Orbiter.h"
+
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
-ScreenHistory::ScreenHistory(int nPK_Screen, class ScreenHistory *pScreenHistory_Prior,Message *pMessage)
+ScreenHistory::ScreenHistory(int nPK_Screen, class ScreenHistory *pScreenHistory_Prior,Message *pMessage,Orbiter *pOrbiter)
 {
+	m_pOrbiter=pOrbiter;
 	m_nPK_Screen = nPK_Screen;
 	m_tTime = time(NULL);
 	m_pObj = NULL;
@@ -44,6 +47,7 @@ void ScreenHistory::SetObj(DesignObj_Orbiter *pObj)
 //-----------------------------------------------------------------------------------------------------
 void ScreenHistory::AddToHistory()
 {
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	m_listObjs.push_front(m_pObj);
 
 #ifdef DEBUG
@@ -54,11 +58,13 @@ void ScreenHistory::AddToHistory()
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHistory::HistoryEmpty()
 {
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	return m_listObjs.size() == 0;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHistory::PurgeHistory() 
 { 
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "ScreenHistory::PurgeHistory m_listObjs %d obj (size %d) - screen %d this: %p", 
 		m_pObj->m_iBaseObjectID, m_listObjs.size(), m_nPK_Screen, this);
@@ -78,6 +84,7 @@ void ScreenHistory::CantGoBack(bool bCantGoBack)
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHistory::GoBack()
 {
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	if( m_bCantGoBack )
 	{
 #ifdef DEBUG
@@ -110,6 +117,7 @@ bool ScreenHistory::GoBack()
 //-----------------------------------------------------------------------------------------------------
 string ScreenHistory::ToString()
 {
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	string sOutput;
 	sOutput += "ID:" + StringUtils::ltos(m_nPK_Screen) + (m_bCantGoBack ? " *no back*" : "") +  "(\"" + m_sID + "\" - ";
 
@@ -166,6 +174,7 @@ void ScreenHistory::PK_Screen(int nPK_Screen)
 void ScreenHistory::SaveContext(const map<int, string>& mapVariable,
 								const map<DesignObj_Orbiter *, bool>& mapVisibilityContext)
 {
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	g_pPlutoLogger->Write(LV_WARNING, "Saving context for screen %d / %p, object %s (%d variables, %d visibility status) ...", 
 		m_nPK_Screen, this, m_pObj->m_ObjectID.c_str(), mapVariable.size(), mapVisibilityContext.size());
 
@@ -194,6 +203,7 @@ void ScreenHistory::SaveContext(const map<int, string>& mapVariable,
 void ScreenHistory::RestoreContext(map<int, string>& mapVariable,
 								   map<DesignObj_Orbiter *, bool>& mapVisibilityContext)
 {
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	g_pPlutoLogger->Write(LV_WARNING, "Restoring context for screen %d / %p, object %s (%d variables, %d visibility status) ...", 
 		m_nPK_Screen, this, m_pObj->m_ObjectID.c_str(), mapVariable.size(), mapVisibilityContext.size());
 

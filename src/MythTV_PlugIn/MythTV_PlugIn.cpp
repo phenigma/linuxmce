@@ -144,7 +144,7 @@ bool MythTV_PlugIn::Register()
 		mapIpToDevice[ (*it)->IPaddress_get() ] = (*it)->PK_Device_get();
 
 	int PK_Device_Storage = atoi(DATA_Get_PK_Device().c_str());
-	string sFilename = PK_Device_Storage ? "/mnt/device/" + StringUtils::itos(PK_Device_Storage) + "/public/data/videos/" : "/home/public/data/videos/";
+	string sFilename = PK_Device_Storage ? "/mnt/device/" + StringUtils::itos(PK_Device_Storage) + "/public/data/videos/tv_shows_" : "/home/public/data/videos/tv_shows_";
 
 	string sSQL = "SELECT data,hostname from settings where value='BackendServerIP'";
 	PlutoSqlResult result;
@@ -731,6 +731,7 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pMessage)
 //<-dceag-c824-e->
 {
+	g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders");
     MYSQL_ROW row,row2;
 
 	string sSQL = "select data from settings where value='DBSchemaVer'";
@@ -781,6 +782,13 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 				}
 			}
 
+			// We need to add configure scripts for each model of card, or the sql statement to insert for each card.  For right now, 
+			// we're just hardcoding to only use the pvr 250 so we can test the process
+			if( !pRow_Device_CaptureCard || pRow_Device_CaptureCard->FK_DeviceTemplate_get()!=DEVICETEMPLATE_PVR250_CONST )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::SyncCardsAndProviders skipping unknown model of pvr card");
+				continue;
+			}
 			// We have a capture card.  See if it's in the database already.  We use DEVICEDATA_Port_CONST for the port
 			int cardid = atoi(DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Port_CONST).c_str());
 			string sPortName = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Name_CONST);

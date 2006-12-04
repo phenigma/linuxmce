@@ -23,6 +23,7 @@ namespace DCE
 	{
 	private:
 
+		Orbiter *m_pOrbiter;
 		DesignObj_Orbiter *m_pObj; /** < The screen we're viewing */
 		list<DesignObj_Orbiter *> m_listObjs; /** < The list of design objects for this screen */
 		map<int, string> m_mapVariable; /** < Any variables we need to restore when returning to this screen */
@@ -42,7 +43,7 @@ namespace DCE
 		static bool m_bAddToHistory; 
 
 		/** < Constructor and destructor */
-		ScreenHistory(int nPK_Screen, class ScreenHistory *pScreenHistory_Prior,Message *pMessage);
+		ScreenHistory(int nPK_Screen, class ScreenHistory *pScreenHistory_Prior,Message *pMessage,Orbiter *pOrbiter);
 		~ScreenHistory();
 
 		/** < Getter and setter for current design object for this screen */

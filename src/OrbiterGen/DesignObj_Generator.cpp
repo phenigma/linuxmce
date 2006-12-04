@@ -1719,9 +1719,6 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
 		case ARRAY_Media_Filter_Source_CONST:
 			{
-                alArray->push_back(new ArrayValue("0",	GetText(TEXT_All_CONST),
-                    NULL, 0, 0, 0, 0,false,false,false));
-
 				string sSQL = "JOIN MediaType_MediaSource on FK_MediaSource = PK_MediaSource WHERE EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType);
 				vector<Row_MediaSource *> vectRow_MediaSource;
 				m_pOrbiterGenerator->m_spDatabase_pluto_media->MediaSource_get()->GetRows(sSQL,&vectRow_MediaSource);
@@ -2080,7 +2077,7 @@ int k=2;
             else
                 sValue = StringUtils::itos(m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get());
         }
-        else if( sVariable[0]=='U' && sVariable.length()>1 )  // <%=U592%> means user 592.  <%=U%> means current user, and is evaluated at runtime
+        else if( sVariable[0]=='U' && sVariable.length()>1 && sVariable[1]!='N' )  // <%=U592%> means user 592.  <%=U%> means current user, and is evaluated at runtime
         {
             int PK_User = atoi(sVariable.substr(2).c_str());
             Row_Users * drUser = m_mds->Users_get()->GetRow(PK_User);

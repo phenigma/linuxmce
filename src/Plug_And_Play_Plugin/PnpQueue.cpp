@@ -1410,14 +1410,6 @@ bool PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry)
 			pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts += sPK_Orbiter + ",";
 		}
 	}
-	if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.size()==0 )
-	{
-		pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts=m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get();
-#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::DetermineOrbitersForPrompting queue %d orbiter list was empty.  setting it to %s",
-			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.c_str());
-#endif
-	}
 
 	// Now go through the list and remove any that aren't registered
 	string sOutput;

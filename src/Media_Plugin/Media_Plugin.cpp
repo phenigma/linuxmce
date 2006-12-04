@@ -2566,11 +2566,11 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 	if ( (pMediaStream = m_mapMediaStream_Find(iStreamID,pMessage ? pMessage->m_dwPK_Device_From : 0)) == NULL )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "No media stream with ID %d available", iStreamID );
+		g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_MH_Move_Media No media stream with ID %d available", iStreamID );
 		return;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING,"Move Media, stream %d  ea: %s",iStreamID,sPK_EntertainArea.c_str());
+	g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_MH_Move_Media Move Media, stream %d  ea: %s",iStreamID,sPK_EntertainArea.c_str());
 	// Note: The entertainment area is probably a negative number, because orbiter does thata to differentiate between devices and EA
 
 	vector<EntertainArea *> vectEntertainArea;
@@ -2584,7 +2584,7 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 	{
 		// Don't bother stopping the media if it's already parked.  This media is not parked
 		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream );
-		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
+		g_pPlutoLogger->Write( LV_STATUS, "Media_Plugin::CMD_MH_Move_Media Called StopMedia" );
 		StreamEnded(pMediaStream,true,false,NULL,&vectEntertainArea);
 	}
 
@@ -2595,7 +2595,7 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 	}
 	else
 	{
-g_pPlutoLogger->Write(LV_WARNING,"ready to restart %d eas",(int) vectEntertainArea.size());
+g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_MH_Move_Media ready to restart %d eas",(int) vectEntertainArea.size());
 		pMediaStream->m_tTime_Parked = 0;
 		// Be sure all outgoing stop messages are flushed before we proceed
 		WaitForMessageQueue();

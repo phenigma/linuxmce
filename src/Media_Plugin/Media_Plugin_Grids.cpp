@@ -142,7 +142,7 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 
 void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_MediaType, int PK_Attribute, int PK_AttributeType_Sort, bool bShowFiles, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sPK_Sources, string &sPK_Users_Private, int PK_Users, int *iPK_Variable, string *sValue_To_Assign )
 {
-	bool bFile=false,bJukebox=false,bLocalDisc=false,bSubDirectory=false;
+	bool bFile=false,bDiscs=false,bSubDirectory=false,bBookmarks=false,bDownload=false;
 	string sPath,sPath_Back;
 	string::size_type pos=0;
 
@@ -173,12 +173,14 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		while(pos<sPK_Sources.size())
 		{
 			int PK_MediaSource=atoi( StringUtils::Tokenize(sPK_Sources,",",pos).c_str() );
-			if( PK_MediaSource==MEDIASOURCE_File_CONST )
+			if( PK_MediaSource==MEDIASOURCE_Hard_Drives_CONST )
 				bFile=true;
-			else if( PK_MediaSource==MEDIASOURCE_Jukebox_CONST )
-				bJukebox=true;
-			else if( PK_MediaSource==MEDIASOURCE_Local_Disc_CONST )
-				bLocalDisc=true;
+			else if( PK_MediaSource==MEDIASOURCE_Discs__Jukeboxes_CONST )
+				bDiscs=true;
+			else if( PK_MediaSource==MEDIASOURCE_Bookmarks_CONST )
+				bBookmarks=true;
+			else if( PK_MediaSource==MEDIASOURCE_Downloadable_CONST )
+				bDownload=true;
 		}
 		sPK_Sources = sPK_Sources + "\t";  // Put a tab before this which is the indicator up above that this is the topmost source when the user tabs back
 		if( bFile && PK_AttributeType_Sort==0 )
@@ -206,7 +208,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	if( bFile )
 		sSQL_File = "SELECT PK_File FROM File ";
 
-	if( bJukebox || bLocalDisc )
+	if( bDiscs )
 		sSQL_Disc = "SELECT PK_Disc FROM Disc ";
 	
 	if( sPK_Attribute_Genres.size() )
@@ -214,7 +216,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		if( bFile )
 			sSQL_File += "LEFT JOIN File_Attribute AS FA_Genre ON FA_Genre.FK_File=PK_File "
 				"LEFT JOIN Attribute AS Attribute_Genre ON FA_Genre.FK_Attribute=Attribute_Genre.PK_Attribute AND Attribute_Genre.FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Genre_CONST) " ";
-		if( bJukebox || bLocalDisc )
+		if( bDiscs )
 			sSQL_Disc += "LEFT JOIN Disc_Attribute AS DA_Genre ON DA_Genre.FK_Disc=PK_Disc "
 				"LEFT JOIN Attribute AS Attribute_Genre ON DA_Genre.FK_Attribute=Attribute_Genre.PK_Attribute AND Attribute_Genre.FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Genre_CONST) " ";
 	}
@@ -268,7 +270,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
         while( ( row=mysql_fetch_row( resultf.r ) ) )
 			sPK_File += row[0] + string(",");
 
-    if( (bJukebox || bLocalDisc) && ( resultd.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Disc + sSQL_Where + " AND EK_Device IN (" + m_sPK_Devices_Online + ")") ) )
+    if( bDiscs && ( resultd.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Disc + sSQL_Where + " AND EK_Device IN (" + m_sPK_Devices_Online + ")") ) )
         while( ( row=mysql_fetch_row( resultd.r ) ) )
 			sPK_Disc += row[0] + string(",");
 
@@ -298,10 +300,13 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		else
 			PopulateFileBrowserInfoForAttribute(pMediaListGrid,PK_AttributeType_Sort,sPK_Disc,"Disc");
 	}
-	
+	if( bBookmarks )
+	{
+		PopulateFileBrowserInfoForBookmark(pMediaListGrid,sPK_File,sPK_Disc);
+	}
 
 //	void PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, string &sPath, string &sPK_File,map<int,int> &mapFile_To_Pic);
-//	if( bJukebox || bLocalDisc )
+//	if( bDiscs || bLocalDisc )
 //		PopulateFileBrowserInfoForDisc(pMediaListGrid,sPK_File,mapFile_To_Pic);
 }
 
@@ -437,6 +442,41 @@ FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
 				pFileBrowserInfo->m_PK_Picture = atoi(row[2]);
 			pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);
 		}
+}
+
+void Media_Plugin::PopulateFileBrowserInfoForBookmark(MediaListGrid *pMediaListGrid,string &sPK_File,string &sPK_Disc)
+{
+	if( sPK_File.empty()==false )
+	{
+		string sSQL = 
+			"SELECT PK_Bookmark,Bookmark.FK_File,Description,Name,FK_Picture "
+			"FROM Bookmark "
+			"LEFT JOIN File_Attribute ON Bookmark.FK_File=File_Attribute.FK_File "
+			"LEFT JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute "
+			"WHERE (FK_AttributeType IS NULL OR FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Song_CONST) "," TOSTRING(ATTRIBUTETYPE_Title_CONST) ")) AND IsAutoResume=0 "
+			"AND Bookmark.FK_File IN (" + sPK_File + ") "
+			"ORDER BY PK_Bookmark";
+
+		PlutoSqlResult result;
+		MYSQL_ROW row;
+		int PK_Bookmark_Last=0; // Don't add the same bookmark twice
+		if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL ) )
+			while( ( row=mysql_fetch_row( result.r ) ) )
+			{
+				string sDescription;
+				if( row[2] && row[3] ) // Both a title and a bookmark description
+					sDescription = string(row[3]) + "/" + row[2];  // Title + bookmark
+				else if( row[3] )
+					sDescription = row[3];
+				else if( row[2] )
+					sDescription = row[2];
+				else
+					sDescription = "Bookmark"; // Shouldn't happen
+				FileBrowserInfo *pFileBrowserInfo = new FileBrowserInfo(sDescription,atoi(row[0]),
+					row[4] ? atoi(row[4]) : 0, row[1] ? atoi(row[1]) : 0, 0);
+				pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);
+			}
+	}
 }
 
 void Media_Plugin::FileBrowser( MediaListGrid *pMediaListGrid,int PK_MediaType, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sPK_Sources, string &sPK_Users_Private, int PK_Users, int *iPK_Variable, string *sValue_To_Assign )
@@ -1211,13 +1251,14 @@ class DataGridTable *Media_Plugin::MediaAttrFile( string GridID, string Parms, v
 	if( Parms.size()<3 || Parms[0]!='!' || Parms[1]!='F' )
 		return pDataGrid; // This shouldn't happen
 
-	string sSQL = "SELECT PK_Attribute,Name,Description,MediaSortOption FROM File "
+	string sSQL = "SELECT DISTINCT PK_Attribute,Name,Description FROM File "
 		"JOIN File_Attribute ON FK_File=PK_File "
 		"JOIN Attribute ON FK_Attribute=PK_Attribute "
 		"JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "
 		"LEFT JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType = PK_AttributeType AND MediaType_AttributeType.EK_MediaType=File.EK_MediaType "
-		"WHERE FK_File=" + Parms.substr(2);
-		"ORDER BY MediaSortOption";
+		"WHERE FK_File=" + Parms.substr(2) +
+		" AND Identifier>0 "
+		" ORDER BY MediaSortOption IS NULL,MediaSortOption";
 
 	int iRow=0;
 	list<DataGridCell *> listCellsAtBottom; // All the ones with mediasort=NULL; mysql puts them at the top, not the bottom
@@ -1228,17 +1269,12 @@ class DataGridTable *Media_Plugin::MediaAttrFile( string GridID, string Parms, v
 	{
         while( ( row=mysql_fetch_row( result.r ) ) )
 		{
-			string sText = string(row[2]) + "\n" + row[1];
-			pCell = new DataGridCell(sText,"!A" + string(row[0]));
-			if( row[3] )
-				pDataGrid->SetData(0,iRow++,pCell);
-			else
-				listCellsAtBottom.push_back(pCell);
+			pCell = new DataGridCell("","!A" + string(row[0]));
+			pCell->m_mapAttributes["Title"]=row[2];
+			pCell->m_mapAttributes["Name"]=row[1];
+			pDataGrid->SetData(0,iRow++,pCell);
 		}
 	}
-
-	for(list<DataGridCell *>::iterator it=listCellsAtBottom.begin();it!=listCellsAtBottom.end();++it)
-		pDataGrid->SetData(0,iRow++,*it);
 
 	return pDataGrid;
 }

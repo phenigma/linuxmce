@@ -75,11 +75,11 @@ void MediaAttributes_LowLevel::TransformFilenameToDeque(string sFilename,deque<M
 		for(size_t s=0;s<vectRow_File_Attribute.size();++s)
 		{
 			Row_File_Attribute *pRow_File_Attribute = vectRow_File_Attribute[s];
-			dequeFilenames.push_back(new MediaFile(pRow_File_Attribute->FK_File_get(),GetFilePathFromFileID(pRow_File_Attribute->FK_File_get())));
+			dequeFilenames.push_back(new MediaFile(this,pRow_File_Attribute->FK_File_get(),GetFilePathFromFileID(pRow_File_Attribute->FK_File_get())));
 		}
 	}
 	else if( sFilename[1] == 'F' || sFilename[1] == 'f' )
-		dequeFilenames.push_back(new MediaFile(atoi(sFilename.substr(2).c_str()),GetFilePathFromFileID(atoi(sFilename.substr(2).c_str()))));
+		dequeFilenames.push_back(new MediaFile(this,atoi(sFilename.substr(2).c_str()),GetFilePathFromFileID(atoi(sFilename.substr(2).c_str()))));
 	else if( sFilename[1] == 'B' || sFilename[1] == 'b' )
 	{
 		Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->GetRow(atoi(sFilename.substr(2).c_str()));
@@ -88,7 +88,7 @@ void MediaAttributes_LowLevel::TransformFilenameToDeque(string sFilename,deque<M
 			Row_File *pRow_File = pRow_Bookmark->FK_File_getrow();
 			if( pRow_File )
 			{
-				MediaFile *pMediaFile = new MediaFile(pRow_File->PK_File_get(),pRow_File->Path_get() + "/" + pRow_File->Filename_get());
+				MediaFile *pMediaFile = new MediaFile(this,pRow_File->PK_File_get(),pRow_File->Path_get() + "/" + pRow_File->Filename_get());
 				pMediaFile->m_sStartPosition = pRow_Bookmark->Position_get();
 				dequeFilenames.push_back(pMediaFile);
 			}

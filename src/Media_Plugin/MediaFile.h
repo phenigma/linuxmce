@@ -10,13 +10,14 @@
 class MediaFile
 {
 public:
-	MediaFile(int dwPK_File,string sFullyQualifiedFile)	{
+	MediaFile(MediaAttributes_LowLevel *pMediaAttributes_LowLevel,int dwPK_File,string sFullyQualifiedFile)	{
 		m_dwPK_File=dwPK_File; m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
 		m_dwPK_Bookmark=m_dwPK_Disk=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
 		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sFullyQualifiedFile));
+		CheckForStartPosition(pMediaAttributes_LowLevel);
 	}
 
 	MediaFile(int PK_Disk)	{
@@ -42,22 +43,12 @@ public:
 		m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
 		m_dwPK_File=pMediaAttributes_LowLevel->GetFileIDFromFilePath(sFullyQualifiedFile);
 		m_dwPK_Disk=0;
-		if( m_dwPK_File )
-		{
-			vector<Row_Bookmark *> m_vectRow_Bookmark;
-			pMediaAttributes_LowLevel->m_pDatabase_pluto_media->Bookmark_get()->GetRows(BOOKMARK_FK_FILE_FIELD "=" + StringUtils::itos(m_dwPK_File) + " AND " BOOKMARK_DESCRIPTION_FIELD " ='START' AND " BOOKMARK_ISAUTORESUME_FIELD "=1",&m_vectRow_Bookmark);
-			if( m_vectRow_Bookmark.size() )
-			{
-				Row_Bookmark *pRow_Bookmark = m_vectRow_Bookmark[0];
-				m_sStartPosition = pRow_Bookmark->Position_get();
-				g_pPlutoLogger->Write(LV_STATUS,"MediaFile::MediaFile File %d has start position %s",m_sStartPosition.c_str());
-			}
-		}
 		m_dwPK_Bookmark=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
 		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sFullyQualifiedFile));
+		CheckForStartPosition(pMediaAttributes_LowLevel);
 	}
 
 	MediaFile(MediaFile *pMediaFile_Copy) {
@@ -148,6 +139,21 @@ public:
 		if( pos < m_sPath.size() )
 			sResult += m_sPath.substr(pos) + "/";
 		return sResult + m_sFilename;
+	}
+
+	void CheckForStartPosition(MediaAttributes_LowLevel *pMediaAttributes_LowLevel)
+	{
+		if( m_dwPK_File )
+		{
+			vector<Row_Bookmark *> m_vectRow_Bookmark;
+			pMediaAttributes_LowLevel->m_pDatabase_pluto_media->Bookmark_get()->GetRows(BOOKMARK_FK_FILE_FIELD "=" + StringUtils::itos(m_dwPK_File) + " AND " BOOKMARK_DESCRIPTION_FIELD " ='START' AND " BOOKMARK_ISAUTORESUME_FIELD "=1",&m_vectRow_Bookmark);
+			if( m_vectRow_Bookmark.size() )
+			{
+				Row_Bookmark *pRow_Bookmark = m_vectRow_Bookmark[0];
+				m_sStartPosition = pRow_Bookmark->Position_get();
+				g_pPlutoLogger->Write(LV_STATUS,"MediaFile::MediaFile File %d has start position %s",m_sStartPosition.c_str());
+			}
+		}
 	}
 };
 

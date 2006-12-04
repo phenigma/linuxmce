@@ -3117,8 +3117,8 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 					g_pPlutoLogger->Write(LV_DEBUG,((string)"/usr/pluto/bin/InstallSoftware_Remote.sh "+sArguments).c_str());
 					ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallSoftware_Remote.sh", sArguments, "InstallSoftware", NULL, true);
 				}else{
-					g_pPlutoLogger->Write(LV_DEBUG,((string)"sudo -u www-data /usr/pluto/bin/InstallSoftware.sh "+sArguments).c_str());
-					ProcessUtils::SpawnApplication("sudo -u www-data /usr/pluto/bin/InstallSoftware.sh", sArguments, "InstallSoftware", NULL, true);
+					g_pPlutoLogger->Write(LV_DEBUG,((string)"/usr/pluto/bin/InstallSoftware.sh "+sArguments).c_str());
+					ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallSoftware.sh", sArguments, "InstallSoftware", NULL, true);
 				}
 			}else{
 				g_pPlutoLogger->Write(LV_STATUS,"Remove Software");
@@ -3126,8 +3126,8 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 					g_pPlutoLogger->Write(LV_DEBUG,((string)"/usr/pluto/bin/RemoveSoftware_Remote.sh "+sArguments).c_str());
 					ProcessUtils::SpawnApplication("/usr/pluto/bin/RemoveSoftware_Remote.sh", sArguments, "InstallSoftware", NULL, true);
 				}else{
-					g_pPlutoLogger->Write(LV_DEBUG,((string)"sudo -u www-data /usr/pluto/bin/RemoveSoftware.sh "+sArguments).c_str());
-					ProcessUtils::SpawnApplication("sudo -u www-data /usr/pluto/bin/RemoveSoftware.sh", sArguments, "InstallSoftware", NULL, true);
+					g_pPlutoLogger->Write(LV_DEBUG,((string)"/usr/pluto/bin/RemoveSoftware.sh "+sArguments).c_str());
+					ProcessUtils::SpawnApplication("/usr/pluto/bin/RemoveSoftware.sh", sArguments, "InstallSoftware", NULL, true);
 				}
 			}
 		}

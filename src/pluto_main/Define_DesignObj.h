@@ -2285,6 +2285,8 @@
 #define DESIGNOBJ_butChangeUser_CONST 5252
 #define DESIGNOBJ_grpPrivateMedia_CONST 5262
 #define DESIGNOBJ_grpFileFormat_CONST 5263
+#define DESIGNOBJ_butFBSF_Show_More_CONST 5267
+#define DESIGNOBJ_popFBSF_More_CONST 5269
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

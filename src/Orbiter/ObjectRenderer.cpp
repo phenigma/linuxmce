@@ -231,6 +231,8 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 
 /*virtual*/ void ObjectRenderer::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
+if( m_pObj_Owner->m_ObjectID.find("5251")!=string::npos )
+int k=2;
 	if(!PreRenderActions(pObj_Screen, point))
 		return;
 
@@ -541,6 +543,7 @@ int k=2;
 	for( iText=m_pObj_Owner->m_vectDesignObjText.begin(  ); iText != m_pObj_Owner->m_vectDesignObjText.end(  ); ++iText )
 	{
 		DesignObjText *pText = *iText;
+
 		if(  pText->m_bPreRender  )
 			continue;
 		PROFILE_START( ctText );

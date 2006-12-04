@@ -231,6 +231,7 @@ void SocketListener::Run()
 
 Socket *SocketListener::CreateSocket( SOCKET newsock, string sName, string sIPAddress, string sMacAddress )
 {
+	PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
 	ServerSocket *pSocket = new ServerSocket( this, newsock, sName, sIPAddress, sMacAddress );
 	pSocket->m_bSendOnlySocket = m_bSendOnlySocket;
 	m_vectorServerSocket.push_back(pSocket);

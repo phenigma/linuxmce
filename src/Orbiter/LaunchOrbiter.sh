@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ## Includes
+. /usr/pluto/bin/Config_Ops.sh 2>/dev/null || exit 1  ## So the orbiter can get the environment variable for the mysql server
 . /usr/pluto/bin/SQL_Ops.sh 2>/dev/null || exit 1
 . /usr/pluto/bin/pluto.func 2>/dev/null || exit 1
 

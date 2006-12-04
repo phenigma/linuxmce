@@ -222,6 +222,8 @@ string HorizMenuMouseHandler::GetFileBrowserPopup(DesignObj_Orbiter *pObj_MenuPa
 		return TOSTRING(DESIGNOBJ_popFBSF_PK_FileFormat_CONST) ".<%=" TOSTRING(VARIABLE_PK_MediaType_CONST) "%>.0";
 	case DESIGNOBJ_butFBSF_Show_MediaSource_CONST: // source
 		return TOSTRING(DESIGNOBJ_popFBSF_MediaSource_CONST) ".<%=" TOSTRING(VARIABLE_PK_MediaType_CONST) "%>.0";
+	case DESIGNOBJ_butFBSF_Show_More_CONST: // More
+		return TOSTRING(DESIGNOBJ_popFBSF_More_CONST) ".<%=" TOSTRING(VARIABLE_PK_MediaType_CONST) "%>.0";
 	case DESIGNOBJ_butFBSF_Show_Media_Go_CONST: // go
 		return TOSTRING(DESIGNOBJ_popFBSF_Go_CONST);
 	}

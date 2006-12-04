@@ -31,7 +31,7 @@ namespace DCE
 		friend class ScreenHandler;
 		int m_RelativeVirtualY;
 		DesignObj_DataGrid *m_pObj_ListGrid,*m_pObj_PicGrid;
-		DesignObj_Orbiter *m_pObj_CoverArtPopup,*m_pObj_Sort,*m_pObj_Source;
+		DesignObj_Orbiter *m_pObj_CoverArtPopup,*m_pObj_Sort,*m_pObj_More;
 		int m_LastRow;
 		PlutoRectangle m_rSortFilterMenu;
 

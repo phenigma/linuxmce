@@ -5101,7 +5101,7 @@ void Orbiter::CMD_Remove_Screen_From_History(string sID,int iPK_Screen,string &s
 		if( pScreenHistory->PK_Screen() == iPK_Screen && (sID.length()==0 || sID == pScreenHistory->ScreenID()) )
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"deleting %d - %s",iPK_Screen,pScreenHistory->ScreenID().c_str());
+			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Remove_Screen_From_History deleting %d - %s",iPK_Screen,pScreenHistory->ScreenID().c_str());
 #endif
 			delete (*it);
 			it = m_listScreenHistory.erase( it );
@@ -8682,7 +8682,7 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 		m_pMouseBehavior->Clear();
 #endif
 
-	m_pScreenHistory_NewEntry = new ScreenHistory(iPK_Screen, m_pScreenHistory_Current,pMessage);
+	m_pScreenHistory_NewEntry = new ScreenHistory(iPK_Screen, m_pScreenHistory_Current,pMessage,this);
 	m_pScreenHistory_NewEntry->ScreenID(sID);
 
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);

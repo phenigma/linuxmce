@@ -475,6 +475,7 @@ private:
 		
 		void SendStringToAll(string sString)
 		{
+			PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
 			for(std::vector<ServerSocket *>::iterator i=m_vectorServerSocket.begin(); i!=m_vectorServerSocket.end(); i++)
 			{
 				if ((*i)->SendString(sString))

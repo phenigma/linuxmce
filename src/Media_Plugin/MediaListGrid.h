@@ -16,15 +16,16 @@ class FileBrowserInfo
 public:
 	typedef enum {
 		fbi_File,
-		fbi_InternalDisc,
-		fbi_Jukebox,
-		fbi_Attribute
+		fbi_DiscJukebox,
+		fbi_Bookmark,
+		fbi_Attribute,
+		fbi_Downloadable
 	} enumTypeOfMedia;
 
 	bool m_bIsDirectory,m_bIsBack;  // Keep track of whether this is a 'go back' or not
 	string m_sDisplayGroup,m_sDisplayName;
 	string m_sMRL;
-	int m_PK_File,m_PK_Disc,m_PK_Picture,m_PK_Attribute;
+	int m_PK_File,m_PK_Disc,m_PK_Picture,m_PK_Attribute,m_PK_Bookmark;
 	enumTypeOfMedia m_enumTypeOfMedia;
 
 	// Constructor for file info
@@ -41,6 +42,7 @@ public:
 		m_PK_File=PK_File;
 		m_bIsDirectory=bIsDirectory;
 		m_bIsBack=bIsBack;
+		m_PK_Bookmark=0;
 		m_sMRL=sPath;
 	}
 	// Constructor for attribute info
@@ -52,7 +54,24 @@ public:
 		m_PK_Disc=0;
 		m_PK_Picture=0;
 		m_PK_File=0;
+		m_PK_Bookmark=0;
 		m_sMRL=sMRL;
+		m_bIsDirectory=false;
+		m_bIsBack=false;
+	}
+	// Constructor for bookmark
+	FileBrowserInfo(string sDisplayName, int PK_Bookmark, int PK_Picture, int PK_File, int PK_Disc)
+	{
+		m_sDisplayName=sDisplayName;
+		m_enumTypeOfMedia=fbi_Bookmark;
+		m_PK_Disc=PK_Disc;
+		m_PK_Picture=PK_Picture;
+		m_PK_Attribute=0;
+		m_PK_File=PK_File;
+		m_PK_Bookmark=PK_Bookmark;
+		m_sMRL="!B" + StringUtils::itos(PK_Bookmark);
+		m_bIsDirectory=false;
+		m_bIsBack=false;
 	}
 };
 
