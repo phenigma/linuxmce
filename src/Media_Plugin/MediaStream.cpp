@@ -330,13 +330,11 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 			pMediaFile = GetCurrentMediaFile();
 
 		int PK_Attribute;
-		Row_Attribute *pRow_Attribute_Song=NULL,*pRow_Attribute_Album=NULL,*pRow_Attribute_Performer=NULL,*pRow_Attribute_Title=NULL;
+		Row_Attribute *pRow_Attribute_Album=NULL,*pRow_Attribute_Performer=NULL,*pRow_Attribute_Title=NULL;
 
 		// First try to find attributes for the particular song, otherwise look in the collection
 		if( pMediaFile )
 		{
-			if( !pRow_Attribute_Song && (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Song_CONST))!=0 )
-				pRow_Attribute_Song = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
 			if( !pRow_Attribute_Performer && (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST))!=0 )
 				pRow_Attribute_Performer = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
 			if( !pRow_Attribute_Album && (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST))!=0 )
@@ -370,8 +368,6 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 			if( pMediaFile )
 				pMediaFile->m_sDescription = m_sSectionDescription;
 		}
-		else if( pRow_Attribute_Song )
-				m_sMediaDescription = pRow_Attribute_Song->Name_get();
 		else if( pRow_Attribute_Title )
 				m_sMediaDescription = pRow_Attribute_Title->Name_get();
 		else if( pMediaFile && pMediaFile->m_sFilename.size()>6 && pMediaFile->m_sFilename.substr(0,6)=="cdda:/" )

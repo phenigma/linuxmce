@@ -471,6 +471,9 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		}
 	}
 
+	g_pPlutoLogger->Write(LV_STATUS, "PlutoMediaFile::AddFileToDatabase picture url %s",
+		m_pPlutoMediaAttributes->m_sPictureUrl.c_str());
+
 	// Got a picture url? Let's download it!
 	if(m_pPlutoMediaAttributes->m_sPictureUrl != "")
  	{
@@ -491,12 +494,12 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 			pRow_Picture_File->FK_Picture_set(pRow_Picture->PK_Picture_get());
 			pRow_Picture_File->Table_Picture_File_get()->Commit();
 
-			g_pPlutoLogger->Write(LV_STATUS, "Added picture to file: PK_File %d, PK_Picture %d",
+			g_pPlutoLogger->Write(LV_STATUS, "PlutoMediaFile::AddFileToDatabase Added picture to file: PK_File %d, PK_Picture %d",
 				pRow_File->PK_File_get(), m_pPlutoMediaAttributes->m_nPictureID);
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Failed to add picture to file: PK_File %d, picture url: %s",
+			g_pPlutoLogger->Write(LV_STATUS, "PlutoMediaFile::AddFileToDatabase Failed to add picture to file: PK_File %d, picture url: %s",
 				pRow_File->PK_File_get(), m_pPlutoMediaAttributes->m_sPictureUrl.c_str());
 		}
 	}
@@ -558,9 +561,16 @@ int PlutoMediaFile::GetFileAttribute(bool)
 		Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(m_pPlutoMediaAttributes->m_nFileID);
 		if(NULL != pRow_File && pRow_File->Filename_get() == m_sFile)
 			return pRow_File->PK_File_get();
+		else
+			g_pPlutoLogger->Write(LV_STATUS, "GetFileAttribute %s/%s installation %d/%d id %d doesn't match database %s", 
+				m_sDirectory.c_str(), m_sFile.c_str(),
+				m_pPlutoMediaAttributes->m_nInstallationID, m_nOurInstallationID, m_pPlutoMediaAttributes->m_nFileID,
+				pRow_File ? pRow_File->Filename_get().c_str() : "*NULL*");
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "GetFileAttribute %s/%s not found", m_sDirectory.c_str(), m_sFile.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "GetFileAttribute %s/%s not found installation %d/%d id %d", 
+		m_sDirectory.c_str(), m_sFile.c_str(),
+		m_pPlutoMediaAttributes->m_nInstallationID, m_nOurInstallationID, m_pPlutoMediaAttributes->m_nFileID);
     return 0;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -656,7 +666,7 @@ int PlutoMediaFile::GetPicAttribute(int PK_File)
 			pRow_Picture_File->FK_Picture_set(pRow_Picture->PK_Picture_get());
 			pRow_Picture_File->Table_Picture_File_get()->Commit();
 
-			g_pPlutoLogger->Write(LV_STATUS, "Added picture to file: PK_File %d, PK_Picture %d",
+			g_pPlutoLogger->Write(LV_STATUS, "PlutoMediaFile::GetPicAttribute Added picture to file: PK_File %d, PK_Picture %d",
 				PK_File, m_pPlutoMediaAttributes->m_nPictureID);
 
 			return m_pPlutoMediaAttributes->m_nPictureID;

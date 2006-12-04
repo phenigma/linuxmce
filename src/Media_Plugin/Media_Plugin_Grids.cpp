@@ -368,11 +368,7 @@ void Media_Plugin::PopulateFileBrowserInfoForPlayList(MediaListGrid *pMediaListG
 
 void Media_Plugin::PopulateFileBrowserInfoForDisc(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort,string &sPK_Disk,map<int,int> &mapDisk_To_Pic)
 {
-	string sSQL_Sort;
-	if( PK_AttributeType_Sort==ATTRIBUTETYPE_Title_CONST || PK_AttributeType_Sort==ATTRIBUTETYPE_Song_CONST )  // Merge song and title.  both uniquely identify a music Disc
-		sSQL_Sort = "SELECT PK_Disc,Name FROM Disc JOIN Disc_Attribute ON FK_Disc=PK_Disc JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Title_CONST) "," TOSTRING(ATTRIBUTETYPE_Song_CONST) ") WHERE PK_Disc in (" + sPK_Disk + ")";
-	else
-		sSQL_Sort = "SELECT PK_Disc,Name FROM Disc JOIN Disc_Attribute ON FK_Disc=PK_Disc JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE PK_Disc in (" + sPK_Disk + ")";
+	string sSQL_Sort = "SELECT PK_Disc,Name FROM Disc JOIN Disc_Attribute ON FK_Disc=PK_Disc JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE PK_Disc in (" + sPK_Disk + ")";
 
     PlutoSqlResult result;
     MYSQL_ROW row;
@@ -394,8 +390,6 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 	string sSQL_Sort;
 	if( PK_AttributeType_Sort==0 )
 		sSQL_Sort = "SELECT PK_File,Path,Filename,IsDirectory FROM File WHERE PK_File in (" + sPK_File + ")";
-	else if( PK_AttributeType_Sort==ATTRIBUTETYPE_Title_CONST || PK_AttributeType_Sort==ATTRIBUTETYPE_Song_CONST )  // Merge song and title.  both uniquely identify a music file
-		sSQL_Sort = "SELECT PK_File,'',Name,0 FROM File JOIN File_Attribute ON FK_File=PK_File JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Title_CONST) "," TOSTRING(ATTRIBUTETYPE_Song_CONST) ") WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ")";
 	else
 		sSQL_Sort = "SELECT PK_File,'',Name,0 FROM File JOIN File_Attribute ON FK_File=PK_File JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ")";
 
@@ -440,7 +434,7 @@ FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
 		if( result.r->row_count==0 && PK_AttributeType_Sort==ATTRIBUTETYPE_Album_CONST )
 		{
 			result.ClearResults();
-			sSQL_Sort = "SELECT PK_Attribute,Name,min(FK_Picture) AS FK_Picture FROM " + sTable + " JOIN " + sTable + "_Attribute ON FK_" + sTable + "=PK_" + sTable + " JOIN Attribute ON " + sTable + "_Attribute.FK_Attribute=PK_Attribute AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Song_CONST) "," TOSTRING(ATTRIBUTETYPE_Track_CONST) "," TOSTRING(ATTRIBUTETYPE_Title_CONST) ") LEFT JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=PK_Attribute WHERE IsDirectory=0 AND PK_" + sTable + " in (" + sPK_File_Or_Disc + ") GROUP BY PK_Attribute,Name";
+			sSQL_Sort = "SELECT PK_Attribute,Name,min(FK_Picture) AS FK_Picture FROM " + sTable + " JOIN " + sTable + "_Attribute ON FK_" + sTable + "=PK_" + sTable + " JOIN Attribute ON " + sTable + "_Attribute.FK_Attribute=PK_Attribute AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Track_CONST) "," TOSTRING(ATTRIBUTETYPE_Title_CONST) ") LEFT JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=PK_Attribute WHERE IsDirectory=0 AND PK_" + sTable + " in (" + sPK_File_Or_Disc + ") GROUP BY PK_Attribute,Name";
 			if( (result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Sort ))==NULL )
 				return;
 		}
@@ -464,7 +458,7 @@ void Media_Plugin::PopulateFileBrowserInfoForBookmark(MediaListGrid *pMediaListG
 			"FROM Bookmark "
 			"LEFT JOIN File_Attribute ON Bookmark.FK_File=File_Attribute.FK_File "
 			"LEFT JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute "
-			"WHERE (FK_AttributeType IS NULL OR FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Song_CONST) "," TOSTRING(ATTRIBUTETYPE_Title_CONST) ")) AND IsAutoResume=0 "
+			"WHERE (FK_AttributeType IS NULL OR FK_AttributeType =" TOSTRING(ATTRIBUTETYPE_Title_CONST) ") AND IsAutoResume=0 "
 			"AND Bookmark.FK_File IN (" + sPK_File + ") "
 			"ORDER BY PK_Bookmark";
 

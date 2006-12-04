@@ -538,6 +538,11 @@ void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional)
 
 Row_Attribute *MediaAttributes_LowLevel::GetAttributeFromDescription(int PK_MediaType,int PK_AttributeType,string sName)
 {
+	if( StringUtils::WhiteSpace(sName) )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"MediaAttributes_LowLevel::GetAttributeFromDescription got a blank attribute");
+		return NULL;
+	}
 	vector<Row_Attribute *> vectRow_Attribute;
 	Row_MediaType_AttributeType *pMediaType_AttributeType = NULL;
 	if( PK_MediaType==MEDIATYPE_pluto_CD_CONST )
@@ -576,6 +581,9 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,st
 #else
 	string sMediaPicsFolder = "/home/mediapics/";
 #endif
+
+	g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes_LowLevel::AddPicture %d %s",
+		pRow_Picture->PK_Picture_get(),sURL.c_str());
 
 	string sPictureFileName = sMediaPicsFolder + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + sFormat;
 	FILE *file = fopen(sPictureFileName.c_str(), "wb");
@@ -808,7 +816,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 			string str = StringUtils::Tokenize(sValue,"\t\n",pos);
 			if( str.size() )
 			{
-				pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Song_CONST,str); 
+				pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Title_CONST,str); 
 				listMediaAttribute_.push_back( new MediaAttribute(
 					s,0,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
 			}
@@ -834,7 +842,7 @@ bool MediaAttributes_LowLevel::FixMediaAttributes(listMediaAttribute &listMediaA
 		if( pMediaAttribute->m_Title_Track>Tracks )
 			Tracks=pMediaAttribute->m_Title_Track;
 
-		if( pMediaAttribute->m_PK_AttributeType==ATTRIBUTETYPE_Song_CONST && pMediaAttribute->m_Title_Track )
+		if( pMediaAttribute->m_PK_AttributeType==ATTRIBUTETYPE_Title_CONST && pMediaAttribute->m_Title_Track )
 		{
 			// Be sure the same song isn't on the same disc twice with the same name, since it will cause
 			// a problem when we want to rip
@@ -858,7 +866,7 @@ bool MediaAttributes_LowLevel::FixMediaAttributes(listMediaAttribute &listMediaA
 			for(int i=1;i<=Tracks;++i)
 				if( !mapTracks[i] )
 				{
-					listMediaAttribute_.push_back( new MediaAttribute(i,0,ATTRIBUTETYPE_Song_CONST,0,"Track " + StringUtils::itos(i)) );
+					listMediaAttribute_.push_back( new MediaAttribute(i,0,ATTRIBUTETYPE_Title_CONST,0,"Track " + StringUtils::itos(i)) );
 					sMissing += StringUtils::itos(i) + ",";
 				}
 			

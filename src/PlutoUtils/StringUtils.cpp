@@ -1130,3 +1130,14 @@ string StringUtils::BashPatternEscape(string sInput, string sCharsToNotEscape)
 }
 #endif //#ifndef SYMBIAN
 
+bool StringUtils::WhiteSpace(string &sString)
+{
+	for(int i=0;i<sString.size();++i)
+	{
+		if( sString[i]!=' ' && sString[i]!='\t' && sString[i]!='\n' && sString[i]!='\r' )
+			return false;
+	}
+
+	return true;
+}
+

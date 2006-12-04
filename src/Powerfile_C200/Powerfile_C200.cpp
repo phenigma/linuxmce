@@ -1150,7 +1150,7 @@ void PowerfileRip_Task::RipCD(Row_Disc *pRow_Disc,listMediaAttribute &listMediaA
 		}
 		else if( bAllTracks || m_mapTracks.find(pMediaAttribute->m_Title_Track)!=m_mapTracks.end() )
 		{
-			if( pMediaAttribute->m_PK_AttributeType==ATTRIBUTETYPE_Song_CONST )
+			if( pMediaAttribute->m_PK_AttributeType==ATTRIBUTETYPE_Title_CONST )
 				m_mapTracks[pMediaAttribute->m_Title_Track] = pMediaAttribute->m_sName;
 		}
 	}

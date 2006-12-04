@@ -491,7 +491,6 @@ void SetId3Info(string sFilename, const map<int,string>& mapAttributes)
                 ID3_AddAlbum(&myTag, sValue.c_str(), true);
                 break;
 
-            case ATTRIBUTETYPE_Song_CONST:
             case ATTRIBUTETYPE_Title_CONST:
                 ID3_AddTitle(&myTag, sValue.c_str(), true); 
                 break;
@@ -535,7 +534,6 @@ void RemoveId3Tag(string sFilename, int nTagType, string sValue)
 			ID3_RemoveAlbums(&myTag);
 			break;
 
-		case ATTRIBUTETYPE_Song_CONST:
 		case ATTRIBUTETYPE_Title_CONST:
 			ID3_RemoveTitles(&myTag); 
 			break;

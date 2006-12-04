@@ -294,6 +294,7 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 		if( itMapFiles==mapFiles.end() )
 		{
 			PK_File = PlutoMediaFile_.HandleFileNotInDatabase();
+			g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory PlutoMediaFile_.HandleFileNotInDatabase %d",PK_File);
 			if(!PK_File)
 			{
 				if(m_bAsDaemon)
@@ -377,6 +378,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 
 			// Add this directory like it were a file
 			int PK_File = PlutoMediaParentFolder.HandleFileNotInDatabase(MEDIATYPE_pluto_DVD_CONST);
+			g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory MEDIATYPE_pluto_DVD_CONST PlutoMediaFile_.HandleFileNotInDatabase %d",PK_File);
 			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
 			pRow_File->IsDirectory_set(false);
 			m_pDatabase_pluto_media->File_get()->Commit();
@@ -402,6 +404,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 			PlutoMediaFile PlutoMediaSubDir(m_pDatabase_pluto_media, m_nPK_Installation,
 				FileUtils::BasePath(sSubDir), FileUtils::FilenameWithoutPath(sSubDir), true);
 
+			g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory PlutoMediaSubDir.HandleFileNotInDatabase %d",PK_File);
 			PlutoMediaSubDir.HandleFileNotInDatabase();
 		}
 
@@ -431,7 +434,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 
 		if(!bAlreadyinDb)
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Adding parent folder to db: %s", sDirectory.c_str());
+			g_pPlutoLogger->Write(LV_WARNING, "Adding parent folder to db: %s PlutoMediaParentFolder.HandleFileNotInDatabase", sDirectory.c_str());
 			PlutoMediaParentFolder.HandleFileNotInDatabase(0);
 		}
 		else
