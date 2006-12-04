@@ -191,6 +191,9 @@ namespace DCE
 			
 			public:
 			int m_iStreamID;
+			bool m_bBroadcaster;
+			int m_iBroadcastPort;
+			string m_sBroadcastTargets;
 
 			private:
 			int m_iRequestingObject;
@@ -206,7 +209,7 @@ namespace DCE
 			bool m_isSlimClient;
 			bool m_bTrickModeActive;
 		public:
-			Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, int ID=0, int iTimeCodeReportFrequency=0, int iRequestingObject=0);
+			Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, int ID=0, int iTimeCodeReportFrequency=0, int iRequestingObject=0, bool bBroadcast=false);
 			~Xine_Stream();
 			
 			/**
@@ -268,7 +271,8 @@ namespace DCE
     /**
  		 * @brief Enable broadcasting on this stream
 		 */
-			int enableBroadcast( int iStreamID );
+			int EnableBroadcast();
+			int DisableBroadcast();
 
     /**
 			 * @brief send a Xine event to the engine

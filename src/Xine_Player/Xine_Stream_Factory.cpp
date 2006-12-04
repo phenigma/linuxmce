@@ -115,6 +115,7 @@ bool Xine_Stream_Factory::ShutdownFactory()
 		DestroyStream( streamID);
 	}
 	
+	int xine = 1/0;
 	
 	PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
 	
@@ -341,7 +342,7 @@ void Xine_Stream_Factory::setAudioSettings()
 
 
 // returns pointer to stream if exists/was created or NULL otherwise
-Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist, int requestingObject)
+Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist, int requestingObject, bool bBroadcasting)
 {
 	{
 		PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
@@ -357,12 +358,12 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 		
 	if (createIfNotExist)
 	{
-		Xine_Stream *new_stream = new Xine_Stream(this, m_pXineLibrary, streamID, m_pPlayer->DATA_Get_Time_Code_Report_Frequency(), requestingObject);
+		Xine_Stream *new_stream = new Xine_Stream(this, m_pXineLibrary, streamID, m_pPlayer->DATA_Get_Time_Code_Report_Frequency(), requestingObject, bBroadcasting);
 		new_stream->m_bUseDeinterlacing = m_bUseDeinterlacing;
 		new_stream->m_sDeinterlacingConfig = m_sDeinterlacingConfig;
 		if ((new_stream!=NULL) && new_stream->StartupStream())
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Created new stream with internalID=%i", streamID);
+			g_pPlutoLogger->Write(LV_WARNING,"Created new stream with ID=%i", streamID);
 			
 			PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
 			streamsMap[streamID] = new_stream;
@@ -370,7 +371,7 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Cannot create new stream with internalID=%i", streamID);
+			g_pPlutoLogger->Write(LV_WARNING,"Cannot create new stream with ID=%i", streamID);
 			if (new_stream!=NULL)
 				delete new_stream;
 			return NULL;
@@ -379,6 +380,7 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 	else
 		return NULL;
 }
+
 
 void Xine_Stream_Factory::ReportAudioTracks(string sTracks)
 {
@@ -423,7 +425,7 @@ void Xine_Stream_Factory::DestroyStream(int iStreamID)
 		delete pStream;
 	}
 	
-	g_pPlutoLogger->Write(LV_WARNING,"Destroyed stream with internalID=%i", iStreamID);
+	g_pPlutoLogger->Write(LV_WARNING,"Destroyed stream with ID=%i", iStreamID);
 }
 
 void Xine_Stream_Factory::HideStreamWindows(int iStreamID)
@@ -445,7 +447,7 @@ void Xine_Stream_Factory::HideStreamWindows(int iStreamID)
 	{
 		pStream->hideWindows();
 	}
-	g_pPlutoLogger->Write(LV_WARNING,"Hide windows for stream with internalID=%i", iStreamID);
+	g_pPlutoLogger->Write(LV_WARNING,"Hide windows for stream with ID=%i", iStreamID);
 }
 
 void Xine_Stream_Factory::CloseStreamAV(int iStreamID)
@@ -468,7 +470,7 @@ void Xine_Stream_Factory::CloseStreamAV(int iStreamID)
 		pStream->ShutdownStream();
 	}
 	
-	g_pPlutoLogger->Write(LV_WARNING,"Closed stream AV with internalID=%i", iStreamID);
+	g_pPlutoLogger->Write(LV_WARNING,"Closed stream AV with ID=%i", iStreamID);
 }
 
 void Xine_Stream_Factory::setVideoDriver(string strVideoDriver)

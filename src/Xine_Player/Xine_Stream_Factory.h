@@ -48,6 +48,7 @@ namespace DCE
 			void DetectOutputDrivers();
 			
 			map<int, Xine_Stream*> streamsMap;
+			//map<int, Xine_Stream*> broadcastersMap;
 			
 			// factory access controlling mutex
 			pluto_pthread_mutex_t m_factoryMutex;
@@ -67,7 +68,7 @@ namespace DCE
 			void setAudioSettings();
 			void setVideoDriver(string strVideoDriver);
 			
-			Xine_Stream *GetStream(int streamID, bool createIfNotExist=false, int requestingObject=-1);
+			Xine_Stream *GetStream(int streamID, bool createIfNotExist=false, int requestingObject=-1, bool bBroadcasting=false);
 			
 			void ReportAudioTracks(string sTracks);
 			void ReportSubtitles(string sSubtitles);

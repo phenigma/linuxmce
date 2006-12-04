@@ -68,7 +68,7 @@ static const char noCursorDataDescription[] =
 namespace DCE
 { // DCE namespace begin
 
-Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, int ID, int iTimeCodeReportFrequency, int iRequestingObject) :
+Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, int ID, int iTimeCodeReportFrequency, int iRequestingObject, bool bBroadcast) :
 		m_streamMutex("xine-stream-access-mutex"),
 		m_xine_osd_t(NULL)
 {
@@ -79,8 +79,12 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	
 	m_pFactory = pFactory;
 	m_pXineLibrary = pXineLibrary;
-	m_sXineAudioDriverName = m_pFactory->GetAudioDriver();
-	m_sXineVideoDriverName = m_pFactory->GetVideoDriver();
+	m_bBroadcaster = bBroadcast;
+	m_iBroadcastPort=0;
+		
+	m_sXineAudioDriverName = m_bBroadcaster?"none":m_pFactory->GetAudioDriver();
+	m_sXineVideoDriverName = m_bBroadcaster?"none":m_pFactory->GetVideoDriver();
+	
 	
 	m_pXineVisualizationPlugin = NULL;
 	m_pXineDeinterlacePlugin = NULL;
@@ -117,16 +121,20 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	m_pDynamic_Pointer = new Dynamic_Pointer(this, &cursors[0], &cursors[1]);
 	
 	// creating window
-	if ( !CreateWindows() )
-	{
-		g_pPlutoLogger->Write( LV_WARNING, "Stream output window creation failed");
-	}
+	if (!m_bBroadcaster)
+		if ( !CreateWindows() )
+		{
+			g_pPlutoLogger->Write( LV_WARNING, "Stream output window creation failed");
+		} else ;
+	else
+		g_pPlutoLogger->Write( LV_WARNING, "Not creating stream output window as we are broadcaster");
 }
 
 Xine_Stream::~Xine_Stream()
 {
 	ShutdownStream();
-	DestroyWindows();
+	if (!m_bBroadcaster)
+		DestroyWindows();
 }
 
 // prepare stream for usage
@@ -152,6 +160,10 @@ bool Xine_Stream::StartupStream()
 	m_iSeekMuteStatus = xine_get_param(m_pXineStream, XINE_PARAM_AUDIO_MUTE);
 	
 	m_bInitialized = true;
+	
+	if (m_bBroadcaster)
+		EnableBroadcast();
+	
 	return true;
 }
 
@@ -162,6 +174,11 @@ bool Xine_Stream::ShutdownStream()
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		if (!m_bInitialized)
 			return false;
+	}
+	
+	if (m_bBroadcaster && m_iBroadcastPort!=0)
+	{
+		DisableBroadcast();
 	}
 	
 	playbackCompleted(false );
@@ -385,49 +402,52 @@ bool Xine_Stream::CreateWindows()
 // initializes audion/video output ports, prepares stream for open
 bool Xine_Stream::InitXineAVOutput()
 {
-	// init visual for xine video
-	m_x11Visual.display = m_pXDisplay;
-	m_x11Visual.screen = m_iCurrentScreen;
-	m_x11Visual.d = windows[ m_iCurrentWindow ];
-	
-	m_x11Visual.dest_size_cb = &destinationSizeCallback;
-	m_x11Visual.frame_output_cb = &frameOutputCallback;
-	
-	m_x11Visual.user_data = this;
-
-	// init video output
-	g_pPlutoLogger->Write( LV_STATUS, "Opening Video Driver" );
+	if (!m_bBroadcaster)
 	{
-		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-		if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, m_sXineVideoDriverName.c_str(), XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
+		// init visual for xine video
+		m_x11Visual.display = m_pXDisplay;
+		m_x11Visual.screen = m_iCurrentScreen;
+		m_x11Visual.d = windows[ m_iCurrentWindow ];
+		
+		m_x11Visual.dest_size_cb = &destinationSizeCallback;
+		m_x11Visual.frame_output_cb = &frameOutputCallback;
+		
+		m_x11Visual.user_data = this;
+	
+		// init video output
+		g_pPlutoLogger->Write( LV_STATUS, "Opening Video Driver" );
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' video driver. Falling to 'xshm'.", m_sXineVideoDriverName.c_str() );
-			if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, "xshm", XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+			if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, m_sXineVideoDriverName.c_str(), XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
 			{
-				g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's 'xshm' video driver. Giving up." );
-				return false;
+				g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' video driver. Falling to 'xshm'.", m_sXineVideoDriverName.c_str() );
+				if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, "xshm", XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
+				{
+					g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's 'xshm' video driver. Giving up." );
+					return false;
+				}
+				else
+				{
+					m_sUsedVideoDriverName = "xshm";
+				}
 			}
 			else
 			{
-				m_sUsedVideoDriverName = "xshm";
+				m_sUsedVideoDriverName = m_sXineVideoDriverName;
 			}
 		}
-		else
+	
+		// init audio output
+		g_pPlutoLogger->Write( LV_STATUS, "Opening Audio Driver" );
 		{
-			m_sUsedVideoDriverName = m_sXineVideoDriverName;
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+			if ( ( m_pXineAudioOutput = xine_open_audio_driver( m_pXineLibrary, m_sXineAudioDriverName.c_str(), NULL ) ) == NULL )
+			{
+				g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' audio driver.", m_sXineAudioDriverName.c_str() );
+				xine_close_video_driver(m_pXineLibrary, m_pXineVideoOutput);
+				return false;
 		}
 	}
-
-	// init audio output
-	g_pPlutoLogger->Write( LV_STATUS, "Opening Audio Driver" );
-	{
-		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-		if ( ( m_pXineAudioOutput = xine_open_audio_driver( m_pXineLibrary, m_sXineAudioDriverName.c_str(), NULL ) ) == NULL )
-		{
-			g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' audio driver.", m_sXineAudioDriverName.c_str() );
-			xine_close_video_driver(m_pXineLibrary, m_pXineVideoOutput);
-			return false;
-		}
 	}
 
 	// init xine stream
@@ -453,18 +473,21 @@ bool Xine_Stream::InitXineAVOutput()
 	}
 	xine_event_create_listener_thread( m_pXineStreamEventQueue, XineStreamEventListener, this );
 
-	xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 0 );
-	xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_DRAWABLE_CHANGED, ( void * ) windows[ m_iCurrentWindow ] );
-	xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 1 );
-	
-	// creating new osd panel
-	g_pPlutoLogger->Write( LV_STATUS, "Calling xine_osd_new" );
+	if (!m_bBroadcaster)
 	{
-		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-		m_xine_osd_t = xine_osd_new( m_pXineStream, 0, 0, 1000, 100 );
-		xine_osd_set_font( m_xine_osd_t, "sans", 20 );
-		xine_osd_set_text_palette( m_xine_osd_t, XINE_TEXTPALETTE_WHITE_BLACK_TRANSPARENT, XINE_OSD_TEXT1 );		
-	}	
+		xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 0 );
+		xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_DRAWABLE_CHANGED, ( void * ) windows[ m_iCurrentWindow ] );
+		xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 1 );
+	
+		// creating new osd panel
+		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_osd_new" );
+		{
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+			m_xine_osd_t = xine_osd_new( m_pXineStream, 0, 0, 1000, 100 );
+			xine_osd_set_font( m_xine_osd_t, "sans", 20 );
+			xine_osd_set_text_palette( m_xine_osd_t, XINE_TEXTPALETTE_WHITE_BLACK_TRANSPARENT, XINE_OSD_TEXT1 );		
+		}	
+	}
 	
 	return true;
 }
@@ -580,6 +603,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		// reporting about image
 		g_pPlutoLogger->Write( LV_STATUS, "Got image dimensions: %dx%d", m_iImgWidth, m_iImgWidth );
 
+		if (!m_bBroadcaster)
 		{
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 			xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_DRAWABLE_CHANGED, ( void * ) windows[ m_iCurrentWindow ] );
@@ -872,7 +896,7 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 	while ( ! pStream->m_bExitThread )
 	{
 		//reading and process X-events
-		if ( pStream->m_bIsRendering )
+		if ( pStream->m_bIsRendering && !pStream->m_bBroadcaster)
 		{
 			do
 			{
@@ -1405,6 +1429,9 @@ void Xine_Stream::DisplayOSDText( string sText )
 		return;
 	}
 
+	// there is no OSD
+	if (!m_xine_osd_t)
+		return;
 	
 	if ( sText.size() == 0 )
 	{
@@ -1993,7 +2020,7 @@ bool Xine_Stream::playStream( string mediaPosition)
 	}
 	
 	// hiding OSD panel
-	xine_osd_hide(m_xine_osd_t, 0);
+	DisplayOSDText("");
 	
 	time_t startTime = time( NULL );
 
@@ -2499,33 +2526,47 @@ void Xine_Stream::playbackCompleted( bool bWithErrors )
 	}
 }
 
-int Xine_Stream::enableBroadcast( int iStreamID )
+int Xine_Stream::DisableBroadcast( )
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "enableBroadcast called on non-initialized stream - aborting command");
+		g_pPlutoLogger->Write( LV_WARNING, "EnableBroadcast called on non-initialized stream - aborting command");
 		return false;
 	}
-
 	
-	int portNumber = 7866;
-	if ( portNumber != xine_get_param( m_pXineStream, XINE_PARAM_BROADCASTER_PORT ) )
 	{
-        //         if( port && xine_get_param(pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT) )
-		xine_set_param( m_pXineStream, XINE_PARAM_BROADCASTER_PORT, portNumber );
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		xine_set_param( m_pXineStream, XINE_PARAM_BROADCASTER_PORT, 0 );
+		m_iBroadcastPort = 0;
+	}	
+}
 
-        /* try up to ten times from port base. sometimes we have trouble
-		* binding to the same port we just used.
-				*/
+int Xine_Stream::EnableBroadcast( )
+{
+	if (!m_bInitialized)
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "EnableBroadcast called on non-initialized stream - aborting command");
+		return m_iBroadcastPort=0;
+	}
+
+	// base port for broadcast
+ 	int portNumber = 20000;
+ 	{
+ 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 		for ( int i = 0; i < 10; i++ )
 		{
 			xine_set_param( m_pXineStream, XINE_PARAM_BROADCASTER_PORT, ++portNumber );
 			if ( portNumber == xine_get_param( m_pXineStream, XINE_PARAM_BROADCASTER_PORT ) )
-				return portNumber;
+			{
+				m_iBroadcastPort=portNumber;
+				g_pPlutoLogger->Write( LV_WARNING, "Enabled broadcast on port; %i", m_iBroadcastPort);
+				return m_iBroadcastPort;
+			}
 		}
 	}
-
-	return 0;
+	
+	g_pPlutoLogger->Write( LV_WARNING, "Enabling broadcast failed");
+	return m_iBroadcastPort=0;
 }
 
 void Xine_Stream::simulateMouseClick( int X, int Y )

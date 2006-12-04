@@ -214,7 +214,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	}
 	
 
-	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, true, pMessage->m_dwPK_Device_From);
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, true, pMessage?pMessage->m_dwPK_Device_From:0);
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s (%s) with corresponding stream %p.", sMediaURL.c_str(),sMediaPosition.c_str(),pStream);
 	
@@ -255,6 +255,32 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
 			EVENT_Playback_Started(sMediaURL,iStreamID,sMediaInfo,pStream->m_sAudioInfo,pStream->m_sVideoInfo);
+			
+			// telling to all slaves to start playback
+			if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
+			{
+				string sSlaveMediaURL;
+				sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sMyIPAddress + ":" + StringUtils::itos(pStream->m_iBroadcastPort);
+				g_pPlutoLogger->Write(LV_WARNING, "Slave URL: %s", sSlaveMediaURL.c_str());
+				string streamingTargets = pStream->m_sBroadcastTargets;
+				string::size_type tokenPos=0;
+				string curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
+				while (curTarget!="")
+				{
+					int targetDevice = atoi(curTarget.c_str());
+					if (targetDevice)
+					{
+						// if local instance, adding 1000 to streamID
+						DCE::CMD_Play_Media cmd(m_dwPK_Device, targetDevice, iPK_MediaType, (targetDevice==m_dwPK_Device)?(iStreamID+1000):iStreamID, 
+							sMediaPosition, sSlaveMediaURL);
+						SendCommandNoResponse(cmd);
+						g_pPlutoLogger->Write(LV_WARNING, "Starting playback on device %i %s, stream ID=%i", targetDevice, (targetDevice==m_dwPK_Device)?"[local]":"[remote]",
+							(targetDevice==m_dwPK_Device)?(iStreamID+1000):iStreamID );
+					}
+						
+					curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
+				}
+			}
 		}
 		else
 		{
@@ -263,6 +289,32 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
 				EVENT_Playback_Started(sMediaURL,iStreamID,sMediaInfo,pStream->m_sAudioInfo,pStream->m_sVideoInfo);
+			
+				// telling to all slaves to start playback
+				if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
+				{
+					string sSlaveMediaURL;
+					sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sMyIPAddress + ":" + StringUtils::itos(pStream->m_iBroadcastPort);
+					g_pPlutoLogger->Write(LV_WARNING, "Slave URL: %s", sSlaveMediaURL.c_str());
+					string streamingTargets = pStream->m_sBroadcastTargets;
+					string::size_type tokenPos=0;
+					string curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
+					while (curTarget!="")
+					{
+						int targetDevice = atoi(curTarget.c_str());
+						if (targetDevice)
+						{
+							// if local instance, adding 1000 to streamID
+							DCE::CMD_Play_Media cmd(m_dwPK_Device, targetDevice, iPK_MediaType, (targetDevice==m_dwPK_Device)?(iStreamID+1000):iStreamID, 
+								sMediaPosition, sSlaveMediaURL);
+							SendCommandNoResponse(cmd);
+							g_pPlutoLogger->Write(LV_WARNING, "Starting playback on device %i %s, stream ID=%i", targetDevice, (targetDevice==m_dwPK_Device)?"[local]":"[remote]",
+								(targetDevice==m_dwPK_Device)?(iStreamID+1000):iStreamID );
+						}
+							
+						curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
+					}
+				}
 			}
 			else
 			{
@@ -276,6 +328,8 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() Failed to open media");
 	}
+	
+	
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() ended for filename: %s with stream %p.", sMediaURL.c_str(), pStream);
 	
@@ -306,6 +360,31 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sC
 	pStream->pauseMediaStream();
 	*sMediaPosition = pStream->GetPosition();
 	
+	
+	// telling to all slaves to start playback
+	if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
+	{
+		string streamingTargets = pStream->m_sBroadcastTargets;
+		string::size_type tokenPos=0;
+		string curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
+		while (curTarget!="")
+		{
+			int targetDevice = atoi(curTarget.c_str());
+			if (targetDevice)
+			{
+				// if local instance, adding 1000 to streamID
+				string sPos;
+				DCE::CMD_Stop_Media cmd(m_dwPK_Device, targetDevice, (targetDevice==m_dwPK_Device)?(iStreamID+1000):iStreamID, &sPos );
+				SendCommandNoResponse(cmd);
+				g_pPlutoLogger->Write(LV_WARNING, "Stopping playback on device %i %s, stream ID=%i", targetDevice, (targetDevice==m_dwPK_Device)?"[local]":"[remote]",
+					(targetDevice==m_dwPK_Device)?(iStreamID+1000):iStreamID );
+			}
+				
+			curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
+		}
+	}
+
+
 	pStream->CloseMedia();
 	
 	ptrFactory->CloseStreamAV( iStreamID );
@@ -1146,4 +1225,38 @@ string Xine_Player::Get_MD_AudioSettings()
 void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string sStreamingTargets,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
 {
+	// streaming logic:
+	// locally the broadcasting stream is created, with performing output to devnull (plus to socket)
+	// CMD_Play_Media is sent to each streaming target
+	// 
+	// as all playback control commands will be sent only to the local xine, 
+	// then we need to control "stream as a whole"
+	
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, false );
+	// if stream already exists - we must stop it and all corresponding targets
+	if (pStream!=NULL)
+	{
+		string sPos;
+		CMD_Stop_Media( iStreamID, &sPos);
+		
+		// if current instance of stream is not broadcaster, we must kill it and re-create
+		if (!pStream->m_bBroadcaster)
+		{
+			ptrFactory->DestroyStream(iStreamID);
+		}
+	}
+	
+	pStream =  ptrFactory->GetStream( iStreamID, true, pMessage->m_dwPK_Device_From, true);
+		
+	if (pStream==NULL)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() stream is NULL, aborting - init failure?");
+		return;
+	}
+	else
+	{
+		pStream->m_sBroadcastTargets = sStreamingTargets;
+		CMD_Play_Media( iPK_MediaType, iStreamID, sMediaPosition, sMediaURL);
+	}
+	
 }
