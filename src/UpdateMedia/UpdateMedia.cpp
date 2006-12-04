@@ -557,8 +557,8 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 		"FROM pluto_media.File "
 		"LEFT JOIN pluto_main.Device_DeviceData ON pluto_main.Device_DeviceData.FK_Device = pluto_media.File.EK_Device "
 		"AND FK_DeviceData = " + StringUtils::ltos(DEVICEDATA_Online_CONST) + " "
-		"WHERE pluto_media.File.Path LIKE 'c:/home/public/data/audio/chris/win32/%' OR "
-		"pluto_media.File.Path = 'c:/home/public/data/audio/chris/win32'";
+		"WHERE pluto_media.File.Path LIKE '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sDirectory)) + "/%' OR "
+		"pluto_media.File.Path = '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sDirectory)) + "'";
 
 	enum SqlFields
 	{
@@ -570,6 +570,7 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 		sfOnline
 	};
 
+	bool bRowsAffected = false;
 	MYSQL_ROW row;
 	PlutoSqlResult allresult;
 	if(NULL != (allresult.r = m_pDatabase_pluto_media->mysql_query_result(sSql)))
@@ -597,6 +598,7 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 					{
 						if(ConfirmDeviceIsOnline(nDeviceID))
 						{
+							bRowsAffected = true;
 							string sUpdateSql = "UPDATE File SET Missing = 1 WHERE PK_File = " + StringUtils::ltos(nFileID);
 							m_pDatabase_pluto_media->threaded_mysql_query(sUpdateSql);
 							g_pPlutoLogger->Write(LV_STATUS, "Marking record as missing in database: %s", sFilePath.c_str());
@@ -607,6 +609,7 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 					}
 					else if(!bFileIsMissing && bDbFileMissing)
 					{
+						bRowsAffected = true;
 						string sUpdateSql = "UPDATE File SET Missing = 0 WHERE PK_File = " + StringUtils::ltos(nFileID);
 						m_pDatabase_pluto_media->threaded_mysql_query(sUpdateSql);
 						g_pPlutoLogger->Write(LV_STATUS, "Marking record as NOT missing in database: %s", sFilePath.c_str());
@@ -618,13 +621,21 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 				else
 					g_pPlutoLogger->Write(LV_STATUS, "Device is offline, skipping the file %s", sFilePath.c_str());
 			}
+
+			if(m_bAsDaemon)
+				Sleep(2);
 		}
+	}
+
+	if(bRowsAffected)
+	{
+		//TODO: refresh File ?
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "DB sync'd with directory!");
 }
 
-bool UpdateMedia::ConfirmDeviceIsOnline(long EK_Device)
+bool UpdateMedia::ConfirmDeviceIsOnline(long /*EK_Device*/)
 {
 	//TODO: find an elegant way to confirm that a device is online
 	return true;
