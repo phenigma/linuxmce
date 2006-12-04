@@ -3,7 +3,7 @@
 
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_main/Database_pluto_main.h"
-
+#include "MediaState.h"
 
 class UpdateMedia 
 {
@@ -11,6 +11,7 @@ class UpdateMedia
 	map<string,int> m_mapExtensions;
 	bool m_bAsDaemon;
 	int m_nPK_Installation;
+	MapDbStateEx m_mapCurrentDbState;
 
 	void ReadConfigFile();
 

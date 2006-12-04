@@ -6,6 +6,7 @@
 using namespace std;
 //-----------------------------------------------------------------------------------------------------
 typedef map<int /*pk_file*/, pair<int /*attr count*/, string /*max timestamp*/> > MapDbState;
+typedef map<pair<string /*path*/, string /*filename*/>, pair<int /*attr count*/, string /*max timestamp*/> > MapDbStateEx;
 typedef map<pair<string /*path*/, string /*filename*/>, pair<int /*pk_file*/, string /*timestamp*/> > MapFileState;
 //-----------------------------------------------------------------------------------------------------
 class Database_pluto_media;
@@ -31,6 +32,9 @@ public:
 		string& sDbTimestamp, int& nAttributesCount);
 	void ReadDbInfo(Database_pluto_media *pDatabase_pluto_media, pair<string, string> pairFilePath,
 		string& sDbTimestamp, int& nAttributesCount);
+	void ReadDbInfoForAllFiles(Database_pluto_media *pDatabase_pluto_media, string sRootDirectory, 
+		MapDbStateEx& mapCurrentDbState);
+
 	void ReadFileInfo(pair<string, string> pairFilePath, string& sFileTimestamp);
 };
 //-----------------------------------------------------------------------------------------------------

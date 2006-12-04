@@ -99,6 +99,44 @@ void MediaState::ReadDbInfo(Database_pluto_media *pDatabase_pluto_media, pair<st
 	}
 }
 //-----------------------------------------------------------------------------------------------------
+void MediaState::ReadDbInfoForAllFiles(Database_pluto_media *pDatabase_pluto_media, string sRootDirectory, 
+	MapDbStateEx& mapCurrentDbState)
+{
+	string sSql = 
+		"SELECT Path, Filename, GREATEST(MAX(File.psc_mod), MAX(Attribute.psc_mod), MAX(File_Attribute.psc_mod)), COUNT(*) "
+		"FROM File "
+		"LEFT JOIN File_Attribute ON File_Attribute.FK_File = File.PK_File "
+		"LEFT JOIN Attribute ON Attribute.PK_Attribute = File_Attribute.FK_Attribute "
+		"WHERE Path LIKE '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sRootDirectory)) + "%' "
+		"GROUP BY Path, Filename";
+
+	enum SqlFields
+	{
+		sfPath,
+		sfFilename,
+		sfMaxTimestamp,
+		sfAttrCount
+	};
+
+	MYSQL_ROW row;
+	PlutoSqlResult allresult;
+	if(NULL != (allresult.r = pDatabase_pluto_media->mysql_query_result(sSql)))
+	{
+		while((row = mysql_fetch_row(allresult.r)))
+		{
+			if(NULL != row && NULL != row[sfPath] && NULL != row[sfFilename] && NULL != row[sfMaxTimestamp] && NULL != row[sfAttrCount])
+			{
+				string sPath = row[sfPath];
+				string sFilename = row[sfFilename];
+				string sDbTimestamp = row[sfMaxTimestamp];
+				int nAttributesCount = atoi(row[sfAttrCount]);
+
+				mapCurrentDbState[make_pair(sPath, sFilename)] = make_pair(nAttributesCount, sDbTimestamp);
+			}
+		}
+	}
+}
+//-----------------------------------------------------------------------------------------------------
 void MediaState::ReadFileInfo(pair<string, string> pairFilePath, string& sFileTimestamp)
 {
 	sFileTimestamp = "";

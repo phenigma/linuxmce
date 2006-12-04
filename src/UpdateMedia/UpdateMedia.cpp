@@ -183,6 +183,12 @@ void UpdateMedia::DoIt()
 		exit(1);
 	}
 
+	if(m_bAsDaemon)
+	{
+		m_mapCurrentDbState.clear();
+		MediaState::Instance().ReadDbInfoForAllFiles(m_pDatabase_pluto_media, m_sDirectory, m_mapCurrentDbState);
+	}
+
 	ReadDirectory(m_sDirectory, !m_bAsDaemon);
     SyncDbWithDirectory(m_sDirectory); //mark missing/not-missing files, recursively
 }
@@ -227,17 +233,20 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 
 		if(m_bAsDaemon)
 		{
-			string sDbTimestamp;
-			int nAttributesCount;
-			MediaState::Instance().ReadDbInfo(m_pDatabase_pluto_media, make_pair(sDirectory, sFile), sDbTimestamp, nAttributesCount);
-			string sFileTimestamp;
-			MediaState::Instance().ReadFileInfo(make_pair(sDirectory, sFile), sFileTimestamp);
-
-			if(!MediaState::Instance().NeedsSync(sDirectory, sFile, sDbTimestamp, nAttributesCount, sFileTimestamp))
+			MapDbStateEx::iterator itdb = m_mapCurrentDbState.find(make_pair(sDirectory, sFile));
+			if(itdb != m_mapCurrentDbState.end())
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "Ignoring %s/%s (it's already sync'd)", sDirectory.c_str(), sFile.c_str()); 
-				Sleep(5);
-				continue;
+				int nAttributesCount = itdb->second.first;
+				string sDbTimestamp = itdb->second.second;
+				string sFileTimestamp;
+				MediaState::Instance().ReadFileInfo(make_pair(sDirectory, sFile), sFileTimestamp);
+
+				if(!MediaState::Instance().NeedsSync(sDirectory, sFile, sDbTimestamp, nAttributesCount, sFileTimestamp))
+				{
+					g_pPlutoLogger->Write(LV_STATUS, "Ignoring %s/%s (it's already sync'd)", sDirectory.c_str(), sFile.c_str()); 
+					Sleep(5);
+					continue;
+				}
 			}
 
 			g_pPlutoLogger->Write(LV_STATUS, "Processing %s/%s (it's not sync'd)", sDirectory.c_str(), sFile.c_str()); 
@@ -542,56 +551,75 @@ void UpdateMedia::UpdateThumbnails()
 void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Sync'ing db with directory...");
-	
-    bool bRecordsModified = false;
 
-	vector<Row_File *> vectRow_File;
-	m_pDatabase_pluto_media->File_get()->GetRows("Path LIKE '" + StringUtils::SQLEscape(sDirectory) + "/%' OR Path = '" + StringUtils::SQLEscape(sDirectory) + "'",
-		&vectRow_File);
+	string sSql =
+		"SELECT PK_File, Path, Filename, Missing, EK_Device, pluto_main.Device_DeviceData.IK_DeviceData "
+		"FROM pluto_media.File "
+		"LEFT JOIN pluto_main.Device_DeviceData ON pluto_main.Device_DeviceData.FK_Device = pluto_media.File.EK_Device "
+		"AND FK_DeviceData = " + StringUtils::ltos(DEVICEDATA_Online_CONST) + " "
+		"WHERE pluto_media.File.Path LIKE 'c:/home/public/data/audio/chris/win32/%' OR "
+		"pluto_media.File.Path = 'c:/home/public/data/audio/chris/win32'";
 
-	for(vector<Row_File *>::iterator it = vectRow_File.begin(), end = vectRow_File.end(); it != end; ++it)
+	enum SqlFields
 	{
-		if(m_bAsDaemon)
-			Sleep(40);
+		sfFileID,
+		sfPath,
+		sfFilename,
+		sfMissing,
+		sfDeviceID,
+		sfOnline
+	};
 
-		Row_File *pRow_File = *it;
-        string sFilePath = pRow_File->Path_get() + "/" + pRow_File->Filename_get();
-        bool bFileIsMissing = !FileUtils::FileExists(sFilePath);
-
-		bool bDeviceOnline = true;
-		if(pRow_File->EK_Device_get() != 0)
+	MYSQL_ROW row;
+	PlutoSqlResult allresult;
+	if(NULL != (allresult.r = m_pDatabase_pluto_media->mysql_query_result(sSql)))
+	{
+		while((row = mysql_fetch_row(allresult.r)))
 		{
-			Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(
-				pRow_File->EK_Device_get(), DEVICEDATA_Online_CONST);
-
-			if(NULL != pRow_Device_DeviceData)
-				bDeviceOnline = (pRow_Device_DeviceData->IK_DeviceData_get() == "1");
-		}
-		
-		if(bDeviceOnline)
-		{
-			if(bFileIsMissing && !pRow_File->Missing_get()) 
+			if(
+				NULL != row && NULL != row[sfFileID] &&  NULL != row[sfPath] && 
+				NULL != row[sfFilename] && NULL != row[sfMissing]
+			)
 			{
-				if(ConfirmDeviceIsOnline(pRow_File->EK_Device_get()))
+				int nFileID = atoi(row[sfFileID]);
+				string sPath = row[sfPath];
+				string sFilename = row[sfFilename];
+				bool bDbFileMissing = atoi(row[sfMissing]) != 0;
+				bool bDeviceOnline = NULL != row[sfOnline] ? atoi(row[sfOnline]) != 0 : true;
+				int nDeviceID = NULL != row[sfDeviceID] ? atoi(row[sfDeviceID]) : 0;
+
+				string sFilePath = sPath + "/" + sFilename;
+				bool bFileIsMissing = !FileUtils::FileExists(sFilePath);
+
+				if(bDeviceOnline)
 				{
-					pRow_File->Missing_set(1);
-					g_pPlutoLogger->Write(LV_STATUS, "Marking record as missing in database: %s", sFilePath.c_str());
-					bRecordsModified = true;
+					if(bFileIsMissing && !bDbFileMissing) 
+					{
+						if(ConfirmDeviceIsOnline(nDeviceID))
+						{
+							string sUpdateSql = "UPDATE File SET Missing = 1 WHERE PK_File = " + StringUtils::ltos(nFileID);
+							m_pDatabase_pluto_media->threaded_mysql_query(sUpdateSql);
+							g_pPlutoLogger->Write(LV_STATUS, "Marking record as missing in database: %s", sFilePath.c_str());
+
+							if(m_bAsDaemon)
+								Sleep(50);
+						}
+					}
+					else if(!bFileIsMissing && bDbFileMissing)
+					{
+						string sUpdateSql = "UPDATE File SET Missing = 0 WHERE PK_File = " + StringUtils::ltos(nFileID);
+						m_pDatabase_pluto_media->threaded_mysql_query(sUpdateSql);
+						g_pPlutoLogger->Write(LV_STATUS, "Marking record as NOT missing in database: %s", sFilePath.c_str());
+
+						if(m_bAsDaemon)
+							Sleep(50);
+					}
 				}
-			}
-			else if(!bFileIsMissing && pRow_File->Missing_get())
-			{
-				pRow_File->Missing_set(0);
-				g_pPlutoLogger->Write(LV_STATUS, "Marking record as NOT missing in database: %s", sFilePath.c_str());
-				bRecordsModified = true;
+				else
+					g_pPlutoLogger->Write(LV_STATUS, "Device is offline, skipping the file %s", sFilePath.c_str());
 			}
 		}
-		else
-			g_pPlutoLogger->Write(LV_STATUS, "Device is offline, skipping the file %s", sFilePath.c_str());
 	}
-
-    if(bRecordsModified)
-        m_pDatabase_pluto_media->File_get()->Commit();
 
 	g_pPlutoLogger->Write(LV_STATUS, "DB sync'd with directory!");
 }
