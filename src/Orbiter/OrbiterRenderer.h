@@ -265,6 +265,8 @@ public:
 		string sDisable_Aspect_Lock);
 
 	virtual void RemoveGraphic(string ObjectID) {}
+
+	virtual void ObjectRendered(DesignObj_Orbiter *pObj_Screen, PlutoPoint point){}
 };
 
 #endif //__ORBITER_RENDERER_H__

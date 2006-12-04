@@ -480,6 +480,8 @@ int k=2;
 
 /*virtual*/ bool ObjectRenderer::PostRenderActions(DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
+	m_pObj_Owner->m_pOrbiter->Renderer()->ObjectRendered(pObj_Screen, point);
+
 	PROFILE_STOP( ctObj,  m_ObjectID.c_str(  ) )
 		DesignObj_DataList::reverse_iterator iHao;
 
