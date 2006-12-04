@@ -689,12 +689,12 @@ bool Orbiter::GetConfig()
 	vector<string> vectShortcuts;
 	string sShortcuts=DATA_Get_Shortcut();
 	StringUtils::Tokenize(sShortcuts,"\r\n",vectShortcuts);
- 	for(vector<string>::iterator it=vectShortcuts.begin();it!=vectShortcuts.end();++it)
+ 	for(vector<string>::iterator it_shortcuts=vectShortcuts.begin();it_shortcuts!=vectShortcuts.end();++it_shortcuts)
 	{
 		string::size_type pos=0;
-		bool bAutomatic = StringUtils::Tokenize( *it, "\t", pos )=="1";
-		string sCharacter = StringUtils::Tokenize( *it, "\t", pos );
-		string sMessage = StringUtils::Tokenize( *it, "\t", pos );
+		bool bAutomatic = StringUtils::Tokenize( *it_shortcuts, "\t", pos )=="1";
+		string sCharacter = StringUtils::Tokenize( *it_shortcuts, "\t", pos );
+		string sMessage = StringUtils::Tokenize( *it_shortcuts, "\t", pos );
 
 		if( sCharacter.empty() || sMessage.empty() )
 			continue;
