@@ -1117,6 +1117,13 @@
 #define TEXT_Room_CONST 1833
 #define TEXT_Change_CONST 1834
 #define TEXT_User_name_CONST 1836
+#define TEXT_Move_CONST 1837
+#define TEXT_Cell_Attribute_Title_CONST 1838
+#define TEXT_Cell_Attribute_Name_CONST 1839
+#define TEXT_FBSF_Viwed_Only_CONST 1840
+#define TEXT_FBSF_Unviewed_Only_CONST 1841
+#define TEXT_Confirm_Halt_CONST 1842
+#define TEXT_Reset_CONST 1843
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

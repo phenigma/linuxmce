@@ -2285,8 +2285,17 @@
 #define DESIGNOBJ_butChangeUser_CONST 5252
 #define DESIGNOBJ_grpPrivateMedia_CONST 5262
 #define DESIGNOBJ_grpFileFormat_CONST 5263
+#define DESIGNOBJ_butFBSF_Delete_CONST 5264
+#define DESIGNOBJ_butFBSF_Move_CONST 5265
+#define DESIGNOBJ_butFBSF_Attribute_CONST 5266
 #define DESIGNOBJ_butFBSF_Show_More_CONST 5267
+#define DESIGNOBJ_butFBSF_More_ViewedOnly_CONST 5268
 #define DESIGNOBJ_popFBSF_More_CONST 5269
+#define DESIGNOBJ_butFBSF_Keyword_Search_CONST 5270
+#define DESIGNOBJ_butFBSF_More_UnviewedOnly_CONST 5271
+#define DESIGNOBJ_mnuSystemHalt_CONST 5272
+#define DESIGNOBJ_butCancelHalt_CONST 5273
+#define DESIGNOBJ_butRebootInstead_CONST 5274
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
