@@ -512,6 +512,13 @@ void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string &s
 		return;
 	}
 
+	string sPK_Orbiters = m_pOrbiter_Plugin->PK_Device_Orbiters_In_Room_get( pDevice->m_dwPK_Room, false );
+	if( !sPK_Orbiters.empty() )
+	{
+		DCE::SCREEN_PopupMessage_DL SCREEN_PopupMessage_DL(m_dwPK_Device,sPK_Orbiters,"Shutting down","","","","0","1");
+		SendCommand(SCREEN_PopupMessage_DL);
+	}
+
 	DeviceData_Router *pDevice_AppServer=NULL;
 	if( pDevice->m_pDevice_Core )
 		pDevice_AppServer = (DeviceData_Router *) ((DeviceData_Impl *) (pDevice->m_pDevice_Core))->FindSelfOrChildWithinCategory( DEVICECATEGORY_App_Server_CONST );
