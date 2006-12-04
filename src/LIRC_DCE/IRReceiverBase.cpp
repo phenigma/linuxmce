@@ -141,12 +141,14 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const c
 		if( itMessage!=pMapKeysToMessages->end() )
 		{
 			Message *pm = itMessage->second;
-			g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::ReceivedCode Sending Message Type %d ID %d by  code: %s device %d (screen %c remote layout %c)",
-					pm->m_dwMessage_Type,pm->m_dwID,pCode,PK_Device_Remote,m_cCurrentScreen,cRemoteLayout);
-			if( pm->m_dwMessage_Type==MESSAGETYPE_COMMAND && iRepeat )
-				pm->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST] = StringUtils::itos(iRepeat);
+			g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::ReceivedCode Sending Message Type %d ID %d by  code: %s device %d (screen %c remote layout %c) repeat %s/%d",
+					pm->m_dwMessage_Type,pm->m_dwID,pCode,PK_Device_Remote,m_cCurrentScreen,cRemoteLayout,pRepeat,iRepeat);
 
-			m_pCommand_Impl->QueueMessageToRouter(new Message(pm));
+			Message *pMessage = new Message(pm);
+			if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && iRepeat )
+				pMessage->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST] = StringUtils::itos(iRepeat);
+
+			m_pCommand_Impl->QueueMessageToRouter(pMessage);
 		}
 		else
 			g_pPlutoLogger->Write(LV_WARNING,"No mapping for code: %s device %d",pCode,PK_Device_Remote);
