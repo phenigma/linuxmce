@@ -38,7 +38,7 @@ void SetAccessRights(const string & sPath)
 	
 	if (grent != NULL)
 	{
-		chown(sPath.c_str(), -1, grent->gr_gid);
+		chown(sPath.c_str(), (uid_t)-1, grent->gr_gid);
 	}
 
 	stat(sPath.c_str(), &st);
@@ -110,18 +110,29 @@ void WatchDir(listOfMonitoredDirs & listMonitoredDirs, const string & sDirectory
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Watching directory '%s'", sDirectory.c_str());
 
-	listOfStrings listFiles;
-	FileUtils::FindFiles(listFiles, sDirectory, "*.*");
-	for (listOfStrings::iterator it_lOS = listFiles.begin(); it_lOS != listFiles.end(); it_lOS++)
-	{
-		SetAccessRights(sDirectory + "/" + *it_lOS);
-	}
-
+	// Add directory watch first
 	MonitoredDir struct_MonitoredDir;
 	struct_MonitoredDir.m_sPath = sDirectory;
 	struct_MonitoredDir.m_iWD = obj_Inotify.watch(sDirectory, IN_CREATE | IN_IGNORED);
 	
 	listMonitoredDirs.push_back(struct_MonitoredDir);
+
+	// Find files in this directory
+	listOfStrings listFiles;
+	FileUtils::FindFiles(listFiles, sDirectory, "*.*", false, true);
+	for (listOfStrings::iterator it_lOS = listFiles.begin(); it_lOS != listFiles.end(); it_lOS++)
+	{
+		SetAccessRights(*it_lOS);
+	}
+
+	// Find directories in this directory
+	listOfStrings listDirectories;
+	FileUtils::FindDirectories(listDirectories, sDirectory, false, true, 0, "", NULL);
+
+	for (listOfStrings::iterator it_lOS = listDirectories.begin(); it_lOS != listDirectories.end(); it_lOS++)
+	{
+		WatchDir(listMonitoredDirs, *it_lOS, obj_Inotify);
+	}
 }
 
 void OperateFile(listOfMonitoredDirs & listMonitoredDirs, inotify & obj_Inotify, cpp_inotify_event & event)
@@ -154,6 +165,10 @@ void OperateFile(listOfMonitoredDirs & listMonitoredDirs, inotify & obj_Inotify,
 
 int main(int argc, char *argv[])
 {
+	// avoid warnings
+	(void)argc;
+	(void)argv;
+
 	//g_pPlutoLogger = new FileLogger("/var/log/pluto/VoiceMailMonitor.log");
 	g_pPlutoLogger = new FileLogger(stdout);
 	string sDirectory = "/var/spool/asterisk/voicemail";
@@ -164,7 +179,9 @@ int main(int argc, char *argv[])
 
 	g_pPlutoLogger->Write(LV_STATUS, "Running Voicemail Monitor");
 
-	FileUtils::FindDirectories(listDirectories, sDirectory, true, true, 0, "", NULL);
+	// Find directories in starting directory
+	// Recursion is done by us, not by the function
+	FileUtils::FindDirectories(listDirectories, sDirectory, false, true);
 
 	for (listOfStrings::iterator it_lOS = listDirectories.begin(); it_lOS != listDirectories.end(); it_lOS++)
 	{
