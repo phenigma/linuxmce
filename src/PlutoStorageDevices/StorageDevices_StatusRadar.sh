@@ -26,6 +26,10 @@ DD_ONLINE=195
 DD_BLOCK_DEV=152
 DD_READONLY=194
 
+EV_User_Password_Mismatch=70
+
+EVP_PK_Device=26
+EVP_Comment=58
 
 function SetDeviceOnline() {
 	local Device_ID=$1
@@ -314,7 +318,9 @@ while : ;do
                         isShareMountable=$?
 
                         if [[ "$isShareMountable" != "0" ]] ;then
-				Log "Drive $IDrive_ID ($IDrive_IP $IDrive_BlockDev) cannot be mounted"
+                                Msg="Drive $IDrive_ID ($IDrive_IP $IDrive_BlockDev) cannot be mounted"
+                                Log "$Msg"
+                                /usr/pluto/bin/MessageSend "$DCERouter" 0 -1001 2 "$EV_User_Password_Mismatch" "$EVP_PK_Device" "$IDrive_ID" "$EVP_Comment" "$Msg"
                                 SetDeviceOnline "$IDrive_ID" "0"
                                 continue
                         fi

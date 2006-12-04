@@ -30,8 +30,6 @@ for ((i = 0; i < ${#Params[@]}; i++)); do
         esac
 done
 
-dd[[ -z "$NAS_PK_Device" ]] && exit 1
-
 #Check PK_Device
 if [[ "$Device_ID" == "" ]]; then
         echo "ERROR: No PK_Device assigned to this device"
