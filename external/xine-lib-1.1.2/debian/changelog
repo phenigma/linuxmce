@@ -1,3 +1,9 @@
+xine-lib (1.1.2-1pluto6) unstable; urgency=low
+
+  * Updated trick play patch
+
+ -- Kirill Belokurov <kirill.b@plutohome.com> Mon, 04 Dec 2006 23:35:30 +0200
+
 xine-lib (1.1.2-1pluto5) unstable; urgency=low
 
   * Updated trick play patch

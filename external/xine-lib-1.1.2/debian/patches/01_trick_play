@@ -364,8 +364,8 @@ diff -ruN xine-lib-1.1.2/src/xine-engine/xine.c xine-lib-1.1.2-new/src/xine-engi
 +
 +	if (_x_stream_info_get(stream, XINE_STREAM_INFO_TRICK_PLAY_SUPPORTED)==0)
 +	{
-+		xprintf (stream->xine, XINE_VERBOSITY_DEBUG, "start_trick_play_internal: stream doesn't support trick play\n");
-+		return 0;
++//		xprintf (stream->xine, XINE_VERBOSITY_DEBUG, "start_trick_play_internal: stream doesn't support trick play\n");
++//		return 0;
 +	}
 +	
 +	// backward playback is impossible at the moment
