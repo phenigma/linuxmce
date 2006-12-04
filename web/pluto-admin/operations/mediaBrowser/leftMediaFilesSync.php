@@ -85,10 +85,11 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 
 function getDirectories ($path) {
 	$dirs=array();
-	if (($d = @opendir ($path)) === false) 
+	if (($d = opendir ($path)) === false) {
 		return $dirs;
+	}
 	else {
-		while ($f = readdir ($d)) {
+		while (false !== ($f = readdir($d))) {
 			if ($f != "." && $f != "..") {
 				if (@is_dir ($path .'/'.$f)) {
 					$dirs[$path.'/'.$f]=$f;
