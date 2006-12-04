@@ -13,12 +13,6 @@ BEGIN {
 # output the part that interests us in the Screen/Device section
 function outputScreenOrDevice()
 {
-	if (OpenGL == 0)
-		return;
-	print "\tOption \"XvmcUsesTextures\" \"true\"";
-	print "\tOption \"AllowGLXWithComposite\" \"true\"";
-	print "\tOption \"AddARGBGLXVisuals\" \"true\"";
-	print "\tOption \"renderAccel\" \"true\"";
 #<-mkr_b_via_b->
 	# http://wiki.openchrome.org/tikiwiki/tiki-index.php?page=EXAAcceleration
 	print "\tOption \"AccelMethod\" \"exa\"";
@@ -26,6 +20,13 @@ function outputScreenOrDevice()
 	print "\tOption \"MaxDRIMem\" \"16384\"";
 	print "\tOption \"MigrationHeuristic\" \"greedy\"";
 #<-mkr_b_via_e->
+
+	if (OpenGL == 0)
+		return;
+	print "\tOption \"XvmcUsesTextures\" \"true\"";
+	print "\tOption \"AllowGLXWithComposite\" \"true\"";
+	print "\tOption \"AddARGBGLXVisuals\" \"true\"";
+	print "\tOption \"renderAccel\" \"true\"";
 }
 
 function outputExtensions()
