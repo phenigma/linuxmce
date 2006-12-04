@@ -49,7 +49,7 @@ function SetDeviceOnline() {
 			umount -lf /mnt/device/$Device_ID 2>/dev/null 1>/dev/null
 		fi
 
-		/usr/pluto/bin/MessageSend -targetType template $Device_ID $TPL_MEDIA_PLUGIN 1 $CMD_REFRESH_LIST_OF_ONLINE_DEVICES	
+		/usr/pluto/bin/MessageSend "$DCERouter" -targetType template $Device_ID $TPL_MEDIA_PLUGIN 1 $CMD_REFRESH_LIST_OF_ONLINE_DEVICES	
 
 		Log "----------------- DEVICE $Device_ID $OnlineValue"		
 	else
@@ -167,7 +167,9 @@ while : ;do
 			isShareMountable=$?
 			
 			if [[ "$isShareMountable" != "0" ]] ;then
-				Log "Share $Share_ID ($Share_Name) is not mountable with the username/pass that i have"
+				Msg="Share $Share_ID ($Share_Name) is not mountable with the username/pass that i have"
+				Log "$Msg"
+                /usr/pluto/bin/MessageSend "$DCERouter" 0 -1001 2 "$EV_User_Password_Mismatch" "$EVP_PK_Device" "$Share_ID" "$EVP_Comment" "$Msg"
 				SetDeviceOnline "$Share_ID" "0"
 				continue
 			fi
@@ -320,7 +322,6 @@ while : ;do
                         if [[ "$isShareMountable" != "0" ]] ;then
                                 Msg="Drive $IDrive_ID ($IDrive_IP $IDrive_BlockDev) cannot be mounted"
                                 Log "$Msg"
-                                /usr/pluto/bin/MessageSend "$DCERouter" 0 -1001 2 "$EV_User_Password_Mismatch" "$EVP_PK_Device" "$IDrive_ID" "$EVP_Comment" "$Msg"
                                 SetDeviceOnline "$IDrive_ID" "0"
                                 continue
                         fi
