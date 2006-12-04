@@ -288,7 +288,13 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
             return;
 		}
 		string p1=stripped.substr(0, pos);
-		string p2=stripped.substr(pos+1,sPhoneCallID.length());
+		string p2=stripped.substr(pos+1/*,sPhoneCallID.length()*/);
+		pos = p2.rfind(' ');
+        if(pos>=0)
+        {
+        	p2 = p2.substr(pos+1);
+        }
+		
 		string devext=string("/")+StringUtils::itos(dev2ext[pMessage->m_dwPK_Device_From]);
 		string rest=p1;
 		string hang=p2;
