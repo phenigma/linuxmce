@@ -504,6 +504,9 @@ void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string &s
 {
 	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
 	if( !pDevice )
+		pDevice = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
+
+	if( !pDevice )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot halt unknown device %d",iPK_Device);
 		return;
