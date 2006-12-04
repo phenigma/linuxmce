@@ -55,6 +55,12 @@ OrbiterLinux * MouseBehavior_Linux::ptrOrbiterLinux()
 
 void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 {
+	if(0 == ptrOrbiterLinux()->GetMainWindow())
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "MouseBehavior_Linux::SetMousePosition error: main window not created yet!");
+		return;
+	}
+
 	MouseBehavior::SetMousePosition(X,Y);
     g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::SetMousePosition() : Moving mouse (relative %d,%d)",X,Y);
     ptrOrbiterLinux()->m_pX11->Mouse_SetPosition(X, Y);
@@ -106,7 +112,12 @@ void MouseBehavior_Linux::ShowMouse(bool bShow)
 
 bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
 {
-return true;
+	if(0 == ptrOrbiterLinux()->GetMainWindow())
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "MouseBehavior_Linux::ConstrainMouse error: main window not created yet!");
+		return false;
+	}
+
 	m_rMouseConstrained = rect;
 	m_bMouseConstrained = rect.X!=0 || rect.Y!=0 || rect.Width!=0 || rect.Height!=0;
     //return false;

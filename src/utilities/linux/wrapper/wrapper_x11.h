@@ -363,13 +363,43 @@ public:
 
     // use a file bitmap
     bool Shape_Window_Apply(Window window, const string &sPath, int shape_op=0);
+    
+    // use a file bitmap and fill the pixmap parameter
+    bool Shape_Window_Apply(Window window, const string &sPath, Pixmap &pixmap, int shape_op=0);
 
     // use the bitmap data
     bool Shape_Window_Apply(Window window, const char *data_bitmap, unsigned int width, unsigned int height, int shape_op=0);
 
     bool Shape_Window_Reset(Window window);
     bool Shape_Window_Hide(Window window);
+	
+	bool Shape_PixmapMask_Rectangle(
+		Pixmap &pixmap,
+		unsigned int x,
+		unsigned int y,
+		unsigned int width,
+		unsigned int height,
+		bool bOpaque );
 
+	bool Shape_PixmapMask_Copy(
+		Pixmap &srcPixmap,
+		Pixmap &destPixmap,
+		unsigned int x,
+		unsigned int y,
+		unsigned int width,
+		unsigned int height,
+		unsigned int destX,
+		unsigned int destY,
+		bool bOpaque );
+	
+	bool Shape_PixmapMask_Copy(
+		Window window,
+		const string &sPath,
+		Pixmap &destPixmap,
+		unsigned int destX,
+		unsigned int destY,
+		bool bOpaque );
+	
 protected:
     bool Extension_Shape_Initialize();
 

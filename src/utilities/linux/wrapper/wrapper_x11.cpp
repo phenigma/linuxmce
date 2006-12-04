@@ -488,8 +488,8 @@ Window X11wrapper::Window_Create(int nPosX, int nPosY, unsigned int nWidth, unsi
             );
 
 	//make it transparent
-	unsigned int opacity = 0;
-	XChangeProperty(GetDisplay(), window, XInternAtom(GetDisplay(), OPACITY, False), XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &opacity, 1L);
+	//unsigned int opacity = 0;
+	//XChangeProperty(GetDisplay(), window, XInternAtom(GetDisplay(), OPACITY, False), XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &opacity, 1L);
 	
         _COND_XBOOL_LOG_ERR_BREAK(window != 0);
     } while ((xcode = 0));
@@ -614,7 +614,13 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
             int y_wm = 0;
             unsigned int w_wm = 0;
             unsigned int h_wm = 0;
-            if (bUse_WM_Window)
+
+			// we have a container wm-window here
+			// will translate the origin
+			int x_delta = 0;
+			int y_delta = 0;
+
+			if (bUse_WM_Window)
             {
                 // check if the wm reparented the window
                 window_wm = Window_GetDeepestParent(window);
@@ -625,16 +631,13 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
                 }
                 else
                 {
-                    // we have a container wm-window here
-                    // will translate the origin
-                    int x_delta = 0;
-                    int y_delta = 0;
-                    bool bResult = Window_TranslateCoordinates(window, window_wm, 0, 0, &x_delta, &y_delta, NULL);
-                    if (! bResult)
-                    {
-                        _LOG_ERR("cannot translate coordinates");
-                        continue;
-                    }
+					bool bResult = Window_TranslateCoordinates(window, window_wm, 0, 0, &x_delta, &y_delta, NULL);
+					if (! bResult)
+					{
+						_LOG_ERR("cannot translate coordinates");
+						continue;
+					}
+
                     //_LOG_NFO("x_delta==%d, y_delta==%d", x_delta, y_delta);
                     // read the actual position for window_wm
                     if (! Window_GetGeometry(window_wm, &x_wm, &y_wm, &w_wm, &h_wm))
@@ -644,17 +647,25 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
 #endif
                         continue;
                     }
-                    //_LOG_NFO("window_wm==%d => pos==(%d, %d, %d, %d)", window_wm, x_wm, y_wm, w_wm, h_wm);
+                    _LOG_NFO("window_wm==%d => pos==(%d, %d, %d, %d)", window_wm, x_wm, y_wm, w_wm, h_wm);
+					_LOG_NFO("deltax %d, deltay %d", x_delta, y_delta);
+
                     // compute the new coordinates
                     window_req = window_wm;
                     x_req = nPosX - x_delta;
                     y_req = nPosY - y_delta;
                     w_req = w_wm;
                     h_req = h_wm;
+
+					if(x_req < 0)
+						x_req = 0;
+
+					if(y_req < 0)
+						y_req = 0;
                 }
             }
             // real call
-            //_LOG_NFO("window_req==%d => pos==(%d, %d, %d, %d)", window_req, x_req, y_req, w_req, h_req);
+            _LOG_NFO("window_req==%d => pos==(%d, %d, %d, %d)", window_req, x_req, y_req, w_req, h_req);
             xcode = XMoveResizeWindow(GetDisplay(), window_req, x_req, y_req, w_req, h_req);
             usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
             Sync();
@@ -674,7 +685,20 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
 #endif
                 continue;
             }
-            //_LOG_NFO("window==%d => pos==(%d, %d, %d, %d)", window, x, y, w, h);
+
+			x = x - x_delta;
+			y = y - y_delta;
+
+			if(x < 0)
+				x = 0;
+
+			if(y < 0)
+				y = 0;
+
+
+			_LOG_NFO("chris window==%d => pos==(%d, %d, %d, %d)", window, x, y, w, h);
+
+
             bGoodPos = ( (x==nPosX) && (y==nPosY) && (w==nWidth) && (h==nHeight) );
             //_LOG_NFO("bGoodPos==%d", bGoodPos);
             // read the actual position for window_wm
@@ -687,6 +711,18 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
 #endif
                     continue;
                 }
+
+				x_wm = x_wm - x_delta;
+				y_wm = y_wm - y_delta;
+
+				if(x_wm < 0)
+					x_wm = 0;
+
+				if(y_wm < 0)
+					y_wm = 0;
+
+				_LOG_NFO("chris window wm==%d => pos==(%d, %d, %d, %d)", window, x_wm, x_wm, w_wm, h_wm);
+
                 bGoodPos_wm = ( (x_req==x_wm) && (y_req==y_wm) && (w_req==w_wm) && (h_req==h_wm) );
                 //_LOG_NFO("bGoodPos_wm==%d", bGoodPos_wm);
                 // check the real position
@@ -697,8 +733,9 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
                              window, x, y, w, h,
                              window_wm, x_wm, y_wm, w_wm, h_wm);
 #endif
-                    break;
+					break;
                 }
+
             }
             // check the real position
             if (bGoodPos)
@@ -711,7 +748,11 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
         }
     } while ((xcode = 0));
     if (!bGoodPos && !bGoodPos_wm)
-        _LOG_ERR("cannot re-position window==%d", window);
+	{
+        _LOG_WRN("cannot re-position window==%d", window);
+		return true;
+	}
+
     return (bGoodPos || bGoodPos_wm);
 }
 
@@ -1804,6 +1845,32 @@ bool X11wrapper::Shape_Window_Apply(Window window, Pixmap &pixmap, int shape_op/
     return (xcode == 0);
 }
 
+bool X11wrapper::Shape_Window_Apply(Window window, const string &sPath, Pixmap & bitmap_mask, int shape_op/*=0*/)
+{
+#ifdef DEBUG
+    _LOG_NFO("window==%d, sPath=='%s', op==%d", window, sPath.c_str(), shape_op);
+#endif
+
+    int xcode = -1;
+    X11_Locker x11_locker(GetDisplay());
+    
+    // cleanup
+    Delete_Pixmap(bitmap_mask);
+    
+    do
+    {
+        unsigned int width = 0;
+        unsigned int height = 0;
+        int x_hot = 0;
+        int y_hot = 0;
+        if (! Pixmap_ReadFile(window, sPath, bitmap_mask, width, height, x_hot, y_hot))
+            _LOG_XERROR_BREAK("cannot read the file '%s'", sPath.c_str());
+        if (! Shape_Window_Apply(window, bitmap_mask, shape_op))
+            _LOG_XERROR_BREAK("cannot apply shape");
+    } while ((xcode = 0));
+    return (xcode == 0);
+}
+
 bool X11wrapper::Shape_Window_Apply(Window window, const string &sPath, int shape_op/*=0*/)
 {
 #ifdef DEBUG
@@ -1888,6 +1955,132 @@ bool X11wrapper::Shape_Window_Hide(Window window)
         XShapeCombineRectangles(GetDisplay(), window, ShapeBounding, 0, 0, aXRectangle, 0, ShapeSet, Unsorted);
     } while ((xcode = 0));
     return (xcode == 0);
+}
+
+bool X11wrapper::Shape_PixmapMask_Rectangle(
+	Pixmap &pixmap,
+	unsigned int x,
+	unsigned int y,
+	unsigned int width,
+	unsigned int height,
+	bool bOpaque )
+{
+#ifdef DEBUG
+    _LOG_NFO("Shape_PixmapMask_Rectangle");
+#endif
+
+	int xcode = -1;
+	X11_Locker x11_locker(GetDisplay());
+	do
+	{
+		XGCValues values;
+		Display * disp = GetDisplay();
+		if( disp != NULL )
+		{
+			if( bOpaque )
+			{
+				values.foreground = WhitePixel(disp, GetScreen());
+				GC whiteGC = XCreateGC (disp, pixmap, GCForeground, &values);
+				XFillRectangle (disp, pixmap, whiteGC, x, y, width, height);
+			}
+			else
+			{
+				values.foreground = BlackPixel(disp, GetScreen());
+				GC blackGC = XCreateGC (disp, pixmap, GCForeground, &values);
+				XFillRectangle (disp, pixmap, blackGC, x, y, width, height);
+			}
+		}
+    } while ((xcode = 0));
+    return (xcode == 0);
+}
+
+bool X11wrapper::Shape_PixmapMask_Copy(
+	Window window,
+	const string &sPath,
+	Pixmap &destPixmap,
+	unsigned int destX,
+	unsigned int destY,
+	bool bOpaque )
+{
+#ifdef DEBUG
+    _LOG_NFO("Shape_PixmapMask_Copy");
+#endif
+
+	int xcode = -1;
+	X11_Locker x11_locker(GetDisplay());
+	do
+	{
+		int x_hot = 0;
+		int y_hot = 0;
+		unsigned int width = 0;
+		unsigned int height = 0;
+		XGCValues values;
+		Display * disp = GetDisplay();
+		Pixmap srcPixmap;
+		
+		if( disp != NULL )
+		{
+			if (! Pixmap_ReadFile(window, sPath, srcPixmap, width, height, x_hot, y_hot))
+				_LOG_XERROR_BREAK("cannot read the file '%s'", sPath.c_str());
+				
+			if( bOpaque )
+			{
+				values.foreground = WhitePixel(disp, GetScreen());
+				GC whiteGC = XCreateGC (disp, destPixmap, GCForeground, &values);
+				XCopyArea (disp, srcPixmap, destPixmap, whiteGC, 0, 0, width, height, destX, destY);
+			}
+			else
+			{
+				values.foreground = BlackPixel(disp, GetScreen());
+				GC blackGC = XCreateGC (disp, destPixmap, GCForeground, &values);
+				XCopyArea (disp, srcPixmap, destPixmap, blackGC, 0, 0, width, height, destX, destY);
+			}
+		}
+		
+		Delete_Pixmap(srcPixmap);
+	} while ((xcode = 0));
+	return (xcode == 0);
+}
+
+bool X11wrapper::Shape_PixmapMask_Copy(
+	Pixmap &srcPixmap,
+	Pixmap &destPixmap,
+	unsigned int x,
+	unsigned int y,
+	unsigned int width,
+	unsigned int height,
+	unsigned int destX,
+	unsigned int destY,
+	bool bOpaque )
+{
+#ifdef DEBUG
+    _LOG_NFO("Shape_PixmapMask_Copy");
+#endif
+
+	int xcode = -1;
+	X11_Locker x11_locker(GetDisplay());
+	do
+	{
+		XGCValues values;
+		Display * disp = GetDisplay();
+		
+		if( disp != NULL )
+		{
+			if( bOpaque )
+			{
+				values.foreground = WhitePixel(disp, GetScreen());
+				GC whiteGC = XCreateGC (disp, destPixmap, GCForeground, &values);
+				XCopyArea (disp, srcPixmap, destPixmap, whiteGC, x, y, width, height, destX, destY);
+			}
+			else
+			{
+				values.foreground = BlackPixel(disp, GetScreen());
+				GC blackGC = XCreateGC (disp, destPixmap, GCForeground, &values);
+				XCopyArea (disp, srcPixmap, destPixmap, blackGC, x, y, width, height, destX, destY);
+			}
+		}
+	} while ((xcode = 0));
+	return (xcode == 0);
 }
 
 bool X11wrapper::Extension_Shape_Initialize()
