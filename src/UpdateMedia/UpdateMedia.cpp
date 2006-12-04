@@ -404,7 +404,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 			PlutoMediaFile PlutoMediaSubDir(m_pDatabase_pluto_media, m_nPK_Installation,
 				FileUtils::BasePath(sSubDir), FileUtils::FilenameWithoutPath(sSubDir), true);
 
-			g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory PlutoMediaSubDir.HandleFileNotInDatabase %d",PK_File);
+			g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory PlutoMediaSubDir.HandleFileNotInDatabase %s",sSubDir.c_str());
 			PlutoMediaSubDir.HandleFileNotInDatabase();
 		}
 
