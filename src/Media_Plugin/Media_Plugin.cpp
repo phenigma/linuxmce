@@ -5069,6 +5069,14 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 	}
 	else
 	{
+#ifdef SIM_JUKEBOX
+		string sExtension = FileUtils::FindExtension(pMediaFile->m_sFilename);
+		if( StringUtils::ToUpper(sExtension)=="DVD" )
+			*sValue_To_Assign = "FILE\tJukebox: Miami Disc: " + StringUtils::itos(pMediaFile->m_dwPK_File % 100) +
+				"\tTITLE\t" + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetDefaultDescriptionForMediaFile(pMediaFile) +
+				"\t";
+		else
+#endif
 		*sValue_To_Assign = "FILE\t" + pMediaFile->HumanReadableFullyQualifiedFile() +
 			"\tTITLE\t" + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetDefaultDescriptionForMediaFile(pMediaFile) +
 			"\t";

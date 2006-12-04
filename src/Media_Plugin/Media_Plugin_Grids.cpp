@@ -204,7 +204,13 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	}
 	// First get all matching PK_File's
 	string sSQL_File,sSQL_Disc,sSQL_Where;
-	
+// temp hack to simulate the jukebox functionality
+#ifdef SIM_JUKEBOX
+	bool bFile_Original = bFile;
+	if( bDiscs )
+		bFile=true;  // We're treating files as discs
+#endif
+
 	if( bFile )
 		sSQL_File = "SELECT PK_File FROM File ";
 
@@ -262,6 +268,14 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	string sOnline;
 	if( m_sPK_Devices_Online.empty()==false )
 		sOnline = " AND (EK_Device IS NULL OR EK_Device IN (" + m_sPK_Devices_Online + ")) ";
+
+// temp hack to simulate the jukebox functionality
+#ifdef SIM_JUKEBOX
+	if( bFile && bDiscs==false )
+		sSQL_Where += " AND Filename NOT LIKE '%.dvd'";
+	if( bFile && bFile_Original==false )
+		sSQL_Where += " AND Filename NOT LIKE '%.mpg'";
+#endif
 
 	string sPK_File,sPK_Disc;
     PlutoSqlResult resultf,resultd;
