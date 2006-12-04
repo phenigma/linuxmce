@@ -2839,6 +2839,15 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d key %d",
 
 	if ( event.type == Orbiter::Event::BUTTON_DOWN )
 	{
+		// We intercept F7 and always go to the main menu
+		if( event.data.button.m_iPK_Button==BUTTON_F7_CONST && UsesUIVersion2()==false )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Orbiter::ProcessEvents Main Menu");
+			CMD_Set_Main_Menu("N");
+			CMD_Goto_Screen("",SCREEN_Main_CONST);
+			return true;
+		}
+
 	    if (m_bYieldInput)
 		{
 	        g_pPlutoLogger->Write(LV_STATUS, "Ignoring keyboard events, m_bYieldInput==%d button %d", m_bYieldInput,event.data.button.m_iPK_Button);

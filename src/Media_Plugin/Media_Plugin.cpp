@@ -68,6 +68,7 @@ using namespace DCE;
 #include "pluto_main/Table_Device_Device_Pipe.h"
 #include "pluto_main/Table_MediaType.h"
 #include "pluto_media/Database_pluto_media.h"
+#include "pluto_media/Define_AttributeType.h"
 #include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Table_Bookmark.h"
 #include "pluto_media/Table_File_Attribute.h"
@@ -83,6 +84,7 @@ using namespace DCE;
 #include "pluto_media/Table_MediaType_AttributeType.h"
 #include "pluto_media/Table_MediaProvider.h"
 #include "pluto_media/Table_ProviderSource.h"
+#include "pluto_media/Table_LongAttribute.h"
 #include "Gen_Devices/AllScreens.h"
 
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
@@ -5060,13 +5062,25 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 	}
 
 	if( pMediaFile->m_dwPK_Disk )
+	{
 		*sValue_To_Assign = "FILE\tDisc #" + StringUtils::itos(pMediaFile->m_dwPK_Disk) +
 			"\tTITLE\t" + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetDefaultDescriptionForMediaFile(pMediaFile) +
 			"\t";	
+	}
 	else
+	{
 		*sValue_To_Assign = "FILE\t" + pMediaFile->HumanReadableFullyQualifiedFile() +
 			"\tTITLE\t" + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetDefaultDescriptionForMediaFile(pMediaFile) +
-			"\t";	
+			"\t";
+		vector<Row_LongAttribute *> vectRow_LongAttribute;
+		m_pDatabase_pluto_media->LongAttribute_get()->GetRows("FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File) + " AND FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Synopsis_CONST),&vectRow_LongAttribute);
+		if( vectRow_LongAttribute.size() )
+		{
+			string sSynopsis = vectRow_LongAttribute[0]->Text_get();
+			StringUtils::Replace(&sSynopsis,"\t","");
+			*sValue_To_Assign += "SYNOPSIS\t" + sSynopsis;
+		}
+	}
 }
 //<-dceag-c817-b->
 

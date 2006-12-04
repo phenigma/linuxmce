@@ -9645,6 +9645,46 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_Halt_System : public PreformedCommand
+	{
+	public:
+		SCREEN_Halt_System(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "249" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Halt_System_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Halt_System_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "249" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Halt_System_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Halt_System_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "249" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Halt_System_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Halt_System_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "249" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -9903,6 +9943,7 @@ namespace DCE
 		virtual void SCREEN_Get_Username_Password_For_Devices(long PK_Screen, bool bAlready_processed, string sDescription, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Get_Capture_Card_Port(long PK_Screen, int iPK_Device, string sName, string sDescription, string ssComments){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Floorplan(long PK_Screen, string sPK_DesignObj){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Halt_System(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -11376,6 +11417,12 @@ namespace DCE
 					ResetCallBacks();
 					string sPK_DesignObj = pMessage->m_mapParameters[3];
 					SCREEN_Floorplan(nPK_Screen, sPK_DesignObj);
+					break;
+				}
+				case 249:
+				{
+					ResetCallBacks();
+					SCREEN_Halt_System(nPK_Screen);
 					break;
 				}
 
