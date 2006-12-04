@@ -85,14 +85,14 @@ void *UpdateMediaThread(void *)
 		g_pPlutoLogger->Write(LV_STATUS, "Worker thread: \"I'm wake!\"");        
 		PLUTO_SAFETY_LOCK(flm, g_FoldersListMutex);
 
-		if(time(NULL) - tStart > 3600)
-		{
-			SyncAttributes();
-			tStart = time(NULL);
-		}
-
 		while(vectModifiedFolders.size())
 		{
+			if(time(NULL) - tStart > 3600)
+			{
+				SyncAttributes();
+				tStart = time(NULL);
+			}
+
 			string sItem = vectModifiedFolders.front();
 			flm.Release();
 
