@@ -2560,7 +2560,7 @@ int Xine_Stream::EnableBroadcast( )
 			if ( portNumber == xine_get_param( m_pXineStream, XINE_PARAM_BROADCASTER_PORT ) )
 			{
 				m_iBroadcastPort=portNumber;
-				g_pPlutoLogger->Write( LV_WARNING, "Enabled broadcast on port; %i", m_iBroadcastPort);
+				g_pPlutoLogger->Write( LV_WARNING, "Enabled broadcast on port: %i", m_iBroadcastPort);
 				return m_iBroadcastPort;
 			}
 		}
