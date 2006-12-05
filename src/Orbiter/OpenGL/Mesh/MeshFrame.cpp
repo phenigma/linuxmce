@@ -284,8 +284,18 @@ MeshContainer* MeshFrame::GetMeshContainer()
 /*virtual*/ void MeshFrame::SetAlpha(float Alpha, string ExcludePattern /* = "" */)
 {
 	//we don't want to setup alpha for Frames that have their name starting with exclude pattern
-	if(!ExcludePattern.empty() && this->Name_.find(ExcludePattern) == 0)
-		return;
+	if(!ExcludePattern.empty())
+	{
+		vector<string> vectPatterns;
+		StringUtils::Tokenize(ExcludePattern, "|", vectPatterns);
+
+		for(vector<string>::iterator it = vectPatterns.begin(); it != vectPatterns.end(); ++it)
+		{
+			string sPattern = *it;
+			if(this->Name_.find(sPattern) == 0)
+				return;
+		}
+	}
 
 	if(Mesh)
 		Mesh->SetAlpha(Alpha);
@@ -294,7 +304,7 @@ MeshContainer* MeshFrame::GetMeshContainer()
 	for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
 	{  
 		MeshFrame *pMeshFrame = *Child;
-		pMeshFrame->SetAlpha(Alpha);
+		pMeshFrame->SetAlpha(Alpha, ExcludePattern);
 	}
 }
 

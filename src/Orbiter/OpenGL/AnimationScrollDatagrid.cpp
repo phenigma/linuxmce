@@ -104,8 +104,8 @@ bool AnimationScrollDatagrid::Update(bool ModifyGeometry)
 
 	//DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Animation step: %f", 100 * Progress);
 
-	BeforeGrid->SetAlpha((1-Progress) * MaxAlpha, "text");
-	AfterGrid->SetAlpha(Progress * MaxAlpha, "text");
+	BeforeGrid->SetAlpha((1-Progress) * MaxAlpha, "text|datagrid-thumb");
+	AfterGrid->SetAlpha(Progress * MaxAlpha, "text|datagrid-thumb");
 
 	if(Result)
 	{
