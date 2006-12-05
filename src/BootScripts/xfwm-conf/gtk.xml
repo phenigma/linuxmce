@@ -14,8 +14,8 @@
 	<option name="Net/DoubleClickTime" type="int" value="300"/>
 	<option name="Net/IconThemeName" type="string" value="Rodent"/>
 	<option name="Net/ThemeName" type="string" value="Null"/>
-	<option name="Xft/Antialias" type="int" value="1"/>
+	<option name="Xft/Antialias" type="int" value="0"/>
 	<option name="Xft/HintStyle" type="string" value="hintfull"/>
-	<option name="Xft/Hinting" type="int" value="1"/>
+	<option name="Xft/Hinting" type="int" value="0"/>
 	<option name="Xft/RGBA" type="string" value="none"/>
 </mcs-option>
