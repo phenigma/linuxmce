@@ -784,7 +784,9 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 
 			// We need to add configure scripts for each model of card, or the sql statement to insert for each card.  For right now, 
 			// we're just hardcoding to only use the pvr 250 so we can test the process
-			if( !pRow_Device_CaptureCard || pRow_Device_CaptureCard->FK_DeviceTemplate_get()!=DEVICETEMPLATE_PVR250_CONST )
+			if( !pRow_Device_CaptureCard ||
+				(pRow_Device_CaptureCard->FK_DeviceTemplate_get()!=DEVICETEMPLATE_PVR250_CONST && pRow_Device_CaptureCard->FK_DeviceTemplate_get()!=DEVICETEMPLATE_PVR500_Tuner_1_CONST && pRow_Device_CaptureCard->FK_DeviceTemplate_get()!=DEVICETEMPLATE_PVR500_Tuner_2_CONST)
+				)
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::SyncCardsAndProviders skipping unknown model of pvr card");
 				continue;
