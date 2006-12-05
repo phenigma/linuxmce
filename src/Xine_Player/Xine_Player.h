@@ -20,6 +20,7 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
+		string m_sIPofMD;
 
 		// Private methods
 public:
