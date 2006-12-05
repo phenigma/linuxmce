@@ -260,7 +260,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 			if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
 			{
 				string sSlaveMediaURL;
-				sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sMyIPAddress + ":" + StringUtils::itos(pStream->m_iBroadcastPort);
+				sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sIPofMD + ":" + StringUtils::itos(pStream->m_iBroadcastPort);
 				g_pPlutoLogger->Write(LV_WARNING, "Slave URL: %s", sSlaveMediaURL.c_str());
 				string streamingTargets = pStream->m_sBroadcastTargets;
 				string::size_type tokenPos=0;
@@ -294,7 +294,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 				if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
 				{
 					string sSlaveMediaURL;
-					sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sMyIPAddress + ":" + StringUtils::itos(pStream->m_iBroadcastPort);
+					sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sIPofMD + ":" + StringUtils::itos(pStream->m_iBroadcastPort);
 					g_pPlutoLogger->Write(LV_WARNING, "Slave URL: %s", sSlaveMediaURL.c_str());
 					string streamingTargets = pStream->m_sBroadcastTargets;
 					string::size_type tokenPos=0;
@@ -1179,14 +1179,17 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
 
 bool Xine_Player::Connect(int iPK_DeviceTemplate )
 {
-        if ( ! Command_Impl::Connect(iPK_DeviceTemplate) )
-                return false;
+    if ( ! Command_Impl::Connect(iPK_DeviceTemplate) )
+		return false;
+
+	DeviceData_Base *pDevice = m_pData->GetTopMostDevice();
+	m_sIPofMD = pDevice->m_sIPAddress;
 
 	if (!ptrFactory->StartupFactory())
 		return false;
 
 	int iPort = DATA_Get_Port();
-	g_pPlutoLogger->Write(LV_STATUS, "Configured port for time/speed notification is: %i", iPort);
+	g_pPlutoLogger->Write(LV_STATUS, "Configured port for time/speed notification is: %i, IP is %s", iPort, m_sIPofMD.c_str());
 
 	m_pNotificationSocket->StartListening (iPort);
 
