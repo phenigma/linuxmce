@@ -128,7 +128,9 @@ namespace DCE
 		friend class ::DesignObj_Orbiter;
 		friend class ::DataGridRenderer;
 		friend class ::ObjectRenderer;
+#ifdef HID_REMOTE
 		friend class ::PlutoHIDInterface;
+#endif
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		friend class MouseBehavior;
