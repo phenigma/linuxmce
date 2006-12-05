@@ -1,0 +1,17 @@
+#!/bin/sh
+# Start/stop pluto update media.
+
+. /lib/lsb/init-functions
+
+case "$1" in
+start)	
+;;
+stop)
+	killall UpdateMedia
+;;
+*)	
+	echo "Usage: $0 {stop}"
+        exit 1 
+        ;;
+esac
+exit 0

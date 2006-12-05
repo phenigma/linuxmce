@@ -26,3 +26,6 @@ for User in $R; do
 		/usr/pluto/bin/UpdateMedia -d "$Dir" || :
 	fi
 done
+
+## Add the init script to runlevel 0 and 6
+update-rc.d update-media stop 10 6 0 .
