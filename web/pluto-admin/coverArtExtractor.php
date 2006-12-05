@@ -36,6 +36,7 @@ $searchString.=(isset($_REQUEST['Keyword3Type']))?'&'.$_REQUEST['Keyword3Type'].
 // Make the request for cover arts
 $request='http://webservices.amazon.com/onca/xml?Service=AWSECommerceService&AssociateTag='.ASSOCIATES_ID.'&Version='.AES_VERSION.'&SubscriptionId='. SUBID.'&Operation=ItemSearch&SearchIndex='.$searchIndex.'&ResponseGroup=Medium&Sort=salesrank&'.$searchString;
 echo $request;
+writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\t".$request."\n",'a+');
 
 // Get the response from Amazon
 $xml = file_get_contents($request);
@@ -54,6 +55,7 @@ $mediadbADO->Execute('
 	VALUES 
 	(?,?,?,?,?,?,?,?,?,?)',array($fileID,$discID,$attributeID,ENGINE.' | '.$searchIndex,$Keyword1Type,$Keyword1Search,$Keyword2Type,$Keyword2Search,$Keyword3Type,$Keyword3Search));
 $casID=$mediadbADO->Insert_ID();
+
 
 $found=0;
 foreach ($Result['ItemSearchResponse']['Items'][0]['Item'] as $item) {
@@ -76,6 +78,9 @@ foreach ($Result['ItemSearchResponse']['Items'][0]['Item'] as $item) {
 				$attributes.=$attributeName."\t".$values."\n";
 			}
 		}		
+		if(isset($item['EditorialReviews']['EditorialReview'][0]['Content'])){
+			$attributes.="Synopsis\t".nl2br($item['EditorialReviews']['EditorialReview'][0]['Content'])."\n";
+		}
 		
 		// grab the cover art if exist, download it and save the record in database
 		$mediadbADO->Execute('INSERT INTO CoverArtScanEntry (FK_CoverArtScan,ID,URL,Attributes) VALUES (?,?,?,?)',array($casID,$item["ASIN"][0],$item["LargeImage"]["URL"],$attributes));

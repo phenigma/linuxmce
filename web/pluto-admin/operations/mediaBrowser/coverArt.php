@@ -112,7 +112,7 @@ function coverArt($output,$mediadbADO) {
 					$scanUrl='coverArtExtractor.php?'.$itemName.'='.$id.'&'.$searchParms;
 					$toScan.=$scanUrl."\n";
 					
-					// todo: remove after Mircea make his scripts
+					
 					$cmd='wget \'http://'.$_SERVER['HTTP_HOST'].'/pluto-admin/'.$scanUrl.'\' --header=\'User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4\' -O -';
 					//echo $cmd.'<br>';
 					exec_batch_command($cmd);	
