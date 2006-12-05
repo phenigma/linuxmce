@@ -202,7 +202,6 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 		sDirectory = sDirectory.substr(0,sDirectory.size()-1);
 
 	// Build a list of the files on disk, and a map of those in the database
-	int PK_Picture=0;
 	list<string> listFilesOnDisk;
 	FileUtils::FindFiles(listFilesOnDisk,sDirectory,m_sExtensions,false,false,0,"");
 
@@ -316,10 +315,8 @@ cout << sFile << " exists in db as: " << PK_File << endl;
         if(m_bAsDaemon)
 			Sleep(500);
 		
-		int i = PlutoMediaFile_.GetPicAttribute(PK_File);
-		g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory File %d i %d Picture %d",PK_File,i,PK_Picture);
-		if(!PK_Picture)
-			PK_Picture = i;
+		int PK_Picture = PlutoMediaFile_.GetPicAttribute(PK_File);
+		g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory File %d Picture %d",PK_File,PK_Picture);
 
 		if( PK_Picture )
 		{
@@ -408,9 +405,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 			PlutoMediaSubDir.HandleFileNotInDatabase();
 		}
 
-		int i = ReadDirectory(sSubDir, bRecursive);
-		if( !PK_Picture )
-			PK_Picture = i;
+		/*int PK_Picture = */ReadDirectory(sSubDir, bRecursive);
 	}
 
 	if(!bDirIsDvd)
@@ -445,12 +440,11 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 
 	// Whatever was the first picture we found will be the one for this directory
 	int PK_Picture_Directory = PlutoMediaParentFolder.GetPicAttribute(0);
-	if( PK_Picture_Directory )
-		PK_Picture = PK_Picture_Directory;  // This takes priority
+	
+	if(PK_Picture_Directory)
+		PlutoMediaParentFolder.SetPicAttribute(PK_Picture_Directory, "");
 
-	PlutoMediaParentFolder.SetPicAttribute(PK_Picture, "");
-
-	return PK_Picture;
+	return PK_Picture_Directory;
 }
 
 void UpdateMedia::UpdateSearchTokens()
