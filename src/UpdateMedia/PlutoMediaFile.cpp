@@ -336,6 +336,13 @@ void PlutoMediaFile::SyncDbAttributes()
 				Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(m_nPK_MediaType,
 					pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName);
 
+				if( pRow_Attribute==NULL )
+				{
+					g_pPlutoLogger->Write(LV_WARNING,"PlutoMediaFile::SyncDbAttributes attribute type %d/%s is empty",
+						pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName.c_str());
+					continue;
+				}
+
 				//already in the database?
 				if(NULL == m_pDatabase_pluto_media->File_Attribute_get()->GetRow(
 					PK_File, pRow_Attribute->PK_Attribute_get(),
@@ -449,6 +456,13 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 			MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
 			Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(PK_MediaType,
 				pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName);
+
+			if( pRow_Attribute==NULL )
+			{
+				g_pPlutoLogger->Write(LV_WARNING,"PlutoMediaFile::AddFileToDatabase attribute type %d/%s for file %d is empty",
+					pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName.c_str(),pRow_File->PK_File_get());
+				continue;
+			}
 
 			//already in the database?
 			if(NULL == m_pDatabase_pluto_media->File_Attribute_get()->GetRow(

@@ -695,6 +695,12 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 	{
 		Row_Attribute *pRow_Attribute;
 	    pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Disc_ID_CONST,vectAttributes[0]); 
+		if( pRow_Attribute==NULL )
+		{
+			g_pPlutoLogger->Write(WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute disc is empty");
+			return;
+		}
+		
 		listMediaAttribute_.push_back( new MediaAttribute(0,0,ATTRIBUTETYPE_Disc_ID_CONST,pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
 		for(size_t s=1;s<vectAttributes.size();++s)
 		{
@@ -732,7 +738,13 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 					continue;
 
 				pRow_Attribute = GetAttributeFromDescription(PK_MediaType,PK_AttributeType,sName);
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
+				if( pRow_Attribute==NULL )
+				{
+					g_pPlutoLogger->Write(WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute %d is empty",PK_AttributeType);
+					return;
+				}
+
+				g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
 		pRow_Attribute, (pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0), sName.c_str());
 
 				listMediaAttribute_.push_back( new MediaAttribute(
@@ -780,6 +792,12 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 
 		// The cddb info is space delimited
 	    pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_CDDB_CONST,StringUtils::Tokenize(sCDDBID," ",pos2)); 
+		if( pRow_Attribute==NULL )
+		{
+			g_pPlutoLogger->Write(WARNING,"ediaAttributes_LowLevel::Parse_CDDB_Media_ID attribute id is empty");
+			return;
+		}
+
 		listMediaAttribute_.push_back( new MediaAttribute(
 			0,0,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
 
@@ -790,24 +808,27 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 		if( s.size() )
 		{
 			pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Performer_CONST,s); 
-			listMediaAttribute_.push_back( new MediaAttribute(
-				0,0,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
+			if( pRow_Attribute )
+				listMediaAttribute_.push_back( new MediaAttribute(
+					0,0,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
 		}
 
 		s = StringUtils::Tokenize(sValue,"\t",pos);
 		if( s.size() )
 		{
 			pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Album_CONST,s); 
-			listMediaAttribute_.push_back( new MediaAttribute(
-				0,0,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
+			if( pRow_Attribute )
+				listMediaAttribute_.push_back( new MediaAttribute(
+					0,0,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
 		}
 
 		s = StringUtils::Tokenize(sValue,"\t",pos);
 		if( s.size() )
 		{
 			pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Genre_CONST,s); 
-			listMediaAttribute_.push_back( new MediaAttribute(
-				0,0,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
+			if( pRow_Attribute )
+				listMediaAttribute_.push_back( new MediaAttribute(
+					0,0,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
 		}
 
 		// Read the info for the tracks.  NumTracks normally should = pMediaStream->m_dequeMediaFile.size()
@@ -817,8 +838,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 			if( str.size() )
 			{
 				pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Title_CONST,str); 
-				listMediaAttribute_.push_back( new MediaAttribute(
-					s,0,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
+				if( pRow_Attribute )
+					listMediaAttribute_.push_back( new MediaAttribute(
+						s,0,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
 			}
 		}
 		PK_Disc = AddIdentifiedDiscToDB(PK_MediaType,sCDDBID,listMediaAttribute_);
@@ -968,7 +990,8 @@ int MediaAttributes_LowLevel::AddIdentifiedDiscToDB(int PK_MediaType,string sIde
 		if( !pMediaAttribute->m_PK_Attribute )
 		{
 			pRow_Attribute = GetAttributeFromDescription(PK_MediaType,pMediaAttribute->m_PK_AttributeType,pMediaAttribute->m_sName);
-			pMediaAttribute->m_PK_Attribute=pRow_Attribute->PK_Attribute_get();
+			if( pRow_Attribute )
+				pMediaAttribute->m_PK_Attribute=pRow_Attribute->PK_Attribute_get();
 		}
 		else
 			pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(pMediaAttribute->m_PK_Attribute);
