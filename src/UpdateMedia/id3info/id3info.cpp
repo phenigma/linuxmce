@@ -368,6 +368,24 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
       }
     }
 
+	if(PK_Attr == ATTRIBUTETYPE_Genre_CONST)
+	{
+		string genre;
+		for(string::iterator it = value.begin(); it != value.end(); ++it)
+		{
+			char c = *it;
+			if(c >= '0' && c <= '9')
+				genre += c;
+		}
+
+		if(value == genre || value == "(" + genre + ")")
+		{
+			int nGenre = atoi(genre.c_str());
+			if(nGenre < ID3_NR_OF_V1_GENRES)
+				value = ID3_v1_genre_description[nGenre];
+		}
+	}
+
 	mapAttributes[PK_Attr] = value;
   }
   delete iter;
