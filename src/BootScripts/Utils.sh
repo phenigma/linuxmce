@@ -291,7 +291,7 @@ UI_SetOptions()
 		VALUES('$OrbiterDev', '$DEVICEDATA_Use_alpha_blended_UI', '$AlphaBlending')
 	"
 	RunSQL "$Q"
-	# select UI1
+	# select UI
 	Q="
 		REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
 		VALUES('$OrbiterDev', '$DEVICEDATA_PK_UI', '$UI_Version')

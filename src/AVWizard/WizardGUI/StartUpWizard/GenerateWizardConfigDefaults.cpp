@@ -434,8 +434,8 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 
 
 	Page->AddChild(CreateControlScrollList("UIScroll",
-		220, 280,
-		200, 140,
+		180, 280,
+		280, 140,
 		ScrollBackColor,
 		ScrollBackFocusedColor,
 		HighScrollBackColor,
@@ -444,12 +444,12 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 	Page->AddChild(CreateControlImage(
 		"UI_Up",
 		ImageFolder + "up_off.png",
-		425, 280
+		465, 280
 		));
 	Page->AddChild(CreateControlImage(
 		"UI_Down",
 		ImageFolder + "down_off.png",
-		425, 385
+		465, 385
 		));
 
 	Page->AddChild(CreateControlButton("BtnOK",

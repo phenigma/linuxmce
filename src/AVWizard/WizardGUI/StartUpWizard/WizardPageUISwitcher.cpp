@@ -73,8 +73,9 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 	#endif
 		return;
 	}
-	List->AddItem("Normal UI", "UI1");
-	List->AddItem("Alpha blended", "UI2");
+	List->AddItem("Static images, no overlay (lightweight)", "UI1");
+	List->AddItem("OpenGL with overlay (medium)", "UI2_med");
+	List->AddItem("OpenGL with alpha blending (high-end)", "UI2_hi");
 	List->SetFocus(true);
 }
 

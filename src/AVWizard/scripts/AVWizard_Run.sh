@@ -224,7 +224,11 @@ UpdateOrbiterUI()
 			# disable: OpenGL effects, Alpha blending; select UI1
 			UI_SetOptions "$OrbiterDev" 0 0 "$UI_Normal_Horizontal"
 		;;
-		UI2)
+		UI2_med)
+			# enable: OpenGL effects; disable: Alpha blending; select UI2
+			UI_SetOptions "$OrbiterDev" 1 0 "$UI_V2_Normal_Horizontal"
+		;;
+		UI2_hi)
 			# enable: OpenGL effects, Alpha blending; select UI2
 			UI_SetOptions "$OrbiterDev" 1 1 "$UI_V2_Normal_Horizontal"
 		;;
