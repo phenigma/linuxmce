@@ -1149,7 +1149,8 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		return;
 	}
 
-	if( tolerance_ms==0 )
+	// we are very tolerant or this is a broadcasting stream
+	if( tolerance_ms==0 || m_bBroadcaster)
 	{
 		timespec ts1,ts2,tsElapsed;
 		gettimeofday( &ts1, NULL );
@@ -1157,7 +1158,7 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 
 		// we should use ordinary play instead of seek if we have audio-only
-		if (m_bHasVideo)
+		if (m_bHasVideo&&!m_bBroadcaster)
 			xine_seek( m_pXineStream, 0, pos );
 		else
 			xine_play( m_pXineStream, 0, pos );
@@ -1195,7 +1196,7 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		
 			g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::Seek get closer currently at: %d target pos: %d ctr %d", positionTime, pos, i );
-			if (m_bHasVideo)
+			if (m_bHasVideo&&!m_bBroadcaster)
 				xine_seek( m_pXineStream, 0, pos );
 			else
 				xine_play( m_pXineStream, 0, pos );
