@@ -1124,6 +1124,14 @@
 #define TEXT_FBSF_Unviewed_Only_CONST 1841
 #define TEXT_Confirm_Halt_CONST 1842
 #define TEXT_Reset_CONST 1843
+#define TEXT_Disc_drives_CONST 1844
+#define TEXT_Juke_Boxes_CONST 1845
+#define TEXT_Hard_Discs_CONST 1846
+#define TEXT_Compact_Flashes_CONST 1847
+#define TEXT_Network_Storage_CONST 1848
+#define TEXT_Cell_Attribute_Room_CONST 1849
+#define TEXT_Cell_Attribute_Disc_CONST 1850
+#define TEXT_Cell_Attribute_Capacity_CONST 1851
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
