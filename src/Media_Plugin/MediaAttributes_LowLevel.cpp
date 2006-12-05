@@ -697,8 +697,8 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 	    pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Disc_ID_CONST,vectAttributes[0]); 
 		if( pRow_Attribute==NULL )
 		{
-			g_pPlutoLogger->Write(WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute disc is empty");
-			return;
+			g_pPlutoLogger->Write(LV_WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute disc is empty");
+			return PK_Disc;
 		}
 		
 		listMediaAttribute_.push_back( new MediaAttribute(0,0,ATTRIBUTETYPE_Disc_ID_CONST,pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
@@ -740,8 +740,8 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 				pRow_Attribute = GetAttributeFromDescription(PK_MediaType,PK_AttributeType,sName);
 				if( pRow_Attribute==NULL )
 				{
-					g_pPlutoLogger->Write(WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute %d is empty",PK_AttributeType);
-					return;
+					g_pPlutoLogger->Write(LV_WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute %d is empty",PK_AttributeType);
+					return PK_Disc;
 				}
 
 				g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
@@ -794,8 +794,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 	    pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_CDDB_CONST,StringUtils::Tokenize(sCDDBID," ",pos2)); 
 		if( pRow_Attribute==NULL )
 		{
-			g_pPlutoLogger->Write(WARNING,"ediaAttributes_LowLevel::Parse_CDDB_Media_ID attribute id is empty");
-			return;
+			g_pPlutoLogger->Write(LV_WARNING,"ediaAttributes_LowLevel::Parse_CDDB_Media_ID attribute id is empty");
+			return PK_Disc;
 		}
 
 		listMediaAttribute_.push_back( new MediaAttribute(
