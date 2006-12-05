@@ -2706,10 +2706,19 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 
 		if( it!=m_mapScanCodeToRemoteButton.end() )
 		{
+			string sKey = it->second;
+			if( (m_cCurrentScreen=='N' || m_cCurrentScreen=='C' || m_cCurrentScreen=='f') &&
+				(sKey=="UP" || sKey=="DOWN" || sKey=="LEFT" || sKey=="RIGHT") )
+			{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s repeat %s",it->second.c_str(),sRepeatKey.c_str());
+				g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing skipping key %s because of osd",sKey.c_str());
 #endif
-			ReceivedCode(0,it->second.c_str(),sRepeatKey.c_str());
+				return;
+			}
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s repeat %s",sKey.c_str(),sRepeatKey.c_str());
+#endif
+			ReceivedCode(0,sKey.c_str(),sRepeatKey.c_str());
 			return;
 		}
 	}

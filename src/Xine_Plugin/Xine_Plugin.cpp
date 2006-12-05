@@ -241,7 +241,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device,pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
 			"Please wait up to 20 seconds while I load that disc","","load_jukebox","0","10","1");
 		SendCommand(SCREEN_PopupMessage);
-		Sleep(10000);   // Not good.  We're holding the mutex, but it's a temporary simulation
+		Sleep(3000);   // Not good.  We're holding the mutex, but it's a temporary simulation
 	}
 #endif
 
