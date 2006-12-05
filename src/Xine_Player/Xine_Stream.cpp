@@ -102,6 +102,8 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	
 	m_iMenuButtons = 0;
 	
+	m_bDontReportCompletion = false;
+	
 	m_iSpecialSeekSpeed = 0;
 	m_iSpecialOneTimeSeek = 0;
 	m_iPrebuffer = 90000;
@@ -2517,10 +2519,10 @@ void Xine_Stream::playbackCompleted( bool bWithErrors )
 		return;
 	}
 	
-	g_pPlutoLogger->Write( LV_STATUS, "Fire playback completed event %d", ( int ) m_isSlimClient );
+	g_pPlutoLogger->Write( LV_STATUS, "Fire playback completed event: %s (slim: %i, do not report: %i)", ( ! m_isSlimClient && ! m_bDontReportCompletion )?"yes":"no", m_isSlimClient, m_bDontReportCompletion );
 	//XineStream * xineStream = getStreamForId( iStreamID, "Can't get the position of a nonexistent stream!" );
 
-	if ( ! m_isSlimClient )
+	if ( ! m_isSlimClient && ! m_bDontReportCompletion)
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", m_iStreamID);
 		m_pFactory->m_pPlayer->EVENT_Playback_Completed(m_sCurrentFile,m_iStreamID, bWithErrors );

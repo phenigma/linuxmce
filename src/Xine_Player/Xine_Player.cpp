@@ -260,7 +260,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 			if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
 			{
 				string sSlaveMediaURL;
-				sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sIPofMD + ":" + StringUtils::itos(pStream->m_iBroadcastPort);
+				sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sIPofMD /*"localhost" */+ ":" + StringUtils::itos(pStream->m_iBroadcastPort);
 				g_pPlutoLogger->Write(LV_WARNING, "Slave URL: %s", sSlaveMediaURL.c_str());
 				string streamingTargets = pStream->m_sBroadcastTargets;
 				string::size_type tokenPos=0;
@@ -1129,7 +1129,12 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 		}
 	}
 	if (pStream)
+	{
+		// as we are changing position, then do not report about
+		pStream->m_bDontReportCompletion = true;
 		CMD_Play_Media(0,iStreamID,sMediaPosition,pStream->m_sCurrentFile,sCMD_Result,pMessage);
+		pStream->m_bDontReportCompletion = false;		
+	}
 }
 
 //<-dceag-c548-b->

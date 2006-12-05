@@ -67,6 +67,7 @@ namespace DCE
 			
 			//returns complex position construction
 			string GetPosition();
+			bool m_bDontReportCompletion;
 			
 			//reports timecode
 			void ReportTimecode();
