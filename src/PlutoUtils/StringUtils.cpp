@@ -798,21 +798,46 @@ string StringUtils::SQLDateTime(time_t t)
     return acDateTime;
 }
 
-string StringUtils::SQLEscape( string sInput )
+string StringUtils::SQLEscape( string sInput, bool bForLikeStatement /*= false*/ )
 {
     string sOutput;
     char* pcPtr = (char*)sInput.c_str();
+	int nPosition = 0;
     while( *pcPtr )
     {
-        switch( *pcPtr )
-        {
-            case '\'':  sOutput += "\\\'";  break;
-            case '\"':  sOutput += "\\\"";  break;
-//            case '%':   sOutput += "\\%";   break;  11/19/2004 Aaron -- This is breaking MySQL which doesn't seem to like escaped %'s in the select/update strings
-            case '\\':  sOutput += "\\\\";  break;
-            default:    sOutput += *pcPtr;
-        }
+		switch( *pcPtr )
+		{
+			case '\'':  sOutput += "\\\'";  break;
+			case '\"':  sOutput += "\\\"";  break;
+			case '\\':  
+			{
+				//Note: http://dev.mysql.com/doc/refman/5.0/en/string-comparison-functions.html
+				//Because MySQL uses C escape syntax in strings (for example, 
+				//‘\n’ to represent a newline character), you must double any ‘\’ 
+				//that you use in LIKE strings. For example, to search for ‘\n’, specify it as ‘\\n’. 
+				//To search for ‘\’, specify it as ‘\\\\’; this is because the backslashes are 
+				//stripped once by the parser and again when the pattern match is made, 
+				//leaving a single backslash to be matched against. 
+				//(Exception: At the end of the pattern string, backslash can be specified as ‘\\’. 
+				//At the end of the string, backslash stands for itself because there 
+				//is nothing following to escape.) 
+
+				if(bForLikeStatement && nPosition != sInput.size() - 1)
+				{
+					sOutput += "\\\\\\\\";  break;
+				}
+				else
+				{
+					sOutput += "\\\\";  break;
+				}
+			}
+			break;
+
+			default:    sOutput += *pcPtr;
+		}
+
         pcPtr++;
+		++nPosition;
     }
     return sOutput;
 }
