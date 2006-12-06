@@ -88,6 +88,9 @@ long int m_Missing;
 long int m_IsDirectory;
 long int m_EK_Users_Private;
 long int m_EK_Device;
+string m_ModificationDate;
+long int m_AttrCount;
+string m_AttrDate;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -95,7 +98,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[17];
+		bool is_null[20];
 	
 	public:
 		long int PK_File_get();
@@ -109,6 +112,9 @@ long int Missing_get();
 long int IsDirectory_get();
 long int EK_Users_Private_get();
 long int EK_Device_get();
+string ModificationDate_get();
+long int AttrCount_get();
+string AttrDate_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -128,6 +134,9 @@ void Missing_set(long int val);
 void IsDirectory_set(long int val);
 void EK_Users_Private_set(long int val);
 void EK_Device_set(long int val);
+void ModificationDate_set(string val);
+void AttrCount_set(long int val);
+void AttrDate_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -142,6 +151,9 @@ bool FK_FileFormat_isNull();
 bool DateAdded_isNull();
 bool EK_Users_Private_isNull();
 bool EK_Device_isNull();
+bool ModificationDate_isNull();
+bool AttrCount_isNull();
+bool AttrDate_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -155,6 +167,9 @@ void FK_FileFormat_setNull(bool val);
 void DateAdded_setNull(bool val);
 void EK_Users_Private_setNull(bool val);
 void EK_Device_setNull(bool val);
+void ModificationDate_setNull(bool val);
+void AttrCount_setNull(bool val);
+void AttrDate_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -188,7 +203,7 @@ void PlaylistEntry_FK_File_getrows(vector <class Row_PlaylistEntry*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_File+ m_EK_MediaType+ m_FK_MediaSubType+ m_FK_FileFormat+ m_DateAdded+ m_Path+ m_Filename+ m_Missing+ m_IsDirectory+ m_EK_Users_Private+ m_EK_Device+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_File+ m_EK_MediaType+ m_FK_MediaSubType+ m_FK_FileFormat+ m_DateAdded+ m_Path+ m_Filename+ m_Missing+ m_IsDirectory+ m_EK_Users_Private+ m_EK_Device+ m_ModificationDate+ m_AttrCount+ m_AttrDate+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -204,6 +219,9 @@ string Missing_asSQL();
 string IsDirectory_asSQL();
 string EK_Users_Private_asSQL();
 string EK_Device_asSQL();
+string ModificationDate_asSQL();
+string AttrCount_asSQL();
+string AttrDate_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
