@@ -96,7 +96,7 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	m_pXineVideoOutput = NULL;
 	
 	m_sWindowTitle = "pluto-xine-playback-window";
-	m_pXDisplay = NULL;
+	//m_pXDisplay = NULL;
 	m_iCurrentScreen = 0;
 	m_iCurrentWindow = 0;
 	
@@ -126,7 +126,7 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	if (!m_bBroadcaster)
 		if ( !CreateWindows() )
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "Stream output window creation failed");
+			g_pPlutoLogger->Write( LV_WARNING, "Stream output window init failed");
 		} else ;
 	else
 		g_pPlutoLogger->Write( LV_WARNING, "Not creating stream output window as we are broadcaster");
@@ -275,8 +275,8 @@ bool Xine_Stream::ShutdownStream()
 // moving windows to other screen
 void Xine_Stream::hideWindows()
 {
-      XReparentWindow(m_pXDisplay, windows[ 0 ], XRootWindow( m_pXDisplay, m_iCurrentScreen ), 10, 20);
-      XReparentWindow(m_pXDisplay, windows[ 1 ], XRootWindow( m_pXDisplay, m_iCurrentScreen ), 10, 20);
+//      XReparentWindow(m_pXDisplay, windows[ 0 ], XRootWindow( m_pXDisplay, m_iCurrentScreen ), 10, 20);
+//      XReparentWindow(m_pXDisplay, windows[ 1 ], XRootWindow( m_pXDisplay, m_iCurrentScreen ), 10, 20);
 }
 
 // creates stream windows
@@ -293,100 +293,104 @@ bool Xine_Stream::CreateWindows()
 
 	double res_h, res_v;
 
+/*
 	if ( ( m_pXDisplay = XOpenDisplay( getenv( "DISPLAY" ) ) ) == NULL )
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "Could not open X DISPLAY from: %s", getenv( "DISPLAY" ) );
 		return false;
 	}
-	
+*/	
 	//XSynchronize( m_pXDisplay, true);
 
-	XLockDisplay( m_pXDisplay );
+	XLockDisplay( m_pFactory->m_pXDisplay );
 
-	m_iCurrentScreen = XDefaultScreen( m_pXDisplay );
+//	m_iCurrentScreen = XDefaultScreen( m_pXDisplay );
 	// creating it on last (invisible) screen
-	int iScreens = XScreenCount( m_pXDisplay );
-	g_pPlutoLogger->Write( LV_WARNING, "Count of screens at this display: %i", iScreens);
-	//m_iCurrentScreen = iScreens-1;
-	xpos = 10;
-	ypos = 20;
-	width = 5;
-	height = 5;
-	int border = 0;
+//	int iScreens = XScreenCount( m_pXDisplay );
+//	g_pPlutoLogger->Write( LV_WARNING, "Count of screens at this display: %i", iScreens);
+// 	//m_iCurrentScreen = iScreens-1;
+// 	xpos = 10;
+// 	ypos = 20;
+// 	width = 5;
+// 	height = 5;
+// 	int border = 0;
+// 
+// 	windows[ 0 ] = XCreateSimpleWindow( m_pXDisplay, XDefaultRootWindow( m_pXDisplay ), xpos, ypos, width, height, border, 0, 0 );
+// 	windows[ 1 ] = XCreateSimpleWindow( m_pXDisplay, XDefaultRootWindow( m_pXDisplay ), xpos, ypos, width, height, border, 0, 0 );
+// 
+// /*
+// 	windows[ 0 ] = XCreateSimpleWindow( m_pXDisplay, XRootWindow( m_pXDisplay, m_iCurrentScreen ), xpos, ypos, width, height, 
+// 																			1, 0, 0 );
+// 	windows[ 1 ] = XCreateSimpleWindow( m_pXDisplay, XRootWindow( m_pXDisplay, m_iCurrentScreen ),
+// 																			0, 0, ( DisplayWidth( m_pXDisplay, m_iCurrentScreen ) ), DisplayHeight( m_pXDisplay, m_iCurrentScreen ),
+// 																			0, 0, 0 );
+// */
+// 	classHint.res_name = ( char* ) m_sWindowTitle.c_str();
+// 	classHint.res_class = ( char* ) m_sWindowTitle.c_str();
+// 	XSetClassHint ( m_pXDisplay, windows[ 0 ], &classHint );
+// 
+// 	classHint.res_class = ( char* ) m_sWindowTitle.c_str();
+// 	XSetClassHint ( m_pXDisplay, windows[ 0 ], &classHint );
+// 
+// 	XSelectInput( m_pXDisplay, windows[ 0 ], INPUT_MOTION );
+// 	XSelectInput( m_pXDisplay, windows[ 1 ], INPUT_MOTION );
+// 
+// 	XSetStandardProperties( m_pXDisplay, windows[ 0 ], m_sWindowTitle.c_str(), m_sWindowTitle.c_str(), None, NULL, 0, 0 );
+// 	XSetStandardProperties( m_pXDisplay, windows[ 1 ], m_sWindowTitle.c_str(), m_sWindowTitle.c_str(), None, NULL, 0, 0 );
+// 
+// 	sizeHints.win_gravity = StaticGravity;
+// 	sizeHints.flags = PPosition | PSize | PWinGravity;
+// 
+// 	XSetWMNormalHints( m_pXDisplay, windows[ 0 ], &sizeHints );
+// 	XSetWMNormalHints( m_pXDisplay, windows[ 1 ], &sizeHints );
+// 
+// 	Atom XA_DELETE_WINDOW = XInternAtom( m_pXDisplay, "WM_DELETE_WINDOW", False );
+// 	XSetWMProtocols( m_pXDisplay, windows[ 0 ], &XA_DELETE_WINDOW, 1 );
+// 	XSetWMProtocols( m_pXDisplay, windows[ 1 ], &XA_DELETE_WINDOW, 1 );
+// 
+// 	Atom XA_NO_BORDER = XInternAtom( m_pXDisplay, "_MOTIF_WM_HINTS", False );
+// 	wmHints.flags = ( 1L << 1 ); // MWM_HINTS_DECORATIONS
+// 	wmHints.decorations = 0;
+// 
+// 	XChangeProperty( m_pXDisplay, windows[ 1 ], XA_NO_BORDER, XA_NO_BORDER, 32,
+// 									 PropModeReplace, ( unsigned char * ) & wmHints,
+// 									 5 /* PROP_MWM_HINTS_ELEMENTS */ );
+// 
+// 	Atom XA_WIN_LAYER = XInternAtom( m_pXDisplay, "_NET_WM_STATE", False );
+// 	propertyValues[ 0 ] = 10;
+// 	XChangeProperty( m_pXDisplay, windows[ 1 ], XA_WIN_LAYER, XA_CARDINAL, 32, PropModeReplace, ( unsigned char * ) propertyValues, 1 );
+// 
+// 
+// 	XA_WIN_LAYER = XInternAtom( m_pXDisplay, "_NET_WM_STATE", False );
+// 	propertyValues[ 0 ] = 12;
+// 	XChangeProperty( m_pXDisplay, windows[ 1 ], XA_WIN_LAYER, XA_CARDINAL, 32, PropModeReplace, ( unsigned char * ) propertyValues, 1 );
+// 
+// 	if ( XShmQueryExtension( m_pXDisplay ) == True )
+// 		completionEvent = XShmGetEventBase( m_pXDisplay ) + ShmCompletion;
+// 	else
+// 		completionEvent = -1;
 
-	windows[ 0 ] = XCreateSimpleWindow( m_pXDisplay, XDefaultRootWindow( m_pXDisplay ), xpos, ypos, width, height, border, 0, 0 );
-	windows[ 1 ] = XCreateSimpleWindow( m_pXDisplay, XDefaultRootWindow( m_pXDisplay ), xpos, ypos, width, height, border, 0, 0 );
+	windows[ 0 ] = m_pFactory->windows[ 0 ];
+	windows[ 1 ] = m_pFactory->windows[ 1 ];
 
-/*
-	windows[ 0 ] = XCreateSimpleWindow( m_pXDisplay, XRootWindow( m_pXDisplay, m_iCurrentScreen ), xpos, ypos, width, height, 
-																			1, 0, 0 );
-	windows[ 1 ] = XCreateSimpleWindow( m_pXDisplay, XRootWindow( m_pXDisplay, m_iCurrentScreen ),
-																			0, 0, ( DisplayWidth( m_pXDisplay, m_iCurrentScreen ) ), DisplayHeight( m_pXDisplay, m_iCurrentScreen ),
-																			0, 0, 0 );
-*/
-	classHint.res_name = ( char* ) m_sWindowTitle.c_str();
-	classHint.res_class = ( char* ) m_sWindowTitle.c_str();
-	XSetClassHint ( m_pXDisplay, windows[ 0 ], &classHint );
-
-	classHint.res_class = ( char* ) m_sWindowTitle.c_str();
-	XSetClassHint ( m_pXDisplay, windows[ 0 ], &classHint );
-
-	XSelectInput( m_pXDisplay, windows[ 0 ], INPUT_MOTION );
-	XSelectInput( m_pXDisplay, windows[ 1 ], INPUT_MOTION );
-
-	XSetStandardProperties( m_pXDisplay, windows[ 0 ], m_sWindowTitle.c_str(), m_sWindowTitle.c_str(), None, NULL, 0, 0 );
-	XSetStandardProperties( m_pXDisplay, windows[ 1 ], m_sWindowTitle.c_str(), m_sWindowTitle.c_str(), None, NULL, 0, 0 );
-
-	sizeHints.win_gravity = StaticGravity;
-	sizeHints.flags = PPosition | PSize | PWinGravity;
-
-	XSetWMNormalHints( m_pXDisplay, windows[ 0 ], &sizeHints );
-	XSetWMNormalHints( m_pXDisplay, windows[ 1 ], &sizeHints );
-
-	Atom XA_DELETE_WINDOW = XInternAtom( m_pXDisplay, "WM_DELETE_WINDOW", False );
-	XSetWMProtocols( m_pXDisplay, windows[ 0 ], &XA_DELETE_WINDOW, 1 );
-	XSetWMProtocols( m_pXDisplay, windows[ 1 ], &XA_DELETE_WINDOW, 1 );
-
-	Atom XA_NO_BORDER = XInternAtom( m_pXDisplay, "_MOTIF_WM_HINTS", False );
-	wmHints.flags = ( 1L << 1 ); // MWM_HINTS_DECORATIONS
-	wmHints.decorations = 0;
-
-	XChangeProperty( m_pXDisplay, windows[ 1 ], XA_NO_BORDER, XA_NO_BORDER, 32,
-									 PropModeReplace, ( unsigned char * ) & wmHints,
-									 5 /* PROP_MWM_HINTS_ELEMENTS */ );
-
-	Atom XA_WIN_LAYER = XInternAtom( m_pXDisplay, "_NET_WM_STATE", False );
-	propertyValues[ 0 ] = 10;
-	XChangeProperty( m_pXDisplay, windows[ 1 ], XA_WIN_LAYER, XA_CARDINAL, 32, PropModeReplace, ( unsigned char * ) propertyValues, 1 );
-
-
-	XA_WIN_LAYER = XInternAtom( m_pXDisplay, "_NET_WM_STATE", False );
-	propertyValues[ 0 ] = 12;
-	XChangeProperty( m_pXDisplay, windows[ 1 ], XA_WIN_LAYER, XA_CARDINAL, 32, PropModeReplace, ( unsigned char * ) propertyValues, 1 );
-
-	if ( XShmQueryExtension( m_pXDisplay ) == True )
-		completionEvent = XShmGetEventBase( m_pXDisplay ) + ShmCompletion;
-	else
-		completionEvent = -1;
-
-	noCursor = XCreateBitmapFromData( m_pXDisplay, ( DefaultRootWindow( m_pXDisplay ) ), noCursorDataDescription, 8, 8 );
-	cursors[0] = XCreateFontCursor(m_pXDisplay, XC_left_ptr);
-	cursors[1] = XCreatePixmapCursor(m_pXDisplay, noCursor, noCursor, &black, &black, 0, 0);
+	noCursor = XCreateBitmapFromData( m_pFactory->m_pXDisplay, ( DefaultRootWindow( m_pFactory->m_pXDisplay ) ), noCursorDataDescription, 8, 8 );
+	cursors[0] = XCreateFontCursor(m_pFactory->m_pXDisplay, XC_left_ptr);
+	cursors[1] = XCreatePixmapCursor(m_pFactory->m_pXDisplay, noCursor, noCursor, &black, &black, 0, 0);
 	
 	if ( m_pDynamic_Pointer )
 		delete m_pDynamic_Pointer;
 	m_pDynamic_Pointer = new Dynamic_Pointer(this, &cursors[0], &cursors[1]);
 
-	XFreePixmap( m_pXDisplay, noCursor );
+	XFreePixmap( m_pFactory->m_pXDisplay, noCursor );
 
-	XDefineCursor( m_pXDisplay, windows[ m_iCurrentWindow ], cursors[ m_iCurrentWindow ] );
-	XMapRaised( m_pXDisplay, windows[ m_iCurrentWindow ] );
+	XDefineCursor( m_pFactory->m_pXDisplay, windows[ m_iCurrentWindow ], cursors[ m_iCurrentWindow ] );
+	XMapRaised( m_pFactory->m_pXDisplay, windows[ m_iCurrentWindow ] );
 
 	if ( m_pDynamic_Pointer )
 		m_pDynamic_Pointer->pointer_hide();
 
-	res_h = ( DisplayWidth( m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayWidthMM( m_pXDisplay, m_iCurrentScreen ) );
-	res_v = ( DisplayHeight( m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayHeightMM( m_pXDisplay, m_iCurrentScreen ) );
+	res_h = ( DisplayWidth( m_pFactory->m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayWidthMM( m_pFactory->m_pXDisplay, m_iCurrentScreen ) );
+	res_v = ( DisplayHeight( m_pFactory->m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayHeightMM( m_pFactory->m_pXDisplay, m_iCurrentScreen ) );
 
 	m_dPixelAspect = res_v / res_h;
 
@@ -396,7 +400,7 @@ bool Xine_Stream::CreateWindows()
 		m_dPixelAspect = 1.0;
 
 	//XSync( m_pXDisplay, True );
-	XUnlockDisplay( m_pXDisplay );
+	XUnlockDisplay( m_pFactory->m_pXDisplay );
 
 	return true;
 }
@@ -407,7 +411,7 @@ bool Xine_Stream::InitXineAVOutput()
 	if (!m_bBroadcaster)
 	{
 		// init visual for xine video
-		m_x11Visual.display = m_pXDisplay;
+		m_x11Visual.display = m_pFactory->m_pXDisplay;
 		m_x11Visual.screen = m_iCurrentScreen;
 		m_x11Visual.d = windows[ m_iCurrentWindow ];
 		
@@ -902,9 +906,9 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 		{
 			do
 			{
-				XLockDisplay( pStream->m_pXDisplay );
-				checkResult = XCheckWindowEvent( pStream->m_pXDisplay, pStream->windows[ pStream->m_iCurrentWindow ], INPUT_MOTION, &event );
-				XUnlockDisplay( pStream->m_pXDisplay );
+				XLockDisplay( pStream->m_pFactory->m_pXDisplay );
+				checkResult = XCheckWindowEvent( pStream->m_pFactory->m_pXDisplay, pStream->windows[ pStream->m_iCurrentWindow ], INPUT_MOTION, &event );
+				XUnlockDisplay( pStream->m_pFactory->m_pXDisplay );
 
 				if ( checkResult == True )
 					pStream->XServerEventProcessor( event );
@@ -986,7 +990,7 @@ int Xine_Stream::XServerEventProcessor(XEvent &event )
 	{
 		case ClientMessage:
 		{
-			XA_DELETE_WINDOW = XInternAtom( m_pXDisplay, "WM_DELETE_WINDOW", False );
+			XA_DELETE_WINDOW = XInternAtom( m_pFactory->m_pXDisplay, "WM_DELETE_WINDOW", False );
 
 			if ( ( unsigned ) event.xclient.data.l[ 0 ] == XA_DELETE_WINDOW )
 				m_bIsRendering = false;
@@ -2238,26 +2242,26 @@ Xine_Stream::PlayBackSpeedType Xine_Stream::getPlaybackSpeed()
 
 bool Xine_Stream::DestroyWindows()
 {
-	if ( m_pXDisplay != NULL )
+	if ( m_pFactory->m_pXDisplay != NULL )
 	{
 		if (!m_pDynamic_Pointer)
 			delete m_pDynamic_Pointer;
 		m_pDynamic_Pointer = NULL;
 		
-		XLockDisplay( m_pXDisplay );
+		XLockDisplay( m_pFactory->m_pXDisplay );
 
-		XUnmapWindow( m_pXDisplay, windows[ m_iCurrentWindow ] );
+//		XUnmapWindow( m_pXDisplay, windows[ m_iCurrentWindow ] );
 
-		XFreeCursor( m_pXDisplay, cursors[ 0 ] );
-		XFreeCursor( m_pXDisplay, cursors[ 1 ] );
+		XFreeCursor( m_pFactory->m_pXDisplay, cursors[ 0 ] );
+		XFreeCursor( m_pFactory->m_pXDisplay, cursors[ 1 ] );
 
-		XDestroyWindow( m_pXDisplay, windows[ 0 ] );
-		XDestroyWindow( m_pXDisplay, windows[ 1 ] );
+//		XDestroyWindow( m_pXDisplay, windows[ 0 ] );
+//		XDestroyWindow( m_pXDisplay, windows[ 1 ] );
 
-		XUnlockDisplay( m_pXDisplay );
-		XCloseDisplay ( m_pXDisplay );
+		XUnlockDisplay( m_pFactory->m_pXDisplay );
+		//XCloseDisplay ( m_pXDisplay );
 
-		m_pXDisplay = NULL;
+		//m_pXDisplay = NULL;
 	}
 
 	return true;
@@ -2600,9 +2604,9 @@ void Xine_Stream::simulateMouseClick( int X, int Y )
 	xineInputData.y = Y;
 
 	gettimeofday( &xineEvent.tv, NULL );
-	XLockDisplay( m_pXDisplay );
+	XLockDisplay( m_pFactory->m_pXDisplay );
 	xine_event_send( m_pXineStream, &xineEvent );
-	XUnlockDisplay( m_pXDisplay );
+	XUnlockDisplay( m_pFactory->m_pXDisplay );
 }
 
 void Xine_Stream::simulateKeystroke( int plutoButton )
@@ -2611,17 +2615,17 @@ void Xine_Stream::simulateKeystroke( int plutoButton )
 	int oldRevertBehaviour;
 	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::simulateKeystroke(): plutoButton=%d", plutoButton );
 
-	XLockDisplay( m_pXDisplay );
-	XGetInputFocus( m_pXDisplay, &oldWindow, &oldRevertBehaviour );
-	XSetInputFocus( m_pXDisplay, windows[ m_iCurrentWindow ], RevertToParent, CurrentTime );
-	XTestFakeKeyEvent( m_pXDisplay, XKeysymToKeycode( m_pXDisplay, translatePlutoKeySymToXKeySym( plutoButton ) ), True, 0 );
-	XTestFakeKeyEvent( m_pXDisplay, XKeysymToKeycode( m_pXDisplay, translatePlutoKeySymToXKeySym( plutoButton ) ), False, 0 );
+	XLockDisplay( m_pFactory->m_pXDisplay );
+	XGetInputFocus( m_pFactory->m_pXDisplay, &oldWindow, &oldRevertBehaviour );
+	XSetInputFocus( m_pFactory->m_pXDisplay, windows[ m_iCurrentWindow ], RevertToParent, CurrentTime );
+	XTestFakeKeyEvent( m_pFactory->m_pXDisplay, XKeysymToKeycode( m_pFactory->m_pXDisplay, translatePlutoKeySymToXKeySym( plutoButton ) ), True, 0 );
+	XTestFakeKeyEvent( m_pFactory->m_pXDisplay, XKeysymToKeycode( m_pFactory->m_pXDisplay, translatePlutoKeySymToXKeySym( plutoButton ) ), False, 0 );
 
 	if ( oldWindow )
-		XSetInputFocus( m_pXDisplay, oldWindow, oldRevertBehaviour, CurrentTime );
+		XSetInputFocus( m_pFactory->m_pXDisplay, oldWindow, oldRevertBehaviour, CurrentTime );
 
-	XFlush( m_pXDisplay );
-	XUnlockDisplay( m_pXDisplay );
+	XFlush( m_pFactory->m_pXDisplay );
+	XUnlockDisplay( m_pFactory->m_pXDisplay );
 }
 
 void Xine_Stream::sendInputEvent( int eventType )
@@ -2778,14 +2782,14 @@ int Xine_Stream::translate_point( int gui_x, int gui_y, int *video_x, int *video
 void Xine_Stream::Dynamic_Pointer::pointer_hide()
 {
 	Window window = m_pOwner->windows[m_pOwner->m_iCurrentWindow];
-	XDefineCursor( m_pOwner->m_pXDisplay, window, *m_pCursor_hidden );
+	XDefineCursor( m_pOwner->m_pFactory->m_pXDisplay, window, *m_pCursor_hidden );
 	m_start_time = 0;
 }
 
 void Xine_Stream::Dynamic_Pointer::pointer_show()
 {
 	Window window = m_pOwner->windows[m_pOwner->m_iCurrentWindow];
-	XDefineCursor( m_pOwner->m_pXDisplay, window, *m_pCursor_normal );
+	XDefineCursor( m_pOwner->m_pFactory->m_pXDisplay, window, *m_pCursor_normal );
 	m_start_time = time( NULL );
 }
 

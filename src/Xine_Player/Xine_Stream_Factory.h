@@ -53,6 +53,19 @@ namespace DCE
 			// factory access controlling mutex
 			pluto_pthread_mutex_t m_factoryMutex;
 			
+			// X subsystem properties
+			string m_sWindowTitle;
+			Display *m_pXDisplay;
+			int m_iCurrentScreen;
+			int m_iCurrentWindow;
+			
+			// window init routines
+			bool CreateWindows();
+			bool DestroyWindows();
+			
+			// X11 windows
+			Window windows[ 2 ];
+			
 			// owning player
 			Xine_Player *m_pPlayer;
 		public:

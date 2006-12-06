@@ -142,7 +142,7 @@ namespace DCE
 
 			// X subsystem properties
 			string m_sWindowTitle;
-			Display *m_pXDisplay;
+			//Display *m_pXDisplay;
 			int m_iCurrentScreen;
 			int m_iCurrentWindow;
 			Window windows[ 2 ];
