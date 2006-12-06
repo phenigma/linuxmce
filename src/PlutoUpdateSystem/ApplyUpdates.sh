@@ -1,5 +1,8 @@
 #!/bin/bash
 
+LogFile="/var/log/pluto/ApplyUpdates.log"
+/usr/pluto/bin/TeeMyOutput.sh --outfile "$LogFile" --append --stdboth -- "$@"
+
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
