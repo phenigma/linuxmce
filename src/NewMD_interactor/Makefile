@@ -1,8 +1,8 @@
 PROGRAMS=interactor interactor-server
 
 CPPFLAGS=-g -ggdb3 -W -Wall
-CXX=g++-3.3
-CC=gcc-3.3
+CXX=g++
+CC=gcc
 
 all: $(PROGRAMS)
 	cp $(PROGRAMS) ../bin
