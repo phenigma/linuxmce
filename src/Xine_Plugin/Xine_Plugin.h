@@ -78,6 +78,8 @@ public:
 
 		XineMediaStream *ConvertToXineMediaStream(MediaStream *pMediaStream, string callerIdMessage = "");
 
+		bool ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXineMediaStream);
+
 	//<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

@@ -53,7 +53,7 @@ string TranslateSerialUSB(string sInput,string sIPAddress)
 			return "/dev/" + FileUtils::FilenameWithoutPath(*it);
 		}
 	}
-	g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB %s couldn't find a match",sInput.c_str());
+	g_pPlutoLogger->Write(LV_CRITICAL,"TranslateSerialUSB %s couldn't find a match",sInput.c_str());
 	
 /*
 	char tmpFile[40] = "/tmp/devusbXXXXXX";

@@ -743,8 +743,9 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 
 bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
-    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     int iStreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
+    g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::PlaybackCompleted stream id %d",iStreamID);
     MediaStream * pMediaStream = NULL;
 	if( iStreamID==0 )  // This is just informational that nothing is playing on this stream
 	{

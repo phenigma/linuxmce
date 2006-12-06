@@ -82,6 +82,18 @@ bool Disk_Drive::GetConfig()
 		BL_SameHouse,m_dwPK_Device,"");
 	SendCommand(CMD_Report_Discs_in_Drive_DT);
 
+	// Quick and dirty, get nbd-server working
+	FILE *file = fopen("/etc/nbd-server","wb");
+	if( file )
+	{
+		fprintf(file,"NBD_PORT[0]=%d\n",m_dwPK_Device+18000);
+		fprintf(file,"NBD_FILE[0]=%s\n",sDrive.c_str());
+		fprintf(file,"NBD_SERVER_OPTS[0]=-r");
+		fclose(file);
+		system("/etc/init.d/nbd-server restart");
+	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot create nbd-server");
 	return true;
 }
 

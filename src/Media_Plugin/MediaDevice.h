@@ -48,6 +48,17 @@ namespace DCE
 		int m_dwPK_Command_LastPower;
 
 		int FindUltimateDestinationViaPipe(class Pipe *pPipe,int PK_Pipe);
+
+		bool IsInEntertainArea(EntertainArea *pEntertainArea)
+		{
+			for(map<int,class EntertainArea *>::iterator it=m_mapEntertainArea.begin();it!=m_mapEntertainArea.end();++it)
+			{
+				if( pEntertainArea == it->second )
+					return true;
+			}
+			return false;
+		}
+
 	};
 
 	typedef list<MediaDevice *> ListMediaDevice;

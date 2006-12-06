@@ -63,6 +63,30 @@ bool Xine_Player::GetConfig()
 	m_pDeviceData_MediaPlugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Media_Plugins_CONST);
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", 0);
 	EVENT_Playback_Completed("",0,false);  // In case media plugin thought something was playing, let it know that there's not
+
+	// Quick and dirty, get nbd-client working
+	FILE *file = fopen("/etc/nbd-client","wb");
+	if( file )
+	{
+		int Count=0;
+		for(Map_DeviceData_Base::iterator it=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();it!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++it)
+		{
+			DeviceData_Base *pDevice = it->second;
+			DeviceData_Base *pDevice_TopMost = pDevice->GetTopMostDevice();
+			if( pDevice->WithinCategory(DEVICECATEGORY_Disc_Drives_CONST) && pDevice_TopMost && pDevice_TopMost!=m_pData->GetTopMostDevice() )
+			{
+				fprintf(file,"NBD_DEVICE[%d]=/dev/device_%d\n",Count,pDevice->m_dwPK_Device);
+				fprintf(file,"NBD_TYPE[%d]=r\n",Count);
+				fprintf(file,"NBD_PORT[%d]=%d\n",Count,pDevice->m_dwPK_Device+18000);
+				fprintf(file,"NBD_HOST[%d]=%s\n",Count,pDevice_TopMost->m_sIPAddress.c_str());
+				Count++;
+			}
+		}
+		fclose(file);
+		system("/etc/init.d/nbd-client restart");
+	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot create nbd-client");
 	
 	// Put your code here to initialize the data in this class
 	// The configuration parameters DATA_ are now populated

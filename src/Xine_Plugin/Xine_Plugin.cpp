@@ -278,6 +278,12 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 
 	if( pXineMediaStream->SingleEaAndSameDestSource()==false )
 	{
+		if( !ConfirmSourceIsADestination(mediaURL,pXineMediaStream) )
+			return false;
+		// For now we're not able to have a xine that renders to a NULL window and can do dvd's.  They require 
+		// a live window with events.  So for the moment this function will confirm that if we're playing a dvd disc remotely that we make the 
+		// source be one of the destinations, and change the mrl to reference the source disk
+
 		g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
 			m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 			pMediaStream->m_iDequeMediaFile_Pos);
@@ -436,5 +442,64 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 	return false;
 }
 
+bool Xine_Plugin::ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXineMediaStream)
+{
+	MediaDevice *pMediaDevice_Xine = NULL; // Any xine that's in the destination
+	for( MapEntertainArea::iterator itEA = pXineMediaStream->m_mapEntertainArea.begin( );itEA != pXineMediaStream->m_mapEntertainArea.end( );++itEA )
+	{
+		EntertainArea *pEntertainArea = ( *itEA ).second;
+		ListMediaDevice *pListMediaDevice = pEntertainArea->m_mapMediaDeviceByTemplate_Find(DEVICETEMPLATE_Xine_Player_CONST);
+		if( !pListMediaDevice )
+			continue;
+		for(ListMediaDevice::iterator it=pListMediaDevice->begin();it!=pListMediaDevice->end();++it)
+		{
+			MediaDevice *pMediaDevice = *it;
+			if( pXineMediaStream->m_pMediaDevice_Source->IsInEntertainArea( pEntertainArea ) )
+				return true; // We're good.  The source is one of the destinations
+			if( !pMediaDevice_Xine )
+				pMediaDevice_Xine = pMediaDevice;
+		}
+	}
+	
+	// If we reached here, then the source is not in one of the destination areas
+	if( !pMediaDevice_Xine )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination no xine player can handle this out of %d ea's",pXineMediaStream->m_mapEntertainArea.size());
+		return false;
+	}
+
+	// See if the source was a disk drive
+	if( sMRL.find("/dev/")!=string::npos )
+	{
+		// TODO -- what if the directory is /dev/??
+		DeviceData_Router *pDevice_Disk_Drive = (DeviceData_Router *) pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Disc_Drives_CONST);
+		if( !pDevice_Disk_Drive )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination can't find the disk drive");
+			return false;
+		}
+		string sDrive = pDevice_Disk_Drive->m_mapParameters_Find(DEVICEDATA_Drive_CONST);
+		string::size_type pos = sMRL.find( sDrive );  // Find the /dev/cdrom in ther
+		if( pos==string::npos )
+		{
+			sDrive = "/dev/cdrom";
+			pos = sMRL.find( sDrive );  // Find the /dev/cdrom in ther
+		}
+		if( pos==string::npos )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination can't find drive's device");
+			return false;
+		}
+		string sDrive_New="/dev/device_" + StringUtils::itos(pDevice_Disk_Drive->m_dwPK_Device);
+		StringUtils::Replace(sMRL,sDrive,sDrive_New);
+	}
+	else
+		g_pPlutoLogger->Write(LV_STATUS,"Xine_Plugin::ConfirmSourceIsADestination %s isn't a disk device",sMRL.c_str());  // Shouldn't happen
+
+	pXineMediaStream->m_pMediaDevice_Source = pMediaDevice_Xine;
+	return true;
+}
+
 //<-dceag-sample-b->!
 //<-dceag-createinst-b->!
+
