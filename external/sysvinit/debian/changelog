@@ -1,3 +1,10 @@
+sysvinit (2.86.ds1-1.1pluto66) unstable; urgency=low
+
+  * Make sure the computers behind us can access the internet asap
+  * Start the autmount daemon soon
+
+ -- Razvan Gavril <razvan.g@pluthome.com>  Wed, 06 Dec 2006 14:07:51 +0200
+
 sysvinit (2.86.ds1-1.1pluto65) unstable; urgency=low
 
   * Start nis server when needed

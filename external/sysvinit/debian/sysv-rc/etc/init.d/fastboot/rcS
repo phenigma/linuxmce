@@ -306,6 +306,11 @@ if [ -x /etc/init.d/mysql ] ;then
     /etc/init.d/mysql start 2>/dev/null
 fi
 
+# Start automount daemon
+if [[ -x /etc/init.d/autofs ]] ;then
+	/etc/init.d/autofs start 1>/dev/null 2>/dev/null &
+fi
+
 # restore mysql if restore point found
 
 if [[ -d /home/backup/upload ]]; then
@@ -323,6 +328,17 @@ fi
 ##########################################
 #### Starting Pluto Specific services ####
 ##########################################
+
+## Start stuff that makes the dcerouter act as a internet router
+if [[ -x /etc/init.d/dhcp3-server ]] ;then
+	/etc/init.d/dhcp3-server start 1>/dev/null 2>/dev/null &
+fi
+if [[ -x /etc/init.d/bind9 ]] ;then
+	/etc/init.d/bind9 start 1>/dev/null 2>/dev/null &
+fi
+if [[ -x /usr/pluto/bin/Network_Firewall.sh ]] ;then
+	/usr/pluto/bin/Network_Firewall.sh 1>/dev/null 2>/dev/null &
+fi
 
 ## Check to see if pluto finished installing else exit
 ## works only on MDs
