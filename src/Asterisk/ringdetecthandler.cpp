@@ -88,8 +88,16 @@ RingDetectHandler::handleToken(Token* ptoken) {
 		string channel = ptoken->getKey(TOKEN_CHANNEL);
 		bool success=false;
 		int pos = channel.find("AsyncGoto");
-		int newpos;
-		if(pos < 0) //Don't hangup if it's conference transfer
+		int pos1 = channel.find("Local/");
+		int pos2 = channel.find("@trusted");
+		int newpos = 0;
+		
+		g_pPlutoLogger->Write(LV_STATUS, "Hangup: %s, %d, %d, %d", channel.c_str(), pos, pos1, pos2);
+		
+		// Don't hangup if it's a conference transfer
+		// Don't hangup if it's a local trusted channel, it comes before joining to a conference
+		// See the dial plan for more details
+		if((pos1 != 0 || pos2 == string::npos) && pos == string::npos)
 		{
 			list<map<string,string>::iterator> delete_list;		
 			for(map<string,string>::iterator it=map_ringext.begin();it!=map_ringext.end();it++)
@@ -159,7 +167,7 @@ RingDetectHandler::handleToken(Token* ptoken) {
 				}
 				return 0;
 			}
-		}		
+		}
 	}
 
 	if((ptoken->getKey(TOKEN_EVENT) == EVENT_NEWCHANNEL || ptoken->getKey(TOKEN_EVENT) == EVENT_NEWSTATE ) && (ptoken->getKey(TOKEN_STATE) == STATE_RINGING || ptoken->getKey(TOKEN_STATE) == STATE_RING)) 
