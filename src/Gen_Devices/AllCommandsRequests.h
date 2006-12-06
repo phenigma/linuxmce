@@ -22336,5 +22336,65 @@ namespace DCE
 			1 /* number of parameters */,
 			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str()); }
 	};
+	class RESP_Get_Network_Devices_Shares : public PreformedCommandResponse {
+		char **m_pCustom_Response;int *m_iCustom_Response_Size;
+	public:
+		RESP_Get_Network_Devices_Shares(char **pCustom_Response,int *iCustom_Response_Size) { 
+		m_pCustom_Response=pCustom_Response; m_iCustom_Response_Size=iCustom_Response_Size; }
+		void ParseResponse(Message *pMessage) {
+			*m_pCustom_Response=pMessage->m_mapData_Parameters[COMMANDPARAMETER_Custom_Response_CONST]; pMessage->m_mapData_Parameters.erase(COMMANDPARAMETER_Custom_Response_CONST); *m_iCustom_Response_Size=pMessage->m_mapData_Lengths[COMMANDPARAMETER_Custom_Response_CONST]; };
+	};
+	class CMD_Get_Network_Devices_Shares : public PreformedCommand {
+	public:
+		CMD_Get_Network_Devices_Shares(long DeviceIDFrom, long DeviceIDTo,char **pCustom_Response,int *iCustom_Response_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Get_Network_Devices_Shares_CONST,
+			1 /* number of parameters */,
+			- COMMANDPARAMETER_Custom_Response_CONST, *pCustom_Response,*iCustom_Response_Size);		m_pcResponse = new RESP_Get_Network_Devices_Shares(pCustom_Response,iCustom_Response_Size); }
+	};
+	class CMD_Get_Network_Devices_Shares_DL : public PreformedCommand {
+	public:
+		CMD_Get_Network_Devices_Shares_DL(long DeviceIDFrom, string DeviceIDTo,char **pCustom_Response,int *iCustom_Response_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Network_Devices_Shares_CONST,
+			1 /* number of parameters */,
+			- COMMANDPARAMETER_Custom_Response_CONST, *pCustom_Response,*iCustom_Response_Size);		m_pcResponse = new RESP_Get_Network_Devices_Shares(pCustom_Response,iCustom_Response_Size); }
+	};
+	class CMD_Get_Network_Devices_Shares_DT : public PreformedCommand {
+	public:
+		CMD_Get_Network_Devices_Shares_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,char **pCustom_Response,int *iCustom_Response_Size) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Network_Devices_Shares_CONST,
+			1 /* number of parameters */,
+			- COMMANDPARAMETER_Custom_Response_CONST, *pCustom_Response,*iCustom_Response_Size);		m_pcResponse = new RESP_Get_Network_Devices_Shares(pCustom_Response,iCustom_Response_Size); }
+	};
+	class CMD_Get_Network_Devices_Shares_Cat : public PreformedCommand {
+	public:
+		CMD_Get_Network_Devices_Shares_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,char **pCustom_Response,int *iCustom_Response_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Network_Devices_Shares_CONST,
+			1 /* number of parameters */,
+			- COMMANDPARAMETER_Custom_Response_CONST, *pCustom_Response,*iCustom_Response_Size);		m_pcResponse = new RESP_Get_Network_Devices_Shares(pCustom_Response,iCustom_Response_Size); }
+	};
+	class CMD_NOREP_Get_Network_Devices_Shares : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Network_Devices_Shares(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Network_Devices_Shares_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_NOREP_Get_Network_Devices_Shares_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Network_Devices_Shares_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Network_Devices_Shares_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_NOREP_Get_Network_Devices_Shares_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Network_Devices_Shares_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Network_Devices_Shares_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_NOREP_Get_Network_Devices_Shares_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Network_Devices_Shares_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Network_Devices_Shares_CONST,
+			0 /* number of parameters */); }
+	};
 }
 #endif

@@ -440,6 +440,20 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 	virtual void CMD_Get_User_Name(int iPK_Users,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_User_Name(iPK_Users,sValue_To_Assign,sCMD_Result,NULL);};
 	virtual void CMD_Get_User_Name(int iPK_Users,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #835 - Get Network Devices Shares */
+	/** Get the list with shares for all network devices from this installation. */
+		/** @param #244 Custom Response */
+			/** Contains the following info:
+
+device id, device ip, share name, user name, password, free space.
+
+Delimiter: '\n' */
+
+	virtual void CMD_Get_Network_Devices_Shares(char **pCustom_Response,int *iCustom_Response_Size) { string sCMD_Result; CMD_Get_Network_Devices_Shares(pCustom_Response,iCustom_Response_Size,sCMD_Result,NULL);};
+	virtual void CMD_Get_Network_Devices_Shares(char **pCustom_Response,int *iCustom_Response_Size,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	private:
 		mapMacPKDescription m_mapMacPKDescription;

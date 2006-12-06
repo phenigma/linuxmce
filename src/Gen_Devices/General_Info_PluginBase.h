@@ -212,6 +212,7 @@ public:
 	virtual void CMD_Get_Unused_Serial_Ports(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iPK_Software,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_User_Name(int iPK_Users,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Network_Devices_Shares(char **pCustom_Response,int *iCustom_Response_Size,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -962,6 +963,34 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Get_User_Name(iPK_Users,&sValue_To_Assign,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Get_Network_Devices_Shares_CONST:
+					{
+						string sCMD_Result="OK";
+						char *pCustom_Response=pMessage->m_mapData_Parameters[COMMANDPARAMETER_Custom_Response_CONST];
+						int iCustom_Response_Size=pMessage->m_mapData_Lengths[COMMANDPARAMETER_Custom_Response_CONST];
+						CMD_Get_Network_Devices_Shares(&pCustom_Response,&iCustom_Response_Size,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapData_Parameters[COMMANDPARAMETER_Custom_Response_CONST]=pCustom_Response; pMessageOut->m_mapData_Lengths[COMMANDPARAMETER_Custom_Response_CONST]=iCustom_Response_Size;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_Network_Devices_Shares(&pCustom_Response,&iCustom_Response_Size,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

@@ -6,6 +6,7 @@
  
  www.plutohome.com		
  
+
  Phone: +1 (877) 758-8648
  
  This program is distributed according to the terms of the Pluto Public License, available at: 
@@ -24,6 +25,7 @@
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
+#include <sstream>
 using namespace std;
 using namespace DCE;
 
@@ -3159,4 +3161,111 @@ void General_Info_Plugin::CMD_Get_User_Name(int iPK_Users,string *sValue_To_Assi
 	Row_Users *pRow_Users = m_pDatabase_pluto_main->Users_get()->GetRow(iPK_Users);
 	if( pRow_Users )
 		*sValue_To_Assign = pRow_Users->UserName_get();
+}
+//<-dceag-c835-b->
+
+	/** @brief COMMAND: #835 - Get Network Devices Shares */
+	/** Get the list with shares for all network devices from this installation. */
+		/** @param #244 Custom Response */
+			/** Contains the following info:
+
+device id, device ip, share name, user name, password, free space.
+
+Delimiter: '\n' */
+
+void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response,int *iCustom_Response_Size,string &sCMD_Result,Message *pMessage)
+//<-dceag-c835-e->
+{
+
+	g_pPlutoLogger->Write(LV_STATUS,"Starting Get_Network_Devices_Shares");
+
+	map<int, pair<string, string> > mapIP;
+	multimap<int, pair<int, string> > mapInfo;
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	string sSQL = 
+		"SELECT DeviceChild.PK_Device, DeviceChild.IPaddress, DeviceParent.Description, DeviceChild.Description, FK_DeviceData, IK_DeviceData "
+		"FROM Device AS DeviceParent "
+		"INNER JOIN DeviceTemplate ON DeviceParent.FK_DeviceTemplate = PK_DeviceTemplate "
+		"INNER JOIN Device AS DeviceChild ON DeviceChild.FK_Device_ControlledVia = DeviceParent.PK_Device "
+		"INNER JOIN Device_DeviceData ON DeviceChild.PK_Device = Device_DeviceData.FK_Device "
+		"AND FK_DeviceData IN (" + StringUtils::ltos(DEVICEDATA_Share_Name_CONST) + ", " + 
+			StringUtils::ltos(DEVICEDATA_Username_CONST) + ", " + StringUtils::ltos(DEVICEDATA_Password_CONST) + " ) "
+		"WHERE FK_DeviceCategory = " + StringUtils::ltos(DEVICECATEGORY_FileMedia_Server_CONST);
+
+	enum FieldNames
+	{
+		fnDeviceID,
+		fnIP,
+		fnParentDescription,
+		fnChildDescription,
+		fnDeviceDataType,
+		fnDeviceDataValue
+	};
+	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sSQL.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	{
+		while((row = mysql_fetch_row(result.r)))	
+		{
+			if(NULL != row[fnDeviceID] && NULL != row[fnIP])
+			{
+				int DeviceID = atoi(row[fnDeviceID]);
+
+				//TODO: optimize with a find
+				mapIP[DeviceID] = make_pair( row[fnIP], string(row[fnParentDescription])+" - "+string(row[fnChildDescription]) );
+
+				int nDeviceDataType = NULL != row[fnDeviceDataType] ? atoi(row[fnDeviceDataType]) : 0;
+				string sDeviceDataValue = NULL != row[fnDeviceDataValue] ? row[fnDeviceDataValue] : string();
+				mapInfo.insert(make_pair(DeviceID, make_pair(nDeviceDataType, sDeviceDataValue)));
+			}
+		}
+	}
+
+	//got the info, let's serialize them
+
+	stringstream strout;
+	// writeln mapIP.size
+	strout<<mapIP.size()<<"\n";
+	for( map<int, pair<string, string> >::iterator iter = mapIP.begin(); iter!= mapIP.end(); ++iter )
+	{
+		// writeln IP = mapIP->second		
+		strout<<iter->second.first<<"\n";
+		strout<<iter->second.second<<"\n";
+		int iCount = mapInfo.count( iter->first );
+		// writeln iCount
+		strout<<iCount<<"\n";
+		if ( iCount>0 )
+		{			
+			pair<multimap<int, pair<int, string> >::iterator, multimap<int, pair<int, string> >::iterator > iterBounds;
+			iterBounds = mapInfo.equal_range( iter->first );
+			// writeln
+			for( multimap<int, pair<int,string> >::iterator infoiter = iterBounds.first; infoiter != iterBounds.second; ++infoiter )
+			{
+				string sParamType = "Unknown";
+				switch( infoiter->second.first )
+				{
+				case DEVICEDATA_Share_Name_CONST:					
+					sParamType = "ShareName";
+					break;
+				case DEVICEDATA_Username_CONST:
+					sParamType = "UserName";
+					break;
+				case DEVICEDATA_Password_CONST:
+					sParamType = "Password";
+					break;
+				}
+				// writeln sParamType+"="+infoiter->second->second				
+				strout<<sParamType<<"="<<infoiter->second.second<<"\n";
+			}
+		}
+	}
+
+	strout.seekg( 0, ios::beg );
+	strout.seekg( 0, ios::end );	
+	*iCustom_Response_Size = strout.tellg();		
+	*pCustom_Response = new char[*iCustom_Response_Size];
+	strout.seekg( 0, ios::beg );
+	strout.read( *pCustom_Response, *iCustom_Response_Size );
+	
+	g_pPlutoLogger->Write(LV_STATUS,"Finishing Get_Network_Devices_Shares");
 }
