@@ -37,7 +37,7 @@ fi
 Counter=0
 isIceWmRunning=0
 while [[ "$isIceWmRunning" -eq 0 ]]; do
-	isIceWmRunning=$(ps -A | grep xfwm4 | wc -l)
+	isIceWmRunning=$(ps -A | egrep 'xfwm4|icewm' | wc -l)
 	if [[ "$isIceWmRunning" -eq 0 ]]; then
 		((Counter++))
 		if [[ "$Counter" -gt 20 ]]; then
