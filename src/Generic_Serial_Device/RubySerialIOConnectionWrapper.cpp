@@ -13,6 +13,7 @@
 */
 
 #include "RubySerialIOConnectionWrapper.h"
+#include "DCE/Logger.h"
 
 namespace DCE {
 
