@@ -96,7 +96,7 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	m_pXineVideoOutput = NULL;
 	
 	m_sWindowTitle = "pluto-xine-playback-window";
-	//m_pXDisplay = NULL;
+	m_pXDisplay = pFactory->m_pXDisplay;
 	m_iCurrentScreen = 0;
 	m_iCurrentWindow = 0;
 	
@@ -2782,14 +2782,14 @@ int Xine_Stream::translate_point( int gui_x, int gui_y, int *video_x, int *video
 void Xine_Stream::Dynamic_Pointer::pointer_hide()
 {
 	Window window = m_pOwner->windows[m_pOwner->m_iCurrentWindow];
-	XDefineCursor( m_pOwner->m_pFactory->m_pXDisplay, window, *m_pCursor_hidden );
+	XDefineCursor( m_pOwner->m_pXDisplay, window, *m_pCursor_hidden );
 	m_start_time = 0;
 }
 
 void Xine_Stream::Dynamic_Pointer::pointer_show()
 {
 	Window window = m_pOwner->windows[m_pOwner->m_iCurrentWindow];
-	XDefineCursor( m_pOwner->m_pFactory->m_pXDisplay, window, *m_pCursor_normal );
+	XDefineCursor( m_pOwner->m_pXDisplay, window, *m_pCursor_normal );
 	m_start_time = time( NULL );
 }
 

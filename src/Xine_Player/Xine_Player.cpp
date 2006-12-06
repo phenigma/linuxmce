@@ -260,7 +260,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 			if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
 			{
 				string sSlaveMediaURL;
-				sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sIPofMD /*"localhost" */+ ":" + StringUtils::itos(pStream->m_iBroadcastPort);
+				sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sIPofMD/*"localhost" */+ ":" + StringUtils::itos(pStream->m_iBroadcastPort);
 				g_pPlutoLogger->Write(LV_WARNING, "Slave URL: %s", sSlaveMediaURL.c_str());
 				string streamingTargets = pStream->m_sBroadcastTargets;
 				string::size_type tokenPos=0;
