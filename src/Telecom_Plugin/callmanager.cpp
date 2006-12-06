@@ -43,11 +43,34 @@ CallManager* CallManager::getInstance() {
 
 void 
 CallManager::addCall(CallData* pCallData) {
+/*	g_pPlutoLogger->Write(LV_WARNING, "+++++++ CallManager::Add: %s| %s| %d| %d",
+		pCallData->getID().c_str(),
+		pCallData->getCallerID().c_str(),
+		pCallData->getOwnerDevID(),
+		pCallData->getPendingCmdID() );*/
 	calls_.push_back(pCallData);
 }
 
 void 
+CallManager::printCalls() {
+	CallData* pCallData = NULL;
+	for(ListCallData_Manager::iterator it = calls_.begin(); it != calls_.end(); it++) {
+		pCallData = (*it);
+		g_pPlutoLogger->Write(LV_WARNING, "### CallManager::Print: %s| %s| %d| %d",
+			pCallData->getID().c_str(),
+			pCallData->getCallerID().c_str(),
+			pCallData->getOwnerDevID(),
+			pCallData->getPendingCmdID() );
+	}
+}
+
+void 
 CallManager::removeCall(CallData* pCallData, bool free) {
+/*	g_pPlutoLogger->Write(LV_WARNING, "------- CallManager::Remove: %s| %s| %d| %d",
+		pCallData->getID().c_str(),
+		pCallData->getCallerID().c_str(),
+		pCallData->getOwnerDevID(),
+		pCallData->getPendingCmdID() );*/
     for(ListCallData_Manager::iterator it = calls_.begin();
                       it != calls_.end(); it++) {
 		if((*it) == pCallData) {
@@ -59,7 +82,6 @@ CallManager::removeCall(CallData* pCallData, bool free) {
        	}
 	}
 }
-	
 
 class _CallDataComparator {
 public:

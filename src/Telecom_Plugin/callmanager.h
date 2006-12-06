@@ -37,6 +37,7 @@ public:
 public:
 	void addCall(CallData* pCallData);
 	void removeCall(CallData* pCallData, bool free = true);
+	void printCalls();
 
 	CallData* findCallByPendingCmdID(int id);
 	CallData* findCallByOwnerDevID(int id);
