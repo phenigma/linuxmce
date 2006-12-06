@@ -172,7 +172,7 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,strin
 //<-dceag-c29-e->
 {
 	//HACK we have to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 1 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Simulate_Mouse_Click() with corresponding stream %p.", pStream);
 	
@@ -201,9 +201,6 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,strin
 void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
-	if( iStreamID==0 )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Player::CMD_Play_Media iStreamID is 0");
-
 	Xine_Stream *prevStream =  ptrFactory->GetStream( iStreamID );
 	if ( (prevStream != NULL) && (prevStream->m_bIsRendering) && (iStreamID!=0) )
 	{
@@ -260,7 +257,8 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 			if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
 			{
 				string sSlaveMediaURL;
-				sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sIPofMD/*"localhost" */+ ":" + StringUtils::itos(pStream->m_iBroadcastPort);
+//				sSlaveMediaURL = sSlaveMediaURL + "slave://" + "localhost"  + ":" + StringUtils::itos(pStream->m_iBroadcastPort);
+				sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sIPofMD + ":" + StringUtils::itos(pStream->m_iBroadcastPort);
 				g_pPlutoLogger->Write(LV_WARNING, "Slave URL: %s", sSlaveMediaURL.c_str());
 				string streamingTargets = pStream->m_sBroadcastTargets;
 				string::size_type tokenPos=0;
@@ -329,7 +327,9 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() Failed to open media");
 	}
 	
-	
+	// storing streamID for reuse
+	if (!pStream->m_bBroadcaster)
+		ptrFactory->m_iLastRenderingStream = iStreamID;
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() ended for filename: %s with stream %p.", sMediaURL.c_str(), pStream);
 	
@@ -525,7 +525,7 @@ void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message 
 //<-dceag-c63-e->
 {
 	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 1 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater() with corresponding stream %p.", pStream);
 	
@@ -550,7 +550,7 @@ void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *
 //<-dceag-c64-e->
 {
 	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 1 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Lower() with corresponding stream %p.", pStream);
 	
@@ -580,7 +580,7 @@ void Xine_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &
 		return;  // Nothing to do
 	
 	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 1 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Jump_Position_In_Playlist() with corresponding stream %p.", pStream);
 	
@@ -735,7 +735,7 @@ void Xine_Player::CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_R
 void Xine_Player::CMD_Pause(string &sCMD_Result,Message *pMessage)
 //<-dceag-c92-e->
 {
-	CMD_Pause_Media(1);
+	CMD_Pause_Media(0);
 }
 
 //<-dceag-c95-b->
@@ -749,7 +749,7 @@ void Xine_Player::CMD_Stop(bool bEject,string &sCMD_Result,Message *pMessage)
 //<-dceag-c95-e->
 {
 	string sMediaPosition;
-	CMD_Stop_Media(1, &sMediaPosition);
+	CMD_Stop_Media(0, &sMediaPosition);
  }
 
 //<-dceag-c139-b->
@@ -774,7 +774,7 @@ void Xine_Player::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,Me
 //<-dceag-c140-e->
 {
 	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 1 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Audio_Track() with corresponding stream %p.", pStream);
 	
@@ -798,7 +798,7 @@ void Xine_Player::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,Messa
 //<-dceag-c141-e->
 {
 	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 1 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Subtitle() with corresponding stream %p.", pStream);
 	
@@ -822,7 +822,7 @@ void Xine_Player::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message 
 //<-dceag-c142-e->
 {
 	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 1 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Angle() with corresponding stream %p.", pStream);
 	
@@ -844,7 +844,7 @@ void Xine_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
 	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 1 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_EnterGo() with corresponding stream %p.", pStream);
 	
@@ -866,7 +866,7 @@ void Xine_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
 {
 	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 1 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Up() with corresponding stream %p.", pStream);
 	
@@ -888,7 +888,7 @@ void Xine_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
 {
 	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 1 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Down() with corresponding stream %p.", pStream);
 	
@@ -910,7 +910,7 @@ void Xine_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
 {
 	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 1 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Left() with corresponding stream %p.", pStream);
 	
@@ -932,7 +932,7 @@ void Xine_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
 {
 	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 1 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Right() with corresponding stream %p.", pStream);
 	
@@ -1147,7 +1147,7 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 void Xine_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c548-e->
 {
-	CMD_Goto_Media_Menu(1,0);
+	CMD_Goto_Media_Menu(0,0);
 }
 
 void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)

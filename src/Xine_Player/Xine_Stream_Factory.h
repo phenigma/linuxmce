@@ -93,6 +93,8 @@ namespace DCE
 			void DestroyStream(int iStreamID);
 			
 			void HideStreamWindows(int iStreamID);
+			
+			int m_iLastRenderingStream;
 	};
 
 }

@@ -44,6 +44,8 @@ Xine_Stream_Factory::Xine_Stream_Factory(Xine_Player *pOwner):
 	m_pXDisplay = NULL;
 	m_iCurrentScreen = 0;
 	m_iCurrentWindow = 0;
+	
+	m_iLastRenderingStream  = 0;
 
 	// default drivers names
 	m_sXineAudioDriverName = "alsa";
@@ -374,6 +376,12 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 	{
 		PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
 		
+		if( streamID==0 )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Stream_Factory::GetStream streamID is 0");
+			streamID = m_iLastRenderingStream;
+		}
+
 		map<int, Xine_Stream*>::iterator stream = streamsMap.find(streamID);
 		if (stream != streamsMap.end())
 		{
@@ -383,7 +391,7 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 		}
 	}
 		
-	if (createIfNotExist)
+	if (createIfNotExist && streamID!=0)
 	{
 		Xine_Stream *new_stream = new Xine_Stream(this, m_pXineLibrary, streamID, m_pPlayer->DATA_Get_Time_Code_Report_Frequency(), requestingObject, bBroadcasting);
 		new_stream->m_bUseDeinterlacing = m_bUseDeinterlacing;
