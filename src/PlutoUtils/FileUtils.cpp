@@ -303,6 +303,10 @@ void FileUtils::MakeDir(string sDirectory)
 	}
 }
 
+#ifdef WIN32
+#define S_IFDIR _S_IFDIR  // Why Microsoft?
+#endif
+
 bool FileUtils::DirExists( string sFile )
 {
     int iResult = 0;
@@ -314,6 +318,7 @@ bool FileUtils::DirExists( string sFile )
         iResult = stat( sFile.substr(0, sFile.length()-1).c_str(), &buf );
     else
         iResult = stat( sFile.c_str(), &buf );
+    return iResult == 0 && buf.st_mode & S_IFDIR ;
 #else
 
 	wchar_t pDirectoryW[256];
@@ -328,8 +333,6 @@ bool FileUtils::DirExists( string sFile )
 	FindClose(hFindFile);
 	return true;
 #endif
-
-    return iResult == 0;
 }
 
 void FileUtils::DelFile(string sFileName)
