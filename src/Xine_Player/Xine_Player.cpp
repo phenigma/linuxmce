@@ -276,33 +276,6 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
 			EVENT_Playback_Started(sMediaURL,iStreamID,sMediaInfo,pStream->m_sAudioInfo,pStream->m_sVideoInfo);
-			
-			// telling to all slaves to start playback
-			if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
-			{
-				string sSlaveMediaURL;
-//				sSlaveMediaURL = sSlaveMediaURL + "slave://" + "localhost"  + ":" + StringUtils::itos(pStream->m_iBroadcastPort);
-				sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sIPofMD + ":" + StringUtils::itos(pStream->m_iBroadcastPort);
-				g_pPlutoLogger->Write(LV_WARNING, "Slave URL: %s", sSlaveMediaURL.c_str());
-				string streamingTargets = pStream->m_sBroadcastTargets;
-				string::size_type tokenPos=0;
-				string curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
-				while (curTarget!="")
-				{
-					int targetDevice = atoi(curTarget.c_str());
-					if (targetDevice)
-					{
-						// if local instance, adding 1000 to streamID
-						DCE::CMD_Play_Media cmd(m_dwPK_Device, targetDevice, iPK_MediaType, (targetDevice==m_dwPK_Device)?(iStreamID+1000):iStreamID, 
-							sMediaPosition, sSlaveMediaURL);
-						SendCommandNoResponse(cmd);
-						g_pPlutoLogger->Write(LV_WARNING, "Starting playback on device %i %s, stream ID=%i", targetDevice, (targetDevice==m_dwPK_Device)?"[local]":"[remote]",
-							(targetDevice==m_dwPK_Device)?(iStreamID+1000):iStreamID );
-					}
-						
-					curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
-				}
-			}
 		}
 		else
 		{
@@ -311,32 +284,6 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
 				EVENT_Playback_Started(sMediaURL,iStreamID,sMediaInfo,pStream->m_sAudioInfo,pStream->m_sVideoInfo);
-			
-				// telling to all slaves to start playback
-				if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
-				{
-					string sSlaveMediaURL;
-					sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sIPofMD + ":" + StringUtils::itos(pStream->m_iBroadcastPort);
-					g_pPlutoLogger->Write(LV_WARNING, "Slave URL: %s", sSlaveMediaURL.c_str());
-					string streamingTargets = pStream->m_sBroadcastTargets;
-					string::size_type tokenPos=0;
-					string curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
-					while (curTarget!="")
-					{
-						int targetDevice = atoi(curTarget.c_str());
-						if (targetDevice)
-						{
-							// if local instance, adding 1000 to streamID
-							DCE::CMD_Play_Media cmd(m_dwPK_Device, targetDevice, iPK_MediaType, (targetDevice==m_dwPK_Device)?(iStreamID+1000):iStreamID, 
-								sMediaPosition, sSlaveMediaURL);
-							SendCommandNoResponse(cmd);
-							g_pPlutoLogger->Write(LV_WARNING, "Starting playback on device %i %s, stream ID=%i", targetDevice, (targetDevice==m_dwPK_Device)?"[local]":"[remote]",
-								(targetDevice==m_dwPK_Device)?(iStreamID+1000):iStreamID );
-						}
-							
-						curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
-					}
-				}
 			}
 			else
 			{
@@ -352,8 +299,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	}
 	
 	// storing streamID for reuse
-	if (!pStream->m_bBroadcaster)
-		ptrFactory->m_iLastRenderingStream = iStreamID;
+	ptrFactory->m_iLastRenderingStream = iStreamID;
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() ended for filename: %s with stream %p.", sMediaURL.c_str(), pStream);
 	
@@ -384,8 +330,7 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sC
 	pStream->pauseMediaStream();
 	*sMediaPosition = pStream->GetPosition();
 	
-	
-	// telling to all slaves to start playback
+	// telling to all slaves to stop playback
 	if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
 	{
 		string streamingTargets = pStream->m_sBroadcastTargets;
@@ -394,21 +339,18 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sC
 		while (curTarget!="")
 		{
 			int targetDevice = atoi(curTarget.c_str());
-			if (targetDevice)
+			if (targetDevice && (targetDevice!=m_dwPK_Device))
 			{
-				// if local instance, adding 1000 to streamID
 				string sPos;
-				DCE::CMD_Stop_Media cmd(m_dwPK_Device, targetDevice, (targetDevice==m_dwPK_Device)?(iStreamID+1000):iStreamID, &sPos );
+				DCE::CMD_Stop_Media cmd(m_dwPK_Device, targetDevice, iStreamID, &sPos );
 				SendCommandNoResponse(cmd);
-				g_pPlutoLogger->Write(LV_WARNING, "Stopping playback on device %i %s, stream ID=%i", targetDevice, (targetDevice==m_dwPK_Device)?"[local]":"[remote]",
-					(targetDevice==m_dwPK_Device)?(iStreamID+1000):iStreamID );
+				g_pPlutoLogger->Write(LV_WARNING, "Stopping playback on device %i %s, stream ID=%i", targetDevice, "[remote]", iStreamID );
 			}
 				
 			curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
 		}
 	}
-
-
+	
 	pStream->CloseMedia();
 	
 	ptrFactory->CloseStreamAV( iStreamID );
@@ -435,7 +377,30 @@ void Xine_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMe
 		return;
 	}
 	else
+	{
+		// telling to all slaves to change playback speed
+		if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
+		{
+			string streamingTargets = pStream->m_sBroadcastTargets;
+			string::size_type tokenPos=0;
+			string curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
+			while (curTarget!="")
+			{
+				int targetDevice = atoi(curTarget.c_str());
+				if (targetDevice && (targetDevice!=m_dwPK_Device))
+				{
+					string sPos;
+					DCE::CMD_Pause_Media cmd(m_dwPK_Device, targetDevice, iStreamID );
+					SendCommandNoResponse(cmd);
+					g_pPlutoLogger->Write(LV_WARNING, "Changing playback speed on device %i %s, stream ID=%i", targetDevice, "[remote]", iStreamID );
+				}
+					
+				curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
+			}
+		}
+
 		pStream->pauseMediaStream();
+	}
 }
 
 //<-dceag-c40-b->
@@ -485,7 +450,30 @@ void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 		return;
 	}
 	else
+	{
+		// telling to all slaves to change playback speed
+		if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
+		{
+			string streamingTargets = pStream->m_sBroadcastTargets;
+			string::size_type tokenPos=0;
+			string curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
+			while (curTarget!="")
+			{
+				int targetDevice = atoi(curTarget.c_str());
+				if (targetDevice && (targetDevice!=m_dwPK_Device))
+				{
+					string sPos;
+					DCE::CMD_Change_Playback_Speed cmd(m_dwPK_Device, targetDevice, iStreamID, iMediaPlaybackSpeed, bReport );
+					SendCommandNoResponse(cmd);
+					g_pPlutoLogger->Write(LV_WARNING, "Changing playback speed on device %i %s, stream ID=%i", targetDevice, "[remote]", iStreamID );
+				}
+					
+				curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
+			}
+		}
+
 		pStream->changePlaybackSpeed((Xine_Stream::PlayBackSpeedType)iMediaPlaybackSpeed);
+	}
 }
 
 //<-dceag-c42-b->
@@ -1287,8 +1275,38 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 	}
 	else
 	{
+		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - starting main target playback");
 		pStream->m_sBroadcastTargets = sStreamingTargets;
 		CMD_Play_Media( iPK_MediaType, iStreamID, sMediaPosition, sMediaURL);
+		
+		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - calling slaves");
+		// telling to all slaves to start playback
+		if (pStream->m_iBroadcastPort!=0)
+		{
+			string sSlaveMediaURL;
+			sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sIPofMD + ":" + StringUtils::itos(pStream->m_iBroadcastPort);
+//			sSlaveMediaURL = sSlaveMediaURL + "slave://localhost:" + StringUtils::itos(pStream->m_iBroadcastPort);
+			g_pPlutoLogger->Write(LV_WARNING, "Slave URL: %s", sSlaveMediaURL.c_str());
+			string streamingTargets = pStream->m_sBroadcastTargets;
+			string::size_type tokenPos=0;
+			string curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
+			while (curTarget!="")
+			{
+				int targetDevice = atoi(curTarget.c_str());
+				if (targetDevice && targetDevice!=m_dwPK_Device)
+				{
+					// if local instance, adding 1000 to streamID
+					DCE::CMD_Play_Media cmd(m_dwPK_Device, targetDevice, iPK_MediaType, iStreamID, sMediaPosition, sSlaveMediaURL);
+					SendCommandNoResponse(cmd);
+					g_pPlutoLogger->Write(LV_WARNING, "Starting playback on device %i %s, stream ID=%i", targetDevice, "[remote]", iStreamID );
+				}
+					
+				curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
+			}
+		}
+		else
+			g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - error, broadcast is not enabled");
+				
 	}
 	
 }
