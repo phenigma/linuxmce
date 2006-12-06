@@ -1507,6 +1507,8 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage,
 {
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 
+//	CallManager::getInstance()->printCalls();
+	
 	int iPhoneExtension = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PhoneExtension_CONST].c_str());
 	g_pPlutoLogger->Write(LV_STATUS, "Hangup %d(#%d) event received from PBX.",iPhoneExtension,map_ext2device[iPhoneExtension]);
 	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_ext2device[iPhoneExtension]);
@@ -1515,6 +1517,10 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage,
 
 		g_pPlutoLogger->Write(LV_STATUS, "Removed calldata %p/%s", pCallData, pCallData->getID().c_str());
 		CallManager::getInstance()->removeCall(pCallData);
+	}
+	else
+	{
+		RemoveExtesionFromChannels(pMessage->m_mapParameters[EVENTPARAMETER_PhoneExtension_CONST]);
 	}
 
 	for(list<ConferenceData>::iterator it = m_listConferences.begin(); it != m_listConferences.end(); ++it)
@@ -1594,6 +1600,57 @@ int Telecom_Plugin::ParseChannel(const std::string channel, int* iextension, str
 		}
 	}
 	return 0;
+}
+
+void Telecom_Plugin::RemoveExtesionFromChannels(const string & sExtension)
+{
+	CallData* pCallData = NULL;
+	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
+	for(ListCallData_Manager::iterator it = calls->begin(); it != calls->end(); it++) {
+		pCallData = (*it);
+		string channels = pCallData->getID();
+		if( string::npos != channels.find(sExtension) )
+		{
+			int pos = 0, oldpos = 0;
+			do
+			{
+				pos = channels.find(' ',oldpos);
+				string chan;
+				int ext = 0;
+				string sext;
+				if(pos < 0)
+				{
+					chan = channels.substr(oldpos);
+				}
+				else
+				{
+					if(pos == oldpos)
+					{
+						oldpos=pos+1;
+						continue;
+					}
+					chan = channels.substr(oldpos, pos - oldpos);
+				}
+				if(0 == ParseChannel(chan,&ext,&sext) && sext == sExtension)
+				{
+					// remove the chanel and the space before it
+					if( oldpos >= 1 )
+						oldpos--;
+					if( pos < 0 )
+						channels.erase(oldpos);
+					else
+						channels.erase(oldpos, pos - oldpos);
+					
+					pCallData->setID(channels);
+//					g_pPlutoLogger->Write(LV_WARNING, "****** CallManager::Remove: %s", channels.c_str());
+					
+					break;
+				}
+				oldpos=pos+1;
+			}
+			while(pos>=0);
+		}
+	}
 }
 
 bool Telecom_Plugin::VoIP_Problem(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)

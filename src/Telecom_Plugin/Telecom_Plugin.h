@@ -51,6 +51,7 @@ namespace DCE
 				m_listSlavesExt.end();
 		}
 		const list<string>& GetSlaves() const { return m_listSlavesExt; }
+		const string & GetMaster() const { return m_sMasterExt; }
 		void RemoveSlave(string sExt) 
 		{ 
 			if(IsSlave(sExt))
@@ -291,6 +292,7 @@ private:
     DeviceData_Router* find_AsteriskDevice();
     DeviceData_Router* find_Device(int iPK_Device);
 	int ParseChannel(const std::string channel, int* iextension, string *sextension);
+	void RemoveExtesionFromChannels(const string & sExtension);
 
 private:
 	int iCmdCounter;
