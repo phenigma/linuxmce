@@ -13,6 +13,7 @@
 */
 
 #include "IOPool.h"
+#include "DCE/Logger.h"
 
 #define FAIL_SLEEP_TIME				2000
 #define DATA_AVAILABLE_WAIT_TIME	100
@@ -30,7 +31,8 @@ bool
 IOPool::handleStartup() {
 	IOConnection* pconn = getConnection();
 	if(pconn) {
-		pconn->Open();
+		if( pconn->Open()==false )
+			g_pPlutoLogger->Write(LV_CRITICAL,"IOPool::handleStartup Open() failed");
 	}
 	return LoopStateMachine::handleStartup();
 }
@@ -46,6 +48,7 @@ IOPool::handleIteration() {
 	if(pstate != NULL) {
 		if(!pconn->isOpened()) {
 			if(!pconn->Open()) {	
+				g_pPlutoLogger->Write(LV_CRITICAL,"IOPool::handleIteration Open() failed");
 				usleep(FAIL_SLEEP_TIME * 1000);
 				return true;
 			} else {

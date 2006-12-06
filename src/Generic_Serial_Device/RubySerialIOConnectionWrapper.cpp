@@ -30,7 +30,11 @@ bool
 RubySerialIOConnectionWrapper::Reconnect() {
 	IOConnection* pconn = getConnection();
 	pconn->Close();
-	return pconn->Open();
+	bool bResult = pconn->Open();
+	if( !bResult )
+		g_pPlutoLogger->Write(LV_CRITICAL,"RubySerialIOConnectionWrapper::Reconnect Open() failed");
+
+	return bResult;
 }
 
 
