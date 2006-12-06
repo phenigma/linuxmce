@@ -75,13 +75,13 @@ ClearFirewall
 echo "Enabling packet forwarding"
 echo 1 >/proc/sys/net/ipv4/ip_forward
 
+DefaultPolicy=DROP
 if [[ "$DisableFirewall" == 1 ]]; then
-	echo "Firewall disabled"
-	exit
+	DefaultPolicy=ACCEPT
 fi
 
 echo "Setting up firewall"
-iptables -P INPUT DROP
+iptables -P INPUT "$DefaultPolicy"
 iptables -F INPUT
 iptables -t nat -F POSTROUTING
 iptables -t nat -F PREROUTING
