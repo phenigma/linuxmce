@@ -491,7 +491,7 @@ bool Xine_Plugin::ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXin
 			return false;
 		}
 		string sDrive_New="/dev/device_" + StringUtils::itos(pDevice_Disk_Drive->m_dwPK_Device);
-		StringUtils::Replace(sMRL,sDrive,sDrive_New);
+		StringUtils::Replace(&sMRL,sDrive,sDrive_New);
 	}
 	else
 		g_pPlutoLogger->Write(LV_STATUS,"Xine_Plugin::ConfirmSourceIsADestination %s isn't a disk device",sMRL.c_str());  // Shouldn't happen
