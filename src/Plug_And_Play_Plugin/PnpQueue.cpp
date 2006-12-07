@@ -1556,7 +1556,7 @@ void PnpQueue::SetDisableFlagForDeviceAndChildren(Row_Device *pRow_Device,bool b
 bool PnpQueue::ReenableDevice(PnpQueueEntry *pPnpQueueEntry,Row_Device *pRow_Device)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::ReenableDevice queue %d Device %d"
+	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::ReenableDevice queue %d Device %d",
 		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get());
 #endif
 	pPnpQueueEntry->AssignDeviceData(pRow_Device);
