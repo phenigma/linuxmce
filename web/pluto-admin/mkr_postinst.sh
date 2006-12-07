@@ -146,3 +146,5 @@ sed -i 's/^session.gc_maxlifetime = 1440$/session.gc_maxlifetime = 144000/' /etc
 [[ -f /etc/wap.conf ]] || : >/etc/wap.conf
 chown www-data.root /etc/wap.conf
 chmod 664 /etc/wap.conf
+
+sed -i 's/memory_limit =.*/memory_limit = 16M ;/g' /etc/php4/apache2/php.ini
