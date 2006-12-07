@@ -145,7 +145,7 @@ sub get_local_prefixes()
 
     return unless($DB_ROW = $DB_STATEMENT->fetchrow_hashref());
     return unless($DB_ROW->{'FK_DeviceData'} == 141);
-    if($DB_ROW->{'IK_DeviceData'} > 0)
+    if(!($DB_ROW->{'IK_DeviceData'} eq '') && $DB_ROW->{'IK_DeviceData'} > 0)
     {
         my $prefix = $DB_ROW->{'IK_DeviceData'};
         return unless($DB_ROW = $DB_STATEMENT->fetchrow_hashref());
