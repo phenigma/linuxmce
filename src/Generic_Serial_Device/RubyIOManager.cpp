@@ -323,6 +323,7 @@ RubyIOManager::_Run() {
 			mmsg_.Unlock();
 			if(rootnode_) {
 				rootnode_->handleNoMessage();
+				usleep(10000);
 			}
 			/*	
 			POOLMAP::iterator it = pools_.begin();
