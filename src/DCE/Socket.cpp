@@ -134,6 +134,7 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 			{
 				sSM.Release();
 				pSocket->PingFailed();
+				return NULL;
 			}
 		}
 		else
@@ -147,6 +148,7 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 			{
 				sSM.Release();
 				pSocket->PingFailed();
+				return NULL;
 			}
 		}
 	}
@@ -729,6 +731,11 @@ void Socket::StartPingLoop()
 		m_bUsePingToKeepAlive=false;
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create ping loop %p ch: %p", this, g_pSocketCrashHandler );
 	}
+
+	//we have a design issue here: we can't join PingLoop thread because 
+	//this thread is the one which detects network problems and deallocate the socket
+	//we'll have to create it detached, to avoid resources leaks.
+	pthread_detach(m_pthread_pingloop_id);
 }
 
 void Socket::PingFailed()

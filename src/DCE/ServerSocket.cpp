@@ -110,6 +110,9 @@ ServerSocket::~ServerSocket()
 
 	//Destroy our mutex
 	pthread_mutex_destroy(&m_ConnectionMutex.mutex);
+
+	//make sure we won't hang on Socket's destructor
+	m_bUsePingToKeepAlive = false;
 }
 
 
