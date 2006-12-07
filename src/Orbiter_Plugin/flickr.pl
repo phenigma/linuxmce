@@ -325,7 +325,7 @@ sub get_files{
 					
 	# second message send
 	#	print "Fire-ing second messagesend event\n";
-	qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 391 145 "$ffield" 122 30 5 20 |;
+	qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 391 145 "$ffield" 122 30 5 "*" |;
 }
 
 sub delete_old {
