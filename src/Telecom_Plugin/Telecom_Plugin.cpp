@@ -772,7 +772,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	}
 
 	// then by the sPK_Device_From
-	if( pCallData==NULL && sPK_Device_From.empty() )
+	if( pCallData==NULL && sPK_Device_From.empty()==false )
 	{
 		pCallData = CallManager::getInstance()->findCallByOwnerDevID(atoi(sPK_Device_From.c_str()));
 		if( pCallData==NULL )
