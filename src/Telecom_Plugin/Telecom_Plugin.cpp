@@ -782,7 +782,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	}
 
 	// Lastly by the originator of the message
-	if( pCallData==NULL )
+	if( pCallData==NULL && pMessage ) // pMessage will be null of called by follow-me
 	{
 		pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
 		if( pCallData==NULL )
