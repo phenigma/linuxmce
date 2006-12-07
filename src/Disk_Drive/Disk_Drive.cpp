@@ -34,6 +34,7 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
+#include "PlutoUtils/ProcessUtils.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -89,11 +90,11 @@ bool Disk_Drive::GetConfig()
 	sNbdServer += "NBD_SERVER_OPTS[0]=-r\n";
 
 	string sFileName = "/etc/nbd-server";
-	size_t &Size;
+	size_t Size;
 	char *pPtr = FileUtils::ReadFileIntoBuffer( sFileName, Size );
 	if( !pPtr || sNbdServer!=pPtr )
 	{
-		bool bResult = FileUtils::WriteBufferIntoFile( sFileName, sNbdClient.c_str(), sNbdClient.size() );
+		bool bResult = FileUtils::WriteBufferIntoFile( sFileName, sNbdServer.c_str(), sNbdServer.size() );
 		ProcessUtils::SpawnApplication("/etc/init.d/nbd-server", "restart", "Start nbd server", NULL, true, true);
 		g_pPlutoLogger->Write(LV_WARNING,"Wrote nbd-server file %d",(int) bResult);
 	}
