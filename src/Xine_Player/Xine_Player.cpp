@@ -14,6 +14,7 @@ using namespace DCE;
 
 #include "Xine_Stream_Factory.h"
 #include "pluto_main/Define_Button.h"
+#include "PlutoUtils/ProcessUtils.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -73,7 +74,7 @@ bool Xine_Player::GetConfig()
 		if( pDevice->WithinCategory(DEVICECATEGORY_Disc_Drives_CONST) && pDevice_TopMost && pDevice_TopMost!=m_pData->GetTopMostDevice() )
 		{
 			sNbdClient += "NBD_DEVICE[" + StringUtils::itos(Count) + "]=/dev/device_" + StringUtils::itos(pDevice->m_dwPK_Device) + "\n";
-			sNbdClient += "NBD_TYPE[" + StringUtils::itos(Count) + "]=r\n"
+			sNbdClient += "NBD_TYPE[" + StringUtils::itos(Count) + "]=r\n";
 			sNbdClient += "NBD_PORT[" + StringUtils::itos(Count) + "]=" + StringUtils::itos(pDevice->m_dwPK_Device+18000) + "\n";
 			sNbdClient += "NBD_HOST[" + StringUtils::itos(Count) + "]=" + pDevice_TopMost->m_sIPAddress + "\n";
 			Count++;
@@ -81,7 +82,7 @@ bool Xine_Player::GetConfig()
 	}
 
 	string sFileName = "/etc/nbd-client";
-	size_t &Size;
+	std::size_t Size;
 	char *pPtr = FileUtils::ReadFileIntoBuffer( sFileName, Size );
 	if( !pPtr || sNbdClient!=pPtr )
 	{
