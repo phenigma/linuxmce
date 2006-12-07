@@ -64,29 +64,33 @@ bool Xine_Player::GetConfig()
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", 0);
 	EVENT_Playback_Completed("",0,false);  // In case media plugin thought something was playing, let it know that there's not
 
-	// Quick and dirty, get nbd-client working
-	FILE *file = fopen("/etc/nbd-client","wb");
-	if( file )
+	string sNbdClient;
+	int Count=0;
+	for(Map_DeviceData_Base::iterator it=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();it!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++it)
 	{
-		int Count=0;
-		for(Map_DeviceData_Base::iterator it=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();it!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++it)
+		DeviceData_Base *pDevice = it->second;
+		DeviceData_Base *pDevice_TopMost = pDevice->GetTopMostDevice();
+		if( pDevice->WithinCategory(DEVICECATEGORY_Disc_Drives_CONST) && pDevice_TopMost && pDevice_TopMost!=m_pData->GetTopMostDevice() )
 		{
-			DeviceData_Base *pDevice = it->second;
-			DeviceData_Base *pDevice_TopMost = pDevice->GetTopMostDevice();
-			if( pDevice->WithinCategory(DEVICECATEGORY_Disc_Drives_CONST) && pDevice_TopMost && pDevice_TopMost!=m_pData->GetTopMostDevice() )
-			{
-				fprintf(file,"NBD_DEVICE[%d]=/dev/device_%d\n",Count,pDevice->m_dwPK_Device);
-				fprintf(file,"NBD_TYPE[%d]=r\n",Count);
-				fprintf(file,"NBD_PORT[%d]=%d\n",Count,pDevice->m_dwPK_Device+18000);
-				fprintf(file,"NBD_HOST[%d]=%s\n",Count,pDevice_TopMost->m_sIPAddress.c_str());
-				Count++;
-			}
+			sNbdClient += "NBD_DEVICE[" + StringUtils::itos(Count) + "]=/dev/device_" + StringUtils::itos(pDevice->m_dwPK_Device) + "\n";
+			sNbdClient += "NBD_TYPE[" + StringUtils::itos(Count) + "]=r\n"
+			sNbdClient += "NBD_PORT[" + StringUtils::itos(Count) + "]=" + StringUtils::itos(pDevice->m_dwPK_Device+18000) + "\n";
+			sNbdClient += "NBD_HOST[" + StringUtils::itos(Count) + "]=" + pDevice_TopMost->m_sIPAddress + "\n";
+			Count++;
 		}
-		fclose(file);
-		ProcessUtils::SpawnApplication("/etc/init.d/nbd-client", "restart", "Start nbd client", NULL, true, true);
 	}
-	else
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot create nbd-client");
+
+	string sFileName = "/etc/nbd-client";
+	size_t &Size;
+	char *pPtr = FileUtils::ReadFileIntoBuffer( sFileName, Size );
+	if( !pPtr || sNbdClient!=pPtr )
+	{
+		bool bResult = FileUtils::WriteBufferIntoFile( sFileName, sNbdClient.c_str(), sNbdClient.size() );
+		ProcessUtils::SpawnApplication("/etc/init.d/nbd-client", "restart", "Start nbd client", NULL, true, true);
+		g_pPlutoLogger->Write(LV_WARNING,"Wrote nbd-client file %d",(int) bResult);
+	}
+
+	delete pPtr;
 	
 	// Put your code here to initialize the data in this class
 	// The configuration parameters DATA_ are now populated
