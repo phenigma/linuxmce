@@ -226,7 +226,7 @@ void PnpQueueEntry::AssignDeviceData(Row_Device *pRow_Device)
 	for(map<int,string>::iterator it=m_mapPK_DeviceData.begin();it!=m_mapPK_DeviceData.end();++it)
 	{
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"PnpQueueEntry::AssignDeviceData queue %d Device Data %d=%s"
+	g_pPlutoLogger->Write(LV_STATUS,"PnpQueueEntry::AssignDeviceData queue %d Device Data %d=%s",
 		m_pRow_PnpQueue->PK_PnpQueue_get(),it->first,it->second.c_str());
 #endif
 		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),it->first,it->second);
