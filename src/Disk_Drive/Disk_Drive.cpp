@@ -90,7 +90,7 @@ bool Disk_Drive::GetConfig()
 		fprintf(file,"NBD_FILE[0]=%s\n",sDrive.c_str());
 		fprintf(file,"NBD_SERVER_OPTS[0]=-r");
 		fclose(file);
-		system("/etc/init.d/nbd-server restart");
+		ProcessUtils::SpawnApplication("/etc/init.d/nbd-server", "restart", "Start nbd server", NULL, true, true);
 	}
 	else
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot create nbd-server");

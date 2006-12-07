@@ -83,7 +83,7 @@ bool Xine_Player::GetConfig()
 			}
 		}
 		fclose(file);
-		system("/etc/init.d/nbd-client restart");
+		ProcessUtils::SpawnApplication("/etc/init.d/nbd-client", "restart", "Start nbd client", NULL, true, true);
 	}
 	else
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot create nbd-client");
