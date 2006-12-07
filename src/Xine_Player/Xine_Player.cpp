@@ -230,11 +230,14 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,strin
 void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
-	Xine_Stream *prevStream =  ptrFactory->GetStream( iStreamID );
+	if (iStreamID==0)
+		iStreamID = 1;
+		
+	Xine_Stream *prevStream =  ptrFactory->GetStream( ptrFactory->m_iLastRenderingStream );
 	if ( (prevStream != NULL) && (prevStream->m_bIsRendering) && (iStreamID!=0) )
 	{
 		string mPosition;
-		CMD_Stop_Media( iStreamID, &mPosition);
+		CMD_Stop_Media( ptrFactory->m_iLastRenderingStream, &mPosition);
 		if (prevStream->m_iMenuButtons!=0)
 			prevStream->FireMenuOnScreen( 0 );
 	}
@@ -1250,8 +1253,10 @@ string Xine_Player::Get_MD_AudioSettings()
 void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string sStreamingTargets,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
 {
+	if (iStreamID==0)
+		iStreamID=1;
+
 	// streaming logic:
-	// locally the broadcasting stream is created, with performing output to devnull (plus to socket)
 	// CMD_Play_Media is sent to each streaming target
 	// 
 	// as all playback control commands will be sent only to the local xine, 
