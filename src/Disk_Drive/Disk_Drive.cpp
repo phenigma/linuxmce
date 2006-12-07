@@ -83,17 +83,23 @@ bool Disk_Drive::GetConfig()
 	SendCommand(CMD_Report_Discs_in_Drive_DT);
 
 	// Quick and dirty, get nbd-server working
-	FILE *file = fopen("/etc/nbd-server","wb");
-	if( file )
+	string sNbdServer;
+	sNbdServer += "NBD_PORT[0]=" + StringUtils::itos(m_dwPK_Device+18000) + "\n";
+	sNbdServer += "NBD_FILE[0]=" + sDrive + "\n";
+	sNbdServer += "NBD_SERVER_OPTS[0]=-r\n";
+
+	string sFileName = "/etc/nbd-server";
+	size_t &Size;
+	char *pPtr = FileUtils::ReadFileIntoBuffer( sFileName, Size );
+	if( !pPtr || sNbdServer!=pPtr )
 	{
-		fprintf(file,"NBD_PORT[0]=%d\n",m_dwPK_Device+18000);
-		fprintf(file,"NBD_FILE[0]=%s\n",sDrive.c_str());
-		fprintf(file,"NBD_SERVER_OPTS[0]=-r");
-		fclose(file);
+		bool bResult = FileUtils::WriteBufferIntoFile( sFileName, sNbdClient.c_str(), sNbdClient.size() );
 		ProcessUtils::SpawnApplication("/etc/init.d/nbd-server", "restart", "Start nbd server", NULL, true, true);
+		g_pPlutoLogger->Write(LV_WARNING,"Wrote nbd-server file %d",(int) bResult);
 	}
-	else
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot create nbd-server");
+
+	delete pPtr;
+
 	return true;
 }
 
