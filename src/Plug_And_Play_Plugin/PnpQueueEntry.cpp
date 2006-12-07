@@ -208,7 +208,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueueEntry::FindTopLevelDevice queue %d ha
 		m_pRow_Device_Reported = m_pDatabase_pluto_main->Device_get()->GetRow(m_pPlug_And_Play_Plugin->m_dwPK_Device);
 	}
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"PnpQueueEntry::FindTopLevelDevice queue has reporter %d/ room%d",
+	g_pPlutoLogger->Write(LV_STATUS,"PnpQueueEntry::FindTopLevelDevice queue %d has reporter %d/ room%d",
+		m_pRow_PnpQueue->PK_PnpQueue_get(),
 		m_pRow_Device_Reported->PK_Device_get(),m_pRow_Device_Reported->FK_Room_get());
 #endif
 	m_dwPK_Device_TopLevel=0;
@@ -223,7 +224,13 @@ g_pPlutoLogger->Write(LV_CRITICAL,"PnpQueueEntry::FindTopLevelDevice queue %d ha
 void PnpQueueEntry::AssignDeviceData(Row_Device *pRow_Device)
 {
 	for(map<int,string>::iterator it=m_mapPK_DeviceData.begin();it!=m_mapPK_DeviceData.end();++it)
+	{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"PnpQueueEntry::AssignDeviceData queue %d Device Data %d=%s"
+		m_pRow_PnpQueue->PK_PnpQueue_get(),it->first,it->second.c_str());
+#endif
 		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),it->first,it->second);
+	}
 	if( m_pRow_PnpQueue->SerialNumber_get().size() )
 		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,m_pRow_PnpQueue->SerialNumber_get());
 }
