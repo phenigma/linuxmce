@@ -24,7 +24,7 @@
 
 
 // used in loops which waits the WM or X11 to complete an action
-#define WAIT_FOR_COMPLETION_MAX_ITERATIONS  100
+#define WAIT_FOR_COMPLETION_MAX_ITERATIONS  10
 #define WAIT_FOR_COMPLETION_INTERVAL_USLEEP 1000
 
 // do not use the error handler grabber
@@ -657,11 +657,11 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
                     w_req = w_wm;
                     h_req = h_wm;
 
-					if(x_req < 0)
-						x_req = 0;
+		    if(x_req < 0)
+		    	x_req = 0;
 
-					if(y_req < 0)
-						y_req = 0;
+		    if(y_req < 0)
+			y_req = 0;
                 }
             }
             // real call
@@ -686,19 +686,6 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
                 continue;
             }
 
-			x = x - x_delta;
-			y = y - y_delta;
-
-			if(x < 0)
-				x = 0;
-
-			if(y < 0)
-				y = 0;
-
-
-			_LOG_NFO("chris window==%d => pos==(%d, %d, %d, %d)", window, x, y, w, h);
-
-
             bGoodPos = ( (x==nPosX) && (y==nPosY) && (w==nWidth) && (h==nHeight) );
             //_LOG_NFO("bGoodPos==%d", bGoodPos);
             // read the actual position for window_wm
@@ -711,17 +698,6 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
 #endif
                     continue;
                 }
-
-				x_wm = x_wm - x_delta;
-				y_wm = y_wm - y_delta;
-
-				if(x_wm < 0)
-					x_wm = 0;
-
-				if(y_wm < 0)
-					y_wm = 0;
-
-				_LOG_NFO("chris window wm==%d => pos==(%d, %d, %d, %d)", window, x_wm, x_wm, w_wm, h_wm);
 
                 bGoodPos_wm = ( (x_req==x_wm) && (y_req==y_wm) && (w_req==w_wm) && (h_req==h_wm) );
                 //_LOG_NFO("bGoodPos_wm==%d", bGoodPos_wm);
@@ -749,7 +725,7 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
     } while ((xcode = 0));
     if (!bGoodPos && !bGoodPos_wm)
 	{
-        _LOG_WRN("cannot re-position window==%d", window);
+	        _LOG_WRN("cannot re-position window==%d", window);
 		return true;
 	}
 
