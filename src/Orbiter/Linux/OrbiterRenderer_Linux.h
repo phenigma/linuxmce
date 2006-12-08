@@ -53,10 +53,12 @@ namespace DCE
 
 	private:
 
+		//UI2 - non alpha blending with xshape
 		Pixmap m_screenMaskObjects; //"layer for object non-popup
 		Pixmap m_screenMaskPopups;  //"layer" for popups
 		Pixmap m_screenMaskCurrent; //the mask to apply
 		bool m_bHasPopups;
+		bool m_bScreenRendered;
 	};
 }
 #endif //__ORBITER_RENDERER_SDL_LINUX_H__

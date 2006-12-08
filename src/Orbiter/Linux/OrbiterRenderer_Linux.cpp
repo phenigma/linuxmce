@@ -32,7 +32,8 @@ using namespace DCE;
 
 
 OrbiterRenderer_Linux::OrbiterRenderer_Linux(Orbiter *pOrbiter) : BASE_CLASS(pOrbiter), 
-	m_screenMaskObjects(None), m_screenMaskPopups(None), m_screenMaskCurrent(None), m_bHasPopups(false)
+	m_screenMaskObjects(None), m_screenMaskPopups(None), m_screenMaskCurrent(None), 
+	m_bHasPopups(false), m_bScreenRendered(false)
 {
 }
 
@@ -114,6 +115,13 @@ void OrbiterRenderer_Linux::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint p
 		return;
 	}
 
+	if(m_bScreenRendered)
+	{
+		//the screen was rendered; we might want to refresh an object, but we don't need to 
+		//modify the mask; only the popups can modify the mask after the screen was rendered
+		return;
+	}
+
 	OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
 	if(pOrbiterLinux != NULL && pOrbiterLinux->m_bUseMask)
 	{
@@ -150,6 +158,8 @@ void OrbiterRenderer_Linux::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint p
 
 void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 {
+	m_bScreenRendered = false;
+
 	OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
 	if(NULL != pOrbiterLinux)
 	{
@@ -205,6 +215,8 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 
 	if(pOrbiterLinux->m_bUseMask)
 		ApplyMasks();
+
+	m_bScreenRendered = true;
 }
 
 void OrbiterRenderer_Linux::ApplyMasks()
