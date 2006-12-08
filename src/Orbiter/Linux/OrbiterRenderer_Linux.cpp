@@ -1,9 +1,4 @@
-#include "OrbiterRenderer_Linux.h"
-
-#include "../Orbiter.h"
-#include "../ScreenHistory.h"
 #include "OrbiterLinux.h"
-using namespace DCE;
 
 #include <stdlib.h>
 
@@ -24,12 +19,16 @@ using namespace DCE;
 #include "../CallBackTypes.h"
 #include "../dialog_types.h"
 
+#include "OrbiterRenderer_Linux.h"
+#include "../ScreenHistory.h"
+
 #ifdef ORBITER_OPENGL
 	#define BASE_CLASS OrbiterRenderer_OpenGL
 #else
 	#define BASE_CLASS OrbiterRenderer_SDL
 #endif
 
+using namespace DCE;
 
 OrbiterRenderer_Linux::OrbiterRenderer_Linux(Orbiter *pOrbiter) : BASE_CLASS(pOrbiter), 
 	m_screenMaskObjects(None), m_screenMaskPopups(None), m_screenMaskCurrent(None), 

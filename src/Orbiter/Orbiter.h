@@ -20,13 +20,13 @@
 #include "DCE/Logger.h"
 #include "OrbiterData.h"
 #include "DesignObj_Orbiter.h"
-#include "Floorplan.h"
 #include "CacheImageManager.h"
 #include "SerializeClass/ShapesColors.h"
 #include "CallBackTypes.h"
 #include "pluto_main/Define_UI.h"
 #include "PlutoUtils/Profiler.h"
 #include "LIRC_DCE/IRReceiverBase.h"
+#include "Floorplan.h"
 
 class OrbiterFileBrowser_Collection;
 class ScreenHandler;

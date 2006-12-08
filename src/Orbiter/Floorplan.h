@@ -1,6 +1,11 @@
 #ifndef FLOORPLAN_H
 #define FLOORPLAN_H
 
+#include <string>
+#include <map>
+
+using namespace std;
+
 typedef vector<class FloorplanObject *> FloorplanObjectVector;
 typedef map<int,FloorplanObjectVector *> FloorplanObjectVectorMap;
 typedef map<int,class FloorplanItemStatus *> FloorplanItemStatusMap;
@@ -10,7 +15,7 @@ namespace DCE
 	class DeviceData_Router;
 	class DeviceData_Base;
 	class EntertainArea;
-}
+};
 
 using namespace DCE;
 
