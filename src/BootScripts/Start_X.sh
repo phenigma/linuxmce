@@ -35,12 +35,15 @@ function assureXorgSane()
 	fi
 }
 
-XClient=/usr/pluto/bin/Start_IceWM.sh
-#XClient=/usr/bin/xfwm4
+#XClient=/usr/pluto/bin/Start_IceWM.sh
+XClient=/usr/bin/xfwm4
 XClientParm=()
 XServerParm=(-logverbose 5 -br)
 Background=y
 XDisplay=:0
+
+#Xcompmgr=/usr/bin/xcompmgr
+Xcompmgr=/bin/true
 
 for ((i = 1; i <= "$#"; i++)); do
 	case "${!i}" in
@@ -69,7 +72,7 @@ if [[ "$Background" == y ]]; then
 	AlphaBlending=$(AlphaBlendingEnabled)
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "X server: backround; AlphaBlending: $AlphaBlending"
 	if [[ "$AlphaBlending" == 1 ]]; then
-		DISPLAY=:0 /usr/bin/xcompmgr &>/dev/null </dev/null &
+		DISPLAY=:0 "$Xcompmgr" &>/dev/null </dev/null &
 		disown -a
 	fi
 else
