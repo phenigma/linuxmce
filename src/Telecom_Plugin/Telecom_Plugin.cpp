@@ -796,6 +796,12 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	}
 
 	if(m_pDevice_pbx) {
+		if( pCallData==NULL )
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Transfer No calldata found for PBX device %d", m_pDevice_pbx->m_dwPK_Device);
+			return;
+		}
+	
 		pCallData->setState(CallData::STATE_TRANSFERING);
 		pCallData->setPendingCmdID(generate_NewCommandID());
 		if(pCallData->getID().find(CONFERENCE_PREFIX)==0)
