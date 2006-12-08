@@ -215,7 +215,7 @@ GetVideoDriver()
 	local VideoDriver=$(lshwd | grep ' VGA ' | head -1 | sed 's/^.*(\([^()]*\)).*$/\1/')
 	case "$VideoDriver" in
 		nv) PackageIsInstalled nvidia-glx && VideoDriver="nvidia" ;;
-		radeon|ati) PackageIsInstalled xorg-driver-fglrx && VideoDriver="fglrx" ;;
+		radeon|ati) PackageIsInstalled fglrx-driver && VideoDriver="fglrx" ;;
 		"") VideoDriver="vesa" ;; # just-in-case default
 	esac
 #<-mkr_B_via_e->
