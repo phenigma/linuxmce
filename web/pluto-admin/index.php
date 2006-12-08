@@ -1526,6 +1526,25 @@ switch ($section) {
 	    include_once('operations/myDevices/editCameraRelated.php');
 	    editCameraRelated($output,$dbADO);	    
 	break;	
+	case 'raid':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/raid/raid.php');
+	    raid($output,$dbADO);
+	break;
+	case 'raidDrives':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/raid/raidDrives.php');
+	    raidDrives($output,$dbADO);
+	break;	
+	case 'editLongAttribute':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/editLongAttribute.php');
+	    editLongAttribute($output,$mediadbADO);	    
+	break;
+	
 	
 	case 'index';
 		@$_SESSION['lastLeftFrameSrc']='';

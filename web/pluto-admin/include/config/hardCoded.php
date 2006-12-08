@@ -35,7 +35,9 @@
 	$GLOBALS['IrrigationDevices']=153;			// Irrigation Devices
 	$GLOBALS['CaptureCardsPorts']=162;			// Capture cards ports
 	$GLOBALS['ScreenSavers']=163;				// Screen Savers
-		
+	$GLOBALS['RaidCategory']=165;				// RAID devices
+	$GLOBALS['RaidDrives']=167;					// RAID drives
+	
 	$GLOBALS['TVdevicesArray']=array($GLOBALS['TVdevices'],$GLOBALS['TVVCRCombo'],$GLOBALS['AmpsReceivers']);
 	
 	// PK_DeviceTemplate from table DeviceTemplate
@@ -69,6 +71,11 @@
 	$GLOBALS['VirtDevTelecomPlugIn']=-107;		// VirtDev - Telecom Plug-in
 	$GLOBALS['CanBus']=1746;					// Can Bus
 	$GLOBALS['AppServer']=26;					// App server
+	$GLOBALS['RaidHardDrive']=1850;				// Raid Hard Drive
+	$GLOBALS['Raid5']=1849;						// Raid 5
+	$GLOBALS['Raid1']=1851;						// Raid 1
+	$GLOBALS['Raid0']=1854;						// Raid 0
+	
 	
 	// PK_Template from table Template
 	
@@ -200,6 +207,12 @@
 	$GLOBALS['ComputerDomain']=187;				// Computer domain
 	$GLOBALS['ComputerName']=188;				// Computer name
 	$GLOBALS['DD_PK_UI']=104;					// UI
+	$GLOBALS['State']=200;						// State
+	$GLOBALS['DriveSize']=201;					// Drive size
+	$GLOBALS['RAIDStatus']=204;						// NewAdd
+	$GLOBALS['NoofDisks']=199;					// No of Disks
+	$GLOBALS['Spare']=202;						// Spare
+	$GLOBALS['BlockDevice']=152;						// Block device
 	
 	// PK_FloorplanType from table FloorplanType 
 
