@@ -81,6 +81,9 @@ function raid($output,$dbADO) {
 			$description=cleanString($_POST['description']);
 			$raidID=createDevice((int)@$_POST['template'],$installationID,NULL,NULL,$dbADO);
 			$dbADO->Execute('UPDATE Device SET Description=? WHERE PK_Device=?',array($description,$raidID));
+			
+			header("Location: index.php?section=raidDrives&deviceID=$raidID&msg=".urlencode(@$TEXT_RAID_ADDED_CONST));
+			exit();
 		}
 		
 		$raidDevices=explode(',',$_POST['raidDevices']);

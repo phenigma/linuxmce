@@ -209,10 +209,10 @@
 	$GLOBALS['DD_PK_UI']=104;					// UI
 	$GLOBALS['State']=200;						// State
 	$GLOBALS['DriveSize']=201;					// Drive size
-	$GLOBALS['RAIDStatus']=204;						// NewAdd
+	$GLOBALS['RAIDStatus']=204;					// Raid status
 	$GLOBALS['NoofDisks']=199;					// No of Disks
 	$GLOBALS['Spare']=202;						// Spare
-	$GLOBALS['BlockDevice']=152;						// Block device
+	$GLOBALS['BlockDevice']=152;				// Block device
 	
 	// PK_FloorplanType from table FloorplanType 
 

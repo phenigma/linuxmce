@@ -21,4 +21,11 @@ $TEXT_NO_OF_DRIVES_CONST='No. of drives';
 $TEXT_CREATE_ARRAY_CONST='Create RAID Array';
 $TEXT_AS_SPARE_DISK_CONST='as spare disk';
 $TEXT_GREEN_LABEL_INFO_CONST='Raid units displayed with green background are not completed.';
+$TEXT_BLOCK_DEVICE_CONST='Block device';
+$TEXT_SIZE_CONST='Size';
+$TEXT_RAID_ADDED_CONST='Raid added, please add drives.';
+$TEXT_DRIVE_DELETED_CONST='Drive deleted';
+$TEXT_RAID_ARRAY_CREATED_CONST='RAID array created';
+$TEXT_DRIVE_ADDED_CONST='Drive added';
+$TEXT_NO_DRIVES_FOR_ARRAY_CONST='ERROR: at least 2 drives are required to create an array';
 ?>
