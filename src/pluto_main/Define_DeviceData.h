@@ -175,7 +175,7 @@
 #define DEVICEDATA_Drive_Size_CONST 201
 #define DEVICEDATA_Spare_CONST 202
 #define DEVICEDATA_Supports_NPOT_Textures_CONST 203
-#define DEVICEDATA_New_Add_CONST 204
+#define DEVICEDATA_RAID_Status_CONST 204
 #define DEVICEDATA_Shortcut_CONST 205
 
 #define DEVICEDATA_TABLE "DeviceData"
