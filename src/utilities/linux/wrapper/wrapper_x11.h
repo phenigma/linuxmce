@@ -390,7 +390,7 @@ public:
 		unsigned int height,
 		unsigned int destX,
 		unsigned int destY,
-		bool bOpaque );
+		int op_copy = GXcopy);
 	
 	bool Shape_PixmapMask_Copy(
 		Window window,
@@ -398,7 +398,7 @@ public:
 		Pixmap &destPixmap,
 		unsigned int destX,
 		unsigned int destY,
-		bool bOpaque );
+		int op_copy = GXcopy);
 	
 protected:
     bool Extension_Shape_Initialize();

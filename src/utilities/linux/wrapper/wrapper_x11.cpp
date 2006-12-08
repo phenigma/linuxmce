@@ -1976,7 +1976,7 @@ bool X11wrapper::Shape_PixmapMask_Copy(
 	Pixmap &destPixmap,
 	unsigned int destX,
 	unsigned int destY,
-	bool bOpaque )
+	int op_copy/*= GXcopy*/)
 {
 #ifdef DEBUG
     _LOG_NFO("Shape_PixmapMask_Copy");
@@ -1999,18 +1999,10 @@ bool X11wrapper::Shape_PixmapMask_Copy(
 			if (! Pixmap_ReadFile(window, sPath, srcPixmap, width, height, x_hot, y_hot))
 				_LOG_XERROR_BREAK("cannot read the file '%s'", sPath.c_str());
 				
-			if( bOpaque )
-			{
-				values.foreground = WhitePixel(disp, GetScreen());
-				GC whiteGC = XCreateGC (disp, destPixmap, GCForeground, &values);
-				XCopyArea (disp, srcPixmap, destPixmap, whiteGC, 0, 0, width, height, destX, destY);
-			}
-			else
-			{
-				values.foreground = BlackPixel(disp, GetScreen());
-				GC blackGC = XCreateGC (disp, destPixmap, GCForeground, &values);
-				XCopyArea (disp, srcPixmap, destPixmap, blackGC, 0, 0, width, height, destX, destY);
-			}
+			values.foreground = WhitePixel(disp, GetScreen());
+			GC whiteGC = XCreateGC (disp, destPixmap, GCForeground, &values);
+			XSetFunction( disp, whiteGC, op_copy);
+			XCopyArea (disp, srcPixmap, destPixmap, whiteGC, 0, 0, width, height, destX, destY);
 		}
 		
 		Delete_Pixmap(srcPixmap);
@@ -2027,7 +2019,7 @@ bool X11wrapper::Shape_PixmapMask_Copy(
 	unsigned int height,
 	unsigned int destX,
 	unsigned int destY,
-	bool bOpaque )
+	int op_copy/* = GXcopy*/)
 {
 #ifdef DEBUG
     _LOG_NFO("Shape_PixmapMask_Copy");
@@ -2039,21 +2031,13 @@ bool X11wrapper::Shape_PixmapMask_Copy(
 	{
 		XGCValues values;
 		Display * disp = GetDisplay();
-		
+	
 		if( disp != NULL )
 		{
-			if( bOpaque )
-			{
-				values.foreground = WhitePixel(disp, GetScreen());
-				GC whiteGC = XCreateGC (disp, destPixmap, GCForeground, &values);
-				XCopyArea (disp, srcPixmap, destPixmap, whiteGC, x, y, width, height, destX, destY);
-			}
-			else
-			{
-				values.foreground = BlackPixel(disp, GetScreen());
-				GC blackGC = XCreateGC (disp, destPixmap, GCForeground, &values);
-				XCopyArea (disp, srcPixmap, destPixmap, blackGC, x, y, width, height, destX, destY);
-			}
+			values.foreground = WhitePixel(disp, GetScreen());
+			GC whiteGC = XCreateGC (disp, destPixmap, GCForeground, &values);
+			XSetFunction( disp, whiteGC, op_copy);
+			XCopyArea (disp, srcPixmap, destPixmap, whiteGC, x, y, width, height, destX, destY);
 		}
 	} while ((xcode = 0));
 	return (xcode == 0);
