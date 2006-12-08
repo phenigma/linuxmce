@@ -50,6 +50,9 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 {
 	PLUTO_SAFETY_LOCK(cm, m_pObj_Owner->m_pOrbiter->m_ScreenMutex);
 
+	if(!PreRenderActions(pObj_Screen, point))
+		return;
+
 	//save the datagrid's mesh frame tree before rendering
 	MeshFrame *BeforeDataGrid = m_pRenderFrame;
 
@@ -106,6 +109,8 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 	}
 
     sm.Release();
+
+	PostRenderActions(pObj_Screen, point);
 
 	g_pPlutoLogger->Write(LV_STATUS, "abc DataGridRenderer_OpenGL::RenderObject ENDED %s", DatagridFrameID.c_str());
 }

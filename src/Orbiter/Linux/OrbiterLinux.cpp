@@ -233,6 +233,9 @@ Display * OrbiterLinux::GetDisplay()
 
 Window OrbiterLinux::GetMainWindow()
 {
+	if(NULL == m_pX11)
+		return 0;
+
     //m_pX11 should be created by now
     return m_pX11->GetMainWindow();
 }
@@ -442,7 +445,7 @@ void OrbiterLinux::CMD_Surrender_to_OS(string sOnOff, bool bFully_release_keyboa
         m_pWinListManager->ActivateWindow(m_pWinListManager->GetExternApplicationName());
     }
 
-	if(sOnOff == "0")
+	if(sOnOff == "0" && m_bUseComposite)
 	{
 		if(MaskApplied())
 			ResetAppliedMask();

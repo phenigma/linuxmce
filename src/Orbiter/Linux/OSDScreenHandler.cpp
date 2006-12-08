@@ -2270,6 +2270,7 @@ bool OSDScreenHandler::VolumeControlCustomRender(CallBackData *pData)
 		*/
 	}
 #endif
+
 	return false;
 }
 
