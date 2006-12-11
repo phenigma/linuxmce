@@ -41,6 +41,7 @@ if [[ $NewAdd == 0 ]] ;then
 	done
 	#NrDrives=$(($NrDrives+1))
 	#create the array with mdadm
+	rm -f "/dev/.static$name"
 	if [[ $NrSpareDrives > 0 ]] ;then
 		echo "y" | mdadm --create $name --auto --level=5 --spare-devices=$NrSpareDrives $SpareDrives --raid-devices=$NrDrives $ActiveDrives
 	else	
@@ -49,5 +50,5 @@ if [[ $NewAdd == 0 ]] ;then
 	raidSize=$(mdadm --query $name | head -1 |cut -d' ' -f2)
 	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $Device and FK_DeviceData = $DISK_SIZE_ID"
 	$(RunSQL "$Q")
-	/usr/pluto/bin/start_RAID_monitoring.sh $name
+	#/usr/pluto/bin/start_RAID_monitoring.sh $name
 fi
