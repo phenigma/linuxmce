@@ -80,7 +80,7 @@ for device in $new_list; do
 		result=$(mdadm --query /dev/$device | grep 'is not an md array')
 		if [[ -n $result ]]; then
 			size=$(fdisk -l /dev/$device | grep Disk | cut -d' ' -f3)
-			free_disks="$free_disks/dev/$device,$size G;"
+			free_disks="$free_disks/dev/$device,$size MB;"
 		fi
 	fi
 done
