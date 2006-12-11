@@ -242,12 +242,14 @@ function editRespondToEvent($output,$dbADO) {
 			$resOldValues=$dbADO->Execute($queryOldValues,array($elem,$FK_CriteriaParmNesting));
 			if($resOldValues->RecordCount()==0){
 				// insert new values
-				$insertCriteriaParm='
-					INSERT INTO CriteriaParm 
-						(FK_CriteriaParmNesting,FK_CriteriaParmList,Operator,Value,FK_CannedEvents_CriteriaParmList,Parm)
-					VALUES
-						(?,?,?,?,?,?)';
-				$dbADO->Execute($insertCriteriaParm,array($FK_CriteriaParmNesting,$criteriaParmList,$operator,$value,$elem,$parm));
+				if((int)@$FK_CriteriaParmNesting>0){
+					$insertCriteriaParm='
+						INSERT INTO CriteriaParm 
+							(FK_CriteriaParmNesting,FK_CriteriaParmList,Operator,Value,FK_CannedEvents_CriteriaParmList,Parm)
+						VALUES
+							(?,?,?,?,?,?)';
+					$dbADO->Execute($insertCriteriaParm,array($FK_CriteriaParmNesting,$criteriaParmList,$operator,$value,$elem,$parm));
+				}
 			}else{
 				$rowOldValues=$resOldValues->FetchRow();
 				$oldCriteriaParmList=$rowOldValues['FK_CriteriaParmList'];
@@ -284,9 +286,7 @@ function editRespondToEvent($output,$dbADO) {
 				$msg=$TEXT_THE_EVENT_HANDLER_WAS_UPDATED_CONST;
 			break;
 			case 2:
-				processAdvancedScenarios($commandGroupID,$section,$dbADO);
-				$isModified=$GLOBALS['isModified'];
-				$parametersUpdatedAlert=$GLOBALS['parametersUpdatedAlert'];
+				list ($isModified,$parametersUpdatedAlert,$returnHook)=processAdvancedScenarios($commandGroupID,$section,$dbADO);
 				$msg=($isModified?$TEXT_COMMAND_GROUP_UPDATED_CONST:$TEXT_COMMAND_GROUP_NOT_UPDATED_CONST)." $parametersUpdatedAlert";
 			break;	
 		}

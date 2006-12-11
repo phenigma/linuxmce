@@ -24,7 +24,9 @@ function raid($output,$dbADO) {
 			<td align="center">'.$TEXT_ID_CONST.'</td>
 			<td align="center">'.$TEXT_RAID_CONST.'</td>
 			<td align="center">'.$TEXT_RAID_TYPE_CONST.'</td>
-			<td align="center">'.$TEXT_NO_OF_DRIVES_CONST.'</td>
+			<td align="center"><B>'.$TEXT_BLOCK_DEVICE_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_NO_OF_DRIVES_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_SIZE_CONST.'</B></td>
 			<td align="center">'.$TEXT_RAID_STATUS_CONST.'</td>
 			<td align="center">'.$TEXT_ACTION_CONST.'</td>
 		</tr>';
@@ -32,11 +34,28 @@ function raid($output,$dbADO) {
 		$raidCategories=getDescendantsForCategory($GLOBALS['RaidCategory'],$dbADO);
 		$raidTemplates=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,'WHERE FK_DeviceCategory IN ('.join(',',$raidCategories).')');
 		
-		$data=getFieldsAsArray('Device','PK_Device,Device.Description AS Description,DeviceTemplate.Description AS Type,DDD1.IK_DeviceData AS Status,DDD2.IK_DeviceData AS NoOFDisks,DDD3.IK_Devicedata AS RAIDStatus',$dbADO,'INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate LEFT JOIN Device_DeviceData DDD1 ON DDD1.FK_Device=PK_Device AND DDD1.FK_DeviceData='.$GLOBALS['State'].' LEFT JOIN Device_DeviceData DDD2 ON DDD2.FK_Device=PK_Device AND DDD2.FK_DeviceData='.$GLOBALS['NoofDisks'].' LEFT JOIN Device_DeviceData DDD3 on DDD3.FK_Device=PK_Device AND DDD3.FK_DeviceData='.$GLOBALS['RAIDStatus'].' WHERE FK_DeviceCategory IN ('.join(',',$raidCategories).')');
+		$fields='
+		FK_DeviceTemplate,
+		PK_Device,Device.Description AS Description,
+		DeviceTemplate.Description AS Type,
+		DDD1.IK_DeviceData AS Status,
+		DDD2.IK_DeviceData AS RAIDStatus,
+		DDD3.IK_Devicedata AS NoOfDisks,
+		DDD4.IK_DeviceData AS BlockDevice,
+		DDD5.IK_DeviceData AS RaidSize';
+				
+		$join='
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate 
+		LEFT JOIN Device_DeviceData DDD1 on DDD1.FK_Device=PK_Device AND DDD1.FK_DeviceData='.$GLOBALS['State'].' 
+		LEFT JOIN Device_DeviceData DDD2 on DDD2.FK_Device=PK_Device AND DDD2.FK_DeviceData='.$GLOBALS['RAIDStatus'].' 
+		LEFT JOIN Device_DeviceData DDD3 on DDD3.FK_Device=PK_Device AND DDD3.FK_DeviceData='.$GLOBALS['NoofDisks'].'
+		LEFT JOIN Device_DeviceData DDD4 on DDD4.FK_Device=PK_Device AND DDD4.FK_DeviceData='.$GLOBALS['BlockDevice'].'
+		LEFT JOIN Device_DeviceData DDD5 on DDD5.FK_Device=PK_Device AND DDD5.FK_DeviceData='.$GLOBALS['Size'];			
+		$data=getFieldsAsArray('Device',$fields,$dbADO,$join.' WHERE FK_DeviceCategory IN ('.join(',',$raidCategories).')');
 		if(count($data)==0){
 			$out.='
 			<tr class="alternate_back">
-				<td colspan="6">'.$TEXT_NO_RECORDS_CONST.'</td>
+				<td colspan="8">'.$TEXT_NO_RECORDS_CONST.'</td>
 			</tr>';
 		}
 
@@ -49,7 +68,9 @@ function raid($output,$dbADO) {
 				<td>'.$data['PK_Device'][$i].'</td>
 				<td>'.$data['Description'][$i].'</td>
 				<td>'.$data['Type'][$i].'</td>
-				<td align="center">'.$data['NoOFDisks'][$i].'</td>
+				<td align="center">'.$data['BlockDevice'][$i].'</td>
+				<td align="center">'.$data['NoOfDisks'][$i].'</td>
+				<td align="center">'.$data['RaidSize'][$i].'</td>
 				<td align="center">'.$data['Status'][$i].'</td>
 				<td>
 				<input type="button" class="button_fixed" name="drives_'.$data['PK_Device'][$i].'" value="'.$TEXT_DRIVES_CONST.'"  onClick="self.location=\'index.php?section=raidDrives&deviceID='.$data['PK_Device'][$i].'\';"><br>
@@ -62,7 +83,7 @@ function raid($output,$dbADO) {
 		
 		$out.='
 			<tr>
-				<td align="center" colspan="6"><B>'.$TEXT_ADD_RAID_CONST.'</B> <input type="text" name="description" value=""> '.$TEXT_TYPE_CONST.' '.pulldownFromArray($raidTemplates,'template',0).' <input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
+				<td align="center" colspan="8"><B>'.$TEXT_ADD_RAID_CONST.'</B> <input type="text" name="description" value=""> '.$TEXT_TYPE_CONST.' '.pulldownFromArray($raidTemplates,'template',0).' <input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
 			</tr>		
 	</table>
 	<input type="hidden" name="raidDevices" value="'.join(',',$raidDevices).'">
