@@ -396,9 +396,7 @@ function editTimedEvent($output,$dbADO) {
 			break;	
 			
 			case 3:
-				processAdvancedScenarios($commandGroupID,$section,$dbADO);
-				$isModified=$GLOBALS['isModified'];
-				$parametersUpdatedAlert=$GLOBALS['parametersUpdatedAlert'];
+				list ($isModified,$parametersUpdatedAlert,$returnHook)=processAdvancedScenarios($commandGroupID,$section,$dbADO);
 				$msg="Command Group ".($isModified?"":"not")." updated! $parametersUpdatedAlert";
 			break;	
 		}
