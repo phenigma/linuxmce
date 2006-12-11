@@ -186,6 +186,8 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 				m_screenMaskObjects, 0, 0, pOrbiterLinux->m_iImageWidth, pOrbiterLinux->m_iImageHeight, false);
 			pOrbiterLinux->m_pX11->Shape_PixmapMask_Rectangle(
 				m_screenMaskPopups, 0, 0, pOrbiterLinux->m_iImageWidth, pOrbiterLinux->m_iImageHeight, false);
+
+			ApplyMasks();
 		}
 
 		if( bRenderGraphicsOnly )
