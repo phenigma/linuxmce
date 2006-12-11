@@ -34,7 +34,7 @@ CHECK_P3=0
 OPTIONS_HINTS=1
 
 # sets the GCC to use to the one required by the module (if available)
-function set_GCC_version () {
+set_GCC_version () {
   #identify GCC default version major number
   GCC_MAJOR="`gcc --version | grep -o -e "(GCC) ." | cut -d " " -f 2`"
 
@@ -1081,18 +1081,6 @@ then
   then
     echo "creating target directory" >> $logfile
     mkdir $target_dir | tee -a $logfile
-  fi
-
-  which strip > /dev/null 2>&1
-  if test $? = 0; then
-     strip -g ${MODULE}${kmod_extension} > /dev/null 2>&1
-     if test $? = 0; then	
-        echo "stripping the debug info of kernel module" >> $logfile
-     else
-        echo "could not strip the debug info of kernel module" >> $logfile
-     fi 
-  else
-     echo "could not find the strip utility on your system" >> $logfile
   fi
 
   # for fglrx and fglrx_agp

@@ -1875,6 +1875,19 @@ int ATI_API_CALL __ke_PageCompound(void *virt)
 #endif
 }
 
+void *ATI_API_CALL __ke_vmalloc_to_addr(void *vmalloc_addr)
+{
+    struct page *page = NULL;
+
+    page = vmalloc_to_page(vmalloc_addr);
+    if(page == NULL) 
+    {
+        __KE_ERROR("__ke_vmalloc_to_addr: invalid page!");
+        return NULL;
+    }
+    return page_address(page);
+}
+
 #if defined(VM_MAP) || defined(vunmap)
 void* ATI_API_CALL __ke_vmap(unsigned long *pagelist, unsigned int count)
 {
@@ -2340,10 +2353,15 @@ int ATI_API_CALL __ke_mtrr_del(int reg, unsigned long base, unsigned long size)
 
 int ATI_API_CALL __ke_has_vmap(void)
 {
+// We disable vmap for 2.4.x kernel to work around the big memory( > 4GB ) issue. 
+#if LINUX_VERSION_CODE < 0x020501
+    return 0;
+#else
 #if defined(VM_MAP) || defined(vunmap)
     return 1;
 #else
     return 0;
+#endif
 #endif
 }
 

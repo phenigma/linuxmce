@@ -513,6 +513,8 @@ extern int ATI_API_CALL __ke_snprintf(char* buf, size_t size, const char* fmt, .
 extern int ATI_API_CALL __ke_vm_test_and_clear_dirty(struct mm_struct* mm, unsigned long virtual_addr);
 extern void* ATI_API_CALL __ke_vmap(unsigned long *pagelist, unsigned int count);
 extern void ATI_API_CALL __ke_vunmap(void* addr);
+extern void *ATI_API_CALL __ke_vmalloc_to_addr(void *vmalloc_addr);
+
 
 /*****************************************************************************/
 
