@@ -9,12 +9,9 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$path = (isset($_REQUEST['path']) && $_REQUEST['path']!='')?cleanString($_REQUEST['path']):'';
-
-	$typeArray=array();
-	$resType=$dbADO->Execute('SELECT * FROM MediaType ORDER BY Description ASC');
-	while($rowType=$resType->FetchRow()){
-		$typeArray[$rowType['PK_MediaType']]=$rowType['Description'];
-	}
+	$GLOBALS['files_per_page']=20;
+	
+	$GLOBALS['typeArray']=getAssocArray('MediaType','PK_MediaType','Description',$dbADO,'','ORDER BY Description ASC');
 	$notInDBArray=array();	
 	$oldDir=substr($path,strrpos($path,'/')+1);
 	
@@ -24,7 +21,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 	if($action=='form'){
 		if($path!=''){
 			$physicalFiles=grabFiles($path,'');
-
+			
 			$out.='
 			<script>
 			function windowOpen(locationA,attributes) 
@@ -79,116 +76,31 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			<input type="hidden" name="section" value="mainMediaFilesSync">
 			<input type="hidden" name="action" value="update">
 			<input type="hidden" name="path" value="'.$path.'">
-			
 			';
+			
 			if(isset($_REQUEST['filename']) && $_REQUEST['filename']!='')
 				$out.='<a href="index.php?section=leftMediaFilesSync" target="treeframe"><img src="scripts/treeview/diffDoc.gif" border="0" align="middle">'.$TEXT_SHOW_DIRECTORY_STRUCTURE_CONST.'</a>';
 			$out.='
 				<table cellpading="0" cellspacing="0">
 					<tr>
-						<td colspan="2"><B>'.$TEXT_FILES_ON_DISK_CONST.'</B></td>
+						<td class="tablehead"><B>'.$TEXT_FILES_ON_DISK_CONST.'</B></td>
+					</tr>
+					<tr>
+						<td>'.physicalFilesList($path,$physicalFiles,$mediadbADO).'</td>
 					</tr>';
-			$queryDBFiles='
-				SELECT DISTINCT File.*,count(FK_Picture) AS picsNo
-				FROM File 
-				LEFT JOIN Picture_File ON FK_File=PK_File
-				WHERE Path=?
-				GROUP BY PK_File';
-			$rs=$mediadbADO->Execute($queryDBFiles,$path);
-			$dbFiles=array();
-			$dbPKFiles=array();
-			while($row=$rs->FetchRow()){
-				$dbFiles[]=$row['Filename'];
-				$dbPKFiles[]=$row['PK_File'];
-				$dbPicsNoFiles[]=$row['picsNo'];
-			}
-			if(count($physicalFiles)==0)
-				$out.='	<tr>
-							<td colspan="2">'.$TEXT_NO_FILES_IN_PHYSICAL_DIRECTORY_CONST.'</td>
-						</tr>';
-			else{
-				foreach($physicalFiles as $physicalkey => $filename){
-					if((in_array($filename,$dbFiles))){
-						$key=array_search($filename,$dbFiles);
-						$inDB=1;
-					}else{
-						$notInDBArray[]=$physicalkey; 
-						$inDB=0;
-						if(!is_dir64($path.'/'.$filename)){
-							$addToDB='<td align="right"> '.$TEXT_TYPE_CONST.': <select name="type_'.$physicalkey.'">
-								<option value="">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
-							foreach ($typeArray AS $typeID=>$typeDescription){
-								$addToDB.='<option value="'.$typeID.'">'.str_replace('np_','',$typeDescription).'</option>';
-							}
-							$addToDB.='</select> <input type="submit" class="button" name="add" value="'.$TEXT_ADD_FILE_TO_DATABASE_CONST.'">
-							<input type="hidden" name="filename_'.$physicalkey.'" value="'.$filename.'">
-							</td>';
-						}else{
-							$addToDB='<td>&nbsp;</td>';
-						}
-					}
-					$coverArtIcon=(@$dbPicsNoFiles[$key]!=0)?'&nbsp;<img src="include/images/coverart.gif" border="0" style="vertical-align:middle;">':'';
-					$out.='	<tr style="background-color:'.(($physicalkey%2==0)?'#EEEEEE':'#EBEFF9').';">
-								<td '.(((@$inDB==1)?'colspan="2"':'')).'>'.((@$inDB==1)?'<img src=include/images/sync.gif border=0 style="vertical-align:middle;">':'<img src=include/images/disk.gif border=0 style="vertical-align:middle;">').' '.((@$inDB==1)?'<a href="index.php?section=editMediaFile&fileID='.$dbPKFiles[$key].'"><B>'.$filename.'</B></a> '.$coverArtIcon:'<B>'.$filename.'</B> '.$addToDB).'</td>
-							</tr>';
-						if(@$inDB==1){	
-							$queryAttributes='
-								SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name
-								FROM File_Attribute
-									INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute
-									INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
-								WHERE FK_File=? ORDER BY AttributeType.Description ASC
-							';
-							$resAttributes=$mediadbADO->Execute($queryAttributes,$dbPKFiles[$key]);
-							$attributes='';
-							while($rowAttributes=$resAttributes->FetchRow()){
-								$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).'</a> ';
-							}
-							$out.='
-							<tr style="background-color:'.(($physicalkey%2==0)?'#EEEEEE':'#EBEFF9').';">
-								<td colspan="2">'.@$attributes.'</td>
-							</tr>';
-							
-						}
-				}
-			}
-			if($_SESSION['missing']==1){
+				if($_SESSION['missing']==1){
 				$out.='
 					<tr>
-						<td colspan="2"><B>'.$TEXT_FILES_IN_DATABASE_ONLY_CONST.'</B></td>
+						<td class="tablehead"><B>'.$TEXT_FILES_IN_DATABASE_ONLY_CONST.'</B></td>
+					</tr>
+					<tr>
+						<td>'.dbonlyFilesList($path,$physicalFiles,$mediadbADO).'</td>
 					</tr>';
-				$dbonlyFiles=array_diff($dbFiles,$physicalFiles);
-				if(count($dbonlyFiles)==0)
-					$out.='	<tr>
-								<td colspan="2">'.$TEXT_NO_OTHER_FILES_IN_DATABASE_CONST.'</td>
-							</tr>';
-				foreach($dbonlyFiles as $dbkey => $filename){
-					$queryAttributes='
-						SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name
-						FROM File_Attribute
-							INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute
-							INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
-						WHERE FK_File=? ORDER BY AttributeType.Description ASC
-						';
-					$resAttributes=$mediadbADO->Execute($queryAttributes,$dbPKFiles[$dbkey]);
-					$attributes='';
-					while($rowAttributes=$resAttributes->FetchRow()){
-						$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).'</a> ';
-					}
-		
-					$out.='	<tr style="background-color:'.(($dbkey%2==0)?'#EEEEEE':'#EBEFF9').';">
-								<td><img src=include/images/db.gif align=middle border=0> <a href="index.php?section=editMediaFile&fileID='.@$dbPKFiles[$dbkey].'"><B>'.$filename.'</B></a></td>
-								<td align="right"><input type="button" class="button" name="del" value="'.$TEXT_DELETE_FILE_FROM_DATABASE_CONST.'" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_FILE_FROM_DATABASE_CONST.'\'))self.location=\'index.php?section=mainMediaFilesSync&action=delfile&dfile='.@$dbPKFiles[$dbkey].'&path='.$path.'\';"></td>
-							</tr>
-							<tr style="background-color:'.(($dbkey%2==0)?'#EEEEEE':'#EBEFF9').';">
-								<td colspan="2">'.@$attributes.'</td>
-							</tr>';
 				}
-			}
+				$out.='		
+				</table>';
 			$out.='
-				<tr>
-					<td colspan="2">&nbsp;</td>
-				</tr>
+				<table>
 				<tr>
 					<td colspan="2"><B>'.strtoupper($TEXT_LEGEND_FOR_FILES_CONST).'</B><br>
 					<img src=include/images/disk.gif align=middle border=0>	'.$TEXT_EXIST_ONLY_ON_DISK_CONST.'<br>
@@ -199,7 +111,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			</table>';
 		}
 	$out.='
-			<input type="hidden" name="notInDBArray" value="'.join(',',$notInDBArray).'">
+			
 		</form>
 	';
 		
@@ -210,9 +122,10 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			$newDir=stripslashes($_REQUEST['newDir']);
 			if(ereg('/',$newDir)){
 				header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&error='.$TEXT_ERROR_INVALID_DIRECTORY_NAME_CONST);
+				exit();
 			}else{
-				$newPath=str_replace($oldDir,$newDir,$path);
-				exec('sudo -u root mv "'.$path.'" "'.$newPath.'"');
+				$newPath=substr($path,0,strrpos($path,'/')+1).$newDir;
+				exec_batch_command('sudo -u root mv "'.$path.'" "'.$newPath.'"');
 				$out.='
 				<script>
 					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($newPath).'&msg='.$TEXT_DIRECTORY_RENAMED_CONST.'";
@@ -270,6 +183,9 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 		
 		if($action=='update'){
 			$notInDBArray=explode(',',@$_POST['notInDBArray']);
+			$ppage=(int)@$_POST['ppage'];
+			$dpage=(int)@$_POST['dpage'];
+
 			foreach($notInDBArray AS $physicalkey){
 				$filename=stripslashes(@$_POST['filename_'.$physicalkey]);
 				$type=(int)@$_POST['type_'.$physicalkey];
@@ -278,7 +194,8 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 					$mediadbADO->Execute('INSERT INTO File (EK_MediaType, Path, Filename,IsDirectory,DateAdded) VALUES (?,?,?,?,NOW())',array($type,stripslashes($path),$filename,$isDir));
 				}
 			}
-			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&msg='.$TEXT_FILE_ADDED_TO_DATABASE_CONST);
+			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&msg='.$TEXT_FILE_ADDED_TO_DATABASE_CONST.'&ppage='.$ppage.'&dpage='.$dpage);
+			exit();
 		}
 	}
 	
@@ -318,5 +235,164 @@ function delete_directory_from_db($directoryPath,$mediadbADO){
 		}
 		delete_file_from_db($row['PK_File'],$mediadbADO);
 	}
+}
+
+function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');	
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mainMediaFilesSync.lang.php');
+	
+	if(count($allPhysicalFiles)==0){
+		return $TEXT_NO_FILES_IN_PHYSICAL_DIRECTORY_CONST;
+	}
+	
+	$ppage=((int)@$_REQUEST['ppage']>0)?(int)$_REQUEST['ppage']:1;
+	$noPages=round(count($allPhysicalFiles)/$GLOBALS['files_per_page']);
+	$physicalFiles=array_slice($allPhysicalFiles,$GLOBALS['files_per_page']*($ppage-1),$GLOBALS['files_per_page']);
+	
+	$queryDBFiles='
+		SELECT DISTINCT File.*,count(FK_Picture) AS picsNo
+		FROM File 
+		LEFT JOIN Picture_File ON FK_File=PK_File
+		WHERE Path=? AND Filename IN (\''.join('\',\'',$physicalFiles).'\')
+		GROUP BY PK_File';
+	$rs=$mediadbADO->Execute($queryDBFiles,$path);
+	$dbFiles=array();
+	$dbPKFiles=array();
+	while($row=$rs->FetchRow()){
+		$dbFiles[]=$row['Filename'];
+		$dbPKFiles[]=$row['PK_File'];
+		$dbPicsNoFiles[]=$row['picsNo'];
+	}
+	
+	// set navigation bar
+	$navBarArray=array();
+	for($i=1;$i<$noPages+1;$i++){
+		$navBarArray[]=($i==$ppage)?$i:'<a href="index.php?'.str_replace('ppage='.$ppage,'',$_SERVER['QUERY_STRING']).'&ppage='.$i.'">'.$i.'</a>';
+	}
+	$navBar=join(' | ',$navBarArray);
+	
+	$out='<table width="100%" cellpadding="2" cellspacing="0">';
+	foreach($physicalFiles as $physicalkey => $filename){
+		if((in_array($filename,$dbFiles))){
+			$key=array_search($filename,$dbFiles);
+			$inDB=1;
+		}else{
+			$notInDBArray[]=$physicalkey;
+			$inDB=0;
+			if(!is_dir64($path.'/'.$filename)){
+				$addToDB='<td align="right"> '.$TEXT_TYPE_CONST.': <select name="type_'.$physicalkey.'">
+								<option value="">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
+				foreach ($GLOBALS['typeArray'] AS $typeID=>$typeDescription){
+					$addToDB.='<option value="'.$typeID.'">'.str_replace('np_','',$typeDescription).'</option>';
+				}
+				$addToDB.='</select> <input type="submit" class="button" name="add" value="'.$TEXT_ADD_FILE_TO_DATABASE_CONST.'">
+							<input type="hidden" name="filename_'.$physicalkey.'" value="'.$filename.'">
+							</td>';
+			}else{
+				$addToDB='<td>&nbsp;</td>';
+			}
+		}
+		$coverArtIcon=(@$dbPicsNoFiles[$key]!=0)?'&nbsp;<img src="include/images/coverart.gif" border="0" style="vertical-align:middle;">':'';
+		$out.='	
+			<tr class="'.(($physicalkey%2==0)?'':'alternate_back').'">
+				<td '.(((@$inDB==1)?'colspan="2"':'')).'>'.((@$inDB==1)?'<img src=include/images/sync.gif border=0 style="vertical-align:middle;">':'<img src=include/images/disk.gif border=0 style="vertical-align:middle;">').' '.((@$inDB==1)?'<a href="index.php?section=editMediaFile&fileID='.$dbPKFiles[$key].'"><B>'.$filename.'</B></a> '.$coverArtIcon:'<B>'.$filename.'</B> '.$addToDB).'</td>
+			</tr>';
+		if(@$inDB==1){
+			$queryAttributes='
+				SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name
+				FROM File_Attribute
+				INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute
+				INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
+				WHERE FK_File=? ORDER BY AttributeType.Description ASC
+				';
+			$resAttributes=$mediadbADO->Execute($queryAttributes,$dbPKFiles[$key]);
+			$attributes='';
+			while($rowAttributes=$resAttributes->FetchRow()){
+				$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).'</a> ';
+			}
+			$out.='
+				<tr class="'.(($physicalkey%2==0)?'':'alternate_back').'">
+					<td colspan="2">'.@$attributes.'</td>
+				</tr>';
+
+		}
+	}
+	$out.='
+		<tr>
+			<td align="right" colspan="2">'.$navBar.'</td>
+		</tr>
+	</table>
+	<input type="hidden" name="notInDBArray" value="'.join(',',$notInDBArray).'">
+	<input type="hidden" name="ppage" value="'.$ppage.'">';
+	
+	return $out;
+}
+
+function dbonlyFilesList($path,$physicalFiles,$mediadbADO){
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');	
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mainMediaFilesSync.lang.php');
+	$dpage=((int)@$_REQUEST['dpage']>0)?(int)$_REQUEST['dpage']:1;
+	
+	$queryDBFiles='
+		SELECT DISTINCT File.*,count(FK_Picture) AS picsNo
+		FROM File 
+		LEFT JOIN Picture_File ON FK_File=PK_File
+		WHERE Path=? AND Filename NOT IN (\''.join('\',\'',$physicalFiles).'\') AND Missing=1
+		GROUP BY PK_File';
+	$rs=$mediadbADO->Execute($queryDBFiles,$path);
+	$dbFiles=array();
+	$dbPKFiles=array();
+	while($row=$rs->FetchRow()){
+		$dbFiles[]=$row['Filename'];
+		$dbPKFiles[]=$row['PK_File'];
+		$dbPicsNoFiles[]=$row['picsNo'];
+	}	
+	$noPages=round(count($dbFiles)/$GLOBALS['files_per_page']);
+
+	if(count($dbFiles)==0){
+		return $TEXT_NO_OTHER_FILES_IN_DATABASE_CONST;
+	}
+	
+	$dbFiles=array_slice($dbFiles,$GLOBALS['files_per_page']*($dpage-1),$GLOBALS['files_per_page']);
+	$navBarArray=array();
+	for($i=1;$i<$noPages+1;$i++){
+		$navBarArray[]=($i==$dpage)?$i:'<a href="index.php?'.str_replace('dpage='.$dpage,'',$_SERVER['QUERY_STRING']).'&dpage='.$i.'">'.$i.'</a>';
+	}
+	$navBar=join(' | ',$navBarArray);	
+	
+	$out='<table width="100%" cellpadding="2" cellspacing="0">';
+	foreach($dbFiles as $dbkey => $filename){
+		$queryAttributes='
+			SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name
+			FROM File_Attribute
+			INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute
+			INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
+			WHERE FK_File=? ORDER BY AttributeType.Description ASC
+		';
+		$resAttributes=$mediadbADO->Execute($queryAttributes,$dbPKFiles[$dbkey]);
+		$attributes='';
+		while($rowAttributes=$resAttributes->FetchRow()){
+			$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).'</a> ';
+		}
+
+		$out.='
+			<tr class="'.(($dbkey%2==0)?'alternate_back':'').'">
+				<td><img src=include/images/db.gif align=middle border=0> <a href="index.php?section=editMediaFile&fileID='.@$dbPKFiles[$dbkey].'"><B>'.$filename.'</B></a></td>
+				<td align="right"><input type="button" class="button" name="del" value="'.$TEXT_DELETE_FILE_FROM_DATABASE_CONST.'" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_FILE_FROM_DATABASE_CONST.'\'))self.location=\'index.php?section=mainMediaFilesSync&action=delfile&dfile='.@$dbPKFiles[$dbkey].'&path='.$path.'\';"></td>
+			</tr>
+			<tr class="'.(($dbkey%2==0)?'alternate_back':'').'">
+				<td colspan="2">'.@$attributes.'</td>
+			</tr>';
+	}
+	$out.='
+		<tr>
+			<td align="right" colspan="2">'.$navBar.'</td>
+		</tr>	
+	</table>
+	<input type="hidden" name="dpage" value="'.$dpage.'">';
+
+	return $out;
 }
 ?>

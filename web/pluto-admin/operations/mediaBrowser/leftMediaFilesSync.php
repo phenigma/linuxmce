@@ -10,6 +10,7 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$out='';	
 
+	
 	if($action=='form'){
 		$out='
 		<script>
@@ -85,7 +86,7 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 
 function getDirectories ($path) {
 	$dirs=array();
-	if (($d = opendir ($path)) === false) {
+	if (($d = @opendir ($path)) === false) {
 		return $dirs;
 	}
 	else {

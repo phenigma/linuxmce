@@ -50,7 +50,7 @@ function raid($output,$dbADO) {
 		LEFT JOIN Device_DeviceData DDD2 on DDD2.FK_Device=PK_Device AND DDD2.FK_DeviceData='.$GLOBALS['RAIDStatus'].' 
 		LEFT JOIN Device_DeviceData DDD3 on DDD3.FK_Device=PK_Device AND DDD3.FK_DeviceData='.$GLOBALS['NoofDisks'].'
 		LEFT JOIN Device_DeviceData DDD4 on DDD4.FK_Device=PK_Device AND DDD4.FK_DeviceData='.$GLOBALS['BlockDevice'].'
-		LEFT JOIN Device_DeviceData DDD5 on DDD5.FK_Device=PK_Device AND DDD5.FK_DeviceData='.$GLOBALS['Size'];			
+		LEFT JOIN Device_DeviceData DDD5 on DDD5.FK_Device=PK_Device AND DDD5.FK_DeviceData='.$GLOBALS['DriveSize'];			
 		$data=getFieldsAsArray('Device',$fields,$dbADO,$join.' WHERE FK_DeviceCategory IN ('.join(',',$raidCategories).')');
 		if(count($data)==0){
 			$out.='

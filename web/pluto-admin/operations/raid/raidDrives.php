@@ -47,7 +47,7 @@ function raidDrives($output,$dbADO) {
 		LEFT JOIN Device_DeviceData DDD2 on DDD2.FK_Device=PK_Device AND DDD2.FK_DeviceData='.$GLOBALS['RAIDStatus'].' 
 		LEFT JOIN Device_DeviceData DDD3 on DDD3.FK_Device=PK_Device AND DDD3.FK_DeviceData='.$GLOBALS['NoofDisks'].'
 		LEFT JOIN Device_DeviceData DDD4 on DDD4.FK_Device=PK_Device AND DDD4.FK_DeviceData='.$GLOBALS['BlockDevice'].'
-		LEFT JOIN Device_DeviceData DDD5 on DDD5.FK_Device=PK_Device AND DDD5.FK_DeviceData='.$GLOBALS['Size'];	
+		LEFT JOIN Device_DeviceData DDD5 on DDD5.FK_Device=PK_Device AND DDD5.FK_DeviceData='.$GLOBALS['DriveSize'];	
 
 	$data=getFieldsAsArray('Device',$fields,$dbADO,$join.' WHERE PK_Device='.$deviceID);
 	$raidTemplate=$data['FK_DeviceTemplate'][0];
@@ -173,7 +173,7 @@ function raidDrives($output,$dbADO) {
 		$availableDrives=getAvailableDrives();
 
 		if(($RAIDStatus==2 && $raidTemplate!=$GLOBALS['Raid0']) || $RAIDStatus!=2){
-			$spareChecked=($RAIDStatus==2)?'checked onClick="this.checked=true;"':'';
+			$spareChecked=($RAIDStatus!=0)?'checked onClick="this.checked=true;"':'';
 			$asSpareCheckbox=($raidTemplate!=$GLOBALS['Raid0'])?$TEXT_AS_SPARE_DISK_CONST.' <input type="checkbox" name="spare" value="1" '.$spareChecked.'>':'';
 			$out.='
 			<tr>
