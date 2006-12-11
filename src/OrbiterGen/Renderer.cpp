@@ -662,7 +662,7 @@ bool Renderer::SaveSurfaceToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, 
 		for(int y = 0; y < height; y++)
 		{
 			char *pD = (char *) pSurface->pixels + y * pSurface->pitch + x * 4;
-			*(pRawImage + y*width + x) = (char)(pD[3] <= nMaxOpacity);
+			*(pRawImage + y*width + x) = (char)(pD[3] < nMaxOpacity);
 		}
 	}
 
