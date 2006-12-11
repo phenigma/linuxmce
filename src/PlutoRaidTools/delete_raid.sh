@@ -24,11 +24,6 @@ while read line; do
 done < <(cat /tmp/info.raid | grep /dev)
 
 mdadm -S $array
-rm -f $array "$array:"
+rm -f $array "$array:" "/dev/.static$array"
 rm -f /tmp/info.raid
 
-procs=$(ps axf | grep $array | cut -d' ' -f1,2)
-for proc in $procs; do
-   kill -9 $proc
-done
-		
