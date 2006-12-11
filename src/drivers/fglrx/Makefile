@@ -23,14 +23,8 @@ ifeq ($(KERNELRELEASE),)
 # on first call from remote location we get into this path
 # whilst on second call all is managed by the embedding kernel makefile
 
-KVER            = $(shell uname -r)
-# KVER            = 2.6.0-0.test1.1.26custom
-
-ifeq (1,1)
-KDIR            = /lib/modules/$(KVER)/build
-else
-KDIR            = /usr/src/linux-$(KVER)
-endif
+KVER            ?= $(shell uname -r)
+KDIR            ?= /lib/modules/$(KVER)/build
 PWD             = $(shell pwd)
 
 fglrx-cfiles    = ${fglrx-c-objs:.o=.c}
@@ -52,7 +46,8 @@ kmod_build:: $(fglrx-libs) $(fglrx-cfiles) $(fglrx-hdrs) $(drm-hdrs)
 # distclean:: clean
 
 clean::
-	rm -f *.c *.h *.o *.ko *.GCC* .??*
+	rm -rf $(PWD)/.tmp_versions
+	rm -f *.o *.ko
 
 endif
 
