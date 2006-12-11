@@ -27,5 +27,5 @@ fi
 
 mdadm --manage --set-faulty $array $disk
 mdadm --manage --remove $array $disk
-mke2fs $disk
+echo 'y' | mke2fs $disk
 dd if=/dev/zero of=$disk count=1024
