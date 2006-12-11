@@ -478,6 +478,7 @@ Window X11wrapper::Window_Create(int nPosX, int nPosY, unsigned int nWidth, unsi
     X11_Locker x11_locker(GetDisplay());
     do
     {
+		/*
         window = XCreateSimpleWindow(
             GetDisplay(),
             parent_window,
@@ -485,12 +486,20 @@ Window X11wrapper::Window_Create(int nPosX, int nPosY, unsigned int nWidth, unsi
             0, // BorderWidth,
             0, // BorderColor
             0 // BgColor
-            );
+            );*/
 
-	//make it transparent
-	unsigned int opacity = 0;
-	XChangeProperty(GetDisplay(), window, XInternAtom(GetDisplay(), OPACITY, False), XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &opacity, 1L);
-	
+		window = XCreateWindow(
+			GetDisplay(), parent_window, 
+			nPosX, nPosY, nWidth, nHeight, InputOnly, 
+			CopyFromParent,
+			CopyFromParent, 
+			CopyFromParent,
+			0, 0);
+
+		//make it transparent
+		unsigned int opacity = 0;
+		XChangeProperty(GetDisplay(), window, XInternAtom(GetDisplay(), OPACITY, False), XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &opacity, 1L);
+
         _COND_XBOOL_LOG_ERR_BREAK(window != 0);
     } while ((xcode = 0));
     if (xcode != 0)
@@ -498,7 +507,7 @@ Window X11wrapper::Window_Create(int nPosX, int nPosY, unsigned int nWidth, unsi
     return window;
 }
 
-Window X11wrapper::Window_Create_Show(int nPosX, int nPosY, unsigned int nWidth, unsigned int nHeight, Window parent_window/*=None*/)
+Window X11wrapper::Window_Create_Show(int nPosX, int nPosY, unsigned int nWidth, unsigned int nHeight, Window parent_window/*=None*/, bool bSendToDesktop/* = false*/)
 {
 #ifdef DEBUG
     _LOG_NFO("pos==(%d, %d, %d, %d), parent_window==%d", nPosX, nPosY, nWidth, nHeight, parent_window);
@@ -511,10 +520,18 @@ Window X11wrapper::Window_Create_Show(int nPosX, int nPosY, unsigned int nWidth,
     {
         window = Window_Create(nPosX, nPosY, nWidth, nHeight, parent_window);
         _COND_XBOOL_LOG_ERR_BREAK(window != 0);
-        if (! Window_Show(window))
-            _LOG_XERROR_BREAK("cannot show window==%d", window);
-        if (! Window_MoveResize(window, nPosX, nPosY, nWidth, nHeight, true, true))
-            _LOG_XERROR_BREAK("cannot re-position window==%d", window);
+		if (! Window_Show(window))
+			_LOG_XERROR_BREAK("cannot show window==%d", window);
+
+		if(bSendToDesktop)
+		{
+			if (! Window_Lower(window))
+				_LOG_WRN("cannot lower window");
+			Sync();
+		}
+
+		if (! Window_MoveResize(window, nPosX, nPosY, nWidth, nHeight, true, true))
+			_LOG_XERROR_BREAK("cannot re-position window==%d", window);
     } while ((xcode = 0));
     // cleanup
     if (xcode != 0)
@@ -580,156 +597,145 @@ bool X11wrapper::Window_Show(Window window, bool bShow/*=true*/)
 bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const int nPosY, const unsigned int nWidth, const unsigned int nHeight, bool bUse_WM_Window=true, bool bWaitForCompletion=true)
 {
 #ifdef DEBUG
-    _LOG_NFO("window==%d, pos==(%d, %d, %d, %d)", window, nPosX, nPosY, nWidth, nHeight);
+	_LOG_NFO("window==%d, pos==(%d, %d, %d, %d)", window, nPosX, nPosY, nWidth, nHeight);
 #endif
 
-    // cannot wait for Expose events: they may be generated or not
-    // correct position checker
-    bool bGoodPos = false; // initial window
-    bool bGoodPos_wm = false; // wm window
-    // start
-    int xcode = -1;
-    X11_Locker x11_locker(GetDisplay());
-    do
-    {
-        // coordinates for our window
-        int x = 0;
-        int y = 0;
-        unsigned int w = 0;
-        unsigned int h = 0;
-        // checking again in a loop
-        int nIterations = bWaitForCompletion ? WAIT_FOR_COMPLETION_MAX_ITERATIONS : 1;
-        for (int i=1; i<=nIterations; usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP), ++i)
-        {
-            //_LOG_NFO("i==%d/%d", i, nIterations);
-            // required window which will be changed according to arguments
-            Window window_req = window;
-            int x_req = nPosX;
-            int y_req = nPosY;
-            unsigned int w_req = nWidth;
-            unsigned int h_req = nHeight;
-            // coordinates for the corresponding wm-parent-window
-            Window window_wm = 0;
-            int x_wm = 0;
-            int y_wm = 0;
-            unsigned int w_wm = 0;
-            unsigned int h_wm = 0;
-
-			// we have a container wm-window here
-			// will translate the origin
-			int x_delta = 0;
-			int y_delta = 0;
-
+	// cannot wait for Expose events: they may be generated or not
+	// correct position checker
+	bool bGoodPos = false; // initial window
+	bool bGoodPos_wm = false; // wm window
+	// start
+	int xcode = -1;
+	X11_Locker x11_locker(GetDisplay());
+	do
+	{
+		// coordinates for our window
+		int x = 0;
+		int y = 0;
+		unsigned int w = 0;
+		unsigned int h = 0;
+		// checking again in a loop
+		int nIterations = bWaitForCompletion ? WAIT_FOR_COMPLETION_MAX_ITERATIONS : 1;
+		for (int i=1; i<=nIterations; usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP), ++i)
+		{
+			//_LOG_NFO("i==%d/%d", i, nIterations);
+			// required window which will be changed according to arguments
+			Window window_req = window;
+			int x_req = nPosX;
+			int y_req = nPosY;
+			unsigned int w_req = nWidth;
+			unsigned int h_req = nHeight;
+			// coordinates for the corresponding wm-parent-window
+			Window window_wm = 0;
+			int x_wm = 0;
+			int y_wm = 0;
+			unsigned int w_wm = 0;
+			unsigned int h_wm = 0;
 			if (bUse_WM_Window)
-            {
-                // check if the wm reparented the window
-                window_wm = Window_GetDeepestParent(window);
-                if ( (window_wm == 0) || (window_wm == window) )
-                {
-                    //_LOG_WRN("Window_GetDeepestParent(window==%d) => window_wm==%d", window, window_wm);
-                    continue;
-                }
-                else
-                {
+			{
+				// check if the wm reparented the window
+				window_wm = Window_GetDeepestParent(window);
+				if ( (window_wm == 0) || (window_wm == window) )
+				{
+					//_LOG_WRN("Window_GetDeepestParent(window==%d) => window_wm==%d", window, window_wm);
+					continue;
+				}
+				else
+				{
+					// we have a container wm-window here
+					// will translate the origin
+					int x_delta = 0;
+					int y_delta = 0;
 					bool bResult = Window_TranslateCoordinates(window, window_wm, 0, 0, &x_delta, &y_delta, NULL);
 					if (! bResult)
 					{
 						_LOG_ERR("cannot translate coordinates");
 						continue;
 					}
-
-                    //_LOG_NFO("x_delta==%d, y_delta==%d", x_delta, y_delta);
-                    // read the actual position for window_wm
-                    if (! Window_GetGeometry(window_wm, &x_wm, &y_wm, &w_wm, &h_wm))
-                    {
+					//_LOG_NFO("x_delta==%d, y_delta==%d", x_delta, y_delta);
+					// read the actual position for window_wm
+					if (! Window_GetGeometry(window_wm, &x_wm, &y_wm, &w_wm, &h_wm))
+					{
 #ifdef DEBUG
-                        _LOG_ERR("get delta Window_GetGeometry(window_wm) => retCode==false");
+						_LOG_ERR("get delta Window_GetGeometry(window_wm) => retCode==false");
 #endif
-                        continue;
-                    }
-                    _LOG_NFO("window_wm==%d => pos==(%d, %d, %d, %d)", window_wm, x_wm, y_wm, w_wm, h_wm);
-					_LOG_NFO("deltax %d, deltay %d", x_delta, y_delta);
+						continue;
+					}
+					//_LOG_NFO("window_wm==%d => pos==(%d, %d, %d, %d)", window_wm, x_wm, y_wm, w_wm, h_wm);
 
-                    // compute the new coordinates
-                    window_req = window_wm;
-                    x_req = nPosX - x_delta;
-                    y_req = nPosY - y_delta;
-                    w_req = w_wm;
-                    h_req = h_wm;
 
-		    if(x_req < 0)
-		    	x_req = 0;
-
-		    if(y_req < 0)
-			y_req = 0;
-                }
-            }
-            // real call
-            _LOG_NFO("window_req==%d => pos==(%d, %d, %d, %d)", window_req, x_req, y_req, w_req, h_req);
-            xcode = XMoveResizeWindow(GetDisplay(), window_req, x_req, y_req, w_req, h_req);
-            usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
-            Sync();
-            if (xcode != True)
-            {
+					// compute the new coordinates
+					window_req = window_wm;
+					x_req = nPosX - x_delta;
+					y_req = nPosY - y_delta;
+					w_req = w_wm;
+					h_req = h_wm;
+				}
+			}
+			// real call
+			//_LOG_NFO("window_req==%d => pos==(%d, %d, %d, %d)", window_req, x_req, y_req, w_req, h_req);
+			xcode = XMoveResizeWindow(GetDisplay(), window_req, x_req, y_req, w_req, h_req);
+			usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
+			Sync();
+			if (xcode != True)
+			{
 #ifdef DEBUG
-                _LOG_WRN("XMoveResizeWindow() => retCode==%d", xcode);
+				_LOG_WRN("XMoveResizeWindow() => retCode==%d", xcode);
 #endif
-                continue;
-            }
-            //_LOG_NFO("XMoveResizeWindow() => retCode==%d", xcode);
-            // read the actual position
-            if (! Window_GetGeometry(window, &x, &y, &w, &h))
-            {
+				continue;
+			}
+			//_LOG_NFO("XMoveResizeWindow() => retCode==%d", xcode);
+			// read the actual position
+			if (! Window_GetGeometry(window, &x, &y, &w, &h))
+			{
 #ifdef DEBUG
-                _LOG_WRN("Window_GetGeometry() => retCode==false");
+				_LOG_WRN("Window_GetGeometry() => retCode==false");
 #endif
-                continue;
-            }
-
-            bGoodPos = ( (x==nPosX) && (y==nPosY) && (w==nWidth) && (h==nHeight) );
-            //_LOG_NFO("bGoodPos==%d", bGoodPos);
-            // read the actual position for window_wm
-            if (bUse_WM_Window)
-            {
-                if (! Window_GetGeometry(window_wm, &x_wm, &y_wm, &w_wm, &h_wm))
-                {
+				continue;
+			}
+			//_LOG_NFO("window==%d => pos==(%d, %d, %d, %d)", window, x, y, w, h);
+			bGoodPos = ( (x==nPosX) && (y==nPosY) && (w==nWidth) && (h==nHeight) );
+			//_LOG_NFO("bGoodPos==%d", bGoodPos);
+			// read the actual position for window_wm
+			if (bUse_WM_Window)
+			{
+				if (! Window_GetGeometry(window_wm, &x_wm, &y_wm, &w_wm, &h_wm))
+				{
 #ifdef DEBUG
-                    _LOG_ERR("Window_GetGeometry(window_wm) => retCode==false");
+					_LOG_ERR("Window_GetGeometry(window_wm) => retCode==false");
 #endif
-                    continue;
-                }
+					continue;
+				}
 
-                bGoodPos_wm = ( (x_req==x_wm) && (y_req==y_wm) && (w_req==w_wm) && (h_req==h_wm) );
-                //_LOG_NFO("bGoodPos_wm==%d", bGoodPos_wm);
-                // check the real position
-                if (bGoodPos && bGoodPos_wm)
-                {
+				bGoodPos_wm = ( (x_req==x_wm) && (y_req==y_wm) && (w_req==w_wm) && (h_req==h_wm) );
+				//_LOG_NFO("bGoodPos_wm==%d", bGoodPos_wm);
+				// check the real position
+				if (bGoodPos && bGoodPos_wm)
+				{
 #ifdef DEBUG
-                    _LOG_NFO("both correct : window==%d pos(%d, %d, %d, %d), window_wm==%d pos==(%d, %d, %d, %d)",
-                             window, x, y, w, h,
-                             window_wm, x_wm, y_wm, w_wm, h_wm);
+					_LOG_NFO("both correct : window==%d pos(%d, %d, %d, %d), window_wm==%d pos==(%d, %d, %d, %d)",
+						window, x, y, w, h,
+						window_wm, x_wm, y_wm, w_wm, h_wm);
 #endif
 					break;
-                }
+				}
 
-            }
-            // check the real position
-            if (bGoodPos)
-            {
+			}
+			// check the real position
+			if (bGoodPos)
+			{
 #ifdef DEBUG
-                _LOG_NFO("correct : window==%d pos(%d, %d, %d, %d)", window, x, y, w, h);
+				_LOG_NFO("correct : window==%d pos(%d, %d, %d, %d)", window, x, y, w, h);
 #endif
-                break;
-            }
-        }
-    } while ((xcode = 0));
-    if (!bGoodPos && !bGoodPos_wm)
-	{
-	        _LOG_WRN("cannot re-position window==%d", window);
-		return true;
-	}
+				break;
+			}
+		}
+	} while ((xcode = 0));
+	if (!bGoodPos && !bGoodPos_wm)
+		_LOG_ERR("cannot re-position window==%d", window);
 
-    return (bGoodPos || bGoodPos_wm);
+	return true;
+//	return (bGoodPos || bGoodPos_wm);
 }
 
 bool X11wrapper::Window_ClassName(Window window, const char *s_class, const char *s_name)
@@ -1305,19 +1311,17 @@ bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsi
             }
             Sync();
         }
-        window = Window_Create_Show(nPosX, nPosY, nWidth, nHeight, 0);
+        window = Window_Create_Show(nPosX, nPosY, nWidth, nHeight, 0, true);
         if (window <= 0)
             _LOG_XERROR_BREAK("cannot create window");
-        if (! Mouse_Grab(window_grab, window))
-            _LOG_XERROR_BREAK("cannot grab pointer");
-        if (! Window_ClassName(window, "constrain_mouse", "constrain_mouse"))
+		if (! Window_SetOpacity(window, 1))
+			_LOG_WRN("cannot set opacity");
+		if (! Window_ClassName(window, "constrain_mouse", "constrain_mouse"))
             _LOG_XERROR_BREAK("cannot set window class");
         if (! Window_Name(window, "constrain_mouse"))
             _LOG_XERROR_BREAK("cannot set window name");
-        if (! Window_SetOpacity(window, 1))
-            _LOG_WRN("cannot set opacity");
-        if (! Window_Lower(window))
-            _LOG_WRN("cannot lower window");
+		if (! Mouse_Grab(window_grab, window))
+			_LOG_XERROR_BREAK("cannot grab pointer");
         // done
         previous_mouse_constrain.window_grab = window_grab;
         previous_mouse_constrain.nPosX = nPosX;

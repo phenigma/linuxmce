@@ -146,7 +146,7 @@ public:
     Window Window_Create(int nPosX, int nPosY, unsigned int nWidth, unsigned int nHeight, Window parent_window=None);
 
     // create the window, show it and correct the position
-    Window Window_Create_Show(int nPosX, int nPosY, unsigned int nWidth, unsigned int nHeight, Window parent_window=None);
+    Window Window_Create_Show(int nPosX, int nPosY, unsigned int nWidth, unsigned int nHeight, Window parent_window=None, bool bSendToDesktop = false);
 
     // close a window
     bool Window_Destroy(Window window);
