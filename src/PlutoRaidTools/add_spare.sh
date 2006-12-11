@@ -19,6 +19,6 @@ mdadm --manage --add $Raid $Disk
 Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = $RaidDevice and FK_DeviceData = $NO_DISK_ID"
 noDisks=$(RunSQL "$Q")
 noDisks=$(($noDisks+1))
-Q="UPDATE Device_DeviceData SET IK_DeviceData = $noDisk WHERE FK_Device = $RaidDevice and FK_DeviceData = $NO_DISK_ID"
+Q="UPDATE Device_DeviceData SET IK_DeviceData = $noDisks WHERE FK_Device = $RaidDevice and FK_DeviceData = $NO_DISK_ID"
 $(RunSQL "$Q")
 
