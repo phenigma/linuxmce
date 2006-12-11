@@ -88,7 +88,8 @@ bool Xine_Player::GetConfig()
 	{
 		bool bResult = FileUtils::WriteBufferIntoFile( sFileName, sNbdClient.c_str(), sNbdClient.size() );
 		ProcessUtils::SpawnApplication("/etc/init.d/nbd-client", "restart", "Start nbd client", NULL, true, true);
-		g_pPlutoLogger->Write(LV_WARNING,"Wrote nbd-client file %d",(int) bResult);
+		g_pPlutoLogger->Write(LV_WARNING,"Wrote nbd-client file %d.  changed from %s to %s",
+			(int) bResult,(pPtr ? pPtr : "*NONE*\n"),sNbdClient.c_str());
 	}
 
 	delete pPtr;

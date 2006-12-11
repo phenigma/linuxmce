@@ -96,7 +96,8 @@ bool Disk_Drive::GetConfig()
 	{
 		bool bResult = FileUtils::WriteBufferIntoFile( sFileName, sNbdServer.c_str(), sNbdServer.size() );
 		ProcessUtils::SpawnApplication("/etc/init.d/nbd-server", "restart", "Start nbd server", NULL, true, true);
-		g_pPlutoLogger->Write(LV_WARNING,"Wrote nbd-server file %d",(int) bResult);
+		g_pPlutoLogger->Write(LV_WARNING,"Wrote nbd-server file %d chaged from %s to %s",
+			(int) bResult,(pPtr ? pPtr : "*NONE*\n"),sNbdServer.c_str());
 	}
 
 	delete pPtr;

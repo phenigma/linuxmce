@@ -96,7 +96,7 @@ g_pPlutoLogger->Write(LV_STATUS,"const %p %d",this,drDesignObj->PK_DesignObj_get
     m_pRow_Device_Goto=NULL;
     m_DesignObj_GeneratorGoto=NULL;
     m_pOrbiterGenerator=pGenerator;
-    m_bRendered=false;
+    m_bProcessed=m_bRendered=false;
 	m_bUseOCG=pGenerator->m_bUseOCG;
 	m_bIsPopup=false;
 	m_PK_DesignObj_Goto=0;
@@ -297,6 +297,10 @@ int k=2;
 	
 void DesignObj_Generator::Process()
 {
+	if( m_bProcessed )  // Don't process anything twice
+		return;
+	m_bProcessed = true;
+
 	HandleAdjustments();
 	for(int GraphicType=1;GraphicType<=4;++GraphicType)
     {
@@ -915,6 +919,7 @@ int k=2;
 								rectangle,this,false,false,false);  // See if it will fill in the wdith/height automatically
 							if( pDesignObj_Generator->m_pRow_DesignObjVariation )
 							{
+								pDesignObj_Generator->Process(); // Process this now
 								pDesignObj_Generator->m_bCanBeHidden = false;
 								pDesignObj_Generator->m_bHideByDefault = false;
 								pDesignObj_Generator->m_bChildrenBeforeText = false;

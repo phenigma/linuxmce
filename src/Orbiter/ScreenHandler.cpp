@@ -2003,8 +2003,8 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 					m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder + "user_" + StringUtils::itos(m_pOrbiter->m_dwPK_Users) + "/data/" + sSubDir + "/";
 
 					//also append the user
-					m_sSaveFile_Command += " " + StringUtils::ltos(COMMANDPARAMETER_Name_CONST) + 
-						" " + "<%=" + StringUtils::ltos(VARIABLE_Seek_Value_CONST) + "%>";
+//  this is wrong.  there's no quotes, and it's the filename, not the username					m_sSaveFile_Command += " " + StringUtils::ltos(COMMANDPARAMETER_Name_CONST) + 
+//						" " + "<%=" + StringUtils::ltos(VARIABLE_Seek_Value_CONST) + "%>";
 				} 
 
 				if(m_bSaveFile_Advanced_options)

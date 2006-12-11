@@ -44,6 +44,9 @@ string TranslateSerialUSB(string sInput,string sIPAddress)
 
 	vector<string> vectStr;
 	FileUtils::ReadFileIntoVector(tmpFile,vectStr);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB Cmd %s size %d",sCmd.c_str(),(int) vectStr.size());
+#endif
 	for(vector<string>::iterator it=vectStr.begin();it!=vectStr.end();++it)
 	{
 		if( (*it).find(sPciId)!=string::npos )
