@@ -215,7 +215,8 @@ elif [[ -n "$UpdateVideoDriver" && "$DisplayDriver" != "$CurrentDisplayDriver" ]
 fi
 
 /usr/pluto/bin/X-UpdateModules.sh --conffile "$ConfigFile" --driver "$DisplayDriver"
-OpenGL=$(OpenGLeffects)
+#OpenGL=$(OpenGLeffects)
+OpenGL=$(AlphaBlendingEnabled)
 awk -v"OpenGL=$OpenGL" -f/usr/pluto/bin/X-UI_Sections.awk "$ConfigFile" >"$ConfigFile.$$"
 mv "$ConfigFile"{.$$,}
 
