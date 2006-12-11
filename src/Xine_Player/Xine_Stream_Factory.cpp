@@ -269,9 +269,6 @@ void Xine_Stream_Factory::setAudioSettings()
 		switch (sAudioSettings[i])
 		{
 		case 'C':
-			sAlsaFrontDevice = "asym_spdif";
-			break;
-		
 		case 'O':
 			sAlsaFrontDevice = "asym_spdif";
 			sSpeakersArrangement = "Pass Through";
