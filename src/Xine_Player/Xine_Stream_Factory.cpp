@@ -269,19 +269,28 @@ void Xine_Stream_Factory::setAudioSettings()
 		switch (sAudioSettings[i])
 		{
 		case 'C':
-		case 'O':
 			sAlsaFrontDevice = "asym_spdif";
 			break;
+		
+		case 'O':
+			sAlsaFrontDevice = "asym_spdif";
+			sSpeakersArrangement = "Pass Through";
+			break;
+		
 		case 'S':
+		
 		case 'L':
 			sAlsaFrontDevice = "plughw:0";
 			break;
+		
 		case '3':
 			sSpeakersArrangement = "Pass Through";
 			break;
+		
 		case 'M':
 			updateConfig = false;
 			break;
+		
 		default:
 			g_pPlutoLogger->Write( LV_STATUS, "Unknown audio settings flag: '%c'", sAudioSettings[i]);
 		}
