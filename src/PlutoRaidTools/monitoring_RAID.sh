@@ -13,9 +13,9 @@ SPARE_ID=202
 date=$(date)
 
 if [[ -z $device ]]; then
-	echo "($date) Catched event $event for $md" >> /tmp/raid_monitoring
+	echo "($date) Catched event $event for $md" >> /var/log/pluto/RAID_monitoring.log
 else	
-	echo "($date) Catched event $event for $device from $md" >> /tmp/raid_monitoring
+	echo "($date) Catched event $event for $device from $md" >> /var/log/pluto/RAID_monitoring.log
 fi
 
 case "$event" in
