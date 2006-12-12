@@ -559,8 +559,8 @@ bool Xine_Stream_Factory::CreateWindows()
 	//m_iCurrentScreen = iScreens-1;
 	xpos = 10;
 	ypos = 20;
-	width = 5;
-	height = 5;
+	width = 100;
+	height = 100;
 	int border = 0;
 
 	windows[ 0 ] = XCreateSimpleWindow( m_pXDisplay, XDefaultRootWindow( m_pXDisplay ), xpos, ypos, width, height, border, 0, 0 );
