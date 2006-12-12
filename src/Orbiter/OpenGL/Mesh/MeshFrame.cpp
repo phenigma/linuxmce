@@ -87,8 +87,6 @@ void MeshFrame::MarkAsVolatile()
 
 	if(!VolatilesOnly)
 		Children.clear();
-
-	Volatile_ = false;
 }
 
 void MeshFrame::SetMeshContainer(MeshContainer* Mesh)
