@@ -26,6 +26,11 @@ function mediaDirectors($output,$dbADO) {
 		"Higher" => "tvtime:method=Greedy2Frame,enabled=1,pulldown=vektor,framerate_mode=full,judder_correction=0,use_progressive_frame_flag=1,chroma_filter=0,cheap_mode=0",
 		"Highest" => "tvtime:method=Greedy2Frame,enabled=1,pulldown=vektor,framerate_mode=full,judder_correction=1,use_progressive_frame_flag=1,chroma_filter=1,cheap_mode=0",
 		"Custom"=>"*"));
+	$uiArray=array(
+		'001'=>'UI1',
+		'114'=>'UI2 with alpha blending',
+		'104'=>'UI2 without alpha blending'
+	);	
 	$infraredReceiversArray=getDescendantsForCategory($GLOBALS['InfraredReceivers'],$dbADO);
 		
 	
@@ -258,7 +263,11 @@ function mediaDirectors($output,$dbADO) {
 					if($orbiterMDChild){
 						$soundDevice=getSubDT($rowD['PK_Device'],$GLOBALS['SoundCards'],$dbADO);
 						$videoDevice=getSubDT($rowD['PK_Device'],$GLOBALS['VideoCards'],$dbADO);
+						
+						$openGL=getDeviceData($orbiterMDChild,$GLOBALS['UseOpenGLeffects'],$dbADO);
 						$alphaBlended=getDeviceData($orbiterMDChild,$GLOBALS['UsealphablendedUI'],$dbADO);
+						$ui=getDeviceData($orbiterMDChild,$GLOBALS['DD_PK_UI'],$dbADO);
+						$uiSelected=(int)$openGL.(int)$alphaBlended.(int)$ui;
 						
 						// if deinterlaced mode is custom, replace with * for pulldown
 						$raw_diq=get_child_device_data($orbiterMDChild,$GLOBALS['DeinterlacingMode'],$dbADO);
@@ -301,8 +310,8 @@ function mediaDirectors($output,$dbADO) {
 											<td><B>'.$TEXT_HARDWARE_ACCELERATION_CONST.'</B></td>
 											<td>'.pulldownFromArray($GLOBALS['hardware_acceleration'],'acceleration_'.$rowD['PK_Device'],getAcceleration($orbiterMDChild,$dbADO),'','key','').'</td>
 											<td width="20">&nbsp;</td>
-											<td><B>'.$TEXT_USE_ALPHA_BLENDED_UI_CONST.'</B></td>
-											<td><input type="checkbox" name="alpha_blended_'.$rowD['PK_Device'].'" value="1" '.(($alphaBlended==1)?'checked':'').'></td>
+											<td><B>'.$TEXT_UI_CONST.'</B></td>
+											<td>'.pulldownFromArray($uiArray,'ui_'.$rowD['PK_Device'],$uiSelected).'</td>
 										</tr>
 										<tr>
 											<td><B>'.$TEXT_INFRARED_REMOTES_YOU_WILL_USE_CONST.'</B></td>
@@ -497,7 +506,7 @@ function mediaDirectors($output,$dbADO) {
 					if($_REQUEST['diq_'.$value]!='*'){
 						set_child_device_data($orbiterMDChild,$GLOBALS['DeinterlacingMode'],cleanString($_REQUEST['diq_'.$value]),$dbADO);
 					}
-					setAlphaBlend($orbiterMDChild,(int)@$_REQUEST['alpha_blended_'.$value],$dbADO);
+					setUI($orbiterMDChild,@$_REQUEST['ui_'.$value],$dbADO);
 					
 					// add/delete PVR Capture Card, sound card and video card
 					
@@ -650,20 +659,22 @@ function isDiskless($deviceID,$deviceData){
 	return false;
 }
 
-function setAlphaBlend($orbiterID,$alphaBlend,$dbADO){
+function setUI($orbiterID,$ui,$dbADO){
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 
-	$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array($alphaBlend,$orbiterID,$GLOBALS['UsealphablendedUI']));
-	$count=$dbADO->Affected_Rows();
-	if($alphaBlend==1){
-		$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array(4,$orbiterID,$GLOBALS['DD_PK_UI']));
-		$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array(1,$orbiterID,$GLOBALS['UseOpenGLeffects']));
-	}else{
-		$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array(1,$orbiterID,$GLOBALS['DD_PK_UI']));
-		$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array(0,$orbiterID,$GLOBALS['UseOpenGLeffects']));
-	}
-	if($count>0){
+	$openGL=substr($ui,0,1);
+	$alphaBlended=substr($ui,1,1);
+	$PK_UI=substr($ui,2,1);
+	
+	$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array($openGL,$orbiterID,$GLOBALS['UseOpenGLeffects']));
+	$changedGL=$dbADO->Affected_Rows();
+	$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array($alphaBlended,$orbiterID,$GLOBALS['UsealphablendedUI']));
+	$changedAB=$dbADO->Affected_Rows();
+	$dbADO->Execute("UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?",array($PK_UI,$orbiterID,$GLOBALS['DD_PK_UI']));
+	$changedUI=$dbADO->Affected_Rows();
+	
+	if($changedGL>0 || $changedAB>0 || $changedUI>0){
 		// full regen the orbiter
 		$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$orbiterID.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$orbiterID.' 21 "-r"';
 		exec_batch_command($commandToSend);

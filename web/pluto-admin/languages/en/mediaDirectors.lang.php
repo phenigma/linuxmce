@@ -28,4 +28,5 @@ $TEXT_USE_ALPHA_BLENDED_UI_CONST='Use alpha blended UI';
 $TEXT_DEINTERLACE_QUALITY_CONST='Deinterlace Quality';
 $TEXT_SCREEN_SAVER_CONST='Screen saver';
 $TEXT_SOFTWARE_MODULES_CONST='Software modules';
+$TEXT_UI_CONST='UI';
 ?>
