@@ -47,17 +47,23 @@ using namespace std;
 using namespace DCE;
 
 #include "pluto_media/Database_pluto_media.h"
-
+//-----------------------------------------------------------------------------------------------------
+char *MediaSyncModeStr[] =
+{
+	"modeNone",
+	"modeDbToFile",
+	"modeFileToDb",
+	"modeBoth"
+};
 //-----------------------------------------------------------------------------------------------------
 //
 //  PlutoMediaFile class
 //
 //-----------------------------------------------------------------------------------------------------
-bool PlutoMediaFile::m_bSyncFilesOnly = false;
-bool PlutoMediaFile::m_bSyncId3Files = true;
+MediaSyncMode PlutoMediaFile::m_DefaultMediaSyncMode = modeBoth;
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation, 
-							   string sDirectory, string sFile, bool bIsDir/* = false*/) 
+	string sDirectory, string sFile) : m_MediaSyncMode(modeBoth), m_pPlutoMediaAttributes(NULL)
 {
 	//initializations
     m_pDatabase_pluto_media = pDatabase_pluto_media;
@@ -65,7 +71,6 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
     m_sFile = sFile;
 	m_nOurInstallationID = PK_Installation;
 	m_nPK_MediaType = 0;
-	m_bIsDir = bIsDir;
 
 	string sFilePath = sDirectory + "/" + sFile;
 
@@ -82,6 +87,13 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 	g_pPlutoLogger->Write(LV_WARNING, "# PlutoMediaFile STARTED: dir %s file %s", 
 		m_sDirectory.c_str(), m_sFile.c_str());
 
+	if(m_bIsDir)
+	{
+		if(NULL == m_pPlutoMediaAttributes)
+			m_pPlutoMediaAttributes = new PlutoMediaAttributes();
+		return;
+	}
+
 	//get the path to id3 file
 	string sAttributeFile = FileWithAttributes(false);
 	string sAttributeFullFilePath = m_sDirectory + "/" + sAttributeFile;
@@ -90,7 +102,7 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 	g_pPlutoLogger->Write(LV_STATUS, "Processing path %s, file %s. Found %d attributes in id3 file", 
 		m_sDirectory.c_str(), m_sFile.c_str(), m_pPlutoMediaAttributes->m_mapAttributes.size());
 
-	if(!IsSupported(m_sFile) && !bIsDir)
+	if(!IsSupported(m_sFile) && !m_bIsDir)
 	{
 		string sLegacyId3File = FileUtils::FileWithoutExtension(m_sDirectory + "/" + m_sFile) + ".id3";
 		if(FileUtils::FileExists(sLegacyId3File))
@@ -105,42 +117,36 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::~PlutoMediaFile()
 {
-	if(!m_bSyncFilesOnly)
+	if(m_MediaSyncMode == modeDbToFile || m_MediaSyncMode == modeBoth)
 	{
+		//Save everything in id3 file
+		SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes());
+	}
+
+	if(m_MediaSyncMode == modeFileToDb || m_MediaSyncMode == modeBoth)
+	{
+		//Save everything in db
 		SyncDbAttributes();
-		AssignPlutoDevice();
+	}
+
+	if(m_MediaSyncMode == modeDbToFile)
+		g_pPlutoLogger->Write(LV_STATUS, "Being called from pluto-admin. We won't add attributes back in db.");
 
 #ifdef UPDATE_MEDIA
-		if(0 != m_nPK_MediaType)
-		{
-			string sDbTimestamp;
-			int nAttributesCount;
-			MediaState::Instance().ReadDbInfo(m_pDatabase_pluto_media, m_pPlutoMediaAttributes->m_nFileID, sDbTimestamp, nAttributesCount);
-			string sFileTimestamp;
-			MediaState::Instance().ReadFileInfo(make_pair(m_sDirectory, m_sFile), sFileTimestamp);
+	if(NULL != m_pPlutoMediaAttributes)
+	{
+		if(!m_pPlutoMediaAttributes->m_nFileID)
+			m_pPlutoMediaAttributes->m_nFileID = GetFileIDFromDB();
 
-			MediaState::Instance().UpdateDbStateForFile(m_pPlutoMediaAttributes->m_nFileID, nAttributesCount, sDbTimestamp);
-			MediaState::Instance().UpdateFileSystemStateForFile(make_pair(m_sDirectory, m_sFile), m_pPlutoMediaAttributes->m_nFileID, sFileTimestamp);
-		}
-#endif
+		MediaState::Instance().FileSynchronized(m_pDatabase_pluto_media, m_sDirectory, m_sFile, 
+			m_pPlutoMediaAttributes->m_nFileID, m_MediaSyncMode);
 	}
-	else
-		g_pPlutoLogger->Write(LV_STATUS, "Being called from pluto-admin. We won't add attributes back in db.");
+#endif
 
 	delete m_pPlutoMediaAttributes;
 
-	g_pPlutoLogger->Write(LV_STATUS, "# PlutoMediaFile ENDED: dir %s file %s", 
-		m_sDirectory.c_str(), m_sFile.c_str());
-}
-//-----------------------------------------------------------------------------------------------------
-/*static*/ void PlutoMediaFile::SetupSyncFilesOnly(bool bSyncFilesOnly) 
-{ 
-	m_bSyncFilesOnly = bSyncFilesOnly; 
-}
-//-----------------------------------------------------------------------------------------------------
-/*static*/ void PlutoMediaFile::SetupSyncId3Files(bool bSyncId3Files)
-{
-	m_bSyncId3Files = bSyncId3Files;
+	g_pPlutoLogger->Write(LV_STATUS, "# PlutoMediaFile ENDED: dir %s file %s, sync mode %s", 
+		m_sDirectory.c_str(), m_sFile.c_str(), MediaSyncModeStr[m_MediaSyncMode]);
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ bool PlutoMediaFile::IsSupported(string sFileName)
@@ -160,7 +166,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 
     // Nope.  It's either a new file, or it was moved here from some other directory.  If so,
     // then the the attribute should be set.
-    int PK_File = GetFileAttribute(false);
+    int PK_File = GetFileAttribute();
 	g_pPlutoLogger->Write(LV_STATUS, "%s/%s not IN db-attr: %d", m_sDirectory.c_str(), m_sFile.c_str(), PK_File);
 
     if(!PK_File)
@@ -330,7 +336,7 @@ void PlutoMediaFile::SyncDbAttributes()
 
 		if(!bAttributeAlreadyAdded)
 		{
-			if(pPlutoMediaAttribute->m_nType > 0)
+			if(pPlutoMediaAttribute->m_nType > 0 && !StringUtils::WhiteSpace(pPlutoMediaAttribute->m_sName))
 			{
 				MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
 				Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(m_nPK_MediaType,
@@ -364,6 +370,8 @@ void PlutoMediaFile::SyncDbAttributes()
 			}
 		}
 	}
+
+	AssignPlutoDevice();
 }
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
@@ -451,7 +459,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 	{
 		PlutoMediaAttribute *pPlutoMediaAttribute = it->second;
 
-		if(pPlutoMediaAttribute->m_nType > 0)
+		if(pPlutoMediaAttribute->m_nType > 0 && !StringUtils::WhiteSpace(pPlutoMediaAttribute->m_sName))
 		{
 			MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
 			Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(PK_MediaType,
@@ -518,9 +526,6 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		}
 	}
 
-	//Save everything in id3 file
-	SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes());
-
 	g_pPlutoLogger->Write(LV_STATUS, "Added %s/%s to db with PK_File = %d", m_sDirectory.c_str(), m_sFile.c_str(),
 		pRow_File->PK_File_get());
 
@@ -562,12 +567,9 @@ void PlutoMediaFile::SetFileAttribute(int PK_File)
 	//make sure it's our installation and file
 	m_pPlutoMediaAttributes->m_nInstallationID = m_nOurInstallationID;
 	m_pPlutoMediaAttributes->m_nFileID = PK_File;
-
-	//save 'em
-	SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes());
 }
 //-----------------------------------------------------------------------------------------------------
-int PlutoMediaFile::GetFileAttribute(bool)
+int PlutoMediaFile::GetFileAttribute()
 {
 	if(m_pPlutoMediaAttributes->m_nInstallationID == m_nOurInstallationID && m_pPlutoMediaAttributes->m_nFileID != 0)
 	{
@@ -596,9 +598,17 @@ void PlutoMediaFile::SetPicAttribute(int PK_Picture, string sPictureUrl)
 	//set the right picture id and picture url
 	m_pPlutoMediaAttributes->m_nPictureID = PK_Picture;
 	m_pPlutoMediaAttributes->m_sPictureUrl = sPictureUrl;
-
-	//save 'em
-	SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes());
+}
+//-----------------------------------------------------------------------------------------------------
+int PlutoMediaFile::GetFileIDFromDB()
+{
+	vector<Row_File *> vectRow_File;
+	m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(m_sDirectory) + 
+		"' AND Filename='" + StringUtils::SQLEscape(m_sFile) + "'", &vectRow_File);
+	if( vectRow_File.size() )
+		return vectRow_File[0]->PK_File_get();
+	else
+		return 0;  // Can do nothing.  This isn't in the database
 }
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::GetPicAttribute(int PK_File)
@@ -607,16 +617,10 @@ int PlutoMediaFile::GetPicAttribute(int PK_File)
 
 	//got the file in the database?
     if(!PK_File)
-    {
-        vector<Row_File *> vectRow_File;
-        m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(m_sDirectory) + 
-            "' AND Filename='" + StringUtils::SQLEscape(m_sFile) + "'",
-            &vectRow_File);
-        if( vectRow_File.size() )
-            PK_File = vectRow_File[0]->PK_File_get();
-        else
-            return 0;  // Can do nothing.  This isn't in the database
-    }
+	{
+		PK_File = GetFileIDFromDB();
+		m_pPlutoMediaAttributes->m_nFileID = PK_File;
+	}
 
 	//got any picture associated with the file?
     vector<Row_Picture_File *> vectPicture_File;
@@ -738,7 +742,7 @@ string PlutoMediaFile::FileWithAttributes(bool bCreateId3File)
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SavePlutoAttributes(string sFullFileName)
 {
-	if(!m_bSyncId3Files)
+	if(m_MediaSyncMode == modeFileToDb)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "# NOT saving attributes in id3 files. Read only mode!");
 		return;
@@ -952,7 +956,7 @@ void PlutoMediaFile::LoadAttributesFromDB(string, int PK_File)
 
 			bool bAttributeAlreadyAdded = false;
 
-			if(m_bSyncFilesOnly)
+			if(m_MediaSyncMode == modeDbToFile) 
 			{
 				mapDBAttributes.insert(std::make_pair(nFK_AttributeType, 
 					new PlutoMediaAttribute(nFK_AttributeType, sName, nTrack, nSection)));
@@ -989,7 +993,7 @@ void PlutoMediaFile::LoadAttributesFromDB(string, int PK_File)
 		}
 	}
 
-	if(m_bSyncFilesOnly)
+	if(m_MediaSyncMode == modeDbToFile)
 	{
 		//we need to check here if any attribute was deleted from website in order to delete it from 
 		//file's attribute too.

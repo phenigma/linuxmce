@@ -86,13 +86,20 @@ void PlutoMediaAttributes::SetupSerialization(int iSC_Version)
 	StartSerializeList() + m_nInstallationID + m_nFileID + m_nPictureID + m_sPictureUrl;
 	
 	(*this) + m_mapAttributes;
-
-	(*(static_cast<SerializeClass *>(this))) + (m_sStartPosition);
+	(*(static_cast<SerializeClass *>(this))) + m_sStartPosition;
+	//(*this) + m_mmapBookmarks;
+	//(*this) + m_mmapCoverArts;
 }
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaAttributes &PlutoMediaAttributes::operator+ (MapPlutoMediaAttributes &i) 
 { 
 	m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_MAP_PLUTOMEDIAATTRBUTE,(void *) &i)); 
+	return (*this); 
+}
+//-----------------------------------------------------------------------------------------------------
+PlutoMediaAttributes &PlutoMediaAttributes::operator+ (MapPictures &i) 
+{ 
+	m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_MULTIMAP_PICTURES,(void *) &i)); 
 	return (*this); 
 }
 //-----------------------------------------------------------------------------------------------------
@@ -104,38 +111,66 @@ bool PlutoMediaAttributes::UnknownSerialize(ItemToSerialize *pItem,bool bWriting
 	{
 		switch(pItem->m_iSerializeDataType)
 		{
-		case SERIALIZE_DATA_TYPE_MAP_PLUTOMEDIAATTRBUTE:
-			{
-				MapPlutoMediaAttributes *pMap = (MapPlutoMediaAttributes *) pItem->m_pItem;
-				Write_unsigned_long((unsigned long) pMap->size());
-				for(MapPlutoMediaAttributes::iterator it = pMap->begin(); it!=pMap->end(); ++it)
+			case SERIALIZE_DATA_TYPE_MAP_PLUTOMEDIAATTRBUTE:
 				{
-					Write_long((unsigned long) it->first);
-					it->second->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+					MapPlutoMediaAttributes *pMap = (MapPlutoMediaAttributes *) pItem->m_pItem;
+					Write_unsigned_long((unsigned long) pMap->size());
+					for(MapPlutoMediaAttributes::iterator it = pMap->begin(); it!=pMap->end(); ++it)
+					{
+						Write_long((unsigned long) it->first);
+						it->second->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+					}
+					return true;  // We handled it
 				}
-				return true;  // We handled it
-			}
-			break;
+				break;
+
+			case SERIALIZE_DATA_TYPE_MULTIMAP_PICTURES:
+				{
+					MapPictures *pMap = (MapPictures *) pItem->m_pItem;
+					Write_unsigned_long((unsigned long) pMap->size());
+					for(MapPictures::iterator it = pMap->begin(); it!=pMap->end(); ++it)
+					{
+						Write_unsigned_long(it->first);
+						Write_block(it->second, it->first);
+					}
+					return true;  // We handled it
+				}
+				break;
 		};
 	}
 	else
 	{
 		switch(pItem->m_iSerializeDataType)
 		{
-		case SERIALIZE_DATA_TYPE_MAP_PLUTOMEDIAATTRBUTE:
-			{
-				MapPlutoMediaAttributes *pMap = (MapPlutoMediaAttributes *) pItem->m_pItem;
-				unsigned long count = Read_unsigned_long();
-				for(unsigned long i = 0; i<count; ++i)
+			case SERIALIZE_DATA_TYPE_MAP_PLUTOMEDIAATTRBUTE:
 				{
-					long ID = Read_long();
-					PlutoMediaAttribute *pPlutoMediaAttribute = new PlutoMediaAttribute();
-					pPlutoMediaAttribute->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
-					pMap->insert(std::make_pair(ID, pPlutoMediaAttribute));
+					MapPlutoMediaAttributes *pMap = (MapPlutoMediaAttributes *) pItem->m_pItem;
+					unsigned long count = Read_unsigned_long();
+					for(unsigned long i = 0; i<count; ++i)
+					{
+						long ID = Read_long();
+						PlutoMediaAttribute *pPlutoMediaAttribute = new PlutoMediaAttribute();
+						pPlutoMediaAttribute->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+						pMap->insert(std::make_pair(ID, pPlutoMediaAttribute));
+					}
+					return true;  // We handled it
 				}
-				return true;  // We handled it
-			}
-			break;
+				break;
+
+			case SERIALIZE_DATA_TYPE_MULTIMAP_PICTURES:
+				{
+					MapPictures *pMap = (MapPictures *) pItem->m_pItem;
+					unsigned long count = Read_unsigned_long();
+					for(unsigned long i = 0; i<count; ++i)
+					{
+                        unsigned long size = Read_unsigned_long();
+						char *pData = Read_block(size);
+						if(NULL != pData)
+							pMap->insert(std::make_pair(size, pData));
+					}
+					return true;  // We handled it
+				}
+				break;
 		};
 	}
 

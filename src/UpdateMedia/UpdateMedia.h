@@ -11,8 +11,6 @@ class UpdateMedia
 	map<string,int> m_mapExtensions;
 	bool m_bAsDaemon;
 	int m_nPK_Installation;
-	MapDbStateEx m_mapCurrentDbState;
-
 	void ReadConfigFile();
 
 	//Helper method

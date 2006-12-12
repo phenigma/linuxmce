@@ -66,7 +66,7 @@ void sigtrap_hook(int sig)
 
 UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string sDirectory, bool bSyncFilesOnly)
 {
-	PlutoMediaFile::SetupSyncFilesOnly(bSyncFilesOnly);
+	PlutoMediaFile::SetDefaultSyncMode(bSyncFilesOnly ? modeDbToFile : modeBoth);
 
 #ifndef WIN32
 	signal(SIGTRAP, &sigtrap_hook);
@@ -100,10 +100,12 @@ UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string 
 	m_bAsDaemon = false;
     PlutoMediaIdentifier::Activate(m_pDatabase_pluto_main);
 
-	m_sDirectory = StringUtils::Replace(&sDirectory,"\\","/");  // Be sure no Windows \'s
-    FileUtils::ExcludeTrailingSlash(m_sDirectory);
+    m_sDirectory = FileUtils::ExcludeTrailingSlash(m_sDirectory);
 
 	SetupInstallation();
+
+	//load info about ModificationData, AttrCount, AttrDate, attributes, timestamp for all files
+	MediaState::Instance().LoadDbInfo(m_pDatabase_pluto_media, FileUtils::ExcludeTrailingSlash(m_sDirectory));
 }
 
 UpdateMedia::UpdateMedia(Database_pluto_media *pDatabase_pluto_media, 
@@ -124,8 +126,7 @@ UpdateMedia::UpdateMedia(Database_pluto_media *pDatabase_pluto_media,
 	m_bAsDaemon = true;
 	PlutoMediaIdentifier::Activate(m_pDatabase_pluto_main);
 
-    m_sDirectory = StringUtils::Replace(&sDirectory,"\\","/");  // Be sure no Windows \'s
-    FileUtils::ExcludeTrailingSlash(m_sDirectory);
+    m_sDirectory = FileUtils::ExcludeTrailingSlash(sDirectory);
 }
 
 void UpdateMedia::ReadConfigFile()
@@ -157,7 +158,7 @@ void UpdateMedia::ReadConfigFile()
 				{
 					if(sConfVal=="false" || sConfVal=="0")
 					{
-						PlutoMediaFile::SetupSyncId3Files(false);
+						PlutoMediaFile::SetDefaultSyncMode(modeFileToDb);
 					}	
 				}
 			}
@@ -181,12 +182,6 @@ void UpdateMedia::DoIt()
 	{
 		cerr << "Cannot connect to database" << endl;
 		exit(1);
-	}
-
-	if(m_bAsDaemon)
-	{
-		m_mapCurrentDbState.clear();
-		MediaState::Instance().ReadDbInfoForAllFiles(m_pDatabase_pluto_media, m_sDirectory, m_mapCurrentDbState);
 	}
 
 	ReadDirectory(m_sDirectory, !m_bAsDaemon);
@@ -229,28 +224,20 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 		}
 		
 		string sFile = *it;
+		
+		MediaSyncMode sync_mode = MediaState::Instance().SyncModeNeeded(sDirectory, sFile);
+		g_pPlutoLogger->Write(LV_STATUS, "Sync mode for %s/%s: %s", sDirectory.c_str(), sFile.c_str(), MediaSyncModeStr[sync_mode]); 
 
-		if(m_bAsDaemon)
+		if(sync_mode == modeNone)
 		{
-			MapDbStateEx::iterator itdb = m_mapCurrentDbState.find(make_pair(sDirectory, sFile));
-			if(itdb != m_mapCurrentDbState.end())
-			{
-				int nAttributesCount = itdb->second.first;
-				string sDbTimestamp = itdb->second.second;
-				string sFileTimestamp;
-				MediaState::Instance().ReadFileInfo(make_pair(sDirectory, sFile), sFileTimestamp);
+			if(m_bAsDaemon)
+				Sleep(2);
 
-				if(!MediaState::Instance().NeedsSync(sDirectory, sFile, sDbTimestamp, nAttributesCount, sFileTimestamp))
-				{
-					g_pPlutoLogger->Write(LV_STATUS, "Ignoring %s/%s (it's already sync'd)", sDirectory.c_str(), sFile.c_str()); 
-					Sleep(5);
-					continue;
-				}
-			}
-
-			g_pPlutoLogger->Write(LV_STATUS, "Processing %s/%s (it's not sync'd)", sDirectory.c_str(), sFile.c_str()); 
-			Sleep(100);
+			continue;
 		}
+		
+		if(m_bAsDaemon)
+			Sleep(5);
 
 		if(!FileUtils::FileExists(sDirectory + "/" + sFile)) //the file was just being deleted
 		{
@@ -287,6 +274,11 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
         PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation,
             sDirectory, sFile);
 
+		if(PlutoMediaFile::GetDefaultSyncMode() != modeBoth)
+            sync_mode = PlutoMediaFile::GetDefaultSyncMode();
+
+		PlutoMediaFile_.SetSyncMode(sync_mode);
+
 		// Is it in the database?
 		int PK_File=0;
 		map<string,pair<Row_File *,bool> >::iterator itMapFiles = mapFiles.find( *it );
@@ -297,7 +289,7 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 			if(!PK_File)
 			{
 				if(m_bAsDaemon)
-					Sleep(10);
+					Sleep(100);
 				
 				continue; // Nothing to do
 			}
@@ -313,7 +305,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 		}
 
         if(m_bAsDaemon)
-			Sleep(500);
+			Sleep(300);
 		
 		int PK_Picture = PlutoMediaFile_.GetPicAttribute(PK_File);
 		g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory File %d Picture %d",PK_File,PK_Picture);
@@ -352,8 +344,23 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 #endif
 	);
 
-    PlutoMediaFile PlutoMediaParentFolder(m_pDatabase_pluto_media, m_nPK_Installation,
-        FileUtils::BasePath(sDirectory),FileUtils::FilenameWithoutPath(sDirectory), true);
+	auto_ptr<PlutoMediaFile> spPlutoMediaParentFolder;
+	spPlutoMediaParentFolder.reset();
+
+	string sBaseDirectory = FileUtils::BasePath(sDirectory);
+	string sDirectoryName = FileUtils::FilenameWithoutPath(sDirectory);
+	MediaSyncMode dir_sync_mode = MediaState::Instance().SyncModeNeeded(sBaseDirectory, sDirectoryName);
+
+	if(dir_sync_mode != modeNone)
+	{
+		spPlutoMediaParentFolder.reset(new PlutoMediaFile(m_pDatabase_pluto_media, m_nPK_Installation,
+			sBaseDirectory, sDirectoryName));
+
+		if(PlutoMediaFile::GetDefaultSyncMode() != modeBoth)
+			dir_sync_mode = PlutoMediaFile::GetDefaultSyncMode();
+
+		spPlutoMediaParentFolder->SetSyncMode(dir_sync_mode);
+	}
 
 	bool bDirIsDvd = false;
 
@@ -373,16 +380,19 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 		{
              cout << sDirectory << " is a ripped dvd" << endl;
 
-			// Add this directory like it were a file
-			int PK_File = PlutoMediaParentFolder.HandleFileNotInDatabase(MEDIATYPE_pluto_DVD_CONST);
-			g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory MEDIATYPE_pluto_DVD_CONST PlutoMediaFile_.HandleFileNotInDatabase %d",PK_File);
-			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
-			pRow_File->IsDirectory_set(false);
-			m_pDatabase_pluto_media->File_get()->Commit();
+			 if(NULL != spPlutoMediaParentFolder.get())
+			 {
+				 // Add this directory like it were a file
+				 int PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(MEDIATYPE_pluto_DVD_CONST);
+				 g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory MEDIATYPE_pluto_DVD_CONST PlutoMediaFile_.HandleFileNotInDatabase %d",PK_File);
+				 Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
+				 pRow_File->IsDirectory_set(false);
+				 m_pDatabase_pluto_media->File_get()->Commit();
 
-			PlutoMediaParentFolder.SetFileAttribute(PK_File);
-			bDirIsDvd = true;
-			break; // Don't recurse anymore
+				 spPlutoMediaParentFolder->SetFileAttribute(PK_File);
+				 bDirIsDvd = true;
+				 break; // Don't recurse anymore
+			 }
 		}
 
 		map<string,pair<Row_File *,bool> >::iterator itMapFiles = mapFiles.find(FileUtils::FilenameWithoutPath(sSubDir));
@@ -395,56 +405,50 @@ cout << sFile << " exists in db as: " << PK_File << endl;
             PlutoMediaSubDir.SetFileAttribute(itMapFiles->second.first->PK_File_get());
 			continue; // This directory is already in the database 
 		}
-		
-		if(itMapFiles == mapFiles.end())
-		{
-			PlutoMediaFile PlutoMediaSubDir(m_pDatabase_pluto_media, m_nPK_Installation,
-				FileUtils::BasePath(sSubDir), FileUtils::FilenameWithoutPath(sSubDir), true);
 
-			g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory PlutoMediaSubDir.HandleFileNotInDatabase %s",sSubDir.c_str());
-			PlutoMediaSubDir.HandleFileNotInDatabase();
-		}
-
-		/*int PK_Picture = */ReadDirectory(sSubDir, bRecursive);
+		ReadDirectory(sSubDir, bRecursive);
 	}
 
-	if(!bDirIsDvd)
+	if(NULL != spPlutoMediaParentFolder.get())
 	{
-		string sBaseDirectory = FileUtils::BasePath(sDirectory);
-		string sDirectoryName = FileUtils::FilenameWithoutPath(sDirectory);
-		string SQL = "SELECT count(*) FROM File WHERE Path = '" + 
-			StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sBaseDirectory)) + "' AND "
-			" Filename = '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sDirectoryName)) + 
-			"' AND Missing = 0";
-
-		PlutoSqlResult allresult;
-		MYSQL_ROW row;
-		bool bAlreadyinDb = false;
-        if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
-        {
-        	row = mysql_fetch_row(allresult.r);
-            if(row && atoi(row[0]) > 0)
-				bAlreadyinDb = true;
-		}
-
-		if(!bAlreadyinDb)
+		if(!bDirIsDvd)
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Adding parent folder to db: %s PlutoMediaParentFolder.HandleFileNotInDatabase", sDirectory.c_str());
-			PlutoMediaParentFolder.HandleFileNotInDatabase(0);
+			string SQL = "SELECT count(*) FROM File WHERE Path = '" + 
+				StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sBaseDirectory)) + "' AND "
+				" Filename = '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sDirectoryName)) + 
+				"' AND Missing = 0";
+
+			PlutoSqlResult allresult;
+			MYSQL_ROW row;
+			bool bAlreadyinDb = false;
+			if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+			{
+				row = mysql_fetch_row(allresult.r);
+				if(row && atoi(row[0]) > 0)
+					bAlreadyinDb = true;
+			}
+
+			if(!bAlreadyinDb)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Adding parent folder to db: %s PlutoMediaParentFolder.HandleFileNotInDatabase", sDirectory.c_str());
+				spPlutoMediaParentFolder->HandleFileNotInDatabase(0);
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Parent folder already in the database: %s", sDirectory.c_str());
+			}
 		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_WARNING, "Parent folder already in the database: %s", sDirectory.c_str());
-		}
+
+		// Whatever was the first picture we found will be the one for this directory
+		int PK_Picture_Directory = spPlutoMediaParentFolder->GetPicAttribute(0);
+
+		if(PK_Picture_Directory)
+			spPlutoMediaParentFolder->SetPicAttribute(PK_Picture_Directory, "");
+
+		return PK_Picture_Directory;
 	}
 
-	// Whatever was the first picture we found will be the one for this directory
-	int PK_Picture_Directory = PlutoMediaParentFolder.GetPicAttribute(0);
-	
-	if(PK_Picture_Directory)
-		PlutoMediaParentFolder.SetPicAttribute(PK_Picture_Directory, "");
-
-	return PK_Picture_Directory;
+	return 0;
 }
 
 void UpdateMedia::UpdateSearchTokens()

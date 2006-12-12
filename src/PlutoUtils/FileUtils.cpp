@@ -421,9 +421,7 @@ void FileUtils::DelDir(string sDirectory)
 string FileUtils::BasePath( string sInput )
 {
 #ifdef WIN32
-    string::size_type s;
-    while( ( s = sInput.find('\\') ) != string::npos ) // replacing all the \ in a windows path with /
-        sInput.replace( s, 1, "/" );
+	sInput = StringUtils::Replace(sInput, "\\", "/"); // replacing all the \ in a windows path with /
 #endif
 
 	while ( sInput.length() > 0 && sInput[sInput.length() - 1] == '/')
@@ -434,6 +432,10 @@ string FileUtils::BasePath( string sInput )
         sInput = "";
     else
         sInput = sInput.substr(0, pos);
+
+#ifdef WIN32
+	sInput = StringUtils::Replace(sInput, "/", "\\"); //switch back to windows format
+#endif
 
     return sInput;
 }

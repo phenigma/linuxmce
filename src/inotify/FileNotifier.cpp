@@ -116,7 +116,6 @@ void *BackgroundWorkerThread(void *p)
 		g_pPlutoLogger->Write(LV_WARNING, "Background thread waking up...");
 
 		string sRootFolder = pFileNotifier->m_sRootFolder;
-		sRootFolder = StringUtils::Replace(&sRootFolder,"\\","/");  // Be sure no Windows \'s
 		sRootFolder = FileUtils::ExcludeTrailingSlash(sRootFolder);
 		
 		list<string> listDirsOnDisk;
@@ -129,7 +128,6 @@ void *BackgroundWorkerThread(void *p)
 				return NULL;
 
 			string sItem = *it;
-			sItem = StringUtils::Replace(&sItem,"\\","/");  // Be sure no Windows \'s
 			sItem = FileUtils::ExcludeTrailingSlash(sItem);
 
 			list<string> listFiles;

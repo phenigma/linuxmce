@@ -26,6 +26,8 @@
 #endif
 
 #include "inotify/FileNotifier.h"
+#include "PlutoMediaFile.h"
+#include "pluto_main/Table_Installation.h"
 
 #define  VERSION "<=version=>"
 
@@ -78,6 +80,10 @@ void SyncAttributes()
 void *UpdateMediaThread(void *)
 {
 	SyncAttributes();
+
+	//load info about ModificationData, AttrCount, AttrDate, attributes, timestamp for all files
+	MediaState::Instance().LoadDbInfo(g_pDatabase_pluto_media, FileUtils::ExcludeTrailingSlash(UpdateMediaVars::sDirectory));
+
 	time_t tStart = time(NULL);
 
 	while(true)
@@ -96,7 +102,7 @@ void *UpdateMediaThread(void *)
 			string sItem = vectModifiedFolders.front();
 			flm.Release();
 
-			g_pPlutoLogger->Write(LV_WARNING, "Folder to sync: %s", sItem.c_str());	
+			g_pPlutoLogger->Write(LV_WARNING, "Folder to process: %s", sItem.c_str());	
 			PLUTO_SAFETY_LOCK(cm, g_ConnectionMutex );
 			g_pPlutoLogger->Write(LV_STATUS, "Synchronizing '%s'...", sItem.c_str());	
 

@@ -3,6 +3,7 @@
 //-----------------------------------------------------------------------------------------------------
 #include "../SerializeClass/SerializeClass.h"
 #define SERIALIZE_DATA_TYPE_MAP_PLUTOMEDIAATTRBUTE	2100
+#define SERIALIZE_DATA_TYPE_MULTIMAP_PICTURES		2101
 #define SERIALIZE_PLUTO_MEDIA_ATTRIBUTES_VERSION	1
 //-----------------------------------------------------------------------------------------------------
 //
@@ -30,6 +31,7 @@ public:
 };
 //-----------------------------------------------------------------------------------------------------
 typedef multimap<long, PlutoMediaAttribute *> MapPlutoMediaAttributes;
+typedef multimap<unsigned long, char *> MapPictures;
 //-----------------------------------------------------------------------------------------------------
 //
 //  PlutoMediaAttributes class
@@ -45,6 +47,8 @@ public:
 	string m_sPictureUrl;
 	string m_sStartPosition;
 	MapPlutoMediaAttributes m_mapAttributes;
+	MapPictures m_mmapBookmarks;
+	MapPictures m_mmapCoverArts;
 
 	PlutoMediaAttributes();
 	~PlutoMediaAttributes();
@@ -52,7 +56,10 @@ public:
 	bool OkayToDeserialize(int iSC_Version);
 	string SerializeClassClassName();
 	void SetupSerialization(int iSC_Version);
+
 	PlutoMediaAttributes &operator+ (MapPlutoMediaAttributes &i);
+	PlutoMediaAttributes &operator+ (MapPictures &i);
+
 	bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,
 		unsigned long &iAllocatedSize,char *&pCurrentPosition);
 };

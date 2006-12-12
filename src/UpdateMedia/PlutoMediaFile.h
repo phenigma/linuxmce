@@ -10,15 +10,16 @@ class Database_pluto_media;
 class Database_pluto_main;
 class PlutoMediaAttributes;
 class Row_File;
-
-enum PlutoCustomTag
+//-----------------------------------------------------------------------------------------------------
+enum MediaSyncMode
 {
-	pctInstallation,
-	pctFile,
-	pctPicture,
-	pctPictureUrl
+	modeNone,
+	modeDbToFile,
+	modeFileToDb,
+	modeBoth
 };
-
+//-----------------------------------------------------------------------------------------------------
+extern char *MediaSyncModeStr[];
 //-----------------------------------------------------------------------------------------------------
 //
 //  PlutoMediaFile class
@@ -36,11 +37,11 @@ private:
 	int m_nOurInstallationID;
 	int m_nPK_MediaType;
 	bool m_bIsDir;
-	static bool m_bSyncFilesOnly;
-	static bool m_bSyncId3Files;
+
+	static MediaSyncMode m_DefaultMediaSyncMode;
+	MediaSyncMode m_MediaSyncMode;
 
     //internal helper functions
-	//This will add a record in the File table and additional attributes too in related tables
     int AddFileToDatabase(int PK_MediaType);
 	void AssignPlutoDevice();
 	string FileWithAttributes(bool bCreateId3File = true);
@@ -52,23 +53,25 @@ private:
 
 	void SyncDbAttributes();
 	int GetOwnerForPath(string sPath);
+	int GetFileIDFromDB();
+
+	static bool IsSupported(string sFileName);
 
 public:
     PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation,
-        string sDirectory, string sFile, bool bIsDir = false);
+        string sDirectory, string sFile);
     ~PlutoMediaFile();
 
-	static void SetupSyncFilesOnly(bool bSyncFilesOnly);
-	static void SetupSyncId3Files(bool bSyncId3Files);
+	void SetSyncMode(MediaSyncMode mode) { m_MediaSyncMode = mode; }
+	static void SetDefaultSyncMode(MediaSyncMode mode) { m_DefaultMediaSyncMode = mode; }
+	static MediaSyncMode GetDefaultSyncMode() { return m_DefaultMediaSyncMode; }
 
     int HandleFileNotInDatabase(int PK_MediaType = 0);
-
-    void SetFileAttribute(int PK_File);
-    int GetFileAttribute(bool bCreateId3File = true);
-
+    
+	void SetFileAttribute(int PK_File);
+    int GetFileAttribute();
     void SetPicAttribute(int PK_Picture, string sPictureUrl);
     int GetPicAttribute(int PK_File);
-	static bool IsSupported(string sFileName);
 
 	void RenameAttribute(int Attribute_Type, string sOldValue, string sNewValue);
 };

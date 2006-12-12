@@ -1157,7 +1157,7 @@ string StringUtils::BashPatternEscape(string sInput, string sCharsToNotEscape)
 
 bool StringUtils::WhiteSpace(string &sString)
 {
-	for(int i=0;i<sString.size();++i)
+	for(size_t i=0;i<sString.size();++i)
 	{
 		if( sString[i]!=' ' && sString[i]!='\t' && sString[i]!='\n' && sString[i]!='\r' )
 			return false;

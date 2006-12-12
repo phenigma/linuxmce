@@ -265,7 +265,7 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
 
 	PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation, FileUtils::BasePath(File),
 		FileUtils::FilenameWithoutPath(File));
-	int PK_File = PlutoMediaFile_.GetFileAttribute(false);
+	int PK_File = PlutoMediaFile_.GetFileAttribute();
 
     if(PK_File > 0)
     {
