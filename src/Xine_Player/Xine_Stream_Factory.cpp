@@ -11,6 +11,8 @@
 #include <xine/video_out.h>
 #include <xine/audio_out.h>
 
+#include "utilities/linux/window_manager/WMController/WMController.h"
+
 /** Defined this here to avoid some dependency. */
 typedef struct
 {
@@ -629,7 +631,7 @@ bool Xine_Stream_Factory::CreateWindows()
 // 	XFreePixmap( m_pXDisplay, noCursor );
 // 
 // 	XDefineCursor( m_pXDisplay, windows[ m_iCurrentWindow ], cursors[ m_iCurrentWindow ] );
- 	XMapRaised( m_pXDisplay, windows[ m_iCurrentWindow ] );
+// 	XMapRaised( m_pXDisplay, windows[ m_iCurrentWindow ] );
 // 
 // 	if ( m_pDynamic_Pointer )
 // 		m_pDynamic_Pointer->pointer_hide();
@@ -646,6 +648,11 @@ bool Xine_Stream_Factory::CreateWindows()
 
 	//XSync( m_pXDisplay, True );
 	XUnlockDisplay( m_pXDisplay );
+	
+	WMControllerImpl *pWMController = new WMControllerImpl();
+	pWMController->SetVisible(m_sWindowTitle, false);
+	delete pWMController;
+	pWMController = NULL;
 
 	return true;
 }

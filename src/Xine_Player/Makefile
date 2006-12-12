@@ -6,16 +6,16 @@ SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG -DTHREAD_LOG -DLOG_ALL_QUERIES $(SNR_CPPFLAGS)
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -I/usr/lib/glib-2.0/include -I/usr/include/glib-2.0 -DDEBUG -DTHREAD_LOG -DLOG_ALL_QUERIES $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib -L$(ROOT)/Xine_Player
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread -ljpeg -lxine -lXtst -lX11 -lcdda_interface -ldvdnav_xine_custom
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread -ljpeg -lxine -lXtst -lX11 -lglib-2.0 -lXmu -lcdda_interface -ldvdnav_xine_custom
 
 MYNAME = Xine_Player
 VERSION = 2.0.0
 MYDEVTEMPLATEID = 5mplateID
 
 Gen_Dev_Files = $(GENDEV)/Xine_PlayerBase.cpp
-sources = Main.cpp Xine_Player.cpp Colorspace_Utils.cpp JpegEncoderDecoder.cpp Xine_Stream_Factory.cpp Xine_Stream.cpp $(Gen_Dev_Files)
+sources = Main.cpp Xine_Player.cpp Colorspace_Utils.cpp JpegEncoderDecoder.cpp Xine_Stream_Factory.cpp Xine_Stream.cpp $(Gen_Dev_Files) ../utilities/linux/window_manager/WMController/WMController.cpp ../utilities/linux/window_manager/wmctrl/wmctrl.cpp
 #<-dceag-mh-e->
 
 CXXFLAGS +=
