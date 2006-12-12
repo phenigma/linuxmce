@@ -336,8 +336,8 @@ fi
 if [[ -x /etc/init.d/bind9 ]] ;then
 	/etc/init.d/bind9 start 1>/dev/null 2>/dev/null &
 fi
-if [[ -x /usr/pluto/bin/Network_Firewall.sh ]] ;then
-	/usr/pluto/bin/Network_Firewall.sh 1>/dev/null 2>/dev/null &
+if [[ -x /etc/init.d/Pluto_Network_Firewall.sh ]] ;then
+	/etc/init.d/Pluto_Network_Firewall.sh 1>/dev/null 2>/dev/null &
 fi
 
 ## Check to see if pluto finished installing else exit

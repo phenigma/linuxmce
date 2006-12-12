@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto67) unstable; urgency=low
+
+  * Fix MDs not booting because of the firewall script
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Tue, 12 Dec 2006 11:48:30 +0200
+
 sysvinit (2.86.ds1-1.1pluto66) unstable; urgency=low
 
   * Make sure the computers behind us can access the internet asap
