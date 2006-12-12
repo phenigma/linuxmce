@@ -237,7 +237,7 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 		}
 		
 		if(m_bAsDaemon)
-			Sleep(5);
+			Sleep(2);
 
 		if(!FileUtils::FileExists(sDirectory + "/" + sFile)) //the file was just being deleted
 		{
@@ -369,9 +369,6 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 	{
 		string sSubDir = *it;
 
-        if(m_bAsDaemon)
-			Sleep(500);
-		
         //is sDirectory a ripped dvd ?
 		if( 
             StringUtils::ToUpper(FileUtils::FilenameWithoutPath(sSubDir))=="VIDEO_TS" || 
@@ -558,7 +555,7 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 		"FROM pluto_media.File "
 		"LEFT JOIN pluto_main.Device_DeviceData ON pluto_main.Device_DeviceData.FK_Device = pluto_media.File.EK_Device "
 		"AND FK_DeviceData = " + StringUtils::ltos(DEVICEDATA_Online_CONST) + " "
-		"WHERE pluto_media.File.Path LIKE '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sDirectory)) + "/%' OR "
+		"WHERE pluto_media.File.Path LIKE '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sDirectory), true) + "/%' OR "
 		"pluto_media.File.Path = '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sDirectory)) + "'";
 
 	enum SqlFields
