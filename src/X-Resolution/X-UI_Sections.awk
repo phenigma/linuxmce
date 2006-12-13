@@ -31,10 +31,15 @@ function outputScreenOrDevice()
 
 function outputExtensions()
 {
-	if (OpenGL == 0)
-		return;
 	print "Section \"Extensions\"";
-	print "\tOption \"Composite\" \"true\"";
+	if (OpenGL == 1)
+	{
+		print "\tOption \"Composite\" \"true\"";
+	}
+	else
+	{
+		print "\tOption \"Composite\" \"false\"";
+	}
 	print "\tOption \"RENDER\" \"true\"";
 	print "EndSection";
 }
