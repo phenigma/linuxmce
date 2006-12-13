@@ -24,6 +24,6 @@ while read line; do
 done < <(cat /tmp/info.raid | grep /dev)
 
 mdadm -S $array
-rm -f $array "$array:" "/dev/.static$array"
+rm -f $array "$array:" "/dev/.static$array" "/dev/.tmp.$array"
 rm -f /tmp/info.raid
 
