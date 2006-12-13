@@ -124,8 +124,6 @@ UpdateMedia::UpdateMedia(Database_pluto_media *pDatabase_pluto_media,
 	SetupInstallation();
 
 	m_bAsDaemon = true;
-	PlutoMediaIdentifier::Activate(m_pDatabase_pluto_main);
-
     m_sDirectory = FileUtils::ExcludeTrailingSlash(sDirectory);
 }
 
@@ -224,18 +222,11 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 		}
 		
 		string sFile = *it;
-		
-		MediaSyncMode sync_mode = MediaState::Instance().SyncModeNeeded(sDirectory, sFile);
-		g_pPlutoLogger->Write(LV_STATUS, "Sync mode for %s/%s: %s", sDirectory.c_str(), sFile.c_str(), MediaSyncModeStr[sync_mode]); 
 
-		if(sync_mode == modeNone)
-		{
-			if(m_bAsDaemon)
-				Sleep(2);
-
+		//ignore id3 and lock files
+		if(StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "id3" || StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "lock")
 			continue;
-		}
-		
+
 		if(m_bAsDaemon)
 			Sleep(2);
 
@@ -245,10 +236,6 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 				sDirectory.c_str(), sFile.c_str());
 			continue;
 		}
-
-		//ignore id3 and lock files
-		if(StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "id3" || StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "lock")
-			continue;
 
 		string sLockFile = sDirectory + "/" + sFile + ".lock";
 		if(FileUtils::FileExists(sLockFile))
@@ -270,6 +257,12 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 				continue;
 			}
 		}
+
+		MediaSyncMode sync_mode = MediaState::Instance().SyncModeNeeded(sDirectory, sFile);
+		g_pPlutoLogger->Write(LV_STATUS, "Sync mode for %s/%s: %s", sDirectory.c_str(), sFile.c_str(), MediaSyncModeStr[sync_mode]); 
+
+		if(sync_mode == modeNone)
+			continue;
 
         PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation,
             sDirectory, sFile);

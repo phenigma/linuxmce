@@ -47,6 +47,7 @@ public:
 	string m_sPictureUrl;
 	string m_sStartPosition;
 	MapPlutoMediaAttributes m_mapAttributes;
+	MapPlutoMediaAttributes m_mapLongAttributes;
 	MapPictures m_mmapBookmarks;
 	MapPictures m_mmapCoverArts;
 

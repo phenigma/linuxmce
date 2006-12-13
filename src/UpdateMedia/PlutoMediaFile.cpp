@@ -20,6 +20,7 @@
 #include "pluto_media/Table_Picture_File.h"
 #include "pluto_media/Table_Picture.h"
 #include "pluto_media/Table_Attribute.h"
+#include "pluto_media/Table_LongAttribute.h"
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
 #include "pluto_media/Table_Bookmark.h"
@@ -99,8 +100,10 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 	string sAttributeFullFilePath = m_sDirectory + "/" + sAttributeFile;
 	LoadPlutoAttributes(sAttributeFullFilePath);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Processing path %s, file %s. Found %d attributes in id3 file", 
-		m_sDirectory.c_str(), m_sFile.c_str(), m_pPlutoMediaAttributes->m_mapAttributes.size());
+	g_pPlutoLogger->Write(LV_STATUS, "Processing path %s, file %s. "
+		"Found %d attributes, %d long attributes in id3 file", 
+		m_sDirectory.c_str(), m_sFile.c_str(), m_pPlutoMediaAttributes->m_mapAttributes.size(),
+		m_pPlutoMediaAttributes->m_mapLongAttributes.size());
 
 	if(!IsSupported(m_sFile) && !m_bIsDir)
 	{
@@ -126,7 +129,7 @@ PlutoMediaFile::~PlutoMediaFile()
 	if(m_MediaSyncMode == modeFileToDb || m_MediaSyncMode == modeBoth)
 	{
 		//Save everything in db
-		SyncDbAttributes();
+		SaveEveryThingToDb();
 	}
 
 	if(m_MediaSyncMode == modeDbToFile)
@@ -139,7 +142,7 @@ PlutoMediaFile::~PlutoMediaFile()
 			m_pPlutoMediaAttributes->m_nFileID = GetFileIDFromDB();
 
 		MediaState::Instance().FileSynchronized(m_pDatabase_pluto_media, m_sDirectory, m_sFile, 
-			m_pPlutoMediaAttributes->m_nFileID, m_MediaSyncMode);
+			m_pPlutoMediaAttributes->m_nFileID);
 	}
 #endif
 
@@ -158,6 +161,12 @@ PlutoMediaFile::~PlutoMediaFile()
 		return false;
 
     return csSupportedExtensions.find(sExtension) != string::npos;
+}
+//-----------------------------------------------------------------------------------------------------
+string PlutoMediaFile::AdjustLongAttributeForDisplay(string sText)
+{	
+	const size_t cnMaxSize = 30;
+	return sText.length() > cnMaxSize ? (sText.substr(cnMaxSize) + "...").c_str() : sText.c_str();
 }
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
@@ -222,7 +231,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
     return PK_File;
 }
 //-----------------------------------------------------------------------------------------------------
-void PlutoMediaFile::SyncDbAttributes()
+void PlutoMediaFile::SaveEveryThingToDb()
 {
 	g_pPlutoLogger->Write(LV_STATUS, "# SyncDbAttributes: ready to sync db with attributes found in id3 file");
 
@@ -234,6 +243,14 @@ void PlutoMediaFile::SyncDbAttributes()
 	if(!m_nPK_MediaType)
 		return;
 
+	SaveStartPosition();
+	SaveShortAttributesInDb(false);
+	SaveLongAttributesInDb(false);
+	AssignPlutoDevice();
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::SaveStartPosition()
+{
 	//save/update start position in the database, if needed
 	if(m_pPlutoMediaAttributes->m_sStartPosition != "")
 	{
@@ -259,7 +276,7 @@ void PlutoMediaFile::SyncDbAttributes()
 		}
 		else
 		{
-            g_pPlutoLogger->Write(LV_STATUS, "# SyncDbAttributes: No start position in the database for this file. "
+			g_pPlutoLogger->Write(LV_STATUS, "# SyncDbAttributes: No start position in the database for this file. "
 				"Adding %s start position.", m_pPlutoMediaAttributes->m_sStartPosition.c_str());
 
 			Row_Bookmark *pRow_Bookmark_New = m_pDatabase_pluto_media->Bookmark_get()->AddRow();
@@ -271,33 +288,39 @@ void PlutoMediaFile::SyncDbAttributes()
 			m_pDatabase_pluto_media->Bookmark_get()->Commit();
 		}
 	}
-
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
+{
 	int PK_File = m_pPlutoMediaAttributes->m_nFileID;
-
-	string SQL = 
-		"SELECT FK_AttributeType, Name, Track, Section "
-		"FROM Attribute JOIN File_Attribute ON PK_Attribute = FK_Attribute "
-		"WHERE FK_File = " + StringUtils::ltos(PK_File);
 
 	MapPlutoMediaAttributes mapPlutoMediaAttributes;
 
-	PlutoSqlResult result;
-	MYSQL_ROW row;
-	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+	if(!bAddAllToDb)
 	{
-		while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
-		{
-			int nFK_AttributeType = atoi(row[0]);
-			string sName = row[1];
-			int nTrack = NULL != row[2] ? atoi(row[2]) : 0;
-			int nSection = NULL != row[3] ? atoi(row[3]) : 0;
+		string SQL = 
+			"SELECT FK_AttributeType, Name, Track, Section "
+			"FROM Attribute JOIN File_Attribute ON PK_Attribute = FK_Attribute "
+			"WHERE FK_File = " + StringUtils::ltos(PK_File);
 
-			mapPlutoMediaAttributes.insert(
-				std::make_pair(
+		PlutoSqlResult result;
+		MYSQL_ROW row;
+		if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+		{
+			while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
+			{
+				int nFK_AttributeType = atoi(row[0]);
+				string sName = row[1];
+				int nTrack = NULL != row[2] ? atoi(row[2]) : 0;
+				int nSection = NULL != row[3] ? atoi(row[3]) : 0;
+
+				mapPlutoMediaAttributes.insert(
+					std::make_pair(
 					nFK_AttributeType, 
 					new PlutoMediaAttribute(nFK_AttributeType, sName, nTrack, nSection)
-				)
-			);
+					)
+					);
+			}
 		}
 	}
 
@@ -311,26 +334,24 @@ void PlutoMediaFile::SyncDbAttributes()
 		PlutoMediaAttribute *pPlutoMediaAttribute = it->second;
 
 		bool bAttributeAlreadyAdded = false;
-		for(MapPlutoMediaAttributes::iterator itdb = mapPlutoMediaAttributes.begin(),
-			enddb = mapPlutoMediaAttributes.end(); itdb != enddb; ++itdb)
-		{
-			PlutoMediaAttribute *pDBPlutoMediaAttribute = itdb->second;
 
-			//g_pPlutoLogger->Write(LV_STATUS, "# SyncDbAttributes: comparing attribute from db (%d, %s, %d, %d) with attr from file (%d, %s, %d, %d)",
-			//	pDBPlutoMediaAttribute->m_nType, pDBPlutoMediaAttribute->m_sName.c_str(), pDBPlutoMediaAttribute->m_nTrack, pDBPlutoMediaAttribute->m_nSection,
-			//	pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName.c_str(), pPlutoMediaAttribute->m_nTrack, pPlutoMediaAttribute->m_nSection
-			//);
-			
-			if(
-				pPlutoMediaAttribute->m_nType == pDBPlutoMediaAttribute->m_nType		&&
-				StringUtils::ToLower(pPlutoMediaAttribute->m_sName) == StringUtils::ToLower(pDBPlutoMediaAttribute->m_sName)		&&
-				pPlutoMediaAttribute->m_nTrack == pDBPlutoMediaAttribute->m_nTrack		&&
-				pPlutoMediaAttribute->m_nSection == pDBPlutoMediaAttribute->m_nSection
-				)
+		if(!bAddAllToDb)
+		{
+			for(MapPlutoMediaAttributes::iterator itdb = mapPlutoMediaAttributes.begin(),
+				enddb = mapPlutoMediaAttributes.end(); itdb != enddb; ++itdb)
 			{
-				//g_pPlutoLogger->Write(LV_STATUS, "# It's a match!");
-				bAttributeAlreadyAdded = true;
-				break;
+				PlutoMediaAttribute *pDBPlutoMediaAttribute = itdb->second;
+
+				if(
+					pPlutoMediaAttribute->m_nType == pDBPlutoMediaAttribute->m_nType		&&
+					StringUtils::ToLower(pPlutoMediaAttribute->m_sName) == StringUtils::ToLower(pDBPlutoMediaAttribute->m_sName)		&&
+					pPlutoMediaAttribute->m_nTrack == pDBPlutoMediaAttribute->m_nTrack		&&
+					pPlutoMediaAttribute->m_nSection == pDBPlutoMediaAttribute->m_nSection
+					)
+				{
+					bAttributeAlreadyAdded = true;
+					break;
+				}
 			}
 		}
 
@@ -353,7 +374,7 @@ void PlutoMediaFile::SyncDbAttributes()
 				if(NULL == m_pDatabase_pluto_media->File_Attribute_get()->GetRow(
 					PK_File, pRow_Attribute->PK_Attribute_get(),
 					pPlutoMediaAttribute->m_nTrack, pPlutoMediaAttribute->m_nSection)
-				)
+					)
 				{
 					Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
 					pRow_File_Attribute->FK_File_set(PK_File);
@@ -370,8 +391,86 @@ void PlutoMediaFile::SyncDbAttributes()
 			}
 		}
 	}
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::SaveLongAttributesInDb(bool bAddAllToDb)
+{
+	int PK_File = m_pPlutoMediaAttributes->m_nFileID;
+	MapPlutoMediaAttributes mapPlutoMediaAttributes;
 
-	AssignPlutoDevice();
+	if(!bAddAllToDb)
+	{
+		string SQL = 
+			"SELECT FK_AttributeType, Text "
+			"FROM LongAttribute "
+			"WHERE FK_File = " + StringUtils::ltos(PK_File);
+
+		PlutoSqlResult result;
+		MYSQL_ROW row;
+		if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+		{
+			while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
+			{
+				int nFK_AttributeType = atoi(row[0]);
+				string sName = row[1];
+
+				mapPlutoMediaAttributes.insert(
+					std::make_pair(
+						nFK_AttributeType, 
+						new PlutoMediaAttribute(nFK_AttributeType, sName)
+					)
+				);
+			}
+		}
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "# SyncDbAttributes: long attributes is db %d, total %d",
+		mapPlutoMediaAttributes.size(), m_pPlutoMediaAttributes->m_mapLongAttributes.size());
+
+	//Save any new long attributes in the database
+	for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapLongAttributes.begin(),
+		end = m_pPlutoMediaAttributes->m_mapLongAttributes.end(); it != end; ++it)
+	{
+		PlutoMediaAttribute *pPlutoMediaAttribute = it->second;
+
+		bool bAttributeAlreadyAdded = false;
+
+		if(!bAddAllToDb)
+		{
+			for(MapPlutoMediaAttributes::iterator itdb = mapPlutoMediaAttributes.begin(),
+				enddb = mapPlutoMediaAttributes.end(); itdb != enddb; ++itdb)
+			{
+				PlutoMediaAttribute *pDBPlutoMediaAttribute = itdb->second;
+
+				if(
+					pPlutoMediaAttribute->m_nType == pDBPlutoMediaAttribute->m_nType &&
+					StringUtils::ToLower(pPlutoMediaAttribute->m_sName) == StringUtils::ToLower(pDBPlutoMediaAttribute->m_sName)
+					)
+				{
+					bAttributeAlreadyAdded = true;
+					break;
+				}
+			}
+		}
+
+		if(!bAttributeAlreadyAdded)
+		{
+			if(pPlutoMediaAttribute->m_nType > 0 && !StringUtils::WhiteSpace(pPlutoMediaAttribute->m_sName))
+			{
+				Row_LongAttribute *pRow_LongAttribute = m_pDatabase_pluto_media->LongAttribute_get()->AddRow();
+				pRow_LongAttribute->FK_AttributeType_set(pPlutoMediaAttribute->m_nType);
+				pRow_LongAttribute->FK_File_set(PK_File);
+				pRow_LongAttribute->Text_set(pPlutoMediaAttribute->m_sName);
+				pRow_LongAttribute->Table_LongAttribute_get()->Commit();
+
+				g_pPlutoLogger->Write(LV_STATUS, "# SyncDbAttributes: Adding long attribute to database: "
+					"for PK_File %d, long AttrID %d, AttrType = %d with value %s", 
+					PK_File, pRow_LongAttribute->PK_LongAttribute_get(), pPlutoMediaAttribute->m_nType,
+					AdjustLongAttributeForDisplay(pPlutoMediaAttribute->m_sName).c_str()
+				); 
+			}
+		}
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
@@ -453,45 +552,8 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 	m_pPlutoMediaAttributes->m_nInstallationID = m_nOurInstallationID;
 	m_pPlutoMediaAttributes->m_nFileID = pRow_File->PK_File_get();
 
-	//Save any attributes found in the file
-	for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapAttributes.begin(),
-		end = m_pPlutoMediaAttributes->m_mapAttributes.end(); it != end; ++it)
-	{
-		PlutoMediaAttribute *pPlutoMediaAttribute = it->second;
-
-		if(pPlutoMediaAttribute->m_nType > 0 && !StringUtils::WhiteSpace(pPlutoMediaAttribute->m_sName))
-		{
-			MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
-			Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(PK_MediaType,
-				pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName);
-
-			if( pRow_Attribute==NULL )
-			{
-				g_pPlutoLogger->Write(LV_WARNING,"PlutoMediaFile::AddFileToDatabase attribute type %d/%s for file %d is empty",
-					pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName.c_str(),pRow_File->PK_File_get());
-				continue;
-			}
-
-			//already in the database?
-			if(NULL == m_pDatabase_pluto_media->File_Attribute_get()->GetRow(
-				pRow_File->PK_File_get(), pRow_Attribute->PK_Attribute_get(),
-				pPlutoMediaAttribute->m_nTrack, pPlutoMediaAttribute->m_nSection)
-				)
-			{
-				Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
-				pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
-				pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
-				pRow_File_Attribute->Section_set(pPlutoMediaAttribute->m_nSection);
-				pRow_File_Attribute->Track_set(pPlutoMediaAttribute->m_nTrack);
-				pRow_File_Attribute->Table_File_Attribute_get()->Commit();
-
-				g_pPlutoLogger->Write(LV_STATUS, "Adding attribute to database: "
-					"for PK_File %d, AttrID %d, AttrType = %d with value %s, section %d, track %d", 
-					pRow_File->PK_File_get(), pRow_Attribute->PK_Attribute_get(), pPlutoMediaAttribute->m_nType,
-					pPlutoMediaAttribute->m_sName.c_str(), pPlutoMediaAttribute->m_nSection, pPlutoMediaAttribute->m_nTrack);
-			}
-		}
-	}
+	SaveShortAttributesInDb(true);
+	SaveLongAttributesInDb(true);
 
 	g_pPlutoLogger->Write(LV_STATUS, "PlutoMediaFile::AddFileToDatabase picture url %s",
 		m_pPlutoMediaAttributes->m_sPictureUrl.c_str());
@@ -562,11 +624,11 @@ void PlutoMediaFile::SetFileAttribute(int PK_File)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "SetFileAttribute %s/%s %d", m_sDirectory.c_str(), m_sFile.c_str(), PK_File);
 
-	LoadAttributesFromDB(m_sDirectory + "/" + m_sFile, PK_File);
-
 	//make sure it's our installation and file
 	m_pPlutoMediaAttributes->m_nInstallationID = m_nOurInstallationID;
 	m_pPlutoMediaAttributes->m_nFileID = PK_File;
+
+	LoadEverythingFromDb();
 }
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::GetFileAttribute()
@@ -911,18 +973,19 @@ void PlutoMediaFile::LoadLegacyAttributes(string sFullFileName)
 	pPlutoLegacyAttributes = NULL;
 }
 //-----------------------------------------------------------------------------------------------------
-void PlutoMediaFile::LoadAttributesFromDB(string, int PK_File)
+void PlutoMediaFile::LoadEverythingFromDb()
 {
-	if(!PK_File)
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: not in the database %d");
-		return;
-	}
-
+	LoadStartPosition();
+	LoadShortAttributes();
+	LoadLongAttributes();
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::LoadStartPosition()
+{
 	//load start position from the database
 	vector<Row_Bookmark *> vectBookmarks;
 	m_pDatabase_pluto_media->Bookmark_get()->GetRows("Description = 'START' AND IsAutoResume = 1 "
-		"AND FK_File = " + StringUtils::ltos(PK_File), &vectBookmarks);
+		"AND FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID), &vectBookmarks);
 
 	if(vectBookmarks.size() > 0)
 	{
@@ -932,14 +995,16 @@ void PlutoMediaFile::LoadAttributesFromDB(string, int PK_File)
 		g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: read start position from db: %s",
 			m_pPlutoMediaAttributes->m_sStartPosition.c_str());
 	}
-
-	//also merge the attributes from the database
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::LoadShortAttributes()
+{
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	string SQL = 
 		"SELECT FK_AttributeType, Name, Track, Section "
 		"FROM Attribute JOIN File_Attribute ON PK_Attribute = FK_Attribute "
-		"WHERE FK_File = " + StringUtils::ltos(PK_File);
+		"WHERE FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
 
 	MapPlutoMediaAttributes mapDBAttributes;
 
@@ -1010,7 +1075,7 @@ void PlutoMediaFile::LoadAttributesFromDB(string, int PK_File)
 				it_DbAttr != end_DbAttr; ++it_DbAttr)
 			{
 				PlutoMediaAttribute *pPlutoMediaAttribute_DB = it_DbAttr->second;
-				
+
 				if(*pPlutoMediaAttribute_File == *pPlutoMediaAttribute_DB)
 				{
 					bAttributeFoundInDB = true;
@@ -1039,13 +1104,113 @@ void PlutoMediaFile::LoadAttributesFromDB(string, int PK_File)
 			PlutoMediaAttribute *pPlutoMediaAttribute = it->second;
 			delete pPlutoMediaAttribute;
 		}
-        mapDBAttributes.clear();
+		mapDBAttributes.clear();
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: pluto attributes merged with those from database %d", 
 		m_pPlutoMediaAttributes->m_mapAttributes.size());
 }
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::LoadLongAttributes()
+{
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	string SQL = 
+		"SELECT FK_AttributeType, Text "
+		"FROM LongAttribute "
+		"WHERE FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
 
+	MapPlutoMediaAttributes mapDbLongAttributes;
+
+	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+	{
+		while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
+		{
+			int nFK_AttributeType = atoi(row[0]);
+			string sName = row[1];
+
+			g_pPlutoLogger->Write(LV_STATUS, "Long attribute in db : type %d\t\tvalue %s", nFK_AttributeType, AdjustLongAttributeForDisplay(sName).c_str());
+
+			bool bAttributeAlreadyAdded = false;
+			if(m_MediaSyncMode == modeDbToFile) 
+				mapDbLongAttributes.insert(std::make_pair(nFK_AttributeType, new PlutoMediaAttribute(nFK_AttributeType, sName)));
+
+			for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapLongAttributes.begin(),
+				end = m_pPlutoMediaAttributes->m_mapLongAttributes.end(); it != end; ++it)
+			{
+				PlutoMediaAttribute *pPlutoMediaAttribute = it->second;
+				if(pPlutoMediaAttribute->m_nType == nFK_AttributeType && pPlutoMediaAttribute->m_sName == sName)
+				{
+					bAttributeAlreadyAdded = true;
+					break;
+				}
+			}
+
+			if(!bAttributeAlreadyAdded)
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: (from db) new long attributes to add in id3 file -  type %d, values %s",
+					nFK_AttributeType, AdjustLongAttributeForDisplay(sName).c_str());
+
+				m_pPlutoMediaAttributes->m_mapLongAttributes.insert(
+					std::make_pair(nFK_AttributeType, new PlutoMediaAttribute(nFK_AttributeType, sName))
+				);
+			}
+		}
+	}
+
+	if(m_MediaSyncMode == modeDbToFile)
+	{
+		//we need to check here if any long attribute was deleted from website in order to delete it from 
+		//file's attribute too.
+		for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapLongAttributes.begin(),
+			end = m_pPlutoMediaAttributes->m_mapLongAttributes.end(); it != end;)
+		{
+			PlutoMediaAttribute *pPlutoMediaAttribute_File = it->second;
+			bool bAttributeFoundInDB = false;
+
+			g_pPlutoLogger->Write(LV_STATUS, "Long attr in file : type %d\t\tvalue %s", 
+				pPlutoMediaAttribute_File->m_nType, AdjustLongAttributeForDisplay(pPlutoMediaAttribute_File->m_sName).c_str());
+
+			for(MapPlutoMediaAttributes::iterator it_DbAttr = mapDbLongAttributes.begin(), end_DbAttr = mapDbLongAttributes.end(); 
+				it_DbAttr != end_DbAttr; ++it_DbAttr)
+			{
+				PlutoMediaAttribute *pPlutoMediaAttribute_DB = it_DbAttr->second;
+
+				if(*pPlutoMediaAttribute_File == *pPlutoMediaAttribute_DB)
+				{
+					bAttributeFoundInDB = true;
+					break;
+				}
+			}
+
+			if(!bAttributeFoundInDB)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Removing attribute from file %d, value %s, since it was remove from the site.",
+					pPlutoMediaAttribute_File->m_nType, AdjustLongAttributeForDisplay(pPlutoMediaAttribute_File->m_sName).c_str());
+
+				RemoveId3Tag(m_sDirectory + "/" + FileWithAttributes(), pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName);
+				m_pPlutoMediaAttributes->m_mapLongAttributes.erase(it++);
+			}
+			else
+				++it;
+		}
+
+		g_pPlutoLogger->Write(LV_STATUS, "After sync'ing file, long attr in db %d, long attr in file %d", 
+			mapDbLongAttributes.size(), m_pPlutoMediaAttributes->m_mapLongAttributes.size());
+
+		//cleanup
+		for(MapPlutoMediaAttributes::iterator it = mapDbLongAttributes.begin(), end = mapDbLongAttributes.end(); it != end; ++it)
+		{
+			PlutoMediaAttribute *pPlutoMediaAttribute = it->second;
+			delete pPlutoMediaAttribute;
+		}
+		mapDbLongAttributes.clear();
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "# LoadPlutoAttributes: pluto long attributes merged with those from database %d", 
+		m_pPlutoMediaAttributes->m_mapLongAttributes.size());
+
+}
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::RenameAttribute(int Attribute_Type, string sOldValue, string sNewValue)
 {

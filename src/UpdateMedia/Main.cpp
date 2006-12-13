@@ -27,6 +27,7 @@
 
 #include "inotify/FileNotifier.h"
 #include "PlutoMediaFile.h"
+#include "PlutoMediaFile.h"
 #include "pluto_main/Table_Installation.h"
 
 #define  VERSION "<=version=>"
@@ -80,6 +81,8 @@ void SyncAttributes()
 void *UpdateMediaThread(void *)
 {
 	SyncAttributes();
+
+	PlutoMediaIdentifier::Activate(g_pDatabase_pluto_main);
 
 	//load info about ModificationData, AttrCount, AttrDate, attributes, timestamp for all files
 	MediaState::Instance().LoadDbInfo(g_pDatabase_pluto_media, FileUtils::ExcludeTrailingSlash(UpdateMediaVars::sDirectory));

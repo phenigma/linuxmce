@@ -29,7 +29,7 @@ class PlutoMediaFile
 {
 private:
 
-	Database_pluto_media *m_pDatabase_pluto_media;
+	MediaSyncMode m_MediaSyncMode;
 	PlutoMediaAttributes *m_pPlutoMediaAttributes;
 
     string m_sDirectory;
@@ -38,42 +38,53 @@ private:
 	int m_nPK_MediaType;
 	bool m_bIsDir;
 
+	Database_pluto_media *m_pDatabase_pluto_media;
 	static MediaSyncMode m_DefaultMediaSyncMode;
-	MediaSyncMode m_MediaSyncMode;
 
-    //internal helper functions
-    int AddFileToDatabase(int PK_MediaType);
-	void AssignPlutoDevice();
-	string FileWithAttributes(bool bCreateId3File = true);
-
-	void SavePlutoAttributes(string sFullFileName);
+	//id3 operations - load:
 	void LoadPlutoAttributes(string sFullFileName);
 	void LoadLegacyAttributes(string sFullFileName);
-	void LoadAttributesFromDB(string sFullFileName, int PK_File);
+	//id3 operations - save:
+	void SavePlutoAttributes(string sFullFileName);
 
-	void SyncDbAttributes();
+	//db operations - load:
+	void LoadStartPosition();
+	void LoadEverythingFromDb();
+	void LoadShortAttributes();
+	void LoadLongAttributes();
+	//db operations - save:
+	void SaveStartPosition();
+	void SaveShortAttributesInDb(bool bAddAllToDb);
+	void SaveLongAttributesInDb(bool bAddAllToDb);
+	void SaveEveryThingToDb();
+
+	//misc helpers
+	int AddFileToDatabase(int PK_MediaType);
+	void AssignPlutoDevice();
+	string FileWithAttributes(bool bCreateId3File = true);
 	int GetOwnerForPath(string sPath);
 	int GetFileIDFromDB();
-
-	static bool IsSupported(string sFileName);
+	string AdjustLongAttributeForDisplay(string sText);
 
 public:
     PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation,
         string sDirectory, string sFile);
     ~PlutoMediaFile();
 
+	//synchronization mode:
 	void SetSyncMode(MediaSyncMode mode) { m_MediaSyncMode = mode; }
 	static void SetDefaultSyncMode(MediaSyncMode mode) { m_DefaultMediaSyncMode = mode; }
 	static MediaSyncMode GetDefaultSyncMode() { return m_DefaultMediaSyncMode; }
 
-    int HandleFileNotInDatabase(int PK_MediaType = 0);
-    
 	void SetFileAttribute(int PK_File);
     int GetFileAttribute();
     void SetPicAttribute(int PK_Picture, string sPictureUrl);
     int GetPicAttribute(int PK_File);
 
+	int HandleFileNotInDatabase(int PK_MediaType = 0);
 	void RenameAttribute(int Attribute_Type, string sOldValue, string sNewValue);
+
+	static bool IsSupported(string sFileName);
 };
 //-----------------------------------------------------------------------------------------------------
 //

@@ -58,24 +58,7 @@ public:
 	void LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string sRootDirectory);
 	MediaSyncMode SyncModeNeeded(string sDirectory, string sFile);
 
-	void FileSynchronized(Database_pluto_media *pDatabase_pluto_media, string sDirectory, string sFile, int nFileID, MediaSyncMode sync_mode);
-
-/*
-	void UpdateDbStateForFile(int nPK_File, int nAttributeCount, string sDbTimestamp);
-	void UpdateFileSystemStateForFile(pair<string, string> pairFilePath, int nPK_File, string sTimestamp);
-
-	//helpers
-	void ReadDbInfo(Database_pluto_media *pDatabase_pluto_media, int nPK_File,
-		string& sDbTimestamp, int& nAttributesCount);
-	void ReadDbInfo(Database_pluto_media *pDatabase_pluto_media, pair<string, string> pairFilePath,
-		string& sDbTimestamp, int& nAttributesCount);
-	void ReadDbInfoForAllFiles(Database_pluto_media *pDatabase_pluto_media, string sRootDirectory, 
-		MapDbStateEx& mapCurrentDbState);
-	void ReadFileInfo(pair<string, string> pairFilePath, string& sFileTimestamp);
-	void ReadDbInfoAboutFilesChanges(Database_pluto_media *pDatabase_pluto_media, string sRootDirectory);
-
-	int GetModifiedData(pair<string, string> pairFilePath, string& sModificationData);
-*/
+	void FileSynchronized(Database_pluto_media *pDatabase_pluto_media, string sDirectory, string sFile, int nFileID);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif
