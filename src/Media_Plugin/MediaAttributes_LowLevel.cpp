@@ -295,7 +295,7 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
                     string name = FileUtils::FilenameWithoutPath( File, true );
 
                     string SQL;
-                    SQL += "UPDATE File SET Path='" + StringUtils::SQLEscape( path ) + "', Filename='" + StringUtils::SQLEscape( name ) + "' WHERE PK_File=" + StringUtils::itos(PK_File);
+					SQL += "UPDATE File SET Path='" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(path)) + "', Filename='" + StringUtils::SQLEscape( name ) + "' WHERE PK_File=" + StringUtils::itos(PK_File);
                     // cout << "Query: " << SQL << endl;
                     m_pDatabase_pluto_media->threaded_mysql_query( SQL );
                 }
