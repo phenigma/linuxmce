@@ -445,7 +445,7 @@ void OrbiterLinux::CMD_Surrender_to_OS(string sOnOff, bool bFully_release_keyboa
         m_pWinListManager->ActivateWindow(m_pWinListManager->GetExternApplicationName());
     }
 
-	if(sOnOff == "0" && m_bUseComposite)
+	if(sOnOff == "0" && !m_bUseMask)
 	{
 		if(MaskApplied())
 			ResetAppliedMask();
