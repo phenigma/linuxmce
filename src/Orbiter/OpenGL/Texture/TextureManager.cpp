@@ -183,7 +183,7 @@ bool TextureManager::SupportTextureNonPowerOfTwo()
 	if(SupportTextureNonPowerOfTwo_ == -1)
 	{
 		SupportTextureNonPowerOfTwo_ = 
-			ExtensionManager::CheckExtension("ARB_texture_rectangle") || 
+			ExtensionManager::CheckExtension("ARB_texture_rectangle") && 
 			ExtensionManager::CheckExtension("ARB_texture_non_power_of_two");
 	}
 
@@ -273,3 +273,4 @@ void TextureManager::EnableCache()
 {
 	m_bCacheEnabled = true;
 }
+
