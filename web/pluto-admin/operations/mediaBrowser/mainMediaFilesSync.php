@@ -249,12 +249,12 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 	$ppage=((int)@$_REQUEST['ppage']>0)?(int)$_REQUEST['ppage']:1;
 	$noPages=round(count($allPhysicalFiles)/$GLOBALS['files_per_page']);
 	$physicalFiles=array_slice($allPhysicalFiles,$GLOBALS['files_per_page']*($ppage-1),$GLOBALS['files_per_page']);
-	
+
 	$queryDBFiles='
 		SELECT DISTINCT File.*,count(FK_Picture) AS picsNo
 		FROM File 
 		LEFT JOIN Picture_File ON FK_File=PK_File
-		WHERE Path=? AND Filename IN (\''.join('\',\'',$physicalFiles).'\')
+		WHERE Path=? AND Filename IN (\''.join('\',\'',array_map('addslashes',$physicalFiles)).'\')
 		GROUP BY PK_File';
 	$rs=$mediadbADO->Execute($queryDBFiles,$path);
 	$dbFiles=array();
@@ -323,7 +323,7 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 			<td align="right" colspan="2">'.$navBar.'</td>
 		</tr>
 	</table>
-	<input type="hidden" name="notInDBArray" value="'.join(',',$notInDBArray).'">
+	<input type="hidden" name="notInDBArray" value="'.@join(',',@$notInDBArray).'">
 	<input type="hidden" name="ppage" value="'.$ppage.'">';
 	
 	return $out;
@@ -394,5 +394,9 @@ function dbonlyFilesList($path,$physicalFiles,$mediadbADO){
 	<input type="hidden" name="dpage" value="'.$dpage.'">';
 
 	return $out;
+}
+
+function safe_string(&$ret,$str){
+	$ret=addslashes($str);
 }
 ?>
