@@ -89,10 +89,8 @@ void PlutoHIDInterface::ProcessHIDEvents()
 					if (res<0&&res!=-110) break;
 					if (res<=0)
 					{
-#ifdef DEBUG
-						if (cnt%100==0) 
+						if (cnt%100==20) 
 							g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents .", cnt++);
-#endif
 						hm.Release();  
 						usleep(10000);  // Give somebody else a chance to use this
 						hm.Relock();
