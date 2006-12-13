@@ -346,7 +346,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		}
 		
 		$path=stripslashes(@$_POST['Path']);
-		$fileName=@$_POST['filename'];
+		$fileName=cleanString(@$_POST['filename']);
 		$newFilePath=$path.'/'.$fileName;
 
 		$oldPath=stripslashes(@$_POST['oldPath']);

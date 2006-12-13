@@ -245,18 +245,18 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 	if(count($allPhysicalFiles)==0){
 		return $TEXT_NO_FILES_IN_PHYSICAL_DIRECTORY_CONST;
 	}
-	
+
 	$ppage=((int)@$_REQUEST['ppage']>0)?(int)$_REQUEST['ppage']:1;
-	$noPages=round(count($allPhysicalFiles)/$GLOBALS['files_per_page']);
+	$noPages=ceil(count($allPhysicalFiles)/$GLOBALS['files_per_page']);
 	$physicalFiles=array_slice($allPhysicalFiles,$GLOBALS['files_per_page']*($ppage-1),$GLOBALS['files_per_page']);
 
 	$queryDBFiles='
 		SELECT DISTINCT File.*,count(FK_Picture) AS picsNo
 		FROM File 
 		LEFT JOIN Picture_File ON FK_File=PK_File
-		WHERE Path=? AND Filename IN (\''.join('\',\'',array_map('addslashes',$physicalFiles)).'\')
+		WHERE (Path=? OR Path=?) AND Filename IN (\''.join('\',\'',array_map('addslashes',$physicalFiles)).'\')
 		GROUP BY PK_File';
-	$rs=$mediadbADO->Execute($queryDBFiles,$path);
+	$rs=$mediadbADO->Execute($queryDBFiles,array($path,$path.'/'));
 	$dbFiles=array();
 	$dbPKFiles=array();
 	while($row=$rs->FetchRow()){
@@ -264,7 +264,6 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 		$dbPKFiles[]=$row['PK_File'];
 		$dbPicsNoFiles[]=$row['picsNo'];
 	}
-	
 	// set navigation bar
 	$navBarArray=array();
 	for($i=1;$i<$noPages+1;$i++){
@@ -339,9 +338,9 @@ function dbonlyFilesList($path,$physicalFiles,$mediadbADO){
 		SELECT DISTINCT File.*,count(FK_Picture) AS picsNo
 		FROM File 
 		LEFT JOIN Picture_File ON FK_File=PK_File
-		WHERE Path=? AND Filename NOT IN (\''.join('\',\'',$physicalFiles).'\') AND Missing=1
+		WHERE (Path=? OR Path=?) AND Filename NOT IN (\''.join('\',\'',$physicalFiles).'\') AND Missing=1
 		GROUP BY PK_File';
-	$rs=$mediadbADO->Execute($queryDBFiles,$path);
+	$rs=$mediadbADO->Execute($queryDBFiles,array($path,$path.'/'));
 	$dbFiles=array();
 	$dbPKFiles=array();
 	while($row=$rs->FetchRow()){
@@ -349,7 +348,7 @@ function dbonlyFilesList($path,$physicalFiles,$mediadbADO){
 		$dbPKFiles[]=$row['PK_File'];
 		$dbPicsNoFiles[]=$row['picsNo'];
 	}	
-	$noPages=round(count($dbFiles)/$GLOBALS['files_per_page']);
+	$noPages=ceil(count($dbFiles)/$GLOBALS['files_per_page']);
 
 	if(count($dbFiles)==0){
 		return $TEXT_NO_OTHER_FILES_IN_DATABASE_CONST;
