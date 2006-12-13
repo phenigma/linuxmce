@@ -84,13 +84,15 @@ void *UpdateMediaThread(void *)
 
 	PlutoMediaIdentifier::Activate(g_pDatabase_pluto_main);
 
-	//load info about ModificationData, AttrCount, AttrDate, attributes, timestamp for all files
-	MediaState::Instance().LoadDbInfo(g_pDatabase_pluto_media, FileUtils::ExcludeTrailingSlash(UpdateMediaVars::sDirectory));
-
 	time_t tStart = time(NULL);
 
 	while(true)
 	{
+		//load info about ModificationData, AttrCount, AttrDate, attributes, timestamp for all files
+		g_pPlutoLogger->Write(LV_STATUS, "Loading fresh data from db...");
+		MediaState::Instance().LoadDbInfo(g_pDatabase_pluto_media, FileUtils::ExcludeTrailingSlash(UpdateMediaVars::sDirectory));
+		g_pPlutoLogger->Write(LV_STATUS, "Loaded fresh data from db");
+
 		g_pPlutoLogger->Write(LV_STATUS, "Worker thread: \"I'm wake!\"");        
 		PLUTO_SAFETY_LOCK(flm, g_FoldersListMutex);
 
@@ -124,9 +126,9 @@ void *UpdateMediaThread(void *)
 			vectModifiedFolders.erase(vectModifiedFolders.begin());
 		}
 
-		g_pPlutoLogger->Write(LV_WARNING, "Nothing to process, sleeping 1 minute...");        
+		g_pPlutoLogger->Write(LV_WARNING, "Nothing to process, sleeping 2 minute...");        
 		timespec abstime;
-		abstime.tv_sec = (long) (time(NULL) + 60); 
+		abstime.tv_sec = (long) (time(NULL) + 120);  //2 minutes
 		abstime.tv_nsec = 0;
 		flm.TimedCondWait(abstime);		
 	}

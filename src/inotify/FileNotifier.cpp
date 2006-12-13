@@ -118,34 +118,12 @@ void *BackgroundWorkerThread(void *p)
 		string sRootFolder = pFileNotifier->m_sRootFolder;
 		sRootFolder = FileUtils::ExcludeTrailingSlash(sRootFolder);
 		
-		list<string> listDirsOnDisk;
-		FileUtils::FindDirectories(listDirsOnDisk,sRootFolder,true,false,0,sRootFolder + "/");  
-		listDirsOnDisk.push_back(sRootFolder);
-
-		for(list<string>::iterator it = listDirsOnDisk.begin(); it != listDirsOnDisk.end(); it++)
-		{
-			if(pFileNotifier->m_bCancelThread)
-				return NULL;
-
-			string sItem = *it;
-			sItem = FileUtils::ExcludeTrailingSlash(sItem);
-
-			list<string> listFiles;
-			listFiles.push_back(sItem);
-			pFileNotifier->FireOnCreate(listFiles);
-
-			g_pPlutoLogger->Write(LV_STATUS, "Background thread - scheduled for scanning: %s" , sItem.c_str());
-		}
+		list<string> listFiles;
+		listFiles.push_back(sRootFolder);
+		pFileNotifier->FireOnCreate(listFiles);
 
 		g_pPlutoLogger->Write(LV_WARNING, "Background thread going to sleep...");
-
-#ifdef WIN32
-		int nSecondsToSleep = 30;
-#else
-		int nSecondsToSleep = 5 * 60;
-#endif
-
-		Sleep(nSecondsToSleep * 1000); 
+		Sleep(120 * 1000); //2 minutes
 	}
 
 	return NULL;

@@ -30,7 +30,7 @@ string PlutoMediaAttribute::SerializeClassClassName()
 	return "PlutoMediaAttribute"; 
 }
 //-----------------------------------------------------------------------------------------------------
-void PlutoMediaAttribute::SetupSerialization(int iSC_Version)
+void PlutoMediaAttribute::SetupSerialization(int /*iSC_Version*/)
 {
 	StartSerializeList() + m_nType + m_sName + m_nTrack + m_nSection;
 }
@@ -83,7 +83,7 @@ bool PlutoMediaAttributes::OkayToDeserialize(int iSC_Version)
 	return SERIALIZE_PLUTO_MEDIA_ATTRIBUTES_VERSION == iSC_Version;
 }
 //-----------------------------------------------------------------------------------------------------
-void PlutoMediaAttributes::SetupSerialization(int iSC_Version)
+void PlutoMediaAttributes::SetupSerialization(int /*iSC_Version*/)
 {
 	StartSerializeList() + m_nInstallationID + m_nFileID + m_nPictureID + m_sPictureUrl;
 	
