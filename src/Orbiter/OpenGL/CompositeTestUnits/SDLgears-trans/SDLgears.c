@@ -38,7 +38,16 @@
 #include <string.h>
 #include <GL/gl.h>
 #include <GL/glx.h>
-#include "SDL.h"
+
+#include <SDL.h>
+#include <SDL/SDL_syswm.h>
+
+
+#include <X11/Xutil.h>
+#include <X11/extensions/shape.h>
+#include <X11/Xlib.h>
+
+#include <unistd.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265
@@ -47,6 +56,8 @@
 static GLint T0 = 0;
 static GLint Frames = 0;
 
+static Display * pDisplay = NULL;
+Window mainWindow;
 
 /**
 
@@ -182,10 +193,19 @@ gear(GLfloat inner_radius, GLfloat outer_radius, GLfloat width,
 static GLfloat view_rotx = 20.0, view_roty = 30.0, view_rotz = 0.0;
 static GLint gear1, gear2, gear3;
 static GLfloat angle = 0.0;
+static GLubyte* rgbaBuffer = NULL;
 
 static void
 draw(void)
 {
+  static int eug = 1;
+  static time_t change = 0;
+  time_t now = time(NULL);
+  
+  unsigned int width_return = 0, height_return = 0;
+  Pixmap pixmap_return;
+  int x_hot_return = 0, y_hot_return = 0;
+  
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glPushMatrix();
@@ -213,6 +233,82 @@ draw(void)
 
   glPopMatrix();
 
+{
+	static int bufsize = 800 * 800 * 4;
+	int i=0;
+	GLubyte R_comp = 0;
+	GLubyte G_comp = 0;
+	GLubyte B_comp = 0;
+	GLubyte A_comp = 0;
+//	GLXContext glxCtx = glXCreateContext(pDisplay, fVisInfo, None, True);
+/*	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+	glPixelStorei(GL_PACK_ALIGNMENT, 4);*/
+/*    glPixelStorei(GL_PACK_ALIGNMENT, ALIGNMENT);
+	glReadBuffer(GL_BACK);
+	glReadPixels(0, 0, 800, 800, GL_RGBA, GL_UNSIGNED_BYTE, (GLubyte*)rgbaBuffer);*/
+	
+/*	for (i = 0; i < bufsize; i+=4)
+	{
+		R_comp = i;
+		G_comp = i + 1;
+		B_comp = i + 2;
+		A_comp = i + 3;
+		
+		if( rgbaBuffer [A_comp] > 0 )
+		{
+			rgbaBuffer [A_comp] = (GLubyte)255;
+			rgbaBuffer [R_comp] = 0;
+			rgbaBuffer [G_comp] = 0;
+			rgbaBuffer [B_comp] = 0;
+		}
+	}*/
+	
+//	glDrawPixels(800, 800, GL_RGBA, GL_UNSIGNED_BYTE, rgbaBuffer);
+	
+/*	if (!ctx.fPixmapGC)
+		ctx.fPixmapGC = XCreateGC(fPimpl->fDpy, ctx.fX11Pixmap, 0, 0);
+	
+	if (ctx.fPixmapGC)
+	{
+		// GL buffer read operation gives bottom-up order of pixels, but XImage
+		// require top-down. So, change RGB lines first.
+		char *dest = ctx.fXImage->data;
+		const UChar_t *src = &ctx.fBUBuffer[ctx.fW * 4 * (ctx.fH - 1)];
+		for (UInt_t i = 0, e = ctx.fH; i < e; ++i) {
+		std::memcpy(dest, src, ctx.fW * 4);
+		dest += ctx.fW * 4;
+		src -= ctx.fW * 4;
+	}*/
+	
+}
+
+/*{
+	XRectangle rects[4] =
+	{
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0}
+	};
+	
+	rects[0].width = 200 * eug;
+	rects[0].height = 200 * eug;
+	
+	eug %= 3;
+	eug++;
+	
+	XShapeCombineRectangles (
+		pDisplay, mainWindow,
+		ShapeBounding,
+		0, 0,
+		rects,
+		4, ShapeSet, Unsorted);
+}*/
+
+
+//	XReadBitmapFile(pDisplay, mainWindow, "", &width_return, &height_return, &pixmap_return, &x_hot_return, &y_hot_return);
+	
+
   SDL_GL_SwapBuffers();
 
   Frames++;
@@ -226,6 +322,56 @@ draw(void)
         Frames = 0;
      }
   }
+  
+  
+//	XSync(pDisplay, False);
+  	
+	if( !change )
+	{
+		change = now;
+	}
+	if( now - change > 5 )
+	{
+		change = time(NULL);
+		
+//		usleep(100000);
+		
+		GC black_gc, white_gc;
+		XGCValues values;
+		
+		Pixmap pix = XCreatePixmap(pDisplay, mainWindow, 900, 900, 1);
+		
+		values.foreground = BlackPixel (pDisplay, DefaultScreen (pDisplay));
+		black_gc = XCreateGC (pDisplay, pix, GCForeground, &values);
+		
+		values.foreground = WhitePixel (pDisplay, DefaultScreen (pDisplay));
+		white_gc = XCreateGC (pDisplay, pix, GCForeground, &values);
+		
+		eug %= 3;
+		eug++;
+
+		XPoint points[3];
+		points[0].x = 450;
+		points[0].y = 450 - eug * 100;
+		points[1].x = 450 + eug * 100;
+		points[1].y = 450;
+		points[2].x = 450 - eug * 100;
+		points[2].y = 450;
+		
+		XFillRectangle (pDisplay, pix, white_gc, 0, 0, 899, 899);
+		//XFillRectangle (pDisplay, pix, black_gc, 0, 0, eug * 100, eug * 100);
+		XFillPolygon(pDisplay, pix, black_gc, points, 3, Convex, CoordModeOrigin);
+		
+		XShapeCombineMask(pDisplay, mainWindow, ShapeBounding, 0, 0, pix, 0);
+		
+//		usleep(100000);
+		
+//		XSync(pDisplay, False);
+		
+//		usleep(100000);
+		
+		XFreePixmap(pDisplay, pix);
+	}
 }
 
 
@@ -272,19 +418,19 @@ init(int argc, char *argv[])
   gear1 = glGenLists(1);
   glNewList(gear1, GL_COMPILE);
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
-  gear(1.0, 4.0, 1.0, 20, 0.7);
+  gear(1.0, 5.0, 1.0, 20, 0.7);
   glEndList();
 
   gear2 = glGenLists(1);
   glNewList(gear2, GL_COMPILE);
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
-  gear(0.5, 2.0, 2.0, 10, 0.7);
+  gear(0.5, 4.0, 2.0, 10, 0.7);
   glEndList();
 
   gear3 = glGenLists(1);
   glNewList(gear3, GL_COMPILE);
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, blue);
-  gear(1.3, 2.0, 0.5, 10, 0.7);
+  gear(1.3, 4.0, 0.5, 10, 0.7);
   glEndList();
 
   glEnable(GL_NORMALIZE);
@@ -305,22 +451,37 @@ int main(int argc, char *argv[])
 
   SDL_Init(SDL_INIT_VIDEO);
 
-  SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT);
-  SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_WINDOW_BIT);
+//  SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT /*0x8011*/);
+//  SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_WINDOW_BIT /*0x8010*/);
   SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      8);
   SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    8);
   SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     8);
   SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  0);
+//  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  1);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    0);
 
-  screen = SDL_SetVideoMode(300, 300, 32, SDL_OPENGL|SDL_RESIZABLE);
+  screen = SDL_SetVideoMode(800, 800, 32, SDL_OPENGL|SDL_RESIZABLE);
   if ( ! screen ) {
     fprintf(stderr, "Couldn't set 300x300 GL video mode: %s\n", SDL_GetError());
     SDL_Quit();
     exit(2);
   }
   SDL_WM_SetCaption("Gears", "gears");
+
+{
+	rgbaBuffer = malloc( sizeof(GLubyte) * 800 * 800 * 4 );
+	SDL_SysWMinfo info;
+	SDL_VERSION(&info.version); // this is important!
+	int bResult = SDL_GetWMInfo(&info);
+	if ( !bResult )
+	{
+		printf("error in SDL_GetWMInfo\n");
+	}
+	
+	// save the SDL display
+	pDisplay = info.info.x11.display;
+	mainWindow = info.info.x11.wmwindow;
+}
 
   init(argc, argv);
   reshape(screen->w, screen->h);
@@ -372,7 +533,9 @@ int main(int argc, char *argv[])
     }
 
     draw();
+    XSync(pDisplay, False);
   }
   SDL_Quit();
+  free( rgbaBuffer );
   return 0;             /* ANSI C requires main to return int. */
 }

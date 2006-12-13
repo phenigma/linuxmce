@@ -59,7 +59,7 @@ xset m 1 1
 #killall xterm
 #xterm -class bogus_xterm -name bogus_xterm -geometry 1x1+2000+2000 &
 #sleep 1
-#exec "$Executable" "$@"
+exec "$Executable" "$@"
 #sleep 5
 #Logging "$TYPE" "$SEVERITY_CRITICAL" "LaunchOrbiter" "Hack to kill xterm"
 #killall xterm
