@@ -100,7 +100,7 @@ UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string 
 	m_bAsDaemon = false;
     PlutoMediaIdentifier::Activate(m_pDatabase_pluto_main);
 
-    m_sDirectory = FileUtils::ExcludeTrailingSlash(m_sDirectory);
+    m_sDirectory = FileUtils::ExcludeTrailingSlash(sDirectory);
 
 	SetupInstallation();
 
