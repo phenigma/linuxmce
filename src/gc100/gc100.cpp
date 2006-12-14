@@ -101,7 +101,7 @@ gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	ir_cmd_id = 1;
 	m_bStopLearning = false;
 	gc100_mutex.Init(NULL);
-	m_bQuit_get()= false;
+	m_bQuit_set(false);
 	m_bLearning = false;
 	m_bMustConvertRC5_6 = true;
 }
