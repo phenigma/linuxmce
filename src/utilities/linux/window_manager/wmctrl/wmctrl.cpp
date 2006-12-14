@@ -432,8 +432,8 @@ bool WmCtrl::ActionCommand(char action, const char *param_window/*=NULL*/, const
     }
     int nRetCode = LowLevelCommand(action, options, pListWinInfo);
     bool bRetCode = ( 0 == nRetCode );
-    delete options.param_window;
-    delete options.param;
+    delete[] options.param_window;
+    delete[] options.param;
 #ifdef DEBUG
     fprintf(stderr, "WmCtrl::ActionCommand('%c', '%s', '%s', %d, %p) => RetCode==%d\n", action, param_window, param, use_id_in_param_window, pListWinInfo, nRetCode);
 #endif
