@@ -223,6 +223,10 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 		
 		string sFile = *it;
 
+		//not a media file or a directory
+		if(!PlutoMediaFile::IsDirectory(sDirectory + "/" + sFile) && !PlutoMediaIdentifier::Identify(sDirectory + "/" + sFile))
+			continue;
+
 		//ignore id3 and lock files
 		if(StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "id3" || StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "lock")
 			continue;

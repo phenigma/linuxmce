@@ -67,10 +67,6 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 //-----------------------------------------------------------------------------------------------------
 MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 {
-	//not a media file or a directory
-	if(!PlutoMediaFile::IsDirectory(sDirectory + "/" + sFile) && !PlutoMediaIdentifier::Identify(sDirectory + "/" + sFile))
-		return modeNone;
-
 	MediaSyncMode sync_mode = modeNone;
 	bool bNeedToUpdateDb = false;
 	bool bNeedtoUpdateFile = false;
