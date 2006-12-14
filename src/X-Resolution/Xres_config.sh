@@ -67,5 +67,7 @@ Msg="Current resolution: $resolution @ $refresh Hz"
 echo "$Msg"
 ShowDialog "$pidOfX" "$Msg" </dev/null &>/dev/null &
 
+echo "$Width $Height/$Refresh" >/tmp/Pluto_VideoSetting.txt
+
 disown -a
 exit 0
