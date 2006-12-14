@@ -3048,6 +3048,12 @@ string Xine_Stream::readMediaInfo()
 
 void Xine_Stream::ReadAVInfo()
 {
+	{
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		if (!m_bInitialized)
+			return;
+	}
+
 	m_sAudioInfo = "";
 	m_sVideoInfo = "";
 	
