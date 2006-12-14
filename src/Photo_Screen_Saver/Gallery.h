@@ -10,6 +10,12 @@
 #include <string>
 using namespace std;
 
+namespace DCE
+{
+	class Photo_Screen_Saver;
+};
+
+
 class ProcessUtils
 {
 public:
@@ -38,7 +44,7 @@ class Gallery
 
 public:
 	~Gallery(void);
-	void MainLoop(bool * m_bQuit_get());
+	void MainLoop(DCE::Photo_Screen_Saver *pPhoto_Screen_Saver);
 	static Gallery* Instance(void);
 
     bool Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName, bool bUseAnimation);

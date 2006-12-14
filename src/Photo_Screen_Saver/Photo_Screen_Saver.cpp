@@ -115,9 +115,9 @@ class GallerySetup
 
 public:
 	pthread_t* ThreadID;
-	bool* m_bQuit;
+	Photo_Screen_Saver *m_pPhoto_Screen_Saver;
 	
-	GallerySetup(string Width, string Height, bool bUseAnimation, int ZoomTime, int FaddingTime, string ImageList, bool bNPOTTextures);
+	GallerySetup(string Width, string Height, bool bUseAnimation, int ZoomTime, int FaddingTime, string ImageList, bool bNPOTTextures,Photo_Screen_Saver *pPhoto_Screen_Saver);
 	int GetWidth();
 	int GetHeight();
 	int GetZoomTime();
@@ -126,7 +126,7 @@ public:
 	bool GetUseAnimation();
 };
 
-GallerySetup::GallerySetup(string Width, string Height, bool bUseAnimation, int ZoomTime, int FaddingTime, string ImageList, bool bNPOTTextures)
+GallerySetup::GallerySetup(string Width, string Height, bool bUseAnimation, int ZoomTime, int FaddingTime, string ImageList, bool bNPOTTextures,Photo_Screen_Saver *pPhoto_Screen_Saver)
 {
 	this->Width_ = atoi(Width.c_str());
 	this->Height_ = atoi(Height.c_str());
@@ -136,6 +136,7 @@ GallerySetup::GallerySetup(string Width, string Height, bool bUseAnimation, int 
 	m_bUseAnimation = bUseAnimation;
 
 	TextureManager::Instance()->SetupNPOTSupport(bNPOTTextures);
+	m_pPhoto_Screen_Saver=pPhoto_Screen_Saver;
 }
 
 int GallerySetup::GetWidth()
@@ -185,11 +186,10 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 	string sUseAnimation = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_Use_OpenGL_effects_CONST);
 	bool bUseAnimation = sUseAnimation == "1";
 	
-	GallerySetup* SetupInfo = new GallerySetup(w, h, bUseAnimation, DATA_Get_ZoomTime(), DATA_Get_FadeTime(), m_sFileList, bNPOTTextures);
+	GallerySetup* SetupInfo = new GallerySetup(w, h, bUseAnimation, DATA_Get_ZoomTime(), DATA_Get_FadeTime(), m_sFileList, bNPOTTextures, this);
 	if(0 == ThreadID)
 	{
 		SetupInfo->ThreadID = &ThreadID;
-		SetupInfo->m_bQuit = &m_bQuit;
 		pthread_create(&ThreadID, NULL, ThreadAnimation, SetupInfo);
 	}
 }
@@ -234,7 +234,7 @@ void* ThreadAnimation(void* ThreadInfo)
 		Info->GetZoomTime(),
 		Info->GetSearchImagesPath(),
 		Info->GetUseAnimation());
-	Gallery::Instance()->MainLoop(Info->m_bQuit_get()); 
+	Gallery::Instance()->MainLoop(Info->m_pPhoto_Screen_Saver); 
 	Gallery::Instance()->CleanUp();
 
 	*(Info->ThreadID) = 0;

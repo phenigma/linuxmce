@@ -1,4 +1,5 @@
 #include "Gallery.h"
+#include "Photo_Screen_Saver.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -19,7 +20,7 @@
 	#include <sys/wait.h>
 #endif
 
-
+using namespace DCE;
 unsigned long ProcessUtils::g_SecondsReset=0;
 
 void ProcessUtils::ResetMsTime()
@@ -51,11 +52,11 @@ Gallery::~Gallery(void)
 	pthread_mutex_destroy(&m_FrontEndMutex.mutex);
 }
 
-void Gallery::MainLoop(bool * m_bQuit_get())
+void Gallery::MainLoop(Photo_Screen_Saver *pPhoto_Screen_Saver)
 {
-	while(!Quit)
+	while(!pPhoto_Screen_Saver->m_bQuit_get())
 	{
-		while (!Quit && (FrontEnd->HasEventPending()))
+		while (!pPhoto_Screen_Saver->m_bQuit_get() && (FrontEnd->HasEventPending()))
 		{
 			FrontEnd->TranslateEvent(Event);
 			if(Event.Type)
@@ -63,7 +64,7 @@ void Gallery::MainLoop(bool * m_bQuit_get())
 		}
 		bool StatusChange = Event.Type != -1;
 
-		if(!Quit)
+		if(!pPhoto_Screen_Saver->m_bQuit_get())
 		{
 			if(StatusChange)
 			{
@@ -75,7 +76,6 @@ void Gallery::MainLoop(bool * m_bQuit_get())
 				_Sleep(80);
 			}
 		}
-		Quit = Quit || (* m_bQuit_get());
 	}
 }
 
