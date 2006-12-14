@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		SMPTE_Fountain *pSMPTE_Fountain = new SMPTE_Fountain(PK_Device, "localhost",true,false,pRouter);
-		if( pSMPTE_Fountain->m_bQuit || !pSMPTE_Fountain->GetConfig() )
+		if( pSMPTE_Fountain->m_bQuit_get()|| !pSMPTE_Fountain->GetConfig() )
 		{
 			delete pSMPTE_Fountain;
 			return NULL;

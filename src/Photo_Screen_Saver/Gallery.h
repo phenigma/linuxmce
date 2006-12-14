@@ -38,7 +38,7 @@ class Gallery
 
 public:
 	~Gallery(void);
-	void MainLoop(bool * m_bQuit);
+	void MainLoop(bool * m_bQuit_get());
 	static Gallery* Instance(void);
 
     bool Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName, bool bUseAnimation);

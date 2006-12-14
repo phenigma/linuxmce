@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		VDRPlugin *pVDRPlugin = new VDRPlugin(PK_Device, "localhost",true,false,pRouter);
-		if( pVDRPlugin->m_bQuit || !pVDRPlugin->GetConfig() )
+		if( pVDRPlugin->m_bQuit_get()|| !pVDRPlugin->GetConfig() )
 		{
 			delete pVDRPlugin;
 			return NULL;

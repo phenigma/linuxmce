@@ -262,7 +262,7 @@ bool Powerfile_C200::GetConfig()
     if (!m_pDatabase_pluto_media->Connect("dcerouter", "root", "", "pluto_media", 3306))
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
-        m_bQuit = true;
+        m_bQuit_set(true);
         return false;
     }
 	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media, 0);

@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Motion_Wrapper *pMotion_Wrapper = new Motion_Wrapper(PK_Device, "localhost",true,false,pRouter);
-		if( pMotion_Wrapper->m_bQuit || !pMotion_Wrapper->GetConfig() )
+		if( pMotion_Wrapper->m_bQuit_get()|| !pMotion_Wrapper->GetConfig() )
 		{
 			delete pMotion_Wrapper;
 			return NULL;

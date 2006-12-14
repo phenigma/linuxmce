@@ -20,7 +20,7 @@ namespace DCE
 		bool IsAsteriskServerRunning();
 public:
 		// Public member variables
-		int GetMBQuit() {return m_bQuit;};
+		int GetMBQuit() {return m_bQuit_get();};
 		virtual void PostConnect();
 //<-dceag-const-b->
 public:

@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		SlimServer_PlugIn *pSlimServer_PlugIn = new SlimServer_PlugIn(PK_Device, "localhost",true,false,pRouter);
-		if( pSlimServer_PlugIn->m_bQuit || !pSlimServer_PlugIn->GetConfig() )
+		if( pSlimServer_PlugIn->m_bQuit_get()|| !pSlimServer_PlugIn->GetConfig() )
 		{
 			delete pSlimServer_PlugIn;
 			return NULL;

@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		VDR *pVDR = new VDR(PK_Device, "localhost",true,false,pRouter);
-		if( pVDR->m_bQuit || !pVDR->GetConfig() )
+		if( pVDR->m_bQuit_get()|| !pVDR->GetConfig() )
 		{
 			delete pVDR;
 			return NULL;

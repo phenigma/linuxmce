@@ -73,7 +73,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Text_To_Speech *pText_To_Speech = new Text_To_Speech(PK_Device, "localhost",true,false,pRouter);
-		if( pText_To_Speech->m_bQuit || !pText_To_Speech->GetConfig() )
+		if( pText_To_Speech->m_bQuit_get()|| !pText_To_Speech->GetConfig() )
 		{
 			delete pText_To_Speech;
 			return NULL;

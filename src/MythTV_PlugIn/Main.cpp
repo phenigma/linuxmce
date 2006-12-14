@@ -101,7 +101,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		MythTV_PlugIn *pMythTV_PlugIn = new MythTV_PlugIn(PK_Device, "localhost",true,false,pRouter);
-		if( pMythTV_PlugIn->m_bQuit || !pMythTV_PlugIn->GetConfig() )
+		if( pMythTV_PlugIn->m_bQuit_get()|| !pMythTV_PlugIn->GetConfig() )
 		{
 			delete pMythTV_PlugIn;
 			return NULL;

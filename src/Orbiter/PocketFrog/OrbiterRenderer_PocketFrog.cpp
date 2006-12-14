@@ -76,7 +76,7 @@ typedef struct _VIDEO_POWER_MANAGEMENT {
 	#define DT_END_ELLIPSIS 0
 #endif
 //-----------------------------------------------------------------------------------------------------
-#define CHECK_STATUS() { if(OrbiterLogic()->m_bQuit) return; }
+#define CHECK_STATUS() { if(OrbiterLogic()->m_bQuit_get()) return; }
 //-----------------------------------------------------------------------------------------------------
 extern Command_Impl *g_pCommand_Impl;
 //-----------------------------------------------------------------------------------------------------
@@ -148,7 +148,7 @@ bool OrbiterRenderer_PocketFrog::GameInit()
     GetDisplay()->Update();
 	OrbiterLogic()->Initialize(gtPocketFrogGraphic);
 
-	if(OrbiterLogic()->m_bQuit || OrbiterLogic()->m_bReload)
+	if(OrbiterLogic()->m_bQuit_get()|| OrbiterLogic()->m_bReload)
     {
 		//we were just loading and someone did a reload router.
 		//we'll start again
@@ -562,7 +562,7 @@ void OrbiterRenderer_PocketFrog::PingFailed()
 
 	ShowMainDialog();
 
-	OrbiterLogic()->m_bQuit = true;
+	OrbiterLogic()->m_bQuit_set(true);
 	OrbiterLogic()->m_bReload = true;
 	OnQuit();
 }
@@ -667,7 +667,7 @@ void OrbiterRenderer_PocketFrog::OnUnexpectedDisconnect()
     ::CreateProcess(NULL, const_cast<char *>(sCmdLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
 #endif
 
-    OrbiterLogic()->m_bQuit = true;
+    OrbiterLogic()->m_bQuit_set(true);
     exit(1); //die!!!
 }
 //-----------------------------------------------------------------------------------------------------

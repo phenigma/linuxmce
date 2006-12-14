@@ -51,7 +51,7 @@ Gallery::~Gallery(void)
 	pthread_mutex_destroy(&m_FrontEndMutex.mutex);
 }
 
-void Gallery::MainLoop(bool * m_bQuit)
+void Gallery::MainLoop(bool * m_bQuit_get())
 {
 	while(!Quit)
 	{
@@ -75,7 +75,7 @@ void Gallery::MainLoop(bool * m_bQuit)
 				_Sleep(80);
 			}
 		}
-		Quit = Quit || (* m_bQuit);
+		Quit = Quit || (* m_bQuit_get());
 	}
 }
 

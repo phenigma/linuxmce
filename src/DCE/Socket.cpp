@@ -121,7 +121,7 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 		ts_NextPing.tv_sec = long(time(NULL)) + 5;
 		sSM.TimedCondWait(ts_NextPing);
 
-		if( !pSocket->m_bUsePingToKeepAlive || pSocket->m_Socket == INVALID_SOCKET || pSocket->m_bQuit )
+		if( !pSocket->m_bUsePingToKeepAlive || pSocket->m_Socket == INVALID_SOCKET || pSocket->m_bQuit_get() )
 		{
 			sSM.Release();
 			pSocket->m_bUsePingToKeepAlive=false;
@@ -317,7 +317,7 @@ Message *Socket::ReceiveMessage( int iLength, bool bText)
 		char *pcBuffer = new char[iLength+1]; // freeing after we create the Message object from it or after error before return
 		if( !pcBuffer ) // couldn't alloc on heap
 		{
-			if( m_bQuit || m_bCancelSocketOp)
+			if( m_bQuit_get()|| m_bCancelSocketOp)
 				return NULL;
 			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - failed to allocate buffer - m_Socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 			if( g_pSocketCrashHandler )
@@ -338,7 +338,7 @@ Message *Socket::ReceiveMessage( int iLength, bool bText)
 				return pMessage;
 			}
 			delete[] pcBuffer;
-			if( m_bQuit || m_bCancelSocketOp )
+			if( m_bQuit_get()|| m_bCancelSocketOp )
 				return NULL;
 			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - failed ReceiveData - m_Socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 			PlutoLock::DumpOutstandingLocks();
@@ -352,7 +352,7 @@ Message *Socket::ReceiveMessage( int iLength, bool bText)
 	catch( ... ) // an exception was thrown
 #endif
 	{
-		if( m_bQuit || m_bCancelSocketOp )
+		if( m_bQuit_get()|| m_bCancelSocketOp )
 			return NULL;
 		g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - out of memory? m_Socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 		PlutoLock::DumpOutstandingLocks();
@@ -412,10 +412,10 @@ bool Socket::SendData( int iSize, const char *pcData )
 		tv_total.tv_usec = 0;
 		do
 		{
-			if( m_Socket == INVALID_SOCKET || m_bQuit || m_bCancelSocketOp)
+			if( m_Socket == INVALID_SOCKET || m_bQuit_get()|| m_bCancelSocketOp)
 			{
 				// This causes a recursive failure
-//				g_pPlutoLogger->Write(LV_WARNING,"Socket::SendData m_Socket %d quit %d",(int) m_Socket,(int) m_bQuit);
+//				g_pPlutoLogger->Write(LV_WARNING,"Socket::SendData m_Socket %d quit %d",(int) m_Socket,(int) m_bQuit_get());
 				return false;
 			}
 
@@ -481,7 +481,7 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 	sSM.m_bIgnoreDeadlock=true;  // This socket can block a long time on receive.  Don't treat that as a deadlock
 	if( m_Socket == INVALID_SOCKET )
 	{
-		if( m_bQuit || m_bCancelSocketOp )
+		if( m_bQuit_get()|| m_bCancelSocketOp )
 			return false;
 		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, m_Socket: %d (%p) %s ch: %p", this, m_Socket, this, m_sName.c_str(), g_pSocketCrashHandler );
 		PlutoLock::DumpOutstandingLocks();
@@ -527,9 +527,9 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 			//g_pPlutoLogger->Write(LV_STATUS, "Socket::ReceiveData timeout %d socket %d", nInternalReceiveTimeout, m_Socket);
 			do
 			{
-				if( m_Socket == INVALID_SOCKET || m_bQuit || m_bCancelSocketOp )
+				if( m_Socket == INVALID_SOCKET || m_bQuit_get()|| m_bCancelSocketOp )
 				{
-					g_pPlutoLogger->Write(LV_WARNING,"Socket::ReceiveData m_Socket %d m_bQuit %d",(int) m_Socket,(int) m_bQuit);
+					g_pPlutoLogger->Write(LV_WARNING,"Socket::ReceiveData m_Socket %d m_bQuit_get()%d",(int) m_Socket,(int) m_bQuit_get());
 					return false;
 				}
 
@@ -576,7 +576,7 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 				if( nInternalReceiveTimeout==-2 )
 					return false; // Special value means don't timeout
                 Close();
-				if( m_bQuit || m_bCancelSocketOp )
+				if( m_bQuit_get()|| m_bCancelSocketOp )
 					return false;
 #ifdef DEBUG
 				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, ret %d start: %d 1: %d 1b: %d 2: %d 2b: %d, m_Socket: %d %s ch: %p",
@@ -637,7 +637,7 @@ bool Socket::ReceiveString( string &sRefString, int nTimeout/*= -1*/)
 	int	iLen = sizeof( acBuf ) - 1;
 	if(( m_Socket == INVALID_SOCKET ) || ( acBuf == NULL ))
 	{
-		if( m_bQuit || m_bCancelSocketOp )
+		if( m_bQuit_get()|| m_bCancelSocketOp )
 			return false;
 		{
 			g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString1 %p failed, m_Socket: %d buf %p %s ch: %p", this, m_Socket, acBuf, m_sName.c_str(), g_pSocketCrashHandler );
@@ -680,7 +680,7 @@ bool Socket::ReceiveString( string &sRefString, int nTimeout/*= -1*/)
 
 	if ( !iLen ) // didn't get all that was expected or more @todo ask
 	{
-		if( m_bQuit || m_bCancelSocketOp )
+		if( m_bQuit_get()|| m_bCancelSocketOp )
 			return false;
 
 		// Yikes, we received more than sizeof(acBuf) characters.  Must be spewing.  Drop the connection.

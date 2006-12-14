@@ -89,7 +89,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		MythTV_Player *pMythTV_Player = new MythTV_Player(PK_Device, "localhost",true,false,pRouter);
-		if( pMythTV_Player->m_bQuit || !pMythTV_Player->GetConfig() )
+		if( pMythTV_Player->m_bQuit_get()|| !pMythTV_Player->GetConfig() )
 		{
 			delete pMythTV_Player;
 			return NULL;

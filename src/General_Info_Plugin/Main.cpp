@@ -102,7 +102,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		General_Info_Plugin *pGeneral_Info_Plugin = new General_Info_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pGeneral_Info_Plugin->m_bQuit || !pGeneral_Info_Plugin->GetConfig() )
+		if( pGeneral_Info_Plugin->m_bQuit_get()|| !pGeneral_Info_Plugin->GetConfig() )
 		{
 			delete pGeneral_Info_Plugin;
 			return NULL;

@@ -102,7 +102,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		File_Grids_Plugin *pFile_Grids_Plugin = new File_Grids_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pFile_Grids_Plugin->m_bQuit || !pFile_Grids_Plugin->GetConfig() )
+		if( pFile_Grids_Plugin->m_bQuit_get()|| !pFile_Grids_Plugin->GetConfig() )
 		{
 			delete pFile_Grids_Plugin;
 			return NULL;

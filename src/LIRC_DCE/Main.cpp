@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		LIRC_DCE *pLIRC_DCE = new LIRC_DCE(PK_Device, "localhost",true,false,pRouter);
-		if( pLIRC_DCE->m_bQuit || !pLIRC_DCE->GetConfig() )
+		if( pLIRC_DCE->m_bQuit_get()|| !pLIRC_DCE->GetConfig() )
 		{
 			delete pLIRC_DCE;
 			return NULL;

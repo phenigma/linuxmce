@@ -102,7 +102,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Security_Plugin *pSecurity_Plugin = new Security_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pSecurity_Plugin->m_bQuit || !pSecurity_Plugin->GetConfig() )
+		if( pSecurity_Plugin->m_bQuit_get()|| !pSecurity_Plugin->GetConfig() )
 		{
 			delete pSecurity_Plugin;
 			return NULL;

@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Windows_Share_Scanner *pWindows_Share_Scanner = new Windows_Share_Scanner(PK_Device, "localhost",true,false,pRouter);
-		if( pWindows_Share_Scanner->m_bQuit || !pWindows_Share_Scanner->GetConfig() )
+		if( pWindows_Share_Scanner->m_bQuit_get()|| !pWindows_Share_Scanner->GetConfig() )
 		{
 			delete pWindows_Share_Scanner;
 			return NULL;

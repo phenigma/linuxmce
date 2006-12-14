@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Photo_Screen_Saver *pPhoto_Screen_Saver = new Photo_Screen_Saver(PK_Device, "localhost",true,false,pRouter);
-		if( pPhoto_Screen_Saver->m_bQuit || !pPhoto_Screen_Saver->GetConfig() )
+		if( pPhoto_Screen_Saver->m_bQuit_get()|| !pPhoto_Screen_Saver->GetConfig() )
 		{
 			delete pPhoto_Screen_Saver;
 			return NULL;

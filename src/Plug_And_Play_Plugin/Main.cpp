@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Plug_And_Play_Plugin *pPlug_And_Play_Plugin = new Plug_And_Play_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pPlug_And_Play_Plugin->m_bQuit || !pPlug_And_Play_Plugin->GetConfig() )
+		if( pPlug_And_Play_Plugin->m_bQuit_get()|| !pPlug_And_Play_Plugin->GetConfig() )
 		{
 			delete pPlug_And_Play_Plugin;
 			return NULL;

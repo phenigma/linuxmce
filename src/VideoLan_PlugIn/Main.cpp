@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		VideoLan_PlugIn *pVideoLan_PlugIn = new VideoLan_PlugIn(PK_Device, "localhost",true,false,pRouter);
-		if( pVideoLan_PlugIn->m_bQuit || !pVideoLan_PlugIn->GetConfig() )
+		if( pVideoLan_PlugIn->m_bQuit_get()|| !pVideoLan_PlugIn->GetConfig() )
 		{
 			delete pVideoLan_PlugIn;
 			return NULL;

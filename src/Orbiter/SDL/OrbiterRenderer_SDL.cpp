@@ -228,7 +228,7 @@ void OrbiterRenderer_SDL::RenderScreen( bool bRenderGraphicsOnly )
 //----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL::DisplayImageOnScreen(SDL_Surface *m_pScreenImage)
 {
-	if(OrbiterLogic()->m_bQuit)
+	if(OrbiterLogic()->m_bQuit_get())
 		return;
 
 	PLUTO_SAFETY_LOCK(cm,OrbiterLogic()->m_ScreenMutex);
@@ -494,7 +494,7 @@ void OrbiterRenderer_SDL::EventLoop()
 	SDL_Event Event;
 
    // For now I'll assume that shift + arrows scrolls a grid
-    while (!OrbiterLogic()->m_bQuit && !OrbiterLogic()->m_bReload)
+    while (!OrbiterLogic()->m_bQuit_get()&& !OrbiterLogic()->m_bReload)
     {
 		LockDisplay();
 		SDL_Event_Pending = SDL_PollEvent(&Event);

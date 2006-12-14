@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		HAL *pHAL = new HAL(PK_Device, "localhost",true,false,pRouter);
-		if( pHAL->m_bQuit || !pHAL->GetConfig() )
+		if( pHAL->m_bQuit_get()|| !pHAL->GetConfig() )
 		{
 			delete pHAL;
 			return NULL;

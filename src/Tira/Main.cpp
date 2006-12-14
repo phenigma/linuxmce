@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Tira *pTira = new Tira(PK_Device, "localhost",true,false,pRouter);
-		if( pTira->m_bQuit || !pTira->GetConfig() )
+		if( pTira->m_bQuit_get()|| !pTira->GetConfig() )
 		{
 			delete pTira;
 			return NULL;

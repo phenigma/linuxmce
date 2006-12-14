@@ -73,7 +73,7 @@ void *GeneratorThread( void *p)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Simulator: generating new event (orbiter : %p)", pOrbiter);
 
-		if(!pOrbiter || pOrbiter->m_bQuit)
+		if(!pOrbiter || pOrbiter->m_bQuit_get())
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter is NULL!");
 			pSimulator->m_bIsRunning = false;
@@ -91,7 +91,7 @@ void *GeneratorThread( void *p)
 			g_pPlutoLogger->Write(LV_CRITICAL, "@@@ Got stuck into the screen with id: %s @@@",
 				pOrbiter->GetCurrentScreenID().c_str());
 
-			if(!pOrbiter->m_bQuit && HomeScreen != "")
+			if(!pOrbiter->m_bQuit_get()&& HomeScreen != "")
 				pOrbiter->GotoDesignObj(HomeScreen);
 		}
 
@@ -112,7 +112,7 @@ void *GeneratorThread( void *p)
 			x = rand() % pOrbiter->m_iImageWidth;
 			y = rand() % pOrbiter->m_iImageHeight;
 
-			if(!pOrbiter->m_bQuit && bGenerateMouseClicks)
+			if(!pOrbiter->m_bQuit_get()&& bGenerateMouseClicks)
 				pOrbiter->SimulateMouseClick(x, y);
 		}
 		else
@@ -137,7 +137,7 @@ void *GeneratorThread( void *p)
 
 				int index = rand() % count;
 
-				if(!pOrbiter->m_bQuit)
+				if(!pOrbiter->m_bQuit_get())
 					pOrbiter->SimulateKeyPress(list[index]);
 			}
 			else if(bOption2)
@@ -150,7 +150,7 @@ void *GeneratorThread( void *p)
 
 				int index = rand() % sizeof(list)/sizeof(list[0]);
 
-				if(!pOrbiter->m_bQuit)
+				if(!pOrbiter->m_bQuit_get())
 				{
 					if(pOrbiter->UsesUIVersion2() && !(rand() % 30))
 						pOrbiter->SimulateKeyPress(BUTTON_F6_CONST + (rand() % 3));
@@ -201,7 +201,7 @@ void *GeneratorThread( void *p)
 				};
 				int index = rand() % sizeof(list)/sizeof(list[0]);
 
-				if(!pOrbiter->m_bQuit)
+				if(!pOrbiter->m_bQuit_get())
 					pOrbiter->SimulateKeyPress(list[index]);
 			}
 		}

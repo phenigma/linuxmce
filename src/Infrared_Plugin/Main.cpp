@@ -89,7 +89,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Infrared_Plugin *pInfrared_Plugin = new Infrared_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pInfrared_Plugin->m_bQuit || !pInfrared_Plugin->GetConfig() )
+		if( pInfrared_Plugin->m_bQuit_get()|| !pInfrared_Plugin->GetConfig() )
 		{
 			delete pInfrared_Plugin;
 			return NULL;

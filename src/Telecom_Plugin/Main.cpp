@@ -103,7 +103,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Telecom_Plugin *pTelecom_Plugin = new Telecom_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pTelecom_Plugin->m_bQuit || !pTelecom_Plugin->GetConfig() )
+		if( pTelecom_Plugin->m_bQuit_get()|| !pTelecom_Plugin->GetConfig() )
 		{
 			delete pTelecom_Plugin;
 			return NULL;

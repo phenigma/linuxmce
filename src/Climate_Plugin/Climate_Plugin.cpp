@@ -72,7 +72,7 @@ bool Climate_Plugin::GetConfig()
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
-		m_bQuit=true;
+		m_bQuit_set(true);
 		return false;
 	}
 	return true;

@@ -87,7 +87,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Linphone *pLinphone = new Linphone(PK_Device, "localhost",true,false,pRouter);
-		if( pLinphone->m_bQuit )
+		if( pLinphone->m_bQuit_get())
 		{
 			delete pLinphone;
 			return NULL;

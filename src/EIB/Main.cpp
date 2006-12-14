@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		EIB *pEIB = new EIB(PK_Device, "localhost",true,false,pRouter);
-		if( pEIB->m_bQuit || !pEIB->GetConfig() )
+		if( pEIB->m_bQuit_get()|| !pEIB->GetConfig() )
 		{
 			delete pEIB;
 			return NULL;

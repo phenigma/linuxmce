@@ -90,7 +90,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 	{
 #ifdef WIN32	
 		SDL_Event SDL_Event_Pending;
-		while(SDL_PollEvent(&SDL_Event_Pending) && !pOrbiterRenderer->Engine->m_bQuit)
+		while(SDL_PollEvent(&SDL_Event_Pending) && !pOrbiterRenderer->Engine->m_bQuit_get())
 			SDL_PushEvent(&SDL_Event_Pending);
 #endif			
 
@@ -129,7 +129,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	g_pPlutoLogger->Write(LV_CRITICAL, "");
 
 	if(NULL != Engine)
-		Engine->m_bQuit = true;
+		Engine->m_bQuit_set(true);
 
 	if(GLThread != 0)
 		pthread_join(GLThread, NULL);
@@ -153,7 +153,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 {
 	g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions");
 	
-	if(!OrbiterLogic()->m_bQuit && !IsWindowCreated())
+	if(!OrbiterLogic()->m_bQuit_get()&& !IsWindowCreated())
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions waiting the window to be created...");
 		
@@ -584,7 +584,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	SDL_Event Event;
 
 	// For now I'll assume that shift + arrows scrolls a grid
-	while (!OrbiterLogic()->m_bQuit && !OrbiterLogic()->m_bReload)
+	while (!OrbiterLogic()->m_bQuit_get()&& !OrbiterLogic()->m_bReload)
 	{
 		SDL_Event_Pending = SDL_PollEvent(&Event);
 
@@ -671,7 +671,7 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderScreen(bool bRenderGraphicsOnly)
 {
-	if(OrbiterLogic()->m_bQuit)
+	if(OrbiterLogic()->m_bQuit_get())
 		return; //we are about to quit
 
 	if(OrbiterLogic()->m_pObj_SelectedLastScreen)

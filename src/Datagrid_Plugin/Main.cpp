@@ -108,7 +108,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Datagrid_Plugin *pDatagrid_Plugin = new Datagrid_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pDatagrid_Plugin->m_bQuit || !pDatagrid_Plugin->GetConfig() )
+		if( pDatagrid_Plugin->m_bQuit_get()|| !pDatagrid_Plugin->GetConfig() )
 		{
 			delete pDatagrid_Plugin;
 			return NULL;

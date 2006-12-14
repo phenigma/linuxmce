@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Crystal_Fontz_USBRS232 *pCrystal_Fontz_USBRS232 = new Crystal_Fontz_USBRS232(PK_Device, "localhost",true,false,pRouter);
-		if( pCrystal_Fontz_USBRS232->m_bQuit || !pCrystal_Fontz_USBRS232->GetConfig() )
+		if( pCrystal_Fontz_USBRS232->m_bQuit_get()|| !pCrystal_Fontz_USBRS232->GetConfig() )
 		{
 			delete pCrystal_Fontz_USBRS232;
 			return NULL;

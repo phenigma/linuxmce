@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		SimplePhone *pSimplePhone = new SimplePhone(PK_Device, "localhost",true,false,pRouter);
-		if( pSimplePhone->m_bQuit || !pSimplePhone->GetConfig() )
+		if( pSimplePhone->m_bQuit_get()|| !pSimplePhone->GetConfig() )
 		{
 			delete pSimplePhone;
 			return NULL;

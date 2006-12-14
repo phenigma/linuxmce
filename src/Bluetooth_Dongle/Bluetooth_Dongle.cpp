@@ -171,7 +171,7 @@ g_pPlutoLogger->Write(LV_STATUS,"HandleBDCommandProcessorThread started");
 	bm.Release();
 	
     while( 
-        !pBluetooth_Dongle->m_bQuit &&
+        !pBluetooth_Dongle->m_bQuit_get()&&
         NULL != pBD_Orbiter->m_pBDCommandProcessor && 
         !pBD_Orbiter->m_pBDCommandProcessor->m_bDead && 
         pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand( 0, 0, NULL )
@@ -179,7 +179,7 @@ g_pPlutoLogger->Write(LV_STATUS,"HandleBDCommandProcessorThread started");
 
 	g_pPlutoLogger->Write( LV_STATUS, "Exiting command processor...");
 
-    if(pBluetooth_Dongle->m_bQuit)
+    if(pBluetooth_Dongle->m_bQuit_get())
     {
         g_pPlutoLogger->Write( LV_STATUS, "Going to quit...");
 
@@ -343,7 +343,7 @@ Bluetooth_Dongle::~Bluetooth_Dongle()
 //<-dceag-dest-e->
 {
     //just to be sure
-    m_bQuit = true;
+    m_bQuit_set(true);
 
     g_pPlutoLogger->Write(LV_STATUS, "Starting Bluetooth_Dongle destructor... ");
 
@@ -476,7 +476,7 @@ void Bluetooth_Dongle::BugReport()
 
 bool Bluetooth_Dongle::ScanningLoop()
 {
-    if(m_bQuit)
+    if(m_bQuit_get())
         return false;
     
     // First, scan the map for connections that have died.
@@ -484,7 +484,7 @@ bool Bluetooth_Dongle::ScanningLoop()
 	{
 		PLUTO_SAFETY_LOCK( bm, m_BTMutex );
 
-        if(m_bQuit)
+        if(m_bQuit_get())
             return false;
 
 		for( iMos = m_mapOrbiterSockets.begin(); 
@@ -540,7 +540,7 @@ THE FOUND DEVICE IF WE'RE ALREADY CONNECTED.  WE'LL JUST PUT IT IN THE MAP AND D
 // This will also add the phone to the map
 void Bluetooth_Dongle::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 {
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return;
 
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
@@ -578,7 +578,7 @@ void Bluetooth_Dongle::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 
 void Bluetooth_Dongle::Intern_LostDevice(class PhoneDevice *pDevice)
 {
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return;
 
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
@@ -599,7 +599,7 @@ void Bluetooth_Dongle::Intern_LostDevice(class PhoneDevice *pDevice)
 
 void Bluetooth_Dongle::NewDeviceDetected( class PhoneDevice *pDevice )
 {
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return;
 
 	// We'll just handle this the same way
@@ -610,7 +610,7 @@ void Bluetooth_Dongle::NewDeviceDetected( class PhoneDevice *pDevice )
 
 void Bluetooth_Dongle::LostDevice( class PhoneDevice *pDevice )
 {
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return;
 
 	PLUTO_SAFETY_LOCK( bm, m_BTMutex );
@@ -648,7 +648,7 @@ void Bluetooth_Dongle::LostDevice( class PhoneDevice *pDevice )
 
 void Bluetooth_Dongle::SignalStrengthChanged( class PhoneDevice *pDevice )
 {
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return;
 
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );

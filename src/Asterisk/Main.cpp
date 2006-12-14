@@ -72,7 +72,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Asterisk *pAsterisk = new Asterisk(PK_Device, "localhost",true,false,pRouter);
-		if( pAsterisk->m_bQuit || !pAsterisk->GetConfig() )
+		if( pAsterisk->m_bQuit_get() || !pAsterisk->GetConfig() )
 		{
 			delete pAsterisk;
 			return NULL;

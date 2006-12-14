@@ -95,7 +95,7 @@ Orbiter *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 		PK_Device = pOrbiter->m_dwPK_Device;
         if(!bConnected)
         {
-            if(pOrbiter->m_bQuit)
+            if(pOrbiter->m_bQuit_get())
                 bMustQuit = true;
             else
             {
@@ -110,7 +110,7 @@ Orbiter *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 //-----------------------------------------------------------------------------------------------------
 bool Run(Orbiter* pOrbiter, bool bLocalMode)
 {
-	if(pOrbiter->m_bQuit)
+	if(pOrbiter->m_bQuit_get())
 		return false;
 
 	WriteStatusOutput("Parsing configuration data...");
@@ -118,7 +118,7 @@ bool Run(Orbiter* pOrbiter, bool bLocalMode)
 #ifndef POCKETFROG
     pOrbiter->Initialize(gtSDLGraphic);
 
-	if(pOrbiter->m_bQuit)
+	if(pOrbiter->m_bQuit_get())
 		return false;
 
 	if(pOrbiter->m_bReload)

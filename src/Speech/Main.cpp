@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Speech *pSpeech = new Speech(PK_Device, "localhost",true,false,pRouter);
-		if( pSpeech->m_bQuit || !pSpeech->GetConfig() )
+		if( pSpeech->m_bQuit_get()|| !pSpeech->GetConfig() )
 		{
 			delete pSpeech;
 			return NULL;

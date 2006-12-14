@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		IRTrans *pIRTrans = new IRTrans(PK_Device, "localhost",true,false,pRouter);
-		if( pIRTrans->m_bQuit || !pIRTrans->GetConfig() )
+		if( pIRTrans->m_bQuit_get()|| !pIRTrans->GetConfig() )
 		{
 			delete pIRTrans;
 			return NULL;

@@ -52,7 +52,7 @@ ServerLogger::ServerLogger(int DeviceID, int PK_DeviceTemplate, string server) :
 
 ServerLogger::~ServerLogger()
 {
-	m_bQuit = true;
+	m_bQuit_set(true);
 	if (m_Thread)
 		pthread_join(m_Thread,NULL);
 }
@@ -65,7 +65,7 @@ void ServerLogger::Start()
 
 void ServerLogger::RunConnectThread()
 {
-	while(!m_bQuit)
+	while(!m_bQuit_get())
 	{
 		if(m_Socket == INVALID_SOCKET)
 		{

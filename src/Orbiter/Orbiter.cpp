@@ -867,7 +867,7 @@ g_PlutoProfiler->DumpResults();
 //-----------------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter::NeedToChangeScreens( ScreenHistory *pScreenHistory/*, bool bAddToHistory*/ )
 {
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return;
 
 	m_bShiftDown = false;
@@ -1881,7 +1881,7 @@ INITIALIZATION
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea )
 {
-	if ( !m_bQuit )
+	if ( !m_bQuit_get())
 	{
 #ifdef WIN32
 		size_t iSize;
@@ -1911,7 +1911,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 					if( (iResponse=HandleNotOKStatus(sStatus,sRegenStatus,iRegenPercent))==0 )
 					{
 						g_pPlutoLogger->Write(LV_STATUS,"Handle not ok said to quit");
-						m_bQuit = true;
+						m_bQuit_set(true);
 						return;
 					}
 					else if( iResponse==1 )
@@ -2214,7 +2214,7 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 	g_pPlutoLogger->Write( LV_CONTROLLER, "Initializing grid: %d ( %s ) dev %d options: %s ( # %d )", pObj->m_iPK_Datagrid, pObj->m_sGridID.c_str(  ), m_dwPK_Device, pObj->m_sOptions.c_str(  ), m_dwIDataGridRequestCounter );
 #endif
 
-	if(m_bQuit)	
+	if(m_bQuit_get())	
 		return;
 
 	// Don't populate if we're not passing in anything at this point
@@ -3164,7 +3164,7 @@ bool Orbiter::ButtonUp( int iPK_Button )
 			QueueMessageToRouter(new Message(pMessage));
 	}
 
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return false;
 
 	if( m_bForward_local_kb_to_OSD && m_pLocationInfo && m_pLocationInfo->m_dwPK_Device_Orbiter )
@@ -3663,7 +3663,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 									DesignObj_Orbiter *pObj, SelectionMethod selectionMethod,
 									int X,  int Y, int Repeat )
 {
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return;
 
 	if(  pDesignObjCommandList->size(  )==0  )
@@ -4444,7 +4444,7 @@ void *MaintThread(void *p)
 	Orbiter* pOrbiter = (Orbiter *)p;
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(cm, pOrbiter->m_MaintThreadMutex);// Keep this locked to protect the map
-	while(!pOrbiter->m_bQuit)
+	while(!pOrbiter->m_bQuit_get())
 	{
 		if(pOrbiter->m_mapPendingCallbacks.size() == 0)
 		{
@@ -5092,7 +5092,7 @@ void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComp
 void Orbiter::CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage)
 //<-dceag-c7-e->
 {
-	m_bQuit = true;
+	m_bQuit_set(true);
 }
 
 //<-dceag-c8-b->
@@ -6002,10 +6002,10 @@ void Orbiter::CMD_Reset_Highlight(string sPK_DesignObj,string &sCMD_Result,Messa
 
 ReceivedMessageResult Orbiter::ReceivedMessage( class Message *pMessageOriginal )
 {
-	while( !m_pScreenHistory_Current && !m_bQuit )
+	while( !m_pScreenHistory_Current && !m_bQuit_get())
 		Sleep(100);
 
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return rmr_NotProcessed;
 
 	string strMessage = string("ReceivedMessage: ") + StringUtils::itos(pMessageOriginal->m_dwID);
@@ -6213,7 +6213,7 @@ NeedToRender::~NeedToRender()
 #ifdef DEBUG
 		g_pPlutoLogger->Write( LV_STATUS, "NeedToRender::~NeedToRender() calling redraw for: %s", m_pWhere);
 #endif
-		if(!m_pOrbiter->m_bQuit)
+		if(!m_pOrbiter->m_bQuit_get())
 			m_pOrbiter->Renderer()->RedrawObjects();
 	}
 }
@@ -6283,7 +6283,7 @@ void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScree
 void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit,string &sCMD_Result,Message *pMessage)
 //<-dceag-c242-e->
 {
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return;
 
 #ifdef DEBUG
@@ -6584,7 +6584,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 /*virtual*/ void Orbiter::SimulateMouseClick(int x, int y)
 {
 	//don't simulate any event; we're reloading
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return;
 
 #ifdef DEBUG
@@ -6624,7 +6624,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 /*virtual*/ void Orbiter::SimulateMouseMovements(int x, int y)
 {
 	//don't simulate any event; we're reloading
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return;
 
 #ifdef DEBUG
@@ -6651,7 +6651,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 /*virtual*/ void Orbiter::SimulateKeyPress(long key)
 {
 	//don't simulate any event; we're reloading
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return;
 
 #ifdef DEBUG
@@ -6893,7 +6893,7 @@ void Orbiter::KillMaintThread()
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Kill Maint Thread %d",(int) bMaintThreadIsRunning);
 #endif
-	m_bQuit=true;
+	m_bQuit_set(true);
 	pthread_cond_broadcast(&m_MaintThreadCond);  // Wake it up, it will quit when it sees the quit
 	time_t tTime = time(NULL);
 	while(bMaintThreadIsRunning)
@@ -7514,7 +7514,7 @@ void Orbiter::CMD_Show_Shortcuts(string &sCMD_Result,Message *pMessage)
 
 void Orbiter::RemoveShortcuts( void *data )
 {
-	if( m_bQuit )
+	if( m_bQuit_get())
 		return;
 	m_bShowShortcuts = false;
 	CMD_Refresh("");
@@ -8587,7 +8587,7 @@ bool SendPingHandler(Socket *pSocket)
 		g_pPlutoLogger->Write(LV_STATUS,"ReceivePingHandler - failed to get pong for %p %d %s",pSocket,pSocket->m_Socket,pSocket->m_sName.c_str());
 		return false;
 	}
-	if( !g_pCommand_Impl || pOrbiter->m_bQuit ) // The app closed on us
+	if( !g_pCommand_Impl || pOrbiter->m_bQuit_get()) // The app closed on us
 		return true;
 
 	g_pPlutoLogger->Write(LV_STATUS,"ReceivePingHandler - got pong for %p %d %s",pSocket,pSocket->m_Socket,pSocket->m_sName.c_str());
@@ -8972,7 +8972,7 @@ void Orbiter::CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,Message *
     {
         string sMessage = "An Orbiter with the same device id was started on " + sIP + ".\r\nThis Orbiter will be closed.";
         m_pOrbiterRenderer->PromptUser(sMessage);
-        m_bQuit = true;
+        m_bQuit_set(true);
         exit(1);
         return true;
     }
@@ -9199,7 +9199,7 @@ void *UpdateTimeCodeThread(void *p)
 {
 	Orbiter* pOrbiter = (Orbiter *)p;
 
-	if(NULL != pOrbiter && !pOrbiter->m_bQuit)
+	if(NULL != pOrbiter && !pOrbiter->m_bQuit_get())
 	{
 		pOrbiter->UpdateTimeCodeLoop();
 		g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode thread stopped");
@@ -9211,7 +9211,7 @@ void *UpdateTimeCodeThread(void *p)
 
 void Orbiter::UpdateTimeCodeLoop()
 {
-	if( m_bQuit || !m_bReportTimeCode )
+	if( m_bQuit_get()|| !m_bReportTimeCode )
 		return;
 
 #ifdef DEBUG
@@ -9270,7 +9270,7 @@ void Orbiter::UpdateTimeCodeLoop()
 			return;
 	}
 
-	while(!m_bQuit)
+	while(!m_bQuit_get())
 	{
 		if( m_pAskXine_Socket->m_dwPK_Device!=m_dwPK_Device_NowPlaying )
 		{

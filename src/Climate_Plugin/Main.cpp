@@ -108,7 +108,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Climate_Plugin *pClimate_Plugin = new Climate_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pClimate_Plugin->m_bQuit || !pClimate_Plugin->GetConfig() )
+		if( pClimate_Plugin->m_bQuit_get() || !pClimate_Plugin->GetConfig() )
 		{
 			delete pClimate_Plugin;
 			return NULL;

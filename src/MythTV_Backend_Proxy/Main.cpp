@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		MythTV_Backend_Proxy *pMythTV_Backend_Proxy = new MythTV_Backend_Proxy(PK_Device, "localhost",true,false,pRouter);
-		if( pMythTV_Backend_Proxy->m_bQuit || !pMythTV_Backend_Proxy->GetConfig() )
+		if( pMythTV_Backend_Proxy->m_bQuit_get()|| !pMythTV_Backend_Proxy->GetConfig() )
 		{
 			delete pMythTV_Backend_Proxy;
 			return NULL;

@@ -91,7 +91,7 @@ bool MessageBuffer::BufferMessage(Message *pMessage)
 
 void MessageBuffer::Run()
 {
-	while( !m_pCommand_Impl->m_bQuit )
+	while( !m_pCommand_Impl->m_bQuit_get() )
 	{
 		PLUTO_SAFETY_LOCK(mb,m_MessageBufferMutex);
 		if( m_listMessage.size()==0 )

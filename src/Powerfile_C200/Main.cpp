@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Powerfile_C200 *pPowerfile_C200 = new Powerfile_C200(PK_Device, "localhost",true,false,pRouter);
-		if( pPowerfile_C200->m_bQuit || !pPowerfile_C200->GetConfig() )
+		if( pPowerfile_C200->m_bQuit_get()|| !pPowerfile_C200->GetConfig() )
 		{
 			delete pPowerfile_C200;
 			return NULL;

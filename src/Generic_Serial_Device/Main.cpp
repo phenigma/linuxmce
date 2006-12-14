@@ -100,7 +100,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Generic_Serial_Device *pGeneric_Serial_Device = new Generic_Serial_Device(PK_Device, "localhost",true,false,pRouter);
-		if( pGeneric_Serial_Device->m_bQuit || !pGeneric_Serial_Device->GetConfig() )
+		if( pGeneric_Serial_Device->m_bQuit_get()|| !pGeneric_Serial_Device->GetConfig() )
 		{
 			delete pGeneric_Serial_Device;
 			return NULL;

@@ -81,7 +81,7 @@ void PlutoHIDInterface::ProcessHIDEvents()
 				}
 
 				int cnt=0;
-				while(!m_pOrbiter->m_bQuit)
+				while(!m_pOrbiter->m_bQuit_get())
 				{
 					PLUTO_SAFETY_LOCK_ERRORSONLY(hm,m_HIDMutex);
 					m_bRunning=true;
@@ -112,7 +112,7 @@ void PlutoHIDInterface::ProcessHIDEvents()
 					}
 				}
 
-				g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents quit %d", (int) m_pOrbiter->m_bQuit);
+				g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents quit %d", (int) m_pOrbiter->m_bQuit_get());
 				m_bRunning=false;
 				usb_release_interface(m_p_usb_dev_handle, 1);
 				usb_close(m_p_usb_dev_handle);

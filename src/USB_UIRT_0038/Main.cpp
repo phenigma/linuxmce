@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		USB_UIRT_0038 *pUSB_UIRT_0038 = new USB_UIRT_0038(PK_Device, "localhost",true,false,pRouter);
-		if( pUSB_UIRT_0038->m_bQuit || !pUSB_UIRT_0038->GetConfig() )
+		if( pUSB_UIRT_0038->m_bQuit_get()|| !pUSB_UIRT_0038->GetConfig() )
 		{
 			delete pUSB_UIRT_0038;
 			return NULL;

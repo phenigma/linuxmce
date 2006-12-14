@@ -131,11 +131,11 @@ void HandleRequestSocket::RunThread()
 	m_bRunning = true;
 
 	string sMessage = "";
-	while( !m_bTerminate && !m_bQuit )
+	while( !m_bTerminate && !m_bQuit_get() )
 	{
 		if ( !ReceiveString( sMessage ) )
 		{
-			if( m_bQuit )
+			if( m_bQuit_get() )
 				break;
 			g_pPlutoLogger->Write( LV_CRITICAL, "Receive string failed in HandleRequestSocket %d:%s %s", sMessage.size(), sMessage.c_str(), m_sName.c_str() );
 			if (m_bTerminate==false)
@@ -147,7 +147,7 @@ void HandleRequestSocket::RunThread()
 		}
 		else
 		{
-			if( m_bQuit )
+			if( m_bQuit_get() )
 				break;
 
 #ifdef DEBUG

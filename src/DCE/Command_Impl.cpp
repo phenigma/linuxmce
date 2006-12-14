@@ -181,7 +181,7 @@ Command_Impl::~Command_Impl()
 	g_pCommand_Impl = NULL;
 	g_pPlutoLogger->Write( LV_STATUS, "Waiting for message queue thread to quit" );
 
-	m_bQuit=true;
+	m_bQuit_set(true);
 	
 	PrepareToDelete();
 
@@ -207,7 +207,7 @@ Command_Impl::~Command_Impl()
 
 void Command_Impl::PrepareToDelete()
 {
-	m_bQuit=true;
+	m_bQuit_set(true);
 	if( m_pEvent && m_pEvent->m_pClientSocket && m_pEvent->m_pClientSocket->m_Socket != INVALID_SOCKET )
 		m_pEvent->m_pClientSocket->Close();
 	if( m_pcRequestSocket && m_pcRequestSocket->m_pClientSocket && m_pcRequestSocket->m_pClientSocket->m_Socket != INVALID_SOCKET )
@@ -728,12 +728,12 @@ void Command_Impl::QueueMessageToRouter( Message *pMessage )
 void Command_Impl::ProcessMessageQueue()
 {
 	PLUTO_SAFETY_LOCK( mq, m_listMessageQueueMutex );
-	while( !m_bQuit )
+	while( !m_bQuit_get() )
 	{
 		while( m_listMessageQueue.size() == 0 )
 		{
 			mq.CondWait();
-			if( m_bQuit )
+			if( m_bQuit_get() )
 				return;
 		}
 

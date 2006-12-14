@@ -89,7 +89,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		gc100 *pgc100 = new gc100(PK_Device, "localhost",true,false,pRouter);
-		if( pgc100->m_bQuit || !pgc100->GetConfig() )
+		if( pgc100->m_bQuit_get()|| !pgc100->GetConfig() )
 		{
 			delete pgc100;
 			return NULL;

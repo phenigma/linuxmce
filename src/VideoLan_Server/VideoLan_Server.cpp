@@ -24,7 +24,7 @@ VideoLan_Server *g_pVideoLan_Server = NULL;
 
 void sh(int i) /* signal handler */
 {
-	if ( g_pVideoLan_Server && g_pVideoLan_Server->m_bQuit )
+	if ( g_pVideoLan_Server && g_pVideoLan_Server->m_bQuit_get())
 		return;
 
 	int status = 0;

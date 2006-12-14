@@ -396,7 +396,7 @@ void Proxy_Orbiter::ImageGenerated()
 
 bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout )
 {
-	if(m_bQuit || m_bReload)
+	if(m_bQuit_get()|| m_bReload)
 	{
 		pSocket->SendString("NOT_CONNECTED");
 		return false;
@@ -478,7 +478,7 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
                 abstime.tv_nsec = 0;
                 am.TimedCondWait(abstime);
 
-		        if(m_bQuit || m_bReload)
+		        if(m_bQuit_get()|| m_bReload)
         		{
             		pSocket->SendString("NOT_CONNECTED");
             		return false;
@@ -515,7 +515,7 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
         abstime.tv_nsec = 0;
         am.TimedCondWait(abstime);
 
-		if(m_bQuit || m_bReload)
+		if(m_bQuit_get()|| m_bReload)
 		{
 			pSocket->SendString("NOT_CONNECTED");
 			return false;
@@ -541,27 +541,27 @@ void *Proxy_Orbiter::PushRefreshEventTask(void *)
 
 void Proxy_Orbiter::CMD_Quit(string &sCMD_Result,Message *pMessage)
 {
-	m_bQuit = true;
+	m_bQuit_set(true);
 	pthread_cond_broadcast(&m_ActionCond);
 }
 
 void Proxy_Orbiter::CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage)
 {
-	m_bQuit = true;
+	m_bQuit_set(true);
 	pthread_cond_broadcast(&m_ActionCond);
 }
 
 void Proxy_Orbiter::CMD_Regen_Screen(string &sCMD_Result,Message *pMessage)
 {
 	Orbiter::CMD_Regen_Screen(sCMD_Result, pMessage);
-	m_bQuit = true;
+	m_bQuit_set(true);
 	pthread_cond_broadcast(&m_ActionCond);
 }
 	
 void Proxy_Orbiter::OnReload()
 {
 	m_bReload = true;
-	m_bQuit = true;
+	m_bQuit_set(true);
 	
 	Orbiter_Command::OnReload(); 
 	pthread_cond_broadcast(&m_ActionCond);

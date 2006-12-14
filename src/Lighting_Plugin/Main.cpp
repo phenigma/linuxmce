@@ -102,7 +102,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Lighting_Plugin *pLighting_Plugin = new Lighting_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pLighting_Plugin->m_bQuit || !pLighting_Plugin->GetConfig() )
+		if( pLighting_Plugin->m_bQuit_get()|| !pLighting_Plugin->GetConfig() )
 		{
 			delete pLighting_Plugin;
 			return NULL;

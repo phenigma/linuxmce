@@ -93,7 +93,7 @@ void Slim_Server_Streamer::PostConnect()
 Slim_Server_Streamer::~Slim_Server_Streamer()
 //<-dceag-dest-e->
 {
-	m_bQuit = true;
+	m_bQuit_set(true);
 	pthread_cond_signal(&m_stateChangedCondition);
 	if( m_threadPlaybackCompletedChecker )
 		pthread_join(m_threadPlaybackCompletedChecker, NULL);
@@ -477,7 +477,7 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 		PLUTO_SAFETY_LOCK(dataAccessLock, pStreamer->m_dataStructureAccessMutex);
 		// AB 5-Jun-05 -- This code is crashing all the time accessing the vect.  Mihai didn't protect it here, maybe that's
 		// why???  Without digging in deeper, I moved m_dataStructureAccessMutex above, and release it before CondWait
-		while ( pStreamer->m_mapStreamsToPlayers.size() == 0 && ! pStreamer->m_bQuit )
+		while ( pStreamer->m_mapStreamsToPlayers.size() == 0 && ! pStreamer->m_bQuit_get())
 		{
 			dataAccessLock.Release();
 			stateChangedLock.CondWait();
@@ -485,7 +485,7 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 		}
 		stateChangedLock.Release();
 
-		if ( pStreamer->m_bQuit )
+		if ( pStreamer->m_bQuit_get())
 			return NULL;
 
 		// PlutoLock pm(LOCK_PARAMS(pStreamer->m_dataStructureAccessMutex));

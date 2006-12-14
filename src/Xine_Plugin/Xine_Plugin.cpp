@@ -136,8 +136,11 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMedi
 
 	PLUTO_SAFETY_LOCK( xm, m_XineMediaMutex );
 
-	if(m_bQuit)
+	if(m_bQuit_get())
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Xine_Plugin::CreateMediaStream with m_bQuit");
 		return NULL;
+	}
 
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 

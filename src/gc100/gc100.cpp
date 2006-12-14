@@ -101,7 +101,7 @@ gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	ir_cmd_id = 1;
 	m_bStopLearning = false;
 	gc100_mutex.Init(NULL);
-	m_bQuit = false;
+	m_bQuit_get()= false;
 	m_bLearning = false;
 	m_bMustConvertRC5_6 = true;
 }
@@ -137,7 +137,7 @@ gc100::~gc100()
 //<-dceag-dest-e->
 {
 	signal(SIGSEGV,SIG_IGN);           //ignore SIGFAULT here
-	m_bQuit = true;                    //force quit	
+	m_bQuit_set(true);                    //force quit	
 	handleStop();                      //force IRBase::DispatchMessage to stop
 	Sleep(600);                        //wait a little
 	
@@ -1317,7 +1317,7 @@ void gc100::LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, lo
 			if (pthread_create(&m_LearningThread, NULL, StartLearningThread, (void *) pLI))
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
-				m_bQuit = 1;
+				m_bQuit_get()= 1;
 				exit(1);
 			}
 			m_bLearning = true;
@@ -1348,7 +1348,7 @@ int gc100::LEARN_IR_via_Socket()
 		if (pthread_create(&m_LearningThread, NULL, StartLearningThread_via_Socket, (void *) this))
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
-			m_bQuit = 1;
+			m_bQuit_get()= 1;
 			exit(1);
 		}
 		m_bLearning = false;
@@ -1455,7 +1455,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 			{
 				retval = errno;
 				g_pPlutoLogger->Write(LV_WARNING, "Buffer clearing loop exited with read() error: errno=%d (%s)\n", retval, strerror(retval));
-				m_bQuit = true;
+				m_bQuit_set(true);
 				break;
 			}
 			
@@ -1480,7 +1480,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 		tv1s.tv_usec = 0;
 
 		timeout_tmp = tv1s;
-		while (! m_bQuit && ! m_bStopLearning && timeout.tv_sec > 0 && select(learn_fd + 1, &fdset, NULL, NULL, &timeout_tmp) == 0)
+		while (! m_bQuit_get()&& ! m_bStopLearning && timeout.tv_sec > 0 && select(learn_fd + 1, &fdset, NULL, NULL, &timeout_tmp) == 0)
 		{
 			timeout.tv_sec--;
 			timeout_tmp = tv1s;
@@ -1490,7 +1490,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 
 		FD_ZERO(&fdset);
 		FD_SET(learn_fd, &fdset);
-		if (timeout.tv_sec > 0 && ! m_bQuit && ! m_bStopLearning && select(learn_fd + 1, &fdset, NULL, NULL, &tv1s) > 0)
+		if (timeout.tv_sec > 0 && ! m_bQuit_get()&& ! m_bStopLearning && select(learn_fd + 1, &fdset, NULL, NULL, &tv1s) > 0)
 		{
 			retval = read(learn_fd, learn_buffer, 511);
 
@@ -1598,7 +1598,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 		}
 		else
 		{
-			if (! m_bStopLearning && ! m_bQuit)
+			if (! m_bStopLearning && ! m_bQuit_get())
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "Timeout");
 				if (pLearningInfo)
@@ -1663,7 +1663,7 @@ void gc100::CreateChildren()
 	if (pthread_create(&m_EventThread, NULL, StartEventThread, (void *) this))
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
-		m_bQuit = 1;
+		m_bQuit_get()= 1;
 		exit(1);
 	}
 
@@ -1675,7 +1675,7 @@ void gc100::CreateChildren()
 
 void gc100::EventThread()
 {
-	while (! m_bQuit)
+	while (! m_bQuit_get())
 	{
 		Sleep(50);
 		g_pPlutoLogger->Write(LV_STATUS,"EventThread");
@@ -1699,7 +1699,7 @@ void gc100::LEARN_IR_CANCEL()
 void gc100::SetQuitFlag()
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Setting 'quit' flag");
-	m_bQuit = true;
+	m_bQuit_set(true);
 }
 
 void gc100::SocketThread(int port)
@@ -1722,11 +1722,11 @@ void gc100::SocketThread(int port)
 	bind(learn_server, (struct sockaddr *) &saddr, sizeof(saddr));
 	listen(learn_server, 5);
 
-	while (! m_bQuit)
+	while (! m_bQuit_get())
 	{
 		learn_client = accept(learn_server, NULL, NULL);
 		g_pPlutoLogger->Write(LV_STATUS, "Accepted client on socket");
-		while (! m_bQuit && (count = recv(learn_client, buffer, buff_size - 1, 0)) > 0)
+		while (! m_bQuit_get()&& (count = recv(learn_client, buffer, buff_size - 1, 0)) > 0)
 		{
 			buffer[count] = 0;
 			if (strncmp("LEARN", buffer, 5) == 0)

@@ -20,6 +20,8 @@
 
 #define PING_TIMEOUT		5
 
+#include "DCE/Logger.h"
+
 namespace DCE
 {
 	
@@ -33,6 +35,7 @@ namespace DCE
 	{
 	private:
 		int m_iReceiveTimeout; /** < the interval after witch the sockets stops expecting for an answer in seconds */
+		bool m_bQuit; /** < set when the socket should terminate */
 
 	public:
 		enum SocketType { st_Unknown, st_ServerCommand, st_ServerEvent, st_ClientCommand, st_ClientEvent } m_eSocketType;
@@ -63,12 +66,13 @@ namespace DCE
 		char *m_pcCurInsockBuffer; /** < input buffer current position @todo ask */
 		
 		int m_iSockBufBytesLeft; /** < bytes left in the socket buffer @todo ask */
-		bool m_bQuit; /** < set when the socket should terminate */
         bool m_bCancelSocketOp; /** < cancel any operations with the socket right away */
 
 		/** < If non null, then any socket failures will be sent to the
 		m_pSocket_PingFailure rather than handled locally */
 		Socket *m_pSocket_PingFailure;
+
+
 		/**
 		 * @brief creates a new socket objest with the specified name, and it also writes a log
 		 */
@@ -158,6 +162,16 @@ namespace DCE
 		 */
 		virtual void PingFailed();
 		static class SocketInfo *g_mapSocketInfo_Find(int iSocketCounter,string sName,Socket *pSocket);
+
+		bool m_bQuit_get() { return m_bQuit; }
+		void m_bQuit_set(bool bQuit)
+		{
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"Socket m_Socket %d %s quit=%d",(int) m_Socket, m_sName.c_str(),(int) bQuit);
+#endif
+			m_bQuit=bQuit;
+		}
+
 	};
 
     extern pluto_pthread_mutex_t *g_pSocketInfoMutex;

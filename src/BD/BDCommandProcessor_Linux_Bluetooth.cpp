@@ -138,14 +138,14 @@ bool BDCommandProcessor_Linux_Bluetooth::SendData(int size, const char *data)
         struct timeval tv_select_2; 
         struct timeval tv_select;	
 
-	while(bytes_to_send > 0 && !m_bQuit)
+	while(bytes_to_send > 0 && !m_bQuit_get())
 	{
 		int iRet;
 		tv_total.tv_sec = 5;
 		tv_total.tv_usec = 0;
 		do
 		{
-			if(m_bQuit)
+			if(m_bQuit_get())
 			{
 				g_pPlutoLogger->Write(LV_WARNING,"SendData (BD connection): have to quit!");
 				m_bRunning = false;
@@ -202,7 +202,7 @@ bool BDCommandProcessor_Linux_Bluetooth::SendData(int size, const char *data)
 
 	m_bRunning = false;
 
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return false;
 
 	return true;
@@ -225,14 +225,14 @@ char *BDCommandProcessor_Linux_Bluetooth::ReceiveData(int size)
         struct timeval tv_select_2; 
         struct timeval tv_select;	
 	
-	while(bytes_to_receive > 0 && !m_bQuit)
+	while(bytes_to_receive > 0 && !m_bQuit_get())
 	{
 		int iRet;
 		tv_total.tv_sec = 5;
 		tv_total.tv_usec = 0;
 		do
 		{
-			if(m_bQuit)
+			if(m_bQuit_get())
 			{
 				g_pPlutoLogger->Write(LV_WARNING,"ReceiveData (BD connection): have to quit!");
 				m_bRunning = false;
@@ -288,7 +288,7 @@ char *BDCommandProcessor_Linux_Bluetooth::ReceiveData(int size)
 
 	m_bRunning = false;
 
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return NULL;
 	
 	return buffer;

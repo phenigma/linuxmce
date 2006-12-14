@@ -43,7 +43,7 @@ VideoLan_Client *g_pVideoLan_Client = NULL;
 
 void sh(int i) /* signal handler */
 {
-    if ( g_pVideoLan_Client && g_pVideoLan_Client->m_bQuit )
+    if ( g_pVideoLan_Client && g_pVideoLan_Client->m_bQuit_get())
 		return;
 
     int status = 0;

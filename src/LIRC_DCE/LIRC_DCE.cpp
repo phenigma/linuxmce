@@ -186,7 +186,7 @@ bool LIRC_DCE::GetConfig()
 	if (pthread_create(&m_LeechingThread, NULL, StartLeeching, (void *) this))
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Leeching Thread");
-		m_bQuit = 1;
+		m_bQuit_get()= 1;
 		exit(1);
 	}
 	return true;
@@ -268,7 +268,7 @@ int LIRC_DCE::lirc_leech(int DeviceID) {
 			tv.tv_sec = 1;
 			tv.tv_usec = 0;
 
-			if (m_bQuit)
+			if (m_bQuit_get())
 				return 0;
 		} while (select(sock + 1, &fdset, NULL, NULL, &tv) == 0);
 

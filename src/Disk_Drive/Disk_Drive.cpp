@@ -373,7 +373,7 @@ void Disk_Drive::RunMonitorLoop()
     m_pDisk_Drive_Functions->internal_monitor_step(false); // ignore any drive that is in the drive at the start.
 
     bool done = false;
-    while ( ! done  && !m_bQuit )
+    while ( ! done  && !m_bQuit_get())
     {
         done = ! m_pDisk_Drive_Functions->internal_monitor_step(true);
         sleep(3); // Sleep 3 seconds

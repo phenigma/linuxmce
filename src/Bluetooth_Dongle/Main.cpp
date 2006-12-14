@@ -109,7 +109,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Bluetooth_Dongle *pBluetooth_Dongle = new Bluetooth_Dongle(PK_Device, "localhost",true,false,pRouter);
-		if( pBluetooth_Dongle->m_bQuit || !pBluetooth_Dongle->GetConfig() )
+		if( pBluetooth_Dongle->m_bQuit_get()|| !pBluetooth_Dongle->GetConfig() )
 		{
 			delete pBluetooth_Dongle;
 			return NULL;

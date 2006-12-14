@@ -64,7 +64,7 @@ VDRPlugin::~VDRPlugin()
 //<-dceag-dest-e->
 {
 	// Wait 10 seconds for the epg thread to quit
-	m_bQuit=true;
+	m_bQuit_set(true);
 
 	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
 	for(map<int,VDREPG::EPG *>::iterator it=m_mapEPG.begin();it!=m_mapEPG.end();++it)
@@ -101,7 +101,7 @@ void VDRPlugin::FetchEPG()
 		
 
 	bool bFirstRun=true;
-	while(!m_bQuit)
+	while(!m_bQuit_get())
 	{
 		PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
 		bool bErrorsParsing=false;

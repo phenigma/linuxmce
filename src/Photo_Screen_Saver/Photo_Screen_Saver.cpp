@@ -234,7 +234,7 @@ void* ThreadAnimation(void* ThreadInfo)
 		Info->GetZoomTime(),
 		Info->GetSearchImagesPath(),
 		Info->GetUseAnimation());
-	Gallery::Instance()->MainLoop(Info->m_bQuit); 
+	Gallery::Instance()->MainLoop(Info->m_bQuit_get()); 
 	Gallery::Instance()->CleanUp();
 
 	*(Info->ThreadID) = 0;

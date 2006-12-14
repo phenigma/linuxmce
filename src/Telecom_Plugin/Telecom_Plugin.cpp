@@ -107,7 +107,7 @@ bool Telecom_Plugin::GetConfig()
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
-		m_bQuit=true;
+		m_bQuit_set(true);
 		return false;
 	}
 
@@ -115,7 +115,7 @@ bool Telecom_Plugin::GetConfig()
 	if(!m_pDatabase_pluto_telecom->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),"pluto_telecom",m_pRouter->iDBPort_get()) )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to telecom database!");
-		m_bQuit=true;
+		m_bQuit_set(true);
 		return false;
 	}
 	vector<class Row_Device*> vectDevices;
@@ -234,7 +234,7 @@ bool Telecom_Plugin::Register()
     if (pthread_create(&m_displayThread, NULL, startDisplayThread, (void *) this))
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Display Thread");
-        m_bQuit = 1;
+        m_bQuit_set(true);
         exit(1);
     }
 
@@ -1699,7 +1699,7 @@ void * startDisplayThread(void * Arg)
 }
 void Telecom_Plugin::doDisplayMessages()
 {
-	while(!m_bQuit)
+	while(!m_bQuit_get())
     {
 		if(1)//the orbiter is at main menu ?? how to find out??
 		{
@@ -1711,7 +1711,7 @@ void Telecom_Plugin::doDisplayMessages()
 				message += (*it).first + string("\n");
 				it++;
 
-				if(m_bQuit)
+				if(m_bQuit_get())
 					return;
 			}
 			if(message.length()>0)

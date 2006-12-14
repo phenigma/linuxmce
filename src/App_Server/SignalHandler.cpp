@@ -53,7 +53,7 @@ void sh(int i) /* signal handler */
 
 void SignalHandler_Action()
 {
-	if ( g_pAppServer && g_pAppServer->m_bQuit )
+	if ( g_pAppServer && g_pAppServer->m_bQuit_get() )
 		return;
 	g_pPlutoLogger->Write(LV_STATUS, "SignalHandler_Action: Started");
 	PLUTO_SAFETY_LOCK(ap,g_pAppServer->m_AppMutex);

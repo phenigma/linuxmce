@@ -1246,7 +1246,7 @@ OCSafetyLock sl(&pCmd->shared_lock);
 		// TODO:UNLOCK
                 sl2.Release();
 
-                while (!pCmd->m_bQuit) {
+                while (!pCmd->m_bQuit_get()) {
 		    pCmd->MonitorIR();
 		    time_to_poll++;
 		    // Longer delay for IR-speed events

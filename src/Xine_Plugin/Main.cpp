@@ -111,7 +111,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Xine_Plugin *pXine_Plugin = new Xine_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pXine_Plugin->m_bQuit || !pXine_Plugin->GetConfig() )
+		if( pXine_Plugin->m_bQuit_get()|| !pXine_Plugin->GetConfig() )
 		{
 			delete pXine_Plugin;
 			return NULL;

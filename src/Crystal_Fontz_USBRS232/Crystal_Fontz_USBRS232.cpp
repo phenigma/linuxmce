@@ -44,7 +44,7 @@ Crystal_Fontz_USBRS232::~Crystal_Fontz_USBRS232()
 //<-dceag-dest-e->
 {
 	g_pPlutoLogger->Write(LV_STATUS,"Waiting for Incoming data thread to exit");
-	m_bQuit=true;
+	m_bQuit_set(true);
 	while( m_bCF_ThreadRunning )
 		Sleep(100);
 	delete m_pSerialPort;
@@ -181,7 +181,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"No response to packet");
 void Crystal_Fontz_USBRS232::RunCFThread()
 {
 	COMMAND_PACKET command_packet;
-	while( !m_bQuit )
+	while( !m_bQuit_get())
 	{
 		if( m_pSerialPort->Read((char *) &command_packet,1,5000)==0 )
 			continue; // 250 ms delay means when the thread is supposed to quit, there be at max 250ms before it does

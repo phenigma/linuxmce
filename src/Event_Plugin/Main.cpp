@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Event_Plugin *pEvent_Plugin = new Event_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pEvent_Plugin->m_bQuit || !pEvent_Plugin->GetConfig() )
+		if( pEvent_Plugin->m_bQuit_get()|| !pEvent_Plugin->GetConfig() )
 		{
 			delete pEvent_Plugin;
 			return NULL;

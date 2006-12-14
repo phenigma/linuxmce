@@ -335,7 +335,7 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 		pCLinux->Initialize(gtSDLGraphic);
 		g_pPlutoLogger->Write(LV_STATUS, "Orbiter logic initialized!");
 
-		if(!pCLinux->m_bQuit)
+		if(!pCLinux->m_bQuit_get())
 		{
 			if (!bLocalMode)
 			{
@@ -373,7 +373,7 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 
 bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
 {
-    if (sdl_event_loop_data.pOrbiter->m_bQuit)
+    if (sdl_event_loop_data.pOrbiter->m_bQuit_get())
         return false;
 
 /*
@@ -390,7 +390,7 @@ bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
 */
 
 	sdl_event_loop_data.pOrbiter->Renderer()->EventLoop();
-    return sdl_event_loop_data.pOrbiter->m_bQuit || sdl_event_loop_data.pOrbiter->m_bReload;
+    return sdl_event_loop_data.pOrbiter->m_bQuit_get()|| sdl_event_loop_data.pOrbiter->m_bReload;
 }
 
 bool SDL_Event_Loop_End(SDL_Event_Loop_Data &sdl_event_loop_data)

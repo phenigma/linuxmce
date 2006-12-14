@@ -122,7 +122,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Xine_Player *pXine_Player = new Xine_Player(PK_Device, "localhost",true,false,pRouter);
-		if( pXine_Player->m_bQuit || !pXine_Player->GetConfig() )
+		if( pXine_Player->m_bQuit_get()|| !pXine_Player->GetConfig() )
 		{
 			delete pXine_Player;
 			return NULL;

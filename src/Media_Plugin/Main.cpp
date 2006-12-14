@@ -102,7 +102,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Media_Plugin *pMedia_Plugin = new Media_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pMedia_Plugin->m_bQuit || !pMedia_Plugin->GetConfig() )
+		if( pMedia_Plugin->m_bQuit_get()|| !pMedia_Plugin->GetConfig() )
 		{
 			delete pMedia_Plugin;
 			return NULL;

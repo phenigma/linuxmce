@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		CDDB_Identifier *pCDDB_Identifier = new CDDB_Identifier(PK_Device, "localhost",true,false,pRouter);
-		if( pCDDB_Identifier->m_bQuit || !pCDDB_Identifier->GetConfig() )
+		if( pCDDB_Identifier->m_bQuit_get() || !pCDDB_Identifier->GetConfig() )
 		{
 			delete pCDDB_Identifier;
 			return NULL;

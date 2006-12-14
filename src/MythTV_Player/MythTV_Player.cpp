@@ -61,7 +61,7 @@ MythTV_Player *g_pMythPlayer = NULL;
 
 void sh(int i) /* signal handler */
 {
-    if ( g_pMythPlayer && g_pMythPlayer->m_bQuit )
+    if ( g_pMythPlayer && g_pMythPlayer->m_bQuit_get())
 		return;
 
     int status = 0;

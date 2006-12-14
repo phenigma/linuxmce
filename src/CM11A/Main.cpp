@@ -72,7 +72,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		CM11A *pCM11A = new CM11A(PK_Device, "localhost",true,false,pRouter);
-		if( pCM11A->m_bQuit || !pCM11A->GetConfig() )
+		if( pCM11A->m_bQuit_get() || !pCM11A->GetConfig() )
 		{
 			delete pCM11A;
 			return NULL;

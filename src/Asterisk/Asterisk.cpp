@@ -533,7 +533,7 @@ void Asterisk::CreateChildren()
     if (pthread_create(&voicemailThread, NULL, startVoiceMailThread, (void *) this))
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create VoiceMail Thread");
-        m_bQuit = 1;
+        m_bQuit_set(true);
         exit(1);
     }
     pthread_detach(voicemailThread);

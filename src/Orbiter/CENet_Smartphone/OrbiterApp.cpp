@@ -82,7 +82,7 @@ static COLORREF blue_lite = RGB(205,214,237);
 //---------------------------------------------------------------------------------------------------------
 CComModule _Module; //ATL - pocket frog
 //-----------------------------------------------------------------------------------------------------
-#define CHECK_STATUS() { if(m_bQuit) return; }
+#define CHECK_STATUS() { if(m_bQuit_get()) return; }
 //-----------------------------------------------------------------------------------------------------
 OrbiterApp *OrbiterApp::m_pInstance = NULL; //the one and only
 //---------------------------------------------------------------------------------------------------------
@@ -94,7 +94,7 @@ RECT globalrc;
 OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hInstance(hInstance)
 {
 	Reset();
-	m_bQuit = false;
+	m_bQuit_get()= false;
 
 	m_nImageWidth = APP_WIDTH;
 	m_nImageHeight = APP_HEIGHT;
@@ -478,14 +478,14 @@ void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongK
 //---------------------------------------------------------------------------------------------------------
 void OrbiterApp::OnQuit()
 {
-	m_bQuit = true;
+	m_bQuit_set(true);
 	::PostQuitMessage(0);
 	Shutdown();
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::TryToUpdate()
 {
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return;
 
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
@@ -495,7 +495,7 @@ void OrbiterApp::OnQuit()
 //---------------------------------------------------------------------------------------------------------
 void OrbiterApp::RenderImage(int nImageType, int nSize, char *pData, int nX, int nY, int nWidth, int nHeight)
 {
-	if(m_bQuit)
+	if(m_bQuit_get())
 		return;
 
 	if(nWidth == 0 && nHeight == 0)
@@ -1806,7 +1806,7 @@ LRESULT OrbiterApp::OnCancelMode( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& 
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"OrbiterApp::OnCancelMode");
 #endif
-	if ( !m_bQuit ) {
+	if ( !m_bQuit_get()) {
 		bHandled = TRUE;
 		return 0;
 	}
