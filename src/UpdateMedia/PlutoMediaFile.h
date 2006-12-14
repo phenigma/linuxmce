@@ -52,10 +52,12 @@ private:
 	void LoadEverythingFromDb();
 	void LoadShortAttributes();
 	void LoadLongAttributes();
+	void LoadBookmarkPictures();
 	//db operations - save:
 	void SaveStartPosition();
 	void SaveShortAttributesInDb(bool bAddAllToDb);
 	void SaveLongAttributesInDb(bool bAddAllToDb);
+	void SaveBookmarkPictures();
 	void SaveEveryThingToDb();
 
 	//misc helpers
@@ -65,6 +67,10 @@ private:
 	int GetOwnerForPath(string sPath);
 	int GetFileIDFromDB();
 	string AdjustLongAttributeForDisplay(string sText);
+
+	//pictures
+	pair<unsigned long, char *> LoadPicture(int nPictureId, bool bThumb = false);
+	void SavePicture(pair<unsigned long, char *> pairPicture, int nPictureId, bool bThumb/* = false*/);
 
 public:
     PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation,
@@ -85,6 +91,7 @@ public:
 	void RenameAttribute(int Attribute_Type, string sOldValue, string sNewValue);
 
 	static bool IsSupported(string sFileName);
+	static bool IsDirectory(string sFilePath);
 };
 //-----------------------------------------------------------------------------------------------------
 //

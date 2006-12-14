@@ -72,18 +72,9 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
     m_sFile = sFile;
 	m_nOurInstallationID = PK_Installation;
 	m_nPK_MediaType = 0;
-
+	
 	string sFilePath = sDirectory + "/" + sFile;
-
-#ifdef WIN32
-	struct __stat64 buf;
-	if(!_stat64(sFilePath.c_str(), &buf))
-		m_bIsDir = (0 != (buf.st_mode & _S_IFDIR)); 
-#else
-	struct stat64 buf;
-	if(!stat64(sFilePath.c_str(), &buf))
-		m_bIsDir = S_ISDIR(buf.st_mode);
-#endif
+	m_bIsDir = IsDirectory(sFilePath);
 
 	g_pPlutoLogger->Write(LV_WARNING, "# PlutoMediaFile STARTED: dir %s file %s", 
 		m_sDirectory.c_str(), m_sFile.c_str());
@@ -163,6 +154,23 @@ PlutoMediaFile::~PlutoMediaFile()
     return csSupportedExtensions.find(sExtension) != string::npos;
 }
 //-----------------------------------------------------------------------------------------------------
+/*static*/ bool PlutoMediaFile::IsDirectory(string sFilePath)
+{
+	bool bIsDir = false;
+
+#ifdef WIN32
+	struct __stat64 buf;
+	if(!_stat64(sFilePath.c_str(), &buf))
+		bIsDir = (0 != (buf.st_mode & _S_IFDIR)); 
+#else
+	struct stat64 buf;
+	if(!stat64(sFilePath.c_str(), &buf))
+		bIsDir = S_ISDIR(buf.st_mode);
+#endif
+
+	return bIsDir;
+}
+//-----------------------------------------------------------------------------------------------------
 string PlutoMediaFile::AdjustLongAttributeForDisplay(string sText)
 {	
 	const size_t cnMaxSize = 30;
@@ -200,6 +208,8 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 				else if(sFullPath.find(sBasePath + "pictures") == 0)
 					PK_MediaType = MEDIATYPE_pluto_Pictures_CONST;
 				else if(sFullPath.find(sBasePath + "documents") == 0)
+					PK_MediaType = MEDIATYPE_misc_DocViewer_CONST;
+				else
 					PK_MediaType = MEDIATYPE_misc_DocViewer_CONST;
 			}
 		}
@@ -246,6 +256,7 @@ void PlutoMediaFile::SaveEveryThingToDb()
 	SaveStartPosition();
 	SaveShortAttributesInDb(false);
 	SaveLongAttributesInDb(false);
+	SaveBookmarkPictures();
 	AssignPlutoDevice();
 }
 //-----------------------------------------------------------------------------------------------------
@@ -471,6 +482,17 @@ void PlutoMediaFile::SaveLongAttributesInDb(bool bAddAllToDb)
 			}
 		}
 	}
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::SaveBookmarkPictures()
+{
+	for(MapPictures::iterator itp = m_pPlutoMediaAttributes->m_mapBookmarks.begin(), 
+		endp = m_pPlutoMediaAttributes->m_mapBookmarks.end(); itp != endp; ++itp)
+	{
+		//TODO:
+	}
+
+	//for(MapPictures::iterator itp = m_mapBookmarksThumbs.begin(), endp = m_mapBookmarksThumbs.end(); itp != endp; ++itp)
 }
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
@@ -978,6 +1000,7 @@ void PlutoMediaFile::LoadEverythingFromDb()
 	LoadStartPosition();
 	LoadShortAttributes();
 	LoadLongAttributes();
+	//LoadBookmarkPictures();
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadStartPosition()
@@ -1212,6 +1235,41 @@ void PlutoMediaFile::LoadLongAttributes()
 
 }
 //-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::LoadBookmarkPictures()
+{
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	string SQL = 
+		"SELECT FK_Picture FROM Bookmark "
+		"WHERE FK_Picture IS NOT NULL AND "
+		"WHERE FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
+
+	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+	{
+		while((row = mysql_fetch_row(result.r)) && NULL != row[0])
+		{
+			int nFK_Picture = atoi(row[0]);
+			m_pPlutoMediaAttributes->m_mapBookmarks.insert(LoadPicture(nFK_Picture));
+			m_pPlutoMediaAttributes->m_mapBookmarksThumbs.insert(LoadPicture(nFK_Picture, true));
+		}
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+pair<unsigned long, char *> PlutoMediaFile::LoadPicture(int nPictureId, bool bThumb/* = false*/)
+{
+	string sPictureFile = "/home/mediapics/" + StringUtils::ltos(nPictureId) + (bThumb ? "_tn" : "") + ".jpg";
+
+	size_t nSize = 0;
+	char *pData = FileUtils::ReadFileIntoBuffer(sPictureFile, nSize);
+	return make_pair(static_cast<unsigned long>(nSize), pData);
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::SavePicture(pair<unsigned long, char *> pairPicture, int nPictureId, bool bThumb/* = false*/)
+{
+	string sPictureFile = "/home/mediapics/" + StringUtils::ltos(nPictureId) + (bThumb ? "_tn" : "") + ".jpg";
+	FileUtils::WriteBufferIntoFile(sPictureFile, pairPicture.second, pairPicture.first);
+}
+//-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::RenameAttribute(int Attribute_Type, string sOldValue, string sNewValue)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "# RenameAttribute : need to rename attribute type %d, value %s with %s", 
@@ -1289,7 +1347,11 @@ map<string,int> PlutoMediaIdentifier::m_mapExtensions;
 {
     //we'll try first to identify the media based on the extension
     //if we don't find any extention to match it, we'll use MediaIdentifier which uses the magic from files
-    string sExtension = FileUtils::FindExtension(sFilename);
+	string sExtension = FileUtils::FindExtension(sFilename);
+
+	if(sExtension.empty())
+		return 0;
+
     map<string, int>::iterator it = m_mapExtensions.find(sExtension);
     return it != m_mapExtensions.end() ? it->second : 0 /*MediaIdentifier::GetFileMediaType(sFilename)*/;
 }

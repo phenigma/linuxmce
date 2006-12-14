@@ -71,6 +71,14 @@ PlutoMediaAttributes::~PlutoMediaAttributes()
 		delete it->second;
 	for(MapPlutoMediaAttributes::iterator it = m_mapLongAttributes.begin(), end = m_mapLongAttributes.end(); it != end; ++it)
 		delete it->second;
+	for(MapPictures::iterator itp = m_mapBookmarks.begin(), endp = m_mapBookmarks.end(); itp != endp; ++itp)
+		delete [] it->second;
+	for(MapPictures::iterator itp = m_mapBookmarksThumbs.begin(), endp = m_mapBookmarksThumbs.end(); itp != endp; ++itp)
+		delete [] it->second;
+	for(MapPictures::iterator itp = m_mapCoverArts.begin(), endp = m_mapCoverArts.end(); itp != endp; ++itp)
+		delete [] it->second;
+	for(MapPictures::iterator itp = m_mapCoverArtsThumbs.begin(), endp = m_mapCoverArtsThumbs.end(); itp != endp; ++itp)
+		delete [] it->second;
 }
 //-----------------------------------------------------------------------------------------------------
 string PlutoMediaAttributes::SerializeClassClassName() 
@@ -90,8 +98,10 @@ void PlutoMediaAttributes::SetupSerialization(int /*iSC_Version*/)
 	(*this) + m_mapAttributes;
 	(*(static_cast<SerializeClass *>(this))) + m_sStartPosition;
 	(*this) + m_mapLongAttributes;
-	//(*this) + m_mmapBookmarks;
-	//(*this) + m_mmapCoverArts;
+	(*this) + m_mapBookmarks;
+	(*this) + m_mapBookmarksThumbs;
+	(*this) + m_mapCoverArts;
+	(*this) + m_mapCoverArtsThumbs;
 }
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaAttributes &PlutoMediaAttributes::operator+ (MapPlutoMediaAttributes &i) 

@@ -67,6 +67,10 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 //-----------------------------------------------------------------------------------------------------
 MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 {
+	//not a media file or a directory
+	if(!PlutoMediaFile::IsDirectory(sDirectory + "/" + sFile) && !PlutoMediaIdentifier::Identify(sDirectory + "/" + sFile))
+		return modeNone;
+
 	MediaSyncMode sync_mode = modeNone;
 	bool bNeedToUpdateDb = false;
 	bool bNeedtoUpdateFile = false;
@@ -83,6 +87,15 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 		if(
 			item.m_sCurrentDbAttrCount != item.m_sOldDbAttrCount || 
 			StringUtils::SQLDateTime(item.m_sCurrentDbAttrDate) != StringUtils::SQLDateTime(item.m_sOldDbAttrDate)
+		)
+			bNeedtoUpdateFile = true;
+
+		//if we have a media file with external id3 file missing
+		//and it haas attributes in the database
+		if(
+			!PlutoMediaFile::IsSupported(sFile) && 
+			!FileUtils::FileExists(sDirectory + "/" + sFile + ".id3") && 
+			item.m_sCurrentDbAttrDate != "" && item.m_sCurrentDbAttrCount > 0
 		)
 			bNeedtoUpdateFile = true;
 
@@ -127,7 +140,9 @@ void MediaState::FileSynchronized(Database_pluto_media *pDatabase_pluto_media, s
 
 	sUpdateSql += "WHERE PK_File = " + StringUtils::ltos(nFileID);
 
-	pDatabase_pluto_media->threaded_mysql_query(sUpdateSql);
+	if(nFileID != 0)
+		pDatabase_pluto_media->threaded_mysql_query(sUpdateSql);
+
 	m_mapMediaState[make_pair(sDirectory, sFile)] = item;
 }
 //-----------------------------------------------------------------------------------------------------
