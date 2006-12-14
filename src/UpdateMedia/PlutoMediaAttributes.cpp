@@ -72,13 +72,13 @@ PlutoMediaAttributes::~PlutoMediaAttributes()
 	for(MapPlutoMediaAttributes::iterator it = m_mapLongAttributes.begin(), end = m_mapLongAttributes.end(); it != end; ++it)
 		delete it->second;
 	for(MapPictures::iterator itp = m_mapBookmarks.begin(), endp = m_mapBookmarks.end(); itp != endp; ++itp)
-		delete [] it->second;
+		delete [] itp->second;
 	for(MapPictures::iterator itp = m_mapBookmarksThumbs.begin(), endp = m_mapBookmarksThumbs.end(); itp != endp; ++itp)
-		delete [] it->second;
+		delete [] itp->second;
 	for(MapPictures::iterator itp = m_mapCoverArts.begin(), endp = m_mapCoverArts.end(); itp != endp; ++itp)
-		delete [] it->second;
+		delete [] itp->second;
 	for(MapPictures::iterator itp = m_mapCoverArtsThumbs.begin(), endp = m_mapCoverArtsThumbs.end(); itp != endp; ++itp)
-		delete [] it->second;
+		delete [] itp->second;
 }
 //-----------------------------------------------------------------------------------------------------
 string PlutoMediaAttributes::SerializeClassClassName() 
