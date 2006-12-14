@@ -357,7 +357,7 @@ void SimplePhone::CreateChildren()
     if (pthread_create(&m_SIP_Thread, NULL, LS_Thread, (void *) this))
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Linphone SIP Thread");
-        m_bQuit_get()= 1;
+        m_bQuit_set(true);
         exit(1);
     }
 }
