@@ -67,8 +67,8 @@ if ( $#ARGV >= 0 ) {
 	}
 
 	if ($ARGV[3]) {
-		$maxW = $ARGV[3];
-		print "\tMin width: $minW";
+		$search_string = $ARGV[3];
+		print "\tSearch string: $search_string";
 	}
 					
 }
@@ -89,7 +89,7 @@ if (!-d $dest) {
 
 $api = new Flickr::API({'key' => $fKey});
 my ($max_number, $picture_nr);
-$max_number = 100;
+$max_number = 30;
 #$max_number = getMaxNrFiles();
 $picture_nr = 0;
 
@@ -269,10 +269,10 @@ sub get_files{
 	$xs=Image::Magick->new;
 	$r=$xs->Read("$finaldst");
 	warn "$r" if "$r";
-	open TEST, ">>/tmp/flickr.log";
+	open TEST, ">>/var/log/pluto/Flickr.log";
 	print TEST "-------------------\n";
 	my $test_date = `date`;
-	print TEST "--$test_date Image: $finaldst \n";
+	print TEST "$test_date Image downloaded: $finaldst \n";
 	print TEST "Old image width: $image->{'width'} and height: $image->{'height'}\n";
 	if (($image->{'width'} > 1024 || $image->{'height'} > 1024)||
 	    ($image->{'width'} > 1024 && $image->{'height'} > 1024)) {
@@ -291,7 +291,7 @@ sub get_files{
 			$image->{'height'} = 768;
 		}
 	}
-	print TEST "New image width: $image->{'width'} and height: $image->{'height'}\n";
+	print TEST "Resizing: New image width: $image->{'width'} and height: $image->{'height'}\n";
 	
 	$r=$xs->Scale(width=>$image->{'width'}, 
 		      height=>$image->{'height'});
@@ -317,7 +317,7 @@ sub get_files{
 		$fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 "$symdest" |;
 	}
 				
-	`rm "$finaldst.lock"`;
+	`rm -f $finaldst.lock`;
 	$fms =~ s/\n//g;
 	@out = split (/:/, $fms);
 	$ffield = $out[2];
@@ -331,19 +331,37 @@ sub get_files{
 sub delete_old {
 	# Remove old files
 	#my $totalFiles = `find /home/flickr/ -name '*.jpg'  | wc -l`;
-	open TEST, ">>/tmp/flickr.log";
-	print TEST "\n\n-------------DELETING OLD----------------------\n\n";
+	open TEST, ">>/var/log/pluto/Flickr.log";
+	#print TEST "\n\n-------------DELETING OLD----------------------\n\n";
+	return if ($#fileList == -1);
 	my $listOfFiles = `find /home/flickr/ -name '*.jpg'`;
 	my @arrayOfFiles = split (/\n/, $listOfFiles);
-	
+	my $deleteAll = 0;
+	my $count = 0;
+	if ($#fileList >= $max_number) {
+		$deleteAll = 1;
+	} else {
+		my $dim = $#fileList+1;
+		$count = $max_number - $dim;
+		$dim = $#arrayOfFiles+1;
+		$count = $dim - $count;
+	}	
 	foreach ( @arrayOfFiles ) {
 		if (!isFileInList($_)){
-			my $test_date = `date`;
-			print TEST "$test_date Removing file: $_ \n";
-			`rm -f $_`;
+			if ($deleteAll) {
+				my $test_date = `date`;
+				print TEST "$test_date Removing file: $_ \n";
+				`rm -f $_`;
+			}else {
+				my $test_date = `date`;
+				print TEST "$test_date Removing file: $_ \n";
+				`rm -f $_`;
+				$count--;
+				last if ($count == 0);
+			}
 		}
 	}
-	print TEST "\n\n-------------DELETING END---------------------\n\n";
+	#print TEST "\n\n-------------DELETING END---------------------\n\n";
 	close(TEST);
 }
 
@@ -393,9 +411,9 @@ sub isFileOnDisk {
 	} else {
 		$finaldst = $dest."/".'tags'."/".$buff.".".$image->{'format'};
 	}
-	push (@fileList, $finaldst);
 	#print "destinatia: $finaldst \n";
 	if (!-e $finaldst){
+		push (@fileList, $finaldst);
 		return 0;
 	}
 	return 1;
