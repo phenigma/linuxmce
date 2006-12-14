@@ -1250,6 +1250,9 @@ void OrbiterRenderer::ObjectOffScreen( DesignObj_Orbiter *pObj )
 
 void *ImageLoadThread(void *p)
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"ImageLoadThread running");
+#endif
 	OrbiterRenderer *pRenderer = (OrbiterRenderer *)p;
 	bool bContinue = true, bRedraw = false;
 	do
@@ -1323,6 +1326,9 @@ void *ImageLoadThread(void *p)
 		g_pPlutoLogger->Write(LV_EVENT,"ImageLoadThread %s size: %d (%d) %d",pBackgroundImage->m_sPic.c_str(),(int) pRenderer->m_listBackgroundImage.size(),(int) bRedraw,(int) bContinue);
 #endif
 	} while(bContinue);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_EVENT,"ImageLoadThread exiting");
+#endif
 	return NULL;
 }
 
@@ -1336,7 +1342,8 @@ void OrbiterRenderer::BackgroundImageLoad(const char *Filename, DesignObj_DataGr
 		m_listBackgroundImage.push_front( pBackgroundImage );
 	else
 		m_listBackgroundImage.push_back( pBackgroundImage );
-g_pPlutoLogger->Write(LV_EVENT,"OrbiterRenderer::BackgroundImageLoad p %p %s size: %d",pBackgroundImage,Filename,(int) m_listBackgroundImage.size());
+g_pPlutoLogger->Write(LV_EVENT,"OrbiterRenderer::BackgroundImageLoad p %p %s size: %d need to start %d",
+					  pBackgroundImage,Filename,(int) m_listBackgroundImage.size(),(int) bNeedToStartThread);
 
 	M.Release();
 	if (bNeedToStartThread)
@@ -1345,6 +1352,10 @@ g_pPlutoLogger->Write(LV_EVENT,"OrbiterRenderer::BackgroundImageLoad p %p %s siz
 
 		if(pthread_create( &pthread_id, NULL, ImageLoadThread, (void*) this) )
 			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start image loading thread");
+#ifdef DEBUG
+		else
+			g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer::BackgroundImageLoad started thread %d",pthread_id);
+#endif
 	}
 }
 
