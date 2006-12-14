@@ -8,7 +8,7 @@
 class UpdateMedia 
 {
 	string m_sDirectory,m_sExtensions;
-	map<string,int> m_mapExtensions;
+	//map<string,int> m_mapExtensions;
 	bool m_bAsDaemon;
 	int m_nPK_Installation;
 	void ReadConfigFile();
@@ -35,6 +35,7 @@ public:
     void UpdateSearchTokens();
 	void UpdateThumbnails();
     void SyncDbWithDirectory(string sDirectory);
+	void LoadExtensions();
 
 private:
 

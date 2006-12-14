@@ -107,6 +107,7 @@ private:
 public:
     static void Activate(Database_pluto_main *pDatabase_pluto_main);
     static int Identify(string sFilename);
+	static string GetExtensions(); //tab delimited
 };
 //-----------------------------------------------------------------------------------------------------
 

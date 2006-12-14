@@ -99,6 +99,7 @@ UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string 
 
 	m_bAsDaemon = false;
     PlutoMediaIdentifier::Activate(m_pDatabase_pluto_main);
+	LoadExtensions();
 
     m_sDirectory = FileUtils::ExcludeTrailingSlash(sDirectory);
 
@@ -174,6 +175,11 @@ void UpdateMedia::SetupInstallation()
 		m_nPK_Installation = vectRow_Installation[0]->PK_Installation_get();
 }
 
+void UpdateMedia::LoadExtensions()
+{
+	m_sExtensions = PlutoMediaIdentifier::GetExtensions();
+}
+
 void UpdateMedia::DoIt()
 {
 	if( !m_pDatabase_pluto_media->m_bConnected )
@@ -196,6 +202,7 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 
 	// Build a list of the files on disk, and a map of those in the database
 	list<string> listFilesOnDisk;
+
 	FileUtils::FindFiles(listFilesOnDisk,sDirectory,m_sExtensions,false,false,0,"");
 
 	map<string,pair<Row_File *,bool> > mapFiles;
@@ -231,9 +238,6 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 		if(StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "id3" || StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "lock")
 			continue;
 
-		if(m_bAsDaemon)
-			Sleep(1);
-
 		if(!FileUtils::FileExists(sDirectory + "/" + sFile)) //the file was just being deleted
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "The file %s/%s was just being deleted. We'll skip it!",
@@ -263,10 +267,11 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 		}
 
 		MediaSyncMode sync_mode = MediaState::Instance().SyncModeNeeded(sDirectory, sFile);
-		g_pPlutoLogger->Write(LV_STATUS, "Sync mode for %s/%s: %s", sDirectory.c_str(), sFile.c_str(), MediaSyncModeStr[sync_mode]); 
 
 		if(sync_mode == modeNone)
 			continue;
+
+		g_pPlutoLogger->Write(LV_STATUS, "Sync mode for %s/%s: %s", sDirectory.c_str(), sFile.c_str(), MediaSyncModeStr[sync_mode]); 
 
         PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation,
             sDirectory, sFile);
@@ -286,7 +291,7 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 			if(!PK_File)
 			{
 				if(m_bAsDaemon)
-					Sleep(100);
+					Sleep(10);
 				
 				continue; // Nothing to do
 			}
@@ -617,15 +622,7 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 				else
 					g_pPlutoLogger->Write(LV_STATUS, "Device is offline, skipping the file %s", sFilePath.c_str());
 			}
-
-			if(m_bAsDaemon)
-				Sleep(1);
 		}
-	}
-
-	if(bRowsAffected)
-	{
-		//TODO: refresh File ?
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "DB sync'd with directory!");

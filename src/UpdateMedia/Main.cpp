@@ -111,14 +111,15 @@ void *UpdateMediaThread(void *)
 			PLUTO_SAFETY_LOCK(cm, g_ConnectionMutex );
 			g_pPlutoLogger->Write(LV_STATUS, "Synchronizing '%s'...", sItem.c_str());	
 
-			UpdateMedia UpdateMedia(g_pDatabase_pluto_media, g_pDatabase_pluto_main, sItem);
-			UpdateMedia.DoIt();
+			UpdateMedia engine(g_pDatabase_pluto_media, g_pDatabase_pluto_main, sItem);
+			engine.LoadExtensions();
+			engine.DoIt();
 
 			if( bUpdateSearchTokens )
-				UpdateMedia.UpdateSearchTokens();
+				engine.UpdateSearchTokens();
 
 			if( bUpdateThumbnails )
-				UpdateMedia.UpdateThumbnails();
+				engine.UpdateThumbnails();
 
 			g_pPlutoLogger->Write(LV_STATUS, "Synchronized '%s'.", sItem.c_str());
 

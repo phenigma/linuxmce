@@ -483,12 +483,13 @@ void PlutoMediaFile::SaveLongAttributesInDb(bool bAddAllToDb)
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveBookmarkPictures()
 {
-	for(MapPictures::iterator itp = m_pPlutoMediaAttributes->m_mapBookmarks.begin(), 
-		endp = m_pPlutoMediaAttributes->m_mapBookmarks.end(); itp != endp; ++itp)
-	{
-		//TODO:
-	}
+	//TODO: IMPLEMENT ME!
 
+	//for(MapPictures::iterator itp = m_pPlutoMediaAttributes->m_mapBookmarks.begin(), 
+	//	endp = m_pPlutoMediaAttributes->m_mapBookmarks.end(); itp != endp; ++itp)
+	//{
+	//}
+	//
 	//for(MapPictures::iterator itp = m_mapBookmarksThumbs.begin(), endp = m_mapBookmarksThumbs.end(); itp != endp; ++itp)
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1342,6 +1343,15 @@ map<string,int> PlutoMediaIdentifier::m_mapExtensions;
     }
 
 	g_pPlutoLogger->Write(LV_STATUS, "Pluto Media Identifier activated. Extensions %d", m_mapExtensions.size());
+}
+//-----------------------------------------------------------------------------------------------------
+/*static*/ string PlutoMediaIdentifier::GetExtensions()
+{
+	string sResult;
+	for(map<string,int>::iterator it = m_mapExtensions.begin(); it != m_mapExtensions.end(); ++it)
+		sResult += "*." + it->first + "\t";
+
+	return sResult;
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ int PlutoMediaIdentifier::Identify(string sFilename)
